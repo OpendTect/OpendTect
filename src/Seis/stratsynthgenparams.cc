@@ -49,11 +49,11 @@ void SynthGenParams::setDefaultValues()
     anglerg_ = sDefaultAngleRange;
     raypars_.setEmpty();
     FixedString defrayparstr = sKeyAdvancedRayTracer();
-    const BufferStringSet& facnms = RayTracer1D::factory().getNames();
-    if ( !facnms.isEmpty() )
+    const BufferStringSet& fackys = RayTracer1D::factory().getKeys();
+    if ( !fackys.isEmpty() )
     {
-	const int typeidx = facnms.indexOf( defrayparstr );
-	FixedString facnm( typeidx>=0 ? facnms.get(typeidx) : facnms.get(0) );
+	const int typeidx = fackys.indexOf( defrayparstr );
+	FixedString facnm( typeidx>=0 ? fackys.get(typeidx) : fackys.get(0) );
 	raypars_.set( sKey::Type(), facnm );
     }
 

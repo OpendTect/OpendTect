@@ -249,8 +249,7 @@ bool uiAdvSettings::acceptOK()
 
 
 static int theiconsz_ = -1;
-mImplFactory2Param( uiSettingsGroup, uiParent*, Settings&,
-		    uiSettingsGroup::factory )
+mImplClassFactory( uiSettingsGroup, factory )
 
 
 uiSettingsGroup::uiSettingsGroup( uiParent* p, Settings& setts )
@@ -593,12 +592,12 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
     treefld_->setStretch( 1, 2 );
 
     uiGroup* rightgrp = new uiGroup( this, "uiSettingsGroup area" );
-    const BufferStringSet& nms = uiSettingsGroup::factory().getNames();
-    for ( int idx=0; idx<nms.size(); idx++ )
+    const BufferStringSet& kys = uiSettingsGroup::factory().getKeys();
+    for ( int idx=0; idx<kys.size(); idx++ )
     {
-	const char* nm = nms.get( idx ).buf();
+	const char* ky = kys.get( idx ).buf();
 	uiSettingsGroup* grp = uiSettingsGroup::factory().create(
-				    nm, rightgrp, setts_ );
+				    ky, rightgrp, setts_ );
 	treeitms_ += new uiSettingsSubjectTreeItm( typitms[grp->type()], *grp );
     }
 

@@ -50,8 +50,9 @@ uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
 {
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as
-	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false) : 0;
-    if ( !res ) res = new uiODEarthModelSurfaceDataTreeItem( emid_, uivisemobj_,
+	? uiODDataTreeItem::factory().create( 0, *as, parenttype ) : 0;
+    if ( !res )
+	res = new uiODEarthModelSurfaceDataTreeItem( emid_, uivisemobj_,
 							     parenttype );
     return res;
 }

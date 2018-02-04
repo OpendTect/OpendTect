@@ -105,6 +105,7 @@ public:
     bool	operator<(const uiString& b) const;
     int		size() const;
     static const uiString& emptyString()	{ return emptystring_; }
+    static uiString& dummyString()		{ return dummystring_; }
     bool	isPlainAscii() const;
 
 	/*! uiStrings should only be manipulated using the arg() functions.
@@ -171,6 +172,7 @@ private:
     mutable uiStringData*	data_;
     mutable Threads::Lock	datalock_;	//!< Protects data_ variable
     static const uiString	emptystring_;
+    static uiString		dummystring_;
 
     bool			operator==( const uiString&  oth ) const
 				{ return isEqualTo( oth ); }
@@ -302,9 +304,10 @@ public:
     bool		isEmpty() const		    { return strs_.isEmpty(); }
     bool		isPresent(const uiString&) const;
     IdxType		indexOf(const uiString&) const;
-    uiString		get(IdxType) const;
-    uiString&		operator[]( IdxType idx )	{ return *strs_[idx]; }
-    const uiString&	operator[]( IdxType idx ) const	{ return *strs_[idx]; }
+    uiString&		get(IdxType);
+    const uiString&	get(IdxType) const;
+    uiString&		operator []( IdxType i )    { return get(i); }
+    const uiString&	operator []( IdxType i ) const { return get(i); }
 
     void		setEmpty();
     uiStringSet&	set(const uiString&);

@@ -19,10 +19,10 @@ namespace PreStack
 
 void LateralStack::initClass()
 {
-    SeparString names( sFactoryKeyword(), FactoryBase::cSeparator() );
+    FileMultiString names( sFactoryKeyword() );
     names += "VerticalStack";
-    factory().addCreator( LateralStack::createInstance, names.buf(),
-	             sFactoryDisplayName() );
+    FactoryType::Creator cr = (FactoryType::Creator)createInstance;
+    factory().addCreator( cr, names.buf(), sFactoryDisplayName() );
 }
 
 

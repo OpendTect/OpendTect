@@ -26,7 +26,7 @@ namespace PreStack
 mExpClass(PreStackProcessing) LateralStack : public Processor
 { mODTextTranslationClass(LateralStack);
 public:
-			mDefaultFactoryInstanciationBase(
+			mDefaultFactoryInstantiationBase(
 				"LateralStack", tr("Super Gather") );
     static Processor*	createInstance();
 

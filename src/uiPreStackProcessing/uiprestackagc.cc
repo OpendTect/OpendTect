@@ -18,7 +18,7 @@ namespace PreStack
 
 void uiAGC::initClass()
 {
-    uiPSPD().addCreator( create, AGC::sFactoryKeyword() );
+    uiProcessorManager::factory().addCreator( create, AGC::sFactoryKeyword() );
 }
 
 
@@ -42,7 +42,7 @@ uiAGC::uiAGC( uiParent* p, AGC* sgagc )
     windowfld_ = new uiGenInput( this, label,
 			     FloatInpSpec(processor_->getWindow().width() ));
     lowenergymute_ = new uiGenInput( this, tr("Low energy mute (%)"),
-	    			     FloatInpSpec() );
+				     FloatInpSpec() );
     lowenergymute_->attach( alignedBelow, windowfld_ );
     const float lowenergymute = processor_->getLowEnergyMute();
     lowenergymute_->setValue(

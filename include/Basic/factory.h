@@ -17,170 +17,142 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "uistring.h"
 
-/*!
-\brief Base class for Factories ( Factory, Factory1Param, Factory2Param
-and Factory3Param. )
+
+/*!\brief Base class for generalized static factories that can deliver
+  instances of a certain class. Subclasses Factory0Param, Factory1Param,
+  Factory2Param and Factory3Param deliver objects of a type T.
+
+  The number of Parameters corresponds with the number of arguments that need
+  to be passed to the constructor of subclass objects.
+
+  Each subclass of the base class T must add itself to the factory when
+  the application starts up (or the plugin loads), usually in a function called
+  initClass().
+
+  \code
+
+  // mybase.h
+  class MyBase
+  {
+  public:
+
+			mDefineFactory1ParamInClass( MyClass, aParamType,
+						     factory );
+			// will add FactoryType& factory() to interface
+
+      // For example:
+      virtual int	aVirtualFunc()	    = 0;
+
+  };
+
+  // myclass.h
+  class MyClass : public MyBase
+  {
+  public:
+
+		MyClass(aParamType);
+
+		mDefaultFactoryInstantiation1Param( MyBase, MyClass,
+				    aParamType, "MyClass", tr("My Class") );
+
+      virtual int aVirtualFunc();
+  };
+
+  // mybase.cc
+  mImplClassFactory( MyClass, factory );
+
+  \endcode
+
+  Thusm you need to use two macros in the base class:
+  * in the .h file mDefineFactoryxParamInClass
+  * in the .cc file mImplClassFactory
+
+  In the subclass you usually neeed only one macro:
+  * in the .h mDefaultFactoryInstantiationxParam
+
+  The static 'factory() now present in the base class can produce not only
+  the requested subclass objects, but also lists of available keys and user
+  display names, and other handy tools. Most of these functions come from this
+  FactoryBase class.
+
 */
 
 mExpClass(Basic) FactoryBase
 {
 public:
-    virtual			~FactoryBase();
 
-    int				size() const;
-    bool			isEmpty() const;
+			 FactoryBase()
+			     : lastcreatedidx_(-1)
+			     , defaultkeyidx_(0)	{}
+    virtual		~FactoryBase()			{}
 
-    bool			hasName(const char* n) {return indexOf(n)>=0;}
-    const BufferStringSet&	getNames() const;
-    const uiStringSet&		getUserNames() const;
-    void			setDefaultName(int idx);
-				//!<idx refers to names in names_,
-				//!<or -1 for none
-    const char*			getDefaultName() const;
-    static char			cSeparator()	{ return ','; }
+    int			size() const		{ return keys_.size(); }
+    bool		isEmpty() const		{ return keys_.isEmpty();}
 
-    uiString			errMsg() const;
-				//!<Threadsafe, as each thread will have
-				//!<a different string returned.
+			// Following will search keys and aliases
+    int			indexOf(const char* ky) const;
+    inline bool		isPresent( const char* ky ) const
+						{ return indexOf(ky) >= 0; }
 
-    const char*			currentName() const;
-				/*!<Is set only when calling the create-
-				    functions, so they can know what was
-				    requested.
-				    \note Threadsafe, as each thread will have
-					  a different string returned.
-				 */
+    const char*		key(int) const;
+    uiString		userName(int) const;
+
+    const BufferStringSet& getKeys() const	{ return keys_; }
+    const uiStringSet&	getUserNames() const	{ return usernames_; }
+
+    const char*		defaultKey() const;
+    void		setDefaultIdx(int);
+    void		setDefaultKey(const char*);
+
+    const char*		keyOfLastCreated() const;
 
 protected:
 
-    int				indexOf(const char*) const;
-    void			addNames(const char*,const uiString&);
-    void			setNames(int,const char*,const uiString&);
+    static bool		getKeyAndAliases(const char*,
+						 BufferString&,BufferString&);
+    void		addNames(const char*,const uiString&);
+    void		setNames(int,const char*,const uiString&);
 
-    mutable StaticStringManager	errmsgs_;
-    mutable StaticStringManager currentname_;
+    mutable Threads::Atomic<int> lastcreatedidx_;
 
 private:
 
-    BufferStringSet		names_;
-    uiStringSet			usernames_;
-    BufferStringSet		aliases_;
-    BufferString		defaultname_;
+    BufferStringSet	keys_;
+    BufferStringSet	aliases_;
+    uiStringSet		usernames_;
+    Threads::Atomic<int> defaultkeyidx_;
+
 };
 
 
-/*!
-\brief Generalized static factory that can deliver instances of T, when no
-variable is needed in the creation.
-
-  Usage. Each implementation of the base class T must add themselves
-  to the factory when application starts up, e.g. in an initClass() function:
-  \code
-  class A
-  {
-  public:
-  virtual int		myFunc()	= 0;
-  };
-
-  class B : public A
-  {
-  public:
-  static A*		createFunc() { return new B; }
-  static void		initClass()
-  { thefactory.addCreator(createFunc,"MyKeyword", tr("My Name")); }
-
-  int			myFunc();
-  };
-
-  \endcode
-
-  Two macros are available to make a static accessfuncion for the factory:
-  \code
-  mDefineFactory( Module, ClassName, FunctionName );
-  \endcode
-
-  that will create a static function that returns an instance to
-  Factory<ClassName>.
-  If the function is a static member of a class, it has to be defined with
-  the mDefineFactoryInClass macro.
-
-  The static function must be implemented in a src-file with the macro
-
-  \code
-  mImplFactory( ClassName, FunctionName );
-  \endcode
-*/
+/*!\brief Factory for objects with no parameters in constructor.
+	  See FactoryBase for details. */
 
 template <class T>
-mClass(Basic) Factory : public FactoryBase
+mClass(Basic) Factory0Param : public FactoryBase
 { mODTextTranslationClass(Factory);
 public:
-    typedef			T* (*Creator)();
-    inline int			addCreator(Creator,const char* nm,
-					const uiString& username =
-					   uiString::emptyString());
-				/*!<Name may be not be null
-				   If nm is found, old creator is replaced.
-				   nm can be a SeparString, separated by
-				   cSeparator(), allowing multiple names,
-				   where the first name will be the main
-				   name that is returned in getNames. */
 
-    inline T*			create(const char* nm) const;
-				//!<Name may be not be null
+    typedef		T* (*Creator)();
+    typedef T		ObjType;
+
+    inline int		addCreator(Creator,const char* ky,
+				   uiString unm=uiString::emptyString());
+				/*!< If ky is already present, old creator is
+				     replaced. ky can be a FileMultiString
+				     allowing multiple keys */
+
+    inline T*		create(const char* ky) const;
+
 protected:
 
-    TypeSet<Creator>		creators_;
+    TypeSet<Creator>	creators_;
+
 };
 
 
-/*!
-\brief Generalized static factory that can deliver instances of T, when a
-variable is needed in the creation.
-
-  Usage. Each implementation of the base class T must add themselves
-  to the factory when application starts up, e.g. in an initClass() function:
-  \code
-  class A
-  {
-  public:
-  virtual int		myFunc()	= 0;
-  };
-
-  class B : public A
-  {
-  public:
-  static A*		createFunc(C* param)
-  {
-  A* res = new B;
-  if ( res->setParam( param ) );
-  return res;
-
-  thefactory.errMsg() = "Could not set param";
-  delete res;
-  return 0;
-  }
-  static void		initClass()
-  { thefactory.addCreator(createFunc,"MyKeyword","My Name"); }
-
-  int			myFunc();
-  };
-
-  \endcode
-
-  Two macros are available to make a static accessfuncion for the factory:
-  \code
-  mDefineFactory1Param( Module, ClassName, ParamExpClass, FunctionName );
-  \endcode
-
-  that will create a static function that returns an instance to
-  Factory1Param<ClassName,ParamExpClass>. The static function must be
-  implemented in a src-file with the macro.
-
-  \code
-  mImplFactory1Param( ClassName, ParamExpClass, FunctionName );
-  \endcode
-*/
+/*!\brief Factory for objects with 1 parameter in constructor.
+	  See FactoryBase for details. */
 
 template <class T, class P>
 mClass(Basic) Factory1Param : public FactoryBase
@@ -188,76 +160,230 @@ mClass(Basic) Factory1Param : public FactoryBase
 public:
 
     typedef		T* (*Creator)(P);
-    inline int		addCreator(Creator,const char* nm=0,
-			       const uiString& usernm =uiString::emptyString());
-			    /*!<Name may be be null
-				   If nm is found, old creator is replaced.
-				   nm can be a SeparString, separated by
-				   cSeparator(), allowing multiple names,
-				   where the first name will be the main
-				   name that is returned in getNames. */
-    inline T*		create(const char* nm, P, bool chknm=true)const;
-			    //!<Name may be be null, if null name is given
-			    //!<chknm will be forced to false
+    typedef T		ObjType;
+
+    inline int		addCreator(Creator,const char* ky,
+				   uiString usernm =uiString::emptyString());
+
+    inline T*		create(const char*,P)const;
+
 protected:
 
-    TypeSet<Creator>		creators_;
+    TypeSet<Creator>	creators_;
+
 };
 
 
-/*!
-\brief Subclass of FactoryBase.
-*/
+/*!\brief Factory using 2 parameters for construction of new objects. */
 
 template <class T, class P0, class P1>
 mClass(Basic) Factory2Param : public FactoryBase
 {
 public:
+
     typedef		T* (*Creator)(P0,P1);
-    inline int		addCreator(Creator,const char* nm=0,
-				const uiString& usernm=uiString::emptyString());
-                        /*!<Name may be be null
-                           If nm is found, old creator is replaced.
-                           nm can be a SeparString, separated by
-                           cSeparator(), allowing multiple names,
-                           where the first name will be the main
-                           name that is returned in getNames. */
-    inline T*		create(const char* nm, P0, P1,
-                               bool chknm=true)const;
-                        //!<Name may be be null, if null name is given
-                        //!<chknm will be forced to false
+    typedef T		ObjType;
+
+    inline int		addCreator(Creator,const char* ky,
+				   uiString usernm=uiString::emptyString());
+
+    inline T*		create(const char*, P0, P1) const;
+
 protected:
 
-    TypeSet<Creator>		creators_;
+    TypeSet<Creator>	creators_;
+
 };
 
 
-/*!
-\brief Subclass of FactoryBase.
-*/
+/*!\brief Factory using 3 parameters for construction of new objects. */
 
 template <class T, class P0, class P1, class P2>
 mClass(Basic) Factory3Param : public FactoryBase
 {
 public:
+
     typedef		T* (*Creator)(P0,P1,P2);
-    inline int		addCreator(Creator,const char* nm=0,
-                            const uiString& usernm =uiString::emptyString());
-                        /*!<Name may be be null
-                           If nm is found, old creator is replaced.
-                           nm can be a SeparString, separated by
-                           cSeparator(), allowing multiple names,
-                           where the first name will be the main
-                           name that is returned in getNames. */
-    inline T*		create(const char* nm, P0, P1, P2,
-                               bool chknm=true)const;
-                        //!<Name may be be null, if null name is given
-                        //!<chknm will be forced to false
+    typedef T		ObjType;
+
+    inline int		addCreator(Creator,const char* ky,
+				   uiString usernm=uiString::emptyString());
+
+    inline T*		create(const char*,P0,P1,P2) const;
+
 protected:
 
     TypeSet<Creator>	creators_;
+
 };
 
+
+#define mCreateImpl( toret ) \
+    const int idx = indexOf( ky ); \
+    if ( idx < 0 ) \
+	return 0; \
+    lastcreatedidx_ = idx; \
+    return toret
+
+#define mAddCreator \
+\
+    int idx = indexOf( ky );\
+\
+    if ( idx < 0 )\
+    { \
+	addNames( ky, unm ); \
+	creators_ += cr; \
+	idx = creators_.size() - 1; \
+    } \
+    else\
+    {\
+	setNames( idx, ky, unm ); \
+	creators_[idx] = cr; \
+    }\
+\
+    return idx
+
+template <class T> inline
+int Factory0Param<T>::addCreator( Creator cr, const char* ky, uiString unm )
+{ mAddCreator; }
+template <class T> inline
+T* Factory0Param<T>::create( const char* ky ) const
+{ mCreateImpl( creators_[idx]() ); }
+
+template <class T, class P> inline
+int Factory1Param<T,P>::addCreator( Creator cr, const char* ky, uiString unm )
+{ mAddCreator; }
+template <class T, class P> inline
+T* Factory1Param<T,P>::create( const char* ky, P p ) const
+{ mCreateImpl( creators_[idx]( p ) ); }
+
+template <class T, class P0, class P1> inline
+int Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* ky,
+					uiString unm )
+{ mAddCreator; }
+template <class T, class P0, class P1> inline
+T* Factory2Param<T,P0,P1>::create( const char* ky, P0 p0, P1 p1 ) const
+{ mCreateImpl( creators_[idx]( p0, p1 ) ); }
+
+template <class T, class P0, class P1, class P2> inline
+int Factory3Param<T,P0,P1,P2>::addCreator( Creator cr, const char* ky,
+					   uiString unm )
+{ mAddCreator; }
+template <class T, class P0, class P1, class P2> inline
+T* Factory3Param<T,P0,P1,P2>::create( const char* ky, P0 p0, P1 p1, P2 p2) const
+{ mCreateImpl( creators_[idx]( p0, p1, p2 ) ); }
+
+
+#define mDefFactoryClassFns( kw, funcname ) \
+    static FactoryType&		funcname(); \
+    virtual uiString		factoryDisplayName() const \
+				{ return ::toUiString( factoryKeyword() ); } \
+    virtual const char*		factoryKeyword() const { return kw; }
+
+
+// instantiation in .cc file:
+
+#define mImplGenFactory( facttyp, fullfuncname ) \
+\
+facttyp& fullfuncname() \
+{ \
+    mDefineStaticLocalObject( PtrMan<facttyp>, inst, (new facttyp) ); \
+    return *inst; \
+}
+
+// for 'global' factories, in .cc
+#define mImplFactory( T, funcname ) \
+    mImplGenFactory( T##FactoryType, funcname )
+
+// for class factories, in .cc
+#define mImplClassFactory( T, funcname ) \
+    mImplGenFactory( T::FactoryType, T::funcname )
+
+
+//---- for objects with constructors that take no arguments
+
+// for 'global' factories, in .h
+#define mDefineFactory0Param( mod, T, funcname ) \
+    typedef ::Factory0Param<T>		T##FactoryType; \
+    mGlobal(mod) T##FactoryType&	funcname()
+
+// in-class factories, if your key is provided by another source, in .h
+#define mDefineFactory0ParamInClasswKW( T, funcname, kw ) \
+    typedef Factory0Param<T>		FactoryType; \
+					mDefFactoryClassFns(kw,funcname)
+
+// for usual in-class factories, in .h
+#define mDefineFactory0ParamInClass( T, funcname ) \
+    mDefineFactory0ParamInClasswKW( T, funcname, 0 )
+
+// shorthand
+#define mDefineFactory( mod, T, funcname ) \
+    mDefineFactory0Param( mod, T, funcname )
+
+// shorthand
+#define mDefineFactoryInClass( T, funcname ) \
+    mDefineFactory0ParamInClass( T, funcname )
+
+// shorthand
+#define mDefineFactoryInClasswKW( T, funcname, kw ) \
+    mDefineFactory0ParamInClasswKW( T, funcname, kw )
+
+
+//---- objects with constructors that take a single argument
+
+// for 'global' factories, in .h
+#define mDefineFactory1Param( mod, T, P, funcname ) \
+    typedef ::Factory1Param<T,P>	T##FactoryType; \
+    mGlobal(mod) T##FactoryType&	funcname()
+
+// in-class factories, if your key is provided by another source, in .h
+#define mDefineFactory1ParamInClasswKW( T, P, funcname, kw ) \
+    typedef Factory1Param<T,P>		FactoryType; \
+					mDefFactoryClassFns(kw,funcname)
+
+// for usual in-class factories, in .h
+#define mDefineFactory1ParamInClass( T, P, funcname ) \
+    mDefineFactory1ParamInClasswKW( T, P, funcname, 0 )
+
+
+//---- objects with constructors that take a two arguments
+
+// for 'global' factories, in .h
+#define mDefineFactory2Param( mod, T, P1, P2, funcname ) \
+    typedef ::Factory2Param<T,P1,P2>	T##FactoryType; \
+    mGlobal(mod) T##FactoryType&	funcname()
+
+// in-class factories, if your key is provided by another source, in .h
+#define mDefineFactory2ParamInClasswKW( T, P1, P2, funcname, kw ) \
+    typedef Factory2Param<T,P1,P2>	FactoryType; \
+					mDefFactoryClassFns(kw,funcname)
+
+// for usual in-class factories, in .h
+#define mDefineFactory2ParamInClass( T, P1, P2, funcname ) \
+    mDefineFactory2ParamInClasswKW( T, P1, P2, funcname, 0 )
+
+//---- objects with constructors that take a three arguments
+
+// for 'global' factories, in .h
+#define mDefineFactory3Param( mod, T, P1, P2, P3, funcname ) \
+    typedef ::Factory3Param<T,P1,P2,P3>	T##FactoryType; \
+    mGlobal(mod) T##FactoryType&	funcname()
+
+// in-class factories, if your key is provided by another source, in .h
+#define mDefineFactory3ParamInClasswKW( T, P1, P2, P3, funcname, kw ) \
+    typedef Factory3Param<T,P1,P2,P3>	FactoryType; \
+					mDefFactoryClassFns(kw,funcname)
+
+// for usual in-class factories, in .h
+#define mDefineFactory3ParamInClass( T, P1, P2, P3, funcname ) \
+    mDefineFactory3ParamInClasswKW( T, P1, P2, P3, funcname, 0 )
+
+
+#undef mCreateImpl
+#undef mAddCreator
+
+
+// Macros to implement required functions in a standard way, in .cc file
 
 #define mDefaultFactoryStringImpl \
     const char*		factoryKeyword() const { return sFactoryKeyword(); } \
@@ -270,241 +396,44 @@ protected:
 
 #define mDefaultFactoryInitClassImpl( baseclss, createfunc ) \
 { \
-    baseclss::factory().addCreator(createfunc,sFactoryKeyword(), \
-				   sFactoryDisplayName()); \
+    baseclss::factory().addCreator((baseclss::FactoryType::Creator)createfunc, \
+		    sFactoryKeyword(), sFactoryDisplayName()); \
 }
 
-#define mDefaultFactoryInstanciationBase( keywrd, usernm ) \
+#define mDefaultFactoryInstantiationBase( keywrd, usernm ) \
     mDefaultFactoryStringImpl \
     static const char*	sFactoryKeyword() { return keywrd; } \
     static uiString	sFactoryDisplayName() { return usernm; } \
     static void		initClass()
 
-#define mDefaultFactoryCreatorImpl( baseclss, clss ) \
-static baseclss*	createInstance() { return new clss; } \
+#define mDefaultFactoryCreatorImpl0Param( clss ) \
+static clss*		createInstance() { return new clss; } \
 
-#define mDefaultFactoryInstantiation( baseclss, clss, keywrd, usernm ) \
-    mDefaultFactoryCreatorImpl( baseclss, clss ); \
-    mDefaultFactoryInstanciationBase( keywrd, usernm ) \
+#define mDefaultFactoryInstantiation0Param( baseclss, clss, keywrd, usernm ) \
+    mDefaultFactoryCreatorImpl0Param( clss ); \
+    mDefaultFactoryInstantiationBase( keywrd, usernm ) \
     mDefaultFactoryInitClassImpl( baseclss, createInstance )
 
+#define mDefaultFactoryInstantiation( baseclss, clss, keywrd, usernm ) \
+    mDefaultFactoryInstantiation0Param( baseclss, clss, keywrd, usernm )
 
-#define mDefaultFactoryCreatorImpl1Param( baseclss, clss, parclss ) \
-static baseclss*	createInstance( parclss p1 ) \
+
+#define mDefaultFactoryCreatorImpl1Param( clss, parclss ) \
+static clss*		createInstance( parclss p1 ) \
 			{ return new clss( p1 ); }
 
 #define mDefaultFactoryInstantiation1Param( baseclss, clss, parclss,\
 					    keywrd, usernm ) \
-    mDefaultFactoryCreatorImpl1Param( baseclss, clss, parclss ) \
-    mDefaultFactoryInstanciationBase( keywrd, usernm ) \
+    mDefaultFactoryCreatorImpl1Param( clss, parclss ) \
+    mDefaultFactoryInstantiationBase( keywrd, usernm ) \
     mDefaultFactoryInitClassImpl( baseclss, createInstance )
 
-#define mDefaultFactoryCreatorImpl2Param( baseclss, clss, parclss1, parclss2 ) \
-static baseclss*	createInstance( parclss1 p1, parclss2 p2 ) \
+#define mDefaultFactoryCreatorImpl2Param( clss, parclss1, parclss2 ) \
+static clss*		createInstance( parclss1 p1, parclss2 p2 ) \
 			{ return new clss( p1, p2 ); }
 
 #define mDefaultFactoryInstantiation2Param( baseclss, clss, parclss1,\
 					    parclss2, keywrd, usernm ) \
-    mDefaultFactoryCreatorImpl2Param( baseclss, clss, parclss1, parclss2 ) \
-    mDefaultFactoryInstanciationBase( keywrd, usernm ) \
+    mDefaultFactoryCreatorImpl2Param( clss, parclss1, parclss2 ) \
+    mDefaultFactoryInstantiationBase( keywrd, usernm ) \
     mDefaultFactoryInitClassImpl( baseclss, createInstance )
-
-
-#define mCreateImpl( donames, createfunc ) \
-    currentname_.getObject() = name; \
-    if ( donames ) \
-    { \
-	const int idx = indexOf( name ); \
-	if ( idx==-1 ) \
-	{ \
-	    errmsgs_.getObject() = "Name "; \
-	    errmsgs_.getObject().add( name ).add(" not found.\n" ) \
-				.add( "Perhaps all plugins are not loaded\n" );\
-	    return 0; \
-	} \
-	return createfunc; \
-    } \
- \
-    for ( int idx=0; idx<creators_.size(); idx++ ) \
-    { \
-	T* res = createfunc; \
-	if ( res ) return res; \
-    } \
- \
-    return 0
-
-
-#define mAddCreator \
-    int idx = indexOf( name );\
-\
-    if ( idx==-1 )\
-    { \
-	addNames( name, username ); \
-	creators_ += cr; \
-	idx = creators_.size() - 1; \
-    } \
-    else\
-    {\
-	setNames( idx, name, username ); \
-	creators_[idx] = cr;\
-    }\
-    return idx
-
-template <class T> inline
-int Factory<T>::addCreator( Creator cr, const char* name,
-			     const uiString& username )
-{
-    mAddCreator;
-}
-
-
-template <class T> inline
-T* Factory<T>::create( const char* name ) const
-{
-    mCreateImpl( true, creators_[idx]() );
-}
-
-
-template <class T, class P> inline
-int Factory1Param<T,P>::addCreator( Creator cr, const char* name,
-				     const uiString& username )
-{
-    mAddCreator;
-}
-
-
-template <class T, class P> inline
-T* Factory1Param<T,P>::create( const char* name, P data, bool chk ) const
-{
-    mCreateImpl( chk, creators_[idx]( data ) );
-}
-
-
-template <class T, class P0, class P1> inline
-int Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* name,
-					 const uiString& username )
-{
-    mAddCreator;
-}
-
-
-template <class T, class P0, class P1> inline
-T* Factory2Param<T,P0,P1>::create( const char* name, P0 p0, P1 p1,
-				   bool chk ) const
-{
-    mCreateImpl( chk, creators_[idx]( p0, p1 ) );
-}
-
-
-template <class T, class P0, class P1, class P2> inline
-int Factory3Param<T,P0,P1,P2>::addCreator( Creator cr, const char* name,
-					 const uiString& username )
-{
-    mAddCreator;
-}
-
-
-template <class T, class P0, class P1, class P2> inline
-T* Factory3Param<T,P0,P1,P2>::create( const char* name, P0 p0, P1 p1, P2 p2,
-				   bool chk ) const
-{
-    mCreateImpl( chk, creators_[idx]( p0, p1, p2 ) );
-}
-
-
-#define mDefineFactory( mod, T, funcname ) \
-mGlobal(mod) ::Factory<T>& funcname()
-
-
-#define mDefineFactoryInClasswKW( T, funcname, kw ) \
-static ::Factory<T>& funcname(); \
-virtual uiString factoryDisplayName() const \
-{ return ::toUiString( factoryKeyword() ); } \
-virtual const char* factoryKeyword() const { return kw; }
-#define mDefineFactoryInClass( T, funcname ) \
-    mDefineFactoryInClasswKW( T, funcname, 0 )
-
-
-#define mImplFactory( T, funcname ) \
-::Factory<T>& funcname() \
-{ \
-    mDefineStaticLocalObject(PtrMan< ::Factory<T> >,inst,(new ::Factory<T>)); \
-    return *inst; \
-}
-
-
-#define mDefineFactory1Param( mod, T, P, funcname ) \
-mGlobal(mod) ::Factory1Param<T,P>& funcname()
-
-
-#define mDefineFactory1ParamInClasswKW( T, P, funcname, kw ) \
-static ::Factory1Param<T,P>& funcname(); \
-virtual uiString factoryDisplayName() const \
-{ return ::toUiString(factoryKeyword()); } \
-virtual const char* factoryKeyword() const { return kw; }
-#define mDefineFactory1ParamInClass( T, P, funcname ) \
-    mDefineFactory1ParamInClasswKW( T, P, funcname, 0 )
-
-#define mImplFactory1Param( T, P, funcname ) \
-::Factory1Param<T,P>& funcname() \
-{ \
-    mLockStaticInitLock( static_inst_lck__ ); \
-    static PtrMan< ::Factory1Param<T,P> > \
-	inst(new ::Factory1Param<T,P>); \
-    mUnlockStaticInitLock( static_inst_lck__ ); \
-     \
-    return *inst; \
-}
-
-
-#define mDefineFactory2Param( mod, T, P0, P1, funcname ) \
-mGlobal(mod) ::Factory2Param<T,P0,P1>& funcname()
-
-
-#define mDefineFactory2ParamInClasswKW( T, P0, P1, funcname, kw ) \
-static ::Factory2Param<T,P0,P1>& funcname(); \
-virtual uiString factoryDisplayName() const \
-{ return ::toUiString( factoryKeyword() ); } \
-virtual const char* factoryKeyword() const { return kw; }
-#define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
-    mDefineFactory2ParamInClasswKW( T, P0, P1, funcname, 0 )
-
-
-#define mImplFactory2Param( T, P0, P1, funcname ) \
-::Factory2Param<T,P0,P1>& funcname() \
-{ \
-    mLockStaticInitLock( static_inst_lck__ ); \
-    static PtrMan< ::Factory2Param<T,P0,P1> > \
-	inst(new ::Factory2Param<T,P0,P1>); \
-    mUnlockStaticInitLock( static_inst_lck__ ); \
-    \
-    return *inst; \
-}
-
-
-#define mDefineFactory3Param( mod, T, P0, P1, P2, funcname ) \
-mGlobal(mod) ::Factory3Param<T,P0,P1,P2>& funcname()
-
-
-#define mDefineFactory3ParamInClasswKW( T, P0, P1, P2, funcname, kw ) \
-static ::Factory3Param<T,P0,P1,P2>& funcname(); \
-virtual uiString factoryDisplayName() const \
-{ return ::toUiString( factoryKeyword() ); } \
-virtual const char* factoryKeyword() const { return kw; }
-#define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \
-    mDefineFactory3ParamInClasswKW( T, P0, P1, P2, funcname, 0 )
-
-
-#define mImplFactory3Param( T, P0, P1, P2,funcname ) \
-::Factory3Param<T,P0,P1,P2>& funcname() \
-{ \
-    mLockStaticInitLock( static_inst_lck__ ); \
-    static PtrMan< ::Factory3Param<T,P0,P1,P2> > \
-	inst(new ::Factory3Param<T,P0,P1,P2>); \
-    mUnlockStaticInitLock( static_inst_lck__ ); \
-\
-    return *inst; \
-}
-
-#undef mCreateImpl
-#undef mAddCreator

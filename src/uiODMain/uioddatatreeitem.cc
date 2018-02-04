@@ -33,8 +33,7 @@ ___________________________________________________________________
 #include "vissurvscene.h"
 
 
-mImplFactory2Param( uiODDataTreeItem, const Attrib::SelSpec&,
-		     const char*, uiODDataTreeItem::factory )
+mImplClassFactory( uiODDataTreeItem, factory )
 
 void uiODDataTreeItemFactory::addCreateFunc( CreateFunc crfn,
 					const char* probelayertype,

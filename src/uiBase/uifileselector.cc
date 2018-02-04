@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uistrings.h"
 
-mImplFactory( uiFileSelToolProvider, uiFileSelToolProvider::factory );
+mImplClassFactory( uiFileSelToolProvider, factory );
 
 static const char* filesep_ = ";";
 

@@ -14,8 +14,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "survinfo.h"
 
-mImplFactory2Param( uiGridder2DGrp, uiParent*, const BufferString&,
-		    uiGridder2DFact );
+mImplClassFactory( uiGridder2DGrp, factory );
 
 
 uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g,
@@ -23,15 +22,15 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g,
     : uiDlgGroup( p, tr("Gridding") )
 {
     int selidx = mUdf(int);
-    const BufferStringSet griddernames = Gridder2D::factory().getNames();
+    const BufferStringSet griddernames = Gridder2D::factory().getKeys();
     const uiStringSet gridderusernames = Gridder2D::factory().getUserNames();
     uiStringSet gridderusedusernames;
 
     for ( int idx=0; idx<griddernames.size(); idx++ )
     {
 	const BufferString& griddernm = griddernames.get( idx );
-	uiGridder2DGrp* uigriddergrp =
-			uiGridder2DFact().create( 0, this, griddernm, false );
+	uiGridder2DGrp* uigriddergrp = uiGridder2DGrp::factory().create( 0,
+							this, griddernm );
 	if ( !uigriddergrp )
 	    continue;
 
@@ -206,7 +205,8 @@ bool uiGridder2DGrp::revertChanges()
 
 void uiInverseDistanceGridder2D::initClass()
 {
-    uiGridder2DFact().addCreator( uiInverseDistanceGridder2D::create );
+    factory().addCreator( uiInverseDistanceGridder2D::create,
+			  InverseDistanceGridder2D::sFactoryKeyword() );
 }
 
 
@@ -264,7 +264,8 @@ void uiInverseDistanceGridder2D::putToScreen()
 
 void uiTriangulatedGridder2D::initClass()
 {
-    uiGridder2DFact().addCreator( uiTriangulatedGridder2D::create );
+    factory().addCreator( uiTriangulatedGridder2D::create,
+			  TriangulatedGridder2D::sFactoryKeyword() );
 }
 
 

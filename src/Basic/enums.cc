@@ -57,7 +57,7 @@ uiString EnumDef::getUiStringForIndex( int i ) const
 	return uiString::emptyString();
     }
 
-    return uistrings_[i];
+    return uistrings_.get( i );
 }
 
 
@@ -84,14 +84,20 @@ void EnumDef::setIconFileForIndex( int i, const char* iconname )
 
 
 void EnumDef::setUiStringForIndex(int idx,const uiString& str)
-{ uistrings_[idx]=str; }
+{
+    uistrings_.get( idx ) = str;
+}
 
 int EnumDef::getEnumValForIndex(int idx) const
-{ return enums_[idx]; }
+{
+    return enums_[idx];
+}
 
 
 int EnumDef::size() const
-{ return keys_.size(); }
+{
+    return keys_.size();
+}
 
 
 void EnumDef::remove( const char* key )

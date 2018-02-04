@@ -79,7 +79,7 @@ public:
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
-    static const char*		sKeyFactoryName();
+    static const char*		sKeyFactoryKey();
     static const char*		sKeyUiName();
 
 protected:

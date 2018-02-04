@@ -99,7 +99,7 @@ bool ArrayNDWindow::buildWindow( const char* winnm, float val )
     const int ndim = size_.getNDim();
     ArrayNDIter position( size_ );
 
-    WindowFunction* windowfunc = WINFUNCS().create( winnm );
+    WindowFunction* windowfunc = WindowFunction::factory().create( winnm );
     if ( !windowfunc ) { delete [] window_; window_ = 0; return false; }
 
     if ( windowfunc->hasVariable() && !windowfunc->setVariable(val) )

@@ -118,7 +118,7 @@ bool Smoother1D<T>::operator==( const Smoother1D<T>& b ) const
 template <class T> inline
 bool Smoother1D<T>::setWindow( const char* nm, float param, int length )
 {
-    PtrMan<WindowFunction> wf = WINFUNCS().create( nm );
+    PtrMan<WindowFunction> wf = WindowFunction::factory().create( nm );
     if ( !wf )
 	return false;
 

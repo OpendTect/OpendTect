@@ -24,7 +24,7 @@ static const char* sKeyAliases = "Aliases";
 static const char* sKeyDefaultValue = "DefaultValue";
 static const char* sKeyDefinition = "Definition";
 
-mImplFactory1Param(Property,const PropertyRef&,Property::factory)
+mImplClassFactory(Property,factory)
 
 mDefineEnumUtils(PropertyRef,StdType,"Standard Property")
 {

@@ -30,7 +30,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     if ( onlytaper_ )
 	funcnames.add( "CosTaper" );
     else
-	funcnames.append( WINFUNCS().getNames() );
+	funcnames.append( WindowFunction::factory().getKeys() );
     const StringListInpSpec funclist( funcnames );
     windowtypefld_ =  new uiGenInput( this, toUiString(su.label_),
 				      funclist );
@@ -45,7 +45,8 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 
     for ( int idx=1; idx<funcnames.size(); idx++ )
     {
-	WindowFunction* winfunc = WINFUNCS().create( funcnames[idx]->buf());
+	WindowFunction* winfunc = WindowFunction::factory().create(
+						funcnames[idx]->buf());
 	uiGenInput* varinpfld = 0;
 	if ( winfunc && winfunc->hasVariable() )
 	{

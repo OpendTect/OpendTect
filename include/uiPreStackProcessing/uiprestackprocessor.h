@@ -33,15 +33,17 @@ class Processor;
 mExpClass(uiPreStackProcessing) uiProcessorManager : public uiGroup
 { mODTextTranslationClass(uiProcessorManager);
 public:
+    mDefineFactory2ParamInClass( uiDialog, uiParent*, Processor*, factory );
+
 				uiProcessorManager(uiParent*,ProcessManager&);
 
     Notifier<uiProcessorManager>change;
 
     bool			restore();
     const DBKey&		lastMid() const		{ return lastmid_; }
-    void 			setLastMid(const DBKey& mid);
+    void			setLastMid(const DBKey& mid);
     bool			isChanged() const	{ return changed_; }
-    				/*!<Returns if processmanager is changed since
+				/*!<Returns if processmanager is changed since
 				    last save or load. */
 
     bool			save();
@@ -86,10 +88,6 @@ protected:
 
     bool			changed_;
 };
-
-
-mDefineFactory2Param( uiPreStackProcessing, uiDialog, uiParent*, Processor*,
-		      uiPSPD );
 
 
 }; //namespace

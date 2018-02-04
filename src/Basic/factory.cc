@@ -14,81 +14,120 @@ ________________________________________________________________________
 #include "separstr.h"
 
 
-FactoryBase::~FactoryBase()
-{}
-
-
-int FactoryBase::size() const
-{ return names_.size(); }
-
-bool FactoryBase::isEmpty() const
-{ return names_.isEmpty(); }
-
-const char* FactoryBase::currentName() const
-{ return currentname_.getObject().str(); }
-
-uiString FactoryBase::errMsg() const
-{ return toUiString(currentname_.getObject()); }
-
-
-void FactoryBase::addNames( const char* name, const uiString& username )
+const char* FactoryBase::key( int idx ) const
 {
-    SeparString sep( name, cSeparator() );
-    names_.add( (const char*) sep[0] );
-    aliases_.add( name );
-    usernames_.add(
-	!username.isEmpty() ? username : toUiString((const char*) sep[0]));
+    return keys_.validIdx(idx) ? keys_.get(idx).str() : 0;
 }
 
 
-void FactoryBase::setNames( int idx, const char* name,
-			    const uiString& username )
+uiString FactoryBase::userName( int idx ) const
 {
-    SeparString sep( name, cSeparator() );
-    (*names_[idx]) = (const char*) sep[0];
-    (*aliases_[idx]) = name;
-    usernames_[idx] =
-	!username.isEmpty() ? username : toUiString((const char*) sep[0]);
+    return usernames_.validIdx(idx) ? usernames_.get(idx)
+				    : toUiString( key(idx) );
 }
 
 
-const BufferStringSet& FactoryBase::getNames() const
-{ return names_; }
 
-const uiStringSet& FactoryBase::getUserNames() const
-{ return usernames_; }
-
-
-void FactoryBase::setDefaultName( int idx )
+bool FactoryBase::getKeyAndAliases( const char* inpky,
+				    BufferString& ky, BufferString& aliases )
 {
-    if ( idx<0 || idx>=names_.size() || !names_[idx] )
-	defaultname_.empty();
+    FileMultiString fms( inpky );
+    const int sz = fms.size();
+    if ( sz < 1 )
+	{ pFreeFnErrMsg("Empty key"); return false; }
+
+    ky = fms[0];
+    FileMultiString curaliases;
+    BufferStringSet knownkeys;
+    knownkeys.add( ky );
+    for ( int idx=1; idx<sz;  idx++ )
+    {
+	const BufferString aliasky = fms[idx];
+	if ( !aliasky.isEmpty() && !knownkeys.isPresent(aliasky) )
+	{
+	    curaliases += aliasky;
+	    knownkeys.add( aliasky );
+	}
+    }
+
+    aliases.set( curaliases.str() );
+    return true;
+}
+
+
+void FactoryBase::addNames( const char* ky, const uiString& username )
+{
+    BufferString key, aliases;
+    if ( !getKeyAndAliases(ky,key,aliases) )
+	return;
+
+    const int idx = keys_.indexOf( key );
+    if ( idx > 0 )
+	setNames( idx, ky, username );
     else
     {
-	SeparString sep( names_[idx]->buf(), cSeparator() );
-	defaultname_ = sep[0];
+	keys_.add( key );
+	aliases_.add( aliases );
+	usernames_.add( username.isEmpty() ? toUiString(key) : username );
     }
 }
 
 
-const char* FactoryBase::getDefaultName() const
-{ return defaultname_.isEmpty() ? 0 : defaultname_.buf(); }
-
-
-int FactoryBase::indexOf( const char* name ) const
+void FactoryBase::setNames( int idx, const char* ky,
+			    const uiString& username )
 {
-    if ( !name )
+    BufferString key, aliases;
+    if ( !getKeyAndAliases(ky,key,aliases) )
+	return;
+
+    keys_.get( idx ) = key;
+    aliases_.get( idx ) = aliases;
+    usernames_.get( idx ) = username.isEmpty() ? toUiString(key) : username;
+}
+
+
+void FactoryBase::setDefaultIdx( int idx )
+{
+    if ( keys_.validIdx(idx) )
+	defaultkeyidx_ = idx;
+}
+
+
+void FactoryBase::setDefaultKey( const char* ky )
+{
+    setDefaultIdx( indexOf(ky) );
+}
+
+
+const char* FactoryBase::defaultKey() const
+{
+    return keys_.validIdx(defaultkeyidx_) ? keys_.get(defaultkeyidx_).str() : 0;
+}
+
+
+int FactoryBase::indexOf( const char* ky ) const
+{
+    if ( !ky || !*ky )
 	return -1;
 
-    SeparString sep( 0, cSeparator() );
-    for ( int idx=0; idx<names_.size(); idx++ )
+    int ret = keys_.indexOf( ky );
+    if ( ret >= 0 )
+	return ret;
+
+    for ( int idx=0; idx<aliases_.size(); idx++ )
     {
-	if ( !aliases_[idx] )
-	    continue;
-	sep = aliases_[idx]->buf();
-	if ( sep.indexOf( name )!=-1 )
-	    return idx;
+	FileMultiString fms( aliases_.get(idx) );
+	ret = fms.indexOf( ky );
+	if ( ret >= 0 )
+	    return ret;
     }
 
     return -1;
+}
+
+
+const char* FactoryBase::keyOfLastCreated() const
+{
+    const int idx = lastcreatedidx_;
+    return keys_.validIdx(idx) ? keys_.get(idx).str() : 0;
 }

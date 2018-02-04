@@ -14,11 +14,11 @@
 #include "keystrs.h"
 
 
+mImplClassFactory( VolProc::Step, factory );
+
+
 namespace VolProc
 {
-
-mImplFactory( Step, Step::factory );
-
 
 class BinIDWiseTask : public ParallelTask
 { mODTextTranslationClass(BinIDWiseTask);

@@ -26,7 +26,9 @@ namespace Vel
 
 
 void VolumeFunctionSource::initClass()
-{ FunctionSource::factory().addCreator( create, sFactoryKeyword() ); }
+{
+    FunctionSource::factory().addCreator( create, sFactoryKeyword() );
+}
 
 
 
@@ -272,28 +274,21 @@ bool VolumeFunctionSource::getVel( const BinID& bid,
 
 
 VolumeFunction*
-VolumeFunctionSource::createFunction(const BinID& binid)
+VolumeFunctionSource::createFunction( const BinID& binid )
 {
     VolumeFunction* res = new VolumeFunction( *this );
     if ( !res->moveTo(binid) )
-    {
-	delete res;
-	return 0;
-    }
+	{ delete res; return 0; }
 
     return res;
 }
 
 
-FunctionSource* VolumeFunctionSource::create(const DBKey& mid)
+FunctionSource* VolumeFunctionSource::create( const DBKey& dbky )
 {
     VolumeFunctionSource* res = new VolumeFunctionSource;
-    if ( !res->setFrom( mid ) )
-    {
-	FunctionSource::factory().errMsg() = res->errMsg();
-	delete res;
-	return 0;
-    }
+    if ( !res->setFrom( dbky ) )
+	{ ErrMsg(res->errMsg()); delete res; return 0; }
 
     return res;
 }

@@ -50,7 +50,7 @@ EMTracker* Horizon2DTracker::create( EM::EMObject* emobj )
 
 void Horizon2DTracker::initClass()
 {
-    TrackerFactory().addCreator( create, EM::Horizon2D::typeStr() );
+    EMTracker::factory().addCreator( create, EM::Horizon2D::typeStr() );
 }
 
 
@@ -62,7 +62,7 @@ SectionTracker* Horizon2DTracker::createSectionTracker( EM::SectionID sid )
 
     return new SectionTracker( *emObject(), sid,
 	    new Horizon2DSelector(*getHorizon2D(),sid),
-	    ExtenderFactory().create( getTypeStr(),getHorizon2D(),sid),
+	    SectionExtender::factory().create( getTypeStr(),getHorizon2D(),sid),
 	    new HorizonAdjuster(*getHorizon2D(),sid) );
 }
 

@@ -17,8 +17,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "iopar.h"
 
-mImplFactory2Param(uiPosFiltGroup,uiParent*,const uiPosFiltGroup::Setup&,
-		   uiPosFiltGroup::factory);
+mImplClassFactory(uiPosFiltGroup,factory);
 
 
 uiPosFiltGroup::uiPosFiltGroup( uiParent* p, const uiPosFiltGroup::Setup& su )

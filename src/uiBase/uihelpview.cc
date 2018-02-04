@@ -82,8 +82,8 @@ void FlareHelpProvider::provideHelp( const char* argument ) const
 
 HelpProvider* FlareHelpProvider::createInstance()
 {
-    const char* name = factory().currentName();
-    return new FlareHelpProvider( urltable.find( name ) );
+    const char* key = factory().keyOfLastCreated();
+    return new FlareHelpProvider( urltable.find(key) );
 }
 
 #define mHtmlFileName	"Default.htm"

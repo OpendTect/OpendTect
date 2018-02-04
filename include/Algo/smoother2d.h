@@ -31,7 +31,7 @@ public:
 
     void			setInput(const Array2D<T>&,bool hasudf);
     void			setOutput(Array2D<T>&);
-		 		/*!Must be at least the size of input.*/
+				/*!Must be at least the size of input.*/
     bool			setWindow(const char* nm,float param,
 					  int sz0,int sz1);
     int				getWindowSize(int dim) const;
@@ -172,7 +172,8 @@ bool Smoother2D<T>::execute()
 
     if ( !window_ )
     {
-	PtrMan<WindowFunction> wf = WINFUNCS().create( windowname_ );
+	PtrMan<WindowFunction> wf = WindowFunction::factory().create(
+						windowname_ );
 	if ( !wf )
 	    return false;
 

@@ -31,17 +31,16 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     uiStringSet nms;
 
     const BufferStringSet& filtnms( setup_.is2d_
-			? Pos::Filter2D::factory().getNames()
-			: Pos::Filter3D::factory().getNames() );
+			? Pos::Filter2D::factory().getKeys()
+			: Pos::Filter3D::factory().getKeys() );
 
     const uiStringSet& usrfiltnms( setup_.is2d_
 				   ? Pos::Filter2D::factory().getUserNames()
 				   : Pos::Filter3D::factory().getUserNames() );
     for ( int idx=0; idx<filtnms.size(); idx++ )
     {
-	const OD::String& nm( filtnms.get(idx) );
-	uiPosFiltGroup* grp = uiPosFiltGroup::factory()
-				.create(nm,this,setup_,true);
+	const BufferString& nm( filtnms.get(idx) );
+	uiPosFiltGroup* grp = uiPosFiltGroup::factory().create(nm,this,setup_);
 	if ( grp )
 	{
 	    nms.add( usrfiltnms[idx] );
@@ -54,8 +53,8 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     if ( setup_.incprovs_ )
     {
 	const BufferStringSet& provnms( setup_.is2d_
-			    ? Pos::Provider2D::factory().getNames()
-			    : Pos::Provider3D::factory().getNames() );
+			    ? Pos::Provider2D::factory().getKeys()
+			    : Pos::Provider3D::factory().getKeys() );
 
 	const uiStringSet& usrprovnms( setup_.is2d_
 			       ? Pos::Provider2D::factory().getUserNames()
@@ -65,7 +64,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	    const OD::String& nm( provnms.get(idx) );
 	    uiPosProvGroup::Setup ppgsu( setup_.is2d_, true, true );
 	    uiPosProvGroup* grp = uiPosProvGroup::factory()
-				    .create(nm,this,ppgsu,true);
+				    .create(nm,this,ppgsu);
 	    if ( grp )
 	    {
 		nms.add( usrprovnms[idx] );

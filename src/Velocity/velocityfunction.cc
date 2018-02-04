@@ -116,7 +116,7 @@ void Function::removeCache()
 }
 
 
-mImplFactory1Param( FunctionSource, const DBKey&, FunctionSource::factory );
+mImplClassFactory( FunctionSource, factory );
 
 
 BufferString FunctionSource::userName() const

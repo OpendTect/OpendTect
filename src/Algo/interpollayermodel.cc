@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 
 // InterpolationLayerModel
-mImplFactory( InterpolationLayerModel, InterpolationLayerModel::factory )
+mImplClassFactory( InterpolationLayerModel, factory )
 
 InterpolationLayerModel::InterpolationLayerModel()
     : zsamp_(ZSampling::udf())

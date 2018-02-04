@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 
 
-mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
+mImplClassFactory( uiIOObjInserter, factory );
 
 bool uiIOObjInserter::isPresent( const TranslatorGroup& grp )
 {

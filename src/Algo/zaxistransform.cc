@@ -15,7 +15,7 @@
 #include "survgeom.h"
 
 
-mImplFactory( ZAxisTransform, ZAxisTransform::factory );
+mImplClassFactory( ZAxisTransform, factory );
 
 
 ZAxisTransform* ZAxisTransform::create( const IOPar& par )

@@ -20,11 +20,11 @@
 namespace Fourier
 {
 
-mImplFactory( CC, CC::factory );
+mImplClassFactory( CC, factory );
 
 CC* CC::createDefault()
 {
-    CC* res = factory().create( factory().getDefaultName() );
+    CC* res = factory().create( factory().defaultKey() );
 
     if ( !res )
 	res = new CC;
@@ -1391,7 +1391,7 @@ int n;  mType c;
 class IncrementOffsetProvider
 {
 public:
-    		IncrementOffsetProvider(int inc) : inc_( inc ) {}
+		IncrementOffsetProvider(int inc) : inc_( inc ) {}
     int		getOffset(int idx) const { return idx*inc_; }
     int		inc_;
 };
@@ -1400,7 +1400,7 @@ public:
 class TableOffsetProvider
 {
 public:
-    		TableOffsetProvider(const int* starts) : starts_( starts ) {}
+		TableOffsetProvider(const int* starts) : starts_( starts ) {}
     int		getOffset(int idx) const { return 2*starts_[idx]; }
     const int*	starts_;
 };
@@ -4313,8 +4313,8 @@ return res;
 
 void CC::initClass()
 {
-    CC::factory().addCreator(createInstance,sFactoryKeyword(),
-			     sFactoryDisplayName());
+    CC::factory().addCreator( createInstance, sFactoryKeyword(),
+			      sFactoryDisplayName());
     legalInformation().addCreator( CC::legalInfo, "CWP/Seismic Unix");
 }
 

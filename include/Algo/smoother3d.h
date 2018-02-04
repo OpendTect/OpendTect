@@ -30,9 +30,9 @@ public:
 
     void			setInput(const Array3D<T>&);
     void			setOutput(Array3D<T>&);
-   		 		/*!Must be at least the size of input.*/
+		 		/*!Must be at least the size of input.*/
     bool			setWindow(const char* nm,float param,
-	    				  int sz0,int sz1,int sz2);
+					  int sz0,int sz1,int sz2);
     int				getWindowSize(int dim) const;
     const char*			getWindowName() const;
     float			getWindowParam() const;
@@ -104,7 +104,7 @@ template <class T> inline
 bool Smoother3D<T>::setWindow( const char* nm, float param,
 			       int sz0, int sz1, int sz2 )
 {
-    PtrMan<WindowFunction> wf = WINFUNCS().create( nm );
+    PtrMan<WindowFunction> wf = WindowFunction::factory().create( nm );
     if ( !wf )
 	return false;
 
@@ -131,7 +131,7 @@ bool Smoother3D<T>::setWindow( const char* nm, float param,
 	    {
 		pos[2] = hsz2 ? ((double)(idx2-hsz2))/hsz2 : 0;
 
-		window_.set( idx0, idx1, idx2, 
+		window_.set( idx0, idx1, idx2,
 				    wf->getValue( pos.abs<float>() ) );
 	    }
 	}

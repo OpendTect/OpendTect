@@ -17,7 +17,7 @@ namespace PreStack
 {
 
 
-mImplFactory( Processor, Processor::factory );
+mImplClassFactory( Processor, factory );
 
 
 Processor::Processor( const char* nm )

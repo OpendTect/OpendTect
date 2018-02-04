@@ -54,7 +54,7 @@ EMTracker* Horizon3DTracker::create( EM::EMObject* emobj )
 
 
 void Horizon3DTracker::initClass()
-{ TrackerFactory().addCreator( create, EM::Horizon3D::typeStr() ); }
+{ EMTracker::factory().addCreator( create, EM::Horizon3D::typeStr() ); }
 
 
 #define mErrRet(msg) { errmsg = msg; return false; }
@@ -65,7 +65,8 @@ SectionTracker* Horizon3DTracker::createSectionTracker( EM::SectionID sid )
 
     return new SectionTracker( *emObject(), sid,
 		new BinIDSurfaceSourceSelector(*getHorizon(),sid),
-		ExtenderFactory().create( getTypeStr(),getHorizon(),sid),
+		SectionExtender::factory().create(
+				    getTypeStr(), getHorizon(), sid ),
 		new HorizonAdjuster(*getHorizon(),sid) );
 }
 

@@ -25,7 +25,7 @@ static const char* sKeyIDNew = "[New]";
 static const char* sKeyTopdepth = "Top depth";
 static const char* sKeyElasticPropSelID = "Elastic Property Selection";
 
-mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
+mImplClassFactory( Strat::LayerGenerator, factory )
 mDefSimpleTranslators(StratLayerSequenceGenDesc,mFileType,od,Mdl);
 
 const char* Strat::LayerSequenceGenDesc::sKeyWorkBenchParams() { return "WB"; }

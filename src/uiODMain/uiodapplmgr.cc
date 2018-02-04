@@ -636,7 +636,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
-			    Attrib::ExtAttrFact().create( 0, myas[0], false );
+			Attrib::ExtAttribCalc::factory().create( 0, myas[0] );
 		if ( !calc )
 		{
 		    uiString errstr(tr("Selected attribute '%1'\nis not present"
@@ -691,7 +691,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
-			    Attrib::ExtAttrFact().create( 0, myas[0], false );
+			Attrib::ExtAttribCalc::factory().create( 0, myas[0] );
 		// TODO implement
 		break;
 	    }

@@ -23,7 +23,7 @@ mExpClass(uiVoxelConnectivityFilter) uiVoxelConnectivityFilter :
 public uiStepDialog
 { mODTextTranslationClass(uiVoxelConnectivityFilter);
 public:
-    mDefaultFactoryInstanciationBase(
+    mDefaultFactoryInstantiationBase(
 	    VolProc::VoxelConnectivityFilter::sFactoryKeyword(),
 	    VolProc::VoxelConnectivityFilter::sFactoryDisplayName())
 	    mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );

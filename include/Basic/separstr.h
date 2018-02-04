@@ -93,6 +93,8 @@ public:
 							//!< Output escaped
     inline const char*	buf() const		{ return rep_.buf(); }
 							//!< Output escaped
+    inline const char*	str() const		{ return rep_.str(); }
+							//!< Output escaped
     BufferString&	rep()			{ return rep_; }
 							//!< Output escaped
     const OD::String&	rep() const		{ return rep_; }

@@ -126,8 +126,9 @@ uiODDataTreeItem* uiODDisplayTreeItem::createAttribItem(
 {
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as
-	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false ) : 0;
-    if ( !res ) res = new uiODAttribTreeItem( parenttype );
+	? uiODDataTreeItem::factory().create( 0, *as, parenttype ) : 0;
+    if ( !res )
+	res = new uiODAttribTreeItem( parenttype );
     return res;
 }
 

@@ -16,8 +16,7 @@
 
 static const StepInterval<float> sDefaultOffsetRange( 0.f, 6000.f, 100.f );
 
-mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&,
-			uiRayTracer1D::factory );
+mImplClassFactory( uiRayTracer1D, factory );
 
 
 uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
@@ -26,9 +25,9 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     , offsetChanged(this)
 {
     const uiStringSet& usernms = uiRayTracer1D::factory().getUserNames();
-    const BufferStringSet& facnms = uiRayTracer1D::factory().getNames();
+    const BufferStringSet& fackys = uiRayTracer1D::factory().getKeys();
 
-    if ( facnms.size() > 1 )
+    if ( fackys.size() > 1 )
     {
 	raytracerselfld_ = new uiLabeledComboBox( this, tr("Ray-Tracer") );
 	raytracerselfld_->box()->setHSzPol( uiObject::Wide );
@@ -37,13 +36,13 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 
     }
 
-    for ( int idx=0; idx<facnms.size(); idx++ )
+    for ( int idx=0; idx<fackys.size(); idx++ )
     {
-	const OD::String& facnm( facnms.get(idx) );
+	const OD::String& facnm( fackys.get(idx) );
 	const uiString usernm( usernms.validIdx(idx) ? usernms[idx] :
 			       toUiString(facnm) );
 
-	uiRayTracer1D* grp = uiRayTracer1D::factory().create(facnm,this,s,true);
+	uiRayTracer1D* grp = uiRayTracer1D::factory().create( facnm, this, s );
 	if ( grp )
 	{
 	    grps_ += grp;

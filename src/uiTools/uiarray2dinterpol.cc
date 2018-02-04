@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "od_helpids.h"
 
-mImplFactory1Param(uiArray2DInterpol,uiParent*,uiArray2DInterpolSel::factory);
+mImplClassFactory( uiArray2DInterpol, factory );
 
 
 uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
@@ -89,12 +89,14 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 	prevfld = isclassificationfld_->attachObj();
     }
 
-    const BufferStringSet& methods = Array2DInterpol::factory().getNames();
+    uiArray2DInterpol::FactoryType& fact = uiArray2DInterpol::factory();
+    const BufferStringSet& methods = fact.getKeys();
+    const uiStringSet& usrnms = fact.getUserNames();
     int methodidx;
     if ( methods.size()>1 )
     {
 	methodsel_ = new uiGenInput( this, tr("Algorithm"),
-	    StringListInpSpec(Array2DInterpol::factory().getUserNames() ) );
+				     StringListInpSpec(usrnms) );
 
 	if ( prevfld )
 	    methodsel_->attach( alignedBelow, prevfld );
@@ -114,8 +116,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 
     for ( int idx=0; idx<methods.size(); idx++ )
     {
-	uiArray2DInterpol* paramfld =
-	    factory().create( methods[idx]->buf(), this, true );
+	uiArray2DInterpol* paramfld = fact.create( methods.get(idx), this );
 
 	if ( paramfld )
 	{
@@ -218,27 +219,22 @@ bool uiArray2DInterpolSel::acceptOK()
 	return false;
     }
 
-    const BufferStringSet& methods = Array2DInterpol::factory().getNames();
+    Array2DInterpol::FactoryType& fact = Array2DInterpol::factory();
+    const BufferStringSet& methods = fact.getKeys();
     const int methodidx = methodsel_ ? methodsel_->getIntValue() : 0;
 
     if ( methodidx>=methods.size() )
-    {
-	pErrMsg("Invalid method selected");
-	return false;
-    }
+	{ pErrMsg("Invalid method selected"); return false; }
 
     if ( result_ )
 	delete result_;
 
     if ( !params_[methodidx] )
     {
-	result_ = Array2DInterpol::factory().create(methods[methodidx]->buf());
+	result_ = fact.create( methods.get(methodidx) );
 	uiString msg( result_->infoMsg() );
 	if ( !msg.isEmpty() )
-	{
-	    uiMSG().message( msg );
-	    return false;
-	}
+	    { uiMSG().message( msg ); return false; }
     }
     else
     {
@@ -306,7 +302,7 @@ Array2DInterpol* uiArray2DInterpol::getResult()
 
 void uiInverseDistanceArray2DInterpol::initClass()
 {
-    uiArray2DInterpolSel::factory().addCreator( create,
+    uiArray2DInterpol::factory().addCreator( create,
 	    InverseDistanceArray2DInterpol::sFactoryKeyword() );
 }
 
@@ -365,7 +361,7 @@ HelpKey uiInverseDistanceArray2DInterpol::helpKey() const
 
 void uiTriangulationArray2DInterpol::initClass()
 {
-    uiArray2DInterpolSel::factory().addCreator( create,
+    uiArray2DInterpol::factory().addCreator( create,
 	    TriangulationArray2DInterpol::sFactoryKeyword() );
 }
 
@@ -455,7 +451,7 @@ bool uiTriangulationArray2DInterpol::acceptOK()
 
 void uiExtensionArray2DInterpol::initClass()
 {
-    uiArray2DInterpolSel::factory().addCreator( create,
+    uiArray2DInterpol::factory().addCreator( create,
 	    ExtensionArray2DInterpol::sFactoryKeyword() );
 }
 

@@ -11,13 +11,13 @@ ________________________________________________________________________
 
 #include "legal.h"
 
-static PtrMan< ::Factory<uiString> > inst;
+static PtrMan< ::Factory0Param<uiString> > inst;
 
-::Factory<uiString>& legalInformation()
+::Factory0Param<uiString>& legalInformation()
 {
     if ( !inst )
     {
-	::Factory<uiString>* newfact = new ::Factory<uiString>;
+	::Factory0Param<uiString>* newfact = new ::Factory0Param<uiString>;
 	inst.setIfNull(newfact,true);
     }
 

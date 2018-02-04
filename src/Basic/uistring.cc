@@ -54,11 +54,13 @@ static char* getNewDebugStr( char* strvar, const BufferString& newstr )
 
 #endif
 
-const uiString uiString::emptystring_( toUiString("") );
 
+const uiString uiString::emptystring_( toUiString("") );
+uiString uiString::dummystring_( toUiString("") );
 #ifndef OD_NO_QT
 static const QString emptyqstring;
 #endif
+
 
 class uiStringData : public RefCount::Referenced
 {
@@ -215,7 +217,8 @@ bool uiStringData::fillQString( QString& res,
             for ( int idx=0; idx<alternateversions_.size(); idx++ )
             {
                 QString alttrans;
-		if ( alternateversions_[idx].translate(*usedtrans,alttrans) )
+		if ( alternateversions_.get(idx)
+					.translate(*usedtrans,alttrans) )
 		    { res = alttrans; translationres = true; break; }
             }
         }
@@ -251,13 +254,13 @@ bool uiStringData::fillQString( QString& res,
 	if ( notranslation )
 	{
 	    BufferString str;
-	    arguments_[idx].getFullString( str );
+	    arguments_.get(idx).getFullString( str );
 	    thearg = str.buf();
 	}
 	else if ( translator )
-	    arguments_[idx].translate( *translator, thearg );
+	    arguments_.get(idx).translate( *translator, thearg );
 	else
-	    arguments_[idx].fillQString( thearg );
+	    arguments_.get(idx).fillQString( thearg );
 
 	res = res.arg( thearg );
     }
@@ -397,7 +400,7 @@ bool uiString::isCacheValid() const
 
     for ( int idx=0; idx<data_->arguments_.size(); idx++ )
     {
-	if ( !data_->arguments_[idx].isCacheValid() )
+	if ( !data_->arguments_.get(idx).isCacheValid() )
 	    return false;
     }
     return true;
@@ -922,7 +925,13 @@ uiStringSet::IdxType uiStringSet::indexOf( const uiString& str ) const
 }
 
 
-uiString uiStringSet::get( IdxType idx ) const
+uiString& uiStringSet::get( IdxType idx )
+{
+    return strs_.validIdx(idx) ? *strs_[idx] : uiString::dummyString();
+}
+
+
+const uiString& uiStringSet::get( IdxType idx ) const
 {
     return strs_.validIdx(idx) ? *strs_[idx] : uiString::emptyString();
 }
@@ -1185,7 +1194,7 @@ uiRetVal::operator uiPhraseSet() const
 bool uiRetVal::isOK() const
 {
     Threads::Locker locker( lock_ );
-    return msgs_.isEmpty() || msgs_[0].isEmpty();
+    return msgs_.isEmpty() || msgs_.get(0).isEmpty();
 }
 
 

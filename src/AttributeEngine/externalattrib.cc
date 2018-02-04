@@ -17,7 +17,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-mImplFactory1Param( ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
+mImplClassFactory( ExtAttribCalc, factory );
 
 
 RefMan<RegularSeisDataPack> ExtAttribCalc::createAttrib( const TrcKeyZSampling&,

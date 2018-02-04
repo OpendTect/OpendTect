@@ -37,8 +37,7 @@ namespace VolProc
 const char* uiChain::sKeySettingKey()
 { return "dTect.ProcessVolumeBuilderOnOK"; }
 
-mImplFactory3Param( uiStepDialog, uiParent*, Step*, bool,
-		    uiStepDialog::factory );
+mImplClassFactory( uiStepDialog, factory );
 
 
 // uiStepDialog
@@ -197,20 +196,20 @@ bool uiStepDialog::acceptOK()
 }
 
 
-bool getNamesFromFactory( uiStringSet& uinms, BufferStringSet& nms, bool is2d )
+bool getNamesFromFactory( uiStringSet& uinms, BufferStringSet& keys, bool is2d )
 {
-    for ( int idx=0; idx<uiStepDialog::factory().size(); idx++ )
+    uiStepDialog::FactoryType& fact = uiStepDialog::factory();
+    for ( int idx=0; idx<fact.size(); idx++ )
     {
-	PtrMan<Step> step =
-	    Step::factory().create(uiStepDialog::factory().getNames().get(idx));
+	PtrMan<Step> step = Step::factory().create( fact.key(idx) );
 	if ( !step || (is2d && !step->canHandle2D()) )
 	    continue;
 
-	uinms.add( uiStepDialog::factory().getUserNames()[idx] );
-	nms.add( uiStepDialog::factory().getNames().get(idx) );
+	keys.add( fact.key(idx) );
+	uinms.add( fact.userName( idx ) );
     }
 
-    return nms.size();
+    return !keys.isEmpty();
 }
 
 // uiChain
@@ -687,13 +686,12 @@ uiString uiChain::getPossibleInitialStepNames( bool is2d )
     if ( names.isEmpty() )
     {
 	uiStringSet possiblenames;
-	for ( int idx=0; idx<uiStepDialog::factory().getNames().size(); idx++ )
+	for ( int idx=0; idx<uiStepDialog::factory().size(); idx++ )
 	{
-	    const char* steptype =
-		uiStepDialog::factory().getNames()[idx]->buf();
-
+	    const char* steptype = uiStepDialog::factory().key( idx );
 	    PtrMan<Step> step = Step::factory().create( steptype );
-	    if ( !step ) continue;
+	    if ( !step )
+		continue;
 
 	    if ( is2d && !step->canHandle2D() )
 		continue;
@@ -701,7 +699,7 @@ uiString uiChain::getPossibleInitialStepNames( bool is2d )
 	    if ( step->getNrInputs()>0 && step->needsInput() )
 		continue;
 
-	    possiblenames += uiStepDialog::factory().getUserNames()[idx];
+	    possiblenames += uiStepDialog::factory().userName( idx );
 	}
 
 	names = possiblenames.createOptionString( false, -1, true );

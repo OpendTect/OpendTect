@@ -38,6 +38,9 @@ class SectionTracker;
 mExpClass(MPEEngine) EMTracker : public RefCount::Referenced
 { mODTextTranslationClass(EMTracker);
 public:
+
+    mDefineFactory1ParamInClass( EMTracker, EM::EMObject*, factory );
+
 				EMTracker(EM::EMObject*);
 
     BufferString		objectName() const;
@@ -65,7 +68,7 @@ public:
 						  bool create=false);
     virtual EMSeedPicker*	getSeedPicker(bool create=true)
 				{ return 0; }
-    void 			applySetupAsDefault(const EM::SectionID);
+    void			applySetupAsDefault(const EM::SectionID);
 
     const char*			errMsg() const;
 
@@ -88,9 +91,6 @@ protected:
 private:
     EM::EMObject*		emobject_;
 };
-
-
-mDefineFactory1Param( MPEEngine, EMTracker, EM::EMObject*, TrackerFactory );
 
 
 } // namespace MPE

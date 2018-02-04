@@ -214,8 +214,8 @@ void Seis::SeqIO::fillPar( IOPar& iop ) const
     Seis::putInPar( geomType(), iop );
 }
 
-mImplFactory( Seis::SeqInp, Seis::SeqInp::factory );
-mImplFactory( Seis::SeqOut, Seis::SeqOut::factory );
+mImplClassFactory( Seis::SeqInp, factory );
+mImplClassFactory( Seis::SeqOut, factory );
 
 
 void Seis::SeqInp::fillPar( IOPar& iop ) const

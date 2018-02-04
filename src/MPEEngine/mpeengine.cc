@@ -408,7 +408,7 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 
 
 void Engine::getAvailableTrackerTypes( BufferStringSet& res ) const
-{ res = TrackerFactory().getNames(); }
+{ res = EMTracker::factory().getKeys(); }
 
 
 static void showRefCountInfo( EMTracker* tracker )
@@ -439,7 +439,8 @@ int Engine::addTracker( EM::EMObject* emobj )
 	return idx;
     }
 
-    EMTracker* tracker = TrackerFactory().create( emobj->getTypeStr(), emobj );
+    EMTracker* tracker = EMTracker::factory().create( emobj->getTypeStr(),
+						      emobj );
     if ( !tracker )
 	mRetErr( "Cannot find this trackertype", -1 );
 
@@ -932,7 +933,8 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
     EM::EMObject* emobj = EM::EMM().getObject(id);
     if ( !emobj ) return 0;
 
-    ObjectEditor* editor = EditorFactory().create( emobj->getTypeStr(), *emobj);
+    ObjectEditor* editor = ObjectEditor::factory().create(
+					emobj->getTypeStr(), *emobj );
     if ( !editor )
 	return 0;
 

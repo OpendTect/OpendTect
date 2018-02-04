@@ -44,7 +44,7 @@ ________________________________________________________________________
 */
 
 
-mGlobal(Basic) ::Factory<uiString>& legalInformation();
+mGlobal(Basic) ::Factory0Param<uiString>& legalInformation();
 
 mGlobal(Basic) uiString gplV3Text();
 //!<Gnu Public License V3 text

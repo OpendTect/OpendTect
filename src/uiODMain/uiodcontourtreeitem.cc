@@ -798,7 +798,10 @@ void intvChanged( CallBacker* cb )
 
 
 void uiODContourTreeItem::initClass()
-{ uiODDataTreeItem::factory().addCreator( create, 0 ); }
+{
+    uiODDataTreeItem::factory().addCreator( create, "Contour" );
+}
+
 
 uiODContourTreeItem::uiODContourTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )

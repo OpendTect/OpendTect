@@ -16,10 +16,10 @@
 #include "survgeom3d.h"
 #include "statrand.h"
 
-mImplFactory(Pos::Filter3D,Pos::Filter3D::factory);
-mImplFactory(Pos::Filter2D,Pos::Filter2D::factory);
-mImplFactory(Pos::Provider3D,Pos::Provider3D::factory);
-mImplFactory(Pos::Provider2D,Pos::Provider2D::factory);
+mImplClassFactory(Pos::Filter3D,factory);
+mImplClassFactory(Pos::Filter2D,factory);
+mImplClassFactory(Pos::Provider3D,factory);
+mImplClassFactory(Pos::Provider2D,factory);
 const char* Pos::FilterSet::typeStr() { return "Set"; }
 const char* Pos::RandomFilter::typeStr() { return sKey::Random(); }
 const char* Pos::RandomFilter::ratioStr() { return "Pass ratio"; }

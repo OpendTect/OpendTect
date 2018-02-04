@@ -37,6 +37,10 @@ EM::SectionID.
 mExpClass(MPEEngine) SectionExtender : public SequentialTask
 {
 public:
+
+    mDefineFactory2ParamInClass( SectionExtender, EM::EMObject*,
+				 EM::SectionID, factory );
+
 				SectionExtender(EM::SectionID si=-1);
     EM::SectionID		sectionID() const;
 
@@ -51,7 +55,7 @@ public:
     int				nextStep();
 
     void			extendInVolume(const BinID& bidstep,
-    					       float zstep);
+					       float zstep);
 
     const TypeSet<TrcKey>&	getAddedPositions() const;
     const TypeSet<TrcKey>&	getAddedPositionsSource() const;
@@ -65,7 +69,7 @@ public:
 
     const char*			errMsg() const;
     virtual void		fillPar(IOPar&) const {}
-    virtual bool		usePar(const IOPar&) 	{ return true; }
+    virtual bool		usePar(const IOPar&)	{ return true; }
 
     void			setUndo(bool yn)	{ setundo_ = yn; }
 
@@ -89,8 +93,5 @@ protected:
     bool			setundo_;
 };
 
-
-mDefineFactory2Param( MPEEngine, SectionExtender, EM::EMObject*,
-		      EM::SectionID, ExtenderFactory );
 
 } // namespace MPE

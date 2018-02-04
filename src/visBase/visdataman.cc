@@ -18,7 +18,7 @@
 namespace visBase
 {
 
-mImplFactory( DataObject, DataManager::factory );
+mImplClassFactory( DataManager, factory );
 
 const char* DataManager::sKeyFreeID()		{ return "Free ID"; }
 const char* DataManager::sKeySelManPrefix()	{ return "SelMan"; }

@@ -23,7 +23,7 @@ namespace MPE
 
 void Horizon3DExtender::initClass()
 {
-    ExtenderFactory().addCreator( create, Horizon3DTracker::keyword() );
+    SectionExtender::factory().addCreator( create, Horizon3DTracker::keyword());
 }
 
 

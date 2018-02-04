@@ -221,17 +221,18 @@ protected:
 
 void MarchingCubesSurface::initClass()
 {
-    SeparString sep( 0, FactoryBase::cSeparator() );
-    sep += typeStr();
-    sep += MarchingCubesSurfaceReader::sOldFileType();
-    EMOF().addCreator( create, sep.buf() );
+    FileMultiString fms;
+    fms += typeStr();
+    fms += MarchingCubesSurfaceReader::sOldFileType();
+    EMOF().addCreator( create, fms.str() );
 }
 
 
 EMObject* MarchingCubesSurface::create( EMManager& emm ) \
 {
     EMObject* obj = new MarchingCubesSurface( emm );
-    if ( !obj ) return 0;
+    if ( !obj )
+	return 0;
     obj->ref();
     emm.addObject( obj );
     obj->unRefNoDelete();
@@ -240,11 +241,15 @@ EMObject* MarchingCubesSurface::create( EMManager& emm ) \
 
 
 FixedString MarchingCubesSurface::typeStr()
-{ return "MC"; }
+{
+    return "MC";
+}
 
 
 const char* MarchingCubesSurface::getTypeStr() const
-{ return typeStr(); }
+{
+    return typeStr();
+}
 
 
 void MarchingCubesSurface::setNameToJustCreated()

@@ -20,7 +20,7 @@ namespace PreStack
 
 void uiMute::initClass()
 {
-    uiPSPD().addCreator( create, Mute::sFactoryKeyword() );
+    uiProcessorManager::factory().addCreator( create, Mute::sFactoryKeyword() );
 }
 
 

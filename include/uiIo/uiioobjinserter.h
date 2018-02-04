@@ -46,7 +46,7 @@ public:
 
     static bool		isPresent(const TranslatorGroup&);
     static bool		isPresent( const Translator& t )
-			{ return factory().hasName(t.getDisplayName()); }
+			{ return factory().isPresent(t.getDisplayName()); }
 
     static void         addInsertersToDlg(uiParent*,CtxtIOObj&,
 					  ObjectSet<uiIOObjInserter>&,

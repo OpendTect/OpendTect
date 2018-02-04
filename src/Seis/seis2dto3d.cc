@@ -37,7 +37,7 @@ ________________________________________________________________________
 #include "statruncalc.h"
 #include "statparallelcalc.h"
 
-mImplFactory(Seis2DTo3D, Seis2DTo3D::factory)
+mImplClassFactory( Seis2DTo3D, factory )
 
 const char* Seis2DTo3D::sKeyInput()	{ return "Input ID"; }
 const char* Seis2DTo3D::sKeyType()	{ return "Interpolation type"; }

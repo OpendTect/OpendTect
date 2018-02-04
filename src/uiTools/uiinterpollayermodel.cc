@@ -18,8 +18,7 @@ ________________________________________________________________________
 
 
 // uiInterpolationLayerModelGrp
-mImplFactory1Param( uiInterpolationLayerModelGrp, uiParent*,
-		    uiInterpolationLayerModelGrp::factory )
+mImplClassFactory( uiInterpolationLayerModelGrp, factory )
 
 uiInterpolationLayerModelGrp::uiInterpolationLayerModelGrp( uiParent* p )
     : uiGroup(p)
@@ -71,14 +70,15 @@ uiInterpolationLayerModel::uiInterpolationLayerModel( uiParent* p )
     layermodelfld_->valuechanged.notify(
 		mCB(this,uiInterpolationLayerModel,selCB) );
 
-    const BufferStringSet& names =
-	uiInterpolationLayerModelGrp::factory().getNames();
-    for ( int idx=0; idx<names.size(); idx++ )
+    const BufferStringSet& keys =
+	uiInterpolationLayerModelGrp::factory().getKeys();
+    for ( int idx=0; idx<keys.size(); idx++ )
     {
 	uiInterpolationLayerModelGrp* grp =
 		uiInterpolationLayerModelGrp::factory().create(
-		names.get(idx), this, true );
-	if ( !grp ) continue;
+		keys.get(idx), this );
+	if ( !grp )
+	    continue;
 
 	grps_ += grp;
 	grp->attach( alignedBelow, layermodelfld_ );

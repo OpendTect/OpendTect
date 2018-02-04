@@ -24,7 +24,7 @@ ___________________________________________________________________
 namespace MPE
 {
 
-mImplFactory1Param( ObjectEditor, EM::EMObject&, EditorFactory );
+mImplClassFactory( ObjectEditor, factory );
 
 
 ObjectEditor::ObjectEditor( EM::EMObject& emobj )

@@ -30,7 +30,7 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mImplFactory1Param( CmdComposer, CmdRecorder&, CmdComposer::factory );
+mImplClassFactory( CmdComposer, factory );
 
 static ObjectSet<const Classifier> classifiers;
 
@@ -76,7 +76,7 @@ BufferString CmdComposer::createFactoryKey( const Classifier* classifier,
     BufferString fackey;
     mComposeFactoryKey( fackey, classifier->name(), keyword );
 
-    if ( factory().hasName(fackey) )
+    if ( factory().isPresent(fackey) )
     {
 	BufferString errmsg( "Redefining composer \"" );
 	errmsg += keyword; errmsg += "\"";

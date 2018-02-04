@@ -25,7 +25,6 @@ class uiArray2DInterpol;
 mExpClass(uiTools) uiArray2DInterpolSel : public uiDlgGroup
 { mODTextTranslationClass(uiArray2DInterpolSel);
 public:
-    mDefineFactory1ParamInClass(uiArray2DInterpol,uiParent*,factory);
 
 				uiArray2DInterpolSel(uiParent*,bool filltype,
 					bool holesz, bool withclassification,
@@ -66,6 +65,9 @@ protected:
 mExpClass(uiTools) uiArray2DInterpol : public uiDlgGroup
 { mODTextTranslationClass(uiArray2DInterpol);
 public:
+
+    mDefineFactory1ParamInClass(uiArray2DInterpol,uiParent*,factory);
+
     virtual void	setValuesFrom(const Array2DInterpol&)		{}
 			//*!Dose only work if provided object is of 'your' type.
 
@@ -101,6 +103,7 @@ protected:
     uiGenInput*		cornersfirstfld_;
     uiGenInput*		stepsizefld_;
     uiGenInput*		nrstepsfld_;
+
 };
 
 

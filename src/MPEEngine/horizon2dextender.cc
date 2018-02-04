@@ -38,7 +38,7 @@ SectionExtender* Horizon2DExtender::create( EM::EMObject* emobj,
 
 void Horizon2DExtender::initClass()
 {
-    ExtenderFactory().addCreator( create, Horizon2DTracker::keyword() );
+    SectionExtender::factory().addCreator( create, Horizon2DTracker::keyword());
 }
 
 

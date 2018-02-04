@@ -26,8 +26,7 @@ ________________________________________________________________________
 
 using namespace Coords;
 
-mImplFactory1Param( uiCoordSystem, uiParent*,
-		    uiCoordSystem::factory );
+mImplClassFactory( uiCoordSystem, factory );
 
 
 uiCoordSystem::uiCoordSystem( uiParent* p, const uiString& caption )
@@ -314,7 +313,7 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
     {
 	BufferString key;
 	uiCoordSystem* systemui = 0;
-	if ( coordsystempars_[idx]->get( CoordSystem::sKeyFactoryName(), key ) )
+	if ( coordsystempars_[idx]->get( CoordSystem::sKeyFactoryKey(), key ) )
 	    systemui = uiCoordSystem::factory().create( key, this );
 
 	if ( !systemui )

@@ -26,7 +26,8 @@ namespace PreStack
 
 void uiTrimStatics::initClass()
 {
-    uiPSPD().addCreator( create, TrimStatics::sFactoryKeyword() );
+    uiProcessorManager::factory().addCreator( create,
+					      TrimStatics::sFactoryKeyword() );
 }
 
 

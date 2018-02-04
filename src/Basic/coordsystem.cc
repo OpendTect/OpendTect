@@ -16,13 +16,13 @@ static const BufferString coordsysfactorynm_(
 		IOPar::compKey(sKey::CoordSys(),"System name") );
 static const BufferString coordsysusrnm_(
 		IOPar::compKey(sKey::CoordSys(),"Description") );
-const char* Coords::CoordSystem::sKeyFactoryName() { return coordsysfactorynm_;}
+const char* Coords::CoordSystem::sKeyFactoryKey() { return coordsysfactorynm_;}
 const char* Coords::CoordSystem::sKeyUiName() { return coordsysusrnm_; }
 
 static const double cAvgEarthRadius = 6367450;
 static const double latdist = cAvgEarthRadius*mDeg2RadD;
 
-mImplFactory( Coords::CoordSystem, Coords::CoordSystem::factory );
+mImplClassFactory( Coords::CoordSystem, factory );
 
 using namespace Coords;
 
@@ -42,16 +42,16 @@ void CoordSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
     strings.setEmpty();
 
     //Add all factory entries
-    const BufferStringSet factorynames = factory().getNames();
-    const uiStringSet factoryuinames = factory().getUserNames();
+    const BufferStringSet factorykeys = factory().getKeys();
+    const uiStringSet& factoryuinames = factory().getUserNames();
 
-    for ( int idx=0; idx<factorynames.size(); idx++ )
+    for ( int idx=0; idx<factorykeys.size(); idx++ )
     {
 	mDeclareAndTryAlloc( PtrMan<IOPar>, systempar, IOPar );
 	if ( !systempar ) //out of memory
 	    continue;
 
-	systempar->set( sKeyFactoryName(), factorynames.get(idx) );
+	systempar->set( sKeyFactoryKey(), factorykeys.get(idx) );
 
 	if ( orthogonalonly || projectiononly )
 	{
@@ -62,7 +62,7 @@ void CoordSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
 	}
 
 	pars += systempar.release();
-	strings += factoryuinames[idx];
+	strings += factoryuinames.get( idx );
     }
 }
 
@@ -70,7 +70,7 @@ void CoordSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
 RefMan<CoordSystem> CoordSystem::createSystem( const IOPar& par )
 {
     BufferString factorykey;
-    if ( !par.get( sKeyFactoryName(), factorykey ) )
+    if ( !par.get( sKeyFactoryKey(), factorykey ) )
 	return 0;
 
     RefMan<CoordSystem> res = factory().create( factorykey );
@@ -101,7 +101,7 @@ Coord CoordSystem::convertFrom( const Coord& in,
 bool CoordSystem::usePar( const IOPar& par )
 {
     BufferString nm;
-    if ( !par.get(sKeyFactoryName(),nm) || nm != factoryKeyword() )
+    if ( !par.get(sKeyFactoryKey(),nm) || nm != factoryKeyword() )
 	return false;
 
     PtrMan<IOPar> subpar = par.subselect( sKey::CoordSys() );
@@ -116,7 +116,7 @@ void CoordSystem::fillPar( IOPar& par ) const
 {
     par.removeSubSelection( sKey::CoordSys() );
 
-    par.set( sKeyFactoryName(), factoryKeyword() );
+    par.set( sKeyFactoryKey(), factoryKeyword() );
 
     IOPar subpar;
     doFillPar( subpar );

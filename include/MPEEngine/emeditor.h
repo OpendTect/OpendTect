@@ -45,6 +45,9 @@ mExpClass(MPEEngine) ObjectEditor : public RefCount::Referenced
 				  , public CallBacker
 {
 public:
+
+    mDefineFactory1ParamInClass( ObjectEditor, EM::EMObject&, factory );
+
 			ObjectEditor(EM::EMObject&);
 
     const EM::EMObject&	emObject() const	{ return *emobject_; }
@@ -145,7 +148,5 @@ private:
 
     bool				snapafteredit_;
 };
-
-mDefineFactory1Param( MPEEngine, ObjectEditor, EM::EMObject&, EditorFactory );
 
 } // namespace MPE

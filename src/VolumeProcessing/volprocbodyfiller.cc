@@ -43,10 +43,11 @@ const char* BodyFiller::sKeyOutsideValue()	{ return "Outside Value"; }
 
 void BodyFiller::initClass()
 {
-    SeparString keys( BodyFiller::sFactoryKeyword(), factory().cSeparator() );
+    FileMultiString keys( BodyFiller::sFactoryKeyword() );
     keys += BodyFiller::sKeyOldType();
 
-    factory().addCreator( createInstance, keys,
+    FactoryType::Creator cr = (FactoryType::Creator)createInstance;
+    factory().addCreator( cr, keys.str(),
 			  BodyFiller::sFactoryDisplayName() );
 }
 

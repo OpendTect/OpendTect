@@ -25,6 +25,9 @@ result is zero.
 mExpClass(Algo) WindowFunction : public FloatMathFunction
 {
 public:
+
+    mDefineFactoryInClass(WindowFunction,factory);
+
     virtual const char*	name() const			= 0;
     virtual bool	hasVariable() const		{ return false; }
     virtual float	getVariable() const		{ return mUdf(float); }
@@ -130,6 +133,3 @@ protected:
     double			width_;
     int				ns_;
 };
-
-
-mDefineFactory(Algo,WindowFunction,WINFUNCS);

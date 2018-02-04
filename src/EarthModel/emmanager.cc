@@ -47,7 +47,7 @@ const char* EMManager::displayparameterstr() { return "Display Parameters"; }
 
 
 
-mImplFactory1Param( EMObject, EMManager&, EMOF );
+mImplFactory( EMObject, EMOF );
 
 EMManager::EMManager()
     : addRemove( this )
@@ -118,18 +118,16 @@ const char* EMManager::objectType( const DBKey& mid ) const
     if ( typenm.isEmpty() )
 	typenm = ioobj.group();
 
-    const int idx = EMOF().getNames().indexOf( typenm );
-    if ( idx<0 )
-	return 0;
-
-    return EMOF().getNames()[idx]->buf();
+    const int idx = EMOF().indexOf( typenm );
+    return idx<0 ? 0 : EMOF().key( idx );
 }
 
 
 ObjectID EMManager::createObject( const char* type, const char* name )
 {
     EMObject* object = EMOF().create( type, *this );
-    if ( !object ) return -1;
+    if ( !object )
+	return -1;
 
     CtxtIOObj ctio( object->getIOObjContext() );
     ctio.ctxt_.forread_ = false;

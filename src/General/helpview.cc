@@ -9,7 +9,7 @@
 #include "helpview.h"
 
 
-mImplFactory( HelpProvider, HelpProvider::factory );
+mImplClassFactory( HelpProvider, factory );
 
 void HelpProvider::provideHelp( const HelpKey& helpkey )
 {

@@ -943,7 +943,7 @@ void BufferStringSet::use( const uiStringSet& from )
     setEmpty();
 
     for ( size_type idx=0; idx<from.size(); idx++ )
-	add( toString(from[idx]) );
+	add( toString(from.get(idx)) );
 }
 
 

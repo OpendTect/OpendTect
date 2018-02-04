@@ -25,12 +25,12 @@ class VolumeFunctionSource;
 mExpClass(uiVelocity) uiVolumeFunction : public uiFunctionSettings
 {
 public:
-    mDefaultFactoryInstanciationBase(
+    mDefaultFactoryInstantiationBase(
 	    VolumeFunctionSource::sFactoryKeyword(),
 	    VolumeFunctionSource::sFactoryDisplayName() );
 
-    			uiVolumeFunction(uiParent*,VolumeFunctionSource*);
-    			~uiVolumeFunction();
+			uiVolumeFunction(uiParent*,VolumeFunctionSource*);
+			~uiVolumeFunction();
 
     FunctionSource*	getSource();
     bool		acceptOK();

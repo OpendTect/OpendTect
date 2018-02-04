@@ -41,7 +41,10 @@ ObjectEditor* FaultStickSetEditor::create( EM::EMObject& emobj )
 
 
 void FaultStickSetEditor::initClass()
-{ MPE::EditorFactory().addCreator( create, EM::FaultStickSet::typeStr() ); }
+{
+    MPE::ObjectEditor::factory().addCreator( create,
+					     EM::FaultStickSet::typeStr() );
+}
 
 
 Geometry::ElementEditor* FaultStickSetEditor::createEditor(
@@ -314,7 +317,7 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 
     if ( change )
     {
-	EM::EMM().undo(emobject_->id()).setUserInteractionEnd( 
+	EM::EMM().undo(emobject_->id()).setUserInteractionEnd(
 	    EM::EMM().undo(emobject_->id()).currentEventID() );
     }
 

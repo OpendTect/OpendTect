@@ -65,11 +65,12 @@ SurfaceLimitedFiller::SurfaceLimitedFiller()
 
 void SurfaceLimitedFiller::initClass()
 {
-    SeparString sep( 0, FactoryBase::cSeparator() );
-    sep += sFactoryKeyword();
-    sep += sKeyHorInterFiller();
+    FileMultiString fms;
+    fms += sFactoryKeyword();
+    fms += sKeyHorInterFiller();
 
-    SurfaceLimitedFiller::factory().addCreator( createInstance, sep.buf(),
+    FactoryType::Creator cr = (FactoryType::Creator)createInstance;
+    SurfaceLimitedFiller::factory().addCreator( cr, fms.buf(),
 						sFactoryDisplayName() );
 }
 
