@@ -100,7 +100,7 @@ bool Mute::setMuteDefID( const DBKey& mid )
     {
 	uiString errstr( tr( "Mute definition \" %1 \" cannot be read." )
 			.arg(ioobj->uiName()) );
-	errstr.append( errmsg_, true );
+	errstr.appendPhrase( errmsg_, uiString::NewLine );
 	mErrRet( errstr );
     }
 

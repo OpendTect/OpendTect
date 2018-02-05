@@ -198,7 +198,7 @@ void AxesDrawer::updateViewRect()
 
 	uiString x2axisstr( toUiString(ad2.name_) );
 	if ( fdp && fdp->isVertical() )
-	    x2axisstr.append( userfacstr );
+	    x2axisstr.appendWord( userfacstr );
 
 	if ( !axis2nm_ )
 	    axis2nm_ = view_.scene().addItem(

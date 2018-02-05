@@ -449,9 +449,10 @@ void uiODPreStart::doPkgMnu( const PluginPackage& pkg )
     else if ( res == 0 )
     {
 	uiString msg( tr("Name: %1\nCreated by: %2\nVersion: %3")
-		.arg( pkg.dispname_ ).arg( pkg.creator_ ).arg( pkg.version_ ) );
+	      .arg( pkg.dispname_ ).arg( pkg.creator_ ).arg( pkg.version_ ) );
 	if ( pkg.prov_ )
-	    msg.append( tr("\n\nProvided by: %1").arg( pkg.prov_->name_ ) );
+	    msg.appendPhrase( tr("\n\nProvided by: %1")
+						.arg( pkg.prov_->name_ ) );
 	uiMSG().about( msg );
     }
 }

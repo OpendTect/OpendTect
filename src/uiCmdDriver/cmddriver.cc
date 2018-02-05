@@ -261,8 +261,8 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 void CmdDriver::checkFlowErrMsg(const int linenr, const char* cmdstr,
 							const char* matchingstr)
 {
-    errmsg_.append(tr("has syntax error at line %1: '%2' - Matching '%3' "
-		      "is missing or ill-formatted").arg(linenr).arg(cmdstr)
+    errmsg_.appendPhrase(tr("has syntax error at line %1: '%2' - Matching '%3'"
+		      " is missing or ill-formatted").arg(linenr).arg(cmdstr)
 		      .arg(matchingstr));
 
 }
@@ -270,7 +270,7 @@ void CmdDriver::checkFlowErrMsg(const int linenr, const char* cmdstr,
 
 void CmdDriver::checkTailErrMsg( const int linenr, const BufferString& action)
 {
-    errmsg_.append(tr("has unexpected content at end of line %1: '%2'")
+    errmsg_.appendPhrase(tr("has unexpected content at end of line %1: '%2'")
 	   .arg(linenr).arg(action));
 }
 
@@ -278,7 +278,8 @@ void CmdDriver::checkTailErrMsg( const int linenr, const BufferString& action)
 void CmdDriver::preProcSubstitutionErrMsg( const int nrsubst, const int linenr,
 						const BufferString& action )
 {
-    errmsg_.append(tr("has %1 substitution %2 at line %3: '%4'").arg(-nrsubst)
+    errmsg_.appendPhrase(tr("has %1 substitution %2 at line %3: '%4'")
+	   .arg(-nrsubst)
 	   .arg(nrsubst<-1 ? tr("failures") : tr("failure")).arg(linenr)
 	   .arg(action));
 }
@@ -352,8 +353,9 @@ void CmdDriver::preProcSubstitutionErrMsg( const int nrsubst, const int linenr,
 { \
     if ( !stack.isEmpty() ) \
     { \
-	errmsg_.append(sCheckFlowStackStr()).append(::toUiString(" ")); \
-	errmsg_.append( \
+	errmsg_.appendPhrase(sCheckFlowStackStr()) \
+	       .appendPlainText(" "); \
+	errmsg_.appendPhrase( \
 		stack[0]==DefTag \
 				  ? ::toUiString("a procedure def-inition") : \
 		stack[0]==ForTag ? ::toUiString("a for-loop") : \
@@ -376,7 +378,10 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType("OpendTect commands") )
-	{ errmsg_.append( "is invalid"); return false; }
+    { 
+	errmsg_.appendPhrase( tr("is invalid") ); 
+	return false; 
+    }
 
     int linenr = 4;		// Header has four lines
     int extralines = 0;

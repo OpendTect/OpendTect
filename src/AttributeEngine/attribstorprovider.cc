@@ -594,17 +594,17 @@ bool StorageProvider::checkDesiredVolumeOK()
 		.arg( desc_.userRef() );
 
     if ( inlwrong )
-	errmsg_.append( tr( "Inline range is: %1-%2 [%3]\n")
+	errmsg_.appendPhrase( tr( "Inline range is: %1-%2 [%3]\n")
 		      .arg( storedvolume_.hsamp_.start_.inl() )
 		      .arg( storedvolume_.hsamp_.stop_.inl() )
 		      .arg( storedvolume_.hsamp_.step_.inl() ) );
     if ( crlwrong )
-	errmsg_.append( tr( "Crossline range is: %1-%2 [%3]\n")
+	errmsg_.appendPhrase( tr( "Crossline range is: %1-%2 [%3]\n")
 		      .arg( storedvolume_.hsamp_.start_.crl() )
 		      .arg( storedvolume_.hsamp_.stop_.crl() )
 		      .arg( storedvolume_.hsamp_.step_.crl() ) );
     if ( zwrong )
-	errmsg_.append( tr( "Z range is: %1-%2\n")
+	errmsg_.appendPhrase( tr( "Z range is: %1-%2\n")
 		      .arg( storedvolume_.zsamp_.start )
 		      .arg( storedvolume_.zsamp_.stop ) );
     if ( inlwrong || crlwrong || zwrong )
@@ -645,10 +645,10 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
     errmsg_ = tr("'%1' contains no data in selected area:\n")
 		.arg( desc_.userRef() );
     if ( trcrgwrong )
-	errmsg_.append( tr( "Trace range is: %1-%2\n")
+	errmsg_.appendPhrase( tr( "Trace range is: %1-%2\n")
 		      .arg( trcrg.start ).arg( trcrg.stop ) );
     if ( zwrong )
-	errmsg_.append( tr( "Z range is: %1-%2\n")
+	errmsg_.appendPhrase( tr( "Z range is: %1-%2\n")
 		      .arg( zrg.start ).arg( zrg.stop ) );
     return false;
 }

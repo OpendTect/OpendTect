@@ -392,9 +392,9 @@ bool ProcessManager::usePar( const IOPar& par )
 	{
 	    errmsg_ = tr("Cannot parse processing step %1.").arg(name);
 	    if ( !proc || !proc->errMsg().isEmpty() )
-		errmsg_.append( tr( "\nAre all plugins loaded?" ) );
+		errmsg_.appendPhrase( tr( "\nAre all plugins loaded?" ) );
 	    else
-		errmsg_.append( proc->errMsg(), true );
+		errmsg_.appendPhrase( proc->errMsg(), uiString::NewLine );
 	    delete proc;
 	    return false;
 	}

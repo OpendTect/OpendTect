@@ -70,7 +70,8 @@ void VolProcAttrib::prepareForComputeData()
 	errmsg_ = uiStrings::phrCannotRead(tr("processing setup."));
 	if ( !errmsg.isEmpty() )
 	{
-	    errmsg_.append(tr(" Reason given: %1").arg( errmsg ) );
+	    errmsg_.appendPlainText(" ").appendPhrase(tr("Reason given: %1")
+							.arg( errmsg ) );
 	}
 
 	return;
@@ -190,7 +191,8 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 	errmsg_ = uiStrings::phrCannotRead(tr("processing setup.") );
 	if ( !errmsg.isEmpty() )
 	{
-	    errmsg_.append( tr( " Reason given: %1").arg( errmsg ) );
+	    errmsg_.appendPlainText(" ").appendPhrase( tr( " Reason given: %1")
+							    .arg( errmsg ) );
 	}
 
 	return false;

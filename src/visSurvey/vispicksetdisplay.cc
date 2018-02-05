@@ -631,9 +631,9 @@ void PickSetDisplay::getPickingMessage( uiString& str ) const
     str = tr("Picking (Nr picks= %1").arg(set_->size());
     if ( !areastring.isEmpty() )
     {
-	str.append(toUiString(", %1").arg(areastring));
+	str.appendPlainText(", %1").arg(areastring);
     }
-    str.append(toUiString(")"));
+    str.appendPlainText(")");
 }
 
 
