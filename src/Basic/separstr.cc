@@ -32,20 +32,20 @@ SeparString& SeparString::operator =( const char* s )
 }
 
 
-const char* SeparString::getEscaped( const char* str, char sep ) const
+const char* SeparString::getEscaped( const char* string, char sep ) const
 {
-    if ( !str )
+    if ( !string )
 	return 0;
 
-    retstr_.setBufSize( 2*strLength(str) + 1 );
+    retstr_.setBufSize( 2*strLength(string) + 1 );
 
     char* writeptr = retstr_.getCStr();
-    while ( *str )
+    while ( *string )
     {
-	if ( *str=='\\' || *str==sep )
+	if ( *string=='\\' || *string==sep )
 	    *writeptr++ = '\\';
 
-	*writeptr++ = *str++;
+	*writeptr++ = *string++;
     }
     *writeptr = '\0';
     return retstr_.buf();
@@ -120,20 +120,20 @@ static bool isSurelyUnescaped( const char* str, char sep )
 }
 
 
-void SeparString::initRep( const char* str )
+void SeparString::initRep( const char* string )
 {
     /*  Escape backslashes if str contains old-format separ-string read from
 	file. Detection only fails if all backslashes in the old-format string
 	are pairwise or precede a separation character (highly unlikely).
 	New code should not rely on this!
      */
-    if ( isSurelyUnescaped(str, sep_[0]) )
+    if ( isSurelyUnescaped(string, sep_[0]) )
     {
-	rep_ = getEscaped( str, '\0' );
+	rep_ = getEscaped( string, '\0' );
 	return;
     }
 
-    rep_ = str;
+    rep_ = string;
 }
 
 
@@ -207,11 +207,11 @@ SeparString& SeparString::add( const SeparString& ss )
 }
 
 
-SeparString& SeparString::add( const char* str )
+SeparString& SeparString::add( const char* string )
 {
     if ( *rep_.buf() ) rep_ += sep_;
-    if ( !str || !*str ) str = " ";
-    rep_ += getEscaped( str , sep_[0] );
+    if ( !string || !*string ) string = " ";
+    rep_ += getEscaped( string , sep_[0] );
     return *this;
 }
 
@@ -236,9 +236,9 @@ mDeclGetFn(double,getDValue)
 mDeclGetFn(bool,getYN)
 
 
-int SeparString::indexOf( const char* str ) const
+int SeparString::indexOf( const char* string ) const
 {
-    if ( !str ) return -1;
+    if ( !string ) return -1;
 
     const char* startptr = rep_.buf();
     int elemnr = 0;
@@ -247,7 +247,7 @@ int SeparString::indexOf( const char* str ) const
 	const char* nextsep = findSeparator( startptr );
 	FixedString elemstr = getUnescaped( startptr, nextsep );
 
-	if ( elemstr == str )
+	if ( elemstr == string )
 	    return elemnr;
 
 	if ( !nextsep )

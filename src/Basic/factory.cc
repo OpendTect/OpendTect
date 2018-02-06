@@ -76,13 +76,13 @@ void FactoryBase::addNames( const char* ky, const uiString& username )
 void FactoryBase::setNames( int idx, const char* ky,
 			    const uiString& username )
 {
-    BufferString key, aliases;
-    if ( !getKeyAndAliases(ky,key,aliases) )
+    BufferString thiskey, aliases;
+    if ( !getKeyAndAliases(ky,thiskey,aliases) )
 	return;
 
-    keys_.get( idx ) = key;
+    keys_.get( idx ) = thiskey;
     aliases_.get( idx ) = aliases;
-    usernames_.get( idx ) = username.isEmpty() ? toUiString(key) : username;
+    usernames_.get( idx ) = username.isEmpty() ? toUiString(thiskey) : username;
 }
 
 
