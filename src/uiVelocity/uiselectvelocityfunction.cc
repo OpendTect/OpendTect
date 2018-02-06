@@ -229,7 +229,7 @@ uiEditFunction::uiEditFunction( uiParent* p, FunctionSource* vfs )
 			     mNoDlgTitle, mODHelpKey(mEditFunctionHelpID)) )
     , dlggrp_( 0 )
 {
-    dlggrp_ = uiFunctionSettings::factory().create( 0, this, vfs );
+    dlggrp_ = uiFunctionSettings::factory().createSuitable( this, vfs );
 }
 
 

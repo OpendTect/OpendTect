@@ -241,7 +241,7 @@ uiODDataTreeItem* uiODFaultTreeItem::createAttribItem(
 {
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as
-	? uiODDataTreeItem::factory().create( 0, *as, parenttype ) : 0;
+	? uiODDataTreeItem::factory().createSuitable( *as, parenttype ) : 0;
     if ( !res )
 	res = new uiODFaultSurfaceDataTreeItem( emid_, parenttype );
     return res;

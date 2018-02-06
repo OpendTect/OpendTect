@@ -29,8 +29,8 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g,
     for ( int idx=0; idx<griddernames.size(); idx++ )
     {
 	const BufferString& griddernm = griddernames.get( idx );
-	uiGridder2DGrp* uigriddergrp = uiGridder2DGrp::factory().create( 0,
-							this, griddernm );
+	uiGridder2DGrp* uigriddergrp
+		= uiGridder2DGrp::factory().createSuitable( this, griddernm );
 	if ( !uigriddergrp )
 	    continue;
 

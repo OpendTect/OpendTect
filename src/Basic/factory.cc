@@ -101,7 +101,9 @@ void FactoryBase::setDefaultKey( const char* ky )
 
 const char* FactoryBase::defaultKey() const
 {
-    return keys_.validIdx(defaultkeyidx_) ? keys_.get(defaultkeyidx_).str() : 0;
+    if ( keys_.validIdx(defaultkeyidx_) )
+	return keys_.get(defaultkeyidx_).str();
+    return keys_.isEmpty() ? 0 : keys_.get(0).str();
 }
 
 

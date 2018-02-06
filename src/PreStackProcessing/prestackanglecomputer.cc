@@ -429,9 +429,11 @@ VelocityBasedAngleComputer::~VelocityBasedAngleComputer()
 
 bool VelocityBasedAngleComputer::setDBKey( const DBKey& dbky )
 {
-    if ( velsource_ ) velsource_->unRef();
-    velsource_ = Vel::FunctionSource::factory().create( 0, dbky );
-    if ( velsource_ ) velsource_->ref();
+    if ( velsource_ )
+	velsource_->unRef();
+    velsource_ = Vel::FunctionSource::factory().createSuitable( dbky );
+    if ( velsource_ )
+	velsource_->ref();
 
     return velsource_;
 }

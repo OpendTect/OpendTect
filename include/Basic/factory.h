@@ -113,14 +113,11 @@ protected:
     void		addNames(const char*,const uiString&);
     void		setNames(int,const char*,const uiString&);
 
-    mutable Threads::Atomic<int> lastcreatedidx_;
-
-private:
-
     BufferStringSet	keys_;
     BufferStringSet	aliases_;
     uiStringSet		usernames_;
     Threads::Atomic<int> defaultkeyidx_;
+    mutable Threads::Atomic<int> lastcreatedidx_;
 
 };
 
@@ -143,6 +140,8 @@ public:
 				     allowing multiple keys */
 
     inline T*		create(const char* ky) const;
+    inline T*		createAny() const;
+    inline T*		createSuitable() const	    { return createAny(); }
 
 protected:
 
@@ -165,7 +164,8 @@ public:
     inline int		addCreator(Creator,const char* ky,
 				   uiString usernm =uiString::emptyString());
 
-    inline T*		create(const char*,P)const;
+    inline T*		create(const char*,P) const;
+    inline T*		createSuitable(P) const;
 
 protected:
 
@@ -187,7 +187,8 @@ public:
     inline int		addCreator(Creator,const char* ky,
 				   uiString usernm=uiString::emptyString());
 
-    inline T*		create(const char*, P0, P1) const;
+    inline T*		create(const char*,P0,P1) const;
+    inline T*		createSuitable(P0,P1) const;
 
 protected:
 
@@ -206,10 +207,11 @@ public:
     typedef		T* (*Creator)(P0,P1,P2);
     typedef T		ObjType;
 
+    inline T*		create(const char*,P0,P1,P2) const;
+    inline T*		createSuitable(P0,P1,P2) const;
+
     inline int		addCreator(Creator,const char* ky,
 				   uiString usernm=uiString::emptyString());
-
-    inline T*		create(const char*,P0,P1,P2) const;
 
 protected:
 
@@ -249,6 +251,17 @@ int Factory0Param<T>::addCreator( Creator cr, const char* ky, uiString unm )
 template <class T> inline
 T* Factory0Param<T>::create( const char* ky ) const
 { mCreateImpl( creators_[idx]() ); }
+template <class T> inline
+T* Factory0Param<T>::createAny() const
+{
+    for ( int idx=0; idx<keys_.size(); idx++ )
+    {
+	T* newinst = create( keys_.get(idx) );
+	if ( newinst )
+	    return newinst;
+    }
+    return 0;
+}
 
 template <class T, class P> inline
 int Factory1Param<T,P>::addCreator( Creator cr, const char* ky, uiString unm )
@@ -257,6 +270,18 @@ template <class T, class P> inline
 T* Factory1Param<T,P>::create( const char* ky, P p ) const
 { mCreateImpl( creators_[idx]( p ) ); }
 
+template <class T, class P> inline
+T* Factory1Param<T,P>::createSuitable( P p ) const
+{
+    for ( int idx=0; idx<keys_.size(); idx++ )
+    {
+	T* newinst = create( keys_.get(idx), p );
+	if ( newinst )
+	    return newinst;
+    }
+    return 0;
+}
+
 template <class T, class P0, class P1> inline
 int Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* ky,
 					uiString unm )
@@ -264,6 +289,17 @@ int Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* ky,
 template <class T, class P0, class P1> inline
 T* Factory2Param<T,P0,P1>::create( const char* ky, P0 p0, P1 p1 ) const
 { mCreateImpl( creators_[idx]( p0, p1 ) ); }
+template <class T, class P0, class P1> inline
+T* Factory2Param<T,P0,P1>::createSuitable( P0 p0, P1 p1 ) const
+{
+    for ( int idx=0; idx<keys_.size(); idx++ )
+    {
+	T* newinst = create( keys_.get(idx), p0, p1 );
+	if ( newinst )
+	    return newinst;
+    }
+    return 0;
+}
 
 template <class T, class P0, class P1, class P2> inline
 int Factory3Param<T,P0,P1,P2>::addCreator( Creator cr, const char* ky,
@@ -272,6 +308,17 @@ int Factory3Param<T,P0,P1,P2>::addCreator( Creator cr, const char* ky,
 template <class T, class P0, class P1, class P2> inline
 T* Factory3Param<T,P0,P1,P2>::create( const char* ky, P0 p0, P1 p1, P2 p2) const
 { mCreateImpl( creators_[idx]( p0, p1, p2 ) ); }
+template <class T, class P0, class P1, class P2> inline
+T* Factory3Param<T,P0,P1,P2>::createSuitable( P0 p0, P1 p1, P2 p2 ) const
+{
+    for ( int idx=0; idx<keys_.size(); idx++ )
+    {
+	T* newinst = create( keys_.get(idx), p0, p1, p2 );
+	if ( newinst )
+	    return newinst;
+    }
+    return 0;
+}
 
 
 #define mDefFactoryClassFns( kw, funcname ) \

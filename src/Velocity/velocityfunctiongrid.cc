@@ -605,8 +605,8 @@ void GriddedSource::setSource( const DBKeySet& dbkys )
     ObjectSet<FunctionSource> newsources;
     for ( int idx=0; idx<dbkys.size(); idx++ )
     {
-	FunctionSource* src =
-	    FunctionSource::factory().create( "", dbkys[idx] );
+	FunctionSource* src = FunctionSource::factory().createSuitable(
+						dbkys[idx] );
 	if ( !src )
 	    continue;
 	src->ref();
