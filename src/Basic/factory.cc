@@ -57,18 +57,18 @@ bool FactoryBase::getKeyAndAliases( const char* inpky,
 
 void FactoryBase::addNames( const char* ky, const uiString& username )
 {
-    BufferString key, aliases;
-    if ( !getKeyAndAliases(ky,key,aliases) )
+    BufferString thiskey, aliases;
+	if (!getKeyAndAliases(ky, thiskey, aliases))
 	return;
 
-    const int idx = keys_.indexOf( key );
+	const int idx = keys_.indexOf(thiskey);
     if ( idx > 0 )
 	setNames( idx, ky, username );
     else
     {
-	keys_.add( key );
+		keys_.add(thiskey);
 	aliases_.add( aliases );
-	usernames_.add( username.isEmpty() ? toUiString(key) : username );
+	usernames_.add(username.isEmpty() ? toUiString(thiskey) : username);
     }
 }
 
