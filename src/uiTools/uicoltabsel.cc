@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "datadistributiontools.h"
 #include "settings.h"
+#include "uisettings.h"
 #include "uimenu.h"
 #include "uidialog.h"
 #include "uigeninput.h"
@@ -22,6 +23,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "uislider.h"
+#include "uigeninput.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
@@ -939,4 +941,73 @@ uiColTabToolBar::uiColTabToolBar( uiParent* p )
     : uiToolBar(p,tr("Color Selection"))
     , seltool_(*new uiColTabToolBarTool(this))
 {
+}
+
+
+
+
+class uiColTabSettingsGroup : public uiSettingsGroup
+{ mODTextTranslationClass(uiColTabSettingsGroup);
+public:
+
+    mDecluiSettingsGroupPublicFns( uiColTabSettingsGroup,
+				   LooknFeel, "ColTab", "colorbar",
+				   uiStrings::sColorTable(), mTODOHelpKey )
+
+uiColTabSettingsGroup( uiParent* p, Settings& setts )
+    : uiSettingsGroup(p,setts)
+#define mCTSettsVal( fn, ky ) setts.fn(uiColTabSelTool::ky())
+    , initialshowtxtmanip_(mCTSettsVal(isTrue,sKeyShowTextManipulators))
+    , initialshowusemodesel_(!mCTSettsVal(isFalse,sKeyShowUseModeSel))
+    , initialshowhisteq_(!mCTSettsVal(isFalse,sKeyShowHistEqBut))
+    , initialasymclip_(mCTSettsVal(isTrue,sKeyEnableAsymmetricClipping))
+{
+#   define mCTInpFld( str, var ) \
+    new uiGenInput( this, str, BoolInpSpec(var) )
+    txtmanipfld_ = mCTInpFld(
+			  tr("Enable textual range fields"),
+			  initialshowtxtmanip_ );
+    usemodefld_ = mCTInpFld( tr("Show Flip/Cyclic shortcut tool"),
+			  initialshowusemodesel_ );
+    usemodefld_->attach( alignedBelow, txtmanipfld_ );
+    histeqfld_ = mCTInpFld( tr("Show Histogram Equaliation button"),
+			  initialshowhisteq_ );
+    histeqfld_->attach( alignedBelow, usemodefld_ );
+    asymfld_ = mCTInpFld( tr("Enable seting asymmetric clipping"),
+			  initialasymclip_ );
+    asymfld_->attach( alignedBelow, histeqfld_ );
+}
+
+
+void doCommit( uiRetVal& )
+{
+    updateSettings( initialshowtxtmanip_, txtmanipfld_->getBoolValue(),
+		    uiColTabSelTool::sKeyShowTextManipulators() );
+    updateSettings( initialshowusemodesel_, usemodefld_->getBoolValue(),
+		    uiColTabSelTool::sKeyShowUseModeSel() );
+    updateSettings( initialshowhisteq_, histeqfld_->getBoolValue(),
+		    uiColTabSelTool::sKeyShowHistEqBut() );
+    if ( changed_ )
+	needsrestart_ = true;
+
+    updateSettings( initialasymclip_, asymfld_->getBoolValue(),
+		    uiColTabSelTool::sKeyEnableAsymmetricClipping() );
+}
+
+    const bool	initialshowtxtmanip_;
+    const bool	initialshowusemodesel_;
+    const bool	initialshowhisteq_;
+    const bool	initialasymclip_;
+
+    uiGenInput*	txtmanipfld_;
+    uiGenInput*	usemodefld_;
+    uiGenInput*	histeqfld_;
+    uiGenInput*	asymfld_;
+
+};
+
+
+void uiColTabSelTool::initClass()
+{
+    uiColTabSettingsGroup::initClass();
 }

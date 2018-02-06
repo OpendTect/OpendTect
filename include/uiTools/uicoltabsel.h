@@ -49,10 +49,12 @@ public:
     virtual void		addObjectsToToolBar(uiToolBar&);
     virtual void		orientationChanged();
 
-    static const char*		sKeyEnableAsymmetricClipping();
     static const char*		sKeyShowTextManipulators();
     static const char*		sKeyShowUseModeSel();
     static const char*		sKeyShowHistEqBut();
+    static const char*		sKeyEnableAsymmetricClipping();
+
+    static void			initClass();
 
 protected:
 
