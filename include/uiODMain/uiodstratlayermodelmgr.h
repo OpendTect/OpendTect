@@ -18,7 +18,7 @@ class uiStratLayerModelManager;
 class uiStratLayerModel;
 
 
-class uiStratLayerModelManager : public CallBacker
+mExpClass(uiODMain) uiStratLayerModelManager : public CallBacker
 { mODTextTranslationClass(uiStratLayerModelManager);
 public:
 
