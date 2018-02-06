@@ -147,7 +147,7 @@ public:
 mExpClass(uiBase) uiActionSeparString : public SeparString
 {
 public:
-    uiActionSeparString(const char* str=0) : SeparString(str,'`')	{}
+    uiActionSeparString(const char* string=0) : SeparString(string,'`')	{}
 };
 
 
