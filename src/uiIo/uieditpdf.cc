@@ -85,10 +85,11 @@ bool uiEditProbDenFuncDlg::acceptOK()
 #define mGetRowIdx(irow) \
     const int rowidx = nrdims_ == 1 ? irow : nrrows -irow - 1
 #define mAddDim2Str(uis) \
-	    uis.append( toUiString(" at ") ) \
-	       .append( toUiString(pdf_.dimName(2)) ) \
-	       .append( toUiString("=") ) \
-	       .append( toUiString(andpdf->sampling(2).atIndex(curdim2_)) );
+	    uis.appendPlainText( " at " ) \
+	       .appendPlainText( pdf_.dimName(2) ) \
+	       .appendPlainText( "=" ) \
+	       .appendPlainText( toString(andpdf->sampling(2) \
+						    .atIndex(curdim2_)) );
 
 
 uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,

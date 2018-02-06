@@ -45,7 +45,7 @@ namespace WellTie
     if ( errmsg_.isEmpty() ) \
 	errmsg_ = msg; \
     else \
-	errmsg_.append( msg, true ); \
+	errmsg_.appendPhrase( msg, uiString::NewLine ); \
 \
     return false; \
 }
@@ -458,10 +458,12 @@ bool DataPlayer::setAIModel()
     emodelcomputer.setExtractionPars( data_.getModelRange().step, true );
     uiString doeditmsg( tr("Please consider editing your logs.") );
     if ( !emodelcomputer.computeFromLogs() )
-	mErrRet( uiString( emodelcomputer.errMsg() ).append(doeditmsg,true) )
+	mErrRet( uiString( emodelcomputer.errMsg() )
+				.appendPhrase(doeditmsg,uiString::NewLine) )
 
     if ( !emodelcomputer.warnMsg().isEmpty() )
-	warnmsg_ = uiString( emodelcomputer.warnMsg() ).append(doeditmsg,true);
+	warnmsg_ = uiString( emodelcomputer.warnMsg() )
+				.appendPhrase(doeditmsg,uiString::NewLine);
 
     aimodel_ = emodelcomputer.elasticModel();
 
@@ -524,7 +526,7 @@ bool DataPlayer::copyDataToLogSet()
     errmsg_.setEmpty();
 
     if ( aimodel_.isEmpty() )
-	mErrRet( tr("Internal: No data found") )
+	mErrRet( toUiString("Internal: No data found") )
 
     data_.logset_.setEmpty();
     const StepInterval<float> dahrg = data_.getDahRange();
@@ -646,7 +648,7 @@ bool DataPlayer::processLog( const Well::Log* log,
     uiString msg;
 
     if ( !log )
-	mErrRet( tr( "Can not find log '%1'" ).arg( nm ) )
+	mErrRet( tr( "Cannot find log '%1'" ).arg( nm ) )
 
     outplog.setUnitMeasLabel( log->unitMeasLabel() );
 

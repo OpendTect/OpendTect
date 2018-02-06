@@ -183,25 +183,30 @@ bool uiElasticModelProvider::getInputMIDs( DBKey& pwmid, DBKey& swmid,
 			    "chosen model type and source." );
     uiString reasonstr;
     if ( needai && aimid.isInvalid() )
-	reasonstr.append( tr( "Acoustic Impedance input is missing"), true );
+	reasonstr.appendPhrase( tr( "Acoustic Impedance input is missing"),
+							uiString::NewLine );
 
     if ( needsi && simid.isInvalid() )
-	reasonstr.append( tr("Shear Impedance input is missing" ), true );
+	reasonstr.appendPhrase( tr("Shear Impedance input is missing" ),
+							uiString::NewLine );
 
     if ( !needai && denmid.isInvalid() )
-	reasonstr.append( tr("Density input is missing" ), true );
+	reasonstr.appendPhrase( tr("Density input is missing" ),
+							uiString::NewLine );
 
     if ( !needai && pwmid.isInvalid() )
-	reasonstr.append( tr("P-Wave input is missing" ), true );
+	reasonstr.appendPhrase( tr("P-Wave input is missing" ),
+							uiString::NewLine );
 
     if ( !isac && !needsi && swmid.isInvalid() )
-	reasonstr.append( tr("S-Wave input is missing" ), true );
+	reasonstr.appendPhrase( tr("S-Wave input is missing" ),
+							uiString::NewLine );
 
     if ( !reasonstr.isEmpty() )
     {
 	const_cast<uiElasticModelProvider*>(this)->errmsg_ = basestr;
 	const_cast<uiElasticModelProvider*>(this)->
-					    errmsg_.append( reasonstr, true );
+			errmsg_.appendPhrase( reasonstr, uiString::NewLine );
 	return false;
     }
 

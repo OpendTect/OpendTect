@@ -834,7 +834,8 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     if ( writable_ )
 	uiButton::getStd( iobutgrp, OD::Import, mCB(this,uiD2TModelDlg,readNew),
 						false );
-    uiButton::getStd( iobutgrp, OD::Export, mCB(this,uiD2TModelDlg,expData), false );
+    uiButton::getStd( iobutgrp, OD::Export, mCB(this,uiD2TModelDlg,expData), 
+								    false );
     if ( replvelfld_ )
 	iobutgrp->attach( ensureBelow, replvelfld_ );
     else
@@ -1897,7 +1898,8 @@ bool uiSetD2TFromOtherWell::acceptOK()
 	if ( !res )
 	{
 	    uiString msgtoadd;
-	    msgtoadd.append(welldata->name()).append(" : ").append( errmsg );
+	    msgtoadd.appendPlainText(welldata->name()).appendPlainText(" : ")
+						    .appendPhrase( errmsg );
 	    errmsgs.add( errmsg );
 	    continue;
 	}

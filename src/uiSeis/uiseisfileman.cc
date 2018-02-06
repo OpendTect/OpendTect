@@ -165,7 +165,8 @@ void uiSeisFileMan::ownSelChg()
 	if ( but->isSensitive() ) \
 	{ \
 	    tt.setEmpty(); \
-	    tt.append( str1 ).append( curattribnms ).append( str2 ); \
+	    tt.appendPhrase( str1 ).appendWord( curattribnms ) \
+				    .appendPlainText( str2 ); \
 	    but->setToolTip( tt ); \
 	} \
 	else \
@@ -181,7 +182,7 @@ void uiSeisFileMan::setToolButtonProperties()
     uiString tt;
     copybut_->setSensitive( !cursel.isEmpty() );
     mSetButToolTip(copybut_,tr("Make a Copy of '"),toUiString(cursel),
-		   toUiString("'"), is2d_ ? uiStrings::phrCopy(tr("dataset")) :
+		   "'", is2d_ ? uiStrings::phrCopy(tr("dataset")) :
 		   uiStrings::phrCopy(uiStrings::sCube().toLower()));
     if ( browsebut_ )
     {
@@ -190,7 +191,7 @@ void uiSeisFileMan::setToolButtonProperties()
 	browsebut_->setSensitive( enabbrowse );
 	if ( !enabbrowse )
 	    mSetButToolTip( browsebut_, tr("No browser for '"),
-			    toUiString(cursel), toUiString("'"),
+			    toUiString(cursel), "'",
 			    tr("Browse/edit selected cube") )
 	else
 	{
@@ -206,7 +207,7 @@ void uiSeisFileMan::setToolButtonProperties()
 	if ( selcubenms.size() > 1 )
 	    mSetButToolTip(mergecubesbut_,uiStrings::sMerge(),toUiString(" %1")
 			   .arg(toUiString(selcubenms.getDispString(2))),
-			   uiStrings::sEmptyString(),uiStrings::phrMerge(
+			   "",uiStrings::phrMerge(
 			   uiStrings::sCube().toLower()))
 	else
 	    mergecubesbut_->setToolTip( uiStrings::phrMerge(
@@ -217,7 +218,7 @@ void uiSeisFileMan::setToolButtonProperties()
     {
 	man2dlinesbut_->setSensitive( !cursel.isEmpty() );
 	mSetButToolTip(man2dlinesbut_,uiStrings::phrManage(tr("2D lines in '")),
-		       toUiString(cursel),toUiString("'"),
+		       toUiString(cursel),"'",
 		       uiStrings::phrManage(uiStrings::sLine(2)))
     }
 
@@ -236,8 +237,7 @@ void uiSeisFileMan::setToolButtonProperties()
 	     fp.setExtension( sProcFileExtension() );
 	     attribbut_->setSensitive( File::exists(fp.fullPath()) );
 	     mSetButToolTip(attribbut_,tr("Show AttributeSet for "),
-			    toUiString(cursel),uiStrings::sEmptyString(),
-			    sShowAttributeSet())
+			    toUiString(cursel), "", sShowAttributeSet())
 	}
 	else
 	    attribbut_->setToolTip( sShowAttributeSet() );

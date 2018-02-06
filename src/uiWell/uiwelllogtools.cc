@@ -359,13 +359,12 @@ void uiWellLogToolWin::cancelPushedCB( CallBacker* )
 { close(); }
 
 
-#define mAddErrMsg( msg, well ) \
+#define mAddErrMsg( msg ) \
 { \
     if ( emsg.isEmpty() ) \
 	emsg = msg; \
     else \
-	emsg.append(toUiString("\n %1 %2 %3")).arg( msg ) \
-	    .arg(uiWellLogToolWin::LogData::sAtWell()).arg(well); \
+	emsg.appendPhrase( msg ); \
     continue; \
 }
 
@@ -491,8 +490,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		Well::LogSampler ls( ld.d2t_, &track, zrg, false, deftimestep,
 				     SI().zIsTime(), ut, reslogs );
 		if ( !ls.execute() )
-		    mAddErrMsg( tr("Cannot resample the logs"),
-					    toUiString(wllnm) )
+		    mAddErrMsg( tr("\n Cannot resample the logs at well %1")
+							.arg(wllnm) )
 
 		const int size = ls.nrZSamples();
 		Array1DImpl<float> logvals( size );
@@ -509,13 +508,14 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		{
 		    if ( freqrg.isRev() )
 			mAddErrMsg( tr("Taper start frequency must be larger"
-				       " than stop frequency"), wllnm )
+				" than stop frequency at well %1").arg(wllnm) )
 
 		    filter.setBandPass( freqrg.start, freqrg.stop );
 		}
 
 		if ( !filter.apply(logvals) )
-		    mAddErrMsg( tr("Cannot apply the FFT Filter"), wllnm )
+		    mAddErrMsg( tr("Cannot apply the FFT Filter at well %1")
+								.arg(wllnm) )
 
 		PointBasedMathFunction filtvals(PointBasedMathFunction::Linear,
 						PointBasedMathFunction::EndVal);
@@ -542,7 +542,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		const int winsz = gatefld_->getIntValue();
 		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
 		if ( !sm.execute() )
-		    mAddErrMsg( tr("Cannot apply the smoothing window"), wllnm )
+		    mAddErrMsg( tr("Cannot apply the smoothing window at well "
+							    "%1").arg(wllnm) )
 	    }
 	    else if ( act == 3 )
 	    {

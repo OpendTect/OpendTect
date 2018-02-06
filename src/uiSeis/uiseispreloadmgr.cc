@@ -180,9 +180,9 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     const DBKey key = ioobj->key();
     if ( PLDM().isPresent(key) )
     {
-	uiString msg( ioobj->uiName() );
-	msg.append( " is already preloaded."
-		    "\n\nDo you want to reload the cube?" );
+	uiString msg = tr("%1 is already preloaded."
+			"\n\nDo you want to reload the cube?")
+			.arg( ioobj->uiName() );
 	if ( !uiMSG().askGoOn(msg) ) return;
 
 	PreLoader spl( key );
@@ -225,17 +225,17 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     bool skiploadedgeomids = false;
     if ( !loadedgeomids.isEmpty() )
     {
-	uiString msg( toUiString(DBM().nameOf(key)) );
-	msg.append( " dataset for " );
-	msg.append( loadedgeomids.size()>1 ? "lines " : "line " );
+	uiString msg = tr("%1 dataset for lines").arg(DBM().nameOf(key));
+	msg.addSpace();
 	for ( int idx=0; idx<loadedgeomids.size(); idx++ )
 	{
-	    msg.append( Survey::GM().getName(loadedgeomids[idx]) );
+	    msg.appendPlainText( Survey::GM().getName(loadedgeomids[idx]) );
 	    if ( idx < loadedgeomids.size()-1 )
-		msg.append( ", " );
+		msg.appendPlainText( ", " );
 	}
-
-	msg.append( " is already preloaded.\n\nDo you want to reload?" );
+	msg.addSpace();
+	msg.appendPhrase( tr("is already preloaded."
+					    "\n\nDo you want to reload?") );
 	skiploadedgeomids = !uiMSG().askGoOn( msg );
     }
 

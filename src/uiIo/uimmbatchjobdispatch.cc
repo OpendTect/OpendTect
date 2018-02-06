@@ -768,9 +768,10 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* cb )
 	{
 	    uiString msg = uiStrings::phrCannotStart(tr("job"));
 	    if ( isMultiHost() )
-		msg.append( " on %1" ).arg( hnm );
+		msg.appendPhrase( tr(" on %1").arg(hnm) );
 	    if ( !jobrunner_->errorMsg().isEmpty() )
-		msg.append( ":\n" ).append( jobrunner_->errorMsg() );
+		msg.appendPlainText( ":\n" )
+				.appendPhrase( jobrunner_->errorMsg() );
 	    progrfld_->append( toString(msg) );
 	    mLogMsg( toString(msg) );
 	}

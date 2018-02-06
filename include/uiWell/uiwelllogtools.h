@@ -52,7 +52,6 @@ public:
 
 	int			setSelectedLogs(BufferStringSet&);
 	void			getOutputLogs(Well::LogSet& ls) const;
-	static uiString		sAtWell() { return tr("at well"); }
 
     protected:
 
