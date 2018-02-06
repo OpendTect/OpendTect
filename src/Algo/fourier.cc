@@ -25,10 +25,10 @@ mImplClassFactory( CC, factory );
 CC* CC::createDefault()
 {
     CC* res = factory().create( factory().defaultKey() );
-
     if ( !res )
+	res = factory().createAny();
+    else
 	res = new CC;
-
     return res;
 }
 

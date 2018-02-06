@@ -12,10 +12,11 @@ ________________________________________________________________________
 
 #include "uicolseqsel.h"
 #include "coltabmapper.h"
-class uiToolButton;
-class uiManipMapper;
-class uiEdMapperSetupDlg;
 class uiColSeqUseModeSel;
+class uiEdMapperSetupDlg;
+class uiManipMapper;
+class uiMapperScaleTextInput;
+class uiToolButton;
 
 
 /*!\brief The color table selection tool on the OD main window. */
@@ -50,6 +51,8 @@ public:
 
     static const char*		sKeyEnableAsymmetricClipping();
     static const char*		sKeyShowTextManipulators();
+    static const char*		sKeyShowUseModeSel();
+    static const char*		sKeyShowHistEqBut();
 
 protected:
 
@@ -58,6 +61,7 @@ protected:
     RefMan<Mapper>		mapper_;
 
     uiManipMapper*		manip_;
+    uiMapperScaleTextInput*	txtscalefld_;
     uiColSeqUseModeSel*		usemodesel_;
     uiToolButton*		histeqbut_;
 
@@ -71,7 +75,9 @@ protected:
     void			mapRangeChgCB(CallBacker*);
     void			distribChgCB(CallBacker*);
 
+    friend class		uiColTabSelToolHelper;
     friend class		uiManipMapper;
+    friend class		uiMapperScaleTextInput;
     friend class		uiEdMapperSetupDlg;
 
 };

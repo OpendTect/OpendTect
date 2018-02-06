@@ -20,11 +20,21 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uitoolbutton.h"
 #include "uilabel.h"
+#include "uilineedit.h"
 #include "uislider.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uifunctiondisplay.h"
+
+const char* uiColTabSelTool::sKeyEnableAsymmetricClipping()
+	{ return "dTect.Disp.ColTab.Enable Asymmetric Clipping"; }
+const char* uiColTabSelTool::sKeyShowTextManipulators()
+	{ return "dTect.Disp.ColTab.Show Text Manipulators"; }
+const char* uiColTabSelTool::sKeyShowUseModeSel()
+	{ return "dTect.Disp.ColTab.Show Flip/Cyclic Tool"; }
+const char* uiColTabSelTool::sKeyShowHistEqBut()
+	{ return "dTect.Disp.ColTab.Show Histogram Equalisation Switch"; }
 
 static uiColTabSelTool* globseltool_ = 0;
 mExtern(uiTools) void SetuiCOLTAB( uiColTabSelTool* st )
@@ -49,7 +59,7 @@ uiEdMapperSetupDlg( uiColTabSelTool& st )
     , seltool_(st)
 {
     dispbothclips_ = Settings::common().isTrue(
-			    "dTect.Enable Asymmetric Clipping" );
+		     uiColTabSelTool::sKeyEnableAsymmetricClipping() );
     showAlwaysOnTop();
     setDeleteOnClose( true );
     setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
@@ -219,16 +229,40 @@ protected:
 };
 
 
-class uiManipMapper : public uiGraphicsView
-{ mODTextTranslationClass("uiManipMapper");
+class uiColTabSelToolHelper
+{
 public:
 
     typedef ColTab::Mapper::DistribType	DistribType;
     typedef Interval<float>		RangeType;
 
+uiColTabSelToolHelper( uiColTabSelTool& st )
+    : seltool_(st)
+{
+}
+
+    uiColTabSelTool&	seltool_;
+
+    uiParent*		parent()
+			{ return seltool_.asParent(); }
+    ColTab::MapperSetup& setup()
+			{ return seltool_.mapper_->setup(); }
+    DistribType&	distrib()
+			{ return seltool_.mapper_->distribution(); }
+    bool		isHor() const
+			{ return seltool_.orientation() == OD::Horizontal; }
+
+};
+
+
+class uiManipMapper : public uiGraphicsView
+		    , public uiColTabSelToolHelper
+{ mODTextTranslationClass("uiManipMapper");
+public:
+
 uiManipMapper( uiColTabSelTool& seltool )
     : uiGraphicsView(seltool.getParent(),"Mapper Manipulator")
-    , seltool_(seltool)
+    , uiColTabSelToolHelper(seltool)
     , eddlg_(0)
     , meh_(getMouseEventHandler())
     , keh_(getKeyboardEventHandler())
@@ -600,7 +634,6 @@ void reDraw()
     }
 }
 
-    uiColTabSelTool&	seltool_;
     uiEdMapperSetupDlg*	eddlg_;
     MouseEventHandler&	meh_;
     KeyboardEventHandler& keh_;
@@ -631,8 +664,86 @@ void reDraw()
 };
 
 
+class uiMapperScaleTextInput : public uiGroup
+			     , public uiColTabSelToolHelper
+{ mODTextTranslationClass("uiMapperScaleTextInput");
+public:
+
+uiMapperScaleTextInput( uiColTabSelTool& st )
+    : uiGroup(st.getParent(),"Mapper scale text fields")
+    , uiColTabSelToolHelper(st)
+{
+    minfld_ = new uiLineEdit( this, FloatInpSpec(), "Minimum" );
+    minfld_->setToolTip( tr("Mimimum of the scaling range") );
+    maxfld_ = new uiLineEdit( this, FloatInpSpec(), "Maximum" );
+    maxfld_->setToolTip( tr("Maximum of the scaling range") );
+
+    mAttachCB( minfld_->returnPressed, uiMapperScaleTextInput::usrCommitCB );
+    mAttachCB( maxfld_->returnPressed, uiMapperScaleTextInput::usrCommitCB );
+}
+
+~uiMapperScaleTextInput()
+{
+    detachAllNotifiers();
+}
+
+void usrCommitCB( CallBacker* )
+{
+    RangeType newrg( minfld_->getFValue(), maxfld_->getFValue() );
+
+    if ( mIsUdf(newrg.start) || mIsUdf(newrg.stop) )
+    {
+	const RangeType oldrg = setup().range();
+	if ( mIsUdf(newrg.start) )
+	{
+	    newrg.start = oldrg.start;
+	    minfld_->setValue( newrg.start );
+	}
+	if ( mIsUdf(newrg.stop) )
+	{
+	    newrg.stop = oldrg.stop;
+	    maxfld_->setValue( newrg.stop );
+	}
+    }
+
+    setup().setFixedRange( newrg );
+}
+
+void orientationChanged()
+{
+    // nothing we can do
+}
+
+void handleMapperSetupChange()
+{
+    const RangeType rg = setup().range();
+    minfld_->setValue( rg.start );
+    maxfld_->setValue( rg.stop );
+}
+
+void doInternalLayout( uiObject* wraparound )
+{
+    const ConstraintType atttyp = isHor() ? rightOf : alignedBelow;
+    if ( !wraparound )
+	maxfld_->attach( atttyp, minfld_ );
+    else
+    {
+	wraparound->attach( atttyp, minfld_ );
+	maxfld_->attach( atttyp, wraparound );
+    }
+}
+
+    uiLineEdit*	minfld_;
+    uiLineEdit*	maxfld_;
+
+};
+
+
 uiColTabSelTool::uiColTabSelTool()
     : mapper_(new Mapper)
+    , txtscalefld_(0)
+    , usemodesel_(0)
+    , histeqbut_(0)
     , mapperMenuReq(this)
     , mappingChanged(this)
 {
@@ -648,20 +759,41 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 {
     uiColSeqSelTool::initialise( orient );
 
-    usemodesel_ = new uiColSeqUseModeSel( getParent(), true,
-					  uiString::emptyString() );
+    if ( Settings::common().isTrue(sKeyShowTextManipulators()) )
+	txtscalefld_ = new uiMapperScaleTextInput( *this );
+
+    if ( !Settings::common().isFalse(sKeyShowUseModeSel()) )
+	usemodesel_ = new uiColSeqUseModeSel( getParent(), true,
+					      uiString::emptyString() );
 
     manip_ = new uiManipMapper( *this );
-    histeqbut_ = new uiToolButton( getParent(), "nohisteq",
-			    tr("Toggle using histogram equalisation"),
-			    mCB(this,uiColTabSelTool,histeqButChgCB) );
-    histeqbut_->setToggleButton( true );
+
+    if ( !Settings::common().isFalse(sKeyShowHistEqBut()) )
+    {
+	histeqbut_ = new uiToolButton( getParent(), "nohisteq",
+				tr("Toggle using histogram equalisation"),
+				mCB(this,uiColTabSelTool,histeqButChgCB) );
+	histeqbut_->setToggleButton( true );
+    }
 
     if ( isGroup() )
     {
-	usemodesel_->attach( rightOf, disp_ );
-	manip_->attach( rightOf, usemodesel_ );
-	histeqbut_->attach( rightOf, manip_ );
+	uiObject* lastobj = disp_;
+	const ConstraintType ct = orient == OD::Horizontal
+				? rightOf : ensureBelow;
+	if ( txtscalefld_ )
+	{
+	    txtscalefld_->doInternalLayout( disp_ );
+	    lastobj = txtscalefld_->maxfld_;
+	}
+	if ( usemodesel_ )
+	{
+	    usemodesel_->attach( ct, lastobj );
+	    lastobj = usemodesel_->attachObj();
+	}
+	manip_->attach( ct, lastobj );
+	if ( histeqbut_ )
+	    histeqbut_->attach( rightOf, manip_ );
     }
 
     mAttachCB( mapper_->setup().objectChanged(),
@@ -670,7 +802,8 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 				uiColTabSelTool::mapRangeChgCB );
     mAttachCB( mapper_->distribution().objectChanged(),
 				uiColTabSelTool::distribChgCB );
-    mAttachCB( usemodesel_->modeChange, uiColTabSelTool::modeSelChgCB );
+    if ( usemodesel_ )
+	mAttachCB( usemodesel_->modeChange, uiColTabSelTool::modeSelChgCB );
 
     disp_->setMapper( mapper_ );
 }
@@ -678,10 +811,16 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 
 void uiColTabSelTool::addObjectsToToolBar( uiToolBar& tbar )
 {
+    if ( txtscalefld_ )
+	tbar.addObject( txtscalefld_->minfld_, 2 );
     uiColSeqSelTool::addObjectsToToolBar( tbar );
-    usemodesel_->addObjectsToToolBar( tbar );
+    if ( txtscalefld_ )
+	tbar.addObject( txtscalefld_->maxfld_, 3 );
+    if ( usemodesel_ )
+	usemodesel_->addObjectsToToolBar( tbar );
     manip_->addObjectsToToolBar( tbar );
-    tbar.add( histeqbut_ );
+    if ( histeqbut_ )
+	tbar.add( histeqbut_ );
 }
 
 
@@ -689,6 +828,8 @@ void uiColTabSelTool::orientationChanged()
 {
     uiColSeqSelTool::orientationChanged();
     manip_->orientationChanged();
+    if ( txtscalefld_ )
+	txtscalefld_->orientationChanged();
 }
 
 
@@ -720,21 +861,27 @@ void uiColTabSelTool::setRange( Interval<float> rg )
 
 void uiColTabSelTool::modeSelChgCB( CallBacker* )
 {
-    mapper_->setup().setSeqUseMode( usemodesel_->mode() );
+    if ( usemodesel_ )
+	mapper_->setup().setSeqUseMode( usemodesel_->mode() );
 }
 
 
 void uiColTabSelTool::histeqButChgCB( CallBacker* )
 {
-    const bool dohisteq = histeqbut_->isOn();
-    mapper_->setup().setDoHistEq( dohisteq );
-    histeqbut_->setIcon( dohisteq ? "histeq" : "nohisteq" );
+    if ( histeqbut_ )
+    {
+	const bool dohisteq = histeqbut_->isOn();
+	mapper_->setup().setDoHistEq( dohisteq );
+	histeqbut_->setIcon( dohisteq ? "histeq" : "nohisteq" );
+    }
 }
 
 
 void uiColTabSelTool::mapRangeChgCB( CallBacker* )
 {
     manip_->handleMapperSetupChange();
+    if ( txtscalefld_ )
+	txtscalefld_->handleMapperSetupChange();
 }
 
 void uiColTabSelTool::mapSetupChgCB( CallBacker* )
@@ -745,9 +892,13 @@ void uiColTabSelTool::mapSetupChgCB( CallBacker* )
 
 void uiColTabSelTool::handleMapperSetupChange()
 {
-    usemodesel_->setMode( mapper_->setup().seqUseMode() );
+    if ( txtscalefld_ )
+	txtscalefld_->handleMapperSetupChange();
+    if ( usemodesel_ )
+	usemodesel_->setMode( mapper_->setup().seqUseMode() );
     manip_->handleMapperSetupChange();
-    histeqbut_->setOn( mapper_->setup().doHistEq() );
+    if ( histeqbut_ )
+	histeqbut_->setOn( mapper_->setup().doHistEq() );
     mappingChanged.trigger();
 }
 

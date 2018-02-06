@@ -744,7 +744,7 @@ int i_LayoutMngr::count () const
     { return childrenlist_.size(); }
 
 
-bool i_LayoutMngr::attach( constraintType type, QWidget& current,
+bool i_LayoutMngr::attach( ConstraintType type, QWidget& current,
 			   QWidget* other, int mrgin,
 			   bool reciprocal )
 {
