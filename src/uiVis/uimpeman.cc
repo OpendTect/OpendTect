@@ -515,7 +515,10 @@ void uiMPEMan::seedClick( CallBacker* )
     mDynamicCastGet(EM::Horizon*,clickedhor,EM::EMM().getObject(emobjid))
     const bool clickedonhorizon = clickedhor;
     if ( clickedhor && clickedhor!=hor )
+    {
+	visBase::DM().selMan().select( clickedobject );
 	mSeedClickReturn();
+    }
 
     seedpicker = tracker->getSeedPicker(true);
     if ( !seedpicker )
