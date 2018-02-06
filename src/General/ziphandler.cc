@@ -171,7 +171,8 @@ ________________________________________________________________________
 #define mMaxWindowBitForRawDeflate -15
 
 #define mErrRet(pre,mid,post) { \
-    errormsg_.appendWord( pre ).appendWord( mid ).appendWord( post ); \
+    errormsg_.appendIncorrect( pre ).appendIncorrect( mid ) \
+	     .appendIncorrect( post ); \
     return false; }
 
 

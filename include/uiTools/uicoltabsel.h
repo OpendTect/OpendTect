@@ -48,6 +48,9 @@ public:
     virtual void		addObjectsToToolBar(uiToolBar&);
     virtual void		orientationChanged();
 
+    static const char*		sKeyEnableAsymmetricClipping();
+    static const char*		sKeyShowTextManipulators();
+
 protected:
 
 				uiColTabSelTool();

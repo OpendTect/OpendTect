@@ -98,9 +98,9 @@ bool Mute::setMuteDefID( const DBKey& mid )
 
     if ( !MuteDefTranslator::retrieve(def_,ioobj,errmsg_) )
     {
-	uiString errstr( tr( "Mute definition \" %1 \" cannot be read." )
+	uiString errstr( tr( "Mute definition '%1' cannot be read" )
 			.arg(ioobj->uiName()) );
-	errstr.appendPhrase( errmsg_, uiString::NewLine );
+	errstr.appendPhrase( errmsg_ );
 	mErrRet( errstr );
     }
 

@@ -38,6 +38,8 @@ public:
 				    visSurvey::SurveyObject,PickSetDisplay,
 				    "PickSetDisplay",
 				    toUiString(sFactoryKeyword()))
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     void			setSet(Pick::Set*);
     bool			isPolygon() const;

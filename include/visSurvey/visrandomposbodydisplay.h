@@ -34,6 +34,8 @@ public:
 				 visSurvey::SurveyObject,RandomPosBodyDisplay,
 				 "RandomPosBodyDisplay",
 				 toUiString(sFactoryKeyword()));
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     DBKey			getDBKey() const;
     bool			isInlCrl() const	{ return false; }

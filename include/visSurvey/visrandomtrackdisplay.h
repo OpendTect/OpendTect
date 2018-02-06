@@ -49,6 +49,8 @@ public:
 				    visSurvey::SurveyObject,RandomTrackDisplay,
 				    "RandomTrackDisplay",
 				    toUiString(sFactoryKeyword()));
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     void			setProbe(Probe*);
     int				getRandomLineID() const;

@@ -89,7 +89,7 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tskr )
 
     if ( nralreadyloaded > 0 )
     {
-	msg1.appendPhrase( tr("already pre-loaded"), uiString::WithSpace );
+	msg1.appendAfterList( tr("are already pre-loaded") );
 	errmsg_.appendPhrase( msg1 );
     }
 

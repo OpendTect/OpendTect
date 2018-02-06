@@ -52,23 +52,23 @@ void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
     FixedString valstr = pars.find( sKey::Position() );
     mesg.setEmpty();
     if ( valstr && *valstr )
-	mesg.addSpace().appendWord( valstr ).addTab();
+	mesg.addSpace().appendIncorrect( valstr, '\t' );
     else
     {
 	valstr = pars.find( sKey::TraceNr() );
 	if ( valstr && *valstr )
-	    mesg.addSpace().appendWord(tr("Trace Number="))
-						    .appendWord( valstr );
+	    mesg.addSpace().appendIncorrect(tr("Trace Number="))
+						    .appendIncorrect( valstr );
 	else
 	{
 	    valstr = pars.find( "Inline" );
 	    if ( !valstr ) valstr = pars.find( "In-line" );
 	    if ( valstr && *valstr )
-		mesg.addSpace().appendWord( valstr );
+		mesg.addSpace().appendIncorrect( valstr );
 	    valstr = pars.find( "Crossline" );
 	    if ( !valstr ) valstr = pars.find( "Cross-line" );
 	    if ( valstr && *valstr )
-		mesg.appendPlainText( "/" ).appendWord( valstr );
+		mesg.appendPlainText( "/" ).appendIncorrect( valstr );
 	}
     }
 
@@ -86,7 +86,7 @@ void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
     if ( valstr && *valstr ) crd.z_ = toDouble( valstr );
 
     if ( !crd.getXY().isUdf() )
-	mesg.appendPlainText( "/t" ).appendPlainText( 
+	mesg.appendPlainText( "/t" ).appendPlainText(
 					    crd.getXY().toPrettyString() );
 
     if ( !mIsUdf(crd.z_) )
@@ -95,7 +95,7 @@ void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
 	mesg.appendPlainText( ")" );
     //<-- MapDataPack has valid crd.coord() but invalid crd.z.
 
-    mesg.addTab();
+    mesg.appendPlainText( "\t" );
 
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg.appendPlainText( ";\t" );
@@ -113,16 +113,18 @@ void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
 	else
 	    { if ( !vdstr || !*vdstr ) vdstr = "VD Val"; }
 	float val = *vdvalstr ? vdvalstr.toFloat() : mUdf(float);
-	mesg.appendWord( tr("Value =") );
-	mesg.appendWord(mIsUdf(val) ? tr("undefined") : toUiString(vdvalstr));
+	mesg.appendIncorrect( tr("Value =") );
+	mesg.appendIncorrect(mIsUdf(val) ? tr("undefined")
+					 : toUiString(vdvalstr));
 	mesg.appendPlainText("(%1)").arg(toUiString(vdstr));
     }
     if ( wvavalstr && !issame )
     {
 	mAddSep();
 	float val = *wvavalstr ? wvavalstr.toFloat() : mUdf(float);
-	mesg.appendWord( tr("Value =") );
-	mesg.appendWord(mIsUdf(val) ? tr("undefined") : toUiString(wvavalstr));
+	mesg.appendIncorrect( tr("Value =") );
+	mesg.appendIncorrect(mIsUdf(val) ? tr("undefined")
+					 : toUiString(wvavalstr));
 	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
 	mesg.appendPlainText( "(%1)").arg(toUiString(wvastr) );
     }
@@ -133,15 +135,15 @@ void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
 	if ( SI().xyInFeet() )
 	    val *= mToFeetFactorF;
 
-	mAddSep(); mesg.appendWord(tr("Offs = %1").arg(toUiString(val)));
-	mesg.addSpace().appendWord(SI().xyUnitString());
+	mAddSep(); mesg.appendIncorrect(tr("Offs = %1").arg(toUiString(val)));
+	mesg.addSpace().appendIncorrect(SI().xyUnitString());
     }
 
     valstr = pars.find( sKey::Azimuth() );
     if ( valstr && valstr!="0" )
     {
-	mAddSep(); 
-	mesg.appendWord(tr("Azimuth = %1").arg(toUiString(valstr))); 
+	mAddSep();
+	mesg.appendIncorrect(tr("Azimuth = %1").arg(toUiString(valstr)));
     }
 
     valstr = pars.find( "Ref/SP number" );

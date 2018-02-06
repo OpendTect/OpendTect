@@ -71,21 +71,21 @@ bool testArg()
 
     const uiString part1 = toUiString( "Part 1" );
     const uiString part2 = toUiString( "Part 2" );
-    uiString res = part1; res.appendPhrase( part2, uiString::BluntGlue );
+    uiString res = part1; res.constructWordWith( part2 );
     mRunStandardTest( res.isEqualTo(toUiString("Part 1Part 2")),
-				"appendPhrase(BluntGlue)" )
-    res = part1; res.appendPhrase( part2, uiString::WithSpace );
+				"constructWordWith(no space)" )
+    res = part1; res.constructWordWith( part2, true );
     mRunStandardTest( res.isEqualTo(toUiString("Part 1 Part 2")),
-				"appendPhrase(WithSpace)" )
-    res = part1; res.appendPhrase( part2, uiString::NewLine );
+				"constructWordWith(with space)" )
+    res = part1; res.appendAfterList( part2 );
     mRunStandardTest( res.isEqualTo(toUiString("Part 1\nPart 2")),
-				"appendPhrase(NewLine)" )
-    res = part1; res.appendPhrase( part2, uiString::CloseLine );
+				"appendAfterList()" )
+    res = part1; res.appendPhraseSameLine( part2 );
     mRunStandardTest( res.isEqualTo(toUiString("Part 1. Part 2")),
-				"appendPhrase(CloseLine)" )
-    res = part1; res.appendPhrase( part2, uiString::CloseAndNewLine );
+				"appendPhraseSameLine(Unrelated)" )
+    res = part1; res.appendPhrase( part2 );
     mRunStandardTest( res.isEqualTo(toUiString("Part 1.\nPart 2")),
-				"appendPhrase(CloseAndNewLine)" )
+				"appendPhrase()" )
 
     return true;
 }
@@ -263,7 +263,7 @@ bool fromBufferStringSetToUiStringSet()
     uiStringSet uistrset = strset.getUiStringSet();
 
     BufferString str = strset.cat( " " );
-    uiString uistr = uistrset.cat( uiString::WithSpace );
+    uiString uistr = uistrset.cat( uiString::Space, uiString::SeparatorOnly );
 
     mRunStandardTest( str == toString(uistr), "Comparing BuffStrSet "
 				    "UiStrSet" );

@@ -61,7 +61,8 @@ public:
 				visSurvey::SurveyObject,FaultDisplay,
 				"FaultDisplay",
 				toUiString(sFactoryKeyword()));
-
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     DBKey			getDBKey() const;
     bool			isInlCrl() const	{ return false; }

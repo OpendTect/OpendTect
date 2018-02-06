@@ -58,6 +58,8 @@ public:
 				    visSurvey::SurveyObject,WellDisplay,
 				    "WellDisplay",
 				    toUiString(sFactoryKeyword()) )
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     uiRetVal			setDBKey(const DBKey&);
     DBKey			getDBKey() const	{ return wellid_; }

@@ -138,12 +138,9 @@ uiBuildListFromList::Setup::Setup( bool mv, const uiString& avitmtp,
 	avitemtype_ = tr("ingredient");
     if ( defitemtype_.isEmpty() )
 	defitemtype_ = tr("definition");
-    addtt_.appendWord( uiStrings::sAdd() ).appendPlainText(" ")
-					    .appendWord( defitemtype_ );
-    edtt_.appendWord( uiStrings::sEdit() ).appendPlainText(" ")
-					    .appendWord( defitemtype_ );
-    rmtt_.appendWord( uiStrings::sRemove() ).appendPlainText(" ")
-					    .appendWord( defitemtype_ );
+    addtt_ = uiStrings::sAdd(); addtt_.postFixWord( defitemtype_ );
+    edtt_ = uiStrings::sEdit(); edtt_.postFixWord( defitemtype_ );
+    rmtt_ = uiStrings::sRemove(); rmtt_.postFixWord( defitemtype_ );
     avtitle_.arg( avitemtype_ );
     deftitle_.arg( defitemtype_ );
 }

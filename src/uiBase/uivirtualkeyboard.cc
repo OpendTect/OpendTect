@@ -77,7 +77,7 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     textline_->setPrefWidth( mNINT32(keyboardwidth) );
 
     textline_->returnPressed.notify( mCB(this,uiVirtualKeyboard,enterCB) );
-    textline_->selectionChanged.notify( mCB(this,uiVirtualKeyboard,selChg) );
+    textline_->focusChanged.notify( mCB(this,uiVirtualKeyboard,focusChg) );
 
     uiPixmapItem* pixmapitm = new uiPixmapItem( pixmap );
     pixmapitm->setScale( keyboardscale_, keyboardscale_ );
@@ -244,7 +244,7 @@ void uiVirtualKeyboard::clickCB( CallBacker* )
 
     char str[2]; str[1] = '\0';
     str[0] = mousePress2Key( mNINT32( ev.x()/keyboardscale_ ),
-	    		     mNINT32( ev.y()/keyboardscale_ ),
+			     mNINT32( ev.y()/keyboardscale_ ),
 			     capslock_, shiftstatus );
     restoreSelection();
 
@@ -344,7 +344,7 @@ void uiVirtualKeyboard::enterCB( CallBacker* )
 }
 
 
-void uiVirtualKeyboard::selChg( CallBacker* )
+void uiVirtualKeyboard::focusChg( CallBacker* )
 {
     if ( textline_->hasFocus() )
     {

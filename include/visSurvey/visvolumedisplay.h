@@ -53,6 +53,8 @@ public:
 				    visSurvey::SurveyObject,VolumeDisplay,
 				    "VolumeDisplay",
 				    toUiString(sFactoryKeyword()));
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     bool			isInlCrl() const { return true; }
 

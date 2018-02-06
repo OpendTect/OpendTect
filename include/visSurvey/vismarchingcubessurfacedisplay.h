@@ -30,11 +30,13 @@ mExpClass(visSurvey) MarchingCubesDisplay : public visBase::VisualObjectImpl,
 			      public visSurvey::SurveyObject
 { mODTextTranslationClass(MarchingCubesDisplay);
 public:
-			    MarchingCubesDisplay();
-			    mDefaultFactoryInstantiation(
-				visSurvey::SurveyObject,MarchingCubesDisplay,
-				 "MarchingCubesDisplay",
-				 ::toUiString(sFactoryKeyword()) );
+				MarchingCubesDisplay();
+				mDefaultFactoryInstantiation(
+				    SurveyObject,MarchingCubesDisplay,
+				     "MarchingCubesDisplay",
+				     ::toUiString(sFactoryKeyword()) );
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     DBKey			getDBKey() const;
     bool			isInlCrl() const	{ return true; }

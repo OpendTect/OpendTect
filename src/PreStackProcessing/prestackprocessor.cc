@@ -390,11 +390,11 @@ bool ProcessManager::usePar( const IOPar& par )
 	Processor* proc = Processor::factory().create( name.buf() );
 	if ( !proc || !proc->errMsg().isEmpty() || !proc->usePar( *steppar ) )
 	{
-	    errmsg_ = tr("Cannot parse processing step %1.").arg(name);
+	    errmsg_ = tr("Cannot parse processing step %1").arg(name);
 	    if ( !proc || !proc->errMsg().isEmpty() )
-		errmsg_.appendPhrase( tr( "\nAre all plugins loaded?" ) );
+		errmsg_.appendPhrase( tr( "Are all plugins loaded?" ) );
 	    else
-		errmsg_.appendPhrase( proc->errMsg(), uiString::NewLine );
+		errmsg_.appendPhrase( proc->errMsg() );
 	    delete proc;
 	    return false;
 	}
