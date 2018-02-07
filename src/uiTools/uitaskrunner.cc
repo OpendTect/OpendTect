@@ -78,7 +78,7 @@ uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     : uiDialog( getTRParent(prnt),
                 uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
 	.nrstatusflds( -1 )
-	.oktext(uiStrings::sPause().addSpace(2))
+	.oktext(uiStrings::sPause().appendPlainText("   "))
 	.canceltext(uiStrings::sAbort()) )
     , task_( 0 )
     , thread_(0)

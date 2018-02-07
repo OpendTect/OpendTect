@@ -186,15 +186,12 @@ void uiStringData::getFullString( BufferString& ret ) const
 
 bool uiStringData::fillQString( QString& res,
 				const QTranslator* translator,
-				bool notranslation) const
+				bool notranslation ) const
 {
 #ifndef OD_NO_QT
     Threads::Locker contentlocker( contentlock_ );
     if ( !originalstring_ || !*originalstring_ )
-    {
-        //res = qstring_;
-        return false;
-    }
+        return true;
 
     bool translationres = false;
 
@@ -211,17 +208,17 @@ bool uiStringData::fillQString( QString& res,
 
 	if ( res.size() && QString(originalstring_.buf())!=res )
             translationres = true;
-
-        if ( !alternateversions_.isEmpty() && !translationres )
-        {
-            for ( int idx=0; idx<alternateversions_.size(); idx++ )
-            {
-                QString alttrans;
+	else if ( !alternateversions_.isEmpty() )
+	{
+	    for ( int idx=0; idx<alternateversions_.size(); idx++ )
+	    {
+		QString alttrans;
 		if ( alternateversions_.get(idx)
 					.translate(*usedtrans,alttrans) )
 		    { res = alttrans; translationres = true; break; }
-            }
-        }
+	    }
+	}
+
 	mDefineStaticLocalObject(bool,dbgtransl,
 				 = GetEnvVarYN("OD_DEBUG_TRANSLATION"));
 	if ( dbgtransl )
@@ -241,9 +238,7 @@ bool uiStringData::fillQString( QString& res,
     }
 
     if ( res.isEmpty() )
-    {
 	res = originalstring_;
-    }
 
     if ( tolower_ )
 	res = res.toLower();

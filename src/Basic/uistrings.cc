@@ -508,8 +508,8 @@ uiWord uiStrings::sOutputFileExistsOverwrite()
 uiWord uiStrings::sProbDensFunc( bool abbrevation, int num )
 {
     return abbrevation
-        ? tr( "PDF", 0, num )
-        : tr("Probability Density Function", 0, num );
+        ? tr("PDF", 0, num)
+        : tr("Probability Density Function", 0, num);
 }
 
 uiWord uiStrings::sRemove()

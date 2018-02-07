@@ -157,6 +157,9 @@ public:
     inline T			xySqDistTo(const Point2D<T>&) const;
 				//!<Square distance in the xy plane
 
+    BufferString		toString() const;
+    BufferString		toPrettyString() const	{ return toString(); }
+
     static Point3D<T>		udf();
 
     T				x_;
@@ -496,6 +499,8 @@ BufferString Point2D<T>::toString() const
 template <> inline
 BufferString Point2D<float>::toPrettyString() const
 {
+    if ( !isDefined() )
+	return toString();
     const Point2D<od_int64> pt( mRounded(od_int64,x_), mRounded(od_int64,y_) );
     return pt.toString();
 }
@@ -504,6 +509,8 @@ BufferString Point2D<float>::toPrettyString() const
 template <> inline
 BufferString Point2D<double>::toPrettyString() const
 {
+    if ( !isDefined() )
+	return toString();
     const Point2D<od_int64> pt( mRounded(od_int64,x_), mRounded(od_int64,y_) );
     return pt.toString();
 }
@@ -686,6 +693,38 @@ bool Point3D<T>::isSameAs( const Point3D<T>& pos,
     return fabs(x_-pos.x_)<eps.x_ &&
 	   fabs(y_-pos.y_)<eps.y_ &&
 	   fabs(z_-pos.z_)<eps.z_;
+}
+
+
+template <class T> inline
+BufferString Point3D<T>::toString() const
+{
+    if ( isUdf() )
+	return BufferString( "<undef>" );
+    BufferString res( "(", x_, "," );
+    res.add( y_ ).add( "," ).add( z_ ).add( ')' );
+    return res;
+}
+
+
+template <> inline
+BufferString Point3D<float>::toPrettyString() const
+{
+    if ( !isDefined() )
+	return toString();
+
+    const Point3D<od_int64> pt( mRounded(od_int64,x_), mRounded(od_int64,y_),
+				mRounded(od_int64,z_) );
+    return pt.toString();
+}
+
+
+template <> inline
+BufferString Point3D<double>::toPrettyString() const
+{
+    const Point3D<od_int64> pt( mRounded(od_int64,x_), mRounded(od_int64,y_),
+				mRounded(od_int64,z_) );
+    return pt.toString();
 }
 
 

@@ -50,7 +50,7 @@ static const char* shapestrs[] =
 	0
 };
 
-uiWord sDispName()
+static uiWord sDispName()
 {
     return od_static_tr("sDispName","Volume Statistics");
 }

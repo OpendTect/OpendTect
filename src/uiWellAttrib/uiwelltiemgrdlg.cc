@@ -91,7 +91,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	BufferStringSet seistypes;
 	seistypes.add( Seis::nameOf(Seis::Line) );
 	seistypes.add( Seis::nameOf(Seis::Vol) );
-	typefld_ = new uiGenInput( seisgrp, tr("Seismic"),
+	typefld_ = new uiGenInput( seisgrp, uiStrings::sSeismic(),
 				   StringListInpSpec( seistypes ) );
 	typefld_->setValue( true );
 	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,typeSelChg) );

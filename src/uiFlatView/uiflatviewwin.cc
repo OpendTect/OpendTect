@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "unitofmeasure.h"
 #include "keystrs.h"
+#include "uistrings.h"
 
 
 void uiFlatViewWin::createViewers( int nr )
@@ -49,51 +50,55 @@ void uiFlatViewWin::setDarkBG( bool yn )
 
 void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
 {
-    FixedString valstr = pars.find( sKey::Position() );
+    BufferString valstr = pars.find( sKey::Position() );
     mesg.setEmpty();
-    if ( valstr && *valstr )
-	mesg.addSpace().appendIncorrect( valstr, '\t' );
+    if ( !valstr.isEmpty() )
+	mesg.appendPlainText( valstr );
     else
     {
 	valstr = pars.find( sKey::TraceNr() );
-	if ( valstr && *valstr )
-	    mesg.addSpace().appendIncorrect(tr("Trace Number="))
-						    .appendIncorrect( valstr );
+	if ( !valstr.isEmpty() )
+	    mesg.constructWordWith( toUiString("%1=%2")
+		    .arg( uiStrings::sTraceNumber() ).arg( valstr ) );
 	else
 	{
 	    valstr = pars.find( "Inline" );
-	    if ( !valstr ) valstr = pars.find( "In-line" );
-	    if ( valstr && *valstr )
-		mesg.addSpace().appendIncorrect( valstr );
-	    valstr = pars.find( "Crossline" );
-	    if ( !valstr ) valstr = pars.find( "Cross-line" );
-	    if ( valstr && *valstr )
-		mesg.appendPlainText( "/" ).appendIncorrect( valstr );
+	    if ( valstr.isEmpty() )
+		valstr = pars.find( "In-line" );
+	    BufferString xlvalstr = pars.find( "Crossline" );
+	    if ( xlvalstr.isEmpty() )
+		xlvalstr = pars.find( "Cross-line" );
+	    if ( !valstr.isEmpty() && !xlvalstr.isEmpty() )
+		mesg.constructWordWith( toUiString("%1/%2").arg( valstr )
+						 .arg( xlvalstr ) );
 	}
     }
 
     Coord3 crd( Coord3::udf() );
     valstr = pars.find( "X" );
-    if ( !valstr ) valstr = pars.find( "X-coordinate" );
-    if ( valstr && *valstr ) crd.x_ = toDouble( valstr );
-
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "X-coordinate" );
+    if ( !valstr.isEmpty() )
+	crd.x_ = toDouble( valstr );
     valstr = pars.find( "Y" );
-    if ( !valstr ) valstr = pars.find( "Y-coordinate" );
-    if ( valstr && *valstr ) crd.y_ = toDouble( valstr );
-
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "Y-coordinate" );
+    if ( !valstr.isEmpty() )
+	crd.y_ = toDouble( valstr );
     valstr = pars.find( "Z" );
-    if ( !valstr ) valstr = pars.find( "Z-Coord" );
-    if ( valstr && *valstr ) crd.z_ = toDouble( valstr );
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "Z-Coord" );
+    if ( !valstr.isEmpty() )
+	crd.z_ = toDouble( valstr );
 
-    if ( !crd.getXY().isUdf() )
-	mesg.appendPlainText( "/t" ).appendPlainText(
-					    crd.getXY().toPrettyString() );
-
-    if ( !mIsUdf(crd.z_) )
-	mesg.appendPlainText( ", " ).appendPlainText( toString(crd.z_) );
-    else if ( !crd.getXY().isUdf() )
-	mesg.appendPlainText( ")" );
-    //<-- MapDataPack has valid crd.coord() but invalid crd.z.
+    const bool havecoord = !mIsUdf(crd.x_) && !mIsUdf(crd.y_);
+    const bool havez = !mIsUdf(crd.z_);
+    if ( havecoord && havez )
+	mesg.constructWordWith( toUiString(crd.toPrettyString()), true );
+    else if ( havecoord )
+	mesg.constructWordWith( toUiString(crd.getXY().toPrettyString()), true);
+    else if ( havez )
+	mesg.constructWordWith( toUiString("Z=%1").arg(crd.z_), true );
 
     mesg.appendPlainText( "\t" );
 
@@ -113,43 +118,48 @@ void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
 	else
 	    { if ( !vdstr || !*vdstr ) vdstr = "VD Val"; }
 	float val = *vdvalstr ? vdvalstr.toFloat() : mUdf(float);
-	mesg.appendIncorrect( tr("Value =") );
-	mesg.appendIncorrect(mIsUdf(val) ? tr("undefined")
-					 : toUiString(vdvalstr));
-	mesg.appendPlainText("(%1)").arg(toUiString(vdstr));
+	mesg.constructWordWith( toUiString("%1=%2").arg( uiStrings::sValue() )
+				.arg( mIsUdf(val) ? uiStrings::sUndef()
+						  : toUiString(vdvalstr) ) );
+	mesg.constructWordWith( toUiString(" (%1)").arg( vdstr ) );
     }
     if ( wvavalstr && !issame )
     {
 	mAddSep();
 	float val = *wvavalstr ? wvavalstr.toFloat() : mUdf(float);
-	mesg.appendIncorrect( tr("Value =") );
-	mesg.appendIncorrect(mIsUdf(val) ? tr("undefined")
-					 : toUiString(wvavalstr));
+	mesg.constructWordWith( toUiString("%1=%2").arg( uiStrings::sValue() )
+			.arg( mIsUdf(val) ? uiStrings::sUndef()
+					  : toUiString(wvavalstr) ) );
 	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
-	mesg.appendPlainText( "(%1)").arg(toUiString(wvastr) );
+	mesg.constructWordWith( toUiString(" (%1)").arg( wvastr ) );
     }
 
     float val;
-    if ( pars.get(sKey::Offset(),val) )
+    if ( pars.get(sKey::Offset(),val) && !mIsUdf(val) )
     {
 	if ( SI().xyInFeet() )
 	    val *= mToFeetFactorF;
-
-	mAddSep(); mesg.appendIncorrect(tr("Offs = %1").arg(toUiString(val)));
-	mesg.addSpace().appendIncorrect(SI().xyUnitString());
+	mAddSep();
+	mesg.constructWordWith( toUiString("%1=%2 %3")
+				.arg( uiStrings::sOffset() ).arg( val )
+				.arg( SI().xyUnitString() ) );
     }
 
     valstr = pars.find( sKey::Azimuth() );
-    if ( valstr && valstr!="0" )
+    if ( !valstr.isEmpty() && valstr != "0" )
     {
 	mAddSep();
-	mesg.appendIncorrect(tr("Azimuth = %1").arg(toUiString(valstr)));
+	mesg.constructWordWith( toUiString("%1=%2")
+				.arg( uiStrings::sAzimuth() ).arg( valstr ) );
     }
 
     valstr = pars.find( "Ref/SP number" );
-    if ( valstr && *valstr )
-	{ mAddSep(); mesg.appendPlainText("Ref/SP=%1")
-						    .arg(toUiString(valstr)); }
+    if ( !valstr.isEmpty() )
+    {
+	mAddSep();
+	mesg.constructWordWith( toUiString("%1=%2")
+				.arg( uiStrings::sSPNumber() ).arg( valstr ) );
+    }
 }
 
 

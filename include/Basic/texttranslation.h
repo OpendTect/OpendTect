@@ -131,7 +131,7 @@ public:
   data/translations but manage everything yourself). */
 
 mExpClass(Basic) LanguageEntry
-{ mODTextTranslationClass(LanguageEntry);
+{ mODTextTranslationClass(TextTranslation::LanguageEntry);
 public:
 
 				LanguageEntry(const char* localekey,

@@ -54,7 +54,7 @@ using namespace Attrib;
 
 static const int cInitNrRows = 4;
 
-uiWord sDispName()
+static uiWord sDispName()
 {
     return od_static_tr("sDispName","Finger Attribute");
 }

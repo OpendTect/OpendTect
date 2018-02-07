@@ -37,7 +37,7 @@ using namespace Attrib;
 const char* uiGapDeconAttrib::sKeyOnInlineYN()	{ return "OnInlineYN"; }
 const char* uiGapDeconAttrib::sKeyLineName()	{ return "Line Name"; }
 
-uiWord sDispName()
+static uiWord sDispName()
 {
     return od_static_tr("sDispName","Gap Decomposition");
 }

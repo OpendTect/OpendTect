@@ -311,8 +311,10 @@ bool uiMsg::message( const uiString& part1, const uiString& part2,
 		     const uiString& part3, bool withdontshowagain )
 {
     uiString msg = part1;
-    if ( !part2.isEmpty() ) msg.append( part2 );
-    if ( !part3.isEmpty() ) msg.append( part3 );
+    if ( !part2.isEmpty() )
+	msg.appendPhrase( part2 );
+    if ( !part3.isEmpty() )
+	msg.appendPhrase( part3 );
     bool notagain = false;
     showMessageBox( Information, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
@@ -325,8 +327,10 @@ bool uiMsg::warning( const uiString& part1, const uiString& part2,
 		     const uiString& part3, bool withdontshowagain )
 {
     uiString msg = part1;
-    if ( !part2.isEmpty() ) msg.append( part2 );
-    if ( !part3.isEmpty() ) msg.append( part3 );
+    if ( !part2.isEmpty() )
+	msg.appendPhrase( part2 );
+    if ( !part3.isEmpty() )
+	msg.appendPhrase( part3 );
     bool notagain = false;
     showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
@@ -387,8 +391,10 @@ bool uiMsg::error( const uiString& part1, const uiString& part2,
 		   const uiString& part3, bool withdontshowagain )
 {
     uiString msg = part1;
-    if ( !part2.isEmpty() ) msg.append( part2 );
-    if ( !part3.isEmpty() ) msg.append( part3 );
+    if ( !part2.isEmpty() )
+	msg.appendPhrase( part2 );
+    if ( !part3.isEmpty() )
+	msg.appendPhrase( part3 );
     bool notagain = false;
     showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),

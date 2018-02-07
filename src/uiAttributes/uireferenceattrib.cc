@@ -48,7 +48,7 @@ static void getOutputNames( uiStringSet& strs3d, uiStringSet& strs2d )
 	  .add( od_static_tr("getOutputNames", "Trace index") );
 }
 
-uiWord sDispName()
+static uiWord sDispName()
 {
     return od_static_tr("sDispName","Reference");
 }

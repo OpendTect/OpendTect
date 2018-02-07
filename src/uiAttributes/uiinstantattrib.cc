@@ -43,7 +43,7 @@ const char* uiInstantaneousAttrib::outstrs[] =
 	0
 };
 
-uiWord sDispName()
+static uiWord sDispName()
 {
     return od_static_tr("sDispName","Instantaneous");
 }

@@ -221,7 +221,7 @@ void uiProgressViewer::handleProcessStatus()
 		      .arg( procstatus_ == AbnormalEnd ? tr("abnormally.")
 						       : tr("successfully.") );
     if ( procstatus_ == AbnormalEnd )
-	stbmsg.append( tr(" It was probably terminated or crashed.") );
+	stbmsg.appendPhrase( tr("It was probably terminated or crashed.") );
     else if ( procstatus_ == Terminated )
 	stbmsg = tr("Process %1 was terminated." ).arg(procnm_);
 

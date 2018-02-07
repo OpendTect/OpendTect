@@ -24,7 +24,7 @@ using namespace Attrib;
 static const char* sKeyDeltaDip = "Delta dip";
 static const char* sKeyMaxDip = "Maximum dip";
 
-uiWord sDispName()
+static uiWord sDispName()
 {
     return od_static_tr("sDispName","Coherency");
 }

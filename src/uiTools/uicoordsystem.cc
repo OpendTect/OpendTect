@@ -126,8 +126,8 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     isdmsbut->activated.notify( tscb );
 
     uiGroup* lblgrp = new uiGroup( this, "Lat/Long Label grp" );
-    uiLabel* lnglbl = new uiLabel( lblgrp, uiStrings::sLongitude() );
-    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLatitude() );
+    uiLabel* lnglbl = new uiLabel( lblgrp, uiStrings::sLongitude(false) );
+    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLatitude(false) );
     latlbl->attach( alignedBelow, lnglbl );
     lblgrp->setHAlignObj( lnglbl );
 

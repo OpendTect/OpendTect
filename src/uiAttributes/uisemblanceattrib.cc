@@ -45,7 +45,7 @@ static const char* extstrs2d[] =
 	0
 };
 
-uiWord sDispName()
+static uiWord sDispName()
 {
     return od_static_tr("sDispName","Semblance");
 }

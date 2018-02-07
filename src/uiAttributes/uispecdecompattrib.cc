@@ -36,7 +36,7 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-uiWord sDispName()
+static uiWord sDispName()
 {
     return od_static_tr("sDispName","Spectral Decomposition");
 }

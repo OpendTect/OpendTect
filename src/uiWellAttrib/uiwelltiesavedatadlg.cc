@@ -168,7 +168,7 @@ bool uiSaveDataDlg::saveLogs()
     if ( !datawtr.writeLogs(logset,savetolog) )
     {
 	datawtr.removeLogs( logset );
-	msg = tr( "Cannot write log(s)", 0, logset.size() );
+	msg = tr( "Cannot write log", 0, logset.size() );
 	mAppMsg( endmsg, mErrRet( msg ) )
     }
 
