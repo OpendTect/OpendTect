@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "coltabmappersetup.h"
 
 class uiHistogramDisplay;
-class uiLineItem;
+class uiManipHandleItem;
 class uiPixmapItem;
 class uiTextItem;
 class uiAxisHandler;
@@ -63,8 +63,8 @@ protected:
     uiPixmapItem*		centercoltab_;
     uiPixmapItem*		rightcoltab_;
 
-    uiLineItem*			minline_;
-    uiLineItem*			maxline_;
+    uiManipHandleItem*		minhandle_;
+    uiManipHandleItem*		maxhandle_;
     uiTextItem*			minvaltext_;
     uiTextItem*			maxvaltext_;
 

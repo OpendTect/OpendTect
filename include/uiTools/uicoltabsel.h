@@ -42,8 +42,8 @@ public:
 
     void			setRange(Interval<float>);
 
-    Notifier<uiColTabSelTool>	mapperMenuReq;
     Notifier<uiColTabSelTool>	mappingChanged;
+    Notifier<uiColTabSelTool>	mapperMenuReq;
 				//!< CallBacker* is the uiMenu about to pop up
 
     virtual void		addObjectsToToolBar(uiToolBar&);
