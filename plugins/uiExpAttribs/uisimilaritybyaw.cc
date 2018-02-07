@@ -23,8 +23,13 @@ _______________________________________________________________________
 
 using namespace Attrib;
 
-mInitAttribUI( uiSimilaritybyAW, SimilaritybyAW,
-	tr("Similarity / Adaptive Window"), sExperimentalGrp() )
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Similarity / Adaptive Window");
+}
+
+mInitAttribUI( uiSimilaritybyAW, SimilaritybyAW, sDispName(),
+						    sExperimentalGrp() )
 
 uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
     :  uiAttrDescEd(p, is2d, mNoHelpKey)

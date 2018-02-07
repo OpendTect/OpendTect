@@ -48,8 +48,13 @@ static void getOutputNames( uiStringSet& strs3d, uiStringSet& strs2d )
 	  .add( od_static_tr("getOutputNames", "Trace index") );
 }
 
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Reference");
+}
 
-mInitAttribUI(uiReferenceAttrib,Reference,tr("Reference"),sPositionGrp())
+
+mInitAttribUI(uiReferenceAttrib,Reference,sDispName(),sPositionGrp())
 
 
 uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )

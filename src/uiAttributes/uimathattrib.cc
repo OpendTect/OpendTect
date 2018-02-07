@@ -35,7 +35,12 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitAttribUI(uiMathAttrib,Attrib::Mathematics,tr("Mathematics"),sBasicGrp())
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Mathematics");
+}
+
+mInitAttribUI(uiMathAttrib,Attrib::Mathematics,sDispName(),sBasicGrp())
 
 uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mMathAttribHelpID) )

@@ -19,8 +19,13 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Sample Value");
+}
 
-mInitAttribUI(uiSampleValueAttrib,SampleValue,tr("Sample value"),sBasicGrp())
+
+mInitAttribUI(uiSampleValueAttrib,SampleValue,sDispName(),sBasicGrp())
 
 uiSampleValueAttrib::uiSampleValueAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mSampleValueAttribHelpID) )

@@ -17,8 +17,12 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitGrpDefAttribUI(uiEventFreqAttrib,EventFreq,tr("Event Frequency"),
-		    sExperimentalGrp() )
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Event Frequency");
+}
+
+mInitGrpDefAttribUI(uiEventFreqAttrib,EventFreq,sDispName(),sExperimentalGrp())
 
 uiEventFreqAttrib::uiEventFreqAttrib( uiParent* p, bool is2d )
 : uiAttrDescEd( p, is2d, mODHelpKey( mEventFreqAttribHelpID ))

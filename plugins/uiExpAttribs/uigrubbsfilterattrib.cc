@@ -33,8 +33,12 @@ static const char* replacetypestr[] =
     0
 };
 
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Grubbs Filter");
+}
 
-mInitAttribUI(uiGrubbsFilterAttrib,GrubbsFilter,tr("Grubbs Filter"),
+mInitAttribUI(uiGrubbsFilterAttrib,GrubbsFilter, sDispName(),
 		    sExperimentalGrp())
 
 

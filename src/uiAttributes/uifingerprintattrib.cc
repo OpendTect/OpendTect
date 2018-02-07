@@ -54,8 +54,13 @@ using namespace Attrib;
 
 static const int cInitNrRows = 4;
 
-mInitGrpDefAttribUINoSynth( uiFingerPrintAttrib, FingerPrint,
-			    tr("FingerPrint"), sPatternGrp() );
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Finger Attribute");
+}
+
+mInitGrpDefAttribUINoSynth( uiFingerPrintAttrib, FingerPrint, sDispName(),
+							    sPatternGrp() );
 
 
 class uiFPAdvancedDlg: public uiDialog
@@ -562,9 +567,9 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	if ( mIsUdf(refpos.inl()) || mIsUdf(refpos.crl()) || mIsUdf(refposz) )
 	{
 	    if ( is2d_ )
-		uiMSG().error(tr("2D lineset is not OK"));
+		errmsg = tr("2D lineset is not OK");
 	    else
-		uiMSG().error(tr("Please fill in the position fields first"));
+		errmsg = tr("Please fill in the position fields first");
 	    return 0;
 	}
 
@@ -575,8 +580,8 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	const IOObj* ioobj = picksetfld_->ioobj(true);
 	if ( !ioobj )
 	{
-	    uiMSG().error(uiStrings::phrSelect(tr("the pickset from which\n"
-	    "the values will be extracted")));
+	    errmsg = tr("Please choose the pickset from which\n"
+	    "the values will be extracted");
 	    return 0;
 	}
 

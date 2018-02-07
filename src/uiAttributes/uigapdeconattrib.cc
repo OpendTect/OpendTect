@@ -37,7 +37,12 @@ using namespace Attrib;
 const char* uiGapDeconAttrib::sKeyOnInlineYN()	{ return "OnInlineYN"; }
 const char* uiGapDeconAttrib::sKeyLineName()	{ return "Line Name"; }
 
-mInitAttribUI(uiGapDeconAttrib,GapDecon,tr("GapDecon"),sFilterGrp())
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Gap Decomposition");
+}
+
+mInitAttribUI(uiGapDeconAttrib,GapDecon,sDispName(),sFilterGrp())
 
 
 class uiGDPositionDlg: public uiDialog

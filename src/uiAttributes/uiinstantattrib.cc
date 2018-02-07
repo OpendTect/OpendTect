@@ -43,9 +43,13 @@ const char* uiInstantaneousAttrib::outstrs[] =
 	0
 };
 
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Instantaneous");
+}
 
-mInitAttribUI(uiInstantaneousAttrib,Instantaneous,tr("Instantaneous"),
-              sBasicGrp())
+
+mInitAttribUI(uiInstantaneousAttrib,Instantaneous,sDispName(),sBasicGrp())
 
 
 uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )

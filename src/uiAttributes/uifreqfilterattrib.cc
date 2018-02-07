@@ -27,8 +27,12 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitGrpDefAttribUI(uiFreqFilterAttrib,FreqFilter,tr("Frequency Filter"),
-		    sFilterGrp())
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Frequency Filter");
+}
+
+mInitGrpDefAttribUI(uiFreqFilterAttrib,FreqFilter,sDispName(),sFilterGrp())
 
 
 uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )

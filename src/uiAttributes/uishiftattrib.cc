@@ -24,8 +24,12 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Reference Shift");
+}
 
-mInitAttribUI(uiShiftAttrib,Shift,tr("Reference shift"),sPositionGrp())
+mInitAttribUI(uiShiftAttrib,Shift,sDispName(),sPositionGrp())
 
 uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mShiftAttribHelpID) )

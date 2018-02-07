@@ -20,7 +20,17 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitAttribUI(uiMadAGCAttrib,MadAGC,tr("Madagascar AGC"),tr("Madagascar"))
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Madagascar AGC");
+}
+
+uiWord sGrpNm()
+{
+    return od_static_tr("sGrpNm","Madagascar");
+}
+
+mInitAttribUI(uiMadAGCAttrib,MadAGC,sDispName(),sGrpNm())
 
 
 uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )

@@ -45,7 +45,12 @@ static const char* extstrs2d[] =
 	0
 };
 
-mInitAttribUI(uiSemblanceAttrib,Semblance,tr("Semblance"),sBasicGrp())
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Semblance");
+}
+
+mInitAttribUI(uiSemblanceAttrib,Semblance,sDispName(),sBasicGrp())
 
 
 uiSemblanceAttrib::uiSemblanceAttrib( uiParent* p, bool is2d )
