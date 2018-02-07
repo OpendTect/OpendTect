@@ -199,7 +199,7 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
 	if ( !ioobj )
 	{
 	    errms.appendPhrase(tr("Cannot get database entry for "
-			    "selected horizon"), uiString::NewLine);
+			    "selected horizon"));
 	    return;
 	}
 

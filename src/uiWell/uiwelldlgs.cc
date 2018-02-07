@@ -834,7 +834,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     if ( writable_ )
 	uiButton::getStd( iobutgrp, OD::Import, mCB(this,uiD2TModelDlg,readNew),
 						false );
-    uiButton::getStd( iobutgrp, OD::Export, mCB(this,uiD2TModelDlg,expData), 
+    uiButton::getStd( iobutgrp, OD::Export, mCB(this,uiD2TModelDlg,expData),
 								    false );
     if ( replvelfld_ )
 	iobutgrp->attach( ensureBelow, replvelfld_ );

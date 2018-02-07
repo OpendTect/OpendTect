@@ -105,10 +105,11 @@ bool uiSeisWvltImp::acceptOK()
 	msg = tr( "Center of wavelet is predicted at row number: %1" )
 		.arg( maxsamp + 1 + nrhdrlines );
 	msg.appendPhrase(tr(" The provided center sample row position was: %1")
-	    .arg( wvlt->centerSample() + 1 + nrhdrlines ), uiString::NewLine );
-	msg.appendPlainText( "", uiString::NewLine );
+	    .arg( wvlt->centerSample() + 1 + nrhdrlines ) );
+	msg.appendEmptyLine();
 	msg.appendPhrase(
-		    tr( "\n\nDo you want to reposition the center sample?" ) );
+			tr( "Do you want to reposition the center sample?" ),
+							    uiString::Empty );
 	if ( uiMSG().askGoOn(msg) )
 	    wvlt->setCenterSample( maxsamp );
     }

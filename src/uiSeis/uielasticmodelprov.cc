@@ -179,34 +179,37 @@ bool uiElasticModelProvider::getInputMIDs( DBKey& pwmid, DBKey& swmid,
 						  : DBKey::getInvalid()
 		    : densityfld_->key();
 
-    uiString basestr  = tr( "Selected inputs are not in adequation with \n"
-			    "chosen model type and source." );
-    uiString reasonstr;
+    uiString basestr  = tr( "Selected inputs are not in adequation with "
+			    "chosen model type and source" );
+    uiStringSet missingvals;
+    missingvals.setEmpty();
     if ( needai && aimid.isInvalid() )
-	reasonstr.appendPhrase( tr( "Acoustic Impedance input is missing"),
-							uiString::NewLine );
+	missingvals = tr("Acoustic Impedance");
 
     if ( needsi && simid.isInvalid() )
-	reasonstr.appendPhrase( tr("Shear Impedance input is missing" ),
-							uiString::NewLine );
+	missingvals = tr("Shear Impedance");
 
     if ( !needai && denmid.isInvalid() )
-	reasonstr.appendPhrase( tr("Density input is missing" ),
-							uiString::NewLine );
+	missingvals += tr("Density Inpedance");
 
     if ( !needai && pwmid.isInvalid() )
-	reasonstr.appendPhrase( tr("P-Wave input is missing" ),
-							uiString::NewLine );
+	missingvals += tr("P-Wave");
 
     if ( !isac && !needsi && swmid.isInvalid() )
-	reasonstr.appendPhrase( tr("S-Wave input is missing" ),
-							uiString::NewLine );
-
+	missingvals += tr("S-Wave");
+    uiString reasonstr;
+    if ( missingvals.size() > 1 )
+	reasonstr = tr("%1 inputs are missing").arg(missingvals
+							.createOptionString());
+    else if ( missingvals.size() == 1 )
+	reasonstr = tr("%1 input is misisng").arg(missingvals
+							.createOptionString());
+    else
     if ( !reasonstr.isEmpty() )
     {
 	const_cast<uiElasticModelProvider*>(this)->errmsg_ = basestr;
 	const_cast<uiElasticModelProvider*>(this)->
-			errmsg_.appendPhrase( reasonstr, uiString::NewLine );
+			errmsg_.appendPhrase( reasonstr );
 	return false;
     }
 

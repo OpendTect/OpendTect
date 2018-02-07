@@ -29,7 +29,7 @@ ________________________________________________________________________
     if ( new ) \
 	errmsg_ = msg; \
     else \
-	errmsg_.appendPhrase( msg, uiString::NewLine ); \
+	errmsg_.appendPhrase( msg ); \
 \
     act; \
 }
@@ -278,7 +278,7 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 { \
     errmsg = errmsg_; \
     errmsg_ = hdrmsg; \
-    errmsg_.appendPhrase( errmsg, uiString::NewLine ); \
+    errmsg_.appendPhrase( errmsg ); \
     act; \
 }
 

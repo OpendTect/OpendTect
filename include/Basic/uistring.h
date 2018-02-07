@@ -139,6 +139,8 @@ public:
     uiString&		postFixWord(const uiString&);
     uiString&		addMoreInfo(const uiString&,bool newline=true);
 			//!< adds a colon first
+    uiString&		appendEmptyLine()
+			{ return appendPlainText("\n\n"); }
 
     inline uiString&	appendIncorrect(const uiString&,char sep=' ');
     inline uiString&	appendIncorrect(const char*,char sep=' ');

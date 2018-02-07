@@ -45,7 +45,7 @@ namespace WellTie
     if ( errmsg_.isEmpty() ) \
 	errmsg_ = msg; \
     else \
-	errmsg_.appendPhrase( msg, uiString::NewLine ); \
+	errmsg_.appendPhrase( msg ); \
 \
     return false; \
 }
@@ -456,14 +456,14 @@ bool DataPlayer::setAIModel()
     emodelcomputer.setDenLog( *pcdenlog );
     emodelcomputer.setZrange( data_.getModelRange(), true );
     emodelcomputer.setExtractionPars( data_.getModelRange().step, true );
-    uiString doeditmsg( tr("Please consider editing your logs.") );
+    uiString doeditmsg( tr("Please consider editing your logs") );
     if ( !emodelcomputer.computeFromLogs() )
 	mErrRet( uiString( emodelcomputer.errMsg() )
-				.appendPhrase(doeditmsg,uiString::NewLine) )
+				.appendPhrase(doeditmsg) )
 
     if ( !emodelcomputer.warnMsg().isEmpty() )
 	warnmsg_ = uiString( emodelcomputer.warnMsg() )
-				.appendPhrase(doeditmsg,uiString::NewLine);
+						    .appendPhrase(doeditmsg);
 
     aimodel_ = emodelcomputer.elasticModel();
 
