@@ -100,12 +100,12 @@ public:
     bool	operator!() const		{ return isEmpty(); }
 
     uiString&	operator=(const uiString&);	//!< no copy, ref counted
-    bool	operator>(const uiString& b) const;
-    bool	operator<(const uiString& b) const;
-    int		size() const;
+    bool		operator>(const uiString& b) const;
+    bool		operator<(const uiString& b) const;
+    int			size() const;
     static const uiString& emptyString()	{ return emptystring_; }
     static uiString& dummyString()		{ return dummystring_; }
-    bool	isPlainAscii() const;
+    bool		isPlainAscii() const;
 
 	/*! uiStrings should only be manipulated using the arg() functions.
 	    These replace the next %N (e.g. %1) with the provided argument. */
@@ -114,7 +114,7 @@ public:
     inline uiString&	arg(const T&);
     inline uiString&	arg(float,int nrdecimals);
     inline uiString&	arg(double,int nrdecimals);
-    uiString&		arg(const uiString&);
+    uiString&			arg(const uiString&);
 
 			/*! appendXX() functions should be used to concatenate
 			    entire sentences. You cannot just mix&match words
@@ -123,7 +123,7 @@ public:
 			    SeparType septyp=uiString::CloseLine, \
 			    AppendType apptyp=uiString::AddNewLine
     enum SeparType	{ Empty, CloseLine, Space, Tab, Comma, MoreInfo };
-    enum AppendType	{ SeparatorOnly, AddNewLine };
+    enum AppendType	{ SeparatorOnly, AddNewLine, LeaveALine };
     uiString&		appendPhrase(const uiString&,muiStringAppendDefArgs);
     uiString&		appendPhrases(const uiStringSet&,
 				      muiStringAppendDefArgs);
@@ -139,8 +139,8 @@ public:
     uiString&		postFixWord(const uiString&);
     uiString&		addMoreInfo(const uiString&,bool newline=true);
 			//!< adds a colon first
-    uiString&		appendEmptyLine()
-			{ return appendPlainText("\n\n"); }
+    uiString&		appendEmptyLine();
+
 
     inline uiString&	appendIncorrect(const uiString&,char sep=' ');
     inline uiString&	appendIncorrect(const char*,char sep=' ');
@@ -148,11 +148,11 @@ public:
 
     // TEMP-- comment out to fix a directory at a time
     inline uiString&	append( const uiString& s, bool nl=false)
-			{ return appendIncorrect(s,nl?'\n':' '); }
+				{ return appendIncorrect(s,nl?'\n':' '); }
     inline uiString&	append( const char* s, bool nl=false)
-			{ return appendIncorrect(s,nl?'\n':' '); }
+				{ return appendIncorrect(s,nl?'\n':' '); }
     inline uiString&	append( const OD::String& s, bool nl=false )
-			{ return appendIncorrect(s,nl?'\n':' '); }
+				{ return appendIncorrect(s,nl?'\n':' '); }
     inline uiString&	addSpace(int =1)	{ return append(" "); }
     inline uiString&	addTab(int =1)		{ return append("\t"); }
     inline uiString&	addNewLine(int =1)	{ return append("\n"); }

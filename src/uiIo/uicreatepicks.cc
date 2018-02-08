@@ -92,8 +92,8 @@ RefMan<Pick::Set> uiNewPickSetDlg::getEmptyPickSet() const
 	uiString msg = tr("A Pick Set with that name already exists");
 	if ( Pick::SetMGR().isLoaded( setid ) )
 	{
-	    msg.appendPhrase( tr("You are currently using it."
-		    "\nPlease enter a different name") );
+	    msg.appendPhrase( tr("You are currently using it") );
+	    msg.appendPhrase( tr("Please enter a different name") );
 	    return ret;
 	}
 	msg.appendPhrase( tr("Do you want to overwrite the existing data?")  );

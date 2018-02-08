@@ -225,20 +225,19 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     bool skiploadedgeomids = false;
     if ( !loadedgeomids.isEmpty() )
     {
-	uiString msg = tr("%1 dataset for lines").arg(DBM().nameOf(key));
-	msg.addSpace();
+	uiString msg = tr("%1 dataset for lines %2 is already preloaded")
+						.arg(DBM().nameOf(key));
 	for ( int idx=0; idx<loadedgeomids.size(); idx++ )
 	{
-	    msg.appendPlainText( Survey::GM().getName(loadedgeomids[idx]) );
-	    if ( idx < loadedgeomids.size()-1 )
-		msg.appendPlainText( ", " );
+	    BufferStringSet bfs;
+	    bfs.add(Survey::GM().getName(loadedgeomids[idx]));
+	    BufferString loadedgeomnmstr = bfs.getDispString();
+	    msg.arg( toUiString(loadedgeomnmstr) );
 	}
-	msg.addSpace();
-	msg.appendPhrase( tr("is already preloaded."
-					    "\n\nDo you want to reload?") );
+	msg.appendEmptyLine();
+	msg.appendPhrase( tr("Do you want to reload?") );
 	skiploadedgeomids = !uiMSG().askGoOn( msg );
     }
-
     uiTaskRunner taskrunner( this );
     TypeSet<TrcKeyZSampling> tkzss;
     TypeSet<Pos::GeomID> loadgeomids;

@@ -719,11 +719,11 @@ void Well::D2TModel::shiftTimesIfNecessary( TypeSet<double>& tvals,
     const UnitOfMeasure* uomz = UnitOfMeasure::surveyDefTimeUnit();
     const double usrtshftval = mScaledValue( timeshift, uomz );
     msg.appendPhrase(
-	tr( "\nOpendTect WILL correct for this error by applying a "
-		  "time shift of: %1%2\n"
-		   "The resulting travel-times will differ from the file") )
-		   .arg( usrtshftval )
-		   .arg( UnitOfMeasure::surveyDefTimeUnitAnnot(true,false) );
+	tr( "OpendTect WILL correct for this error by applying a "
+		  "time shift of: %1%2").arg( usrtshftval )
+		  .arg(UnitOfMeasure::surveyDefTimeUnitAnnot(true,false)) );
+    msg.appendPhrase(tr("The resulting travel-times will differ from "
+		    "the file") );
 
     for ( int idz=0; idz<tvals.size(); idz++ )
 	tvals[idz] += timeshift;

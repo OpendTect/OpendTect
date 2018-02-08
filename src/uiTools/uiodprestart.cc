@@ -448,11 +448,17 @@ void uiODPreStart::doPkgMnu( const PluginPackage& pkg )
 	launchURL( pkg.url_ );
     else if ( res == 0 )
     {
-	uiString msg( tr("Name: %1\nCreated by: %2\nVersion: %3")
-	      .arg( pkg.dispname_ ).arg( pkg.creator_ ).arg( pkg.version_ ) );
+	uiString msg( tr("Name: %1").arg(pkg.dispname_) );
+	msg.appendPhrase(tr("Created by: %1").arg(pkg.creator_),
+			    uiString::Empty,uiString::AddNewLine);
+	msg.appendPhrase(tr("Version: %1").arg(pkg.version_),
+			    uiString::Empty,uiString::AddNewLine);
 	if ( pkg.prov_ )
-	    msg.appendPhrase( tr("\n\nProvided by: %1")
-						.arg( pkg.prov_->name_ ) );
+	{
+	    msg.appendEmptyLine();
+	    msg.appendPhrase( tr("Provided by: %1")
+				.arg( pkg.prov_->name_ ), uiString::Empty );
+	}
 	uiMSG().about( msg );
     }
 }

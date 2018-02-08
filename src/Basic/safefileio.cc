@@ -165,9 +165,7 @@ bool SafeFileIO::openWrite( bool ignorelock )
 	}
 	else
 	{
-	    errmsg_ = uiStrings::phrJoinStrings(
-			       uiStrings::sCantOpenOutpFile(1),
-			       uiStrings::phrColonString(toUiString(newfnm_)) );
+	    errmsg_ =  tr("Cannot open output file : %1").arg(newfnm_);
 	    errmsg_.appendPhrase( uiStrings::sCheckPermissions() );
 	}
 

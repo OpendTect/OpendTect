@@ -526,7 +526,7 @@ void SelectionGrp::getInfo( BufferString& info ) const
 
 void SelectionGrp::getInfo( uiString& info ) const
 {
-    info.appendPhrase(tr("Selection Group Name :%1\n").arg(name()));
+    info.appendPhrase(tr("Selection Group Name : %1").arg(name()));
 
     Interval<double> range( mUdf(double), -mUdf(double) );
 
@@ -535,24 +535,23 @@ void SelectionGrp::getInfo( uiString& info ) const
 	const SelectionArea& selarea = getSelectionArea( idx );
 	BufferStringSet axisnms = selarea.getAxisNames();
 
-	info.appendPhrase(tr("Area Nr %1\n").arg( idx+1 ));
+	info.appendPhrase(tr("Area Nr %1").arg( idx+1 ));
 	info.appendPhrase(tr("Area Type : %1").arg(selarea.isrectangle_ ?
-                              tr("Rectangle \n") : tr("Polygon \n")));
+			      tr("Rectangle") : tr("Polygon")));
 
 	range = selarea.getValueRange( true );
-	info.appendPhrase(tr("%1 (range) :%2, %3\n").arg(selarea.xaxisnm_)
+	info.appendPhrase(tr("%1 (range) :%2, %3").arg(selarea.xaxisnm_)
               .arg(range.start).arg(range.stop));
 
 	range = selarea.getValueRange(false);
-	info.appendPhrase(tr("%1 (range) :%2, %3\n").arg(selarea.yaxisnm_)
+	info.appendPhrase(tr("%1 (range) :%2, %3").arg(selarea.yaxisnm_)
               .arg(range.start).arg(range.stop));
 
 	if ( !selarea.altyaxisnm_.isEmpty() )
 	{
 	    range = selarea.getValueRange( false, true );
-	    info.appendPhrase(tr("%1 (range) :%2, %3\n")
+	    info.appendPhrase(tr("%1 (range) :%2, %3")
                  .arg(selarea.altyaxisnm_).arg(range.start).arg(range.stop));
 	}
-	info.appendPhrase(toUiString("\n"));
     }
 }

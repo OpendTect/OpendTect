@@ -50,8 +50,10 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tskr )
     if ( newmids.isEmpty() )
 	return false;
 
-    uiString msg1( tr("The selected horizon(s):\n") );
-    uiString msg2( tr("Cannot pre-load:\n") );
+    uiString msg1( tr("The selected horizon(s):") );
+    uiString msg2( tr("Cannot pre-load:") );
+    msg1.appendEmptyLine();
+    msg2.appendEmptyLine();
     int nralreadyloaded = 0;
     int nrproblems = 0;
     PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");

@@ -221,9 +221,9 @@ void uiProgressViewer::handleProcessStatus()
 		      .arg( procstatus_ == AbnormalEnd ? tr("abnormally.")
 						       : tr("successfully.") );
     if ( procstatus_ == AbnormalEnd )
-	stbmsg.appendPhrase( tr("It was probably terminated or crashed.") );
+	stbmsg.appendPhrase( tr("It was probably terminated or crashed") );
     else if ( procstatus_ == Terminated )
-	stbmsg = tr("Process %1 was terminated." ).arg(procnm_);
+	stbmsg = tr("Process %1 was terminated" ).arg(procnm_);
 
     statusBar()->message( stbmsg );
     timer_.stop();
@@ -239,7 +239,7 @@ void uiProgressViewer::doWork( CallBacker* )
     if ( procstatus_ != Running )
 	return;
 
-    statusBar()->message( tr("Running process %1 with PID %2.")
+    statusBar()->message( tr("Running process %1 with PID %2")
 				    .arg(procnm_).arg(pid_) );
 }
 

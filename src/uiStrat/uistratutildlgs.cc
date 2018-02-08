@@ -748,7 +748,7 @@ bool uiStratUnitDivideDlg::acceptOK()
 	}
 	bfs.addIfNew( code );
 	if ( errmsg.isEmpty() && bfs.size() < idx+1 )
-	     errmsg.appendPhrase(tr("Unit name previously used in the list. "));
+	     errmsg.appendPhrase(tr("Unit name previously used in the list"));
 	if ( !errmsg.isEmpty() )
 	{
 	    errmsg.appendPhrase(uiStrings::phrSpecify(tr(

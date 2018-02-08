@@ -325,7 +325,8 @@ bool uiRockPhysForm::isOK()
 	     && mIsUdf( cstflds_[idx]->value() ) )
 	{
 	    errmsg_.appendPhrase(tr("Please provide a value for constant "
-					"'%1'\n").arg(cstflds_[idx]->cstnm_));
+					"'%1'").arg(cstflds_[idx]->cstnm_),
+					uiString::Empty,uiString::AddNewLine);
 	    return false;
 	}
     }

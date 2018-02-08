@@ -743,6 +743,13 @@ uiString uiString::getOrderString( int val )
 }
 
 
+uiString& uiString::appendEmptyLine()
+{
+
+    return appendPlainText("\n");
+}
+
+
 void uiString::makeIndependent()
 {
     Threads::Locker datalocker( datalock_ );

@@ -198,9 +198,8 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const uiString& detail )
     uiString msg = toUiString( "[%1] %2" ).arg( nr );
     if ( nr == cSEGYWarnBadFmt )
     {
-	msg.arg( tr("SEG-Y format '%1' found") );
-	msg.appendPhrase( tr("Replaced with '1' (4-byte floating point)")
-				.arg(detail) );
+	msg.arg( tr("SEG-Y format '%1' found").arg(detail) );
+	msg.appendPhrase( tr("Replaced with '1' (4-byte floating point)") );
 	if ( toInt(toString(detail)) > 254 )
 	    msg.appendPhrase(tr("The file may not be SEG-Y, or byte-swapped"));
     }
