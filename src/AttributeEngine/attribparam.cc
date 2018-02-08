@@ -132,8 +132,8 @@ mParamClone( BoolParam );
 
 bool BoolParam::setCompositeValue( const char* str )
 {
-    if ( !str )
-	return false;
+    if ( !str || !*str )
+	str = "no";
 
     if ( caseInsensitiveEqual(str,"yes")
        || caseInsensitiveEqual(str,"true") )
@@ -142,7 +142,7 @@ bool BoolParam::setCompositeValue( const char* str )
 	   || caseInsensitiveEqual(str,"false") )
 	spec_->setValue( false );
     else
-	return false;
+	spec_->setValue( toInt(str)!=0 );
 
     return true;
 }
