@@ -130,7 +130,7 @@ DipFilter::DipFilter( Desc& ds )
     if ( !isOK() ) return;
 
     maxvel_ = SI().zIsTime() ? mUdf(float) : 90;
-    inputdata_.allowNull(true);
+    inputdata_.setNullAllowed(true);
 
     mGetEnum( type_, typeStr() );
     mGetInt( size_, sizeStr() );
