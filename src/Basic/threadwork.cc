@@ -122,9 +122,9 @@ Threads::WorkThread::WorkThread( WorkManager& man )
     , cancelflag_( false )
 {
     spacefiller_[0] = 0; //to avoid warning of unused
-    
+
     //controlcond_.lock();
-    // No need to lock here, as object is fully setup, and 
+    // No need to lock here, as object is fully setup, and
     // since we are in the constructor, no-one knows aout us
     //
     const BufferString name( "TWM ", toString( man.twmid_ ) );
@@ -314,20 +314,7 @@ void Threads::WorkManager::shutdown()
 {
     isShuttingDown.trigger();
 
-    if ( queueids_.size()>1 )
-    {
-	BufferString msg("Not all queues were removed. Remaining queues: ");
-	for ( int idx=1; idx<queueids_.size(); idx++ )
-	{
-	    if ( idx>1 )
-		msg.add( ", " );
-	    msg.add( queuenames_[idx]->buf() );
-	}
-
-	pErrMsg( msg.buf() );
-    }
-
-    while ( queueids_.size() )
+    while ( !queueids_.isEmpty() )
 	removeQueue( queueids_[0], false );
 
     deepErase( threads_ );

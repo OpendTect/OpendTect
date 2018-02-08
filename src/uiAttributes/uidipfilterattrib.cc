@@ -54,7 +54,7 @@ mInitGrpDefAttribUI(uiDipFilterAttrib,DipFilter,
 
 
 uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mODHelpKey(mDipFilterAttribHelpID) )
+	: uiAttrDescEd(p,is2d, mTODOHelpKey )
 
 {
     inpfld_ = createInpFld( is2d );
@@ -127,11 +127,13 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
 	return;
 
     const Desc* inpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : 0;
-    if ( !inpdesc ) return;
+    if ( !inpdesc )
+	return;
 
     const DBKey seisid( inpdesc->getStoredID() );
-    PtrMan<IOObj> ioobj = IOM().get( seisid );
-    if ( !ioobj ) return;
+    PtrMan<IOObj> ioobj = DBM().get( seisid );
+    if ( !ioobj )
+	return;
 
     PtrMan<Seis::Provider> prov = Seis::Provider::create( ioobj->key() );
     if ( !prov )
@@ -140,7 +142,8 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
     prov->setSelData( new Seis::RangeSelData(dlg->getTrcKeyZSampling()) );
     SeisTrcBuf tbuf( true );
     SeisBufReader bufrdr( *prov, tbuf );
-    if ( !bufrdr.execute() ) return;
+    if ( !bufrdr.execute() )
+	return;
 
     SeisTrcBufArray2D arr2d( &tbuf, false, 0 );
     uiFKSpectrum*  uifk = new uiFKSpectrum( this, true );
