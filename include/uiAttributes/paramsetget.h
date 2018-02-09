@@ -98,38 +98,38 @@ Attrib::ValParam* valparam##var = \
 mDynamicCastGet(Attrib::BoolParam*,boolparam##var,valparam##var);\
 if ( boolparam##var ) \
 {\
-   bool var;\
-   if ( boolparam##var->isSet() )\
-       var = boolparam##var->getBoolValue(0);\
+    bool var;\
+    if ( boolparam##var->isSet() )\
+	var = boolparam##var->getBoolValue();\
     else\
-	var = boolparam##var->getDefaultBoolValue(0);\
+	var = boolparam##var->getDefaultBoolValue();\
     setfunc;\
 }
 
 #define mIfGetFloat( keystr, var, setfunc ) \
 if ( desc.getValParam(keystr) ) \
 {\
-    float var = desc.getValParam(keystr)->getFValue(0);\
+    float var = desc.getValParam(keystr)->getFValue();\
     if ( mIsUdf(var) )\
-	var = desc.getValParam(keystr)->getDefaultFValue(0);\
+	var = desc.getValParam(keystr)->getDefaultFValue();\
     setfunc;\
 }
 
 #define mIfGetDouble( keystr, var, setfunc ) \
 if ( desc.getValParam(keystr) ) \
 {\
-    double var = desc.getValParam(keystr)->getDValue(0);\
+    double var = desc.getValParam(keystr)->getDValue();\
     if ( mIsUdf(var) )\
-	var = desc.getValParam(keystr)->getDefaultDValue(0);\
+	var = desc.getValParam(keystr)->getDefaultDValue();\
     setfunc;\
 }
 
 #define mIfGetInt( keystr, var, setfunc ) \
 if ( desc.getValParam(keystr) ) \
 {\
-    int var = desc.getValParam(keystr)->getIntValue(0);\
+    int var = desc.getValParam(keystr)->getIntValue();\
     if ( mIsUdf(var) )\
-	var = desc.getValParam(keystr)->getDefaultIntValue(0);\
+	var = desc.getValParam(keystr)->getDefaultIntValue();\
     setfunc;\
 }
 
@@ -141,18 +141,18 @@ if ( enumparam##var ) \
 {\
     int var;\
     if ( enumparam##var->isSet() )\
-	var = enumparam##var->getIntValue(0);\
+	var = enumparam##var->getIntValue();\
     else\
-	var = enumparam##var->getDefaultIntValue(0);\
+	var = enumparam##var->getDefaultIntValue();\
     setfunc;\
 }
 
 #define mIfGetString( keystr, var, setfunc ) \
 if ( desc.getValParam(keystr) ) \
 { \
-    BufferString var = desc.getValParam(keystr)->getStringValue(0); \
+    BufferString var = desc.getValParam(keystr)->getStringValue(); \
     if ( var.isEmpty() ) \
-	var = desc.getValParam(keystr)->getDefaultStringValue(0); \
+	var = desc.getValParam(keystr)->getDefaultStringValue(); \
     setfunc;\
 }
 

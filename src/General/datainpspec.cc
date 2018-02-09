@@ -185,8 +185,7 @@ DataInpSpec* StringInpSpec::clone() const
 
 const char* StringInpSpec::text() const
 {
-    if ( isUndef() ) return "";
-    return (const char*) str_;
+    return isUndef() ? "" : str_.buf();
 }
 
 bool StringInpSpec::setText( const char* s, int idx )
@@ -286,7 +285,9 @@ void BoolInpSpec::setChecked( bool yesno )
 
 const char* BoolInpSpec::text( int idx ) const
 {
-    return yn_ ? toString(truetext_) : toString(falsetext_);
+    mDeclStaticString( ret );
+    ret.set( yn_ ? toString(truetext_) : toString(falsetext_) );
+    return ret.str();
 }
 
 

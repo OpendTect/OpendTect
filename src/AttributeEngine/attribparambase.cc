@@ -105,7 +105,7 @@ mSetGet(int,getIntValue)
 mSetGet(float,getFValue)
 mSetGet(bool,getBoolValue)
 mSetGet(double,getDValue)
-    
+
 #define mSetGetDefault(type,getfunc,dataspecgetfunc) \
 type ValParam::getfunc( int idx ) const \
 { return spec_->dataspecgetfunc(idx); } \
@@ -119,7 +119,7 @@ mSetGetDefault(double,getDefaultDValue,getDefaultDValue)
 mSetGetDefault(bool,getDefaultBoolValue,getDefaultBoolValue)
 mSetGetDefault(const char*,getDefaultStringValue,getDefaultStringValue)
 
-    
+
 const char* ValParam::getStringValue( int idx ) const
 { return spec_->text(idx); }
 
@@ -147,12 +147,15 @@ bool ValParam::getCompositeValue( BufferString& res ) const
 
 void ValParam::fillDefStr( BufferString& res ) const
 {
-    res += getKey();
-    res += "=";
     BufferString val;
-    if ( !getCompositeValue(val) && !isRequired() )
-	val = getDefaultValue();
-    res += val;
+    if ( !getCompositeValue(val) )
+    {
+	if ( isRequired() )
+	    val = getDefaultValue();
+	else
+	    return; // why anything?
+    }
+    res.add( getKey() ).add( "=" ).add( val );
 }
 
 } // namespace Attrib

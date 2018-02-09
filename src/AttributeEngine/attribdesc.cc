@@ -135,12 +135,16 @@ DescID Desc::id() const
 bool Desc::getDefStr( BufferString& res ) const
 {
     res.set( attribName() );
+
     for ( int idx=0; idx<params_.size(); idx++ )
     {
 	if ( !params_[idx]->isEnabled() )
 	    continue;
-	res.add( ' ' );
-	params_[idx]->fillDefStr( res );
+
+	BufferString curdef;
+	params_[idx]->fillDefStr( curdef );
+	if ( !curdef.isEmpty() )
+	    res.add( ' ' ).add( curdef );
     }
 
     if ( seloutput_!=-1 || stringEndsWith( "|ALL", userref_.buf() ) )
