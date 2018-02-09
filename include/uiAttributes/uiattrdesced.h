@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiattribfactory.h"
 #include "changetracker.h"
-#include "paramsetget.h"
 #include "datapack.h"
 #include "helpview.h"
 
@@ -198,6 +197,8 @@ private:
 
 };
 
+
+#include "paramsetget.h"
 
 #define mDeclReqAttribUIFns \
 protected: \

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "typeset.h"
 #include "uistring.h"
+#include "notify.h"
 
 
 /*!\brief Base class for generalized static factories that can deliver
@@ -75,9 +76,13 @@ ________________________________________________________________________
   display names, and other handy tools. Most of these functions come from this
   FactoryBase class.
 
+  You can get a notification when any object was created using the
+  objectCreated notifier. Note that you'll get it before the owner has a chance
+  to do anything with it.
+
 */
 
-mExpClass(Basic) FactoryBase
+mExpClass(Basic) FactoryBase : public CallBacker
 {
 public:
 
@@ -130,8 +135,12 @@ mClass(Basic) Factory0Param : public FactoryBase
 { mODTextTranslationClass(Factory);
 public:
 
-    typedef		T* (*Creator)();
-    typedef T		ObjType;
+    typedef			T* (*Creator)();
+    typedef T			ObjType;
+    typedef Factory0Param<T>	ThisType;
+
+			Factory0Param()
+			    : objectCreated(this)	{}
 
     inline int		addCreator(Creator,const char* ky,
 				   uiString unm=uiString::emptyString());
@@ -142,6 +151,8 @@ public:
     inline T*		create(const char* ky) const;
     inline T*		createAny() const;
     inline T*		createSuitable() const	    { return createAny(); }
+
+    CNotifier< ThisType, T* >	objectCreated;
 
 protected:
 
@@ -158,14 +169,20 @@ mClass(Basic) Factory1Param : public FactoryBase
 { mODTextTranslationClass(Factory1Param);
 public:
 
-    typedef		T* (*Creator)(P);
-    typedef T		ObjType;
+    typedef			T* (*Creator)(P);
+    typedef T			ObjType;
+    typedef Factory1Param<T,P>	ThisType;
+
+			Factory1Param()
+			    : objectCreated(this)	{}
 
     inline int		addCreator(Creator,const char* ky,
 				   uiString usernm =uiString::emptyString());
 
     inline T*		create(const char*,P) const;
     inline T*		createSuitable(P) const;
+
+    CNotifier< ThisType, T* >	objectCreated;
 
 protected:
 
@@ -181,14 +198,20 @@ mClass(Basic) Factory2Param : public FactoryBase
 {
 public:
 
-    typedef		T* (*Creator)(P0,P1);
-    typedef T		ObjType;
+    typedef				T* (*Creator)(P0,P1);
+    typedef T				ObjType;
+    typedef Factory2Param<T,P0,P1>	ThisType;
+
+			Factory2Param()
+			    : objectCreated(this)	{}
 
     inline int		addCreator(Creator,const char* ky,
 				   uiString usernm=uiString::emptyString());
 
     inline T*		create(const char*,P0,P1) const;
     inline T*		createSuitable(P0,P1) const;
+
+    CNotifier< ThisType, T* >	objectCreated;
 
 protected:
 
@@ -204,14 +227,20 @@ mClass(Basic) Factory3Param : public FactoryBase
 {
 public:
 
-    typedef		T* (*Creator)(P0,P1,P2);
-    typedef T		ObjType;
+    typedef				T* (*Creator)(P0,P1,P2);
+    typedef T				ObjType;
+    typedef Factory3Param<T,P0,P1,P2>	ThisType;
+
+			Factory3Param()
+			    : objectCreated(this)	{}
 
     inline T*		create(const char*,P0,P1,P2) const;
     inline T*		createSuitable(P0,P1,P2) const;
 
     inline int		addCreator(Creator,const char* ky,
 				   uiString usernm=uiString::emptyString());
+
+    CNotifier< ThisType, T* >	objectCreated;
 
 protected:
 
@@ -224,8 +253,22 @@ protected:
     const int idx = indexOf( ky ); \
     if ( idx < 0 ) \
 	return 0; \
-    lastcreatedidx_ = idx; \
-    return toret
+    T* ret = toret; \
+    if ( ret ) \
+    { \
+	lastcreatedidx_ = idx; \
+	const_cast<ThisType*>(this)->objectCreated.trigger( ret ); \
+    } \
+    return ret;
+
+#define mCreateSuitableImpl( toret ) \
+    for ( int idx=0; idx<keys_.size(); idx++ ) \
+    { \
+	T* newinst = toret; \
+	if ( newinst ) \
+	    return newinst; \
+    } \
+    return 0;
 
 #define mAddCreator \
 \
@@ -250,18 +293,10 @@ int Factory0Param<T>::addCreator( Creator cr, const char* ky, uiString unm )
 { mAddCreator; }
 template <class T> inline
 T* Factory0Param<T>::create( const char* ky ) const
-{ mCreateImpl( creators_[idx]() ); }
+{ mCreateImpl( creators_[idx]() ) }
 template <class T> inline
 T* Factory0Param<T>::createAny() const
-{
-    for ( int idx=0; idx<keys_.size(); idx++ )
-    {
-	T* newinst = create( keys_.get(idx) );
-	if ( newinst )
-	    return newinst;
-    }
-    return 0;
-}
+{ mCreateSuitableImpl( create( keys_.get(idx) ) ) }
 
 template <class T, class P> inline
 int Factory1Param<T,P>::addCreator( Creator cr, const char* ky, uiString unm )
@@ -269,18 +304,9 @@ int Factory1Param<T,P>::addCreator( Creator cr, const char* ky, uiString unm )
 template <class T, class P> inline
 T* Factory1Param<T,P>::create( const char* ky, P p ) const
 { mCreateImpl( creators_[idx]( p ) ); }
-
 template <class T, class P> inline
 T* Factory1Param<T,P>::createSuitable( P p ) const
-{
-    for ( int idx=0; idx<keys_.size(); idx++ )
-    {
-	T* newinst = create( keys_.get(idx), p );
-	if ( newinst )
-	    return newinst;
-    }
-    return 0;
-}
+{ mCreateSuitableImpl( create( keys_.get(idx), p ) ) }
 
 template <class T, class P0, class P1> inline
 int Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* ky,
@@ -291,15 +317,7 @@ T* Factory2Param<T,P0,P1>::create( const char* ky, P0 p0, P1 p1 ) const
 { mCreateImpl( creators_[idx]( p0, p1 ) ); }
 template <class T, class P0, class P1> inline
 T* Factory2Param<T,P0,P1>::createSuitable( P0 p0, P1 p1 ) const
-{
-    for ( int idx=0; idx<keys_.size(); idx++ )
-    {
-	T* newinst = create( keys_.get(idx), p0, p1 );
-	if ( newinst )
-	    return newinst;
-    }
-    return 0;
-}
+{ mCreateSuitableImpl( create( keys_.get(idx), p0, p1 ) ) }
 
 template <class T, class P0, class P1, class P2> inline
 int Factory3Param<T,P0,P1,P2>::addCreator( Creator cr, const char* ky,
@@ -310,15 +328,7 @@ T* Factory3Param<T,P0,P1,P2>::create( const char* ky, P0 p0, P1 p1, P2 p2) const
 { mCreateImpl( creators_[idx]( p0, p1, p2 ) ); }
 template <class T, class P0, class P1, class P2> inline
 T* Factory3Param<T,P0,P1,P2>::createSuitable( P0 p0, P1 p1, P2 p2 ) const
-{
-    for ( int idx=0; idx<keys_.size(); idx++ )
-    {
-	T* newinst = create( keys_.get(idx), p0, p1, p2 );
-	if ( newinst )
-	    return newinst;
-    }
-    return 0;
-}
+{ mCreateSuitableImpl( create( keys_.get(idx), p0, p1, p2 ) ) }
 
 
 #define mDefFactoryClassFns( kw, funcname ) \

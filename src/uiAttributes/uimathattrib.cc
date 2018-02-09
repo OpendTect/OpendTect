@@ -308,7 +308,7 @@ bool uiMathAttrib::getParameters( Desc& desc )
 	for ( int idx=0; idx<form_.maxRecShift(); idx++ )
 	    fms.add( form_.recStartVals()[idx] );
 
-	mSetString( Attrib::Mathematics::recstartvalsStr(), fms );
+	mSetString( Attrib::Mathematics::recstartvalsStr(), fms.str() );
     }
 
     return true;

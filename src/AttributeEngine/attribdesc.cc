@@ -616,7 +616,7 @@ Param* Desc::findParam( const char* key ) const
     for ( int idx=0; idx<params_.size(); idx++ )
     {
 	Param* par = const_cast<Param*>( params_[idx] );
-	if ( par->getKey() == key )
+	if ( FixedString(par->getKey()) == key )
 	    return par;
     }
     return 0;

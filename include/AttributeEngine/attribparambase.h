@@ -11,8 +11,8 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginecommon.h"
+#include "idxpair.h"
 #include "bufstring.h"
-#include "fixedstring.h"
 
 class DataInpSpec;
 class BufferStringSet;
@@ -53,7 +53,7 @@ public:
     void			setRequired(bool yn=true) { required_=yn; }
     bool			isGroup() const		  { return isgroup_; }
 
-    FixedString			getKey() const		  { return key_.buf(); }
+    const char*			getKey() const		  { return key_.str(); }
 
 				/*!Set all values from one composite string.*/
     virtual bool		setCompositeValue(const char*)
@@ -106,24 +106,37 @@ public:
     virtual double		getDValue(int idx=0) const;
     bool			getBoolValue(int idx=0) const;
     const char*			getStringValue(int idx=0) const;
+    template<class IdxPairT>
+    inline IdxPairT		getIdxPairValue() const
+				{ return IdxPairT( getIntValue(0),
+						   getIntValue(1) ); }
 
     void			setValue(int,int idx=0);
     void			setValue(float,int idx=0);
     void			setValue(bool,int idx=0);
     void			setValue(const char*,int idx=0);
     void			setValue(double,int idx=0);
+    inline void			setValue( const IdxPair& ip )
+				{ setValue(ip.first,0); setValue(ip.second,1); }
 
     virtual int			getDefaultIntValue(int idx=0) const;
     virtual float		getDefaultFValue(int idx=0) const;
     bool			getDefaultBoolValue(int idx=0) const;
     const char*			getDefaultStringValue(int idx=0) const;
     virtual double		getDefaultDValue(int idx=0) const;
+    template<class IdxPairT>
+    inline IdxPairT		getDefaultIdxPairValue() const
+				{ return IdxPairT( getDefaultIntValue(0),
+						   getDefaultIntValue(1) ); }
 
     void			setDefaultValue(int,int idx=0);
     void			setDefaultValue(float,int idx=0);
     void			setDefaultValue(bool,int idx=0);
     void			setDefaultValue(const char*,int idx=0);
     void			setDefaultValue(double,int idx=0);
+    inline void			setDefaultValue( const IdxPair& ip )
+				{ setDefaultValue(ip.first,0);
+				  setDefaultValue(ip.second,1); }
 
     DataInpSpec*		getSpec()	{ return spec_; }
     const DataInpSpec*		getSpec() const	{ return spec_; }
@@ -140,6 +153,7 @@ protected:
     virtual bool		isEqual(const Param&) const;
 
 public:
+
     mDeprecated float		getfValue( int idx=0 ) const
 				{ return getFValue( idx ); }
     mDeprecated double		getdValue( int idx=0 ) const
@@ -148,6 +162,7 @@ public:
 				{ return getDefaultFValue( idx ); }
     mDeprecated double		getDefaultdValue( int idx=0 ) const
 				{ return getDefaultDValue( idx ); }
+
 };
 
 } // namespace Attrib
