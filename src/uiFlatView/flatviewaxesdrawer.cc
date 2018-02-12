@@ -79,15 +79,12 @@ uiBorder AxesDrawer::getAnnotBorder( bool withextraborders ) const
     int r = withextraborders ? extraborder_.right() : 0;
     int t = withextraborders ? extraborder_.top() : 0;
     int b = withextraborders ? extraborder_.bottom() : 0;
-    const FlatView::Annotation& annot = vwr_.appearance().annot_;
     const int axisheight = getNeededHeight();
     const int axiswidth = getNeededWidth();
-    if ( annot.haveTitle() ) t += axisheight;
-    if ( annot.haveAxisAnnot(false) )
-    { l += axiswidth; r += 5; }
-    if ( annot.haveAxisAnnot(true) )
-    { b += axisheight;	t += axisheight; }
-    if ( annot.showscalebar_ && scalebaritem_ )
+    t += axisheight; // for title
+    l += axiswidth; r += 10; // for vertical axis annotation
+    b += axisheight; t += axisheight; // hor horizontal axis annotation
+    if ( scalebaritem_ )
 	b += scalebaritem_->getPxHeight()*4;
     uiBorder annotborder(l,t,r,b);
     return annotborder;
@@ -236,17 +233,13 @@ void AxesDrawer::updateViewRect()
     else if ( titletxt_ )
 	titletxt_->setVisible( false );
 
-    if ( annot.showscalebar_ )
-    {
-	if ( !scalebaritem_ )
-	    scalebaritem_ = view_.scene().addItem( new uiScaleBarItem(150) );
-	scalebaritem_->setVisible( true );
-	scalebaritem_->setPos( view_.mapToScene(uiPoint(view_.width()/2+30,
-							view_.height()-20)) );
-	scalebaritem_->update();
-    }
-    else if ( scalebaritem_ )
-	scalebaritem_->setVisible( false );
+    if ( !scalebaritem_ )
+	scalebaritem_ = view_.scene().addItem( new uiScaleBarItem(150) );
+
+    scalebaritem_->setPos( view_.mapToScene(uiPoint(view_.width()/2+30,
+						    view_.height()-20)) );
+    scalebaritem_->setVisible( annot.showscalebar_ );
+    scalebaritem_->update();
 
     setZValue( uiGraphicsSceneAxisMgr::getZValue() );
 }
@@ -322,6 +315,7 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 			     dim0rg2.stop, dim1rg.stop );
     uiGraphicsSceneAxisMgr::setWorldCoords( altwr );
 }
+
 
 void AxesDrawer::setScaleBarWorld2UI( const uiWorldRect& wr )
 {
