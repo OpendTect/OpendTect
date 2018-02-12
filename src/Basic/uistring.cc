@@ -650,7 +650,7 @@ uiString& uiString::appendPhrase( const uiString& txt,
 	    case MoreInfo:	tplstr = "%1:\n%2";	break;
 	}
     }
-    else
+    else if ( apptyp == SeparatorOnly )
     {
 	switch ( septyp )
 	{
@@ -660,6 +660,18 @@ uiString& uiString::appendPhrase( const uiString& txt,
 	    case CloseLine:	tplstr = "%1. %2";	break;
 	    case Comma:		tplstr = "%1, %2";	break;
 	    case MoreInfo:	tplstr = "%1: %2";	break;
+	}
+    }
+    else
+    {
+	switch ( septyp )
+	{
+	    case Empty:
+	    case Space:
+	    case Tab:		tplstr = "%1\n\n%2";	break;
+	    case CloseLine:	tplstr = "%1.\n\n%2";	break;
+	    case Comma:		tplstr = "%1,\n\n%2";	break;
+	    case MoreInfo:	tplstr = "%1:\n\n%2";	break;
 	}
     }
 
@@ -740,13 +752,6 @@ uiString uiString::getOrderString( int val )
 			tr("th", "nineteenth"), //19
 			tr("th", "twentieth") }; //20
     return toUiString( "%1%2" ).arg( val ).arg( rets[nr] );
-}
-
-
-uiString& uiString::appendEmptyLine()
-{
-
-    return appendPlainText("\n");
 }
 
 

@@ -179,5 +179,18 @@ protected:
 
     od_ostream*			ostrm_;
     od_istream*			istrm_;
+
+    uiString			sErrMsgZipArchiveCorrupt()
+				{ return tr("Zip archive is corrupt"); }
+    uiString			sErrMsgZipVerNotSupported()
+				{ return tr("Version of zip format needed to "
+					    "unpack is not supported"); }
+    uiString			sErrMsgZipEmpty()
+				{ return tr("Zip archive is empty"); }
+    uiString			sErrMsgNoHeaderSign()
+				{ return tr("Cannot find header signature"); }
+    uiString			sErrMsgCompressionMethodNotSupported()
+				{ return tr("Compression method used is not "
+							    "supported"); }
     
 };

@@ -50,10 +50,8 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tskr )
     if ( newmids.isEmpty() )
 	return false;
 
-    uiString msg1( tr("The selected horizon(s):") );
+    uiString msg1( tr("The selected horizons:") );
     uiString msg2( tr("Cannot pre-load:") );
-    msg1.appendEmptyLine();
-    msg2.appendEmptyLine();
     int nralreadyloaded = 0;
     int nrproblems = 0;
     PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
@@ -63,7 +61,8 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tskr )
 	const int selidx = loadedmids_.indexOf( newmids[idx] );
 	if ( selidx > -1 )
 	{
-	    msg1.appendPlainText( " '%1'" ).arg( loadednms_.get(selidx) );
+	    msg1.appendPlainText( " '%1'", uiString::Empty,
+			uiString::LeaveALine ).arg( loadednms_.get(selidx) );
 	    nralreadyloaded++;
 	    continue;
 	}
@@ -76,7 +75,8 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tskr )
 	    if ( !exec )
 	    {
 		BufferString name( EM::EMM().objectName(newmids[idx]) );
-		msg2.appendPlainText( " '%1'" ).arg( name );
+		msg2.appendPlainText( " '%1'", uiString::Empty,
+			uiString::LeaveALine ).arg( name );
 		nrproblems++;
 		continue;
 	    }

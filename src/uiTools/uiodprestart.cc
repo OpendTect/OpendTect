@@ -455,9 +455,8 @@ void uiODPreStart::doPkgMnu( const PluginPackage& pkg )
 			    uiString::Empty,uiString::AddNewLine);
 	if ( pkg.prov_ )
 	{
-	    msg.appendEmptyLine();
-	    msg.appendPhrase( tr("Provided by: %1")
-				.arg( pkg.prov_->name_ ), uiString::Empty );
+	    msg.appendPhrase( tr("Provided by: %1").arg( pkg.prov_->name_ ),
+				    uiString::Empty, uiString::LeaveALine );
 	}
 	uiMSG().about( msg );
     }

@@ -234,8 +234,8 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 	    BufferString loadedgeomnmstr = bfs.getDispString();
 	    msg.arg( toUiString(loadedgeomnmstr) );
 	}
-	msg.appendEmptyLine();
-	msg.appendPhrase( tr("Do you want to reload?") );
+	msg.appendPhrase( tr("Do you want to reload?"), uiString::Empty,
+							uiString::LeaveALine );
 	skiploadedgeomids = !uiMSG().askGoOn( msg );
     }
     uiTaskRunner taskrunner( this );

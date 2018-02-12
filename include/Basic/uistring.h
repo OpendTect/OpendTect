@@ -100,12 +100,12 @@ public:
     bool	operator!() const		{ return isEmpty(); }
 
     uiString&	operator=(const uiString&);	//!< no copy, ref counted
-    bool		operator>(const uiString& b) const;
-    bool		operator<(const uiString& b) const;
-    int			size() const;
+    bool	operator>(const uiString& b) const;
+    bool	operator<(const uiString& b) const;
+    int		size() const;
     static const uiString& emptyString()	{ return emptystring_; }
     static uiString& dummyString()		{ return dummystring_; }
-    bool		isPlainAscii() const;
+    bool	isPlainAscii() const;
 
 	/*! uiStrings should only be manipulated using the arg() functions.
 	    These replace the next %N (e.g. %1) with the provided argument. */
@@ -114,7 +114,7 @@ public:
     inline uiString&	arg(const T&);
     inline uiString&	arg(float,int nrdecimals);
     inline uiString&	arg(double,int nrdecimals);
-    uiString&			arg(const uiString&);
+    uiString&		arg(const uiString&);
 
 			/*! appendXX() functions should be used to concatenate
 			    entire sentences. You cannot just mix&match words
@@ -139,7 +139,6 @@ public:
     uiString&		postFixWord(const uiString&);
     uiString&		addMoreInfo(const uiString&,bool newline=true);
 			//!< adds a colon first
-    uiString&		appendEmptyLine();
 
 
     inline uiString&	appendIncorrect(const uiString&,char sep=' ');

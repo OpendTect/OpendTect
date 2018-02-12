@@ -189,7 +189,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 	errmsg_ = uiStrings::phrCannotRead(tr("processing setup") );
 	if ( !errmsg.isEmpty() )
 	{
-	    errmsg_.appendPhrase( tr( " Reason given: %1").arg( errmsg ),
+	    errmsg_.appendPhrase( tr( "Reason given: %1").arg( errmsg ),
 							uiString::CloseLine );
 	}
 

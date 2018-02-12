@@ -227,11 +227,10 @@ bool uiIssueReporterDlg::acceptOK()
 	uiString msg = tr("The report could not be sent automatically");
 	msg.appendPhrase(tr("You can still send it manually by e-mail"));
 	msg.appendPhrase(tr("Please send the file : %1 to").arg(filename_));
-	msg.appendEmptyLine();
-	msg.appendPlainText("support@opendtect.org");
-	msg.appendEmptyLine();
+	msg.appendPlainText("\nsupport@opendtect.org");
 	msg.appendPhrase( tr("Would you like to retry sending the report "
-			    "using different proxy settings?") );
+			    "using different proxy settings?"),
+			    uiString::Empty, uiString::LeaveALine );
 	res = uiMSG().askGoOn( msg );
 	if ( res )
 	    proxySetCB( 0 );

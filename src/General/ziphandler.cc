@@ -1036,22 +1036,19 @@ bool ZipHandler::readCentralDirHeader( ObjectSet<ZipFileInfo>* zfileinfo )
 							mLCentralDirVersion );
 	if ( version > mVerNeedToExtract )
 	    mErrRet(uiStrings::phrCannotUnZip(toUiString(srcfile_))
-		    .appendPhrase(tr("Version of zip format needed to unpack "
-		    "is not supported")))
+		    .appendPhrase(sErrMsgZipVerNotSupported()))
 
 	od_uint16 compmethod = *mCast( od_uint16*, headerbuff +
 						    mLCentralDirCompMethod );
 	if ( compmethod != mDeflate && compmethod != 0 )
 	    mErrRet( uiStrings::phrCannotZip(toUiString(srcfile_))
-		   .appendPhrase(tr("Compression method used is "
-		   "not supported")) )
+		   .appendPhrase(sErrMsgCompressionMethodNotSupported()) )
 
 	od_uint16 bitflag = *mCast( od_uint16*, headerbuff +
 						    mLCentralDirBitFlag );
 	if ( bitflag > 14 )
 	    mErrRet(uiStrings::phrCannotUnZip(toUiString(srcfile_))
-	      .appendPhrase(tr("Version of zip format needed to unpack is "
-	      "not supported")))
+	      .appendPhrase(sErrMsgZipVerNotSupported()) )
 
 	istrm_->setReadPosition( fileheadpos + mCentralHeaderSize );
 	const od_uint16 hfnmsz
@@ -1097,7 +1094,7 @@ bool ZipHandler::readEndOfCentralDirHeader()
     mEndOfCntrlDirHeaderSig( sig );
     od_stream::Pos filepos = istrm_->endPosition();
     if ( filepos == 0 )
-	{ mErrRet( tr("Zip archive is empty") ) }
+	{ mErrRet( sErrMsgZipEmpty() ) }
 
     filepos -= mEndOfDirHeaderSize;
     istrm_->setReadPosition( filepos );
@@ -1111,8 +1108,9 @@ bool ZipHandler::readEndOfCentralDirHeader()
 	filepos--;
 	if ( filepos <= 0 )
 	    mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
-		.appendPhrase(tr("Zip archive is corrupt "
-					"(cannot find header signature)")) )
+		.appendPhrase(sErrMsgZipArchiveCorrupt())
+		.appendPhrase(sErrMsgNoHeaderSign(),uiString::MoreInfo,
+		uiString::SeparatorOnly) )
 
 	istrm_->setReadPosition( filepos );
 	istrm_->getBin( headerbuff, mSizeFourBytes );
@@ -1141,7 +1139,7 @@ bool ZipHandler::readZIP64EndOfCentralDirLocator()
     istrm_->setReadPosition( 0, od_stream::End );
     od_stream::Pos filepos = istrm_->position();
     if ( filepos == 0 )
-	{ mErrRet( tr("Zip archive is empty") ) }
+	{ mErrRet( sErrMsgZipEmpty() ) }
 
     istrm_->setReadPosition( filepos
 			- mEndOfDirHeaderSize - mZIP64EndOfDirLocatorSize );
@@ -1154,9 +1152,10 @@ bool ZipHandler::readZIP64EndOfCentralDirLocator()
     {
 	filepos--;
 	if ( filepos <= 0 )
-	    mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_)), ,
-		.appendPhrase(tr("Zip archive is corrupt "
-		"(cannot find header signature)")) )
+	    mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+		.appendPhrase(sErrMsgZipArchiveCorrupt())
+		.appendPhrase(sErrMsgNoHeaderSign(),uiString::MoreInfo,
+		uiString::SeparatorOnly) )
 
 	istrm_->setReadPosition( filepos );
 	istrm_->getBin( headerbuff, mSizeFourBytes );
@@ -1189,7 +1188,7 @@ bool ZipHandler::readZIP64EndOfCentralDirRecord()
     const od_uint32* isig = reinterpret_cast<od_uint32*>(sig);
     if ( *ihdrbuff != *isig )
 	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
-		    .appendPhrase(tr("Zip archive is corrupt")) )
+		    .appendPhrase(sErrMsgZipArchiveCorrupt()) )
 
     istrm_->getBin( headerbuff+mSizeFourBytes,
 		    mZIP64EndOfDirRecordSize-mSizeFourBytes );
@@ -1318,8 +1317,7 @@ bool ZipHandler::extractNextFile()
     {
 	closeOutputStream(); closeInputStream();
 	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
-		    .appendPhrase(tr("Compression method used "
-					    "is not supported")) )
+		    .appendPhrase(sErrMsgCompressionMethodNotSupported()) )
     }
 
     closeOutputStream();
@@ -1345,8 +1343,8 @@ int ZipHandler::readLocalFileHeader()
     bool sigcheck;
     mFileHeaderSigCheck( headerbuff, 0 );
     if ( !sigcheck )
-	mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-					    tr("\nZip archive is corrupt") )
+	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+			    .appendPhrase(sErrMsgZipArchiveCorrupt()) )
 
     if ( getBitValue( *(headerbuff + mLGenPurBitFlag), 0 ) )
 	mErrRet( tr("Encrypted file::Not supported") )
@@ -1355,19 +1353,17 @@ int ZipHandler::readLocalFileHeader()
     od_uint16 version = *mCast( od_uint16*, headerbuff + mLVerNeedToExtract );
     if ( version > mVerNeedToExtract )
 	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
-	      .appendPhrase(tr("Version of zip format needed to unpack "
-	      "is not supported")) )
+	      .appendPhrase(sErrMsgZipVerNotSupported()) )
 
     od_uint16 compmethod = *mCast( od_uint16*, headerbuff + mLCompMethod );
     if ( compmethod != mDeflate && compmethod != 0 )
 	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
-		.appendPhrase(tr("Compression method used is not supported")) )
+		.appendPhrase(sErrMsgCompressionMethodNotSupported()) )
 
     od_uint16 bitflag = *mCast( od_uint16*, headerbuff + mLGenPurBitFlag );
     if ( bitflag > 14 )
 	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
-	      .appendPhrase(tr("Version of zip format needed to unpack "
-						    "is not supported")) )
+	      .appendPhrase(sErrMsgZipVerNotSupported()) )
 
     compmethod_ = *mCast( od_uint16*, headerbuff + mLCompMethod );
     lastmodtime_ = *mCast( od_uint16*, headerbuff + mLLastModFTime );
@@ -1499,7 +1495,7 @@ bool ZipHandler::doZUnCompress()
 	    {
 		(void)inflateEnd( &zlibstrm );
 		mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
-			    .appendPhrase(tr("Zip file is corrupt")) )
+			    .appendPhrase(sErrMsgZipArchiveCorrupt()) )
 	    }
 
 	    bytestowrite = chunksize - zlibstrm.avail_out;
@@ -1520,7 +1516,7 @@ bool ZipHandler::doZUnCompress()
     inflateEnd( &zlibstrm );
     if ( !(crc == crc_) )
 	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
-				  .appendPhrase(tr("Zip archive is corrupt")) )
+				  .appendPhrase(sErrMsgZipArchiveCorrupt()) )
 
     return ret == Z_STREAM_END ? true : false;
 #else
