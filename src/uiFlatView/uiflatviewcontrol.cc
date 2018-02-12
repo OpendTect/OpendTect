@@ -271,18 +271,23 @@ void uiFlatViewControl::propDlgClosed( CallBacker* )
 }
 
 
-void uiFlatViewControl::applyProperties( CallBacker* cb )
+void uiFlatViewControl::applyProperties( CallBacker* )
 {
     if ( !propdlg_ ) return;
 
-    mDynamicCastGet( uiFlatViewer*, vwr, &propdlg_->viewer() );
+    mDynamicCastGet(uiFlatViewer*,vwr,&propdlg_->viewer());
     if ( !vwr ) return;
+
+    const bool updateonresize = vwr->updatesBitmapsOnResize();
+    vwr->updateBitmapsOnResize( true );
 
     const int selannot = propdlg_->selectedAnnot();
     vwr->setAnnotChoice( selannot );
     vwr->handleChange( FlatView::Viewer::Annot |
 	    	       FlatView::Viewer::DisplayPars );
     vwr->dispPropChanged.trigger();
+
+    vwr->updateBitmapsOnResize( updateonresize );
 }
 
 
@@ -357,7 +362,7 @@ bool uiFlatViewControl::canReUseZoomSettings( Geom::Point2D<double> centre,
     const uiWorldRect bb( vwrs_[0]->boundingBox() );
     if ( sz.width() > bb.width() || sz.height() > bb.height() )
 	return false;
-    
+
     const uiWorldRect& curview = vwrs_[0]->curView();
     return bb.contains(curview.topLeft(),1e-3) &&
 	   bb.contains(curview.bottomRight(),1e-3);

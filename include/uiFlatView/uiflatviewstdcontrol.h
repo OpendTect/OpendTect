@@ -140,6 +140,7 @@ protected:
     virtual void	finalPrepare();
     void		clearToolBar();
     void		updatePosButtonStates();
+    void		updateZoomLevel(float x1pospercm,float x2pospercm);
     void		doZoom(bool zoomin,bool onlyvertzoom,uiFlatViewer&);
     void		setViewToCustomZoomLevel(uiFlatViewer&);
 

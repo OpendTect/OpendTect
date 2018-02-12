@@ -82,10 +82,14 @@ uiBorder AxesDrawer::getAnnotBorder( bool withextraborders ) const
     int b = withextraborders ? extraborder_.bottom() : 0;
     const int axisheight = getNeededHeight();
     const int axiswidth = getNeededWidth();
-    t += axisheight; // for title
-    l += axiswidth; r += 10; // for vertical axis annotation
-    b += axisheight;	t += axisheight; // hor horizontal axis annotation
-    if ( scalebaritem_ )
+    const FlatView::Annotation& annot = vwr_.appearance().annot_;
+    if ( annot.haveTitle() )
+	t += axisheight;
+    if ( annot.haveAxisAnnot(false) )
+    { l += axiswidth; r += 10; }
+    if ( annot.haveAxisAnnot(true) )
+    { b += axisheight;	t += axisheight; }
+    if ( scalebaritem_ && annot.showscalebar_ )
 	b += scalebaritem_->getPxHeight()*4;
     uiBorder annotborder(l,t,r,b);
     return annotborder;
@@ -247,13 +251,20 @@ void AxesDrawer::updateViewRect()
     else if ( titletxt_ )
 	titletxt_->setVisible( false );
 
-    if ( !scalebaritem_ )
-	scalebaritem_ = view_.scene().addItem( new uiScaleBarItem(150) );
+    if ( annot.showscalebar_ )
+    {
+	if ( !scalebaritem_ )
+	    scalebaritem_ = view_.scene().addItem( new uiScaleBarItem(150) );
 
-    scalebaritem_->setPos( view_.mapToScene(uiPoint(view_.width()/2+30,
-						    view_.height()-20)) );
-    scalebaritem_->setVisible( annot.showscalebar_ );
-    scalebaritem_->update();
+	scalebaritem_->setPos( view_.mapToScene(uiPoint(view_.width()/2+30,
+							view_.height()-20)) );
+    }
+
+    if ( scalebaritem_ )
+    {
+	scalebaritem_->setVisible( annot.showscalebar_ );
+	scalebaritem_->update();
+    }
 
     setZValue( uiGraphicsSceneAxisMgr::getZValue() );
 }

@@ -509,26 +509,33 @@ void uiFlatViewStdControl::setViewToCustomZoomLevel( uiFlatViewer& vwr )
 	return;
     }
 
-    const uiRect viewrect = vwr.getViewRect( false );
+    updateZoomLevel( x1pospercm, x2pospercm );
+}
+
+
+void uiFlatViewStdControl::updateZoomLevel( float x1pospercm, float x2pospercm )
+{
+    const uiRect viewrect = vwr_.getViewRect( false );
     const int screendpi = uiMain::getDPI();
     const float cmwidth = ((float)viewrect.width()/screendpi) * sInchToCMFac;
     const float cmheight = ((float)viewrect.height()/screendpi) * sInchToCMFac;
-    const double hwdth = vwr.posRange(true).step * cmwidth * x1pospercm / 2;
-    const double hhght = vwr.posRange(false).step * cmheight * x2pospercm / 2;
+    const double hwdth = vwr_.posRange(true).step * cmwidth * x1pospercm / 2;
+    const double hhght = vwr_.posRange(false).step * cmheight * x2pospercm / 2;
 
-    const uiWorldRect bb = vwr.boundingBox();
-    uiWorldPoint wp(!ispoppedup? setup_.initialcentre_:vwr.curView().centre());
+    const bool ispoppedup = vwr_.rgbCanvas().mainwin()->poppedUp();
+    const uiWorldRect bb = vwr_.boundingBox();
+    uiWorldPoint wp(!ispoppedup? setup_.initialcentre_:vwr_.curView().centre());
     if ( wp == uiWorldPoint::udf() ) wp = bb.centre();
 
     const uiWorldRect wr( wp.x-hwdth, wp.y-hhght, wp.x+hwdth, wp.y+hhght );
-    vwr.setBoundingRect( uiWorld2Ui(viewrect,wr).transform(bb) );
-    vwr.setView( getZoomOrPanRect(wp,wr.size(),wr,bb) );
+    vwr_.setBoundingRect( uiWorld2Ui(viewrect,wr).transform(bb) );
+    vwr_.setView( getZoomOrPanRect(wp,wr.size(),wr,bb) );
     updateZoomManager();
 }
 
 
 void uiFlatViewStdControl::setVwrCursor( uiFlatViewer& vwr,
-					     const MouseCursor& cursor )
+					 const MouseCursor& cursor )
 {
     vwr.rgbCanvas().setCursor( cursor );
     vwr.setCursor( cursor );
@@ -615,8 +622,17 @@ void uiFlatViewStdControl::viewScaleBarCB( CallBacker* )
     const bool doshowscalebar = scalebarbut_->isOn();
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	vwrs_[idx]->appearance().annot_.showscalebar_ = doshowscalebar;
-	vwrs_[idx]->handleChange( FlatView::Viewer::Annot );
+	uiFlatViewer& vwr = *vwrs_[idx];
+	const bool updateonresize = vwr.updatesBitmapsOnResize();
+	vwr.updateBitmapsOnResize( true );
+	const float x1pospercm = getCurrentPosPerCM( true );
+	const float x2pospercm = getCurrentPosPerCM( false );
+
+	vwr.appearance().annot_.showscalebar_ = doshowscalebar;
+	vwr.handleChange( FlatView::Viewer::Annot );
+
+	vwr.updateBitmapsOnResize( updateonresize );
+	updateZoomLevel( x1pospercm, x2pospercm );
     }
 }
 
