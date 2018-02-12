@@ -261,6 +261,12 @@ void uiFuncSelDraw::getSelectedItems( TypeSet<int>& selitems ) const
 }
 
 
+void uiFuncSelDraw::setSelectedItems( const TypeSet<int>& selitems )
+{
+    funclistfld_->setChosen( selitems );
+}
+
+
 bool uiFuncSelDraw::isSelected( int idx) const
 {
     return funclistfld_->isChosen(idx);

@@ -158,11 +158,12 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     constructDrawer( true );
     reloadFunctions();
 
-    wvltfld_->setLabelText(tr("Save stacked wavelet"));
+    wvltfld_->setLabelText( tr("Save stacked wavelet") );
     wvltfld_->setSensitive( false );
 
     for ( int idx=0; idx<wvltdrawer_.size(); idx++ )
     {
+	wvltdrawer_[idx]->setAsCurrent( curwvltnm );
 	wvltdrawer_[idx]->display( !idx );
 	wvltdrawer_[idx]->funclistselChged.notify(
 				mCB(this,uiSeisWvltMerge,funcSelChg) );
@@ -197,6 +198,12 @@ void uiSeisWvltMerge::funcSelChg( CallBacker* )
     if ( selsz <= 1 ) return;
 
     makeStackedWvlt();
+    wd->funcCheckChg(0);
+
+    TypeSet<int> selitems;
+    wd->getSelectedItems( selitems );
+    uiFuncSelDraw* od = wvltdrawer_[!normalizefld_->isChecked()];
+    od->setSelectedItems( selitems ); // select same items in other drawer
 }
 
 
@@ -269,7 +276,9 @@ uiFuncSelDraw* uiSeisWvltMerge::getCurrentDrawer()
 
 void uiSeisWvltMerge::reloadWvlts()
 {
-    deepErase( wvltset_ ); deepErase( namelist_ ); stackedwvlt_ = 0;
+    deepErase( wvltset_ ); stackedwvlt_ = 0;
+    deepErase( namelist_ );
+
     const IODir iodir( ctio_.ctxt_.getSelKey() );
     const IODirEntryList del( iodir, ctio_.ctxt_ );
     if ( del.size() < 2 )
@@ -328,6 +337,10 @@ void uiSeisWvltMerge::reloadWvlts()
 
 void uiSeisWvltMerge::reloadFunctions()
 {
+    uiFuncSelDraw* wd = getCurrentDrawer();
+    TypeSet<int> selitms;
+    wd->getSelectedItems( selitms );
+
     for ( int widx=0; widx<wvltdrawer_.size(); widx++ )
     {
 	for ( int idx=wvltdrawer_[widx]->getListSize()-1; idx>=0; idx-- )
@@ -344,9 +357,10 @@ void uiSeisWvltMerge::reloadFunctions()
 					    wvltfuncset_[idx] );
 	}
 
-	wvltdrawer_[widx]->setAsCurrent( namelist_.get(0).buf() );
+	wvltdrawer_[widx]->setSelectedItems( selitms );
+	const int firstsel = selitms.isEmpty() ? 0 : selitms.first();
+	wvltdrawer_[widx]->setAsCurrent( namelist_.get(firstsel).buf() );
     }
-
 }
 
 
@@ -413,16 +427,37 @@ void uiSeisWvltMerge::centerChged( CallBacker* )
 bool uiSeisWvltMerge::acceptOK( CallBacker* )
 {
     if ( !stackedwvlt_ )
-	mErrRet( tr("there is no stacked wavelet to be saved") );
-    return putWvlt( *stackedwvlt_ );
+	mErrRet( tr("There is no stacked wavelet to be saved") );
+
+// Get samplerate of selected items only and resample stackedwavelet accordingly
+    uiFuncSelDraw* wd = getCurrentDrawer();
+    TypeSet<int> selitms; wd->getSelectedItems( selitms );
+    float sr = mUdf(float);
+    for ( int idx=0; idx<selitms.size(); idx++ )
+    {
+	const int itm = selitms[idx];
+	PtrMan<IOObj> wvltioobj = Wavelet::getIOObj( namelist_.get(itm) );
+	PtrMan<Wavelet> wvlt = Wavelet::get( wvltioobj );
+	if ( !wvlt ) continue;
+
+	if ( wvlt->sampleRate() < sr )
+	    sr = wvlt->sampleRate();
+    }
+
+    Wavelet wvlt( *stackedwvlt_ );
+    if ( sr != wvlt.sampleRate() )
+	wvlt.reSample( sr );
+
+    return putWvlt( wvlt );
 }
 
 
 uiSeisWvltMerge::WvltMathFunction::WvltMathFunction( const Wavelet* wvlt )
-		: samples_(wvlt->samples())
-		, samppos_(wvlt->samplePositions())
-		, size_(wvlt->size())
-		{}
+    : samples_(wvlt->samples())
+    , samppos_(wvlt->samplePositions())
+    , size_(wvlt->size())
+{}
+
 
 float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
 {

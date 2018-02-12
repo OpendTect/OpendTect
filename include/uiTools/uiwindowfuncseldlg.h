@@ -117,6 +117,7 @@ public:
     int			getNrSel() const;
     const char*		getCurrentListName() const;
     void		getSelectedItems(TypeSet<int>&) const;
+    void		setSelectedItems(const TypeSet<int>&);
     bool		isSelected(int) const;
     void		removeItem(int);
     int			removeLastItem();
