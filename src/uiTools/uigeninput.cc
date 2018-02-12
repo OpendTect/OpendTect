@@ -754,6 +754,9 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     , elemszpol_( uiObject::UseDefault ) \
     , isrequired_(false)
 
+#define mSetFinaliseNotif() \
+    preFinalise().notify( mCB(this,uiGenInput,doFinalise) )
+
 
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const char* inputStr)
@@ -761,8 +764,8 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 {
     inputs_ += new StringInpSpec( inputStr );
     if ( !disptxt.isEmpty() )
-	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+	inputs_[0]->setName( toString(disptxt) );
+    mSetFinaliseNotif();
 }
 
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
@@ -771,8 +774,8 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 {
     inputs_ += new StringInpSpec( inputStr.buf() );
     if ( !disptxt.isEmpty() )
-	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+	inputs_[0]->setName( toString(disptxt) );
+    mSetFinaliseNotif();
 }
 
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
@@ -781,8 +784,8 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 {
     inputs_ += new StringInpSpec( toString(inputStr) );
     if ( !disptxt.isEmpty() )
-	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+	inputs_[0]->setName( toString(disptxt) );
+    mSetFinaliseNotif();
 }
 
 
@@ -794,7 +797,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
     const bool inputhasnm = inputs_[0]->name() && *inputs_[0]->name();
     if ( !disptxt.isEmpty() && !inputhasnm )
 	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+    mSetFinaliseNotif();
 }
 
 
@@ -804,7 +807,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt
 {
     inputs_ += inp1.clone();
     inputs_ += inp2.clone();
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+    mSetFinaliseNotif();
 }
 
 
@@ -816,7 +819,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt
     inputs_ += inp1.clone();
     inputs_ += inp2.clone();
     inputs_ += inp3.clone();
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+    mSetFinaliseNotif();
 }
 
 
@@ -831,7 +834,6 @@ uiGenInput::~uiGenInput()
 void uiGenInput::addInput( const DataInpSpec& inp )
 {
     inputs_ += inp.clone();
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
@@ -903,9 +905,14 @@ void uiGenInput::doFinalise( CallBacker* )
     deepErase( inputs_ ); // have been copied to fields.
     finalised_ = true;
 
-    if ( rdonlyset_) setReadOnly( rdonly_ );
+    for ( int idx=0; idx<tooltips_.size(); idx++ )
+	setElemToolTip( tooltips_.get(idx), idx );
 
-    if ( withchk_ ) checkBoxSel(0);	// sets elements (non-)sensitive
+    if ( rdonlyset_)
+	setReadOnly( rdonly_ );
+
+    if ( withchk_ )
+	checkBoxSel( 0 );
 }
 
 
@@ -997,6 +1004,20 @@ int uiGenInput::nrElements() const
 
 void uiGenInput::setToolTip( const uiString& tt, int ielem )
 {
+    if ( ielem < 0 )
+	return;
+
+    const int nr2add = ielem - tooltips_.size() + 1;
+    for ( int idx=0; idx<nr2add; idx++ )
+	tooltips_.add( uiString::emptyString() );
+    tooltips_.get( ielem ).set( tt );
+
+    setElemToolTip( tt, ielem );
+}
+
+
+void uiGenInput::setElemToolTip( const uiString& tt, int ielem )
+{
     UserInputObj* elem = element( ielem );
     if ( elem )
 	elem->setToolTip( tt );
@@ -1035,7 +1056,8 @@ void uiGenInput::setValue( const BinIDValue& b )
 
 UserInputObj* uiGenInput::element( int nr )
 {
-    if ( !finalised_ ) return 0;
+    if ( !finalised_ )
+	return 0;
     return nr<idxes_.size() && flds_[idxes_[nr].fldidx_]
 	    ? flds_[idxes_[nr].fldidx_]->element(idxes_[nr].subidx_) : 0;
 }

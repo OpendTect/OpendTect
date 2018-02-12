@@ -9,8 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uisegycommon.h"
+#include "uisegyexamine.h"
 #include "uidialog.h"
 #include "uitextedit.h"
+#include "uisettings.h"
+#include "uigeninput.h"
 #include "uimsg.h"
 #include "survinfo.h"
 #include "settings.h"
@@ -21,17 +24,13 @@ static const char* sKeyZInFeet = "Z in feet";
 static const char* sKeyIsVSP = "Is Zero-offset VSP";
 static const char* sKeySuppress = "SEGY.Suppress Warnings";
 static const char* sKeyMaxReasNrSamps = "SEGY.Max Reasonable Nr Samples";
-static int maxreasnrsamps_ = -1;
 
 
 int SEGY::cMaxReasonableNrSamples()
 {
-    if ( maxreasnrsamps_ < 0 )
-    {
-	maxreasnrsamps_ = 25000;
-	Settings::common().get( sKeyMaxReasNrSamps, maxreasnrsamps_ );
-    }
-    return maxreasnrsamps_;
+    int maxreasnrsamps = 25000;
+    Settings::common().get( sKeyMaxReasNrSamps, maxreasnrsamps );
+    return maxreasnrsamps;
 }
 
 
@@ -145,4 +144,67 @@ void uiSEGY::displayReport( uiParent* p, const IOPar& rep, const char* fnm )
     uiTextEdit* te = new uiTextEdit( dlg, rep.name() );
     te->setText( strstrm.result() );
     dlg->setDeleteOnClose( true ); dlg->go();
+}
+
+
+
+class uiSEGYSettingsGroup : public uiSettingsGroup
+{ mODTextTranslationClass(uiSEGYSettingsGroup);
+public:
+
+    mDecluiSettingsGroupPublicFns( uiSEGYSettingsGroup,
+				   General, "SEGY", "segy",
+				   toUiString("SEG-Y"), mTODOHelpKey )
+
+uiSEGYSettingsGroup( uiParent* p, Settings& setts )
+    : uiSettingsGroup(p,setts)
+    , initialsuppresswarnings_(setts.isTrue(sKeySuppress))
+    , initialmaxreassamps_(SEGY::cMaxReasonableNrSamples())
+    , initialexaminenrtrcs_(uiSEGYExamine::Setup::getDefNrTrcs())
+{
+    suppressfld_ = new uiGenInput( this, tr("Suppress SEG-Y warnings"),
+			  BoolInpSpec(initialsuppresswarnings_) );
+    maxnrsampfld_ = new uiGenInput( this,
+		tr("Maximum acceptable number of samples per trace"),
+			  IntInpSpec(initialmaxreassamps_,1,32768) );
+    maxnrsampfld_->attach( alignedBelow, suppressfld_ );
+    examinenrtrcsfld_ = new uiGenInput( this,
+		tr("Default number of traces to examine"),
+			  IntInpSpec(initialexaminenrtrcs_,1,mUdf(int)) );
+    examinenrtrcsfld_->attach( alignedBelow, maxnrsampfld_ );
+}
+
+
+void doCommit( uiRetVal& )
+{
+    updateSettings( initialsuppresswarnings_, suppressfld_->getBoolValue(),
+		    sKeySuppress );
+    updateSettings( initialmaxreassamps_, maxnrsampfld_->getIntValue(),
+		    sKeyMaxReasNrSamps );
+    updateSettings( initialexaminenrtrcs_, examinenrtrcsfld_->getIntValue(),
+		    sKeySettNrTrcExamine );
+}
+
+    const bool	initialsuppresswarnings_;
+    const int	initialmaxreassamps_;
+    const int	initialexaminenrtrcs_;
+
+    uiGenInput*	suppressfld_;
+    uiGenInput*	maxnrsampfld_;
+    uiGenInput*	examinenrtrcsfld_;
+
+};
+
+#include "uisegywriteopts.h"
+#include "uisegydirectinserter.h"
+
+void uiSEGY::initClasses()
+{
+    uiSEGYSettingsGroup::initClass();
+
+    uiSEGYDirectVolOpts::initClass();
+    uiSEGYDirectPS3DOpts::initClass();
+    uiSEGYDirectVolInserter::initClass();
+    uiSEGYDirect2DInserter::initClass();
+    uiSEGYDirectPS3DInserter::initClass();
 }

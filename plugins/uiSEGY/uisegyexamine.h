@@ -33,7 +33,7 @@ public:
 
     mStruct(uiSEGY) Setup : public uiDialog::Setup
     {
-				Setup(int nrtraces=100);
+				Setup(int nrtraces=-1);
 
 	mDefSetupMemb(int,nrtrcs)
 	mDefSetupMemb(SEGY::FileSpec,fs)
@@ -41,6 +41,7 @@ public:
 
 	void			usePar(const IOPar&);
 	static const char*	sKeyNrTrcs;
+	static int		getDefNrTrcs();
     };
 
 			uiSEGYExamine(uiParent*,const Setup&);

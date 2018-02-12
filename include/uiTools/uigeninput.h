@@ -272,13 +272,16 @@ private:
     bool		rdonlyset_;
 
     ObjectSet<DataInpSpec> inputs_;
+    uiStringSet		tooltips_;
 
     uiObject::SzPolicy	elemszpol_;
 
     DataInpSpec*	getInputSpecAndIndex(const int,int&) const;
     uiGenInputInputFld*	getInputFldAndIndex(const int,int&) const;
+    void		setElemToolTip(const uiString&,int);
 
 public:
+
     mDeprecated double getdValue( int nr=0, double uv=mUdf(double) ) const
 			    { return getDValue( nr, uv ); }
     mDeprecated double getdValue( float undefval ) const

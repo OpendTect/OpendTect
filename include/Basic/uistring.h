@@ -87,12 +87,13 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 mExpClass(Basic) uiString
 { mODTextTranslationClass(uiString);
 public:
+
 		uiString();
 		uiString(const uiString&);	//!< no copy, ref counted
 		~uiString();
 
     uiString&	set(const char*);
-    uiString&	importFrom(const char*);
+    uiString&	set( const uiString& s )	{ return (*this = s); }
     bool	isEmpty() const;
     void	setEmpty();
     uiString&	toLower( bool yn=true ); //!< Applied before argument subst.
@@ -194,6 +195,9 @@ private:
     void			getFullString(BufferString&) const; // toString
 
 public:
+
+		uiString(const char*)		= delete; // try 'set()'
+    uiString&	operator =(const char*)		= delete; // try 'set()'
 
     bool	isEqualTo(const uiString& oth) const;
 		//!< use only if unavoidable
