@@ -326,6 +326,8 @@ public:
     static ChangeType		cBurstAlert()		{ return 13; }
     static ChangeType		cLockColorChange()	{ return 14; }
     static ChangeType		cParentColorChange()	{ return 15; }
+    static ChangeType		cSeedChange()		{ return 16; }
+    static ChangeType		cObjectRemoved()	{ return 17; }
 
     virtual const IOObjContext&	getIOObjContext() const = 0;
 
