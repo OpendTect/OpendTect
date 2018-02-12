@@ -195,8 +195,6 @@ protected:
 
     bool		wrapUpRead();
 
-    mImplSimpleMonitoredGetSet(inline,comments,setComments,
-				BufferString,comments_,cCommentChange());
     TrcKeyZSampling&	gtSampling( bool work ) const
 			{ return work ? workcs_ : fullcs_; }
 
@@ -280,6 +278,9 @@ public:
     void		setNotFresh() const;
     void		setFreshSetupData(const IOPar&) const;
     void		getFreshSetupData(IOPar&) const;
+
+    mImplSimpleMonitoredGetSet(inline,comments,setComments,
+				BufferString,comments_,cCommentChange());
 
     mDeprecated IOPar&		defaultPars()
 				{ return defpars_; }

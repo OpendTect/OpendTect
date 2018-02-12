@@ -453,6 +453,7 @@ bool uiSEGYExp::acceptOK()
     if ( needmsgallok )
 	uiMSG().message( tr("Successful export of:\n%1").arg(sfs.dispName()) );
 
+    raise();
     return false;
 }
 

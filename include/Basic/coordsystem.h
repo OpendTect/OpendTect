@@ -53,6 +53,7 @@ public:
 
     virtual uiString		description() const			= 0;
     virtual BufferString	summary() const				= 0;
+    virtual bool		isWorthMentioning() const { return false; }
 
     virtual bool		isOK() const				= 0;
 

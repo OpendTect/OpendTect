@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uisettings.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "segytr.h"
 #include "survinfo.h"
 #include "settings.h"
 #include "od_strstream.h"
@@ -161,6 +162,7 @@ uiSEGYSettingsGroup( uiParent* p, Settings& setts )
     , initialsuppresswarnings_(setts.isTrue(sKeySuppress))
     , initialmaxreassamps_(SEGY::cMaxReasonableNrSamples())
     , initialexaminenrtrcs_(uiSEGYExamine::Setup::getDefNrTrcs())
+    , initialebcdic_(setts.isTrue(SEGYSeisTrcTranslator::sKeyHdrEBCDIC()))
 {
     suppressfld_ = new uiGenInput( this, tr("Suppress SEG-Y warnings"),
 			  BoolInpSpec(initialsuppresswarnings_) );
@@ -172,6 +174,10 @@ uiSEGYSettingsGroup( uiParent* p, Settings& setts )
 		tr("Default number of traces to examine"),
 			  IntInpSpec(initialexaminenrtrcs_,1,mUdf(int)) );
     examinenrtrcsfld_->attach( alignedBelow, maxnrsampfld_ );
+    asctxtfld_ = new uiGenInput( this, tr("Output Textual Header encoding"),
+			  BoolInpSpec(!initialebcdic_,
+			  tr("ASCII (recommended)"),tr("EBCDIC (legacy)") ) );
+    asctxtfld_->attach( alignedBelow, examinenrtrcsfld_ );
 }
 
 
@@ -183,15 +189,19 @@ void doCommit( uiRetVal& )
 		    sKeyMaxReasNrSamps );
     updateSettings( initialexaminenrtrcs_, examinenrtrcsfld_->getIntValue(),
 		    sKeySettNrTrcExamine );
+    updateSettings( initialebcdic_, !asctxtfld_->getBoolValue(),
+		    SEGYSeisTrcTranslator::sKeyHdrEBCDIC() );
 }
 
     const bool	initialsuppresswarnings_;
+    const bool	initialebcdic_;
     const int	initialmaxreassamps_;
     const int	initialexaminenrtrcs_;
 
     uiGenInput*	suppressfld_;
     uiGenInput*	maxnrsampfld_;
     uiGenInput*	examinenrtrcsfld_;
+    uiGenInput*	asctxtfld_;
 
 };
 

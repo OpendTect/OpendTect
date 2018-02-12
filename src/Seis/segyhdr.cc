@@ -9,7 +9,6 @@
 #include "segyhdr.h"
 #include "string2.h"
 #include "survinfo.h"
-#include "settings.h"
 #include "seisinfo.h"
 #include "seispacketinfo.h"
 #include "trckeyzsampling.h"
@@ -18,6 +17,8 @@
 #include "envvars.h"
 #include "timefun.h"
 #include "od_iostream.h"
+#include "odver.h"
+#include "coordsystem.h"
 #include "posimpexppars.h"
 
 
@@ -89,11 +90,8 @@ SEGY::TxtHeader::TxtHeader( int rev )
 {
     clear();
 
-    BufferString str;
-    const char* res = Settings::common().find( "Company" );
-    if ( !res ) res = "OpendTect";
-    str = "Created by: "; str += res;
-    str += "     ("; str += Time::getISOUTCDateTimeString(); str += ")";
+    BufferString str( "Created using OpendTect ", GetFullODVersion() );
+    str.add( " on " ).add( Time::getISOUTCDateTimeString() );
     putAt( 1, 6, 75, str );
     putAt( 2, 6, 75, BufferString("Survey: '", SI().name(),"'") );
     BinID bid = SI().sampling(false).hsamp_.start_;
@@ -117,6 +115,21 @@ SEGY::TxtHeader::TxtHeader( int rev )
 	coord = SI().transform( bid );
 	str.set( bid.toString() ).add( " = " ).add( coord.toPrettyString() );
 	putAt( 16, 6, 75, str );
+
+	ConstRefMan<Coords::CoordSystem> coordsys = SI().getCoordSystem();
+	if ( coordsys && coordsys->isWorthMentioning() )
+	    putAt( 17, 6, 75, coordsys->summary() );
+    }
+
+    BufferString comments = SI().comments();
+    char* lineptr = comments.getCStr();
+    for ( int iln=20; lineptr && *lineptr && iln<35; iln++ )
+    {
+	char* nlptr = firstOcc( lineptr, '\n' );
+	if ( nlptr )
+	    *nlptr++ = '\0';
+	putAt( iln, 6, 75, lineptr );
+	lineptr = nlptr;
     }
 
     if ( !SI().zIsTime() )
