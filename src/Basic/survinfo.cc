@@ -1059,8 +1059,8 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     ascostream astream( strm );
-    BufferString comments( comments_ );
-    char* lineptr = comments.getCStr();
+    BufferString commentsbuf( comments_ );
+    char* lineptr = commentsbuf.getCStr();
     if ( lineptr && *lineptr )
     {
 	while ( *lineptr )
