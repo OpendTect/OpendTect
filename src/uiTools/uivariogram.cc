@@ -56,17 +56,17 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     const int deffldval = isvert ? 10 : 1000;
     const int deffldstep = isvert ? 1 : 1000;
 
-    uiString lbl( tr("Maximum range %1").arg(
-    isvert ? tr("(%1)").arg(uiStrings::sMsec()) : SI().xyUnitString()) );
+    uiString unitstr =
+		isvert ? SI().getUiZUnitString() : SI().getUiXYUnitString();
+    uiString lbl( tr("Maximum range %1").arg(unitstr) );
     uiLabeledSpinBox* lblmaxrgfld = new uiLabeledSpinBox( this, lbl, 0 );
     maxrgfld_ = lblmaxrgfld->box();
     maxrgfld_->doSnap( true );
     maxrgfld_->setInterval( minrgval, maxrgval, defstep );
     maxrgfld_->setValue( defrgval );
 
-    uiString lbl2( uiStrings::phrJoinStrings(uiStrings::sStep(),tr("%1").arg
-		   (isvert ? toUiString("(%1)").arg(uiStrings::sMsec()) :
-		   SI().xyUnitString())) );
+    uiString lbl2(
+	uiStrings::phrJoinStrings(uiStrings::sStep(),tr("%1").arg(unitstr)) );
     uiLabeledSpinBox* lblstepfld = new uiLabeledSpinBox( this, lbl2, 0 );
     stepfld_ = lblstepfld->box();
     stepfld_->setInterval( minstepval, maxstepval, defstep );
@@ -153,8 +153,9 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     fdsu.noy2axis( true );
     fdsu.useyscalefory2( true );
     disp_ = new uiFunctionDisplay( this, fdsu );
-    uiString xnmstr = tr("Lag distance %1").arg(ishor ? SI().xyUnitString()
-		      : toUiString("(%1)").arg(uiStrings::sMsec()));
+    const uiString unitstr =
+		ishor ? SI().getUiXYUnitString() : SI().getUiZUnitString();
+    uiString xnmstr = tr("Lag distance %1").arg(unitstr);
     disp_->xAxis()->setCaption( xnmstr );
     disp_->yAxis(false)->setCaption( tr("Normalized Variance") );
     disp_->attach( rightOf, sillfld_ );
