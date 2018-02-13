@@ -53,7 +53,7 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
 
     EM::EMManager& horman = is2d ? EM::Hor2DMan() : EM::Hor3DMan();
     uiString msg1( tr("The selected horizons:") );
-    uiString msg2( tr("Cannot pre-load:") );
+    uiString msg2;
     int nralreadyloaded = 0;
     int nrproblems = 0;
     PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
@@ -75,9 +75,6 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
 	    Executor* exec = horman.objectLoader( newmids[idx] );
 	    if ( !exec )
 	    {
-		BufferString name( horman.objectName(newmids[idx]) );
-		msg2.appendPlainText( " '%1'", uiString::Empty,
-			uiString::LeaveALine ).arg( name );
 		nrproblems++;
 		continue;
 	    }
@@ -88,6 +85,17 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
 	emobj = horman.getObject( newmids[idx] );
 	emobjects += emobj;
     }
+
+    if ( nrproblems == newmids.size() )
+    {
+	if ( newmids.size() == 1 )
+	    msg2 = tr( "Cannot find the horizon for pre-load" );
+	else
+	    msg2 = tr( "Cannot find any horizons for pre-load" );
+    }
+    else
+	msg2 = tr("Cannot pre-load some horizons");
+    
 
     if ( nralreadyloaded > 0 )
     {
