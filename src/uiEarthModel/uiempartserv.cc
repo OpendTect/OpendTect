@@ -453,14 +453,14 @@ bool uiEMPartServer::isFullyLoaded( const DBKey& emid ) const
 }
 
 
-void uiEMPartServer::displayEMObject( const DBKey& mid )
+void uiEMPartServer::displayEMObject( const DBKey& emid )
 {
-    selemid_ = mid;
+    selemid_ = emid;
 
     if ( selemid_.isInvalid() )
     {
-	loadSurface( mid );
-	selemid_ = mid;
+	loadSurface( emid );
+	selemid_ = emid;
     }
 
     if ( !selemid_.isInvalid() )
@@ -597,15 +597,15 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs,
     if ( !dlg.go() )
 	return;
 
-    DBKeySet mids;
-    dlg.getChosen( mids );
-    if ( mids.isEmpty() )
+    DBKeySet dbkys;
+    dlg.getChosen( dbkys );
+    if ( dbkys.isEmpty() )
 	return;
 
     ExecutorGroup loaders( "Loading Bodies" );
-    for ( int idx=0; idx<mids.size(); idx++ )
+    for ( int idx=0; idx<dbkys.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = DBM().get( mids[idx] );
+	PtrMan<IOObj> ioobj = DBM().get( dbkys[idx] );
 	if ( !ioobj )
 	    continue;
 
@@ -619,7 +619,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs,
 	if ( !object ) continue;
 
 	object->ref();
-	object->setDBKey( mids[idx] );
+	object->setDBKey( dbkys[idx] );
 	objs += object;
 	loaders.add( object->loader() );
     }
@@ -660,7 +660,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     dlg.iogrp()->getSurfaceSelection( sel );
 
     uiTaskRunner uitr( parent() );
-    const RefObjectSet<EM::EMObject> emobjs = 
+    const RefObjectSet<EM::EMObject> emobjs =
 	EM::EMM().loadObjects( typ, surfaceids, &sel, &uitr );
     if ( !emobjs.isEmpty() )
 	objs.append( emobjs );
@@ -909,7 +909,7 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 		key = dlg.ioObj()->key();
 		object->setDBKey( key );
 	    }
-	    
+
 	    ret = EM::getMgr( id ).saveAs( id, key, &uitr );
 	}
     }
@@ -1324,24 +1324,24 @@ void uiEMPartServer::removeUndo()
 }
 
 
-bool uiEMPartServer::loadSurface( const DBKey& mid,
+bool uiEMPartServer::loadSurface( const DBKey& dbky,
 				  const EM::SurfaceIODataSelection* newsel )
 {
-    if ( em_.getObject(mid) )
+    if ( em_.getObject(dbky) )
 	return true;
 
-    Executor* exec = em_.objectLoader( mid, newsel );
+    Executor* exec = em_.objectLoader( dbky, newsel );
     if ( !exec )
     {
-	PtrMan<IOObj> ioobj = DBM().get(mid);
+	PtrMan<IOObj> ioobj = DBM().get(dbky);
 	BufferString nm = ioobj ? (const char*)ioobj->name()
-				: (const char*)mid.toString().str();
+				: (const char*)dbky.toString().str();
 	uiString msg = tr( "Cannot load '%1'" ).arg( nm );
 	uiMSG().error( msg );
 	return false;
     }
 
-    EM::EMObject* obj = em_.getObject( mid );
+    EM::EMObject* obj = em_.getObject( dbky );
     obj->ref();
     uiTaskRunner exdlg( parent() );
     if ( !TaskRunner::execute( &exdlg, *exec ) )
@@ -1403,7 +1403,8 @@ ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
     if ( !dlg.go() || !horfld->ioobj() ) return 0;
 
     const DBKey emid = horfld->key();
-    if ( emid.isInvalid() ) return 0;
+    if ( emid.isInvalid() )
+	return 0;
 
     EM::EMObject* obj = em_.getObject( emid );
     if ( !obj || !obj->isFullyLoaded() )
@@ -1612,27 +1613,30 @@ void uiEMPartServer::managePreLoad()
 
 void uiEMPartServer::fillPar( IOPar& par ) const
 {
-    const DBKeySet& mids = EM::HPreL().getPreloadedIDs();
-    for ( int idx=0; idx<mids.size(); idx++ )
-	par.set( IOPar::compKey(sKeyPreLoad(),idx), mids[idx] );
+    const DBKeySet& dbkys = EM::HPreL().getPreloadedIDs();
+    for ( int idx=0; idx<dbkys.size(); idx++ )
+	par.set( IOPar::compKey(sKeyPreLoad(),idx), dbkys[idx] );
 }
 
 
 bool uiEMPartServer::usePar( const IOPar& par )
 {
     const int maxnr2pl = 1000;
-    DBKeySet mids;
+    DBKeySet dbkys;
+    int is2dflag = 0;
     for ( int idx=0; idx<maxnr2pl; idx++ )
     {
-	DBKey mid;
-	par.get( IOPar::compKey(sKeyPreLoad(),idx), mid );
-	if ( mid.isInvalid() )
+	DBKey dbky;
+	par.get( IOPar::compKey(sKeyPreLoad(),idx), dbky );
+	if ( dbky.isInvalid() )
 	    break;
 
-	mids += mid;
+	dbkys += dbky;
+	if ( is2dflag == 0 )
+	    is2dflag = EM::EMM().is2D( dbky ) ? 1 : -1;
     }
 
     uiTaskRunner uitr( parent() );
-    EM::HPreL().load( mids, &uitr );
+    EM::HPreL().load( dbkys, is2dflag > 0, &uitr );
     return true;
 }

@@ -76,6 +76,7 @@ public:
 
     EMObject*		createTempObject(const char* type);
 
+    bool		is2D(const DBKey&) const;
     BufferString	objectName(const DBKey&) const;
 			/*!<\returns the name of the object */
     const char*		objectType(const DBKey&) const;

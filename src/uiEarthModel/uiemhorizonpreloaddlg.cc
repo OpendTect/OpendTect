@@ -126,11 +126,11 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 	return false;
 
     EM::HorizonPreLoader& hpl = EM::HPreL();
-    DBKeySet selmids;
-    hordlg.getChosen( selmids );
+    DBKeySet seldbkys;
+    hordlg.getChosen( seldbkys );
 
     uiTaskRunner taskrunner( this );
-    hpl.load( selmids, &taskrunner );
+    hpl.load( seldbkys, is2d, &taskrunner );
     uiMSG().message( hpl.errorMsg() );
     listfld_->setEmpty();
     listfld_->addItems( hpl.getPreloadedNames().getUiStringSet() );
@@ -177,13 +177,13 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     unloadbut_->setSensitive( true );
     savebut_->setSensitive( true );
     EM::HorizonPreLoader& hpl = EM::HPreL();
-    const DBKey& mid = hpl.getDBKey( listfld_->itemText(selidx) );
-    PtrMan<IOObj> ioobj = DBM().get( mid );
+    const DBKey& dbky = hpl.getDBKey( listfld_->itemText(selidx) );
+    PtrMan<IOObj> ioobj = DBM().get( dbky );
     if ( !ioobj )
 	return;
 
-    EM::EMManager& emmgr = EM::getMgr( mid );
-    BufferString type( emmgr.objectType(mid) );
+    EM::EMManager& emmgr = EM::getMgr( dbky );
+    BufferString type( emmgr.objectType(dbky) );
     BufferString info;
     info.add( "Data Type: " ).add( type ).add( "\n" );
     if ( ioobj->isStream() )
@@ -215,7 +215,7 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	{ uiMSG().message( tr("No valid objects found") ); return; }
 
     PtrMan<IOPar> par = fulliop.subselect( "Hor" );
-    DBKeySet selmids;
+    DBKeySet seldbkys;
     for ( int idx=0; idx<par->size(); idx++ )
     {
 	PtrMan<IOPar> dbkeypar = par->subselect( idx );
@@ -226,24 +226,25 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	if ( !DBKey::isValidString(idstr) )
 	    continue;
 
-	selmids += DBKey::getFromString( idstr );
+	seldbkys += DBKey::getFromString( idstr );
     }
 
-    if ( selmids.isEmpty() )
+    if ( seldbkys.isEmpty() )
 	return;
 
-    loadSavedHorizon( selmids );
+    loadSavedHorizon( seldbkys );
 }
 
 
-void uiHorizonPreLoadDlg::loadSavedHorizon( const DBKeySet& savedmids )
+void uiHorizonPreLoadDlg::loadSavedHorizon( const DBKeySet& saveddbkys )
 {
-    if ( savedmids.isEmpty() )
+    if ( saveddbkys.isEmpty() )
 	return;
 
+    const bool is2d = EM::EMM().is2D( saveddbkys.get(0) );
     uiTaskRunner taskrunner( this );
     EM::HorizonPreLoader& hpl = EM::HPreL();
-    hpl.load( savedmids, &taskrunner );
+    hpl.load( saveddbkys, is2d, &taskrunner );
     uiMSG().message( hpl.errorMsg() );
     listfld_->setEmpty();
     BufferStringSet hornms = hpl.getPreloadedNames();
@@ -275,12 +276,12 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     const int size = hornames.size();
     for ( int lhidx=0; lhidx<size; lhidx++ )
     {
-	const DBKey mid = hpl.getDBKey( hornames.get( lhidx ) );
-	if ( mid.isInvalid() )
+	const DBKey dbky = hpl.getDBKey( hornames.get( lhidx ) );
+	if ( dbky.isInvalid() )
 	    continue;
 
 	BufferString key( "Hor." , lhidx, ".ID" );
-	par.set( key, mid );
+	par.set( key, dbky );
     }
 
     ascostream astrm( strm );

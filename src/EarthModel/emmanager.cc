@@ -50,9 +50,9 @@ EM::GenEMManager& EM::EMM()
 }
 
 
-bool EM::canOverwrite( const DBKey& mid )
+bool EM::canOverwrite( const DBKey& dbky )
 {
-    const IOObj* ioobj = DBM().get( mid );
+    const IOObj* ioobj = DBM().get( dbky );
     if ( !ioobj )
 	return true;
 
@@ -103,6 +103,18 @@ BufferString EMManager::objectName( const DBKey& id ) const
 }
 
 
+bool EMManager::is2D( const DBKey& id ) const
+{
+    //TODO crappy impl, what about FSS's? should look for obj in loaded first
+    PtrMan<IOObj> ioobj = DBM().get( id );
+    if ( !ioobj )
+	return false;
+
+    return FixedString(ioobj->group())
+	== EMHorizon2DTranslatorGroup::sGroupName();
+}
+
+
 const char* EMManager::objectType( const DBKey& id ) const
 {
     PtrMan<IOObj> ioobj = DBM().get( id );
@@ -113,7 +125,8 @@ const char* EMManager::objectType( const DBKey& id ) const
 EMObject* EMManager::createObject( const char* type, const char* nm )
 {
     EMObject* object = EMOF().create( type, *this );
-    if ( !object ) return 0;
+    if ( !object )
+	{ pErrMsg(BufferString("Unknown type: ",type)); return 0; }
 
     CtxtIOObj ctio( object->getIOObjContext() );
     ctio.ctxt_.forread_ = false;
@@ -145,11 +158,11 @@ EMObject* EMManager::getObject( const DBKey& id )
 }
 
 
-EMObject* EMManager::gtObject( const DBKey& mid )
+EMObject* EMManager::gtObject( const DBKey& dbky )
 {
     for ( int idx=0; idx<savers_.size(); idx++ )
     {
-	if ( savers_[idx]->key() == mid )
+	if ( savers_[idx]->key() == dbky )
 	    return mCast(EMObject*,savers_[idx]->object());
     }
 
@@ -175,39 +188,39 @@ RefObjectSet<EMObject> EMManager::loadObjects( const char* typ,
 }
 
 
-ConstRefMan<EMObject> EMManager::fetch( const DBKey& mid, TaskRunner* trunner,
+ConstRefMan<EMObject> EMManager::fetch( const DBKey& dbky, TaskRunner* trunnr,
 				bool forcereload ) const
 {
     mLock4Read();
-    EMObject* ret = const_cast<EMManager*>(this)->gtObject( mid );
+    EMObject* ret = const_cast<EMManager*>(this)->gtObject( dbky );
     if ( !forcereload && ret && ret->isFullyLoaded() )
 	return ret;
 
-    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( mid );
+    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( dbky );
     mUnlockAllAccess();
-    if ( !exec || !TaskRunner::execute(trunner,*exec) )
+    if ( !exec || !TaskRunner::execute(trunnr,*exec) )
 	return 0;
 
     mReLock();
-    return const_cast<EMManager*>(this)->gtObject( mid );
+    return const_cast<EMManager*>(this)->gtObject( dbky );
 }
 
 
-RefMan<EMObject> EMManager::fetchForEdit( const DBKey& mid, TaskRunner* trunner,
+RefMan<EMObject> EMManager::fetchForEdit( const DBKey& dbky, TaskRunner* trunnr,
 				bool forcereload )
 {
     mLock4Read();
-    EMObject* ret = gtObject( mid );
+    EMObject* ret = gtObject( dbky );
     if ( !forcereload && ret && ret->isFullyLoaded() )
 	return ret;
 
-    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( mid );
+    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( dbky );
     mUnlockAllAccess();
-    if ( !exec || !TaskRunner::execute(trunner,*exec) )
+    if ( !exec || !TaskRunner::execute(trunnr,*exec) )
 	return 0;
 
     mReLock();
-    return gtObject( mid );
+    return gtObject( dbky );
 }
 
 
@@ -250,18 +263,19 @@ EMObject* EMManager::createTempObject( const char* type )
 }
 
 
-Executor* EMManager::objectLoader( const DBKeySet& mids,
+Executor* EMManager::objectLoader( const DBKeySet& dbkys,
 				   const SurfaceIODataSelection* iosel,
 				   DBKeySet* idstobeloaded )
 {
-    ExecutorGroup* execgrp = mids.size()>1 ? new ExecutorGroup( "Reading" ) : 0;
-    for ( int idx=0; idx<mids.size(); idx++ )
+    ExecutorGroup* execgrp = dbkys.size()>1
+			   ? new ExecutorGroup( "Reading" ) : 0;
+    for ( int idx=0; idx<dbkys.size(); idx++ )
     {
-	const EMObject* obj = getObject( mids[idx] );
+	const EMObject* obj = getObject( dbkys[idx] );
 	Executor* loader =
-	    obj && obj->isFullyLoaded() ? 0 : objectLoader( mids[idx], iosel );
+	    obj && obj->isFullyLoaded() ? 0 : objectLoader( dbkys[idx], iosel );
 	if ( idstobeloaded && loader )
-	    *idstobeloaded += mids[idx];
+	    *idstobeloaded += dbkys[idx];
 
 	if ( execgrp )
 	{
@@ -289,14 +303,14 @@ Executor* EMManager::objectLoader( const DBKeySet& mids,
 }
 
 
-Executor* EMManager::objectLoader( const DBKey& mid,
+Executor* EMManager::objectLoader( const DBKey& dbky,
 				   const SurfaceIODataSelection* iosel )
 {
-    EMObject* obj = getObject( mid );
+    EMObject* obj = getObject( dbky );
 
     if ( !obj )
     {
-	PtrMan<IOObj> ioobj = DBM().get( mid );
+	PtrMan<IOObj> ioobj = DBM().get( dbky );
 	if ( !ioobj ) return 0;
 
 	BufferString typenm = ioobj->pars().find( sKey::Type() );
@@ -305,7 +319,7 @@ Executor* EMManager::objectLoader( const DBKey& mid,
 
 	obj = EMOF().create( typenm, *this );
 	if ( !obj ) return 0;
-	obj->setDBKey( mid );
+	obj->setDBKey( dbky );
     }
 
     mDynamicCastGet(Surface*,surface,obj)
@@ -334,21 +348,21 @@ Executor* EMManager::objectLoader( const DBKey& mid,
 }
 
 
-EMObject* EMManager::loadIfNotFullyLoaded( const DBKey& mid,
+EMObject* EMManager::loadIfNotFullyLoaded( const DBKey& dbky,
 					   const TaskRunnerProvider& trprov )
 {
-    RefMan<EM::EMObject> emobj = getObject( mid );
+    RefMan<EM::EMObject> emobj = getObject( dbky );
 
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	PtrMan<Executor> exec = objectLoader( mid );
+	PtrMan<Executor> exec = objectLoader( dbky );
 	if ( !exec )
 	    return 0;
 
 	if ( !trprov.execute(*exec) )
 	    return 0;
 
-	emobj = getObject( mid );
+	emobj = getObject( dbky );
     }
 
     if ( !emobj || !emobj->isFullyLoaded() )
@@ -380,7 +394,8 @@ void EMManager::removeSelected( const DBKey& id,
 				const TaskRunnerProvider& trprov )
 {
     EM::EMObject* emobj = getObject( id );
-    if ( !emobj ) return;
+    if ( !emobj )
+	return;
 
     emobj->ref();
     emobj->removeSelected( selector, trprov );
@@ -388,22 +403,22 @@ void EMManager::removeSelected( const DBKey& id,
 }
 
 
-bool EMManager::readDisplayPars( const DBKey& mid, IOPar& outpar ) const
+bool EMManager::readDisplayPars( const DBKey& dbky, IOPar& outpar ) const
 {
-    if( !readParsFromDisplayInfoFile(mid,outpar) )
-	return readParsFromGeometryInfoFile( mid, outpar );
+    if( !readParsFromDisplayInfoFile(dbky,outpar) )
+	return readParsFromGeometryInfoFile( dbky, outpar );
 
     return true;
 
 }
 
 
-bool EMManager::readParsFromDisplayInfoFile( const DBKey& mid,
+bool EMManager::readParsFromDisplayInfoFile( const DBKey& dbky,
 					     IOPar& outpar ) const
 {
     outpar.setEmpty();
 
-    IOObjInfo ioobjinfo( mid );
+    IOObjInfo ioobjinfo( dbky );
     if( !ioobjinfo.isOK() )
 	return false;
 
@@ -419,11 +434,11 @@ bool EMManager::readParsFromDisplayInfoFile( const DBKey& mid,
 }
 
 
-bool EMManager::readParsFromGeometryInfoFile( const DBKey& mid,
+bool EMManager::readParsFromGeometryInfoFile( const DBKey& dbky,
 					      IOPar& outpar ) const
 {
     outpar.setEmpty();
-    IOPar* par = IOObjInfo(mid).getPars();
+    IOPar* par = IOObjInfo(dbky).getPars();
     if( !par )
 	return false;
 
@@ -449,14 +464,14 @@ bool EMManager::readParsFromGeometryInfoFile( const DBKey& mid,
 }
 
 
-bool EMManager::writeDisplayPars( const DBKey& mid,const IOPar& inpar ) const
+bool EMManager::writeDisplayPars( const DBKey& dbky,const IOPar& inpar ) const
 {
-    IOObjInfo ioobjinfo( mid );
+    IOObjInfo ioobjinfo( dbky );
     if( !ioobjinfo.isOK() )
 	return false;
 
     IOPar displaypar;
-    readDisplayPars( mid, displaypar );
+    readDisplayPars( dbky, displaypar );
     displaypar.merge( inpar );
 
     const BufferString filenm = Surface::getParFileName( *ioobjinfo.ioObj() );
@@ -465,10 +480,10 @@ bool EMManager::writeDisplayPars( const DBKey& mid,const IOPar& inpar ) const
 }
 
 
-bool EMManager::getSurfaceData( const DBKey& mid, SurfaceIOData& sd,
+bool EMManager::getSurfaceData( const DBKey& dbky, SurfaceIOData& sd,
 				uiString& errmsg ) const
 {
-    EM::IOObjInfo oi( mid );
+    EM::IOObjInfo oi( dbky );
     return oi.getSurfaceData( sd, errmsg );
 }
 
