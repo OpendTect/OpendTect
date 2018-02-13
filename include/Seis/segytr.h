@@ -64,6 +64,9 @@ public:
 						{ return true; }
     void		cleanUp();
 
+    static const char*	sKeyHdrEBCDIC()
+			{ return "SEGY.Text Header EBCDIC"; }
+
 protected:
 
     SEGY::FilePars	filepars_;

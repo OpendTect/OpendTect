@@ -15,7 +15,6 @@
 #include "uisegybulkimporter.h"
 #include "uisegydef.h"
 #include "uisegydirectinserter.h"
-#include "uisegywriteopts.h"
 #include "uisegysip.h"
 #include "uisegysipclassic.h"
 #include "uisegydefdlg.h"
@@ -28,9 +27,9 @@
 #include "uisegyread.h"
 
 #include "uifileselector.h"
+#include "uisurvinfoed.h"
 #include "uiseisfileman.h"
 #include "uiseispsman.h"
-#include "uisurvinfoed.h"
 #include "uimenu.h"
 #include "uiodmenumgr.h"
 #include "uimsg.h"
@@ -99,11 +98,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
     : mnumgr_(a->menuMgr())
     , appl_(a)
 {
-    uiSEGYDirectVolOpts::initClass();
-    uiSEGYDirectPS3DOpts::initClass();
-    uiSEGYDirectVolInserter::initClass();
-    uiSEGYDirect2DInserter::initClass();
-    uiSEGYDirectPS3DInserter::initClass();
+    uiSEGY::initClasses();
 
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
 				SEGYDirectSeisTrcTranslator::translKey() );

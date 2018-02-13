@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisbufadapters.h"
 #include "segytr.h"
 #include "segyhdr.h"
+#include "settings.h"
 #include "iopar.h"
 #include "timer.h"
 #include "envvars.h"
@@ -45,10 +46,19 @@ const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
 uiSEGYExamine::Setup::Setup( int nrtraces )
     : uiDialog::Setup(tr("SEG-Y Examiner"),mNoDlgTitle,
                       mODHelpKey(mSEGYExamineHelpID) )
-    , nrtrcs_(nrtraces)
+    , nrtrcs_(nrtraces<0?getDefNrTrcs():nrtraces)
     , fp_(true)
 {
     nrstatusflds( 2 ).modal( false );
+}
+
+
+int uiSEGYExamine::Setup::getDefNrTrcs()
+{
+    const char* res = Settings::common().find( sKeySettNrTrcExamine );
+    if ( !res )
+	return 1000;
+    return toInt( res );
 }
 
 

@@ -1059,22 +1059,23 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     ascostream astream( strm );
-    const char* ptr = (const char*)comments_;
-    if ( *ptr )
+    BufferString commentsbuf( comments_ );
+    char* lineptr = commentsbuf.getCStr();
+    if ( lineptr && *lineptr )
     {
-	while ( 1 )
+	while ( *lineptr )
 	{
-	    char* nlptr = const_cast<char*>( firstOcc( ptr, '\n' ) );
+	    char* nlptr = firstOcc( lineptr, '\n' );
 	    if ( !nlptr )
 	    {
-		if ( *ptr )
-		    strm << ptr;
+		if ( *lineptr )
+		    strm << lineptr;
 		break;
 	    }
 	    *nlptr = '\0';
-	    strm << ptr << '\n';
+	    strm << lineptr << '\n';
 	    *nlptr = '\n';
-	    ptr = nlptr + 1;
+	    lineptr = nlptr + 1;
 	}
 	strm << '\n';
     }

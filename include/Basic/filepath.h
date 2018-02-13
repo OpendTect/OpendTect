@@ -62,6 +62,7 @@ public:
     Path&		setExtension(const char*,bool replace=true);
 						//!< !replace => bluntly add
 
+    bool		exists() const;
     bool		isAbsolute() const	{ return isabs_; }
     bool		isURI() const		{ return !domain_.isEmpty(); }
     bool		isSubDirOf(const Path&,Path* reldir = 0) const;

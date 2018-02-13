@@ -243,9 +243,8 @@ void uiSEGYReadStarter::createTools()
     examinenrtrcsfld_->setHSzPol( uiObject::Small );
     examinenrtrcsfld_->setToolTip( tr("Number of traces to examine") );
     examinenrtrcsfld_->attach( alignedBelow, examinebut_ );
-    int nrex = 1000; Settings::common().get( sKeySettNrTrcExamine, nrex );
-    examinenrtrcsfld_->setInterval( 10, 1000000, 10 );
-    examinenrtrcsfld_->setValue( nrex );
+    examinenrtrcsfld_->setInterval( 1, mUdf(int), 10 );
+    examinenrtrcsfld_->setValue( uiSEGYExamine::Setup::getDefNrTrcs() );
     examinegrp->attach( alignedBelow, hdrentrysettsbut_ );
     examinegrp->setFrame( true );
 

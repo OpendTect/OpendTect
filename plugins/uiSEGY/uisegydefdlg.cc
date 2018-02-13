@@ -84,7 +84,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     uiSeparator* sep = new uiSeparator( this, "hor sep", OD::Horizontal, false);
     sep->attach( stretchedBelow, lastgrp );
 
-    int nrex = 100; Settings::common().get( sKeySettNrTrcExamine, nrex );
+    const int nrex = uiSEGYExamine::Setup::getDefNrTrcs();
     nrtrcexfld_ = new uiGenInput( this, tr("Number of traces to examine"),
 			      IntInpSpec(nrex).setName("Traces to Examine") );
     nrtrcexfld_->attach( alignedBelow, lastgrp );

@@ -189,11 +189,6 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 
 void SEGYSeisTrcTranslator::addWarn( int nr, const uiString& detail )
 {
-    mDefineStaticLocalObject( const bool, nowarn,
-			= Settings::common().isTrue("SEG-Y.No warnings") );
-    if ( nowarn || warnnrs_.isPresent(nr) )
-	return;
-
     uiString firstoccat = tr("First occurrence at %1");
     uiString msg = toUiString( "[%1] %2" ).arg( nr );
     if ( nr == cSEGYWarnBadFmt )
@@ -383,7 +378,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	fileopts_.thdef_.pinfo = &pinfo_;
 	txthead_->setPosInfo( fileopts_.thdef_ );
 	txthead_->setStartPos( outsd_.start );
-	if ( Settings::common().isTrue("SEGY.Text Header EBCDIC") )
+	if ( Settings::common().isTrue(sKeyHdrEBCDIC()) )
 	    txthead_->setEbcdic();
     }
     if ( !sConn().oStream().addBin( txthead_->txt_, SegyTxtHeaderLength ) )

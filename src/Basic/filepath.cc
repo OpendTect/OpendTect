@@ -226,6 +226,12 @@ File::Path& File::Path::setExtension( const char* ext, bool replace )
 }
 
 
+bool File::Path::exists() const
+{
+    return File::exists( fullPath() );
+}
+
+
 bool File::Path::isSubDirOf( const Path& oth, Path* relpath ) const
 {
     if ( oth.isabs_ != isabs_ || oth.prefix_ != prefix_
