@@ -1036,22 +1036,7 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
     EM::Fault3D* fault3d = emFault();
     if ( !fault3d ) return;
 
-    if ( cbdata.changeType() == EM::EMObject::cSectionChange() )
-    {
-	if ( fault3d )
-	{
-	    mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-			     fault3d->geometryElement() )
-
-	    if ( explicitpanels_ )
-		explicitpanels_->setSurface( fss );
-	    if ( explicitsticks_ )
-		explicitsticks_->setSurface( fss );
-	}
-    }
-
     if ( cbdata.changeType()==EM::EMObject::cBurstAlert() ||
-	 cbdata.changeType()==EM::EMObject::cSectionChange() ||
 	 cbdata.changeType()==EM::EMObject::cPositionChange() )
     {
 	validtexture_ = false;

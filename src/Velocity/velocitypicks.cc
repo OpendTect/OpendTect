@@ -531,8 +531,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData, cbdata, caller, cb );
     if ( cbdata.changeType()==EM::EMObject::cPosIDChange() ||
 	 cbdata.changeType()==EM::EMObject::cAttribChange() ||
-	 cbdata.changeType()==EM::EMObject::cPrefColorChange() ||
-	 cbdata.changeType()==EM::EMObject::cSectionChange() )
+	 cbdata.changeType()==EM::EMObject::cPrefColorChange() )
 	return;
 
     mDynamicCastGet( const EM::Horizon3D*, hor, caller );

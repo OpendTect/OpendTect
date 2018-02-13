@@ -192,29 +192,14 @@ public:
     bool			hasBurstAlert() const;
 
     virtual Coord3		getPos(const EM::PosID&) const;
-    Coord3			getPos(const EM::SectionID& sid,
-				       const EM::PosID& posid) const
-				{ return getPos( posid ); }
 
     virtual bool		isDefined(const EM::PosID&) const;
-    virtual bool		isDefined(const EM::SectionID& sid,
-					  const EM::PosID& posid) const
-				{ return isDefined( posid ); }
 
     bool			setPos(const EM::PosID&,const Coord3&,
 				       bool addtohistory,
 				       NodeSourceType type=Auto);
-    bool			setPos(const EM::SectionID& sid,
-				       const EM::PosID& posid,
-				       const Coord3& pos,bool tohistory,
-				       NodeSourceType type=Auto)
-				{ return setPos(posid, pos, tohistory, type); }
 
     virtual bool		unSetPos(const EM::PosID&,bool addtohistory);
-    bool			unSetPos(const EM::SectionID& sid,
-					 const EM::PosID& posid,
-					 bool addtohistory)
-				{ return unSetPos( posid, addtohistory ); }
 
     virtual void		setNodeSourceType(const TrcKey&,
 							NodeSourceType){}
@@ -255,8 +240,6 @@ public:
 
     virtual EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const
 				{ return 0; }
-				/*!< creates an iterator. If the sectionid is
-				     -1, all sections will be traversed. */
 
     virtual int			nrPosAttribs() const;
     virtual int			posAttrib(int idx) const;
@@ -319,7 +302,6 @@ public:
     static ChangeType		cPrefMarkerStyleChange(){ return 6; }
     static ChangeType		cPosIDChange()		{ return 7; }
     static ChangeType		cAttribChange()		{ return 8; }
-    static ChangeType		cSectionChange()	{ return 9; }
     static ChangeType		cNameChange()		{ return 10; }
     static ChangeType		cSelectionChange()	{ return 11; }
     static ChangeType		cLockChange()		{ return 12; }

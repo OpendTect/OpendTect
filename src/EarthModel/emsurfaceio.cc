@@ -994,7 +994,7 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	    createSection( sectionid );
 
 	if ( !arr_ )
-	    surface_->setPos( sectionid, PosID::getFromRowCol(surfrc), pos,
+	    surface_->setPos( PosID::getFromRowCol(surfrc), pos,
 			      false );
 	else
 	{
@@ -1058,7 +1058,7 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	    createSection( sectionid );
 
 	if ( !arr_ )
-	    surface_->setPos( sectionid, PosID::getFromRowCol(rowcol), pos,
+	    surface_->setPos( PosID::getFromRowCol(rowcol), pos,
 			      false );
 	else
 	{
@@ -1282,7 +1282,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 		    arr_->set( i, j, mCast(float,pos.z_) );
 	    }
 	    else
-		surface_->setPos( sectionid, PosID::getFromRowCol(myrc),
+		surface_->setPos( PosID::getFromRowCol(myrc),
 				  pos, false );
 	}
 

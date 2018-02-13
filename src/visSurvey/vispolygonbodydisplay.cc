@@ -692,7 +692,6 @@ void PolygonBodyDisplay::emChangeCB( CallBacker* cb )
     RefMan<EM::EMChangeAuxData> cbaux =	cbdata.auxDataAs<EM::EMChangeAuxData>();
 
     if ( cbdata.changeType()==EM::EMObject::cBurstAlert() ||
-	 cbdata.changeType()==EM::EMObject::cSectionChange() ||
 	 cbdata.changeType()==EM::EMObject::cPositionChange() )
     {
 	updateSingleColor();

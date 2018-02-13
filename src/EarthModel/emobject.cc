@@ -510,20 +510,14 @@ bool EMObject::usePar( const IOPar& par )
 	if ( !par.get(attribkey.buf(),attrib) )
 	    continue;
 
-	TypeSet<int> sections;
 	TypeSet<od_int64> posidnrs;
-
-	BufferString sectionkey = attribkey;
-	sectionkey += posattrsectionstr();
 
 	BufferString posidkey = attribkey;
 	posidkey += posattrposidstr();
 
-	par.get( sectionkey.buf(), sections );
 	par.get( posidkey.buf(), posidnrs );
 
-	const int minsz = mMIN( sections.size(), posidnrs.size() );
-	for ( int idy=0; idy<minsz; idy++ )
+	for ( int idy=0; idy<posidnrs.size(); idy++ )
 	{
 	    const PosID posid = PosID::get( posidnrs[idy] );
 	    if ( !isDefined(posid) )
