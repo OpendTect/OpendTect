@@ -10,12 +10,25 @@
  text, the sent email contains text as part of mail and file as attachment.
 */
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+
 require_once('googlestorage.php');
+
+$localsettingsfile = realpath(dirname(__FILE__))."/settings.local.php";
+if(file_exists($localsettingsfile))
+{
+    include_once( $localsettingsfile );
+}
 
 $credentialsFile = "/customers/2/1/5/opendtect.org/httpd.private/crashreport-uploader-credentials.json";
 $bucket = "opendtect-crashreports";
 $recipient = 'crashreports@dgbes.com';
-$fromaddress = 'crashreports@opendtect.org';
+$fromaddress = 'noreply@dgbes.com';
 $reportvarname = 'report';
 $textkey = 'return_text';
 $dumpvarname = 'dumpfile';
@@ -95,8 +108,32 @@ else
 	echo "Cannot send report to support";
     }
 
-    echo "Report submitted with ID ".$crashid.".\n\n";
-    echo "Thank you for helping us improve OpendTect!\n";
+    $mail = new PHPMailer(true);
+    try {
+        $mail->SMTPDebug = 0;
+        $mail->isSMTP();
+        $mail->Host = "mailout.one.com";
+        $mail->SMTPAuth = true;
+        $mail->Username = "noreply@dgbes.com";
+        $mail->Password = $SMTPMAIL_PASSWORD;
+        $mail->SMTPSecure = "";
+        $mail->Port = 25;
+        $mail->Timeout = 60;
+
+        $mail->setFrom('noreply@dgbes.com', 'Crash Reporter');
+        $mail->AddAddress($recipient, "Support");
+
+        $mail->Subject = $subject;
+        $mail->Body = $message;
+	$mail->addCustomHeader('Reply-To: '. $recipient);
+
+        $mail->send();
+	echo "Report submitted with ID ".$crashid.".\n\n";
+        echo "Thank you for helping us improve OpendTect!\n";
+	} catch (Exception $e) {
+        echo 'Report could not be sent to support.';
+        echo 'Mailer Error: ' . $mail->ErrorInfo;
+	}
 
 }
 
