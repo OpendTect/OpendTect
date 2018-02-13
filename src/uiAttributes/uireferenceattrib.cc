@@ -28,8 +28,7 @@ static void getOutputNames( uiStringSet& strs3d, uiStringSet& strs2d )
 {
     uiString zstr;
     if ( SI().zIsTime() )
-	zstr = toUiString("%1 (%2)").arg( uiStrings::sZ())
-				    .arg( uiStrings::sSec() );
+	zstr = toUiString("%1 (s)").arg( uiStrings::sZ() );
     else
 	zstr = uiStrings::sZ();
 
