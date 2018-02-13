@@ -53,7 +53,7 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
 	return false;
 
     BufferString msg1( "The selected horizon(s):\n" );
-    BufferString msg2( "Could not pre-load:\n" );
+    BufferString msg2;
     int nralreadyloaded = 0;
     int nrproblems = 0;
     PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
@@ -76,7 +76,6 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
 	    if ( !exec )
 	    {
 		BufferString name( EM::EMM().objectName(newmids[idx]) );
-		msg2.add( " '" ).add( name ).add( "' " );
 		nrproblems++;
 		continue;
 	    }
@@ -88,6 +87,17 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
 	emobj = EM::EMM().getObject( emid );
 	emobjects += emobj;
     }
+
+    if ( nrproblems == newmids.size() )
+    {
+	if ( newmids.size() == 1 )
+	    msg2 = "Could not find the horizon for pre-load\n";
+	else
+	    msg2 = "Could not find any horizons for pre-load\n";
+    }
+    else
+	msg2 = "Could not pre-load some horizons\n";
+
 
     if ( nralreadyloaded > 0 )
     {
