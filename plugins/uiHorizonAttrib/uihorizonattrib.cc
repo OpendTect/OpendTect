@@ -35,16 +35,15 @@ static void getOutputNames( uiStringSet& strs, bool surfdata )
 {
     uiString zstr;
     if ( SI().zIsTime() )
-	zstr = toUiString("%1 (%2)").arg( uiStrings::sZ())
-				    .arg( uiStrings::sSec() );
+	zstr = toUiString("%1 (s)").arg( uiStrings::sZ());
     else
 	zstr = uiStrings::sZ();
 
     strs.add( zstr );
     if ( surfdata )
-	strs.add( toUiString( "%1 %2").arg( uiStrings::sHorizon() )
-				      .arg( uiStrings::sData() ) );
+	strs.add( uiStrings::sHorizonData() );
 }
+
 
 mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp())
 
@@ -63,7 +62,7 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
 
     uiStringSet strs;
     getOutputNames( strs, true );
-    typefld_ = new uiGenInput( this, uiStrings::sOutput(), 
+    typefld_ = new uiGenInput( this, uiStrings::sOutput(),
 			       StringListInpSpec(strs) );
     typefld_->valuechanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
     typefld_->attach( alignedBelow, horfld_ );
@@ -74,7 +73,7 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     surfdatafld_ = new uiGenInput( this, tr("Select Horizon Data"),
 	    			   StringListInpSpec() );
     surfdatafld_->attach( alignedBelow, typefld_ );
-    
+
     setHAlignObj( inpfld_ );
     typeSel(0);
 }
@@ -96,11 +95,11 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
 
     if ( horfld_->ioobj(true) )
 	horSel(0);
-    
+
     mIfGetEnum(Horizon::sKeyType(), typ, typefld_->setValue(typ));
 
-    mIfGetString( Horizon::sKeySurfDataName(), surfdtnm, 
-		  surfdatafld_->setValue( !surfdatanms_.isPresent( surfdtnm ) 
+    mIfGetString( Horizon::sKeySurfDataName(), surfdtnm,
+		  surfdatafld_->setValue( !surfdatanms_.isPresent( surfdtnm )
 		      ? 0 : surfdatanms_.indexOf(surfdtnm) ) );
 
     mIfGetBool(Horizon::sKeyRelZ(), isrel, isrelbox_->setChecked(isrel));
@@ -140,7 +139,7 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 	    mSetString( Horizon::sKeySurfDataName(), surfdatanm )
 	}
     }
-    
+
     return true;
 }
 
@@ -172,7 +171,7 @@ void uiHorizonAttrib::horSel( CallBacker* )
     for ( int idx=0; idx<attrnms.size(); idx++ )
 	surfdatanms_.add( attrnms.get(idx).buf() );
     surfdatafld_->newSpec( StringListInpSpec(surfdatanms_), 0 );
-    
+
     const bool actionreq = (surfdatanms_.size() && nrouttypes_<2) ||
 			   (!surfdatanms_.size() && nrouttypes_>1);
     if ( actionreq )
