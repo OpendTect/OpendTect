@@ -551,7 +551,11 @@ void LocationDisplay::locChg( CallBacker* cb )
 
     if ( cd->ev_==Pick::SetMgr::ChangeData::Added )
     {
-	Pick::Location loc = (*set_)[cd->loc_];
+	const int pickidx = cd->loc_;
+	if ( !set_->validIdx(pickidx) )
+	    return;
+
+	Pick::Location loc = (*set_)[pickidx];
 	if ( !transformPos( loc ) )
 	{
 	    invalidpicks_ += cd->loc_;
