@@ -396,7 +396,7 @@ bool Horizon2DGridCreator::init( const IOPar& par,
     for ( int idx=0; idx<horids.size(); idx++ )
     {
 	const DBKey dbky = DBKey::getFromString( horids.get(idx) );
-	RefMan<EM::EMObject> emobj =
+	RefMan<EM::Object> emobj =
 			EM::Hor3DMan().loadIfNotFullyLoaded( dbky, trprov );
 
 	mDynamicCastGet(EM::Horizon3D*,horizon3d,emobj.ptr());
@@ -404,7 +404,7 @@ bool Horizon2DGridCreator::init( const IOPar& par,
 
 	horizon3d->ref();
 	BufferString hornm( prefix, " ", horizon3d->name() );
-	EM::EMObject* emobj2d =
+	EM::Object* emobj2d =
 		EM::Hor2DMan().createObject( EM::Horizon2D::typeStr(),hornm );
 	mDynamicCastGet(EM::Horizon2D*,horizon2d,emobj2d)
 	if ( !horizon2d ) continue;

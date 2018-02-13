@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 class od_ostream;
 class DataPointSet;
-namespace EM { class Horizon3D; class EMObjectIterator; }
+namespace EM { class Horizon3D; class ObjectIterator; }
 
 mExpClass(EMAttrib) IsochronMaker : public Executor
 { mODTextTranslationClass(IsochronMaker)
@@ -54,7 +54,7 @@ protected:
     const EM::Horizon3D&	hor1_;
     const EM::Horizon3D&	hor2_;
     DataPointSet*		dps_;
-    EM::EMObjectIterator*	iter_;
+    EM::ObjectIterator*		iter_;
     bool			inmsec_;
 
 };

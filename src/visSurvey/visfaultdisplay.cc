@@ -230,7 +230,7 @@ bool FaultDisplay::setEMObjectID( const DBKey& emid )
     faulteditor_ = 0;
     if ( viseditor_ ) viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
 
-    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
+    RefMan<EM::Object> emobject = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emfault,emobject.ptr());
     if ( !emfault )
     {
@@ -695,7 +695,7 @@ bool FaultDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
-	RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( newmid );
+	RefMan<EM::Object> emobject = EM::Flt3DMan().getObject( newmid );
 	if ( !emobject )
 	{
 	    PtrMan<Executor> loader = EM::Flt3DMan().objectLoader( newmid );
@@ -1029,19 +1029,19 @@ void FaultDisplay::setActiveStick( const EM::PosID& pid )
 
 void FaultDisplay::emChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(EM::EMObjectCallbackData,cbdata,cb);
+    mCBCapsuleUnpack(EM::ObjectCallbackData,cbdata,cb);
     ConstRefMan<EM::EMChangeAuxData> cbaux =
 			cbdata.auxDataAs<EM::EMChangeAuxData>();
 
     EM::Fault3D* fault3d = emFault();
     if ( !fault3d ) return;
 
-    if ( cbdata.changeType()==EM::EMObject::cBurstAlert() ||
-	 cbdata.changeType()==EM::EMObject::cPositionChange() )
+    if ( cbdata.changeType()==EM::Object::cBurstAlert() ||
+	 cbdata.changeType()==EM::Object::cPositionChange() )
     {
 	validtexture_ = false;
 	updateSingleColor();
-	if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
+	if ( cbdata.changeType()==EM::Object::cPositionChange() && cbaux )
 	{
 	    if ( cbaux->pid0.getRowCol().row()==activestick_ )
 		updateActiveStickMarker();
@@ -1049,7 +1049,7 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	else
 	    updateActiveStickMarker();
     }
-    else if ( cbdata.changeType()==EM::EMObject::cPrefColorChange() )
+    else if ( cbdata.changeType()==EM::Object::cPrefColorChange() )
     {
 	mSetStickIntersectPointColor( fault_->preferredColor() );
 	nontexturecol_ = fault_->preferredColor();
@@ -1644,7 +1644,7 @@ void FaultDisplay::updateEditorMarkers()
     if ( !fault_ || !viseditor_ || !areSticksDisplayed() )
 	return;
 
-    PtrMan<EM::EMObjectIterator> iter = fault_->geometry().createIterator();
+    PtrMan<EM::ObjectIterator> iter = fault_->geometry().createIterator();
     while ( true )
     {
 	const EM::PosID pid = iter->next();

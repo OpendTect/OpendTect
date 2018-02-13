@@ -84,7 +84,7 @@ bool uiHorGeom2Attr::acceptOK()
 
     mGetZFac( 1000 );
 
-    PtrMan<EM::EMObjectIterator> iter = hor_.createIterator();
+    PtrMan<EM::ObjectIterator> iter = hor_.createIterator();
     while ( true )
     {
 	const EM::PosID pid = iter->next();
@@ -245,7 +245,7 @@ void fillHorizonArray()
 
     EM::Horizon3D&		hor_;
     const DataPointSet&		dps_;
-    EM::EMObjectIterator*	it_;
+    EM::ObjectIterator*	it_;
     const int			colid_;
     od_int64			stepnr_;
     od_int64			totnr_;

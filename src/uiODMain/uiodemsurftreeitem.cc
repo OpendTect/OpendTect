@@ -371,7 +371,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
 bool uiODEarthModelSurfaceTreeItem::isHorReady( const DBKey& emid )
 {
-    EM::EMObject* emobj = EM::MGR().getObject(emid_);
+    EM::Object* emobj = EM::MGR().getObject(emid_);
     if ( !emobj )
 	return false;
 

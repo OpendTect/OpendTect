@@ -322,7 +322,7 @@ bool uiBulk2DHorizonImport::acceptOK()
 	PtrMan<IOObj> ioobj = DBM().getByName( hornm,
 				EMHorizon2DTranslatorGroup::sGroupName() );
 
-	RefMan<EM::EMObject> emobj = ioobj ? mgr.getObject( ioobj->key() ) : 0;
+	RefMan<EM::Object> emobj = ioobj ? mgr.getObject( ioobj->key() ) : 0;
 	if ( emobj )
 	    emobj->setBurstAlert( true );
 

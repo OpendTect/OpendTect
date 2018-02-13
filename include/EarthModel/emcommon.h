@@ -16,7 +16,7 @@ ________________________________________________________________________
 namespace EM
 {
 
-    class		EMObject;
+    class		Object;
 
     typedef DBKey	ObjID;
     typedef DBKeySet	ObjIDSet;

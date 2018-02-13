@@ -161,7 +161,7 @@ bool HorizonPathIntersector::doPrepare( int nrthreads )
     if ( !path_.size() )
 	return false;
 
-    seedposids_ = hor_->getPosAttribList ( EM::EMObject::sSeedNode() );
+    seedposids_ = hor_->getPosAttribList ( EM::Object::sSeedNode() );
 
     const Pos::GeomID pathgeomid = path_[0].geomID();
     const Pos::GeomID horgeomid = hor_->getSurveyGeomID();
@@ -1281,14 +1281,14 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 {
     if ( cb )
     {
-	mCBCapsuleUnpack( EM::EMObjectCallbackData,cbdata, cb );
-	emchangedata_.addCallBackData( new EM::EMObjectCallbackData(cbdata) );
+	mCBCapsuleUnpack( EM::ObjectCallbackData,cbdata, cb );
+	emchangedata_.addCallBackData( new EM::ObjectCallbackData(cbdata) );
     }
 
     mEnsureExecutedInMainThread( HorizonDisplay::emChangeCB );
     for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
-	const EM::EMObjectCallbackData* cbdata =
+	const EM::ObjectCallbackData* cbdata =
         emchangedata_.getCallBackData( idx );
 	if ( !cbdata )
 	    continue;
@@ -1301,21 +1301,21 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 }
 
 
-void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
+void HorizonDisplay::handleEmChange(const EM::ObjectCallbackData& cbdata)
 {
-    if ( cbdata.changeType()==EM::EMObject::cPositionChange() )
+    if ( cbdata.changeType()==EM::Object::cPositionChange() )
     {
 	validtexture_ = false;
 	const int idx = sids_.indexOf( 0 );
 	if ( idx>=0 && idx<sections_.size() )
 	    sections_[idx]->inValidateCache(-1);
     }
-    else if ( cbdata.changeType()==EM::EMObject::cPrefColorChange() )
+    else if ( cbdata.changeType()==EM::Object::cPrefColorChange() )
     {
 	nontexturecol_ = emobject_->preferredColor();
 	setLineStyle( emobject_->preferredLineStyle() );
     }
-    else if ( cbdata.changeType()==EM::EMObject::cSelColorChange() )
+    else if ( cbdata.changeType()==EM::Object::cSelColorChange() )
     {
 	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ )
 	if ( hor3d )
@@ -1325,7 +1325,7 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 		hor3d->selectionColor() );
 	}
     }
-    else if ( cbdata.changeType()==EM::EMObject::cParentColorChange() )
+    else if ( cbdata.changeType()==EM::Object::cParentColorChange() )
     {
 	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ )
 	if ( hor3d )
@@ -1334,13 +1334,13 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 		parentline_->getMaterial()->setColor( hor3d->getParentColor() );
 	}
     }
-    else if ( cbdata.changeType()==EM::EMObject::cSelectionChange() )
+    else if ( cbdata.changeType()==EM::Object::cSelectionChange() )
     {
 	// TODO: Should be made more general, such that it also works for
 	// polygon selections
 	selectChildren();
     }
-    else if ( cbdata.changeType()==EM::EMObject::cLockChange() )
+    else if ( cbdata.changeType()==EM::Object::cLockChange() )
     {
 	// if it is unlocked, we need set all lockedpts to unlock.
 	// if it is locked, we do nothing
@@ -1372,7 +1372,7 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 	    showLocked( showlock_ );
 	}
     }
-    else if ( cbdata.changeType()==EM::EMObject::cLockColorChange() )
+    else if ( cbdata.changeType()==EM::Object::cLockColorChange() )
     {
 	updateLockedPointsColor();
     }
@@ -2292,7 +2292,7 @@ void HorizonDisplay::updateSelections()
 
     ObjectSet<const Selector<Coord3> > selectors;
     selectors += sel;
-    EM::EMObjectPosSelector posselector( *hor3d, selectors );
+    EM::ObjectPosSelector posselector( *hor3d, selectors );
     posselector.execute();
 
     TypeSet<int> pidxs;

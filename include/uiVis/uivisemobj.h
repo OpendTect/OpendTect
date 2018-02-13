@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "menuhandler.h"
 #include "uisettings.h"
 
-namespace EM { class EdgeLineSet; class EdgeLineSegment; class Horizon3D;}
+namespace EM { class EdgeLineSet; class EdgeLineSegment; class Horizon3D; }
 namespace visSurvey { class EMObjectDisplay; }
 
 class uiColSeqSel;

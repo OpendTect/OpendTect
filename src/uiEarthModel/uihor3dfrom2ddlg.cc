@@ -100,7 +100,7 @@ bool uiHor3DFrom2DDlg::acceptOK()
     if ( emserv_ && nameandtypeexist )
 	emserv_->removeTreeObject( ioobj->key() );
 
-    EM::EMObject* emobj = EM::Hor3DMan().createObject( typ, ioobj->name() );
+    EM::Object* emobj = EM::Hor3DMan().createObject( typ, ioobj->name() );
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d )
 	mErrRet( toUiString("Cannot create 3D horizon") );

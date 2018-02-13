@@ -503,4 +503,5 @@ public:
 protected:
 
 	uiVisPartServer&	visserv;
+
 };

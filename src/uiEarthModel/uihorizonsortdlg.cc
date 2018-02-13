@@ -92,7 +92,7 @@ bool uiHorizonSortDlg::acceptOK()
 	DBKeySet loadids;
 	for ( int idx=0; idx<horids.size(); idx++ )
 	{
-	    const EM::EMObject* emobj = emman.getObject( horids[idx] );
+	    const EM::Object* emobj = emman.getObject( horids[idx] );
 	    if ( !emobj || !emobj->isFullyLoaded() )
 		loadids += horids[idx];
 	}
@@ -138,7 +138,7 @@ bool uiHorizonSortDlg::acceptOK()
 
     for ( int idx=0; idx<horids.size(); idx++ )
     {
-	EM::EMObject* emobj = emman.getObject( horids[idx] );
+	EM::Object* emobj = emman.getObject( horids[idx] );
 	emobj->ref();
 	mDynamicCastGet(EM::Horizon*,horizon,emobj);
 	if ( !horizon )

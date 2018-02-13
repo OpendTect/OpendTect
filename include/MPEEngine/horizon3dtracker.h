@@ -30,7 +30,7 @@ mExpClass(MPEEngine) Horizon3DTracker : public EMTracker
 public:
 				Horizon3DTracker(EM::Horizon3D* =0);
 
-    static EMTracker*		create(EM::EMObject* =0);
+    static EMTracker*		create(EM::Object* =0);
     static void			initClass();
 
     EMSeedPicker*		getSeedPicker(bool createifnotpresent=true);

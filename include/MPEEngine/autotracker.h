@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "thread.h"
 #include "trckeyzsampling.h"
 
-namespace EM { class EMObject; }
 namespace Geometry { class Element; }
 namespace Threads { class WorkManager; }
 template <class T> class Array2D;

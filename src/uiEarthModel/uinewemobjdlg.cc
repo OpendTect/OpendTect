@@ -44,7 +44,7 @@ uiNewFSSDlg::uiNewFSSDlg( uiParent* p )
 {
 }
 
-RefMan<EM::EMObject> uiNewFSSDlg::getNewEMObject() const
+RefMan<EM::Object> uiNewFSSDlg::getNewEMObject() const
 {
     const BufferString nm( nmfld_->text() );
     bool isreplace = EM::FSSMan().nameExists( nm );
@@ -79,7 +79,7 @@ RefMan<EM::EMObject> uiNewFSSDlg::getNewEMObject() const
 
 bool uiNewFSSDlg::acceptOK()
 {
-    RefMan<EM::EMObject> newfss = getNewEMObject();
+    RefMan<EM::Object> newfss = getNewEMObject();
     emobj_= newfss;
     if ( !emobj_ )
 	return false;
@@ -107,7 +107,7 @@ uiNewFlt3DDlg::uiNewFlt3DDlg( uiParent* p )
 }
 
 
-RefMan<EM::EMObject> uiNewFlt3DDlg::getNewEMObject() const
+RefMan<EM::Object> uiNewFlt3DDlg::getNewEMObject() const
 {
     const BufferString nm( nmfld_->text() );
     bool isreplace = EM::Flt3DMan().nameExists( nm );
@@ -144,7 +144,7 @@ RefMan<EM::EMObject> uiNewFlt3DDlg::getNewEMObject() const
 
 bool uiNewFlt3DDlg::acceptOK()
 {
-    RefMan<EM::EMObject> newflt3d = getNewEMObject();
+    RefMan<EM::Object> newflt3d = getNewEMObject();
     emobj_= newflt3d;
     uiString errmsg = EM::Flt3DMan().store( *emobj_ );
     if ( !errmsg.isEmpty() )
@@ -161,7 +161,7 @@ uiNewHorizon3DDlg::uiNewHorizon3DDlg( uiParent* p )
 {
 }
 
-RefMan<EM::EMObject> uiNewHorizon3DDlg::getNewEMObject() const
+RefMan<EM::Object> uiNewHorizon3DDlg::getNewEMObject() const
 {
     const BufferString nm( nmfld_->text() );
     bool isreplace = EM::Hor3DMan().nameExists( nm );
@@ -195,7 +195,7 @@ RefMan<EM::EMObject> uiNewHorizon3DDlg::getNewEMObject() const
 
 bool uiNewHorizon3DDlg::acceptOK()
 {
-    RefMan<EM::EMObject> newhor = getNewEMObject();
+    RefMan<EM::Object> newhor = getNewEMObject();
     emobj_= newhor;
     if ( !emobj_ )
 	return false;

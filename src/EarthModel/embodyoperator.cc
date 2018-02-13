@@ -585,7 +585,7 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0,
     {
 	const DBKey mid = body0 ? inputbody0_ : inputbody1_;
 	const BufferString translt = BodyMan().objectType(mid);
-	EM::EMObject* obj = BodyMan().createTempObject( translt );
+	EM::Object* obj = BodyMan().createTempObject( translt );
 
 	if ( !obj ) return 0;
 	obj->ref();

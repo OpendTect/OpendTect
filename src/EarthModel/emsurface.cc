@@ -182,19 +182,19 @@ void SurfaceIODataSelection::setDefault()
 
 
 Surface::Surface( const char* nm )
-    : EMObject(nm)
+    : Object(nm)
 {
 }
 
 
 Surface::Surface( const Surface& oth )
-    : EMObject(oth.name())
+    : Object(oth.name())
 {
     *this = oth;
 }
 
 
-mImplMonitorableAssignment(Surface,EMObject);
+mImplMonitorableAssignment(Surface,Object);
 
 Surface::~Surface()
 {}
@@ -217,7 +217,7 @@ Executor* Surface::saver() { return geometry().saver(); }
 
 Executor* Surface::loader() { return geometry().loader(); }
 
-EMObjectIterator* Surface::createIterator( const TrcKeyZSampling* cs ) const
+ObjectIterator* Surface::createIterator( const TrcKeyZSampling* cs ) const
 { return geometry().createIterator( cs ); }
 
 bool Surface::enableGeometryChecks( bool nv )
@@ -238,7 +238,7 @@ Geometry::Element* Surface::geometryElement()
 
 void Surface::apply( const Pos::Filter& pf )
 {
-    PtrMan<EM::EMObjectIterator>iterator = createIterator();
+    PtrMan<EM::ObjectIterator>iterator = createIterator();
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
@@ -301,13 +301,13 @@ void Surface::setShift( float shift )
 
 bool Surface::usePar( const IOPar& par )
 {
-    return EMObject::usePar(par) && geometry().usePar(par);
+    return Object::usePar(par) && geometry().usePar(par);
 }
 
 
 void Surface::fillPar( IOPar& par ) const
 {
-    EMObject::fillPar( par );
+    Object::fillPar( par );
     geometry().fillPar( par );
 }
 

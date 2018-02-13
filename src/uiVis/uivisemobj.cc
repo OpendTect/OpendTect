@@ -57,7 +57,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
     DBKey mid = emod->getDBKey();
 
-    const EM::EMObject* emobj = EM::MGR().getObject( mid );
+    const EM::Object* emobj = EM::MGR().getObject( mid );
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
     if ( hor3d )
 	checkHorizonSize( hor3d );
@@ -98,7 +98,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
 	if ( exec )
 	{
-	    EM::EMObject* emobject = EM::MGR().getObject( mid );
+	    EM::Object* emobject = EM::MGR().getObject( mid );
 	    emobject->ref();
 	    if ( !TaskRunner::execute( &dlg, *exec ) )
 	    {
@@ -142,7 +142,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const DBKey& emid,
     , visserv_( vps )
     , uiparent_( uip )
 {
-    const EM::EMObject* emobj = EM::MGR().getObject(emid);
+    const EM::Object* emobj = EM::MGR().getObject(emid);
     visSurvey::EMObjectDisplay* emod = 0;
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj);
     if ( hor3d )
@@ -238,7 +238,7 @@ const char* uiVisEMObject::getObjectType( int id )
     mDynamicCastGet(visSurvey::EMObjectDisplay*,obj,visBase::DM().getObject(id))
     if ( !obj ) return 0;
 
-    RefMan<EM::EMObject> emobj = EM::MGR().getObject( obj->getObjectID() );
+    RefMan<EM::Object> emobj = EM::MGR().getObject( obj->getObjectID() );
     return emobj
 	? emobj->getTypeStr()
 	: EM::MGR().objectType( obj->getDBKey() );
@@ -261,7 +261,7 @@ int uiVisEMObject::nrSections() const
     if ( !emod ) return 0;
 
     DBKey emid = emod->getObjectID();
-    const EM::EMObject* emobj = EM::MGR().getObject(emid);
+    const EM::Object* emobj = EM::MGR().getObject(emid);
     return emobj ? 1 : 0;
 }
 
@@ -272,7 +272,7 @@ EM::SectionID uiVisEMObject::getSectionID( int idx ) const
     if ( !emod ) return -1;
 
     DBKey emid = emod->getObjectID();
-    const EM::EMObject* emobj = EM::MGR().getObject(emid);
+    const EM::Object* emobj = EM::MGR().getObject(emid);
     return emobj ? 0 : -1;
 }
 
@@ -307,7 +307,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
     visSurvey::EMObjectDisplay* emod = getDisplay();
     const DBKey emid = emod->getObjectID();
-    const EM::EMObject* emobj = EM::MGR().getObject(emid);
+    const EM::Object* emobj = EM::MGR().getObject(emid);
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, getDisplay() );
@@ -370,9 +370,9 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     if ( trackmnu )
     {
 	const TypeSet<EM::PosID>* seeds =
-	    emobj->getPosAttribList(EM::EMObject::sSeedNode());
+	    emobj->getPosAttribList(EM::Object::sSeedNode());
 	showseedsmnuitem_.text =
-	   emod->showsPosAttrib(EM::EMObject::sSeedNode())
+	   emod->showsPosAttrib(EM::Object::sSeedNode())
 		? uiStrings::sHide() : uiStrings::sShow();
 	mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_,
 		      !hastransform && seeds && seeds->size(), false );
@@ -404,7 +404,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     const DBKey emid = emod->getObjectID();
-    EM::EMObject* emobj = EM::MGR().getObject(emid);
+    EM::Object* emobj = EM::MGR().getObject(emid);
 
     if ( mnuid==singlecolmnuitem_.id )
     {
@@ -449,8 +449,8 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     else if ( mnuid==showseedsmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	emod->showPosAttrib( EM::EMObject::sSeedNode(),
-			     !emod->showsPosAttrib(EM::EMObject::sSeedNode()) );
+	emod->showPosAttrib( EM::Object::sSeedNode(),
+			     !emod->showsPosAttrib(EM::Object::sSeedNode()) );
     }
     else if ( mnuid==seedpropmnuitem_.id )
     {
@@ -464,8 +464,8 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     else if ( mnuid==lockseedsmnuitem_.id )
     {
 	if ( emobj )
-	    emobj->lockPosAttrib( EM::EMObject::sSeedNode(),
-			!emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) );
+	    emobj->lockPosAttrib( EM::Object::sSeedNode(),
+			!emobj->isPosAttribLocked(EM::Object::sSeedNode()) );
 	menu->setIsHandled( true );
     }
 }

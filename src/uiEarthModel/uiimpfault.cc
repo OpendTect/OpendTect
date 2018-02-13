@@ -186,7 +186,7 @@ EM::Fault* uiImportFault::createFault() const
     EM::ObjectManager& mgr = isfss_ ? EM::FSSMan() : EM::Flt3DMan();
     const char* typestr = isfss_ ? EM::FaultStickSet::typeStr()
 				 : EM::Fault3D::typeStr();
-    EM::EMObject* emobj = mgr.createObject( typestr, fltnm );
+    EM::Object* emobj = mgr.createObject( typestr, fltnm );
     mDynamicCastGet(EM::Fault*,fault,emobj)
     return fault;
 }
@@ -289,7 +289,7 @@ bool uiImportFault::getFromAscIO( od_istream& strm, EM::Fault& flt )
     if ( stickselfld_ && FixedString(stickselfld_->text()) == sKeySlopeThres() )
 	convsu.stickslopethres_ = thresholdfld_->getDValue();
 
-    EM::EMObject* emobj = EM::FaultStickSet::create( EM::FSSMan() );
+    EM::Object* emobj = EM::FaultStickSet::create( EM::FSSMan() );
     mDynamicCastGet( EM::FaultStickSet*, interfss, emobj );
     const bool sortsticks = sortsticksfld_ &&
 			FixedString( sortsticksfld_->text() ) == sKeyIndexed();

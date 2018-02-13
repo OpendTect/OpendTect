@@ -85,7 +85,7 @@ void MPEEditor::setupPatchDisplay()
     Color mkclr = Color::White();
     if ( emeditor_ )
     {
-	const EM::EMObject& emobj = emeditor_->emObject();
+	const EM::Object& emobj = emeditor_->emObject();
 	mkclr = emobj.preferredColor();
 	if ( Math::Abs(mkclr.g()-Color::Green().g())<30 )
 	    lineclr = Color::Red();
@@ -120,7 +120,7 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
 
     if ( emeditor_ )
     {
-	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor_->emObject());
+	EM::Object& emobj = const_cast<EM::Object&>(emeditor_->emObject());
 	emobj.objectChanged().remove( movementcb );
 	emobj.unRef();
 	emeditor_->editpositionchange.remove( numnodescb );
@@ -132,7 +132,7 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
     if ( emeditor_ )
     {
 	emeditor_->ref();
-	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor_->emObject());
+	EM::Object& emobj = const_cast<EM::Object&>(emeditor_->emObject());
 	emobj.ref();
 	emobj.objectChanged().notify( movementcb );
 	emeditor_->editpositionchange.notify( numnodescb );
@@ -373,10 +373,10 @@ void MPEEditor::nodeMovement(CallBacker* cb)
 {
     if ( emeditor_ )
     {
-	mCBCapsuleUnpack(EM::EMObjectCallbackData,cbdata,cb);
+	mCBCapsuleUnpack(EM::ObjectCallbackData,cbdata,cb);
 	RefMan<EM::EMChangeAuxData> cbaux =
 			cbdata.auxDataAs<EM::EMChangeAuxData>();
-	if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
+	if ( cbdata.changeType()==EM::Object::cPositionChange() && cbaux )
 	{
 	    const int idx = posids_.indexOf( cbaux->pid0 );
 	    if ( idx==-1 ) return;
@@ -384,7 +384,7 @@ void MPEEditor::nodeMovement(CallBacker* cb)
 	    const Coord3 pos = emeditor_->getPosition( cbaux->pid0 );
 	    updateNodePos( idx, pos );
 	}
-	else if ( cbdata.changeType()==EM::EMObject::cBurstAlert() )
+	else if ( cbdata.changeType()==EM::Object::cBurstAlert() )
 	{
 	    for ( int idx=0; idx<posids_.size(); idx++ )
 	    {

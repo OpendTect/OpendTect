@@ -53,7 +53,7 @@ bool EM::SetPosUndoEvent::unDo()
     if ( !manager.getObject(getObjectID()))
 	return true;
 
-    EMObject* emobject = manager.getObject(getObjectID());
+    Object* emobject = manager.getObject(getObjectID());
     if ( !emobject )
 	return false;
 
@@ -79,7 +79,7 @@ bool EM::SetPosUndoEvent::reDo()
     if ( !manager.getObject(getObjectID()))
 	return true;
 
-    EMObject* emobject = manager.getObject(getObjectID());
+    Object* emobject = manager.getObject(getObjectID());
     if ( !emobject ) return false;
 
     bool res = false;
@@ -242,7 +242,7 @@ const char* EM::SetPosAttribUndoEvent::getStandardDesc() const
 #define mSetPosAttribUndoEvenUndoRedo( arg ) \
     ObjectManager& manager = MGR(); \
  \
-    EMObject* emobject = manager.getObject(getObjectID()); \
+    Object* emobject = manager.getObject(getObjectID()); \
     if ( !emobject ) return true; \
  \
     emobject->setPosAttrib( posid_, attrib_, arg, false ); \
@@ -275,7 +275,7 @@ const char* EM::SetPrefColorEvent::getStandardDesc() const
 
 bool EM::SetPrefColorEvent::unDo()
 {
-    EM::EMObject* emobj = MGR().getObject( objectid_ );
+    EM::Object* emobj = MGR().getObject( objectid_ );
     if ( !emobj ) return false;
 
     emobj->setPreferredColor( oldcolor_ );
@@ -285,8 +285,9 @@ bool EM::SetPrefColorEvent::unDo()
 
 bool EM::SetPrefColorEvent::reDo()
 {
-    EMObject* emobj = MGR().getObject( objectid_ );
-    if ( !emobj ) return false;
+    Object* emobj = MGR().getObject( objectid_ );
+    if ( !emobj )
+	return false;
 
     emobj->setPreferredColor( newcolor_ );
     return true;

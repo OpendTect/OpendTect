@@ -42,7 +42,7 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     , knotenabled_(false)
     , paintenable_(true)
 {
-    EM::EMObject* emobj = EM::FSSMan().getObject( emid_ );
+    EM::Object* emobj = EM::FSSMan().getObject( emid_ );
     if ( emobj )
     {
 	emobj->ref();
@@ -55,7 +55,7 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
 
 FaultStickPainter::~FaultStickPainter()
 {
-    EM::EMObject* emobj = EM::FSSMan().getObject( emid_ );
+    EM::Object* emobj = EM::FSSMan().getObject( emid_ );
     if ( emobj )
     {
 	emobj->objectChanged().remove(
@@ -92,7 +92,7 @@ void FaultStickPainter::paint()
 
 bool FaultStickPainter::addPolyLine()
 {
-    RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( emid_ );
+    RefMan<EM::Object> emobject = EM::FSSMan().getObject( emid_ );
 
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return false;
@@ -363,9 +363,9 @@ void FaultStickPainter::removePolyLine()
 
 void FaultStickPainter::fssChangedCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData,
+    mCBCapsuleUnpackWithCaller( EM::ObjectCallbackData,
 				cbdata, caller, cb );
-    mDynamicCastGet(EM::EMObject*,emobject,caller);
+    mDynamicCastGet(EM::Object*,emobject,caller);
     if ( !emobject ) return;
 
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject);
@@ -373,9 +373,9 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 
     if ( emobject->id() != emid_ ) return;
 
-    if ( cbdata.changeType() == EM::EMObject::cUndefChange() )
+    if ( cbdata.changeType() == EM::Object::cUndefChange() )
 	return;
-    else if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+    else if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
     {
 	for ( int oidx=0; oidx<sectionmarkerlines_.size(); oidx++ )
 	{
@@ -393,13 +393,13 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 	    }
 	}
     }
-    else if ( cbdata.changeType() == EM::EMObject::cPositionChange() )
+    else if ( cbdata.changeType() == EM::Object::cPositionChange() )
     {
 	if ( emfss->hasBurstAlert() )
 	    return;
 	repaintFSS();
     }
-    else if ( cbdata.changeType() == EM::EMObject::cBurstAlert() )
+    else if ( cbdata.changeType() == EM::Object::cBurstAlert() )
     {
 	if (  emobject->hasBurstAlert() )
 	    return;

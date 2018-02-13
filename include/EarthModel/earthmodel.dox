@@ -22,8 +22,8 @@ ________________________________________________________________________
 
   Most interesting classes:
 
-  - EM::EMObject, base class for the EarthModel objects
-  - EM::EMManager, responsible for the loading and deleting of the objects
+  - EM::Object, base class for the EarthModel objects
+  - EM::Manager, responsible for the loading and deleting of the objects
 
   Earth models have the nasty habit of changing over time. Therefore, edit
   history matters are handled by the Undo objects.

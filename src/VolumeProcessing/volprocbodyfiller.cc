@@ -98,7 +98,7 @@ bool BodyFiller::setSurface( const DBKey& emid )
 	emobj_ = 0;
     }
 
-    RefMan<EM::EMObject> emobj = EM::BodyMan().getObject( emid );
+    RefMan<EM::Object> emobj = EM::BodyMan().getObject( emid );
     if ( !emobj || !emobj->isFullyLoaded() )
     {
 	PtrMan<Executor> loader = EM::BodyMan().objectLoader( emid );

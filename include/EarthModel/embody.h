@@ -59,13 +59,13 @@ public:
     virtual BufferString	storageName()const	= 0;
 
     virtual void		refBody()	= 0;
-				//!<Should be mapped to EMObject::ref()
+				//!<Should be mapped to EM::Object::ref()
     virtual void		unRefBody()	= 0;
-				//!<Should be mapped to EMObject::unRef()
+				//!<Should be mapped to EM::Object::unRef()
     virtual bool		useBodyPar(const IOPar&)	{ return true; }
-				//!<Should be mapped to EMObject::usePar;
+				//!<Should be mapped to EM::Object::usePar;
     virtual void		fillBodyPar(IOPar&) const	= 0;
-				//!<Should be mapped to EMObject::fillPar;
+				//!<Should be mapped to EM::Object::fillPar;
 
 protected:
 				~Body()		{}

@@ -433,7 +433,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
 	return false;
 
     uiTaskRunnerProvider trprov( this );
-    RefMan<EM::EMObject> emo =
+    RefMan<EM::Object> emo =
 	EM::BodyMan().loadIfNotFullyLoaded( inpiobj->key(), trprov );
     mDynamicCastGet(EM::Body*,emb,emo.ptr());
     if ( !emb )

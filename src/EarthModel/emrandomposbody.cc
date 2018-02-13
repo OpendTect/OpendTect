@@ -201,7 +201,7 @@ mImplementEMObjFuncs( RandomPosBody, "RandomPos" );
 
 
 RandomPosBody::RandomPosBody( const char* nm )
-    : EMObject(nm)
+    : Object(nm)
 {}
 
 
@@ -210,19 +210,23 @@ RandomPosBody::~RandomPosBody()
 
 
 DBKey RandomPosBody::storageID() const
-{ return EMObject::dbKey(); }
+{ return Object::dbKey(); }
 
 
 BufferString RandomPosBody::storageName() const
-{ return EMObject::name(); }
+{ return Object::name(); }
 
 
 void RandomPosBody::refBody()
-{ EMObject::ref(); }
+{
+    Object::ref();
+}
 
 
 void RandomPosBody::unRefBody()
-{ EMObject::unRef(); }
+{
+    Object::unRef();
+}
 
 
 void RandomPosBody::copyFrom( const Pick::Set& ps )
@@ -399,7 +403,7 @@ bool RandomPosBody::getBodyRange( TrcKeyZSampling& cs )
 
 bool RandomPosBody::useBodyPar( const IOPar& par )
 {
-    if ( !EMObject::usePar( par ) )
+    if ( !Object::usePar( par ) )
 	return false;
 
     ids_.erase();
@@ -426,7 +430,7 @@ bool RandomPosBody::useBodyPar( const IOPar& par )
 
 void RandomPosBody::fillBodyPar( IOPar& par ) const
 {
-    EMObject::fillPar( par );
+    Object::fillPar( par );
     TypeSet<od_int64> idnums;
     for ( int idx=0; idx<ids_.size(); idx++ )
 	idnums += ids_[idx].getI();

@@ -137,7 +137,7 @@ bool Pos::EMSurfaceProvider::initialize( const TaskRunnerProvider& trprov )
 	return false;
 
     EM::ObjectManager& emman = EM::getMgr( id1_ );
-    EM::EMObject* emobj = emman.getObject( id1_ );
+    EM::Object* emobj = emman.getObject( id1_ );
     if ( !emobj )
 	emobj = emman.loadIfNotFullyLoaded( id1_, trprov );
     mDynamicCastGet(EM::Surface*,surf1,emobj)
@@ -782,7 +782,7 @@ void Pos::EMImplicitBodyProvider::usePar( const IOPar& iop )
 	return;
 
     EM::ObjectManager& emman = EM::getMgr( dbky );
-    EM::EMObject* emobj = emman.getObject( dbky );
+    EM::Object* emobj = emman.getObject( dbky );
     if ( !emobj )
     {
 	SilentTaskRunnerProvider trprov;

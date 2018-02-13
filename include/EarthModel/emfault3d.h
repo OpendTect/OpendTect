@@ -65,7 +65,7 @@ public:
     Geometry::FaultStickSurface*	geometryElement();
     const Geometry::FaultStickSurface*	geometryElement() const;
 
-    EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
+    ObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -98,8 +98,8 @@ protected:
 
     const IOObjContext&		getIOObjContext() const;
 
+    friend class		Object;
     friend class		ObjectManager;
-    friend class		EMObject;
     Fault3DGeometry		geometry_;
     FaultAuxData*		auxdata_;
 };

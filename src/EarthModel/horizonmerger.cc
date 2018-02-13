@@ -48,8 +48,9 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<DBKey>& ids )
     depths_ = new Array2DImpl<float>( hs_.nrInl(), hs_.nrCrl() );
     depths_->setAll( mUdf(float) );
 
-    EMObject* emobj = Hor3DMan().createTempObject( Horizon3D::typeStr() );
-    if ( emobj ) emobj->ref();
+    Object* emobj = Hor3DMan().createTempObject( Horizon3D::typeStr() );
+    if ( emobj )
+	emobj->ref();
     mDynamicCast(Horizon3D*,outputhor_,emobj)
     if ( emobj && !outputhor_ )
 	emobj->unRef();

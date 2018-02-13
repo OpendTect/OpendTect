@@ -28,7 +28,7 @@ mExpClass(MPEEngine) Horizon2DTracker : public EMTracker
 public:
 				Horizon2DTracker(EM::Horizon2D* =0);
 
-    static EMTracker*		create(EM::EMObject* =0);
+    static EMTracker*		create(EM::Object* =0);
     static void			initClass();
 
     bool			is2D() const			{ return true; }

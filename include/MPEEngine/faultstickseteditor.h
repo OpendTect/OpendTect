@@ -28,7 +28,7 @@ mExpClass(MPEEngine) FaultStickSetEditor : public ObjectEditor
 public:
 				FaultStickSetEditor(EM::FaultStickSet&);
 
-    static ObjectEditor*	create(EM::EMObject&);
+    static ObjectEditor*	create(EM::Object&);
     static void			initClass();
 
     void			setSceneIdx(int idx)	{ sceneidx_ = idx; }

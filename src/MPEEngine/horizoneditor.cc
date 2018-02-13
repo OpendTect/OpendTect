@@ -26,7 +26,7 @@ HorizonEditor::HorizonEditor( EM::Horizon3D& hor3d )
 }
 
 
-ObjectEditor* HorizonEditor::create( EM::EMObject& emobj )
+ObjectEditor* HorizonEditor::create( EM::Object& emobj )
 {
     mDynamicCastGet(EM::Horizon3D*,horizon,&emobj);
     return horizon ? new HorizonEditor( *horizon ) : 0;
@@ -61,7 +61,7 @@ Horizon2DEditor::Horizon2DEditor( EM::Horizon2D& hor2d )
     : ObjectEditor(hor2d)
 {}
 
-ObjectEditor* Horizon2DEditor::create( EM::EMObject& emobj )
+ObjectEditor* Horizon2DEditor::create( EM::Object& emobj )
 {
     mDynamicCastGet(EM::Horizon2D*,hor2d,&emobj);
     return hor2d ? new Horizon2DEditor( *hor2d ) : 0;

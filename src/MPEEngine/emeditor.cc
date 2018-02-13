@@ -11,7 +11,6 @@ ___________________________________________________________________
 
 #include "emeditor.h"
 
-#include "undo.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
@@ -27,7 +26,7 @@ namespace MPE
 mImplClassFactory( ObjectEditor, factory );
 
 
-ObjectEditor::ObjectEditor( EM::EMObject& emobj )
+ObjectEditor::ObjectEditor( EM::Object& emobj )
     : emobject_(&emobj)
     , editpositionchange(this)
     , movingnode_( EM::PosID::getInvalid() )

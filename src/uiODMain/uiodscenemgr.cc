@@ -1211,7 +1211,7 @@ int uiODSceneMgr::addEMItem( const DBKey& emid, int sceneid )
 {
     mGetOrAskForScene;
 
-    RefMan<EM::EMObject> obj = EM::MGR().getObject( emid );
+    RefMan<EM::Object> obj = EM::MGR().getObject( emid );
     if ( !obj ) return -1;
 
     FixedString type = obj->getTypeStr();

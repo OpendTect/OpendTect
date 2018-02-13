@@ -18,9 +18,8 @@ ________________________________________________________________________
 #include "coord.h"
 
 class BufferStringSet;
-
-namespace EM { class EMObject; }
 namespace Geometry { class ElementEditor; }
+namespace EM { class Object; }
 
 namespace MPE
 {
@@ -46,11 +45,11 @@ mExpClass(MPEEngine) ObjectEditor : public RefCount::Referenced
 {
 public:
 
-    mDefineFactory1ParamInClass( ObjectEditor, EM::EMObject&, factory );
+    mDefineFactory1ParamInClass( ObjectEditor, EM::Object&, factory );
 
-			ObjectEditor(EM::EMObject&);
+			ObjectEditor(EM::Object&);
 
-    const EM::EMObject&	emObject() const	{ return *emobject_; }
+    const EM::Object&	emObject() const	{ return *emobject_; }
 
     virtual void	startEdit( const EM::PosID& );
     virtual bool	setPosition(const Coord3&);
@@ -129,7 +128,7 @@ protected:
 
     virtual void			cloneMovingNode(CallBacker*)	{}
 
-    RefMan<EM::EMObject>		emobject_;
+    RefMan<EM::Object>			emobject_;
     EM::PosID				movingnode_;
     Coord3				startpos_;
     TypeSet<EM::PosID>			changedpids_;

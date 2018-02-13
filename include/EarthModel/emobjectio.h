@@ -25,7 +25,7 @@ class TaskRunner;
 namespace EM
 {
 
-class EMObject;
+class Object;
 class SurfaceIODataSelection;
 
 mExpClass(EarthModel) ObjectLoader
@@ -41,24 +41,29 @@ public:
     virtual bool	load(TaskRunner*)	= 0;
     virtual Executor*	getLoader() const	= 0;
 
-    RefObjectSet<EMObject> getLoadedEMObjects() const { return emobjects_; }
+    RefObjectSet<Object> getLoadedEMObjects() const { return emobjects_; }
     const DBKeySet&	tobeLodedKeys() const { return dbkeys_; }
     virtual bool	allOK() const
 			{ return notloadedkeys_.isEmpty(); }
+
 protected:
+
 			ObjectLoader(const DBKeySet&,
 				     const SurfaceIODataSelection*);
 
-    virtual void	addObject(EMObject* obj) { emobjects_ += obj; }
+    virtual void	addObject( Object* obj ) { emobjects_ += obj; }
 
     DBKeySet		dbkeys_;
     const SurfaceIODataSelection* sel_;
     DBKeySet		notloadedkeys_;
-    RefObjectSet<EMObject> emobjects_;
+    RefObjectSet<Object> emobjects_;
 
     friend class	ObjectLoaderExec;
+
 private:
-    Executor*		fetchLoader(EMObject*) const;
+
+    Executor*		fetchLoader(Object*) const;
+
 };
 
 
@@ -82,7 +87,7 @@ public:
 
 protected:
 
-    void		addObject(EMObject* obj) { emobjects_ += obj; }
+    void		addObject( Object* obj ) { emobjects_ += obj; }
 };
 
 
@@ -105,7 +110,7 @@ public:
 
 protected:
 
-    void		addObject(EMObject* obj) { emobjects_ += obj; }
+    void		addObject( Object* obj ) { emobjects_ += obj; }
 };
 
 
@@ -128,7 +133,7 @@ public:
 
 protected:
 
-    void		addObject(EMObject* obj) { emobjects_ += obj; }
+    void		addObject( Object* obj ) { emobjects_ += obj; }
 };
 
 
@@ -142,8 +147,8 @@ public:
 			mDeclMonitorableAssignment(ObjectSaver);
 			~ObjectSaver();
 
-    ConstRefMan<EMObject> emObject() const;
-    void		  setEMObject(const EMObject&);
+    ConstRefMan<Object>	emObject() const;
+    void		setEMObject(const Object&);
 
     mDeclInstanceCreatedNotifierAccess(ObjectSaver);
 

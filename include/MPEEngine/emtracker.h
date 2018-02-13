@@ -21,7 +21,7 @@ ________________________________________________________________________
 class Executor;
 
 namespace Geometry { class Element; }
-namespace EM { class EMObject; }
+namespace EM { class Object; }
 namespace Attrib { class SelSpec; }
 
 namespace MPE
@@ -38,12 +38,12 @@ mExpClass(MPEEngine) EMTracker : public RefCount::Referenced
 { mODTextTranslationClass(EMTracker);
 public:
 
-    mDefineFactory1ParamInClass( EMTracker, EM::EMObject*, factory );
+    mDefineFactory1ParamInClass( EMTracker, EM::Object*, factory );
 
-				EMTracker(EM::EMObject*);
+				EMTracker(EM::Object*);
 
     BufferString		objectName() const;
-    EM::EMObject*		emObject()		{ return emobject_; }
+    EM::Object*		emObject()		{ return emobject_; }
     DBKey			objectID() const;
 
     virtual bool		is2D() const		{ return false; }
@@ -80,13 +80,15 @@ protected:
     BufferString		errmsg_;
     const char*			type_;
 
-    void			setEMObject(EM::EMObject*);
+    void			setEMObject(EM::Object*);
 
     static const char*		setupidStr()	{ return "SetupID"; }
     static const char*		sectionidStr()	{ return "SectionID"; }
 
 private:
-    EM::EMObject*		emobject_;
+
+    EM::Object*			emobject_;
+
 };
 
 

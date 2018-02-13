@@ -60,7 +60,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 
     if ( mnuid == getNewItemID() )
     {
-	RefMan<EM::EMObject> emo =
+	RefMan<EM::Object> emo =
 		EM::FSSMan().createTempObject( EM::FaultStickSet::typeStr() );
 	if ( !emo )
 	    return false;
@@ -74,7 +74,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
     }
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
-	ObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::Object> objs;
 	applMgr()->EMServer()->selectFaultStickSets( objs );
 	DBKeySet emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
@@ -156,7 +156,7 @@ void uiODVw2DFaultSS2DParentTreeItem::addFaultSS2Ds(
 
     for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
-	const EM::EMObject* emobj =
+	const EM::Object* emobj =
 			EM::FSSMan().getObject( emidstobeloaded[idx] );
 	if ( !emobj || findChild(emobj->name()) )
 	    continue;
@@ -213,7 +213,7 @@ void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const DBKey&, emid, cb );
 
-    EM::EMObject* emobj = EM::MGR().getObject( emid );
+    EM::Object* emobj = EM::MGR().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
     if ( !fss ) return;
 
@@ -243,7 +243,7 @@ uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( int id, bool )
 uiODVw2DFaultSS2DTreeItem::~uiODVw2DFaultSS2DTreeItem()
 {
     detachAllNotifiers();
-    EM::EMObject* emobj = EM::MGR().getObject( emid_ );
+    EM::Object* emobj = EM::MGR().getObject( emid_ );
     if ( emobj )
 	emobj->unRef();
 
@@ -255,7 +255,7 @@ uiODVw2DFaultSS2DTreeItem::~uiODVw2DFaultSS2DTreeItem()
 bool uiODVw2DFaultSS2DTreeItem::init()
 {
     uitreeviewitem_->setCheckable(true);
-    EM::EMObject* emobj = 0;
+    EM::Object* emobj = 0;
     if ( displayid_ < 0 )
     {
 	emobj = EM::MGR().getObject( emid_ );
@@ -307,7 +307,7 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 
 void uiODVw2DFaultSS2DTreeItem::displayMiniCtab()
 {
-    EM::EMObject* emobj = EM::MGR().getObject( emid_ );
+    EM::Object* emobj = EM::MGR().getObject( emid_ );
     if ( !emobj ) return;
 
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
@@ -318,12 +318,12 @@ void uiODVw2DFaultSS2DTreeItem::displayMiniCtab()
 
 void uiODVw2DFaultSS2DTreeItem::emobjChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData,
+    mCBCapsuleUnpackWithCaller( EM::ObjectCallbackData,
 				cbdata, caller, cb );
-    mDynamicCastGet(EM::EMObject*,emobject,caller);
+    mDynamicCastGet(EM::Object*,emobject,caller);
     if ( !emobject ) return;
 
-    if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+    if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
 	displayMiniCtab();
 }
 
@@ -421,7 +421,7 @@ void uiODVw2DFaultSS2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
     mCBCapsuleUnpack( const DBKey&, emid, cb );
     if ( emid != emid_ ) return;
 
-    EM::EMObject* emobj = EM::MGR().getObject( emid );
+    EM::Object* emobj = EM::MGR().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
     if ( !fss ) return;
 

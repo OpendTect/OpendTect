@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "sectionselector.h"
 
-namespace EM { class Horizon3D; class EMObject; }
+namespace EM { class Horizon3D; class Object; }
 
 
 namespace MPE
@@ -42,11 +42,14 @@ protected:
 mExpClass(MPEEngine) SurfaceSourceSelector : public SectionSourceSelector
 {
 public:
-		SurfaceSourceSelector(const EM::EMObject&);
+
+		SurfaceSourceSelector(const EM::Object&);
     int		nextStep() { return 0; }
 
 protected:
-    const EM::EMObject&	emobject_;
+
+    const EM::Object&	emobject_;
+
 };
 
 

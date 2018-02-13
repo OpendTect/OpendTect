@@ -195,7 +195,7 @@ int HorizonSorter::nextStep()
 
 	for ( int idx=0; idx<unsortedids_.size(); idx++ )
 	{
-	    RefMan<EM::EMObject> emobj = emmgr.getObject( unsortedids_[idx] );
+	    RefMan<EM::Object> emobj = emmgr.getObject( unsortedids_[idx] );
 	    if ( !emobj )
 		mErrRet( uiStrings::phrCannotLoad(tr("all horizons")) );
 

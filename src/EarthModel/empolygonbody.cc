@@ -32,7 +32,7 @@ PolygonBodyUndoEvent( const EM::PosID& posid )
     : posid_( posid )
     , remove_( false )
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
+    RefMan<Object> emobj = BodyMan().getObject( DBKey::getInvalid() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( polygon )
     {
@@ -60,7 +60,7 @@ const char* getStandardDesc() const
 
 bool unDo()
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
+    RefMan<Object> emobj = BodyMan().getObject( DBKey::getInvalid() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
@@ -75,7 +75,7 @@ bool unDo()
 
 bool reDo()
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
+    RefMan<Object> emobj = BodyMan().getObject( DBKey::getInvalid() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
@@ -105,7 +105,7 @@ PolygonBodyKnotUndoEvent( const EM::PosID& posid )
     : posid_( posid )
     , remove_( false )
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
+    RefMan<Object> emobj = BodyMan().getObject( DBKey::getInvalid() );
     if ( emobj )
 	pos_ = emobj->getPos( posid_ );
 }
@@ -126,7 +126,7 @@ const char* getStandardDesc() const
 
 bool unDo()
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
+    RefMan<Object> emobj = BodyMan().getObject( DBKey::getInvalid() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
@@ -138,7 +138,7 @@ bool unDo()
 
 bool reDo()
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
+    RefMan<Object> emobj = BodyMan().getObject( DBKey::getInvalid() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
@@ -237,24 +237,24 @@ const IOObjContext& PolygonBody::getIOObjContext() const
 
 
 DBKey PolygonBody::storageID() const
-{ return EMObject::dbKey(); }
+{ return Object::dbKey(); }
 
 
 BufferString PolygonBody::storageName() const
-{ return EMObject::name(); }
+{ return Object::name(); }
 
 
 void EM::PolygonBody::refBody()
-{ EM::EMObject::ref(); }
+{ EM::Object::ref(); }
 
 
 void EM::PolygonBody::unRefBody()
-{ EM::EMObject::unRef(); }
+{ EM::Object::unRef(); }
 
 
 bool PolygonBody::useBodyPar( const IOPar& par )
 {
-    if ( !EM::EMObject::usePar( par ) )
+    if ( !EM::Object::usePar( par ) )
 	return false;
 
     return geometry().usePar(par);
@@ -263,7 +263,7 @@ bool PolygonBody::useBodyPar( const IOPar& par )
 
 void PolygonBody::fillBodyPar( IOPar& par ) const
 {
-    EM::EMObject::fillPar( par );
+    EM::Object::fillPar( par );
     geometry().fillPar( par );
 }
 
@@ -345,7 +345,7 @@ Geometry::PolygonSurface* PolygonBodyGeometry::createGeometryElement() const
 { return new Geometry::PolygonSurface; }
 
 
-EMObjectIterator* PolygonBodyGeometry::createIterator(
+ObjectIterator* PolygonBodyGeometry::createIterator(
 					const TrcKeyZSampling* cs) const
 { return new RowColIterator( surface_, cs ); }
 
@@ -379,7 +379,7 @@ bool PolygonBodyGeometry::insertPolygon( int polygonnr,
 	BodyMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
-    mSendEMSurfNotif( EMObject::cBurstAlert() );
+    mSendEMSurfNotif( EM::Object::cBurstAlert() );
     return true;
 }
 
@@ -403,7 +403,7 @@ bool PolygonBodyGeometry::removePolygon( int polygonnr,
     if ( !pol->removePolygon(polygonnr) )
 	return false;
 
-    mSendEMSurfNotif( EMObject::cBurstAlert() );
+    mSendEMSurfNotif( EM::Object::cBurstAlert() );
     return true;
 }
 
@@ -416,7 +416,7 @@ bool PolygonBodyGeometry::insertKnot( const PosID& posid,
     if ( !pol || !pol->insertKnot(rc,pos) )
 	return false;
 
-    mSendEMSurfNotif( EMObject::cBurstAlert() );
+    mSendEMSurfNotif( EM::Object::cBurstAlert() );
     return true;
 }
 
@@ -440,7 +440,7 @@ bool PolygonBodyGeometry::removeKnot( const PosID& posid,
     if ( !pos.isDefined() || !pol->removeKnot(rc) )
 	return false;
 
-    mSendEMSurfNotif( EMObject::cBurstAlert() );
+    mSendEMSurfNotif( EM::Object::cBurstAlert() );
     return true;
 }
 

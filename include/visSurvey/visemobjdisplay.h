@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class ZAxisTransform;
 
-namespace EM { class EMObject; }
+namespace EM { class Object; }
 namespace Geometry { class Element; }
 namespace visBase
 {
@@ -55,10 +55,10 @@ public:
 
     virtual void		showPosAttrib( int attr, bool yn);
 				/*!<Turns position attributes (as defined in
-				    EM::EMObject) to be marked with a marker. */
+				    EM::Object) to be marked with a marker. */
     bool			showsPosAttrib( int attr ) const;
 				/*!<\returns wether a position attribute (as
-				     defined in EM::EMObject) to be marked
+				     defined in EM::Object) to be marked
 				     with a marker. */
     const uiString&		errMsg() const { return errmsg_; }
 
@@ -135,7 +135,7 @@ protected:
     void			polygonFinishedCB(CallBacker*);
 
     virtual void		updateSelections();
-    virtual void		handleEmChange(const EM::EMObjectCallbackData&);
+    virtual void		handleEmChange(const EM::ObjectCallbackData&);
 
 
     Notifier<EMObjectDisplay>	hasmoved;
@@ -151,7 +151,7 @@ protected:
     TypeSet<int>			parposattrshown_;
 
     EM::ObjectManager&			emmgr_;
-    EM::EMObject*			emobject_;
+    EM::Object*				emobject_;
     DBKey				parmid_;
     BufferStringSet			parsections_;
 
@@ -187,8 +187,10 @@ protected:
 
 
 private:
+
     void				unSelectAll();
     void				updateLockedSeedsColor();
+
 };
 
 } // namespace visSurvey

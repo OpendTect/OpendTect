@@ -207,7 +207,7 @@ void HorizonTrackerMgr::freeSectionTracker( const SectionTracker* st )
 
 void HorizonTrackerMgr::startFromSeeds()
 {
-    EM::EMObject* emobj = tracker_.emObject();
+    EM::Object* emobj = tracker_.emObject();
     if ( !emobj ) return;
 
     SectionTracker* st = tracker_.getSectionTracker();
@@ -251,7 +251,7 @@ void HorizonTrackerMgr::addUndoEvent()
 {
     if ( horizon3dundoinfo_ )
     {
-	EM::EMObject* emobj = tracker_.emObject();
+	EM::Object* emobj = tracker_.emObject();
 	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
 	UndoEvent* undo = new EM::SetAllHor3DPosUndoEvent(
 		hor3d, horizon3dundoinfo_, horizon3dundoorigin_ );

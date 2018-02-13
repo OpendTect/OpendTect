@@ -34,7 +34,7 @@ EM::Hor2DSeisLineIterator::Hor2DSeisLineIterator( const EM::Horizon2D& h2d )
 EM::Hor2DSeisLineIterator::Hor2DSeisLineIterator( const DBKey& mid )
     : nrlines_(0)
 {
-    EM::EMObject* emobj = mGetEMObjPtr( mid );
+    EM::Object* emobj = mGetEMObjPtr( mid );
     mDynamicCastGet(EM::Horizon2D*,h2d,emobj)
     init( h2d );
 }

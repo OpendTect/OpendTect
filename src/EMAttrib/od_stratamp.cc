@@ -49,7 +49,7 @@ static EM::Horizon3D* loadHorizon( const DBKey& dbky, const TrcKeySampling& hs,
     if ( !(exec && exec->go(strm, false, false, 0) ) )
 	return 0;
 
-    EM::EMObject* emobj = mgr.getObject( dbky );
+    EM::Object* emobj = mgr.getObject( dbky );
     if ( !emobj )
     {
 	BufferString msg;

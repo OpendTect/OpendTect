@@ -161,7 +161,7 @@ Geometry::FaultStickSurface* Fault3DGeometry::createGeometryElement() const
 { return new Geometry::FaultStickSurface; }
 
 
-EMObjectIterator* Fault3DGeometry::createIterator(
+ObjectIterator* Fault3DGeometry::createIterator(
 					const TrcKeyZSampling* cs ) const
 { return new RowColIterator( surface_, cs ); }
 

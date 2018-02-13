@@ -61,7 +61,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 
     if ( mnuid == getNewItemID() )
     {
-	RefMan<EM::EMObject> emo =
+	RefMan<EM::Object> emo =
 		EM::Flt3DMan().createTempObject( EM::Fault3D::typeStr() );
 	if ( !emo )
 	    return false;
@@ -74,7 +74,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
     }
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
-	ObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::Object> objs;
 	applMgr()->EMServer()->selectFaults( objs, false );
 	DBKeySet emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
@@ -156,7 +156,7 @@ void uiODVw2DFaultParentTreeItem::addFaults(const DBKeySet& emids)
     for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
 	const DBKey emid = emidstobeloaded[idx];
-	const EM::EMObject* emobj = EM::Flt3DMan().getObject( emid );
+	const EM::Object* emobj = EM::Flt3DMan().getObject( emid );
 	if ( !emobj || findChild(emobj->name()) )
 	    continue;
 
@@ -231,7 +231,7 @@ uiODVw2DFaultTreeItem::~uiODVw2DFaultTreeItem()
 
 bool uiODVw2DFaultTreeItem::init()
 {
-    EM::EMObject* emobj = 0;
+    EM::Object* emobj = 0;
     if ( displayid_ < 0 )
     {
 	emobj = EM::Flt3DMan().getObject( emid_ );
@@ -279,7 +279,7 @@ bool uiODVw2DFaultTreeItem::init()
 
 void uiODVw2DFaultTreeItem::displayMiniCtab()
 {
-    EM::EMObject* emobj = EM::Flt3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Flt3DMan().getObject( emid_ );
     if ( !emobj ) return;
 
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
@@ -290,14 +290,14 @@ void uiODVw2DFaultTreeItem::displayMiniCtab()
 
 void uiODVw2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData,
+    mCBCapsuleUnpackWithCaller( EM::ObjectCallbackData,
 				cbdata, caller, cb );
-    mDynamicCastGet(EM::EMObject*,emobject,caller);
+    mDynamicCastGet(EM::Object*,emobject,caller);
     if ( !emobject ) return;
 
-    if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+    if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
 	displayMiniCtab();
-    else if ( cbdata.changeType() == EM::EMObject::cNameChange() )
+    else if ( cbdata.changeType() == EM::Object::cNameChange() )
     {
 	name_ = toUiString(DBM().nameOf( emid_ ));
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
@@ -403,7 +403,7 @@ void uiODVw2DFaultTreeItem::emobjAbtToDelCB( CallBacker* cb )
     mCBCapsuleUnpack( const DBKey&, emid, cb );
     if ( emid != emid_ ) return;
 
-    EM::EMObject* emobj = EM::Flt3DMan().getObject( emid );
+    EM::Object* emobj = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,f3d,emobj);
     if ( !f3d ) return;
 

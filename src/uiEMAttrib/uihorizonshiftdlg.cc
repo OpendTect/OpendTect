@@ -70,7 +70,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     slider_->setValue( curshift );
     slider_->valueChanged.notify( mCB(this,uiHorizonShiftDialog,shiftCB) );
 
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
     mDynamicCastGet(EM::Horizon3D*,emhor3d,emobj)
     emhor3d_ = emhor3d;
 

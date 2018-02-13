@@ -919,7 +919,7 @@ void uiODViewer2DMgr::setAllIntersectionPositions()
 			EM::Hor3DMan().getObject(hor3dids[idx]))
 	if ( !hor3d )
 	    continue;
-	EM::EMObjectCallbackData cbdata( EM::EMObject::cAttribChange(),
+	EM::ObjectCallbackData cbdata( EM::Object::cAttribChange(),
 				Monitorable::ChangeData::cUnspecChgID() );
 	hor3d->sendEMNotifFromOutside( cbdata );
     }

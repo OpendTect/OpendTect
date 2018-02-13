@@ -289,7 +289,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	uiCreateBodyDlg dlg( visserv_.appserv().parent(), *dispprop_ );
 	if ( dlg.go() )
 	{
-	    RefMan<EM::EMObject> emobj =
+	    RefMan<EM::Object> emobj =
 		EM::BodyMan().createTempObject( EM::RandomPosBody::typeStr() );
 	    const DataPointSet* data = display->getDataPack();
 	    mDynamicCastGet( EM::RandomPosBody*, emps, emobj.ptr() );

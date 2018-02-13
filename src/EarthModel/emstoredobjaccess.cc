@@ -28,12 +28,12 @@ public:
     bool		isErr() const	{ return !errmsg_.isEmpty(); }
 
     DBKey		key_;
-    EM::EMObject*	obj_;
+    EM::Object*	obj_;
     Executor*		rdr_;
     Threads::Work*	work_;
     uiString		errmsg_;
 
-    EMObject*		getEMObjFromMGR();
+    Object*		getEMObjFromMGR();
     void		workFinished(CallBacker*);
 
 };
@@ -41,7 +41,7 @@ public:
 } // namespace EM
 
 
-EM::EMObject* EM::StoredObjAccessData::getEMObjFromMGR()
+EM::Object* EM::StoredObjAccessData::getEMObjFromMGR()
 {
     return MGR().getObject( key_ );
 }
@@ -54,7 +54,7 @@ EM::StoredObjAccessData::StoredObjAccessData( const DBKey& ky,
     , rdr_(0)
     , work_(0)
 {
-    EMObject* obj = getEMObjFromMGR();
+    Object* obj = getEMObjFromMGR();
     if ( obj && obj->isFullyLoaded() )
     {
 	obj_ = obj; obj_->ref();
@@ -95,7 +95,7 @@ void EM::StoredObjAccessData::workFinished( CallBacker* cb )
     }
     else
     {
-	EMObject* obj = getEMObjFromMGR();
+	Object* obj = getEMObjFromMGR();
 	if ( !obj || !obj->isFullyLoaded() )
 	    errmsg_ = tr("Could not get EM object from MGR");
 	else
@@ -181,13 +181,13 @@ void EM::StoredObjAccess::dismiss( const DBKey& ky )
 }
 
 
-EM::EMObject* EM::StoredObjAccess::object( int iobj )
+EM::Object* EM::StoredObjAccess::object( int iobj )
 {
     return data_.validIdx(iobj) ? data_[iobj]->obj_ : 0;
 }
 
 
-const EM::EMObject* EM::StoredObjAccess::object( int iobj ) const
+const EM::Object* EM::StoredObjAccess::object( int iobj ) const
 {
     return const_cast<EM::StoredObjAccess*>(this)->object( iobj );
 }

@@ -28,7 +28,7 @@ mExpClass(MPEEngine) HorizonEditor : public ObjectEditor
 {
 public:
 				HorizonEditor(EM::Horizon3D&);
-    static ObjectEditor*	create(EM::EMObject&);
+    static ObjectEditor*	create(EM::Object&);
     static void			initClass();
 
     void			getEditIDs(TypeSet<EM::PosID>&) const;
@@ -46,7 +46,7 @@ mExpClass(MPEEngine) Horizon2DEditor : public ObjectEditor
 {
 public:
 				Horizon2DEditor(EM::Horizon2D&);
-    static ObjectEditor*	create(EM::EMObject&);
+    static ObjectEditor*	create(EM::Object&);
     static void			initClass();
 
 protected:

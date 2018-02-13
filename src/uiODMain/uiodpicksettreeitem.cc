@@ -405,7 +405,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 
-	RefMan<EM::EMObject> emobj =
+	RefMan<EM::Object> emobj =
 	    EM::BodyMan().createTempObject( EM::RandomPosBody::typeStr() );
 	mDynamicCastGet( EM::RandomPosBody*, emps, emobj.ptr() );
 	if ( !emps )

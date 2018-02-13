@@ -132,7 +132,7 @@ bool uiHorSaveFieldGrp::needsFullSurveyArray() const
 
 EM::Horizon* uiHorSaveFieldGrp::readHorizon( const DBKey& oid )
 {
-    EM::EMObject* emobj = EM::MGR().getObject( oid );
+    EM::Object* emobj = EM::MGR().getObject( oid );
 
     Executor* reader = 0;
     if ( !emobj || !emobj->isFullyLoaded() )
@@ -229,7 +229,7 @@ bool uiHorSaveFieldGrp::createNewHorizon()
     }
 
     EM::ObjectManager& mgr = EM::MGR();
-    EM::EMObject* emobj = mgr.createObject( is2d_ ? EM::Horizon2D::typeStr()
+    EM::Object* emobj = mgr.createObject( is2d_ ? EM::Horizon2D::typeStr()
 						: EM::Horizon3D::typeStr(),
 					  outputfld_->getInput() );
 

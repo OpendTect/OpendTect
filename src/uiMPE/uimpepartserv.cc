@@ -122,7 +122,7 @@ void uiMPEPartServer::getTrackerTypes( BufferStringSet& res ) const
 
 int uiMPEPartServer::addTracker( const DBKey& emid )
 {
-    EM::EMObject* emobj = EM::MGR().getObject( emid );
+    EM::Object* emobj = EM::MGR().getObject( emid );
     if ( !emobj ) return -1;
 
     const int res = MPE::engine().addTracker( emobj );
@@ -141,7 +141,7 @@ bool uiMPEPartServer::addTracker( const DBKey& objid, int addedtosceneid )
 {
     cursceneid_ = addedtosceneid;
     //NotifyStopper notifystopper( MPE::engine().trackeraddremove );
-    EM::EMObject* emobj = EM::MGR().getObject( objid );
+    EM::Object* emobj = EM::MGR().getObject( objid );
     if ( !emobj ) return -1;
 
     const int trackerid = MPE::engine().addTracker( emobj );
@@ -177,7 +177,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     cursceneid_ = addedtosceneid;
     //NotifyStopper notifystopper( MPE::engine().trackeraddremove );
 
-    EM::EMObject* emobj = EM::MGR().createTempObject( trackertype );
+    EM::Object* emobj = EM::MGR().createTempObject( trackertype );
     if ( !emobj )
 	return false;
 
@@ -278,14 +278,14 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
     if ( trackercurrentobject_.isInvalid() )
 	return;
 
-    EM::EMObject* emobj = EM::MGR().getObject( trackercurrentobject_ );
+    EM::Object* emobj = EM::MGR().getObject( trackercurrentobject_ );
     if ( !emobj ) return;
 
     if ( setupgrp_ )
     {
 	emobj->setPreferredColor( setupgrp_->getColor() );
 	sendEvent( uiMPEPartServer::evUpdateTrees() );
-	emobj->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(),
+	emobj->setPosAttrMarkerStyle( EM::Object::sSeedNode(),
 				      setupgrp_->getMarkerStyle() );
 
 	OD::LineStyle ls = emobj->preferredLineStyle();
@@ -429,7 +429,7 @@ void uiMPEPartServer::fillTrackerSettings( int trackerid )
 
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    EM::EMObject* emobj = tracker ? tracker->emObject() : 0;
+    EM::Object* emobj = tracker ? tracker->emObject() : 0;
     if ( !emobj || !seedpicker ) return;
 
     MPE::SectionTracker* sectracker = tracker->getSectionTracker( true );
@@ -440,7 +440,7 @@ void uiMPEPartServer::fillTrackerSettings( int trackerid )
     setupgrp_->setColor( emobj->preferredColor() );
     setupgrp_->setLineWidth( emobj->preferredLineStyle().width_ );
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
-						EM::EMObject::sSeedNode()) );
+						EM::Object::sSeedNode()) );
 
     TypeSet<TrcKey> seeds;
     seedpicker->getSeeds( seeds );
@@ -491,7 +491,7 @@ bool uiMPEPartServer::showSetupDlg( const DBKey& emid )
 
     trackercurrentobject_ = emid;
 
-    EM::EMObject* emobj = EM::MGR().getObject( emid );
+    EM::Object* emobj = EM::MGR().getObject( emid );
     if ( !emobj ) return false;
 
     if ( !initSetupDlg(emobj,tracker) )
@@ -518,7 +518,7 @@ void uiMPEPartServer::useSavedSetupDlg( const DBKey& emid )
 {
     const int trackerid = getTrackerID( emid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    const EM::EMObject* emobj = EM::MGR().getObject( tracker->objectID() );
+    const EM::Object* emobj = EM::MGR().getObject( tracker->objectID() );
     if ( !emobj )
 	return;
 
@@ -557,7 +557,7 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
     PtrMan<Executor> exec = EM::MGR().objectLoader( MPE::engine().emidtoload_ );
     if ( !exec ) return;
 
-    EM::EMObject* emobj = EM::MGR().getObject( MPE::engine().emidtoload_ );
+    EM::Object* emobj = EM::MGR().getObject( MPE::engine().emidtoload_ );
     if ( !emobj ) return;
 
     emobj->ref();
@@ -576,7 +576,7 @@ bool uiMPEPartServer::prepareSaveSetupAs( const DBKey& oldmid )
     if ( getTrackerID(oldmid) >= 0 )
 	return true;
 
-    EM::EMObject* emobj = EM::MGR().getObject( oldmid );
+    EM::Object* emobj = EM::MGR().getObject( oldmid );
     if ( !emobj )
 	return false;
 
@@ -650,7 +650,7 @@ void uiMPEPartServer::trackerAddRemoveCB( CallBacker* )
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     if ( !tracker ) return;
 
-    const EM::EMObject* emobj = EM::MGR().getObject( tracker->objectID() );
+    const EM::Object* emobj = EM::MGR().getObject( tracker->objectID() );
     if ( !emobj ) return;
 
 // The rest should only be called when tracker is added ...
@@ -777,7 +777,7 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 }
 
 
-bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
+bool uiMPEPartServer::initSetupDlg( EM::Object*& emobj,
 				    MPE::EMTracker*& tracker,
 				    bool freshdlg )
 {

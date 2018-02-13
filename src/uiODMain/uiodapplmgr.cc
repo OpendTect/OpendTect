@@ -1012,7 +1012,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	const int sdid = sceneMgr().addEMItem( emid, sceneid );
 	if ( sdid==-1 )
 	    return false;
-	const EM::EMObject* emobj = EM::MGR().getObject( emid );
+	const EM::Object* emobj = EM::MGR().getObject( emid );
 	if ( EM::Horizon3D::typeStr()==emobj->getTypeStr() )
 	    viewer2DMgr().addNewTrackingHorizon3D( emid );
 	else

@@ -147,21 +147,21 @@ uiExportFault::~uiExportFault()
 }
 
 
-static int stickNr( EM::EMObject* emobj, int stickidx )
+static int stickNr( EM::Object* emobj, int stickidx )
 {
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
     return fss->rowRange().atIndex( stickidx );
 }
 
 
-static int nrSticks( EM::EMObject* emobj )
+static int nrSticks( EM::Object* emobj )
 {
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
     return fss->nrSticks();
 }
 
 
-static int nrKnots( EM::EMObject* emobj, int stickidx )
+static int nrKnots( EM::Object* emobj, int stickidx )
 {
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
     const int sticknr = fss->rowRange().atIndex( stickidx );
@@ -169,7 +169,7 @@ static int nrKnots( EM::EMObject* emobj, int stickidx )
 }
 
 
-static Coord3 getCoord( EM::EMObject* emobj, int stickidx,
+static Coord3 getCoord( EM::Object* emobj, int stickidx,
 			int knotidx )
 {
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
@@ -255,7 +255,7 @@ bool uiExportFault::writeAscii()
     uiTaskRunnerProvider trprov( this );
     BufferString typnm = issingle_ ? ctio_.ioobj_->group() :
 				    bulkinfld_->getCtxtIOObj().ioobj_->group();
-    RefObjectSet<EM::EMObject> loadedobjs =
+    RefObjectSet<EM::Object> loadedobjs =
 		EM::MGR().loadObjects( typnm, dbkeyset, 0, &trprov.runner() );
     if ( loadedobjs.isEmpty() )
 	return false;
@@ -268,7 +268,7 @@ bool uiExportFault::writeAscii()
 
     for ( int idx=0; idx<loadedobjs.size(); idx++ )
     {
-	EM::EMObject* emobj = loadedobjs[idx];
+	EM::Object* emobj = loadedobjs[idx];
 	mDynamicCastGet(EM::Fault3D*,f3d,emobj)
 	mDynamicCastGet(EM::FaultStickSet*,fss,emobj)
 	if ( !f3d && !fss ) return false;

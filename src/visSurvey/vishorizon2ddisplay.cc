@@ -480,24 +480,24 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
 {
     if ( cb )
     {
-       mCBCapsuleUnpack( EM::EMObjectCallbackData, cbdata, cb );
-       emchangedata_.addCallBackData( new EM::EMObjectCallbackData(cbdata) );
+       mCBCapsuleUnpack( EM::ObjectCallbackData, cbdata, cb );
+       emchangedata_.addCallBackData( new EM::ObjectCallbackData(cbdata) );
     }
 
     mEnsureExecutedInMainThread( Horizon2DDisplay::emChangeCB );
     for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
-      const EM::EMObjectCallbackData* cbdata =
+      const EM::ObjectCallbackData* cbdata =
           emchangedata_.getCallBackData( idx );
       if ( !cbdata )
           continue;
       EMObjectDisplay::handleEmChange( *cbdata );
-      if ( cbdata->changeType()==EM::EMObject::cPrefColorChange() )
+      if ( cbdata->changeType()==EM::Object::cPrefColorChange() )
       {
           getMaterial()->setColor( emobject_->preferredColor() );
           setLineStyle( emobject_->preferredLineStyle() );
       }
-      else if ( cbdata->changeType()==EM::EMObject::cSelColorChange() )
+      else if ( cbdata->changeType()==EM::Object::cSelColorChange() )
       {
 	  mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
 	  if ( hor2d && selections_ && selections_->getMaterial() )
@@ -657,7 +657,7 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
 	const int mid = intersectmkset_->addPos( intsectpnts[0] );
 	intersectmkset_->getMaterial()->setColor( hor2d->preferredColor(),mid );
 	const int sz =
-		hor2d->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).size_;
+		hor2d->getPosAttrMarkerStyle(EM::Object::sSeedNode()).size_;
 	intersectmkset_->setScreenSize( mCast(float,sz) );
     }
 }
@@ -897,7 +897,7 @@ void Horizon2DDisplay::updateSelections()
     const Geometry::Element* ge = h2d->geometry().geometryElement();
     if ( !ge ) return;
 
-    PtrMan<EM::EMObjectIterator> iterator = h2d->geometry().createIterator();
+    PtrMan<EM::ObjectIterator> iterator = h2d->geometry().createIterator();
     TypeSet<int> pidxs;
     while( true )
     {

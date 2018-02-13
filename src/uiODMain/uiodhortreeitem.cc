@@ -141,7 +141,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     {
 	setSectionDisplayRestoreForAllHors( true );
 
-	ObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::Object> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
@@ -170,7 +170,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	if ( !newdlg || !newdlg->go() )
 	    return false;
 
-	RefMan<EM::EMObject> emo = newdlg->getEMObject();
+	RefMan<EM::Object> emo = newdlg->getEMObject();
 	if ( !emo )
 	    return false;
 
@@ -771,7 +771,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
     {
-	ObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::Object> objs;
 	applMgr()->EMServer()->selectHorizons( objs, true );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{

@@ -538,7 +538,7 @@ void Horizon2D::removeSelected( const Selector<Coord3>& selector,
 
     TypeSet<EM::PosID> removallist;
 
-    PtrMan<EM::EMObjectIterator> iterator = createIterator();
+    PtrMan<EM::ObjectIterator> iterator = createIterator();
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
@@ -559,7 +559,7 @@ bool Horizon2D::unSetPos( const PosID& pid, bool addtoundo )
 {
     Coord3 pos = getPos( pid );
     pos.z_ = mUdf(float);
-    return EMObject::setPos( pid, pos, addtoundo );
+    return Object::setPos( pid, pos, addtoundo );
 }
 
 
@@ -586,7 +586,7 @@ bool Horizon2D::setZPos( Pos::GeomID geomid, int trcnr,
     if ( mIsUdf(lineidx) || lineidx<0 ) return false;
 
     EM::PosID posid = PosID::getFromRowCol( lineidx, trcnr );
-    Coord3 newpos = EMObject::getPos( posid );
+    Coord3 newpos = Object::getPos( posid );
     newpos.z_ = z;
 
     const NodeSourceType tp = newpos.isDefined() ? type : None;
@@ -598,10 +598,16 @@ bool Horizon2D::setZPos( Pos::GeomID geomid, int trcnr,
 
 
 Coord3 Horizon2D::getPos( const EM::PosID& pid ) const
-{ return EMObject::getPos(pid); }
+{
+    return Object::getPos(pid);
+}
+
 
 Coord3 Horizon2D::getPosition( int lineidx, int trcnr ) const
-{ return getPos( PosID::getFromRowCol(lineidx,trcnr) ); }
+{
+    return getPos( PosID::getFromRowCol(lineidx,trcnr) );
+}
+
 
 bool Horizon2D::setArray1D( const Array1D<float>& arr,
 			    Pos::GeomID geomid,

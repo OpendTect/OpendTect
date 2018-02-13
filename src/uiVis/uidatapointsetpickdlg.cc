@@ -400,7 +400,7 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, int sceneid,
     emdps_.dataSet().add( new DataColDef("AuxData") );
 
 
-    EM::EMObject* emobj = EM::MGR().getObject( emid_ );
+    EM::Object* emobj = EM::MGR().getObject( emid_ );
     if ( emobj )
 	emobj->ref();
 }
@@ -415,7 +415,7 @@ void uiEMDataPointSetPickDlg::cleanUp()
 {
     uiDataPointSetPickDlg::cleanUp();
 
-    EM::EMObject* emobj = EM::MGR().getObject( emid_ );
+    EM::Object* emobj = EM::MGR().getObject( emid_ );
     if ( emobj )
 	emobj->unRef();
 
@@ -426,13 +426,13 @@ void uiEMDataPointSetPickDlg::cleanUp()
 int uiEMDataPointSetPickDlg::addSurfaceData()
 {
     emdps_.clearData();
-    EM::EMObject* emobj = EM::MGR().getObject( emid_ );
+    EM::Object* emobj = EM::MGR().getObject( emid_ );
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
 
     float auxvals[3];
     tks_ = hor3d->range();
     auxvals[1] = 0;
-    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator();
+    PtrMan<EM::ObjectIterator> iterator = hor3d->createIterator();
     while ( true )
     {
 	const EM::PosID pid = iterator->next();

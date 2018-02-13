@@ -366,7 +366,7 @@ void uiSurfaceMan::calcVolCB( CallBacker* )
 	return;
 
     uiTaskRunnerProvider trprov( this );
-    RefMan<EM::EMObject> emo =
+    RefMan<EM::Object> emo =
 	EM::BodyMan().loadIfNotFullyLoaded( curioobj_->key(), trprov );
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
     if ( !emb )

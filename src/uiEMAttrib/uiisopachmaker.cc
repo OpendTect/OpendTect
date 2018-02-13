@@ -231,13 +231,13 @@ bool uiIsochronMakerDlg::doWork()
     par.get( IsochronMaker::sKeyHorizonID(), emid1 );
     par.get( IsochronMaker::sKeyCalculateToHorID(), emid2 );
     uiTaskRunnerProvider trprov( this );
-    EM::EMObject* emobj = EM::MGR().loadIfNotFullyLoaded( emid2, trprov );
+    EM::Object* emobj = EM::MGR().loadIfNotFullyLoaded( emid2, trprov );
     mDynamicCastGet(EM::Horizon3D*,h2,emobj)
     if ( !h2 )
 	mErrRet(tr("Cannot load selected horizon"))
     h2->ref();
 
-    EM::EMObject* emobjbase = EM::MGR().getObject( emid1 );
+    EM::Object* emobjbase = EM::MGR().getObject( emid1 );
     mDynamicCastGet(EM::Horizon3D*,h1,emobjbase)
     if ( !h1 )
     { h2->unRef(); mErrRet(tr("Cannot find base horizon")) }

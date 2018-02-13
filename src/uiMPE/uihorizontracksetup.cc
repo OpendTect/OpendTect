@@ -228,7 +228,7 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 	const bool canautotrack = seedpicker && seedpicker->nrSeeds();
 	toolbar_->setSensitive( startbutid_, canautotrack &&
 					     invol && stopped );
-	const EM::EMObject* obj = tracker->emObject();
+	const EM::Object* obj = tracker->emObject();
 	if ( obj )
 	{
 	    toolbar_->setSensitive(
@@ -490,7 +490,7 @@ void uiHorizonSetupGroup::specColorChangeCB( CallBacker* cb )
 {
     if ( !sectiontracker_ ) return;
 
-    EM::EMObject* emobj = &sectiontracker_->emObject();
+    EM::Object* emobj = &sectiontracker_->emObject();
     if ( !emobj ) return;
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
@@ -611,7 +611,7 @@ void uiHorizonSetupGroup::initPropertyGroup()
     if ( !sectiontracker_ )
 	return;
 
-    const EM::EMObject& emobj = sectiontracker_->emObject();
+    const EM::Object& emobj = sectiontracker_->emObject();
     lockcolfld_->setColor( emobj.getLockColor() );
     selectioncolfld_->setColor( emobj.selectionColor() );
 

@@ -361,7 +361,7 @@ Monitorable::ChangeType Horizon3D::compareClassData(
 
 Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )
 {
-    EMObject* emobj = Hor3DMan().createTempObject( typeStr() );
+    Object* emobj = Hor3DMan().createTempObject( typeStr() );
     mDynamicCastGet(Horizon3D*,hor3d,emobj)
     if ( !hor3d ) return 0;
 
@@ -1102,7 +1102,7 @@ bool Horizon3D::selectChildren( const TrcKey& node )
     cf.addTask( gidx );
     const bool res = cf.execute();
     if ( res )
-	mSendEMCBNotif( EMObject::cSelectionChange() );
+	mSendEMCBNotif( Object::cSelectionChange() );
 
     return res;
 }
@@ -1189,7 +1189,7 @@ void Horizon3D::lockAll()
 {
     if ( !lockednodes_ ) return;
 
-    PtrMan<EMObjectIterator> it = createIterator();
+    PtrMan<ObjectIterator> it = createIterator();
     if ( !it ) return;
 
     mLock4Write();
@@ -1208,7 +1208,7 @@ void Horizon3D::lockAll()
 
     haslockednodes_ = true;
 
-    mSendEMCBNotif( EMObject::cLockChange() );
+    mSendEMCBNotif( cLockChange() );
 }
 
 
@@ -1220,7 +1220,7 @@ void Horizon3D::unlockAll()
     haslockednodes_ = false;
     lockednodes_->setAll( '0' );
 
-    mSendEMCBNotif( EMObject::cLockChange() );
+    mSendEMCBNotif( cLockChange() );
 }
 
 
@@ -1232,7 +1232,7 @@ void Horizon3D::setParentColor( const Color& col )
 {
     mLock4Write();
     parentcolor_ = col;
-    mSendEMCBNotif( EMObject::cParentColorChange() );
+    mSendEMCBNotif( cParentColorChange() );
 }
 
 
@@ -1260,7 +1260,7 @@ bool Horizon3D::setPosition( const PosID& posid,
     if ( isNodeLocked(tk) ) return false;
     const NodeSourceType tp = crd.isDefined() ? type : None;
     setNodeSourceType( tk, tp );
-    return EMObject::setPosition( posid, crd, addtoundo );
+    return Object::setPosition( posid, crd, addtoundo );
 }
 
 
@@ -1530,7 +1530,7 @@ bool Horizon3DGeometry::getBoundingPolygon( Pick::Set& set ) const
 void Horizon3DGeometry::fillBinIDValueSet( BinIDValueSet& bivs,
 					   Pos::Provider3D* prov ) const
 {
-    PtrMan<EMObjectIterator> it = createIterator();
+    PtrMan<ObjectIterator> it = createIterator();
     if ( !it ) return;
 
     while ( true )
@@ -1551,7 +1551,7 @@ void Horizon3DGeometry::fillBinIDValueSet( BinIDValueSet& bivs,
 }
 
 
-EMObjectIterator* Horizon3DGeometry::createIterator(
+ObjectIterator* Horizon3DGeometry::createIterator(
 					const TrcKeyZSampling* cs) const
 {
     if ( !cs )

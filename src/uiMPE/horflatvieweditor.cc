@@ -145,7 +145,7 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 
     if ( !canTrack(*tracker) ) return;
 
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( tracker->objectID() );
+    EM::Object* emobj = EM::Hor3DMan().getObject( tracker->objectID() );
     if ( !emobj ) return;
 
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
@@ -291,7 +291,7 @@ bool HorizonFlatViewEditor::selectSeedData(
 
 
 bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
-					const EM::EMObject& emobj,
+					const EM::Object& emobj,
 				        const EMSeedPicker& spk,
 				        bool& pickinvd ) const
 {
@@ -348,7 +348,7 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 }
 
 
-bool HorizonFlatViewEditor::doTheSeed( EM::EMObject& emobj, EMSeedPicker& spk,
+bool HorizonFlatViewEditor::doTheSeed( EM::Object& emobj, EMSeedPicker& spk,
 				       const Coord3& crd,
 				       const MouseEvent& mev ) const
 {
@@ -385,7 +385,7 @@ bool HorizonFlatViewEditor::doTheSeed( EM::EMObject& emobj, EMSeedPicker& spk,
 }
 
 
-bool HorizonFlatViewEditor::getPosID( const EM::EMObject& emobj,
+bool HorizonFlatViewEditor::getPosID( const EM::Object& emobj,
 				      const Coord3& crd, EM::PosID& pid ) const
 {
     BinID bid;

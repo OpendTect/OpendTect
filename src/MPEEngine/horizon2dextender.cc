@@ -27,7 +27,7 @@ Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor )
 }
 
 
-SectionExtender* Horizon2DExtender::create( EM::EMObject* emobj )
+SectionExtender* Horizon2DExtender::create( EM::Object* emobj )
 {
     mDynamicCastGet(EM::Horizon2D*,hor,emobj)
     return emobj && !hor ? 0 : new Horizon2DExtender( *hor );
@@ -99,7 +99,7 @@ void Horizon2DExtender::addNeighbor( bool upwards, const TrcKey& src )
 
     const bool hasz = hor2d_.hasZ( neighbor );
     const bool isintersection = hor2d_.isAttrib(
-			neighbor, EM::EMObject::sIntersectionNode() );
+			neighbor, EM::Object::sIntersectionNode() );
     if ( hasz && !isintersection )
 	return;
 

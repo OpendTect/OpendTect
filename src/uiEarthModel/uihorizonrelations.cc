@@ -182,9 +182,9 @@ bool acceptOK()
 {
     const bool saveas = savefld_->getBoolValue();
     const bool topisstatic = horizonfld_->getIntValue() == 1;
-    EM::EMObject* emobj = EM::MGR().getObject( topisstatic ? mid2_ : mid1_ );
+    EM::Object* emobj = EM::MGR().getObject( topisstatic ? mid2_ : mid1_ );
     DBKey outmid;
-    RefMan<EM::EMObject> outemobj = 0;
+    RefMan<EM::Object> outemobj = 0;
 
     if ( saveas )
     {

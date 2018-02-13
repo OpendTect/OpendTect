@@ -31,7 +31,7 @@ ObjectLoader::ObjectLoader( const DBKeySet& keys,
 }
 
 
-Executor* ObjectLoader::fetchLoader( EMObject* obj ) const
+Executor* ObjectLoader::fetchLoader( Object* obj ) const
 {
     mDynamicCastGet(Surface*,surface,obj)
     if ( surface )
@@ -91,7 +91,7 @@ void init()
 	if ( typenm.isEmpty() )
 	    typenm = ioobj->group();
 
-	EMObject* obj = MGR().createObject( typenm, ioobj->name() );
+	Object* obj = MGR().createObject( typenm, ioobj->name() );
 	obj->ref();
 	obj->setDBKey( objid );
 	add( loader_.fetchLoader(obj) );
@@ -124,7 +124,7 @@ void finishWork()
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	EMObject* obj = objects_[idx];
+	Object* obj = objects_[idx];
 	const DBKey& dbkey = obj->dbKey();
 	if ( loader_.notloadedkeys_.isPresent(dbkey) )
 	    continue;
@@ -162,7 +162,7 @@ protected:
 
     ObjectLoader&		loader_;
     int				curidx_;
-    RefObjectSet<EMObject>	objects_;
+    RefObjectSet<Object>	objects_;
     od_int64			nrdone_;
     od_int64			totnr_;
 };
@@ -269,13 +269,13 @@ Monitorable::ChangeType ObjectSaver::compareClassData(
 }
 
 
-ConstRefMan<EMObject> ObjectSaver::emObject() const
+ConstRefMan<Object> ObjectSaver::emObject() const
 {
-    return ConstRefMan<EMObject>( static_cast<const EMObject*>( object() ) );
+    return ConstRefMan<Object>( static_cast<const Object*>( object() ) );
 }
 
 
-void ObjectSaver::setEMObject( const EMObject& obj )
+void ObjectSaver::setEMObject( const Object& obj )
 {
     setObject( obj );
 }
@@ -299,7 +299,7 @@ FaultStickSetSaver::~FaultStickSetSaver()
 uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj,TaskRunner* tskr) const
 {
     uiRetVal uirv;
-    ConstRefMan<EMObject> emobj = emObject();
+    ConstRefMan<Object> emobj = emObject();
     if ( !emobj )
 	return uiRetVal::OK();
 
@@ -336,7 +336,7 @@ Fault3DSaver::~Fault3DSaver()
 uiRetVal Fault3DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 {
     uiRetVal uirv;
-    ConstRefMan<EMObject> emobj = emObject();
+    ConstRefMan<Object> emobj = emObject();
     if ( !emobj )
 	return uiRetVal::OK();
 
@@ -373,7 +373,7 @@ Horizon3DSaver::~Horizon3DSaver()
 uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 {
     uiRetVal uirv;
-    ConstRefMan<EMObject> emobj = emObject();
+    ConstRefMan<Object> emobj = emObject();
     if ( !emobj )
 	return uiRetVal::OK();
 

@@ -49,7 +49,7 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     bool			setVisBody(visBase::RandomPos2Body*);
-				//!<Creates an EMObject for it.
+					//!<Creates an EM::Object for it.
     bool			setEMID(const DBKey&);
     DBKey			getEMID() const;
     EM::RandomPosBody*		getEMBody() const	{ return embody_; }

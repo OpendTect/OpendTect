@@ -24,35 +24,31 @@ class Horizon;
 class Fault;
 
 
-/*!
-\brief Mixin to provide general services to Earth Model data packs.
-*/
+/*!\brief Mixin to provide general services to Earth Model data packs. */
 
 mExpClass(EarthModel) DataPackCommon :	public ::FlatDataPack
 {
 public:
-			DataPackCommon(const EMObject&,Array2D<float>*);
-			DataPackCommon(const EMObject&,
+			DataPackCommon(const Object&,Array2D<float>*);
+			DataPackCommon(const Object&,
 				       const ObjectSet<BinIDValueSet>&);
-			DataPackCommon(const EMObject&,const DataPointSet&);
+			DataPackCommon(const Object&,const DataPointSet&);
 
     virtual const char*	sourceType() const	= 0;
     virtual bool	isVertical() const	= 0;
 
-    const EMObject&	getEMObj() const	{ return emobj_; }
+    const Object&	getEMObj() const	{ return emobj_; }
 
     void		dumpInfo(IOPar&) const;
 
 protected:
 
-    const EMObject&	emobj_;
+    const Object&	emobj_;
 
 };
 
 
-/*!
-\brief Flat data pack class for Horizons.
-*/
+/*!\brief Flat data pack class for Horizons. */
 
 mExpClass(EarthModel) HorDataPack : public DataPackCommon
 {
@@ -75,9 +71,7 @@ protected:
 };
 
 
-/*!
-\brief Flat data pack from attribute extraction on faults.
-*/
+/*!\brief Flat data pack from attribute extraction on faults. */
 
 mExpClass(EarthModel) FaultDataPack : public DataPackCommon
 {

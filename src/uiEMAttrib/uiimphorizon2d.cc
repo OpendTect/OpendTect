@@ -365,7 +365,7 @@ bool uiImportHorizon2D::doImport()
 	    BufferString nm = hornms.get( idx );
 	    PtrMan<IOObj> ioobj = dbdir->getEntryByName( nm,
 				    EMHorizon2DTranslatorGroup::sGroupName() );
-	    RefMan<EM::EMObject> emobj = ioobj ? mgr.getObject(ioobj->key())
+	    RefMan<EM::Object> emobj = ioobj ? mgr.getObject(ioobj->key())
 						: 0;
 	    if ( emobj )
 		emobj->setBurstAlert( true );

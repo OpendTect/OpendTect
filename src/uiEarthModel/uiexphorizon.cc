@@ -85,7 +85,7 @@ protected:
     BufferString		udfstr_;
     const EM::Horizon3D*	hor_;
     const bool			issingle_;
-    EM::EMObjectIterator*	it_;
+    EM::ObjectIterator*	it_;
     const ZAxisTransform*	zatf_;
     const UnitOfMeasure*	unit_;
     uiString			msg_;
@@ -433,7 +433,7 @@ bool uiExportHorizon::writeAscii()
 
 	sels.selvalues.erase();
 
-	RefMan<EM::EMObject> emobj = mgr.createTempObject( ioobj->group() );
+	RefMan<EM::Object> emobj = mgr.createTempObject( ioobj->group() );
 	if ( !emobj )
 	    mErrRet(uiStrings::sCantCreateHor())
 
@@ -471,7 +471,7 @@ bool uiExportHorizon::writeAscii()
 	{
 	    TrcKeyZSampling bbox;
 	    bool first = true;
-	    PtrMan<EM::EMObjectIterator> it = hor->createIterator();
+	    PtrMan<EM::ObjectIterator> it = hor->createIterator();
 	    while ( true )
 	    {
 		const EM::PosID posid = it->next();

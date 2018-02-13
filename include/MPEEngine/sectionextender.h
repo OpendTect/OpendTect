@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 class TrcKeyValue;
+namespace EM { class Object; }
 
-namespace EM { class EMObject; }
 
 namespace MPE
 {
@@ -36,7 +36,7 @@ mExpClass(MPEEngine) SectionExtender : public SequentialTask
 public:
 				SectionExtender();
 
-    mDefineFactory1ParamInClass( SectionExtender, EM::EMObject*, factory );
+    mDefineFactory1ParamInClass( SectionExtender, EM::Object*, factory );
 
     virtual void		reset();
     virtual void		setDirection(const TrcKeyValue&);

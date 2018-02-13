@@ -46,7 +46,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
 
     EM::ObjectManager& mgr = EM::MGR();
-    EM::EMObject* emobj1 = mgr.getObject( mid1 );
+    EM::Object* emobj1 = mgr.getObject( mid1 );
     mDynamicCastGet(EM::Horizon3D*,horizon1,emobj1);
     if ( !horizon1 )
 	return false;
@@ -56,7 +56,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !loadHorizon( mid2, strm ) )
 	return false;
 
-    EM::EMObject* emobj2 = mgr.getObject( mid2 );
+    EM::Object* emobj2 = mgr.getObject( mid2 );
     mDynamicCastGet(EM::Horizon3D*,horizon2,emobj2)
     if ( !horizon2 )
 	return false;

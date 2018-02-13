@@ -51,7 +51,7 @@ static EM::Horizon* loadHorizon( const char* id, BufferString& err )
     EM::ObjectManager& mgr = EM::MGR();
     PtrMan<Executor> exec = em.objectLoader( ioobj->key() );
     exec->execute( &std::cerr );
-    EM::EMObject* emobj = mgr.getObject( ioobj->key() );
+    EM::Object* emobj = mgr.getObject( ioobj->key() );
     mDynamicCastGet(EM::Horizon*,horizon,emobj)
     if ( !horizon ) { err = "ID "; err += id; err += " is not horizon"; }
     horizon->ref();

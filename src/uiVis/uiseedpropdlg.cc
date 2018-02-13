@@ -14,10 +14,10 @@ ________________________________________________________________________
 #include "emobject.h"
 
 
-uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject& emobj )
+uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::Object& emobj )
     : uiDialog(p,Setup(tr("Seed properties"),mNoDlgTitle,mTODOHelpKey))
     , emobject_(emobj)
-    , markerstyle_(emobject_.getPosAttrMarkerStyle(EM::EMObject::sSeedNode()))
+    , markerstyle_(emobject_.getPosAttrMarkerStyle(EM::Object::sSeedNode()))
 {
     TypeSet<OD::MarkerStyle3D::Type> excl;
     excl.add( OD::MarkerStyle3D::None );
@@ -35,5 +35,5 @@ void uiSeedPropDlg::styleSel( CallBacker* )
 	return;
 
     markerstyle_ = style;
-    emobject_.setPosAttrMarkerStyle( EM::EMObject::sSeedNode(), markerstyle_ );
+    emobject_.setPosAttrMarkerStyle( EM::Object::sSeedNode(), markerstyle_ );
 }

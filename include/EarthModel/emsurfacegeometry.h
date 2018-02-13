@@ -72,7 +72,7 @@ public:
 				TypeSet<PosID>* res) const;
     virtual int		findPos(const TrcKeyZSampling&,TypeSet<PosID>*) const;
 
-    virtual EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
+    virtual ObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
 
 
     virtual bool	usePar(const IOPar&);
@@ -107,7 +107,7 @@ public:
     StepInterval<int>		colRange() const;
     StepInterval<int>		colRange(int row) const;
 
-    virtual EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
+    virtual ObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
 
 };
 

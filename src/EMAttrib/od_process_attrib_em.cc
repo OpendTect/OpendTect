@@ -349,7 +349,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     Interval<float> zbounds4mmproc;
-    ObjectSet<EMObject> objects;
+    ObjectSet<EM::Object> objects;
     for ( int idx=0; idx<dbkys.size(); idx++ )
     {
 	const DBKey dbky = dbkys[idx];
@@ -392,7 +392,7 @@ bool BatchProgram::go( od_ostream& strm )
 		zbounds4mmproc = sd.zrg;
 	}
 
-	EMObject* emobj = emmgr.getObject( dbky );
+	EM::Object* emobj = emmgr.getObject( dbky );
 	if ( emobj ) emobj->ref();
 	objects += emobj;
     }
@@ -454,7 +454,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( !process( strm, proc, false ) ) return false;
 	HorizonUtils::addSurfaceData( dbkys[0], attribrefs, bivs );
-	EMObject* obj = Hor3DMan().getObject( dbkys[0] );
+	EM::Object* obj = Hor3DMan().getObject( dbkys[0] );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
 	if ( !horizon ) mErrRet( "Huh" );
 

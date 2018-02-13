@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace EM
 {
 
-/*!\brief Holds one change in an EMObject . */
+/*!\brief Holds one change in an EM::Object . */
 
 mExpClass(General) EMChangeRecord : public ChangeRecorder::Record
 {
@@ -49,19 +49,19 @@ protected:
 			EMChangeRecord( PosID id, const Coord& pos )
 			    : posid_(id), pos_(pos)	{}
 
-    virtual bool	doApply(EMObject&,bool) const;
+    virtual bool	doApply(Object&,bool) const;
 
 };
 
 
-/*!\brief Keeps track of changes in an EMObject */
+/*!\brief Keeps track of changes in an EM::Object */
 
 mExpClass(General) EMChangeRecorder : public ::ChangeRecorder
 {
 public:
 
-			EMChangeRecorder(EMObject&);
-			EMChangeRecorder(const EMObject&);
+			EMChangeRecorder(Object&);
+			EMChangeRecorder(const Object&);
 			mDeclMonitorableAssignment(EMChangeRecorder);
 
 protected:

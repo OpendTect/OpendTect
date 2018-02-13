@@ -56,7 +56,7 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     bool			setVisSurface(visBase::MarchingCubesSurface*);
-				//!<Creates an EMObject for it.
+					//!<Creates an EM::Object for it.
     bool			setEMID(const DBKey&,TaskRunner*);
     DBKey			getEMID() const;
 

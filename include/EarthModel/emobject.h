@@ -38,7 +38,7 @@ class ObjectManager;
 
 /*!\brief EM object callback data.  */
 
-typedef Monitorable::ChangeData EMObjectCallbackData;
+typedef Monitorable::ChangeData ObjectCallbackData;
 
 mExpClass(EarthModel) EMChangeAuxData : public Monitorable::ChangeData::AuxData
 {
@@ -66,20 +66,18 @@ public:
 
 
 
-/*!
-\brief Thread safe set of EMObjectCallbackData
-*/
+/*!\brief Thread safe set of ObjectCallbackData */
 
 mExpClass(EarthModel) CBDataSet
 {
 public:
-void addCallBackData( const EM::EMObjectCallbackData* data )
+void addCallBackData( const EM::ObjectCallbackData* data )
 {
     Threads::Locker locker( lock_ );
     emcallbackdata_ += data;
 }
 
-const EM::EMObjectCallbackData* getCallBackData( int idx )
+const EM::ObjectCallbackData* getCallBackData( int idx )
 {
     Threads::Locker locker( lock_ );
     return emcallbackdata_.validIdx(idx) ? emcallbackdata_[idx] : 0;
@@ -97,28 +95,31 @@ int size() const
 }
 
 protected:
-    ObjectSet<const EMObjectCallbackData>	emcallbackdata_;
-    Threads::Lock				lock_;
+    ObjectSet<const ObjectCallbackData>	emcallbackdata_;
+    Threads::Lock			lock_;
 };
 
 
 
 /*!
 \brief Iterator that iterates a number of positions (normally all) on an
-EMObject. The object is created by EMObject::createIterator, and the next()
+EM::Object. The object is created by EM::Object::createIterator, and the next()
 function is called until no more positions can be found.
 */
 
-mExpClass(EarthModel) EMObjectIterator
+mExpClass(EarthModel) ObjectIterator
 {
 public:
-    virtual		~EMObjectIterator() {}
+
+    virtual		~ObjectIterator() {}
+
     virtual EM::PosID	next()		= 0;
 			/*!<posid.objectID()==-1 when there are no more pids*/
     virtual int		approximateSize() const	{ return maximumSize(); }
     virtual int		maximumSize() const	{ return -1; }
     virtual bool	canGoTo() const		{ return false; }
     virtual EM::PosID	goTo(od_int64)		{ return EM::PosID(); }
+
 };
 
 
@@ -154,7 +155,7 @@ void fnnm( typ _set_to_ ) \
     pfx mImplEMSet(fnnmset,const typ&,memb,emcbtype)
 
 
-mExpClass(EarthModel) EMObject : public SharedObject
+mExpClass(EarthModel) Object : public SharedObject
 {
 public:
 
@@ -235,7 +236,7 @@ public:
 				     linked to the posid given
 				*/
 
-    virtual EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const
+    virtual ObjectIterator*	createIterator(const TrcKeyZSampling* =0) const
 				{ return 0; }
 
     virtual int			nrPosAttribs() const;
@@ -312,11 +313,12 @@ public:
 
 
 protected:
-				~EMObject();
-				EMObject(const char*);
+
+				~Object();
+				Object(const char*);
 				//!<must be called after creation
 
-				mDeclAbstractMonitorableAssignment(EMObject);
+				mDeclAbstractMonitorableAssignment(Object);
 
     virtual bool		setPosition(const EM::PosID&,
 					    const Coord3&,bool addtohistory,
@@ -361,9 +363,9 @@ public:
     static Color		sDefaultSelectionColor();
     static Color		sDefaultLockColor();
 
-				//TODO:Remove when all EMObjects are Montorable
+				//TODO:Remove when all Objects are Montorable
     void			sendEMNotifFromOutside(
-					const EMObjectCallbackData& c) const
+					const ObjectCallbackData& c) const
 				{ mLock4Read(); sendChgNotif(accesslocker_,c); }
 };
 
@@ -373,7 +375,7 @@ public:
 public: \
 				clss(const char* nm); \
     static void			initClass(); \
-    static EMObject*		create(EM::ObjectManager&); \
+    static EM::Object*		create(EM::ObjectManager&); \
     static clss*		create(const char* nm); \
     static FixedString		typeStr(); \
     const char*			getTypeStr() const; \
@@ -388,9 +390,9 @@ void clss::initClass() \
 } \
  \
  \
-EMObject* clss::create( EM::ObjectManager& emm ) \
+EM::Object* clss::create( EM::ObjectManager& emm ) \
 { \
-    EMObject* obj = new clss(""); \
+    EM::Object* obj = new clss(""); \
     if ( !obj ) return 0; \
     obj->ref();         \
     obj->unRefNoDelete(); \
@@ -399,7 +401,7 @@ EMObject* clss::create( EM::ObjectManager& emm ) \
 \
 clss* clss::create( const char* nm ) \
 { \
-    EMObject* emobj = MGR().createObject( typeStr(), nm ); \
+    EM::Object* emobj = MGR().createObject( typeStr(), nm ); \
     mDynamicCastGet(clss*,newobj,emobj); \
     return newobj; \
 } \
@@ -416,7 +418,7 @@ void clss::setNameToJustCreated() \
 
 
 #define mSendEMCBNotifWithData( typ, data ) \
-    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), \
+    EM::ObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), \
 			     data ); \
     sendChgNotif( accesslocker_, cd );
 
@@ -424,16 +426,16 @@ void clss::setNameToJustCreated() \
     setChangedFlag(); \
     RefMan<EMChangeAuxData> data = new EMChangeAuxData; \
     data->pid0 = pid; \
-    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), \
+    EM::ObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), \
 			     data ); \
     sendChgNotif( accesslocker_, cd );
 
 #define mSendEMCBNotif( typ ) \
     setChangedFlag(); \
-    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), 0); \
+    EM::ObjectCallbackData cd(typ,Monitorable::ChangeData::cUnspecChgID(),0); \
     sendChgNotif( accesslocker_, cd );
 
 #define mSendEMSurfNotif( typ ) \
     surface_.setChangedFlag(); \
-    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), 0); \
+    EM::ObjectCallbackData cd(typ,Monitorable::ChangeData::cUnspecChgID(),0); \
     surface_.sendEMNotifFromOutside( cd );

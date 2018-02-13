@@ -250,7 +250,7 @@ bool uiCopySurface::acceptOK()
     EM::SurfaceIODataSelection sdsel( sd );
     inpfld->getSelection( sdsel );
 
-    RefMan<EM::EMObject> emobj = EM::MGR().createTempObject( ioobj->group() );
+    RefMan<EM::Object> emobj = EM::MGR().createTempObject( ioobj->group() );
     if ( !emobj ) mErrRet(uiStrings::phrCannotCreate(tr("Object")))
     emobj->setDBKey( ioobj->key() );
 

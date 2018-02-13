@@ -27,7 +27,7 @@ void Horizon3DExtender::initClass()
 }
 
 
-SectionExtender* Horizon3DExtender::create( EM::EMObject* emobj )
+SectionExtender* Horizon3DExtender::create( EM::Object* emobj )
 {
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     return emobj && !hor ? 0 : new Horizon3DExtender( *hor );

@@ -20,7 +20,7 @@ class uiIOObjSel;
 class uiGenInput;
 class CtxtIOObj;
 class DataPointSet;
-namespace EM { class EMObject; }
+namespace EM { class Object; }
 
 
 /*! \brief Create isochron as attribute of horizon */
@@ -44,7 +44,7 @@ protected:
     CtxtIOObj&		basectio_;
     CtxtIOObj&		ctio_;
     DBKey		horid_;
-    EM::EMObject*	baseemobj_;
+    EM::Object*		baseemobj_;
 
     void		toHorSel(CallBacker*);
 };

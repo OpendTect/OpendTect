@@ -228,9 +228,9 @@ void MarchingCubesSurface::initClass()
 }
 
 
-EMObject* MarchingCubesSurface::create( EM::ObjectManager& emm ) \
+Object* MarchingCubesSurface::create( EM::ObjectManager& emm ) \
 {
-    EMObject* obj = new MarchingCubesSurface("");
+    Object* obj = new MarchingCubesSurface("");
     if ( !obj )
 	return 0;
     obj->ref();
@@ -261,7 +261,7 @@ void MarchingCubesSurface::setNameToJustCreated()
 
 
 MarchingCubesSurface::MarchingCubesSurface( const char* nm )
-    : EMObject(nm)
+    : Object(nm)
     , mcsurface_( new ::MarchingCubesSurface )
     , operator_( 0 )
 {
@@ -279,22 +279,22 @@ MarchingCubesSurface::~MarchingCubesSurface()
 
 void MarchingCubesSurface::refBody()
 {
-    EMObject::ref();
+    Object::ref();
 }
 
 
 void MarchingCubesSurface::unRefBody()
 {
-    EMObject::unRef();
+    Object::unRef();
 }
 
 
 DBKey MarchingCubesSurface::storageID() const
-{ return EMObject::dbKey(); }
+{ return Object::dbKey(); }
 
 
 BufferString MarchingCubesSurface::storageName() const
-{ return EMObject::name(); }
+{ return Object::name(); }
 
 
 Executor* MarchingCubesSurface::loader()
@@ -347,11 +347,11 @@ const IOObjContext& MarchingCubesSurface::getIOObjContext() const
 
 
 bool MarchingCubesSurface::useBodyPar( const IOPar& par )
-{ return EMObject::usePar( par ); }
+{ return Object::usePar( par ); }
 
 
 void MarchingCubesSurface::fillBodyPar( IOPar& par ) const
-{ EMObject::fillPar( par ); }
+{ Object::fillPar( par ); }
 
 
 void MarchingCubesSurface::setBodyOperator( BodyOperator* op )

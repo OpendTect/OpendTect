@@ -257,7 +257,7 @@ EM::PosID EMObjectDisplay::findClosestNode(const Coord3&) const
 
 bool EMObjectDisplay::setEMObject( const DBKey& newid, TaskRunner* tskr )
 {
-    EM::EMObject* emobject = emmgr_.getObject( newid );
+    EM::Object* emobject = emmgr_.getObject( newid );
     if ( !emobject ) return false;
 
     removeEMStuff();
@@ -341,8 +341,8 @@ void EMObjectDisplay::updateFromMPE()
     if ( hastracker && !restoresessupdate_ )
     {
 	setResolution( 0, 0 );
-	showPosAttrib( EM::EMObject::sSeedNode(), true );
-	showPosAttrib( EM::EMObject::sTerminationNode(), true );
+	showPosAttrib( EM::Object::sSeedNode(), true );
+	showPosAttrib( EM::Object::sTerminationNode(), true );
 	enableedit_ = true;
     }
 
@@ -360,7 +360,7 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 	    posattribs_ += attr;
 	    visBase::MarkerSet* markerset = visBase::MarkerSet::create();
 	    markerset->ref();
-	    Color clr = attr == EM::EMObject::sSeedNode()
+	    Color clr = attr == EM::Object::sSeedNode()
 				? Color::White()
 				: Color::Green();
 	    markerset->setMarkersSingleColor( clr );
@@ -502,7 +502,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 {
    if ( cb )
     {
-	mCBCapsuleUnpack( EM::EMObjectCallbackData, cbdata, cb );
+	mCBCapsuleUnpack( EM::ObjectCallbackData, cbdata, cb );
 	emchangedata_.addCallBackData( &cbdata );
     }
 
@@ -510,7 +510,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 
     for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
-	const EM::EMObjectCallbackData* cbdata =
+	const EM::ObjectCallbackData* cbdata =
 	    emchangedata_.getCallBackData( idx );
 	if ( !cbdata )
 	    continue;
@@ -655,14 +655,14 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     markerset->forceRedraw( true );
     markerset->getCoordinates()->removeAfter( pids->size()-1 );
 
-    if ( attrib==EM::EMObject::sSeedNode() && getEditor() )
+    if ( attrib==EM::Object::sSeedNode() && getEditor() )
 	getEditor()->setMarkerSize( markerset->getScreenSize() );
 }
 
 
 const visBase::MarkerSet* EMObjectDisplay::getSeedMarkerSet() const
 {
-    const int attribindex = posattribs_.indexOf( EM::EMObject::sSeedNode() );
+    const int attribindex = posattribs_.indexOf( EM::Object::sSeedNode() );
     if ( attribindex==-1 || posattribmarkers_.size()<attribindex )
 	return 0;
 
@@ -845,12 +845,12 @@ void EMObjectDisplay::unSelectAll()
 }
 
 
-void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
+void EMObjectDisplay::handleEmChange( const EM::ObjectCallbackData& cbdata )
 {
     bool triggermovement = false;
     ConstRefMan<EM::EMChangeAuxData> cbaux =
 				cbdata.auxDataAs<EM::EMChangeAuxData>();
-    if ( cbdata.changeType()==EM::EMObject::cBurstAlert())
+    if ( cbdata.changeType()==EM::Object::cBurstAlert())
     {
 	burstalertison_ = !burstalertison_;
 	if ( !burstalertison_ )
@@ -868,7 +868,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	}
 
     }
-    else if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
+    else if ( cbdata.changeType()==EM::Object::cPositionChange() && cbaux )
     {
 	if ( !burstalertison_ )
 	{
@@ -884,12 +884,12 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	    triggermovement = true;
 	}
     }
-    else if ( cbdata.changeType()==EM::EMObject::cAttribChange() && cbaux )
+    else if ( cbdata.changeType()==EM::Object::cAttribChange() && cbaux )
     {
 	if ( !burstalertison_ && posattribs_.isPresent(cbaux->attrib) )
 	    updatePosAttrib(cbaux->attrib);
     }
-    else if ( cbdata.changeType()==EM::EMObject::cLockChange() )
+    else if ( cbdata.changeType()==EM::Object::cLockChange() )
     {
 	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
 	if ( hor3d )
@@ -898,7 +898,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 		updatePosAttrib( posattribs_[idx] );
 	}
     }
-    else if ( cbdata.changeType()==EM::EMObject::cLockColorChange() )
+    else if ( cbdata.changeType()==EM::Object::cLockColorChange() )
     {
 	updateLockedSeedsColor();
     }
@@ -912,7 +912,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 
 void EMObjectDisplay::updateLockedSeedsColor()
 {
-    const int attribindex=posattribs_.indexOf( EM::EMObject::sSeedNode() );
+    const int attribindex=posattribs_.indexOf( EM::Object::sSeedNode() );
     if ( attribindex==-1 ) return;
 
     visBase::MarkerSet* markerset = posattribmarkers_[attribindex];

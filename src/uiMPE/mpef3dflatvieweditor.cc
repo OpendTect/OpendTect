@@ -215,7 +215,7 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
     DBKey emid = f3dpainter_->getFaultID();
     if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
+    RefMan<EM::Object> emobject = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d )
 	return;
@@ -242,7 +242,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
     DBKey emid = f3dpainter_->getFaultID();
     if ( emid.isInvalid()  ) return;
 
-    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
+    RefMan<EM::Object> emobject = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d )
 	return;
@@ -364,7 +364,7 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
     DBKey emid = f3dpainter_->getFaultID();
     if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
+    RefMan<EM::Object> emobject = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d )
 	return;
@@ -419,7 +419,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     DBKey emid = f3dpainter_->getFaultID();
     if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
+    RefMan<EM::Object> emobject = EM::Flt3DMan().getObject( emid );
 
     if ( (edidauxdataid==-1) || (displayedknotid==-1) )
     {
@@ -526,7 +526,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     DBKey emid = f3dpainter_->getFaultID();
     if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
+    RefMan<EM::Object> emobject = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d )
 	return;
@@ -674,7 +674,7 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
     if ( !selectedids.size() ) return;
 
     sort_coupled( selectedidxs.arr(), selectedids.arr(), selectedids.size() );
-    RefMan<EM::EMObject> emobject =
+    RefMan<EM::Object> emobject =
 			EM::Flt3DMan().getObject( f3dpainter_->getFaultID() );
 
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());

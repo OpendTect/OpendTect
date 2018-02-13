@@ -161,7 +161,7 @@ bool SurfaceLimitedFiller::setSurfaces( const DBKeySet& hids,
 EM::Horizon* SurfaceLimitedFiller::loadHorizon( const DBKey& dbky ) const
 {
     SilentTaskRunnerProvider tprov;
-    RefMan<EM::EMObject> emobj = EM::MGR().loadIfNotFullyLoaded( dbky, tprov );
+    RefMan<EM::Object> emobj = EM::MGR().loadIfNotFullyLoaded( dbky, tprov );
     mDynamicCastGet( EM::Horizon*, newhor, emobj.ptr() );
     if ( !newhor ) return 0;
 
@@ -236,7 +236,7 @@ bool SurfaceLimitedFiller::prepareComp( int )
     SilentTaskRunnerProvider tprov;
     for ( int idx=0; idx<surfacelist_.size(); idx++ )
     {
-	RefMan<EM::EMObject> emobj =
+	RefMan<EM::Object> emobj =
 	    EM::MGR().loadIfNotFullyLoaded( surfacelist_[idx], tprov );
 	mDynamicCastGet( EM::Horizon*, newhor, emobj.ptr() );
 	if ( newhor )

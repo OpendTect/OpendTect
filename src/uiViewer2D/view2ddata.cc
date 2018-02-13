@@ -89,7 +89,7 @@ bool Vw2DEMDataObject::usePar( const IOPar& par )
     if ( !par.get(sKeyMID(),dbky) )
 	return false;
 
-    EM::EMObject* emobj = EM::MGR().loadIfNotFullyLoaded( dbky,
+    EM::Object* emobj = EM::MGR().loadIfNotFullyLoaded( dbky,
 					SilentTaskRunnerProvider() );
     if ( !emobj )
 	return false;

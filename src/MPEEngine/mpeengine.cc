@@ -187,7 +187,7 @@ void Engine::stopTracking()
 
 void Engine::trackingFinishedCB( CallBacker* )
 {
-    const EM::EMObject* emobj = getCurrentEMObject();
+    const EM::Object* emobj = getCurrentEMObject();
     if ( !emobj ) return;
 
     Undo& emundo = EM::MGR().undo(emobj->id());
@@ -203,7 +203,7 @@ void Engine::trackingFinishedCB( CallBacker* )
 
 bool Engine::canUnDo()
 {
-    const EM::EMObject* emobj = getCurrentEMObject();
+    const EM::Object* emobj = getCurrentEMObject();
     if ( !emobj ) return false;
 
     return EM::MGR().undo(emobj->id()).canUnDo();
@@ -212,14 +212,14 @@ bool Engine::canUnDo()
 
 bool Engine::canReDo()
 {
-    const EM::EMObject* emobj = getCurrentEMObject();
+    const EM::Object* emobj = getCurrentEMObject();
     if ( !emobj ) return false;
 
     return EM::MGR().undo(emobj->id()).canReDo();
 }
 
 
-EM::EMObject* Engine::getCurrentEMObject() const
+EM::Object* Engine::getCurrentEMObject() const
 {
    if ( !activetracker_ )
 	return 0;
@@ -231,7 +231,7 @@ EM::EMObject* Engine::getCurrentEMObject() const
 
 void Engine::undo( uiString& errmsg )
 {
-    EM::EMObject* emobj = getCurrentEMObject();
+    EM::Object* emobj = getCurrentEMObject();
     if ( !emobj ) return;
 
     mDynamicCastGet( EM::Undo*,emundo,&EM::MGR().undo(emobj->id()) )
@@ -253,7 +253,7 @@ void Engine::undo( uiString& errmsg )
 
 void Engine::redo( uiString& errmsg )
 {
-    EM::EMObject* emobj = getCurrentEMObject();
+    EM::Object* emobj = getCurrentEMObject();
     if(!emobj) return;
 
     mDynamicCastGet( EM::Undo*,emundo,&EM::MGR().undo(emobj->id()) )
@@ -316,7 +316,7 @@ bool Engine::prepareForRetrack()
     EMSeedPicker* seedpicker = activetracker_->getSeedPicker( true );
     if ( !seedpicker ) return false;
 
-    EM::EMObject* emobj = activetracker_->emObject();
+    EM::Object* emobj = activetracker_->emObject();
     emobj->setBurstAlert( true );
     emobj->removeAllUnSeedPos();
 
@@ -336,7 +336,7 @@ bool Engine::trackInVolume()
 	return false;
 
     DBKey oid = tracker->objectID();
-    EM::EMObject* emobj = EM::MGR().getObject( oid );
+    EM::Object* emobj = EM::MGR().getObject( oid );
     if ( !emobj || emobj->isLocked() )
 	return false;
 
@@ -379,7 +379,7 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 	const DBKey oid = trackers_[idx]->objectID();
 	EM::MGR().removeSelected( oid, selector, trprov );
 
-	EM::EMObject* emobj = EM::MGR().getObject( oid );
+	EM::Object* emobj = EM::MGR().getObject( oid );
 	if ( !emobj->getRemovedPolySelectedPosBox().isEmpty() )
 	{
 	    emobj->emptyRemovedPolySelectedPosBox();
@@ -397,7 +397,7 @@ static void showRefCountInfo( EMTracker* tracker )
     mDefineStaticLocalObject(bool,yn,= GetEnvVarYN("OD_DEBUG_TRACKERS"));
     if ( yn )
     {
-	EM::EMObject* emobj = tracker ? tracker->emObject() : 0;
+	EM::Object* emobj = tracker ? tracker->emObject() : 0;
 	BufferString msg = emobj ? emobj->name() : "<unknown>";
 	msg.add( " - refcount=" ).add( tracker ? tracker->nrRefs() : -1 );
 	DBG::message( msg );
@@ -405,7 +405,7 @@ static void showRefCountInfo( EMTracker* tracker )
 }
 
 
-int Engine::addTracker( EM::EMObject* emobj )
+int Engine::addTracker( EM::Object* emobj )
 {
     if ( !emobj )
 	mRetErr( "No valid object", -1 );
@@ -911,7 +911,7 @@ ObjectEditor* Engine::getEditor( const DBKey& id, bool create )
 
     if ( !create ) return 0;
 
-    EM::EMObject* emobj = EM::getMgr(id).getObject(id);
+    EM::Object* emobj = EM::getMgr(id).getObject(id);
     if ( !emobj ) return 0;
 
     ObjectEditor* editor = ObjectEditor::factory().create(
@@ -1001,7 +1001,7 @@ bool Engine::usePar( const IOPar& iopar )
 	if ( !localpar ) continue;
 
 	if ( !localpar->get(sKeyObjectID(),emidtoload_) ) continue;
-	EM::EMObject* emobj = EM::MGR().getObject( emidtoload_ );
+	EM::Object* emobj = EM::MGR().getObject( emidtoload_ );
 	if ( !emobj )
 	{
 	    loadEMObject.trigger();

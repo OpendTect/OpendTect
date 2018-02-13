@@ -56,7 +56,7 @@ mExpClass(MPEEngine) Horizon3DExtender : public BaseHorizon3DExtender
 {
 public:
     static void			initClass();
-    static SectionExtender*	create(EM::EMObject*);
+    static SectionExtender*	create(EM::Object*);
 				Horizon3DExtender(EM::Horizon3D&);
 };
 

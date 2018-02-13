@@ -56,7 +56,7 @@ static EM::Horizon3D* loadHorizon( const char* id, BufferString& err )
     EM::ObjectManager& mgr = EM::Hor3DMan();
     PtrMan<Executor> exec = mgr.objectLoader( ioobj->key() );
     exec->execute( &std::cerr );
-    EM::EMObject* emobj = mgr.getObject( mgr.getObjectID(ioobj->key()) );
+    EM::Object* emobj = mgr.getObject( mgr.getObjectID(ioobj->key()) );
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
     if ( !horizon )
 	{ err = "ID "; err += id; err += " is not horizon"; }

@@ -102,7 +102,7 @@ bool RandomPosBodyDisplay::setEMID( const DBKey& emid )
 	embody_ = 0;
     }
 
-    RefMan<EM::EMObject> emobject = EM::BodyMan().getObject( emid );
+    RefMan<EM::Object> emobject = EM::BodyMan().getObject( emid );
     mDynamicCastGet( EM::RandomPosBody*, embody, emobject.ptr() );
     if ( !embody )
     {
@@ -184,7 +184,7 @@ bool RandomPosBodyDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyPSEarthModelID(),newmid) )
     {
-	RefMan<EM::EMObject> emobject = EM::BodyMan().getObject( newmid );
+	RefMan<EM::Object> emobject = EM::BodyMan().getObject( newmid );
 	if ( !emobject )
 	{
 	    PtrMan<Executor> loader = EM::BodyMan().objectLoader( newmid );

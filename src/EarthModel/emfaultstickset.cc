@@ -181,7 +181,7 @@ Geometry::FaultStickSet* FaultStickSetGeometry::createGeometryElement() const
 { return new Geometry::FaultStickSet; }
 
 
-EMObjectIterator* FaultStickSetGeometry::createIterator(
+ObjectIterator* FaultStickSetGeometry::createIterator(
 					const TrcKeyZSampling* cs ) const
 { return new RowColIterator( surface_, cs ); }
 

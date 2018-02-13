@@ -140,7 +140,7 @@ void Horizon::prepareForComputeData()
     const int surfdtidx = sd.valnames.indexOf( surfdatanm_ );
     if ( surfdtidx<0 && outtype_==mOutTypeSurfData ) mRet
 
-    EM::EMObject* obj = mgr.getObject( horid_ );
+    EM::Object* obj = mgr.getObject( horid_ );
     EM::SurfaceIODataSelection sel( sd );
     PtrMan<Executor> loader = 0;
     if ( !obj )

@@ -13,18 +13,18 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "draw.h"
 
-namespace EM { class EMObject; }
+namespace EM { class Object; }
 class uiMarkerStyle3D;
 
 
 mExpClass(uiVis) uiSeedPropDlg : public uiDialog
 { mODTextTranslationClass(uiSeedPropDlg)
 public:
-			uiSeedPropDlg(uiParent*,EM::EMObject&);
+			uiSeedPropDlg(uiParent*,EM::Object&);
 
 protected:
 
-    EM::EMObject&	emobject_;
+    EM::Object&		emobject_;
     uiMarkerStyle3D*	stylefld_;
 
     OD::MarkerStyle3D	markerstyle_;

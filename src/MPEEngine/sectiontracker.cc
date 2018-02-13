@@ -29,7 +29,7 @@ const char* SectionTracker::trackerstr = "Tracker";
 const char* SectionTracker::useadjusterstr = "Use adjuster";
 const char* SectionTracker::seedonlypropstr = "Seed only propagation";
 
-SectionTracker::SectionTracker( EM::EMObject& emobj,
+SectionTracker::SectionTracker( EM::Object& emobj,
 				SectionSourceSelector* sel,
 				SectionExtender* ext,
 				SectionAdjuster* adj )
@@ -70,11 +70,11 @@ void SectionTracker::reset()
 void SectionTracker::getLockedSeeds( TypeSet<EM::PosID>& lockedseeds )
 {
     lockedseeds.erase();
-    if ( !emobject_.isPosAttribLocked( EM::EMObject::sSeedNode() ) )
+    if ( !emobject_.isPosAttribLocked( EM::Object::sSeedNode() ) )
 	return;
 
     const TypeSet<EM::PosID>* seedlist =
-	emobject_.getPosAttribList( EM::EMObject::sSeedNode() );
+	emobject_.getPosAttribList( EM::Object::sSeedNode() );
     const int nrseeds = seedlist ? seedlist->size() : 0;
 
     for ( int idx=0; idx<nrseeds; idx++ )

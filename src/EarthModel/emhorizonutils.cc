@@ -109,7 +109,7 @@ float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface,
 
 Surface* HorizonUtils::getSurface( const DBKey& id )
 {
-    EMObject* obj = Hor3DMan().getObject( id );
+    Object* obj = Hor3DMan().getObject( id );
     mDynamicCastGet(Surface*,surface,obj)
     return surface;
 }
@@ -125,7 +125,7 @@ void HorizonUtils::getPositions( od_ostream& strm, const DBKey& id,
     TextStreamProgressMeter pm( strm );
     deepErase( data );
 
-    PtrMan<EMObjectIterator> iterator = surface->createIterator();
+    PtrMan<ObjectIterator> iterator = surface->createIterator();
     BinIDValueSet* res = new BinIDValueSet( 1, false );
     data += res;
     while ( iterator )
@@ -175,7 +175,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const DBKey& id,
     }
     else
     {
-	PtrMan<EMObjectIterator> iterator = surface->createIterator();
+	PtrMan<ObjectIterator> iterator = surface->createIterator();
 	//multiple sections not used!!
 	TypeSet<DataPointSet::DataRow> pts;
 	BufferStringSet nms;
@@ -330,7 +330,7 @@ void HorizonUtils::addSurfaceData( const DBKey& id,
 				   const BufferStringSet& attrnms,
 				   const ObjectSet<BinIDValueSet>& data )
 {
-    EMObject* obj = Hor3DMan().getObject( id );
+    Object* obj = Hor3DMan().getObject( id );
     mDynamicCastGet(Horizon3D*,horizon,obj)
     if ( !horizon )
 	return;

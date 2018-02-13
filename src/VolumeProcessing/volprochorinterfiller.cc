@@ -122,7 +122,7 @@ bool HorInterFiller::setBottomHorizon( const DBKey* bmid )
 EM::Horizon* HorInterFiller::loadHorizon( const DBKey& dbky ) const
 {
     SilentTaskRunnerProvider tprov;
-    RefMan<EM::EMObject> emobj = EM::MGR().loadIfNotFullyLoaded( dbky, tprov );
+    RefMan<EM::Object> emobj = EM::MGR().loadIfNotFullyLoaded( dbky, tprov );
     mDynamicCastGet( EM::Horizon*, newhor, emobj.ptr() );
     if ( !newhor )
 	return 0;

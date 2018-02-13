@@ -329,7 +329,7 @@ int uiMPEMan::popupMenu()
 void uiMPEMan::handleAction( int res )
 {
     MPE::EMTracker* tracker = getSelectedTracker();
-    EM::EMObject* emobj =
+    EM::Object* emobj =
 		tracker ? EM::MGR().getObject(tracker->objectID()) : 0;
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
     mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
@@ -403,7 +403,7 @@ void uiMPEMan::restrictCurrentHorizon()
 	    tracker = MPE::engine().getTracker( 0 );
     }
 
-    EM::EMObject* emobj =
+    EM::Object* emobj =
 		tracker ? EM::MGR().getObject(tracker->objectID()) : 0;
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
     if ( !hor3d ) return;
@@ -470,7 +470,7 @@ return; \
 void uiMPEMan::seedClick( CallBacker* )
 {
     MPE::EMSeedPicker* seedpicker = 0;
-    EM::EMObject* emobj = 0;
+    EM::Object* emobj = 0;
     MPE::Engine& engine = MPE::engine();
     if ( engine.trackingInProgress() )
 	mSeedClickReturn();
@@ -771,7 +771,7 @@ void uiMPEMan::planeChangedCB( CallBacker* )
 }
 
 
-void uiMPEMan::beginSeedClickEvent( EM::EMObject* emobj )
+void uiMPEMan::beginSeedClickEvent( EM::Object* emobj )
 {
     if ( mIsUdf(cureventnr_) )
     {
@@ -783,7 +783,7 @@ void uiMPEMan::beginSeedClickEvent( EM::EMObject* emobj )
 }
 
 
-void uiMPEMan::endSeedClickEvent( EM::EMObject* emobj )
+void uiMPEMan::endSeedClickEvent( EM::Object* emobj )
 {
     if ( clickcatcher_ )
 	clickcatcher_->stopSowing();
@@ -891,7 +891,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	if ( clickcatcher_ )
 	    clickcatcher_->turnOn( true );
 
-	const EM::EMObject* emobj =
+	const EM::Object* emobj =
 			tracker ? EM::MGR().getObject(tracker->objectID()) : 0;
 	if ( clickcatcher_ && emobj )
 	    clickcatcher_->setTrackerType( emobj->getTypeStr() );
@@ -996,7 +996,7 @@ void uiMPEMan::validateSeedConMode()
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker ) return;
 
-    const EM::EMObject* emobj = EM::MGR().getObject( tracker->objectID() );
+    const EM::Object* emobj = EM::MGR().getObject( tracker->objectID() );
     if ( !emobj )
 	return;
 
@@ -1166,7 +1166,7 @@ visSurvey::Horizon2DDisplay* uiMPEMan::getSelectedDisplay2D()
 EM::Horizon* uiMPEMan::getSelectedHorizon()
 {
     MPE::EMTracker* tracker = getSelectedTracker();
-    EM::EMObject* emobj =
+    EM::Object* emobj =
 		tracker ? EM::MGR().getObject(tracker->objectID()) : 0;
     mDynamicCastGet(EM::Horizon*,hor,emobj)
     return hor;

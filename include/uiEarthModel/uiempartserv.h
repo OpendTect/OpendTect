@@ -37,8 +37,7 @@ class uiImportHorizon;
 class uiSurfaceMan;
 class uiVariogramDisplay;
 
-namespace EM { class EMObject; class ObjectManager;
-	       class SurfaceIODataSelection; }
+namespace EM { class Object; class ObjectManager; class SurfaceIODataSelection;}
 namespace Pick { class Set; }
 namespace PosInfo { class Line2DData; }
 
@@ -94,16 +93,16 @@ public:
     void		setHorizon3DDisplayRange(const TrcKeySampling&);
 			/*!<Users can change the display range, hor 3D only. */
 
-    void		selectHorizons(ObjectSet<EM::EMObject>&,bool is2d,
+    void		selectHorizons(ObjectSet<EM::Object>&,bool is2d,
 					uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
-    void		selectFaults(ObjectSet<EM::EMObject>&,bool is2d,
+    void		selectFaults(ObjectSet<EM::Object>&,bool is2d,
 					uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
-    void		selectFaultStickSets(ObjectSet<EM::EMObject>&,
+    void		selectFaultStickSets(ObjectSet<EM::Object>&,
 					uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
-    void		selectBodies(ObjectSet<EM::EMObject>&,uiParent* p=0);
+    void		selectBodies(ObjectSet<EM::Object>&,uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
     bool		showLoadAuxDataDlg(const DBKey&,uiParent* p=0);
     int			loadAuxData(const DBKey&,const char*,
@@ -172,7 +171,7 @@ public:
 
 			// Interaction stuff
     const DBKey&	selEMID() const			{ return selemid_; }
-    EM::EMObject*	selEMObject();
+    EM::Object*		selEMObject();
 
     void		removeTreeObject(const DBKey&);
 
@@ -182,7 +181,7 @@ public:
 
 protected:
 
-    void		selectSurfaces(ObjectSet<EM::EMObject>&,
+    void		selectSurfaces(ObjectSet<EM::Object>&,
 				       const char* type,uiParent*);
     bool		loadAuxData(const DBKey&,const TypeSet<int>&,
 				    bool removeold=true);
@@ -212,7 +211,7 @@ protected:
     TrcKeySampling	selectedrg_;
     bool		disponcreation_;
 
-    ObjectSet<uiVariogramDisplay>	variodlgs_;
+    ObjectSet<uiVariogramDisplay> variodlgs_;
 
     static const char*  sKeySectionID() { return "Section ID"; }
     uiSurfaceMan*	man2dhordlg_;

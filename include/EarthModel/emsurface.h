@@ -25,7 +25,7 @@ class SurfaceGeometry;
   up of one or more segments or patches, so they can overlap.
 */
 
-mExpClass(EarthModel) Surface : public EMObject
+mExpClass(EarthModel) Surface : public Object
 {
 public:
 				mDeclAbstractMonitorableAssignment(Surface);
@@ -47,7 +47,7 @@ public:
     virtual bool		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
 
-    virtual EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
+    virtual ObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
 
     bool			enableGeometryChecks(bool);
     bool			isGeometryChecksEnabled() const;
@@ -66,8 +66,8 @@ public:
 
 protected:
 
+    friend class		Object;
     friend class		SurfaceGeometry;
-    friend class		EMObject;
 
 				Surface(const char*);
 				~Surface();

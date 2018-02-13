@@ -79,7 +79,7 @@ bool Fault::insertStick(int sticknr,int firstcol,
     mLock4Write();
     const bool ret = geometry().insertStick( sticknr, firstcol, pos,editnormal,
 					pickeddbkey, pickednm, addtohistory );
-    mSendEMCBNotif( EMObject::cBurstAlert() );
+    mSendEMCBNotif( Object::cBurstAlert() );
     return ret;
 }
 
@@ -91,7 +91,7 @@ bool Fault::insertStick( int sticknr, int firstcol, const Coord3& pos,
      mLock4Write();
      const bool ret =  geometry().
 		insertStick( sticknr, firstcol, pos,editnormal,addtohistory);
-     mSendEMCBNotif( EMObject::cBurstAlert() );
+     mSendEMCBNotif( Object::cBurstAlert() );
      return ret;
 }
 
@@ -103,7 +103,7 @@ bool Fault::insertStick(int sticknr,int firstcol,
      mLock4Write();
      const bool ret = geometry().
 		insertStick( sticknr, firstcol, pos,editnormal,addtohistory);
-     mSendEMCBNotif( EMObject::cBurstAlert() );
+     mSendEMCBNotif( Object::cBurstAlert() );
      return ret;
 }
 
@@ -112,7 +112,7 @@ bool Fault::insertKnot( const PosID& posid, const Coord3& pos , bool adtoh )
 {
     mLock4Write();
     const bool ret = geometry().insertKnot( posid, pos, adtoh );
-    mSendEMCBNotif( EMObject::cBurstAlert() );
+    mSendEMCBNotif( Object::cBurstAlert() );
     return ret;
 }
 
@@ -121,7 +121,7 @@ bool Fault::removeStick( int sticknr, bool addtohistory )
 {
     mLock4Write();
     const bool ret =  geometry().removeStick( sticknr, addtohistory );
-    mSendEMCBNotif( EMObject::cBurstAlert() );
+    mSendEMCBNotif( Object::cBurstAlert() );
     return ret;
 }
 
@@ -130,7 +130,7 @@ bool Fault::removeKnot( const PosID& posid, bool addtoh )
 {
     mLock4Write();
     const bool ret = geometry().removeKnot( posid, addtoh );
-    mSendEMCBNotif( EMObject::cBurstAlert() );
+    mSendEMCBNotif( Object::cBurstAlert() );
     return ret;
 }
 
@@ -271,7 +271,7 @@ void Fault::removeAll()
 }
 
 
-EMObjectIterator* Fault::createIterator(const TrcKeyZSampling* tks ) const
+ObjectIterator* Fault::createIterator(const TrcKeyZSampling* tks ) const
 {
     mLock4Write();
     return geometry().createIterator( tks );
@@ -347,7 +347,7 @@ void FaultGeometry::selectStickDoubles( bool select, const FaultGeometry* ref )
 
 void FaultGeometry::selectSticks( bool select, const FaultGeometry* doublesref )
 {
-    PtrMan<EM::EMObjectIterator> iter = createIterator();
+    PtrMan<EM::ObjectIterator> iter = createIterator();
     while ( true )
     {
 	EM::PosID pid = iter->next();
@@ -503,7 +503,7 @@ FaultStickUndoEvent::FaultStickUndoEvent( const EM::PosID& posid )
     : posid_( posid )
     , remove_( false )
 {
-    RefMan<EMObject> emobj = 0;
+    RefMan<Object> emobj = 0;
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return;
 
@@ -528,7 +528,7 @@ const char* FaultStickUndoEvent::getStandardDesc() const
 
 bool FaultStickUndoEvent::unDo()
 {
-    RefMan<EMObject> emobj = 0;
+    RefMan<Object> emobj = 0;
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 
@@ -543,7 +543,7 @@ bool FaultStickUndoEvent::unDo()
 
 bool FaultStickUndoEvent::reDo()
 {
-    RefMan<EMObject> emobj = 0;
+    RefMan<Object> emobj = 0;
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 
@@ -560,7 +560,7 @@ FaultKnotUndoEvent::FaultKnotUndoEvent( const EM::PosID& posid )
     : posid_( posid )
     , remove_( false )
 {
-    RefMan<EMObject> emobj = 0;
+    RefMan<Object> emobj = 0;
     if ( !emobj ) return;
     pos_ = emobj->getPos( posid_ );
 }
@@ -580,7 +580,7 @@ const char* FaultKnotUndoEvent::getStandardDesc() const
 
 bool FaultKnotUndoEvent::unDo()
 {
-    RefMan<EMObject> emobj = 0;
+    RefMan<Object> emobj = 0;
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 
@@ -594,7 +594,7 @@ bool FaultKnotUndoEvent::unDo()
 
 bool FaultKnotUndoEvent::reDo()
 {
-    RefMan<EMObject> emobj = 0;
+    RefMan<Object> emobj = 0;
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 

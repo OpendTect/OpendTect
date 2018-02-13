@@ -16,7 +16,7 @@ class ZAxisTransform;
 
 namespace EM
 {
-class EMObjectIterator;
+class ObjectIterator;
 class Horizon;
 
 /*!\brief Horizon z-axis transformer */
@@ -41,7 +41,7 @@ protected:
     od_int64			nrdone_;
     od_int64			totalnr_;
 
-    EMObjectIterator*		iter_;
+    ObjectIterator*		iter_;
 
     const Horizon&		tarhor_;
     const ZAxisTransform&	zat_;

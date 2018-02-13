@@ -62,8 +62,8 @@ void SurfaceGeometry::removeAll()
 
 void SurfaceGeometry::geomChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(EMObjectCallbackData,cbdata,cb);
-    if ( cbdata.changeType() == EMObject::cPositionChange() )
+    mCBCapsuleUnpack(ObjectCallbackData,cbdata,cb);
+    if ( cbdata.changeType() == Object::cPositionChange() )
        changed_ = true;
 }
 
@@ -261,7 +261,7 @@ void SurfaceGeometry::fillPar( IOPar& par ) const
 { }
 
 
-EMObjectIterator* SurfaceGeometry::createIterator( const TrcKeyZSampling*) const
+ObjectIterator* SurfaceGeometry::createIterator( const TrcKeyZSampling*) const
 { return 0; }
 
 
@@ -310,7 +310,7 @@ StepInterval<int> RowColSurfaceGeometry::colRange() const
 }
 
 
-EMObjectIterator* RowColSurfaceGeometry::createIterator(
+ObjectIterator* RowColSurfaceGeometry::createIterator(
 					const TrcKeyZSampling* cs ) const
 {
     return new RowColIterator( surface_, cs );

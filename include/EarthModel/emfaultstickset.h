@@ -58,7 +58,7 @@ public:
     Geometry::FaultStickSet*		geometryElement();
     const Geometry::FaultStickSet*	geometryElement() const;
 
-    EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
+    ObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

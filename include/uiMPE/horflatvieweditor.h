@@ -1,5 +1,5 @@
 #pragma once
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -22,7 +22,7 @@ class MouseEvent;
 class MouseEventHandler;
 
 namespace Attrib { class SelSpec; }
-namespace EM { class PosID; class EMObject; };
+namespace EM { class PosID; class Object; };
 namespace FlatView { class AuxDataEditor; }
 
 namespace MPE
@@ -34,7 +34,7 @@ class EMSeedPicker;
 mExpClass(uiMPE) HorizonFlatViewEditor : public CallBacker
 { mODTextTranslationClass(HorizonFlatViewEditor);
 public:
-    				HorizonFlatViewEditor(FlatView::AuxDataEditor*);
+				HorizonFlatViewEditor(FlatView::AuxDataEditor*);
 				~HorizonFlatViewEditor();
 
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
@@ -48,7 +48,7 @@ public:
     void			setMouseEventHandler(MouseEventHandler*);
     void			setSeedPickingStatus(bool);
     void			setTrackerSetupActive(bool bn)
-    				{ trackersetupactive_ = bn; }
+				{ trackersetupactive_ = bn; }
 
     Notifier<HorizonFlatViewEditor> updateoldactivevolinuimpeman;
     Notifier<HorizonFlatViewEditor> restoreactivevolinuimpeman;
@@ -63,27 +63,27 @@ protected:
     void			removePosCB(CallBacker*);
 
     bool			canTrack(const EMTracker&) const;
-    bool			checkSanity(EMTracker&,const EM::EMObject&,
-	   				   const EMSeedPicker&,
+    bool			checkSanity(EMTracker&,const EM::Object&,
+					   const EMSeedPicker&,
 					   bool& pickinvd) const;
     bool			prepareTracking(bool pickinvd,
-	    					const EMTracker&,
+						const EMTracker&,
 						EMSeedPicker&,
 						const FlatDataPack&) const;
-    bool			getPosID(const EM::EMObject&,const Coord3&,
-	    				 EM::PosID&) const;
-    bool			doTheSeed(EM::EMObject&,EMSeedPicker&,
-	    				  const Coord3&,
+    bool			getPosID(const EM::Object&,const Coord3&,
+					 EM::PosID&) const;
+    bool			doTheSeed(EM::Object&,EMSeedPicker&,
+					  const Coord3&,
 					  const MouseEvent&) const;
 
     FlatView::AuxDataEditor*	editor_;
     MouseEventHandler*		mouseeventhandler_;
 
     TrcKeyZSampling		curcs_;
-    const Attrib::SelSpec* 	vdselspec_;
+    const Attrib::SelSpec*	vdselspec_;
     const Attrib::SelSpec*	wvaselspec_;
 
-    Pos::GeomID 		geomid_;
+    Pos::GeomID		geomid_;
 
     bool			is2d_;
     bool			seedpickingon_;

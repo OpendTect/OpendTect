@@ -63,7 +63,7 @@ void uiODVw2DHor3DParentTreeItem::getNonLoadedTrackedHor3Ds(
 	if ( !tracker )
 	    continue;
 
-	EM::EMObject* emobj = tracker->emObject();
+	EM::Object* emobj = tracker->emObject();
 	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
 	if ( !hor3d || loadedemids.isPresent(emobj->id()) )
 	    continue;
@@ -97,7 +97,7 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 	trackmenu->insertAction( newact, mNewIdx );
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
-	    const EM::EMObject* emobject =
+	    const EM::Object* emobject =
 			EM::Hor3DMan().getObject( emids[idx] );
 	    uiAction* trackexistingmnu = new uiAction( emobject->uiName() );
 	    trackexistingmnu->setEnabled( cantrack );
@@ -129,7 +129,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	if ( emids.validIdx(emidx) )
 	    emid = emids[emidx];
 
-	EM::EMObject* emobj = EM::Hor3DMan().getObject( emid );
+	EM::Object* emobj = EM::Hor3DMan().getObject( emid );
 	if ( !emobj )
 	{
 	// This will add the 3D scene item.
@@ -153,7 +153,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
     }
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
-	ObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::Object> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false );
 	DBKeySet emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
@@ -230,7 +230,7 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 	const bool hastracker = MPE::engine().hasTracker( emid );
 	if ( hastracker )
 	{
-	    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid );
+	    EM::Object* emobj = EM::Hor3DMan().getObject( emid );
 	    if ( !emobj || findChild(emobj->name()) )
 		continue;
 
@@ -328,7 +328,7 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 {
     detachAllNotifiers();
 
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( emobj )
     {
 	emobj->objectChanged().remove(
@@ -349,7 +349,7 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 
 bool uiODVw2DHor3DTreeItem::init()
 {
-    EM::EMObject* emobj = 0;
+    EM::Object* emobj = 0;
     if ( displayid_ < 0 )
     {
 	emobj = EM::Hor3DMan().getObject( emid_ );
@@ -411,7 +411,7 @@ bool uiODVw2DHor3DTreeItem::init()
 
 void uiODVw2DHor3DTreeItem::displayMiniCtab()
 {
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( !emobj ) return;
 
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
@@ -422,14 +422,14 @@ void uiODVw2DHor3DTreeItem::displayMiniCtab()
 
 void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData,
+    mCBCapsuleUnpackWithCaller( EM::ObjectCallbackData,
 				cbdata, caller, cb );
-    mDynamicCastGet(EM::EMObject*,emobject,caller);
+    mDynamicCastGet(EM::Object*,emobject,caller);
     if ( !emobject ) return;
 
-    if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+    if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
 	displayMiniCtab();
-    else if ( cbdata.changeType() == EM::EMObject::cNameChange() )
+    else if ( cbdata.changeType() == EM::Object::cNameChange() )
     {
 	name_ = toUiString(DBM().nameOf( emid_ ));
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
@@ -494,7 +494,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     }
     else if ( mnuid == mStartID )
     {
-	const EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+	const EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
 	if ( !emobj || mps->addTracker(emid_)==-1 )
 	    return false;
 
@@ -505,7 +505,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     }
     else if ( mnuid == mSettsID )
     {
-	EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+	EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
 	if ( emobj )
 	    mps->showSetupDlg( emid_ );
     }
@@ -589,7 +589,7 @@ void uiODVw2DHor3DTreeItem::emobjAbtToDelCB( CallBacker* cb )
     mCBCapsuleUnpack( const DBKey&, emid, cb );
     if ( emid != emid_ ) return;
 
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid );
+    EM::Object* emobj = EM::Hor3DMan().getObject( emid );
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return;
 

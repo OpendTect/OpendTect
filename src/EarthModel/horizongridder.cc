@@ -360,7 +360,7 @@ uiRetVal HorizonGridder::executeGridding(
 
     arr->setAll( mUdf(float) );
 
-    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator();
+    PtrMan<EM::ObjectIterator> iterator = hor3d->createIterator();
     if ( !iterator )
 	return uiRetVal(
 	    od_static_tr("executeGridding",

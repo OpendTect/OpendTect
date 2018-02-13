@@ -64,7 +64,8 @@ public:
     void			fillBinIDValueSet(BinIDValueSet&,
 						 Pos::Provider3D* prov=0) const;
 
-    EMObjectIterator*		createIterator(const TrcKeyZSampling* =0) const;
+    ObjectIterator*		createIterator(const TrcKeyZSampling* =0) const;
+
 protected:
 
     Geometry::BinIDSurface*	createGeometryElement() const;
@@ -216,8 +217,8 @@ protected:
 					    const Coord3&,bool addtohistory,
 					    NodeSourceType type=Auto);
 
+    friend class		Object;
     friend class		ObjectManager;
-    friend class		EMObject;
     Horizon3DGeometry		geometry_;
 
     TrcKeySampling		trackingsamp_;

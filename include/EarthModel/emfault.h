@@ -137,7 +137,7 @@ public:
 						int sceneidx);
 
     Coord3			getEditPlaneNormal(int sticknr) const;
-    EMObjectIterator*		createIterator(const TrcKeyZSampling*) const;
+    ObjectIterator*		createIterator(const TrcKeyZSampling*) const;
 
     void			preferStick(int sticknr);
     int				preferredStickNr() const;

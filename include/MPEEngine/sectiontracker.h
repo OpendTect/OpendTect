@@ -21,7 +21,7 @@ ________________________________________________________________________
 class BinIDValue;
 
 namespace Attrib { class SelSpec; }
-namespace EM { class EMObject; }
+namespace EM { class Object; }
 
 namespace MPE
 {
@@ -30,20 +30,18 @@ class SectionSourceSelector;
 class SectionExtender;
 class SectionAdjuster;
 
-/*!
-\brief Tracks sections of EM::EMObject.
-*/
+/*!\brief Tracks sections of EM::Object. */
 
 mExpClass(MPEEngine) SectionTracker
 {
 public:
-				SectionTracker(EM::EMObject&,
+				SectionTracker(EM::Object&,
 					       SectionSourceSelector* = 0,
 					       SectionExtender* = 0,
 					       SectionAdjuster* = 0);
     virtual			~SectionTracker();
 
-    EM::EMObject&		emObject()		{ return emobject_; }
+    EM::Object&			emObject()		{ return emobject_; }
     virtual bool		init();
 
     void			reset();
@@ -84,7 +82,7 @@ protected:
 
     void			getLockedSeeds(TypeSet<EM::PosID>& lockedseeds);
 
-    EM::EMObject&		emobject_;
+    EM::Object&			emobject_;
 
     BufferString		errmsg_;
     bool			useadjuster_;

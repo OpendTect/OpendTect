@@ -126,7 +126,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid==mAddMnuID )
     {
-	ObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::Object> objs;
 	applMgr()->EMServer()->selectFaults( objs, false );
 	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	for ( int idx=0; idx<objs.size(); idx++ )
@@ -145,7 +145,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	if ( !newdlg || !newdlg->go() )
 	    return false;
 
-	RefMan<EM::EMObject> emo = newdlg->getEMObject();
+	RefMan<EM::Object> emo = newdlg->getEMObject();
 	if ( !emo )
 	    return false;
 
@@ -447,7 +447,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid==mAddMnuID )
     {
-	ObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::Object> objs;
 	applMgr()->EMServer()->selectFaultStickSets( objs );
 	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	for ( int idx=0; idx<objs.size(); idx++ )
@@ -465,7 +465,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	if ( !newdlg || !newdlg->go() )
 	    return false;
 
-	RefMan<EM::EMObject> emo = newdlg->getEMObject();
+	RefMan<EM::Object> emo = newdlg->getEMObject();
 	if ( !emo )
 	    return false;
 

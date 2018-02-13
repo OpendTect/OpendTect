@@ -104,7 +104,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	loadBodies();
     else if ( mnuid==1 )
     {
-	RefMan<EM::EMObject> plg =
+	RefMan<EM::Object> plg =
 	    EM::BodyMan().createTempObject( EM::PolygonBody::typeStr() );
 	if ( !plg )
 	    return false;
@@ -134,7 +134,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 
 void uiODBodyDisplayParentTreeItem::loadBodies()
 {
-    ObjectSet<EM::EMObject> objs;
+    ObjectSet<EM::Object> objs;
     applMgr()->EMServer()->selectBodies( objs );
     DBKeySet oids;
 
@@ -169,7 +169,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	    continue;
 
 	uiTaskRunnerProvider trprov( &dlg );
-	EM::EMObject* emobj =
+	EM::Object* emobj =
 	    EM::BodyMan().loadIfNotFullyLoaded( dlg.getBodyMid(), trprov );
 	if ( emobj )
 	{
@@ -272,7 +272,7 @@ bool uiODBodyDisplayTreeItem::init()
 {
     if ( displayid_==-1 )
     {
-	EM::EMObject* object = EM::BodyMan().getObject( emid_ );
+	EM::Object* object = EM::BodyMan().getObject( emid_ );
 	mDynamicCastGet( EM::PolygonBody*, emplg, object );
 	mDynamicCastGet( EM::MarchingCubesSurface*, emmcs, object );
 	mDynamicCastGet( EM::RandomPosBody*, emrpb, object );

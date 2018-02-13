@@ -30,7 +30,7 @@ mExpClass(MPEEngine) FaultEditor : public ObjectEditor
 public:
 				FaultEditor(EM::Fault3D&);
 
-    static ObjectEditor*	create(EM::EMObject&);
+    static ObjectEditor*	create(EM::Object&);
     static void			initClass();
 
     void			setSceneIdx(int idx)	{ sceneidx_ = idx; }

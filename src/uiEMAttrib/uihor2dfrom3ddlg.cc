@@ -65,7 +65,7 @@ bool uiHor2DFrom3DDlg::acceptOK()
 	return false;
 
     const DBKey mid = hor3dsel_->selIOObj()->key();
-    RefMan<EM::EMObject> emobj = EM::Hor3DMan().getObject( mid );
+    RefMan<EM::Object> emobj = EM::Hor3DMan().getObject( mid );
     if ( !emobj || !emobj->isFullyLoaded() )
     {
 	emobj =
@@ -95,7 +95,7 @@ bool uiHor2DFrom3DDlg::acceptOK()
     uiTaskRunner writedlg( this );
     TaskRunner::execute( &writedlg, *saver );
 
-    EM::EMObjectCallbackData cbdata( EM::EMObject::cPositionChange(),
+    EM::ObjectCallbackData cbdata( EM::Object::cPositionChange(),
 				     Monitorable::ChangeData::cUnspecChgID() );
     saver = 0;
     if ( doDisplay() )
@@ -112,7 +112,7 @@ bool uiHor2DFrom3DDlg::acceptOK()
 
 EM::Horizon2D* uiHor2DFrom3DDlg::create2dHorizon( const char* horizonnm )
 {
-    EM::EMObject* obj = EM::Hor2DMan().createObject(
+    EM::Object* obj = EM::Hor2DMan().createObject(
 				EM::Horizon2D::typeStr(), horizonnm );
     mDynamicCastGet( EM::Horizon2D*, horizon, obj );
     horizon->setDBKey( out2dfld_->selIOObj()->key() );

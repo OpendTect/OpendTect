@@ -31,7 +31,7 @@
 
 namespace EM
 {
-mImplFactory( EMObject, EMOF );
+mImplFactory( Object, EMOF );
 }
 
 #define mDefineEMMan(typeprefix,translgrp) \
@@ -126,10 +126,10 @@ const char* EM::ObjectManager::objectType( const ObjID& id ) const
 }
 
 
-EM::EMObject* EM::ObjectManager::createObject( const char* type,
+EM::Object* EM::ObjectManager::createObject( const char* type,
 						const char* nm )
 {
-    EMObject* object = EMOF().create( type, *this );
+    Object* object = EMOF().create( type, *this );
     if ( !object )
 	{ pErrMsg(BufferString("Unknown type: ",type)); return 0; }
 
@@ -154,31 +154,31 @@ EM::ObjectManager::ObjID EM::ObjectManager::objID( int idx ) const
 }
 
 
-EM::EMObject* EM::ObjectManager::getObject( const ObjID& id )
+EM::Object* EM::ObjectManager::getObject( const ObjID& id )
 {
    mLock4Read();
    return gtObject( id );
 }
 
 
-EM::EMObject* EM::ObjectManager::gtObject( const ObjID& objid )
+EM::Object* EM::ObjectManager::gtObject( const ObjID& objid )
 {
     for ( int idx=0; idx<savers_.size(); idx++ )
     {
 	if ( savers_[idx]->key() == objid )
-	    return mCast(EMObject*,savers_[idx]->object());
+	    return mCast(Object*,savers_[idx]->object());
     }
 
     return 0;
 }
 
 
-RefObjectSet<EM::EMObject> EM::ObjectManager::loadObjects( const char* typ,
+RefObjectSet<EM::Object> EM::ObjectManager::loadObjects( const char* typ,
 					    const ObjIDSet& dbkeys,
 					const SurfaceIODataSelection* sel,
 					TaskRunner* tskr )
 {
-    RefObjectSet<EMObject> loadedpbjs;
+    RefObjectSet<Object> loadedpbjs;
     PtrMan<EM::ObjectLoader> emloader =
 		EM::ObjectLoader::factory().create( typ, dbkeys, sel );
     if ( !emloader )
@@ -191,11 +191,11 @@ RefObjectSet<EM::EMObject> EM::ObjectManager::loadObjects( const char* typ,
 }
 
 
-ConstRefMan<EM::EMObject> EM::ObjectManager::fetch( const ObjID& objid,
+ConstRefMan<EM::Object> EM::ObjectManager::fetch( const ObjID& objid,
 				TaskRunner* trunnr, bool forcereload ) const
 {
     mLock4Read();
-    EMObject* ret = const_cast<ObjectManager*>(this)->gtObject( objid );
+    Object* ret = const_cast<ObjectManager*>(this)->gtObject( objid );
     if ( !forcereload && ret && ret->isFullyLoaded() )
 	return ret;
 
@@ -209,11 +209,11 @@ ConstRefMan<EM::EMObject> EM::ObjectManager::fetch( const ObjID& objid,
 }
 
 
-RefMan<EM::EMObject> EM::ObjectManager::fetchForEdit( const ObjID& objid,
+RefMan<EM::Object> EM::ObjectManager::fetchForEdit( const ObjID& objid,
 				TaskRunner* trunnr, bool forcereload )
 {
     mLock4Read();
-    EMObject* ret = gtObject( objid );
+    Object* ret = gtObject( objid );
     if ( !forcereload && ret && ret->isFullyLoaded() )
 	return ret;
 
@@ -227,27 +227,27 @@ RefMan<EM::EMObject> EM::ObjectManager::fetchForEdit( const ObjID& objid,
 }
 
 
-uiRetVal EM::ObjectManager::store( const EMObject& emobj,
+uiRetVal EM::ObjectManager::store( const Object& emobj,
 				  const IOPar* ioobjpars ) const
 {
     return SaveableManager::store( emobj, ioobjpars );
 }
 
 
-uiRetVal EM::ObjectManager::store( const EMObject& emobj, const ObjID& id,
+uiRetVal EM::ObjectManager::store( const Object& emobj, const ObjID& id,
 			      const IOPar* ioobjpars ) const
 {
     return SaveableManager::store( emobj, id, ioobjpars );
 }
 
 
-bool EM::ObjectManager::objectExists( const EMObject* obj ) const
+bool EM::ObjectManager::objectExists( const Object* obj ) const
 {
     return isPresent( *obj );
 }
 
 
-void EM::ObjectManager::addObject( EMObject* obj )
+void EM::ObjectManager::addObject( Object* obj )
 {
     if ( !obj )
     { pErrMsg("No object provided!"); return; }
@@ -260,7 +260,7 @@ void EM::ObjectManager::addObject( EMObject* obj )
 }
 
 
-EM::EMObject* EM::ObjectManager::createTempObject( const char* type )
+EM::Object* EM::ObjectManager::createTempObject( const char* type )
 {
     return EMOF().create( type, *this );
 }
@@ -274,7 +274,7 @@ Executor* EM::ObjectManager::objectLoader( const ObjIDSet& objids,
 			   ? new ExecutorGroup( "Reading" ) : 0;
     for ( int idx=0; idx<objids.size(); idx++ )
     {
-	const EMObject* obj = getObject( objids[idx] );
+	const Object* obj = getObject( objids[idx] );
 	Executor* loader = obj && obj->isFullyLoaded()
 			 ? 0 : objectLoader( objids[idx], iosel );
 	if ( includedids && loader )
@@ -309,7 +309,7 @@ Executor* EM::ObjectManager::objectLoader( const ObjIDSet& objids,
 Executor* EM::ObjectManager::objectLoader( const ObjID& objid,
 				   const SurfaceIODataSelection* iosel )
 {
-    EMObject* obj = getObject( objid );
+    Object* obj = getObject( objid );
 
     if ( !obj )
     {
@@ -353,10 +353,10 @@ Executor* EM::ObjectManager::objectLoader( const ObjID& objid,
 }
 
 
-EM::EMObject* EM::ObjectManager::loadIfNotFullyLoaded( const ObjID& objid,
+EM::Object* EM::ObjectManager::loadIfNotFullyLoaded( const ObjID& objid,
 					   const TaskRunnerProvider& trprov )
 {
-    RefMan<EM::EMObject> emobj = getObject( objid );
+    RefMan<EM::Object> emobj = getObject( objid );
 
     if ( !emobj || !emobj->isFullyLoaded() )
     {
@@ -373,7 +373,7 @@ EM::EMObject* EM::ObjectManager::loadIfNotFullyLoaded( const ObjID& objid,
     if ( !emobj || !emobj->isFullyLoaded() )
 	return 0;
 
-    EM::EMObject* tmpobj = emobj;
+    EM::Object* tmpobj = emobj;
     tmpobj->ref();
     emobj = 0; //unrefs
     tmpobj->unRefNoDelete();
@@ -387,7 +387,7 @@ void EM::ObjectManager::burstAlertToAll( bool yn )
     for ( int idx=nrLoadedObjects()-1; idx>=0; idx-- )
     {
 	SharedObject* shobj = const_cast<SharedObject*>(savers_[idx]->object());
-	mDynamicCastGet(EM::EMObject*,emobj,shobj);
+	mDynamicCastGet(EM::Object*,emobj,shobj);
 	if ( emobj )
 	    emobj->setBurstAlert( yn );
     }
@@ -398,7 +398,7 @@ void EM::ObjectManager::removeSelected( const ObjID& id,
 				const Selector<Coord3>& selector,
 				const TaskRunnerProvider& trprov )
 {
-    EM::EMObject* emobj = getObject( id );
+    EM::Object* emobj = getObject( id );
     if ( !emobj )
 	return;
 
@@ -514,7 +514,7 @@ void EM::ObjectManager::levelSetChgCB( CallBacker* cb )
 
 Saveable* EM::ObjectManager::getSaver( const SharedObject& shobj ) const
 {
-    mDynamicCastGet(const EMObject*,emobj,&shobj);
+    mDynamicCastGet(const Object*,emobj,&shobj);
     if ( !emobj )
 	return 0;
 
@@ -573,7 +573,7 @@ EM::Manager::Manager()
 }
 
 
-void EM::Manager::addObject( EMObject* obj )
+void EM::Manager::addObject( Object* obj )
 {
     if ( !obj )
 	{ pErrMsg("No object provided!"); return; }
@@ -585,7 +585,7 @@ void EM::Manager::addObject( EMObject* obj )
 }
 
 
-EM::EMObject* EM::Manager::createTempObject( const char* type )
+EM::Object* EM::Manager::createTempObject( const char* type )
 {
     FixedString trgrp( type );
     return getMgr( trgrp ).createTempObject( type );

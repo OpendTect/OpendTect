@@ -124,7 +124,7 @@ bool uiTutHorTools::acceptOK()
 
 
 #define mGetHor(varnm,fld) \
-    RefMan<EM::EMObject> varnm##_emobj = \
+    RefMan<EM::Object> varnm##_emobj = \
 	EM::MGR().loadIfNotFullyLoaded( (fld)->key(), trprov ); \
     mDynamicCastGet(EM::Horizon3D*,varnm,varnm##_emobj.ptr()) \
     if ( !varnm ) return false;

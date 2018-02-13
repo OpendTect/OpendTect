@@ -303,8 +303,10 @@ protected:
     //////////////////////////////////////////////////////////////////////////
     // temporal code
  private:
+
      ObjectSet<visBase::PolyLine>	faultpolylines_;
      TypeSet<TypeSet<Coord3> >		intersectionlines_;
+
 };
 
 };

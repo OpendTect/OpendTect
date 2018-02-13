@@ -297,7 +297,7 @@ bool uiBulkFaultImport::acceptOK()
     for ( int idx=0; idx<pars.size(); idx++ )
     {
 	EM::ObjectManager& emm = isfss_ ? EM::FSSMan() : EM::Flt3DMan();
-	EM::EMObject* emobj = emm.createObject( typestr,
+	EM::Object* emobj = emm.createObject( typestr,
 						pars[idx]->name_.buf() );
 	emobj->ref();
 	mDynamicCastGet( EM::Fault*, flt, emobj );

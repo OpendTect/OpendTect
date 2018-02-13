@@ -30,8 +30,9 @@ template <class T> class Selector;
 
 namespace EM
 {
+
 class Manager;
-class EMObject;
+class Object;
 class SurfaceIOData;
 class SurfaceIODataSelection;
 
@@ -51,30 +52,30 @@ public:
     inline int		nrLoadedObjects() const	{ return savers_.size(); }
     inline int		size() const		{ return nrLoadedObjects(); }
     ObjID		objID(int idx) const;
-    bool		objectExists(const EMObject*) const;
+    bool		objectExists(const Object*) const;
 
-    EMObject*		loadIfNotFullyLoaded(const ObjID&,
+    Object*		loadIfNotFullyLoaded(const ObjID&,
 					     const TaskRunnerProvider&);
 			/*!<If fully loaded, the loaded instance
 			    will be returned. Otherwise, it will be loaded.
 			    Returned object must be reffed by caller
 			    (and eventually unreffed). */
 
-    RefObjectSet<EMObject>  loadObjects(const char* typ,const ObjIDSet&,
+    RefObjectSet<Object> loadObjects(const char* typ,const ObjIDSet&,
 					const SurfaceIODataSelection* =0,
 					TaskRunner* trunner=0);
-    ConstRefMan<EMObject> fetch(const ObjID&,TaskRunner* trunner=0,
+    ConstRefMan<Object>	fetch(const ObjID&,TaskRunner* trunner=0,
 			        bool forcereload=false) const;
-    RefMan<EMObject>	fetchForEdit(const ObjID&,TaskRunner* trunner=0,
+    RefMan<Object>	fetchForEdit(const ObjID&,TaskRunner* trunner=0,
 				     bool forcereload=false);
 
-    uiRetVal		store(const EMObject&,const IOPar* ioobjpars=0) const;
-    uiRetVal		store(const EMObject&,const ObjID&,
+    uiRetVal		store(const Object&,const IOPar* ioobjpars=0) const;
+    uiRetVal		store(const Object&,const ObjID&,
 				const IOPar* ioobjpars=0) const;
 
-    virtual EMObject*	getObject(const ObjID&);
+    virtual Object*	getObject(const ObjID&);
 
-    EMObject*		createTempObject(const char* type);
+    Object*		createTempObject(const char* type);
 
     bool		is2D(const ObjID&) const;
     BufferString	objectName(const ObjID&) const;
@@ -95,7 +96,7 @@ public:
 
 protected:
 
-    EMObject*		gtObject(const ObjID&);
+    Object*		gtObject(const ObjID&);
     virtual Saveable*	getSaver(const SharedObject&) const;
     virtual ChangeRecorder* getChangeRecorder(const SharedObject&) const
 			{ return 0; }
@@ -133,11 +134,11 @@ public:
 			    /*!< includedids are the ids of the objects
 				 that will be loaded */
 
-    EMObject*		createObject(const char* type,const char* nm);
+    Object*		createObject(const char* type,const char* nm);
 			/*!< Creates a new object, saves it and loads it.
 			     Removes any loaded object with the same name!  */
 
-    virtual void	addObject(EMObject*);
+    virtual void	addObject(Object*);
 
     void		eraseUndoList();
     Undo&		undo(const ObjID&);
@@ -145,7 +146,7 @@ public:
 };
 
 
-mDefineFactory1Param( EarthModel, EMObject, ObjectManager&, EMOF );
+mDefineFactory1Param( EarthModel, Object, ObjectManager&, EMOF );
 
 mGlobal(EarthModel) bool canOverwrite(const ObjectManager::ObjID&);
 
@@ -165,18 +166,18 @@ mExpClass(EarthModel) Manager : public ObjectManager
 {
 public:
 
-    ConstRefMan<EMObject> fetch(const ObjID& id,TaskRunner* trunner=0,
+    ConstRefMan<Object> fetch(const ObjID& id,TaskRunner* trunner=0,
 			        bool forcereload=false) const
 			{ return getMgr(id).fetch(id,trunner,forcereload); }
-    RefMan<EMObject>	fetchForEdit(const ObjID& id,TaskRunner* trunner=0,
+    RefMan<Object>	fetchForEdit(const ObjID& id,TaskRunner* trunner=0,
 				     bool forcereload=false)
 			{ return getMgr(id).fetchForEdit(id,trunner,
 							 forcereload); }
 
-    EMObject*		getObject(const ObjID& id)
+    Object*		getObject(const ObjID& id)
 			{ return getMgr(id).getObject( id ); }
 
-    EMObject*		createTempObject(const char* type);
+    Object*		createTempObject(const char* type);
 
     void		removeSelected(const ObjID& id,
 				       const Selector<Coord3>& sel,
@@ -192,16 +193,16 @@ public:
 			{ return getMgr(id).getSurfaceData( id, sd, errmsg ); }
 
 
-    EMObject*		loadIfNotFullyLoaded(const ObjID& id,
+    Object*		loadIfNotFullyLoaded(const ObjID& id,
 					     const TaskRunnerProvider& tp)
 			{ return getMgr(id).loadIfNotFullyLoaded( id, tp ); }
 
-    EMObject*		createObject(const char* type,const char* nm)
+    Object*		createObject(const char* type,const char* nm)
 			/*!< Creates a new object, saves it and loads it.
 			     Removes any loaded object with the same name!  */
 			{ return getMgr(type).createObject( type, nm ); }
 
-    void		addObject(EMObject*);
+    void		addObject(Object*);
 
     Undo&		getUndo(const ObjID& id)
 			{ return getMgr(id).undo(id); }

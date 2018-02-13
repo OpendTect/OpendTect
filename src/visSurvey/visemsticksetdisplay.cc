@@ -121,7 +121,7 @@ void StickSetDisplay::polygonSelectionCB()
 	mSetKnotSelectStatus( fault_, sip->sticknr_, sip->pos_ );
     }
 
-    PtrMan<EM::EMObjectIterator> iter = fault_->createIterator(0);
+    PtrMan<EM::ObjectIterator> iter = fault_->createIterator(0);
     while ( true )
     {
 	mGetStickNrAndPos();
@@ -184,7 +184,7 @@ void StickSetDisplay::updateStickMarkerSet()
 	 (!showmanipulator_||!stickselectmode_) )
 	return;
 
-    PtrMan<EM::EMObjectIterator> iter = fault_->createIterator( 0 );
+    PtrMan<EM::ObjectIterator> iter = fault_->createIterator( 0 );
     while ( true )
     {
 	const EM::PosID pid = iter->next();
@@ -290,7 +290,7 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 		    sip->sid_,sip->sticknr_,markerpos,sip->pos_,eps );
 	    }
 
-	    PtrMan<EM::EMObjectIterator> iter =
+	    PtrMan<EM::ObjectIterator> iter =
 					fault_->createIterator( 0 );
 	    while ( true )
 	    {

@@ -20,16 +20,16 @@ template <class T> class Selector;
 namespace EM
 {
 
-class EMObject;
+class Object;
 
-/*!\brief EMObject position selector */
+/*!\brief EM::Object position selector */
 
-mExpClass(EarthModel) EMObjectPosSelector : public ParallelTask
+mExpClass(EarthModel) ObjectPosSelector : public ParallelTask
 {
 public:
-			EMObjectPosSelector(const EMObject& emobj,
+			ObjectPosSelector(const Object& emobj,
 				const ObjectSet<const Selector<Coord3> >&);
-			~EMObjectPosSelector();
+			~ObjectPosSelector();
 
     const TypeSet<EM::PosID>& getSelected() const	{ return poslist_; }
 
@@ -48,7 +48,7 @@ protected:
 
     const ObjectSet<const Selector<Coord3> >&	selectors_;
 
-    const EMObject&		emobj_;
+    const Object&		emobj_;
     int				startrow_;
     int				nrrows_;
     int				startcol_;
@@ -63,6 +63,7 @@ protected:
     int				nrthreads_;
 
     TypeSet<EM::PosID>		poslist_;
+
 };
 
 } // namespace EM

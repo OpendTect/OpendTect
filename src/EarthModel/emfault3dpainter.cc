@@ -42,7 +42,7 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const DBKey& oid )
     , knotenabled_(false)
     , paintenable_(true)
 {
-    EM::EMObject* emobj = EM::Flt3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Flt3DMan().getObject( emid_ );
     if ( emobj )
     {
 	emobj->ref();
@@ -54,7 +54,7 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const DBKey& oid )
 
 Fault3DPainter::~Fault3DPainter()
 {
-    EM::EMObject* emobj = EM::Flt3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Flt3DMan().getObject( emid_ );
     if ( emobj )
     {
 	emobj->objectChanged().remove( mCB(this,Fault3DPainter,fault3DChangedCB) );
@@ -102,7 +102,7 @@ void Fault3DPainter::setFlatPosData( const FlatPosData* fps )
 
 bool Fault3DPainter::addPolyLine()
 {
-    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid_ );
+    RefMan<EM::Object> emobject = EM::Flt3DMan().getObject( emid_ );
 
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d ) return false;
@@ -610,9 +610,9 @@ void Fault3DPainter::repaintFault3D()
 
 void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData,
+    mCBCapsuleUnpackWithCaller( EM::ObjectCallbackData,
 				cbdata, caller, cb );
-    mDynamicCastGet(EM::EMObject*,emobject,caller);
+    mDynamicCastGet(EM::Object*,emobject,caller);
     if ( !emobject ) return;
 
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject);
@@ -620,9 +620,9 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 
     if ( emobject->id() != emid_ ) return;
 
-    if ( cbdata.changeType() == EM::EMObject::cUndefChange() )
+    if ( cbdata.changeType() == EM::Object::cUndefChange() )
 	return;
-    else if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+    else if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
     {
 	for ( int oidx=0; oidx<f3dmarkers_.size(); oidx++ )
 	{
@@ -649,13 +649,13 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 	    }
 	}
     }
-    if ( cbdata.changeType() == EM::EMObject::cPositionChange() )
+    if ( cbdata.changeType() == EM::Object::cPositionChange() )
     {
 	if ( emf3d->hasBurstAlert() )
 	    return;
 	repaintFault3D();
     }
-    if ( cbdata.changeType() == EM::EMObject::cBurstAlert() )
+    if ( cbdata.changeType() == EM::Object::cBurstAlert() )
     {
 	if (  emobject->hasBurstAlert() )
 	    return;

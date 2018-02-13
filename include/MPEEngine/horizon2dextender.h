@@ -31,7 +31,7 @@ mExpClass(MPEEngine) Horizon2DExtender : public SectionExtender
 {
 public:
 				Horizon2DExtender(EM::Horizon2D&);
-    static SectionExtender*	create(EM::EMObject*);
+    static SectionExtender*	create(EM::Object*);
     static void			initClass();
 
     void			setAngleThreshold(float radians);

@@ -27,7 +27,7 @@ mExpClass(MPEEngine) PolygonBodyEditor : public ObjectEditor
 {
 public:
 				PolygonBodyEditor(EM::PolygonBody&);
-    static ObjectEditor*	create(EM::EMObject&);
+    static ObjectEditor*	create(EM::Object&);
     static void			initClass();
 
     void			setLastClicked(const EM::PosID&);

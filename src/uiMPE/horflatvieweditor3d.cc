@@ -67,7 +67,7 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
     mAttachCB( editor_->releaseSelection,
 	HorizonFlatViewEditor3D::releasePolygonSelectionCB );
 
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( emobj )
 	mAttachCB( emobj->objectChanged(),
 	HorizonFlatViewEditor3D::selectionColorChangedCB );
@@ -127,9 +127,9 @@ void HorizonFlatViewEditor3D::releasePolygonSelectionCB( CallBacker* )
 
 void HorizonFlatViewEditor3D::selectionColorChangedCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( EM::EMObjectCallbackData, cbdata, cb );
+    mCBCapsuleUnpack( EM::ObjectCallbackData, cbdata, cb );
     if ( horpainter_ &&
-	cbdata.changeType()==EM::EMObject::cSelColorChange() )
+	cbdata.changeType()==EM::Object::cSelColorChange() )
 	horpainter_->updateSelectionColor();
 }
 
@@ -284,7 +284,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     if ( !tracker || tracker->objectID() != emid_ || tracker->is2D() )
 	return;
 
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( !emobj ) return;
 
     const MouseEvent& mouseevent = mehandler_->event();
@@ -378,7 +378,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     if ( !tracker || tracker->is2D() || tracker->objectID() != emid_ )
 	return;
 
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( !emobj ) return;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
@@ -480,7 +480,7 @@ void HorizonFlatViewEditor3D::makePatchEnd( bool doerase )
 
     horpainter_->setUpdateTrcKeySampling( tckpath );
 
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( emobj )
 	emobj->setBurstAlert( false );
     seedpicker->endPatch( doerase );
@@ -496,7 +496,7 @@ EMSeedPicker* HorizonFlatViewEditor3D::getEMSeedPicker() const
     if ( !tracker || tracker->is2D() || tracker->objectID() != emid_ )
 	return 0;
 
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( !emobj ) return 0;
 
     EMSeedPicker* picker = tracker->getSeedPicker( true );
@@ -621,7 +621,7 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 					   const EMSeedPicker& spk,
 					   bool& pickinvd ) const
 {
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( !emobj ) return false;
 
     const MPE::SectionTracker* sectiontracker =
@@ -699,7 +699,7 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
 bool HorizonFlatViewEditor3D::getPosID( const Coord3& crd,
 					EM::PosID& pid ) const
 {
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( !emobj ) return false;
 
     BinID bid = SI().transform( crd.getXY() );
@@ -772,7 +772,7 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 
 void HorizonFlatViewEditor3D::setupPatchDisplay()
 {
-    RefMan<EM::EMObject> emobj = EM::Hor3DMan().getObject(emid_);
+    RefMan<EM::Object> emobj = EM::Hor3DMan().getObject(emid_);
     if ( !emobj || !editor_ ) return;
 
     Color patchcolor = Color::Red();
@@ -806,7 +806,7 @@ void HorizonFlatViewEditor3D::updatePatchDisplay()
 
     setupPatchDisplay();
 
-    RefMan<EM::EMObject> emobj = EM::Hor3DMan().getObject(emid_);
+    RefMan<EM::Object> emobj = EM::Hor3DMan().getObject(emid_);
     if ( !emobj ) return;
 
     TypeSet<TrcKeyValue> path = patch->getPath();
@@ -903,7 +903,7 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
     if ( pointselections_.isEmpty() )
 	return;
 
-    RefMan<EM::EMObject> emobj = EM::Hor3DMan().getObject( emid_ );
+    RefMan<EM::Object> emobj = EM::Hor3DMan().getObject( emid_ );
     if ( !emobj ) return;
 
     mDynamicCastGet( EM::Horizon3D*, hor3d,emobj.ptr() );

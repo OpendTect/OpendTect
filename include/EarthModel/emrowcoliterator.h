@@ -23,7 +23,7 @@ namespace EM
 \brief RowCol iterator
 */
 
-mExpClass(EarthModel) RowColIterator : public EMObjectIterator
+mExpClass(EarthModel) RowColIterator : public ObjectIterator
 {
 public:
 			RowColIterator(const Surface&,

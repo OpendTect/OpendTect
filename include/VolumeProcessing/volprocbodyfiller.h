@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "trckeyzsampling.h"
 
-namespace EM { class EMObject; class Body; class ImplicitBody; }
+namespace EM { class Object; class Body; class ImplicitBody; }
 template <class T> class ODPolygon;
 
 
@@ -76,7 +76,7 @@ protected:
 						const TrcKeySampling&,
 						const StepInterval<int>&) const;
     EM::Body*			body_;
-    EM::EMObject*		emobj_;
+    EM::Object*			emobj_;
     EM::ImplicitBody*		implicitbody_;
     DBKey			mid_;
 

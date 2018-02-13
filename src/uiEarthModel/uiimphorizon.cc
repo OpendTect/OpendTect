@@ -656,7 +656,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
 {
     const char* horizonnm = outputfld_->getInput();
     EM::ObjectManager& mgr = EM::Hor3DMan();
-    RefMan<EM::EMObject> obj =
+    RefMan<EM::Object> obj =
 	mgr.createObject( EM::Horizon3D::typeStr(), horizonnm );
 
     mDynamicCastGet(EM::Horizon3D*,horizon,obj.ptr());
@@ -673,7 +673,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
 EM::Horizon3D* uiImportHorizon::loadHor()
 {
     EM::ObjectManager& mgr = EM::Hor3DMan();
-    EM::EMObject* emobj = mgr.createTempObject( EM::Horizon3D::typeStr() );
+    EM::Object* emobj = mgr.createTempObject( EM::Horizon3D::typeStr() );
     emobj->setDBKey( ctio_.ioobj_->key() );
     Executor* loader = emobj->loader();
     if ( !loader ) mErrRet( uiStrings::sCantReadHor());

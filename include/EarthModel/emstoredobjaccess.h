@@ -49,8 +49,8 @@ public:
     bool	finishRead();	//!< may take a long time
     Executor*	reader();	//!< will 'run' until reading is finished
 
-    EMObject*	object(int iobj=0); //!< returns null until ready
-    const EMObject* object(int iobj=0) const;
+    Object*	object(int iobj=0); //!< returns null until ready
+    const Object* object(int iobj=0) const;
 
 		// Interesting for multi-read only
     int		size() const		{ return data_.size(); }

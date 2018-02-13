@@ -113,7 +113,7 @@ protected:
     void			loadEMObjectCB(CallBacker*);
     void			mergeAttribSets(const Attrib::DescSet& newads,
 						MPE::EMTracker&);
-    bool			initSetupDlg(EM::EMObject*& emobj,
+    bool			initSetupDlg(EM::Object*& emobj,
 					     MPE::EMTracker*& tracker,
 					     bool freshdlg=false);
 

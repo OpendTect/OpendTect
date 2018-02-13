@@ -17,15 +17,13 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "uidialog.h"
 
-
 class uiGenInput;
-
-
-
-/*!\brief dialog for creating an empty new EM::EMObject, or base class for one
-  that puts stuff in it. */
 class uiColorInput;
-namespace EM{ class EMObject; }
+namespace EM { class Object; }
+
+
+/*!\brief dialog for creating an empty new EM::Object, or base class for one
+  that puts stuff in it. */
 
 mExpClass(uiEarthModel) uiNewEMObjectDlg : public uiDialog
 { mODTextTranslationClass(uiNewEMObjectDlg);
@@ -35,22 +33,23 @@ public:
 
 			uiNewEMObjectDlg(uiParent*,const uiString&);
 
-    RefMan<EM::EMObject> getEMObject() const		    { return emobj_; }
+    RefMan<EM::Object> getEMObject() const		    { return emobj_; }
 
 protected:
 
-    virtual RefMan<EM::EMObject>    getNewEMObject() const = 0;
+    virtual RefMan<EM::Object>    getNewEMObject() const = 0;
 
     uiGenInput*		nmfld_;
     uiColorInput*	colorselfld_;
 
-    RefMan<EM::EMObject>	emobj_;
+    RefMan<EM::Object>	emobj_;
 };
 
 
 mExpClass(uiEarthModel) uiNewFSSDlg : public uiNewEMObjectDlg
 { mODTextTranslationClass(uiNewFSSDlg);
 public:
+
     mDefaultFactoryInstantiation1Param(
 				uiNewEMObjectDlg,
 				uiNewFSSDlg,uiParent*,
@@ -65,13 +64,14 @@ protected:
 
     bool		acceptOK();
 
-    virtual RefMan<EM::EMObject>    getNewEMObject() const;
+    virtual RefMan<EM::Object>    getNewEMObject() const;
 };
 
 
 mExpClass(uiEarthModel) uiNewHorizon3DDlg : public uiNewEMObjectDlg
 { mODTextTranslationClass(uiNewHorizon3DDlg);
 public:
+
     mDefaultFactoryInstantiation1Param(
 				uiNewEMObjectDlg,
 				uiNewHorizon3DDlg,uiParent*,
@@ -86,13 +86,14 @@ protected:
 
     bool		acceptOK();
 
-    virtual RefMan<EM::EMObject>    getNewEMObject() const;
+    virtual RefMan<EM::Object>    getNewEMObject() const;
 };
 
 
 mExpClass(uiEarthModel) uiNewFlt3DDlg : public uiNewEMObjectDlg
 { mODTextTranslationClass(uiNewFlt3DDlg);
 public:
+
     mDefaultFactoryInstantiation1Param( uiNewEMObjectDlg,
 					uiNewFlt3DDlg,uiParent*,
 					EM::Fault3D::typeStr(),
@@ -104,6 +105,6 @@ protected:
 
     bool		acceptOK();
 
-    virtual RefMan<EM::EMObject>    getNewEMObject() const;
-};
+    virtual RefMan<EM::Object>    getNewEMObject() const;
 
+};

@@ -31,7 +31,7 @@ FaultEditor::FaultEditor( EM::Fault3D& fault )
 {}
 
 
-ObjectEditor* FaultEditor::create( EM::EMObject& emobj )
+ObjectEditor* FaultEditor::create( EM::Object& emobj )
 {
     mDynamicCastGet(EM::Fault3D*,fault,&emobj);
     if ( !fault ) return 0;
@@ -64,7 +64,7 @@ void FaultEditor::setLastClicked( const EM::PosID& pid )
 {
     lastclickedpid_ = pid;
 
-    EM::EMObject& emobj = const_cast<EM::EMObject&>( emObject() );
+    EM::Object& emobj = const_cast<EM::Object&>( emObject() );
     Geometry::Element* ge = emobj.geometryElement();
     mDynamicCastGet( Geometry::FaultStickSet*, fss, ge );
     if ( fss )

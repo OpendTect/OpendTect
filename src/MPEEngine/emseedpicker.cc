@@ -88,7 +88,7 @@ int Patch::nrSeeds()
 
 EM::PosID Patch::seedNode( int idx ) const
 {
-    const EM::EMObject* emobj = seedpicker_->emTracker().emObject();
+    const EM::Object* emobj = seedpicker_->emTracker().emObject();
     if ( idx>=seeds_.size() || !emobj )
 	return EM::PosID::getInvalid();
 
@@ -100,7 +100,7 @@ EM::PosID Patch::seedNode( int idx ) const
 
 Coord3 Patch::seedCoord( int idx ) const
 {
-    const EM::EMObject* emobj = seedpicker_->emTracker().emObject();
+    const EM::Object* emobj = seedpicker_->emTracker().emObject();
     if ( idx>=seeds_.size() || !emobj )
 	return Coord3::udf();
 
@@ -135,7 +135,7 @@ int Patch::addSeed( const TrcKeyValue& tckv, bool sort )
 	return seeds_.size()-1;
     }
 
-    const EM::EMObject* emobj = seedpicker_->emTracker().emObject();
+    const EM::Object* emobj = seedpicker_->emTracker().emObject();
 
     BinID dir;
     if ( !emobj || !tckv.isDefined() || seeds_.indexOf(tckv) !=-1 )
@@ -423,7 +423,7 @@ const Attrib::SelSpec* EMSeedPicker::getSelSpec() const
 
 bool EMSeedPicker::startSeedPick()
 {
-    EM::EMObject* emobj = tracker_.emObject();
+    EM::Object* emobj = tracker_.emObject();
     if ( !emobj ) return false;
 
     didchecksupport_ = emobj->enableGeometryChecks( false );
@@ -433,7 +433,7 @@ bool EMSeedPicker::startSeedPick()
 
 bool EMSeedPicker::stopSeedPick()
 {
-    EM::EMObject* emobj = tracker_.emObject();
+    EM::Object* emobj = tracker_.emObject();
     if ( !emobj ) return false;
 
     emobj->enableGeometryChecks( didchecksupport_ );
@@ -474,22 +474,22 @@ TrcKeyValue EMSeedPicker::getAddedSeed() const
 
 int EMSeedPicker::nrSeeds() const
 {
-    EM::EMObject* emobj = tracker_.emObject();
+    EM::Object* emobj = tracker_.emObject();
     if ( !emobj ) return 0;
 
     const TypeSet<EM::PosID>* seednodelist =
-		emobj->getPosAttribList( EM::EMObject::sSeedNode() );
+		emobj->getPosAttribList( EM::Object::sSeedNode() );
     return seednodelist ? seednodelist->size() : 0;
 }
 
 
 void EMSeedPicker::getSeeds( TypeSet<TrcKey>& seeds ) const
 {
-    EM::EMObject* emobj = tracker_.emObject();
+    EM::Object* emobj = tracker_.emObject();
     if ( !emobj ) return;
 
     const TypeSet<EM::PosID>* seednodelist =
-			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
+			emobj->getPosAttribList( EM::Object::sSeedNode() );
     if ( !seednodelist ) return;
 
     for ( int idx=0; idx<seednodelist->size(); idx++ )

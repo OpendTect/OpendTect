@@ -403,7 +403,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     }
 
     uiTaskRunnerProvider trprov( this );
-    EM::EMObject* emobjsinglehor =
+    EM::Object* emobjsinglehor =
 	EM::MGR().loadIfNotFullyLoaded( surf1mid, trprov );
 
     if ( !emobjsinglehor )
@@ -421,7 +421,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	horizon1->geometry().fillBinIDValueSet( tsd.binidValueSet(), prov );
     else
     {
-	EM::EMObject* emobjdoublehor =
+	EM::Object* emobjdoublehor =
 	    EM::MGR().loadIfNotFullyLoaded( surf2mid, trprov );
 
 	if ( !emobjdoublehor )

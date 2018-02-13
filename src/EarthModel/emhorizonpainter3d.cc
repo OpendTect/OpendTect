@@ -34,7 +34,7 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
     , abouttorepaint_(this)
     , repaintdone_(this)
 {
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( id_ );
     if ( emobj )
     {
 	emobj->ref();
@@ -47,11 +47,11 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
 HorizonPainter3D::~HorizonPainter3D()
 {
     detachAllNotifiers();
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( id_ );
     if ( emobj )
     {
 	emobj->removePosAttribList(
-	    EM::EMObject::sIntersectionNode(), false );
+	    EM::Object::sIntersectionNode(), false );
 	emobj->objectChanged().remove( mCB(this,HorizonPainter3D,horChangeCB) );
 	emobj->unRef();
     }
@@ -95,7 +95,7 @@ void HorizonPainter3D::paintCB( CallBacker* )
     removePolyLine();
     addPolyLine();
     changePolyLineColor();
-    const EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
+    const EM::Object* emobj = EM::Hor3DMan().getObject( id_ );
     if ( emobj && markerseeds_ && nrseeds_==1 )
     {
 	for ( int idx=0;idx<markerseeds_->marker_->markerstyles_.size(); idx++ )
@@ -126,7 +126,7 @@ HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker()
 
 bool HorizonPainter3D::addPolyLine()
 {
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( id_ );
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return false;
 
@@ -261,12 +261,12 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
     }
 
     marker.marker_->poly_ += FlatView::Point( x, z );
-    const bool isseed = hor3d.isPosAttrib( posid, EM::EMObject::sSeedNode() );
+    const bool isseed = hor3d.isPosAttrib( posid, EM::Object::sSeedNode() );
     if ( newmarker || isseed || isintersec )
     {
-	const int postype = isseed ? EM::EMObject::sSeedNode()
-				   : EM::EMObject::sIntersectionNode();
-	EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
+	const int postype = isseed ? EM::Object::sSeedNode()
+				   : EM::Object::sIntersectionNode();
+	EM::Object* emobj = EM::Hor3DMan().getObject( id_ );
 	OD::MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
 	markerstyle_.color_ = ms3d.color_;
 	if ( newmarker )
@@ -287,17 +287,17 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 
 void HorizonPainter3D::horChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData, cbdata, caller, cb );
-    mDynamicCastGet(EM::EMObject*,emobject,caller);
+    mCBCapsuleUnpackWithCaller( EM::ObjectCallbackData, cbdata, caller, cb );
+    mDynamicCastGet(EM::Object*,emobject,caller);
     if ( !emobject ) return;
 
-    if ( cbdata.changeType() == EM::EMObject::cUndefChange() )
+    if ( cbdata.changeType() == EM::Object::cUndefChange() )
 	return;
-    else if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+    else if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
 	changePolyLineColor();
-    else if ( cbdata.changeType() == EM::EMObject::cAttribChange() )
+    else if ( cbdata.changeType() == EM::Object::cAttribChange() )
 	paint();
-    else if ( cbdata.changeType() == EM::EMObject::cPositionChange() )
+    else if ( cbdata.changeType() == EM::Object::cPositionChange() )
     {
 	if ( emobject->hasBurstAlert() )
 	    return;
@@ -317,7 +317,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 	    viewer_.handleChange( FlatView::Viewer::Auxdata );
 	}
     }
-    else if ( cbdata.changeType() == EM::EMObject::cBurstAlert() )
+    else if ( cbdata.changeType() == EM::Object::cBurstAlert() )
     {
 	if ( emobject->hasBurstAlert() )
 	    return;
@@ -338,7 +338,7 @@ void HorizonPainter3D::getDisplayedHor( ObjectSet<Marker3D>& disphor )
 
 void HorizonPainter3D::changePolyLineColor()
 {
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( id_ );
     if ( !emobj ) return;
 
     for ( int idx=0; idx<markerline_.size(); idx++ )
@@ -490,7 +490,7 @@ void HorizonPainter3D::setUpdateTrcKeySampling(
 void HorizonPainter3D::displaySelections(
     const TypeSet<EM::PosID>& pointselections )
 {
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( id_ );
     if ( !emobj )
 	return;
 
@@ -511,9 +511,9 @@ void HorizonPainter3D::displaySelections(
 	else if ( tkzs_.nrTrcs()==1 )
 	    x = tk.inl();
 	const bool isseed =
-	    hor3d->isPosAttrib(pointselections[idx],EM::EMObject::sSeedNode());
-	const int postype = isseed ? EM::EMObject::sSeedNode()
-	    : EM::EMObject::sIntersectionNode();
+	    hor3d->isPosAttrib(pointselections[idx],EM::Object::sSeedNode());
+	const int postype = isseed ? EM::Object::sSeedNode()
+	    : EM::Object::sIntersectionNode();
 	const OD::MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
 	markerstyle_.color_ = ms3d.color_;
 	markerstyle_.color_ = hor3d->selectionColor();
@@ -540,7 +540,7 @@ void HorizonPainter3D::removeSelections()
 
 void HorizonPainter3D::updateSelectionColor()
 {
-    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
+    EM::Object* emobj = EM::Hor3DMan().getObject( id_ );
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
     if ( !hor3d ) return;
 

@@ -45,7 +45,7 @@ bool Poly2HorVol::setHorizon( const DBKey& mid, const TaskRunnerProvider& trprov
     if ( hor_ )
 	{ hor_->unRef(); hor_ = 0; }
 
-    EM::EMObject* emobj = EM::Hor3DMan().loadIfNotFullyLoaded( mid, trprov );
+    EM::Object* emobj = EM::Hor3DMan().loadIfNotFullyLoaded( mid, trprov );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
 
     setHorizon( hor );

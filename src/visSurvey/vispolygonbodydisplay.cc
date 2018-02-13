@@ -212,7 +212,7 @@ bool PolygonBodyDisplay::setEMID( const DBKey& emid )
     empolygonsurf_ = 0;
     polygonsurfeditor_ = 0;
 
-    RefMan<EM::EMObject> emobject = EM::BodyMan().getObject( emid );
+    RefMan<EM::Object> emobject = EM::BodyMan().getObject( emid );
     mDynamicCastGet( EM::PolygonBody*, emplys, emobject.ptr() );
     if ( !emplys )
     {
@@ -471,7 +471,7 @@ bool PolygonBodyDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyEMPolygonSurfID(),newmid) )
     {
-	RefMan<EM::EMObject> emobject = EM::BodyMan().getObject( newmid );
+	RefMan<EM::Object> emobject = EM::BodyMan().getObject( newmid );
 	if ( !emobject )
 	{
 	    PtrMan<Executor> loader = EM::BodyMan().objectLoader( newmid );
@@ -688,14 +688,14 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 
 void PolygonBodyDisplay::emChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(EM::EMObjectCallbackData,cbdata,cb);
+    mCBCapsuleUnpack(EM::ObjectCallbackData,cbdata,cb);
     RefMan<EM::EMChangeAuxData> cbaux =	cbdata.auxDataAs<EM::EMChangeAuxData>();
 
-    if ( cbdata.changeType()==EM::EMObject::cBurstAlert() ||
-	 cbdata.changeType()==EM::EMObject::cPositionChange() )
+    if ( cbdata.changeType()==EM::Object::cBurstAlert() ||
+	 cbdata.changeType()==EM::Object::cPositionChange() )
     {
 	updateSingleColor();
-	if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
+	if ( cbdata.changeType()==EM::Object::cPositionChange() && cbaux )
 	{
 	     if ( cbaux->pid0.getRowCol().row()==nearestpolygon_ )
 		updateNearestPolygonMarker();
@@ -705,7 +705,7 @@ void PolygonBodyDisplay::emChangeCB( CallBacker* cb )
 
 	touchAll( false );
     }
-    else if ( cbdata.changeType()==EM::EMObject::cPrefColorChange() )
+    else if ( cbdata.changeType()==EM::Object::cPrefColorChange() )
     {
 	nontexturecol_ = empolygonsurf_->preferredColor();
 	updateSingleColor();

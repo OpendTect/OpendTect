@@ -30,7 +30,7 @@ PolygonBodyEditor::PolygonBodyEditor( EM::PolygonBody& polygonsurf )
 {}
 
 
-ObjectEditor* PolygonBodyEditor::create( EM::EMObject& emobj )
+ObjectEditor* PolygonBodyEditor::create( EM::Object& emobj )
 {
     mDynamicCastGet(EM::PolygonBody*,polygonsurf,&emobj);
     return polygonsurf ? new PolygonBodyEditor( *polygonsurf ) : 0;

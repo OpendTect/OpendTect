@@ -24,7 +24,7 @@ class BodyOperator;
 
 /*! \brief Marching cubes surface */
 
-mExpClass(EarthModel) MarchingCubesSurface : public Body, public EMObject
+mExpClass(EarthModel) MarchingCubesSurface : public Body, public Object
 {   mDefineEMObjFuncs( MarchingCubesSurface );
     mODTextTranslationClass( MarchingCubesSurface );
 public:

@@ -421,7 +421,7 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 	curemid_ = curfssd_ ? curfssd_->getEMObjectID()
 			    : curfltd_->getEMObjectID();
 
-	const EM::EMObject* emobj = EM::MGR().getObject( curemid_ );
+	const EM::Object* emobj = EM::MGR().getObject( curemid_ );
 	if ( !emobj || emobj->isEmpty() )
 	{
 	    toolbar_->turnOn( selbutidx_, false );
@@ -654,7 +654,7 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
 
 void uiODFaultToolMan::updateToolbarCB( CallBacker* )
 {
-    const EM::EMObject* emobj = EM::MGR().getObject( curemid_ );
+    const EM::Object* emobj = EM::MGR().getObject( curemid_ );
 
     if ( !emobj )
 	return;
@@ -865,7 +865,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 
 	    if ( emid.isValid() )
 	    {
-		const EM::EMObject* emobj = EM::MGR().getObject( emid );
+		const EM::Object* emobj = EM::MGR().getObject( emid );
 
 		IOPar iopar;
 		Color curcolor;
@@ -957,7 +957,7 @@ void uiODFaultToolMan::stickRemovalCB( CallBacker* )
     if ( curemid_.isInvalid() )
 	return;
 
-    EM::EMObject* srcemobj = EM::MGR().getObject( curemid_ );
+    EM::Object* srcemobj = EM::MGR().getObject( curemid_ );
     mDynamicCastGet( EM::Fault*, srcfault, srcemobj );
     if ( !srcfault )
 	return;
@@ -983,7 +983,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     NotifyStopper ns( EM::MGR().undo(curemid_).changenotifier );
     MouseCursorChanger mcc( MouseCursor::Wait );
 
-    RefMan<EM::EMObject> srcemobj = EM::MGR().getObject( curemid_ );
+    RefMan<EM::Object> srcemobj = EM::MGR().getObject( curemid_ );
     mDynamicCastGet( EM::Fault*, srcfault, srcemobj.ptr() );
     if ( !srcfault )
 	return;
@@ -999,7 +999,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	return;
 
     EM::MGR().loadIfNotFullyLoaded( destemid, uiTaskRunnerProvider(&appl_) );
-    RefMan<EM::EMObject> destemobj = EM::MGR().getObject( destemid );
+    RefMan<EM::Object> destemobj = EM::MGR().getObject( destemid );
     mDynamicCastGet( EM::Fault*, destfault, destemobj.ptr() );
     if ( !destfault || destfault == srcfault )
 	return;
@@ -1010,7 +1010,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 
     uiUserShowWait usw( 0, uiStrings::sReadingData() );
     mDynamicCastGet( EM::Fault3D*, destf3d, destfault );
-    RefMan<EM::EMObject> tmpemobj = EM::FaultStickSet::create(EM::MGR());
+    RefMan<EM::Object> tmpemobj = EM::FaultStickSet::create(EM::MGR());
     mDynamicCastGet( EM::FaultStickSet*, tmpfss, tmpemobj.ptr() );
 
     const bool merge = mIsCurItem( outputactcombo_, sKeyMergeWithExisting );
@@ -1409,7 +1409,7 @@ void uiODFaultToolMan::setAuxSurfaceWrite( const char* outputname )
 
 void uiODFaultToolMan::undoCB( CallBacker* )
 {
-    const EM::EMObject* curemobj = EM::MGR().getObject(curemid_);
+    const EM::Object* curemobj = EM::MGR().getObject(curemid_);
     if ( !curemobj )
 	return;
 
@@ -1427,7 +1427,7 @@ void uiODFaultToolMan::undoCB( CallBacker* )
 
 void uiODFaultToolMan::redoCB( CallBacker* )
 {
-    const EM::EMObject* curemobj = EM::MGR().getObject(curemid_);
+    const EM::Object* curemobj = EM::MGR().getObject(curemid_);
     if ( !curemobj )
 	return;
 

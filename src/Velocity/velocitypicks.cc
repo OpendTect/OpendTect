@@ -528,10 +528,10 @@ void Picks::horizonChangeCB( CallBacker* cb )
 {
     if ( !cb ) return;
 
-    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData, cbdata, caller, cb );
-    if ( cbdata.changeType()==EM::EMObject::cPosIDChange() ||
-	 cbdata.changeType()==EM::EMObject::cAttribChange() ||
-	 cbdata.changeType()==EM::EMObject::cPrefColorChange() )
+    mCBCapsuleUnpackWithCaller( EM::ObjectCallbackData, cbdata, caller, cb );
+    if ( cbdata.changeType()==EM::Object::cPosIDChange() ||
+	 cbdata.changeType()==EM::Object::cAttribChange() ||
+	 cbdata.changeType()==EM::Object::cPrefColorChange() )
 	return;
 
     mDynamicCastGet( const EM::Horizon3D*, hor, caller );
@@ -541,7 +541,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
     RefMan<EM::EMChangeAuxData> cbauxdata =
 			cbdata.auxDataAs<EM::EMChangeAuxData>();
     TypeSet<RowCol> rcs;
-    if ( cbdata.changeType()==EM::EMObject::cBurstAlert() )
+    if ( cbdata.changeType()==EM::Object::cBurstAlert() )
     {
 	get( hor->id(), rcs );
     }
@@ -585,7 +585,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
 void Picks::addHorizon( const DBKey& dbky, bool addzeroonfail )
 {
     SilentTaskRunnerProvider tprov;
-    RefMan<EM::EMObject> emobj =
+    RefMan<EM::Object> emobj =
 		EM::Hor3DMan().loadIfNotFullyLoaded( dbky, tprov );
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobj.ptr() );
     if ( !hor3d )

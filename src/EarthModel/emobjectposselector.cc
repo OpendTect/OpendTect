@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace EM
 {
 
-EMObjectPosSelector::EMObjectPosSelector( const EMObject& emobj,
+ObjectPosSelector::ObjectPosSelector( const Object& emobj,
 				const ObjectSet<const Selector<Coord3> >& sel )
     : ParallelTask()
     , emobj_(emobj)
@@ -33,11 +33,11 @@ EMObjectPosSelector::EMObjectPosSelector( const EMObject& emobj,
 }
 
 
-EMObjectPosSelector::~EMObjectPosSelector()
+ObjectPosSelector::~ObjectPosSelector()
 { emobj_.unRef(); }
 
 
-bool EMObjectPosSelector::doPrepare( int nrthreads )
+bool ObjectPosSelector::doPrepare( int nrthreads )
 {
     poslist_.erase();
     //TODO this is temporary extraction way of z values
@@ -70,7 +70,7 @@ bool EMObjectPosSelector::doPrepare( int nrthreads )
 }
 
 
-bool EMObjectPosSelector::doWork( od_int64, od_int64, int threadid )
+bool ObjectPosSelector::doWork( od_int64, od_int64, int threadid )
 {
     lock_.lock();
 
@@ -114,7 +114,7 @@ bool EMObjectPosSelector::doWork( od_int64, od_int64, int threadid )
 }
 
 
-void EMObjectPosSelector::processBlock( const RowCol& start,
+void ObjectPosSelector::processBlock( const RowCol& start,
 					const RowCol& stop )
 {
     const Geometry::Element* ge = emobj_.geometryElement();
@@ -195,7 +195,7 @@ void EMObjectPosSelector::processBlock( const RowCol& start,
 }
 
 
-void EMObjectPosSelector::getBoundingCoords( const RowCol& start,
+void ObjectPosSelector::getBoundingCoords( const RowCol& start,
 						  const RowCol& stop,
 						  Coord3& up, Coord3& down )
 {
@@ -248,8 +248,8 @@ void EMObjectPosSelector::getBoundingCoords( const RowCol& start,
 }
 
 
-void EMObjectPosSelector::makeListGrow( const RowCol& start,
-					     const RowCol& stop, int selresult )
+void ObjectPosSelector::makeListGrow( const RowCol& start,
+					const RowCol& stop, int selresult )
 {
     const Geometry::Element* ge = emobj_.geometryElement();
     if ( !ge ) return;

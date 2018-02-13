@@ -54,7 +54,7 @@ bool EM::HorizonPreLoader::load( const DBKeySet& newids, bool is2d,
     int nralreadyloaded = 0;
     int nrproblems = 0;
     PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
-    ObjectSet<EM::EMObject> emobjects;
+    ObjectSet<EM::Object> emobjects;
     for ( int idx=0; idx<newids.size(); idx++ )
     {
 	const int selidx = loadedids_.indexOf( newids[idx] );
@@ -66,7 +66,7 @@ bool EM::HorizonPreLoader::load( const DBKeySet& newids, bool is2d,
 	    continue;
 	}
 
-	EM::EMObject* emobj = horman.getObject( newids[idx] );
+	EM::Object* emobj = horman.getObject( newids[idx] );
 	if ( !emobj || !emobj->isFullyLoaded() )
 	{
 	    Executor* exec = horman.objectLoader( newids[idx] );
@@ -148,7 +148,7 @@ void EM::HorizonPreLoader::unload( const BufferStringSet& hornames )
 	    continue;
 
 	const DBKey id = loadedids_[selidx];
-	EM::EMObject* emobj = EM::Hor3DMan().getObject( loadedids_[selidx] );
+	EM::Object* emobj = EM::Hor3DMan().getObject( loadedids_[selidx] );
 	if ( !emobj )
 	    emobj = EM::Hor2DMan().getObject( loadedids_[selidx] );
 

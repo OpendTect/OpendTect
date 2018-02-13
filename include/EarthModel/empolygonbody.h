@@ -52,7 +52,7 @@ public:
     const Geometry::PolygonSurface*
 			geometryElement() const;
 
-    EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
+    ObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
 
     Executor*		loader(const SurfaceIODataSelection* s=0);
     Executor*		saver(const SurfaceIODataSelection* s=0,
@@ -102,8 +102,8 @@ protected:
     const IOObjContext&		getIOObjContext() const;
 
 
+    friend class		Object;
     friend class		ObjectManager;
-    friend class		EMObject;
     PolygonBodyGeometry		geometry_;
 };
 

@@ -25,7 +25,7 @@ BinIDSurfaceSourceSelector::BinIDSurfaceSourceSelector(
 
 
 SurfaceSourceSelector::SurfaceSourceSelector(
-	const EM::EMObject& obj )
+	const EM::Object& obj )
     : SectionSourceSelector()
     , emobject_( obj )
 {}

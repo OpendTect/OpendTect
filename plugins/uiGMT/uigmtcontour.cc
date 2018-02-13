@@ -309,7 +309,7 @@ bool uiGMTContourGrp::loadHor()
     const IOObj* ioobj = inpfld_->ioobj();
     if ( !ioobj ) return false;
 
-    RefMan<EM::EMObject> obj = EM::MGR().getObject( ioobj->key() );
+    RefMan<EM::Object> obj = EM::MGR().getObject( ioobj->key() );
     if ( !obj || !obj->isFullyLoaded() )
     {
 	PtrMan<EM::SurfaceIODataSelection> sel =

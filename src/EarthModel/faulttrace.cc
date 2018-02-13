@@ -1363,7 +1363,7 @@ bool FaultTrcDataProvider::init( const DBKeySet& faultids,
     TaskGroup taskgrp;
     for ( int idx=0; idx<faultids.size(); idx++ )
     {
-	RefMan<EM::EMObject> emobj = emmgr.getObject( faultids[idx] );
+	RefMan<EM::Object> emobj = emmgr.getObject( faultids[idx] );
 	mDynamicCastGet(EM::Fault*,flt,emobj.ptr())
 	if ( !flt )
 	{
@@ -1395,7 +1395,7 @@ bool FaultTrcDataProvider::get2DTraces( const DBKeySet& faultids,
     TaskGroup taskgrp;
     for ( int idx=0; idx<faultids.size(); idx++ )
     {
-	RefMan<EM::EMObject> emobj = EM::FSSMan().getObject( faultids[idx] );
+	RefMan<EM::Object> emobj = EM::FSSMan().getObject( faultids[idx] );
 	mDynamicCastGet(EM::Fault*,flt,emobj.ptr())
 	if ( !flt )
 	{

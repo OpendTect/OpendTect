@@ -265,7 +265,7 @@ void uiEMPartServer::importReadyCB( CallBacker* cb )
     if ( selemid_.isInvalid() )
 	return;
 
-    EM::EMObject* emobj = emmgr_.getObject( selemid_ );
+    EM::Object* emobj = emmgr_.getObject( selemid_ );
     if ( emobj ) emobj->setFullyLoaded( true );
 
     sendEvent( evDisplayHorizon() );
@@ -407,7 +407,7 @@ void uiEMPartServer::createHorWithConstZ( bool is2d )
 
 bool uiEMPartServer::isChanged( const DBKey& emid ) const
 {
-    const EM::EMObject* emobj = emmgr_.getObject( emid );
+    const EM::Object* emobj = emmgr_.getObject( emid );
     return emobj && emobj->isChanged();
 }
 
@@ -421,7 +421,7 @@ bool uiEMPartServer::isGeometryChanged( const DBKey& emid ) const
 
 int uiEMPartServer::nrAttributes( const DBKey& emid ) const
 {
-    EM::EMObject* emobj = emmgr_.getObject( emid );
+    EM::Object* emobj = emmgr_.getObject( emid );
     if ( !emobj ) return 0;
 
     EM::IOObjInfo eminfo( emobj->dbKey() );
@@ -433,7 +433,7 @@ int uiEMPartServer::nrAttributes( const DBKey& emid ) const
 
 bool uiEMPartServer::isEmpty( const DBKey& emid ) const
 {
-    EM::EMObject* emobj = emmgr_.getObject( emid );
+    EM::Object* emobj = emmgr_.getObject( emid );
     return emobj && emobj->isEmpty();
 }
 
@@ -447,7 +447,7 @@ bool uiEMPartServer::isFullResolution( const DBKey& emid ) const
 
 bool uiEMPartServer::isFullyLoaded( const DBKey& emid ) const
 {
-    const EM::EMObject* emobj = emmgr_.getObject(emid);
+    const EM::Object* emobj = emmgr_.getObject(emid);
     return emobj && emobj->isFullyLoaded();
 }
 
@@ -520,7 +520,7 @@ void uiEMPartServer::removeTreeObject( const DBKey& emid )
 }
 
 
-EM::EMObject* uiEMPartServer::selEMObject()
+EM::Object* uiEMPartServer::selEMObject()
 { return emmgr_.getObject( selemid_ ); }
 
 
@@ -541,7 +541,7 @@ void uiEMPartServer::deriveHor3DFrom2D( const DBKey& emid )
 bool uiEMPartServer::askUserToSave( const DBKey& emid,
 				    bool withcancel ) const
 {
-    EM::EMObject* emobj = emmgr_.getObject(emid);
+    EM::Object* emobj = emmgr_.getObject(emid);
     if ( !emobj || !emobj->isChanged() || !EM::canOverwrite(emobj->dbKey()) )
 	return true;
 
@@ -563,7 +563,7 @@ bool uiEMPartServer::askUserToSave( const DBKey& emid,
 }
 
 
-void uiEMPartServer::selectHorizons( ObjectSet<EM::EMObject>& objs, bool is2d,
+void uiEMPartServer::selectHorizons( ObjectSet<EM::Object>& objs, bool is2d,
 				     uiParent* prnt )
 {
     selectSurfaces( objs, is2d ? EMHorizon2DTranslatorGroup::sGroupName()
@@ -571,7 +571,7 @@ void uiEMPartServer::selectHorizons( ObjectSet<EM::EMObject>& objs, bool is2d,
 }
 
 
-void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d,
+void uiEMPartServer::selectFaults( ObjectSet<EM::Object>& objs, bool is2d,
 				     uiParent* prnt )
 {
     if ( !is2d )
@@ -579,12 +579,12 @@ void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d,
 }
 
 
-void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
+void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::Object>& objs,
 					   uiParent* prnt )
 {  selectSurfaces( objs, EMFaultStickSetTranslatorGroup::sGroupName(), prnt ); }
 
 
-void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs,
+void uiEMPartServer::selectBodies( ObjectSet<EM::Object>& objs,
 				   uiParent* prnt )
 {
     CtxtIOObj ctio( EMBodyTranslatorGroup::ioContext() );
@@ -614,7 +614,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs,
 
 	BufferString typestr;
 	ioobj->pars().get( sKey::Type(), typestr );
-	EM::EMObject* object = EM::BodyMan().createTempObject( typestr );
+	EM::Object* object = EM::BodyMan().createTempObject( typestr );
 	if ( !object ) continue;
 
 	object->ref();
@@ -632,7 +632,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs,
 }
 
 
-void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
+void uiEMPartServer::selectSurfaces( ObjectSet<EM::Object>& objs,
 				     const char* typ, uiParent* prnt )
 {
     uiParent* useparent = prnt ? prnt : parent();
@@ -642,7 +642,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     {
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
-	    EM::EMObject* emobj = objs[idx];
+	    EM::Object* emobj = objs[idx];
 	    if ( emobj && emobj->dbKey().isValid() )
 		surfaceids.add( emobj->dbKey() );
 	}
@@ -659,7 +659,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     dlg.iogrp()->getSurfaceSelection( sel );
 
     uiTaskRunner uitr( parent() );
-    const RefObjectSet<EM::EMObject> emobjs =
+    const RefObjectSet<EM::Object> emobjs =
 	emmgr_.loadObjects( typ, surfaceids, &sel, &uitr );
     if ( !emobjs.isEmpty() )
 	objs.append( emobjs );
@@ -673,7 +673,7 @@ void uiEMPartServer::setHorizon3DDisplayRange( const TrcKeySampling& hs )
 bool uiEMPartServer::loadAuxData( const DBKey& id,
 			    const TypeSet<int>& selattribs, bool removeold )
 {
-    EM::EMObject* object = emmgr_.getObject( id );
+    EM::Object* object = emmgr_.getObject( id );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d ) return false;
 
@@ -701,7 +701,7 @@ bool uiEMPartServer::loadAuxData( const DBKey& id,
 int uiEMPartServer::loadAuxData( const DBKey& id, const char* attrnm,
 				 bool removeold )
 {
-    EM::EMObject* object = emmgr_.getObject( id );
+    EM::Object* object = emmgr_.getObject( id );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d ) return -1;
 
@@ -747,7 +747,7 @@ bool uiEMPartServer::loadAuxData( const DBKey& id,
 bool uiEMPartServer::storeFaultAuxData( const DBKey& id,
 	BufferString& auxdatanm, const Array2D<float>& data )
 {
-    EM::EMObject* object = emmgr_.getObject( id );
+    EM::Object* object = emmgr_.getObject( id );
     mDynamicCastGet( EM::Fault3D*, flt3d, object );
     if ( !flt3d )
 	return false;
@@ -788,7 +788,7 @@ bool uiEMPartServer::storeFaultAuxData( const DBKey& id,
 
 bool uiEMPartServer::showLoadFaultAuxDataDlg( const DBKey& id )
 {
-    EM::EMObject* object = emmgr_.getObject( id );
+    EM::Object* object = emmgr_.getObject( id );
     mDynamicCastGet( EM::Fault3D*, flt3d, object );
     if ( !flt3d )
 	return false;
@@ -815,7 +815,7 @@ bool uiEMPartServer::showLoadFaultAuxDataDlg( const DBKey& id )
 
 bool uiEMPartServer::showLoadAuxDataDlg( const DBKey& id, uiParent* prnt )
 {
-    EM::EMObject* object = emmgr_.getObject( id );
+    EM::Object* object = emmgr_.getObject( id );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d )
 	return false;
@@ -862,7 +862,7 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 				  DBKey& storagekey,
 				  float shift ) const
 {
-    EM::EMObject* object = EM::getMgr( id ).getObject( id );
+    EM::Object* object = EM::getMgr( id ).getObject( id );
     if ( !object ) return false;
 
     mDynamicCastGet(EM::Surface*,surface,object);
@@ -926,7 +926,7 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 bool uiEMPartServer::storeAuxData( const DBKey& id,
 				   BufferString& auxdatanm, bool storeas ) const
 {
-    EM::EMObject* object = emmgr_.getObject( id );
+    EM::Object* object = emmgr_.getObject( id );
     mDynamicCastGet(EM::Horizon3D*,hor3d,object);
     if ( !hor3d )
 	return false;
@@ -982,7 +982,7 @@ int uiEMPartServer::setAuxData( const DBKey& id, DataPointSet& data,
     if ( !data.size() )
     { uiMSG().error(tr("No data calculated")); return -1; }
 
-    EM::EMObject* object = emmgr_.getObject( id );
+    EM::Object* object = emmgr_.getObject( id );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d )
     { uiMSG().error(tr("No horizon loaded")); return -1; }
@@ -1021,7 +1021,7 @@ int uiEMPartServer::setAuxData( const DBKey& id, DataPointSet& data,
 bool uiEMPartServer::getAuxData( const DBKey& oid, int auxdataidx,
 				 DataPointSet& data, float& shift ) const
 {
-    EM::EMObject* object = emmgr_.getObject( oid );
+    EM::Object* object = emmgr_.getObject( oid );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     const char* nm = hor3d->auxdata.auxDataName( auxdataidx );
     if ( !hor3d || !nm )
@@ -1036,7 +1036,7 @@ bool uiEMPartServer::getAuxData( const DBKey& oid, int auxdataidx,
 	return false;
 
     auxvals[1] = 0;
-    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator();
+    PtrMan<EM::ObjectIterator> iterator = hor3d->createIterator();
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
@@ -1057,7 +1057,7 @@ bool uiEMPartServer::getAllAuxData( const DBKey& oid,
 	DataPointSet& data, TypeSet<float>* shifts,
 	const TrcKeyZSampling* cs ) const
 {
-    EM::EMObject* object = emmgr_.getObject( oid );
+    EM::Object* object = emmgr_.getObject( oid );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d ) return false;
 
@@ -1082,7 +1082,7 @@ bool uiEMPartServer::getAllAuxData( const DBKey& oid,
 
     auxvals[0] = 0;
     auxvals[1] = 0;
-    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator(cs);
+    PtrMan<EM::ObjectIterator> iterator = hor3d->createIterator(cs);
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
@@ -1143,7 +1143,7 @@ bool uiEMPartServer::computeVariogramAuxData( const DBKey& oid,
 					      const char* nm,
 					      DataPointSet& dpset )
 {
-    EM::EMObject* object = emmgr_.getObject( oid );
+    EM::Object* object = emmgr_.getObject( oid );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d ) return false;
 
@@ -1195,7 +1195,7 @@ bool uiEMPartServer::computeVariogramAuxData( const DBKey& oid,
 bool uiEMPartServer::changeAuxData( const DBKey& oid,
 	const char* nm, bool interpolate, DataPointSet& dpset )
 {
-    EM::EMObject* object = emmgr_.getObject( oid );
+    EM::Object* object = emmgr_.getObject( oid );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d ) return false;
 
@@ -1288,7 +1288,7 @@ bool uiEMPartServer::attr2Geom( const DBKey& oid,
     if ( cid < 0 )
 	return false;
 
-    EM::EMObject* object = emmgr_.getObject( oid );
+    EM::Object* object = emmgr_.getObject( oid );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d )
 	return false;
@@ -1307,7 +1307,7 @@ bool uiEMPartServer::attr2Geom( const DBKey& oid,
 
 bool uiEMPartServer::geom2Attr( const DBKey& oid )
 {
-    EM::EMObject* object = emmgr_.getObject( oid );
+    EM::Object* object = emmgr_.getObject( oid );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d )
 	return false;
@@ -1340,7 +1340,7 @@ bool uiEMPartServer::loadSurface( const DBKey& dbky,
 	return false;
     }
 
-    EM::EMObject* obj = emmgr_.getObject( dbky );
+    EM::Object* obj = emmgr_.getObject( dbky );
     obj->ref();
     uiTaskRunner exdlg( parent() );
     if ( !TaskRunner::execute( &exdlg, *exec ) )
@@ -1405,7 +1405,7 @@ ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
     if ( emid.isInvalid() )
 	return 0;
 
-    EM::EMObject* obj = emmgr_.getObject( emid );
+    EM::Object* obj = emmgr_.getObject( emid );
     if ( !obj || !obj->isFullyLoaded() )
     {
 	if ( !loadSurface( emid ) )
@@ -1524,7 +1524,7 @@ void uiEMPartServer::getSurfaceDef2D( const DBKeySet& selhorids,
 
     DBKey id;
     const bool issecondhor = selhorids.size()>1;
-    EM::EMObject* obj = 0;
+    EM::Object* obj = 0;
     mGetEMObj(0,obj);
     mDynamicCastGet(EM::Horizon2D*,hor2d1,obj);
 
@@ -1574,7 +1574,7 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, DBKey horid )
     if ( horid.isInvalid() || !isFullyLoaded(horid) )
 	loadSurface( horid );
 
-    EM::EMObject* obj = emmgr_.getObject( horid );
+    EM::Object* obj = emmgr_.getObject( horid );
     mDynamicCastGet(EM::Horizon3D*,hor,obj)
     if ( !hor )
 	return;

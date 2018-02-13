@@ -41,7 +41,7 @@ Horizon2DTracker::~Horizon2DTracker()
 }
 
 
-EMTracker* Horizon2DTracker::create( EM::EMObject* emobj )
+EMTracker* Horizon2DTracker::create( EM::Object* emobj )
 {
     mDynamicCastGet(EM::Horizon2D*,hor,emobj)
     return emobj && !hor ? 0 : new Horizon2DTracker( hor );

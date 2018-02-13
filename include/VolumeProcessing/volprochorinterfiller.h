@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "volprocstep.h"
 
 class BinID;
-namespace EM { class EMObject; class Horizon; }
+namespace EM { class Horizon; }
 
 namespace VolProc
 {

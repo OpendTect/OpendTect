@@ -469,7 +469,7 @@ bool uiStratSynthExport::createHor2Ds()
 	const StratSynthLevel* stratlvl = sslvls_[horidx];
 	BufferString hornm( stratlvl->name() );
 	addPrePostFix( hornm );
-	EM::EMObject* emobj = mgr.createObject(EM::Horizon2D::typeStr(),hornm);
+	EM::Object* emobj = mgr.createObject(EM::Horizon2D::typeStr(),hornm);
 	mDynamicCastGet(EM::Horizon2D*,horizon2d,emobj);
 	if ( !horizon2d ) continue;
 	horizon2d->geometry().addLine( geomid );

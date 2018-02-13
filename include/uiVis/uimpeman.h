@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "trckeyvalue.h"
 
-namespace EM { class EMObject; class Horizon; class Horizon2D; class Horizon3D;}
+namespace EM { class Object; class Horizon; class Horizon2D; class Horizon3D;}
 namespace MPE { class EMTracker; }
 namespace visSurvey
 {
@@ -98,8 +98,8 @@ protected:
     visSurvey::HorizonDisplay*	getSelectedDisplay3D();
 
     int				cureventnr_;
-    void			beginSeedClickEvent(EM::EMObject*);
-    void			endSeedClickEvent(EM::EMObject*);
+    void			beginSeedClickEvent(EM::Object*);
+    void			endSeedClickEvent(EM::Object*);
     void			setUndoLevel(const DBKey&,int);
 
     void			seedClick(CallBacker*);

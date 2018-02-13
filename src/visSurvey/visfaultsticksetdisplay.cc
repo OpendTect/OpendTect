@@ -189,7 +189,7 @@ bool FaultStickSetDisplay::setEMObjectID( const DBKey& emid )
     if ( viseditor_ )
 	viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
 
-    RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( emid );
+    RefMan<EM::Object> emobject = EM::FSSMan().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss )
 	return false;
@@ -738,12 +738,12 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cb )
 {
     mGetMonitoredChgData( cb, cbdata );
     RefMan<EM::EMChangeAuxData> cbaux =	cbdata.auxDataAs<EM::EMChangeAuxData>();
-    if ( cbdata.changeType()==EM::EMObject::cPrefColorChange() )
+    if ( cbdata.changeType()==EM::Object::cPrefColorChange() )
     {
 	getMaterial()->setColor( fault_->preferredColor() );
 	mSetStickIntersectPointColor( fault_->preferredColor() );
     }
-    if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
+    if ( cbdata.changeType()==EM::Object::cPositionChange() && cbaux )
     {
 	RowCol rc = cbaux->pid0.getRowCol();
 
@@ -1165,7 +1165,7 @@ bool FaultStickSetDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
-	RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( newmid );
+	RefMan<EM::Object> emobject = EM::FSSMan().getObject( newmid );
 	if ( !emobject )
 	{
 	    PtrMan<Executor> loader = EM::FSSMan().objectLoader( newmid );

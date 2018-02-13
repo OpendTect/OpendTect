@@ -35,7 +35,7 @@ namespace MPE
 
 mImplClassFactory( EMTracker, factory );
 
-EMTracker::EMTracker( EM::EMObject* emo )
+EMTracker::EMTracker( EM::Object* emo )
     : isenabled_(true)
     , emobject_(0)
     , sectiontracker_(0)
@@ -210,7 +210,7 @@ bool EMTracker::usePar( const IOPar& iopar )
 }
 
 
-void EMTracker::setEMObject( EM::EMObject* no )
+void EMTracker::setEMObject( EM::Object* no )
 {
     if ( emobject_ ) emobject_->unRef();
     emobject_ = no;

@@ -359,13 +359,13 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 				const visSurvey::EMObjectDisplay* emod,
 				const visBase::EventInfo& eventinfo )
 {
-    const EM::EMObject* emobj = EM::Hor2DMan().getObject( emod->getObjectID() );
+    const EM::Object* emobj = EM::Hor2DMan().getObject( emod->getObjectID() );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj)
     if ( !hor2d ) return;
 
     const Coord3 clickedpos = eventinfo.displaypickedpos;
 
-    EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
+    EM::PosID nodepid = emod->getPosAttribPosID(EM::Object::sSeedNode(),
 					eventinfo.pickedobjids,clickedpos );
     const int lineidx = nodepid.getRowCol().row();
     const Pos::GeomID geomid = hor2d->geometry().geomID( lineidx );
@@ -437,13 +437,13 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 				const visSurvey::EMObjectDisplay* emod,
 				const visBase::EventInfo& eventinfo )
 {
-    const EM::EMObject* emobj = EM::MGR().getObject( emod->getObjectID() );
+    const EM::Object* emobj = EM::MGR().getObject( emod->getObjectID() );
     if ( !emobj )
 	return;
 
     const Coord3 clickedpos = eventinfo.displaypickedpos;
 
-    const EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
+    const EM::PosID nodepid = emod->getPosAttribPosID(EM::Object::sSeedNode(),
 					    eventinfo.pickedobjids,clickedpos);
     Coord3 nodepos = emobj->getPos( nodepid );
     if ( !nodepos.isDefined() )

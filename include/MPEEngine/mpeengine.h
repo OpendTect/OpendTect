@@ -22,7 +22,7 @@ class BufferStringSet;
 class Executor;
 class TaskRunnerProvider;
 
-namespace EM { class EMObject; }
+namespace EM { class Object; }
 namespace Geometry { class Element; }
 template <class T> class Selector;
 
@@ -103,7 +103,7 @@ public:
     EMTracker*			getTracker(int idx);
     int				getTrackerByObject(const DBKey&) const;
     int				getTrackerByObject(const char*) const;
-    int				addTracker(EM::EMObject*);
+    int				addTracker(EM::Object*);
     void			removeTracker(int idx);
     void			refTracker(const DBKey&);
     void			unRefTracker(const DBKey&,bool nodel=false);
@@ -183,7 +183,7 @@ protected:
     bool			prepareForRetrack();
     bool			trackInVolume();
     void			trackingFinishedCB(CallBacker*);
-    EM::EMObject*		getCurrentEMObject() const;
+    EM::Object*			getCurrentEMObject() const;
 
     struct CacheSpecs
     {

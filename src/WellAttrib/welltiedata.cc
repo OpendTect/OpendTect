@@ -203,7 +203,7 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
 	    return;
 	}
 
-	RefMan<EM::EMObject> emobj = mgr.getObject( horids[idx] );
+	RefMan<EM::Object> emobj = mgr.getObject( horids[idx] );
 	bool success = true;
 	if ( !emobj || !emobj->isFullyLoaded() )
 	{

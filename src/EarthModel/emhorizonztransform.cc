@@ -167,7 +167,7 @@ bool EM::HorizonZTransform::usePar( const IOPar& par )
 	return true;
 
     EM::ObjectManager& horman = EM::getMgr( objkey );
-    RefMan<EM::EMObject> emobj = horman.getObject( objkey );
+    RefMan<EM::Object> emobj = horman.getObject( objkey );
     if ( !emobj )
 	return false;
 
@@ -202,7 +202,7 @@ void EM::HorizonZTransform::calculateHorizonRange()
 {
     if ( !horizon_ ) return;
 
-    PtrMan<EMObjectIterator> iterator = horizon_->createIterator();
+    PtrMan<ObjectIterator> iterator = horizon_->createIterator();
     if ( !iterator ) return;
 
     bool isset = false;
