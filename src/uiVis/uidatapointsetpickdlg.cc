@@ -436,6 +436,9 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
+	if ( pid.isInvalid() )
+	    break;
+
 	auxvals[0] = (float) hor3d->getPos( pid ).z_;
 	auxvals[2] = mUdf( float );
 	BinID bid = pid.getBinID();
@@ -449,8 +452,10 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
 
 void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
 {
-    if ( !interpol_ ) settCB(0);
-    if ( !interpol_ ) return;
+    if ( !interpol_ )
+	settCB(0);
+    if ( !interpol_ )
+	return;
 
     if ( dataidx_ < 0 )
 	dataidx_ = addSurfaceData();
