@@ -75,7 +75,6 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
 	    Executor* exec = EM::EMM().objectLoader( newmids[idx] );
 	    if ( !exec )
 	    {
-		BufferString name( EM::EMM().objectName(newmids[idx]) );
 		nrproblems++;
 		continue;
 	    }
