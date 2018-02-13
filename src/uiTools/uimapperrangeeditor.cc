@@ -220,8 +220,11 @@ void uiMapperRangeEditor::drawLines()
 
     const int height = histogramdisp_->height();
     minline_->setLine( startpix_, 0, startpix_, height );
+    minline_->setCursor( MouseCursor::SizeHor );
     minline_->show();
+
     maxline_->setLine( stoppix_, 0, stoppix_, height );
+    maxline_->setCursor( MouseCursor::SizeHor );
     maxline_->show();
 }
 
