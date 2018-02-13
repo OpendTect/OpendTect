@@ -24,7 +24,7 @@ namespace VolProc
 mExpClass(uiVolumeProcessing) uiVolumeReader : public uiStepDialog
 { mODTextTranslationClass(uiVolumeReader);
 public:
-    mDefaultFactoryInstanciationBase(
+    mDefaultFactoryInstantiationBase(
 	    VolProc::VolumeReader::sFactoryKeyword(),
 	    VolProc::VolumeReader::sFactoryDisplayName())
     mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );

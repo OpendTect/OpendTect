@@ -34,6 +34,8 @@ public:
 				    visSurvey::SurveyObject,PolyLineDisplay,
 				    "PolyLineDisplay",
 				    toUiString(sFactoryKeyword()));
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     void			fillPolyLine(const TypeSet<Coord>&);
     void                        fillPolyLine(const Coord3&);

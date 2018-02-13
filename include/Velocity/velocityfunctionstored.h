@@ -31,15 +31,15 @@ mExpClass(Velocity) StoredFunction : public Function
 public:
 				StoredFunction(StoredFunctionSource&);
     bool			moveTo(const BinID&);
-    StepInterval<float> 	getAvailableZ() const;
+    StepInterval<float>	getAvailableZ() const;
 
 
 protected:
-    bool 			computeVelocity(float z0, float dz, int nr,
+    bool			computeVelocity(float z0, float dz, int nr,
 						float* res) const;
 
     bool			zit_;
-    TypeSet<float>         	zval_;
+    TypeSet<float>	zval_;
     TypeSet<float>              vel_;
 };
 
@@ -47,11 +47,11 @@ protected:
 mExpClass(Velocity) StoredFunctionSource : public FunctionSource
 { mODTextTranslationClass(StoredFunctionSource);
 public:
-				mDefaultFactoryInstanciationBase(
-				    "StoredVelFunc", 
+				mDefaultFactoryInstantiationBase(
+				    "StoredVelFunc",
 				    toUiString(sFactoryKeyword()));
 
-    				StoredFunctionSource();
+				StoredFunctionSource();
     static IOObjContext&	ioContext();
 
     const VelocityDesc&         getDesc() const         { return desc_; }
@@ -60,14 +60,14 @@ public:
     bool                        load(const DBKey&);
     bool                        store(const DBKey&);
 
-    StoredFunction*            	createFunction(const BinID&);
+    StoredFunction*	createFunction(const BinID&);
 
     void			getAvailablePositions(BinIDValueSet&) const;
     bool			getVel(const BinID&,TypeSet<float>& zvals,
 	                               TypeSet<float>& vel);
 
     void			setData(const BinIDValueSet&,
-	    				const VelocityDesc&,bool zit);
+					const VelocityDesc&,bool zit);
 
     static const char*          sKeyZIsTime();
     static const char*          sKeyVelocityFunction();
@@ -76,7 +76,7 @@ public:
 protected:
     void			fillIOObjPar(IOPar&) const;
 
-    static FunctionSource* 	create(const DBKey&);
+    static FunctionSource*	create(const DBKey&);
 				~StoredFunctionSource();
 
     BinIDValueSet		veldata_;

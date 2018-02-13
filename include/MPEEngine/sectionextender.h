@@ -38,6 +38,8 @@ mExpClass(MPEEngine) SectionExtender : public SequentialTask
 public:
 				SectionExtender();
 
+    mDefineFactory1ParamInClass( SectionExtender, EM::EMObject*, factory );
+
     virtual void		reset();
     virtual void		setDirection(const TrcKeyValue&);
     virtual const TrcKeyValue*	getDirection() const;
@@ -86,8 +88,5 @@ protected:
     bool			setundo_;
 };
 
-
-mDefineFactory1Param( MPEEngine, SectionExtender, EM::EMObject*,
-		      ExtenderFactory );
 
 } // namespace MPE

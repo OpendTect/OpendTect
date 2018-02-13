@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "velocitycalc.h"
 #include "zoeppritzcoeff.h"
 
-mImplFactory(RayTracer1D,RayTracer1D::factory)
+mImplClassFactory(RayTracer1D,factory)
 
 
 float RayTracer1D::cDefaultBlockRatio()

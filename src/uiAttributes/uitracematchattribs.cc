@@ -20,9 +20,19 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitAttribUI(uiDeltaResampleAttrib,DeltaResample,tr("Delta Resample"),
+uiWord sDeltaResampWinName()
+{
+    return od_static_tr("sWinName","Delta Resample");
+}
+
+uiWord sMatchDeltaWinName()
+{
+    return od_static_tr("sWinName","Match Delta");
+}
+
+mInitAttribUI(uiDeltaResampleAttrib,DeltaResample,sDeltaResampWinName(),
 		sTraceMatchGrp())
-mInitGrpDefAttribUI(uiMatchDeltaAttrib,MatchDelta,tr("Match delta"),
+mInitGrpDefAttribUI(uiMatchDeltaAttrib,MatchDelta,sMatchDeltaWinName(),
 		sTraceMatchGrp())
 
 

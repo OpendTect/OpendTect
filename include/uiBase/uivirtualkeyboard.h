@@ -22,7 +22,7 @@ class uiGraphicsItemSet;
 mExpClass(uiBase) uiVirtualKeyboard : public uiMainWin
 { mODTextTranslationClass(uiVirtualKeyboard);
 public:
-    				uiVirtualKeyboard(uiObject&,int x,int y);
+				uiVirtualKeyboard(uiObject&,int x,int y);
 				~uiVirtualKeyboard();
 
     bool			enterPressed() const;
@@ -63,7 +63,7 @@ protected:
     void			enterCB(CallBacker*);
     bool			enterpressed_;
 
-    void			selChg(CallBacker*);
+    void			focusChg(CallBacker*);
     void			restoreSelection();
     int				selectionstart_;
     int				selectionlength_;

@@ -55,7 +55,7 @@ bool RayTracerRunner::prepareRayTracers()
     if ( aimodels_.isEmpty() )
 	mErrRet( toUiString("No AI model set") );
 
-    if ( RayTracer1D::factory().getNames().isEmpty() )
+    if ( RayTracer1D::factory().isEmpty() )
 	return false;
 
     totalnr_ = 0;

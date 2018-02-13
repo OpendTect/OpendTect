@@ -42,6 +42,8 @@ public:
 				    visSurvey::SurveyObject,PreStackDisplay,
 				    "PreStackDisplay",
 				    toUiString(sFactoryKeyword()) );
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     void			allowShading(bool yn);
     void			setDBKey(const DBKey& mid);

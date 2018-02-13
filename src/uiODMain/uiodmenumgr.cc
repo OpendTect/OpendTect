@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiodmenumgr.h"
 
 #include "ui3dviewer.h"
-#include "uiautosaverdlg.h"
 #include "uicrdevenv.h"
 #include "uifileselector.h"
 #include "uiglinfo.h"
@@ -112,15 +111,6 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 
 uiODMenuMgr::~uiODMenuMgr()
 {
-    delete appl_.removeToolBar( dtecttb_ );
-    delete appl_.removeToolBar( viewtb_ );
-    delete appl_.removeToolBar( mantb_ );
-    if ( plugintb_ )
-	delete appl_.removeToolBar( plugintb_ );
-
-    for ( int idx=0; idx<customtbs_.size(); idx++ )
-	delete appl_.removeToolBar( customtbs_[idx] );
-
     delete helpmnumgr_;
     delete langmnumgr_;
     delete faulttoolman_;
@@ -436,17 +426,17 @@ void uiODMenuMgr::setSurveySubMenus()
     uiMenu* ascmnu;
     uiString mnunm; const char* iconnm;
 
-    mnunm = tr( "Attribute Sets" ); iconnm = "attributes";
+    mnunm = uiStrings::sAttributeSet(mPlural); iconnm = "attributes";
     addAsciiActionSubMenu( impmnu_, mnunm, iconnm, mImpAttrAsciiMnuItm );
     expmnus_ += 0;
     add2D3DActions( manmnu_, mnunm, iconnm, mManAttr2DMnuItm, mManAttr3DMnuItm);
 
-    mnunm = tr("Bodies"); iconnm = "tree-body";
+    mnunm = uiStrings::sBody(mPlural); iconnm = "tree-body";
     impmnus_ += 0;
     addAction( impmnu_, mnunm, iconnm, mManBodyMnuItm );
     expmnus_ += 0;
 
-    mnunm = tr("Color Tables"); iconnm = "colorbar";
+    mnunm = uiStrings::sColorTable(mPlural); iconnm = "colorbar";
     impmnus_ += 0;
     addAction( impmnu_, mnunm, iconnm, mImpColTabMnuItm );
     expmnus_ += 0;
@@ -457,13 +447,13 @@ void uiODMenuMgr::setSurveySubMenus()
     expmnus_ += 0;
     addAction( manmnu_, mnunm, iconnm, mManXPlotMnuItm );
 
-    mnunm = tr("Faults"); iconnm = "tree-flt";
+    mnunm = uiStrings::sFault(mPlural); iconnm = "tree-flt";
     addSingMultAsciiSubMenu( impmnu_, mnunm, iconnm,
 			     mImpFltAsciiMnuItm, mImpBulkFltAsciiMnuItm );
     addSingMultAsciiSubMenu( expmnu_, mnunm, iconnm,
 			     mExpFltAsciiMnuItm, mExpBulkFltAsciiMnuItm );
 
-    mnunm = tr("FaultStick Sets"); iconnm = "tree-fltss";
+    mnunm = uiStrings::sFaultStickSet(mPlural); iconnm = "tree-fltss";
     add2D3DSingMultAsciiSubMenu( impmnu_, mnunm, iconnm,
 	    mImpFltSSAscii2DMnuItm, mImpFltSSAscii3DMnuItm,
 	    mImpFltSSAscii2DBulkMnuItm, mImpFltSSAscii3DBulkMnuItm );
@@ -481,7 +471,8 @@ void uiODMenuMgr::setSurveySubMenus()
 	addAction( manmnu_, mnunm, iconnm, mManGeom2DMnuItm );
     }
 
-    mnunm = tr("Horizons"); iconnm = have2d ? "horizons" : "tree-horizon3d";
+    mnunm = uiStrings::sHorizon(mPlural);
+    iconnm = have2d ? "horizons" : "tree-horizon3d";
     ascmnu = add2D3DSingMultAsciiSubMenu( impmnu_, mnunm, iconnm,
 	    mImpHor2DAsciiMnuItm, mImpHor3DAsciiMnuItm,
 	    mImpBulkHor2DAsciiMnuItm, mImpBulkHor3DAsciiMnuItm, true );
@@ -514,39 +505,39 @@ void uiODMenuMgr::setSurveySubMenus()
     expmnus_ += expmnus_.last();
     addAction( manmnu_, mnunm, iconnm, mManPickMnuItm );
 
-    mnunm = tr("Probability Density Functions"); iconnm = "prdfs";
+    mnunm = uiStrings::sProbDensFunc(false,mPlural); iconnm = "prdfs";
     addAsciiActionSubMenu( impmnu_, mnunm, iconnm, mImpPDFAsciiMnuItm );
     addAsciiActionSubMenu( expmnu_, mnunm, iconnm, mExpPDFAsciiMnuItm );
     addAction( manmnu_, mnunm, iconnm, mManPDFMnuItm );
 
-    mnunm = tr("Random Lines"); iconnm = "tree-randomline";
+    mnunm = uiStrings::sRandomLine(mPlural); iconnm = "tree-randomline";
     impmnus_ += 0;
     expmnus_ += 0;
     addAction( manmnu_, mnunm, iconnm, mManRanLMnuItm );
 
     createSeisSubMenus();
 
-    mnunm = tr("Sessions"); iconnm = "session";
+    mnunm = uiStrings::sSession(mPlural); iconnm = "session";
     impmnus_ += 0;
     expmnus_ += 0;
     addAction( manmnu_, mnunm, iconnm, mManSessMnuItm );
 
-    mnunm = tr("Stratigraphy"); iconnm = "strat_tree";
+    mnunm = uiStrings::sStratigraphy(); iconnm = "strat_tree";
     impmnus_ += 0;
     expmnus_ += 0;
     addAction( manmnu_, mnunm, iconnm, mManStratMnuItm );
 
-    mnunm = tr("Velocities"); iconnm = "velocity_cube";
+    mnunm = uiStrings::sVelocity(mPlural); iconnm = "velocity_cube";
     impmnus_ += 0;
     expmnus_ += 0;
     addAsciiActionSubMenu( impmnu_, mnunm, iconnm, mImpVelocityAsciiMnuItm );
 
-    mnunm = tr("Wavelets"), iconnm = "wavelet";
+    mnunm = uiStrings::sWavelet(mPlural); iconnm = "wavelet";
     addAsciiActionSubMenu( impmnu_, mnunm, iconnm, mImpWvltAsciiMnuItm );
     addAsciiActionSubMenu( expmnu_, mnunm, iconnm, mExpWvltAsciiMnuItm );
     addAction( manmnu_, mnunm, iconnm, mManWvltMnuItm );
 
-    mnunm = tr("Wells"); iconnm = "well";
+    mnunm = uiStrings::sWell(mPlural); iconnm = "well";
     fillWellImpSubMenu( addSubMenu(impmnu_,mnunm,iconnm) );
     expmnus_ += 0;
     addAction( manmnu_, mnunm, iconnm, mManWellMnuItm );
@@ -614,7 +605,7 @@ void uiODMenuMgr::fillFullSeisSubMenu( uiMenu* mnu, const CallBack& cb,
 
 void uiODMenuMgr::createSeisSubMenus()
 {
-    uiString mnunm = tr("Seismic Data");
+    uiString mnunm = uiStrings::sSeismicData();
     const char* iconnm = "seis";
     addAction( preloadmnu_, mnunm, iconnm, mPreLoadSeisMnuItm );
     addFullSeisSubMenu( manmnu_, mnunm, iconnm, mClickCB, mManSeisMnu );
@@ -855,7 +846,6 @@ void uiODMenuMgr::fillUtilMenu()
     langmnumgr_ = new uiODLangMenuMgr( *this );
     addAction( settmnu_, uiStrings::sUserSettings(), "settings",
 				mSettingsMnuItm );
-    addAction( settmnu_, tr("Auto-Save"), "autosave", mSettAutoSaveMnuItm );
 
     uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
     addAction( advmnu, tr("Personal Settings"), "unknownperson",
@@ -1369,11 +1359,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     } break;
     case mInstConnSettsMnuItm: {
 	uiProxyDlg dlg( &appl_ ); dlg.go(); } break;
-
-    case mSettAutoSaveMnuItm: {
-	uiAutoSaverDlg dlg( &appl_ );
-	dlg.go();
-    } break;
 
     case mSettingsMnuItm: {
 	uiSettingsDlg dlg( &appl_ );

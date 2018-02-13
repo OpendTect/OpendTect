@@ -38,6 +38,9 @@ class SectionTracker;
 mExpClass(MPEEngine) EMTracker : public RefCount::Referenced
 { mODTextTranslationClass(EMTracker);
 public:
+
+    mDefineFactory1ParamInClass( EMTracker, EM::EMObject*, factory );
+
 				EMTracker(EM::EMObject*);
 
     BufferString		objectName() const;
@@ -86,9 +89,6 @@ protected:
 private:
     EM::EMObject*		emobject_;
 };
-
-
-mDefineFactory1Param( MPEEngine, EMTracker, EM::EMObject*, TrackerFactory );
 
 
 } // namespace MPE

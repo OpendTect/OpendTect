@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uilayout.h"
 
 
-uiConstraint::uiConstraint( constraintType tp, i_LayoutItem* o, int marg )
+uiConstraint::uiConstraint( ConstraintType tp, i_LayoutItem* o, int marg )
     : other_(o)
     , type_(tp)
     , margin_(marg)

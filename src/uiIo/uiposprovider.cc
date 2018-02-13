@@ -34,47 +34,46 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	, selfld_(0)
 	, fullsurvbut_(0)
 {
-    const BufferStringSet& factnms( setup_.is2d_
-	    ? Pos::Provider2D::factory().getNames()
-	    : Pos::Provider3D::factory().getNames() );
+    const BufferStringSet& factkys( setup_.is2d_
+	    ? Pos::Provider2D::factory().getKeys()
+	    : Pos::Provider3D::factory().getKeys() );
 
     const uiStringSet& factusrnms( setup_.is2d_
 	   ? Pos::Provider2D::factory().getUserNames()
 	   : Pos::Provider3D::factory().getUserNames() );
 
     uiStringSet nms;
-    BufferStringSet reqnms;
+    BufferStringSet reqkys;
     if ( setup_.choicetype_ != Setup::All )
     {
-	reqnms.add( sKey::Range() );
+	reqkys.add( sKey::Range() );
 	if ( setup_.choicetype_ == Setup::OnlySeisTypes )
 	{
-	    reqnms.add( sKey::Table() );
-	    reqnms.add( sKey::Polygon() );
-	    reqnms.add( sKey::SeisCubePositions() );
+	    reqkys.add( sKey::Table() );
+	    reqkys.add( sKey::Polygon() );
+	    reqkys.add( sKey::SeisCubePositions() );
 	}
 	else if ( setup_.choicetype_ == Setup::VolumeTypes )
 	{
-	    reqnms.add( sKey::Well() );
-	    reqnms.add( sKey::Polygon() );
-	    reqnms.add( sKey::Body() );
+	    reqkys.add( sKey::Well() );
+	    reqkys.add( sKey::Polygon() );
+	    reqkys.add( sKey::Body() );
 	}
 	else if ( setup_.choicetype_ == Setup::RangewithPolygon )
-	    reqnms.add( sKey::Polygon() );
+	    reqkys.add( sKey::Polygon() );
     }
 
-    for ( int idx=0; idx<factnms.size(); idx++ )
+    for ( int idx=0; idx<factkys.size(); idx++ )
     {
-	const OD::String& nm( factnms.get(idx) );
-	if ( !reqnms.isEmpty() && !reqnms.isPresent(nm) )
+	const OD::String& ky( factkys.get(idx) );
+	if ( !reqkys.isEmpty() && !reqkys.isPresent(ky) )
 	    continue;
 
-	uiPosProvGroup* grp = uiPosProvGroup::factory()
-				.create(nm,this,setup_,true);
+	uiPosProvGroup* grp = uiPosProvGroup::factory().create(ky,this,setup_);
 	if ( !grp ) continue;
 
 	nms.add( factusrnms[idx] );
-	grp->setName( nm );
+	grp->setName( ky );
 	grps_ += grp;
     }
     if ( setup_.allownone_ )

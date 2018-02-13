@@ -59,8 +59,13 @@ static const char* outpstrs2d[] =
         0
 };
 
+static uiWord sDispName()
+{
+    return od_static_tr("sDispName","Convolve");
+}
 
-mInitAttribUI(uiConvolveAttrib,Convolve,tr("Convolve"),sFilterGrp())
+
+mInitAttribUI(uiConvolveAttrib,Convolve,sDispName(),sFilterGrp())
 
 
 uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )

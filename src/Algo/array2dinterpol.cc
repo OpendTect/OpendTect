@@ -57,7 +57,7 @@ const char* ExtensionArray2DInterpol::sKeyNrSteps()
 mDefineEnumUtils( Array2DInterpol, FillType, "Filltypes" )
 { "Only Holes", "Convex Hull", "Full", 0 };
 
-mImplFactory( Array2DInterpol, Array2DInterpol::factory );
+mImplClassFactory( Array2DInterpol, factory );
 
 class Extension2DInterpolExecutor : public Executor
 { mODTextTranslationClass(Extension2DInterpolExecutor);

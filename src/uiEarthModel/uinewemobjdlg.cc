@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistrings.h"
 
-mImplFactory1Param( uiNewEMObjectDlg, uiParent*, uiNewEMObjectDlg::factory )
+mImplClassFactory( uiNewEMObjectDlg, factory )
 
 uiNewEMObjectDlg::uiNewEMObjectDlg( uiParent* p, const uiString& typ )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrCreateNew(typ)

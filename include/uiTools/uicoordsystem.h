@@ -26,6 +26,7 @@ namespace Coords
 mExpClass(uiTools) uiCoordSystem : public uiDlgGroup
 {
 public:
+
     mDefineFactory1ParamInClass(uiCoordSystem,uiParent*,factory);
 
     virtual bool		initFields(const CoordSystem*)= 0;
@@ -118,6 +119,7 @@ protected:
 mExpClass(uiTools) uiUnlocatedXYSystem : public uiCoordSystem
 { mODTextTranslationClass(uiUnlocatedXYSystem);
 public:
+
     mDefaultFactoryInstantiation1Param( uiCoordSystem, uiUnlocatedXYSystem,
 			       uiParent*, UnlocatedXY::sFactoryKeyword(),
 			       UnlocatedXY::sFactoryDisplayName() );

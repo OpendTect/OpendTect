@@ -25,8 +25,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "uistrings.h"
 
-mImplFactory2Param(uiPosProvGroup,uiParent*,const uiPosProvGroup::Setup&,
-		   uiPosProvGroup::factory);
+mImplClassFactory(uiPosProvGroup,factory);
 
 
 uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvGroup::Setup& su )

@@ -31,7 +31,7 @@ class SurfaceLimitedFiller;
 mClass(uiVolumeProcessing) uiSurfaceLimitedFiller : public uiStepDialog
 { mODTextTranslationClass(uiSurfaceLimitedFiller)
 public:
-    mDefaultFactoryInstanciationBase(
+    mDefaultFactoryInstantiationBase(
 	VolProc::SurfaceLimitedFiller::sFactoryKeyword(),
 	VolProc::SurfaceLimitedFiller::sFactoryDisplayName())
 	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance )

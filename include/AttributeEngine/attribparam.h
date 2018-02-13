@@ -146,6 +146,7 @@ public:
     virtual float		getFValue(int idx=0) const;
     virtual double		getDValue(int idx=0) const;
     virtual BufferString	getDefaultValue() const;
+
 };
 
 

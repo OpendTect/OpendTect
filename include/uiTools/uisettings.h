@@ -23,6 +23,7 @@ class uiCheckList;
 class uiComboBox;
 class uiGenInput;
 class uiIconSetSel;
+class uiLabel;
 class uiLabeledComboBox;
 class uiSettingsSubjectTreeItm;
 class uiTable;
@@ -52,6 +53,7 @@ protected:
 
     uiTreeView*				treefld_;
     uiSettingsSubjectTreeItm*		curtreeitm_;
+    uiLabel*				grplbl_;
     ObjectSet<uiSettingsSubjectTreeItm> treeitms_;
 
     Settings&		setts_;

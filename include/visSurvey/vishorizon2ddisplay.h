@@ -34,6 +34,8 @@ public:
 				    visSurvey::SurveyObject,Horizon2DDisplay,
 				    "Horizon2DDisplay",
 				    toUiString(sFactoryKeyword()));
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     void			setDisplayTransformation(const mVisTrans*);
 

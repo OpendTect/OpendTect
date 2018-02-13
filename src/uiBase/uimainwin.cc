@@ -269,8 +269,6 @@ uiMainWinBody::~uiMainWinBody()
     deleteAllChildren(); //delete them now to make sure all ui objects
 			 //are deleted before their body counterparts
 
-    deepErase( toolbars_ );
-
     if ( toolbarsmnu_ )
     {
 	toolbarsmnu_->clear();
@@ -1566,7 +1564,7 @@ public:
 
     virtual void        addChild(uiBaseObject& child);
     virtual void        manageChld_(uiBaseObject&,uiObjectBody&);
-    virtual void	attachChild(constraintType,uiObject* child,
+    virtual void	attachChild(ConstraintType,uiObject* child,
 				    uiObject* other,int margin,bool reciprocal);
     void		provideHelp(CallBacker*);
     void		showCredits(CallBacker*);
@@ -1787,7 +1785,7 @@ void uiDialogBody::manageChld_( uiBaseObject& o, uiObjectBody& b )
 }
 
 
-void uiDialogBody::attachChild( constraintType tp, uiObject* child,
+void uiDialogBody::attachChild( ConstraintType tp, uiObject* child,
 				uiObject* other, int margin, bool reciprocal )
 {
     if ( !child || initing_ ) return;

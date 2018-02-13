@@ -30,8 +30,13 @@ static const char* outpstrs[] =
     0
 };
 
+static uiWord sDispName()
+{
+    return od_static_tr("sDispName","Energy");
+}
 
-mInitAttribUI(uiEnergyAttrib,Energy,tr("Energy"),sBasicGrp())
+
+mInitAttribUI(uiEnergyAttrib,Energy,sDispName(),sBasicGrp())
 
 
 uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )

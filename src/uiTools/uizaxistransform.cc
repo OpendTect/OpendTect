@@ -18,8 +18,7 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 #include "uimsg.h"
 
-mImplFactory3Param( uiZAxisTransform, uiParent*, const char*,
-		    const char*, uiZAxisTransform::factory );
+mImplClassFactory( uiZAxisTransform, factory );
 
 bool uiZAxisTransform::isField( const uiParent* p )
 {
@@ -54,16 +53,16 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     transflds_.setNullAllowed( true );
     uiStringSet names;
 
-    const BufferStringSet& factorynames =
-	uiZAxisTransform::factory().getNames();
+    const BufferStringSet& factorykeys =
+	uiZAxisTransform::factory().getKeys();
 
     const uiStringSet& usernames =
 	uiZAxisTransform::factory().getUserNames();
 
-    for ( int idx=0; idx<factorynames.size(); idx++ )
+    for ( int idx=0; idx<factorykeys.size(); idx++ )
     {
 	uiZAxisTransform* uizat = uiZAxisTransform::factory().create(
-		factorynames[idx]->buf(), this, fromdomain, todomain );
+		factorykeys[idx]->buf(), this, fromdomain, todomain );
 	if ( !uizat )
 	    continue;
 

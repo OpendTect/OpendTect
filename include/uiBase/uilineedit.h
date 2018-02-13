@@ -96,7 +96,7 @@ public:
     Notifier<uiLineEdit> editingFinished;
     Notifier<uiLineEdit> returnPressed;
     Notifier<uiLineEdit> textChanged;
-    Notifier<uiLineEdit> selectionChanged;
+    Notifier<uiLineEdit> focusChanged;
 
 
     virtual const char*	getvalue_() const;

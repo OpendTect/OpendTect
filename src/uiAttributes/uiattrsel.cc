@@ -173,7 +173,7 @@ uiString uiAttrSelectionObj::selTypeDispStr( SelType seltype ) const
     {
 	case Stored:	return uiStrings::sStored();
 	case Steer:	return uiStrings::sSteering();
-	case Attrib:	return uiStrings::sAttribute( mPlural );
+	case Attrib:	return uiStrings::sAttribute();
 	case NLA:
 	{
 	    if ( !seldata_.nlamodel_ )

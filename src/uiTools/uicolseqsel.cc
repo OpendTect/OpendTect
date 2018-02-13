@@ -57,20 +57,10 @@ void uiColSeqSelTool::setToolTip()
 }
 
 
-int uiColSeqSelTool::maxElemLongDimSize()
-{
-    return 3 * uiObject::iconSize();
-}
-
-
 void uiColSeqSelTool::addObjectsToToolBar( uiToolBar& tbar )
 {
     if ( disp_ )
-    {
-	disp_->setMaximumWidth( maxElemLongDimSize() );
-	disp_->setMaximumHeight( maxElemLongDimSize() );
-	tbar.addObject( disp_ );
-    }
+	tbar.addObject( disp_, maxElemLongDimSize() );
 }
 
 
@@ -506,12 +496,12 @@ uiColSeqUseModeSel::~uiColSeqUseModeSel()
 void uiColSeqUseModeSel::addObjectsToToolBar( uiToolBar& tbar )
 {
     if ( compactsel_ )
-	tbar.addObject( compactsel_ );
+	tbar.addObject( compactsel_, 1 );
     else
     {
 	pErrMsg("Adding to toolbar ... but that wasn't planned");
-	tbar.addObject( flippedbox_ );
-	tbar.addObject( cyclicbox_ );
+	tbar.addObject( flippedbox_, 2 );
+	tbar.addObject( cyclicbox_, 2 );
     }
 }
 

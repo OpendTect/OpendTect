@@ -17,7 +17,7 @@
 
 #define mEpsilon 0.0001
 
-mImplFactory( Gridder2D, Gridder2D::factory );
+mImplClassFactory( Gridder2D, factory );
 
 
 Gridder2D::Gridder2D()

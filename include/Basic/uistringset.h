@@ -1,0 +1,146 @@
+#pragma once
+
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	K. Tingdahl / Bert
+ Date:		Jan 2014 / Feb 2018
+________________________________________________________________________
+
+-*/
+
+#include "uistring.h"
+#include "objectset.h"
+
+mFDQtclass( QStringList );
+class uiRetVal;
+
+
+/*\brief Set of uiStrings */
+
+mExpClass(Basic) uiStringSet
+{ mODTextTranslationClass(uiStringSet);
+public:
+
+    typedef ObjectSet<uiString>::size_type	size_type;
+    typedef size_type				IdxType;
+    typedef uiString::AppendType		AppendType;
+    typedef uiString::SeparType			SeparType;
+
+			uiStringSet()				{}
+			uiStringSet( const uiString& s )	{ set(s); }
+			uiStringSet( const uiStringSet& oth )	{ *this = oth; }
+			uiStringSet(const uiString[]);
+				/*!< end array with empty string */
+			~uiStringSet();
+    uiStringSet&	operator =(const uiStringSet&);
+
+    inline size_type	size() const		    { return strs_.size(); }
+    inline bool		validIdx( IdxType i ) const { return strs_.validIdx(i);}
+    bool		isEmpty() const		    { return strs_.isEmpty(); }
+    bool		isPresent(const uiString&) const;
+    IdxType		indexOf(const uiString&) const;
+    uiString&		get(IdxType);
+    const uiString&	get(IdxType) const;
+    uiString&		operator []( IdxType i )    { return get(i); }
+    const uiString&	operator []( IdxType i ) const { return get(i); }
+
+    void		setEmpty();
+    uiStringSet&	set(const uiString&);
+    uiStringSet&	set( const uiStringSet& oth )	{ return (*this=oth); }
+    uiStringSet&	set(const uiRetVal&);
+    uiStringSet&	add(const uiString&);
+    uiStringSet&	add(const uiStringSet&);
+    uiStringSet&	add(const uiRetVal&);
+    uiStringSet&	append( const uiStringSet& ss )	{ return add(ss); }
+    uiStringSet&	insert(IdxType,const uiString&);
+    uiStringSet&	operator +=( const uiString& s ) { return add(s); }
+    void		removeSingle(IdxType,bool keep_order=true);
+    void		removeRange(IdxType,IdxType);
+
+    uiString		cat(muiStringAppendDefArgs) const;
+    uiStringSet		getNonEmpty() const;
+    uiString		createOptionString(bool use_and=true,int maxnritems=-1,
+				   bool separate_lines=false) const;
+				//!< example: "option1, option2 and option3"
+
+    void		fill(mQtclass(QStringList)&) const;
+    void		sort(const bool caseinsens=true,bool asc=true);
+    void		useIndexes( const IdxType* idxs );
+    IdxType*		getSortIndexes(bool caseinsens,bool asc) const;
+
+protected:
+
+    ObjectSet<uiString>	strs_;
+
+};
+
+
+#ifndef UISTRING_FULL_SEPARATION
+
+	typedef uiStringSet uiPhraseSet;
+	typedef uiStringSet uiWordSet;
+
+#else
+
+	//TODO
+
+#endif
+
+
+/*\brief allows returning status and accompanying user info.
+
+  This class helps us make sure there is always user info on errors. Therefore,
+  you will find a 'setIsOK' but no equivalent like 'setNotOK'. You will simply
+  have to set a non-empty message.
+
+*/
+
+mExpClass(Basic) uiRetVal
+{
+public:
+
+			uiRetVal()		{}
+			uiRetVal(const uiPhrase&);
+			uiRetVal(const uiPhraseSet&);
+			uiRetVal(const uiRetVal&);
+    static uiRetVal	OK()			{ return ok_; }
+    static uiRetVal	Empty()			{ return ok_; }
+    uiRetVal&		operator =(const uiRetVal&);
+    uiRetVal&		operator =(const uiPhrase&);
+    uiRetVal&		operator =(const uiPhraseSet&);
+			operator uiPhrase() const;
+			operator uiPhraseSet() const;
+
+    bool		isOK() const;
+    inline bool		isEmpty() const		{ return isOK(); }
+    inline bool		isError() const		{ return !isOK(); }
+    bool		isMultiMessage() const;
+    uiPhraseSet		messages() const;
+    bool		isSingleWord(const uiWord&) const;
+
+    uiRetVal&		setEmpty();
+    inline uiRetVal&	setOK()			{ return setEmpty(); }
+    uiRetVal&		insert(const uiPhrase&);
+    uiRetVal&		set(const uiRetVal&);
+    uiRetVal&		set(const uiPhrase&);
+    uiRetVal&		set(const uiPhraseSet&);
+    uiRetVal&		add(const uiRetVal&);
+    uiRetVal&		add(const uiPhrase&);
+    uiRetVal&		add(const uiPhraseSet&);
+    uiRetVal&		setAsStatus(const uiWord&);
+
+    BufferString	getText() const;
+
+private:
+
+    uiPhraseSet		msgs_;
+    mutable Threads::Lock lock_;
+
+    static const uiRetVal ok_;
+
+};
+
+mGlobal(Basic) bool isFinished(const uiRetVal&);
+mGlobal(Basic) bool isCancelled(const uiRetVal&);

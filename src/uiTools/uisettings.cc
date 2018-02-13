@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uiiconsetsel.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 #include "uistrings.h"
 #include "uisplitter.h"
 #include "uitable.h"
@@ -249,8 +250,7 @@ bool uiAdvSettings::acceptOK()
 
 
 static int theiconsz_ = -1;
-mImplFactory2Param( uiSettingsGroup, uiParent*, Settings&,
-		    uiSettingsGroup::factory )
+mImplClassFactory( uiSettingsGroup, factory )
 
 
 uiSettingsGroup::uiSettingsGroup( uiParent* p, Settings& setts )
@@ -592,15 +592,24 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
     mAddTypeTreeItm( Interaction );
     treefld_->setStretch( 1, 2 );
 
-    uiGroup* rightgrp = new uiGroup( this, "uiSettingsGroup area" );
-    const BufferStringSet& nms = uiSettingsGroup::factory().getNames();
-    for ( int idx=0; idx<nms.size(); idx++ )
+    uiGroup* rightgrp = new uiGroup( this, "Right group" );
+
+    grplbl_ = new uiLabel( rightgrp, uiString::emptyString() );
+    grplbl_->setPrefWidthInChar( 60 );
+    grplbl_->setAlignment( OD::Alignment::Left );
+    uiSeparator* sep = new uiSeparator( rightgrp, "Hor Sep" );
+    sep->attach( stretchedBelow, grplbl_ );
+
+    uiGroup* settsgrp = new uiGroup( rightgrp, "uiSettingsGroup area" );
+    const BufferStringSet& kys = uiSettingsGroup::factory().getKeys();
+    for ( int idx=0; idx<kys.size(); idx++ )
     {
-	const char* nm = nms.get( idx ).buf();
+	const char* ky = kys.get( idx ).buf();
 	uiSettingsGroup* grp = uiSettingsGroup::factory().create(
-				    nm, rightgrp, setts_ );
+				    ky, settsgrp, setts_ );
 	treeitms_ += new uiSettingsSubjectTreeItm( typitms[grp->type()], *grp );
     }
+    settsgrp->attach( ensureBelow, sep );
 
     uiSplitter* spl = new uiSplitter( this );
     spl->addGroup( leftgrp );
@@ -654,6 +663,9 @@ void uiSettingsDlg::selChgCB( CallBacker* )
     }
 
     curtreeitm_ = curitm;
+    uiString typstr = uiSettingsGroup::dispStr( curtreeitm_->typitm_.type_ );
+    grplbl_->setText( toUiString("- %1: %2 Settings")
+		      .arg( typstr ).arg( curtreeitm_->grp_.subject() ) );
 }
 
 

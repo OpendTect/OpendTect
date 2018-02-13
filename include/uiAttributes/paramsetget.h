@@ -10,146 +10,155 @@ ________________________________________________________________________
 
 -*/
 
-/*!\brief used to set parameters*/
 
-#define mSetFloatInterval( str, newval ) \
-{ \
-    mDynamicCastGet(Attrib::FloatGateParam*,param,desc.getParam(str)) \
-    const Interval<float> oldval( param->getFValue(0), param->getFValue(1) ); \
-    if ( chtr_.set(oldval,newval) ) param->setValue( newval ); \
+#include "uiattrdesced.h"
+#include "attribdesc.h"
+
+namespace Attrib
+{
+
+template <class ParamT> inline
+ParamT* getTParam( const char* keystr, Desc& desc )
+{
+    mDynamicCastGet(ParamT*,param,desc.getParam(keystr));
+    if ( !param )
+	{ pFreeFnErrMsg( "Wrong type" ); }
+    return param;
 }
 
-#define mSetFloat( str, newval ) \
-{ \
-    Attrib::ValParam* param = desc.getValParam( str ); \
-    const float oldval = param->getFValue(); \
-    if ( chtr_.set(oldval,newval) ) \
-        param->setValue( newval ); \
+template <class ValT,class ParamT> inline
+bool setFromParam( ParamT* param, ::ChangeTracker& chtr,
+		   const ValT& oldval, const ValT& newval )
+{
+    if ( param && chtr.set(oldval,newval) )
+    {
+	param->setValue( newval );
+	return true;
+    }
+    return false;
 }
 
-#define mSetDouble( str, newval ) \
+} // namespace Attrib
+
+#define mSetSingleFromValParam( keystr, typ, getfn, newval ) \
 { \
-    Attrib::ValParam* param = desc.getValParam( str ); \
-    const double oldval = param->getDValue(); \
-    if ( chtr_.set(oldval,newval) ) \
-        param->setValue( newval ); \
+    Attrib::ValParam* param = Attrib::getTParam<Attrib::ValParam>( \
+					keystr, desc ); \
+    if ( param ) \
+	Attrib::setFromParam<typ,Attrib::ValParam>( param, chtr_, \
+						    param->getfn(), newval );\
 }
 
-#define mSetInt( str, newval ) \
+#define mSetFloat( keystr, newval ) \
+    mSetSingleFromValParam(keystr,float,getFValue,newval)
+#define mSetDouble( keystr, newval ) \
+    mSetSingleFromValParam(keystr,double,getDValue,newval)
+#define mSetInt( keystr, newval ) \
+    mSetSingleFromValParam(keystr,int,getIntValue,newval)
+#define mSetBinID( keystr, newval ) \
+    mSetSingleFromValParam(keystr,BinID,getIdxPairValue<BinID>,newval)
+#define mSetString( keystr, newval ) \
+    mSetSingleFromValParam(keystr,BufferString,getStringValue,newval)
+
+#define mSetBool( keystr, newval ) \
 { \
-    Attrib::ValParam* param = desc.getValParam( str ); \
-    const int oldval = param->getIntValue(); \
-    if ( chtr_.set(oldval,newval) ) \
-        param->setValue( newval ); \
+    BoolParam* param = Attrib::getTParam<BoolParam>( keystr, desc ); \
+    if ( !Attrib::setFromParam<bool,BoolParam>( param, chtr_, \
+					param->getBoolValue(), newval ) ) \
+	param->setSet(); \
 }
 
-#define mSetBool( str, newval ) \
+#define mSetEnum( keystr, newval ) \
 { \
-    mDynamicCastGet(Attrib::BoolParam*,param,desc.getValParam(str)) \
-    const bool oldval = param->getBoolValue(); \
-    if ( chtr_.set(oldval,newval) ) \
-	param->setValue( newval ); \
-    else\
-    	param->setSet();\
+    Attrib::EnumParam* param = Attrib::getTParam<Attrib::EnumParam>( \
+						keystr, desc ); \
+    if ( !Attrib::setFromParam<int,Attrib::EnumParam>( param, chtr_, \
+				       param->getIntValue(), newval ) ) \
+	param->setSet(); \
 }
 
-#define mSetEnum( str, newval ) \
+#define mSetFloatInterval( keystr, newval ) \
 { \
-    mDynamicCastGet(Attrib::EnumParam*,param,desc.getValParam(str)) \
-    const int oldval = param->getIntValue(); \
-    if ( chtr_.set(oldval,newval) ) \
-	param->setValue( newval ); \
-    else\
-    	param->setSet();\
-}
-
-#define mSetBinID( str, newval ) \
-{ \
-    mDynamicCastGet(Attrib::BinIDParam*,param,desc.getValParam(str)) \
-    const BinID oldval = param->getValue(); \
-    if ( chtr_.set(oldval,newval) ) \
-    { param->setValue( newval.inl(), 0 ); param->setValue( newval.crl(), 1 ); } \
-}
-
-
-#define mSetString( str, newval ) \
-{ \
-    Attrib::ValParam* param = desc.getValParam( str ); \
-    BufferString oldval = param->getStringValue(); \
-    if ( chtr_.set(oldval,newval) ) \
-        param->setValue( newval ); \
+    Attrib::FloatGateParam* param = Attrib::getTParam<Attrib::FloatGateParam>( \
+						keystr, desc ); \
+    if ( param ) \
+    { \
+	const Interval<float> oldv( param->getFValue(0), param->getFValue(1) );\
+	if ( chtr_.set(oldv,newval) ) \
+	    param->setValue( newval ); \
+    } \
 }
 
 
 // Get macros
 
-#define mIfGetBool( str, var, setfunc ) \
+#define mIfGetBool( keystr, var, setfunc ) \
 Attrib::ValParam* valparam##var = \
-	const_cast<Attrib::ValParam*>(desc.getValParam(str));\
+	const_cast<Attrib::ValParam*>(desc.getValParam(keystr));\
 mDynamicCastGet(Attrib::BoolParam*,boolparam##var,valparam##var);\
 if ( boolparam##var ) \
 {\
-   bool var;\
-   if ( boolparam##var->isSet() )\
-       var = boolparam##var->getBoolValue(0);\
+    bool var;\
+    if ( boolparam##var->isSet() )\
+	var = boolparam##var->getBoolValue();\
     else\
-	var = boolparam##var->getDefaultBoolValue(0);\
+	var = boolparam##var->getDefaultBoolValue();\
     setfunc;\
 }
 
-#define mIfGetFloat( str, var, setfunc ) \
-if ( desc.getValParam(str) ) \
+#define mIfGetFloat( keystr, var, setfunc ) \
+if ( desc.getValParam(keystr) ) \
 {\
-    float var = desc.getValParam(str)->getFValue(0);\
+    float var = desc.getValParam(keystr)->getFValue();\
     if ( mIsUdf(var) )\
-	var = desc.getValParam(str)->getDefaultFValue(0);\
+	var = desc.getValParam(keystr)->getDefaultFValue();\
     setfunc;\
 }
 
-#define mIfGetDouble( str, var, setfunc ) \
-if ( desc.getValParam(str) ) \
+#define mIfGetDouble( keystr, var, setfunc ) \
+if ( desc.getValParam(keystr) ) \
 {\
-    double var = desc.getValParam(str)->getDValue(0);\
+    double var = desc.getValParam(keystr)->getDValue();\
     if ( mIsUdf(var) )\
-	var = desc.getValParam(str)->getDefaultDValue(0);\
+	var = desc.getValParam(keystr)->getDefaultDValue();\
     setfunc;\
 }
 
-#define mIfGetInt( str, var, setfunc ) \
-if ( desc.getValParam(str) ) \
+#define mIfGetInt( keystr, var, setfunc ) \
+if ( desc.getValParam(keystr) ) \
 {\
-    int var = desc.getValParam(str)->getIntValue(0);\
+    int var = desc.getValParam(keystr)->getIntValue();\
     if ( mIsUdf(var) )\
-	var = desc.getValParam(str)->getDefaultIntValue(0);\
+	var = desc.getValParam(keystr)->getDefaultIntValue();\
     setfunc;\
 }
 
-#define mIfGetEnum( str, var, setfunc ) \
+#define mIfGetEnum( keystr, var, setfunc ) \
 Attrib::ValParam* valparam##var = \
-	const_cast<Attrib::ValParam*>(desc.getValParam(str));\
+	const_cast<Attrib::ValParam*>(desc.getValParam(keystr));\
 mDynamicCastGet(Attrib::EnumParam*,enumparam##var,valparam##var);\
 if ( enumparam##var ) \
 {\
     int var;\
     if ( enumparam##var->isSet() )\
-	var = enumparam##var->getIntValue(0);\
+	var = enumparam##var->getIntValue();\
     else\
-    	var = enumparam##var->getDefaultIntValue(0);\
+	var = enumparam##var->getDefaultIntValue();\
     setfunc;\
 }
 
-#define mIfGetString( str, var, setfunc ) \
-if ( desc.getValParam(str) ) \
+#define mIfGetString( keystr, var, setfunc ) \
+if ( desc.getValParam(keystr) ) \
 { \
-    BufferString var = desc.getValParam(str)->getStringValue(0); \
+    BufferString var = desc.getValParam(keystr)->getStringValue(); \
     if ( var.isEmpty() ) \
-	var = desc.getValParam(str)->getDefaultStringValue(0); \
+	var = desc.getValParam(keystr)->getDefaultStringValue(); \
     setfunc;\
 }
 
-#define mIfGetBinID( str, var, setfunc ) \
+#define mIfGetBinID( keystr, var, setfunc ) \
 Attrib::ValParam* valparam##var = \
-	const_cast<Attrib::ValParam*>(desc.getValParam(str));\
+	const_cast<Attrib::ValParam*>(desc.getValParam(keystr));\
 mDynamicCastGet(Attrib::BinIDParam*,binidparam##var,valparam##var);\
 if ( binidparam##var ) \
 { \
@@ -160,9 +169,9 @@ if ( binidparam##var ) \
     setfunc; \
 }
 
-#define mIfGetFloatInterval( str, var, setfunc ) \
+#define mIfGetFloatInterval( keystr, var, setfunc ) \
 Attrib::ValParam* valparam##var =\
-	const_cast<Attrib::ValParam*>(desc.getValParam(str));\
+	const_cast<Attrib::ValParam*>(desc.getValParam(keystr));\
 if ( valparam##var ) \
 { \
     Interval<float> var; \

@@ -24,13 +24,13 @@ class StoredFunctionSource;
 mExpClass(uiVelocity) uiStoredFunction : public uiFunctionSettings
 { mODTextTranslationClass(uiStoredFunction);
 public:
-    mDefaultFactoryInstanciationBase(
+    mDefaultFactoryInstantiationBase(
 	    StoredFunctionSource::sFactoryKeyword(),
 	    StoredFunctionSource::sFactoryDisplayName() );
 
 
-    			uiStoredFunction(uiParent*,StoredFunctionSource*);
-    			~uiStoredFunction();
+			uiStoredFunction(uiParent*,StoredFunctionSource*);
+			~uiStoredFunction();
 
     FunctionSource*	getSource();
     bool		acceptOK();

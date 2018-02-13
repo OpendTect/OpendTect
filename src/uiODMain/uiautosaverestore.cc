@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiautosaverestore.h"
-#include "uiautosaverdlg.h"
+#include "uiautosavesettings.h"
 #include "uiodmain.h"
 #include "uidialog.h"
 #include "uigeninput.h"
@@ -42,7 +42,7 @@ AutoSaved2RealObjectRestorer()
 
 void doWork( CallBacker* )
 {
-    if ( uiAutoSaverDlg::autoAskRestore() )
+    if ( uiAutoSaverSettingsGroup::autoAskRestore() )
 	uiAutoSave2RealObjDlg::run4All( GetLocalHostName(), GetUserNm() );
 }
 

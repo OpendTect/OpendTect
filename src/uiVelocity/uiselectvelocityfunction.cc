@@ -24,8 +24,7 @@ ________________________________________________________________________
 namespace Vel
 {
 
-mImplFactory2Param(uiFunctionSettings, uiParent*,
-		   FunctionSource*, uiFunctionSettings::factory );
+mImplClassFactory( uiFunctionSettings, factory );
 
 uiFunctionSel::uiFunctionSel( uiParent* p,
 	const ObjectSet<FunctionSource>& srcs,
@@ -179,7 +178,7 @@ uiAddFunction::uiAddFunction( uiParent* p )
     , typesel_( 0 )
 {
     const BufferStringSet& sourceclasses =
-	uiFunctionSettings::factory().getNames();
+	uiFunctionSettings::factory().getKeys();
     const uiStringSet& sourceusernames =
 	uiFunctionSettings::factory().getUserNames();
     typesel_ = new uiGenInput( this, uiStrings::sType(),
@@ -230,7 +229,7 @@ uiEditFunction::uiEditFunction( uiParent* p, FunctionSource* vfs )
 			     mNoDlgTitle, mODHelpKey(mEditFunctionHelpID)) )
     , dlggrp_( 0 )
 {
-    dlggrp_ = uiFunctionSettings::factory().create( 0, this, vfs, false );
+    dlggrp_ = uiFunctionSettings::factory().createSuitable( this, vfs );
 }
 
 

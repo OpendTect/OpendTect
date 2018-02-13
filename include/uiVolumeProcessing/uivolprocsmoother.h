@@ -25,7 +25,7 @@ mExpClass(uiVolumeProcessing) uiSmoother : public uiStepDialog
 { mODTextTranslationClass(uiSmoother)
 public:
 
-    mDefaultFactoryInstanciationBase(
+    mDefaultFactoryInstantiationBase(
 	    Smoother::sFactoryKeyword(),
 	    Smoother::sFactoryDisplayName())
 	    mDefaultFactoryInitClassImpl(uiStepDialog,createInstance)

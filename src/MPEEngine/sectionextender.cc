@@ -18,8 +18,7 @@ ___________________________________________________________________
 namespace MPE
 {
 
-mImplFactory1Param( SectionExtender, EM::EMObject*,
-		    ExtenderFactory )
+mImplClassFactory( SectionExtender, factory )
 
 
 SectionExtender::SectionExtender()

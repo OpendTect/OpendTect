@@ -34,8 +34,12 @@ static const char* actionstr[] =
     0
 };
 
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Tutorial");
+}
 
-mInitAttribUI(uiTutorialAttrib,Tutorial,tr("Tutorial"),sBasicGrp())
+mInitAttribUI(uiTutorialAttrib,Tutorial,sDispName(),sBasicGrp())
 
 
 uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )

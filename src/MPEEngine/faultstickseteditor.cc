@@ -41,7 +41,10 @@ ObjectEditor* FaultStickSetEditor::create( EM::EMObject& emobj )
 
 
 void FaultStickSetEditor::initClass()
-{ MPE::EditorFactory().addCreator( create, EM::FaultStickSet::typeStr() ); }
+{
+    MPE::ObjectEditor::factory().addCreator( create,
+					     EM::FaultStickSet::typeStr() );
+}
 
 
 Geometry::ElementEditor* FaultStickSetEditor::createEditor()

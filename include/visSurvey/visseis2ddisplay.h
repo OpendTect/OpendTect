@@ -40,6 +40,8 @@ public:
 				    visSurvey::SurveyObject,Seis2DDisplay,
 				    "Seis2DDisplay",
 				    toUiString(sFactoryKeyword()))
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     void			setProbe(Probe*);
     Probe*			getProbe()		{ return probe_; }

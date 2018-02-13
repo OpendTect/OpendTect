@@ -41,6 +41,7 @@ public:
 				     Furrowing, FirstSowing, SequentSowing };
 
     SowingMode		mode()				{ return mode_; }
+    virtual const char*	getClassName() const		{ return "Sower"; }
 
     void		reInitSettings();
 

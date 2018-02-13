@@ -748,10 +748,10 @@ bool uiStratUnitDivideDlg::acceptOK()
 	}
 	bfs.addIfNew( code );
 	if ( errmsg.isEmpty() && bfs.size() < idx+1 )
-	     errmsg.append(tr("Unit name previously used in the list. "));
+	     errmsg.appendPhrase(tr("Unit name previously used in the list"));
 	if ( !errmsg.isEmpty() )
 	{
-	    errmsg.append(uiStrings::phrSpecify(tr(
+	    errmsg.appendPhrase(uiStrings::phrSpecify(tr(
 			    "a new name for the unit number %1").arg(idx+1)));
 	    mErrRet( errmsg, deepErase( units); return false )
 	}

@@ -32,8 +32,8 @@ namespace VolProc
 mExpClass(VolumeProcessing) SurfaceLimitedFiller : public Step
 { mODTextTranslationClass(SurfaceLimitedFiller);
 public:
-		mDefaultFactoryCreatorImpl( Step, SurfaceLimitedFiller );
-		mDefaultFactoryInstanciationBase( "SurfaceLimitedFiller",
+		mDefaultFactoryCreatorImpl0Param( SurfaceLimitedFiller );
+		mDefaultFactoryInstantiationBase( "SurfaceLimitedFiller",
 				tr("Horizon-based painter - Advanced") );
 
 			SurfaceLimitedFiller();

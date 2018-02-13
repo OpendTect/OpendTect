@@ -28,7 +28,7 @@ class TutOpCalculator;
 mExpClass(uiTut) uiTutOpCalculator : public uiStepDialog
 { mODTextTranslationClass(uiTutOpCalculator);
 public:
-    mDefaultFactoryInstanciationBase(
+    mDefaultFactoryInstantiationBase(
 	VolProc::TutOpCalculator::sFactoryKeyword(),
 	VolProc::TutOpCalculator::sFactoryDisplayName())
 	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );

@@ -11,11 +11,11 @@
 #include "keystrs.h"
 
 
-mImplFactory( WindowFunction, WINFUNCS );
+mImplClassFactory( WindowFunction, factory );
 
 bool WindowFunction::hasVariable( const BufferString& nm )
 {
-    WindowFunction* winfunc = WINFUNCS().create( nm );
+    WindowFunction* winfunc = factory().create( nm );
     const bool hastapervar = winfunc && winfunc->hasVariable();
     delete winfunc;
 
@@ -59,7 +59,7 @@ bool WindowFunction::usePar( const IOPar& par )
 #define mImplClassMinimal(clss) \
 void clss##Window::initClass() \
 { \
-    WINFUNCS().addCreator( clss##Window::create, clss##Window::sName() ); \
+    factory().addCreator( clss##Window::create, clss##Window::sName() ); \
 } \
 \
 float clss##Window::getValue( float x ) const \
@@ -72,7 +72,7 @@ float clss##Window::getValue( float x ) const \
 
 void BoxWindow::initClass()
 {
-    WINFUNCS().addCreator( BoxWindow::create, BoxWindow::sName() );
+    factory().addCreator( BoxWindow::create, BoxWindow::sName() );
 }
 
 
@@ -85,7 +85,7 @@ float BoxWindow::getValue( float x ) const
 
 void BartlettWindow::initClass()
 {
-    WINFUNCS().addCreator( BartlettWindow::create, BartlettWindow::sName() );
+    factory().addCreator( BartlettWindow::create, BartlettWindow::sName() );
 }
 
 
@@ -100,7 +100,7 @@ float BartlettWindow::getValue( float x ) const
 
 void HanningWindow::initClass()
 {
-    WINFUNCS().addCreator( HanningWindow::create, HanningWindow::sName() );
+    factory().addCreator( HanningWindow::create, HanningWindow::sName() );
 }
 
 
@@ -115,7 +115,7 @@ float HanningWindow::getValue( float x ) const
 
 void HammingWindow::initClass()
 {
-    WINFUNCS().addCreator( HammingWindow::create, HammingWindow::sName() );
+    factory().addCreator( HammingWindow::create, HammingWindow::sName() );
 }
 
 
@@ -130,7 +130,7 @@ float HammingWindow::getValue( float x ) const
 
 void BlackmanWindow::initClass()
 {
-    WINFUNCS().addCreator( BlackmanWindow::create, BlackmanWindow::sName() );
+    factory().addCreator( BlackmanWindow::create, BlackmanWindow::sName() );
 }
 
 
@@ -146,7 +146,7 @@ float BlackmanWindow::getValue( float x ) const
 
 void FlatTopWindow::initClass()
 {
-    WINFUNCS().addCreator( FlatTopWindow::create, FlatTopWindow::sName() );
+    factory().addCreator( FlatTopWindow::create, FlatTopWindow::sName() );
 }
 
 
@@ -165,7 +165,7 @@ float FlatTopWindow::getValue( float x ) const
 
 void CosTaperWindow::initClass()
 {
-    WINFUNCS().addCreator( CosTaperWindow::create, CosTaperWindow::sName() );
+    factory().addCreator( CosTaperWindow::create, CosTaperWindow::sName() );
 }
 
 
@@ -183,7 +183,7 @@ float CosTaperWindow::getValue( float x ) const
 
 void KaiserWindow::initClass()
 {
-    WINFUNCS().addCreator( KaiserWindow::create, KaiserWindow::sName() );
+    factory().addCreator( KaiserWindow::create, KaiserWindow::sName() );
 }
 
 

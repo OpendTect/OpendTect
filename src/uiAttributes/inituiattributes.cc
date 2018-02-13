@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "uiconvolveattrib.h"
 #include "uideltaresampleattrib.h"
+#include "uidipfilterattrib.h"
 #include "uienergyattrib.h"
 #include "uieventattrib.h"
 #include "uifingerprintattrib.h"
@@ -41,6 +42,7 @@ mDefModInitFn(uiAttributes)
 
     uiConvolveAttrib::initClass();
     uiDeltaResampleAttrib::initClass();
+    uiDipFilterAttrib::initClass();
     uiEnergyAttrib::initClass();
     uiEventAttrib::initClass();
     uiFingerPrintAttrib::initClass();

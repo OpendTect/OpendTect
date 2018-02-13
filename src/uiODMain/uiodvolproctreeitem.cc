@@ -30,7 +30,7 @@ namespace VolProc
 
 
 void uiDataTreeItem::initClass()
-{ uiODDataTreeItem::factory().addCreator( create, 0 ); }
+{ uiODDataTreeItem::factory().addCreator( create, "VolProc" ); }
 
 
 uiDataTreeItem::uiDataTreeItem( const char* parenttype, const DBKey* key )

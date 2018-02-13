@@ -93,9 +93,13 @@ static const char* directionstr[]=
 	0
 };
 
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Texture - Directional");
+}
 
-mInitAttribUINoSynth( uiGLCM_attrib, GLCM_attrib,
-		      tr("Texture - Directional"), sBasicGrp() )
+
+mInitAttribUINoSynth( uiGLCM_attrib, GLCM_attrib, sDispName(), sBasicGrp() )
 
 uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
     : uiAttrDescEd( p, is2d, mNoHelpKey )

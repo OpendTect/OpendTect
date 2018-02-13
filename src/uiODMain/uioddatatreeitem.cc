@@ -33,8 +33,7 @@ ___________________________________________________________________
 #include "vissurvscene.h"
 
 
-mImplFactory2Param( uiODDataTreeItem, const Attrib::SelSpec&,
-		     const char*, uiODDataTreeItem::factory )
+mImplClassFactory( uiODDataTreeItem, factory )
 
 void uiODDataTreeItemFactory::addCreateFunc( CreateFunc crfn,
 					const char* probelayertype,
@@ -305,7 +304,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( hasdatapack && isvert )
     {
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrumitem_,
-			  true, false )
+			  !hastransform, false )
 	mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &fkspectrumitem_,
 			  !hastransform, false )
     }

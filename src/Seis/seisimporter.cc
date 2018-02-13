@@ -93,11 +93,8 @@ od_int64 SeisImporter::nrDone() const
 int SeisImporter::Finished()
 {
     if ( nrskipped_ > 0 )
-    {
-	uiString msg;
-	msg.append( "During import, %1 traces were rejected").arg(nrskipped_);
-	errmsg_ = msg;
-    }
+	errmsg_.appendPhrase(
+		tr("During import, %1 traces were rejected").arg(nrskipped_) );
 
     return 0;
 }
@@ -265,17 +262,15 @@ int SeisImporter::readIntoBuf()
 	delete trc;
 	if ( nrread_ == 0 )
 	{
-	    uiString msg;
-	    msg.append( "No valid traces in input.\n", true);
-	    msg.append( "Traces range is out of the survey range:\n");
-	    StepInterval<int> inlrg( SI().inlRange( true ) );
-	    StepInterval<int> crlrg( SI().crlRange( true ) );
-	    msg.append( "Inline Range: '%1 - %2'" )
-	       .arg( inlrg.start).arg(inlrg.stop);
-	    msg.append( "Crossline Range: '%1 - %2'" )
-	       .arg( crlrg.start).arg(crlrg.stop);
-	    errmsg_ = msg;
-	    //errmsg_ = tr("No valid traces in input");
+	    uiString& msg = errmsg_;
+	    const StepInterval<int> inlrg( SI().inlRange( true ) );
+	    const StepInterval<int> crlrg( SI().crlRange( true ) );
+	    msg.appendPhrase( tr("No valid traces in input") );
+	    msg.appendPhrase( tr("The trace range is outside survey range:"));
+	    msg.appendPhrase( tr("Inline Range: %1 - %2")
+				       .arg(inlrg.start).arg(inlrg.stop) );
+	    msg.appendPhrase( tr("Crossline Range: %1 - %2")
+				       .arg(crlrg.start).arg(crlrg.stop) );
 	    return Executor::ErrorOccurred();
 	}
 

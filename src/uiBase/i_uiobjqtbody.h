@@ -74,10 +74,9 @@ public:
 
 			}
 
-    virtual void	attachChild ( constraintType tp,
-                                              uiObject* child,
-                                              uiObject* other, int margin,
-					      bool reciprocal )
+    virtual void	attachChild ( ConstraintType tp,
+				      uiObject* child, uiObject* other,
+				      int margin, bool reciprocal )
                         {
                             if ( !child || initing_ ) return;
 

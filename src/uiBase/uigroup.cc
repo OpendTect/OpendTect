@@ -145,7 +145,7 @@ protected:
     virtual void        manageChld_( uiBaseObject& o, uiObjectBody& b )
 			    { loMngr->addItem( b.mkLayoutItem( *loMngr ) ); }
 
-    virtual void	attachChild ( constraintType tp,
+    virtual void	attachChild ( ConstraintType tp,
 				      uiObject* child,
 				      uiObject* other, int margin,
 				      bool reciprocal )
@@ -504,7 +504,7 @@ bool uiGroup::shrinkAllowed()
 }
 
 
-void uiGroup::attach_( constraintType c, uiObject *other, int margin,
+void uiGroup::attach_( ConstraintType c, uiObject *other, int margin,
 		       bool reciprocal )
 {
     if( (c == heightSameAs ) || (c == widthSameAs ) )

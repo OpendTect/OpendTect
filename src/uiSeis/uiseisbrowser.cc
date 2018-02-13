@@ -232,20 +232,20 @@ void uiSeisBrowser::createMenuAndToolBar()
     {
 	selcompnmfld_ = new uiComboBox( uitb_, compnms_.getUiStringSet(),
 							    "Component name" );
-	uitb_->addObject( selcompnmfld_ );
+	uitb_->addObject( selcompnmfld_, 5 );
 	selcompnmfld_->setCurrentItem( compnr_ );
 	selcompnmfld_->selectionChanged.notify(
 					mCB(this,uiSeisBrowser,chgCompNrCB) );
     }
 
     uiLabel* lbl = new uiLabel( uitb_, tr("Nr traces") );
-    uitb_->addObject( lbl );
+    uitb_->addObject( lbl, 3 );
     nrtrcsfld_ = new uiSpinBox( uitb_ );
     nrtrcsfld_->setInterval( StepInterval<int>(3,99999,2) );
     nrtrcsfld_->doSnap( true );
     nrtrcsfld_->setValue( 2*stepout_+1 );
     nrtrcsfld_->valueChanged.notify( mCB(this,uiSeisBrowser,nrTracesChgCB) );
-    uitb_->addObject( nrtrcsfld_ );
+    uitb_->addObject( nrtrcsfld_, 2 );
 }
 
 

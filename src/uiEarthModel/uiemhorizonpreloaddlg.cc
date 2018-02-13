@@ -147,8 +147,8 @@ void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
     if ( selhornms.isEmpty() )
 	return;
 
-    uiString msg = tr( "Unload checked horizon(s)?\n"
-		  "(This will not delete the file(s) from disk)", 0,
+    uiString msg = tr( "Unload checked horizon?\n"
+		  "(This will not delete any files from disk)", 0,
 		  selhornms.size() );
 
     if ( !uiMSG().askGoOn( msg ) )

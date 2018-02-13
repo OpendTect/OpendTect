@@ -170,8 +170,8 @@ ________________________________________________________________________
 #define mZDefaultMemoryLevel 9
 #define mMaxWindowBitForRawDeflate -15
 
-#define mErrRet(pre,mid,post) { \
-    errormsg_.appendWord( pre ).appendWord( mid ).appendWord( post ); \
+#define mErrRet(msg) { \
+    errormsg_.appendPhrase( msg ); \
     return false; }
 
 
@@ -251,8 +251,7 @@ bool ZipHandler::initMakeZip( const char* destfnm,
 	    cumulativefilecounts_ += allfilenames_.size();
 	}
 	else
-	{ mErrRet( srcfnms.get(idx), tr(" does not exist."),
-						    uiString::emptyString() ) }
+	{ mErrRet( tr("%1 does not exist").arg(srcfnms.get(idx)) ) }
     }
 
     File::Path fp( srcfnms.get(0).buf() );
@@ -364,14 +363,16 @@ bool ZipHandler::doZCompress()
 			      ? mMaxChunkSize : uncompfilesize_;
     od_uint32 upperbound = deflateBound( &zlibstrm, chunksize );
     if ( ret != Z_OK )
-	mErrRet( tr("Error Details:Initialization required to compress data \
-		fails.\n"), tr("Error type:"), toUiString(ret) )
-
+    {
+	uiPhrase errmsg = tr("Error Details:Initialization required to "
+		    "compress data fails");
+	errmsg.appendPhrase(tr("Error type: %1").arg(toUiString(ret)));
+	mErrRet( errmsg )
+    }
     mAllocLargeVarLenArr( char, in, chunksize );
     mAllocLargeVarLenArr( char, out, upperbound );
     if ( !in || !out )
-	mErrRet(tr("Cannot allocate memory."),tr("System is out of memory"),
-							uiString::emptyString())
+	mErrRet(tr("Cannot allocate memory. System is out of memory"))
 
     compfilesize_ = crc_ = 0;
     for ( int flushpolicy=Z_NO_FLUSH; flushpolicy!=Z_FINISH;  )
@@ -391,8 +392,8 @@ bool ZipHandler::doZCompress()
 	    zlibstrm.next_out = mCast( Bytef*, out.ptr() );
 	    ret = deflate( &zlibstrm, flushpolicy );
 	    if ( ret < 0 )
-		mErrRet( tr("Cannot zip "), srcfile_,
-			 tr("\nFile may contain corrupt data") )
+		mErrRet( tr("Cannot zip %1").arg(srcfile_)
+			.appendPhrase(tr("File may contain corrupt data")) )
 
 	    od_uint32 bytestowrite = upperbound - zlibstrm.avail_out;
 	    compfilesize_ = compfilesize_ + bytestowrite;
@@ -884,7 +885,7 @@ od_uint32 ZipHandler::setExtFileAttr( const od_uint32 index )
 bool ZipHandler::initAppend( const char* srcfnm, const char* fnm )
 {
     if ( !File::exists(srcfnm) )
-    { mErrRet( uiStrings::sCannotFind() ,srcfnm, uiString::emptyString() ) }
+    { mErrRet( uiStrings::phrCannotFind(toUiString(srcfnm)) ) }
 
     File::Path fp( fnm );
     curnrlevels_ = fp.nrLevels();
@@ -911,7 +912,7 @@ bool ZipHandler::initAppend( const char* srcfnm, const char* fnm )
 							   allfilenames_.size();
     }
     else
-    { mErrRet( uiStrings::sCannotFind(),fnm, uiString::emptyString()) }
+    { mErrRet( uiStrings::phrCannotFind(toUiString(fnm)) ) }
 
     ostrm_ = new od_ostream( srcfnm, true ); // open for edit
     if ( !ostrm_->isOK() )
@@ -926,7 +927,7 @@ bool ZipHandler::getArchiveInfo( const char* srcfnm,
 				 ObjectSet<ZipFileInfo>& zfileinfo )
 {
     if ( !File::exists(srcfnm) )
-    { mErrRet( uiStrings::sCannotFind(), srcfnm, uiString::emptyString() ) }
+    { mErrRet( uiStrings::phrCannotFind(toUiString(srcfnm)) ) }
 
     istrm_ = new od_istream( srcfnm );
     if ( istrm_->isBad() )
@@ -944,11 +945,11 @@ bool ZipHandler::getArchiveInfo( const char* srcfnm,
 bool ZipHandler::initUnZipArchive( const char* srcfnm, const char* basepath )
 {
     if ( !File::exists(srcfnm) )
-    { mErrRet( uiStrings::sCannotFind(), srcfnm,uiString::emptyString() ) }
+    { mErrRet( uiStrings::phrCannotFind(toUiString(srcfnm)) ) }
 
     srcfile_ = srcfnm;
     if ( !File::isDirectory(basepath) && !File::createDir(basepath) )
-    { mErrRet( basepath, tr(" is not a valid path"), uiString::emptyString() ) }
+    { mErrRet( tr("%1 is not a valid path").arg(basepath) ) }
 
     File::Path destpath( basepath );
     destbasepath_ = destpath.fullPath();
@@ -968,7 +969,7 @@ bool ZipHandler::unZipFile( const char* srcfnm, const char* fnm,
 			    const char* path )
 {
     if ( !File::exists(srcfnm) )
-	{ mErrRet( uiStrings::sCannotFind(), srcfnm, uiString::emptyString() ) }
+	{ mErrRet( uiStrings::phrCannotFind(toUiString(srcfnm)) ) }
 
     ZipArchiveInfo zai( srcfnm );
     od_stream::Pos offset = zai.getLocalHeaderOffset( fnm );
@@ -987,7 +988,7 @@ bool ZipHandler::unZipFile( const char* srcfnm, const char* fnm,
     File::Path fp;
     fp = srcfnm;
     if ( !File::isDirectory(path) && !File::createDir(path) )
-	{ mErrRet( path, tr(" is not a valid path"), uiString::emptyString() ) }
+	{ mErrRet( tr("%1 is not a valid path").arg(toUiString(path)) ) }
 
     File::Path destpath( path );
     destbasepath_ = destpath.fullPath();
@@ -1020,36 +1021,34 @@ bool ZipHandler::readCentralDirHeader( ObjectSet<ZipFileInfo>* zfileinfo )
 	if ( !sigcheck )
 	{
 	    closeInputStream();
-	    mErrRet( srcfile_, tr(" is not a valid zip archive"),
-						   uiString::emptyString() )
+	    mErrRet( tr("%1 is not a valid zip archive")
+					    .arg(toUiString(srcfile_)) )
 	}
 
 	if ( getBitValue( *(headerbuff + mLCentralDirBitFlag), 0 ) )
 	{
 	    closeInputStream();
-	    mErrRet( tr("Encrypted file::Not supported"),
-			uiString::emptyString(),uiString::emptyString() )
+	    mErrRet( tr("Encrypted file::Not supported") )
 	    ////TODO implement
 	}
 
 	od_uint16 version = *mCast( od_uint16*, headerbuff +
 							mLCentralDirVersion );
 	if ( version > mVerNeedToExtract )
-	    { mErrRet(uiStrings::sCannotUnZip(), srcfile_,
-		   tr("\nVersion of zip format needed to unpack "
-		   "is not supported")) }
+	    mErrRet(uiStrings::phrCannotUnZip(toUiString(srcfile_))
+		    .appendPhrase(sErrMsgZipVerNotSupported()))
 
 	od_uint16 compmethod = *mCast( od_uint16*, headerbuff +
 						    mLCentralDirCompMethod );
 	if ( compmethod != mDeflate && compmethod != 0 )
-	{ mErrRet( uiStrings::sCannotZip(), srcfile_,
-		   tr("\nCompression method used '\' is not supported") ) }
+	    mErrRet( uiStrings::phrCannotZip(toUiString(srcfile_))
+		   .appendPhrase(sErrMsgCompressionMethodNotSupported()) )
 
 	od_uint16 bitflag = *mCast( od_uint16*, headerbuff +
 						    mLCentralDirBitFlag );
 	if ( bitflag > 14 )
-	    { mErrRet(uiStrings::sCannotUnZip(), srcfile_,
-	      tr("\nVersion of zip format needed to unpack is not supported"))}
+	    mErrRet(uiStrings::phrCannotUnZip(toUiString(srcfile_))
+	      .appendPhrase(sErrMsgZipVerNotSupported()) )
 
 	istrm_->setReadPosition( fileheadpos + mCentralHeaderSize );
 	const od_uint16 hfnmsz
@@ -1095,8 +1094,7 @@ bool ZipHandler::readEndOfCentralDirHeader()
     mEndOfCntrlDirHeaderSig( sig );
     od_stream::Pos filepos = istrm_->endPosition();
     if ( filepos == 0 )
-	{ mErrRet( tr("Zip archive is empty"), uiString::emptyString(),
-						uiString::emptyString() ) }
+	{ mErrRet( sErrMsgZipEmpty() ) }
 
     filepos -= mEndOfDirHeaderSize;
     istrm_->setReadPosition( filepos );
@@ -1109,8 +1107,10 @@ bool ZipHandler::readEndOfCentralDirHeader()
     {
 	filepos--;
 	if ( filepos <= 0 )
-	    mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-		tr("\nZip archive is corrupt (cannot find header signature)") )
+	    mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+		.appendPhrase(sErrMsgZipArchiveCorrupt())
+		.appendPhrase(sErrMsgNoHeaderSign(),uiString::MoreInfo,
+		uiString::SeparatorOnly) )
 
 	istrm_->setReadPosition( filepos );
 	istrm_->getBin( headerbuff, mSizeFourBytes );
@@ -1139,8 +1139,7 @@ bool ZipHandler::readZIP64EndOfCentralDirLocator()
     istrm_->setReadPosition( 0, od_stream::End );
     od_stream::Pos filepos = istrm_->position();
     if ( filepos == 0 )
-	{ mErrRet( tr("Zip archive is empty"), uiString::emptyString(),
-						    uiString::emptyString()) }
+	{ mErrRet( sErrMsgZipEmpty() ) }
 
     istrm_->setReadPosition( filepos
 			- mEndOfDirHeaderSize - mZIP64EndOfDirLocatorSize );
@@ -1153,8 +1152,10 @@ bool ZipHandler::readZIP64EndOfCentralDirLocator()
     {
 	filepos--;
 	if ( filepos <= 0 )
-	    mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-		tr("\nZip archive is corrupt (cannot find header signature)") )
+	    mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+		.appendPhrase(sErrMsgZipArchiveCorrupt())
+		.appendPhrase(sErrMsgNoHeaderSign(),uiString::MoreInfo,
+		uiString::SeparatorOnly) )
 
 	istrm_->setReadPosition( filepos );
 	istrm_->getBin( headerbuff, mSizeFourBytes );
@@ -1167,8 +1168,9 @@ bool ZipHandler::readZIP64EndOfCentralDirLocator()
     const char* totdsksptr = headerbuff + mLZIP64EndOfDirLocatorTotalDisks;
     int totaldisks = *mCast( int*, totdsksptr );
     if ( totaldisks > 1 )
-	mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-	    tr("\nMultiple disk spanning of zip archive is not supported") )
+	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+		    .appendPhrase(tr("Multiple disk spanning of zip archive "
+							"is not supported")) )
 
     return readZIP64EndOfCentralDirRecord();
 }
@@ -1185,8 +1187,8 @@ bool ZipHandler::readZIP64EndOfCentralDirRecord()
     const od_uint32* ihdrbuff = reinterpret_cast<od_uint32*>(headerbuff);
     const od_uint32* isig = reinterpret_cast<od_uint32*>(sig);
     if ( *ihdrbuff != *isig )
-    { mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-					    tr("\nZip archive is corrupt") ) }
+	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+		    .appendPhrase(sErrMsgZipArchiveCorrupt()) )
 
     istrm_->getBin( headerbuff+mSizeFourBytes,
 		    mZIP64EndOfDirRecordSize-mSizeFourBytes );
@@ -1278,8 +1280,8 @@ bool ZipHandler::extractNextFile()
 	od_int64 count = chunksize;
 	mAllocLargeVarLenArr( char, in, chunksize );
 	if ( !in )
-	    mErrRet(tr("Cannot allocate memory."),
-			tr("\nSystem is out of memory"),uiString::emptyString())
+	    mErrRet(tr("Cannot allocate memory")
+				.appendPhrase(tr("System is out of memory")))
 
 	for ( bool finish=false; !finish; )
 	{
@@ -1302,7 +1304,7 @@ bool ZipHandler::extractNextFile()
 		else
 		{
 		    errormsg_.appendPhrase(
-			    tr(" because of a write error to %1")
+			    tr("Write error in %1")
 			    .arg(ostrm_->fileName()) );
 		    ostrm_->addErrMsgTo( errormsg_ );
 		}
@@ -1314,8 +1316,8 @@ bool ZipHandler::extractNextFile()
     else
     {
 	closeOutputStream(); closeInputStream();
-	mErrRet( tr("Cannot unzip "), toUiString(srcfile_),
-	    tr("\nCompression method used '\' is not supported") )
+	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+		    .appendPhrase(sErrMsgCompressionMethodNotSupported()) )
     }
 
     closeOutputStream();
@@ -1341,28 +1343,27 @@ int ZipHandler::readLocalFileHeader()
     bool sigcheck;
     mFileHeaderSigCheck( headerbuff, 0 );
     if ( !sigcheck )
-	mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-					    tr("\nZip archive is corrupt") )
+	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+			    .appendPhrase(sErrMsgZipArchiveCorrupt()) )
 
     if ( getBitValue( *(headerbuff + mLGenPurBitFlag), 0 ) )
-	mErrRet( tr("Encrypted file::Not supported"), uiString::emptyString(),
-					uiString::emptyString() )
+	mErrRet( tr("Encrypted file::Not supported") )
 	    ////TODO implement
 
     od_uint16 version = *mCast( od_uint16*, headerbuff + mLVerNeedToExtract );
     if ( version > mVerNeedToExtract )
-	mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-	      tr("\nVersion of zip format needed to unpack is not supported") )
+	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+	      .appendPhrase(sErrMsgZipVerNotSupported()) )
 
     od_uint16 compmethod = *mCast( od_uint16*, headerbuff + mLCompMethod );
     if ( compmethod != mDeflate && compmethod != 0 )
-	mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-		 tr("\nCompression method used '\' is not supported") )
+	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+		.appendPhrase(sErrMsgCompressionMethodNotSupported()) )
 
     od_uint16 bitflag = *mCast( od_uint16*, headerbuff + mLGenPurBitFlag );
     if ( bitflag > 14 )
-	mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-	      tr("\nVersion of zip format needed to unpack is not supported") )
+	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+	      .appendPhrase(sErrMsgZipVerNotSupported()) )
 
     compmethod_ = *mCast( od_uint16*, headerbuff + mLCompMethod );
     lastmodtime_ = *mCast( od_uint16*, headerbuff + mLLastModFTime );
@@ -1387,8 +1388,8 @@ int ZipHandler::readLocalFileHeader()
 #endif
 	if ( !File::exists(destfile_.buf()) &&
 	     !File::createDir(destfile_.buf()) )
-	    mErrRet(uiStrings::sCannotUnZip(), srcfile_,
-					   tr("\nUnable to create directory."))
+	    mErrRet(uiStrings::phrCannotUnZip(toUiString(srcfile_))
+			.appendPhrase(tr("Unable to create directory")) )
 
 	istrm_->setReadPosition( filepos + mHeaderSize + srcfnmsize_
 				 + xtrafldlth );
@@ -1457,16 +1458,16 @@ bool ZipHandler::doZUnCompress()
     ret = inflateInit2( &zlibstrm, windowbits );
     if ( ret!=Z_OK )
     {
-	mErrRet( tr("Error Details:Initialization required to uncompress \
-		data fails.\n"), tr("Error type:"), toUiString(ret) )
+	mErrRet( tr("Error Details:Initialization required to uncompress "
+				"data fails").appendPhrase(
+				tr("Error type : %1").arg(toUiString(ret))) )
     }
 
     const od_uint32 chunksize = mMIN( mMaxChunkSize, compfilesize_ );
     mAllocLargeVarLenArr( char, in, chunksize );
     mAllocLargeVarLenArr( char, out, chunksize );
     if ( !in || !out )
-    { mErrRet(tr("Cannot allocate memory."),tr("System is out of memory"),
-					uiString::emptyString()) }
+	mErrRet(tr("Cannot allocate memory. System is out of memory"))
     od_int64 count = chunksize;
     od_uint32 crc = 0;
     od_uint32 bytestowrite;
@@ -1493,8 +1494,8 @@ bool ZipHandler::doZUnCompress()
 	    if ( ret < 0 && ret != Z_BUF_ERROR )
 	    {
 		(void)inflateEnd( &zlibstrm );
-		mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-					    tr("\nZip file is corrupt") )
+		mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+			    .appendPhrase(sErrMsgZipArchiveCorrupt()) )
 	    }
 
 	    bytestowrite = chunksize - zlibstrm.avail_out;
@@ -1504,8 +1505,8 @@ bool ZipHandler::doZUnCompress()
 	    if ( !ostrm_->isOK() )
 	    {
 		(void)inflateEnd( &zlibstrm );
-		mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-			  tr("\nError occured while '\' writing to disk") )
+		mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+		    .appendPhrase(tr("Error occured while writing to disk")) )
 	    }
 
 	} while ( zlibstrm.avail_out == 0  );
@@ -1514,8 +1515,8 @@ bool ZipHandler::doZUnCompress()
 
     inflateEnd( &zlibstrm );
     if ( !(crc == crc_) )
-	mErrRet( uiStrings::sCannotUnZip(), srcfile_,
-					    tr("\nZip archive is corrupt.") )
+	mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
+				  .appendPhrase(sErrMsgZipArchiveCorrupt()) )
 
     return ret == Z_STREAM_END ? true : false;
 #else

@@ -681,9 +681,8 @@ bool VelocityGridder::usePar( const IOPar& par )
 	if ( !source )
 	{
 	    errmsg_ =
-		uiStrings::phrCannotCreate(tr("velocity source of type %1. %2")
-			.arg( sourcetype.buf() )
-			.arg( Vel::FunctionSource::factory().errMsg() ) );
+		uiStrings::phrCannotCreate(tr("velocity source of type %1")
+			.arg( sourcetype.buf() ) );
 	    return false;
 	}
 

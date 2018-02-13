@@ -50,6 +50,9 @@ public:
 				    visSurvey::SurveyObject,PolygonBodyDisplay,
 				    "PolygonBodyDisplay",
 				     toUiString(sFactoryKeyword()));
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
+
     DBKey			getDBKey() const;
     bool			isInlCrl() const	{ return false; }
 

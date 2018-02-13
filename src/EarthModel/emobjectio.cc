@@ -17,9 +17,8 @@
 #include "task.h"
 
 mDefineInstanceCreatedNotifierAccess(EM::ObjectSaver)
-mImplFactory2Param(EM::ObjectLoader,const DBKeySet&,
-		   const EM::SurfaceIODataSelection*,EM::ObjectLoader::factory)
-mImplFactory1Param(EM::ObjectSaver,const SharedObject&,EM::ObjectSaver::factory)
+mImplClassFactory( EM::ObjectLoader, factory )
+mImplClassFactory( EM::ObjectSaver, factory )
 
 namespace EM
 {

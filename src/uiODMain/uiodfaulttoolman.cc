@@ -275,7 +275,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     transfercombo_->setToolTip( tr("Stick transfer action") );
     transfercombo_->addItem( sKeyCopySelection() );
     transfercombo_->addItem( sKeyMoveSelection() );
-    toolbar_->addObject( transfercombo_ );
+    toolbar_->addObject( transfercombo_, 7 );
 
     outputtypecombo_ = new uiComboBox( toolbar_, "Output type" );
     outputtypecombo_->setToolTip( tr("Output type") );
@@ -283,7 +283,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     outputtypecombo_->addItem( sKeyToFaultStickSet() );
     outputtypecombo_->selectionChanged.notify(
 				mCB(this,uiODFaultToolMan,outputTypeChg) );
-    toolbar_->addObject( outputtypecombo_ );
+    toolbar_->addObject( outputtypecombo_, 7 );
 
     outputactcombo_ = new uiComboBox( toolbar_, "Output operation" );
     outputactcombo_->setToolTip( tr("Output operation"));
@@ -294,7 +294,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     outputactcombo_->addItem( sKeyReplaceExisting() );
     outputactcombo_->selectionChanged.notify(
 				mCB(this,uiODFaultToolMan,outputActionChg) );
-    toolbar_->addObject( outputactcombo_ );
+    toolbar_->addObject( outputactcombo_, 7 );
 
     outputnamecombo_ = new uiComboBox( toolbar_, "Output name" );
     outputnamecombo_->setToolTip( tr("Output name"));
@@ -305,7 +305,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     outputnamecombo_->selectionChanged.notify(
 				mCB(this,uiODFaultToolMan,outputComboSelChg) );
     outputnamecombo_->addItem( uiString::emptyString() );
-    toolbar_->addObject( outputnamecombo_ );
+    toolbar_->addObject( outputnamecombo_, 7 );
 
     auxfaultwrite_ = new uiSurfaceWrite( &appl_,
 	    uiSurfaceWrite::Setup(EMFault3DTranslatorGroup::sGroupName(),
@@ -324,12 +324,12 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 				mCB(this,uiODFaultToolMan,selectOutputCB),
 				false );
     outputselbut_->setToolTip( tr("Select output") );
-    toolbar_->addObject( outputselbut_ );
+    toolbar_->addObject( outputselbut_, 4 );
 
     colorbut_ = new uiToolButton( toolbar_, "empty", tr("Output Color"),
 				mCB(this,uiODFaultToolMan,colorPressedCB) );
     colorbut_->setToolTip( colorbut_->text() );
-    toolbar_->addObject( colorbut_ );
+    toolbar_->add( colorbut_ );
 
     settingsbutidx_ = toolbar_->addButton("tools", tr("More Transfer Settings"),
 				mCB(this,uiODFaultToolMan,settingsToggleCB),
@@ -384,7 +384,6 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 uiODFaultToolMan::~uiODFaultToolMan()
 {
     detachAllNotifiers();
-    delete appl_.removeToolBar( toolbar_ );
     if ( settingsdlg_ )
 	delete settingsdlg_;
 }

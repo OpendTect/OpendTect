@@ -65,7 +65,7 @@ void uiParent::manageChld( uiBaseObject& child, uiObjectBody& bdy )
 }
 
 
-void uiParent::attachChild ( constraintType tp, uiObject* child,
+void uiParent::attachChild ( ConstraintType tp, uiObject* child,
 			     uiObject* other, int margin, bool reciprocal )
 {
     if ( child == static_cast<uiBaseObject*>(this) ) return;
@@ -389,14 +389,14 @@ void uiObject::setPrefHeightInChar( float h )
 void uiObject::setStretch( int hor, int ver )
      {mBody()->setStretch(hor,ver); }
 
-void uiObject::attach ( constraintType tp, int margin )
+void uiObject::attach ( ConstraintType tp, int margin )
     { mBody()->attach(tp, (uiObject*)0, margin); }
 
-void uiObject::attach ( constraintType tp, uiObject* other, int margin,
+void uiObject::attach ( ConstraintType tp, uiObject* other, int margin,
 			bool reciprocal )
     { mBody()->attach(tp, other, margin, reciprocal); }
 
-void uiObject::attach ( constraintType tp, uiParent* other, int margin,
+void uiObject::attach ( ConstraintType tp, uiParent* other, int margin,
 			bool reciprocal )
     { mBody()->attach(tp, other, margin, reciprocal); }
 

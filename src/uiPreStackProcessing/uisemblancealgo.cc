@@ -11,8 +11,7 @@
 namespace PreStack
 {
 
-mImplFactory1Param( uiSemblanceAlgorithm, uiParent*,
-		    uiSemblanceAlgorithm::factory);
+mImplClassFactory( uiSemblanceAlgorithm, factory );
 
 uiSemblanceAlgorithm::uiSemblanceAlgorithm( uiParent* p, const HelpKey& helpkey)
     : uiDialog( p,

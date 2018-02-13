@@ -138,9 +138,9 @@ uiBuildListFromList::Setup::Setup( bool mv, const uiString& avitmtp,
 	avitemtype_ = tr("ingredient");
     if ( defitemtype_.isEmpty() )
 	defitemtype_ = tr("definition");
-    addtt_.append( uiStrings::sAdd() ).append(" ").append( defitemtype_ );
-    edtt_.append( uiStrings::sEdit() ).append(" ").append( defitemtype_ );
-    rmtt_.append( uiStrings::sRemove() ).append(" ").append( defitemtype_ );
+    addtt_ = uiStrings::sAdd(); addtt_.postFixWord( defitemtype_ );
+    edtt_ = uiStrings::sEdit(); edtt_.postFixWord( defitemtype_ );
+    rmtt_ = uiStrings::sRemove(); rmtt_.postFixWord( defitemtype_ );
     avtitle_.arg( avitemtype_ );
     deftitle_.arg( defitemtype_ );
 }

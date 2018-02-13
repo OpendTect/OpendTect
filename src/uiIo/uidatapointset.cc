@@ -325,14 +325,14 @@ void uiDataPointSet::mkToolBars()
 	disptb_ = new uiToolBar( this, mJoinUiStrs(sDisplay(), sToolbar()) );
 
     uiLabel* showlbl = new uiLabel( disptb_,uiStrings::sShow() );
-    disptb_->addObject( showlbl );
+    disptb_->addObject( showlbl, 3 );
     percfld_ = new uiSpinBox( disptb_, 1, "Each" );
     percfld_->setSuffix( toUiString("%") );
     percfld_->setInterval( (float)0.1, (float)100, (float)0.1 );
     percfld_->setValue( percentage_ );
     percfld_->setStretch( 0, 0 );
     percfld_->valueChanged.notify( mCB(this,uiDataPointSet,eachChg) );
-    disptb_->addObject( percfld_ );
+    disptb_->addObject( percfld_, 4 );
 
 #define mAddButton(fnm,func,tip,istogg) \
     disptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func), istogg )
@@ -346,7 +346,7 @@ void uiDataPointSet::mkToolBars()
 	showbidsfld_ = new uiCheckBox( disptb_, tr("Show Inl/Crl") );
 	showbidsfld_->activated.notify(mCB(this,uiDataPointSet,chgPosDispType));
 	showbidsfld_->setChecked( showbids_ );
-	disptb_->addObject( showbidsfld_ );
+	disptb_->addObject( showbidsfld_, 5 );
     }
 
     mAddButton( "statsinfo", showStatsWin,

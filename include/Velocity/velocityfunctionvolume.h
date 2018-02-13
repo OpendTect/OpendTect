@@ -39,7 +39,7 @@ public:
 
     void		enableExtrapolation(bool);
     void		setStatics(float t,float vel);
-    			//!<Only used with RMS velocities extrapolation
+			//!<Only used with RMS velocities extrapolation
 
 protected:
 
@@ -59,12 +59,12 @@ protected:
 mExpClass(Velocity) VolumeFunctionSource : public FunctionSource
 { mODTextTranslationClass(VolumeFunctionSource);
 public:
-				mDefaultFactoryInstanciationBase(
-				"Velocity volume", 
+				mDefaultFactoryInstantiationBase(
+				"Velocity volume",
 				toUiString(sFactoryKeyword()));
-    				VolumeFunctionSource();
+				VolumeFunctionSource();
 
-    const VelocityDesc&		getDesc() const 	{ return desc_; }
+    const VelocityDesc&		getDesc() const	{ return desc_; }
 
     bool			zIsTime() const;
     bool			setFrom(const DBKey& vel);
@@ -73,13 +73,13 @@ public:
 
     void			getAvailablePositions(BinIDValueSet&) const;
     bool			getVel(const BinID&,SamplingData<float>&,
-	    			       TypeSet<float>&);
+				       TypeSet<float>&);
 
     static const char*		sKeyZIsTime() { return "Z is Time"; }
 
 protected:
     static FunctionSource*	create(const DBKey&);
-    				~VolumeFunctionSource();
+				~VolumeFunctionSource();
 
     Seis::Provider*		getProvider(uiRetVal&);
 

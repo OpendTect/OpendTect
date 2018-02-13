@@ -73,7 +73,7 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 			const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , editingFinished(this), returnPressed(this)
-    , selectionChanged(this), textChanged(this)
+    , focusChanged(this), textChanged(this)
     , UserInputObjImpl<const char*>()
 {
     setText( spec.text() );
@@ -88,7 +88,7 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 uiLineEdit::uiLineEdit( uiParent* parnt, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , editingFinished(this), returnPressed(this)
-    , selectionChanged(this), textChanged(this)
+    , focusChanged(this), textChanged(this)
     , UserInputObjImpl<const char*>()
 {
     setText( "" );

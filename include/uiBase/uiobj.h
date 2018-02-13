@@ -45,7 +45,7 @@ Noteworthy:
     preferred size. In that case, the maximum is taken.
     The xxMax options specify that the element should take all available
     space ( stretch = 2 )
-  * attach(constraintType,...)
+  * attach(ConstraintType,...)
 	tie objects together in a certain way. Very important is the concept of
 	'align obejct', which is the object itself if it's stand-alone, but
 	usually one of teh objects in a group. It s the object that is logical
@@ -121,11 +121,11 @@ public:
 
     void		setStretch(int hor,int ver);
 				    //!< see class comments
-    void		attach(constraintType,int margin=-1);
+    void		attach(ConstraintType,int margin=-1);
 				    //!< see class comments
-    void		attach(constraintType,uiObject*,int margin=-1,
+    void		attach(ConstraintType,uiObject*,int margin=-1,
 				bool reciprocal=true);
-    void		attach(constraintType,uiParent*,int margin=-1,
+    void		attach(ConstraintType,uiParent*,int margin=-1,
 				bool reciprocal=true);
 
     static void		setTabOrder(uiObject* first, uiObject* second);

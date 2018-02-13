@@ -66,7 +66,7 @@ const char* EMManager::displayparameterstr() { return "Display Parameters"; }
 
 
 
-mImplFactory1Param( EMObject, EMManager&, EMOF );
+mImplFactory( EMObject, EMOF );
 
 EMManager::EMManager( const IOObjContext& ctxt )
     : SaveableManager(ctxt,true)
@@ -170,7 +170,7 @@ RefObjectSet<EMObject> EMManager::loadObjects( const char* typ,
 
     if ( emloader->load(tskr) )
 	loadedpbjs = emloader->getLoadedEMObjects();
-    
+
     return loadedpbjs;
 }
 

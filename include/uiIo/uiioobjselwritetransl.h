@@ -34,7 +34,7 @@ public:
 			factory, transl_.getDisplayName() )
 
     static bool		isPresent( const Translator& t )
-			{ return factory().hasName(t.getDisplayName()); }
+			{ return factory().isPresent(t.getDisplayName()); }
 
     static uiIOObjTranslatorWriteOpts* create( uiParent* p, const Translator& t)
 			{ return factory().create(t.getDisplayName(),p); }

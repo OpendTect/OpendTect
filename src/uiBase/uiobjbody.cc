@@ -513,7 +513,7 @@ i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
 /*!
     attaches to parent if other=0
 */
-void uiObjectBody::attach( constraintType tp, uiObject* other, int margin,
+void uiObjectBody::attach( ConstraintType tp, uiObject* other, int margin,
 			   bool reciprocal )
 {
 //    parent_->attachChild( tp, this, other, margin );

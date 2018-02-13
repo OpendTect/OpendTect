@@ -700,8 +700,11 @@ bool File::checkDirectory( const char* fnm, bool forread, uiString& errmsg )
 
     uiString postfix = od_static_tr( "FilecheckDirectory", "in folder: %1" )
 				   .arg( dirnm );
-    errmsg = forread ? uiStrings::phrCannotRead( postfix )
-		     : uiStrings::phrCannotWrite( postfix );
+    errmsg = forread ? od_static_tr( "FilecheckDirectory",
+						" Cannot read in folder: %1")
+		     : od_static_tr( "FilecheckDirectory",
+						" Cannot write in folder: %1");
+    errmsg.arg(dirnm);
     errmsg.appendPhrase( uiStrings::sCheckPermissions() );
 
     return success;

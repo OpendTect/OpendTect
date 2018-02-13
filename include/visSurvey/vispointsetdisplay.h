@@ -34,6 +34,8 @@ public:
 				    visSurvey::SurveyObject,PointSetDisplay,
 				    "PointSetDisplay",
 				    toUiString(sFactoryKeyword()) );
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     void			setPointSize(int);
     int				getPointSize() const;

@@ -38,6 +38,9 @@ mExpClass(AttributeEngine) ExtAttribCalc
 {
 public:
 
+    mDefineFactory1ParamInClass( ExtAttribCalc, const Attrib::SelSpec&,
+				 factory );
+
     virtual			~ExtAttribCalc()			{}
     virtual bool		setTargetSelSpec(const SelSpec&)	= 0;
 				/*!<\returns if this object can
@@ -56,10 +59,6 @@ public:
     uiString			errmsg_;
 
 };
-
-
-mDefineFactory1Param( AttributeEngine, ExtAttribCalc, const Attrib::SelSpec&,
-		      ExtAttrFact );
 
 
 } // namespace Attrib

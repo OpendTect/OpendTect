@@ -79,7 +79,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     const float perc = (float)( 100/(1 + nrpts/minptsfordensity_) );
 
     uiLabel* lbl = new uiLabel( 0, uiStrings::sShow() );
-    disptb_.addObject( lbl );
+    disptb_.addObject( lbl, 3 );
 
     eachfld_ = new uiSpinBox( 0, 2, "Percentage" );
     eachfld_->setSuffix( toUiString("%") );
@@ -89,7 +89,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     eachfld_->valueChanged.notify(
 			mCB(this,uiDataPointSetCrossPlotWin,eachChg) );
     plotter_.plotperc_ = perc;
-    disptb_.addObject( eachfld_ );
+    disptb_.addObject( eachfld_, 5 );
 
     densityplottbid_ = disptb_.addButton( "densityplot",tr("Show density plot"),
 		  mCB(this,uiDataPointSetCrossPlotWin,setDensityPlot), true );
@@ -110,13 +110,13 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     plotter_.drawContent();
 
     selfld_ = new uiComboBox( 0, "Selection Option" );
-    selfld_->addItem( tr("Select only Y1") );
-    selfld_->addItem( tr("Select only Y2") );
-    selfld_->addItem( tr("Select both") );
+    selfld_->addItem( tr("Select Y1") );
+    selfld_->addItem( tr("Select Y2") );
+    selfld_->addItem( tr("Select Y1&Y2") );
     selfld_->selectionChanged.notify( mCB(this,uiDataPointSetCrossPlotWin,
 					  selOption) );
     selfld_->setSensitive( false );
-    seltb_.addObject( selfld_ );
+    seltb_.addObject( selfld_, 5 );
 
     setselecttbid_ = seltb_.addButton( "altview", tr("Set selectable"),
 		  mCB(this,uiDataPointSetCrossPlotWin,setSelectable), true );
@@ -154,7 +154,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain) );
 
 
-    maniptb_.addObject( plotter_.getSaveImageButton(&maniptb_) );
+    maniptb_.add( plotter_.getSaveImageButton(&maniptb_) );
 
     maniptb_.addButton( "xplotprop", uiStrings::sProperties(),
 			mCB(this,uiDataPointSetCrossPlotWin,editProps) );
@@ -200,7 +200,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	grpfld_->setCurrentItem( 0 );
 	grpfld_->selectionChanged.notify(
 			    mCB(this,uiDataPointSetCrossPlotWin,grpChg) );
-	disptb_.addObject( grpfld_ );
+	disptb_.addObject( grpfld_, 5 );
     }
 
     setSelectable( 0 );

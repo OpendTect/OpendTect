@@ -10,8 +10,7 @@
 #include "ptrman.h"
 #include "fixedstring.h"
 
-mImplFactory1Param(DisplayPropertyLink,ObjectSet<DisplayPropertyHolder>&,
-		   DisplayPropertyLink::factory);
+mImplClassFactory(DisplayPropertyLink,factory);
 
 
 // ***** DisplayPropertyHolder *****
@@ -143,14 +142,13 @@ void DisplayLinkManager::createPossibleLinks( DisplayPropertyHolder* hldr,
 
 	tmpholders += holders_[idx];
 
-	const BufferStringSet& names =
-		DisplayPropertyLink::factory().getNames();
+	const BufferStringSet& keys =
+		DisplayPropertyLink::factory().getKeys();
 
-	for ( int idy=names.size()-1; idy>=0; idy-- )
+	for ( int idy=keys.size()-1; idy>=0; idy-- )
 	{
-	    DisplayPropertyLink* link =
-		DisplayPropertyLink::factory().create( names[idy]->buf(),
-						       tmpholders );
+	    DisplayPropertyLink* link = DisplayPropertyLink::factory().create(
+						keys.get(idy), tmpholders );
 	    if ( link )
 		links += link;
 	}

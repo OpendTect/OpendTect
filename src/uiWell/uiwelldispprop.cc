@@ -339,8 +339,8 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 {
 
     stylefld_ = new uiCheckList( this, uiCheckList::OneOnly, OD::Horizontal );
-    stylefld_->addItem( tr("Well log") )
-	      .addItem( tr("Seismic") );
+    stylefld_->addItem( uiStrings::sWellLog() )
+	      .addItem( uiStrings::sSeismic() );
     if ( !setup_.onlyfor2ddisplay_ )
 	stylefld_->addItem( tr("Log tube") );
     stylefld_->setLabel( tr("Style") );

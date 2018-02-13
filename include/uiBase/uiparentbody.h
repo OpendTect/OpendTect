@@ -46,7 +46,7 @@ public:
 			    manageChld_(child,b);
 			}
 
-    virtual void	attachChild( constraintType tp, uiObject* child,
+    virtual void	attachChild( ConstraintType tp, uiObject* child,
 				     uiObject* other, int margin,
 				     bool reciprocal ) =0;
 

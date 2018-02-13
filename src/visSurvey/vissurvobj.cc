@@ -21,7 +21,7 @@
 
 namespace visSurvey {
 
-mImplFactory( SurveyObject, SurveyObject::factory );
+mImplClassFactory( SurveyObject, factory );
 
 SurveyObject::SurveyObject()
     : scene_(0)

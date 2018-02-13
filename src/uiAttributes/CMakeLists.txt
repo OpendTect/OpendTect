@@ -26,6 +26,7 @@ set(OD_MODULE_SOURCES
 	uiautoattrdescset.cc
 	uiconvolveattrib.cc
 	uicrossattrevaluatedlg.cc
+	uidipfilterattrib.cc
 	uitracematchattribs.cc
 	uienergyattrib.cc
 	uievaluatedlg.cc

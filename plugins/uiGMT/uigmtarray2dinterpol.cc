@@ -36,7 +36,7 @@ const char* uiGMTSurfaceGrid::sName()
 
 void uiGMTSurfaceGrid::initClass()
 {
-    uiArray2DInterpolSel::factory().addCreator( create, sName() );
+    uiArray2DInterpol::factory().addCreator( create, sName() );
 }
 
 
@@ -134,7 +134,7 @@ const char* uiGMTNearNeighborGrid::sName()
 
 void uiGMTNearNeighborGrid::initClass()
 {
-    uiArray2DInterpolSel::factory().addCreator( create, sName() );
+    uiArray2DInterpol::factory().addCreator( create, sName() );
 }
 
 

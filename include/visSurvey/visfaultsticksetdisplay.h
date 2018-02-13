@@ -51,6 +51,8 @@ public:
 				    FaultStickSetDisplay,
 				    "FaultStickSetDisplay",
 				    toUiString(sFactoryKeyword()))
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
 
     DBKey			getDBKey() const;

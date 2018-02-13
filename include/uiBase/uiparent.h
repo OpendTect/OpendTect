@@ -30,7 +30,7 @@ public:
 
     void		addChild(uiBaseObject&);
     void		manageChld(uiBaseObject&,uiObjectBody&);
-    void		attachChild(constraintType tp,uiObject* child,
+    void		attachChild(ConstraintType tp,uiObject* child,
 				    uiObject* other,int margin,
 				    bool reciprocal);
 
@@ -50,12 +50,12 @@ public:
 #define mIfMO()		if ( mainObject() ) mainObject()
 #define mRetMO(fn,val)	return mainObject() ? mainObject()->fn() : val;
 
-    void		attach( constraintType t, int margin=-1 )
+    void		attach( ConstraintType t, int margin=-1 )
 			    { mIfMO()->attach(t,margin); }
-    void		attach( constraintType t, uiParent* oth, int margin=-1,
+    void		attach( ConstraintType t, uiParent* oth, int margin=-1,
 				bool reciprocal=true)
 			    { attach(t,oth->mainObject(),margin,reciprocal); }
-    void		attach( constraintType t, uiObject* oth, int margin=-1,
+    void		attach( ConstraintType t, uiObject* oth, int margin=-1,
 				bool reciprocal=true)
 			    { attach_(t,oth,margin,reciprocal); }
 
@@ -106,7 +106,7 @@ public:
 
 protected:
 
-    virtual void	attach_( constraintType t, uiObject* oth, int margin=-1,
+    virtual void	attach_( ConstraintType t, uiObject* oth, int margin=-1,
 				bool reciprocal=true)
 			    { mIfMO()->attach(t,oth,margin,reciprocal); }
 

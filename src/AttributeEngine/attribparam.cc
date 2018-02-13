@@ -17,7 +17,7 @@
 namespace Attrib
 {
 
-#define mParamClone( type ) \
+#define mDefParamClone( type ) \
 type* type::clone() const { return new type(*this); }
 #define mGetSpec(typ) \
     (static_cast<typ*>( spec_ ))
@@ -34,7 +34,7 @@ BinIDParam::BinIDParam( const char* nm, const BinID& defbid, bool isreq )
     setRequired( isreq );
 }
 
-mParamClone( BinIDParam );
+mDefParamClone( BinIDParam );
 
 
 void BinIDParam::setLimits( const Interval<int>& inlrg,
@@ -113,37 +113,33 @@ BufferString BinIDParam::getDefaultValue() const
 }
 
 
+static BoolInpSpec* mkBoolInpSpec()
+{
+    // These strings should NOT be translated! They end up in files!
+    const uiString yesstr = toUiString( getYesNoString(true) );
+    const uiString nostr = toUiString( getYesNoString(false) );
+    return new BoolInpSpec( true, yesstr, nostr, false );
+}
+
+
 BoolParam::BoolParam( const char* nm )
-    : ValParam(nm,new BoolInpSpec(true,uiStrings::sYes(),
-				  uiStrings::sNo(),false))
+    : ValParam(nm,mkBoolInpSpec())
 {}
 
 BoolParam::BoolParam( const char* nm, bool defval, bool isreq )
-    : ValParam(nm,new BoolInpSpec(true,uiStrings::sYes(),
-				  uiStrings::sNo(),false))
+    : ValParam(nm,mkBoolInpSpec())
 {
     setValue( defval );
     setDefaultValue( defval );
     setRequired( isreq );
 }
 
-mParamClone( BoolParam );
+mDefParamClone( BoolParam );
 
 
 bool BoolParam::setCompositeValue( const char* str )
 {
-    if ( !str )
-	return false;
-
-    if ( caseInsensitiveEqual(str,"yes")
-       || caseInsensitiveEqual(str,"true") )
-	spec_->setValue( true );
-    else if ( caseInsensitiveEqual(str,"no")
-	   || caseInsensitiveEqual(str,"false") )
-	spec_->setValue( false );
-    else
-	return false;
-
+    spec_->setValue( yesNoFromString(str) );
     return true;
 }
 
@@ -151,7 +147,7 @@ bool BoolParam::setCompositeValue( const char* str )
 BufferString BoolParam::getDefaultValue() const
 {
     const bool yn = getDefaultBoolValue();
-    return toString( mGetSpec(BoolInpSpec)->trueFalseTxt(yn) );
+    return BufferString( getYesNoString(yn) );
 }
 
 
@@ -180,7 +176,7 @@ EnumParam::EnumParam( const char* nm, int defval, bool isreq )
     setRequired( isreq );
 }
 
-mParamClone( EnumParam );
+mDefParamClone( EnumParam );
 
 void EnumParam::addEnum( const char* ne )
 {
@@ -263,7 +259,7 @@ StringParam::StringParam( const char* key, const char* defstr, bool isreq )
     setRequired( isreq );
 }
 
-mParamClone( StringParam );
+mDefParamClone( StringParam );
 
 
 bool StringParam::setCompositeValue( const char* str_ )
@@ -302,7 +298,7 @@ SeisStorageRefParam::SeisStorageRefParam( const char* key )
 {}
 
 
-mParamClone( SeisStorageRefParam );
+mDefParamClone( SeisStorageRefParam );
 
 
 bool SeisStorageRefParam::isOK() const

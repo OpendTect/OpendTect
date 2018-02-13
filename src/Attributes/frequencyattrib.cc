@@ -76,7 +76,7 @@ void Frequency::updateDesc( Desc& desc )
     else if ( winstr == "CosTaper20" )
     { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.8 ); }
 
-    WindowFunction* winfunc = WINFUNCS().create( winstr );
+    WindowFunction* winfunc = WindowFunction::factory().create( winstr );
     const bool hasvar = winfunc && winfunc->hasVariable();
     desc.setParamEnabled( paramvalStr(), hasvar );
     delete winfunc;

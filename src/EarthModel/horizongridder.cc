@@ -23,7 +23,7 @@ const char* HorizonGridder::sKeyNrFaults()	{ return "Nr Faults"; }
 const char* HorizonGridder::sKeyFaultID()	{ return "Fault ID"; }
 
 
-mImplFactory( HorizonGridder, HorizonGridder::factory );
+mImplClassFactory( HorizonGridder, factory );
 
 HorizonGridder::HorizonGridder()
     : fltdataprov_(0)

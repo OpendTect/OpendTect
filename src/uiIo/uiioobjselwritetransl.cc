@@ -22,8 +22,7 @@ ________________________________________________________________________
 #include "transl.h"
 
 
-mImplFactory1Param(uiIOObjTranslatorWriteOpts,uiParent*,
-		   uiIOObjTranslatorWriteOpts::factory);
+mImplClassFactory(uiIOObjTranslatorWriteOpts,factory);
 
 
 uiIOObjTranslatorWriteOpts::uiIOObjTranslatorWriteOpts( uiParent* p,

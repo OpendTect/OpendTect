@@ -33,7 +33,7 @@ ___________________________________________________________________
 namespace MPE
 {
 
-mImplFactory1Param( EMTracker, EM::EMObject*, TrackerFactory );
+mImplClassFactory( EMTracker, factory );
 
 EMTracker::EMTracker( EM::EMObject* emo )
     : isenabled_(true)

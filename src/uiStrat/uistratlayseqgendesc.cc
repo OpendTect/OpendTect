@@ -34,8 +34,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
-mImplFactory2Param(uiLayerSequenceGenDesc,uiParent*,
-	Strat::LayerSequenceGenDesc&,uiLayerSequenceGenDesc::factory)
+mImplClassFactory( uiLayerSequenceGenDesc, factory )
 
 
 uiStratLayerContent::uiStratLayerContent( uiParent* p, bool isfinal,

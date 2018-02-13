@@ -19,7 +19,7 @@
 #include "limits.h"
 #include "uistrings.h"
 
-mImplFactory( Vrms2Vint, Vrms2Vint::factory );
+mImplClassFactory( Vrms2Vint, factory );
 
 
 TimeDepthModel::TimeDepthModel()

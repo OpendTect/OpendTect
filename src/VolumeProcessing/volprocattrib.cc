@@ -67,11 +67,10 @@ void VolProcAttrib::prepareForComputeData()
     {
 	chain_->unRef();
 	chain_ = 0;
-	errmsg_ = uiStrings::phrCannotRead(tr("processing setup."));
+	errmsg_ = uiStrings::phrCannotRead(tr("processing setup"));
 	if ( !errmsg.isEmpty() )
-	{
-	    errmsg_.append(tr(" Reason given: %1").arg( errmsg ) );
-	}
+	    errmsg_.appendPhrase(tr("Reason given: %1").arg( errmsg ),
+							uiString::CloseLine );
 
 	return;
     }
@@ -121,7 +120,7 @@ namespace VolProc
 
 // ExternalAttribCalculator
 void ExternalAttribCalculator::initClass()
-{ Attrib::ExtAttrFact().addCreator( create, 0 ); }
+{ Attrib::ExtAttribCalc::factory().addCreator( create, "VolProc" ); }
 
 
 Attrib::ExtAttribCalc* ExternalAttribCalculator::create(
@@ -187,10 +186,11 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     {
 	chain_->unRef();
 	chain_ = 0;
-	errmsg_ = uiStrings::phrCannotRead(tr("processing setup.") );
+	errmsg_ = uiStrings::phrCannotRead(tr("processing setup") );
 	if ( !errmsg.isEmpty() )
 	{
-	    errmsg_.append( tr( " Reason given: %1").arg( errmsg ) );
+	    errmsg_.appendPhrase( tr( "Reason given: %1").arg( errmsg ),
+							uiString::CloseLine );
 	}
 
 	return false;

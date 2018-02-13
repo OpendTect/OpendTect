@@ -25,8 +25,8 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-mImplFactory3Param(Vw2DDataObject,const DBKey&,uiFlatViewWin*,
-	const ObjectSet<uiFlatViewAuxDataEditor>&,Vw2DDataManager::factory);
+mImplClassFactory( Vw2DDataManager, factory );
+
 
 Vw2DDataManager::Vw2DDataManager()
     : selectedid_( -1 )
@@ -34,7 +34,8 @@ Vw2DDataManager::Vw2DDataManager()
     , addRemove( this )
     , dataObjAdded( this )
     , dataObjToBeRemoved( this )
-{}
+{
+}
 
 
 Vw2DDataManager::~Vw2DDataManager()

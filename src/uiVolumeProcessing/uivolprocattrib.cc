@@ -22,7 +22,12 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitAttribUI(uiVolProcAttrib,VolProcAttrib,tr("Volume Processing"),sBasicGrp())
+uiWord sDispName()
+{
+    return od_static_tr("sDispName","Volume Processing");
+}
+
+mInitAttribUI(uiVolProcAttrib,VolProcAttrib,sDispName(),sBasicGrp())
 
 uiVolProcAttrib::uiVolProcAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p, is2d, mODHelpKey(mVolProcAttribHelpID))

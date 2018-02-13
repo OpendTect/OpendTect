@@ -60,7 +60,7 @@ mExpClass(visBase) DataObject	: public RefCount::Referenced
 {
 public:
 
-    virtual const char*		getClassName() const	{ return "Not impl"; }
+    virtual const char*		getClassName() const	= 0;
 
     virtual bool		isOK() const		{ return true; }
 

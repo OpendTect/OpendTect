@@ -91,7 +91,7 @@ public:
     virtual void	updatedAlignment(LayoutMode);
     virtual void	initChildLayout(LayoutMode);
 
-    bool		attach(constraintType,mQtclass(QWidget&),
+    bool		attach(ConstraintType,mQtclass(QWidget&),
 			       mQtclass(QWidget*),int,
 			       bool reciprocal=true);
 

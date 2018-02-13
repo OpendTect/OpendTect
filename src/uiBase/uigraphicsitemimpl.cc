@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "angles.h"
 #include "odgraphicsitem.h"
+#include "mousecursor.h"
 #include "polygon.h"
 
 #include "uifont.h"
@@ -805,14 +806,14 @@ void uiTextItem::setTextColor( const Color& col )
 }
 
 
-void uiTextItem::fitIn( const uiRect& rect )
+void uiTextItem::fitIn( const uiRect& rect, bool verttxt )
 {
     if ( text_.isEmpty() )
 	return;
 
     QFont qfont = qtextitem_->getFont();
-    const int rectwidth = rect.width();
-    const int rectheight = rect.height();
+    const int txtwidth = verttxt ? rect.height() : rect.width();
+    const int txtheight = verttxt ? rect.width() : rect.height();
     int resizedir = 0;
     const QString qtxt( toQString(text_) );
     float curptsz = qfont.pointSizeF();
@@ -822,7 +823,7 @@ void uiTextItem::fitIn( const uiRect& rect )
 	QFontMetrics qfm( qfont );
 	const int wdth = qfm.width( qtxt );
 	const int hght = qfm.height();
-	const bool istoobig = wdth > rectwidth || hght > rectheight;
+	const bool istoobig = wdth > txtwidth || hght > txtheight;
 	if ( resizedir == 0 )
 	    resizedir = istoobig ? -1 : 1;
 	else if ( (resizedir < 0 && !istoobig) || (resizedir > 0 && istoobig) )
@@ -836,15 +837,24 @@ void uiTextItem::fitIn( const uiRect& rect )
     qfont.setPointSizeF( prevptsz );
     QFontMetrics qfm( qfont );
     const int wdth = qfm.width( qtxt );
-    int xshift = (rectwidth - wdth) / 2;
-    if ( xshift < 0 )
-	xshift = 0;
+    int txtdirshift = (txtwidth - wdth) / 2;
+    if ( txtdirshift < 0 )
+	txtdirshift = 0;
     const int hght = qfm.height();
-    int yshift = (rectheight - hght) / 2;
-    if ( yshift < 0 )
-	yshift = 0;
+    int updirshift = (txtheight - hght) / 2;
+    if ( updirshift < 0 )
+	updirshift = 0;
+
     qtextitem_->setFont( qfont );
-    qtextitem_->setPos( rect.left()+xshift-1, rect.top()+yshift-1 );
+    int xshft = txtdirshift - 1;
+    int yshft = updirshift - 1;
+    if ( verttxt )
+    {
+	std::swap( xshft, yshft );
+	xshft += 4; // Hack, probably fontmetrics related
+	yshft -= 15; // Hack, seems to be consistent for vertical display
+    }
+    qtextitem_->setPos( rect.left()+xshft, rect.top()+yshft );
 }
 
 
@@ -1246,67 +1256,88 @@ QGraphicsItem* uiCurvedItem::mkQtObj()
 }
 
 
-uiManipHandleItem::uiManipHandleItem( const Setup& su, int pixpos, int zval )
+#define mAddItm( typ, itm, zvaladd ) \
+    itm = new typ; itm->setZValue( setup_.zval_ + zvaladd ); add( itm )
+
+uiManipHandleItem::uiManipHandleItem( const Setup& su, bool ishor )
     : uiGraphicsItemGroup(true)
+    , setup_(su)
+    , ishor_(ishor)
+    , pixpos_(0)
 {
-    init( su, pixpos, zval );
-}
-
-
-uiManipHandleItem::uiManipHandleItem( const Setup& su, double fpos, int zval )
-    : uiGraphicsItemGroup(true)
-{
-    init( su, mNINT32(fpos), zval );
-}
-
-
-void uiManipHandleItem::init( const Setup& su, int pixpos, int zval )
-{
-    centeritm_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, 1, zval );
-    bodyitm_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_,
-		       zval-1 );
-    shadeitm1_ = mkLine( su.hor_, pixpos+1, su.start_, su.stop_,
-			 su.thickness_, zval-2 );
-    shadeitm2_ = mkLine( su.hor_, pixpos+2, su.start_, su.stop_,
-			 su.thickness_, zval-3 );
-
-    const int sz = su.thickness_;
-    int x0 = pixpos - sz;
-    int xw = 2 * sz + 1;
-    int y0 = su.start_;
-    int yw = xw;
-    if ( su.hor_ )
-	{ std::swap( x0, y0 ); std::swap( xw, yw ); }
-    rectitm_ = new uiRectItem( x0, y0, xw, yw );
-    rectitm_->setZValue( zval+1 );
-    add( rectitm_ );
-
+    centeritm_ = addLine( 0, 1 );
+    bodyitm_ = addLine( -1, setup_.thickness_ );
+    shadeitm1_ = addLine( -2, setup_.thickness_ );
+    shadeitm2_ = addLine( -3, setup_.thickness_ );
+    mAddItm( uiRectItem, rectitm_, -1 );
     setPenColor( su.color_ );
 }
 
 
-uiLineItem* uiManipHandleItem::mkLine( bool ishor, int pos,
-			int start, int stop, int lwdth, int zval )
+uiLineItem* uiManipHandleItem::addLine( int zvaladd, int lwdth )
 {
-    uiLineItem* li = new uiLineItem;
+    uiLineItem* mAddItm( uiLineItem, li, zvaladd );
     li->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,lwdth) );
-    if ( ishor )
-	li->setLine( start, pos, stop, pos );
-    else
-	li->setLine( pos, start, pos, stop );
-    li->setZValue( zval );
-
-    add( li );
     return li;
+}
+
+
+void uiManipHandleItem::setIsHorizontal( bool yn )
+{
+    if ( ishor_ != yn )
+	{ ishor_ = yn; updatePos(); }
+}
+
+
+void uiManipHandleItem::setPixPos( int pp )
+{
+    if ( pixpos_ != pp )
+	{ pixpos_ = pp; updatePos(); }
+}
+
+
+void uiManipHandleItem::setPixPos( double pp )
+{
+    setPixPos( mNINT32(pp) );
 }
 
 
 void uiManipHandleItem::setPenColor( const Color& basecol, bool )
 {
-    rectitm_->setPenColor( basecol );
-    rectitm_->setFillColor( basecol );
-    centeritm_->setPenColor( basecol.complementaryColor().darker( 1.0f ) );
+    setup_.color_ = basecol;
+    centeritm_->setPenColor( basecol.complementaryColor() );
     bodyitm_->setPenColor( basecol );
     shadeitm1_->setPenColor( basecol.lighter( 1.5f ) );
     shadeitm2_->setPenColor( basecol.lighter( 4.0f ) );
+    rectitm_->setPenColor( basecol );
+    rectitm_->setFillColor( basecol );
+}
+
+
+void uiManipHandleItem::setLine( uiLineItem* li, int pos, bool setcursor )
+{
+    if ( ishor_ )
+	li->setLine( 0, pos, scene_->nrPixX()-1, pos );
+    else
+	li->setLine( pos, 0, pos, scene_->nrPixY()-1 );
+    if ( setcursor )
+	li->setCursor( ishor_ ? MouseCursor::SizeVer : MouseCursor::SizeHor );
+}
+
+
+void uiManipHandleItem::updatePos()
+{
+    if ( !scene_ )
+	{ pErrMsg("No scene, set it"); return; }
+
+    setLine( centeritm_, pixpos_ );
+    setLine( bodyitm_, pixpos_, true );
+    setLine( shadeitm1_, pixpos_+1 );
+    setLine( shadeitm2_, pixpos_+2 );
+
+    const int sz = setup_.thickness_;
+    const int wdth = 2 * sz + 1;
+    const int x0 = ishor_ ? scene_->nrPixX()-1-sz : pixpos_-sz;
+    const int y0 = ishor_ ? pixpos_-sz : 0;
+    rectitm_->setRect( x0, y0, wdth, wdth );
 }

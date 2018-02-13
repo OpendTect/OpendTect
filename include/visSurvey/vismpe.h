@@ -49,6 +49,7 @@ public:
 		    mDefaultFactoryInstantiation(
 			visSurvey::SurveyObject,MPEDisplay,
 			     "MPEDisplay", ::toUiString(sFactoryKeyword()));
+    virtual const char* getClassName() const { return sFactoryKeyword(); }
 
     bool            isInlCrl() const	{ return true; }
     bool            isOn() const;

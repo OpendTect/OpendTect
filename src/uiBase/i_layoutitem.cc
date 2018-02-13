@@ -716,7 +716,7 @@ bool i_LayoutItem::layout( LayoutMode lom, int iternr, bool finalloop )
 }
 
 
-void i_LayoutItem::attach ( constraintType type, i_LayoutItem* other,
+void i_LayoutItem::attach ( ConstraintType type, i_LayoutItem* other,
 			    int margn, bool reciprocal )
 {
     if ( type != ensureLeftOf)
@@ -872,7 +872,7 @@ bool i_LayoutItem::isAligned() const
 {
     for ( int idx=0; idx<constrlist_.size(); idx++ )
     {
-	constraintType tp = constrlist_[idx].type_;
+	ConstraintType tp = constrlist_[idx].type_;
 	if ( tp >= alignedWith && tp <= centeredAbove )
 	    return true;
     }

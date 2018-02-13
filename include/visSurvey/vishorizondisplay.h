@@ -43,6 +43,8 @@ public:
 				    visSurvey::SurveyObject,HorizonDisplay,
 				    "HorizonDisplay",
 				    toUiString(sFactoryKeyword()))
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     void			setDisplayTransformation(const mVisTrans*);
     void			setSceneEventCatcher(visBase::EventCatcher*);

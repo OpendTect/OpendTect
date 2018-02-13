@@ -116,7 +116,7 @@ bool uiSEGY::displayWarnings( const uiStringSet& inpwarns, bool withstop,
 					    uiString::emptyString(), true );
     else
     {
-	msg.appendPhrase( od_static_tr("displayWarnings","\nContinue?") );
+	msg.appendPhrase( od_static_tr("displayWarnings","Continue?") );
 	res = uiMSG().askGoOn( msg, true, &suppresscurwarns );
     }
 

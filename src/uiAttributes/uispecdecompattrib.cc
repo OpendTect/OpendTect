@@ -36,9 +36,13 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
+static uiWord sDispName()
+{
+    return od_static_tr("sDispName","Spectral Decomposition");
+}
 
-mInitGrpDefAttribUI(uiSpecDecompAttrib,SpecDecomp,tr("Spectral Decomposition"),
-		      sFreqGrp())
+
+mInitGrpDefAttribUI(uiSpecDecompAttrib,SpecDecomp,sDispName(),sFreqGrp())
 
 
 const char* uiSpecDecompAttrib::sKeyBinID() { return "BinID"; }

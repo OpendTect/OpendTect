@@ -55,6 +55,8 @@ public:
 				    visSurvey::SurveyObject,
 				    PlaneDataDisplay, "PlaneDataDisplay",
 				     ::toUiString(sFactoryKeyword()));
+    virtual const char*		getClassName() const
+				{ return sFactoryKeyword(); }
 
     bool			isInlCrl() const { return true; }
 

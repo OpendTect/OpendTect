@@ -130,8 +130,8 @@ int Seis2DLineCreator::nextStep()
 
     if ( !wrr_->put(trc) )
     {
-	errmsg_ = tr("Error writing output trace\n");
-	errmsg_.append( wrr_->errMsg() );
+	errmsg_ = tr("Error writing output trace");
+	errmsg_.appendPhrase( wrr_->errMsg() );
 	return ErrorOccurred();
     }
 

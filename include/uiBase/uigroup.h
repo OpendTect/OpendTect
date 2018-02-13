@@ -116,7 +116,7 @@ protected:
     uiGroupParentBody*	body_;
 
     virtual uiObject*	mainobject()			{ return grpobj_; }
-    virtual void	attach_( constraintType, uiObject *oth, int margin=-1,
+    virtual void	attach_( ConstraintType, uiObject *oth, int margin=-1,
 				bool reciprocal=true);
 
     virtual void	reDraw_( bool deep )		{}

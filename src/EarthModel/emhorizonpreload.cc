@@ -52,8 +52,8 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
 	return false;
 
     EM::EMManager& horman = is2d ? EM::Hor2DMan() : EM::Hor3DMan();
-    uiString msg1( tr("The selected horizon(s):\n") );
-    uiString msg2( tr("Cannot pre-load:\n") );
+    uiString msg1( tr("The selected horizons:") );
+    uiString msg2( tr("Cannot pre-load:") );
     int nralreadyloaded = 0;
     int nrproblems = 0;
     PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
@@ -63,7 +63,8 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
 	const int selidx = loadedmids_.indexOf( newmids[idx] );
 	if ( selidx > -1 )
 	{
-	    msg1.append( " '%1'" ).arg( loadednms_.get(selidx) );
+	    msg1.appendPlainText( " '%1'", uiString::Empty,
+			uiString::LeaveALine ).arg( loadednms_.get(selidx) );
 	    nralreadyloaded++;
 	    continue;
 	}
@@ -75,7 +76,8 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
 	    if ( !exec )
 	    {
 		BufferString name( horman.objectName(newmids[idx]) );
-		msg2.append( " '%1'" ).arg( name );
+		msg2.appendPlainText( " '%1'", uiString::Empty,
+			uiString::LeaveALine ).arg( name );
 		nrproblems++;
 		continue;
 	    }
@@ -89,12 +91,12 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
 
     if ( nralreadyloaded > 0 )
     {
-	msg1.append( tr(" already pre-loaded") );
-	errmsg_.append( msg1 );
+	msg1.appendAfterList( tr("are already pre-loaded") );
+	errmsg_.appendPhrase( msg1 );
     }
 
     if ( nrproblems > 0 )
-	errmsg_.append( "\n" ).append( msg2 );
+	errmsg_.appendPhrase( msg2 );
 
     if ( execgrp->nrExecutors()!=0 &&  !TaskRunner::execute( tskr, *execgrp) )
 	return false;

@@ -23,11 +23,12 @@ namespace VolProc
 
 void uiBodyFiller::initClass()
 {
-    SeparString str( sFactoryKeyword(), uiStepDialog::factory().cSeparator() );
-    str += BodyFiller::sKeyOldType();
+    FileMultiString fms( sFactoryKeyword() );
+    fms += BodyFiller::sKeyOldType();
 
-    uiStepDialog::factory().addCreator( createInstance, str,
-				        sFactoryDisplayName() );
+    uiStepDialog::FactoryType::Creator crfn
+	    = (uiStepDialog::FactoryType::Creator)createInstance;
+    uiStepDialog::factory().addCreator( crfn, fms, sFactoryDisplayName() );
 }
 
 

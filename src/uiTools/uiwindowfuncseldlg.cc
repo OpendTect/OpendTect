@@ -281,11 +281,11 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
 
     uiFunctionDrawer::Setup su;
     funcdrawer_ = new uiFuncSelDraw( this, su );
-    funcnames_ = WINFUNCS().getNames();
+    funcnames_ = WindowFunction::factory().getKeys();
 
     for ( int idx=0; idx<funcnames_.size(); idx++ )
     {
-	winfunc_ += WINFUNCS().create( funcnames_[idx]->buf() );
+	winfunc_ += WindowFunction::factory().create( funcnames_[idx]->buf() );
 	funcdrawer_->addFunction( funcnames_[idx]->buf(), winfunc_[idx] );
     }
 

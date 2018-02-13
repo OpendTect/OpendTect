@@ -44,9 +44,9 @@ int main( int argc, char** argv )
     {
 	BufferString nextarg( normalargs[idx]->buf() );
 	nextarg.replace( "-+-", "\n" );
-	msg.append( nextarg );
+	msg.appendPlainText( nextarg );
 	if ( idx<normalargs.size()-1 )
-	    msg.append( toUiString(" ") );
+	    msg.appendPlainText( " " );
     }
     if ( msg.isEmpty() )
 	msg = typ == 1 ? od_static_tr("main", "Be careful!")

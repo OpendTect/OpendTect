@@ -39,7 +39,8 @@ ObjectEditor* PolygonBodyEditor::create( EM::EMObject& emobj )
 
 void PolygonBodyEditor::initClass()
 {
-    MPE::EditorFactory().addCreator( create, EM::PolygonBody::typeStr() );
+    MPE::ObjectEditor::factory().addCreator( create,
+					     EM::PolygonBody::typeStr() );
 }
 
 

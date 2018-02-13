@@ -198,8 +198,8 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
 	PtrMan<IOObj> ioobj = DBM().get( horids[idx] );
 	if ( !ioobj )
 	{
-	    errms.append(tr("Cannot get database entry for "
-			    "selected horizon"), true);
+	    errms.appendPhrase(tr("Cannot get database entry for "
+			    "selected horizon"));
 	    return;
 	}
 

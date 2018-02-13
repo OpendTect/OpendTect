@@ -40,7 +40,9 @@ ObjectEditor* FaultEditor::create( EM::EMObject& emobj )
 
 
 void FaultEditor::initClass()
-{ MPE::EditorFactory().addCreator( create, EM::Fault3D::typeStr() ); }
+{
+    MPE::ObjectEditor::factory().addCreator( create, EM::Fault3D::typeStr() );
+}
 
 
 Geometry::ElementEditor* FaultEditor::createEditor()

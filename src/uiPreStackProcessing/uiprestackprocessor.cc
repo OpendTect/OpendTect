@@ -25,7 +25,7 @@
 namespace PreStack
 {
 
-mImplFactory2Param( uiDialog, uiParent*, Processor*, uiPSPD )
+mImplClassFactory( uiProcessorManager, factory )
 
 
 uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
@@ -118,12 +118,12 @@ void uiProcessorManager::updateList()
     {
 	const char* procnm =  manager_.getProcessor(idx)->name();
 	const int factoryidx =
-	    Processor::factory().getNames().indexOf(procnm);
+	    Processor::factory().getKeys().indexOf(procnm);
 	const uiString& text =
 	    Processor::factory().getUserNames()[factoryidx];
 
 	if ( idx>=processorlist_->size() )
-	    processorlist_->addItem( text, false);
+	    processorlist_->addItem( text, false );
 	else
 	    processorlist_->setItemText( idx, text );
     }
@@ -156,9 +156,10 @@ void uiProcessorManager::updateButtons()
 bool uiProcessorManager::hasPropDialog( int idx ) const
 {
     const Processor* proc = manager_.getProcessor(idx);
-    if ( !proc ) return false;
+    if ( !proc )
+	return false;
 
-    return uiPSPD().getNames().isPresent( proc->name() );
+    return uiProcessorManager::factory().isPresent( proc->name() );
 }
 
 
@@ -171,7 +172,8 @@ bool uiProcessorManager::showPropDialog( int idx )
 
 bool uiProcessorManager::showPropDialog( Processor& proc )
 {
-    PtrMan<uiDialog> dlg = uiPSPD().create( proc.name(), this, &proc );
+    PtrMan<uiDialog> dlg = uiProcessorManager::factory().create( proc.name(),
+				this, &proc );
     if ( !dlg || !dlg->go() ) return false;
 
     change.trigger();
@@ -220,10 +222,10 @@ void uiProcessorManager::addCB( CallBacker* )
     if ( factorylist_->firstChosen()==-1 )
 	return;
 
-    const char* nm =
-       Processor::factory().getNames()[factorylist_->currentItem()]->buf();
-    Processor* proc = Processor::factory().create( nm );
-    if ( !proc ) return;
+    const char* ky = Processor::factory().key( factorylist_->currentItem() );
+    Processor* proc = Processor::factory().create( ky );
+    if ( !proc )
+	return;
 
     manager_.addProcessor( proc );
     updateList();

@@ -24,8 +24,13 @@ using namespace Attrib;
 static const char* sKeyDeltaDip = "Delta dip";
 static const char* sKeyMaxDip = "Maximum dip";
 
+static uiWord sDispName()
+{
+    return od_static_tr("sDispName","Coherency");
+}
 
-mInitAttribUI(uiCoherencyAttrib,Coherency,tr("Coherency"),sBasicGrp())
+
+mInitAttribUI(uiCoherencyAttrib,Coherency,sDispName(),sBasicGrp())
 
 
 uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )

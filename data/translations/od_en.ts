@@ -4,7 +4,7 @@
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/MPEEngine/mpesetup.cc" line="+56"/>
+        <location filename="../../src/MPEEngine/mpesetup.cc" line="+56"/>
         <source>Tracking setup</source>
         <translation>
             <numerusform>Tracking setup</numerusform>
@@ -15,7 +15,7 @@
 <context>
     <name>ODGMTProcFlowTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../plugins/GMT/gmtprocflow.cc" line="+17"/>
+        <location filename="../../plugins/GMT/gmtprocflow.cc" line="+17"/>
         <source>GMT process flow</source>
         <translation>
             <numerusform>GMT process flow</numerusform>
@@ -26,50 +26,37 @@
 <context>
     <name>PosVecDataSetTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/Geometry/posvecdatasettr.cc" line="+18"/>
+        <location filename="../../src/Geometry/posvecdatasettr.cc" line="+18"/>
         <source>Positioned Vector Data</source>
         <translation>
             <numerusform>Positioned Vector Data</numerusform>
-            <numerusform>Positioned Vector Data</numerusform>
+            <numerusform>Positioned Vector Data Sets</numerusform>
         </translation>
     </message>
 </context>
 <context>
     <name>PreStackProcTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/PreStackProcessing/prestackprocessortransl.cc" line="+19"/>
+        <location filename="../../src/PreStackProcessing/prestackprocessortransl.cc" line="+19"/>
         <source>Prestack Processor</source>
         <translation>
             <numerusform>Prestack Processor</numerusform>
-            <numerusform>Prestack Processor</numerusform>
+            <numerusform>Prestack Processors</numerusform>
         </translation>
     </message>
 </context>
 <context>
-    <name>TextTranslateMgr</name>
-    <message numerus="yes">
-        <source>Language Name</source>
-        <translation type="obsolete">
-            <numerusform>English</numerusform>
-            <numerusform>English</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>TextTranslatorLanguage</name>
-    <message numerus="yes">
-        <location filename="../../../src/Basic/texttranslator.cc" line="+56"/>
-        <source>Language Name</source>
-        <translation>
-            <numerusform>English</numerusform>
-            <numerusform>English</numerusform>
-        </translation>
+    <name>TextTranslation::LanguageEntry</name>
+    <message>
+        <location filename="../../src/Basic/texttranslation.cc" line="+145"/>
+        <source>LANGUAGE_NAME</source>
+        <translation>English</translation>
     </message>
 </context>
 <context>
     <name>VolProcessing2DTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+174"/>
+        <location filename="../../src/VolumeProcessing/volproctrans.cc" line="+174"/>
         <source>2D Volume Processing Setup</source>
         <translation>
             <numerusform>2D Volume Processing Setup</numerusform>
@@ -91,7 +78,7 @@
 <context>
     <name>WellTie::uiSaveDataDlg</name>
     <message numerus="yes">
-        <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+171"/>
+        <location filename="../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+171"/>
         <source>Cannot write log(s)</source>
         <translation>
             <numerusform>Cannot write log</numerusform>
@@ -100,41 +87,23 @@
     </message>
 </context>
 <context>
-    <name>uiCreateLogCubeDlg</name>
-    <message numerus="yes">
-        <source>Successfully created the log cube(s)</source>
-        <translation type="obsolete">
-            <numerusform>Successfully created the log cube</numerusform>
-            <numerusform>Successfully created the log cubes</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
     <name>uiHorizonPreLoadDlg</name>
     <message numerus="yes">
-        <source>Unload selected horizon(s)&apos;?
-(This will not delete the object(s) from disk)</source>
-        <translation type="obsolete">
-            <numerusform>Unload selected horizon</numerusform>
-            <numerusform>Unload selected horizons</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+147"/>
-        <source>Unload checked horizon(s)?
-(This will not delete the file(s) from disk)</source>
+        <location filename="../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+147"/>
+        <source>Unload checked horizon?
+(This will not delete any files from disk)</source>
         <translation>
             <numerusform>Unload checked horizon?
-(This will not delete the file from disk)</numerusform>
+(This will not delete any files from disk)</numerusform>
             <numerusform>Unload checked horizons?
-(This will not delete the files from disk)</numerusform>
+(This will not delete any files from disk)</numerusform>
         </translation>
     </message>
 </context>
 <context>
     <name>uiSEGYExamine</name>
     <message numerus="yes">
-        <location filename="../../../plugins/uiSEGY/uisegyexamine.cc" line="+350"/>
+        <location filename="../../plugins/uiSEGY/uisegyexamine.cc" line="+350"/>
         <source>file</source>
         <translation>
             <numerusform>file</numerusform>
@@ -145,8 +114,8 @@
 <context>
     <name>uiSaveDataDlg</name>
     <message numerus="yes">
-        <source>Cannot write log(s)</source>
-        <translation type="obsolete">
+        <source>Cannot write log</source>
+        <translation>
             <numerusform>Cannot write log</numerusform>
             <numerusform>Cannot write logs</numerusform>
         </translation>
@@ -154,21 +123,6 @@
 </context>
 <context>
     <name>uiStrings</name>
-    <message numerus="yes">
-        <location filename="../../../src/Basic/uistrings.cc" line="+54"/>
-        <source>%1 does not exist</source>
-        <translation>
-            <numerusform>%1 does not exist</numerusform>
-            <numerusform>%1 do not exist</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>ColorTable</source>
-        <translation type="vanished">
-            <numerusform>Color Table</numerusform>
-            <numerusform>Color Tables</numerusform>
-        </translation>
-    </message>
     <message numerus="yes">
         <location line="+256"/>
         <source>Color Table</source>
@@ -195,7 +149,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="-117"/>
+        <location line="+117"/>
         <source>Fault</source>
         <translation>
             <numerusform>Fault</numerusform>
@@ -283,38 +237,10 @@
         </translation>
     </message>
     <message numerus="yes">
-        <source>Faults</source>
-        <translation type="obsolete">
-            <numerusform>Fault</numerusform>
-            <numerusform>Faults</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>Fault Stick Set</source>
-        <translation type="obsolete">
+        <translation>
             <numerusform>Fault Stick Set</numerusform>
             <numerusform>Fault Stick Sets</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Horizons</source>
-        <translation type="obsolete">
-            <numerusform>Horizon</numerusform>
-            <numerusform>Horizons</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Markers</source>
-        <translation type="obsolete">
-            <numerusform>Marker</numerusform>
-            <numerusform>Markers</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Seismic</source>
-        <translation type="obsolete">
-            <numerusform>Seismic</numerusform>
-            <numerusform>Seismics</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -342,7 +268,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+207"/>
+        <location filename="../../include/Basic/uistrings.h" line="+207"/>
         <source>2D Plane</source>
         <translation>
             <numerusform>2D Plane</numerusform>
@@ -439,7 +365,7 @@
     </message>
     <message numerus="yes">
         <location line="+3"/>
-        <location filename="../../../src/Basic/uistrings.cc" line="+74"/>
+        <location filename="../../src/Basic/uistrings.cc" line="+74"/>
         <source>Cube</source>
         <translation>
             <numerusform>Cube</numerusform>
@@ -655,11 +581,19 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+9"/>
+        <location line="+8"/>
         <source>Scene</source>
         <translation>
             <numerusform>Scene</numerusform>
             <numerusform>Scenes</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+9"/>
+        <source>Seismic</source>
+        <translation>
+            <numerusform>Seismic</numerusform>
+            <numerusform>Seismics</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -748,6 +682,14 @@
         <translation>
             <numerusform>Value</numerusform>
             <numerusform>Values</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+6"/>
+        <source>Velocity</source>
+        <translation>
+            <numerusform>Velocity</numerusform>
+            <numerusform>Velocities</numerusform>
         </translation>
     </message>
     <message numerus="yes">

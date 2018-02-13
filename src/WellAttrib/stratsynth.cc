@@ -1154,7 +1154,7 @@ bool doWork( od_int64 start , od_int64 stop , int )
 		    if ( needinfo && infomsg_.isEmpty() )
 		    {
 			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
-			msg.append( tr("'Pwave' ( sample value: %1 %2 )")
+			msg.appendPhrase( tr("'P-wave' ( sample value: %1 %2 )")
 				.arg(toString(layer.vel_))
 				.arg(uom ? uom->symbol() : "") );
 		    }
@@ -1166,7 +1166,7 @@ bool doWork( od_int64 start , od_int64 stop , int )
 		    if ( needinfo && infomsg_.isEmpty() )
 		    {
 			const UnitOfMeasure* uom = UoMR().get( "Kg/m3" );
-			msg.append( tr("'Density' ( sample value: %1 %2 )")
+			msg.appendPhrase(tr("'Density' ( sample value: %1 %2 )")
 				.arg(toString(layer.vel_))
 				.arg(uom ? uom->symbol() : "") );
 		    }
@@ -1178,7 +1178,7 @@ bool doWork( od_int64 start , od_int64 stop , int )
 		    if ( needinfo && infomsg_.isEmpty() )
 		    {
 			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
-			msg.append( tr("'Swave' ( sample value: %1 %2 )")
+			msg.appendPhrase( tr("'S-wave' ( sample value: %1 %2 )")
 				.arg(toString(layer.vel_))
 				.arg(uom ? uom->symbol() : "") );
 		    }

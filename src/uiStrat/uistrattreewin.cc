@@ -198,7 +198,7 @@ void uiStratTreeWin::createMenu()
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton( tb_, fnm, tt, mCB(this,uiStratTreeWin,cbnm) ); \
-    tb_->addObject( but );
+    tb_->add( but );
 
 
 void uiStratTreeWin::createToolBar()

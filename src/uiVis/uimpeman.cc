@@ -446,7 +446,6 @@ void uiMPEMan::mouseCursorCallCB( CallBacker* )
 	return;
 
     MPE::EMTracker* tracker = getSelectedTracker();
-
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker )
 	return;
@@ -500,9 +499,12 @@ void uiMPEMan::seedClick( CallBacker* )
 
     const DBKey emobjid  = clickcatcher_->info().getEMObjID();
     mDynamicCastGet(EM::Horizon*,clickedhor,EM::EMM().getObject(emobjid))
-	const bool clickedonhorizon = clickedhor;
+    const bool clickedonhorizon = clickedhor;
     if ( clickedhor && clickedhor!=hor )
+    {
+	visBase::DM().selMan().select( clickedobject );
 	mSeedClickReturn();
+    }
 
     seedpicker = tracker->getSeedPicker(true);
     if ( !seedpicker )

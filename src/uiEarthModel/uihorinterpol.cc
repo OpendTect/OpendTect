@@ -292,7 +292,7 @@ bool uiHorizonInterpolDlg::acceptOK()
 }
 
 
-mImplFactory1Param(uiHor3DInterpol,uiParent*,uiHor3DInterpol::factory)
+mImplClassFactory(uiHor3DInterpol,factory)
 
 uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     : uiGroup(p,"Horizon3D Interpolation")
@@ -328,7 +328,7 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     maxholeszfld_->setWithCheck( true );
     maxholeszfld_->attach( alignedBelow, stepfld_ );
 
-    const BufferStringSet& methods = uiHor3DInterpol::factory().getNames();
+    const BufferStringSet& methods = uiHor3DInterpol::factory().getKeys();
     methodsel_ = new uiGenInput( this, tr("Algorithm"),
 		StringListInpSpec(uiHor3DInterpol::factory().getUserNames() ) );
     methodsel_->attach( alignedBelow, maxholeszfld_ );
@@ -337,7 +337,7 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     for ( int idx=0; idx<methods.size(); idx++ )
     {
 	uiHor3DInterpol* methodgrp = uiHor3DInterpol::factory().create(
-					methods[idx]->buf(), this, true );
+					methods[idx]->buf(), this );
 	if ( methodgrp )
 	    methodgrp->attach( alignedBelow, methodsel_ );
 

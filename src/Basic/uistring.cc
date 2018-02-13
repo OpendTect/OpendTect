@@ -54,11 +54,13 @@ static char* getNewDebugStr( char* strvar, const BufferString& newstr )
 
 #endif
 
-const uiString uiString::emptystring_( toUiString("") );
 
+const uiString uiString::emptystring_( toUiString("") );
+uiString uiString::dummystring_( toUiString("") );
 #ifndef OD_NO_QT
 static const QString emptyqstring;
 #endif
+
 
 class uiStringData : public RefCount::Referenced
 {
@@ -184,15 +186,12 @@ void uiStringData::getFullString( BufferString& ret ) const
 
 bool uiStringData::fillQString( QString& res,
 				const QTranslator* translator,
-				bool notranslation) const
+				bool notranslation ) const
 {
 #ifndef OD_NO_QT
     Threads::Locker contentlocker( contentlock_ );
     if ( !originalstring_ || !*originalstring_ )
-    {
-        //res = qstring_;
-        return false;
-    }
+        return true;
 
     bool translationres = false;
 
@@ -209,16 +208,17 @@ bool uiStringData::fillQString( QString& res,
 
 	if ( res.size() && QString(originalstring_.buf())!=res )
             translationres = true;
-
-        if ( !alternateversions_.isEmpty() && !translationres )
-        {
-            for ( int idx=0; idx<alternateversions_.size(); idx++ )
-            {
-                QString alttrans;
-		if ( alternateversions_[idx].translate(*usedtrans,alttrans) )
+	else if ( !alternateversions_.isEmpty() )
+	{
+	    for ( int idx=0; idx<alternateversions_.size(); idx++ )
+	    {
+		QString alttrans;
+		if ( alternateversions_.get(idx)
+					.translate(*usedtrans,alttrans) )
 		    { res = alttrans; translationres = true; break; }
-            }
-        }
+	    }
+	}
+
 	mDefineStaticLocalObject(bool,dbgtransl,
 				 = GetEnvVarYN("OD_DEBUG_TRANSLATION"));
 	if ( dbgtransl )
@@ -238,9 +238,7 @@ bool uiStringData::fillQString( QString& res,
     }
 
     if ( res.isEmpty() )
-    {
 	res = originalstring_;
-    }
 
     if ( tolower_ )
 	res = res.toLower();
@@ -251,13 +249,13 @@ bool uiStringData::fillQString( QString& res,
 	if ( notranslation )
 	{
 	    BufferString str;
-	    arguments_[idx].getFullString( str );
+	    arguments_.get(idx).getFullString( str );
 	    thearg = str.buf();
 	}
 	else if ( translator )
-	    arguments_[idx].translate( *translator, thearg );
+	    arguments_.get(idx).translate( *translator, thearg );
 	else
-	    arguments_[idx].fillQString( thearg );
+	    arguments_.get(idx).fillQString( thearg );
 
 	res = res.arg( thearg );
     }
@@ -397,7 +395,7 @@ bool uiString::isCacheValid() const
 
     for ( int idx=0; idx<data_->arguments_.size(); idx++ )
     {
-	if ( !data_->arguments_[idx].isCacheValid() )
+	if ( !data_->arguments_.get(idx).isCacheValid() )
 	    return false;
     }
     return true;
@@ -624,7 +622,8 @@ uiString& uiString::arg( const uiString& newarg )
 }
 
 
-uiString& uiString::appendPhrase( const uiString& txt, AppendType apptyp )
+uiString& uiString::appendPhrase( const uiString& txt,
+				  SeparType septyp, AppendType apptyp )
 {
     Threads::Locker datalocker( datalock_ );
     uiString self( *this );
@@ -636,17 +635,46 @@ uiString& uiString::appendPhrase( const uiString& txt, AppendType apptyp )
     Threads::Locker contentlocker( tmpptr->contentlock_ );
 
     if ( isEmpty() || txt.isEmpty() )
-	apptyp = BluntGlue;
+	{ septyp = Empty; apptyp = SeparatorOnly; }
 
     const char* tplstr = 0;
-    switch ( apptyp )
+    if ( apptyp == AddNewLine )
     {
-	case BluntGlue:		tplstr = "%1%2";	break;
-	case WithSpace:		tplstr = "%1 %2";	break;
-	case NewLine:		tplstr = "%1\n%2";	break;
-	case CloseLine:		tplstr = "%1. %2";	break;
-	case CloseAndNewLine:	tplstr = "%1.\n%2";	break;
+	switch ( septyp )
+	{
+	    case Empty:
+	    case Space:
+	    case Tab:		tplstr = "%1\n%2";	break;
+	    case CloseLine:	tplstr = "%1.\n%2";	break;
+	    case Comma:		tplstr = "%1,\n%2";	break;
+	    case MoreInfo:	tplstr = "%1:\n%2";	break;
+	}
     }
+    else if ( apptyp == SeparatorOnly )
+    {
+	switch ( septyp )
+	{
+	    case Empty:		tplstr = "%1%2";	break;
+	    case Space:		tplstr = "%1 %2";	break;
+	    case Tab:		tplstr = "%1\t%2";	break;
+	    case CloseLine:	tplstr = "%1. %2";	break;
+	    case Comma:		tplstr = "%1, %2";	break;
+	    case MoreInfo:	tplstr = "%1: %2";	break;
+	}
+    }
+    else
+    {
+	switch ( septyp )
+	{
+	    case Empty:
+	    case Space:
+	    case Tab:		tplstr = "%1\n\n%2";	break;
+	    case CloseLine:	tplstr = "%1.\n\n%2";	break;
+	    case Comma:		tplstr = "%1,\n\n%2";	break;
+	    case MoreInfo:	tplstr = "%1:\n\n%2";	break;
+	}
+    }
+
     *this = toUiString( tplstr ).arg( self ).arg( txt );
 
     mSetDBGStr;
@@ -654,21 +682,28 @@ uiString& uiString::appendPhrase( const uiString& txt, AppendType apptyp )
 }
 
 
-uiString& uiString::appendPhrases( const uiStringSet& strs, AppendType apptyp )
+uiString& uiString::appendPhrases( const uiStringSet& strs,
+				   SeparType septyp, AppendType apptyp )
 {
-    return appendPhrase( strs.cat(apptyp), apptyp );
+    return appendPhrase( strs.cat(septyp,apptyp), septyp, apptyp );
 }
 
 
-uiString& uiString::appendPlainText( const OD::String& a, AppendType apptyp )
+uiString& uiString::appendPlainText( const OD::String& odstr, bool addspace,
+				     bool addquotes )
 {
-    return appendPlainText( a.str(), apptyp );
+    return appendPlainText( odstr.str(), addspace, addquotes );
 }
 
 
-uiString& uiString::appendPlainText( const char* newarg, AppendType apptyp )
+uiString& uiString::appendPlainText( const char* str, bool addspace,
+				     bool addquotes )
 {
-    return appendPhrase( toUiString(newarg), apptyp );
+    if ( !addquotes )
+	return constructWordWith( toUiString(str), addspace );
+
+    const BufferString toadd( "'", str, "'" );
+    return appendPlainText( toadd, addspace, false );
 }
 
 
@@ -922,7 +957,13 @@ uiStringSet::IdxType uiStringSet::indexOf( const uiString& str ) const
 }
 
 
-uiString uiStringSet::get( IdxType idx ) const
+uiString& uiStringSet::get( IdxType idx )
+{
+    return strs_.validIdx(idx) ? *strs_[idx] : uiString::dummyString();
+}
+
+
+const uiString& uiStringSet::get( IdxType idx ) const
 {
     return strs_.validIdx(idx) ? *strs_[idx] : uiString::emptyString();
 }
@@ -1018,36 +1059,41 @@ uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
 	return result;
 
     const uiString and_or_or = use_and ? uiStrings::sAnd() : uiStrings::sOr();
-    const uiString::AppendType apptyp = separate_lines	? uiString::NewLine
-							: uiString::WithSpace;
-
+    uiString::SeparType septyp =
+	separate_lines	? uiString::Empty : uiString::Comma;
+    uiString::AppendType apptyp =
+	separate_lines	? uiString::AddNewLine : uiString::SeparatorOnly;
     if ( maxnr < 1 || maxnr > sz )
 	maxnr = sz;
 
-    const uiString possiblecomma = separate_lines ? uiString::emptyString()
-						  : toUiString( "," );
+
     for ( IdxType idx=1; idx<maxnr; idx++ )
     {
-	if ( idx < sz-1 )
-	    result.appendPhrase( possiblecomma, uiString::BluntGlue );
-	else
-	    result.appendPhrase( and_or_or, uiString::WithSpace );
-	result.appendPhrase( usestrs.get(idx), apptyp );
+	if ( idx == sz-1 )
+	{
+	    result.appendPhrase( and_or_or, uiString::Space,
+				 uiString::SeparatorOnly );
+	    if ( septyp == uiString::Comma )
+		septyp = uiString::Space;
+	}
+	result.appendPhrase( usestrs.get(idx), septyp, apptyp );
     }
 
     if ( sz > maxnr )
-	result.appendPhrase( and_or_or, apptyp )
-	      .appendPhrase( toUiString( "..." ), uiString::WithSpace );
+    {
+	result.appendPhrase( and_or_or, uiString::Space, apptyp );
+	result.appendPlainText( "...", true );
+    }
 
     return result;
 }
 
 
-uiString uiStringSet::cat( uiString::AppendType apptyp ) const
+uiString uiStringSet::cat( SeparType septyp, AppendType apptyp ) const
 {
     uiString result;
     for ( IdxType idx=0; idx<size(); idx++ )
-	result.appendPhrase( *strs_[idx], apptyp );
+	result.appendPhrase( *strs_[idx], septyp, apptyp );
     return result;
 }
 
@@ -1185,7 +1231,7 @@ uiRetVal::operator uiPhraseSet() const
 bool uiRetVal::isOK() const
 {
     Threads::Locker locker( lock_ );
-    return msgs_.isEmpty() || msgs_[0].isEmpty();
+    return msgs_.isEmpty() || msgs_.get(0).isEmpty();
 }
 
 

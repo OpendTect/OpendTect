@@ -38,7 +38,7 @@ i_lineEditMessenger( QLineEdit* sndr, uiLineEdit* receiver )
     connect( sndr, SIGNAL(textChanged(const QString&)),
 	     this, SLOT(textChanged(const QString&)) );
     connect( sndr, SIGNAL(selectionChanged()),
-	     this, SLOT(selectionChanged()) );
+	     this, SLOT(focusChanged()) );
 }
 
 private:
@@ -66,8 +66,8 @@ private slots:
     void		textChanged(const QString&)
 			{ mTrigger( textChanged ); }
 
-    void		selectionChanged()
-			{ receiver_->selectionChanged.trigger(*receiver_); }
+    void		focusChanged()
+			{ receiver_->focusChanged.trigger(*receiver_); }
 #undef mTrigger
 };
 

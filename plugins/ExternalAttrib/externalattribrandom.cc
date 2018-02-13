@@ -25,7 +25,7 @@ namespace ExternalAttrib
 {
 
 void Random::initClass()
-{ Attrib::ExtAttrFact().addCreator( create, 0 ); }
+{ Attrib::ExtAttribCalc::factory().addCreator( create, 0 ); }
 
 
 Attrib::ExtAttribCalc* Random::create( const Attrib::SelSpec& as )

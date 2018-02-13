@@ -50,10 +50,12 @@ static const char* shapestrs[] =
 	0
 };
 
+static uiWord sDispName()
+{
+    return od_static_tr("sDispName","Volume Statistics");
+}
 
-
-mInitGrpDefAttribUI(uiVolumeStatisticsAttrib,VolStats, tr("Volume Statistics"),
-		    sStatsGrp())
+mInitGrpDefAttribUI(uiVolumeStatisticsAttrib,VolStats,sDispName(),sStatsGrp())
 
 uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d, mODHelpKey(mVolumeStatisticsAttribHelpID) )

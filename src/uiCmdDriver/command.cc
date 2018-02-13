@@ -27,7 +27,7 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mImplFactory1Param( Command, CmdDriver&, Command::factory );
+mImplClassFactory( Command, factory );
 
 
 BufferString Command::factoryKey( const char* name )
@@ -42,7 +42,7 @@ BufferString Command::createFactoryKey( const char* keyword )
 {
     const BufferString fackey = factoryKey( keyword );
 
-    if ( factory().hasName( fackey ) )
+    if ( factory().isPresent( fackey ) )
     {
 	BufferString errmsg( "Redefining command \"" );
 	errmsg += keyword; errmsg += "\"";

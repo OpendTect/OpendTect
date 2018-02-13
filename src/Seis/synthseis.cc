@@ -26,7 +26,7 @@ namespace Seis
 #define mErrRet(msg, retval) { errmsg_ = msg; return retval; }
 #define mpErrRet(msg, retval) { pErrMsg(msg); return retval; }
 
-mImplFactory( SynthGenerator, SynthGenerator::factory );
+mImplClassFactory( SynthGenerator, factory );
 
 SynthGenBase::SynthGenBase()
     : wavelet_(0)
@@ -193,10 +193,10 @@ SynthGenerator::~SynthGenerator()
 SynthGenerator* SynthGenerator::create( bool advanced )
 {
     SynthGenerator* sg = 0;
-    const BufferStringSet& fnms = SynthGenerator::factory().getNames();
+    const BufferStringSet& fkys = SynthGenerator::factory().getKeys();
 
-    if ( !fnms.isEmpty() && advanced )
-	sg = factory().create( fnms.get( fnms.size()-1 ) );
+    if ( !fkys.isEmpty() && advanced )
+	sg = factory().create( fkys.get( fkys.size()-1 ) );
 
     if ( !sg )
 	sg = new SynthGenerator();

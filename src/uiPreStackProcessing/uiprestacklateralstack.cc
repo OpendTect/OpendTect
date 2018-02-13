@@ -19,11 +19,10 @@ namespace PreStack
 
 void uiLateralStack::initClass()
 {
-    SeparString names( LateralStack::sFactoryKeyword(),
-	    		FactoryBase::cSeparator() );
-    names += "VerticalStack";
-    uiPSPD().addCreator( create, names.buf(),
-	    		 LateralStack::sFactoryDisplayName() );
+    FileMultiString keys( LateralStack::sFactoryKeyword() );
+    keys += "VerticalStack";
+    uiProcessorManager::factory().addCreator( create, keys,
+			 LateralStack::sFactoryDisplayName() );
 }
 
 
@@ -44,7 +43,7 @@ uiLateralStack::uiLateralStack( uiParent* p, LateralStack* sgvs )
     stepoutfld_ = new uiGenInput( this, tr("Stepout (inl/crl)"),
 		     PositionInpSpec( processor_->getPatternStepout(), false));
     iscrossfld_ = new uiGenInput( this, tr("Shape"),
-	BoolInpSpec( processor_->isCross(), tr("Cross"), 
+	BoolInpSpec( processor_->isCross(), tr("Cross"),
                      uiStrings::sRectangle()) );
     iscrossfld_->attach( alignedBelow, stepoutfld_ );
 }

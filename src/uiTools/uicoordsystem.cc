@@ -26,8 +26,7 @@ ________________________________________________________________________
 
 using namespace Coords;
 
-mImplFactory1Param( uiCoordSystem, uiParent*,
-		    uiCoordSystem::factory );
+mImplClassFactory( uiCoordSystem, factory );
 
 
 uiCoordSystem::uiCoordSystem( uiParent* p, const uiString& caption )
@@ -127,8 +126,8 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     isdmsbut->activated.notify( tscb );
 
     uiGroup* lblgrp = new uiGroup( this, "Lat/Long Label grp" );
-    uiLabel* lnglbl = new uiLabel( lblgrp, uiStrings::sLongitude() );
-    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLatitude() );
+    uiLabel* lnglbl = new uiLabel( lblgrp, uiStrings::sLongitude(false) );
+    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLatitude(false) );
     latlbl->attach( alignedBelow, lnglbl );
     lblgrp->setHAlignObj( lnglbl );
 
@@ -314,7 +313,7 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
     {
 	BufferString key;
 	uiCoordSystem* systemui = 0;
-	if ( coordsystempars_[idx]->get( CoordSystem::sKeyFactoryName(), key ) )
+	if ( coordsystempars_[idx]->get( CoordSystem::sKeyFactoryKey(), key ) )
 	    systemui = uiCoordSystem::factory().create( key, this );
 
 	if ( !systemui )

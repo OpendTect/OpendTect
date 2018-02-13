@@ -71,7 +71,12 @@ static const char* outpdip3dstrs[] =
 	0
 };
 
-mInitGrpDefAttribUI(uiSimilarityAttrib,Similarity,tr("Similarity"),sBasicGrp())
+static uiWord sDispName()
+{
+    return od_static_tr("sDispName","Similarity");
+}
+
+mInitGrpDefAttribUI(uiSimilarityAttrib,Similarity,sDispName(),sBasicGrp())
 
 
 uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )

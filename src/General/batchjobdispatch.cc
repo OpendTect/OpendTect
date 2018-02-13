@@ -19,7 +19,7 @@ static const char* sKeyProgramName = "Program.Name";
 static const char* sKeyClArgs = "Program.Args";
 
 
-mImplFactory(Batch::JobDispatcher,Batch::JobDispatcher::factory)
+mImplClassFactory( Batch::JobDispatcher, factory )
 
 
 Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )

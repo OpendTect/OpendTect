@@ -47,7 +47,7 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 					    bool ed, bool isnew )
     : uiDialog(p,uiDialog::Setup(toUiString("%1 %2").arg(ed ? uiStrings::sEdit()
-	     : tr("Browse")).arg(uiStrings::sProbDensFunc()),
+	     : tr("Browse")).arg(uiStrings::sProbDensFunc(false)),
 	     toUiString("%1 '%2'").arg(ed ? uiStrings::sEdit() : tr("Browse"))
 	     .arg(pdf.name().isEmpty() ? tr("PDF") : toUiString(pdf.name())),
 	     mODHelpKey(mEditProbDenFuncHelpID) ))
@@ -85,10 +85,11 @@ bool uiEditProbDenFuncDlg::acceptOK()
 #define mGetRowIdx(irow) \
     const int rowidx = nrdims_ == 1 ? irow : nrrows -irow - 1
 #define mAddDim2Str(uis) \
-	    uis.append( toUiString(" at ") ) \
-	       .append( toUiString(pdf_.dimName(2)) ) \
-	       .append( toUiString("=") ) \
-	       .append( toUiString(andpdf->sampling(2).atIndex(curdim2_)) );
+	    uis.appendPlainText( " at " ) \
+	       .appendPlainText( pdf_.dimName(2) ) \
+	       .appendPlainText( "=" ) \
+	       .appendPlainText( toString(andpdf->sampling(2) \
+						    .atIndex(curdim2_)) );
 
 
 uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,

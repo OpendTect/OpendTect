@@ -200,7 +200,7 @@ private:
 void selChgCB( CallBacker* )
 {
     const int sel = textsel_->getIntValue();
-    const BufferString key = legalInformation().getNames()[sel]->buf();
+    const char* key = legalInformation().key( sel );
 
     PtrMan<uiString> newtext = legalInformation().create( key );
     if ( newtext )

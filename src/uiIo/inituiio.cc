@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "mmbatchjobdispatch.h"
 #include "oddirs.h"
 #include "settings.h"
+#include "uiautosavesettings.h"
 #include "uibatchjobdispatcherlauncher.h"
 #include "uibatchlaunch.h"
 #include "uiclusterjobprov.h"
@@ -102,6 +103,7 @@ mDefModInitFn(uiIo)
 	uiClusterJobDispatcherLauncher::initClass();
 
     uiProcSettingsGroup::initClass();
+    uiAutoSaverSettingsGroup::initClass();
 
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
     uiSurveyInfoEditor::addInfoProvider( new uiCopySurveySIP );

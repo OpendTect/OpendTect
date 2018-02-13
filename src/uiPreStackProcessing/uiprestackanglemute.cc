@@ -161,7 +161,8 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
     smoothtypefld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
 					     smoothTypeSel) );
 
-    const BufferStringSet& windowfunctions = WINFUNCS().getNames();
+    const BufferStringSet& windowfunctions
+			= WindowFunction::factory().getKeys();
     smoothwindowfld_ = new uiGenInput( this, tr("Window/Taper"),
 				       StringListInpSpec(windowfunctions) );
     smoothwindowfld_->attach( alignedBelow, smoothtypefld_ );
@@ -318,7 +319,8 @@ void uiAngleCompAdvParsDlg::finaliseCB( CallBacker* )
 
 void uiAngleMute::initClass()
 {
-    uiPSPD().addCreator( create, AngleMute::sFactoryKeyword() );
+    uiProcessorManager::factory().addCreator( create,
+					      AngleMute::sFactoryKeyword() );
 }
 
 

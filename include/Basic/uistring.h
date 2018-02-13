@@ -10,10 +10,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "gendefs.h"
-#include "threadlock.h"
 #include "string2.h"
-#include "objectset.h"
+#include "threadlock.h"
+#include "bufstring.h"
 
 class uiStringData;
 class uiStringSet;
@@ -105,6 +104,7 @@ public:
     bool	operator<(const uiString& b) const;
     int		size() const;
     static const uiString& emptyString()	{ return emptystring_; }
+    static uiString& dummyString()		{ return dummystring_; }
     bool	isPlainAscii() const;
 
 	/*! uiStrings should only be manipulated using the arg() functions.
@@ -116,29 +116,42 @@ public:
     inline uiString&	arg(double,int nrdecimals);
     uiString&		arg(const uiString&);
 
-	/*! appendXX() functions should be used to concatenate entire sentences.
-		  You cannot just mix&match words and verbs etc.  */
-    enum AppendType	{ BluntGlue, WithSpace, NewLine,
-			  CloseLine, CloseAndNewLine };
-    uiString&	appendPhrase(const uiString&,AppendType=CloseAndNewLine);
-    uiString&	appendPhrases(const uiStringSet&,AppendType=CloseAndNewLine);
-    uiString&	appendPlainText(const char*,AppendType=CloseAndNewLine);
-    uiString&	appendPlainText(const OD::String&,AppendType=CloseAndNewLine);
-    uiString&	constructWord( const uiString& str )
-		{ return appendPhrase(str,WithSpace); }
+			/*! appendXX() functions should be used to concatenate
+			    entire sentences. You cannot just mix&match words
+			    and verbs etc.  */
+#   define		muiStringAppendDefArgs \
+			    SeparType septyp=uiString::CloseLine, \
+			    AppendType apptyp=uiString::AddNewLine
+    enum SeparType	{ Empty, CloseLine, Space, Tab, Comma, MoreInfo };
+    enum AppendType	{ SeparatorOnly, AddNewLine, LeaveALine };
+    uiString&		appendPhrase(const uiString&,muiStringAppendDefArgs);
+    uiString&		appendPhrases(const uiStringSet&,
+				      muiStringAppendDefArgs);
+    uiString&		appendPlainText(const char*,bool addspace=false,
+					bool addquotes=false);
+    uiString&		appendPlainText(const OD::String&,bool addspace=false,
+					bool addquotes=false);
 
-    // TODO this is where it's used illegally, get rid of it
-    inline uiString&	appendWord(const uiString&);
-    inline uiString&	appendWord(const char*);
-    inline uiString&	appendWord(const OD::String&);
+    uiString&		appendPhraseSameLine(const uiString&);
+    uiString&		appendAfterList(const uiString&);
+    uiString&		constructWordWith(const uiString&,bool addspace=false);
+    uiString&		preFixWord(const uiString&);
+    uiString&		postFixWord(const uiString&);
+    uiString&		addMoreInfo(const uiString&,bool newline=true);
+			//!< adds a colon first
+
+
+    inline uiString&	appendIncorrect(const uiString&,char sep=' ');
+    inline uiString&	appendIncorrect(const char*,char sep=' ');
+    inline uiString&	appendIncorrect(const OD::String&,char sep=' ');
 
     // TEMP-- comment out to fix a directory at a time
     inline uiString&	append( const uiString& s, bool nl=false)
-			{ return appendWord(s); }
+				{ return appendIncorrect(s,nl?'\n':' '); }
     inline uiString&	append( const char* s, bool nl=false)
-			{ return appendWord(s); }
+				{ return appendIncorrect(s,nl?'\n':' '); }
     inline uiString&	append( const OD::String& s, bool nl=false )
-			{ return appendWord(s); }
+				{ return appendIncorrect(s,nl?'\n':' '); }
     inline uiString&	addSpace(int =1)	{ return append(" "); }
     inline uiString&	addTab(int =1)		{ return append("\t"); }
     inline uiString&	addNewLine(int =1)	{ return append("\n"); }
@@ -171,6 +184,7 @@ private:
     mutable uiStringData*	data_;
     mutable Threads::Lock	datalock_;	//!< Protects data_ variable
     static const uiString	emptystring_;
+    static uiString		dummystring_;
 
     bool			operator==( const uiString&  oth ) const
 				{ return isEqualTo( oth ); }
@@ -279,132 +293,18 @@ uiString toUiString( const std::pair<T1,T2>& pair )
     return toUiString( "%1/%2" ).arg( pair.first ).arg( pair.second );
 }
 
-
-/*\brief Set of uiStrings */
-
-mExpClass(Basic) uiStringSet
-{ mODTextTranslationClass(uiStringSet);
-public:
-
-    typedef ObjectSet<uiString>::size_type	size_type;
-    typedef size_type				IdxType;
-
-			uiStringSet()				{}
-			uiStringSet( const uiString& s )	{ set(s); }
-			uiStringSet( const uiStringSet& oth )	{ *this = oth; }
-			uiStringSet(const uiString[]);
-				/*!< end array with empty string */
-			~uiStringSet();
-    uiStringSet&	operator =(const uiStringSet&);
-
-    inline size_type	size() const		    { return strs_.size(); }
-    inline bool		validIdx( IdxType i ) const { return strs_.validIdx(i);}
-    bool		isEmpty() const		    { return strs_.isEmpty(); }
-    bool		isPresent(const uiString&) const;
-    IdxType		indexOf(const uiString&) const;
-    uiString		get(IdxType) const;
-    uiString&		operator[]( IdxType idx )	{ return *strs_[idx]; }
-    const uiString&	operator[]( IdxType idx ) const	{ return *strs_[idx]; }
-
-    void		setEmpty();
-    uiStringSet&	set(const uiString&);
-    uiStringSet&	set( const uiStringSet& oth )	{ return (*this=oth); }
-    uiStringSet&	set(const uiRetVal&);
-    uiStringSet&	add(const uiString&);
-    uiStringSet&	add(const uiStringSet&);
-    uiStringSet&	add(const uiRetVal&);
-    uiStringSet&	append( const uiStringSet& ss )	{ return add(ss); }
-    uiStringSet&	insert(IdxType,const uiString&);
-    uiStringSet&	operator +=( const uiString& s ) { return add(s); }
-    void		removeSingle(IdxType,bool keep_order=true);
-    void		removeRange(IdxType,IdxType);
-
-    uiString		cat(uiString::AppendType apptyp
-					=uiString::CloseAndNewLine) const;
-    uiStringSet		getNonEmpty() const;
-    uiString		createOptionString(bool use_and=true,int maxnritems=-1,
-				   bool separate_lines=false) const;
-				//!< example: "option1, option2 and option3"
-
-    void		fill(mQtclass(QStringList)&) const;
-    void		sort(const bool caseinsens=true,bool asc=true);
-    void		useIndexes( const IdxType* idxs );
-    IdxType*		getSortIndexes(bool caseinsens,bool asc) const;
-
-protected:
-
-    ObjectSet<uiString>	strs_;
-
-};
-
-
-#ifndef UISTRING_FULL_SEPARATION
-
-	typedef uiStringSet uiPhraseSet;
-	typedef uiStringSet uiWordSet;
-
-#else
-
-	//TODO
-
-#endif
-
-
-/*\brief allows returning status and accompanying user info.
-
-  This class helps us make sure there is always user info on errors. Therefore,
-  you will find a 'setIsOK' but not OK means setting a non-empty message.
-
-*/
-
-mExpClass(Basic) uiRetVal
-{
-public:
-
-			uiRetVal()		{}
-			uiRetVal(const uiPhrase&);
-			uiRetVal(const uiPhraseSet&);
-			uiRetVal(const uiRetVal&);
-    static uiRetVal	OK()			{ return ok_; }
-    static uiRetVal	Empty()			{ return ok_; }
-    uiRetVal&		operator =(const uiRetVal&);
-    uiRetVal&		operator =(const uiPhrase&);
-    uiRetVal&		operator =(const uiPhraseSet&);
-			operator uiPhrase() const;
-			operator uiPhraseSet() const;
-
-    bool		isOK() const;
-    inline bool		isEmpty() const		{ return isOK(); }
-    inline bool		isError() const		{ return !isOK(); }
-    bool		isMultiMessage() const;
-    uiPhraseSet		messages() const;
-    bool		isSingleWord(const uiWord&) const;
-
-    uiRetVal&		setEmpty();
-    inline uiRetVal&	setOK()			{ return setEmpty(); }
-    uiRetVal&		insert(const uiPhrase&);
-    uiRetVal&		set(const uiRetVal&);
-    uiRetVal&		set(const uiPhrase&);
-    uiRetVal&		set(const uiPhraseSet&);
-    uiRetVal&		add(const uiRetVal&);
-    uiRetVal&		add(const uiPhrase&);
-    uiRetVal&		add(const uiPhraseSet&);
-    uiRetVal&		setAsStatus(const uiWord&);
-
-    BufferString	getText() const;
-
-private:
-
-    uiPhraseSet		msgs_;
-    mutable Threads::Lock lock_;
-
-    static const uiRetVal ok_;
-
-};
-
-
-mGlobal(Basic) bool isFinished(const uiRetVal&);
-mGlobal(Basic) bool isCancelled(const uiRetVal&);
+inline uiString& uiString::appendPhraseSameLine( const uiString& str )
+{ return appendPhrase( str, CloseLine, SeparatorOnly ); }
+inline uiString& uiString::appendAfterList( const uiString& str )
+{ return appendPhrase( str, Empty, AddNewLine ); }
+inline uiString& uiString::constructWordWith( const uiString& str, bool addspc )
+{ return appendPhrase( str, addspc ? Space : Empty, SeparatorOnly ); }
+inline uiString& uiString::preFixWord( const uiString& str )
+{ const uiString kp(*this); *this = str; return postFixWord(kp); }
+inline uiString& uiString::postFixWord( const uiString& str )
+{ return constructWordWith( str, true ); }
+inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )
+{ return appendPhrase( str, MoreInfo, newline?AddNewLine:SeparatorOnly ); }
 
 
 // Use when string should be revisited later
@@ -456,10 +356,16 @@ inline uiString& uiString::arg( double val, int nrdec )
     QString qstr; (uistring_var).fillQString( qstr )
 
 
-//TODO as said, should go away
-inline uiString& uiString::appendWord( const uiString& str )
-{ return appendPhrase(str,WithSpace); }
-inline uiString& uiString::appendWord( const char* str )
-{ return appendPhrase(toUiString(str),WithSpace); }
-inline uiString& uiString::appendWord( const OD::String& str )
-{ return appendPhrase(toUiString(str),WithSpace); }
+#define mDefIncorrectAppendPhrArgs \
+    sep=='\n' ? Empty : (sep=='\t' ? Tab : Space), \
+    sep=='\n' ? AddNewLine : SeparatorOnly
+
+inline uiString& uiString::appendIncorrect( const uiString& str, char sep )
+{ return appendPhrase( str, mDefIncorrectAppendPhrArgs ); }
+inline uiString& uiString::appendIncorrect( const char* str, char sep )
+{ return appendPhrase( toUiString(str), mDefIncorrectAppendPhrArgs ); }
+inline uiString& uiString::appendIncorrect( const OD::String& str, char sep )
+{ return appendPhrase( toUiString(str), mDefIncorrectAppendPhrArgs ); }
+
+
+#include "uistringset.h"

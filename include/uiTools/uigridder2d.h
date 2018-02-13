@@ -51,6 +51,9 @@ mExpClass(uiTools) uiGridder2DGrp : public uiDlgGroup
 { mODTextTranslationClass(uiGridder2DGrp)
 public:
 
+    mDefineFactory2ParamInClass( uiGridder2DGrp, uiParent*,
+				 const BufferString&, factory );
+
 				~uiGridder2DGrp();
 
     virtual bool		usePar(const IOPar&);
@@ -109,7 +112,3 @@ public:
 							const BufferString&);
 
 };
-
-
-mDefineFactory2Param( uiTools, uiGridder2DGrp, uiParent*, const BufferString&,
-		      uiGridder2DFact );

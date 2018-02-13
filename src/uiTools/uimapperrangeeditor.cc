@@ -60,7 +60,7 @@ uiMapperRangeEditor::~uiMapperRangeEditor()
 {
     detachAllNotifiers();
 
-    delete minline_; delete maxline_;
+    delete minhandle_; delete maxhandle_;
     delete leftcoltab_; delete centercoltab_; delete rightcoltab_;
     delete minvaltext_; delete maxvaltext_;
 }
@@ -69,7 +69,7 @@ uiMapperRangeEditor::~uiMapperRangeEditor()
 void uiMapperRangeEditor::setEmpty()
 {
     histogramdisp_->setEmpty();
-    minline_->hide(); maxline_->hide();
+    minhandle_->hide(); maxhandle_->hide();
     minvaltext_->hide(); maxvaltext_->hide();
 }
 
@@ -168,17 +168,12 @@ void uiMapperRangeEditor::init()
 	new uiTextItem(uiStrings::sEmptyString(),OD::Alignment::Right) );
     maxvaltext_ = scene.addItem( new uiTextItem() );
 
-    MouseCursor cursor( MouseCursor::SizeHor );
-    OD::LineStyle ls( OD::LineStyle::Solid, 2, Color(0,255,0) );
-    minline_ = scene.addItem( new uiLineItem() );
-    minline_->setPenStyle( ls );
-    minline_->setCursor( cursor );
-    minline_->setZValue( zval+2 );
-
-    maxline_ = scene.addItem( new uiLineItem() );
-    maxline_->setPenStyle( ls );
-    maxline_->setCursor( cursor );
-    maxline_->setZValue( zval+2 );
+    uiManipHandleItem::Setup mhisu;
+    mhisu.color_ = Color::DgbColor();
+    mhisu.thickness_ = 2;
+    mhisu.zval_ = zval+2;
+    minhandle_ = scene.addItem( new uiManipHandleItem(mhisu) );
+    maxhandle_ = scene.addItem( new uiManipHandleItem(mhisu) );
 
     mAttachCB( mapper_->objectChanged(), uiMapperRangeEditor::mapperChg );
     mAttachCB( ctseq_->objectChanged(), uiMapperRangeEditor::colSeqChg );
@@ -236,11 +231,8 @@ void uiMapperRangeEditor::drawLines()
     if ( mIsUdf(startpix_) || mIsUdf(stoppix_) )
 	return;
 
-    const int height = histogramdisp_->height();
-    minline_->setLine( startpix_, 0, startpix_, height );
-    minline_->show();
-    maxline_->setLine( stoppix_, 0, stoppix_, height );
-    maxline_->show();
+    minhandle_->setPixPos( startpix_ );
+    maxhandle_->setPixPos( stoppix_ );
 }
 
 
@@ -392,9 +384,8 @@ void uiMapperRangeEditor::histDRChanged( CallBacker* cb )
     startpix_ = xax_->getPix( cliprg_.start );
     stoppix_ = xax_->getPix( cliprg_.stop );
 
-    const int height = histogramdisp_->height();
-    minline_->setLine( startpix_, 0, startpix_, height );
-    maxline_->setLine( stoppix_, 0, stoppix_, height );
+    minhandle_->setPixPos( startpix_ );
+    maxhandle_->setPixPos( stoppix_ );
 
     Interval<float> newrg;
     newrg.start =

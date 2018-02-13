@@ -61,10 +61,10 @@ void uiBatchJobDispatcherSel::init( bool optional )
 {
     Factory1Param<uiBatchJobDispatcherLauncher,Batch::JobSpec&>& fact
 				= uiBatchJobDispatcherLauncher::factory();
-    const BufferStringSet& nms = fact.getNames();
-    for ( int idx=0; idx<nms.size(); idx++ )
+    const BufferStringSet& kys = fact.getKeys();
+    for ( int idx=0; idx<kys.size(); idx++ )
     {
-	uiBatchJobDispatcherLauncher* dl = fact.create( nms.get(idx), jobspec_);
+	uiBatchJobDispatcherLauncher* dl = fact.create( kys.get(idx), jobspec_);
 	if ( dl && dl->isSuitedFor(jobspec_.prognm_) )
 	    uidispatchers_ += dl;
 	else
@@ -285,8 +285,7 @@ void uiBatchJobDispatcherSel::optsPush( CallBacker* )
 
 // --- Launcher stuff
 
-mImplFactory1Param(uiBatchJobDispatcherLauncher,Batch::JobSpec&,
-		   uiBatchJobDispatcherLauncher::factory)
+mImplClassFactory( uiBatchJobDispatcherLauncher, factory )
 
 
 bool uiBatchJobDispatcherLauncher::go( uiParent* p )

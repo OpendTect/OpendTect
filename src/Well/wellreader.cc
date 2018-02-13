@@ -133,14 +133,14 @@ Well::Reader::Reader( const DBKey& ky, Well::Data& wd )
 void Well::Reader::init( const IOObj& ioobj, Well::Data& wd )
 {
     if ( ioobj.group() != mTranslGroupName(Well) )
-	errmsg_.append( ioobj.name() ).append( tr(" is not a Well, but a ") )
-		.append( ioobj.group() );
+	errmsg_.appendPhrase( tr("%1 is not a Well, but a '%2'") )
+		.arg( ioobj.name() ).arg( ioobj.group() );
     else
     {
 	ra_ = WDIOPF().getReadAccess( ioobj, wd, errmsg_ );
 	if ( !ra_ )
-	    errmsg_ = uiStrings::phrCannotCreate(tr("reader of type %1"))
-		   .arg(ioobj.translator());
+	    errmsg_.appendPhrase( uiStrings::phrCannotCreate(
+			tr("reader of type '%1'").arg( ioobj.translator() ) ) );
     }
     getInfo();
 }
@@ -258,11 +258,6 @@ const char* Well::odIO::getMainFileName( const DBKey& mid )
     if ( !ioobj ) return 0;
     return getMainFileName( *ioobj );
 }
-
-
-#define mErrRetFnmOper(fnm,oper) \
-{ errmsg_.append(uiStrings::sCannot()).append(toUiString(" ")).append(oper) \
-	 .append(toUiString(" ")).append(fnm); return false; }
 
 
 bool Well::odIO::removeAll( const char* ext ) const

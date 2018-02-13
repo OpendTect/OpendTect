@@ -42,7 +42,7 @@ ________________________________________________________________________
 #endif
 
 
-mImplFactory( File::SystemAccess, File::SystemAccess::factory );
+mImplClassFactory( File::SystemAccess, factory );
 
 static const char* sProtSep = File::Path::uriProtocolSeparator();
 static const int cProtSepLen = FixedString(sProtSep).size();
@@ -151,8 +151,8 @@ BufferString File::SystemAccess::withProtocol( const char* fnm,
 void File::SystemAccess::getProtocolNames( BufferStringSet& factnms,
 					   bool forread )
 {
-    const Factory<SystemAccess>& fact = factory();
-    factnms = fact.getNames();
+    const FactoryType& fact = factory();
+    factnms = fact.getKeys();
     for ( int idx=0; idx<factnms.size(); idx++ )
     {
 	const File::SystemAccess& fsa = getByProtocol( factnms.get(idx) );
@@ -279,7 +279,7 @@ const File::SystemAccess& File::SystemAccess::gtByProt( BufferString& protocol )
     // OK, so we have not made an instantiation of the protocol yet
     // See if we have anything for it in the factory
 
-    const BufferStringSet nms = factory().getNames();
+    const BufferStringSet nms = factory().getKeys();
     if ( !nms.isPresent(protocol) )
     {
 	// again, we may have a variant

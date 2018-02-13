@@ -241,27 +241,27 @@ void drawMarkers( CallBacker* )
     const int ymax = scene().nrPixY() - 1;
 
     uiLineItem* lineitem = new uiLineItem;
-    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
+    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
     lineitem->setPenColor( Color(0,255,255) );
-    lineitem->setLine( 0, 0, xmax, 0 );
+    lineitem->setLine( 1, 0, 1, ymax );
     lineitem->setZValue( 10 );
     markerlineitmgrp_->add( lineitem );
     lineitem = new uiLineItem;
-    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
+    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
     lineitem->setPenColor( Color(0,255,255) );
-    lineitem->setLine( 0, ymax, xmax, ymax );
+    lineitem->setLine( xmax-1, ymax, xmax-1, ymax );
     lineitem->setZValue( 10 );
     markerlineitmgrp_->add( lineitem );
 
     uiManipHandleItem::Setup msu;
-    msu.hor_ = false; msu.thickness_ = 3;
-    msu.start_ = 0; msu.stop_ = ymax;
-    msu.color_ = Color::Black();
+    msu.thickness_ = 2;
     MonitorLock ml( colseq() );
     for ( int idx=0; idx<colseq().size(); idx++ )
     {
 	const float fpos = xmax * colseq().position( idx );
-	markerlineitmgrp_->add( new uiManipHandleItem(msu,fpos) );
+	uiManipHandleItem* itm = new uiManipHandleItem( msu );
+	markerlineitmgrp_->add( itm );
+	itm->setPixPos( fpos );
     }
 }
 
@@ -358,7 +358,10 @@ void seqChgCB( CallBacker* cb )
     mGetMonitoredChgData( cb, chgdata );
     if ( chgdata.isEntireObject()
       || chgdata.changeType() == Sequence::cColorChange() )
+    {
 	reDrawNeeded.trigger();
+	drawMarkers( 0 );
+    }
 }
 
 void addCtrlPt( float pos, bool withcolsel )
@@ -461,7 +464,7 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
     ctrlptsed_->setStretch( 2, 2 );
     ctrlptsed_->attach( ensureBelow, transpdisp_ );
 
-    seqdisp_ = new uiColSeqDisp( rightgrp, OD::Horizontal, false );
+    seqdisp_ = new uiColSeqDisp( rightgrp, OD::Horizontal, false, false );
     seqdisp_->setPrefWidth( cTranspDispWidth );
     seqdisp_->setPrefHeight( cSeqDispHeight );
     seqdisp_->setSeqName( curseq_->name() );
@@ -759,7 +762,6 @@ void uiColSeqMan::seqChgCB( CallBacker* cb )
 void uiColSeqMan::handleSeqChg()
 {
     seqdisp_->setSequence( *curseq_ );
-    ctrlptsed_->drawMarkers( 0 );
     updateTransparencyGraph();
     updateSegmentationFields();
     updateSpecColFlds();

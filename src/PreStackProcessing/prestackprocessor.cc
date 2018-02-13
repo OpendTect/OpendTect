@@ -17,7 +17,7 @@ namespace PreStack
 {
 
 
-mImplFactory( Processor, Processor::factory );
+mImplClassFactory( Processor, factory );
 
 
 Processor::Processor( const char* nm )
@@ -390,11 +390,11 @@ bool ProcessManager::usePar( const IOPar& par )
 	Processor* proc = Processor::factory().create( name.buf() );
 	if ( !proc || !proc->errMsg().isEmpty() || !proc->usePar( *steppar ) )
 	{
-	    errmsg_ = tr("Cannot parse processing step %1.").arg(name);
+	    errmsg_ = tr("Cannot parse processing step %1").arg(name);
 	    if ( !proc || !proc->errMsg().isEmpty() )
-		errmsg_.append( tr( "\nAre all plugins loaded?" ) );
+		errmsg_.appendPhrase( tr( "Are all plugins loaded?" ) );
 	    else
-		errmsg_.append( proc->errMsg(), true );
+		errmsg_.appendPhrase( proc->errMsg() );
 	    delete proc;
 	    return false;
 	}

@@ -22,8 +22,8 @@ ________________________________________________________________________
 static Pos::GeomID cSIGeomID = -1;
 static Pos::GeomID cSyntheticSurveyID = -100;
 
-mImplFactory(Survey::GeometryReader,Survey::GeometryReader::factory);
-mImplFactory(Survey::GeometryWriter,Survey::GeometryWriter::factory);
+mImplClassFactory(Survey::GeometryReader,factory);
+mImplClassFactory(Survey::GeometryWriter,factory);
 const TrcKey::SurvID Survey::GeometryManager::surv2did_ = 0;
 
 static PtrMan<Survey::GeometryManager> theinst = 0;

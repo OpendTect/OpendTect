@@ -44,7 +44,8 @@ public:
     typedef ColTab::ValueType	ValueType;
 
 				uiColSeqDisp(uiParent*,OD::Orientation,
-					     bool withudfcoldisp=true);
+					     bool withudfcoldisp=true,
+					     bool wantnamedisplayed=true);
 				~uiColSeqDisp();
 
     const Sequence&		sequence() const	{ return *colseq_; }
@@ -70,6 +71,7 @@ protected:
     ConstRefMan<Mapper>		mapper_;
     OD::Orientation		orientation_;
     const bool			withudfcoldisp_;
+    const bool			withnamedisp_;
     uiRGBArray*			rgbarr_;
     uiTextItem*			nmitm_;
     uiRectItem*			nmbgrectitm_;
@@ -85,6 +87,7 @@ protected:
     void			seqChgCB( CallBacker* )		{ reDraw(); }
     void			mapperChgCB( CallBacker* )	{ reDraw(); }
     int				longSz() const;
+    int				shortSz() const;
     PosType			relPosFor(const MouseEvent&) const;
 
     bool			setNewSeq(const Sequence&);

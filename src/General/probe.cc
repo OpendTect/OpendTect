@@ -331,7 +331,7 @@ void Probe::setPos( const TrcKeyZSampling& newpos )
 
 uiWord Probe::mkDispNm( const uiWord& add ) const
 {
-    return usrType().constructWord( toUiString("[%1]").arg(add) );
+    return usrType().constructWordWith( toUiString("[%1]").arg(add), false );
 }
 
 

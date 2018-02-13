@@ -87,7 +87,9 @@ bool yesNoFromString( const char* str )
     if ( !str )
 	return false;
     mSkipBlanks( str );
-    return *str == 'Y' || *str == 'y' || *str == 'T' || *str == 't';
+
+    return isdigit(*str) ? *str != '0'
+	 : *str=='Y' || *str=='y' || *str=='T' || *str=='t' || *str=='+';
 }
 
 

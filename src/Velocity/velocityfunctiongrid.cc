@@ -600,14 +600,15 @@ void GriddedSource::setSource( ObjectSet<FunctionSource>& nvfs )
 }
 
 
-void GriddedSource::setSource( const DBKeySet& mids )
+void GriddedSource::setSource( const DBKeySet& dbkys )
 {
     ObjectSet<FunctionSource> newsources;
-    for ( int idx=0; idx<mids.size(); idx++ )
+    for ( int idx=0; idx<dbkys.size(); idx++ )
     {
-	FunctionSource* src =
-	    FunctionSource::factory().create( "", mids[idx], false );
-	if ( !src ) continue;
+	FunctionSource* src = FunctionSource::factory().createSuitable(
+						dbkys[idx] );
+	if ( !src )
+	    continue;
 	src->ref();
 	newsources += src;
     }

@@ -76,9 +76,9 @@ public:
 
     virtual int		nrTxtLines() const	{ return -1; }
 
-    void		attach(constraintType,uiObject* other=0,
+    void		attach(ConstraintType,uiObject* other=0,
 			       int margin=-1,bool reciprocal=true);
-    void		attach(constraintType t,uiParent* other=0,
+    void		attach(ConstraintType t,uiParent* other=0,
 			       int m=-1,bool r=true)
 			{ attach(t,other->mainObject(),m,r ); }
 

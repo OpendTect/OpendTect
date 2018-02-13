@@ -24,7 +24,7 @@ namespace VolProc
 mExpClass(uiVolumeProcessing) uiHorInterFiller : public uiStepDialog
 { mODTextTranslationClass(uiHorInterFiller)
 public:
-    mDefaultFactoryInstanciationBase(
+    mDefaultFactoryInstantiationBase(
 	    VolProc::HorInterFiller::sFactoryKeyword(),
 	    VolProc::HorInterFiller::sFactoryDisplayName())
 	    mDefaultFactoryInitClassImpl( uiStepDialog, createInstance )

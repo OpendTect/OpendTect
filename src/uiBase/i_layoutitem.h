@@ -33,7 +33,7 @@ public:
 					     mQtclass(QLayoutItem&));
     virtual			~i_LayoutItem();
 
-    inline const i_LayoutMngr&	mngr() const 		{ return mngr_; }
+    inline const i_LayoutMngr&	mngr() const		{ return mngr_; }
 
     virtual int			horAlign(LayoutMode) const;
     virtual int			centre(LayoutMode,bool hor=true) const;
@@ -61,7 +61,7 @@ protected:
     void			initLayout(LayoutMode m,int mngrtop,
 							int mngrleft);
     bool			layout(LayoutMode m,int,bool finalloop);
-    void			attach(constraintType,
+    void			attach(ConstraintType,
 					i_LayoutItem* other,int margin,
 					bool reciprocal=true);
     bool			isAligned() const;

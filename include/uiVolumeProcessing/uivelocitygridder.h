@@ -26,7 +26,7 @@ namespace VolProc
 mExpClass(uiVolumeProcessing) uiVelocityGridder : public uiStepDialog
 { mODTextTranslationClass(uiVelocityGridder)
 public:
-		mDefaultFactoryInstanciationBase(
+		mDefaultFactoryInstantiationBase(
 		    VolProc::VelocityGridder::sFactoryKeyword(),
 		    VolProc::VelocityGridder::sFactoryDisplayName())
 		    mDefaultFactoryInitClassImpl(uiStepDialog,createInstance)
