@@ -313,7 +313,7 @@ public:
     static uiWord sMoveToTop()		{ return tr("Move To Top"); }
     static uiWord sMoveDown()		{ return tr("Move Down"); }
     static uiWord sMoveUp()		{ return tr("Move Up"); }
-    static uiWord sMsec()		{ return tr("msec"); }
+    static uiWord sMsec(int n=1)	{ return tr("Millisecond",0,n); }
     static uiWord sMultiple()		{ return tr("Multiple"); }
     static uiWord sMute(int n=1)	{ return tr("Mute",0,n); }
     static uiWord sName(int n=1)	{ return tr("Name",0,n); }
@@ -392,7 +392,7 @@ public:
     static uiWord sScene(int n=1)	{ return tr("Scene",0,n); }
     static uiWord sScenes()		{ return sScene(mPlural); }
     static uiWord sSearching()		{ return tr("Searching"); }
-    static uiWord sSec()		{ return tr("sec"); }
+    static uiWord sSec(int n=1)		{ return tr("Second",0,1); }
     static uiWord sSEGY()		{ return tr("SEG-Y"); }
     static uiWord sSeismic(int n=1)	{ return tr("Seismic",0,n); }
     static uiWord sSeismicData()	{ return tr("Seismic Data"); }
