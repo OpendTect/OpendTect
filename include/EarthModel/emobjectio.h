@@ -33,6 +33,9 @@ class SurfaceIODataSelection;
 mExpClass(EarthModel) ObjectLoader
 {
 public:
+
+    virtual		~ObjectLoader()		{}
+
     mDefineFactory2ParamInClass(ObjectLoader,const DBKeySet&,
 				const SurfaceIODataSelection*,factory)
 
