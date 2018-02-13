@@ -27,6 +27,11 @@ ________________________________________________________________________
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+#include "emsurfacetr.h"
+
+static HiddenParam<uiBulkFaultImport,bool*> isfss_(false);
+
 
 class BulkFaultAscIO : public Table::AscIO
 {
@@ -38,13 +43,14 @@ BulkFaultAscIO( const Table::FormatDesc& fd, od_istream& strm )
 {}
 
 
-static Table::FormatDesc* getDesc()
+static Table::FormatDesc* getDesc( bool isfss )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkFault" );
 
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
-    fd->bodyinfos_ += new Table::TargetInfo( "Fault name", Table::Required );
+    BufferString typnm = isfss ? "FaultStickSet name" : "Fault name";
+    fd->bodyinfos_ += new Table::TargetInfo( typnm , Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     fd->bodyinfos_ += new Table::TargetInfo( "Stick number", IntInpSpec(),
@@ -97,12 +103,28 @@ bool getData( BufferString& fltnm, Coord3& crd, int& sticknr )
 };
 
 
-uiBulkFaultImport::uiBulkFaultImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(tr("Multiple Faults")),
-				 mNoDlgTitle,
-				 mODHelpKey(mBulkFaultImportHelpID))
-				.modal(false))
-    , fd_(BulkFaultAscIO::getDesc())
+#define mGet( tp, fss, f3d ) \
+    FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
+
+#define mGetCtio(tp) \
+    mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
+
+#define mGetHelpKey(tp) \
+    mGet( tp, (is2d ? mODHelpKey(mImportFaultStick2DHelpID) \
+		    : mODHelpKey(mImportFaultStick3DHelpID) ), \
+    mODHelpKey(mImportFaultHelpID) )
+
+
+
+uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type,
+								    bool is2d )
+    : uiDialog(p,uiDialog::Setup(mGet( type, (is2d
+			      ? tr("Import Multiple FaultStickSets 2D")
+			      : tr("Import Multiple FaultStickSets")),
+				tr("Import Multiple Faults") ),mNoDlgTitle,
+				mGetHelpKey(type)).modal(false))
+    , isfss_(mGet(type,true,false))
+    , fd_(BulkFaultAscIO::getDesc(isfss_))
 {
     setOkText( uiStrings::sImport() );
 
@@ -166,20 +188,25 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
     BufferStringSet errors;
     uiTaskRunner taskr( this );
     const Coord3 normal( 0, 0, 1 );
+    const char* typestr = isfss_ ? EM::FaultStickSet::typeStr()
+				 : EM::Fault3D::typeStr();
     for ( int idx=0; idx<fltnms.size(); idx++ )
     {
-	EM::ObjectID eid = EM::EMM().createObject(
-		EM::Fault3D::typeStr(), fltnms.get(idx) );
+	EM::ObjectID eid = EM::EMM().createObject( typestr, fltnms.get(idx) );
 	EM::EMObject* emobj = EM::EMM().getObject( eid );
 	emobj->ref();
 	mDynamicCastGet( EM::Fault3D*, emflt, emobj );
-	if ( !emflt )
+	mDynamicCastGet( EM::FaultStickSet*, emfss, emobj );
+
+	if ( !emflt && !emfss )
 	{
 	    emobj->unRef();
 	    continue;
 	}
 
-	Geometry::FaultStickSet& flt = *emflt->geometry().sectionGeometry(0);
+	Geometry::FaultStickSet& flt = emflt ?
+				    *emflt->geometry().sectionGeometry(0) :
+				    *emfss->geometry().sectionGeometry(0);
 	TypeSet<int> usedstickids;
 
 	for ( int sidx=0; sidx<sticks[idx].size(); sidx++ )
@@ -199,12 +226,16 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	    }
 	}
 
-	PtrMan<Executor> saver = emflt->saver();
-	if ( saver )
-	    TaskRunner::execute( &taskr, *saver );
+	PtrMan<Executor> saver =  emflt ? emflt->saver() :  emfss->saver();
+	if ( !saver || !TaskRunner::execute( &taskr, *saver )  )
+	{
+	    uiMSG().error(tr("Cannot import %1").arg(toUiString(typestr)));
+	    return false;
+	}
 	emobj->unRef();
     }
 
-    uiMSG().message( tr("Imported all faults from file %1").arg(fnm) );
+    uiMSG().message(tr("Imported all %1 from file %2").arg(toUiString(typestr))
+							.arg(fnm));
     return true;
 }
