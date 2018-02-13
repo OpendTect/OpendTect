@@ -122,8 +122,13 @@ void uiSaveDataDlg::saveWvltSelCB( CallBacker* )
     estimatedwvltsel_->setChecked( saveall );
 }
 
-
-#define mAppMsg(locmsg,act) { msg.append( locmsg, !msg.isEmpty() ); act; }
+#define mAppMsg(locmsg,act) \
+{ \
+    msg.appendPhrase( locmsg, \
+	(msg.isEmpty() ? uiString::Empty : uiString::CloseLine),\
+	(msg.isEmpty() ? uiString::SeparatorOnly : uiString::AddNewLine) ); \
+    act; \
+}
 
 
 bool uiSaveDataDlg::saveLogs()
@@ -147,9 +152,9 @@ bool uiSaveDataDlg::saveLogs()
 
 	if ( data.wd_->logs().isPresent(lognm) )
 	{
-	    const uiString localmsg = tr( "Log: '%1' already exists" )
+	    msg = tr( "Log: '%1' already exists" )
 					  .arg( lognm );
-	    mAppMsg( localmsg, continue )
+	    continue;
 	}
 
 	Well::Log* newlog = new Well::Log( log );
@@ -215,8 +220,8 @@ bool uiSaveDataDlg::saveWvlt( bool useest )
     if ( !wvlt.size() && useest )
     {
 	uiString msg = tr( "No estimated wavelet yet" );
-	msg.append(
-	   tr( "Press 'Display additional information' before saving" ), true );
+	msg.appendPhrase(
+	   tr( "Press 'Display additional information' before saving" ) );
 	mErrRet( msg )
     }
 

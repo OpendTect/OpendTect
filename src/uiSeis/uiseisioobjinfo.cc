@@ -82,8 +82,8 @@ bool uiSeisIOObjInfo::provideUserInfo2D( const TypeSet<Pos::GeomID>* sel ) const
     const int nrlines = geomids.size();
     const BufferString datanm( sii.ioObj()->name() );
     uiString msg = nrlines < 2 ?
-	tr("The following line was added to dataset %2:\n").arg(datanm)
-	: tr("%1 lines were added to dataset %2:\n").arg(nrlines).arg(datanm);
+	tr("The following line was added to dataset %2:").arg(datanm)
+	: tr("%1 lines were added to dataset %2:").arg(nrlines).arg(datanm);
     const uiString zunitstr( SI().zUnitString() );
     const float zfac = SI().showZ2UserFactor();
     for ( int idx=0; idx<geomids.size(); idx++ )
@@ -94,8 +94,8 @@ bool uiSeisIOObjInfo::provideUserInfo2D( const TypeSet<Pos::GeomID>* sel ) const
 	if ( sii.getRanges(geomids[idx],trcrg,zrg) )
 	    zrg.scale( zfac );
 
-	msg.append( tr("Line: %1, Trace range: %2 to %3 (step %4), "
-		    "Z range %5: %6 to %7 (step %8)\n")
+	msg.appendPhrase( tr("Line: %1, Trace range: %2 to %3 (step %4), "
+		    "Z range %5: %6 to %7 (step %8)")
 		.arg(linenm).arg(trcrg.start).arg(trcrg.stop).arg(trcrg.step)
 		.arg(zunitstr).arg(zrg.start).arg(zrg.stop).arg(zrg.step) );
     }

@@ -61,7 +61,7 @@ void uiVolProcPartServer::doVolProc( bool is2d, const DBKey* mid,
 	{
 	    uiString fms( uiStrings::phrCannotRead( ioobj->uiName() ) );
 	    if ( !errmsg.isEmpty() )
-		fms.append(errmsg);
+		fms.appendPhrase( errmsg );
 
 	    uiMSG().error( fms );
 	    vprocchain->unRef();

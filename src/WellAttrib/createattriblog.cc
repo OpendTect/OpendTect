@@ -23,7 +23,7 @@ _______________________________________________________________________
 
 
 
-#define mErrRet(m) { errmsg.append(m,true); return false; }
+#define mErrRet(m) { errmsg.appendPhrase(m); return false; }
 
 
 bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )

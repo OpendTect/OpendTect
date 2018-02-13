@@ -164,7 +164,7 @@ bool uiCreateLogCubeOutputSel::askOverwrite( const uiString& errmsg ) const
     if ( toString(errmsg).find("as another type") )
     {
 	uiString msg( errmsg );
-	msg.append( tr( "Please choose another suffix" ), true );
+	msg.appendPhrase( tr( "Please choose another suffix" ) );
 	mErrRet( msg )
     }
 

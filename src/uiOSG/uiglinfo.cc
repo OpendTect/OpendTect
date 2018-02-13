@@ -106,16 +106,15 @@ uiString uiGLInfo::getMessage( bool* warning )
     }
 
 #define mAddStr(txt,idx) \
-    msg.append( txt, true ).append( toUiString(allinfo[idx]->buf()) );
+    msg.appendPhrase( txt, uiString::Empty, uiString::AddNewLine ) \
+				    .appendPlainText( allinfo[idx]->buf() );
 
     BufferStringSet allinfo = glinfo_.allInfo();
     msg.setEmpty();
-    msg.append( tr("Scanning your graphics card:") );
-    msg.append( "", true );
+    msg = tr("Scanning your graphics card:");
     mAddStr(tr("GL-vendor: "), 0 );
     mAddStr(tr("GL-renderer: "), 1 );
     mAddStr(tr("GL-version: "), 2 );
-    msg.append( "", true );
     mAddStr(tr("Vertex shader support: "), 3 );
     mAddStr(tr("Fragment shader support: "), 3 );
     mAddStr(tr("Geometry shader4 support: "), 5 );
@@ -127,22 +126,22 @@ uiString uiGLInfo::getMessage( bool* warning )
 
     if ( !glinfo_.isOK() )
     {
-	msg.append( "\n", true );
-	msg.append( tr(
-	    "Missing all GL info indicates some graphics card problem.") );
+	msg.appendPhrase( tr(
+	    "Missing all GL info indicates some graphics card problem."),
+	    uiString::CloseLine, uiString::LeaveALine );
     }
     else if ( stringStartsWithCI("intel",allinfo[0]->buf()) )
     {
-	msg.append( "\n", true );
-	msg.append( tr(
-	    "Intel card found. If your computer has multiple graphics cards,\n"
-	    " consider switching from the integrated graphics.") );
+	msg.appendPhrase( tr(
+	    "Intel card found. If your computer has multiple graphics cards,"
+	    " consider switching from the integrated graphics."),
+	    uiString::CloseLine, uiString::LeaveALine );
     }
     else if ( *allinfo[2] == "?" )
     {
-	msg.append( "\n", true );
-	msg.append( tr(
-	    "Missing GL-version indicates a graphics card driver problem.") );
+	msg.appendPhrase( tr(
+	    "Missing GL-version indicates a graphics card driver problem."),
+		uiString::CloseLine, uiString::LeaveALine );
     }
     else
 	*warning = false;

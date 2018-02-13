@@ -520,9 +520,10 @@ void uiAttrTrcSelOut::getComputableSurf( TrcKeySampling& trcsampling )
 uiString uiAttrTrcSelOut::createAddWidthLabel()
 {
     uiString text = tr("Add fixed interval length to Main Horizon");
-    uiString ifinterp = tr("in case of interpolation conflict");
-    uiString ifnointerp = tr("in case of holes in second Horizon");
-    text.append( interpfld_->isChecked() ? ifinterp : ifnointerp, true );
+    uiString ifinterp = tr("Interpolation conflict");
+    uiString ifnointerp = tr("Holes in second Horizon");
+    text.appendPhrase( interpfld_->isChecked() ? ifinterp : ifnointerp,
+							uiString::MoreInfo );
     return text;
 }
 

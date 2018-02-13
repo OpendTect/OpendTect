@@ -205,17 +205,17 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
     if ( valstr.isEmpty() )
 	return;
     modelidx = toInt(valstr)-1;
-    BufferString modelnrstr( "Model Number: ", modelidx );
-    msg.append( modelnrstr );
+    uiString modelnrstr = tr("Model Number: %1").arg(modelidx);
+    msg.appendPhrase( modelnrstr );
     valstr = pars.find( "Z" );
     if ( !valstr ) valstr = pars.find( "Z-Coord" );
     float zval = mUdf(float);
     if ( valstr )
     {
 	zval = toFloat( valstr );
-	BufferString depthstr( "Depth: ", (int)zval, " " );
-	depthstr.add( toString(SI().zUnitString()) );
-	msg.addSpace().append( depthstr );
+	uiString depthstr = tr("Depth: %1%2").arg((int)zval)
+						    .arg(SI().zUnitString());
+	msg.appendPhrase( depthstr, uiString::Space, uiString::SeparatorOnly );
     }
 
     if ( mIsUdf(zval) || layerModel().size()<=modelidx || modelidx<0 )
@@ -223,32 +223,40 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 
     msg.addSpace();
     int nrinfos = 0;
-#define mAddSep() if ( nrinfos++ ) msg.append(toUiString(";\t"));
+#define mAddSep() if ( nrinfos++ ) msg.appendPhrase(uiString::emptyString(), \
+		sepalreadyadded ? uiString::MoreInfo : uiString::Empty, \
+		uiString::AddNewLine);
 
     FixedString vdstr = pars.find( "Variable density data" );
     FixedString wvastr = pars.find( "Wiggle/VA data" );
     FixedString vdvalstr = pars.find( "VD Value" );
     FixedString wvavalstr = pars.find( "WVA Value" );
     const bool issame = vdstr && wvastr && vdstr==wvastr;
+    bool sepalreadyadded(false);
     if ( vdvalstr )
     {
 	mAddSep();
+	sepalreadyadded = true;
 	if ( issame )
 	    { if ( vdstr.isEmpty() ) vdstr = wvastr; }
 	else
 	    { if ( vdstr.isEmpty() ) vdstr = "VD Val"; }
 	float val = !vdvalstr.isEmpty() ? vdvalstr.toFloat() : mUdf(float);
-	msg.append(tr("Val = %1 (%2)").arg(mIsUdf(val) ? tr("undef") :
-			toUiString(vdvalstr)).arg(toUiString(vdstr)));
+	msg.appendPhrase(tr("Val = %1 (%2)").arg(mIsUdf(val) ? tr("undef") :
+			toUiString(vdvalstr)).arg(toUiString(vdstr)),
+			uiString::Empty, uiString::SeparatorOnly);
     }
     if ( wvavalstr && !issame )
     {
 	mAddSep();
+	sepalreadyadded = true;
 	float val = !wvavalstr.isEmpty() ? wvavalstr.toFloat() : mUdf(float);
-	msg.append(tr("Val = %1").arg(mIsUdf(val) ? tr("undef") :
-				    toUiString(wvavalstr)));
+	msg.appendPhrase(tr("Val = %1").arg(mIsUdf(val) ? tr("undef") :
+			    toUiString(wvavalstr)), uiString::Empty,
+			    uiString::SeparatorOnly );
 	if ( wvastr.isEmpty() ) wvastr = "WVA Val";
-	msg.append(toUiString("(%1)").arg(wvastr));
+	msg.appendPhrase(toUiString("(%1)").arg(wvastr), uiString::Empty,
+					    uiString::SeparatorOnly);
     }
 
     float val;
@@ -257,8 +265,10 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 	if ( SI().xyInFeet() )
 	    val *= mToFeetFactorF;
 
-	mAddSep(); msg.append(tr("Offs = %1%2").arg(val)
-					    .arg(SI().xyUnitString()));
+	mAddSep();
+	sepalreadyadded = true;
+	msg.appendPhrase(tr("Offs = %1%2").arg(val).arg(SI().xyUnitString()),
+			uiString::Empty, uiString::SeparatorOnly);
     }
 
     if ( d2tmodels_ && d2tmodels_->validIdx(modelidx) )
@@ -271,12 +281,13 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 	    const Strat::Layer* layer = curseq.layers()[lidx];
 	    if ( layer->zTop()<=depth && layer->zBot()>depth )
 	    {
-		msg.addNewLine().addTab().append(
-		    tr("Layer : %1;\n\t Lithology : %2").arg( layer->name() )
-		    .arg( layer->lithology().name()));
+		msg.appendPhrase( tr("Layer : %1;\n\t Lithology : %2")
+		    .arg( layer->name() ).arg( layer->lithology().name()),
+		    uiString::Tab, uiString::LeaveALine);
 		if ( !layer->content().isUnspecified() )
-		    msg.append( tr(";\n\t Content : %1")
-		       .arg( layer->content().name()) );
+		    msg.appendPhrase( tr("Content : %1")
+			.arg( layer->content().name()), uiString::Tab,
+			uiString::LeaveALine );
 		break;
 	    }
 	}

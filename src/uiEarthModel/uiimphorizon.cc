@@ -577,11 +577,11 @@ bool uiImportHorizon::checkInpFlds()
     if ( !existingnms.isEmpty() )
     {
 	const uiString msg =
-	    (existingnms.size()>1 ? tr("%1 %2 already exist on disk.\n")
-				  : tr("%1 %2 already exists on disk.\n"))
+	    (existingnms.size()>1 ? tr("%1 %2 already exist on disk")
+				  : tr("%1 %2 already exists on disk"))
 				.arg(uiStrings::sAttribute(existingnms.size()))
 				.arg(existingnms.cat(", "))
-				.append("Do you want to overwrite?");
+				.appendPhrase(tr("Do you want to overwrite?"));
 	if ( !uiMSG().askGoOn(msg,uiStrings::sYes(),uiStrings::sNo()) )
 	    return false;
     }

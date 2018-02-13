@@ -318,8 +318,8 @@ bool ui2DGridLinesFromRandLine::computeGrid()
     if ( grid_->size(true) > 100 || grid_->size(true) > 100 )
     {
 	uiString msg = tr( "There are too many lines in the grid" );
-	msg.append( "You may want to increase the grid spacing "
-		    "to get fewer lines.", true );
+	msg.appendPhrase( tr("You may want to increase the grid spacing "
+		    "to get fewer lines") );
 	if ( !uiMSG().askGoOn(msg,tr("Continue anyway"),uiStrings::sCancel()) )
 	    return false;
     }
@@ -667,11 +667,10 @@ bool uiCreate2DGrid::checkInput( IOPar& par ) const
     {
 	uiString msg = tr( "Following lines are already there. Do you want to "
 			  "overwrite?\n\nLines : " );
-	for ( int idx=0; idx<ovwrlinenms.size(); idx++ )
-	{
-	    msg.append( ovwrlinenms.get(idx) );
-	    msg.append( idx == ovwrlinenms.size()-1 ? ", " : "." );
-	}
+	msg.appendPhrase( uiStrings::sLine(ovwrlinenms.size()),
+				    uiString::Empty, uiString::LeaveALine );
+	msg.appendPlainText( " : " );
+	msg.appendPlainText( ovwrlinenms.getDispString() );
 
 	bool res = uiMSG().askGoOn( msg );
 	par.setYN( Seis2DGridCreator::sKeyOverWrite(), res );
