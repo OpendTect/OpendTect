@@ -83,7 +83,7 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 
     if ( initspec1 && initspec2 )
 	initfld = new uiGenInput( this, sInit(), *initspec1, *initspec2 );
-    else
+    else if ( initspec1 )
 	initfld = new uiGenInput( this, sInit(), *initspec1 );
 
     if ( incrspec1 && incrspec2 )
