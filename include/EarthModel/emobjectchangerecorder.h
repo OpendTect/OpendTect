@@ -20,21 +20,22 @@ namespace EM
 
 /*!\brief Holds one change in an EM::Object . */
 
-mExpClass(General) EMChangeRecord : public ChangeRecorder::Record
+mExpClass(General) ChangeRecord : public ChangeRecorder::Record
 {
 public:
 
     typedef ChangeRecorder::Action	Action;
 
-    virtual bool	apply(Monitorable&,Action) const;
+    virtual bool		apply(Monitorable&,Action) const;
+    static const ChangeRecord&	udf();
 
 protected:
 
-    virtual bool	doApply(Monitorable&,Action) consti	= 0;
+    virtual bool		doApply(Monitorable&,Action) const	= 0;
 };
 
 
-mExpClass(General) EMPosChangeRecord : public EMChangeRecord
+mExpClass(General) PosChangeRecord : public ChangeRecord
 {
 public:
 
@@ -42,11 +43,10 @@ public:
     Coord		pos_;
 
     virtual bool	isValid() const		{ return posid_.isValid();}
-    static const EMChangeRecord& udf();
 
 protected:
 
-			EMChangeRecord( PosID id, const Coord& pos )
+			PosChangeRecord( PosID id, const Coord& pos )
 			    : posid_(id), pos_(pos)	{}
 
     virtual bool	doApply(Object&,bool) const;
@@ -56,13 +56,13 @@ protected:
 
 /*!\brief Keeps track of changes in an EM::Object */
 
-mExpClass(General) EMChangeRecorder : public ::ChangeRecorder
+mExpClass(General) ChangeRecorder : public ::ChangeRecorder
 {
 public:
 
-			EMChangeRecorder(Object&);
-			EMChangeRecorder(const Object&);
-			mDeclMonitorableAssignment(EMChangeRecorder);
+			ChangeRecorder(Object&);
+			ChangeRecorder(const Object&);
+			mDeclMonitorableAssignment(ChangeRecorder);
 
 protected:
 

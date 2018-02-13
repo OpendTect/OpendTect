@@ -369,6 +369,8 @@ public:
 				{ mLock4Read(); sendChgNotif(accesslocker_,c); }
 };
 
+mDeprecated typedef Object	EMObject;
+
 } // namespace EM
 
 #define mDefineEMObjFuncs( clss ) \
