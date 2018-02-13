@@ -132,7 +132,7 @@ bool uiIOSurface::getSurfaceIOData(const DBKey& mid, EM::SurfaceIOData& sd,
 	if ( mid.isInvalid() )
 	    return false;
 
-	mDynamicCastGet( EM::Surface*, emsurf, EM::EMM().getObject(mid))
+	mDynamicCastGet( EM::Surface*, emsurf, EM::MGR().getObject(mid))
 	if ( emsurf )
 	    sd.use( *emsurf );
 	else

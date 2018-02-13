@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emsurface.h"
 #include "ranges.h"
 

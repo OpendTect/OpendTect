@@ -437,7 +437,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 				const visSurvey::EMObjectDisplay* emod,
 				const visBase::EventInfo& eventinfo )
 {
-    const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
+    const EM::EMObject* emobj = EM::MGR().getObject( emod->getObjectID() );
     if ( !emobj )
 	return;
 

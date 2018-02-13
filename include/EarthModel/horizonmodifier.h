@@ -10,8 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "emposid.h"
+#include "emcommon.h"
 #include "dbkey.h"
 #include "ranges.h"
 #include "posinfo2dsurv.h"
@@ -19,9 +18,7 @@ ________________________________________________________________________
 namespace EM { class Horizon; }
 class TrcKeySamplingIterator;
 
-/*!
-\brief Modifies horizons.
-*/
+/*!\brief Modifies horizons. */
 
 mExpClass(EarthModel) HorizonModifier
 {

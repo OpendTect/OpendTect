@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "uiodvw2demtreeitem.h"
 #include "uistring.h"
 
-#include "emposid.h"
-
 class Vw2DHorizon2D;
 
 

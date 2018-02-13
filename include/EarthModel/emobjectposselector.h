@@ -10,8 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "emposid.h"
+#include "emcommon.h"
 #include "selector.h"
 #include "paralleltask.h"
 #include "thread.h"
@@ -23,9 +22,7 @@ namespace EM
 
 class EMObject;
 
-/*!
-\brief EMObject position selector
-*/
+/*!\brief EMObject position selector */
 
 mExpClass(EarthModel) EMObjectPosSelector : public ParallelTask
 {

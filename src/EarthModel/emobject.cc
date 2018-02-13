@@ -462,7 +462,7 @@ void EMObject::useDisplayPars( const IOPar& par )
 {
     IOPar displaypar;
 
-    if( !EMM().readDisplayPars(storageid_,displaypar) )
+    if( !MGR().readDisplayPars(storageid_,displaypar) )
 	displaypar = par;
 
     Color col;
@@ -556,7 +556,7 @@ void EMObject::saveDisplayPars() const
     preferredmarkerstyle_.toString( mkststr );
     displaypar.set( sKey::MarkerStyle(), mkststr );
 
-    EMM().writeDisplayPars( storageid_, displaypar );
+    MGR().writeDisplayPars( storageid_, displaypar );
 }
 
 

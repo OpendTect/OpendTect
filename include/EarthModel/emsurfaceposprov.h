@@ -11,13 +11,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "embody.h"
 #include "posprovider.h"
-
-#include "emposid.h"
 #include "trckeysampling.h"
 #include "dbkey.h"
-#include "embody.h"
 #include "keystrs.h"
 
 class DataPointSet;

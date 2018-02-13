@@ -78,7 +78,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 			int nrpts )
 {
     uiTaskRunnerProvider trprov( this );
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( horioobj.key(),
+    EM::EMObject* emobj = EM::MGR().loadIfNotFullyLoaded( horioobj.key(),
 							  trprov );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor ) return false;

@@ -109,8 +109,7 @@ float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface,
 
 Surface* HorizonUtils::getSurface( const DBKey& id )
 {
-    EMManager& em = Hor3DMan();
-    EMObject* obj = em.getObject( id );
+    EMObject* obj = Hor3DMan().getObject( id );
     mDynamicCastGet(Surface*,surface,obj)
     return surface;
 }
@@ -331,10 +330,10 @@ void HorizonUtils::addSurfaceData( const DBKey& id,
 				   const BufferStringSet& attrnms,
 				   const ObjectSet<BinIDValueSet>& data )
 {
-    EMManager& em = Hor3DMan();
-    EMObject* obj = em.getObject( id );
+    EMObject* obj = Hor3DMan().getObject( id );
     mDynamicCastGet(Horizon3D*,horizon,obj)
-    if ( !horizon ) return;
+    if ( !horizon )
+	return;
 
     horizon->auxdata.removeAll();
     for ( int idx=0; idx<attrnms.size(); idx++ )

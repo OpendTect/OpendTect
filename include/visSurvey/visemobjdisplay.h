@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class ZAxisTransform;
 
-namespace EM { class EMManager; class EMObject; }
+namespace EM { class EMObject; }
 namespace Geometry { class Element; }
 namespace visBase
 {
@@ -150,7 +150,7 @@ protected:
     TypeSet<int>			posattribs_;
     TypeSet<int>			parposattrshown_;
 
-    EM::EMManager&			em_;
+    EM::ObjectManager&			emmgr_;
     EM::EMObject*			emobject_;
     DBKey				parmid_;
     BufferStringSet			parsections_;

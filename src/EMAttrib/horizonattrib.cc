@@ -105,7 +105,7 @@ bool Horizon::isOK() const
     {
 	EM::SurfaceIOData sd;
 	uiString errmsg;
-	if ( !EM::EMM().getSurfaceData(horid_,sd,errmsg)
+	if ( !EM::MGR().getSurfaceData(horid_,sd,errmsg)
 		|| !sd.valnames.isPresent(surfdatanm_) )
 	    return false;
     }
@@ -132,15 +132,15 @@ bool Horizon::getInputData( const BinID& relpos, int zintv )
 
 void Horizon::prepareForComputeData()
 {
-    EM::EMManager& em = EM::EMM();
+    EM::ObjectManager& mgr = EM::MGR();
     EM::SurfaceIOData sd;
     uiString errmsg;
-    if ( !em.getSurfaceData(horid_,sd,errmsg) ) mRet
+    if ( !mgr.getSurfaceData(horid_,sd,errmsg) ) mRet
 
     const int surfdtidx = sd.valnames.indexOf( surfdatanm_ );
     if ( surfdtidx<0 && outtype_==mOutTypeSurfData ) mRet
 
-    EM::EMObject* obj = em.getObject( horid_ );
+    EM::EMObject* obj = mgr.getObject( horid_ );
     EM::SurfaceIODataSelection sel( sd );
     PtrMan<Executor> loader = 0;
     if ( !obj )
@@ -148,11 +148,11 @@ void Horizon::prepareForComputeData()
 	if ( getDesiredVolume() )
 	    sel.rg = getDesiredVolume()->hsamp_;
 
-	loader = em.objectLoader( horid_, &sel );
+	loader = mgr.objectLoader( horid_, &sel );
 	if ( !loader ) mRet
 
 	loader->execute();
-	obj = em.getObject( horid_ );
+	obj = mgr.getObject( horid_ );
     }
 
     mDynamicCastGet(EM::Horizon*,hor,obj)

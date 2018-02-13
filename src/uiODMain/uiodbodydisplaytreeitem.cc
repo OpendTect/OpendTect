@@ -376,7 +376,7 @@ void uiODBodyDisplayTreeItem::keyPressedCB( CallBacker* )
     if ( !pbd || !pbd->isSelected() )
 	    return;
 
-    mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emObjectID()) );
+    mDynamicCastGet( EM::Undo*,emundo,&EM::MGR().undo(emObjectID()) );
 
     if ( !emundo || !uiMain::keyboardEventHandler().hasEvent() )
 	return;
@@ -386,15 +386,15 @@ void uiODBodyDisplayTreeItem::keyPressedCB( CallBacker* )
     bool update = false;
     if ( KeyboardEvent::isUnDo(kbe) )
     {
-	EM::EMM().burstAlertToAll( true );
+	EM::MGR().burstAlertToAll( true );
 	update = emundo->unDo( 1, true );
-	EM::EMM().burstAlertToAll( false );
+	EM::MGR().burstAlertToAll( false );
     }
     else if ( KeyboardEvent::isReDo(kbe) )
     {
-	EM::EMM().burstAlertToAll( true );
+	EM::MGR().burstAlertToAll( true );
 	update = emundo->reDo( 1, true );
-	EM::EMM().burstAlertToAll( false );
+	EM::MGR().burstAlertToAll( false );
     }
 
     if ( update )

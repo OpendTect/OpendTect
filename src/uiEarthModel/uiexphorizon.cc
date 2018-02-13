@@ -61,7 +61,7 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 mExpClass(uiEarthModel) write3DHorASCII : public Executor
 { mODTextTranslationClass(write3DHorASCII)
 public:
-    				write3DHorASCII(od_ostream&,
+				write3DHorASCII(od_ostream&,
 					const EM::Horizon3D*,
 					const ZAxisTransform* zatf,
 					const UnitOfMeasure*,
@@ -411,7 +411,7 @@ bool uiExportHorizon::writeAscii()
 
     BufferString basename = outfld_->fileName();
 
-    EM::EMManager& em = EM::Hor3DMan();
+    EM::ObjectManager& mgr = EM::Hor3DMan();
     EM::SurfaceIOData sd;
     uiString errmsg;
     BufferString fname( basename );
@@ -422,7 +422,7 @@ bool uiExportHorizon::writeAscii()
 					emioinfoset.get(horidx)->ioObj();
 	if ( !ioobj ) mErrRet(uiStrings::phrCannotFind( tr("horizon object")));
 
-	if ( !em.getSurfaceData(ioobj->key(),sd,errmsg) )
+	if ( !mgr.getSurfaceData(ioobj->key(),sd,errmsg) )
 	    mErrRet( errmsg )
 
 	EM::SurfaceIODataSelection sels( sd );
@@ -433,8 +433,9 @@ bool uiExportHorizon::writeAscii()
 
 	sels.selvalues.erase();
 
-	RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
-	if ( !emobj ) mErrRet(uiStrings::sCantCreateHor())
+	RefMan<EM::EMObject> emobj = mgr.createTempObject( ioobj->group() );
+	if ( !emobj )
+	    mErrRet(uiStrings::sCantCreateHor())
 
 	emobj->setDBKey( ioobj->key() );
 	mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
@@ -536,7 +537,7 @@ bool uiExportHorizon::writeAscii()
 	}
 
 	write3DHorASCII* executor = new write3DHorASCII( stream, hor,
-	    			zatf.ptr(), unit, doxy, addzpos, dogf, !isbulk_,
+				zatf.ptr(), unit, doxy, addzpos, dogf, !isbulk_,
 				nrattribs, udfstr, dispstr);
 	exphorgrp.add(executor);
 	if ( !trprov.execute(exphorgrp) ) return false;

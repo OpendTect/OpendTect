@@ -296,7 +296,7 @@ bool uiBulk2DHorizonImport::acceptOK()
     BufferStringSet linenmset = reader->linenms_;
     ObjectSet<BinIDValueSet> data = reader->data_;
     ObjectSet<EM::Horizon2D> hor2ds;
-    EM::EMManager& em = EM::Hor2DMan();
+    EM::ObjectManager& mgr = EM::Hor2DMan();
     PtrMan<IOObj> existioobj(0);
     BufferStringSet existinghornms;
     for ( int idx=0; idx<hornms.size(); idx++ )
@@ -322,15 +322,15 @@ bool uiBulk2DHorizonImport::acceptOK()
 	PtrMan<IOObj> ioobj = DBM().getByName( hornm,
 				EMHorizon2DTranslatorGroup::sGroupName() );
 
-	RefMan<EM::EMObject> emobj = ioobj ? em.getObject( ioobj->key() ) : 0;
+	RefMan<EM::EMObject> emobj = ioobj ? mgr.getObject( ioobj->key() ) : 0;
 	if ( emobj )
 	    emobj->setBurstAlert( true );
 
-	PtrMan<Executor> exec = ioobj ? em.objectLoader( ioobj->key() ) : 0;
+	PtrMan<Executor> exec = ioobj ? mgr.objectLoader( ioobj->key() ) : 0;
 	bool newhor = false;
 	if ( !ioobj || !exec || !exec->execute() )
 	{
-	    emobj = em.createObject( EM::Horizon2D::typeStr(), hornm );
+	    emobj = mgr.createObject( EM::Horizon2D::typeStr(), hornm );
 	    newhor = true;
 	}
 

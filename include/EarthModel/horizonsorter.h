@@ -10,9 +10,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "executor.h"
-
 #include "trckeyzsampling.h"
 #include "dbkey.h"
 #include "binid.h"
@@ -23,9 +22,7 @@ namespace EM { class Horizon; }
 template <class T> class Array3D;
 class TrcKeySamplingIterator;
 
-/*!
-\brief Executor to sort horizons.
-*/
+/*!\brief Executor to sort horizons. */
 
 mExpClass(EarthModel) HorizonSorter : public Executor
 { mODTextTranslationClass(HorizonSorter);
@@ -71,4 +68,5 @@ protected:
     const TaskRunnerProvider*	trprov_;
 
     uiString			message_;
+
 };

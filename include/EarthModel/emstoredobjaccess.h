@@ -11,14 +11,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "objectset.h"
 #include "uistring.h"
 class Executor;
 
 namespace EM
 {
-class EMObject;
+
 class StoredObjAccessData;
 class SurfaceIODataSelection;
 

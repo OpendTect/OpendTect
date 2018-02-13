@@ -5,33 +5,38 @@
 -*/
 
 
-#include "emposid.h"
+#include "emcommon.h"
 #include "iopar.h"
 
 namespace EM
 {
 
-const char* PosID::emobjStr() { return "Object"; }
-const char* PosID::sectionStr() { return  "Patch"; }
-const char* PosID::posidStr() { return  "Sub ID"; }
+const char* PosID::emobjStr()		{ return "Object"; }
+const char* PosID::sectionStr()		{ return "Patch"; }
+const char* PosID::posidStr()		{ return "Sub ID"; }
+
+} // namespace EM
 
 
-const PosID& PosID::getInvalid()
+const EM::PosID& EM::PosID::getInvalid()
 {
     mDefineStaticLocalObject( PosID, undef,
-	    ( DBKey::getInvalid(), -1, PosID::getInvalid() ) );
+	    ( ObjID::getInvalid(), -1, PosID::getInvalid() ) );
     return undef;
 }
 
 
-bool PosID::isUdf() const { return objectID().isInvalid(); }
+bool EM::PosID::isUdf() const
+{
+    return objectID().isInvalid();
+}
 
 
-RowCol PosID::getRowCol() const
+RowCol EM::PosID::getRowCol() const
 { return PosID::getRowCol(); }
 
 
-void PosID::fillPar( IOPar& par ) const
+void EM::PosID::fillPar( IOPar& par ) const
 {
     par.set( emobjStr(), objid_ );
     par.set( sectionStr(), sectionid_ );
@@ -39,7 +44,7 @@ void PosID::fillPar( IOPar& par ) const
 }
 
 
-bool PosID::usePar( const IOPar& par )
+bool EM::PosID::usePar( const IOPar& par )
 {
     int tmpsection = mUdf(int);
     od_int64 tmpposid = mUdf(od_int64);
@@ -54,5 +59,3 @@ bool PosID::usePar( const IOPar& par )
 
     return res;
 }
-
-} // namespace EM

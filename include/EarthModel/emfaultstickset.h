@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emfault.h"
 
 namespace Geometry { class FaultStickSet; }
@@ -19,11 +18,8 @@ namespace Pos { class Filter; }
 
 namespace EM
 {
-class EMManager;
 
-/*!
-\brief FaultStickSet geometry.
-*/
+/*!\brief FaultStickSet geometry. */
 
 mExpClass(EarthModel) FaultStickSetGeometry : public FaultGeometry
 {

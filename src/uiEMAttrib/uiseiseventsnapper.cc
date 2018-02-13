@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
-#include "emposid.h"
 #include "emsurfacetr.h"
 #include "ioobj.h"
 #include "mousecursor.h"

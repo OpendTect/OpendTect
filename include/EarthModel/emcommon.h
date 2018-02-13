@@ -1,23 +1,24 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Kristofer Tingdahl
- Date:		4-11-2002
+ Author:	Kris / Bert
+ Date:		4-11-2002 / Feb 2018
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
-#include "geomelement.h"
+#include "emposid.h"
+#include "dbkey.h"
 
 namespace EM
 {
 
-    typedef int		SectionID;
-    typedef GeomPosID	PosID;
+    class		EMObject;
+
+    typedef DBKey	ObjID;
+    typedef DBKeySet	ObjIDSet;
 
 } // namespace EM

@@ -11,7 +11,6 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
-#include "emposid.h"
 #include "namedobj.h"
 #include "position.h"
 

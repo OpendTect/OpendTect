@@ -32,7 +32,7 @@ ________________________________________________________________________
 #include "uitaskrunnerprovider.h"
 #include "od_helpids.h"
 
-uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, const DBKey& horid )
+uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, const EM::ObjID& horid )
 	: uiGroup(p,"Create Isochron")
 	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, basectio_(*mMkCtxtIOObj(EMHorizon3D))
@@ -41,7 +41,7 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, const DBKey& horid )
 	, basesel_(0)
 	, msecsfld_(0)
 {
-    baseemobj_ = EM::EMM().getObject( horid_ );
+    baseemobj_ = EM::MGR().getObject( horid_ );
     if ( !baseemobj_ )
     {
 	basectio_.ctxt_.forread_ = true;
@@ -53,7 +53,7 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, const DBKey& horid )
     horsel_->selectionDone.notify( mCB(this,uiIsochronMakerGrp,toHorSel) );
     if ( !baseemobj_ )
     {
-	horsel_->setInput( DBKey::getInvalid() );
+	horsel_->setInput( EM::ObjID() );
 	horsel_->attach( alignedBelow, basesel_ );
     }
 
@@ -75,9 +75,9 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, const DBKey& horid )
 }
 
 
-BufferString uiIsochronMakerGrp::getHorNm( const DBKey& horid )
+BufferString uiIsochronMakerGrp::getHorNm( const EM::ObjID& horid )
 {
-    return EM::EMM().objectName( horid );
+    return EM::MGR().objectName( horid );
 }
 
 
@@ -141,7 +141,7 @@ uiIsochronMakerBatch::uiIsochronMakerBatch( uiParent* p )
     : uiDialog(p, Setup(tr("Create Isochron"), mNoDlgTitle,
     mODHelpKey(mIsochronMakerBatchHelpID)))
 {
-    grp_ = new uiIsochronMakerGrp( this, DBKey::getInvalid() );
+    grp_ = new uiIsochronMakerGrp( this, EM::ObjID() );
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::NonODBase );
     batchfld_->attach( alignedBelow, grp_ );
@@ -161,9 +161,9 @@ bool uiIsochronMakerBatch::fillPar()
     if ( !grp_->fillPar( par ) )
 	return false;
 
-    DBKey mid;
-    par.get( IsochronMaker::sKeyHorizonID(), mid );
-    EM::IOObjInfo eminfo( mid );
+    EM::ObjID emid;
+    par.get( IsochronMaker::sKeyHorizonID(), emid );
+    EM::IOObjInfo eminfo( emid );
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
     BufferString attrnm;
@@ -227,17 +227,17 @@ bool uiIsochronMakerDlg::doWork()
 {
     IOPar par;
     grp_->fillPar(par);
-    DBKey mid1, mid2;
-    par.get( IsochronMaker::sKeyHorizonID(), mid1 );
-    par.get( IsochronMaker::sKeyCalculateToHorID(), mid2 );
+    DBKey emid1, emid2;
+    par.get( IsochronMaker::sKeyHorizonID(), emid1 );
+    par.get( IsochronMaker::sKeyCalculateToHorID(), emid2 );
     uiTaskRunnerProvider trprov( this );
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid2, trprov );
+    EM::EMObject* emobj = EM::MGR().loadIfNotFullyLoaded( emid2, trprov );
     mDynamicCastGet(EM::Horizon3D*,h2,emobj)
     if ( !h2 )
 	mErrRet(tr("Cannot load selected horizon"))
     h2->ref();
 
-    EM::EMObject* emobjbase = EM::EMM().getObject( mid1 );
+    EM::EMObject* emobjbase = EM::MGR().getObject( emid1 );
     mDynamicCastGet(EM::Horizon3D*,h1,emobjbase)
     if ( !h1 )
     { h2->unRef(); mErrRet(tr("Cannot find base horizon")) }

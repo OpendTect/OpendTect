@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "datapackbase.h"
 
 template <class T> class Array2D;
@@ -20,7 +20,6 @@ class DataPointSet;
 namespace EM
 {
 
-class EMObject;
 class Horizon;
 class Fault;
 
@@ -29,13 +28,13 @@ class Fault;
 \brief Mixin to provide general services to Earth Model data packs.
 */
 
-mExpClass(EarthModel) DataPackCommon : 	public ::FlatDataPack
+mExpClass(EarthModel) DataPackCommon :	public ::FlatDataPack
 {
 public:
-    			DataPackCommon(const EMObject&,Array2D<float>*);
-    			DataPackCommon(const EMObject&,
+			DataPackCommon(const EMObject&,Array2D<float>*);
+			DataPackCommon(const EMObject&,
 				       const ObjectSet<BinIDValueSet>&);
-    			DataPackCommon(const EMObject&,const DataPointSet&);
+			DataPackCommon(const EMObject&,const DataPointSet&);
 
     virtual const char*	sourceType() const	= 0;
     virtual bool	isVertical() const	= 0;
@@ -58,11 +57,11 @@ protected:
 mExpClass(EarthModel) HorDataPack : public DataPackCommon
 {
 public:
-    			HorDataPack(const EM::Horizon&,Array2D<float>*);
-    			HorDataPack(const EM::Horizon&,
+			HorDataPack(const EM::Horizon&,Array2D<float>*);
+			HorDataPack(const EM::Horizon&,
 				    const ObjectSet<BinIDValueSet>&);
-    			HorDataPack(const EM::Horizon&,const DataPointSet&);
-			
+			HorDataPack(const EM::Horizon&,const DataPointSet&);
+
     virtual const char*	sourceType() const		{ return "Horizon"; }
     virtual bool	isVertical() const		{ return false;}
 
@@ -78,16 +77,16 @@ protected:
 
 /*!
 \brief Flat data pack from attribute extraction on faults.
-*/ 
+*/
 
 mExpClass(EarthModel) FaultDataPack : public DataPackCommon
 {
 public:
 
-    			FaultDataPack(const EM::Fault&,Array2D<float>*);
-    			FaultDataPack(const EM::Fault&,
+			FaultDataPack(const EM::Fault&,Array2D<float>*);
+			FaultDataPack(const EM::Fault&,
 				      const ObjectSet<BinIDValueSet>&);
-    			FaultDataPack(const EM::Fault&,const DataPointSet&);
+			FaultDataPack(const EM::Fault&,const DataPointSet&);
 
     virtual const char*	sourceType() const		{ return "Fault"; }
     virtual bool	isVertical() const		{ return true; }

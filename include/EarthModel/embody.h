@@ -11,9 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "arraynd.h"
 #include "emobject.h"
+#include "arraynd.h"
 #include "samplingdata.h"
 
 class TaskRunnerProvider;

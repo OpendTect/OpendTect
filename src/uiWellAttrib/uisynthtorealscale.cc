@@ -281,7 +281,7 @@ bool uiSynthToRealScale::getHorData( TaskRunnerProvider& trprov )
     const IOObj* ioobj = horfld_->ioobj();
     if ( !ioobj )
 	return false;
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
+    EM::EMObject* emobj = EM::MGR().loadIfNotFullyLoaded( ioobj->key(),
 							  trprov );
     mDynamicCastGet(EM::Horizon*,hor,emobj);
     if ( !hor ) return false;

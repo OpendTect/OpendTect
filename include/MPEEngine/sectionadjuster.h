@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "task.h"
-
-#include "emposid.h"
 #include "trckey.h"
 #include "trckeyzsampling.h"
 

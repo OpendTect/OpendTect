@@ -34,13 +34,13 @@ HorizonModifier::~HorizonModifier()
 }
 
 
-bool HorizonModifier::setHorizons( const DBKey& mid1, const DBKey& mid2 )
+bool HorizonModifier::setHorizons( const DBKey& dbky1, const DBKey& dbky2 )
 {
-    EM::EMManager& emmgr = EM::getMgr( mid1 );
-    mDynamicCastGet(EM::Horizon*,tophor,emmgr.getObject(mid1))
+    EM::ObjectManager& emmgr = EM::getMgr( dbky1 );
+    mDynamicCastGet(EM::Horizon*,tophor,emmgr.getObject(dbky1))
     tophor_ = tophor;
 
-    mDynamicCastGet(EM::Horizon*,bothor,emmgr.getObject(mid2))
+    mDynamicCastGet(EM::Horizon*,bothor,emmgr.getObject(dbky2))
     bothor_ = bothor;
 
     deleteAndZeroPtr( iter_ );

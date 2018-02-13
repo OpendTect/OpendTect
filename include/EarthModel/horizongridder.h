@@ -11,21 +11,18 @@ ________________________________________________________________________
 -*/
 
 
+#include "emcommon.h"
 #include "array2dinterpolimpl.h"
 #include "contcurvinterpol.h"
 #include "trckeysampling.h"
 #include "dbkey.h"
-#include "emposid.h"
-#include "earthmodelmod.h"
 
 class FaultTrcDataProvider;
 class TaskRunnerProvider;
 
 namespace EM { class Horizon3D; }
 
-/*!
-\brief Base class for Horizon Gridders.
-*/
+/*!\brief Base class for Horizon Gridders. */
 
 mExpClass(EarthModel) HorizonGridder
 { mODTextTranslationClass(HorizonGridder);

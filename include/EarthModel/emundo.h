@@ -11,9 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "undo.h"
-#include "emposid.h"
 #include "coord.h"
 #include "color.h"
 
@@ -28,15 +27,16 @@ class Horizon3D;
 \brief Set position UndoEvent.
 */
 
-mExpClass(EarthModel) EMUndo : public Undo
+mExpClass(EarthModel) Undo : public ::Undo
 {
 public:
 
     DBKey		getCurrentEMObjectID(bool forredo) const;
+
 };
 
 
-mExpClass(EarthModel) EMUndoEvent : public UndoEvent
+mExpClass(EarthModel) UndoEvent : public ::UndoEvent
 {
 public:
 
@@ -44,7 +44,7 @@ public:
 };
 
 
-mExpClass(EarthModel) SetPosUndoEvent : public EMUndoEvent
+mExpClass(EarthModel) SetPosUndoEvent : public UndoEvent
 {
 public:
 			SetPosUndoEvent(const Coord3& oldpos,const EM::PosID&);
@@ -66,7 +66,7 @@ protected:
 \brief UndoEvent for setting all positions on a EM::Horizon3D section.
 */
 
-mExpClass(EarthModel) SetAllHor3DPosUndoEvent : public EMUndoEvent
+mExpClass(EarthModel) SetAllHor3DPosUndoEvent : public UndoEvent
 {
 public:
 			SetAllHor3DPosUndoEvent(EM::Horizon3D*,
@@ -95,7 +95,7 @@ protected:
 \brief UndoEvent for setting position attribute.
 */
 
-mExpClass(EarthModel) SetPosAttribUndoEvent : public EMUndoEvent
+mExpClass(EarthModel) SetPosAttribUndoEvent : public UndoEvent
 {
 public:
 			SetPosAttribUndoEvent(const EM::PosID&,int attrib,
@@ -118,7 +118,7 @@ protected:
 \brief UndoEvent to set preferred Color.
 */
 
-mExpClass(EarthModel) SetPrefColorEvent : public EMUndoEvent
+mExpClass(EarthModel) SetPrefColorEvent : public UndoEvent
 {
 public:
 			SetPrefColorEvent(const DBKey&,

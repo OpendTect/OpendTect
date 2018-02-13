@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "uiodvw2demtreeitem.h"
 #include "uistring.h"
 
-#include "emposid.h"
-
 
 class VW2DFaultSS2D;
 class uiODViewer2D;

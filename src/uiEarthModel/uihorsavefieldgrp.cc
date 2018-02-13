@@ -132,12 +132,12 @@ bool uiHorSaveFieldGrp::needsFullSurveyArray() const
 
 EM::Horizon* uiHorSaveFieldGrp::readHorizon( const DBKey& oid )
 {
-    EM::EMObject* emobj = EM::EMM().getObject( oid );
+    EM::EMObject* emobj = EM::MGR().getObject( oid );
 
     Executor* reader = 0;
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	reader = EM::EMM().objectLoader( oid );
+	reader = EM::MGR().objectLoader( oid );
 	if ( !reader )
 	    mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
 
@@ -148,7 +148,7 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const DBKey& oid )
 	     mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
 	}
 
-	emobj = EM::EMM().getObject( oid );
+	emobj = EM::MGR().getObject( oid );
     }
 
     mDynamicCastGet(EM::Horizon*,hor,emobj)
@@ -228,8 +228,8 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 	newhorizon_ = 0;
     }
 
-    EM::EMManager& em = EM::EMM();
-    EM::EMObject* emobj = em.createObject( is2d_ ? EM::Horizon2D::typeStr()
+    EM::ObjectManager& mgr = EM::MGR();
+    EM::EMObject* emobj = mgr.createObject( is2d_ ? EM::Horizon2D::typeStr()
 						: EM::Horizon3D::typeStr(),
 					  outputfld_->getInput() );
 
@@ -242,7 +242,7 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 
     EM::SurfaceIOData sd;
     uiString errmsg;
-    if ( !em.getSurfaceData(horizon_->dbKey(),sd,errmsg) )
+    if ( !mgr.getSurfaceData(horizon_->dbKey(),sd,errmsg) )
 	mErrRet( errmsg )
 
     EM::SurfaceIODataSelection sdsel( sd );

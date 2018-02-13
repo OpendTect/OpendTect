@@ -183,10 +183,10 @@ void uiImportFault::stickSel( CallBacker* )
 EM::Fault* uiImportFault::createFault() const
 {
     const char* fltnm = outfld_->getInput();
-    EM::EMManager& em = isfss_ ? EM::FSSMan() : EM::Flt3DMan();
+    EM::ObjectManager& mgr = isfss_ ? EM::FSSMan() : EM::Flt3DMan();
     const char* typestr = isfss_ ? EM::FaultStickSet::typeStr()
 				 : EM::Fault3D::typeStr();
-    EM::EMObject* emobj = em.createObject( typestr, fltnm );
+    EM::EMObject* emobj = mgr.createObject( typestr, fltnm );
     mDynamicCastGet(EM::Fault*,fault,emobj)
     return fault;
 }

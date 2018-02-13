@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "trckeyzsampling.h"
 #include "bufstringset.h"
 #include "typeset.h"
@@ -21,9 +21,7 @@ namespace EM
 
 class Surface;
 
-/*!
-\brief Data interesting for Surface I/O.
-*/
+/*!\brief Data interesting for Surface I/O. */
 
 mExpClass(EarthModel) SurfaceIOData
 {
@@ -61,7 +59,7 @@ mExpClass(EarthModel) SurfaceIODataSelection
 {
 public:
 
-    				SurfaceIODataSelection()
+				SurfaceIODataSelection()
 				    : sd(* new SurfaceIOData)		{}
 				SurfaceIODataSelection( const SurfaceIOData& s )
 				    : sd(s)		{}

@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "trckeyzsampling.h"
 #include "datapack.h"
-#include "emposid.h"
 #include "probe.h"
 #include "uigeom.h"
 #include "uistring.h"

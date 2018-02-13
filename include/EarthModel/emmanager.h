@@ -11,15 +11,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "emposid.h"
+#include "emundo.h"
 #include "factory.h"
 #include "notify.h"
 #include "ptrman.h"
 #include "ranges.h"
 #include "dbkey.h"
-#include "emposid.h"
-#include "emundo.h"
 #include "taskrunner.h"
 #include "saveablemanager.h"
 
@@ -33,94 +30,94 @@ template <class T> class Selector;
 
 namespace EM
 {
+class Manager;
 class EMObject;
 class SurfaceIOData;
 class SurfaceIODataSelection;
 
-/*!
-\brief Manages the loaded/half loaded EM objects in OpendTect.
-*/
+/*!\brief Your access point to all stored EM objects. */
+mGlobal(EarthModel) Manager& MGR();
 
-mExpClass(EarthModel) EMManager : public SaveableManager
+
+/*!\brief Manages the loaded/half loaded EM objects in OpendTect.  */
+
+mExpClass(EarthModel) ObjectManager : public SaveableManager
 {
 public:
 
-			EMManager(const IOObjContext&);
-			~EMManager();
+			ObjectManager(const IOObjContext&);
+			~ObjectManager();
 
     inline int		nrLoadedObjects() const	{ return savers_.size(); }
     inline int		size() const		{ return nrLoadedObjects(); }
-    DBKey		objID(int idx) const;
+    ObjID		objID(int idx) const;
     bool		objectExists(const EMObject*) const;
 
-    EMObject*		loadIfNotFullyLoaded(const DBKey&,
+    EMObject*		loadIfNotFullyLoaded(const ObjID&,
 					     const TaskRunnerProvider&);
 			/*!<If fully loaded, the loaded instance
 			    will be returned. Otherwise, it will be loaded.
 			    Returned object must be reffed by caller
 			    (and eventually unreffed). */
 
-    RefObjectSet<EMObject>  loadObjects(const char* typ,const DBKeySet&,
+    RefObjectSet<EMObject>  loadObjects(const char* typ,const ObjIDSet&,
 					const SurfaceIODataSelection* =0,
 					TaskRunner* trunner=0);
-    ConstRefMan<EMObject> fetch(const DBKey&,TaskRunner* trunner=0,
+    ConstRefMan<EMObject> fetch(const ObjID&,TaskRunner* trunner=0,
 			        bool forcereload=false) const;
-    RefMan<EMObject>	fetchForEdit(const DBKey&,TaskRunner* trunner=0,
+    RefMan<EMObject>	fetchForEdit(const ObjID&,TaskRunner* trunner=0,
 				     bool forcereload=false);
 
     uiRetVal		store(const EMObject&,const IOPar* ioobjpars=0) const;
     uiRetVal		store(const EMObject&,const ObjID&,
 				const IOPar* ioobjpars=0) const;
 
-    virtual EMObject*	getObject(const DBKey&);
+    virtual EMObject*	getObject(const ObjID&);
 
     EMObject*		createTempObject(const char* type);
 
-    bool		is2D(const DBKey&) const;
-    BufferString	objectName(const DBKey&) const;
+    bool		is2D(const ObjID&) const;
+    BufferString	objectName(const ObjID&) const;
 			/*!<\returns the name of the object */
-    const char*		objectType(const DBKey&) const;
+    const char*		objectType(const ObjID&) const;
 			/*!<\returns the type of the object */
 
     void		burstAlertToAll(bool yn);
 
-    void		removeSelected(const DBKey&,const Selector<Coord3>&,
+    void		removeSelected(const ObjID&,const Selector<Coord3>&,
 				       const TaskRunnerProvider&);
-    bool		readDisplayPars(const DBKey&,IOPar&) const;
-    bool		writeDisplayPars(const DBKey&,const IOPar&) const;
-    bool		getSurfaceData(const DBKey&,SurfaceIOData&,
+    bool		readDisplayPars(const ObjID&,IOPar&) const;
+    bool		writeDisplayPars(const ObjID&,const IOPar&) const;
+    bool		getSurfaceData(const ObjID&,SurfaceIOData&,
 				       uiString& errmsg) const;
 
-    Notifier<EMManager>	addRemove;
+    Notifier<ObjectManager>	addRemove;
 
 protected:
 
-    EMObject*		gtObject(const DBKey&);
+    EMObject*		gtObject(const ObjID&);
     virtual Saveable*	getSaver(const SharedObject&) const;
     virtual ChangeRecorder* getChangeRecorder(const SharedObject&) const
 			{ return 0; }
 
 
-    mStruct(EarthModel) EMObjUndo
+    mStruct(EarthModel) ObjUndo
     {
-	EMObjUndo( const DBKey& id )
-	    : undo_( *new EMUndo() ), id_ ( id ) {}
-	~EMObjUndo() { delete &undo_; }
-
-	Undo&		undo_;
-	DBKey		id_;
+			ObjUndo( const ObjID& id )
+			    : id_(id)		{}
+	Undo		undo_;
+	ObjID		id_;
     };
-
-    ObjectSet<EMObjUndo>	undolist_;
+    ObjectSet<ObjUndo>	undolist_;
 
     void		levelSetChgCB(CallBacker*);
     static const char*	displayparameterstr();
 
-    bool		readParsFromDisplayInfoFile(const DBKey&,
+    bool		readParsFromDisplayInfoFile(const ObjID&,
 						    IOPar&)const;
-    bool		readParsFromGeometryInfoFile(const DBKey&,
+    bool		readParsFromGeometryInfoFile(const ObjID&,
 						     IOPar&)const;
-    int			undoIndexOf(const DBKey& id);
+    int			undoIndexOf(const ObjID& id);
 
 public:
 
@@ -128,13 +125,13 @@ public:
 
     void		setEmpty();
 
-    Executor*		objectLoader(const DBKey&,
+    Executor*		objectLoader(const ObjID&,
 				     const SurfaceIODataSelection* =0);
-    Executor*		objectLoader(const DBKeySet&,
+    Executor*		objectLoader(const ObjIDSet&,
 				     const SurfaceIODataSelection* =0,
-				     DBKeySet* idstobeloaded =0);
-		/*!< idstobeloaded are the ids for which the objects
-			     will be actually loaded */
+				     ObjIDSet* includedids=0);
+			    /*!< includedids are the ids of the objects
+				 that will be loaded */
 
     EMObject*		createObject(const char* type,const char* nm);
 			/*!< Creates a new object, saves it and loads it.
@@ -143,66 +140,61 @@ public:
     virtual void	addObject(EMObject*);
 
     void		eraseUndoList();
-    Undo&		undo(const DBKey&);
+    Undo&		undo(const ObjID&);
 
 };
 
 
-mDefineFactory1Param( EarthModel, EMObject, EMManager&, EMOF );
+mDefineFactory1Param( EarthModel, EMObject, ObjectManager&, EMOF );
 
-mGlobal(EarthModel) bool canOverwrite(const DBKey&);
+mGlobal(EarthModel) bool canOverwrite(const ObjectManager::ObjID&);
 
-mGlobal(EarthModel) EMManager& Hor3DMan();
-mGlobal(EarthModel) EMManager& Hor2DMan();
-mGlobal(EarthModel) EMManager& FSSMan();
-mGlobal(EarthModel) EMManager& Flt3DMan();
-mGlobal(EarthModel) EMManager& BodyMan();
-mGlobal(EarthModel) EMManager& getMgr(const DBKey& objkey);
-mGlobal(EarthModel) EMManager& getMgr(const char* trgrp);
+mGlobal(EarthModel) ObjectManager& Hor3DMan();
+mGlobal(EarthModel) ObjectManager& Hor2DMan();
+mGlobal(EarthModel) ObjectManager& FSSMan();
+mGlobal(EarthModel) ObjectManager& Flt3DMan();
+mGlobal(EarthModel) ObjectManager& BodyMan();
+mGlobal(EarthModel) ObjectManager& getMgr(const ObjectManager::ObjID&);
+mGlobal(EarthModel) ObjectManager& getMgr(const char* trgrp);
 
 /*!
 \brief Manages all types of EM objects in OpendTect.
 */
 
-mExpClass(EarthModel) GenEMManager : public EMManager
+mExpClass(EarthModel) Manager : public ObjectManager
 {
 public:
 
-			GenEMManager(const IOObjContext&);
-
-    ConstRefMan<EMObject> fetch(const DBKey& id,TaskRunner* trunner=0,
+    ConstRefMan<EMObject> fetch(const ObjID& id,TaskRunner* trunner=0,
 			        bool forcereload=false) const
 			{ return getMgr(id).fetch(id,trunner,forcereload); }
-    RefMan<EMObject>	fetchForEdit(const DBKey& id,TaskRunner* trunner=0,
+    RefMan<EMObject>	fetchForEdit(const ObjID& id,TaskRunner* trunner=0,
 				     bool forcereload=false)
 			{ return getMgr(id).fetchForEdit(id,trunner,
 							 forcereload); }
 
-    EMObject*		getObject(const DBKey& id)
+    EMObject*		getObject(const ObjID& id)
 			{ return getMgr(id).getObject( id ); }
 
     EMObject*		createTempObject(const char* type);
 
-    void		removeSelected(const DBKey& id,
+    void		removeSelected(const ObjID& id,
 				       const Selector<Coord3>& sel,
 				       const TaskRunnerProvider& trprov)
 			{ return getMgr(id).removeSelected( id, sel, trprov ); }
-    bool		readDisplayPars(const DBKey& id,IOPar& pars) const
+    bool		readDisplayPars(const ObjID& id,IOPar& pars) const
 			{ return getMgr(id).readDisplayPars( id, pars ); }
-    bool		writeDisplayPars(const DBKey& id,
+    bool		writeDisplayPars(const ObjID& id,
 					 const IOPar& pars) const
 			{ return getMgr(id).writeDisplayPars( id, pars ); }
-    bool		getSurfaceData(const DBKey& id,SurfaceIOData& sd,
+    bool		getSurfaceData(const ObjID& id,SurfaceIOData& sd,
 				       uiString& errmsg) const
 			{ return getMgr(id).getSurfaceData( id, sd, errmsg ); }
 
 
-    EMObject*		loadIfNotFullyLoaded(const DBKey& id,
+    EMObject*		loadIfNotFullyLoaded(const ObjID& id,
 					     const TaskRunnerProvider& tp)
 			{ return getMgr(id).loadIfNotFullyLoaded( id, tp ); }
-   /* Executor*		objectLoader(const DBKey& id,
-				     const SurfaceIODataSelection* sd=0)
-			{ return getMgr(id).objectLoader( id, sd ); }*/
 
     EMObject*		createObject(const char* type,const char* nm)
 			/*!< Creates a new object, saves it and loads it.
@@ -211,13 +203,19 @@ public:
 
     void		addObject(EMObject*);
 
-    Undo&		getUndo(const DBKey& id)
+    Undo&		getUndo(const ObjID& id)
 			{ return getMgr(id).undo(id); }
-    const Undo&		getUndo(const DBKey& id) const
+    const Undo&		getUndo(const ObjID& id) const
 			{ return getMgr(id).undo(id); }
+
+protected:
+
+			Manager();
+    friend Manager&	MGR();
 
 };
 
-mGlobal(EarthModel) GenEMManager& EMM();
+mDeprecated inline Manager& EMM() { return MGR(); }
+
 
 } // namespace EM

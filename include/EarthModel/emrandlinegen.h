@@ -11,8 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "ranges.h"
 #include "coord.h"
 class RandomLineSet;
@@ -25,9 +24,7 @@ namespace EM
 class Horizon3D;
 class Horizon3DGeometry;
 
-/*!
-\brief Creates random lines along the contours of a surface.
-*/
+/*!\brief Creates random lines along the contours of a surface.  */
 
 mExpClass(EarthModel) RandomLineSetByContourGenerator
 {
@@ -62,9 +59,7 @@ protected:
 };
 
 
-/*!
-\brief Creates random line from another by shifting it.
-*/
+/*!\brief Creates random line from another by shifting it. */
 
 mExpClass(EarthModel) RandomLineByShiftGenerator
 {
@@ -80,7 +75,7 @@ public:
     int			side_; //!, -1=left, 0=both, 1=right
 
     void		generate(Geometry::RandomLineSet&,
-	    			 int linenr_in_inp_set=0) const;
+				 int linenr_in_inp_set=0) const;
 
 protected:
 

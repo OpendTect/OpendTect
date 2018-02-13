@@ -297,9 +297,9 @@ int uiMPEMan::popupMenu()
     addAction( mnu, tr("Delete Selected"), "d", sDelete,
 	       "clearselection", true, hor3d );
     addAction( mnu, tr("Undo"), "ctrl+z", sUndo, "undo",
-		EM::EMM().undo(hor->id()).canUnDo(), true );
+		EM::MGR().undo(hor->id()).canUnDo(), true );
     addAction( mnu, tr("Redo"), "ctrl+y", sRedo, "redo",
-		EM::EMM().undo(hor->id()).canReDo(), true );
+		EM::MGR().undo(hor->id()).canReDo(), true );
     addAction( mnu, tr("Lock"), "l", sLock, "lock", true, hor3d );
     addAction( mnu, tr("Unlock"), "u", sUnlock, "unlock", true, hor3d );
 
@@ -330,7 +330,7 @@ void uiMPEMan::handleAction( int res )
 {
     MPE::EMTracker* tracker = getSelectedTracker();
     EM::EMObject* emobj =
-		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
+		tracker ? EM::MGR().getObject(tracker->objectID()) : 0;
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
     mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
     if ( !hor2d && !hor3d ) return;
@@ -404,7 +404,7 @@ void uiMPEMan::restrictCurrentHorizon()
     }
 
     EM::EMObject* emobj =
-		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
+		tracker ? EM::MGR().getObject(tracker->objectID()) : 0;
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
     if ( !hor3d ) return;
 
@@ -479,7 +479,7 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !tracker )
 	mSeedClickReturn();
 
-    emobj = EM::EMM().getObject( tracker->objectID() );
+    emobj = EM::MGR().getObject( tracker->objectID() );
     mDynamicCastGet(EM::Horizon*,hor,emobj)
     if ( !hor )
 	mSeedClickReturn();
@@ -498,7 +498,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
 
     const DBKey emobjid  = clickcatcher_->info().getEMObjID();
-    mDynamicCastGet(EM::Horizon*,clickedhor,EM::EMM().getObject(emobjid))
+    mDynamicCastGet(EM::Horizon*,clickedhor,EM::MGR().getObject(emobjid))
     const bool clickedonhorizon = clickedhor;
     if ( clickedhor && clickedhor!=hor )
     {
@@ -775,7 +775,7 @@ void uiMPEMan::beginSeedClickEvent( EM::EMObject* emobj )
 {
     if ( mIsUdf(cureventnr_) )
     {
-	cureventnr_ = EM::EMM().undo(emobj->id()).currentEventID();
+	cureventnr_ = EM::MGR().undo(emobj->id()).currentEventID();
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	if ( emobj )
 	    emobj->setBurstAlert( true );
@@ -892,7 +892,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	    clickcatcher_->turnOn( true );
 
 	const EM::EMObject* emobj =
-			tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
+			tracker ? EM::MGR().getObject(tracker->objectID()) : 0;
 	if ( clickcatcher_ && emobj )
 	    clickcatcher_->setTrackerType( emobj->getTypeStr() );
     }
@@ -996,7 +996,7 @@ void uiMPEMan::validateSeedConMode()
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker ) return;
 
-    const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+    const EM::EMObject* emobj = EM::MGR().getObject( tracker->objectID() );
     if ( !emobj )
 	return;
 
@@ -1039,11 +1039,11 @@ void uiMPEMan::undo()
     else
     {
 	mDynamicCastGet(
-	    EM::EMUndo*,emundo,&EM::EMM().undo(emod->getObjectID()) );
+	    EM::Undo*,emundo,&EM::MGR().undo(emod->getObjectID()) );
 	if ( !emundo ) return;
-	EM::EMM().burstAlertToAll( true );
+	EM::MGR().burstAlertToAll( true );
 	update = emundo->unDo( 1, true );
-	EM::EMM().burstAlertToAll( false );
+	EM::MGR().burstAlertToAll( false );
     }
 
     if ( update )
@@ -1073,11 +1073,11 @@ void uiMPEMan::redo()
     else
     {
 	mDynamicCastGet(
-	    EM::EMUndo*,emundo,&EM::EMM().undo(emod->getObjectID()) );
+	    EM::Undo*,emundo,&EM::MGR().undo(emod->getObjectID()) );
 	if ( !emundo ) return;
-	EM::EMM().burstAlertToAll( true );
+	EM::MGR().burstAlertToAll( true );
 	update = emundo->reDo( 1, true );
-	EM::EMM().burstAlertToAll( false );
+	EM::MGR().burstAlertToAll( false );
     }
 
     if ( update )
@@ -1167,7 +1167,7 @@ EM::Horizon* uiMPEMan::getSelectedHorizon()
 {
     MPE::EMTracker* tracker = getSelectedTracker();
     EM::EMObject* emobj =
-		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
+		tracker ? EM::MGR().getObject(tracker->objectID()) : 0;
     mDynamicCastGet(EM::Horizon*,hor,emobj)
     return hor;
 }
@@ -1267,7 +1267,7 @@ void uiMPEMan::initFromDisplay()
 
 void uiMPEMan::setUndoLevel( const DBKey& id, int preveventnr )
 {
-    Undo& emundo = EM::EMM().undo( id );
+    Undo& emundo = EM::MGR().undo( id );
     const int currentevent = emundo.currentEventID();
     if ( currentevent != preveventnr )
 	    emundo.setUserInteractionEnd(currentevent);

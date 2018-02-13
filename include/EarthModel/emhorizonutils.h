@@ -10,10 +10,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "sets.h"
 #include "ranges.h"
-#include "dbkey.h"
 
 class RowCol;
 class od_ostream;
@@ -28,10 +27,8 @@ namespace EM
 
 class Surface;
 
-/*!
-\brief Group of utilities for horizons: here are all functions required in
-od_process_attrib_em for computing data on, along or between 2 horizons.
-*/
+/*!\brief Group of utilities for horizons: here are all functions required in
+od_process_attrib_em for computing data on, along or between 2 horizons. */
 
 mExpClass(EarthModel) HorizonUtils
 {

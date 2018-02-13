@@ -192,7 +192,7 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
 {
     horizons_.erase();
     if ( !wd_ ) return;
-    EM::EMManager& em = EM::EMM();
+    EM::ObjectManager& mgr = EM::MGR();
     for ( int idx=0; idx<horids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = DBM().get( horids[idx] );
@@ -203,19 +203,19 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
 	    return;
 	}
 
-	RefMan<EM::EMObject> emobj = EM::EMM().getObject( horids[idx] );
+	RefMan<EM::EMObject> emobj = mgr.getObject( horids[idx] );
 	bool success = true;
 	if ( !emobj || !emobj->isFullyLoaded() )
 	{
 	    success = false;
-	    PtrMan<Executor> exec = em.objectLoader( horids[idx] );
+	    PtrMan<Executor> exec = mgr.objectLoader( horids[idx] );
 	    if ( exec )
 	    {
 		if ( TaskRunner::execute( &taskr, *exec ) )
 		    success = true;
 	    }
 	    if ( success )
-		emobj = EM::EMM().getObject( horids[idx] );
+		emobj = mgr.getObject( horids[idx] );
 	    else
 	    {
 		errms = tr("Cannot load %1.")

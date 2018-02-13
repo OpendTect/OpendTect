@@ -11,10 +11,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "typeset.h"
 #include "bufstringset.h"
-#include "emposid.h"
 #include "uistring.h"
 
 class Executor;
@@ -29,9 +28,7 @@ namespace EM
 class Horizon3D;
 
 
-/*!
-\brief Surface data
-*/
+/*!\brief Surface data like attribute data. */
 
 mExpClass(EarthModel) SurfaceAuxData
 { mODTextTranslationClass(SurfaceAuxData);

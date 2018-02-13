@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "zaxistransform.h"
 #include "notify.h"
 
@@ -19,8 +19,7 @@ namespace EM
 {
 class Horizon;
 
-/*!
-\brief Z-transform that flattens a horizon. Everything else will also be
+/*!\brief Z-transform that flattens a horizon. Everything else will also be
 flattened accordingly. In case of reverse faulting, the area between the two
 patches will not be included.
 */

@@ -28,11 +28,17 @@
 #include "keystrs.h"
 #include "od_iostream.h"
 
+
+namespace EM
+{
+mImplFactory( EMObject, EMOF );
+}
+
 #define mDefineEMMan(typeprefix,translgrp) \
-EM::EMManager& EM::typeprefix##Man() \
+EM::ObjectManager& EM::typeprefix##Man() \
 { \
-    mDefineStaticLocalObject( PtrMan<EM::EMManager>, emm, \
-			      (new EM::EMManager(mIOObjContext(translgrp))) ); \
+    mDefineStaticLocalObject( PtrMan<ObjectManager>, emm, \
+			      (new ObjectManager(mIOObjContext(translgrp))) ); \
     return *emm; \
 }
 
@@ -42,17 +48,16 @@ mDefineEMMan(FSS,EMFaultStickSet)
 mDefineEMMan(Flt3D,EMFault3D)
 mDefineEMMan(Body,EMBody)
 
-EM::GenEMManager& EM::EMM()
+EM::Manager& EM::MGR()
 {
-    mDefineStaticLocalObject( PtrMan<EM::GenEMManager>, emm,
-			(new EM::GenEMManager(mIOObjContext(EMHorizon3D))) );
+    mDefineStaticLocalObject( PtrMan<Manager>, emm, (new Manager) );
     return *emm;
 }
 
 
-bool EM::canOverwrite( const DBKey& dbky )
+bool EM::canOverwrite( const ObjectManager::ObjID& objid )
 {
-    const IOObj* ioobj = DBM().get( dbky );
+    const IOObj* ioobj = DBM().get( objid );
     if ( !ioobj )
 	return true;
 
@@ -60,23 +65,22 @@ bool EM::canOverwrite( const DBKey& dbky )
     return iostream;
 }
 
-namespace EM
+
+const char* EM::ObjectManager::displayparameterstr()
 {
-const char* EMManager::displayparameterstr() { return "Display Parameters"; }
-
-
-
-mImplFactory( EMObject, EMOF );
-
-EMManager::EMManager( const IOObjContext& ctxt )
-    : SaveableManager(ctxt,true)
-    , addRemove( this )
-{
-    mAttachCB( Strat::eLVLS().objectChanged(), EMManager::levelSetChgCB );
+    return "Display Parameters";
 }
 
 
-EMManager::~EMManager()
+EM::ObjectManager::ObjectManager( const IOObjContext& ctxt )
+    : SaveableManager(ctxt,true)
+    , addRemove( this )
+{
+    mAttachCB( Strat::eLVLS().objectChanged(), ObjectManager::levelSetChgCB );
+}
+
+
+EM::ObjectManager::~ObjectManager()
 {
     detachAllNotifiers();
 
@@ -84,26 +88,26 @@ EMManager::~EMManager()
 }
 
 
-void EMManager::setEmpty()
+void EM::ObjectManager::setEmpty()
 {
     savers_.setEmpty();
     addRemove.trigger();
 }
 
 
-void EMManager::eraseUndoList()
+void EM::ObjectManager::eraseUndoList()
 {
     deepErase( undolist_ );
 }
 
 
-BufferString EMManager::objectName( const DBKey& id ) const
+BufferString EM::ObjectManager::objectName( const ObjID& id ) const
 {
     return DBM().nameOf( id );
 }
 
 
-bool EMManager::is2D( const DBKey& id ) const
+bool EM::ObjectManager::is2D( const ObjID& id ) const
 {
     //TODO crappy impl, what about FSS's? should look for obj in loaded first
     PtrMan<IOObj> ioobj = DBM().get( id );
@@ -115,14 +119,15 @@ bool EMManager::is2D( const DBKey& id ) const
 }
 
 
-const char* EMManager::objectType( const DBKey& id ) const
+const char* EM::ObjectManager::objectType( const ObjID& id ) const
 {
     PtrMan<IOObj> ioobj = DBM().get( id );
     return ioobj ? ioobj->group() : OD::String::empty();
 }
 
 
-EMObject* EMManager::createObject( const char* type, const char* nm )
+EM::EMObject* EM::ObjectManager::createObject( const char* type,
+						const char* nm )
 {
     EMObject* object = EMOF().create( type, *this );
     if ( !object )
@@ -143,26 +148,24 @@ EMObject* EMManager::createObject( const char* type, const char* nm )
 }
 
 
-DBKey EMManager::objID( int idx ) const
+EM::ObjectManager::ObjID EM::ObjectManager::objID( int idx ) const
 {
-    if ( !savers_.validIdx(idx) )
-	return DBKey::getInvalid();
-    return savers_[idx]->key();
+    return savers_.validIdx(idx) ? savers_[idx]->key() : ObjID();
 }
 
 
-EMObject* EMManager::getObject( const DBKey& id )
+EM::EMObject* EM::ObjectManager::getObject( const ObjID& id )
 {
    mLock4Read();
    return gtObject( id );
 }
 
 
-EMObject* EMManager::gtObject( const DBKey& dbky )
+EM::EMObject* EM::ObjectManager::gtObject( const ObjID& objid )
 {
     for ( int idx=0; idx<savers_.size(); idx++ )
     {
-	if ( savers_[idx]->key() == dbky )
+	if ( savers_[idx]->key() == objid )
 	    return mCast(EMObject*,savers_[idx]->object());
     }
 
@@ -170,8 +173,8 @@ EMObject* EMManager::gtObject( const DBKey& dbky )
 }
 
 
-RefObjectSet<EMObject> EMManager::loadObjects( const char* typ,
-					    const DBKeySet& dbkeys,
+RefObjectSet<EM::EMObject> EM::ObjectManager::loadObjects( const char* typ,
+					    const ObjIDSet& dbkeys,
 					const SurfaceIODataSelection* sel,
 					TaskRunner* tskr )
 {
@@ -188,63 +191,63 @@ RefObjectSet<EMObject> EMManager::loadObjects( const char* typ,
 }
 
 
-ConstRefMan<EMObject> EMManager::fetch( const DBKey& dbky, TaskRunner* trunnr,
-				bool forcereload ) const
+ConstRefMan<EM::EMObject> EM::ObjectManager::fetch( const ObjID& objid,
+				TaskRunner* trunnr, bool forcereload ) const
 {
     mLock4Read();
-    EMObject* ret = const_cast<EMManager*>(this)->gtObject( dbky );
+    EMObject* ret = const_cast<ObjectManager*>(this)->gtObject( objid );
     if ( !forcereload && ret && ret->isFullyLoaded() )
 	return ret;
 
-    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( dbky );
+    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( objid );
     mUnlockAllAccess();
     if ( !exec || !TaskRunner::execute(trunnr,*exec) )
 	return 0;
 
     mReLock();
-    return const_cast<EMManager*>(this)->gtObject( dbky );
+    return const_cast<ObjectManager*>(this)->gtObject( objid );
 }
 
 
-RefMan<EMObject> EMManager::fetchForEdit( const DBKey& dbky, TaskRunner* trunnr,
-				bool forcereload )
+RefMan<EM::EMObject> EM::ObjectManager::fetchForEdit( const ObjID& objid,
+				TaskRunner* trunnr, bool forcereload )
 {
     mLock4Read();
-    EMObject* ret = gtObject( dbky );
+    EMObject* ret = gtObject( objid );
     if ( !forcereload && ret && ret->isFullyLoaded() )
 	return ret;
 
-    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( dbky );
+    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( objid );
     mUnlockAllAccess();
     if ( !exec || !TaskRunner::execute(trunnr,*exec) )
 	return 0;
 
     mReLock();
-    return gtObject( dbky );
+    return gtObject( objid );
 }
 
 
-uiRetVal EMManager::store( const EMObject& emobj,
+uiRetVal EM::ObjectManager::store( const EMObject& emobj,
 				  const IOPar* ioobjpars ) const
 {
     return SaveableManager::store( emobj, ioobjpars );
 }
 
 
-uiRetVal EMManager::store( const EMObject& emobj, const ObjID& id,
+uiRetVal EM::ObjectManager::store( const EMObject& emobj, const ObjID& id,
 			      const IOPar* ioobjpars ) const
 {
     return SaveableManager::store( emobj, id, ioobjpars );
 }
 
 
-bool EMManager::objectExists( const EMObject* obj ) const
+bool EM::ObjectManager::objectExists( const EMObject* obj ) const
 {
     return isPresent( *obj );
 }
 
 
-void EMManager::addObject( EMObject* obj )
+void EM::ObjectManager::addObject( EMObject* obj )
 {
     if ( !obj )
     { pErrMsg("No object provided!"); return; }
@@ -257,25 +260,25 @@ void EMManager::addObject( EMObject* obj )
 }
 
 
-EMObject* EMManager::createTempObject( const char* type )
+EM::EMObject* EM::ObjectManager::createTempObject( const char* type )
 {
     return EMOF().create( type, *this );
 }
 
 
-Executor* EMManager::objectLoader( const DBKeySet& dbkys,
+Executor* EM::ObjectManager::objectLoader( const ObjIDSet& objids,
 				   const SurfaceIODataSelection* iosel,
-				   DBKeySet* idstobeloaded )
+				   ObjIDSet* includedids )
 {
-    ExecutorGroup* execgrp = dbkys.size()>1
+    ExecutorGroup* execgrp = objids.size()>1
 			   ? new ExecutorGroup( "Reading" ) : 0;
-    for ( int idx=0; idx<dbkys.size(); idx++ )
+    for ( int idx=0; idx<objids.size(); idx++ )
     {
-	const EMObject* obj = getObject( dbkys[idx] );
-	Executor* loader =
-	    obj && obj->isFullyLoaded() ? 0 : objectLoader( dbkys[idx], iosel );
-	if ( idstobeloaded && loader )
-	    *idstobeloaded += dbkys[idx];
+	const EMObject* obj = getObject( objids[idx] );
+	Executor* loader = obj && obj->isFullyLoaded()
+			 ? 0 : objectLoader( objids[idx], iosel );
+	if ( includedids && loader )
+	    *includedids += objids[idx];
 
 	if ( execgrp )
 	{
@@ -303,23 +306,25 @@ Executor* EMManager::objectLoader( const DBKeySet& dbkys,
 }
 
 
-Executor* EMManager::objectLoader( const DBKey& dbky,
+Executor* EM::ObjectManager::objectLoader( const ObjID& objid,
 				   const SurfaceIODataSelection* iosel )
 {
-    EMObject* obj = getObject( dbky );
+    EMObject* obj = getObject( objid );
 
     if ( !obj )
     {
-	PtrMan<IOObj> ioobj = DBM().get( dbky );
-	if ( !ioobj ) return 0;
+	PtrMan<IOObj> ioobj = DBM().get( objid );
+	if ( !ioobj )
+	    return 0;
 
 	BufferString typenm = ioobj->pars().find( sKey::Type() );
 	if ( typenm.isEmpty() )
 	    typenm = ioobj->group();
 
 	obj = EMOF().create( typenm, *this );
-	if ( !obj ) return 0;
-	obj->setDBKey( dbky );
+	if ( !obj )
+	    return 0;
+	obj->setDBKey( objid );
     }
 
     mDynamicCastGet(Surface*,surface,obj)
@@ -348,21 +353,21 @@ Executor* EMManager::objectLoader( const DBKey& dbky,
 }
 
 
-EMObject* EMManager::loadIfNotFullyLoaded( const DBKey& dbky,
+EM::EMObject* EM::ObjectManager::loadIfNotFullyLoaded( const ObjID& objid,
 					   const TaskRunnerProvider& trprov )
 {
-    RefMan<EM::EMObject> emobj = getObject( dbky );
+    RefMan<EM::EMObject> emobj = getObject( objid );
 
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	PtrMan<Executor> exec = objectLoader( dbky );
+	PtrMan<Executor> exec = objectLoader( objid );
 	if ( !exec )
 	    return 0;
 
 	if ( !trprov.execute(*exec) )
 	    return 0;
 
-	emobj = getObject( dbky );
+	emobj = getObject( objid );
     }
 
     if ( !emobj || !emobj->isFullyLoaded() )
@@ -377,7 +382,7 @@ EMObject* EMManager::loadIfNotFullyLoaded( const DBKey& dbky,
 }
 
 
-void EMManager::burstAlertToAll( bool yn )
+void EM::ObjectManager::burstAlertToAll( bool yn )
 {
     for ( int idx=nrLoadedObjects()-1; idx>=0; idx-- )
     {
@@ -389,7 +394,7 @@ void EMManager::burstAlertToAll( bool yn )
 }
 
 
-void EMManager::removeSelected( const DBKey& id,
+void EM::ObjectManager::removeSelected( const ObjID& id,
 				const Selector<Coord3>& selector,
 				const TaskRunnerProvider& trprov )
 {
@@ -403,22 +408,23 @@ void EMManager::removeSelected( const DBKey& id,
 }
 
 
-bool EMManager::readDisplayPars( const DBKey& dbky, IOPar& outpar ) const
+bool EM::ObjectManager::readDisplayPars( const ObjID& objid,
+					 IOPar& outpar ) const
 {
-    if( !readParsFromDisplayInfoFile(dbky,outpar) )
-	return readParsFromGeometryInfoFile( dbky, outpar );
+    if( !readParsFromDisplayInfoFile(objid,outpar) )
+	return readParsFromGeometryInfoFile( objid, outpar );
 
     return true;
 
 }
 
 
-bool EMManager::readParsFromDisplayInfoFile( const DBKey& dbky,
+bool EM::ObjectManager::readParsFromDisplayInfoFile( const ObjID& objid,
 					     IOPar& outpar ) const
 {
     outpar.setEmpty();
 
-    IOObjInfo ioobjinfo( dbky );
+    IOObjInfo ioobjinfo( objid );
     if( !ioobjinfo.isOK() )
 	return false;
 
@@ -434,11 +440,11 @@ bool EMManager::readParsFromDisplayInfoFile( const DBKey& dbky,
 }
 
 
-bool EMManager::readParsFromGeometryInfoFile( const DBKey& dbky,
+bool EM::ObjectManager::readParsFromGeometryInfoFile( const ObjID& objid,
 					      IOPar& outpar ) const
 {
     outpar.setEmpty();
-    IOPar* par = IOObjInfo(dbky).getPars();
+    IOPar* par = IOObjInfo(objid).getPars();
     if( !par )
 	return false;
 
@@ -464,14 +470,15 @@ bool EMManager::readParsFromGeometryInfoFile( const DBKey& dbky,
 }
 
 
-bool EMManager::writeDisplayPars( const DBKey& dbky,const IOPar& inpar ) const
+bool EM::ObjectManager::writeDisplayPars( const ObjID& objid,
+					  const IOPar& inpar ) const
 {
-    IOObjInfo ioobjinfo( dbky );
+    IOObjInfo ioobjinfo( objid );
     if( !ioobjinfo.isOK() )
 	return false;
 
     IOPar displaypar;
-    readDisplayPars( dbky, displaypar );
+    readDisplayPars( objid, displaypar );
     displaypar.merge( inpar );
 
     const BufferString filenm = Surface::getParFileName( *ioobjinfo.ioObj() );
@@ -480,15 +487,15 @@ bool EMManager::writeDisplayPars( const DBKey& dbky,const IOPar& inpar ) const
 }
 
 
-bool EMManager::getSurfaceData( const DBKey& dbky, SurfaceIOData& sd,
+bool EM::ObjectManager::getSurfaceData( const ObjID& objid, SurfaceIOData& sd,
 				uiString& errmsg ) const
 {
-    EM::IOObjInfo oi( dbky );
+    EM::IOObjInfo oi( objid );
     return oi.getSurfaceData( sd, errmsg );
 }
 
 
-void EMManager::levelSetChgCB( CallBacker* cb )
+void EM::ObjectManager::levelSetChgCB( CallBacker* cb )
 {
     mGetMonitoredChgData( cb, chgdata );
     if ( chgdata.changeType() != Strat::LevelSet::cLevelToBeRemoved() )
@@ -505,7 +512,7 @@ void EMManager::levelSetChgCB( CallBacker* cb )
 }
 
 
-Saveable* EMManager::getSaver( const SharedObject& shobj ) const
+Saveable* EM::ObjectManager::getSaver( const SharedObject& shobj ) const
 {
     mDynamicCastGet(const EMObject*,emobj,&shobj);
     if ( !emobj )
@@ -517,20 +524,19 @@ Saveable* EMManager::getSaver( const SharedObject& shobj ) const
 }
 
 
-Undo& EMManager::undo( const DBKey& id )
+EM::Undo& EM::ObjectManager::undo( const ObjID& id )
 {
     const int idx = undoIndexOf( id );
     if ( undolist_.validIdx(idx) )
 	return undolist_[idx]->undo_;
 
-    EMObjUndo* newemobjundo = new EMObjUndo( id );
+    ObjUndo* newemobjundo = new ObjUndo( id );
     undolist_ += newemobjundo;
-
     return newemobjundo->undo_;
 }
 
 
-int EMManager::undoIndexOf( const DBKey& id )
+int EM::ObjectManager::undoIndexOf( const ObjID& id )
 {
     for ( int idx=0; idx<undolist_.size(); idx++ )
     {
@@ -542,14 +548,14 @@ int EMManager::undoIndexOf( const DBKey& id )
 }
 
 
-EMManager& getMgr( const DBKey& id )
+EM::ObjectManager& EM::getMgr( const ObjID& id )
 {
     PtrMan<IOObj> ioobj = DBM().get( id );
-    return ioobj ? getMgr( ioobj->group() ) : Hor3DMan();
+    return ioobj ? getMgr( ioobj->group().str() ) : Hor3DMan();
 }
 
 
-EMManager& getMgr( const char* trgrp )
+EM::ObjectManager& EM::getMgr( const char* trgrp )
 {
     if ( mTranslGroupName(EMHorizon3D)==trgrp ) return Hor3DMan();
     if ( mTranslGroupName(EMHorizon2D)==trgrp ) return Hor2DMan();
@@ -561,26 +567,26 @@ EMManager& getMgr( const char* trgrp )
 }
 
 
-GenEMManager::GenEMManager( const IOObjContext& ctxt )
-    : EMManager(ctxt)
-{}
+EM::Manager::Manager()
+    : ObjectManager(mIOObjContext(EMHorizon3D)) // any ctxt will do, not used
+{
+}
 
-void GenEMManager::addObject( EMObject* obj )
+
+void EM::Manager::addObject( EMObject* obj )
 {
     if ( !obj )
-    { pErrMsg("No object provided!"); return; }
+	{ pErrMsg("No object provided!"); return; }
 
     if ( isPresent(*obj) )
-    { pErrMsg("Adding object twice"); return; }
+	{ pErrMsg("Adding object twice"); return; }
 
     getMgr( obj->dbKey() ).addObject( obj );
 }
 
 
-EMObject* GenEMManager::createTempObject( const char* type )
+EM::EMObject* EM::Manager::createTempObject( const char* type )
 {
     FixedString trgrp( type );
     return getMgr( trgrp ).createTempObject( type );
 }
-
-} // namespace EM

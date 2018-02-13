@@ -11,8 +11,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "callback.h"
 #include "view2ddataman.h"
+#include "callback.h"
+#include "dbkey.h"
 
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;

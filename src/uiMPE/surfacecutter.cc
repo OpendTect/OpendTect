@@ -61,11 +61,11 @@ void SurfaceCutter::setCuttedObj( const DBKey& objid )
 bool SurfaceCutter::doTerminate( bool positiveside )
 {
     /*
-    mDynamicCastGet(EM::Surface*,cuttedsurf,EM::EMM().getObject(cuttedobjid_))
+    mDynamicCastGet(EM::Surface*,cuttedsurf,EM::MGR().getObject(cuttedobjid_))
     if ( !cuttedsurf || cuttedsurf->sectionIndex(cuttedsectionid_)!=-1 )
 	return false;
 
-    mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
+    mDynamicCastGet(EM::Surface*,cuttingsurf,EM::MGR().getObject(cuttingobjid_))
     if ( !cuttingsurf || cuttingsurf->sectionIndex(cuttingsectionid_)!=-1 )
 	return false;
 
@@ -107,36 +107,36 @@ bool SurfaceCutter::doTerminate( bool positiveside )
 
 bool SurfaceCutter::doCut()
 {
-    mDynamicCastGet(EM::Surface*,cuttedsurf,EM::EMM().getObject(cuttedobjid_))
+    mDynamicCastGet(EM::Surface*,cuttedsurf,EM::MGR().getObject(cuttedobjid_))
     if ( !cuttedsurf )
 	return false;
 
-    mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
+    mDynamicCastGet(EM::Surface*,cuttingsurf,EM::MGR().getObject(cuttingobjid_))
     if ( !cuttingsurf )
 	return false;
 
-    const int initialhistnr = EM::EMM().undo().currentEventID();
+    const int initialhistnr = EM::MGR().undo().currentEventID();
     if ( doTerminate(true) )
     {
 	bool res = doTerminate( false );
 	return res;
     }
 
-    while ( EM::EMM().undo().canUnDo() &&
-	    EM::EMM().undo().currentEventID()!=initialhistnr )
+    while ( EM::MGR().undo().canUnDo() &&
+	    EM::MGR().undo().currentEventID()!=initialhistnr )
     {
-	bool res = EM::EMM().undo().unDo(1);
+	bool res = EM::MGR().undo().unDo(1);
 	if ( !res ) break;
     }
 
-    EM::EMM().undo().removeAllAfterCurrentEvent();
+    EM::MGR().undo().removeAllAfterCurrentEvent();
     return false;
 }
 
 
 bool SurfaceCutter::reTrack()
 {
-    mDynamicCastGet(EM::Surface*,cuttedsurf,EM::EMM().getObject(cuttedobjid_))
+    mDynamicCastGet(EM::Surface*,cuttedsurf,EM::MGR().getObject(cuttedobjid_))
     if ( !cuttedsurf )
 	return false;
 
@@ -229,7 +229,7 @@ bool SurfaceCutter::reTrack()
 
 bool SurfaceCutter::getSurfaceDir( RowCol& dir )
 {
-    mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
+    mDynamicCastGet(EM::Surface*,cuttingsurf,EM::MGR().getObject(cuttingobjid_))
     if ( !cuttingsurf )
 	return false;
 
@@ -259,7 +259,7 @@ void SurfaceCutter::getBoundingBox( CubeSampling& cs )
 {
     cs.hrg.set( Interval<int>(mUdf(int),-mUdf(int)),
 		Interval<int>(mUdf(int),-mUdf(int)) );
-    mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
+    mDynamicCastGet(EM::Surface*,cuttingsurf,EM::MGR().getObject(cuttingobjid_))
     IntervalND<float> bb =
 	cuttingsurf->geometry().geometryElement()->boundingBox(true);
 

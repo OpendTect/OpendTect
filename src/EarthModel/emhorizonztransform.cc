@@ -19,8 +19,6 @@ ________________________________________________________________________
 #include "sorting.h"
 #include "zdomain.h"
 
-namespace EM
-{
 
 static const ZDomain::Def& getZDom()
 {
@@ -28,7 +26,8 @@ static const ZDomain::Def& getZDom()
 			  : ZDomain::Def::get( "Depth-Flattened" );
 }
 
-HorizonZTransform::HorizonZTransform()
+
+EM::HorizonZTransform::HorizonZTransform()
     : ZAxisTransform(ZDomain::SI(),getZDom())
     , horizon_( 0 )
     , horchanged_( false )
@@ -36,7 +35,7 @@ HorizonZTransform::HorizonZTransform()
 {}
 
 
-HorizonZTransform::~HorizonZTransform()
+EM::HorizonZTransform::~HorizonZTransform()
 {
     if ( horizon_ )
     {
@@ -47,7 +46,7 @@ HorizonZTransform::~HorizonZTransform()
 }
 
 
-void HorizonZTransform::setHorizon( const Horizon& hor )
+void EM::HorizonZTransform::setHorizon( const Horizon& hor )
 {
     if ( horizon_ )
     {
@@ -69,7 +68,7 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
 }
 
 
-void HorizonZTransform::transformTrc( const TrcKey& trckey,
+void EM::HorizonZTransform::transformTrc( const TrcKey& trckey,
 	const SamplingData<float>& sd, int sz,float* res ) const
 {
     if ( mIsUdf(sd.start) || mIsUdf(sd.step) )
@@ -107,7 +106,7 @@ void HorizonZTransform::transformTrc( const TrcKey& trckey,
 }
 
 
-void HorizonZTransform::transformTrcBack( const TrcKey& trckey,
+void EM::HorizonZTransform::transformTrcBack( const TrcKey& trckey,
 	const SamplingData<float>& sd, int sz,float* res ) const
 {
     for ( int idx=sz-1; idx>=0; idx-- )
@@ -129,7 +128,7 @@ void HorizonZTransform::transformTrcBack( const TrcKey& trckey,
 }
 
 
-Interval<float> HorizonZTransform::getZInterval( bool from ) const
+Interval<float> EM::HorizonZTransform::getZInterval( bool from ) const
 {
     if ( from ) return SI().zRange(true);
 
@@ -149,7 +148,7 @@ Interval<float> HorizonZTransform::getZInterval( bool from ) const
 }
 
 
-void HorizonZTransform::fillPar( IOPar& par ) const
+void EM::HorizonZTransform::fillPar( IOPar& par ) const
 {
     ZAxisTransform::fillPar( par );
 
@@ -158,7 +157,7 @@ void HorizonZTransform::fillPar( IOPar& par ) const
 }
 
 
-bool HorizonZTransform::usePar( const IOPar& par )
+bool EM::HorizonZTransform::usePar( const IOPar& par )
 {
     if ( !ZAxisTransform::usePar( par ) )
 	return false;
@@ -167,7 +166,7 @@ bool HorizonZTransform::usePar( const IOPar& par )
     if ( !par.get( sKeyHorizonID(), objkey ) )
 	return true;
 
-    EM::EMManager& horman = EM::getMgr( objkey );
+    EM::ObjectManager& horman = EM::getMgr( objkey );
     RefMan<EM::EMObject> emobj = horman.getObject( objkey );
     if ( !emobj )
 	return false;
@@ -181,7 +180,7 @@ bool HorizonZTransform::usePar( const IOPar& par )
 }
 
 
-float HorizonZTransform::getZIntervalCenter( bool from ) const
+float EM::HorizonZTransform::getZIntervalCenter( bool from ) const
 {
     if ( from )
 	return ZAxisTransform::getZIntervalCenter( from );
@@ -190,7 +189,7 @@ float HorizonZTransform::getZIntervalCenter( bool from ) const
 }
 
 
-void HorizonZTransform::horChangeCB(CallBacker*)
+void EM::HorizonZTransform::horChangeCB(CallBacker*)
 {
     horchanged_ = true;
 
@@ -199,7 +198,7 @@ void HorizonZTransform::horChangeCB(CallBacker*)
 }
 
 
-void HorizonZTransform::calculateHorizonRange()
+void EM::HorizonZTransform::calculateHorizonRange()
 {
     if ( !horizon_ ) return;
 
@@ -225,7 +224,7 @@ void HorizonZTransform::calculateHorizonRange()
 }
 
 
-bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
+bool EM::HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 				      float& bottom ) const
 {
     mDynamicCastGet(const Horizon3D*,hor3d,horizon_)
@@ -303,5 +302,3 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 
     return true;
 }
-
-} // namespace EM

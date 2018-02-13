@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "attribdescid.h"
 #include "datacoldef.h"
-#include "emposid.h"
 #include "dbkey.h"
 #include "ranges.h"
 

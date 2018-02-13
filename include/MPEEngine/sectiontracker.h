@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
+#include "dbkey.h"
 #include "task.h"
 #include "trckeyzsampling.h"
 #include "emposid.h"

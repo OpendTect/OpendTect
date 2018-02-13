@@ -11,9 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "transl.h"
 #include "emsurfaceiodata.h"
+#include "transl.h"
 #include "uistring.h"
 
 class Executor;

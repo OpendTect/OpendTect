@@ -1348,7 +1348,7 @@ bool FaultTrcDataProvider::init( const DBKeySet& faultids,
     EM::SurfaceIODataSelection sel( sd );
     sd.rg = hrg;
     ExecutorGroup loadergrp( "Loading Faults" );
-    EM::EMManager& emmgr = is2d_ ? EM::FSSMan() : EM::Flt3DMan();
+    EM::ObjectManager& emmgr = is2d_ ? EM::FSSMan() : EM::Flt3DMan();
     for ( int idx=0; idx<faultids.size(); idx++ )
 	if ( !emmgr.getObject(faultids[idx]) )
 	    loadergrp.add( emmgr.objectLoader(faultids[idx],&sel) );

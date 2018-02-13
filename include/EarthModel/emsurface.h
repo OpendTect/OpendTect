@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emobject.h"
 
 class IOObj;
@@ -20,12 +19,10 @@ namespace Pos { class Filter; }
 namespace EM
 {
 
-class EMManager;
 class SurfaceGeometry;
 
-/*!
-\brief Base class for surfaces like horizons and faults. A surface is made up
-of one or more segments or patches, so they can overlap.
+/*!\brief Base class for surfaces like horizons and faults. A surface is made
+  up of one or more segments or patches, so they can overlap.
 */
 
 mExpClass(EarthModel) Surface : public EMObject

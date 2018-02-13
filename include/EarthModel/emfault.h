@@ -11,11 +11,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
+#include "emundo.h"
 #include "faultsticksurface.h"
-#include "undo.h"
 
 
 namespace EM
@@ -166,11 +165,9 @@ protected:
 };
 
 
-/*!
-\brief Fault stick UndoEvent.
-*/
+/*!\brief Fault stick UndoEvent. */
 
-mExpClass(EarthModel) FaultStickUndoEvent : public UndoEvent
+mExpClass(EarthModel) FaultStickUndoEvent : public ::UndoEvent
 {
 public:
 			//Interface for insert
@@ -191,11 +188,9 @@ protected:
 };
 
 
-/*!
-\brief Fault knot UndoEvent.
-*/
+/*!\brief Fault knot UndoEvent. */
 
-mExpClass(EarthModel) FaultKnotUndoEvent : public UndoEvent
+mExpClass(EarthModel) FaultKnotUndoEvent : public ::UndoEvent
 {
 public:
 			//Interface for insert
@@ -213,7 +208,6 @@ protected:
     EM::PosID		posid_;
     bool		remove_;
 };
-
 
 
 } // namespace EM

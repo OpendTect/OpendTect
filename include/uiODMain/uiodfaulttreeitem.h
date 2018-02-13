@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 
-#include "emposid.h"
-
 class DataPointSet;
 
 

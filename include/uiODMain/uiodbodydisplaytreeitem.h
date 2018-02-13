@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 
-#include "emposid.h"
-
 
 namespace visSurvey { class MarchingCubesDisplay; class PolygonBodyDisplay;
 		      class RandomPosBodyDisplay; }

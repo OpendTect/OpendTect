@@ -53,7 +53,7 @@ const char* EMObjectDisplay::sKeyPosAttrShown() { return "Pos Attribs shown"; }
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
-    , em_( EM::EMM() )
+    , emmgr_( EM::MGR() )
     , emobject_( 0 )
     , parmid_( DBKey::getInvalid() )
     , editor_( 0 )
@@ -257,7 +257,7 @@ EM::PosID EMObjectDisplay::findClosestNode(const Coord3&) const
 
 bool EMObjectDisplay::setEMObject( const DBKey& newid, TaskRunner* tskr )
 {
-    EM::EMObject* emobject = em_.getObject( newid );
+    EM::EMObject* emobject = emmgr_.getObject( newid );
     if ( !emobject ) return false;
 
     removeEMStuff();
@@ -713,7 +713,7 @@ bool EMObjectDisplay::removeSelections( TaskRunner* taskr )
     if ( selectionids_.isEmpty() )
 	return false;
 
-    Undo& undo = EM::EMM().undo( emobject_->id() );
+    Undo& undo = emmgr_.undo( emobject_->id() );
     const int lastid = undo.currentEventID();
 
     emobject_->removePositions( selectionids_ );
@@ -793,7 +793,7 @@ void EMObjectDisplay::updateSelections()
     Color selectioncolor =  Color::Orange();
     if ( hor2d || hor3d )
 	selectioncolor = hor3d ? hor3d->selectionColor()
-	    			: hor2d->selectionColor();
+				: hor2d->selectionColor();
 
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
     {

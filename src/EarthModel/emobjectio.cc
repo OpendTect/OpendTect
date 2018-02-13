@@ -91,7 +91,7 @@ void init()
 	if ( typenm.isEmpty() )
 	    typenm = ioobj->group();
 
-	EMObject* obj = EMM().createObject( typenm, ioobj->name() );
+	EMObject* obj = MGR().createObject( typenm, ioobj->name() );
 	obj->ref();
 	obj->setDBKey( objid );
 	add( loader_.fetchLoader(obj) );
@@ -129,7 +129,7 @@ void finishWork()
 	if ( loader_.notloadedkeys_.isPresent(dbkey) )
 	    continue;
 
-	EMManager& emm = getMgr( dbkey );
+	EM::ObjectManager& emm = getMgr( dbkey );
 	emm.addObject( obj );
 	loader_.addObject( obj );
     }

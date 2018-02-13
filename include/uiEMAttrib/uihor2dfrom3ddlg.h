@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uiemattribmod.h"
 #include "uidialog.h"
-#include "emposid.h"
+#include "dbkey.h"
 
 namespace EM { class Horizon2D; }
 class uiSeis2DMultiLineSel;

@@ -12,11 +12,10 @@ ________________________________________________________________________
 
 #include "emattribmod.h"
 #include "executor.h"
-#include "emposid.h"
 
 class od_ostream;
 class DataPointSet;
-namespace EM{ class Horizon3D; class EMObjectIterator; }
+namespace EM { class Horizon3D; class EMObjectIterator; }
 
 mExpClass(EMAttrib) IsochronMaker : public Executor
 { mODTextTranslationClass(IsochronMaker)

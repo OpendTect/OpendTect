@@ -13,8 +13,6 @@ ________________________________________________________________________
 
 #include "vissurveycommon.h"
 #include "vismultiattribsurvobj.h"
-
-#include "emposid.h"
 #include "ranges.h"
 
 

@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "notify.h"
 #include "datapack.h"
-#include "emposid.h"
 #include "survgeom.h"
 
 class BufferStringSet;
@@ -75,7 +74,7 @@ public:
     Pos::GeomID			activeGeomID() const;
 
     Notifier<Engine>		loadEMObject;
-    DBKey			midtoload;
+    DBKey			emidtoload_;
 
     void			updateSeedOnlyPropagation(bool);
 

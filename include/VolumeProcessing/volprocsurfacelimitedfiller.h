@@ -114,7 +114,7 @@ protected:
     int			setDataHorizon(const DBKey&,EM::Horizon3D*&,
 				       int auxdataidx) const;
 
-    DBKey		gradhormid_;
+    DBKey		gradhorid_;
     EM::Horizon3D*	gradhorizon_;
     int			gradauxdataselidx_;
     int			gradauxidx_;
@@ -122,14 +122,14 @@ protected:
     bool		usegradient_;
     bool		gradvertical_;
 
-    DBKey		starthormid_;
+    DBKey		starthorid_;
     EM::Horizon3D*	starthorizon_;
     int			startauxdataselidx_;
     int			startauxidx_;
     float		fixedstartval_;
     bool		usestartval_;
 
-    DBKey		refhormid_;
+    DBKey		refhorid_;
     EM::Horizon*	refhorizon_;
     float		refz_;
     bool		userefz_;

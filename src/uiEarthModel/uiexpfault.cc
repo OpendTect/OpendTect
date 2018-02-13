@@ -256,7 +256,7 @@ bool uiExportFault::writeAscii()
     BufferString typnm = issingle_ ? ctio_.ioobj_->group() :
 				    bulkinfld_->getCtxtIOObj().ioobj_->group();
     RefObjectSet<EM::EMObject> loadedobjs =
-		EM::EMM().loadObjects( typnm, dbkeyset, 0, &trprov.runner() );
+		EM::MGR().loadObjects( typnm, dbkeyset, 0, &trprov.runner() );
     if ( loadedobjs.isEmpty() )
 	return false;
 

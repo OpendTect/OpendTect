@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "vissurvobj.h"
-#include "emposid.h"
 #include "visobject.h"
 
 namespace visBase { class RandomPos2Body; class Transformation; }

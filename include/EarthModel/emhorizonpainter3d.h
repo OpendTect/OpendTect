@@ -10,9 +10,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "trckeyzsampling.h"
-#include "emposid.h"
 #include "flatview.h"
 
 class FlatPosData;
@@ -22,9 +21,7 @@ namespace EM
 
 class Horizon3D;
 
-/*!
-\brief 3D horizon painter
-*/
+/*!\brief 3D horizon painter */
 
 mExpClass(EarthModel) HorizonPainter3D : public CallBacker
 {
@@ -75,7 +72,7 @@ protected:
     void		generateNewMarker(const Horizon3D&,
 					  SectionMarker3DLine&,Marker3D*&);
     bool		addDataToMarker(const BinID&,const Coord3&,
-	    				const PosID&,const Horizon3D&,
+					const PosID&,const Horizon3D&,
 					Marker3D&,bool,int idx=-1);
 
     void		horChangeCB(CallBacker*);
@@ -101,6 +98,7 @@ protected:
     bool		seedenabled_;
     int			nrseeds_;
     TrcKeySampling	updatesamplings_;
+
 };
 
 } //namespace EM

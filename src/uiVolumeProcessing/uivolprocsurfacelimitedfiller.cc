@@ -238,13 +238,13 @@ void uiSurfaceLimitedFiller::addSurfaceTableEntry( const IOObj& ioobj,
     surfacelist_ += ioobj.key();
 
     Color col = Color::White();
-    const EM::EMObject* emobj = EM::EMM().getObject( ioobj.key() );
+    const EM::EMObject* emobj = EM::MGR().getObject( ioobj.key() );
     if ( emobj )
 	col = emobj->preferredColor();
     else
     {
 	IOPar pars;
-	EM::EMM().readDisplayPars( ioobj.key(), pars );
+	EM::MGR().readDisplayPars( ioobj.key(), pars );
 	pars.get( sKey::Color(), col );
     }
 

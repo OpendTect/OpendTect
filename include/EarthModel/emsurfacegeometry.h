@@ -11,10 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "bufstringset.h"
-#include "emposid.h"
 #include "emobject.h"
+#include "bufstringset.h"
 #include "mathfunc.h"
 #include "rowcolsurface.h"
 

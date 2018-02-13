@@ -33,7 +33,7 @@ public:
     Threads::Work*	work_;
     uiString		errmsg_;
 
-    EMObject*		getEMObjFromEMM();
+    EMObject*		getEMObjFromMGR();
     void		workFinished(CallBacker*);
 
 };
@@ -41,27 +41,27 @@ public:
 } // namespace EM
 
 
-EM::EMObject* EM::StoredObjAccessData::getEMObjFromEMM()
+EM::EMObject* EM::StoredObjAccessData::getEMObjFromMGR()
 {
-    return EM::EMM().getObject( key_ );
+    return MGR().getObject( key_ );
 }
 
 
 EM::StoredObjAccessData::StoredObjAccessData( const DBKey& ky,
-				    const EM::SurfaceIODataSelection* siods )
+				    const SurfaceIODataSelection* siods )
     : key_(ky)
     , obj_(0)
     , rdr_(0)
     , work_(0)
 {
-    EMObject* obj = getEMObjFromEMM();
+    EMObject* obj = getEMObjFromMGR();
     if ( obj && obj->isFullyLoaded() )
     {
 	obj_ = obj; obj_->ref();
     }
     else
     {
-	rdr_ = EM::EMM().objectLoader( key_, siods );
+	rdr_ = EM::MGR().objectLoader( key_, siods );
 	if ( !rdr_ )
 	    { errmsg_ = tr("No loader for %1").arg(key_); return; }
 
@@ -95,9 +95,9 @@ void EM::StoredObjAccessData::workFinished( CallBacker* cb )
     }
     else
     {
-	EMObject* obj = getEMObjFromEMM();
+	EMObject* obj = getEMObjFromMGR();
 	if ( !obj || !obj->isFullyLoaded() )
-	    errmsg_ = tr("Could not get object from EMM");
+	    errmsg_ = tr("Could not get EM object from MGR");
 	else
 	    { obj_ = obj; obj_->ref(); }
     }
@@ -126,7 +126,7 @@ EM::StoredObjAccess::~StoredObjAccess()
 }
 
 
-void EM::StoredObjAccess::setLoadHint( const EM::SurfaceIODataSelection& sio )
+void EM::StoredObjAccess::setLoadHint( const SurfaceIODataSelection& sio )
 {
     delete surfiodsel_;
     surfiodsel_ = new SurfaceIODataSelection( sio );

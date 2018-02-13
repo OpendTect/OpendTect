@@ -182,7 +182,7 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     if ( !ioobj )
 	return;
 
-    EM::EMManager& emmgr = EM::getMgr( dbky );
+    EM::ObjectManager& emmgr = EM::getMgr( dbky );
     BufferString type( emmgr.objectType(dbky) );
     BufferString info;
     info.add( "Data Type: " ).add( type ).add( "\n" );
@@ -241,7 +241,7 @@ void uiHorizonPreLoadDlg::loadSavedHorizon( const DBKeySet& saveddbkys )
     if ( saveddbkys.isEmpty() )
 	return;
 
-    const bool is2d = EM::EMM().is2D( saveddbkys.get(0) );
+    const bool is2d = EM::MGR().is2D( saveddbkys.get(0) );
     uiTaskRunner taskrunner( this );
     EM::HorizonPreLoader& hpl = EM::HPreL();
     hpl.load( saveddbkys, is2d, &taskrunner );

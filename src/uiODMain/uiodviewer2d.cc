@@ -746,7 +746,7 @@ void uiODViewer2D::trackSetupCB( CallBacker* )
 
     const DBKey emid = hortreeitm ? hortreeitm->emObjectID()
 					 : hor2dtreeitm->emObjectID();
-    EM::EMObject* emobj = EM::EMM().getObject( emid );
+    EM::EMObject* emobj = EM::MGR().getObject( emid );
     if ( !emobj )
 	return;
 

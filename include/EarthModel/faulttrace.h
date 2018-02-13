@@ -10,11 +10,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "executor.h"
 #include "paralleltask.h"
 #include "trckeysampling.h"
-#include "dbkey.h"
 #include "positionlist.h"
 #include "sets.h"
 #include "posinfo2dsurv.h"
@@ -26,9 +25,7 @@ namespace Geometry { class ExplFaultStickSurface; }
 namespace PosInfo { class Line2DData; }
 class BinIDValueSet;
 
-/*!
-\brief Subclass of Coord3List that represents a fault trace.
-*/
+/*!\brief Subclass of Coord3List that represents a fault trace. */
 
 mExpClass(EarthModel) FaultTrace : public Coord3List
 { mODTextTranslationClass(FaultTrace);

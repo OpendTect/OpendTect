@@ -7,9 +7,6 @@
 
 
 SET(OD_MODULE_DEPS Geometry)
-SET(OD_BATCH_TEST_PROGS
-		#emstoredobjaccess.cc
-)
 set(OD_MODULE_SOURCES
 		em2ddatafmtconverter.cc
 		embody.cc

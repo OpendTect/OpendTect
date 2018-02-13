@@ -11,9 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "bufstringset.h"
-#include "emposid.h"
 #include "executor.h"
 #include "posinfo2dsurv.h"
 #include "ranges.h"

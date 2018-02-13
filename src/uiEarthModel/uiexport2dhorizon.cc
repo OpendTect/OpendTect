@@ -141,15 +141,15 @@ bool uiExport2DHorizon::doExport()
 
 	BufferStringSet linenms;
 
-	EM::EMManager& em = EM::Hor2DMan();
-	EM::EMObject* obj = em.getObject( horid );
+	EM::ObjectManager& mgr = EM::Hor2DMan();
+	EM::EMObject* obj = mgr.getObject( horid );
 	if ( !obj )
 	{
-	    PtrMan<Executor> exec = em.objectLoader( horid );
+	    PtrMan<Executor> exec = mgr.objectLoader( horid );
 	    if ( !exec || !exec->execute() )
 		mErrRet(uiStrings::sCantReadHor())
 
-	    obj = em.getObject( horid );
+	    obj = mgr.getObject( horid );
 	    if ( !obj ) return false;
 
 	    obj->ref();

@@ -11,8 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-
 #include "emfault3d.h"
 #include "emfaultstickset.h"
 #include "emhorizon3d.h"

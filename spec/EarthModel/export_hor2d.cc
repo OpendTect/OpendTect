@@ -14,7 +14,6 @@ static const char* rcsID = "$Id$";
 #include "ioobjctxt.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
-#include "emposid.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"

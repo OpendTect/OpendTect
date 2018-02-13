@@ -11,16 +11,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emsurfacetr.h"
 #include "rowcol.h"
 #include "executor.h"
 
 namespace EM { class Fault3D; }
 
-/*!
-\brief Landmark EM::Fault3D EMSurfaceTranslator.
-*/
+/*!\brief Landmark EM::Fault3D EMSurfaceTranslator. */
 
 mExpClass(EarthModel) lmkEMFault3DTranslator : public EMSurfaceTranslator
 {			isTranslator(lmk,EMFault3D)

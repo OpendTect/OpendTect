@@ -10,9 +10,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "paralleltask.h"
-#include "emposid.h"
 #include "enums.h"
 #include "trckeysampling.h"
 
@@ -23,9 +22,7 @@ namespace EM
 
 class Horizon3D;
 
-/*!
-\brief A subclass of ParallelTask that merges horizons.
-*/
+/*!\brief A ParallelTask that merges horizons. */
 
 mExpClass(EarthModel) HorizonMerger : public ParallelTask
 {
@@ -43,9 +40,7 @@ protected:
 };
 
 
-/*!
-\brief 3D HorizonMerger
-*/
+/*!\brief 3D HorizonMerger */
 
 mExpClass(EarthModel) Horizon3DMerger : public HorizonMerger
 {

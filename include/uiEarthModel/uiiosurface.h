@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "trckeysampling.h"
 #include "posinfo2dsurv.h"
 #include "stratlevel.h"
-#include "emposid.h"
 
 
 class IOObj;

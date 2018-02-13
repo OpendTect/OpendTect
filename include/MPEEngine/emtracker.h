@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "factory.h"
-#include "emposid.h"
 #include "refcount.h"
 #include "sets.h"
 #include "trckeyzsampling.h"

@@ -18,7 +18,6 @@ static const char* rcsID = "$Id$";
 #include "emmanager.h"
 #include "emhorizon.h"
 #include "emsurfacegeometry.h"
-#include "emposid.h"
 #include "executor.h"
 #include "dbman.h"
 #include "ioobj.h"
@@ -49,10 +48,10 @@ static EM::Horizon* loadHorizon( const char* id, BufferString& err )
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;
-    EM::EMManager& em = EM::EMM();
+    EM::ObjectManager& mgr = EM::MGR();
     PtrMan<Executor> exec = em.objectLoader( ioobj->key() );
     exec->execute( &std::cerr );
-    EM::EMObject* emobj = em.getObject( ioobj->key() );
+    EM::EMObject* emobj = mgr.getObject( ioobj->key() );
     mDynamicCastGet(EM::Horizon*,horizon,emobj)
     if ( !horizon ) { err = "ID "; err += id; err += " is not horizon"; }
     horizon->ref();
@@ -75,7 +74,7 @@ static int doWork( int argc, char** argv )
 
     BufferString hornm = horizon2->name();
     hornm += forward ?	"_flattened" : "_unflattened";
-    EM::Object* newobj = EM::EMM().createObject( EM::Horizon::typeStr(), hornm);
+    EM::Object* newobj = EM::MGR().createObject( EM::Horizon::typeStr(), hornm);
     mDynamicCastGet(EM::Horizon*,newhorizon,newobj)
 
     StepInterval<int> inlrg = horizon1->geometry().rowRange();

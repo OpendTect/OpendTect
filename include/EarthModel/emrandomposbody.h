@@ -11,9 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "embody.h"
-#include "emobject.h"
 
 class DataPointSet;
 namespace Pick { class Set; }
@@ -21,9 +19,7 @@ namespace Pick { class Set; }
 namespace EM
 {
 
-/*!
-\brief Random position Body.
-*/
+/*!\brief Random position Body. */
 
 mExpClass(EarthModel) RandomPosBody : public Body, public EMObject
 {   mDefineEMObjFuncs( RandomPosBody );

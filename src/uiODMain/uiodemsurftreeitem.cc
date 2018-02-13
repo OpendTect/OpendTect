@@ -356,7 +356,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 			emd,visserv_->getObject(displayid_))
 	const DBKey objectid = emd->getObjectID();
 	mDynamicCastGet(const EM::Horizon*,horizon,
-			EM::EMM().getObject(objectid))
+			EM::MGR().getObject(objectid))
 	if ( !horizon ) return;
 
 	const uiString scenenm =
@@ -371,7 +371,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
 bool uiODEarthModelSurfaceTreeItem::isHorReady( const DBKey& emid )
 {
-    EM::EMObject* emobj = EM::EMM().getObject(emid_);
+    EM::EMObject* emobj = EM::MGR().getObject(emid_);
     if ( !emobj )
 	return false;
 
@@ -406,7 +406,7 @@ void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
     }
 
     const uiString obj = toUiString("%1 \"%2\"")
-	.arg( EM::EMM().objectType( emid_ ) ).arg(DBM().nameOf(emid_));
+	.arg( EM::MGR().objectType( emid_ ) ).arg(DBM().nameOf(emid_));
     NotSavedPrompter::NSP().addObject(	obj,
 		mCB( this, uiODEarthModelSurfaceTreeItem, saveCB ),
 	        savewithname, 0 );
@@ -453,7 +453,7 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 
 void uiODEarthModelSurfaceTreeItem::addAuxDataItems()
 {
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::MGR().getObject(emid_))
     if ( !hor3d ) return;
 
     BufferStringSet attrnms;

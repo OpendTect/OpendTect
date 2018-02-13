@@ -190,7 +190,7 @@ void Engine::trackingFinishedCB( CallBacker* )
     const EM::EMObject* emobj = getCurrentEMObject();
     if ( !emobj ) return;
 
-    Undo& emundo = EM::EMM().undo(emobj->id());
+    Undo& emundo = EM::MGR().undo(emobj->id());
     const int currentevent = emundo.currentEventID();
     if ( currentevent != undoeventid_ )
 	emundo.setUserInteractionEnd( currentevent );
@@ -206,7 +206,7 @@ bool Engine::canUnDo()
     const EM::EMObject* emobj = getCurrentEMObject();
     if ( !emobj ) return false;
 
-    return EM::EMM().undo(emobj->id()).canUnDo();
+    return EM::MGR().undo(emobj->id()).canUnDo();
 }
 
 
@@ -215,7 +215,7 @@ bool Engine::canReDo()
     const EM::EMObject* emobj = getCurrentEMObject();
     if ( !emobj ) return false;
 
-    return EM::EMM().undo(emobj->id()).canReDo();
+    return EM::MGR().undo(emobj->id()).canReDo();
 }
 
 
@@ -224,7 +224,7 @@ EM::EMObject* Engine::getCurrentEMObject() const
    if ( !activetracker_ )
 	return 0;
 
-    return EM::EMM().getObject( activetracker_->objectID() );
+    return EM::MGR().getObject( activetracker_->objectID() );
 
 }
 
@@ -234,7 +234,7 @@ void Engine::undo( uiString& errmsg )
     EM::EMObject* emobj = getCurrentEMObject();
     if ( !emobj ) return;
 
-    mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emobj->id()) )
+    mDynamicCastGet( EM::Undo*,emundo,&EM::MGR().undo(emobj->id()) )
     if ( !emundo ) return;
 
     emobj->ref();
@@ -256,7 +256,7 @@ void Engine::redo( uiString& errmsg )
     EM::EMObject* emobj = getCurrentEMObject();
     if(!emobj) return;
 
-    mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emobj->id()) )
+    mDynamicCastGet( EM::Undo*,emundo,&EM::MGR().undo(emobj->id()) )
     if( !emundo ) return;
 
     emobj->ref();
@@ -336,7 +336,7 @@ bool Engine::trackInVolume()
 	return false;
 
     DBKey oid = tracker->objectID();
-    EM::EMObject* emobj = EM::EMM().getObject( oid );
+    EM::EMObject* emobj = EM::MGR().getObject( oid );
     if ( !emobj || emobj->isLocked() )
 	return false;
 
@@ -360,8 +360,8 @@ bool Engine::trackInVolume()
 
     actionCalled.trigger();
 
-//    EM::EMM().undo().removeAllBeforeCurrentEvent();
-    undoeventid_ = EM::EMM().undo(emobj->id()).currentEventID();
+//    EM::MGR().undo().removeAllBeforeCurrentEvent();
+    undoeventid_ = EM::MGR().undo(emobj->id()).currentEventID();
     htm->setSeeds( seeds );
     htm->startFromSeeds();
     return true;
@@ -377,9 +377,9 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 	    continue;
 
 	const DBKey oid = trackers_[idx]->objectID();
-	EM::EMM().removeSelected( oid, selector, trprov );
+	EM::MGR().removeSelected( oid, selector, trprov );
 
-	EM::EMObject* emobj = EM::EMM().getObject( oid );
+	EM::EMObject* emobj = EM::MGR().getObject( oid );
 	if ( !emobj->getRemovedPolySelectedPosBox().isEmpty() )
 	{
 	    emobj->emptyRemovedPolySelectedPosBox();
@@ -945,9 +945,9 @@ const char* Engine::errMsg() const
 { return errmsg_.str(); }
 
 
-BufferString Engine::setupFileName( const DBKey& mid ) const
+BufferString Engine::setupFileName( const DBKey& emid ) const
 {
-    PtrMan<IOObj> ioobj = DBM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( emid );
     return ioobj.ptr() ? EM::Surface::getSetupFileName(*ioobj)
 		       : BufferString("");
 }
@@ -1000,22 +1000,22 @@ bool Engine::usePar( const IOPar& iopar )
 	PtrMan<IOPar> localpar = iopar.subselect( toString(idx) );
 	if ( !localpar ) continue;
 
-	if ( !localpar->get(sKeyObjectID(),midtoload) ) continue;
-	EM::EMObject* emobj = EM::EMM().getObject( midtoload );
+	if ( !localpar->get(sKeyObjectID(),emidtoload_) ) continue;
+	EM::EMObject* emobj = EM::MGR().getObject( emidtoload_ );
 	if ( !emobj )
 	{
 	    loadEMObject.trigger();
-	    emobj = EM::EMM().getObject( midtoload );
+	    emobj = EM::MGR().getObject( emidtoload_ );
 	    if ( emobj ) emobj->ref();
 	}
 
 	if ( !emobj )
 	{
 	    PtrMan<Executor> exec =
-		EM::EMM().objectLoader( MPE::engine().midtoload );
+		EM::MGR().objectLoader( MPE::engine().emidtoload_ );
 	    if ( exec ) exec->execute();
 
-	    emobj = EM::EMM().getObject( midtoload );
+	    emobj = EM::MGR().getObject( emidtoload_ );
 	    if ( emobj ) emobj->ref();
 	}
 

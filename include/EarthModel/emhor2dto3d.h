@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "executor.h"
 #include "bufstring.h"
 #include "trckeysampling.h"

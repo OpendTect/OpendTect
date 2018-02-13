@@ -10,18 +10,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "trckeyzsampling.h"
-#include "emposid.h"
 #include "flatview.h"
 #include "geom2dintersections.h"
 
 namespace EM
 {
 
-/*!
-\brief 2D horizon painter
-*/
+/*!\brief 2D horizon painter */
 
 mExpClass(EarthModel) HorizonPainter2D : public CallBacker
 {

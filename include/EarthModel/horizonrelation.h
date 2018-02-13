@@ -11,8 +11,7 @@ ________________________________________________________________________
 -*/
 
 
-#include "earthmodelmod.h"
-#include "dbkey.h"
+#include "emcommon.h"
 #include "objectset.h"
 
 class FileMultiString;
@@ -21,10 +20,8 @@ class FileMultiString;
 namespace EM
 {
 
-/*!
-\brief A Relation tree where a parent-child relationship means a top-bottom
-relationship for the horizons.
-*/
+/*!\brief A Relation tree where a parent-child relationship means a top-bottom
+	    relationship for the horizons.  */
 
 mExpClass(EarthModel) RelationTree
 {
@@ -50,23 +47,23 @@ public:
     };
 
 
-    				RelationTree(bool is2d,bool read=true);
+				RelationTree(bool is2d,bool read=true);
 				~RelationTree();
 
     const RelationTree::Node*	getNode(const DBKey&) const;
     void			getParents(int,TypeSet<int>&) const;
     void			removeNode(const DBKey&,bool write=true);
     void			addRelation(const DBKey& id1,
-	    				    const DBKey& id2,bool write=true);
-    				// id1 is above id2
+					    const DBKey& id2,bool write=true);
+				// id1 is above id2
 
     int				findRelation(const DBKey&,
-	    				     const DBKey&) const;
-    				/* 0 -> no relation
-    				   1 -> first horizon is at the top
+					     const DBKey&) const;
+				/* 0 -> no relation
+				   1 -> first horizon is at the top
 				   2 -> second horizon is at the top */
     bool			getSorted(const DBKeySet& unsortedids,
-	    				  DBKeySet& sortedids ) const;
+					  DBKeySet& sortedids ) const;
 
     static bool			sortHorizons(bool is2d,
 				     const DBKeySet& unsortedids,

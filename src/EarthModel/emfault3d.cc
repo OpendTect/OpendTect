@@ -62,7 +62,7 @@ void Fault3D::copyClassData( const Fault3D& oth )
 }
 
 
-Monitorable::ChangeType Fault3D::compareClassData( EM::Fault3D const &) const 
+Monitorable::ChangeType Fault3D::compareClassData( EM::Fault3D const &) const
 {
     return cNoChange();
 }
@@ -191,7 +191,7 @@ bool Fault3DGeometry::insertStick( int sticknr, int firstcol, const Coord3& pos,
     if ( addtohistory )
     {
 	const PosID posid = PosID::getFromRowCol( sticknr, 0 );
-	UndoEvent* undo = new FaultStickUndoEvent( posid );
+	auto undo = new FaultStickUndoEvent( posid );
 	Flt3DMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
@@ -222,7 +222,7 @@ bool Fault3DGeometry::removeStick( int sticknr, bool addtohistory )
     if ( addtohistory )
     {
 	const PosID posid = PosID::getFromRowCol( rc );
-	UndoEvent* undo = new FaultStickUndoEvent( posid, pos, normal );
+	auto undo = new FaultStickUndoEvent( posid, pos, normal );
 	Flt3DMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
@@ -240,7 +240,7 @@ bool Fault3DGeometry::insertKnot( const PosID& posid,
 
     if ( addtohistory )
     {
-	UndoEvent* undo = new FaultKnotUndoEvent( posid );
+	auto undo = new FaultKnotUndoEvent( posid );
 	Flt3DMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
@@ -291,7 +291,7 @@ bool Fault3DGeometry::removeKnot( const PosID& posid, bool addtohistory )
 
     if ( addtohistory )
     {
-	UndoEvent* undo = new FaultKnotUndoEvent( posid, pos );
+	auto undo = new FaultKnotUndoEvent( posid, pos );
 	Flt3DMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 

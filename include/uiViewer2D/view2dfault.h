@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "uiviewer2dmod.h"
 #include "view2ddata.h"
 
-#include "emposid.h"
-
 class TrcKeyZSampling;
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;

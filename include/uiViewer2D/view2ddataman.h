@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uiviewer2dmod.h"
 #include "notify.h"
 #include "factory.h"
-#include "emposid.h"
 
 class Vw2DDataObject;
 class uiFlatViewWin;

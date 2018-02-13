@@ -11,8 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "emposid.h"
+#include "emcommon.h"
 #include "coord.h"
 #include "sets.h"
 

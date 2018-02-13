@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uiodvw2demtreeitem.h"
 
-#include "emposid.h"
-
 class Vw2DHorizon3D;
 class uiODViewer2D;
 

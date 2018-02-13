@@ -112,8 +112,8 @@ bool uiHor2DFrom3DDlg::acceptOK()
 
 EM::Horizon2D* uiHor2DFrom3DDlg::create2dHorizon( const char* horizonnm )
 {
-    EM::EMManager& em = EM::Hor2DMan();
-    EM::EMObject* obj = em.createObject( EM::Horizon2D::typeStr(), horizonnm );
+    EM::EMObject* obj = EM::Hor2DMan().createObject(
+				EM::Horizon2D::typeStr(), horizonnm );
     mDynamicCastGet( EM::Horizon2D*, horizon, obj );
     horizon->setDBKey( out2dfld_->selIOObj()->key() );
     emobjid_ = horizon->dbKey();

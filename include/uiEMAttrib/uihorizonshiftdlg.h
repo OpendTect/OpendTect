@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "bufstringset.h"
 #include "datapack.h"
-#include "emposid.h"
 #include "position.h"
 
 class uiAttrSel;

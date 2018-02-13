@@ -450,7 +450,7 @@ void uiStratSynthExport::addPrePostFix( BufferString& oldnm ) const
 
 bool uiStratSynthExport::createHor2Ds()
 {
-    EM::EMManager& em = EM::Hor2DMan();
+    EM::ObjectManager& mgr = EM::Hor2DMan();
     const bool createnew = crnewfld_->getBoolValue();
     if ( createnew && (presds_.isEmpty() && postsds_.isEmpty()) )
 	mErrRet(tr("Cannot create horizon without a geometry. Select any "
@@ -469,7 +469,7 @@ bool uiStratSynthExport::createHor2Ds()
 	const StratSynthLevel* stratlvl = sslvls_[horidx];
 	BufferString hornm( stratlvl->name() );
 	addPrePostFix( hornm );
-	EM::EMObject* emobj = em.createObject( EM::Horizon2D::typeStr(),hornm );
+	EM::EMObject* emobj = mgr.createObject(EM::Horizon2D::typeStr(),hornm);
 	mDynamicCastGet(EM::Horizon2D*,horizon2d,emobj);
 	if ( !horizon2d ) continue;
 	horizon2d->geometry().addLine( geomid );

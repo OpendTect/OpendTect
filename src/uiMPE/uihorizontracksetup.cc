@@ -232,9 +232,9 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 	if ( obj )
 	{
 	    toolbar_->setSensitive(
-		undobutid_,EM::EMM().undo(obj->id()).canUnDo());
+		undobutid_,EM::MGR().undo(obj->id()).canUnDo());
 	    toolbar_->setSensitive(
-		redobutid_,EM::EMM().undo(obj->id()).canReDo());
+		redobutid_,EM::MGR().undo(obj->id()).canReDo());
 	}
     }
 }

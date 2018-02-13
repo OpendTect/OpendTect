@@ -175,7 +175,7 @@ void uiODHorAttribMgr::doContours( CallBacker* cb )
     if ( !hd )
 	return;
 
-    EM::EMObject* emobj = EM::EMM().getObject( hd->getObjectID() );
+    EM::EMObject* emobj = EM::MGR().getObject( hd->getObjectID() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor )
 	{ uiMSG().error(tr("Internal: cannot find horizon")); return; }
@@ -235,7 +235,7 @@ void uiODHorAttribMgr::calcHorVol( CallBacker* )
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
     if ( !hd ) return;
 
-    EM::EMObject* emobj = EM::EMM().getObject( hd->getObjectID() );
+    EM::EMObject* emobj = EM::MGR().getObject( hd->getObjectID() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor ) { uiMSG().error(tr("Internal: cannot find horizon")); return; }
     uiCalcHorPolyVol dlg( appl_, *hor );

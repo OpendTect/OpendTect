@@ -128,15 +128,15 @@ void HorizonSorter::sort()
 
 		if ( nrbelow > nrabove )
 		{
-		    DBKey mid = sortedids_[idx0];
+		    DBKey dbky = sortedids_[idx0];
 		    sortedids_.removeSingle( idx0 );
-		    sortedids_.insert( idx1, mid );
+		    sortedids_.insert( idx1, dbky );
 		}
 		else if ( nrbelow < nrabove )
 		{
-		    DBKey mid = sortedids_[idx1];
+		    DBKey dbky = sortedids_[idx1];
 		    sortedids_.removeSingle( idx1 );
-		    sortedids_.insert( idx0, mid );
+		    sortedids_.insert( idx0, dbky );
 		}
 		else
 		    continue;
@@ -157,11 +157,11 @@ void HorizonSorter::getSortedList( DBKeySet& ids )
 }
 
 
-int HorizonSorter::getNrCrossings( const DBKey& mid1,
-				   const DBKey& mid2 ) const
+int HorizonSorter::getNrCrossings( const DBKey& dbky1,
+				   const DBKey& dbky2 ) const
 {
-    const int idx1 = unsortedids_.indexOf( mid1 );
-    const int idx2 = unsortedids_.indexOf( mid2 );
+    const int idx1 = unsortedids_.indexOf( dbky1 );
+    const int idx2 = unsortedids_.indexOf( dbky2 );
     const int nrabove = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 0 );
     const int nrbelow = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 1 );
     return mMIN(nrabove,nrbelow);
@@ -183,7 +183,7 @@ int HorizonSorter::nextStep()
 {
     if ( !nrdone_ )
     {
-	EM::EMManager& emmgr = is2d_ ? EM::Hor2DMan() : EM::Hor3DMan();
+	EM::ObjectManager& emmgr = is2d_ ? EM::Hor2DMan() : EM::Hor3DMan();
 	PtrMan<Executor> horreader = emmgr.objectLoader( unsortedids_ );
 	if ( horreader )
 	{

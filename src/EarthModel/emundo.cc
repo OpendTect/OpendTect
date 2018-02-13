@@ -20,16 +20,16 @@ ________________________________________________________________________
 
 const char* EM::SetPosUndoEvent::savedposstr_ = "Pos";
 
-DBKey EM::EMUndo::getCurrentEMObjectID( bool forredo ) const
+DBKey EM::Undo::getCurrentEMObjectID( bool forredo ) const
 {
     const int curidx = indexOf( forredo ? currenteventid_ + 1
 					: currenteventid_ );
     if ( !events_.validIdx(curidx) )
-	return DBKey::getInvalid();
+	return DBKey();
 
-    const UndoEvent* curev = events_[curidx];
-    mDynamicCastGet( const EMUndoEvent*, emundoev, curev );
-    return emundoev ? emundoev->getObjectID() : DBKey::getInvalid();
+    const ::UndoEvent* curev = events_[curidx];
+    mDynamicCastGet( const EM::UndoEvent*, emundoev, curev );
+    return emundoev ? emundoev->getObjectID() : DBKey();
 }
 
 
@@ -41,18 +41,21 @@ EM::SetPosUndoEvent::SetPosUndoEvent( const Coord3& oldpos,
 
 
 const char* EM::SetPosUndoEvent::getStandardDesc() const
-{ return "Set/Changed position"; }
+{
+    return "Set/Changed position";
+}
 
 
 bool EM::SetPosUndoEvent::unDo()
 {
-    EMManager& manager = EM::EMM();
+    ObjectManager& manager = EM::MGR();
 
     if ( !manager.getObject(getObjectID()))
 	return true;
 
     EMObject* emobject = manager.getObject(getObjectID());
-    if ( !emobject ) return false;
+    if ( !emobject )
+	return false;
 
     const bool haschecks = emobject->enableGeometryChecks( false );
 
@@ -71,7 +74,7 @@ bool EM::SetPosUndoEvent::unDo()
 
 bool EM::SetPosUndoEvent::reDo()
 {
-    EMManager& manager = EM::EMM();
+    ObjectManager& manager = EM::MGR();
 
     if ( !manager.getObject(getObjectID()))
 	return true;
@@ -129,7 +132,7 @@ const char* EM::SetAllHor3DPosUndoEvent::getStandardDesc() const
 
 bool EM::SetAllHor3DPosUndoEvent::unDo()
 {
-    if ( !EMM().objectExists(horizon_) )
+    if ( !MGR().objectExists(horizon_) )
 	return false;
 
     if ( !newarr_ )
@@ -161,7 +164,7 @@ DBKey EM::SetAllHor3DPosUndoEvent::getObjectID() const
 bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 					    const RowCol& origin )
 {
-    if ( !EMM().objectExists(horizon_) )
+    if ( !MGR().objectExists(horizon_) )
 	return false;
 
     mDynamicCastGet( Geometry::ParametricSurface*, surf,
@@ -237,7 +240,7 @@ const char* EM::SetPosAttribUndoEvent::getStandardDesc() const
 { return "Set/Changed position attribute"; }
 
 #define mSetPosAttribUndoEvenUndoRedo( arg ) \
-    EMManager& manager = EM::EMM(); \
+    ObjectManager& manager = MGR(); \
  \
     EMObject* emobject = manager.getObject(getObjectID()); \
     if ( !emobject ) return true; \
@@ -272,7 +275,7 @@ const char* EM::SetPrefColorEvent::getStandardDesc() const
 
 bool EM::SetPrefColorEvent::unDo()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( objectid_ );
+    EM::EMObject* emobj = MGR().getObject( objectid_ );
     if ( !emobj ) return false;
 
     emobj->setPreferredColor( oldcolor_ );
@@ -282,7 +285,7 @@ bool EM::SetPrefColorEvent::unDo()
 
 bool EM::SetPrefColorEvent::reDo()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( objectid_ );
+    EMObject* emobj = MGR().getObject( objectid_ );
     if ( !emobj ) return false;
 
     emobj->setPreferredColor( newcolor_ );

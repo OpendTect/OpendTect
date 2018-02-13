@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "emtracker.h"
-#include "emposid.h"
 
 namespace EM { class Horizon3D; }
 

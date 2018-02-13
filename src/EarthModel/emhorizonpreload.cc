@@ -20,10 +20,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 
 
-namespace EM
-{
-
-HorizonPreLoader& HPreL()
+EM::HorizonPreLoader& EM::HPreL()
 {
     mDefineStaticLocalObject( PtrMan<HorizonPreLoader>, hpl,
                               (new HorizonPreLoader) );
@@ -32,35 +29,35 @@ HorizonPreLoader& HPreL()
 }
 
 
-HorizonPreLoader::HorizonPreLoader()
+EM::HorizonPreLoader::HorizonPreLoader()
 {
     DBM().surveyToBeChanged.notify( mCB(this,HorizonPreLoader,surveyChgCB) );
 }
 
 
-HorizonPreLoader::~HorizonPreLoader()
+EM::HorizonPreLoader::~HorizonPreLoader()
 {
     DBM().surveyToBeChanged.remove( mCB(this,HorizonPreLoader,surveyChgCB) );
 }
 
 
-bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
-			     TaskRunner* tskr )
+bool EM::HorizonPreLoader::load( const DBKeySet& newids, bool is2d,
+				 TaskRunner* tskr )
 {
     errmsg_ = uiString::emptyString();
-    if ( newmids.isEmpty() )
+    if ( newids.isEmpty() )
 	return false;
 
-    EM::EMManager& horman = is2d ? EM::Hor2DMan() : EM::Hor3DMan();
+    EM::ObjectManager& horman = is2d ? EM::Hor2DMan() : EM::Hor3DMan();
     uiString msg1( tr("The selected horizons:") );
     uiString msg2;
     int nralreadyloaded = 0;
     int nrproblems = 0;
     PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
     ObjectSet<EM::EMObject> emobjects;
-    for ( int idx=0; idx<newmids.size(); idx++ )
+    for ( int idx=0; idx<newids.size(); idx++ )
     {
-	const int selidx = loadedmids_.indexOf( newmids[idx] );
+	const int selidx = loadedids_.indexOf( newids[idx] );
 	if ( selidx > -1 )
 	{
 	    msg1.appendPlainText( " '%1'", uiString::Empty,
@@ -69,10 +66,10 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
 	    continue;
 	}
 
-	EM::EMObject* emobj = horman.getObject( newmids[idx] );
+	EM::EMObject* emobj = horman.getObject( newids[idx] );
 	if ( !emobj || !emobj->isFullyLoaded() )
 	{
-	    Executor* exec = horman.objectLoader( newmids[idx] );
+	    Executor* exec = horman.objectLoader( newids[idx] );
 	    if ( !exec )
 	    {
 		nrproblems++;
@@ -82,20 +79,20 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
 	    execgrp->add( exec );
 	}
 
-	emobj = horman.getObject( newmids[idx] );
+	emobj = horman.getObject( newids[idx] );
 	emobjects += emobj;
     }
 
-    if ( nrproblems == newmids.size() )
+    if ( nrproblems == newids.size() )
     {
-	if ( newmids.size() == 1 )
+	if ( newids.size() == 1 )
 	    msg2 = tr( "Cannot find the horizon for pre-load" );
 	else
 	    msg2 = tr( "Cannot find any horizons for pre-load" );
     }
     else
 	msg2 = tr("Cannot pre-load some horizons");
-    
+
 
     if ( nralreadyloaded > 0 )
     {
@@ -111,7 +108,7 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
 
     for ( int idx=0; idx<emobjects.size(); idx++ )
     {
-	loadedmids_ += emobjects[idx]->dbKey();
+	loadedids_ += emobjects[idx]->dbKey();
 	loadednms_.add( emobjects[idx]->name() );
 	emobjects[idx]->ref();
     }
@@ -120,21 +117,25 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
 }
 
 
-const DBKeySet& HorizonPreLoader::getPreloadedIDs() const
-{ return loadedmids_; }
-
-const BufferStringSet& HorizonPreLoader::getPreloadedNames() const
-{ return loadednms_; }
-
-
-DBKey HorizonPreLoader::getDBKey( const char* horname ) const
+const DBKeySet& EM::HorizonPreLoader::getPreloadedIDs() const
 {
-    const int mididx = loadednms_.indexOf( horname );
-    return mididx < 0 ? DBKey::getInvalid() : loadedmids_[mididx];
+    return loadedids_;
+}
+
+const BufferStringSet& EM::HorizonPreLoader::getPreloadedNames() const
+{
+    return loadednms_;
 }
 
 
-void HorizonPreLoader::unload( const BufferStringSet& hornames )
+DBKey EM::HorizonPreLoader::getDBKey( const char* horname ) const
+{
+    const int ididx = loadednms_.indexOf( horname );
+    return ididx < 0 ? DBKey::getInvalid() : loadedids_[ididx];
+}
+
+
+void EM::HorizonPreLoader::unload( const BufferStringSet& hornames )
 {
     if ( hornames.isEmpty() )
 	return;
@@ -146,26 +147,24 @@ void HorizonPreLoader::unload( const BufferStringSet& hornames )
 	if ( selidx < 0 )
 	    continue;
 
-	const DBKey mid = loadedmids_[selidx];
-	EM::EMObject* emobj = EM::Hor3DMan().getObject( loadedmids_[selidx] );
+	const DBKey id = loadedids_[selidx];
+	EM::EMObject* emobj = EM::Hor3DMan().getObject( loadedids_[selidx] );
 	if ( !emobj )
-	    emobj = EM::Hor2DMan().getObject( loadedmids_[selidx] );
+	    emobj = EM::Hor2DMan().getObject( loadedids_[selidx] );
 
 	if ( emobj )
 	    emobj->unRef();
 
-	loadedmids_.removeSingle( selidx );
+	loadedids_.removeSingle( selidx );
 	loadednms_.removeSingle( selidx );
     }
 }
 
 
-void HorizonPreLoader::surveyChgCB( CallBacker* )
+void EM::HorizonPreLoader::surveyChgCB( CallBacker* )
 {
     unload( loadednms_ );
-    loadedmids_.erase();
+    loadedids_.erase();
     loadednms_.erase();
     errmsg_ = uiString::emptyString();
 }
-
-} // namespace EM

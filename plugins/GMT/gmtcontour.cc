@@ -96,7 +96,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     strm.flush();
     EM::SurfaceIOData sd;
     uiString errmsg;
-    if ( !EM::EMM().getSurfaceData(id,sd,errmsg) )
+    if ( !EM::MGR().getSurfaceData(id,sd,errmsg) )
 	mErrStrmRet( toString(errmsg) )
 
     PtrMan<IOPar> subpar = subselect( sKey::Selection() );
@@ -105,11 +105,11 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 
     sd.rg.usePar( *subpar );
     PtrMan<EM::SurfaceIODataSelection> sel = new EM::SurfaceIODataSelection(sd);
-    PtrMan<Executor> exec = EM::EMM().objectLoader( id, sel );
+    PtrMan<Executor> exec = EM::MGR().objectLoader( id, sel );
     if ( !exec || !exec->execute() )
 	mErrStrmRet("Cannot load horizon")
 
-    EM::EMObject* obj = EM::EMM().getObject( id );
+    EM::EMObject* obj = EM::MGR().getObject( id );
     if ( !obj )
 	mErrStrmRet("Failed");
 

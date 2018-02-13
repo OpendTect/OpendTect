@@ -11,14 +11,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "transl.h"
 
 class Executor;
 class IOObj;
 namespace EM { class Body; }
 
-typedef EM::Body	EMBody;
+typedef EM::Body EMBody;
 
 /*!\brief TranslatorGroup for EM::Body.*/
 

@@ -11,10 +11,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emfault.h"
-#include "tableascio.h"
 #include "emfaultstickset.h"
+#include "tableascio.h"
 
 namespace Table { class FormatDesc; }
 
@@ -24,7 +23,7 @@ namespace Pos { class Filter; }
 
 namespace EM
 {
-class EMManager;
+class ObjectManager;
 class FaultAuxData;
 
 /*!
@@ -99,7 +98,7 @@ protected:
 
     const IOObjContext&		getIOObjContext() const;
 
-    friend class		EMManager;
+    friend class		ObjectManager;
     friend class		EMObject;
     Fault3DGeometry		geometry_;
     FaultAuxData*		auxdata_;

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "vissurveycommon.h"
 #include "attribsel.h"
-#include "emposid.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 

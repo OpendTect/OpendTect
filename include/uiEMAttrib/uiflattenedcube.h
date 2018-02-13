@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 #include "uiemattribmod.h"
 #include "uidialog.h"
-
-#include "emposid.h"
 #include "dbkey.h"
 
 class IOObj;

@@ -11,8 +11,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
-
-#include "emposid.h"
 #include "trckeysampling.h"
 #include "dbkey.h"
 #include "position.h"
@@ -39,7 +37,8 @@ class uiImportHorizon;
 class uiSurfaceMan;
 class uiVariogramDisplay;
 
-namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; }
+namespace EM { class EMObject; class ObjectManager;
+	       class SurfaceIODataSelection; }
 namespace Pick { class Set; }
 namespace PosInfo { class Line2DData; }
 
@@ -96,13 +95,13 @@ public:
 			/*!<Users can change the display range, hor 3D only. */
 
     void		selectHorizons(ObjectSet<EM::EMObject>&,bool is2d,
-	    				uiParent* p=0);
+					uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
     void		selectFaults(ObjectSet<EM::EMObject>&,bool is2d,
-	    				uiParent* p=0);
+					uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
     void		selectFaultStickSets(ObjectSet<EM::EMObject>&,
-	    				uiParent* p=0);
+					uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
     void		selectBodies(ObjectSet<EM::EMObject>&,uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
@@ -194,7 +193,7 @@ protected:
     void		displayOnCreateCB(CallBacker*);
 
     DBKey		selemid_;
-    EM::EMManager&	em_;
+    EM::ObjectManager&	emmgr_;
     uiImportHorizon*	imphorattrdlg_;
     uiImportHorizon*	imphorgeomdlg_;
     uiBulkHorizonImport* impbulkhordlg_;

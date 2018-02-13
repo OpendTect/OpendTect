@@ -32,7 +32,7 @@ WellHorIntersectFinder::WellHorIntersectFinder( const Well::Track& tr,
 void WellHorIntersectFinder::setHorizon( const DBKey& emid )
 {
     hor2d_ = 0; hor3d_ = 0;
-    const EM::EMObject* emobj = EM::EMM().getObject( emid );
+    const EM::EMObject* emobj = EM::MGR().getObject( emid );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj)
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj)
     hor3d_ = hor3d; hor2d_ = hor2d;

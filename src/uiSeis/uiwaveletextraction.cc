@@ -404,7 +404,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 
     uiTaskRunnerProvider trprov( this );
     EM::EMObject* emobjsinglehor =
-	EM::EMM().loadIfNotFullyLoaded( surf1mid, trprov );
+	EM::MGR().loadIfNotFullyLoaded( surf1mid, trprov );
 
     if ( !emobjsinglehor )
 	return false;
@@ -422,7 +422,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     else
     {
 	EM::EMObject* emobjdoublehor =
-	    EM::EMM().loadIfNotFullyLoaded( surf2mid, trprov );
+	    EM::MGR().loadIfNotFullyLoaded( surf2mid, trprov );
 
 	if ( !emobjdoublehor )
 	    return false;

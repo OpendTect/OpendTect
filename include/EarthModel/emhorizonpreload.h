@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "callback.h"
 #include "bufstringset.h"
 #include "dbkey.h"
@@ -43,7 +43,7 @@ protected:
 
     void		surveyChgCB(CallBacker*);
 
-    DBKeySet		loadedmids_;
+    DBKeySet		loadedids_;
     BufferStringSet	loadednms_;
     uiString		errmsg_;
 

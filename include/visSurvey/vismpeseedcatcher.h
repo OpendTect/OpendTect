@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 #include "trckeyzsampling.h"
 #include "datapack.h"
-#include "emposid.h"
 #include "geomelement.h"
 #include "trckey.h"
 

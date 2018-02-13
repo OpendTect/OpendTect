@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 
 #include "bufstringset.h"
 #include "odmemory.h"
@@ -24,9 +24,7 @@ namespace EM
 
 class Fault3D;
 
-/*!
-\brief Fault surface data
-*/
+/*!\brief Fault surface data */
 
 mExpClass(EarthModel) FaultAuxData
 { mODTextTranslationClass(FaultAuxData);
@@ -71,7 +69,7 @@ protected:
     void		readSDInfoFile(ObjectSet<IOPar>&);
     BufferString	createFltDataName(const char* base,int sdidx);
 
-    const DBKey&	faultmid_;
+    const DBKey&	faultid_;
     BufferString	fltfullnm_;
     uiString	        errmsg_;
 
@@ -90,6 +88,7 @@ protected:
     ObjectSet<DataInfo>	dataset_;
     TypeSet<int>	selected_;
     BufferStringSet	selattribnames_;
+
 };
 
 

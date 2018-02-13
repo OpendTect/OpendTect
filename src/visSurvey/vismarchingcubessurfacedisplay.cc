@@ -165,7 +165,7 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
 
     emsurface_->setZSampling( surface->getScale( 2 ) );
 
-    EM::EMM().addObject( emsurface_ );
+    EM::MGR().addObject( emsurface_ );
 
     displaysurface_ = surface;
     displaysurface_->ref();
@@ -511,7 +511,7 @@ bool MarchingCubesDisplay::setEMID( const DBKey& emid,
     emsurface_ = 0;
     delete impbody_; impbody_ = 0;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::MGR().getObject( emid );
     mDynamicCastGet( EM::MarchingCubesSurface*, emmcsurf, emobject.ptr() );
     if ( !emmcsurf )
     {
@@ -626,12 +626,12 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
-	RefMan<EM::EMObject> emobject = EM::EMM().getObject( newmid );
+	RefMan<EM::EMObject> emobject = EM::MGR().getObject( newmid );
 	if ( !emobject )
 	{
-	    PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
+	    PtrMan<Executor> loader = EM::MGR().objectLoader( newmid );
 	    if ( loader ) loader->execute();
-	    emobject = EM::EMM().getObject( newmid );
+	    emobject = EM::MGR().getObject( newmid );
 	}
 
 	if ( emobject ) setEMID( newmid, 0 );

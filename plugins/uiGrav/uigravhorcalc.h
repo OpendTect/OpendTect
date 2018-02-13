@@ -8,7 +8,6 @@
 -*/
 
 #include "uidialog.h"
-#include "emposid.h"
 
 class IOObj;
 class uiGenInput;
@@ -25,7 +24,7 @@ public:
 
 protected:
 
-    const DBKey	horid_;
+    const DBKey		horid_;
     const IOObj*	horioobj_;
 
     uiIOObjSel*		topfld_;

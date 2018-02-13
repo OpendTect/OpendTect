@@ -23,7 +23,7 @@ ________________________________________________________________________
 namespace EM {
 
 
-class PolygonBodyUndoEvent : public UndoEvent
+class PolygonBodyUndoEvent : public ::UndoEvent
 {
 public:
 
@@ -34,22 +34,24 @@ PolygonBodyUndoEvent( const EM::PosID& posid )
 {
     RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
-    if ( !polygon ) return;
-
-    pos_ = polygon->getPos( posid_ );
-    const int row = posid_.getRowCol().row();
-    normal_ = polygon->geometry().getPolygonNormal( row );
+    if ( polygon )
+    {
+	pos_ = polygon->getPos( posid_ );
+	const int row = posid_.getRowCol().row();
+	normal_ = polygon->geometry().getPolygonNormal( row );
+    }
 }
 
 
 //Interface for removal
 PolygonBodyUndoEvent( const EM::PosID& posid, const Coord3& oldpos,
-		  const Coord3& oldnormal )
+		      const Coord3& oldnormal )
     : posid_( posid )
     , pos_( oldpos )
     , normal_( oldnormal )
     , remove_( true )
-{}
+{
+}
 
 
 const char* getStandardDesc() const
@@ -94,7 +96,7 @@ protected:
 };
 
 
-class PolygonBodyKnotUndoEvent : public UndoEvent
+class PolygonBodyKnotUndoEvent : public ::UndoEvent
 {
 public:
 
@@ -104,8 +106,8 @@ PolygonBodyKnotUndoEvent( const EM::PosID& posid )
     , remove_( false )
 {
     RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
-    if ( !emobj ) return;
-    pos_ = emobj->getPos( posid_ );
+    if ( emobj )
+	pos_ = emobj->getPos( posid_ );
 }
 
 
@@ -114,7 +116,8 @@ PolygonBodyKnotUndoEvent( const EM::PosID& posid, const Coord3& oldpos )
     : posid_( posid )
     , pos_( oldpos )
     , remove_( true )
-{ }
+{
+}
 
 
 const char* getStandardDesc() const
@@ -163,7 +166,9 @@ PolygonBody::PolygonBody( const char* nm )
 
 
 PolygonBody::~PolygonBody()
-{}
+{
+}
+
 
 ImplicitBody* PolygonBody::createImplicitBody( const TaskRunnerProvider& trprov,
 					       bool smooth ) const
@@ -370,7 +375,7 @@ bool PolygonBodyGeometry::insertPolygon( int polygonnr,
     if ( addtohistory )
     {
 	const PosID posid = PosID::getFromRowCol( polygonnr, 0 );
-	UndoEvent* undo = new PolygonBodyUndoEvent( posid );
+	auto undo = new PolygonBodyUndoEvent( posid );
 	BodyMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 

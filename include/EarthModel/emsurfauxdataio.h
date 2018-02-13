@@ -11,8 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "emposid.h"
+#include "emcommon.h"
 #include "executor.h"
 #include "od_iosfwd.h"
 class TrcKeySampling;

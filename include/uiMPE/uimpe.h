@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "callback.h"
 #include "color.h"
 #include "draw.h"
-#include "emposid.h"
 #include "emseedpicker.h"
 #include "mpeengine.h"
 #include "randcolor.h"

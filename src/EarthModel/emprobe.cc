@@ -16,7 +16,7 @@ ___________________________________________________________________
 mDefineInstanceCreatedNotifierAccess( EMProbe );
 
 
-EMProbe::EMProbe( const DBKey& objid )
+EMProbe::EMProbe( const EM::ObjID& objid )
     : Probe()
     , objid_(objid)
 {
@@ -56,8 +56,7 @@ Monitorable::ChangeType EMProbe::compareClassData(
 
 uiWord EMProbe::gtDisplayName() const
 {
-    const BufferString objnm =
-		EM::EMM().objectName( objid_ );
+    const BufferString objnm = EM::MGR().objectName( objid_ );
     return toUiString( objnm );
 }
 
@@ -73,7 +72,7 @@ void EMProbe::updateAll()
 }
 
 
-void EMProbe::setID( const DBKey& objid )
+void EMProbe::setID( const EM::ObjID& objid )
 {
     mLock4Read();
 
@@ -111,7 +110,7 @@ bool EMProbe::usePar( const IOPar& par )
 mDefineInstanceCreatedNotifierAccess(Horizon3DProbe)
 
 
-Horizon3DProbe::Horizon3DProbe( const DBKey& objid )
+Horizon3DProbe::Horizon3DProbe( const EM::ObjID& objid )
     : EMProbe(objid)
 {
     mTriggerInstanceCreatedNotifier();
@@ -178,7 +177,7 @@ bool Horizon3DProbe::usePar( const IOPar& par )
 
 Probe* Horizon3DProbe::createFrom( const IOPar& par )
 {
-    Horizon3DProbe* probe = new Horizon3DProbe( DBKey::getInvalid() );
+    Horizon3DProbe* probe = new Horizon3DProbe( EM::ObjID() );
     if ( !probe->usePar(par) )
 	{ delete probe; return 0; }
 

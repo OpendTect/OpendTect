@@ -92,7 +92,7 @@ bool uiTutHorTools::checkAttribName() const
     const DBKey key = top ? inpfld_->key() : inpfld2_->key();
     EM::SurfaceIOData sd;
     uiString errmsg;
-    if ( !EM::EMM().getSurfaceData(key,sd,errmsg) )
+    if ( !EM::MGR().getSurfaceData(key,sd,errmsg) )
 	return false;
 
     for ( int idx=0; idx<sd.valnames.size(); idx++ )
@@ -125,7 +125,7 @@ bool uiTutHorTools::acceptOK()
 
 #define mGetHor(varnm,fld) \
     RefMan<EM::EMObject> varnm##_emobj = \
-	EM::EMM().loadIfNotFullyLoaded( (fld)->key(), trprov ); \
+	EM::MGR().loadIfNotFullyLoaded( (fld)->key(), trprov ); \
     mDynamicCastGet(EM::Horizon3D*,varnm,varnm##_emobj.ptr()) \
     if ( !varnm ) return false;
 

@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 static bool loadHorizon( const DBKey& mid, od_ostream& strm )
 {
-    EM::EMManager& em = EM::EMM();
+    EM::Manager& em = EM::MGR();
     strm << "Loading horizon '" << em.objectName( mid ) << "'" << od_newline;
     Executor* exec = em.objectLoader( mid );
     if ( !(exec && exec->go( strm, false, false, 0 )) )
@@ -45,8 +45,8 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !loadHorizon( mid1, strm ) )
 	return false;
 
-    EM::EMManager& em = EM::EMM();
-    EM::EMObject* emobj1 = em.getObject( mid1 );
+    EM::ObjectManager& mgr = EM::MGR();
+    EM::EMObject* emobj1 = mgr.getObject( mid1 );
     mDynamicCastGet(EM::Horizon3D*,horizon1,emobj1);
     if ( !horizon1 )
 	return false;
@@ -56,7 +56,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !loadHorizon( mid2, strm ) )
 	return false;
 
-    EM::EMObject* emobj2 = em.getObject( mid2 );
+    EM::EMObject* emobj2 = mgr.getObject( mid2 );
     mDynamicCastGet(EM::Horizon3D*,horizon2,emobj2)
     if ( !horizon2 )
 	return false;

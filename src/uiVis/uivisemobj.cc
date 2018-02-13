@@ -57,7 +57,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
     DBKey mid = emod->getDBKey();
 
-    const EM::EMObject* emobj = EM::EMM().getObject( mid );
+    const EM::EMObject* emobj = EM::MGR().getObject( mid );
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
     if ( hor3d )
 	checkHorizonSize( hor3d );
@@ -65,13 +65,13 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     visSurvey::Scene* scene = emod->getScene();
     mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
     uiTaskRunner dlg( uiparent_ );
-    if ( !EM::EMM().getObject(mid) )
+    if ( !EM::MGR().getObject(mid) )
     {
 	Executor* exec = 0;
 	EM::IOObjInfo oi( mid ); EM::SurfaceIOData sd;
 	uiString errmsg;
 	if ( !oi.getSurfaceData(sd,errmsg) )
-	    exec = EM::EMM().objectLoader( mid );
+	    exec = EM::MGR().objectLoader( mid );
 	else
 	{
 	    EM::SurfaceIODataSelection sel( sd );
@@ -93,12 +93,12 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 		}
 	    }
 
-	    exec = EM::EMM().objectLoader( mid, &sel );
+	    exec = EM::MGR().objectLoader( mid, &sel );
 	}
 
 	if ( exec )
 	{
-	    EM::EMObject* emobject = EM::EMM().getObject( mid );
+	    EM::EMObject* emobject = EM::MGR().getObject( mid );
 	    emobject->ref();
 	    if ( !TaskRunner::execute( &dlg, *exec ) )
 	    {
@@ -142,7 +142,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const DBKey& emid,
     , visserv_( vps )
     , uiparent_( uip )
 {
-    const EM::EMObject* emobj = EM::EMM().getObject(emid);
+    const EM::EMObject* emobj = EM::MGR().getObject(emid);
     visSurvey::EMObjectDisplay* emod = 0;
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj);
     if ( hor3d )
@@ -238,10 +238,10 @@ const char* uiVisEMObject::getObjectType( int id )
     mDynamicCastGet(visSurvey::EMObjectDisplay*,obj,visBase::DM().getObject(id))
     if ( !obj ) return 0;
 
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject( obj->getObjectID() );
+    RefMan<EM::EMObject> emobj = EM::MGR().getObject( obj->getObjectID() );
     return emobj
 	? emobj->getTypeStr()
-	: EM::EMM().objectType( obj->getDBKey() );
+	: EM::MGR().objectType( obj->getDBKey() );
 }
 
 
@@ -261,7 +261,7 @@ int uiVisEMObject::nrSections() const
     if ( !emod ) return 0;
 
     DBKey emid = emod->getObjectID();
-    const EM::EMObject* emobj = EM::EMM().getObject(emid);
+    const EM::EMObject* emobj = EM::MGR().getObject(emid);
     return emobj ? 1 : 0;
 }
 
@@ -272,7 +272,7 @@ EM::SectionID uiVisEMObject::getSectionID( int idx ) const
     if ( !emod ) return -1;
 
     DBKey emid = emod->getObjectID();
-    const EM::EMObject* emobj = EM::EMM().getObject(emid);
+    const EM::EMObject* emobj = EM::MGR().getObject(emid);
     return emobj ? 0 : -1;
 }
 
@@ -307,7 +307,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
     visSurvey::EMObjectDisplay* emod = getDisplay();
     const DBKey emid = emod->getObjectID();
-    const EM::EMObject* emobj = EM::EMM().getObject(emid);
+    const EM::EMObject* emobj = EM::MGR().getObject(emid);
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, getDisplay() );
@@ -404,7 +404,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     const DBKey emid = emod->getObjectID();
-    EM::EMObject* emobj = EM::EMM().getObject(emid);
+    EM::EMObject* emobj = EM::MGR().getObject(emid);
 
     if ( mnuid==singlecolmnuitem_.id )
     {

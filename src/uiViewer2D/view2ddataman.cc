@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "view2dseismic.h"
 
 #include "uiflatviewwin.h"
-#include "emposid.h"
 
 
 mImplClassFactory( Vw2DDataManager, factory );

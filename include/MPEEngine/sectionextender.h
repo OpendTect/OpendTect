@@ -12,8 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-
-#include "emposid.h"
 #include "factory.h"
 #include "sets.h"
 #include "sortedlist.h"

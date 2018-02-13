@@ -11,11 +11,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "arrayndinfo.h"
 #include "enums.h"
 #include "iopar.h"
-#include "dbkey.h"
 #include "paralleltask.h"
 #include "trigonometry.h"
 

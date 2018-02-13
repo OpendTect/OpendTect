@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "executor.h"
 
 class ZAxisTransform;
@@ -19,9 +19,7 @@ namespace EM
 class EMObjectIterator;
 class Horizon;
 
-/*!
-\brief %Horizon z-axis transformer
-*/
+/*!\brief Horizon z-axis transformer */
 
 mExpClass(EarthModel) HorizonZTransformer : public Executor
 { mODTextTranslationClass(HorizonZTransformer);

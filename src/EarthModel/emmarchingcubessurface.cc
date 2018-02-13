@@ -228,7 +228,7 @@ void MarchingCubesSurface::initClass()
 }
 
 
-EMObject* MarchingCubesSurface::create( EMManager& emm ) \
+EMObject* MarchingCubesSurface::create( EM::ObjectManager& emm ) \
 {
     EMObject* obj = new MarchingCubesSurface("");
     if ( !obj )

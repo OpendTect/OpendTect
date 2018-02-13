@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uiodviewer2d.h"
 #include "callback.h"
 #include "datapack.h"
-#include "emposid.h"
 #include "flatview.h"
 #include "geom2dintersections.h"
 #include "odpresentationmgr.h"

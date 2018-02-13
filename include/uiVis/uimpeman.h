@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uiparent.h"
 #include "trckeyzsampling.h"
 #include "trckeyvalue.h"
-#include "emposid.h"
 
 namespace EM { class EMObject; class Horizon; class Horizon2D; class Horizon3D;}
 namespace MPE { class EMTracker; }

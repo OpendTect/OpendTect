@@ -86,7 +86,7 @@ bool uiHorizonSortDlg::acceptOK()
     bool sorted = sortFromRelationTree( horids );
     uiTaskRunner taskrunner( this );
     PtrMan<Executor> horreader = 0;
-    EM::EMManager& emman = is2d_ ? EM::Hor2DMan() : EM::Hor3DMan();
+    EM::ObjectManager& emman = is2d_ ? EM::Hor2DMan() : EM::Hor3DMan();
     if ( !sorted || loadneeded_ )
     {
 	DBKeySet loadids;

@@ -10,10 +10,9 @@ ___________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
+#include "emcommon.h"
 #include "uistring.h"
 #include "probe.h"
-#include "emposid.h"
 
 
 mExpClass(EarthModel) EMProbe : public Probe
@@ -24,8 +23,8 @@ public:
     mDeclInstanceCreatedNotifierAccess(EMProbe);
     mDeclAbstractMonitorableAssignment(EMProbe);
 
-    mImplSimpleMonitoredGet(	id,DBKey,objid_)
-    void			setID(const DBKey&);
+    mImplSimpleMonitoredGet(	id,EM::ObjID,objid_)
+    void			setID(const EM::ObjID&);
     void			updateAll();
 
     virtual void		fillPar(IOPar&) const;
@@ -37,7 +36,7 @@ protected:
 
     uiWord			gtDisplayName() const;
 
-    DBKey			objid_;
+    EM::ObjID			objid_;
 
 };
 

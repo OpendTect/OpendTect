@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emhorizon.h"
 #include "binidsurface.h"
 #include "task.h"
@@ -31,9 +30,7 @@ namespace EM
 {
 class SurfaceAuxData;
 
-/*!
-\brief 3D HorizonGeometry
-*/
+/*!\brief 3D HorizonGeometry */
 
 mExpClass(EarthModel) Horizon3DGeometry : public HorizonGeometry
 { mODTextTranslationClass(Horizon3DGeometry);
@@ -219,7 +216,7 @@ protected:
 					    const Coord3&,bool addtohistory,
 					    NodeSourceType type=Auto);
 
-    friend class		EMManager;
+    friend class		ObjectManager;
     friend class		EMObject;
     Horizon3DGeometry		geometry_;
 

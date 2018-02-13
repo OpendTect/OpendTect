@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "emcommon.h"
 #include "uistring.h"
 #include "monitorchangerecorder.h"
 
@@ -70,4 +71,3 @@ protected:
 };
 
 } // namespace EM
-

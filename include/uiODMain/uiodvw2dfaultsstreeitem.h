@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uiodvw2demtreeitem.h"
 
-#include "emposid.h"
-
 class VW2DFaultSS3D;
 class uiODViewer2D;
 

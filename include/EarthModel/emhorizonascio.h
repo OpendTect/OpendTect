@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "tableascio.h"
 #include "od_istream.h"
 
@@ -19,9 +19,7 @@ ________________________________________________________________________
 namespace EM
 {
 
-/*!
-\brief Ascii I/O for Horizon3D.
-*/
+/*!\brief Ascii I/O for Horizon3D. */
 
 mExpClass(EarthModel) Horizon3DAscIO : public Table::AscIO
 {
@@ -54,9 +52,7 @@ protected:
 };
 
 
-/*!
-\brief Ascii I/O for Horizon2D.
-*/
+/*!\brief Ascii I/O for Horizon2D. */
 
 mExpClass(EarthModel) Horizon2DAscIO : public Table::AscIO
 { mODTextTranslationClass(Horizon2DAscIO)

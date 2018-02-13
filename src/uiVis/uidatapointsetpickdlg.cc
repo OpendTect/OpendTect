@@ -400,8 +400,9 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, int sceneid,
     emdps_.dataSet().add( new DataColDef("AuxData") );
 
 
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( emobj ) emobj->ref();
+    EM::EMObject* emobj = EM::MGR().getObject( emid_ );
+    if ( emobj )
+	emobj->ref();
 }
 
 
@@ -414,7 +415,7 @@ void uiEMDataPointSetPickDlg::cleanUp()
 {
     uiDataPointSetPickDlg::cleanUp();
 
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::MGR().getObject( emid_ );
     if ( emobj )
 	emobj->unRef();
 
@@ -425,7 +426,7 @@ void uiEMDataPointSetPickDlg::cleanUp()
 int uiEMDataPointSetPickDlg::addSurfaceData()
 {
     emdps_.clearData();
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::MGR().getObject( emid_ );
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
 
     float auxvals[3];

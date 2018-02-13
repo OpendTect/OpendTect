@@ -354,7 +354,7 @@ bool uiAttrTrcSelOut::prepareProcessing()
 
 	EM::SurfaceIOData data;
 	uiString errmsg;
-	if ( !EM::EMM().getSurfaceData(ctio_.ioobj_->key(),data,errmsg) )
+	if ( !EM::MGR().getSurfaceData(ctio_.ioobj_->key(),data,errmsg) )
 	{
 	    uiMSG().error( errmsg );
 	    return false;
@@ -492,7 +492,7 @@ void uiAttrTrcSelOut::getComputableSurf( TrcKeySampling& trcsampling )
 {
     EM::SurfaceIOData sd;
     uiString errmsg;
-    if ( !EM::EMM().getSurfaceData(ctio_.ioobj_->key(),sd,errmsg) )
+    if ( !EM::MGR().getSurfaceData(ctio_.ioobj_->key(),sd,errmsg) )
 	return;
 
     Interval<int> inlrg(sd.rg.start_.inl(), sd.rg.stop_.inl());
@@ -501,7 +501,7 @@ void uiAttrTrcSelOut::getComputableSurf( TrcKeySampling& trcsampling )
     if ( !usesinglehor_ )
     {
 	EM::SurfaceIOData sd2;
-	if ( !EM::EMM().getSurfaceData(ctio2_.ioobj_->key(),sd2,errmsg) )
+	if ( !EM::MGR().getSurfaceData(ctio2_.ioobj_->key(),sd2,errmsg) )
 	    return;
 
 	Interval<int> inlrg2(sd2.rg.start_.inl(), sd2.rg.stop_.inl());

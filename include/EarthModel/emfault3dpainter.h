@@ -10,11 +10,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "callback.h"
 #include "trckeyzsampling.h"
 #include "draw.h"
-#include "emposid.h"
 #include "flatview.h"
 
 namespace FlatView { class Viewer; }
@@ -28,9 +27,7 @@ namespace EM
 
 class Fault3D;
 
-/*!
-\brief 3D fault painter.
-*/
+/*!\brief 3D fault painter. */
 
 mExpClass(EarthModel) Fault3DPainter : public CallBacker
 {

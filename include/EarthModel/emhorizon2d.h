@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emhorizon.h"
 #include "bufstringset.h"
 #include "horizon2dline.h"
@@ -24,11 +23,8 @@ template <class T> class Array1D;
 
 namespace EM
 {
-class EMManager;
 
-/*!
-\brief 2D HorizonGeometry
-*/
+/*!\brief 2D HorizonGeometry */
 
 mExpClass(EarthModel) Horizon2DGeometry : public HorizonGeometry
 {

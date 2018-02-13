@@ -45,9 +45,6 @@ SurfaceLimitedFiller::SurfaceLimitedFiller()
     , gradhorizon_( 0 )
     , refhorizon_( 0 )
     , starthorizon_( 0 )
-    , gradhormid_( DBKey::getInvalid() )
-    , starthormid_( DBKey::getInvalid() )
-    , refhormid_( DBKey::getInvalid() )
     , usebottomval_( false  )
     , usegradient_( true )
     , usestartval_( true )
@@ -99,15 +96,15 @@ const DBKey* SurfaceLimitedFiller::getSurfaceID( int idx ) const
 
 
 const DBKey* SurfaceLimitedFiller::getStartValueHorizonID() const
-{ return starthormid_.isValid() ? &starthormid_ : 0; }
+{ return starthorid_.isValid() ? &starthorid_ : 0; }
 
 
 const DBKey* SurfaceLimitedFiller::getGradientHorizonID() const
-{ return gradhormid_.isValid() ? &gradhormid_ : 0; }
+{ return gradhorid_.isValid() ? &gradhorid_ : 0; }
 
 
 const DBKey* SurfaceLimitedFiller::getRefHorizonID() const
-{ return refhormid_.isValid() ? &refhormid_ : 0; }
+{ return refhorid_.isValid() ? &refhorid_ : 0; }
 
 
 static bool setTargetDBKey( const DBKey* mid, DBKey& targetmid )
@@ -121,15 +118,15 @@ static bool setTargetDBKey( const DBKey* mid, DBKey& targetmid )
 
 
 bool SurfaceLimitedFiller::setStartValueHorizon( const DBKey* mid )
-{ return setTargetDBKey( mid, starthormid_ ); }
+{ return setTargetDBKey( mid, starthorid_ ); }
 
 
 bool SurfaceLimitedFiller::setGradientHorizon( const DBKey* mid )
-{ return setTargetDBKey( mid, gradhormid_ ); }
+{ return setTargetDBKey( mid, gradhorid_ ); }
 
 
 bool SurfaceLimitedFiller::setRefHorizon( const DBKey* mid )
-{ return setTargetDBKey( mid, refhormid_ ); }
+{ return setTargetDBKey( mid, refhorid_ ); }
 
 
 bool SurfaceLimitedFiller::setSurfaces( const DBKeySet& hids,
@@ -164,7 +161,7 @@ bool SurfaceLimitedFiller::setSurfaces( const DBKeySet& hids,
 EM::Horizon* SurfaceLimitedFiller::loadHorizon( const DBKey& dbky ) const
 {
     SilentTaskRunnerProvider tprov;
-    RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( dbky, tprov );
+    RefMan<EM::EMObject> emobj = EM::MGR().loadIfNotFullyLoaded( dbky, tprov );
     mDynamicCastGet( EM::Horizon*, newhor, emobj.ptr() );
     if ( !newhor ) return 0;
 
@@ -181,7 +178,7 @@ int SurfaceLimitedFiller::setDataHorizon( const DBKey& mid,
 
     EM::SurfaceIOData surfiod;
     uiString emsg;
-    if ( !EM::EMM().getSurfaceData( mid, surfiod, emsg ) ||
+    if ( !EM::MGR().getSurfaceData( mid, surfiod, emsg ) ||
 	 !surfiod.valnames.validIdx(auxdataidx))
 	return -1;
 
@@ -216,21 +213,21 @@ bool SurfaceLimitedFiller::prepareComp( int )
     if ( !usestartval_ )
     {
 	startauxidx_ =
-	    setDataHorizon( starthormid_, starthorizon_, startauxdataselidx_ );
+	    setDataHorizon( starthorid_, starthorizon_, startauxdataselidx_ );
     }
 
     if ( !usegradient_ )
     {
 	gradauxidx_ =
-	    setDataHorizon( gradhormid_, gradhorizon_, gradauxdataselidx_ );
+	    setDataHorizon( gradhorid_, gradhorizon_, gradauxdataselidx_ );
     }
 
     if ( !userefz_ )
     {
-	if ( refhormid_.isInvalid() )
+	if ( refhorid_.isInvalid() )
 	    return false;
 
-	EM::Horizon* hor = loadHorizon( refhormid_ );
+	EM::Horizon* hor = loadHorizon( refhorid_ );
 	if ( !hor ) return false;
 
 	refhorizon_ = hor;
@@ -240,7 +237,7 @@ bool SurfaceLimitedFiller::prepareComp( int )
     for ( int idx=0; idx<surfacelist_.size(); idx++ )
     {
 	RefMan<EM::EMObject> emobj =
-	    EM::EMM().loadIfNotFullyLoaded( surfacelist_[idx], tprov );
+	    EM::MGR().loadIfNotFullyLoaded( surfacelist_[idx], tprov );
 	mDynamicCastGet( EM::Horizon*, newhor, emobj.ptr() );
 	if ( newhor )
 	{
@@ -407,7 +404,7 @@ void SurfaceLimitedFiller::fillPar( IOPar& pars ) const
 	pars.set( sKeyStartValue(), fixedstartval_ );
     else
     {
-	pars.set( sKeyStartValHorID(), starthormid_ );
+	pars.set( sKeyStartValHorID(), starthorid_ );
 	pars.set( sKeyStartAuxDataID(), startauxdataselidx_ );
     }
 
@@ -417,7 +414,7 @@ void SurfaceLimitedFiller::fillPar( IOPar& pars ) const
 	pars.set( sKeyGradValue(), fixedgradient_ );
     else
     {
-	pars.set( sKeyGradHorID(), gradhormid_ );
+	pars.set( sKeyGradHorID(), gradhorid_ );
 	pars.set( sKeyGradAuxDataID(), gradauxdataselidx_ );
     }
 
@@ -425,7 +422,7 @@ void SurfaceLimitedFiller::fillPar( IOPar& pars ) const
     if ( userefz_ )
 	pars.set( sKeyRefZ(), refz_ );
     else
-	pars.set( sKeyRefHorID(), refhormid_ );
+	pars.set( sKeyRefHorID(), refhorid_ );
 }
 
 

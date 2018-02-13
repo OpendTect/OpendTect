@@ -693,9 +693,9 @@ uiSurfaceStratDlg( uiParent* p,  const DBKeySet& ids )
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	par.setEmpty();
-	if ( !EM::EMM().readDisplayPars(ids[idx],par) )
+	if ( !EM::MGR().readDisplayPars(ids[idx],par) )
 	    continue;
-	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(ids[idx]) );
+	tbl_->setText( RowCol(idx,0), EM::MGR().objectName(ids[idx]) );
 
 	Color col( Color::White() );
 	par.get( sKey::Color(), col );
@@ -759,7 +759,7 @@ bool acceptOK()
 	IOPar displaypar;
 	displaypar.set( sKey::StratRef(), lvlid );
 	displaypar.set( sKey::Color(), col );
-	EM::EMM().writeDisplayPars( objids_[idx], displaypar );
+	EM::MGR().writeDisplayPars( objids_[idx], displaypar );
     }
 
     return true;

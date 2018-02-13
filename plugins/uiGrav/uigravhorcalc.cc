@@ -29,7 +29,7 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, const DBKey& enobjid )
     , topfld_(0)
     , t2dfld_(0)
 {
-    DBKey horid = EM::EMM().getDBKey( enobjid );
+    const DBKey horid = EM::MGR().getDBKey( enobjid );
     horioobj_ = DBM().get( horid );
     if ( !horioobj_ )
 	{ new uiLabel(this,tr("Internal: Cannot find horizon")); return; }

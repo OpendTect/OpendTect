@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uisettings.h"
 
 #include "datapack.h"
-#include "emposid.h"
 #include "flatview.h"
 #include "odpresentationmgr.h"
 #include "uivispartserv.h"

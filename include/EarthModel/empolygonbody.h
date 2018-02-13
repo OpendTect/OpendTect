@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "earthmodelmod.h"
 #include "embody.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
@@ -26,9 +25,7 @@ namespace EM
 {
 class PolygonBody;
 
-/*!
-\brief PolygonBody SurfaceGeometry
-*/
+/*!\brief PolygonBody SurfaceGeometry */
 
 mExpClass(EarthModel) PolygonBodyGeometry : public SurfaceGeometry
 { mODTextTranslationClass(PolygonBodyGeometry)
@@ -105,7 +102,7 @@ protected:
     const IOObjContext&		getIOObjContext() const;
 
 
-    friend class		EMManager;
+    friend class		ObjectManager;
     friend class		EMObject;
     PolygonBodyGeometry		geometry_;
 };

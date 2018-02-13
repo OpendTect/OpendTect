@@ -59,7 +59,7 @@ bool FaultAuxData::DataInfo::operator==( const DataInfo& di )
 
 
 FaultAuxData::FaultAuxData( const Fault3D& flt )
-    : faultmid_(flt.dbKey())
+    : faultid_(flt.dbKey())
 {
     fltfullnm_.setEmpty();
     init();
@@ -67,7 +67,7 @@ FaultAuxData::FaultAuxData( const Fault3D& flt )
 
 
 FaultAuxData::FaultAuxData( const DBKey& mid )
-    : faultmid_(mid)
+    : faultid_(mid)
 {
     fltfullnm_.setEmpty();
     init();
@@ -83,7 +83,7 @@ bool FaultAuxData::init()
     if ( !dataset_.isEmpty() )
 	return true; //already called
 
-    PtrMan<IOObj> ioobj = DBM().get( faultmid_ );
+    PtrMan<IOObj> ioobj = DBM().get( faultid_ );
     IOObjInfo ioinfo( ioobj );
     if ( !ioobj || ioinfo.type()!=IOObjInfo::Fault )
 	return false;

@@ -37,24 +37,24 @@ static bool getHorsampling( const IOPar& par, TrcKeySampling& hs )
 }
 
 
-static EM::Horizon3D* loadHorizon( const DBKey& mid, const TrcKeySampling& hs,
+static EM::Horizon3D* loadHorizon( const DBKey& dbky, const TrcKeySampling& hs,
 				   od_ostream& strm )
 {
-    EM::EMManager& em = EM::EMM();
+    EM::ObjectManager& mgr = EM::MGR();
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sdsel( sd );
     sdsel.rg = hs;
-    strm << "Loading " << em.objectName( mid ) << od_newline;
-    Executor* exec = em.objectLoader( mid, &sdsel );
+    strm << "Loading " << mgr.objectName( dbky ) << od_newline;
+    Executor* exec = mgr.objectLoader( dbky, &sdsel );
     if ( !(exec && exec->go(strm, false, false, 0) ) )
 	return 0;
 
-    EM::EMObject* emobj = em.getObject( mid );
+    EM::EMObject* emobj = mgr.getObject( dbky );
     if ( !emobj )
     {
 	BufferString msg;
 	msg = "Error while loading horizon '";
-	msg.add( em.objectName( mid ) ).add( "'" );
+	msg.add( mgr.objectName( dbky ) ).add( "'" );
 	strm << msg << od_newline;
 	return 0;
     }
@@ -79,20 +79,20 @@ bool BatchProgram::go( od_ostream& strm )
 
     bool usesingle = false;
     pars().getYN( StratAmpCalc::sKeySingleHorizonYN(), usesingle );
-    DBKey mid1;
-    pars().get( StratAmpCalc::sKeyTopHorizonID(), mid1 );
+    DBKey dbky1;
+    pars().get( StratAmpCalc::sKeyTopHorizonID(), dbky1 );
     strm << GetProjectVersionName() << od_newline;
     strm << "Loading horizons ..." << od_newline;
-    EM::Horizon3D* tophor = loadHorizon( mid1, hs, strm );
+    EM::Horizon3D* tophor = loadHorizon( dbky1, hs, strm );
     if ( !tophor )
 	return false;
 
     EM::Horizon3D* bothor = 0;
     if ( !usesingle )
     {
-	DBKey mid2;
-	pars().get( StratAmpCalc::sKeyBottomHorizonID(), mid2 );
-	bothor = loadHorizon( mid2, hs, strm );
+	DBKey dbky2;
+	pars().get( StratAmpCalc::sKeyBottomHorizonID(), dbky2 );
+	bothor = loadHorizon( dbky2, hs, strm );
 	if ( !bothor )
 	{
 	    tophor->unRef();

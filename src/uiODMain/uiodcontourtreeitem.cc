@@ -228,7 +228,7 @@ bool uiODContourTreeItemContourGenerator::prepForContourGenerator()
 {
     uiVisPartServer* visserv = uicitem_->applMgr()->visServer();
     DBKey emid = uicitem_->getHorDisp()->getObjectID();
-    mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(emid));
+    mDynamicCastGet(EM::Horizon3D*,hor,EM::MGR().getObject(emid));
     if( !hor ) return false;
     hor3d_ = hor;
     mDynamicCastGet(
@@ -1219,7 +1219,7 @@ Array2D<float>* uiODContourTreeItem::getDataSet(
     visSurvey::HorizonDisplay* hordisp )
 {
     DBKey emid = hordisp->getObjectID();
-    mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(emid));
+    mDynamicCastGet(EM::Horizon3D*,hor,EM::MGR().getObject(emid));
     if ( !hor ) return 0;
 
     if ( attrnm_ == uiODContourTreeItem::sKeyZValue() )

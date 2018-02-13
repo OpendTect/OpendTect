@@ -113,8 +113,8 @@ HorizonModifyDlg( uiParent* p, const DBKey& mid1, const DBKey& mid2,
     , ctio_(is2d ? mMkCtxtIOObj(EMHorizon2D) : mMkCtxtIOObj(EMHorizon3D))
 {
     BufferStringSet hornms;
-    hornms.add( EM::EMM().objectName(mid1) );
-    hornms.add( EM::EMM().objectName(mid2) );
+    hornms.add( EM::MGR().objectName(mid1) );
+    hornms.add( EM::MGR().objectName(mid2) );
 
     uiString msg = tr("'%1' crosses '%2' at %3 positions").arg(hornms.get(0))
                  .arg(hornms.get(1)).arg( nrcross );
@@ -167,7 +167,7 @@ void horSel( CallBacker* )
 {
     const bool topisstatic = horizonfld_->getIntValue() == 1;
     const DBKey& targetmid = topisstatic ? mid2_ : mid1_;
-    BufferString hornm = EM::EMM().objectName( targetmid );
+    BufferString hornm = EM::MGR().objectName( targetmid );
     hornm += "_edited";
     objfld_->setInputText( hornm );
     savefld_->setValue( true );
@@ -182,7 +182,7 @@ bool acceptOK()
 {
     const bool saveas = savefld_->getBoolValue();
     const bool topisstatic = horizonfld_->getIntValue() == 1;
-    EM::EMObject* emobj = EM::EMM().getObject( topisstatic ? mid2_ : mid1_ );
+    EM::EMObject* emobj = EM::MGR().getObject( topisstatic ? mid2_ : mid1_ );
     DBKey outmid;
     RefMan<EM::EMObject> outemobj = 0;
 
@@ -193,7 +193,7 @@ bool acceptOK()
 		    uiStrings::phrOutput(uiStrings::sSurface())) :
 		    uiStrings::sEmptyString()))
 	outmid = ctio_->ioobj_->key();
-	outemobj = EM::EMM().createObject( emobj->getTypeStr(),
+	outemobj = EM::MGR().createObject( emobj->getTypeStr(),
 					   ctio_->ioobj_->name());
 	outemobj->setPreferredColor( emobj->preferredColor() );
 

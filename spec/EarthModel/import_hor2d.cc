@@ -14,7 +14,6 @@ static const char* rcsID = "$Id$";
 #include "ioobjctxt.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
-#include "emposid.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
 #include "initearthmodel.h"
@@ -283,21 +282,19 @@ static int doWork( int argc, char** argv )
     for ( int hdx=0; hdx<argc-3; hdx++ )
     {
 	const char* horizonnm = argv[hdx+3];
-	EM::EMManager& em = EM::Hor2DMan();
-	EM::Object* emobj = em.createObject( EM::Horizon2D::typeStr(),
+	EM::ObjectManager& mgr = EM::Hor2DMan();
+	EM::Object* emobj = mgr.createObject( EM::Horizon2D::typeStr(),
 					     horizonnm );
 	mDynamicCastGet(EM::Horizon2D*,hor,emobj);
 	if ( !hor )
-	{
-	    prError( "Cannot Create Horizon\n" );
-	    break;
-	}
+	    { prError( "Cannot Create Horizon\n" ); break; }
 
 	hor->ref();
 	horizons += hor;
     }
 
-    if ( !horizons.size() ) return 1;
+    if ( horizons.isEmpty() )
+	return 1;
 
     DBM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     PtrMan<IOObj> lsetobj = DBM().getLocal( argv[2] );

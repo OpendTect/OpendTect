@@ -10,8 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-
 #include "emobject.h"
 #include "ranges.h"
 #include "stratlevel.h"

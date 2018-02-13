@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emobject.h"
 #include "embody.h"
 #include "samplingdata.h"
@@ -23,9 +22,7 @@ namespace EM
 
 class BodyOperator;
 
-/*!
-\brief Marching cubes surface
-*/
+/*! \brief Marching cubes surface */
 
 mExpClass(EarthModel) MarchingCubesSurface : public Body, public EMObject
 {   mDefineEMObjFuncs( MarchingCubesSurface );

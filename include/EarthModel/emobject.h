@@ -11,15 +11,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
+#include "emcommon.h"
+
 #include "notify.h"
 #include "trckeyzsampling.h"
 #include "draw.h"
-#include "emposid.h"
 #include "dbkey.h"
 #include "coord.h"
 #include "sharedobject.h"
-
 #include "uistring.h"
 #include "taskrunner.h"
 
@@ -35,11 +34,9 @@ template <class T> class Array2D;
 
 namespace EM
 {
-class EMManager;
+class ObjectManager;
 
-/*!
-\brief EM object callback data.
-*/
+/*!\brief EM object callback data.  */
 
 typedef Monitorable::ChangeData EMObjectCallbackData;
 
@@ -376,7 +373,7 @@ public:
 public: \
 				clss(const char* nm); \
     static void			initClass(); \
-    static EMObject*		create(EM::EMManager&); \
+    static EMObject*		create(EM::ObjectManager&); \
     static clss*		create(const char* nm); \
     static FixedString		typeStr(); \
     const char*			getTypeStr() const; \
@@ -391,7 +388,7 @@ void clss::initClass() \
 } \
  \
  \
-EMObject* clss::create( EM::EMManager& emm ) \
+EMObject* clss::create( EM::ObjectManager& emm ) \
 { \
     EMObject* obj = new clss(""); \
     if ( !obj ) return 0; \
@@ -402,7 +399,7 @@ EMObject* clss::create( EM::EMManager& emm ) \
 \
 clss* clss::create( const char* nm ) \
 { \
-    EMObject* emobj = EMM().createObject( typeStr(), nm ); \
+    EMObject* emobj = MGR().createObject( typeStr(), nm ); \
     mDynamicCastGet(clss*,newobj,emobj); \
     return newobj; \
 } \

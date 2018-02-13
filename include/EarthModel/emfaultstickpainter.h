@@ -10,12 +10,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "callback.h"
+#include "emcommon.h"
 
+#include "callback.h"
 #include "trckeyzsampling.h"
 #include "draw.h"
-#include "emposid.h"
 #include "flatview.h"
 #include "coord.h"
 

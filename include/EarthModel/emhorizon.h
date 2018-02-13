@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "keystrs.h"
@@ -22,11 +21,8 @@ ________________________________________________________________________
 
 namespace EM
 {
-class EMManager;
 
-/*!
-\brief Horizon RowColSurfaceGeometry
-*/
+/*!\brief Horizon RowColSurfaceGeometry */
 
 mExpClass(EarthModel) HorizonGeometry : public RowColSurfaceGeometry
 {
@@ -39,9 +35,7 @@ public:
 };
 
 
-/*!
-\brief Horizon Surface
-*/
+/*!\brief Horizon Surface */
 
 mExpClass(EarthModel) Horizon : public Surface
 {

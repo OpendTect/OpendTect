@@ -12,8 +12,7 @@ ________________________________________________________________________
 -*/
 
 
-
-#include "earthmodelmod.h"
+#include "emcommon.h"
 #include "namedobj.h"
 
 #include "dbkey.h"

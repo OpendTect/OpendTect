@@ -113,7 +113,7 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 
 
 static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
-		     DBKeySet& midset, BufferString& errmsg,
+		     DBKeySet& dbkys, BufferString& errmsg,
 		     bool iscubeoutp, DBKey& outpid  )
 {
     strm << "Preparing processing" << od_endl;
@@ -125,7 +125,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 
     if ( !iscubeoutp )
     {
-	midset += DBKey::getFromString( objidstr );
+	dbkys += DBKey::getFromString( objidstr );
 	BufferString newattrnm;
 	iopar.get( sKey::Target(), newattrnm );
 	strm << "Calculating Horizon Data '" << newattrnm << "'." << od_endl;
@@ -144,14 +144,14 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) )
 	    return false;
 
-	midset += DBKey::getFromString( objidstr );
+	dbkys += DBKey::getFromString( objidstr );
 
 	BufferString hor2str = IOPar::compKey(basehorstr,1);
 	if( !getObjectID( iopar, hor2str, false, errmsg, objidstr ) )
 	    return false;
 
 	if ( !objidstr.isEmpty() )
-	    midset += DBKey::getFromString( objidstr );
+	    dbkys += DBKey::getFromString( objidstr );
     }
     return true;
 }
@@ -327,11 +327,11 @@ bool BatchProgram::go( od_ostream& strm )
 
     BufferString errmsg;
     DBKey outpid;
-    DBKeySet midset;
+    DBKeySet dbkys;
     if ( !prepare( strm, pars(),
 		   iscubeoutp ? SeisTrcStorOutput::seisidkey()
 			      : LocationOutput::surfidkey(),
-		   midset, errmsg, iscubeoutp, outpid ) )
+		   dbkys, errmsg, iscubeoutp, outpid ) )
 	mErrRetNoProc(errmsg);
 
     PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry());
@@ -350,14 +350,14 @@ bool BatchProgram::go( od_ostream& strm )
 
     Interval<float> zbounds4mmproc;
     ObjectSet<EMObject> objects;
-    for ( int idx=0; idx<midset.size(); idx++ )
+    for ( int idx=0; idx<dbkys.size(); idx++ )
     {
-	const DBKey dbky = midset[idx];
+	const DBKey dbky = dbkys[idx];
 	strm << "Loading: " << dbky.toString() << "\n\n";
 
 	SurfaceIOData sd;
 	uiString uierr;
-	EM::EMManager& emmgr = EM::getMgr( dbky );
+	EM::ObjectManager& emmgr = EM::getMgr( dbky );
 	if ( !emmgr.getSurfaceData(dbky,sd,uierr) )
 	{
 	    BufferString errstr( "Cannot load horizon ", dbky.toString(), ": ");
@@ -445,7 +445,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !iscubeoutp )
     {
 	ObjectSet<BinIDValueSet> bivs;
-	HorizonUtils::getPositions( strm, midset[0], bivs );
+	HorizonUtils::getPositions( strm, dbkys[0], bivs );
 	uiString uierrmsg;
 	mSetEngineMan()
 	Processor* proc = aem.createLocationOutput( uierrmsg, bivs );
@@ -453,8 +453,8 @@ bool BatchProgram::go( od_ostream& strm )
 	    mErrRet( toString(uierrmsg) );
 
 	if ( !process( strm, proc, false ) ) return false;
-	HorizonUtils::addSurfaceData( midset[0], attribrefs, bivs );
-	EMObject* obj = Hor3DMan().getObject( midset[0] );
+	HorizonUtils::addSurfaceData( dbkys[0], attribrefs, bivs );
+	EMObject* obj = Hor3DMan().getObject( dbkys[0] );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
 	if ( !horizon ) mErrRet( "Huh" );
 
@@ -527,7 +527,7 @@ bool BatchProgram::go( od_ostream& strm )
 		StepInterval<int> trcrg;
 		linepar->get( sKey::TrcRange(), trcrg );
 		hsamp.setCrlRange( trcrg );
-		HorizonUtils::getWantedPos2D( strm, midset, dps,
+		HorizonUtils::getWantedPos2D( strm, dbkys, dps,
 					      hsamp, extraz, geomid );
 		SeisTrcBuf seisoutp( false );
 		uiString uierrmsg;
@@ -546,7 +546,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    BinIDValueSet bivs(2,false);
 	    PtrMan<Pos::Provider> provider = Pos::Provider::make( *mmprocrange,
 								  false );
-	    HorizonUtils::getWantedPositions( strm, midset, bivs,
+	    HorizonUtils::getWantedPositions( strm, dbkys, bivs,
 				hsamp, extraz, nrinterpsamp, mainhoridx,
 				extrawidth, provider );
 	    SeisTrcBuf seisoutp( false );

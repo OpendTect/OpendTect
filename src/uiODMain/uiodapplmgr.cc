@@ -1012,7 +1012,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	const int sdid = sceneMgr().addEMItem( emid, sceneid );
 	if ( sdid==-1 )
 	    return false;
-	const EM::EMObject* emobj = EM::EMM().getObject( emid );
+	const EM::EMObject* emobj = EM::MGR().getObject( emid );
 	if ( EM::Horizon3D::typeStr()==emobj->getTypeStr() )
 	    viewer2DMgr().addNewTrackingHorizon3D( emid );
 	else
@@ -1510,7 +1510,7 @@ void uiODApplMgr::addMPEParentPath( int visid, const TrcKey& tk )
     if ( !hd ) return;
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,
-		    EM::EMM().getObject(hd->getObjectID()))
+		    EM::MGR().getObject(hd->getObjectID()))
     if ( !hor3d )
 	return;
 

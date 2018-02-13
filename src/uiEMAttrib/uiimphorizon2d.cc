@@ -356,7 +356,7 @@ bool uiImportHorizon2D::doImport()
     BufferStringSet hornms;
     horselfld_->getChosen( hornms );
     ObjectSet<EM::Horizon2D> horizons;
-    EM::EMManager& em = EM::Hor2DMan();
+    EM::ObjectManager& mgr = EM::Hor2DMan();
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Surf );
     if ( dbdir )
     {
@@ -365,16 +365,16 @@ bool uiImportHorizon2D::doImport()
 	    BufferString nm = hornms.get( idx );
 	    PtrMan<IOObj> ioobj = dbdir->getEntryByName( nm,
 				    EMHorizon2DTranslatorGroup::sGroupName() );
-	    RefMan<EM::EMObject> emobj = ioobj ? em.getObject(ioobj->key())
+	    RefMan<EM::EMObject> emobj = ioobj ? mgr.getObject(ioobj->key())
 						: 0;
 	    if ( emobj )
 		emobj->setBurstAlert( true );
 
-	    PtrMan<Executor> exec = ioobj ? em.objectLoader( ioobj->key() ) : 0;
+	    PtrMan<Executor> exec = ioobj ? mgr.objectLoader(ioobj->key()) : 0;
 
 	    if ( !ioobj || !exec || !exec->execute() )
 	    {
-		emobj = em.createObject( EM::Horizon2D::typeStr(), nm );
+		emobj = mgr.createObject( EM::Horizon2D::typeStr(), nm );
 		mDynamicCastGet(EM::Horizon2D*,hor,emobj.ptr());
 		hor->ref();
 		hor->setPreferredColor(getRandomColor());
