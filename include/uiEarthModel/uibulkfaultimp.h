@@ -15,13 +15,15 @@ class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 
 mExpClass(uiEarthModel) uiBulkFaultImport : public uiDialog
-{ mODTextTranslationClass(uiBulkFaultImport);
+{ mODTextTranslationClass(uiBulkFaultImport)
 public:
 			uiBulkFaultImport(uiParent*);
+			uiBulkFaultImport(uiParent*,const char* type,bool is2d);
 			~uiBulkFaultImport();
 
 protected:
 
+    void		init();
     bool		acceptOK(CallBacker*);
 
     uiFileInput*	inpfld_;

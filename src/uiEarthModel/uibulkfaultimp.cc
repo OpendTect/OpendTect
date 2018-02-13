@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "emfault3d.h"
 #include "emmanager.h"
+#include "emsurfacetr.h"
 #include "executor.h"
 #include "od_istream.h"
 #include "survinfo.h"
@@ -27,11 +28,6 @@ ________________________________________________________________________
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
 
-#include "hiddenparam.h"
-#include "emsurfacetr.h"
-
-static HiddenParam<uiBulkFaultImport,bool*> isfss_(false);
-
 
 class BulkFaultAscIO : public Table::AscIO
 {
@@ -43,7 +39,7 @@ BulkFaultAscIO( const Table::FormatDesc& fd, od_istream& strm )
 {}
 
 
-static Table::FormatDesc* getDesc( bool isfss )
+static Table::FormatDesc* getDesc( bool isfss, bool is2d )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkFault" );
 
@@ -57,6 +53,12 @@ static Table::FormatDesc* getDesc( bool isfss )
 					     Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( "Node index", IntInpSpec(),
 					     Table::Optional );
+/* Enable when supported
+    if ( is2d )
+	fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
+						 Table::Required );
+*/
+
     return fd;
 }
 
@@ -115,16 +117,31 @@ bool getData( BufferString& fltnm, Coord3& crd, int& sticknr )
     mODHelpKey(mImportFaultHelpID) )
 
 
+uiBulkFaultImport::uiBulkFaultImport( uiParent* p )
+    : uiDialog(p,uiDialog::Setup(tr("Import Multiple Faults"),mNoDlgTitle,
+				 mODHelpKey(mBulkFaultImportHelpID))
+		 .modal(false))
+    , isfss_(false)
+    , fd_(BulkFaultAscIO::getDesc(false,false))
+{
+    init();
+}
 
-uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type,
-								    bool is2d )
+
+uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type, bool is2d )
     : uiDialog(p,uiDialog::Setup(mGet( type, (is2d
 			      ? tr("Import Multiple FaultStickSets 2D")
 			      : tr("Import Multiple FaultStickSets")),
 				tr("Import Multiple Faults") ),mNoDlgTitle,
 				mGetHelpKey(type)).modal(false))
     , isfss_(mGet(type,true,false))
-    , fd_(BulkFaultAscIO::getDesc(isfss_))
+    , fd_(BulkFaultAscIO::getDesc(isfss_,is2d))
+{
+    init();
+}
+
+
+void uiBulkFaultImport::init()
 {
     setOkText( uiStrings::sImport() );
 
