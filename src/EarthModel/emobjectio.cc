@@ -233,6 +233,29 @@ Executor* Horizon3DLoader::getLoader() const
     return new ObjectLoaderExec( *_this );
 }
 
+
+Horizon2DLoader::Horizon2DLoader( const DBKeySet& keys,
+				  const SurfaceIODataSelection* sel )
+    : ObjectLoader(keys,sel)
+{
+}
+
+
+bool Horizon2DLoader::load( TaskRunner* tskr )
+{
+    PtrMan<Executor> exec = getLoader();
+    TaskRunner::execute( tskr, *exec );
+    return allOK();
+}
+
+
+Executor* Horizon2DLoader::getLoader() const
+{
+    Horizon2DLoader* _this = const_cast<Horizon2DLoader*>( this );
+    return new ObjectLoaderExec( *_this );
+}
+
+
 //Saver
 ObjectSaver::ObjectSaver( const SharedObject& emobj )
     : Saveable(emobj)
@@ -379,6 +402,42 @@ uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 
     SharedObject* copiedemobj = emobj->clone();
     mDynamicCastGet(Horizon3D*,hor,copiedemobj)
+    if ( !hor )
+	return uiRetVal::OK();
+    const DBKey objid = ioobj.key();
+    Executor* exec = hor->geometry().saver( 0, &objid );
+    if ( !TaskRunner::execute(tskr,*exec) )
+	return exec->errorWithDetails();
+
+    if ( storeIsSave(ioobj) )
+    {
+	emobj.getNonConstPtr()->setName( ioobj.name() );
+	emobj.getNonConstPtr()->setDBKey( objid );
+	hor->saveDisplayPars();
+    }
+
+    return uiRetVal::OK();
+}
+
+
+Horizon2DSaver::Horizon2DSaver( const SharedObject& emobj )
+    : ObjectSaver(emobj)
+{}
+
+
+Horizon2DSaver::~Horizon2DSaver()
+{}
+
+
+uiRetVal Horizon2DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
+{
+    uiRetVal uirv;
+    ConstRefMan<EMObject> emobj = emObject();
+    if ( !emobj )
+	return uiRetVal::OK();
+
+    SharedObject* copiedemobj = emobj->clone();
+    mDynamicCastGet(Horizon2D*,hor,copiedemobj)
     if ( !hor )
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();

@@ -439,6 +439,12 @@ uiWord uiStrings::sHistogram( )
 uiWord uiStrings::sHorizon( int num )
 { return tr("Horizon", 0, num ); }
 
+uiWord uiStrings::s3DHorizon( int num )
+{ return tr("3D Horizon", 0, num ); }
+
+uiWord uiStrings::s2DHorizon( int num )
+{ return tr("2D Horizon", 0, num ); }
+
 uiWord uiStrings::sImport()
 { return tr("Import"); }
 

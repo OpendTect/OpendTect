@@ -260,6 +260,8 @@ public:
     static uiWord sHide()		{ return tr("Hide"); }
     static uiWord sHistogram();
     static uiWord sHorizon(int n=1);
+    static uiWord s3DHorizon(int n=1);
+    static uiWord s2DHorizon(int n=1);
     static uiWord sHorizonData()	{ return tr("Horizon Data"); }
     static uiWord sHorizontal()		{ return tr("Horizontal"); }
     static uiWord sID()			{ return tr("ID"); }

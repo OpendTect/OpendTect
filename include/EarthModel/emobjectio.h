@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "emfault3d.h"
 #include "emfaultstickset.h"
 #include "emhorizon3d.h"
+#include "emhorizon2d.h"
 #include "factory.h"
 #include "dbkey.h"
 #include "saveable.h"
@@ -137,6 +138,31 @@ protected:
 };
 
 
+mExpClass(EarthModel) Horizon2DLoader : public ObjectLoader
+{
+public:
+      mDefaultFactoryInstantiation2Param(ObjectLoader,
+				       Horizon2DLoader,const DBKeySet&,
+				       const SurfaceIODataSelection*,
+				       Horizon2D::typeStr(),
+				       uiStrings::s2DHorizon(mPlural))
+
+			Horizon2DLoader(const DBKeySet&,
+					const SurfaceIODataSelection*);
+
+    uiString		userName() { return uiStrings::s2DHorizon(mPlural); }
+
+     virtual bool	load(TaskRunner*);
+     virtual Executor*	getLoader() const;
+
+protected:
+
+    void		addObject(EMObject* obj) { emobjects_ += obj; }
+};
+
+
+// SAVERS
+
 mExpClass(EarthModel) ObjectSaver : public Saveable
 {
 public:
@@ -197,6 +223,21 @@ public:
 				       uiStrings::sHorizon(mPlural))
 			Horizon3DSaver(const SharedObject&);
 			~Horizon3DSaver();
+protected:
+
+    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
+};
+
+
+mExpClass(EarthModel) Horizon2DSaver : public ObjectSaver
+{
+public:
+     mDefaultFactoryInstantiation1Param(ObjectSaver,
+				       Horizon2DSaver,const SharedObject&,
+				       Horizon2D::typeStr(),
+				       uiStrings::s2DHorizon(mPlural))
+			Horizon2DSaver(const SharedObject&);
+			~Horizon2DSaver();
 protected:
 
     virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
