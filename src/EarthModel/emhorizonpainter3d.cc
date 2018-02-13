@@ -191,7 +191,7 @@ bool HorizonPainter3D::addPolyLine()
 	    if ( addDataToMarker(trk.position(),crd,posid,*hor3d,
 				 *marker,newmarker) )
 		nrseeds_++;
-	    
+
 	    newmarker = false;
 
 	} while ( iter.next() );
@@ -226,7 +226,7 @@ void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
 bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 					const EM::PosID& posid,
 					const EM::Horizon3D& hor3d,
-					Marker3D& marker, 
+					Marker3D& marker,
 					bool newmarker, int idx )
 {
     ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
@@ -302,8 +302,8 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 	if ( emobject->hasBurstAlert() )
 	    return;
 
-	RefMan<EM::EMChangeAuxData> cbauxdata =
-			cbdata.auxDataAs<EM::EMChangeAuxData>();
+	RefMan<EM::ChangeAuxData> cbauxdata =
+			cbdata.auxDataAs<EM::ChangeAuxData>();
 	if ( !cbauxdata )
 	    return;
 

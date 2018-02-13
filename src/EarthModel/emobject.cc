@@ -194,7 +194,7 @@ void Object::setBurstAlert( bool yn )
     if ( burstalertcount_==0 )
     {
 	if ( yn ) burstalertcount_++;
-	RefMan<EMChangeAuxData> data = new EMChangeAuxData;
+	RefMan<ChangeAuxData> data = new ChangeAuxData;
 	data->flagfor2dviewer = !yn;
 	mSendEMCBNotifWithData( cBurstAlert(), data );
     }
@@ -278,7 +278,7 @@ void Object::setPosAttrib( const PosID& pid, int attr, bool yn,
 
     if ( !hasBurstAlert() )
     {
-	RefMan<EMChangeAuxData> data = new EMChangeAuxData;
+	RefMan<ChangeAuxData> data = new ChangeAuxData;
 	data->attrib = attr;
 	data->pid0 = pid;
 	mSendEMCBNotifWithData( cAttribChange(), data );
@@ -602,7 +602,7 @@ void Object::posIDChangeCB(CallBacker* cb)
     if ( cbdata.changeType() != cPosIDChange() )
 	return;
 
-    RefMan<EMChangeAuxData> cbauxdata = cbdata.auxDataAs<EMChangeAuxData>();
+    RefMan<ChangeAuxData> cbauxdata = cbdata.auxDataAs<ChangeAuxData>();
     if ( !cbauxdata )
 	return;
 

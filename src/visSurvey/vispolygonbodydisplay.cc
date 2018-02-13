@@ -689,7 +689,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 void PolygonBodyDisplay::emChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(EM::ObjectCallbackData,cbdata,cb);
-    RefMan<EM::EMChangeAuxData> cbaux =	cbdata.auxDataAs<EM::EMChangeAuxData>();
+    RefMan<EM::ChangeAuxData> cbaux =	cbdata.auxDataAs<EM::ChangeAuxData>();
 
     if ( cbdata.changeType()==EM::Object::cBurstAlert() ||
 	 cbdata.changeType()==EM::Object::cPositionChange() )

@@ -737,7 +737,7 @@ void FaultStickSetDisplay::setActiveStick( const EM::PosID& pid )
 void FaultStickSetDisplay::emChangeCB( CallBacker* cb )
 {
     mGetMonitoredChgData( cb, cbdata );
-    RefMan<EM::EMChangeAuxData> cbaux =	cbdata.auxDataAs<EM::EMChangeAuxData>();
+    RefMan<EM::ChangeAuxData> cbaux =	cbdata.auxDataAs<EM::ChangeAuxData>();
     if ( cbdata.changeType()==EM::Object::cPrefColorChange() )
     {
 	getMaterial()->setColor( fault_->preferredColor() );

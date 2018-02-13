@@ -848,8 +848,8 @@ void EMObjectDisplay::unSelectAll()
 void EMObjectDisplay::handleEmChange( const EM::ObjectCallbackData& cbdata )
 {
     bool triggermovement = false;
-    ConstRefMan<EM::EMChangeAuxData> cbaux =
-				cbdata.auxDataAs<EM::EMChangeAuxData>();
+    ConstRefMan<EM::ChangeAuxData> cbaux =
+				cbdata.auxDataAs<EM::ChangeAuxData>();
     if ( cbdata.changeType()==EM::Object::cBurstAlert())
     {
 	burstalertison_ = !burstalertison_;

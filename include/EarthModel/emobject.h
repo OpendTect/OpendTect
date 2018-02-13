@@ -40,16 +40,16 @@ class ObjectManager;
 
 typedef Monitorable::ChangeData ObjectCallbackData;
 
-mExpClass(EarthModel) EMChangeAuxData : public Monitorable::ChangeData::AuxData
+mExpClass(EarthModel) ChangeAuxData : public Monitorable::ChangeData::AuxData
 {
 public:
-		EMChangeAuxData()
+		ChangeAuxData()
 		    : attrib( -1 )
 		    , flagfor2dviewer( false )
 		{}
 
 
-		EMChangeAuxData( const EMChangeAuxData& data )
+		ChangeAuxData( const ChangeAuxData& data )
 		    : pid0( data.pid0 )
 		    , pid1( data.pid1 )
 		    , attrib( data.attrib )
@@ -426,7 +426,7 @@ void clss::setNameToJustCreated() \
 
 #define mSendEMCBNotifPosID( typ, pid ) \
     setChangedFlag(); \
-    RefMan<EMChangeAuxData> data = new EMChangeAuxData; \
+    RefMan<ChangeAuxData> data = new ChangeAuxData; \
     data->pid0 = pid; \
     EM::ObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), \
 			     data ); \

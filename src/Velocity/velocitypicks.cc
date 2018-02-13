@@ -538,8 +538,8 @@ void Picks::horizonChangeCB( CallBacker* cb )
     if ( !hor || !horizons_.isPresent(hor) )
 	return;
 
-    RefMan<EM::EMChangeAuxData> cbauxdata =
-			cbdata.auxDataAs<EM::EMChangeAuxData>();
+    RefMan<EM::ChangeAuxData> cbauxdata =
+			cbdata.auxDataAs<EM::ChangeAuxData>();
     TypeSet<RowCol> rcs;
     if ( cbdata.changeType()==EM::Object::cBurstAlert() )
     {

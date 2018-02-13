@@ -374,8 +374,8 @@ void MPEEditor::nodeMovement(CallBacker* cb)
     if ( emeditor_ )
     {
 	mCBCapsuleUnpack(EM::ObjectCallbackData,cbdata,cb);
-	RefMan<EM::EMChangeAuxData> cbaux =
-			cbdata.auxDataAs<EM::EMChangeAuxData>();
+	RefMan<EM::ChangeAuxData> cbaux =
+			cbdata.auxDataAs<EM::ChangeAuxData>();
 	if ( cbdata.changeType()==EM::Object::cPositionChange() && cbaux )
 	{
 	    const int idx = posids_.indexOf( cbaux->pid0 );
