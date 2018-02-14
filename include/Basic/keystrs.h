@@ -50,6 +50,7 @@ namespace sKey
     inline FixedString Cube()		{ return "Cube"; }
     inline FixedString Data()		{ return "Data"; }
     inline FixedString DataRoot()	{ return "Data Root"; }
+    inline FixedString DefDataRoot()	{ return "Default DATA directory"; }
     inline FixedString DataStorage()	{ return "Data storage"; }
     inline FixedString DataType()	{ return "DataType"; }
     inline FixedString DataSet()	{ return "DataSet"; }
