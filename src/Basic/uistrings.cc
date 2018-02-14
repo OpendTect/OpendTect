@@ -565,8 +565,8 @@ uiString uiStrings::sDistUnitString(bool isfeet,bool abb, bool withparentheses)
     return withparentheses
 	? toUiString("(%1)").arg( sDistUnitString( isfeet, abb, false ) )
 	: isfeet
-	    ? abb ? tr("ft") : tr("feet" )
-	    : abb ? tr("m") : tr("meter");
+	    ? abb ? tr("ft") : uiStrings::sFeet().toLower()
+	    : abb ? tr("m") : uiStrings::sMeter().toLower();
 }
 
 uiString uiStrings::sTimeUnitString( bool abb )

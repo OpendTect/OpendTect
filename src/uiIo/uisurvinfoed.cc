@@ -261,7 +261,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
     const bool zistime = si_.zDomain().isTime();
     const bool depthinft = si_.depthsInFeet();
 
-    const char* zunitstrs[] = { "msec", "meter", "feet", 0 };
+    const char* zunitstrs[] = { "millisecond", "meter", "feet", 0 };
     zunitfld_ = new uiComboBox( rangegrp_, zunitstrs, "Z unit" );
     zunitfld_->attach( rightOf, zfld_ );
     zunitfld_->setHSzPol( uiObject::Small );

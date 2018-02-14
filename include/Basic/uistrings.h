@@ -361,7 +361,7 @@ public:
     static uiString sMoveToTop()	{ return tr("Move To Top"); }
     static uiString sMoveDown()		{ return tr("Move Down"); }
     static uiString sMoveUp()		{ return tr("Move Up"); }
-    static uiString sMsec()		{ return tr("msec"); }
+    static uiString sMsec()		{ return tr("Millisecond"); }
     static uiString sMute(int num=1)	{ return tr("Mute",0,num); }
     static uiString sName(int num=1)	{ return tr("Name",0,num); }
     static uiString sNew();
@@ -427,7 +427,7 @@ public:
     static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScene(int num=1)	{ return tr("Scene",0,1); }
     static uiString sScenes()		{ return sScene(mPlural); }
-    static uiString sSec()		{ return tr("sec"); }
+    static uiString sSec()		{ return tr("Second"); }
     static uiString sSize()		{ return tr("Size"); }
     static uiString sSEGY()		{ return tr("SEG-Y"); }
     static uiString sSeismic(int num=1);
