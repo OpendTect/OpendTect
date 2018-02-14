@@ -181,16 +181,16 @@ int testMain(int argc, char** argv)
     mInitTestProg();
 
     //Make standard test-runs just work fine.
-    if ( !clparser.hasKey(Network::Server::sKeyPort()) )
+    if ( !clParser().hasKey(Network::Server::sKeyPort()) )
 	return 0;
 
     ApplicationData app;
 
     int startport = 1025;
-    clparser.getVal( Network::Server::sKeyPort(), startport );
+    clParser().getVal( Network::Server::sKeyPort(), startport );
 
     int timeout = 120;
-    clparser.getVal( Network::Server::sKeyTimeout(), timeout );
+    clParser().getVal( Network::Server::sKeyTimeout(), timeout );
 
     Network::RequestEchoServer server( mCast(unsigned short,startport),
 				       mCast(unsigned short,timeout) );

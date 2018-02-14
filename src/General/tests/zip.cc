@@ -55,7 +55,7 @@ int testMain( int argc, char** argv )
     mInitTestProg();
 
     BufferString basedir;
-    clparser.getVal("datadir", basedir );
+    clParser().getVal("datadir", basedir );
     File::Path tozip( basedir );
     tozip.add( "F3_Test_Survey" );
     uiString err;

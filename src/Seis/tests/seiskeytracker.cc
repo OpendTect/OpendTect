@@ -16,11 +16,11 @@ int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
-    const int nrargs = clparser.nrArgs();
+    const int nrargs = clParser().nrArgs();
     if ( nrargs < 1 )
 	mErrRet("Please pass output filename")
 
-    const BufferString fnm( clparser.getArg(0) );
+    const BufferString fnm( clParser().getArg(0) );
     od_ostream strm( fnm );
 
     Seis::GeomType geom;

@@ -13,7 +13,7 @@ ________________________________________________________________________
  The macro mInitTestProg() will take care of:
  1) Initialisation of program args
  2) A file-scope variable 'bool quiet': whether progress info is required
- 3) A command line parser 'CommandLineParser clparser'
+ 3) A command line parser 'CommandLineParser clParser()'
 
 -*/
 
@@ -24,11 +24,14 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "od_ostream.h"
 
-# ifdef __win__
-#  include "winmain.h"
-# endif
+#ifdef __win__
+# include "winmain.h"
+#endif
 
-int testMain( int argc, char** argv );
+// Use this in stand-alone test
+#define mTestMainFnName testMain
+
+int testMain(int,char**);
 
 #ifndef mMainIsDefined
 #define mMainIsDefined
@@ -39,7 +42,12 @@ int main(int argc, char** argv)
 #endif
 
 static mUsedVar bool quiet = true;
-static mUsedVar PtrMan<CommandLineParser> theparser = 0;
+static mUsedVar PtrMan<CommandLineParser> the_testprog_parser = 0;
+
+static inline CommandLineParser& clParser()
+{
+    return *the_testprog_parser;
+}
 
 static inline mUsedVar od_ostream& tstStream( bool err=false )
 {
@@ -53,14 +61,12 @@ static inline mUsedVar od_ostream& tstStream( bool err=false )
 }
 
 
-#define mInitTestProg() \
+#define mTestProgInits() \
     od_init_test_program( argc, argv ); \
-    theparser = new CommandLineParser; \
-    CommandLineParser& clparser = *theparser; \
-    quiet = clparser.hasKey( sKey::Quiet() )
+    the_testprog_parser = new CommandLineParser; \
+    quiet = clParser().hasKey( sKey::Quiet() )
 
-#define mExitTestProg( var )
-
+#define mInitTestProg() mTestProgInits()
 #define mInitBatchTestProg() \
     int argc = GetArgC(); char** argv = GetArgV(); \
     mInitTestProg()

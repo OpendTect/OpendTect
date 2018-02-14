@@ -206,7 +206,7 @@ int doExit( int retval )
 }
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
     DBG::turnOn( 0 ); //Turn off all debug-stuff as it screws the pipes

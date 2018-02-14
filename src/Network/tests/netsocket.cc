@@ -171,9 +171,9 @@ int testMain(int argc, char** argv)
     runner->exitonfinish_ = false;
     runner->noeventloop_ = true;
 
-    clparser.getVal( "serverapp", runner->serverapp_, true );
-    clparser.getVal( "serverarg", runner->serverarg_, true );
-    clparser.getVal( "port", runner->port_, true );
+    clParser().getVal( "serverapp", runner->serverapp_, true );
+    clParser().getVal( "serverarg", runner->serverarg_, true );
+    clParser().getVal( "port", runner->port_, true );
 
     od_int64 totalmem, freemem;
     OD::getSystemMemory( totalmem, freemem );

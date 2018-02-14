@@ -177,12 +177,12 @@ bool testFilePathParsing()
 }
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
     BufferStringSet normalargs;
-    clparser.getNormalArguments(normalargs);
+    clParser().getNormalArguments(normalargs);
 
     if ( normalargs.isEmpty() )
 	{ od_cout() << "No input file specified"; return 1; }

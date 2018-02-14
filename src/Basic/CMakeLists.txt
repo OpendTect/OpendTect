@@ -28,11 +28,6 @@ set( QT_MOC_HEADERS
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/qpaths.cc.in ${CMAKE_CURRENT_BINARY_DIR}/qpaths.cc @ONLY )
 
 set( OD_TEST_PROGS
-	basic.cc
-	callback.cc
-	commandlineparser.cc
-	datapack.cc
-	dbkey.cc
 	file.cc
 	geometry.cc
 	globexpr.cc
@@ -48,6 +43,7 @@ set( OD_TEST_PROGS
 	threads.cc
 	threadwork.cc
 	uistring.cc
+	Basic_Composite.cc
 )
 
 set( OD_MODULE_SOURCES

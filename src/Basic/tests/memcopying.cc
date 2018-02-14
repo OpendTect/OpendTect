@@ -116,13 +116,13 @@ static bool testCopySet()
 }
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
-    const bool largemem = clparser.hasKey( "largemem" );
+    const bool largemem = clParser().hasKey( "largemem" );
     if ( largemem )
 	cTotNrElems *= 10;
-    const bool smallmem = clparser.hasKey( "smallmem" );
+    const bool smallmem = clParser().hasKey( "smallmem" );
     if ( smallmem )
 	cTotNrElems /= 10;
 

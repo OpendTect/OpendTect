@@ -261,17 +261,18 @@ int testMain(int argc, char** argv)
 
     PtrMan<Tester> runner = new Tester;
     runner->port_ = 1025;
-    clparser.getVal( "port", runner->port_, true );
+    clParser().getVal( "port", runner->port_, true );
     runner->hostname_ = "localhost";
     runner->prefix_ = "[singlethreaded] ";
 
     BufferString echoapp = "test_netreqechoserver";
-    clparser.getVal( "serverapp", echoapp );
+    clParser().getVal( "serverapp", echoapp );
 
     BufferString args( "--port ", runner->port_ );
     args.add( " --quiet " );
 
-    if ( !clparser.hasKey("noechoapp") && !ExecODProgram( echoapp, args.buf() ))
+    if ( !clParser().hasKey("noechoapp")
+      && !ExecODProgram( echoapp, args.buf() ))
     {
 	od_ostream::logStream() << "Cannot start " << echoapp << "\n";
 	return 1;

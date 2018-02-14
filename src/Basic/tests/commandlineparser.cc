@@ -122,11 +122,11 @@ bool testNormalOperation( const CommandLineParser& clparser )
 }
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testNormalOperation(clparser) || !testStringParsing() )
+    if ( !testNormalOperation(clParser()) || !testStringParsing() )
 	return 1;
 
     return 0;

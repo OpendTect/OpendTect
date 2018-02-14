@@ -162,12 +162,12 @@ static void testServer()
 
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     DBG::turnOn( 0 ); //Turn off all debug-stuff as it screwes the pipes
     mInitTestProg();
 
-    if ( clparser.hasKey( "testpipes" ) )
+    if ( clParser().hasKey( "testpipes" ) )
     {
 	testServer();
 

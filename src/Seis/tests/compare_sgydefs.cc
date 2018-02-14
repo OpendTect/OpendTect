@@ -97,15 +97,15 @@ int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( clparser.nrArgs() < 2 )
+    if ( clParser().nrArgs() < 2 )
 	mErrRet("Please pass two full .sgydef file names")
 
-    od_cout() << "Reading " << clparser.getArg(0) << " ..." << od_endl;
-    SEGY::DirectDef dd1( clparser.getArg(0) );
+    od_cout() << "Reading " << clParser().getArg(0) << " ..." << od_endl;
+    SEGY::DirectDef dd1( clParser().getArg(0) );
     if ( !dd1.errMsg().isEmpty() )
 	mErrRet( toString(dd1.errMsg()) )
-    od_cout() << "Reading " << clparser.getArg(1) << " ..." << od_endl;
-    SEGY::DirectDef dd2( clparser.getArg(1) );
+    od_cout() << "Reading " << clParser().getArg(1) << " ..." << od_endl;
+    SEGY::DirectDef dd2( clParser().getArg(1) );
     if ( !dd2.errMsg().isEmpty() )
 	mErrRet( toString(dd2.errMsg()) )
 

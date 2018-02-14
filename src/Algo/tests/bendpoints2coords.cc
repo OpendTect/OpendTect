@@ -76,7 +76,7 @@ int testMain( int argc, char** argv )
     mInitTestProg();
 
     BufferStringSet normalargs;
-    clparser.getNormalArguments(normalargs);
+    clParser().getNormalArguments(normalargs);
 
     if ( !testCoordList2D() )
 	return 1;
