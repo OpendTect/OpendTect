@@ -68,19 +68,10 @@
 #include "uistring.cc"
 
 
-#define mRunSubTest( nm ) \
-    tstStream() << "\n\n\n->" << #nm << " subtest\n\n"; \
-    status = test_main_##nm( argc, argv ); \
-    if ( status != 0 ) \
-	return status
-
 int testMain( int argc, char** argv )
 {
-    mTestProgInits();
+    mInitCompositeTestProg( Basic );
 
-    tstStream() << "** 'Basic' composite test\n\n";
-
-    int status;
     mRunSubTest( basic );
     mRunSubTest( callback );
     mRunSubTest( commandlineparser );
