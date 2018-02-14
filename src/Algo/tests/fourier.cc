@@ -50,6 +50,7 @@ bool checkRMSDifference( float_complex* a, float_complex* b, od_uint64 size,
 }
 
 
+#undef mTest
 #define mTest( testname, test ) \
 if ( (test)==true ) \
 { \
@@ -212,7 +213,7 @@ bool FFTChecker2D::execute()
 
 
 //------------------------------- test --------------------------------
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 

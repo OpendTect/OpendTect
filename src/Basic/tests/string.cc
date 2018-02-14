@@ -13,6 +13,7 @@
 #include "dbkey.h"
 
 
+#undef mRunTest
 #define mRunTest( desc, test ) mRunStandardTest( test, desc );
 
 static bool testTruncate()

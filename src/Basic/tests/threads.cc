@@ -34,6 +34,7 @@ else \
     } \
 }
 
+#undef mRunTest
 #define mRunTest( func, finalval ) \
     if ( (func)==false || atomic.load()!=finalval ) \
 	mPrintResult( #func )

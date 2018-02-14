@@ -12,6 +12,7 @@
 #include "genc.h"
 
 
+#undef mRunTest
 #define mRunTest( func ) \
     if ( (func)==false ) \
     { \

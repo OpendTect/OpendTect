@@ -9,6 +9,7 @@
 #include "terrain3x3.h"
 #include "testprog.h"
 
+#undef mTest
 #define mTest( testname, test ) \
 if ( (test)==true ) \
 { \
@@ -83,7 +84,7 @@ bool testGCD()
 }
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 

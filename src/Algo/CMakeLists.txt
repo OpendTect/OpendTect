@@ -6,20 +6,10 @@
 set(OD_MODULE_DEPS Basic )
 
 set( OD_TEST_PROGS
-	array2dmatrix.cc
-	arraymath.cc
-	checksum.cc
-	contcurvinterpol.cc
-	datadistributionextracter.cc
-	gaussianprobdenfunc.cc
-	simpnumer.cc
-	sorting.cc
-	trigonometry.cc
-	velocitycalc.cc
+	Algo_Composite.cc
 )
 
 set( OD_NIGHTLY_TEST_PROGS
-	fourier.cc
 	bendpoints2coords.cc
 )
 

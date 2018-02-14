@@ -59,7 +59,7 @@ bool testLinearD2T( double v0, double dv, double v0depth, float depth,
 
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 

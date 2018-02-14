@@ -15,7 +15,7 @@
 #include "testprog.h"
 #include "contcurvinterpol.h"
 
-#define epsilon 1e-5
+#define mCCIepsilon 1e-5
 
 const Array2D<float>* getFixedGMTInterpolatedResult()
 {
@@ -132,12 +132,12 @@ bool testContinuousCurvatureInterpolation()
 	}
     }
 
-    mRunStandardTest( diffsum<epsilon, " Interpolation has correct values" );
+    mRunStandardTest( diffsum<mCCIepsilon, " Interpolation has correct values");
 
     return true;
 }
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 

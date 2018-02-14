@@ -29,20 +29,10 @@ configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/qpaths.cc.in ${CMAKE_CURRENT_BINARY_
 
 set( OD_TEST_PROGS
 	file.cc
-	geometry.cc
-	globexpr.cc
-	math2.cc
 	memcopying.cc
 	od_iostream.cc
 	oscommand.cc
-	refcount.cc
-	sets.cc
-	string.cc
 	svnversion.cc
-	trckeyzsampling.cc
-	threads.cc
-	threadwork.cc
-	uistring.cc
 	Basic_Composite.cc
 )
 

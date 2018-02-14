@@ -61,6 +61,17 @@ static inline mUsedVar od_ostream& tstStream( bool err=false )
 }
 
 
+#define mRunSubTest( nm ) \
+    tstStream() << "\n\n\n->" << #nm << " subtest\n\n"; \
+    status = test_main_##nm( argc, argv ); \
+    if ( status != 0 ) \
+	return status
+
+#define mInitCompositeTestProg(mod) \
+    mTestProgInits(); \
+    tstStream() << "** '" << #mod << "' composite test\n\n"; \
+    int status
+
 #define mTestProgInits() \
     od_init_test_program( argc, argv ); \
     the_testprog_parser = new CommandLineParser; \

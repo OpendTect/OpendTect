@@ -30,6 +30,7 @@ private:
 };
 
 
+#undef mRunTest
 #define mRunTest( voiddo, test, delstatus, rc ) \
 deleted = false; \
 voiddo; \
@@ -49,7 +50,7 @@ bool testRefCount()
     bool deleted = false;
     ReferencedClass* refclass = new ReferencedClass( &deleted );
 
-    mRunTest( , refclass->refIfReffed()==false, false, 
+    mRunTest( , refclass->refIfReffed()==false, false,
 	      RefCount::Counter::cStartRefCount() );
     mRunTest( refclass->ref(), true, false, 1 );
     mRunTest( , refclass->refIfReffed()==true, false, 2 );
@@ -81,7 +82,7 @@ bool testWeakPtr()
     bool deleted = false;
     ReferencedClass* refclass = new ReferencedClass( &deleted );
 
-    //This will cause a prog-error, but should still be 
+    //This will cause a prog-error, but should still be
     //handled properly
     const bool oldstatus = DBG::setCrashOnProgError( false );
     WeakPtr<ReferencedClass> obsptr = refclass;
@@ -178,12 +179,12 @@ bool testRefObjectSet()
     {
         bool deleted1 = false, deleted2 = false;
         RefObjectSet<ReferencedClass> ref_os;
-        
+
         ref_os += new ReferencedClass( &deleted1 );
         ref_os += new ReferencedClass( &deleted2 );
 
         ref_os = RefObjectSet<ReferencedClass>();
-        
+
         mRunStandardTest( deleted1 && deleted2,
                          "Unref after whole set assignment");
     }
@@ -191,7 +192,7 @@ bool testRefObjectSet()
 	bool deleted1 = false, deleted2 = false;
 	RefObjectSet<ReferencedClass> ref_os;
 	ref_os += new ReferencedClass( &deleted1 );
-	
+
 	RefMan<ReferencedClass> holder2 = new ReferencedClass( &deleted2 );
 	ref_os.replace( 0, holder2 );
 
@@ -202,7 +203,7 @@ bool testRefObjectSet()
 	bool deleted1 = false, deleted2 = false;
 	RefObjectSet<ReferencedClass> ref_os;
 	ref_os += new ReferencedClass( &deleted1 );
-	
+
 	RefMan<ReferencedClass> holder2 = new ReferencedClass( &deleted2 );
 	ref_os.insertAt( holder2, 0 );
 
@@ -213,7 +214,7 @@ bool testRefObjectSet()
 	bool deleted1 = false, deleted2 = false;
 	RefObjectSet<ReferencedClass> ref_os;
 	ref_os += new ReferencedClass( &deleted1 );
-	
+
 	RefMan<ReferencedClass> holder2 = new ReferencedClass( &deleted2 );
 	ref_os.insertAfter( holder2, 0 );
 
