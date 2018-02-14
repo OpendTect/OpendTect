@@ -204,7 +204,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     transffld_ = new uiSeisTransfer( this, tsu );
     transffld_->attach( alignedBelow, seissel_ );
 
-    fpfld_ = new uiSEGYFilePars( this, false );
+    fpfld_ = new uiSEGYFilePars( this, false, 0, false );
     fpfld_->attach( alignedBelow, transffld_ );
 
     txtheadfld_ = new uiSEGYExpTxtHeader( this );
