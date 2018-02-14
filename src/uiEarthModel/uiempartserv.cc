@@ -632,7 +632,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::Object>& objs,
 
     for ( int idx=0; idx<dbkys.size(); idx++ )
     {
-	EM::EMObject* emobj = EM::BodyMan().getObject( dbkys[idx] );
+	EM::Object* emobj = EM::BodyMan().getObject( dbkys[idx] );
 	if ( emobj )
 	    objs += emobj;
     }
