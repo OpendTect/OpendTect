@@ -49,7 +49,21 @@ const char* SurveyInfo::sKeyZRange()	    { return "Z range"; }
 const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
-const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
+const char* SurveyInfo::sKeySeismicRefDatum()
+					    {return "Seismic Reference Datum";}
+
+const uiString SurveyInfo::sInlRange()	    { return tr("In-line range"); }
+const uiString SurveyInfo::sCrlRange()	    { return tr("Cross-line range"); }
+const uiString SurveyInfo::sXRange()	    { return tr("X range"); }
+const uiString SurveyInfo::sYRange()	    { return tr("Y range"); }
+const uiString SurveyInfo::sZRange()	    { return tr("Z range"); }
+const uiString SurveyInfo::sDpthInFt()
+					   { return tr("Show depth in feet"); }
+const uiString SurveyInfo::sXYInFt()	    { return tr("XY in feet"); }
+const uiString SurveyInfo::sSurvDataType()  { return tr("Survey Data Type"); }
+const uiString SurveyInfo::sSeismicRefDatum()
+					{return tr("Seismic Reference Datum");}
+
 mDefineEnumUtils(SurveyInfo,Pol2D3D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 

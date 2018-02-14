@@ -116,8 +116,10 @@ void uiProbDenFuncMan::mkFileInfo()
 	txt.appendPhrase(tr("Type: %1").arg(pdf->getTypeStr()));
 	for ( int idx=0; idx<pdf->nrDims(); idx++ )
 	{
-	    uiPhrase lbl = tr("\nDimension %1 : ").arg(idx+1);
-	    txt.appendPhrase(lbl); txt.appendPlainText(pdf->dimName(idx));
+	    uiPhrase lbl = tr("Dimension %1 :").arg(idx+1);
+	    txt.appendPhrase(lbl);
+	    txt.appendPhrase( toUiString(pdf->dimName(idx)), uiString::Space,
+						    uiString::SeparatorOnly );
 	}
     }
     setInfo( txt );

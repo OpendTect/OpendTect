@@ -141,23 +141,20 @@ void uiSeisPreStackMan::mkFileInfo()
 	    {
 		const PosInfo::CubeData& cd = rdr->posData();
 		txt = tr("Total number of gathers: %1").arg(cd.totalSize());
-		//txt.add( "Total number of gathers: " ).add( cd.totalSize() );
 		StepInterval<int> rg; cd.getInlRange( rg );
 
 		txt.appendPhrase(tr("Inline range: %1 - %2")
 				.arg(rg.start).arg(rg.stop));
 
-		txt.appendPhrase( tr("Inline range: %1 - %2") )
-			    .add( rg.start ).add( " - " ).add( rg.stop );
+		txt.appendPhrase( tr("Inline range: %1 - %2").arg( rg.start )
+				.arg( rg.stop ) );
 		if ( cd.haveInlStepInfo() )
-		    txt.appendPlainText( " [%1]", uiString::NewLine )
-							    .arg( rg.step );
+		    txt.appendPlainText( " [%1]" ).arg( rg.step );
 		cd.getCrlRange( rg );
 		txt.appendPhrase(tr("Crossline range: %1 - %2").arg(rg.start)
 							    .arg(rg.stop));
 		if ( cd.haveCrlStepInfo() )
-		    txt.appendPlainText( " [%1]", uiString::NewLine )
-				.arg( rg.step );
+		    txt.appendPlainText( " [%1]" ).arg( rg.step );
 	    }
 	}
 
@@ -167,8 +164,9 @@ void uiSeisPreStackMan::mkFileInfo()
 	    const bool zistm = objinf.isTime();
 	    const ZDomain::Def& zddef = objinf.zDomainDef();
 #	    define mAddZValTxt(memb) .arg(zistm ? mNINT32(1000*memb) : memb)
-	    txt.appendPhrase(tr("%1 range %2: %3 - %4 [%5]")
+	    txt.appendPhrase(toUiString("%1 %2range %3: %4 - %5 [%6]")
 					.arg(zddef.userName()))
+					.arg(uiStrings::sRange().toLower())
 					.arg(toString(zddef.unitStr(true)))
 					mAddZValTxt(cs.zsamp_.start)
 					mAddZValTxt(cs.zsamp_.stop)

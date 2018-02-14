@@ -292,9 +292,9 @@ uiSessionMan::~uiSessionMan()
 
 void uiSessionMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { setInfo( "" ); return; }
+    if ( !curioobj_ ) { setInfo( uiString::emptyString() ); return; }
 
-    BufferString txt;
-    txt += getFileInfo();
+    uiPhrase txt;
+    txt.appendPhrase( mToUiStringTodo(getFileInfo()), uiString::Empty );
     setInfo( txt );
 }

@@ -93,24 +93,23 @@ void uiPickSetMan::mkFileInfo()
     {
 	const bool ispoly = ps->isPolygon();
 	const BufferString cat = ps->category();
-	txt = tr("Type:").addSpace();
-	//txt.add( "Type: " );
+	txt = tr("Type:");
 	if ( ispoly )
-	    txt.appendPhrase( uiStrings::sPolygon(), uiString::Space, 
+	    txt.appendPhrase( uiStrings::sPolygon(), uiString::Space,
 						    uiString::SeparatorOnly );
 	else if ( !cat.isEmpty() )
 	    txt.appendPlainText( cat );
 	else
-	    txt.appendPhrase(uiStrings::sPickSet(), uiString::Space, 
+	    txt.appendPhrase(uiStrings::sPickSet(), uiString::Space,
 						    uiString::SeparatorOnly );
 
 	MonitorLock ml( *ps );
 	const int sz = ps->size();
 	if ( sz < 1 )
-	    txt.appendPhrase( tr("Empty Pick Set.") );
+	    txt.appendPhrase( tr("Empty Pick Set") );
 	else
 	{
-	    txt.appendPhrase(toUiString(" < %1 %2").arg(sz).arg(ispoly ? 
+	    txt.appendPhrase(toUiString(" < %1 %2").arg(sz).arg(ispoly ?
 				    tr("vertices") : tr("picks")));
 	    if ( !ispoly && ps->first().hasDir() )
 	    {

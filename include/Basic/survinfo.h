@@ -234,6 +234,17 @@ public:
     static const char*	sKeyDpthInFt(); //!< Not used by SI, just a UI default
     static const char*	sKeySurvDataType();
     static const char*  sKeySeismicRefDatum();
+
+    static const uiString   sInlRange();
+    static const uiString   sCrlRange();
+    static const uiString   sXRange();
+    static const uiString   sYRange();
+    static const uiString   sZRange();
+    static const uiString   sXYInFt();
+    static const uiString   sDpthInFt(); //!< Not used by SI, just a UI default
+    static const uiString   sSurvDataType();
+    static const uiString   sSeismicRefDatum();
+
     static const char*	sSetupFileName()		{ return ".survey"; }
     static const char*	sBasicSurveyName()		{ return "BasicSurvey";}
 

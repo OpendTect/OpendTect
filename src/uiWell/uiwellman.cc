@@ -715,13 +715,14 @@ void uiWellMan::exportLogs( CallBacker* )
 
 #define mAddWellInfo(key,str) \
     if ( !str.isEmpty() ) \
-	{ txt.add( toString(key) ).add( colonstr ).add( str ).addNewLine(); }
+	{ txt.appendPhrase( key, uiString::Empty ).appendPlainText( colonstr )\
+						    .appendPlainText( str ); }
 
 
 void uiWellMan::mkFileInfo()
 {
     if ( !curioobj_ )
-	{ setInfo( "" ); return; }
+	{ setInfo( uiString::emptyString() ); return; }
 
     uiRetVal uirv;
     const bool survintime = SI().zIsTime();
@@ -730,7 +731,7 @@ void uiWellMan::mkFileInfo()
 	reqs.add( Well::D2T );
     ConstRefMan<Well::Data> curwd = Well::MGR().fetch( curioobj_->key(), reqs,
 							uirv );
-    BufferString txt;
+    uiPhrase txt;
     if ( curwd )
     {
 
@@ -746,55 +747,65 @@ void uiWellMan::mkFileInfo()
     {
 	const float rdelev = track.getKbElev();
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-	BufferString zunaddstr;
+	uiString zunaddstr;
 	if ( zun )
-	    zunaddstr.add( " " ).add( zun->symbol() );
+	    zunaddstr = zun->surveyDefZUnitAnnot(true,false);
 
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
-	    txt.add(Well::Info::sKeyKBElev()).add(colonstr);
-	    txt.add( zun ? zun->userValue(rdelev) : rdelev ).add( zunaddstr );
-	    txt.addNewLine();
+	    txt.appendPhrase(Well::Info::sKBElev()).appendPlainText(colonstr);
+	    txt.appendPlainText( toString(zun ? zun->userValue(rdelev)
+		    : rdelev) ).appendPhrase( zunaddstr, uiString::Empty,
+						uiString::SeparatorOnly );
 	}
 
 	const float td = track.dahRange().stop;
 	if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
 	{
-	    txt.add(Well::Info::sKeyTD()).add( colonstr );
-	    txt.add( zun ? zun->userValue(td) : td ).add( zunaddstr );
-	    txt.addNewLine();
+	    txt.appendPhrase(Well::Info::sTD()).appendPlainText( colonstr );
+	    txt.appendPlainText( toString(zun ? zun->userValue(td) : td) )
+		.appendPhrase( zunaddstr, uiString::Empty,
+						uiString::SeparatorOnly );
 	}
 
 	const double srd = SI().seismicReferenceDatum();
 	if ( !mIsZero(srd,1e-4) )
 	{
-	    txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
-	    txt.add( zun ? zun->userValue(srd) : srd ).add( zunaddstr );
-	    txt.addNewLine();
+	    txt.appendPhrase( SurveyInfo::sSeismicRefDatum() )
+					    .appendPlainText( colonstr );
+	    txt.appendPlainText( toString(zun ? zun->userValue(srd) : srd) )
+		.appendPhrase( zunaddstr, uiString::Empty,
+						uiString::SeparatorOnly );
 	}
 
 	const float replvel = info.replacementVelocity();
 	if ( !mIsUdf(replvel) )
 	{
-	     txt.add(Well::Info::sKeyReplVel()).add(colonstr);
-	     txt.add( zun ? zun->userValue(replvel) : replvel ).add( ' ' );
-	     txt.add(
-		toString(UnitOfMeasure::surveyDefVelUnitAnnot(true,false)) );
-	     txt.addNewLine();
+	     txt.appendPhrase(Well::Info::sReplVel())
+					    .appendPlainText(colonstr);
+	     txt.appendPlainText( toString(zun ? zun->userValue(replvel)
+							    : replvel) );
+	     txt.appendPhrase(
+		 UnitOfMeasure::surveyDefVelUnitAnnot(true,false),
+				    uiString::Space, uiString::SeparatorOnly);
 	}
 
 	const float groundelev = info.groundElevation();
 	if ( !mIsUdf(groundelev) )
 	{
-	    txt.add(Well::Info::sKeyGroundElev()).add(colonstr);
-	    txt.add( zun ? zun->userValue(groundelev) : groundelev )
-		    .add( zunaddstr );
-	    txt.addNewLine();
+	    txt.appendPhrase(Well::Info::sGroundElev())
+					.appendPlainText(colonstr);
+	    txt.appendPlainText( toString(zun ? zun->userValue(groundelev)
+		: groundelev) ).appendPhrase( zunaddstr, uiString::Empty,
+						uiString::SeparatorOnly );
 	}
 
 	if ( survintime && !curwd->haveD2TModel() )
-	    txt.add("** No valid Depth vs Time relation."
-		    "\n\tUse 'Tie Well To Seismics' to add one.\n");
+	{
+	    txt.appendPhrase(tr("** No valid Depth vs Time relation."));
+	    txt.appendPhrase(tr("Use 'Tie Well To Seismics' to add one"),
+								uiString::Tab);
+	}
     }
 
     mAddWellInfo(Well::Info::sUwid(),info.UWI())
@@ -805,7 +816,7 @@ void uiWellMan::mkFileInfo()
     } // if ( curwd )
 
     if ( txt.isEmpty() )
-	txt.set( "<No specific info available>\n" );
-    txt.add( getFileInfo() );
+	txt = tr( "<No specific info available>\n" );
+    txt.appendPhrase( mToUiStringTodo(getFileInfo()) );
     setInfo( txt );
 }

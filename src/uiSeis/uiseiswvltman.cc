@@ -104,7 +104,7 @@ void uiSeisWvltMan::addButtons()
 {
     uiButtonGroup* grp = extraButtonGroup();
     uiButton* impbut = uiButton::getStd( grp, OD::Import,
-				         mCB(this,uiSeisWvltMan,impPush), false );
+				     mCB(this,uiSeisWvltMan,impPush), false );
 
     uiPushButton* crbut = new uiPushButton( grp, tr("Generate"), false );
     crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
@@ -277,8 +277,7 @@ void uiSeisWvltMan::mkFileInfo()
 	    else
 	    {
 		msg.appendPhrase( tr("'%1' scaled to '%2'")
-		   .arg(DBM().nameOf(orgid)).arg(DBM().nameOf(seisid)),
-		   uiString::NewLine );
+		   .arg(DBM().nameOf(orgid)).arg(DBM().nameOf(seisid)) );
 		msg.appendPhrase( tr("\n\t(along '%1' at '%2')")
 		   .arg(DBM().nameOf(horid)).arg(lvlnm) );
 	    }

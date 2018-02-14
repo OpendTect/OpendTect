@@ -561,31 +561,39 @@ void uiSurfaceMan::fillAttribList()
 void uiSurfaceMan::mkFileInfo()
 {
 #define mAddInlCrlRangeTxt() \
+    txt.appendPlainText(": ");
     if ( range.isUdf() ) \
-	txt += "-\n"; \
+	txt.appendPlainText( "-" ); \
     else \
     { \
-	txt += range.start; txt += " - "; txt += range.stop; \
-	txt += " - "; txt += range.step; txt += "\n"; \
+	txt.appendPlainText( ::toString(range.start) ); \
+	txt.appendPlainText( " - " ); \
+	txt.appendPlainText( ::toString(range.stop) ); \
+	txt.appendPlainText( " - " ); \
+	txt.appendPlainText( ::toString(range.step) ); \
     }
 
 #define mAddZRangeTxt() \
     if ( !zrange.isUdf() ) \
     { \
-	txt += "Z range"; txt += ::toString(SI().zUnitString()); \
-	txt += ": "; \
-	txt += mNINT32( zrange.start * SI().zDomain().userFactor() ); \
-	txt += " - "; \
-	txt += mNINT32( zrange.stop * SI().zDomain().userFactor() ); \
-	txt += "\n"; \
+	txt.appendPhrase(uiStrings::sZRange(), uiString::Empty); \
+	txt.appendPhrase(SI().zUnitString(), uiString::Empty, \
+						uiString::SeparatorOnly); \
+	txt.appendPlainText( ": " ); \
+	txt.appendPlainText( ::toString(mNINT32(zrange.start * \
+					    SI().zDomain().userFactor())) ); \
+	txt.appendPlainText( " - " ); \
+	txt.appendPlainText( ::toString(mNINT32(zrange.stop * \
+					    SI().zDomain().userFactor())) ); \
     }
 
     fillAttribList();
-    BufferString txt;
+    uiPhrase txt;
     EM::IOObjInfo eminfo( curioobj_ );
     if ( !eminfo.isOK() )
     {
-	txt += eminfo.name(); txt.add( " has no file on disk (yet).\n" );
+	txt = tr("%1 has no file on disk (yet)")
+				    .arg(::toUiString(eminfo.name()));
 	setInfo( txt );
 	return;
     }
@@ -596,24 +604,26 @@ void uiSurfaceMan::mkFileInfo()
 
     if ( isCur2D() || isCurFault() )
     {
-	txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: ";
+	txt = isCur2D() ? tr("Nr. 2D lines") : tr("Nr. Sticks");
 	if ( isCurFault() )
 	{
 	    if ( eminfo.nrSticks() < 0 )
-		txt += "Cannot determine number of sticks for this object type";
+		txt.appendPhrase(tr("Cannot determine number of sticks for "
+				    "this object type"), uiString::MoreInfo,
+				    uiString::SeparatorOnly);
 	    else
-		txt += eminfo.nrSticks();
+		txt.appendPhrase( ::toUiString(eminfo.nrSticks()),
+				uiString::MoreInfo, uiString::SeparatorOnly);
 	}
 	else
 	{
 	    BufferStringSet linenames;
 	    if ( eminfo.getLineNames(linenames) )
-		txt += linenames.size();
+		txt.appendPlainText( ::toString(linenames.size()) );
 	    else
-		txt += "-";
+		txt.appendPlainText( "-" );
 	}
 
-	txt += "\n";
     }
     else if ( type_ == Body )
     {
@@ -621,9 +631,10 @@ void uiSurfaceMan::mkFileInfo()
 	if ( eminfo.getBodyRange(cs) )
 	{
 	    StepInterval<int> range = cs.hsamp_.lineRange();
-	    txt = "In-line range: "; mAddInlCrlRangeTxt()
+	    txt = tr("In-line range"); mAddInlCrlRangeTxt()
 	    range = cs.hsamp_.trcRange();
-	    txt += "Cross-line range: "; mAddInlCrlRangeTxt()
+	    txt.appendPhrase( tr("Cross-line range"), uiString::Empty );
+	    mAddInlCrlRangeTxt()
 	    const Interval<float>& zrange = cs.zsamp_;
 	    mAddZRangeTxt()
 	}
@@ -631,15 +642,15 @@ void uiSurfaceMan::mkFileInfo()
     else
     {
 	StepInterval<int> range = eminfo.getInlRange();
-	txt = "In-line range: "; mAddInlCrlRangeTxt()
+	txt = tr("In-line range"); mAddInlCrlRangeTxt()
 	range = eminfo.getCrlRange();
-	txt += "Cross-line range: "; mAddInlCrlRangeTxt()
+	txt.appendPhrase( tr("Cross-line range") ); mAddInlCrlRangeTxt()
 
         const Interval<float>& zrange = eminfo.getZRange();
 	mAddZRangeTxt()
     }
 
-    txt += getFileInfo();
+    txt.appendPhrase( mToUiStringTodo(getFileInfo()) );
 
     setInfo( txt );
     setToolButtonProperties();
