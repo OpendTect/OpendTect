@@ -50,6 +50,7 @@ class uiTutMgr :  public CallBacker
 { mODTextTranslationClass(uiTutMgr);
 public:
 			uiTutMgr(uiODMain*);
+			~uiTutMgr();
 
     uiODMain*		appl_;
     uiMenu*		mnuhor_;
@@ -73,6 +74,12 @@ uiTutMgr::uiTutMgr( uiODMain* a )
 {
     mAttachCB( DBM().surveyChanged, uiTutMgr::updateMenu );
     updateMenu( 0 );
+}
+
+
+uiTutMgr::~uiTutMgr()
+{
+    detachAllNotifiers();
 }
 
 
