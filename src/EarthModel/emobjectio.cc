@@ -453,7 +453,7 @@ Horizon2DSaver::~Horizon2DSaver()
 uiRetVal Horizon2DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 {
     uiRetVal uirv;
-    ConstRefMan<EMObject> emobj = emObject();
+    ConstRefMan<Object> emobj = emObject();
     if ( !emobj )
 	return uiRetVal::OK();
 
@@ -489,12 +489,12 @@ BodySaver::~BodySaver()
 uiRetVal BodySaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 {
     uiRetVal uirv;
-    ConstRefMan<EMObject> emobj = emObject();
+    ConstRefMan<Object> emobj = emObject();
     if ( !emobj )
 	return uiRetVal::OK();
 
     SharedObject* copiedobj = emobj->clone();
-    mDynamicCastGet(EMObject*,copiedemobj,copiedobj)
+    mDynamicCastGet(Object*,copiedemobj,copiedobj)
     if ( !copiedemobj )
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
