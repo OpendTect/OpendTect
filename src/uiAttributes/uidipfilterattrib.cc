@@ -54,7 +54,7 @@ mInitGrpDefAttribUI(uiDipFilterAttrib,DipFilter,
 
 
 uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mTODOHelpKey )
+	: uiAttrDescEd(p,is2d, mODHelpKey(mDipFilterAttribHelpID) )
 
 {
     inpfld_ = createInpFld( is2d );
