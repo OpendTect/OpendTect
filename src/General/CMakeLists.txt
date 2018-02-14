@@ -11,11 +11,10 @@ add_custom_target( od_helpid ALL
 		COMMENT "Checking od_helpids.h" )
 
 set ( OD_MODULE_DEPS Algo )
-if ( NOT DEFINED WIN32 )
-    set ( OD_TEST_PROGS ibmformat.cc )
-endif()
-list ( APPEND OD_TEST_PROGS mathexpression.cc mathformula.cc posidxpairdataset.cc posidxpairvalset.cc pickset.cc )
+
+list ( APPEND OD_TEST_PROGS General_Composite.cc )
 set( OD_NIGHTLY_TEST_PROGS zip.cc )
+
 list ( APPEND OD_MODULE_SOURCES
 	array2dbitmap.cc
 	autosaver.cc

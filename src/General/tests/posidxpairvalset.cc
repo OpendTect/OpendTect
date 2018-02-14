@@ -5,8 +5,6 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "posidxpairvalset.h"
 #include "testprog.h"
 
@@ -98,10 +96,9 @@ static bool testAdd( Pos::IdxPairValueSet& ds, float startval )
 }
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
-
 
     Pos::IdxPairValueSet ds_novals( 0, false );
     float* vals = 0;

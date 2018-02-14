@@ -5,8 +5,6 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "posidxpairdataset.h"
 #include "testprog.h"
 
@@ -96,7 +94,7 @@ static void fillExpected()
 }
 
 
-static const int cNrObjs = 10;
+static const int cNrObjects = 10;
 
 static bool chckDs( Pos::IdxPairDataSet& ds, bool isrem, const char* msg )
 {
@@ -140,7 +138,7 @@ static bool checkContents( Pos::IdxPairDataSet& ds )
     Pos::IdxPairDataSet::SPos spos;
     Pos::IdxPairDataSet::SPos spostorem;
     Pos::IdxPair ip, iptorem;
-    Pos::IdxPairDataSet::IdxType crltorem = 1999 + 3 * cNrObjs / 4;
+    Pos::IdxPairDataSet::IdxType crltorem = 1999 + 3 * cNrObjects / 4;
     while ( ds.next(spos) )
     {
 	ip = ds.getIdxPair( spos );
@@ -171,12 +169,12 @@ static bool testAdd( Pos::IdxPairDataSet& ds, const ObjectSet<TstObj>& objs )
     ObjectSet<TstObj> useobjs;
     deepCopy( useobjs, objs );
     int inl = 1001; int crl = 2000;
-    for ( int idx=0; idx<cNrObjs; idx++ )
+    for ( int idx=0; idx<cNrObjects; idx++ )
     {
 	ds.add( Pos::IdxPair(inl,crl), objs[idx] );
-	if ( idx == cNrObjs/2 )
+	if ( idx == cNrObjects/2 )
 	    inl--;
-	else if ( idx != cNrObjs/4 )
+	else if ( idx != cNrObjects/4 )
 	    crl++;
     }
     if ( ds.managesData() )
@@ -186,7 +184,7 @@ static bool testAdd( Pos::IdxPairDataSet& ds, const ObjectSet<TstObj>& objs )
 }
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -209,7 +207,7 @@ int testMain( int argc, char** argv )
     ds_zero.add( Pos::IdxPair(1000,2000), 0 );
 
     ObjectSet<TstObj> objs;
-    for ( unsigned short idx=0; idx<cNrObjs; idx++ )
+    for ( unsigned short idx=0; idx<cNrObjects; idx++ )
 	objs += new TstObj( idx, 100+idx );
     fillExpected();
 

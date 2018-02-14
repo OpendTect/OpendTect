@@ -26,7 +26,7 @@ bool testFloatIndex( int origin, float target )
 	return false;
     }
 
-    unsigned int buf;
+    int buf;
     IbmFormat::putFloat( fval, &buf );
     if ( buf!=origin )
     {
@@ -47,27 +47,8 @@ bool testFloatIndex( int origin, float target )
     return true;
 }
 
-class IbmFormatTester : public ParallelTask
-{
-public:
-    od_int64	nrIterations() const { return UINT_MAX; }
 
-    bool doWork( od_int64 start, od_int64 stop, int )
-    {
-        for ( od_int64 idx=start; idx<=stop; idx++ )
-        {
-            if ( !(idx%1000000) && !shouldContinue() )
-                return false;
-
-	    if ( !testFloatIndex( mCast(int,idx), mUdf(float) ) )
-	    { return false; }
-        }
-
-        return true;
-    }
-
-};
-
+#undef mTestVal
 #define mTestVal( tp, func, bufval, correctval ) \
 { \
     buf = bufval; \
@@ -90,7 +71,7 @@ public:
 
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -108,16 +89,19 @@ int testMain( int argc, char** argv )
     mTestVal( unsigned short, UnsignedShort, 0x01010101, 257 );
     mTestVal( unsigned short, UnsignedShort, 0x010101FF, 65281 );
 
-    //Test two known problem-spots
-     if ( !testFloatIndex( 152776, -1409417216.000000f ) )
-	 return 1;
-
-    if ( !testFloatIndex( 0, 0) )
+    // Two known problem-spots
+    if ( !testFloatIndex( 152776, -1409417216.000000f ) )
+	return 1;
+    if ( !testFloatIndex(0,0) )
 	return 1;
 
-    return 0;
+    // And to/from a few 'possible' values
+    for ( int idx=0; idx<10; idx++ )
+    {
+	const int nr = 148680 + (int)(idx*1024);
+	if ( !testFloatIndex( nr, mUdf(float) ) )
+	    return 1;
+    }
 
-    //Optional, run entire number-space.
-    //IbmFormatTester tester;
-    //return tester.execute() ? 0 : 1;
+    return 0;
 }

@@ -19,6 +19,7 @@
 #define mTestValSucces(var,val) \
     if ( !quiet ) od_cout() << "Success: " << #var <<'='<< var << od_endl
 
+#undef mTestVal
 #define mTestVal(var,val) \
     if ( var != val ) mTestValErr(var,val) mTestValSucces(var,val)
 #define mTestValF(var,val) \
@@ -130,7 +131,7 @@ static bool testRepeatingVar()
 }
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
