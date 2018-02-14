@@ -553,7 +553,7 @@ void drawDistrib()
 		: ((spos - shortrg_.start) / shortwdth) * xmaxpix;
 	const float fypix = xislong
 		? ((shortrg_.stop - spos) / shortwdth) * ymaxpix
-		: ((longrg_.stop - lpos) / longwdth) * ymaxpix;
+		: ((lpos - longrg_.start) / longwdth) * ymaxpix;
 	pts += uiPoint( mNINT32(fxpix), mNINT32(fypix) );
     }
 
