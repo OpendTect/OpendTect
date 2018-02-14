@@ -96,11 +96,13 @@ void uiPickSetMan::mkFileInfo()
 	txt = tr("Type:").addSpace();
 	//txt.add( "Type: " );
 	if ( ispoly )
-	    txt.appendWord( uiStrings::sPolygon() );
+	    txt.appendPhrase( uiStrings::sPolygon(), uiString::Space, 
+						    uiString::SeparatorOnly );
 	else if ( !cat.isEmpty() )
 	    txt.appendPlainText( cat );
 	else
-	    txt.appendWord(uiStrings::sPickSet());
+	    txt.appendPhrase(uiStrings::sPickSet(), uiString::Space, 
+						    uiString::SeparatorOnly );
 
 	MonitorLock ml( *ps );
 	const int sz = ps->size();
@@ -108,7 +110,8 @@ void uiPickSetMan::mkFileInfo()
 	    txt.appendPhrase( tr("Empty Pick Set.") );
 	else
 	{
-	    txt.appendPhrase(toUiString(" < %1 %2").arg(sz).arg(ispoly ? tr("vertices") : tr("picks")));
+	    txt.appendPhrase(toUiString(" < %1 %2").arg(sz).arg(ispoly ? 
+				    tr("vertices") : tr("picks")));
 	    if ( !ispoly && ps->first().hasDir() )
 	    {
 		txt.addSpace();
@@ -125,13 +128,13 @@ void uiPickSetMan::mkFileInfo()
 
 	const Pick::Set::Disp disp = ps->getDisp();
 	Color col( disp.mkstyle_.color_ ); col.setTransparency( 0 );
-	txt.addNewLine().appendWord(uiStrings::sColor()).appendPlainText(": ")
-	    .appendPlainText(col.largeUserInfoString());
-	txt.addNewLine().appendPhrase(tr("Marker size (pixels): %1"))
+	txt.appendPhrase(uiStrings::sColor(), uiString::Empty)
+	    .appendPlainText(": ").appendPlainText(col.largeUserInfoString());
+	txt.appendPhrase(tr("Marker size (pixels): %1"), uiString::Empty)
 						    .arg(disp.mkstyle_.size_);
-	txt.addNewLine().appendPhrase(tr("Marker type: %1")
+	txt.appendPhrase(tr("Marker type: %1")
 			.arg(OD::MarkerStyle3D::TypeDef()
-			.getUiStringForIndex(disp.mkstyle_.type_)));
+		 .getUiStringForIndex(disp.mkstyle_.type_)), uiString::Empty);
     }
 
     txt.addSpace().appendPhrase( mToUiStringTodo(getFileInfo()) );

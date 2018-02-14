@@ -131,8 +131,7 @@ void uiSeisPreStackMan::mkFileInfo()
 	{
 	    BufferStringSet nms;
 	    SPSIOPF().getLineNames( *curioobj_, nms );
-	    txt = uiStrings::sLine(mPlural).appendPlainText(":",
-				uiString::NewLine).addSpace()
+	    txt = uiStrings::sLine(mPlural).appendPlainText(": ")
 				.appendPlainText(nms.getDispString(3,false));
 	}
 	else
@@ -145,10 +144,10 @@ void uiSeisPreStackMan::mkFileInfo()
 		//txt.add( "Total number of gathers: " ).add( cd.totalSize() );
 		StepInterval<int> rg; cd.getInlRange( rg );
 
-		txt.addNewLine().appendPhrase(tr("Inline range: %1 - %2")
+		txt.appendPhrase(tr("Inline range: %1 - %2")
 				.arg(rg.start).arg(rg.stop));
 
-		txt.add( "\nInline range: " )
+		txt.appendPhrase( tr("Inline range: %1 - %2") )
 			    .add( rg.start ).add( " - " ).add( rg.stop );
 		if ( cd.haveInlStepInfo() )
 		    txt.appendPlainText( " [%1]", uiString::NewLine )

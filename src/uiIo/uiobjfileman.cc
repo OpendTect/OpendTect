@@ -349,7 +349,7 @@ BufferString uiObjFileMan::getFileInfo()
 }
 
 
-void uiObjFileMan::setInfo( const char* txt )
+void uiObjFileMan::setInfo( const uiString txt )
 {
     infofld_->setText( txt );
 }
