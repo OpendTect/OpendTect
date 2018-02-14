@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "emfaultstickset.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
+//#include "emmarchingcubessurface.h"
+//#include "empolygonbody.h"
+//#include "emrandomposbody.h"
 #include "factory.h"
 #include "dbkey.h"
 #include "saveable.h"
@@ -86,9 +89,6 @@ public:
     virtual bool	load(TaskRunner*);
     virtual Executor*	getLoader() const;
 
-protected:
-
-    void		addObject( Object* obj ) { emobjects_ += obj; }
 };
 
 
@@ -106,12 +106,9 @@ public:
 
     uiString		userName() { return uiStrings::sFault(mPlural); }
 
-     virtual bool	load(TaskRunner*);
-     virtual Executor*	getLoader() const;
+    virtual bool	load(TaskRunner*);
+    virtual Executor*	getLoader() const;
 
-protected:
-
-    void		addObject( Object* obj ) { emobjects_ += obj; }
 };
 
 
@@ -129,12 +126,9 @@ public:
 
     uiString		userName() { return uiStrings::sHorizon(mPlural); }
 
-     virtual bool	load(TaskRunner*);
-     virtual Executor*	getLoader() const;
+    virtual bool	load(TaskRunner*);
+    virtual Executor*	getLoader() const;
 
-protected:
-
-    void		addObject( Object* obj ) { emobjects_ += obj; }
 };
 
 
@@ -152,12 +146,29 @@ public:
 
     uiString		userName() { return uiStrings::s2DHorizon(mPlural); }
 
-     virtual bool	load(TaskRunner*);
-     virtual Executor*	getLoader() const;
+    virtual bool	load(TaskRunner*);
+    virtual Executor*	getLoader() const;
 
-protected:
+};
 
-    void		addObject(EMObject* obj) { emobjects_ += obj; }
+
+mExpClass(EarthModel) BodyLoader : public ObjectLoader
+{
+public:
+      mDefaultFactoryInstantiation2Param(ObjectLoader,
+				       BodyLoader,const DBKeySet&,
+				       const SurfaceIODataSelection*,
+				       sKey::Body(),
+				       uiStrings::sBody(mPlural))
+
+			BodyLoader(const DBKeySet&,
+				   const SurfaceIODataSelection*);
+
+    uiString		userName() { return uiStrings::sBody(mPlural); }
+
+    virtual bool	load(TaskRunner*);
+    virtual Executor*	getLoader() const;
+
 };
 
 
@@ -238,6 +249,21 @@ public:
 				       uiStrings::s2DHorizon(mPlural))
 			Horizon2DSaver(const SharedObject&);
 			~Horizon2DSaver();
+protected:
+
+    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
+};
+
+
+mExpClass(EarthModel) BodySaver : public ObjectSaver
+{
+public:
+     mDefaultFactoryInstantiation1Param(ObjectSaver,
+				       BodySaver,const SharedObject&,
+				       sKey::Body(),
+				       uiStrings::sBody(mPlural))
+			BodySaver(const SharedObject&);
+			~BodySaver();
 protected:
 
     virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;

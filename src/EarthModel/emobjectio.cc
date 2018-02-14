@@ -13,7 +13,6 @@
 #include "executor.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "task.h"
 
 mDefineInstanceCreatedNotifierAccess(EM::ObjectSaver)
@@ -256,6 +255,28 @@ Executor* Horizon2DLoader::getLoader() const
 }
 
 
+BodyLoader::BodyLoader( const DBKeySet& keys,
+				  const SurfaceIODataSelection* sel )
+    : ObjectLoader(keys,sel)
+{
+}
+
+
+bool BodyLoader::load( TaskRunner* tskr )
+{
+    PtrMan<Executor> exec = getLoader();
+    TaskRunner::execute( tskr, *exec );
+    return allOK();
+}
+
+
+Executor* BodyLoader::getLoader() const
+{
+    BodyLoader* _this = const_cast<BodyLoader*>( this );
+    return new ObjectLoaderExec( *_this );
+}
+
+
 //Saver
 ObjectSaver::ObjectSaver( const SharedObject& emobj )
     : Saveable(emobj)
@@ -450,6 +471,42 @@ uiRetVal Horizon2DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 	emobj.getNonConstPtr()->setName( ioobj.name() );
 	emobj.getNonConstPtr()->setDBKey( objid );
 	hor->saveDisplayPars();
+    }
+
+    return uiRetVal::OK();
+}
+
+
+BodySaver::BodySaver( const SharedObject& emobj )
+    : ObjectSaver(emobj)
+{}
+
+
+BodySaver::~BodySaver()
+{}
+
+
+uiRetVal BodySaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
+{
+    uiRetVal uirv;
+    ConstRefMan<EMObject> emobj = emObject();
+    if ( !emobj )
+	return uiRetVal::OK();
+
+    SharedObject* copiedobj = emobj->clone();
+    mDynamicCastGet(EMObject*,copiedemobj,copiedobj)
+    if ( !copiedemobj )
+	return uiRetVal::OK();
+    const DBKey objid = ioobj.key();
+    Executor* exec = copiedemobj->saver();
+    if ( !TaskRunner::execute(tskr,*exec) )
+	return exec->errorWithDetails();
+
+    if ( storeIsSave(ioobj) )
+    {
+	emobj.getNonConstPtr()->setName( ioobj.name() );
+	emobj.getNonConstPtr()->setDBKey( objid );
+	copiedemobj->saveDisplayPars();
     }
 
     return uiRetVal::OK();

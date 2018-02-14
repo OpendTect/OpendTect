@@ -612,6 +612,8 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::Object>& objs,
 	if ( translator!=EMBodyTranslatorGroup::sKeyUserWord() )
 	    continue;
 
+	Executor* loader = EM::BodyMan().objectLoader( dbkys[idx] );
+	/*
 	BufferString typestr;
 	ioobj->pars().get( sKey::Type(), typestr );
 	EM::Object* object = EM::BodyMan().createTempObject( typestr );
@@ -619,16 +621,23 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::Object>& objs,
 
 	object->ref();
 	object->setDBKey( dbkys[idx] );
-	objs += object;
-	loaders.add( object->loader() );
+	objs += object;*/
+
+	loaders.add( loader );
     }
 
     uiTaskRunner execdlg( useparent );
     if ( !TaskRunner::execute( &execdlg, loaders ) )
-    {
-	deepUnRef( objs );
 	return;
+
+    for ( int idx=0; idx<dbkys.size(); idx++ )
+    {
+	EM::EMObject* emobj = EM::BodyMan().getObject( dbkys[idx] );
+	if ( emobj )
+	    objs += emobj;
     }
+
+    deepRef( objs );
 }
 
 
