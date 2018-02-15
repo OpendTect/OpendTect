@@ -561,7 +561,7 @@ void uiSurfaceMan::fillAttribList()
 void uiSurfaceMan::mkFileInfo()
 {
 #define mAddInlCrlRangeTxt() \
-    txt.appendPlainText(": ");
+    txt.appendPlainText(": "); \
     if ( range.isUdf() ) \
 	txt.appendPlainText( "-" ); \
     else \
