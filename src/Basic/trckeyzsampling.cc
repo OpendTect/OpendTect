@@ -789,12 +789,12 @@ void TrcKeySampling::snapToSurvey()
 }
 
 
-void TrcKeySampling::toString( BufferString& str ) const
+void TrcKeySampling::toString( uiPhrase& str ) const
 {
-    str.add( "Inline range: " ).add( start_.lineNr() ).add( " - " )
-	.add( stop_.lineNr() ).add( " [" ).add( step_.lineNr() ).add( "]\n" );
-    str.add( "Crossline range: " ).add( start_.trcNr() ).add( " - " )
-	.add( stop_.trcNr() ).add( " [" ).add( step_.trcNr() ).add( "]" );
+    str.appendPhrase(tr("Inline range: %1 - %2 [%3]"))
+	.arg( start_.lineNr() ).arg( stop_.lineNr() ).arg( start_.lineNr() );
+    str.appendPhrase(tr("Crossline range: %1 - %2 [%3]"))
+	.arg( start_.trcNr() ).arg( stop_.trcNr() ).arg( start_.trcNr() );
 }
 
 

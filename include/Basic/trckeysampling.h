@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "typeset.h"
 #include "trckey.h"
-
+#include "uistring.h"
 typedef TypeSet<TrcKey> TrcKeyPath;
 
 /*!
@@ -23,7 +23,7 @@ typedef TypeSet<TrcKey> TrcKeyPath;
 */
 
 mExpClass(Basic) TrcKeySampling
-{
+{ mODTextTranslationClass(TrcKeySampling)
 public:
 
 			TrcKeySampling();
@@ -123,7 +123,7 @@ public:
     bool		usePar(const IOPar&);	//!< Keys as in keystrs.h
     void		fillPar(IOPar&) const;	//!< Keys as in keystrs.h
     static void		removeInfo(IOPar&);
-    void		toString(BufferString&) const; //!< Nice text for info
+    void		toString(uiPhrase&) const; //!< Nice text for info
 
     Pos::SurvID		survid_;
     BinID		start_;
