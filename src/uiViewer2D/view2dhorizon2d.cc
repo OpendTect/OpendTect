@@ -42,6 +42,7 @@ Vw2DHorizon2D::Vw2DHorizon2D( const DBKey& oid, uiFlatViewWin* win,
 void Vw2DHorizon2D::setEditors()
 {
     deepErase( horeds_ );
+
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
@@ -112,9 +113,7 @@ void Vw2DHorizon2D::draw()
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstRefMan<RegularFlatDataPack> regfdp = vwr.getPack( true, true );
 	if ( !regfdp ) continue;
-	if ( horeds_[ivwr] )
-	    horeds_[ivwr]->setMouseEventHandler(
-		&vwr.rgbCanvas().scene().getMouseEventHandler() );
+
 	horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
 	horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	horeds_[ivwr]->setSelSpec( vdselspec_, false );

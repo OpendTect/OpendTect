@@ -10,16 +10,17 @@ ________________________________________________________________________
 
 #include "horflatvieweditor3d.h"
 
-#include "emhorizonpainter3d.h"
 #include "emhorizon3d.h"
+#include "emhorizonpainter3d.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
 #include "emtracker.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
 #include "horflatvieweditor2d.h"
-#include "mouseevent.h"
+#include "keyboardevent.h"
 #include "mousecursor.h"
+#include "mouseevent.h"
 #include "mpeengine.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
@@ -29,7 +30,6 @@ ________________________________________________________________________
 
 #include "uiflatviewer.h"
 #include "uigraphicsview.h"
-#include "keyboardevent.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -188,16 +188,6 @@ void HorizonFlatViewEditor3D::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,HorizonFlatViewEditor3D,mouseReleaseCB) );
 	mehandler_->doubleClick.notify(
 		mCB(this,HorizonFlatViewEditor3D,doubleClickedCB) );
-
-	if ( MPE::engine().getTrackerByObject(emid_) != -1 )
-	{
-	    int trackeridx = MPE::engine().getTrackerByObject( emid_ );
-
-	    if ( MPE::engine().getTracker(trackeridx) )
-		MPE::engine().setActiveTracker( emid_ );
-	}
-	else
-	    MPE::engine().setActiveTracker( DBKey::getInvalid() );
     }
 
     for ( int idx=0; idx<markeridinfos_.size(); idx++ )
@@ -230,6 +220,13 @@ void HorizonFlatViewEditor3D::paint()
 }
 
 
+static bool allowTracking( const EMTracker* tracker, const DBKey& emid )
+{
+    return tracker && tracker->isEnabled() && tracker->objectID()==emid
+		   && !tracker->is2D();
+}
+
+
 void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 {
     const MouseEvent& mouseevent = mehandler_->event();
@@ -248,7 +245,7 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
 	const Coord3 coord = vwr->getCoord( wp );
 	MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-	if ( !tracker || tracker->is2D() || tracker->objectID() != emid_ )
+	if ( !allowTracking(tracker,emid_) )
 	    return;
 
 	MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
@@ -281,7 +278,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     if ( !vwr ) return;
 
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !tracker || tracker->objectID() != emid_ || tracker->is2D() )
+    if ( !allowTracking(tracker,emid_) )
 	return;
 
     EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
@@ -375,7 +372,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     }
 
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !tracker || tracker->is2D() || tracker->objectID() != emid_ )
+    if ( !allowTracking(tracker,emid_) )
 	return;
 
     EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
@@ -420,7 +417,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     const int trackerid = MPE::engine().getTrackerByObject( emid_ );
     engine().updateFlatCubesContainer( curcs_, trackerid, action );
 
-     if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() &&
+    if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() &&
 	seedpicker->getTrackMode()!=EMSeedPicker::DrawBetweenSeeds &&
 	seedpicker->getTrackMode()!=EMSeedPicker::DrawAndSnap )
 	emobj->setBurstAlert( false );
@@ -460,7 +457,6 @@ void HorizonFlatViewEditor3D::doubleClickedCB( CallBacker* cb )
     {
 	 makePatchEnd( false );
     }
-
 }
 
 
@@ -493,7 +489,7 @@ void HorizonFlatViewEditor3D::makePatchEnd( bool doerase )
 EMSeedPicker* HorizonFlatViewEditor3D::getEMSeedPicker() const
 {
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !tracker || tracker->is2D() || tracker->objectID() != emid_ )
+    if ( !allowTracking(tracker,emid_) )
 	return 0;
 
     EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
@@ -567,7 +563,7 @@ void HorizonFlatViewEditor3D::undo()
 
 void HorizonFlatViewEditor3D::redo()
 {
-   MouseCursorChanger mcc( MouseCursor::Wait );
+    MouseCursorChanger mcc( MouseCursor::Wait );
     MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
     if ( !seedpicker )
 	return;
@@ -599,8 +595,11 @@ void HorizonFlatViewEditor3D::redo()
 
 void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 {
-    sowingmode_ = false;
+    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+    if ( !allowTracking(tracker,emid_) )
+	return;
 
+    sowingmode_ = false;
     if ( !mehandler_ )
 	return;
 
@@ -613,6 +612,10 @@ void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 
 void HorizonFlatViewEditor3D::sowingModeCB( CallBacker* )
 {
+    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+    if ( !allowTracking(tracker,emid_) )
+	return;
+
     sowingmode_ = true;
 }
 
@@ -923,7 +926,6 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 
     horpainter_->removeSelections();
 }
-
 
 
 void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )

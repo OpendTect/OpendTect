@@ -111,8 +111,6 @@ void Vw2DHorizon3D::draw()
 
 	if ( horeds_[ivwr] )
 	{
-	    horeds_[ivwr]->setMouseEventHandler(
-			&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    if ( regfdp )
 		horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
 
