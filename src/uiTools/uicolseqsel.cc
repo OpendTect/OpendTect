@@ -26,6 +26,10 @@ ________________________________________________________________________
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 
+#define mGetSortedSeqNms( nms ) \
+    BufferStringSet nms; \
+    ColTab::SeqMGR().getSequenceNames( nms ); \
+    nms.sort()
 
 
 uiColSeqSelTool::uiColSeqSelTool()
@@ -135,12 +139,10 @@ void uiColSeqSelTool::selectCB( CallBacker* )
 	return;
 
     uiMenu* mnu = new uiMenu( asParent(), uiStrings::sAction() );
-    BufferStringSet nms;
-    ColTab::SeqMGR().getSequenceNames( nms );
-    nms.sort();
-
+    mGetSortedSeqNms( nms );
     int curidx = nms.indexOf( disp_->seqName() );
     BufferStringSet menunms;
+
     if  ( curidx < 0 )
 	menunms = nms;
     else
@@ -248,12 +250,13 @@ void uiColSeqSelTool::showManageDlg()
 
 void uiColSeqSelTool::nextColSeq( bool prev )
 {
-    const int curidx = ColTab::SeqMGR().indexOf( seqName() );
-    if ( (prev && curidx < 1) || (!prev && curidx>=ColTab::SeqMGR().size()-1) )
+    mGetSortedSeqNms( nms );
+    const int curidx = nms.indexOf( seqName() );
+    const int newidx = prev ? curidx-1 : curidx+1;
+    if ( !nms.validIdx(newidx) )
 	return;
 
-    const int newidx = prev ? curidx-1 : curidx+1;
-    setSeqName( ColTab::SeqMGR().getByIdx(newidx)->name() );
+    setSeqName( nms.get(newidx) );
 }
 
 

@@ -319,9 +319,9 @@ void uiColSeqDisp::mouseWheelCB( CallBacker* )
     if ( event.isWithKey() )
 	return;
 
-    if ( event.angle() > 0 )
+    if ( event.angle() < 0 )
 	mMouseTrigger( upReq )
-    else if ( event.angle() < 0 )
+    else if ( event.angle() > 0 )
 	mMouseTrigger( downReq )
 }
 
