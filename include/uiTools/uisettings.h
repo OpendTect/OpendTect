@@ -185,7 +185,6 @@ protected:
 };
 
 
-
 mExpClass(uiTools) uiGeneralLnFSettingsGroup : public uiSettingsGroup
 { mODTextTranslationClass(uiGeneralLnFSettingsGroup);
 public:
@@ -201,16 +200,35 @@ protected:
 
     uiThemeSel*		themesel_;
     uiIconSetSel*	iconsetsel_;
-    uiGenInput*		iconszfld_;
+    uiGenInput*		tbszfld_;
+
+    int			initialtbsz_;
+
+    virtual void	doCommit(uiRetVal&);
+    virtual void	doRollBack();
+
+};
+
+
+mExpClass(uiTools) uiProgressSettingsGroup : public uiSettingsGroup
+{ mODTextTranslationClass(uiGeneralLnFSettingsGroup);
+public:
+
+    mDecluiSettingsGroupPublicFns( uiProgressSettingsGroup,
+				   Interaction, "GenInteraction", "progress",
+				   uiStrings::sProgress(), mTODOHelpKey )
+
+			uiProgressSettingsGroup(uiParent*,Settings&);
+
+protected:
+
     uiCheckList*	showprogressfld_;
 
-    int			initialiconsz_;
     bool		initialshowinlprogress_;
     bool		initialshowcrlprogress_;
     bool		initialshowrdlprogress_;
 
     virtual void	doCommit(uiRetVal&);
-    virtual void	doRollBack();
 
 };
 

@@ -38,6 +38,7 @@ mDefModInitFn(uiTools)
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();
     uiColTabSelTool::initClass();
+    uiProgressSettingsGroup::initClass();
 
     Coords::uiUnlocatedXYSystem::initClass();
     Coords::uiAnchorBasedXYSystem::initClass();

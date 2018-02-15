@@ -249,7 +249,7 @@ bool uiAdvSettings::acceptOK()
 }
 
 
-static int theiconsz_ = -1;
+static int thetbsz_ = -1;
 mImplClassFactory( uiSettingsGroup, factory )
 
 
@@ -329,10 +329,7 @@ void uiStorageSettingsGroup::doCommit( uiRetVal& )
 // uiGeneralLnFSettingsGroup
 uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
     : uiSettingsGroup(p,s)
-    , initialiconsz_(theiconsz_ < 0 ? uiObject::iconSize() : theiconsz_)
-    , initialshowinlprogress_(true)
-    , initialshowcrlprogress_(true)
-    , initialshowrdlprogress_(true)
+    , initialtbsz_(thetbsz_ < 0 ? uiObject::iconSize() : thetbsz_)
     , iconsetsel_(0)
 {
     themesel_ = new uiThemeSel( this, true );
@@ -346,33 +343,10 @@ uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
 	iconsetsel_->attach( alignedBelow, themesel_ );
 	hattgrp = iconsetsel_;
     }
-    iconszfld_ = new uiGenInput( this,
-		    iconsetsel_ ? uiStrings::sSize() : tr("Icon Size"),
-				 IntInpSpec(initialiconsz_,10,64) );
-    if ( iconsetsel_ )
-	iconszfld_->attach( rightOf, iconsetsel_ );
-    else
-    {
-	hattgrp = iconszfld_;
-	iconszfld_->attach( alignedBelow, themesel_ );
-    }
 
-    setts_.getYN( SettingsAccess::sKeyShowInlProgress(),
-		  initialshowinlprogress_ );
-    setts_.getYN( SettingsAccess::sKeyShowCrlProgress(),
-		  initialshowcrlprogress_ );
-    setts_.getYN( SettingsAccess::sKeyShowRdlProgress(),
-		  initialshowrdlprogress_ );
-    showprogressfld_ = new uiCheckList( this );
-    showprogressfld_->setLabel( tr("Show progress loading") );
-    showprogressfld_->addItem( uiStrings::sInline(mPlural), "cube_inl" );
-    showprogressfld_->addItem( uiStrings::sCrossline(mPlural), "cube_crl" );
-    showprogressfld_->addItem( uiStrings::sRandomLine(mPlural),
-			       "cube_randomline" );
-    showprogressfld_->setChecked( 0, initialshowinlprogress_ );
-    showprogressfld_->setChecked( 1, initialshowcrlprogress_ );
-    showprogressfld_->setChecked( 2, initialshowrdlprogress_ );
-    showprogressfld_->attach( alignedBelow, hattgrp );
+    tbszfld_ = new uiGenInput( this, tr("ToolButton Size"),
+				 IntInpSpec(initialtbsz_,10,64) );
+    tbszfld_->attach( alignedBelow, hattgrp );
 }
 
 
@@ -391,19 +365,48 @@ void uiGeneralLnFSettingsGroup::doCommit( uiRetVal& )
     if ( iconsetsel_ && iconsetsel_->newSetSelected() )
 	changed_ = true;
 
-    const int newiconsz = iconszfld_->getIntValue();
-    if ( newiconsz != initialiconsz_ )
+    const int newtbsz = tbszfld_->getIntValue();
+    if ( newtbsz != initialtbsz_ )
     {
 	IOPar* iopar = setts_.subselect( SettingsAccess::sKeyIcons() );
 	if ( !iopar ) iopar = new IOPar;
-	iopar->set( "size", newiconsz );
+	iopar->set( "size", newtbsz );
 	setts_.mergeComp( *iopar, SettingsAccess::sKeyIcons() );
 	changed_ = true;
 	needsrestart_ = true;
 	delete iopar;
-	theiconsz_ = newiconsz;
+	thetbsz_ = newtbsz;
     }
+}
 
+
+// uiProgressSettingsGroup
+uiProgressSettingsGroup::uiProgressSettingsGroup( uiParent* p, Settings& s )
+    : uiSettingsGroup(p,s)
+    , initialshowinlprogress_(true)
+    , initialshowcrlprogress_(true)
+    , initialshowrdlprogress_(true)
+{
+    setts_.getYN( SettingsAccess::sKeyShowInlProgress(),
+		  initialshowinlprogress_ );
+    setts_.getYN( SettingsAccess::sKeyShowCrlProgress(),
+		  initialshowcrlprogress_ );
+    setts_.getYN( SettingsAccess::sKeyShowRdlProgress(),
+		  initialshowrdlprogress_ );
+    showprogressfld_ = new uiCheckList( this );
+    showprogressfld_->setLabel( tr("Show progress loading") );
+    showprogressfld_->addItem( uiStrings::sInline(mPlural), "cube_inl" );
+    showprogressfld_->addItem( uiStrings::sCrossline(mPlural), "cube_crl" );
+    showprogressfld_->addItem( uiStrings::sRandomLine(mPlural),
+			       "cube_randomline" );
+    showprogressfld_->setChecked( 0, initialshowinlprogress_ );
+    showprogressfld_->setChecked( 1, initialshowcrlprogress_ );
+    showprogressfld_->setChecked( 2, initialshowrdlprogress_ );
+}
+
+
+void uiProgressSettingsGroup::doCommit( uiRetVal& )
+{
     updateSettings( initialshowinlprogress_, showprogressfld_->isChecked(0),
 		    SettingsAccess::sKeyShowInlProgress() );
     updateSettings( initialshowcrlprogress_, showprogressfld_->isChecked(1),

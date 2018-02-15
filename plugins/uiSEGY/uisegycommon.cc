@@ -170,6 +170,10 @@ uiSEGYSettingsGroup( uiParent* p, Settings& setts )
 		tr("Maximum acceptable number of samples per trace"),
 			  IntInpSpec(initialmaxreassamps_,1,32768) );
     maxnrsampfld_->attach( alignedBelow, suppressfld_ );
+    uiString tt( tr("Up to 32k samples is supported by SEG-Y") );
+    tt.appendPhrase( tr("But very large numbers usually indicate a problem "
+			"(rather than a real huge trace length)" ) );
+    maxnrsampfld_->setToolTip( tt );
     examinenrtrcsfld_ = new uiGenInput( this,
 		tr("Default number of traces to examine"),
 			  IntInpSpec(initialexaminenrtrcs_,1,mUdf(int)) );

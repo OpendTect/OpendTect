@@ -360,6 +360,7 @@ public:
     static uiWord sProbe(int n=1)	{ return tr("Probe",0,n); }
     static uiWord sProcessing()		{ return tr("Processing"); }
     static uiWord sProcessingPars()	{ return tr("Processing parameters"); }
+    static uiWord sProgress()		{ return tr("Progress"); }
     static uiWord sProbDensFunc(bool abbr,int n=1);
     static uiWord sProgram()		{ return tr("Program"); }
     static uiWord sProblem(int n=1)	{ return tr("Problem",0,n); }
