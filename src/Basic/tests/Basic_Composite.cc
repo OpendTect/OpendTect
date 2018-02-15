@@ -12,10 +12,6 @@
 
 
 #undef mTestMainFnName
-#define mTestMainFnName test_main_basic
-#include "basic.cc"
-
-#undef mTestMainFnName
 #define mTestMainFnName test_main_callback
 #include "callback.cc"
 
@@ -67,13 +63,15 @@
 #define mTestMainFnName test_main_uistring
 #include "uistring.cc"
 
+#undef mTestMainFnName
+#define mTestMainFnName test_main_various_basic
+#include "various_basic.cc"
+
 
 int testMain( int argc, char** argv )
 {
     mInitCompositeTestProg( Basic );
 
-    mRunSubTest( basic );
-    mRunSubTest( callback );
     mRunSubTest( commandlineparser );
     mRunSubTest( datapack );
     mRunSubTest( dbkey );
@@ -86,6 +84,9 @@ int testMain( int argc, char** argv )
     mRunSubTest( threadwork );
     mRunSubTest( trckeyzsampling );
     mRunSubTest( uistring );
+    mRunSubTest( various_basic );
+
+    mRunSubTest( callback );
 
     return 0;
 }
