@@ -26,7 +26,7 @@ static bool test2DRegresson( const float* xvals, const float* yvals, int sz )
     ls2d.use( yvals, xvals, sz );
     if ( !quiet )
 	od_cout() << "a0=" << ls2d.lp.a0 << " ax=" << ls2d.lp.ax << od_endl;
-    const float ax = 1.0 / ls2d.lp.ax;
+    const float ax = 1.0f / ls2d.lp.ax;
     const float a0 = -ls2d.lp.a0 / ls2d.lp.ax;
     if ( !quiet )
 	od_cout() << "inv a0=" << a0 << " ax=" << ax << od_endl;
