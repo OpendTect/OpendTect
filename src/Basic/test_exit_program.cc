@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id: refcount.cc 30402 2013-06-21 07:20:27Z
 #include "testprog.h"
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 

@@ -93,7 +93,7 @@ static bool writeDefToFile( SEGY::DirectDef& dd, const char* fnm )
 { od_cout() << strmstuff << od_endl; return 1; }
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 

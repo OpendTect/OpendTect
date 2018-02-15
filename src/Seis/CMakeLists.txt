@@ -7,14 +7,7 @@
 
 set(OD_MODULE_DEPS Geometry MMProc )
 
-set(OD_TEST_PROGS
-	seisblocks.cc
-	seisbuf.cc
-	seiskeytracker.cc
-)
-
 set( OD_NIGHTLY_TEST_PROGS seisprovider.cc )
-set( OD_MODULE_TESTS_IGNORE_CONTINUOUS test_seisblocks )
 
 set(OD_MODULE_SOURCES
 	initseis.cc

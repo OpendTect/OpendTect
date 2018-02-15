@@ -91,11 +91,11 @@ static bool testVol()
     TrcKeySampling tks;
     tks.start_ = tks.stop_ = tk_last.binID();
     mTestSubselection( new Seis::RangeSelData(tks),
-	    	       "Subselection to last trc", false );
+		       "Subselection to last trc", false );
 
     tks.stop_ = tks.start_ = tk_non_existent.binID();
     mTestSubselection( new Seis::RangeSelData(tks),
-	    	       "Subselection to outside data range", true );
+		       "Subselection to outside data range", true );
     mTestPreLoad( TrcKeyZSampling(true) );
     mTestPreLoadTrc( false );
     mTestIOParUsage( true );
@@ -148,12 +148,12 @@ static bool testPS3D()
     info.getRanges( tkzs );
     tkzs.hsamp_.stop_.inl() = tkzs.hsamp_.start_.inl();
     mTestSubselection( new Seis::RangeSelData(tkzs.hsamp_),
-	    	       "Subselection to one in-line:", false );
+		       "Subselection to one in-line:", false );
 
     TrcKeySampling tks;
     tks.start_ = tks.stop_ = tk_1300_1200.binID();
     mTestSubselection( new Seis::RangeSelData(tks),
-	    	       "Subselection to tk_1300_1200:", false );
+		       "Subselection to tk_1300_1200:", false );
     mTestPreLoadTrc( true );
     mTestIOParUsage( true );
     mTestComponentSelection( true );
@@ -174,7 +174,7 @@ static bool testPS2D()
     tks.set2DDef();
     tks.start_ = tks.stop_ = tk_non_existent.binID();
     mTestSubselection( new Seis::RangeSelData(tks),
-	    	       "Subselection to non-existent trc", true );
+		       "Subselection to non-existent trc", true );
     mTestPreLoadTrc( true );
     mTestIOParUsage( true );
     mTestComponentSelection( true );
@@ -182,7 +182,7 @@ static bool testPS2D()
 }
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
     OD::ModDeps().ensureLoaded("Seis");

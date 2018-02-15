@@ -158,7 +158,7 @@ bool TestRunner::testNetSocket( bool closeserver )
 // can be specified by --serverapp "application". If no serverapp is given,
 // echoserver is started
 
-int testMain(int argc, char** argv)
+int mTestMainFnName(int argc, char** argv)
 {
     mInitTestProg();
     ApplicationData app;

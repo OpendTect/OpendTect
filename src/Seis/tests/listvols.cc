@@ -58,7 +58,7 @@ static int runEntryList( const IOObjContext& ctxt, BufferStringSet& strs )
 }
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
     OD::ModDeps().ensureLoaded("Seis");

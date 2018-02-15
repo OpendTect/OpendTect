@@ -85,7 +85,7 @@ void reDraw()
 
 };
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 

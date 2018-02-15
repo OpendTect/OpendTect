@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mErrRet(strmstuff) \
 { od_cout() << strmstuff << od_endl; return 1; }
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
