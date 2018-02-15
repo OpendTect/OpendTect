@@ -117,9 +117,7 @@ void Vw2DHorizon2D::draw()
 	ConstDataPackRef<RegularFlatDataPack> regfdp =
 				    vwr.obtainPack( true, true );
 	if ( !regfdp ) continue;
-	if ( horeds_[ivwr] )
-	    horeds_[ivwr]->setMouseEventHandler(
-		&vwr.rgbCanvas().scene().getMouseEventHandler() );
+
 	horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
 	horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	horeds_[ivwr]->setSelSpec( vdselspec_, false );
@@ -182,6 +180,7 @@ void Vw2DHorizon2D::selected( bool enabled )
 
     if ( !tracker ) return;
 }
+
 
 void Vw2DHorizon2D::setSeedPicking( bool ison )
 {

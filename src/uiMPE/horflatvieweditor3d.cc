@@ -63,7 +63,7 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 	HorizonFlatViewEditor3D::sowingFinishedCB );
     mAttachCB( editor_->sower().sowing,
 	HorizonFlatViewEditor3D::sowingModeCB );
-    mAttachCB( editor_->movementFinished, 
+    mAttachCB( editor_->movementFinished,
 	HorizonFlatViewEditor3D::polygonFinishedCB );
     mAttachCB( editor_->releaseSelection,
 	HorizonFlatViewEditor3D::releasePolygonSelectionCB );
@@ -120,7 +120,7 @@ void HorizonFlatViewEditor3D::releasePolygonSelectionCB( CallBacker* )
 void HorizonFlatViewEditor3D::preferColorChangedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
-    if ( horpainter_ && 
+    if ( horpainter_ &&
 	cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
 	horpainter_->updatePreferColors();
 }
@@ -188,16 +188,6 @@ void HorizonFlatViewEditor3D::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,HorizonFlatViewEditor3D,mouseReleaseCB) );
 	mehandler_->doubleClick.notify(
 		mCB(this,HorizonFlatViewEditor3D,doubleClickedCB) );
-
-	if ( MPE::engine().getTrackerByObject(emid_) != -1 )
-	{
-	    int trackeridx = MPE::engine().getTrackerByObject( emid_ );
-
-	    if ( MPE::engine().getTracker(trackeridx) )
-		MPE::engine().setActiveTracker( emid_ );
-	}
-	else
-	    MPE::engine().setActiveTracker( -1 );
     }
 
     for ( int idx=0; idx<markeridinfos_.size(); idx++ )
@@ -230,6 +220,13 @@ void HorizonFlatViewEditor3D::paint()
 }
 
 
+static bool allowTracking( const EMTracker* tracker, EM::ObjectID emid )
+{
+    return tracker && tracker->isEnabled() && tracker->objectID()==emid
+		   && !tracker->is2D();
+}
+
+
 void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 {
     const MouseEvent& mouseevent = mehandler_->event();
@@ -248,7 +245,7 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
 	const Coord3 coord = vwr->getCoord( wp );
 	MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-	if ( !tracker || tracker->is2D() || tracker->objectID() != emid_ )
+	if ( !allowTracking(tracker,emid_) )
 	    return;
 
 	MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
@@ -281,7 +278,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     if ( !vwr ) return;
 
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !tracker || tracker->objectID() != emid_ || tracker->is2D() )
+    if ( !allowTracking(tracker,emid_) )
 	return;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -344,7 +341,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     }
 
     const Color prefcol = emobj->preferredColor();
-    const Color sowcolor = 
+    const Color sowcolor =
 	prefcol !=Color::Red() ? Color::Red() : Color::Green();
 
     if ( editor_ )
@@ -375,7 +372,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     }
 
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !tracker || tracker->is2D() || tracker->objectID() != emid_ )
+    if ( !allowTracking(tracker,emid_) )
 	return;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -475,7 +472,7 @@ void HorizonFlatViewEditor3D::makePatchEnd( bool doerase )
 
     TrcKeySampling tckpath;
     patch->getTrcKeySampling( tckpath );
-    if ( tckpath.isEmpty() ) 
+    if ( tckpath.isEmpty() )
 	return;
 
     horpainter_->setUpdateTrcKeySampling( tckpath );
@@ -491,7 +488,7 @@ void HorizonFlatViewEditor3D::makePatchEnd( bool doerase )
 EMSeedPicker* HorizonFlatViewEditor3D::getEMSeedPicker() const
 {
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !tracker || tracker->is2D() || tracker->objectID() != emid_ )
+    if ( !allowTracking(tracker,emid_) )
 	return 0;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -598,18 +595,27 @@ void HorizonFlatViewEditor3D::redo()
 
 void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 {
+    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+    if ( !allowTracking(tracker,emid_) )
+	return;
+
     sowingmode_ = false;
-    if ( !mehandler_ ) return;
+    if ( !mehandler_ )
+	return;
+
     const MouseEvent& mouseevent = mehandler_->event();
     const bool doerase =
 	!mouseevent.shiftStatus() && mouseevent.ctrlStatus();
     makePatchEnd( doerase );
-
 }
 
 
 void HorizonFlatViewEditor3D::sowingModeCB( CallBacker* )
 {
+    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+    if ( !allowTracking(tracker,emid_) )
+	return;
+
     sowingmode_ = true;
 }
 
@@ -637,7 +643,7 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 	if ( !HorizonFlatViewEditor2D::selectSeedData(editor_,pickinvd) )
 	    return false;
     }
-    
+
     const bool vdvisible = editor_->viewer().isVisible(false);
     const bool wvavisible = editor_->viewer().isVisible(true);
     const bool needsdata = spk.getTrackMode() != spk.DrawBetweenSeeds;
@@ -735,7 +741,7 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 
 	const bool doerase =
 	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus() && sowingmode_;
-	const bool manualmodeclick = !mouseevent.ctrlStatus() && 
+	const bool manualmodeclick = !mouseevent.ctrlStatus() &&
 	    ( spk.getTrackMode()==spk.DrawBetweenSeeds ||
 	     spk.getTrackMode()==spk.DrawAndSnap );
 
@@ -755,7 +761,7 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	{
 		spk.addSeed( tkv, drop, tkv2 );
 	}
-	else if ( sowingmode_ )	
+	else if ( sowingmode_ )
 	{
 	    spk.addSeedToPatch( tkv, false );
 	}
@@ -790,7 +796,7 @@ void HorizonFlatViewEditor3D::setupPatchDisplay()
     patchdata_->enabled_ = true;
 
     const int linewidth = sowingmode_ ? 0 : 4;
-    patchdata_->linestyle_ = 
+    patchdata_->linestyle_ =
 	OD::LineStyle( OD::LineStyle::Solid, linewidth, patchcolor );
 }
 
@@ -953,7 +959,7 @@ void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )
 
     editor_->setSelectionPolygonVisible( false );
 
-    if ( !selectedids.size() && horpainter_ ) 
+    if ( !selectedids.size() && horpainter_ )
     {
 	horpainter_->removeSelections();
 	return;

@@ -112,8 +112,6 @@ void Vw2DHorizon3D::draw()
 
 	if ( horeds_[ivwr] )
 	{
-	    horeds_[ivwr]->setMouseEventHandler(
-			&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    if ( regfdp )
 		horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
 
@@ -160,7 +158,7 @@ void Vw2DHorizon3D::selected( bool enabled )
     if ( activetracker )
     {
 	MPE::EMSeedPicker* seedpicker = activetracker->getSeedPicker(true);
-	if ( seedpicker && 
+	if ( seedpicker &&
 	     (seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawBetweenSeeds ||
 	      seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawAndSnap) )
 	    setenableseed = false;
