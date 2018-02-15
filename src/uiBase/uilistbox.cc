@@ -272,6 +272,13 @@ static bool isCtrlPressed( QInputEvent& ev )
 }
 
 
+static bool isShiftPressed( QInputEvent& ev )
+{
+    const Qt::KeyboardModifiers modif = ev.modifiers();
+    return modif == Qt::ShiftModifier;
+}
+
+
 void uiListBoxBody::handleSlideChange( int newstop, bool isclear )
 {
     sliderg_.include( newstop, false );
@@ -294,11 +301,23 @@ void uiListBoxBody::handleSlideChange( int newstop, bool isclear )
 
 void uiListBoxBody::mousePressEvent( QMouseEvent* ev )
 {
-    if ( ev && doslidesel_ && ev->button() == Qt::LeftButton
-	    && lb_->isMultiChoice() )
-	sliderg_.start = sliderg_.stop = itemIdxAtEvPos( *ev );
-    else
-	sliderg_.start = -1;
+    if ( ev && ev->button() == Qt::LeftButton && lb_->isMultiChoice() )
+    {
+	if ( doslidesel_ )
+	    sliderg_.start = sliderg_.stop = itemIdxAtEvPos( *ev );
+	else
+	    sliderg_.start = -1;
+
+	const bool isshift = isShiftPressed(*ev);
+	const bool isctrl = isCtrlPressed(*ev);
+	if ( isshift || isctrl )
+	{
+	    sliderg_.start = currentRow();
+	    sliderg_.stop = itemIdxAtEvPos( *ev );
+	    sliderg_.sort();
+	    handleSlideChange( sliderg_.stop, isctrl );
+	}
+    }
 
     QListWidget::mousePressEvent( ev );
 }
@@ -469,7 +488,7 @@ void uiListBox::mkCheckGroup()
 #else
     pb->setStyleSheet( ":pressed { border: 0; background: transparent }" );
 #endif
-    cb_ = new uiCheckBox( checkgrp_, uiStrings::sEmptyString(), 
+    cb_ = new uiCheckBox( checkgrp_, uiStrings::sEmptyString(),
 						mCB(this,uiListBox,checkCB) );
     cb_->setName( "Check-all box" );
     cb_->setMaximumWidth( 20 );
