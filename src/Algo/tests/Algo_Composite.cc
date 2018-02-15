@@ -40,6 +40,10 @@
 #include "gaussianprobdenfunc.cc"
 
 #undef mTestMainFnName
+#define mTestMainFnName test_main_regression
+#include "regression.cc"
+
+#undef mTestMainFnName
 #define mTestMainFnName test_main_simpnumer
 #include "simpnumer.cc"
 
@@ -67,6 +71,7 @@ int testMain( int argc, char** argv )
     mRunSubTest( datadistributionextracter );
     mRunSubTest( fourier );
     mRunSubTest( gaussianprobdenfunc );
+    mRunSubTest( regression );
     mRunSubTest( simpnumer );
     mRunSubTest( sorting );
     mRunSubTest( trigonometry );
