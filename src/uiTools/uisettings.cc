@@ -572,7 +572,7 @@ uiSettingsSubjectTreeItm( uiSettingsTypeTreeItm* typitm, uiSettingsGroup& grp )
 
 
 
-uiSettingsDlg::uiSettingsDlg( uiParent* p )
+uiSettingsDlg::uiSettingsDlg( uiParent* p, const char* initialgrpky )
     : uiDialog(p,uiDialog::Setup(tr("OpendTect Settings"),mNoDlgTitle,
 				      mTODOHelpKey))
     , setts_(Settings::common())
@@ -581,6 +581,9 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
     , renewalneeded_(false)
     , curtreeitm_(0)
 {
+    if ( !initialgrpky )
+	initialgrpky = uiGeneralLnFSettingsGroup::sFactoryKeyword();
+
     uiGroup* leftgrp = new uiGroup( this, "uiSettingsGroup tree" );
     treefld_ = new uiTreeView( leftgrp, "uiSettingsGroup tree" );
     treefld_->showHeader( false );
@@ -600,6 +603,7 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
     uiSeparator* sep = new uiSeparator( rightgrp, "Hor Sep" );
     sep->attach( stretchedBelow, grplbl_ );
 
+    const BufferString defgrp( initialgrpky );
     uiGroup* settsgrp = new uiGroup( rightgrp, "uiSettingsGroup area" );
     const BufferStringSet& kys = uiSettingsGroup::factory().getKeys();
     for ( int idx=0; idx<kys.size(); idx++ )
@@ -607,8 +611,13 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
 	const char* ky = kys.get( idx ).buf();
 	uiSettingsGroup* grp = uiSettingsGroup::factory().create(
 				    ky, settsgrp, setts_ );
-	treeitms_ += new uiSettingsSubjectTreeItm( typitms[grp->type()], *grp );
+	uiSettingsSubjectTreeItm* newitm =
+		new uiSettingsSubjectTreeItm( typitms[grp->type()], *grp );
+	treeitms_ += newitm;
+	if ( defgrp == ky )
+	    curtreeitm_ = newitm;
     }
+
     settsgrp->attach( ensureBelow, sep );
 
     uiSplitter* spl = new uiSplitter( this );
@@ -631,17 +640,17 @@ void uiSettingsDlg::initWin( CallBacker* )
     if ( treeitms_.isEmpty() )
 	return;
 
-    int defitmidx = 0;
-    for ( int idx=0; idx<treeitms_.size(); idx++ )
-	if ( FixedString(treeitms_[idx]->grp_.factoryKeyword())
-		== uiGeneralLnFSettingsGroup::sFactoryKeyword() )
-	    { defitmidx = idx; break; }
-    uiSettingsSubjectTreeItm* itm = treeitms_[defitmidx];
-
     treefld_->expandAll();
     mAttachCB( treefld_->selectionChanged, uiSettingsDlg::selChgCB );
-    treefld_->setCurrentItem( itm );
-    selChgCB( itm );
+
+    // force first update
+    uiSettingsSubjectTreeItm* curitm = curtreeitm_;
+    curtreeitm_ = 0;
+    if ( curitm )
+    {
+	treefld_->setCurrentItem( curitm );
+	selChgCB( curitm );
+    }
 }
 
 

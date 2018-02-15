@@ -35,7 +35,7 @@ mExpClass(uiTools) uiSettingsDlg : public uiDialog
 { mODTextTranslationClass(uiSettingsDlg);
 public:
 
-			uiSettingsDlg(uiParent*);
+			uiSettingsDlg(uiParent*,const char* grpky=0);
 			~uiSettingsDlg();
 
     bool		hadChanges() const	{ return havechanges_; }

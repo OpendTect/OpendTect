@@ -38,6 +38,8 @@ const char* uiColTabSelTool::sKeyShowUseModeSel()
 const char* uiColTabSelTool::sKeyShowHistEqBut()
 	{ return "dTect.Disp.ColTab.Show Histogram Equalisation Switch"; }
 
+static const char* sColTabSettFactKy = "ColTab";
+
 static uiColTabSelTool* globseltool_ = 0;
 mExtern(uiTools) void SetuiCOLTAB( uiColTabSelTool* st )
 {
@@ -466,6 +468,8 @@ void doMenu()
 		        mCB(this,uiManipMapper,reScaleReqCB)), 0 );
     mnu->insertAction( new uiAction(m3Dots(tr("Full Edit")),
 		        mCB(this,uiManipMapper,setupDlgReqCB)), 1 );
+    mnu->insertAction( new uiAction(m3Dots(tr("Settings")),
+		        mCB(this,uiManipMapper,doSettings)), 1 );
     seltool_.mapperMenuReq.trigger( mnu );
     mnu->exec();
 }
@@ -485,6 +489,12 @@ void setupDlgReqCB( CallBacker* )
 	eddlg_->show();
     }
     eddlg_->raise();
+}
+
+void doSettings( CallBacker* )
+{
+    uiSettingsDlg dlg( seltool_.asParent(), sColTabSettFactKy );
+    dlg.go();
 }
 
 void setupDlgCloseCB( CallBacker* )
@@ -944,14 +954,12 @@ uiColTabToolBar::uiColTabToolBar( uiParent* p )
 }
 
 
-
-
 class uiColTabSettingsGroup : public uiSettingsGroup
 { mODTextTranslationClass(uiColTabSettingsGroup);
 public:
 
     mDecluiSettingsGroupPublicFns( uiColTabSettingsGroup,
-				   LooknFeel, "ColTab", "colorbar",
+				   LooknFeel, sColTabSettFactKy, "colorbar",
 				   uiStrings::sColorTable(), mTODOHelpKey )
 
 uiColTabSettingsGroup( uiParent* p, Settings& setts )
@@ -970,7 +978,7 @@ uiColTabSettingsGroup( uiParent* p, Settings& setts )
     usemodefld_ = mCTInpFld( tr("Show Flip/Cyclic shortcut tool"),
 			  initialshowusemodesel_ );
     usemodefld_->attach( alignedBelow, txtmanipfld_ );
-    histeqfld_ = mCTInpFld( tr("Show Histogram Equaliation button"),
+    histeqfld_ = mCTInpFld( tr("Show Histogram Equalisation button"),
 			  initialshowhisteq_ );
     histeqfld_->attach( alignedBelow, usemodefld_ );
     asymfld_ = mCTInpFld( tr("Enable seting asymmetric clipping"),
