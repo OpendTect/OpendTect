@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2dsurv.h"
 #include "survgeom2d.h"
 #include "survgeometrytransl.h"
+#include "survinfo.h"
 
 #include "uibutton.h"
 #include "uifileinput.h"
@@ -61,7 +62,7 @@ ui2DGeomManageDlg::~ui2DGeomManageDlg()
 //-----------Manage Line Geometry-----------------
 
 class uiManageLineGeomDlg : public uiDialog
-{ mODTextTranslationClass(uiManageLineGeomDlg);
+{ mODTextTranslationClass(uiManageLineGeomDlg)
 public:
 
 uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
@@ -124,7 +125,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
 //---------- Import New Geomtery ----------------
 
 class uiGeom2DImpDlg : public uiDialog
-{ mODTextTranslationClass(uiGeom2DImpDlg);
+{ mODTextTranslationClass(uiGeom2DImpDlg)
 public:
 
 uiGeom2DImpDlg( uiParent* p, const char* linenm )
@@ -288,11 +289,12 @@ void ui2DGeomManageDlg::mkFileInfo()
 	const StepInterval<int> trcrg = geom2d->data().trcNrRange();
 	const BufferString diststr = toString(geom2d->averageTrcDist(),2);
 	const BufferString lengthstr = toString(geom2d->lineLength(),0);
+	const BufferString unitstr = SI().getXYUnitString();
 	txt.add( "Number of traces: " ).add( trcrg.nrSteps()+1 )
 	   .add( "\nTrace range: " ).add( trcrg.start ).add( " - " )
 	   .add( trcrg.stop )
-	   .add( "\nAverage distance: " ).add( diststr )
-	   .add( "\nLine length: " ).add( lengthstr )
+	   .add( "\nAverage distance: " ).add( diststr ).addSpace().add(unitstr)
+	   .add( "\nLine length: " ).add( lengthstr ).addSpace().add(unitstr)
 	   .addNewLine();
     }
 
@@ -322,16 +324,13 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 	    continue;
 
 	const BufferString lnm( ioobj->name() );
-	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
-	    return;
-
 	if ( !fullImplRemove(*ioobj) )
 	{
 	    msgs += tr("Cannot remove %1").arg(lnm);
 	    continue;
 	}
 
+	const Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
 	IOM().permRemove( ioobj->key() );
 	Survey::GMAdmin().removeGeometry( geomid );
 	const FixedString crfromstr = ioobj->pars().find( sKey::CrFrom() );
