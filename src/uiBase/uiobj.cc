@@ -174,10 +174,6 @@ static BufferString getCleanName( const char* nm )
 }
 
 
-
-static int iconsz_ = -1;
-static int fldsz_ = -1;
-
 uiObject::uiObject( uiParent* p, const char* nm )
     : uiBaseObject( getCleanName(nm), 0 )
     , setGeometry(this)
@@ -496,29 +492,27 @@ int uiObject::height() const
 }
 
 
-int uiObject::iconSize()
+int uiObject::toolButtonSize()
 {
-    if ( iconsz_ < 0 )
-    {
-	const BufferString key =
-	    IOPar::compKey( SettingsAccess::sKeyIcons(), "size" );
-	iconsz_ = 24;
-	Settings::common().get( key, iconsz_ );
-    }
-
-    return iconsz_;
+    const BufferString key =
+	IOPar::compKey( SettingsAccess::sKeyIcons(), "size" );
+    int sz = 24;
+    Settings::common().get( key, sz );
+    return sz;
 }
 
 
+static int basefldsz_ = -1;
+
 int uiObject::baseFldSize()
 {
-    if ( fldsz_ < 0 )
+    if ( basefldsz_ < 0 )
     {
-	fldsz_ = 10;
-	Settings::common().get( "dTect.Field.size", fldsz_ );
+	basefldsz_ = 10;
+	Settings::common().get( "dTect.Field.size", basefldsz_ );
     }
 
-    return fldsz_;
+    return basefldsz_;
 }
 
 

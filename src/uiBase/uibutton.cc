@@ -664,7 +664,8 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const char* iconnm,
     tbbody_ = new uiToolButtonBody(*this,parnt,txt);
     uiIcon icon( iconnm );
     tbbody_->setIcon( icon.qicon() );
-    tbbody_->setIconSize( QSize(iconSize(),iconSize()) );
+    const int sz = toolButtonSize();
+    tbbody_->setIconSize( QSize(sz,sz) );
     return *tbbody_;
 }
 

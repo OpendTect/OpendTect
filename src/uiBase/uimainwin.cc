@@ -205,7 +205,6 @@ private:
 
     QEventLoop		eventloop_;
 
-    int			iconsz_;
     bool		modal_;
     Qt::WindowFlags	getFlags(bool hasparent,bool modal) const;
 
@@ -246,21 +245,19 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, createtbmenu_(false)
 	, hasguisettings_(false)
 	, force_finalise_(false)
+	, deletefrombody_(false)
+	, deletefromod_(false)
 {
     if ( nm && *nm )
 	setObjectName( nm );
 
-    poptimer_.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
-
-    iconsz_ = uiObject::iconSize();
-    setIconSize( QSize(iconsz_,iconsz_) );
-
+    const int sz = uiObject::toolButtonSize();
+    setIconSize( QSize(sz,sz) );
     setWindowModality( p && modal ? Qt::WindowModal
 				  : Qt::NonModal );
-
     setDockOptions( VerticalTabs | AnimatedDocks );
 
-    deletefrombody_ = deletefromod_ = false;
+    poptimer_.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
 }
 
 

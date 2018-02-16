@@ -125,7 +125,7 @@ void uiToolBar::addObject( uiObject* obj, int maxsz )
 	{
 	    if ( maxsz < 1 )
 		maxsz = 1;
-	    maxsz *= uiObject::iconSize();
+	    maxsz *= uiObject::toolButtonSize();
 	    qw->setMaximumWidth( maxsz );
 	    qw->setMaximumHeight( maxsz );
 	    limitObjSize( qw );
@@ -138,7 +138,7 @@ void uiToolBar::addObject( uiObject* obj, int maxsz )
 
 void uiToolBar::limitObjSize( QWidget* qw )
 {
-    const int icsz = uiObject::iconSize();
+    const int icsz = uiObject::toolButtonSize();
     const int maxwdth = qw->maximumWidth();
     const int maxhght = qw->maximumHeight();
     const int maxothsz = maxwdth > maxhght ? maxwdth : maxhght;

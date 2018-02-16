@@ -304,10 +304,9 @@ uiColSeqUseModeCompactSel( uiParent* p )
     , modeChange(this)
 {
     disableScrollZoom();
-    setMinimumWidth( uiObject::iconSize() );
-    setMinimumHeight( uiObject::iconSize() );
-    setMaximumWidth( uiObject::iconSize() );
-    setMaximumHeight( uiObject::iconSize() );
+    const int sz = uiObject::toolButtonSize();
+    setMinimumWidth( sz ); setMinimumHeight( sz );
+    setMaximumWidth( sz ); setMaximumHeight( sz );
     mAttachCB( postFinalise(), uiColSeqUseModeCompactSel::initCB );
 }
 

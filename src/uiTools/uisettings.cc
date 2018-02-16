@@ -329,7 +329,7 @@ void uiStorageSettingsGroup::doCommit( uiRetVal& )
 // uiGeneralLnFSettingsGroup
 uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
     : uiSettingsGroup(p,s)
-    , initialtbsz_(thetbsz_ < 0 ? uiObject::iconSize() : thetbsz_)
+    , initialtbsz_(thetbsz_ < 0 ? uiObject::toolButtonSize() : thetbsz_)
     , iconsetsel_(0)
 {
     themesel_ = new uiThemeSel( this, true );

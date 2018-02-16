@@ -186,7 +186,8 @@ public:
     bool		isCursorInside() const;
 
     static int		baseFldSize();
-    static int		iconSize();
+    static int		toolButtonSize();
+    mDeprecated inline static int iconSize() { return toolButtonSize(); }
 
 };
 

@@ -927,8 +927,9 @@ void uiListBox::setPixmap( int index, const Color& col )
     if ( index<0 || index>=size() || !lb_->body().item(index) )
 	return;
 
-    QSize sz = lb_->body().iconSize();
-    uiPixmap pm( sz.width(), sz.height() ); pm.fill( col );
+    const int sz = 32; // does it extrapolate? then we can use 2
+    uiPixmap pm( sz, sz );
+    pm.fill( col );
     setPixmap( index, pm );
 }
 
