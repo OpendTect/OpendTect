@@ -24,7 +24,8 @@
 #include <osgGeo/LayeredTexture>
 
 
-using namespace visBase;
+namespace visBase
+{
 
 HorizonTextureHandler::HorizonTextureHandler( const HorizonSection* horsection )
     : channels_( TextureChannels::create() )
@@ -356,3 +357,5 @@ void HorizonTextureHandler::setHorizonSection( const HorizonSection& horsec )
     horsection_ = &horsec;
     updateTileTextureOrigin();
 }
+
+} // namespace visBase

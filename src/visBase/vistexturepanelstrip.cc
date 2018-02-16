@@ -18,8 +18,8 @@ ________________________________________________________________________
 
 mCreateFactoryEntry( visBase::TexturePanelStrip );
 
-using namespace visBase;
-
+namespace visBase
+{
 
 TexturePanelStrip::TexturePanelStrip()
     : VisualObjectImpl( false )
@@ -39,7 +39,7 @@ TexturePanelStrip::~TexturePanelStrip()
 }
 
 
-void TexturePanelStrip::setTextureChannels( visBase::TextureChannels* channels )
+void TexturePanelStrip::setTextureChannels( TextureChannels* channels )
 {
     channels_ = channels;
     osgpanelstrip_->setTexture( channels_->getOsgTexture() );
@@ -49,7 +49,7 @@ void TexturePanelStrip::setTextureChannels( visBase::TextureChannels* channels )
 }
 
 
-visBase::TextureChannels* TexturePanelStrip::getTextureChannels()
+TextureChannels* TexturePanelStrip::getTextureChannels()
 { return channels_; }
 
 
@@ -147,7 +147,7 @@ void TexturePanelStrip::setZRange2TextureMapping(
 					    const Interval<float>& offsets )
 {
     osgpanelstrip_->setZRange2TextureMapping(true, offsets.start, offsets.stop);
-} 
+}
 
 
 void TexturePanelStrip::unsetZRange2TextureMapping()
@@ -198,7 +198,7 @@ void TexturePanelStrip::setDisplayTransformation( const mVisTrans* tr )
 	pErrMsg( "Display transformation violates assumed orthogonality "
 		 "between xy and z." );
     }
-    
+
     Interval<float> zrange = getZRange();
     displaytrans_ = tr;
     setZRange( zrange );
@@ -219,7 +219,7 @@ int TexturePanelStrip::getNrTextures() const
 }
 
 
-bool TexturePanelStrip::getTextureDataInfo( int tidx, 
+bool TexturePanelStrip::getTextureDataInfo( int tidx,
 	TextureDataInfo& texinfo ) const
 {
     texinfo.setEmpty();
@@ -230,9 +230,9 @@ bool TexturePanelStrip::getTextureDataInfo( int tidx,
 	return false;
 
     const osg::Array* coords = geometries[tidx]->getVertexArray();
-    const osg::Vec3Array* vtxcoords = 
+    const osg::Vec3Array* vtxcoords =
 	dynamic_cast<const osg::Vec3Array*>(coords);
-    
+
     const osg::PrimitiveSet* ps = geometries[tidx]->getPrimitiveSet(0);
 
     if ( !vtxcoords || !ps ) return false;
@@ -269,7 +269,7 @@ const unsigned char* TexturePanelStrip::getTextureData() const
 }
 
 
-bool TexturePanelStrip::calcTextureCoordinates( int geomidx, 
+bool TexturePanelStrip::calcTextureCoordinates( int geomidx,
 						TypeSet<Coord>& coords ) const
 {
     coords.setEmpty();
@@ -280,8 +280,8 @@ bool TexturePanelStrip::calcTextureCoordinates( int geomidx,
 
     for ( int idx=0; idx<osgcoords->size(); idx++ )
 	coords += Conv::to<Coord>( osgcoords->at(idx) );
-    
+
     return true;
 }
 
-
+} // namespace visBase

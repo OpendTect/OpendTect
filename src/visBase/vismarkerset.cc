@@ -27,7 +27,8 @@ ________________________________________________________________________
 
 mCreateFactoryEntry( visBase::MarkerSet );
 
-using namespace visBase;
+namespace visBase
+{
 
 MarkerSet::MarkerSet()
     : VisualObjectImpl(true)
@@ -81,20 +82,19 @@ Normals* MarkerSet::getNormals()
 	normals_ = Normals::create();
 	markerset_->setNormalArray( mGetOsgVec3Arr( normals_->osgArray()) );
     }
-    
+
     return normals_;
 }
 
 
-void MarkerSet::setMaterial( visBase::Material* mat )
+void MarkerSet::setMaterial( Material* mat )
 {
    if ( mat && material_==mat ) return;
 
    if ( material_ )
        markerset_->setColorArray( 0 );
-   
-   visBase::VisualObjectImpl::setMaterial( mat );
 
+   VisualObjectImpl::setMaterial( mat );
    materialChangeCB( 0 );
 
 }
@@ -105,7 +105,7 @@ void MarkerSet::materialChangeCB( CallBacker* cb)
      if ( material_ )
      {
 	 const TypeSet<Color> colors = material_->getColors();
-	 osg::ref_ptr<osg::Vec4Array> osgcolorarr = 
+	 osg::ref_ptr<osg::Vec4Array> osgcolorarr =
 	     new osg::Vec4Array( colors.size() );
 
 	 for ( int idx = 0; idx< colors.size(); idx++ )
@@ -114,7 +114,7 @@ void MarkerSet::materialChangeCB( CallBacker* cb)
 	 markerset_->setColorArray( osgcolorarr.get() );
 	 markerset_->useSingleColor( false );
      }
-     else 
+     else
      {
 	 markerset_->setColorArray( 0 );
 	 markerset_->useSingleColor( true );
@@ -144,7 +144,7 @@ void MarkerSet::removeMarker( int idx )
 	onoffarr->erase( onoffarr->begin()+idx );
     }
     markerset_->forceRedraw( true );
-    
+
 }
 
 
@@ -235,7 +235,7 @@ void MarkerSet::setSingleMarkerRotation( const Quaternion& rot, int idx )
     rot.getRotation( axis, angle );
     const osg::Quat osgquat( angle,
 			    osg::Vec3(axis.x_,axis.y_,axis.z_) );
-    markerset_->setSingleMarkerRotation( osgquat, idx ); 
+    markerset_->setSingleMarkerRotation( osgquat, idx );
 }
 
 
@@ -284,7 +284,7 @@ void MarkerSet::setMarkerHeightRatio( float heightratio )
 }
 
 
-float MarkerSet::getMarkerHeightRatio() const 
+float MarkerSet::getMarkerHeightRatio() const
 {
     return markerset_->getMarkerHeightRatio();
 }
@@ -348,7 +348,7 @@ void MarkerSet::setDisplayTransformation( const mVisTrans* nt )
 {
     coords_->setDisplayTransformation( nt );
     if ( normals_ ) normals_->setDisplayTransformation( nt );
-    
+
     displaytrans_ = nt;
 
     forceRedraw( true );
@@ -378,14 +378,14 @@ void MarkerSet::turnAllMarkersOn( bool yn )
 }
 
 
-int MarkerSet::findClosestMarker( const Coord3& tofindpos, 
+int MarkerSet::findClosestMarker( const Coord3& tofindpos,
 				 const bool scenespace )
 {
     double minsqdist = mUdf(double);
     int minidx = -1;
     for ( int idx=0; idx<coords_->size(); idx++ )
     {
-	const double sqdist = tofindpos.sqDistTo( 
+	const double sqdist = tofindpos.sqDistTo(
 	    coords_->getPos( idx,scenespace ) );
 	if ( sqdist<minsqdist )
 	{
@@ -397,11 +397,11 @@ int MarkerSet::findClosestMarker( const Coord3& tofindpos,
 }
 
 
-int MarkerSet::findMarker( const Coord3& tofindpos, const Coord3& eps,  
+int MarkerSet::findMarker( const Coord3& tofindpos, const Coord3& eps,
 				 const bool scenespace )
 {
     int minidx = findClosestMarker( tofindpos, scenespace );
-    if( minidx == -1 ) 
+    if( minidx == -1 )
 	return minidx;
 
     const Coord3 findedpos = coords_->getPos( minidx, scenespace );
@@ -417,7 +417,7 @@ int MarkerSet::addPos( const Coord3& crd, bool draw )
     int index ( 0 );
     if ( coords_ )
 	index = coords_->addPos( crd );
-    
+
     markerset_->turnMarkerOn( index, draw );
     if ( draw && markerset_ )
         markerset_->forceRedraw( true );
@@ -438,7 +438,7 @@ void MarkerSet::setPos( int idx, const Coord3& crd, bool draw )
 
 void MarkerSet::insertPos( int idx, const Coord3& crd, bool draw )
 {
-    if ( coords_ ) 
+    if ( coords_ )
 	coords_->insertPos( idx, crd );
     markerset_->turnMarkerOn( idx, draw );
     if ( draw && markerset_ )
@@ -466,11 +466,10 @@ void MarkerSet::addPolygonOffsetNodeState()
 {
     if ( !offset_ )
     {
-        offset_ = new visBase::PolygonOffset;
+        offset_ = new PolygonOffset;
 	offset_->setFactor( -1.0f );
 	offset_->setUnits( 1.0f );
-	offset_->setMode( visBase::PolygonOffset::Protected | 
-		visBase::PolygonOffset::On );
+	offset_->setMode( PolygonOffset::Protected | PolygonOffset::On );
 	addNodeState( offset_ );
     }
 }
@@ -484,3 +483,4 @@ void MarkerSet::removePolygonOffsetNodeState()
 
 }
 
+} // namespace visBase

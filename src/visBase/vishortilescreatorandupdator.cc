@@ -24,15 +24,17 @@
 #include <osgGeo/LayeredTexture>
 
 
-using namespace visBase;
-
+namespace visBase
+{
 
 HorTilesCreatorAndUpdator::HorTilesCreatorAndUpdator(HorizonSection* horsection)
 :   horsection_( horsection )
 {}
 
+
 HorTilesCreatorAndUpdator::~HorTilesCreatorAndUpdator()
 {}
+
 
 #define cFullResolution 0
 
@@ -467,3 +469,5 @@ void HorTilesCreatorAndUpdator::setFixedResolution( char res, TaskRunner* tskr )
     Threads::WorkManager::twm().addWork( work,
 	Threads::WorkManager::cDefaultQueueID() );
 }
+
+} // namespace visBase

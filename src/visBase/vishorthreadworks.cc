@@ -16,9 +16,10 @@
 #include "position.h"
 
 
-using namespace visBase;
+namespace visBase
+{
 
-
+// HorizonTileRenderPreparer
 HorizonTileRenderPreparer::HorizonTileRenderPreparer(
     HorizonSection& hrsection, const osg::CullStack* cs, char res )
     : hrsection_( hrsection )
@@ -29,7 +30,6 @@ HorizonTileRenderPreparer::HorizonTileRenderPreparer(
     , resolution_( res )
     , permutation_( 0 )
 {
-
 }
 
 
@@ -46,7 +46,6 @@ bool HorizonTileRenderPreparer:: doPrepare( int nrthreads )
 	permutation_[idx] = idx;
 
     std::random_shuffle( permutation_, permutation_+nrtiles_ );
-
     return true;
 }
 
@@ -94,6 +93,8 @@ bool HorizonTileRenderPreparer::doWork( od_int64 start, od_int64 stop, int )
     return true;
 }
 
+
+// HorizonTileResolutionTesselator
 HorizonTileResolutionTesselator::HorizonTileResolutionTesselator(
     const HorizonSection* hrsection, char res )
     : horsection_( hrsection )
@@ -259,10 +260,11 @@ int TileGlueTesselator::nextStep()
 }
 
 
-
+// HorizonSectionTilePosSetup
 HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
-    TypeSet<RowCol>& tiles, TypeSet<RowCol>& indexes,HorizonSection* horsection,
-    StepInterval<int>rrg,StepInterval<int>crg )
+	const TypeSet<RowCol>& tiles, const TypeSet<RowCol>& indexes,
+	HorizonSection* horsection, const StepInterval<int>& rrg,
+	const StepInterval<int>& crg )
     : hrtiles_( tiles )
     , indexes_( indexes )
     , rrg_( rrg )
@@ -271,7 +273,6 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
     , horsection_( horsection )
     , resolution_( -1 )
 {
-
     if ( horsection_ )
     {
 	zaxistransform_ = horsection_->getZAxisTransform();
@@ -280,15 +281,17 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
 	geo_ = horsection_->geometry_;
     }
 
-    if ( zaxistransform_ ) zaxistransform_->ref();
-    setName( BufferString( "Creating horizon surface..." ) );
+    if ( zaxistransform_ )
+	zaxistransform_->ref();
+
+    setName( BufferString("Creating horizon surface") );
 }
 
 
 HorizonSectionTilePosSetup::~HorizonSectionTilePosSetup()
 {
-    if ( zaxistransform_ ) zaxistransform_->unRef();
-
+    if ( zaxistransform_ )
+	zaxistransform_->unRef();
 }
 
 
@@ -370,3 +373,4 @@ bool HorizonSectionTilePosSetup::doFinish( bool sucess )
     return sucess;
 }
 
+} // namespace visBase

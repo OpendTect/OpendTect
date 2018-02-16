@@ -111,10 +111,13 @@ public:
 class HorizonSectionTilePosSetup: public ParallelTask
 { mODTextTranslationClass(HorizonSectionTilePosSetup);
 public:
-    HorizonSectionTilePosSetup(TypeSet<RowCol>& tiles,TypeSet<RowCol>& indexes,
-	HorizonSection* horsection,StepInterval<int>rrg,StepInterval<int>crg );
+		HorizonSectionTilePosSetup(const TypeSet<RowCol>& tiles,
+			const TypeSet<RowCol>& indexes,
+			HorizonSection* horsection,
+			const StepInterval<int>& rrg,
+			const StepInterval<int>& crg);
 
-    ~HorizonSectionTilePosSetup();
+		~HorizonSectionTilePosSetup();
 
     od_int64	nrIterations() const { return hrtiles_.size(); }
     uiString	message() const { return tr("Creating Horizon Display"); }
@@ -128,8 +131,8 @@ protected:
 
     int					nrcrdspertileside_;
     char				resolution_;
-    TypeSet<RowCol>&			hrtiles_;
-    TypeSet<RowCol>&			indexes_;
+    const TypeSet<RowCol>&		hrtiles_;
+    const TypeSet<RowCol>&		indexes_;
     const Geometry::BinIDSurface*	geo_;
     StepInterval<int>			rrg_, crg_;
     ZAxisTransform*			zaxistransform_;
@@ -147,5 +150,4 @@ public:
     HorizonSectionTile*		tile_;
 };
 
-
-}
+} // namespace visBase

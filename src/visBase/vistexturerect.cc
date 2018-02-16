@@ -20,10 +20,11 @@ ________________________________________________________________________
 #include <osg/Geometry>
 #include <osg/TexMat>
 
-mCreateFactoryEntry( visBase::TextureRectangle );
+mCreateFactoryEntry( visBase::TextureRectangle )
 
-using namespace visBase;
 
+namespace visBase
+{
 
 TextureRectangle::TextureRectangle()
     : VisualObjectImpl( false )
@@ -44,7 +45,7 @@ TextureRectangle::~TextureRectangle()
 }
 
 
-void TextureRectangle::setTextureChannels( visBase::TextureChannels* channels )
+void TextureRectangle::setTextureChannels( TextureChannels* channels )
 {
     channels_ = channels;
     textureplane_->setLayeredTexture( channels_->getOsgTexture() );
@@ -54,7 +55,7 @@ void TextureRectangle::setTextureChannels( visBase::TextureChannels* channels )
 }
 
 
-visBase::TextureChannels* TextureRectangle::getTextureChannels()
+TextureChannels* TextureRectangle::getTextureChannels()
 { return channels_; }
 
 
@@ -266,3 +267,5 @@ bool TextureRectangle::getTextureInfo( int& width, int& height,
 
     return true;
 }
+
+} // namespace visBase

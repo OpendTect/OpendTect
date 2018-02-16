@@ -19,7 +19,8 @@
 #include "datapointset.h"
 
 
-using namespace visBase;
+namespace visBase
+{
 
 HorizonSectionDataHandler::HorizonSectionDataHandler(
     const HorizonSection* hrsection )
@@ -30,10 +31,12 @@ HorizonSectionDataHandler::HorizonSectionDataHandler(
 
 }
 
+
 HorizonSectionDataHandler::~HorizonSectionDataHandler()
 {
     removeZTransform();
 }
+
 
 void HorizonSectionDataHandler::updateZAxisVOI()
 {
@@ -178,3 +181,5 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
 	bivs.add( bid, vals );
     }
 }
+
+} // namespace visBase
