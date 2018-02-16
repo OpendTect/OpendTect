@@ -134,7 +134,7 @@ public:
     bool			hasDepth(int attrib) const;
 
     int				nrResolutions() const;
-    BufferString		getResolutionName(int) const;
+    uiWord			getResolutionName(int) const;
     int				getResolution() const;
     bool			displaysSurfaceGrid() const;
     void			displaysSurfaceGrid(bool);

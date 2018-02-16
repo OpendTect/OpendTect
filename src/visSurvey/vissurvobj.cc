@@ -18,6 +18,7 @@
 #include "iopar.h"
 #include "keystrs.h"
 #include "seisbuf.h"
+#include "uistrings.h"
 
 namespace visSurvey {
 
@@ -92,12 +93,17 @@ void SurveyObject::setColTabSequence( int, const ColTab::Sequence&, TaskRunner*)
 {}
 
 
-BufferString SurveyObject::getResolutionName( int res ) const
+uiWord SurveyObject::getResolutionName( int res ) const
 {
-    if ( res == 0 ) return "Standard";
-    else if ( res == 1 ) return "Higher";
-    else if ( res == 2 ) return "Highest";
-    else return "?";
+    if ( res == 1 )
+	return uiStrings::sHigher();
+    if ( res == 2 )
+	return uiStrings::sHighest();
+
+    if ( res != 0 )
+	{ pErrMsg("Resolution out of range" ); }
+
+    return uiStrings::sStandard();
 }
 
 

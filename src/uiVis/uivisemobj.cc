@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "keyboardevent.h"
 #include "od_helpids.h"
+#include "odviscommon.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "simpnumer.h"
@@ -507,82 +508,33 @@ const visSurvey::EMObjectDisplay* uiVisEMObject::getDisplay() const
 }
 
 
-static const char* sKeyHorizonRes = "dTect.Horizon.Resolution";
-static const char* sKeyHorizonColSeqName = "dTect.Horizon.Color table";
-static BufferStringSet sResolutionNames;
-
-static void fillResolutionNames( BufferStringSet& nms )
-{
-    visSurvey::HorizonDisplay* hd = new visSurvey::HorizonDisplay;
-    hd->ref();
-    const int nrres = cMaximumResolution+1; //hd->nrResolutions();
-    for ( int idx=0; idx<nrres; idx++ )
-	nms.add( hd->getResolutionName(idx) );
-
-    hd->unRef();
-}
-
-
-uiHorizonSettingsGroup::uiHorizonSettingsGroup( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,setts)
-{
-    if ( sResolutionNames.isEmpty() )
-	fillResolutionNames( sResolutionNames );
-
-    initialresolution_ = 0;
-    setts.get( sKeyHorizonRes, initialresolution_ );
-    resolutionfld_ = new uiGenInput( this, tr("Default Resolution"),
-				     StringListInpSpec(sResolutionNames) );
-    resolutionfld_->setValue( initialresolution_ );
-
-    initialcolseqnm_ = ColTab::defSeqName( true );
-    setts.get( sKeyHorizonColSeqName, initialcolseqnm_ );
-    colseqfld_ = new uiColSeqSel( this, OD::Horizontal,
-				  tr("Default Colortable") );
-    colseqfld_->setSeqName( initialcolseqnm_ );
-    colseqfld_->attach( alignedBelow, resolutionfld_ );
-}
-
-
-void uiHorizonSettingsGroup::doCommit( uiRetVal& )
-{
-    updateSettings( initialresolution_, resolutionfld_->getIntValue(),
-		    sKeyHorizonRes );
-    updateSettings( initialcolseqnm_, colseqfld_->seqName(),
-		    sKeyHorizonColSeqName );
-}
-
-
-#define cMaxHorTitles 10000
-#define cFullResolution 1
-#define cHalfResolution 2
+#define cMaxHorTiles 10000
 
 void uiVisEMObject::checkHorizonSize( const EM::Horizon3D* hor3d )
 {
-    if ( !hor3d ) return;
+    if ( !hor3d )
+	return;
+
+    int res = (int)OD::getDefaultSurfaceResolution();
+    if ( res < (int)OD::SurfaceResolution::Full )
+	res = (int)OD::SurfaceResolution::Full;
 
     const TrcKeySampling tck = hor3d->range();
-    int res = 0;
-    Settings::common().get( sKeyHorizonRes, res );
-    if ( res<=cFullResolution )
+    const int nrrowblocks = nrBlocks(
+    tck.inlRange().nrSteps()+1, cNumberNodePerTileSide, 1 );
+    const int nrcolblocks = nrBlocks(
+	tck.crlRange().nrSteps()+1, cNumberNodePerTileSide, 1 );
+
+    const int nrtiles = nrrowblocks * nrcolblocks;
+    int maxtiles = cMaxHorTiles;
+    const bool istoobig = nrtiles > maxtiles;
+    while ( nrtiles > maxtiles && res <= (int)OD::cMinSurfaceResolution() )
     {
-	const int nrrows = nrBlocks(
-	tck.inlRange().nrSteps()+1, cNumberNodePerTileSide, 1 );
-	const int nrcols = nrBlocks(
-	    tck.crlRange().nrSteps()+1, cNumberNodePerTileSide, 1 );
-
-	const int maxlines = nrrows*nrcols;
-	if ( maxlines >= cMaxHorTitles )
-	{
-	    uiString msg =
-		tr( "The horizon is too big for display\n"
-		"Yes - using half resolution to save a certain memory.\n"
-		"No - continue using default resolution." );
-	    const int ret = uiMSG().askGoOn( msg );
-	    if ( ret==1 )
-		Settings::common().set(
-		"dTect.Horizon.Resolution",cHalfResolution );
-	}
+	res++;
+	maxtiles *= 2;
     }
-}
 
+    // This is still a terrible hack
+    if ( istoobig )
+	Settings::common().set( OD::sSurfaceResolutionSettingsKey(), res );
+}

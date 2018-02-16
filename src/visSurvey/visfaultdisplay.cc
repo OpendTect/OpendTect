@@ -25,8 +25,8 @@
 #include "keystrs.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
+#include "odviscommon.h"
 #include "posvecdataset.h"
-#include "settings.h"
 #include "survinfo.h"
 #include "undo.h"
 #include "viscoord.h"
@@ -503,8 +503,8 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
     if ( !attribwasdepth )
     {
 	BufferString seqnm;
-	Settings::common().get( "dTect.Horizon.Color table", seqnm );
-	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
+	ConstRefMan<ColTab::Sequence> seq
+	    = ColTab::SeqMGR().getAny( OD::defSurfaceDataColSeqName() );
 	setColTabSequence( attrib, *seq, 0 );
 	RefMan<ColTab::Mapper> mapper = new ColTab::Mapper;
 	setColTabMapper( attrib, *mapper, 0 );

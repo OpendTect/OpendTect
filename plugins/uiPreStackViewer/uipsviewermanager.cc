@@ -118,7 +118,7 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
     if ( psv && psv->flatViewer() )
     {
 	const int nrres = psv->flatViewer()->nrResolutions();
-	BufferStringSet resolutions;
+	uiStringSet resolutions;
 	for ( int idx=0; idx<nrres; idx++ )
 	    resolutions.add( psv->flatViewer()->getResolutionName(idx) );
 

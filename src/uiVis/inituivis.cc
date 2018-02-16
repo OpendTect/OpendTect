@@ -8,11 +8,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "moddepmgr.h"
+#include "uivismod.h"
 
+#include "moddepmgr.h"
 #include "uimsg.h"
 #include "visusershowwaitimpl.h"
-#include "uivisemobj.h"
 
 class uiVisUserShowWaitPoster : public visBase::UserShowWaitPoster
 {
@@ -57,8 +57,6 @@ visBase::UserShowWaitPoster* getPoster( const visBase::Scene* s, int fld ) const
 mDefModInitFn(uiVis)
 {
     mIfNotFirstTime( return );
-
-    uiHorizonSettingsGroup::initClass();
 
     visBase::UserShowWaitImpl::setPosterFactory(
 				new uiVisUserShowWaitPosterFactory );

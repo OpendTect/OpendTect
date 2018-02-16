@@ -20,11 +20,9 @@ ________________________________________________________________________
 
 class Settings;
 class uiCheckList;
-class uiComboBox;
 class uiGenInput;
 class uiIconSetSel;
 class uiLabel;
-class uiLabeledComboBox;
 class uiSettingsSubjectTreeItm;
 class uiTable;
 class uiThemeSel;
@@ -248,13 +246,15 @@ protected:
 
     void		mipmappingToggled(CallBacker*);
 
-    uiComboBox*		textureresfactorfld_;
+    uiGenInput*		textureresfactorfld_;
     uiGenInput*		usesurfshadersfld_;
     uiGenInput*		usevolshadersfld_;
     uiGenInput*		enablemipmappingfld_;
-    uiLabeledComboBox*	anisotropicpowerfld_;
+    uiGenInput*		anisotropicpowerfld_;
+    uiGenInput*		surfdefresfld_;
 
 			//0=standard, 1=higher, 2=highest, 3=system default
+    int			initialdefsurfres_;
     int			initialtextureresindex_;
     bool		initialusesurfshaders_;
     bool		initialusevolshaders_;

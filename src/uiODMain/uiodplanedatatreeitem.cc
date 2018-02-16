@@ -94,11 +94,12 @@ bool uiODPlaneDataTreeItem::init()
 
 	visserv_->addObject( pdd, sceneID(), true );
 
-	BufferString res;
-	Settings::common().get( "dTect.Texture2D Resolution", res );
+	BufferString resnm;
+	Settings::common().get( "dTect.Texture2D Resolution", resnm );
 	for ( int idx=0; idx<pdd->nrResolutions(); idx++ )
 	{
-	    if ( res == pdd->getResolutionName(idx) )
+	    const BufferString pddresnm( toString(pdd->getResolutionName(idx)));
+	    if ( pddresnm == resnm )
 		pdd->setResolution( idx, 0 );
 	}
 

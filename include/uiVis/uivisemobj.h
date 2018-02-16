@@ -85,28 +85,3 @@ protected:
     MenuItem		showbothmnuitem_;
     MenuItem		showsurfacegridmnuitem_;
 };
-
-
-
-mExpClass(uiVis) uiHorizonSettingsGroup : public uiSettingsGroup
-{ mODTextTranslationClass(uiHorizonSettingsGroup)
-public:
-
-    mDecluiSettingsGroupPublicFns( uiHorizonSettingsGroup,
-				   LooknFeel, "Horizons", "tree-horizon3d",
-				   uiStrings::sHorizon(mPlural),
-				   mODHelpKey(mHorizonSettingsHelpID) )
-
-			uiHorizonSettingsGroup(uiParent*,Settings&);
-
-protected:
-
-    uiGenInput*		resolutionfld_;
-    uiColSeqSel*	colseqfld_;
-
-    int			initialresolution_;
-    BufferString	initialcolseqnm_;
-
-    virtual void	doCommit(uiRetVal&);
-
-};

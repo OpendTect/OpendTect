@@ -2193,7 +2193,7 @@ void uiVisPartServer::createMenuCB( CallBacker* cb )
     resmnuitem_.removeItems();
     if ( so->nrResolutions()>1 )
     {
-	BufferStringSet resolutions;
+	uiStringSet resolutions;
 	for ( int idx=0; idx<so->nrResolutions(); idx++ )
 	    resolutions.add( so->getResolutionName(idx) );
 

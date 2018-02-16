@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "emobjectposselector.h"
 #include "emsurfaceauxdata.h"
 #include "isocontourtracer.h"
-#include "settings.h"
+#include "odviscommon.h"
 #include "survinfo.h"
 #include "mpeengine.h"
 #include "posvecdataset.h"
@@ -333,9 +333,7 @@ HorizonDisplay::HorizonDisplay()
     linemat->setAmbience( 1 );
     setIntersectLineMaterial( linemat );
 
-    int res = (int)resolution_;
-    Settings::common().get( "dTect.Horizon.Resolution", res );
-    resolution_ = (char)res;
+    resolution_ = (char)OD::getDefaultSurfaceResolution();
 }
 
 
@@ -901,9 +899,8 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 
     if ( !attribwasdepth )
     {
-	BufferString seqnm;
-	Settings::common().get( "dTect.Horizon.Color table", seqnm );
-	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
+	ConstRefMan<ColTab::Sequence> seq
+	    = ColTab::SeqMGR().getAny( OD::defSurfaceDataColSeqName() );
 	setColTabSequence( channel, *seq, 0 );
 	RefMan<ColTab::Mapper> mapper = new ColTab::Mapper;
 	setColTabMapper( channel, *mapper, 0 );
@@ -1458,29 +1455,17 @@ int HorizonDisplay::nrResolutions() const
 }
 
 
-BufferString HorizonDisplay::getResolutionName( int res ) const
-{
-    BufferString str;
-    if ( !res ) str = "Automatic";
-    else
-    {
-	res--;
-	int val = 1;
-	for ( int idx=0; idx<res; idx++ )
-	    val *= 2;
-
-	if ( val==2 )		str = "Half";
-	else if ( val==1 )	str = "Full";
-	else			{ str = "1 / "; str += val; }
-    }
-
-    return str;
-}
-
-
 int HorizonDisplay::getResolution() const
 {
     return sections_.size() ? sections_[0]->currentResolution()+1 : 0;
+}
+
+
+uiWord HorizonDisplay::getResolutionName( int idx ) const
+{
+    if ( idx < 0 || idx > (int)OD::cMinSurfaceResolution() )
+	{ pErrMsg("Out of range"); idx = 0; }
+    return OD::getSurfaceResolutionDispStr( (OD::SurfaceResolution)idx );
 }
 
 

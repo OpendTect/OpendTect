@@ -117,9 +117,7 @@ visBase::DataObject::~DataObject()
 
 visBase::Scene* visBase::DataObject::gtScene() const
 {
-    if ( !parent_ )
-	{ pErrMsg("No parent"); return 0; }
-    return parent_->scene();
+    return parent_ ? parent_->scene() : 0;
 }
 
 

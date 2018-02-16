@@ -63,6 +63,7 @@ list ( APPEND OD_MODULE_SOURCES
 	mouseevent.cc
 	odiconfile.cc
 	odpresentationmgr.cc
+	odviscommon.cc
 	picklocation.cc
 	pickretriever.cc
 	pickset.cc

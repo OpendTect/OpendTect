@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "oddirs.h"
 #include "od_helpids.h"
+#include "odviscommon.h"
 #include "posimpexppars.h"
 #include "ptrman.h"
 #include "settingsaccess.h"
@@ -419,6 +420,7 @@ void uiProgressSettingsGroup::doCommit( uiRetVal& )
 // uiVisSettingsGroup
 uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     : uiSettingsGroup(p,setts)
+    , initialdefsurfres_((int)OD::SurfaceResolution::Automatic)
     , initialtextureresindex_(0)
     , initialusesurfshaders_(true)
     , initialusevolshaders_(true)
@@ -438,39 +440,37 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
 					BoolInpSpec(initialusevolshaders_) );
     usevolshadersfld_->attach( leftAlignedBelow, usesurfshadersfld_, 0 );
 
-    uiLabeledComboBox* lcb =
-	new uiLabeledComboBox( this, tr("Default texture resolution") );
-    lcb->attach( alignedBelow, usevolshadersfld_ );
-    textureresfactorfld_ = lcb->box();
-    textureresfactorfld_->addItem( tr("Standard") );
-    textureresfactorfld_->addItem( tr("Higher") );
-    textureresfactorfld_->addItem( tr("Highest") );
-
+    uiStringSet itmnms;
+    itmnms.add( tr("Standard") ).add( tr("Higher") ).add( tr("Highest") );
     if ( SettingsAccess::systemHasDefaultTexResFactor() )
-	textureresfactorfld_->addItem( tr("System default") );
-
+	itmnms.add( tr("System default") );
+    StringListInpSpec resinpspec( itmnms );
     initialtextureresindex_ = SettingsAccess(setts_)
 					.getDefaultTexResAsIndex( 3 );
-    textureresfactorfld_->setCurrentItem( initialtextureresindex_ );
+    resinpspec.setValue( initialtextureresindex_ );
+    textureresfactorfld_ = new uiGenInput( this,
+					   tr("Default texture resolution"),
+					   resinpspec );
+    textureresfactorfld_->attach( alignedBelow, usevolshadersfld_ );
+
+    setts_.get( OD::sSurfaceResolutionSettingsKey(), initialdefsurfres_ );
+    itmnms.setEmpty(); const int lastidx = (int)OD::cMinSurfaceResolution();
+    for ( int idx=0; idx<=lastidx; idx++ )
+	itmnms.add( OD::getSurfaceResolutionDispStr(
+				(OD::SurfaceResolution)idx ) );
+    resinpspec = StringListInpSpec( itmnms );
+    resinpspec.setValue( initialdefsurfres_ );
+    surfdefresfld_ = new uiGenInput( this, tr("Default Surface Resolution"),
+				     resinpspec );
+    surfdefresfld_->attach( alignedBelow, textureresfactorfld_ );
 
     setts_.getYN( SettingsAccess::sKeyEnableMipmapping(),
 					initialenablemipmapping_ );
     enablemipmappingfld_ = new uiGenInput( this, tr("Mipmap anti-aliasing"),
 					BoolInpSpec(initialenablemipmapping_) );
-    enablemipmappingfld_->attach( alignedBelow, lcb );
+    enablemipmappingfld_->attach( alignedBelow, surfdefresfld_ );
     enablemipmappingfld_->valuechanged.notify(
 			    mCB(this,uiVisSettingsGroup,mipmappingToggled) );
-
-    anisotropicpowerfld_= new uiLabeledComboBox( this,
-					    tr("Sharpen oblique textures") );
-    anisotropicpowerfld_->attach( alignedBelow, enablemipmappingfld_ );
-    anisotropicpowerfld_->box()->addItem( toUiString(" 0 x") );
-    anisotropicpowerfld_->box()->addItem( toUiString(" 1 x") );
-    anisotropicpowerfld_->box()->addItem( toUiString(" 2 x") );
-    anisotropicpowerfld_->box()->addItem( toUiString(" 4 x") );
-    anisotropicpowerfld_->box()->addItem( toUiString(" 8 x") );
-    anisotropicpowerfld_->box()->addItem( toUiString("16 x") );
-    anisotropicpowerfld_->box()->addItem( toUiString("32 x") );
 
     setts_.get( SettingsAccess::sKeyAnisotropicPower(),
 		initialanisotropicpower_ );
@@ -478,8 +478,16 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
 	initialanisotropicpower_ = -1;
     if ( initialanisotropicpower_ > 5 )
 	initialanisotropicpower_ = 5;
-
-    anisotropicpowerfld_->box()->setCurrentItem( initialanisotropicpower_+1 );
+    itmnms.setEmpty();
+    itmnms.add( toUiString(" 0 x") ).add( toUiString(" 1 x") )
+	  .add( toUiString(" 2 x") ).add( toUiString(" 4 x") )
+	  .add( toUiString(" 8 x") ).add( toUiString("16 x") )
+	  .add( toUiString("32 x") );
+    StringListInpSpec powinpspec( itmnms );
+    powinpspec.setValue( initialanisotropicpower_+1 );
+    anisotropicpowerfld_= new uiGenInput( this, tr("Sharpen oblique textures"),
+					  powinpspec );
+    anisotropicpowerfld_->attach( alignedBelow, enablemipmappingfld_ );
 
     mipmappingToggled( 0 );
 }
@@ -500,18 +508,21 @@ void uiVisSettingsGroup::doCommit( uiRetVal& )
     updateSettings( initialusevolshaders_, usevolshaders,
 		    SettingsAccess::sKeyUseVolShaders() );
 
-    const int idx = textureresfactorfld_->currentItem();
+    const int idx = textureresfactorfld_->getIntValue();
     if ( initialtextureresindex_ != idx )
     {
 	changed_ = true;
 	SettingsAccess(setts_).setDefaultTexResAsIndex( idx, 3 );
     }
 
+    updateSettings( initialdefsurfres_, surfdefresfld_->getIntValue(),
+		    OD::sSurfaceResolutionSettingsKey() );
+
     updateSettings( initialenablemipmapping_,
 		    enablemipmappingfld_->getBoolValue(),
 		    SettingsAccess::sKeyEnableMipmapping() );
 
-    const int anisotropicpower = anisotropicpowerfld_->box()->currentItem()-1;
+    const int anisotropicpower = anisotropicpowerfld_->getIntValue()-1;
     updateSettings( initialanisotropicpower_, anisotropicpower,
 		    SettingsAccess::sKeyAnisotropicPower() );
 

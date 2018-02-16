@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "vistexturechannel2rgba.h"
 #include "envvars.h"
 #include "settingsaccess.h"
+#include "uistrings.h"
 
 
 mCreateFactoryEntry( visBase::FlatViewer );
@@ -312,12 +313,17 @@ void FlatViewer::setResolution( int res )
 }
 
 
-BufferString FlatViewer::getResolutionName( int res ) const
+uiWord FlatViewer::getResolutionName( int res ) const
 {
-    if ( res == 0 ) return "Standard";
-    else if ( res == 1 ) return "Higher";
-    else if ( res == 2 ) return "Highest";
-    else return "?";
+    if ( res == 1 )
+	return uiStrings::sHigher();
+    if ( res == 2 )
+	return uiStrings::sHighest();
+
+    if ( res != 0 )
+	{ pErrMsg("Resolution out of range" ); }
+
+    return uiStrings::sStandard();
 }
 
 

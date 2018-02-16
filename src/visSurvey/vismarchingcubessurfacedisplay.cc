@@ -19,6 +19,7 @@
 #include "impbodyplaneintersect.h"
 #include "keystrs.h"
 #include "marchingcubes.h"
+#include "odviscommon.h"
 #include "posvecdataset.h"
 #include "randcolor.h"
 #include "selector.h"
@@ -350,9 +351,8 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 
     if ( attribselchange )
     {
-	BufferString seqnm;
-	Settings::common().get( "dTect.Horizon.Color table", seqnm );
-	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
+	ConstRefMan<ColTab::Sequence> seq
+	    = ColTab::SeqMGR().getAny( OD::defSurfaceDataColSeqName() );
 	setColTabSequence( attrib, *seq, 0 );
 	RefMan<ColTab::Mapper> mapper = new ColTab::Mapper;
 	setColTabMapper( attrib, *mapper, 0 );
@@ -374,9 +374,8 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 
     if ( attribselchange )
     {
-	BufferString seqnm;
-	Settings::common().get( "dTect.Horizon.Color table", seqnm );
-	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
+	ConstRefMan<ColTab::Sequence> seq
+	    = ColTab::SeqMGR().getAny( OD::defSurfaceDataColSeqName() );
 	setColTabSequence( attrib, *seq, 0 );
 	RefMan<ColTab::Mapper> mapper = new ColTab::Mapper;
 	setColTabMapper( attrib, *mapper, 0 );

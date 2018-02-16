@@ -161,7 +161,7 @@ public:
 				{ return Color::DgbColor(); }
 
     virtual int			nrResolutions() const		{ return 1; }
-    virtual BufferString	getResolutionName(int) const;
+    virtual uiWord		getResolutionName(int) const;
     virtual int			getResolution() const		{ return 0; }
     virtual void		setResolution(int,TaskRunner*)	{}
 

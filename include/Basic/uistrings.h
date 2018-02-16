@@ -135,6 +135,7 @@ public:
     static uiWord sApply()		{ return tr("Apply"); }
     static uiWord sASCII()		{ return tr("ASCII"); }
     static uiWord sAttribName()		{ return tr("Attribute Name"); }
+    static uiWord sAutomatic()		{ return tr("Automatic"); }
     static uiWord sAxis()		{ return tr("Axis"); }
     static uiWord sAzimuth()		{ return tr("Azimuth"); }
     static uiWord sAttribute(int n=1)	{ return tr("Attribute",0,n); }
@@ -249,13 +250,18 @@ public:
     static uiWord sFilters()		{ return sFilter(mPlural); }
     static uiWord sFlip()		{ return tr("Flip"); }
     static uiWord sFlipLeftRight()	{ return tr("Flip left/right"); }
+    static uiWord sFull()		{ return tr("Full"); }
     static uiWord sFrequency(int n=1);
     static uiWord sGeneral()		{ return tr("General"); }
     static uiWord sGenerating()	{ return tr("Generating"); }
     static uiWord sGeometry(int n=1)	{ return tr("Geometry",0,n); }
     static uiWord sGo()			{ return tr("Go"); }
     static uiWord sGreen()		{ return tr("Green"); }
+    static uiWord sHalf()		{ return tr("Half"); }
     static uiWord sHelp();
+    static uiWord sHigh()		{ return tr("High"); }
+    static uiWord sHigher()		{ return tr("Higher"); }
+    static uiWord sHighest()		{ return tr("Highest"); }
     static uiWord sHeight()		{ return tr("Height"); }
     static uiWord sHide()		{ return tr("Hide"); }
     static uiWord sHistogram();
@@ -424,6 +430,7 @@ public:
     static uiWord sSouth(bool abbr)	{ return abbr ? tr("S"):tr("South"); }
     static uiWord sSpecify();
     static uiWord sSpecifyOut();
+    static uiWord sStandard()		{ return tr("Standard"); }
     static uiWord sStatistics()		{ return tr("Statistics"); }
     static uiWord sSteering()		{ return tr("Steering"); }
     static uiWord sStep(int n=1)	{ return tr("Step",0,n); }
