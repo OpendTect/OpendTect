@@ -367,6 +367,16 @@ uiMain::uiMain( QApplication* qapp )
 }
 
 
+uiMain::~uiMain()
+{
+    detachAllNotifiers();
+    delete keyhandler_;
+    delete keyfilter_;
+    delete tabletfilter_;
+    delete app_;
+}
+
+
 void uiMain::cleanQtOSEnv()
 {
     UnsetOSEnvVar( "QT_PLUGIN_PATH" ); //!Avoids loading incompatible plugins
@@ -458,15 +468,6 @@ void uiMain::setIcon( const char* icid )
 
     if ( app_ )
 	app_->setWindowIcon( qic );
-}
-
-
-uiMain::~uiMain()
-{
-    delete keyhandler_;
-    delete keyfilter_;
-    delete tabletfilter_;
-    delete app_;
 }
 
 
