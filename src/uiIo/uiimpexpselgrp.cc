@@ -982,7 +982,7 @@ uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
 					const ObjectSet<SelectionGrp>& selgrps,
 					uiExpSelectionArea::Setup su )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSave(uiStrings::phrJoinStrings(
-				 uiStrings::sSelection(), tr("Area"))),
+				 uiStrings::sSelection(), uiStrings::sArea())),
 				 mJoinUiStrs(sSpecify(), sParameter(mPlural)),
                                  mODHelpKey(mExpSelectionAreaHelpID) ))
     , selgrps_(selgrps)

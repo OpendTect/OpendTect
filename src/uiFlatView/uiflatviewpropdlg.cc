@@ -508,7 +508,7 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
 	lbl = new uiLabel( this, uiStrings::sShow() );
     }
 
-    showannotfld_ = new uiCheckBox( this, tr("Annotation") );
+    showannotfld_ = new uiCheckBox( this, uiStrings::sAnnotation() );
     if ( !haveannotchoices )
 	showannotfld_->attach( rightOf, lbl );
     else
@@ -528,8 +528,7 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
 
     auxlblfld_ = new uiLabel( this, ad_.auxlabel_ );
     showauxannotfld_ =
-	new uiCheckBox( this, uiStrings::phrJoinStrings(uiStrings::sShow(),
-							tr("Annotation")),
+	new uiCheckBox( this, tr("Show Annotation"),
 			mCB(this,uiFVAnnotPropTab::AxesGroup,showAuxCheckedCB));
     showauxannotfld_->attach( alignedBelow, showannotfld_ );
     auxlblfld_->attach( leftTo, showauxannotfld_ );
@@ -597,7 +596,7 @@ void uiFVAnnotPropTab::AxesGroup::setSelAnnot( int selannot )
 
 uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 				    const BufferStringSet* annots )
-    : uiFlatViewPropTab(p,vwr,tr("Annotation"))
+    : uiFlatViewPropTab(p,vwr,uiStrings::sAnnotation())
     , annot_(app_.annot_)
     , auxnamefld_( 0 )
     , currentaux_( 0 )

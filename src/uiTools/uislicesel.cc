@@ -189,7 +189,7 @@ uiSliceScroll( uiSliceSel* ss )
 
     typfld_ = new uiLabeledComboBox( this, tr("Control") );
     typfld_->box()->addItem( uiStrings::sManual() );
-    typfld_->box()->addItem( tr("Auto") );
+    typfld_->box()->addItem( uiStrings::sAuto() );
     typfld_->box()->selectionChanged.notify( mCB(this,uiSliceScroll,typSel) );
     typfld_->attach( alignedBelow, stepfld_ );
     ctrlbut = new uiPushButton( this, uiSliceSel::sButTxtAdvance(), true );

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uispinbox.h"
 #include "uiattrdesced.h"
+#include "uistrings.h"
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -277,7 +278,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     : uiDialog(p,uiDialog::Setup(tr("Evaluate attribute"),tr("Set parameters")
 				,mODHelpKey(mEvaluateDlgHelpID) )
 		.modal(false)
-	        .oktext(tr("Accept"))
+	        .oktext(uiStrings::sAccept())
 		.canceltext(uiString::emptyString()))
     , calccb(this)
     , showslicecb(this)

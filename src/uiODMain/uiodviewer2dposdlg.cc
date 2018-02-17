@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "probemanager.h"
 #include "attribprobelayer.h"
+#include "uistrings.h"
 
 
 uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
@@ -35,8 +36,9 @@ uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
 
     posgrp_  = new uiODViewer2DPosGrp( this, new Viewer2DPosDataSel(), false );
 
-    uiPushButton* zoomlevelbut = new uiPushButton( this, m3Dots(tr("Advanced")),
-	    		mCB(this,uiODViewer2DPosDlg,zoomLevelCB), true );
+    uiPushButton* zoomlevelbut = new uiPushButton( this,
+			m3Dots(uiStrings::sAdvanced()),
+			mCB(this,uiODViewer2DPosDlg,zoomLevelCB), true );
     zoomlevelbut->attach( alignedBelow, posgrp_ );
 }
 

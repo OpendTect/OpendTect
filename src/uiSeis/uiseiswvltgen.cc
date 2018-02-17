@@ -265,7 +265,7 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
     uiFunctionDrawer::Setup su; su.name_ = "Wavelet Stacking";
     su.funcrg_ = xaxrg;
     su.xaxrg_ = xaxrg;		 su.yaxrg_ = yaxrg;
-    su.xaxcaption_ = tr("time (s)"); su.yaxcaption_ = tr("Amplitude");
+    su.xaxcaption_ = tr("time (s)"); su.yaxcaption_ = uiStrings::sAmplitude();
 
     wvltdrawer_ += new uiFuncSelDraw( this, su );
 }

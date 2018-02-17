@@ -1452,7 +1452,7 @@ void uiTable::popupMenu( CallBacker* )
 
 	if ( nrrows>0 && setup_.removerowallowed_ && notifrows_.size() < 2 )
 	{
-	    itmtxt = toUiString("%1 %2").arg(tr("Remove")).
+	    itmtxt = toUiString("%1 %2").arg(uiStrings::sRemove()).
 					    arg(setup_.rowdesc_);
 	    delrow = mnu->insertAction( new uiAction(itmtxt), 5 );
 	}

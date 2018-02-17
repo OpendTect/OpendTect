@@ -95,7 +95,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     int methodidx;
     if ( methods.size()>1 )
     {
-	methodsel_ = new uiGenInput( this, tr("Algorithm"),
+	methodsel_ = new uiGenInput( this, uiStrings::sAlgorithm(),
 				     StringListInpSpec(usrnms) );
 
 	if ( prevfld )

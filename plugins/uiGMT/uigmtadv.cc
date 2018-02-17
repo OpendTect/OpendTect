@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 
 int uiGMTAdvGrp::factoryid_ = -1;
@@ -33,7 +34,7 @@ uiGMTOverlayGrp* uiGMTAdvGrp::createInstance( uiParent* p )
 
 
 uiGMTAdvGrp::uiGMTAdvGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,tr("Advanced"))
+    : uiGMTOverlayGrp(p,uiStrings::sAdvanced())
 {
     uiLabel* lbl = new uiLabel( this, tr("Customized GMT command") );
     inpfld_ = new uiLineEdit( this, "GMT Command" );

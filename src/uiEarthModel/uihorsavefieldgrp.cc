@@ -235,7 +235,7 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 
     mDynamicCastGet(EM::Horizon*,horizon,emobj);
     if ( !horizon )
-	mErrRet( uiStrings::sCantCreateHor() );
+	mErrRet( uiStrings::phrCannotCreateHor() );
 
     newhorizon_ = horizon;
     newhorizon_->ref();

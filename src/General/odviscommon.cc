@@ -12,7 +12,7 @@
 
 OD::SurfaceResolution OD::getDefaultSurfaceResolution()
 {
-    int ret = (int)SurfaceResolution::Full;
+    int ret = (int)SurfaceResolution::Automatic;
     Settings::common().get( sSurfaceResolutionSettingsKey(), ret );
     return (SurfaceResolution)ret;
 }

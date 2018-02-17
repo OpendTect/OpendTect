@@ -1124,7 +1124,7 @@ bool doWork( od_int64 start , od_int64 stop , int )
 	{
 	    uiString startstr(
 		checksvel_ ? uiStrings::phrCannotCreate(
-			   tr("prestack synthetics as all")) : tr("All") );
+		       tr("prestack synthetics as all")) : uiStrings::sAll() );
 	    uiString propstr( checksvel_ ? tr("Swave velocity")
 					 : tr("Pwave velocity/Density") );
 	    errmsg_ = tr( "%1 the values of %2 in elastic model are invalid. "

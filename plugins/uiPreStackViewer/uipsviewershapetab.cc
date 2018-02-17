@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uipsviewermanager.h"
 #include "uislider.h"
+#include "uistrings.h"
 #include "visprestackdisplay.h"
 
 #define mSliderMinFactor 0.1f
@@ -40,7 +41,7 @@ uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
     , initialside_( vwr.displayOnPositiveSide() )
 {
     autowidthfld_ = new uiGenInput( this, tr("Width"),
-	    BoolInpSpec( true, tr("Relative"), tr("Absolute") ) );
+	    BoolInpSpec(true,uiStrings::sRelative(),uiStrings::sAbsolute()) );
     autowidthfld_->setValue( viewer_.displayAutoWidth() );
     autowidthfld_->valuechanged.notify(
 	    mCB( this, uiViewer3DShapeTab, widthTypeChangeCB ) );

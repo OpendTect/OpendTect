@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "od_helpids.h"
 
@@ -74,7 +75,8 @@ uiAmplThresholdGrp( uiParent* p, const uiString& lbl )
 {
     cbfld_ = new uiCheckBox( this, lbl, mCB(this,uiAmplThresholdGrp,checkCB) );
 
-    uiStringSet list; list.add( tr("Relative") ).add( tr("Absolute") );
+    uiStringSet list;
+    list.add( uiStrings::sRelative() ).add( uiStrings::sAbsolute() );
     typefld_ = new uiComboBox( this, list, "Type" );
     typefld_->attach( rightTo, cbfld_ );
     typefld_->selectionChanged.notify( mCB(this,uiAmplThresholdGrp,typeCB) );

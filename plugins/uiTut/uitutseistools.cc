@@ -19,6 +19,7 @@
 #include "ioobjctxt.h"
 #include "ioobj.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 static const char* actions[] = { "Scale", "Square", "Smooth",
 				 "Replace sampling", 0 };
@@ -59,9 +60,9 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     scalegrp_->setHAlignObj( factorfld_ );
 
     // Parameters for smoothing
-    smoothszfld_ = new uiGenInput( this, tr("Filter strength"),
-			           BoolInpSpec(tst_.weakSmoothing(),tr("Low"),
-                                   tr("High")) );
+    smoothszfld_ = new uiGenInput( this, tr("Smoothing strength"),
+		   BoolInpSpec(tst_.weakSmoothing(),uiStrings::sLow(),
+                                   uiStrings::sHigh()) );
     smoothszfld_->attach( alignedBelow, actionfld_ );
 
     // Parameters for change sample rate

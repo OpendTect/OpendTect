@@ -47,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "posinfo2dsurv.h"
 #include "file.h"
 #include "filepath.h"
+#include "uistrings.h"
 
 
 uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs, bool issingle )
@@ -495,8 +496,8 @@ bool uiSEGYReadFinisher::doMultiVintage()
 		msg.append( tr("Do you wish to continue?"), true );
 		if ( !donotshow )
 		{
-		    int val = uiMSG().question( msg, tr("Continue"),
-						     tr("Abort"),
+		    int val = uiMSG().question( msg, uiStrings::sContinue(),
+						     uiStrings::sAbort(),
 						     uiString::emptyString(),
 						     uiString::emptyString(),
 						     &donotshow );

@@ -42,7 +42,7 @@ ________________________________________________________________________
 
 
 uiODAnnotParentTreeItem::uiODAnnotParentTreeItem()
-    : uiTreeItem( tr("Annotations") )
+    : uiTreeItem( uiStrings::sAnnotation(mPlural) )
 {
 }
 
@@ -148,7 +148,7 @@ bool uiODAnnotTreeItem::showSubMenu()
 	const uiString title = tr( "%1 Annotations").arg(typestr_);
 	uiGenInputDlg dlg( getUiParent(), title, tr("Group name"),
 			       new StringInpSpec );
-	dlg.setCaption( tr("Annotations") );
+	dlg.setCaption( uiStrings::sAnnotation(mPlural) );
 
 	while ( true )
 	{

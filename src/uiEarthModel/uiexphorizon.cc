@@ -435,7 +435,7 @@ bool uiExportHorizon::writeAscii()
 
 	RefMan<EM::Object> emobj = mgr.createTempObject( ioobj->group() );
 	if ( !emobj )
-	    mErrRet(uiStrings::sCantCreateHor())
+	    mErrRet(uiStrings::phrCannotCreateHor())
 
 	emobj->setDBKey( ioobj->key() );
 	mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())

@@ -50,7 +50,7 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g,
 	uigriddergrp->display( false );
     }
 
-    griddingsel_ = new uiGenInput( this, tr("Algorithm"),
+    griddingsel_ = new uiGenInput( this, uiStrings::sAlgorithm(),
 				   StringListInpSpec( gridderusedusernames ) );
     griddingsel_->valuechanged.notify( mCB(this,uiGridder2DSel,selChangeCB) );
 

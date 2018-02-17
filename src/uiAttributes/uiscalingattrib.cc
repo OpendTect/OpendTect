@@ -142,7 +142,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     lowenergymute->attach( alignedBelow, windowfld );
 
     // for Gain Correction
-    analysebut_ = new uiPushButton( this, tr("Analyse"),
+    analysebut_ = new uiPushButton( this, uiStrings::sAnalyse(),
 				    mCB(this,uiScalingAttrib,analyseCB), false);
     analysebut_->attach( alignedBelow, typefld );
 

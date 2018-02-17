@@ -647,7 +647,8 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
     manualbut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     picksetbut_ = new uiRadioButton( rangesgrp_,uiStrings::sPointSet());
     picksetbut_->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
-    uiRadioButton* autobut = new uiRadioButton( rangesgrp_, tr("Automatic") );
+    uiRadioButton* autobut = new uiRadioButton( rangesgrp_,
+					        uiStrings::sAutomatic() );
     autobut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     rangesgrp_->selectButton( calcobj_.getRgRefType() );
 

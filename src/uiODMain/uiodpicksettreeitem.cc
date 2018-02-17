@@ -108,7 +108,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertAction( new uiAction(m3Dots(tr("Add"))), mLoadIdx );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mLoadIdx );
     uiMenu* newmnu = new uiMenu( getUiParent(), tr("New") );
     newmnu->insertAction( new uiAction(m3Dots(tr("Empty"))), mEmptyIdx );
     newmnu->insertAction( new uiAction(m3Dots(tr("Generate 3D"))), mGen3DIdx );
@@ -532,7 +532,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertAction( new uiAction(m3Dots(tr("Add"))), mLoadPolyIdx );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mLoadPolyIdx );
     mnu.insertAction( new uiAction(m3Dots(tr("New"))), mNewPolyIdx );
 
     if ( children_.size() > 0 )

@@ -57,7 +57,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
     dispparamgrp_->attach( alignedBelow, disp_ );
     uiString disptitle = tr("Display between %1").arg(SI().zIsTime() ?
-	      uiStrings::sFrequency() : uiStrings::sWaveNumber(true));
+	      uiStrings::sFrequency() : uiStrings::sWaveNumber());
     rangefld_ = new uiGenInput( dispparamgrp_, disptitle, FloatInpIntervalSpec()
 			.setName(BufferString("range start"),0)
 			.setName(BufferString("range stop"),1) );
@@ -72,7 +72,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 		    uiStrings::phrJoinStrings(uiStrings::sValue(),
 		    tr("(%1, power)").arg(uiStrings::sFrequency(true))) :
 		    uiStrings::phrJoinStrings(uiStrings::sValue(),
-		    tr("(%1, power)").arg(uiStrings::sWaveNumber(true)));
+		    tr("(%1, power)").arg(uiStrings::sWaveNumber()));
     valfld_ = new uiGenInput(dispparamgrp_, lbl, FloatInpIntervalSpec());
     valfld_->attach( alignedBelow, rangefld_ );
     valfld_->display( false );
@@ -277,7 +277,7 @@ void uiAmplSpectrum::putDispData( CallBacker* cb )
 				  (posrange_.stop-posrange_.start)/25 );
     stepfld_->box()->setValue( maxfreq/5 );
     disp_->yAxis(false)->setCaption( dbscale ? tr("Power (dB)")
-					     : tr("Amplitude") );
+					     : uiStrings::sAmplitude() );
     disp_->setVals( posrange_, dbspecvals.arr(), fftsz );
 }
 

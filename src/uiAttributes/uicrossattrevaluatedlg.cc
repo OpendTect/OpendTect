@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uislider.h"
 #include "uispinbox.h"
+#include "uistrings.h"
 #include "od_helpids.h"
 
 using namespace Attrib;
@@ -34,7 +35,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 	uiAttribDescSetEd& uads, bool store )
     : uiDialog(p,uiDialog::Setup(tr("Cross attribute parameter evaluation"),
 		                 mNoDlgTitle, mODHelpKey(mEvaluateDlgHelpID) )
-                                 .modal(false).oktext(tr("Accept"))
+                                 .modal(false).oktext(uiStrings::sAccept())
 				 .canceltext(uiString::emptyString()))
     , calccb(this)
     , showslicecb(this)

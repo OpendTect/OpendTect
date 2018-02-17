@@ -551,7 +551,7 @@ void uiMsg::about( const uiString& text )
 {
     mPrepCursor();
     const uiString oktxt = uiStrings::sOk();
-    mCapt( tr("About") );
+    mCapt( uiStrings::sAbout() );
     const int refnr = beginCmdRecEvent( utfwintitle );
     PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
 					       oktxt, uiString::emptyString(),

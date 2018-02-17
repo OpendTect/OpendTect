@@ -313,7 +313,8 @@ void uiSeisFileMan::mkFileInfo()
 	    }
 	    float area = SI().getArea( cs.hsamp_.inlRange(),
 				       cs.hsamp_.crlRange() );
-	    txt.appendPhrase(tr("Area"),uiString::Empty).appendPlainText(": ")
+	    txt.appendPhrase(uiStrings::sArea(),uiString::Empty)
+		.appendPlainText(": ")
 		.appendPlainText( getAreaString( area, true, 0 ) );
 
 	    const uiString rgstr = zddef.getRange();

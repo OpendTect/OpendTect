@@ -298,7 +298,7 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     {
 	uiMSG().error(
 	    tr("Start value of the %1 range field is greater than stop value.")
-		     .arg( isoffset ? uiStrings::sOffset() : tr("Angle") ) );
+		 .arg(isoffset ? uiStrings::sOffset() : uiStrings::sAngle()) );
 	return false;
     }
     mSetString(Attrib::StorageProvider::keyStr(), dbky.toString())

@@ -441,7 +441,9 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     usevolshadersfld_->attach( leftAlignedBelow, usesurfshadersfld_, 0 );
 
     uiStringSet itmnms;
-    itmnms.add( tr("Standard") ).add( tr("Higher") ).add( tr("Highest") );
+    itmnms.add( uiStrings::sStandard() )
+	  .add( uiStrings::sHigher() )
+	  .add( uiStrings::sHighest() );
     if ( SettingsAccess::systemHasDefaultTexResFactor() )
 	itmnms.add( tr("System default") );
     StringListInpSpec resinpspec( itmnms );

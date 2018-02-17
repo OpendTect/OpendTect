@@ -59,7 +59,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     outfld_->attach( alignedBelow, inpfld_ );
 
     strengthfld_ = new uiGenInput( this, tr("Filter Strength"),
-			BoolInpSpec(true, tr("Low"), tr("High")) );
+		    BoolInpSpec(true,uiStrings::sLow(),uiStrings::sHigh()) );
     strengthfld_->attach( alignedBelow, attribnamefld_ );
 
     postFinalise().notify( mCB(this,uiTutHorTools,choiceSel) );

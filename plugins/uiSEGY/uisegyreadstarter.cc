@@ -312,7 +312,7 @@ uiGroup* uiSEGYReadStarter::createAmplDisp()
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
     hdsu.canvaswidth(mDefSize).canvasheight( mDefSize );
     ampldisp_ = new uiHistogramDisplay( amplgrp, hdsu );
-    ampldisp_->setTitle( tr("Amplitudes") );
+    ampldisp_->setTitle( uiStrings::sAmplitude(mPlural) );
 
     clipfld_ = new uiSpinBox( amplgrp, 1, "Clipping percentage" );
     clipfld_->setInterval( 0.f, 49.9f, 0.1f );

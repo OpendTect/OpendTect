@@ -661,7 +661,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
 
     mDynamicCastGet(EM::Horizon3D*,horizon,obj.ptr());
     if ( !horizon )
-	mErrRet( uiStrings::sCantCreateHor() );
+	mErrRet( uiStrings::phrCannotCreateHor() );
 
     horizon->objectChanged().disable();
     horizon->setStratLevelID( stratlvlfld_->getID() );

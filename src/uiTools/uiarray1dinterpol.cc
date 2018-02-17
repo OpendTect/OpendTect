@@ -48,7 +48,7 @@ uiArray1DInterpolSel::uiArray1DInterpolSel( uiParent* p, bool doextrapolate,
     algonms.add( "Polynomial Interpolation" );
     uiLabeledComboBox* lcbbx =
 	new uiLabeledComboBox( this, algonms.getUiStringSet(),
-							tr("Algorithm") );
+				    uiStrings::sAlgorithm() );
     methodsel_ = lcbbx->box();
     setHAlignObj( methodsel_ );
 
@@ -105,7 +105,7 @@ bool uiArray1DInterpolSel::acceptOK()
 
     for ( int idx=0; idx<results_.size(); idx++ )
 	results_[idx]->setMaxGapSize(
-		mCast( float, maxgapszfld_ && maxgapszfld_->isChecked() 
+		mCast( float, maxgapszfld_ && maxgapszfld_->isChecked()
 		? maxgapszfld_->getIntValue() : mUdf(int) ) );
 
     return true;

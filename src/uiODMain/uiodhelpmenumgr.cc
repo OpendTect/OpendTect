@@ -62,7 +62,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr& mm )
     act = mAddHelpAction( tr("Keyboard shortcuts"), mShortcutsMnuItm,
 			  "keyboard" );
     act->setShortcut( "?" );
-    mAddHelpAction( tr("About"), mAboutMnuItm, "info" );
+    mAddHelpAction( uiStrings::sAbout(), mAboutMnuItm, "info" );
 
     if ( legalInformation().size() )
 	mAddHelpAction( tr("Legal"), mLegalMnuItm, "legal" );

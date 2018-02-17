@@ -58,8 +58,8 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     smoothdirfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
     smoothdirfld_->attach( alignedBelow, actionfld_ );
 
-    smoothstrengthfld_ = new uiGenInput( this, tr("Filter strength"),
-                                BoolInpSpec(true,tr("Low"),tr("High")) );
+    smoothstrengthfld_ = new uiGenInput( this, tr("Smoothing strength"),
+		    BoolInpSpec(true,uiStrings::sLow(),uiStrings::sHigh()) );
     smoothstrengthfld_->attach( alignedBelow, smoothdirfld_ );
 
     steerfld_ = new uiSteeringSel( this, 0, is2d, false );
