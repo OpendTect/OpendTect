@@ -182,7 +182,7 @@ void uiLaySeqAttribEd::transfSel( CallBacker* )
     if ( sel == 1 )
 	valfld_->setTitleText( uiStrings::sValue() );
     else if ( sel )
-	valfld_->setTitleText( tr("Base") );
+	valfld_->setTitleText( uiStrings::sBase(true) );
     valfld_->display( sel );
 }
 

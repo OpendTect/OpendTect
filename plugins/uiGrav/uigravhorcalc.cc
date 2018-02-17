@@ -46,8 +46,8 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, const DBKey& enobjid )
     topfld_->setChecked( (bool)topfld_->ioobj(true) );
 
     denvarfld_ = new uiGenInput( inpgrp, tr("Density (contrast)"),
-				   BoolInpSpec(false,tr("Variable"),
-                                   tr("Constant")) );
+				 BoolInpSpec(false,uiStrings::sVariable(false),
+                                 uiStrings::sConstant(false)) );
     denvarfld_->attach( alignedBelow, topfld_ );
     denvarfld_->valuechanged.notify( mCB(this,uiGravHorCalc,denVarSel) );
     denattrfld_ = new uiGenInput( inpgrp,

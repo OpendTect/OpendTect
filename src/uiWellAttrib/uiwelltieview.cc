@@ -452,7 +452,7 @@ uiCrossCorrView::uiCrossCorrView( uiParent* p, const Data& d )
 {
     disp_ = new uiFunctionDisplay( this, uiFunctionDisplay::Setup() );
     disp_->xAxis()->setCaption( tr("Lags (ms)") );
-    disp_->yAxis(false)->setCaption( tr("Coefficient") );
+    disp_->yAxis(false)->setCaption( uiStrings::sCoefficient() );
     lbl_ = new uiLabel( this,uiStrings::sEmptyString() );
     lbl_->attach( centeredAbove, disp_ );
 }

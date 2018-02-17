@@ -51,8 +51,8 @@ uiScaler::uiScaler( uiParent* p, const uiString& txt, bool linonly )
     {
 	ynfld->attach( leftOf, typefld );
 	linearfld->attach( alignedBelow, typefld );
-	basefld = new uiGenInput( this, tr("Base"), BoolInpSpec(true,
-				  toUiString("10"),toUiString("e")));
+	basefld = new uiGenInput( this, uiStrings::sBase(true),
+		BoolInpSpec(true,toUiString("10"),toUiString("e")));
 	basefld->attach( alignedBelow, typefld );
     }
 

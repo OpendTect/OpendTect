@@ -15,6 +15,7 @@
 #include "seistrcprop.h"
 #include "ioobj.h"
 #include "bufstring.h"
+#include "uistrings.h"
 
 
 
@@ -64,9 +65,7 @@ void Tut::SeisTools::setRange( const TrcKeyZSampling& cs )
 
 uiString Tut::SeisTools::message() const
 {
-    static uiString acts[] = { tr("Scaling"), tr("Squaring"), tr("Smoothing"),
-				  tr("Changing") };
-    return errmsg_.isEmpty() ? acts[action_] : errmsg_;
+    return errmsg_.isEmpty() ? uiStrings::sProcessing() : errmsg_;
 }
 
 
@@ -80,7 +79,7 @@ od_int64 Tut::SeisTools::totalNr() const
 	if ( ioobjinfo.getDefSpaceInfo(spinf) )
 	    totnr_ = spinf.expectednrtrcs;
     }
-	
+
     return totnr_ < 0 ? -1 : totnr_;
 }
 
@@ -162,7 +161,7 @@ void Tut::SeisTools::handleTrace()
 
     case Smooth: {
 	const int sgate = weaksmooth_ ? 3 : 5;
-	const int sgate2 = sgate/2; 
+	const int sgate2 = sgate/2;
 	for ( int icomp=0; icomp<trcin_.nrComponents(); icomp++ )
 	{
 	    for ( int idx=0; idx<trcin_.size(); idx++ )

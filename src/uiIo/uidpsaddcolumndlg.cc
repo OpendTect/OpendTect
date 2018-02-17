@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "";
 #include "mathexpression.h"
 
 uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrAdd(tr("Column")), 
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrAdd(uiStrings::sColumn()),
 				 mNoDlgTitle, mNoHelpKey))
     , mathobj_(0)
     , withmathop_(withmathop)
@@ -34,7 +34,7 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
 
     if ( withmathop )
     {
-	uiLabel* label = new uiLabel( this, 
+	uiLabel* label = new uiLabel( this,
                                       tr("Define Mathematical Operation") );
 	label->attach( alignedBelow, nmfld_ );
 

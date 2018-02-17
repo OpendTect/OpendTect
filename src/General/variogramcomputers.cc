@@ -56,7 +56,7 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 
     if ( totvar < 0 || mIsZero(totvar,mDefEps) || mIsUdf(totvar) )
     {
-	errmsg = uiStrings::phrCannotCompute(tr("the total variance.\n"
+	errmsg = uiStrings::phrCannotCalculate(tr("the total variance.\n"
 						"Please check the input data"));
 	msgiserror = true;
 	return false;
@@ -360,7 +360,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 
     if ( totvar < 0 || mIsZero(totvar,mDefEps) || mIsUdf(totvar) )
     {
-	errmsg = uiStrings::phrCannotCompute(tr("the total variance.\n"
+	errmsg = uiStrings::phrCannotCalculate(tr("the total variance.\n"
 					    "Please check the input data"));
 	msgiserror = true;
 	return false;

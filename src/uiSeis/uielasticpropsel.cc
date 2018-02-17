@@ -61,7 +61,7 @@ void uiElasticPropSelGrp::uiSelInpGrp::fillList()
     BufferString seltxt = inpfld_->text();
     inpfld_->setEmpty();
     inpfld_->addItems( propnms_.getUiStringSet() );
-    inpfld_->addItem( tr("Constant") );
+    inpfld_->addItem( uiStrings::sConstant(true) );
     inpfld_->setCurrentItem( seltxt );
 }
 

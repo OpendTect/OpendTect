@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "welldisp.h"
 #include "uistrings.h"
 
+class FontData;
 class uiCheckBox;
 class uiColorInput;
 class uiColSeqUseModeSel;
@@ -31,9 +32,7 @@ class uiWellLogDispProperties;
 
 namespace Well { class LogDisplayParSet; class LogSet; }
 
-/*!
-\brief Well display properties.
-*/
+/*!\brief Well display properties. */
 
 mExpClass(uiWell) uiWellDispProperties : public uiGroup
 { mODTextTranslationClass(uiWellDispProperties)
@@ -67,21 +66,22 @@ public:
 
 protected:
 
-    virtual void	doPutToScreen()			{}
-    virtual void	doGetFromScreen()		{}
-
-    Well::BasicDispProps* props_;
-
-    void		propChg(CallBacker*);
     uiColorInput*	colfld_;
     uiLabeledSpinBox*	szfld_;
     Setup		setup_;
+    Well::BasicDispProps* props_;
+
+    virtual void	doPutToScreen()			{}
+    virtual void	doGetFromScreen()		{}
+
+    static void		getFontStyles(uiStringSet&);
+    static void		getFontData(FontData&,uiSpinBox*,uiComboBox*);
+    void		propChg(CallBacker*);
+
 };
 
 
-/*!
-\brief Well Track display properties.
-*/
+/*!\brief Well Track display properties. */
 
 mExpClass(uiWell) uiWellTrackDispProperties : public uiWellDispProperties
 { mODTextTranslationClass(uiWellTrackDispProperties)

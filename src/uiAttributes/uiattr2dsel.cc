@@ -44,7 +44,7 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 				const TypeSet<Pos::GeomID>& geomids,
 				const NLAModel* nla,
 				const char* curnm )
-    : uiDialog(p,Setup( uiStrings::phrSelect( tr("Dataset") ),
+    : uiDialog(p,Setup( uiStrings::phrSelect( uiStrings::sDataSet() ),
 			mNoDlgTitle,mNoHelpKey))
     , geomids_(geomids)
     , nla_(nla)

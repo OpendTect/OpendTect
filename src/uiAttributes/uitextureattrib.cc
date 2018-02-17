@@ -98,7 +98,7 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
     globalmaxfld_->setElemSzPol(uiObject::Small);
     globalmaxfld_->attach( rightOf, globalminfld_ );
 
-    uiPushButton* analysebut = new uiPushButton( this, tr("Compute"),
+    uiPushButton* analysebut = new uiPushButton( this, uiStrings::sCalculate(),
 				 mCB(this,uiTextureAttrib,analyseCB), false );
     analysebut->attach( rightOf, globalmaxfld_ );
     setHAlignObj( inpfld_ );

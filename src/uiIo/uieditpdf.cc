@@ -46,9 +46,11 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 
 uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 					    bool ed, bool isnew )
-    : uiDialog(p,uiDialog::Setup(toUiString("%1 %2").arg(ed ? uiStrings::sEdit()
-	     : tr("Browse")).arg(uiStrings::sProbDensFunc(false)),
-	     toUiString("%1 '%2'").arg(ed ? uiStrings::sEdit() : tr("Browse"))
+    : uiDialog(p,uiDialog::Setup(toUiString("%1 %2")
+		.arg(ed ? uiStrings::sEdit() : uiStrings::sBrowse())
+		.arg(uiStrings::sProbDensFunc(false)),
+	     toUiString("%1 '%2'")
+	     .arg(ed ? uiStrings::sEdit() : uiStrings::sBrowse())
 	     .arg(pdf.name().isEmpty() ? tr("PDF") : toUiString(pdf.name())),
 	     mODHelpKey(mEditProbDenFuncHelpID) ))
 	     , edfld_(0)

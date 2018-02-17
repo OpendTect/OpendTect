@@ -115,13 +115,13 @@ uiSlideLayoutGrp( uiParent* p, PresentationSpec& spec )
     ilbl->attach( leftBorder );
     ilbl->attach( ensureBelow, sep1 );
 
-    uiLabeledSpinBox* lf = new uiLabeledSpinBox( this, tr("Left"), 2 );
+    uiLabeledSpinBox* lf = new uiLabeledSpinBox( this, uiStrings::sLeft(), 2 );
     leftfld_ = lf->box();
-    uiLabeledSpinBox* rf = new uiLabeledSpinBox( this, tr("Right"), 2 );
+    uiLabeledSpinBox* rf = new uiLabeledSpinBox( this, uiStrings::sRight(), 2 );
     rightfld_ = rf->box();
-    uiLabeledSpinBox* tf = new uiLabeledSpinBox( this, tr("Top"), 2 );
+    uiLabeledSpinBox* tf = new uiLabeledSpinBox( this, uiStrings::sTop(), 2 );
     topfld_ = tf->box();
-    uiLabeledSpinBox* bf = new uiLabeledSpinBox( this, tr("Bottom"), 2 );
+    uiLabeledSpinBox* bf = new uiLabeledSpinBox( this, uiStrings::sBottom(), 2);
     bottomfld_ = bf->box();
 
     lf->attach( alignedBelow, wf );

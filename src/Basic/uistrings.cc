@@ -28,8 +28,8 @@ uiPhrase uiStrings::phrCalculateFrom( const uiWord& string )
 uiPhrase uiStrings::phrCannotAdd( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotAdd()).arg(string); }
 
-uiPhrase uiStrings::phrCannotCompute( const uiWord& string )
-{ return toUiString(joinstring).arg(sCannotCompute()).arg(string); }
+uiPhrase uiStrings::phrCannotCalculate( const uiWord& string )
+{ return tr("Cannot calculate %1").arg( string ); }
 
 uiPhrase uiStrings::phrCannotCopy( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotCopy()).arg(string); }
@@ -95,7 +95,7 @@ uiPhrase uiStrings::phrCannotZip( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotZip()).arg(string); }
 
 uiPhrase uiStrings::phrCheck( const uiWord& string )
-{ return toUiString(joinstring).arg(sCheck()).arg(string); }
+{ return tr("Please check %1").arg(string); }
 
 uiPhrase uiStrings::phrClose( const uiWord& string )
 { return toUiString(joinstring).arg(sClose()).arg(string); }
@@ -382,9 +382,6 @@ uiWord uiStrings::sCannotAdd()
 uiWord uiStrings::sCannotAllocate()
 { return tr("Cannot allocate memory"); }
 
-uiWord uiStrings::sCannotCompute()
-{ return tr("Cannot compute"); }
-
 uiWord uiStrings::sCannotCopy()
 { return tr("Cannot copy"); }
 
@@ -451,14 +448,8 @@ uiWord uiStrings::sCantReadInp()
 uiWord uiStrings::sCantWriteSettings()
 { return phrCannotWrite(tr("settings"));}
 
-uiWord uiStrings::sCheck()
-{ return tr("Check"); }
-
 uiWord uiStrings::sCheckPermissions()
 { return tr("Please check your permissions"); }
-
-uiWord uiStrings::sCopy()
-{ return tr("Copy"); }
 
 uiWord uiStrings::sCreateNew()
 { return mJoinUiStrs(sCreate(),sNew()); }

@@ -103,9 +103,9 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     inlcrldistfld_->attach( alignedBelow, dist2fld_ ? dist2fld_ : distfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Button group" );
-    uiPushButton* clearbut = new uiPushButton( botgrp, tr("Clear"),
+    uiPushButton* clearbut = new uiPushButton( botgrp, uiStrings::sClear(),
 				mCB(this,uiMeasureDlg,clearCB), true );
-    uiPushButton* stylebut = new uiPushButton( botgrp, tr("Line style"),
+    uiPushButton* stylebut = new uiPushButton( botgrp, uiStrings::sLineStyle(),
 				mCB(this,uiMeasureDlg,stylebutCB), false );
     stylebut->attach( rightTo, clearbut );
 

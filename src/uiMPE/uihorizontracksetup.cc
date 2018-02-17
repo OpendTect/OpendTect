@@ -101,10 +101,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     tabgrp_->addTab( eventgrp_, tr("Event") );
 
     correlationgrp_ = new uiCorrelationGroup( tabgrp_->tabGroup(), is2d_ );
-    tabgrp_->addTab( correlationgrp_, tr("Correlation") );
-
-//    uiGroup* vargrp = createVarianceGroup();
-//    tabgrp_->addTab( vargrp, tr("Variance") );
+    tabgrp_->addTab( correlationgrp_, uiStrings::sCorrelation() );
 
     uiGroup* propertiesgrp = createPropertyGroup();
     tabgrp_->addTab( propertiesgrp, uiStrings::sProperties() );

@@ -26,7 +26,7 @@ uiODWellWriteOpts::uiODWellWriteOpts( uiParent* p )
     mSettUse(getYN,"dTect.Well logs","Binary format",defbinwrite_);
     wrlogbinfld_ = new uiGenInput( this, tr("%1 storage")
 		       .arg(uiStrings::sWellLog()), BoolInpSpec(defbinwrite_,
-		       tr("Binary"),uiStrings::sASCII()) );
+		       uiStrings::sBinary(),uiStrings::sASCII()) );
 
     setHAlignObj( wrlogbinfld_ );
 }

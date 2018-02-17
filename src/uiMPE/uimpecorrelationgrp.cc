@@ -35,7 +35,7 @@ namespace MPE
 {
 
 uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
-    : uiDlgGroup(p,tr("Correlation"))
+    : uiDlgGroup(p,uiStrings::sCorrelation())
     , sectiontracker_(0)
     , adjuster_(0)
     , changed_(this)

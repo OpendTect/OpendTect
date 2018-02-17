@@ -125,7 +125,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     else
 	titletxt = titletxt.arg( isps
 		? tr("Data Store")
-		: (is2d ? tr("Dataset") : uiStrings::sVolume()) );
+		: (is2d ? uiStrings::sDataSet() : uiStrings::sVolume()) );
     setTitleText( titletxt );
 
     uiGroup* topgrp = selgrp_->getTopGroup();

@@ -50,6 +50,25 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
 }
 
 
+void uiWellDispProperties::getFontStyles( uiStringSet& stls )
+{
+    stls.add( uiStrings::sNormal() )
+	.add( tr("Bold") )
+	.add( tr("Italic") )
+	.add( tr("Bold Italic") );
+}
+
+void uiWellDispProperties::getFontData( FontData& fnt, uiSpinBox* ptszfld,
+					uiComboBox* fsfld )
+{
+    fnt.setPointSize( ptszfld->getIntValue() );
+    const int fontstyle = fsfld->getIntValue();
+    const bool bold = fontstyle==1 || fontstyle==3;
+    fnt.setWeight( bold ? FontData::Bold : FontData::Normal );
+    fnt.setItalic( fontstyle==2 || fontstyle==3 );
+}
+
+
 void uiWellDispProperties::propChg( CallBacker* )
 {
     getFromScreen();
@@ -92,10 +111,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     nmsizefld_->box()->setInterval( 0, 500, 2 );
     nmsizefld_->attach( alignedBelow, dispabovefld_  );
 
-    uiStringSet fontstyles;
-    fontstyles.add( uiStrings::sNormal() ); fontstyles.add(tr("Bold"));
-    fontstyles.add(tr("Italic")); fontstyles.add(tr("Bold Italic"));
-
+    uiStringSet fontstyles; getFontStyles( fontstyles );
     nmstylefld_ = new uiComboBox( this, fontstyles, "Fontstyle" );
     nmstylefld_->attach( rightOf, nmsizefld_ );
 
@@ -145,11 +161,7 @@ void uiWellTrackDispProperties::doGetFromScreen()
     trackprops().setDispAbove( dispabovefld_->isChecked() );
     trackprops().setNameSizeDynamic( nmsizedynamicfld_->isChecked() );
     FontData fnt( trackprops().font() );
-    fnt.setPointSize( nmsizefld_->box()->getIntValue() );
-    const int fontstyle = nmstylefld_->getIntValue();
-    const bool bold = fontstyle==1 || fontstyle==3;
-    fnt.setWeight( bold ? FontData::Bold : FontData::Normal );
-    fnt.setItalic( fontstyle==2 || fontstyle==3 );
+    getFontData( fnt, nmsizefld_->box(), nmstylefld_ );
     trackprops().setFont( fnt );
 }
 
@@ -187,9 +199,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmsizefld_->attach( alignedBelow, shapefld_ );
     nmsizefld_->display( !setup_.onlyfor2ddisplay_ );
 
-    uiStringSet styles;
-    styles.add( uiStrings::sNormal() ); styles.add(tr("Bold"));
-    styles.add(tr("Italic")); styles.add(tr("Bold Italic"));
+    uiStringSet styles; getFontStyles( styles );
     nmstylefld_ = new uiComboBox( this, styles, "Fontstyle" );
     nmstylefld_->attach( rightOf, nmsizefld_ );
     nmstylefld_->display( !setup_.onlyfor2ddisplay_ );
@@ -320,11 +330,7 @@ void uiWellMarkersDispProperties::doGetFromScreen()
     mrkprops().setSingleColor( singlecolfld_->isChecked() );
     mrkprops().setNameSizeDynamic( nmsizedynamicfld_->isChecked() );
     FontData fnt( mrkprops().font() );
-    fnt.setPointSize( nmsizefld_->box()->getIntValue() );
-    const int fontstyle = nmstylefld_->getIntValue();
-    const bool bold = fontstyle==1 || fontstyle==3;
-    fnt.setWeight( bold ? FontData::Bold : FontData::Normal );
-    fnt.setItalic( fontstyle==2 || fontstyle==3 );
+    getFontData( fnt, nmsizefld_->box(), nmstylefld_ );
     mrkprops().setFont( fnt );
     mrkprops().setSameNameCol( samecolasmarkerfld_->isChecked() );
     mrkprops().setNameColor( nmcolfld_->color() );

@@ -160,10 +160,9 @@ public:
 	    mAddMultipleJobs( backgroundwork, workmanager.cDefaultQueueID() );
 
 	    workmanager.emptyQueue( queueid, false );
-
-	    Threads::sleep( 0.001 );
-	    // od_cout() << "testwork.nrfinished=" << testwork.nrfinished_
-		      // << "; worksize=" << worksize << od_endl;
+	    Threads::sleep( 0.1 );
+	    od_cout() << "testwork.nrfinished=" << testwork.nrfinished_
+		      << "; worksize=" << worksize << od_endl;
 	    if ( testwork.nrfinished_==worksize )
 		mPrintTestResult( queuetypename,
 				"Pending workload removed in emptyQueue." );

@@ -66,20 +66,18 @@ public:
 
 uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
     : uiDialog(p,uiDialog::Setup( mJoinUiStrs(sManage(),
-				  phrJoinStrings(uiStrings::sLine(),
-			          uiStrings::sGeometry())),mNoDlgTitle,
-				  mODHelpKey(mManageLineGeomDlgHelpID)))
+				  uiStrings::sLineGeometry()),mNoDlgTitle,
+				  mODHelpKey(mManageLineGeomDlgHelpID) ))
     , linenm_(linenm),readonly_(readonly)
 {
     if ( readonly )
     {
 	setCtrlStyle( CloseOnly );
-	setCaption( uiStrings::phrJoinStrings(tr("Browse"),
-		    mJoinUiStrs(sLine(), sGeometry())) );
+	setCaption( uiStrings::phrJoinStrings(uiStrings::sBrowse(),
+		    uiStrings::sLineGeometry()) );
     }
 
-    uiString lbl( tr("%1 : %2").arg(mJoinUiStrs(sLine(),sName()))
-			       .arg(toUiString(linenm)) );
+    uiString lbl( tr("%1: %2").arg(uiStrings::sLineName()).arg(linenm) );
 
     uiLabel* titllbl = new uiLabel( this, lbl );
     titllbl->attach( hCentered );

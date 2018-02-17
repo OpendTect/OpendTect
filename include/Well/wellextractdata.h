@@ -86,7 +86,7 @@ public:
     void		getDahRange(const Data&,Interval<ZType>&);
 
     bool		isInTime() const	{ return zselection_ == Times; }
-    virtual ZRangeSelector* clone() const; 
+    virtual ZRangeSelector* clone() const;
 
 protected:
 
@@ -304,8 +304,8 @@ public:
     int		nextStep();
     od_int64	totalNr() const         { return extrintv_.nrSteps(); }
     od_int64	nrDone() const          { return nrdone_; }
-    uiString	message() const	   { return m3Dots(tr("Computing")); }
-    uiString	nrDoneText() const	   { return tr("Points done"); }
+    uiString	message() const		{ return uiStrings::sCalculating(); }
+    uiString	nrDoneText() const	{ return tr("Points done"); }
 
     void	getBIDs(TypeSet<BinID>& bs) const { bs = bidset_; }
     void	getCoords(TypeSet<Coord>& cs) const { cs = coords_; }

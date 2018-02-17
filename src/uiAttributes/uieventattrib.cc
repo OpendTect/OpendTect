@@ -67,7 +67,7 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
     evtypefld_->valuechanged.notify( mCB(this,uiEventAttrib,isGateSel) );
     evtypefld_->display( false );
 
-    outampfld_ = new uiGenInput( this, tr("Compute"),
+    outampfld_ = new uiGenInput( this, uiStrings::sCalculate(),
 		BoolInpSpec(true, tr("Distance between 2 consecutive events"),
 			    uiStrings::phrOutput( uiStrings::sAmplitude() )) );
     outampfld_->valuechanged.notify( mCB(this,uiEventAttrib,outAmpSel) );

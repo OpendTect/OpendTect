@@ -59,7 +59,7 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
     const int nrrows = def_.size();
     tbl_ = new uiTable( this, uiTable::Setup(nrrows,3).manualresize(true),
 			      "Bin header table" );
-    tbl_->setColumnLabel( 0, tr("Byte") );
+    tbl_->setColumnLabel( 0, uiSEGYFileManip::sByte() );
     tbl_->setColumnToolTip( 0, tr("Byte location in binary header") );
     tbl_->setColumnReadOnly( 0, true );
     tbl_->setColumnLabel( 1, tr("Value") );
@@ -152,7 +152,7 @@ class uiSEGYBinHdrEd : public uiCompoundParSel
 public:
 
 uiSEGYBinHdrEd( uiParent* p, SEGY::BinHeader& h )
-    : uiCompoundParSel(p,tr("Binary header"),tr("Change"))
+    : uiCompoundParSel(p,tr("Binary header"),uiStrings::sChange())
     , hdr_(h)
 {
     txtfld_->setElemSzPol( uiObject::WideVar );
@@ -286,7 +286,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     const int nrrows = def.size();
     uiTable::Setup tsu( nrrows, 2 ); tsu.selmode( uiTable::SingleRow );
     thtbl_ = new uiTable( rightgrp, tsu, "Trace header table" );
-    thtbl_->setColumnLabel( 0, tr("Byte") );
+    thtbl_->setColumnLabel( 0, sByte() );
     thtbl_->setColumnToolTip( 0, tr("Byte location in trace header") );
     thtbl_->setColumnReadOnly( 0, true );
     thtbl_->setColumnLabel( 1, tr("Value") );

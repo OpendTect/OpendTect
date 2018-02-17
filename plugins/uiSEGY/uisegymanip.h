@@ -40,6 +40,8 @@ public:
 
     od_int64		traceBytes() const;
 
+    static uiWord	sByte()		{ return tr("Byte"); }
+
 protected:
 
     BufferString	fname_;

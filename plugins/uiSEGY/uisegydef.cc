@@ -806,7 +806,7 @@ void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar& iop )
 	iop.get( FileReadOpts::sKeyICOpt(), icopt );
 	posfld_ = new uiGenInput( grp, tr("Base positioning on"),
 		    BoolInpSpec(icopt>=0,tr("Inline/Crossline"),
-				tr("Coordinates")) );
+				uiStrings::sCoordinate(mPlural)) );
 	posfld_->attach( alignedBelow, crldeffld_ );
     }
 }
@@ -904,7 +904,7 @@ uiGroup* uiSEGYFileOpts::mkCoordGrp( const IOPar& iop )
     mkCoordFlds( grp, iop );
     grp->setHAlignObj( xcoorddeffld_ );
 
-    if ( ts_ ) ts_->addTab( grp, tr("Coordinates") );
+    if ( ts_ ) ts_->addTab( grp, uiStrings::sCoordinate(mPlural) );
     return grp;
 }
 

@@ -268,8 +268,8 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     }
 
     useglobfld_ = new uiGenInput( this, tr("A priori weights"),
-				  BoolInpSpec(false,tr("Constant"),
-				  tr("Variable")) );
+				  BoolInpSpec(false,uiStrings::sConstant(false),
+				  uiStrings::sVariable(false)) );
     if ( prenormfld_ )
 	useglobfld_->attach( alignedBelow, prenormfld_ );
 

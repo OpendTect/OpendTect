@@ -153,7 +153,7 @@ bool SynthGenBase::getOutSamplingFromModel(
     }
 
     if ( sampling.isUdf() )
-	mErrRet(uiStrings::phrCannotCompute(tr("trace size from models")),
+	mErrRet(uiStrings::phrCannotCalculate(tr("trace size from models")),
 									false)
 
     sampling.scale( 1.f / outputsr );
@@ -294,7 +294,7 @@ int SynthGenerator::setConvolveSize()
 	    return mErrOccRet;
 
 	if ( !SynthGenBase::getOutSamplingFromModel(mod,cursampling) )
-	    mErrRet(uiStrings::phrCannotCompute(tr("trace size from model")),
+	    mErrRet(uiStrings::phrCannotCalculate(tr("trace size from model")),
 								mErrOccRet)
 
 	cursampling.start = outputsampling_.start;

@@ -76,7 +76,7 @@ uiGroup* uiRegionFiller::createVelGrp()
     const DBKey& starthorid = regionfiller_->getStartValueHorizonID();
     const bool conststartval = starthorid.isInvalid();
     startvalselfld_ = new uiGenInput( grp, tr("Start value"),
-        BoolInpSpec(conststartval,uiStrings::sConstant(),
+        BoolInpSpec(conststartval,uiStrings::sConstant(false),
                         fromhorattribstr) );
     startvalselfld_->setSensitive( hasauxdata );
     startvalselfld_->valuechanged.notify( mCB(this,uiRegionFiller,startvalCB) );
@@ -96,7 +96,7 @@ uiGroup* uiRegionFiller::createVelGrp()
     const DBKey& gradhorid = regionfiller_->getGradientHorizonID();
     const bool constgrad = gradhorid.isInvalid();
     gradvalselfld_ = new uiGenInput( grp, tr("Gradient"),
-        BoolInpSpec(constgrad,uiStrings::sConstant(),fromhorattribstr) );
+        BoolInpSpec(constgrad,uiStrings::sConstant(false),fromhorattribstr) );
     gradvalselfld_->setSensitive( hasauxdata );
     gradvalselfld_->valuechanged.notify( mCB(this,uiRegionFiller,gradientCB) );
     gradvalselfld_->attach( alignedBelow, startvalfld_ );

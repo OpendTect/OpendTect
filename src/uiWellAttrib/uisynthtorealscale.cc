@@ -346,7 +346,7 @@ uiSynthToRealScaleRealStatCollector(
     : Executor( "Collect Amplitudes" )
     , dlg_(d)
     , prov_(prov)
-    , msg_(tr("Collecting"))
+    , msg_(uiStrings::sCollectingData())
     , nrdone_(0)
     , totalnr_(-1)
     , seldata_(0)

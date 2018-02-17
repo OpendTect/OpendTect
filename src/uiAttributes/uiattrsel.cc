@@ -413,7 +413,7 @@ uiGroup* uiAttrSelDlg::createSelectionFields()
     }
     fldgrp->attach( centeredBelow, filtfld_ );
 
-    compfld_ = new uiLabeledComboBox( this, tr("Component"), "Compfld" );
+    compfld_ = new uiLabeledComboBox( this, uiStrings::sComponent(), "Compfld");
     compfld_->attach( rightAlignedBelow, fldgrp );
 
     return fldgrp;

@@ -271,7 +271,7 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
     fromwgs84fld_->setChecked( false );
     fromwgs84fld_->attach( alignedBelow, dirfld_ );
 
-    ismanfld_ = new uiGenInput( this, tr("Conversion"),
+    ismanfld_ = new uiGenInput( this, uiStrings::sConversion(),
 	           BoolInpSpec(true,uiStrings::sManual(),uiStrings::sFile()) );
     ismanfld_->valuechanged.notify( mCB(this,uiConvertGeographicPos,selChg) );
     ismanfld_->attach( alignedBelow, towgs84fld_ );

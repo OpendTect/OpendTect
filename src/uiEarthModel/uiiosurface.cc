@@ -450,7 +450,8 @@ uiHorizonParSel::uiHorizonParSel( uiParent* p, bool is2d, bool wclear )
 
     if ( wclear )
     {
-	uiPushButton* clearbut = new uiPushButton( this, tr("Clear"), true );
+	uiPushButton* clearbut = new uiPushButton( this, uiStrings::sClear(),
+						   true );
 	clearbut->activated.notify( mCB(this,uiHorizonParSel,clearPush) );
 	clearbut->attach( rightOf, selbut_ );
     }

@@ -31,7 +31,7 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 		   mNoDlgTitle, mODHelpKey(mConvertPosHelpID) ).modal(mod))
 	, survinfo(si)
 {
-    ismanfld = new uiGenInput( this, tr("Conversion"),
+    ismanfld = new uiGenInput( this, uiStrings::sConversion(),
 	           BoolInpSpec(true,uiStrings::sManual(),uiStrings::sFile()) );
     ismanfld->valuechanged.notify( mCB(this,uiConvertPos,selChg) );
 

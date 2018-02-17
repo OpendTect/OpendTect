@@ -865,7 +865,7 @@ od_int64 nrIterations() const
 
 uiString message() const
 {
-    return !isprepared_ ? tr("Preparing Models") : tr("Calculating");
+    return !isprepared_ ? tr("Preparing Models") : uiStrings::sCalculating();
 }
 
 uiString nrDoneText() const

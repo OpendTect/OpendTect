@@ -24,7 +24,7 @@ uiRGBAttrSelDlg::uiRGBAttrSelDlg( uiParent* p, const Attrib::DescSet& ds )
     gfld_->showSteeringData( true );
     gfld_->attach( alignedBelow, rfld_ );
 
-    bfld_ = new uiAttrSel( this, ds, tr("Blue") );
+    bfld_ = new uiAttrSel( this, ds, uiStrings::sBlue() );
     bfld_->showSteeringData( true );
     bfld_->attach( alignedBelow, gfld_ );
 
