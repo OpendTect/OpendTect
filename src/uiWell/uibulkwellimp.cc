@@ -240,7 +240,7 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
     udffld_->attach( alignedBelow, istvdfld_ );
 
     lognmfld_ = new uiGenInput( this, tr("Name log after"),
-		BoolInpSpec(true,tr("Curve"),tr("Description")) );
+	    BoolInpSpec(true,uiStrings::sCurve(),uiStrings::sDescription()) );
     lognmfld_->attach( alignedBelow, udffld_ );
 
     uiStringSet colnms;

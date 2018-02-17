@@ -685,8 +685,8 @@ uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
     butgrp_ = new uiButtonGroup( this, "Area type", OD::Vertical );
     butgrp_->setExclusive( true );
     new uiRadioButton( butgrp_, uiStrings::sScene() );
-    new uiRadioButton( butgrp_, tr("Window") );
-    new uiRadioButton( butgrp_, tr("Desktop") );
+    new uiRadioButton( butgrp_, uiStrings::sWindow() );
+    new uiRadioButton( butgrp_, uiStrings::sDesktop() );
     butgrp_->selectButton( 0 );
 }
 

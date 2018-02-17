@@ -182,7 +182,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 
     if ( s.convertedwaves_ )
     {
-	BoolInpSpec inpspec( true, tr("P"), tr("S") );
+	BoolInpSpec inpspec( true, tr("P","wave type"), tr("S","wave type") );
 	downwavefld_ = new uiGenInput( this, tr("Downward wave-type"), inpspec);
 	downwavefld_->attach( alignedBelow, lastfld_ );
 	lastfld_ = downwavefld_;

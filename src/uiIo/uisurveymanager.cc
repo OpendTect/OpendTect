@@ -471,8 +471,7 @@ void uiSurveyManager::compressButPushed( CallBacker* )
 		    mODHelpKey(mSurveyCompressButPushedHelpID) ));
     uiFileSel::Setup fssu;
     fssu.setForWrite().setFormat( File::Format::zipFiles() );
-    uiFileSel* fnmfld = new uiFileSel( &dlg,
-			uiStrings::phrOutput(tr("Destination")), fssu );
+    uiFileSel* fnmfld = new uiFileSel( &dlg, uiStrings::sDestination(), fssu );
 
     uiPushButton* osrbutton =
 	new uiPushButton( fnmfld, tr("Click here"), mSCB(osrbuttonCB), false );

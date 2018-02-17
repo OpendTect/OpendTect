@@ -100,7 +100,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 			mCB(this,uiVolumeStatisticsAttrib,stackstepChg) );
     optstackstepfld_->attach( alignedBelow, shapefld_ );
 
-    stackdirfld_ = new uiGenInput( this, tr("Direction"),
+    stackdirfld_ = new uiGenInput( this, uiStrings::sDirection(),
 			       BoolInpSpec(true,tr("Perpendicular"),
                                tr("Line")) );
     stackdirfld_->attach( rightTo,optstackstepfld_ );

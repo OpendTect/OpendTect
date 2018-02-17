@@ -259,7 +259,7 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
 		   mNoDlgTitle, mODHelpKey(mConvertPosHelpID)).modal(false))
 	, coordsystem_(coordsystem)
 {
-    dirfld_ = new uiGenInput( this, tr("Direction"),
+    dirfld_ = new uiGenInput( this, uiStrings::sDirection(),
 	          BoolInpSpec(true,tr("X/Y to Lat/Lng"),tr("Lat/Lng to X/Y")) );
     dirfld_->valuechanged.notify( mCB(this,uiConvertGeographicPos,selChg) );
 

@@ -259,7 +259,7 @@ uiGenInputBoolFld::uiGenInputBoolFld(uiParent* p, const DataInpSpec& spec,
 {
     const BoolInpSpec* spc = dynamic_cast<const BoolInpSpec*>(&spec);
     if ( !spc )
-	{ pErrMsg("huh?"); init( p, tr("Y"), tr("N"), true ); }
+	{ pErrMsg("huh?"); init( p, toUiString("Y"), toUiString("N"), true ); }
     else
     {
 	init( p, spc->trueFalseTxt(true),

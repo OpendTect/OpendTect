@@ -95,7 +95,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     uiStringSet operators;
     operators.add( tr("Union") );
     operators.add( tr("Intersection") );
-    operators.add( tr("Difference") );
+    operators.add( uiStrings::sDifference() );
     oprselfld_ = new uiLabeledComboBox( rgrp, operators,
                                         uiStrings::sOperator() );
     oprselfld_->box()->setIcon( 0, "set_union" );
@@ -150,7 +150,7 @@ void uiBodyOperatorDlg::displayAction( char item, int curidx )
     else if ( item==sKeyMinus() )
     {
 	listinfo_[curidx].act_ = sKeyMinus();
-	tree_->selectedItem()->setText( tr("Difference"), 1 );
+	tree_->selectedItem()->setText( uiStrings::sDifference(), 1 );
 	tree_->selectedItem()->setIcon( 1, "set_minus" );
     }
     else

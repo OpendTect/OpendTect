@@ -40,8 +40,8 @@ public:
     uiString		message() const
 			{ return errmsg_.isEmpty() ? tr("interpolating")
 						   : errmsg_; }
-    od_int64		nrDone() const		{ return nrdone_; }
-    uiString		nrDoneText() const	{ return tr("Done"); }
+    od_int64		nrDone() const	   { return nrdone_; }
+    uiString		nrDoneText() const { return tr("Number interpolated"); }
     od_int64		totalNr() const;
     int			nextStep();
     void		setStream(od_ostream&);

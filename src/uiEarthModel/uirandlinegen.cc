@@ -207,9 +207,12 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
 				    FloatInpSpec( 4*c1.distTo<float>(c2) ));
     distfld_->attach( alignedBelow, infld_ );
 
-    const char* strs[] = { "Left", "Right", "Both", 0 };
-    sidefld_ = new uiGenInput(this, tr("Direction"),
-			     StringListInpSpec(strs));
+    uiStringSet dirs;
+    dirs.add( uiStrings::sLeft() )
+	.add( uiStrings::sRight() )
+	.add( uiStrings::sBoth() );
+    sidefld_ = new uiGenInput(this, uiStrings::sDirection(),
+			      StringListInpSpec(dirs));
     sidefld_->setValue( 2 );
     sidefld_->attach( alignedBelow, distfld_ );
 

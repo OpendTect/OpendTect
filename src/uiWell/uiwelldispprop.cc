@@ -115,7 +115,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     nmstylefld_ = new uiComboBox( this, fontstyles, "Fontstyle" );
     nmstylefld_->attach( rightOf, nmsizefld_ );
 
-    nmsizedynamicfld_ = new uiCheckBox( this,tr("Dynamic") );
+    nmsizedynamicfld_ = new uiCheckBox( this, uiStrings::sDynamic() );
     nmsizedynamicfld_->attach( rightOf,nmstylefld_ );
 
     doPutToScreen();
@@ -204,7 +204,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmstylefld_->attach( rightOf, nmsizefld_ );
     nmstylefld_->display( !setup_.onlyfor2ddisplay_ );
 
-    nmsizedynamicfld_ = new uiCheckBox( this, tr("Dynamic") );
+    nmsizedynamicfld_ = new uiCheckBox( this,  uiStrings::sDynamic() );
     nmsizedynamicfld_->attach( rightOf, nmstylefld_ );
 
     uiString dlgtxt = tr( "Names color" );

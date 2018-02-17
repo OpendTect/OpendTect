@@ -27,7 +27,7 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 			tr("Time/Depth conversion"),
                         mODHelpKey(mBatchTime2DepthSetupHelpID) ) )
 {
-    directionsel_ = new uiGenInput( this, tr("Direction"),
+    directionsel_ = new uiGenInput( this, uiStrings::sDirection(),
 	    BoolInpSpec(true, tr("Time to Depth"), tr("Depth to Time"), true ));
     directionsel_->valuechanged.notify(
 	    mCB(this,uiBatchTime2DepthSetup,dirChangeCB));
@@ -148,8 +148,8 @@ bool uiBatchTime2DepthSetup::fillPar()
 {
     const bool istime2depth = directionsel_->getBoolValue();
     RefMan<ZAxisTransform> trans = istime2depth
-    	? t2dfld_->getSelection()
-    	: d2tfld_->getSelection();
+	? t2dfld_->getSelection()
+	: d2tfld_->getSelection();
 
     if ( !trans )
 	return false;

@@ -176,9 +176,10 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
 	grpfld_ = new uiComboBox( 0, "Group selection" );
 	uiString grpstr = toUiString(uidps_.groupType());
-	uiString txt =  tr("%1 %2").arg(nrgrps==2?tr("Both"):uiStrings::sAll())
-				   .arg(!grpstr.isEmpty()? tr("%1").arg(grpstr)
-				   : uiStrings::sEmptyString());
+	uiString txt =  tr("%1 %2")
+			.arg(nrgrps==2?uiStrings::sBoth():uiStrings::sAll())
+			.arg(!grpstr.isEmpty() ? tr("%1").arg(grpstr)
+					      : uiStrings::sEmptyString());
 
 	grpfld_->addItem( txt );
 	TypeSet<Color> ctseqs;

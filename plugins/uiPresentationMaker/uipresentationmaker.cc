@@ -247,9 +247,9 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     typegrp_->attach( alignedBelow, outputfld_ );
     typegrp_->attach( ensureBelow, sep );
     CallBack cb = mCB(this,uiPresentationMakerDlg,imageTypeCB);
-    new uiRadioButton( typegrp_, tr("Scene"), cb );
-    new uiRadioButton( typegrp_, tr("Window"), cb );
-    new uiRadioButton( typegrp_, tr("Desktop"), cb );
+    new uiRadioButton( typegrp_, uiStrings::sScene(), cb );
+    new uiRadioButton( typegrp_, uiStrings::sWindow(), cb );
+    new uiRadioButton( typegrp_, uiStrings::sDesktop(), cb );
     typegrp_->selectButton( 0 );
 
     uiPushButton* addbut = new uiPushButton( this, tr("Add Slide"),

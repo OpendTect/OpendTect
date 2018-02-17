@@ -82,7 +82,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     logstable_->attach( ensureBelow, udffld_ );
 
     lognmfld_ = new uiGenInput( this, tr("Name log after"),
-	    BoolInpSpec(true,tr("Curve"),tr("Description")) );
+	    BoolInpSpec(true,uiStrings::sCurve(),uiStrings::sDescription()) );
     lognmfld_->attach( alignedBelow, udffld_ );
     lognmfld_->attach( ensureBelow, logstable_ );
 

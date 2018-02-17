@@ -33,7 +33,7 @@ ________________________________________________________________________
 
 // uiPropertiesDlg
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
-    : uiTabStackDlg(p,uiDialog::Setup(tr("Display properties"),
+    : uiTabStackDlg(p,uiDialog::Setup(uiStrings::sDisplayProperties(),
 				      mNoDlgTitle,
                                       mODHelpKey(mPropertiesDlgHelpID) ))
     , survobj_(so)

@@ -82,7 +82,7 @@ uiGroup* uiFileSelectionGroup::createMainGroup()
 
     sortfld_ = new uiComboBox( maingrp, "Sorting" );
     sortfld_->addItem( tr("Alphabetical") );
-    sortfld_->addItem( tr("Time") );
+    sortfld_->addItem( uiStrings::sTime() );
 
     uiListBox::Setup lbsu;
     lbsu.prefnrlines( 8 ).prefwidth( 5 );

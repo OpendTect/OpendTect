@@ -64,7 +64,7 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
     tbl_->setColumnReadOnly( 0, true );
     tbl_->setColumnLabel( 1, tr("Value") );
     tbl_->setColumnToolTip( 1, tr("Value (initially from file)") );
-    tbl_->setColumnLabel( 2, tr("Description") );
+    tbl_->setColumnLabel( 2, uiStrings::sDescription() );
     tbl_->setColumnReadOnly( 2, true );
 
     for ( int irow=0; irow<nrrows; irow++ )
