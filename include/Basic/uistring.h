@@ -23,7 +23,6 @@ mFDQtclass( QString );
 mFDQtclass( QStringList );
 mFDQtclass( QTranslator );
 
-
 #define mTextTranslationClass(clss,pkgkey) \
 private: \
  static inline uiString tr( const char* text, const char* disambiguation = 0,  \
@@ -33,17 +32,17 @@ private: \
 #define mODTextTranslationClass(clss) \
 mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 
-//! Stored uiString's have a preamble, a size, a ':' and then data in Hex chars
-#define mStoreduiStringPreamble		"^&"
-
 
 /*!\brief String that is able to hold international (UTF-8) strings for the
    user interface.
 
-   The string will have an 'original string' of simple ASCI characters, which
-   can be used as a 'key' but never fo user display.
+   uiString is reference counted; Making a copied object is cheap.
 
-   If the string holds %N arguments, these can be replaced by arguments:
+   The string will have an 'original string' of simple ASCI characters, which
+   can be used as a 'key' but never for user display.
+
+   The string can have %N arguments. For these, sooner or later arguments must
+   be provided:
 
  \code
    uiString string = toUiString( "%1 plus %2 is %3")
@@ -52,9 +51,8 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 			.arg( 4+5 );
  \endcode
 
-   Will result in the string "4 plus 5 is 9"
+   ... will result in the string "4 plus 5 is 9"
 
-   uiString is reference counted; Making a copied object is cheap.
 
    As such, uiStrings are suited for limited text manipulation. But if we
    are doing this for translated words and phrases, beware that alteration and
@@ -64,25 +62,20 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
    * In no case, just glue together words and/or verbs into your own phrases.
 
   The translation in OpendTect is done using Qt's subsystem for localization.
-  A class that wishes to enable localization should:
+  A class that needs to use localized strings should:
 
-  -# Declare the mTextTranslationClass(classname,packagekey) in its class
-     definition. The packagekey is a string that identifies your software
+  -# In many cases, you can pick your stuff from the uiStrings common words
+     and phrases defined in uistrings.h.
+  -# If you need specific words or phrases not in uistrings.h, then use the
+	mTextTranslationClass(classname,packagekey)
+     macro. The packagekey is a string that identifies your software
      package. OpendTect's internal classes use the "od" package string, and
      can for short use the mODTextTranslationClass macro.
-  -# Use the tr() function for all translatable string. The tr() function
-     returns a uiString() that can be passed to the ui.
+  -# Use the tr() function for all non-standard strings. The tr() function
+     returns a uiString that can be passed to the ui.
   -# For functions not belonging to a class, use the od_static_tr function.
-     Any function matching the *_static_tr will be interpreted by lupdate.
-  -# Use Qt's lupdate to scan your code for localization strings. This will
-     generate a .ts file which can be editded with Qt's Linguist program to
-     translate the strings.
-  -# The updated .ts file should be converted to a binary .qm file using Qt's
-     lrelease application.
-  -# The .qm file should be placed in
-     data/translations/<packagekey>_<lang>_[<country>].ts in the release. For
-     example, a localization of OpendTect to modern Chinese would be
-     saved as od_zh_CN.qm.
+     Any function matching the *_static_tr will be interpreted by Qt's lupdate.
+
  */
 
 
@@ -93,27 +86,30 @@ public:
 		uiString();
 		uiString(const uiString&);	//!< no copy, ref counted
 		~uiString();
+    uiString&	operator=(const uiString&);	//!< no copy, ref counted
+
+		uiString(const char*)		= delete; // try 'set()'
+    uiString&	operator =(const char*)		= delete; // try 'set()'
 
     uiString&	set(const char*);
     uiString&	set( const uiString& s )	{ return (*this = s); }
     bool	isEmpty() const;
     void	setEmpty();
-    uiString&	toLower( bool yn=true ); //!< Applied before argument subst.
+    uiString&	toLower( bool yn=true );	//!< applied before arg subst.
     uiString&	toUpper( bool yn=true )		{ return toLower(!yn); }
     bool	operator!() const		{ return isEmpty(); }
 
-    uiString&	operator=(const uiString&);	//!< no copy, ref counted
     bool	operator>(const uiString& b) const;
     bool	operator<(const uiString& b) const;
     int		size() const;
-    static const uiString& empty()		{ return emptystring_; }
-    static uiString& dummy()			{ return dummystring_; }
     bool	isPlainAscii() const;
+
+    static const uiString&  empty()		{ return emptystring_; }
+    static uiString&	    dummy()		{ return dummystring_; }
 
 
 			/*! the arg() functions allow numbers, other uiStrings,
-			    and external strings (like names) to be inserted
-			    into a translated unit.
+			    and external strings (like names) to be inserted.
 			    See class remarks for example. */
 
     template <class T>
@@ -122,12 +118,16 @@ public:
     inline uiString&	arg(double,int nrdecimals);
     uiString&		arg(const uiString&);
 
-			/*! appendXX() functions should be used to concatenate
-			    entire sentences. You cannot just mix&match words
-			    and verbs etc.  */
+
 #   define		muiStringAppendDefArgs \
 			    SeparType septyp=uiString::CloseLine, \
 			    AppendType apptyp=uiString::AddNewLine
+
+			/*! appendXX() functions should be used to concatenate
+			    entire sentences. You cannot just mix&match words
+			    or groups of words at the risk of hilarious
+			    translations. */
+
     enum SeparType	{ Empty, CloseLine, Space, Tab, Comma, MoreInfo };
     enum AppendType	{ SeparatorOnly, AddNewLine, LeaveALine };
     uiString&		appendPhrase(const uiString&,muiStringAppendDefArgs);
@@ -160,6 +160,9 @@ public:
     inline uiString&	addSpace(int =1)	{ return append(" "); }
     inline uiString&	addTab(int =1)		{ return append("\t"); }
     inline uiString&	addNewLine(int =1)	{ return append("\n"); }
+    // End TEMP
+
+    static uiString	getOrderString(int);	//!< 1st, 2nd, 3rd, ...
 
 			// UNtranslated:
     const char*		getOriginalString() const;
@@ -176,7 +179,6 @@ public:
 			//!< returns new string: use 'delete []'.
 private:
 
-    inline			operator bool() const	{ return !isEmpty(); }
     bool			isCacheValid() const;
     const mQtclass(QString)&	getQStringInternal() const;
 
@@ -198,13 +200,23 @@ private:
 
     void			getFullString(BufferString&) const; // toString
 
+    operator OD::String&() const= delete;
+    operator bool() const	= delete;
+    operator int() const	= delete;
+    operator float() const	= delete;
+    operator double() const	= delete;
+
 public:
 
-		uiString(const char*)		= delete; // try 'set()'
-    uiString&	operator =(const char*)		= delete; // try 'set()'
+    // The functions in this section are most likely not for you.
+
+		uiString(const char* original,
+			 const char* context,
+			 const char* package,
+			 const char* disambiguation,
+			 int pluralnr);
 
     bool	isEqualTo(const uiString& oth) const;
-		//!< use only if unavoidable
 
     void	encodeStorageString(BufferString&) const;
     int		useEncodedStorageString(const char*);
@@ -219,13 +231,8 @@ public:
     static const char*	sODLocalizationApplication() { return "od"; }
 
     void	makeIndependent();
-		//!< create a separate copy (with its own ref count
+		//!< create a separate copy (with its own ref count)
 
-		uiString(const char* original,
-			 const char* context,
-			 const char* package,
-			 const char* disambiguation,
-			 int pluralnr);
     void	setFrom(const mQtclass(QString)&);
 		/*!<Set the translated text. No further
 		    translation will be done. */
@@ -234,9 +241,6 @@ public:
     bool	translate(const mQtclass(QTranslator)&,
 			  mQtclass(QString)&) const;
 		//!<Returns true if the translation succeeded
-
-    static uiString getOrderString(int);
-		//Returns 1st, 2nd, 3rd
 
     mDeprecated static const uiString& emptyString()	{ return empty(); }
     mDeprecated static uiString& dummyString()		{ return dummy(); }
@@ -346,6 +350,11 @@ inline uiString& uiString::appendIncorrect( const char* str, char sep )
 { return appendPhrase( toUiString(str), mDefIncorrectAppendPhrArgs ); }
 inline uiString& uiString::appendIncorrect( const OD::String& str, char sep )
 { return appendPhrase( toUiString(str), mDefIncorrectAppendPhrArgs ); }
+
+
+//! Stored uiString's have a preamble, a size, a ':' and then data in Hex chars
+//! Note that uiStrings are seldom stored, and you probably don't need to do it!
+#define mStoreduiStringPreamble		"^&"
 
 
 #include "uistringset.h"

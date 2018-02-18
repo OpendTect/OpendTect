@@ -725,32 +725,33 @@ bool uiString::translate( const QTranslator& qtr , QString& res ) const
 uiString uiString::getOrderString( int val )
 {
     int nr = val;
-    if ( nr < 0 ) nr = -nr;
+    if ( nr < 0 )
+	nr = -nr;
 
     if ( nr > 20 )
 	nr = nr % 10;
 
-    uiString rets[] = { tr("th", "zeroth"), //0
-			tr("st", "first"), //1
-			tr("nd", "second"), //2
-			tr("rd", "third" ), //3
-			tr("th", "fourth" ), //4
-			tr("th", "fifth" ), //5
-			tr("th", "sixth" ), //6
-			tr("th", "seventh" ), //7
-			tr("th", "eighth" ), //8
-			tr("th", "ninth"), //9
-			tr("th", "tenth" ), //10
-			tr("th", "eleventh"), //11
-			tr("th", "twelfth"), //12
-			tr("th", "thirteenth"), //13
-			tr("th", "fourteenth"), //14
-			tr("th", "fifteenth"), //15
-			tr("th", "sixteenth"), //16
-			tr("th", "seventeenth"), //17
-			tr("th", "eighteenth"), //18
-			tr("th", "nineteenth"), //19
-			tr("th", "twentieth") }; //20
+    uiString rets[] = { tr("th", "zeroth"),
+			tr("st", "first"),
+			tr("nd", "second"),
+			tr("rd", "third" ),
+			tr("th", "fourth" ),
+			tr("th", "fifth" ),
+			tr("th", "sixth" ),
+			tr("th", "seventh" ),
+			tr("th", "eighth" ),
+			tr("th", "ninth"),
+			tr("th", "tenth" ),
+			tr("th", "eleventh"),
+			tr("th", "twelfth"),
+			tr("th", "thirteenth"),
+			tr("th", "fourteenth"),
+			tr("th", "fifteenth"),
+			tr("th", "sixteenth"),
+			tr("th", "seventeenth"),
+			tr("th", "eighteenth"),
+			tr("th", "nineteenth"),
+			tr("th", "twentieth") };
     return toUiString( "%1%2" ).arg( val ).arg( rets[nr] );
 }
 
