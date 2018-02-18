@@ -91,7 +91,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    extfld_ = new uiGenInput( this, tr("Extension"),
+    extfld_ = new uiGenInput( this, uiStrings::sExtension(),
 			     StringListInpSpec( is2d_ ? extstrs2d : extstrs3d));
     extfld_->valuechanged.notify( mCB(this,uiSimilarityAttrib,extSel) );
     extfld_->attach( alignedBelow, gatefld_ );

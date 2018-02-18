@@ -840,7 +840,7 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 	    fssu.objtype( tr("Bend Points") ).setForWrite( !forread_ );
 	    coordsfnmfld_ = new uiFileSel( grp, uiStrings::sName(), fssu );
 	    coordsfnmfld_->attach( alignedBelow, readcoordsfld_ );
-	    coordsextfld_ = new uiGenInput( grp, tr("Extension"),
+	    coordsextfld_ = new uiGenInput( grp, uiStrings::sExtension(),
 					    StringInpSpec("crd") );
 	    coordsextfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsspecfnmbox_ = new uiCheckBox( grp, tr("Specify file") );

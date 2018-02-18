@@ -23,7 +23,7 @@
 
 #define mErrRet(str) { ret.add(str); return ret; }
 #define mErrRetDoesntExist(fnm) \
-    mErrRet( uiStrings::phrDoesntExist(::toUiString(fnm)) )
+    mErrRet( uiStrings::phrFileDoesNotExist(fnm) )
 
 
 static DBMan* global_dbm_ = 0;

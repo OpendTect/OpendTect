@@ -55,7 +55,7 @@ uiRetVal AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 					const char* fnm, uiRetVal* warnings )
 {
     if ( !File::exists(fnm) )
-	return uiStrings::phrDoesntExist( toUiString(fnm) );
+	return uiStrings::phrFileDoesNotExist( fnm );
 
     od_istream odstrm( fnm );
     ascistream astream( odstrm );

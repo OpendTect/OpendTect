@@ -162,10 +162,7 @@ OD::RGBImage* uiRGBImageLoader::loadImage( const char* fnm,
 					    uiString& errmsg )const
 {
     if ( !File::exists(fnm) )
-    {
-	errmsg = uiStrings::sFileDoesntExist().arg( fnm );
-	return 0;
-    }
+	{ errmsg = uiStrings::phrFileDoesNotExist( fnm ); return 0; }
 
     return new uiRGBArray( fnm );
 }

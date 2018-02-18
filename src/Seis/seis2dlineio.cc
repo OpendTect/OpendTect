@@ -237,7 +237,7 @@ bool TwoDSeisTrcTranslator::initRead_()
 	{ errmsg_ = tr( "Cannot reconstruct 2D filename" ); return false; }
     BufferString fnm( ioobj->mainFileName() );
     if ( !File::exists(fnm) )
-    { errmsg_ = uiStrings::phrDoesntExist(toUiString(fnm)); return false; }
+	{ errmsg_ = uiStrings::phrFileDoesNotExist(fnm); return false; }
 
     return true;
 }

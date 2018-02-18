@@ -112,7 +112,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
 {
     if ( !openData(su) )
     {
-	setTitleText( tr("Error") );
+	setTitleText( uiStrings::sError() );
 	uiString lbltxt = uiStrings::phrCannotOpen(uiStrings::phrInput(
 			  uiStrings::phrData(tr("('%1')\n%2")
 			  .arg(Seis::nameOf(su.geom_))

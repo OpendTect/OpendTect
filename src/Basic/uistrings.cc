@@ -124,8 +124,8 @@ uiPhrase uiStrings::phrData( const uiWord& string )
 uiPhrase uiStrings::phrDelete( const uiWord& string )
 { return toUiString(joinstring).arg(sDelete()).arg(string); }
 
-uiPhrase uiStrings::phrDoesntExist(const uiWord& string, int num )
-{ return tr( "%1 does not exist", 0, num ).arg( string ); }
+uiPhrase uiStrings::phrDoesNotExist( const uiWord& string )
+{ return tr( "%1 does not exist" ).arg( string ); }
 
 uiPhrase uiStrings::phrEdit( const uiWord& string )
 { return toUiString(joinstring).arg( sEdit() ).arg( string ); }
@@ -148,6 +148,9 @@ uiPhrase uiStrings::phrExport( const uiWord& string )
 
 uiPhrase uiStrings::phrExtract( const uiWord& string )
 { return toUiString(joinstring).arg(sExtract()).arg(string); }
+
+uiPhrase uiStrings::phrFileDoesNotExist( const char* fnm )
+{ return phrDoesNotExist( toUiString( BufferString("'",fnm,"'") ) ); }
 
 uiPhrase uiStrings::phrGenerating( const uiWord& string )
 { return toUiString(joinstring).arg(sGenerating()).arg(string); }

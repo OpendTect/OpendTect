@@ -81,7 +81,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     gatefld_->attach( alignedBelow, inpfld_ );
 
     CallBack cbexam = mCB(this,uiGapDeconAttrib,examPush);
-    exambut_ = new uiPushButton( this, m3Dots(tr("Examine")), cbexam, true);
+    exambut_ = new uiPushButton( this, uiStrings::sExamine(), cbexam, false );
     exambut_->attach( rightOf, gatefld_ );
 
     uiString lagstr = tr("Lag size %1").arg(SI().zUnitString());
@@ -118,7 +118,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     isoutzerophasefld_->attach( alignedBelow, isinpzerophasefld_ );
 
     CallBack cbqc = mCB(this,uiGapDeconAttrib,qCPush);
-    qcbut_ = new uiPushButton(this, m3Dots(tr("Check parameters")), cbqc, true);
+    qcbut_ = new uiPushButton(this, tr("Check parameters"), cbqc, false );
     qcbut_->attach( alignedBelow, isoutzerophasefld_ );
 
     setHAlignObj( gatefld_ );

@@ -280,7 +280,7 @@ void Seis::Blocks::Reader::initFromFileName( const char* inp )
 	if ( !inp || !*inp )
 	    state_.set( tr("No input specified") );
 	else
-	    state_.set( uiStrings::phrDoesntExist(toUiString(inp)) );
+	    state_.set( uiStrings::phrFileDoesNotExist( inp ) );
 	return;
     }
 

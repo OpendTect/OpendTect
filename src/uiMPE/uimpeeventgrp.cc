@@ -131,7 +131,7 @@ void setAbsValue( float val )
 
 
 uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
-    : uiDlgGroup(p,tr("Event"))
+    : uiDlgGroup(p,uiStrings::sEvent())
     , sectiontracker_(0)
     , adjuster_(0)
     , changed_(this)

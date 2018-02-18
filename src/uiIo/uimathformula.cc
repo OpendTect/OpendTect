@@ -406,7 +406,7 @@ BufferString uiMathFormula::getIOFileName( bool forread )
     fnm = dlg.ioObj()->mainFileName();
     const bool doesexist = File::exists( fnm );
     if ( forread && !doesexist )
-	{ uiMSG().error(uiStrings::sFileDoesntExist()); fnm.setEmpty(); }
+	{ uiMSG().error(uiStrings::phrFileDoesNotExist(fnm)); fnm.setEmpty(); }
 
     ctio_.setObj( dlg.ioObj()->clone() );
     return fnm;

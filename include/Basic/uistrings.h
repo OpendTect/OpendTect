@@ -80,13 +80,14 @@ public:
     static uiPhrase phrCrossline(const uiWord&);
     static uiPhrase phrData(const uiWord&);
     static uiPhrase phrDelete(const uiWord&);
-    static uiPhrase phrDoesntExist(const uiWord&,int n=1);
+    static uiPhrase phrDoesNotExist(const uiWord&);
     static uiPhrase phrEdit(const uiWord&);
     static uiPhrase phrEnter(const uiWord&);
     static uiPhrase phrExistsContinue(const uiWord&,bool overwrite);
     static uiPhrase phrExitOD();
     static uiPhrase phrExport(const uiWord& string);
     static uiPhrase phrExtract(const uiWord&);
+    static uiPhrase phrFileDoesNotExist(const char*);
     static uiPhrase phrGenerating(const uiWord&);
     static uiPhrase phrHandled(const uiWord&);
     static uiPhrase phrHandling(const uiWord&);
@@ -292,14 +293,17 @@ public:
     static uiWord sEast(bool abbr)
     { return abbr ? tr("E","abbr East") : tr("East"); }
     static uiWord sEdit()		{ return tr("Edit"); }
+    static uiWord sEnable()		{ return tr("Enable"); }
     static uiWord sEnabled()		{ return tr("Enabled"); }
     static uiWord sEnter();
     static uiWord sEnterValidName();
-    static uiWord sErrors(int n=1)	{ return tr("Error",0,n); }
+    static uiWord sError(int n=1)	{ return tr("Error",0,n); }
+    static uiWord sEvaluate()		{ return tr("Evaluate"); }
     static uiWord sEvent(int n=1)	{ return tr("Event",0,n); }
     static uiWord sExamine()		{ return tr("Examine"); }
     static uiWord sExit()		{ return tr("Exit"); }
     static uiWord sExport()		{ return tr("Export"); }
+    static uiWord sExtension()		{ return tr("Extension"); }
     static uiWord sExtract()		{ return tr("Extract"); }
     static uiWord sFactor(int n=1)	{ return tr("Factor",0,n); }
     static uiWord sFault(int n=1)	{ return tr("Fault",0,n); }
@@ -307,7 +311,6 @@ public:
     static uiWord sFaultStickSet(int n=1) { return tr("FaultStickSet",0,n); }
     static uiWord sFeet()		{ return tr("Feet"); }
     static uiWord sFile()	        { return tr("File"); }
-    static uiWord sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
     static uiWord sFileName(int n=1)	{ return tr("File Name",0,n); }
     static uiWord sFilter(int n=1)	{ return tr("Filter",0,n); }
     static uiWord sFilters()		{ return sFilter(mPlural); }

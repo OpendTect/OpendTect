@@ -65,7 +65,7 @@ uiSemblanceAttrib::uiSemblanceAttrib( uiParent* p, bool is2d )
 
     gatefld->attach( alignedBelow, inpfld );
 
-    extfld = new uiGenInput( this, tr("Extension"),
+    extfld = new uiGenInput( this, uiStrings::sExtension(),
 			     StringListInpSpec( is2d_ ? extstrs2d : extstrs3d));
     extfld->valuechanged.notify( mCB(this,uiSemblanceAttrib,extSel) );
     extfld->attach( alignedBelow, gatefld );

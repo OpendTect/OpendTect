@@ -98,7 +98,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     tabgrp_->addTab( modegrp, tr("Mode") );
 
     eventgrp_ = new uiEventGroup( tabgrp_->tabGroup(), is2d_ );
-    tabgrp_->addTab( eventgrp_, tr("Event") );
+    tabgrp_->addTab( eventgrp_, uiStrings::sEvent() );
 
     correlationgrp_ = new uiCorrelationGroup( tabgrp_->tabGroup(), is2d_ );
     tabgrp_->addTab( correlationgrp_, uiStrings::sCorrelation() );

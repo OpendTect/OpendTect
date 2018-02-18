@@ -302,7 +302,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     for ( int idx=0; idx<params.size(); idx++ )
 	strs.add( params[idx].label_ );
 
-    evalfld = new uiGenInput( this, tr("Evaluate"),
+    evalfld = new uiGenInput( this, uiStrings::sEvaluate(),
                               StringListInpSpec(strs) );
     evalfld->valuechanged.notify( mCB(this,uiEvaluateDlg,variableSel) );
 

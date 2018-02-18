@@ -29,7 +29,7 @@ ________________________________________________________________________
 #define mDirCheck( dir ) \
     if ( !File::exists(dir) ) \
 { \
-    errmsg_ = uiStrings::phrDoesntExist(toUiString(dir)); \
+    errmsg_ = uiStrings::phrFileDoesNotExist(dir); \
     return false; \
 } \
 

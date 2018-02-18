@@ -398,7 +398,7 @@ bool uiMsg::error( const uiString& part1, const uiString& part2,
     bool notagain = false;
     showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(),
 		    uiString::empty(), uiString::empty(),
-		    tr("Error"), withdontshowagain ? &notagain : 0 );
+		    uiStrings::sError(), withdontshowagain ? &notagain : 0 );
 
     return notagain;
 }
@@ -446,7 +446,7 @@ void uiMsg::errorWithDetails( const uiStringSet& strings )
 
 void uiMsg::errorWithDetailProc( uiStringSet& strings )
 {
-    mCapt( tr("Error") );
+    mCapt( uiStrings::sError() );
     const uiString oktxt = uiStrings::sOk();
     const int refnr = beginCmdRecEvent( utfwintitle );
     // Use of QMessageBox::Abort enables close and escape actions by the user
@@ -641,7 +641,7 @@ void uiMsg::dispErrMsgCB( CallBacker* cber )
     mDynamicCastGet( CBCapsule<uiStringSet>*, caps, cber )
     mEnsureExecutedInMainThreadWithCapsule( uiMsg::dispErrMsgCB, caps );
     mCBCapsuleUnpack( uiStringSet, uistrset, caps );
-    mCapt( tr("Error") );
+    mCapt( uiStrings::sError() );
     errorWithDetailProc(uistrset);
 }
 

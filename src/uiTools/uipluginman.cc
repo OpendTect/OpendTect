@@ -176,9 +176,9 @@ void uiPluginMan::loadPush( CallBacker* )
 
     const BufferString fnm = uifs.fileName();
     if ( !File::exists(fnm) )
-	uiMSG().error( uiStrings::sFileDoesntExist() );
+	uiMSG().error( uiStrings::phrFileDoesNotExist(fnm) );
     else if ( !PIM().load(fnm) )
-	uiMSG().error( tr("Couldn't load plugin") );
+	uiMSG().error( tr("Could not load plugin") );
     else
 	{ loaddir = File::Path(fnm).pathOnly(); fillList(); selChg(0); }
 }

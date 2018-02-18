@@ -228,7 +228,7 @@ void SurveyInfo::setToUnlocatedCoordSys( bool xyinfeet )
 
 
 #define mErrRetDoesntExist(fnm) \
-    { ret.add( uiStrings::phrDoesntExist(::toUiString(fnm)) ); return ret; }
+    { ret.add( uiStrings::phrFileDoesNotExist(fnm) ); return ret; }
 
 
 uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd,
@@ -1388,10 +1388,8 @@ uiRetVal SurveyInfo::isValidDataRoot( const char* inpdirnm )
 
     File::Path fp( inpdirnm ? inpdirnm : GetBaseDataDir() );
     const BufferString dirnm( fp.fullPath() );
-    const uiString datarootstr = tr("OpendTect Data Directory '%1'")
-					.arg( dirnm );
     if ( !File::isDirectory(dirnm) || !File::isWritable(dirnm) )
-	mErrRetDoesntExist( datarootstr );
+	mErrRetDoesntExist( dirnm );
 
     fp.add( ".omf" );
     const BufferString omffnm( fp.fullPath() );
@@ -1404,7 +1402,7 @@ uiRetVal SurveyInfo::isValidDataRoot( const char* inpdirnm )
 	// probably we're in a survey. So let's check:
 	fp.setFileName( "Misc" );
 	if ( File::isDirectory(fp.fullPath()) )
-	    ret.add( tr("%1 has '%2' file").arg(datarootstr).arg(sSurvFile) );
+	    ret.add( tr("'%1' has '%2' file").arg(dirnm).arg(sSurvFile) );
     }
 
     return ret;

@@ -34,7 +34,7 @@ uiWellPosProvGroup::uiWellPosProvGroup( uiParent* p,
 {
     wellfld_ = new uiMultiWellSel( this, true );
 
-    stepoutfld_ = new uiStepOutSel( this, false, tr("Extension") );
+    stepoutfld_ = new uiStepOutSel( this, false, uiStrings::sExtension() );
     stepoutfld_->attach( alignedBelow, wellfld_ );
 
     zrgfld_ = new uiSelZRange( this, true, false, 0, su.zdomkey_ );

@@ -195,7 +195,7 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
 
     d0fld_ = new uiLineEdit( this, FloatInpSpec(0), "D0" );
     d0fld_->attach( alignedBelow, a0fld_ );
-    uiLabel* dlbl = new uiLabel( this, uiStrings::sErrors() );
+    uiLabel* dlbl = new uiLabel( this, uiStrings::sError() );
     dlbl->attach( leftOf, d0fld_ );
     d1fld_ = new uiLineEdit( this, FloatInpSpec(0), "D1" );
     d1fld_->attach( alignedBelow, a1fld_ );
@@ -279,7 +279,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     inpfld_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExpCB) );
     inpfld_->valuechanging.notify( mCB(this,uiDPSUserDefTab,checkMathExpr) );
 
-    rmsfld_ = new uiGenInput( this, mJoinUiStrs(sRMS(), sErrors()) );
+    rmsfld_ = new uiGenInput( this, mJoinUiStrs(sRMS(),sError()) );
     rmsfld_->setElemSzPol( uiObject::Small );
     rmsfld_->attach( rightOf, inpfld_);
     rmsfld_->setReadOnly( true );
@@ -298,7 +298,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 	inpfld1_->valuechanging.notify(mCB(this,uiDPSUserDefTab,checkMathExpr));
 	inpfld1_->attach( alignedBelow, shwy1userdefpolyline_ );
 
-	rmsfld1_ = new uiGenInput( this, mJoinUiStrs(sRMS(), sErrors()) );
+	rmsfld1_ = new uiGenInput( this, mJoinUiStrs(sRMS(),sError()) );
 	rmsfld1_->setElemSzPol( uiObject::Small );
 	rmsfld1_->attach( rightOf, inpfld1_);
 	rmsfld1_->setReadOnly( true );

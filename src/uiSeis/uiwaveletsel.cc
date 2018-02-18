@@ -60,7 +60,7 @@ void uiWaveletIOObjSel::init( const Setup& su, bool forread )
 
     if ( su.withextract_ )
     {
-	uiToolButtonSetup tbsu( "wavelet_extract", tr("Extract"),
+	uiToolButtonSetup tbsu( "wavelet_extract", uiStrings::sExtract(),
 				mCB(this,uiWaveletIOObjSel,extractCB) );
 	uiButton* but;
 	if ( su.bigbuts_ )

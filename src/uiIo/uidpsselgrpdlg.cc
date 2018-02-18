@@ -72,8 +72,8 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     impgrpbut->attach( rightTo, expgrpbut );
 
     uiPushButton* scalesgbut =
-	new uiPushButton( this, m3Dots(tr("Selectedness")),
-			  mCB(this,uiDPSSelGrpDlg,calcSelectedness), true );
+	new uiPushButton( this, tr("Selectedness"),
+			  mCB(this,uiDPSSelGrpDlg,calcSelectedness), false );
     scalesgbut->attach( rightTo, impgrpbut );
 
     tbl_->setSelected( RowCol(0,0), true );

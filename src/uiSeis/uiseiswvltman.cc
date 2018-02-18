@@ -114,7 +114,8 @@ void uiSeisWvltMan::addButtons()
     mergebut->activated.notify( mCB(this,uiSeisWvltMan,mrgPush) );
     mergebut->attach( rightOf, crbut );
 
-    uiPushButton* extractbut = new uiPushButton( grp, tr("Extract"), false );
+    uiPushButton* extractbut = new uiPushButton( grp, uiStrings::sExtract(),
+						 false );
     extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
     extractbut->attach( rightOf, mergebut );
 
