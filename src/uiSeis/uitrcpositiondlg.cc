@@ -55,7 +55,7 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
 				 mCast(float,posdatarg.step) );
     possldr_->setInterval( floatrg );
     possldr_->attach( rightOf, altdimnmflds_ );
-    posvalfld_ = new uiGenInput( this, uiString::emptyString(),
+    posvalfld_ = new uiGenInput( this, uiString::empty(),
                                  DoubleInpSpec() );
     posvalfld_->attach( rightOf, possldr_ );
     sldrPosChangedCB( 0 );

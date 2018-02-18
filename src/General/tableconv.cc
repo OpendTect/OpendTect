@@ -68,7 +68,7 @@ void Table::ExportHandler::finish()
 uiString Table::ExportHandler::getStrmMsg() const
 {
     if ( strm_.isOK() )
-	return uiString::emptyString();
+	return uiString::empty();
     uiString ret = strm_.errMsg();
     return ret.isEmpty() ? uiStrings::phrCannotWrite(uiStrings::sOutput()) :ret;
 }

@@ -576,8 +576,8 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     typfld_->selectionChanged.notify( mCB(this,uiSimpPropertyEd,updDisp) );
     typfld_->setHSzPol( uiObject::Small );
     prelbl_ = new uiLabel( this, toUiString(pr.name()), typfld_ );
-    valfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec() );
-    rgfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec(),
+    valfld_ = new uiGenInput( this, uiString::empty(), FloatInpSpec() );
+    rgfld_ = new uiGenInput( this, uiString::empty(), FloatInpSpec(),
                              FloatInpSpec() );
     uiUnitSel::Setup ussu( pr.stdType() ); ussu.withnone( true );
     unfld_ = new uiUnitSel( this, ussu );

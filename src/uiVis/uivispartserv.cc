@@ -254,7 +254,7 @@ void uiVisPartServer::setObjectName( int id, const char* nm )
 uiString uiVisPartServer::getUiObjectName( int id ) const
 {
     const visBase::DataObject* obj = visBase::DM().getObject( id );
-    return obj ? obj->uiName() : uiString::emptyString();
+    return obj ? obj->uiName() : uiString::empty();
 }
 
 
@@ -1685,7 +1685,7 @@ bool uiVisPartServer::isPicking() const
 
 void uiVisPartServer::getPickingMessage( uiString& str ) const
 {
-    str = uiString::emptyString();
+    str = uiString::empty();
     const TypeSet<int>& sel = visBase::DM().selMan().selected();
     if ( sel.size()!=1 ) return;
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(sel[0]));

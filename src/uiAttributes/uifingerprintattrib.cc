@@ -211,7 +211,7 @@ void uiFingerPrintAttrib::initTable( int nrrows )
     const uiAttrSelData asd( is2d_ );
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	uiAttrSel* attrbox = new uiAttrSel( 0, asd, uiString::emptyString() );
+	uiAttrSel* attrbox = new uiAttrSel( 0, asd, uiString::empty() );
 	attrbox->setBorder( 0 );
 	attribflds_ += attrbox;
 	table_->setCellGroup( RowCol(idx,0), attrbox );
@@ -223,7 +223,7 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 {
     const int newrow = table_->newCell().row();
     const uiAttrSelData asd( is2d_ );
-    uiAttrSel* attrbox = new uiAttrSel( 0, asd, uiString::emptyString() );
+    uiAttrSel* attrbox = new uiAttrSel( 0, asd, uiString::empty() );
     attrbox->setDescSet( ads_ );
     attribflds_.insertAt( attrbox, newrow );
     table_->setCellGroup( RowCol(newrow,0), attrbox );
@@ -682,7 +682,7 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
 	wgtflds_ += spinbox;
 	spinbox->setName( BufferString("Weight ",attrnm) );
 
-	minmaxflds_ += new uiGenInput( attrvalsgrp, uiString::emptyString(),
+	minmaxflds_ += new uiGenInput( attrvalsgrp, uiString::empty(),
 				       FloatInpIntervalSpec()
 				      .setName(BufferString("Min ",attrnm),0)
 				      .setName(BufferString("Max ",attrnm),1));

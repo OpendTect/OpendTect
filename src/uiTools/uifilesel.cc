@@ -78,7 +78,7 @@ void uiFileSel::init( const uiString& lbltxt )
 
     if ( setup_.checkable_ )
     {
-	checkbox_ = new uiCheckBox( this, uiString::emptyString() );
+	checkbox_ = new uiCheckBox( this, uiString::empty() );
 	checkbox_->setChecked( true );
 	checkbox_->activated.notify( mCB(this,uiFileSel,checkCB) );
     }
@@ -195,7 +195,7 @@ BufferString uiFileSel::selectedProtocol() const
 
 uiString uiFileSel::labelText() const
 {
-    return lbl_ ? lbl_->text() : uiString::emptyString();
+    return lbl_ ? lbl_->text() : uiString::empty();
 }
 
 

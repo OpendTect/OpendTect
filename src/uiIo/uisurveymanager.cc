@@ -594,11 +594,11 @@ void uiSurveyManager::putToScreen()
 
     if ( !havesurveys || !isok )
     {
-	notesfld_->setText( uiString::emptyString() );
+	notesfld_->setText( uiString::empty() );
 	if ( havesurveys )
 	    infofld_->setText( survreadstatus_ );
 	else
-	    infofld_->setText( uiString::emptyString() );
+	    infofld_->setText( uiString::empty() );
 	return;
     }
 

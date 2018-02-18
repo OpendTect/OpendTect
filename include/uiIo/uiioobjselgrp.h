@@ -174,7 +174,7 @@ protected:
 
 private:
 
-    void		init(const uiString& st=uiString::emptyString());
+    void		init(const uiString& st=uiString::empty());
     void		mkTopFlds(const uiString&);
     void		mkWriteFlds();
     void		mkManipulators();

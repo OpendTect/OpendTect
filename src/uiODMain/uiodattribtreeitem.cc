@@ -342,7 +342,7 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
-    uiString dispname = uiString::emptyString();
+    uiString dispname = uiString::empty();
     if ( as )
     {
 	const int nrtextures = visserv->nrTextures( visid, attrib );
@@ -370,7 +370,7 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
     else if ( !as )
 	dispname = toUiString( visserv->getObjectName(visid) );
     else if ( as->id() == Attrib::SelSpec::cNoAttribID() )
-        dispname = uiString::emptyString();
+        dispname = uiString::empty();
 
     return dispname;
 }
@@ -384,7 +384,7 @@ uiString uiODAttribTreeItem::createDisplayName() const
 
     Attrib::SelSpec as = attrlayer->selSpec();
     uiString dispname( as.id().isValid() ? toUiString(as.userRef())
-					 : uiString::emptyString() );
+					 : uiString::empty() );
     if ( as.isNLA() )
     {
 	dispname = toUiString(as.objectRef());
@@ -397,7 +397,7 @@ uiString uiODAttribTreeItem::createDisplayName() const
     if ( as.id() == Attrib::SelSpec::cAttribNotSelID() )
 	dispname = uiStrings::sRightClick();
     else if ( as.id() == Attrib::SelSpec::cNoAttribID() )
-	dispname = uiString::emptyString();
+	dispname = uiString::empty();
 
     return dispname;
 }

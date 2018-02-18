@@ -63,7 +63,7 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     uiFunctionDisplay::Setup su;
     su.annoty( false ).noyaxis( true ).noy2axis( true ).drawgridlines( false );
     dispfld_ = new uiHistogramDisplay( this, su );
-    dispfld_->xAxis()->setCaption( uiString::emptyString() );
+    dispfld_->xAxis()->setCaption( uiString::empty() );
     dispfld_->setPrefWidth( 260 );
     dispfld_->setPrefHeight( GetGoldenMinor(260) );
 
@@ -205,7 +205,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     realstatsfld_->usrValChanged.notify( setsclcb );
     statsgrp->setHAlignObj( realstatsfld_ );
 
-    finalscalefld_ = new uiGenInput( this, uiString::emptyString(),
+    finalscalefld_ = new uiGenInput( this, uiString::empty(),
                                      FloatInpSpec() );
     finalscalefld_->attach( centeredBelow, statsgrp );
     new uiLabel( this, tr("Scaling factor"), finalscalefld_ );

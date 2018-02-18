@@ -31,7 +31,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     , psd_( psd )
 {
     set_.ref();
-    setTitleText( uiString::emptyString() );
+    setTitleText( uiString::empty() );
     usedrawstylefld_ = new uiCheckBox( this, tr("Connect picks") );
     const bool hasbody = psd && psd->isBodyDisplayed();
     const bool hassty = hasbody

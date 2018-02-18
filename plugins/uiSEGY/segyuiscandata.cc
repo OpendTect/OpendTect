@@ -175,7 +175,7 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
     if ( mIsZero(sampling_.step,1.e-8) )
 	sampling_.step = binhdr.sampleRate( false );
 
-    return uiString::emptyString();
+    return uiString::empty();
 }
 
 

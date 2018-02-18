@@ -143,7 +143,7 @@ public:
 			    : objectCreated(this)	{}
 
     inline int		addCreator(Creator,const char* ky,
-				   uiString unm=uiString::emptyString());
+				   uiString unm=uiString::empty());
 				/*!< If ky is already present, old creator is
 				     replaced. ky can be a FileMultiString
 				     allowing multiple keys */
@@ -177,7 +177,7 @@ public:
 			    : objectCreated(this)	{}
 
     inline int		addCreator(Creator,const char* ky,
-				   uiString usernm =uiString::emptyString());
+				   uiString usernm =uiString::empty());
 
     inline T*		create(const char*,P) const;
     inline T*		createSuitable(P) const;
@@ -206,7 +206,7 @@ public:
 			    : objectCreated(this)	{}
 
     inline int		addCreator(Creator,const char* ky,
-				   uiString usernm=uiString::emptyString());
+				   uiString usernm=uiString::empty());
 
     inline T*		create(const char*,P0,P1) const;
     inline T*		createSuitable(P0,P1) const;
@@ -238,7 +238,7 @@ public:
     inline T*		createSuitable(P0,P1,P2) const;
 
     inline int		addCreator(Creator,const char* ky,
-				   uiString usernm=uiString::emptyString());
+				   uiString usernm=uiString::empty());
 
     CNotifier< ThisType, T* >	objectCreated;
 

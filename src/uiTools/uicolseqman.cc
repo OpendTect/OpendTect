@@ -522,7 +522,7 @@ void uiColSeqMan::doFinalise( CallBacker* )
 {
     updateColSeqList();
     handleSeqChg();
-    toStatusBar( uiString::emptyString(), 1 );
+    toStatusBar( uiString::empty(), 1 );
 
     mAttachCB( seqlistfld_->selectionChanged, uiColSeqMan::selChgCB );
     mAttachCB( transpdisp_->pointSelected, uiColSeqMan::transpPtSelCB );

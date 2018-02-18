@@ -262,7 +262,7 @@ uiString SeisSingleTraceProc::message() const
 	return tr("Handling %1").arg(ret);
     }
 
-    return uiString::emptyString();
+    return uiString::empty();
 }
 
 

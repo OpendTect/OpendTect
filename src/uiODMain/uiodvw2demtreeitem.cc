@@ -29,7 +29,7 @@ ________________________________________________________________________
 
 
 uiODVw2DEMTreeItem::uiODVw2DEMTreeItem( const DBKey& emid )
-    : uiODVw2DTreeItem(uiString::emptyString())
+    : uiODVw2DTreeItem(uiString::empty())
     , emid_( emid )
 {
 }

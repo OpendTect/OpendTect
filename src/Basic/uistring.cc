@@ -959,7 +959,7 @@ uiStringSet::IdxType uiStringSet::indexOf( const uiString& str ) const
 
 uiString& uiStringSet::get( IdxType idx )
 {
-    return strs_.validIdx(idx) ? *strs_[idx] : uiString::dummyString();
+    return strs_.validIdx(idx) ? *strs_[idx] : uiString::dummy();
 }
 
 

@@ -748,11 +748,11 @@ uiString uiODZsliceTreeItem::createDisplayName() const
 {
     const Probe* probe = getProbe();
     if ( !probe )
-	{ pErrMsg( "Probe not found" ); return uiString::emptyString(); }
+	{ pErrMsg( "Probe not found" ); return uiString::empty(); }
 
     Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
     if ( !vwr )
-	{ pErrMsg( "Viewer not found" ); return uiString::emptyString(); }
+	{ pErrMsg( "Viewer not found" ); return uiString::empty(); }
 
     const TrcKeyZSampling probepos = probe->position();
     const ZDomain::Info& scnezdinfo = vwr->zDomain();

@@ -551,7 +551,7 @@ void uiSeis2DLineNameSel::setDataSet( const DBKey& ky )
 {
     dsid_ = ky;
     fld_->setEmpty();
-    if ( !forread_ ) fld_->addItem( uiString::emptyString() );
+    if ( !forread_ ) fld_->addItem( uiString::empty() );
     addLineNames( ky );
     nameChanged.trigger();
 }

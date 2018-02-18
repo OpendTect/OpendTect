@@ -254,7 +254,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
     , trc_(0)
     , prevpos_(-1,-1)
     , storinited_(false)
-    , errmsg_(uiString::emptyString())
+    , errmsg_(uiString::empty())
     , scaler_(0)
     , growtrctosi_(false)
     , writez0shift_(0.f)
@@ -315,7 +315,7 @@ static bool isDataType( const char* reqtp )
 
 bool SeisTrcStorOutput::doUsePar( const IOPar& pars, int outidx )
 {
-    errmsg_ = uiString::emptyString();
+    errmsg_ = uiString::empty();
     PtrMan<IOPar> outppar =
 		pars.subselect( IOPar::compKey(sKey::Output(),outidx) );
     if ( !outppar )
@@ -553,7 +553,7 @@ bool SeisTrcStorOutput::finishWrite()
 
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 			Pos::GeomID geomid)
-    : errmsg_(uiString::emptyString())
+    : errmsg_(uiString::empty())
     , output_( 0 )
 {
     seldata_->setGeomID( geomid );

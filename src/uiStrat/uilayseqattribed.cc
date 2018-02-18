@@ -60,7 +60,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	localgrp_ = new uiGroup( this, "Local group" );
 	uiLabel* lbl = 0;
 	if ( edsu.allowintegr_ )
-	    lbl = new uiLabel( localgrp_, uiString::emptyString() );
+	    lbl = new uiLabel( localgrp_, uiString::empty() );
 	uiLabeledComboBox* lupscfld = new uiLabeledComboBox( localgrp_,
 						Stats::UpscaleTypeDef(),
 						tr("From depth intervals"));

@@ -69,7 +69,7 @@ mExpClass(uiBase) uiMenu : public uiActionContainer, public uiBaseObject
 public:
 
 			uiMenu(uiParent*,
-			       const uiString& txt=uiString::emptyString(),
+			       const uiString& txt=uiString::empty(),
 			       const char* icnm=0);
 			~uiMenu();
 

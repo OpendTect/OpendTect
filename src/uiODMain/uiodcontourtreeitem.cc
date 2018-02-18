@@ -1012,8 +1012,8 @@ void uiODContourTreeItem::handleMenuCB( CallBacker* cb )
         getZVSAreaValues( zvals, areas );
 
 	uiDialog dlg( ODMainWin(), uiDialog::Setup(tr("Countour areas"),
-				   uiString::emptyString(), mNoHelpKey ) );
-        dlg.setCancelText( uiString::emptyString() );
+				   uiString::empty(), mNoHelpKey ) );
+        dlg.setCancelText( uiString::empty() );
 
         RefMan<visSurvey::Scene> mDynamicCast( visSurvey::Scene*, scene,
                         applMgr()->visServer()->getObject(sceneID()) );

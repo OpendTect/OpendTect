@@ -115,7 +115,7 @@ public:
     od_int64	totalNr() const { return exec_ ? exec_->totalNr() : -1; }
     od_int64	nrDone() const { return exec_ ? exec_->nrDone() : -1; }
     uiString	nrDoneText() const {
-	return exec_ ? exec_->nrDoneText() : uiString::emptyString();
+	return exec_ ? exec_->nrDoneText() : uiString::empty();
 				     }
     uiString	message() const
     {
@@ -203,7 +203,7 @@ int nextStep()
 od_int64 totalNr() const { return exec_ ? exec_->totalNr() : -1; }
 od_int64 nrDone() const { return exec_ ? exec_->nrDone() : -1; }
 uiString nrDoneText() const { return exec_ ? exec_->nrDoneText()
-					   : uiString::emptyString(); }
+					   : uiString::empty(); }
 uiString message() const
 {
     return errmsg_.isEmpty() ? tr("Loading body") : errmsg_;

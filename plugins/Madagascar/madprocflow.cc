@@ -243,7 +243,7 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
     if ( !trltr ) { errmsg = tr("Selected object is not a Processing flow");
 								return false;}
 
-    errmsg = uiString::emptyString();
+    errmsg = uiString::empty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
     {
@@ -275,7 +275,7 @@ const uiString dgbODMadProcFlowTranslator::read(
 
     pf.setName( DBM().nameOf(conn.linkedTo()) );
     IOPar iop( astrm ); pf.usePar( iop );
-    return uiString::emptyString();
+    return uiString::empty();
 }
 
 

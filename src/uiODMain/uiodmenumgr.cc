@@ -798,7 +798,7 @@ void uiODMenuMgr::updateSceneMenu()
 
 	if ( !itm )
 	{
-	    itm = new uiAction( uiString::emptyString(),
+	    itm = new uiAction( uiString::empty(),
 				mCB(this,uiODMenuMgr,handleClick) );
 	    scenemnu_->insertAction( itm, id );
 	    itm->setCheckable( true );
@@ -1386,7 +1386,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	     uiDialog::Setup(tr("Memory Information"),mNoDlgTitle,mNoHelpKey) );
 	uiTextBrowser* browser = new uiTextBrowser( &dlg );
 	browser->setText( text.buf() );
-	dlg.setCancelText( uiString::emptyString() );
+	dlg.setCancelText( uiString::empty() );
 	dlg.go();
     } break;
 

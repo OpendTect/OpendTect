@@ -48,7 +48,7 @@ static const char* sKeyVW2DZPerCM()	{ return "Viewer2D.ZSamplesPerCM"; }
 
 uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
 			float& x1pospercm, float& x2pospercm, bool isvertical )
-    : uiDialog(p,uiDialog::Setup(tr("Set zoom level"),uiString::emptyString(),
+    : uiDialog(p,uiDialog::Setup(tr("Set zoom level"),uiString::empty(),
 				 mNoHelpKey))
     , x1pospercm_(x1pospercm)
     , x2pospercm_(x2pospercm)

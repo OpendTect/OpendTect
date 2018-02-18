@@ -30,7 +30,7 @@ ________________________________________________________________________
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 	: uiDialog(p,uiDialog::Setup(tr("Display properties of: %1")
 				     .arg(wd ? toUiString(wd->name())
-					     : uiString::emptyString()),
+					     : uiString::empty()),
 				     mNoDlgTitle,
 				     mODHelpKey(mWellDispPropDlgHelpID) )
 		     .savebutton(true)

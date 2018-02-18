@@ -494,11 +494,11 @@ void uiODSceneMgr::pageUpDownPressed( CallBacker* cb )
 
 void uiODSceneMgr::resetStatusBar( int id )
 {
-    appl_.statusBar()->message( uiString::emptyString(), mPosField );
-    appl_.statusBar()->message( uiString::emptyString(), mValueField );
+    appl_.statusBar()->message( uiString::empty(), mPosField );
+    appl_.statusBar()->message( uiString::empty(), mValueField );
     appl_.statusBar()->message(	toUiString(visServ().getInteractionMsg(id)),
 				mNameField );
-    appl_.statusBar()->message( uiString::emptyString(), mStatusField );
+    appl_.statusBar()->message( uiString::empty(), mStatusField );
     appl_.statusBar()->setBGColor( mStatusField,
 				   appl_.statusBar()->getBGColor(mPosField) );
 }
@@ -532,7 +532,7 @@ void uiODSceneMgr::updateStatusBar()
     if ( haspos )
     {
     msg = valstr.isEmpty()
-	    ? uiString::emptyString()
+	    ? uiString::empty()
 	    : tr("Value = %1").arg( valstr );
     }
     else
@@ -542,7 +542,7 @@ void uiODSceneMgr::updateStatusBar()
 
     msg = haspos
 	    ? toUiString(visServ().getMousePosString())
-	    : uiString::emptyString();
+	    : uiString::empty();
     if ( msg.isEmpty() )
     {
 	const int selid = visServ().getSelObjectId();

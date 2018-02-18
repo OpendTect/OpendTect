@@ -326,7 +326,7 @@ bool uiSeisMultiCubePS::acceptOK()
     if ( !outfld_->commitInput() )
 	mErrRet((outfld_->isEmpty()
 	       ? uiStrings::phrSpecify(uiStrings::phrOutput(uiStrings::sName()))
-	       : uiString::emptyString()))
+	       : uiString::empty()))
 
     SamplingData<float> offset( offsfld_->getFValue(0),
 				offsfld_->getFValue(1) );

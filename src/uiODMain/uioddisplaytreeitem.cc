@@ -67,7 +67,7 @@ static const int cHideIdx = -950;
 static const int cRemoveIdx = -1000;
 
 uiODDisplayTreeItem::uiODDisplayTreeItem()
-    : uiODSceneTreeItem(uiString::emptyString())
+    : uiODSceneTreeItem(uiString::empty())
     , displayid_(-1)
     , visserv_(ODMainWin()->applMgr().visServer())
     , addmnuitem_(uiStrings::sAdd(),cAddIdx)

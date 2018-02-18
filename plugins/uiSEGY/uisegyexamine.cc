@@ -363,7 +363,7 @@ void uiSEGYExamine::updateInp()
 	str.append(toUiString("  ----"));
 	txtinfo_.append(" ").append(str);
     }
-    outInfo( uiString::emptyString() );
+    outInfo( uiString::empty() );
     txtfld_->setText( txtinfo_ );
 }
 

@@ -199,7 +199,7 @@ const uiString CBVSReader::check( od_istream& strm )
     if ( plf > 2 ) mErrRet;
 
     strm.setReadPosition( 0, od_stream::Abs );
-    return uiString::emptyString();
+    return uiString::empty();
 }
 
 

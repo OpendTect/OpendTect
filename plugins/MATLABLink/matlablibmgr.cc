@@ -229,7 +229,7 @@ MatlabLibAccess*
 
 bool MatlabLibMgr::load( const char* libfnm )
 {
-    errmsg_ = uiString::emptyString();
+    errmsg_ = uiString::empty();
     const File::Path fp( libfnm );
     const BufferString libnm = fp.fileName();
 

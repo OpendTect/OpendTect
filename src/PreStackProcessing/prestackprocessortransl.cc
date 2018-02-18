@@ -106,7 +106,7 @@ uiString dgbPreStackProcTranslator::read( PreStack::ProcessManager& md,
     if ( atEndOfSection(astrm) ) astrm.next();
     const IOPar par( astrm );
 
-    if ( md.usePar( par ) ) return uiString::emptyString();
+    if ( md.usePar( par ) ) return uiString::empty();
 
     return !md.errMsg().isEmpty() ? md.errMsg()
 			     : uiStrings::phrCannotRead(tr("processing info."));
@@ -128,6 +128,6 @@ uiString dgbPreStackProcTranslator::write(const PreStack::ProcessManager& md,
     md.fillPar( par );
 
     par.putTo( astrm );
-    return astrm.isOK() ? uiString::emptyString()
+    return astrm.isOK() ? uiString::empty()
 			: tr("Error during write to process definition file");
 }

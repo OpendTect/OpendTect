@@ -75,7 +75,7 @@ protected:
 
 
 uiSeisSampleEditor::Setup::Setup( const DBKey& ky )
-    : uiDialog::Setup(uiString::emptyString(),mNoDlgTitle,
+    : uiDialog::Setup(uiString::empty(),mNoDlgTitle,
                       mODHelpKey(mSeisBrowserHelpID) )
     , id_(ky)
     , startpos_(mUdf(int),mUdf(int))
@@ -537,7 +537,7 @@ uiSeisSampleEditorGoToDlg( uiSeisSampleEditor* p )
 	mAttachCB( inlfld_->valueChanged, uiSeisSampleEditorGoToDlg::valChgCB );
     }
 
-    statelbl_ = new uiLabel( this, uiString::emptyString() );
+    statelbl_ = new uiLabel( this, uiString::empty() );
     statelbl_->setPrefWidthInChar( 30 );
     statelbl_->attach( alignedBelow, lbsb );
 
@@ -901,7 +901,7 @@ void uiSeisSampleEditor::dispTracesPush( CallBacker* )
 	trcbufvwr_->start();
     else
     {
-	uiSeisTrcBufViewer::Setup stbvsetup( uiString::emptyString() );
+	uiSeisTrcBufViewer::Setup stbvsetup( uiString::empty() );
 	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
 	trcbufvwr_->selectDispTypes( true, false );
 	mAttachCB( trcbufvwr_->windowClosed, uiSeisSampleEditor::bufVwrClose );

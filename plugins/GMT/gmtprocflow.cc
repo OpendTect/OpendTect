@@ -149,7 +149,7 @@ const uiString dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf,
 
     pf.setName( DBM().nameOf(conn.linkedTo()) );
     pf.pars().getFrom( astrm );
-    return uiString::emptyString();
+    return uiString::empty();
 }
 
 
@@ -165,6 +165,6 @@ const uiString dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
 	return uiStrings::phrCannotWrite(tr("to output GMT flow file"));
 
     pf.pars().putTo( astrm );
-    return astrm.isOK() ? uiString::emptyString() :
+    return astrm.isOK() ? uiString::empty() :
 			  tr("Error during write to GMT flow file");
 }

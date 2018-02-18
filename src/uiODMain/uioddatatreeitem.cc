@@ -98,7 +98,7 @@ uiODDataTreeItem* uiODDataTreeItemFactory::create( ProbeLayer& probelayer )
 
 
 uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
-    : uiODSceneTreeItem(uiString::emptyString())
+    : uiODSceneTreeItem(uiString::empty())
     , parenttype_(parenttype)
     , visserv_(ODMainWin()->applMgr().visServer())
     , menu_(0)

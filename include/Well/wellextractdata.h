@@ -363,7 +363,7 @@ public:
 			//!< Vertical thickness of a sample, not along hole
 
     uiString		errMsg() const
-			{ return errmsg_.isEmpty() ? uiString::emptyString()
+			{ return errmsg_.isEmpty() ? uiString::empty()
 						   : errmsg_; }
 
     int		nrZSamples() const;

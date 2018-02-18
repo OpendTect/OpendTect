@@ -143,7 +143,7 @@ bool Object::setPosition( const PosID& posid,
     mLock4Write();
 
     Geometry::Element* element = geometryElement();
-    if ( !element ) mRetErr( uiString::emptyString() );
+    if ( !element ) mRetErr( uiString::empty() );
 
     Coord3 oldpos = Coord3::udf();
     if ( addtoundo )

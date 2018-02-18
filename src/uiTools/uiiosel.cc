@@ -163,7 +163,7 @@ void uiIOSelect::updateFromEntries()
 
     inp_->setEmpty();
     if ( haveempty_ )
-	inp_->addItem( uiString::emptyString() );
+	inp_->addItem( uiString::empty() );
 
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
@@ -446,7 +446,7 @@ const uiString& uiIOSelect::labelText() const
 
     return lbl_
 	? lbl_->text()
-	: (optbox_ ? optbox_->text() : uiString::emptyString() );
+	: (optbox_ ? optbox_->text() : uiString::empty() );
 }
 
 

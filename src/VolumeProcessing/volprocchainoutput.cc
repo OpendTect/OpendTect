@@ -344,7 +344,7 @@ int VolProc::ChainOutput::setNextChunk()
     progresskeeper_.setMessage(
 	    tr("Starting new Volume Processing chunk %1-%2.")
 	    .arg( hsamp.start_.inl() ).arg( hsamp.stop_.inl() ), true );
-    progresskeeper_.setMessage( uiString::emptyString() );
+    progresskeeper_.setMessage( uiString::empty() );
 
     return MoreToDo();
 }

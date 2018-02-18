@@ -59,7 +59,7 @@ class uiRandomLinePolyLineDlg : public uiDialog
 public:
 uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
     : uiDialog(p,Setup(tr("Create Random Line from Polyline"),
-			uiString::emptyString(),
+			uiString::empty(),
 			mODHelpKey(mRandomLinePolyLineDlgHelpID) )
 		 .modal(false))
     , rtd_(rtd)

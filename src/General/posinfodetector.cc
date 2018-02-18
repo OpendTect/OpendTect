@@ -392,7 +392,7 @@ uiString PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 	crd[2] = b2c.transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
     }
 
-    return uiString::emptyString();
+    return uiString::empty();
 }
 
 
@@ -455,7 +455,7 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 	offsrg_.start = offsrg_.stop = cbo.offset_;
     nrpos_ = nruniquepos_ = nroffsthispos_ = 1;
     addLine();
-    errmsg_ = uiString::emptyString();
+    errmsg_ = uiString::empty();
 }
 
 
@@ -466,7 +466,7 @@ uiString PosInfo::Detector::createPositionString(
         .arg( setup_.is2d_ ? tr("trace number") : tr("position") )
         .arg( cbo.binid_.toString(setup_.is2d_) )
         .arg( setup_.isps_ ? tr( " (offset %1)" ).arg( cbo.offset_ )
-			   : uiString::emptyString() );
+			   : uiString::empty() );
     return ret;
 }
 

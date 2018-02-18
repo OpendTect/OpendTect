@@ -104,7 +104,7 @@ public:
     const IOObjContext& ioCtxt() const		{ return ctxt; }
     int objSelector( const char* ) const	{ return mObjSelUnrelated; }
     FixedString groupName() const	{ return FixedString::empty(); }
-    uiString typeName(int) const	{ return uiString::emptyString(); }
+    uiString typeName(int) const	{ return uiString::empty(); }
 
    IOObjContext ctxt;
 

@@ -69,7 +69,7 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     lengthfld_ = new uiGenInput( this, tr("Length"), DoubleInpSpec() );
     lengthfld_->attach( alignedBelow, horverfld_ );
     lengthfld_->updateRequested.notify( mCB(this,uiScaleBarDialog,changeCB) );
-    unitlbl_ = new uiLabel( this, uiString::emptyString() );
+    unitlbl_ = new uiLabel( this, uiString::empty() );
     unitlbl_->setPrefWidthInChar( 6 );
     unitlbl_->attach( rightTo, lengthfld_ );
 

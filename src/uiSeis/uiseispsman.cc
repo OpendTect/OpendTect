@@ -117,7 +117,7 @@ void uiSeisPreStackMan::ownSelChg()
 	editbut_->setToolTip( bdeftt.arg(curioobj_->uiName()) );
     }
     else
-	editbut_->setToolTip( uiString::emptyString() );
+	editbut_->setToolTip( uiString::empty() );
 }
 
 

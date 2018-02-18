@@ -61,7 +61,7 @@ uiColSeqImport::uiColSeqImport( uiParent* p )
     listfld_ = new uiListBox( this, su );
     listfld_->attach( alignedBelow, dtectusrfld_ );
 
-    messagelbl_ = new uiLabel( this, uiString::emptyString() );
+    messagelbl_ = new uiLabel( this, uiString::empty() );
     messagelbl_->setTextColor( Color::Red() );
     messagelbl_->setHSzPol( uiObject::Wide );
     messagelbl_->attach( alignedBelow, dtectusrfld_ );

@@ -212,5 +212,5 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
     }
 
     dps.dataChanged();
-    return uiString::emptyString();
+    return uiString::empty();
 }

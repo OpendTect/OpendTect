@@ -85,7 +85,7 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
 	return false;
     }
 
-    errmsg = uiString::emptyString();
+    errmsg = uiString::empty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
 	{ errmsg = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }

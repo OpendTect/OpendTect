@@ -177,13 +177,13 @@ uiString uiAttrSelectionObj::selTypeDispStr( SelType seltype ) const
 	case NLA:
 	{
 	    if ( !seldata_.nlamodel_ )
-		{ pErrMsg("Huh? NLA Model"); return uiString::emptyString(); }
+		{ pErrMsg("Huh? NLA Model"); return uiString::empty(); }
 	    return toUiString( seldata_.nlamodel_->nlaType(false) );
 	}
 	default:
 	{
 	    pErrMsg("New SelType");
-	    return uiString::emptyString();
+	    return uiString::empty();
 	}
     }
 }
@@ -221,7 +221,7 @@ void uiAttrSelectionObj::fillSelSpec( SelSpec& as ) const
 
 
 #define muiAttrSelDlgConstrInitList \
-	uiDialog(p,uiDialog::Setup(uiString::emptyString(),mNoDlgTitle, \
+	uiDialog(p,uiDialog::Setup(uiString::empty(),mNoDlgTitle, \
 					mODHelpKey(mAttrSelDlgNo_NNHelpID))) \
 	, uiAttrSelectionObj(atd,stp.showsteeringdata_) \
 	, steertypsel_(0) \

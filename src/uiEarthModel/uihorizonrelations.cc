@@ -105,7 +105,7 @@ public:
 HorizonModifyDlg( uiParent* p, const DBKey& mid1, const DBKey& mid2,
 		  bool is2d, int nrcross )
     : uiDialog(p,Setup(tr("Horizon relations (Solve crossings)"),
-		       uiString::emptyString(),
+		       uiString::empty(),
                         mODHelpKey(HorizonModifyDlgHelpID) ))
     , mid1_(mid1)
     , mid2_(mid2)

@@ -41,7 +41,7 @@ void ODMad::ProgInfo::cleanUp()
 
 void ODMad::ProgInfo::doPreScanCheck()
 {
-    errmsg_ = uiString::emptyString();
+    errmsg_ = uiString::empty();
 
     if ( rsfroot_.isEmpty() )
     {

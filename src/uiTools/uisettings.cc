@@ -550,7 +550,7 @@ uiSettingsTypeTreeItm( uiTreeView* p, uiSettingsGroup::Type typ )
     }
     setIcon( 0, icid );
     setSelectable( false );
-    setToolTip( 0, uiString::emptyString() );
+    setToolTip( 0, uiString::empty() );
 }
 
 ~uiSettingsTypeTreeItm()
@@ -573,7 +573,7 @@ uiSettingsSubjectTreeItm( uiSettingsTypeTreeItm* typitm, uiSettingsGroup& grp )
     , grp_(grp)
 {
     setIcon( 0, grp.iconID() );
-    setToolTip( 0, uiString::emptyString() );
+    setToolTip( 0, uiString::empty() );
 }
 
 ~uiSettingsSubjectTreeItm()
@@ -613,7 +613,7 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p, const char* initialgrpky )
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
 
-    grplbl_ = new uiLabel( rightgrp, uiString::emptyString() );
+    grplbl_ = new uiLabel( rightgrp, uiString::empty() );
     grplbl_->setPrefWidthInChar( 60 );
     grplbl_->setAlignment( OD::Alignment::Left );
     uiSeparator* sep = new uiSeparator( rightgrp, "Hor Sep" );

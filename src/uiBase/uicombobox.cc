@@ -249,7 +249,7 @@ const char* uiComboBox::text() const
 uiString uiComboBox::uiText() const
 {
     const int idx = currentItem();
-    return idx < 0 ? uiString::emptyString() : itemstrings_.get( idx );
+    return idx < 0 ? uiString::empty() : itemstrings_.get( idx );
 }
 
 
@@ -290,7 +290,7 @@ bool uiComboBox::isPresent( const uiString& txt ) const
 uiString uiComboBox::textOfItem( int idx ) const
 {
     if ( idx < 0 )
-	return uiString::emptyString();
+	return uiString::empty();
 
     const bool isreadonly = isReadOnly();
     if ( isreadonly && enumdef_ && idx<enumdef_->size() )
@@ -454,7 +454,7 @@ void uiComboBox::addSeparator()
 {
     body_->insertSeparator( size() );
     itemids_ += -1;
-    itemstrings_ += uiString::emptyString();
+    itemstrings_ += uiString::empty();
 }
 
 

@@ -697,7 +697,7 @@ public:
 	    table_->insertRows( row, 1 );
 
 	uiLabeledComboBox* actopts = new uiLabeledComboBox( 0,
-		uiString::emptyString(), "Boundary Type" );
+		uiString::empty(), "Boundary Type" );
 	actopts->box()->addItems( fltpar_.optnms_.getUiStringSet() );
 	actopts->box()->selectionChanged.notify( mCB(this,uiFaultOptSel,optCB));
 	const int cursel = getUpdateOptIdx( optidx, fltpar_.is2d_, true );

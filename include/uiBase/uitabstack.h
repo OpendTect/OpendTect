@@ -38,7 +38,7 @@ public:
     uiGroup*		tabGroup()			{ return tabgrp_; }
 
     void		addTab(uiGroup*,
-			       const uiString& =uiString::emptyString());
+			       const uiString& =uiString::empty());
     void		removeTab(uiGroup*);
 
     void		setTabEnabled(uiGroup*,bool);

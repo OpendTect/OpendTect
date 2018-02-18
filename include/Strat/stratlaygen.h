@@ -52,7 +52,7 @@ public:
 			    Property::EvalOpts eo=Property::EvalOpts()) const;
 
     virtual bool	reset() const	{ return true; }
-    virtual uiString	errMsg() const	{ return uiString::emptyString(); }
+    virtual uiString	errMsg() const	{ return uiString::empty(); }
     virtual void	syncProps(const PropertyRefSelection&)		= 0;
     virtual void	updateUsedProps(PropertyRefSelection&) const	= 0;
 

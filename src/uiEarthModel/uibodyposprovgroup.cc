@@ -27,7 +27,7 @@ uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(EMBody))
 {
-    inoutbut_ = new uiGenInput(this, uiString::emptyString(),
+    inoutbut_ = new uiGenInput(this, uiString::empty(),
                                BoolInpSpec(true,tr("Inside"),
                                 tr("Outside")) );
     inoutbut_->valuechanged.notify( mCB(this,uiBodyPosProvGroup,ioChg) );

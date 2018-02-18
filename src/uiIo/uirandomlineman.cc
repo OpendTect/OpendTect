@@ -37,7 +37,7 @@ uiRandomLineMan::~uiRandomLineMan()
 
 void uiRandomLineMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { setInfo( uiString::emptyString() ); return; }
+    if ( !curioobj_ ) { setInfo( uiString::empty() ); return; }
 
     setInfo( mToUiStringTodo(getFileInfo()) );
 }

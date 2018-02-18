@@ -23,7 +23,7 @@ mImplClassFactory( Vrms2Vint, factory );
 
 
 TimeDepthModel::TimeDepthModel()
-    : errmsg_(uiString::emptyString())
+    : errmsg_(uiString::empty())
     , times_(0)
     , depths_(0)
     , sz_(0)
@@ -31,7 +31,7 @@ TimeDepthModel::TimeDepthModel()
 
 
 TimeDepthModel::TimeDepthModel( const TimeDepthModel& td )
-    : errmsg_(uiString::emptyString())
+    : errmsg_(uiString::empty())
     , times_(0)
     , depths_(0)
 {

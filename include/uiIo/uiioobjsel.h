@@ -43,7 +43,7 @@ public:
     mExpClass(uiIo) Setup : public uiIOSelect::Setup
     {
     public:
-			Setup(const uiString& seltext=uiString::emptyString())
+			Setup(const uiString& seltext=uiString::empty())
 			    : uiIOSelect::Setup(seltext)
 			    , confirmoverwr_(true)
 			    , withinserters_(true)
@@ -57,7 +57,7 @@ public:
     };
 
 			uiIOObjSel(uiParent*,const IOObjContext&,
-			       const uiString& seltxt=uiString::emptyString());
+			       const uiString& seltxt=uiString::empty());
 			uiIOObjSel(uiParent*,const IOObjContext&,const Setup&);
 			~uiIOObjSel();
 
@@ -149,7 +149,7 @@ default).
 */
 
 			uiIOObjSel(uiParent*,CtxtIOObj&,
-				const uiString& seltxt=uiString::emptyString());
+				const uiString& seltxt=uiString::empty());
 			uiIOObjSel(uiParent*,CtxtIOObj&,const Setup&);
     bool		commitInput();
     bool		doCommitInput(bool&);

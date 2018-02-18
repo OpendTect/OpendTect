@@ -26,7 +26,7 @@ public:
 	mExpClass(uiTools) Setup
 	{
 	public:
-			Setup( const uiString& txt=uiString::emptyString())
+			Setup( const uiString& txt=uiString::empty())
 			    : lbltxt_(txt)
 			    , wshape_(true)
 			    , wcolor_(true)

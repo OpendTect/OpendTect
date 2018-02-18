@@ -236,7 +236,7 @@ void uiSEGYReadStarter::createTools()
 
     uiGroup* examinegrp = new uiGroup( toolgrp, "Examine group" );
     examinebut_ = new uiToolButton( examinegrp, "examine",
-				    uiString::emptyString(),
+				    uiString::empty(),
 				    mCB(this,uiSEGYReadStarter,examineCB) );
     examinenrtrcsfld_ = new uiSpinBox( examinegrp, 0, "Examine traces" );
     examinenrtrcsfld_->setInterval( 0, 1000000, 10 );

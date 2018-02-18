@@ -69,7 +69,7 @@ public:
     virtual const uiString write(const MPESetup&,Conn&)	= 0;
     			//!< returns err msg or null on success
     virtual const uiString warningMsg() const	
-					{ return uiString::emptyString(); }
+					{ return uiString::empty(); }
 
     static bool		retrieve(MPESetup&,const IOObj*,BufferString&);
     			//!< BufferString has errmsg, if any

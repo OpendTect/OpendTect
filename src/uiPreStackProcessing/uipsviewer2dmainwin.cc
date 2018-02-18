@@ -118,7 +118,7 @@ class uiPSPreProcessingDlg : public uiDialog
 public:
 uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 		      const CallBack& cb )
-    : uiDialog(p,uiDialog::Setup(tr("Preprocessing"),uiString::emptyString(),
+    : uiDialog(p,uiDialog::Setup(tr("Preprocessing"),uiString::empty(),
                                  mODHelpKey(mPreStackProcSelHelpID) ) )
     , cb_(cb)
 {
@@ -442,7 +442,7 @@ public:
 uiPSMultiPropDlg( uiParent* p, ObjectSet<uiFlatViewer>& vwrs,
 		  const CallBack& cb, bool stored )
     : uiDialog(p,uiDialog::Setup(tr("Set properties for data"),
-				 uiString::emptyString(),mNoHelpKey))
+				 uiString::empty(),mNoHelpKey))
     , vwrs_(vwrs)
     , cb_(cb)
     , forstored_(stored)
@@ -1084,8 +1084,8 @@ class uiAngleCompParDlg : public uiDialog
 public:
 
 uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp, bool isag )
-    : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
-				 uiString::emptyString(),
+    : uiDialog(p,uiDialog::Setup(uiString::empty(),
+				 uiString::empty(),
 			      mODHelpKey(mViewer2DPSMainWindisplayAngleHelpID)))
 {
     uiString windowtitle = isag ? tr("Angle Gather Display")
@@ -1609,7 +1609,7 @@ void uiViewer2DControl::setGatherInfos( const TypeSet<GatherInfo>& gis )
 	tooltipstr = tr( "Mutiple datasets selected. "
 			 "Use 'Set seismic display properties' button" );
     else
-	tooltipstr = uiString::emptyString();
+	tooltipstr = uiString::empty();
     colseqsel_->asUiObject().setToolTip( tooltipstr );
 }
 

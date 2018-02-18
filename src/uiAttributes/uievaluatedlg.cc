@@ -279,7 +279,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
 				,mODHelpKey(mEvaluateDlgHelpID) )
 		.modal(false)
 	        .oktext(uiStrings::sAccept())
-		.canceltext(uiString::emptyString()))
+		.canceltext(uiString::empty()))
     , calccb(this)
     , showslicecb(this)
     , desced_(ade)
@@ -333,7 +333,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     storefld->setChecked( false );
     storefld->setSensitive( false );
 
-    displaylbl = new uiLabel( this, uiString::emptyString() );
+    displaylbl = new uiLabel( this, uiString::empty() );
     displaylbl->attach( widthSameAs, sliderfld );
     displaylbl->attach( alignedBelow, storefld );
 

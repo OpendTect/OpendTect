@@ -70,7 +70,7 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 
     BufferStringSet serialbss; serialbss.add( "Inherit" );
     serialbss.add( "Random" ); serialbss.add( "User-defined" );
-    serialcolormodefld_ = new uiGenInput(this,uiString::emptyString(),
+    serialcolormodefld_ = new uiGenInput(this,uiString::empty(),
                                          StringListInpSpec(serialbss));
     serialcolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
@@ -78,14 +78,14 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 
     BufferStringSet existsbss;
     existsbss.add( "Current" ); existsbss.add( "User-defined" );
-    existscolormodefld_ = new uiGenInput(this,uiString::emptyString(),
+    existscolormodefld_ = new uiGenInput(this,uiString::empty(),
                                          StringListInpSpec(existsbss));
     existscolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
     existscolormodefld_->attach( alignedBelow, colormodelbl );
 
     BufferStringSet singlebss; singlebss.add( "User-defined" );
-    singlecolormodefld_ = new uiGenInput(this,uiString::emptyString(),
+    singlecolormodefld_ = new uiGenInput(this,uiString::empty(),
                                          StringListInpSpec(singlebss));
     singlecolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
@@ -304,7 +304,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 				mCB(this,uiODFaultToolMan,outputEditTextChg) );
     outputnamecombo_->selectionChanged.notify(
 				mCB(this,uiODFaultToolMan,outputComboSelChg) );
-    outputnamecombo_->addItem( uiString::emptyString() );
+    outputnamecombo_->addItem( uiString::empty() );
     toolbar_->addObject( outputnamecombo_, 7 );
 
     auxfaultwrite_ = new uiSurfaceWrite( &appl_,
@@ -822,7 +822,7 @@ void uiODFaultToolMan::publishOutputItems()
     outputnamecombo_->editTextChanged.disable();
     BufferString curtext = outputnamecombo_->text();
     outputnamecombo_->setEmpty();
-    outputnamecombo_->addItem( uiString::emptyString() );
+    outputnamecombo_->addItem( uiString::empty() );
     outputnamecombo_->addItems( getOutputItems().getUiStringSet() );
     outputnamecombo_->editTextChanged.enable();
 

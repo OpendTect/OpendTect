@@ -112,8 +112,8 @@ bool uiSEGY::displayWarnings( const uiStringSet& inpwarns, bool withstop,
     bool suppresscurwarns = false;
     bool res = true;
     if ( !withstop )
-	suppresscurwarns = uiMSG().warning( msg, uiString::emptyString(),
-					    uiString::emptyString(), true );
+	suppresscurwarns = uiMSG().warning( msg, uiString::empty(),
+					    uiString::empty(), true );
     else
     {
 	msg.appendPhrase( od_static_tr("displayWarnings","Continue?") );

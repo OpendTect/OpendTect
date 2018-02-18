@@ -113,7 +113,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const IOObjContext& ctxt )
     : mConstructorInitListStart(ctxt)
-    , setup_(uiString::emptyString())
+    , setup_(uiString::empty())
 {
     crctio_ = new CtxtIOObj( ctxt );
     init( *crctio_ );
@@ -181,7 +181,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 				   .arg( toUiString( ctio.ctxt_.name() ) );
 
 	titletext = toUiString("%1 %2").arg(titletext)
-	         .arg( setup_.multisel_ ? tr("(s)") : uiString::emptyString() );
+	         .arg( setup_.multisel_ ? tr("(s)") : uiString::empty() );
     }
 
     setTitleText( titletext );
@@ -297,7 +297,7 @@ void uiIOObjSel::init()
 	}
 	if ( ctxt.destpolicy_ != IOObjContext::SurveyOnly )
 	{
-	    usesharedbut_ = new uiCheckBox( this, uiString::emptyString() );
+	    usesharedbut_ = new uiCheckBox( this, uiString::empty() );
 	    usesharedbut_->setIcon( "shared_data" );
 	    usesharedbut_->setChecked(
 			    ctxt.destpolicy_ == IOObjContext::PreferShared );

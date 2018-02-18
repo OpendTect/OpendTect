@@ -70,7 +70,7 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
 	    addGroup( new uiFaultDisplayOptGrp(tabstack_->tabGroup(),flt) );
     }
 
-    setCancelText( uiString::emptyString() );
+    setCancelText( uiString::empty() );
 }
 
 

@@ -30,7 +30,7 @@ ________________________________________________________________________
 
 
 uiHorizonMergeDlg::uiHorizonMergeDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup(tr("Merge 3D Horizons"),uiString::emptyString(),
+    : uiDialog(p,Setup(tr("Merge 3D Horizons"),uiString::empty(),
                        mODHelpKey(mHorizonMergeDlgHelpID) ))
 {
     horselfld_ = new uiHorizon3DSel( this );

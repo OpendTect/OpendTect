@@ -263,8 +263,8 @@ static uiButton* crStd( uiParent* p, OD::StdActionType typ,
 	const CallBack& cb, bool immediate, const uiString* buttxt,
 	bool pbics=false )
 {
-    uiString txt = uiString::emptyString();
-    uiString tt = uiString::emptyString();
+    uiString txt = uiString::empty();
+    uiString tt = uiString::empty();
     const char* icid = 0;
 
 #   define mGetDefs(typ) \
@@ -674,7 +674,7 @@ uiToolButton* uiToolButton::getStd( uiParent* p, OD::StdActionType typ,
 				    const CallBack& cb, const uiString& tt )
 {
     uiButton* but = uiButton::getStd( p, typ, cb, true,
-					uiString::emptyString() );
+					uiString::empty() );
     if ( !but )
 	return 0;
 

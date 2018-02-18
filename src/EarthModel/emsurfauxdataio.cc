@@ -354,7 +354,7 @@ uiString dgbSurfDataReader::sHorizonData()
 
 int dgbSurfDataReader::nextStep()
 {
-    if ( error_ ) mErrRetRead( uiString::emptyString() )
+    if ( error_ ) mErrRetRead( uiString::empty() )
 
     for ( int idx=0; idx<chunksize_; idx++ )
     {

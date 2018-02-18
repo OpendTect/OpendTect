@@ -230,8 +230,8 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(m3Dots(uiStrings::sProperties() ) )
     , convertbodymnuitem_(tr("Convert to Body"))
-    , undomnuitem_(uiString::emptyString())
-    , redomnuitem_(uiString::emptyString())
+    , undomnuitem_(uiString::empty())
+    , redomnuitem_(uiString::empty())
 {
     set_.ref();
     storedid_ = Pick::SetMGR().getID( set_ );

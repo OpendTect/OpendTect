@@ -681,7 +681,7 @@ void uiChain::propertiesCB( CallBacker* )
 
 uiString uiChain::getPossibleInitialStepNames( bool is2d )
 {
-    mDefineStaticLocalObject( uiString, names, (uiString::emptyString()) );
+    mDefineStaticLocalObject( uiString, names, (uiString::empty()) );
 
     if ( names.isEmpty() )
     {

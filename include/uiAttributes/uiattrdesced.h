@@ -153,10 +153,10 @@ protected:
     uiString		zDepLabel(const uiString& pre,
 				  const uiString& post) const;
     uiString		gateLabel() const
-			{ return zDepLabel( uiString::emptyString(),
+			{ return zDepLabel( uiString::empty(),
 					    tr("gate")); }
     uiString		shiftLabel() const
-			{ return zDepLabel( uiString::emptyString(),
+			{ return zDepLabel( uiString::empty(),
 					    tr("shift"));}
     bool		zIsTime() const;
 

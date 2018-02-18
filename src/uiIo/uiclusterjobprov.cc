@@ -173,7 +173,7 @@ static const char* sKeyClusterProcCommand()
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 				    const char* prognm, const char* parfnm )
     : uiDialog(p,uiDialog::Setup(tr("Cluster job generator"),
-				 uiString::emptyString(),
+				 uiString::empty(),
                                   mODHelpKey(mClusterJobProvHelpID) )
 			   .oktext(uiStrings::sContinue()))
     , prognm_(prognm)

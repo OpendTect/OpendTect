@@ -328,9 +328,9 @@ bool mkNewPLD()
 }
 
 uiString message() const
-{ return curpld_ ? curpld_->message() : uiString::emptyString(); }
+{ return curpld_ ? curpld_->message() : uiString::empty(); }
 uiString nrDoneText() const
-{ return curpld_ ? curpld_->nrDoneText() : uiString::emptyString(); }
+{ return curpld_ ? curpld_->nrDoneText() : uiString::empty(); }
 od_int64 totalNr() const	{ return totnr_ / 1024; }
 od_int64 nrDone() const
 { return nrdone_ + (curpld_ ? curpld_->nrDone() : 0); }

@@ -1009,7 +1009,7 @@ void uiGenInput::setToolTip( const uiString& tt, int ielem )
 
     const int nr2add = ielem - tooltips_.size() + 1;
     for ( int idx=0; idx<nr2add; idx++ )
-	tooltips_.add( uiString::emptyString() );
+	tooltips_.add( uiString::empty() );
     tooltips_.get( ielem ).set( tt );
 
     setElemToolTip( tt, ielem );

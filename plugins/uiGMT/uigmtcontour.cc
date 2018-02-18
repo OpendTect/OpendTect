@@ -99,7 +99,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
 				    uiStrings::sColorTable() );
     colseqfld_->attach( rightOf, fillfld_ );
 
-    sequsefld_ = new uiColSeqUseModeSel( this, true, uiString::emptyString() );
+    sequsefld_ = new uiColSeqUseModeSel( this, true, uiString::empty() );
     sequsefld_->attach( rightOf, colseqfld_ );
 
     lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), tr("Line Style") );

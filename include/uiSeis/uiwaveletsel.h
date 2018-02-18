@@ -26,7 +26,7 @@ public:
     mExpClass(uiSeis) Setup : public uiIOObjSel::Setup
     {
     public:
-			Setup( const uiString& seltext=uiString::emptyString() )
+			Setup( const uiString& seltext=uiString::empty() )
 			    : uiIOObjSel::Setup(seltext)
 			    , withextract_(true)
 			    , withman_(true)

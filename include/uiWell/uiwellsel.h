@@ -25,7 +25,7 @@ public:
 
 			uiWellSel(uiParent*,bool forread,const Setup&);
 			uiWellSel(uiParent*,bool forread,
-				const uiString& seltxt=uiString::emptyString(),
+				const uiString& seltxt=uiString::empty(),
 				bool withinserters=true);
 
     ConstRefMan<Well::Data>	getWellData() const;

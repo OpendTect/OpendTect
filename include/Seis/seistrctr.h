@@ -308,7 +308,7 @@ protected:
 
     TypeSet<int>	warnnrs_;
     uiStringSet		warnings_;
-    virtual void	addWarn(int,const uiString& s=uiString::emptyString());
+    virtual void	addWarn(int,const uiString& s=uiString::empty());
 
     virtual bool	removeMainObj(const IOObj&) const;
     virtual bool	renameMainObj(const IOObj&,const char*,

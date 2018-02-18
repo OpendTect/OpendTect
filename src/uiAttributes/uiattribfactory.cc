@@ -113,7 +113,7 @@ uiAttributeFactory::Entry* uiAttributeFactory::getEntry(
 const uiString& uiAttributeFactory::dispNameOf( const char* attrnm ) const
 {
     Entry* entry = getEntry( attrnm );
-    return entry ? entry->dispnm_ : uiString::emptyString();
+    return entry ? entry->dispnm_ : uiString::empty();
 }
 
 
@@ -134,8 +134,8 @@ const char* uiAttributeFactory::attrNameOf( const uiString& attrnm ) const
     }
 
 mDefInfoFn( const char*, getAttribName, attrnm_, 0 )
-mDefInfoFn( const uiString&, getDisplayName, dispnm_, uiString::emptyString() )
-mDefInfoFn( const uiString&, getGroupName, grpnm_, uiString::emptyString() )
+mDefInfoFn( const uiString&, getDisplayName, dispnm_, uiString::empty() )
+mDefInfoFn( const uiString&, getGroupName, grpnm_, uiString::empty() )
 mDefInfoFn( int, domainType, domtyp_, 0 )
 mDefInfoFn( int, dimensionType, dimtyp_, 0 )
 mDefInfoFn( bool, isSyntheticSupported, supportsynthetic_, false )

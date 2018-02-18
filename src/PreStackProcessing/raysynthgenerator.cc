@@ -63,7 +63,7 @@ RaySynthGenerator::RaySynthGenerator( RefMan<SyntheticData> sd, bool overwrite )
 void RaySynthGenerator::reset()
 {
     resetNrDone();
-    message_ = uiString::emptyString();
+    message_ = uiString::empty();
 }
 
 

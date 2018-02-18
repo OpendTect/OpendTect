@@ -220,7 +220,7 @@ const uiString CBVSWriteMgr::errMsg_() const
 	const uiString s = writers_[idx]->errMsg();
 	if ( !s.isEmpty() ) return s;
     }
-    return uiString::emptyString();
+    return uiString::empty();
 }
 
 

@@ -66,7 +66,7 @@ public:
 				    filltype will be used alone. */
 
     virtual uiString		infoMsg() const
-				{ return uiString::emptyString(); }
+				{ return uiString::empty(); }
 
     mExpClass(Algo) ArrayAccess
     {

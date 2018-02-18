@@ -54,7 +54,7 @@ uiString EnumDef::getUiStringForIndex( int i ) const
     if ( !uistrings_.validIdx(i) )
     {
 	pErrMsg("Invalid enum");
-	return uiString::emptyString();
+	return uiString::empty();
     }
 
     return uistrings_.get( i );

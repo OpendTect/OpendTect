@@ -115,7 +115,7 @@ void* operator new( std::size_t sz ) throw(std::bad_alloc)
 }
 
 
-mDefParallelCalc2Pars(MemPageMemorySetter,uiString::emptyString(),
+mDefParallelCalc2Pars(MemPageMemorySetter,uiString::empty(),
 		      unsigned char*,data,std::size_t,step)
 mDefParallelCalcBody(
 	unsigned char* ptr = data_ + start * step_;

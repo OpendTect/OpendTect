@@ -55,7 +55,7 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
 			    const NLAModel* model, const DBKey& id )
-    : uiBatchProcDlg(p,uiString::emptyString(),false, Batch::JobSpec::Attrib)
+    : uiBatchProcDlg(p,uiString::empty(),false, Batch::JobSpec::Attrib)
     , subselpar_(*new IOPar)
     , ads_(new Attrib::DescSet(ad))
     , nlamodel_(0)

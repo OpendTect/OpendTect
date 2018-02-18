@@ -159,7 +159,7 @@ void uiDPSSelGrpDlg::exportSelectionGrps( CallBacker* )
 		    plotter_.axisHandler(1)->getCaption() );
     auto axh2 = plotter_.axisHandler(2);
     const BufferString axisname2 = toString(
-	    axh2 ? axh2->getCaption() : uiString::emptyString() );
+	    axh2 ? axh2->getCaption() : uiString::empty() );
 
     uiExpSelectionArea::Setup su( axisname0, axisname1, axisname2 );
     uiExpSelectionArea dlg( this, plotter_.selectionGrps(), su );

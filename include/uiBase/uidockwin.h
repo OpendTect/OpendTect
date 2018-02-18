@@ -23,7 +23,7 @@ mExpClass(uiBase) uiDockWin : public uiParent
 { mODTextTranslationClass(uiDockWin);
 public:
 			uiDockWin(uiParent* parnt=0,
-                              const uiString& caption=uiString::emptyString() );
+                              const uiString& caption=uiString::empty() );
     
     virtual		~uiDockWin();
 

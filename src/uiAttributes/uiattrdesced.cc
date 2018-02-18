@@ -246,7 +246,7 @@ uiAttrSel* uiAttrDescEd::createInpFld( const uiAttrSelData& asd,
 uiImagAttrSel* uiAttrDescEd::createImagInpFld( bool is2d )
 {
     uiAttrSelData asd( is2d );
-    return new uiImagAttrSel( this, uiString::emptyString(), asd );
+    return new uiImagAttrSel( this, uiString::empty(), asd );
 }
 
 

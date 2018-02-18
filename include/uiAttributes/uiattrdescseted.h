@@ -48,7 +48,7 @@ public:
     typedef Attrib::DescSet	DescSet;
 
 			uiAttribDescSetEd(uiParent*,DescSet&,
-				      uiString prefgrp=uiString::emptyString(),
+				      uiString prefgrp=uiString::empty(),
 				      bool attrsneedupdt=false);
 			~uiAttribDescSetEd();
 

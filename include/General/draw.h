@@ -208,7 +208,7 @@ public:
 
 			PlotAnnotation()
 			    : pos_(mUdf(float))
-			    , txt_(uiString::emptyString())
+			    , txt_(uiString::empty())
 			    , linetype_(Normal)			{}
 
     float		pos_;

@@ -540,8 +540,8 @@ void ui3DViewerBody::glInfoCB( CallBacker* )
 		     "visualization. OpendTect will not be able to make full "
 		     "use of your installation. Please update your system" );
 
-	    if ( uiMSG().warning( msg, uiString::emptyString(),
-				 uiString::emptyString(), true ) )
+	    if ( uiMSG().warning( msg, uiString::empty(),
+				 uiString::empty(), true ) )
 	    {
 		Settings::common().setYN( settingskey, false );
 		Settings::common().write( true );

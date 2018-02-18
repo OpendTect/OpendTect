@@ -63,7 +63,7 @@ public:
 				uiUnitSel(uiParent*,const Setup&);
 				uiUnitSel(uiParent*,PropertyRef::StdType);
 				uiUnitSel(uiParent*,const uiString& lbltxt=
-				    uiString::emptyString());
+				    uiString::empty());
 					//!< For survey Z unit
 
     void			setUnit(const UnitOfMeasure* uom=0);

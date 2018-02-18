@@ -49,7 +49,7 @@ public:
 
     virtual bool		prepareWork();
     virtual uiString		errMsg() const
-				{ return uiString::emptyString(); }
+				{ return uiString::empty(); }
 
     virtual void		fillPar(IOPar&) const			= 0;
     virtual bool		usePar(const IOPar&)			= 0;

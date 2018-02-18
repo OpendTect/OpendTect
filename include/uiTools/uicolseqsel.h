@@ -110,7 +110,7 @@ mExpClass(uiTools) uiColSeqSel : public uiGroup
 public:
 
 			uiColSeqSel(uiParent*,OD::Orientation,
-				uiString lbl=uiString::emptyString());
+				uiString lbl=uiString::empty());
 
 			mImpluiColSeqSelGroup();
 

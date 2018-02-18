@@ -41,8 +41,8 @@ public:
     mExpClass(uiWell) Setup
     {
     public:
-	    Setup( const uiString& sztxt=uiString::emptyString(),
-		   const uiString& coltxt=uiString::emptyString() )
+	    Setup( const uiString& sztxt=uiString::empty(),
+		   const uiString& coltxt=uiString::empty() )
 		: mysztxt_(!sztxt.isEmpty() ? sztxt : tr("Line thickness"))
 		, mycoltxt_(!coltxt.isEmpty() ? coltxt :
 			     uiStrings::phrJoinStrings(uiStrings::sLine(),

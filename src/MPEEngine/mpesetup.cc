@@ -137,7 +137,7 @@ bool MPESetupTranslator::store( const MPESetup& setup, const IOObj* ioobj,
 
 const uiString dgbMPESetupTranslator::read( MPESetup& setup, Conn& conn )
 {
-    warningmsg = uiString::emptyString();
+    warningmsg = uiString::empty();
     if ( !conn.forRead() || !conn.isStream() )
 	return tr("Internal error: bad connection");
 
@@ -150,18 +150,18 @@ const uiString dgbMPESetupTranslator::read( MPESetup& setup, Conn& conn )
     if ( !setup.usePar( iopar ))
 	return uiStrings::phrCannotRead(tr("setup-file"));
 
-    return uiString::emptyString();
+    return uiString::empty();
 }
 
 
 const uiString dgbMPESetupTranslator::write( const MPESetup& setup, Conn& conn )
 {
-    warningmsg = uiString::emptyString();
+    warningmsg = uiString::empty();
     if ( !conn.forWrite() || !conn.isStream() )
 	return tr("Internal error: bad connection");
 
     IOPar iop; setup.fillPar( iop );
     if ( !iop.write(((StreamConn&)conn).oStream(),mTranslGroupName(MPESetup)) )
 	return uiStrings::phrCannotWrite(tr("setup to file"));
-    return uiString::emptyString();
+    return uiString::empty();
 }

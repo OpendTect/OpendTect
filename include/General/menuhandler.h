@@ -79,7 +79,7 @@ mExpClass(General) MenuItem : public MenuItemHolder
 {
 public:
 				MenuItem(const uiString&
-					     text=uiString::emptyString(),
+					     text=uiString::empty(),
 					 int placement=-1);
 				MenuItem(const uiString& text,
 					 CallBack cb,int placement=-1);

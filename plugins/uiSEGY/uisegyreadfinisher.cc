@@ -498,8 +498,8 @@ bool uiSEGYReadFinisher::doMultiVintage()
 		{
 		    int val = uiMSG().question( msg, uiStrings::sContinue(),
 						     uiStrings::sAbort(),
-						     uiString::emptyString(),
-						     uiString::emptyString(),
+						     uiString::empty(),
+						     uiString::empty(),
 						     &donotshow );
 		    if ( !val )
 		    {

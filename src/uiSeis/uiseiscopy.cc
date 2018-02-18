@@ -144,7 +144,7 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 					  const char* fixedoutputtransl )
     : uiDialog(p,
 	Setup(uiStrings::phrCopy(uiStrings::sVolDataName(true,false,false)),
-	      uiString::emptyString(),mODHelpKey(mSeisCopyLineSetHelpID)))
+	      uiString::empty(),mODHelpKey(mSeisCopyLineSetHelpID)))
 {
     setCtrlStyle( RunAndClose );
 

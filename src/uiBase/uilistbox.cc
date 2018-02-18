@@ -475,7 +475,7 @@ void uiListBox::mkCheckGroup()
     checkgrp_ = new uiGroup( this, "CheckGroup" );
     checkgrp_->attach( alignedAbove, lb_ );
 
-    uiPushButton* pb = new uiPushButton( checkgrp_, uiString::emptyString(),
+    uiPushButton* pb = new uiPushButton( checkgrp_, uiString::empty(),
 					 mCB(this,uiListBox,menuCB), true );
     pb->setName( "Selection menu" );
     pb->setIcon( "menu-arrow" );
@@ -1095,7 +1095,7 @@ const char* uiListBox::itemText( int idx ) const
 uiString uiListBox::textOfItem( int idx ) const
 {
     if ( !validIdx(idx) )
-	return uiString::emptyString();
+	return uiString::empty();
 
     uirettxt_ = lb_->body().getItemText(idx);
     return uirettxt_;

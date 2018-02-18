@@ -49,7 +49,7 @@ static const Color optcellcolor = Color( 245, 245, 245 ); // very light grey
 #define mGetParChgCB(varnm) \
     const CallBack varnm( mCB(this,uiSEGYReadStartInfo,parChg) )
 
-#define sEmpty uiString::emptyString()
+#define sEmpty uiString::empty()
 
 
 class uiSEGYByteNr : public uiComboBox
@@ -621,7 +621,7 @@ void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfoSet& sis )
 
     isinfeet_ = sis.inFeet();
     const int nrfiles = sis.size();
-    uiString txt = nrfiles < 1	? uiString::emptyString()
+    uiString txt = nrfiles < 1	? uiString::empty()
 		: (nrfiles < 2	? tr( "[1 file]")
 				: tr( "[%1 files]" ).arg( nrfiles ));
     tbl_->setTopLeftCornerLabel( txt );

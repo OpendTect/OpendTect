@@ -233,7 +233,7 @@ bool uiODSceneProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
 	uiMSG().message( tr("No saved color settings found for the selected"
 	      " cube. Default settings will be loaded. For changing "
 	    "these settings, click on \"Save Color Settings\" option in tree."),
-	    uiString::emptyString(), uiString::emptyString(), true );
+	    uiString::empty(), uiString::empty(), true );
 	attriblayer->saveDisplayPars();
     }
 
@@ -330,7 +330,7 @@ uiString uiODSceneProbeTreeItem::createDisplayName() const
 {
     const Probe* probe = getProbe();
     if ( !probe )
-	return uiString::emptyString();
+	return uiString::empty();
 
     return probe->displayName();
 }

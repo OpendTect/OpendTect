@@ -158,7 +158,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
     stopbut_->attach( alignedBelow, logfld_ );
 
     uiLabel* cmddriverhackdummy mUnusedVar = new uiLabel( this,
-					     uiString::emptyString() );
+					     uiString::empty() );
 
     drv_.interactRequest.notify( mCB(this,uiCmdDriverDlg,interactCB) );
 

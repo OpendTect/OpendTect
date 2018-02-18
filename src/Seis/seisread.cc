@@ -574,7 +574,7 @@ bool SeisTrcReader::mkNextGetter()
     else
     {
 	if ( nrlinegetters_ > 0 )
-	{ errmsg_ = uiString::emptyString(); return false; }
+	{ errmsg_ = uiString::empty(); return false; }
 
 	bool found = false;
 	for ( ; curlineidx<nrlines; curlineidx++ )

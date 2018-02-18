@@ -177,7 +177,7 @@ uiString UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb, bool withparens )
 
 
 #define mRetLbl() \
-    return !uom ? uiString::emptyString() \
+    return !uom ? uiString::empty() \
 		: toUiString( withparens ? "(%1)" : "%1" ) \
 			      .arg( symb ? uom->symbol() : uom->name() )
 

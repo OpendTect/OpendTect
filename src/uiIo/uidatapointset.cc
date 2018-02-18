@@ -890,7 +890,7 @@ void uiDataPointSet::showStatusMsg( CallBacker* )
 		 .arg(xplotwin_->plotter().nrYSels())
 		 .arg(xplotwin_->plotter().isY2Shown()
 		 ? tr("; Y2 Selected: %1").arg(xplotwin_->plotter().nrY2Sels())
-		 : uiString::emptyString());
+		 : uiString::empty());
     xplotwin_->statusBar()->message( msg, 1 );
 }
 

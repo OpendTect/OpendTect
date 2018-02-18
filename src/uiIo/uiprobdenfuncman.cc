@@ -105,7 +105,8 @@ void uiProbDenFuncMan::genPush( CallBacker* )
 
 void uiProbDenFuncMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { setInfo( uiWord::emptyString() ); return; }
+    if ( !curioobj_ )
+	{ setInfo( uiWord::empty() ); return; }
 
     uiPhrase txt;
     txt = mToUiStringTodo(getFileInfo());

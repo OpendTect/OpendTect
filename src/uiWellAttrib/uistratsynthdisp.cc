@@ -223,7 +223,7 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 
     msg.addSpace();
     int nrinfos = 0;
-#define mAddSep() if ( nrinfos++ ) msg.appendPhrase(uiString::emptyString(), \
+#define mAddSep() if ( nrinfos++ ) msg.appendPhrase(uiString::empty(), \
 		sepalreadyadded ? uiString::MoreInfo : uiString::Empty, \
 		uiString::AddNewLine);
 

@@ -30,7 +30,7 @@ mExpClass(uiTools) uiConstantVel : public uiGenInput
 public:
 			uiConstantVel(uiParent*,
 				   float defvel=Vel::getGUIDefaultVelocity(),
-				   const uiString& lbl=uiString::emptyString());
+				   const uiString& lbl=uiString::empty());
 
 			//!< Internal velocities are survey independant (SI)
     void		setInternalVelocity(float);

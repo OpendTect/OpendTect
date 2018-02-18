@@ -65,7 +65,7 @@ void atEnd( CallBacker* )
 uiDialog* uiSEGYClassicSurvInfoProvider::dialog( uiParent* p, TDInfo )
 {
     uiDialog::Setup su( tr("Survey setup (SEG-Y)"), mNoDlgTitle, mNoHelpKey );
-    su.oktext(uiString::emptyString()).canceltext(uiString::emptyString());
+    su.oktext(uiString::empty()).canceltext(uiString::empty());
     xyinft_ = false;
     return new uiSEGYClassicSIPMgrDlg( this, p, su );
 }
@@ -142,5 +142,5 @@ uiString uiSEGYClassicSurvInfoProvider::importAskQuestion() const
     Seis::GeomType gt = Seis::Vol;
     Seis::getFromPar( imppars_, gt );
     return gt == Seis::Vol ? tr("Import the scanned SEG-Y file(s) now?")
-			   : uiString::emptyString();
+			   : uiString::empty();
 }

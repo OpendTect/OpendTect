@@ -32,7 +32,7 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     mODHelpKey(mArrowDialogHelpID)))
     , propertyChange(this)
 {
-    setCancelText(uiString::emptyString());
+    setCancelText(uiString::empty());
     typefld_ = new uiLabeledComboBox( this, uiStrings::sType() );
     typefld_->box()->addItems( arrowtypes() );
     typefld_->box()->selectionChanged.notify(

@@ -274,7 +274,7 @@ File::Format File::FormatList::format( int ifmt ) const
 uiString File::FormatList::userDesc( int ifmt ) const
 {
     if ( !fmts_.validIdx(ifmt) )
-	{ pErrMsg("Invalid list idx (udesc)"); return uiString::emptyString(); }
+	{ pErrMsg("Invalid list idx (udesc)"); return uiString::empty(); }
     return fmts_[ifmt]->userDesc();
 }
 

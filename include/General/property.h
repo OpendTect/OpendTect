@@ -45,7 +45,7 @@ public:
     virtual bool	init(const PropertySet&) const;
 			    //!< clears 'memory' and makes property usable
     virtual uiString	errMsg() const			{
-					    return uiString::emptyString();
+					    return uiString::empty();
 							}
 
     virtual bool	isUdf() const			= 0;

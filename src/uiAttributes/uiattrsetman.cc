@@ -76,7 +76,7 @@ void uiAttrSetMan::mkFileInfo()
 {
     attribfld_->setEmpty();
     if ( !curioobj_ )
-	{ setInfo( uiString::emptyString() ); return; }
+	{ setInfo( uiString::empty() ); return; }
 
     uiPhrase txt;
     Attrib::DescSet attrset( SI().has2D() );

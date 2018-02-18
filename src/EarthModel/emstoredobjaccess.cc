@@ -260,11 +260,11 @@ uiString EM::StoredObjAccess::getError( int iobj ) const
 	for ( int idx=0; idx<size(); idx++ )
 	    if ( isError(idx) )
 		return data_[idx]->errmsg_;
-	return uiString::emptyString();
+	return uiString::empty();
     }
 
     if ( !data_.validIdx(iobj) )
-	return uiString::emptyString();
+	return uiString::empty();
 
     return data_[iobj]->errmsg_;
 }

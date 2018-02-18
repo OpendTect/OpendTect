@@ -138,7 +138,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 		     mJoinUiStrs(sDefault(),sSet(mPlural).toLower())) );
     defselfld_->valuechanged.notify( mCB(this,uiAutoAttrSetOpen, setChg) );
 
-    autoloadfld_ = new uiGenInput( this, uiString::emptyString(),
+    autoloadfld_ = new uiGenInput( this, uiString::empty(),
                                    BoolInpSpec(false, tr("Set for Auto-Load\t"),
                                    tr("Disable Auto-load")) );
     autoloadfld_->attach( alignedBelow, defselfld_ );

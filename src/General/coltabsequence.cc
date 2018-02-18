@@ -462,7 +462,7 @@ uiString ColTab::Sequence::statusDispStr() const
 {
     return ::toUiString( "%1%2" ).arg( toUiString(status()) )
 	.arg( disabled() ? od_static_tr("ColTab::Sequence::statusDispStr",
-				"[disabled]") : uiString::emptyString() );
+				"[disabled]") : uiString::empty() );
 }
 
 

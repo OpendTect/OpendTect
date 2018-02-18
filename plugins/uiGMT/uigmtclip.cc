@@ -39,7 +39,7 @@ uiGMTOverlayGrp* uiGMTClipGrp::createInstance( uiParent* p )
 uiGMTClipGrp::uiGMTClipGrp( uiParent* p )
     : uiGMTOverlayGrp(p,tr("Clipping"))
 {
-    actionfld_ = new uiGenInput(this, uiString::emptyString(),
+    actionfld_ = new uiGenInput(this, uiString::empty(),
                                 BoolInpSpec(true,tr("Start clipping"),
 				tr("Stop clipping"),true));
 

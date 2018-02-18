@@ -117,7 +117,7 @@ void uiDataPointSetMan::mergePush( CallBacker* )
 
 void uiDataPointSetMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { setInfo( uiString::emptyString() ); return; }
+    if ( !curioobj_ ) { setInfo( uiString::empty() ); return; }
 
     uiPhrase txt;
     txt = mToUiStringTodo(getFileInfo());

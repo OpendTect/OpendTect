@@ -42,7 +42,7 @@ public:
     mExpClass(uiBase) Setup
     {
     public:
-			Setup(const uiString& l=uiString::emptyString())
+			Setup(const uiString& l=uiString::empty())
 			    : lbl_(l)
 			    , withedit_(false)
 			    , nrdec_(0)

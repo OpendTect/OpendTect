@@ -126,6 +126,6 @@ uiString dgbProbeTranslator::write( const Probe& probe, Conn& conn )
     IOPar par;
     probe.fillPar( par );
     par.putTo( astrm );
-    return astrm.isOK() ? uiString::emptyString()
+    return astrm.isOK() ? uiString::empty()
 			: uiStrings::phrCannotWrite( uiStrings::sProbe() );
 }

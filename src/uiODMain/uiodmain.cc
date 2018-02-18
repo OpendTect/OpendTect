@@ -117,7 +117,7 @@ static void checkScreenRes()
 
     Settings& setts = Settings::common();
     bool dontshowagain = false;
-    const uiString& es = uiString::emptyString();
+    const uiString& es = uiString::empty();
     if ( !anyacceptable )
     {
 	if ( !setts.isFalse(sKeyShowLowRes) )

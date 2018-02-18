@@ -111,7 +111,7 @@ public:
     virtual Task*		createTaskWithProgMeter(ProgressMeter*);
 				//!< only called when needReportProgress()
     virtual uiString		errMsg() const
-				{ return uiString::emptyString(); }
+				{ return uiString::empty(); }
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);

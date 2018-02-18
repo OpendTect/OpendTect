@@ -531,11 +531,11 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 
     for ( int idim=0; idim<nrdims_; idim++ )
     {
-	uiGenInput* nmfld = new uiGenInput( varsgrp, uiString::emptyString(),
+	uiGenInput* nmfld = new uiGenInput( varsgrp, uiString::empty(),
 					StringInpSpec(pdf.dimName(idim)) );
-	uiGenInput* expfld = new uiGenInput( varsgrp, uiString::emptyString(),
+	uiGenInput* expfld = new uiGenInput( varsgrp, uiString::empty(),
                                              FloatInpSpec() );
-	uiGenInput* stdfld = new uiGenInput( varsgrp, uiString::emptyString(),
+	uiGenInput* stdfld = new uiGenInput( varsgrp, uiString::empty(),
                                              FloatInpSpec() );
 	if ( !isnew )
 	{

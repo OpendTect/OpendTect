@@ -776,7 +776,7 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 
     if ( !Settings::common().isFalse(sKeyShowUseModeSel()) )
 	usemodesel_ = new uiColSeqUseModeSel( getParent(), true,
-					      uiString::emptyString() );
+					      uiString::empty() );
 
     manip_ = new uiManipMapper( *this );
 

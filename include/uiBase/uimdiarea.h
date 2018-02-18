@@ -26,7 +26,7 @@ mExpClass(uiBase) uiMdiAreaWindow : public uiGroup
 {
 public:
 	    uiMdiAreaWindow(uiMdiArea&,
-			    const uiString& title=uiString::emptyString());
+			    const uiString& title=uiString::empty());
 
 				~uiMdiAreaWindow()	{}
 

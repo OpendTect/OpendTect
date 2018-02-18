@@ -817,5 +817,5 @@ uiString VolProc::ChainExecutor::message() const
     if ( curepoch_ )
 	return curepoch_->getTask().message();
 
-    return uiString::emptyString();
+    return uiString::empty();
 }

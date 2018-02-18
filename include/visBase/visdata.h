@@ -135,7 +135,7 @@ public:
     virtual float		getPixelDensity() const;
 
     virtual const uiString&	errMsg() const
-					    { return uiString::emptyString(); }
+					    { return uiString::empty(); }
 
     bool			serialize(const char* filename,
 					  bool binary=false);

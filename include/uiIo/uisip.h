@@ -77,7 +77,7 @@ public:
     virtual IOPar*		getImportPars() const	{ return 0; }
     virtual void		startImport(uiParent*,const IOPar&) {}
     virtual uiString		importAskQuestion() const
-					{ return uiString::emptyString(); }
+					{ return uiString::empty(); }
 
     bool			runDialog(uiParent*,TDInfo,SurveyInfo&,
 					  bool defdpthinft,bool* havezinfo=0);

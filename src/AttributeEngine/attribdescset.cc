@@ -813,9 +813,9 @@ uiRetVal DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar )
 			"Please check your attribute set "
 			"and select valid stored data as input." )
 			.arg( dsc.userRef() )
-			.arg( depattribnm.isEmpty() ? uiString::emptyString()
+			.arg( depattribnm.isEmpty() ? uiString::empty()
 						    : tr("called"))
-			.arg( depattribnm.isEmpty() ? uiString::emptyString()
+			.arg( depattribnm.isEmpty() ? uiString::empty()
 					    : toUiString(depattribnm));
 	    }
 	    else

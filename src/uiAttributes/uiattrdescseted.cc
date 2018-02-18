@@ -88,7 +88,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSet& ds,
     , attrsneedupdt_(attrsneedupdt)
     , zdomaininfo_(0)
 {
-    setOkCancelText( uiStrings::sClose(), uiString::emptyString() );
+    setOkCancelText( uiStrings::sClose(), uiString::empty() );
 
     createMenuBar();
     createToolBar();

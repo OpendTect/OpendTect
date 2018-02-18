@@ -52,9 +52,9 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     zgridfld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateZFlds) );
 
-    zgridautofld_ = new uiGenInput( this, uiString::emptyString(),
+    zgridautofld_ = new uiGenInput( this, uiString::empty(),
 	    BoolInpSpec( zudf, tr("Automatic sampling"),
-			 uiString::emptyString(), 0 ) );
+			 uiString::empty(), 0 ) );
     zgridautofld_->attach( rightOf, zgridfld_ );
     zgridautofld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateZFlds) );
@@ -75,9 +75,9 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     offsgridfld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateOffsFlds) );
 
-    offsgridautofld_ = new uiGenInput( this, uiString::emptyString(),
+    offsgridautofld_ = new uiGenInput( this, uiString::empty(),
 	    BoolInpSpec( offsudf, tr("Automatic sampling"),
-			 uiString::emptyString(), 0 ) );
+			 uiString::empty(), 0 ) );
     offsgridautofld_->attach( rightOf, offsgridfld_ );
     offsgridautofld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateOffsFlds) );

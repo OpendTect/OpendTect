@@ -245,7 +245,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     inffreqfld_->attach( rightOf, varinpfld_ );
     inffreqfld_->setElemSzPol( uiObject::Small );
 
-    sliderfld_ = new uiSlider( this, uiSlider::Setup(uiString::emptyString())
+    sliderfld_ = new uiSlider( this, uiSlider::Setup(uiString::empty())
 				    .withedit(false)
 				    .sldrsize(180)
 				    .isvertical(false),
@@ -255,7 +255,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     sliderfld_->valueChanged.notify(
 				mCB( this, uiFreqTaperGrp, sliderChanged ) );
 
-    supfreqfld_ = new uiGenInput( this, uiString::emptyString(),
+    supfreqfld_ = new uiGenInput( this, uiString::empty(),
 				    FloatInpSpec().setName("Max frequency") );
     supfreqfld_->valuechanged.notify( mCB( this, uiFreqTaperGrp, freqChanged));
 

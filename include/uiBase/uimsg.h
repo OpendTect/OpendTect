@@ -35,15 +35,15 @@ public:
 
     // Messages
     bool	message(const uiString&,
-			const uiString& part2=uiString::emptyString(),
-			const uiString& part3=uiString::emptyString(),
+			const uiString& part2=uiString::empty(),
+			const uiString& part3=uiString::empty(),
 			bool withdontshowagain=false);
 		/*!<If withdontshowgain is true, the user will be prompted
 		    to not see this again. Return true if the user
 		    does not want to see it again. */
     bool	warning(const uiString&,
-			const uiString& part2=uiString::emptyString(),
-			const uiString& part3=uiString::emptyString(),
+			const uiString& part2=uiString::empty(),
+			const uiString& part3=uiString::empty(),
 			bool withdontshowagain=false);
 		/*!<If withdontshowgain is true, the user will be prompted
 		    to not see this again. Return true if the user
@@ -51,8 +51,8 @@ public:
     void	warning(const uiRetVal&);
     void	handleWarnings(const uiRetVal&); //!< does nothing if isOK()
     bool	error(const uiString&,
-		      const uiString& part2=uiString::emptyString(),
-		      const uiString& part3=uiString::emptyString(),
+		      const uiString& part2=uiString::empty(),
+		      const uiString& part3=uiString::empty(),
 		      bool withdontshowagain=false);
 		/*!<If withdontshowagain is true, the user will be prompted
 		    to not see this again. Return true if the user
@@ -70,10 +70,10 @@ public:
 
     // Interaction
     int		question(const uiString&,
-			 const uiString& textyes=uiString::emptyString(),
-			 const uiString& textno=uiString::emptyString(),
-			 const uiString& textcncl=uiString::emptyString(),
-			 const uiString& caption=uiString::emptyString(),
+			 const uiString& textyes=uiString::empty(),
+			 const uiString& textno=uiString::empty(),
+			 const uiString& textcncl=uiString::empty(),
+			 const uiString& caption=uiString::empty(),
 			 bool* dontaskagain=0);
 		/*!<If dontaskagain is given, the user will have the
 		   option to not see this again, and the boolean will
@@ -102,9 +102,9 @@ public:
 		   option to not see this again, and the boolean will
 		   be filled in. */
     int		askGoOnAfter(const uiString&,
-			     const uiString& cnclmsg=uiString::emptyString(),
-			     const uiString& textyes=uiString::emptyString(),
-			     const uiString& textno=uiString::emptyString(),
+			     const uiString& cnclmsg=uiString::empty(),
+			     const uiString& textyes=uiString::empty(),
+			     const uiString& textno=uiString::empty(),
 			     bool* dontaskagain=0);
 
     static void setNextCaption(const uiString&);
@@ -120,7 +120,7 @@ public:
     int		showMessageBox(Icon icon,QWidget* parent,
 			   const uiString& txt,const uiString& yestxtinp,
 			   const uiString& notxtinp,const uiString& cncltxtinp,
-			   const uiString& title=uiString::emptyString(),
+			   const uiString& title=uiString::empty(),
 			   bool* notagain=0);
 		/*!<If don't askagain is given, the user will have the
 		   option to not see this again, and the boolean will

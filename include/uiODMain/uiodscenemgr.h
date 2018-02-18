@@ -77,7 +77,7 @@ public:
     void			cleanUp(bool startnew=true);
     int				nrScenes()	{ return viewers_.size(); }
     int				addScene(bool maximized,ZAxisTransform* =0,
-				    const uiString& nm=uiString::emptyString());
+				    const uiString& nm=uiString::empty());
 				//!<Returns scene id
     void			setSceneName(int sceneid,const uiString&);
     uiString			getSceneName(int sceneid) const;

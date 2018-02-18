@@ -37,13 +37,11 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 #define mStoreduiStringPreamble		"^&"
 
 
-/*!
-   String that is able to hold wide character strings for the user interface.
-   These strings can be in different encodings and should only be used to pass
-   text to the ui.
+/*!\brief String that is able to hold international (UTF-8) strings for the
+   user interface.
 
-   The string may have an original string encoded in ASCI characters, but that
-   should only be used for object names and similar.
+   The string will have an 'original string' of simple ASCI characters, which
+   can be used as a 'key' but never fo user display.
 
    If the string holds %N arguments, these can be replaced by arguments:
 
@@ -56,13 +54,17 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 
    Will result in the string "4 plus 5 is 9"
 
- \note As multiple uiStrings may use the same underlying data (if they are
-       constructed with the copy constructor or the equal operator, they are not
-       suited for other types of string operations than passing messages to the
-       user.
+   uiString is reference counted; Making a copied object is cheap.
 
- The translation in OpendTect is done using Qt's subsystem for localization.
- A class that wishes to enable localization should:
+   As such, uiStrings are suited for limited text manipulation. But if we
+   are doing this for translated words and phrases, beware that alteration and
+   combining is not right. Tranalations allow:
+   * Entire phrases to be concatenated
+   * Construction of lists with certain 'reasonable' separators.
+   * In no case, just glue together words and/or verbs into your own phrases.
+
+  The translation in OpendTect is done using Qt's subsystem for localization.
+  A class that wishes to enable localization should:
 
   -# Declare the mTextTranslationClass(classname,packagekey) in its class
      definition. The packagekey is a string that identifies your software
@@ -78,9 +80,9 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
   -# The updated .ts file should be converted to a binary .qm file using Qt's
      lrelease application.
   -# The .qm file should be placed in
-     data/translations/<packagekey>_<lang>_<country>.ts in the release. For
+     data/translations/<packagekey>_<lang>_[<country>].ts in the release. For
      example, a localization of OpendTect to modern Chinese would be
-     saved as od_cn-cn.qm.
+     saved as od_zh_CN.qm.
  */
 
 
@@ -105,13 +107,14 @@ public:
     bool	operator<(const uiString& b) const;
     int		size() const;
     static const uiString& empty()		{ return emptystring_; }
-    static const uiString& emptyString()	{ return emptystring_; }
     static uiString& dummy()			{ return dummystring_; }
-    static uiString& dummyString()		{ return dummystring_; }
     bool	isPlainAscii() const;
 
-	/*! uiStrings should only be manipulated using the arg() functions.
-	    These replace the next %N (e.g. %1) with the provided argument. */
+
+			/*! the arg() functions allow numbers, other uiStrings,
+			    and external strings (like names) to be inserted
+			    into a translated unit.
+			    See class remarks for example. */
 
     template <class T>
     inline uiString&	arg(const T&);
@@ -142,7 +145,6 @@ public:
     uiString&		postFixWord(const uiString&);
     uiString&		addMoreInfo(const uiString&,bool newline=true);
 			//!< adds a colon first
-
 
     inline uiString&	appendIncorrect(const uiString&,char sep=' ');
     inline uiString&	appendIncorrect(const char*,char sep=' ');
@@ -181,11 +183,11 @@ private:
     friend class		uiStringData;
 
     char*			debugstr_;
-				/*<!< Contains full string() for easy debugging
-				      Only filled in in debug builds. */
+				//<! full string only filled in debug builds.
 
     mutable uiStringData*	data_;
-    mutable Threads::Lock	datalock_;	//!< Protects data_ variable
+    mutable Threads::Lock	datalock_;
+
     static const uiString	emptystring_;
     static uiString		dummystring_;
 
@@ -236,42 +238,14 @@ public:
     static uiString getOrderString(int);
 		//Returns 1st, 2nd, 3rd
 
-};
-
-
-#ifndef UISTRING_FULL_SEPARATION
-
-	typedef uiString uiWord;
-	typedef uiString uiPhrase;
-
-#else
-
-//TODO make this better
-
-mExpClass(Basic) uiWord : public uiString
-{ mODTextTranslationClass(uiWord);
-public:
-		uiWord();
-		uiWord(const uiWord&);
-    explicit	uiWord(const uiString&);
-		~uiWord();
+    mDeprecated static const uiString& emptyString()	{ return empty(); }
+    mDeprecated static uiString& dummyString()		{ return dummy(); }
 
 };
 
 
-mExpClass(Basic) uiPhrase : public uiString
-{ mODTextTranslationClass(uiPhrase);
-public:
-		uiPhrase();
-		uiPhrase(const uiPhrase&);
-    explicit	uiPhrase(const uiString&);
-		~uiWord();
-
-    uiString&	set(const UserNameString&)	= delete;
-
-};
-
-#endif
+typedef uiString uiWord;
+typedef uiString uiPhrase;
 
 
 mGlobal(Basic) uiString toUiString(const uiString&);

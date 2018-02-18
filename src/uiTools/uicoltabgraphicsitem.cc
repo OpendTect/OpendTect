@@ -157,8 +157,8 @@ void uiColTabItem::mapperChgCB( CallBacker* )
 {
     if ( !mapper_ )
     {
-	minvalitm_->setPlainText( uiString::emptyString() );
-	maxvalitm_->setPlainText( uiString::emptyString() );
+	minvalitm_->setPlainText( uiString::empty() );
+	maxvalitm_->setPlainText( uiString::empty() );
 	return;
     }
 

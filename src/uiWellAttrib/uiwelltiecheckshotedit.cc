@@ -247,7 +247,7 @@ void uiCheckShotEdit::doInsertRemovePt()
     }
     undobut_->setSensitive( undo_.canUnDo() );
     redobut_->setSensitive( undo_.canReDo() );
-    driftdisplay_->setToolTip(uiString::emptyString());
+    driftdisplay_->setToolTip(uiString::empty());
 
     applyCB(0);
 }

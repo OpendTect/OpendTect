@@ -29,8 +29,8 @@ ________________________________________________________________________
 
 
 uiSeisWvltSliderDlg::uiSeisWvltSliderDlg( uiParent* p, Wavelet& wvlt )
-    : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
-				 uiString::emptyString(),
+    : uiDialog(p,uiDialog::Setup(uiString::empty(),
+				 uiString::empty(),
                                  mODHelpKey(mSeisWvltSliderDlgHelpID) ))
     , wvlt_(&wvlt)
     , orgwvlt_(new Wavelet(wvlt))
@@ -269,7 +269,7 @@ void uiSeisWvltTaperDlg::setFreqData()
 
 //Wavelet display property dialog
 uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet& w )
-	    : uiDialog(p,Setup(toUiString(w.name()),uiString::emptyString(),
+	    : uiDialog(p,Setup(toUiString(w.name()),uiString::empty(),
                                mODHelpKey(mWaveletDispPropDlgHelpID) )
 			 .modal(false))
 {

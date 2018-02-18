@@ -229,7 +229,7 @@ uiString uiAttribDescSetBuild::avFromDef( const char* attrnm ) const
 {
     Attrib::DescID did( descset_.getID(attrnm,true) );
     if ( !did.isValid() )
-	return uiString::emptyString();
+	return uiString::empty();
     const char* clssnm = descset_.getDesc(did)->attribName();
     return uiAF().dispNameOf( clssnm );
 }

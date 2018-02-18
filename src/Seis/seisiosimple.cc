@@ -437,7 +437,7 @@ int SeisIOSimple::readExpTrc()
 {
     if ( !prov_ ) return ErrorOccurred();
 
-    errmsg_ = uiString::emptyString();
+    errmsg_ = uiString::empty();
     prov_->selectComponent( data_.compidx_ );
     const uiRetVal uirv = prov_->getNext( trc_ );
     if ( !uirv.isOK() )

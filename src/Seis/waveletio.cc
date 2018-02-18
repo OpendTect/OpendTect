@@ -294,7 +294,7 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
     {
 	int ret = getNextBodyVals( strm );
 	if ( ret < 0 )
-	    mErrRet(uiString::emptyString())
+	    mErrRet(uiString::empty())
 	if ( ret == 0 )
 	    break;
 

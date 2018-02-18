@@ -36,7 +36,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     : uiDialog(p,uiDialog::Setup(tr("Cross attribute parameter evaluation"),
 		                 mNoDlgTitle, mODHelpKey(mEvaluateDlgHelpID) )
                                  .modal(false).oktext(uiStrings::sAccept())
-				 .canceltext(uiString::emptyString()))
+				 .canceltext(uiString::empty()))
     , calccb(this)
     , showslicecb(this)
     , initpar_(*new IOPar)
@@ -99,7 +99,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     storefld->setChecked( false );
     storefld->setSensitive( false );
 
-    displaylbl = new uiLabel( this, uiString::emptyString() );
+    displaylbl = new uiLabel( this, uiString::empty() );
     displaylbl->attach( widthSameAs, sliderfld );
     displaylbl->attach( alignedBelow, storefld );
 

@@ -93,7 +93,7 @@ mExpClass(uiTools) uiColTabSel : public uiGroup
 public:
 
 			uiColTabSel(uiParent*,OD::Orientation,
-				uiString lbl=uiString::emptyString());
+				uiString lbl=uiString::empty());
 
 			mImpluiColSeqSelGroup();
 

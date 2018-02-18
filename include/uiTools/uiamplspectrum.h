@@ -33,7 +33,7 @@ mExpClass(uiTools) uiAmplSpectrum : public uiMainWin
 public:
     struct Setup
     {
-			Setup( const uiString& t=uiString::emptyString(),
+			Setup( const uiString& t=uiString::empty(),
 			       bool iscep=false, float nyqst=SI().zStep() )
 			    : caption_(t)
 			    , nyqvistspspace_(nyqst)

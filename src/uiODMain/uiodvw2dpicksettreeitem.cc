@@ -125,7 +125,7 @@ uiPresManagedTreeItem* uiODVw2DPickSetParentTreeItem::addChildItem(
 
 
 uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( Pick::Set& ps )
-    : uiODVw2DTreeItem(uiString::emptyString())
+    : uiODVw2DTreeItem(uiString::empty())
     , pickset_(ps)
     , vw2dpickset_(0)
 {

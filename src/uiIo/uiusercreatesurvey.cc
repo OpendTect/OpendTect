@@ -54,7 +54,7 @@ uiUserCreateSurvey::uiUserCreateSurvey( uiParent* p, const char* dr )
     if ( !uirv.isOK() )
     {
 	new uiLabel( this, uirv );
-	setOkText( uiString::emptyString() );
+	setOkText( uiString::empty() );
 	setCancelText( uiStrings::sClose() );
     }
 
@@ -139,7 +139,7 @@ const uiSurvInfoProvider* uiUserCreateSurvey::getSIP() const
 uiString uiUserCreateSurvey::sipName() const
 {
     const uiSurvInfoProvider* cursip = getSIP();
-    return cursip ? cursip->usrText() : uiString::emptyString();
+    return cursip ? cursip->usrText() : uiString::empty();
 }
 
 

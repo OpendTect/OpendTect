@@ -29,8 +29,8 @@ mExpClass(uiBase) uiStatusBar : public uiBaseObject
 public:
 			~uiStatusBar();
 
-    int		addMsgFld(const uiString& lbltxt=uiString::emptyString(),
-			  const uiString& tooltip =uiString::emptyString(),
+    int		addMsgFld(const uiString& lbltxt=uiString::empty(),
+			  const uiString& tooltip =uiString::empty(),
 #ifdef __win__
 			  OD::Alignment al=mAlignment(Left,VCenter),
 #else

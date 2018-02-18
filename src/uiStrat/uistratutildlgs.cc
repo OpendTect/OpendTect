@@ -62,7 +62,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     lblbox1->attach( alignedBelow, colfld_ );
 
     uiLabeledSpinBox* lblbox2 =
-		new uiLabeledSpinBox( this, uiString::emptyString() );
+		new uiLabeledSpinBox( this, uiString::empty() );
     agestopfld_ = lblbox2->box();
     agestopfld_->setNrDecimals( 3 );
     agestopfld_->setInterval( limitrg );
@@ -772,7 +772,7 @@ bool uiStratUnitDivideDlg::acceptOK()
 
 uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
 						Strat::LeavedUnitRef& ur )
-    : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
+    : uiDialog(p,uiDialog::Setup(uiString::empty(),
 		mNoDlgTitle, mODHelpKey(mStratLinkLvlUnitDlgHelpID) ))
     , unit_(ur)
 {

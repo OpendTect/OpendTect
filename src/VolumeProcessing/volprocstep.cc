@@ -401,7 +401,7 @@ public:
 		    delete result_;
 		}
 
-    uiString	uiMessage() const	{ return uiString::emptyString(); }
+    uiString	uiMessage() const	{ return uiString::empty(); }
     uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
 
     const PosInfo::CubeData*	getResult() const	{ return result_; }

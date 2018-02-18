@@ -44,7 +44,7 @@ EM::HorizonPreLoader::~HorizonPreLoader()
 bool EM::HorizonPreLoader::load( const DBKeySet& newids, bool is2d,
 				 TaskRunner* tskr )
 {
-    errmsg_ = uiString::emptyString();
+    errmsg_ = uiString::empty();
     if ( newids.isEmpty() )
 	return false;
 
@@ -140,7 +140,7 @@ void EM::HorizonPreLoader::unload( const BufferStringSet& hornames )
     if ( hornames.isEmpty() )
 	return;
 
-    errmsg_ = uiString::emptyString();
+    errmsg_ = uiString::empty();
     for ( int hidx=0; hidx<hornames.size(); hidx++ )
     {
 	const int selidx = loadednms_.indexOf( hornames.get(hidx) );
@@ -166,5 +166,5 @@ void EM::HorizonPreLoader::surveyChgCB( CallBacker* )
     unload( loadednms_ );
     loadedids_.erase();
     loadednms_.erase();
-    errmsg_ = uiString::emptyString();
+    errmsg_ = uiString::empty();
 }

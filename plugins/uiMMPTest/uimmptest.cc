@@ -44,7 +44,7 @@ uiMMPTestProc::uiMMPTestProc( uiParent* p, const IOPar& iop )
     : uiMMBatchJobDispatcher(p,iop,mNoHelpKey)
 {
     setOkText( uiStrings::sClose() );
-    setCancelText( uiString::emptyString() );
+    setCancelText( uiString::empty() );
     setCaption( tr("Multi-Machine Processing Diagnostic Tool") );
     enableJobControl( false );
 

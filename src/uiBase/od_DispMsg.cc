@@ -39,7 +39,7 @@ int main( int argc, char** argv )
     BufferStringSet normalargs;
     parser.getNormalArguments( normalargs );
 
-    uiString msg = uiString::emptyString();
+    uiString msg = uiString::empty();
     for ( int idx=0; idx<normalargs.size(); idx++ )
     {
 	BufferString nextarg( normalargs[idx]->buf() );

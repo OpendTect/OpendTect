@@ -720,7 +720,7 @@ void uiWellMan::exportLogs( CallBacker* )
 void uiWellMan::mkFileInfo()
 {
     if ( !curioobj_ )
-	{ setInfo( uiString::emptyString() ); return; }
+	{ setInfo( uiString::empty() ); return; }
 
     uiRetVal uirv;
     const bool survintime = SI().zIsTime();

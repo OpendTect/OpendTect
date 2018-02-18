@@ -42,7 +42,7 @@ public:
 			    revertChanges() may be called after a successful
 			    acceptOK() call, if another tab in the stack fails.
 			*/
-    virtual uiString	errMsg() const		{ return uiString::emptyString(); }
+    virtual uiString	errMsg() const		{ return uiString::empty(); }
 
     virtual HelpKey	helpKey() const		{ return mNoHelpKey; }
 

@@ -79,7 +79,7 @@ void uiPickSetMan::ownSelChg()
 
 void uiPickSetMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { setInfo( uiString::emptyString() ); return; }
+    if ( !curioobj_ ) { setInfo( uiString::empty() ); return; }
 
     uiPhrase txt;
     uiRetVal uirv;

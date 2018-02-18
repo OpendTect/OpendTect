@@ -78,7 +78,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     extrabutgrp_->setPrefHeight( ft.height()*2 );
 
     infogrp_ = new uiGroup( this, "Info Group" );
-    uiLabel* infolbl = new uiLabel( infogrp_, uiString::emptyString() );
+    uiLabel* infolbl = new uiLabel( infogrp_, uiString::empty() );
     infolbl->setIcon( "info" );
     infolbl->setToolTip( tr("Data Information") );
 
@@ -87,12 +87,12 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
     uiToolButton* dummytb = new uiToolButton( infogrp_, "empty",
-					uiString::emptyString(), CallBack() );
+					uiString::empty(), CallBack() );
     dummytb->attach( rightTo, infofld_ );
     dummytb->display( false );
 
     uiGroup* notesgrp = new uiGroup( this, "Notes Group" );
-    uiLabel* noteslbl = new uiLabel( notesgrp, uiString::emptyString() );
+    uiLabel* noteslbl = new uiLabel( notesgrp, uiString::empty() );
     noteslbl->setIcon( "notes" );
     noteslbl->setToolTip( tr("Notes for selected data") );
 
@@ -207,7 +207,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
     if ( curioobj_ )
 	mkFileInfo();
     else
-	setInfo( uiString::emptyString() );
+	setInfo( uiString::empty() );
 
     readNotes();
     uiString msg;

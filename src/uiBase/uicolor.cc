@@ -144,7 +144,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& setup, const char* nm )
 	dodrawbox_->activated.notify( mCB(this,uiColorInput,dodrawSel) );
     }
 
-    colbut_ = new uiPushButton( this,uiString::emptyString(), false );
+    colbut_ = new uiPushButton( this,uiString::empty(), false );
     BufferString colbutnm( nm );
     if ( colbutnm.isEmpty() )
 	colbutnm = toString( setup.lbltxt_ );

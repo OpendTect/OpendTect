@@ -238,7 +238,7 @@ uiString TaskGroup::message() const
 {
     Threads::Locker locker( lock_ );
     if ( !tasks_.validIdx(curtask_) )
-	return uiString::emptyString();
+	return uiString::empty();
 
     return tasks_[curtask_]->message();
 }
@@ -248,7 +248,7 @@ uiString TaskGroup::nrDoneText() const
 {
     Threads::Locker lckr( lock_ );
     return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDoneText()
-				     : uiString::emptyString();
+				     : uiString::empty();
 }
 
 

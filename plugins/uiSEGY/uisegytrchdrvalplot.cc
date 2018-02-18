@@ -23,11 +23,11 @@ uiSEGYTrcHdrValPlot::uiSEGYTrcHdrValPlot( uiParent* p, bool sh, int tnr0 )
     , slbl2_(0)
     , trcnr0_(tnr0)
 {
-    tlbl1_ = new uiLabel( this, uiString::emptyString() );
+    tlbl1_ = new uiLabel( this, uiString::empty() );
     tlbl1_->setStretch( 2, 0 ); tlbl1_->setAlignment( OD::Alignment::HCenter );
     if ( !issingle_ )
     {
-	tlbl2_ = new uiLabel( this, uiString::emptyString() ); 
+	tlbl2_ = new uiLabel( this, uiString::empty() ); 
 	tlbl2_->attach( ensureBelow, tlbl1_ );
 	tlbl2_->setStretch( 2, 0 ); 
 	tlbl2_->setAlignment( OD::Alignment::HCenter );
@@ -41,12 +41,12 @@ uiSEGYTrcHdrValPlot::uiSEGYTrcHdrValPlot( uiParent* p, bool sh, int tnr0 )
     if ( tlbl2_ )
 	tlbl2_->attach( widthSameAs, disp_ );
 
-    slbl1_ = new uiLabel( this, uiString::emptyString() );
+    slbl1_ = new uiLabel( this, uiString::empty() );
     slbl1_->attach( ensureBelow, disp_ ); slbl1_->attach( widthSameAs, disp_ );
     slbl1_->setStretch( 2, 0 ); slbl1_->setAlignment( OD::Alignment::HCenter );
     if ( !issingle_ )
     {
-	slbl2_ = new uiLabel( this, uiString::emptyString() );
+	slbl2_ = new uiLabel( this, uiString::empty() );
 	slbl2_->attach( ensureBelow, slbl1_ );
 	slbl2_->attach( widthSameAs, disp_ );
 	slbl2_->setStretch( 2, 0 ); slbl2_->setAlignment( 

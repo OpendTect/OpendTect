@@ -250,12 +250,12 @@ uiVelSel::uiVelSel( uiParent* p, const IOObjContext& ctxt, const Setup& setup )
     seissetup_.survdefsubsel_ = "Velocity";
 
     editbut_ = uiButton::getStd( this, OD::Edit, mCB(this,uiVelSel,butPushCB),
-				 true, uiString::emptyString() );
+				 true, uiString::empty() );
     editbut_->setToolTip( tr("Edit the velocity parameters") );
     editbut_->attach( rightOf, endObj(false) );
 
     uiButton* createbut = uiButton::getStd( this, OD::Create,
-		mCB(this,uiVelSel,butPushCB), true, uiString::emptyString() );
+		mCB(this,uiVelSel,butPushCB), true, uiString::empty() );
     createbut->setToolTip( tr("Create new velocity model") );
     createbut->attach( rightOf, editbut_ );
 

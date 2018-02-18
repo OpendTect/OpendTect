@@ -984,7 +984,7 @@ const uiString VolumeRenderScalarField::writeVolumeFile( int attr,
     else if ( !strm.addBin(indexcacheptr,matkzs.totalNr()) )
 	return writeerr;
 
-    return uiString::emptyString();
+    return uiString::empty();
 }
 
 

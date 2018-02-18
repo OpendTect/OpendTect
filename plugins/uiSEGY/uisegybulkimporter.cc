@@ -39,7 +39,7 @@ uiSEGYMultiVintageImporter::uiSEGYMultiVintageImporter( uiParent* p )
     table_->setNrCols( 3 );
     table_->setColumnLabel( 0, tr("Vintage") );
     table_->setColumnLabel( 1, tr("File names") );
-    table_->setColumnLabel( 2, uiString::emptyString() );
+    table_->setColumnLabel( 2, uiString::empty() );
     table_->setNrRows(0);
     uiGroup* toolgrp = new uiGroup( this, "Tool group" );
     uiToolButton* addbut = new uiToolButton(toolgrp, "create",

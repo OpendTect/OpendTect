@@ -206,7 +206,7 @@ public:
     mExpClass(uiBase) Setup
     { mODTextTranslationClass(Setup);
     public:
-			Setup( const uiString& txt=uiString::emptyString(),
+			Setup( const uiString& txt=uiString::empty(),
 				       uiTreeViewItem::Type tp=
 						uiTreeViewItem::Standard,
 				       bool setchecked=true )

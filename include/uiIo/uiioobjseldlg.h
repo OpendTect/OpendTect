@@ -37,7 +37,7 @@ public:
     mExpClass(uiIo) Setup
     {
     public:
-		Setup(const uiString& titletxt=uiString::emptyString())
+		Setup(const uiString& titletxt=uiString::empty())
 			    : titletext_(titletxt)
 			    , multisel_(false)
 			    , allowsetsurvdefault_(true)
@@ -53,7 +53,7 @@ public:
 
 			uiIOObjSelDlg(uiParent*,const IOObjContext&);
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-			const uiString& titletxt=uiString::emptyString());
+			const uiString& titletxt=uiString::empty());
 			uiIOObjSelDlg(uiParent*,const Setup&,const CtxtIOObj&);
 			~uiIOObjSelDlg();
 

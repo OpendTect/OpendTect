@@ -31,14 +31,14 @@ public:
     mDeprecated		uiFileDialog(uiParent*,bool forread,
 				     const char* fname=0,
 				     const char* filter=0,
-				     uiString caption=uiString::emptyString());
+				     uiString caption=uiString::empty());
     mDeprecated		uiFileDialog(uiParent*,Mode mode=OD::SelectFileForWrite,
 				     const char* fname=0,
 				     const char* filter=0,
-				     uiString caption=uiString::emptyString());
+				     uiString caption=uiString::empty());
     mDeprecated		uiFileDialog(uiParent*,Type,
 				     const char* fname=0,
-				     uiString caption=uiString::emptyString());
+				     uiString caption=uiString::empty());
 						//!< Uses SelectFileForWrite
 
     const char*		fileName() const	{ return fn; }

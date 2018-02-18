@@ -107,7 +107,7 @@ bool uiTabStackDlg::rejectOK()
 
 
 uiSingleGroupDlgBase::uiSingleGroupDlgBase( uiParent* p, uiDlgGroup* grp )
-: uiDialog( p, uiDialog::Setup(  uiString::emptyString(),
+: uiDialog( p, uiDialog::Setup(  uiString::empty(),
 				 mNoDlgTitle,
 				 mNoHelpKey ))
     , grp_( grp )

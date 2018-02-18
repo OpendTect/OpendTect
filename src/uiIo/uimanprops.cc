@@ -81,7 +81,7 @@ uiString uiBuildPROPS::avFromDef( const char* nm ) const
 {
     const PropertyRef* pr = props_.find( nm );
     if ( !pr )
-	return uiString::emptyString();
+	return uiString::empty();
     return toUiString(PropertyRef::toString(pr->stdType()) );
 }
 

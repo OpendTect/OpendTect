@@ -406,13 +406,13 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 					uiStrings::sColorTable() );
     colseqselfld_->attach( alignedBelow, filllogsfld_ );
 
-    colorrangefld_ = new uiGenInput( this, uiString::emptyString(),
+    colorrangefld_ = new uiGenInput( this, uiString::empty(),
 			     FloatInpIntervalSpec()
 			     .setName(BufferString(" range start"),0)
 			     .setName(BufferString(" range stop"),1) );
     colorrangefld_->attach( rightOf, colseqselfld_ );
 
-    sequsefld_ = new uiColSeqUseModeSel( this, false, uiString::emptyString() );
+    sequsefld_ = new uiColSeqUseModeSel( this, false, uiString::empty() );
     sequsefld_->attach( rightOf, colorrangefld_ );
 
     uiSeparator* sep2 = new uiSeparator( this, "Sep" );

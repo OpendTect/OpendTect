@@ -49,7 +49,7 @@ public:
     };
 
 			uiSelLineStyle(uiParent*,const OD::LineStyle&,
-			 const uiString& lbltxt=uiString::emptyString());
+			 const uiString& lbltxt=uiString::empty());
 			uiSelLineStyle(uiParent*,const OD::LineStyle&,
 					       const Setup&);
 			~uiSelLineStyle();

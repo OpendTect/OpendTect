@@ -82,7 +82,7 @@ void uiUserShowWait::readyNow()
 {
     if ( mcc_ )
     {
-	setMessage( uiString::emptyString() );
+	setMessage( uiString::empty() );
 	mcc_->restore();
 	delete mcc_; mcc_ = 0;
     }
@@ -317,7 +317,7 @@ bool uiMsg::message( const uiString& part1, const uiString& part2,
 	msg.appendPhrase( part3 );
     bool notagain = false;
     showMessageBox( Information, popParnt(), msg, uiStrings::sOk(),
-		    uiString::emptyString(), uiString::emptyString(),
+		    uiString::empty(), uiString::empty(),
 		    tr("Information"), withdontshowagain ? &notagain : 0 );
     return notagain;
 }
@@ -333,7 +333,7 @@ bool uiMsg::warning( const uiString& part1, const uiString& part2,
 	msg.appendPhrase( part3 );
     bool notagain = false;
     showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(),
-		    uiString::emptyString(), uiString::emptyString(),
+		    uiString::empty(), uiString::empty(),
 		    tr("Warning"), withdontshowagain ? &notagain : 0 );
     return notagain;
 }
@@ -397,7 +397,7 @@ bool uiMsg::error( const uiString& part1, const uiString& part2,
 	msg.appendPhrase( part3 );
     bool notagain = false;
     showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(),
-		    uiString::emptyString(), uiString::emptyString(),
+		    uiString::empty(), uiString::empty(),
 		    tr("Error"), withdontshowagain ? &notagain : 0 );
 
     return notagain;
@@ -451,8 +451,8 @@ void uiMsg::errorWithDetailProc( uiStringSet& strings )
     const int refnr = beginCmdRecEvent( utfwintitle );
     // Use of QMessageBox::Abort enables close and escape actions by the user
     PtrMan<QMessageBox> mb = createMessageBox( Critical, popParnt(), strings[0],
-					       uiString::emptyString(),
-					       uiString::emptyString(),
+					       uiString::empty(),
+					       uiString::empty(),
 					       oktxt, wintitle, 0 );
     mb->setDefaultButton( QMessageBox::Abort );
 
@@ -478,7 +478,7 @@ int uiMsg::askSave( const uiString& text, bool wcancel )
 {
     const uiString dontsavetxt = tr("Don't save");
     return question( text, uiStrings::sSave(), dontsavetxt,
-		     wcancel ? uiStrings::sCancel() : uiString::emptyString(),
+		     wcancel ? uiStrings::sCancel() : uiString::empty(),
 		     tr("Data not saved") );
 }
 
@@ -487,7 +487,7 @@ int uiMsg::askRemove( const uiString& text, bool wcancel )
 {
     const uiString notxt = wcancel ? tr("Don't remove") : uiStrings::sCancel();
     return question( text, uiStrings::sRemove(), notxt,
-		     wcancel ? uiStrings::sCancel() : uiString::emptyString(),
+		     wcancel ? uiStrings::sCancel() : uiString::empty(),
 		     tr("Remove data") );
 }
 
@@ -495,7 +495,7 @@ int uiMsg::askRemove( const uiString& text, bool wcancel )
 int uiMsg::askContinue( const uiString& text )
 {
     return question( text, uiStrings::sContinue(), uiStrings::sAbort(),
-		     uiString::emptyString() );
+		     uiString::empty() );
 }
 
 
@@ -503,7 +503,7 @@ int uiMsg::askOverwrite( const uiString& text )
 {
     const uiString yestxt = uiStrings::sOverwrite();
     return question( text, yestxt, uiStrings::sCancel(),
-		     uiString::emptyString() );
+		     uiString::empty() );
 }
 
 
@@ -554,8 +554,8 @@ void uiMsg::about( const uiString& text )
     mCapt( uiStrings::sAbout() );
     const int refnr = beginCmdRecEvent( utfwintitle );
     PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
-					       oktxt, uiString::emptyString(),
-					       uiString::emptyString(),
+					       oktxt, uiString::empty(),
+					       uiString::empty(),
 					       wintitle, 0 );
 
     mb->setIconPixmap( mb->windowIcon().pixmap(32) );
@@ -571,8 +571,8 @@ void uiMsg::aboutOpendTect( const uiString& text )
     const uiString oktxt = uiStrings::sClose();
     const int refnr = beginCmdRecEvent( utfwintitle );
     PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
-					       oktxt, uiString::emptyString(),
-					       uiString::emptyString(),
+					       oktxt, uiString::empty(),
+					       uiString::empty(),
 					       wintitle, 0 );
     uiPixmap pm( sODLogo );
     if ( pm.qpixmap() )
@@ -596,8 +596,8 @@ bool uiMsg::askGoOn( const uiString& text, const uiString& textyes,
 		     const uiString& textno, bool* notagain )
 {
     return question( text, textyes, textno,
-	             uiString::emptyString(),
-		     uiString::emptyString(), notagain );
+	             uiString::empty(),
+		     uiString::empty(), notagain );
 }
 
 
@@ -653,6 +653,6 @@ void uiMsg::dispWarnMsgCB( CallBacker* cber )
     mEnsureExecutedInMainThreadWithCapsule( uiMsg::dispWarnMsgCB, caps );
     mCBCapsuleUnpack( uiStringSet, uistrset, caps );
     showMessageBox( Warning, popParnt(), uistrset[0], uiStrings::sOk(),
-		    uiString::emptyString(), uiString::emptyString(),
+		    uiString::empty(), uiString::empty(),
 		    tr("Warning") );
 }

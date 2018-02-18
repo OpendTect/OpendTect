@@ -85,7 +85,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     outputfreqfld_->setElemSzPol( uiObject::Small );
     outputfreqfld_->attach( alignedBelow, attriboutputfld_ );
 
-    stepoutfreqfld_ = new uiGenInput( this, uiString::emptyString(),
+    stepoutfreqfld_ = new uiGenInput( this, uiString::empty(),
 	IntInpSpec() );
     stepoutfreqfld_->setElemSzPol(uiObject::Small);
     stepoutfreqfld_->attach( rightOf, outputfreqfld_ );

@@ -55,7 +55,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     enableSaveButton( tr("Display after import") );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    havetrckbox_ = new uiCheckBox( this, uiString::emptyString() );
+    havetrckbox_ = new uiCheckBox( this, uiString::empty() );
     havetrckbox_->setChecked( true );
     havetrckbox_->activated.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
 
@@ -121,7 +121,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 				       : (uiObject*)dataselfld_ );
     but->attach( ensureBelow, sep );
 
-    outfld_ = new uiWellSel( this, false, uiString::emptyString(), false );
+    outfld_ = new uiWellSel( this, false, uiString::empty(), false );
     outfld_->attach( alignedBelow, but );
 
     postFinalise().notify( mCB(this,uiWellImportAsc,haveTrckSel) );
@@ -466,7 +466,7 @@ bool uiWellImportAsc::checkInpFlds()
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty()
 		? uiStrings::phrEnter(tr("a name for the well"))
-		: uiString::emptyString() )
+		: uiString::empty() )
 
     return true;
 }

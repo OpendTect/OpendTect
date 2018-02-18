@@ -35,7 +35,7 @@ mExpClass(uiTools) uiTreeItem : public CallBacker
 { mODTextTranslationClass(uiTreeItem)
 public:
 				uiTreeItem(const uiString& nm=
-					   uiString::emptyString() );
+					   uiString::empty() );
     virtual			~uiTreeItem();
     virtual void		prepareForShutdown();
 				/*!<Override if you want to popup dlg

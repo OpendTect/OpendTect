@@ -319,7 +319,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     if ( hasy2_ )
     {
 	selaxisfld_ =
-	    new uiGenInput( this, uiString::emptyString(),
+	    new uiGenInput( this, uiString::empty(),
                             BoolInpSpec( true,uiStrings::phrJoinStrings(
 			    uiStrings::sDraw(),tr("Y1")),
 			    mJoinUiStrs(sDraw(), sY2())) );
