@@ -33,8 +33,7 @@ using namespace Attrib;
 uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
 			  const NLAModel* model, const DBKey& dbky,
 			  const char* dlgnm )
-    : uiBatchProcDlg(p,uiStrings::sEmptyString(),false,
-		     Batch::JobSpec::AttribEM )
+    : uiBatchProcDlg(p,uiString::empty(),false, Batch::JobSpec::AttribEM )
     , ads_(new Attrib::DescSet(ad))
     , nlamodel_(0)
     , nlaid_(dbky)

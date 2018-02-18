@@ -123,13 +123,13 @@ mExpClass(uiTools) uiGetChoice : public uiDialog
 public:
 
 			uiGetChoice(uiParent*,const uiString& question=
-				    uiStrings::sEmptyString(),
+				    uiString::empty(),
 				    bool allowcancel=true,
 				    const HelpKey& helpkey=mNoHelpKey);
 			uiGetChoice(uiParent*,
 				    const uiStringSet& options,
 				    const uiString& question=
-				    uiStrings::sEmptyString(),
+				    uiString::empty(),
 				    bool allowcancel=true,
 				    const HelpKey& helpkey=mNoHelpKey);
 			uiGetChoice(uiParent*,uiDialog::Setup,

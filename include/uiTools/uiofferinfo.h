@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uimainwin.h"
 #include "uitoolbutton.h"
-#include "uistring.h"
 class uiTextBrowser;
 
 
@@ -55,7 +54,7 @@ public:
 			uiOfferInfo(uiParent*,bool setinsens=true);
 
     void		setInfo(const char*,const uiString& newcaption=
-						     uiStrings::sEmptyString());
+						     uiString::empty());
 
 protected:
 

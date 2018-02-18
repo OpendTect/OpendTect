@@ -441,7 +441,7 @@ const uiString uiNLAPartServer::convertToClasses(
 	    lcd.fillCols( vds, valnr );
     }
 
-    return uiStrings::sEmptyString();
+    return uiString::empty();
 }
 
 
@@ -580,7 +580,7 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
     if ( crdesc.doextraction && crdesc.isdirect )
     {
        if ( !extractDirectData(dpss) )
-	    mErrRet(uiStrings::sEmptyString())
+	    mErrRet(uiString::empty())
 
 	if ( crdesc.design.classification )
 	{
@@ -636,7 +636,7 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
     }
 
     if ( allok )
-	return uiStrings::sEmptyString();
+	return uiString::empty();
 
     mErrRet(sKeyUsrCancel())
 }

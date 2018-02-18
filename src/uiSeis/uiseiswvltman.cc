@@ -336,7 +336,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 	mRet(uirv)
 
     selgrp_->fullUpdate( ctio.ioobj_->key() );
-    mRet( uiStrings::sEmptyString() )
+    mRet( uiString::empty() )
 }
 
 

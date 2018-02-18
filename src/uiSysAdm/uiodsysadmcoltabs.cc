@@ -27,7 +27,7 @@ ________________________________________________________________________
 
 uiODSysAdmColorTabs::uiODSysAdmColorTabs( uiParent* p )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrManage(tr("color bars")),
-    uiStrings::sEmptyString(),mNoHelpKey))
+		    mNoDlgTitle,mNoHelpKey))
 {
     listfld = new uiListBox( this, "Color tables" );
     fillList( true );

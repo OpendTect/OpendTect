@@ -392,7 +392,7 @@ uiString PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 	crd[2] = b2c.transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
     }
 
-    return uiStrings::sEmptyString();
+    return uiString::emptyString();
 }
 
 

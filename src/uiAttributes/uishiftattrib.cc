@@ -43,8 +43,8 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
     stepoutfld_->setFieldNames( "Inl shift", "Crl shift" );
     stepoutfld_->attach( alignedBelow, inpfld_ );
 
-    timefld_ = new uiGenInput( this, zDepLabel(uiStrings::sEmptyString(),
-			       uiStrings::sEmptyString()),
+    timefld_ = new uiGenInput( this, zDepLabel(uiString::emptyString(),
+			       uiString::emptyString()),
 			       FloatInpSpec().setName("Z shift") );
     timefld_->setElemSzPol(uiObject::Small);
     timefld_->attach( rightTo, stepoutfld_ );

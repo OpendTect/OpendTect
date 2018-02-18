@@ -989,7 +989,7 @@ const uiString SurveyInfo::set3PtsUiMsg( const Coord c[3], const BinID b[2],
     set3coords_[0] = c[0];
     set3coords_[1] = c[1];
     set3coords_[2] = c[2];
-    return uiStrings::sEmptyString();
+    return uiString::emptyString();
 }
 
 

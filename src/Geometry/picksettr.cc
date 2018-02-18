@@ -258,7 +258,7 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 	}
     }
 
-    return ps.size() ? uiStrings::sEmptyString() : uiStrings::sNoValidData();
+    return ps.size() ? uiString::emptyString() : uiStrings::sNoValidData();
 }
 
 
@@ -289,6 +289,6 @@ uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     psiter.retire();
 
     astrm.newParagraph();
-    return astrm.isOK() ? uiStrings::sEmptyString()
+    return astrm.isOK() ? uiString::emptyString()
 			: uiStrings::phrCannotWrite( uiStrings::sPickSet() );
 }

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "uistrings.h"
 
 class uiGenInput;
 class uiButton;
@@ -72,8 +71,7 @@ public:
 			uiCheckedCompoundParSel(uiParent*,
 				 const uiString& seltxt,
 				 bool mkinvisible, // if not, makes insensitive
-				 const uiString& buttxt=
-				 uiStrings::sEmptyString());
+				 const uiString& buttxt=uiString::empty());
 
     void		setChecked(bool);
     bool		isChecked() const;

@@ -33,7 +33,7 @@ uiProcSel::uiProcSel( uiParent* p, const uiString& lbl, const DBKey* mid,
 
     if ( withedit )
     {
-	editbut_ = new uiPushButton( this, uiStrings::sEmptyString(),
+	editbut_ = new uiPushButton( this, uiString::empty(),
 		mCB(this,uiProcSel,editPushCB), false );
 	editbut_->attach( rightOf, selfld_ );
     }

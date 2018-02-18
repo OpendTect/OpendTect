@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uimenu.h"
 #include "uitoolbar.h"
+#include "uistrings.h"
 
 #include "mousecursor.h"
 

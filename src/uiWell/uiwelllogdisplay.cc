@@ -324,8 +324,8 @@ uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first )
 
 uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
 				    const uiWellLogDisplay::Setup& wldsu )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
-						       mNoHelpKey).modal(false))
+    : uiDialog(p,uiDialog::Setup(uiString::empty(),mNoDlgTitle,mNoHelpKey)
+		    .modal(false))
     , logSet(this)
 {
     setCtrlStyle( CloseOnly );
@@ -378,7 +378,7 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
 	    capt = toUiString("%1 & %2").arg(capt).arg(toUiString(l2->name()));
     }
 
-    uiString str = uiStrings::sEmptyString();
+    uiString str;
     if ( !wellnm1_.isEmpty() )
 	str= toUiString(wellnm1_);
     if ( !wellnm2_.isEmpty() )

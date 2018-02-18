@@ -91,7 +91,7 @@ void uiCompoundParSel::setSelIcon( const char* ident )
 uiCheckedCompoundParSel::uiCheckedCompoundParSel( uiParent* p,
 			 const uiString& seltxt, bool invis,
 			 const uiString& btxt )
-    : uiCompoundParSel(p,uiStrings::sEmptyString(),btxt)
+    : uiCompoundParSel(p,uiString::empty(),btxt)
     , mkinvis_(invis)
     , checked(this)
 {

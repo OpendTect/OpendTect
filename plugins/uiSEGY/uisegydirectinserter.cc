@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uisegyread.h"
 #include "uibutton.h"
 #include "uimainwin.h"
+#include "uistrings.h"
 #include "uimsg.h"
 
 #define mSEGYDirectVolTranslInstance mTranslTemplInstance(SeisTrc,SEGYDirect)

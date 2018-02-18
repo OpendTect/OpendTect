@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "uistrings.h"
 
 class uiComboBox;
 class uiColorInput;
@@ -31,8 +30,8 @@ public:
     mExpClass(uiTools) Setup
     {
     public:
-			Setup( const uiString& 
-			       lbltxt=uiStrings::sEmptyString() )
+			Setup( const uiString&
+			       lbltxt=uiString::empty() )
 			    // lbltxt null or "" => "Line style"
 			    // lbltxt "-" => no label
 			    : txt_(lbltxt)

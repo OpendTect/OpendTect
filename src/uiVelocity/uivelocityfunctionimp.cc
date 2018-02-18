@@ -135,7 +135,7 @@ bool uiImportVelFunc::acceptOK()
 
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty() ? uiStrings::phrSelect(uiStrings::sOutput())
-				    : uiStrings::sEmptyString() )
+				    : uiString::empty() )
 
     RefMan<StoredFunctionSource> functions = new StoredFunctionSource;
     functions->setData( bidvalset, desc, true ); //set ZisT

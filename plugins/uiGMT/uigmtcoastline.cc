@@ -40,7 +40,7 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     : uiGMTOverlayGrp(p,tr("Coastline"))
 {
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this,
-	    			tr("UTM zone / CM") );
+				tr("UTM zone / CM") );
     utmfld_ = lsb->box();
     utmfld_->setHSzPol( uiObject::Medium );
     utmfld_->setInterval( 1, 60 );
@@ -53,7 +53,7 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     cmfld_->attach( rightTo, lsb );
     cmfld_->setSuffix( tr(" deg") );
     cmfld_->valueChanging.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
-    ewfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+    ewfld_ = new uiGenInput( this, uiString::empty(),
 				    BoolInpSpec(true,tr("East"),tr("West")) );
     ewfld_->attach( rightTo, cmfld_ );
     ewfld_->valuechanged.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );

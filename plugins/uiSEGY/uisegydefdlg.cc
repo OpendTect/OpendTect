@@ -336,7 +336,7 @@ void uiEditSEGYFileDataDlg::updateFileTable( int rowidx )
 	File::Path fp( seldir, newfnm );
 	if ( File::exists(fp.fullPath()) )
 	{
-	    filetable_->setCellToolTip( rc, uiStrings::sEmptyString() );
+	    filetable_->setCellToolTip( rc, uiString::empty() );
 	    filetable_->setCellColor( rc, Color::White() );
 	}
 	else

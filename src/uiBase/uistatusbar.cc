@@ -168,7 +168,7 @@ void uiStatusBar::setEmpty( int startat )
 {
     const int nrflds = nrFields();
     for ( int idx=startat; idx<nrflds; idx++ )
-	body_->message( uiStrings::sEmptyString(), idx, -1 );
+	body_->message( uiString::empty(), idx, -1 );
 }
 
 
@@ -211,7 +211,7 @@ int uiStatusBar::addMsgFld( const uiString& lbltxt, const uiString& tooltip,
 int uiStatusBar::addMsgFld( const uiString& tooltip, OD::Alignment al,
 			    int stretch )
 {
-    int idx = body_->addMsgFld( uiStrings::sEmptyString(), stretch );
+    int idx = body_->addMsgFld( uiString::empty(), stretch );
 
     setToolTip( idx, tooltip );
     setTxtAlign( idx, al );

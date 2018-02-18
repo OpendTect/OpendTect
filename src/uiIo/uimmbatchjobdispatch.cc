@@ -83,7 +83,7 @@ bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
 
 uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 						const HelpKey& helpkey )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,helpkey)
+    : uiDialog(p,uiDialog::Setup(uiString::empty(),mNoDlgTitle,helpkey)
 		.nrstatusflds(-1)
 		.fixedsize(true))
     , jobpars_(*new IOPar(iop))

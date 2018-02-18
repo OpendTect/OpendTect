@@ -176,7 +176,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     heightfld_->attach( rightTo, widthfld_ );
 
     const char* units[] = { "cm", "inches", 0 };
-    unitfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+    unitfld_ = new uiGenInput( this, uiString::empty(),
 						    StringListInpSpec(units) );
     unitfld_->setElemSzPol( uiObject::Small );
     unitfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,unitChg) );
@@ -467,7 +467,7 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
 uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     : uiSaveImageDlg(p,true,false)
 {
-    enableSaveButton( uiStrings::sEmptyString() );
+    enableSaveButton( uiString::empty() );
     screendpi_ = mCast(float,uiMain::getDPI());
     mDynamicCastGet(uiMainWin*,mw,p);
     aspectratio_ = 1.0f;

@@ -191,7 +191,7 @@ bool acceptOK()
 	if ( !objfld_->commitInput() )
 	    mErrRet((objfld_->isEmpty() ? uiStrings::phrSelect(
 		    uiStrings::phrOutput(uiStrings::sSurface())) :
-		    uiStrings::sEmptyString()))
+		    uiString::empty()))
 	outmid = ctio_->ioobj_->key();
 	outemobj = EM::MGR().createObject( emobj->getTypeStr(),
 					   ctio_->ioobj_->name());

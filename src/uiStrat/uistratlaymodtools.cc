@@ -561,7 +561,7 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
     propnm##fld_ = lblbox##propnm->box(); \
     PropertyRefSelection subsel##propnm = proprefsel.subselect( prop );\
     if ( prop == PropertyRef::Volum ) \
-	propnm##fld_->addItem( uiStrings::sEmptyString() ); \
+	propnm##fld_->addItem( uiString::empty() ); \
     for ( int idx=0; idx<subsel##propnm.size(); idx++ )\
 	if ( subsel##propnm[idx] )\
 	    propnm##fld_->addItem( toUiString(subsel##propnm[idx]->name()) );\

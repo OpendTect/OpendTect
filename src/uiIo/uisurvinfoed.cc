@@ -300,7 +300,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
     IntInpIntervalSpec iis( true );
     iis.setLimits( startstoprg, -1 ).setLimits( steprg, 2 );
     iis.setName("Inl Start",0).setName("Inl Stop",1).setName("Inl step",2);
-    uiLabel* emptyspace = new uiLabel( rangegrp_, uiStrings::sEmptyString() );
+    uiLabel* emptyspace = new uiLabel( rangegrp_, uiString::empty() );
     inlfld_ = new uiGenInput( rangegrp_,
 			      uiStrings::phrInline(uiStrings::sRange()), iis );
     inlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
@@ -352,7 +352,7 @@ void uiSurveyInfoEditor::mkCoordGrp()
 
     crdgrp_ = new uiGroup( tabs_->tabGroup(), "Survey Grid (Easy)" );
     PositionInpSpec::Setup psetup;
-    uiLabel* emptyspace = new uiLabel( crdgrp_, uiStrings::sEmptyString() );
+    uiLabel* emptyspace = new uiLabel( crdgrp_, uiString::empty() );
 
     ic0fld_ = new uiGenInput( crdgrp_, tr("First In-line/Cross-line"),
 		     PositionInpSpec(psetup).setName("Inl Position1",0)
@@ -406,7 +406,7 @@ void uiSurveyInfoEditor::mkTransfGrp()
 	mAttachCB( fld->valuechanged, uiSurveyInfoEditor::transformChg );
 
     trgrp_ = new uiGroup( tabs_->tabGroup(), "Survey Grid (Advanced)" );
-    uiLabel* emptyspace = new uiLabel( trgrp_, uiStrings::sEmptyString() );
+    uiLabel* emptyspace = new uiLabel( trgrp_, uiString::empty() );
 
     x0fld_ = new uiGenInput( trgrp_, tr( "X = " ),
 					       DoubleInpSpec().setName( "X" ) );
@@ -456,7 +456,7 @@ void uiSurveyInfoEditor::mkTransfGrp()
 void uiSurveyInfoEditor::mkLatLongGrp()
 {
     latlonggrp_ = new uiGroup( tabs_->tabGroup(), sKey::CoordSys() );
-    uiLabel* emptyspace = new uiLabel( latlonggrp_, uiStrings::sEmptyString() );
+    uiLabel* emptyspace = new uiLabel( latlonggrp_, uiString::empty() );
     latlongsel_ = new Coords::uiCoordSystemSelGrp( latlonggrp_, true, false,
 						&si_, si_.getCoordSystem() );
     latlongsel_->attach( alignedBelow, emptyspace );

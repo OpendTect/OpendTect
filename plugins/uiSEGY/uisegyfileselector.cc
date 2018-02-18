@@ -194,14 +194,12 @@ bool uiSEGYFileSelector::rejectOK()
 
 void uiSEGYFileSelector::vntChgCB( CallBacker* )
 {
-    BufferStringSet vintnms;
     if ( editmode_ )
 	return;
 
     Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
-    vintnms.add( uiStrings::sEmptyString().getOriginalString() );
-    if ( !vintagefld_->isPresent(uiStrings::sEmptyString().getOriginalString()) )
-	    vintagefld_->addItem( uiStrings::sEmptyString() );
+    if ( !vintagefld_->isPresent(uiString::empty()) )
+	    vintagefld_->addItem( uiString::empty() );
     for ( int pidx=0; pidx<parset.size(); pidx++ )
     {
 	if ( !vintagefld_->isPresent(parset[pidx]->name()) )

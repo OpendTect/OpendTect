@@ -790,7 +790,7 @@ bool uiMPEPartServer::initSetupDlg( EM::Object*& emobj,
     }
 
     uiDialog* setupdlg = new uiDialog( 0,
-		uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
+		uiDialog::Setup(uiString::empty(),mNoDlgTitle,
 				mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
     setupdlg->showAlwaysOnTop();

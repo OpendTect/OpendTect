@@ -131,7 +131,7 @@ bool uiSeisCopyCube::acceptOK()
     }
 
     Executor* exec = transffld_->getTrcProc( *inioobj, *outioobj, "",
-						uiStrings::sEmptyString() );
+						uiString::empty() );
     mDynamicCastGet(SeisSingleTraceProc*,stp,exec)
     SeisCubeCopier copier( stp, compnr );
     uiTaskRunner taskrunner( this );

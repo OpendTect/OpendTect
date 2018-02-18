@@ -534,7 +534,7 @@ bool uiStratSynthCrossplot::acceptOK()
     const Attrib::DescSet& seisattrs = seisattrfld_->descSet();
     const Strat::LaySeqAttribSet& seqattrs = layseqattrfld_->attribSet();
     if ( !evfld_->getFromScreen() )
-	mErrRet(uiStrings::sEmptyString())
+	mErrRet(uiString::empty())
 
     deepErase( extrgates_ );
     const Interval<float>& extrwin = evfld_->hasExtrWin()

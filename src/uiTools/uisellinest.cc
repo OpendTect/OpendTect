@@ -91,7 +91,7 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 	    widthbox_->attach( rightTo, stylesel_ );
 	else if ( !lbltxt.isEmpty() )
 	{
-	    new uiLabel( this, uiStrings::sEmptyString(), widthbox_ );
+	    new uiLabel( this, uiString::empty(), widthbox_ );
 	    alobj = widthbox_->attachObj();
 	}
 

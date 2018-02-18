@@ -475,7 +475,7 @@ void uiListBox::mkCheckGroup()
     checkgrp_ = new uiGroup( this, "CheckGroup" );
     checkgrp_->attach( alignedAbove, lb_ );
 
-    uiPushButton* pb = new uiPushButton( checkgrp_, uiStrings::sEmptyString(),
+    uiPushButton* pb = new uiPushButton( checkgrp_, uiString::emptyString(),
 					 mCB(this,uiListBox,menuCB), true );
     pb->setName( "Selection menu" );
     pb->setIcon( "menu-arrow" );
@@ -486,8 +486,8 @@ void uiListBox::mkCheckGroup()
 #else
     pb->setStyleSheet( ":pressed { border: 0; background: transparent }" );
 #endif
-    cb_ = new uiCheckBox( checkgrp_, uiStrings::sEmptyString(),
-						mCB(this,uiListBox,checkCB) );
+    cb_ = new uiCheckBox( checkgrp_, uiString::empty(),
+				     mCB(this,uiListBox,checkCB) );
     cb_->setName( "Check-all box" );
     cb_->setMaximumWidth( 20 );
     checkgrp_->display( isMultiChoice(), true );

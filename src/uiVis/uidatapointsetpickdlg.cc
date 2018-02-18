@@ -49,7 +49,7 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, int sceneid )
     setCtrlStyle( CloseOnly );
 
     tb_ = new uiToolBar( this, tr("ToolBar") );
-    pickbutid_ = tb_->addButton( "seedpickmode", uiStrings::sEmptyString(),
+    pickbutid_ = tb_->addButton( "seedpickmode", uiString::empty(),
 	mCB(this,uiDataPointSetPickDlg,pickModeCB), true );
     tb_->addButton( "open", tr("Open DataPointSet"),
 	mCB(this,uiDataPointSetPickDlg,openCB) );

@@ -100,7 +100,7 @@ void uiIssueReporterDlg::viewReport( const uiString& cap )
     getReport( report );
 
     uiDialog dlg( this, uiDialog::Setup(tr("View report"),
-				    uiStrings::sEmptyString(), mNoHelpKey ) );
+				    mNoDlgTitle, mNoHelpKey ) );
     uiLabel* label = cap.isEmpty()
 	? (uiLabel*) 0
 	: new uiLabel( &dlg, cap );
@@ -110,7 +110,7 @@ void uiIssueReporterDlg::viewReport( const uiString& cap )
 	browser->attach( alignedBelow, label );
 
     browser->setText( report.buf() );
-    dlg.setCancelText( uiStrings::sEmptyString() );
+    dlg.setCancelText( uiString::empty() );
 
     uiPushButton* copytoclipboard = new uiPushButton( &dlg,
 				  tr("Copy to Clipboard"), true );

@@ -132,21 +132,21 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	    lnm = lnmfld_->getInput();
 	    if ( lnm.isEmpty() )
 		mErrRet(uiStrings::phrSelect(tr("the line name")),
-						    uiStrings::sEmptyString())
+						    uiString::empty())
 	}
 
         if ( !outfld_->commitInput() )
 	{
 	    if ( !outfld_->isEmpty() )
-		mErrRet(uiStrings::sEmptyString(),uiStrings::sEmptyString())
+		mErrRet(uiString::empty(),uiString::empty())
 	    else if ( Seis::isPS( setup_.geom_ ) )
 		mErrRet(uiStrings::phrEnter(
 			tr("a name for the output data store scan")),
-			uiStrings::sEmptyString())
+			uiString::empty())
 	    else
 		mErrRet(uiStrings::phrEnter(
 			tr("a name for the output cube scan")),
-			uiStrings::sEmptyString())
+			uiString::empty())
 	}
 
 	pathnm = outfld_->ioobj(true)->mainFileName();

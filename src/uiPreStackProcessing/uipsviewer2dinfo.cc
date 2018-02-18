@@ -19,9 +19,9 @@ uiGatherDisplayInfoHeader::uiGatherDisplayInfoHeader( uiParent* p )
     : uiGroup( p, "Prestack gather Display Info Header" )
 {
     setStretch( 2, 2 );
-    datalbl_ = new uiLabel(this,uiStrings::sEmptyString());
+    datalbl_ = new uiLabel( this, uiString::empty() );
     datalbl_->setVSzPol( uiObject::Small );
-    poslbl_ = new uiLabel(this,uiStrings::sEmptyString());
+    poslbl_ = new uiLabel( this, uiString::empty() );
     poslbl_->setVSzPol( uiObject::Small );
 
     poslbl_->setPrefWidthInChar( 30 );

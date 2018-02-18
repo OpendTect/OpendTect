@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uicompoundparsel.h"
 #include "uiposfiltgroup.h"
+#include "uistrings.h"
 #include "iopar.h"
 class uiGenInput;
 class uiListBox;
@@ -34,7 +35,7 @@ public:
 	mDefSetupMemb(bool,incprovs)
     };
 
-    			uiPosFilterSet(uiParent*,const Setup&);
+			uiPosFilterSet(uiParent*,const Setup&);
 
     void		usePar(const IOPar&);
     bool		fillPar(IOPar&) const;
@@ -60,7 +61,7 @@ public:
 
     typedef uiPosFilterSet::Setup Setup;
 
-    			uiPosFilterSetSel(uiParent*,const Setup&);
+			uiPosFilterSetSel(uiParent*,const Setup&);
 
     void		usePar(const IOPar&);
     void		fillPar( IOPar& iop ) const	{ iop.merge(iop_); }

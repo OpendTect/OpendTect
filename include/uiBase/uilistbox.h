@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uigroup.h"
-#include "uistrings.h"
 #include "keyenum.h"
 #include "draw.h"
 
@@ -83,7 +82,7 @@ public:
     {
     public:
 			Setup(OD::ChoiceMode icm=OD::ChooseOnlyOne,
-			      const uiString& l=uiStrings::sEmptyString(),
+			      const uiString& l=uiString::empty(),
 			      uiListBox::LblPos lp=uiListBox::LeftTop)
 			    : lbl_(l)
 			    , cm_(icm)

@@ -235,8 +235,8 @@ void uiWellMan::setButToolTip( uiButton* but, const uiString& oper,
 
 void uiWellMan::setWellToolButtonProperties()
 {
-    const uiString curwellnm = curioobj_ ? curioobj_->uiName() :
-						      uiStrings::sEmptyString();
+    const uiString curwellnm = curioobj_ ? curioobj_->uiName()
+					 : uiString::empty();
     const uiString edvwstr = curiswritable_ ? uiStrings::sEdit() :
 							     uiStrings::sView();
 
@@ -275,28 +275,26 @@ void uiWellMan::setLogToolButtonProperties()
     logexpbut_->setSensitive( oneormorelog );
     loguombut_->setSensitive( curiswritable_ && nrlogs > 0 );
 
-    const uiString curwellnm = curioobj_ ? curioobj_->uiName() :
-						      uiStrings::sEmptyString();
+    const uiString curwellnm = curioobj_ ? curioobj_->uiName()
+					 : uiString::empty();
     const uiString curlognm = toUiString( logsfld_->getText() );
 
     mSetLogButToolTip( logupbut_, uiStrings::sMove(),
 						   uiStrings::sUp().toLower() );
     mSetLogButToolTip( logdownbut_, uiStrings::sMove(),
 						 uiStrings::sDown().toLower() );
-    mSetLogButToolTip( logrenamebut_, uiStrings::sRename(),
-						    uiStrings::sEmptyString() );
+    mSetLogButToolTip( logrenamebut_, uiStrings::sRename(), uiString::empty() );
     mSetLogButToolTip( loguombut_, tr("View/edit units of measure for "),
-						    uiStrings::sEmptyString() );
-    mSetLogButToolTip( logedbut_, uiStrings::sEdit(),
-						    uiStrings::sEmptyString() );
+						    uiString::empty() );
+    mSetLogButToolTip( logedbut_, uiStrings::sEdit(), uiString::empty() );
 
     setButToolTip(logrmbut_, uiStrings::sRemove(),
 		  toUiString(lognms.getDispString(3)), curwellnm,
-		  uiStrings::sEmptyString());
+		  uiString::empty());
     setButToolTip(logexpbut_, uiStrings::sExport(),
 		  toUiString(lognms.getDispString(3)),
-		  nrchosenwells==1 ? curwellnm : uiStrings::sEmptyString(),
-		  uiStrings::sEmptyString() );
+		  nrchosenwells==1 ? curwellnm : uiString::empty(),
+		  uiString::empty() );
 
     const int nrlogs2vw = nrchosenwells * nrchosenlogs ;
     const bool canview = nrlogs2vw == 1 || nrlogs2vw == 2;

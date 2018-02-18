@@ -159,7 +159,7 @@ uiString getCaptn( const uiString& s )
 	return s;
 
     uiString oldcaptn = gtCaptn();
-    gtCaptn() = uiStrings::sEmptyString();
+    gtCaptn() = uiString::empty();
 
     return oldcaptn;
 }
@@ -517,7 +517,7 @@ int uiMsg::ask2D3D( const uiString& text, bool wcancel )
     uiString yestxt = uiStrings::s2D();
     uiString notxt = uiStrings::s3D();
     uiString cncltxt =
-	wcancel ? uiStrings::sCancel() : uiStrings::sEmptyString();
+	wcancel ? uiStrings::sCancel() : uiString::empty();
     PtrMan<QMessageBox> mb = createMessageBox( Question, popParnt(), text,
 	yestxt, notxt, cncltxt, wintitle, 0 );
     mb->button(QMessageBox::Yes  )->setIcon( QIcon() );
@@ -615,7 +615,7 @@ int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 	? uiStrings::sCancel()
 	: cnclmsginp;
     return showMessageBox( Warning, popParnt(), text, yestxt, notxt, cncltxt,
-			   uiStrings::sEmptyString(), notagain );
+			   uiString::empty(), notagain );
 }
 
 

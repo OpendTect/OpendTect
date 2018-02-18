@@ -76,7 +76,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , displaymnuitem_(uiStrings::sDisplay(),cDisplayIdx)
     , duplicatemnuitem_(tr("Duplicate"),cDuplicateIdx)
     , histogrammnuitem_(m3Dots(uiStrings::sHistogram()),cHistogramIdx)
-    , lockmnuitem_(uiStrings::sEmptyString(),cLockIdx)
+    , lockmnuitem_(uiString::empty(),cLockIdx)
     , hidemnuitem_(uiStrings::sHide(),cHideIdx )
     , removemnuitem_(tr("Remove from Tree"),cRemoveIdx)
 {

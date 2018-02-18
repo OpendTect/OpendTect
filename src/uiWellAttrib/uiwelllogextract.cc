@@ -264,7 +264,7 @@ bool uiWellLogExtractGrp::extractDPS()
 
     ObjectSet<DataPointSet> dpss;
     if ( !extractWellData(ioobjids,lognms,dpss) )
-	mErrRet(uiStrings::sEmptyString())
+	mErrRet(uiString::empty())
 
     PtrMan<Pos::Filter> filt = 0;
     if ( posfiltfld_ )

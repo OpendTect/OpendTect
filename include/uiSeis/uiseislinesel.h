@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uicompoundparsel.h"
 #include "uidialog.h"
-#include "uistring.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "dbkey.h"
@@ -150,7 +149,7 @@ mExpClass(uiSeis) uiSeis2DMultiLineSel : public uiSeis2DLineSel
 { mODTextTranslationClass(uiSeis2DMultiLineSel);
 public:
 			uiSeis2DMultiLineSel(uiParent*,
-				 const uiString& text=uiStrings::sEmptyString(),
+				 const uiString& text=uiString::empty(),
 				 bool withz=false,bool withstep=false);
 			~uiSeis2DMultiLineSel();
 

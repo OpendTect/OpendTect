@@ -304,8 +304,7 @@ public:
 uiRenameDlg( uiParent* p, const char* nm )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrRename(
 				 tr("Selection Group Set")),
-                                 uiStrings::sEmptyString(),
-				 mNoHelpKey) )
+                                 uiString::empty(), mNoHelpKey) )
 {
     namefld_ = new uiGenInput( this, tr("Selection Group Set Name") );
     namefld_->setText( nm );
@@ -496,7 +495,7 @@ public:
 uiSGSelDlg( uiParent* p, bool forread )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(uiStrings::phrCrossPlot(
 	uiStrings::phrJoinStrings(uiStrings::sSelection(), tr("Groups")))),
-        uiStrings::sEmptyString(), mNoHelpKey))
+        uiString::empty(), mNoHelpKey))
     , forread_(forread)
 {
     selgrp_ = new uiSGSelGrp( this, forread );

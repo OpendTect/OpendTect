@@ -203,7 +203,7 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
         errmsg.set( "Cannot open " ).add( ioobj->fullUserExpr(false) );
     else
 	errmsg = mFromUiStringTodo(tr->write( pf, *conn ));
-    
+
     if ( !errmsg.isEmpty() )
     {
 	if ( conn )
@@ -236,19 +236,19 @@ bool ODMadProcFlowTranslator::retrieve( ODMad::ProcFlow& pf, const IOObj* ioobj,
 bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
 				     const IOObj* ioobj, uiString& errmsg )
 {
-    if ( !ioobj ) { errmsg = uiStrings::phrCannotSave(tr("flow in data base")); 
+    if ( !ioobj ) { errmsg = uiStrings::phrCannotSave(tr("flow in data base"));
 								return false; }
     mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> trltr,
 		 ioobj->createTranslator());
-    if ( !trltr ) { errmsg = tr("Selected object is not a Processing flow"); 
+    if ( !trltr ) { errmsg = tr("Selected object is not a Processing flow");
 								return false;}
 
     errmsg = uiString::emptyString();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-    { 
+    {
 	errmsg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(
-								    false))); 
+								    false)));
     }
     else
 	errmsg = trltr->write( pf, *conn );
@@ -257,7 +257,7 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
 }
 
 
-const uiString dgbODMadProcFlowTranslator::read( 
+const uiString dgbODMadProcFlowTranslator::read(
 					    ODMad::ProcFlow& pf, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
@@ -293,6 +293,6 @@ const uiString dgbODMadProcFlowTranslator::write( const ODMad::ProcFlow& pf,
     IOPar par;
     pf.fillPar( par );
     par.putTo( astrm );
-    return astrm.isOK() ? uiStrings::sEmptyString() : 
+    return astrm.isOK() ? uiString::empty() :
 			  tr("Error during write to Processing flow file");
 }

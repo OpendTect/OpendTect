@@ -25,7 +25,7 @@ namespace PreStack
 {
 
 uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
-    : uiBatchProcDlg(p,uiStrings::sEmptyString(),false,
+    : uiBatchProcDlg(p,uiString::empty(),false,
 		     Batch::JobSpec::PreStack)
     , is2d_(is2d)
 {

@@ -554,7 +554,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     wvltdraw_->activeWvltChged.notify( mCB(this,WellTie::uiInfoDlg,
 				       wvltChanged) );
     wvltdraw_->setActiveWavelet( true );
-    wvltscaler_ = new uiLabel( wvltgrp, uiStrings::sEmptyString() );
+    wvltscaler_ = new uiLabel( wvltgrp, uiString::empty() );
     wvltscaler_->attach( leftAlignedBelow, wvltdraw_ );
     const int initwvltsz = data_.initwvlt_->size() - 1;
     const int maxwvltsz = mNINT32( server_.data().getTraceRange().width() *

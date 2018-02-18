@@ -299,7 +299,7 @@ uiSeparator* uiSeisIOSimple::mkDataManipFlds()
 	subselfld_->attachObj()->attach( alignedBelow, seisfld_ );
     }
 
-    scalefld_ = new uiScaler( this, uiStrings::sEmptyString(), true );
+    scalefld_ = new uiScaler( this, uiString::empty(), true );
     scalefld_->attach( alignedBelow, isimp_ ? sdfld_->attachObj()
 					   : subselfld_->attachObj() );
     if ( isimp_ ) scalefld_->attach( ensureBelow, sep );

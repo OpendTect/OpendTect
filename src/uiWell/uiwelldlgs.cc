@@ -1782,7 +1782,7 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 
 	    PropertyRef::StdType ptyp = PropertyRef::Other;
 	    if ( uom ) ptyp = uom->propType();
-	    uiUnitSel::Setup ussu( ptyp, uiStrings::sEmptyString() );
+	    uiUnitSel::Setup ussu( ptyp, uiString::empty() );
 	    ussu.selproptype( true );
 	    uiUnitSel* unfld = new uiUnitSel( 0, ussu );
 	    unfld->setUnit( uom );

@@ -138,7 +138,7 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     uiStringSet cmds;
     cmds += toUiString("ssh");
     cmds += toUiString("rsh");
-    cmds += uiStrings::sEmptyString();
+    cmds += uiString::empty();
     uiGenInput* remoteshellfld = new uiGenInput( &dlg,
 				tr("Remote shell command"),
 				BoolInpSpec(true,cmds[0],cmds[1]) );

@@ -81,8 +81,8 @@ class uiFreqTaperSelLineDlg : public uiDialog
 public:
 
 uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
-	: uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(tr("line from Data"))
-	, uiStrings::sEmptyString(),mNoHelpKey))
+	: uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(tr("line from Data")),
+		    mNoDlgTitle,mNoHelpKey))
 	, linesfld_(0)
 	, objinfo_(objinfo)
 {
@@ -141,11 +141,11 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
     }
     else
 	objinfo.getRanges( *tkzs_ );
-    
+
     ZDomain::Info info( ZDomain::SI() );
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD
 			       : (lineposdlg.isInl() ? uiSliceSel::Inl
-				       		     : uiSliceSel::Crl);
+						     : uiSliceSel::Crl);
     CallBack dummycb;
     deleteAndZeroPtr( posdlg_ );
     posdlg_ = new uiSliceSelDlg( this, *tkzs_, *tkzs_, dummycb, tp, info );
@@ -232,8 +232,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     setSlopeFromFreq();
 
     const uiString tapertxt = tr("Slope (dB/Octave)");
-    varinpfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
-							       FloatInpSpec() );
+    varinpfld_ = new uiGenInput( this, uiString::empty(), FloatInpSpec() );
     varinpfld_->setTitleText ( tapertxt );
     varinpfld_->setValue( td1_.paramval_ );
     varinpfld_->valuechanged.notify(mCB( this, uiFreqTaperGrp, slopeChanged ));

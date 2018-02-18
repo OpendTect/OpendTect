@@ -45,11 +45,11 @@ void uiScaleBarItem::initDefaultScale()
 
     const OD::Alignment cenbot = OD::Alignment( OD::Alignment::HCenter,
 						OD::Alignment::Bottom );
-    startnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot );
+    startnr_ = new uiAdvancedTextItem( uiString::empty(), cenbot );
     addChild( startnr_ );
-    midnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot );
+    midnr_ = new uiAdvancedTextItem( uiString::empty(), cenbot );
     addChild( midnr_ );
-    stopnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot );
+    stopnr_ = new uiAdvancedTextItem( uiString::empty(), cenbot );
     addChild( stopnr_ );
 
     // filling with color

@@ -80,7 +80,7 @@ public:
     static const char*		varzlinekey();
 
     virtual const uiString	errMsg() const
-				{ return uiStrings::sEmptyString(); }
+				{ return uiString::empty(); }
 
 protected:
 				~Output();

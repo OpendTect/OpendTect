@@ -179,7 +179,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	uiString txt =  tr("%1 %2")
 			.arg(nrgrps==2?uiStrings::sBoth():uiStrings::sAll())
 			.arg(!grpstr.isEmpty() ? tr("%1").arg(grpstr)
-					      : uiStrings::sEmptyString());
+					       : uiString::empty());
 
 	grpfld_->addItem( txt );
 	TypeSet<Color> ctseqs;
@@ -343,8 +343,7 @@ public:
 uiSelColorDlg( uiParent* p, const BufferStringSet& names,
 	       TypeSet<Color>& y1cols, TypeSet<Color>& y2cols, bool isy2shwn )
     : uiDialog( p, uiDialog::Setup(uiStrings::phrSelect(tr("Color for Y1 & Y2"))
-				   ,uiStrings::sEmptyString(),
-                                   mODHelpKey(mSelColorDlgHelpID) ) )
+			   ,uiString::empty(),mODHelpKey(mSelColorDlgHelpID) ) )
     , names_( names )
     , y1cols_( y1cols )
     , y2cols_( y2cols )

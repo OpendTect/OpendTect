@@ -39,7 +39,7 @@ public:
     static void			setButToolTip(uiButton* but,
 				const uiString& oper,const uiString& objtyp,
 				const uiString& obj,
-				const uiString& end=uiStrings::sEmptyString());
+				const uiString& end=uiString::empty());
 
 protected:
 

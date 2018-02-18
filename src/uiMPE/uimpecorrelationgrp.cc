@@ -66,7 +66,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     corrthresholdfld_->box()->valueChanging.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
-    uiString nostr = uiStrings::sEmptyString();
+    uiString nostr = uiString::empty();
     snapfld_ = new uiGenInput( leftgrp, nostr,
 			BoolInpSpec(true,tr("Snap to Event"),nostr) );
     snapfld_->valuechanged.notify(

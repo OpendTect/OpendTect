@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uidatarootsel.h"
 #include "uilistbox.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "uimsg.h"
 
 #include "file.h"

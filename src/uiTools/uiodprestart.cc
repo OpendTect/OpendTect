@@ -136,7 +136,7 @@ void checkCB( CallBacker* )
 
 
 uiODPreStart::uiODPreStart( uiParent* p )
-    : uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,
+    : uiDialog(p,Setup(uiString::empty(),mNoDlgTitle,
 			mODHelpKey(mPluginSelHelpID) )
 		    .savebutton(true)
 		    .savetext(tr("Show this dialog at startup")))

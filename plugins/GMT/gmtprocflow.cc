@@ -119,7 +119,7 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
     if ( !trans ) { str = tr("Selected object is not a GMT flow");
 								return false;}
 
-    str = uiStrings::sEmptyString();
+    str = uiString::empty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
         { str = uiStrings::phrCannotOpen(
@@ -131,7 +131,7 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
 }
 
 
-const uiString dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf, 
+const uiString dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf,
 								    Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
@@ -165,6 +165,6 @@ const uiString dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
 	return uiStrings::phrCannotWrite(tr("to output GMT flow file"));
 
     pf.pars().putTo( astrm );
-    return astrm.isOK() ? uiString::emptyString() : 
+    return astrm.isOK() ? uiString::emptyString() :
 			  tr("Error during write to GMT flow file");
 }

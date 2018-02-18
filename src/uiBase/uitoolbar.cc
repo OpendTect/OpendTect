@@ -77,7 +77,7 @@ uiToolBar::~uiToolBar()
 int uiToolBar::addButton( const char* fnm, const uiString& tt,
 			  const CallBack& cb, bool toggle, int id )
 {
-    uiAction* action = new uiAction( uiStrings::sEmptyString(), cb, fnm );
+    uiAction* action = new uiAction( uiString::empty(), cb, fnm );
     action->setToolTip( tt );
     action->setCheckable( toggle );
     return insertAction( action, id );

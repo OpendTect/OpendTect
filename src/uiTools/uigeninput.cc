@@ -746,7 +746,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     : uiGroup(p,mFromUiStringTodo(disptxt)) \
     , finalised_(false) \
     , idxes_(*new TypeSet<uiGenInputFieldIdx>) \
-    , selText_(uiStrings::sEmptyString()), withchk_(false) \
+    , selText_(uiString::empty()), withchk_(false) \
     , labl_(0), titletext_(disptxt), cbox_(0), selbut_(0) \
     , valuechanging(this), valuechanged(this) \
     , checked(this), updateRequested(this) \
@@ -1271,7 +1271,7 @@ void uiGenInput::doClear( CallBacker* )
 
 
 void uiGenInput::setWithSelect( bool yn )
-{ selText_ = yn ? uiStrings::sSelect() : uiStrings::sEmptyString() ; }
+{ selText_ = yn ? uiStrings::sSelect() : uiString::empty() ; }
 
 
 void uiGenInput::setNrDecimals( int nrdec, int fldnr )

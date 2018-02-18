@@ -58,7 +58,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 
     if ( maxholesz )
     {
-	maxholeszfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+	maxholeszfld_ = new uiGenInput( this, uiString::empty(),
 					FloatInpSpec() );
 	maxholeszfld_->setWithCheck( true );
 	if ( prevfld )
@@ -145,7 +145,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     }
 
     selChangeCB( 0 );
-    setDistanceUnit( uiStrings::sEmptyString() );
+    setDistanceUnit( uiString::empty() );
 }
 
 
@@ -317,8 +317,7 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     , cornersfirst_(false)
     , stepsz_(1)
 {
-    radiusfld_ = new  uiGenInput( this, uiStrings::sEmptyString(),
-				  FloatInpSpec() );
+    radiusfld_ = new  uiGenInput( this, uiString::empty(), FloatInpSpec() );
     radiusfld_->setWithCheck( true );
     radiusfld_->setChecked( false );
 
@@ -328,7 +327,7 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     parbut_->attach( rightOf, radiusfld_ );
 
     setHAlignObj( radiusfld_ );
-    setDistanceUnit( uiStrings::sEmptyString() );
+    setDistanceUnit( uiString::empty() );
 }
 
 
@@ -378,13 +377,12 @@ uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
     useneighborfld_->activated.notify(
 	    mCB(this,uiTriangulationArray2DInterpol,intCB) );
 
-    maxdistfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
-				  FloatInpSpec() );
+    maxdistfld_ = new uiGenInput( this, uiString::empty(), FloatInpSpec() );
     maxdistfld_->setWithCheck( true );
     maxdistfld_->attach( alignedBelow, useneighborfld_ );
 
     setHAlignObj( useneighborfld_ );
-    setDistanceUnit( uiStrings::sEmptyString() );
+    setDistanceUnit( uiString::empty() );
     intCB( 0 );
 }
 

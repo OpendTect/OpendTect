@@ -65,7 +65,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 	    extrwinfld_->checked.notify( mCB(this,uiStratSeisEvent,extrWinCB) );
 	    extrwinfld_->setChecked( true );
 
-	    usestepfld_ = new uiCheckBox( this, uiStrings::sEmptyString() );
+	    usestepfld_ = new uiCheckBox( this, uiString::empty() );
 	    usestepfld_->setChecked();
 	    usestepfld_->activated.notify(
 					 mCB(this,uiStratSeisEvent,stepSelCB) );

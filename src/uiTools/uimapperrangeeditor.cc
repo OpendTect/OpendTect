@@ -165,7 +165,7 @@ void uiMapperRangeEditor::init()
     rightcoltab_->setZValue( zval );
 
     minvaltext_ = scene.addItem(
-	new uiTextItem(uiStrings::sEmptyString(),OD::Alignment::Right) );
+	new uiTextItem(uiString::empty(),OD::Alignment::Right) );
     maxvaltext_ = scene.addItem( new uiTextItem() );
 
     uiManipHandleItem::Setup mhisu;

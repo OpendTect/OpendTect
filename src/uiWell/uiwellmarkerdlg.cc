@@ -257,7 +257,7 @@ bool uiMarkerDlg::getFromScreen()
 void uiMarkerDlg::markerAddedCB( CallBacker* )
 {
     uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true,
-						    uiStrings::sEmptyString() );
+						    uiString::empty() );
     levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
     const int currentrow = table_->currentRow();
     const Color defgreycol( 128, 128, 128 );
@@ -387,7 +387,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	mDynamicCastGet(uiStratLevelSel*,levelsel,grp);
 	if ( !levelsel )
 	{
-	    levelsel = new uiStratLevelSel(0, true, uiStrings::sEmptyString());
+	    levelsel = new uiStratLevelSel(0, true, uiString::empty());
 	    levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
 	    table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
 	}
@@ -779,7 +779,7 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
 	if ( !marker.isUdf() )
 	    table_->setValue( rcin, getOldMarkerVal(marker) );
 	else
-	    table_->setText(rcin, uiStrings::sEmptyString());
+	    table_->setText(rcin, uiString::empty());
 
 	return false;
     }

@@ -71,7 +71,7 @@ DataPack::ID Random::createAttrib( const CubeSampling& tkzs,
     RegularSeisDataPack* regsdp = new RegularSeisDataPack(
 	    VolumeDataPack::categoryStr(tkzs.isFlat() && tkzs.nrZ()!=1,false) );
     regsdp->setSampling( tkzs );
-    regsdp->addComponent( uiStrings::sEmptyString() );
+    regsdp->addComponent( uiString::empty() );
 
     for ( int lineidx=0; lineidx<tkzs.nrLines(); lineidx++ )
     {

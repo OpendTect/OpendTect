@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "uistrings.h"
 #include "propertyref.h"
 
 class uiComboBox;
@@ -45,7 +44,7 @@ public:
 
 				Setup( PropertyRef::StdType st,
 				       const uiString labeltxt=
-				       uiStrings::sEmptyString() )
+				       uiString::empty() )
 				    : ptype_(st)
 				    , lbltxt_(labeltxt)
 				    , mode_(Full)

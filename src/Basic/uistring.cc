@@ -965,7 +965,7 @@ uiString& uiStringSet::get( IdxType idx )
 
 const uiString& uiStringSet::get( IdxType idx ) const
 {
-    return strs_.validIdx(idx) ? *strs_[idx] : uiString::emptyString();
+    return strs_.validIdx(idx) ? *strs_[idx] : uiString::empty();
 }
 
 
@@ -1052,7 +1052,7 @@ uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
     const uiStringSet usestrs( getNonEmpty() );
     const size_type sz = usestrs.size();
     if ( sz < 1 )
-	return uiString::emptyString();
+	return uiString::empty();
 
     uiString result( usestrs[0] );
     if ( sz < 2 || maxnr == 1 )
@@ -1163,7 +1163,7 @@ uiStringSet::IdxType* uiStringSet::getSortIndexes( bool caseinsens,
 }
 
 
-static const UserNameString emptyusrnmstring( uiString::emptyString() );
+static const UserNameString emptyusrnmstring( uiString::empty() );
 const UserNameString& UserNameString::empty() { return emptyusrnmstring; }
 
 UserNameString& UserNameString::join( const uiString& s, bool before )
@@ -1217,7 +1217,7 @@ uiRetVal& uiRetVal::operator =( const uiPhraseSet& strs )
 uiRetVal::operator uiPhrase() const
 {
     Threads::Locker locker( lock_ );
-    return msgs_.isEmpty() ? uiPhrase::emptyString() : msgs_.cat();
+    return msgs_.isEmpty() ? uiPhrase::empty() : msgs_.cat();
 }
 
 

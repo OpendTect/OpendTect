@@ -183,7 +183,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     nrtrcsfld_->valuechanging.notify(
 		mCB(this,uiEventGroup,visibleDataChangeCB) );
 
-    datalabel_ = new uiLabel( leftgrp, uiStrings::sEmptyString() );
+    datalabel_ = new uiLabel( leftgrp, uiString::empty() );
     datalabel_->setStretch( 2, 1 );
     datalabel_->attach( leftAlignedBelow, nrzfld_ );
     datalabel_->attach( ensureBelow, nrtrcsfld_ );

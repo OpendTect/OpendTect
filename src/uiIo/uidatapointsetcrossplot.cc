@@ -1378,7 +1378,7 @@ void uiDataPointSetCrossPlotter::setAnnotEndTxt( uiAxisHandler& yah )
 	yah.annotAtEnd( toUiString(txt) );
     }
     else
-	yah.annotAtEnd( uiStrings::sEmptyString() );
+	yah.annotAtEnd( uiString::empty() );
 }
 
 

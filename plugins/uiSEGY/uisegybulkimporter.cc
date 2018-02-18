@@ -239,8 +239,6 @@ bool uiSEGYMultiVintageImporter::acceptOK()
     FullSpec fullspec( gt, false);
     fullspec.usePar( *iop );
 
-    uiSEGYReadFinisher dlg( this, fullspec,
-			    uiStrings::sEmptyString().getOriginalString(),
-			    true, false, &vntinfos_ );
+    uiSEGYReadFinisher dlg( this, fullspec, "", true, false, &vntinfos_ );
     return dlg.go();
 }

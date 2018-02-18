@@ -45,7 +45,7 @@ static uiStringSet zoptions()
     uistrset.add(uiStrings::sInputFile());
     uistrset.add(od_static_tr("zoptions","Constant Z")),
     uistrset.add(uiStrings::sHorizon());
-    uistrset.add(uiStrings::sEmptyString());
+    uistrset.add(uiString::empty());
     return uistrset;
 };
 

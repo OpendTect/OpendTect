@@ -248,7 +248,7 @@ void uiStratDisplay::mouseMoveCB( CallBacker* )
     const Interval<float> agerg = rangefld_->getFInterval();
     const float age = getPos().y_;
     uiString agetxt = agerg.includes(age,false) ? tr("Age: %1 My").arg( age, 3 )
-						: uiStrings::sEmptyString();
+						: uiString::empty();
     mainwin()->toStatusBar( agetxt, 0 );
 }
 

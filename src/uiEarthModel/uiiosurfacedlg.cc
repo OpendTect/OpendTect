@@ -241,7 +241,7 @@ bool uiCopySurface::acceptOK()
     if ( !inpfld->processInput() ) return false;
     if ( !outfld->commitInput() )
 	mErrRet( (outfld->isEmpty() ? uiStrings::phrSelect(uiStrings::phrOutput
-		 (uiStrings::sSurface())) : uiStrings::sEmptyString()) )
+		 (uiStrings::sSurface())) : uiString::empty()) )
 
     const IOObj* ioobj = inpfld->selIOObj();
     if ( !ioobj ) mErrRet(uiStrings::phrCannotFind(uiStrings::sSurface()))

@@ -40,7 +40,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     choices += tr("Discard");
     choices += tr("Pass");
     choices += uiStrings::sAdd();
-    choices += uiStrings::sEmptyString();
+    choices += uiString::empty();
     if ( !setup_.is2d_ && !setup_.isps_ && setup_.withnullfill_ )
 	remnullfld = new uiGenInput( this, tr("Null traces"),
 				     StringListInpSpec(choices) );
@@ -49,7 +49,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
 				     BoolInpSpec(true,choices[0],choices[1]) );
     remnullfld->attach( alignedBelow, selfld );
 
-    scalefld_ = new uiScaler( this, uiStrings::sEmptyString(), true );
+    scalefld_ = new uiScaler( this, uiString::empty(), true );
     scalefld_->attach( alignedBelow, remnullfld );
 
     if ( !setup_.fornewentry_ )

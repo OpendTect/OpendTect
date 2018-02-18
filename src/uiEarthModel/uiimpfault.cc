@@ -330,7 +330,7 @@ bool uiImportFault::checkInpFlds()
 
     if ( !outfld_->commitInput() )
 	mErrRet( (outfld_->isEmpty() ? uiStrings::phrSelect(
-		  uiStrings::sOutput()) : uiStrings::sEmptyString()) )
+		  uiStrings::sOutput()) : uiString::empty()) )
 
     if ( !dataselfld_->commit() )
 	return false;

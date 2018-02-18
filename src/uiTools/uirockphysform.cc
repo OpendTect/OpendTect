@@ -33,17 +33,17 @@ public:
 uiRockPhysConstantFld( uiParent* p )
     : uiGroup(p,"Rock Physics Constant Field")
 {
-    nmlbl_ = new uiLabel( this, uiStrings::sEmptyString() );
+    nmlbl_ = new uiLabel( this, uiString::empty() );
     nmlbl_->setPrefWidthInChar( 30 );
     nmlbl_->setAlignment( OD::Alignment::Right );
 
-    valfld_ = new uiGenInput( this, uiStrings::sEmptyString(), FloatInpSpec() );
+    valfld_ = new uiGenInput( this, uiString::empty(), FloatInpSpec() );
     valfld_->attach( rightOf, nmlbl_ );
 
     infofld_ = new uiOfferInfo( this, false );
     infofld_->attach( rightOf, valfld_ );
 
-    rangelbl_ = new uiLabel( this, uiStrings::sEmptyString() );
+    rangelbl_ = new uiLabel( this, uiString::empty() );
     rangelbl_->setPrefWidthInChar( 30 );
     rangelbl_->attach( rightOf, infofld_ );
 

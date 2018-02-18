@@ -292,7 +292,6 @@ public:
     static uiWord sEast(bool abbr)
     { return abbr ? tr("E","abbr East") : tr("East"); }
     static uiWord sEdit()		{ return tr("Edit"); }
-    static uiWord sEmptyString()	{ return uiWord::emptyString(); }
     static uiWord sEnabled()		{ return tr("Enabled"); }
     static uiWord sEnter();
     static uiWord sEnterValidName();

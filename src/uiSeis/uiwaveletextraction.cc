@@ -71,7 +71,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     }
     else
     {
-	linesel2dfld_ = new uiSeis2DMultiLineSel(this,uiStrings::sEmptyString(),
+	linesel2dfld_ = new uiSeis2DMultiLineSel(this,uiString::empty(),
 						 false,true);
 	linesel2dfld_->attach( alignedBelow, seisselfld_ );
 	linesel2dfld_->selectionChanged.notify(

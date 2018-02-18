@@ -98,8 +98,7 @@ uiSEGYImpType::uiSEGYImpType( uiParent* p, bool withvsp,
     , typeChanged(this)
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-					lbltxt ? *lbltxt
-					       : uiStrings::sEmptyString() );
+				    lbltxt ? *lbltxt : uiString::empty() );
     if (!lbltxt && defaultlbl )
 	lcb->label()->setText( tr("Data type") );
 

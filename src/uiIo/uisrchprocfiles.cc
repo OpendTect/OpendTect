@@ -60,7 +60,7 @@ const char* uiSrchProcFiles::fileName() const
 #define mRet(s) \
 { \
     if ( !s.isEmpty() ) uiMSG().error(s); \
-    toStatusBar(uiStrings::sEmptyString()); \
+    toStatusBar( uiString::empty() ); \
     return; \
 }
 
@@ -104,12 +104,12 @@ void uiSrchProcFiles::srchDir( CallBacker* )
 	sflsu.dlgtitle( tr("Pick one of the matches") );
 	uiSelectFromList dlg( this, sflsu );
 	if ( !dlg.go() || dlg.selection() < 0 )
-	    mRet(uiStrings::sEmptyString())
+	    mRet(uiString::empty())
 	sel = dlg.selection();
     }
 
     fnamefld->setText( fnms.get(sel) );
-    mRet(uiStrings::sEmptyString())
+    mRet(uiString::empty())
 }
 
 

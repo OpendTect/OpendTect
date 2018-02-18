@@ -193,7 +193,7 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 {
     if ( multiln_ )
     {
-	multilnmsel_ = new uiSeis2DMultiLineSel(this, uiStrings::sEmptyString(),
+	multilnmsel_ = new uiSeis2DMultiLineSel(this, uiString::empty(),
 						!ss.withoutz_, ss.withstep_ );
 	setHAlignObj( multilnmsel_ );
 	multilnmsel_->selectionChanged.notify(mCB(this,uiSeis2DSubSel,lineChg));

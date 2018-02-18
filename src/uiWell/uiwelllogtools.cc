@@ -249,7 +249,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
 				mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
     replacespikefld_->attach( alignedBelow, spbgt );
 
-    replacespikevalfld_ = new uiGenInput( actiongrp, uiStrings::sEmptyString(),
+    replacespikevalfld_ = new uiGenInput( actiongrp, uiString::empty(),
 							       FloatInpSpec() );
     replacespikevalfld_->attach( rightOf, replacespikefld_ );
     replacespikevalfld_->setValue( 0 );

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "notify.h"
 #include "rowcol.h"
+#include "uistring.h"
 
 class uiBody;
 mFDQtclass(QWidget)
@@ -106,4 +107,5 @@ public:
 				//!< will clear after all cmdrecs have called
 
     static bool			isInStopperList(const uiBaseObject* obj);
+
 };

@@ -292,7 +292,7 @@ class uiPDF1DViewWin : public uiDialog
 public:
 
 uiPDF1DViewWin( uiParent* p, const float* xvals, const float* yvals, int sz )
-    : uiDialog(p,uiDialog::Setup(tr("1D PDF Viewer"), uiStrings::sEmptyString(),
+    : uiDialog(p,uiDialog::Setup(tr("1D PDF Viewer"), uiString::empty(),
 				 mNoHelpKey).modal(false) )
 {
     setCtrlStyle( uiDialog::CloseOnly );
@@ -614,8 +614,7 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 	topgrp->setFrame( true );
 	var1fld_ = new uiComboBox( topgrp, "Var 1" );
 	var2fld_ = new uiComboBox( topgrp, "Var 2" );
-	ccfld_ = new uiGenInput( topgrp, uiStrings::sEmptyString(),
-							      FloatInpSpec(0));
+	ccfld_ = new uiGenInput( topgrp, uiString::empty(), FloatInpSpec(0));
 	var2fld_->attach( rightOf, var1fld_ );
 	ccfld_->attach( rightOf, var2fld_ );
 	const CallBack varselcb( mCB(this,uiEditGaussianProbDenFunc,varSel) );

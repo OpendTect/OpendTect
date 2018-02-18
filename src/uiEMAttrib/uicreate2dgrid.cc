@@ -500,10 +500,10 @@ uiGroup* uiCreate2DGrid::createPreviewGroup()
     previewmap_->attachGroup().setPrefWidth( 300 );
     previewmap_->attachGroup().setPrefHeight( 300 );
 
-    nrinlinesfld_ = new uiLabel( grp, uiStrings::sEmptyString() );
+    nrinlinesfld_ = new uiLabel( grp, uiString::empty() );
     nrinlinesfld_->setPrefWidthInChar( 40 );
     nrinlinesfld_->attach( centeredBelow, &previewmap_->attachGroup() );
-    nrcrlinesfld_ = new uiLabel( grp, uiStrings::sEmptyString() );
+    nrcrlinesfld_ = new uiLabel( grp, uiString::empty() );
     nrcrlinesfld_->setPrefWidthInChar( 40 );
     nrcrlinesfld_->attach( centeredBelow, nrinlinesfld_ );
     return grp;

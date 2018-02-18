@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uiofferinfo.h"
 #include "uitextedit.h"
+#include "uistrings.h"
 
 
 uiOfferInfoWin::uiOfferInfoWin( uiParent* p, const uiString& captn, int nrln )

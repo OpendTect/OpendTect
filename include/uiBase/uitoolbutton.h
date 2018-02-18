@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uibutton.h"
-#include "uistrings.h"
 
 class uiToolButtonBody;
 class uiToolButtonSetup;
@@ -77,7 +76,7 @@ mExpClass(uiBase) uiToolButtonSetup
 public:
 			uiToolButtonSetup( const char* ic, const uiString& tt,
 					   const CallBack& c , const uiString&
-					   nm = uiStrings::sEmptyString() )
+					   nm = uiString::empty() )
 			    : icid_(ic)
 			    , cb_(c)
 			    , tooltip_(tt)

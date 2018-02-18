@@ -33,7 +33,7 @@ uiScaler::uiScaler( uiParent* p, const uiString& txt, bool linonly )
     if ( !linonly )
     {
 	StringListInpSpec spec(scalestrs);
-	typefld = new uiGenInput( this, uiStrings::sEmptyString(), spec );
+	typefld = new uiGenInput( this, uiString::empty(), spec );
 	typefld->valuechanged.notify( mCB(this,uiScaler,typeSel) );
     }
 

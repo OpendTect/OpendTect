@@ -637,7 +637,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 		    if ( setup_.confirmoverwr_ && !uiMSG().askGoOn(
 				tr("'%1' already exists. Overwrite?")
 				.arg(getInput())) )
-			mErrRet(uiStrings::sEmptyString())
+			mErrRet(uiString::empty())
 		}
 	    }
 

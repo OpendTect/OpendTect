@@ -1026,7 +1026,7 @@ void uiSEGYReadStarter::updateSurvMap()
     delete survinfo_;
     survinfo_ = new SurveyInfo;
     survinfo_->setName( "No valid scan available" );
-    uiString stbarmsg = uiStrings::sEmptyString();
+    uiString stbarmsg = uiString::empty();
     if ( scaninfos_ && !scaninfos_->isEmpty() )
     {
 	Coord crd[3]; TrcKeyZSampling cs;

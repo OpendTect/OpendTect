@@ -104,7 +104,9 @@ public:
     bool	operator>(const uiString& b) const;
     bool	operator<(const uiString& b) const;
     int		size() const;
+    static const uiString& empty()		{ return emptystring_; }
     static const uiString& emptyString()	{ return emptystring_; }
+    static uiString& dummy()			{ return dummystring_; }
     static uiString& dummyString()		{ return dummystring_; }
     bool	isPlainAscii() const;
 

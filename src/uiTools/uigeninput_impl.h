@@ -101,10 +101,10 @@ class uiGenInputBoolFld : public UserInputObjImpl<bool>, public uiGroup
 public:
 
 			uiGenInputBoolFld(uiParent*,
-				    const uiString& truetext=uiStrings::
-								sEmptyString(),
-				    const uiString& falsetext=uiStrings::
-								sEmptyString(),
+				    const uiString& truetext=
+						uiString::empty(),
+				    const uiString& falsetext=
+						uiString::empty(),
 				    bool initval = true,
 				    const char* nm="Bool Input");
 

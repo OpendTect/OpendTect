@@ -469,7 +469,8 @@ void uiTreeView::setColumnText( int col, const uiString& label )
 
 uiString uiTreeView::getColumnText( int col ) const
 {
-    if ( !labels_.validIdx(col) ) return uiStrings::sEmptyString();
+    if ( !labels_.validIdx(col) )
+	return uiString::empty();
 
     return labels_[col];
 }

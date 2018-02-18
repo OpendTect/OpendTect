@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "uistrings.h"
 
 class Scaler;
 class uiGenInput;
@@ -24,7 +23,7 @@ mExpClass(uiTools) uiScaler : public uiGroup
 public:
 
 			uiScaler(uiParent*, const uiString &txt=
-				 uiStrings::sEmptyString(), // "Scale values"
+				 uiString::empty(), // "Scale values"
 				 bool linear_only=false);
 
     Scaler*		getScaler() const;

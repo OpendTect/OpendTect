@@ -921,11 +921,10 @@ bool acceptOK()
 
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
-	: uiTabStackDlg( p->parent(),
-			 uiDialog::Setup(uiStrings::sSettings(),
-			 uiStrings::sEmptyString(),
-                         mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
-			 .modal(false) )
+	: uiTabStackDlg( p->parent(), uiDialog::Setup(uiStrings::sSettings(),
+			     uiString::empty(),
+			     mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
+				 .modal(false) )
 	, plotter_(*p)
 	, bdroptab_(0)
 {

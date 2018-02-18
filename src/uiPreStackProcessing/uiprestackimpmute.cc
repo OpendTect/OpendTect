@@ -129,7 +129,7 @@ bool uiImportMute::acceptOK()
 
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty() ? uiStrings::phrSelect(uiStrings::sOutput())
-				    : uiStrings::sEmptyString() )
+				    : uiString::empty() )
 
    PtrMan<MuteDefTranslator> trans =
 	    (MuteDefTranslator*)ctio_.ioobj_->createTranslator();

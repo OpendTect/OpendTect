@@ -128,7 +128,7 @@ bool uiTaskRunner::execute( Task& t )
 
     task_ = &t; state_ = 1;
     prevtotalnr_ = prevnrdone_ = prevpercentage_ = -1;
-    prevmessage_ = uiStrings::sEmptyString();
+    prevmessage_ = uiString::empty();
     if ( statusBar() )
 	statusBar()->message( prevmessage_, 0 );
     prevnrdonetext_ = prevmessage_;

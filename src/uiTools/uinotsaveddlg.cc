@@ -42,7 +42,8 @@ public:
 		    tr("The following objects are not saved"), mNoHelpKey ) )
 	, prompter_( prompter )
     {
-	if ( !withcancel ) setCancelText( uiStrings::sEmptyString() );
+	if ( !withcancel )
+	    setCancelText( uiString::empty() );
 
 	const uiString txt( tr("%1 now").arg( actiontype ) );
 	setOkText( txt );

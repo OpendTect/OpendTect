@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uislider.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
+#include "uistrings.h"
 #include "mousecursor.h"
 
 #define mSldUnits 250
@@ -111,7 +112,7 @@ void uiObjectItemViewWin::insertItem( int idx,
 
 void uiObjectItemViewWin::makeSliders()
 {
-    uiLabel* dummylbl = new uiLabel( this, uiStrings::sEmptyString() );
+    uiLabel* dummylbl = new uiLabel( this, uiString::empty() );
     dummylbl->attach( rightOf, mainviewer_ );
     dummylbl->setStretch( 0, 2 );
     dummylbl->attach( ensureRightOf, infobar_ );

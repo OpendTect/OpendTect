@@ -713,7 +713,7 @@ uiSurfaceStratDlg( uiParent* p,  const DBKeySet& ids )
 	setColorCell( idx, col );
 
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true,
-						    uiStrings::sEmptyString() );
+						    uiString::empty() );
 	levelsel->selChange.notify( mCB(this,uiSurfaceStratDlg,lvlChg) );
 	tbl_->setCellGroup( RowCol(idx,2), levelsel );
 	Strat::Level::ID lvlid;

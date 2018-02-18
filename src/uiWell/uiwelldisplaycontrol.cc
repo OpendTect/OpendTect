@@ -248,9 +248,8 @@ void uiWellDisplayControl::setSelMarker( Well::Marker mrk )
     selmarker_ = mrk;
 
    if ( seldisp_ )
-	seldisp_->setToolTip( selmarker_.isUdf()
-				    ? uiStrings::sEmptyString()
-				    : toUiString(selmarker_.name() ) );
+	seldisp_->setToolTip( selmarker_.isUdf() ? uiString::empty()
+			    : toUiString(selmarker_.name() ) );
     if ( lastselmarker_ != mrk )
 	lastselmarker_ = mrk;
 }

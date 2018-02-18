@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uibaseobject.h"
 #include "uigeom.h"
 #include "uilayout.h"
-#include "uistring.h"
 #include "color.h"
 
 mFDQtclass(QString)

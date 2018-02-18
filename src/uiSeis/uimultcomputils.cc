@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
 	: uiDialog(p,uiDialog::Setup(tr("Multi-Attribute selection"),
-                                     uiStrings::sEmptyString(), mNoHelpKey) )
+                                     mNoDlgTitle, mNoHelpKey) )
 	, compfld_(0)
 {
     uiString instructions( tr("Workflow :-\n"

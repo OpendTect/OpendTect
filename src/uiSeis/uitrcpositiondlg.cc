@@ -90,7 +90,7 @@ void uiFlatDPPosSel::sldrPosChangedCB( CallBacker* )
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
     : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
-				    uiStrings::sEmptyString(),
+				    uiString::empty(),
                                     mODHelpKey(mTrcPositionDlgHelpID) )
 				    .modal(false) )
     , linesfld_( 0 )
@@ -141,7 +141,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				    bool is2d, const DBKey& mid )
     : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
-				   uiStrings::sEmptyString(),
+				   uiString::empty(),
                                    mODHelpKey(mTrcPositionDlgHelpID) )
 				   .modal(false) )
     , linesfld_( 0 )

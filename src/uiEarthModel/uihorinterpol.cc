@@ -311,7 +311,7 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
 
     polyfld_ =
 	new uiPickSetIOObjSel( this,
-				uiIOObjSel::Setup(uiStrings::sEmptyString()),
+				uiIOObjSel::Setup(uiString::empty()),
 				true, uiPickSetIOObjSel::PolygonOnly );
     polyfld_->attach( ensureRightOf, filltypefld_ );
     polyfld_->setHSzPol( uiObject::SmallVar );

@@ -62,8 +62,7 @@ public:
 uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 		  const DataPointSetDisplayProp* prevdispprop )
     : uiDialog(this,uiDialog::Setup(mJoinUiStrs(sDisplay(),sProperties()),
-				    uiStrings::sEmptyString(),
-                                    mNoHelpKey).modal(false))
+				    uiString::empty(),mNoHelpKey).modal(false))
     , plotter_(plotter)
 {
     BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
@@ -384,9 +383,9 @@ void uiDataPointSet::updColNames()
 	if ( tid == ycol_ ) axnm = toUiString("[%1]").arg(uiStrings::sY());
 	if ( tid == y2col_ ) axnm = toUiString("[%1]").arg(uiStrings::sY2());
 
-	uiString colnm = ( tid == sortcol_ ? toUiString("*") :
-						   uiStrings::sEmptyString() );;
-	if ( !axnm.isEmpty() ) colnm = axnm;
+	uiString colnm = tid == sortcol_ ? toUiString("*") : uiString::empty();
+	if ( !axnm.isEmpty() )
+	    colnm = axnm;
 
 	if ( tid == zcid )
 	    colnm = tr("%1 Z (%2)").arg(colnm).arg(zunitnm_);
@@ -708,7 +707,7 @@ class uiSelectPosDlg : public uiDialog
 public:
 uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
     : uiDialog( p, uiDialog::Setup(uiStrings::phrSelectPos(tr("for new row")),
-                                   uiStrings::sEmptyString(), mNoHelpKey) )
+                                   uiString::empty(), mNoHelpKey) )
     , grpfld_(0)
 {
     seltypefld_ = new uiGenInput( this, mJoinUiStrs(sPosition(), sType()),

@@ -242,10 +242,10 @@ void uiDirectionalPlot::drawScale()
 						     toUiString(nm),al) );
 	al.set( OD::Alignment::Left );
 	scalestartitm_ = scene().addItem( new uiTextItem(startpt,
-						uiStrings::sEmptyString(),al) );
+						uiString::empty(),al) );
 	al.set( OD::Alignment::Right );
 	scalestopitm_ = scene().addItem( new uiTextItem(endpt,
-						uiStrings::sEmptyString(),al) );
+						uiString::empty(),al) );
     }
     scalestartitm_->setPos( startpt );
     scaleannotitm_->setPos( midpt );

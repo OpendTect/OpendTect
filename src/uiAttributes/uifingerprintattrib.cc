@@ -682,7 +682,7 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
 	wgtflds_ += spinbox;
 	spinbox->setName( BufferString("Weight ",attrnm) );
 
-	minmaxflds_ += new uiGenInput( attrvalsgrp, uiStrings::sEmptyString(),
+	minmaxflds_ += new uiGenInput( attrvalsgrp, uiString::emptyString(),
 				       FloatInpIntervalSpec()
 				      .setName(BufferString("Min ",attrnm),0)
 				      .setName(BufferString("Max ",attrnm),1));
