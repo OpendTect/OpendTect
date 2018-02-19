@@ -120,7 +120,7 @@ void uiProbDenFuncMan::mkFileInfo()
 	    uiPhrase lbl = tr("Dimension %1 :").arg(idx+1);
 	    txt.appendPhrase(lbl);
 	    txt.appendPhrase( toUiString(pdf->dimName(idx)), uiString::Space,
-						    uiString::SeparatorOnly );
+						    uiString::OnSameLine );
 	}
     }
     setInfo( txt );

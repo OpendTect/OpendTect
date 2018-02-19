@@ -96,12 +96,12 @@ void uiPickSetMan::mkFileInfo()
 	txt = tr("Type:");
 	if ( ispoly )
 	    txt.appendPhrase( uiStrings::sPolygon(), uiString::Space,
-						    uiString::SeparatorOnly );
+						    uiString::OnSameLine );
 	else if ( !cat.isEmpty() )
 	    txt.appendPlainText( cat );
 	else
 	    txt.appendPhrase(uiStrings::sPickSet(), uiString::Space,
-						    uiString::SeparatorOnly );
+						    uiString::OnSameLine );
 
 	MonitorLock ml( *ps );
 	const int sz = ps->size();
@@ -127,13 +127,13 @@ void uiPickSetMan::mkFileInfo()
 
 	const Pick::Set::Disp disp = ps->getDisp();
 	Color col( disp.mkstyle_.color_ ); col.setTransparency( 0 );
-	txt.appendPhrase(uiStrings::sColor(), uiString::Empty)
+	txt.appendPhrase(uiStrings::sColor(), uiString::NoSep)
 	    .appendPlainText(": ").appendPlainText(col.largeUserInfoString());
-	txt.appendPhrase(tr("Marker size (pixels): %1"), uiString::Empty)
+	txt.appendPhrase(tr("Marker size (pixels): %1"), uiString::NoSep)
 						    .arg(disp.mkstyle_.size_);
 	txt.appendPhrase(tr("Marker type: %1")
 			.arg(OD::MarkerStyle3D::TypeDef()
-		 .getUiStringForIndex(disp.mkstyle_.type_)), uiString::Empty);
+		 .getUiStringForIndex(disp.mkstyle_.type_)), uiString::NoSep);
     }
 
     txt.addSpace().appendPhrase( mToUiStringTodo(getFileInfo()) );

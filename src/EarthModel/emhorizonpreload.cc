@@ -60,8 +60,8 @@ bool EM::HorizonPreLoader::load( const DBKeySet& newids, bool is2d,
 	const int selidx = loadedids_.indexOf( newids[idx] );
 	if ( selidx > -1 )
 	{
-	    msg1.appendPlainText( " '%1'", uiString::Empty,
-			uiString::LeaveALine ).arg( loadednms_.get(selidx) );
+	    msg1.appendPlainText( " '%1'", uiString::NoSep,
+		    uiString::AfterEmptyLine ).arg( loadednms_.get(selidx) );
 	    nralreadyloaded++;
 	    continue;
 	}

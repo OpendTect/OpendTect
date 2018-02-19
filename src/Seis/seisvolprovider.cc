@@ -339,7 +339,8 @@ void Seis::VolFetcher::doGetNext( SeisTrc* trc,
 	{
 	    const TrcKey tk( nextbid_ );
 	    dp_->fillTraceData( tk, data );
-	    if ( trcinfo ) dp_->fillTraceInfo( tk, *trcinfo );
+	    if ( trcinfo )
+		dp_->fillTraceInfo( tk, *trcinfo );
 	    havefilled = true;
 	}
 	else if ( !trl_ )
@@ -348,7 +349,8 @@ void Seis::VolFetcher::doGetNext( SeisTrc* trc,
 		{ uirv_.set( uiStrings::sFinished() ); return; }
 	    const TrcKey tk( nextbid_ );
 	    dp_->fillTraceData( tk, data );
-	    if ( trcinfo ) dp_->fillTraceInfo( tk, *trcinfo );
+	    if ( trcinfo )
+		dp_->fillTraceInfo( tk, *trcinfo );
 	    havefilled = true;
 	}
     }

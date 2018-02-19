@@ -71,7 +71,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	fnfld_->attach( rightOf, grpfld_ );
 	grpSel( 0 );
 
-	uiPushButton* but = new uiPushButton( insgrp, tr("Insert"),
+	uiPushButton* but = new uiPushButton( insgrp, uiStrings::sInsert(),
 		    mCB(this,uiMathExpression,doIns), true );
 	but->setIcon( "insertbelow" );
 	but->attach( rightOf, fnfld_ );

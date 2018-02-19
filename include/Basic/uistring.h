@@ -121,15 +121,15 @@ public:
 
 #   define		muiStringAppendDefArgs \
 			    SeparType septyp=uiString::CloseLine, \
-			    AppendType apptyp=uiString::AddNewLine
+			    AppendType apptyp=uiString::OnNewLine
 
 			/*! appendXX() functions should be used to concatenate
 			    entire sentences. You cannot just mix&match words
 			    or groups of words at the risk of hilarious
 			    translations. */
 
-    enum SeparType	{ Empty, CloseLine, Space, Tab, Comma, MoreInfo };
-    enum AppendType	{ SeparatorOnly, AddNewLine, LeaveALine };
+    enum SeparType	{ NoSep, CloseLine, Space, Tab, Comma, MoreInfo };
+    enum AppendType	{ OnSameLine, OnNewLine, AfterEmptyLine };
     uiString&		appendPhrase(const uiString&,muiStringAppendDefArgs);
     uiString&		appendPhrases(const uiStringSet&,
 				      muiStringAppendDefArgs);
@@ -278,17 +278,17 @@ uiString toUiString( const std::pair<T1,T2>& pair )
 }
 
 inline uiString& uiString::appendPhraseSameLine( const uiString& str )
-{ return appendPhrase( str, CloseLine, SeparatorOnly ); }
+{ return appendPhrase( str, CloseLine, OnSameLine ); }
 inline uiString& uiString::appendAfterList( const uiString& str )
-{ return appendPhrase( str, Empty, AddNewLine ); }
+{ return appendPhrase( str, NoSep, OnNewLine ); }
 inline uiString& uiString::constructWordWith( const uiString& str, bool addspc )
-{ return appendPhrase( str, addspc ? Space : Empty, SeparatorOnly ); }
+{ return appendPhrase( str, addspc ? Space : NoSep, OnSameLine ); }
 inline uiString& uiString::preFixWord( const uiString& str )
 { const uiString kp(*this); *this = str; return postFixWord(kp); }
 inline uiString& uiString::postFixWord( const uiString& str )
 { return constructWordWith( str, true ); }
 inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )
-{ return appendPhrase( str, MoreInfo, newline?AddNewLine:SeparatorOnly ); }
+{ return appendPhrase( str, MoreInfo, newline? OnNewLine : OnSameLine ); }
 
 
 // Use when string should be revisited later
@@ -341,8 +341,8 @@ inline uiString& uiString::arg( double val, int nrdec )
 
 
 #define mDefIncorrectAppendPhrArgs \
-    sep=='\n' ? Empty : (sep=='\t' ? Tab : Space), \
-    sep=='\n' ? AddNewLine : SeparatorOnly
+    sep=='\n' ? NoSep : (sep=='\t' ? Tab : Space), \
+    sep=='\n' ? OnNewLine : OnSameLine
 
 inline uiString& uiString::appendIncorrect( const uiString& str, char sep )
 { return appendPhrase( str, mDefIncorrectAppendPhrArgs ); }

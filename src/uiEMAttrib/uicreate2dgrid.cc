@@ -668,7 +668,7 @@ bool uiCreate2DGrid::checkInput( IOPar& par ) const
 	uiString msg = tr( "Following lines are already there. Do you want to "
 			  "overwrite?\n\nLines : " );
 	msg.appendPhrase( uiStrings::sLine(ovwrlinenms.size()),
-				    uiString::Empty, uiString::LeaveALine );
+				    uiString::NoSep, uiString::AfterEmptyLine );
 	msg.appendPlainText( " : " );
 	msg.appendPlainText( ovwrlinenms.getDispString() );
 

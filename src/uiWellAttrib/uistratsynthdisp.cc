@@ -215,7 +215,7 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 	zval = toFloat( valstr );
 	uiString depthstr = tr("Depth: %1%2").arg((int)zval)
 						    .arg(SI().zUnitString());
-	msg.appendPhrase( depthstr, uiString::Space, uiString::SeparatorOnly );
+	msg.appendPhrase( depthstr, uiString::Space, uiString::OnSameLine );
     }
 
     if ( mIsUdf(zval) || layerModel().size()<=modelidx || modelidx<0 )
@@ -224,8 +224,8 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
     msg.addSpace();
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) msg.appendPhrase(uiString::empty(), \
-		sepalreadyadded ? uiString::MoreInfo : uiString::Empty, \
-		uiString::AddNewLine);
+		sepalreadyadded ? uiString::MoreInfo : uiString::NoSep, \
+		uiString::OnNewLine);
 
     FixedString vdstr = pars.find( "Variable density data" );
     FixedString wvastr = pars.find( "Wiggle/VA data" );
@@ -244,7 +244,7 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 	float val = !vdvalstr.isEmpty() ? vdvalstr.toFloat() : mUdf(float);
 	msg.appendPhrase(tr("Val = %1 (%2)").arg(mIsUdf(val) ? tr("undef") :
 			toUiString(vdvalstr)).arg(toUiString(vdstr)),
-			uiString::Empty, uiString::SeparatorOnly);
+			uiString::NoSep, uiString::OnSameLine);
     }
     if ( wvavalstr && !issame )
     {
@@ -252,11 +252,11 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 	sepalreadyadded = true;
 	float val = !wvavalstr.isEmpty() ? wvavalstr.toFloat() : mUdf(float);
 	msg.appendPhrase(tr("Val = %1").arg(mIsUdf(val) ? tr("undef") :
-			    toUiString(wvavalstr)), uiString::Empty,
-			    uiString::SeparatorOnly );
+			    toUiString(wvavalstr)), uiString::NoSep,
+			    uiString::OnSameLine );
 	if ( wvastr.isEmpty() ) wvastr = "WVA Val";
-	msg.appendPhrase(toUiString("(%1)").arg(wvastr), uiString::Empty,
-					    uiString::SeparatorOnly);
+	msg.appendPhrase(toUiString("(%1)").arg(wvastr), uiString::NoSep,
+					    uiString::OnSameLine);
     }
 
     float val;
@@ -268,7 +268,7 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 	mAddSep();
 	sepalreadyadded = true;
 	msg.appendPhrase(tr("Offs = %1%2").arg(val).arg(SI().xyUnitString()),
-			uiString::Empty, uiString::SeparatorOnly);
+			uiString::NoSep, uiString::OnSameLine);
     }
 
     if ( d2tmodels_ && d2tmodels_->validIdx(modelidx) )
@@ -283,11 +283,11 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 	    {
 		msg.appendPhrase( tr("Layer : %1;\n\t Lithology : %2")
 		    .arg( layer->name() ).arg( layer->lithology().name()),
-		    uiString::Tab, uiString::LeaveALine);
+		    uiString::Tab, uiString::AfterEmptyLine);
 		if ( !layer->content().isUnspecified() )
 		    msg.appendPhrase( tr("Content : %1")
 			.arg( layer->content().name()), uiString::Tab,
-			uiString::LeaveALine );
+			uiString::AfterEmptyLine );
 		break;
 	    }
 	}

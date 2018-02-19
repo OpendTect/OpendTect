@@ -713,7 +713,7 @@ void uiWellMan::exportLogs( CallBacker* )
 
 #define mAddWellInfo(key,str) \
     if ( !str.isEmpty() ) \
-	{ txt.appendPhrase( key, uiString::Empty ).appendPlainText( colonstr )\
+	{ txt.appendPhrase( key, uiString::NoSep ).appendPlainText( colonstr )\
 						    .appendPlainText( str ); }
 
 
@@ -753,8 +753,8 @@ void uiWellMan::mkFileInfo()
 	{
 	    txt.appendPhrase(Well::Info::sKBElev()).appendPlainText(colonstr);
 	    txt.appendPlainText( toString(zun ? zun->userValue(rdelev)
-		    : rdelev) ).appendPhrase( zunaddstr, uiString::Empty,
-						uiString::SeparatorOnly );
+		    : rdelev) ).appendPhrase( zunaddstr, uiString::NoSep,
+						uiString::OnSameLine );
 	}
 
 	const float td = track.dahRange().stop;
@@ -762,8 +762,8 @@ void uiWellMan::mkFileInfo()
 	{
 	    txt.appendPhrase(Well::Info::sTD()).appendPlainText( colonstr );
 	    txt.appendPlainText( toString(zun ? zun->userValue(td) : td) )
-		.appendPhrase( zunaddstr, uiString::Empty,
-						uiString::SeparatorOnly );
+		.appendPhrase( zunaddstr, uiString::NoSep,
+						uiString::OnSameLine );
 	}
 
 	const double srd = SI().seismicReferenceDatum();
@@ -772,8 +772,8 @@ void uiWellMan::mkFileInfo()
 	    txt.appendPhrase( SurveyInfo::sSeismicRefDatum() )
 					    .appendPlainText( colonstr );
 	    txt.appendPlainText( toString(zun ? zun->userValue(srd) : srd) )
-		.appendPhrase( zunaddstr, uiString::Empty,
-						uiString::SeparatorOnly );
+		.appendPhrase( zunaddstr, uiString::NoSep,
+						uiString::OnSameLine );
 	}
 
 	const float replvel = info.replacementVelocity();
@@ -785,7 +785,7 @@ void uiWellMan::mkFileInfo()
 							    : replvel) );
 	     txt.appendPhrase(
 		 UnitOfMeasure::surveyDefVelUnitAnnot(true,false),
-				    uiString::Space, uiString::SeparatorOnly);
+				    uiString::Space, uiString::OnSameLine);
 	}
 
 	const float groundelev = info.groundElevation();
@@ -794,8 +794,8 @@ void uiWellMan::mkFileInfo()
 	    txt.appendPhrase(Well::Info::sGroundElev())
 					.appendPlainText(colonstr);
 	    txt.appendPlainText( toString(zun ? zun->userValue(groundelev)
-		: groundelev) ).appendPhrase( zunaddstr, uiString::Empty,
-						uiString::SeparatorOnly );
+		: groundelev) ).appendPhrase( zunaddstr, uiString::NoSep,
+						uiString::OnSameLine );
 	}
 
 	if ( survintime && !curwd->haveD2TModel() )

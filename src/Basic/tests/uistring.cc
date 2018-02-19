@@ -263,7 +263,7 @@ bool fromBufferStringSetToUiStringSet()
     uiStringSet uistrset = strset.getUiStringSet();
 
     BufferString str = strset.cat( " " );
-    uiString uistr = uistrset.cat( uiString::Space, uiString::SeparatorOnly );
+    uiString uistr = uistrset.cat( uiString::Space, uiString::OnSameLine );
 
     mRunStandardTest( str == toString(uistr), "Comparing BuffStrSet "
 				    "UiStrSet" );

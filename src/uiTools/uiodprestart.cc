@@ -451,13 +451,13 @@ void uiODPreStart::doPkgMnu( const PluginPackage& pkg )
     {
 	uiString msg( tr("Name: %1").arg(pkg.dispname_) );
 	msg.appendPhrase(tr("Created by: %1").arg(pkg.creator_),
-			    uiString::Empty,uiString::AddNewLine);
+			    uiString::NoSep,uiString::OnNewLine);
 	msg.appendPhrase(tr("Version: %1").arg(pkg.version_),
-			    uiString::Empty,uiString::AddNewLine);
+			    uiString::NoSep,uiString::OnNewLine);
 	if ( pkg.prov_ )
 	{
 	    msg.appendPhrase( tr("Provided by: %1").arg( pkg.prov_->name_ ),
-				    uiString::Empty, uiString::LeaveALine );
+				    uiString::NoSep, uiString::AfterEmptyLine );
 	}
 	uiMSG().about( msg );
     }

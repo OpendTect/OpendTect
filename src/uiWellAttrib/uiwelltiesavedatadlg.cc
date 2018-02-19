@@ -122,14 +122,8 @@ void uiSaveDataDlg::saveWvltSelCB( CallBacker* )
     estimatedwvltsel_->setChecked( saveall );
 }
 
-#define mAppMsg(locmsg,act) \
-{ \
-    msg.appendPhrase( locmsg, \
-	(msg.isEmpty() ? uiString::Empty : uiString::CloseLine),\
-	(msg.isEmpty() ? uiString::SeparatorOnly : uiString::AddNewLine) ); \
-    act; \
-}
 
+#define mAppendMsgAndQuit(locmsg,act) { msg.appendPhrase( locmsg ); act; }
 
 bool uiSaveDataDlg::saveLogs()
 {
@@ -166,7 +160,7 @@ bool uiSaveDataDlg::saveLogs()
 
     uiString endmsg = tr( "Please choose another postfix" );
     if ( !msg.isEmpty() )
-	mAppMsg( endmsg, mErrRet( msg ) )
+	mAppendMsgAndQuit( endmsg, mErrRet( msg ) )
 
     DataWriter& datawtr = dataserver_.dataWriter();
     endmsg = tr( "Check your permissions" );
@@ -174,7 +168,7 @@ bool uiSaveDataDlg::saveLogs()
     {
 	datawtr.removeLogs( logset );
 	msg = tr( "Cannot write log", 0, logset.size() );
-	mAppMsg( endmsg, mErrRet( msg ) )
+	mAppendMsgAndQuit( endmsg, mErrRet( msg ) )
     }
 
     if ( !savetolog )

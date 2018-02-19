@@ -635,14 +635,14 @@ uiString& uiString::appendPhrase( const uiString& txt,
     Threads::Locker contentlocker( tmpptr->contentlock_ );
 
     if ( isEmpty() || txt.isEmpty() )
-	{ septyp = Empty; apptyp = SeparatorOnly; }
+	{ septyp = NoSep; apptyp = OnSameLine; }
 
     const char* tplstr = 0;
-    if ( apptyp == AddNewLine )
+    if ( apptyp == OnNewLine )
     {
 	switch ( septyp )
 	{
-	    case Empty:
+	    case NoSep:
 	    case Space:
 	    case Tab:		tplstr = "%1\n%2";	break;
 	    case CloseLine:	tplstr = "%1.\n%2";	break;
@@ -650,11 +650,11 @@ uiString& uiString::appendPhrase( const uiString& txt,
 	    case MoreInfo:	tplstr = "%1:\n%2";	break;
 	}
     }
-    else if ( apptyp == SeparatorOnly )
+    else if ( apptyp == OnSameLine )
     {
 	switch ( septyp )
 	{
-	    case Empty:		tplstr = "%1%2";	break;
+	    case NoSep:		tplstr = "%1%2";	break;
 	    case Space:		tplstr = "%1 %2";	break;
 	    case Tab:		tplstr = "%1\t%2";	break;
 	    case CloseLine:	tplstr = "%1. %2";	break;
@@ -666,7 +666,7 @@ uiString& uiString::appendPhrase( const uiString& txt,
     {
 	switch ( septyp )
 	{
-	    case Empty:
+	    case NoSep:
 	    case Space:
 	    case Tab:		tplstr = "%1\n\n%2";	break;
 	    case CloseLine:	tplstr = "%1.\n\n%2";	break;
@@ -1061,9 +1061,9 @@ uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
 
     const uiString and_or_or = use_and ? uiStrings::sAnd() : uiStrings::sOr();
     uiString::SeparType septyp =
-	separate_lines	? uiString::Empty : uiString::Comma;
+	separate_lines	? uiString::NoSep : uiString::Comma;
     uiString::AppendType apptyp =
-	separate_lines	? uiString::AddNewLine : uiString::SeparatorOnly;
+	separate_lines	? uiString::OnNewLine : uiString::OnSameLine;
     if ( maxnr < 1 || maxnr > sz )
 	maxnr = sz;
 
@@ -1073,7 +1073,7 @@ uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
 	if ( idx == sz-1 )
 	{
 	    result.appendPhrase( and_or_or, uiString::Space,
-				 uiString::SeparatorOnly );
+				 uiString::OnSameLine );
 	    if ( septyp == uiString::Comma )
 		septyp = uiString::Space;
 	}

@@ -281,7 +281,7 @@ void uiSeisFileMan::mkFileInfo()
 
 #define mAddRangeTxt(line) \
     txt.appendPhrase(uiStrings::sRange().toLower(), uiString::Space, \
-				    uiString::SeparatorOnly); \
+				    uiString::OnSameLine); \
     txt.appendPlainText( ": " ); \
     txt.appendPlainText(toString(cs.hsamp_.start_.line)); \
     txt.appendPlainText( " - " ); \
@@ -302,24 +302,24 @@ void uiSeisFileMan::mkFileInfo()
 	    txt.setEmpty();
 	    if ( !mIsUdf(cs.hsamp_.stop_.inl()) )
 	    {
-		txt.appendPhrase(uiStrings::sInline(),uiString::Empty);
+		txt.appendPhrase(uiStrings::sInline(),uiString::NoSep);
 		mAddRangeTxt(inl());
 	    }
 	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
 	    {
-		txt.appendPhrase(uiStrings::sCrossline(),uiString::Empty);
+		txt.appendPhrase(uiStrings::sCrossline(),uiString::NoSep);
 		mAddRangeTxt(crl());
 	    }
 	    float area = SI().getArea( cs.hsamp_.inlRange(),
 				       cs.hsamp_.crlRange() );
-	    txt.appendPhrase(uiStrings::sArea(),uiString::Empty)
+	    txt.appendPhrase(uiStrings::sArea(),uiString::NoSep)
 		.appendPlainText(": ")
 		.appendPlainText( getAreaString( area, true, 0 ) );
 
 	    const uiString rgstr = zddef.getRange();
-	    txt.appendPhrase( rgstr, uiString::Empty );
-	    txt.appendPhrase( zddef.unitStr(true), uiString::Empty,
-		uiString::SeparatorOnly );
+	    txt.appendPhrase( rgstr, uiString::NoSep );
+	    txt.appendPhrase( zddef.unitStr(true), uiString::NoSep,
+		uiString::OnSameLine );
 	    txt.appendPlainText( ": " ); mAddZValTxt(cs.zsamp_.start)
 	    txt.appendPlainText(" - "); mAddZValTxt(cs.zsamp_.stop)
 	    txt.appendPlainText(" ["); mAddZValTxt(cs.zsamp_.step)
@@ -332,7 +332,7 @@ void uiSeisFileMan::mkFileInfo()
 	const IOPar& pars = curioobj_->pars();
 	FixedString parstr = pars.find( "Type" );
 	if ( !parstr.isEmpty() )
-	    txt.appendPhrase( tr("Type"), uiString::Empty )
+	    txt.appendPhrase( tr("Type"), uiString::NoSep )
 			    .appendPlainText(": ").appendPlainText( parstr );
 
 	parstr = pars.find( "Optimized direction" );
@@ -345,7 +345,7 @@ void uiSeisFileMan::mkFileInfo()
 	    txt.appendPhrase( tr("Velocity Type") ); txt.appendPlainText(": ");
 	    parstr = pars.find( "Velocity Type" );
 	    txt.appendPhrase( parstr.isEmpty() ? tr("<unknown>") :
-		toUiString(parstr), uiString::Empty, uiString::SeparatorOnly );
+		toUiString(parstr), uiString::NoSep, uiString::OnSameLine );
 
 	    if ( pars.get(VelocityStretcher::sKeyTopVavg(),topvavg)
 	      && pars.get(VelocityStretcher::sKeyBotVavg(),botvavg))
@@ -359,9 +359,9 @@ void uiSeisFileMan::mkFileInfo()
 		    dispzrg.stop = sizrg.stop * botvavg.stop / 2;
 		    dispzrg.step = (dispzrg.stop-dispzrg.start)
 					/ sizrg.nrSteps();
-		    txt.appendPhrase( tr("Depth Range"), uiString::Empty );
+		    txt.appendPhrase( tr("Depth Range"), uiString::NoSep );
 		    txt.appendPhrase( ZDomain::Depth().unitStr(true),
-			    uiString::Space, uiString::SeparatorOnly );
+			    uiString::Space, uiString::OnSameLine );
 		}
 
 		else
@@ -371,9 +371,9 @@ void uiSeisFileMan::mkFileInfo()
 		    dispzrg.step = (dispzrg.stop-dispzrg.start)
 					/ sizrg.nrSteps();
 		    dispzrg.scale( (float)ZDomain::Time().userFactor() );
-		    txt.appendPhrase( tr("Time Range"), uiString::Empty );
+		    txt.appendPhrase( tr("Time Range"), uiString::NoSep );
 		    txt.appendPhrase( ZDomain::Time().unitStr(true),
-			    uiString::Space, uiString::SeparatorOnly );
+			    uiString::Space, uiString::OnSameLine );
 		}
 
 		txt.appendPlainText( ": " )
@@ -395,12 +395,12 @@ void uiSeisFileMan::mkFileInfo()
     }
     delete tri;
     if ( dsstr.size() > 4 )
-	txt.appendPhrase(tr("Storage"), uiString::Empty).appendPlainText(": ")
+	txt.appendPhrase(tr("Storage"), uiString::NoSep).appendPlainText(": ")
 		    .appendPlainText( toString(dsstr.buf() + 4) );
 
     const int nrcomp = oinf.nrComponents();
     if ( nrcomp > 1 )
-	txt.appendPhrase( tr("Number of components"), uiString::Empty )
+	txt.appendPhrase( tr("Number of components"), uiString::NoSep )
 		.appendPlainText(": ").appendPlainText( toString(nrcomp) );
 
 
@@ -408,8 +408,8 @@ void uiSeisFileMan::mkFileInfo()
 
     if ( txt.isEmpty() )
 	txt = tr("<No specific info available>");
-    txt.appendPhrase( mToUiStringTodo(getFileInfo()), uiString::Empty,
-						    uiString::LeaveALine );
+    txt.appendPhrase( mToUiStringTodo(getFileInfo()), uiString::NoSep,
+						    uiString::AfterEmptyLine );
 
     setInfo( txt );
 }

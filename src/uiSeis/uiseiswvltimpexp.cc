@@ -108,7 +108,7 @@ bool uiSeisWvltImp::acceptOK()
 	    .arg( wvlt->centerSample() + 1 + nrhdrlines ) );
 	msg.appendPhrase(
 			tr( "Do you want to reposition the center sample?" ),
-				    uiString::Empty, uiString::LeaveALine );
+				    uiString::NoSep, uiString::AfterEmptyLine );
 	if ( uiMSG().askGoOn(msg) )
 	    wvlt->setCenterSample( maxsamp );
     }

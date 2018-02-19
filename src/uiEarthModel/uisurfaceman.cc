@@ -576,9 +576,9 @@ void uiSurfaceMan::mkFileInfo()
 #define mAddZRangeTxt() \
     if ( !zrange.isUdf() ) \
     { \
-	txt.appendPhrase(uiStrings::sZRange(), uiString::Empty); \
-	txt.appendPhrase(SI().zUnitString(), uiString::Empty, \
-						uiString::SeparatorOnly); \
+	txt.appendPhrase(uiStrings::sZRange(), uiString::NoSep); \
+	txt.appendPhrase(SI().zUnitString(), uiString::NoSep, \
+						uiString::OnSameLine); \
 	txt.appendPlainText( ": " ); \
 	txt.appendPlainText( ::toString(mNINT32(zrange.start * \
 					    SI().zDomain().userFactor())) ); \
@@ -610,10 +610,10 @@ void uiSurfaceMan::mkFileInfo()
 	    if ( eminfo.nrSticks() < 0 )
 		txt.appendPhrase(tr("Cannot determine number of sticks for "
 				    "this object type"), uiString::MoreInfo,
-				    uiString::SeparatorOnly);
+				    uiString::OnSameLine);
 	    else
 		txt.appendPhrase( ::toUiString(eminfo.nrSticks()),
-				uiString::MoreInfo, uiString::SeparatorOnly);
+				uiString::MoreInfo, uiString::OnSameLine);
 	}
 	else
 	{
@@ -633,7 +633,7 @@ void uiSurfaceMan::mkFileInfo()
 	    StepInterval<int> range = cs.hsamp_.lineRange();
 	    txt = tr("In-line range"); mAddInlCrlRangeTxt()
 	    range = cs.hsamp_.trcRange();
-	    txt.appendPhrase( tr("Cross-line range"), uiString::Empty );
+	    txt.appendPhrase( tr("Cross-line range"), uiString::NoSep );
 	    mAddInlCrlRangeTxt()
 	    const Interval<float>& zrange = cs.zsamp_;
 	    mAddZRangeTxt()

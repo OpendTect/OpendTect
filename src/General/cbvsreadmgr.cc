@@ -220,7 +220,7 @@ void CBVSReadMgr::createInfo()
 
 #undef mErrRet
 #define mErrRet(s) { mErrMsgMk(s) \
-    errmsg_.appendPhrase(CBVSReadMgr::sDiffFromFirstFile(),uiString::Empty); \
+    errmsg_.appendPhrase(CBVSReadMgr::sDiffFromFirstFile(),uiString::NoSep); \
     return false; \
 }
 

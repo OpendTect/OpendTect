@@ -230,7 +230,7 @@ bool uiIssueReporterDlg::acceptOK()
 	msg.appendPlainText("\nsupport@opendtect.org");
 	msg.appendPhrase( tr("Would you like to retry sending the report "
 			    "using different proxy settings?"),
-			    uiString::Empty, uiString::LeaveALine );
+			    uiString::NoSep, uiString::AfterEmptyLine );
 	res = uiMSG().askGoOn( msg );
 	if ( res )
 	    proxySetCB( 0 );

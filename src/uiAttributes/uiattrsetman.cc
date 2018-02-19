@@ -91,14 +91,14 @@ void uiAttrSetMan::mkFileInfo()
 
 	txt = tr("Type: %1").arg(attrset.is2D() ? uiStrings::s2D() :
 							    uiStrings::s3D());
-	txt.appendPhrase(tr("Input"), uiString::Empty);
+	txt.appendPhrase( uiStrings::sInput(), uiString::NoSep );
 	txt.appendPlainText( ": " );
 	addStoredNms( attrset, txt );
 
 	fillAttribList( attribfld_, attrset );
     }
 
-    txt.appendPhrase( mToUiStringTodo(getFileInfo()), uiString::Empty,
-						    uiString::LeaveALine );
+    txt.appendPhrase( mToUiStringTodo(getFileInfo()), uiString::NoSep,
+						    uiString::AfterEmptyLine );
     setInfo(txt);
 }

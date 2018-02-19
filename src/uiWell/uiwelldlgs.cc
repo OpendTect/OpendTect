@@ -1899,7 +1899,7 @@ bool uiSetD2TFromOtherWell::acceptOK()
 	{
 	    uiString msgtoadd;
 	    msgtoadd.appendPlainText(welldata->name()).appendPlainText(" : ")
-				    .appendPhrase( errmsg, uiString::Empty );
+				    .appendPhrase( errmsg, uiString::NoSep );
 	    errmsgs.add( errmsg );
 	    continue;
 	}

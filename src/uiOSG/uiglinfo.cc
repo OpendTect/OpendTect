@@ -106,7 +106,7 @@ uiString uiGLInfo::getMessage( bool* warning )
     }
 
 #define mAddStr(txt,idx) \
-    msg.appendPhrase( txt, uiString::Empty, uiString::AddNewLine ) \
+    msg.appendPhrase( txt, uiString::NoSep, uiString::OnNewLine ) \
 				    .appendPlainText( allinfo[idx]->buf() );
 
     BufferStringSet allinfo = glinfo_.allInfo();
@@ -128,20 +128,20 @@ uiString uiGLInfo::getMessage( bool* warning )
     {
 	msg.appendPhrase( tr(
 	    "Missing all GL info indicates some graphics card problem."),
-	    uiString::CloseLine, uiString::LeaveALine );
+	    uiString::CloseLine, uiString::AfterEmptyLine );
     }
     else if ( stringStartsWithCI("intel",allinfo[0]->buf()) )
     {
 	msg.appendPhrase( tr(
 	    "Intel card found. If your computer has multiple graphics cards,"
 	    " consider switching from the integrated graphics."),
-	    uiString::CloseLine, uiString::LeaveALine );
+	    uiString::CloseLine, uiString::AfterEmptyLine );
     }
     else if ( *allinfo[2] == "?" )
     {
 	msg.appendPhrase( tr(
 	    "Missing GL-version indicates a graphics card driver problem."),
-		uiString::CloseLine, uiString::LeaveALine );
+		uiString::CloseLine, uiString::AfterEmptyLine );
     }
     else
 	*warning = false;

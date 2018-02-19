@@ -1110,7 +1110,7 @@ bool ZipHandler::readEndOfCentralDirHeader()
 	    mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
 		.appendPhrase(sErrMsgZipArchiveCorrupt())
 		.appendPhrase(sErrMsgNoHeaderSign(),uiString::MoreInfo,
-		uiString::SeparatorOnly) )
+				uiString::OnSameLine) )
 
 	istrm_->setReadPosition( filepos );
 	istrm_->getBin( headerbuff, mSizeFourBytes );
@@ -1155,7 +1155,7 @@ bool ZipHandler::readZIP64EndOfCentralDirLocator()
 	    mErrRet( uiStrings::phrCannotUnZip(toUiString(srcfile_))
 		.appendPhrase(sErrMsgZipArchiveCorrupt())
 		.appendPhrase(sErrMsgNoHeaderSign(),uiString::MoreInfo,
-		uiString::SeparatorOnly) )
+				uiString::OnSameLine) )
 
 	istrm_->setReadPosition( filepos );
 	istrm_->getBin( headerbuff, mSizeFourBytes );
