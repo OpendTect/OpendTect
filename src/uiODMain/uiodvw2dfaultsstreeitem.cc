@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "uiodvw2dfaultsstreeitem.h"
 
+#include "uicolor.h"
 #include "uiempartserv.h"
 #include "uiflatviewstdcontrol.h"
 #include "uimenu.h"
@@ -18,8 +19,10 @@ ________________________________________________________________________
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uipixmap.h"
-#include "uitreeview.h"
+#include "uisellinest.h"
+#include "uispinbox.h"
 #include "uistrings.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "emeditor.h"
@@ -365,9 +368,13 @@ void uiODVw2DFaultSSTreeItem::renameVisObj()
 bool uiODVw2DFaultSSTreeItem::showSubMenu()
 {
     uiEMPartServer* ems = applMgr()->EMServer();
+    const EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !ems || !emobj )
+	return false;
+
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
 
-//    addAction( mnu, uiStrings::sProperties(), mPropID, "disppars", true );
+    addAction( mnu, m3Dots(uiStrings::sProperties()), mPropID, "disppars",true);
 
     const bool haschanged = ems->isChanged( emid_ );
     addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
@@ -379,7 +386,16 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )
     {
-    // ToDo
+	uiDialog dlg( getUiParent(), uiDialog::Setup(uiStrings::sProperties(),
+					mNoDlgTitle,mNoHelpKey) );
+	dlg.setCtrlStyle( uiDialog::CloseOnly );
+	uiSelLineStyle::Setup lssu;
+	lssu.drawstyle(false);
+	OD::LineStyle ls = emobj->preferredLineStyle();
+	ls.color_ = emobj->preferredColor();
+	uiSelLineStyle* lsfld = new uiSelLineStyle( &dlg, ls, lssu );
+	lsfld->changed.notify( mCB(this,uiODVw2DFaultSSTreeItem,propChgCB) );
+	dlg.go();
     }
     else if ( mnuid==mSaveID || mnuid==mSaveAsID )
     {
@@ -407,6 +423,28 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
     }
 
     return true;
+}
+
+
+void uiODVw2DFaultSSTreeItem::propChgCB( CallBacker* cb )
+{
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
+    mDynamicCastGet(uiColorInput*,colfld,cb)
+    if ( colfld )
+    {
+	emobj->setPreferredColor( colfld->color() );
+	return;
+    }
+
+    OD::LineStyle ls = emobj->preferredLineStyle();
+    mDynamicCastGet(uiSpinBox*,szfld,cb)
+    if ( szfld )
+    {
+	ls.width_ = szfld->getIntValue();
+	emobj->setPreferredLineStyle( ls );
+    }
 }
 
 

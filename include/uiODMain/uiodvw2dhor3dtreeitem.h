@@ -40,7 +40,7 @@ protected:
 
     bool			init();
     const char*			iconName() const;
-    bool                        handleSubMenu(int);
+    bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
     void			getNonLoadedTrackedHor3Ds(
@@ -55,9 +55,9 @@ mExpClass(uiODMain) uiODVw2DHor3DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
-    uiTreeItem*         create() const
+    uiTreeItem*		create() const
 			{ return new uiODVw2DHor3DParentTreeItem(); }
-    uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
 };
 
 
@@ -83,19 +83,20 @@ protected:
 
     void		updateSelSpec(const Attrib::SelSpec*,bool wva);
     void		updateCS(const TrcKeyZSampling&,bool upd);
-    void                checkCB(CallBacker*);
+    void		checkCB(CallBacker*);
     void		deSelCB(CallBacker*);
     void		mousePressInVwrCB(CallBacker*);
     void		mouseReleaseInVwrCB(CallBacker*);
     void		displayMiniCtab();
 
     void		emobjChangeCB(CallBacker*);
+    void		propChgCB(CallBacker*);
 
-    EM::ObjectID        emid_;
+    EM::ObjectID	emid_;
     Vw2DHorizon3D*	horview_;
     bool		oldactivevolupdated_;
     bool		trackerefed_;
-    void                emobjAbtToDelCB(CallBacker*);
+    void		emobjAbtToDelCB(CallBacker*);
     void		renameVisObj();
 			/*!<\don't use it. only for keep ABI.*/
 

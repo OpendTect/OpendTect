@@ -52,10 +52,10 @@ mExpClass(uiODMain) uiODVw2DFaultTreeItemFactory
 				: public uiODVw2DTreeItemFactory
 {
 public:
-    const char*         name() const		{ return typeid(*this).name(); }
-    uiTreeItem*         create() const
+    const char*		name() const		{ return typeid(*this).name(); }
+    uiTreeItem*		create() const
     			{ return new uiODVw2DFaultParentTreeItem(); }
-    uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
 };
 
 
@@ -86,8 +86,9 @@ protected:
 
     void		emobjChangeCB(CallBacker*);
     void		enableKnotsCB(CallBacker*);
+    void		propChgCB(CallBacker*);
 
-    EM::ObjectID        emid_;
+    EM::ObjectID	emid_;
     VW2DFault*		faultview_;
     void		renameVisObj();
 			/*!<\don't use it. only for keep ABI.*/

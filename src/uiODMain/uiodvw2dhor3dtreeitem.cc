@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiodvw2dhor3dtreeitem.h"
 
 #include "uiattribpartserv.h"
+#include "uicolor.h"
 #include "uiflatviewer.h"
 #include "uiflatviewwin.h"
 #include "uiempartserv.h"
@@ -24,13 +25,14 @@ ________________________________________________________________________
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uirgbarraycanvas.h"
+#include "uisellinest.h"
+#include "uispinbox.h"
 #include "uistrings.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "emobject.h"
 #include "emtracker.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -474,11 +476,12 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     uiEMPartServer* ems = applMgr()->EMServer();
     uiMPEPartServer* mps = applMgr()->mpeServer();
     uiVisPartServer* vps = applMgr()->visServer();
-    if ( !ems || !mps || !vps ) return false;
+    const EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !ems || !mps || !vps || !emobj ) return false;
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
 
-//    addAction( mnu, uiStrings::sProperties(), mPropID, "disppars", true );
+    addAction( mnu, m3Dots(uiStrings::sProperties()), mPropID, "disppars",true);
 
     uiMenu* trackmnu = new uiMenu( uiStrings::sTracking() );
     mnu.addMenu( trackmnu );
@@ -501,7 +504,16 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )
     {
-// TODO
+	uiDialog dlg( getUiParent(), uiDialog::Setup(uiStrings::sProperties(),
+					mNoDlgTitle,mNoHelpKey) );
+	dlg.setCtrlStyle( uiDialog::CloseOnly );
+	uiSelLineStyle::Setup lssu;
+	lssu.drawstyle(false);
+	OD::LineStyle ls = emobj->preferredLineStyle();
+	ls.color_ = emobj->preferredColor();
+	uiSelLineStyle* lsfld = new uiSelLineStyle( &dlg, ls, lssu );
+	lsfld->changed.notify( mCB(this,uiODVw2DHor3DTreeItem,propChgCB) );
+	dlg.go();
     }
     else if ( mnuid == mSaveID )
     {
@@ -513,8 +525,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     }
     else if ( mnuid == mStartID )
     {
-	const EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-	if ( !emobj || mps->addTracker(emid_,Coord3::udf())==-1 )
+	if ( mps->addTracker(emid_,Coord3::udf())==-1 )
 	    return false;
 
 	MPE::engine().setActiveTracker( emid_ );
@@ -525,12 +536,8 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     }
     else if ( mnuid == mSettsID )
     {
-	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-	if ( emobj )
-	{
-	    const EM::SectionID sid = emobj->sectionID( 0 );
-	    mps->showSetupDlg( emid_, sid );
-	}
+	const EM::SectionID sid = emobj->sectionID( 0 );
+	mps->showSetupDlg( emid_, sid );
     }
     else if ( isRemoveItem(mnuid,false) || isRemoveItem(mnuid,true) )
     {
@@ -540,16 +547,40 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	const int trackerid = mps->getTrackerID( emid_ );
 	if ( trackerid>= 0 )
 	    renameVisObj();
+
 	name_ = ems->getUiName( emid_ );
 	const bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ )
 			|| isRemoveItem(mnuid,false);
 	if ( isRemoveItem(mnuid,true) )
 	    applMgr()->viewer2DMgr().removeHorizon3D( emid_ );
+
 	if ( doremove )
 	    parent_->removeChild( this );
     }
 
     return true;
+}
+
+
+void uiODVw2DHor3DTreeItem::propChgCB( CallBacker* cb )
+{
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
+    mDynamicCastGet(uiColorInput*,colfld,cb)
+    if ( colfld )
+    {
+	emobj->setPreferredColor( colfld->color() );
+	return;
+    }
+
+    OD::LineStyle ls = emobj->preferredLineStyle();
+    mDynamicCastGet(uiSpinBox*,szfld,cb)
+    if ( szfld )
+    {
+	ls.width_ = szfld->getIntValue();
+	emobj->setPreferredLineStyle( ls );
+    }
 }
 
 

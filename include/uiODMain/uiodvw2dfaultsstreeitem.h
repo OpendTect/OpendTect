@@ -51,20 +51,20 @@ mExpClass(uiODMain) uiODVw2DFaultSSTreeItemFactory
 				: public uiODVw2DTreeItemFactory
 {
 public:
-    const char*         name() const            { return typeid(*this).name(); }
-    uiTreeItem*         create() const
+    const char*		name() const		{ return typeid(*this).name(); }
+    uiTreeItem*		create() const
 			{ return new uiODVw2DFaultSSParentTreeItem(); }
-    uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
 };
 
 
 mExpClass(uiODMain) uiODVw2DFaultSSTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DFaultSSTreeItem);
+{ mODTextTranslationClass(uiODVw2DFaultSSTreeItem)
 public:
     			uiODVw2DFaultSSTreeItem(const EM::ObjectID&);
     			uiODVw2DFaultSSTreeItem(int displayid,bool dummy);
 			~uiODVw2DFaultSSTreeItem();
-    
+
     bool		showSubMenu();
     bool		select();
     EM::ObjectID	emObjectID() const	{ return emid_; }
@@ -85,6 +85,7 @@ protected:
 
     void		emobjChangeCB(CallBacker*);
     void		enableKnotsCB(CallBacker*);
+    void		propChgCB(CallBacker*);
 
     EM::ObjectID	emid_;
     VW2DFaultSS3D*	fssview_;
