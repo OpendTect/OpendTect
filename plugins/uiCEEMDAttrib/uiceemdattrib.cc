@@ -70,7 +70,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     tfpanelbut_->attach( alignedBelow, maxsiftfld_ );
 
     uiStringSet attriboutputstrs;
-    attriboutputstrs.add( tr("Frequency") );
+    attriboutputstrs.add( uiStrings::sFrequency() );
     attriboutputstrs.add( tr("Peak Frequency") );
     attriboutputstrs.add( tr("Peak Amplitude") );
     attriboutputstrs.add( tr("IMF Component") );

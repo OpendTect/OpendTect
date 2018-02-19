@@ -52,7 +52,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     // Parameters for scaling
     scalegrp_ = new uiGroup( this, "Scale group" );
     scalegrp_->attach( alignedBelow, actionfld_ );
-    factorfld_ = new uiGenInput( scalegrp_, tr("Factor"),
+    factorfld_ = new uiGenInput( scalegrp_, uiStrings::sFactor(),
 				FloatInpSpec(tst_.factor()) );
     shiftfld_ = new uiGenInput( scalegrp_, uiStrings::sShift(),
 				FloatInpSpec(tst_.shift()) );

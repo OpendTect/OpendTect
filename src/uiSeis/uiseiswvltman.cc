@@ -106,7 +106,7 @@ void uiSeisWvltMan::addButtons()
     uiButton* impbut = uiButton::getStd( grp, OD::Import,
 				     mCB(this,uiSeisWvltMan,impPush), false );
 
-    uiPushButton* crbut = new uiPushButton( grp, tr("Generate"), false );
+    uiPushButton* crbut = new uiPushButton( grp, uiStrings::sGenerate(), false);
     crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
     crbut->attach( rightOf, impbut );
 

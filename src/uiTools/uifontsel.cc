@@ -123,7 +123,7 @@ void uiFontSettingsGroup::doRollBack()
 // uiSelFonts
 uiSelFonts::uiSelFonts( uiParent* p, const uiString& title,
 			const HelpKey& helpkey )
-	: uiDialog(p,uiDialog::Setup(tr("Fonts"),title,helpkey))
+	: uiDialog(p,uiDialog::Setup(uiStrings::sFont(mPlural),title,helpkey))
 {
     FontList().listKeys( ids_ );
 }

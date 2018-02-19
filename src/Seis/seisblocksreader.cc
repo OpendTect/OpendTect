@@ -385,10 +385,10 @@ void Seis::Blocks::Reader::readInfoFile( od_istream& strm )
     }
 
     if ( !havegensection || !havepossection || !haveoffsection )
-	state_.set( tr("%1\nlacks %2 section").arg(strm.fileName())
-	       .arg( !havegensection ? tr("General")
-		  : (!havepossection ? tr("Positioning")
-				     : tr("File Offset")) ) );
+	state_.set( tr("%1\nlacks '%2' section").arg(strm.fileName())
+	       .arg( !havegensection ? "General"
+		  : (!havepossection ? "Positioning"
+				     : "File Offset") ) );
 }
 
 

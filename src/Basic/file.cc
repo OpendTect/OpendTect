@@ -154,7 +154,7 @@ int File::RecursiveCopier::nextStep()
 	if ( File::exists(dest_) && !File::remove(dest_) )
 	    mErrRet(tr("Cannot overwrite %1").arg(dest_) )
 	if( !File::createDir(dest_) )
-	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(dest_)) )
+	    mErrRet( uiStrings::phrCannotCreateDirectory(dest_) )
     }
 
     const BufferString& srcfile = filelist_.get( fileidx_ );
@@ -171,7 +171,7 @@ int File::RecursiveCopier::nextStep()
     else if ( isDirectory(srcfile) )
     {
 	if ( !File::createDir(destfile) )
-	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(destfile)) )
+	    mErrRet( uiStrings::phrCannotCreateDirectory(destfile) )
     }
     else if ( !File::copy(srcfile,destfile) )
 	mErrRet( uiStrings::phrCannotCreate( tr("file %1").arg(destfile)) )

@@ -124,7 +124,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	    : toUiString("%1 (/%2)").arg( fromhorattribstr )
 				      .arg(uiStrings::sTimeUnitString(true));
 
-	usegradientfld_ = new uiGenInput( this, tr("Gradient"),
+	usegradientfld_ = new uiGenInput( this, uiStrings::sGradient(),
 		BoolInpSpec( !hasauxdata || surfacefiller_->usesGradientValue(),
 			 uiStrings::sConstant(false), gradientsurfdatalabel ) );
 	usegradientfld_->setSensitive( hasauxdata );

@@ -321,7 +321,7 @@ void uiSEGYReadStartInfo::man2DDefFlds()
     {
 	trcnrsrcfld_ = new uiComboBox( 0, "Trace number source" );
 	trcnrsrcfld_->addItem( tr("In file") );
-	trcnrsrcfld_->addItem( tr("Generate") );
+	trcnrsrcfld_->addItem( uiStrings::sGenerate() );
 	trcnrsrcfld_->selectionChanged.notify( parchgcb );
 	mAdd2Tbl( trcnrsrcfld_, mKey1Row, mUseTxtCol );
     }
@@ -409,7 +409,7 @@ void uiSEGYReadStartInfo::manPSDefFlds()
 	    psoffsrcfld_ = new uiComboBox( 0, "Offset source" );
 	    psoffsrcfld_->addItem( tr("In file") );
 	    psoffsrcfld_->addItem( tr("From Src/Rcv (X,Y)") );
-	    psoffsrcfld_->addItem( tr("Generate") );
+	    psoffsrcfld_->addItem( uiStrings::sGenerate() );
 	    psoffsrcfld_->selectionChanged.notify( parchgcb );
 	    mAdd2Tbl( psoffsrcfld_, mPSRow, mUseTxtCol );
 	}

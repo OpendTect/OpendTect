@@ -730,7 +730,7 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
     if ( grpnames.size()>1 )
     {
 	uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-					  uiStrings::phrSelect(tr("group" )) );
+		      uiStrings::phrSelect(uiStrings::sGroup().toLower()) );
 	grpfld_ = lcb->box();
 	grpfld_->addItems( grpnames.getUiStringSet() );
 	grpfld_->attach( alignedBelow, zinpfld_ );

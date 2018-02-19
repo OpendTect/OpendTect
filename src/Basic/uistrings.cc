@@ -40,8 +40,8 @@ uiPhrase uiStrings::phrCannotCreate( const uiWord& string )
 uiPhrase uiStrings::phrCannotCreateDBEntryFor(const uiWord& string)
 { return phrCannotCreate( tr("database entry for %1").arg(string) ); }
 
-uiPhrase uiStrings::phrCannotCreateDirectory( const uiWord& string )
-{ return phrCannotCreate( tr("directory %1").arg(string) ); }
+uiPhrase uiStrings::phrCannotCreateDirectory( const char* dirnm )
+{ return phrCannotCreate( tr("directory '%1'").arg(dirnm) ); }
 
 uiPhrase uiStrings::phrCannotCreateHor()
 { return phrCannotCreate( tr("horizon") ); }

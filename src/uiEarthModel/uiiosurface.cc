@@ -628,6 +628,7 @@ static int getUpdateOptIdx( int curoptidx, bool is2d, bool toui )
 class uiFaultOptSel: public uiDialog
 { mODTextTranslationClass(uiFaultOptSel)
 public:
+
     uiFaultOptSel( uiParent* p, uiFaultParSel& fltpar )
 	: uiDialog(p,uiDialog::Setup(
 		    tr( "%1 selection" ).arg( fltpar.is2d_
@@ -637,8 +638,8 @@ public:
                                             mODHelpKey(mFaultOptSelHelpID)))
 	, fltpar_(fltpar)
     {
-	const uiString& fltnm = fltpar.is2d_ ? toUiString("FaultStickSet") :
-								   tr("Fault");
+	const uiString& fltnm = fltpar.is2d_ ? uiStrings::sFaultStickSet()
+					     : uiStrings::sFault();
 	table_ = new uiTable( this, uiTable::Setup().rowgrow(true).
 		rowdesc(fltnm).defrowlbl("").selmode(uiTable::Multi).
 		rightclickdisabled(true), "Fault Boundary Table");

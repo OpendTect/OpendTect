@@ -832,7 +832,7 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 	    xcoorddeffld_->attach( alignedBelow, havecoordsinhdrfld_ );
 	    readcoordsfld_ = new uiGenInput( grp, tr("Coordinate source"),
 			     BoolInpSpec(false,tr("'Nr X Y' file"),
-					 tr("Generate")) );
+					 uiStrings::sGenerate()) );
 	    readcoordsfld_->attach( alignedBelow, havecoordsinhdrfld_ );
 	    readcoordsfld_->valuechanged.notify(
 					mCB(this,uiSEGYFileOpts,crdChk) );

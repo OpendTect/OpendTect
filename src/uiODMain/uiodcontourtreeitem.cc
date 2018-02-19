@@ -577,7 +577,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     showlblsfld_->activated.notify( mCB(this,uiContourParsDlg,uiDisplayCB) );
     showlblsfld_->attach( alignedBelow, lsfld_ );
 
-    fontfld_ = new uiPushButton( this, tr("Font"),
+    fontfld_ = new uiPushButton( this, uiStrings::sFont(),
 			    mCB(this,uiContourParsDlg,selectFontCB), false );
     fontfld_->attach( rightOf, showlblsfld_ );
 

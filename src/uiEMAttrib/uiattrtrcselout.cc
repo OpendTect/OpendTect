@@ -235,8 +235,8 @@ void uiAttrTrcSelOut::undefCB( CallBacker* )
 void uiAttrTrcSelOut::createInterpFld( uiParent* prnt )
 {
     const uiString interplbl = tr("Interpolate Horizons");
-    const uiString flbl = tr("Full");
-    const uiString plbl = tr("Partial");
+    const uiString flbl = uiStrings::sFull();
+    const uiString plbl = uiStrings::sPartial();
     interpfld_ = new uiGenInput( prnt, interplbl, BoolInpSpec(true,flbl,plbl) );
     interpfld_->setWithCheck( true );
     interpfld_->setChecked( true );

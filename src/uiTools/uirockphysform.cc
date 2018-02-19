@@ -134,7 +134,8 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p, PropertyRef::StdType typ )
 
 void uiRockPhysForm::createFlds( uiGroup* attobj )
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Formula") );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+						    uiStrings::sFormula() );
     lcb->box()->setHSzPol( uiObject::WideMax );
     lcb->label()->setPrefWidthInChar( 35 );
     lcb->label()->setAlignment( OD::Alignment::Right );

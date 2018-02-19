@@ -29,7 +29,7 @@ uiEventFreqAttrib::uiEventFreqAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d );
     typfld_ = new uiGenInput( this, uiStrings::sOutput(),
-			      BoolInpSpec(true,tr("Frequency"),
+			      BoolInpSpec(true,uiStrings::sFrequency(),
                                           tr("Phase")));
     typfld_->attach( alignedBelow, inpfld_ );
     setHAlignObj( inpfld_ );

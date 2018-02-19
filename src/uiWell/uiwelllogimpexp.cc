@@ -56,7 +56,8 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
 			      FloatInpIntervalSpec(false) );
     intvfld_->attach( alignedBelow, lasfld_ );
 
-    BoolInpSpec mft( !SI().depthsInFeet(), tr("Meter"), tr("Feet") );
+    BoolInpSpec mft( !SI().depthsInFeet(), uiStrings::sMeter(),
+					   uiStrings::sFeet() );
     intvunfld_ = new uiGenInput( this, uiString::empty(), mft );
     intvunfld_->attach( rightOf, intvfld_ );
     intvunfld_->display( false );

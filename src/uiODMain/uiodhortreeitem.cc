@@ -317,8 +317,8 @@ void uiODHorizonTreeItem::initMenuItems()
     workflowsmnuitem_.text = tr("Workflows");
     positionmnuitem_.text = m3Dots(tr("Position"));
     shiftmnuitem_.text = m3Dots(uiStrings::sShift());
-    fillholesmnuitem_.text = m3Dots(tr("Gridding"));
-    filterhormnuitem_.text = m3Dots(tr("Filtering"));
+    fillholesmnuitem_.text = m3Dots(uiStrings::sGridding());
+    filterhormnuitem_.text = m3Dots(uiStrings::sFiltering());
     snapeventmnuitem_.text = m3Dots(tr("Snapping"));
     geom2attrmnuitem_.text = m3Dots(tr("Store Z as Attribute"));
 

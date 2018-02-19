@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "odmemory.h"
 #include "polygon.h"
 #include "rowcol.h"
+#include "uistrings.h"
 
 class TrcKeySampling;
 template <class T> class Array2D;
@@ -96,7 +97,8 @@ public:
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    uiString			message() const { return tr("Gridding"); }
+    uiString			message() const
+				{ return uiStrings::sGridding(); }
 
     static const char*		sKeyFillType();
     static const char*		sKeyRowStep();

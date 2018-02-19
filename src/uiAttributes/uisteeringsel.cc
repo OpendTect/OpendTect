@@ -70,7 +70,8 @@ uiSteeringSel::~uiSteeringSel()
 void uiSteeringSel::createFields()
 {
     uiStringSet steertyps;
-    steertyps.add( uiStrings::sNone() ).add( tr("Central") ).add( tr("Full") );
+    steertyps.add( uiStrings::sNone() ).add( uiStrings::sCentral() )
+				       .add( uiStrings::sFull() );
     if ( withconstdir_ )
 	steertyps.add( tr("Constant direction") );
     typfld_ = new uiGenInput( this, uiStrings::sSteering(),

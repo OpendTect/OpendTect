@@ -29,7 +29,7 @@ public:
 
     mDecluiSettingsGroupPublicFns( uiFontSettingsGroup,
 				   LooknFeel, "Fonts", "font",
-				   tr("Fonts"),
+				   uiStrings::sFont(mPlural),
 				   mODHelpKey(mSetFontsHelpID) )
 
 			uiFontSettingsGroup(uiParent*,Settings&);

@@ -58,7 +58,7 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
     bottomhorfld_->attach( alignedBelow, usebottomhorfld_ );
 
     usegradientfld_ = new uiGenInput( this, tr("Slope type"),
-	    BoolInpSpec(hf->usesGradient(), tr("Gradient") ,
+	    BoolInpSpec(hf->usesGradient(), uiStrings::sGradient(),
 			tr("Bottom value") ));
     usegradientfld_->attach( alignedBelow, bottomhorfld_ );
     usegradientfld_->valuechanged.notify(mCB(this,uiHorInterFiller,updateFlds));

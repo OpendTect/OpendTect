@@ -88,7 +88,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     annotfld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     annotfld_->setSensitive( survboxfld_->isChecked() );
 
-    uiPushButton* annotfontbut = new uiPushButton(this, tr("Font"),
+    uiPushButton* annotfontbut = new uiPushButton(this, uiStrings::sFont(),
 			mCB(this,uiScenePropertyDlg,selAnnotFontCB), false);
     annotfontbut->attach( rightOf, annotfld_ );
 

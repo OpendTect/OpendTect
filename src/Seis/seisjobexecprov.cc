@@ -156,7 +156,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     }
     else if ( !File::createDir(tmpstordir) )
     {
-	errmsg_ = uiStrings::phrCannotCreateDirectory(toUiString(tmpstordir));
+	errmsg_ = uiStrings::phrCannotCreateDirectory( tmpstordir );
 	return 0;
     }
 

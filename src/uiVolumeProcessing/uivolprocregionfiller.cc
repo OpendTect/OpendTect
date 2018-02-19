@@ -95,7 +95,7 @@ uiGroup* uiRegionFiller::createVelGrp()
 
     const DBKey& gradhorid = regionfiller_->getGradientHorizonID();
     const bool constgrad = gradhorid.isInvalid();
-    gradvalselfld_ = new uiGenInput( grp, tr("Gradient"),
+    gradvalselfld_ = new uiGenInput( grp, uiStrings::sGradient(),
         BoolInpSpec(constgrad,uiStrings::sConstant(false),fromhorattribstr) );
     gradvalselfld_->setSensitive( hasauxdata );
     gradvalselfld_->valuechanged.notify( mCB(this,uiRegionFiller,gradientCB) );

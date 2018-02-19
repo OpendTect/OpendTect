@@ -77,8 +77,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 
     uiString lbl = uiStrings::phrOutput(uiStrings::phrJoinStrings(
 	uiStrings::sFrequency().toLower(), toUiString("(%1)")
-	.arg(zIsTime() ? tr("Hz") : (SI().zInMeter() ? tr("cycles/km")
-	: tr("cycles/kft")))));
+	.arg(zIsTime() ? "Hz" : (SI().zInMeter() ? "/km" : "/kft"))));
     outpfld_ = new uiLabeledSpinBox( this, lbl, 1 );
     outpfld_->attach( alignedBelow, tfpanelbut_ );
     outpfld_->box()->doSnap( true );

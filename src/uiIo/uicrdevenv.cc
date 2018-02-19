@@ -166,7 +166,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 
     if ( !File::createDir( workdirnm ) )
-	mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(workdirnm)) )
+	mErrRet( uiStrings::phrCannotCreateDirectory(workdirnm) )
 
     const uiString docmsg =
       tr("The OpendTect window will FREEZE during this process\n"

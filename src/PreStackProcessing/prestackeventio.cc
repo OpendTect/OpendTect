@@ -588,7 +588,7 @@ int EventWriter::nextStep()
 
 	    if ( !File::createDir(fnm.buf()) )
 	    {
-		errmsg_ = uiStrings::phrCannotCreateDirectory(toUiString(fnm));
+		errmsg_ = uiStrings::phrCannotCreateDirectory(fnm);
 		return ErrorOccurred();
 	    }
 	}

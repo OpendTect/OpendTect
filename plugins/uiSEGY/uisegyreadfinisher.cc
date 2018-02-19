@@ -479,8 +479,8 @@ bool uiSEGYReadFinisher::doMultiVintage()
 	    reportdlg.table_->setCellToolTip( RowCol(nrrows,0), tooltip );
 	    reportdlg.table_->setText( RowCol(nrrows,2), errmsg_ );
 	    reportdlg.table_->setText( RowCol(nrrows,1),
-				       impsuccess ? tr("Scuuess")
-						  : tr("Failed") );
+				       impsuccess ? uiStrings::sSuccess()
+						  : uiStrings::sFailed() );
 	    reportdlg.table_->setCellColor( RowCol(nrrows,1),
 					    impsuccess ? Color::Green()
 						       : Color::Red() );
@@ -879,9 +879,9 @@ uiSEGYImportReport::uiSEGYImportReport( uiParent* p )
 	       mNoDlgTitle, mNoHelpKey) )
 {
     table_ = new uiTable( this, uiTable::Setup(0, 3), "Final Report" );
-    table_->setColumnLabel( 0, tr("File") );
-    table_->setColumnLabel( 1, tr("Status") );
-    table_->setColumnLabel( 2, tr("Report") );
+    table_->setColumnLabel( 0, uiStrings::sFile() );
+    table_->setColumnLabel( 1, uiStrings::sStatus() );
+    table_->setColumnLabel( 2, uiStrings::sReport() );
     table_->resizeColumnToContents( 2 );
     table_->setPrefWidthInChars( 70  );
     table_->setPrefHeightInRows( 4  );

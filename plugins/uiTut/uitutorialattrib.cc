@@ -73,7 +73,7 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     stepoutfld_->setInterval( intv, intv );
     stepoutfld_->attach( alignedBelow, steerfld_ );
 
-    factorfld_ = new uiGenInput( this, tr("Factor"), FloatInpSpec() );
+    factorfld_ = new uiGenInput( this, uiStrings::sFactor(), FloatInpSpec() );
     factorfld_->attach( alignedBelow, actionfld_ );
 
     shiftfld_ = new uiGenInput( this, uiStrings::sShift(), FloatInpSpec() );

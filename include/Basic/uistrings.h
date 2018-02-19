@@ -52,7 +52,7 @@ public:
     static uiPhrase phrCannotCopy(const uiWord&);
     static uiPhrase phrCannotCreate(const uiWord&);
     static uiPhrase phrCannotCreateDBEntryFor(const uiWord&);
-    static uiPhrase phrCannotCreateDirectory(const uiWord&);
+    static uiPhrase phrCannotCreateDirectory(const char*);
     static uiPhrase phrCannotCreateHor();
     static uiPhrase phrCannotEdit(const uiWord&);
     static uiPhrase phrCannotExtract(const uiWord&);
@@ -233,6 +233,7 @@ public:
     static uiWord sCantReadHor();
     static uiWord sCantReadInp();
     static uiWord sCantWriteSettings();
+    static uiWord sCentral()		{ return tr("Central"); }
     static uiWord sChange()		{ return tr("Change"); }
     static uiWord sCheckPermissions();
     static uiWord sClear()		{ return tr("Clear"); }
@@ -244,8 +245,8 @@ public:
     static uiWord sColorTable(int n=1)	{ return tr("Color Table",0,n); }
     static uiWord sColumn(int n=1)	{ return tr("Column",0,n); }
     static uiWord sComponent()		{ return tr("Component"); }
-    static uiWord sConstant(bool form)
-    { return form ? tr("Constant","in formula"):tr("Constant","not changing"); }
+    static uiWord sConstant(bool math)
+    { return math ? tr("Constant","in formula"):tr("Constant","not changing"); }
     static uiWord sContinue()		{ return tr("Continue"); }
     static uiWord sContour(int n=1)	{ return tr("Contour",0,n); }
     static uiWord sConversion()		{ return tr("Conversion"); }
@@ -306,6 +307,7 @@ public:
     static uiWord sExtension()		{ return tr("Extension"); }
     static uiWord sExtract()		{ return tr("Extract"); }
     static uiWord sFactor(int n=1)	{ return tr("Factor",0,n); }
+    static uiWord sFailed()		{ return tr("Failed"); }
     static uiWord sFault(int n=1)	{ return tr("Fault",0,n); }
     static uiWord sFaultData()		{ return tr("Fault Data"); }
     static uiWord sFaultStickSet(int n=1) { return tr("FaultStickSet",0,n); }
@@ -313,18 +315,25 @@ public:
     static uiWord sFile()	        { return tr("File"); }
     static uiWord sFileName(int n=1)	{ return tr("File Name",0,n); }
     static uiWord sFilter(int n=1)	{ return tr("Filter",0,n); }
+    static uiWord sFiltering()		{ return tr("Filtering"); }
     static uiWord sFilters()		{ return sFilter(mPlural); }
     static uiWord sFinish()		{ return tr("Finish"); }
     static uiWord sFinished()		{ return tr("Finished"); }
     static uiWord sFlip()		{ return tr("Flip"); }
     static uiWord sFlipLeftRight()	{ return tr("Flip left/right"); }
+    static uiWord sFont(int n=1)	{ return tr("Font",0,n); }
+    static uiWord sFormula()		{ return tr("Flip"); }
     static uiWord sFrequency(int n=1)	{ return tr("Frequency",0,n); }
     static uiWord sFull()		{ return tr("Full"); }
     static uiWord sGeneral()		{ return tr("General"); }
+    static uiWord sGenerate()		{ return tr("Generate"); }
     static uiWord sGenerating()		{ return tr("Generating"); }
     static uiWord sGeometry(int n=1)	{ return tr("Geometry",0,n); }
     static uiWord sGo()			{ return tr("Go"); }
+    static uiWord sGradient()		{ return tr("Gradient"); }
     static uiWord sGreen()		{ return tr("Green"); }
+    static uiWord sGroup(int n=1)	{ return tr("Group",0,n); }
+    static uiWord sGridding()		{ return tr("Gridding"); }
     static uiWord sHalf()		{ return tr("Half"); }
     static uiWord sHeight()		{ return tr("Height"); }
     static uiWord sHelp()		{ return tr("Help"); }
@@ -425,6 +434,7 @@ public:
     static uiWord sOverwrite()		{ return tr("Overwrite"); }
     static uiWord sParFile()		{ return tr("Par File"); }
     static uiWord sParameter(int n=1)	{ return tr("Parameter",0,n); }
+    static uiWord sPartial()		{ return tr("Partial"); }
     static uiWord sPause()		{ return tr("Pause"); }
     static uiWord sPercentageDone()	{ return tr("Percentage done"); }
     static uiWord sPickSet(int n=1)	{ return tr("PickSet",0,n); }
@@ -435,7 +445,8 @@ public:
     static uiWord sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiWord sPrevious()		{ return tr("Previous"); }
     static uiWord sProbDensFunc(bool abbr,int n=1)
-    { return abbr ? tr("PDF",0,n) : tr("Probability Density Function", 0,n); }
+    { return abbr ? tr("PDF","abbr Probability Density Function",n)
+		  : tr("Probability Density Function", 0,n); }
     static uiWord sProbe(int n=1)	{ return tr("Probe",0,n); }
     static uiWord sProblem(int n=1)	{ return tr("Problem",0,n); }
     static uiWord sProcessing()		{ return tr("Processing"); }
@@ -455,6 +466,7 @@ public:
     static uiWord sRemove()		{ return tr("Remove"); }
     static uiWord sRemoveSelected()	{ return tr("Remove Selected"); }
     static uiWord sRename()		{ return tr("Rename"); }
+    static uiWord sReport()		{ return tr("Report"); }
     static uiWord sReservoir()		{ return tr("Reservoir"); }
     static uiWord sReset()		{ return tr("Reset"); }
     static uiWord sResume()		{ return tr("Resume"); }
@@ -506,6 +518,7 @@ public:
     static uiWord sStandard()		{ return tr("Standard"); }
     static uiWord sStart()		{ return tr("Start"); }
     static uiWord sStatistics()		{ return tr("Statistics"); }
+    static uiWord sStatus()		{ return tr("Status"); }
     static uiWord sSteering()		{ return tr("Steering"); }
     static uiWord sStep(int n=1)	{ return tr("Step",0,n); }
     static uiWord sStepout()		{ return tr("Stepout"); }
@@ -515,6 +528,7 @@ public:
     static uiWord sStorageDir()		{ return tr("Storage Directory"); }
     static uiWord sStored()		{ return tr("Stored"); }
     static uiWord sStratigraphy()	{ return tr("Stratigraphy"); }
+    static uiWord sSuccess()		{ return tr("Success"); }
     static uiWord sSurface(int n=1)	{ return tr("Surface",0,n); }
     static uiWord sSurvey(int n=1)	{ return tr("Survey",0,n); }
     static uiWord sSurveys()		{ return sSurvey(mPlural); }
@@ -550,8 +564,8 @@ public:
     static uiWord sUseSingleColor()	{ return tr("Use Single Color"); }
     static uiWord sUserSettings()	{ return tr("User Settings"); }
     static uiWord sUtilities()		{ return tr("Utilities"); }
-    static uiWord sVariable(bool form)
-    { return form ? tr("Variable","in formula") : tr("Variable","changing"); }
+    static uiWord sVariable(bool math)
+    { return math ? tr("Variable","in formula") : tr("Variable","changing"); }
     static uiWord sValue(int n=1)	{ return tr("Value",0,n); }
     static uiWord sVelocity(int n=1)	{ return tr("Velocity",0,n); }
     static uiWord sVertical()		{ return tr("Vertical"); }

@@ -102,9 +102,14 @@ static float getFreqXAxisScaler()
      */
 }
 
-//Wavelet taper dialog
 #define mPaddFac 3
 #define mPadSz mPaddFac*wvltsz_/2
+
+#define mSetToZDomWithUnit( str, istime ) \
+    str = (istime) ? uiStrings::sFrequency() : uiStrings::sWaveNumber(); \
+    str.postFixWord( toUiString((istime) ? "Hz" \
+			: (SI().depthsInFeet() ? "/miles" : "/km")) )
+
 uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     : uiSeisWvltSliderDlg(p,wvlt)
     , timedrawer_(0)
@@ -146,9 +151,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     s.rightrg_ = Interval<float> ( mCast(float,s.datasz_-1),
 				   mCast(float,s.datasz_) );
     s.is2sided_ = true;
-    s.xaxcaption_ = istime ? tr("Frequency (Hz)")
-			   : SI().depthsInFeet() ? tr("Wavenumber (/miles)")
-						 : tr("Wavenumber (/km)");
+    mSetToZDomWithUnit( s.xaxcaption_, istime );
     s.yaxcaption_ = tr("Gain (dB)");
     s.fillbelowy2_ = true;
     s.drawliney_ = false;
@@ -159,7 +162,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     typefld_ = new uiGenInput( this, tr("Taper"),
 		    BoolInpSpec(true, istime ? uiStrings::sTime()
                                              : uiStrings::sDepth(),
-                                               tr("Frequency")));
+                                               uiStrings::sFrequency()));
     typefld_->valuechanged.notify( mCB(this,uiSeisWvltTaperDlg,typeChoice) );
     typefld_->attach( centeredAbove, timedrawer_ );
 
@@ -327,12 +330,9 @@ void uiWaveletDispProp::addAttrDisp( int attridx )
     attrarrays_ += new Array1DImpl<float>( wvltsz_ );
     fdsu.ywidth_ = 2;
 
-    const uiString xname = attridx==0
-			 ? SI().zDomain().getLabel()
-			 : SI().zIsTime() ? tr("Frequency (Hz)")
-					  : SI().depthsInFeet()
-						 ? tr("Wavenumber (/miles)")
-						 : tr("Wavenumber (/km)");
+    uiString xname = SI().zDomain().getLabel();
+    if ( attridx==0 )
+	{ mSetToZDomWithUnit( xname, SI().zIsTime() ); }
 
     const uiString yname = attridx == 0 || attridx == 1
 			 ? uiStrings::sAmplitude()

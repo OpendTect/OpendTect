@@ -639,7 +639,7 @@ int SEGY::FileIndexer::nextStep()
 		if ( !File::isDirectory(outfile) )
 		{
 		    msg_ =
-		      uiStrings::phrCannotCreateDirectory(toUiString(outfile));
+		      uiStrings::phrCannotCreateDirectory(outfile);
 		    return ErrorOccurred();
 		}
 	    }

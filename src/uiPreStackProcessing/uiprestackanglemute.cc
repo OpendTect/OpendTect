@@ -183,12 +183,12 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
 
     freqf3fld_ = new uiGenInput( this, tr("Frequency F3"), FloatInpSpec() );
     freqf3fld_->attach( alignedBelow, smoothtypefld_ );
-    freqf3lbl_ = new uiLabel( this, tr("Hz") );
+    freqf3lbl_ = new uiLabel( this, toUiString("Hz") );
     freqf3lbl_->attach( rightOf, freqf3fld_ );
 
     freqf4fld_ = new uiGenInput( this, tr("Frequency F4"), FloatInpSpec() );
     freqf4fld_->attach( alignedBelow, freqf3fld_ );
-    freqf4lbl_ = new uiLabel( this, tr("Hz") );
+    freqf4lbl_ = new uiLabel( this, toUiString("Hz") );
     freqf4lbl_->attach( rightOf, freqf4fld_ );
 }
 

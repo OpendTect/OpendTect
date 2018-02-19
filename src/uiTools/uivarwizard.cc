@@ -58,7 +58,7 @@ uiVarWizardDlg::uiVarWizardDlg( uiParent* p, const uiDialog::Setup& su,
     , leave_(false)
 {
     if ( pos_ == End )
-	setOkText( tr("Finish") );
+	setOkText( uiStrings::sFinish() );
     else if ( pos_ == DoWork )
 	setOkText( uiStrings::sGo() );
     else

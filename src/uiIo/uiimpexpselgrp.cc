@@ -128,8 +128,7 @@ bool createBaseDir()
 	if  ( !File::createDir(basefp_.fullPath()) )
 	{
 	    const uiString msg =
-		uiStrings::phrCannotCreateDirectory(
-		toUiString(basefp_.fullPath()));
+		uiStrings::phrCannotCreateDirectory( basefp_.fullPath() );
 	    uiMSG().error( msg );
 	    return false;
 	}
@@ -494,8 +493,9 @@ public:
 
 uiSGSelDlg( uiParent* p, bool forread )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(uiStrings::phrCrossPlot(
-	uiStrings::phrJoinStrings(uiStrings::sSelection(), tr("Groups")))),
-        uiString::empty(), mNoHelpKey))
+	uiStrings::phrJoinStrings(uiStrings::sSelection(),
+				  uiStrings::sGroup(mPlural)))),
+        mNoDlgTitle, mNoHelpKey))
     , forread_(forread)
 {
     selgrp_ = new uiSGSelGrp( this, forread );

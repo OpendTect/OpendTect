@@ -254,8 +254,7 @@ bool uiSeisMMProc::initWork( bool retry )
 		File::createDir( tmpstordir );
 	    }
 	    if ( !File::isDirectory(tmpstordir) )
-		mErrRet( uiStrings::phrCannotCreateDirectory(
-						      toUiString(tmpstordir)) )
+		mErrRet( uiStrings::phrCannotCreateDirectory(tmpstordir) )
 	}
 
 	jobprov_->pars().write( parfnm_, sKey::Pars() );

@@ -17,10 +17,10 @@ ________________________________________________________________________
 uiRGBAttrSelDlg::uiRGBAttrSelDlg( uiParent* p, const Attrib::DescSet& ds )
     : uiDialog(p,Setup(tr("Select RGB Attributes"),mNoDlgTitle,mTODOHelpKey))
 {
-    rfld_ = new uiAttrSel( this, ds, tr("Red") );
+    rfld_ = new uiAttrSel( this, ds, uiStrings::sRed() );
     rfld_->showSteeringData( true );
 
-    gfld_ = new uiAttrSel( this, ds, tr("Green") );
+    gfld_ = new uiAttrSel( this, ds, uiStrings::sGreen() );
     gfld_->showSteeringData( true );
     gfld_->attach( alignedBelow, rfld_ );
 

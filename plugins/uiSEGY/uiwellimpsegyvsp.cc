@@ -145,7 +145,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
 				   StringListInpSpec(unnms) );
     }
     uigi->attach( alignedBelow, bparsfld_ );
-    inpinftfld_ = new uiCheckBox( this, tr("Feet") );
+    inpinftfld_ = new uiCheckBox( this, uiStrings::sFeet() );
     if ( definft ) inpinftfld_->setChecked( true );
     inpinftfld_->attach( rightOf, uigi );
     inpistvdfld_ = new uiCheckBox( this, tr("TVDSS") );
@@ -177,7 +177,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     outzrgfld_->attach( alignedBelow, lcb );
     outzrgfld_->setWithCheck( true );
     outzrgfld_->checked.notify( mCB(this,uiWellImportSEGYVSP,outSampChk) );
-    outinftfld_ = new uiCheckBox( this, tr("Feet") );
+    outinftfld_ = new uiCheckBox( this, uiStrings::sFeet() );
     if ( definft ) outinftfld_->setChecked( true );
     outinftfld_->attach( rightOf, outzrgfld_ );
     outistvdfld_ = new uiCheckBox( this, tr("TVDSS") );

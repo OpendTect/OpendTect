@@ -2106,7 +2106,7 @@ int Extension2DInterpolExecutor::nextStep()
 
     if ( !haveinterpolated )
     {
-	curmsg_ = tr("Finished");
+	curmsg_ = uiStrings::sFinished();
 	return Executor::Finished();
     }
 

@@ -19,7 +19,7 @@ mImplClassFactory( uiGridder2DGrp, factory );
 
 uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g,
 				PolyTrend::Order trend )
-    : uiDlgGroup( p, tr("Gridding") )
+    : uiDlgGroup( p, uiStrings::sGridding() )
 {
     int selidx = mUdf(int);
     const BufferStringSet griddernames = Gridder2D::factory().getKeys();

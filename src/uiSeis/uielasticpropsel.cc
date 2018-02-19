@@ -141,10 +141,10 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
     selmathfld_ = new uiLabeledComboBox( this, tr("Compute from") );
     selmathfld_->box()->addItem( tr("Defined quantity") );
     selmathfld_->box()->addItems( predeftitles.getUiStringSet() );
-    selmathfld_->box()->addItem( tr("Formula") );
+    selmathfld_->box()->addItem( uiStrings::sFormula() );
     selmathfld_->box()->selectionChanged.notify(selcompcb);
 
-    formfld_ = new uiGenInput( this, tr("Formula ") );
+    formfld_ = new uiGenInput( this, uiStrings::sFormula() );
     formfld_->attach( alignedBelow, selmathfld_ );
 
     singleinpfld_ = new uiLabeledComboBox( this, uiStrings::sUse() );
