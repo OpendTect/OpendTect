@@ -38,6 +38,7 @@ static IOObjContext mkCtxt()
     return ret;
 }
 
+
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage( tr("2D Geometry")),
 			       mNoDlgTitle, mODHelpKey(m2DGeomManageDlgHelpID))
@@ -56,6 +57,41 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 ui2DGeomManageDlg::~ui2DGeomManageDlg()
 {
 }
+
+
+//---------- Import New Geometry ----------------
+
+class uiGeom2DImpDlg : public uiDialog
+{ mODTextTranslationClass(uiGeom2DImpDlg);
+public:
+
+uiGeom2DImpDlg( uiParent* p, const char* linenm )
+    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sImport(),
+				 phrJoinStrings(uiStrings::sNew(),
+				 uiStrings::phrJoinStrings(uiStrings::sLine(),
+				 uiStrings::sGeometry()))),
+				 toUiString(linenm),
+				 mODHelpKey(mGeom2DImpDlgHelpID)))
+{
+    setOkText( uiStrings::sImport() );
+    Table::FormatDesc* geomfd = Geom2dAscIO::getDesc();
+    geom2dinfld_ = new uiFileSel( this, mJoinUiStrs(s2D(), phrJoinStrings(
+				   uiStrings::sGeometry(), uiStrings::sFile())),
+				   uiFileSel::Setup().withexamine(true) );
+    dataselfld_ = new uiTableImpDataSel( this, *geomfd, mNoHelpKey );
+    dataselfld_->attach( alignedBelow, geom2dinfld_ );
+}
+
+bool acceptOK()
+{
+    if ( File::isEmpty(geom2dinfld_->fileName()) )
+    { uiMSG().error(uiStrings::sInvInpFile()); return false; }
+    return true;
+}
+
+    uiFileSel*	geom2dinfld_;
+    uiTableImpDataSel*	dataselfld_;
+};
 
 
 //-----------Manage Line Geometry-----------------
@@ -118,42 +154,6 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
 
     fillTable( geom2d->data() );
 }
-
-
-//---------- Import New Geomtery ----------------
-
-class uiGeom2DImpDlg : public uiDialog
-{ mODTextTranslationClass(uiGeom2DImpDlg);
-public:
-
-uiGeom2DImpDlg( uiParent* p, const char* linenm )
-    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sImport(),
-				 phrJoinStrings(uiStrings::sNew(),
-				 uiStrings::phrJoinStrings(uiStrings::sLine(),
-				 uiStrings::sGeometry()))),
-				 toUiString(linenm),
-				 mODHelpKey(mGeom2DImpDlgHelpID)))
-{
-    setOkText( uiStrings::sImport() );
-    Table::FormatDesc* geomfd = Geom2dAscIO::getDesc();
-    geom2dinfld_ = new uiFileSel( this, mJoinUiStrs(s2D(), phrJoinStrings(
-				   uiStrings::sGeometry(), uiStrings::sFile())),
-				   uiFileSel::Setup().withexamine(true) );
-    dataselfld_ = new uiTableImpDataSel( this, *geomfd, mNoHelpKey );
-    dataselfld_->attach( alignedBelow, geom2dinfld_ );
-}
-
-bool acceptOK()
-{
-    if ( File::isEmpty(geom2dinfld_->fileName()) )
-    { uiMSG().error(uiStrings::sInvInpFile()); return false; }
-    return true;
-}
-
-    uiFileSel*	geom2dinfld_;
-    uiTableImpDataSel*	dataselfld_;
-};
-
 
 void impLineGeom( CallBacker* )
 {
