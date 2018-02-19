@@ -305,29 +305,6 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 }
 
 
-void uiODVw2DFaultSS2DTreeItem::displayMiniCtab()
-{
-    EM::Object* emobj = EM::MGR().getObject( emid_ );
-    if ( !emobj ) return;
-
-    uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
-				emobj->preferredColor() );
-}
-
-
-void uiODVw2DFaultSS2DTreeItem::emobjChangeCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller( EM::ObjectCallbackData,
-				cbdata, caller, cb );
-    mDynamicCastGet(EM::Object*,emobject,caller);
-    if ( !emobject ) return;
-
-    if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
-	displayMiniCtab();
-}
-
-
 void uiODVw2DFaultSS2DTreeItem::enableKnotsCB( CallBacker* )
 {
     if ( fssview_ && viewer2D()->dataMgr()->selectedID() == fssview_->id() )
@@ -359,7 +336,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
     uiEMPartServer* ems = applMgr()->EMServer();
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
 
-//    addAction( mnu, uiStrings::sProperties(), mPropID, "disppars", true );
+    addAction( mnu, m3Dots(uiStrings::sProperties()), mPropID, "disppars",true);
 
     const bool haschanged = ems->isChanged( emid_ );
     addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
@@ -370,16 +347,11 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )
-    {
-    // ToDo
-    }
-    else if ( mnuid==mSaveID || mnuid==mSaveAsID )
-    {
-	if ( mnuid==mSaveID )
-	    doSave();
-	if ( mnuid==mSaveAsID )
-	    doSaveAs();
-    }
+	showPropDlg();
+    else if ( mnuid==mSaveID )
+	doSave();
+    else if ( mnuid==mSaveAsID )
+	doSaveAs();
     else if ( isRemoveItem(mnuid,false) || isRemoveItem(mnuid,true) )
     {
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
@@ -418,7 +390,7 @@ void uiODVw2DFaultSS2DTreeItem::checkCB( CallBacker* )
 
 void uiODVw2DFaultSS2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( const DBKey&, emid, cb );
+    mCBCapsuleUnpack(const DBKey&,emid,cb);
     if ( emid != emid_ ) return;
 
     EM::Object* emobj = EM::MGR().getObject( emid );

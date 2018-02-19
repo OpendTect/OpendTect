@@ -49,9 +49,9 @@ mExpClass(uiODMain) uiODVw2DHor3DTreeItemFactory
 public:
 
     const char*		name() const		{ return typeid(*this).name(); }
-    uiTreeItem*         create() const
+    uiTreeItem*		create() const
 			{ return new uiODVw2DHor3DParentTreeItem(); }
-    uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
 
 };
 
@@ -65,7 +65,6 @@ public:
 
     bool		select();
     bool		showSubMenu();
-    const DBKey&	emObjectID() const	{ return emid_; }
     const Vw2DDataObject* vw2DObject() const;
 
 protected:
@@ -82,10 +81,6 @@ protected:
     void		deSelCB(CallBacker*);
     void		mousePressInVwrCB(CallBacker*);
     void		mouseReleaseInVwrCB(CallBacker*);
-    void		displayMiniCtab();
-    void		renameVisObj();
-
-    void		emobjChangeCB(CallBacker*);
 
     Vw2DHorizon3D*	horview_;
     void		emobjAbtToDelCB(CallBacker*);

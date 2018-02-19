@@ -211,6 +211,8 @@ void uiODVw2DFaultSSParentTreeItem::addNewTempFaultSS( const DBKey& emid )
 }
 
 
+
+// uiODVw2DFaultSSTreeItem
 uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( const DBKey& emid )
     : uiODVw2DEMTreeItem( emid )
     , fssview_(0)
@@ -281,30 +283,6 @@ bool uiODVw2DFaultSSTreeItem::init()
 }
 
 
-void uiODVw2DFaultSSTreeItem::displayMiniCtab()
-{
-    EM::Object* emobj = EM::FSSMan().getObject( emid_ );
-    if ( !emobj ) return;
-
-    uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
-				emobj->preferredColor() );
-}
-
-
-void uiODVw2DFaultSSTreeItem::emobjChangeCB( CallBacker* cb )
-{
-    mGetMonitoredChgData( cb, cbdata );
-    if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
-	displayMiniCtab();
-    else if ( cbdata.changeType() == EM::Object::cNameChange() )
-    {
-	name_ = toUiString( DBM().nameOf(emid_) );
-	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-    }
-}
-
-
 void uiODVw2DFaultSSTreeItem::enableKnotsCB( CallBacker* )
 {
     if ( fssview_ && viewer2D()->dataMgr()->selectedID() == fssview_->id() )
@@ -337,7 +315,7 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
     uiEMPartServer* ems = applMgr()->EMServer();
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
 
-//    addAction( mnu, uiStrings::sProperties(), mPropID, "disppars", true );
+    addAction( mnu, m3Dots(uiStrings::sProperties()), mPropID, "disppars",true);
 
     const bool haschanged = ems->isChanged( emid_ );
     addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
@@ -348,16 +326,11 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )
-    {
-    // ToDo
-    }
-    else if ( mnuid==mSaveID || mnuid==mSaveAsID )
-    {
-	if ( mnuid==mSaveID )
-	    doSave();
-	if ( mnuid== mSaveAsID )
-	    doSaveAs();
-    }
+	showPropDlg();
+    else if ( mnuid==mSaveID )
+	doSave();
+    else if ( mnuid== mSaveAsID )
+	doSaveAs();
     else if ( isRemoveItem(mnuid,false) || isRemoveItem(mnuid,true) )
     {
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )

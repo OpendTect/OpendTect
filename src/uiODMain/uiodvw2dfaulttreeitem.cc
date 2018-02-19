@@ -206,6 +206,8 @@ void uiODVw2DFaultParentTreeItem::addNewTempFault( const DBKey& emid )
 }
 
 
+
+// uiODVw2DFaultTreeItem
 uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( const DBKey& emid )
     : uiODVw2DEMTreeItem(emid)
     , faultview_(0)
@@ -277,34 +279,6 @@ bool uiODVw2DFaultTreeItem::init()
 }
 
 
-void uiODVw2DFaultTreeItem::displayMiniCtab()
-{
-    EM::Object* emobj = EM::Flt3DMan().getObject( emid_ );
-    if ( !emobj ) return;
-
-    uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
-				emobj->preferredColor() );
-}
-
-
-void uiODVw2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller( EM::ObjectCallbackData,
-				cbdata, caller, cb );
-    mDynamicCastGet(EM::Object*,emobject,caller);
-    if ( !emobject ) return;
-
-    if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
-	displayMiniCtab();
-    else if ( cbdata.changeType() == EM::Object::cNameChange() )
-    {
-	name_ = toUiString(DBM().nameOf( emid_ ));
-	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-    }
-}
-
-
 void uiODVw2DFaultTreeItem::enableKnotsCB( CallBacker* )
 {
     if ( faultview_ && viewer2D()->dataMgr()->selectedID() == faultview_->id() )
@@ -337,7 +311,7 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
     uiEMPartServer* ems = applMgr()->EMServer();
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
 
-//    addAction( mnu, uiStrings::sProperties(), mPropID, "disppars", true );
+    addAction( mnu, m3Dots(uiStrings::sProperties()), mPropID, "disppars",true);
 
     const bool haschanged = ems->isChanged( emid_ );
     addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
@@ -348,16 +322,11 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )
-    {
-    // ToDo
-    }
-    else if ( mnuid==mSaveID || mnuid==mSaveAsID )
-    {
-	if ( mnuid==mSaveID )
-	    doSave();
-	if ( mnuid==mSaveAsID )
-	    doSaveAs();
-    }
+	showPropDlg();
+    else if ( mnuid==mSaveID )
+	doSave();
+    else if ( mnuid==mSaveAsID )
+	doSaveAs();
     else if ( isRemoveItem(mnuid,false) || isRemoveItem(mnuid,true) )
     {
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )

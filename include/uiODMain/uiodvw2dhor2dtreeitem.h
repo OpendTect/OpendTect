@@ -18,7 +18,7 @@ class Vw2DHorizon2D;
 
 
 mExpClass(uiODMain) uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DHor2DParentTreeItem);
+{ mODTextTranslationClass(uiODVw2DHor2DParentTreeItem)
 public:
 
 				uiODVw2DHor2DParentTreeItem();
@@ -37,7 +37,7 @@ protected:
 
     bool			init();
     const char*			iconName() const;
-    bool                        handleSubMenu(int);
+    bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
     void			getNonLoadedTrackedHor2Ds(DBKeySet&);
@@ -68,7 +68,6 @@ public:
 
     bool		showSubMenu();
     bool		select();
-    const DBKey&	emObjectID() const	{ return emid_; }
     const Vw2DDataObject* vw2DObject() const;
 
 protected:
@@ -78,14 +77,12 @@ protected:
 			{ return typeid(uiODVw2DHor2DParentTreeItem).name(); }
     bool		isSelectable() const			{ return true; }
 
-    void                updateSelSpec(const Attrib::SelSpec*,bool wva);
+    void		updateSelSpec(const Attrib::SelSpec*,bool wva);
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);
-    void		emobjChangeCB(CallBacker*);
     void		emobjAbtToDelCB(CallBacker*);
     void		mousePressInVwrCB(CallBacker*);
     void		mouseReleaseInVwrCB(CallBacker*);
-    void		displayMiniCtab();
 
     Vw2DHorizon2D*	horview_;
 

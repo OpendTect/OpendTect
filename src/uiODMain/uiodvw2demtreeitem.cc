@@ -10,22 +10,23 @@ ________________________________________________________________________
 
 #include "uiodvw2demtreeitem.h"
 
-#include "uitreeitem.h"
-#include "uiodapplmgr.h"
-#include "uiodviewer2dmgr.h"
+#include "uicolor.h"
 #include "uiempartserv.h"
 #include "uimpepartserv.h"
+#include "uiodapplmgr.h"
+#include "uiodviewer2dmgr.h"
+#include "uisellinest.h"
+#include "uispinbox.h"
+#include "uitreeitem.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
-
-#include "uiodvw2dhor2dtreeitem.h"
-#include "uiodvw2dhor3dtreeitem.h"
 
 #include "mpeengine.h"
 #include "commondefs.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "ptrman.h"
 #include "ioobj.h"
+#include "ptrman.h"
 
 
 uiODVw2DEMTreeItem::uiODVw2DEMTreeItem( const DBKey& emid )
@@ -92,3 +93,71 @@ void uiODVw2DEMTreeItem::renameVisObj()
     uiTreeItem::updateColumnText(uiODViewer2DMgr::cNameColumn());
     applMgr()->visServer()->triggerTreeUpdate();
 }
+
+
+void uiODVw2DEMTreeItem::displayMiniCtab()
+{
+    EM::Object* emobj = EM::MGR().getObject( emid_ );
+    if ( !emobj ) return;
+
+    uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
+    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
+				emobj->preferredColor() );
+}
+
+
+void uiODVw2DEMTreeItem::emobjChangeCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller(EM::ObjectCallbackData,cbdata,caller,cb);
+    mDynamicCastGet(EM::Object*,emobj,caller);
+    if ( !emobj ) return;
+
+    if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
+	displayMiniCtab();
+    else if ( cbdata.changeType() == EM::Object::cNameChange() )
+    {
+	name_ = toUiString(DBM().nameOf( emid_ ));
+	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+    }
+}
+
+
+void uiODVw2DEMTreeItem::showPropDlg()
+{
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
+    uiDialog dlg( getUiParent(), uiDialog::Setup(uiStrings::sProperties(),
+						mNoDlgTitle,mNoHelpKey) );
+    dlg.setCtrlStyle( uiDialog::CloseOnly );
+    uiSelLineStyle::Setup lssu;
+    lssu.drawstyle(false);
+    OD::LineStyle ls = emobj->preferredLineStyle();
+    ls.color_ = emobj->preferredColor();
+    uiSelLineStyle* lsfld = new uiSelLineStyle( &dlg, ls, lssu );
+    lsfld->changed.notify( mCB(this,uiODVw2DEMTreeItem,propChgCB) );
+    dlg.go();
+}
+
+
+void uiODVw2DEMTreeItem::propChgCB( CallBacker* cb )
+{
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
+    mDynamicCastGet(uiColorInput*,colfld,cb)
+    if ( colfld )
+    {
+	emobj->setPreferredColor( colfld->color() );
+	return;
+    }
+
+    OD::LineStyle ls = emobj->preferredLineStyle();
+    mDynamicCastGet(uiSpinBox*,szfld,cb)
+    if ( szfld )
+    {
+	ls.width_ = szfld->getIntValue();
+	emobj->setPreferredLineStyle( ls );
+    }
+}
+

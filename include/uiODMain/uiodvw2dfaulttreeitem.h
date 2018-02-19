@@ -18,7 +18,7 @@ class uiODViewer2D;
 
 
 mExpClass(uiODMain) uiODVw2DFaultParentTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DFaultParentTreeItem);
+{ mODTextTranslationClass(uiODVw2DFaultParentTreeItem)
 public:
 
 				uiODVw2DFaultParentTreeItem();
@@ -40,7 +40,6 @@ protected:
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-
 };
 
 
@@ -48,15 +47,15 @@ mExpClass(uiODMain) uiODVw2DFaultTreeItemFactory
 				: public uiODVw2DTreeItemFactory
 {
 public:
-    const char*         name() const		{ return typeid(*this).name(); }
-    uiTreeItem*         create() const
+    const char*		name() const		{ return typeid(*this).name(); }
+    uiTreeItem*		create() const
 			{ return new uiODVw2DFaultParentTreeItem(); }
-    uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
 };
 
 
 mExpClass(uiODMain) uiODVw2DFaultTreeItem : public uiODVw2DEMTreeItem
-{ mODTextTranslationClass(uiODVw2DFaultTreeItem);
+{ mODTextTranslationClass(uiODVw2DFaultTreeItem)
 public:
 			uiODVw2DFaultTreeItem(const DBKey&);
 			uiODVw2DFaultTreeItem(int dispid,bool dummy);
@@ -64,7 +63,6 @@ public:
 
     bool		showSubMenu();
     bool		select();
-    const DBKey&	emObjectID() const	{ return emid_; }
     const Vw2DDataObject* vw2DObject() const;
 
 protected:
@@ -78,10 +76,7 @@ protected:
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);
     void		emobjAbtToDelCB(CallBacker*);
-    void		displayMiniCtab();
 
-    void		emobjChangeCB(CallBacker*);
     void		enableKnotsCB(CallBacker*);
     VW2DFault*		faultview_;
-
 };

@@ -287,7 +287,7 @@ bool uiODVw2DHor2DParentTreeItem::init()
 { return uiODVw2DTreeItem::init(); }
 
 
-
+// uiODVw2DHor2DTreeItem
 uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( const DBKey& emid )
     : uiODVw2DEMTreeItem(emid)
     , horview_(0)
@@ -395,34 +395,6 @@ bool uiODVw2DHor2DTreeItem::init()
 }
 
 
-void uiODVw2DHor2DTreeItem::displayMiniCtab()
-{
-    EM::Object* emobj = EM::Hor2DMan().getObject( emid_ );
-    if ( !emobj ) return;
-
-    uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
-				emobj->preferredColor() );
-}
-
-
-void uiODVw2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller( EM::ObjectCallbackData,
-				cbdata, caller, cb );
-    mDynamicCastGet(EM::Object*,emobject,caller);
-    if ( !emobject ) return;
-
-    if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
-	displayMiniCtab();
-    else if ( cbdata.changeType() == EM::Object::cNameChange() )
-    {
-	name_ = toUiString(DBM().nameOf( emid_ ));
-	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-    }
-}
-
-
 #define mPropID		0
 #define mStartID	1
 #define mSettsID	2
@@ -438,7 +410,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
 
-//    addAction( mnu, uiStrings::sProperties(), mPropID, "disppars", true );
+    addAction( mnu, m3Dots(uiStrings::sProperties()), mPropID, "disppars",true);
 
     uiMenu* trackmnu = new uiMenu( uiStrings::sTracking() );
     mnu.addMenu( trackmnu );
@@ -457,18 +429,11 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )
-    {
-// TODO
-    }
+	showPropDlg();
     else if ( mnuid == mSaveID )
-    {
 	doSave();
-
-    }
     else if ( mnuid == mSaveAsID )
-    {
 	doSaveAs();
-    }
     else if ( mnuid == mStartID )
     {
 	const EM::Object* emobj = EM::Hor2DMan().getObject( emid_ );
@@ -556,16 +521,12 @@ void uiODVw2DHor2DTreeItem::updateSelSpec( const Attrib::SelSpec* selspec,
 
 void uiODVw2DHor2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( const DBKey&, emid, cb );
+    mCBCapsuleUnpack(const DBKey&,emid,cb);
     if ( emid != emid_ ) return;
 
     EM::Object* emobj = EM::Hor2DMan().getObject( emid );
-    if ( !emobj ) return;
-
     mDynamicCastGet(EM::Horizon2D*,hor2d,emobj);
     if ( !hor2d )
-	return;
-    if ( emid != emid_ )
 	return;
 
     parent_->removeChild( this );

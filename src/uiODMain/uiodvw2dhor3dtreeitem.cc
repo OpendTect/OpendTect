@@ -306,7 +306,7 @@ bool uiODVw2DHor3DParentTreeItem::init()
 { return uiODVw2DTreeItem::init(); }
 
 
-
+// uiODVw2DHor3DTreeItem
 uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const DBKey& emid )
     : uiODVw2DEMTreeItem(emid)
     , horview_(0)
@@ -409,44 +409,6 @@ bool uiODVw2DHor3DTreeItem::init()
 }
 
 
-void uiODVw2DHor3DTreeItem::displayMiniCtab()
-{
-    EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );
-    if ( !emobj ) return;
-
-    uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
-				emobj->preferredColor() );
-}
-
-
-void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller( EM::ObjectCallbackData,
-				cbdata, caller, cb );
-    mDynamicCastGet(EM::Object*,emobject,caller);
-    if ( !emobject ) return;
-
-    if ( cbdata.changeType() == EM::Object::cPrefColorChange() )
-	displayMiniCtab();
-    else if ( cbdata.changeType() == EM::Object::cNameChange() )
-    {
-	name_ = toUiString(DBM().nameOf( emid_ ));
-	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-    }
-}
-
-
-void uiODVw2DHor3DTreeItem::renameVisObj()
-{
-    TypeSet<int> visobjids;
-    applMgr()->visServer()->findObject( emid_, visobjids );
-    for ( int idx=0; idx<visobjids.size(); idx++ )
-	applMgr()->visServer()->setUiObjectName( visobjids[idx], name_ );
-    applMgr()->visServer()->triggerTreeUpdate();
-}
-
-
 #define mPropID		0
 #define mStartID	1
 #define mSettsID	2
@@ -462,7 +424,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
 
-//    addAction( mnu, uiStrings::sProperties(), mPropID, "disppars", true );
+    addAction( mnu, m3Dots(uiStrings::sProperties()), mPropID, "disppars",true);
 
     uiMenu* trackmnu = new uiMenu( uiStrings::sTracking() );
     mnu.addMenu( trackmnu );
@@ -481,17 +443,11 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )
-    {
-// TODO
-    }
+	showPropDlg();
     else if ( mnuid == mSaveID )
-    {
 	doSave();
-    }
     else if ( mnuid == mSaveAsID )
-    {
 	doSaveAs();
-    }
     else if ( mnuid == mStartID )
     {
 	const EM::Object* emobj = EM::Hor3DMan().getObject( emid_ );

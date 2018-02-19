@@ -66,7 +66,6 @@ public:
 
     bool		showSubMenu();
     bool		select();
-    const DBKey&	emObjectID() const	{ return emid_; }
     const Vw2DDataObject* vw2DObject() const;
 
 protected:
@@ -79,9 +78,7 @@ protected:
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);
     void		emobjAbtToDelCB(CallBacker*);
-    void		displayMiniCtab();
 
-    void		emobjChangeCB(CallBacker*);
     void		enableKnotsCB(CallBacker*);
 
     VW2DFaultSS2D*	fssview_;
