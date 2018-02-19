@@ -124,7 +124,7 @@ void uiODVw2DEMTreeItem::emobjChangeCB( CallBacker* cb )
 
 void uiODVw2DEMTreeItem::showPropDlg()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::Object* emobj = EM::MGR().getObject( emid_ );
     if ( !emobj ) return;
 
     uiDialog dlg( getUiParent(), uiDialog::Setup(uiStrings::sProperties(),
@@ -142,7 +142,7 @@ void uiODVw2DEMTreeItem::showPropDlg()
 
 void uiODVw2DEMTreeItem::propChgCB( CallBacker* cb )
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::Object* emobj = EM::MGR().getObject( emid_ );
     if ( !emobj ) return;
 
     mDynamicCastGet(uiColorInput*,colfld,cb)
