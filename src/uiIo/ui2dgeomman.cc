@@ -65,9 +65,8 @@ class uiManageLineGeomDlg : public uiDialog
 public:
 
 uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
-    : uiDialog(p,uiDialog::Setup( mJoinUiStrs(sManage(),
-				  uiStrings::sLineGeometry()),mNoDlgTitle,
-				  mODHelpKey(mManageLineGeomDlgHelpID) ))
+    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sManage(),sLineGeometry()),
+			mNoDlgTitle,mODHelpKey(mManageLineGeomDlgHelpID)))
     , linenm_(linenm),readonly_(readonly)
 {
     if ( readonly )
