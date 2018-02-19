@@ -1011,20 +1011,9 @@ void ui3DViewerBody::setSceneID( int sceneid )
 
 void ui3DViewerBody::updateZDomainInfo()
 {
-    const uiString xyunit = SI().xyUnitString(true,true);
-
-    const uiString north = uiStrings::phrJoinStrings( uiStrings::sNorth(true),
-                                                      xyunit );
-    const uiString east = uiStrings::phrJoinStrings( uiStrings::sEast(true),
-                                                     xyunit );
-    axes_->setAnnotationText( 0, north );
-    axes_->setAnnotationText( 1, east );
-
-    mDynamicCastGet( visSurvey::Scene*, survscene, scene_.ptr() );
-    if ( survscene )
-    {
-        axes_->setAnnotationText( 2, survscene->zDomainInfo().getLabel() );
-    }
+    axes_->setAnnotationText( 0, uiStrings::sNorth(true) );
+    axes_->setAnnotationText( 1, uiStrings::sEast(true) );
+    axes_->setAnnotationText( 2, uiStrings::sZ() );
 }
 
 
