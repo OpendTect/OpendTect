@@ -50,7 +50,7 @@ uiTrimStatics::uiTrimStatics( uiParent* p, TrimStatics* trimstat )
 	   .add( tr("Pilot trace\nOffset stop") )
 	   .add( tr("Trim\nOffset start") ).add( tr("Trim\nOffset stop") )
 	   .add( tr("Max shift") );
-    uiTable::Setup ts; ts.defrowlbl(true).rowdesc(tr("Iteration"));
+    uiTable::Setup ts; ts.defrowlbl(true).rowdesc(uiStrings::sIteration());
     table_ = new uiTable( this, ts, "Parameter table" );
     table_->setPrefWidth( 500 );
     table_->setColumnLabels( collbls );
@@ -69,10 +69,10 @@ uiTrimStatics::uiTrimStatics( uiParent* p, TrimStatics* trimstat )
 
     uiButtonGroup* grp = new uiButtonGroup( this, "Buttons", OD::Vertical );
     grp->attach( rightTo, table_ );
-    new uiToolButton( grp, "iterate", uiStrings::phrAdd(tr("Iteration")),
-					     mCB(this,uiTrimStatics,addCB) );
+    new uiToolButton( grp, "iterate", uiStrings::phrAdd(
+		uiStrings::sIteration()), mCB(this,uiTrimStatics,addCB) );
     rmbut_ = new uiToolButton( grp, "remove",	uiStrings::phrRemove(
-			    tr("Iteration")), mCB(this,uiTrimStatics,rmCB) );
+		    uiStrings::sIteration()), mCB(this,uiTrimStatics,rmCB) );
     upbut_ = new uiToolButton(grp, uiToolButton::UpArrow,
 			uiStrings::sMoveUp(), mCB(this,uiTrimStatics,moveUpCB));
     downbut_ = new uiToolButton( grp, uiToolButton::DownArrow,

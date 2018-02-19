@@ -891,7 +891,7 @@ void uiODHorizon2DTreeItem::initMenuItems()
     workflowsmnuitem_.text = tr("Workflows");
     derive3dhormnuitem_.text = m3Dots(tr("Derive 3D horizon"));
     snapeventmnuitem_.text = m3Dots(tr("Snapping"));
-    interpolatemnuitem_.text = m3Dots(tr("Interpolate"));
+    interpolatemnuitem_.text = m3Dots(uiStrings::sInterpolate());
 }
 
 

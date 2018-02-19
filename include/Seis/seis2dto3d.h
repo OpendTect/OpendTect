@@ -38,7 +38,7 @@ public:
 			~Seis2DTo3D();
 
     uiString		message() const
-			{ return errmsg_.isEmpty() ? tr("interpolating")
+			{ return errmsg_.isEmpty() ? uiStrings::sInterpolating()
 						   : errmsg_; }
     od_int64		nrDone() const	   { return nrdone_; }
     uiString		nrDoneText() const { return tr("Number interpolated"); }
@@ -103,6 +103,7 @@ protected:
 mExpClass(Seis) Seis2DTo3DImpl : public Seis2DTo3D
 {
 public:
+
 	mDefaultFactoryInstantiation(
 		Seis2DTo3D,
 		Seis2DTo3DImpl,

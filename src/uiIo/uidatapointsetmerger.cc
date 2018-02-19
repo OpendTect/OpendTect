@@ -256,7 +256,8 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 
     overwritefld_ =
 	new uiGenInput( this, uiStrings::sUndefVal(),
-			BoolInpSpec(true,tr("Replace if possible"),tr("Keep")));
+			BoolInpSpec(true,tr("Replace if possible"),
+				    uiStrings::sKeep()));
     overwritefld_->attach( alignedBelow, rlcbox );
 
     ctio_.ctxt_.forread_ = false;

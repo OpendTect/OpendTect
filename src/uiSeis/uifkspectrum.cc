@@ -62,12 +62,13 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
 
     lineitm_ = initAuxData();
 
-    ffld_ = new uiGenInput( this, SI().zIsTime() ? tr("F") : tr("Kz") );
+    ffld_ = new uiGenInput( this, toUiString(SI().zIsTime() ? "F" : "Kz") );
     ffld_->setReadOnly();
-    kfld_ = new uiGenInput( this, tr("K") );
+    kfld_ = new uiGenInput( this, toUiString("K") );
     kfld_->setReadOnly();
-    velfld_ = new uiGenInput( this, SI().zIsTime() ? tr("Vel (m/s)")
-						   : tr("Dip (deg)"));
+    velfld_ = new uiGenInput( this, SI().zIsTime()
+		? uiStrings::sVelocity().appendPlainText( "(m/s)", true )
+		: uiStrings::sDip().appendPlainText( "(deg)", true ) );
     velfld_->setReadOnly();
     ffld_->attach( leftAlignedBelow, &vwr );
     kfld_->attach( rightTo, ffld_ );

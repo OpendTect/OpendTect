@@ -321,7 +321,7 @@ bool uiExport2DHorizon::acceptOK()
 	mErrRet( uiStrings::sSelOutpFile() );
 
     if ( File::exists(outfnm) &&
-	!uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
+	!uiMSG().askOverwrite(uiStrings::phrOutputFileExistsOverwrite()) )
 	return false;
 
     const bool res = doExport();

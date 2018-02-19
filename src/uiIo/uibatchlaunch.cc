@@ -100,7 +100,8 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     rmfilebut_ = uiToolButton::getStd( topgrp, OD::Delete,
 		 mCB(this,uiStartBatchJobDialog,rmFile),
 		 uiStrings::phrDelete(
-		 uiStrings::phrJoinStrings(tr("Job"), uiStrings::sFile())) );
+		 uiStrings::phrJoinStrings(uiStrings::sJob(),
+					   uiStrings::sFile())) );
     rmfilebut_->attach( centeredRightOf, jobsfld_ );
 
     topgrp->setFrame( true );
@@ -213,8 +214,8 @@ void uiStartBatchJobDialog::viewFile( CallBacker* )
 
     uiTextFileDlg* dlg = new uiTextFileDlg( this, filenames_.get(selidx) );
     dlg->setDeleteOnClose( true );
-    dlg->setCaption( tr("Job: %1").arg(toUiString(jobsfld_->textOfItem(
-								    selidx))) );
+    dlg->setCaption( toUiString("%1: %2").arg( uiStrings::sJob() )
+			    .arg(jobsfld_->textOfItem(selidx)) );
     dlg->go();
 }
 

@@ -2085,7 +2085,7 @@ int Extension2DInterpolExecutor::nextStep()
 	    }
 	}
 
-	curmsg_ = tr("Interpolating");
+	curmsg_ = uiStrings::sInterpolating();
 	return Executor::MoreToDo();
     }
 

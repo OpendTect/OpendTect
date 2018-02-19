@@ -135,8 +135,7 @@ uiPhrase uiStrings::phrEnter( const uiWord& string )
 
 uiPhrase uiStrings::phrExistsContinue( const uiWord& string, bool overwrite )
 {
-    return tr( "%1 exists. %2?")
-	.arg( string )
+    return tr( "%1 exists. %2?").arg( string )
 	.arg( overwrite ? sOverwrite() : sContinue() );
 }
 
@@ -216,13 +215,18 @@ uiPhrase uiStrings::phrOpen( const uiWord& string )
 uiPhrase uiStrings::phrOutput( const uiWord& string )
 { return toUiString(joinstring).arg( sOutput() ).arg( string ); }
 
+uiWord uiStrings::phrOutputFileExistsOverwrite()
+{ return phrExistsContinue( sOutputFile(), true ); }
+
 uiPhrase uiStrings::phrPlsContactSupport( bool firstdoc )
 {
     if ( !firstdoc )
-	return tr( "Please contact OpendTect support at support@dgbes.com." );
-    return tr( "Please consult the documentation at opendtect.org."
-	    "\nIf that fails you may want to contact OpendTect support at "
-	    "support@dgbes.com.");
+	return tr("Please contact OpendTect support at support@dgbes.com.");
+
+    uiPhrase ret( tr("Please consult the documentation at opendtect.org") );
+    ret.appendPhrase( tr( "If that fails you may want to contact "
+			    "OpendTect support at support@dgbes.com") );
+    return ret;
 }
 
 uiPhrase uiStrings::phrPlsSelectAtLeastOne( const uiWord& string )
@@ -469,26 +473,8 @@ uiWord uiStrings::sEnter()
 uiWord uiStrings::sEnterValidName()
 { return uiStrings::phrEnter(tr("a valid name")); }
 
-uiWord uiStrings::sInputFile()
-{ return phrInput( sFile().toLower() ); }
-
-uiWord uiStrings::sInputSelection()
-{ return phrInput( sSelection().toLower() ); }
-
-uiWord uiStrings::sInputASCIIFile()
-{ return phrInput( phrASCII( sFile() )); }
-
 uiWord uiStrings::sInputParamsMissing()
 { return tr("Input parameters missing"); }
-
-uiWord uiStrings::sOutputSelection()
-{ return phrOutput(sSelection().toLower()); }
-
-uiWord uiStrings::sOutputASCIIFile()
-{ return phrOutput( phrASCII( sFile() )); }
-
-uiWord uiStrings::sOutputFileExistsOverwrite()
-{ return phrExistsContinue( tr("Output file"), true); }
 
 uiWord uiStrings::sSaveBodyFail()
 { return tr("Save body failed"); }

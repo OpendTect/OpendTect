@@ -25,11 +25,11 @@ uiArray1DInterpolSel::uiArray1DInterpolSel( uiParent* p, bool doextrapolate,
     uiObject* prevfld = 0;
     if ( doextrapolate )
     {
-	BufferStringSet filltypnm; filltypnm.add( "Interpolate" );
-	filltypnm.add( "Interpolate & Extrapolate" );
 	polatefld_ =
 	    new uiGenInput( this, tr("Scope"), BoolInpSpec(true,
-			    tr("Interpolate"),tr("Interpolate & Extrapolate")));
+			    uiStrings::sInterpolate(),
+			    toUiString("%1 & %2").arg(uiStrings::sInterpolate())
+					    .arg(uiStrings::sExtrapolate())) );
 	prevfld = polatefld_->attachObj();
     }
 
@@ -44,11 +44,11 @@ uiArray1DInterpolSel::uiArray1DInterpolSel( uiParent* p, bool doextrapolate,
 	prevfld = maxgapszfld_->attachObj();
     }
 
-    BufferStringSet algonms; algonms.add( "Linear Interpolation" );
-    algonms.add( "Polynomial Interpolation" );
+    uiStringSet algonms;
+    algonms.add( tr("Linear Interpolation") );
+    algonms.add( tr("Polynomial Interpolation") );
     uiLabeledComboBox* lcbbx =
-	new uiLabeledComboBox( this, algonms.getUiStringSet(),
-				    uiStrings::sAlgorithm() );
+	new uiLabeledComboBox( this, algonms, uiStrings::sAlgorithm() );
     methodsel_ = lcbbx->box();
     setHAlignObj( methodsel_ );
 

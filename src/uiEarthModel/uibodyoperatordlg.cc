@@ -93,8 +93,8 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     bodyselbut_->activated.notify( mCB(this,uiBodyOperatorDlg,bodySel) );
 
     uiStringSet operators;
-    operators.add( tr("Union") );
-    operators.add( tr("Intersection") );
+    operators.add( uiStrings::sUnion() );
+    operators.add( uiStrings::sIntersection() );
     operators.add( uiStrings::sDifference() );
     oprselfld_ = new uiLabeledComboBox( rgrp, operators,
                                         uiStrings::sOperator() );
@@ -144,7 +144,7 @@ void uiBodyOperatorDlg::displayAction( char item, int curidx )
     if ( item==sKeyIntSect() )
     {
 	listinfo_[curidx].act_ = sKeyIntSect();
-	tree_->selectedItem()->setText( tr("Intersection"), 1 );
+	tree_->selectedItem()->setText( uiStrings::sIntersection(), 1 );
 	tree_->selectedItem()->setIcon( 1, "set_intersect" );
     }
     else if ( item==sKeyMinus() )
@@ -156,7 +156,7 @@ void uiBodyOperatorDlg::displayAction( char item, int curidx )
     else
     {
 	listinfo_[curidx].act_ = sKeyUnion();
-	tree_->selectedItem()->setText( tr("Union"), 1 );
+	tree_->selectedItem()->setText( uiStrings::sUnion(), 1 );
 	tree_->selectedItem()->setIcon( 1, "set_union" );
     }
 }

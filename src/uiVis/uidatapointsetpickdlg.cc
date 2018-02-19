@@ -386,8 +386,8 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, int sceneid,
 {
     setCaption( tr("Surface data picking") );
 
-    uiPushButton* interpolbut = new uiPushButton( this, tr("Interpolate"),
-									true );
+    uiPushButton* interpolbut = new uiPushButton( this,
+					uiStrings::sInterpolate(), true );
     interpolbut->activated.notify(
 	mCB(this,uiEMDataPointSetPickDlg,interpolateCB) );
     interpolbut->attach( alignedBelow, table_ );

@@ -62,7 +62,7 @@ protected:
 mExpClass(uiVis) uiLineStyleGrp : public uiDlgGroup
 { mODTextTranslationClass(uiLineStyleGrp)
 public:
-    				uiLineStyleGrp(uiParent*,
+				uiLineStyleGrp(uiParent*,
 					       visSurvey::SurveyObject*);
 
 protected:
@@ -78,15 +78,17 @@ protected:
 
 
 mExpClass(uiVis) uiTextureInterpolateGrp : public uiDlgGroup
-{ mODTextTranslationClass(uiTextureInterpolateGrp)
+{
 public:
 				uiTextureInterpolateGrp(uiParent*,
 					visSurvey::SurveyObject*);
 protected:
+
     void			chgIntpCB(CallBacker*);
 
-    uiGenInput*			textclasssify_;
+    uiGenInput*			textclassify_;
     visSurvey::SurveyObject*	survobj_;
+
 };
 
 
@@ -96,9 +98,11 @@ public:
 				uiMarkerStyleGrp(uiParent*,
 					    visSurvey::SurveyObject*);
 protected:
+
     uiMarkerStyle3D*		stylefld_;
     visSurvey::SurveyObject*	survobj_;
     void			changeCB(CallBacker*);
+
 };
 
 

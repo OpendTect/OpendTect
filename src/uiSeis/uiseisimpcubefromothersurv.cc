@@ -47,7 +47,7 @@ uiSeisImpCubeFromOtherSurveyDlg::uiSeisImpCubeFromOtherSurveyDlg( uiParent* p )
     uiSeparator* sep1 = new uiSeparator( this, "sep" );
     sep1->attach( stretchedBelow, subselfld_ );
 
-    interpfld_ = new uiGenInput( this, tr("Interpolation"),
+    interpfld_ = new uiGenInput( this, uiStrings::sInterpolation(),
 			    BoolInpSpec( true, toUiString(interpols[0]),
 			    toUiString(interpols[1]) ) );
     interpfld_->valuechanged.notify(

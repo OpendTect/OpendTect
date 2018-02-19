@@ -109,6 +109,7 @@ public:
     static uiPhrase phrNotImplInThisVersion(const char* fromver);
     static uiPhrase phrOpen(const uiWord&);
     static uiPhrase phrOutput(const uiWord&);
+    static uiPhrase phrOutputFileExistsOverwrite();
     static uiPhrase phrPlsContactSupport(bool firstconsultdoc);
     static uiPhrase phrPlsSelectAtLeastOne(const uiWord& string);
     static uiPhrase phrPlsSpecifyAtLeastOne(const uiWord& string);
@@ -236,6 +237,7 @@ public:
     static uiWord sCentral()		{ return tr("Central"); }
     static uiWord sChange()		{ return tr("Change"); }
     static uiWord sCheckPermissions();
+    static uiWord sClassification()	{ return tr("Classification"); }
     static uiWord sClear()		{ return tr("Clear"); }
     static uiWord sClose()		{ return tr("Close"); }
     static uiWord sCode(int n=1)	{ return tr("Code",0,n); }
@@ -306,6 +308,7 @@ public:
     static uiWord sExport()		{ return tr("Export"); }
     static uiWord sExtension()		{ return tr("Extension"); }
     static uiWord sExtract()		{ return tr("Extract"); }
+    static uiWord sExtrapolate()	{ return tr("Extrapolate"); }
     static uiWord sFactor(int n=1)	{ return tr("Factor",0,n); }
     static uiWord sFailed()		{ return tr("Failed"); }
     static uiWord sFault(int n=1)	{ return tr("Fault",0,n); }
@@ -360,17 +363,25 @@ public:
     static uiWord sInline(int n=1)	{ return tr("In-line",0,n); }
     static uiWord sInlineDip()		{ return tr("Inline Dip"); }
     static uiWord sInput()		{ return tr("Input"); }
-    static uiWord sInputASCIIFile();
+    static uiWord sInputASCIIFile()	{ return tr("Input ASCII File"); }
     static uiWord sInputData()		{ return tr("Input Data"); }
-    static uiWord sInputFile();
+    static uiWord sInputFile()		{ return tr("Input File"); }
     static uiWord sInputParamsMissing();
-    static uiWord sInputSelection();
+    static uiWord sInputSelection()	{ return tr("Input Selection"); }
     static uiWord sInsert()		{ return tr("Insert"); }
+    static uiWord sInside()		{ return tr("Inside"); }
+    static uiWord sInterpolate()	{ return tr("Interpolate"); }
     static uiWord sInterpolating()	{ return tr("Interpolating"); }
     static uiWord sInterpolation()	{ return tr("Interpolation"); }
+    static uiWord sInterpretation(int n=1) { return tr("Interpretation",0,n); }
+    static uiWord sIntersection()	{ return tr("Intersection","of sets"); }
     static uiWord sInvInpFile()		{ return tr("Invalid input file"); }
     static uiWord sInvalid()		{ return tr("Invalid"); }
+    static uiWord sItem(int n=1)	{ return tr("Item",0,n); }
+    static uiWord sIteration()		{ return tr("Iteration"); }
+    static uiWord sJob()		{ return tr("Job"); }
     static uiWord sLanguage()		{ return tr("Language"); }
+    static uiWord sKeep()		{ return tr("Keep"); }
     static uiWord sLatitude(bool abbr)	{ return abbr?tr("Lat"):tr("Latitude");}
     static uiWord sLayer(int n=1)	{ return tr("Layer",0,n); }
     static uiWord sLeft()		{ return tr("Left"); }
@@ -433,11 +444,10 @@ public:
     static uiWord sOuter()		{ return tr("Outer"); }
     static uiWord sOutpDataStore()	{ return tr("Output data store"); }
     static uiWord sOutput()		{ return tr("Output"); }
-    static uiWord sOutputASCIIFile();
+    static uiWord sOutputASCIIFile()	{ return tr("Ouput ASCII File"); }
     static uiWord sOutputFile()		{ return tr("Output file"); }
-    static uiWord sOutputFileExistsOverwrite();
-    static uiWord sOutputSelection();
-    static uiWord sOutputStatistic()	{ return phrOutput( tr("statistic") ); }
+    static uiWord sOutputSelection()	{ return tr("Output Selection"); }
+    static uiWord sOutside()		{ return tr("Outside"); }
     static uiWord sOverwrite()		{ return tr("Overwrite"); }
     static uiWord sParFile()		{ return tr("Par File"); }
     static uiWord sParameter(int n=1)	{ return tr("Parameter",0,n); }
@@ -561,6 +571,7 @@ public:
     static uiWord sUndef()		{ return tr("undef"); }
     static uiWord sUndefVal()		{ return tr("Undefined Value"); }
     static uiWord sUndo()		{ return tr("Undo"); }
+    static uiWord sUnion()		{ return tr("Union","of sets"); }
     static uiWord sUnit(int n=1)	{ return tr("Unit",0,n); }
     static uiWord sUnload()		{ return tr("Unload"); }
     static uiWord sUnlock()		{ return tr("Unlock"); }

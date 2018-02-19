@@ -371,8 +371,8 @@ bool RegionPolygonBoundary::onRightSide( const TrcKey& tk, float z ) const
 
 void RegionPolygonBoundary::getSideStrs( uiStringSet& strs ) const
 {
-    strs.add( tr("Inside") );
-    strs.add( tr("Outside") );
+    strs.add( uiStrings::sInside() );
+    strs.add( uiStrings::sOutside() );
 }
 
 

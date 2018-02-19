@@ -46,7 +46,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     setHelpKey( mODHelpKey(mVoxelConnectivityFilterHelpID) );
     const char* cutofftypes[] = { "Values larger than", "Values less than",
 				  "Values between", "Values outside", 0 };
-    cutofftypefld_ = new uiGenInput( this, tr("Keep"),
+    cutofftypefld_ = new uiGenInput( this, uiStrings::sKeep(),
                               StringListInpSpec( cutofftypes ) );
     const Interval<float>& acceptrange = step->getAcceptRange();
     Interval<float> displayacceptrange = acceptrange;

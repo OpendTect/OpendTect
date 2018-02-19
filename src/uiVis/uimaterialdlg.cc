@@ -143,23 +143,25 @@ uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
 						  visSurvey::SurveyObject* so )
     : uiDlgGroup(p,uiStrings::sTexture())
     , survobj_(so)
+    , textclassify_(0)
 {
     if ( !so || !so->canEnableTextureInterpolation() )
 	return;
 
     const bool intpenabled = so->textureInterpolationEnabled();
 
-    textclasssify_ = new uiGenInput( this, tr("Data:   "),
-	    BoolInpSpec(intpenabled,tr("Interpolation"),tr("Classification")) );
-    textclasssify_->valuechanged.notify(
+    textclassify_ = new uiGenInput( this, uiStrings::sData(),
+	    BoolInpSpec(intpenabled,uiStrings::sInterpolation(),
+		uiStrings::sClassification()) );
+    textclassify_->valuechanged.notify(
 	    mCB(this,uiTextureInterpolateGrp,chgIntpCB) );
 }
 
 
 void uiTextureInterpolateGrp::chgIntpCB( CallBacker* cb )
 {
-    if ( survobj_ && textclasssify_ )
-	survobj_->enableTextureInterpolation( textclasssify_->getBoolValue() );
+    if ( survobj_ && textclassify_ )
+	survobj_->enableTextureInterpolation( textclassify_->getBoolValue() );
 }
 
 

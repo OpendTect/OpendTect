@@ -104,7 +104,7 @@ bool uiSeisCopyCube::acceptOK()
 	return false;
 
     if ( outioobj->implExists(false) &&
-	    !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
+	    !uiMSG().askOverwrite(uiStrings::phrOutputFileExistsOverwrite()) )
 	return false;
 
     IOPar& outpars = outioobj->pars();
@@ -210,7 +210,7 @@ bool uiSeisCopy2DDataSet::acceptOK()
 		{ haveoverlap = true; break; }
 
 	if ( haveoverlap &&
-		!uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
+	    !uiMSG().askOverwrite(uiStrings::phrOutputFileExistsOverwrite()) )
 	    return false;
     }
 

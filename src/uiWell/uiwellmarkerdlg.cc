@@ -484,7 +484,7 @@ uiReadMarkerFile( uiParent* p )
     dataselfld_->attach( alignedBelow, fnmfld_ );
 
     replfld_ = new uiGenInput( this, tr("Existing markers (if any)"),
-			      BoolInpSpec(true,tr("Replace"),tr("Keep")) );
+			BoolInpSpec(true,tr("Replace"),uiStrings::sKeep()) );
     replfld_->attach( alignedBelow, dataselfld_ );
 }
 
