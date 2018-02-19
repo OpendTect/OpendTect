@@ -67,6 +67,9 @@ public:
     bool		haveSurveys() const;
 
     bool		commit(); //!< will make any new selection global
+    static uiRetVal	setSurveyDirTo(const char* dirnm);
+			//!< if not current, will close all scenes and viewers
+			//!< thus this is probably not a function for _you_
 
 protected:
 

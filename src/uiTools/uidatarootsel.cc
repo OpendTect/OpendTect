@@ -254,39 +254,6 @@ bool uiDataRootSel::setRootDirOnly( const char* dirnm )
 }
 
 
-uiRetVal uiDataRootSel::setSurveyDirTo( const char* dirnm )
-{
-    if ( !dirnm || !*dirnm )
-	return uiRetVal::OK();
-
-    const File::Path fp( dirnm );
-    const BufferString newdataroot = fp.pathOnly();
-    uiRetVal uirv = DBMan::isValidDataRoot( newdataroot );
-    if ( !uirv.isOK() )
-	return uirv;
-
-    const BufferString newsurvdir = fp.fullPath();
-    uirv = DBMan::isValidSurveyDir( newsurvdir );
-    if ( !uirv.isOK() )
-	return uirv;
-
-    const BufferString curdataroot = GetBaseDataDir();
-    const BufferString cursurveydir = DBM().survDir();
-    if ( curdataroot == newdataroot && cursurveydir == newsurvdir )
-	return uiRetVal::OK();
-
-    uirv = DBM().setDataSource( newsurvdir, true );
-    if ( !uirv.isOK() )
-	return uirv;
-
-    const BufferString newsurvdirnm = fp.fileName();
-    addDirNameToSettingsIfNew( newdataroot, true );
-    writeDefSurvFile( fp.fileName() );
-
-    return uiRetVal::OK();
-}
-
-
 void uiDataRootSel::writeDefSurvFile( const char* dirnm )
 {
     od_ostream strm( GetLastSurveyFileName() );

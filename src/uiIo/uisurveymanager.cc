@@ -712,8 +712,7 @@ bool uiSurveyManager::commit()
 	return true;
     }
 
-    uiRetVal uirv = uiDataRootSel::setSurveyDirTo(
-				File::Path(dataroot_,selsurv).fullPath() );
+    uiRetVal uirv = setSurveyDirTo( File::Path(dataroot_,selsurv).fullPath() );
     if ( !uirv.isOK() )
     {
 	if ( !uiStrings::sCancel().isEqualTo(uirv) )
@@ -725,6 +724,40 @@ bool uiSurveyManager::commit()
 }
 
 
+uiRetVal uiSurveyManager::setSurveyDirTo( const char* dirnm )
+{
+    if ( !dirnm || !*dirnm )
+	return uiRetVal::OK();
+
+    const File::Path fp( dirnm );
+    const BufferString newdataroot = fp.pathOnly();
+    uiRetVal uirv = DBMan::isValidDataRoot( newdataroot );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    const BufferString newsurvdir = fp.fullPath();
+    uirv = DBMan::isValidSurveyDir( newsurvdir );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    const BufferString curdataroot = GetBaseDataDir();
+    const BufferString cursurveydir = DBM().survDir();
+    if ( curdataroot == newdataroot && cursurveydir == newsurvdir )
+	return uiRetVal::OK();
+
+    uirv = DBM().setDataSource( newsurvdir, true );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    const BufferString newsurvdirnm = fp.fileName();
+    uiDataRootSel::addDirNameToSettingsIfNew( newdataroot, true );
+    uiDataRootSel::writeDefSurvFile( fp.fileName() );
+
+    return uiRetVal::OK();
+}
+
+
+//uiSurveyManagerDlg
 uiSurveyManagerDlg::uiSurveyManagerDlg( uiParent* p, bool standalone )
     : uiDialog(p,uiDialog::Setup(tr("Survey Setup and Selection"),
 			     mNoDlgTitle,mODHelpKey(mSurveySelectDlgHelpID)))

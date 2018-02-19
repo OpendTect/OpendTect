@@ -9,13 +9,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiocommon.h"
+#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class uiComboBox;
 
 
-mExpClass(uiIo) uiDataRootSel : public uiGroup
+mExpClass(uiTools) uiDataRootSel : public uiGroup
 { mODTextTranslationClass(uiDataRootSel);
 public:
 
@@ -29,6 +29,8 @@ public:
     static const char*	sKeyRootDirs()	    { return "Known DATA directories"; }
     static const char*	sKeyDefRootDir()    { return "Default DATA directory"; }
     static uiString	userDataRootString();
+    BufferString	getInput() const;
+    static bool		setRootDirOnly(const char* dirnm);
 
     Notifier<uiDataRootSel> selectionChanged;
 
@@ -37,7 +39,6 @@ protected:
     uiComboBox*		dirfld_;
     BufferString	previnput_;
 
-    BufferString	getInput() const;
     void		selButCB(CallBacker*);
     void		dirChgCB(CallBacker*);
     void		checkAndSetCorrected(const char*);
@@ -48,13 +49,6 @@ protected:
     void		setChoice(const char*);
 
     friend class	uiFixInvalidDataRoot;
-    static bool		setRootDirOnly(const char* dirnm);
+    friend class	uiSurveyManager;
     static void		writeDefSurvFile(const char* survdirnm);
-
-public:
-
-    static uiRetVal	setSurveyDirTo(const char* dirnm);
-			//!< if not current, will close all scenes and viewers
-			//!< thus this is probably not a function for _you_
-
 };
