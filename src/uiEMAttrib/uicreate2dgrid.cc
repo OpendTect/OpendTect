@@ -83,9 +83,10 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
 						  const TrcKeySampling& hs )
     : ui2DGridLines(p,hs)
 {
+    uiString specificstr = tr("Specific");
     inlmodefld_ = new uiGenInput( this, uiStrings::sInline(),
 				  BoolInpSpec(true,uiStrings::sRange(),
-				  tr("Loose")) );
+				  specificstr) );
     inlmodefld_->valuechanged.notify(mCB(this,ui2DGridLinesFromInlCrl,modeChg));
     inlrgfld_ = new uiSelNrRange( this, uiSelNrRange::Inl, true );
     inlrgfld_->rangeChanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
@@ -98,7 +99,7 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
 
     crlmodefld_ = new uiGenInput( this, uiStrings::sCrossline(),
 				  BoolInpSpec(true,uiStrings::sRange(),
-				  tr("Loose")) );
+				  specificstr) );
     crlmodefld_->valuechanged.notify(mCB(this,ui2DGridLinesFromInlCrl,modeChg));
     crlmodefld_->attach( alignedBelow, inlrgfld_ );
     crlrgfld_ = new uiSelNrRange( this, uiSelNrRange::Crl, true );

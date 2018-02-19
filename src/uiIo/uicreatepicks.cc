@@ -153,7 +153,8 @@ uiGenPosPicksDlg::uiGenPosPicksDlg( uiParent* p )
     maxnrpickfld_->attach( alignedBelow, posprovfld_ );
 
     uiPosFilterSet::Setup fsu( false );
-    fsu.seltxt( uiStrings::phrRemove(tr("locations")) ).incprovs( true );
+    fsu.seltxt( uiStrings::phrRemove(uiStrings::sLocation(mPlural)) )
+		.incprovs( true );
     posfiltfld_ = new uiPosFilterSetSel( this, fsu );
     posfiltfld_->attach( alignedBelow, maxnrpickfld_ );
 

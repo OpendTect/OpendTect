@@ -198,7 +198,7 @@ void uiColSeqSelTool::menuCB( CallBacker* )
 	mCB(this,uiColSeqSelTool,setAsSeisDefaultCB)), 0 );
     mnu->insertAction( new uiAction(tr("Set as default for non-seismic data"),
 	mCB(this,uiColSeqSelTool,setAsNonSeisDefaultCB)), 1 );
-    mnu->insertAction( new uiAction(m3Dots(tr("Manage")),
+    mnu->insertAction( new uiAction(m3Dots(uiStrings::sManage()),
 	mCB(this,uiColSeqSelTool,manageCB)), 2 );
 
     seqMenuReq.trigger( mnu );

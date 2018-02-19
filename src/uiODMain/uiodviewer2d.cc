@@ -807,11 +807,12 @@ void uiODViewer2D::setWinTitle()
     {
 	const Geometry::RandomLine* rdmline =
 		    Geometry::RLM().get( rdlprobe->randomeLineID() );
-	if ( rdmline ) info = toUiString( rdmline->name() );
+	if ( rdmline )
+	    info = toUiString( rdmline->name() );
     }
     else if ( probe_.position().hsamp_.survid_ == Survey::GM().get2DSurvID() )
     {
-	info.arg( tr("Line") )
+	info.arg( uiStrings::sLine() )
 	    .arg( toUiString( Survey::GM().getName(geomID()) ) );
     }
     else if ( probe_.position().defaultDir() == TrcKeyZSampling::Inl )

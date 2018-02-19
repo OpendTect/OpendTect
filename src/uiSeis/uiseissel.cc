@@ -124,7 +124,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	titletxt = titletxt.arg( sssu.seltxt_ );
     else
 	titletxt = titletxt.arg( isps
-		? tr("Data Store")
+		? uiStrings::sDataStore()
 		: (is2d ? uiStrings::sDataSet() : uiStrings::sVolume()) );
     setTitleText( titletxt );
 

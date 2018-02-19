@@ -540,7 +540,7 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 	{
 	    uiMenu* mnu = execoldbut->addMenu();
 	    mnu->insertAction( new uiAction(uiStrings::sImport(),impcb) );
-	    mnu->insertAction( new uiAction(tr("Link"),linkcb) );
+	    mnu->insertAction( new uiAction(uiStrings::sLink(),linkcb) );
 	}
     }
 }

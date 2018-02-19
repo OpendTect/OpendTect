@@ -405,7 +405,7 @@ void uiODMenuMgr::fillSurveyMenu()
 
     impmnu_ = addSubMenu( surveymnu_, uiStrings::sImport(), "import" );
     expmnu_ = addSubMenu( surveymnu_, uiStrings::sExport(), "export" );
-    manmnu_ = addSubMenu( surveymnu_, tr("Manage"), "manage" );
+    manmnu_ = addSubMenu( surveymnu_, uiStrings::sManage(), "manage" );
     preloadmnu_ = addSubMenu( surveymnu_, tr("Pre-Load"), "preloaded" );
 
     setSurveySubMenus();

@@ -404,7 +404,8 @@ uiManPROPS::uiManPROPS( uiParent* p )
     const char* strs[] = { "For this survey only",
 			   "As default for all surveys",
 			   "As default for my user ID only", 0 };
-    srcfld_ = new uiGenInput( this, tr("Store"), StringListInpSpec(strs) );
+    srcfld_ = new uiGenInput( this, uiStrings::sStore(),
+			      StringListInpSpec(strs) );
     srcfld_->attach( centeredBelow, buildfld_ );
 }
 

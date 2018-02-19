@@ -743,7 +743,7 @@ void uiBodyRegionGrp::horModChg( CallBacker* )
     const bool singlehormode =
 	singlehorfld_ ? singlehorfld_->getBoolValue() : false;
     uiStringSet lbls;
-    lbls.add(uiStrings::sType()).add(tr("Location"));
+    lbls.add(uiStrings::sType()).add(uiStrings::sLocation());
     if ( singlehormode )
 	lbls.add(tr("Relative shift up")).add(tr("Relative shift down"));
 

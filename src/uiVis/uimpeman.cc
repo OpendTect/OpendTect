@@ -300,7 +300,7 @@ int uiMPEMan::popupMenu()
 		EM::MGR().undo(hor->id()).canUnDo(), true );
     addAction( mnu, tr("Redo"), "ctrl+y", sRedo, "redo",
 		EM::MGR().undo(hor->id()).canReDo(), true );
-    addAction( mnu, tr("Lock"), "l", sLock, "lock", true, hor3d );
+    addAction( mnu, uiStrings::sLock(), "l", sLock, "lock", true, hor3d );
     addAction( mnu, tr("Unlock"), "u", sUnlock, "unlock", true, hor3d );
 
     visSurvey::HorizonDisplay* hd3d = getSelectedDisplay3D();

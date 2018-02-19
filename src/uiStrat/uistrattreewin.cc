@@ -96,7 +96,7 @@ uiString uiStratTreeWin::sEditTxt(bool domenu)
 
 
 uiString uiStratTreeWin::sLockTxt(bool domenu)
-{ return domenu ? tr("Lock") : tr("Toggle read only: editable"); }
+{ return domenu ? uiStrings::sLock() : tr("Toggle read only: editable"); }
 
 
 void uiStratTreeWin::setNewRT()

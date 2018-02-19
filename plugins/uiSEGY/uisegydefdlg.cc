@@ -260,7 +260,7 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
     lbl = new uiLabel( this, olddirtxt );
 
     uiFileSel::Setup fssu( absfnm.buf() );
-    fssu.objtype( tr("Location") ).selectDirectory();
+    fssu.objtype( uiStrings::sLocation() ).selectDirectory();
     dirsel_ = new uiFileSel( this, tr("New location"), fssu );
     dirsel_->newSelection.notify( mCB(this,uiEditSEGYFileDataDlg,dirSelCB) );
     dirsel_->attach( leftAlignedBelow, lbl );

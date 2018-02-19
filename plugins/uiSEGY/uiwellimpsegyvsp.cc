@@ -148,7 +148,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     inpinftfld_ = new uiCheckBox( this, uiStrings::sFeet() );
     if ( definft ) inpinftfld_->setChecked( true );
     inpinftfld_->attach( rightOf, uigi );
-    inpistvdfld_ = new uiCheckBox( this, tr("TVDSS") );
+    inpistvdfld_ = new uiCheckBox( this, uiStrings::sTVDSS() );
     inpistvdfld_->attach( rightOf, inpinftfld_ );
 
     const FloatInpIntervalSpec fspec( false );
@@ -180,7 +180,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     outinftfld_ = new uiCheckBox( this, uiStrings::sFeet() );
     if ( definft ) outinftfld_->setChecked( true );
     outinftfld_->attach( rightOf, outzrgfld_ );
-    outistvdfld_ = new uiCheckBox( this, tr("TVDSS") );
+    outistvdfld_ = new uiCheckBox( this, uiStrings::sTVDSS() );
     outistvdfld_->attach( rightOf, outinftfld_ );
 
     postFinalise().notify( mCB(this,uiWellImportSEGYVSP,wllSel) );

@@ -32,6 +32,10 @@ mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
 #define mHelpID is2d ? mODHelpKey(mSeisPrestackMan2DHelpID) : \
 		       mODHelpKey(mSeisPrestackMan3DHelpID)
+#define mMrgDataStoresStr() \
+    uiStrings::phrMerge(uiStrings::sDataStore(mPlural))
+
+
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(createCaption(is2d),mNoDlgTitle,mHelpID)
 		     .nrstatusflds(1).modal(false),
@@ -47,16 +51,15 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     if ( !is2d )
     {
 	copybut_ = manipgrp->addButton( "copyobj", uiStrings::phrCopy(
-					uiStrings::phrData(tr("Store"))),
+					uiStrings::sDataStore()),
 					mCB(this,uiSeisPreStackMan,copyPush) );
-	mergebut_ = manipgrp->addButton( "mergeseis", uiStrings::phrMerge(
-					uiStrings::phrData(tr("Stores"))),
-					mCB(this,uiSeisPreStackMan,mergePush) );
+	mergebut_ = manipgrp->addButton( "mergeseis", mMrgDataStoresStr(),
+			    mCB(this,uiSeisPreStackMan,mergePush) );
 	manipgrp->addButton( "multicubeps",
-			     tr("Create/Edit Multi-Cube data store"),
-			     mCB(this,uiSeisPreStackMan,mkMultiPush) );
+			    tr("Create/Edit Multi-Cube Data Store"),
+			    mCB(this,uiSeisPreStackMan,mkMultiPush) );
 	editbut_ = manipgrp->addButton( "browseseis",
-			tr("Change file/directory names in SEG-Y file %1"),
+			tr("Change file/directory names in SEG-Y file"),
 			mCB(this,uiSeisPreStackMan,editPush) );
     }
 
@@ -80,10 +83,12 @@ uiString uiSeisPreStackMan::createCaption( bool is2d )
 
 
 #define mSetButToolTip(but,str1,deftt) \
+{ \
     if ( !but->isSensitive() ) \
 	but->setToolTip( deftt ); \
     else \
 	but->setToolTip( str1 ); \
+}
 
 void uiSeisPreStackMan::ownSelChg()
 {
@@ -96,28 +101,17 @@ void uiSeisPreStackMan::ownSelChg()
 
     copybut_->setSensitive( curioobj_ );
     mergebut_->setSensitive( curioobj_ );
-    mSetButToolTip(copybut_,tr("Make a copy of '%1'").arg(cursel),
-		   tr("Copy data store"));
+    mSetButToolTip( copybut_,tr("Make a copy of '%1'").arg(cursel),
+		    tr("Copy data store"));
     BufferStringSet selnms;
     selgrp_->getChosen( selnms );
+    mergebut_->setToolTip( mMrgDataStoresStr() );
     if ( selnms.size() > 1 )
-    {
-	mSetButToolTip(mergebut_, toUiString(selnms.getDispString(2)),
-		       uiStrings::phrMerge(uiStrings::phrData(tr("Store"))));
-    }
-    else
-	mergebut_->setToolTip(uiStrings::phrMerge(uiStrings::phrData(
-								tr("Store"))));
+	mSetButToolTip( mergebut_,
+		    uiStrings::phrMerge(toUiString(selnms.getDispString(2))),
+		    uiString::empty() );
 
-    const uiSeisPreStackMan::BrowserDef* bdef = getBrowserDef();
-    editbut_->display( bdef );
-    if ( bdef )
-    {
-	uiString bdeftt( bdef->tooltip_ );
-	editbut_->setToolTip( bdeftt.arg(curioobj_->uiName()) );
-    }
-    else
-	editbut_->setToolTip( uiString::empty() );
+    editbut_->display( getBrowserDef() );
 }
 
 

@@ -67,7 +67,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     unitlbl_->display( false );
 
     istvdfld_ = new uiGenInput( this, tr("Depth values are"),
-				BoolInpSpec(false,tr("TVDSS"),tr("MD")) );
+		    BoolInpSpec(false,uiStrings::sTVDSS(),uiStrings::sMD()) );
     istvdfld_->attach( alignedBelow, intvfld_ );
 
     udffld_ = new uiGenInput( this, tr("Undefined value in logs"),

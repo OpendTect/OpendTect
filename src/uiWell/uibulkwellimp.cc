@@ -231,7 +231,7 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
     inpfld_->newSelection.notify( mCB(this,uiBulkLogImport,lasSel) );
 
     istvdfld_ = new uiGenInput( this, tr("Depth values are"),
-		    BoolInpSpec(false,tr("TVDSS"),tr("MD")) );
+		    BoolInpSpec(false,uiStrings::sTVDSS(),uiStrings::sMD()) );
     istvdfld_->attach( alignedBelow, inpfld_ );
 
     const float defundefval = -999.25;

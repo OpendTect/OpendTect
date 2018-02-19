@@ -102,7 +102,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 
     stackdirfld_ = new uiGenInput( this, uiStrings::sDirection(),
 			       BoolInpSpec(true,tr("Perpendicular"),
-                               tr("Line")) );
+                               uiStrings::sLine()) );
     stackdirfld_->attach( rightTo,optstackstepfld_ );
 
     setHAlignObj( inpfld_ );

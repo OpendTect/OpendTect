@@ -891,7 +891,7 @@ uiGroup* uiSEGYFileOpts::mkPosGrp( const IOPar& iop )
 	grp->setHAlignObj( trnrdeffld_ );
     }
 
-    if ( ts_ ) ts_->addTab( grp, tr("Locations") );
+    if ( ts_ ) ts_->addTab( grp, uiStrings::sLocation(mPlural) );
     return grp;
 }
 

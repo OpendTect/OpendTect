@@ -153,7 +153,7 @@ void uiSEGYMgr::updateMenu( CallBacker* )
     (segyclassictoplevel_ ? impseismnu : impsgymnu)->addMenu( impclassmnu );
     impclassmnu->insertAction( new uiAction( uiStrings::sImport(),
 		   muiSEGYMgrCB(impClassicCB), "import") );
-    impclassmnu->insertAction( new uiAction( tr("Link"),
+    impclassmnu->insertAction( new uiAction( uiStrings::sLink(),
 		   muiSEGYMgrCB(linkClassicCB), "link") );
 
     int segyimp = mnumgr_.dtectTB()->addButton( segyiconid_,

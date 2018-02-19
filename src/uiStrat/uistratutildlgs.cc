@@ -78,7 +78,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	unitlithfld_->attach( alignedBelow, lblbox1 );
 	unitlithfld_->attach( ensureBelow, sep );
 
-	uiLabel* lbl = new uiLabel( this, tr("Lithologies") );
+	uiLabel* lbl = new uiLabel( this, uiStrings::sLithology(mPlural) );
 	lbl->attach( leftOf, unitlithfld_ );
 
 	const CallBack cb( mCB(this,uiStratUnitEditDlg,selLithCB) );
