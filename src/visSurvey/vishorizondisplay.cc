@@ -819,7 +819,6 @@ void HorizonDisplay::allowShading( bool yn )
     allowshading_ = yn;
     for ( int idx=sections_.size()-1; idx>=0; idx-- )
 	sections_[idx]->getChannels2RGBA()->allowShading( yn );
-
 }
 
 
@@ -863,6 +862,47 @@ void HorizonDisplay::setSelSpecs(
 }
 
 
+class ZValSetter : public ParallelTask
+{
+public:
+ZValSetter( BinIDValueSet& bivs, int zcol, ZAxisTransform* zat )
+    : ParallelTask()
+    , bivs_(bivs), zcol_(zcol), zat_(zat)
+{
+    hs_.set( bivs_.inlRange(), bivs_.crlRange() );
+}
+
+
+od_int64 nrIterations() const	{ return hs_.totalNr(); }
+
+protected:
+
+bool doWork( od_int64 start, od_int64 stop, int thread )
+{
+    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    {
+	const BinID bid = hs_.atIndex( idx );
+	BinIDValueSet::SPos pos = bivs_.findOccurrence( bid );
+	if ( !pos.isValid() ) continue;
+
+	float* vals = bivs_.getVals(pos);
+	if ( !vals ) continue;
+
+	vals[zcol_] = zat_ ? zat_->transform( BinIDValue(bid,vals[0]) )
+			   : vals[0];
+    }
+
+    return true;
+}
+
+    BinIDValueSet&	bivs_;
+    int			zcol_;
+    ZAxisTransform*	zat_;
+    HorSampling		hs_;
+
+};
+
+
 void HorizonDisplay::setDepthAsAttrib( int channel )
 {
     if ( !as_.validIdx(channel) )
@@ -871,6 +911,14 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     Attrib::SelSpec& as = (*as_[channel])[0];
     const bool attribwasdepth = FixedString(as.userRef())==sKeyZValues();
     as.set( sKeyZValues(), Attrib::SelSpec::cNoAttrib(), false, "" );
+    if ( !attribwasdepth )
+    {
+	BufferString seqnm;
+	Settings::common().get( "dTect.Horizon.Color table", seqnm );
+	ColTab::Sequence seq( seqnm );
+	setColTabSequence( channel, seq, 0 );
+	setColTabMapperSetup( channel, ColTab::MapperSetup(), 0 );
+    }
 
     TypeSet<DataPointSet::DataRow> pts;
     ObjectSet<DataColDef> defs;
@@ -899,29 +947,10 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     if ( zcol==-1 )
 	zcol = 2;
 
-    BinIDValueSet::SPos pos;
-    while ( bivs.next(pos,true) )
-    {
-	float* vals = bivs.getVals(pos);
-	if ( zaxistransform_ )
-	{
-	    vals[zcol] = zaxistransform_->transform(
-		    BinIDValue( bivs.getBinID(pos), vals[0] ) );
-	}
-	else
-	    vals[zcol] = vals[0];
-    }
+    ZValSetter setter( bivs, zcol, zaxistransform_ );
+    setter.execute();
 
     setRandomPosData( channel, &positions, 0 );
-
-    if ( !attribwasdepth )
-    {
-	BufferString seqnm;
-	Settings::common().get( "dTect.Horizon.Color table", seqnm );
-	ColTab::Sequence seq( seqnm );
-	setColTabSequence( channel, seq, 0 );
-	setColTabMapperSetup( channel, ColTab::MapperSetup(), 0 );
-    }
 }
 
 
@@ -989,8 +1018,10 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 
     if ( !data || !data->size() )
     {
+	locker_->lock();
 	validtexture_ = false;
 	updateSingleColor();
+	locker_->unLock();
 	return;
     }
 
@@ -1991,6 +2022,13 @@ void HorizonDisplay::setLineStyle( const OD::LineStyle& lst )
 	    addChild( intersectiondata_[idx]->line_->osgNode());
 	}
     }
+
+    const float pixeldensity = intersectiondata_.isEmpty()
+			? getDefaultPixelDensity()
+			: intersectiondata_[0]->line_->getPixelDensity();
+    const float factor = pixeldensity / getDefaultPixelDensity();
+    for ( int idx=0; idx<sections_.size(); idx++ )
+	sections_[idx]->setLineWidth( lst.width_*factor );
 }
 
 

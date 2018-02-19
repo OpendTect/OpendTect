@@ -73,6 +73,7 @@ public:
     ObjectSet<TileResolutionData>& getResolutionData()
 				   { return tileresolutiondata_; }
     void			turnOnGlue(bool);
+    void			setLineWidth(int);
 
 protected:
 
@@ -168,8 +169,8 @@ protected:
     osg::Array*			osgvertices_;
 
     const double		cosanglexinl_, sinanglexinl_;
-
 };
 
-}
+} // namespace visBase
+
 #endif

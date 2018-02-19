@@ -409,6 +409,19 @@ void HorizonSection::setWireframeColor( Color col )
 }
 
 
+void HorizonSection::setLineWidth( int width )
+{
+    HorizonSectionTile** tileptrs = tiles_.getData();
+    spinlock_.lock();
+    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+    {
+	if ( tileptrs[idx] )
+	    tileptrs[idx]->setLineWidth( width );
+    }
+    spinlock_.unLock();
+}
+
+
 void HorizonSection::configSizeParameters()
 {
     mDefineRCRange(,);
@@ -423,7 +436,7 @@ void HorizonSection::configSizeParameters()
 	spacing_ += !res ? 1 : 2 * spacing_[res-1];
 	normalsidesize_ += tilesidesize_ / spacing_[res] + 1;
 	nrcells_ += ( normalsidesize_[res] - (res ? 1 : 0) ) *
-	    		( normalsidesize_[res] - (res ? 1 : 0) );
+			( normalsidesize_[res] - (res ? 1 : 0) );
 	normalstartidx_ += totalnormalsize_;
 	totalnormalsize_ += normalsidesize_[res] * normalsidesize_[res];
     }
@@ -464,8 +477,8 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
 	if ( tileptrs[idx] )
 	{
 	    writeLock();
-    	    removeChild( tileptrs[idx]->osgswitchnode_ );
-    	    delete tileptrs[idx];
+	    removeChild( tileptrs[idx]->osgswitchnode_ );
+	    delete tileptrs[idx];
 	    tileptrs[idx] = 0;
 	    writeUnLock();
 	}
@@ -864,6 +877,5 @@ bool HorizonSection::usingNeighborsInIsolatedLine() const
 {
     return useneighbors_;
 }
-
 
 } // namespace visBase

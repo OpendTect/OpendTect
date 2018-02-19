@@ -147,7 +147,9 @@ public:
     int				getTexturePixelSizeInBits() const;
     void			setUsingNeighborsInIsolatedLine(bool);
     bool			usingNeighborsInIsolatedLine() const;
-    
+
+    void			setLineWidth(int);
+
 protected:
 				~HorizonSection();
 
@@ -161,6 +163,7 @@ protected:
     friend class		HorizonSectionTilePosSetup;
     friend class		TileCoordinatesUpdator;
     friend class		HorizonTileResolutionTesselator;
+    friend class		DataPointSetFiller;
 
     void			surfaceChangeCB(CallBacker*);
     void			surfaceChange(const TypeSet<GeomPosID>*,
@@ -172,7 +175,6 @@ protected:
     void			updateAutoResolution( const osg::CullStack* );
     HorizonSectionTile*		getTitle(int idx);
     bool			checkTileIndex(int) const;
-
 
     void			setUpdateVar(bool& var,bool yn);
 				//! Will trigger redraw request if necessary

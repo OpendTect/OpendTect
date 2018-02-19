@@ -24,8 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/Geometry>
 #include <osg/Geode>
 #include <osg/LightModel>
-#include <osg/LineWidth>
-#include <osg/Point>
 #include <osgUtil/CullVisitor>
 #include <osg/UserDataContainer>
 
@@ -234,6 +232,16 @@ void HorizonSectionTile::setWireframeColor( Color& color )
 	visBase::TileResolutionData* tileres = tileresolutiondata_[res];
 	if ( tileres )
 	    tileres->setWireframeColor( color );
+    }
+}
+
+
+void HorizonSectionTile::setLineWidth( int width )
+{
+    for ( int idx=0; idx<tileresolutiondata_.size(); idx++ )
+    {
+	if ( tileresolutiondata_[idx] )
+	    tileresolutiondata_[idx]->setLineWidth( width );
     }
 }
 
@@ -711,7 +719,6 @@ bool HorizonSectionTile::getResolutionCoordinates(
 
 bool HorizonSectionTile::getResolutionNormals(TypeSet<Coord3>& coords) const
 {
-
     const osg::Vec3Array* arr = mGetOsgVec3Arr( normals_ );
     if ( !arr ) return false;
 
@@ -758,7 +765,7 @@ bool HorizonSectionTile::getResolutionPrimitiveSet(
     TypeSet<int>& ps,GeometryType type) const
 {
     const char res = getActualResolution();
-    return getResolutionPrimitiveSet( res, ps, type ); 
+    return getResolutionPrimitiveSet( res, ps, type );
 }
 
 
