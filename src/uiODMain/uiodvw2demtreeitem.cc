@@ -50,13 +50,9 @@ void uiODVw2DEMTreeItem::doSave()
     }
     doStoreObject( savewithname );
 
-    if ( MPE::engine().hasTracker(emid_) )
-    {
-	uiMPEPartServer* mps = applMgr()->mpeServer();
-	if ( mps )
-	    mps->saveSetup( emid_ );
-    }
-
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+    if ( MPE::engine().hasTracker(emid_) && mps )
+	mps->saveSetup( emid_ );
 }
 
 
@@ -64,14 +60,11 @@ void uiODVw2DEMTreeItem::doSaveAs()
 {
     doStoreObject( true );
 
-    if ( MPE::engine().hasTracker(emid_) )
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+    if ( MPE::engine().hasTracker(emid_) && mps )
     {
-	uiMPEPartServer* mps = applMgr()->mpeServer();
-	if ( mps )
-	{
-	   mps->prepareSaveSetupAs( emid_ );
-	   mps->saveSetupAs( emid_ );
-	}
+       mps->prepareSaveSetupAs( emid_ );
+       mps->saveSetupAs( emid_ );
     }
 }
 
@@ -97,7 +90,7 @@ void uiODVw2DEMTreeItem::renameVisObj()
 
 void uiODVw2DEMTreeItem::displayMiniCtab()
 {
-    EM::Object* emobj = EM::MGR().getObject( emid_ );
+    const EM::Object* emobj = EM::MGR().getObject( emid_ );
     if ( !emobj ) return;
 
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
@@ -124,7 +117,7 @@ void uiODVw2DEMTreeItem::emobjChangeCB( CallBacker* cb )
 
 void uiODVw2DEMTreeItem::showPropDlg()
 {
-    EM::Object* emobj = EM::MGR().getObject( emid_ );
+    const EM::Object* emobj = EM::MGR().getObject( emid_ );
     if ( !emobj ) return;
 
     uiDialog dlg( getUiParent(), uiDialog::Setup(uiStrings::sProperties(),
@@ -160,4 +153,3 @@ void uiODVw2DEMTreeItem::propChgCB( CallBacker* cb )
 	emobj->setPreferredLineStyle( ls );
     }
 }
-
