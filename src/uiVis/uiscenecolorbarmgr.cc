@@ -30,7 +30,7 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
     widthfld_->valueChanging.notify(
 			mCB(this,uiSceneColorbarMgr,sizeChangedCB) );
 
-    uiLabeledSpinBox* hfld = new uiLabeledSpinBox( this, tr("Height") );
+    uiLabeledSpinBox* hfld = new uiLabeledSpinBox( this, uiStrings::sHeight() );
     heightfld_ = hfld->box();
     heightfld_->setMaxValue( 1000 );
     heightfld_->setValue( scenecoltab_->getSize().height() );

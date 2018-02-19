@@ -60,6 +60,7 @@ CBVSReader::CBVSReader( od_istream* s, bool glob_info_only,
 	, datastartfo_(0)
 	, lastposfo_(0)
 	, hs_(false)
+	, singlinemode_(false)
 {
     hs_.step_.inl() = hs_.step_.crl() = 1;
     if ( readInfo(!glob_info_only,forceusecbvsinfo) )
@@ -426,15 +427,22 @@ void CBVSReader::toOffs( od_int64 sp )
 }
 
 
-bool CBVSReader::goTo( const BinID& bid )
+bool CBVSReader::goTo( const BinID& inpbid )
 {
-    if ( strmclosed_ ) return false;
+    if ( strmclosed_ || lds_.isEmpty() )
+	return false;
+
+    BinID bid( inpbid );
+    if ( singlinemode_ )
+	bid.inl() = lds_[0]->linenr_;
+
     PosInfo::CubeDataPos cdp = lds_.cubeDataPos( bid );
     if ( !cdp.isValid() )
 	return false;
 
     const int posnr = getPosNr( cdp, true );
-    if ( posnr < 0 ) return false;
+    if ( posnr < 0 )
+	return false;
 
     od_stream::Pos so;
     so = posnr * (info_.nrtrcsperposn_ < 2

@@ -146,6 +146,14 @@ bool CBVSReadMgr::addReader( od_istream* strm, const TrcKeyZSampling* cs,
 }
 
 
+
+void CBVSReadMgr::setSingleLineMode( bool yn )
+{
+    for ( int idx=(vertical_?1:0); idx<readers_.size(); idx++ )
+	readers_[idx]->setSingleLineMode( yn );
+}
+
+
 int CBVSReadMgr::pruneReaders( const TrcKeyZSampling& cs )
 {
     if ( cs.isEmpty() )

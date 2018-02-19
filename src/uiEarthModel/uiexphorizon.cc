@@ -286,7 +286,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk)
     unitsel_ = new uiUnitSel( this, tr("Z Unit") );
     unitsel_->attach( alignedBelow, transfld_ );
 
-    headerfld_ = new uiGenInput( this, tr("Header"),
+    headerfld_ = new uiGenInput( this, uiStrings::sHeader(),
                                  StringListInpSpec(hdrtyps) );
     headerfld_->attach( alignedBelow, unitsel_ );
 

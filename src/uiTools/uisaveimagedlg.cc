@@ -153,7 +153,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     else
 	pixwidthfld_->attach( alignedBelow, fldabove );
 
-    pixheightfld_ = new uiLabeledSpinBox( this, tr("Height"), 2 );
+    pixheightfld_ = new uiLabeledSpinBox( this, uiStrings::sHeight(), 2 );
     pixheightfld_->box()->setInterval( maximum_pixel_size_range );
     pixheightfld_->box()->setNrDecimals( 0 );
     pixheightfld_->box()->valueChanging.notify(
@@ -169,7 +169,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     widthfld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,sizeChg) );
     widthfld_->attach( alignedBelow, pixwidthfld_ );
 
-    heightfld_ = new uiLabeledSpinBox( this, tr("Height"), 2 );
+    heightfld_ = new uiLabeledSpinBox( this, uiStrings::sHeight(), 2 );
     heightfld_->box()->setInterval( maximum_size_range );
     heightfld_->box()->setNrDecimals( 2 );
     heightfld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,sizeChg) );

@@ -47,6 +47,8 @@ public:
     int			bytesOverheadPerTrace() const;
     void		close();
     BinID		nextBinID() const;	//! returns 0/0 at end
+    void		setSingleLineMode( bool yn=true )
+						{ singlinemode_ = true; }
 
     bool		goTo(const BinID&);
     bool		toStart();
@@ -79,6 +81,7 @@ protected:
 
     od_istream&		strm_;
     CBVSInfo		info_;
+    bool		singlinemode_;
 
     void		getAuxInfoSel(const char*);
     bool		readComps();

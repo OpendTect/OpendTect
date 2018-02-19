@@ -82,7 +82,6 @@ protected:
     IOObj&		ioobj_;
     const Pos::GeomID	geomid_;
     Seis::SelData*	seldata_;
-    mutable LineNrType	linenrfortr_;
     mutable uiString	initmsg_;
     mutable SeisTrcTranslator* tr_;
 

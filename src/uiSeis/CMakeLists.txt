@@ -23,7 +23,6 @@ set(OD_MODULE_SOURCES
 	uiseis2dto3d.cc
 	uiseisamplspectrum.cc
 	uiseisbayesclass.cc
-	uiseisbrowser.cc
 	uiseissampleeditor.cc
 	uiseisimpcubefromothersurv.cc
 	uiseiscopy.cc

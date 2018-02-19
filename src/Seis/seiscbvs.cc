@@ -169,6 +169,8 @@ bool CBVSSeisTrcTranslator::initRead_()
     if ( rdmgr_->failed() )
 	{ errmsg_ = toUiString(rdmgr_->errMsg()); return false; }
 
+    rdmgr_->setSingleLineMode( is2d_ );
+
     const int nrcomp = rdmgr_->nrComponents();
     const CBVSInfo& info = rdmgr_->info();
     insd_ = info.sd_;

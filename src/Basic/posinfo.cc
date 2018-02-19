@@ -581,6 +581,7 @@ void PosInfo::CubeData::getRanges( Interval<int>& inlrg,
 	    isfirst = false;
 	    inlrg.start = inlrg.stop = ld.linenr_;
 	    crlrg = ld.segments_[0];
+	    crlrg.sort();
 	}
 
 	inlrg.include( ld.linenr_ );

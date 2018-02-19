@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "executor.h"
 #include "bufstringset.h"
+#include "uistrings.h"
 #include "od_iosfwd.h"
 
 namespace Table
@@ -86,13 +87,13 @@ public:
 			    : Executor("Data import")
 			    , imphndlr_(i), exphndlr_(o)
 			    , rowsdone_(0), selcolnr_(-1), atend_(false)
-			    , msg_(tr("Importing"))		{}
+			    , msg_(uiStrings::sImporting())	{}
     // Setup
     TypeSet<int>	selcols_;
     uiString		msg_;
 
     virtual int		nextStep();
-    uiString		message() const	{ return msg_; }
+    uiString		message() const		{ return msg_; }
     uiString		nrDoneText() const	{ return tr("Records read"); }
     od_int64		nrDone() const		{ return rowsdone_; }
 

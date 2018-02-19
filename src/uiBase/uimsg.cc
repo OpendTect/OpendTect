@@ -318,7 +318,8 @@ bool uiMsg::message( const uiString& part1, const uiString& part2,
     bool notagain = false;
     showMessageBox( Information, popParnt(), msg, uiStrings::sOk(),
 		    uiString::empty(), uiString::empty(),
-		    tr("Information"), withdontshowagain ? &notagain : 0 );
+		    uiStrings::sInformation(),
+		    withdontshowagain ? &notagain : 0 );
     return notagain;
 }
 

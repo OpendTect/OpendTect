@@ -141,7 +141,7 @@ EventImporter::EventImporter( const char* filenm, const Table::FormatDesc& fd,
     totalnr_ = File::getFileSize( filenm );
     evmgr_.ref();
     message_ = ascio_
-	? tr("Importing")
+	? uiStrings::sImporting()
 	: uiStrings::phrCannotRead( uiStrings::sInputData() );
 }
 
@@ -211,7 +211,7 @@ Table::FormatDesc* EventAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "PreStack Event" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-	    		StringInpSpec(sKey::FloatUdf()), Table::Required );
+			StringInpSpec(sKey::FloatUdf()), Table::Required );
     createDescBody( fd );
     return fd;
 }
@@ -221,9 +221,9 @@ void EventAscIO::createDescBody( Table::FormatDesc* fd )
 {
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += new Table::TargetInfo( "Event ID (optional)",
-	    				     IntInpSpec(), Table::Optional );
+					     IntInpSpec(), Table::Optional );
     fd->bodyinfos_ += new Table::TargetInfo( "Offset", FloatInpSpec(),
-	    				     Table::Required );
+					     Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
 }
 

@@ -335,6 +335,7 @@ public:
     static uiWord sGroup(int n=1)	{ return tr("Group",0,n); }
     static uiWord sGridding()		{ return tr("Gridding"); }
     static uiWord sHalf()		{ return tr("Half"); }
+    static uiWord sHeader()		{ return tr("Header"); }
     static uiWord sHeight()		{ return tr("Height"); }
     static uiWord sHelp()		{ return tr("Help"); }
     static uiWord sHide()		{ return tr("Hide"); }
@@ -345,11 +346,16 @@ public:
     static uiWord sHorizon(int n=1)	{ return tr("Horizon",0,n); }
     static uiWord sHorizonData()	{ return tr("Horizon Data"); }
     static uiWord sHorizontal()		{ return tr("Horizontal"); }
+    static uiWord sHost()		{ return tr("Host"); }
     static uiWord sID()			{ return tr("ID"); }
-    static uiWord sImpSuccess()		{ return tr("Import successful"); }
+    static uiWord sImage()		{ return tr("Image"); }
     static uiWord sImport()		{ return tr("Import"); }
-    static uiWord sInfo()		{ return tr("info"); }
+    static uiWord sImporting()		{ return tr("Importing"); }
+    static uiWord sImpSuccess()		{ return tr("Import successful"); }
+    static uiWord sInfo()		{ return tr("Info"); }
     static uiWord sInformation()	{ return tr("Information"); }
+    static uiWord sInner()		{ return tr("Inner"); }
+    static uiWord sInitializing()	{ return tr("Initializing"); }
     static uiWord sInl()		{ return tr("Inl","abbr In-line"); }
     static uiWord sInline(int n=1)	{ return tr("In-line",0,n); }
     static uiWord sInlineDip()		{ return tr("Inline Dip"); }
@@ -424,6 +430,7 @@ public:
     static uiWord sOptions()		{ return sOption(mPlural); }
     static uiWord sOr()			{ return tr("or"); }
     static uiWord sOther()		{ return tr("Other"); }
+    static uiWord sOuter()		{ return tr("Outer"); }
     static uiWord sOutpDataStore()	{ return tr("Output data store"); }
     static uiWord sOutput()		{ return tr("Output"); }
     static uiWord sOutputASCIIFile();

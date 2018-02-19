@@ -18,6 +18,7 @@
 #include "iopar.h"
 #include "dbman.h"
 #include "ioobj.h"
+#include "uistrings.h"
 
 const char* SeisBayesClass::sKeyPDFID()		{ return "PDF.ID"; }
 const char* SeisBayesClass::sKeyAPProbID()	{ return "PDF.Norm.APProb.ID"; }
@@ -55,7 +56,7 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
     if ( is2d_ )
     { msg_ = tr("2D not implemented"); return; }
 
-    msg_ = tr("Initializing");
+    msg_ = uiStrings::sInitializing();
 }
 
 #define mAddIdxRank(idx) arg( ("%1%2") \

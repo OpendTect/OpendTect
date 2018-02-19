@@ -41,6 +41,7 @@ public:
     const CBVSInfo&	info() const		{ return info_; }
     int			bytesOverheadPerTrace() const;
     void		close();
+    void		setSingleLineMode(bool yn=true);
 
     BinID		nextBinID() const;
     bool		goTo(const BinID&);

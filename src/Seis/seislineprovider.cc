@@ -119,21 +119,26 @@ bool Seis::LineFetcher::goTo( const TrcKey& tk )
     if ( !tk.hasValidGeomID() )
 	{ uirv_.set( tr("Invalid position requested") ); return false; }
 
-    curlidx_ = lineIdxFor( tk.geomID() );
-    if ( curlidx_ < 0 )
+    int newlineidx = lineIdxFor( tk.geomID() );
+    if ( newlineidx < 0 )
 	{ uirv_.set(tr("Requested position not available")); return false; }
 
-    if ( !getter_ || tk.geomID()!=curGeomID() )
+    if ( !getter_ || curlidx_!=newlineidx )
     {
-	delete getter_;
-	getter_ = dataset_->traceGetter( curGeomID(), prov().seldata_, uirv_ );
-	if ( !getter_ )
+	Seis2DTraceGetter* newgetter =
+		dataset_->traceGetter( tk.geomID(), prov().seldata_, uirv_ );
+	if ( !newgetter )
 	{
 	    if ( uirv_.isEmpty() )
 		uirv_.set( tr("Requested position not available") );
 	    return false;
 	}
+
+	delete getter_;
+	getter_ = newgetter;
+	curlidx_ = newlineidx;
     }
+
 
     if ( !iter_ || iter_->geomID()!=curGeomID() )
     {
@@ -155,7 +160,8 @@ bool Seis::LineFetcher::getNextGetter()
 	return false;
 
     getter_ = dataset_->traceGetter( curGeomID(), prov2D().selData(), uirv_ );
-    if ( !getter_ ) return getNextGetter();
+    if ( !getter_ )
+	return getNextGetter();
 
     findDataPack();
     return true;

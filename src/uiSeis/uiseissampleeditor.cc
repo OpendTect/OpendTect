@@ -253,7 +253,7 @@ void uiSeisSampleEditor::createMenuAndToolBar()
 {
     toolbar_ = new uiToolBar( this, tr("Sample Editor Tool Bar") );
     mAddButton( "gotopos",goToPush,tr("Goto position"),false );
-    mAddButton( "info",infoPush,tr("Information"),false );
+    mAddButton( "info",infoPush,tr("Trace Information"),false );
     if ( !is2d_ )
 	crlwisebutidx_ = mAddButton( "crlwise", switchViewTypePush,
 				     tocrlwisett_, true );
@@ -753,12 +753,13 @@ public:
 
 uiSeisSampleEditorWriter( uiSeisSampleEditor& ed, const DBKey& dbky )
     : Executor( "Writing Edited Seismics" )
-    , msg_(tr("Initializing"))
+    , msg_(uiStrings::sInitializing())
     , ed_(ed)
     , prov_(*ed.prov_)
     , dbky_(dbky)
     , wrr_(0)
     , tksampiter_(0)
+    , curtrcnr_(mUdf(int))
 {
     nrdone_ = 0;
     totalnr_ = prov_.totalNr();
@@ -778,7 +779,17 @@ uiString nrDoneText() const	{ return tr("Traces done"); }
 
 void createIter2D()
 {
-    //TODO support 2D
+    trcnrrg_ = ed_.linedata_.range();
+    trcnrrg_.step = ed_.linedata_.minStep();
+
+    Pos::IdxPairDataSet::SPos spos;
+    while ( ed_.edtrcs_.next(spos) )
+    {
+	const SeisTrc* trc = (const SeisTrc*)ed_.edtrcs_.getObj( spos );
+	trcnrrg_.include( trc->info().trcNr() );
+    }
+
+    curtrcnr_ = trcnrrg_.start - trcnrrg_.step;
 }
 
 void createIter3D()
@@ -800,13 +811,6 @@ void createIter3D()
 
 int startWork()
 {
-    //TODO support 2D
-    if ( ed_.is2D() )
-    {
-	msg_ = mTODONotImplPhrase();
-	return ErrorOccurred();
-    }
-
     wrr_ = new SeisTrcWriter( dbky_ );
     if ( !wrr_->errMsg().isEmpty() )
     {
@@ -831,8 +835,15 @@ bool toNextPos()
 	curbinid_ = tksampiter_->curBinID();
 	return true;
     }
+    else if ( !mIsUdf(curtrcnr_) )
+    {
+	curtrcnr_ += trcnrrg_.step;
+	curbinid_.trcNr() = curtrcnr_;
+	return trcnrrg_.includes( curtrcnr_, false );
+    }
 
-    return false; //TODO support 2D
+    pErrMsg("Shld not reach");
+    return false;
 }
 
 int nextStep()
@@ -870,6 +881,8 @@ int nextStep()
     const Seis::Provider& prov_;
     SeisTrcWriter*	wrr_;
     TrcKeySamplingIterator* tksampiter_;
+    StepInterval<Pos::TraceID> trcnrrg_;
+    Pos::TraceID	curtrcnr_;
     od_int64		totalnr_;
     od_int64		nrdone_;
     SeisTrc		trc_;

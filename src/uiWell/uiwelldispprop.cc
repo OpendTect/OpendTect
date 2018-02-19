@@ -184,7 +184,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 	shapefld_->box()->addItem(
 		setup_.onlyfor2ddisplay_ ? shapes2d[idx] : shapes3d[idx]);
 
-    cylinderheightfld_ = new uiLabeledSpinBox( this, tr("Height") );
+    cylinderheightfld_ = new uiLabeledSpinBox( this, uiStrings::sHeight() );
     cylinderheightfld_->box()->setInterval( 0, 10, 1 );
     cylinderheightfld_->attach( rightOf, shapefld_ );
     cylinderheightfld_->display( !setup_.onlyfor2ddisplay_ );

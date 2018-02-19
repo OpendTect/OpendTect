@@ -74,7 +74,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     else
 	bulkinfld_ = new uiIOObjSelGrp( this, ctxt,
 					uiStrings::sHorizon(mPlural), stup );
-    headerfld_ = new uiGenInput( this, tr("Header"),
+    headerfld_ = new uiGenInput( this, uiStrings::sHeader(),
 				 StringListInpSpec(hdrtyps) );
     if ( !isbulk_ )
 	headerfld_->attach( alignedBelow, linenmfld_ );

@@ -424,7 +424,8 @@ bool uiODPreStart::fillRightClickMenu( const BufferString& url, bool withinfo )
 {
     rightclickmenu_.clear();
     if ( withinfo )
-	rightclickmenu_.insertAction( new uiAction(tr("Info"), "info"), 0 );
+	rightclickmenu_.insertAction( new uiAction(uiStrings::sInfo(),
+				      "info"), 0 );
     if ( !url.isEmpty() )
 	rightclickmenu_.insertAction( new uiAction(tr("Web site [%1]")
 			    .arg(url), "link"), 1 );

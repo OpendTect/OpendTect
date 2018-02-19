@@ -344,7 +344,8 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
     sep->attach( stretchedBelow, anglecompgrp_ );
 
     topfld_ = new uiGenInput( this, tr("Mute type"),
-	    BoolInpSpec(!processor_->params().tail_,tr("Outer"),tr("Inner")) );
+	    BoolInpSpec(!processor_->params().tail_,
+			uiStrings::sOuter(),uiStrings::sInner()) );
     topfld_->attach( ensureBelow, sep );
     topfld_->attach( centeredBelow, anglecompgrp_ );
 

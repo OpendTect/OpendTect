@@ -70,7 +70,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     advbut->attach( rightBorder );
 
     uiTable::Setup tsu( -1, 5 );
-    tsu.rowdesc(tr("Host")).defrowlbl(true).selmode(uiTable::SingleRow);
+    tsu.rowdesc(uiStrings::sHost()).defrowlbl(true).selmode(uiTable::SingleRow);
     table_ = new uiTable( this, tsu, "Batch Hosts" );
     uiStringSet collbls;
     collbls.add( tr("IP address") ).add( tr("Hostname") )
@@ -91,11 +91,11 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     autobox_->attach( alignedBelow, table_ );
 
     uiButtonGroup* buttons = new uiButtonGroup( this, "", OD::Vertical );
-    new uiToolButton( buttons, "addnew", uiStrings::phrAdd(tr("Host")),
+    new uiToolButton( buttons, "addnew", uiStrings::phrAdd(uiStrings::sHost()),
 			mCB(this,uiBatchHostsDlg,addHostCB) );
     uiToolButton::getStd( buttons, OD::Remove,
 			  mCB(this,uiBatchHostsDlg,rmHostCB),
-			  uiStrings::phrRemove(tr("Host")) );
+			  uiStrings::phrRemove(uiStrings::sHost()) );
     upbut_ = new uiToolButton( buttons, uiToolButton::UpArrow,
 			uiStrings::sMoveUp(),
 			mCB(this,uiBatchHostsDlg,moveUpCB) );

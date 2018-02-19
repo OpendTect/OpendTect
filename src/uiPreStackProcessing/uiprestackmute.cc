@@ -46,7 +46,7 @@ uiMute::uiMute( uiParent* p, Mute* mute )
     mutedeffld_->setChecked( !processor_->muteDefID().isInvalid() );
 
     topfld_ = new uiGenInput( this, tr("Mute type"),
-			      BoolInpSpec(true,tr("Outer"),tr("Inner")) );
+		  BoolInpSpec(true, uiStrings::sOuter(),uiStrings::sInner()) );
     topfld_->attach( alignedBelow, mutedeffld_ );
 
     taperlenfld_ = new uiGenInput( this, tr("Taper length (in samples)"),

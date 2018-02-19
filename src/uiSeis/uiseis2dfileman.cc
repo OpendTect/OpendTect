@@ -39,7 +39,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiseis2dfrom3d.h"
 #include "uiseisioobjinfo.h"
-#include "uiseisbrowser.h"
+#include "uiseissampleeditor.h"
 #include "uiseissel.h"
 #include "uisplitter.h"
 #include "uiseparator.h"
@@ -75,7 +75,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linegrp_->addButton( "mergelines", uiStrings::phrMerge(
 			uiStrings::sLine(mPlural)),mCB(this,uiSeis2DFileMan,
 			mergeLines) );
-    linegrp_->addButton( "browseseis", tr("Browse/edit this line"),
+    linegrp_->addButton( "browseseis", tr("Browse/Edit this line"),
 		        mCB(this,uiSeis2DFileMan,browsePush) );
     if ( SI().has3D() )
 	linegrp_->addButton( "extr3dinto2d", tr("Extract from 3D cube"),
@@ -221,10 +221,11 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
 
 void uiSeis2DFileMan::browsePush( CallBacker* )
 {
-    if ( !objinfo_ || !objinfo_->ioObj() ) return;
+    if ( !objinfo_ || !objinfo_->ioObj() )
+	return;
 
     const Pos::GeomID geomid = Survey::GM().getGeomID( linefld_->getText() );
-    uiSeisBrowser::doBrowse( this, *objinfo_->ioObj(), true, geomid );
+    uiSeisSampleEditor::launch( this, objinfo_->ioObj()->key(), geomid );
 }
 
 

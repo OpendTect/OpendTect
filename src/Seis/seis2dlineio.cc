@@ -38,7 +38,6 @@ Seis2DTraceGetter::Seis2DTraceGetter( const IOObj& obj, Pos::GeomID geomid,
     , seldata_(sd && !sd->isAll() ? sd->clone() : 0)
     , tr_(0)
 {
-    linenrfortr_ = geomid_; // just a default, usually not right
 }
 
 
@@ -74,7 +73,6 @@ bool Seis2DTraceGetter::ensureTranslator() const
 		initmsg_ = tr( "%1: no traces in input" ).arg( ioobj_.name() );
 	    return false;
 	}
-	linenrfortr_ = ti.lineNr();
 
 	delete tr_; tr_ = 0;
 	mkTranslator();
@@ -82,6 +80,7 @@ bool Seis2DTraceGetter::ensureTranslator() const
 	    { setErrMsgForNoTrMade(); return false; }
 
 	tr_->setSelData( seldata_ );
+	tr_->setCurGeomID( geomid_ );
     }
 
     tr_->commitSelections();
@@ -116,7 +115,7 @@ uiRetVal Seis2DTraceGetter::doGet( TrcNrType tnr, SeisTrc* trc, TraceData& data,
     if ( !ensureTranslator() )
 	return uiRetVal( initmsg_ );
 
-    const BinID bid( linenrfortr_, tnr );
+    const BinID bid( geomid_, tnr );
     if ( !tr_->goTo(bid) )
 	return uiRetVal( tr("Trace not present: %1").arg(tnr) );
 

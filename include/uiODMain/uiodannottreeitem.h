@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uioddisplaytreeitem.h"
 #include "color.h"
+#include "uistrings.h"
 
 namespace Pick { class Set; }
 
@@ -24,7 +25,7 @@ public:
 			~uiODAnnotParentTreeItem();
 
     int			sceneID() const;
-    static uiString	sImage() { return tr("Image"); }
+    static uiString	sImage() { return uiStrings::sImage(); }
     static uiString	sArrows() { return tr("Arrows"); }
     static uiString	sScalebar() { return tr("Scale Bar"); }
 

@@ -33,7 +33,7 @@ uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
     uiSelLineStyle::Setup lssu; lssu.drawstyle( false ).transparency( true );
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
 
-    hghtfld_ = new uiGenInput( this, tr("Height"), FloatInpSpec(100) );
+    hghtfld_ = new uiGenInput( this, uiStrings::sHeight(), FloatInpSpec(100) );
     hghtfld_->attach( alignedBelow, lsfld_ );
 
     mImplFileNameFld(ps.name());

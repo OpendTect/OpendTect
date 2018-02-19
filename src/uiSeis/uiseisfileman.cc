@@ -38,7 +38,6 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uimergeseis.h"
 #include "uiseispsman.h"
-#include "uiseisbrowser.h"
 #include "uiseissampleeditor.h"
 #include "uiseiscopy.h"
 #include "uiseisioobjinfo.h"
@@ -119,7 +118,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 					tr("cube parts into one cube")),
 					mCB(this,uiSeisFileMan,mergePush) );
 	browsebut_ = manipgrp->addButton( "browseseis",
-				tr("Browse/edit this cube"),
+				tr("Browse/Edit this cube"),
 				mCB(this,uiSeisFileMan,browsePush) );
     }
 
