@@ -999,24 +999,25 @@ uiString message() const
 {
     return !errmsg_.isEmpty()
 	? errmsg_
-	: (proc_
-           ? proc_->message()
-           : uiStrings::phrCannotCreate(tr("output")) );
+	: (proc_ ? proc_->message()
+           : uiStrings::phrCannotCreate(uiStrings::sOutput().toLower()) );
 }
 
-int haveError( const uiString& msg )
+int errorReturn( const uiString& msg )
 {
-    if ( !msg.isEmpty() ) errmsg_ = msg;
+    if ( !msg.isEmpty() )
+	errmsg_ = msg;
     return -1;
 }
 
 int nextStep()
 {
-    if ( !proc_ ) return haveError( uiString::empty() );
+    if ( !proc_ )
+	return errorReturn( uiString::empty() );
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
-    return haveError( proc_->message() );
+    return errorReturn( proc_->message() );
 }
 
     uiString			errmsg_;
@@ -1175,19 +1176,21 @@ uiString message() const
 	    : uiStrings::phrCannotCreate(uiStrings::sOutput() ));
 }
 
-int haveError( const uiString& msg )
+int errorReturn( const uiString& msg )
 {
-    if ( !msg.isEmpty() ) errmsg_ = msg;
+    if ( !msg.isEmpty() )
+	errmsg_ = msg;
     return -1;
 }
 
 int nextStep()
 {
-    if ( !proc_ ) return haveError( uiString::empty() );
+    if ( !proc_ )
+	return errorReturn( uiString::empty() );
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
-    return haveError( proc_->message() );
+    return errorReturn( proc_->message() );
 }
 
     uiString			errmsg_;

@@ -51,7 +51,8 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
 						    .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    normfld_ = new uiGenInput( this, tr("Normalize"), BoolInpSpec(false) );
+    normfld_ = new uiGenInput( this, uiStrings::sNormalise(),
+				BoolInpSpec(false) );
     normfld_->attach( alignedBelow, gatefld_ );
 
     uiWindowFunctionSel::Setup su; su.label_ = "Window/Taper";

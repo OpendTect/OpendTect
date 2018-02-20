@@ -50,7 +50,7 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     factorylist_->attach( ensureBelow, label );
 
     addprocessorbutton_ = new uiToolButton( this, uiToolButton::RightArrow,
-			      uiStrings::phrAdd(tr("method")),
+			      tr("Add method"),
 			      mCB(this,uiProcessorManager,addCB) );
     addprocessorbutton_->attach( centeredRightOf, factorylist_ );
 

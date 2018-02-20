@@ -95,7 +95,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
     uiGroup* modegrp = createModeGroup();
-    tabgrp_->addTab( modegrp, tr("Mode") );
+    tabgrp_->addTab( modegrp, uiStrings::sMode() );
 
     eventgrp_ = new uiEventGroup( tabgrp_->tabGroup(), is2d_ );
     tabgrp_->addTab( eventgrp_, uiStrings::sEvent() );
@@ -332,7 +332,8 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     uiSeparator* sep = new uiSeparator( grp );
     sep->attach( stretchedBelow, modeselgrp_ );
     uiStringSet strs; strs.add( tr("Seed Trace") ).add( tr("Adjacent Parent") );
-    methodfld_ = new uiGenInput( grp, tr("Method"), StringListInpSpec(strs) );
+    methodfld_ = new uiGenInput( grp, uiStrings::sMethod(),
+				 StringListInpSpec(strs) );
     methodfld_->valuechanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedModeChange) );
     methodfld_->attach( alignedBelow, modeselgrp_ );

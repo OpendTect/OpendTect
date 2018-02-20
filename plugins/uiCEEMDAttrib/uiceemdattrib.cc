@@ -41,7 +41,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     methodstrs.add( tr("Empirical Mode Decomposition (EMD)") );
     methodstrs.add( tr("Ensemble EMD") );
     methodstrs.add( tr("Complete Ensemble EMD") );
-    methodfld_ = new uiGenInput( this, tr("Method"),
+    methodfld_ = new uiGenInput( this, uiStrings::sMethod(),
 				 StringListInpSpec(methodstrs) );
     methodfld_->attach( alignedBelow, inpfld_ );
 
@@ -74,7 +74,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     attriboutputstrs.add( tr("Peak Frequency") );
     attriboutputstrs.add( tr("Peak Amplitude") );
     attriboutputstrs.add( tr("IMF Component") );
-    attriboutputfld_ = new uiGenInput( this, tr("Output"),
+    attriboutputfld_ = new uiGenInput( this, uiStrings::sOutput(),
 				    StringListInpSpec(attriboutputstrs) );
     CallBack cboutsel = mCB(this, uiCEEMDAttrib, outSel);
     attriboutputfld_->valuechanged.notify(cboutsel);

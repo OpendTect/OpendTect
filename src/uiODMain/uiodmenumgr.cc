@@ -821,7 +821,8 @@ void uiODMenuMgr::fillViewMenu()
     itm = addCheckableAction( stereomnu, txt, icnm, id ); \
     itm->setChecked( docheck )
     uiMenu* stereomnu = addSubMenu( viewmnu_, tr("Stereo Viewing"), "stereo" );
-    mAddStereoAction( stereooffitm_, tr("Off"), "off", mStereoOffMnuItm, true );
+    mAddStereoAction( stereooffitm_, uiStrings::sOff(), "off",
+			mStereoOffMnuItm, true );
     mAddStereoAction( stereoredcyanitm_, tr("Red/Cyan"), "redcyan",
 			mStereoRCMnuItm, false );
     mAddStereoAction( stereoquadbufitm_, tr("Quad Buffered"), "quadbuff",

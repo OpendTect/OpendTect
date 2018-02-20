@@ -77,7 +77,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     valfld_->attach( alignedBelow, rangefld_ );
     valfld_->display( false );
 
-    normfld_ = new uiCheckBox( dispparamgrp_, tr("Normalize") );
+    normfld_ = new uiCheckBox( dispparamgrp_, uiStrings::sNormalise() );
     normfld_->attach( rightOf, valfld_ );
     normfld_->setChecked( true );
 

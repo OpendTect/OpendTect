@@ -341,7 +341,8 @@ bool uiMadIOSelDlg::acceptOK()
 
 
 uiMadIOSel::uiMadIOSel( uiParent* p, bool isinp )
-	: uiCompoundParSel(p,isinp ? tr("INPUT") : tr("OUTPUT"))
+	: uiCompoundParSel(p,isinp ? uiStrings::sInput().toUpper()
+				   : uiStrings::sOutput().toUpper())
 	, iop_(BufferString("Madagascar ",isinp?"input":"output"," selection"))
 	, isinp_(isinp)
         , selectionMade(this)

@@ -148,7 +148,7 @@ private:
   {
   public:
 
-      enum			  	State { Good, Bad, Ugly };
+      enum				State { Good, Bad, Ugly };
       static const EnumDefImpl<State>& StateDef();
 
   private:
@@ -175,8 +175,8 @@ private:
  template <>
  void EnumDefImpl<MyClass::Type>::init()
  {
-     uistrings_ += tr("Yes");
-     uistrings_ += tr("No");
+     uistrings_ += uiStrings::sYes();
+     uistrings_ += uiStrings::sNo();
      uistrings_ += tr("Not sure");
  }
  \endcode

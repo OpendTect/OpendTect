@@ -109,7 +109,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mLoadIdx );
-    uiMenu* newmnu = new uiMenu( getUiParent(), tr("New") );
+    uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
     newmnu->insertAction( new uiAction(m3Dots(tr("Empty"))), mEmptyIdx );
     newmnu->insertAction( new uiAction(m3Dots(tr("Generate 3D"))), mGen3DIdx );
     if ( SI().has2D() )
@@ -533,7 +533,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mLoadPolyIdx );
-    mnu.insertAction( new uiAction(m3Dots(tr("New"))), mNewPolyIdx );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sNew())), mNewPolyIdx );
 
     if ( children_.size() > 0 )
     {

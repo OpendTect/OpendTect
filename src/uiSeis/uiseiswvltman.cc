@@ -119,7 +119,7 @@ void uiSeisWvltMan::addButtons()
     extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
     extractbut->attach( rightOf, mergebut );
 
-    uiPushButton* matchbut = new uiPushButton( grp, tr("Match"), false );
+    uiPushButton* matchbut = new uiPushButton( grp, uiStrings::sMatch(), false);
     matchbut->activated.notify( mCB(this,uiSeisWvltMan,matchPush) );
     matchbut->attach( rightOf, extractbut );
 }

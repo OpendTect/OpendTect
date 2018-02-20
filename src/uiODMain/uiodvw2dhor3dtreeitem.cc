@@ -91,7 +91,7 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
     }
     else
     {
-	uiMenu* trackmenu = new uiMenu( tr("Track") );
+	uiMenu* trackmenu = new uiMenu( uiStrings::sTrack() );
 	uiAction* newact = new uiAction( uiStrings::sNew() );
 	newact->setEnabled( cantrack );
 	trackmenu->insertAction( newact, mNewIdx );

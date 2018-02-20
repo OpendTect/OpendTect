@@ -409,10 +409,15 @@ public:
     static uiWord sManual()		{ return tr("Manual"); }
     static uiWord sMarker(int n=1)	{ return tr("Marker",0,n); }
     static uiWord sMD()			{ return tr("MD"); }
+    static uiWord sMatch()		{ return tr("Match"); }
+    static uiWord sMaximum()		{ return tr("Maximum"); }
     static uiWord sMedian()		{ return tr("Median"); }
     static uiWord sMenu()		{ return tr("Menu"); }
     static uiWord sMerge()		{ return tr("Merge"); }
     static uiWord sMeter()		{ return tr("Meter"); }
+    static uiWord sMethod()		{ return tr("Method"); }
+    static uiWord sMinimum()		{ return tr("Minimum"); }
+    static uiWord sMode()		{ return tr("Mode"); }
     static uiWord sModify()		{ return tr("Modify"); }
     static uiWord sMouse()		{ return tr("Mouse"); }
     static uiWord sMove()		{ return tr("Move"); }
@@ -424,19 +429,23 @@ public:
     static uiWord sMultiple()		{ return tr("Multiple"); }
     static uiWord sMute(int n=1)	{ return tr("Mute",0,n); }
     static uiWord sName(int n=1)	{ return tr("Name",0,n); }
+    static uiWord sNegative()		{ return tr("Negative"); }
     static uiWord sNew()		{ return tr("New"); }
     static uiWord sNext()		{ return tr("Next"); }
     static uiWord sNo()			{ return tr("No"); }
-    static uiWord sNoLogSel()		{ return tr("No log selected"); }
-    static uiWord sNoValidData()	{ return tr("No valid data found"); }
     static uiWord sNode(int n=1)	{ return tr("Node",0,n); }
+    static uiWord sNoLogSel()		{ return tr("No log selected"); }
     static uiWord sNone()		{ return tr("None"); }
     static uiWord sNormal()		{ return tr("Normal"); }
+    static uiWord sNormalise()		{ return tr("Normalise"); }
     static uiWord sNorth(bool abbr)
     { return abbr ? tr("N","abbr North") : tr("North"); }
+    static uiWord sNoValidData()	{ return tr("No valid data found"); }
     static uiWord sObject()		{ return tr("Object"); }
+    static uiWord sOff()		{ return tr("Off","not in action"); }
     static uiWord sOffset()		{ return tr("Offset"); }
     static uiWord sOk()			{ return tr("OK"); }
+    static uiWord sOn()			{ return tr("On","in action"); }
     static uiWord sOnlyAtSections()	{ return tr("Only at Sections"); }
     static uiWord sOpen()		{ return tr("Open"); }
     static uiWord sOpendTect()		{ return tr("OpendTect"); }
@@ -444,6 +453,7 @@ public:
     static uiWord sOption(int n=1)	{ return tr("Option",0,n); }
     static uiWord sOptions()		{ return sOption(mPlural); }
     static uiWord sOr()			{ return tr("or"); }
+    static uiWord sOrder()		{ return tr("Order"); }
     static uiWord sOther()		{ return tr("Other"); }
     static uiWord sOuter()		{ return tr("Outer"); }
     static uiWord sOutpDataStore()	{ return tr("Output data store"); }
@@ -453,6 +463,7 @@ public:
     static uiWord sOutputSelection()	{ return tr("Output Selection"); }
     static uiWord sOutside()		{ return tr("Outside"); }
     static uiWord sOverwrite()		{ return tr("Overwrite"); }
+    static uiWord sPackage(int n=1)	{ return tr("Package",0,n); }
     static uiWord sParFile()		{ return tr("Par File"); }
     static uiWord sParameter(int n=1)	{ return tr("Parameter",0,n); }
     static uiWord sPartial()		{ return tr("Partial"); }
@@ -462,6 +473,7 @@ public:
     static uiWord sPointSet(int n=1)	{ return tr("PointSet",0,n); }
     static uiWord sPolygon(int n=1)	{ return tr("Polygon",0,n); }
     static uiWord sPosition(int n=1)	{ return tr("Position",0,n); }
+    static uiWord sPositive()		{ return tr("Positive"); }
     static uiWord sPreStack()		{ return tr("Prestack"); }
     static uiWord sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiWord sPrevious()		{ return tr("Previous"); }
@@ -509,6 +521,7 @@ public:
     static uiWord sSearching()		{ return tr("Searching"); }
     static uiWord sSec(int n=1)		{ return tr("Second",0,1); }
     static uiWord sSEGY()		{ return tr("SEG-Y"); }
+    static uiWord sSegment()		{ return tr("Segment"); }
     static uiWord sSeismic(int n=1)	{ return tr("Seismic",0,n); }
     static uiWord sSeismicData()	{ return tr("Seismic Data"); }
     static uiWord sSelAttrib()		{ return tr("Select Attribute"); }
@@ -568,7 +581,7 @@ public:
     static uiWord sTopHor()		{ return tr("Top Horizon"); }
     static uiWord sTrace(int n=1)	{ return tr("Trace",0,n); }
     static uiWord sTraceNumber()	{ return tr("Trace number"); }
-    static uiWord sTrack()		{ return tr("Track" ); }
+    static uiWord sTrack()		{ return tr("Track","verb"); }
     static uiWord sTracking()		{ return tr("Tracking"); }
     static uiWord sTransform()		{ return tr("Transform"); }
     static uiWord sTransparency()	{ return tr("Transparency"); }

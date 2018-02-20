@@ -75,8 +75,8 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     lblstepfld->attach( alignedBelow, lblmaxrgfld );
     lblstepfld->display( isvert );
 
-    uiString lbl3 = tr("%1 number of pairs per lag distance")
-		    .arg(isvert ? tr("Min") : tr("Max"));
+    uiString lbl3 = tr("%1 number of pairs per lag distance","min or max")
+		.arg(isvert ? uiStrings::sMinimum() : uiStrings::sMaximum());
     uiLabeledSpinBox* lblfoldfld = new uiLabeledSpinBox( this, lbl3, 0 );
     foldfld_ = lblfoldfld->box();
     foldfld_->setInterval( minfldval, maxfldval, deffldstep );

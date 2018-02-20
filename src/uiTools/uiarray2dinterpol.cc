@@ -321,7 +321,7 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     radiusfld_->setWithCheck( true );
     radiusfld_->setChecked( false );
 
-    parbut_ = new uiPushButton( this, tr("Parameters"),
+    parbut_ = new uiPushButton( this, uiStrings::sParameter(mPlural),
 		    mCB(this,uiInverseDistanceArray2DInterpol,doParamDlg),
 		    false );
     parbut_->attach( rightOf, radiusfld_ );

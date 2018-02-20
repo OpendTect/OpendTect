@@ -438,7 +438,8 @@ void uiTieWinMGRDlg::saveWellTieSetup( const DBKey& key,
 {
     WellTie::Writer wtr( Well::odIO::getMainFileName(key) );
     if ( !wtr.putWellTieSetup( wts ) )
-	uiMSG().error( uiStrings::phrCannotWrite(tr("parameters")) );
+	uiMSG().error( uiStrings::phrCannotWrite(
+		    uiStrings::sParameter(mPlural).toLower()) );
 }
 
 

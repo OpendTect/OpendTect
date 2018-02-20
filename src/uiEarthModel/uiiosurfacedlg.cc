@@ -251,7 +251,8 @@ bool uiCopySurface::acceptOK()
     inpfld->getSelection( sdsel );
 
     RefMan<EM::Object> emobj = EM::MGR().createTempObject( ioobj->group() );
-    if ( !emobj ) mErrRet(uiStrings::phrCannotCreate(tr("Object")))
+    if ( !emobj )
+	mErrRet(uiStrings::phrCannotCreate(uiStrings::sObject()))
     emobj->setDBKey( ioobj->key() );
 
     mDynamicCastGet(EM::Surface*,surface,emobj.ptr())

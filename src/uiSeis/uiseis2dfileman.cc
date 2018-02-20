@@ -258,7 +258,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 
     const char* mrgopts[]
 	= { "Match trace numbers", "Match coordinates", "Bluntly append", 0 };
-    mrgoptfld_ = new uiGenInput( geomgrp, uiStrings::phrMerge(tr("method")),
+    mrgoptfld_ = new uiGenInput( geomgrp, tr("Merge method"),
 				 StringListInpSpec(mrgopts) );
     mrgoptfld_->attach( alignedBelow, lcb2 );
     mrgoptfld_->valuechanged.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );

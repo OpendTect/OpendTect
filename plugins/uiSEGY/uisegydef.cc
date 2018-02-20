@@ -928,7 +928,8 @@ uiGroup* uiSEGYFileOpts::mkORuleGrp( const IOPar& iop )
     sampleratefld_->attach( alignedBelow, timeshiftfld_ );
 
     grp->setHAlignObj( scalcofld_ );
-    if ( ts_ ) ts_->addTab( grp, tr("Overrules") );
+    if ( ts_ )
+	ts_->addTab( grp, tr("Overrules") );
     return grp;
 }
 

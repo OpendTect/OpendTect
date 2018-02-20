@@ -51,7 +51,8 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 		.arg(uiStrings::sProbDensFunc(false)),
 	     toUiString("%1 '%2'")
 	     .arg(ed ? uiStrings::sEdit() : uiStrings::sBrowse())
-	     .arg(pdf.name().isEmpty() ? tr("PDF") : toUiString(pdf.name())),
+	     .arg(pdf.name().isEmpty() ? uiStrings::sProbDensFunc(true)
+				       : toUiString(pdf.name())),
 	     mODHelpKey(mEditProbDenFuncHelpID) ))
 	     , edfld_(0)
 {

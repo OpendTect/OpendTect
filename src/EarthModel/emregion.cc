@@ -74,7 +74,7 @@ bool RegionInlBoundary::onRightSide( const TrcKey& tk, float z ) const
 
 void RegionInlBoundary::getSideStrs( uiStringSet& strs ) const
 {
-    strs.add( tr("Positive") ); strs.add( tr("Negative") );
+    strs.add( uiStrings::sPositive() ); strs.add( uiStrings::sNegative() );
 }
 
 
@@ -107,7 +107,7 @@ bool RegionCrlBoundary::onRightSide( const TrcKey& tk, float z ) const
 
 void RegionCrlBoundary::getSideStrs( uiStringSet& strs ) const
 {
-    strs.add( tr("Positive") ); strs.add( tr("Negative") );
+    strs.add( uiStrings::sPositive() ); strs.add( uiStrings::sNegative() );
 }
 
 

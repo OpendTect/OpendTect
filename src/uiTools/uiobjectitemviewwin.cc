@@ -453,7 +453,7 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
 {
     uiToolBar::ToolBarArea tba( uiToolBar::Top );
     toolbar_ = new uiToolBar( mw.parent(), uiStrings::phrJoinStrings(
-			      tr("ObjectItemView"),uiStrings::sTools()), tba );
+		      toUiString("ObjectItemView"),uiStrings::sTools()), tba );
     setToolButtons();
 
     mainviewer_.disableScrollZoom();

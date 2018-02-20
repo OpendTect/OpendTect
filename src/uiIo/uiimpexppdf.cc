@@ -471,7 +471,8 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread_ = true;
     inpfld_ = new uiIOObjSel( this, ioobjctxt );
-    inpfld_->setLabelText( uiStrings::phrInput(tr("PDF")) );
+    inpfld_->setLabelText(
+	    uiStrings::phrInput(uiStrings::sProbDensFunc(true)) );
 
     uiFileSel::Setup fssu;
     fssu.setFormat( File::Format::textFiles() )

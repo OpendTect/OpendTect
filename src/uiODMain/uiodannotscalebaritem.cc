@@ -53,15 +53,16 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
 	BoolInpSpec(true,tr("Inl/Crl"),uiStrings::sZSlice()) );
     objectfld_->setSensitive( false );
 
+    const uiString orientstr( tr("Orientation") );
     const BoolInpSpec horverspec( true, uiStrings::sHorizontal(),
                                   uiStrings::sVertical() );
-    horverfld_ = new uiGenInput( this, tr("Orientation"), horverspec );
+    horverfld_ = new uiGenInput( this, orientstr, horverspec );
     horverfld_->attach( alignedBelow, objectfld_ );
     horverfld_->valuechanged.notify( mCB(this,uiScaleBarDialog,changeCB) );
 
     // TODO: Support X, Y, Inl, Crl orientations
     const BoolInpSpec xyspec( true, uiStrings::sX(), uiStrings::sY() );
-    inlcrlfld_= new uiGenInput( this, tr("Orientation"), xyspec );
+    inlcrlfld_= new uiGenInput( this, orientstr, xyspec );
     inlcrlfld_->attach( alignedBelow, objectfld_ );
     inlcrlfld_->valuechanged.notify( mCB(this,uiScaleBarDialog,changeCB) );
     inlcrlfld_->display( false );
