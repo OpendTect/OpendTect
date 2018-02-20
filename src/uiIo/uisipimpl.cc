@@ -70,8 +70,8 @@ ui2DDefSurvInfoDlg( uiParent* p, TDInfo ztyp )
 				       uiStrings::sRange()), dis, dis );
     yrgfld_->attach( alignedBelow, xrgfld_ );
     ismfld_ = new uiGenInput( maingrp, tr("Above values are in"),
-				      BoolInpSpec(true,uiStrings::sMeter(),
-				      uiStrings::sFeet()) );
+				      BoolInpSpec(true,uiStrings::sMeter(false),
+				      uiStrings::sFeet(false)) );
     ismfld_->attach( alignedBelow, yrgfld_ );
 
     uiSeparator* optsep = new uiSeparator( this, "Optional" );

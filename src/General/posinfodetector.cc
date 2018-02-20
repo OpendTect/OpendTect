@@ -462,11 +462,12 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 uiString PosInfo::Detector::createPositionString(
                         const PosInfo::CrdBidOffs& cbo ) const
 {
-    uiString ret = uiString(tr( "%1 %2%3" ))
-        .arg( setup_.is2d_ ? tr("trace number") : tr("position") )
-        .arg( cbo.binid_.toString(setup_.is2d_) )
-        .arg( setup_.isps_ ? tr( " (offset %1)" ).arg( cbo.offset_ )
-			   : uiString::empty() );
+    uiString ret = uiString(tr( "%1 %2" ))
+        .arg( setup_.is2d_ ? uiStrings::sTraceNumber(): uiStrings::sPosition() )
+        .arg( cbo.binid_.toString(setup_.is2d_) );
+    if ( setup_.isps_ )
+	ret.postFixWord( toUiString("(%1=%2)")
+		.arg( uiStrings::sOffset().toLower() ).arg( cbo.offset_ ) );
     return ret;
 }
 

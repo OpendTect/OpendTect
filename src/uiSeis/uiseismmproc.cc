@@ -136,7 +136,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 			&& SeisJobExecProv::isRestart(iop);
 
     FixedString res = jobpars_.find( sKey::Target() );
-    uiString captn = tr("Processing");
+    uiString captn = uiStrings::sProcessing();
     if ( !res.isEmpty() )
 	captn.appendPlainText(" '%1'").arg(res);
     basecaption_ = captn;

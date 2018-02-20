@@ -147,7 +147,7 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
 
 uiString uiSeisPartServer::mkDlgCaption( bool forread, bool is2d, bool isps )
 {
-    const uiString tp = uiStrings::sVolDataName( is2d, !is2d, isps );
+    const uiString tp = uiStrings::sSeisObjName( is2d, !is2d, isps );
 
     return tr( "%1 %2 simple flat file")
 	.arg( forread

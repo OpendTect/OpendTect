@@ -41,7 +41,7 @@ uiString uiAttrDescEd::sStatsGrp()	{ return uiStrings::sStatistics(); }
 uiString uiAttrDescEd::sDipGrp()	{ return uiStrings::sDip(); }
 uiString uiAttrDescEd::sPositionGrp()	{ return uiStrings::sPosition(mPlural);}
 uiString uiAttrDescEd::sExperimentalGrp() { return tr("Experimental"); }
-uiString uiAttrDescEd::sPatternGrp()	{ return tr("Patterns"); }
+uiString uiAttrDescEd::sPatternGrp()	{ return uiStrings::sPattern(mPlural); }
 uiString uiAttrDescEd::sTraceMatchGrp()	{ return tr("Trace Match"); }
 
 

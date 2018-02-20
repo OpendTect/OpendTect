@@ -871,9 +871,9 @@ const ZDomain::Def& SurveyInfo::zDomain() const
 }
 
 
-uiString SurveyInfo::xyUnitString( bool abbrvt, bool wb ) const
+uiString SurveyInfo::xyUnitString( bool abbrvt, bool wparens ) const
 {
-    return uiStrings::sDistUnitString( xyInFeet(), abbrvt, wb );
+    return uiStrings::sDistUnitString( xyInFeet(), abbrvt, wparens );
 }
 
 

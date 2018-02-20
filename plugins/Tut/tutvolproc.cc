@@ -152,7 +152,7 @@ bool TutOpCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 
 uiString TutOpCalculatorTask::uiMessage() const
 {
-    return tr("Computing Tutorial Operations");
+    return tr("Calculating Tutorial Operations");
 }
 
 

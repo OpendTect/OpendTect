@@ -569,7 +569,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 	if ( !psrdr_ )
 	    mErrRet( uiStrings::phrCannotRead( psioobj_
 		    ? psioobj_->uiName()
-		    : uiStrings::sVolDataName(true, true, true) ) )
+		    : uiStrings::sSeisObjName(true,true,true) ) )
 
 	const uiString emsg = psrdr_->errMsg();
 	if ( !emsg.isEmpty() )

@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "executor.h"
+#include "uistrings.h"
 
 template <class T> class Array1D;
 
@@ -32,7 +33,7 @@ public:
     void		setArray(Array1D<float>&);
 
     uiString		nrDoneText() const
-			{ return tr("Points interpolated"); }
+			{ return uiStrings::sPointsDone(); }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		nrIterations() const;
     void		setExtrapol( bool yn )	{ doextrapol_ = yn; }

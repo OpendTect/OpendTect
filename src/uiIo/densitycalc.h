@@ -135,7 +135,7 @@ inline od_int64 DensityCalc::nrDone() const
 { return nrdone_; }
 
 inline uiString DensityCalc::nrDoneText() const
-{ return tr("Points done");}
+{ return uiStrings::sPointsDone(); }
 
 inline od_int64 DensityCalc::nrIterations() const
 { return dps_.size(); }

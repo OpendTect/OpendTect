@@ -335,8 +335,7 @@ void uiWaveletDispProp::addAttrDisp( int attridx )
 	{ mSetToZDomWithUnit( xname, SI().zIsTime() ); }
 
     const uiString yname = attridx == 0 || attridx == 1
-			 ? uiStrings::sAmplitude()
-			 : tr("Phase (degrees)");
+		 ? uiStrings::sAmplitude() : uiStrings::sPhase(true,true);
 
     if ( attridx == 1 )
     {

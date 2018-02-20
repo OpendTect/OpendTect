@@ -42,6 +42,9 @@ ________________________________________________________________________
 #include "uiwellsel.h"
 #include "od_helpids.h"
 
+#define mAdvOptStr() \
+    toUiString("%1/%2").arg(uiStrings::sAdvanced()).arg(uiStrings::sOptional())
+
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(mJoinUiStrs(sWell(),
@@ -114,7 +117,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 	sep->attach( stretchedBelow, d2tgrp_ );
     }
 
-    uiButton* but = new uiPushButton( this, tr("Advanced/Optional"),
+    uiButton* but = new uiPushButton( this, mAdvOptStr(),
 					mCB(this,uiWellImportAsc,doAdvOpt),
 					false );
     but->attach( alignedBelow, zistime ? (uiObject*)d2tgrp_
@@ -196,9 +199,9 @@ class uiWellImportAscOptDlg : public uiDialog
 public:
 
 uiWellImportAscOptDlg( uiWellImportAsc* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import well: Advanced/Optional"),
-				 tr("Advanced and Optional"),
-                                 mODHelpKey(mWellImpPptDlgHelpID)))
+    : uiDialog(p,uiDialog::Setup(toUiString("%1: %2").arg(uiStrings::sImport())
+						     .arg(mAdvOptStr()),
+				 mNoDlgTitle,mODHelpKey(mWellImpPptDlgHelpID)))
     , uwia_(p)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
 {

@@ -143,7 +143,7 @@ bool uiSeisCopyCube::acceptOK()
 uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 					  const char* fixedoutputtransl )
     : uiDialog(p,
-	Setup(uiStrings::phrCopy(uiStrings::sVolDataName(true,false,false)),
+	Setup(uiStrings::phrCopy(uiStrings::sSeisObjName(true,false,false)),
 	      uiString::empty(),mODHelpKey(mSeisCopyLineSetHelpID)))
 {
     setCtrlStyle( RunAndClose );

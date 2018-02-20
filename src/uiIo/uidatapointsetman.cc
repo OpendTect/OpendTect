@@ -125,7 +125,7 @@ void uiDataPointSetMan::mkFileInfo()
     mGetDPS(dps);
     if ( !dps ) return;
 
-    txt.appendPhrase(tr("Properties"));
+    txt.appendPhrase(uiStrings::sProperties());
     txt.appendPlainText(": ");
     for ( int colnr=0; colnr<dps->nrCols(); colnr++ )
     {

@@ -537,7 +537,7 @@ void SelectionGrp::getInfo( uiString& info ) const
 
 	info.appendPhrase(tr("Area Nr %1").arg( idx+1 ));
 	info.appendPhrase(tr("Area Type : %1").arg(selarea.isrectangle_ ?
-			      tr("Rectangle") : tr("Polygon")));
+			      uiStrings::sRectangle() : uiStrings::sPolygon()));
 
 	range = selarea.getValueRange( true );
 	info.appendPhrase(tr("%1 (range) :%2, %3").arg(selarea.xaxisnm_)

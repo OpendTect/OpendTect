@@ -194,7 +194,7 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     groupfld_->setToolTip( tr("Madagascar program group") );
     groupfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,groupChg) );
 
-    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Program") );
+    uiListBox::Setup su( OD::ChooseOnlyOne, uiStrings::sProgram() );
     progfld_ = new uiListBox( selgrp, su );
     progfld_->attach( alignedBelow, groupfld );
     progfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,progChg) );

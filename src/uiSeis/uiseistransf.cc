@@ -37,8 +37,8 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     selfld = uiSeisSubSel::get( this, setup_ );
 
     uiStringSet choices;
-    choices += tr("Discard");
-    choices += tr("Pass");
+    choices += uiStrings::sDiscard();
+    choices += uiStrings::sPass();
     choices += uiStrings::sAdd();
     choices += uiString::empty();
     if ( !setup_.is2d_ && !setup_.isps_ && setup_.withnullfill_ )

@@ -58,7 +58,9 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 	anglelbl_->attach( rightOf, anglefld_ );
     }
 
-    advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"), false );
+    advpushbut_ = new uiPushButton( this,
+		  uiStrings::sAdvanced(uiStrings::sParameter(mPlural)), false );
+    advpushbut_->setIcon( "advanced" );
     advpushbut_->activated.notify( mCB(this,uiAngleCompGrp,advPushButCB) );
     advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
 
@@ -124,7 +126,7 @@ void uiAngleCompGrp::advPushButCB( CallBacker* )
 uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					      PreStack::AngleCompParams& pars,
 					      bool offset, bool isformute )
-    : uiDialog(p, uiDialog::Setup(tr("Advanced Angle Parameters"),
+    : uiDialog(p, uiDialog::Setup(uiStrings::sAdvanced(tr("Angle Parameters")),
 				  mNoDlgTitle,
 				  mODHelpKey(mAngleCompAdvParsDlgHelpID)))
     , params_(pars)

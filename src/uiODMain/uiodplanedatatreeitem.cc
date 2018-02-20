@@ -48,7 +48,7 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o,
     : uiODSceneProbeTreeItem( probe )
     , orient_(o)
     , positiondlg_(0)
-    , positionmnuitem_(m3Dots(tr("Position")),cPositionIdx)
+    , positionmnuitem_(m3Dots(uiStrings::sPosition()),cPositionIdx)
     , gridlinesmnuitem_(m3Dots(tr("Gridlines")),cGridLinesIdx)
     , addinlitem_(tr("Add Inl-line"),10003)
     , addcrlitem_(tr("Add Crl-line"),10002)

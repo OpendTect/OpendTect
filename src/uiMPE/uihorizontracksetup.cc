@@ -421,8 +421,8 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     seedsliderfld_->attach( alignedBelow, seedtypefld_ );
 
     parentcolfld_ = new uiColorInput( grp,
-				uiColorInput::Setup(Color::Yellow())
-				.withdesc(false).lbltxt(tr("Parents")) );
+			uiColorInput::Setup(Color::Yellow())
+			.withdesc(false).lbltxt(uiStrings::sParent(mPlural)) );
     parentcolfld_->colorChanged.notify(
 			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
     parentcolfld_->attach( alignedBelow, seedsliderfld_ );

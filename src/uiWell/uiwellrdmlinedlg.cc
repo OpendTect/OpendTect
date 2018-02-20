@@ -393,7 +393,8 @@ void uiWell2RandomLineDlg::createFields()
     if ( wellserv_ )
     {
 	CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);
-	previewbutton_ = new uiPushButton( this, tr("Preview"), cb, true );
+	previewbutton_ = new uiPushButton( this, uiStrings::sPreview(),
+					    cb, true );
 	previewbutton_->attach( ensureBelow, sep );
 	dispfld_ = new uiCheckBox( this,
 				   tr("Display Random Line on creation") );

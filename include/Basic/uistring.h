@@ -143,6 +143,8 @@ public:
     uiString&		constructWordWith(const uiString&,bool addspace=false);
     uiString&		preFixWord(const uiString&);
     uiString&		postFixWord(const uiString&);
+    uiString&		withUnit(const char*);
+    uiString&		withUnit(const uiString&);
     uiString&		addMoreInfo(const uiString&,bool newline=true);
 			//!< adds a colon first
 
@@ -287,6 +289,8 @@ inline uiString& uiString::preFixWord( const uiString& str )
 { const uiString kp(*this); *this = str; return postFixWord(kp); }
 inline uiString& uiString::postFixWord( const uiString& str )
 { return constructWordWith( str, true ); }
+inline uiString& uiString::withUnit( const char* str )
+{ return withUnit( toUiString(str) ); }
 inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )
 { return appendPhrase( str, MoreInfo, newline? OnNewLine : OnSameLine ); }
 

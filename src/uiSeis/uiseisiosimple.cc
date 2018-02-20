@@ -304,7 +304,7 @@ uiSeparator* uiSeisIOSimple::mkDataManipFlds()
 					   : subselfld_->attachObj() );
     if ( isimp_ ) scalefld_->attach( ensureBelow, sep );
     remnullfld_ = new uiGenInput( this, tr("Null traces"),
-				  BoolInpSpec(true,tr("Discard"),tr("Pass")) );
+		  BoolInpSpec(true,uiStrings::sDiscard(),uiStrings::sPass()) );
     remnullfld_->attach( alignedBelow, scalefld_ );
 
     multcompfld_ = new uiGenInput( this, tr("Component to export"),

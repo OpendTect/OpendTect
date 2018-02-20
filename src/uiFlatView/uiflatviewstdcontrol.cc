@@ -101,7 +101,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , edittb_(0)
     , mousepressed_(false)
     , menu_(*new uiMenuHandler(0,-1))
-    , propertiesmnuitem_(m3Dots(tr("Properties")),100)
+    , propertiesmnuitem_(m3Dots(uiStrings::sProperties()),100)
     , defx1pospercm_(mUdf(float))
     , defx2pospercm_(mUdf(float))
     , editbut_(0)

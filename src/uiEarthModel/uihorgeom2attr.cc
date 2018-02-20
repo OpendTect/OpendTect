@@ -34,7 +34,7 @@ ________________________________________________________________________
     if ( SI().zIsTime() ) \
     { \
 	msfld_ = new uiGenInput( this, txt, BoolInpSpec(true, \
-				uiStrings::sMsec(),uiStrings::sSec()) ); \
+			uiStrings::sMSec(false),uiStrings::sSec(false)) ); \
 	msfld_->attach( alignedBelow, att ); \
     }
 #define mGetZFac(valifms) \

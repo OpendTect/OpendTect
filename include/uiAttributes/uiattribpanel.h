@@ -43,7 +43,7 @@ protected:
     RefMan<FlatDataPack>	createFDPack(Attrib::EngineMan*,
 					     Attrib::Processor*) const;
 
-    virtual const char*		getProcName()	{ return "Computing attribute";}
+    virtual const char*		getProcName() { return "Calculating attribute";}
     virtual const char*		getPackName()	{ return "Attribute pack"; }
     virtual const char*		getPanelName()	{ return "Attribute preview"; }
 
@@ -51,6 +51,6 @@ protected:
     TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
     Attrib::DescID		attribid_;
-    Attrib::DescSet*	dset_;
+    Attrib::DescSet*		dset_;
     uiParent*			parent_;
 };

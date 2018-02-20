@@ -767,13 +767,13 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
     if ( !trckrg.includes(inval,true) )
     {
 	uiString errmsg = tr("The entered depth %1 is outside of "
-			     "track range\n[%2, %3] %4%5")
-			.arg( inval * zfac ).arg( trckrg.start * zfac )
-			.arg( trckrg.stop * zfac )
-			.arg( uiStrings::sDistUnitString(!unitfld_->isChecked(),
-			true,false))
-			.arg( md2tvdss ? sKeyMD() : istvd ? sKeyTVD()
-							  : sKeyTVDSS() );
+			     "track range\n[%2-%3] %4 %5")
+		    .arg( inval * zfac )
+		    .arg( trckrg.start * zfac )
+		    .arg( trckrg.stop * zfac )
+		    .arg( uiStrings::sDistUnitString(!unitfld_->isChecked()) )
+		    .arg( md2tvdss ? sKeyMD() : istvd ? sKeyTVD()
+						      : sKeyTVDSS() );
 	Well::Marker marker = getMarker( row, true );
 	uiMSG().error( errmsg );
 	if ( !marker.isUdf() )

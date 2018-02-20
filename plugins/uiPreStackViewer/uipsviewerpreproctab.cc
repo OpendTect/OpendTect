@@ -20,7 +20,7 @@ namespace PreStackView
 
 uiViewer3DPreProcTab::uiViewer3DPreProcTab( uiParent* p,
 	visSurvey::PreStackDisplay& vwr, uiViewer3DMgr& mgr )
-    : uiDlgGroup( p, tr("Preprocessing") )
+    : uiDlgGroup( p, uiStrings::sPreProcessing() )
     , vwr_( vwr )
     , mgr_( mgr )
     , applyall_( false )

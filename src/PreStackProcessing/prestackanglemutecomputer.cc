@@ -38,7 +38,7 @@ AngleMuteComputer::~AngleMuteComputer()
 
 
 uiString AngleMuteComputer::message() const
-{ return tr("Computing mute"); }
+{ return tr("Calculating mute"); }
 
 
 void AngleMuteComputer::fillPar( IOPar& par ) const
@@ -111,8 +111,8 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	float lastvalidmutelayer = 0;
 	for ( int ioff=0; ioff<offsets.size(); ioff++ )
 	{
-	    const float mutelayer = 
-		getOffsetMuteLayer( *rtrunner->rayTracers()[0], 
+	    const float mutelayer =
+		getOffsetMuteLayer( *rtrunner->rayTracers()[0],
 				    nrlayers, ioff, true );
 	    if ( !mIsUdf( mutelayer ) )
 	    {
@@ -136,7 +136,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
 	    float thk = lastdepth - zdpt;
 	    const float lastzpos = sd.start + sd.step*(nrlayers-1);
-	    const float lastsinangle = 
+	    const float lastsinangle =
 		rtrunner->rayTracers()[0]->getSinAngle(nrlayers-1,lastioff);
 
 	    const float cosangle = Math::Sqrt(1-lastsinangle*lastsinangle);
@@ -163,14 +163,14 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
 bool AngleMuteComputer::doFinish( bool sucess )
 {
-    if ( !sucess ) 
+    if ( !sucess )
 	return false;
 
     PtrMan<IOObj> obj = DBM().get( params().outputmutemid_ );
     PtrMan<MuteDefTranslator> mdtrl = obj
-    	? (MuteDefTranslator*)obj->createTranslator()
-    	: 0;
-    
+	? (MuteDefTranslator*)obj->createTranslator()
+	: 0;
+
     uiString msg;
     return mdtrl ? mdtrl->store( outputmute_, obj, msg ) : false;
 }

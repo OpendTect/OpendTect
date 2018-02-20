@@ -16,15 +16,15 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "thread.h"
 #include "trigonometry.h"
+#include "uistrings.h"
 class od_ostream;
 
 
 #define mDAGTriangleForceSingleThread
-/*!
-\brief Reference: "Parallel Incremental Delaunay Triangulation",
-by Kohout J.2005.
+/*!\brief Reference: "Parallel Incremental Delaunay Triangulation", by
+  Kohout J.2005.
 
-   For the triangulation, it will skip undefined or duplicated points, all the
+   The triangulation will skip undefined or duplicated points; all the
    points should be in random order. We use Kohout's pessimistic method to
    triangulate. The problem is that the pessimistic method only give a 10% speed
    increase, while the locks slows it down. The parallel code is thus
@@ -165,7 +165,7 @@ protected:
     bool		doPrepare(int);
 
     uiString		nrDoneText() const
-			{ return tr("Points triangulated"); }
+			{ return uiStrings::sPointsDone(); }
     uiString		message() const { return tr("Triangulating"); }
 
     od_int64*		permutation_;

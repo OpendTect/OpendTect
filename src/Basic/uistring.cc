@@ -707,6 +707,14 @@ uiString& uiString::appendPlainText( const char* str, bool addspace,
 }
 
 
+uiString& uiString::withUnit( const uiString& unstr )
+{
+    if ( !unstr.isEmpty() )
+	postFixWord( toUiString("(%1)") ).arg( unstr );
+    return *this;
+}
+
+
 bool uiString::translate( const QTranslator& qtr , QString& res ) const
 {
 #ifndef OD_NO_QT

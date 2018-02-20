@@ -433,7 +433,7 @@ uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
 
     fillfld_ = new uiFillPattern( this );
     fillfld_->set( cont_.pattern_ );
-    new uiLabel( this, tr("Pattern"), fillfld_ );
+    new uiLabel( this, uiStrings::sPattern(), fillfld_ );
     fillfld_->attach( alignedBelow, nmfld_ );
 
     uiColorInput::Setup su( cont_.color_ );

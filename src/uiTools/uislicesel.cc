@@ -87,7 +87,7 @@ uiString uiSliceSel::sButTxtAdvance()
 
 uiString uiSliceSel::sButTxtPause()
 {
-    return tr("Pause");
+    return uiStrings::sPause();
 }
 
 

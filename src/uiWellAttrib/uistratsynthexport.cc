@@ -177,10 +177,10 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
 					 "for each:") );
     lbl->attach( ensureBelow, selgrp );
     lbl->setAlignment( OD::Alignment::Left );
-    prefxfld_ = new uiGenInput( this, tr("Prefix") );
+    prefxfld_ = new uiGenInput( this, uiStrings::sPrefix() );
     prefxfld_->attach( alignedBelow, selgrp );
     prefxfld_->attach( ensureBelow, lbl );
-    postfxfld_ = new uiGenInput( this, tr("Postfix") );
+    postfxfld_ = new uiGenInput( this, uiStrings::sPostfix() );
     postfxfld_->attach( rightOf, prefxfld_ );
 
     postFinalise().notify( mCB(this,uiStratSynthExport,crNewChg) );

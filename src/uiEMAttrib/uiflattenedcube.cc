@@ -36,7 +36,7 @@ ________________________________________________________________________
 
 uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, const DBKey& horid )
 	: uiDialog(p,Setup(uiStrings::phrCreate(tr("flattened %2")
-                  .arg(uiStrings::sVolDataName(true, true, false)
+                  .arg(uiStrings::sSeisObjName(true, true, false)
                      .toLower())),
                  uiStrings::phrCreate(tr("Seismics flattened on '%2'")
 			   .arg(getHorNm(horid)))

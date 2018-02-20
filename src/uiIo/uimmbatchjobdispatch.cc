@@ -211,7 +211,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     jrppolselfld_->attach( alignedBelow, priofld_ );
 
     if ( avmachfld_ ) jrppolselfld_->setPrefWidthInChar( hostnmwdth );
-    jrpworklbl_ = new uiLabel( jrppolgrp, tr("Processes") );
+    jrpworklbl_ = new uiLabel( jrppolgrp, uiStrings::sProcess(mPlural) );
     jrpworklbl_->attach( rightOf, jrppolselfld_ );
 
     const char* envstr = GetEnvVar( "DTECT_STOP_OFFICEHOURS" );
@@ -421,7 +421,8 @@ void uiMMBatchJobDispatcher::jrpSel( CallBacker* )
     const bool doschedule = jrppolselfld_->currentItem() == 2;
     jrpstartfld_->display( doschedule );
     jrpstopfld_->display( doschedule );
-    jrpworklbl_->setText( doschedule ? tr("Between") : tr("Processes") );
+    jrpworklbl_->setText( doschedule ? tr("Between")
+				     : uiStrings::sProcess(mPlural) );
 }
 
 

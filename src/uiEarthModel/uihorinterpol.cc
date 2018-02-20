@@ -90,7 +90,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     {
 	interpol1dsel_ = new uiArray1DInterpolSel( this, false, true );
 	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ?
-			uiStrings::sFeet() : uiStrings::sMeter() );
+			uiStrings::sFeet(false) : uiStrings::sMeter(false) );
 	if ( inputhorsel_ )
 	    interpol1dsel_->attach( alignedBelow, inputhorsel_ );
     }
@@ -304,7 +304,7 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     scopes += tr("Bounding box");
     scopes += tr("Convex hull");
     scopes += tr("Only holes");
-    scopes += tr("Polygon");
+    scopes += uiStrings::sPolygon();
     filltypefld_ = new uiGenInput(this, tr("Scope"), StringListInpSpec(scopes));
     filltypefld_->setValue( 2 );
     filltypefld_->valuechanged.notify( mCB(this,uiHor3DInterpolSel,scopeChgCB));

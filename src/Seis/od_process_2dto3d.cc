@@ -168,7 +168,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    {
 		strm << od_newline << "Number of components";
 		strm << " to be processed: " << proc->totalNr() << od_newline;
-		strm << "Computing results ..." << od_endl;
+		strm << "Calculating results ..." << od_endl;
 		progressmeter.setTotalNr( proc->totalNr() );
 	    }
 

@@ -43,12 +43,12 @@ uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
 					 mCB(this,uiGMTInfoDlg,selCB) );
     chkbut_->attach( alignedBelow, gmtbut );
 
-    label_ = new uiLabel( this, tr("Please set GMT_SHAREDIR path") );
+    label_ = new uiLabel( this, tr("Please set GMT_SHAREDIR") );
     label_->attach( alignedBelow, chkbut_ );
     label_->display( false );
 
     uiFileSel::Setup fssu; fssu.selectDirectory();
-    gmtpath_ = new uiFileSel( this, tr("Path"), fssu );
+    gmtpath_ = new uiFileSel( this, uiStrings::sDirectory(), fssu );
     gmtpath_->attach( alignedBelow, label_ );
     gmtpath_->display( false );
 }

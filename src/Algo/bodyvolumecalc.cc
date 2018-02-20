@@ -40,7 +40,7 @@ od_int64 BodyVolumeCalculator::nrIterations() const
 
 
 uiString BodyVolumeCalculator::message() const
-{ return tr("Computing volume"); }
+{ return tr("Calculating volume"); }
 
 
 uiString BodyVolumeCalculator::nrDoneText() const

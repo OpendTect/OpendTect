@@ -264,14 +264,14 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* cb )
     mDynamicCastGet( uiSeisSel*, seisfld, is2d ? seis2dfld_ : seis3dfld_ );
     if ( !seisfld )
 	mErrRet(uiStrings::phrSelect(tr("%1 type")
-             .arg(uiStrings::sVolDataName(true, true, false).toLower())));
+             .arg(uiStrings::sSeisObjName(true, true, false).toLower())));
 
     if ( seisfld->isChecked() )
     {
 	const DBKey seisid = seisfld->key();
 	if ( seisid.isInvalid() )
             mErrRet(uiStrings::phrSelect(
-                uiStrings::phrInput(uiStrings::sVolDataName(true,true,false))));
+                uiStrings::phrInput(uiStrings::sSeisObjName(true,true,false))));
 
 	if ( is2d && seislinefld_ )
 	    seislinefld_->setDataSet( seisid );

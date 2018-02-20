@@ -60,7 +60,7 @@ public:
     ~VoxelConnectivityFilterTask() { releaseData(); }
 
     uiString	nrDoneText() const { return tr("Positions done"); }
-    uiString	message() const { return tr("Computing voxel connectivity"); }
+    uiString	message() const { return tr("Calculating voxel connectivity"); }
 
     od_int64	nrIterations() const { return input_.info().getTotalSz(); }
     int		maxNrThreads() const { return 1; } //Todo: remove

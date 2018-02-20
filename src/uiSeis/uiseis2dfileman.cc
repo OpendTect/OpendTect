@@ -226,6 +226,7 @@ void uiSeis2DFileMan::browsePush( CallBacker* )
 
     const Pos::GeomID geomid = Survey::GM().getGeomID( linefld_->getText() );
     uiSeisSampleEditor::launch( this, objinfo_->ioObj()->key(), geomid );
+    fillLineBox();
 }
 
 

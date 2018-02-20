@@ -722,8 +722,9 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
     posinpfld_->attach( leftAlignedBelow, seltypefld_ );
 
     uiString zinptxt = tr("%1 in %2").arg(uiStrings::sZValue()).arg(
-		       SI().zIsTime() ? uiStrings::sSec() : toUiString("%3/%4")
-		       .arg(uiStrings::sMeter()).arg(uiStrings::sFeet()));
+		   SI().zIsTime() ? uiStrings::sSec(true)
+				  : toUiString("%3/%4")
+		   .arg(uiStrings::sMeter(true)).arg(uiStrings::sFeet(true)));
     zinpfld_ = new uiGenInput( this, zinptxt, FloatInpSpec() );
     zinpfld_->attach( leftAlignedBelow, posinpfld_ );
 

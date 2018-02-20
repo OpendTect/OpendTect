@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include <iostream>
 
 uiPluginMan::uiPluginMan( uiParent* p )
-	: uiDialog(p,Setup(tr("Plugins"), mNoDlgTitle,
+	: uiDialog(p,Setup(uiStrings::sPlugin(mPlural), mNoDlgTitle,
                             mODHelpKey(mPluginManHelpID) ) )
 {
     setCtrlStyle( uiDialog::CloseOnly );

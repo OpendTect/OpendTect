@@ -101,7 +101,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	, origpos_(mUdf(Coord3))
 	, origgl_(d.info().groundElevation())
 {
-    tbl_ = new uiTable( this, uiTable::Setup().rowdesc(tr("Point"))
+    tbl_ = new uiTable( this, uiTable::Setup().rowdesc(uiStrings::sPoint())
 					      .rowgrow(true)
 					      .defrowlbl("")
 					      .removeselallowed(false),

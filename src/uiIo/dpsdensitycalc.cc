@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "uistrings.h"
 
 mDefineEnumUtils(DPSDensityCalcND,CalcAreaType,"Calculation Area Type")
 {
@@ -42,7 +43,7 @@ DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
 
 
 uiString DPSDensityCalcND::nrDoneText() const
-{ return tr("Points done"); }
+{ return uiStrings::sPointsDone(); }
 
 od_int64 DPSDensityCalcND::nrIterations() const
 { return dps_.size(); }

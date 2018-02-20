@@ -167,7 +167,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const DBKeySet& wllids,
 			     FloatInpSpec(defsr) );
     srfld_->attach( alignedBelow, formfld_ );
     srfld_->attach( ensureBelow, sep );
-    ftbox_ = new uiCheckBox( this, uiStrings::sFeet() );
+    ftbox_ = new uiCheckBox( this, uiStrings::sFeet(false) );
     ftbox_->setChecked( SI().depthsInFeet() );
     ftbox_->activated.notify( mCB(this,uiWellLogCalc,feetSel) );
     ftbox_->attach( rightOf, srfld_ );

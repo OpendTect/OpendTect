@@ -305,7 +305,7 @@ public:
     od_int64	totalNr() const         { return extrintv_.nrSteps(); }
     od_int64	nrDone() const          { return nrdone_; }
     uiString	message() const		{ return uiStrings::sCalculating(); }
-    uiString	nrDoneText() const	{ return tr("Points done"); }
+    uiString	nrDoneText() const	{ return uiStrings::sPointsDone(); }
 
     void	getBIDs(TypeSet<BinID>& bs) const { bs = bidset_; }
     void	getCoords(TypeSet<Coord>& cs) const { cs = coords_; }

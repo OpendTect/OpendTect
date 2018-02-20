@@ -69,7 +69,7 @@ void uiWellTo2DLineDlg::createFields()
     sep->attach( stretchedBelow, extendfld_ );
 
     CallBack cb = mCB(this,uiWellTo2DLineDlg,previewPush);
-    previewbutton_ = new uiPushButton( this, tr("Preview"), cb, true );
+    previewbutton_ = new uiPushButton( this, uiStrings::sPreview(), cb, true );
     previewbutton_->attach( ensureBelow, sep );
 
     rl_ = new Geometry::RandomLine;

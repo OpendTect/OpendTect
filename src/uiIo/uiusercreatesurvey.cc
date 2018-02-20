@@ -89,7 +89,7 @@ uiUserCreateSurvey::uiUserCreateSurvey( uiParent* p, const char* dr )
     zistimefld_->attach( alignedBelow, sipfld_ );
 
     zinfeetfld_ = new uiGenInput( this, tr("Depth unit"),
-		    BoolInpSpec(true,uiStrings::sMeter(),uiStrings::sFeet()) );
+	    BoolInpSpec(true,uiStrings::sMeter(false),uiStrings::sFeet(false)));
     zinfeetfld_->attach( alignedBelow, zistimefld_ );
     zinfeetfld_->display( !isTime() );
 

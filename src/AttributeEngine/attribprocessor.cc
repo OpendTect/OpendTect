@@ -494,7 +494,7 @@ od_int64 Processor::nrDone() const
 
 
 uiString Processor::message() const
-{ return errmsg_.isEmpty() ? tr("Processing") : errmsg_; }
+{ return errmsg_.isEmpty() ? uiStrings::sProcessing() : errmsg_; }
 
 
 void Processor::addOutputInterest( int sel )

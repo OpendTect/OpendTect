@@ -278,7 +278,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
     const Pos::GeomID geomid = is2d ? tkzs_.hsamp_.getGeomID() : mUdfGeomID;
     seissummary_ = new ObjectSummary( ioobj, geomid );
     msg_ = uiStrings::phrReading( tr("%1 \'%2\'")
-			    .arg( uiStrings::sVolDataName(is2d,!is2d,false) )
+			    .arg( uiStrings::sSeisObjName(is2d,!is2d,false) )
 			    .arg( ioobj_->uiName() ) );
     if ( is2d )
     {
@@ -946,7 +946,7 @@ bool Seis::SequentialFSLoader::init()
 
     initialized_ = true;
     msg_ = uiStrings::phrReading( tr("%1 \'%2\'")
-			    .arg( uiStrings::sVolDataName(is2d,!is2d,false) )
+			    .arg( uiStrings::sSeisObjName(is2d,!is2d,false) )
 			    .arg( ioobj_->uiName() ) );
     if ( is2d )
     {

@@ -126,8 +126,8 @@ bool VelocityDesc::usePar( const IOPar& par )
 uiString VelocityDesc::getVelUnit( bool wp )
 {
     return ::toUiString( wp ? "(%1/%2)" : "%1/%2")
-	.arg( uiStrings::sDistUnitString( SI().depthsInFeet(), true, false ))
-	.arg( uiStrings::sTimeUnitString(true));
+	.arg( uiStrings::sDistUnitString( SI().depthsInFeet() ) )
+	.arg( uiStrings::sTimeUnitString() );
 }
 
 

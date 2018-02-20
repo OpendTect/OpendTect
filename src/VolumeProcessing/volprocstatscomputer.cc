@@ -217,7 +217,7 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 
 uiString StatsCalculatorTask::message() const
 {
-    return tr("Computing Statistics");
+    return tr("Calculating Statistics");
 }
 
 

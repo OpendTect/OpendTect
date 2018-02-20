@@ -498,7 +498,9 @@ void uiODMenuMgr::setSurveySubMenus()
     impmnus_ += 0;
     expmnus_ += 0;
 
-    mnunm = tr("PointSets/Polygons"); iconnm = "pointspolygons";
+    mnunm = toUiString("%1/%2").arg( uiStrings::sPointSet(mPlural) )
+			       .arg( uiStrings::sPolygon(mPlural) );
+    iconnm = "pointspolygons";
     addAsciiActionSubMenu( impmnu_, mnunm, iconnm, mImpPickAsciiMnuItm );
     impmnus_ += impmnus_.last(); // because both Pick and Poly in enum
     addAsciiActionSubMenu( expmnu_, mnunm, iconnm, mExpPickAsciiMnuItm );
@@ -880,7 +882,8 @@ void uiODMenuMgr::fillUtilMenu()
 
     addAction( installmnu_, tr("Internet Connection Settings"),
 			    "internet_connection", mInstConnSettsMnuItm );
-    addAction( installmnu_, tr("Plugins"), "plugin", mPluginsMnuItm );
+    addAction( installmnu_, uiStrings::sPlugin(mPlural), "plugin",
+			    mPluginsMnuItm );
     addAction( installmnu_, tr("Graphics Information"), "info",
 			    mGraphicsInfoItm );
 
@@ -983,7 +986,7 @@ void uiODMenuMgr::fillManTB()
 {
     const int seisid =
 	mAddTB(mantb_,"man_seis",
-               uiStrings::phrManage(uiStrings::sVolDataName(true, true, false)),
+               uiStrings::phrManage(uiStrings::sSeisObjName(true, true, false)),
                                     false,manSeis);
     const int horid = mAddTB(mantb_,"man_hor",
               uiStrings::phrManage( uiStrings::sHorizon(mPlural)),false,manHor);

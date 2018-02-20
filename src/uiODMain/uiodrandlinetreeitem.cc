@@ -387,7 +387,7 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWellCB( CallBacker* )
 
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( Probe& probe, int id )
     : uiODSceneProbeTreeItem(probe)
-    , editnodesmnuitem_(m3Dots(tr("Position")))
+    , editnodesmnuitem_(m3Dots(uiStrings::sPosition()))
     , insertnodemnuitem_(tr("Insert Node"))
     , saveasmnuitem_(m3Dots(uiStrings::sSaveAs()))
     , saveas2dmnuitem_(m3Dots(tr("Save as 2D")))

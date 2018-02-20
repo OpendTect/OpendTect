@@ -56,8 +56,8 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
 			      FloatInpIntervalSpec(false) );
     intvfld_->attach( alignedBelow, lasfld_ );
 
-    BoolInpSpec mft( !SI().depthsInFeet(), uiStrings::sMeter(),
-					   uiStrings::sFeet() );
+    BoolInpSpec mft( !SI().depthsInFeet(), uiStrings::sMeter(false),
+					   uiStrings::sFeet(false) );
     intvunfld_ = new uiGenInput( this, uiString::empty(), mft );
     intvunfld_->attach( rightOf, intvfld_ );
     intvunfld_->display( false );
@@ -269,7 +269,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 {
     const bool zinft = SI().depthsInFeet();
     const uiString lbl = tr( "Depth range %1" ).
-	arg( uiStrings::sDistUnitString( zinft, true, true) );
+	arg( uiStrings::sDistUnitString( zinft, true, true ) );
     zrangefld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     setDefaultRange( zinft );
 
@@ -295,8 +295,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     }
     if ( SI().zIsTime() && have2dtmodel)
     {
-	new uiRadioButton( zunitgrp_, uiStrings::sSec() );
-	new uiRadioButton( zunitgrp_, uiStrings::sMsec() );
+	new uiRadioButton( zunitgrp_, uiStrings::sSec(false) );
+	new uiRadioButton( zunitgrp_, uiStrings::sMSec(false) );
     }
     zunitgrp_->selectButton( zinft );
 

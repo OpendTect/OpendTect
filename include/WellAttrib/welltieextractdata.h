@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 #include "executor.h"
 #include "position.h"
-#include "uistring.h"
+#include "uistrings.h"
 
 class TrcKeyZSampling;
 class IOObj;
@@ -35,8 +35,10 @@ public:
     int                 nextStep();
     od_int64            totalNr() const		{ return extrintv_.nrSteps(); }
     od_int64            nrDone() const          { return nrdone_; }
-    uiString		message() const	{ return tr("Computing..."); }
-    uiString		nrDoneText() const	{ return tr("Points done"); }
+    uiString		message() const
+			{ return uiStrings::sCalculating(); }
+    uiString		nrDoneText() const
+			{ return uiStrings::sPointsDone(); }
     void		setBIDValues(const TypeSet<BinID>&);
     void		setInterval(const StepInterval<float>&);
     //Only 2D
@@ -60,6 +62,7 @@ protected:
     uiString		errmsg_;
 
     bool		collectTracesAroundPath();
+
 };
 
 } // namespace WellTie

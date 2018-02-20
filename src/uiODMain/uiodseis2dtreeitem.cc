@@ -449,7 +449,7 @@ uiOD2DLineTreeItem::uiOD2DLineTreeItem( Probe& probe, int displayid )
     , linenmitm_(tr("Show Linename"))
     , panelitm_(tr("Show 2D Plane"))
     , polylineitm_(tr("Show Line Geometry"))
-    , positionitm_(m3Dots(tr("Position")))
+    , positionitm_(m3Dots(uiStrings::sPosition()))
 {
     mDynamicCastGet(Line2DProbe*,l2dprobe,getProbe());
     if ( l2dprobe )

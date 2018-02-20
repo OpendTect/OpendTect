@@ -219,7 +219,7 @@ uiPhrase uiStrings::phrOutput( const uiWord& string )
 { return toUiString(joinstring).arg( sOutput() ).arg( string ); }
 
 uiPhrase uiStrings::phrInterpretationDataExist( uiWord type, const char* nm)
-{ 
+{
     return tr("A %1 with name '%2' already exists").arg(type)
 						    .arg(toUiString(nm));
 }
@@ -317,24 +317,26 @@ uiPhrase uiStrings::phrZRange( const uiWord& string )
 { return toUiString(joinstring).arg(sZRange()).arg(string); }
 
 
-uiWord uiStrings::sDistUnitString( bool isfeet, bool abb, bool withparens )
+uiWord uiStrings::sDistUnitString( bool isfeet, bool abbr, bool withparens )
 {
-    return withparens
-	? toUiString("(%1)").arg( sDistUnitString( isfeet, abb, false ) )
-	: isfeet
-	    ? abb ? tr("ft") : tr("feet" )
-	    : abb ? tr("m") : tr("meter");
+    if ( withparens )
+	return toUiString("(%1)").arg( sDistUnitString( isfeet, abbr, false ) );
+
+    return isfeet ? (abbr ? toUiString("ft") : sFeet(false).toLower())
+		  : (abbr ? toUiString("m") : sMeter(false).toLower());
 }
 
-uiWord uiStrings::sTimeUnitString( bool abb )
+uiWord uiStrings::sTimeUnitString( bool abbr, bool withparens )
 {
-    return abb ? tr( "s" ) : uiStrings::sSec();
+    if ( withparens )
+	return toUiString("(%1)").arg( sTimeUnitString( abbr, false ) );
+    return abbr ? toUiString( "s" ) : sSec(false,mPlural).toLower();
 }
 
 
-uiWord uiStrings::sVolDataName( bool is2d, bool is3d, bool isprestack,
-			      bool both_2d_3d_in_context,
-			      bool both_pre_post_in_context )
+uiWord uiStrings::sSeisObjName( bool is2d, bool is3d, bool isprestack,
+			        bool both_2d_3d_in_context,
+			        bool both_pre_post_in_context )
 {
     if ( is2d && is3d )
 	return tr( "Seismic data" );
@@ -387,7 +389,15 @@ uiWord uiStrings::sVolDataName( bool is2d, bool is3d, bool isprestack,
     return tr("Data");
 }
 
-// From here all are actually phrases or amost certainly illegal stuff
+
+// (possibly) multi-word compound words
+
+uiWord uiStrings::sAdvanced( const uiWord& subj )
+{
+    return subj.isEmpty() ? tr("Advanced") : tr("Advanced %1").arg( subj );
+}
+
+// From here all are actually phrases or most certainly illegal stuff
 
 uiWord uiStrings::sCannot()
 { return tr("Cannot"); }

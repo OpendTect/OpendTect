@@ -260,7 +260,7 @@ bool SeisBayesClass::getWriters()
 
     const_cast<bool&>(needclass_) = wrrs_[nrpdfs_] || wrrs_[nrpdfs_+1];
     initstep_ = 0;
-    msg_ = tr("Processing");
+    msg_ = uiStrings::sProcessing();
     return true;
 }
 

@@ -49,7 +49,7 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     pwdfld_->attach( alignedBelow, usernamefld_ );
     pwdfld_->setPrefWidthInChar( 23 );
     pwdfld_->setPasswordMode();
-    pwdlabel_ = new uiLabel( this, tr("Password") );
+    pwdlabel_ = new uiLabel( this, uiStrings::sPassword() );
     pwdlabel_->attach( leftOf, pwdfld_ );
     savepwdfld_ = new uiCheckBox( this, tr("Save password (plain text)") );
     savepwdfld_->attach( alignedBelow, pwdfld_ );

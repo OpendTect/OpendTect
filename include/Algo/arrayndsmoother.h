@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*!
 \brief Gently smooths ArrayND by averaging with neighbours.
-   
+
   The weight of the centre is always equal to the sum of the
   weights of the rest.
 
@@ -36,7 +36,8 @@ public:
     uiString		message() const	{ return tr("Smoothing"); }
     od_int64		totalNr() const		{ return totnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		nrDoneText() const	{ return tr("Points handled"); }
+    uiString		nrDoneText() const
+			{ return uiStrings::sPointsDone(); }
 
     int			nextStep();
 

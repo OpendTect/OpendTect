@@ -122,7 +122,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	const uiString gradientsurfdatalabel = SI().zDomain().isDepth()
 	    ? fromhorattribstr
 	    : toUiString("%1 (/%2)").arg( fromhorattribstr )
-				      .arg(uiStrings::sTimeUnitString(true));
+				  .arg(uiStrings::sTimeUnitString());
 
 	usegradientfld_ = new uiGenInput( this, uiStrings::sGradient(),
 		BoolInpSpec( !hasauxdata || surfacefiller_->usesGradientValue(),

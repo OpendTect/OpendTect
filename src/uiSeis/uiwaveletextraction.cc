@@ -115,7 +115,7 @@ void uiWaveletExtraction::createCommonUIFlds()
     taperfld_ = new uiGenInput( this, taperlbl, IntInpSpec(20) );
     taperfld_->attach( alignedBelow, wtlengthfld_ );
 
-    wvltphasefld_ = new uiGenInput( this, tr("Phase (Degrees)"),
+    wvltphasefld_ = new uiGenInput( this, uiStrings::sPhase(true,true),
                                     IntInpSpec(0) );
     wvltphasefld_->attach( alignedBelow, taperfld_ );
 

@@ -36,6 +36,8 @@ static const int sDispNameCol	= 2;
 static const int sPlfCol	= 3;
 static const int sDataRootCol	= 4;
 
+#define mAdvSettingsStr uiStrings::sAdvancedSettings()
+
 
 uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Setup Multi Machine Processing"),mNoDlgTitle,
@@ -64,8 +66,9 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     filefld->setReadOnly();
 
     uiPushButton* advbut =
-	new uiPushButton( this, tr("Advanced Settings"), false );
+	new uiPushButton( this, mAdvSettingsStr, false );
     advbut->activated.notify( mCB(this,uiBatchHostsDlg,advbutCB) );
+    advbut->setIcon( "settings" );
     advbut->attach( rightTo, filefld );
     advbut->attach( rightBorder );
 
@@ -74,7 +77,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     table_ = new uiTable( this, tsu, "Batch Hosts" );
     uiStringSet collbls;
     collbls.add( tr("IP address") ).add( tr("Hostname") )
-	   .add( tr("Display Name") ).add( tr("Platform") )
+	   .add( tr("Display Name") ).add( uiStrings::sPlatform() )
 	   .add( tr("Survey Data Root") );
     table_->setColumnLabels( collbls );
     table_->setPrefWidth( 800 );
@@ -118,8 +121,8 @@ uiBatchHostsDlg::~uiBatchHostsDlg()
 
 void uiBatchHostsDlg::advbutCB( CallBacker* )
 {
-    uiDialog dlg( this,
-	uiDialog::Setup(tr("Advanced Settings"),mNoDlgTitle,mNoHelpKey) );
+    uiDialog dlg( this, uiDialog::Setup(mAdvSettingsStr,
+					mNoDlgTitle,mNoHelpKey) );
 
     uiLabel* albl = new uiLabel( &dlg, tr("Settings for all platforms:") );
     albl->attach( leftBorder );

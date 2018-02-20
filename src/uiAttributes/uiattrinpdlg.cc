@@ -50,7 +50,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 
     uiString seltext = issteer
         ? uiStrings::phrInput(tr("SteeringCube"))
-        : uiStrings::phrInput(uiStrings::sVolDataName(true, true, false) );
+        : uiStrings::phrInput(uiStrings::sSeisObjName(true, true, false) );
 
     if ( prevrefnm )
     {
@@ -94,12 +94,12 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& seisinpnms,
 	    BufferString displaydatanm = seisinpnms.get(idx);
 	    displaydatanm.embed('"','"');
 	    sssu.seltxt( uiStrings::phrInput(toUiString("%1 %2")
-			   .arg(uiStrings::sVolDataName(is2d, !is2d, false))
+			   .arg(uiStrings::sSeisObjName(is2d, !is2d, false))
 			   .arg(displaydatanm ) ) );
 	}
 	else
 	    sssu.seltxt( uiStrings::phrInput(
-                                uiStrings::sVolDataName(is2d, !is2d, false)) );
+                                uiStrings::sSeisObjName(is2d, !is2d, false)) );
 	const IOObjContext& ioctxt =
 	    uiSeisSel::ioContext( is2d ? Seis::Line : Seis::Vol, true );
 	seisinpflds_ += new uiSeisSel( this, ioctxt, sssu );

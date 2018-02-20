@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 uiString SeisTrcTranslatorGroup::sTypeName( int num )
-{ return uiStrings::sVolDataName(false,true,false,false,false); }
+{ return uiStrings::sSeisObjName(false,true,false,false,false); }
 
 defineTranslatorGroup(SeisTrc,"Seismic Data");
 defineTranslator(Blocks,SeisTrc,BlocksSeisTrcTranslator::sKeyTrName());
@@ -42,7 +42,7 @@ mDefSimpleTranslatorioContext(SeisTrc,Seis)
 mDefSimpleTranslatorSelector(SeisTrc);
 
 uiString SeisTrc2DTranslatorGroup::sTypeName( int num )
-{ return uiStrings::sVolDataName(true,false,false,false,false); }
+{ return uiStrings::sSeisObjName(true,false,false,false,false); }
 
 defineTranslatorGroup(SeisTrc2D,"2D Seismic Data");
 defineTranslator(CBVS,SeisTrc2D,"CBVS");
