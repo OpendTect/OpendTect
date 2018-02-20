@@ -353,8 +353,8 @@ uiString uiODHorizonTreeItem::createDisplayName() const
     uiString res;
     if ( uivisemobj_ && uivisemobj_->getShift() )
     {
-	res.append( toUiString("%1 (%2)").arg( objnm ).arg(
-	  toUiString(uivisemobj_->getShift() * SI().zDomain().userFactor())));
+	res = toUiString("%1 (%2)").arg( objnm ).arg(
+	  toUiString(uivisemobj_->getShift() * SI().zDomain().userFactor()));
     }
     else
 	res = toUiString( objnm );

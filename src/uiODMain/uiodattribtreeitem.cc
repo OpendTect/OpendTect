@@ -351,9 +351,9 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 	{
 	    BufferString str;
 	    str.add( curidx ).add( "/" ).add( nrtextures ).addSpace();
-	    dispname.append( toUiString(str) );
+	    dispname.appendPlainText( str, true );
 	}
-	dispname.append( toUiString(as->userRef()) );
+	dispname.appendPlainText( as->userRef(), true );
     }
 
     if ( as && as->isNLA() )

@@ -54,14 +54,15 @@ RefMan<EM::Object> uiNewFSSDlg::getNewEMObject() const
     else
     {
 	const DBKey emid = EM::FSSMan().getIDByName( nm );
-	uiString msg = tr("A FaultStickSet with that name already exists.\n");
+	uiString msg = uiStrings::phrInterpretationDataExist(
+					uiStrings::sFaultStickSet(), nm);
 	if ( EM::FSSMan().isLoaded(emid) )
 	{
-	    msg.append( tr("You are currently using it."
-			"\nPlease enter a different name."), true );
+	    msg.appendPhrase( 
+		    uiStrings::phrInterpretDataAlreadyLoadedAskForRename() );
 	    return fssret;
 	}
-	msg.append( tr("Do you want to overwrite the existing data?"), true );
+	msg.appendPhrase( uiStrings::phrOutputFileExistsOverwrite() );
 	if ( !uiMSG().askGoOn( msg ) )
 	    return fssret;
 
@@ -117,14 +118,15 @@ RefMan<EM::Object> uiNewFlt3DDlg::getNewEMObject() const
     else
     {
 	const DBKey emid = EM::Flt3DMan().getIDByName( nm );
-	uiString msg = tr("A Fault3d with that name already exists.\n");
+	uiString msg = uiStrings::phrInterpretationDataExist(
+						    uiStrings::sFault(), nm);
 	if ( EM::Flt3DMan().isLoaded(emid) )
 	{
-	    msg.append( tr("You are currently using it."
-			"\nPlease enter a different name."), true );
+	    msg.appendPhrase( 
+		    uiStrings::phrInterpretDataAlreadyLoadedAskForRename() );
 	    return flt3d;
 	}
-	msg.append( tr("Do you want to overwrite the existing data?"), true );
+	msg.appendPhrase( uiStrings::phrOutputFileExistsOverwrite() );
 	if ( !uiMSG().askGoOn( msg ) )
 	    return flt3d;
 
@@ -171,14 +173,15 @@ RefMan<EM::Object> uiNewHorizon3DDlg::getNewEMObject() const
     else
     {
 	const DBKey emid = EM::Hor3DMan().getIDByName( nm );
-	uiString msg = tr("A Horizon with that name already exists.\n");
+	uiString msg = uiStrings::phrInterpretationDataExist(
+						  uiStrings::sHorizon(), nm);
 	if ( EM::Hor3DMan().isLoaded(emid) )
 	{
-	    msg.append( tr("You are currently using it."
-			"\nPlease enter a different name."), true );
+	    msg.appendPhrase( 
+		    uiStrings::phrInterpretDataAlreadyLoadedAskForRename() );
 	    return horret;
 	}
-	msg.append( tr("Do you want to overwrite the existing data?"), true );
+	msg.appendPhrase( uiStrings::phrOutputFileExistsOverwrite() );
 	if ( !uiMSG().askGoOn( msg ) )
 	    return horret;
 

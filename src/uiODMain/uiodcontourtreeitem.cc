@@ -508,7 +508,6 @@ void uiODContourTreeItemContourGenerator::addContourLabel(
     if ( label )
     {
 	uiString labelonpole( lbl );
-	labelonpole.append(toUiString("\n|"));
 	label->setText( labelonpole );
 	label->setJustification( visBase::Text::BottomLeft );
 	label->setPosition( pos, true );
@@ -546,19 +545,20 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 
 #define mAddZUnitStr(str) \
     if ( iszval_ ) \
-	str.append( " " ).append( scene->zDomainInfo().unitStr(true) )
+	str.appendPhrase( scene->zDomainInfo().unitStr(true), uiString::Space,\
+					    uiString::OnSameLine )
 
     uiString lbltxt( tr("Total %1 range").arg(attrnm) );
-    mAddZUnitStr(lbltxt); lbltxt.append( ": " );
+    mAddZUnitStr(lbltxt); lbltxt.appendPlainText( ": " );
     BufferString lbltxtapnd;
     if ( iszval_ )
 	lbltxtapnd.add( rg_.start ).add( " - " ).add( rg_.stop );
     else
 	lbltxtapnd.add( rg_.start ).add( " - " ).add( rg_.stop );
 
-    uiLabel* lbl = new uiLabel( this, lbltxt.append(lbltxtapnd) );
+    uiLabel* lbl = new uiLabel(this, lbltxt.appendPlainText(lbltxtapnd, true));
 
-    lbltxt = toUiString("%1 ").arg(mJoinUiStrs(sContour(), sRange().toLower()));
+    lbltxt = tr("Contour range");
     mAddZUnitStr(lbltxt);
     intvfld_ = new uiGenInput(this,lbltxt,FloatInpIntervalSpec(contourintv_));
     intvfld_->valuechanged.notify( mCB(this,uiContourParsDlg,intvChanged) );

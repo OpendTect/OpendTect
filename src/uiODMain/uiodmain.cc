@@ -245,7 +245,8 @@ uiODMain::uiODMain( uiMain& a )
 
     uiString statustt = tr( "System memory: Free/Available" );
     if ( !useallcpus )
-	statustt.append( tr("| CPU: Used/Available") );
+	statustt.appendPlainText("| ", true).appendPhrase( 
+						tr("CPU: Used/Available") );
     statusBar()->setToolTip( mMemStatusFld, statustt );
     memtimer_.tick.notify( mCB(this,uiODMain,memTimerCB) );
     memtimer_.start( 1000 );
@@ -774,16 +775,20 @@ void uiODMain::updateCaption( CallBacker* )
 
     if ( ODInst::getAutoInstType() == ODInst::InformOnly
 	&& ODInst::updatesAvailable() )
-	capt.append( tr(" *UPDATE AVAILABLE*") );
+	capt.appendPhrase( tr(" *UPDATE AVAILABLE*"), uiString::NoSep );
 
     const char* usr = GetSoftwareUser();
     if ( usr && *usr )
     {
-	capt.append( tr(" [%1] ").arg( usr ) );
+	BufferString str; str.add("[").add(usr).add("]");
+	capt.appendPlainText( str, true );
     }
 
     if ( !DBM().isBad() && !SI().name().isEmpty() )
-	capt.append( ": %1" ).arg( SI().name() );
+    {
+	BufferString str; str.add(":").add(" ").add(SI().name());
+	capt.appendPlainText( str );
+    }
 
     setCaption( capt );
 }

@@ -19,6 +19,9 @@ uiPhrase uiStrings::phrAdd( const uiWord& string )
 uiPhrase uiStrings::phrASCII( const uiWord& string )
 { return toUiString(joinstring).arg( sASCII() ).arg( string ); }
 
+uiPhrase uiStrings::phrInterpretDataAlreadyLoadedAskForRename()
+{ return tr("Interpretation data is already loaded. Enter a different name"); }
+
 uiPhrase uiStrings::phrCalculate( const uiWord& string )
 { return toUiString(joinstring).arg(sCalculate()).arg(string); }
 
@@ -214,6 +217,12 @@ uiPhrase uiStrings::phrOpen( const uiWord& string )
 
 uiPhrase uiStrings::phrOutput( const uiWord& string )
 { return toUiString(joinstring).arg( sOutput() ).arg( string ); }
+
+uiPhrase uiStrings::phrInterpretationDataExist( uiWord type, const char* nm)
+{ 
+    return tr("A %1 with name '%2' already exists").arg(type)
+						    .arg(toUiString(nm));
+}
 
 uiWord uiStrings::phrOutputFileExistsOverwrite()
 { return phrExistsContinue( sOutputFile(), true ); }

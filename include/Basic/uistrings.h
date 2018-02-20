@@ -45,6 +45,7 @@ public:
 
     static uiPhrase phrAdd(const uiWord&);
     static uiPhrase phrASCII(const uiWord&);
+    static uiPhrase phrInterpretDataAlreadyLoadedAskForRename();
     static uiPhrase phrCalculate(const uiWord&);
     static uiPhrase phrCalculateFrom(const uiWord&);
     static uiPhrase phrCannotAdd(const uiWord&);
@@ -97,6 +98,7 @@ public:
     static uiPhrase phrInsert(const uiWord&);
     static uiPhrase phrInternalError(const char* string);
     static uiPhrase phrInternalError(const uiWord& string);
+    static uiPhrase phrInterpretationDataExist(uiWord type,const char* nm);
     static uiPhrase phrInvalid(const uiWord& string);
     static uiPhrase phrJoinStrings(const uiPhrase&,const uiPhrase&);
     static uiPhrase phrJoinStrings(const uiPhrase&,const uiPhrase&,
