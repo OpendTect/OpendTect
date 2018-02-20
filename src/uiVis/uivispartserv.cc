@@ -102,7 +102,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , resetmanipmnuitem_(tr("Reset Manipulation"),cResetManipIdx)
     , changematerialmnuitem_(m3Dots(uiStrings::sProperties()),
 			     cPropertiesIdx)
-    , resmnuitem_(tr("Resolution"),cResolutionIdx)
+    , resmnuitem_(uiStrings::sResolution(),cResolutionIdx)
     , eventmutex_(*new Threads::Mutex)
     , tracksetupactive_(false)
     , viewmode_(false)

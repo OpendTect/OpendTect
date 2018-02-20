@@ -54,8 +54,8 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 
     cutoffvalfld_ = new uiGenInput( this, uiStrings::sValue(), FloatInpSpec() );
     cutoffvalfld_->attach( alignedBelow, cutofftypefld_ );
-    cutoffrangefld_ = new uiGenInput( this, tr("Range"),
-	    FloatInpIntervalSpec(false) );
+    cutoffrangefld_ = new uiGenInput( this, uiStrings::sRange(),
+				      FloatInpIntervalSpec(false) );
     cutoffrangefld_->attach( alignedBelow, cutofftypefld_ );
     cutoffrangefld_->setValue( displayacceptrange );
 

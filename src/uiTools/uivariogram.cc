@@ -160,9 +160,8 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     disp_->yAxis(false)->setCaption( tr("Normalized Variance") );
     disp_->attach( rightOf, sillfld_ );
 
-    rangefld_ = new uiSlider( this, uiSlider::Setup(tr("range")).withedit(true).
-						    nrdec(1).logscale(false),
-				   "range slider" );
+    rangefld_ = new uiSlider( this, uiSlider::Setup(uiStrings::sRange())
+		    .withedit(true).nrdec(1).logscale(false), "range slider" );
     rangefld_->attach( centeredBelow, disp_ );
     rangefld_->setMinValue( 0 );
     rangefld_->display( true );

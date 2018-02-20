@@ -79,7 +79,8 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     assymclipratiofld_->valuechanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,updateNonclipRange) );
 
-    rgfld_ = new uiGenInput( this, tr("Range"), FloatInpIntervalSpec() );
+    rgfld_ = new uiGenInput( this, uiStrings::sRange(),
+			     FloatInpIntervalSpec() );
     rgfld_->attach( alignedBelow, useclipfld_ );
     rgfld_->display( !useclipfld_->getBoolValue() );
 

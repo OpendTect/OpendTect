@@ -141,12 +141,12 @@ void uiHorizonSetupGroup::initToolBar()
 				mCB(this,uiHorizonSetupGroup,retrackCB) );
 
     undobutid_ = toolbar_->addButton( "undo", toUiString("%1 [Ctrl+Z]")
-					.arg(tr("Undo")),
+					.arg(uiStrings::sUndo()),
 					mCB(this,uiHorizonSetupGroup,undoCB) );
     toolbar_->setShortcut( undobutid_, "ctrl+z" );
 
     redobutid_ = toolbar_->addButton( "redo", toUiString("%1 [Ctrl+Y]")
-					.arg(tr("Redo")),
+					.arg(uiStrings::sRedo()),
 					mCB(this,uiHorizonSetupGroup,redoCB) );
     toolbar_->setShortcut( redobutid_, "ctrl+y" );
 

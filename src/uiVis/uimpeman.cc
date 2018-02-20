@@ -296,12 +296,12 @@ int uiMPEMan::popupMenu()
     addAction( mnu, tr("Clear Selection"), "a", sClear, "clear", true, hor3d );
     addAction( mnu, tr("Delete Selected"), "d", sDelete,
 	       "clearselection", true, hor3d );
-    addAction( mnu, tr("Undo"), "ctrl+z", sUndo, "undo",
+    addAction( mnu, uiStrings::sUndo(), "ctrl+z", sUndo, "undo",
 		EM::MGR().undo(hor->id()).canUnDo(), true );
-    addAction( mnu, tr("Redo"), "ctrl+y", sRedo, "redo",
+    addAction( mnu, uiStrings::sRedo(), "ctrl+y", sRedo, "redo",
 		EM::MGR().undo(hor->id()).canReDo(), true );
     addAction( mnu, uiStrings::sLock(), "l", sLock, "lock", true, hor3d );
-    addAction( mnu, tr("Unlock"), "u", sUnlock, "unlock", true, hor3d );
+    addAction( mnu, uiStrings::sUnlock(), "u", sUnlock, "unlock", true, hor3d );
 
     visSurvey::HorizonDisplay* hd3d = getSelectedDisplay3D();
     addAction( mnu, tr("Hide Locked"), "", sHideLocked, 0, true,
@@ -309,9 +309,9 @@ int uiMPEMan::popupMenu()
     addAction( mnu, tr("Show Locked"), "", sShowLocked, 0, true,
 	       hd3d && !hd3d->lockedShown() );
 
-    addAction( mnu, tr("Save"), "ctrl+s", sSave,
+    addAction( mnu, uiStrings::sSave(), "ctrl+s", sSave,
 	       "save", hor->isChanged(), true );
-    addAction( mnu, tr("Save As ..."), "ctrl+shift+s", sSaveAs,
+    addAction( mnu, m3Dots(uiStrings::sSaveAs()), "ctrl+shift+s", sSaveAs,
 	       "saveas", true, true );
     if ( !emod->displayedOnlyAtSections() )
 	addAction( mnu, tr("Display Only at Sections"), "v", sAtSect,

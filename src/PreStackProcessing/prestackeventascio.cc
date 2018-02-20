@@ -57,7 +57,7 @@ uiString EventExporter::nrDoneText() const
 int EventExporter::nextStep()
 {
     bool isatend = false;
-    message_ = tr("Reading");
+    message_ = uiStrings::sReadingData();
 
     BinIDValueSet currentbatch( 0, false );
     for ( int idx=0; idx<mBatchSize; idx++ )

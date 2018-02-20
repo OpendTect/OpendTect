@@ -479,7 +479,7 @@ void uiSEGYReadStartInfo::updateCellTexts()
 	nrtrcsusrtxt = tr("(1 trace used)");
     else
     {
-	const uiString rangestr = tr("range");
+	const uiString rangestr = uiStrings::sRange().toLower();
 	xittxt = mJoinUiStrRange( sXcoordinate() );
 	yittxt = mJoinUiStrRange( sYcoordinate() );
 	ky1ittxt = is2d ? mJoinUiStrRange( sTraceNumber() )

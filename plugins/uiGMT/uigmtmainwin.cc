@@ -76,7 +76,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 				mCB(this,uiGMTMainWin,editCB), true );
     editbut_->setToolTip( tr("Update current item in flow") );
     editbut_->attach( rightOf, addbut_ );
-    resetbut_ = new uiPushButton( rightgrp, tr("Reset"),
+    resetbut_ = new uiPushButton( rightgrp, uiStrings::sReset(),
 				mCB(this,uiGMTMainWin,resetCB), true );
     resetbut_->setToolTip( tr("Reset input fields") );
     resetbut_->attach( rightOf, editbut_ );

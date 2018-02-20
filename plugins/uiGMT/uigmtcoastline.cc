@@ -59,7 +59,7 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     ewfld_->valuechanged.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-				ODGMT::ResolutionDef(), tr("Resolution") );
+			    ODGMT::ResolutionDef(), uiStrings::sResolution() );
     resolutionfld_ = lcb->box();
 
     lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), tr("Line Style") );

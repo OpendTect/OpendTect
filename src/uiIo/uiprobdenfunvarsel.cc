@@ -29,10 +29,11 @@ uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p,const DataColInfo& colinfos )
     attrsel_->selectionChanged.notify(
 	    mCB(this,uiPrDenFunVarSel,attrChanged) );
 
-    rangesel_ = new uiGenInput( this, tr("Range"), FloatInpIntervalSpec() );
+    rangesel_ = new uiGenInput( this, uiStrings::sRange(),
+				FloatInpIntervalSpec() );
     rangesel_->valuechanged.notify( mCB(this,uiPrDenFunVarSel,rangeChanged) );
     rangesel_->attach( rightTo, cbx );
-    
+
     nrbinsel_ = new uiGenInput( this, tr("Nr of Bins"), IntInpSpec() );
     nrbinsel_->setElemSzPol( uiObject::Small );
     nrbinsel_->setValue( 25 );

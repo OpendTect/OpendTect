@@ -520,6 +520,7 @@ public:
     static uiWord sRectangle()		{ return tr("Rectangle"); }
     static uiWord sRed()		{ return tr("Red"); }
     static uiWord sRedo()		{ return tr("Redo"); }
+    static uiWord sRegion()		{ return tr("Region"); }
     static uiWord sRelative()		{ return tr("Relative"); }
     static uiWord sReload()		{ return tr("Reload"); }
     static uiWord sRemove()		{ return tr("Remove"); }
@@ -528,6 +529,7 @@ public:
     static uiWord sReport()		{ return tr("Report"); }
     static uiWord sReservoir()		{ return tr("Reservoir"); }
     static uiWord sReset()		{ return tr("Reset"); }
+    static uiWord sResolution()		{ return tr("Resolution"); }
     static uiWord sResume()		{ return tr("Resume"); }
     static uiWord sReversed()		{ return tr("Reversed"); }
     static uiWord sRight()		{ return tr("Right"); }
