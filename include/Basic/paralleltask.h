@@ -61,7 +61,7 @@ class ParallelTaskRunner;
   \endcode
 */
 
-mExpClass(Basic) ParallelTask : public Task
+mExpClass(Basic) ParallelTask : public ReportingTask
 { mODTextTranslationClass(ParallelTask);
 public:
     virtual		~ParallelTask();
@@ -79,7 +79,6 @@ public:
 			    and these static threads will be shared by all
 			    instances of ParallelTask::execute. */
 
-    void		setProgressMeter(ProgressMeter*);
     od_int64		nrDone() const;
 			//!<May be -1, i.e. class does not report nrdone.
 
@@ -137,7 +136,6 @@ private:
 			           true. */
 
     friend class			ParallelTaskRunner;
-    ProgressMeter*			progressmeter_;
     Threads::Atomic<od_int64>		nrdone_;
 
 private:

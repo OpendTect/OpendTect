@@ -70,7 +70,7 @@ int nextStep()
 	rdr.setComponentScaler( *compscalers_[idx], idx );
     }
 
-    rdr.setProgressMeter( progressmeter_ );
+    rdr.getProgress( *this );
     if ( !rdr.execute() )
 	mErrRet()
 

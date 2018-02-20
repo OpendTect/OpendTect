@@ -715,11 +715,12 @@ int VolProc::ChainExecutor::nextStep()
 
     curepoch_ = epochs_.pop();
 
-    if ( !curepoch_->doPrepare(progressmeter_) )
+    if ( !curepoch_->doPrepare(progressMeter()) )
 	mCleanUpAndRet( true )
 
     Task& curtask = curepoch_->getTask();
-    curtask.setProgressMeter( progressmeter_ );
+    mDynamicCastGet(ReportingTask*,curreptask,&curtask)
+    curreptask->getProgress( *this );
     curtask.enableWorkControl( true );
     if ( !curtask.execute() )
 	mCleanUpAndRet( false )
@@ -736,7 +737,7 @@ int VolProc::ChainExecutor::nextStep()
     curepoch_->releaseData();
     deleteAndZeroPtr( curepoch_ );
     if ( finished )
-	progressmeter_ = 0;
+	((Task*)(this))->setProgressMeter( 0 );
 
     return finished ? Finished() : MoreToDo();
 }

@@ -37,7 +37,7 @@ VolProc::ChainOutput::ChainOutput()
     , progresskeeper_(*new ProgressRecorder)
     , jobcomm_(0)
 {
-    progressmeter_ = &progresskeeper_;
+    setProgressMeter( &progresskeeper_ );
 }
 
 
@@ -142,7 +142,7 @@ void VolProc::ChainOutput::createNewChainExec()
 
     chainexec_ = new VolProc::ChainExecutor( *chain_ );
     chainexec_->enableWorkControl( workControlEnabled() );
-    chainexec_->setProgressMeter( progresskeeper_.forwardTo() );
+    ((Task*)chainexec_)->setProgressMeter( progresskeeper_.forwardTo() );
 }
 
 
@@ -217,7 +217,7 @@ int VolProc::ChainOutput::nextStep()
 	    startWriteChunk();
 	    if ( !neednextchunk_ )
 	    {	//We just did the last step of the last chunk
-		progressmeter_ = 0;
+		setProgressMeter( 0 );
 		deleteAndZeroPtr( chainexec_ );
 	    }
 	}
@@ -241,7 +241,7 @@ int VolProc::ChainOutput::nextStep()
     }
 
     // no calculations going on, no storers left ...
-    progressmeter_ = &progresskeeper_;
+    setProgressMeter( &progresskeeper_ );
     setName( "Volume builder processing" );
 
     return Finished();
@@ -297,10 +297,11 @@ int VolProc::ChainOutput::setupChunking()
 	return ErrorOccurred();
 
     const float zstep = chain_->getZStep();
-    const StepInterval<float> zsamp( tkzs_.zsamp_.start, tkzs_.zsamp_.stop, zstep );
+    const StepInterval<float> zsamp( tkzs_.zsamp_.start, tkzs_.zsamp_.stop,
+				     zstep );
     outputzrg_ = StepInterval<int>( zsamp.nearestIndex( zsamp.start ),
 				    zsamp.nearestIndex( zsamp.stop ),
-			   mMAX(mNINT32(Math::Ceil(tkzs_.zsamp_.step/zstep)),1) );
+		       mMAX(mNINT32(Math::Ceil(tkzs_.zsamp_.step/zstep)),1) );
 			   //real -> index, outputzrg_ is the index of z-samples
 
     // We will be writing while a new chunk will be calculated
@@ -442,7 +443,7 @@ void startWork()
     CallBack finishedcb( mCB(this,VolProc::ChainOutputStorer,workFinished) );
     Threads::WorkManager::twm().addWork( *work_, &finishedcb );*/
 
-     wrr.setProgressMeter( co_.progresskeeper_.forwardTo() );
+     ((Task&)wrr).setProgressMeter( co_.progresskeeper_.forwardTo() );
      wrr.execute();
      co_.reportFinished( *this );
 }

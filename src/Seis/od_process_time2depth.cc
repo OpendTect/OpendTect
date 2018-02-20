@@ -128,7 +128,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     TextStreamProgressMeter progressmeter( strm );
-    exec->setProgressMeter( &progressmeter );
+    ( (Task*)exec )->setProgressMeter( &progressmeter );
 
     return exec->execute();
 }

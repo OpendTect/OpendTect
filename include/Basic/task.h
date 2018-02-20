@@ -63,6 +63,39 @@ protected:
 };
 
 
+
+/*!\brief Helper class for all task implementations which need a progress meter.
+*/
+
+mExpClass(Basic) ReportingTask : public Task
+{
+public:
+    virtual		~ReportingTask();
+
+    void		getProgress(const ReportingTask&);
+
+protected:
+			ReportingTask(const char* nm=0);
+
+    virtual void	setProgressMeter(ProgressMeter*);
+    ProgressMeter*	progressMeter() const	{ return progressmeter_; }
+
+    void		reportProgressStarted();
+    void		updateReportedName();
+    void		updateProgressMeter(bool forced=false,
+					    od_int64* totalnr=0);
+    void		incrementProgress();
+    void		resetProgress();
+    void		reportProgressFinished();
+
+private:
+
+    ProgressMeter*	progressmeter_;
+    int			lastupdate_;
+};
+
+
+
 /*!Helper class that facilitates a task that has multiple sub-tasks that
    are either run in parallel or in sequence.
 
@@ -70,8 +103,7 @@ protected:
    control.
 */
 
-
-mExpClass(Basic) TaskGroupController : public Task
+mExpClass(Basic) TaskGroupController : public ReportingTask
 { mODTextTranslationClass(TaskGroupController);
 public:
 
@@ -90,6 +122,9 @@ public:
     const Task*		getTask(int idx) const { return controlledtasks_[idx]; }
 
 protected:
+			TaskGroupController()
+			    : ReportingTask()
+			{}
 
     void		controlTask(Task*);
 			//!<Does not take over memory management
@@ -101,6 +136,7 @@ private:
     TypeSet<float>	nrdoneweights_;
 
 };
+
 
 
 /*!\brief A collection of tasks, that behave as a single task.  */
@@ -117,7 +153,6 @@ public:
     void		showCumulativeCount( bool yn )
 			{ showcumulativecount_ = yn; }
 
-    void		setProgressMeter(ProgressMeter*);
     void		setEmpty();
     void		getTasks(TaskGroup&);
 
@@ -137,22 +172,25 @@ protected:
 
     mutable Threads::Lock lock_;
 
+private:
+
+    virtual void	setProgressMeter(ProgressMeter*);
+
 };
+
+
+
 
 
 /*!\brief The generalization of something (e.g. a computation) where the steps
   must be done in sequence, i.e. not in parallel.
 */
 
-mExpClass(Basic) SequentialTask : public Task
+mExpClass(Basic) SequentialTask : public ReportingTask
 {
 public:
 			SequentialTask(const char* nm=0);
     virtual		~SequentialTask()			{}
-
-    void		setProgressMeter(ProgressMeter*);
-    ProgressMeter*	progressMeter()		{ return progressmeter_; }
-    const ProgressMeter* progressMeter() const	{ return progressmeter_; }
 
     virtual int		doStep();
 		/*!<\retval MoreToDo()		Not finished. Call me again.
@@ -177,7 +215,5 @@ protected:
 			 \note if function returns a value greater than
 			  cMoreToDo(),it should be interpreted as cMoreToDo().*/
 
-    ProgressMeter*	progressmeter_;
-    int			lastupdate_;
 
 };

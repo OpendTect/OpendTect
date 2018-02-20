@@ -293,7 +293,7 @@ static void interpolate( EM::Horizon3D* horizon,
 	strm << "Gridding " << attribrefs.get(idx).buf() << "\n";
 
 	TextStreamProgressMeter runner( strm );
-	arr2dint->setProgressMeter( &runner );
+	( (Task*)arr2dint )->setProgressMeter( &runner );
 	arr2dint->setArray( *attrarr, LoggedTaskRunnerProvider(strm) );
 	arr2dint->execute();
 	runner.setFinished();

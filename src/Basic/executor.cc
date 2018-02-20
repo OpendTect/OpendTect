@@ -41,14 +41,14 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 	*strm << GetProjectVersionName() << "\n\n";
 
     TextStreamProgressMeter progressmeter( *strm );
-    setProgressMeter( &progressmeter );
+    ((Task*)(this))->setProgressMeter( &progressmeter );
     progressmeter.setName( name() );
 
     bool res = SequentialTask::execute();
     if ( !res )
 	*strm << "Error: " << toString(message()) << od_newline;
 
-    setProgressMeter( 0 );
+    ((Task*)(this))->setProgressMeter( 0 );
 
     if ( islast )
 	*strm << "\n\nEnd of process: '" << name() << "'" << od_newline;

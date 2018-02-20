@@ -143,9 +143,7 @@ uiString VelGriddingTask::message() const
 
 bool VelGriddingTask::report1Done()
 {
-    if ( progressmeter_ )
-	++(*progressmeter_);
-
+    incrementProgress();
     Threads::MutexLocker lock( lock_ );
     nrdone_++;
 

@@ -22,7 +22,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-mClass(Algo) Smoother2D : public Task
+mClass(Algo) Smoother2D : public ReportingTask
 {
 public:
 
@@ -41,7 +41,6 @@ public:
     inline void			fillPar(IOPar&) const;
     inline bool			usePar(const IOPar&);
 
-    inline void			setProgressMeter(ProgressMeter* pm);
     inline bool			execute();
     inline void			enableWorkControl(bool);
     inline void			controlWork(Task::Control);
@@ -65,7 +64,8 @@ protected:
 
 template <class T> inline
 Smoother2D<T>::Smoother2D()
-    : windowparam_( mUdf(float) )
+    : ReportingTask("Smoother2D")
+    , windowparam_( mUdf(float) )
     , window_( 0 )
 {
     convolver_.setNormalize( true );
@@ -159,7 +159,6 @@ bool Smoother2D<T>::usePar( const IOPar& par )
 template <class T> inline void Smoother2D<T>::func( vartype var ) \
 { convolver_.func( var ); }
 
-mImplSetFunc( setProgressMeter, ProgressMeter* );
 mImplSetFunc( enableWorkControl, bool);
 mImplSetFunc( controlWork, Task::Control);
 
