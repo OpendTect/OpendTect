@@ -41,6 +41,7 @@ ________________________________________________________________________
 #include "seis2ddata.h"
 #include "seisbuf.h"
 #include "seisprovider.h"
+#include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seisinfo.h"
 #include "seiswrite.h"
@@ -74,15 +75,20 @@ protected:
 };
 
 
-uiSeisSampleEditor::Setup::Setup( const DBKey& ky )
+uiSeisSampleEditor::Setup::Setup( const DBKey& ky, Pos::GeomID linegeomid )
     : uiDialog::Setup(uiString::empty(),mNoDlgTitle,
                       mODHelpKey(mSeisBrowserHelpID) )
     , id_(ky)
+    , geomid_(linegeomid)
     , startpos_(mUdf(int),mUdf(int))
     , startz_(mUdf(float))
     , readonly_(false)
 {
-    wintitle_ = tr( "Browse/Edit '%1'" ).arg( DBM().nameOf( id_ ) );
+    BufferString dataname( DBM().nameOf(id_) );
+    if ( !mIsUdfGeomID(geomid_) )
+	dataname.add( ": " ).add( Survey::GM().getName(geomid_) );
+
+    wintitle_ = tr("Browse/Edit '%1'").arg( dataname );
 }
 
 
@@ -721,8 +727,7 @@ void uiSeisSampleEditor::commitChanges()
 void uiSeisSampleEditor::launch( uiParent* p, const DBKey& dbky,
 				 Pos::GeomID geomid )
 {
-    uiSeisSampleEditor::Setup setup( dbky );
-    setup.geomid_ = geomid;
+    uiSeisSampleEditor::Setup setup( dbky, geomid );
     uiSeisSampleEditor dlg( p, setup );
     dlg.go();
 }
@@ -790,6 +795,7 @@ void createIter2D()
     }
 
     curtrcnr_ = trcnrrg_.start - trcnrrg_.step;
+    curbinid_.lineNr() = ed_.setup_.geomid_;
 }
 
 void createIter3D()
@@ -812,6 +818,13 @@ void createIter3D()
 int startWork()
 {
     wrr_ = new SeisTrcWriter( dbky_ );
+    if ( ed_.is2D() )
+    {
+	Seis::RangeSelData* seldata2d =
+		    new Seis::RangeSelData( ed_.setup_.geomid_ );
+	wrr_->setSelData( seldata2d );
+    }
+
     if ( !wrr_->errMsg().isEmpty() )
     {
 	msg_ = wrr_->errMsg();

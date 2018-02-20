@@ -180,6 +180,14 @@ Seis::RangeSelData::RangeSelData( const TrcKeyZSampling& cs )
 }
 
 
+Seis::RangeSelData::RangeSelData( Pos::GeomID geomid )
+    : tkzs_(*new TrcKeyZSampling(false))
+{
+    tkzs_.hsamp_ = TrcKeySampling( geomid );
+    setGeomID( geomid );
+}
+
+
 Seis::RangeSelData::RangeSelData( const Seis::RangeSelData& sd )
     : tkzs_(*new TrcKeyZSampling(false))
 {

@@ -39,7 +39,8 @@ public :
     mExpClass(uiSeis) Setup : public uiDialog::Setup
     { mODTextTranslationClass(uiSeisSampleEditor::Setup)
     public:
-				Setup(const DBKey&);
+				Setup(const DBKey&,
+				      Pos::GeomID geomid=mUdfGeomID);
 
 	mDefSetupMemb(DBKey,	id)
 	mDefSetupMemb(Pos::GeomID,geomid)

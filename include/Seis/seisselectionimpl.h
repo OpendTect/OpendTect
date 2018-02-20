@@ -34,6 +34,7 @@ public:
 			RangeSelData(bool settosurvinfo=false);
 			RangeSelData(const TrcKeySampling&);
 			RangeSelData(const TrcKeyZSampling&);
+			RangeSelData(Pos::GeomID);
 			RangeSelData(const RangeSelData&);
 			~RangeSelData();
     RangeSelData&	operator =( const RangeSelData& rsd )
