@@ -74,10 +74,10 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     if ( su.pars_ )
 	spec.usePar( *su.pars_ );
 
-    uiString disptxt( forread_ ? uiStrings::sInput() : uiStrings::sOutput() );
-    disptxt.append(tr(" SEG-Y file"));
-    if ( needmulti_ )
-	disptxt.append("(s)");
+    uiString disptxt;
+    uiString filetym = needmulti_ ? tr("SEG-Y files") : tr("SEG-Y file");
+    disptxt = forread_ ? uiStrings::phrInput(filetym) : 
+						uiStrings::phrOutput(filetym);
     BufferString defdir( forread_ ? lastreaddir : lastwritedir );
     if ( defdir.isEmpty() ) defdir = GetDataDir();
 
@@ -316,10 +316,8 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const uiString& txt,
 	FloatInpSpec fis( val );
 	uiString fldtxt( txt );
 	if ( isz )
-	{
-	    fldtxt.append(" ");
-	    fldtxt.append(SI().zUnitString());
-	}
+	    fldtxt.appendPhrase(SI().zUnitString(), uiString::Space, 
+							uiString::OnSameLine);
 	inp = new uiGenInput( grp, fldtxt, fis );
     }
 
@@ -916,8 +914,9 @@ uiGroup* uiSEGYFileOpts::mkORuleGrp( const IOPar& iop )
     scalcofld_ = mkOverruleFld( grp,
 		    tr("Overrule SEG-Y coordinate scaling"), &iop,
 		    FileReadOpts::sKeyCoordScale(), false );
-    uiString overrulestr = tr("Overrule SEG-Y start ");
-    overrulestr.append(SI().zIsTime() ? uiStrings::sTime().toLower() :
+    uiString overrulestr = tr("Overrule SEG-Y start %1",
+				    "Overrule SEG-Y start time")
+			.arg(SI().zIsTime() ? uiStrings::sTime().toLower() :
 					uiStrings::sDepth().toLower());
     timeshiftfld_ = mkOverruleFld( grp, overrulestr, &iop,
 			    FileReadOpts::sKeyTimeShift(),

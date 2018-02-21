@@ -475,7 +475,7 @@ bool uiSEGYReadFinisher::doMultiVintage()
 	    reportdlg.table_->setNrRows( nrrows + 1 );
 	    reportdlg.table_->setText( RowCol(nrrows,0), fnm );
 	    uiString tooltip;
-	    tooltip.append( fp.fullPath() );
+	    tooltip = toUiString( fp.fullPath() );
 	    reportdlg.table_->setCellToolTip( RowCol(nrrows,0), tooltip );
 	    reportdlg.table_->setText( RowCol(nrrows,2), errmsg_ );
 	    reportdlg.table_->setText( RowCol(nrrows,1),
@@ -493,7 +493,7 @@ bool uiSEGYReadFinisher::doMultiVintage()
 	    if ( !impsuccess )
 	    {
 		uiString msg(tr("Failed to import '%1'").arg(fnm) );
-		msg.append( tr("Do you wish to continue?"), true );
+		msg.appendPhrase( tr("Do you wish to continue?") );
 		if ( !donotshow )
 		{
 		    int val = uiMSG().question( msg, uiStrings::sContinue(),
@@ -541,7 +541,7 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
     if ( !dlg.execute( *exec ) )
     {
 	if ( !singlevintage_ && doimp )
-	    errmsg_.append( imp.ptr()->message() );
+	    errmsg_.appendPhrase( imp.ptr()->message(), uiString::NoSep );
 
 	return false;
     }
@@ -551,9 +551,11 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 	{
 	    trcsskipped_ = imp.ptr()->nrSkipped() > 0;
 	    if ( imp.ptr()->nrSkipped() > 0 )
-		errmsg_.append( "Warning: ").append( imp.ptr()->message() );
+		errmsg_.appendPhrase( tr("Warning: %1")
+						.arg(imp.ptr()->message()) );
 	    else
-		errmsg_.append( "Successfully imported" );
+		errmsg_.appendPhrase( uiStrings::sImpSuccess(),
+							    uiString::NoSep );
 	}
     }
 
@@ -899,6 +901,6 @@ void uiSEGYImportReport::msgDisplayCB( CallBacker* cb )
 
     BufferString msg( table_->text( rc ) );
     uiString str;
-    str.append( table_->text( rc ) );
+    str = toUiString( table_->text(rc) );
     uiMSG().message( str );
 }

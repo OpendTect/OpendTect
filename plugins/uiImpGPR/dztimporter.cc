@@ -63,7 +63,13 @@ bool DZT::FileHeader::getFrom( od_istream& strm, uiString& emsg )
 	mRetFalse;
     }
     if ( data < 128 )
-	{ emsg.append(" Invalid data offset found: %1").arg(data); mRetFalse; }
+    { 
+	uiPhrase invaliddataphr = od_static_tr("getFrom",
+				"Invalid data offset found: %1").arg(data);
+	emsg.appendPhrase( invaliddataphr, uiString::Space, 
+				    uiString::OnSameLine); 
+	mRetFalse; 
+    }
 
     // dtype cannot be trusted, it seems
     if ( bits < 32 )
@@ -77,7 +83,8 @@ bool DZT::FileHeader::getFrom( od_istream& strm, uiString& emsg )
     strm.setReadPosition( data, od_stream::Abs );
     if ( !strm.isOK() )
     {
-	emsg = uiStrings::phrCannotRead(od_static_tr("getFrom","first trace."));
+	emsg = uiStrings::phrCannotRead(od_static_tr("getFrom",
+							    "first trace."));
 	mRetFalse;
     }
 

@@ -104,8 +104,8 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     for ( int icol=0; icol<setup_.nrtrcs_; icol++ )
     {
 	const int tidx = icol + 1;
-	uiString tt( tr("Trace header info from %1").arg(tidx) );
-	tt.append(" %1 trace").arg(getRankPostFix(tidx));
+	uiString tt( tr("Trace header info from %1 %2 trace").arg(tidx)
+						.arg(getRankPostFix(tidx)) );
 	tbl_->setColumnLabel( icol, toUiString(tidx) );
 	tbl_->setColumnToolTip( icol, tt );
 	tbl_->setColumnReadOnly( icol, true );
@@ -350,18 +350,19 @@ void uiSEGYExamine::updateInp()
 
     if ( stoppedatend || nrdone < 1 )
     {
-	uiString str( toUiString("\n\n----  ") );
+	uiString str = toUiString("----");
 	const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
 	if ( nrdone < 1 )
-	    str.append(tr(" No traces found"));
+	    str.appendPhrase(tr("No traces found"), uiString::Space, 
+							uiString::OnSameLine);
 	else
 	{
-	    str.append(tr(" Total number of traces present in "));
-	    str.append(tr("file",0,ismulti ? mPlural : -1));
-	    str.append(toUiString(": ")); str.append(toUiString(nrdone));
+	    str.appendPhrase(tr("Total number of traces present in input "
+								"data"));
+	    str.appendPlainText(": "); str.appendPlainText(toString(nrdone));
 	}
-	str.append(toUiString("  ----"));
-	txtinfo_.append(" ").append(str);
+	str.appendPlainText("  ----");
+	txtinfo_.appendPhrase(str, uiString::Space, uiString::OnSameLine);
     }
     outInfo( uiString::empty() );
     txtfld_->setText( txtinfo_ );
@@ -377,9 +378,11 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc )
     binhead.dump( bhstrm );
 
     txtinfo_ = toUiString(thstrm.result());
-    txtinfo_.append(tr("\n------\n\n"
-		"Binary header info (non-zero values displayed only):\n\n"));
-    txtinfo_.append(bhstrm.result());
+    txtinfo_.appendPhrase( toUiString("------"), uiString::NoSep );
+    txtinfo_.appendPhrase(tr("Binary header info (non-zero values displayed "
+			    "only)"), uiString::NoSep, uiString::OnNewLine);
+    txtinfo_.appendPhrase(toUiString(bhstrm.result()), uiString::MoreInfo,
+							uiString::OnNewLine);
 
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     const int nrvals = hdef.size();
