@@ -321,7 +321,7 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
 	, usrsels(usels)
 {
     uiStringSet opts;
-    opts.add( tr("Use") );
+    opts.add( uiStrings::sUse() );
     opts.add( tr("Merge into") );
     opts.add( tr("Drop") );
     uiLabeledComboBox* prevoptlcb = 0;

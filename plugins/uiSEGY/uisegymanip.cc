@@ -62,7 +62,7 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
     tbl_->setColumnLabel( 0, uiSEGYFileManip::sByte() );
     tbl_->setColumnToolTip( 0, tr("Byte location in binary header") );
     tbl_->setColumnReadOnly( 0, true );
-    tbl_->setColumnLabel( 1, tr("Value") );
+    tbl_->setColumnLabel( 1, uiStrings::sValue() );
     tbl_->setColumnToolTip( 1, tr("Value (initially from file)") );
     tbl_->setColumnLabel( 2, uiStrings::sDescription() );
     tbl_->setColumnReadOnly( 2, true );
@@ -289,7 +289,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     thtbl_->setColumnLabel( 0, sByte() );
     thtbl_->setColumnToolTip( 0, tr("Byte location in trace header") );
     thtbl_->setColumnReadOnly( 0, true );
-    thtbl_->setColumnLabel( 1, tr("Value") );
+    thtbl_->setColumnLabel( 1, uiStrings::sValue() );
     thtbl_->setColumnToolTip( 1, tr("Resulting value") );
     thtbl_->setColumnReadOnly( 1, true );
     for ( int irow=0; irow<nrrows; irow++ )
@@ -312,7 +312,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     plotallbox_->setHSzPol( uiObject::Small );
     plotallbox_->setChecked( true );
 
-    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( rightgrp, tr("Trc") );
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( rightgrp, uiStrings::sTrc() );
     trcnrfld_ = lsb->box();
     lsb->attach( rightAlignedBelow, thtbl_ );
     trcnrfld_->setHSzPol( uiObject::Small );

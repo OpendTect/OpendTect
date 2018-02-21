@@ -1531,7 +1531,8 @@ uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
 
 	trackpadzoomspeedfld_ = new uiGenInput( this,
 	       tr("Optimize zoom speed for"),
-	       BoolInpSpec( istrackpad, tr("Trackpad"), uiStrings::sMouse()) );
+	       BoolInpSpec( istrackpad, uiStrings::sTrackPad(),
+					uiStrings::sMouse()) );
 	trackpadzoomspeedfld_->attach( alignedBelow, wheeldirectionfld_ );
 #endif
     }

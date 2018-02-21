@@ -74,7 +74,7 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
     outampfld_->attach( alignedBelow, evtypefld_ );
 
     tonextfld_ = new uiGenInput( this, tr("starting from"),
-		BoolInpSpec(true,tr("Top"), uiStrings::sBottom()) );
+		BoolInpSpec( true, uiStrings::sTop(), uiStrings::sBottom()) );
     tonextfld_->attach( alignedBelow, outampfld_ );
     tonextfld_->display( false );
 

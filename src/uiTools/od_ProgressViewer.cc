@@ -114,7 +114,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
 
-    tb_ = new uiToolBar( this, uiStrings::sToolbar() );
+    tb_ = new uiToolBar( this, uiStrings::sToolBar() );
     quittbid_ = mAddButton( "stop", haveProcess() ? sStopAndQuit() : sQuitOnly()
 			    ,quitFn );
     killbid_ = mAddButton( "cancel", tr("Terminate the process"), killFn );

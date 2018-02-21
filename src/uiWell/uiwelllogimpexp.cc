@@ -62,7 +62,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     intvunfld_->attach( rightOf, intvfld_ );
     intvunfld_->display( false );
 
-    unitlbl_ = new uiLabel( this, tr("XXXX") );
+    unitlbl_ = new uiLabel( this, toUiString("XXXX") );
     unitlbl_->attach( rightOf, intvfld_ );
     unitlbl_->display( false );
 

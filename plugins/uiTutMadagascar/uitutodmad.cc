@@ -34,8 +34,8 @@ uiTutODMad::uiTutODMad( uiParent* p )
 				 mJoinUiStrs(sData(),sFile().toLower()), fssu );
 
     dowigglesfld_ = new uiGenInput ( this, uiStrings::sDisplay(),
-			             BoolInpSpec(true,tr("Wiggles"),
-                                     tr("Variable density")) );
+			             BoolInpSpec(true,uiStrings::sWVA(),
+                                     uiStrings::sVD()) );
     dowigglesfld_->attach( alignedBelow, maddatafld_ );
 }
 

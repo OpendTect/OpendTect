@@ -373,7 +373,7 @@ od_int64 Horizon2DGridCreator::nrDone() const
 { return nrdone_; }
 
 uiString Horizon2DGridCreator::nrDoneText() const
-{ return tr("Positions done"); }
+{ return uiStrings::sPositionsDone(); }
 
 
 bool Horizon2DGridCreator::init( const IOPar& par,

@@ -59,7 +59,7 @@ public:
 
     ~VoxelConnectivityFilterTask() { releaseData(); }
 
-    uiString	nrDoneText() const { return tr("Positions done"); }
+    uiString	nrDoneText() const { return uiStrings::sPositionsDone(); }
     uiString	message() const { return tr("Calculating voxel connectivity"); }
 
     od_int64	nrIterations() const { return input_.info().getTotalSz(); }

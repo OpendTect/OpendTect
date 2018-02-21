@@ -41,7 +41,7 @@ Grav::HorCalc::~HorCalc()
 
 uiString Grav::HorCalc::nrDoneText() const
 {
-    return ztransf_ ? tr("Positions done") : tr("Horizons loaded");
+    return ztransf_ ? uiStrings::sPositionsDone() : tr("Horizons loaded");
 }
 
 

@@ -406,7 +406,7 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 	else
 	    { pErrMsg("No menubar returned from Qt"); }
 
-	toolbarsmnu_ = new uiMenu( &handle(), tr("Toolbars") );
+	toolbarsmnu_ = new uiMenu( &handle(), uiStrings::sToolBar(mPlural) );
     }
 
     initing_ = false;

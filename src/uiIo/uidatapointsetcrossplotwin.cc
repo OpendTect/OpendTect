@@ -48,11 +48,11 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , disptb_(*new uiToolBar(this,tr("%1 %2 %3")
 				     .arg(uiStrings::sCrossPlot())
 				     .arg(uiStrings::sDisplay())
-				     .arg(uiStrings::sToolbar())))
+				     .arg(uiStrings::sToolBar())))
     , seltb_(*new uiToolBar(this,uiStrings::phrCrossPlot(mJoinUiStrs(
-				 sSelection(),sToolbar()))))
+				 sSelection(),uiStrings::sToolBar()))))
     , maniptb_(*new uiToolBar(this,uiStrings::phrCrossPlot(
-	  uiStrings::phrJoinStrings(tr("Manipulation"), uiStrings::sToolbar())),
+	  uiStrings::phrJoinStrings(tr("Manipulation"), uiStrings::sToolBar())),
 	  uiToolBar::Left))
     , colortb_(*new uiColTabToolBar(this))
     , grpfld_(0)

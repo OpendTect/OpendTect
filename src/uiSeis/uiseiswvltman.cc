@@ -68,7 +68,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 				mCB(this,uiSeisWvltMan,reversePolarity) );
     rotatephbut_  = manipgrp->addButton( "phase", tr("Rotate phase"),
 				mCB(this,uiSeisWvltMan,rotatePhase) );
-    taperbut_ = manipgrp->addButton( "wavelet_taper", tr("Taper"),
+    taperbut_ = manipgrp->addButton( "wavelet_taper", uiStrings::sTaper(),
 				     mCB(this,uiSeisWvltMan,taper) );
     addButtons();
     uiGroup* wvltdispgrp = new uiGroup( listgrp_,"Wavelet Display" );
@@ -232,7 +232,7 @@ void uiSeisWvltMan::ownSelChg()
 						       tr("Reverse polarity"));
     mSetButToolTip(rotatephbut_,tr("Rotate %1 phase").arg(curwvlt),
 							   tr("Rotate phase"));
-    mSetButToolTip(taperbut_,tr("Taper %1").arg(curwvlt), tr("Taper") );
+    mSetButToolTip(taperbut_,tr("Taper %1").arg(curwvlt), uiStrings::sTaper() );
     mSetButToolTip(disppropbut_,toUiString("%1 %2 %3")
 		   .arg(uiStrings::sDisplay()).arg(curwvlt)
 		   .arg(uiStrings::sProperties().toLower()),

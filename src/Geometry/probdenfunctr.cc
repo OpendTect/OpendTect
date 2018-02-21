@@ -41,7 +41,8 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
 		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
     {
-        if (emsg) *emsg = uiStrings::phrCannotCreate(tr("Translator"));
+        if ( emsg )
+	    *emsg = uiStrings::phrCannotCreate(uiStrings::sTranslator());
         return 0;
     }
 
@@ -73,8 +74,8 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
     {
-	if (emsg)
-	    *emsg = uiStrings::phrCannotCreate(tr("Translator"));
+	if ( emsg )
+	    *emsg = uiStrings::phrCannotCreate( uiStrings::sTranslator() );
 	return false;
     }
 

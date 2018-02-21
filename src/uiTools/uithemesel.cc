@@ -23,7 +23,8 @@ uiThemeSel::uiThemeSel( uiParent* p, bool withlabel )
 {
     if ( withlabel )
     {
-	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Theme") );
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+						uiStrings::sTheme() );
 	selfld_ = lcb->box();
 	setHAlignObj( lcb );
     }

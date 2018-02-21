@@ -237,7 +237,7 @@ public:
 
     mDecluiSettingsGroupPublicFns( uiVisSettingsGroup,
 				   LooknFeel, "Visualization", "vis",
-				   tr("Visualization"),
+				   uiStrings::sVisualization(),
 				   mTODOHelpKey )
 
 			uiVisSettingsGroup(uiParent*,Settings&);

@@ -87,7 +87,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 				    FloatInpSpec(initialvalue_) );
     thresholdfld_->setValue( vd_->isoValue(isosurface) );
     thresholdfld_->attach( leftAlignedBelow, statsdisplay_ );
-    updatebutton_ = new uiPushButton( this, tr("Update"),
+    updatebutton_ = new uiPushButton( this, uiStrings::sUpdate(),
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,updatePressed), true );
     updatebutton_->attach( rightOf, thresholdfld_ );
 }

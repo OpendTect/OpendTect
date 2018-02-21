@@ -42,7 +42,8 @@ public:
     virtual bool	executeParallel(bool);
 
     uiString		message() const { return tr("Convolving 3D volume"); }
-    uiString		nrDoneText() const { return tr("Positions done"); }
+    uiString		nrDoneText() const
+			{ return uiStrings::sPositionsDone(); }
 
 protected:
     inline bool		shouldFFT() const;

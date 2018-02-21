@@ -121,7 +121,7 @@ uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
     isdeltafld_ = new uiGenInput( this, tr("Values are"),
 		    BoolInpSpec(false,tr("Relative (deltas)"),
 				uiStrings::sAbsolute()) );
-    mAddMSFld(tr("Units"),isdeltafld_)
+    mAddMSFld( uiStrings::sUnit(mPlural), isdeltafld_ )
 
     uiSeparator* sep = new uiSeparator( this, "HSep" );
     if ( msfld_ ) sep->attach( stretchedBelow, msfld_ );

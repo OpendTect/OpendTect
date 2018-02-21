@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "emcommon.h"
 #include "executor.h"
+#include "uistrings.h"
 
 class ZAxisTransform;
 
@@ -30,7 +31,8 @@ public:
 
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		nrDoneText() const	{ return tr("Positions done"); }
+    uiString		nrDoneText() const
+			{ return uiStrings::sPositionsDone(); }
 
     void		setOutputHorizon(Horizon&);
     void		setReferenceZ(float z);

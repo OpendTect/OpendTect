@@ -67,7 +67,8 @@ uiGMTSurfaceGrid::uiGMTSurfaceGrid( uiParent* p )
 {
     if ( hasGMTInst() )
     {
-	tensionfld_ = new uiGenInput( this, tr("Tension"), FloatInpSpec(0.25) );
+	tensionfld_ = new uiGenInput( this, uiStrings::sTension(),
+				      FloatInpSpec(0.25) );
 	setHAlignObj( tensionfld_ );
     }
     else

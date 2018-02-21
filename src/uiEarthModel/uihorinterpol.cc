@@ -676,7 +676,8 @@ uiContinuousCurvatureHor3DInterpol::uiContinuousCurvatureHor3DInterpol(
     : uiHor3DInterpol( p )
     , tensionfld_( 0 )
 {
-    tensionfld_ = new uiGenInput(this,tr("Tension"),FloatInpSpec(0.25) );
+    tensionfld_ = new uiGenInput(this,uiStrings::sTension(),
+				 FloatInpSpec(0.25) );
 
     uiString titletext( tr("Search radius %1").arg(SI().xyUnitString()) );
     radiusfld_ = new uiGenInput( this, titletext, FloatInpSpec(0.0) );

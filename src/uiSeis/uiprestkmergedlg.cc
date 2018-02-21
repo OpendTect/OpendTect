@@ -77,7 +77,7 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
     outctio_.ctxt_.forread_ = false;
     outctio_.ctxt_.deftransl_ = CBVSSeisPS3DTranslator::translKey();
     stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
-			BoolInpSpec(true,uiStrings::sStack(),tr("Use first")) );
+		BoolInpSpec(true,uiStrings::sStack(),uiStrings::sUseFirst()) );
     stackfld_->valuechanged.notify( mCB(this,uiPreStackMergeDlg,stackSel) );
     outpfld_ = new uiIOObjSel( this, outctio_, uiStrings::sOutpDataStore() );
     uiPosSubSel::Setup psssu( false, false );

@@ -168,13 +168,17 @@ int HorizonSorter::getNrCrossings( const DBKey& dbky1,
 }
 
 
-uiString HorizonSorter::message() const	{ return message_; }
+uiString HorizonSorter::message() const
+{ return message_; }
 
-uiString HorizonSorter::nrDoneText() const { return tr("Positions done"); }
+uiString HorizonSorter::nrDoneText() const
+{ return uiStrings::sPositionsDone(); }
 
-od_int64 HorizonSorter::nrDone() const		{ return nrdone_; }
+od_int64 HorizonSorter::nrDone() const
+{ return nrdone_; }
 
-od_int64 HorizonSorter::totalNr() const		{ return totalnr_; }
+od_int64 HorizonSorter::totalNr() const
+{ return totalnr_; }
 
 
 #define mErrRet(msg)	{ message_ = msg; return ErrorOccurred(); }

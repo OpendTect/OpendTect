@@ -43,7 +43,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
 
     SamplingData<float> zsd = trcbuf_.get(0)->info().sampling_;
     Interval<float> zrg( zsd.start, zsd.atIndex(trcbuf_.get(0)->size()-1) );
-    
+
     uiFunctionDisplay::Setup su;
     su.fillbelow(true).canvaswidth(600).canvasheight(400).drawborder(true)
       .drawliney2(true).editable(true).fillbelow(false).fillbelowy2(true)
@@ -51,7 +51,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
       .xrg(zrg).ycol(Color(255,0,0));
 
     funcdisp_ = new uiFunctionDisplay( this, su );
-    funcdisp_->xAxis()->setCaption( tr("Z") );
+    funcdisp_->xAxis()->setCaption( uiStrings::sZ() );
     funcdisp_->yAxis(true)->setCaption( tr("RMS Amplitude") );
     funcdisp_->yAxis(false)->setCaption( tr("Scale Factor") );
 
@@ -59,7 +59,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
     mandispgrp->attach( alignedBelow, funcdisp_ );
 
     rangefld_ = new uiGenInput( mandispgrp, tr("Scale Range"),
-	    			FloatInpIntervalSpec() );
+				FloatInpIntervalSpec() );
     rangefld_->valuechanged.notify( mCB(this,uiGainAnalysisDlg,dispRangeChgd ));
     rangefld_->setValue( scalerg );
 
@@ -72,7 +72,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
     stepfld_->box()->setValue( al.sd_.step );
 
     ampscaletypefld_ = new uiGenInput( mandispgrp, tr("Amplitude Scale"),
-	    			    BoolInpSpec(true,tr("Linear"),tr("dB")) );
+				    BoolInpSpec(true,tr("Linear"),tr("dB")) );
     ampscaletypefld_->attach( rightTo, stepfld_ );
     ampscaletypefld_->valuechanged.notify(
 	    mCB(this,uiGainAnalysisDlg,amplScaleTypeChanged) );
@@ -101,10 +101,10 @@ void uiGainAnalysisDlg::setData( bool sety )
 {
     TypeSet<float> zvals;
     TypeSet<float> scalefactors;
-    
+
     SamplingData<float> zsd = trcbuf_.get(0)->info().sampling_;
     StepInterval<float> zrg( zsd.start, zsd.atIndex(trcbuf_.get(0)->size()-1),
-	    		     zsd.step );
+			     zsd.step );
 
     const TypeSet<float> yvals = funcdisp_->yVals();
     if ( !yvals.size() && !scalefactors_.size() )
@@ -129,7 +129,7 @@ void uiGainAnalysisDlg::setData( bool sety )
 		     .arg(linear ? tr("(Linear)") : tr("(dB)"));
 
     funcdisp_->yAxis(true)->setCaption( label );
-    
+
     TypeSet<float> avgrmsvals;
 
     const int nrsamples = trcbuf_.get(0)->size();
@@ -162,7 +162,7 @@ void uiGainAnalysisDlg::setData( bool sety )
 	funcdisp_->setVals( zvals.arr(), scalefactors.arr(), zvals.size() );
 
     funcdisp_->setY2Vals( zrg, avgrmsvals.arr(), zrg.nrSteps() );
-    
+
     dispRangeChgd( 0 );
 }
 

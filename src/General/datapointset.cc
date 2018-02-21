@@ -193,7 +193,7 @@ od_int64 nrDone() const		{ return nrdone_; }
 
 uiString message() const	{ return tr("Extracting positions"); }
 
-uiString nrDoneText() const	{ return tr("Positions done"); }
+uiString nrDoneText() const	{ return uiStrings::sPositionsDone(); }
 
 
 protected:

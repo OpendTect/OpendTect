@@ -687,7 +687,8 @@ void uiODMenuMgr::fillProcMenu()
 
     if ( have3d )
     {
-	uiMenu* velmnu = addSubMenu( csomnu_, tr("Velocity"), "velocity_cube" );
+	uiMenu* velmnu = addSubMenu( csomnu_, uiStrings::sVelocity(),
+				     "velocity_cube" );
 	addAction( velmnu, tr("Time - Depth Conversion"), "time2depth",
 			 mCB(&applMgr(),uiODApplMgr,processTime2Depth) );
 	addAction( velmnu, tr("Velocity Conversion"), "velconv",
@@ -874,7 +875,8 @@ void uiODMenuMgr::fillUtilMenu()
 	const ODInst::AutoInstType ait = ODInst::getAutoInstType();
 	const bool aitfixed = ODInst::autoInstTypeIsFixed();
 	if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
-	    addAction( installmnu_, tr("Update"), "update", mInstMgrMnuItem );
+	    addAction( installmnu_, uiStrings::sUpdate(), "update",
+				    mInstMgrMnuItem );
 	if ( !aitfixed )
 	    addAction( installmnu_, tr("Auto-update Policy"), "auto",
 				    mInstAutoUpdPolMnuItm );

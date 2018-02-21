@@ -29,7 +29,8 @@ public:
     od_int64		nrDone() const		{ return nrdone_; }
     void		setHorSamp(const StepInterval<int>& inlrg,
 				   const StepInterval<int>& crlrg);
-    uiString		nrDoneText() const	{ return tr("Positions done"); }
+    uiString		nrDoneText() const
+			{ return uiStrings::sPositionsDone(); }
 
 protected:
 			HorTool(const char* title);

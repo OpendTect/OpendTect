@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "thread.h"
 #include "posinfo2d.h"
+#include "uistrings.h"
 
 
 /*!
@@ -29,7 +30,8 @@ mExpClass(Algo) BendPointFinderBase : public ParallelTask
 public:
 
     const TypeSet<int>&	bendPoints() const	{ return bendpts_; }
-    uiString		nrDoneText() const	{ return tr("Positions done"); }
+    uiString		nrDoneText() const
+			{ return uiStrings::sPositionsDone(); }
 
 protected:
 			BendPointFinderBase( int sz, float eps );

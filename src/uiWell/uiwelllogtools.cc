@@ -235,7 +235,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     gatefld_ = spbgt->box();
     gatelbl_ = spbgt->label();
 
-    const uiString txt = tr("Threshold ( Grubbs number )");
+    const uiString txt = tr("Threshold (Grubbs number)");
     thresholdfld_ = new uiLabeledSpinBox( actiongrp, txt );
     thresholdfld_->attach( rightOf, spbgt );
     thresholdfld_->box()->setInterval( 1.0, 20.0, 0.1 );

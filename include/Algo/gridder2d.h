@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "coord.h"
 #include "positionlist.h"
+#include "uistrings.h"
 
 class DAGTriangleTree;
 template <class T> class LinSolver;
@@ -157,7 +158,7 @@ mExpClass(Algo) TriangulatedGridder2D : public Gridder2D
 public:
     mDefaultFactoryInstantiation( Gridder2D,
 				TriangulatedGridder2D,
-				"Triangulated", tr("Triangulation") );
+				"Triangulated", uiStrings::sTriangulation() );
 
 			TriangulatedGridder2D();
 			TriangulatedGridder2D(

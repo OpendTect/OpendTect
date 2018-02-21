@@ -141,7 +141,8 @@ void uiEditSampledProbDenFunc::mkTable( uiGroup* grp )
 
     uiTable::Setup su( nrrows, nrcols );
     su.coldesc( toUiString(pdf_.dimName(0)) )
-      .rowdesc( nrdims_ > 1 ? toUiString(pdf_.dimName(1)) : tr("Values") )
+      .rowdesc( nrdims_ > 1 ? toUiString(pdf_.dimName(1))
+			    : uiStrings::sValue(mPlural) )
       .fillrow(true).fillcol(true)
       .manualresize(true).sizesFixed(true);
     tbl_ = new uiTable( grp, su, "Values table" );

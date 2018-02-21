@@ -37,20 +37,20 @@ uiSEGYMultiVintageImporter::uiSEGYMultiVintageImporter( uiParent* p )
     table_->setSelectionMode( uiTable::SingleRow );
     table_->attach( centeredBelow, imptypefld_ );
     table_->setNrCols( 3 );
-    table_->setColumnLabel( 0, tr("Vintage") );
+    table_->setColumnLabel( 0, uiStrings::sVintage() );
     table_->setColumnLabel( 1, tr("File names") );
     table_->setColumnLabel( 2, uiString::empty() );
     table_->setNrRows(0);
     uiGroup* toolgrp = new uiGroup( this, "Tool group" );
     uiToolButton* addbut = new uiToolButton(toolgrp, "create",
-				    uiStrings::phrAdd(tr("Vintage")),
+				    uiStrings::phrAdd(uiStrings::sVintage()),
 				    mCB(this,uiSEGYMultiVintageImporter,addCB));
     uiToolButton* removebut = new uiToolButton(toolgrp, "remove",
-				 uiStrings::phrRemove(tr("Vintage")),
+				 uiStrings::phrRemove(uiStrings::sVintage()),
 				 mCB(this,uiSEGYMultiVintageImporter,removeCB));
     removebut->attach( alignedBelow, addbut );
     uiToolButton* editbut = new uiToolButton(toolgrp, "edit",
-				uiStrings::phrEdit(tr("Vintage")),
+				uiStrings::phrEdit(uiStrings::sVintage()),
 				mCB(this,uiSEGYMultiVintageImporter,editVntCB));
     editbut->attach( alignedBelow, removebut );
     toolgrp->attach( rightOf, table_ );

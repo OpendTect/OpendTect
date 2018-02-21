@@ -44,7 +44,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     inpfld_ = new uiIOObjSelGrp( this, ctxt, tr("Input Cubes"), sgsu );
 
     stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
-			BoolInpSpec(true,uiStrings::sStack(),tr("Use first")) );
+		BoolInpSpec(true,uiStrings::sStack(),uiStrings::sUseFirst()) );
     stackfld_->attach( alignedBelow, inpfld_ );
 
     uiSeisTransfer::Setup stsu( Seis::Vol );

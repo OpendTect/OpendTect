@@ -496,6 +496,7 @@ public:
     static uiWord sPointSet(int n=1)	{ return tr("PointSet",0,n); }
     static uiWord sPolygon(int n=1)	{ return tr("Polygon",0,n); }
     static uiWord sPosition(int n=1)	{ return tr("Position",0,n); }
+    static uiWord sPositionsDone()	{ return tr("Positions done"); }
     static uiWord sPositive()		{ return tr("Positive"); }
     static uiWord sPostfix()		{ return tr("Postfix"); }
     static uiWord sPostStack()		{ return tr("Poststack"); }
@@ -619,26 +620,35 @@ public:
     static uiWord sSurvey(int n=1)	{ return tr("Survey",0,n); }
     static uiWord sSurveys()		{ return sSurvey(mPlural); }
     static uiWord sTable(int n=1)	{ return tr("Table",0,n); }
+    static uiWord sTaper()		{ return tr("Taper"); }
+    static uiWord sTension()		{ return tr("Tension"); }
     static uiWord sTakeSnapshot()	{ return tr("Take Snapshot"); }
     static uiWord sTexture()		{ return tr("Texture"); }
     static uiWord sTheme()		{ return tr("Theme"); }
+    static uiWord sThinning()		{ return tr("Thinning"); }
+    static uiWord sThreshold()		{ return tr("Threshold"); }
     static uiWord sTile()		{ return tr("Tile"); }
     static uiWord sTime()		{ return tr("Time"); }
     static uiWord sTitle()		{ return tr("Title"); }
     static uiWord sTmpStor()	    { return tr("Temporary storage location"); }
-    static uiWord sToolbar()		{ return tr("Toolbar"); }
+    static uiWord sToolBar(int n=1)	{ return tr("Tool Bar",0,n); }
     static uiWord sTools()		{ return tr("Tools"); }
     static uiWord sTop()		{ return tr("Top"); }
     static uiWord sTopHor()		{ return tr("Top Horizon"); }
+    static uiWord sTrc()		{ return tr("Trc","abbr trace"); }
     static uiWord sTrace(int n=1)	{ return tr("Trace",0,n); }
     static uiWord sTraceNumber()	{ return tr("Trace number"); }
     static uiWord sTrack()		{ return tr("Track","verb"); }
     static uiWord sTracking()		{ return tr("Tracking"); }
+    static uiWord sTrackPad()		{ return tr("Track Pad"); }
     static uiWord sTransform()		{ return tr("Transform"); }
+    static uiWord sTranslator()		{ return tr("Translator"); }
     static uiWord sTransparency()	{ return tr("Transparency"); }
+    static uiWord sTriangulation()	{ return tr("Triangulation"); }
     static uiWord sTVDSS()		{ return tr("TVDSS"); }
     static uiWord sType()		{ return tr("Type"); }
-    static uiWord sUndef()		{ return tr("undef"); }
+    static uiWord sUndef(bool abbr=true)
+    { return abbr ? tr("undef") : tr("Undefined"); }
     static uiWord sUndefVal()		{ return tr("Undefined Value"); }
     static uiWord sUndo()		{ return tr("Undo"); }
     static uiWord sUnion()		{ return tr("Union","of sets"); }
@@ -646,18 +656,24 @@ public:
     static uiWord sUnload()		{ return tr("Unload"); }
     static uiWord sUnlock()		{ return tr("Unlock"); }
     static uiWord sUp()			{ return tr("Up"); }
+    static uiWord sUpdate()		{ return tr("Update"); }
     static uiWord sUpdatingDB()		{ return tr("Updating database"); }
     static uiWord sUpdatingDisplay()	{ return tr("Updating display"); }
     static uiWord sUse()		{ return tr("Use"); }
+    static uiWord sUseFirst()		{ return tr("Use First"); }
     static uiWord sUseSingleColor()	{ return tr("Use Single Color"); }
     static uiWord sUserSettings()	{ return tr("User Settings"); }
     static uiWord sUtilities()		{ return tr("Utilities"); }
     static uiWord sVariable( bool math )
     { return math ? tr("Variable","in math") : tr("Variable","changing"); }
     static uiWord sValue(int n=1)	{ return tr("Value",0,n); }
+    static uiWord sVD(bool abbr=false)
+    { return abbr ? tr("VD","abbr Var Density") : tr("Variable Density"); }
     static uiWord sVelocity(int n=1)	{ return tr("Velocity",0,n); }
     static uiWord sVertical()		{ return tr("Vertical"); }
     static uiWord sView()		{ return tr("View"); }
+    static uiWord sVintage()		{ return tr("Vintage"); }
+    static uiWord sVisualization()	{ return tr("Visualization"); }
     static uiWord sVolume(int n=1)	{ return tr("Volume",0,n); }
     static uiWord sWarning()		{ return tr("Warning"); }
     static uiWord sWaveNumber()		{ return tr("Wavenumber"); }
@@ -673,6 +689,8 @@ public:
     static uiWord sWrite()		{ return tr("Write"); }
     static uiWord sWriting()		{ return tr("Writing"); }
     static uiWord sX()			{ return tr("X-coordinate"); }
+    static uiWord sWVA(bool abbr=false)
+    { return abbr ? tr("WVA","abbr Wiggle/Var Area") : tr("Wiggle/VarArea"); }
     static uiWord sXcoordinate()	{ return tr("X"); }
     static uiWord sY()			{ return tr("Y"); }
     static uiWord sY1()			{ return tr("Y1"); }

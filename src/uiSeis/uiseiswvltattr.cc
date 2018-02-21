@@ -159,7 +159,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     freqdrawer_->attach( ensureBelow, timedrawer_ );
     freqdrawer_->taperChanged.notify(mCB(this,uiSeisWvltTaperDlg,act) );
 
-    typefld_ = new uiGenInput( this, tr("Taper"),
+    typefld_ = new uiGenInput( this, uiStrings::sTaper(),
 		    BoolInpSpec(true, istime ? uiStrings::sTime()
                                              : uiStrings::sDepth(),
                                                uiStrings::sFrequency()));

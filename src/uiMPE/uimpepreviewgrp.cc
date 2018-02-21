@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uiflatviewer.h"
 #include "uigraphicsview.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 
 namespace MPE
@@ -34,7 +35,7 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
 {
     wvafld_ = new uiCheckList( this, uiCheckList::OneMinimum,
 			       OD::Horizontal );
-    wvafld_->addItem( tr("WVA") ).addItem( tr("VD") );
+    wvafld_->addItem( uiStrings::sWVA() ).addItem( uiStrings::sVD() );
     wvafld_->changed.notify( mCB(this,uiPreviewGroup,wvavdChgCB) );
 
     vwr_ = new uiFlatViewer( this );

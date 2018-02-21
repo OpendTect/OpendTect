@@ -284,7 +284,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     horsep->attach( stretchedRightTo, geomgrp );
     uiGroup* datagrp = new uiGroup( this );
     stckfld_ = new uiGenInput( datagrp, tr("Duplicate positions"),
-		       BoolInpSpec(true,uiStrings::sStack(),tr("Use first")) );
+	       BoolInpSpec(true,uiStrings::sStack(),uiStrings::sUseFirst()) );
     datagrp->setHAlignObj( stckfld_->attachObj() );
     datagrp->attach( rightTo, geomgrp );
     datagrp->attach( ensureRightOf, horsep );

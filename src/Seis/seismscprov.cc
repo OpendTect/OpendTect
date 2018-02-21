@@ -451,7 +451,7 @@ od_int64 nrDone() const
 { return nrdone_; }
 
 uiString nrDoneText() const
-{ return tr("Positions done"); }
+{ return uiStrings::sPositionsDone(); }
 
 uiString message() const
 { return errmsg_.isEmpty() ? tr("Reading Steering traces") : errmsg_; }

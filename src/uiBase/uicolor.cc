@@ -161,7 +161,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& setup, const char* nm )
     uiLabeledSpinBox* lsb = 0;
     if ( setup.transp_ == Setup::Separate )
     {
-	lsb = new uiLabeledSpinBox( this, tr("Transp"), 0 );
+	lsb = new uiLabeledSpinBox( this, uiStrings::sTransparency(), 0 );
 	lsb->attach( rightOf, colbut_ );
 	transpfld_ = lsb->box();
 	transpfld_->setSuffix( tr("%") );

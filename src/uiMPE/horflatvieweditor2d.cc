@@ -600,7 +600,7 @@ bool HorizonFlatViewEditor2D::selectSeedData(
 
     if ( vdvisible && wvavisible )
 	pickinvd = uiMSG().question( tr("Which one is your seed data?"),
-				     tr("VD"), uiStrings::sWiggle() );
+				     uiStrings::sVD(), uiStrings::sWVA() );
     else if ( vdvisible )
 	pickinvd = true;
     else if ( wvavisible )

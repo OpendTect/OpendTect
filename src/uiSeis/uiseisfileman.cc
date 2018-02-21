@@ -332,7 +332,7 @@ void uiSeisFileMan::mkFileInfo()
 	const IOPar& pars = curioobj_->pars();
 	FixedString parstr = pars.find( "Type" );
 	if ( !parstr.isEmpty() )
-	    txt.appendPhrase( tr("Type"), uiString::NoSep )
+	    txt.appendPhrase( uiStrings::sType(), uiString::NoSep )
 			    .appendPlainText(": ").appendPlainText( parstr );
 
 	parstr = pars.find( "Optimized direction" );
