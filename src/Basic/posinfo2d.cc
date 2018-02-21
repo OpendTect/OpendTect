@@ -206,6 +206,7 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 	return false;
 
     posns_.erase();
+    bendpoints_.erase();
     for ( int idx=0; idx<linesz; idx++ )
     {
 	int trcnr = -1;
@@ -258,6 +259,12 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
     }
 
     return strm.isOK();
+}
+
+
+void PosInfo::Line2DData::setBendPoints( const TypeSet<int>& bendpoints )
+{
+    bendpoints_ = bendpoints;
 }
 
 
