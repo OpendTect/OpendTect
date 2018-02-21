@@ -324,11 +324,26 @@ bool od_stream::isLocal() const
 }
 
 
+BufferString od_stream::noStdStreamPErrMsg() const
+{
+    BufferString msg( "stdStream() requested but none available" );
+    msg.add( "\n\tfilename=" ).add( sd_.fileName() );
+    if ( sd_.iStrm() )
+	msg.add( "\n\tistream available" );
+    if ( sd_.oStrm() )
+	msg.add( "\n\tostream available" );
+    msg.add( "\n\tmine_=" ).add( mine_ );
+    msg.add( "\n\tnoclose_=" ).add( noclose_ );
+    msg.add( "\n\terrmsg_=" ).add( toString(errmsg_) );
+    return msg;
+}
+
+
 std::istream& od_istream::stdStream()
 {
     if ( sd_.iStrm() )
 	return *sd_.iStrm();
-    pErrMsg( "stdStream() requested but none available" );
+    pErrMsg( noStdStreamPErrMsg() );
     return nullStream().stdStream();
 }
 
@@ -337,7 +352,7 @@ std::ostream& od_ostream::stdStream()
 {
     if ( sd_.oStrm() )
 	return *sd_.oStrm();
-    pErrMsg( "stdStream() requested but none available" );
+    pErrMsg( noStdStreamPErrMsg() );
     return nullStream().stdStream();
 }
 

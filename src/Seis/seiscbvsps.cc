@@ -19,8 +19,6 @@
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seistrc.h"
-#include "strmoper.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "survgeom.h"
 #include "uistrings.h"
@@ -210,14 +208,14 @@ bool SeisCBVSPSIO::get3DFileNames( BufferStringSet& bss,
 bool SeisCBVSPSIO::getSampleNames( BufferStringSet& nms ) const
 {
     const BufferString fnm( File::Path(dirnm_,cSampNmsFnm).fullPath() );
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() ) return false;
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	return false;
 
     nms.erase();
     BufferString nm;
-    while ( StrmOper::readLine(*sd.iStrm(),&nm) )
+    while ( strm.getLine(nm) && !nm.isEmpty() )
 	nms.add( nm.buf() );
-    sd.close();
 
     return true;
 }
@@ -233,14 +231,13 @@ bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
 	return true;
     }
 
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() ) return false;
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+	return false;
 
-    *sd.oStrm() << nms.get(0);
+    strm << nms.get(0);
     for ( int idx=1; idx<nms.size(); idx++ )
-	*sd.oStrm() << '\n' << nms.get(idx);
-    sd.close();
-
+	strm << '\n' << nms.get(idx);
     return true;
 }
 

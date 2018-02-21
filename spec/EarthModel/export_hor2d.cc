@@ -11,20 +11,20 @@ static const char* rcsID = "$Id$";
 
 #include "prog.h"
 
-#include "ioobjctxt.h"
+#include "dbman.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
+#include "executor.h"
 #include "initearthmodel.h"
-#include "dbman.h"
+#include "ioobjctxt.h"
 #include "linesetposinfo.h"
+#include "od_ostream.h"
 #include "position.h"
 #include "ptrman.h"
-#include "strmprov.h"
 #include "survinfo.h"
-#include "executor.h"
 
 
 struct HorLine2D
@@ -108,17 +108,17 @@ static int doWork( int argc, char** argv )
     if ( horizons.isEmpty() ) return prError( "No valid horizons found" );
 
     BufferString fnm( argv[2] );
-    StreamData sdo = StreamProvider(fnm).makeOStream();
-    if ( !sdo.usable() )
+    od_ostream outstrm( fnm );
+    if ( !outstrm.isOK() )
 	return prError( "Cannot open output file" );
 
-    std::ostream& outstrm = *sdo.ostrm;
     for ( int idx=0; idx<horizons.size(); idx++ )
     {
-	if ( idx>0 ) outstrm << '\t';
+	if ( idx>0 )
+	    outstrm << '\t';
 	outstrm << horizons[idx]->name();
     }
-    outstrm << std::endl;
+    outstrm << od_endl;
 
     BinID bid;
     for ( int lineidx=0; lineidx<lsdata.nrLines(); lineidx++ )
@@ -145,7 +145,7 @@ static int doWork( int argc, char** argv )
 		const float val = mIsUdf(crd.z) ? udfval : crd.z;
 		outstrm << '\t' << toString(val);
 	    }
-	    outstrm << std::endl;
+	    outstrm << od_endl;
 	}
     }
 

@@ -64,16 +64,16 @@ DefineEnumNames( RSFHeader, Format, 0, "data_format" )
 
 bool RSFHeader::read( const char* fnm )
 {
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )	return false;
-    return read( *(sd.istrm) );
+    od_istream strm( fnm );
+    return read( strm );
 }
 
 
 bool RSFHeader::read( od_istream& istrm )
 {
     char linebuf[256];
-    if ( !istrm ) return false;
+    if ( !istrm.isOK() )
+	return false;
 
     while ( istrm )
     {
@@ -109,15 +109,15 @@ bool RSFHeader::read( od_istream& istrm )
 
 bool RSFHeader::write( const char* fnm ) const
 {
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() ) return false;
-    return write( *(sd.ostrm) );
+    od_ostream strm( fnm );
+    return write( strm );
 }
 
 
 bool RSFHeader::write( od_ostream& ostrm ) const
 {
-    if ( !size() ) return false;
+    if ( !size() || !ostrm.isOK() )
+	return false;
 
     for ( int idx = 0; idx < size(); idx++ )
     {

@@ -307,7 +307,10 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 	if ( geomids.isEmpty() )
 	    return;
 
-	typetobeadded_ = getAddType( action );
+	typetobeadded_ = action != 1 ? Select : DefaultData;
+	if ( action == 3 )
+	    action = RGBA;
+	// addonlyprojline_ = action == 0;
 	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	for ( int idx=geomids.size()-1; idx>=0; idx-- )
 	{

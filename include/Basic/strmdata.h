@@ -18,12 +18,8 @@ ________________________________________________________________________
 #include <iosfwd>
 
 
-/*!
-\brief Holds data to use and close an iostream.
-
-  Usually created by StreamProvider.
-  Need to find out what to do with the pipe in windows.
-*/
+/*!\brief Holds data to use and close an iostream. Usually created by
+  StreamProvider. */
 
 
 mExpClass(Basic) StreamData
@@ -70,9 +66,4 @@ private:
 
     PtrMan<StreamDataImpl>	impl_;
 
-public:
-
-				//Use iStrm() and oStrm() instead
-    mDeprecated std::istream*	istrm;
-    mDeprecated std::ostream*	ostrm;
 };

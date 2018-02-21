@@ -20,7 +20,7 @@ static const char* rcsID = "$Id$";
 #include "dbman.h"
 #include "ioobj.h"
 #include "position.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "survinfo.h"
 
 
@@ -67,8 +67,8 @@ static int doWork( int argc, char** argv )
     EM::Horizon3D* horizon = loadHorizon( argv[1], errmsg );
     if ( errmsg != "" ) return prError( errmsg );
 
-    StreamData sd = StreamProvider(argv[2]).makeIStream();
-    if ( !sd.usable() ) return prError( "input_XYV_file not OK" );
+    od_istream strm( argv[2] );
+    if ( !strm.isOK() ) return prError( "input_XYV_file not OK" );
 
     BufferString attribname = argv[3];
     const int dataidx = horizon->auxdata.addAuxData( attribname );
@@ -77,24 +77,24 @@ static int doWork( int argc, char** argv )
     const bool doxy = !strcmp("xy",argv[4]);
 
     EM::PosID posid( horizon->id() );
-    while ( sd.istrm->good() )
+    while ( strm.isOK() )
     {
 	BinID bid;
 	float val;
 	if ( doxy )
 	{
 	    Coord crd;
-	    *sd.istrm >> crd.x >> crd.y >> val;
+	    strm >> crd.x >> crd.y >> val;
 	    bid = SI().transform( crd );
 	}
 	else
-	    *sd.istrm >> bid.inl >> bid.crl >> val;
+	    strm >> bid.inl >> bid.crl >> val;
 
 	posid.setSubID( bid.getSerialized() );
 	if ( horizon->isDefined(posid) )
 	    horizon->auxdata.setAuxDataVal( dataidx, posid, val );
     }
-    sd.close();
+    strm.close();
 
     std::cerr << "Saving data ..." << std::endl;
     PtrMan<Executor> saver = horizon->auxdata.auxDataSaver();

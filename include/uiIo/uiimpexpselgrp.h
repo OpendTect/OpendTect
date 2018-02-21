@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 #include "filepath.h"
-#include "strmdata.h"
+#include "od_iosfwd.h"
 
 class BufferStringSet;
 
@@ -126,7 +126,8 @@ protected:
     BufferString		yname_;
     BufferString		y2name_;
 
-    StreamData			sd_;
+    od_istream*			strm_		= 0;
+
 };
 
 
@@ -144,7 +145,7 @@ public:
 protected:
 
     uiString			errmsg_;
-    StreamData			sd_;
+    od_ostream*			strm_		= 0;
 
 };
 

@@ -32,7 +32,6 @@ static const char* rcsID mUsedVar = "";
 #include "odver.h"
 #include "safefileio.h"
 #include "separstr.h"
-#include "strmprov.h"
 #include "od_iostream.h"
 #include "dbman.h"
 #include "timefun.h"
@@ -159,9 +158,8 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
     else
     {
 	sfio.closeFail();
-	const uiString errmsg = tr(
-		"Error writing Cross-plot Selection index file.\n%1")
-		    .arg( sfio.ostrm().errMsg() );
+	uiString errmsg( tr("Error writing Cross-plot Selection index file") );
+	sfio.ostrm().addErrMsgTo( errmsg );
 	uiMSG().error( errmsg );
 	return false;
     }
@@ -381,26 +379,29 @@ BufferString uiSGSelGrp::getCurFileNm() const
 
 SelGrpImporter::SelGrpImporter( const char* fnm )
 {
-    sd_ = StreamProvider( fnm ).makeIStream();
-    if ( !sd_.usable() )
-    { errmsg_ = tr("Cannot open specified file"); return; }
+    strm_ = new od_istream( fnm );
+    if ( !strm_->isOK() )
+    {
+	errmsg_ = tr("Cannot open specified file");
+	strm_->addErrMsgTo( errmsg_ );
+	delete strm_; strm_ = 0;
+    }
 }
 
 
 SelGrpImporter::~SelGrpImporter()
 {
-    sd_.close();
+    delete strm_;
 }
 
 
 ObjectSet<SelectionGrp> SelGrpImporter::getSelections()
 {
     ObjectSet<SelectionGrp> selgrpset;
-    if ( !sd_.usable() )
+    if ( !strm_ )
 	return selgrpset;
 
-    od_istream strm( *sd_.iStrm() );
-    ascistream astrm( strm, true );
+    ascistream astrm( *strm_, true );
 
     if ( !astrm.isOfFileType(sKeyFileType) )
     {
@@ -430,35 +431,38 @@ ObjectSet<SelectionGrp> SelGrpImporter::getSelections()
 	selgrpset += selgrp;
     }
 
-    sd_.close();
-
+    delete strm_; strm_ = 0;
     return selgrpset;
 }
 
 
 SelGrpExporter::SelGrpExporter( const char* fnm )
 {
-    sd_ = StreamProvider( fnm ).makeOStream();
-    if ( !sd_.usable() )
-    { errmsg_ = tr("Cannot open specified file to write"); return; }
+    strm_ = new od_ostream( fnm );
+    if ( !strm_->isOK() )
+    {
+	errmsg_ = tr("Cannot write to specified file");
+	strm_->addErrMsgTo( errmsg_ );
+	delete strm_; strm_ = 0;
+    }
 }
 
 SelGrpExporter::~SelGrpExporter()
 {
-    sd_.close();
+    delete strm_;
 }
 
 bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
 				    const char* xname, const char* yname,
 				    const char* y2name )
 {
-    if ( !sd_.usable() ) return false;
+    if ( !strm_ )
+	return false;
 
-    od_ostream strm( *sd_.oStrm() );
-    ascostream astrm( strm );
+    ascostream astrm( *strm_ );
 
     if ( !selgrps.size() )
-    { errmsg_ = tr("No selections found"); return false; }
+	{ errmsg_ = tr("No selections found"); return false; }
 
     IOPar selectionpar;
     selectionpar.set( IOPar::compKey(sKey::Attribute(),"X"), xname );
@@ -481,8 +485,12 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
     selectionpar.write( astrm.stream(), sKeyFileType );
     const bool ret = astrm.isOK();
     if ( !ret )
+    {
 	errmsg_ = tr("Error during write");
-    sd_.close();
+	strm_->addErrMsgTo( errmsg_ );
+    }
+
+    delete strm_; strm_ = 0;
     return ret;
 }
 

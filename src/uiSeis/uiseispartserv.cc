@@ -397,11 +397,11 @@ bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
     uiUserShowWait usw( parent(), uiStrings::sCollectingData() );
     uiSeis2DLineChoose* lchfld =
 		new uiSeis2DLineChoose( &dlg, OD::ChooseAtLeastOne );
-    BufferStringSet options;
-    options.add( "Display projection lines only" )
-	   .add( "Load default data" )
-	   .add( "Select attribute" )
-	   .add( "Color blended" );
+    uiStringSet options;
+    options.add( tr("Display projection lines only") )
+	   .add( tr("Load default data") )
+	   .add( tr("Select attribute") )
+	   .add( tr("Color blended") );
     uiGenInput* optfld =
 	new uiGenInput( &dlg, tr("On OK"), StringListInpSpec(options) );
     optfld->setValue( seis2dloadaction );

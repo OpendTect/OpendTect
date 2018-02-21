@@ -21,8 +21,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "file.h"
 #include "filepath.h"
-#include "strmoper.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "seisioobjinfo.h"
 
 #include "uigeninput.h"
@@ -261,22 +260,22 @@ void uiSEGYFileSpec::fileSel( CallBacker* )
 	return;
 
     const SEGY::FileSpec spec( getSpec() );
-    const char* fnm = spec.fileName();
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    const bool doesexist = sd.usable();
+    od_istream strm( spec.fileName() );
+    const bool doesexist = strm.isOK();
     manipbut_->setSensitive( doesexist );
     if ( !doesexist )
 	return;
 
-    StrmOper::seek( *sd.iStrm(), 3200, std::ios::beg );
+    strm.setReadPosition( 3200 );
     unsigned char buf[400];
-    StrmOper::readBlock( *sd.iStrm(), buf, 400 );
-    sd.close();
+    strm.getBin( buf, 400 );
+    strm.close();
     SEGY::BinHeader bh; bh.setInput( buf );
     bh.guessIsSwapped();
     swpd_ = bh.isSwapped();
     isieee_ = bh.format() == 5;
     issw_ = false;
+
     //TODO: find out how we can detect SeisWare SEG-Y files
     // The problem is they write IEEE native PC little-endian
     // the Rev. 1 standard says it needs to be big-endian, i.e. byte-swapped)

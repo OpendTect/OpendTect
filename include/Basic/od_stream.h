@@ -107,4 +107,6 @@ protected:
     bool		noclose_	= false;
     mutable uiString	errmsg_;
 
+    BufferString	noStdStreamPErrMsg() const;
+
 };

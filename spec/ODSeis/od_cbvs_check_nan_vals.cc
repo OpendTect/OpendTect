@@ -37,17 +37,15 @@ int main( int argc, char** argv )
     }
 
     File::Path fp( argv[1] );
-    
+
     if ( !File::exists(fp.fullPath()) )
     {
         od_cout() << fp.fullPath() << " does not exist" << od_endl;
         ExitProgram( 1 );
     }
-    
+
     if ( !fp.isAbsolute() )
-    {
         fp.insert( File::getCurrentPath() );
-    }
 
     BufferString fname=fp.fullPath();
 
@@ -56,12 +54,13 @@ int main( int argc, char** argv )
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
 	{ od_cout() << tri->errMsg() << od_endl; ExitProgram( 1 ); }
 
-    fp.set( argv[2] ); 
-    if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
+    fp.set( argv[2] );
+    if ( !fp.isAbsolute() )
+	{ fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
-    StreamData outsd = StreamProvider( fname ).makeOStream();
-    if ( !outsd.usable() )
+    od_ostream outstrm( fname );
+    if ( !outstrm.isOK() )
         { od_cout() << "Cannot open output file" << od_endl; ExitProgram(1); }
 
     SeisTrc trc;
@@ -78,13 +77,13 @@ int main( int argc, char** argv )
 	    {
 		if ( trc.get(isamp,icomp) > 10000 )
 		{
-		    od_cout() trc.info().binid.inl << ' ' 
+		    outstrm << trc.info().binid.inl << ' '
 			     << trc.info().binid.crl << ' '
 			     << trc.get(isamp,icomp) << ' '<<'\n'<< od_endl;
 		}
 		else if (trc.get(isamp,icomp) < -10000 )
 		{
-		    od_cout() << trc.info().binid.inl << ' ' 
+		    outstrm << trc.info().binid.inl << ' '
 			     << trc.info().binid.crl << ' '
 			     << trc.get(isamp,icomp) << ' '<<'\n'<< od_endl;
 		}
@@ -96,4 +95,3 @@ int main( int argc, char** argv )
 
     return ExitProgram( nrwr ? 0 : 1 );
 }
-

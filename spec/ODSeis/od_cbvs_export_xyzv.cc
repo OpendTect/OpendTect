@@ -35,13 +35,13 @@ int main( int argc, char** argv )
     }
 
     File::Path fp( argv[1] );
-    
+
     if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;
         ExitProgram( 1 );
     }
-    
+
     if ( !fp.isAbsolute() )
     {
         fp.insert( File::getCurrentPath() );
@@ -54,12 +54,12 @@ int main( int argc, char** argv )
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
 	{ std::cerr << tri->errMsg() << std::endl; ExitProgram( 1 ); }
 
-    fp.set( argv[2] ); 
+    fp.set( argv[2] );
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
-    StreamData outsd = StreamProvider( fname ).makeOStream();
-    if ( !outsd.usable() )
+    od_ostream outstrm( fname );
+    if ( !outstrm.isOK() )
         { std::cerr << "Cannot open output file" << std::endl; ExitProgram(1); }
 
     SeisTrc trc;
@@ -74,9 +74,9 @@ int main( int argc, char** argv )
 	{
 	    for ( int icomp=0; icomp<nrcomps; icomp++ )
 	    {
-		*outsd.ostrm << coord.x << ' ' << coord.y << ' '
-			     << trc.samplePos(isamp) << ' '
-			     << trc.get(isamp,icomp) << '\n';
+		outstrm << coord.x << ' ' << coord.y << ' '
+			<< trc.samplePos(isamp) << ' '
+			<< trc.get(isamp,icomp) << '\n';
 		nrlwr++;
 	    }
 	}
@@ -87,4 +87,3 @@ int main( int argc, char** argv )
 		<< std::endl;
     ExitProgram( nrwr ? 0 : 1 ); return 0;
 }
-

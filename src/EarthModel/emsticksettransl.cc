@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dbman.h"
 #include "iopar.h"
 #include "ascstream.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include <iostream>
 
 
@@ -150,13 +150,14 @@ lmkEMStickSetReader::lmkEMStickSetReader( EM::StickSet& stickset_, Conn* conn_,
 	return;
     }
 
-    StreamData formatsd = StreamProvider( formatfilename ).makeIStream();
-    while ( formatsd.istrm && *formatsd.istrm )
+    od_istream fmtstrm( formatfilename );
+    while ( fmtstrm.isOK() )
     {
 	BufferString fieldname; Interval<int> rg;
 
-	*formatsd.istrm >> fieldname >> rg.start >> rg.stop;
-	if ( !*formatsd.istrm ) break;
+	fmtstrm >> fieldname >> rg.start >> rg.stop;
+	if ( fmtstrm.isBad() )
+	    break;
 
 	if ( fieldname==lmkEMStickSetTranslator::xstr )
 	    xinterval = rg;
@@ -177,7 +178,7 @@ lmkEMStickSetReader::lmkEMStickSetReader( EM::StickSet& stickset_, Conn* conn_,
 	else if ( fieldname==lmkEMStickSetTranslator::tracestr )
 	    traceinterval = rg;
     }
-    formatsd.close();
+    formatstrm.close();
 
     if ( (  xinterval.start==-1 || xinterval.stop==-1 ||
 	    yinterval.start==-1 || yinterval.stop==-1 ) &&
@@ -379,11 +380,11 @@ lmkEMStickSetWriter::lmkEMStickSetWriter(const EM::StickSet& stickset_,
     , distanceunitinterval( 46, 50 )
     , pointtypeinterval( 51, 51 )
 {
-    StreamData formatsd = StreamProvider( formatfilename ).makeOStream();
-    if ( !formatsd.usable() )
+    od_ostream fmtstrm( formatfilename );
+    if ( fmtstrm.isBad() )
 	return;
 
-    std::ostream& formatfile = *formatsd.ostrm;
+    std::ostream& formatfile = *fmtstrm.stdStream();
     formatfile  << lmkEMStickSetTranslator::xstr
 		<< '\t' << '\t' << '\t' << xinterval.start
 		<< '\t' << xinterval.stop << '\n';

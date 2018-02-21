@@ -12,7 +12,6 @@
 #include "seistrc.h"
 #include "posauxinfo.h"
 #include "survinfo.h"
-#include "strmprov.h"
 #include "file.h"
 #include "dbman.h"
 #include "iopar.h"
@@ -26,6 +25,7 @@
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seis2dlineio.h"
+#include "od_istream.h"
 #include "uistrings.h"
 
 #include <float.h>
@@ -40,23 +40,21 @@ const char* SeisPacketInfo::sKeyZRange = "Z range";
 
 static BufferString getUsrInfo()
 {
-    BufferString bs;
+    BufferString ret;
     const char* envstr = GetEnvVar( "DTECT_SEIS_USRINFO" );
-    if ( !envstr || !File::exists(envstr) ) return bs;
+    if ( !envstr || !File::exists(envstr) )
+	return ret;
 
-    StreamData sd = StreamProvider(envstr).makeIStream();
-    if ( sd.usable() )
+    od_istream strm( envstr );
+    BufferString linebuf;
+    while ( strm.isOK() )
     {
-	char buf[1024];
-	while ( *sd.iStrm() )
-	{
-	    sd.iStrm()->getline( buf, 1024 );
-	    if ( *(const char*)bs ) bs += "\n";
-	    bs += buf;
-	}
+	strm.getLine( linebuf );
+	if ( !linebuf.isEmpty() )
+	    ret.addNewLine().add( linebuf );
     }
 
-    return bs;
+    return ret;
 }
 
 
@@ -64,7 +62,9 @@ BufferString SeisPacketInfo::defaultusrinfo;
 
 
 void SeisPacketInfo::initClass()
-{ defaultusrinfo = getUsrInfo(); }
+{
+    defaultusrinfo = getUsrInfo();
+}
 
 class SeisEnum
 {

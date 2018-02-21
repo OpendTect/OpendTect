@@ -21,9 +21,9 @@ static const char* rcsID = "$Id$";
 #include "posinfo.h"
 #include "position.h"
 #include "ptrman.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "executor.h"
+#include <iostream>
 
 #define NaN 9
 
@@ -105,11 +105,12 @@ bool getPos( const PosInfo::Line2DData& line, int trcnr, Coord& xypos )
 bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 		   const char* linesetnm, const int nrhors )
 {
-    StreamProvider sp( filename );
-    StreamData sd = sp.makeIStream();
+    od_istream strm( filename );
     std::cerr << "Input File= " << filename << "\n";
-    if ( !sd.usable() ) return prError( "input file is not OK" );
+    if ( !strm.isOK() )
+	return prError( "input file is not OK" );
 
+    std::istream& stdstrm = *strm.stdStream();
     char buf[1024]; char valbuf[80];
     HorLine2D* linedata = 0;
 
@@ -121,9 +122,9 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
     Seis2DLineSet lineset( fnm );
 
     PosInfo::Line2DData line2d;
-    while ( sd.istrm->good() )
+    while ( strm.isOK()
     {
-	sd.istrm->getline( buf, 1024 );
+	stdstrm.getline( buf, 1024 );
 	const char* ptr = getNextWord( buf, valbuf );
 	if ( !ptr || !*ptr )
 	    continue;
@@ -173,7 +174,6 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 	linedata->zvals_ += vals;
     }
 
-    sd.close();
     if ( linedata )
 	data += linedata;
 

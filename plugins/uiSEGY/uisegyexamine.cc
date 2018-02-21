@@ -351,9 +351,8 @@ void uiSEGYExamine::updateInp()
     if ( stoppedatend || nrdone < 1 )
     {
 	uiString str = toUiString("----");
-	const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
 	if ( nrdone < 1 )
-	    str.appendPhrase(tr("No traces found"), uiString::Space, 
+	    str.appendPhrase(tr("No traces found"), uiString::Space,
 							uiString::OnSameLine);
 	else
 	{

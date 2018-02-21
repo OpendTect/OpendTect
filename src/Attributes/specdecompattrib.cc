@@ -15,15 +15,13 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "genericnumer.h"
 #include "survinfo.h"
-#include "strmprov.h"
 #include "transform.h"
 #include "envvars.h"
 #include "math2.h"
 #include "odcomplex.h"
+#include "od_ostream.h"
 
 #include <math.h>
-
-#include <iostream>
 
 #define mTransformTypeFourier		0
 #define mTransformTypeDiscrete	1
@@ -389,16 +387,15 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     const char* fname = GetEnvVar( "OD_PRINT_SPECDECOMP_FILE" );
     if ( fname && *fname )
     {
-	StreamData sd = StreamProvider(fname).makeOStream();
-	if ( sd.usable() )
+	od_ostream strm( fname );
+	if ( strm.isOK() )
 	{
 	    for ( int idx=0; idx<nrsamp; idx++ )
 	    {
 		for ( int idy=0; idy<nrscales; idy++ )
-		    *sd.oStrm() << idx << '\t' << idy << '\t'
+		    strm << idx << '\t' << idy << '\t'
 			      << outputdata.get(idx,idy)<<'\n';
 	    }
-	    sd.close();
 	}
     }
 

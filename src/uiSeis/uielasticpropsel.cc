@@ -25,8 +25,8 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "mathexpression.h"
 #include "propertyref.h"
-#include "strmprov.h"
 #include "od_helpids.h"
+
 
 uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
 				const BufferStringSet& ppnms, int idx )
@@ -451,20 +451,18 @@ bool uiElasticPropSelDlg::savePropSel()
 
 bool uiElasticPropSelDlg::doStore( const IOObj& ioobj )
 {
-    const BufferString fnm( ioobj.fullUserExpr(false) );
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    bool rv = false;
-    if ( !sd.usable() )
-	uiMSG().error( uiStrings::sCantOpenOutpFile() );
-    else if ( !elpropsel_.put(&ioobj) )
-	uiMSG().error(uiStrings::phrCannotWrite(uiStrings::sFile().toLower()));
+    propsaved_ = false;
+    if ( !elpropsel_.put( &ioobj ) )
+	uiMSG().error(
+		uiStrings::phrCannotWrite(
+		    toUiString(ioobj.fullUserExpr(false))));
     else
-	rv = true;
+    {
+	propsaved_ = true;
+	storedmid_ = ioobj.key();
+    }
 
-    sd.close();
-    storedmid_ = ioobj.key();
-    propsaved_ = true;
-    return rv;
+    return propsaved_;
 }
 
 
@@ -476,12 +474,6 @@ bool uiElasticPropSelDlg::openPropSel()
 	return false;
 
     ctio_.setObj( dlg.ioObj()->clone() );
-    const BufferString fnm( ctio_.ioobj_->fullUserExpr(true) );
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
-	mErrRet( uiStrings::sCantOpenInpFile(), return false; )
-    sd.close();
-
     if ( !doRead( ctio_.ioobj_->key() ) )
 	mErrRet( tr("Unable to read elastic property selection"),
 		 return false; );
