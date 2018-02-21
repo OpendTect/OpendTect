@@ -104,22 +104,17 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 	mErrStrmRet("Missing subselection")
 
     sd.rg.usePar( *subpar );
-    PtrMan<EM::SurfaceIODataSelection> sel = new EM::SurfaceIODataSelection(sd);
-    PtrMan<Executor> exec = EM::MGR().objectLoader( id, sel );
-    if ( !exec || !exec->execute() )
-	mErrStrmRet("Cannot load horizon")
-
-    EM::Object* obj = EM::MGR().getObject( id );
+    SilentTaskRunnerProvider trprov;
+    ConstRefMan<EM::Object> obj = EM::Hor3DMan().fetch( id, trprov );
     if ( !obj )
 	mErrStrmRet("Failed");
 
-    mDynamicCastGet( EM::Horizon3D*, hor, obj );
+    mDynamicCastGet( const EM::Horizon3D*, hor, obj.ptr() );
     if ( !hor )
 	mErrStrmRet("Failed");
 
     strm << "Done" << od_endl;
     hor->ref();
-    exec.erase();
 
     FixedString attribnm = find( ODGMT::sKeyAttribName() );
     const bool isz = attribnm == ODGMT::sKeyZVals();
@@ -127,11 +122,10 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     {
 	strm << "Loading Horizon Data \"" << attribnm << "\" ... ";
 	const int selidx = sd.valnames.indexOf( attribnm.str() );
-	exec = hor->auxdata.auxDataLoader( selidx );
+	PtrMan<Executor> exec = hor->auxdata.auxDataLoader( selidx );
 	if ( !exec || !exec->execute() )
 	    mErrStrmRet("Failed");
 
-	exec.erase();
 	strm << "Done" << od_endl;
     }
 

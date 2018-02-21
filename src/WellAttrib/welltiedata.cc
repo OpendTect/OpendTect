@@ -193,6 +193,7 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
     horizons_.erase();
     if ( !wd_ ) return;
     EM::ObjectManager& mgr = EM::MGR();
+    ExistingTaskRunnerProvider trprov( &taskr );
     for ( int idx=0; idx<horids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = DBM().get( horids[idx] );
@@ -203,27 +204,14 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
 	    return;
 	}
 
-	RefMan<EM::Object> emobj = mgr.getObject( horids[idx] );
-	bool success = true;
-	if ( !emobj || !emobj->isFullyLoaded() )
+	ConstRefMan<EM::Object> emobj = mgr.fetch( horids[idx], trprov );
+	if ( !emobj )
 	{
-	    success = false;
-	    PtrMan<Executor> exec = mgr.objectLoader( horids[idx] );
-	    if ( exec )
-	    {
-		if ( TaskRunner::execute( &taskr, *exec ) )
-		    success = true;
-	    }
-	    if ( success )
-		emobj = mgr.getObject( horids[idx] );
-	    else
-	    {
-		errms = tr("Cannot load %1.")
-		      .arg(ioobj->uiName());
-		return;
-	    }
+	    errms = tr("Cannot load %1.").arg(ioobj->uiName());
+	    return;
 	}
-	mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
+
+	mDynamicCastGet(const EM::Horizon*,hor,emobj.ptr())
 	if ( !hor )
 	    continue;
 	WellHorIntersectFinder whfinder( wd_->track(), &wd_->d2TModel() );
@@ -283,7 +271,8 @@ DataWriter::DataWriter( Well::Data& wd, const DBKey& wellid )
 bool DataWriter::writeD2TM() const
 {
     if ( !wd_ ) return false;
-    const uiRetVal uirv = Well::MGR().store( *wd_, wellid_ );
+    SilentTaskRunnerProvider trprov;
+    const uiRetVal uirv = Well::MGR().store( *wd_, wellid_, trprov );
     if ( !uirv.isOK() )
 	{ errmsg_ = uirv; return false; }
 
@@ -300,9 +289,10 @@ bool DataWriter::writeLogs( const Well::LogSet& logset, bool todisk ) const
 	wdlogset.add( new Well::Log( iter.log() ) );
     iter.retire();
 
+    SilentTaskRunnerProvider trprov;
     if ( todisk )
     {
-	const uiRetVal uirv = Well::MGR().store( *wd_, wellid_ );
+	const uiRetVal uirv = Well::MGR().store( *wd_, wellid_, trprov );
 	if ( !uirv.isOK() )
 	    { errmsg_ = uirv; return false; }
     }

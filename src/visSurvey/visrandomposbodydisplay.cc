@@ -184,14 +184,8 @@ bool RandomPosBodyDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyPSEarthModelID(),newmid) )
     {
-	RefMan<EM::Object> emobject = EM::BodyMan().getObject( newmid );
-	if ( !emobject )
-	{
-	    PtrMan<Executor> loader = EM::BodyMan().objectLoader( newmid );
-	    if ( loader ) loader->execute();
-	    emobject = EM::BodyMan().getObject( newmid );
-	}
-
+	SilentTaskRunnerProvider trprov;
+	ConstRefMan<EM::Object> emobject = EM::BodyMan().fetch( newmid, trprov);
 	if ( emobject ) setEMID( newmid );
     }
     else

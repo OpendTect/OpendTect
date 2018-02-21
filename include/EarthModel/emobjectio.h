@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 class Executor;
-class TaskRunner;
+class TaskRunnerProvider;
 
 namespace EM
 {
@@ -32,7 +32,7 @@ namespace EM
 class Object;
 class SurfaceIODataSelection;
 
-mExpClass(EarthModel) ObjectLoader
+mExpClass(EarthModel) ObjectLoader : public CallBacker
 {
 public:
 
@@ -42,11 +42,11 @@ public:
 				const SurfaceIODataSelection*,factory)
 
     virtual uiString	userName()		= 0;
-    virtual bool	load(TaskRunner*)	= 0;
-    virtual Executor*	getLoader() const	= 0;
+    virtual bool	load(const TaskRunnerProvider&);
 
     RefObjectSet<Object> getLoadedEMObjects() const { return emobjects_; }
     const DBKeySet&	tobeLodedKeys() const { return dbkeys_; }
+    const DBKeySet&	notLoadedKeys() const { return notloadedkeys_; }
     virtual bool	allOK() const
 			{ return notloadedkeys_.isEmpty(); }
 
@@ -56,6 +56,7 @@ protected:
 				     const SurfaceIODataSelection*);
 
     virtual void	addObject( Object* obj ) { emobjects_ += obj; }
+    virtual Executor*	createLoaderExec();
 
     DBKeySet		dbkeys_;
     const SurfaceIODataSelection* sel_;
@@ -63,10 +64,12 @@ protected:
     RefObjectSet<Object> emobjects_;
 
     friend class	ObjectLoaderExec;
+    friend class	ObjectManager;
+    friend class	StoredObjAccessData;
 
 private:
 
-    Executor*		fetchLoader(Object*) const;
+    Executor*		fetchReader(Object*) const;
 
 };
 
@@ -86,9 +89,6 @@ public:
 
     uiString		userName() {return uiStrings::sFaultStickSet(mPlural);}
 
-    virtual bool	load(TaskRunner*);
-    virtual Executor*	getLoader() const;
-
 };
 
 
@@ -105,9 +105,6 @@ public:
 				      const SurfaceIODataSelection*);
 
     uiString		userName() { return uiStrings::sFault(mPlural); }
-
-    virtual bool	load(TaskRunner*);
-    virtual Executor*	getLoader() const;
 
 };
 
@@ -126,9 +123,6 @@ public:
 
     uiString		userName() { return uiStrings::sHorizon(mPlural); }
 
-    virtual bool	load(TaskRunner*);
-    virtual Executor*	getLoader() const;
-
 };
 
 
@@ -146,9 +140,6 @@ public:
 
     uiString		userName() { return uiStrings::s2DHorizon(mPlural); }
 
-    virtual bool	load(TaskRunner*);
-    virtual Executor*	getLoader() const;
-
 };
 
 
@@ -165,9 +156,6 @@ public:
 				   const SurfaceIODataSelection*);
 
     uiString		userName() { return uiStrings::sBody(mPlural); }
-
-    virtual bool	load(TaskRunner*);
-    virtual Executor*	getLoader() const;
 
 };
 
@@ -191,7 +179,7 @@ public:
 
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
+    virtual uiRetVal	doStore(const IOObj&,const TaskRunnerProvider&) const;
 };
 
 
@@ -206,7 +194,7 @@ public:
 			~FaultStickSetSaver();
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
+    virtual uiRetVal	doStore(const IOObj&,const TaskRunnerProvider&) const;
 };
 
 
@@ -221,7 +209,7 @@ public:
 			~Fault3DSaver();
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
+    virtual uiRetVal	doStore(const IOObj&,const TaskRunnerProvider&) const;
 };
 
 
@@ -236,7 +224,7 @@ public:
 			~Horizon3DSaver();
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
+    virtual uiRetVal	doStore(const IOObj&,const TaskRunnerProvider&) const;
 };
 
 
@@ -251,7 +239,7 @@ public:
 			~Horizon2DSaver();
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
+    virtual uiRetVal	doStore(const IOObj&,const TaskRunnerProvider&) const;
 };
 
 
@@ -266,7 +254,7 @@ public:
 			~BodySaver();
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
+    virtual uiRetVal	doStore(const IOObj&,const TaskRunnerProvider&) const;
 };
 
 } // namespace EM

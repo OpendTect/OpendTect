@@ -278,29 +278,32 @@ Coord Well::Manager::getMapLocation( const ObjID& id ) const
 }
 
 
-uiRetVal Well::Manager::store( const Data& wd,
-				  const IOPar* ioobjpars ) const
+uiRetVal Well::Manager::store( const Data& wd, const TaskRunnerProvider& trprov,
+			       const IOPar* ioobjpars ) const
 {
-    return SaveableManager::store( wd, ioobjpars );
+    return SaveableManager::store( wd, trprov, ioobjpars );
 }
 
 
 uiRetVal Well::Manager::store( const Data& wd, const ObjID& id,
-			      const IOPar* ioobjpars ) const
+			       const TaskRunnerProvider& trprov,
+			       const IOPar* ioobjpars ) const
 {
-    return SaveableManager::store( wd, id, ioobjpars );
+    return SaveableManager::store( wd, id, trprov, ioobjpars );
 }
 
 
-uiRetVal Well::Manager::save( const ObjID& id ) const
+uiRetVal Well::Manager::save( const ObjID& id,
+			      const TaskRunnerProvider& trprov ) const
 {
-    return SaveableManager::save( id );
+    return SaveableManager::save( id, trprov );
 }
 
 
-uiRetVal Well::Manager::save( const Data& wd ) const
+uiRetVal Well::Manager::save( const Data& wd,
+			      const TaskRunnerProvider& trprov ) const
 {
-    return SaveableManager::save( wd );
+    return SaveableManager::save( wd, trprov );
 }
 
 
@@ -453,7 +456,8 @@ void Well::Saver::setWellData( const Data& wd )
 
 
 
-uiRetVal Well::Saver::doStore( const IOObj& ioobj, TaskRunner* ) const
+uiRetVal Well::Saver::doStore( const IOObj& ioobj,
+			       const TaskRunnerProvider& trprov ) const
 {
     uiRetVal uirv;
     ConstRefMan<Data> wd = wellData();

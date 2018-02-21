@@ -601,42 +601,12 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::Object>& objs,
     if ( dbkys.isEmpty() )
 	return;
 
-    ExecutorGroup loaders( "Loading Bodies" );
-    for ( int idx=0; idx<dbkys.size(); idx++ )
-    {
-	PtrMan<IOObj> ioobj = DBM().get( dbkys[idx] );
-	if ( !ioobj )
-	    continue;
-
-	const BufferString translator = ioobj->translator();
-	if ( translator!=EMBodyTranslatorGroup::sKeyUserWord() )
-	    continue;
-
-	Executor* loader = EM::BodyMan().objectLoader( dbkys[idx] );
-	/*
-	BufferString typestr;
-	ioobj->pars().get( sKey::Type(), typestr );
-	EM::Object* object = EM::BodyMan().createTempObject( typestr );
-	if ( !object ) continue;
-
-	object->ref();
-	object->setDBKey( dbkys[idx] );
-	objs += object;*/
-
-	loaders.add( loader );
-    }
-
-    uiTaskRunner execdlg( useparent );
-    if ( !TaskRunner::execute( &execdlg, loaders ) )
+    uiTaskRunnerProvider trprov( useparent );
+    RefObjectSet<EM::Object> emobjs = EM::BodyMan().loadObjects( dbkys, trprov);
+    if ( emobjs.isEmpty() )
 	return;
 
-    for ( int idx=0; idx<dbkys.size(); idx++ )
-    {
-	EM::Object* emobj = EM::BodyMan().getObject( dbkys[idx] );
-	if ( emobj )
-	    objs += emobj;
-    }
-
+    objs = emobjs;
     deepRef( objs );
 }
 
@@ -667,9 +637,9 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::Object>& objs,
     EM::SurfaceIODataSelection sel( sd );
     dlg.iogrp()->getSurfaceSelection( sel );
 
-    uiTaskRunner uitr( parent() );
+    uiTaskRunnerProvider trprov( parent() );
     const RefObjectSet<EM::Object> emobjs =
-	emmgr_.loadObjects( typ, surfaceids, &sel, &uitr );
+		    emmgr_.loadObjects( surfaceids, trprov, &sel );
     if ( !emobjs.isEmpty() )
 	objs.append( emobjs );
 }
@@ -879,10 +849,10 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 
     PtrMan<Executor> exec = 0;
     DBKey key = object->dbKey();
-    uiTaskRunner uitr( parent() );
+    uiTaskRunnerProvider trprov( parent() );
     uiRetVal ret;
     if ( !storeas )
-	ret = emmgr_.save( id, &uitr );
+	ret = emmgr_.save( id, trprov );
     else
     {
 	if ( surface )
@@ -896,7 +866,7 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 	    dlg.getSelection( sel );
 
 	    key = dlg.ioObj() ? dlg.ioObj()->key() : DBKey::getInvalid();
-	    ret = EM::getMgr( id ).saveAs( id, key, &uitr );
+	    ret = EM::getMgr( id ).saveAs( id, key, trprov );
 	}
 	else
 	{
@@ -918,7 +888,7 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 		object->setDBKey( key );
 	    }
 
-	    ret = EM::getMgr( id ).saveAs( id, key, &uitr );
+	    ret = EM::getMgr( id ).saveAs( id, key, trprov );
 	}
     }
 
@@ -1337,8 +1307,9 @@ bool uiEMPartServer::loadSurface( const DBKey& dbky,
     if ( emmgr_.getObject(dbky) )
 	return true;
 
-    Executor* exec = emmgr_.objectLoader( dbky, newsel );
-    if ( !exec )
+    uiTaskRunnerProvider trprov( parent() );
+    RefMan<EM::Object> obj = emmgr_.fetchForEdit( dbky, trprov );
+    if ( !obj )
     {
 	PtrMan<IOObj> ioobj = DBM().get(dbky);
 	BufferString nm = ioobj ? (const char*)ioobj->name()
@@ -1348,17 +1319,7 @@ bool uiEMPartServer::loadSurface( const DBKey& dbky,
 	return false;
     }
 
-    EM::Object* obj = emmgr_.getObject( dbky );
-    obj->ref();
-    uiTaskRunner exdlg( parent() );
-    if ( !TaskRunner::execute( &exdlg, *exec ) )
-    {
-	obj->unRef();
-	return false;
-    }
-
-    delete exec;
-    obj->unRefNoDelete();
+    obj.setNoDelete( true );
     return true;
 }
 
@@ -1644,7 +1605,7 @@ bool uiEMPartServer::usePar( const IOPar& par )
 	    is2dflag = emmgr_.is2D( dbky ) ? 1 : -1;
     }
 
-    uiTaskRunner uitr( parent() );
-    EM::HPreL().load( dbkys, is2dflag > 0, &uitr );
+    uiTaskRunnerProvider trprov( parent() );
+    EM::HPreL().load( dbkys, is2dflag > 0, trprov );
     return true;
 }

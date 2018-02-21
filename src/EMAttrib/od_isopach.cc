@@ -23,14 +23,16 @@ static bool loadHorizon( const DBKey& mid, od_ostream& strm )
 {
     EM::Manager& em = EM::MGR();
     strm << "Loading horizon '" << em.objectName( mid ) << "'" << od_newline;
-    Executor* exec = em.objectLoader( mid );
-    if ( !(exec && exec->go( strm, false, false, 0 )) )
+    LoggedTaskRunnerProvider trprov( strm );
+    ConstRefMan<EM::Object> emobj = em.fetch( mid, trprov );
+    if ( !emobj )
     {
 	strm << "Failed to load horizon: ";
 	strm << em.objectName( mid ).buf() << od_newline;
 	return false;
     }
 
+    emobj.setNoDelete( true );
     return true;
 }
 

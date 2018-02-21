@@ -582,7 +582,8 @@ Probe* uiODViewer2DMgr::createNewProbe( const TrcKeyZSampling& pos ) const
     else
 	newprobe = new ZSliceProbe();
     newprobe->setPos( pos );
-    ProbeMGR().store( *newprobe );
+    SilentTaskRunnerProvider trprov;
+    ProbeMGR().store( *newprobe, trprov );
     return newprobe;
 }
 

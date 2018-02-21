@@ -695,14 +695,9 @@ bool FaultDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
-	RefMan<EM::Object> emobject = EM::Flt3DMan().getObject( newmid );
-	if ( !emobject )
-	{
-	    PtrMan<Executor> loader = EM::Flt3DMan().objectLoader( newmid );
-	    if ( loader ) loader->execute();
-	    emobject = EM::Flt3DMan().getObject( newmid );
-	}
-
+	SilentTaskRunnerProvider trprov;
+	ConstRefMan<EM::Object> emobject =
+			    EM::Flt3DMan().fetch( newmid, trprov );
 	if ( emobject ) setEMObjectID( emobject->id() );
     }
 

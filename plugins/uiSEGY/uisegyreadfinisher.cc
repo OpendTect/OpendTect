@@ -384,7 +384,8 @@ bool uiSEGYReadFinisher::doVSP()
 	wl->addValue( z, trc.get(isamp,0) );
     }
 
-    uirv = Well::MGR().save( wllkey );
+    SilentTaskRunnerProvider trprov;
+    uirv = Well::MGR().save( wllkey, trprov );
     if ( uirv.isError() )
 	mErrRet( uirv )
 

@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "emcommon.h"
 #include "objectset.h"
 #include "uistring.h"
-class Executor;
 
 namespace EM
 {
@@ -47,7 +46,7 @@ public:
     uiString	getError(int iobj=-1) const;
 
     bool	finishRead();	//!< may take a long time
-    Executor*	reader();	//!< will 'run' until reading is finished
+				//!< will 'run' until reading is finished
 
     Object*	object(int iobj=0); //!< returns null until ready
     const Object* object(int iobj=0) const;

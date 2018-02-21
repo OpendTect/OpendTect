@@ -321,7 +321,8 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( uiODSceneProbeParentTreeItem::addDefaultAttribLayer(
 					*applMgr(),*newprobe,true) )
     {
-	ProbeMGR().store( *newprobe );
+	SilentTaskRunnerProvider trprov;
+	ProbeMGR().store( *newprobe, trprov );
 
 	ViewerID invalidvwrid;
 	ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );

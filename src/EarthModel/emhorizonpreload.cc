@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "executor.h"
+#include "emobjectio.h"
 #include "dbman.h"
 #include "dbkey.h"
 #include "ptrman.h"
@@ -42,7 +42,7 @@ EM::HorizonPreLoader::~HorizonPreLoader()
 
 
 bool EM::HorizonPreLoader::load( const DBKeySet& newids, bool is2d,
-				 TaskRunner* tskr )
+				 const TaskRunnerProvider& trprov )
 {
     errmsg_ = uiString::empty();
     if ( newids.isEmpty() )
@@ -52,47 +52,19 @@ bool EM::HorizonPreLoader::load( const DBKeySet& newids, bool is2d,
     uiString msg1( tr("The selected horizons:") );
     uiString msg2;
     int nralreadyloaded = 0;
-    int nrproblems = 0;
-    PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
-    ObjectSet<EM::Object> emobjects;
+    DBKeySet tobeloadedkeys;
     for ( int idx=0; idx<newids.size(); idx++ )
     {
 	const int selidx = loadedids_.indexOf( newids[idx] );
-	if ( selidx > -1 )
+	if ( selidx < 0 )
+	    tobeloadedkeys += newids[idx];
+	else
 	{
 	    msg1.appendPlainText( " '%1'", uiString::NoSep,
 		    uiString::AfterEmptyLine ).arg( loadednms_.get(selidx) );
 	    nralreadyloaded++;
-	    continue;
 	}
-
-	EM::Object* emobj = horman.getObject( newids[idx] );
-	if ( !emobj || !emobj->isFullyLoaded() )
-	{
-	    Executor* exec = horman.objectLoader( newids[idx] );
-	    if ( !exec )
-	    {
-		nrproblems++;
-		continue;
-	    }
-
-	    execgrp->add( exec );
-	}
-
-	emobj = horman.getObject( newids[idx] );
-	emobjects += emobj;
     }
-
-    if ( nrproblems == newids.size() )
-    {
-	if ( newids.size() == 1 )
-	    msg2 = tr( "Cannot find the horizon for pre-load" );
-	else
-	    msg2 = tr( "Cannot find any horizons for pre-load" );
-    }
-    else
-	msg2 = tr("Cannot pre-load some horizons");
-
 
     if ( nralreadyloaded > 0 )
     {
@@ -100,17 +72,29 @@ bool EM::HorizonPreLoader::load( const DBKeySet& newids, bool is2d,
 	errmsg_.appendPhrase( msg1 );
     }
 
-    if ( nrproblems > 0 )
-	errmsg_.appendPhrase( msg2 );
-
-    if ( execgrp->nrExecutors()!=0 &&  !TaskRunner::execute( tskr, *execgrp) )
-	return false;
-
-    for ( int idx=0; idx<emobjects.size(); idx++ )
+    PtrMan<EM::ObjectLoader> loader = horman.objectLoader( tobeloadedkeys );
+    if ( !loader->load(trprov) )
     {
-	loadedids_ += emobjects[idx]->dbKey();
-	loadednms_.add( emobjects[idx]->name() );
-	emobjects[idx]->ref();
+	const DBKeySet& notloadedkeys = loader->notLoadedKeys();
+	if ( notloadedkeys.size() == newids.size() )
+	{
+	    if ( newids.size() == 1 )
+		msg2 = tr( "Cannot find the horizon for pre-load" );
+	    else
+		msg2 = tr( "Cannot find any horizons for pre-load" );
+	}
+	else
+	    msg2 = tr("Cannot pre-load some horizons");
+
+	errmsg_.appendPhrase( msg2 );
+    }
+
+    RefObjectSet<EM::Object> loadedobjs = loader->getLoadedEMObjects();
+    for ( int idx=0; idx<loadedobjs.size(); idx++ )
+    {
+	loadedids_ += loadedobjs[idx]->dbKey();
+	loadednms_.add( loadedobjs[idx]->name() );
+	loadedobjs[idx]->ref();
     }
 
     return true;

@@ -115,7 +115,7 @@ void Saveable::objDelCB( CallBacker* )
 }
 
 
-uiRetVal Saveable::save( TaskRunner* tskr ) const
+uiRetVal Saveable::save( const TaskRunnerProvider& trprov ) const
 {
     mLock4Read();
     if ( !objectalive_ )
@@ -139,7 +139,7 @@ uiRetVal Saveable::save( TaskRunner* tskr ) const
 	    ioobj = DBM().get( storekey_ );
 	}
 
-	uirv = store( *ioobj, tskr );
+	uirv = store( *ioobj, trprov );
 
 	if ( !uirv.isOK() )
 	    mSendChgNotif( cSaveFailedChangeType(), storekey_.toInt64() );
@@ -173,11 +173,12 @@ bool Saveable::storeIsSave( const IOObj& ioobj ) const
 }
 
 
-uiRetVal Saveable::store( const IOObj& ioobj, TaskRunner* tskr ) const
+uiRetVal Saveable::store( const IOObj& ioobj,
+			  const TaskRunnerProvider& trprov ) const
 {
     if ( !objectalive_ )
 	{ pErrMsg("store already deleted object"); return uiRetVal::OK(); }
-    return doStore( ioobj, tskr );
+    return doStore( ioobj, trprov );
 }
 
 
@@ -226,7 +227,8 @@ void SaveableManager::setJustSaved( const ObjID& id ) const
 }
 
 
-uiRetVal SaveableManager::doSave( const ObjID& id, TaskRunner* tskr ) const
+uiRetVal SaveableManager::doSave( const ObjID& id,
+				  const TaskRunnerProvider& trprov ) const
 {
     const IdxType idx = gtIdx( id );
     if ( idx >= 0 )
@@ -235,7 +237,7 @@ uiRetVal SaveableManager::doSave( const ObjID& id, TaskRunner* tskr ) const
 	if ( ioobj && ioobj->isTmp() )
 	    return uiRetVal::OK();
 
-	return savers_[idx]->save( tskr );
+	return savers_[idx]->save( trprov );
     }
 
     return uiRetVal::OK();
@@ -243,23 +245,24 @@ uiRetVal SaveableManager::doSave( const ObjID& id, TaskRunner* tskr ) const
 
 
 uiRetVal SaveableManager::save( const SharedObject& obj,
-						      TaskRunner* tskr ) const
+			        const TaskRunnerProvider& trprov ) const
 {
     mLock4Read();
     const IdxType idx = gtIdx( obj );
-    return idx<0 ? uiRetVal::OK() : doSave( savers_[idx]->key(), tskr );
+    return idx<0 ? uiRetVal::OK() : doSave( savers_[idx]->key(), trprov );
 }
 
 
-uiRetVal SaveableManager::save( const ObjID& id, TaskRunner* tskr ) const
+uiRetVal SaveableManager::save( const ObjID& id,
+			        const TaskRunnerProvider& trprov ) const
 {
     mLock4Read();
-    return doSave( id, tskr );
+    return doSave( id, trprov );
 }
 
 
 uiRetVal SaveableManager::saveAs( const ObjID& id, const ObjID& newid,
-						     TaskRunner* tskr ) const
+				  const TaskRunnerProvider& trprov ) const
 {
     mLock4Read();
 
@@ -269,7 +272,7 @@ uiRetVal SaveableManager::saveAs( const ObjID& id, const ObjID& newid,
 
     Saveable& svr = *const_cast<Saveable*>( savers_[idx] );
     svr.setKey( newid );
-    uiRetVal uirv = doSave( newid, tskr );
+    uiRetVal uirv = doSave( newid, trprov );
     if ( uirv.isError() )
 	{ svr.setKey( id ); return uirv; } // rollback
 
@@ -381,7 +384,8 @@ bool SaveableManager::canSave( const ObjID& id ) const
 
 
 uiRetVal SaveableManager::store( const SharedObject& newobj,
-			      const IOPar* ioobjpars, TaskRunner* tskr ) const
+				 const TaskRunnerProvider& trprov,
+				 const IOPar* ioobjpars ) const
 {
     const BufferString nm = newobj.name();
     if ( nm.isEmpty() )
@@ -401,16 +405,16 @@ uiRetVal SaveableManager::store( const SharedObject& newobj,
 			    toUiString(newobj.name()) );
     }
 
-    return store( newobj, ioobj->key(), ioobjpars, tskr );
+    return store( newobj, ioobj->key(), trprov, ioobjpars );
 }
 
 
 uiRetVal SaveableManager::store( const SharedObject& newobj, const ObjID& id,
-				 const IOPar* ioobjpars,
-				 TaskRunner* tskr ) const
+				 const TaskRunnerProvider& trprov,
+				 const IOPar* ioobjpars ) const
 {
     if ( id.isInvalid() )
-	return store( newobj, ioobjpars, tskr );
+	return store( newobj, trprov, ioobjpars );
 
     mLock4Read();
 
@@ -418,7 +422,7 @@ uiRetVal SaveableManager::store( const SharedObject& newobj, const ObjID& id,
     if ( idxof < 0 )
 	add( newobj, id, mAccessLocker(), ioobjpars, false );
     else
-    { 
+    {
 	SaveableManager& self = *const_cast<SaveableManager*>(this);
 	Saveable& svr = *self.savers_[idxof];
 	if ( svr.object() != &newobj )
@@ -430,7 +434,7 @@ uiRetVal SaveableManager::store( const SharedObject& newobj, const ObjID& id,
 	mUnlockAllAccess();
     }
 
-    return save( id, tskr );
+    return save( id, trprov );
 }
 
 

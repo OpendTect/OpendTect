@@ -98,17 +98,9 @@ bool BodyFiller::setSurface( const DBKey& emid )
 	emobj_ = 0;
     }
 
-    RefMan<EM::Object> emobj = EM::BodyMan().getObject( emid );
-    if ( !emobj || !emobj->isFullyLoaded() )
-    {
-	PtrMan<Executor> loader = EM::BodyMan().objectLoader( emid );
-	if ( !loader || !loader->execute() )
-	    return false;
-
-	emobj = EM::BodyMan().getObject( emid );
-    }
-
-    mDynamicCastGet( EM::Body*, newsurf, emobj.ptr() );
+    SilentTaskRunnerProvider trprov;
+    ConstRefMan<EM::Object> emobj = EM::BodyMan().fetch( emid, trprov );
+    mDynamicCastGet( const EM::Body*, newsurf, emobj.ptr() );
     if ( !newsurf ) return false;
 
     emobj->ref();
@@ -325,7 +317,7 @@ Task* BodyFiller::createTask()
     if ( implicitbody_ )
 	return Step::createTask();
 
-    mDynamicCastGet( EM::PolygonBody*, plg, body_ );
+    mDynamicCastGet( const EM::PolygonBody*, plg, body_ );
     if ( !plg )
 	return 0;
 

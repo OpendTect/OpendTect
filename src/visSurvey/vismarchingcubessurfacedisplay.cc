@@ -625,14 +625,8 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
-	RefMan<EM::Object> emobject = EM::MGR().getObject( newmid );
-	if ( !emobject )
-	{
-	    PtrMan<Executor> loader = EM::MGR().objectLoader( newmid );
-	    if ( loader ) loader->execute();
-	    emobject = EM::MGR().getObject( newmid );
-	}
-
+	SilentTaskRunnerProvider trprov;
+	ConstRefMan<EM::Object> emobject = EM::MGR().fetch( newmid, trprov );
 	if ( emobject ) setEMID( newmid, 0 );
     }
 

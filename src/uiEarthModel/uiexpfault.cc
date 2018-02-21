@@ -253,10 +253,8 @@ bool uiExportFault::writeAscii()
     }
 
     uiTaskRunnerProvider trprov( this );
-    BufferString typnm = issingle_ ? ctio_.ioobj_->group() :
-				    bulkinfld_->getCtxtIOObj().ioobj_->group();
     RefObjectSet<EM::Object> loadedobjs =
-		EM::MGR().loadObjects( typnm, dbkeyset, 0, &trprov.runner() );
+			EM::MGR().loadObjects( dbkeyset, trprov );
     if ( loadedobjs.isEmpty() )
 	return false;
 

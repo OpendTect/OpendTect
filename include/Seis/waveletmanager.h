@@ -28,12 +28,14 @@ public:
 
     ObjID		getID(const Wavelet&) const;
 
-    uiRetVal		store(const Wavelet&,const IOPar* ioobjpars=0) const;
+    uiRetVal		store(const Wavelet&,const TaskRunnerProvider&,
+			      const IOPar* ioobjpars=0) const;
 			//!< uses name to decide whether to create or replace
     uiRetVal		store(const Wavelet&,const ObjID&,
-				const IOPar* ioobjpars=0) const;
-    uiRetVal		save(const ObjID&) const;
-    uiRetVal		save(const Wavelet&) const;
+			      const TaskRunnerProvider&,
+			      const IOPar* ioobjpars=0) const;
+    uiRetVal		save(const ObjID&,const TaskRunnerProvider&) const;
+    uiRetVal		save(const Wavelet&,const TaskRunnerProvider&) const;
     bool		needsSave(const ObjID&) const;
     bool		needsSave(const Wavelet&) const;
 

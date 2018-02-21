@@ -259,7 +259,8 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 	d2t.makeFromTrack( wd->track(), vel_, wd->info().replacementVelocity());
     }
 
-    const uiRetVal uirv = Well::MGR().store( *wd, ioobj.key() );
+    SilentTaskRunnerProvider trprov;
+    const uiRetVal uirv = Well::MGR().store( *wd, ioobj.key(), trprov );
     if ( !uirv.isOK() )
     {
 	uiString msg = tr( "Cannot write data for '%1':\n%2" )

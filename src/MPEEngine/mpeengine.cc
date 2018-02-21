@@ -1010,16 +1010,6 @@ bool Engine::usePar( const IOPar& iopar )
 	}
 
 	if ( !emobj )
-	{
-	    PtrMan<Executor> exec =
-		EM::MGR().objectLoader( MPE::engine().emidtoload_ );
-	    if ( exec ) exec->execute();
-
-	    emobj = EM::MGR().getObject( emidtoload_ );
-	    if ( emobj ) emobj->ref();
-	}
-
-	if ( !emobj )
 	    continue;
 
 	const int trackeridx = addTracker( emobj );

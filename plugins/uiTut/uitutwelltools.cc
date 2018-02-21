@@ -87,7 +87,8 @@ bool uiTutWellTools::acceptOK()
     if ( logtool.runSmooth(gate) )
     {
 	logset.add( outputlog );
-	uiRetVal uirv = Well::MGR().save( *wd_ );
+	SilentTaskRunnerProvider trprov;
+	uiRetVal uirv = Well::MGR().save( *wd_, trprov );
 	if ( uirv.isError() )
 	    mErrRet( uirv )
     }

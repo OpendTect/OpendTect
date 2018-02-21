@@ -43,7 +43,7 @@ protected:
     static uiGMTOverlayGrp*	createInstance(uiParent*);
     static int			factoryid_;
 
-    EM::Horizon3D*	hor_;
+    const EM::Horizon3D* hor_;
     EM::SurfaceIOData&	sd_;
     Interval<float>	valrg_;
 

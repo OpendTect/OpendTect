@@ -132,29 +132,14 @@ bool uiHorSaveFieldGrp::needsFullSurveyArray() const
 
 EM::Horizon* uiHorSaveFieldGrp::readHorizon( const DBKey& oid )
 {
-    EM::Object* emobj = EM::MGR().getObject( oid );
+    uiTaskRunnerProvider trprov( this );
+    RefMan<EM::Object> emobj = EM::MGR().fetchForEdit( oid, trprov );
+    mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
+    if ( !horizon_ )
+	return 0;
 
-    Executor* reader = 0;
-    if ( !emobj || !emobj->isFullyLoaded() )
-    {
-	reader = EM::MGR().objectLoader( oid );
-	if ( !reader )
-	    mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
-
-	uiTaskRunner dlg( this );
-	if ( !TaskRunner::execute( &dlg, *reader ) )
-	{
-	    delete reader;
-	     mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
-	}
-
-	emobj = EM::MGR().getObject( oid );
-    }
-
-    mDynamicCastGet(EM::Horizon*,hor,emobj)
     horizon_ = hor;
     horizon_->ref();
-    delete reader;
     return horizon_;
 }
 
@@ -194,14 +179,19 @@ bool uiHorSaveFieldGrp::saveHorizon()
     if ( !newhorizon_ && savenew && !createNewHorizon() )
 	return false;
 
-    const EM::SurfaceIODataSelection sdsel = getSelection( savenew );
-    PtrMan<Executor> exec = savenew ? newhorizon_->geometry().saver( &sdsel )
-				    : horizon_->geometry().saver( &sdsel );
+    uiTaskRunnerProvider trprov( this );
+    //TODO: const EM::SurfaceIODataSelection sdsel = getSelection( savenew );
+    EM::ObjectManager& mgr = is2d_ ? EM::Hor2DMan() : EM::Hor3DMan();
+    uiRetVal ret = mgr.save( savenew ? newhorizon_->id() : horizon_->id(),
+			     trprov );
+    if ( !ret.isOK() )
+    {
+	uiMSG().errorWithDetails( ret,
+			    uiStrings::phrCannotSave(uiStrings::sHorizon()) );
+	return false;
+    }
 
-    if ( !exec ) mErrRet( uiStrings::phrCannotSave(uiStrings::sHorizon()) );
-
-    uiTaskRunner dlg( this );
-    return TaskRunner::execute( &dlg, *exec );
+    return true;
 }
 
 

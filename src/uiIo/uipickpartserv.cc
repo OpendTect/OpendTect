@@ -146,7 +146,8 @@ bool uiPickPartServer::storePickSets( int polyopt, const char* cat )
 	    doSaveAs( setid, 0 );
 	else
 	{
-	    uiRetVal uirv = Pick::SetMGR().save( setids[idx] );
+	    SilentTaskRunnerProvider trprov;
+	    uiRetVal uirv = Pick::SetMGR().save( setids[idx], trprov );
 	    if ( uirv.isError() )
 		errmsgs.add( uirv );
 	}
@@ -174,7 +175,8 @@ bool uiPickPartServer::storePickSet( const Pick::Set& ps )
     else if ( !Pick::SetMGR().canSave(setid) )
 	return doSaveAs( setid, &ps );
 
-    uiRetVal uirv = Pick::SetMGR().save( setid );
+    SilentTaskRunnerProvider trprov;
+    uiRetVal uirv = Pick::SetMGR().save( setid, trprov );
     if ( uirv.isError() )
 	{ uiMSG().error( uirv ); return false; }
 
@@ -215,7 +217,8 @@ bool uiPickPartServer::doSaveAs( const DBKey& setid, const Pick::Set* ps )
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
 
-    uiString errmsg = Pick::SetMGR().saveAs( setid, dlg.ioObj()->key() );
+    SilentTaskRunnerProvider trprov;
+    uiString errmsg = Pick::SetMGR().saveAs( setid, dlg.ioObj()->key(), trprov);
     if ( !errmsg.isEmpty() )
 	{ uiMSG().error( errmsg ); return false; }
 
@@ -420,7 +423,8 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
 	ps->add( Pick::Location(crd.x_,crd.y_,dps.z(idx)) );
     }
 
-    Pick::SetMGR().store( *ps, id );
+    SilentTaskRunnerProvider trprov;
+    Pick::SetMGR().store( *ps, id, trprov );
 }
 
 

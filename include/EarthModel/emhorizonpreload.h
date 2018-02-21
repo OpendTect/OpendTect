@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 
 
-class TaskRunner;
+class TaskRunnerProvider;
 
 namespace EM
 {
@@ -32,7 +32,7 @@ public:
 				~HorizonPreLoader();
 
     bool			load(const DBKeySet&,bool is2d,
-				     TaskRunner* tskr=0);
+				     const TaskRunnerProvider&);
     DBKey			getDBKey(const char* name) const;
     const DBKeySet&		getPreloadedIDs() const;
     const BufferStringSet&	getPreloadedNames() const;

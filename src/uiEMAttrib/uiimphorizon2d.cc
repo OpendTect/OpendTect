@@ -358,6 +358,7 @@ bool uiImportHorizon2D::doImport()
     ObjectSet<EM::Horizon2D> horizons;
     EM::ObjectManager& mgr = EM::Hor2DMan();
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Surf );
+    SilentTaskRunnerProvider trprov;
     if ( dbdir )
     {
 	for ( int idx=0; idx<hornms.size(); idx++ )
@@ -365,23 +366,10 @@ bool uiImportHorizon2D::doImport()
 	    BufferString nm = hornms.get( idx );
 	    PtrMan<IOObj> ioobj = dbdir->getEntryByName( nm,
 				    EMHorizon2DTranslatorGroup::sGroupName() );
-	    RefMan<EM::Object> emobj = ioobj ? mgr.getObject(ioobj->key())
-						: 0;
+	    RefMan<EM::Object> emobj =
+		    ioobj ? mgr.fetchForEdit(ioobj->key(),trprov) : 0;
 	    if ( emobj )
 		emobj->setBurstAlert( true );
-
-	    PtrMan<Executor> exec = ioobj ? mgr.objectLoader(ioobj->key()) : 0;
-
-	    if ( !ioobj || !exec || !exec->execute() )
-	    {
-		emobj = mgr.createObject( EM::Horizon2D::typeStr(), nm );
-		mDynamicCastGet(EM::Horizon2D*,hor,emobj.ptr());
-		hor->ref();
-		hor->setPreferredColor(getRandomColor());
-		hor->setBurstAlert( true );
-		horizons += hor;
-		continue;
-	    }
 
 	    mDynamicCastGet(EM::Horizon2D*,hor,emobj.ptr());
 	    if ( !hor )

@@ -502,7 +502,8 @@ bool uiWellLogCalc::acceptOK()
 	    newwl->setUnitMeasLabel( outun->name() );
 
 	wls.add( newwl );
-	uirv = Well::MGR().save( dbky );
+	SilentTaskRunnerProvider trprov;
+	uirv = Well::MGR().save( dbky, trprov );
 	if ( !uirv.isOK() )
 	    mErrContinue( uirv )
 

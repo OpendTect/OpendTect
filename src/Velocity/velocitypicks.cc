@@ -423,7 +423,9 @@ bool Picks::store( const IOObj* passedioobj )
 
     PtrMan<IOObj> ioobj = passedioobj->clone();
     fillIOObjPar( ioobj->pars() );
-    uiString errmsg = ::Pick::SetMGR().store( *ps, storageid_, &ioobj->pars() );
+    SilentTaskRunnerProvider trprov;
+    uiString errmsg = ::Pick::SetMGR().store( *ps, storageid_, trprov,
+					      &ioobj->pars() );
     if ( !errmsg.isEmpty() )
 	{ errmsg_ =  errmsg; return false; }
 

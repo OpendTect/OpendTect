@@ -121,7 +121,8 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 		continue;
 
 	    lds[idx]->getOutputLogs( wd->logs() );
-	    uirv.add( Well::MGR().save(dbky) );
+	    SilentTaskRunnerProvider trprov;
+	    uirv.add( Well::MGR().save(dbky,trprov) );
 	}
 	if ( !uirv.isEmpty() )
 	    uiMSG().warning( uirv );

@@ -386,7 +386,8 @@ ProbeSaver::~ProbeSaver()
 mImplMonitorableAssignmentWithNoMembers(ProbeSaver,Saveable)
 
 
-uiRetVal ProbeSaver::doStore( const IOObj& ioobj, TaskRunner* ) const
+uiRetVal ProbeSaver::doStore( const IOObj& ioobj,
+			      const TaskRunnerProvider& ) const
 {
     uiRetVal uirv;
     mDynamicCastGet(const Probe*,probe,object());

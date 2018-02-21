@@ -152,7 +152,8 @@ bool uiWaveletIOObjSel::store( const Wavelet& wvlt, bool askoverwrite )
 	}
     }
 
-    uiRetVal uirv = WaveletMGR().store( wvlt, wvltioobj->key() );
+    SilentTaskRunnerProvider trprov;
+    uiRetVal uirv = WaveletMGR().store( wvlt, wvltioobj->key(), trprov );
     if ( uirv.isError() )
 	{ uiMSG().error( uirv ); return false; }
 

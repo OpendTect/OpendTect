@@ -160,7 +160,8 @@ bool uiCreateAttribLogDlg::acceptOK()
 	if ( !attriblog.doWork( *wd, errmsg ) )
 	    mErrRet( errmsg )
 
-	uiRetVal uirv = Well::MGR().save( dbky );
+	SilentTaskRunnerProvider trprov;
+	uiRetVal uirv = Well::MGR().save( dbky, trprov );
 	if ( uirv.isError() )
 	    { uiMSG().error( uirv ); return false; }
     }

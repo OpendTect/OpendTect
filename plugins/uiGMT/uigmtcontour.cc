@@ -309,23 +309,12 @@ bool uiGMTContourGrp::loadHor()
     const IOObj* ioobj = inpfld_->ioobj();
     if ( !ioobj ) return false;
 
-    RefMan<EM::Object> obj = EM::MGR().getObject( ioobj->key() );
-    if ( !obj || !obj->isFullyLoaded() )
-    {
-	PtrMan<EM::SurfaceIODataSelection> sel =
-					new EM::SurfaceIODataSelection( sd_ );
-	PtrMan<Executor> exec = EM::MGR().objectLoader( ioobj->key(), sel );
-	if ( !exec )
-	    return false;
+    uiTaskRunnerProvider trprov( this );
+    ConstRefMan<EM::Object> obj = EM::MGR().fetch( ioobj->key(), trprov );
+    if ( !obj )
+	return false;
 
-	uiTaskRunner dlg( this );
-	if ( !TaskRunner::execute( &dlg, *exec ) )
-	    return false;
-
-	obj = EM::MGR().getObject( ioobj->key() );
-    }
-
-    mDynamicCastGet(EM::Horizon3D*,hor3d,obj.ptr())
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,obj.ptr())
     if ( !hor3d )
 	return false;
 

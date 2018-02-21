@@ -332,7 +332,8 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 	mRet(uiStrings::phrCannotCreate(tr("new entry in Object Management")))
     else if ( !loader.addToMGR(wvlt,ctio.ioobj_->key()) )
 	mRet(tr("Cannot add Wavelet to Manager"))
-    uiRetVal uirv = WaveletMGR().save( *wvlt );
+    SilentTaskRunnerProvider trprov;
+    uiRetVal uirv = WaveletMGR().save( *wvlt, trprov );
     if ( uirv.isError() )
 	mRet(uirv)
 
@@ -348,7 +349,8 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 	return
 
 #define mStoreWvltChg() \
-    uiRetVal rv = WaveletMGR().store( *wvlt, ky ); \
+    SilentTaskRunnerProvider trprov; \
+    uiRetVal rv = WaveletMGR().store( *wvlt, ky, trprov ); \
     if ( rv.isError() ) \
 	uiMSG().error( rv ); \
     else \

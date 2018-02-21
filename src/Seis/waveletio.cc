@@ -145,7 +145,8 @@ void WaveletSaver::setWavelet( const Wavelet& wvlt )
 
 
 
-uiRetVal WaveletSaver::doStore( const IOObj& ioobj, TaskRunner* ) const
+uiRetVal WaveletSaver::doStore( const IOObj& ioobj,
+				const TaskRunnerProvider& ) const
 {
     uiRetVal uirv;
     PtrMan<WaveletTranslator> transl =

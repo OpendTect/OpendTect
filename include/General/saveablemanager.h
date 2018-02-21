@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "objectset.h"
 class ChangeRecorder;
 class IOObjContext;
-class TaskRunner;
+class TaskRunnerProvider;
 
 /*!\brief Base class for managers of Saveable objects: loading and storing.
 
@@ -50,9 +50,9 @@ public:
 
     bool		nameExists(const char*) const;
     bool		canSave(const ObjID&) const;
-    uiRetVal		save(const ObjID&,TaskRunner* tskr=0) const;
+    uiRetVal		save(const ObjID&,const TaskRunnerProvider&) const;
     uiRetVal		saveAs(const ObjID& curid,const ObjID& newid,
-				TaskRunner* tskr=0) const;
+			       const TaskRunnerProvider&) const;
     bool		needsSave(const ObjID&) const;
     void		setJustSaved(const ObjID&) const;
 
@@ -107,11 +107,12 @@ protected:
 
 			// to be called from public obj-type specific ones
     ObjID		getID(const SharedObject&) const;
-    uiRetVal		store(const SharedObject&,const IOPar*,
-						      TaskRunner* tskr=0) const;
+    uiRetVal		store(const SharedObject&,const TaskRunnerProvider&,
+			      const IOPar*) const;
     uiRetVal		store(const SharedObject&,const ObjID&,
-				    	 const IOPar*,TaskRunner* tskr=0) const;
-    uiRetVal		save(const SharedObject&,TaskRunner* tskr=0) const;
+			      const TaskRunnerProvider&,const IOPar*) const;
+    uiRetVal		save(const SharedObject&,
+			     const TaskRunnerProvider&) const;
     bool		needsSave(const SharedObject&) const;
     IOObj*		getIOObj(const DBKey&) const;
     IOObj*		getIOObjByName(const char*) const;
@@ -123,7 +124,7 @@ protected:
     IdxType		gtIdx(const SharedObject&) const;
     SharedObject*	gtObj(IdxType) const;
     const Saveable*	saverFor(const ObjID&) const;
-    uiRetVal		doSave(const ObjID&,TaskRunner* tskr=0) const;
+    uiRetVal		doSave(const ObjID&,const TaskRunnerProvider&) const;
     void		add(const SharedObject&,const ObjID&,AccessLocker&,
 				const IOPar*,bool) const;
 
@@ -175,7 +176,10 @@ typ& typ::getInstance() \
     ObjID		getID( const SharedObject& obj ) const \
 			{ return SaveableManager::getID(obj); } \
     ObjID		getID(const typ&) const; \
-    uiRetVal		store(const typ&,const IOPar* ioobjpars=0) const; \
-    uiRetVal		store(const typ&,const ObjID&,const IOPar* p=0) const; \
-    uiRetVal		save(const typ&) const; \
+    uiRetVal		store(const typ&,const TaskRunnerProvider&, \
+			      const IOPar* ioobjpars=0) const; \
+    uiRetVal		store(const typ&,const ObjID&, \
+			      const TaskRunnerProvider&, \
+			      const IOPar* p=0) const; \
+    uiRetVal		save(const typ&,const TaskRunnerProvider&) const; \
     bool		needsSave(const typ&) const

@@ -8,6 +8,7 @@
 #include "emstoredobjaccess.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emobjectio.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "threadwork.h"
@@ -29,7 +30,8 @@ public:
 
     DBKey		key_;
     EM::Object*	obj_;
-    Executor*		rdr_;
+    EM::ObjectLoader*	loader_;
+    Executor*		loaderexec_;
     Threads::Work*	work_;
     uiString		errmsg_;
 
@@ -51,7 +53,8 @@ EM::StoredObjAccessData::StoredObjAccessData( const DBKey& ky,
 				    const SurfaceIODataSelection* siods )
     : key_(ky)
     , obj_(0)
-    , rdr_(0)
+    , loader_(0)
+    , loaderexec_(0)
     , work_(0)
 {
     Object* obj = getEMObjFromMGR();
@@ -61,11 +64,12 @@ EM::StoredObjAccessData::StoredObjAccessData( const DBKey& ky,
     }
     else
     {
-	rdr_ = EM::MGR().objectLoader( key_, siods );
-	if ( !rdr_ )
+	loader_ = EM::MGR().objectLoader( key_, siods );
+	loaderexec_ = loader_ ? loader_->createLoaderExec() : 0;
+	if ( !loader_ || !loaderexec_ )
 	    { errmsg_ = tr("No loader for %1").arg(key_); return; }
 
-	work_ = new Threads::Work( *rdr_, false );
+	work_ = new Threads::Work( *loaderexec_, false );
 	CallBack finishedcb( mCB(this,StoredObjAccessData,workFinished) );
 	Threads::WorkManager::twm().addWork( *work_, &finishedcb );
     }
@@ -79,7 +83,8 @@ EM::StoredObjAccessData::~StoredObjAccessData()
     if ( work_ )
 	Threads::WorkManager::twm().removeWork( *work_ );
     delete work_;
-    delete rdr_;
+    delete loaderexec_;
+    delete loader_;
 }
 
 
@@ -88,8 +93,8 @@ void EM::StoredObjAccessData::workFinished( CallBacker* cb )
     const bool isfail = !Threads::WorkManager::twm().getWorkExitStatus( cb );
     if ( isfail )
     {
-	if ( rdr_ )
-	    errmsg_ = rdr_->message();
+	if ( loaderexec_ )
+	    errmsg_ = loaderexec_->message();
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = uiStrings::phrErrDuringRead();
     }
@@ -101,8 +106,10 @@ void EM::StoredObjAccessData::workFinished( CallBacker* cb )
 	else
 	    { obj_ = obj; obj_->ref(); }
     }
-    delete work_; work_ = 0;
-    delete rdr_; rdr_ = 0;
+
+    deleteAndZeroPtr( work_ );
+    deleteAndZeroPtr( loaderexec_ );
+    deleteAndZeroPtr( loader_ );
 }
 
 
@@ -207,7 +214,7 @@ bool EM::StoredObjAccess::isReady( int iobj ) const
 	return false;
 
     const StoredObjAccessData& data = *data_[iobj];
-    return data.isErr() ? false : !data.rdr_;
+    return data.isErr() ? false : !data.loaderexec_;
 }
 
 
@@ -239,7 +246,7 @@ float EM::StoredObjAccess::ratioDone( int iobj ) const
     if ( !data_.validIdx(iobj) || isError(iobj) )
 	return 0.f;
 
-    Executor* rdr = data_[iobj]->rdr_;
+    Executor* rdr = data_[iobj]->loaderexec_;
     if ( !rdr )
 	return 1.0f;
 
@@ -319,8 +326,3 @@ int nextStep()
 
 } // namespace EM
 
-
-Executor* EM::StoredObjAccess::reader()
-{
-    return new StoredObjAccessReader( *this );
-}

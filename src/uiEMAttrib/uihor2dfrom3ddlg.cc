@@ -65,24 +65,12 @@ bool uiHor2DFrom3DDlg::acceptOK()
 	return false;
 
     const DBKey mid = hor3dsel_->selIOObj()->key();
-    RefMan<EM::Object> emobj = EM::Hor3DMan().getObject( mid );
-    if ( !emobj || !emobj->isFullyLoaded() )
-    {
-	emobj =
-	    EM::Hor3DMan().createTempObject( hor3dsel_->selIOObj()->group() );
-	if ( !emobj )
-	{
-	    uiMSG().error( tr("Cannot read or create 3D horizon") );
-	    return false;
-	}
+    uiTaskRunnerProvider trprov( this );
+    ConstRefMan<EM::Object> emobj = EM::Hor3DMan().fetch( mid, trprov );
+    if ( !emobj )
+	return false;
 
-	emobj->setDBKey( mid );
-	PtrMan<Executor> loader = EM::Hor3DMan().objectLoader( mid );
-	uiTaskRunner taskrunner( this );
-	if ( !TaskRunner::execute( &taskrunner, *loader ) )
-	    return false;
-    }
-
+    emobj.setNoDelete( true );
     const char* horizonnm = out2dfld_->getObjSel()->getInput();
     EM::Horizon2D* horizon2d = create2dHorizon( horizonnm );
     if ( !horizon2d )

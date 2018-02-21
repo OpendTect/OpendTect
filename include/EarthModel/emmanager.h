@@ -33,6 +33,7 @@ namespace EM
 
 class Manager;
 class Object;
+class ObjectLoader;
 class SurfaceIOData;
 class SurfaceIODataSelection;
 
@@ -61,17 +62,18 @@ public:
 			    Returned object must be reffed by caller
 			    (and eventually unreffed). */
 
-    RefObjectSet<Object> loadObjects(const char* typ,const ObjIDSet&,
-					const SurfaceIODataSelection* =0,
-					TaskRunner* trunner=0);
-    ConstRefMan<Object>	fetch(const ObjID&,TaskRunner* trunner=0,
+    RefObjectSet<Object> loadObjects(const ObjIDSet&,const TaskRunnerProvider&,
+				     const SurfaceIODataSelection* =0);
+    ConstRefMan<Object>	fetch(const ObjID&,const TaskRunnerProvider&,
 			        bool forcereload=false) const;
-    RefMan<Object>	fetchForEdit(const ObjID&,TaskRunner* trunner=0,
+    RefMan<Object>	fetchForEdit(const ObjID&,const TaskRunnerProvider&,
 				     bool forcereload=false);
 
-    uiRetVal		store(const Object&,const IOPar* ioobjpars=0) const;
+    uiRetVal		store(const Object&,const TaskRunnerProvider&,
+			      const IOPar* ioobjpars=0) const;
     uiRetVal		store(const Object&,const ObjID&,
-				const IOPar* ioobjpars=0) const;
+			      const TaskRunnerProvider&,
+			      const IOPar* ioobjpars=0) const;
 
     virtual Object*	getObject(const ObjID&);
 
@@ -126,9 +128,9 @@ public:
 
     void		setEmpty();
 
-    Executor*		objectLoader(const ObjID&,
+    ObjectLoader*	objectLoader(const ObjID&,
 				     const SurfaceIODataSelection* =0);
-    Executor*		objectLoader(const ObjIDSet&,
+    ObjectLoader*	objectLoader(const ObjIDSet&,
 				     const SurfaceIODataSelection* =0,
 				     ObjIDSet* includedids=0);
 			    /*!< includedids are the ids of the objects
@@ -166,13 +168,12 @@ mExpClass(EarthModel) Manager : public ObjectManager
 {
 public:
 
-    ConstRefMan<Object> fetch(const ObjID& id,TaskRunner* trunner=0,
+    ConstRefMan<Object> fetch(const ObjID& id,const TaskRunnerProvider& tp,
 			        bool forcereload=false) const
-			{ return getMgr(id).fetch(id,trunner,forcereload); }
-    RefMan<Object>	fetchForEdit(const ObjID& id,TaskRunner* trunner=0,
-				     bool forcereload=false)
-			{ return getMgr(id).fetchForEdit(id,trunner,
-							 forcereload); }
+			{ return getMgr(id).fetch(id,tp,forcereload); }
+    RefMan<Object>	fetchForEdit(const ObjID& id,
+			    const TaskRunnerProvider& tp,bool forcereload=false)
+			{ return getMgr(id).fetchForEdit(id,tp,forcereload); }
 
     Object*		getObject(const ObjID& id)
 			{ return getMgr(id).getObject( id ); }

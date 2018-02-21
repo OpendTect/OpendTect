@@ -151,7 +151,8 @@ bool uiMergePickSets::acceptOK()
 	return false;
 
     const DBKey setid( outioobj->key() );
-    uiRetVal uirv = ::Pick::SetMGR().store( *ps, setid, &ioobjpars );
+    SilentTaskRunnerProvider trprov;
+    uiRetVal uirv = ::Pick::SetMGR().store( *ps, setid, trprov, &ioobjpars );
     if ( uirv.isError() )
 	{ uiMSG().error( uirv ); return false; }
 

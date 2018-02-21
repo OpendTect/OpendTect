@@ -93,28 +93,32 @@ ProbeManager::ObjID ProbeManager::getID( const Probe& ps ) const
 
 
 uiRetVal ProbeManager::store( const Probe& newset,
-				  const IOPar* ioobjpars ) const
+			      const TaskRunnerProvider& trprov,
+			      const IOPar* ioobjpars ) const
 {
-    return SaveableManager::store( newset, ioobjpars );
+    return SaveableManager::store( newset, trprov, ioobjpars );
 }
 
 
 uiRetVal ProbeManager::store( const Probe& newset, const ObjID& id,
+			      const TaskRunnerProvider& trprov,
 			      const IOPar* ioobjpars ) const
 {
-    return SaveableManager::store( newset, id, ioobjpars );
+    return SaveableManager::store( newset, id, trprov, ioobjpars );
 }
 
 
-uiRetVal ProbeManager::save( const ObjID& id ) const
+uiRetVal ProbeManager::save( const ObjID& id,
+			     const TaskRunnerProvider& trprov ) const
 {
-    return SaveableManager::save( id );
+    return SaveableManager::save( id, trprov );
 }
 
 
-uiRetVal ProbeManager::save( const Probe& set ) const
+uiRetVal ProbeManager::save( const Probe& set,
+			     const TaskRunnerProvider& trprov ) const
 {
-    return SaveableManager::save( set );
+    return SaveableManager::save( set, trprov );
 }
 
 

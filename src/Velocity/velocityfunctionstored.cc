@@ -144,7 +144,8 @@ bool StoredFunctionSource::store( const DBKey& velid )
 
     IOPar ioobjpars;
     fillIOObjPar( ioobjpars );
-    uiString errmsg = ::Pick::SetMGR().store( *ps, mid_, &ioobjpars );
+    SilentTaskRunnerProvider trprov;
+    uiString errmsg = ::Pick::SetMGR().store( *ps, mid_, trprov, &ioobjpars );
     if ( !errmsg.isEmpty() )
 	{ errmsg_ =  errmsg; return false; }
 

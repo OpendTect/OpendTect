@@ -30,7 +30,7 @@ ObjectLoader::ObjectLoader( const DBKeySet& keys,
 }
 
 
-Executor* ObjectLoader::fetchLoader( Object* obj ) const
+Executor* ObjectLoader::fetchReader( Object* obj ) const
 {
     mDynamicCastGet(Surface*,surface,obj)
     if ( surface )
@@ -56,6 +56,15 @@ Executor* ObjectLoader::fetchLoader( Object* obj ) const
 
     return 0;
 }
+
+
+bool ObjectLoader::load( const TaskRunnerProvider& trprov )
+{
+    PtrMan<Executor> exec = createLoaderExec();
+    trprov.execute( *exec );
+    return allOK();
+}
+
 
 class ObjectLoaderExec : public ExecutorGroup
 { mODTextTranslationClass(ObjectLoaderExec)
@@ -93,7 +102,7 @@ void init()
 	Object* obj = MGR().createObject( typenm, ioobj->name() );
 	obj->ref();
 	obj->setDBKey( objid );
-	add( loader_.fetchLoader(obj) );
+	add( loader_.fetchReader(obj) );
 	objects_.add( obj );
     }
 
@@ -167,25 +176,16 @@ protected:
 };
 
 
+Executor* ObjectLoader::createLoaderExec()
+{
+    return new ObjectLoaderExec( *this );
+}
+
+
 FaultStickSetLoader::FaultStickSetLoader( const DBKeySet& keys,
 					  const SurfaceIODataSelection* sel )
     : ObjectLoader(keys,sel)
 {
-}
-
-
-bool FaultStickSetLoader::load( TaskRunner* tskr )
-{
-    PtrMan<Executor> exec = getLoader();
-    TaskRunner::execute( tskr, *exec );
-    return allOK();
-}
-
-
-Executor* FaultStickSetLoader::getLoader() const
-{
-    FaultStickSetLoader* _this = const_cast<FaultStickSetLoader*>( this );
-    return new ObjectLoaderExec( *_this );
 }
 
 
@@ -196,20 +196,6 @@ Fault3DLoader::Fault3DLoader( const DBKeySet& keys,
 }
 
 
-bool Fault3DLoader::load( TaskRunner* tskr )
-{
-    PtrMan<Executor> exec = getLoader();
-    TaskRunner::execute( tskr, *exec );
-    return allOK();
-}
-
-
-Executor* Fault3DLoader::getLoader() const
-{
-    Fault3DLoader* _this = const_cast<Fault3DLoader*>( this );
-    return new ObjectLoaderExec( *_this );
-}
-
 
 Horizon3DLoader::Horizon3DLoader( const DBKeySet& keys,
 				  const SurfaceIODataSelection* sel )
@@ -217,20 +203,6 @@ Horizon3DLoader::Horizon3DLoader( const DBKeySet& keys,
 {
 }
 
-
-bool Horizon3DLoader::load( TaskRunner* tskr )
-{
-    PtrMan<Executor> exec = getLoader();
-    TaskRunner::execute( tskr, *exec );
-    return allOK();
-}
-
-
-Executor* Horizon3DLoader::getLoader() const
-{
-    Horizon3DLoader* _this = const_cast<Horizon3DLoader*>( this );
-    return new ObjectLoaderExec( *_this );
-}
 
 
 Horizon2DLoader::Horizon2DLoader( const DBKeySet& keys,
@@ -240,40 +212,11 @@ Horizon2DLoader::Horizon2DLoader( const DBKeySet& keys,
 }
 
 
-bool Horizon2DLoader::load( TaskRunner* tskr )
-{
-    PtrMan<Executor> exec = getLoader();
-    TaskRunner::execute( tskr, *exec );
-    return allOK();
-}
-
-
-Executor* Horizon2DLoader::getLoader() const
-{
-    Horizon2DLoader* _this = const_cast<Horizon2DLoader*>( this );
-    return new ObjectLoaderExec( *_this );
-}
-
 
 BodyLoader::BodyLoader( const DBKeySet& keys,
 				  const SurfaceIODataSelection* sel )
     : ObjectLoader(keys,sel)
 {
-}
-
-
-bool BodyLoader::load( TaskRunner* tskr )
-{
-    PtrMan<Executor> exec = getLoader();
-    TaskRunner::execute( tskr, *exec );
-    return allOK();
-}
-
-
-Executor* BodyLoader::getLoader() const
-{
-    BodyLoader* _this = const_cast<BodyLoader*>( this );
-    return new ObjectLoaderExec( *_this );
 }
 
 
@@ -325,7 +268,8 @@ void ObjectSaver::setEMObject( const Object& obj )
 }
 
 
-uiRetVal ObjectSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
+uiRetVal ObjectSaver::doStore( const IOObj& ioobj,
+			       const TaskRunnerProvider& trprov ) const
 {
     return uiRetVal::OK();
 }
@@ -340,7 +284,8 @@ FaultStickSetSaver::~FaultStickSetSaver()
 {}
 
 
-uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj,TaskRunner* tskr) const
+uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj,
+				      const TaskRunnerProvider& trprov) const
 {
     uiRetVal uirv;
     ConstRefMan<Object> emobj = emObject();
@@ -353,7 +298,7 @@ uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj,TaskRunner* tskr) const
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
     Executor* exec = fss->geometry().saver( 0, &objid );
-    if ( !TaskRunner::execute(tskr,*exec)  )
+    if ( !trprov.execute(*exec)  )
 	return exec->errorWithDetails();
 
     if ( storeIsSave(ioobj) )
@@ -377,7 +322,8 @@ Fault3DSaver::~Fault3DSaver()
 {}
 
 
-uiRetVal Fault3DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
+uiRetVal Fault3DSaver::doStore( const IOObj& ioobj,
+				const TaskRunnerProvider& trprov ) const
 {
     uiRetVal uirv;
     ConstRefMan<Object> emobj = emObject();
@@ -390,7 +336,7 @@ uiRetVal Fault3DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
     Executor* exec = flt3d->geometry().saver( 0, &objid );
-    if ( !TaskRunner::execute(tskr,*exec) )
+    if ( !trprov.execute(*exec)  )
 	return exec->errorWithDetails();
 
     flt3d->setDBKey( objid );
@@ -414,7 +360,8 @@ Horizon3DSaver::~Horizon3DSaver()
 {}
 
 
-uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
+uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj,
+				  const TaskRunnerProvider& trprov ) const
 {
     uiRetVal uirv;
     ConstRefMan<Object> emobj = emObject();
@@ -427,7 +374,7 @@ uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
     Executor* exec = hor->geometry().saver( 0, &objid );
-    if ( !TaskRunner::execute(tskr,*exec) )
+    if ( !trprov.execute(*exec)  )
 	return exec->errorWithDetails();
 
     if ( storeIsSave(ioobj) )
@@ -450,7 +397,8 @@ Horizon2DSaver::~Horizon2DSaver()
 {}
 
 
-uiRetVal Horizon2DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
+uiRetVal Horizon2DSaver::doStore( const IOObj& ioobj,
+				  const TaskRunnerProvider& trprov ) const
 {
     uiRetVal uirv;
     ConstRefMan<Object> emobj = emObject();
@@ -463,7 +411,7 @@ uiRetVal Horizon2DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
     Executor* exec = hor->geometry().saver( 0, &objid );
-    if ( !TaskRunner::execute(tskr,*exec) )
+    if ( !trprov.execute(*exec)  )
 	return exec->errorWithDetails();
 
     if ( storeIsSave(ioobj) )
@@ -486,7 +434,8 @@ BodySaver::~BodySaver()
 {}
 
 
-uiRetVal BodySaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
+uiRetVal BodySaver::doStore( const IOObj& ioobj,
+			     const TaskRunnerProvider& trprov ) const
 {
     uiRetVal uirv;
     ConstRefMan<Object> emobj = emObject();
@@ -499,7 +448,7 @@ uiRetVal BodySaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
     Executor* exec = copiedemobj->saver();
-    if ( !TaskRunner::execute(tskr,*exec) )
+    if ( !trprov.execute(*exec)  )
 	return exec->errorWithDetails();
 
     if ( storeIsSave(ioobj) )

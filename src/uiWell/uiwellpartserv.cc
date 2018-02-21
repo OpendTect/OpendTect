@@ -180,7 +180,8 @@ void uiWellPartServer::importMarkers()
 	return;
 
     dlg.getMarkerSet( wd->markers() );
-    uiMSG().handleErrors( Well::MGR().save(mid) );
+    SilentTaskRunnerProvider trprov;
+    uiMSG().handleErrors( Well::MGR().save(mid,trprov) );
 }
 
 
@@ -285,8 +286,9 @@ void uiWellPartServer::saveWellDispProps( const Well::Data* onlywd )
     {
 	const DBKey ky = kys[idx];
 	ConstRefMan<Well::Data> wd = Well::MGR().fetch( ky );
+	SilentTaskRunnerProvider trprov;
 	if ( !onlywd || wd == onlywd )
-	    Well::MGR().save( ky );
+	    Well::MGR().save( ky, trprov );
     }
 }
 
@@ -543,7 +545,9 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 	d2t.setValueAt( stopdah, tdmodel.getTime( (float)trackrg.stop ) );
     }
 
-    const uiRetVal uirv = Well::MGR().store( *well, ctio->ioobj_->key() );
+    SilentTaskRunnerProvider trprov;
+    const uiRetVal uirv =
+		    Well::MGR().store( *well, ctio->ioobj_->key(), trprov );
     if ( !uirv.isOK() )
 	mErrRet( uirv );
 

@@ -59,7 +59,7 @@ public:
 
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
+    virtual uiRetVal	doStore(const IOObj&,const TaskRunnerProvider&) const;
 
 };
 

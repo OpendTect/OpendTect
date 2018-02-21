@@ -84,23 +84,11 @@ bool uiHorizonSortDlg::acceptOK()
     }
 
     bool sorted = sortFromRelationTree( horids );
-    uiTaskRunner taskrunner( this );
-    PtrMan<Executor> horreader = 0;
+    uiTaskRunnerProvider trprov( this );
     EM::ObjectManager& emman = is2d_ ? EM::Hor2DMan() : EM::Hor3DMan();
-    if ( !sorted || loadneeded_ )
-    {
-	DBKeySet loadids;
-	for ( int idx=0; idx<horids.size(); idx++ )
-	{
-	    const EM::Object* emobj = emman.getObject( horids[idx] );
-	    if ( !emobj || !emobj->isFullyLoaded() )
-		loadids += horids[idx];
-	}
-
-	horreader = emman.objectLoader( loadids );
-	if ( horreader && !TaskRunner::execute( &taskrunner, *horreader ) )
-	    return false;
-    }
+    RefObjectSet<EM::Object> emobjs = emman.loadObjects( horids, trprov );
+    if ( emobjs.size() != horids.size() )
+	return false;
 
     PtrMan<HorizonSorter> horsorter = 0;
     if ( sorted )
@@ -123,8 +111,8 @@ bool uiHorizonSortDlg::acceptOK()
     }
     else
     {
-	horsorter = new HorizonSorter( horids, is2d_ );
-	if ( !TaskRunner::execute( &taskrunner, *horsorter ) ) return false;
+	horsorter = new HorizonSorter( horids, trprov, is2d_ );
+	if ( !horsorter->execute() ) return false;
 
 	horsorter->getSortedList( horids_ );
 	updateRelationTree( horids_ );
@@ -136,13 +124,12 @@ bool uiHorizonSortDlg::acceptOK()
 
     deepUnRef( horizons_ );
 
-    for ( int idx=0; idx<horids.size(); idx++ )
+    for ( int idx=0; idx<emobjs.size(); idx++ )
     {
-	EM::Object* emobj = emman.getObject( horids[idx] );
-	emobj->ref();
-	mDynamicCastGet(EM::Horizon*,horizon,emobj);
-	if ( !horizon )
-	    emobj->unRef();
+	mDynamicCastGet(EM::Horizon*,horizon,emobjs[idx]);
+	if ( horizon )
+	    horizon->ref();
+
 	horizons_ += horizon;
     }
 

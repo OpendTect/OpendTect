@@ -262,10 +262,10 @@ protected:
 
 void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 {
-    HorizonSorter sorter( horids_,is2d_ );
+    uiTaskRunnerProvider trprov( this );
+    HorizonSorter sorter( horids_, trprov, is2d_ );
     sorter.setName( "Check crossings" );
-    uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, sorter ) )
+    if ( !sorter.execute() )
 	return;
 
     int count = 0;

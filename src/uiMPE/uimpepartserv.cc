@@ -554,20 +554,12 @@ TrcKeyZSampling uiMPEPartServer::getAttribVolume(
 
 void uiMPEPartServer::loadEMObjectCB(CallBacker*)
 {
-    PtrMan<Executor> exec = EM::MGR().objectLoader( MPE::engine().emidtoload_ );
-    if ( !exec ) return;
-
-    EM::Object* emobj = EM::MGR().getObject( MPE::engine().emidtoload_ );
+    uiTaskRunnerProvider trprov( appserv().parent() );
+    ConstRefMan<EM::Object> emobj = EM::MGR().fetch( MPE::engine().emidtoload_,
+					        trprov );
     if ( !emobj ) return;
 
-    emobj->ref();
-    uiTaskRunner uiexec( appserv().parent() );
-    const bool keepobj = TaskRunner::execute( &uiexec, *exec );
-    exec.erase();
-    if ( keepobj )
-	emobj->unRefNoDelete();
-    else
-	emobj->unRef();
+    emobj.setNoDelete( true );
 }
 
 

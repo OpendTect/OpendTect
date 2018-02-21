@@ -19,7 +19,8 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 
-HorizonSorter::HorizonSorter( const DBKeySet& ids, bool is2d )
+HorizonSorter::HorizonSorter( const DBKeySet& ids,
+			      const TaskRunnerProvider& trprov, bool is2d )
     : Executor("Sort horizons")
     , unsortedids_(ids)
     , totalnr_(-1)
@@ -28,7 +29,7 @@ HorizonSorter::HorizonSorter( const DBKeySet& ids, bool is2d )
     , result_(0)
     , is2d_(is2d)
     , message_(tr("Sorting"))
-    , trprov_(0)
+    , trprov_(trprov)
 {}
 
 
@@ -37,12 +38,6 @@ HorizonSorter::~HorizonSorter()
     delete result_;
     delete iterator_;
     deepUnRef( horizons_ );
-}
-
-
-void HorizonSorter::setRunner( const TaskRunnerProvider& taskrun )
-{
-    trprov_ = &taskrun;
 }
 
 
@@ -188,22 +183,13 @@ int HorizonSorter::nextStep()
     if ( !nrdone_ )
     {
 	EM::ObjectManager& emmgr = is2d_ ? EM::Hor2DMan() : EM::Hor3DMan();
-	PtrMan<Executor> horreader = emmgr.objectLoader( unsortedids_ );
-	if ( horreader )
+	RefObjectSet<EM::Object> emobjs = emmgr.loadObjects( unsortedids_,
+							     trprov_ );
+	if ( emobjs.size() != unsortedids_.size() )
+	    mErrRet( uiStrings::phrCannotLoad(tr("all horizons")) );
+	for ( int idx=0; idx<emobjs.size(); idx++ )
 	{
-	    if ( trprov_ )
-		trprov_->execute( *horreader.ptr() );
-	    else
-		horreader->execute();
-	}
-
-	for ( int idx=0; idx<unsortedids_.size(); idx++ )
-	{
-	    RefMan<EM::Object> emobj = emmgr.getObject( unsortedids_[idx] );
-	    if ( !emobj )
-		mErrRet( uiStrings::phrCannotLoad(tr("all horizons")) );
-
-	    mDynamicCastGet(EM::Horizon*,horizon,emobj.ptr());
+	    mDynamicCastGet(EM::Horizon*,horizon,emobjs[idx]);
 	    if ( !horizon )
 		mErrRet( tr("Loaded object is not a horizon") );
 

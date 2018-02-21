@@ -349,7 +349,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     Interval<float> zbounds4mmproc;
-    ObjectSet<EM::Object> objects;
+    EM::ObjectManager& emmgr = EM::getMgr( dbkys.first() );
     for ( int idx=0; idx<dbkys.size(); idx++ )
     {
 	const DBKey dbky = dbkys[idx];
@@ -357,23 +357,10 @@ bool BatchProgram::go( od_ostream& strm )
 
 	SurfaceIOData sd;
 	uiString uierr;
-	EM::ObjectManager& emmgr = EM::getMgr( dbky );
 	if ( !emmgr.getSurfaceData(dbky,sd,uierr) )
 	{
 	    BufferString errstr( "Cannot load horizon ", dbky.toString(), ": ");
 	    errstr += toString( uierr );
-	    mErrRetNoProc( errstr.buf() );
-	}
-
-	SurfaceIODataSelection sels( sd );
-	sels.selvalues.erase();
-	sels.rg = hsamp;
-	PtrMan<Executor> loader =
-			emmgr.objectLoader( dbky, iscubeoutp ? &sels : 0 );
-	if ( !loader || !loader->go(strm) )
-	{
-	    BufferString errstr = "Cannot load horizon:";
-	    errstr += dbky.toString();
 	    mErrRetNoProc( errstr.buf() );
 	}
 
@@ -391,10 +378,14 @@ bool BatchProgram::go( od_ostream& strm )
 	    else
 		zbounds4mmproc = sd.zrg;
 	}
+    }
 
-	EM::Object* emobj = emmgr.getObject( dbky );
-	if ( emobj ) emobj->ref();
-	objects += emobj;
+    LoggedTaskRunnerProvider trprov( strm );
+    RefObjectSet<EM::Object> objects = emmgr.loadObjects( dbkys, trprov );
+    if ( objects.size() != dbkys.size() )
+    {
+	BufferString errstr = "Cannot load horizons";
+	mErrRetNoProc( errstr.buf() );
     }
 
     DescSet attribset( false );

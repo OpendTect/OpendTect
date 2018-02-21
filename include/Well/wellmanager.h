@@ -86,12 +86,14 @@ public:
     ObjID		getIDByUWI(const char*) const;
 			//<! getIDByName() is in base class
 
-    uiRetVal		store(const Data&,const IOPar* ioobjpars=0) const;
+    uiRetVal		store(const Data&,const TaskRunnerProvider&,
+			      const IOPar* ioobjpars=0) const;
 			//!< uses name to decide whether to create or replace
     uiRetVal		store(const Data&,const ObjID&,
-				const IOPar* ioobjpars=0) const;
-    uiRetVal		save(const ObjID&) const;
-    uiRetVal		save(const Data&) const;
+			      const TaskRunnerProvider&,
+			      const IOPar* ioobjpars=0) const;
+    uiRetVal		save(const ObjID&,const TaskRunnerProvider&) const;
+    uiRetVal		save(const Data&,const TaskRunnerProvider&) const;
     bool		needsSave(const ObjID&) const;
     bool		needsSave(const Data&) const;
 
@@ -159,7 +161,7 @@ public:
 
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
+    virtual uiRetVal	doStore(const IOObj&,const TaskRunnerProvider&) const;
 
     mutable TypeSet<DirtyCounter>   lastsavedsubobjdirtycounts_;
     void		updateLastSavedSubObjDirtyCounts(const Data&) const;

@@ -64,7 +64,8 @@ bool uiODViewer2DPosDlg::acceptOK()
     if ( !newprobe )
 	return false;
 
-    if ( !ProbeMGR().store(*newprobe).isOK() )
+    SilentTaskRunnerProvider trprov;
+    if ( !ProbeMGR().store(*newprobe,trprov).isOK() )
        return false;
 
     uiODViewer2D::DispSetup su;

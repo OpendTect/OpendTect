@@ -126,6 +126,7 @@ bool uiExport2DHorizon::doExport()
 	    undefstr = "-";
     }
 
+    uiTaskRunnerProvider trprov( this );
     for ( int horidx=0; horidx<dbkeyset.size(); horidx++ )
     {
 	DBKey horid;
@@ -142,17 +143,11 @@ bool uiExport2DHorizon::doExport()
 	BufferStringSet linenms;
 
 	EM::ObjectManager& mgr = EM::Hor2DMan();
-	EM::Object* obj = mgr.getObject( horid );
+	ConstRefMan<EM::Object> obj = mgr.getObject( horid );
 	if ( !obj )
 	{
-	    PtrMan<Executor> exec = mgr.objectLoader( horid );
-	    if ( !exec || !exec->execute() )
-		mErrRet(uiStrings::sCantReadHor())
-
-	    obj = mgr.getObject( horid );
+	    obj = mgr.fetch( horid, trprov );
 	    if ( !obj ) return false;
-
-	    obj->ref();
 	}
 
 	if ( !isbulk_ )
@@ -174,7 +169,7 @@ bool uiExport2DHorizon::doExport()
 		mErrRet( uiStrings::phrErrDuringRead()  )
 	    linenms = emdata.linenames;
 	}
-	mDynamicCastGet(EM::Horizon2D*,hor,obj);
+	mDynamicCastGet(const EM::Horizon2D*,hor,obj.ptr());
 	if ( !hor )
 	    mErrRet(uiStrings::sCantReadHor())
 

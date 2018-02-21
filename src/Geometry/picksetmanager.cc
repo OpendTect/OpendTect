@@ -90,28 +90,32 @@ Pick::SetManager::ObjID Pick::SetManager::getID( const Set& ps ) const
 
 
 uiRetVal Pick::SetManager::store( const Set& newset,
+				  const TaskRunnerProvider& trprov,
 				  const IOPar* ioobjpars ) const
 {
-    return SaveableManager::store( newset, ioobjpars );
+    return SaveableManager::store( newset, trprov, ioobjpars );
 }
 
 
 uiRetVal Pick::SetManager::store( const Set& newset, const ObjID& id,
-			      const IOPar* ioobjpars ) const
+				  const TaskRunnerProvider& trprov,
+				  const IOPar* ioobjpars ) const
 {
-    return SaveableManager::store( newset, id, ioobjpars );
+    return SaveableManager::store( newset, id, trprov, ioobjpars );
 }
 
 
-uiRetVal Pick::SetManager::save( const ObjID& id ) const
+uiRetVal Pick::SetManager::save( const ObjID& id,
+				 const TaskRunnerProvider& trprov ) const
 {
-    return SaveableManager::save( id );
+    return SaveableManager::save( id, trprov );
 }
 
 
-uiRetVal Pick::SetManager::save( const Set& set ) const
+uiRetVal Pick::SetManager::save( const Set& set,
+				 const TaskRunnerProvider& trprov ) const
 {
-    return SaveableManager::save( set );
+    return SaveableManager::save( set, trprov );
 }
 
 

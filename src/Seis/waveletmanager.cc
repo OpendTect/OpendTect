@@ -87,28 +87,32 @@ WaveletManager::ObjID WaveletManager::getID( const Wavelet& wvlt ) const
 
 
 uiRetVal WaveletManager::store( const Wavelet& newwvlt,
-				  const IOPar* ioobjpars ) const
+				const TaskRunnerProvider& trprov,
+				const IOPar* ioobjpars ) const
 {
-    return SaveableManager::store( newwvlt, ioobjpars );
+    return SaveableManager::store( newwvlt, trprov, ioobjpars );
 }
 
 
 uiRetVal WaveletManager::store( const Wavelet& newwvlt, const ObjID& id,
-			      const IOPar* ioobjpars ) const
+				const TaskRunnerProvider& trprov,
+				const IOPar* ioobjpars ) const
 {
-    return SaveableManager::store( newwvlt, id, ioobjpars );
+    return SaveableManager::store( newwvlt, id, trprov, ioobjpars );
 }
 
 
-uiRetVal WaveletManager::save( const ObjID& id ) const
+uiRetVal WaveletManager::save( const ObjID& id,
+				const TaskRunnerProvider& trprov ) const
 {
-    return SaveableManager::save( id );
+    return SaveableManager::save( id, trprov );
 }
 
 
-uiRetVal WaveletManager::save( const Wavelet& set ) const
+uiRetVal WaveletManager::save( const Wavelet& set,
+				const TaskRunnerProvider& trprov ) const
 {
-    return SaveableManager::save( set );
+    return SaveableManager::save( set, trprov );
 }
 
 

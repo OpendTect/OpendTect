@@ -315,6 +315,7 @@ bool uiBulk2DHorizonImport::acceptOK()
 	    return false;
     }
 
+    SilentTaskRunnerProvider trprov;
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	hor2ds.setEmpty();
@@ -322,13 +323,13 @@ bool uiBulk2DHorizonImport::acceptOK()
 	PtrMan<IOObj> ioobj = DBM().getByName( hornm,
 				EMHorizon2DTranslatorGroup::sGroupName() );
 
-	RefMan<EM::Object> emobj = ioobj ? mgr.getObject( ioobj->key() ) : 0;
+	RefMan<EM::Object> emobj =
+		    ioobj ? mgr.fetchForEdit( ioobj->key(), trprov ) : 0;
 	if ( emobj )
 	    emobj->setBurstAlert( true );
 
-	PtrMan<Executor> exec = ioobj ? mgr.objectLoader( ioobj->key() ) : 0;
 	bool newhor = false;
-	if ( !ioobj || !exec || !exec->execute() )
+	if ( !emobj )
 	{
 	    emobj = mgr.createObject( EM::Horizon2D::typeStr(), hornm );
 	    newhor = true;

@@ -131,8 +131,9 @@ bool uiODSceneProbeParentTreeItem::addChildProbe()
     if ( !newprobe )
 	return false;
 
+    SilentTaskRunnerProvider trprov;
     if ( !fillProbe(*newprobe)	||
-	 !ProbeMGR().store(*newprobe).isOK() )
+	 !ProbeMGR().store(*newprobe,trprov).isOK() )
 	return false;
 
     ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );

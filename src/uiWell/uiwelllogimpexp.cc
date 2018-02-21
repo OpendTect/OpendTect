@@ -210,7 +210,8 @@ bool uiImportLogsDlg::acceptOK()
     if ( res )
 	mErrRet( toUiString(res) )
 
-    uirv = Well::MGR().save( wellid );
+    SilentTaskRunnerProvider trprov;
+    uirv = Well::MGR().save( wellid, trprov );
     if ( uirv.isError() )
 	mErrRet( uirv )
 

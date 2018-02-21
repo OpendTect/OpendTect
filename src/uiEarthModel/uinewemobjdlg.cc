@@ -66,7 +66,8 @@ RefMan<EM::Object> uiNewFSSDlg::getNewEMObject() const
 	if ( !uiMSG().askGoOn( msg ) )
 	    return fssret;
 
-	fssret = EM::FSSMan().fetchForEdit( emid );
+	SilentTaskRunnerProvider trprov;
+	fssret = EM::FSSMan().fetchForEdit( emid, trprov );
 	if ( !fssret )
 	    fssret = new EM::FaultStickSet( nm );
 	else
@@ -86,7 +87,8 @@ bool uiNewFSSDlg::acceptOK()
 	return false;
 
     emobj_->setPreferredColor( colorselfld_->color() );
-    uiString errmsg = EM::FSSMan().store( *emobj_ );
+    SilentTaskRunnerProvider trprov;
+    uiString errmsg = EM::FSSMan().store( *emobj_, trprov );
     if ( !errmsg.isEmpty() )
 	mErrRet( errmsg )
 
@@ -130,7 +132,8 @@ RefMan<EM::Object> uiNewFlt3DDlg::getNewEMObject() const
 	if ( !uiMSG().askGoOn( msg ) )
 	    return flt3d;
 
-	flt3d = EM::Flt3DMan().fetchForEdit( emid );
+	SilentTaskRunnerProvider trprov;
+	flt3d = EM::Flt3DMan().fetchForEdit( emid, trprov );
 	if ( !flt3d )
 	    flt3d = new EM::FaultStickSet( nm );
 	else
@@ -148,7 +151,8 @@ bool uiNewFlt3DDlg::acceptOK()
 {
     RefMan<EM::Object> newflt3d = getNewEMObject();
     emobj_= newflt3d;
-    uiString errmsg = EM::Flt3DMan().store( *emobj_ );
+    SilentTaskRunnerProvider trprov;
+    uiString errmsg = EM::Flt3DMan().store( *emobj_, trprov );
     if ( !errmsg.isEmpty() )
 	mErrRet( errmsg )
 
@@ -185,7 +189,8 @@ RefMan<EM::Object> uiNewHorizon3DDlg::getNewEMObject() const
 	if ( !uiMSG().askGoOn( msg ) )
 	    return horret;
 
-	horret = EM::Hor3DMan().fetchForEdit( emid );
+	SilentTaskRunnerProvider trprov;
+	horret = EM::Hor3DMan().fetchForEdit( emid, trprov );
 	if ( !horret )
 	    horret = new EM::Horizon3D( nm );
 	else
@@ -204,7 +209,8 @@ bool uiNewHorizon3DDlg::acceptOK()
 	return false;
 
     emobj_->setPreferredColor( colorselfld_->color() );
-    uiString errmsg = EM::Hor3DMan().store( *emobj_ );
+    SilentTaskRunnerProvider trprov;
+    uiString errmsg = EM::Hor3DMan().store( *emobj_, trprov );
     if ( !errmsg.isEmpty() )
 	mErrRet( errmsg )
 

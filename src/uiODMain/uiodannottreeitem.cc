@@ -196,7 +196,8 @@ Pick::Set* uiODAnnotTreeItem::makeNewSet( const char* nm ) const
     if ( defScale() >= 0 )
 	ps->setDispSize( defScale() );
 
-    uiString errmsg = Pick::SetMGR().store( *ps );
+    SilentTaskRunnerProvider trprov;
+    uiString errmsg = Pick::SetMGR().store( *ps, trprov );
     if ( !errmsg.isEmpty() )
 	{ uiMSG().error( errmsg ); return 0; }
 
@@ -328,7 +329,9 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
 void uiODAnnotSubItem::store() const
 {
     IOPar ioobjpars; fillStoragePar( ioobjpars );
-    uiString errmsg = Pick::SetMGR().store( set_, getSetID(), &ioobjpars );
+    SilentTaskRunnerProvider trprov;
+    uiString errmsg =
+		Pick::SetMGR().store( set_, getSetID(), trprov, &ioobjpars );
     if ( !errmsg.isEmpty() )
 	uiMSG().error( errmsg );
 }
@@ -344,7 +347,9 @@ void uiODAnnotSubItem::storeAs() const
     if ( !dlg.go() || !dlg.ioObj() )
 	return;
 
-    uiString errmsg = Pick::SetMGR().saveAs( getSetID(), dlg.ioObj()->key() );
+    SilentTaskRunnerProvider trprov;
+    uiString errmsg =
+	    Pick::SetMGR().saveAs( getSetID(), dlg.ioObj()->key(), trprov );
     if ( !errmsg.isEmpty() )
 	uiMSG().error( errmsg );
 }

@@ -40,16 +40,10 @@ static bool getHorsampling( const IOPar& par, TrcKeySampling& hs )
 static EM::Horizon3D* loadHorizon( const DBKey& dbky, const TrcKeySampling& hs,
 				   od_ostream& strm )
 {
-    EM::ObjectManager& mgr = EM::MGR();
-    EM::SurfaceIOData sd;
-    EM::SurfaceIODataSelection sdsel( sd );
-    sdsel.rg = hs;
+    EM::ObjectManager& mgr = EM::Hor3DMan();
     strm << "Loading " << mgr.objectName( dbky ) << od_newline;
-    Executor* exec = mgr.objectLoader( dbky, &sdsel );
-    if ( !(exec && exec->go(strm, false, false, 0) ) )
-	return 0;
-
-    EM::Object* emobj = mgr.getObject( dbky );
+    LoggedTaskRunnerProvider trprov( strm );
+    RefMan<EM::Object> emobj = mgr.fetchForEdit( dbky, trprov );
     if ( !emobj )
     {
 	BufferString msg;
@@ -60,7 +54,7 @@ static EM::Horizon3D* loadHorizon( const DBKey& dbky, const TrcKeySampling& hs,
     }
 
     emobj->ref();
-    mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
+    mDynamicCastGet(EM::Horizon3D*,horizon,emobj.ptr())
     return horizon;
 }
 

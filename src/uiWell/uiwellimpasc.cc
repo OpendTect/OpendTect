@@ -424,7 +424,8 @@ bool uiWellImportAsc::doWork()
 	    wd_.checkShotModel() = wd_.d2TModel();
     }
 
-    const uiRetVal uirv = Well::MGR().store( wd_, outioobj->key() );
+    SilentTaskRunnerProvider trprov;
+    const uiRetVal uirv = Well::MGR().store( wd_, outioobj->key(), trprov );
     if ( !uirv.isOK() )
 	mErrRet( uirv );
 

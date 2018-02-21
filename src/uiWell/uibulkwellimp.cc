@@ -172,11 +172,12 @@ uiRetVal uiBulkTrackImport::write()
     {
 	Well::Data* wd = wells_[idx];
 	const DBKey dbky = getDBKey( wd->name() );
+	SilentTaskRunnerProvider trprov;
 	if ( dbky.isValid() )
 	    uirv.add( uiString( tr("A well named '%1' already exists.")
 				.arg(wd->name()) ) );
 	else
-	    uirv.add( Well::MGR().save(*wd) );
+	    uirv.add( Well::MGR().save(*wd,trprov) );
     }
     return uirv;
 }
@@ -342,11 +343,12 @@ bool uiBulkLogImport::acceptOK()
 
 	lasimp.setData( *wd );
 	errmsg = lasimp.getLogs( fnm, info, zistvd, usecurvenms );
+	SilentTaskRunnerProvider trprov;
 	if ( !errmsg.isEmpty() )
 	    uirv.add( toUiString("%1: %2").arg(toUiString(fnm))
 					    .arg(toUiString(errmsg)) );
 	else
-	    uirv.add( Well::MGR().save(dbky) );
+	    uirv.add( Well::MGR().save(dbky,trprov) );
     }
 
     if ( uirv.isEmpty() )
@@ -439,7 +441,8 @@ bool uiBulkMarkerImport::acceptOK()
 	    wd->markers() = *convms;
 	}
 
-	uirv.add( Well::MGR().save( dbky ) );
+	SilentTaskRunnerProvider trprov;
+	uirv.add( Well::MGR().save(dbky,trprov) );
     }
 
     if ( uirv.isError() )
@@ -551,7 +554,8 @@ bool uiBulkD2TModelImport::acceptOK()
 	Well::D2TModel& d2t = wd->d2TModel();
 	uiString msg;
 	d2t.ensureValid( *wd, msg, &d2tdata[idx]->mds_, &d2tdata[idx]->twts_ );
-	uirv.add( Well::MGR().save( dbky ) );
+	SilentTaskRunnerProvider trprov;
+	uirv.add( Well::MGR().save(dbky,trprov) );
     }
 
     if ( uirv.isError() )

@@ -1266,7 +1266,8 @@ int uiODSceneMgr::addRandomLineItem( int rlid, int sceneid )
     mGetOrAskForScene
 
     RandomLineProbe* rdlprobe = new RandomLineProbe( rlid );
-    if ( !ProbeMGR().store(*rdlprobe).isOK() )
+    SilentTaskRunnerProvider trprov;
+    if ( !ProbeMGR().store(*rdlprobe,trprov).isOK() )
 	return -1;
 
     uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( *rdlprobe );
@@ -1280,7 +1281,8 @@ int uiODSceneMgr::add2DLineItem( Pos::GeomID geomid, int sceneid )
     mGetOrAskForScene
 
     Line2DProbe* line2dprobe = new Line2DProbe( geomid );
-    if ( !ProbeMGR().store(*line2dprobe).isOK() )
+    SilentTaskRunnerProvider trprov;
+    if ( !ProbeMGR().store(*line2dprobe, trprov).isOK() )
 	return -1;
 
     uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( *line2dprobe );
@@ -1297,7 +1299,8 @@ int uiODSceneMgr::add2DLineItem( const DBKey& mid , int sceneid )
 
     const Pos::GeomID geomid = geom->getID();
     Line2DProbe* line2dprobe = new Line2DProbe( geomid );
-    if ( !ProbeMGR().store(*line2dprobe).isOK() )
+    SilentTaskRunnerProvider trprov;
+    if ( !ProbeMGR().store(*line2dprobe,trprov).isOK() )
 	return -1;
 
     uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( *line2dprobe );
@@ -1311,12 +1314,13 @@ int uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, int sceneid )
     mGetOrAskForScene
     uiODPlaneDataTreeItem* itm = 0;
     TrcKeyZSampling tkzs = SI().sampling(true);
+    SilentTaskRunnerProvider trprov;
     if ( st == OD::InlineSlice )
     {
 	InlineProbe* newprobe = new InlineProbe();
 	tkzs.hsamp_.setInlRange( Interval<int>(nr,nr) );
 	newprobe->setPos( tkzs );
-	if ( !ProbeMGR().store(*newprobe).isOK() )
+	if ( !ProbeMGR().store(*newprobe,trprov).isOK() )
 	    return -1;
 
 	itm = new uiODInlineTreeItem( *newprobe );
@@ -1326,7 +1330,7 @@ int uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, int sceneid )
 	CrosslineProbe* newprobe = new CrosslineProbe();
 	tkzs.hsamp_.setCrlRange( Interval<int>(nr,nr) );
 	newprobe->setPos( tkzs );
-	if ( !ProbeMGR().store(*newprobe).isOK() )
+	if ( !ProbeMGR().store(*newprobe,trprov).isOK() )
 	    return -1;
 
 	itm = new uiODCrosslineTreeItem( *newprobe );
@@ -1349,7 +1353,8 @@ int uiODSceneMgr::addZSliceItem( float z, int sceneid )
     TrcKeyZSampling tkzs = SI().sampling(true);
     tkzs.zsamp_.set( z, z, SI().zStep() );
     newprobe->setPos( tkzs );
-    if ( !ProbeMGR().store(*newprobe).isOK() )
+    SilentTaskRunnerProvider trprov;
+    if ( !ProbeMGR().store(*newprobe,trprov).isOK() )
 	return -1;
 
     uiODZsliceTreeItem* itm = new uiODZsliceTreeItem( *newprobe );

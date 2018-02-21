@@ -173,18 +173,16 @@ EM::Object* EM::ObjectManager::gtObject( const ObjID& objid )
 }
 
 
-RefObjectSet<EM::Object> EM::ObjectManager::loadObjects( const char* typ,
-					    const ObjIDSet& dbkeys,
-					const SurfaceIODataSelection* sel,
-					TaskRunner* tskr )
+RefObjectSet<EM::Object> EM::ObjectManager::loadObjects(const ObjIDSet& dbkeys,
+					const TaskRunnerProvider& trprov,
+					const SurfaceIODataSelection* sel )
 {
     RefObjectSet<Object> loadedpbjs;
-    PtrMan<EM::ObjectLoader> emloader =
-		EM::ObjectLoader::factory().create( typ, dbkeys, sel );
+    PtrMan<EM::ObjectLoader> emloader = objectLoader( dbkeys, sel );
     if ( !emloader )
 	return loadedpbjs;
 
-    if ( emloader->load(tskr) )
+    if ( emloader->load(trprov) )
 	loadedpbjs = emloader->getLoadedEMObjects();
 
     return loadedpbjs;
@@ -192,16 +190,17 @@ RefObjectSet<EM::Object> EM::ObjectManager::loadObjects( const char* typ,
 
 
 ConstRefMan<EM::Object> EM::ObjectManager::fetch( const ObjID& objid,
-				TaskRunner* trunnr, bool forcereload ) const
+					    const TaskRunnerProvider& trprov,
+					    bool forcereload ) const
 {
     mLock4Read();
     Object* ret = const_cast<ObjectManager*>(this)->gtObject( objid );
     if ( !forcereload && ret && ret->isFullyLoaded() )
 	return ret;
 
-    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( objid );
+    PtrMan<EM::ObjectLoader> loader = EM::Hor3DMan().objectLoader( objid );
     mUnlockAllAccess();
-    if ( !exec || !TaskRunner::execute(trunnr,*exec) )
+    if ( !loader || !loader->load(trprov) )
 	return 0;
 
     mReLock();
@@ -210,16 +209,16 @@ ConstRefMan<EM::Object> EM::ObjectManager::fetch( const ObjID& objid,
 
 
 RefMan<EM::Object> EM::ObjectManager::fetchForEdit( const ObjID& objid,
-				TaskRunner* trunnr, bool forcereload )
+			    const TaskRunnerProvider& trprov, bool forcereload )
 {
     mLock4Read();
     Object* ret = gtObject( objid );
     if ( !forcereload && ret && ret->isFullyLoaded() )
 	return ret;
 
-    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( objid );
+    PtrMan<EM::ObjectLoader> loader = EM::Hor3DMan().objectLoader( objid );
     mUnlockAllAccess();
-    if ( !exec || !TaskRunner::execute(trunnr,*exec) )
+    if ( !loader || !loader->load(trprov) )
 	return 0;
 
     mReLock();
@@ -228,16 +227,18 @@ RefMan<EM::Object> EM::ObjectManager::fetchForEdit( const ObjID& objid,
 
 
 uiRetVal EM::ObjectManager::store( const Object& emobj,
-				  const IOPar* ioobjpars ) const
+				   const TaskRunnerProvider& trprov,
+				   const IOPar* ioobjpars ) const
 {
-    return SaveableManager::store( emobj, ioobjpars );
+    return SaveableManager::store( emobj, trprov, ioobjpars );
 }
 
 
 uiRetVal EM::ObjectManager::store( const Object& emobj, const ObjID& id,
-			      const IOPar* ioobjpars ) const
+				   const TaskRunnerProvider& trprov,
+				   const IOPar* ioobjpars ) const
 {
-    return SaveableManager::store( emobj, id, ioobjpars );
+    return SaveableManager::store( emobj, id, trprov, ioobjpars );
 }
 
 
@@ -266,90 +267,32 @@ EM::Object* EM::ObjectManager::createTempObject( const char* type )
 }
 
 
-Executor* EM::ObjectManager::objectLoader( const ObjIDSet& objids,
+EM::ObjectLoader* EM::ObjectManager::objectLoader( const ObjIDSet& objids,
 				   const SurfaceIODataSelection* iosel,
 				   ObjIDSet* includedids )
 {
-    ExecutorGroup* execgrp = objids.size()>1
-			   ? new ExecutorGroup( "Reading" ) : 0;
+    BufferString objtype;
     for ( int idx=0; idx<objids.size(); idx++ )
     {
-	const Object* obj = getObject( objids[idx] );
-	Executor* loader = obj && obj->isFullyLoaded()
-			 ? 0 : objectLoader( objids[idx], iosel );
-	if ( includedids && loader )
-	    *includedids += objids[idx];
-
-	if ( execgrp )
-	{
-	    if ( loader )
-	    {
-		if ( !execgrp->nrExecutors() )
-		    execgrp->setNrDoneText( loader->nrDoneText() );
-		execgrp->add( loader );
-	    }
-	}
-	else
-	{
-	    return loader;
-	}
+	if ( !idx )
+	    objtype = objectType( objids[idx] );
+	else if ( objtype != objectType(objids[idx]) )
+	{ pErrMsg("Should be used t load objects of the same type only"); }
     }
 
-    if ( execgrp && !execgrp->nrExecutors() )
-    {
-	delete execgrp;
-	execgrp = 0;
-    }
+    if ( objtype.isEmpty() ) // Huh?
+	return 0;
 
-    return execgrp;
-
+    return EM::ObjectLoader::factory().create( objtype, objids, iosel );
 }
 
 
-Executor* EM::ObjectManager::objectLoader( const ObjID& objid,
+EM::ObjectLoader* EM::ObjectManager::objectLoader( const ObjID& objid,
 				   const SurfaceIODataSelection* iosel )
 {
-    Object* obj = getObject( objid );
-
-    if ( !obj )
-    {
-	PtrMan<IOObj> ioobj = DBM().get( objid );
-	if ( !ioobj )
-	    return 0;
-
-	BufferString typenm = ioobj->pars().find( sKey::Type() );
-	if ( typenm.isEmpty() )
-	    typenm = ioobj->group();
-
-	obj = EMOF().create( typenm, *this );
-	if ( !obj )
-	    return 0;
-	obj->setDBKey( objid );
-    }
-
-    mDynamicCastGet(Surface*,surface,obj)
-    if ( surface )
-    {
-	mDynamicCastGet(RowColSurfaceGeometry*,geom,&surface->geometry())
-	if ( geom && iosel )
-	{
-	    TrcKeySampling hs;
-	    hs.setInlRange( geom->rowRange() );
-	    hs.setCrlRange( geom->colRange() );
-	    if ( hs.isEmpty() )
-		return geom->loader( iosel );
-
-	    SurfaceIODataSelection newsel( *iosel );
-	    newsel.rg.include( hs );
-	    return geom->loader( &newsel );
-	}
-
-	return surface->geometry().loader(iosel);
-    }
-    else if ( obj )
-	return obj->loader();
-
-    return 0;
+    DBKeySet objids;
+    objids.add( objid );
+    return objectLoader( objids, iosel );
 }
 
 
@@ -358,13 +301,12 @@ EM::Object* EM::ObjectManager::loadIfNotFullyLoaded( const ObjID& objid,
 {
     RefMan<EM::Object> emobj = getObject( objid );
 
+    mLock4Read();
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	PtrMan<Executor> exec = objectLoader( objid );
-	if ( !exec )
-	    return 0;
-
-	if ( !trprov.execute(*exec) )
+	PtrMan<EM::ObjectLoader> loader = EM::Hor3DMan().objectLoader( objid );
+	mUnlockAllAccess();
+	if ( !loader || !loader->load(trprov) )
 	    return 0;
 
 	emobj = getObject( objid );

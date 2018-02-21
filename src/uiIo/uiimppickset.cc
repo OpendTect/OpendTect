@@ -198,7 +198,8 @@ bool uiImpExpPickSet::doImport()
     ps->setDispColor( colorfld_->color() );
     ps->setConnection( ispolygon ? Pick::Set::Disp::Close
 				 : Pick::Set::Disp::None );
-    uiString errmsg = Pick::SetMGR().store( *ps, ioobj->key() );
+    SilentTaskRunnerProvider trprov;
+    uiString errmsg = Pick::SetMGR().store( *ps, ioobj->key(), trprov );
     if ( !errmsg.isEmpty() )
 	mErrRet(errmsg);
 

@@ -39,12 +39,14 @@ public:
 
     ObjID		getID(const Set&) const;
 
-    uiRetVal		store(const Set&,const IOPar* ioobjpars=0) const;
+    uiRetVal		store(const Set&,const TaskRunnerProvider&,
+			      const IOPar* ioobjpars=0) const;
 			//!< uses name to decide whether to create or replace
     uiRetVal		store(const Set&,const ObjID&,
-				const IOPar* ioobjpars=0) const;
-    uiRetVal		save(const ObjID&) const;
-    uiRetVal		save(const Set&) const;
+			      const TaskRunnerProvider&,
+			      const IOPar* ioobjpars=0) const;
+    uiRetVal		save(const ObjID&,const TaskRunnerProvider&) const;
+    uiRetVal		save(const Set&,const TaskRunnerProvider&) const;
     bool		needsSave(const ObjID&) const;
     bool		needsSave(const Set&) const;
 

@@ -1165,14 +1165,8 @@ bool FaultStickSetDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
-	RefMan<EM::Object> emobject = EM::FSSMan().getObject( newmid );
-	if ( !emobject )
-	{
-	    PtrMan<Executor> loader = EM::FSSMan().objectLoader( newmid );
-	    if ( loader ) loader->execute();
-	    emobject = EM::FSSMan().getObject( newmid );
-	}
-
+	SilentTaskRunnerProvider trprov;
+	ConstRefMan<EM::Object> emobject = EM::FSSMan().fetch( newmid, trprov );
 	if ( emobject ) setEMObjectID( emobject->id() );
     }
 

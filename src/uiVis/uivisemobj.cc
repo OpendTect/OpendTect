@@ -58,61 +58,19 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
     DBKey mid = emod->getDBKey();
 
-    const EM::Object* emobj = EM::MGR().getObject( mid );
-    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
+    uiTaskRunner dlg( uiparent_ );
+    ExistingTaskRunnerProvider trprov( &dlg );
+    ConstRefMan<EM::Object> emobj = EM::MGR().fetch( mid, trprov );
+    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj.ptr() );
     if ( hor3d )
 	checkHorizonSize( hor3d );
 
     visSurvey::Scene* scene = emod->getScene();
-    mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
-    uiTaskRunner dlg( uiparent_ );
-    if ( !EM::MGR().getObject(mid) )
+    if ( !emobj )
     {
-	Executor* exec = 0;
-	EM::IOObjInfo oi( mid ); EM::SurfaceIOData sd;
-	uiString errmsg;
-	if ( !oi.getSurfaceData(sd,errmsg) )
-	    exec = EM::MGR().objectLoader( mid );
-	else
-	{
-	    EM::SurfaceIODataSelection sel( sd );
-	    sel.setDefault();
-	    sel.selvalues.erase();
-
-	    if ( hordisp )
-	    {
-		const StepInterval<int> rowrg = hordisp->geometryRowRange();
-		const StepInterval<int> colrg = hordisp->geometryColRange();
-		if ( rowrg.step!=-1 && colrg.step!=-1 )
-		{
-		    sel.rg.start_.inl() = rowrg.start;
-		    sel.rg.start_.crl() = colrg.start;
-		    sel.rg.stop_.inl() = rowrg.stop;
-		    sel.rg.step_.crl() = colrg.step;
-		    sel.rg.step_.inl() = rowrg.step;
-		    sel.rg.stop_.crl() = colrg.stop;
-		}
-	    }
-
-	    exec = EM::MGR().objectLoader( mid, &sel );
-	}
-
-	if ( exec )
-	{
-	    EM::Object* emobject = EM::MGR().getObject( mid );
-	    emobject->ref();
-	    if ( !TaskRunner::execute( &dlg, *exec ) )
-	    {
-		mid = DBKey::getInvalid();
-		emobject->unRef();
-		if ( scene ) visserv_->removeObject( emod, scene->id() );
-		delete exec;
-		return;
-	    }
-
-	    delete exec;
-	    emobject->unRefNoDelete();
-	}
+	mid = DBKey::getInvalid();
+	if ( scene ) visserv_->removeObject( emod, scene->id() );
+	return;
     }
 
     if ( !emod->setEMObject(mid,&dlg) )
@@ -121,6 +79,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	return;
     }
 
+    mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
     if ( hordisp && hordisp->usesTexture() )
     {
 	for ( int idx=0; idx<emod->nrAttribs(); idx++ )

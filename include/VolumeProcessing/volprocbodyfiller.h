@@ -75,9 +75,9 @@ protected:
     virtual od_int64		extraMemoryUsage(OutputSlotID,
 						const TrcKeySampling&,
 						const StepInterval<int>&) const;
-    EM::Body*			body_;
-    EM::Object*			emobj_;
-    EM::ImplicitBody*		implicitbody_;
+    const EM::Body*		body_;
+    const EM::Object*		emobj_;
+    const EM::ImplicitBody*	implicitbody_;
     DBKey			mid_;
 
     ValueType			insidevaltype_;

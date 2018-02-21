@@ -355,7 +355,8 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 
     wd->logs().add( wl );
 
-    uirv = Well::MGR().save( wllkey );
+    SilentTaskRunnerProvider trprov;
+    uirv = Well::MGR().save( wllkey, trprov );
     if ( uirv.isError() )
 	mErrRet( uirv )
 

@@ -29,10 +29,9 @@ mExpClass(EarthModel) HorizonSorter : public Executor
 public:
 
 				HorizonSorter(const DBKeySet&,
+					      const TaskRunnerProvider&,
 					      bool is2d=false);
 				~HorizonSorter();
-
-    void			setRunner(const TaskRunnerProvider&);
 
     void			getSortedList(DBKeySet&);
     const TrcKeySampling&		getBoundingBox() const	{ return tks_; }
@@ -60,12 +59,12 @@ protected:
 
     TrcKeySamplingIterator*	iterator_;
     BinID			binid_;
-    TrcKeySampling			tks_;
+    TrcKeySampling		tks_;
     ObjectSet<EM::Horizon>	horizons_;
     Array3D<int>*		result_;
     DBKeySet			unsortedids_;
     DBKeySet			sortedids_;
-    const TaskRunnerProvider*	trprov_;
+    const TaskRunnerProvider&	trprov_;
 
     uiString			message_;
 

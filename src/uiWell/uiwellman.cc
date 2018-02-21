@@ -540,7 +540,8 @@ void uiWellMan::saveWell( const Well::Data& wd, bool showwait )
     PtrMan<uiUserShowWait> usw = showwait
 	? new uiUserShowWait(this,uiStrings::sSavingData()) : 0;
 
-    uiRetVal uirv = Well::MGR().store( wd );
+    SilentTaskRunnerProvider trprov;
+    uiRetVal uirv = Well::MGR().store( wd, trprov );
     if ( usw )
 	usw->readyNow();
 

@@ -129,8 +129,8 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
     DBKeySet seldbkys;
     hordlg.getChosen( seldbkys );
 
-    uiTaskRunner taskrunner( this );
-    hpl.load( seldbkys, is2d, &taskrunner );
+    uiTaskRunnerProvider trprov( this );
+    hpl.load( seldbkys, is2d, trprov );
     uiMSG().message( hpl.errorMsg() );
     listfld_->setEmpty();
     listfld_->addItems( hpl.getPreloadedNames().getUiStringSet() );
@@ -243,9 +243,9 @@ void uiHorizonPreLoadDlg::loadSavedHorizon( const DBKeySet& saveddbkys )
 	return;
 
     const bool is2d = EM::MGR().is2D( saveddbkys.get(0) );
-    uiTaskRunner taskrunner( this );
+    uiTaskRunnerProvider trprov( this );
     EM::HorizonPreLoader& hpl = EM::HPreL();
-    hpl.load( saveddbkys, is2d, &taskrunner );
+    hpl.load( saveddbkys, is2d, trprov );
     uiMSG().message( hpl.errorMsg() );
     listfld_->setEmpty();
     BufferStringSet hornms = hpl.getPreloadedNames();

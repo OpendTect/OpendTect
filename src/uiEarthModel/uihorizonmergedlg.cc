@@ -68,7 +68,7 @@ DBKey uiHorizonMergeDlg::getNewHorMid() const
 
 bool uiHorizonMergeDlg::acceptOK()
 {
-    uiTaskRunner uitr( this );
+    uiTaskRunnerProvider trprov( this );
 
     DBKeySet objids;
     horselfld_->getSelSurfaceIds( objids );
@@ -83,8 +83,8 @@ bool uiHorizonMergeDlg::acceptOK()
     if ( !ioobj )
 	return false;
 
-    PtrMan<Executor> loader = EM::getMgr(ioobj->key()).objectLoader( objids );
-    if ( loader && !TaskRunner::execute( &uitr, *loader ) )
+    RefObjectSet<EM::Object> objs = EM::Hor3DMan().loadObjects( objids, trprov);
+    if ( objs.size() != objids.size() )
     {
 	uiMSG().error( tr("Cannot load selected input horizons") );
 	return false;
@@ -92,7 +92,7 @@ bool uiHorizonMergeDlg::acceptOK()
 
     EM::Horizon3DMerger merger( objids );
     merger.setMode( (EM::HorizonMerger::Mode)duplicatefld_->getIntValue() );
-    if ( !TaskRunner::execute( &uitr, merger ) )
+    if ( !trprov.execute(merger) )
     {
 	uiMSG().error( tr("Cannot merge horizons") );
 	return false;
@@ -108,10 +108,10 @@ bool uiHorizonMergeDlg::acceptOK()
     hor3d->setPreferredColor( outfld_->getColor() );
     hor3d->setStratLevelID( outfld_->getStratLevelID() );
     hor3d->setDBKey( ioobj->key() );
-    PtrMan<Executor> saver = hor3d->saver();
-    if ( !saver || !TaskRunner::execute( &uitr, *saver ) )
+    uiRetVal ret = EM::Hor3DMan().save( ioobj->key(), trprov );
+    if ( !ret.isOK() )
     {
-	uiMSG().error( tr("Cannot save output horizon") );
+	uiMSG().errorWithDetails( ret, tr("Cannot save output horizon") );
 	return false;
     }
 

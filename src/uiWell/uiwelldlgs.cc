@@ -1904,7 +1904,9 @@ bool uiSetD2TFromOtherWell::acceptOK()
 	    continue;
 	}
 
-	const uiRetVal uirv = Well::MGR().store( *welldata, selwells[idx] );
+	SilentTaskRunnerProvider trprov;
+	const uiRetVal uirv =
+		    Well::MGR().store( *welldata, selwells[idx], trprov );
 	if ( !uirv.isOK() )
 	    errmsgs.add( uirv );
     }

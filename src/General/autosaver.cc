@@ -16,6 +16,7 @@
 #include "oddirs.h"
 #include "transl.h"
 #include "keystrs.h"
+#include "taskrunner.h"
 #include "uistrings.h"
 #include "genc.h"
 
@@ -126,11 +127,12 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
 
     const DirtyCountType curdirtycount = saver_->curDirtyCount();
     const bool objusersaved = curdirtycount == saver_->lastSavedDirtyCount();
+    SilentTaskRunnerProvider trprov;
     if ( !hidden )
     {
 	if ( objusersaved )
 	    return 0;
-	msgs_ = saver_->save();
+	msgs_ = saver_->save( trprov );
 	return msgs_.isError() ? -1 : 1;
     }
 
@@ -167,7 +169,7 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
     if ( !DBM().setEntry( *newstoreioobj ) )
 	msgs_.add(uiStrings::phrCannotCreateDBEntryFor(tr("auto-save object")));
     else
-	msgs_ = saver_->store( *newstoreioobj );
+	msgs_ = saver_->store( *newstoreioobj, trprov );
     if ( !msgs_.isOK() )
     {
 	lastautosavedirtycount_ = prevautosavedirtycount;
