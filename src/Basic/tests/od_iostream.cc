@@ -221,6 +221,9 @@ int mTestMainFnName( int argc, char** argv )
     if ( !isok ) \
 	return doExit( 1 )
 
+
+    od_cout() << "-> Number tests." << od_endl;
+
     mDoTest(strm1,"123 44.5",testIfNumberIsNormal);
     mDoTest(strm2,"\t\n123\t\t44.5\n\n",testIfNumberIsNormal);
     mDoTest(strm3,"aap 44.5",testIfNumberIsBad);
@@ -229,9 +232,12 @@ int mTestMainFnName( int argc, char** argv )
     mDoTest(strm6,"123",testOnlyIntRead);
     mDoTest(strm7,"\n123\n \n",testOnlyIntRead);
 
+    od_cout() << "-> Pipe input test." << od_endl;
+
     if ( !testPipeInput() )
 	return doExit( 1 );
 
+    od_cout() << "-> Pipe output test." << od_endl;
     if ( !testPipeOutput() )
     {
 	if ( File::exists(tmpfnm) )
@@ -240,8 +246,10 @@ int mTestMainFnName( int argc, char** argv )
 	return doExit(1);
     }
 
+    od_cout() << "-> Prefix test." << od_endl;
     if ( !testPrefix() )
 	return doExit( 1 );
 
+    od_cout() << "-> No problem." << od_endl;
     return doExit( 0 );
 }

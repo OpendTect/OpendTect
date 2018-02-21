@@ -326,15 +326,15 @@ bool od_stream::isLocal() const
 
 BufferString od_stream::noStdStreamPErrMsg() const
 {
-    BufferString msg( "stdStream() requested but none available" );
+    BufferString msg( "\nstdStream() requested but none available" );
     msg.add( "\n\tfilename=" ).add( sd_.fileName() );
     if ( sd_.iStrm() )
 	msg.add( "\n\tistream available" );
     if ( sd_.oStrm() )
 	msg.add( "\n\tostream available" );
     msg.add( "\n\tmine_=" ).add( mine_ );
-    msg.add( "\n\tnoclose_=" ).add( noclose_ );
-    msg.add( "\n\terrmsg_=" ).add( toString(errmsg_) );
+    msg.add( "\tnoclose_=" ).add( noclose_ );
+    msg.add( "\terrmsg_='" ).add( toString(errmsg_) ).add( "'\n" );
     return msg;
 }
 
@@ -343,7 +343,14 @@ std::istream& od_istream::stdStream()
 {
     if ( sd_.iStrm() )
 	return *sd_.iStrm();
-    pErrMsg( noStdStreamPErrMsg() );
+
+    BufferString msg( noStdStreamPErrMsg(), "\nFile " );
+    const BufferString fnm( sd_.fileName() );
+    if ( fnm.isEmpty() || !File::exists(fnm) )
+	msg.add( "does not exist.\n" );
+    else
+	msg.add( "exists.\n" );
+    pErrMsg( msg );
     return nullStream().stdStream();
 }
 
