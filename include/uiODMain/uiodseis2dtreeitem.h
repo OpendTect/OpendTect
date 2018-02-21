@@ -44,6 +44,7 @@ protected:
 
     uiVisPartServer*	visserv_;
     Pos::GeomID		geomtobeadded_;
+    bool		addonlyprojline_;
 
     MenuItem		additm_;
     MenuItem		create2dgridfrom3ditm_;

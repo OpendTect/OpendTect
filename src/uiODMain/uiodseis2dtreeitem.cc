@@ -79,6 +79,7 @@ uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
     , editcoltabitm_(tr("Edit Color Settings"),"colorbar",cEditColorSetts)
     , displayallitm_(tr("Display All"),"showall",cDisplayAll)
     , hideallitm_(tr("Hide All"),"hideall",cHideAll)
+    , addonlyprojline_(false)
 {
 }
 
@@ -143,9 +144,9 @@ uiPresManagedTreeItem* uiODLine2DParentTreeItem::addChildItem(
     if ( !l2dprobe )
 	return 0;
 
-    uiOD2DLineTreeItem* inlitem = new uiOD2DLineTreeItem( *probe );
-    addChild( inlitem, false );
-    return inlitem;
+    uiOD2DLineTreeItem* lineitm = new uiOD2DLineTreeItem( *probe );
+    addChild( lineitm, false );
+    return lineitm;
 }
 
 
@@ -241,11 +242,16 @@ void uiODLine2DParentTreeItem::createMenu( MenuHandler* menu, bool istb )
 }
 
 
-//TODO PrIMPL relook into multiple line data sel
 bool uiODLine2DParentTreeItem::getSelAttrSelSpec(
 	Probe& probe , Attrib::SelSpec& selspec ) const
 {
-    if ( selattribs_.isEmpty() )
+    if ( addonlyprojline_ )
+    {
+	selspec = Attrib::SelSpec();
+	selspec.set2D();
+	selattribs_ += selspec;
+    }
+    else if ( selattribs_.isEmpty() )
     {
 	MouseCursorChanger cursorchgr( MouseCursor::Arrow );
 	if ( !uiODSceneProbeParentTreeItem::getSelAttrSelSpec(probe,selspec) )
@@ -310,7 +316,7 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 	typetobeadded_ = action != 1 ? Select : DefaultData;
 	if ( action == 3 )
 	    action = RGBA;
-	// addonlyprojline_ = action == 0;
+	addonlyprojline_ = action == 0;
 	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	for ( int idx=geomids.size()-1; idx>=0; idx-- )
 	{
@@ -501,7 +507,8 @@ bool uiOD2DLineTreeItem::init()
 
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(displayid_))
-    if ( !s2d ) return false;
+    if ( !s2d )
+	return false;
 
     const Survey::Geometry* geom = Survey::GM().getGeometry(l2dprobe->geomID());
     mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);

@@ -1258,7 +1258,8 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
     if ( !attrspecs_[0].isNLA() )
     {
 	procattrset_ = attrset_->optimizeClone( outattribs );
-	if ( !procattrset_ ) mErrRet(tr("Attribute set not valid"));
+	if ( !procattrset_ )
+	    mErrRet(tr("Attribute set not valid"));
 
 	if ( outattribs.size() > 1 )
 	{

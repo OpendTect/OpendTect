@@ -464,6 +464,9 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
     AttribProbeLayer* attrprlayer = attribProbeLayer();
     if ( !attrprlayer )
 	return attrdp;
+    const Attrib::SelSpec attrselspec = attrprlayer->selSpec();
+    if ( attrselspec.id().isInvalid() )
+	return attrdp;
 
     const Probe* parentprobe = attrprlayer->getProbe();
     if ( !parentprobe )
@@ -472,8 +475,7 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
     const TrcKeyZSampling probepos = parentprobe->position();
     ZAxisTransform* ztransform = visserv_->getZAxisTransform( sceneID() );
     uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
-    const Attrib::SelSpec attrselspec = attrprlayer->selSpec();
-    attrserv->setTargetSelSpec( attrprlayer->selSpec() );
+    attrserv->setTargetSelSpec( attrselspec );
 
     mDynamicCastGet(const RandomLineProbe*,rdlprobe,parentprobe);
     mDynamicCastGet(const ZSliceProbe*,zprobe,parentprobe);
