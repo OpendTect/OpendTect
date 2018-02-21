@@ -272,6 +272,21 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
 }
 
 
+void PosInfo::Line2DData::getBendPositions(
+			TypeSet<PosInfo::Line2DPos>& bendpos) const
+{
+    bendpos.erase();
+    for ( int idx=0; idx<bendpoints_.size(); idx++ )
+	bendpos.add( posns_[bendpoints_[idx]] );
+}
+
+
+const TypeSet<int>& PosInfo::Line2DData::getBendPoints() const
+{
+    return bendpoints_;
+}
+
+
 void PosInfo::Line2DData::setBendPoints( const TypeSet<int>& bendpoints )
 {
     bendpoints_ = bendpoints;

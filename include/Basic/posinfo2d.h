@@ -103,6 +103,9 @@ public:
     void                dump(od_ostream&,bool pretty=true) const;
     bool		read(od_istream&,bool asc);
     bool		write(od_ostream&,bool asc,bool newlns=false) const;
+
+    const TypeSet<int>&	getBendPoints() const;
+    void		getBendPositions(TypeSet<Line2DPos>&) const;
     void		setBendPoints(const TypeSet<int>&);
 
     StepInterval<Pos::TraceID>	trcNrRange() const;
