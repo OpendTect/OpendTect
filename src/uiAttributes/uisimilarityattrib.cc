@@ -125,7 +125,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     deltadipfld_->attach( alignedBelow, maxdipfld_ );
 
     dooutpstatsfld_ = new uiGenInput( this, uiStrings::sOutput(),
-			BoolInpSpec(true,tr("Statistics"),
+			BoolInpSpec(true,uiStrings::sStatistics(),
                                     tr("Dip at max similarity")));
     dooutpstatsfld_->valuechanged.notify( mCB(this,uiSimilarityAttrib,outSel) );
     dooutpstatsfld_->attach( alignedBelow, deltadipfld_ );

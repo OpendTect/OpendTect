@@ -71,7 +71,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
     }
 
     dirinpfld_ = new uiGenInput( this, tr("Direction from"),
-		    BoolInpSpec(true,tr("SteeringCube"),
+		    BoolInpSpec(true,uiStrings::sSteeringCube(),
 				uiStrings::sAttribute(mPlural)));
     dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
     steerfld_ = new uiSteerAttrSel( this, is2d );
@@ -239,7 +239,7 @@ bool uiSetPickDirs::getAndCheckAttribSelection( DataPointSet& loc )
 
 	const DescID inldipid = steerfld_->inlDipID();
 	if ( !inldipid.isValid() ) mErrRet(
-				uiStrings::phrCannotRead(tr("SteeringCube")) )
+		    uiStrings::phrCannotRead(uiStrings::sSteeringCube()) )
 
 	ids += inldipid;
 	ids += steerfld_->crlDipID();

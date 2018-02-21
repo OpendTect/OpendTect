@@ -43,9 +43,8 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     linestylefld_->changed.notify( mCB(this,uiArrowDialog,changeCB) );
     linestylefld_->attach( alignedBelow, typefld_ );
 
-    scalefld_ = new uiSlider( this,
-	    		uiSlider::Setup(tr("Scale")).nrdec(1).logscale(true),
-	   		"Size" );
+    scalefld_ = new uiSlider( this, uiSlider::Setup(uiStrings::sScale())
+			    .nrdec(1).logscale(true), "Scale" );
     scalefld_->setMinValue( 0.1 );
     scalefld_->setMaxValue( 10 );
     scalefld_->setValue( 1 );

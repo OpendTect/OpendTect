@@ -73,7 +73,7 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
     , data_(d)
     , gt_(gt)
 {
-    stortypfld_ = new uiGenInput( this, tr("Storage"),
+    stortypfld_ = new uiGenInput( this, uiStrings::sStorage(),
 		 StringListInpSpec(DataCharacteristics::UserTypeDef()) );
     stortypfld_->setValue( (int)data_.stor_ );
     if ( fixedfmtscl )

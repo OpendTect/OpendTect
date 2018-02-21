@@ -47,8 +47,8 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
     const bool withstatsdlg = nr > 2;
     if ( withstatsdlg )
     {
-	uiToolBar* tb = new uiToolBar( this, tr("Stats") );
-	tb->addButton( "info", tr("Statistics"),
+	uiToolBar* tb = new uiToolBar( this, uiStrings::sStatistics() );
+	tb->addButton( "info", uiStrings::sStatistics(),
 		       mCB(this,uiMultiMapperRangeEditWin,showStatDlg) );
     }
 

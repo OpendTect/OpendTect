@@ -208,7 +208,8 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     srchfld_->setToolTip( tr("Search expression") );
     srchfld_->setPrefWidthInChar( 15 );
     srchfld_->returnPressed.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
-    uiToolButton* srchbut = new uiToolButton( infogrp, "search", tr("Search"),
+    uiToolButton* srchbut = new uiToolButton( infogrp, "search",
+				  uiStrings::sSearch(),
 				  mCB(this,uiMadagascarBldCmd,doSearch) );
     srchbut->attach( rightOf, srchfld_ );
 

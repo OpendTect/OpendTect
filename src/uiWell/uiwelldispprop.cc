@@ -174,11 +174,14 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 {
     uiStringSet shapes3d;
     uiStringSet shapes2d;
-    shapes3d.add(tr("Cylinder")); shapes3d.add(tr("Square"));
-    shapes3d.add(tr("Sphere"));
-    shapes2d.add(tr("Dot"));shapes2d.add(tr("Solid"));shapes2d.add(tr("Dash"));
+    shapes3d.add(tr("Cylinder"))
+	    .add(uiStrings::sSquare())
+	    .add(uiStrings::sSphere());
+    shapes2d.add(tr("Dot"))
+	    .add(tr("Solid"))
+	    .add(tr("Dash"));
 
-    shapefld_ = new uiLabeledComboBox( this, tr("Shape") );
+    shapefld_ = new uiLabeledComboBox( this, uiStrings::sShape() );
     shapefld_->attach( alignedBelow, colfld_ );
     for ( int idx=0; idx<shapes3d.size(); idx++)
 	shapefld_->box()->addItem(
@@ -362,11 +365,11 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     rangefld_->attach( alignedAbove, stylefld_ );
     sep1->attach( stretchedBelow, rangefld_ );
 
-    uiStringSet choice;
-    choice.add( tr( "clip rate" ) );  choice.add( tr( "data range" ) );
+    uiStringSet choices;
+    choices.add( tr( "clip rate" ) ).add( tr( "data range" ) );
 
-    cliprangefld_ = new uiGenInput( this, tr("Specify"),
-	StringListInpSpec(choice));
+    cliprangefld_ = new uiGenInput( this, uiStrings::sSpecify(),
+		StringListInpSpec(choices));
     cliprangefld_->attach( alignedAbove, rangefld_ );
 
     clipratefld_ = new uiGenInput( this, tr("Clip rate"), StringInpSpec() );

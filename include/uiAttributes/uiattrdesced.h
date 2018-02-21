@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "changetracker.h"
 #include "datapack.h"
 #include "helpview.h"
+#include "uistrings.h"
 
 namespace Attrib { class Desc; class DescSet; }
 namespace ZDomain { class Info; }
@@ -157,7 +158,7 @@ protected:
 					    tr("gate")); }
     uiString		shiftLabel() const
 			{ return zDepLabel( uiString::empty(),
-					    tr("shift"));}
+				    uiStrings::sShift().toLower());}
     bool		zIsTime() const;
 
     uiAttrSel*		createInpFld(bool is2d,const uiString& =sDefLabel());

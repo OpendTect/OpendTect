@@ -98,7 +98,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     annotscalefld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     annotscalefld_->setSensitive( survboxfld_->isChecked() );
 
-    uiPushButton* scalebut = new uiPushButton(this, tr("Set"),
+    uiPushButton* scalebut = new uiPushButton(this, uiStrings::sSet(),
 			mCB(this,uiScenePropertyDlg,setAnnotScaleCB), false);
     scalebut->attach( rightOf, annotscalefld_ );
 

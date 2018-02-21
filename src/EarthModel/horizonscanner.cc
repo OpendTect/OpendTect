@@ -35,7 +35,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , selxy_(false)
     , bvalset_(0)
     , fileidx_(0)
-    , curmsg_(tr("Scanning"))
+    , curmsg_(uiStrings::sScanning())
     , nrdone_(0)
     , strm_(0)
 {

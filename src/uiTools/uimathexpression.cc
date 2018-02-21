@@ -40,7 +40,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
 
     if ( setup_.withsetbut_ )
     {
-	setbut_ = new uiPushButton( this, tr("Set"),
+	setbut_ = new uiPushButton( this, uiStrings::sSet(),
 			mCB(this,uiMathExpression,setButCB),
 			!setup_.setcb_.willCall() );
 	setbut_->setIcon( "apply" );

@@ -162,7 +162,7 @@ uiStatsDlg( uiParent* p, const EM::Region3D& reg )
     const IOObjContext ctxt = mIOObjContext( SeisTrc );
     inpfld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(false,false) );
 
-    statsfld_ = new uiGenInput( this, tr("Statistics"),
+    statsfld_ = new uiGenInput( this, uiStrings::sStatistics(),
 				StringListInpSpec(statsstrs) );
     statsfld_->attach( alignedBelow, inpfld_ );
 }

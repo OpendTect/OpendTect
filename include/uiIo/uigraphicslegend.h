@@ -56,8 +56,8 @@ private:
     const uiString	sLicense()	    { return uiStrings::sLicense(); }
     const uiString	sModelNm()	    { return tr("Model Name"); }
     const uiString	sHorNm()	    { return tr("Horizon Name"); }
-    const uiString	sScale()	    { return tr("Scale"); }
-    const uiString	sContourInc()	    { return tr("Contour Inc"); }
+    const uiString	sScale()	    { return uiStrings::sScale(); }
+    const uiString	sContourInc()	    { return tr("Contour Increment"); }
     const uiString	sUserNm()	    { return tr("User Name"); }
     const uiString	sDate()		    { return tr("Date"); }
     const uiString	sSignature()	    { return tr("Signature"); }

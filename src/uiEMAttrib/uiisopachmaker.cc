@@ -66,8 +66,8 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, const EM::ObjID& horid )
     if ( SI().zIsTime() )
     {
 	msecsfld_ = new uiGenInput( this, tr("Output in"),
-				BoolInpSpec(true,tr("Milliseconds"),
-				tr("Seconds")) );
+			    BoolInpSpec(true,uiStrings::sMSec(false,mPlural),
+					     uiStrings::sSec(false,mPlural)) );
 	msecsfld_->attach( alignedBelow, attrnmfld_ );
     }
 

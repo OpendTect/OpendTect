@@ -45,7 +45,8 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     projselfld_->selectionChanged.notify(
 				mCB(this,uiProjectionBasedSystem,selChgCB) );
 
-    uiButton* searchbut = new uiToolButton( this, "search", tr("Search"),
+    uiButton* searchbut = new uiToolButton( this, "search",
+				uiStrings::sSearch(),
 				mCB(this,uiProjectionBasedSystem,searchCB) );
     searchbut->attach( rightAlignedAbove, projselfld_ );
 

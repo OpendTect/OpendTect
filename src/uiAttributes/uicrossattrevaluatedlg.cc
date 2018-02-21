@@ -86,7 +86,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     calcbut->activated.notify( mCB(this,uiCrossAttrEvaluateDlg,calcPush) );
     calcbut->attach( rightTo, nrstepsfld );
 
-    sliderfld = new uiSlider( this, uiSlider::Setup(tr("Slice")),
+    sliderfld = new uiSlider( this, uiSlider::Setup(uiStrings::sSlice()),
 			      "Slice slider" );
     sliderfld->attach( alignedBelow, nrstepsfld );
     sliderfld->valueChanged.notify(

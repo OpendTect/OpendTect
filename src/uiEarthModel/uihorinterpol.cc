@@ -305,7 +305,8 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     scopes += tr("Convex hull");
     scopes += tr("Only holes");
     scopes += uiStrings::sPolygon();
-    filltypefld_ = new uiGenInput(this, tr("Scope"), StringListInpSpec(scopes));
+    filltypefld_ = new uiGenInput(this, uiStrings::sScope(),
+				    StringListInpSpec(scopes));
     filltypefld_->setValue( 2 );
     filltypefld_->valuechanged.notify( mCB(this,uiHor3DInterpolSel,scopeChgCB));
 

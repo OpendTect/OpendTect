@@ -166,7 +166,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     }
     else
     {
-	addbut = new uiPushButton( usedmachgrp, tr("Start"), true );
+	addbut = new uiPushButton( usedmachgrp, uiStrings::sStart(), true );
 	addbut->attach( alignedBelow, usedmachfld_ );
 	stopbut->attach( centeredBelow, usedmachfld_ );
 	machgrp->setHAlignObj( stopbut );
@@ -204,7 +204,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     jrppolselfld_ = new uiComboBox( jrppolgrp, "JobRun policy" );
     jrppolselfld_->addItem( tr("Run") );
     jrppolselfld_->addItem( uiStrings::sPause() );
-    jrppolselfld_->addItem( tr("Schedule") );
+    jrppolselfld_->addItem( uiStrings::sSchedule() );
     jrppolselfld_->setCurrentItem( ((int)0) );
     jrppolselfld_->selectionChanged.notify(
 				mCB(this,uiMMBatchJobDispatcher,jrpSel) );

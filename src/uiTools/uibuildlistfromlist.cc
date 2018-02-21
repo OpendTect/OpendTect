@@ -190,7 +190,8 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
 		tr("Open stored set"), mCB(this,uiBuildListFromList,openCB) );
 	openbut->attach( alignedBelow, rmbut_ );
 	savebut_ = new uiToolButton( this, "save", uiStrings::phrSave(
-		    uiStrings::sSet()),	mCB(this,uiBuildListFromList,saveCB) );
+		    uiStrings::sSet(false)),
+		    mCB(this,uiBuildListFromList,saveCB) );
 	savebut_->attach( alignedBelow, openbut );
     }
 

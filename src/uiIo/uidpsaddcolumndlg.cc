@@ -46,7 +46,7 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
 		mCB(this,uiDPSAddColumnDlg,checkMathExpr) );
 	inpfld_->attach( alignedBelow, label );
 
-	setbut_ = new uiPushButton( this, tr("Set"), true );
+	setbut_ = new uiPushButton( this, uiStrings::sSet(), true );
 	setbut_->activated.notify( mCB(this,uiDPSAddColumnDlg,parsePush) );
 	setbut_->attach( rightTo, inpfld_ );
 

@@ -110,7 +110,7 @@ void uiSeisWvltMan::addButtons()
     crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
     crbut->attach( rightOf, impbut );
 
-    uiPushButton* mergebut = new uiPushButton( grp, tr("Stack"), false );
+    uiPushButton* mergebut = new uiPushButton( grp, uiStrings::sStack(), false);
     mergebut->activated.notify( mCB(this,uiSeisWvltMan,mrgPush) );
     mergebut->attach( rightOf, crbut );
 

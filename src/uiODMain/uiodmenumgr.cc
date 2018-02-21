@@ -396,7 +396,8 @@ void uiODMenuMgr::fillSurveyMenu()
 {
     addAction( surveymnu_, tr("Select/Setup"), "survey", mManSurveyMnuItm );
 
-    uiMenu* sessionmnu = addSubMenu( surveymnu_, tr("Session"), "session" ) ;
+    uiMenu* sessionmnu = addSubMenu( surveymnu_, uiStrings::sSession(),
+				    "session" ) ;
     addAction( sessionmnu, uiStrings::sSave(), "save", mSessSaveMnuItm );
     addAction( sessionmnu, tr("Restore"), "spiral_in", mSessRestMnuItm );
     addAction( sessionmnu, tr("Auto-Load"), "autoload", mSessAutoMnuItm );
@@ -888,7 +889,7 @@ void uiODMenuMgr::fillUtilMenu()
 			    mGraphicsInfoItm );
 
     mmmnu_ = addSubMenu( utilmnu_, tr("Multi-Machine Processing"), "mmproc" );
-    addAction( mmmnu_, tr("Setup"), "settings", mSetupBatchItm );
+    addAction( mmmnu_, uiStrings::sSetup(), "settings", mSetupBatchItm );
 
     const char* lmfnm = od_ostream::logStream().fileName();
     if ( lmfnm && *lmfnm )

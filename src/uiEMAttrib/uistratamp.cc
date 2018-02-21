@@ -32,7 +32,7 @@ static const char* statstrs[] =
 	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent", 0 };
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
-    : uiDialog( p, Setup(tr("StratalAmplitude"),mNoDlgTitle,
+    : uiDialog( p, Setup(tr("Stratal Amplitude"),mNoDlgTitle,
 			 mODHelpKey(mStratAmpCalcHelpID)))
     , isoverwrite_(false)
 {

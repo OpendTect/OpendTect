@@ -31,7 +31,7 @@ namespace PreStackView
 
 uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
 	visSurvey::PreStackDisplay& vwr, uiViewer3DMgr& mgr )
-    : uiDlgGroup( p, tr("Shape") )
+    : uiDlgGroup( p, uiStrings::sShape() )
     , factorslider_( 0 )
     , widthslider_( 0 )
     , applyall_( false )

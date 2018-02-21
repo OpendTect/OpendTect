@@ -26,7 +26,7 @@ uiArray1DInterpolSel::uiArray1DInterpolSel( uiParent* p, bool doextrapolate,
     if ( doextrapolate )
     {
 	polatefld_ =
-	    new uiGenInput( this, tr("Scope"), BoolInpSpec(true,
+	    new uiGenInput( this, uiStrings::sScope(), BoolInpSpec(true,
 			    uiStrings::sInterpolate(),
 			    toUiString("%1 & %2").arg(uiStrings::sInterpolate())
 					    .arg(uiStrings::sExtrapolate())) );

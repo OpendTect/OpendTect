@@ -821,7 +821,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	    updbut->attach( ensureBelow, tbl_ );
 	    replvelfld_->updateRequested.notify(
 					mCB(this,uiD2TModelDlg,updReplVelNow) );
-	    uiPushButton* setbut = new uiPushButton( this, tr("Set"),
+	    uiPushButton* setbut = new uiPushButton( this, uiStrings::sSet(),
 			      mCB(this,uiD2TModelDlg,updReplVelNow), true );
 	    setbut->attach( rightOf, replvelfld_ );
 	}

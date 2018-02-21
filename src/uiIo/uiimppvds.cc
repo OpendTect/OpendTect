@@ -63,7 +63,7 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     IOObjContext ctxt( mIOObjContext(PosVecDataSet) );
     ctxt.forread_ = false;
     outfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrOutput(
-					uiStrings::phrData(uiStrings::sSet())));
+					    uiStrings::sDataSet()));
     outfld_->attach( alignedBelow, row1isdatafld_ );
 }
 

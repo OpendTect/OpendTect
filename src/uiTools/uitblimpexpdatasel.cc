@@ -63,16 +63,16 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     {
 	specfld_ = new uiComboBox( choicegrp_, "provide/read" );
 	specfld_->addItem( tr("provide") );
-	specfld_->addItem( tr("keyword") );
-	specfld_->addItem( tr("fixed") );
+	specfld_->addItem( uiStrings::sKeyword().toLower() );
+	specfld_->addItem( uiStrings::sFixed().toLower() );
 	specfld_->setPrefWidthInChar( mChoiceBoxWidth );
 	specfld_->selectionChanged.notify( boxcb );
 	specfld_->setCurrentItem( tinf_.selection_.isKeyworded(0) ? 1
 				: (tinf_.selection_.isInFile(0) ? 2 : 0) );
     }
 
-    uiString  lbltxt = tinf_.isOptional() ? tr("[%1]").arg(tinf_.name()) :
-		       tr("%1").arg(tinf_.name());
+    uiString  lbltxt = tinf_.isOptional()
+	    ? toUiString("[%1]").arg(tinf_.name()) : toUiString(tinf_.name());
     uiLabel* lbl = new uiLabel( this, lbltxt );
     if ( formfld_ )
 	lbl->attach( rightOf, formfld_ );

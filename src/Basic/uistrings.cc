@@ -472,7 +472,7 @@ uiWord uiStrings::sCantReadInp()
 { return phrCannotRead( tr("input") ); }
 
 uiWord uiStrings::sCantWriteSettings()
-{ return phrCannotWrite(tr("settings"));}
+{ return phrCannotWrite(sSettings());}
 
 uiWord uiStrings::sCheckPermissions()
 { return tr("Please check your permissions"); }
@@ -502,4 +502,4 @@ uiWord uiStrings::sSelOutpFile()
 { return uiStrings::phrSelect(tr("output file")); }
 
 uiWord uiStrings::sSpecifyOut()
-{ return uiStrings::phrJoinStrings(tr("Specify"), uiStrings::sOutput()); }
+{ return tr("Specify output"); }

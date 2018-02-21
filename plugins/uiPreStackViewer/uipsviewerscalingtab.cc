@@ -28,7 +28,8 @@ namespace PreStackView
 
 uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p,
 	visSurvey::PreStackDisplay& psv, uiViewer3DMgr& mgr )
-    : uiFlatViewDataDispPropTab( p, *psv.flatViewer(), tr("Scaling"), false)
+    : uiFlatViewDataDispPropTab( p, *psv.flatViewer(), uiStrings::sScaling(),
+				 false)
     , applyall_( false )
     , savedefault_( false )
     , mgr_( mgr )

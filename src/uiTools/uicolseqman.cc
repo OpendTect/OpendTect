@@ -471,8 +471,11 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
     seqdisp_->attach( ensureBelow, ctrlptsed_, 0 );
     seqdisp_->setStretch( 2, 2 );
 
-    const char* segtypes[] = { "None", "Fixed", "Variable", 0 };
-    segtypefld_ = new uiGenInput( rightgrp, tr("Segmentation"),
+    uiStringSet segtypes;
+    segtypes.add( uiStrings::sNone() );
+    segtypes.add( uiStrings::sFixed() );
+    segtypes.add( uiStrings::sVariable(false) );
+    segtypefld_ = new uiGenInput( rightgrp, uiStrings::sSegmentation(),
 				  StringListInpSpec(segtypes) );
     segtypefld_->attach( ensureBelow, seqdisp_ );
     nrsegfld_ = new uiLabeledSpinBox( rightgrp, tr("Number of segments"), 0 );
@@ -497,7 +500,7 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
     splitter->addGroup( rightgrp );
 
     uiButton* impbut = uiButton::getStd( this, OD::Import,
-					 mCB(this,uiColSeqMan,impColSeqCB), false );
+				     mCB(this,uiColSeqMan,impColSeqCB), false );
     impbut->attach( ensureBelow, splitter );
 
     removebut_ = uiButton::getStd( this, OD::Remove,

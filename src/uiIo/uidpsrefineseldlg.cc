@@ -42,7 +42,7 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
     inpfld_->valuechanging.notify( mCB(this,uiDPSRefineSelDlg,checkMathExpr) );
     label->attach( leftAlignedAbove, inpfld_ );
 
-    setbut_ = new uiPushButton( this, tr("Set"), true );
+    setbut_ = new uiPushButton( this, uiStrings::sSet(), true );
     setbut_->activated.notify( mCB(this,uiDPSRefineSelDlg,parsePush) );
     setbut_->attach( rightTo, inpfld_ );
 

@@ -674,7 +674,7 @@ uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( const DBKey& objid,
     , depthattribmnuitem_( uiStrings::sZValue(mPlural) )
     , savesurfacedatamnuitem_(m3Dots(tr("Save as Fault Data")))
     , loadsurfacedatamnuitem_(m3Dots(tr("Fault Data")))
-    , algomnuitem_(tr("Smooth"))
+    , algomnuitem_(uiStrings::sSmooth())
     , changed_(false)
     , emid_(objid)
 {}

@@ -64,7 +64,7 @@ uiSeisImportODCube::uiSeisImportODCube( uiParent* p )
     spec.addString(
 	    uiStrings::phrInput(uiStrings::phrData(uiStrings::sCube())) );
     spec.addString( tr("Generated Attribute Cube") );
-    spec.addString( tr("SteeringCube") );
+    spec.addString( uiStrings::sSteeringCube() );
     typefld_ = new uiGenInput( this, tr("Cube type"), spec );
     typefld_->attach( alignedBelow, inpfld_ );
     typefld_->valuechanged.notify( mCB(this,uiSeisImportODCube,typeChg) );

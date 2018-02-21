@@ -217,7 +217,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     titlefld_ = new uiGenInput( this, tr("Presentation Title") );
     titlefld_->setElemSzPol( uiObject::Wide );
 
-    settingsbut_ = new uiToolButton( this, "settings", tr("Settings"),
+    settingsbut_ = new uiToolButton( this, "settings", uiStrings::sSettings(),
 		mCB(this,uiPresentationMakerDlg,settingsCB) );
     settingsbut_->attach( rightTo, titlefld_ );
 
@@ -229,7 +229,6 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
 		mCB(this,uiPresentationMakerDlg,templateCB) );
     templatefld_->attach( alignedBelow, titlefld_ );
 
-    BufferString filter( "PowerPoint (*.pptx)" );
     uiFileSel::Setup fssu;
     fssu.setFormat( tr("PowerPoint"), "pptx" ).defaultextension( "pptx" );
     masterfld_ = new uiFileSel( this, tr("Template pptx"), fssu );

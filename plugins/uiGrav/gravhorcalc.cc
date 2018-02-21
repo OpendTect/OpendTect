@@ -57,10 +57,10 @@ int Grav::HorCalc::doLoadStep()
     else if ( nrdone_ == 4 )
     {
 	// ztransf_ = ZATF().create( xxx );
-	msg_ = tr("TODO");
+	msg_ = uiStrings::phrTODONotImpl("Grav::HorCalc");
 	nrdone_ = 0;
 	return ErrorOccurred();
-	
+
     }
     return MoreToDo();
 }

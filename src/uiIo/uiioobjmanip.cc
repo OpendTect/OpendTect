@@ -121,7 +121,7 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool withreloc,
     setAlternative( robut, "unlock", tr("Toggle Read only : editable") );
     if ( withremove )
 	rembut = addButton( Remove, uiStrings::phrJoinStrings(
-				    uiStrings::sDelete(), tr("Selected")), cb );
+			    uiStrings::sDelete(), uiStrings::sSelected()), cb );
     attach( rightOf, subj_.obj_ );
 }
 

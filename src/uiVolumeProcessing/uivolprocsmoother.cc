@@ -37,7 +37,7 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf, bool is2d )
     su.winparam_= smoother_->getOperatorParam();
     operatorselfld_ = new uiWindowFunctionSel( this, su );
 
-    uiLabel* label = new uiLabel( this, tr("Stepout") );
+    uiLabel* label = new uiLabel( this, uiStrings::sStepout() );
     label->attach( alignedBelow, operatorselfld_ );
 
     uiGroup* stepoutgroup = new uiGroup( this, "Stepout" );

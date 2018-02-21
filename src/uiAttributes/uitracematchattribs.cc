@@ -44,7 +44,8 @@ uiMatchDeltaAttrib::uiMatchDeltaAttrib( uiParent* p, bool is2d )
     mtchcubefld_ = createInpFld( is2d, tr("Match Cube") );
     mtchcubefld_->attach( alignedBelow, refcubefld_ );
 
-    maxshiftfld_ = new uiGenInput( this, zDepLabel(tr("Maximum"),tr("shift")),
+    maxshiftfld_ = new uiGenInput( this, zDepLabel(uiStrings::sMaximum(),
+					    uiStrings::sShift().toLower()),
 				   FloatInpSpec(10) );
     maxshiftfld_->attach( alignedBelow, mtchcubefld_ );
 

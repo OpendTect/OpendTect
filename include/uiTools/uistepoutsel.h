@@ -31,9 +31,9 @@ public:
     struct Setup
     {
 			Setup( bool singl=false )
-			    : seltxt_(tr("Stepout"))
-			    , lbl1_(singl?tr("nr"):tr("inl"))
-			    , lbl2_(tr("crl"))
+			    : seltxt_(uiStrings::sStepout())
+			    , lbl1_(singl?tr("Nr"):uiStrings::sInl())
+			    , lbl2_(uiStrings::sCrl())
 			    , single_(singl)
 			    , allowneg_(false)	{}
 
@@ -46,7 +46,7 @@ public:
 
 			uiStepOutSel(uiParent*,const Setup&);
 			uiStepOutSel(uiParent*,bool single=false,
-				     const uiString& seltxt=tr("Stepout"));
+				 const uiString& seltxt=uiStrings::sStepout());
 			~uiStepOutSel()		{}
 
     int			val(bool dir1) const;
@@ -58,15 +58,15 @@ public:
     virtual void	setVals(int); //!< similar to 2x setVal
     bool		dir2Active() const;
     void		setRowCol( const RowCol& rc )
-    			{ setVal(true,rc.row()); setVal(false,rc.col()); }
+			{ setVal(true,rc.row()); setVal(false,rc.col()); }
     void		setBinID(const BinID&);
-    				//!< Different from RowCol when no dir2 present:
+				//!< Different from RowCol when no dir2 present:
 				//!< then crl is used, not inl
     RowCol		getRowCol() const
 			{ return RowCol( val(true), val(false) ); }
     BinID		getBinID() const; //!< Similar remark as setBinID()
     void		setInterval(StepInterval<int> inlrg,
-	    			StepInterval<int> crlrg);
+				StepInterval<int> crlrg);
 
     void		setFieldNames(const char* nm1,const char* nm2=0);
 

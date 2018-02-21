@@ -105,7 +105,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
 //    uiLabel* stepoutlbl = new uiLabel( this, "( Smoothing parameter )" );
 //    stepoutlbl->attach( rightOf, wantmixfld_ );
 
-    stepoutfld_ = new uiLabeledSpinBox( this, tr("stepout") );
+    stepoutfld_ = new uiLabeledSpinBox( this, uiStrings::sStepout().toLower() );
     stepoutfld_->box()->setMinValue( 1 );
     stepoutfld_->box()->setStep( 1, true );
     stepoutfld_->attach( rightOf, wantmixfld_ );

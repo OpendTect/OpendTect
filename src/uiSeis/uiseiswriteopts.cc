@@ -28,7 +28,7 @@ ________________________________________________________________________
 uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
     : uiIOObjTranslatorWriteOpts(p,mCBVSVolTranslInstance)
 {
-    stortypfld_ = new uiGenInput( this, tr("Storage"),
+    stortypfld_ = new uiGenInput( this, uiStrings::sStorage(),
 		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
     stortypfld_->setValue( (int)OD::AutoFPRep );
 
@@ -73,7 +73,7 @@ void uiCBVSVolOpts::initClass()
 uiSeisBlocksOpts::uiSeisBlocksOpts( uiParent* p )
     : uiIOObjTranslatorWriteOpts(p,mSeisBlocksTranslInstance)
 {
-    stortypfld_ = new uiGenInput( this, tr("Storage"),
+    stortypfld_ = new uiGenInput( this, uiStrings::sStorage(),
 		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
     stortypfld_->setValue( (int)OD::AutoFPRep );
 
@@ -106,7 +106,7 @@ void uiSeisBlocksOpts::initClass()
 uiCBVSPS3DOpts::uiCBVSPS3DOpts( uiParent* p )
     : uiIOObjTranslatorWriteOpts(p,mCBVSPS3DTranslInstance)
 {
-    stortypfld_ = new uiGenInput( this, tr("Storage"),
+    stortypfld_ = new uiGenInput( this, uiStrings::sStorage(),
 		 StringListInpSpec(DataCharacteristics::UserTypeDef()) );
     stortypfld_->setValue( (int)OD::AutoFPRep );
     setHAlignObj( stortypfld_ );

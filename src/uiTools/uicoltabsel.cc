@@ -468,7 +468,7 @@ void doMenu()
 		        mCB(this,uiManipMapper,reScaleReqCB)), 0 );
     mnu->insertAction( new uiAction(m3Dots(tr("Full Edit")),
 		        mCB(this,uiManipMapper,setupDlgReqCB)), 1 );
-    mnu->insertAction( new uiAction(m3Dots(tr("Settings")),
+    mnu->insertAction( new uiAction(m3Dots(uiStrings::sSettings()),
 		        mCB(this,uiManipMapper,doSettings)), 1 );
     seltool_.mapperMenuReq.trigger( mnu );
     mnu->exec();

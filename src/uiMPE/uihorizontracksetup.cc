@@ -428,15 +428,15 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     parentcolfld_->attach( alignedBelow, seedsliderfld_ );
 
     selectioncolfld_ = new uiColorInput( grp,
-		   uiColorInput::Setup(EM::Horizon3D::sDefaultSelectionColor())
-				.withdesc(false).lbltxt(tr("Selections")) );
+	   uiColorInput::Setup(EM::Horizon3D::sDefaultSelectionColor())
+		    .withdesc(false).lbltxt(uiStrings::sSelection(mPlural)) );
     selectioncolfld_->colorChanged.notify(
 			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
     selectioncolfld_->attach( rightTo, parentcolfld_ );
 
     lockcolfld_ = new uiColorInput(
 	grp,uiColorInput::Setup(EM::Horizon3D::sDefaultLockColor())
-				.withdesc(false).lbltxt(tr("Locked")) );
+				.withdesc(false).lbltxt(uiStrings::sLocked()) );
     lockcolfld_->colorChanged.notify(
 			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
     lockcolfld_->attach( alignedBelow, parentcolfld_ );

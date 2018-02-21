@@ -207,7 +207,7 @@ void uiVisEMObject::setUpConnections()
 {
     singlecolmnuitem_.text = tr("Use single color");
     singlecolmnuitem_.checkable = true;
-    seedsmenuitem_.text = tr("Seeds");
+    seedsmenuitem_.text = uiStrings::sSeed(mPlural);
     seedsmenuitem_.checkable = false;
     showseedsmnuitem_.text = uiStrings::sShow();
     seedpropmnuitem_.text = m3Dots(uiStrings::sProperties());

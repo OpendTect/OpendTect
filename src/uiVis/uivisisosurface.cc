@@ -50,7 +50,8 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     modefld_->valuechanged.notify(
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,modeChangeCB) );
 
-    seedselfld_ = new uiIOObjSel( this, *mMkCtxtIOObj(PickSet), tr("Seeds") );
+    seedselfld_ = new uiIOObjSel( this, *mMkCtxtIOObj(PickSet),
+				  uiStrings::sSeed(mPlural) );
     DBKey mid = vd_->getSeedsID( isosurface );
     if ( mid.isValid() )
 	seedselfld_->setInput( mid );

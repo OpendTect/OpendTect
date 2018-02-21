@@ -44,7 +44,7 @@ class uiDPSCPScalingTab : public uiDlgGroup
 public:
 
 uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
-    : uiDlgGroup(p->tabParent(),tr("Scaling"))
+    : uiDlgGroup(p->tabParent(),uiStrings::sScaling())
     , plotter_(p->plotter())
 {
     const char* axnms[] = { "X", "Y", "Y2", 0 };

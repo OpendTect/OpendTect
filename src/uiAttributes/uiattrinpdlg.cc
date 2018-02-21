@@ -49,7 +49,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     txtfld->attach( alignedBelow, infolbl );
 
     uiString seltext = issteer
-        ? uiStrings::phrInput(tr("SteeringCube"))
+        ? uiStrings::phrInput(uiStrings::sSteeringCube())
         : uiStrings::phrInput(uiStrings::sSeisObjName(true, true, false) );
 
     if ( prevrefnm )

@@ -74,7 +74,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     statsdef_.setUiStringForIndex( statsdef_.indexOf(Stats::Count),
 				   tr("Fold") );
     statsdef_.setUiStringForIndex( statsdef_.indexOf(Stats::Average),
-				   tr("Stack") );
+				   uiStrings::sStack() );
     stattypefld_ = new uiGenInput( this, tr("Statistics type"),
 				   StringListInpSpec(statsdef_) );
     stattypefld_->attach( alignedBelow, calctypefld_ );

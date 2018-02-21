@@ -147,7 +147,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     wvltfld_->attach( rightOf, layertb );
     curSS().setWavelet( wvltfld_->getWavelet() );
 
-    scalebut_ = new uiPushButton( datagrp_, tr("Scale"), false );
+    scalebut_ = new uiPushButton( datagrp_, uiStrings::sScale(), false );
     scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
     scalebut_->attach( rightOf, wvltfld_ );
 

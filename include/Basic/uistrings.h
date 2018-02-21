@@ -328,10 +328,11 @@ public:
     static uiWord sFilters()		{ return sFilter(mPlural); }
     static uiWord sFinish()		{ return tr("Finish"); }
     static uiWord sFinished()		{ return tr("Finished"); }
+    static uiWord sFixed()		{ return tr("Fixed"); }
     static uiWord sFlip()		{ return tr("Flip"); }
     static uiWord sFlipLeftRight()	{ return tr("Flip left/right"); }
     static uiWord sFont(int n=1)	{ return tr("Font",0,n); }
-    static uiWord sFormula()		{ return tr("Flip"); }
+    static uiWord sFormula()		{ return tr("Formula"); }
     static uiWord sFrequency(int n=1)	{ return tr("Frequency",0,n); }
     static uiWord sFull()		{ return tr("Full"); }
     static uiWord sGeneral()		{ return tr("General"); }
@@ -388,6 +389,7 @@ public:
     static uiWord sJob()		{ return tr("Job"); }
     static uiWord sLanguage()		{ return tr("Language"); }
     static uiWord sKeep()		{ return tr("Keep"); }
+    static uiWord sKeyword()		{ return tr("Keyword"); }
     static uiWord sLatitude(bool abbr)	{ return abbr?tr("Lat"):tr("Latitude");}
     static uiWord sLayer(int n=1)	{ return tr("Layer",0,n); }
     static uiWord sLeft()		{ return tr("Left"); }
@@ -403,6 +405,7 @@ public:
     static uiWord sLoad()		{ return tr("Load"); }
     static uiWord sLocation(int n=1)	{ return tr("Location",0,n); }
     static uiWord sLock()		{ return tr("Lock"); }
+    static uiWord sLocked()		{ return tr("Locked"); }
     static uiWord sLog(int n=1)		{ return tr("Log",0,n); }
     static uiWord sLogFile()		{ return tr("Log File"); }
     static uiWord sLogs()		{ return sLog(mPlural); }
@@ -543,46 +546,65 @@ public:
     static uiWord sSaveBodyFail();
     static uiWord sSavingChanges()	{ return tr("Saving changes"); }
     static uiWord sSavingData()		{ return tr("Saving data"); }
+    static uiWord sScale()		{ return tr("Scale"); }
+    static uiWord sScaling()		{ return tr("Scaling"); }
     static uiWord sScanning()		{ return tr("Scanning"); }
     static uiWord sScene(int n=1)	{ return tr("Scene",0,n); }
     static uiWord sScenes()		{ return sScene(mPlural); }
+    static uiWord sSchedule()		{ return tr("Schedule"); }
+    static uiWord sScope()		{ return tr("Scope"); }
+    static uiWord sSearch()		{ return tr("Search"); }
     static uiWord sSearching()		{ return tr("Searching"); }
     static uiWord sSec( bool abbr, int n=1 )
     { return abbr ? toUiString("s") : tr("Second","unit of time",n); }
     static uiWord sSEGY()		{ return tr("SEG-Y"); }
+    static uiWord sSeed(int n=1)	{ return tr("Seed",0,n); }
     static uiWord sSegment()		{ return tr("Segment"); }
+    static uiWord sSegmentation()	{ return tr("Segmentation"); }
     static uiWord sSeismic(int n=1)	{ return tr("Seismic",0,n); }
     static uiWord sSeismicData()	{ return tr("Seismic Data"); }
     static uiWord sSelAttrib()		{ return tr("Select Attribute"); }
     static uiWord sSelOutpFile();
     static uiWord sSelect()		{ return tr("Select"); }
+    static uiWord sSelected()		{ return tr("Selected"); }
     static uiWord sSelectPos()		{ return tr("Select Position"); }
     static uiWord sSelectedLog(int n=1)	{ return tr("Selected Log",0,n); }
     static uiWord sSelection(int n=1)	{ return tr("Selection",0,n); }
     static uiWord sSemblance()		{ return tr("Semblance"); }
     static uiWord sSession(int n=1)	{ return tr("Session",0,n); }
-    static uiWord sSet(int n=1)		{ return tr("Set",0,n); }
+    static uiWord sSet(bool verb=true,int n=1)
+    { return verb ? tr("Set","verb") : tr("Set","collection",n); }
     static uiWord sSetAs()		{ return tr("Set As"); }
     static uiWord sSettings()		{ return tr("Settings"); }
     static uiWord sSetup()		{ return tr("Setup"); }
+    static uiWord sShape()		{ return tr("Shape"); }
+    static uiWord sShapeFile(int n=1)	{ return tr("ShapeFile",0,n); }
     static uiWord sShift()		{ return tr("Shift"); }
     static uiWord sShow()		{ return tr("Show"); }
     static uiWord sShowIn()		{ return tr("Show In"); }
     static uiWord sSimilarity()		{ return tr("Similarity"); }
     static uiWord sSingle()		{ return tr("Single"); }
     static uiWord sSize()		{ return tr("Size"); }
+    static uiWord sSkip()		{ return tr("Skip"); }
     static uiWord sSlice()		{ return tr("Slice"); }
+    static uiWord sSmooth()		{ return tr("Smooth","verb"); }
+    static uiWord sSmoothing()		{ return tr("Smoothing"); }
+    static uiWord sSnapping()		{ return tr("Snapping"); }
     static uiWord sSource(int n=1)	{ return tr("Source",0,n); }
     static uiWord sSouth( bool abbr )
     { return abbr ? tr("S","abbr South") : tr("South"); }
     static uiWord sSpecify()		{ return tr("Specify"); }
     static uiWord sSpecifyOut();
+    static uiWord sSphere()		{ return tr("Sphere"); }
     static uiWord sSPNumber()		{ return tr("Shot-Point number"); }
+    static uiWord sSquare()		{ return tr("Square"); }
     static uiWord sStandard()		{ return tr("Standard"); }
+    static uiWord sStack()		{ return tr("Stack","verb, seismics"); }
     static uiWord sStart()		{ return tr("Start"); }
     static uiWord sStatistics()		{ return tr("Statistics"); }
     static uiWord sStatus()		{ return tr("Status"); }
     static uiWord sSteering()		{ return tr("Steering"); }
+    static uiWord sSteeringCube()	{ return tr("Steering Cube"); }
     static uiWord sStep(int n=1)	{ return tr("Step",0,n); }
     static uiWord sStepout()		{ return tr("Stepout"); }
     static uiWord sSteps()		{ return sStep(mPlural); }

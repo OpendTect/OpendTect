@@ -10,6 +10,7 @@
 #include "emposid.h"
 #include "trckeysampling.h"
 #include "ranges.h"
+#include "uistrings.h"
 
 class TrcKeySamplingIterator;
 
@@ -78,7 +79,7 @@ public:
     void		setWeak( bool yn )	{ weak_ = yn; }
     Executor*		dataSaver(const DBKey&);
 
-    uiString		message() const	{ return tr("Smoothing"); }
+    uiString		message() const	{ return uiStrings::sSmoothing(); }
 
 protected:
 

@@ -67,7 +67,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    shapefld_ = new uiGenInput( this, tr("Shape"),
+    shapefld_ = new uiGenInput( this, uiStrings::sShape(),
                                 StringListInpSpec(shapestrs) );
     shapefld_->valuechanged.notify(
 			    mCB(this,uiVolumeStatisticsAttrib,shapeChg));

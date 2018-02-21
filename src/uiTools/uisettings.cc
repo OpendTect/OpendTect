@@ -89,7 +89,7 @@ uiAdvSettings::uiAdvSettings( uiParent* p, const uiString& titl,
 
     tbl_ = new uiTable( this, uiTable::Setup(10,2).manualresize(true),
 				"Settings editor" );
-    tbl_->setColumnLabel( 0, tr("Keyword") );
+    tbl_->setColumnLabel( 0, uiStrings::sKeyword() );
     tbl_->setColumnLabel( 1, uiStrings::sValue() );
     tbl_->setStretch( 2, 2 );
     tbl_->setPrefWidth( 400 );

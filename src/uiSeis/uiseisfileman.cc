@@ -395,7 +395,8 @@ void uiSeisFileMan::mkFileInfo()
     }
     delete tri;
     if ( dsstr.size() > 4 )
-	txt.appendPhrase(tr("Storage"), uiString::NoSep).appendPlainText(": ")
+	txt.appendPhrase(uiStrings::sStorage(),uiString::NoSep)
+		    .appendPlainText(": ")
 		    .appendPlainText( toString(dsstr.buf() + 4) );
 
     const int nrcomp = oinf.nrComponents();
