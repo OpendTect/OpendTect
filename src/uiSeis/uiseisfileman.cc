@@ -409,7 +409,7 @@ void uiSeisFileMan::mkFileInfo()
 
     if ( txt.isEmpty() )
 	txt = tr("<No specific info available>");
-    txt.appendPhrase( mToUiStringTodo(getFileInfo()), uiString::NoSep,
+    txt.appendPhrase( getFileInfo(), uiString::NoSep,
 						    uiString::AfterEmptyLine );
 
     setInfo( txt );

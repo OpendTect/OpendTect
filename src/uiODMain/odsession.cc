@@ -296,6 +296,6 @@ void uiSessionMan::mkFileInfo()
     if ( !curioobj_ ) { setInfo( uiString::empty() ); return; }
 
     uiPhrase txt;
-    txt.appendPhrase( mToUiStringTodo(getFileInfo()), uiString::NoSep );
+    txt.appendPhrase( getFileInfo(), uiString::NoSep );
     setInfo( txt );
 }

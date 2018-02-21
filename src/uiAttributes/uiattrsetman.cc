@@ -98,7 +98,7 @@ void uiAttrSetMan::mkFileInfo()
 	fillAttribList( attribfld_, attrset );
     }
 
-    txt.appendPhrase( mToUiStringTodo(getFileInfo()), uiString::NoSep,
+    txt.appendPhrase( getFileInfo(), uiString::NoSep,
 						    uiString::AfterEmptyLine );
     setInfo(txt);
 }

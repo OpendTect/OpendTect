@@ -815,6 +815,6 @@ void uiWellMan::mkFileInfo()
 
     if ( txt.isEmpty() )
 	txt = tr( "<No specific info available>\n" );
-    txt.appendPhrase( mToUiStringTodo(getFileInfo()) );
+    txt.appendPhrase( getFileInfo(), uiString::NoSep );
     setInfo( txt );
 }

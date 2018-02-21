@@ -136,7 +136,7 @@ void uiPickSetMan::mkFileInfo()
 		 .getUiStringForIndex(disp.mkstyle_.type_)), uiString::NoSep);
     }
 
-    txt.addSpace().appendPhrase( mToUiStringTodo(getFileInfo()) );
+    txt.appendPhrase( getFileInfo(), uiString::NoSep );
     setInfo( txt );
 }
 

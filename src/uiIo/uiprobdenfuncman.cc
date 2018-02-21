@@ -109,7 +109,7 @@ void uiProbDenFuncMan::mkFileInfo()
 	{ setInfo( uiWord::empty() ); return; }
 
     uiPhrase txt;
-    txt = mToUiStringTodo(getFileInfo());
+    txt = getFileInfo();
 
     mGetPDF(pdf);
     if ( pdf )

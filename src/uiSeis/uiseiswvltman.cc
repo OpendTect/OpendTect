@@ -286,7 +286,7 @@ void uiSeisWvltMan::mkFileInfo()
 	}
     }
 
-    txt.appendPhrase(mToUiStringTodo(getFileInfo()));
+    txt.appendPhrase( getFileInfo(), uiString::NoSep);
     setInfo( txt );
 }
 

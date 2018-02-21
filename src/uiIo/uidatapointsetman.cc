@@ -120,7 +120,7 @@ void uiDataPointSetMan::mkFileInfo()
     if ( !curioobj_ ) { setInfo( uiString::empty() ); return; }
 
     uiPhrase txt;
-    txt = mToUiStringTodo(getFileInfo());
+    txt = getFileInfo();
 
     mGetDPS(dps);
     if ( !dps ) return;

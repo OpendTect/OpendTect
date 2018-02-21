@@ -283,9 +283,9 @@ void uiObjFileMan::getTimeLastModified( const char* fname,
 }
 
 
-BufferString uiObjFileMan::getFileInfo()
+uiPhrase uiObjFileMan::getFileInfo()
 {
-    BufferString txt;
+    uiPhrase txt;
     if ( !curioobj_ )
 	return txt;
 
@@ -293,7 +293,7 @@ BufferString uiObjFileMan::getFileInfo()
     const BufferString fname = curioobj_->mainFileName();
     const bool isdir = isstrm && File::isDirectory( fname );
     if ( !isstrm )
-	txt.add( "Data source: " ).add( curioobj_->connType() );
+	txt  = tr("Data source: %1").arg( curioobj_->connType() );
     else
     {
 	int nrfiles = 0;
@@ -306,44 +306,55 @@ BufferString uiObjFileMan::getFileInfo()
 	const BufferString fileszstr( File::getFileSizeString( totsz ) );
 	if ( isdir )
 	{
-	    txt.add( "\nDirectory name: " ).add( usrnm );
-	    txt.add( "\nTotal size on disk: " ).add( fileszstr );
-	    txt.add( "\nNumber of files: " ).add( nrfiles );
+	    txt = tr("Directory name: %1" ).arg( usrnm );
+	    txt.appendPhrase( tr("Total size on disk: %1").arg(fileszstr),
+							    uiString::NoSep );
+	    txt.appendPhrase( tr("Number of files: %1").arg(nrfiles),
+							    uiString::NoSep );
 	}
 	else
 	{
 	    File::Path fp( usrnm );
-	    txt.add( "\nFile name: " ).add( fp.fileName() );
+	    txt = uiStrings::sFileName().appendPlainText(": ")
+					.appendPlainText( fp.fileName() );
 	    fp.set( fname );
-	    txt.add( "\nLocation: " ).add( fp.pathOnly() );
-	    txt.add( "\nSize: " ).add( fileszstr );
+	    txt.appendPhrase( uiStrings::sLocation(), uiString::NoSep )
+				.appendPlainText(": ")
+				.appendPlainText( fp.pathOnly() );
+	    txt.appendPhrase( uiStrings::sSize(), uiString::NoSep )
+				.appendPlainText(": ")
+				.appendPlainText( fileszstr );
 	}
 	BufferString timestr; getTimeStamp( fname, timestr );
 	if ( !timestr.isEmpty() )
-	    txt.add( "\nLast modified: " )
-		.add( Time::getUsrDateTimeStringFromISOUTC(timestr) );
+	    txt.appendPhrase( tr("Last modified: %1")
+		.arg(Time::getUsrDateTimeStringFromISOUTC(timestr)), 
+							    uiString::NoSep  );
     }
-    txt.add( "\n" );
 
     BufferString crspec;
     curioobj_->pars().get( sKey::CrBy(), crspec );
     if ( crspec.isEmpty() )
 	curioobj_->pars().get( "User", crspec );
     if ( !crspec.isEmpty() )
-	txt.add( "\nCreated by: " ).add( crspec );
+	txt.appendPhrase( tr("Created by: %1").arg(crspec), uiString::NoSep,
+							uiString::OnNewLine );
 
     crspec.setEmpty();
     curioobj_->pars().get( sKey::CrAt(), crspec );
     if ( !crspec.isEmpty() )
-	txt.add( "\nCreated at: " ).add( crspec );
+	txt.appendPhrase( tr("Created at: %1").arg(crspec), uiString::NoSep );
 
     crspec.setEmpty();
     curioobj_->pars().get( sKey::CrFrom(), crspec );
     if ( !crspec.isEmpty() )
-	txt.add( "\nCreated from: " ).add( crspec );
+	txt.appendPhrase( tr("Created from: %1").arg(crspec), 
+							    uiString::NoSep );
 
-    txt.add( "\nStorage type: " ).add( curioobj_->translator() );
-    txt.add( "\nObject ID: " ).add( curioobj_->key() );
+    txt.appendPhrase( tr("Storage type: %1").arg(curioobj_->translator()),
+							    uiString::NoSep );
+    txt.appendPhrase( tr("Object ID: %1").arg(curioobj_->key()),
+							    uiString::NoSep );
     return txt;
 }
 

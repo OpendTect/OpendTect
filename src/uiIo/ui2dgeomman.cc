@@ -260,7 +260,7 @@ void ui2DGeomManageDlg::ownSelChg()
 
 void ui2DGeomManageDlg::mkFileInfo()
 {
-    const uiPhrase txt = mToUiStringTodo(getFileInfo());
+    const uiPhrase txt = getFileInfo();
     setInfo( txt );
 }
 

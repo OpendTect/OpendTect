@@ -650,7 +650,7 @@ void uiSurfaceMan::mkFileInfo()
 	mAddZRangeTxt()
     }
 
-    txt.appendPhrase( mToUiStringTodo(getFileInfo()) );
+    txt.appendPhrase( getFileInfo(), uiString::NoSep );
 
     setInfo( txt );
     setToolButtonProperties();

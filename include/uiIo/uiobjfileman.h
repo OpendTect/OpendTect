@@ -59,7 +59,7 @@ protected:
 						bool multisel=true);
     void			getTimeStamp(const char*,BufferString&);
     void			getTimeLastModified(const char*,BufferString&);
-    BufferString		getFileInfo();
+    uiPhrase			getFileInfo();
     virtual void		mkFileInfo()			= 0;
     virtual od_int64		getFileSize(const char*,int&) const;
 
