@@ -17,6 +17,10 @@ macro ( create_package PACKAGE_NAME )
 			     ${COPYTODATADIR}/. )
 	endif()
 
+	if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+	    copy_unix_systemlibs()
+	endif()
+
 	if( NOT MATLAB_DIR STREQUAL "" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB
@@ -240,6 +244,16 @@ macro( PREPARE_WIN_THIRDPARTY_DEBUGLIST DEBUGFILELIST)
     endif()
 endmacro()
 
+
+macro( copy_unix_systemlibs )
+    message( "Copying ${OD_PLFSUBDIR} system libraries" )
+    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/systemlibs )
+    if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+	foreach( SYSLIB ${SYSTEMLIBS} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${SYSLIB} ${COPYTOLIBDIR}/systemlibs/ )
+	endforeach()
+    endif()
+endmacro()
 
 macro( create_basepackages PACKAGE_NAME )
     if( ${PACKAGE_NAME} STREQUAL "basedata" )
