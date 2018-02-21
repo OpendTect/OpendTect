@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "geom2dintersections.h"
 
-#include "bendpointfinder.h"
+#include "posinfo2d.h"
 #include "survgeom2d.h"
 #include "trigonometry.h"
 
@@ -60,17 +60,9 @@ int BendPointFinder2DGeomSet::nextStep()
     if ( !geom2d )
     { mRetMoreToDo(); }
 
-    const float avgtrcdist = geom2d->averageTrcDist();
-    if ( mIsUdf(avgtrcdist) || mIsZero(avgtrcdist,1e-3) )
-	{ mRetMoreToDo(); }
-
-    BendPointFinder2DGeom bpfinder( geom2d->data().positions(), avgtrcdist );
-    if ( !bpfinder.execute() )
-	{ mRetMoreToDo(); }
-
     BendPoints* bp = new BendPoints;
     bp->geomid_ = geomids_[curidx_];
-    bp->idxs_ = bpfinder.bendPoints();
+    bp->idxs_ = geom2d->data().getBendPoints();
     bendptset_ += bp;
     mRetMoreToDo();
 }
