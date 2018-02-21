@@ -7,6 +7,7 @@
 
 #include "geometryio.h"
 
+#include "bendpointfinder.h"
 #include "ioobjctxt.h"
 #include "dbdir.h"
 #include "dbman.h"
@@ -63,16 +64,28 @@ public:
 
 	uiString errmsg;
 	Geometry* geom = geomtransl->readGeometry( *ioobj, errmsg );
-	if ( geom )
+	mDynamicCastGet(Geometry2D*,geom2d,geom)
+	if ( geom2d )
 	{
-	    geom->ref();
-	    geometries_ += geom;
+	    calcBendPoints( geom2d->dataAdmin() );
+	    geom2d->ref();
+	    geometries_ += geom2d;
 	}
 
 	mReturn
     }
 
 protected:
+
+    bool calcBendPoints( PosInfo::Line2DData& l2d ) const
+    {
+	BendPointFinder2DGeom bpf( l2d.positions(), 10.0 );
+	if ( !bpf.execute() || bpf.bendPoints().isEmpty() )
+	    return false;
+
+	l2d.setBendPoints( bpf.bendPoints() );
+	return true;
+    }
 
     bool isLoaded( Geometry::ID geomid ) const
     {

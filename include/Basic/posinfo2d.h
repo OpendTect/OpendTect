@@ -103,6 +103,7 @@ public:
     void                dump(od_ostream&,bool pretty=true) const;
     bool		read(od_istream&,bool asc);
     bool		write(od_ostream&,bool asc,bool newlns=false) const;
+    void		setBendPoints(const TypeSet<int>&);
 
     StepInterval<Pos::TraceID>	trcNrRange() const;
     Coord		getNormal(int trcnr) const;
@@ -121,6 +122,7 @@ protected:
     StepInterval<float> zrg_;
     BufferString	lnm_;
     TypeSet<Line2DPos>  posns_;
+    TypeSet<int>	bendpoints_;
 
     int			gtIndex(int,bool&) const;
     int			gtIndex(const Coord&,double* sqdist=0) const;
@@ -149,7 +151,7 @@ public:
     inline const Line2DPos& line2DPos() const { return ld_.posns_[idx_]; }
     inline Pos::GeomID	geomID() const	{ return ld_.geomID(); }
     inline int		trcNr() const
-    			{ return idx_>=0 ? ld_.posns_[idx_].nr_:mUdf(int);}
+			{ return idx_>=0 ? ld_.posns_[idx_].nr_:mUdf(int);}
     inline void		setTrcNr( int trcnr )
 			{ idx_ = ld_.indexOf( trcnr ); }
 
