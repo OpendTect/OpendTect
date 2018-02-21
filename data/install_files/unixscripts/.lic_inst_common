@@ -1,3 +1,4 @@
+#!/bin/csh -f
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
@@ -11,6 +12,10 @@ if ( ! $?target_name ) then
 endif
 if ( ! $?flexlm_dir ) then
 	echo "$0 can be only called after setting the 'flexlm_dir' variable."
+	exit 1
+endif
+if ( ! $?DTECT_APPL ) then
+	echo "$0 can be only called after setting the 'DTECT_APPL' variable."
 	exit 1
 endif
 
