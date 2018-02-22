@@ -127,14 +127,36 @@ uiPhrase uiStrings::phrData( const uiWord& string )
 uiPhrase uiStrings::phrDelete( const uiWord& string )
 { return toUiString(joinstring).arg(sDelete()).arg(string); }
 
+uiPhrase uiStrings::phrDiskSpace()
+{ return tr("This may be a disk space problem"); }
+
 uiPhrase uiStrings::phrDoesNotExist( const uiWord& string )
 { return tr( "%1 does not exist" ).arg( string ); }
+
+uiPhrase uiStrings::phrErrCalculating( const uiWord& subj )
+{ return tr("Error calculating %1").arg(subj); }
 
 uiPhrase uiStrings::phrEdit( const uiWord& string )
 { return toUiString(joinstring).arg( sEdit() ).arg( string ); }
 
 uiPhrase uiStrings::phrEnter( const uiWord& string )
 { return toUiString(joinstring).arg(sEnter()).arg(string); }
+
+uiPhrase uiStrings::phrErrDuringIO( bool read, const uiString& subj )
+{
+	return (read ? tr("Error during %1 read")
+		     : tr("Error during %1 write")).arg( subj );
+}
+
+uiPhrase uiStrings::phrErrDuringIO( bool read, const char* nm )
+{
+    if ( !nm || !*nm )
+	return read ? tr("Error during data read")
+		    : tr("Error during data write");
+    else
+	return (read ? tr("Error during read of '%1'")
+		     : tr("Error during write of '%1'")).arg( nm );
+}
 
 uiPhrase uiStrings::phrExistsContinue( const uiWord& string, bool overwrite )
 {
@@ -178,11 +200,7 @@ uiPhrase uiStrings::phrInsert( const uiWord& string )
 uiPhrase uiStrings::phrInvalid( const uiWord& string )
 { return toUiString(joinstring).arg(sInvalid()).arg(string); }
 
-uiPhrase uiStrings::phrInternalError( const uiWord& string )
-{ return tr( "Internal Error (pease contact support@dgbes.com):\n%1")
-	 .arg( string ); }
-
-uiPhrase uiStrings::phrInternalError( const char* string )
+uiPhrase uiStrings::phrInternalErr( const char* string )
 { return tr( "Internal Error (pease contact support@dgbes.com):\n%1")
 	 .arg( string ); }
 
@@ -220,12 +238,14 @@ uiPhrase uiStrings::phrOutput( const uiWord& string )
 
 uiPhrase uiStrings::phrInterpretationDataExist( uiWord type, const char* nm)
 {
-    return tr("A %1 with name '%2' already exists").arg(type)
-						    .arg(toUiString(nm));
+    return tr("A %1 with name '%2' already exists").arg(type).arg(nm);
 }
 
 uiWord uiStrings::phrOutputFileExistsOverwrite()
 { return phrExistsContinue( sOutputFile(), true ); }
+
+uiPhrase uiStrings::phrPlsCheckThe( const uiWord& subj )
+{ return tr("Please chack the %1").arg( subj ); }
 
 uiPhrase uiStrings::phrPlsContactSupport( bool firstdoc )
 {

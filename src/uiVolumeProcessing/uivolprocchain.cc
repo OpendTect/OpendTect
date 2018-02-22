@@ -482,7 +482,7 @@ bool uiChain::showPropDialog( int idx )
 				step->factoryKeyword(), this, step, is2d_ );
     if ( !dlg )
     {
-	uiMSG().error( tr("Internal error. Step cannot be created") );
+	uiMSG().error( uiStrings::phrInternalErr("Step cannot be created") );
 	return false;
     }
 

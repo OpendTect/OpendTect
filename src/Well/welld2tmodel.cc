@@ -714,12 +714,11 @@ void Well::D2TModel::shiftTimesIfNecessary( TypeSet<double>& tvals,
     if ( mIsZero(timeshift,t_eps) )
 	return;
 
-    msg = tr("Error with the input time-depth model:\n"
-	  "It does not honour TWT(Z=SRD) = 0.");
+    msg = tr("The input time-depth model does not honour TWT(Z=SRD) = 0.");
     const UnitOfMeasure* uomz = UnitOfMeasure::surveyDefTimeUnit();
     const double usrtshftval = mScaledValue( timeshift, uomz );
     msg.appendPhrase(
-	tr( "OpendTect WILL correct for this error by applying a "
+	tr( "OpendTect will correct for this error by applying a "
 		  "time shift of: %1%2").arg( usrtshftval )
 		  .arg(UnitOfMeasure::surveyDefTimeUnitAnnot(true,false)) );
     msg.appendPhrase(tr("The resulting travel-times will differ from "

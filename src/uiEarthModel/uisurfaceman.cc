@@ -500,7 +500,8 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     if ( !writeok )
     {
 	File::remove( ofilename );
-	mErrRet( tr("Error during write. Reverting to old name") )
+	mErrRet( uiStrings::phrErrDuringWrite()
+		.appendPhrase(tr("Reverting to old name")) )
     }
 
     if ( File::rename(filename,tmpfnm) )
@@ -508,7 +509,8 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     else
     {
 	File::remove( ofilename );
-	mErrRet( tr("Cannot rename file(s). Reverting to old name") )
+	mErrRet( tr("Cannot rename file(s)")
+		.appendPhrase(tr("Reverting to old name")) )
     }
 
     if ( File::exists(tmpfnm) )

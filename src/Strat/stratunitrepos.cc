@@ -11,7 +11,7 @@
 #include "dbman.h"
 #include "uistrings.h"
 
-const char* Strat::RepositoryAccess::fileNameBase() 	{ return "StratUnits"; }
+const char* Strat::RepositoryAccess::fileNameBase()	{ return "StratUnits"; }
 
 namespace Strat
 {
@@ -119,7 +119,7 @@ Strat::RefTree* Strat::RepositoryAccess::readTree( Repos::Source src )
     if ( !rt->read(sfio.istrm()) )
     {
 	delete rt;
-	msg_ = tr("Error during read of %1").arg(fnm);
+	msg_ = uiStrings::phrErrDuringRead( fnm );
 	sfio.closeFail(); return 0;
     }
 
@@ -141,7 +141,7 @@ bool Strat::RepositoryAccess::writeTree( const Strat::RefTree& rt,
 
     if ( !rt.write(sfio.ostrm()) )
     {
-	msg_ = tr("Error during write to %1").arg(fnm);
+	msg_ = uiStrings::phrErrDuringWrite( fnm );
 	sfio.closeFail(); return false;
     }
 

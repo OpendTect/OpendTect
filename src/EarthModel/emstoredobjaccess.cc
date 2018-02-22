@@ -91,13 +91,13 @@ void EM::StoredObjAccessData::workFinished( CallBacker* cb )
 	if ( rdr_ )
 	    errmsg_ = rdr_->message();
 	if ( errmsg_.isEmpty() )
-	    errmsg_ = tr("Error during background read");
+	    errmsg_ = uiStrings::phrErrDuringRead();
     }
     else
     {
 	Object* obj = getEMObjFromMGR();
 	if ( !obj || !obj->isFullyLoaded() )
-	    errmsg_ = tr("Could not get EM object from MGR");
+	    errmsg_ = tr("Could not get EarthModel object from the database");
 	else
 	    { obj_ = obj; obj_->ref(); }
     }

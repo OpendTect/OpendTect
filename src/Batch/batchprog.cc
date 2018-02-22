@@ -338,7 +338,7 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
     if ( !ioobj && msgiffail )
     {
 	if ( errmsg.isEmpty() )
-	    errmsg = tr("Error getting DB info");
+	    errmsg = tr("Error getting info from database");
 	*sdout_.oStrm() << toString(errmsg) << std::endl;
     }
 

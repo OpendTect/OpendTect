@@ -131,7 +131,7 @@ int dgbSurfDataWriter::nextStep()
 	    else
 	    {
 		if ( !writeInt(1) )
-		    mErrRetWrite(tr("Error in writing data information"))
+		    mErrRetWrite(uiStrings::phrErrDuringWrite())
 	    }
 
 	    const Geometry::BinIDSurface* meshsurf =
@@ -167,7 +167,7 @@ int dgbSurfDataWriter::nextStep()
 		mErrRetWrite(tr("No data available for this surface"))
 
 	    if ( !writeInt(0) || !writeInt(posids_.size()) )
-		mErrRetWrite(tr("Error in writing data information"))
+		mErrRetWrite(uiStrings::phrErrDuringWrite())
 	}
 
 	const int posidindex = posids_.size()-1;
@@ -175,7 +175,7 @@ int dgbSurfDataWriter::nextStep()
 	const float auxvalue = values_[posidindex];
 
 	if ( !writeInt64(posid.getI()) || !writeFloat(auxvalue) )
-	    mErrRetWrite(tr("Error in writing datavalues"))
+	    mErrRetWrite(uiStrings::phrErrDuringWrite())
 
 	posids_.removeSingle( posidindex );
 	values_.removeSingle( posidindex );
@@ -274,7 +274,7 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
 	if ( !par.get(dgbSurfDataWriter::sKeyInt64DataChar(),dc) )
 	{
 	    error_ = true;
-	    errmsg_ = tr("Error in reading data characteristics (int64)");
+	    errmsg_ = uiStrings::phrErrDuringRead();
 	    return;
 	}
 	writtendatachar.set( dc.buf() );
@@ -283,7 +283,7 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
 	if ( !par.get(dgbSurfDataWriter::sKeyFloatDataChar(),dc) )
 	{
 	    error_ = true;
-	    errmsg_ = tr("Error in reading data characteristics (float)");
+	    errmsg_ = uiStrings::phrErrDuringRead();
 	    return;
 	}
 	writtendatachar.set( dc.buf() );

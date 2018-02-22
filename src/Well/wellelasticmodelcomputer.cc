@@ -209,7 +209,7 @@ bool Well::ElasticModelComputer::getLogUnits()
     for ( int idx=0; idx<inplogs_.size(); idx++ )
     {
 	if ( !inplogs_.validIdx(idx) )
-	    mErrRet( tr("Internal: Error reading log in log set") );
+	    mErrRet( toUiString("Internal: Error reading log in log set") );
 
 	uomset_ += inplogs_[idx] ? inplogs_[idx]->unitOfMeasure() : 0;
     }

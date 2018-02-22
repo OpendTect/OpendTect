@@ -455,7 +455,7 @@ void workFinished( CallBacker* cb )
     {
 	errmsg_ = co_.wrr_->message();
 	if ( errmsg_.isEmpty() )
-	    errmsg_ = tr("Error during background write");
+	    errmsg_ = uiStrings::phrErrDuringWrite();
     }
     deleteAndZeroPtr( work_ );
     co_.reportFinished( *this );

@@ -533,15 +533,16 @@ bool uiSurveyManager::writeSettingsSurveyFile( const char* dirnm )
 
     const BufferString survfnm = GetLastSurveyFileName();
     if ( survfnm.isEmpty() )
-	mErrRet(tr("Internal error: cannot construct last-survey-filename"))
+	mErrRet(
+	    uiStrings::phrInternalErr("cannot construct last-survey-filename"))
 
     od_ostream strm( survfnm );
     if ( !strm.isOK() )
-	mErrRet(tr("Cannot open %1 for write").arg(survfnm))
+	mErrRet( uiStrings::phrCannotWrite(toUiString(survfnm)) )
 
     strm << dirnm;
     if ( !strm.isOK() )
-	mErrRet( tr("Error writing to %1").arg(survfnm) )
+	mErrRet( uiStrings::phrErrDuringWrite(survfnm) )
 
     return true;
 }

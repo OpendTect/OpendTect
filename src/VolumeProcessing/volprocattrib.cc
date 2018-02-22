@@ -95,7 +95,7 @@ void VolProcAttrib::prepareForComputeData()
 	if ( !executor_->errMsg().isEmpty() )
 	    errmsg_ = executor_->errMsg();
 	else
-	    errmsg_ = tr("Error while calculating.");
+	    errmsg_ = tr("Error while calculating");
     }
 }
 
@@ -221,14 +221,14 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 			   mNINT32( cs.zsamp_.step/zstep ) );
     if ( !executor.setCalculationScope(cs.hsamp_,zrg) )
     {
-	errmsg_ = tr("Cannot calculate at this location");
+	errmsg_ = uiStrings::phrErrCalculating( tr("at this location") );
 	return 0;
     }
 
     if ( !TaskRunner::execute(taskrunner,executor) )
     {
 	if ( executor.errMsg().isEmpty() )
-	    errmsg_ = tr("Error while calculating.");
+	    errmsg_ = uiStrings::phrErrCalculating( uiStrings::sAttribute() );
 
 	return 0;
     }

@@ -217,8 +217,10 @@ void uiAutoSave2RealObjDlg::doRestore( IOObj& ioobj, const char* newnm )
     mDynamicCastGet(IOStream*,iostrm,&ioobj);
     if ( !iostrm )
     {
-	uiMSG().error( tr("Internal Error: Object has wrong type. %1")
-		.arg( uiStrings::phrPlsContactSupport(false) ) );
+	BufferString msg( "Object ", ioobj.name() );
+	msg.add( "is not IOStream; conntype=" ).add( ioobj.connType() );
+	uiMSG().error( uiStrings::phrInternalErr(msg) );
+	return;
     }
 
     while ( !OD::AUTOSAVE().restore( *iostrm, newnm ) )

@@ -240,7 +240,7 @@ SEGYSeisTrcTranslator* uiSEGYExamine::getReader(
 	{ emsg = tr( "No input file specified" ); return 0; }
     PtrMan<IOObj> ioobj = su.fs_.getIOObj( true );
     if ( !ioobj )
-	{ emsg = uiStrings::phrInternalError("Cannot create DB object");
+	{ emsg = uiStrings::phrInternalErr("Cannot create DB object");
 		return 0; }
 
     DBM().setEntry( *ioobj );
@@ -248,7 +248,7 @@ SEGYSeisTrcTranslator* uiSEGYExamine::getReader(
 
     segytr = static_cast<SEGYSeisTrcTranslator*>( ioobj->createTranslator() );
     if ( !segytr )
-	{ emsg = uiStrings::phrInternalError("Cannot create Translator");
+	{ emsg = uiStrings::phrInternalErr("Cannot create Translator");
 		return 0; }
 
     Conn* conn = ioobj->getConn( true );

@@ -80,10 +80,23 @@ public:
     static uiPhrase phrCrossPlot(const uiWord&);
     static uiPhrase phrCrossline(const uiWord&);
     static uiPhrase phrData(const uiWord&);
+    static uiPhrase phrDiskSpace();
     static uiPhrase phrDelete(const uiWord&);
     static uiPhrase phrDoesNotExist(const uiWord&);
     static uiPhrase phrEdit(const uiWord&);
     static uiPhrase phrEnter(const uiWord&);
+    static uiPhrase phrErrCalculating(const uiWord&);
+    static uiPhrase phrErrDuringIO(bool read,const char* objnm=0);
+    static uiPhrase phrErrDuringIO(bool read,const uiWord&);
+    static uiPhrase phrErrDuringRead( const char* objnm=0 )
+		    { return phrErrDuringIO( true, objnm ); }
+    static uiPhrase phrErrDuringRead( const uiWord& subj )
+		    { return phrErrDuringIO( true, subj ); }
+    static uiPhrase phrErrDuringWrite( const char* objnm=0 )
+		    { return phrErrDuringIO( false, objnm ); }
+    static uiPhrase phrErrDuringWrite( const uiWord& subj )
+		    { return phrErrDuringIO( false, subj ); }
+    static uiPhrase phrErrDuringCalculations();
     static uiPhrase phrExistsContinue(const uiWord&,bool overwrite);
     static uiPhrase phrExitOD();
     static uiPhrase phrExport(const uiWord& string);
@@ -96,8 +109,7 @@ public:
     static uiPhrase phrInline(const uiWord&);
     static uiPhrase phrInput(const uiWord&);
     static uiPhrase phrInsert(const uiWord&);
-    static uiPhrase phrInternalError(const char* string);
-    static uiPhrase phrInternalError(const uiWord& string);
+    static uiPhrase phrInternalErr(const char*); // will add 'contact support'
     static uiPhrase phrInterpretationDataExist(uiWord type,const char* nm);
     static uiPhrase phrInvalid(const uiWord& string);
     static uiPhrase phrJoinStrings(const uiPhrase&,const uiPhrase&);
@@ -113,6 +125,7 @@ public:
     static uiPhrase phrOutput(const uiWord&);
     static uiPhrase phrOutputFileExistsOverwrite();
     static uiPhrase phrPlsContactSupport(bool firstconsultdoc);
+    static uiPhrase phrPlsCheckThe(const uiWord&);
     static uiPhrase phrPlsSelectAtLeastOne(const uiWord& string);
     static uiPhrase phrPlsSpecifyAtLeastOne(const uiWord& string);
     static uiPhrase phrRead(const uiWord&);
@@ -305,7 +318,6 @@ public:
     static uiWord sEnabled()		{ return tr("Enabled"); }
     static uiWord sEnter();
     static uiWord sEnterValidName();
-    static uiWord sError(int n=1)	{ return tr("Error",0,n); }
     static uiWord sEvaluate()		{ return tr("Evaluate"); }
     static uiWord sEvent(int n=1)	{ return tr("Event",0,n); }
     static uiWord sExamine()		{ return tr("Examine"); }
@@ -478,6 +490,8 @@ public:
     static uiWord sParent(int n=1)	{ return tr("Parent",0,n); }
     static uiWord sParFile()		{ return tr("Parameter File"); }
     static uiWord sParameter(int n=1)	{ return tr("Parameter",0,n); }
+    static uiWord sParsIncorrect()
+			{ return tr("Missing or incorrect parameter(s)"); }
     static uiWord sPartial()		{ return tr("Partial"); }
     static uiWord sPass()		{ return tr("Pass"); }
     static uiWord sPassword()		{ return tr("Password"); }
@@ -538,7 +552,8 @@ public:
     static uiWord sReversed()		{ return tr("Reversed"); }
     static uiWord sRight()		{ return tr("Right"); }
     static uiWord sRightClick()		{ return tr("<right-click>"); }
-    static uiWord sRMS()		{ return tr("RMS"); }
+    static uiWord sRMS(bool err=false)	{ return err ? tr("RMS error")
+						     : tr("RMS"); }
     static uiWord sRockPhy()		{ return tr("Rock Physics"); }
     static uiWord sRow(int n=1)		{ return tr("Row",0,n); }
     static uiWord sSave()		{ return tr("Save"); }
@@ -604,6 +619,7 @@ public:
     static uiWord sStart()		{ return tr("Start"); }
     static uiWord sStatistics()		{ return tr("Statistics"); }
     static uiWord sStatus()		{ return tr("Status"); }
+    static uiWord sStdDev()		{ return tr("Standard Deviation"); }
     static uiWord sSteering()		{ return tr("Steering"); }
     static uiWord sSteeringCube()	{ return tr("Steering Cube"); }
     static uiWord sStep(int n=1)	{ return tr("Step",0,n); }
@@ -688,10 +704,10 @@ public:
     static uiWord sWindow()		{ return tr("Window"); }
     static uiWord sWrite()		{ return tr("Write"); }
     static uiWord sWriting()		{ return tr("Writing"); }
-    static uiWord sX()			{ return tr("X-coordinate"); }
     static uiWord sWVA(bool abbr=false)
     { return abbr ? tr("WVA","abbr Wiggle/Var Area") : tr("Wiggle/VarArea"); }
-    static uiWord sXcoordinate()	{ return tr("X"); }
+    static uiWord sX()			{ return tr("X"); }
+    static uiWord sXcoordinate()	{ return tr("X-coordinate"); }
     static uiWord sY()			{ return tr("Y"); }
     static uiWord sY1()			{ return tr("Y1"); }
     static uiWord sY2()			{ return tr("Y2"); }

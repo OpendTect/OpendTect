@@ -17,12 +17,13 @@
 #include "strmprov.h"
 #include "keystrs.h"
 #include "staticstring.h"
+#include "uistrings.h"
 
 uiString Translator::sNoIoobjMsg()
-{ return toUiString("Internal error: No object to store set in data base."); }
+{ return uiStrings::phrInternalErr("No object to store set in data base."); }
 
 uiString Translator::sBadConnection()
-{ return toUiString("Internal error: bad connection"); }
+{ return uiStrings::phrInternalErr("bad connection"); }
 
 
 uiString Translator::sSelObjectIsWrongType()

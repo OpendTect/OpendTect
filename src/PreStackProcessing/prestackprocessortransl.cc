@@ -122,12 +122,12 @@ uiString dgbPreStackProcTranslator::write(const PreStack::ProcessManager& md,
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(PreStackProc) );
     if ( !astrm.isOK() )
-	return tr("Cannot write to output Mute Definition file");
+	return uiStrings::phrCannotWrite( uiStrings::sMute() );
 
     IOPar par;
     md.fillPar( par );
 
     par.putTo( astrm );
     return astrm.isOK() ? uiString::empty()
-			: tr("Error during write to process definition file");
+	    : uiStrings::phrErrDuringWrite( tr("process definition file") );
 }

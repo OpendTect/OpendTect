@@ -420,7 +420,7 @@ uiRetVal TextTranslation::TranslateMgr::setLanguage( int idx )
 	return uiRetVal::OK();
 
     if ( !langentries_.validIdx(idx) )
-	return uiRetVal( uiStrings::phrInternalError("Bad language index") );
+	return uiRetVal( uiStrings::phrInternalErr("Bad language index") );
 
     LanguageEntry& lentry = *langentries_[idx];
     if ( !lentry.load() )

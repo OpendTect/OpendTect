@@ -245,7 +245,7 @@ uiODMain::uiODMain( uiMain& a )
 
     uiString statustt = tr( "System memory: Free/Available" );
     if ( !useallcpus )
-	statustt.appendPlainText("| ", true).appendPhrase( 
+	statustt.appendPlainText("| ", true).appendPhrase(
 						tr("CPU: Used/Available") );
     statusBar()->setToolTip( mMemStatusFld, statustt );
     memtimer_.tick.notify( mCB(this,uiODMain,memTimerCB) );
@@ -582,11 +582,12 @@ void uiODMain::doRestoreSession()
     else
     {
 	MouseCursorManager::restoreOverride();
-	uiMSG().error( tr("An error occurred while reading session file.\n"
-		          "A new scene will be launched") );
+	uiMSG().error( uiStrings::phrErrDuringRead(uiStrings::sSession())
+		          .appendPhrase(tr("A new scene will be launched")) );
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
+
     /* TODO if ( visok )
 	viewer2DMgr().usePar( cursession_->vwr2dpars() );*/
 

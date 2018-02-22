@@ -135,7 +135,7 @@ const uiString dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf,
 								    Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return tr("Internal error: bad connection");
+	return uiStrings::phrInternalErr("bad connection");
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
@@ -157,14 +157,15 @@ const uiString dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
 						Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return toUiString("Internal error: bad connection");
+	return uiStrings::phrInternalErr("bad connection");
 
+    const uiString filtypstr = tr("GMT flow file");
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(ODGMTProcFlow) );
     if ( !astrm.isOK() )
-	return uiStrings::phrCannotWrite(tr("to output GMT flow file"));
+	return uiStrings::phrCannotWrite( filtypstr );
 
     pf.pars().putTo( astrm );
-    return astrm.isOK() ? uiString::empty() :
-			  tr("Error during write to GMT flow file");
+    return astrm.isOK() ? uiString::empty()
+			: uiStrings::phrErrDuringWrite( filtypstr );
 }

@@ -229,14 +229,11 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 void Processor::useSCProcess( int& res )
 {
     if ( res < 0 )
-    {
-	errmsg_ = tr("Error during data read");
-	return;
-    }
+	{ errmsg_ = uiStrings::phrErrDuringRead(); return; }
     if ( res == 0 && !nrdone_ )
     {
 	provider_->setDataUnavailableFlag( true );
-	errmsg_ = tr("This stored cube contains no data in selected area.\n");
+	errmsg_ = tr("The input contains no data in the selected area");
 	return;
     }
 

@@ -171,7 +171,7 @@ bool uiExport2DHorizon::doExport()
 	    EM::SurfaceIOData emdata; EM::IOObjInfo oi( *ioobj );
 	    uiString errmsg;
 	    if ( !oi.getSurfaceData(emdata,errmsg) )
-		mErrRet( tr("Error in reading data") )
+		mErrRet( uiStrings::phrErrDuringRead()  )
 	    linenms = emdata.linenames;
 	}
 	mDynamicCastGet(EM::Horizon2D*,hor,obj);
@@ -179,10 +179,11 @@ bool uiExport2DHorizon::doExport()
 	    mErrRet(uiStrings::sCantReadHor())
 
 	const Geometry::Horizon2DLine* geom = hor->geometry().geometryElement();
-	if ( !geom ) mErrRet(tr("Error Reading Horizon"))
+	if ( !geom )
+	    mErrRet(uiStrings::phrErrDuringRead(uiStrings::sHorizon()) )
 
 	BufferString horname = hor->name();
-	horname.quote('\"');
+	horname.quote( '"' );
 
 	const float zfac = !optsfld_->isChecked(1) ? 1
 			 : (SI().zIsTime() ? 1000 : mToFeetFactorF);

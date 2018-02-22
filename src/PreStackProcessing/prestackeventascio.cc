@@ -170,7 +170,7 @@ int EventImporter::nextStep()
     float offset, zval;
     const int ret = ascio_->getNextLine( bid, horid, offset, zval );
     if ( ret < 0 )
-    { message_ = tr("Error during read"); return ErrorOccurred(); }
+	{ message_ = uiStrings::phrErrDuringRead(); return ErrorOccurred(); }
 
     if ( bid != lastbid_ || horid != lasthorid_ )
     {

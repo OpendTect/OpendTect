@@ -405,15 +405,17 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     uiTaskRunnerProvider trprov( this );
     EM::Object* emobjsinglehor =
 	EM::MGR().loadIfNotFullyLoaded( surf1mid, trprov );
-
     if ( !emobjsinglehor )
+    {
+	uiMSG().error( uiStrings::phrErrDuringRead(uiStrings::sHorizon()) );
 	return false;
+    }
 
     emobjsinglehor->ref();
     mDynamicCastGet(EM::Horizon3D*,horizon1,emobjsinglehor)
     if ( !horizon1 )
     {
-	uiMSG().error( tr("Error loading horizon") );
+	uiMSG().error( uiStrings::phrInternalErr("obj1 not Hor3D") );
 	return false;
     }
 
@@ -431,7 +433,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	mDynamicCastGet( EM::Horizon3D*, horizon2,emobjdoublehor )
 	if ( !horizon2 )
 	{
-	    uiMSG().error( tr("Error loading second horizon") );
+	    uiMSG().error( uiStrings::phrInternalErr("obj2 not Hor3D") );
 	    return false;
 	}
 

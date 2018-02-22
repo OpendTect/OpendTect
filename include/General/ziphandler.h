@@ -19,21 +19,19 @@ ________________________________________________________________________
 
 class ZipArchiveInfo;
 
-/*!
-\brief Zip file information.
-*/
+/*!\brief Zip file information. */
 
 mExpClass(General) ZipFileInfo
 {
-    
+
 public:
 
-				ZipFileInfo(const char* fnm, 
-				    od_int64 compsize, 
+				ZipFileInfo(const char* fnm,
+				    od_int64 compsize,
 				    od_int64 uncompsize,
 				    od_int64 offset)
 				: fnm_(fnm)
-				, compsize_(compsize) 
+				, compsize_(compsize)
 				, uncompsize_(uncompsize)
 				, localheaderoffset_(offset)	    {}
 
@@ -45,9 +43,7 @@ public:
 };
 
 
-/*!
-\brief Handles zipping and unzipping of files.
-*/
+/*!\brief Handles zipping and unzipping of files.  */
 
 mExpClass(General) ZipHandler
 { mODTextTranslationClass(ZipHandler)
@@ -88,7 +84,7 @@ public:
 
     bool			getBitValue(const unsigned char byte,
 							int bitposition) const;
-    void			setBitValue(unsigned char& byte, int 
+    void			setBitValue(unsigned char& byte, int
 						bitposition, bool value) const;
 
 
@@ -104,7 +100,7 @@ protected:
 
     bool			doZUnCompress();
     bool			readEndOfCentralDirHeader();
-    bool			readCentralDirHeader(ObjectSet<ZipFileInfo>* 
+    bool			readCentralDirHeader(ObjectSet<ZipFileInfo>*
 						     zfileinfo=0);
     bool			readZIP64EndOfCentralDirLocator();
     bool			readZIP64EndOfCentralDirRecord();
@@ -116,7 +112,7 @@ protected:
 
     bool			compressNextFile();
     bool			doZCompress();
-    int				openStrmToRead(const char* src); 
+    int				openStrmToRead(const char* src);
     bool			setLocalFileHeader();
     bool			setLocalFileHeaderForDir();
     bool			setLocalFileHeaderForLink();
@@ -129,7 +125,7 @@ protected:
     od_uint32                   setExtFileAttr(od_uint32);
 
     const BufferStringSet&	getAllFileNames() { return allfilenames_; }
-    od_int64			getCumulativeFileCount() const 
+    od_int64			getCumulativeFileCount() const
 					{ return cumulativefilecounts_.last(); }
     int				getCumulativeFileCount(int) const;
     void			setCompLevel(CompLevel);
@@ -140,13 +136,13 @@ protected:
     bool			reportReadError(const char* filenm=0) const;
     bool			reportWriteError(const char* filenm=0) const;
     bool			reportStrmReadError(od_istream*,
-	    					    const char*) const;
+						    const char*) const;
     void			closeInputStream();
     void			closeOutputStream();
 
     mutable uiString		errormsg_;
     BufferStringSet		allfilenames_;
-    
+
     BufferString		srcfile_ ;
     od_uint16			srcfnmsize_;
 
@@ -158,14 +154,14 @@ protected:
 
     od_uint16			compmethod_;
     CompLevel			complevel_;
-    
+
     int				curnrlevels_;
 
     int				curinputidx_;
     int				curfileidx_;
     od_int64			initialfilecount_;
     TypeSet<od_int64>		cumulativefilecounts_;
-    
+
     od_uint16			lastmodtime_;
     od_uint16			lastmoddate_;
 
@@ -192,5 +188,6 @@ protected:
     uiString			sErrMsgCompressionMethodNotSupported()
 				{ return tr("Compression method used is not "
 							    "supported"); }
-    
+    uiString			sErrMsgUncompressInitFail(int);
+
 };

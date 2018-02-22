@@ -636,7 +636,8 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 
 bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
-    if ( headerdone_ ) return true;
+    if ( headerdone_ )
+	return true;
 
     const int oldcurinl = curbid_.inl();
     const int oldcurtrcnr = curtrcnr_;
@@ -747,9 +748,13 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
     headerdone_ = false;
 
     if ( strm.isBad() )
-	mPosErrRet(tr("Read error during trace skipping"))
+	mPosErrRet( uiStrings::phrErrDuringRead() )
     return true;
 }
+
+
+#define mErrRetDiskFull(s) \
+    mErrRet( s.appendPhrase(uiStrings::phrDiskSpace()) )
 
 
 bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
@@ -758,7 +763,7 @@ bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
     fillHeaderBuf( trc );
 
     if ( !sConn().oStream().addBin( headerbuf_, mSEGYTraceHeaderBytes ) )
-	mErrRet(tr("Cannot write trace header"))
+	mErrRetDiskFull(tr("Cannot write trace header"))
 
     return writeData( trc );
 }
@@ -825,7 +830,7 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 
     if ( !sConn().oStream().addBin( storbuf_->getComponent()->data(),
 			 outnrsamples_ * outcd_->datachar_.nrBytes() ) )
-	mErrRet(tr("Cannot write trace data"))
+	mErrRetDiskFull(tr("Cannot write trace data"))
 
     headerdone_ = false;
     return true;

@@ -344,6 +344,13 @@ void ZipHandler::setCompLevel( CompLevel cl )
 { complevel_ = cl; }
 
 
+uiString ZipHandler::sErrMsgUncompressInitFail( int typid )
+{
+    return tr("Initialization required to uncompress data fails")
+	.appendPhrase( tr("Error type ID: %1").arg(typid) );
+}
+
+
 bool ZipHandler::doZCompress()
 {
 #ifdef HAS_ZLIB
@@ -363,12 +370,7 @@ bool ZipHandler::doZCompress()
 			      ? mMaxChunkSize : uncompfilesize_;
     od_uint32 upperbound = deflateBound( &zlibstrm, chunksize );
     if ( ret != Z_OK )
-    {
-	uiPhrase errmsg = tr("Error Details:Initialization required to "
-		    "compress data fails");
-	errmsg.appendPhrase(tr("Error type: %1").arg(toUiString(ret)));
-	mErrRet( errmsg )
-    }
+	mErrRet( sErrMsgUncompressInitFail( ret ) );
     mAllocLargeVarLenArr( char, in, chunksize );
     mAllocLargeVarLenArr( char, out, upperbound );
     if ( !in || !out )
@@ -1304,8 +1306,7 @@ bool ZipHandler::extractNextFile()
 		else
 		{
 		    errormsg_.appendPhrase(
-			    tr("Write error in %1")
-			    .arg(ostrm_->fileName()) );
+			    uiStrings::phrErrDuringWrite(ostrm_->fileName()) );
 		    ostrm_->addErrMsgTo( errormsg_ );
 		}
 		closeOutputStream(); closeInputStream();
@@ -1457,11 +1458,7 @@ bool ZipHandler::doZUnCompress()
     int ret;
     ret = inflateInit2( &zlibstrm, windowbits );
     if ( ret!=Z_OK )
-    {
-	mErrRet( tr("Error Details:Initialization required to uncompress "
-				"data fails").appendPhrase(
-				tr("Error type : %1").arg(toUiString(ret))) )
-    }
+	mErrRet( sErrMsgUncompressInitFail( ret ) );
 
     const od_uint32 chunksize = mMIN( mMaxChunkSize, compfilesize_ );
     mAllocLargeVarLenArr( char, in, chunksize );

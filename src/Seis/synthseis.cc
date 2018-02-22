@@ -344,7 +344,7 @@ int SynthGenerator::genFreqWavelet()
     if ( !fft->run(true) )
     {
 	freqwavelet_.erase();
-	mErrRet(tr("Error running FFT for the wavelet spectrum"), mErrOccRet);
+	mErrRet(tr("Could not run FFT for the wavelet spectrum"), mErrOccRet);
     }
 
     return mMoreToDoRet;

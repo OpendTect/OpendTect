@@ -165,7 +165,7 @@ bool Seis::PS3DFetcher::prepGetAt( const BinID& bid )
     if ( !rdr_ )
     {
 	if ( uirv_.isOK() )
-	    uirv_.set( uiStrings::phrInternalError("PS3D Reader not created") );
+	    uirv_.set( uiStrings::phrInternalErr("PS3D Reader not created") );
 	return false;
     }
 
@@ -184,8 +184,8 @@ void Seis::PS3DFetcher::getAt( const BinID& bid, SeisTrcBuf& tbuf )
     if ( dp_ )
 	dp_->fillGatherBuf( tbuf, bid );
     else if ( !rdr_->getGather(nextbid_,tbuf) )
-    	{ uirv_.set( rdr_->errMsg() ); return; }
-    
+	{ uirv_.set( rdr_->errMsg() ); return; }
+
     moveNextBinID();
 }
 
@@ -202,11 +202,11 @@ void Seis::PS3DFetcher::getSingleAt( const BinID& bid, SeisTrc& trc )
 	seistrc = dp_->getTrace( bid, offsetidx );
     else if ( !seistrc )
     {
-    	seistrc = rdr_->getTrace( nextbid_, offsetidx );
-    	if ( !seistrc )
+	seistrc = rdr_->getTrace( nextbid_, offsetidx );
+	if ( !seistrc )
 	    { uirv_.set( rdr_->errMsg() ); return; }
     }
-    
+
     trc = *seistrc;
     moveNextBinID();
 }
@@ -336,7 +336,7 @@ void Seis::PS3DProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
 void Seis::PS3DProvider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
 {
     Seis::Provider3D::doFillPar( iop, uirv );
-    
+
     IOPar par;
     fetcher_.doFillPar( iop, uirv );
     iop.merge( par );
@@ -346,7 +346,7 @@ void Seis::PS3DProvider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
 void Seis::PS3DProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
 {
     Seis::Provider3D::doUsePar( iop, uirv );
-    
+
     fetcher_.doUsePar( iop, uirv );
 }
 

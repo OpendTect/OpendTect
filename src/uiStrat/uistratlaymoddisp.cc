@@ -366,7 +366,7 @@ bool acceptOK()
 	    mErrRet(tr("Cannot open:\n%1\nfor write").arg(fnm_))
 
 	if ( !lm_.write(strm,0,presmathfld_->getBoolValue()) )
-	    mErrRet(m3Dots(tr("Unknown error during write")))
+	    mErrRet(uiStrings::phrErrDuringWrite())
     }
 
     fillPar();

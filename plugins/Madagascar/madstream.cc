@@ -174,10 +174,12 @@ void MadStream::initRead( IOPar* par )
 	istrm_ = new od_istream( str );
 
 	fillHeaderParsFromStream();
-	if (!headerpars_) mErrRet(tr("Error reading RSF header"));;
+	if ( !headerpars_ )
+	    mErrRet(uiStrings::phrCannotRead(tr("RSF header")));
 
 	BufferString insrc( headerpars_->find(sKeyIn) );
-	if ( insrc == "" || insrc == sKeyStdIn ) return;
+	if ( insrc == "" || insrc == sKeyStdIn )
+	    return;
 
         deleteAndZeroPtr( istrm_ );
 	istrm_ = new od_istream( insrc );
@@ -192,10 +194,12 @@ void MadStream::initRead( IOPar* par )
     is2d_ = gt == Seis::Line || gt == Seis::LinePS;
     isps_ = gt == Seis::VolPS || gt == Seis::LinePS;
     DBKey inpid;
-    if (!par->get(sKey::ID(), inpid)) mErrRet(tr("Input ID missing"));
+    if ( !par->get(sKey::ID(), inpid) )
+	mErrRet(tr("Input ID missing"));
 
     PtrMan<IOObj> ioobj = DBM().get( inpid );
-    if (!ioobj) mErrRet(tr("Cannot find input data"));
+    if ( !ioobj )
+	mErrRet(uiStrings::phrCannotFindDBEntry(Seis::dataName(gt)));
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
     Seis::SelData* seldata = Seis::SelData::get( *subpar );
@@ -848,7 +852,7 @@ bool MadStream::write2DTraces( bool writetofile )
 			|| ( !isps_ && !seiswrr_->put(*trc) ) )
 		{
 		    delete [] buf; delete trc;
-		    mErrBoolRet(tr("Error writing traces"));
+		    mErrBoolRet(uiStrings::phrErrDuringWrite());
 		}
 		delete trc;
 	    }

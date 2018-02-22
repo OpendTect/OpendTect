@@ -31,6 +31,13 @@ ___________________________________________________________________
 namespace EM
 {
 
+static uiString getErrStr( od_stream* strm, bool read )
+{
+    uiString errmsg = uiStrings::phrErrDuringIO(read);
+    strm->addErrMsgTo( errmsg );
+    return errmsg;
+}
+
 #define mRetErr( msg ) { errmsg_ = msg; return; }
 
 class RandomPosBodyReader : public Executor
@@ -40,17 +47,19 @@ public:
     RandomPosBodyReader( RandomPosBody& rdposbody, Conn* conn )
 	: Executor( "Random Position Body Loader" )
 	, conn_( conn )
+	, strm_( 0 )
 	, rdposbody_( rdposbody )
 	, nrdone_( 0 )
 	, totalnr_( -1 )
     {
 	if ( !conn_ || !conn_->forRead() || !conn_->isStream() )
-	    mRetErr( "Cannot open connection" );
+	    mRetErr( uiStrings::phrInternalErr("bad connection") );
+	strm_ = &((StreamConn*)conn_)->iStream();
 
-	ascistream astream( ((StreamConn*)conn_)->iStream() );
+	ascistream astream( *strm_ );
 
 	if ( !astream.isOK() )
-	    mRetErr( "Cannot read from input file" );
+	    mRetErr( uiStrings::phrCannotOpen(uiStrings::sFile()) );
 	if ( !astream.isOfFileType( sFileType() ) &&
 	     !astream.isOfFileType( sOldFileType()) )
 	    mRetErr( sInvalidFile() );
@@ -68,7 +77,10 @@ public:
     }
 
     uiString message() const
-    { return uiStrings::phrReading(uiStrings::sPosition(mPlural)); }
+    {
+	return !errmsg_.isEmpty() ? errmsg_
+	     : uiStrings::phrReading(uiStrings::sPosition(mPlural));
+    }
     uiString nrDoneText() const
     { return uiStrings::phrRead(uiStrings::sPosition(mPlural)); }
 
@@ -77,8 +89,7 @@ public:
 	if ( !errmsg_.isEmpty() )
 	    return ErrorOccurred();
 
-	od_istream& strm = ((StreamConn*)conn_)->iStream();
-	if ( !strm.isOK() )
+	if ( !strm_->isOK() )
 	{
 	    rdposbody_.resetChangedFlag();
 	    return Finished();
@@ -86,24 +97,24 @@ public:
 
 	Coord3 pos;
 
-	const char* err = "Cannot interprete file";
-
-	strm >> pos.x_;
-	if ( !strm.isOK() )
+	*strm_ >> pos.x_;
+	if ( !strm_->isOK() )
 	{
-	    if ( !strm.isBad() )
+	    if ( !strm_->isBad() )
 	    {
 		rdposbody_.resetChangedFlag();
 		return Finished();
 	    }
-	    errmsg_ = err; return ErrorOccurred();
+	    errmsg_ = getErrStr( strm_, true );
+	    return ErrorOccurred();
 	}
 
 	int posid;
-	strm >> pos.y_ >> pos.z_ >> posid;
+	*strm_ >> pos.y_ >> pos.z_ >> posid;
 
-	if ( !strm.isOK() )
-	    { errmsg_ = err; return ErrorOccurred(); }
+	if ( !strm_->isOK() )
+	    { errmsg_ = getErrStr( strm_, true ); return ErrorOccurred(); }
+
 	rdposbody_.addPos( pos );
 	nrdone_++;
 
@@ -124,13 +135,16 @@ public:
 
 protected:
 
-    static const char*		sInvalidFile() { return "Invalid file"; }
+    static uiString		sInvalidFile()
+				{ return uiStrings::phrErrDuringRead(); }
 
     RandomPosBody&		rdposbody_;
     Conn*			conn_;
+    od_istream*			strm_;
     int				nrdone_;
     int				totalnr_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
+
 };
 
 
@@ -143,14 +157,16 @@ public:
 	, conn_( conn )
 	, rdposbody_( rdposbody )
 	, nrdone_( 0 )
+	, strm_( 0 )
     {
-	if ( !conn_->forWrite() || !conn_->isStream() )
-	    mRetErr( "Internal error: bad connection" );
+	if ( !conn_ || !conn_->forWrite() || !conn_->isStream() )
+	    mRetErr( uiStrings::phrInternalErr("bad connection") )
+	strm_ = &((StreamConn*)conn_)->oStream();
 
-	ascostream astream( ((StreamConn*)conn_)->oStream() );
+	ascostream astream( *strm_ );
 	astream.putHeader( RandomPosBody::typeStr() );
 	if ( !astream.isOK() )
-	    mRetErr( "Cannot write to output Pick Set file" );
+	    mRetErr( uiStrings::phrCannotWrite(uiStrings::sPickSet()) )
 
 	IOPar pars;
 	rdposbody.fillPar( pars );
@@ -162,15 +178,21 @@ public:
     }
 
     uiString message() const
-    { return uiStrings::phrWriting(uiStrings::sPosition(mPlural)); }
+    {
+	return !errmsg_.isEmpty() ? errmsg_
+	     : uiStrings::phrWriting(uiStrings::sPosition(mPlural));
+    }
     uiString nrDoneText() const
     { return uiStrings::phrWritten(uiStrings::sPosition(mPlural)); }
 
     int nextStep()
     {
+	if ( !strm_ || !errmsg_.isEmpty() )
+	    return ErrorOccurred();
+
 	if ( nrdone_>=totalNr() )
 	{
-	    ascostream astream( ((StreamConn*)conn_)->oStream() );
+	    ascostream astream( *strm_ );
 	    astream.newParagraph();
 	    return Finished();
 	}
@@ -179,9 +201,11 @@ public:
 	BufferString str;
 	str.add( crd.x_ ).add( " " ).add( crd.y_ ).add( " " ).add( crd.z_ )
 	    .add( " " ).add ( mCast(int,rdposbody_.posIDs()[nrdone_].getI()) );
-	((StreamConn*)conn_)->oStream() << str.buf() << '\n';
+	*strm_ << str.buf() << '\n';
 	nrdone_++;
 
+	if ( strm_->isBad() )
+	    { errmsg_ = getErrStr( strm_, false ); return ErrorOccurred(); }
 	return MoreToDo();
     }
 
@@ -190,10 +214,12 @@ public:
 
 protected:
 
-    RandomPosBody&		rdposbody_;
-    Conn*			conn_;
-    int				nrdone_;
-    BufferString		errmsg_;
+    RandomPosBody&	rdposbody_;
+    Conn*		conn_;
+    od_ostream*		strm_;
+    int			nrdone_;
+    uiString		errmsg_;
+
 };
 
 

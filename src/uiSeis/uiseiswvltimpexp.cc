@@ -187,7 +187,7 @@ bool uiSeisWvltExp::acceptOK()
     }
 
     if ( !strm.isOK() )
-	mErrRet( tr("Possible error during write.") );
+	mErrRet( uiStrings::phrErrDuringWrite() );
 
     uiString msg = tr("Wavelet successfully exported."
 	              "\nDo you want to export more Wavelets?");

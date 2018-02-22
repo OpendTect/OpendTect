@@ -153,7 +153,7 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
     const DBKey mid = entries[selidx]->dbkey_;
     SeisIOObjInfo ioinf( mid );
     if ( !ioinf.isOK() )
-	{ infofld_->setText(tr("Internal error: IOObj not OK")); return; }
+	{ infofld_->setText(toUiString("Internal: IOObj not OK")); return; }
 
     BufferString disptxt;
     PLDM().getInfo( mid, entries[selidx]->geomid_, disptxt );

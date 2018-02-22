@@ -648,31 +648,21 @@ bool VelocityGridder::usePar( const IOPar& par )
 
     deepUnRef( sources_ );
 
+    const uiString parerrstr = uiStrings::sParsIncorrect();
     for ( int idx=0; idx<nrsources; idx++ )
     {
-	const uiString parseerror = tr("Parse error");
-
 	const BufferString idxstr( 0, idx, 0 );
 	PtrMan<IOPar> sourcepar = par.subselect( idxstr.buf() );
 	if ( !sourcepar )
-	{
-	    errmsg_ = parseerror;
-	    return false;
-	}
+	    { errmsg_ = parerrstr; return false; }
 
 	BufferString sourcetype;
 	if ( !sourcepar->get(sKeyType(),sourcetype) )
-	{
-	    errmsg_ = parseerror;
-	    return false;
-	}
+	    { errmsg_ = parerrstr; return false; }
 
 	DBKey mid;
 	if ( !sourcepar->get(sKeyID(),mid) )
-	{
-	    errmsg_ = parseerror;
-	    return false;
-	}
+	    { errmsg_ = parerrstr; return false; }
 
 	Vel::FunctionSource* source =
 	    Vel::FunctionSource::factory().create( sourcetype.buf(), mid );
@@ -688,8 +678,8 @@ bool VelocityGridder::usePar( const IOPar& par )
 
 	if ( !source->usePar(*sourcepar) )
 	{
-	    errmsg_ = tr("Cannot parse velocity source's paramters (%1).")
-			.arg( sourcetype.buf() );
+	    errmsg_ = tr("Cannot parse velocity source's parameters (%1).")
+			    .arg( sourcetype );
 
 	    source->unRef();
 	    return false;

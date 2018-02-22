@@ -682,7 +682,8 @@ EM::Horizon3D* uiImportHorizon::loadHor()
 	return 0;
 
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
-    if ( !horizon ) mErrRet( tr("Error loading horizon"));
+    if ( !horizon )
+	mErrRet( toUiString("Internal: object is not a Horizon3D") );
 
     horizon->ref();
     delete loader;

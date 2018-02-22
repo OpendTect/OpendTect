@@ -327,30 +327,21 @@ bool VolProc::Chain::usePar( const IOPar& par )
     deepErase( outcompscalers_ );
     web_.getConnections().erase();
 
-    const uiString parseerror = tr("Parsing error");
+    const uiString parserrstr = uiStrings::sParsIncorrect();
 
     int nrsteps;
     if ( !par.get(sKeyNrSteps(),nrsteps) )
-    {
-	errmsg_ = parseerror;
-	return false;
-    }
+	{ errmsg_ = parserrstr; return false; }
 
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	PtrMan<IOPar> steppar = par.subselect( toString(idx) );
 	if ( !steppar )
-	{
-	    errmsg_ = parseerror;
-	    return false;
-	}
+	    { errmsg_ = parserrstr; return false; }
 
 	BufferString type;
 	if ( !steppar->get( sKeyStepType(), type ) )
-	{
-	    errmsg_ = parseerror;
-	    return false;
-	}
+	    { errmsg_ = parserrstr; return false; }
 
 	Step* step = Step::factory().create( type.buf() );
 	if ( !step )

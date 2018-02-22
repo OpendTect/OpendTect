@@ -184,12 +184,7 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
     usw.readyNow();
 
     if ( !rv )
-    {
-	uiMSG().error(tr("Error during %1 file")
-		    .arg(forsave ? tr("write to output")
-				 : tr("read from input ")));
-	return false;
-    }
+	{ uiMSG().error(uiStrings::phrErrDuringIO(!forsave)); return false; }
 
     if ( !forsave )
     {

@@ -608,7 +608,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 {
     PtrMan<Attrib::EngineMan> aem = createEngMan( &tkzs );
     if ( !aem )
-	mErrRet( uiStrings::phrInternalError("Cannot make AEM") )
+	mErrRet( uiStrings::phrInternalErr("Cannot make AEM") )
 
     bool atsamplepos = true;
 

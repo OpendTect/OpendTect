@@ -642,11 +642,12 @@ bool uiAttribDescSetEd::doAcceptInputs()
 	uiRetVal uirv = curdesced.errMsgs( desc );
 	if ( !uirv.isOK() )
 	{
-	    uiString startmsg( desc->isStored() ? tr("Error for '%1':\n")
-			    : tr("Input is not correct for attribute '%1'.") );
-	    uiRetVal resuirv( startmsg.arg( desc->userRef() ) );
-	    resuirv.add( uirv );
-	    uiMSG().error( resuirv );
+	    if ( desc->isStored() )
+		uirv.insert( uiStrings::phrErrDuringRead(desc->userRef()) );
+	    else
+		uirv.insert( tr("'%1' has incorrect input(s)")
+				.arg(desc->userRef()) );
+	    uiMSG().error( uirv );
 	    return false;
 	}
     }

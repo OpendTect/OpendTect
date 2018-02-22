@@ -182,20 +182,20 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
     : uiDlgGroup(p->tabParent(),uiStrings::sStatistics())
     , plotter_(p->plotter())
 {
-    uiLabel* ylbl = new uiLabel( this, toUiString("%1 =").arg(uiStrings::sY()));
+    uiLabel* ylbl = new uiLabel( this, tr("Trend: Y =") );
     a0fld_ = new uiLineEdit( this, FloatInpSpec(0), "A0" );
     a0fld_->attach( rightOf, ylbl );
-    uiLabel* pluslbl = new uiLabel( this, toUiString("+ ") );
+    uiLabel* pluslbl = new uiLabel( this, toUiString("+") );
     pluslbl->attach( rightOf, a0fld_ );
 
     a1fld_ = new uiLineEdit( this, FloatInpSpec(1), "A1" );
     a1fld_->attach( rightOf, pluslbl );
-    uiLabel* xlbl = new uiLabel(this, toUiString("* %1").arg(uiStrings::sX()));
+    uiLabel* xlbl = new uiLabel( this, toUiString("* X") );
     xlbl->attach( rightOf, a1fld_ );
 
     d0fld_ = new uiLineEdit( this, FloatInpSpec(0), "D0" );
     d0fld_->attach( alignedBelow, a0fld_ );
-    uiLabel* dlbl = new uiLabel( this, uiStrings::sError() );
+    uiLabel* dlbl = new uiLabel( this, uiStrings::sStdDev() );
     dlbl->attach( leftOf, d0fld_ );
     d1fld_ = new uiLineEdit( this, FloatInpSpec(0), "D1" );
     d1fld_->attach( alignedBelow, a1fld_ );
@@ -279,7 +279,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     inpfld_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExpCB) );
     inpfld_->valuechanging.notify( mCB(this,uiDPSUserDefTab,checkMathExpr) );
 
-    rmsfld_ = new uiGenInput( this, mJoinUiStrs(sRMS(),sError()) );
+    rmsfld_ = new uiGenInput( this, uiStrings::sRMS(true) );
     rmsfld_->setElemSzPol( uiObject::Small );
     rmsfld_->attach( rightOf, inpfld_);
     rmsfld_->setReadOnly( true );
@@ -298,7 +298,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 	inpfld1_->valuechanging.notify(mCB(this,uiDPSUserDefTab,checkMathExpr));
 	inpfld1_->attach( alignedBelow, shwy1userdefpolyline_ );
 
-	rmsfld1_ = new uiGenInput( this, mJoinUiStrs(sRMS(),sError()) );
+	rmsfld1_ = new uiGenInput( this, uiStrings::sRMS(true) );
 	rmsfld1_->setElemSzPol( uiObject::Small );
 	rmsfld1_->attach( rightOf, inpfld1_);
 	rmsfld1_->setReadOnly( true );

@@ -406,9 +406,8 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	PtrMan<IOObj> ioobj = getIOObj( curitm );
 	if ( !ioobj )
 	{
-	    uiMSG().error(tr("Internal error: "
-			     "Cannot retrieve %1 details from data store")
-			.arg(mObjTypeName));
+	    uiMSG().error( tr("Cannot retrieve %1 details from data store")
+			    .arg(mObjTypeName) );
 	    fullUpdate( -1 );
 	    return false;
 	}

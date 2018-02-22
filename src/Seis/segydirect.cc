@@ -629,7 +629,7 @@ int SEGY::FileIndexer::nextStep()
     {
 	BufferString outfile = ioobj_->mainFileName();
 	if ( outfile.isEmpty() )
-	{ msg_ = tr("Output filename empty"); return ErrorOccurred(); }
+	    { msg_ = tr("No file name provided"); return ErrorOccurred(); }
 
 	if ( is2d_ )
 	{

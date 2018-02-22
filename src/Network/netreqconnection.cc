@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "netserver.h"
 #include "timefun.h"
 #include "ptrman.h"
+#include "uistrings.h"
 
 #ifndef OD_NO_QT
 # include <QObject>
@@ -250,8 +251,8 @@ bool RequestConnection::readFromSocket()
 	{
 	    errmsg_ = socket_->errMsg();
 	    socket_->disconnectFromHost();
-	    if (errmsg_.isEmpty())
-		errmsg_ = tr("Error reading from socket");
+	    if ( errmsg_.isEmpty() )
+		errmsg_ = uiStrings::phrErrDuringRead( tr("socket","network") );
 	    return false;
 	}
 

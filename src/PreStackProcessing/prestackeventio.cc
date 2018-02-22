@@ -274,7 +274,7 @@ int EventReader::nextStep()
 	if ( !readAuxData( fnm.buf() ) )
 	{
 	    if ( errmsg_.isEmpty() )
-		errmsg_ = tr("Error: Cannot read horizon information");
+		errmsg_ = tr("Cannot read horizon information");
 	    return ErrorOccurred();
 	}
 
@@ -338,7 +338,7 @@ bool EventReader::prepareWork()
     const BufferString fnm( ioobj_->fullUserExpr(true) );
     if ( !File::isDirectory(fnm.buf()) )
     {
-	errmsg_ = tr("Error: %1 is not a directory").arg(fnm);
+	errmsg_ = tr("%1 is not a directory").arg(fnm);
 	return false;
     }
 
@@ -346,7 +346,7 @@ bool EventReader::prepareWork()
     SamplingData<int> crlsampling;
     if ( !readSamplingData( *ioobj_, inlsampling, crlsampling ) )
     {
-	errmsg_ = tr("Error: Cannot read sampling");
+	errmsg_ = tr("Cannot read sampling");
 	return false;
     }
 
@@ -1528,7 +1528,7 @@ int EventPatchWriter::nextStep()
 
     if ( !strm.isOK() )
     {
-	errmsg_ = tr("Error during write to %1").arg(fileio_.fileName());
+	errmsg_ = uiStrings::phrErrDuringWrite( fileio_.fileName() );
 	fileio_.closeFail();
 	return ErrorOccurred();
     }

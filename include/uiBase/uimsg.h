@@ -144,6 +144,9 @@ protected:
     Threads::Lock	lock_;
     Threads::Lock	msgdisplock_;
 
+    static uiString	sError()	{ return tr("Error"); }
+    static uiString	sWarning()	{ return tr("Warning"); }
+
 private:
 
     int			beginCmdRecEvent( const char* wintitle );

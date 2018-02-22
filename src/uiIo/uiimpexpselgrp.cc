@@ -139,13 +139,11 @@ bool createBaseDir()
 
 bool setSelGrpSetNames( const BufferStringSet& nms )
 {
+    const uiString filtypstr = tr("Cross-Plot Selection Index File");
+
     SafeFileIO sfio( File::Path(basefp_,sKeyIdxFileName()).fullPath(), true );
     if ( !sfio.open(false) )
-    {
-	uiMSG().error(tr("Cannot open Cross-plot Selection index.txt "
-			 "file for write"));
-	return false;
-    }
+	{ uiMSG().error( uiStrings::phrCannotWrite(filtypstr) ); return false; }
 
     ascostream astrm( sfio.ostrm() );
     astrm.putHeader( "Selection Group Set Names" );
@@ -158,7 +156,7 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
     else
     {
 	sfio.closeFail();
-	uiString errmsg( tr("Error writing Cross-plot Selection index file") );
+	uiString errmsg( uiStrings::phrErrDuringWrite(filtypstr) );
 	sfio.ostrm().addErrMsgTo( errmsg );
 	uiMSG().error( errmsg );
 	return false;

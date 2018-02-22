@@ -261,7 +261,7 @@ const uiString dgbODMadProcFlowTranslator::read(
 					    ODMad::ProcFlow& pf, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return tr("Internal error: bad connection");
+	return uiStrings::phrInternalErr("bad connection");
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
@@ -283,16 +283,17 @@ const uiString dgbODMadProcFlowTranslator::write( const ODMad::ProcFlow& pf,
 						Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return tr("Internal error: bad connection");
+	return uiStrings::phrInternalErr("bad connection");
 
+    const uiString filtypstr = tr("Processing flow file");
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(ODMadProcFlow) );
     if ( !astrm.isOK() )
-	return uiStrings::phrCannotWrite(tr("output Processing flow file"));
+	return uiStrings::phrCannotWrite( filtypstr );
 
     IOPar par;
     pf.fillPar( par );
     par.putTo( astrm );
-    return astrm.isOK() ? uiString::empty() :
-			  tr("Error during write to Processing flow file");
+    return astrm.isOK() ? uiString::empty()
+			: uiStrings::phrErrDuringWrite( filtypstr );
 }

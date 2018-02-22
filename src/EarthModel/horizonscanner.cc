@@ -279,10 +279,7 @@ static bool isInsideSurvey( const BinID& bid, float zval )
 
 
 #define mErrRet(s) \
-    { \
-	curmsg_ = s; dtctor_.finish(); \
-	return Executor::ErrorOccurred(); \
-    }
+    { curmsg_ = s; dtctor_.finish(); return ErrorOccurred(); }
 
 int HorizonScanner::nextStep()
 {
@@ -310,27 +307,27 @@ int HorizonScanner::nextStep()
 	    }
 	}
 
-	return Executor::Finished();
+	return Finished();
     }
 
+    uiString fmtdefstr = tr("format definition");
     if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_).buf() ) )
-	mErrRet(tr("Error during initialization."
-		"\nPlease check the format definition"))
+	mErrRet(tr("Error during initialization")
+		.appendPhrase(uiStrings::phrPlsCheckThe(fmtdefstr)))
 
     Coord crd;
     TypeSet<float> data;
     const int ret = ascio_->getNextLine( crd, data );
     if ( ret < 0 )
-	mErrRet(tr("Error during data interpretation."
-		"\nPlease check the format definition"))
+	mErrRet(tr("Error during data interpretation")
+		.appendPhrase(uiStrings::phrPlsCheckThe(fmtdefstr)))
     if ( ret == 0 )
     {
 	fileidx_++;
 	delete ascio_;
-	ascio_ = 0;
+	ascio_ = 0; bvalset_ = 0;
 	sections_ += bvalset_;
-	bvalset_ = 0;
-	return Executor::MoreToDo();
+	return MoreToDo();
     }
 
     if ( data.size() < 1 )
@@ -353,7 +350,7 @@ int HorizonScanner::nextStep()
     }
 
     if ( !SI().isReasonable(bid) )
-	return Executor::MoreToDo();
+	return MoreToDo();
 
     bool validpos = true;
     int validx = 0;
@@ -391,7 +388,7 @@ int HorizonScanner::nextStep()
 
     firsttime_ = false;
     nrdone_++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
