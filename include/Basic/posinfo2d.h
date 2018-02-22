@@ -129,6 +129,7 @@ protected:
 
     int			gtIndex(int,bool&) const;
     int			gtIndex(const Coord&,double* sqdist=0) const;
+    int			getSegmentIndexClosestToPoint(const Coord&) const;
 
     friend class	Line2DDataIterator;
 
