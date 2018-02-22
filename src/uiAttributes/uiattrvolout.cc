@@ -320,19 +320,16 @@ bool uiAttrVolOut::prepareProcessing()
 	sel_.attrid_ = todofld_->attribID();
 	sel_.dbky_ = outioobj->key();
 	sel_.outputnr_ = todofld_->outputNr();
-	if ( sel_.outputnr_ < 0 && !sel_.attrid_.isValid() )
+	if ( sel_.outputnr_<0 && !sel_.attrid_.isValid() )
 	{
 	    uiMSG().error( uiStrings::phrSelect(tr("the output quantity")) );
 	    return false;
 	}
 
-	if ( todofld_->is3D() )
-	{
-	    IOObj* chioobj = outioobj->clone();
-	    chioobj->pars().set( sKey::Type(), sKey::Attribute() );
-	    DBM().setEntry( *chioobj );
-	    delete chioobj;
-	}
+	IOObj* chioobj = outioobj->clone();
+	chioobj->pars().set( sKey::Type(), sKey::Attribute() );
+	DBM().setEntry( *chioobj );
+	delete chioobj;
 
 	Attrib::Desc* seldesc = ads_->getDesc( todofld_->attribID() );
 	if ( seldesc )
@@ -481,7 +478,6 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     for ( int idx=0; idx<nrseloutputs; idx++ )
 	iop.set( IOPar::compKey(attribkey,idx), outdescids[idx].getI() );
 
-    const bool is2d = todofld_ ? todofld_->is2D() : attrselfld_->is2D();
     BufferString outseisid;
     outseisid += outioobj->key();
 
@@ -500,7 +496,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     }
 
     iop.set( sKey::Target(), outioobj->name() );
-    if ( is2d && todofld_ )
+    if ( todofld_ && todofld_->is2D() )
     {
 	Attrib::DescSet descset(true);
 	if ( nlamodel_ )
