@@ -226,7 +226,7 @@ void TextStreamProgressMeter::operator++()
 void TextStreamProgressMeter::setNrDone( od_int64 nrdone )
 {
     mSetLock();
-    if ( nrdone<=nrdone_ )
+    if ( finished_ || nrdone<=nrdone_ )
 	return;
 
     addProgress( (int)(nrdone-nrdone_) );
