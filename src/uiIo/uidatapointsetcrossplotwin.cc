@@ -49,8 +49,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 				     .arg(uiStrings::sCrossPlot())
 				     .arg(uiStrings::sDisplay())
 				     .arg(uiStrings::sToolBar())))
-    , seltb_(*new uiToolBar(this,uiStrings::phrCrossPlot(mJoinUiStrs(
-				 sSelection(),uiStrings::sToolBar()))))
+    , seltb_(*new uiToolBar(this,uiStrings::phrCrossPlot(tr("Selection ToolBar"))))
     , maniptb_(*new uiToolBar(this,uiStrings::phrCrossPlot(
 	  uiStrings::phrJoinStrings(tr("Manipulation"), uiStrings::sToolBar())),
 	  uiToolBar::Left))

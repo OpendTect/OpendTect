@@ -322,8 +322,7 @@ void uiDataPointSet::mkToolBars()
 #undef mAddButton
 
     if ( !disptb_ )
-	disptb_ = new uiToolBar( this, mJoinUiStrs(sDisplay(),
-				 uiStrings::sToolBar()) );
+	disptb_ = new uiToolBar( this, tr("Display ToolBar") );
 
     uiLabel* showlbl = new uiLabel( disptb_,uiStrings::sShow() );
     disptb_->addObject( showlbl, 3 );
