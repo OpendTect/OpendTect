@@ -73,7 +73,7 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
     ascistream astrm( strm );
     const bool hasheader = astrm.hasStandardHeader();
     if ( !hasheader )
-        strm.setPosition( 0 );
+        strm.reOpen();
     else
     {
 	if ( astrm.atEOS() )
