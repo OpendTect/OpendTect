@@ -159,7 +159,7 @@ for ( int isamp=0; isamp<outnrsamples; isamp++ )
 
     There are 4 parameters (trc, curcomp, blockbuf_ and storinterp_) to
     pass to the executing object. You also need to pass a uiString giving
-    the uiMessage if the execution is done with a taskrunner, thus:
+    the message if the execution is done with a taskrunner, thus:
 
 
 mDefParallelCalc4Pars( SEGYSampleInterpreter,

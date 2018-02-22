@@ -2059,12 +2059,12 @@ public:
 			       data.info().getSize(data.get1DDim()))
 		{}
 
-    uiString	uiMessage() const
+    uiString	message() const
 		{
 		    return tr("Extracting mute positions");
 		}
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
 
     void	setSampling( const TrcKeySampling& tks,
 			     const PosInfo::CubeData* trcssampling )
