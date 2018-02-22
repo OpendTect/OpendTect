@@ -26,7 +26,7 @@ mImplClassFactory( uiArray2DInterpol, factory );
 
 static uiString getDistUnStr( bool isfeet )
 {
-    return yn ? uiStrings::sFeet(true) : uiStrings::sMeter(true);
+    return isfeet ? uiStrings::sFeet(true) : uiStrings::sMeter(true);
 }
 
 
