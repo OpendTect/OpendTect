@@ -1,10 +1,17 @@
 OpendTect V6.2.x : Release info
 
-In general, all fixes in the stable 6.0 are also applied in the 6.2 releases.
-
 ----
+v6.2.2: February 22, 2018
+* Added  "Most Frequent" option to Stratal Amplitude
+* Fix for incorrect depth and sample interval values in SEGY output of Time
+  Depth conversion
+* Fix for 2D horizon becoming unusable after removing one or more 2D line
+  geometries
+* Fix for display issues of a linked SEG-Y
+* Fix for MMP Output temporary files(chunks) in the seismics folder not being
+  deleted
 
-v6.2.0: December 22, 2017
+v6.2.1: January 09, 2018
 * Support of Coordinate Reference Systems
 * RGB color blending on 2D lines
 * Volume Builder for 2D
