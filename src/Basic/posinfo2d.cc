@@ -52,6 +52,33 @@ int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
 }
 
 
+// Returns the index of the first bend point defining the segment closest to pt
+int PosInfo::Line2DData::getSegmentIndexClosestToPoint( const Coord& pt ) const
+{
+    if ( bendpoints_.isEmpty() )
+	return -1;
+
+    double mindiff = mUdf(double);
+    int ret = -1;
+    for ( int idx=1; idx<bendpoints_.size(); idx++ )
+    {
+	const Coord& start = posns_[bendpoints_[idx-1]].coord_;
+	const Coord& stop = posns_[bendpoints_[idx]].coord_;
+	const double seglength = start.distTo<double>( stop );
+	const double distsum = start.distTo<double>( pt ) +
+			       pt.distTo<double>( stop );
+	const double absdiff = Math::Abs( seglength - distsum );
+	if ( absdiff < mindiff )
+	{
+	    mindiff = absdiff;
+	    ret = idx - 1;
+	}
+    }
+
+    return ret;
+}
+
+
 int PosInfo::Line2DData::gtIndex( const Coord& coord, double* sqdist ) const
 {
     if ( posns_.isEmpty() )
@@ -59,7 +86,11 @@ int PosInfo::Line2DData::gtIndex( const Coord& coord, double* sqdist ) const
 
 #   define mSqDist(idx) posns_[idx].coord_.sqDistTo( coord )
 
-    int i0 = 0, i1 = posns_.size()-1;
+    const int segidx = getSegmentIndexClosestToPoint( coord );
+    if ( segidx < 0 )
+	return -1;
+
+    int i0 = bendpoints_[segidx], i1 = bendpoints_[segidx+1];
     double sqd0 = mSqDist( i0 );
     double sqd1 = mSqDist( i1 );
 
