@@ -72,7 +72,7 @@ bool uiGMTInfoDlg::acceptOK()
     const BufferString path = gmtpath_->text();
     if ( path.isEmpty() )
     {
-	uiMSG().message( uiStrings::phrEnter(tr("path")) );
+	uiMSG().message( uiStrings::phrEnter(tr("GMT Path")) );
 	return false;
     }
 

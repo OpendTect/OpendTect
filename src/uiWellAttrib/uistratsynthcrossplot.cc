@@ -461,8 +461,8 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
     if ( stoplvl )
     {
 	wintitl = toUiString("%1 %2").arg(wintitl)
-					.arg(!extrwin.isUdf() && !layerbased ?
-					tr("and down to") : tr("and"));
+			    .arg(!extrwin.isUdf() && !layerbased ?
+			    tr("and down to") : uiStrings::sAnd().toLower() );
 	wintitl = toUiString("%1 %2").arg(wintitl)
 					      .arg(stoplvl->name());
     }

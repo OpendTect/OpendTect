@@ -35,9 +35,7 @@ public:
     Array2DInterpol*		getResult();
 				//!<\note Becomes caller's
 
-    void			setDistanceUnit(const uiString&);
-				//!<A unitstring in [] that tells what the
-				//!<unit is for going from one cell to another
+    void			setDistanceInFeet(bool yn=true);
 
     HelpKey			helpKey() const;
     void			fillPar(IOPar&) const;
@@ -72,7 +70,7 @@ public:
 			//*!Dose only work if provided object is of 'your' type.
 
     bool		acceptOK()					= 0;
-    virtual void	setDistanceUnit(const uiString&)		{}
+    virtual void	setDistanceInFeet(bool yn=true)			{}
 
     Array2DInterpol*	getResult();
 			//!<Becomes caller's
@@ -118,7 +116,7 @@ public:
 
     void			setValuesFrom(const Array2DInterpol&);
     bool			acceptOK();
-    void			setDistanceUnit(const uiString&);
+    virtual void		setDistanceInFeet(bool yn=true);
 
     HelpKey			helpKey() const;
 
@@ -149,7 +147,7 @@ public:
     static uiArray2DInterpol*	create(uiParent*);
 
     bool			acceptOK();
-    void			setDistanceUnit(const uiString&);
+    virtual void		setDistanceInFeet(bool yn=true);
     void			setValuesFrom(const Array2DInterpol&);
 
 protected:

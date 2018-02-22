@@ -80,7 +80,7 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     if ( su.width_ )
     {
 	widthbox_ = new uiLabeledSpinBox( this,
-		    su.color_ || su.drawstyle_ ? tr("Width")
+		    su.color_ || su.drawstyle_ ? uiStrings::sWidth()
                                                : tr("Line width") );
 	widthbox_->box()->setMinValue( mMIN(cMinWidth,linestyle_.width_) );
 	widthbox_->box()->setMaxValue( mMAX(cMaxWidth,linestyle_.width_) );

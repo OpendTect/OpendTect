@@ -343,9 +343,9 @@ void uiTieWin::infoPushed( CallBacker* )
     {
 	if ( !server_.hasSynthetic() || !server_.hasSeismic() )
 	{
-	    uiString errmsg = tr("No %1 data extracted\nCannot go further")
-			    .arg(server_.hasSeismic() ? tr("synthetic")
-						      : tr("seismic"));
+	    uiString errmsg = tr("No %1 extracted.\nCannot go further")
+			    .arg(server_.hasSeismic() ? tr("synthetic data")
+						      : tr("seismic data"));
 	    uiMSG().error( errmsg );
 	    return;
 	}

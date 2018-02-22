@@ -39,7 +39,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     usedrawstylefld_->setChecked( hassty );
     usedrawstylefld_->activated.notify( mCB(this,uiPickPropDlg,drawSel) );
 
-    drawstylefld_ = new uiGenInput( this, tr("with"),
+    drawstylefld_ = new uiGenInput( this, uiStrings::sUsing().toLower(),
 		   BoolInpSpec(true,uiStrings::sLine(),uiStrings::sSurface()) );
     drawstylefld_->setValue( !hasbody );
     drawstylefld_->valuechanged.notify( mCB(this,uiPickPropDlg,drawStyleCB) );

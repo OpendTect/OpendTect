@@ -321,16 +321,18 @@ void uiSurveyInfoEditor::mkRangeGrp()
     const bool zistime = si_.zDomain().isTime();
     const bool depthinft = si_.depthsInFeet();
 
-    const char* zunitstrs[] = { "msec", "meter", "feet", 0 };
+    uiStringSet zunitstrs;
+    zunitstrs.add( uiStrings::sMSec(false,mPlural) );
+    zunitstrs.add( uiStrings::sMeter(false) );
+    zunitstrs.add( uiStrings::sFeet(false) );
     zunitfld_ = new uiComboBox( rangegrp_, zunitstrs, "Z unit" );
     zunitfld_->attach( rightOf, zfld_ );
-    zunitfld_->setHSzPol( uiObject::Small );
     zunitfld_->setCurrentItem( zistime ? 0 : depthinft ? 2 : 1 );
     zunitfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,updZUnit));
 
     depthdispfld_ = new uiGenInput( rangegrp_, tr("Display depths in"),
-                                   BoolInpSpec(!depthinft,tr("meter"),
-                                                tr("feet")) );
+	   BoolInpSpec(!depthinft, uiStrings::sMeter(false),
+			uiStrings::sFeet(false)) );
     depthdispfld_->setSensitive( zistime && !si_.xyInFeet() );
     depthdispfld_->valuechanged.notify(
 			mCB(this,uiSurveyInfoEditor,depthDisplayUnitSel) );

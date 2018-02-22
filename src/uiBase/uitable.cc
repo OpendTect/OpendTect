@@ -1404,10 +1404,10 @@ void uiTable::popupMenu( CallBacker* )
 	    else
 	    {
 		itmtxt = uiStrings::phrInsert( uiStrings::phrJoinStrings(
-				toUiString(setup_.coldesc_),tr("before")) );
+				toUiString(setup_.coldesc_),sBefore()) );
 		inscolbef = mnu->insertAction( new uiAction(itmtxt), 0 );
 		itmtxt = uiStrings::phrInsert( uiStrings::phrJoinStrings(
-				toUiString(setup_.coldesc_),tr("after")) );
+				toUiString(setup_.coldesc_),sAfter()) );
 		inscolaft = mnu->insertAction( new uiAction(itmtxt), 2 );
 	    }
 	}
@@ -1442,10 +1442,10 @@ void uiTable::popupMenu( CallBacker* )
 	    else
 	    {
 		itmtxt =  uiStrings::phrInsert( uiStrings::phrJoinStrings(
-				toUiString(setup_.rowdesc_),tr("before")) );
+				toUiString(setup_.rowdesc_),sBefore()) );
 		insrowbef = mnu->insertAction( new uiAction(itmtxt), 1 );
 		itmtxt =  uiStrings::phrInsert( uiStrings::phrJoinStrings(
-				toUiString(setup_.rowdesc_),tr("after")) );
+				toUiString(setup_.rowdesc_),sAfter()) );
 		insrowaft = mnu->insertAction( new uiAction(itmtxt), 3 );
 	    }
 	}
@@ -1468,7 +1468,7 @@ void uiTable::popupMenu( CallBacker* )
     int cptxt = 0;
     if ( isTableReadOnly() && setup_.enablecopytext_ )
     {
-	itmtxt = uiStrings::phrJoinStrings(uiStrings::sCopy(),tr("text"));
+	itmtxt = tr("Copy text");
 	cptxt = mnu->insertAction( new uiAction(itmtxt), 8 );
     }
 

@@ -363,6 +363,9 @@ protected:
     mDeprecated void	setRowLabels(const BufferStringSet&);
     mDeprecated void	setColumnLabels(const BufferStringSet&);
 
+    static uiString	sAfter()	{ return tr("after"); }
+    static uiString	sBefore()	{ return tr("before"); }
+
 private:
 
     uiTableBody*	body_;

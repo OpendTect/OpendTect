@@ -200,9 +200,6 @@ void uiImportHorizon::interpolSettingsCB( CallBacker* )
     dlg.setCaption( uiStrings::sInterpolation() );
     dlg.setTitleText( uiStrings::sSettings() );
 
-    dlg.getDlgGroup()->setDistanceUnit(
-                                SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
-
     if ( dlg.go() )
     {
 	delete interpol_;

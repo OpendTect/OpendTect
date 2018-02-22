@@ -519,7 +519,8 @@ bool uiViewer2DSelDataDlg::acceptOK()
 {
     if ( selgatherfld_->isEmpty() )
     {
-	uiMSG().error( uiStrings::phrPlsSelectAtLeastOne(tr("dataset")) );
+	uiMSG().error(
+		uiStrings::phrPlsSelectAtLeastOne(uiStrings::sDataSet()) );
 	return false;
     }
     selgathers_.erase();

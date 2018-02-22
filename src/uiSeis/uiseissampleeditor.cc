@@ -1032,14 +1032,14 @@ uiSeisSampleEditorInfoVwr::uiSeisSampleEditorInfoVwr( uiSeisSampleEditor& p,
     trcnrbinidfld_->attach( alignedBelow, coordfld_ );
     trcnrbinidfld_->setReadOnly();
 
-    uiString dtypstr( ed_.datatype_ == Seis::UnknownData ? tr("amplitude")
-				 : toUiString(ed_.datatype_) );
+    uiString dtypstr( ed_.datatype_ == Seis::UnknownData
+			? uiStrings::sAmplitude() : toUiString(ed_.datatype_) );
     minamplfld_ = new uiGenInput( valgrp, tr("Minimum %1").arg(dtypstr),
 				  FloatInpSpec() );
     minamplfld_->attach( alignedBelow, trcnrbinidfld_ );
     minamplfld_->setElemSzPol( uiObject::Small );
     minamplfld_->setReadOnly();
-    minamplatfld_ = new uiGenInput( valgrp, tr("at"), FloatInpSpec() );
+    minamplatfld_ = new uiGenInput( valgrp, uiStrings::sAt(), FloatInpSpec() );
     minamplatfld_->attach( rightOf, minamplfld_ );
     minamplatfld_->setElemSzPol( uiObject::Small );
     minamplatfld_->setReadOnly();
@@ -1051,7 +1051,7 @@ uiSeisSampleEditorInfoVwr::uiSeisSampleEditorInfoVwr( uiSeisSampleEditor& p,
     maxamplfld_->attach( alignedBelow, minamplfld_ );
     maxamplfld_->setElemSzPol( uiObject::Small );
     maxamplfld_->setReadOnly();
-    maxamplatfld_ = new uiGenInput( valgrp, tr("at"), FloatInpSpec() );
+    maxamplatfld_ = new uiGenInput( valgrp, uiStrings::sAt(), FloatInpSpec() );
     maxamplatfld_->attach( rightOf, maxamplfld_ );
     maxamplatfld_->setElemSzPol( uiObject::Small );
     maxamplatfld_->setReadOnly();

@@ -195,8 +195,7 @@ bool uiChangeHorizonDlg::acceptOK()
 //---- uiFilterHorizonDlg
 
 uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
-    : uiChangeHorizonDlg(p,hor,false,uiStrings::phrJoinStrings(
-			 uiStrings::sHorizon(1),tr("filtering")))
+    : uiChangeHorizonDlg(p,hor,false,tr("Horizon filtering"))
 {
     Array2DFilterPars filterpars( Stats::Median );
     parsgrp_ = new uiArr2DFilterPars( this, &filterpars );

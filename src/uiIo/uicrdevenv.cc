@@ -103,14 +103,12 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     if ( File::exists(oldworkdir.fullPath()) )
     {
-	uiString msg = tr("Your current work directory (%1) %2 to be "
-			  "a valid work directory."
+	uiString msg = tr("Current work directory:\n%1\na valid work dir? [%2]"
 			  "\n\nDo you want to completely remove "
 			  "the existing directory "
 			  "and create a new work directory there?")
 		     .arg(oldworkdir.fullPath())
-		     .arg(oldok ? tr("seems")
-				: tr("does not seem"));
+		     .arg(oldok ? uiStrings::sYes() : uiStrings::sNo() );
 
 	if ( uiMSG().askGoOn(msg) )
 	{
@@ -154,9 +152,10 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	    msg = tr("You selected a file.\n\n");
 	}
 
-	msg.arg("Do you want to completely remove the existing %1"
+	msg.arg("Do you want to completely remove the existing %1\n"
 		"and create a new work directory there?")
-	    .arg(isdir ? tr("directory\n") : tr("file\n"));
+	    .arg(isdir ? uiStrings::sDirectory().toLower()
+		       : uiStrings::sDirectory().toLower());
 
 	if ( !uiMSG().askRemove(msg) )
 	    return;

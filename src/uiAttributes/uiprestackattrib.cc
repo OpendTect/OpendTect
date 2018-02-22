@@ -429,7 +429,7 @@ void uiPreStackAttrib::gatherUnitSel( CallBacker* )
 {
     const bool isdegrees = xunitfld_->getIntValue() == 0;
     if ( xunitfld_->rightObj()->isDisplayed() )
-	xrglbl_->setText( isdegrees ? tr("degrees") : tr("radians") );
+	xrglbl_->setText( toUiString(isdegrees ? "deg" : "rad") );
 }
 
 

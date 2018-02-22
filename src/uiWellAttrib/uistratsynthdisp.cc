@@ -242,8 +242,10 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 	else
 	    { if ( vdstr.isEmpty() ) vdstr = "VD Val"; }
 	float val = !vdvalstr.isEmpty() ? vdvalstr.toFloat() : mUdf(float);
-	msg.appendPhrase(tr("Val = %1 (%2)").arg(mIsUdf(val) ? tr("undef") :
-			toUiString(vdvalstr)).arg(toUiString(vdstr)),
+	msg.appendPhrase( tr("Val = %1 (%2)")
+			.arg( mIsUdf(val) ? uiStrings::sUndef()
+					  : toUiString(vdvalstr))
+			.arg(toUiString(vdstr)),
 			uiString::NoSep, uiString::OnSameLine);
     }
     if ( wvavalstr && !issame )
@@ -251,7 +253,7 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 	mAddSep();
 	sepalreadyadded = true;
 	float val = !wvavalstr.isEmpty() ? wvavalstr.toFloat() : mUdf(float);
-	msg.appendPhrase(tr("Val = %1").arg(mIsUdf(val) ? tr("undef") :
+	msg.appendPhrase(tr("Val = %1").arg(mIsUdf(val) ? uiStrings::sUndef() :
 			    toUiString(wvavalstr)), uiString::NoSep,
 			    uiString::OnSameLine );
 	if ( wvastr.isEmpty() ) wvastr = "WVA Val";

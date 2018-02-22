@@ -101,8 +101,8 @@ void uiSliceSel::setApplyCB( const CallBack& acb )
 
 void uiSliceSel::createInlFld()
 {
-    uiString label = ( isinl_ ? uiStrings::phrInline(tr("nr")) :
-				uiStrings::phrInline(uiStrings::sRange()));
+    uiString label = isinl_ ? uiStrings::phrInline(uiStrings::sNumber())
+			    : uiStrings::phrInline(uiStrings::sRange());
     inl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			BufferString(isinl_ ? "Inl nr" : "Inl Start") );
     inl1fld_ = new uiSpinBox( this, 0, "Inl Stop" );
@@ -113,10 +113,11 @@ void uiSliceSel::createInlFld()
 
 void uiSliceSel::createCrlFld()
 {
-    uiString label = is2d_ ? uiStrings::phrJoinStrings(uiStrings::sTrace(),
-		     uiStrings::sRange()) :
-		     (iscrl_ ? uiStrings::phrCrossline(tr("nr")) :
-			       uiStrings::phrCrossline(uiStrings::sRange()) );
+    uiString label = is2d_
+		? uiStrings::phrJoinStrings(uiStrings::sTrace(),
+					    uiStrings::sRange())
+		: (iscrl_ ? uiStrings::phrCrossline(uiStrings::sNumber())
+			  : uiStrings::phrCrossline(uiStrings::sRange()) );
     crl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			 BufferString( iscrl_ ? "Crl nr" : "Crl Start ") );
     crl1fld_ = new uiSpinBox( this, 0, "Crl Stop" );

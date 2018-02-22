@@ -90,7 +90,7 @@ void uiSaveImageDlg::copyToClipBoardClicked( CallBacker* )
     lockfld_->display( disp );
     if ( useparsfld_ ) useparsfld_->display( disp );
     inpfilefld_->display( disp );
-    pixlable_->display( disp );
+    pixlabel_->display( disp );
 }
 
 
@@ -144,7 +144,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 	if ( fldabove ) useparsfld_->attach( alignedBelow, fldabove );
     }
 
-    pixwidthfld_ = new uiLabeledSpinBox( this, tr("Width"), 2 );
+    pixwidthfld_ = new uiLabeledSpinBox( this, uiStrings::sWidth(), 2 );
     pixwidthfld_->box()->setInterval( maximum_pixel_size_range );
     pixwidthfld_->box()->setNrDecimals( 0 );
     pixwidthfld_->box()->valueChanging.notify(mCB(this,uiSaveImageDlg,sizeChg));
@@ -160,10 +160,10 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 	    mCB(this,uiSaveImageDlg,sizeChg) );
     pixheightfld_->attach( rightTo, pixwidthfld_ );
 
-    pixlable_ = new uiLabel( this, tr("pixels") );
-    pixlable_->attach( rightTo, pixheightfld_ );
+    pixlabel_ = new uiLabel( this, tr("pixels") );
+    pixlabel_->attach( rightTo, pixheightfld_ );
 
-    widthfld_ = new uiLabeledSpinBox( this, tr("Width"), 2 );
+    widthfld_ = new uiLabeledSpinBox( this, uiStrings::sWidth(), 2 );
     widthfld_->box()->setInterval( maximum_size_range );
     widthfld_->box()->setNrDecimals( 2 );
     widthfld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,sizeChg) );
@@ -198,8 +198,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     uiFileSel::Setup fssu( OD::GeneralContent );
     fssu.setForWrite().initialselectiondir( dirname_ )
         .defaultextension( "jpg" ).allowallextensions( false );
-    inpfilefld_ = new uiFileSel( this, uiStrings::phrSelect(tr("filename")),
-				   fssu );
+    inpfilefld_ = new uiFileSel( this, uiStrings::sFileName(), fssu );
     inpfilefld_->newSelection.notify( mCB(this,uiSaveImageDlg,fileSel) );
     inpfilefld_->attach( alignedBelow, dpifld_ );
 }
@@ -364,7 +363,7 @@ bool uiSaveImageDlg::filenameOK() const
     BufferString filename = inpfilefld_->fileName();
     if ( filename.isEmpty() )
     {
-	uiMSG().error( uiStrings::phrSelect(tr("filename")) );
+	uiMSG().error( uiStrings::phrSelect(uiStrings::sFileName().toLower()) );
 	return false;
     }
 

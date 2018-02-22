@@ -181,7 +181,7 @@ bool uiStratUnitEditDlg::acceptOK()
 
     if ( unit_.isLeaved() && lithids_.size() <= 0 )
     {
-	mErrRet( uiStrings::phrPlsSelectAtLeastOne(tr("lithology")),
+	mErrRet( uiStrings::phrPlsSelectAtLeastOne(uiStrings::sLithology()),
 	    if ( !unitlithfld_->size() )
 		selLithCB( 0 );
 	    return false; );

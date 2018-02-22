@@ -222,7 +222,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     jrpstartfld_->attach( rightOf, jrpworklbl_ );
 
     envstr = GetEnvVar( "DTECT_START_OFFICEHOURS" );
-    jrpstopfld_ = new uiGenInput( jrppolgrp, tr("and"),
+    jrpstopfld_ = new uiGenInput( jrppolgrp, uiStrings::sAnd().toLower(),
 				  envstr ? envstr : "7:30" );
     jrpstopfld_->attach( rightOf, jrpstartfld_ );
 

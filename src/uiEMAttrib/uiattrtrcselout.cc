@@ -180,7 +180,7 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createExtraZTopFld( uiParent* prnt )
 {
-    extraztopfld_ = new uiGenInput( prnt, tr("plus"), FloatInpSpec(0) );
+    extraztopfld_ = new uiGenInput( prnt, toUiString("+"), FloatInpSpec(0) );
     extraztopfld_->setElemSzPol(uiObject::Small);
     extraztopfld_->attach( rightOf, objfld_ );
     uiLabel* toplbl = new uiLabel( prnt, SI().zUnitString() );
@@ -190,7 +190,7 @@ void uiAttrTrcSelOut::createExtraZTopFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
 {
-    extrazbotfld_ = new uiGenInput( prnt, tr("plus"), FloatInpSpec(0) );
+    extrazbotfld_ = new uiGenInput( prnt, toUiString("+"), FloatInpSpec(0) );
     extrazbotfld_->setElemSzPol(uiObject::Small);
     extrazbotfld_->attach( rightOf, obj2fld_ );
     uiLabel* botlbl = new uiLabel( prnt, SI().zUnitString() );

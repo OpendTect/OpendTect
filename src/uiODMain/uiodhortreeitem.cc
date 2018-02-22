@@ -314,7 +314,7 @@ void uiODHorizonTreeItem::initMenuItems()
 {
     hordatamnuitem_.text = tr("Horizon Data");
     algomnuitem_.text = uiStrings::sTools();
-    workflowsmnuitem_.text = tr("Workflows");
+    workflowsmnuitem_.text = uiStrings::sWorkflow(mPlural);
     positionmnuitem_.text = m3Dots(uiStrings::sPosition());
     shiftmnuitem_.text = m3Dots(uiStrings::sShift());
     fillholesmnuitem_.text = m3Dots(uiStrings::sGridding());
@@ -888,7 +888,7 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
 void uiODHorizon2DTreeItem::initMenuItems()
 {
     algomnuitem_.text = uiStrings::sTools();
-    workflowsmnuitem_.text = tr("Workflows");
+    workflowsmnuitem_.text = uiStrings::sWorkflow(mPlural);
     derive3dhormnuitem_.text = m3Dots(tr("Derive 3D horizon"));
     snapeventmnuitem_.text = m3Dots(uiStrings::sSnapping());
     interpolatemnuitem_.text = m3Dots(uiStrings::sInterpolate());

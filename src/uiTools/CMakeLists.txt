@@ -10,8 +10,7 @@ set( OD_MODULE_SOURCES
 	uiamplspectrum.cc
 	uiapplserv.cc
 	uiarray2dchg.cc
-	uiarray1dinterpol.cc
-	uiarray2dinterpol.cc
+	uiarrayndinterpol.cc
 	uiaxisdata.cc
 	uiaxishandler.cc
 	uibasemap.cc

@@ -140,7 +140,7 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     centerfld_->activated.notify( mCB(this,uiSeisWvltMerge,reloadAll) );
     centerfld_->attach( rightOf, normalizefld_ );
 
-    centerchoicefld_ = new uiLabeledComboBox( this, tr("at") );
+    centerchoicefld_ = new uiLabeledComboBox( this, uiStrings::sAt() );
     centerchoicefld_->box()->addItems( centernms() );
     centerchoicefld_->box()->selectionChanged.notify(
 					mCB(this,uiSeisWvltMerge,reloadAll) );

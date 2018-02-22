@@ -601,7 +601,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     elevationfld_ = new uiLabeledSpinBox( this, tr("Label elevation") );
     elevationfld_->attach( alignedBelow, alignbutsfld_ );
 
-    degreeslblfld_ = new uiLabel( this, tr("degrees") );
+    degreeslblfld_ = new uiLabel( this, toUiString("(deg)") );
     degreeslblfld_->attach( rightOf, elevationfld_ );
 
     elevationfld_->box()->setSpecialValueText( "Off" );

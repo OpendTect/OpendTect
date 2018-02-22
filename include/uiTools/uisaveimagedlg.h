@@ -54,7 +54,7 @@ protected:
     uiLabeledSpinBox*	heightfld_;
     uiLabeledSpinBox*	widthfld_;
     uiLabeledSpinBox*	dpifld_;
-    uiLabel*		pixlable_;
+    uiLabel*		pixlabel_;
     uiGenInput*		unitfld_;
     uiCheckBox*		lockfld_;
     uiGenInput*		useparsfld_;

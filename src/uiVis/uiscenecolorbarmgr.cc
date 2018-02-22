@@ -23,7 +23,7 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
 {
     setCtrlStyle( CloseOnly );
 
-    uiLabeledSpinBox* wfld = new uiLabeledSpinBox( this, tr("Width") );
+    uiLabeledSpinBox* wfld = new uiLabeledSpinBox( this, uiStrings::sWidth() );
     widthfld_ = wfld->box();
     widthfld_->setMaxValue( 500 );
     widthfld_->setValue( scenecoltab_->getSize().width() );

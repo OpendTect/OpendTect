@@ -54,7 +54,7 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     cmfld_->setSuffix( tr(" deg") );
     cmfld_->valueChanging.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
     ewfld_ = new uiGenInput( this, uiString::empty(),
-				    BoolInpSpec(true,tr("East"),tr("West")) );
+	BoolInpSpec(true,uiStrings::sEast(false),uiStrings::sWest(false)) );
     ewfld_->attach( rightTo, cmfld_ );
     ewfld_->valuechanged.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
 
@@ -62,7 +62,8 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
 			    ODGMT::ResolutionDef(), uiStrings::sResolution() );
     resolutionfld_ = lcb->box();
 
-    lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), tr("Line Style") );
+    lsfld_ = new uiSelLineStyle( this, OD::LineStyle(),
+				 uiStrings::sLineStyle() );
     lsfld_->attach( alignedBelow, lcb );
 
     wetcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())

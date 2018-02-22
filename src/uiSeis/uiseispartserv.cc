@@ -140,20 +140,19 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
 	if ( !uiSurvey::userIsOKWithPossibleTypeChange(Seis::is2D(gt)) ) \
 	    return true; \
 	dlgobj = new uiSeisIOSimple( parent(), gt, forread ); \
-	dlgobj->setCaption( mkDlgCaption(forread,is2d,isps) ); \
+	dlgobj->setCaption( mkSimpIODlgCaption(forread,is2d,isps) ); \
     }\
     dlgobj->show(); }
 
 
-uiString uiSeisPartServer::mkDlgCaption( bool forread, bool is2d, bool isps )
+uiString uiSeisPartServer::mkSimpIODlgCaption( bool forread, bool is2d,
+						bool isps )
 {
     const uiString tp = uiStrings::sSeisObjName( is2d, !is2d, isps );
 
-    return tr( "%1 %2 simple flat file")
-	.arg( forread
-	    ? uiStrings::phrImport( tp )
-	    : uiStrings::phrExport( tp ) )
-	.arg( forread ? tr("from") : tr("to" ) );
+    return (forread ? tr("Import %1 from simple flat file")
+		    : tr("Export %1 to simple flat file"))
+	    .arg( uiStrings::sSeisObjName( is2d, !is2d, isps ) );
 }
 
 

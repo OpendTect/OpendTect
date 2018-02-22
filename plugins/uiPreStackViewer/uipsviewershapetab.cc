@@ -40,7 +40,7 @@ uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
     , mgr_( mgr )
     , initialside_( vwr.displayOnPositiveSide() )
 {
-    autowidthfld_ = new uiGenInput( this, tr("Width"),
+    autowidthfld_ = new uiGenInput( this, uiStrings::sWidth(),
 	    BoolInpSpec(true,uiStrings::sRelative(),uiStrings::sAbsolute()) );
     autowidthfld_->setValue( viewer_.displayAutoWidth() );
     autowidthfld_->valuechanged.notify(

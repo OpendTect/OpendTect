@@ -54,7 +54,7 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 	anglefld_ = new uiGenInput( this, tr("Angle range"),
 				    IntInpIntervalSpec(params_.anglerange_) );
 	anglefld_->attach( alignedBelow, velfuncsel_ );
-	anglelbl_ = new uiLabel( this, tr("degrees") );
+	anglelbl_ = new uiLabel( this, toUiString("(deg)") );
 	anglelbl_->attach( rightOf, anglefld_ );
     }
 

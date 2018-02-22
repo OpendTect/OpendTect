@@ -662,7 +662,7 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
 
     txt.set( "%1 (%2 %3)" );
     const int nrtrcs = sis.nrTraces();
-    txt.arg( bi.ns_ ).arg( nrtrcs ).arg( nrtrcs == 1?tr("trace"):tr("traces") );
+    txt.arg( bi.ns_ ).arg( nrtrcs ).arg( uiStrings::sTrace(nrtrcs).toLower() );
     setCellTxt( mQSResCol, mNrSamplesRow, txt );
 
     const SEGY::ScanRangeInfo& rgs = sis.ranges();

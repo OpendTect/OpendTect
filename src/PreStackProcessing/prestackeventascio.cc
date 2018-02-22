@@ -80,7 +80,7 @@ int EventExporter::nextStep()
     if ( !exec || !exec->execute() )
 	return ErrorOccurred();
 
-    message_ = tr("Writing");
+    message_ = uiStrings::sWriting();
     BinIDValueSet::SPos pos;
 
     while ( currentbatch.next( pos ) )

@@ -694,7 +694,7 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
 	{
 	    uiLabel* txt = new uiLabel( attrvalsgrp, uiStrings::sValue() );
 	    txt->attach( centeredAbove, valflds_[idx] );
-	    txt = new uiLabel( attrvalsgrp, tr("Weight") );
+	    txt = new uiLabel( attrvalsgrp, uiStrings::sWeight() );
 	    txt->attach( centeredAbove, wgtflds_[idx] );
 	    txt = new uiLabel( attrvalsgrp, tr("Minimum    Maximum") );
 	    txt->attach( centeredAbove, minmaxflds_[idx] );

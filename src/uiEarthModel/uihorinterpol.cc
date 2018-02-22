@@ -89,8 +89,6 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     else
     {
 	interpol1dsel_ = new uiArray1DInterpolSel( this, false, true );
-	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ?
-			uiStrings::sFeet(false) : uiStrings::sMeter(false) );
 	if ( inputhorsel_ )
 	    interpol1dsel_->attach( alignedBelow, inputhorsel_ );
     }

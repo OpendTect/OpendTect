@@ -59,7 +59,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     tree_->setColumnWidthMode( 1, uiTreeView::ResizeToContents );
 
     uiTreeViewItem* output = new uiTreeViewItem(tree_,uiTreeViewItem::Setup());
-    output->setText( uiStrings::phrOutput( tr("body") ), 0 );
+    output->setText( uiStrings::phrOutput( uiStrings::sBody() ), 0 );
     output->setText( uiStrings::sOperator(), 1 );
     output->setOpen( true );
     BodyOperand item = BodyOperand();

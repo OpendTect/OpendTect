@@ -49,7 +49,7 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, const EM::ObjID& horid )
     }
 
     ctio_.ctxt_.forread_ = true;
-    horsel_ = new uiIOObjSel( this, ctio_, uiStrings::phrCalculate(tr("to")) );
+    horsel_ = new uiIOObjSel( this, ctio_, tr("Calculate for") );
     horsel_->selectionDone.notify( mCB(this,uiIsochronMakerGrp,toHorSel) );
     if ( !baseemobj_ )
     {

@@ -93,7 +93,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     typefld->valuechanged.notify( mCB(this,uiScalingAttrib,typeSel) );
     typefld->attach( alignedBelow, inpfld );
 
-    nfld = new uiGenInput( this, tr("n"), FloatInpSpec() );
+    nfld = new uiGenInput( this, toUiString("n"), FloatInpSpec() );
     nfld->attach( alignedBelow, typefld );
 
     sqrgfld = new uiGenInput( this, tr("Value range (empty=unlimited)"),

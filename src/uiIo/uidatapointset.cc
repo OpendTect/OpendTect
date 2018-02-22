@@ -1395,8 +1395,7 @@ uiDataPointSetSave( uiParent* p, const char* typ )
 	ctio_.ctxt_.toselect_.require_.set( sKey::Type(), typ );
     const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
 
-    tabfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
-		  uiStrings::sOutput(),tr("to")),
+    tabfld_ = new uiGenInput( this, tr("Output to"),
 		  BoolInpSpec(false,tr("Text file"),tr("OpendTect object")) );
     tabfld_->valuechanged.notify( tccb );
     uiFileSel::Setup su;

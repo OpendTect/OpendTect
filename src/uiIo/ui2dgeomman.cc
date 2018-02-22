@@ -45,8 +45,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 			       .nrstatusflds(1).modal(false),mkCtxt())
 {
     createDefaultUI( false, false );
-    selgrp_->getManipGroup()->addButton( "delete", uiStrings::phrDelete(
-		     uiStrings::phrJoinStrings(tr("this"),uiStrings::sLine())),
+    selgrp_->getManipGroup()->addButton( "delete", tr("Delete this Line"),
 		     mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
     selgrp_->getManipGroup()->addButton( "browse2dgeom",
 	     mJoinUiStrs(sManage(), phrJoinStrings(uiStrings::sLine(),

@@ -56,7 +56,7 @@ bool System::IssueReporter::readReport( const char* filename )
 
     od_istream fstream( filename );
     if ( fstream.isBad() )
-	mStreamError( tr("open") );
+	mStreamError( uiStrings::sOpen().toLower() );
 
 
     report_.add( "User: ").add( GetSoftwareUser() ).add( "\n\n" );
@@ -64,7 +64,7 @@ bool System::IssueReporter::readReport( const char* filename )
     BufferString unfilteredreport;
 
     if ( !fstream.getAll( unfilteredreport ) )
-	mStreamError( tr("read") );
+	mStreamError( uiStrings::sRead().toLower() );
 
     report_.add( unfilteredreport.buf() );
 

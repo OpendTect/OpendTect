@@ -93,5 +93,7 @@ protected:
     uiSeisImpCubeFromOtherSurveyDlg* impcubeothsurvdlg_;
 
 private:
-    uiString		mkDlgCaption( bool forread, bool is2d, bool isps );
+
+    uiString		mkSimpIODlgCaption(bool forread,bool is2d,bool isps);
+
 };

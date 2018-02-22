@@ -8,17 +8,129 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiarray1dinterpol.h"
 #include "uiarray2dinterpol.h"
 
+#include "array1dinterpol.h"
 #include "array2dinterpolimpl.h"
 #include "iopar.h"
 #include "survinfo.h"
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uimsg.h"
 #include "od_helpids.h"
 
 mImplClassFactory( uiArray2DInterpol, factory );
+
+
+static uiString getDistUnStr( bool isfeet )
+{
+    return yn ? uiStrings::sFeet(true) : uiStrings::sMeter(true);
+}
+
+
+uiArray1DInterpolSel::uiArray1DInterpolSel( uiParent* p, bool doextrapolate,
+					    bool maxgapsz )
+    : uiDlgGroup( p, tr("Array2D Interpolation") )
+    , polatefld_( 0 )
+    , maxgapszfld_( 0 )
+{
+    uiObject* prevfld = 0;
+    if ( doextrapolate )
+    {
+	polatefld_ =
+	    new uiGenInput( this, uiStrings::sScope(), BoolInpSpec(true,
+			    uiStrings::sInterpolate(),
+			    toUiString("%1 & %2").arg(uiStrings::sInterpolate())
+					    .arg(uiStrings::sExtrapolate())) );
+	prevfld = polatefld_->attachObj();
+    }
+
+    if ( maxgapsz )
+    {
+	maxgapszfld_ = new uiGenInput( this, uiString::empty(),
+				       FloatInpSpec() );
+	maxgapszfld_->setWithCheck( true );
+	if ( prevfld )
+	    maxgapszfld_->attach( alignedBelow, prevfld );
+
+	prevfld = maxgapszfld_->attachObj();
+    }
+
+    uiStringSet algonms;
+    algonms.add( tr("Linear Interpolation") );
+    algonms.add( tr("Polynomial Interpolation") );
+    uiLabeledComboBox* lcbbx =
+	new uiLabeledComboBox( this, algonms, uiStrings::sAlgorithm() );
+    methodsel_ = lcbbx->box();
+    setHAlignObj( methodsel_ );
+
+    if ( prevfld )
+	lcbbx->attach( alignedBelow, prevfld );
+}
+
+
+uiArray1DInterpolSel::~uiArray1DInterpolSel()
+{
+}
+
+
+void uiArray1DInterpolSel::setDistanceInFeet( bool yn )
+{
+    if ( maxgapszfld_ )
+    {
+	uiString res = tr("Keep holes larger than [%1]").arg(getDistUnStr(yn));
+	maxgapszfld_->setTitleText( res );
+    }
+}
+
+
+void uiArray1DInterpolSel::setInterpolators( int totalnr )
+{
+    results_.erase();
+    for ( int idx=0; idx<totalnr; idx++ )
+    {
+	if ( methodsel_->currentItem()==1 )
+	    results_ += new PolyArray1DInterpol();
+	else
+	    results_ += new LinearArray1DInterpol();
+    }
+}
+
+
+void uiArray1DInterpolSel::setArraySet( ObjectSet< Array1D<float> >& arrset )
+{
+    for ( int idx=0; idx<results_.size(); idx++ )
+	results_[idx]->setArray( *arrset[idx] );
+}
+
+
+bool uiArray1DInterpolSel::acceptOK()
+{
+    if ( maxgapszfld_ && maxgapszfld_->isChecked() &&
+	 (mIsUdf( maxgapszfld_->getFValue() ) ||
+	  maxgapszfld_->getFValue()<=0 ) )
+    {
+	uiMSG().error(tr("Maximum hole size not set"
+                         " or is less or equal to zero"));
+	return false;
+    }
+
+    for ( int idx=0; idx<results_.size(); idx++ )
+	results_[idx]->setMaxGapSize(
+		mCast( float, maxgapszfld_ && maxgapszfld_->isChecked()
+		? maxgapszfld_->getIntValue() : mUdf(int) ) );
+
+    return true;
+}
+
+
+Array1DInterpol* uiArray1DInterpolSel::getResult( int nr )
+{
+    Array1DInterpol* res = results_[nr];
+    return res;
+}
 
 
 uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
@@ -145,7 +257,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     }
 
     selChangeCB( 0 );
-    setDistanceUnit( uiString::empty() );
+    setDistanceInFeet( SI().xyInFeet() );
 }
 
 
@@ -161,18 +273,18 @@ HelpKey uiArray2DInterpolSel::helpKey() const
 }
 
 
-void uiArray2DInterpolSel::setDistanceUnit( const uiString& du )
+void uiArray2DInterpolSel::setDistanceInFeet( bool yn )
 {
     if ( maxholeszfld_ )
     {
-	uiString res = tr("Keep holes larger than %1").arg( du );
+	uiString res = tr("Keep holes larger than [%1]").arg(getDistUnStr(yn));
 	maxholeszfld_->setTitleText( res );
     }
 
     for ( int idx=0; idx<params_.size(); idx++ )
     {
 	if ( params_[idx] )
-	    params_[idx]->setDistanceUnit( du );
+	    params_[idx]->setDistanceInFeet( yn );
     }
 }
 
@@ -327,7 +439,7 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     parbut_->attach( rightOf, radiusfld_ );
 
     setHAlignObj( radiusfld_ );
-    setDistanceUnit( uiString::empty() );
+    setDistanceInFeet( SI().xyInFeet() );
 }
 
 
@@ -347,9 +459,9 @@ void uiInverseDistanceArray2DInterpol::setValuesFrom( const Array2DInterpol& a )
 }
 
 
-void uiInverseDistanceArray2DInterpol::setDistanceUnit( const uiString& d )
+void uiInverseDistanceArray2DInterpol::setDistanceInFeet( bool yn )
 {
-    uiString res = tr("Search radius %1").arg( d );
+    uiString res = tr("Search radius [%1]").arg( getDistUnStr(yn) );
     radiusfld_->setTitleText( res );
 }
 
@@ -382,7 +494,7 @@ uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
     maxdistfld_->attach( alignedBelow, useneighborfld_ );
 
     setHAlignObj( useneighborfld_ );
-    setDistanceUnit( uiString::empty() );
+    setDistanceInFeet( SI().xyInFeet() );
     intCB( 0 );
 }
 
@@ -410,9 +522,9 @@ void uiTriangulationArray2DInterpol::intCB( CallBacker* )
 }
 
 
-void uiTriangulationArray2DInterpol::setDistanceUnit( const uiString& d )
+void uiTriangulationArray2DInterpol::setDistanceInFeet( bool yn )
 {
-    uiString res = tr("Max interpolate distance %1").arg( d );
+    uiString res = tr("Max interpolate distance [%1]").arg( getDistUnStr(yn) );
     maxdistfld_->setTitleText( res );
 }
 

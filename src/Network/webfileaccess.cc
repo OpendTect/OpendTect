@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "odhttp.h"
 #include "genc.h"
 #include "timefun.h"
+#include "uistrings.h"
 
 #include <streambuf>
 
@@ -533,7 +534,7 @@ class HttpFileSystemAccess : public File::SystemAccess
 public:
 
     static const char*	    sFactoryKeyword() { return "http"; }
-    static uiString	    sFactoryUserName() { return tr("Web"); }
+    static uiString	    sFactoryUserName() { return uiStrings::sWeb(); }
 
     virtual const char*	    protocol() const { return sFactoryKeyword(); }
     virtual uiString	    userName() const { return sFactoryUserName(); }

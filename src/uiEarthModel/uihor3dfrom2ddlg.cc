@@ -41,7 +41,6 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     , displayfld_( 0 )
 {
     interpolsel_ = new uiArray2DInterpolSel( this, false, false, false, 0 );
-    interpolsel_->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread_ = false;

@@ -314,7 +314,7 @@ const char* ODMad::ProcExec::getPlotString() const
 
 
 uiString ODMad::ProcExec::message() const
-{ return tr("Working"); }
+{ return uiStrings::sProcessing(); }
 
 
 uiString ODMad::ProcExec::nrDoneText() const

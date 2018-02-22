@@ -352,7 +352,7 @@ void Seis::Loader::setScaler( const Scaler* newsc )
 
 uiString Seis::Loader::nrDoneText() const
 {
-    return uiStrings::phrJoinStrings( uiStrings::sTrace(mPlural), tr("read") );
+    return tr("Traces read");
 }
 
 
@@ -1130,8 +1130,7 @@ od_int64 Seis::SequentialPSLoader::totalNr() const
 
 uiString Seis::SequentialPSLoader::nrDoneText() const
 {
-    return uiStrings::phrJoinStrings( uiStrings::sTrace(mPlural),
-				      tr("read") );
+    return tr("Traces read");
 }
 
 
