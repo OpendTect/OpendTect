@@ -172,10 +172,6 @@ protected:
 
     mutable Threads::Lock lock_;
 
-private:
-
-    virtual void	setProgressMeter(ProgressMeter*);
-
 };
 
 

@@ -191,13 +191,6 @@ void TaskGroup::setEmpty()
 }
 
 
-void TaskGroup::setProgressMeter( ProgressMeter* p )
-{
-    for ( int idx=0; idx<tasks_.size(); idx++ )
-	tasks_[idx]->setProgressMeter( p );
-}
-
-
 void TaskGroup::getTasks( TaskGroup& oth )
 {
     for ( int idx=0; idx<tasks_.size(); idx++ )
@@ -260,6 +253,7 @@ bool TaskGroup::execute()
     for ( curtask_=0; curtask_<tasks_.size(); curtask_++ )
     {
 	Task* toexec = tasks_[curtask_];
+	toexec->setProgressMeter( progressMeter() );
 
 	locker.unlockNow();
 	if ( !toexec->execute() )
@@ -288,7 +282,8 @@ ReportingTask::~ReportingTask()
 void ReportingTask::setProgressMeter( ProgressMeter* pm )
 {
     progressmeter_ = pm;
-    updateProgressMeter();
+    updateReportedName();
+    updateProgressMeter( true );
 }
 
 
@@ -319,7 +314,6 @@ void ReportingTask::updateProgressMeter( bool forced, od_int64* totalnrcache )
 	 (Time::passedSince(lastupdate_) < mDefaultTimeLimit && !forced ) )
 	return;
 
-    updateReportedName();
     progressmeter_->setNrDone( nrDone() );
     progressmeter_->setTotalNr( totalnrcache ? *totalnrcache : totalNr() );
     progressmeter_->setNrDoneText( nrDoneText() );
@@ -344,6 +338,7 @@ void ReportingTask::resetProgress()
 
 void ReportingTask::reportProgressFinished()
 {
+    updateProgressMeter( true );
     if ( progressmeter_ )
 	progressmeter_->setFinished();
 }
@@ -358,12 +353,8 @@ SequentialTask::SequentialTask( const char* nm )
 
 int SequentialTask::doStep()
 {
-    reportProgressStarted();
     const int res = nextStep();
-    const bool last = res<1;
-    updateProgressMeter( last );
-    if ( last )
-	reportProgressFinished();
+    updateProgressMeter();
 
     return res;
 }
@@ -374,14 +365,17 @@ bool SequentialTask::execute()
 {
     control_ = Task::Run;
 
+    reportProgressStarted();
+    bool success = false;
     do
     {
 	int res = doStep();
-	if ( !res )     return true;
-	if ( res < 0 )  break;
+	success = !res;
+	if ( success || res < 0 ) break;
     } while ( shouldContinue() );
+    reportProgressFinished();
 
-    return false;
+    return success;
 }
 
 
