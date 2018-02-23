@@ -329,13 +329,10 @@ bool uiAttrVolOut::prepareProcessing()
 	    return false;
 	}
 
-	if ( todofld_->is3D() )
-	{
-	    IOObj* chioobj = outioobj->clone();
-	    chioobj->pars().set( sKey::Type(), sKey::Attribute() );
-	    IOM().commitChanges( *chioobj );
-	    delete chioobj;
-	}
+	IOObj* chioobj = outioobj->clone();
+	chioobj->pars().set( sKey::Type(), sKey::Attribute() );
+	IOM().commitChanges( *chioobj );
+	delete chioobj;
 
 	Attrib::Desc* seldesc = ads_->getDesc( todofld_->attribID() );
 	if ( seldesc )
