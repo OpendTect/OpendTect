@@ -447,7 +447,8 @@ void Seis::VolProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
     {
 	if ( !fetcher_.trl_ )
 	    cd.setEmpty();
-	if ( fetcher_.isMultiConn() || !fetcher_.trl_->getGeometryInfo(cd) )
+	else if ( fetcher_.isMultiConn() ||
+		 !fetcher_.trl_->getGeometryInfo(cd) )
 	    cdobtained = false;
     }
     if ( !cdobtained )
