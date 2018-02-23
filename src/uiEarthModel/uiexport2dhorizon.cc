@@ -227,12 +227,13 @@ bool uiExport2DHorizon::doExport()
 		{
 		    if ( !wrlnms )
 		    {
+			line.setEmpty();
 			if ( isbulk_ )
 			    line.add(horname).add("\t");
 
 			line.add( crd.x ).add( "\t" ).add( crd.y )
-					 .add("\t" ).add( spnr )
-					 .add( "\t" ).add( undefstr );
+					 .add("\t" ).add( "\t" )
+					 .add( undefstr );
 		    }
 		    else
 		    {
@@ -266,10 +267,10 @@ bool uiExport2DHorizon::doExport()
 		    }
 		    else
 		    {
+			line.setEmpty();
 			if ( isbulk_ )
 			      line.add(horname).add("\t");
 			line.add( crd.x ).add( "\t" ).add( crd.y ).add("\t" )
-					 .add( spnr ).add( "\t" )
 					 .add( scaledz );
 		    }
 		}
@@ -299,18 +300,28 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
     BufferString headerstr;
     if ( headerfld_->getIntValue() == 1 )
     {
-	wrtlnm ? headerstr = "\"Line name\"\t\"X\"\t\"Y\"\t\"TrcNr\"\t"
-	       : headerstr = " \"X\"\t\"Y\"\t";
+	if ( isbulk_  )
+	    headerstr = "\"Horizon Name\"\t";
+	wrtlnm ? headerstr.add( "\"Line name\"\t\"X\"\t\"Y\"\t\"ShotPointNr\""
+							"\t\"TraceNr\"\t" )
+	       : headerstr.add( " \"X\"\t\"Y\"\t" );
 
-	headerstr.add( "\"" ).add( "ShotPointNr" ).add( "\"\t" )
-		 .add( "\"" ).add( zstr ).add( "\"" );
+	headerstr.add( "\"" ).add( zstr ).add( "\"" );
     }
     else
     {
 	int id = 1;
 	BufferString str( wrtlnm ? " LineName" : "" );
+	if ( isbulk_ )
+	{
+	    headerstr.add( id ).add( ":" ).add( "Horizon Name" ).add( "\n" )
+		    .add( "# " );
+	    id++;
+	}
+
 	if ( !str.isEmpty() )
 	{
+
 	    headerstr.add( id ).add( ":" )
                      .add( str ).add( "\n" ).add( "# " );
 	    id++;
@@ -320,12 +331,13 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	headerstr.add( "# " ).add( ++id ).add( ": " ).add( "Y\n" );
 	if ( wrtlnm )
 	    headerstr.add( "# " ).add( ++id )
+		     .add( ": " ).add( "ShotPointNr\n" ).add( "# " ).add( ++id )
                      .add( ": " ).add( "TraceNr\n" );
 
 	headerstr.add( "# " ).add( ++id ).add( ": " ).add( zstr );
     }
 
-    strm << "# " << headerstr << od_newline;
+    strm << "#" << headerstr << od_newline;
     strm << "#-------------------" << od_endl;
 }
 
