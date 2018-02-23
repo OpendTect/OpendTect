@@ -124,9 +124,9 @@ void uiGainAnalysisDlg::setData( bool sety )
     }
 
     bool linear = ampscaletypefld_->getBoolValue();
-    uiString label = toUiString("%1 %2 %3").arg(uiStrings::sRMS())
+    uiString label = toUiString("%1 %2 (%3)").arg(uiStrings::sRMS())
 		     .arg(uiStrings::sAmplitude())
-		     .arg(linear ? tr("(Linear)") : tr("(dB)"));
+		     .arg(linear ? uiStrings::sLinear() : toUiString("dB"));
 
     funcdisp_->yAxis(true)->setCaption( label );
 

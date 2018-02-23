@@ -158,9 +158,10 @@ public:
 
     static uiWord sDistUnitString(bool isfeet,bool abbr=true,
 				 bool withparentheses=false);
-	/*!< returns "m", "ft", "meter", or "feet" */
-    static uiWord sTimeUnitString(bool abbr=true,bool withparentheses=false);
-	/*!< returns "s" or "seconds" */
+	/*!< returns "m", "ft", or translated "meter", or "feet" */
+    static uiWord sTimeUnitString(bool ismilli=false,
+			bool abbr=true,bool withparentheses=false);
+	/*!< returns "s", "ms", or translated "seconds" or "milliseconds" */
     static uiWord sSeisObjName(bool is2d,bool is3d,bool isprestack,
 				     bool both_2d_3d_in_context=false,
 				     bool both_pre_post_in_context=false);
@@ -222,6 +223,7 @@ public:
     static uiWord sBottomHor()		{ return tr("Bottom Horizon"); }
     static uiWord sBrowse()		{ return tr("Browse"); }
     static uiWord sCalculate()		{ return tr("Calculate"); }
+    static uiWord sCalculated()		{ return tr("Calculated"); }
     static uiWord sCalculating()	{ return tr("Calculating"); }
     static uiWord sCalculateFrom()	{ return tr("Calculate From"); }
     static uiWord sCancel()		{ return tr("Cancel"); }
@@ -263,6 +265,7 @@ public:
     static uiWord sColor(int n=1)	{ return tr("Color",0,n); }
     static uiWord sColorTable(int n=1)	{ return tr("Color Table",0,n); }
     static uiWord sColumn(int n=1)	{ return tr("Column",0,n); }
+    static uiWord sComment()		{ return tr("Comment"); }
     static uiWord sComponent()		{ return tr("Component"); }
     static uiWord sConstant( bool math )
     { return math ? tr("Constant","in math"):tr("Constant","not changing"); }
@@ -407,7 +410,9 @@ public:
     static uiWord sLayer(int n=1)	{ return tr("Layer",0,n); }
     static uiWord sLeft()		{ return tr("Left"); }
     static uiWord sLicense(int n=1)	{ return tr("License",0,n); }
+    static uiWord sNoLicense()		{ return tr("No License"); }
     static uiWord sLine(int n=1)	{ return tr("Line",0,n); }
+    static uiWord sLinear()		{ return tr("Linear"); }
     static uiWord sLineDip(bool for2d)	{ return for2d ? tr("Line Dip")
 						       : tr("Crossline Dip"); }
     static uiWord sLineGeometry()	{ return tr("Line Geometry"); }

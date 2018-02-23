@@ -28,9 +28,9 @@ uiLanguageSel::uiLanguageSel( uiParent* p, bool withtext )
     {
 	uiString txt;
 	if ( nrlang < 1 )
-	    txt = tr("[Internationalisation unavailable]");
+	    txt = tr("Internationalisation unavailable").embed("<",">");
 	else
-	    txt = toUiString("[%1]").arg( TrMgr().languageUserName(0) );
+	    txt = TrMgr().languageUserName(0).embed("* "," *");
 	new uiLabel( this, txt );
 	return;
     }

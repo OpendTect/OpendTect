@@ -340,17 +340,19 @@ uiPhrase uiStrings::phrZRange( const uiWord& string )
 uiWord uiStrings::sDistUnitString( bool isfeet, bool abbr, bool withparens )
 {
     if ( withparens )
-	return toUiString("(%1)").arg( sDistUnitString( isfeet, abbr, false ) );
+	return sDistUnitString( isfeet, abbr, false ).parenthesize();
 
     return isfeet ? (abbr ? toUiString("ft") : sFeet(false).toLower())
 		  : (abbr ? toUiString("m") : sMeter(false).toLower());
 }
 
-uiWord uiStrings::sTimeUnitString( bool abbr, bool withparens )
+uiWord uiStrings::sTimeUnitString( bool ismilli, bool abbr, bool withparens )
 {
     if ( withparens )
-	return toUiString("(%1)").arg( sTimeUnitString( abbr, false ) );
-    return abbr ? toUiString( "s" ) : sSec(false,mPlural).toLower();
+	return sTimeUnitString( ismilli, abbr, false ).parenthesize();
+    return abbr ?  toUiString( (ismilli ? "ms" : "s") )
+     : ((ismilli ? sMSec(false,mPlural)
+		 : sSec(false,mPlural)).toLower());
 }
 
 

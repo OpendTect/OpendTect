@@ -114,13 +114,11 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     steerfld_->typeSelected.notify( mCB(this,uiSimilarityAttrib,steerTypeSel) );
     steerfld_->attach( alignedBelow, stepoutfld_ );
 
-    uiString mdlbl = tr("Maximum dip %1").arg(zIsTime() ? tr("(us/m)")
-						        : tr(" (mm/m)"));
+    const char* dipunstr = zIsTime() ? "us/m" : "mm/m";
+    uiString mdlbl = tr("Maximum dip").withUnit( dipunstr );
     maxdipfld_ = new uiGenInput( this, mdlbl, FloatInpSpec() );
     maxdipfld_->attach( alignedBelow, steerfld_ );
-
-    uiString ddlbl = tr("Delta dip %1").arg(zIsTime() ? tr("(us/m)")
-						      : tr(" (mm/m)"));
+    uiString ddlbl = tr("Delta dip").withUnit( dipunstr );
     deltadipfld_ = new uiGenInput( this, ddlbl, FloatInpSpec() );
     deltadipfld_->attach( alignedBelow, maxdipfld_ );
 

@@ -431,7 +431,7 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 			       !mIsZero(extrwin.start,1e-6f);
 
     uiString wintitl = uiStrings::sAttribute(mPlural);
-    uiString timegate = tr("[%1-%2]ms").arg(toUiString(winms.start,0))
+    uiString timegate = toUiString("[%1-%2]ms").arg(toUiString(winms.start,0))
 				       .arg(toUiString(winms.stop,0));
 
     if ( !multiz )
@@ -440,7 +440,7 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 	    wintitl = tr( "%1 at" ).arg(wintitl);
 	else
 	{
-	    wintitl = tr("%1 %2ms %3").arg(wintitl)
+	    wintitl = toUiString("%1 %2ms %3").arg(wintitl)
 				      .arg(toUiString(fabs( winms.start )))
 				      .arg(winms.start < 0 ?
 				      uiStrings::sAbove().toLower() :

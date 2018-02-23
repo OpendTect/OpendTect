@@ -101,7 +101,9 @@ protected:
 
 private:
 
-    static uiString sInterrupting() { return tr("-Interrupting-"); }
+    static uiString sInterrupting()
+				{ return tr("Interrupting").embed("-","-"); }
+
 };
 
 

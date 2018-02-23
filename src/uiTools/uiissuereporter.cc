@@ -52,8 +52,9 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
     commentfld_ = new uiTextEdit( usrinpgrp );
     commentfld_->setPrefWidthInChar( 60 );
     commentfld_->setPrefHeightInChar( 8 );
-    new uiLabel( usrinpgrp, tr("[Details you wish to share]"), commentfld_ );
-    emailfld_ = new uiGenInput( usrinpgrp, tr("[E-mail address]") );
+    new uiLabel( usrinpgrp, tr("Details you wish to share").optional(),
+		    commentfld_ );
+    emailfld_ = new uiGenInput( usrinpgrp, tr("E-mail address").optional() );
     emailfld_->attach( alignedBelow, commentfld_ );
     emailfld_->setStretch( 2, 1 );
 

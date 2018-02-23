@@ -320,9 +320,9 @@ void uiSurveyInfoEditor::mkRangeGrp()
     const bool depthinft = si_.depthsInFeet();
 
     uiStringSet zunitstrs;
-    zunitstrs.add( uiStrings::sMSec(false,mPlural) );
-    zunitstrs.add( uiStrings::sMeter(false) );
-    zunitstrs.add( uiStrings::sFeet(false) );
+    zunitstrs.add( uiStrings::sMSec(false,mPlural).toLower() );
+    zunitstrs.add( uiStrings::sMeter(false).toLower() );
+    zunitstrs.add( uiStrings::sFeet(false).toLower() );
     zunitfld_ = new uiComboBox( rangegrp_, zunitstrs, "Z unit" );
     zunitfld_->attach( rightOf, zfld_ );
     zunitfld_->setCurrentItem( zistime ? 0 : depthinft ? 2 : 1 );

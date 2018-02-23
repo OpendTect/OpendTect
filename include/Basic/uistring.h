@@ -54,7 +54,7 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
    ... will result in the string "4 plus 5 is 9"
 
 
-   As such, uiStrings are suited for limited text manipulation. But if we
+   As such, uiString's are suited for limited text manipulation. But if we
    are doing this for translated words and phrases, beware that alteration and
    combining is not right. Tranalations allow:
    * Entire phrases to be concatenated
@@ -75,6 +75,43 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
      returns a uiString that can be passed to the ui.
   -# For functions not belonging to a class, use the od_static_tr function.
      Any function matching the *_static_tr will be interpreted by Qt's lupdate.
+
+Notes:
+
+* Use the pre-translated strings and phrases in uistrings.h as often as
+  possible. Examples: uiStrings::phrCannotRead() and uiStrings::sTraceNumber().
+
+* Do not juggle with words to construct phrases. This will lead to bad
+  translations, sometimes hilarious stuff. You can however join multiple phrases
+  into one error message. Prefer this style:
+
+    uiString msg( tr("Rendering %1 data in background").arg(objnm) );
+    msg.appendPhrase( tr("When finished, the image will appear") );
+
+  Note the absence of '.' at the end of lines - these phrase terminators should
+  be added if necessary depending on the situation. Do not put them in tr()
+  messages. There are options for different separators when appending.
+
+* All uiStrings:sXXX() start with a capital. To get the no-caps or all-caps
+  versions, simply use toLower() and toUpper(), as in:
+    uiStrings::sColumn().toLower()
+
+* Units of measure are not translated. Some common units may have a translation,
+  if they are not abbreviated. For example, 'ft' is not translated, 'Feet' is.
+  Easy to use is uiStrings::sFeet( bool abbreviation=true );
+
+* You can add 'delimiters' and 'embedding' to words ot phrases. Try to not
+  juggle with these yourself, make sure things are handled in a decent,
+  standard way. For example, there is a uiString::withUnit() that adds the
+  unit (if not empty) with parentheses. Also look at parenthesize(), embed(),
+  optional(), ...
+
+* m3Dots: This is only for menus. For buttons, the last argument 'immediate'
+  determines the possible 3 dots at the end of the text. m3Dots is therefore
+  for menu items only (which actually should have been designed to use the same
+  construction, a design error). Set the flag to false and the user will expect
+  a new dialog to pop up rather than immediate action. So the button object
+  will add the '...' if that is the style (but that may change).
 
  */
 
@@ -143,7 +180,11 @@ public:
     uiString&		constructWordWith(const uiString&,bool addspace=false);
     uiString&		preFixWord(const uiString&);
     uiString&		postFixWord(const uiString&);
-    uiString&		withUnit(const char*);
+    uiString&		embed(const char* open,const char* close);
+    uiString&		quote(bool single);
+    uiString&		parenthesize();
+    uiString&		optional();
+    uiString&		withUnit(const char*); //!< just the unit itself, please
     uiString&		withUnit(const uiString&);
     uiString&		addMoreInfo(const uiString&,bool newline=true);
 			//!< adds a colon first
@@ -289,6 +330,14 @@ inline uiString& uiString::preFixWord( const uiString& str )
 { const uiString kp(*this); *this = str; return postFixWord(kp); }
 inline uiString& uiString::postFixWord( const uiString& str )
 { return constructWordWith( str, true ); }
+inline uiString& uiString::embed( const char* open, const char* close )
+{ return toUiString("%1%2%3)").arg( open ).arg( *this ).arg( close ); }
+inline uiString& uiString::quote( bool single )
+{ const char* qustr = single ? "'" : "\""; return embed(qustr,qustr); }
+inline uiString& uiString::parenthesize()
+{ return toUiString("(%1)").arg( *this ); }
+inline uiString& uiString::optional()
+{ return toUiString("[%1]").arg( *this ); }
 inline uiString& uiString::withUnit( const char* str )
 { return withUnit( toUiString(str) ); }
 inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )

@@ -174,16 +174,13 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 	    titletext = uiStrings::phrSelect(uiStrings::sOutput().toLower());
 
 	if ( selgrp_->getContext().name().isEmpty() )
-	    titletext = toUiString("%1 %2").arg(titletext)
-					.arg( ctio.ctxt_.trgroup_->typeName() );
+	    titletext.postFixWord( toUiString(ctio.ctxt_.trgroup_->typeName()));
 	else
-	    titletext = toUiString("%1 %2").arg(titletext)
-				   .arg( toUiString( ctio.ctxt_.name() ) );
+	    titletext.postFixWord( toUiString(ctio.ctxt_.name()) );
 
-	titletext = toUiString("%1 %2").arg(titletext)
-	         .arg( setup_.multisel_ ? tr("(s)") : uiString::empty() );
+	if ( setup_.multisel_ )
+	    titletext.withUnit( uiStrings::sTimeUnitString() );
     }
-
     setTitleText( titletext );
 
     uiString captn;
@@ -200,7 +197,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     if ( selgrp_->getContext().name().isEmpty() )
 	captn = captn.arg( ctio.ctxt_.trgroup_->typeName() );
     else
-	captn = captn.arg( toUiString(ctio.ctxt_.name()) );
+	captn = captn.arg( ctio.ctxt_.name() );
     setCaption( captn );
 
     selgrp_->getListField()->doubleClicked.notify(

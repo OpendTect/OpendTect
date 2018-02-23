@@ -666,7 +666,8 @@ void uiExportHorizon::settingsCB( CallBacker* )
     uiDialog dlg( this, uiDialog::Setup(tr("IESX details"),
                                         mNoDlgTitle,mNoHelpKey));
     uiGenInput* namefld = new uiGenInput( &dlg, tr("Horizon name in file") );
-    uiGenInput* commentfld = new uiGenInput( &dlg, tr("[Comment]") );
+    uiGenInput* commentfld = new uiGenInput( &dlg,
+				uiStrings::sComment().optional() );
     commentfld->attach( alignedBelow, namefld );
     namefld->setText( gfname_.buf() );
     commentfld->setText( gfcomment_.buf() );

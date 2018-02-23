@@ -492,7 +492,7 @@ void uiSEGYReadStartInfo::updateCellTexts()
 	if ( loaddef_.isRev0() )
 	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;
 
-	const uiString iscalcstr = tr("[Calculated]");
+	const uiString iscalcstr = uiStrings::sCalculated().embed("[","]");
 	if ( is2d )
 	    ky1ustxt = sBytePos;
 	else

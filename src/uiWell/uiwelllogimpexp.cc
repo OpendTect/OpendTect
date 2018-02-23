@@ -115,7 +115,7 @@ void uiImportLogsDlg::lasSel( CallBacker* )
     logstable_->setColumnResizeMode( uiTable::ResizeToContents );
     logstable_->setColumnStretchable( 2, true );
 
-    uiString lbl = toUiString("(%1)").arg(toUiString(lfi.zunitstr.buf()));
+    uiString lbl = toUiString( lfi.zunitstr.buf() ).parenthesize();
     unitlbl_->setText( lbl );
     unitlbl_->display( true );
     const bool isft = *lfi.zunitstr.buf() == 'f' || *lfi.zunitstr.buf() == 'F';

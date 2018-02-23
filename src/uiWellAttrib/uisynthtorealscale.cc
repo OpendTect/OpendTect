@@ -257,8 +257,8 @@ bool uiSynthToRealScale::getEvent()
 	return false;
     seisev_ = evfld_->event();
     const bool isrms = evfld_->getFullExtrWin().nrSteps() > 0;
-    valislbl_->setText( isrms ? tr("[Amplitude RMS values]")
-			      : tr("       [Amplitude values]       ") );
+    valislbl_->setText( (isrms ? tr("Amplitude RMS values")
+			       : tr("Amplitude values")).embed("[","]") );
     return true;
 }
 

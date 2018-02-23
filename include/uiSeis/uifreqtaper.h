@@ -67,20 +67,18 @@ public:
 
     struct Setup : public uiFunctionDisplay::Setup
     {
-			Setup()
-			    : is2sided_(false)
-			    , datasz_((int)(0.5/SI().zStep()))
-			    , logscale_(false)
-			    {
-				xaxcaption_ = uiStrings::phrJoinStrings(
-					  uiStrings::sFrequency(), tr("(Hz)"));
-				yaxcaption_ = tr("Gain Factor (dB)");
-				noxgridline_ = true;
-				noygridline_ = true;
-				ywidth_ = 2;
-				ycol_.set(200,0,0);
-				y2col_.set(0,0,220);
-			    }
+		Setup()
+		    : is2sided_(false)
+		    , datasz_((int)(0.5/SI().zStep()))
+		    , logscale_(false)
+		{
+		    xaxcaption_ = uiStrings::sFrequency().withUnit("Hz");
+		    yaxcaption_ = tr("Gain Factor").withUnit("dB");
+		    noxgridline_ = noygridline_ = true;
+		    ywidth_ = 2;
+		    ycol_.set( 200, 0, 0 );
+		    y2col_.set( 0, 0, 220 );
+		}
 
 	mDefSetupMemb(int,datasz);
 	mDefSetupMemb(uiString,xaxcaption);

@@ -83,12 +83,13 @@ ui2DDefSurvInfoDlg( uiParent* p, TDInfo ztyp )
 
     uiGroup* optgrp = new uiGroup( this, "Optional parameters" );
 
-    const uiString zunitlbl( tdinf_ == uiSurvInfoProvider::Time ? tr("(s)")
-	: (tdinf_ == uiSurvInfoProvider::Depth ? tr("(m)") : tr("(ft)") ) );
+    const uiString zunitlbl( tdinf_ == uiSurvInfoProvider::Time
+	    ? uiStrings::sTimeUnitString()
+	    : uiStrings::sDistUnitString(tdinf_!=uiSurvInfoProvider::Depth) );
     zmaxfld_ = new uiGenInput( optgrp,
-	       tr( "[Z-max %1]").arg(zunitlbl), fis );
+	       tr( "[Z-max (%1)]").arg(zunitlbl), fis );
     srfld_ = new uiGenInput( optgrp,
-	     tr( "[Default sampling rate %1]").arg(zunitlbl), fis);
+	     tr( "[Default sampling rate (%1)]").arg(zunitlbl), fis);
     srfld_->attach( alignedBelow, zmaxfld_ );
 
     optgrp->attach( alignedBelow, maingrp );

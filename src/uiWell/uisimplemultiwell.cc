@@ -78,13 +78,13 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     tbl_->setColumnLabel( 2, toUiString("[%1%2]").arg(uiStrings::sY())
 								.arg(xunstr) );
     const uiString zun = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
-    tbl_->setColumnLabel( 3, tr("[KB%1]").arg(zun) );
+    tbl_->setColumnLabel( 3, toUiString("[KB%1]").arg(zun) );
     tbl_->setColumnToolTip( 3, Well::Info::sKBElev() );
-    tbl_->setColumnLabel( 4, tr("[TD%1]").arg(zun) );
+    tbl_->setColumnLabel( 4, toUiString("[TD%1]").arg(zun) );
     tbl_->setColumnToolTip( 4, Well::Info::sTD() );
-    tbl_->setColumnLabel( 5, tr("[GL%1]").arg(zun) );
+    tbl_->setColumnLabel( 5, toUiString("[GL%1]").arg(zun) );
     tbl_->setColumnToolTip( 5, Well::Info::sGroundElev() );
-    tbl_->setColumnLabel( 6, tr("[UWI]") );
+    tbl_->setColumnLabel( 6, toUiString("[UWI]") );
     tbl_->setColumnToolTip( 6, Well::Info::sUwid() );
 
     uiPushButton* pb = new uiPushButton( this, tr("Read file"),

@@ -623,7 +623,8 @@ uiInvDistInterpolPars::uiInvDistInterpolPars( uiParent* p, bool cornersfirst,
     stepsizefld_ = new uiGenInput( this, tr("Step size"), IntInpSpec(stepsz) );
     stepsizefld_->attach( alignedBelow, cornersfirstfld_ );
 
-    nrstepsfld_ = new uiGenInput( this, tr("[Nr steps]"), IntInpSpec(nrsteps) );
+    nrstepsfld_ = new uiGenInput( this, tr("Nr steps").optional(),
+				  IntInpSpec(nrsteps) );
     nrstepsfld_->attach( alignedBelow, stepsizefld_ );
 }
 
