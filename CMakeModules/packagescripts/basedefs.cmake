@@ -47,7 +47,7 @@ else()
     set( ODSCRIPTS od_* mksethdir macterm.in process_dumpfile.sh )
 endif()
 
-if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
+if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
     set( SYSTEMLIBS libstdc++.so.6 libgcc_s.so.1 )
 endif()
 

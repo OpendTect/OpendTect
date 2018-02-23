@@ -17,6 +17,9 @@ macro ( create_package PACKAGE_NAME )
 			     ${COPYTODATADIR}/. )
 	endif()
 
+	if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+	    copy_unix_systemlibs()
+	endif()
     if( NOT MATLAB_DIR STREQUAL "" )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB
@@ -24,6 +27,13 @@ macro ( create_package PACKAGE_NAME )
    endif()
 
 	copy_thirdpartylibs()
+	if ( WIN32 )
+	elseif( APPLE )
+	else()
+	   execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			    /usr/lib64/libpython2.6.so.1.0
+			    ${COPYTOLIBDIR} )
+	endif()
 	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
     endif()
 
@@ -43,7 +53,11 @@ macro ( create_package PACKAGE_NAME )
 	    set( OD_THIRD_PARTY_LIBS ${OD_THIRD_PARTY_LIBS} ${LIB} )
 	endif()
 
-	if( UNIX )
+	if( WIN64 )
+	    #Stripping not required on windows
+	elseif( APPLE )
+	    #Not using breakpad on MAC
+	else()
 	    execute_process( COMMAND strip ${COPYFROMLIBDIR}/${LIB} )
 	endif()
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -103,9 +117,14 @@ macro ( create_package PACKAGE_NAME )
 
     message( "Copying ${OD_PLFSUBDIR} executables" )
     foreach( EXE ${EXECLIST} )
-	if( UNIX )
+	if( WIN64 )
+	    #Stripping not required on windows
+	elseif( APPLE )
+	    #Not using breakpad on MAC , Stripping not required
+	else()
 	    execute_process( COMMAND strip ${COPYFROMLIBDIR}/${EXE} )
 	endif()
+
 	if( WIN32 )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${COPYFROMLIBDIR}/${EXE}.exe
@@ -221,11 +240,13 @@ macro( PREPARE_WIN_THIRDPARTY_DEBUGLIST DEBUGFILELIST)
     endif()
 endmacro()
 
+
 macro( copy_unix_systemlibs )
     message( "Copying ${OD_PLFSUBDIR} system libraries" )
-    if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
+    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/systemlibs )
+    if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
 	foreach( SYSLIB ${SYSTEMLIBS} )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${SYSLIB} ${COPYTOLIBDIR} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${SYSLIB} ${COPYTOLIBDIR}/systemlibs/ )
 	endforeach()
     endif()
 endmacro()
@@ -371,34 +392,34 @@ endmacro( init_destinationdir )
 
 
 macro( create_develpackages )
-    file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc
-			 ${DESTINATION_DIR}/doc/Programmer)
+    file( MAKE_DIRECTORY ${COPYFROMDATADIR}/doc
+			 ${COPYTODATADIR}/doc/Programmer)
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-		     ${SOURCE_DIR}/CMakeLists.txt ${DESTINATION_DIR} )
+		     ${SOURCE_DIR}/CMakeLists.txt ${COPYTODATADIR} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${CMAKE_INSTALL_PREFIX}/doc/Programmer/batchprogexample
-		     ${DESTINATION_DIR}/doc/Programmer/batchprogexample )
+		     ${COPYFROMDATADIR}/doc/Programmer/batchprogexample
+		     ${COPYTODATADIR}/doc/Programmer/batchprogexample )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${CMAKE_INSTALL_PREFIX}/doc/Programmer/pluginexample
-		     ${DESTINATION_DIR}/doc/Programmer/pluginexample )
+		     ${COPYFROMDATADIR}/doc/Programmer/pluginexample
+		     ${COPYTODATADIR}/doc/Programmer/pluginexample )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${CMAKE_INSTALL_PREFIX}/dtect
-		     ${DESTINATION_DIR}/dtect )
+		     ${COPYFROMDATADIR}/dtect
+		     ${COPYTODATADIR}/dtect )
     foreach( SPECFILE ${SPECFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${CMAKE_INSTALL_PREFIX}/doc/Programmer/${SPECFILE}
-			 ${DESTINATION_DIR}/doc/Programmer )
+			 ${COPYFROMDATADIR}/doc/Programmer/${SPECFILE}
+			 ${COPYTODATADIR}/doc/Programmer )
     endforeach()
 
     file( GLOB HTMLFILES ${BINARY_DIR}/doc/Programmer/*.html )
     foreach( HTMLFILE ${HTMLFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${HTMLFILE} ${DESTINATION_DIR}/doc/Programmer )
+			 ${HTMLFILE} ${COPYTODATADIR}/doc/Programmer )
     endforeach()
     file( GLOB PNGFILES ${SOURCE_DIR}/doc/Programmer/*.png )
     foreach( PNGFILE ${PNGFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${PNGFILE} ${DESTINATION_DIR}/doc/Programmer )
+			 ${PNGFILE} ${COPYTODATADIR}/doc/Programmer )
     endforeach()
 
     foreach( DIR CMakeModules include src plugins spec )
@@ -406,15 +427,21 @@ macro( create_develpackages )
 	if( "${DIR}" STREQUAL "plugins" )
 	    foreach( ODPLUGIN ${ODPLUGINS} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				 ${CMAKE_INSTALL_PREFIX}/plugins/${ODPLUGIN}
-				 ${DESTINATION_DIR}/plugins/${ODPLUGIN} )
+				 ${COPYFROMDATADIR}/plugins/${ODPLUGIN}
+				 ${COPYTODATADIR}/plugins/${ODPLUGIN} )
 	    endforeach()
 	else()
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/${DIR}
-			     ${DESTINATION_DIR}/${DIR} )
+			     ${COPYFROMDATADIR}/${DIR}
+			     ${COPYTODATADIR}/${DIR} )
 	endif()
     endforeach()
+
+    if ( APPLE )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${COPYFROMDATADIR}/bin/od_cr_dev_env
+			 ${COPYTODATADIR}/od_cr_dev_env )
+    endif()
 
     if( WIN32 )
 	file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin
