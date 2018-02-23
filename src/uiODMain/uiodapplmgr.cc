@@ -615,7 +615,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	if ( myas[idx].id().isValid() )
 	    attrserv_->updateSelSpec( myas[idx] );
 
-	if ( myas[idx].id().isUnselInvalid() )
+	if ( myas[idx].id().isUnselInvalid() &&
+	     myas[idx].id() != Attrib::SelSpec::cOtherAttribID() )
 	{
 	    uiMSG().error( tr("Cannot find selected attribute") );
 	    return false;
