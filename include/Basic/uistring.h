@@ -195,15 +195,15 @@ public:
     inline uiString&	appendIncorrect(const OD::String&,char sep=' ');
 
     // TEMP-- comment out to fix a directory at a time
-    inline uiString&	append( const uiString& s, bool nl=false)
+    /*inline uiString&	append( const uiString& s, bool nl=false)
 				{ return appendIncorrect(s,nl?'\n':' '); }
     inline uiString&	append( const char* s, bool nl=false)
 				{ return appendIncorrect(s,nl?'\n':' '); }
     inline uiString&	append( const OD::String& s, bool nl=false )
-				{ return appendIncorrect(s,nl?'\n':' '); }
-    inline uiString&	addSpace(int =1)	{ return append(" "); }
-    inline uiString&	addTab(int =1)		{ return append("\t"); }
-    inline uiString&	addNewLine(int =1)	{ return append("\n"); }
+				{ return appendIncorrect(s,nl?'\n':' '); }*/
+    inline uiString&	addSpace(int =1)	{ return appendPlainText(" "); }
+    inline uiString&	addTab(int =1)		{ return appendPlainText("\t"); }
+    inline uiString&	addNewLine(int =1)	{ return appendPlainText("\n"); }
     // End TEMP
 
     static uiString	getOrderString(int);	//!< 1st, 2nd, 3rd, ...
