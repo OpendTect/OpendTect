@@ -251,20 +251,17 @@ void uiSeisWvltMan::mkFileInfo()
 	WaveletAttrib wvltattrib( *wvlt );
 
 	uiPhrase msg;
-	msg.appendPhrase( tr("Number of samples: %1" ).arg(wvlt->size()) )
-	   .addNewLine();
+	msg.appendPhrase( tr("Number of samples: %1" ).arg(wvlt->size()) );
 	msg.appendPhrase( tr("Sample interval %1: %2" )
-	   .arg(SI().zUnitString(true)).arg(wvlt->sampleRate() * zfac) )
-	   .addNewLine();
+	   .arg(SI().zUnitString(true)).arg(wvlt->sampleRate() * zfac) );
 
 	Interval<float> extremevals;
 	wvlt->getExtrValues( extremevals );
 	msg.appendPhrase( tr("Min/Max amplitude: %1/%2" )
-	   .arg(extremevals.start).arg( extremevals.stop ) ).addNewLine();
+	   .arg(extremevals.start).arg( extremevals.stop ) );
 	float avgphase = wvltattrib.getAvgPhase( true );
 	if ( mIsZero(avgphase,1e-3f) ) avgphase = 0.f;
-	msg.appendPhrase( tr("Average phase (deg): %1").arg(avgphase) )
-	   .addNewLine();
+	msg.appendPhrase( tr("Average phase (deg): %1").arg(avgphase) );
 	txt.appendPhrase( msg );
 	wvlt = 0;
 
@@ -282,7 +279,7 @@ void uiSeisWvltMan::mkFileInfo()
 		msg.appendPhrase( tr("\n\t(along '%1' at '%2')")
 		   .arg(DBM().nameOf(horid)).arg(lvlnm) );
 	    }
-	    txt.appendPhrase( msg ).addNewLine();
+	    txt.appendPhrase( msg );
 	}
     }
 
