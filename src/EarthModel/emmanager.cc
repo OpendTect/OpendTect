@@ -119,7 +119,7 @@ bool EM::ObjectManager::is2D( const ObjID& id ) const
 }
 
 
-const char* EM::ObjectManager::objectType( const ObjID& id ) const
+BufferString EM::ObjectManager::objectType( const ObjID& id ) const
 {
     PtrMan<IOObj> ioobj = DBM().get( id );
     return ioobj ? ioobj->group() : OD::String::empty();
@@ -191,6 +191,7 @@ RefObjectSet<EM::Object> EM::ObjectManager::loadObjects(const ObjIDSet& dbkeys,
 
 ConstRefMan<EM::Object> EM::ObjectManager::fetch( const ObjID& objid,
 					    const TaskRunnerProvider& trprov,
+					    const SurfaceIODataSelection* sel,
 					    bool forcereload ) const
 {
     mLock4Read();
@@ -198,7 +199,7 @@ ConstRefMan<EM::Object> EM::ObjectManager::fetch( const ObjID& objid,
     if ( !forcereload && ret && ret->isFullyLoaded() )
 	return ret;
 
-    PtrMan<EM::ObjectLoader> loader = EM::Hor3DMan().objectLoader( objid );
+    PtrMan<EM::ObjectLoader> loader = EM::Hor3DMan().objectLoader( objid, sel );
     mUnlockAllAccess();
     if ( !loader || !loader->load(trprov) )
 	return 0;
@@ -209,14 +210,16 @@ ConstRefMan<EM::Object> EM::ObjectManager::fetch( const ObjID& objid,
 
 
 RefMan<EM::Object> EM::ObjectManager::fetchForEdit( const ObjID& objid,
-			    const TaskRunnerProvider& trprov, bool forcereload )
+					const TaskRunnerProvider& trprov,
+					const SurfaceIODataSelection* sel,
+					bool forcereload )
 {
     mLock4Read();
     Object* ret = gtObject( objid );
     if ( !forcereload && ret && ret->isFullyLoaded() )
 	return ret;
 
-    PtrMan<EM::ObjectLoader> loader = EM::Hor3DMan().objectLoader( objid );
+    PtrMan<EM::ObjectLoader> loader = EM::Hor3DMan().objectLoader( objid, sel );
     mUnlockAllAccess();
     if ( !loader || !loader->load(trprov) )
 	return 0;

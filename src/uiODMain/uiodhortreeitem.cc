@@ -271,7 +271,7 @@ bool uiODHorizonParentTreeItem::addChld( uiTreeItem* child, bool below,
 uiTreeItem*
     uiODHorizonTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
-    const FixedString objtype = uiVisEMObject::getObjectType(visid);
+    const BufferString objtype = uiVisEMObject::getObjectType(visid);
     if ( !objtype ) return 0;
 
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
@@ -864,7 +864,7 @@ bool uiODHorizon2DParentTreeItem::addChld( uiTreeItem* child, bool below,
 uiTreeItem*
     uiODHorizon2DTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
-    FixedString objtype = uiVisEMObject::getObjectType(visid);
+    const BufferString objtype = uiVisEMObject::getObjectType(visid);
     return objtype==EM::Horizon2D::typeStr()
 	? new uiODHorizon2DTreeItem(visid,true) : 0;
 }

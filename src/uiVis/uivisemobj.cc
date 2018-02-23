@@ -193,14 +193,14 @@ void uiVisEMObject::setUpConnections()
 }
 
 
-const char* uiVisEMObject::getObjectType( int id )
+BufferString uiVisEMObject::getObjectType( int id )
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,obj,visBase::DM().getObject(id))
     if ( !obj ) return 0;
 
     RefMan<EM::Object> emobj = EM::MGR().getObject( obj->getObjectID() );
     return emobj
-	? emobj->getTypeStr()
+	? BufferString(emobj->getTypeStr())
 	: EM::MGR().objectType( obj->getDBKey() );
 }
 

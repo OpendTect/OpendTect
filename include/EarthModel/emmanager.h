@@ -65,8 +65,10 @@ public:
     RefObjectSet<Object> loadObjects(const ObjIDSet&,const TaskRunnerProvider&,
 				     const SurfaceIODataSelection* =0);
     ConstRefMan<Object>	fetch(const ObjID&,const TaskRunnerProvider&,
-			        bool forcereload=false) const;
+			      const SurfaceIODataSelection* =0,
+			      bool forcereload=false) const;
     RefMan<Object>	fetchForEdit(const ObjID&,const TaskRunnerProvider&,
+				     const SurfaceIODataSelection* =0,
 				     bool forcereload=false);
 
     uiRetVal		store(const Object&,const TaskRunnerProvider&,
@@ -82,7 +84,7 @@ public:
     bool		is2D(const ObjID&) const;
     BufferString	objectName(const ObjID&) const;
 			/*!<\returns the name of the object */
-    const char*		objectType(const ObjID&) const;
+    BufferString	objectType(const ObjID&) const;
 			/*!<\returns the type of the object */
 
     void		burstAlertToAll(bool yn);
@@ -169,11 +171,14 @@ mExpClass(EarthModel) Manager : public ObjectManager
 public:
 
     ConstRefMan<Object> fetch(const ObjID& id,const TaskRunnerProvider& tp,
-			        bool forcereload=false) const
-			{ return getMgr(id).fetch(id,tp,forcereload); }
+			      const SurfaceIODataSelection* sel=0,
+			      bool forcereload=false) const
+			{ return getMgr(id).fetch(id,tp,sel,forcereload); }
     RefMan<Object>	fetchForEdit(const ObjID& id,
-			    const TaskRunnerProvider& tp,bool forcereload=false)
-			{ return getMgr(id).fetchForEdit(id,tp,forcereload); }
+				     const TaskRunnerProvider& tp,
+				     const SurfaceIODataSelection* sel=0,
+				     bool forcereload=false)
+			{return getMgr(id).fetchForEdit(id,tp,sel,forcereload);}
 
     Object*		getObject(const ObjID& id)
 			{ return getMgr(id).getObject( id ); }

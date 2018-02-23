@@ -37,7 +37,7 @@ public:
 			~uiVisEMObject();
     bool		isOK() const;
 
-    static const char*	getObjectType(int displayid);
+    static BufferString	getObjectType(int displayid);
     int			id() const { return displayid_; }
     DBKey		getObjectID() const;
 
