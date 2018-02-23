@@ -17,11 +17,11 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "survgeom.h"
 
-class Task;
-class VelocityDesc;
 class ProgressMeter;
-class TrcKeyZSampling;
 class RegularSeisDataPack;
+class ReportingTask;
+class TrcKeyZSampling;
+class VelocityDesc;
 namespace PosInfo { class CubeData; }
 
 
@@ -71,22 +71,20 @@ public:
     bool			validOutputSlotID(OutputSlotID) const;
     virtual OutputSlotID	getOutputSlotID(int idx) const;
 
-    virtual TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
-				/*!<When computing TrcKeySampling, how
-				     big input is needed? */
-    virtual StepInterval<int>	getInputZRg(const StepInterval<int>&,
-					    Survey::Geometry::ID) const;
-				/*!<When computing Z Sampling, how
-				     big input is needed?*/
+    virtual BinID		getHorizontalStepout() const
+							{ return BinID(0,0); }
+				/*!<How many extra samples are required in the
+				    inline/crossline direction */
+    virtual int			getVerticalStepout() const	{ return 0; }
+				/*!<How many extra vertical samples are required
+				     for the computation?*/
     const PosInfo::CubeData*	getPosSamplingOfNonNullTraces(InputSlotID,
 							      int comp=0);
 
     virtual void		setInput(InputSlotID,
 					 const RegularSeisDataPack*);
     CVolRef			getInput(InputSlotID) const;
-    virtual void		setOutput(OutputSlotID,RegularSeisDataPack*,
-				      const TrcKeySampling&,
-				      const StepInterval<int>&);
+    virtual void		setOutput(OutputSlotID,RegularSeisDataPack*);
     CVolRef			getOutput(OutputSlotID) const;
     VolRef			getOutput(OutputSlotID);
 
@@ -96,10 +94,11 @@ public:
     CVolRef			getOutput() const	{ return output_; }
     VolRef			getOutput()		{ return output_; }
 
-    static od_int64		getBaseMemoryUsage(const TrcKeySampling&,
-						   const StepInterval<int>&);
-    od_int64                    getExtraMemoryUsage(const TrcKeySampling&,
-					const StepInterval<int>&,
+    TrcKeyZSampling		getInputSampling(const TrcKeyZSampling&) const;
+    od_uint64			getComponentMemory(const TrcKeyZSampling&,
+						   bool input) const;
+
+    od_int64			getExtraMemoryUsage(const TrcKeyZSampling&,
 					const TypeSet<OutputSlotID>&
 					=TypeSet<OutputSlotID>()) const;
 				/*!< returns total amount of bytes needed
@@ -107,9 +106,7 @@ public:
 
     virtual const VelocityDesc*	getVelDesc() const		{ return 0; }
 
-    virtual Task*		createTask();
-    virtual Task*		createTaskWithProgMeter(ProgressMeter*);
-				//!< only called when needReportProgress()
+    virtual ReportingTask*	createTask();
     virtual uiString		errMsg() const
 				{ return uiString::empty(); }
 
@@ -123,9 +120,29 @@ public:
     virtual bool		canHandle2D() const		{ return false;}
     virtual bool		needsInput() const		{ return true; }
     virtual bool		prefersBinIDWise() const	{ return false;}
-    virtual bool		needReportProgress()		{ return false;}
     virtual bool		isInputPrevStep() const
 				{ return needsInput(); }
+
+    virtual int			getNrInputComponents(InputSlotID,
+						     Pos::GeomID) const;
+    virtual int			getNrOutComponents(OutputSlotID,
+						   Pos::GeomID) const;
+				/*!< Should be filled when the step is setup,
+				     so before a task can be created from it*/
+    virtual bool		copyComponentsSel(const InputSlotID,
+						  OutputSlotID&) const
+				{ return false;}
+
+    virtual bool		hasPeakMemoryAllocatedInput() const
+				{ return needsInput(); }
+				/*!< Are the input datapacks still allocated
+				     during peak memory consumption? */
+
+    virtual bool		hasPeakMemoryAllocatedOutput() const
+				{ return true;}
+				/*!< Are the output datapacks still allocated
+				     during peak memory consumption? */
+
 protected:
 
 				Step();
@@ -137,8 +154,7 @@ protected:
 
     // The memory needed on top of the 'base' memory usage. Can be 0.
     virtual od_int64		extraMemoryUsage(OutputSlotID,
-						 const TrcKeySampling&,
-						 const StepInterval<int>&) const
+						 const TrcKeyZSampling&) const
 								= 0;
 
     ID				id_;
@@ -146,16 +162,17 @@ protected:
     BufferString		username_;
     ObjectSet<const RegularSeisDataPack> inputs_;
     TypeSet<InputSlotID>	inputslotids_;
+    TypeSet<int>		inputcompnrs_;
     uiString			errmsg_;
-    TrcKeySampling		tks_;
-    StepInterval<int>		zrg_;
     TypeSet<OutputSlotID>	outputslotids_; // enabled slotids
+    TypeSet<int>		outputcompnrs_;
 
 private:
 
     RefMan<RegularSeisDataPack>	output_;
 
     void			setChain(Chain&);
+    void			setInputNrComps(InputSlotID,int);
 
     friend class		Chain;
     friend class		ChainExecutor;

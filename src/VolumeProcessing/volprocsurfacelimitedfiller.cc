@@ -588,7 +588,7 @@ bool SurfaceLimitedFiller::isOK() const
 
 
 od_int64 SurfaceLimitedFiller::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+						 const TrcKeyZSampling& ) const
 {
     return 0;
 }

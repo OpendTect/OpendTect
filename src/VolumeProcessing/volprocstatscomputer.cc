@@ -53,27 +53,18 @@ bool StatsCalculator::usePar( const IOPar& par )
 }
 
 
-TrcKeySampling StatsCalculator::getInputHRg( const TrcKeySampling& hrg ) const
+bool StatsCalculator::copyComponentsSel( const InputSlotID inpslotid,
+					 OutputSlotID& outslotid ) const
 {
-    TrcKeySampling res = hrg;
-    res.expand( stepout_.row(), stepout_.col() );
+    const bool correctslot = inpslotid == 0;
+    if ( correctslot )
+	outslotid = inpslotid;
 
-    return res;
+    return correctslot;
 }
 
-/*
-StepInterval<int> StatsCalculator::getInputZRg(
-				const StepInterval<int>& zrg,
-				Survey::Geometry::ID geomid ) const
-{
-    StepInterval<int> res = zrg;
-    res.expand( nzsampextra_ );
 
-    return res;
-}
-*/
-
-Task* StatsCalculator::createTask()
+ReportingTask* StatsCalculator::createTask()
 {
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
@@ -104,13 +95,6 @@ Task* StatsCalculator::createTask()
 	taskgrp->addTask( task );
     }
     return taskgrp;
-}
-
-
-od_int64 StatsCalculator::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
-{
-    return 0;
 }
 
 

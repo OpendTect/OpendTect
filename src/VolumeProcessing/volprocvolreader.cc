@@ -191,7 +191,7 @@ VolumeReader::~VolumeReader()
 }
 
 
-Task* VolumeReader::createTask()
+ReportingTask* VolumeReader::createTask()
 {
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     PtrMan<IOObj> ioobj = DBM().get( mid_ );
@@ -268,11 +268,21 @@ bool VolumeReader::usePar( const IOPar& par )
 }
 
 
-od_int64 VolumeReader::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+int VolumeReader::getNrOutComponents( OutputSlotID slotid,
+				      Pos::GeomID geomid ) const
 {
-    return 0;
-}
+    if ( !validOutputSlotID(slotid) )
+	return Step::getNrOutComponents( slotid, geomid );
 
+    if ( components_.size() > 0 )
+	return components_.size();
+
+    PtrMan<IOObj> ioobj = DBM().get( mid_ );
+    SeisIOObjInfo seisinfo( ioobj );
+    if ( !seisinfo.isOK() )
+	return Step::getNrOutComponents( slotid, geomid );
+
+    return seisinfo.nrComponents( geomid );
+}
 
 } // namespace VolProc

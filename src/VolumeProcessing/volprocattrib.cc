@@ -60,6 +60,8 @@ void VolProcAttrib::prepareForComputeData()
     if ( !ioobj )
 	return;
 
+    if ( chain_ ) chain_->unRef();
+    if ( executor_ ) deleteAndZeroPtr( executor_ );
     chain_ = new VolProc::Chain();
     chain_->ref();
     uiString errmsg;
@@ -78,13 +80,9 @@ void VolProcAttrib::prepareForComputeData()
     chain_->setStorageID( setupmid_ );
 
     executor_ = new VolProc::ChainExecutor( *chain_ );
-    const TrcKeyZSampling cs = *getDesiredVolume();
-    const Survey::Geometry& geometry = Survey::Geometry3D::default3D();
-    const float zstep = geometry.sampling().zsamp_.step;
-    StepInterval<int> zrg( mNINT32( cs.zsamp_.start/zstep ),
-			   mNINT32( cs.zsamp_.stop/zstep ),
-			   mNINT32( cs.zsamp_.step/zstep ) );
-    if ( !executor_->setCalculationScope(cs.hsamp_,zrg) )
+    const TrcKeyZSampling tkzs( *getDesiredVolume() );
+    od_uint64 memusage;
+    if ( !executor_->setCalculationScope(tkzs.hsamp_,tkzs.zsamp_,memusage) )
     {
 	errmsg_ = tr("Cannot calculate at this location");
 	return;
@@ -92,10 +90,9 @@ void VolProcAttrib::prepareForComputeData()
 
     if ( !executor_->execute() )
     {
-	if ( !executor_->errMsg().isEmpty() )
-	    errmsg_ = executor_->errMsg();
-	else
-	    errmsg_ = tr("Error while calculating");
+	errmsg_ = executor_->errMsg().isEmpty()
+		? tr("Error while calculating")
+		: executor_->errMsg();
     }
 }
 
@@ -203,7 +200,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 
 
 RefMan<RegularSeisDataPack>
-ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
+ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
 						     DataPack::ID dpid,
 						     TaskRunner* taskrunner )
 {
@@ -214,12 +211,8 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
     }
 
     ChainExecutor executor( *chain_ );
-    const Survey::Geometry& geometry = Survey::Geometry3D::default3D();
-    const float zstep = geometry.sampling().zsamp_.step;
-    StepInterval<int> zrg( mNINT32( cs.zsamp_.start/zstep ),
-			   mNINT32( cs.zsamp_.stop/zstep ),
-			   mNINT32( cs.zsamp_.step/zstep ) );
-    if ( !executor.setCalculationScope(cs.hsamp_,zrg) )
+    od_uint64 memusage;
+    if ( !executor.setCalculationScope(tkzs.hsamp_,tkzs.zsamp_,memusage) )
     {
 	errmsg_ = uiStrings::phrErrCalculating( tr("at this location") );
 	return 0;

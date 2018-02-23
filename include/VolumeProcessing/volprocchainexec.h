@@ -27,14 +27,12 @@ public:
 				ChainExecutor(Chain&);
 				~ChainExecutor();
 
-				/*!< Return 0 if not enough memory for the
-				     execution */
-    int				nrChunks(const TrcKeySampling&,
-					 const StepInterval<int>&,
-					 int extranroutcomps=0);
-
+				/*!< Mandatory before the execution is started.
+				     The execution can start if success */
     bool			setCalculationScope(const TrcKeySampling&,
-						    const StepInterval<int>&);
+						    const ZSampling&,
+						    od_uint64& maxmemusage,
+						    int* nrchunks=0);
 
     bool			areSamplesIndependent() const;
     bool			needsFullVolume() const;
@@ -64,7 +62,7 @@ private:
 	const ObjectSet<Step>&	getSteps() const	{ return steps_; }
 
 	bool			updateInputs();
-	bool			doPrepare(ProgressMeter* progmeter=0);
+	bool			doPrepare();
 	void			releaseData();
 	Task&			getTask()		{ return taskgroup_; }
 
@@ -81,27 +79,27 @@ private:
     };
 
     bool			scheduleWork();
-    od_int64		computeMaximumMemoryUsage(const TrcKeySampling&,
-						const StepInterval<int>&);
+    void			updateScheduledStepsSampling(
+					const TrcKeySampling&,const ZSampling&);
+    int				nrChunks(const TrcKeySampling&,const ZSampling&,
+					 od_uint64& memusage);
+
+    od_uint64			calculateMaximumMemoryUsage(
+							const TrcKeySampling&,
+							const ZSampling&);
+    void			adjustStepsNrComponents(Pos::GeomID) const;
     void			releaseMemory();
-    int				computeLatestEpoch(Step::ID) const;
-    void			computeComputationScope(Step::ID stepid,
-				    TrcKeySampling& stepoutputhrg,
-				    StepInterval<int>& stepoutputzrg ) const;
-    int				getStepEpochIndex(Step::ID) const;
-    od_int64			getStepOutputMemory(Step::ID,int nr,
-				    const TypeSet<TrcKeySampling>& epochstks,
-				    const TypeSet<StepInterval<int> >&) const;
+    int				calculateLatestEpoch(Step::ID) const;
+    bool			getCalculationScope(Step::ID stepid,
+						    TrcKeyZSampling&) const;
     Step::ID			getChainOutputStepID() const;
     Step::OutputSlotID		getChainOutputSlotID() const;
-
 
     Epoch*			curepoch_;
     bool			isok_;
     Chain&			chain_;
-    TrcKeySampling		outputhrg_;
-    StepInterval<int>		outputzrg_;
     mutable uiString		errmsg_;
+    ObjectSet<TrcKeyZSampling>	tkzss_;
     ObjectSet<Step>		scheduledsteps_;
     ObjectSet<Epoch>		epochs_;
     Chain::Web			web_;

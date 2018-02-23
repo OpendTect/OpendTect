@@ -53,6 +53,8 @@ public:
     void		setLayerModel(InterpolationLayerModel*); //becomes mine
     const InterpolationLayerModel* getLayerModel() const;
 
+private:
+
     virtual const VelocityDesc* getVelDesc() const;
     virtual uiString	errMsg() const			{ return errmsg_; }
     virtual void	fillPar(IOPar&) const;
@@ -67,11 +69,9 @@ public:
     static const char*	sKeyID()			{ return "ID"; }
     static const char*	sKeyNrSources()			{ return "NrSources"; }
 
-protected:
-
-    virtual Task*	createTask();
-    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+    virtual ReportingTask*	createTask();
+    virtual od_int64	extraMemoryUsage(OutputSlotID,
+					 const TrcKeyZSampling&) const;
 
     InterpolationLayerModel*		layermodel_;
     Gridder2D*				gridder_;

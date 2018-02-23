@@ -553,7 +553,7 @@ const VelocityDesc* VelocityGridder::getVelDesc() const
 
 #define cMaxIsolatedFunctions	100
 
-Task* VelocityGridder::createTask()
+ReportingTask* VelocityGridder::createTask()
 {
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( !output || output->isEmpty() || !gridder_ ) return 0;
@@ -706,10 +706,9 @@ bool VelocityGridder::usePar( const IOPar& par )
 
 
 od_int64 VelocityGridder::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+					    const TrcKeyZSampling& tkzs ) const
 {
-    return layermodel_ ? layermodel_->getMemoryUsage( hsamp ) : 0;
+    return layermodel_ ? layermodel_->getMemoryUsage( tkzs.hsamp_ ) : 0;
 }
-
 
 } // namespace VolProc

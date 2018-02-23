@@ -133,7 +133,7 @@ bool RegionFiller::usePar( const IOPar& par )
 
 
 od_int64 RegionFiller::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+					 const TrcKeyZSampling& ) const
 {
     return 0;
 }

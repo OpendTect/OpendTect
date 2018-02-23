@@ -46,20 +46,23 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    TrcKeySampling		getInputHRg(const TrcKeySampling&) const;
+private:
 
-    Task*			createTask();
+    ReportingTask*		createTask();
 
     virtual bool		needsInput() const		{ return true; }
     virtual bool		needsFullVolume() const		{ return false;}
     virtual bool		canInputAndOutputBeSame() const { return false;}
     virtual bool		areSamplesIndependent() const	{ return true; }
+    virtual bool		copyComponentsSel(const InputSlotID,
+						  OutputSlotID&) const;
 
-protected:
-
+    virtual BinID		getHorizontalStepout() const
+							    { return stepout_; }
+    virtual int			getVerticalStepout() const	{ return 0; }
     virtual od_int64		extraMemoryUsage(OutputSlotID,
-					const TrcKeySampling&,
-					const StepInterval<int>&) const;
+						 const TrcKeyZSampling&) const
+				{ return 0; }
 
     BinID			stepout_;
     int				nzsampextra_;	//extra on both sides

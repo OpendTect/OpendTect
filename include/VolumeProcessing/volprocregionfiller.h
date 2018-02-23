@@ -53,6 +53,8 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
+private:
+
     virtual bool		needsFullVolume() const		{ return false;}
     virtual bool		canInputAndOutputBeSame() const	{ return false;}
     virtual bool		areSamplesIndependent() const	{ return true;}
@@ -60,13 +62,10 @@ public:
     virtual bool		isInputPrevStep() const		{ return true; }
     virtual bool		prefersBinIDWise() const	{ return true; }
 
-protected:
-
     virtual bool		prepareComp(int nrthreads);
     virtual bool		computeBinID(const BinID&,int);
     virtual od_int64		extraMemoryUsage(OutputSlotID,
-						const TrcKeySampling&,
-						const StepInterval<int>&) const;
+						const TrcKeyZSampling&) const;
 
     EM::Region3D&		region_;
     float			insideval_;

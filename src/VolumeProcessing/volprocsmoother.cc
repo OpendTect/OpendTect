@@ -37,37 +37,6 @@ void Smoother::releaseData()
 }
 
 
-TrcKeySampling Smoother::getInputHRg( const TrcKeySampling& hrg ) const
-{
-    TrcKeySampling res = hrg;
-    const int inlstepout = smoother_->getWindowSize( 0 ) / 2;
-    const int crlstepout = smoother_->getWindowSize( 1 ) / 2;
-
-    res.expand( inlstepout, crlstepout );
-
-    return res;
-}
-
-
-StepInterval<int> Smoother::getInputZRg( const StepInterval<int>& zrg,
-					 Survey::Geometry::ID geomid ) const
-{
-    StepInterval<int> res( zrg );
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
-    if ( !geom )
-	return res;
-
-    const int zstepout =  smoother_->getWindowSize( 2 ) / 2;
-    res.widen( zstepout );
-    const StepInterval<float> survzrg( geom->sampling().zsamp_ );
-    const int zstartidx = mNINT32( survzrg.start / survzrg.step );
-    const Interval<int> survzrgint( zstartidx, zstartidx+survzrg.nrSteps() );
-    res.limitTo( survzrgint );
-
-    return res;
-}
-
-
 bool Smoother::setOperator( const char* nm, float param,
 			  int sz0, int sz1, int sz2 )
 {
@@ -130,7 +99,7 @@ bool Smoother::usePar( const IOPar& pars )
 }
 
 
-Task* Smoother::createTask()
+ReportingTask* Smoother::createTask()
 {
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
@@ -145,11 +114,25 @@ Task* Smoother::createTask()
 }
 
 
-od_int64 Smoother::extraMemoryUsage( OutputSlotID, const TrcKeySampling& hsamp,
-				     const StepInterval<int>& zsamp ) const
+BinID Smoother::getHorizontalStepout() const
 {
-    return getBaseMemoryUsage( hsamp, zsamp );
+    BinID res( smoother_->getWindowSize( 0 ) / 2,
+	       smoother_->getWindowSize( 1 ) / 2 );
+
+    return res;
 }
 
+
+int Smoother::getVerticalStepout() const
+{
+    return smoother_->getWindowSize( 2 ) / 2;
+}
+
+
+od_int64 Smoother::extraMemoryUsage( OutputSlotID,
+				     const TrcKeyZSampling& tkzs ) const
+{
+    return getComponentMemory( tkzs, false );
+}
 
 } // namespace VolProc

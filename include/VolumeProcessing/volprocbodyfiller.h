@@ -59,7 +59,9 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    virtual Task*		createTask();
+private:
+
+    virtual ReportingTask*	createTask();
 
     virtual bool		needsFullVolume() const		{ return false;}
     virtual bool		canInputAndOutputBeSame() const { return true; }
@@ -68,13 +70,10 @@ public:
     virtual bool		isInputPrevStep() const		{ return true; }
     virtual bool		prefersBinIDWise() const	{ return true; }
 
-protected:
-
     virtual bool		prepareComp(int nrthreads)	{ return true; }
     virtual bool		computeBinID(const BinID&,int);
     virtual od_int64		extraMemoryUsage(OutputSlotID,
-						const TrcKeySampling&,
-						const StepInterval<int>&) const;
+						const TrcKeyZSampling&) const;
     const EM::Body*		body_;
     const EM::Object*		emobj_;
     const EM::ImplicitBody*	implicitbody_;

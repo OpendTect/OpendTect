@@ -301,7 +301,7 @@ bool BodyFiller::usePar( const IOPar& par )
 }
 
 
-Task* BodyFiller::createTask()
+ReportingTask* BodyFiller::createTask()
 {
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( !output || !body_ )
@@ -402,13 +402,10 @@ Task* BodyFiller::createTask()
 
 
 od_int64 BodyFiller::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+				       const TrcKeyZSampling& tkzs ) const
 {
-    if ( !implicitbody_ ) return 0;
-
-    const TrcKeyZSampling bodycs = implicitbody_->tkzs_;
-    const StepInterval<int> bodyzrg(0, bodycs.zsamp_.nrSteps(), 1 );
-    return 2 * getBaseMemoryUsage( bodycs.hsamp_, bodyzrg );
+    return implicitbody_ ? getComponentMemory(implicitbody_->tkzs_,false) * 2
+			 : 0;
 }
 
 

@@ -548,7 +548,7 @@ VoxelConnectivityFilter::~VoxelConnectivityFilter()
 { }
 
 
-Task* VoxelConnectivityFilter::createTask()
+ReportingTask* VoxelConnectivityFilter::createTask()
 {
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
@@ -616,9 +616,9 @@ bool VoxelConnectivityFilter::usePar( const IOPar& par )
 
 
 od_int64 VoxelConnectivityFilter::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+					    const TrcKeyZSampling& tkzs ) const
 {
-    return 3 * getBaseMemoryUsage( hsamp, zsamp );
+    return getComponentMemory( tkzs, false ) * 3;
 }
 
 

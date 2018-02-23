@@ -10,7 +10,6 @@
 #include "odsysmem.h"
 #include "seisdatapack.h"
 #include "threadwork.h"
-#include "simpnumer.h" // for getCommonStepInterval
 
 uiString VolProc::ChainExecutor::sGetStepErrMsg()
 {
@@ -21,8 +20,7 @@ uiString VolProc::ChainExecutor::sGetStepErrMsg()
 VolProc::ChainExecutor::ChainExecutor( Chain& vr )
     : ::Executor( "Volume processing" )
     , chain_( vr )
-    , isok_( true )
-    , outputzrg_( 0, 0, 0 )
+    , isok_( false )
     , outputdp_( 0 )
     , totalnrepochs_( 1 )
     , curepoch_( 0 )
@@ -35,6 +33,7 @@ VolProc::ChainExecutor::ChainExecutor( Chain& vr )
 
 VolProc::ChainExecutor::~ChainExecutor()
 {
+    deepErase( tkzss_ );
     deepErase( epochs_ );
     if ( curepoch_ )
 	delete curepoch_;
@@ -43,6 +42,50 @@ VolProc::ChainExecutor::~ChainExecutor()
 
 uiString VolProc::ChainExecutor::errMsg() const
 { return errmsg_; }
+
+
+bool VolProc::ChainExecutor::setCalculationScope( const TrcKeySampling& tks,
+						  const ZSampling& zsamp,
+					od_uint64& maxmemusage, int* nrchunks )
+{
+    isok_ = false;
+    if ( !scheduleWork() )
+	return isok_;
+
+    const int nrchunksret = nrChunks( tks, zsamp, maxmemusage );
+    if ( nrchunks )
+	*nrchunks = nrchunksret;
+
+    isok_ = nrchunksret > 0;
+
+    return isok_;
+}
+
+
+void VolProc::ChainExecutor::adjustStepsNrComponents( Pos::GeomID geomid ) const
+{
+    for ( int iepoch=epochs_.size()-1; iepoch>=0; iepoch-- )
+    {
+	const ObjectSet<Step>& steps = epochs_[iepoch]->getSteps();
+	for ( int istep=0; istep<steps.size(); istep++ )
+	{
+	    VolProc::Step* step = const_cast<VolProc::Step*>( steps[istep] );
+	    const BufferString stepnm( step->factoryKeyword() );
+	    TypeSet<VolProc::Chain::Connection> conns;
+	    web_.getConnections( step->getID(), false, conns );
+	    for ( int iconn=0; iconn<conns.size(); iconn++ )
+	    {
+		const VolProc::Step::OutputSlotID outslot =
+						conns[iconn].outputslotid_;
+		const int nroutcomps = step->getNrOutComponents(outslot,geomid);
+		Step* inpstep =
+			    chain_.getStepFromID( conns[iconn].inputstepid_ );
+		inpstep->setInputNrComps( conns[iconn].inputslotid_,
+					  nroutcomps );
+	    }
+	}
+    }
+}
 
 
 #define mGetStep( var, id, errret ) \
@@ -74,10 +117,10 @@ bool VolProc::ChainExecutor::scheduleWork()
 	if ( !scheduledsteps_.addIfNew( currentstep ) )
 	    continue;
 
-	const int lateststepepoch = computeLatestEpoch( currentstep->getID() );
+	const int lateststepepoch = calculateLatestEpoch( currentstep->getID());
 	if ( mIsUdf(lateststepepoch) )
 	{
-	    pErrMsg("Cannot compute latest epoch");
+	    pErrMsg("Cannot calculate latest epoch");
 	    return false;
 	}
 
@@ -101,7 +144,7 @@ bool VolProc::ChainExecutor::scheduleWork()
     {
 	Epoch* epoch = new Epoch( *this );
 	for ( int idy=0; idy<scheduledsteps_.size(); idy++ )
-	    if ( computeLatestEpoch( scheduledsteps_[idy]->getID() )==idx )
+	    if ( calculateLatestEpoch( scheduledsteps_[idy]->getID() )==idx )
 		epoch->addStep( scheduledsteps_[idy] );
 
 	epochs_ += epoch;
@@ -113,7 +156,49 @@ bool VolProc::ChainExecutor::scheduleWork()
 }
 
 
-int VolProc::ChainExecutor::computeLatestEpoch( Step::ID stepid ) const
+void VolProc::ChainExecutor::updateScheduledStepsSampling(
+						    const TrcKeySampling& tks,
+						    const ZSampling& zsamp )
+{
+    deepErase( tkzss_ );
+    for ( int idx=0; idx<chain_.getSteps().size(); idx++ )
+    {
+	tkzss_ += new TrcKeyZSampling;
+	tkzss_[idx]->setEmpty();
+    }
+
+    const int laststepidx = chain_.indexOf(
+			    chain_.getStepFromID( chain_.outputstepid_ ) );
+    tkzss_[laststepidx]->hsamp_ = tks;
+    tkzss_[laststepidx]->zsamp_ = zsamp;
+    for ( int iepoch=0; iepoch<totalnrepochs_; iepoch++ )
+    {
+	const ObjectSet<Step>& steps = epochs_[iepoch]->getSteps();
+	for ( int istep=0; istep<steps.size(); istep++ )
+	{
+	    const Step* outstep = steps[istep];
+	    const int outstepidx = chain_.indexOf( outstep );
+	    const TrcKeyZSampling& outtkzs = *tkzss_[outstepidx];
+	    TypeSet<Chain::Connection> conns;
+	    web_.getConnections( outstep->getID(), true, conns );
+	    for ( int iconn=0; iconn<conns.size(); iconn++ )
+	    {
+		const Step::ID inpstepid = conns[iconn].outputstepid_;
+		const Step* inpstep = chain_.getStepFromID( inpstepid );
+		const int inpstepidx = chain_.indexOf( inpstep );
+		const TrcKeyZSampling tkzs =
+				      outstep->getInputSampling( outtkzs );
+		if ( tkzss_[inpstepidx]->hsamp_.isDefined() )
+		    tkzss_[inpstepidx]->include( tkzs );
+		else
+		    *tkzss_[inpstepidx] = tkzs;
+	    }
+	}
+    }
+}
+
+
+int VolProc::ChainExecutor::calculateLatestEpoch( Step::ID stepid ) const
 {
     if ( stepid==chain_.outputstepid_ )
 	return 0;
@@ -125,7 +210,7 @@ int VolProc::ChainExecutor::computeLatestEpoch( Step::ID stepid ) const
     for ( int idx=0; idx<outputconnections.size(); idx++ )
     {
 	const int curepoch =
-	    computeLatestEpoch( outputconnections[idx].inputstepid_ );
+	    calculateLatestEpoch( outputconnections[idx].inputstepid_ );
 	if ( mIsUdf(curepoch) )
 	    continue;
 
@@ -138,47 +223,18 @@ int VolProc::ChainExecutor::computeLatestEpoch( Step::ID stepid ) const
 }
 
 
-void VolProc::ChainExecutor::computeComputationScope( Step::ID stepid,
-				TrcKeySampling& stepoutputhrg,
-				StepInterval<int>& stepoutputzrg ) const
+bool VolProc::ChainExecutor::getCalculationScope( Step::ID stepid,
+						  TrcKeyZSampling& tkzs ) const
 {
-    if ( stepid==chain_.outputstepid_ )
-    {
-	stepoutputhrg = outputhrg_;
-	stepoutputzrg = outputzrg_;
-	return;
-    }
+    const int stepidx = chain_.indexOf( chain_.getStepFromID( stepid ) );
+    if ( !tkzss_.validIdx(stepidx) )
+	return false;
 
-    TypeSet<Chain::Connection> outputconnections;
-    web_.getConnections( stepid, false, outputconnections );
+    tkzs = *tkzss_[stepidx];
 
-    stepoutputhrg.init(false);
-    stepoutputzrg.setUdf();
-
-    for ( int idx=0; idx<outputconnections.size(); idx++ )
-    {
-	const Step* nextstep = chain_.getStepFromID(
-			    outputconnections[idx].inputstepid_ );
-
-	TrcKeySampling nextstephrg;
-	StepInterval<int> nextstepzrg;
-	computeComputationScope( nextstep->getID(), nextstephrg, nextstepzrg );
-
-	const TrcKeySampling requiredhrg = nextstep->getInputHRg( nextstephrg );
-	if ( stepoutputhrg.isDefined() )
-	    stepoutputhrg.include( requiredhrg );
-	else
-	    stepoutputhrg = requiredhrg;
-
-	const StepInterval<int> requiredzrg =
-		nextstep->getInputZRg( nextstepzrg, nextstephrg.getGeomID() );
-	if ( stepoutputzrg.isUdf() )
-	    stepoutputzrg = requiredzrg;
-	else
-	    stepoutputzrg = getCommonStepInterval( stepoutputzrg, requiredzrg );
-
-    }
+    return true;
 }
+
 
 namespace VolProc
 {
@@ -208,65 +264,15 @@ struct VolumeMemory
 			}
 };
 
-static void findDependentInputStepIDs( const Chain& chain,
-				       const ObjectSet<Step>& steps,
-				       TypeSet<Step::ID>& stepidstobeadded,
-				       TypeSet<int>& nroutputperstep )
-{
-    for ( int istep=0; istep<steps.size(); istep++ )
-    {
-	const VolProc::Step& epochstep = *steps[istep];
-	if ( !epochstep.needsInput() )
-	    continue;
-
-	TypeSet<Chain::Connection> conntoprevious;
-	chain.getWeb().getConnections( epochstep.getID(),true,conntoprevious );
-	if ( conntoprevious.isEmpty() )
-	    continue;
-
-	TypeSet<Step::ID> inpsteps;
-	for ( int iconn=0; iconn<conntoprevious.size(); iconn++ )
-	    inpsteps += conntoprevious[iconn].outputstepid_;
-
-	for ( int stepid=0; stepid<inpsteps.size(); stepid++ )
-	{
-	    const VolProc::Step* step = chain.getStepFromID( inpsteps[stepid]);
-	    if ( !step )
-		continue;
-
-	    TypeSet<Chain::Connection> conntonext;
-	    chain.getWeb().getConnections( step->getID(), false, conntonext );
-	    for ( int iconn=0; iconn<conntonext.size(); iconn++ )
-	    {
-		if ( conntonext[iconn].inputstepid_ == epochstep.getID() )
-		    continue;
-
-		const int prevsz = stepidstobeadded.size();
-		stepidstobeadded.addIfNew( conntonext[iconn].outputstepid_ );
-		const int newsz = stepidstobeadded.size();
-		if ( prevsz < newsz )
-		{
-		    if ( nroutputperstep.size() < newsz )
-			nroutputperstep += 1;
-		    else
-			nroutputperstep[prevsz]++;
-		}
-	    }
-	}
-    }
-}
-
 } // namespace VolProc
 
 
 int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
-				      const StepInterval<int>& zrg,
-				      int extranroutcomps )
+				      const ZSampling& zsamp,
+				      od_uint64& memusage )
 {
-    const od_uint64 nrbytes = mCast( od_uint64, 1.01f *
-				    (computeMaximumMemoryUsage( tks, zrg )+
-				    Step::getBaseMemoryUsage( tks, zrg ) *
-				    extranroutcomps ) );
+    memusage = calculateMaximumMemoryUsage( tks, zsamp );
+    const od_uint64 nrbytes = mCast( od_uint64, 1.01f * memusage );
     const bool cansplit = areSamplesIndependent() && !needsFullVolume();
     od_int64 totmem, freemem; OD::getSystemMemory( totmem, freemem );
     const bool needsplit = freemem >= 0 && nrbytes > freemem;
@@ -290,26 +296,20 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
 	starthsamp.limitTo( tks );
 	centerhsamp.limitTo( tks );
 	stophsamp.limitTo( tks );
-	const od_uint64 memstart = computeMaximumMemoryUsage( starthsamp, zrg );
-	const od_uint64 memcenter = computeMaximumMemoryUsage(centerhsamp,zrg );
-	const od_uint64 memstop = computeMaximumMemoryUsage( stophsamp, zrg );
-	TrcKeySampling* tksoflargestchunk = &centerhsamp;
-	od_uint64 memmax = memcenter;
-	if ( memstart > memmax )
-	{
-	    tksoflargestchunk = &starthsamp;
-	    memmax = memstart;
-	}
-	if ( memstop > memmax )
-	{
-	    tksoflargestchunk = &stophsamp;
-	    memmax = memstop;
-	}
+	const od_uint64 memstart =
+			calculateMaximumMemoryUsage( starthsamp, zsamp );
+	const od_uint64 memcenter =
+			calculateMaximumMemoryUsage( centerhsamp, zsamp );
+	const od_uint64 memstop =
+			calculateMaximumMemoryUsage( stophsamp, zsamp );
+	memusage = memcenter;
+	if ( memstart > memusage )
+	    memusage = memstart;
 
-	memmax += Step::getBaseMemoryUsage( *tksoflargestchunk, zrg ) *
-					    extranroutcomps;
-	memmax = mCast(od_uint64,1.01f*memmax);
-	if ( memmax < freemem )
+	if ( memstop > memusage )
+	    memusage = memstop;
+
+	if ( mCast(od_uint64,1.01f*memusage) < freemem )
 	    break;
 
 	halfnrlinesperchunk--;
@@ -323,91 +323,65 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
 }
 
 
-int VolProc::ChainExecutor::getStepEpochIndex( const Step::ID stepid ) const
+od_uint64 VolProc::ChainExecutor::calculateMaximumMemoryUsage(
+						    const TrcKeySampling& tks,
+						    const ZSampling& zsamp )
 {
-    for ( int epoch=0; epoch<epochs_.size(); epoch++ )
-    {
-	const ObjectSet<Step>& steps = epochs_[epoch]->getSteps();
-	for ( int istep=0; istep<steps.size(); istep++ )
-	{
-	    if ( steps[istep]->getID() == stepid )
-		return epoch;
-	}
-    }
-
-    return -1;
-}
-
-
-od_int64 VolProc::ChainExecutor::getStepOutputMemory( VolProc::Step::ID stepid,
-			int nr, const TypeSet<TrcKeySampling>& epochstks,
-			const TypeSet<StepInterval<int> >& epochszrg ) const
-{
-    const int epochidx = getStepEpochIndex( stepid );
-    if ( epochidx == -1 )
-	return 0;
-
-    const od_int64 extramem = Step::getBaseMemoryUsage(
-			      epochstks[epochidx], epochszrg[epochidx] );
-    return extramem * nr;
-
-}
-
-
-od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
-					const TrcKeySampling& hrg,
-					const StepInterval<int>& zrg )
-{
-    if ( !scheduleWork() )
-	return -1;
+    updateScheduledStepsSampling( tks, zsamp );
+    const Pos::GeomID geomid = tks.getGeomID();
+    adjustStepsNrComponents( geomid );
 
     TypeSet<VolumeMemory> activevolumes;
-    TypeSet<TrcKeySampling> epochstks;
-    TypeSet<StepInterval<int> > epochszrg;
-
-    TrcKeySampling curhrg( hrg );
-    StepInterval<int> curzrg( zrg );
     for ( int epochidx=0; epochidx<epochs_.size(); epochidx++ )
     {
 	const ObjectSet<Step>& steps = epochs_[epochidx]->getSteps();
+	TypeSet<Step::ID> inputsids;
 	for ( int stepidx=0; stepidx<steps.size(); stepidx++ )
 	{
+	    od_uint64 epochmemsize = 0;
 	    const Step* step = steps[stepidx];
-	    const od_int64 basesize = Step::getBaseMemoryUsage( curhrg,curzrg );
-	    for ( int outputidx=0; outputidx<step->getNrOutputs(); outputidx++ )
+	    const int outputidx = 0;
+	    //No actual support for multiple output datapacks yet!!
+	    if ( !step->validOutputSlotID(step->getOutputSlotID(outputidx)))
+		continue;
+
+	    const int stepoutidx = chain_.indexOf( step );
+	    const TrcKeyZSampling& outtkzs = *tkzss_[stepoutidx];
+	    if ( step->hasPeakMemoryAllocatedOutput() )
 	    {
-		if ( !step->validOutputSlotID(step->getOutputSlotID(outputidx)))
-		    continue;
-
-		od_int64 outputsize = basesize
-				    + step->extraMemoryUsage( outputidx,
-							      curhrg, curzrg );
-		if ( step->getNrInputs() > 0 &&
-		     !step->canInputAndOutputBeSame() )
-		{
-		    if ( outputidx == 0 )
-		    {
-		    const TrcKeySampling stepinptks = step->getInputHRg(curhrg);
-		    const StepInterval<int> stepzrg = step->getInputZRg(
-						  curzrg,curhrg.getGeomID() );
-		    outputsize += basesize;
-		    curhrg.include( stepinptks );
-		    curzrg.include( stepzrg );
-		    }
-		}
-
-		VolumeMemory volmem( step->getID(), outputidx, outputsize,
-				     epochidx );
-
-		activevolumes += volmem;
+		epochmemsize += step->getComponentMemory( outtkzs, false ) *
+				step->getNrOutComponents( outputidx, geomid );
 	    }
+	    epochmemsize += step->extraMemoryUsage( outputidx, outtkzs );
+
+	    const int nrinputs = step->getNrInputs();
+	    if ( nrinputs > 0 && !step->canInputAndOutputBeSame() )
+	    {
+		TypeSet<Chain::Connection> conns;
+		web_.getConnections( step->getID(), true, conns );
+		for ( int idx=0; idx<nrinputs; idx++ )
+		{
+		    const Step::ID inpstepid = conns[idx].outputstepid_;
+		    if ( inputsids.isPresent(inpstepid) ||
+			 !step->hasPeakMemoryAllocatedInput() )
+			continue;
+
+		    inputsids += inpstepid;
+		    const Step* inpstep = chain_.getStepFromID( inpstepid );
+		    const int stepinpidx = chain_.indexOf( inpstep );
+		    const TrcKeyZSampling& inptkzs = *tkzss_[stepinpidx];
+		    epochmemsize += inpstep->getComponentMemory(inptkzs,false) *
+			step->getNrInputComponents( conns[idx].inputslotid_,
+						    geomid );
+		}
+	    }
+
+	    VolumeMemory volmem(step->getID(),outputidx,epochmemsize,epochidx);
+	    activevolumes += volmem;
 	}
-	epochstks += curhrg;
-	epochszrg += curzrg;
     }
 
     od_int64 res = 0;
-    int largememepoch = -1;
     for ( int epochidx=0; epochidx<epochs_.size(); epochidx++ )
     {
 	od_int64 memneeded = 0;
@@ -420,37 +394,10 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 	    memneeded += activevolumes[idx].nrbytes_;
 	}
 	if ( memneeded > res )
-	{
 	    res = memneeded;
-	    largememepoch = epochidx;
-	}
-    }
-
-    /*See if one of the input of the largest epoch is required after that epoch
-      is fully processed (thus it is not released after completion of the epoch)
-    */
-    TypeSet<VolProc::Step::ID> stepidstobeadded;
-    TypeSet<int> nroutputperstep;
-    const ObjectSet<Step>& steps = epochs_[largememepoch]->getSteps();
-    findDependentInputStepIDs( chain_, steps, stepidstobeadded,
-			       nroutputperstep );
-    for ( int idx=0; idx<stepidstobeadded.size(); idx++ )
-    {
-	res += getStepOutputMemory( stepidstobeadded[idx], nroutputperstep[idx],
-				    epochstks, epochszrg );
     }
 
     return res;
-}
-
-
-bool VolProc::ChainExecutor::setCalculationScope( const TrcKeySampling& hrg,
-					 const StepInterval<int>& zrg )
-{
-    outputhrg_ = hrg;
-    outputzrg_ = zrg;
-
-    return scheduleWork();
 }
 
 
@@ -558,7 +505,7 @@ bool VolProc::ChainExecutor::Epoch::updateInputs()
 }
 
 
-bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
+bool VolProc::ChainExecutor::Epoch::doPrepare()
 {
     for ( int idx=0; idx<steps_.size(); idx++ )
     {
@@ -580,23 +527,14 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 		posdata.merge( *inppd, true );
 	}
 
-	TrcKeySampling stepoutputhrg;
-	StepInterval<int> stepoutputzrg;
-	chainexec_.computeComputationScope( currentstep->getID(), stepoutputhrg,
-					    stepoutputzrg );
+	TrcKeyZSampling csamp;
+	if ( !chainexec_.getCalculationScope( currentstep->getID(), csamp ) )
+	{
+	    pErrMsg("This should not happen");
+	    return false;
+	}
 
-	ConstRefMan<Survey::Geometry> geom =
-		  Survey::GM().getGeometry( chainexec_.outputhrg_.getGeomID() );
-	if ( !geom )
-	    { errmsg_ = "Cannot read geometry from database"; return false; }
-
-	TrcKeyZSampling csamp( geom->sampling() );
-	csamp.hsamp_ = stepoutputhrg;
-	const StepInterval<float> fullzrg( csamp.zsamp_ );
-	csamp.zsamp_.start = stepoutputzrg.start * fullzrg.step; //index -> real
-	csamp.zsamp_.stop = stepoutputzrg.stop * fullzrg.step; //index -> real
-	csamp.zsamp_.step = stepoutputzrg.step * fullzrg.step; //index -> real
-
+	const Pos::GeomID geomid = csamp.hsamp_.getGeomID();
 	const RegularSeisDataPack* outfrominp =
 		    currentstep->canInputAndOutputBeSame() &&
 		    currentstep->validInputSlotID(0) ?
@@ -606,7 +544,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	    ? const_cast<RegularSeisDataPack*>( outfrominp )
 	    : DPM( DataPackMgr::SeisID() ).add(
 		    new RegularSeisDataPack(
-			VolumeDataPack::categoryStr(true,geom->is2D()) ) );
+			VolumeDataPack::categoryStr(true,csamp.hsamp_.is2D())));
 	if ( !outfrominp )
 	{
 	    outcube->setName( "New VolProc DP" );
@@ -619,17 +557,20 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 				    new PosInfo::SortedCubeData(posdata) );
 	    }
 
-	    if ( !outcube->addComponent(0,false) )
-	    { //TODO: allocate the step-required number of components
-		errmsg_ = "Cannot allocate enough memory.";
-		outcube = 0;
-		return false;
+	    for ( int icomp=0; icomp<currentstep->getNrOutComponents(0,geomid);
+			       icomp++ )
+	    {
+		if ( !outcube->addComponent(0,false) )
+		{
+		    errmsg_ = "Cannot allocate enough memory.";
+		    outcube = 0;
+		    return false;
+		}
 	    }
 	}
 
 	Step::OutputSlotID outputslotid = 0; // TODO: get correct slotid
-	currentstep->setOutput( outputslotid, outcube,
-				stepoutputhrg, stepoutputzrg );
+	currentstep->setOutput( outputslotid, outcube );
 
 	//The step should have reffed it, so we can forget it now.
 	outcube = 0;
@@ -644,9 +585,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	if ( currentstep->getID()==chainexec_.getChainOutputStepID() )
 	    currentstep->enableOutput( chainexec_.getChainOutputSlotID() );
 
-	Task* newtask = currentstep->needReportProgress()
-			    ? currentstep->createTaskWithProgMeter(progmeter)
-			    : currentstep->createTask();
+	ReportingTask* newtask = currentstep->createTask();
 	if ( !newtask )
 	{
 	    pErrMsg("Could not create task");
@@ -715,7 +654,7 @@ int VolProc::ChainExecutor::nextStep()
 
     curepoch_ = epochs_.pop();
 
-    if ( !curepoch_->doPrepare(progressMeter()) )
+    if ( !curepoch_->doPrepare() )
 	mCleanUpAndRet( true )
 
     Task& curtask = curepoch_->getTask();
@@ -736,8 +675,6 @@ int VolProc::ChainExecutor::nextStep()
     //Everyone who wants my data has it. I can release it.
     curepoch_->releaseData();
     deleteAndZeroPtr( curepoch_ );
-    if ( finished )
-	((Task*)(this))->setProgressMeter( 0 );
 
     return finished ? Finished() : MoreToDo();
 }

@@ -43,8 +43,6 @@ public:
     void			setOutputID(const DBKey&);
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
 
-    bool			setCalculationScope(const TrcKeySampling&,
-						    const StepInterval<int>&);
     void			usePar(const IOPar&);
 
     virtual od_int64		nrDone() const;

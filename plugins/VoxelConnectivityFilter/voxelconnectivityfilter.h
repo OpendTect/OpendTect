@@ -60,21 +60,22 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
+
+private:
+
     virtual uiString	errMsg() const			{ return errmsg_; }
-    virtual Task*	createTask();
+    virtual ReportingTask*	createTask();
 
     virtual bool	needsFullVolume() const		{ return true; }
     virtual bool	canInputAndOutputBeSame() const	{ return true; }
     virtual bool	areSamplesIndependent() const	{ return false; }
     virtual bool	needsInput() const		{ return true; }
 
-protected:
-
 			VoxelConnectivityFilter();
 			~VoxelConnectivityFilter();
 
-    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+    virtual od_int64	extraMemoryUsage(OutputSlotID,
+					 const TrcKeyZSampling&) const;
 
     od_int64		minbodysize_;
     Interval<float>	range_;

@@ -583,9 +583,9 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
 
 
 od_int64 WellLogInterpolator::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+					    const TrcKeyZSampling& tkzs ) const
 {
-    return layermodel_ ? layermodel_->getMemoryUsage( hsamp ) : 0;
+    return layermodel_ ? layermodel_->getMemoryUsage( tkzs.hsamp_ ) : 0;
 }
 
 

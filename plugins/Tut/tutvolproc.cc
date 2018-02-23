@@ -38,39 +38,28 @@ void TutOpCalculator::fillPar( IOPar& par ) const
     Step::fillPar( par );
 
     par.set( sKeyTypeIndex(), type_ );
-    par.set( sKey::StepInl(), shift_.row() );
-    par.set( sKey::StepCrl(), shift_.col() );
+    par.set( sKey::StepInl(), shift_.inl() );
+    par.set( sKey::StepCrl(), shift_.crl() );
 }
 
 
 bool TutOpCalculator::usePar( const IOPar& par )
 {
-    if ( !Step::usePar( par ) )
+    if ( !Step::usePar(par) )
 	return false;
 
     if ( !par.get( sKeyTypeIndex(), type_ ) )
 	return false;
 
-    if ( type_ == mTypeShift && ( !par.get( sKey::StepInl(), shift_.row() )
-				|| !par.get( sKey::StepCrl(), shift_.col() ) ) )
+    if ( type_ == mTypeShift && ( !par.get(sKey::StepInl(),shift_.inl())
+			       || !par.get(sKey::StepCrl(),shift_.crl()) ) )
 	return false;
 
     return true;
 }
 
 
-TrcKeySampling TutOpCalculator::getInputHRg( const TrcKeySampling& hrg ) const
-{
-    TrcKeySampling res = hrg;
-    res.start_.inl() = hrg.start_.inl() + res.step_.inl() * shift_.row();
-    res.start_.crl() = hrg.start_.crl() + res.step_.crl() * shift_.col();
-    res.stop_.inl() = hrg.stop_.inl() + res.step_.inl() * shift_.row();
-    res.stop_.crl() = hrg.stop_.crl() + res.step_.crl() * shift_.col();
-    return res;
-}
-
-
-Task* TutOpCalculator::createTask()
+ReportingTask* TutOpCalculator::createTask()
 {
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
@@ -91,7 +80,8 @@ TutOpCalculatorTask::TutOpCalculatorTask( const Array3D<float>& input,
 					  const TrcKeyZSampling& tkzsout,
 					  int optype, BinID shift,
 					  Array3D<float>& output )
-    : input_( input )
+    : ParallelTask("Tut VolProc::Step Executor")
+    , input_( input )
     , output_( output )
     , shift_( shift )
     , tkzsin_( tkzsin )
@@ -150,10 +140,9 @@ bool TutOpCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
-uiString TutOpCalculatorTask::uiMessage() const
+uiString TutOpCalculatorTask::message() const
 {
     return tr("Calculating Tutorial Operations");
 }
-
 
 }//namespace

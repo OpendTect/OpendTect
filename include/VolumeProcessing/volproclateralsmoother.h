@@ -42,8 +42,9 @@ public:
     float		getFixedValue() const	{ return fixedvalue_; }
     bool		getInterpolateUdfs() const {return interpolateundefs_;}
 
-    virtual TrcKeySampling getInputHRg(const TrcKeySampling&) const;
-    virtual Task*	createTask();
+private:
+
+    virtual ReportingTask*	createTask();
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
@@ -53,11 +54,9 @@ public:
     virtual bool	canHandle2D() const		{ return false; }
     virtual bool	needsInput() const;
 
-
-protected:
-
-    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+    virtual BinID	getHorizontalStepout() const;
+    virtual od_int64	extraMemoryUsage(OutputSlotID,
+					 const TrcKeyZSampling&) const;
 
     Array2DFilterPars	pars_;
     bool		mirroredges_;

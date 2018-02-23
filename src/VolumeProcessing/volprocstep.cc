@@ -122,7 +122,8 @@ void VolProc::Step::resetInput()
 {
     deepUnRef( inputs_ );
 
-    inputslotids_.erase();
+    inputslotids_.setEmpty();
+    inputcompnrs_.setEmpty();
     for ( int idx=0; idx<getNrInputs(); idx++ )
     {
 	if ( inputs_.validIdx(idx) )
@@ -131,6 +132,7 @@ void VolProc::Step::resetInput()
 	    inputs_ += 0;
 
 	inputslotids_ += idx;
+	inputcompnrs_ += 1;
     }
 }
 
@@ -241,19 +243,6 @@ bool VolProc::Step::validOutputSlotID( OutputSlotID slotid ) const
 }
 
 
-TrcKeySampling VolProc::Step::getInputHRg( const TrcKeySampling& hr ) const
-{
-    return hr;
-}
-
-
-StepInterval<int> VolProc::Step::getInputZRg(
-				const StepInterval<int>& si,
-				Survey::Geometry::ID ) const
-{
-    return si;
-}
-
 
 void VolProc::Step::setInput( InputSlotID slotid,
 			      const RegularSeisDataPack* dc )
@@ -278,15 +267,9 @@ VolProc::Step::CVolRef VolProc::Step::getInput( InputSlotID slotid ) const
 }
 
 
-void VolProc::Step::setOutput( OutputSlotID slotid, RegularSeisDataPack* dc,
-		      const TrcKeySampling& hrg,
-		      const StepInterval<int>& zrg )
+void VolProc::Step::setOutput( OutputSlotID slotid, RegularSeisDataPack* dc )
 {
     output_ = dc;
-    DPM( DataPackMgr::SeisID() ).add( output_ );
-
-    tks_ = hrg;
-    zrg_ = zrg;
 }
 
 
@@ -335,7 +318,7 @@ bool VolProc::Step::usePar( const IOPar& par )
 }
 
 
-Task* VolProc::Step::createTask()
+ReportingTask* VolProc::Step::createTask()
 {
     if ( areSamplesIndependent() && prefersBinIDWise() )
 	return new BinIDWiseTask( *this );
@@ -344,25 +327,88 @@ Task* VolProc::Step::createTask()
 }
 
 
-Task* VolProc::Step::createTaskWithProgMeter( ProgressMeter* )
+int VolProc::Step::getNrInputComponents( InputSlotID slotid,
+					 Pos::GeomID geomid ) const
 {
-    return createTask();
+    if ( !validInputSlotID(slotid) )
+	return 0;
+
+    if ( needsInput() && slotid >=0 && slotid < getNrInputs() )
+	return inputcompnrs_.validIdx(slotid) && !mIsUdf(inputcompnrs_[slotid])
+		 ? inputcompnrs_[slotid] : 1;
+
+    return 0;
 }
 
 
-
-
-od_int64 VolProc::Step::getBaseMemoryUsage(
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp )
+int VolProc::Step::getNrOutComponents( OutputSlotID slotid, Pos::GeomID ) const
 {
-    const od_int64 nrtrcs = hsamp.totalNr();
-    return nrtrcs * (zsamp.nrSteps()+1) * sizeof(float);
+    return validOutputSlotID(slotid) && slotid == 0 ?
+	( outputcompnrs_.validIdx(slotid) && !mIsUdf(outputcompnrs_[slotid])
+	  ? outputcompnrs_[slotid] : 1 ) : 0;
 }
 
 
-od_int64 VolProc::Step::getExtraMemoryUsage(
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp,
-	const TypeSet<OutputSlotID>& ids ) const
+void VolProc::Step::setInputNrComps( InputSlotID slotid, int nrcomps )
+{
+    if ( !validInputSlotID(slotid) )
+	return;
+
+    if ( !inputcompnrs_.validIdx(slotid) )
+    {
+	for ( int idx=0; idx<=slotid; idx++ )
+	{
+	    if ( !inputcompnrs_.validIdx(idx) )
+		inputcompnrs_ += mUdf(int);
+	}
+    }
+
+    inputcompnrs_[slotid] = nrcomps;
+    OutputSlotID outslotid;
+    if ( !copyComponentsSel(slotid,outslotid) )
+	return;
+
+    if ( !outputcompnrs_.validIdx(outslotid) )
+    {
+	for ( int idx=0; idx<=outslotid; idx++ )
+	{
+	    if ( !outputcompnrs_.validIdx(idx) )
+		outputcompnrs_ += mUdf(int);
+	}
+    }
+
+    outputcompnrs_[outslotid] = nrcomps;
+}
+
+
+TrcKeyZSampling VolProc::Step::getInputSampling(
+					     const TrcKeyZSampling& tkzs ) const
+{
+    TrcKeyZSampling res( tkzs );
+    res.hsamp_.expand( getHorizontalStepout().inl(),
+		       getHorizontalStepout().crl() );
+    res.zsamp_.widen( res.zsamp_.step * getVerticalStepout() );
+
+    const Survey::Geometry* geom = Survey::GM().getGeometry(
+						    res.hsamp_.getGeomID() );
+    if ( geom )
+	res.limitTo( geom->sampling(), true );
+
+    return res;
+}
+
+
+od_uint64 VolProc::Step::getComponentMemory( const TrcKeyZSampling& tkzs,
+					     bool input ) const
+{
+    const TrcKeyZSampling usedtkzs = input ? getInputSampling( tkzs ) : tkzs;
+
+    return usedtkzs.totalNr() * sizeof(float);
+}
+
+
+od_int64 VolProc::Step::getExtraMemoryUsage( const TrcKeyZSampling& tkzs,
+					const TypeSet<OutputSlotID>& ids ) const
 {
     TypeSet<OutputSlotID> tocalc( ids );
     if ( tocalc.isEmpty() )
@@ -374,7 +420,7 @@ od_int64 VolProc::Step::getExtraMemoryUsage(
 
     od_int64 ret = 0;
     for ( int idx=0; idx<tocalc.size(); idx++ )
-	ret += extraMemoryUsage( tocalc[idx], hsamp, zsamp );
+	ret += extraMemoryUsage( tocalc[idx], tkzs );
 
     return ret;
 }
@@ -401,8 +447,8 @@ public:
 		    delete result_;
 		}
 
-    uiString	uiMessage() const	{ return uiString::empty(); }
-    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	message() const		{ return uiString::empty(); }
+    uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
 
     const PosInfo::CubeData*	getResult() const	{ return result_; }
 

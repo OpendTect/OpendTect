@@ -38,27 +38,26 @@ public:
 
 				TutOpCalculator();
 
-    bool			needsInput() const	{ return true; }
     void			setShift( BinID bid )	{ shift_ = bid; }
     void			setOpType( int type )	{ type_ = type; }
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    TrcKeySampling		getInputHRg(const TrcKeySampling&) const;
+    static const char*		sKeyTypeIndex()		{ return "Type Index"; }
 
-    Task*			createTask();
+private:
+
+    ReportingTask*		createTask();
     virtual bool		needsFullVolume() const { return false; }
     virtual bool		canInputAndOutputBeSame() const { return false;}
     virtual bool		areSamplesIndependent() const { return true; }
+    virtual bool		needsInput() const	{ return true; }
 
-protected:
-
-    static const char*		sKeyTypeIndex()		{ return "Type Index"; }
+    virtual BinID		getHorizontalStepout() const { return shift_; }
     virtual od_int64		extraMemoryUsage(OutputSlotID,
-						 const TrcKeySampling&,
-						 const StepInterval<int>&) const
-							{ return 0; }
+						 const TrcKeyZSampling&) const
+				{ return 0; }
 
     BinID			shift_;
     int				type_;
@@ -74,7 +73,7 @@ public:
 						int,BinID,Array3D<float>& out);
 
     od_int64			totalNr() const		{ return totalnr_; }
-    uiString			uiMessage() const;
+    uiString			message() const;
 
 protected:
     bool			doWork(od_int64,od_int64,int);

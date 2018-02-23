@@ -32,20 +32,18 @@ public:
 			HilbertCalculator()
 			    : Step()		{}
 
-    virtual Task*	createTask();
+private:
+
+    virtual ReportingTask*	createTask();
     virtual uiString	errMsg() const			{ return errmsg_; }
 
     virtual bool	needsFullVolume() const		{ return false; }
     virtual bool	canInputAndOutputBeSame() const { return false; }
     virtual bool	areSamplesIndependent() const	{ return true; }
     virtual bool	canHandle2D() const		{ return true; }
-    virtual bool	needReportProgress()		{ return true; }
-
-protected:
 
     virtual od_int64	extraMemoryUsage(OutputSlotID,
-					const TrcKeySampling&,
-					const StepInterval<int>&) const;
+					const TrcKeyZSampling&) const;
 };
 
 }; //namespace

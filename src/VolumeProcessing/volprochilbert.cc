@@ -66,14 +66,13 @@ static void zeroTrace( Array1D<float>& in )
 
 //--------Hilbert Calculator Volume Processing Step-------------
 od_int64 VolProc::HilbertCalculator::extraMemoryUsage( OutputSlotID,
-						const TrcKeySampling&,
-						const StepInterval<int>&) const
+						const TrcKeyZSampling& ) const
 {
     return 0;
 }
 
 
-Task* VolProc::HilbertCalculator::createTask()
+ReportingTask* VolProc::HilbertCalculator::createTask()
 {
     const RegularSeisDataPack* inputdatapack = inputs_[0];
     RegularSeisDataPack* outputdatapack = getOutput();

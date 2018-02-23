@@ -316,7 +316,7 @@ bool HorInterFiller::isOK() const
 
 
 od_int64 HorInterFiller::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+					   const TrcKeyZSampling& ) const
 {
     return 0;
 }

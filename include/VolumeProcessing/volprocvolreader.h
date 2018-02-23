@@ -38,19 +38,22 @@ public:
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
-    virtual Task*		createTask();
+
+private:
+
+    virtual ReportingTask*	createTask();
 
     virtual bool		needsFullVolume() const		{ return false;}
     virtual bool		canInputAndOutputBeSame() const	{ return true; }
     virtual bool		areSamplesIndependent() const	{ return true; }
     virtual bool		canHandle2D() const		{ return true; }
     virtual bool		needsInput() const		{ return false;}
-
-protected:
+    virtual int			getNrOutComponents(OutputSlotID,
+						   Pos::GeomID) const;
 
     virtual od_int64		extraMemoryUsage(OutputSlotID,
-					 const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+						 const TrcKeyZSampling&) const
+				{ return 0; }
 
     bool			prepareWork(const IOObj&);
 

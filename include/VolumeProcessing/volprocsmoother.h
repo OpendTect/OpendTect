@@ -42,23 +42,21 @@ public:
     const char*		getOperatorName() const;
     float		getOperatorParam() const;
 
-    virtual TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
-    virtual StepInterval<int>	getInputZRg(const StepInterval<int>&,
-					    Survey::Geometry::ID) const;
-
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
+
+private:
 
     virtual bool	needsFullVolume() const		{ return true; }
     virtual bool	canInputAndOutputBeSame() const	{ return false; }
     virtual bool	areSamplesIndependent() const	{ return true; }
 
-    Task*		createTask();
+    ReportingTask*	createTask();
 
-protected:
-
-    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-	                                    const StepInterval<int>&) const;
+    virtual BinID	getHorizontalStepout() const;
+    virtual int		getVerticalStepout() const;
+    virtual od_int64	extraMemoryUsage(OutputSlotID,
+					 const TrcKeyZSampling&) const;
 
     Smoother3D<float>*	smoother_;
 

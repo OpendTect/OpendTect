@@ -7,19 +7,21 @@
 
 #include "volprocchainoutput.h"
 
-#include "volprocchainexec.h"
-#include "volproctrans.h"
-#include "seisdatapackwriter.h"
 #include "dbman.h"
 #include "jobcommunic.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
-#include "seisdatapack.h"
-#include "survinfo.h"
-#include "veldesc.h"
+#include "nrbytes2string.h"
 #include "odsysmem.h"
-#include "threadwork.h"
 #include "progressmeterimpl.h"
+#include "seisdatapack.h"
+#include "seisdatapackwriter.h"
+#include "survinfo.h"
+#include "threadwork.h"
+#include "veldesc.h"
+#include "volprocchainexec.h"
+#include "volprocstep.h"
+#include "volproctrans.h"
 
 
 VolProc::ChainOutput::ChainOutput()
@@ -296,22 +298,17 @@ int VolProc::ChainOutput::setupChunking()
     if ( !chainexec_ )
 	return ErrorOccurred();
 
-    const float zstep = chain_->getZStep();
-    const StepInterval<float> zsamp( tkzs_.zsamp_.start, tkzs_.zsamp_.stop,
-				     zstep );
-    outputzrg_ = StepInterval<int>( zsamp.nearestIndex( zsamp.start ),
-				    zsamp.nearestIndex( zsamp.stop ),
-		       mMAX(mNINT32(Math::Ceil(tkzs_.zsamp_.step/zstep)),1) );
-			   //real -> index, outputzrg_ is the index of z-samples
-
-    // We will be writing while a new chunk will be calculated
-    // Thus, we need to keep the output datapack alive while the next chunk
-    // is calculated. Therefore, lets add some more mem need:
-    nrexecs_ = chainexec_->nrChunks( tkzs_.hsamp_, outputzrg_ );
-    if ( nrexecs_ == 0 )
+    tkzs_.zsamp_.step = chain_->getZStep();
+    od_uint64 memusage;
+    if ( !chainexec_->setCalculationScope(tkzs_.hsamp_,tkzs_.zsamp_,memusage,
+					  &nrexecs_) )
     {
+	NrBytesToStringCreator bytesstrcalc;
+	bytesstrcalc.setUnitFrom( memusage );
+	const BufferString memstr( bytesstrcalc.getString( memusage ) );
 	return retError(
-		tr("Processing aborted; not enough available memory.") );
+		tr("Processing aborted; not enough available memory.\n"
+		    "%1 bytes would be required.").arg( memstr ) );
     }
 
     neednextchunk_ = true;
@@ -331,12 +328,16 @@ int VolProc::ChainOutput::setNextChunk()
     }
 
     const TrcKeySampling hsamp( tkzs_.hsamp_.getLineChunk(nrexecs_,curexecnr_));
-
-    if ( !chainexec_->setCalculationScope(hsamp,outputzrg_) )
+    od_uint64 memusage;
+    if ( !chainexec_->setCalculationScope(hsamp,tkzs_.zsamp_,memusage) )
     {
 	deleteAndZeroPtr( chainexec_ );
+	NrBytesToStringCreator bytesstrcalc;
+	bytesstrcalc.setUnitFrom( memusage );
+	const BufferString memstr( bytesstrcalc.getString( memusage ) );
 	return retError( tr("Could not set calculation scope."
-		    "\nProbably there is not enough memory available.") );
+		    "\nProbably there is not enough memory available.\n"
+		    "%1 bytes would be required.").arg( memstr ) );
     }
 
     if ( nrexecs_ < 2 )
@@ -381,7 +382,6 @@ bool VolProc::ChainOutput::openOutput()
     delete wrr_;
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );
     seisdp = 0;
-    wrr_->setSelection( tkzs_.hsamp_, outputzrg_ );
     for ( int idx=0; idx<chain_->getOutputScalers().size(); idx++ )
     {
 	const Scaler* scaler = chain_->getOutputScalers()[idx];
@@ -429,7 +429,7 @@ void startWork()
 
     SeisDataPackWriter& wrr = *co_.wrr_;
     if ( wrr.dataPack() == dp_.ptr() )
-	wrr.setSelection( dp_->sampling().hsamp_, wrr.zSampling() );
+	wrr.setSelection( dp_->sampling().hsamp_ );
     else
 	wrr.setNextDataPack( *dp_ );
 

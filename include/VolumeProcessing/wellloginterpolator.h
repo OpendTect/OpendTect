@@ -63,22 +63,21 @@ public:
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
-    virtual uiString		errMsg() const	{ return errmsg_; }
 
+private:
+
+    virtual uiString		errMsg() const	{ return errmsg_; }
     virtual bool		canInputAndOutputBeSame() const { return true; }
     virtual bool		needsFullVolume() const		{ return false;}
     virtual bool		areSamplesIndependent() const	{ return true; }
     virtual bool		needsInput() const		{ return false;}
     virtual bool		prefersBinIDWise() const	{ return true; }
 
-protected:
-
     void			setGridder(const Gridder2D*);
     virtual bool		prepareComp(int);
     virtual bool		computeBinID(const BinID&,int);
     virtual od_int64		extraMemoryUsage(OutputSlotID,
-					const TrcKeySampling&,
-					const StepInterval<int>&) const;
+						 const TrcKeyZSampling&) const;
 
     InterpolationLayerModel*	layermodel_;
     Gridder2D*			gridder_;

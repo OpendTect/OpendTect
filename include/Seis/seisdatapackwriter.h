@@ -31,7 +31,7 @@ public:
 			~SeisDataPackWriter();
 
     void		setSelection(const TrcKeySampling&,
-				     const Interval<int>&);
+				     const Interval<int>* =0);
     const RegularSeisDataPack* dataPack() const	{ return dp_; }
     void		setNextDataPack(const RegularSeisDataPack&);
 
@@ -45,12 +45,10 @@ public:
     int			nextStep();
 
     TrcKeySampling	hSampling() const	{ return tks_; }
-    Interval<int>	zSampling() const       { return zrg_; }
 
 private:
 
     virtual bool	goImpl(od_ostream*,bool,bool,int);
-    void		setCubeIdxRange();
     bool		setTrc();
     void		adjustSteeringScaler(int compidx);
 
@@ -67,8 +65,7 @@ private:
     SeisTrc*			trc_;
 
     TrcKeySampling		tks_;
-    Interval<int>		zrg_;
-    StepInterval<int>		cubezrgidx_;
+    Interval<int>		cubezrgidx_;
     bool			is2d_;
 
     void			getPosInfo();
