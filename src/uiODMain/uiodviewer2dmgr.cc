@@ -805,7 +805,8 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( const MouseEventHandler& meh )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	if ( viewers2d_[idx]->viewControl()->getViewerIdx(&meh,true) != -1 )
+	if ( viewers2d_[idx]->viewwin() &&
+		viewers2d_[idx]->viewControl()->getViewerIdx(&meh,true) != -1 )
 	    return viewers2d_[idx];
     }
 
@@ -906,6 +907,9 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	TypeSet<Pos::GeomID> datagids;
 	getVWR2DDataGeomIDs( vwr2d, datagids );
 	const StepInterval<double> x1rg = vwr.posRange( true );
+	const FlatPosData* posdata = vwr.getFlatPosData( true );
+	if ( !posdata )
+	    return;
 	const StepInterval<int> trcrg = tkzs.hsamp_.trcRange();
 	for ( int intposidx=0; intposidx<intsect->size(); intposidx++ )
 	{
@@ -921,7 +925,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		newannot.linetype_ = PlotAnnotation::Bold;
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
-	    newannot.pos_ = mCast(float,x1rg.atIndex(posidx));
+	    newannot.pos_ = mCast(float,posdata->position(true,posidx));
 	    newannot.txt_ = mToUiStringTodo( Survey::GM().getName(intpos.line));
 	    x1auxannot += newannot;
 	}
