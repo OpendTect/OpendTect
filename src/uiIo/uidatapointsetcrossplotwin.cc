@@ -177,8 +177,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	uiString grpstr = toUiString(uidps_.groupType());
 	uiString txt =  tr("%1 %2")
 			.arg(nrgrps==2?uiStrings::sBoth():uiStrings::sAll())
-			.arg(!grpstr.isEmpty() ? tr("%1").arg(grpstr)
-					       : uiString::empty());
+			.arg(grpstr);
 
 	grpfld_->addItem( txt );
 	TypeSet<Color> ctseqs;

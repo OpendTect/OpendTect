@@ -111,12 +111,10 @@ bool uiSurvInfoProvider::runDialog( uiParent* p, TDInfo ztyp, SurveyInfo& si,
 
 uiString uiSurveyInfoEditor::getSRDString( bool infeet )
 {
-    uiString lbl = uiString( tr("%1%2%3") )
-		 .arg( SurveyInfo::sKeySeismicRefDatum() )
-		 .arg( infeet ? "  " : " " ) //to keep string always same length
-		 .arg( uiStrings::sDistUnitString(infeet,true,true) );
-
-    return lbl;
+    return toUiString( "%1%2%3" )
+		.arg( SurveyInfo::sKeySeismicRefDatum() )
+		.arg( infeet ? "  " : " " ) //to keep string always same length
+		.arg( uiStrings::sDistUnitString(infeet,true,true) );
 }
 
 

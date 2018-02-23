@@ -1257,8 +1257,8 @@ bool Math::ExpressionParser::findVariable( char* str, int len,
 
     if ( hasvaridx && !inputsareseries_ )
     {
-	errmsg_ = tr( "Found recursive or shifted variables."
-		"\nBut the formula is not for data series" );
+	errmsg_ = tr("Found recursive or shifted variables")
+	    .appendPhrase( tr("But the formula is not for data series") );
 	return false;
     }
 
@@ -1319,7 +1319,7 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 	return ret;
 
     if ( errmsg_.isEmpty() )
-	errmsg_ = uiStrings::phrCannotParse(tr( "this:\n'%1'" )).arg( inpstr );
+	errmsg_ = uiStrings::phrCannotParse(toUiString("'%1'")).arg( inpstr );
     return 0;
 }
 

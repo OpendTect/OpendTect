@@ -588,7 +588,7 @@ bool uiMarkerDlg::acceptOK()
     {
 	const float val = miter.getDah() * zfac;
 	if ( !dahrg.includes(val,true) )
-	    errmsg = tr("'%1'%2").arg(miter.markerName());
+	    errmsg = toUiString("'%1' %2").arg(miter.markerName());
     }
 
     if ( !errmsg.isEmpty() )
@@ -597,7 +597,8 @@ bool uiMarkerDlg::acceptOK()
 		      "Press Abort if you want to re-enter the depth.")
 		 .arg(dahrg.start).arg(dahrg.stop));
       const bool res = uiMSG().askContinue( errmsg );
-      if ( !res ) return false;
+      if ( !res )
+	  return false;
     }
 
     return true;

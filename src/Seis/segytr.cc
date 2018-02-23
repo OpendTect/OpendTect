@@ -841,14 +841,14 @@ void SEGYSeisTrcTranslator::fillErrMsg( const uiString& s, bool withpos )
 {
     const BufferString fnm = sConn().odStream().fileName();
 
-    errmsg_ = tr("%1%2:\n%3")
-	    .arg( fnm.isEmpty()
-		 ? toUiString(usrname_)
-		 : tr("In file '%1'").arg( fnm ) )
-	    .arg( withpos
-		? tr(" %1").arg( getTrcPosStr() )
-		: uiString::empty() )
-	    .arg( s );
+    errmsg_ = toUiString("%1%2:\n%3")
+		.arg( fnm.isEmpty()
+		     ? toUiString(usrname_)
+		     : tr("In file '%1'").arg( fnm ) )
+		.arg( withpos
+		    ? toUiString(" %1").arg( getTrcPosStr() )
+		    : uiString::empty() )
+		.arg( s );
 }
 
 

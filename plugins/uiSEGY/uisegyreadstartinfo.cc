@@ -492,7 +492,7 @@ void uiSEGYReadStartInfo::updateCellTexts()
 	if ( loaddef_.isRev0() )
 	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;
 
-	const uiString iscalcstr = tr( "[Calculated]" );
+	const uiString iscalcstr = tr("[Calculated]");
 	if ( is2d )
 	    ky1ustxt = sBytePos;
 	else
@@ -621,9 +621,10 @@ void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfoSet& sis )
 
     isinfeet_ = sis.inFeet();
     const int nrfiles = sis.size();
-    uiString txt = nrfiles < 1	? uiString::empty()
-		: (nrfiles < 2	? tr( "[1 file]")
-				: tr( "[%1 files]" ).arg( nrfiles ));
+    uiString txt;
+    if ( nrfiles > 1 )
+	txt = toUiString( "[%1 %2]" ).arg( nrfiles )
+			    .arg( uiStrings::sFile(nrfiles).toLower() );
     tbl_->setTopLeftCornerLabel( txt );
 
     if ( nrfiles < 1 )
@@ -674,7 +675,7 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
     yinfotxt_.set( rgstr ).arg( rgs.yrg_.start ).arg( rgs.yrg_.stop );
     offsetinfotxt_.set( rgstr ).arg( rgs.offs_.start ).arg( rgs.offs_.stop );
     if ( mIsUdf(rgs.refnrs_.start) )
-	refnrinfotxt_ =  tr( "<no data>" );
+	refnrinfotxt_ =  tr("<no data>");
     else
 	refnrinfotxt_.set(rgstr).arg( rgs.refnrs_.start )
 				.arg( rgs.refnrs_.stop );

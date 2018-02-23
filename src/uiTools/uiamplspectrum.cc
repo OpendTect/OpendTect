@@ -318,9 +318,7 @@ void uiAmplSpectrum::exportCB( CallBacker* )
     od_ostream strm( fnm );
     if ( strm.isBad() )
     {
-        uiMSG().error( uiStrings::phrCannotOpen(uiStrings::phrOutput(
-		       uiStrings::phrJoinStrings(uiStrings::sFile(),tr("%1")
-		       .arg(fnm)))) );
+        uiMSG().error( uiStrings::phrCannotOpen(toUiString(fnm)) );
 	return;
     }
 

@@ -256,7 +256,7 @@ uiString SeisSingleTraceProc::message() const
 	    if ( geomid < 0 )
 		ret = uiStrings::sData();
 	    else
-		{ ret = tr("'%1'").arg( toString(geomid) ); }
+		{ ret = toUiString("'%1'").arg( toString(geomid) ); }
 	}
 
 	return tr("Handling %1").arg(ret);

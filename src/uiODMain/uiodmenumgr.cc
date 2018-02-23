@@ -552,7 +552,7 @@ void uiODMenuMgr::setSurveySubMenus()
 
 void uiODMenuMgr::fillWellImpSubMenu( uiMenu* mnu )
 {
-    imptrackmnu_ = addSubMenu( mnu, tr( "Track/Time-Depth" ), "welltrack" );
+    imptrackmnu_ = addSubMenu( mnu, tr("Track/Time-Depth"), "welltrack" );
     implogsmnu_ = addSubMenu( mnu, uiStrings::sLogs(), "welllog" );
     impmarkersmnu_ = addSubMenu( mnu, uiStrings::sMarker(mPlural),
 				 "wellmarkers" );
@@ -752,12 +752,14 @@ void uiODMenuMgr::fillSceneMenu()
     scenemnu_->clear();
     addAction( scenemnu_, uiStrings::sNew(), "addnew", mAddSceneMnuItm );
     addAction( scenemnu_, tr("New Map View"), "survey", mAddMapSceneMnuItm );
-    uiString tdmnutxt = tr( "New [%1]" )
+    uiString tdmnutxt = toUiString( "%1 [%2]" ).arg( uiStrings::sNew() )
 	 .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
     addtimedepthsceneitm_ = addAction( scenemnu_, tdmnutxt,
 	       SI().zIsTime() ? "depth" : "time", mAddTmeDepthMnuItm );
 
-    add2D3DActions( scenemnu_, tr("New [Horizon Flattened]"), "horizons",
+    tdmnutxt = toUiString( "%1 [%2]" ).arg( uiStrings::sNew() )
+			.arg( tr("Horizon Flattened") );
+    add2D3DActions( scenemnu_, tdmnutxt, "horizons",
 		    mAddHorFlat2DMnuItm, mAddHorFlat3DMnuItm );
     lastsceneitm_ = scenemnu_->insertSeparator();
 

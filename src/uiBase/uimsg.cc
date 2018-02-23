@@ -460,13 +460,8 @@ void uiMsg::errorWithDetailProc( uiStringSet& strings )
     if ( strings.size()>1 )
     {
 	uiString detailed = strings[0];
-
 	for ( int idx=1; idx<strings.size(); idx++ )
-	{
-	    uiString old = detailed;
-	    detailed = tr( "%1\n%2" ).arg( old ).arg( strings[idx] );
-	}
-
+	    detailed.appendPhrase( strings[idx] );
 	mb->setDetailedText( toQString(detailed) );
     }
 

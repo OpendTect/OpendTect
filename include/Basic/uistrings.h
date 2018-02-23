@@ -334,7 +334,7 @@ public:
     static uiWord sFaultStickSet(int n=1) { return tr("FaultStickSet",0,n); }
     static uiWord sFeet( bool abbr )
     { return abbr ? toUiString("ft") : tr("Feet","not meter"); }
-    static uiWord sFile()	        { return tr("File"); }
+    static uiWord sFile(int n=1)        { return tr("File",0,n); }
     static uiWord sFileName(int n=1)	{ return tr("File Name",0,n); }
     static uiWord sFilter(int n=1)	{ return tr("Filter",0,n); }
     static uiWord sFiltering()		{ return tr("Filtering"); }
@@ -549,6 +549,7 @@ public:
     static uiWord sRemove()		{ return tr("Remove"); }
     static uiWord sRemoveSelected()	{ return tr("Remove Selected"); }
     static uiWord sRename()		{ return tr("Rename"); }
+    static uiWord sReplace()		{ return tr("Replace"); }
     static uiWord sReport()		{ return tr("Report"); }
     static uiWord sReservoir()		{ return tr("Reservoir"); }
     static uiWord sReset()		{ return tr("Reset"); }

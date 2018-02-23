@@ -164,7 +164,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& setup, const char* nm )
 	lsb = new uiLabeledSpinBox( this, uiStrings::sTransparency(), 0 );
 	lsb->attach( rightOf, colbut_ );
 	transpfld_ = lsb->box();
-	transpfld_->setSuffix( tr("%") );
+	transpfld_->setSuffix( toUiString("%") );
 	transpfld_->setInterval( 0, 100, 1 );
 	transpfld_->setHSzPol( uiObject::Small );
 	transpfld_->valueChanged.notify( mCB(this,uiColorInput,transpChg) );

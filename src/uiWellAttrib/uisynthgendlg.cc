@@ -242,7 +242,8 @@ bool uiSynthGenDlg::prepareSyntheticToBeChanged( bool toberemoved )
 
     if ( !synthstobedisabled.isEmpty() )
     {
-	uiString chgstr = toberemoved ? tr( "remove" ) : tr( "change" );
+	uiString chgstr = (toberemoved ? uiStrings::sRemove()
+				       : uiStrings::sChange()).toLower();
 	uiString msg = tr("%1 will become undetiable as it is dependent on '%2'"
 			  ".\n\nDo you want to %3 the synthetics?")
 			  .arg(synthstobedisabled.getDispString())

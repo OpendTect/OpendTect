@@ -61,7 +61,7 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
 
     uiString hor3dbuttxt = uiStrings::phrLoad( uiStrings::s3D() );
     if ( !SI().has2D() )
-	hor3dbuttxt = tr( "Load" );
+	hor3dbuttxt = uiStrings::sLoad();
     else
     {
 	uiPushButton* add2dbut =
@@ -147,9 +147,10 @@ void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
     if ( selhornms.isEmpty() )
 	return;
 
-    uiString msg = tr( "Unload checked horizon?\n"
-		  "(This will not delete any files from disk)", 0,
-		  selhornms.size() );
+    uiString msg = tr("Unload checked %1?")
+	.arg( uiStrings::sHorizon(selhornms.size()) )
+	.appendPhrase( tr("(This will not delete any files from disk)"),
+			uiString::NoSep, uiString::OnNewLine );
 
     if ( !uiMSG().askGoOn( msg ) )
 	return;
