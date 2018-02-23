@@ -540,7 +540,7 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 
     BufferStringSet nms;
     si.getComponentNames( nms, geomid );
-    if ( nms.size() > 1 && nms.get(1)=="Line dip" )
+    if ( nms.size() > 1 && nms.get(1).isEqual("Line dip",CaseInsensitive) )
     {
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 			Survey::GM().getGeometry(geomid))
