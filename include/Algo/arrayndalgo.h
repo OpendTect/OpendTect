@@ -1962,7 +1962,8 @@ public:
 		    , trcssampling_(trcssampling)
 		    , tks_(tks)
 		    , outp_(outp)
-		    , totalnr_(trcssampling.isFullyRectAndReg() ? 0 :
+		    , totalnr_(trcssampling.totalSizeInside(tks) ==
+			       mCast(int,tks.totalNr()) ? 0 :
 			       outp.info().getTotalSz()/outp.info().getSize(2))
 		{}
 
