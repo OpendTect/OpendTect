@@ -209,6 +209,10 @@ int doExit( int retval )
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+
+    //TODO remove when we understand why the CI crash happens
+    quiet=false;
+
     DBG::turnOn( 0 ); //Turn off all debug-stuff as it screws the pipes
 
     bool isok;
