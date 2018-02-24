@@ -108,18 +108,18 @@ void SeisDataPackWriter::adjustSteeringScaler( int compidx )
 	 !compscalers_[compidx] || compscalers_[compidx]->isEmpty() )
 	return;
 
-    const Seis::ObjectSummary summary( mid_ );
-    if ( !summary.is2D() )
+    const SeisIOObjInfo objinfo( mid_ );
+    if ( !objinfo.isOK() || !objinfo.is2D() )
 	return;
 
-    const IOObj* outioobj = summary.getFullInformation().ioObj();
+    const IOObj* outioobj = objinfo.ioObj();
     BufferString type;
     if ( !outioobj || !outioobj->pars().get(sKey::Type(),type) ||
 	 type != BufferString(sKey::Steering()) )
 	return;
 
-    const Survey::Geometry* geom = Survey::GM().getGeometry(
-					dp_->sampling().hsamp_.getGeomID() );
+    const Pos::GeomID geomid = dp_->sampling().hsamp_.getGeomID();
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
     if ( !geom || !geom->as2D() )
 	return;
 
