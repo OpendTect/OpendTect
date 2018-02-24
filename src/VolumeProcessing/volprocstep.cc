@@ -132,7 +132,7 @@ void VolProc::Step::resetInput()
 	    inputs_ += 0;
 
 	inputslotids_ += idx;
-	inputcompnrs_ += 1;
+	inputcompnrs_ += mUdf(float);
     }
 }
 
