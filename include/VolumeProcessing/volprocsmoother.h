@@ -56,7 +56,8 @@ private:
     virtual BinID	getHorizontalStepout() const;
     virtual int		getVerticalStepout() const;
     virtual od_int64	extraMemoryUsage(OutputSlotID,
-					 const TrcKeyZSampling&) const;
+					 const TrcKeyZSampling&) const
+			{ return 0; }
 
     Smoother3D<float>*	smoother_;
 

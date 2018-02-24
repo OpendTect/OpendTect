@@ -128,11 +128,4 @@ int Smoother::getVerticalStepout() const
     return smoother_->getWindowSize( 2 ) / 2;
 }
 
-
-od_int64 Smoother::extraMemoryUsage( OutputSlotID,
-				     const TrcKeyZSampling& tkzs ) const
-{
-    return getComponentMemory( tkzs, false );
-}
-
 } // namespace VolProc

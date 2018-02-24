@@ -102,7 +102,8 @@ bool Convolver2D<T>::shouldFFT() const
 
 template <class T> inline
 Convolver2D<T>::Convolver2D()
-    : x_( 0 )
+    : ParallelTask("Convolver 2D")
+    , x_( 0 )
     , y_( 0 )
     , z_( 0 )
     , normalize_( false )
@@ -213,7 +214,7 @@ bool Convolver2D<T>::doNonFFTWork( od_int64 start, od_int64 stop, int )
     const ValueSeries<T>* ystor_ = y_->getStorage();
     const T* yptr_ = y_->getData();
 
-    for ( od_int64 idx=start; idx<=stop; idx++ )
+    for ( od_int64 idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
 	const int* zvar = iterator.getPos();
 	const int firsty0 = correlate_ ? -zvar[0] : zvar[0];
@@ -264,8 +265,6 @@ bool Convolver2D<T>::doNonFFTWork( od_int64 start, od_int64 stop, int )
 	else if ( normalize_ && !mIsZero(ysum,1e-8) )
 	    z_->setND( zvar, sum/ysum );
 	else z_->setND( zvar, sum );
-
-	addToNrDone( 1 );
 
 	if ( !iterator.next() && idx!=stop )
 	    return false;

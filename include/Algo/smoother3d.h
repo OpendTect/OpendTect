@@ -185,6 +185,8 @@ bool Smoother3D<T>::execute()
     if ( !window_.isOK() )
 	return false;
 
+    convolver_.getProgress( *this );
+
     return convolver_.execute();
 }
 

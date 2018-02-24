@@ -49,7 +49,7 @@ protected:
     inline bool		shouldFFT() const;
 
     bool		doFFT();
-    inline bool		doWork( od_int64, od_int64, int );
+    inline bool		doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const { return z_->info().getTotalSz(); }
     const Array3D<T>*	x_;
     int			xshift0_;
@@ -70,7 +70,8 @@ protected:
 
 template <class T> inline
 Convolver3D<T>::Convolver3D()
-    : x_( 0 )
+    : ParallelTask("Convolver 3D")
+    , x_( 0 )
     , xshift0_( 0 )
     , xshift1_( 0 )
     , xshift2_( 0 )
@@ -163,7 +164,7 @@ bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
     const ValueSeries<T>* ystor_ = y_->getStorage();
     const T* yptr_ = y_->getData();
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	const int* zvar = iterator.getPos();
 	T sum = 0;
@@ -221,8 +222,6 @@ bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
 	else if ( normalize_ && !mIsZero(ysum,1e-8) )
 	    z_->setND( zvar, sum/ysum );
 	else z_->setND( zvar, sum );
-
-	addToNrDone( 1 );
 
 	if ( !iterator.next() && idx!=stop )
 	    return false;

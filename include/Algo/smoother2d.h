@@ -225,6 +225,8 @@ bool Smoother2D<T>::execute()
 	convolver_.setY( *window_, false );
     }
 
+    convolver_.getProgress( *this );
+
     return convolver_.execute();
 }
 
