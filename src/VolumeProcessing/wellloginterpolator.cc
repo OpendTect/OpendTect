@@ -568,12 +568,9 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
     setGridder( pars );
 
     PtrMan<IOPar> lmpar = pars.subselect( sKeyLayerModel() );
-    BufferString lmtype;
+    BufferString lmtype( ZSliceInterpolationModel::sFactoryKeyword() );
     if ( lmpar )
 	lmpar->get( InterpolationLayerModel::sKeyModelType(), lmtype );
-
-    if ( lmtype.isEmpty() )
-	lmtype = ZSliceInterpolationModel::sFactoryKeyword();
 
     delete layermodel_;
     layermodel_ = InterpolationLayerModel::factory().create( lmtype );

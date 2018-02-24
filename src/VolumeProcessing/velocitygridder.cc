@@ -692,13 +692,10 @@ bool VelocityGridder::usePar( const IOPar& par )
 
     setGridder( par );
 
+    BufferString lmtype( ZSliceInterpolationModel::sFactoryKeyword() );
     PtrMan<IOPar> lmpar = par.subselect( sKeyLayerModel() );
-    BufferString lmtype;
     if ( lmpar )
 	lmpar->get( InterpolationLayerModel::sKeyModelType(), lmtype );
-
-    if ( lmtype.isEmpty() )
-	lmtype = ZSliceInterpolationModel::sFactoryKeyword();
 
     delete layermodel_;
     layermodel_ = InterpolationLayerModel::factory().create( lmtype );
