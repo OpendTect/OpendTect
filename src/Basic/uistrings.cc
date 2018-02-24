@@ -340,7 +340,11 @@ uiPhrase uiStrings::phrZRange( const uiWord& string )
 uiWord uiStrings::sDistUnitString( bool isfeet, bool abbr, bool withparens )
 {
     if ( withparens )
-	return sDistUnitString( isfeet, abbr, false ).parenthesize();
+    {
+	uiString res = sDistUnitString( isfeet, abbr, false );
+	res.parenthesize();
+	return res;
+    }
 
     return isfeet ? (abbr ? toUiString("ft") : sFeet(false).toLower())
 		  : (abbr ? toUiString("m") : sMeter(false).toLower());
