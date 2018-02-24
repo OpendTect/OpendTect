@@ -693,23 +693,22 @@ bool VelocityGridder::usePar( const IOPar& par )
 
     setGridder( gridder );
 
-    delete layermodel_; layermodel_ = 0;
     PtrMan<IOPar> lmpar = par.subselect( sKeyLayerModel() );
+    BufferString lmtype( ZSliceInterpolationModel::sFactoryKeyword() );
     if ( lmpar )
-    {
-	BufferString nm;
-	lmpar->get( sKey::Type(), nm );
-	layermodel_ = InterpolationLayerModel::factory().create( nm );
-	if ( !layermodel_ || !layermodel_->usePar(*lmpar) )
-	{ delete layermodel_; layermodel_ = 0; }
-    }
+	lmpar->get( InterpolationLayerModel::sKeyModelType(), lmtype );
+
+    delete layermodel_;
+    layermodel_ = InterpolationLayerModel::factory().create( lmtype );
+    if ( !layermodel_ || (lmpar && !layermodel_->usePar(*lmpar)) )
+	deleteAndZeroPtr( layermodel_ );
 
     return true;
 }
 
 
 od_int64 VelocityGridder::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+	const TrcKeySampling& hsamp, const StepInterval<int>& ) const
 {
     return layermodel_ ? layermodel_->getMemoryUsage( hsamp ) : 0;
 }

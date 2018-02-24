@@ -603,22 +603,21 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
     setGridder( nm.buf(), radius );
 
     PtrMan<IOPar> lmpar = pars.subselect( sKeyLayerModel() );
+    BufferString lmtype( ZSliceInterpolationModel::sFactoryKeyword() );
     if ( lmpar )
-    {
-	BufferString lmtype;
 	lmpar->get( InterpolationLayerModel::sKeyModelType(), lmtype );
-	delete layermodel_;
-	layermodel_ = InterpolationLayerModel::factory().create( lmtype );
-	if ( !layermodel_ || !layermodel_->usePar(*lmpar) )
-	    { deleteAndZeroPtr( layermodel_ ); }
-    }
+
+    delete layermodel_;
+    layermodel_ = InterpolationLayerModel::factory().create( lmtype );
+    if ( !layermodel_ || (lmpar && !layermodel_->usePar(*lmpar)) )
+	deleteAndZeroPtr( layermodel_ );
 
     return true;
 }
 
 
 od_int64 WellLogInterpolator::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+	const TrcKeySampling& hsamp, const StepInterval<int>& ) const
 {
     return layermodel_ ? layermodel_->getMemoryUsage( hsamp ) : 0;
 }
