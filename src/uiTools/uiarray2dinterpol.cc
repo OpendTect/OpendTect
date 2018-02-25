@@ -59,7 +59,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 
     if ( maxholesz )
     {
-	maxholeszfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+	maxholeszfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 					FloatInpSpec() );
 	maxholeszfld_->setWithCheck( true );
 	if ( prevfld )
@@ -322,7 +322,7 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     , cornersfirst_(false)
     , stepsz_(1)
 {
-    radiusfld_ = new  uiGenInput( this, uiStrings::sEmptyString(), 
+    radiusfld_ = new  uiGenInput( this, uiStrings::sEmptyString(),
 				  FloatInpSpec() );
     radiusfld_->setWithCheck( true );
     radiusfld_->setChecked( false );
@@ -383,7 +383,7 @@ uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
     useneighborfld_->activated.notify(
 	    mCB(this,uiTriangulationArray2DInterpol,intCB) );
 
-    maxdistfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+    maxdistfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 				  FloatInpSpec() );
     maxdistfld_->setWithCheck( true );
     maxdistfld_->attach( alignedBelow, useneighborfld_ );
@@ -481,7 +481,7 @@ void uiExtensionArray2DInterpol::setValuesFrom( const Array2DInterpol& arr )
 {
     mDynamicCastGet(const ExtensionArray2DInterpol*, extarr, &arr );
     if ( !extarr )
-      return;
+	return;
 
    nrstepsfld_->setValue( mCast(int,extarr->getNrSteps()) );
 }
@@ -509,41 +509,58 @@ bool uiExtensionArray2DInterpol::acceptOK()
 uiInvDistInterpolPars::uiInvDistInterpolPars( uiParent* p, bool cornersfirst,
 					      int stepsz, int nrsteps )
     : uiDialog(p,Setup(tr("Inverse distance - parameters"),
-		       tr("Inverse distance with search radius"),
-                       mODHelpKey(mInverseDistanceArray2DInterpolHelpID) ) )
+		       mNoDlgTitle,
+		       mODHelpKey(mInverseDistanceArray2DInterpolHelpID) ) )
 {
     cornersfirstfld_ = new  uiGenInput( this, tr("Compute corners first"),
 					BoolInpSpec(cornersfirst) );
 
-    stepsizefld_ = new uiGenInput( this, tr("Step size"), IntInpSpec(stepsz) );
+    if ( stepsz<1 ) stepsz = 1;
+    IntInpSpec iis1( stepsz ); iis1.setLimits( Interval<int>(1,999) );
+    stepsizefld_ = new uiGenInput( this, tr("Step size"), iis1 );
     stepsizefld_->attach( alignedBelow, cornersfirstfld_ );
 
-    nrstepsfld_ = new uiGenInput( this, tr("[Nr steps]"), IntInpSpec(nrsteps) );
+
+    IntInpSpec iis2( nrsteps ); iis2.setLimits( Interval<int>(1,99) );
+    nrstepsfld_ = new uiGenInput( this, tr("Nr steps"), iis2 );
+    nrstepsfld_->setWithCheck( true );
+    nrstepsfld_->setChecked( !mIsUdf(nrsteps) );
     nrstepsfld_->attach( alignedBelow, stepsizefld_ );
 }
 
+
 bool uiInvDistInterpolPars::isCornersFirst() const
-{ return cornersfirstfld_->getBoolValue(); }
+{
+    return cornersfirstfld_->getBoolValue();
+}
+
 
 int uiInvDistInterpolPars::stepSize() const
-{ return stepsizefld_->getIntValue(); }
+{
+    return stepsizefld_->getIntValue();
+}
+
 
 int uiInvDistInterpolPars::nrSteps() const
-{ return nrstepsfld_->getIntValue(); }
+{
+    return nrstepsfld_->isChecked() ? nrstepsfld_->getIntValue() : mUdf(int);
+}
+
 
 bool uiInvDistInterpolPars::acceptOK( CallBacker* )
 {
-    const int stepsize = stepsizefld_->getIntValue();
-    const int nrsteps = nrstepsfld_->getIntValue();
+    const int stepsize = stepSize();
+    const int nrsteps = nrSteps();
 
     if ( mIsUdf(stepsize) || stepsize<1 )
     {
 	uiMSG().error( tr("Step size must set and > 0. In doubt, use 1.") );
 	return false;
     }
+
     if ( (!mIsUdf(nrsteps) && nrsteps<1 ) )
     {
-	uiMSG().error( tr("Nr steps must be > 0. In doubt, leave empty.") );
+	uiMSG().error( tr("Nr steps must be > 0. In doubt, uncheck.") );
 	return false;
     }
 
