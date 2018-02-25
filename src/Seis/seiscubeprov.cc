@@ -568,7 +568,7 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 
     BufferStringSet nms;
     si.getComponentNames( nms, geomid );
-    if ( nms.size() > 1 && nms.get(1)=="Line dip" )
+    if ( nms.size() > 1 && nms.get(1).isEqual("Line dip",CaseInsensitive) )
     {
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 			Survey::GM().getGeometry(geomid))
@@ -588,7 +588,7 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 }
 
 
-bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs, 
+bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs,
 				     TaskRunner* taskr)
 { return readData( cs, Survey::GM().cUndefGeomID(), taskr ); }
 
@@ -596,7 +596,7 @@ bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs,
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
-				      const Pos::GeomID geomid, 
+				      const Pos::GeomID geomid,
 				      TaskRunner* taskr )
 {
     if ( !ioobj_ )
