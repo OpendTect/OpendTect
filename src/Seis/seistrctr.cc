@@ -97,6 +97,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 SeisTrcTranslator::~SeisTrcTranslator()
 {
     cleanUp();
+    delete compnms_;
     delete seldata_;
     delete &trcblock_;
     delete &pinfo_;
