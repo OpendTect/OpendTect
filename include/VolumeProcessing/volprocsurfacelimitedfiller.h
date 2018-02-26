@@ -95,7 +95,6 @@ public:
 
 private:
 
-    virtual uiString	errMsg() const			{ return errmsg_; }
     virtual bool	needsFullVolume() const		{ return false; }
     virtual bool	canInputAndOutputBeSame() const { return true; }
     virtual bool	areSamplesIndependent() const	{ return true; }

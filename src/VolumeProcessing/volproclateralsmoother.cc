@@ -389,18 +389,18 @@ bool LateralSmoother::usePar( const IOPar& pars )
 
 ReportingTask* LateralSmoother::createTask()
 {
-    const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
-    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-    if ( !input || !output || input->isEmpty()  || output->isEmpty() )
+    if ( !prepareWork() )
 	return 0;
 
+    const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     const TrcKeySampling& inphs = input->sampling().hsamp_;
     const TrcKeySampling& ouths = output->sampling().hsamp_;
 
     if ( inphs.step_ != ouths.step_ ||
 	 !mIsEqual(input->sampling().zsamp_.step,
 		   output->sampling().zsamp_.step,
-		   1e-3*SI().zRange(true).step))
+		   1e-3*SI().zRange(true).step) )
     {
 	return 0;
     }
@@ -435,14 +435,10 @@ ReportingTask* LateralSmoother::createTask()
     const int outpz0 =
 	mNINT32(output->sampling().zsamp_.start/output->sampling().zsamp_.step);
 
-    return new LateralSmootherTask( input->data( 0 ),
-	    inphs.start_.inl(),
-	    inphs.start_.crl(),
-	    inpz0,
-	    output->data( 0 ),
-	    ouths.start_.inl(),
-	    ouths.start_.crl(),
-	    outpz0,
+    return new LateralSmootherTask( input->data(),
+	    inphs.start_.inl(), inphs.start_.crl(), inpz0,
+	    output->data(),
+	    ouths.start_.inl(), ouths.start_.crl(), outpz0,
 	    inlsamples, crlsamples, zsamples,
 	    pars_, mirroredges_, interpolateundefs_, fixedvalue_ );
 }
@@ -453,6 +449,5 @@ od_int64 LateralSmoother::extraMemoryUsage( OutputSlotID,
 {
     return getComponentMemory( tkzs, false );
 }
-
 
 } // namespace VolProc

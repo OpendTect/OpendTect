@@ -35,7 +35,6 @@ public:
 private:
 
     virtual ReportingTask*	createTask();
-    virtual uiString	errMsg() const			{ return errmsg_; }
 
     virtual bool	needsFullVolume() const		{ return false; }
     virtual bool	canInputAndOutputBeSame() const { return false; }
@@ -43,7 +42,8 @@ private:
     virtual bool	canHandle2D() const		{ return true; }
 
     virtual od_int64	extraMemoryUsage(OutputSlotID,
-					const TrcKeyZSampling&) const;
+					const TrcKeyZSampling&) const
+			{ return 0; }
 };
 
 }; //namespace

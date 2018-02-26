@@ -56,7 +56,6 @@ public:
 private:
 
     virtual const VelocityDesc* getVelDesc() const;
-    virtual uiString	errMsg() const			{ return errmsg_; }
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 

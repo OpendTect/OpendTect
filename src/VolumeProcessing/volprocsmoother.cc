@@ -101,14 +101,15 @@ bool Smoother::usePar( const IOPar& pars )
 
 ReportingTask* Smoother::createTask()
 {
-    const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
-    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-    if ( !input || !output )
+    if ( !prepareWork() )
 	return 0;
 
+    const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+
     Smoother3D<float>* task = new Smoother3D<float>( *smoother_ );
-    task->setInput( input->data(0) );
-    task->setOutput( output->data(0) );
+    task->setInput( input->data() );
+    task->setOutput( output->data() );
 
     return task;
 }

@@ -41,6 +41,7 @@ public:
 
 private:
 
+    virtual bool		prepareWork(int nrthreads=1);
     virtual ReportingTask*	createTask();
 
     virtual bool		needsFullVolume() const		{ return false;}
@@ -54,8 +55,6 @@ private:
     virtual od_int64		extraMemoryUsage(OutputSlotID,
 						 const TrcKeyZSampling&) const
 				{ return 0; }
-
-    bool			prepareWork(const IOObj&);
 
     static const char*		sKeyVolumeID()		{ return "Volume ID"; }
 

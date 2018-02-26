@@ -61,9 +61,11 @@ bool TutOpCalculator::usePar( const IOPar& par )
 
 ReportingTask* TutOpCalculator::createTask()
 {
+    if ( !prepareWork() )
+	return 0;
+
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
-    if ( !input || !output ) return 0;
 
     const TrcKeyZSampling tkzsin = input->sampling();
     const TrcKeyZSampling tkzsout = output->sampling();

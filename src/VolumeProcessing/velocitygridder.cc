@@ -551,58 +551,6 @@ const VelocityDesc* VelocityGridder::getVelDesc() const
     return &res;
 }
 
-#define cMaxIsolatedFunctions	100
-
-ReportingTask* VelocityGridder::createTask()
-{
-    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-    if ( !output || output->isEmpty() || !gridder_ ) return 0;
-
-    const TrcKeyZSampling& tkzs = output->sampling();
-    if ( !layermodel_ || !layermodel_->prepare(tkzs,SilentTaskRunnerProvider()))
-	return 0;
-
-    BinIDValueSet valset( 1, true );
-    const Pos::SurvID survid = tkzs.hsamp_.survid_;
-    TrcKeySampling hsamp;
-    Pos::IdxPairValueSet::SPos pos;
-    const ObjectSet<Vel::FunctionSource>& sources = getSources();
-    TypeSet<TrcKeySampling> tkss;
-    for ( int idx=0; idx<sources.size(); idx++ )
-    {
-	if ( !sources[idx] )
-	    continue;
-
-	sources[idx]->getAvailablePositions( valset );
-	pos.reset();
-	while( valset.next(pos,true) )
-	{
-	    hsamp.init( false );
-	    hsamp.survid_ = survid;
-	    hsamp.include( TrcKey(survid,valset.getIdxPair(pos)) );
-	    tkss += hsamp;
-	}
-    }
-
-    const int nrfunctions = tkss.size();
-    if ( nrfunctions < cMaxIsolatedFunctions )
-    {
-	for ( int idx=0; idx<nrfunctions; idx++ )
-	    layermodel_->addSampling( tkss[idx] );	//Slow for HC!
-    }
-    else
-    {
-	hsamp.init( false );
-	hsamp.survid_ = survid;
-	for ( int idx=0; idx<nrfunctions; idx++ )
-	    hsamp.include( tkss[idx] );
-
-	layermodel_->addSampling( hsamp );
-    }
-
-    return new VelGriddingTask( *this );
-}
-
 
 void VelocityGridder::fillPar( IOPar& par ) const
 {
@@ -703,6 +651,60 @@ bool VelocityGridder::usePar( const IOPar& par )
 	deleteAndZeroPtr( layermodel_ );
 
     return true;
+}
+
+
+#define cMaxIsolatedFunctions	100
+
+ReportingTask* VelocityGridder::createTask()
+{
+    if ( !prepareWork() || !gridder_ )
+	return 0;
+
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    const TrcKeyZSampling& tkzs = output->sampling();
+    if ( !layermodel_ || !layermodel_->prepare(tkzs,SilentTaskRunnerProvider()))
+	return 0;
+
+    BinIDValueSet valset( 1, true );
+    const Pos::SurvID survid = tkzs.hsamp_.survid_;
+    TrcKeySampling hsamp;
+    Pos::IdxPairValueSet::SPos pos;
+    const ObjectSet<Vel::FunctionSource>& sources = getSources();
+    TypeSet<TrcKeySampling> tkss;
+    for ( int idx=0; idx<sources.size(); idx++ )
+    {
+	if ( !sources[idx] )
+	    continue;
+
+	sources[idx]->getAvailablePositions( valset );
+	pos.reset();
+	while( valset.next(pos,true) )
+	{
+	    hsamp.init( false );
+	    hsamp.survid_ = survid;
+	    hsamp.include( TrcKey(survid,valset.getIdxPair(pos)) );
+	    tkss += hsamp;
+	}
+    }
+
+    const int nrfunctions = tkss.size();
+    if ( nrfunctions < cMaxIsolatedFunctions )
+    {
+	for ( int idx=0; idx<nrfunctions; idx++ )
+	    layermodel_->addSampling( tkss[idx] );	//Slow for HC!
+    }
+    else
+    {
+	hsamp.init( false );
+	hsamp.survid_ = survid;
+	for ( int idx=0; idx<nrfunctions; idx++ )
+	    hsamp.include( tkss[idx] );
+
+	layermodel_->addSampling( hsamp );
+    }
+
+    return new VelGriddingTask( *this );
 }
 
 

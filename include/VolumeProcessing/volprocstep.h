@@ -39,7 +39,7 @@ class Chain;
  */
 
 mExpClass(VolumeProcessing) Step
-{
+{ mODTextTranslationClass(Step);
 public:
 
     typedef ConstRefMan<RegularSeisDataPack> CVolRef;
@@ -53,6 +53,10 @@ public:
 				mDefineFactoryInClass( Step, factory );
     virtual			~Step();
     virtual void		releaseData();
+    virtual uiString		errMsg() const		{ return errmsg_; }
+
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
     ID				getID() const		{ return id_; }
     Chain&			getChain();
@@ -107,11 +111,10 @@ public:
     virtual const VelocityDesc*	getVelDesc() const		{ return 0; }
 
     virtual ReportingTask*	createTask();
-    virtual uiString		errMsg() const
-				{ return uiString::empty(); }
-
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+				/*!< You probably want to call prepareWork
+				   to do sanity check and set your components
+				   names
+				 */
 
 				// Processing properties
     virtual bool		needsFullVolume() const		= 0;
@@ -147,8 +150,9 @@ protected:
 
 				Step();
 
+    virtual bool		prepareWork(int nrthreads=1);
+
     // Only called if prefersBinIDWise() returns true
-    virtual bool		prepareComp(int nrthreads)	{ return true;}
     virtual bool		computeBinID(const BinID&,int threadid)
 								{ return false;}
 

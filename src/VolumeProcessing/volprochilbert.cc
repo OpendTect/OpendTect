@@ -65,20 +65,17 @@ static void zeroTrace( Array1D<float>& in )
 
 
 //--------Hilbert Calculator Volume Processing Step-------------
-od_int64 VolProc::HilbertCalculator::extraMemoryUsage( OutputSlotID,
-						const TrcKeyZSampling& ) const
-{
-    return 0;
-}
-
-
 ReportingTask* VolProc::HilbertCalculator::createTask()
 {
+    if ( !prepareWork() )
+	return 0;
+
     const RegularSeisDataPack* inputdatapack = inputs_[0];
     RegularSeisDataPack* outputdatapack = getOutput();
 
-    Array3D<float>& hilbert = outputdatapack->data( 0 );
-    const Array3D<float>& seis = inputdatapack->data( 0 );
+    const Array3D<float>& seis = inputdatapack->data();
+    Array3D<float>& hilbert = outputdatapack->data();
+
     return new HilbertCalculatorTask( seis, hilbert );
 }
 

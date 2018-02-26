@@ -133,50 +133,46 @@ uiString	msg_;
 };
 
 
-bool VolumeReader::prepareWork( const IOObj& ioobj )
+
+VolumeReader::~VolumeReader()
 {
+    deepErase( compscalers_ );
+}
+
+
+bool VolumeReader::prepareWork( int )
+{
+    if ( !Step::prepareWork() )
+	return false;
+
+    PtrMan<IOObj> ioobj = DBM().get( mid_ );
+    if ( !ioobj )
+	return false;
+
     SeisIOObjInfo seisinfo( ioobj );
     if ( !seisinfo.isOK() )
 	return false;
 
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-
     BufferStringSet compnms;
     seisinfo.getComponentNames( compnms, output->sampling().hsamp_.getGeomID());
     if ( compnms.isEmpty() )
 	return false;
 
-    const int initialdpnrcomp = output->nrComponents();
-    const int nrcompdataset = compnms.size();
+    const int nrcomps = output->nrComponents();
     if ( components_.isEmpty() )
     {
-	for ( int idx=0; idx<nrcompdataset; idx++ )
+	for ( int idx=0; idx<nrcomps; idx++ )
 	{
-	    if ( idx<initialdpnrcomp )
-		output->setComponentName( compnms.get(idx), idx );
-	    else
-	    {
-		if ( !output->addComponent(compnms.get(idx).str(),false) )
-		    return false;
-	    }
-
+	    output->setComponentName( compnms.get(idx), idx );
 	    components_ += idx;
 	}
     }
     else
     {
-	for ( int icomp=initialdpnrcomp; icomp<components_.size(); icomp++ )
-	{
-	    if ( !output->addComponent(0,false))
-		return false;
-	}
-
 	for ( int icomp=0; icomp<components_.size(); icomp++ )
 	{
 	    const int compidx = components_[icomp];
-	    if ( compidx >= nrcompdataset )
-		return false;
-
 	    output->setComponentName( compnms.get(compidx), icomp );
 	}
     }
@@ -185,21 +181,13 @@ bool VolumeReader::prepareWork( const IOObj& ioobj )
 }
 
 
-VolumeReader::~VolumeReader()
-{
-    deepErase( compscalers_ );
-}
-
-
 ReportingTask* VolumeReader::createTask()
 {
-    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-    PtrMan<IOObj> ioobj = DBM().get( mid_ );
-    if ( !output || !ioobj || !prepareWork(*ioobj) )
-    {
-	Step::releaseData();
+    if ( !prepareWork() )
 	return 0;
-    }
+
+    PtrMan<IOObj> ioobj = DBM().get( mid_ );
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
 
     return new VolumeReaderExecutor( *ioobj, components_, compscalers_,
 				     *output );

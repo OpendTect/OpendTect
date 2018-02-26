@@ -545,27 +545,19 @@ VoxelConnectivityFilter::VoxelConnectivityFilter()
 
 
 VoxelConnectivityFilter::~VoxelConnectivityFilter()
-{ }
+{}
 
 
 ReportingTask* VoxelConnectivityFilter::createTask()
 {
+    if ( !prepareWork() )
+	return 0;
+
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-    if ( !input || input->isEmpty() )
-    {
-	errmsg_ = tr("No input provided.");
-	return 0;
-    }
 
-    if ( !output || output->isEmpty() )
-    {
-	errmsg_ = tr("No output provided.");
-	return 0;
-    }
-
-    return new VoxelConnectivityFilterTask( *this, input->data(0),
-					    output->data(0) );
+    return new VoxelConnectivityFilterTask( *this, input->data(),
+						   output->data() );
 }
 
 

@@ -588,7 +588,8 @@ bool VolProc::ChainExecutor::Epoch::doPrepare()
 	ReportingTask* newtask = currentstep->createTask();
 	if ( !newtask )
 	{
-	    pErrMsg("Could not create task");
+	    errmsg_ = tr( "Could not create task: %1\n" )
+			.arg( currentstep->errMsg() );
 	    return false;
 	}
 

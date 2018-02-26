@@ -66,22 +66,15 @@ bool StatsCalculator::copyComponentsSel( const InputSlotID inpslotid,
 
 ReportingTask* StatsCalculator::createTask()
 {
+    if ( !prepareWork() )
+	return 0;
+
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
-    if ( !input || !output ) return 0;
 
     const int nrcompsinput = input->nrComponents();
     for ( int idx=0; idx<nrcompsinput; idx++ )
-    {
-	if ( output->nrComponents()<=idx )
-	{
-	    if ( ! const_cast<RegularSeisDataPack*>(output)
-			  ->addComponent(input->getComponentName(idx),false) )
-		return 0;
-	}
-	else
-	    output->setComponentName( input->getComponentName(idx), idx );
-    }
+	output->setComponentName( input->getComponentName(idx), idx );
 
     const TrcKeyZSampling tkzsin = input->sampling();
     const TrcKeyZSampling tkzsout = output->sampling();
@@ -90,10 +83,10 @@ ReportingTask* StatsCalculator::createTask()
     {
 	Task* task = new StatsCalculatorTask( input->data( idx ), tkzsin,
 					      tkzsout, stepout_, nzsampextra_,
-					      statstype_,
-					      output->data( idx ) );
+					      statstype_, output->data( idx ) );
 	taskgrp->addTask( task );
     }
+
     return taskgrp;
 }
 

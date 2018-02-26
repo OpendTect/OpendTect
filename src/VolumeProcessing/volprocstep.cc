@@ -90,7 +90,7 @@ protected:
 
     bool	doPrepare( int nrthreads )
 		{
-		    const bool res = step_.prepareComp( nrthreads );
+		    const bool res = step_.prepareWork( nrthreads );
 		    if ( !res ) msg_ = step_.errMsg();
 		    return res;
 		}
@@ -248,7 +248,11 @@ void VolProc::Step::setInput( InputSlotID slotid,
 			      const RegularSeisDataPack* dc )
 {
     if ( inputs_.isEmpty() )
+    {
+	TypeSet<int> inputcompnrs( inputcompnrs_ );
 	resetInput();
+	inputcompnrs_ = inputcompnrs;
+    }
 
     const int idx = inputslotids_.indexOf( slotid );
     if ( !inputs_.validIdx(idx) )
@@ -315,6 +319,52 @@ bool VolProc::Step::usePar( const IOPar& par )
 	id_ = chain_->getNewStepID();
 
     return true;
+}
+
+
+bool VolProc::Step::prepareWork( int nrthreads )
+{
+    if ( !output_ )
+    {
+	errmsg_ = tr( "Volume Processing step does not have an output" );
+	releaseData();
+	return false;
+    }
+
+    const Pos::GeomID geomid = output_->sampling().hsamp_.getGeomID();
+    if ( needsInput() )
+    {
+	for ( int idx=0; idx<getNrInputs(); idx++ )
+	{
+	    if ( !inputs_.validIdx(idx) || !inputs_[idx] )
+	    {
+		errmsg_ = tr( "Volume Processing step does not have the "
+			      "required input datapack" );
+		return false;
+	    }
+
+	    const InputSlotID slotid = getInputSlotID( idx );
+	    if ( inputs_[idx]->nrComponents() !=
+					getNrInputComponents(slotid,geomid) )
+	    {
+		errmsg_ = tr( "Volume Processing step does not have the "
+				"required number of components for its input" );
+		releaseData();
+		return false;
+	    }
+	}
+    }
+
+    const OutputSlotID slotid = getOutputSlotID( 0 );
+    const bool success = output_->nrComponents() ==
+					getNrOutComponents( slotid, geomid );
+    if ( !success )
+    {
+	errmsg_ = tr( "Volume Processing step does not have the "
+			"required number of components for its output" );
+    }
+
+    return success;
 }
 
 

@@ -47,11 +47,11 @@ public:
 
 private:
 
+    virtual ReportingTask*	createTask();
+
     virtual bool	needsFullVolume() const		{ return true; }
     virtual bool	canInputAndOutputBeSame() const	{ return false; }
     virtual bool	areSamplesIndependent() const	{ return true; }
-
-    ReportingTask*	createTask();
 
     virtual BinID	getHorizontalStepout() const;
     virtual int		getVerticalStepout() const;
