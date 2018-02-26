@@ -129,7 +129,6 @@ void SeisTrcTranslator::cleanUp()
 
     headerdone_ = false;
     datareaddone_ = false;
-    deleteAndZeroPtr( compnms_ );
     deleteAndZeroPtr( storbuf_ );
     deepErase( cds_ );
     deepErase( tarcds_ );
