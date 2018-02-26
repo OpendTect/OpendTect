@@ -219,78 +219,84 @@ void uiSeisWvltMan::wvltExtractedCB( CallBacker* )
 
 void uiSeisWvltMan::ownSelChg()
 {
-    uiString tt,curwvlt;
+    uiString tt, wvltname;
+    ConstRefMan<Wavelet> wvlt;
     if ( curioobj_ )
-	curwvlt = curioobj_->uiName();
+    {
+	wvltname = curioobj_->uiName();
+	wvlt = WaveletMGR().fetch( curioobj_->key() );
+    }
+    dispWavelet( wvlt );
 
-    revpolbut_->setSensitive( curioobj_ );
-    rotatephbut_->setSensitive( curioobj_ );
-    taperbut_->setSensitive( curioobj_ );
-    disppropbut_->setSensitive( curioobj_ );
+    revpolbut_->setSensitive( wvlt );
+    rotatephbut_->setSensitive( wvlt );
+    taperbut_->setSensitive( wvlt );
+    disppropbut_->setSensitive( wvlt );
 
-    mSetButToolTip(revpolbut_,tr("Reverse %1 polarity").arg(curwvlt),
+    mSetButToolTip(revpolbut_,tr("Reverse %1 polarity").arg(wvltname),
 						       tr("Reverse polarity"));
-    mSetButToolTip(rotatephbut_,tr("Rotate %1 phase").arg(curwvlt),
+    mSetButToolTip(rotatephbut_,tr("Rotate %1 phase").arg(wvltname),
 							   tr("Rotate phase"));
-    mSetButToolTip(taperbut_,tr("Taper %1").arg(curwvlt), uiStrings::sTaper() );
+    mSetButToolTip(taperbut_,tr("Taper %1").arg(wvltname), uiStrings::sTaper() );
     mSetButToolTip(disppropbut_,toUiString("%1 %2 %3")
-		   .arg(uiStrings::sDisplay()).arg(curwvlt)
+		   .arg(uiStrings::sDisplay()).arg(wvltname)
 		   .arg(uiStrings::sProperties().toLower()),
 		   mJoinUiStrs(sDisplay(),sProperties().toLower()));
 }
 
 
-void uiSeisWvltMan::mkFileInfo()
+bool uiSeisWvltMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    uiPhrase txt;
-    ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( curioobj_->key() );
-    dispWavelet( wvlt );
-    if ( wvlt )
+    ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( ioobj.key() );
+    if ( !wvlt )
+	return false;
+
+    mImplTODOGtItemInfo();
+
+    /*
+    const float zfac = mCast( float, SI().zDomain().userFactor() );
+    WaveletAttrib wvltattrib( *wvlt );
+
+    uiPhrase msg;
+    msg.appendPhrase( tr("Number of samples: %1" ).arg(wvlt->size()) );
+    msg.appendPhrase( tr("Sample interval %1: %2" )
+       .arg(SI().zUnitString(true)).arg(wvlt->sampleRate() * zfac) );
+
+    Interval<float> extremevals;
+    wvlt->getExtrValues( extremevals );
+    msg.appendPhrase( tr("Min/Max amplitude: %1/%2" )
+       .arg(extremevals.start).arg( extremevals.stop ) );
+    float avgphase = wvltattrib.getAvgPhase( true );
+    if ( mIsZero(avgphase,1e-3f) ) avgphase = 0.f;
+    msg.appendPhrase( tr("Average phase (deg): %1").arg(avgphase) );
+    txt.appendPhrase( msg );
+    wvlt = 0;
+
+    DBKey orgid; DBKey horid; DBKey seisid; BufferString lvlnm;
+    if ( WaveletMGR().getScalingInfo(ioobj.key(),
+			orgid,horid,seisid,lvlnm) )
     {
-	const float zfac = mCast( float, SI().zDomain().userFactor() );
-	WaveletAttrib wvltattrib( *wvlt );
-
-	uiPhrase msg;
-	msg.appendPhrase( tr("Number of samples: %1" ).arg(wvlt->size()) );
-	msg.appendPhrase( tr("Sample interval %1: %2" )
-	   .arg(SI().zUnitString(true)).arg(wvlt->sampleRate() * zfac) );
-
-	Interval<float> extremevals;
-	wvlt->getExtrValues( extremevals );
-	msg.appendPhrase( tr("Min/Max amplitude: %1/%2" )
-	   .arg(extremevals.start).arg( extremevals.stop ) );
-	float avgphase = wvltattrib.getAvgPhase( true );
-	if ( mIsZero(avgphase,1e-3f) ) avgphase = 0.f;
-	msg.appendPhrase( tr("Average phase (deg): %1").arg(avgphase) );
-	txt.appendPhrase( msg );
-	wvlt = 0;
-
-	DBKey orgid; DBKey horid; DBKey seisid; BufferString lvlnm;
-	if ( WaveletMGR().getScalingInfo(curioobj_->key(),
-			    orgid,horid,seisid,lvlnm) )
+	msg = tr("Scaled: ");
+	if ( orgid.isInvalid() )
+	    msg.appendPhrase( tr("Outside OpendTect") );
+	else
 	{
-	    msg = tr("Scaled: ");
-	    if ( orgid.isInvalid() )
-		msg.appendPhrase( tr("Outside OpendTect") );
-	    else
-	    {
-		msg.appendPhrase( tr("'%1' scaled to '%2'")
-		   .arg(DBM().nameOf(orgid)).arg(DBM().nameOf(seisid)) );
-		msg.appendPhrase( tr("\n\t(along '%1' at '%2')")
-		   .arg(DBM().nameOf(horid)).arg(lvlnm) );
-	    }
-	    txt.appendPhrase( msg );
+	    msg.appendPhrase( tr("'%1' scaled to '%2'")
+	       .arg(DBM().nameOf(orgid)).arg(DBM().nameOf(seisid)) );
+	    msg.appendPhrase( tr("\n\t(along '%1' at '%2')")
+	       .arg(DBM().nameOf(horid)).arg(lvlnm) );
 	}
+	txt.appendPhrase( msg );
     }
-
-    txt.appendPhrase( getFileInfo(), uiString::NoSep);
-    setInfo( txt );
+    */
 }
 
 
 void uiSeisWvltMan::dispProperties( CallBacker* )
 {
-    ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( curioobj_->key() );
+    ConstRefMan<Wavelet> wvlt;
+    if ( curioobj_ )
+	wvlt = WaveletMGR().fetch( curioobj_->key() );
     if ( !wvlt )
 	return;
 
@@ -340,6 +346,8 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 
 
 #define mPrepWvltChg() \
+    if ( !curioobj_ ) \
+	return; \
     const DBKey ky( curioobj_->key() ); \
     RefMan<Wavelet> wvlt = WaveletMGR().fetchForEdit( ky ); \
     if ( !wvlt ) \
@@ -376,7 +384,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
 	{ mStoreWvltChg(); }
 
     dlg.acting.remove( mCB(this,uiSeisWvltMan,rotUpdateCB) );
-    mkFileInfo();
+    updateFromSelected();
 }
 
 
@@ -392,18 +400,15 @@ void uiSeisWvltMan::taper( CallBacker* )
 }
 
 
-#define mErr() mErrRet( (uiStrings::phrJoinStrings(uiStrings::sCannot(),  \
-				uiStrings::sDraw(), uiStrings::sWavelet())) );
-
 void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 {
     mDynamicCastGet(uiSeisWvltRotDlg*,dlg,cb);
     if ( !dlg )
-	mErr();
+	return;
 
     const Wavelet* wvlt = dlg->getWavelet();
     if ( !wvlt )
-	mErr();
+	return;
 
     dispWavelet( wvlt );
 }
@@ -411,13 +416,16 @@ void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 
 void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
 {
+    if ( !curioobj_ )
+	return;
+
     wvnamdisp_->setText( curioobj_->uiName() );
     wvnamdisp_->setPrefWidthInChar( 60 );
     TypeSet<float> samps;
     if ( wvlt )
 	wvlt->getSamples( samps );
     if ( samps.isEmpty() )
-    { waveletdisplay_->setEmpty(); return; }
+	{ waveletdisplay_->setEmpty(); return; }
 
     const int wvltsz = wvlt->size();
     StepInterval<float> intxval;

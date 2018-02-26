@@ -116,8 +116,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 	uiFileSel::Setup fssu( OD::GeneralContent, filespec_.fileName() );
 	fssu.objtype( tr("SEG-Y") )
 	    .formats( uiSEGYFileSpec::fileFmts() );
-	inpfld_ = new uiFileSel( topgrp_, uiStrings::phrJoinStrings(
-				 uiStrings::sInputFile(),tr("*=wildcard")),
+	inpfld_ = new uiFileSel( topgrp_, uiStrings::sInputFile().postFixWord(
+		     toUiString("*=%1").arg(tr("wildcard","usually a '*'")) ),
 				 fssu );
 	inpfld_->newSelection.notify( mCB(this,uiSEGYReadStarter,inpChg) );
 	attachobj = inpfld_->attachObj();

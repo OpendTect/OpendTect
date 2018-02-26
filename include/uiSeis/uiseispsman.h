@@ -44,8 +44,8 @@ protected:
 
     bool		is2d_;
 
-    void		ownSelChg();
-    void		mkFileInfo();
+    virtual void	ownSelChg();
+    virtual bool	gtItemInfo(const IOObj&,uiPhraseSet&) const;
     const BrowserDef*	getBrowserDef() const;
 
     void		copyPush(CallBacker*);

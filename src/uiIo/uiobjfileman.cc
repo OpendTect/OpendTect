@@ -199,21 +199,51 @@ void uiObjFileMan::readNotes()
 void uiObjFileMan::selChg( CallBacker* cb )
 {
     saveNotes(0);
+    updateFromSelected();
+}
+
+void uiObjFileMan::updateFromSelected()
+{
     delete curioobj_;
     curioobj_ = selgrp_->nrChosen() > 0 ? DBM().get(selgrp_->currentID()) : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
 
     ownSelChg();
-    if ( curioobj_ )
-	mkFileInfo();
-    else
-	setInfo( uiString::empty() );
-
+    refreshItemInfo();
     readNotes();
+
     uiString msg;
     if ( curioobj_ )
 	System::getFreeMBOnDiskUiMsg(System::getFreeMBOnDisk(*curioobj_), msg);
     toStatusBar( msg );
+}
+
+
+void uiObjFileMan::refreshItemInfo()
+{
+    if ( !curioobj_ )
+	setInfo( uiString::empty() );
+    else
+    {
+	uiPhraseSet info;
+	getItemInfo( *curioobj_, info );
+	uiString allinfo( info.cat(uiString::NoSep) );
+	info.setEmpty();
+	getFileInfo( *curioobj_, info  );
+	allinfo.appendPhrase( info.cat(uiString::NoSep), uiString::NoSep,
+			      uiString::AfterEmptyLine );
+	setInfo( allinfo );
+    }
+}
+
+
+uiString& uiObjFileMan::addObjInfo( uiPhraseSet& info, const uiWord& key,
+					    const uiString& val ) const
+{
+    uiString ret( key );
+    ret.addMoreInfo( val );
+    info.add( ret );
+    return info.get( info.size()-1 );
 }
 
 
@@ -250,7 +280,7 @@ od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 
 
 void uiObjFileMan::getTimeStamp( const char* fname,
-				 BufferString& timestamp )
+				 BufferString& timestamp ) const
 {
     timestamp = File::timeLastModified( fname );
     File::Path fp( fname );
@@ -262,13 +292,14 @@ void uiObjFileMan::getTimeStamp( const char* fname,
 
 
 void uiObjFileMan::getTimeLastModified( const char* fname,
-					BufferString& timestamp )
+					BufferString& timestamp ) const
 {
     const FixedString ftimestamp = File::timeLastModified( fname );
     if ( timestamp.isEmpty() || Time::isEarlierStamp(timestamp,ftimestamp) )
 	timestamp = ftimestamp;
 
-    if ( !File::isDirectory(fname) ) return;
+    if ( !File::isDirectory(fname) )
+	return;
 
     DirList dl( fname );
     BufferString subtimestamp;
@@ -283,21 +314,17 @@ void uiObjFileMan::getTimeLastModified( const char* fname,
 }
 
 
-uiPhrase uiObjFileMan::getFileInfo()
+bool uiObjFileMan::getFileInfo( const IOObj& ioobj, uiPhraseSet& info ) const
 {
-    uiPhrase txt;
-    if ( !curioobj_ )
-	return txt;
-
-    const bool isstrm = isIOStream( *curioobj_ );
-    const BufferString fname = curioobj_->mainFileName();
+    const bool isstrm = isIOStream( ioobj );
+    const BufferString fname = ioobj.mainFileName();
     const bool isdir = isstrm && File::isDirectory( fname );
     if ( !isstrm )
-	txt  = tr("Data source: %1").arg( curioobj_->connType() );
+	addObjInfo( info, tr("Data source"), ioobj.connType() );
     else
     {
 	int nrfiles = 0;
-	const IOStream* iostrm = getIOStream( *curioobj_ );
+	const IOStream* iostrm = getIOStream( ioobj );
 	const BufferString usrnm = iostrm->fileSpec().dispName();
 	if ( iostrm->isMulti() )
 	    nrfiles = iostrm->nrFiles();
@@ -306,60 +333,49 @@ uiPhrase uiObjFileMan::getFileInfo()
 	const BufferString fileszstr( File::getFileSizeString( totsz ) );
 	if ( isdir )
 	{
-	    txt = tr("Directory name: %1" ).arg( usrnm );
-	    txt.appendPhrase( tr("Total size on disk: %1").arg(fileszstr),
-							    uiString::NoSep );
-	    txt.appendPhrase( tr("Number of files: %1").arg(nrfiles),
-							    uiString::NoSep );
+	    addObjInfo( info, tr("Directory name"), usrnm );
+	    addObjInfo( info, tr("Total size on disk"), fileszstr );
+	    addObjInfo( info, tr("Number of files"), nrfiles );
 	}
 	else
 	{
 	    File::Path fp( usrnm );
-	    txt = uiStrings::sFileName().appendPlainText(": ")
-					.appendPlainText( fp.fileName() );
+	    addObjInfo( info, uiStrings::sFileName(), fp.fileName() );
 	    fp.set( fname );
-	    txt.appendPhrase( uiStrings::sLocation(), uiString::NoSep )
-				.appendPlainText(": ")
-				.appendPlainText( fp.pathOnly() );
-	    txt.appendPhrase( uiStrings::sSize(), uiString::NoSep )
-				.appendPlainText(": ")
-				.appendPlainText( fileszstr );
+	    addObjInfo( info, uiStrings::sLocation(), fp.pathOnly() );
+	    addObjInfo( info, uiStrings::sSize(), fileszstr );
 	}
 	BufferString timestr; getTimeStamp( fname, timestr );
 	if ( !timestr.isEmpty() )
-	    txt.appendPhrase( tr("Last modified: %1")
-		.arg(Time::getUsrDateTimeStringFromISOUTC(timestr)), 
-							    uiString::NoSep  );
+	    addObjInfo( info, tr("Last modified"),
+		   Time::getUsrDateTimeStringFromISOUTC(timestr) );
     }
 
     BufferString crspec;
-    curioobj_->pars().get( sKey::CrBy(), crspec );
+    ioobj.pars().get( sKey::CrBy(), crspec );
     if ( crspec.isEmpty() )
-	curioobj_->pars().get( "User", crspec );
+	ioobj.pars().get( "User", crspec );
     if ( !crspec.isEmpty() )
-	txt.appendPhrase( tr("Created by: %1").arg(crspec), uiString::NoSep,
-							uiString::OnNewLine );
+	addObjInfo( info, tr("Created by"), crspec );
 
     crspec.setEmpty();
-    curioobj_->pars().get( sKey::CrAt(), crspec );
+    ioobj.pars().get( sKey::CrAt(), crspec );
     if ( !crspec.isEmpty() )
-	txt.appendPhrase( tr("Created at: %1").arg(crspec), uiString::NoSep );
+	addObjInfo( info, tr("Created at"), crspec );
 
     crspec.setEmpty();
-    curioobj_->pars().get( sKey::CrFrom(), crspec );
+    ioobj.pars().get( sKey::CrFrom(), crspec );
     if ( !crspec.isEmpty() )
-	txt.appendPhrase( tr("Created from: %1").arg(crspec), 
-							    uiString::NoSep );
+	addObjInfo( info, tr("Created from"), crspec );
 
-    txt.appendPhrase( tr("Storage type: %1").arg(curioobj_->translator()),
-							    uiString::NoSep );
-    txt.appendPhrase( tr("Object ID: %1").arg(curioobj_->key()),
-							    uiString::NoSep );
-    return txt;
+    addObjInfo( info, tr("Storage type"), ioobj.translator() );
+    addObjInfo( info, tr("Object ID"), ioobj.key() );
+
+    return true;
 }
 
 
-void uiObjFileMan::setInfo( const uiString txt )
+void uiObjFileMan::setInfo( const uiString& txt )
 {
     infofld_->setText( txt );
 }

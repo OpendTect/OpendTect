@@ -13,21 +13,20 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uiobjfileman.h"
 
-/*! \brief
-CrossPlot manager
-*/
+/*! \briefCrossPlot data manager */
 
 mExpClass(uiIo) uiDataPointSetMan : public uiObjFileMan
 { mODTextTranslationClass(uiDataPointSetMan);
 public:
-    				uiDataPointSetMan(uiParent*);
+				uiDataPointSetMan(uiParent*);
 				~uiDataPointSetMan();
 
 protected:
 
     void			mergePush(CallBacker*);
 
-    void			mkFileInfo();
+    virtual bool		gtItemInfo(const IOObj&,uiPhraseSet&) const;
+
 public:
 
     static uiString		sSelDataSetEmpty();

@@ -59,15 +59,17 @@ uiProbDenFuncMan::~uiProbDenFuncMan()
 }
 
 
-#define mGetPDF(pdf) \
-    PtrMan<ProbDenFunc> pdf = ProbDenFuncTranslator::read( *curioobj_ )
+#define mGetPDF(pdf,ioobj) \
+    PtrMan<ProbDenFunc> pdf = ProbDenFuncTranslator::read( ioobj )
 
 
 void uiProbDenFuncMan::browsePush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
-    mGetPDF(pdf);
-    if ( !pdf ) return;
+    if ( !curioobj_ )
+	return;
+    mGetPDF(pdf,*curioobj_);
+    if ( !pdf )
+	return;
 
     uiEditProbDenFuncDlg dlg( this, *pdf, true );
     if ( dlg.go() && dlg.isChanged() )
@@ -103,25 +105,19 @@ void uiProbDenFuncMan::genPush( CallBacker* )
 }
 
 
-void uiProbDenFuncMan::mkFileInfo()
+bool uiProbDenFuncMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    if ( !curioobj_ )
-	{ setInfo( uiWord::empty() ); return; }
+    mGetPDF(pdf,ioobj);
+    if ( !pdf )
+	return false;
 
-    uiPhrase txt;
-    txt = getFileInfo();
-
-    mGetPDF(pdf);
-    if ( pdf )
+    addObjInfo( inf, uiStrings::sType(), pdf->getTypeStr() );
+    for ( int idx=0; idx<pdf->nrDims(); idx++ )
     {
-	txt.appendPhrase(tr("Type: %1").arg(pdf->getTypeStr()));
-	for ( int idx=0; idx<pdf->nrDims(); idx++ )
-	{
-	    uiPhrase lbl = tr("Dimension %1 :").arg(idx+1);
-	    txt.appendPhrase(lbl);
-	    txt.appendPhrase( toUiString(pdf->dimName(idx)), uiString::Space,
-						    uiString::OnSameLine );
-	}
+	uiWord txt = toUiString( "\t%1 %2" )
+			    .arg( tr("Dimension") ).arg( idx+1 );
+	inf.add( txt.addMoreInfo( toUiString(pdf->dimName(idx)) ) );
     }
-    setInfo( txt );
+
+    return true;
 }

@@ -27,8 +27,8 @@ protected:
 
     void		manLineGeom(CallBacker*);
     void		lineRemoveCB(CallBacker*);
-    void		ownSelChg();
-    void		mkFileInfo();
+    virtual void	ownSelChg();
+    virtual bool	gtItemInfo(const IOObj&,uiPhraseSet&) const;
 };
 
 

@@ -55,14 +55,6 @@ uiAttrSetMan::~uiAttrSetMan()
 }
 
 
-static void addStoredNms( const Attrib::DescSet& attrset, uiString& txt )
-{
-    BufferStringSet nms;
-    attrset.getStoredNames( nms );
-    txt.appendPlainText( nms.getDispString() );
-}
-
-
 static void fillAttribList( uiListBox* attribfld,
 			    const Attrib::DescSet& attrset )
 {
@@ -72,33 +64,31 @@ static void fillAttribList( uiListBox* attribfld,
 }
 
 
-void uiAttrSetMan::mkFileInfo()
+void uiAttrSetMan::ownSelChg()
 {
     attribfld_->setEmpty();
-    if ( !curioobj_ )
-	{ setInfo( uiString::empty() ); return; }
-
-    uiPhrase txt;
-    Attrib::DescSet attrset( SI().has2D() );
-    uiRetVal warns;
-    uiRetVal errs = attrset.load( curioobj_->key(), &warns );
-    if ( !errs.isOK() )
-	uiMSG().error( errs );
-    else
+    if ( curioobj_ )
     {
-	if ( !warns.isOK() )
-	    uiMSG().warning( warns );
-
-	txt = tr("Type: %1").arg(attrset.is2D() ? uiStrings::s2D() :
-							    uiStrings::s3D());
-	txt.appendPhrase( uiStrings::sInput(), uiString::NoSep );
-	txt.appendPlainText( ": " );
-	addStoredNms( attrset, txt );
-
-	fillAttribList( attribfld_, attrset );
+	Attrib::DescSet attrset( SI().has2D() );
+	uiRetVal uirv = attrset.load( curioobj_->key() );
+	if ( uirv.isOK() )
+	    fillAttribList( attribfld_, attrset );
     }
+}
 
-    txt.appendPhrase( getFileInfo(), uiString::NoSep,
-						    uiString::AfterEmptyLine );
-    setInfo(txt);
+
+bool uiAttrSetMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
+{
+    Attrib::DescSet attrset( SI().has2D() );
+    uiRetVal errs = attrset.load( ioobj.key() );
+    if ( !errs.isOK() )
+	{ inf = errs; return false; }
+
+    addObjInfo( inf, uiStrings::sType(), attrset.is2D() ? uiStrings::s2D()
+							: uiStrings::s3D() );
+    BufferStringSet nms; attrset.getStoredNames( nms );
+    if ( !nms.isEmpty() )
+	addObjInfo( inf, uiStrings::sInput(), nms.getDispString() );
+
+    return true;
 }

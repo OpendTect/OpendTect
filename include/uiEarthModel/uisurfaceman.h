@@ -66,13 +66,15 @@ protected:
     void		removeAttribCB(CallBacker*);
     void		renameAttribCB(CallBacker*);
 
-    void		mkFileInfo();
+    virtual void	ownSelChg();
+    virtual bool	gtItemInfo(const IOObj&,uiPhraseSet&) const;
+    virtual od_int64	getFileSize(const char*,int&) const;
     void		fillAttribList();
-    od_int64		getFileSize(const char*,int&) const;
     void		setToolButtonProperties();
-    void		ownSelChg();
 
 private:
+
     uiString		sRenameSelData();
     uiString		sRemoveSelData();
+
 };

@@ -217,16 +217,14 @@ void uiProgressViewer::handleProcessStatus()
 	}
     }
 
-    uiString stbmsg = tr("Processing finished %1")
-		      .arg( procstatus_ == AbnormalEnd ? tr("abnormally.")
-						       : tr("successfully.") );
+    timer_.stop();
+    uiString stbmsg = tr("Processing finished successfully");
+    if ( procstatus_ == Terminated )
+	stbmsg = tr("Processing terminated by user" );
     if ( procstatus_ == AbnormalEnd )
-	stbmsg.appendPhrase( tr("It was probably terminated or crashed") );
-    else if ( procstatus_ == Terminated )
-	stbmsg = tr("Process %1 was terminated" ).arg(procnm_);
+	stbmsg = tr("Processing stopped because of program failure");
 
     statusBar()->message( stbmsg );
-    timer_.stop();
     tb_->setToolTip( quittbid_, sQuitOnly() );
     tb_->setSensitive( killbid_, false );
     pid_ = mUdf(int);

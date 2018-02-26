@@ -258,28 +258,25 @@ const uiSeisFileMan::BrowserDef* uiSeisFileMan::getBrowserDef() const
 }
 
 
-void uiSeisFileMan::mkFileInfo()
+bool uiSeisFileMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    uiPhrase txt;
-    SeisIOObjInfo oinf( curioobj_ );
-
-    if ( oinf.isOK() )
-    {
+    SeisIOObjInfo oinf( ioobj );
+    if ( !oinf.isOK() )
+	{ inf.add( uiStrings::sNoInfoAvailable() ); return false; }
 
     if ( is2d_ )
     {
 	BufferStringSet nms;
 	SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
 	oinf.getLineNames( nms, opts2d );
-	txt = tr("Number of lines: %1").arg( nms.size() );
+	addObjInfo( inf, tr("Number of lines"), nms.size() );
     }
 
 #define mOnNewLineLine(str) \
     txt.appendPhrase(str,uiString::NoSep) \
 
-#define mAddICRangeLine(str,memb) \
-    mOnNewLineLine(str) \
-	.addMoreInfo( toUiString("%1 - %2 [%3]") \
+#define mAddICRangeLine(key,memb) \
+    addObjInfo( inf, key, uiStrings::sRangeTemplate(true) \
 	.arg( cs.hsamp_.start_.memb() ) \
 	.arg( cs.hsamp_.stop_.memb() ) \
 	.arg( cs.hsamp_.step_.memb() ) )
@@ -290,7 +287,6 @@ void uiSeisFileMan::mkFileInfo()
 	TrcKeyZSampling cs;
 	if ( oinf.getRanges(cs) )
 	{
-	    txt.setEmpty();
 	    if ( !mIsUdf(cs.hsamp_.stop_.inl()) )
 		mAddICRangeLine( uiStrings::sInlineRange(), inl );
 	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
@@ -298,51 +294,48 @@ void uiSeisFileMan::mkFileInfo()
 
 	    const float area = SI().getArea( cs.hsamp_.inlRange(),
 					     cs.hsamp_.crlRange() );
-	    mOnNewLineLine( uiStrings::sArea() )
-		.addMoreInfo( toUiString(getAreaString(area,true,0) ) );
+	    addObjInfo( inf, uiStrings::sArea(), getAreaString(area,true,0) );
 
-	    const uiString rgstr = zddef.getRange();
-	    mOnNewLineLine( rgstr ).withUnit( zddef.unitStr(false) )
-		.addMoreInfo( toUiString("%1 - %2 [%3]") )
-		.arg(cs.zsamp_.start).arg(cs.zsamp_.stop).arg(cs.zsamp_.step);
+	    StepInterval<float> dispzrg( cs.zsamp_ );
+	    dispzrg.scale( (float)zddef.userFactor() );
+	    addObjInfo( inf, zddef.getRange().withUnit(zddef.unitStr(false)),
+		    uiStrings::sRangeTemplate(true)
+		    .arg(dispzrg.start).arg(dispzrg.stop).arg(dispzrg.step) );
 	}
     }
 
-    if ( !curioobj_->pars().isEmpty() )
+    if ( !ioobj.pars().isEmpty() )
     {
-	const IOPar& pars = curioobj_->pars();
-	FixedString parstr = pars.find( "Type" );
+	const IOPar& pars = ioobj.pars();
+	FixedString parstr = pars.find( sKey::Type() );
 	if ( !parstr.isEmpty() )
-	    mOnNewLineLine( uiStrings::sType() )
-			.addMoreInfo( toUiString(parstr) );
+	    addObjInfo( inf, uiStrings::sType(), parstr );
 
 	parstr = pars.find( "Optimized direction" );
 	if ( !parstr.isEmpty() )
-	    mOnNewLineLine( tr("Optimized direction") )
-			.addMoreInfo( toUiString(parstr) );
+	    addObjInfo( inf, tr("Optimized direction"), parstr );
+
 	if ( pars.isTrue("Is Velocity") )
 	{
-	    Interval<float> topvavg, botvavg;
 	    parstr = pars.find( "Velocity Type" );
 	    if ( !parstr.isEmpty() )
-	    {
-		mOnNewLineLine( tr("Velocity Type") )
-			.addMoreInfo( toUiString(parstr), false );
-	    }
+		addObjInfo( inf, tr("Velocity Type"), parstr );
 
+	    Interval<float> topvavg, botvavg;
 	    if ( pars.get(VelocityStretcher::sKeyTopVavg(),topvavg)
 	      && pars.get(VelocityStretcher::sKeyBotVavg(),botvavg))
 	    {
 		const StepInterval<float> sizrg = SI().zRange(true);
 		StepInterval<float> dispzrg;
-
+		uiString keystr;
 		if ( SI().zIsTime() )
 		{
 		    dispzrg.start = sizrg.start * topvavg.start / 2;
 		    dispzrg.stop = sizrg.stop * botvavg.stop / 2;
 		    dispzrg.step = (dispzrg.stop-dispzrg.start)
 					/ sizrg.nrSteps();
-		    mOnNewLineLine( tr("Depth Range") )
+		    dispzrg.scale( (float)ZDomain::Depth().userFactor() );
+		    keystr = tr("Depth Range")
 			    .withUnit( ZDomain::Depth().unitStr() );
 		}
 
@@ -353,19 +346,19 @@ void uiSeisFileMan::mkFileInfo()
 		    dispzrg.step = (dispzrg.stop-dispzrg.start)
 					/ sizrg.nrSteps();
 		    dispzrg.scale( (float)ZDomain::Time().userFactor() );
-		    mOnNewLineLine( tr("Time Range")
-			    .withUnit(ZDomain::Time().unitStr()) );
+		    keystr = tr("Time Range")
+			    .withUnit( ZDomain::Time().unitStr() );
 		}
 
-		txt.addMoreInfo( toUiString("%1 - %2")
-			.arg(dispzrg.start).arg(dispzrg.stop) );
+		addObjInfo( inf, keystr, uiStrings::sRangeTemplate(true)
+		    .arg(dispzrg.start).arg(dispzrg.stop).arg(dispzrg.step) );
 	    }
 	}
     }
 
-    BufferString dsstr = curioobj_->pars().find( sKey::DataStorage() );
-    SeisTrcTranslator* tri = (SeisTrcTranslator*)curioobj_->createTranslator();
-    if ( tri && tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),
+    BufferString dsstr = ioobj.pars().find( sKey::DataStorage() );
+    SeisTrcTranslator* tri = (SeisTrcTranslator*)ioobj.createTranslator();
+    if ( tri && tri->initRead( new StreamConn(ioobj.fullUserExpr(true),
 				Conn::Read), Seis::Scan ) )
     {
 	const BasicComponentInfo& bci = *tri->componentInfo()[0];
@@ -374,23 +367,13 @@ void uiSeisFileMan::mkFileInfo()
     }
     delete tri;
     if ( dsstr.size() > 4 )
-	mOnNewLineLine( uiStrings::sStorage() )
-		.addMoreInfo( toUiString(dsstr.buf() + 4) );
+	addObjInfo( inf, uiStrings::sStorage(), BufferString(dsstr.buf()+4) );
 
     const int nrcomp = oinf.nrComponents();
     if ( nrcomp > 1 )
-	mOnNewLineLine( tr("Number of components") )
-		.addMoreInfo( toUiString(nrcomp) );
+	addObjInfo( inf, tr("Number of components"), nrcomp );
 
-
-    } // if ( oinf.isOK() )
-
-    if ( txt.isEmpty() )
-	txt = uiStrings::sNoInfoAvailable();
-
-    txt.appendPhrase( getFileInfo(), uiString::NoSep,
-				     uiString::AfterEmptyLine );
-    setInfo( txt );
+    return true;
 }
 
 
@@ -402,7 +385,8 @@ od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 
 void uiSeisFileMan::mergePush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const DBKey key( curioobj_->key() );
     DBKeySet chsnmids;
@@ -427,7 +411,8 @@ void uiSeisFileMan::browsePush( CallBacker* )
 
 void uiSeisFileMan::man2DPush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const DBKey key( curioobj_->key() );
     uiSeis2DFileMan dlg( this, *curioobj_ );

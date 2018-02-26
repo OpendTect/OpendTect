@@ -209,12 +209,6 @@ uiSurfaceMan::~uiSurfaceMan()
 {}
 
 
-void uiSurfaceMan::ownSelChg()
-{
-    setToolButtonProperties();
-}
-
-
 void uiSurfaceMan::attribSel( CallBacker* )
 {
     setToolButtonProperties();
@@ -560,72 +554,49 @@ void uiSurfaceMan::fillAttribList()
 }
 
 
-void uiSurfaceMan::mkFileInfo()
+void uiSurfaceMan::ownSelChg()
 {
-#define mAddInlCrlRangeTxt() \
-    txt.appendPlainText(": "); \
-    if ( range.isUdf() ) \
-	txt.appendPlainText( "-" ); \
-    else \
-    { \
-	txt.appendPlainText( ::toString(range.start) ); \
-	txt.appendPlainText( " - " ); \
-	txt.appendPlainText( ::toString(range.stop) ); \
-	txt.appendPlainText( " - " ); \
-	txt.appendPlainText( ::toString(range.step) ); \
-    }
-
-#define mAddZRangeTxt() \
-    if ( !zrange.isUdf() ) \
-    { \
-	txt.appendPhrase(uiStrings::sZRange(), uiString::NoSep); \
-	txt.appendPhrase(SI().zUnitString(), uiString::NoSep, \
-						uiString::OnSameLine); \
-	txt.appendPlainText( ": " ); \
-	txt.appendPlainText( ::toString(mNINT32(zrange.start * \
-					    SI().zDomain().userFactor())) ); \
-	txt.appendPlainText( " - " ); \
-	txt.appendPlainText( ::toString(mNINT32(zrange.stop * \
-					    SI().zDomain().userFactor())) ); \
-    }
-
     fillAttribList();
-    uiPhrase txt;
-    EM::IOObjInfo eminfo( curioobj_ );
-    if ( !eminfo.isOK() )
-    {
-	txt = tr("%1 has no file on disk (yet)")
-				    .arg(::toUiString(eminfo.name()));
-	setInfo( txt );
-	return;
-    }
-
-
+    setToolButtonProperties();
     if ( man2dbut_ )
 	man2dbut_->setSensitive( isCur2D() );
+}
+
+
+bool uiSurfaceMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
+{
+#   define mAddInlCrlRangeTxt(ky,rg) \
+    addObjInfo( inf, ky, rg.isUdf() ? ::toUiString("-") \
+	        : uiStrings::sRangeTemplate( true ) \
+		    .arg(rg.start).arg(rg.stop).arg(rg.step) )
+
+#   define mAddZRangeTxt(rg) \
+    if ( !rg.isUdf() ) \
+    { \
+	const float usrfac = SI().zDomain().userFactor(); \
+	addObjInfo(inf,uiStrings::sZRange().withUnit(SI().zUnitString(false)), \
+		   rg.isUdf()	? ::toUiString("-") \
+				: uiStrings::sRangeTemplate( false ) \
+				    .arg(mNINT32(rg.start*usrfac)) \
+				    .arg(mNINT32(rg.stop*usrfac)) ); \
+    }
+
+    EM::IOObjInfo eminfo( ioobj );
+    if ( !eminfo.isOK() )
+	{ inf.add( uiStrings::sNoInfoAvailable() ); return false; }
 
     if ( isCur2D() || isCurFault() )
     {
-	txt = isCur2D() ? tr("Nr. 2D lines") : tr("Nr. Sticks");
-	if ( isCurFault() )
-	{
-	    if ( eminfo.nrSticks() < 0 )
-		txt.appendPhrase(tr("Cannot determine number of sticks for "
-				    "this object type"), uiString::MoreInfo,
-				    uiString::OnSameLine);
-	    else
-		txt.appendPhrase( ::toUiString(eminfo.nrSticks()),
-				uiString::MoreInfo, uiString::OnSameLine);
-	}
-	else
+	int nr = eminfo.nrSticks();
+	if ( isCur2D() )
 	{
 	    BufferStringSet linenames;
 	    if ( eminfo.getLineNames(linenames) )
-		txt.appendPlainText( ::toString(linenames.size()) );
-	    else
-		txt.appendPlainText( "-" );
+		nr = linenames.size();
 	}
-
+	const uiString ky = isCur2D() ? tr("Number of 2D lines")
+				      : tr("Number of Sticks");
+	addObjInfo( inf, ky, nr );
     }
     else if ( type_ == Body )
     {
@@ -633,29 +604,22 @@ void uiSurfaceMan::mkFileInfo()
 	if ( eminfo.getBodyRange(cs) )
 	{
 	    StepInterval<int> range = cs.hsamp_.lineRange();
-	    txt = tr("In-line range"); mAddInlCrlRangeTxt()
+	    mAddInlCrlRangeTxt( uiStrings::sInlineRange(), range );
 	    range = cs.hsamp_.trcRange();
-	    txt.appendPhrase( tr("Cross-line range"), uiString::NoSep );
-	    mAddInlCrlRangeTxt()
-	    const Interval<float>& zrange = cs.zsamp_;
-	    mAddZRangeTxt()
+	    mAddInlCrlRangeTxt( uiStrings::sCrosslineRange(), range );
+	    mAddZRangeTxt( cs.zsamp_ )
 	}
     }
     else
     {
 	StepInterval<int> range = eminfo.getInlRange();
-	txt = tr("In-line range"); mAddInlCrlRangeTxt()
+	mAddInlCrlRangeTxt( uiStrings::sInlineRange(), range );
 	range = eminfo.getCrlRange();
-	txt.appendPhrase( tr("Cross-line range") ); mAddInlCrlRangeTxt()
-
-        const Interval<float>& zrange = eminfo.getZRange();
-	mAddZRangeTxt()
+	mAddInlCrlRangeTxt( uiStrings::sCrosslineRange(), range );
+	mAddZRangeTxt( eminfo.getZRange() )
     }
 
-    txt.appendPhrase( getFileInfo(), uiString::NoSep );
-
-    setInfo( txt );
-    setToolButtonProperties();
+    return true;
 }
 
 

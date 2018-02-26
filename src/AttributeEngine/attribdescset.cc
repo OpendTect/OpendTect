@@ -807,20 +807,18 @@ uiRetVal DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar )
 			    tmpcpypar.removeWithKey( compkey.buf() );
 		    }
 		}
-		err = tr( "Impossible to find stored data '%1' "
-			"used as input for another attribute %2 '%3'. \n"
-			"Data might have been deleted or corrupted.\n"
-			"Please check your attribute set "
-			"and select valid stored data as input." )
+		err = tr("Impossible to find stored data '%1' "
+			"used as input for another attribute '%2'")
 			.arg( dsc.userRef() )
 			.arg( depattribnm.isEmpty() ? uiString::empty()
-						    : tr("called"))
-			.arg( depattribnm.isEmpty() ? uiString::empty()
-					    : toUiString(depattribnm));
+					    : toUiString(depattribnm))
+		.appendPhrase(tr("Data might have been deleted or corrupted"))
+		.appendPhrase(tr("Please check your attribute set "
+			      "and select valid stored data as input.") );
 	    }
 	    else
 	    {
-		err = tr( "%1 for %2 attribute.")
+		err = toUiString( "%1 (%2)")
 			.arg( dsc.errMsg() ).arg( dsc.userRef() );
 	    }
 

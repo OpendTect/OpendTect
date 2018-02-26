@@ -425,9 +425,6 @@ uiWord uiStrings::sAdvanced( const uiWord& subj )
 
 // From here all are actually phrases or most certainly illegal stuff
 
-uiWord uiStrings::sCannot()
-{ return tr("Cannot"); }
-
 uiWord uiStrings::sCannotAdd()
 { return tr("Cannot add"); }
 

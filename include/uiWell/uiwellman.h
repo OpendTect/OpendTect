@@ -68,7 +68,7 @@ protected:
     void			setWellToolButtonProperties();
     void			setLogToolButtonProperties();
     void			ownSelChg();
-    void			mkFileInfo();
+    virtual bool		gtItemInfo(const IOObj&,uiPhraseSet&) const;
     void			fillLogsFld();
     RefMan<Well::Data>		getWellData(DBKey,bool emiterr,
 					    Well::SubObjType t1=Well::Inf,

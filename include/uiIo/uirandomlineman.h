@@ -21,13 +21,14 @@ RandomLine manager
 mExpClass(uiIo) uiRandomLineMan : public uiObjFileMan
 { mODTextTranslationClass(uiRandomLineMan);
 public:
-				uiRandomLineMan(uiParent*);
-				~uiRandomLineMan();
+
+			uiRandomLineMan(uiParent*);
+			~uiRandomLineMan();
 
     mDeclInstanceCreatedNotifierAccess(uiRandomLineMan);
 
 protected:
 
-    void			mkFileInfo();
+    virtual bool	gtItemInfo(const IOObj&,uiPhraseSet&) const;
 
 };

@@ -41,9 +41,9 @@ protected:
     uiFunctionDisplay*		waveletdisplay_;
     uiLabel*			wvnamdisp_;
     void			addButtons();
-    void			mkFileInfo();
-    void			ownSelChg();
     void			dispWavelet(const Wavelet*);
+    virtual void		ownSelChg();
+    virtual bool		gtItemInfo(const IOObj&,uiPhraseSet&) const;
 
     void			crPush(CallBacker*);
     void			dispProperties(CallBacker*);

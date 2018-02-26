@@ -13,25 +13,25 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uiobjfileman.h"
 
-/*! \brief
-PickSet manager
-*/
+/*!\brief 'Manage PickSet/Polygon' */
 
 class uiToolButton;
 
 mExpClass(uiIo) uiPickSetMan : public uiObjFileMan
 { mODTextTranslationClass(uiPickSetMan);
 public:
-    				uiPickSetMan(uiParent*,const char* fixedtrkey=0);
-				~uiPickSetMan();
+
+			uiPickSetMan(uiParent*,const char* fixedtrkey=0);
+			~uiPickSetMan();
 
     mDeclInstanceCreatedNotifierAccess(uiPickSetMan);
 
 protected:
-    uiToolButton*		mergebut_;
 
-    void			ownSelChg();
-    void			mkFileInfo();
-    void			mergeSets(CallBacker*);
+    uiToolButton*	mergebut_;
+
+    virtual void	ownSelChg();
+    virtual bool	gtItemInfo(const IOObj&,uiPhraseSet&) const;
+    void		mergeSets(CallBacker*);
 
 };

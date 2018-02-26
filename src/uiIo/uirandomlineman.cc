@@ -35,9 +35,8 @@ uiRandomLineMan::~uiRandomLineMan()
 }
 
 
-void uiRandomLineMan::mkFileInfo()
+bool uiRandomLineMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    if ( !curioobj_ ) { setInfo( uiString::empty() ); return; }
-
-    setInfo( getFileInfo() );
+    // should at least check existence
+    mImplTODOGtItemInfo();
 }

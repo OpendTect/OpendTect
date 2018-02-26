@@ -775,11 +775,11 @@ void uiSEGYReadStartInfo::setZIsTime( bool zistime )
     uiString txt;
     if ( !mIsUdf(loaddef_.sampling_.step) )
     {
-	txt.set( "%1 - %2 (%3)" );
+	txt.set( uiStrings::sRangeTemplate(false) );
 	const float endz = loaddef_.sampling_.start
 			 + (loaddef_.ns_-1) * loaddef_.sampling_.step;
 	txt.arg( loaddef_.sampling_.start ).arg( endz )
-		 .arg( zistime ? "s" : (isinfeet_ ? "ft" : "m") );
+		 .withUnit( zistime ? "s" : (isinfeet_ ? "ft" : "m") );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
 }

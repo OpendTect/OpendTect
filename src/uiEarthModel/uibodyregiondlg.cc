@@ -677,8 +677,8 @@ uiBodyRegionGrp::uiBodyRegionGrp( uiParent* p, const Setup& mysetup )
     uiGroup* tblgrp = new uiGroup( this );
     if ( lastgrp )
 	tblgrp->attach( alignedBelow, lastgrp );
-    table_ = new uiTable( tblgrp, tsu.rowdesc(tr("Boundary")).defrowlbl(true),
-									"Sf");
+    table_ = new uiTable( tblgrp, tsu.rowdesc(uiStrings::sBoundary())
+		    .defrowlbl(true), "Sf");
     uiStringSet lbls; lbls.add(uiStrings::sType()).add(uiStrings::sName())
 			  .add(tr("Region location"));
     table_->setColumnLabels( lbls );
@@ -896,7 +896,8 @@ void uiBodyRegionGrp::updateTable()
 bool uiBodyRegionGrp::accept()
 {
     if ( region3d_.isEmpty() )
-	mRetErr(uiStrings::phrPlsSelectAtLeastOne(tr("boundary")));
+	mRetErr(uiStrings::phrPlsSelectAtLeastOne(
+		    uiStrings::sBoundary().toLower()));
 
     for ( int idx=0; idx<region3d_.size(); idx++ )
     {

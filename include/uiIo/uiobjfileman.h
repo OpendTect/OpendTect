@@ -20,6 +20,9 @@ class uiGroup;
 class uiIOObjSelGrp;
 class uiTextEdit;
 
+#define mImplTODOGtItemInfo() \
+    inf.add( toUiString("TODO: implement gtItemInfo()") ); return true
+
 
 mExpClass(uiIo) uiObjFileMan : public uiDialog
 { mODTextTranslationClass(uiObjFileMan)
@@ -29,6 +32,9 @@ public:
     uiIOObjSelGrp*		selGroup()		{ return selgrp_; }
     const IOObj*		curIOObj() const	{ return curioobj_; }
     const IOObjContext&		ioobjContext() const	{ return ctxt_; }
+    bool			getItemInfo( const IOObj& ioobj,
+					     uiPhraseSet& info ) const
+				{ return gtItemInfo( ioobj, info ); }
 
     uiGroup*			listGroup()		{ return listgrp_; }
     uiGroup*			infoGroup()		{ return infogrp_; }
@@ -51,19 +57,34 @@ protected:
 
     void			finaliseStartCB(CallBacker*);
     void			saveNotes(CallBacker*);
-    void			readNotes();
-    void			setInfo(const uiString txt);
+    void			selChg(CallBacker*);
+    void			updateCB(CallBacker*);
+
+    void			updateFromSelected();
+    void			setInfo(const uiString&);
     void			setPrefWidth(int width); //!< width in char
     void			createDefaultUI(bool needreloc=false,
 						bool needremove=true,
 						bool multisel=true);
-    void			getTimeStamp(const char*,BufferString&);
-    void			getTimeLastModified(const char*,BufferString&);
-    uiPhrase			getFileInfo();
-    virtual void		mkFileInfo()			= 0;
+    void			getTimeStamp(const char*,BufferString&) const;
+    void			getTimeLastModified(const char*,
+						    BufferString&) const;
+
+    virtual bool		gtItemInfo(const IOObj&,uiPhraseSet&) const= 0;
+				//!< used to be in 'mkFileInfo'
+    virtual void		ownSelChg()		{}
+    uiString&			addObjInfo(uiPhraseSet&,const uiWord& subj,
+					    const uiString& val) const;
+    template <class T>
+    inline uiString&		addObjInfo( uiPhraseSet& inf,
+				    const uiWord& subj, const T& val ) const
+				{ return addObjInfo(inf,subj,toUiString(val)); }
     virtual od_int64		getFileSize(const char*,int&) const;
 
-    void			selChg(CallBacker*);
-    virtual void		ownSelChg()		{}
-    void			updateCB(CallBacker*);
+private:
+
+    bool			getFileInfo(const IOObj&,uiPhraseSet&) const;
+    void			refreshItemInfo();
+    void			readNotes();
+
 };

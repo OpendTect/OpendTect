@@ -13,21 +13,19 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uiobjfileman.h"
 
-/*! \brief
-Probability Density Function manager
-*/
+/*! \brief 'Manage Probability Density Functions' */
 
 mExpClass(uiIo) uiProbDenFuncMan : public uiObjFileMan
 { mODTextTranslationClass(uiProbDenFuncMan);
 public:
-    				uiProbDenFuncMan(uiParent*);
-				~uiProbDenFuncMan();
+			uiProbDenFuncMan(uiParent*);
+			~uiProbDenFuncMan();
 
 protected:
 
-    void			browsePush(CallBacker*);
-    void			genPush(CallBacker*);
+    void		browsePush(CallBacker*);
+    void		genPush(CallBacker*);
 
-    void			mkFileInfo();
+    virtual bool	gtItemInfo(const IOObj&,uiPhraseSet&) const;
 
 };

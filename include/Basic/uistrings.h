@@ -166,6 +166,8 @@ public:
 				     bool both_2d_3d_in_context=false,
 				     bool both_pre_post_in_context=false);
 	/*!< returns names such as "2D Data", "Cube", "Prestack Data", ... */
+    static uiWord sRangeTemplate( bool withstep )
+    { return withstep ? toUiString("%1 - %2 [%3]") : toUiString("%1 - %2"); }
 
 
     // Words with no inline definition are incorrect;
@@ -212,16 +214,18 @@ public:
     static uiWord sBack()		{ return tr("Back"); }
     static uiWord sBase( bool math )	{ return math ? tr("Base","in math")
 						      : tr("Base","of layer"); }
+    static uiWord sBasemap()		{ return tr("Basemap"); }
     static uiWord sBasic()		{ return tr("Basic"); }
     static uiWord sBatch()		{ return tr("Batch"); }
     static uiWord sBatchProgram()	{ return tr("Batch Program"); }
     static uiWord sBelow()		{ return tr("Below"); }
     static uiWord sBinary()		{ return tr("Binary"); }
     static uiWord sBlue()		{ return tr("Blue"); }
-    static uiWord sBody(int n=1)	{ return tr("Body", 0, n); }
+    static uiWord sBody(int n=1)	{ return tr("Body",0,n); }
     static uiWord sBoth()		{ return tr("Both"); }
     static uiWord sBottom()		{ return tr("Bottom"); }
     static uiWord sBottomHor()		{ return tr("Bottom Horizon"); }
+    static uiWord sBoundary(int n=1)	{ return tr("Boundary",0,n); }
     static uiWord sBrowse()		{ return tr("Browse"); }
     static uiWord sCalculate()		{ return tr("Calculate"); }
     static uiWord sCalculated()		{ return tr("Calculated"); }
@@ -229,7 +233,6 @@ public:
     static uiWord sCalculateFrom()	{ return tr("Calculate From"); }
     static uiWord sCancel()		{ return tr("Cancel"); }
     static uiWord sCancelled()		{ return tr("Cancelled"); }
-    static uiWord sCannot();
     static uiWord sCannotAdd();
     static uiWord sCannotAllocate();
     static uiWord sCannotCopy();
@@ -552,7 +555,7 @@ public:
     static uiWord sRectangle()		{ return tr("Rectangle"); }
     static uiWord sRed()		{ return tr("Red"); }
     static uiWord sRedo()		{ return tr("Redo"); }
-    static uiWord sRegion()		{ return tr("Region"); }
+    static uiWord sRegion(int n=1)	{ return tr("Region",0,n); }
     static uiWord sRelative()		{ return tr("Relative"); }
     static uiWord sReload()		{ return tr("Reload"); }
     static uiWord sRemove()		{ return tr("Remove"); }

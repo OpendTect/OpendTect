@@ -42,8 +42,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     lithfld_->setReadOnly();
     const bool depthinft = SI().depthsInFeet();
     float dpth = lay_.zTop(); if ( depthinft ) dpth *= mToFeetFactorF;
-    const uiString thtxt(tr("Top depth (%1").arg( depthinft ? tr("ft)") 
-							    : tr("m)")));
+    const uiString thtxt(tr("Top depth").withUnit( depthinft ? "ft" : "m" ) );
     topfld_ = new uiGenInput( this, thtxt, FloatInpSpec(dpth) );
     topfld_->attach( alignedBelow, lithfld_ );
     topfld_->setReadOnly();
@@ -76,7 +75,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 	    valfld->setReadOnly( true );
     }
 
-    contfld_ = new uiStratLayerContent( this, true, lay.unitRef().refTree() ); 
+    contfld_ = new uiStratLayerContent( this, true, lay.unitRef().refTree() );
     contfld_->set( lay.content() );
     contfld_->attach( alignedBelow, algrp );
 }
@@ -102,7 +101,7 @@ bool uiStratEditLayer::getFromScreen( bool emituierrs )
 	const float val = valflds_[ival]->getValue();
 	uiString msg;
 	if ( mIsUdf(val) )
-	    msg =  uiStrings::phrEnter(tr("a value for %1") 
+	    msg =  uiStrings::phrEnter(tr("a value for %1")
 		 .arg( valflds_[ival]->propName()));
 	else if ( ival == 0 && val <= 0 )
 	    msg = tr("Please Set the thickness to a positive number");

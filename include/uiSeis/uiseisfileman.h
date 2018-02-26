@@ -59,9 +59,9 @@ protected:
     void		showHistogram(CallBacker*);
     void		showAttribSet(CallBacker*);
 
-    virtual void	mkFileInfo();
     virtual void	ownSelChg();
-    od_int64		getFileSize(const char*,int&) const;
+    virtual bool	gtItemInfo(const IOObj&,uiPhraseSet&) const;
+    virtual od_int64	getFileSize(const char*,int&) const;
     void		setToolButtonProperties();
     const BrowserDef*	getBrowserDef() const;
 

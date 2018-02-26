@@ -131,12 +131,14 @@ Session manager
 mExpClass(uiODMain) uiSessionMan : public uiObjFileMan
 { mODTextTranslationClass(ODSessionTranslator);
 public:
-				uiSessionMan(uiParent*);
-				~uiSessionMan();
+
+			uiSessionMan(uiParent*);
+			~uiSessionMan();
 
     mDeclInstanceCreatedNotifierAccess(uiSessionMan);
 
 protected:
 
-    void			mkFileInfo();
+    virtual bool	gtItemInfo(const IOObj&,uiPhraseSet&) const;
+
 };

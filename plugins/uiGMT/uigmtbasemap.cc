@@ -25,7 +25,7 @@ static const int cTitleBoxHeight = 4;
 static const int cTitleBoxWidth = 36;
 
 uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
-    : uiDlgGroup(p,tr("Basemap"))
+    : uiDlgGroup(p,uiStrings::sBasemap())
 {
     titlefld_ = new uiGenInput( this, tr("Map title"),
                                 StringInpSpec("Basemap") );

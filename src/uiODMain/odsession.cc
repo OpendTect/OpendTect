@@ -291,11 +291,8 @@ uiSessionMan::~uiSessionMan()
 }
 
 
-void uiSessionMan::mkFileInfo()
+bool uiSessionMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    if ( !curioobj_ ) { setInfo( uiString::empty() ); return; }
-
-    uiPhrase txt;
-    txt.appendPhrase( getFileInfo(), uiString::NoSep );
-    setInfo( txt );
+    // Can we establish existence? Info about the session?
+    mImplTODOGtItemInfo();
 }

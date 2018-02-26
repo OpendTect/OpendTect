@@ -240,7 +240,8 @@ bool acceptOK()
 
 void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     PtrMan<Translator> transl = curioobj_->createTranslator();
     if ( !transl )
@@ -257,16 +258,16 @@ void ui2DGeomManageDlg::ownSelChg()
 }
 
 
-void ui2DGeomManageDlg::mkFileInfo()
+bool ui2DGeomManageDlg::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    const uiPhrase txt = getFileInfo();
-    setInfo( txt );
+    return File::exists( ioobj.mainFileName() );
 }
 
 
 void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const bool docont = uiMSG().askContinue(
        tr("All selected 2D line geometries will be deleted.\n"

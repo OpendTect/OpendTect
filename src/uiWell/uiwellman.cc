@@ -368,7 +368,7 @@ void uiWellMan::edWellTrack( CallBacker* )
 	return;
 
     saveWell( *wd );
-    mkFileInfo();
+    updateFromSelected();
 }
 
 
@@ -398,7 +398,7 @@ void uiWellMan::defD2T( bool chkshot )
 	return;
 
     saveWell( *wd );
-    mkFileInfo();
+    updateFromSelected();
 }
 
 
@@ -712,110 +712,69 @@ void uiWellMan::exportLogs( CallBacker* )
 }
 
 
-#define mAddWellInfo(key,str) \
-    if ( !str.isEmpty() ) \
-	{ txt.appendPhrase( key, uiString::NoSep ).appendPlainText( colonstr )\
-						    .appendPlainText( str ); }
-
-
-void uiWellMan::mkFileInfo()
+bool uiWellMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    if ( !curioobj_ )
-	{ setInfo( uiString::empty() ); return; }
-
-    uiRetVal uirv;
+    uiRetVal readresult;
     const bool survintime = SI().zIsTime();
     Well::LoadReqs reqs( Well::Trck, Well::Inf );
     if ( survintime )
 	reqs.add( Well::D2T );
-    ConstRefMan<Well::Data> curwd = Well::MGR().fetch( curioobj_->key(), reqs,
-							uirv );
-    uiPhrase txt;
+    ConstRefMan<Well::Data> curwd = Well::MGR().fetch( ioobj.key(), reqs,
+							readresult );
+
     if ( !curwd )
-	txt = uirv;
-    else
-    {
+	{ inf = readresult; return false; }
 
     const Well::Info& info = curwd->info();
     const Well::Track& track = curwd->track();
 
-    FixedString colonstr( ": " );
-    const BufferString posstr( info.surfaceCoord().toString(), " ",
-		SI().transform(info.surfaceCoord()).toString() );
-    mAddWellInfo(Well::Info::sCoord(),posstr)
+    const BinID surfbid = SI().transform( info.surfaceCoord() );
+    addObjInfo( inf, Well::Info::sCoord(),
+		     toUiString(info.surfaceCoord().toString()) )
+	     .postFixWord( toUiString(surfbid.toString()) );
+
+#   define mAddZBasedInfo( key, val ) \
+	addObjInfo( inf, key, toUiString(val) ).withUnit( zunstr )
 
     if ( !track.isEmpty() )
     {
-	const float rdelev = track.getKbElev();
-	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-	uiString zunaddstr;
-	if ( zun )
-	    zunaddstr = zun->surveyDefZUnitAnnot(true,false);
+	const uiString zunstr = SI().zUnitString(false);
 
+	const float rdelev = track.getKbElev();
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
-	{
-	    txt.appendPhrase(Well::Info::sKBElev()).appendPlainText(colonstr);
-	    txt.appendPlainText( toString(zun ? zun->userValue(rdelev)
-		    : rdelev) ).appendPhrase( zunaddstr, uiString::NoSep,
-						uiString::OnSameLine );
-	}
+	    mAddZBasedInfo( Well::Info::sKBElev(), rdelev );
 
 	const float td = track.dahRange().stop;
 	if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
-	{
-	    txt.appendPhrase(Well::Info::sTD()).appendPlainText( colonstr );
-	    txt.appendPlainText( toString(zun ? zun->userValue(td) : td) )
-		.appendPhrase( zunaddstr, uiString::NoSep,
-						uiString::OnSameLine );
-	}
+	    mAddZBasedInfo( Well::Info::sTD(), td );
 
 	const double srd = SI().seismicReferenceDatum();
 	if ( !mIsZero(srd,1e-4) )
-	{
-	    txt.appendPhrase( SurveyInfo::sSeismicRefDatum() )
-					    .appendPlainText( colonstr );
-	    txt.appendPlainText( toString(zun ? zun->userValue(srd) : srd) )
-		.appendPhrase( zunaddstr, uiString::NoSep,
-						uiString::OnSameLine );
-	}
+	    mAddZBasedInfo( SurveyInfo::sSeismicRefDatum(), srd );
 
 	const float replvel = info.replacementVelocity();
 	if ( !mIsUdf(replvel) )
-	{
-	     txt.appendPhrase(Well::Info::sReplVel())
-					    .appendPlainText(colonstr);
-	     txt.appendPlainText( toString(zun ? zun->userValue(replvel)
-							    : replvel) );
-	     txt.appendPhrase(
-		 UnitOfMeasure::surveyDefVelUnitAnnot(true,false),
-				    uiString::Space, uiString::OnSameLine);
-	}
+	    addObjInfo( inf, Well::Info::sReplVel(), toUiString(replvel) )
+			.withUnit( toUiString("m/s") );
 
 	const float groundelev = info.groundElevation();
 	if ( !mIsUdf(groundelev) )
-	{
-	    txt.appendPhrase(Well::Info::sGroundElev())
-					.appendPlainText(colonstr);
-	    txt.appendPlainText( toString(zun ? zun->userValue(groundelev)
-		: groundelev) ).appendPhrase( zunaddstr, uiString::NoSep,
-						uiString::OnSameLine );
-	}
+	    mAddZBasedInfo( Well::Info::sGroundElev(), groundelev );
 
 	if ( survintime && !curwd->haveD2TModel() )
-	{
-	    txt.appendPhrase(tr("** No valid Depth vs Time relation."));
-	    txt.appendPhrase(tr("Use 'Tie Well To Seismics' to add one"),
-								uiString::Tab);
-	}
+	    inf.add( toUiString("** %1\n\t%2")
+		    .arg( tr("No valid Depth vs Time relation") )
+		    .arg( tr("Use 'Tie Well To Seismics' to add one") ) );
     }
 
-    mAddWellInfo(Well::Info::sUwid(),info.UWI())
-    mAddWellInfo(Well::Info::sOper(),info.wellOperator())
-    mAddWellInfo(Well::Info::sState(),info.getState())
-    mAddWellInfo(Well::Info::sCounty(),info.getCounty())
+#define mAddIfNotEmpty(wikey,fn) \
+    if ( !info.fn().isEmpty() ) \
+	addObjInfo( inf, Well::Info::wikey(), info.fn() )
 
-    } // if ( curwd )
+    mAddIfNotEmpty( sUwid, UWI );
+    mAddIfNotEmpty( sOper, wellOperator );
+    mAddIfNotEmpty( sState, getState );
+    mAddIfNotEmpty( sCounty, getCounty );
 
-    txt.appendPhrase( getFileInfo(), uiString::NoSep );
-    setInfo( txt );
+    return true;
 }

@@ -22,6 +22,7 @@ class uiListBox;
 mExpClass(uiAttributes) uiAttrSetMan : public uiObjFileMan
 { mODTextTranslationClass(uiAttrSetMan)
 public:
+
 			uiAttrSetMan(uiParent*,bool is2d);
 			~uiAttrSetMan();
 
@@ -29,7 +30,9 @@ public:
 
 protected:
 
-    void		mkFileInfo();
+    virtual void	ownSelChg();
+    virtual bool	gtItemInfo(const IOObj&,uiPhraseSet&) const;
 
     uiListBox*		attribfld_;
+
 };

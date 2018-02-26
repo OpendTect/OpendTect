@@ -418,6 +418,13 @@ void uiODMenuMgr::fillSurveyMenu()
 }
 
 
+static uiString getPointSetsPolygonsStr()
+{
+    return toUiString("%1/%2").arg( uiStrings::sPointSet(mPlural) )
+			      .arg( uiStrings::sPolygon(mPlural) );
+}
+
+
 void uiODMenuMgr::setSurveySubMenus()
 {
     impmnu_->clear(); expmnu_->clear(); manmnu_->clear(); preloadmnu_->clear();
@@ -434,7 +441,7 @@ void uiODMenuMgr::setSurveySubMenus()
 
     mnunm = uiStrings::sBody(mPlural); iconnm = "tree-body";
     impmnus_ += 0;
-    addAction( impmnu_, mnunm, iconnm, mManBodyMnuItm );
+    addAction( manmnu_, mnunm, iconnm, mManBodyMnuItm );
     expmnus_ += 0;
 
     mnunm = uiStrings::sColorTable(mPlural); iconnm = "colorbar";
@@ -499,8 +506,7 @@ void uiODMenuMgr::setSurveySubMenus()
     impmnus_ += 0;
     expmnus_ += 0;
 
-    mnunm = toUiString("%1/%2").arg( uiStrings::sPointSet(mPlural) )
-			       .arg( uiStrings::sPolygon(mPlural) );
+    mnunm = getPointSetsPolygonsStr();
     iconnm = "pointspolygons";
     addAsciiActionSubMenu( impmnu_, mnunm, iconnm, mImpPickAsciiMnuItm );
     impmnus_ += impmnus_.last(); // because both Pick and Poly in enum
@@ -999,13 +1005,10 @@ void uiODMenuMgr::fillManTB()
               uiStrings::phrManage( uiStrings::sFault(mPlural)),false,manFlt);
     mAddTB(mantb_,"man_wll",
            uiStrings::phrManage( uiStrings::sWells()),false,manWll);
-    mAddTB(mantb_,"man_picks", uiStrings::phrManage(
-			toUiString("%1/%2")
-			   .arg(uiStrings::sPointSet(mPlural))
-			   .arg(uiStrings::sPolygon(mPlural))),
-                            false,manPick);
-    mAddTB(mantb_,"man_body",
-           uiStrings::phrManage( tr("Bodies/Regions")),false,manBody);
+    mAddTB(mantb_,"man_picks", uiStrings::phrManage(getPointSetsPolygonsStr()),
+                            false, manPick );
+    mAddTB(mantb_,"man_body", uiStrings::phrManage(uiStrings::sBody(mPlural)),
+			    false, manBody );
     mAddTB(mantb_,"man_wvlt",
            uiStrings::phrManage(uiStrings::sWavelet(mPlural)),false,manWvlt);
     mAddTB(mantb_,"man_strat",uiStrings::phrManage( uiStrings::sStratigraphy()),

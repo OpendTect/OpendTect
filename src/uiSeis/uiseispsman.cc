@@ -115,22 +115,26 @@ void uiSeisPreStackMan::ownSelChg()
 }
 
 
-void uiSeisPreStackMan::mkFileInfo()
+bool uiSeisPreStackMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    uiPhrase txt;
-    SeisIOObjInfo objinf( curioobj_ );
-    if ( objinf.isOK() )
+    SeisIOObjInfo objinf( ioobj );
+    if ( !objinf.isOK() )
+	{ inf.add( uiStrings::sNoInfoAvailable() ); return false; }
+
+    mImplTODOGtItemInfo();
+
+    /*
     {
 	if ( is2d_ )
 	{
 	    BufferStringSet nms;
-	    SPSIOPF().getLineNames( *curioobj_, nms );
+	    SPSIOPF().getLineNames( ioobj, nms );
 	    txt = uiStrings::sLine(mPlural).appendPlainText(": ")
 				.appendPlainText(nms.getDispString(3,false));
 	}
 	else
 	{
-	    PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *curioobj_ );
+	    PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( ioobj );
 	    if ( rdr )
 	    {
 		const PosInfo::CubeData& cd = rdr->posData();
@@ -168,15 +172,14 @@ void uiSeisPreStackMan::mkFileInfo()
 	    txt.addNewLine();
 	}
     }
-
-    txt.appendPhrase( getFileInfo(), uiString::NoSep);
-    setInfo( txt );
+    */
 }
 
 
 void uiSeisPreStackMan::copyPush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const DBKey key( curioobj_->key() );
     uiPreStackCopyDlg dlg( this, key );
@@ -187,7 +190,8 @@ void uiSeisPreStackMan::copyPush( CallBacker* )
 
 void uiSeisPreStackMan::mergePush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const DBKey key( curioobj_->key() );
     uiPreStackMergeDlg dlg( this );

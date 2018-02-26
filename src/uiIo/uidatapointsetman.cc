@@ -31,7 +31,9 @@ static const int cPrefWidth = 75;
 
 
 uiString uiDataPointSetMan::sSelDataSetEmpty()
-{ return tr("Selected data set is empty"); }
+{
+    return tr("Selected data set is empty");
+}
 
 
 uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
@@ -60,12 +62,12 @@ uiDataPointSetMan::~uiDataPointSetMan()
 }
 
 
-#define mGetDPS(dps) \
+#define mGetDPS(dps,ioobj) \
     PosVecDataSet pvds; \
     RefMan<DataPointSet> dps; \
     mDynamicCast(PosVecDataSetTranslator*, \
 		 PtrMan<PosVecDataSetTranslator> pvdstr, \
-		 curioobj_ ? curioobj_->createTranslator() : 0); \
+		 (ioobj) ? (ioobj)->createTranslator() : 0); \
     if ( pvdstr ) \
     { \
 	pvdstr->read( *curioobj_, pvds ); \
@@ -76,7 +78,7 @@ uiDataPointSetMan::~uiDataPointSetMan()
 
 void uiDataPointSetMan::mergePush( CallBacker* )
 {
-    mGetDPS(dps);
+    mGetDPS(dps,curioobj_);
     if ( !dps ) return;
 
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
@@ -115,29 +117,26 @@ void uiDataPointSetMan::mergePush( CallBacker* )
 }
 
 
-void uiDataPointSetMan::mkFileInfo()
+bool uiDataPointSetMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    if ( !curioobj_ ) { setInfo( uiString::empty() ); return; }
+    mGetDPS(dps,&ioobj);
+    if ( !dps )
+	{ inf.add( sSelDataSetEmpty() ); return false; }
 
-    uiPhrase txt;
-    txt = getFileInfo();
+    const int nrcols = dps->nrCols();
+    if ( nrcols < 1 )
+	return true;
 
-    mGetDPS(dps);
-    if ( !dps ) return;
-
-    txt.appendPhrase(uiStrings::sProperties());
-    txt.appendPlainText(": ");
-    for ( int colnr=0; colnr<dps->nrCols(); colnr++ )
+    addObjInfo( inf, uiStrings::sProperty(nrcols), nrcols );
+    for ( int colnr=0; colnr<nrcols; colnr++ )
     {
-	txt.appendPlainText(dps->colName(colnr));
-	Interval<float> valrg =
+	const Interval<float> valrg =
 	    dps->bivSet().valRange( dps->bivSetIdx(colnr) );
-	BufferString str;
-	str = "[";
-	str += valrg.start; str += ", ";
-	str += valrg.stop; str += " ]";
-	txt.appendPlainText( str );
+	BufferString kystr( "\t", dps->colName(colnr)  );
+	BufferString valrgstr( "[", valrg.start );
+	   valrgstr.add( " - " ).add( valrg.stop ).add( "]" );
+	addObjInfo( inf, toUiString(kystr), toUiString(valrgstr) );
     }
 
-    setInfo( txt );
+    return true;
 }
