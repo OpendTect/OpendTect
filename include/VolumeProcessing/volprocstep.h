@@ -77,7 +77,7 @@ public:
     virtual StepInterval<int>	getInputZRgWithGeom(const StepInterval<int>&,
 					    Survey::Geometry::ID) const;
 				/*!<When computing Z Sampling, how
-				 big input is needed?*/
+				 big input is needed? */
 
     virtual void		setInput(InputSlotID,
 					 const RegularSeisDataPack*);
@@ -112,11 +112,9 @@ public:
     virtual bool		usePar(const IOPar&);
 
     virtual void		releaseData();
-    mDeprecated virtual od_int64 getOuputMemSize(int) const;
-    mDeprecated virtual od_int64 getProcTimeExtraMemory() const { return 0; }
-
-    static od_int64		getBaseMemoryUsage(const TrcKeySampling&,
-						   const StepInterval<int>&);
+    TrcKeyZSampling		getInputSampling(const TrcKeyZSampling&) const;
+    /* Given a target sampling, return the ideal sampling for the
+       input datapack(s) */
 
     virtual uiString		errMsg() const
 				{ return uiString::emptyString(); }
@@ -132,9 +130,8 @@ protected:
     Chain*		chain_;
 
     // The memory needed on top of the 'base' memory usage. Can be 0.
-    virtual od_int64		extraMemoryUsage(OutputSlotID,
-						 const TrcKeySampling&,
-						 const StepInterval<int>&) const
+    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const
 				{ return 0; }
 
     ObjectSet<const RegularSeisDataPack> inputs_;
@@ -144,9 +141,16 @@ protected:
     ID					id_;
     uiString				errmsg_;
 
-    TrcKeySampling			tks_;
-    StepInterval<int>			zrg_;
     TypeSet<OutputSlotID>		outputslotids_; // enabled slotids
+
+    const StepInterval<float>&	getZSampling() const;
+    void			setHStep(const BinID&);
+    void			setVStep(int);
+    void			setInpNrComps(InputSlotID,int);
+    void			setOutputNrComps(int);
+
+    int				getNrInputComponents(InputSlotID) const;
+    int				getNrOutComponents() const;
 
 private:
 
@@ -158,8 +162,33 @@ private:
     friend class		ChainExecutor;
     friend class		BinIDWiseTask;
 
-};
+    static od_uint64		getBaseMemoryUsage(const TrcKeyZSampling&);
 
+    StepInterval<float>		getInputZSamp(const StepInterval<float>&) const;
+
+
+    //For 6.2 only (HiddenParam set):
+public:
+
+    mDeprecated virtual od_int64 getOuputMemSize(int) const;
+    mDeprecated virtual od_int64 getProcTimeExtraMemory() const { return 0; }
+
+    mDeprecated static od_int64 getBaseMemoryUsage(const TrcKeySampling&,
+						   const StepInterval<int>&);
+protected:
+    od_uint64			getComponentMemory(const TrcKeySampling&,
+						   bool input) const;
+
+    mDeprecated TrcKeySampling		tks_;
+    mDeprecated StepInterval<int>	zrg_;
+
+private:
+    od_uint64			extraMemoryUsage(OutputSlotID,
+						 const TrcKeyZSampling&) const;
+    od_uint64			getComponentMemory(const TrcKeyZSampling&,
+						   bool input) const;
+
+};
 
 } // namespace VolProc
 

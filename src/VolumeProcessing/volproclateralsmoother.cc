@@ -328,7 +328,9 @@ LateralSmoother::LateralSmoother()
     : mirroredges_( true )
     , interpolateundefs_( false )
     , fixedvalue_( mUdf(float) )
-{}
+{
+    setStepouts();
+}
 
 
 LateralSmoother::~LateralSmoother()
@@ -336,19 +338,19 @@ LateralSmoother::~LateralSmoother()
 
 
 TrcKeySampling LateralSmoother::getInputHRg( const TrcKeySampling& hrg ) const
+{ return Step::getInputHRg( hrg ); }
+
+
+void LateralSmoother::setStepouts()
 {
-    TrcKeySampling res = hrg;
-    res.start_.inl() = hrg.start_.inl() - res.step_.inl() *pars_.stepout_.row();
-    res.start_.crl() = hrg.start_.crl() - res.step_.crl() *pars_.stepout_.col();
-    res.stop_.inl() = hrg.stop_.inl() + res.step_.inl() * pars_.stepout_.row();
-    res.stop_.crl() = hrg.stop_.crl() + res.step_.crl() * pars_.stepout_.col();
-    return res;
+    setHStep( pars_.stepout_ );
 }
 
 
 void LateralSmoother::setPars( const Array2DFilterPars& pars )
 {
     pars_ = pars;
+    setStepouts();
 }
 
 
@@ -389,6 +391,8 @@ bool LateralSmoother::usePar( const IOPar& pars )
     pars.getYN( sKeyInterpolateUdf(), interpolateundefs_ );
     pars.get( sKeyFixedValue(), fixedvalue_ );
 
+    setStepouts();
+
     return true;
 }
 
@@ -426,11 +430,15 @@ Task* LateralSmoother::createTask()
 
     pars_.filludf_ = true;
 
-    Interval<int> inlsamples(inphs.inlRange().nearestIndex(tks_.start_.inl()),
-			     inphs.inlRange().nearestIndex(tks_.stop_.inl()));
+    Interval<int> inlsamples(inphs.inlRange().nearestIndex(ouths.start_.inl()),
+			     inphs.inlRange().nearestIndex(ouths.stop_.inl()));
 
-    Interval<int> crlsamples(inphs.crlRange().nearestIndex(tks_.start_.crl()),
-			     inphs.crlRange().nearestIndex(tks_.stop_.crl()));
+    Interval<int> crlsamples(inphs.crlRange().nearestIndex(ouths.start_.crl()),
+			     inphs.crlRange().nearestIndex(ouths.stop_.crl()));
+    Interval<int> zsamples( input->sampling().zsamp_.nearestIndex(
+					    output->sampling().zsamp_.start ),
+			    input->sampling().zsamp_.nearestIndex(
+					    output->sampling().zsamp_.stop ) );
 
     const int inpz0 =
 	mNINT32(input->sampling().zsamp_.start/input->sampling().zsamp_.step);
@@ -445,15 +453,15 @@ Task* LateralSmoother::createTask()
 	    ouths.start_.inl(),
 	    ouths.start_.crl(),
 	    outpz0,
-	    inlsamples, crlsamples, zrg_,
+	    inlsamples, crlsamples, zsamples,
 	    pars_, mirroredges_, interpolateundefs_, fixedvalue_ );
 }
 
 
 od_int64 LateralSmoother::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+	const TrcKeySampling& hsamp, const StepInterval<int>& ) const
 {
-    return getBaseMemoryUsage( hsamp, zsamp );
+    return getComponentMemory( hsamp, false );
 }
 
 

@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "jobcommunic.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
+#include "nrbytes2string.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 #include "veldesc.h"
@@ -283,21 +284,18 @@ int VolProc::ChainOutput::setupChunking()
     if ( !chainexec_ )
 	return ErrorOccurred();
 
-    const float zstep = chain_->getZStep();
-    const StepInterval<float> zsamp( cs_.zsamp_.start, cs_.zsamp_.stop, zstep );
-    outputzrg_ = StepInterval<int>( zsamp.nearestIndex( zsamp.start ),
-				    zsamp.nearestIndex( zsamp.stop ),
-			   mMAX(mNINT32(Math::Ceil(cs_.zsamp_.step/zstep)),1) );
-			   //real -> index, outputzrg_ is the index of z-samples
-
-    // We will be writing while a new chunk will be calculated
-    // Thus, we need to keep the output datapack alive while the next chunk
-    // is calculated. Therefore, lets add some more mem need:
-    nrexecs_ = chainexec_->nrChunks( cs_.hsamp_, outputzrg_ );
-    if ( nrexecs_ == 0 )
+    cs_.zsamp_.step = chain_->getZStep();
+    outputzrg_ = StepInterval<int>( 0, cs_.zsamp_.nrSteps(), 1 );
+    od_uint64 memusage;
+    if ( !chainexec_->setCalculationScope(cs_.hsamp_,cs_.zsamp_,memusage,
+					  &nrexecs_) )
     {
+	NrBytesToStringCreator bytesstrcalc;
+	bytesstrcalc.setUnitFrom( memusage );
+	const BufferString memstr( bytesstrcalc.getString( memusage ) );
 	return retError(
-		tr("Processing aborted; not enough available memory.") );
+		tr("Processing aborted; not enough available memory.\n"
+		   "%1 bytes would be required.").arg( memstr ) );
     }
 
     neednextchunk_ = true;
@@ -317,15 +315,17 @@ int VolProc::ChainOutput::setNextChunk()
     }
 
     const TrcKeySampling hsamp( cs_.hsamp_.getLineChunk(nrexecs_,curexecnr_) );
-
-    if ( !chainexec_->setCalculationScope(hsamp,outputzrg_) )
+    od_uint64 memusage;
+    if ( !chainexec_->setCalculationScope(hsamp,cs_.zsamp_,memusage) )
     {
 	deleteAndZeroPtr( chainexec_ );
+	NrBytesToStringCreator bytesstrcalc;
+	bytesstrcalc.setUnitFrom( memusage );
+	const BufferString memstr( bytesstrcalc.getString( memusage ) );
 	return retError( tr("Could not set calculation scope."
-		    "\nProbably there is not enough memory available.") );
+		    "\nProbably there is not enough memory available.\n"
+		    "%1 bytes would be required.").arg( memstr ) );
     }
-
-    chainexec_->setOutputZSampling( cs_.zsamp_ );
 
     if ( nrexecs_ < 2 )
 	return MoreToDo();

@@ -21,6 +21,7 @@ Smoother::Smoother()
     : smoother_( new Smoother3D<float> )
 {
     setOperator( BoxWindow::sName(), 0, 3, 3, 3 );
+    setStepouts();
 }
 
 
@@ -39,51 +40,22 @@ void Smoother::releaseData()
 
 
 TrcKeySampling Smoother::getInputHRg( const TrcKeySampling& hrg ) const
-{
-    TrcKeySampling res = hrg;
-    const int inlstepout = smoother_->getWindowSize( 0 ) / 2;
-    const int crlstepout = smoother_->getWindowSize( 1 ) / 2;
+{ return Step::getInputHRg( hrg ); }
 
-    res.expand( inlstepout, crlstepout );
-
-    return res;
-}
-
-
-StepInterval<int> Smoother::getInputZRg( const StepInterval<int>& inrg ) const
-{
-    const Survey::Geometry3D* geomsi =
-		  Survey::GM().getGeometry3D( Survey::GM().default3DSurvID() );
-    const Survey::Geometry::ID geomid = geomsi ? geomsi->getID()
-				      : Survey::GeometryManager::cUndefGeomID();
-
-    return getInputZRgWithGeom( inrg, geomid );
-}
-
+StepInterval<int> Smoother::getInputZRg( const StepInterval<int>& zrg ) const
+{ return Step::getInputZRg( zrg ); }
 
 StepInterval<int> Smoother::getInputZRgWithGeom( const StepInterval<int>& zrg,
 					 Survey::Geometry::ID geomid ) const
-{
-    StepInterval<int> res( zrg );
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
-    if ( !geom )
-	return res;
-
-    const int zstepout =  smoother_->getWindowSize( 2 ) / 2;
-    res.widen( zstepout );
-    const StepInterval<float> survzrg( geom->sampling().zsamp_ );
-    const int zstartidx = mNINT32( survzrg.start / survzrg.step );
-    const Interval<int> survzrgint( zstartidx, zstartidx+survzrg.nrSteps() );
-    res.limitTo( survzrgint );
-
-    return res;
-}
+{ return Step::getInputZRgWithGeom( zrg, geomid  ); }
 
 
 bool Smoother::setOperator( const char* nm, float param,
 			  int sz0, int sz1, int sz2 )
 {
-    return smoother_->setWindow( nm, param, sz0, sz1, sz2 );
+    const bool res = smoother_->setWindow( nm, param, sz0, sz1, sz2 );
+    setStepouts();
+    return res;
 }
 
 
@@ -97,6 +69,13 @@ int Smoother::crlSz() const
 
 int Smoother::zSz() const
 { return smoother_->getWindowSize( 2 ); }
+
+
+void Smoother::setStepouts()
+{
+    setHStep( BinID( inlSz()/2, crlSz()/2 ) );
+    setVStep( zSz()/2 );
+}
 
 
 const char* Smoother::getOperatorName() const
@@ -158,9 +137,9 @@ Task* Smoother::createTask()
 
 
 od_int64 Smoother::extraMemoryUsage( OutputSlotID, const TrcKeySampling& hsamp,
-				     const StepInterval<int>& zsamp ) const
+				     const StepInterval<int>& ) const
 {
-    return getBaseMemoryUsage( hsamp, zsamp );
+    return getComponentMemory( hsamp, false );
 }
 
 

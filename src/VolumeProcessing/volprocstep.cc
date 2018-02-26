@@ -9,6 +9,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprocchain.h"
 #include "seisdatapack.h"
 
+#include "hiddenparam.h"
+
 
 namespace VolProc
 {
@@ -99,17 +101,40 @@ protected:
 } // namespace VolProc
 
 
+
+HiddenParam<VolProc::Step,BinID>  volprocstephstepmgr_(BinID(0,0));
+HiddenParam<VolProc::Step,int>	volprocstepvstepmgr_(0);
+HiddenParam<VolProc::Step,TypeSet<int>*>  volprocstepnrinpcompsmgr_(0);
+HiddenParam<VolProc::Step,int>	volprocstepnroutcompsmgr_(0);
+HiddenParam<VolProc::Step,StepInterval<float>* >  volprocstepzsampmgr_(0);
+
+
 VolProc::Step::Step()
     : chain_( 0 )
     , output_( 0 )
     , id_( cUndefID() )
+    , tks_(false)
+    , zrg_(StepInterval<int>::udf())
 {
+    volprocstephstepmgr_.setParam( this, BinID(0,0) );
+    volprocstepvstepmgr_.setParam( this, 0 );
+    volprocstepnrinpcompsmgr_.setParam( this, new TypeSet<int> );
+    *volprocstepnrinpcompsmgr_.getParam( this ) += 0;
+    volprocstepnroutcompsmgr_.setParam( this, 1 );
+    volprocstepzsampmgr_.setParam( this, new StepInterval<float> );
+
     inputs_.allowNull();
 }
 
 
 VolProc::Step::~Step()
 {
+    volprocstephstepmgr_.removeParam( this );
+    volprocstepvstepmgr_.removeParam( this );
+    volprocstepnrinpcompsmgr_.removeAndDeleteParam( this );
+    volprocstepnroutcompsmgr_.removeParam( this );
+    volprocstepzsampmgr_.removeAndDeleteParam( this );
+
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	DPM( DataPackMgr::SeisID() ).release( inputs_[idx] );
 
@@ -117,12 +142,55 @@ VolProc::Step::~Step()
 }
 
 
+void VolProc::Step::setHStep( const BinID& bid )
+{ volprocstephstepmgr_.setParam( this, bid ); }
+
+void VolProc::Step::setVStep( int step )
+{ volprocstepvstepmgr_.setParam( this, step ); }
+
+void VolProc::Step::setInpNrComps( InputSlotID slotid, int nr )
+{
+    TypeSet<int>& nrcomps = *volprocstepnrinpcompsmgr_.getParam( this );
+    for ( int idx=0; idx<=slotid; idx++ )
+    {
+	if ( nrcomps.size() <= idx )
+	    nrcomps += 0;
+    }
+
+    nrcomps[slotid] = nr;
+}
+
+
+void VolProc::Step::setOutputNrComps( int nr )
+{ volprocstepnroutcompsmgr_.setParam( this, nr ); }
+
+
+int VolProc::Step::getNrInputComponents( InputSlotID slotid ) const
+{
+    const TypeSet<int>& nrcomps = *volprocstepnrinpcompsmgr_.getParam( this );
+    return nrcomps[slotid];
+}
+
+
+int VolProc::Step::getNrOutComponents() const
+{
+    return volprocstepnroutcompsmgr_.getParam( this );
+}
+
+
+const StepInterval<float>& VolProc::Step::getZSampling() const
+{
+    return *volprocstepzsampmgr_.getParam( this );
+}
+
+
+
 void VolProc::Step::resetInput()
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	DPM( DataPackMgr::SeisID() ).release( inputs_[idx] );
 
-    inputslotids_.erase();
+    inputslotids_.setEmpty();
     for ( int idx=0; idx<getNrInputs(); idx++ )
     {
 	if ( inputs_.validIdx(idx) )
@@ -244,22 +312,78 @@ bool VolProc::Step::validOutputSlotID( OutputSlotID slotid ) const
 
 TrcKeySampling VolProc::Step::getInputHRg( const TrcKeySampling& hr ) const
 {
-    return hr;
+    TrcKeySampling res( hr );
+    const BinID& bid = volprocstephstepmgr_.getParam( this );
+    res.expand( bid.inl(), bid.crl() );
+
+    return res;
 }
 
 
 StepInterval<int> VolProc::Step::getInputZRg(
-				const StepInterval<int>& si ) const
-{
-    return si;
-}
+					const StepInterval<int>& zrg ) const
+{ return zrg; }
 
 
 StepInterval<int> VolProc::Step::getInputZRgWithGeom(
-				const StepInterval<int>& si,
-				Survey::Geometry::ID ) const
+						const StepInterval<int>& zrg,
+						Survey::Geometry::ID ) const
+{ return zrg; }
+
+
+StepInterval<float> VolProc::Step::getInputZSamp(
+					const StepInterval<float>& zsamp ) const
 {
-    return si;
+    StepInterval<float> res( zsamp );
+    res.widen( res.step * volprocstepvstepmgr_.getParam( this ) );
+
+    return res;
+}
+
+
+TrcKeyZSampling VolProc::Step::getInputSampling(
+					const TrcKeyZSampling& tkzs ) const
+{
+    TrcKeyZSampling res;
+    res.hsamp_ = Step::getInputHRg( tkzs.hsamp_ );
+    res.zsamp_ = Step::getInputZSamp( tkzs.zsamp_ );
+
+    const Survey::Geometry* geom = Survey::GM().getGeometry(
+						    res.hsamp_.getGeomID() );
+    if ( geom )
+	res.limitTo( geom->sampling(), true );
+
+    return res;
+}
+
+
+od_uint64 VolProc::Step::extraMemoryUsage( OutputSlotID slotid,
+					   const TrcKeyZSampling& tkzs ) const
+{
+    *volprocstepzsampmgr_.getParam( this ) = tkzs.zsamp_;
+    StepInterval<int> unusedzrg;
+
+    return extraMemoryUsage( slotid, tkzs.hsamp_, unusedzrg );
+}
+
+
+od_uint64 VolProc::Step::getComponentMemory( const TrcKeySampling& tks,
+					     bool input ) const
+{
+    TrcKeyZSampling usedtkzs;
+    usedtkzs.hsamp_ = tks;
+    usedtkzs.zsamp_ = *volprocstepzsampmgr_.getParam( this );
+
+    return getComponentMemory( usedtkzs, input );
+}
+
+
+od_uint64 VolProc::Step::getComponentMemory( const TrcKeyZSampling& tkzs,
+					     bool input ) const
+{
+    const TrcKeyZSampling usedtkzs = input ? getInputSampling( tkzs ) : tkzs;
+
+    return getBaseMemoryUsage( usedtkzs );
 }
 
 
@@ -295,8 +419,7 @@ const RegularSeisDataPack* VolProc::Step::getInput( InputSlotID slotid ) const
 
 
 void VolProc::Step::setOutput( OutputSlotID slotid, RegularSeisDataPack* dc,
-		      const TrcKeySampling& hrg,
-		      const StepInterval<int>& zrg )
+			       const TrcKeySampling&, const StepInterval<int>& )
 {
     DPM( DataPackMgr::SeisID() ).release( output_ );
     output_ = dc;
@@ -305,9 +428,6 @@ void VolProc::Step::setOutput( OutputSlotID slotid, RegularSeisDataPack* dc,
 	if ( output_ ) output_->release();
 	return;
     }
-
-    tks_ = hrg;
-    zrg_ = zrg;
 }
 
 
@@ -380,8 +500,14 @@ Task* VolProc::Step::createTaskWithProgMeter( ProgressMeter* )
 
 
 od_int64 VolProc::Step::getBaseMemoryUsage(
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp )
+	const TrcKeySampling& hsamp, const StepInterval<int>& zrg )
 {
     const od_int64 nrtrcs = hsamp.totalNr();
-    return nrtrcs * (zsamp.nrSteps()+1) * sizeof(float);
+    return nrtrcs * (zrg.nrSteps()+1) * sizeof(float);
+}
+
+
+od_uint64 VolProc::Step::getBaseMemoryUsage( const TrcKeyZSampling& tkzs )
+{
+    return tkzs.totalNr() * sizeof(float);
 }

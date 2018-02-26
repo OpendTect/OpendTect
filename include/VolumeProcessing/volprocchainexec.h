@@ -30,22 +30,28 @@ public:
 				ChainExecutor(Chain&);
 				~ChainExecutor();
 
+				/*!< Mandatory before the execution is started.
+				  The execution can start if success */
+    bool			setCalculationScope(const TrcKeySampling&,
+						    const StepInterval<float>&,
+						    od_uint64& maxmemusage,
+						    int* nrchunks=0);
+
 				/*!< Return 0 if not enough memory for the
 				     execution */
-    int				nrChunks(const TrcKeySampling&,
+    mDeprecated int		nrChunks(const TrcKeySampling&,
 					 const StepInterval<int>&,
 					 int extranroutcomps=0);
-
-    od_int64			computeMaximumMemoryUsage(const TrcKeySampling&,
+    mDeprecated od_int64	computeMaximumMemoryUsage(const TrcKeySampling&,
 						const StepInterval<int>&);
-				//Will become private after 6.2
+				//Will be removed after 6.2
 
     uiString			errMsg() const;
     uiString			uiNrDoneText() const;
 
-    bool			setCalculationScope(const TrcKeySampling&,
+    mDeprecated bool		setCalculationScope(const TrcKeySampling&,
 						    const StepInterval<int>&);
-    void			setOutputZSampling(const StepInterval<float>&);
+    mDeprecated void		setOutputZSampling(const StepInterval<float>&);
 
     const RegularSeisDataPack*	getOutput() const;
     virtual int			nextStep();
@@ -88,22 +94,35 @@ private:
     };
 
     bool			scheduleWork();
+    void			updateScheduledStepsSampling(
+					    const TrcKeySampling&,
+					    const StepInterval<float>&);
+    int				nrChunks(const TrcKeySampling&,
+					 const StepInterval<float>&,
+					 od_uint64& memusage);
+    od_uint64			calculateMaximumMemoryUsage(
+					    const TrcKeySampling&,
+					    const StepInterval<float>&);
+
     void			releaseMemory();
     int				computeLatestEpoch(Step::ID) const;
-    void			computeComputationScope(Step::ID stepid,
+    mDeprecated void		computeComputationScope(Step::ID stepid,
 				    TrcKeySampling& stepoutputhrg,
 				    StepInterval<int>& stepoutputzrg ) const;
-    float			getSampleShift(float zstart) const;
+    bool			getCalculationScope(Step::ID stepid,
+						    TrcKeyZSampling&) const;
+    mDeprecated float		getSampleShift(float) const;
     int				getStepEpochIndex(Step::ID) const;
-    od_int64			getStepOutputMemory(Step::ID,int nr,
+    mDeprecated od_int64	getStepOutputMemory(Step::ID,int nr,
 				    const TypeSet<TrcKeySampling>& epochstks,
 				    const TypeSet<StepInterval<int> >&) const;
+    void			adjustStepsNrComponents(bool is2d);
 
     Epoch*			curepoch_;
     bool			isok_;
     Chain&			chain_;
-    TrcKeySampling		outputhrg_;
-    StepInterval<int>		outputzrg_;
+    mDeprecated TrcKeySampling	outputhrg_;
+    mDeprecated StepInterval<int>	outputzrg_;
     mutable uiString		errmsg_;
     ObjectSet<Step>		scheduledsteps_;
     ObjectSet<Epoch>		epochs_;

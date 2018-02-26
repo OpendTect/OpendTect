@@ -75,6 +75,10 @@ protected:
     bool		mirroredges_;
     bool		interpolateundefs_;
     float		fixedvalue_;
+
+private:
+
+    void		setStepouts();
 };
 
 } // namespace VolProc

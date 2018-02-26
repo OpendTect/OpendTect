@@ -71,6 +71,10 @@ protected:
 
     Smoother3D<float>*	smoother_;
 
+private:
+
+    void		setStepouts();
+
 };
 
 } // namespace VolProc

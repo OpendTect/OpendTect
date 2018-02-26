@@ -217,7 +217,24 @@ bool VolumeReader::setVolumeID( const MultiID& mid )
 {
     mid_ = mid;
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
-    return ioobj;
+    if ( !ioobj )
+	return false;
+
+    int nrcomps = components_.size();
+    if ( nrcomps == 0 )
+    {
+	SeisIOObjInfo seisinfo( ioobj );
+	if ( !seisinfo.isOK() )
+	    return false;
+
+	BufferStringSet compnms;
+	seisinfo.getComponentNames( compnms );
+	nrcomps = compnms.isEmpty() ? 1 : compnms.size();
+    }
+
+    setOutputNrComps( nrcomps );
+
+    return true;
 }
 
 
@@ -276,7 +293,7 @@ bool VolumeReader::usePar( const IOPar& par )
 
 
 od_int64 VolumeReader::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+	const TrcKeySampling&, const StepInterval<int>& ) const
 {
     return 0;
 }

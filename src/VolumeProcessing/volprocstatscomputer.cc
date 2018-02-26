@@ -56,22 +56,23 @@ bool StatsCalculator::usePar( const IOPar& par )
 
 TrcKeySampling StatsCalculator::getInputHRg( const TrcKeySampling& hrg ) const
 {
-    TrcKeySampling res = hrg;
-    res.expand( stepout_.row(), stepout_.col() );
+    TrcKeySampling res( Step::getInputHRg(hrg) );
+    res.step = BinID( stepout_.row(), stepout_.col() );
 
     return res;
 }
 
-/*
-StepInterval<int> StatsCalculator::getInputZRgWithGeom(
+
+/*StepInterval<int> StatsCalculator::getInputZRgWithGeom(
 				const StepInterval<int>& zrg,
 				Survey::Geometry::ID geomid ) const
 {
-    StepInterval<int> res = zrg;
-    res.widen( nzsampextra_ );
+    StepInterval<int> res( Step::getInputZRgWithGeom(zrg,geomid) );
+    res.step = BinID( nzsampextra_, nzsampextra_ );
+
     return res;
-}
-*/
+}*/
+
 
 Task* StatsCalculator::createTask()
 {
@@ -108,7 +109,7 @@ Task* StatsCalculator::createTask()
 
 
 od_int64 StatsCalculator::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+	const TrcKeySampling&, const StepInterval<int>& ) const
 {
     return 0;
 }

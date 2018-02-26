@@ -474,13 +474,13 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 
 
 od_int64 BodyFiller::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+	const TrcKeySampling& hsamp, const StepInterval<int>& ) const
 {
     if ( !implicitbody_ ) return 0;
 
     const TrcKeyZSampling bodycs = implicitbody_->tkzs_;
-    const StepInterval<int> bodyzrg(0, bodycs.zsamp_.nrSteps(), 1 );
-    return 2 * getBaseMemoryUsage( bodycs.hsamp_, bodyzrg );
+
+    return getComponentMemory( bodycs.hsamp_, false ) * 2;
 }
 
 
