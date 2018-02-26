@@ -420,3 +420,10 @@ void uiFlatViewer::setSeisGeomidsToViewer(TypeSet<Pos::GeomID>& geomids)
 {
     FlatView::Viewer::setSeisGeomidsToViewer(geomids);
 }
+
+
+const FlatPosData* uiFlatViewer::getFlatPosData( bool iswva )
+{
+    ConstRefMan<FlatDataPack> fdp = getPack(iswva);
+    return fdp ? &fdp->posData() : 0;
+}

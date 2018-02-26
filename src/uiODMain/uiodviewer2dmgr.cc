@@ -799,6 +799,9 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	TypeSet<Pos::GeomID> datagids;
 	getVWR2DDataGeomIDs( vwr2d, datagids );
 	const StepInterval<double> x1rg = vwr.posRange( true );
+	const FlatPosData* posdata = vwr.getFlatPosData( true );
+	if ( !posdata )
+	    return;
 	const StepInterval<int> trcrg = tkzs.hsamp_.trcRange();
 	for ( int intposidx=0; intposidx<intsect->size(); intposidx++ )
 	{
@@ -814,7 +817,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		newannot.linetype_ = OD::PlotAnnotation::Bold;
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr_ );
-	    newannot.pos_ = mCast(float,x1rg.atIndex(posidx));
+	    newannot.pos_ = mCast(float,posdata->position(true,posidx));
 	    newannot.txt_ = toUiString( Survey::GM().getName(intpos.otherid_) );
 	    x1auxannot += newannot;
 	}
