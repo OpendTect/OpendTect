@@ -304,8 +304,13 @@ bool dgbEMSurfaceTranslator::prepRead()
 
     for ( int idx=0; idx<reader_->nrLines(); idx++ )
     {
-	sd_.linenames.add( reader_->lineName(idx) );
-	sd_.geomids.add( reader_->lineGeomID(idx) );
+	const Pos::GeomID geomid = reader_->lineGeomID( idx );
+	const BufferString linenm = reader_->lineName( idx );
+	if ( mIsUdfGeomID(geomid) || linenm.isEmpty() )
+	    continue;
+
+	sd_.linenames.add( linenm );
+	sd_.geomids.add( geomid );
 	StepInterval<int> trcrange = reader_->lineTrcRanges(idx);
 	if ( !mIsUdf(trcrange.start) && !mIsUdf(trcrange.stop) )
 	    sd_.trcranges += reader_->lineTrcRanges(idx);

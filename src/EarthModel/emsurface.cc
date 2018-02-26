@@ -85,7 +85,11 @@ void SurfaceIOData::use( const Surface& surf )
 	for ( int idx=0; idx<emgeom.nrLines(); idx++ )
 	{
 	    const Pos::GeomID geomid = emgeom.geomID( idx );
-	    linenames.add( emgeom.lineName(idx) );
+	    const BufferString linenm = emgeom.lineName( idx );
+	    if ( mIsUdfGeomID(geomid) || linenm.isEmpty() )
+		continue;
+
+	    linenames.add( linenm );
 	    geomids += geomid;
 	    trcranges += emgeom.colRange( geomid );
 	}
@@ -173,8 +177,12 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 		continue;
 
+	    const BufferString linenm = Survey::GM().getName( geomid );
+	    if ( linenm.isEmpty() )
+		continue;
+
 	    geomids += geomid;
-	    linenames.add( Survey::GM().getName(geomid) );
+	    linenames.add( linenm );
 	    StepInterval<int> trcrange;
 	    iopar.get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
 		       trcrange );
