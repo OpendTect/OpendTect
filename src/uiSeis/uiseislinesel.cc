@@ -571,7 +571,7 @@ public:
 				OD::ChoiceMode cm=OD::ChooseAtLeastOne);
 			~uiSeis2DMultiLineSelDlg()	{}
 
-    BufferString	getSummary() const;
+    uiString		getSummary() const;
 
     void		getSelLines(TypeSet<int>&) const;
     bool		isAll() const;

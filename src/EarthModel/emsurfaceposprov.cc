@@ -282,7 +282,7 @@ void Pos::EMSurfaceProvider::fillPar( IOPar& iop ) const
 }
 
 
-void EMSurfaceProvider::getSummary( uiString& txt ) const
+void Pos::EMSurfaceProvider::getSummary( uiString& txt ) const
 {
     switch ( nrSurfaces() )
     {
@@ -841,7 +841,7 @@ bool Pos::EMImplicitBodyProvider::isOK() const
 }
 
 
-void EMImplicitBodyProvider::getSummary( uiString& txt ) const
+void Pos::EMImplicitBodyProvider::getSummary( uiString& txt ) const
 {
     if ( !embody_ )
     {
@@ -1018,7 +1018,7 @@ void Pos::EMRegion3DProvider::fillPar( IOPar& iop ) const
 }
 
 
-void EMRegion3DProvider::getSummary( uiString& txt ) const
+void Pos::EMRegion3DProvider::getSummary( uiString& txt ) const
 {
 }
 
@@ -1065,7 +1065,7 @@ int Pos::EMRegion3DProvider::estNrZPerPos() const
 }
 
 
-void EMRegion3DProvider::initClass()
+void Pos::EMRegion3DProvider::initClass()
 { Provider3D::factory().addCreator( create, "Region3D", tr("3D Region") ); }
 
-} // namespace Pos
+// namespace Pos

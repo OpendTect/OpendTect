@@ -70,7 +70,7 @@ uiString uiEMAuxDataSel::getSummary() const
 {
     PtrMan<IOObj> ioobj = DBM().get( hormid_ );
     if ( !ioobj )
-	return uiStrings::sEmptyString();
+	return uiString::empty();
 
     BufferString summary( ioobj->name() );
     summary.add( "[" ).add( auxdatanm_ ).add( "]" );

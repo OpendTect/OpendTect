@@ -144,11 +144,12 @@ void Pos::RangeProvider3D::fillPar( IOPar& iop ) const
 
 void Pos::RangeProvider3D::getSummary( uiString& txt ) const
 {
-    txt.addSpace().append(toUiString(tkzs_.hsamp_.start_.toString()))
-	.append(" - ").append(toUiString(tkzs_.hsamp_.stop_.toString()));
+    txt.appendPhrase( toUiString("%1 - %2").arg(tkzs_.hsamp_.start_)
+	    .arg(tkzs_.hsamp_.stop_), uiString::Space, uiString::OnSameLine );
     const int nrsamps = zsampsz_;
     if ( nrsamps > 1 )
-	txt.append( toUiString(" (%1 %2)").arg(nrsamps).arg(tr("Samples")) );
+	txt.appendPhrase( toUiString(" (%1 %2)").arg(nrsamps)
+					.arg(uiStrings::sSample(mPlural)) );
 }
 
 
@@ -641,7 +642,7 @@ void Pos::RangeProvider2D::getSummary( uiString& txt ) const
 		    .arg(trcrgs_[0].stop).arg(trcrgs_[0].step);
 	if ( !zrgs_.isEmpty() )
 	{
-	    txt.append(" (%1 %2)").arg(zrgs_[0].nrSteps() + 1)
+	    txt.appendPhrase(toUiString("(%1 %2)")).arg(zrgs_[0].nrSteps() + 1)
 						.arg(tr("samples"));
 	}
 

@@ -36,8 +36,8 @@ ObjectEditor* HorizonEditor::create( EM::Object& emobj )
 
 void HorizonEditor::initClass()
 {
-    MPE::EditorFactory().addCreator( create, EM::Horizon3D::typeStr(),
-				uiStrings::sHorizon(1,uiStrings::s3D()) );
+    MPE::ObjectEditor::factory().addCreator( create, EM::Horizon3D::typeStr(),
+				uiStrings::s3DHorizon() );
 }
 
 
@@ -74,8 +74,8 @@ ObjectEditor* Horizon2DEditor::create( EM::Object& emobj )
 
 void Horizon2DEditor::initClass()
 {
-    MPE::EditorFactory().addCreator( create, EM::Horizon2D::typeStr(),
-	    uiStrings::sHorizon(1,uiStrings::s2D()) );
+    MPE::ObjectEditor::factory().addCreator( create, EM::Horizon2D::typeStr(),
+					uiStrings::s2DHorizon() );
 }
 
 

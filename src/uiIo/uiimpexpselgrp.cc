@@ -499,7 +499,7 @@ public:
 uiSGSelDlg( uiParent* p, bool forread )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
 				    tr("CrossPlot Selection Groups")),
-				    uiStrings::sEmptyString(), mNoHelpKey))
+				    uiString::empty(), mNoHelpKey))
     , forread_(forread)
 {
     selgrp_ = new uiSGSelGrp( this, forread );

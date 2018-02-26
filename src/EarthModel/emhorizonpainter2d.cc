@@ -147,7 +147,7 @@ bool HorizonPainter2D::addPolyLine()
 	    auxdata->linestyle_.color_ = prefcol;
 	    auxdata->fillcolor_ = prefcol;
 	    auxdata->enabled_ = linenabled_;
-	    auxdata->name_ = hor2d->name();
+	    auxdata->name_ = toUiString(hor2d->name());
 	    marker = new Marker2D;
 	    (*secmarkerln) += marker;
 	    marker->marker_ = auxdata;

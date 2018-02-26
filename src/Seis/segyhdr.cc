@@ -118,7 +118,7 @@ SEGY::TxtHeader::TxtHeader( int rev )
 
 	ConstRefMan<Coords::CoordSystem> coordsys = SI().getCoordSystem();
 	if ( coordsys && coordsys->isWorthMentioning() )
-	    putAt( 17, 6, 75, coordsys->summary() );
+	    putAt( 17, 6, 75, mFromUiStringTodo(coordsys->summary()) );
     }
 
     BufferString comments = SI().comments();

@@ -31,47 +31,8 @@ uiPhrase uiStrings::phrCalculateFrom( const uiWord& string )
 uiPhrase uiStrings::phrCrossline( const uiWord& string )
 { return tr("Cross-line %1").arg( string ); }
 
-uiPhrase uiStrings::phrExitOD()
-{ return tr("Exit OpendTect"); }
-
-uiPhrase uiStrings::phrTODONotImpl( const char* clssnm )
-{ return toUiString( "[%1] TODO: Not Implemented" ).arg( clssnm ); }
-
-uiPhrase uiStrings::phrNotImplInThisVersion( const char* fromver )
-{ return tr("Not implemented in this version of OpendTect."
-	  "\nPlease use version %1 or higher").arg( fromver ); }
-
-uiPhrase uiStrings::phrThreeDots( const uiWord& string, bool immediate )
-{ return immediate ? string : toUiString( "%1 ..." ).arg( string ); }
-
-uiPhrase uiStrings::phrPlsSelectAtLeastOne( const uiWord& string )
-{ return tr("Please select at least one %1").arg( string ); }
-
-uiPhrase uiStrings::phrPlsSpecifyAtLeastOne( const uiWord& string )
-{ return tr("Please specify at least one %1").arg( string ); }
-
-uiPhrase uiStrings::phrSelect( const uiWord& string )
-{ return toUiString(joinstring).arg( sSelect() ).arg( string ); }
-
-uiPhrase uiStrings::phrSelectObjectWrongType( const uiWord& string )
-{ return toUiString(joinstring).arg(tr("Select object is not a ")).arg(string);}
-
-uiPhrase uiStrings::phrDoesntExist(const uiWord& string, int num )
-{ return tr( "%1 does not exist", 0, num ).arg( string ); }
-
-uiPhrase uiStrings::phrExport( const uiWord& string )
-{ return toUiString(joinstring).arg( sExport() ).arg( string ); }
-
-uiPhrase uiStrings::phrImport( const uiWord& string )
-{ return toUiString(joinstring).arg( sImport() ).arg( string ); }
-
-uiPhrase uiStrings::phrInternalError( const uiWord& string )
-{ return tr( "Internal Error (pease contact support@dgbes.com):\n%1")
-	 .arg( string ); }
-
-uiPhrase uiStrings::phrInternalError( const char* string )
-{ return tr( "Internal Error (pease contact support@dgbes.com):\n%1")
-	 .arg( string ); }
+uiPhrase uiStrings::phrDoesNotExist(const uiWord& string )
+{ return tr( "%1 does not exist" ).arg( string ); }
 
 uiPhrase uiStrings::phrCannotAdd( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotAdd()).arg(string); }
@@ -163,9 +124,6 @@ uiPhrase uiStrings::phrCreate( const uiWord& string )
 uiPhrase uiStrings::phrCreateNew( const uiWord& string )
 { return toUiString(joinstring).arg(sCreateNew()).arg(string); }
 
-uiPhrase uiStrings::phrCrossline( const uiWord& string )
-{ return phrJoinStrings( sCrossline(), string ); }
-
 uiPhrase uiStrings::phrCrossPlot( const uiWord& string )
 { return toUiString(joinstring).arg(sCrossPlot()).arg(string); }
 
@@ -177,9 +135,6 @@ uiPhrase uiStrings::phrDelete( const uiWord& string )
 
 uiPhrase uiStrings::phrDiskSpace()
 { return tr("This may be a disk space problem"); }
-
-uiPhrase uiStrings::phrDoesNotExist( const uiWord& string )
-{ return tr( "%1 does not exist" ).arg( string ); }
 
 uiPhrase uiStrings::phrErrCalculating( const uiWord& subj )
 { return tr("Error calculating %1").arg(subj); }
@@ -579,7 +534,6 @@ uiWord uiStrings::sSelOutpFile()
 uiWord uiStrings::sSpecifyOut()
 { return uiStrings::phrSpecify( uiStrings::sOutput() ); }
 
-
 uiWord uiStrings::sStorageDir()
 { return tr("Storage Directory"); }
 
@@ -589,95 +543,14 @@ uiWord uiStrings::sStored()
 uiWord uiStrings::sStratigraphy()
 { return tr( "Stratigraphy" ); }
 
-uiWord uiStrings::sTrack()
-{ return tr("Track" ); }
-
 uiWord uiStrings::sVolume(int num)
 { return tr("Volume",0,num); }
 
 uiWord uiStrings::sWaveNumber( int num )
 { return tr("Wavenumber", 0, num ); }
 
-uiWord uiStrings::sWavelet( int num )
-{ return tr("Wavelet", 0, num ); }
-
-uiWord uiStrings::sWell( int num )
-{ return tr("Well", 0, num ); }
-
-uiWord uiStrings::sWellLog( int num )
-{ return tr("Well log", 0, num ); }
-
-uiWord uiStrings::sDistUnitString(bool isfeet,bool abb, bool withparentheses)
-{
-    return withparentheses
-	? toUiString("(%1)").arg( sDistUnitString( isfeet, abb, false ) )
-	: isfeet
-	    ? abb ? tr("ft") : tr("feet" )
-	    : abb ? tr("m") : tr("meter");
-}
-
-uiWord uiStrings::sTimeUnitString( bool abb )
-{ return abb ? tr( "s" ) : uiStrings::sSec(); }
-
-uiWord uiStrings::sXcoordinate()
-{ return tr("X-coordinate"); }
-
-uiWord uiStrings::sYcoordinate()
-{ return tr("Y-coordinate"); }uiWord uiStrings::sZRange()
-{ return tr("Z Range"); }
-
-
-uiWord uiStrings::sVolDataName( bool is2d, bool is3d, bool isprestack,
-			      bool both_2d_3d_in_context,
-			      bool both_pre_post_in_context )
-{
-    if ( is2d && is3d )
-	return tr( "Seismic data" );
-
-    if ( is2d )
-    {
-	if ( isprestack )
-	{
-	    if ( both_2d_3d_in_context )
-	    {
-		return tr( "Prestack 2D Data" );
-	    }
-
-	    return tr( "Prestack Data" );
-	}
-
-	if ( both_2d_3d_in_context )
-	{
-	    if ( both_pre_post_in_context )
-	    {
-		return tr( "Poststack 2D Data" );
-	    }
-
-	    return tr("2D Data (attribute)");
-	}
-
-	if ( both_pre_post_in_context )
-	{
-	    return tr("Poststack Data");
-	}
-
-	return tr("2D Data (attribute)");
-    }
-
-    if ( is3d )
-    {
-	if ( isprestack )
-	{
-	    if ( both_2d_3d_in_context )
-	    {
-		return tr( "Prestack 3D Data");
-	    }
-
-	    return tr( "Prestack Data" );
-	}
-
-	return tr("Cube");
-    }
-
-    return tr("Data");
+uiWord uiStrings::sTWT( bool abbr )
+{ 
+    return abbr ? tr("TWT","abrrreviation for Two way travel time") :
+	tr("Two Way Travel Time");
 }

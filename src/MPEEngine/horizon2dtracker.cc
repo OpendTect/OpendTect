@@ -51,8 +51,8 @@ EMTracker* Horizon2DTracker::create( EM::Object* emobj )
 
 void Horizon2DTracker::initClass()
 {
-    TrackerFactory().addCreator( create, EM::Horizon2D::typeStr(),
-				uiStrings::sHorizon(1,uiStrings::s2D()) );
+    EMTracker::factory().addCreator( create, EM::Horizon2D::typeStr(),
+						    uiStrings::s2DHorizon() );
 }
 
 

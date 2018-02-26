@@ -180,7 +180,6 @@ public:
     static uiWord s2DLine(int num=1)	{ return tr("2D line",0,num); }
     static uiWord s2DPlane(int n=1)	{ return tr("2D Plane",0,n); }
     static uiWord s3D()			{ return tr("3D"); }
-    static uiWord s3DHorizon(int n=1)	{ return tr("3D Horizon",0,n); }
     static uiWord sAbort()		{ return tr("Abort"); }
     static uiWord sAbout()		{ return tr("About"); }
     static uiWord sAbove()		{ return tr("Above"); }
@@ -395,20 +394,16 @@ public:
     static uiWord sInline(int n=1)	{ return tr("In-line",0,n); }
     static uiWord sInlineDip()		{ return tr("Inline Dip"); }
     static uiWord sInlineRange()	{ return tr("Inline Range"); }
+	static uiWord sInputASCIIFile()	{ return tr("Input ASCII File"); }
+	static uiWord sInputParamsMissing();
     static uiWord sInput()		{ return tr("Input"); }
-    static uiWord sInputASCIIFile()	{ return tr("Input ASCII File"); }
-    static uiWord sInputData()		{ return tr("Input Data"); }
     static uiWord sInputFile()		{ return tr("Input File"); }
-    static uiWord sInputParamsMissing();
-    static uiWord sInput();
-    static uiWord sInputFile();
-    static uiWord sInputSelection();
+    static uiWord sInputSelection()	{ return tr("Input Selection"); }
     static uiWord sInterpolate()	{ return tr("Interpolate"); }
-    static uiWord sInpFileName();
+    static uiWord sInpFileName()	{ return tr("Input File Name"); }
     static uiWord sInputData()		{ return tr("Input Data"); }
-    static uiWord sInsert();
-    static uiWord sInvalid();
-    static uiWord sInvInpFile()		{ return tr("Invalid input file"); }
+    static uiWord sInsert()		{ return tr("Insert"); }
+    static uiWord sInside()		{ return tr("Inside"); }
     static uiWord sInterpolating()	{ return tr("Interpolating"); }
     static uiWord sInterpolation()	{ return tr("Interpolation"); }
     static uiWord sInterpretation(int n=1) { return tr("Interpretation",0,n); }
@@ -587,6 +582,7 @@ public:
 						     : tr("RMS"); }
     static uiWord sRockPhy()		{ return tr("Rock Physics"); }
     static uiWord sRow(int n=1)		{ return tr("Row",0,n); }
+    static uiWord sSample(int n=1)	{ return tr("Sample",0,n); }
     static uiWord sSave()		{ return tr("Save"); }
     static uiWord sSaveAs()		{ return tr("Save As"); }
     static uiWord sSaveAsDefault()	{ return tr("Save as Default"); }
@@ -652,16 +648,16 @@ public:
     static uiWord sStatus()		{ return tr("Status"); }
     static uiWord sStdDev()		{ return tr("Standard Deviation"); }
     static uiWord sSteering()		{ return tr("Steering"); }
-    static uiWord sSteeringCube()	{ return tr("Steering Cube"); }
+    static uiWord sSteeringCube(int n=1){ return tr("Steering Cube",0,n); }
     static uiWord sStep(int n=1)	{ return tr("Step",0,n); }
     static uiWord sStepout()		{ return tr("Stepout"); }
     static uiWord sSteps()		{ return sStep(mPlural); }
     static uiWord sStop()		{ return tr("Stop"); }
     static uiWord sStorage()		{ return tr("Storage"); }
-    static uiWord sStorageDir()		{ return tr("Storage Directory"); }
+    static uiWord sStorageDir();
     static uiWord sStore()		{ return tr("Store"); }
-    static uiWord sStored()		{ return tr("Stored"); }
-    static uiWord sStratigraphy()	{ return tr("Stratigraphy"); }
+    static uiWord sStored();
+    static uiWord sStratigraphy();
     static uiWord sSuccess()		{ return tr("Success"); }
     static uiWord sSurface(int n=1)	{ return tr("Surface",0,n); }
     static uiWord sSurvey(int n=1)	{ return tr("Survey",0,n); }
@@ -685,6 +681,7 @@ public:
     static uiWord sTrc()		{ return tr("Trc","abbr trace"); }
     static uiWord sTrace(int n=1)	{ return tr("Trace",0,n); }
     static uiWord sTraceNumber()	{ return tr("Trace number"); }
+    static uiWord sTraceRange()          { return tr("Trace Range"); }
     static uiWord sTrack()		{ return tr("Track","verb"); }
     static uiWord sTracking()		{ return tr("Tracking"); }
     static uiWord sTrackPad()		{ return tr("Track Pad"); }
@@ -693,6 +690,7 @@ public:
     static uiWord sTransparency()	{ return tr("Transparency"); }
     static uiWord sTriangulation()	{ return tr("Triangulation"); }
     static uiWord sTVDSS()		{ return tr("TVDSS"); }
+    static uiWord sTWT(bool abbr=true);
     static uiWord sType()		{ return tr("Type"); }
     static uiWord sUndef(bool abbr=true)
     { return abbr ? tr("undef") : tr("Undefined"); }
@@ -724,14 +722,18 @@ public:
     static uiWord sView()		{ return tr("View"); }
     static uiWord sVintage()		{ return tr("Vintage"); }
     static uiWord sVisualization()	{ return tr("Visualization"); }
-    static uiWord sVolume(int n=1)	{ return tr("Volume",0,n); }
+    static uiWord sVolume(int n=1);
     static uiWord sWarning()		{ return tr("Warning"); }
-    static uiWord sWaveNumber()		{ return tr("Wavenumber"); }
+    static uiWord sWaveNumber(int num=1);
     static uiWord sWavelet(int n=1)	{ return tr("Wavelet",0,n); }
     static uiWord sWeb()		{ return tr("Web"); }
     static uiWord sWeight()		{ return tr("Weight"); }
     static uiWord sWell(int n=1)	{ return tr("Well",0,n); }
+    static uiWord sWellData(int n=1)	{ return tr("Well Data",0,n); }
     static uiWord sWellLog(int n=1)	{ return tr("Well Log",0,n); }
+    static uiWord sWellName()           { return tr("Well Name"); }
+    static uiWord sWellTrack(int num=1) { return tr("Well Track",0,num); }
+    static uiWord sWellMarker(int num=1) { return tr("Well Marker",0,num); }
     static uiWord sWells()		{ return sWell(mPlural); }
     static uiWord sWest( bool abbr )
     { return abbr ? tr("W","abbr West") : tr("West"); }

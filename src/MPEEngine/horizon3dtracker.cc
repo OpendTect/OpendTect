@@ -55,8 +55,8 @@ EMTracker* Horizon3DTracker::create( EM::Object* emobj )
 
 
 void Horizon3DTracker::initClass()
-{ TrackerFactory().addCreator( create, EM::Horizon3D::typeStr(),
-				uiStrings::sHorizon(1,uiStrings::s3D()) ); }
+{ EMTracker::factory().addCreator( create, EM::Horizon3D::typeStr(),
+				uiStrings::s3DHorizon() ); }
 
 
 #define mErrRet(msg) { errmsg = msg; return false; }

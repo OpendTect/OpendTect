@@ -187,7 +187,7 @@ public:
 				~uiHorizonParSel();
 
     void			setSelected(const DBKeySet&);
-    const DBKeySet&	getSelected() const;
+    const DBKeySet&		getSelected() const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

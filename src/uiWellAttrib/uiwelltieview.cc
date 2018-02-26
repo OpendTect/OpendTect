@@ -149,7 +149,7 @@ void uiTieView::initFlatViewer()
     app.annot_.x2_.showgridlines_ = true;
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.mapper_->setup().setNoClipping();
-    app.annot_.x1_.name_ = uiStrings::sVolDataName(true,true,false);
+    app.annot_.x1_.name_ = uiStrings::sSeisObjName(true,true,false);
     app.annot_.x2_.name_ =  uiStrings::sTWT();
     app.annot_.title_ = tr("Synthetics<--------------------"
 			"------------------------------->Seismics");

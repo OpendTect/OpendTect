@@ -469,7 +469,7 @@ void uiCoordSystemSel::selCB( CallBacker* )
 uiString uiCoordSystemSel::getSummary() const
 {
     if ( !coordsystem_ )
-	return uiStrings::sEmptyString();
+	return uiString::empty();
 
     return coordsystem_->summary();
 }

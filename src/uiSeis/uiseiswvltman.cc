@@ -60,7 +60,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     manipgrp->nextButtonOnNewRowCol();
     manipgrp->addButton( "impfromothsurv", tr("Get from other survey"),
 			mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
-    disppropbut_ = manipgrp->addButton( "info", uiStrings::sDisplayProp(mPlural),
+    disppropbut_ = manipgrp->addButton( "info", uiStrings::sDisplayProperties(),
 				mCB(this,uiSeisWvltMan, dispProperties) );
 
     revpolbut_ = manipgrp->addButton( "revpol", tr("Reverse polarity"),
@@ -240,7 +240,7 @@ void uiSeisWvltMan::ownSelChg()
     mSetButToolTip(disppropbut_,toUiString("%1 %2 %3")
 		   .arg(uiStrings::sDisplay()).arg(wvltname)
 		   .arg(uiStrings::sProperties().toLower()),
-		   uiStrings::sDisplayProp(mPlural).toLower());
+		   uiStrings::sDisplayProperties().toLower());
 }
 
 
