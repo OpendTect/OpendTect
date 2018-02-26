@@ -81,7 +81,7 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 
 uiString uiSliceSel::sButTxtAdvance()
 {
-    return tr("Advance >>");
+    return toUiString( "%1 >>" ).arg( tr("Advance") );
 }
 
 
@@ -196,7 +196,8 @@ uiSliceScroll( uiSliceSel* ss )
     ctrlbut = new uiPushButton( this, uiSliceSel::sButTxtAdvance(), true );
     ctrlbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     ctrlbut->attach( alignedBelow, typfld_ );
-    backbut = new uiPushButton( this, tr("<< Step Back"), true );
+    backbut = new uiPushButton( this, toUiString("<< %1").arg(tr("Step Back")),
+				true );
     backbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     backbut->attach( leftOf, ctrlbut );
 
@@ -630,9 +631,9 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p )
     BufferStringSet linenames;
     TypeSet<Pos::GeomID> geomids;
     Survey::GM().getList( linenames, geomids, true );
-    linesfld_ = new uiGenInput( this, tr("Compute on line:"),
+    linesfld_ = new uiGenInput( this, tr("Calculate on line"),
 				StringListInpSpec(linenames) );
-    setOkText( uiStrings::sNext() );
+    setOkText( uiStrings::sWizNext() );
 }
 
 
@@ -645,10 +646,10 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const TrcKeyZSampling& cs )
     , linesfld_(0)
     , posdlg_(0)
 {
-    inlcrlfld_ = new uiGenInput( this, tr("Compute on:"),
+    inlcrlfld_ = new uiGenInput( this, tr("Calculate on"),
 			BoolInpSpec(true,uiStrings::sInline(),
 			uiStrings::sCrossline()));
-    setOkText( uiStrings::sNext() );
+    setOkText( uiStrings::sWizNext() );
 }
 
 

@@ -100,7 +100,7 @@ uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
 	inlcrlfld_ = new uiGenInput( this, complbl,
 			BoolInpSpec(true,uiStrings::sInline(),
 			uiStrings::sCrossline()) );
-    setOkText( uiStrings::sNext() );
+    setOkText( uiStrings::sWizNext() );
 }
 
 const char* getLineName()

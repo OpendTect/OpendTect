@@ -58,7 +58,7 @@ uiUserCreateSurvey::uiUserCreateSurvey( uiParent* p, const char* dr )
 	setCancelText( uiStrings::sClose() );
     }
 
-    setOkText( uiStrings::sNext() );
+    setOkText( uiStrings::sWizNext() );
 
     survnmfld_ = new uiGenInput( this, tr("Survey name") );
     survnmfld_->setElemSzPol( uiObject::Wide );

@@ -19,7 +19,8 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-uiString uiAttrTypeSel::sAllGroup()   { return tr("<All>"); }
+uiString uiAttrTypeSel::sAllGroup()
+{ return uiStrings::sAll().embed("<",">"); }
 
 
 uiAttrTypeSel::uiAttrTypeSel( uiParent* p, bool sorted )

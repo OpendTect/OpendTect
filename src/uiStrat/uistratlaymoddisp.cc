@@ -190,7 +190,7 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 void uiStratLayerModelDisp::displayFRText()
 {
     if ( !frtxtitm_ )
-	frtxtitm_ = scene().addItem( new uiTextItem( tr("<---empty--->"),
+	frtxtitm_ = scene().addItem( new uiTextItem( uiString::empty(),
 				 mAlignment(HCenter,VCenter) ) );
     frtxtitm_->setText(isbrinefilled_ ? tr("Brine filled")
                                       : tr("Hydrocarbon filled"));
@@ -798,7 +798,7 @@ void uiStratSimpleLayerModelDisp::reDrawAll()
     {
 	if ( !emptyitm_ )
 	    emptyitm_ = vwr_.rgbCanvas().scene().addItem(
-				new uiTextItem( tr("<---empty--->"),
+				new uiTextItem( uiString::empty(),
 				mAlignment(HCenter,VCenter) ) );
 	emptyitm_->setPenColor( Color::Black() );
 	emptyitm_->setPos( uiPoint( vwr_.rgbCanvas().width()/2,

@@ -731,7 +731,9 @@ void uiWellMan::mkFileInfo()
     ConstRefMan<Well::Data> curwd = Well::MGR().fetch( curioobj_->key(), reqs,
 							uirv );
     uiPhrase txt;
-    if ( curwd )
+    if ( !curwd )
+	txt = uirv;
+    else
     {
 
     const Well::Info& info = curwd->info();
@@ -814,8 +816,6 @@ void uiWellMan::mkFileInfo()
 
     } // if ( curwd )
 
-    if ( txt.isEmpty() )
-	txt = tr( "<No specific info available>\n" );
     txt.appendPhrase( getFileInfo(), uiString::NoSep );
     setInfo( txt );
 }

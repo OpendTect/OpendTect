@@ -85,10 +85,7 @@ void uiPickSetMan::mkFileInfo()
     uiRetVal uirv;
     ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( curioobj_->key(), uirv );
     if ( !ps )
-    {
-	txt = uiStrings::phrCannotRead(toUiString(uirv.getText())).addNewLine();
-	txt.appendPhrase(tr("<No specific info available>")).addNewLine();
-    }
+	txt = uirv;
     else
     {
 	const bool ispoly = ps->isPolygon();

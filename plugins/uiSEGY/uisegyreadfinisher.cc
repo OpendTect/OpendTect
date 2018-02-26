@@ -107,7 +107,7 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
 {
 
     if ( !singlevintage )
-	setCancelText( tr("<<Back") );
+	setCancelText( uiStrings::sWizBack() );
 
     objname_ = File::Path( usrspec ).baseName();
     const bool is2d = Seis::is2D( fs_.geomType() );

@@ -274,51 +274,37 @@ void uiSeisFileMan::mkFileInfo()
 	txt = tr("Number of lines: %1").arg( nms.size() );
     }
 
-#define mAddRangeTxt(line) \
-    txt.appendPhrase(uiStrings::sRange().toLower(), uiString::Space, \
-				    uiString::OnSameLine); \
-    txt.appendPlainText( ": " ); \
-    txt.appendPlainText(toString(cs.hsamp_.start_.line)); \
-    txt.appendPlainText( " - " ); \
-    txt.appendPlainText(toString(cs.hsamp_.stop_.line)); \
-    txt.appendPlainText( " [" ); \
-    txt.appendPlainText(toString(cs.hsamp_.step_.line)).appendPlainText( "]" );
+#define mOnNewLineLine(str) \
+    txt.appendPhrase(str,uiString::NoSep) \
 
-#define mAddZValTxt(memb) txt.appendPlainText(toString( \
-					zistm ? mNINT32(1000*memb) : memb));
+#define mAddICRangeLine(str,memb) \
+    mOnNewLineLine(str) \
+	.addMoreInfo( toUiString("%1 - %2 [%3]") \
+	.arg( cs.hsamp_.start_.memb() ) \
+	.arg( cs.hsamp_.stop_.memb() ) \
+	.arg( cs.hsamp_.step_.memb() ) )
 
-    const bool zistm = oinf.isTime();
-    const ZDomain::Def& zddef = oinf.zDomainDef();
-    TrcKeyZSampling cs;
     if ( !is2d_ )
     {
+	const ZDomain::Def& zddef = oinf.zDomainDef();
+	TrcKeyZSampling cs;
 	if ( oinf.getRanges(cs) )
 	{
 	    txt.setEmpty();
 	    if ( !mIsUdf(cs.hsamp_.stop_.inl()) )
-	    {
-		txt.appendPhrase(uiStrings::sInline(),uiString::NoSep);
-		mAddRangeTxt(inl());
-	    }
+		mAddICRangeLine( uiStrings::sInlineRange(), inl );
 	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
-	    {
-		txt.appendPhrase(uiStrings::sCrossline(),uiString::NoSep);
-		mAddRangeTxt(crl());
-	    }
-	    float area = SI().getArea( cs.hsamp_.inlRange(),
-				       cs.hsamp_.crlRange() );
-	    txt.appendPhrase(uiStrings::sArea(),uiString::NoSep)
-		.appendPlainText(": ")
-		.appendPlainText( getAreaString( area, true, 0 ) );
+		mAddICRangeLine( uiStrings::sCrosslineRange(), crl );
+
+	    const float area = SI().getArea( cs.hsamp_.inlRange(),
+					     cs.hsamp_.crlRange() );
+	    mOnNewLineLine( uiStrings::sArea() )
+		.addMoreInfo( toUiString(getAreaString(area,true,0) ) );
 
 	    const uiString rgstr = zddef.getRange();
-	    txt.appendPhrase( rgstr, uiString::NoSep );
-	    txt.appendPhrase( zddef.unitStr(true), uiString::NoSep,
-		uiString::OnSameLine );
-	    txt.appendPlainText( ": " ); mAddZValTxt(cs.zsamp_.start)
-	    txt.appendPlainText(" - "); mAddZValTxt(cs.zsamp_.stop)
-	    txt.appendPlainText(" ["); mAddZValTxt(cs.zsamp_.step)
-	    txt.appendPlainText("]");
+	    mOnNewLineLine( rgstr ).withUnit( zddef.unitStr(false) )
+		.addMoreInfo( toUiString("%1 - %2 [%3]") )
+		.arg(cs.zsamp_.start).arg(cs.zsamp_.stop).arg(cs.zsamp_.step);
 	}
     }
 
@@ -327,20 +313,22 @@ void uiSeisFileMan::mkFileInfo()
 	const IOPar& pars = curioobj_->pars();
 	FixedString parstr = pars.find( "Type" );
 	if ( !parstr.isEmpty() )
-	    txt.appendPhrase( uiStrings::sType(), uiString::NoSep )
-			    .appendPlainText(": ").appendPlainText( parstr );
+	    mOnNewLineLine( uiStrings::sType() )
+			.addMoreInfo( toUiString(parstr) );
 
 	parstr = pars.find( "Optimized direction" );
 	if ( !parstr.isEmpty() )
-	    txt.appendPhrase( tr("Optimized direction") )
-			    .appendPlainText(": ").appendPlainText( parstr );
+	    mOnNewLineLine( tr("Optimized direction") )
+			.addMoreInfo( toUiString(parstr) );
 	if ( pars.isTrue("Is Velocity") )
 	{
 	    Interval<float> topvavg, botvavg;
-	    txt.appendPhrase( tr("Velocity Type") ); txt.appendPlainText(": ");
 	    parstr = pars.find( "Velocity Type" );
-	    txt.appendPhrase( parstr.isEmpty() ? tr("<unknown>") :
-		toUiString(parstr), uiString::NoSep, uiString::OnSameLine );
+	    if ( !parstr.isEmpty() )
+	    {
+		mOnNewLineLine( tr("Velocity Type") )
+			.addMoreInfo( toUiString(parstr), false );
+	    }
 
 	    if ( pars.get(VelocityStretcher::sKeyTopVavg(),topvavg)
 	      && pars.get(VelocityStretcher::sKeyBotVavg(),botvavg))
@@ -354,9 +342,8 @@ void uiSeisFileMan::mkFileInfo()
 		    dispzrg.stop = sizrg.stop * botvavg.stop / 2;
 		    dispzrg.step = (dispzrg.stop-dispzrg.start)
 					/ sizrg.nrSteps();
-		    txt.appendPhrase( tr("Depth Range"), uiString::NoSep );
-		    txt.appendPhrase( ZDomain::Depth().unitStr(true),
-			    uiString::Space, uiString::OnSameLine );
+		    mOnNewLineLine( tr("Depth Range") )
+			    .withUnit( ZDomain::Depth().unitStr() );
 		}
 
 		else
@@ -366,15 +353,12 @@ void uiSeisFileMan::mkFileInfo()
 		    dispzrg.step = (dispzrg.stop-dispzrg.start)
 					/ sizrg.nrSteps();
 		    dispzrg.scale( (float)ZDomain::Time().userFactor() );
-		    txt.appendPhrase( tr("Time Range"), uiString::NoSep );
-		    txt.appendPhrase( ZDomain::Time().unitStr(true),
-			    uiString::Space, uiString::OnSameLine );
+		    mOnNewLineLine( tr("Time Range")
+			    .withUnit(ZDomain::Time().unitStr()) );
 		}
 
-		txt.appendPlainText( ": " )
-		   .appendPlainText( toString(dispzrg.start) )
-		   .appendPlainText( " - " )
-		   .appendPlainText( toString(dispzrg.stop) );
+		txt.addMoreInfo( toUiString("%1 - %2")
+			.arg(dispzrg.start).arg(dispzrg.stop) );
 	    }
 	}
     }
@@ -390,23 +374,22 @@ void uiSeisFileMan::mkFileInfo()
     }
     delete tri;
     if ( dsstr.size() > 4 )
-	txt.appendPhrase(uiStrings::sStorage(),uiString::NoSep)
-		    .appendPlainText(": ")
-		    .appendPlainText( toString(dsstr.buf() + 4) );
+	mOnNewLineLine( uiStrings::sStorage() )
+		.addMoreInfo( toUiString(dsstr.buf() + 4) );
 
     const int nrcomp = oinf.nrComponents();
     if ( nrcomp > 1 )
-	txt.appendPhrase( tr("Number of components"), uiString::NoSep )
-		.appendPlainText(": ").appendPlainText( toString(nrcomp) );
+	mOnNewLineLine( tr("Number of components") )
+		.addMoreInfo( toUiString(nrcomp) );
 
 
     } // if ( oinf.isOK() )
 
     if ( txt.isEmpty() )
-	txt = tr("<No specific info available>");
-    txt.appendPhrase( getFileInfo(), uiString::NoSep,
-						    uiString::AfterEmptyLine );
+	txt = uiStrings::sNoInfoAvailable();
 
+    txt.appendPhrase( getFileInfo(), uiString::NoSep,
+				     uiString::AfterEmptyLine );
     setInfo( txt );
 }
 

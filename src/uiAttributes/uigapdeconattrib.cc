@@ -670,7 +670,7 @@ uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 	inlcrlfld_ = new uiGenInput( this, tr("Compute autocorrelation on:"),
 				    BoolInpSpec(true,uiStrings::sInline(),
                                                 uiStrings::sCrossline()) );
-    setOkText( uiStrings::sNext() );
+    setOkText( uiStrings::sWizNext() );
 }
 
 

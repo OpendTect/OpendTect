@@ -209,13 +209,14 @@ public:
     static uiWord sAverage()		{ return tr("Average"); }
     static uiWord sAxis()		{ return tr("Axis"); }
     static uiWord sAzimuth()		{ return tr("Azimuth"); }
-    static uiWord sBasic()		{ return tr("Basic"); }
+    static uiWord sBack()		{ return tr("Back"); }
     static uiWord sBase( bool math )	{ return math ? tr("Base","in math")
 						      : tr("Base","of layer"); }
-    static uiWord sBinary()		{ return tr("Binary"); }
+    static uiWord sBasic()		{ return tr("Basic"); }
     static uiWord sBatch()		{ return tr("Batch"); }
     static uiWord sBatchProgram()	{ return tr("Batch Program"); }
     static uiWord sBelow()		{ return tr("Below"); }
+    static uiWord sBinary()		{ return tr("Binary"); }
     static uiWord sBlue()		{ return tr("Blue"); }
     static uiWord sBody(int n=1)	{ return tr("Body", 0, n); }
     static uiWord sBoth()		{ return tr("Both"); }
@@ -286,6 +287,7 @@ public:
     static uiWord sCrossPlot()		{ return tr("Cross Plot"); }
     static uiWord sCrossline(int n=1)	{ return tr("Cross-line", 0, n ); }
     static uiWord sCrosslineDip()	{ return sLineDip(false); }
+    static uiWord sCrosslineRange()	{ return tr("Crossline Range"); }
     static uiWord sCube(int n=1)	{ return tr("Cube",0,n); }
     static uiWord sCurve()		{ return tr("Curve"); }
     static uiWord sData()		{ return tr("Data"); }
@@ -385,6 +387,7 @@ public:
     static uiWord sInl()		{ return tr("Inl","abbr In-line"); }
     static uiWord sInline(int n=1)	{ return tr("In-line",0,n); }
     static uiWord sInlineDip()		{ return tr("Inline Dip"); }
+    static uiWord sInlineRange()	{ return tr("Inline Range"); }
     static uiWord sInput()		{ return tr("Input"); }
     static uiWord sInputASCIIFile()	{ return tr("Input ASCII File"); }
     static uiWord sInputData()		{ return tr("Input Data"); }
@@ -462,6 +465,7 @@ public:
     static uiWord sNew()		{ return tr("New"); }
     static uiWord sNext()		{ return tr("Next"); }
     static uiWord sNo()			{ return tr("No"); }
+    static uiWord sNoInfoAvailable()	{ return tr("No info available"); }
     static uiWord sNode(int n=1)	{ return tr("Node",0,n); }
     static uiWord sNoLogSel()		{ return tr("No log selected"); }
     static uiWord sNone()		{ return tr("None"); }
@@ -716,6 +720,10 @@ public:
     static uiWord sWidth()		{ return tr("Width"); }
     static uiWord sWiggle()		{ return tr("Wiggle"); }
     static uiWord sWindow()		{ return tr("Window"); }
+    static uiWord sWizBack()		{ return toUiString("<< %1")
+							.arg(sBack()); }
+    static uiWord sWizNext()		{ return toUiString("<< %1")
+							.arg(sNext()); }
     static uiWord sWorkflow(int n=1)	{ return tr("Workflow",0,n); }
     static uiWord sWrite()		{ return tr("Write"); }
     static uiWord sWriting()		{ return tr("Writing"); }

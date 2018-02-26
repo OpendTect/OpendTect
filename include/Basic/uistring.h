@@ -186,8 +186,8 @@ public:
     uiString&		optional();
     uiString&		withUnit(const char*); //!< just the unit itself, please
     uiString&		withUnit(const uiString&);
-    uiString&		addMoreInfo(const uiString&,bool newline=true);
-			//!< adds a colon first
+    uiString&		addMoreInfo(const uiString&,bool newline=false);
+			//!< will deliver ": the string with more info"
 
     inline uiString&	appendIncorrect(const uiString&,char sep=' ');
     inline uiString&	appendIncorrect(const char*,char sep=' ');

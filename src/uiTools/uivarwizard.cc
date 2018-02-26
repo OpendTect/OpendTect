@@ -62,12 +62,12 @@ uiVarWizardDlg::uiVarWizardDlg( uiParent* p, const uiDialog::Setup& su,
     else if ( pos_ == DoWork )
 	setOkText( uiStrings::sGo() );
     else
-	setOkText( uiStrings::sNext() );
+	setOkText( uiStrings::sWizNext() );
 
     if ( pos_ == Start )
 	setCancelText( uiStrings::sCancel() );
     else
-	setCancelText( tr("< Back") );
+	setCancelText( uiStrings::sWizBack() );
 }
 
 
