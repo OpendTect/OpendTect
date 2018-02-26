@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "emfaultstickset.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
-//#include "emmarchingcubessurface.h"
-//#include "empolygonbody.h"
-//#include "emrandomposbody.h"
+#include "emmarchingcubessurface.h"
+#include "empolygonbody.h"
+#include "emrandomposbody.h"
 #include "factory.h"
 #include "dbkey.h"
 #include "saveable.h"
@@ -246,16 +246,28 @@ protected:
 mExpClass(EarthModel) BodySaver : public ObjectSaver
 {
 public:
-     mDefaultFactoryInstantiation1Param(ObjectSaver,
-				       BodySaver,const SharedObject&,
-				       sKey::Body(),
-				       uiStrings::sBody(mPlural))
 			BodySaver(const SharedObject&);
 			~BodySaver();
 protected:
 
     virtual uiRetVal	doStore(const IOObj&,const TaskRunnerProvider&) const;
 };
+
+
+#define mDeclBodySaver(typ,kw) \
+mExpClass(EarthModel) typ##BodySaver : public BodySaver \
+{ \
+public: \
+     mDefaultFactoryInstantiation1Param(ObjectSaver, \
+				       BodySaver,const SharedObject&, kw, \
+				       uiStrings::sBody(mPlural)) \
+			typ##BodySaver(const SharedObject& obj) \
+			: BodySaver(obj) {} \
+}
+
+mDeclBodySaver(MC,MarchingCubesSurface::typeStr());
+mDeclBodySaver(Polygon,PolygonBody::typeStr());
+mDeclBodySaver(RandomPos,RandomPosBody::typeStr());
 
 } // namespace EM
 
