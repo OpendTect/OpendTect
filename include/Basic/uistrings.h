@@ -292,7 +292,7 @@ public:
     static uiWord sCrossline(int n=1)	{ return tr("Cross-line", 0, n ); }
     static uiWord sCrosslineDip()	{ return sLineDip(false); }
     static uiWord sCrosslineRange()	{ return tr("Crossline Range"); }
-	static uiWord sCrossPlotData()     { return tr("Cross Plot Data"); }
+	static uiWord sCrossPlotData()	   { return tr("Cross Plot Data"); }
     static uiWord sCube(int n=1)	{ return tr("Cube",0,n); }
     static uiWord sCurve()		{ return tr("Curve"); }
     static uiWord sData()		{ return tr("Data"); }
@@ -394,7 +394,7 @@ public:
     static uiWord sInline(int n=1)	{ return tr("In-line",0,n); }
     static uiWord sInlineDip()		{ return tr("Inline Dip"); }
     static uiWord sInlineRange()	{ return tr("Inline Range"); }
-	static uiWord sInputASCIIFile()	{ return tr("Input ASCII File"); }
+	static uiWord sInputASCIIFile() { return tr("Input ASCII File"); }
 	static uiWord sInputParamsMissing();
     static uiWord sInput()		{ return tr("Input"); }
     static uiWord sInputFile()		{ return tr("Input File"); }
@@ -681,7 +681,7 @@ public:
     static uiWord sTrc()		{ return tr("Trc","abbr trace"); }
     static uiWord sTrace(int n=1)	{ return tr("Trace",0,n); }
     static uiWord sTraceNumber()	{ return tr("Trace number"); }
-    static uiWord sTraceRange()          { return tr("Trace Range"); }
+    static uiWord sTraceRange()		 { return tr("Trace Range"); }
     static uiWord sTrack()		{ return tr("Track","verb"); }
     static uiWord sTracking()		{ return tr("Tracking"); }
     static uiWord sTrackPad()		{ return tr("Track Pad"); }
@@ -731,7 +731,7 @@ public:
     static uiWord sWell(int n=1)	{ return tr("Well",0,n); }
     static uiWord sWellData(int n=1)	{ return tr("Well Data",0,n); }
     static uiWord sWellLog(int n=1)	{ return tr("Well Log",0,n); }
-    static uiWord sWellName()           { return tr("Well Name"); }
+    static uiWord sWellName()		{ return tr("Well Name"); }
     static uiWord sWellTrack(int num=1) { return tr("Well Track",0,num); }
     static uiWord sWellMarker(int num=1) { return tr("Well Marker",0,num); }
     static uiWord sWells()		{ return sWell(mPlural); }

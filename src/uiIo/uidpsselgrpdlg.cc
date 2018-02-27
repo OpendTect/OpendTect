@@ -26,7 +26,7 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
 				const BufferStringSet& colnames )
     : uiDialog( p.parent(), uiDialog::Setup(tr("Selection Settings"),
 				     uiString::empty(),
-                                     mODHelpKey(mSelectionSettDlgHelpID) )
+				     mODHelpKey(mSelectionSettDlgHelpID) )
 				    .savebutton(!p.isADensityPlot())
 				    .savetext(uiStrings::phrSelect(tr("on OK")))
 				    .modal(false) )

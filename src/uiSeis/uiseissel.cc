@@ -536,7 +536,8 @@ void uiSeisPosProvGroup::getSummary( uiString& txt ) const
     txt = tr( "From 3D Seismics" );
     const IOObj* ioobj = seissel_->ioobj( true );
     if ( ioobj )
-	txt.append( " '" ).append( ioobj->name() ).append( "." );
+	txt.appendPhrase( toUiString(ioobj->name()).embed("'","'"),
+				    uiString::Space, uiString::OnSameLine );
 }
 
 

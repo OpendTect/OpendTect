@@ -114,7 +114,8 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 void uiRangePosProvGroup::getSummary( uiString& txt ) const
 {
     TrcKeyZSampling cs; getTrcKeyZSampling( cs );
-    txt.addSpace().append( setup_.withz_ ? tr("Sub-volume") : tr("Sub-area") );
+    txt.appendPhrase( setup_.withz_ ? tr("Sub-volume") : tr("Sub-area"),
+				    uiString::Space, uiString::OnSameLine );
 }
 
 
@@ -242,7 +243,8 @@ void uiPolyPosProvGroup::getSummary( uiString& txt ) const
     txt =  tr("Within polygon");
     const IOObj* ioobj = polyfld_->ioobj( true );
     if ( ioobj )
-	txt.addSpace().append( "'" ).append( ioobj->name() ).append( "." );
+	txt.appendPhrase( toUiString("'%1'").arg(toUiString(ioobj->name())),
+				uiString::Space, uiString::OnSameLine );
 }
 
 
@@ -308,7 +310,7 @@ bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
 
 void uiTablePosProvGroup::getSummary( uiString& txt ) const
 {
-    txt.addSpace().append( tr("In table") );
+    txt.appendPhrase( tr("In table"), uiString::Space, uiString::OnSameLine );
 }
 
 

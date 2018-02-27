@@ -90,23 +90,25 @@ virtual uiString getSummary() const
     const int selsz = selidxs_.size();
 
     if ( sz < 1 )
-	ret = tr("<None available>");
+	ret = tr("None available").embed("<",">");
     else if ( selsz == 0 )
-	ret = tr("<None selected>");
+	ret = tr("None selected").embed("<",">");
     else
     {
 	if ( selsz > 1 )
 	{
-	    ret.append( "<" ).append( toUiString(selsz) ).append( " selected" );
+	    ret = toUiString("%1 %2").arg(selsz).arg(uiStrings::sSelected());
 	    if ( sz == selsz )
-		ret.append( " (all)" );
-	    ret.append( ">: " );
+		ret.appendPhrase( uiStrings::sAll().toLower().parenthesize(),
+				    uiString::Space,uiString::OnSameLine );
+	    ret.embed( "<",">" );
 	}
-	ret.append( nms_.get( selidxs_[0] ) );
+	ret.appendPhrase(toUiString(nms_.get( selidxs_[0] )), uiString::NoSep);
 	if ( selsz > 1 )
-	    ret.append( ", ..." );
+	    ret.appendPlainText( ", ..." );
 	else if ( sz == selsz )
-	    ret.append( " (all)" );
+	    ret.appendPhrase( uiStrings::sAll().toLower().parenthesize(),
+				    uiString::Space,uiString::OnSameLine );
     }
 
     return ret;

@@ -147,13 +147,13 @@ void Pos::SeisProvider3D::fillPar( IOPar& iop ) const
 void Pos::SeisProvider3D::getSummary( uiString& txt ) const
 {
     if ( id_.isInvalid() )
-	txt = tr( "<No selection>" );
+	txt = tr("No selection").embed("<",">");
     else
-	txt = toUiString( "=> " ).append( DBM().nameOf(id_) );
+	txt = toUiString( "=> %1" ).arg( toUiString(DBM().nameOf(id_)) );
     const int nrsamps = nrSamples();
     if ( nrsamps > 1 )
-	txt.append( " (%1 %2)" ).arg( nrsamps )
-			    .arg(uiStrings::sSample(mPlural).toLower());
+	txt.appendPhrase( toUiString("%1 %2").arg( nrsamps )
+	   .arg(uiStrings::sSample(mPlural).toLower()).parenthesize() );
 }
 
 

@@ -55,7 +55,8 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
     fssu.selectDirectory();
     basedirfld = new uiFileSel( this, tr("Parent Directory"), fssu );
 
-    workdirfld = new uiGenInput( this, tr("Directory name").append(workdirnm) );
+    workdirfld = new uiGenInput( this, tr("Directory name %1")
+					    .arg(toUiString(workdirnm)) );
     workdirfld->attach( alignedBelow, basedirfld );
 
 }

@@ -550,7 +550,7 @@ uiWord uiStrings::sWaveNumber( int num )
 { return tr("Wavenumber", 0, num ); }
 
 uiWord uiStrings::sTWT( bool abbr )
-{ 
+{
     return abbr ? tr("TWT","abrrreviation for Two way travel time") :
 	tr("Two Way Travel Time");
 }

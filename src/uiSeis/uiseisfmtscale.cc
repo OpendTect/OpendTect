@@ -150,12 +150,13 @@ uiString getSummary() const
 	  "16bit [-,+]", "16bit [0,+]",
 	  "32bit [-,+]", "32bit [0,+]",
 	  "32bit [float]", "64bit [float]", "64bit [-,+]", 0 };
-    uiString ret( toUiString(nms[data_.stor_]) );
-    ret.append( toUiString(" / %2") );
-    ret.arg( data_.sclr_ ? toUiString( data_.sclr_->toString() ) :
-							 uiStrings::sNone() );
+    uiString ret;
+    ret = toUiString("%1 / %2").arg(toUiString(nms[data_.stor_]))
+		    .arg(data_.sclr_ ? toUiString( data_.sclr_->toString() ) :
+							 uiStrings::sNone());
     if ( data_.optim_ )
-	ret.append( tr(" (Horizon optimized)") );
+	ret.appendPhrase( tr("Horizon optimized").parenthesize(),
+				    uiString::Space, uiString::OnSameLine );
     return ret;
 }
 

@@ -92,7 +92,8 @@ bool uiWellPosProvGroup::fillPar( IOPar& iop ) const
 
 void uiWellPosProvGroup::getSummary( uiString& txt ) const
 {
-    txt.addSpace().append(tr("Around wells"));
+    txt.appendPhrase(tr("Around wells"), uiString::Space,
+							uiString::OnSameLine);
 }
 
 

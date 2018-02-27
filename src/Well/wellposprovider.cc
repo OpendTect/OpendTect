@@ -221,11 +221,11 @@ void WellProvider3D::fillPar( IOPar& iop ) const
 
 void WellProvider3D::getSummary( uiString& txt ) const
 {
-    if ( wellids_.isEmpty() ) 
+    if ( wellids_.isEmpty() )
     {
 	txt.appendPhrase(tr("No wells present"), uiString::Space,
 						uiString::OnSameLine);
-	return; 
+	return;	
     }
     txt.appendPhrase( toUiString("%1 %2").arg(wellids_.size())
 			.arg(uiStrings::sWell(wellids_.size()).toLower()) );

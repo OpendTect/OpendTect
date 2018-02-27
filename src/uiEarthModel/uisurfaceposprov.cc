@@ -167,8 +167,8 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 void uiSurfacePosProvGroup::getSummary( uiString& txt ) const
 {
     if ( !surf1fld_ ) return;
-    txt.addSpace().append(issingfld_->getBoolValue() ? tr("On Horizon") :
-						    tr("Between Horizons"));
+    txt.appendPhrase(issingfld_->getBoolValue() ? tr("On Horizon") :
+		tr("Between Horizons"), uiString::Space, uiString::OnSameLine);
 }
 
 

@@ -386,7 +386,8 @@ uiString uiSeis2DLineSel::getSummary() const
     else
 	ret = toUiString( selidxs_.size() );
 
-    ret.append( toUiString(" %2").arg(uiStrings::sLine(mPlural).toLower()) );
+    ret.appendPhrase( uiStrings::sLine(mPlural).toLower(),
+				    uiString::Space, uiString::OnSameLine );
     return ret;
 }
 

@@ -651,7 +651,7 @@ void Pos::RangeProvider2D::getSummary( uiString& txt ) const
 
     txt = uiStrings::s2DLine();
     BufferStringSet geomnms;
-    
+
     for ( int idx=0; idx<geomids_.size(); idx++ )
 	geomnms.add(Survey::GM().getName( geomids_[idx]) );
 

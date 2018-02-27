@@ -456,7 +456,8 @@ void uiSEGYReadStartInfo::manPSDefFlds()
 	}
     }
 }
-
+#define mCrdRngString(coordtyp) toUiString("%1 %2").arg(coordtyp) \
+				.arg(uiStrings::sRange().toLower())
 
 void uiSEGYReadStartInfo::updateCellTexts()
 {
@@ -476,15 +477,14 @@ void uiSEGYReadStartInfo::updateCellTexts()
 	nrtrcsusrtxt = tr("(1 trace used)");
     else
     {
-	const uiString rangestr = uiStrings::sRange().toLower();
-	xittxt = uiStrings::sXcoordinate().addSpace().append(rangestr);
-	yittxt = uiStrings::sYcoordinate().addSpace().append(rangestr);
-	ky1ittxt = is2d ? uiStrings::sTraceNumber().addSpace().append(rangestr)
-			: uiStrings::sInline().addSpace().append(rangestr);
-	ky2ittxt = is2d ? uiStrings::sSPNumber().addSpace().append(rangestr)
-			: uiStrings::sCrossline().addSpace().append(rangestr);
+	xittxt = mCrdRngString(uiStrings::sXcoordinate());
+	yittxt = mCrdRngString(uiStrings::sYcoordinate());
+	ky1ittxt = is2d ? mCrdRngString(uiStrings::sTraceNumber())
+			: mCrdRngString(uiStrings::sInline());
+	ky2ittxt = is2d ? mCrdRngString(uiStrings::sSPNumber())
+			: mCrdRngString(uiStrings::sCrossline());
 	if ( isps )
-	    offsittxt = uiStrings::sOffset().addSpace().append(rangestr);
+	    offsittxt = mCrdRngString(uiStrings::sOffset());
 
 	if ( loaddef_.isRev0() )
 	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;

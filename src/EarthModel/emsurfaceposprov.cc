@@ -289,12 +289,14 @@ void Pos::EMSurfaceProvider::getSummary( uiString& txt ) const
 	case 0:
 	return;
 	case 1:
-	    txt.addSpace().append(tr("On '%1'","xyz lies On abc")
-					.arg(toUiString(DBM().nameOf(id1_))) );
+	    txt.appendPhrase(tr("On '%1'","xyz lies On abc")
+	       .arg(toUiString(DBM().nameOf(id1_))),
+	       uiString::Space, uiString::OnSameLine );
 	break;
 	default:
-	    txt.addSpace().append(tr("Between '%1' and '%2'")
-		.arg(toUiString(DBM().nameOf(id1_))).arg(DBM().nameOf(id2_)) );
+	    txt.appendPhrase(tr("Between '%1' and '%2'")
+		.arg(toUiString(DBM().nameOf(id1_))).arg(DBM().nameOf(id2_)),
+		uiString::Space, uiString::OnSameLine );
 	break;
     }
 }
@@ -845,19 +847,20 @@ void Pos::EMImplicitBodyProvider::getSummary( uiString& txt ) const
 {
     if ( !embody_ )
     {
-	txt.addSpace().append( tr("Empty body") );
+	txt.appendPhrase( tr("Empty body"), uiString::Space,
+						    uiString::OnSameLine );
 	return;
     }
-
-    txt.addSpace().append( useinside_ ? tr("Inside of") : tr("Outside of") );
-    txt.addSpace().append(embody_->storageName());
+    uiString str = useinside_ ? tr("Inside of %1") : tr("Outside of %1");
+    txt.appendPhrase( str.arg(toUiString(embody_->storageName())),
+				uiString::Space, uiString::OnSameLine  );
     if ( !useinside_ )
     {
-	txt.addSpace().append(tr("Within cube range: Inline( %1, %2 ), "
+	txt.appendPhrase(tr("Bounding cube range: Inline( %1, %2 ), "
 	    "Crossline( %3, %4 ), Z( %5, %6 ).").arg(bbox_.hsamp_.start_.inl())
 	    .arg(bbox_.hsamp_.stop_.inl()).arg(bbox_.hsamp_.start_.crl())
 	    .arg(bbox_.hsamp_.stop_.crl()).arg(bbox_.zsamp_.start)
-	    .arg(bbox_.zsamp_.stop));
+	    .arg(bbox_.zsamp_.stop), uiString::NoSep );
     }
 }
 

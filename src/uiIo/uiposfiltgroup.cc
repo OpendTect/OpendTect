@@ -58,7 +58,8 @@ bool uiRandPosFiltGroup::fillPar( IOPar& iop ) const
 
 void uiRandPosFiltGroup::getSummary( uiString& txt ) const
 {
-    txt.append( tr(" Random [%1]").arg(percpassfld_->getFValue()) );
+    txt.appendPhrase( tr("Random [%1]").arg(percpassfld_->getFValue()),
+				    uiString::Space, uiString::OnSameLine );
 }
 
 
@@ -99,8 +100,9 @@ bool uiSubsampPosFiltGroup::fillPar( IOPar& iop ) const
 void uiSubsampPosFiltGroup::getSummary( uiString& txt ) const
 {
     const int nr = eachfld_->getIntValue();
-    txt.addSpace().append(tr("Each %1%2").arg(nr)
-				    .arg(toUiString(getRankPostFix( nr ))));
+    txt.appendPhrase(tr("Pass Every %1%2","Pass every n(th)").arg(nr)
+       .arg(toUiString(getRankPostFix( nr ))),
+       uiString::Space, uiString::OnSameLine);
 }
 
 

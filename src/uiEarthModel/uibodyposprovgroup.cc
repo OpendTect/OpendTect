@@ -109,8 +109,9 @@ bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
 
 void uiBodyPosProvGroup::getSummary( uiString& txt ) const
 {
-    txt.addSpace().append( inoutbut_->getBoolValue() ?
-			    tr("Inside geo-body") : tr("Outside geo-body") );
+    txt.appendPhrase( inoutbut_->getBoolValue() ?
+			    tr("Inside geo-body") : tr("Outside geo-body"),
+				    uiString::Space, uiString::OnSameLine );
 }
 
 

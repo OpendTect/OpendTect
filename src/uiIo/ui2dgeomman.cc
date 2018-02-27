@@ -109,9 +109,9 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
 	setCaption( tr("Browse Line Geometry") );
     }
 
-    uiString lbl( uiStrings::sLineName().addSpace().append(": ").append(
-							toUiString(linenm)) );
-
+    uiString lbl;
+    lbl = toUiString("%1: %2").arg(uiStrings::sLineName())
+						.arg(toUiString(linenm));
     uiLabel* titllbl = new uiLabel( this, lbl );
     titllbl->attach( hCentered );
 
@@ -270,8 +270,7 @@ bool acceptOK()
 
 void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 {
-    if ( !curioobj_ )
-	return;
+    if ( !curioobj_ ) return;
 
     PtrMan<Translator> transl = curioobj_->createTranslator();
     if ( !transl )
@@ -296,8 +295,7 @@ bool ui2DGeomManageDlg::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 
 void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 {
-    if ( !curioobj_ )
-	return;
+    if ( !curioobj_ ) return;
 
     const bool docont = uiMSG().askContinue(
        tr("All selected 2D line geometries will be deleted.\n"

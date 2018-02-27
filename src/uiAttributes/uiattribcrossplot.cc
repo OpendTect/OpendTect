@@ -332,11 +332,12 @@ bool uiAttribCrossPlot::acceptOK()
     if ( dps->isEmpty() )
 	mErrRet(tr("No positions selected"))
 
-    uiString dpsnm; prov->getSummary( dpsnm );
+    uiPhrase dpsnm; prov->getSummary( dpsnm );
     if ( filt )
     {
-	uiString filtsumm; filt->getSummary( filtsumm );
-	dpsnm.append(" / ").append(filtsumm);
+	uiPhrase filtsumm; filt->getSummary( filtsumm );
+	dpsnm.appendPhrase(toUiString("/ %1").arg(filtsumm),
+				    uiString::Space, uiString::OnSameLine);
     }
     dps->setName( mFromUiStringTodo(dpsnm) );
     IOPar descsetpars;
