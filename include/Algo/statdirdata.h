@@ -90,6 +90,9 @@ public:
 
 inline float DirectionalData::angle( int isect, int bound ) const
 {
+    if ( isEmpty() )
+	return mUdf(float);
+
     float fullc; Angle::getFullCircle( setup_.angletype_, fullc );
     const float angstep = fullc / size();
     const float centerang = setup_.angle0_ + angstep * isect;
@@ -99,7 +102,7 @@ inline float DirectionalData::angle( int isect, int bound ) const
 
 inline float DirectionalData::angle( int isect, Angle::Type t, int bound ) const
 {
-    float ang = angle( isect, bound );
+    const float ang = angle( isect, bound );
     return Angle::convert( setup_.angletype_, ang, t );
 }
 
@@ -132,5 +135,4 @@ inline DirectionalData::DirectionalData( int nrsect, int nrparts )
     }
 }
 
-
-}; // namespace Stats
+} // namespace Stats
