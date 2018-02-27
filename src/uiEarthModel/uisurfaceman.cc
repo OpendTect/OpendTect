@@ -616,7 +616,8 @@ bool uiSurfaceMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 	mAddInlCrlRangeTxt( uiStrings::sInlineRange(), range );
 	range = eminfo.getCrlRange();
 	mAddInlCrlRangeTxt( uiStrings::sCrosslineRange(), range );
-	mAddZRangeTxt( eminfo.getZRange() )
+	Interval<float> zrg = eminfo.getZRange();
+	mAddZRangeTxt( zrg )
     }
 
     return true;
