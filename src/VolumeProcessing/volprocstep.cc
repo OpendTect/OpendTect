@@ -351,7 +351,20 @@ TrcKeyZSampling VolProc::Step::getInputSampling(
     const Survey::Geometry* geom = Survey::GM().getGeometry(
 						    res.hsamp_.getGeomID() );
     if ( geom )
-	res.limitTo( geom->sampling(), true );
+    {
+	res.hsamp_.limitTo( geom->sampling().hsamp_ );
+	if ( res.zsamp_.isCompatible(geom->sampling().zsamp_) )
+	    res.zsamp_.limitTo( geom->sampling().zsamp_ );
+	else
+	{
+	    const float geomzstart = geom->sampling().zsamp_.start;
+	    const float geomzstop = geom->sampling().zsamp_.stop;
+	    const float zidxstart = res.zsamp_.getfIndex( geomzstart );
+	    const float zidxstop = res.zsamp_.getfIndex( geomzstop );
+	    res.zsamp_.stop = res.zsamp_.atIndex( Math::Floor(zidxstop) );
+	    res.zsamp_.start = res.zsamp_.atIndex( Math::Ceil(zidxstart) );
+	}
+    }
 
     return res;
 }
