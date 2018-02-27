@@ -37,20 +37,30 @@ static const int cygdrvstringlen=10;
 
 void disableAutoSleep()
 {
-    /*Prevents the machine from sleeping
-https://msdn.microsoft.com/en-us/library/windows/
-desktop/aa373208(v=vs.85).aspx*/
-    SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED );
+#ifdef __win__
+    /* Prevents the machine from sleeping
+	https://msdn.microsoft.com/en-us/library/windows/desktop/
+		aa373208(v=vs.85).aspx */
+    SetThreadExecutionState( ES_CONTINUOUS | ES_SYSTEM_REQUIRED );
+#else
+   //TODO
+#endif
 }
 
 void enableAutoSleep()
 {
-   SetThreadExecutionState(ES_CONTINUOUS);
+#ifdef __win__
+   SetThreadExecutionState( ES_CONTINUOUS );
+#else
+   //TODO
+#endif
 }
+
 
 const char* getCleanUnxPath( const char* path )
 {
-    if ( !path || !*path ) return 0;
+    if ( !path || !*path )
+	return 0;
 
     mDeclStaticString( ret );
 
