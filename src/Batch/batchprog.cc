@@ -27,7 +27,7 @@
 #include "keystrs.h"
 #include "ascstream.h"
 #include "debug.h"
-
+#include "winutils.h"
 #include <iostream>
 
 #ifndef __win__
@@ -62,11 +62,8 @@ BatchProgram::BatchProgram()
     , comm_(0)
     , clparser_(0)
 {
-/*Prevents the machine from sleeping
-https://msdn.microsoft.com/en-us/library/windows/
-desktop/aa373208(v=vs.85).aspx*/
 #ifdef __win__
-    SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED );
+    disableAutoSleep();
 #endif
 }
 
@@ -182,10 +179,8 @@ void BatchProgram::init()
 
 BatchProgram::~BatchProgram()
 {
-/*https://msdn.microsoft.com/en-us/library/windows/
-desktop/aa373208(v=vs.85).aspx*/
 #ifdef __win__
-    SetThreadExecutionState(ES_CONTINUOUS);
+    enableAutoSleep();
 #endif
 
     infoMsg( sKeyFinishMsg() );
