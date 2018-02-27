@@ -27,15 +27,18 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
+#include "hiddenparam.h"
+#include "emfsstofault3d.h"
 
 
 class BulkFaultAscIO : public Table::AscIO
 {
 public:
-BulkFaultAscIO( const Table::FormatDesc& fd, od_istream& strm )
+BulkFaultAscIO( const Table::FormatDesc& fd, od_istream& strm, bool is2d )
     : Table::AscIO(fd)
     , strm_(strm)
     , finishedreadingheader_(false)
+    , is2d_(is2d)
 {}
 
 
@@ -53,12 +56,9 @@ static Table::FormatDesc* getDesc( bool isfss, bool is2d )
 					     Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( "Node index", IntInpSpec(),
 					     Table::Optional );
-/* Enable when supported
     if ( is2d )
 	fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
 						 Table::Required );
-*/
-
     return fd;
 }
 
@@ -67,7 +67,8 @@ bool isXY() const
 { return formOf( false, 1 ) == 0; }
 
 
-bool getData( BufferString& fltnm, Coord3& crd, int& sticknr )
+bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
+		BufferString& lnnm )
 {
     if ( !finishedreadingheader_ )
     {
@@ -95,14 +96,23 @@ bool getData( BufferString& fltnm, Coord3& crd, int& sticknr )
 	crd = Coord3( SI().transform(bid), getFValue(3,udfval_) );
     }
 
-    sticknr = getIntValue( 4 );
+    stickidx = getIntValue( 4 );
+    nodeidx = getIntValue( 5 );
+    if ( is2d_ )
+	lnnm = text( 6 );
     return true;
 }
 
     od_istream&		strm_;
     float		udfval_;
     bool		finishedreadingheader_;
+    bool		is2d_;
 };
+
+
+static const char* sKeyGeometric()	{ return "Geometric"; }
+static const char* sKeyIndexed()	{ return "Indexed"; }
+static const char* sKeyFileOrder()	{ return "File order"; }
 
 
 #define mGet( tp, fss, f3d ) \
@@ -115,6 +125,9 @@ bool getData( BufferString& fltnm, Coord3& crd, int& sticknr )
     mGet( tp, (is2d ? mODHelpKey(mImportFaultStick2DHelpID) \
 		    : mODHelpKey(mImportFaultStick3DHelpID) ), \
     mODHelpKey(mImportFaultHelpID) )
+
+static HiddenParam<uiBulkFaultImport,char> is2d_(0);
+static HiddenParam<uiBulkFaultImport,uiGenInput*> sortsticksfld_(0);
 
 
 uiBulkFaultImport::uiBulkFaultImport( uiParent* p )
@@ -137,6 +150,7 @@ uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type, bool is2d )
     , isfss_(mGet(type,true,false))
     , fd_(BulkFaultAscIO::getDesc(isfss_,is2d))
 {
+    is2d_.setParam( this, is2d );
     init();
 }
 
@@ -150,9 +164,18 @@ void uiBulkFaultImport::init()
 		      uiFileInput::Setup().withexamine(true)
 		      .examstyle(File::Table) );
 
+    BufferStringSet sticksortopt;
+    sticksortopt.add( sKeyGeometric() )
+		.add( sKeyIndexed() ).add( sKeyFileOrder() );
+    uiGenInput* sortsticksfld = new uiGenInput( this, tr("Stick sorting"),
+				     StringListInpSpec(sticksortopt) );
+    sortsticksfld->attach( alignedBelow, inpfld_ );
+
+    sortsticksfld_.setParam( this, sortsticksfld );
+
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 		mODHelpKey(mTableImpDataSelwellsHelpID) );
-    dataselfld_->attach( alignedBelow, inpfld_ );
+    dataselfld_->attach( alignedBelow, sortsticksfld );
 }
 
 
@@ -163,6 +186,141 @@ uiBulkFaultImport::~uiBulkFaultImport()
 
 
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
+
+struct FaultPars
+{
+FaultPars( const char* nm )
+    : name_(nm)     {}
+
+void add( const Coord3& crd, int stickidx, int nodeidx, BufferString lnnm )
+{
+    nodes_ += crd;
+    stickidxs_ += stickidx;
+    nodeidxs_ += nodeidx;
+    lnnms_.add( lnnm );
+}
+
+    BufferString	name_;
+    TypeSet<Coord3>	nodes_;
+    TypeSet<int>	stickidxs_;
+    BufferStringSet	lnnms_;
+    TypeSet<int>	nodeidxs_;
+};
+
+static int getFaultIndex( const char* nm, const ObjectSet<FaultPars>& pars )
+{
+    for ( int idx=0; idx<pars.size(); idx++ )
+    {
+	if ( pars[idx]->name_ == nm )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+static void readInput( BulkFaultAscIO& aio, ObjectSet<FaultPars>& pars )
+{
+    BufferString fltnm; Coord3 crd; int stickidx; int nodeidx;
+    BufferString lnnm;
+    while ( aio.getData(fltnm, crd, stickidx, nodeidx, lnnm) )
+    {
+	if ( fltnm.isEmpty() || !crd.isDefined() )
+	    continue;
+
+	int fltidx = getFaultIndex( fltnm, pars );
+	if ( fltidx == -1 )
+	{
+	    pars += new FaultPars( fltnm );
+	    fltidx = pars.size() - 1;
+	}
+
+	pars[fltidx]->add( crd, stickidx, nodeidx, lnnm );
+    }
+}
+
+
+static void fillFaultSticks( FaultPars& pars, ObjectSet<EM::FaultStick>& sticks)
+{
+    const TypeSet<Coord3>& nodes = pars.nodes_;
+    const TypeSet<int>& stickidxs = pars.stickidxs_;
+    const TypeSet<int>& nodeidxs = pars.nodeidxs_;
+    const bool hasstickidx =
+	    !stickidxs.isEmpty() && !mIsUdf( stickidxs.first() );
+    const bool hasnodeidx =
+	    !nodeidxs.isEmpty() && !mIsUdf( nodeidxs.first() );
+
+    int prevstickidx = -mUdf(int);
+    int prevnodeidx = mUdf(int);
+    double prevz = mUdf(double);
+    const int nrnodes = nodes.size();
+    int mystickidx = -1;
+    for ( int nidx=0; nidx<nrnodes; nidx++ )
+    {
+	const Coord3& crd = nodes[nidx];
+	const int stickidx = stickidxs[nidx];
+	const int nodeidx = nodeidxs[nidx];
+
+	bool addnewstick = false;
+	if ( hasstickidx )
+	    addnewstick = stickidx != prevstickidx;
+	else if ( hasnodeidx )
+	    addnewstick = nodeidx < prevnodeidx;
+	else
+	    addnewstick = crd.z < prevz;
+
+	if ( addnewstick )
+	{
+	    mystickidx++;
+	    sticks += new EM::FaultStick( hasstickidx ? stickidx : mystickidx );
+	}
+	sticks[mystickidx]->crds_ += crd;
+
+	if ( !pars.lnnms_.isEmpty() )
+	    sticks[ mystickidx ]->lnm_ = pars.lnnms_.get(nidx);
+
+	prevstickidx = stickidx;
+	prevnodeidx = nodeidx;
+    }
+}
+
+
+static void updateFaultStickSet( EM::Fault* flt,
+				ObjectSet<EM::FaultStick>& sticks, bool is2d )
+{
+    if ( !flt ) return;
+
+    int sticknr = !sticks.isEmpty() ? sticks[0]->stickidx_ : 0;
+
+    for ( int idx=0; idx<sticks.size(); idx++ )
+    {
+	const EM::SectionID sid = flt->sectionID( 0 );
+	EM::FaultStick* stick = sticks[idx];
+	if ( stick->crds_.isEmpty() )
+	    continue;
+	if ( is2d )
+	{
+	    mDynamicCastGet(EM::FaultStickSet*,emfss,flt)
+	    const Pos::GeomID geomid = Survey::GM().getGeomID( stick->lnm_ );
+	    emfss->geometry().insertStick( sid, sticknr, 0,
+		    stick->crds_[0], stick->getNormal(true), geomid, false );
+
+	}
+	else
+	    flt->geometry().insertStick( sid, sticknr, 0,
+			stick->crds_[0], stick->getNormal(false), false );
+
+	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
+	{
+	    const RowCol rc( stick->stickidx_, crdidx );
+	    flt->geometry().insertKnot( sid, rc.toInt64(),
+				       stick->crds_[crdidx], false );
+	}
+	sticknr++;
+    }
+}
+
+
 
 bool uiBulkFaultImport::acceptOK( CallBacker* )
 {
@@ -176,83 +334,52 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
     if ( !dataselfld_->commit() )
 	return false;
 
-    BufferStringSet fltnms;
-    TypeSet< TypeSet<Coord3> > nodes;
-    TypeSet< TypeSet<int> > sticks;
-
-    BulkFaultAscIO aio( *fd_, strm );
-    BufferString fltnm; Coord3 crd; int sticknr;
-    while ( aio.getData(fltnm,crd,sticknr) )
-    {
-	if ( fltnm.isEmpty() || !crd.isDefined() || mIsUdf(sticknr)  )
-	    continue;
-
-	const int fltidx = fltnms.indexOf( fltnm );
-	if ( fltidx==-1 )
-	{
-	    fltnms.add( fltnm );
-	    TypeSet<Coord3> poses; poses += crd; nodes += poses;
-	    TypeSet<int> stickids; stickids += sticknr; sticks += stickids;
-	}
-	else
-	{
-	    nodes[fltidx] += crd;
-	    sticks[fltidx] += sticknr;
-	}
-    }
+    ManagedObjectSet<FaultPars> pars;
+    BulkFaultAscIO aio( *fd_, strm, is2d_.getParam(this) );
+    readInput( aio, pars );
 
     // TODO: Check if name exists, ask user to overwrite or give new name
-    BufferStringSet errors;
     uiTaskRunner taskr( this );
-    const Coord3 normal( 0, 0, 1 );
-    const char* typestr = isfss_ ? EM::FaultStickSet::typeStr()
-				 : EM::Fault3D::typeStr();
-    for ( int idx=0; idx<fltnms.size(); idx++ )
-    {
-	EM::ObjectID eid = EM::EMM().createObject( typestr, fltnms.get(idx) );
-	EM::EMObject* emobj = EM::EMM().getObject( eid );
-	emobj->ref();
-	mDynamicCastGet( EM::Fault3D*, emflt, emobj );
-	mDynamicCastGet( EM::FaultStickSet*, emfss, emobj );
 
-	if ( !emflt && !emfss )
+    const char* typestr = isfss_ ? EM::FaultStickSet::typeStr()
+			       : EM::Fault3D::typeStr();
+    BufferString savernm = isfss_ ? "Saving FaultStickSets" : "Saving Faults";
+    ExecutorGroup saver( savernm );
+    for ( int idx=0; idx<pars.size(); idx++ )
+    {
+	EM::EMManager& em = EM::EMM();
+	EM::ObjectID emid = em.createObject( typestr,
+						pars[idx]->name_.buf() );
+	EM::EMObject* emobj = em.getObject(emid);
+	emobj->ref();
+
+	mDynamicCastGet( EM::Fault*, flt, emobj );
+
+	if ( !flt )
 	{
 	    emobj->unRef();
 	    continue;
 	}
 
-	Geometry::FaultStickSet& flt = emflt ?
-				    *emflt->geometry().sectionGeometry(0) :
-				    *emfss->geometry().sectionGeometry(0);
-	TypeSet<int> usedstickids;
+	ManagedObjectSet<EM::FaultStick> faultsticks;
+	fillFaultSticks( *pars[idx], faultsticks );
+	updateFaultStickSet( flt, faultsticks, is2d_.getParam(this) );
 
-	for ( int sidx=0; sidx<sticks[idx].size(); sidx++ )
-	{
-	    const int cursidx = usedstickids.indexOf( sticks[idx][sidx] );
-	    if ( cursidx < 0 )
-	    {
-		const int curstickidx = usedstickids.size();
-		usedstickids += sticks[idx][sidx];
-		flt.insertStick( nodes[idx][sidx], normal, curstickidx );
-	    }
-	    else
-	    {
-		const TypeSet<Coord3>* poses = flt.getStick( cursidx );
-		const int lastidx = poses ? poses->size() : 0;
-		flt.insertKnot( RowCol(cursidx,lastidx), nodes[idx][sidx] );
-	    }
-	}
+	saver.add( emobj->saver() );
 
-	PtrMan<Executor> saver =  emflt ? emflt->saver() :  emfss->saver();
-	if ( !saver || !TaskRunner::execute( &taskr, *saver )  )
-	{
-	    uiMSG().error(tr("Cannot import %1").arg(toUiString(typestr)));
-	    return false;
-	}
 	emobj->unRef();
     }
 
-    uiMSG().message(tr("Imported all %1 from file %2").arg(toUiString(typestr))
-							.arg(fnm));
-    return true;
+    if ( TaskRunner::execute( &taskr, saver ) )
+    {
+	uiMSG().message( tr("Imported all %1 from file %2").arg(isfss_ ?
+	  uiStrings::sFaultStickSet(mPlural) : uiStrings::sFault(mPlural))
+	  .arg(fnm) );
+	return true;
+    }
+    else
+    {
+	saver.uiMessage();
+	return false;
+    }
 }
