@@ -10,6 +10,7 @@
 #include "winutils.h"
 
 #include "bufstring.h"
+#include "genc.h"
 #include "debug.h"
 #include "envvars.h"
 #include "file.h"
