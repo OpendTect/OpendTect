@@ -116,7 +116,9 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
     for ( int idx=0; idx<descprov_->nrJobs(); idx++ )
 	jobinfos_ += new JobInfo( idx );
 
+#ifdef __win__
     disableAutoSleep();
+#endif
 }
 
 
@@ -127,7 +129,9 @@ JobRunner::~JobRunner()
     deepErase( failedjobs_ );
     delete iomgr_;
 
+#ifdef __win__
     enableAutoSleep();
+#endif
 }
 
 

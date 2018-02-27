@@ -34,18 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* cygdrvstr="/cygdrive/";
 static const int cygdrvstrlen=10;
 
-void disableAutoSleep()
-{
-    /*Prevents the machine from sleeping
-https://msdn.microsoft.com/en-us/library/windows/
-desktop/aa373208(v=vs.85).aspx*/
-    SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED );
-}
-
-void enableAutoSleep()
-{
-   SetThreadExecutionState(ES_CONTINUOUS);
-}
 
 const char* getCleanUnxPath( const char* path )
 {
@@ -401,6 +389,19 @@ bool removeRegKey( const char* ky )
     regkey.clear();
     regkey.sync();
     return regkey.status() == QSettings::NoError;
+}
+
+void disableAutoSleep()
+{
+    /*Prevents the machine from sleeping
+    https://msdn.microsoft.com/en-us/library/windows/
+    desktop/aa373208(v=vs.85).aspx*/
+    SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED );
+}
+
+void enableAutoSleep()
+{
+   SetThreadExecutionState(ES_CONTINUOUS);
 }
 
 #endif // __win__
