@@ -80,7 +80,8 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
 {
     uiRect mPos = curpos( setGeom );
 
-    if ( store2prefpos ) curpos( preferred ) = mPos;
+    if ( store2prefpos )
+	curpos( preferred ) = mPos;
 
     if ( objLayouted() ) objLayouted()->triggerSetGeometry( this, mPos );
 #ifdef __debug__
@@ -131,7 +132,7 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 	BufferString blnm = bodyLayouted() ?  bodyLayouted()->name().buf()
 					   : "";
 
-	od_cout() << "Init layout on:" << blnm;
+	od_cout() << "Init layout on: " << blnm;
 	od_cout() << ": prf hsz: " << pref_h_nr_pics;
 	od_cout() <<",  prf vsz: " << pref_v_nr_pics;
 	od_cout() <<", mngr top: " << mngrTop;
@@ -669,10 +670,10 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 }
 
 
-void i_LayoutItem::attach ( constraintType type, i_LayoutItem* other,
-			    int margn, bool reciprocal )
+void i_LayoutItem::attach( constraintType type, i_LayoutItem* other,
+			   int margn, bool reciprocal )
 {
-    if ( type != ensureLeftOf)
+    if ( type != ensureLeftOf )
 	constrList += uiConstraint( type, other, margn );
 
     if( reciprocal && other )
@@ -688,7 +689,7 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem* other,
 	break;
 
 	case leftTo:
-	    other->constrList += uiConstraint( rightTo, this, margn);
+	    other->constrList += uiConstraint( rightTo, this, margn );
 	break;
 
 	case rightTo:
