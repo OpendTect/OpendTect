@@ -5,9 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-// These get rid of warnings about casting HINSTANCE to int
-#pragma warning( disable : 4302 )
-#pragma warning( disable : 4311 )
+
 
 #include "winutils.h"
 
@@ -19,6 +17,10 @@
 #include "string2.h"
 
 #ifdef __win__
+// These get rid of warnings about casting HINSTANCE to int
+#pragma warning( disable : 4302 )
+#pragma warning( disable : 4311 )
+
 # include <windows.h>
 # include <shlobj.h>
 # include <process.h>

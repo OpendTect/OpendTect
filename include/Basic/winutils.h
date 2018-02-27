@@ -14,10 +14,10 @@ ________________________________________________________________________
 
 
 #include "basicmod.h"
+#include "gendefs.h"
 
 #ifdef __win__
 
-#include "gendefs.h"
 # include "shlobj.h"
 
 
@@ -44,7 +44,7 @@ mGlobal(Basic) const char*	getCygDir();
 mGlobal(Basic) bool		getDefaultBrowser(BufferString& cmd,
 						  BufferString& errmsg);
 
-mGlobal(Basic)	bool		setRegKeyVal(const char* ky, const char* vanrnm,
+mGlobal(Basic) bool		setRegKeyVal(const char* ky, const char* vanrnm,
 					     const char *val);
 mGlobal(Basic) bool		removeRegKey(const char*);
 
