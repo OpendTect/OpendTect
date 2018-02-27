@@ -96,7 +96,7 @@ void System::IssueReporter::fillBasicReport( const char* filename )
     unfilteredreport.add( Threads::getNrProcessors() );
     #ifdef __win__
     unfilteredreport.add( "\nWindows OS Version : " );
-    unfilteredreport.add( getFullWinVersion() );
+    unfilteredreport.add( WinUtils::getFullWinVersion() );
     #endif
 
     SeparString sep( unfilteredreport.buf(), '\n' );

@@ -162,7 +162,7 @@ void ODInst::startInstManagement()
     BufferString parm( " --instdir "  );
     parm.add( "\"" ).add( mRelRootDir ).add( "\"" );
 
-    executeWinProg( cmd, parm, installerdir.pathOnly() );
+    WinUtils::execProg( cmd, parm, installerdir.pathOnly() );
 #endif
 }
 
@@ -178,7 +178,7 @@ void ODInst::startInstManagementWithRelDir( const char* reldir )
     BufferString parm( " --instdir "  );
     parm.add( "\"" ).add( reldir ).add( "\"" );
 
-    executeWinProg( cmd, parm, installerdir.pathOnly() );
+    WinUtils::execProg( cmd, parm, installerdir.pathOnly() );
 #endif
 }
 

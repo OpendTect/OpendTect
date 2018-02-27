@@ -354,10 +354,11 @@ static const char* getCmd( const char* fnm )
     fullexec = "\"";
     File::Path interpfp;
 
-    if ( getCygDir() )
+    const char* cygdir = WinUtils::getCygDir();
+    if ( cygdir && *cygdir )
     {
-	interpfp.set( getCygDir() );
-	interpfp.add("bin").add(interp);
+	interpfp.set( cygdir );
+	interpfp.add( "bin" ).add( interp );
     }
 
     if ( !File::exists( interpfp.fullPath() ) )

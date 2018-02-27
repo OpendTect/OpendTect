@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "staticstring.h"
 #include "mmcommunicdefs.h"
 #include "uistrings.h"
-#include "winutils.h"
 
 #include <iostream>
 
@@ -123,7 +122,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd, od_ostream* logstrm )
     for ( int idx=0; idx<descprov_->nrJobs(); idx++ )
 	jobinfos_ += new JobInfo( idx );
 
-     disableAutoSleep();
+     DisableAutoSleep();
 }
 
 
@@ -134,7 +133,7 @@ JobRunner::~JobRunner()
     deepErase( failedjobs_ );
     delete iomgr_;
 
-    enableAutoSleep();
+    EnableAutoSleep();
 }
 
 

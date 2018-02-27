@@ -44,7 +44,7 @@ static bool openLocalFragmentedUrl( const QUrl& qurl )
 #ifdef __win__
 
     BufferString browser, errmsg;
-    if ( !getDefaultBrowser(browser,errmsg) )
+    if ( !WinUtils::getDefaultBrowser(browser,errmsg) )
     {
 	if ( DBG::isOn(DBG_IO) && !errmsg.isEmpty() )
 	    DBG::message( browser.buf() );

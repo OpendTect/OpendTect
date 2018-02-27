@@ -159,7 +159,7 @@ Windows:
     DTECT_HOME	-> converted from unix to windows path (cygpath -w)
     HOMEDRIVE+HOMEPATH if exists and not equal to "C:\"
     That should be it. If that still fails, we try HOME, USERPROFILE, APPDATA,
-    DTECT_USERPROFILE_DIR. As a last resort, GetSpecialFolderLocation is used.
+    DTECT_USERPROFILE_DIR. As a last resort, getSpecialFolderLocation is used.
 
 UNIX:
     DTECT_HOME, HOME; in that order.

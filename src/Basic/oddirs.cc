@@ -88,9 +88,9 @@ mExternC(Basic) const char* GetBaseDataDir()
     dir = GetEnvVar( "DTECT_WINDATA" );
     if ( dir.isEmpty() )
     {
-	dir = getCleanWinPath( GetEnvVar("DTECT_DATA") );
+	dir = GetCleanWinPath( GetEnvVar("DTECT_DATA") );
 	if ( dir.isEmpty() )
-	    dir = getCleanWinPath( GetSettingsDataDir() );
+	    dir = GetCleanWinPath( GetSettingsDataDir() );
 
 	if ( !dir.isEmpty() )
 	    SetEnvVar( "DTECT_WINDATA", dir );
@@ -448,9 +448,9 @@ static void getHomeDir( BufferString& homedir )
 #else
 
     dir = GetEnvVar( "DTECT_WINHOME" );
-    if ( !dir ) dir = getCleanWinPath( GetEnvVar("DTECT_HOME") );
+    if ( !dir ) dir = GetCleanWinPath( GetEnvVar("DTECT_HOME") );
 				// should always at least be set
-    if ( !dir ) dir = getCleanWinPath( GetEnvVar("HOME") );
+    if ( !dir ) dir = GetCleanWinPath( GetEnvVar("HOME") );
 
     if ( !dir && GetEnvVar("HOMEDRIVE") && GetEnvVar("HOMEPATH") )
     {
@@ -465,13 +465,14 @@ static void getHomeDir( BufferString& homedir )
 	od_debug_message( "Problem: No DTECT_WINHOME, DTECT_HOME "
 			  "or HOMEDRIVE/HOMEPATH. Result may be bad." );
 
-    if ( !dir ) dir = getCleanWinPath( GetEnvVar("HOME") );
+    if ( !dir ) dir = GetCleanWinPath( GetEnvVar("HOME") );
     if ( !dir ) dir = GetEnvVar( "USERPROFILE" ); // set by OS
     if ( !dir ) dir = GetEnvVar( "APPDATA" );     // set by OS -- but is hidden
     if ( !dir ) dir = GetEnvVar( "DTECT_USERPROFILE_DIR" );// set by init script
     if ( !dir ) // Last resort. Is known to cause problems when used
 		// during initialisation of statics. (0xc0000005)
-	dir = GetSpecialFolderLocation( CSIDL_PROFILE ); // "User profile"
+	dir = WinUtils::getSpecialFolderLocation( CSIDL_PROFILE );
+			// "User profile"
 
 #endif
 
@@ -536,7 +537,7 @@ mExternC(Basic) const char* GetSettingsDir()
 	const char* ptr = 0;
 #ifdef __win__
 	ptr = GetEnvVar( "DTECT_WINSETTINGS" );
-	if( !ptr ) ptr = getCleanWinPath( GetEnvVar("DTECT_SETTINGS") );
+	if( !ptr ) ptr = GetCleanWinPath( GetEnvVar("DTECT_SETTINGS") );
 #else
 	ptr = GetEnvVar( "DTECT_SETTINGS" );
 #endif

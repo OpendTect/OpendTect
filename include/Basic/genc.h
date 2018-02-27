@@ -37,6 +37,11 @@ mGlobal(Basic) const char* GetExecutableName(void);
 		/*!< returns name of the executable. setProgramArgs
 		     must be called for it to work. */
 
+mGlobal(Basic) const char* GetCleanUnxPath( const char* path );
+		/*!< returns a cleaned path in UNIX style */
+mGlobal(Basic) const char* GetCleanWinPath( const char* path );
+		/*!< returns a cleaned path in Windows style */
+
 mGlobal(Basic) const char* GetOSIdentifier(void);
 
 #ifdef __win__
@@ -103,6 +108,9 @@ mGlobal(Basic) const char* GetVCSVersion(void);
 mGlobal( Basic ) const char* GetLastSystemErrorMessage(void);
 
 mGlobal( Basic ) void ForkProcess(void);
+
+mGlobal(Basic) void DisableAutoSleep();
+mGlobal(Basic) void EnableAutoSleep();
 
 
 mGlobal( Basic ) int InSysAdmMode(void);

@@ -76,7 +76,7 @@ bool ZipUtils::doZip( const char* src, const char* dest )
     File::changeDir( GetSoftwareDir(0) );
     return ret;
 #else
-    const bool ret = execProc( cmd, true, false, srcfp.pathOnly() );
+    const bool ret = WinUtils::execProc( cmd, true, false, srcfp.pathOnly() );
     return ret;
 #endif
 }

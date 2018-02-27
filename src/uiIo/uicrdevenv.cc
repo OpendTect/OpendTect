@@ -25,9 +25,6 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "od_helpids.h"
 
-#ifdef __win__
-# include "winutils.h"
-#endif
 
 static void showProgrDoc()
 {

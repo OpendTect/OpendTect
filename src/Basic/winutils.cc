@@ -35,7 +35,7 @@
 static const char* cygdrvstr="/cygdrive/";
 static const int cygdrvstringlen=10;
 
-extern "C" void disableAutoSleep()
+extern "C" void DisableAutoSleep()
 {
 #ifdef __win__
     /* Prevents the machine from sleeping
@@ -47,7 +47,7 @@ extern "C" void disableAutoSleep()
 #endif
 }
 
-extern "C" void enableAutoSleep()
+extern "C" void EnableAutoSleep()
 {
 #ifdef __win__
    SetThreadExecutionState( ES_CONTINUOUS );
@@ -57,7 +57,7 @@ extern "C" void enableAutoSleep()
 }
 
 
-extern "C" const char* getCleanUnxPath( const char* path )
+extern "C" const char* GetCleanUnxPath( const char* path )
 {
     if ( !path || !*path )
 	return 0;
@@ -88,13 +88,13 @@ extern "C" const char* getCleanUnxPath( const char* path )
     ret.replace( '/', '\\' ); \
     if ( __do_debug_cleanpath ) \
     { \
-        BufferString msg("getCleanWinPath for: ",path," : "); \
+        BufferString msg("GetCleanWinPath for: ",path," : "); \
 	msg += ret; \
         od_debug_message( msg ); \
     } \
     return ret;
 
-extern "C" const char* getCleanWinPath( const char* path )
+extern "C" const char* GetCleanWinPath( const char* path )
 {
     if ( !path || !*path ) return 0;
 
@@ -129,7 +129,7 @@ extern "C" const char* getCleanWinPath( const char* path )
     {
 	const char* cygdir =
 #ifdef __win__
-				getCygDir();
+				WinUtils::getCygDir();
 #else
 				0;
 #endif
@@ -152,7 +152,7 @@ extern "C" const char* getCleanWinPath( const char* path )
 
 #ifdef __win__
 
-const char* getCygDir()
+const char* WinUtils::getCygDir()
 {
     mDeclStaticString( answer );
     if ( !answer.isEmpty() ) return answer;
@@ -189,7 +189,7 @@ const char* getCygDir()
 }
 
 
-const char* GetSpecialFolderLocation( int nFolder )
+const char* WinUtils::getSpecialFolderLocation( int nFolder )
 {
     LPITEMIDLIST pidl;
     HRESULT hr = SHGetSpecialFolderLocation( NULL, nFolder, &pidl );
@@ -206,7 +206,8 @@ const char* GetSpecialFolderLocation( int nFolder )
 }
 
 
-bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
+bool WinUtils::copy( const char* from, const char* to, bool isfile,
+			bool ismove )
 {
     if ( isfile && File::getKbSize(from) < 1024 )
     {
@@ -237,7 +238,7 @@ bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
 }
 
 
-bool winRemoveDir( const char* dirnm )
+bool WinUtils::removeDir( const char* dirnm )
 {
     SHFILEOPSTRUCT fileop;
     BufferString frm( dirnm );
@@ -253,7 +254,7 @@ bool winRemoveDir( const char* dirnm )
 }
 
 
-unsigned int getWinVersion()
+unsigned int WinUtils::getWinVersion()
 {
     DWORD dwVersion = 0;
     DWORD dwMajorVersion = 0;
@@ -268,7 +269,7 @@ unsigned int getWinVersion()
 }
 
 
-const char* getFullWinVersion()
+const char* WinUtils::getFullWinVersion()
 {
     DWORD dwVersion = 0;
     DWORD dwMajorVersion = 0;
@@ -290,14 +291,16 @@ const char* getFullWinVersion()
 }
 
 
-bool execShellCmd( const char* comm, const char* parm, const char* runin )
+bool WinUtils::execShellCmd( const char* comm, const char* parm,
+			     const char* runin )
 {
     int res = (int)ShellExecute( NULL, "runas", comm, parm, runin, SW_SHOW );
     return res > 32;
 }
 
 
-bool execProc( const char* comm, bool inconsole, bool inbg, const char* runin )
+bool WinUtils::execProc( const char* comm, bool inconsole, bool inbg,
+			 const char* runin )
 {
     if ( !comm || !*comm ) return false;
 
@@ -348,19 +351,19 @@ bool execProc( const char* comm, bool inconsole, bool inbg, const char* runin )
 }
 
 
-bool executeWinProg( const char* comm, const char* parm, const char* runin )
+bool WinUtils::execProg( const char* comm, const char* parm, const char* runin )
 {
      if ( !comm || !*comm ) return false;
 
-     unsigned int winversion = getWinVersion();
+     unsigned int winversion = WinUtils::getWinVersion();
      if ( winversion < 6 )
      {
 	 BufferString com( comm, " " );
 	 com += parm;
-	 return execProc( com, true, true, runin );
+	 return WinUtils::execProc( com, true, true, runin );
      }
 
-     return execShellCmd( comm, parm, runin );
+     return WinUtils::execShellCmd( comm, parm, runin );
 }
 
 
@@ -394,11 +397,14 @@ static bool getDefaultApplication( const char* filetype,
 }
 
 
-bool getDefaultBrowser( BufferString& cmd, BufferString& errmsg )
-{ return getDefaultApplication( "HTTP", cmd, errmsg ); }
+bool WinUtils::getDefaultBrowser( BufferString& cmd, BufferString& errmsg )
+{
+    return getDefaultApplication( "HTTP", cmd, errmsg );
+}
 
 
-bool setRegKeyVal( const char* ky, const char* vanrnm, const char *val )
+bool WinUtils::setRegKeyVal( const char* ky, const char* vanrnm,
+			     const char *val )
 {
     QSettings regkey( ky, QSettings::NativeFormat );
     regkey.setValue("Default", "");
@@ -408,7 +414,7 @@ bool setRegKeyVal( const char* ky, const char* vanrnm, const char *val )
 }
 
 
-bool removeRegKey( const char* ky )
+bool WinUtils::removeRegKey( const char* ky )
 {
     QSettings regkey( ky, QSettings::NativeFormat );
     regkey.clear();

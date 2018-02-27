@@ -27,7 +27,6 @@
 #include "keystrs.h"
 #include "ascstream.h"
 #include "debug.h"
-#include "winutils.h"
 #include <iostream>
 
 #ifndef __win__
@@ -63,7 +62,7 @@ BatchProgram::BatchProgram()
     , clparser_(0)
 {
 #ifdef __win__
-    disableAutoSleep();
+    DisableAutoSleep();
 #endif
 }
 
@@ -180,7 +179,7 @@ void BatchProgram::init()
 BatchProgram::~BatchProgram()
 {
 #ifdef __win__
-    enableAutoSleep();
+    EnableAutoSleep();
 #endif
 
     infoMsg( sKeyFinishMsg() );

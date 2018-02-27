@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "envvars.h"
 #include "staticstring.h"
-#include "winutils.h"
 #include "executor.h"
 #include "ptrman.h"
 #include "od_istream.h"

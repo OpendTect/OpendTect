@@ -10,7 +10,6 @@
 #include "file.h"
 #include "genc.h"
 #include "msgh.h"
-#include "winutils.h"
 #include "fixedstring.h"
 #include "oddirs.h"
 #include "timefun.h"
@@ -450,9 +449,9 @@ BufferString File::Path::mkCleanPath( const char* path, Style stl )
 
     BufferString ret( path );
     if ( stl == Windows && !__iswin__ )
-	ret = getCleanWinPath( path );
+	ret = GetCleanWinPath( path );
     if ( stl == Unix && __iswin__ )
-	ret = getCleanUnxPath( path );
+	ret = GetCleanUnxPath( path );
 
     return ret;
 }

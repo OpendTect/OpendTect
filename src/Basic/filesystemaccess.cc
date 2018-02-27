@@ -399,7 +399,7 @@ bool File::LocalFileSystemAccess::remove( const char* uri,
 	return dir.removeRecursively();
 #else
 # ifdef __win__
-	return winRemoveDir( fnm );
+	return WinUtils::removeDir( fnm );
 # else
 	BufferString cmd;
 	cmd = "/bin/rm -rf";
