@@ -334,8 +334,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     }
     if ( SI().zIsTime() && have2dtmodel)
     {
-	new uiRadioButton( zunitgrp_, uiStrings::sSec() );
-	new uiRadioButton( zunitgrp_, uiStrings::sMsec() );
+	new uiRadioButton( zunitgrp_, uiStrings::sSec().toLower() );
+	new uiRadioButton( zunitgrp_, uiStrings::sMsec().toLower() );
     }
     zunitgrp_->selectButton( zinft );
 
