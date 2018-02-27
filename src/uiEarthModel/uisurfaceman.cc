@@ -573,7 +573,7 @@ bool uiSurfaceMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 #   define mAddZRangeTxt(rg) \
     if ( !rg.isUdf() ) \
     { \
-	const float usrfac = SI().zDomain().userFactor(); \
+	const int usrfac = SI().zDomain().userFactor(); \
 	addObjInfo(inf,uiStrings::sZRange().withUnit(SI().zUnitString(false)), \
 		   rg.isUdf()	? ::toUiString("-") \
 				: uiStrings::sRangeTemplate( false ) \
