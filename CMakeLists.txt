@@ -33,8 +33,6 @@ else()
     project( "OpendTect" VERSION ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
 endif()
 
-
-
 include( CTest )
 
 set( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
@@ -52,7 +50,6 @@ include( OD_SetupOD )
 
 #Add osgGeo
 OD_ADD_OSGGEO()
-
 
 # Note: the order of these modules *IS* important!
 # Make sure dependent modules are *after* the ones that they depend upon.
@@ -105,6 +102,10 @@ set( OD_PLUGINS
 	CmdDriver
 )
 
+option( BUILD_HDF5_SUPPORT "Build HDF5 support plugin" OFF )
+if ( BUILD_HDF5_SUPPORT STREQUAL "ON" )
+    include( plugins/HDF5/PreInit.cmake )
+endif()
 
 set( OD_SPECPROGS ODSeis visBase )
 OD_CREATE_DEVEL_PACKAGE_DEFINITION()
