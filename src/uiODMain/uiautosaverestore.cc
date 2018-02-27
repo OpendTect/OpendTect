@@ -165,8 +165,8 @@ int uiAutoSave2RealObjDlg::run4All( const char* hnm, const char* unm )
 	FileMultiString fms( ioobj.pars().find( sKey::CrInfo() ) );
 	const int pid( fms.getIValue(1) );
 	const BufferString hostnm( fms[0] );
-	const BufferString procnm( getProcessNameForPID(pid) );
-	const BufferString odprocnm( getProcessNameForPID(GetPID()) );
+	const BufferString procnm( GetProcessNameForPID(pid) );
+	const BufferString odprocnm( GetProcessNameForPID(GetPID()) );
 	if ( hostnm == localhostnm && procnm == odprocnm )
 	    continue; // another instance of od_main is running and made this
 	else if ( !reqhostnm.isEmpty() && reqhostnm != hostnm )

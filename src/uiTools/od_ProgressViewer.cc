@@ -109,7 +109,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
 	getNewPID(0);
 
     if ( !mIsUdf(pid_) )
-	const_cast<BufferString&>( procnm_ ) = getProcessNameForPID( pid_ );
+	const_cast<BufferString&>( procnm_ ) = GetProcessNameForPID( pid_ );
 
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
@@ -270,7 +270,7 @@ void uiProgressViewer::getNewPID( CallBacker* )
 	return;
 
     pid_ = pid;
-    const_cast<BufferString&>( procnm_ ) = getProcessNameForPID( pid_ );
+    const_cast<BufferString&>( procnm_ ) = GetProcessNameForPID( pid_ );
     if ( tb_ && quittbid_ )
     {
 	tb_->setToolTip( quittbid_, sStopAndQuit() );

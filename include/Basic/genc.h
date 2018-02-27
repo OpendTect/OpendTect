@@ -37,11 +37,6 @@ mGlobal(Basic) const char* GetExecutableName(void);
 		/*!< returns name of the executable. setProgramArgs
 		     must be called for it to work. */
 
-mGlobal(Basic) const char* GetCleanUnxPath( const char* path );
-		/*!< returns a cleaned path in UNIX style */
-mGlobal(Basic) const char* GetCleanWinPath( const char* path );
-		/*!< returns a cleaned path in Windows style */
-
 mGlobal(Basic) const char* GetOSIdentifier(void);
 
 #ifdef __win__
@@ -51,7 +46,7 @@ mGlobal(Basic) bool is64BitWindows();
 
 mGlobal(Basic) bool isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
-mGlobal(Basic) const char* getProcessNameForPID(int pid);
+mGlobal(Basic) const char* GetProcessNameForPID(int pid);
 		/*!< returns null if process not found, otherwise returns
 		     the executable name
 		*/
@@ -101,17 +96,12 @@ mGlobal(Basic) int InSysAdmMode(void);
 mGlobal(Basic) void sleepSeconds(double);
 		/*!< puts current thread to sleep for (fraction of) seconds */
 
-
 mGlobal(Basic) const char* GetVCSVersion(void);
 		/*!< Returns Subversion revision number or git commit hash */
 
 mGlobal( Basic ) const char* GetLastSystemErrorMessage(void);
 
 mGlobal( Basic ) void ForkProcess(void);
-
-mGlobal(Basic) void DisableAutoSleep();
-mGlobal(Basic) void EnableAutoSleep();
-
 
 mGlobal( Basic ) int InSysAdmMode(void);
 mGlobal( Basic ) void SetInSysAdmMode(void);
@@ -121,6 +111,15 @@ inline void EmptyFunction()			{}
 /* Used in some macros and ifdefs */
 
 }
+
+
+mGlobal(Basic) const char* GetCleanUnxPath( const char* path );
+		/*!< returns a cleaned path in UNIX style */
+mGlobal(Basic) const char* GetCleanWinPath( const char* path );
+		/*!< returns a cleaned path in Windows style */
+
+mGlobal(Basic) void DisableAutoSleep();
+mGlobal(Basic) void EnableAutoSleep();
 
 
 mGlobal(Basic) void SetProgramArgs(int argc,char** argv,

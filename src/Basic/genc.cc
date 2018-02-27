@@ -370,7 +370,7 @@ bool isProcessAlive( int pid )
 }
 
 
-const char* getProcessNameForPID( int pid )
+const char* GetProcessNameForPID( int pid )
 {
     mDeclStaticString( ret );
     BufferString procname;
