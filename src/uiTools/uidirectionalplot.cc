@@ -45,7 +45,10 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , hdrannotitm2_(0)
     , scalelineitm_(0)
     , scalearcitm_(0)
+    , scalestartptitem_(0)
     , scaleannotitm_(0)
+    , scalestartitm_(0)
+    , scalestopitm_(0)
     , coltabitm_(0)
     , sectorPicked(this)
     , colseq_(0)
@@ -75,7 +78,10 @@ uiDirectionalPlot::~uiDirectionalPlot()
     delete hdrannotitm2_;
     delete scalelineitm_;
     delete scalearcitm_;
+    delete scalestartptitem_;
     delete scaleannotitm_;
+    delete scalestartitm_;
+    delete scalestopitm_;
     delete coltabitm_;
 }
 
@@ -195,6 +201,9 @@ void uiDirectionalPlot::drawGrid()
     }
 
     sectorlines_.removeAll( true );
+    if ( setup_.type_ == Setup::Scatter )
+	return; // TODO: Draw grid only
+
     const int nrsectors = data_.nrSectors();
     for ( int isect=0; isect<nrsectors; isect++ )
     {
@@ -263,7 +272,7 @@ void uiDirectionalPlot::drawHeader()
 	{ delete hdrannotitm1_; hdrannotitm1_ = 0; }
     else if ( !hdrannotitm1_ )
     {
-	hdrannotitm1_ = scene().addItem( 
+	hdrannotitm1_ = scene().addItem(
 			new uiTextItem(mToUiStringTodo(setup_.nameforval_),al));
 	hdrannotitm1_->setPos( uiPoint(0,0) );
     }
@@ -273,7 +282,7 @@ void uiDirectionalPlot::drawHeader()
     else if ( !hdrannotitm2_ )
     {
 	al.set( Alignment::Right );
-	hdrannotitm2_ = scene().addItem( 
+	hdrannotitm2_ = scene().addItem(
 			new uiTextItem(mToUiStringTodo(setup_.hdrannot_),al) );
     }
 
@@ -289,6 +298,7 @@ void uiDirectionalPlot::drawColTab()
 	uiColTabItem::Setup su( true );
 	coltabitm_ = scene().addItem( new uiColTabItem(su) );
     }
+
     ColTab::MapperSetup ctms;
     ctms.type( ColTab::MapperSetup::Fixed );
     ctms.range( valrg_ );
@@ -321,8 +331,8 @@ void uiDirectionalPlot::drawDirAnnot()
 	for ( int idx=0; idx<4; idx++ )
 	{
 	    const bool isew = idx % 2;
-	    const uiString txt = idx == 0 ? uiStrings::sNorth(true) 
-			      : (idx == 1 ? uiStrings::sEast(true) 
+	    const uiString txt = idx == 0 ? uiStrings::sNorth(true)
+			      : (idx == 1 ? uiStrings::sEast(true)
 			      : (idx == 2 ? uiStrings::sSouth(true)
 			      		  : uiStrings::sWest(true)));
 	    Alignment al( isew ? (idx==1 ? Alignment::Left : Alignment::Right)
@@ -374,8 +384,10 @@ void uiDirectionalPlot::drawScatter()
 	    if ( spd.count_ < 1 ) continue;
 
 	    const float r = spd.pos_ * radius_;
-	    markeritems_.add( new uiMarkerItem(dataUIPos(r,spd.val_),
-					       setup_.markstyle_) );
+	    uiMarkerItem* itm =
+		new uiMarkerItem( dataUIPos(r,spd.val_), setup_.markstyle_ );
+	    itm->setFillColor( setup_.markstyle_.color_ );
+	    markeritems_.add( itm );
 	}
     }
 }
@@ -535,4 +547,22 @@ uiPoint uiDirectionalPlot::dataUIPos( float r, float ang ) const
 uiPoint uiDirectionalPlot::usrUIPos( float r, float ang ) const
 {
     return uiPointFromPolar( center_, r, Angle::usrdeg2rad(ang) );
+}
+
+
+void uiDirectionalPlot::showColTabItem( bool yn )
+{
+    if ( coltabitm_ )
+	coltabitm_->setVisible( yn );
+}
+
+
+void uiDirectionalPlot::showScaleItem( bool yn )
+{
+    if ( scalelineitm_ ) scalelineitm_->setVisible( yn );
+    if ( scalearcitm_ ) scalearcitm_->setVisible( yn );
+    if ( scalestartptitem_ ) scalestartptitem_->setVisible( yn );
+    if ( scaleannotitm_ ) scaleannotitm_->setVisible( yn );
+    if ( scalestartitm_ ) scalestartitm_->setVisible( yn );
+    if ( scalestopitm_ ) scalestopitm_->setVisible( yn );
 }

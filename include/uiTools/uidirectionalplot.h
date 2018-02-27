@@ -90,7 +90,10 @@ public:
     int				curSector() const { return cursector_; }
     int				selSector() const { return selsector_; }
     void			setSelectedSector( int i )
-    						{ selsector_ = i; }
+						{ selsector_ = i; }
+
+    void			showColTabItem(bool);
+    void			showScaleItem(bool);
 
 protected:
 
@@ -149,6 +152,5 @@ protected:
     uiPoint			usrUIPos(float r,float ang) const;
 
 };
-
 
 #endif
