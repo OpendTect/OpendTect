@@ -242,7 +242,7 @@ void PickSetDisplay::removePosition( int idx )
     if ( set_->connection() == Pick::Set::Disp::Close )
 	{ redrawAll( idx ); return; }
 
-    if ( !markerset_ || idx>markerset_->size() )
+    if ( !markerset_ || idx>=markerset_->size() )
 	return;
 
     markerset_->removeMarker( idx );
