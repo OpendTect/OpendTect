@@ -54,7 +54,8 @@ mGlobal(Basic)	bool		setRegKeyVal(const char* ky, const char* vanrnm,
 					     const char *val);
 mGlobal(Basic) bool		removeRegKey(const char*);
 
-
+mGlobal(Basic) void		disableAutoSleep();
+mGlobal(Basic) void		enableAutoSleep();
 /*
 For documentation of the CSIDL values, see: 
 
