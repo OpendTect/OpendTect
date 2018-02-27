@@ -61,9 +61,7 @@ BatchProgram::BatchProgram()
     , comm_(0)
     , clparser_(0)
 {
-#ifdef __win__
     DisableAutoSleep();
-#endif
 }
 
 void BatchProgram::init()
@@ -178,9 +176,7 @@ void BatchProgram::init()
 
 BatchProgram::~BatchProgram()
 {
-#ifdef __win__
     EnableAutoSleep();
-#endif
 
     infoMsg( sKeyFinishMsg() );
     DBM().applClosing();
