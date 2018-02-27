@@ -35,7 +35,7 @@
 static const char* cygdrvstr="/cygdrive/";
 static const int cygdrvstringlen=10;
 
-void disableAutoSleep()
+extern "C" void disableAutoSleep()
 {
 #ifdef __win__
     /* Prevents the machine from sleeping
@@ -47,7 +47,7 @@ void disableAutoSleep()
 #endif
 }
 
-void enableAutoSleep()
+extern "C" void enableAutoSleep()
 {
 #ifdef __win__
    SetThreadExecutionState( ES_CONTINUOUS );
@@ -57,7 +57,7 @@ void enableAutoSleep()
 }
 
 
-const char* getCleanUnxPath( const char* path )
+extern "C" const char* getCleanUnxPath( const char* path )
 {
     if ( !path || !*path )
 	return 0;
@@ -94,7 +94,7 @@ const char* getCleanUnxPath( const char* path )
     } \
     return ret;
 
-const char* getCleanWinPath( const char* path )
+extern "C" const char* getCleanWinPath( const char* path )
 {
     if ( !path || !*path ) return 0;
 

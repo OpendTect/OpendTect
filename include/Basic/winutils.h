@@ -20,11 +20,12 @@ ________________________________________________________________________
 # include "shlobj.h"
 #endif
 
-extern "C" 
+extern "C"
 {
     mGlobal(Basic) const char*	getCleanUnxPath( const char* path );
     mGlobal(Basic) const char*	getCleanWinPath( const char* path );
-    mGlobal(Basic) const char*	GetSpecialFolderLocation(int csidl);
+    mGlobal(Basic) void		disableAutoSleep();
+    mGlobal(Basic) void		enableAutoSleep();
 }
 
 #ifdef __win__
@@ -44,6 +45,7 @@ mGlobal(Basic) bool		execProc(const char* comm,bool inconsole,
 
 mGlobal(Basic) unsigned int	getWinVersion();
 mGlobal(Basic) const char*	getFullWinVersion();
+mGlobal(Basic) const char*	GetSpecialFolderLocation(int csidl);
 mGlobal(Basic) const char*	getCygDir();
 mGlobal(Basic) bool		getDefaultBrowser(BufferString& cmd,
 						  BufferString& errmsg);
@@ -52,10 +54,8 @@ mGlobal(Basic)	bool		setRegKeyVal(const char* ky, const char* vanrnm,
 					     const char *val);
 mGlobal(Basic) bool		removeRegKey(const char*);
 
-mGlobal(Basic) void		disableAutoSleep();
-mGlobal(Basic) void		enableAutoSleep();
 /*
-For documentation of the CSIDL values, see: 
+For documentation of the CSIDL values, see:
 
 http://msdn.microsoft.com/library/default.asp?
     url=/library/en-us/shellcc/platform/shell/reference/enums/csidl.asp
