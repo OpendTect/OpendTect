@@ -353,7 +353,11 @@ uiWord uiStrings::sDistUnitString( bool isfeet, bool abbr, bool withparens )
 uiWord uiStrings::sTimeUnitString( bool ismilli, bool abbr, bool withparens )
 {
     if ( withparens )
-	return sTimeUnitString( ismilli, abbr, false ).parenthesize();
+    {
+	uiString res = sTimeUnitString( ismilli, abbr, false );
+	res.parenthesize();
+	return res;
+    }
     return abbr ?  toUiString( (ismilli ? "ms" : "s") )
      : ((ismilli ? sMSec(false,mPlural)
 		 : sSec(false,mPlural)).toLower());

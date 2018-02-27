@@ -275,6 +275,7 @@ public:
 
     void	makeIndependent();
 		//!< create a separate copy (with its own ref count)
+    uiString&	setArg(int,const uiString&);
 
     void	setFrom(const mQtclass(QString)&);
 		/*!<Set the translated text. No further

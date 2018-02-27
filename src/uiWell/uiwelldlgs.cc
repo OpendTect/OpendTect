@@ -240,18 +240,16 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
     NotifyStopper nsy( wellheadyfld_->updateRequested );
     NotifyStopper nskbelev( kbelevfld_->updateRequested );
 
-    uiString coordlbl = tr("-Coordinate of well head %1")
-			    .arg(SI().xyUnitString());
+    uiString coordlbl = tr("%1 of well head");
+    const uiString coordun( SI().xyUnitString(true,false) );
+    uiString xcoordlbl = coordlbl.arg( uiStrings::sXcoordinate() );
+    uiString ycoordlbl = coordlbl.setArg( 0, uiStrings::sYcoordinate() );
     const uiString depthunit = uiStrings::sDistUnitString(
-					   zinftfld_->isChecked(), true, true );
+					   zinftfld_->isChecked(), true );
 
-    wellheadxfld_->setTitleText( uiStrings::phrJoinStrings(uiStrings::sX(),
-								    coordlbl) );
-    wellheadyfld_->setTitleText( uiStrings::phrJoinStrings(uiStrings::sY(),
-								    coordlbl) );
-    kbelevfld_->setTitleText( tr("%1 %2 ")
-			      .arg( Well::Info::sKBElev() )
-			      .arg( depthunit ) );
+    wellheadxfld_->setTitleText( xcoordlbl.withUnit(coordun) );
+    wellheadyfld_->setTitleText( ycoordlbl.withUnit(coordun) );
+    kbelevfld_->setTitleText( Well::Info::sKBElev().withUnit( depthunit ) );
 
     if ( !track_.isEmpty() )
 	wd_.info().setSurfaceCoord( track_.firstPos().getXY() );

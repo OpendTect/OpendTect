@@ -622,6 +622,22 @@ uiString& uiString::arg( const uiString& newarg )
 }
 
 
+uiString& uiString::setArg( int nr, const uiString& newarg )
+{
+    Threads::Locker datalocker( datalock_ );
+    makeIndependent();
+    mEnsureData;
+    Threads::Locker contentlocker( data_->contentlock_ );
+    if ( data_->arguments_.validIdx(nr) )
+    {
+	data_->arguments_.get(nr) = newarg;
+	data_->changecount_ = mForceUpdate;
+    }
+    mSetDBGStr;
+    return *this;
+}
+
+
 uiString& uiString::appendPhrase( const uiString& txt,
 				  SeparType septyp, AppendType apptyp )
 {
@@ -710,7 +726,7 @@ uiString& uiString::appendPlainText( const char* str, bool addspace,
 uiString& uiString::withUnit( const uiString& unstr )
 {
     if ( !unstr.isEmpty() )
-	postFixWord( toUiString("(%1)") ).arg( unstr );
+	*this = toUiString("%1 (%2)").arg( *this ).arg( unstr );
     return *this;
 }
 

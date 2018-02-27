@@ -160,7 +160,7 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
 }
 
 
-uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
+uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& wd )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Well Markers"),mNoDlgTitle,
 				     mODHelpKey(mMarkerDlgHelpID)))
 	, track_(t)
@@ -169,7 +169,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	, unitfld_(0)
 {
     uiString title( toUiString("%1: %2") );
-    title.arg( uiStrings::sWell() ).arg( t.name() );
+    title.arg( uiStrings::sWell() ).arg( wd.name() );
     setTitleText( title );
 
     table_ = new uiTable( this, uiTable::Setup().rowdesc(uiStrings::sMarker())
@@ -221,7 +221,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 
 uiMarkerDlg::~uiMarkerDlg()
 {
-    if ( oldmrkrs_ ) delete oldmrkrs_;
+    delete oldmrkrs_;
 }
 
 

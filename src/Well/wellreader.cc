@@ -159,10 +159,20 @@ rettyp Well::Reader::fnnm( typ arg ) const \
 bool Well::Reader::fnnm() const { return ra_ ? ra_->fnnm() : false; }
 
 mImplSimpleWRFn(getInfo)
-mImplSimpleWRFn(getTrack)
 mImplSimpleWRFn(getLogs)
 mImplSimpleWRFn(getMarkers)
 mImplSimpleWRFn(getDispProps)
+
+bool Well::Reader::getTrack() const
+{
+    const bool isok = ra_ ? ra_->getTrack() : false;
+    if ( isok )
+    {
+	Well::Data* wd = const_cast<Well::Data*>( data() );
+	wd->track().setName( wd->name() );
+    }
+    return isok;
+}
 
 
 bool Well::Reader::get() const
