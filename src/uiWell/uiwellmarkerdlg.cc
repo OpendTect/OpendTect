@@ -163,7 +163,7 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& wd )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Well Markers"),mNoDlgTitle,
 				     mODHelpKey(mMarkerDlgHelpID)))
-	, track_(t)
+	, track_(wd)
         , oldmrkrs_(0)
         , table_(0)
 	, unitfld_(0)
