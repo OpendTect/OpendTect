@@ -642,21 +642,21 @@ void Pos::RangeProvider2D::getSummary( uiString& txt ) const
 		    .arg(trcrgs_[0].stop).arg(trcrgs_[0].step);
 	if ( !zrgs_.isEmpty() )
 	{
-	    txt.appendPhrase(toUiString("(%1 %2)")).arg(zrgs_[0].nrSteps() + 1)
-						.arg(tr("samples"));
+	    txt.appendPhrase(toUiString("%1 %2")).arg(zrgs_[0].nrSteps() + 1)
+			    .arg(uiStrings::sSample(mPlural)).parenthesize();
 	}
 
 	return;
     }
 
     txt = uiStrings::s2DLine();
-    txt.append(": ");
+    BufferStringSet geomnms;
+    
     for ( int idx=0; idx<geomids_.size(); idx++ )
-    {
-	txt.append( Survey::GM().getName( geomids_[idx]) );
-	if ( idx < geomids_.size()-1 )
-	    txt.append(", ");
-    }
+	geomnms.add(Survey::GM().getName( geomids_[idx]) );
+
+    txt.appendPhrase(toUiString(geomnms.getDispString()),uiString::MoreInfo,
+						    uiString::OnSameLine);
 }
 
 

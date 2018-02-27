@@ -25,7 +25,7 @@ namespace Pos
 
 mExpClass(Well) WellProvider3D : public Provider3D
 			       , public CallBacker
-{
+{ mODTextTranslationClass(WellProvider3D)
 public:
 			WellProvider3D();
 			WellProvider3D(const WellProvider3D&);

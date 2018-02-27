@@ -14,6 +14,7 @@
 #include "ioobj.h"
 #include "survinfo.h"
 #include "survgeom.h"
+#include "uistrings.h"
 #include <math.h>
 
 #define mGetTableKey(k) IOPar::compKey(sKey::Table(),k)
@@ -174,12 +175,12 @@ void Pos::TableProvider3D::getSummary( uiString& txt ) const
 {
     const int sz = mCast( int, bvs_.totalSize() );
     if ( sz < 1 ) return;
-    txt.append(tr(" %1 %2").arg(sz).arg(tr("point")));
+    txt.appendPhrase(toUiString("%1 %2").arg(sz).arg(uiStrings::sPoint(sz)),
+				    uiString::Space, uiString::OnSameLine);
     BinID start, stop;
     getExtent( start, stop );
-    txt.append( tr(" at ") ).append( start.toString() );
-    if ( start != stop )
-	txt.append( "-" ).append( stop.toString() );
+    txt.appendPhrase( tr("Start/Stop at: %1-%2").arg(start.toString())
+				.arg(stop.toString()), uiString::NoSep );
 }
 
 
