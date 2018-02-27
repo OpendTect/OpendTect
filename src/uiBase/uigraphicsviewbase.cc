@@ -109,7 +109,8 @@ bool getMouseWheelReversal() const { return reversemousewheel_; }
 void setMidMouseButtonForDrag( bool yn ) { midmousebutfordrag_ = yn; }
 bool hasMidMouseButtonForDrag() const	{ return midmousebutfordrag_; }
 
-
+int viewWidth() const			{ return viewport()->width(); }
+int viewHeight() const			{ return viewport()->height(); }
 
 const uiPoint& getStartPos() const	{ return startpos_; }
 
@@ -573,6 +574,18 @@ int uiGraphicsViewBase::height() const
 #else
     return body_->height();
 #endif
+}
+
+
+int uiGraphicsViewBase::viewWidth() const
+{
+    return body_->viewWidth();
+}
+
+
+int uiGraphicsViewBase::viewHeight() const
+{
+    return body_->viewHeight();
 }
 
 

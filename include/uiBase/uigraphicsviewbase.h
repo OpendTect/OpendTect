@@ -54,8 +54,10 @@ public:
     void			setMidMouseButtonForDrag(bool);
     bool			hasMidMouseButtonForDrag() const;
 
-    int				width() const;
-    int				height() const;
+    int				width() const;		//!<width of widget
+    int				height() const;		//!<height of widget
+    int				viewWidth() const;	//!<width of viewport
+    int				viewHeight() const;	//!<height of viewport
 
     int				getSceneBorder() const;
     void			setSceneBorder(int);
