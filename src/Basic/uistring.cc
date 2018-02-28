@@ -664,6 +664,7 @@ uiString& uiString::appendPhrase( const uiString& txt,
 	    case CloseLine:	tplstr = "%1.\n%2";	break;
 	    case Comma:		tplstr = "%1,\n%2";	break;
 	    case MoreInfo:	tplstr = "%1:\n%2";	break;
+	    case SemiColon:	tplstr = "%1;\n%2";	break;
 	}
     }
     else if ( apptyp == OnSameLine )
@@ -676,6 +677,7 @@ uiString& uiString::appendPhrase( const uiString& txt,
 	    case CloseLine:	tplstr = "%1. %2";	break;
 	    case Comma:		tplstr = "%1, %2";	break;
 	    case MoreInfo:	tplstr = "%1: %2";	break;
+	    case SemiColon:	tplstr = "%1; %2";	break;
 	}
     }
     else
@@ -688,6 +690,7 @@ uiString& uiString::appendPhrase( const uiString& txt,
 	    case CloseLine:	tplstr = "%1.\n\n%2";	break;
 	    case Comma:		tplstr = "%1,\n\n%2";	break;
 	    case MoreInfo:	tplstr = "%1:\n\n%2";	break;
+	    case SemiColon:	tplstr = "%1;\n\n%2";	break;
 	}
     }
 
