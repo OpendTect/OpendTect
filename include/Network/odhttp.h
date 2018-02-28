@@ -105,7 +105,7 @@ private:
     void			doRequestCB(CallBacker*);
 				//Only called in thread_.
 				//CB must be HttpRequestProcess
-				
+
     RefObjectSet<HttpRequestProcess>	activeevents_;
     Threads::SpinLock			activeeventslock_;
 };
@@ -166,7 +166,7 @@ private:
     void			setQNetworkReply(QNetworkReply*);
 				/*!<Becomes mine. Also signals start of
 				    the request.  */
-				
+
     bool			waitForRequestStart();
     				/*!<Wait for the request to start in the
 				    networking thread.
@@ -198,4 +198,4 @@ private:
     uiString					errmsg_;
 };
 
-}; //namespace Network
+} // namespace Network
