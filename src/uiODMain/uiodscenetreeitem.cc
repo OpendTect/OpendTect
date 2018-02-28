@@ -29,142 +29,142 @@
 #include "vissurvscene.h"
 
 
-    uiODSceneTreeTop::uiODSceneTreeTop( uiTreeView* lv, uiTreeFactorySet* tfs_,
-					int sceneid )
-	: uiTreeTopItem(lv)
-	, tfs(tfs_)
-	, sceneid_(sceneid)
+uiODSceneTreeTop::uiODSceneTreeTop( uiTreeView* lv, uiTreeFactorySet* tfs_,
+				    int sceneid )
+    : uiTreeTopItem(lv)
+    , tfs(tfs_)
+    , sceneid_(sceneid)
+{
+    tfs->addnotifier.notify( mCB(this,uiODSceneTreeTop,addFactoryCB) );
+    tfs->removenotifier.notify( mCB(this,uiODSceneTreeTop,removeFactoryCB) );
+}
+
+
+uiODSceneTreeTop::~uiODSceneTreeTop()
+{
+    tfs->addnotifier.remove( mCB(this,uiODSceneTreeTop,addFactoryCB) );
+    tfs->removenotifier.remove( mCB(this,uiODSceneTreeTop,removeFactoryCB) );
+}
+
+
+int uiODSceneTreeTop::sceneID() const
+{
+    return sceneid_;
+}
+
+
+bool uiODSceneTreeTop::selectWithKey( int selkey )
+{
+    applMgr()->visServer()->setSelObjectId(selkey);
+    return true;
+}
+
+
+uiODApplMgr* uiODSceneTreeTop::applMgr()
+{
+    return &ODMainWin()->applMgr();
+}
+
+
+TypeSet<int> uiODSceneTreeTop::getDisplayIds( int& selectedid, bool usechecked )
+{
+    TypeSet<int> dispids;
+    loopOverChildrenIds( dispids, selectedid, usechecked, children_ );
+    return dispids;
+}
+
+
+void uiODSceneTreeTop::loopOverChildrenIds(
+	TypeSet<int>& dispids, int& selectedid, bool usechecked,
+	const ObjectSet<uiTreeItem>& childrenlist )
+{
+    for ( int idx=0; idx<childrenlist.size(); idx++ )
+	loopOverChildrenIds( dispids, selectedid,
+			     usechecked, childrenlist[idx]->getChildren() );
+
+    for ( int idy=0; idy<childrenlist.size(); idy++ )
     {
-	tfs->addnotifier.notify( mCB(this,uiODSceneTreeTop,addFactoryCB) );
-	tfs->removenotifier.notify( mCB(this,uiODSceneTreeTop,removeFactoryCB) );
-    }
-
-
-    uiODSceneTreeTop::~uiODSceneTreeTop()
-    {
-	tfs->addnotifier.remove( mCB(this,uiODSceneTreeTop,addFactoryCB) );
-	tfs->removenotifier.remove( mCB(this,uiODSceneTreeTop,removeFactoryCB) );
-    }
-
-
-    int uiODSceneTreeTop::sceneID() const
-    {
-	return sceneid_;
-    }
-
-
-    bool uiODSceneTreeTop::selectWithKey( int selkey )
-    {
-	applMgr()->visServer()->setSelObjectId(selkey);
-	return true;
-    }
-
-
-    uiODApplMgr* uiODSceneTreeTop::applMgr()
-    {
-	return &ODMainWin()->applMgr();
-    }
-
-
-    TypeSet<int> uiODSceneTreeTop::getDisplayIds( int& selectedid, bool usechecked )
-    {
-	TypeSet<int> dispids;
-	loopOverChildrenIds( dispids, selectedid, usechecked, children_ );
-	return dispids;
-    }
-
-
-    void uiODSceneTreeTop::loopOverChildrenIds(
-	    TypeSet<int>& dispids, int& selectedid, bool usechecked,
-	    const ObjectSet<uiTreeItem>& childrenlist )
-    {
-	for ( int idx=0; idx<childrenlist.size(); idx++ )
-	    loopOverChildrenIds( dispids, selectedid,
-				 usechecked, childrenlist[idx]->getChildren() );
-
-	for ( int idy=0; idy<childrenlist.size(); idy++ )
+	mDynamicCastGet(const uiODDisplayTreeItem*,disptreeitem,
+			childrenlist[idy]);
+	if ( disptreeitem )
 	{
-	    mDynamicCastGet(const uiODDisplayTreeItem*,disptreeitem,
-			    childrenlist[idy]);
-	    if ( disptreeitem )
-	    {
-		if ( usechecked && childrenlist[idy]->isChecked() )
-		    dispids += disptreeitem->displayID();
-		else if ( !usechecked )
-		    dispids += disptreeitem->displayID();
+	    if ( usechecked && childrenlist[idy]->isChecked() )
+		dispids += disptreeitem->displayID();
+	    else if ( !usechecked )
+		dispids += disptreeitem->displayID();
 
-		if ( childrenlist[idy]->getItem()->isSelected() )
-		    selectedid = disptreeitem->displayID();
-	    }
+	    if ( childrenlist[idy]->getItem()->isSelected() )
+		selectedid = disptreeitem->displayID();
 	}
     }
+}
 
 
-    uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm )
-	: uiPresManagedTreeItem(nm)
-    {}
+uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm )
+    : uiPresManagedTreeItem(nm)
+{}
 
 
-    void uiODSceneTreeItem::prepareForShutdown()
-    {
-	uiPresManagedTreeItem::prepareForShutdown();
-    }
+void uiODSceneTreeItem::prepareForShutdown()
+{
+    uiPresManagedTreeItem::prepareForShutdown();
+}
 
 
-    bool uiODSceneTreeItem::anyButtonClick( uiTreeViewItem* item )
-    {
-	if ( item!=uitreeviewitem_ )
-	    return uiTreeItem::anyButtonClick( item );
+bool uiODSceneTreeItem::anyButtonClick( uiTreeViewItem* item )
+{
+    if ( item!=uitreeviewitem_ )
+	return uiTreeItem::anyButtonClick( item );
 
-	if ( !select() ) return false;
+    if ( !select() ) return false;
 
-	applMgr()->updateColorTable( -1, -1 );
-	return true;
-    }
-
-
-    uiODApplMgr* uiODSceneTreeItem::applMgr() const
-    { return &ODMainWin()->applMgr(); }
+    applMgr()->updateColorTable( -1, -1 );
+    return true;
+}
 
 
-    uiODApplMgr* uiODSceneTreeItem::applMgr()
-    { return &ODMainWin()->applMgr(); }
+uiODApplMgr* uiODSceneTreeItem::applMgr() const
+{ return &ODMainWin()->applMgr(); }
 
 
-    int uiODSceneTreeItem::sceneID() const
-    {
-	mDynamicCastGet(uiODSceneTreeItem*,scenetreeitem,parent_);
-	mDynamicCastGet(uiODSceneParentTreeItem*,sceneptreeitem,parent_);
-	mDynamicCastGet(uiODSceneTreeTop*,treetop,parent_);
-	return scenetreeitem ? scenetreeitem->sceneID()
-			     : sceneptreeitem ? sceneptreeitem->sceneID()
-					      : treetop ? treetop->sceneID()
-							: -1;
-    }
+uiODApplMgr* uiODSceneTreeItem::applMgr()
+{ return &ODMainWin()->applMgr(); }
 
 
-    void uiODSceneTreeItem::setMoreObjectsToDoHint( bool yn )
-    { applMgr()->visServer()->setMoreObjectsToDoHint( sceneID(), yn ); }
+int uiODSceneTreeItem::sceneID() const
+{
+    mDynamicCastGet(uiODSceneTreeItem*,scenetreeitem,parent_);
+    mDynamicCastGet(uiODSceneParentTreeItem*,sceneptreeitem,parent_);
+    mDynamicCastGet(uiODSceneTreeTop*,treetop,parent_);
+    return scenetreeitem ? scenetreeitem->sceneID()
+			 : sceneptreeitem ? sceneptreeitem->sceneID()
+					  : treetop ? treetop->sceneID()
+						    : -1;
+}
 
 
-    bool uiODSceneTreeItem::getMoreObjectsToDoHint() const
-    {
-	uiODApplMgr* applmgr = const_cast<uiODSceneTreeItem*>(this)->applMgr();
-	return applmgr->visServer()->getMoreObjectsToDoHint( sceneID() );
-    }
+void uiODSceneTreeItem::setMoreObjectsToDoHint( bool yn )
+{ applMgr()->visServer()->setMoreObjectsToDoHint( sceneID(), yn ); }
 
 
-    Presentation::ViewerID uiODSceneTreeItem::viewerID() const
-    {
-	return Presentation::ViewerID( uiODSceneMgr::theViewerTypeID(),
-			 Presentation::ViewerObjID::get(sceneID()) );
-    }
+bool uiODSceneTreeItem::getMoreObjectsToDoHint() const
+{
+    uiODApplMgr* applmgr = const_cast<uiODSceneTreeItem*>(this)->applMgr();
+    return applmgr->visServer()->getMoreObjectsToDoHint( sceneID() );
+}
 
 
-    void uiODSceneTreeTop::addFactoryCB( CallBacker* cb )
-    {
-	mCBCapsuleUnpack(int,factidx,cb);
-	const int newplaceidx = tfs->getPlacementIdx( factidx );
+Presentation::ViewerID uiODSceneTreeItem::viewerID() const
+{
+    return Presentation::ViewerID( uiODSceneMgr::theViewerTypeID(),
+		     Presentation::ViewerObjID::get(sceneID()) );
+}
+
+
+void uiODSceneTreeTop::addFactoryCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,factidx,cb);
+    const int newplaceidx = tfs->getPlacementIdx( factidx );
     uiTreeItem* itmbefore = 0;
     int maxidx = -1;
     for ( int idx=0; idx<tfs->nrFactories(); idx++ )
