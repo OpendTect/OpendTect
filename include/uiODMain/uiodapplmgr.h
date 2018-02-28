@@ -181,6 +181,7 @@ public:
     bool		isFreshSurvey() const;
     void		handleSIPImport();
     void		resetServers();
+    void		hideColorTable();
     void		updateColorTable(int visid,int attrib);
     void		saveDefColTab(int visid,int attrib);
     bool		getDefaultDescID(Attrib::DescID&,bool is2d,

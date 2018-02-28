@@ -511,7 +511,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 void uiODDataTreeItem::prepareForShutdown()
 {
     uiTreeItem::prepareForShutdown();
-    applMgr()->updateColorTable( -1, -1 );
+    applMgr()->hideColorTable();
 }
 
 

@@ -66,7 +66,7 @@ bool uiDataTreeItem::anyButtonClick( uiTreeViewItem* item )
 uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
 					  const char* parenttype )
 {
-    if ( as.id() != Attrib::SelSpec::cOtherAttribID() )
+    if ( as.id() != Attrib::SelSpec::cExternalAttribID() )
 	return 0;
 
     BufferString attribnm;
@@ -158,7 +158,7 @@ bool uiDataTreeItem::selectSetup()
 
     const BufferString def =
 	VolProc::ExternalAttribCalculator::createDefinition( mid_ );
-    Attrib::SelSpec spec( "VolProc", Attrib::SelSpec::cOtherAttribID(),
+    Attrib::SelSpec spec( "VolProc", Attrib::SelSpec::cExternalAttribID(),
 			  false, 0 );
     spec.setDefString( def.buf() );
     applMgr()->visServer()->setSelSpec( displayID(), attribNr(), spec );

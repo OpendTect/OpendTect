@@ -161,24 +161,35 @@ void uiODApplMgrAttrVisHandler::pageUpDownPressed( bool pageup )
 }
 
 
+void uiODApplMgrAttrVisHandler::hideColorTable()
+{
+    am_.appl_.colTabEd().display( false );
+}
+
+
 void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
 {
     if ( visid<0 || attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
     {
-	am_.appl_.colTabEd().display( false );
+	hideColorTable();
 	return;
     }
 
     mDynamicCastGet( visSurvey::SurveyObject*, so,
 		     am_.visserv_->getObject( visid ) );
     if ( so )
-	am_.appl_.colTabEd().setColTab( so, attrib );
+    {
+	am_.visserv_->setColTabMapper( visid, attrib,
+			am_.visserv_->getColTabMapper(visid,attrib) );
+	am_.visserv_->setColTabSequence( visid, attrib,
+			am_.visserv_->getColTabSequence( visid, attrib ) );
+    }
     else
     {
+	ColTab::Mapper& mapper = const_cast<ColTab::Mapper&>(
+			am_.visserv_->getColTabMapper(visid,attrib) );
 	am_.appl_.colTabEd().setColTab(
-	    am_.visserv_->getColTabSequence( visid, attrib ),
-	    const_cast<ColTab::Mapper&>(
-		am_.visserv_->getColTabMapper(visid,attrib) ) );
+	    am_.visserv_->getColTabSequence( visid, attrib ), mapper );
     }
 }
 
@@ -205,7 +216,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     if ( am_.appl_.isRestoringSession() ) return;
 
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
-    if ( !as || as->id().isInvalid() )
+    if ( !as || !as->isUsable() )
 	return;
 
     ConstRefMan<ColTab::Sequence> ctseq =
@@ -218,7 +229,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     {
 	SeisIOObjInfo seisobj( ioobj );
 	IOPar iop;
-	if ( seisobj.getDisplayPars( iop ) )
+	if ( seisobj.getDisplayPars(iop) )
 	{
 	    const char* ctname = iop.find( sKey::Name() );
 	    ctseq = ColTab::SeqMGR().getAny( ctname );

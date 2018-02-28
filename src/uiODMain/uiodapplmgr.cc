@@ -615,8 +615,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	if ( myas[idx].id().isValid() )
 	    attrserv_->updateSelSpec( myas[idx] );
 
-	if ( myas[idx].id().isUnselInvalid() &&
-	     myas[idx].id() != Attrib::SelSpec::cOtherAttribID() )
+	if ( !myas[idx].isUsable() )
 	{
 	    uiMSG().error( tr("Cannot find selected attribute") );
 	    return false;
@@ -633,7 +632,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( !cs.isDefined() )
 		return false;
 
-	    if ( myas[0].id() == Attrib::SelSpec::cOtherAttribID() )
+	    if ( myas[0].id() == Attrib::SelSpec::cExternalAttribID() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
@@ -657,10 +656,9 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    return false;
 		}
 
-		const DataPack::ID dpid = dp ? dp->id() : DataPack::cNoID();
-
-		res = dpid != DataPack::cNoID();
-		visserv_->setDataPackID( visid, attrib, dpid );
+		const DataPack::ID newid = dp ? dp->id() : DataPack::cNoID();
+		visserv_->setDataPackID( visid, attrib, newid );
+		res = newid != DataPack::cNoID();
 		break;
 	    }
 
@@ -688,7 +686,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    attrserv_->setTargetSelSpecs( myas );
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			    visserv_->getObject(visid) );
-	    if ( myas[0].id() == Attrib::SelSpec::cOtherAttribID() )
+	    if ( myas[0].id() == Attrib::SelSpec::cExternalAttribID() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
@@ -729,7 +727,9 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
     if ( cacheid == DataPack::cNoID() )
 	useDefColTab( visid, attrib );
-    updateColorTable( visid, attrib );
+    else
+	updateColorTable( visid, attrib );
+
     return res;
 }
 
@@ -1720,7 +1720,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 			      " element in the tree")) );
 	    return false;
 	}
-	if ( !calcMultipleAttribs( as ) )
+	if ( !calcMultipleAttribs(as) )
 	{
 	    uiMSG().error( tr("Cannot evaluate this attribute") );
 	    return false;
@@ -1941,6 +1941,8 @@ void uiODApplMgr::setRandomPosData( int visid, int attrib,
 { attrvishandler_.setRandomPosData(visid,attrib,data); }
 void uiODApplMgr::pageUpDownPressed( bool pageup )
 { attrvishandler_.pageUpDownPressed(pageup); sceneMgr().updateTrees(); }
+void uiODApplMgr::hideColorTable()
+{ attrvishandler_.hideColorTable(); }
 void uiODApplMgr::updateColorTable( int visid, int attrib )
 { attrvishandler_.updateColorTable( visid, attrib ); }
 void uiODApplMgr::colSeqChg( CallBacker* )/*TODO: Remove*/

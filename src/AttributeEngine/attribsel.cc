@@ -239,6 +239,25 @@ const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid,
 }
 
 
+bool SelSpec::isUsable() const
+{
+    if ( id_ == cOtherAttribID() )
+    {
+	return true;	// ?
+    }
+    else if ( id_ == cExternalAttribID() )
+    {
+	if ( ref_ != "VolProc" )
+	    return false;
+
+	//TODO: check mid against DBMan
+	return true;
+    }
+
+    return id_.isValid();
+}
+
+
 // Attrib::SelInfo
 
 SelInfo::SelInfo( const DescSet& attrset, const DescID& ignoreid,

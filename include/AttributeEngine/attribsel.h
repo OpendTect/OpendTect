@@ -55,6 +55,7 @@ public:
 
     bool		operator==(const SelSpec&) const;
     bool		operator!=(const SelSpec&) const;
+    bool		isUsable() const;
 
     void		set(const Desc&);
     void		set(const NLAModel&,int);
@@ -96,6 +97,7 @@ public:
     static DescID	cNoAttribID()		{ return DescID(-1); }
     static DescID	cAttribNotSelID()	{ return DescID(-2); }
     static DescID	cOtherAttribID()	{ return DescID(-3); }
+    static DescID	cExternalAttribID()	{ return DescID(-4); }
 
 protected:
 

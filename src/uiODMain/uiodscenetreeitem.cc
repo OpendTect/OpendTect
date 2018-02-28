@@ -118,7 +118,7 @@ bool uiODSceneTreeItem::anyButtonClick( uiTreeViewItem* item )
 
     if ( !select() ) return false;
 
-    applMgr()->updateColorTable( -1, -1 );
+    applMgr()->hideColorTable();
     return true;
 }
 

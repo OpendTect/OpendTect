@@ -41,7 +41,7 @@ public:
     uiODDataTreeItem*	addAttribItem();
     void		prepareForShutdown();
     virtual void	handleAddAttrib(); //TODO PrIMPL remove:q
-
+    virtual void	handleAddVolProcAttrib(int menuid);
 
     virtual void	setOnlyAtSectionsDisplay(bool);
     virtual bool	displayedOnlyAtSections() const;

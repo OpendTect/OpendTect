@@ -426,24 +426,8 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==addvolprocmnuitem_.id )
     {
-	menu->setIsHandled( true );
-
-	const int attrib = visserv_->addAttrib( menu->menuID() );
-	Attrib::SelSpec spec( "Velocity", Attrib::SelSpec::cOtherAttribID(),
-				false, 0 );
-	visserv_->setSelSpec( menu->menuID(), attrib, spec );
-	visserv_->enableInterpolation( menu->menuID(), true );
-
-	VolProc::uiDataTreeItem* newitem =
-	    new VolProc::uiDataTreeItem( typeid(*this).name() );
-	addChild( newitem, false );
-	const bool selok = newitem->selectSetup();
-	if ( selok && !visserv_->calcManipulatedAttribs(newitem->displayID()) )
-	    applMgr()->getNewData( newitem->displayID(), newitem->attribNr() );
-
-	applMgr()->useDefColTab( newitem->displayID(), newitem->attribNr() );
-	updateColumnText( uiODSceneMgr::cNameColumn() );
-	updateColumnText( uiODSceneMgr::cColorColumn() );
+	handleAddVolProcAttrib( menu->menuID() );
+	menu->setIsHandled(true);
     }
     else if ( mnuid==histogrammnuitem_.id )
     {
@@ -486,17 +470,40 @@ void uiODDisplayTreeItem::deleteObject()
 
 
 void uiODDisplayTreeItem::handleAddAttrib()
-{
+{ // NO LONGER USED!!! Replaced by probe
     uiODDataTreeItem* newitem = addAttribItem();
     newitem->select();
-    const int id = newitem->displayID();
+    const int visid = newitem->displayID();
     const int attrib = newitem->attribNr();
-    const bool selok = applMgr()->selectAttrib( id, attrib );
-    if ( selok && !visserv_->calcManipulatedAttribs(id) )
-	applMgr()->getNewData( id, attrib );
+    const bool selok = applMgr()->selectAttrib( visid, attrib );
+    if ( selok && !visserv_->calcManipulatedAttribs(visid) )
+	applMgr()->getNewData( visid, attrib );
 
     newitem->select();
-    applMgr()->useDefColTab( id, attrib );
+    applMgr()->useDefColTab( visid, attrib );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+}
+
+
+void uiODDisplayTreeItem::handleAddVolProcAttrib( int menuid )
+{
+    const int attrib = visserv_->addAttrib( menuid );
+    const Attrib::SelSpec spec( "Velocity",
+				Attrib::SelSpec::cExternalAttribID(), false );
+    visserv_->setSelSpec( menuid, attrib, spec );
+    visserv_->enableInterpolation( menuid, true );
+
+    VolProc::uiDataTreeItem* newitem =
+			new VolProc::uiDataTreeItem( typeid(*this).name() );
+    addChild( newitem, false );
+    const bool selok = newitem->selectSetup();
+    const int visid = newitem->displayID();
+    const int attribid = newitem->attribNr();
+    if ( selok && !visserv_->calcManipulatedAttribs(visid) )
+	applMgr()->getNewData( visid, attribid );
+
+    applMgr()->useDefColTab( visid, attribid );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }

@@ -122,6 +122,7 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     void		setRandomPosData(int visid,int attrib,
 					const DataPointSet&);
     void		pageUpDownPressed(bool);
+    void		hideColorTable();
     void		updateColorTable(int,int);
     void		colSeqChg();
     void		useDefColTab(int,int);
