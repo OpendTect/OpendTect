@@ -104,6 +104,8 @@ public:
 			    //!< Makes sure start_<stop_ and steps are non-zero
     void		getRandomSet(int nr,TypeSet<TrcKey>&) const;
 
+    bool		overlaps(const TrcKeySampling&,
+				 bool ignoresteps=false) const;
     bool		getInterSection(const TrcKeySampling&,
 					TrcKeySampling&) const;
 			    //!< Returns false if intersection is empty
@@ -152,11 +154,6 @@ public:
     inline bool		inlOK( int inl ) const { return lineOK(inl); }
     inline bool		crlOK( int crl ) const { return trcOK(crl); }
 
-private:
-
-    bool		doLimitTo(StepInterval<int>&, const StepInterval<int>&,
-				  const bool ignoresteps,
-				  const bool nostephandling);
 };
 
 

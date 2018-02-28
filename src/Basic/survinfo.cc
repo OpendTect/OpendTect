@@ -651,7 +651,11 @@ void SurveyInfo::setRange( const TrcKeyZSampling& cs )
 {
     fullcs_ = cs;
     fullcs_.hsamp_.survid_ = workcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
-    workcs_.limitTo( fullcs_ );
+    if ( workcs_.isDefined() )
+	workcs_.limitTo( fullcs_ );
+    else
+	workcs_ = fullcs_;
+
     workcs_.hsamp_.step_ = fullcs_.hsamp_.step_;
     workcs_.zsamp_.step = fullcs_.zsamp_.step;
 }

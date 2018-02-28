@@ -60,7 +60,7 @@ public:
     inline int			indexOnOrAfter(X x,const T& step,
 					       float eps=1e-5) const;
     template <class X>
-    inline void			limitTo( const BasicInterval<X>& i )
+    inline void			limitTo_( const BasicInterval<X>& i )
 				{ start = i.limitValue(start);
 				  stop  = i.limitValue(stop); }
     template <class X>
@@ -117,6 +117,7 @@ public:
     virtual bool inline	isUdf() const;
     virtual void	setUdf();
 
+    inline virtual void limitTo(const Interval<T>&);
     inline virtual void	scale(const T&);
 
     virtual void	sort( bool asc=true );
@@ -182,6 +183,7 @@ public:
     inline float	nrfSteps() const;
     virtual inline void	sort(bool asc=true);
     inline void		scale(const T&);
+    virtual inline void limitTo(const Interval<T>&);
     inline T		snappedCenter() const;
 
     inline bool		isCompatible(const StepInterval<T>&,
@@ -590,6 +592,11 @@ void Interval<T>::sort( bool asc )
 
 
 template <class T> inline
+void Interval<T>::limitTo( const Interval<T>& i )
+{ return BasicInterval<T>::limitTo_( i ); }
+
+
+template <class T> inline
 void Interval<T>::scale( const T& factor )
 { BasicInterval<T>::start *= factor; BasicInterval<T>::stop *= factor; }
 
@@ -709,7 +716,13 @@ T StepInterval<T>::snap( const X& t, int dir ) const
 	return atIndex( nearestIndex(t) );
 
     const float fidx = getfIndex( t );
-    const int idx = mNINT32( dir==-1 ? Math::Floor(fidx) : Math::Ceil(fidx) );
+    const int snappedidx = mNINT32(fidx);
+    const float releps = mIsZero(fidx,1e-6f) ? 1e-6f
+					     : fidx < 0.f ? -fidx*1e-6f
+							  :  fidx*1e-6f;
+    const int idx = mIsEqual(fidx,snappedidx,releps)
+		  ? snappedidx
+		  : mNINT32( dir==-1 ? Math::Floor(fidx) : Math::Ceil(fidx) );
     return atIndex( idx );
 }
 
@@ -813,3 +826,44 @@ inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 mDefFltisCompat(float,1e-5f)
 mDefFltisCompat(double,1e-10)
 // Do not change the above releps values as they originate from the types.
+
+
+template <class T> inline
+void StepInterval<T>::limitTo( const Interval<T>& oth )
+{
+    if ( !BasicInterval<T>::overlaps(oth) )
+    {
+	Interval<T>::start = 0; Interval<T>::stop = 0; step = 1;
+	return;
+    }
+    else if ( !oth.hasStep() )
+    {
+	Interval<T>::limitTo_( oth );
+	return;
+    }
+
+    mDynamicCastGet(const StepInterval<T>*,othsi,&oth)
+    if ( !othsi || isCompatible(*othsi) )
+    {
+	Interval<T>::limitTo( oth );
+	return;
+    }
+
+    if ( BasicInterval<T>::includes(oth.start,true) )
+	Interval<T>::start = snap( oth.start, 1 );
+    if ( BasicInterval<T>::includes(oth.stop,true) )
+	Interval<T>::stop = snap( oth.stop, -1 );
+
+    if ( othsi->step <= step )
+	return;
+
+    float fidxstart = mCast(float,Interval<T>::start) / step;
+    fidxstart -= Math::Floor( fidxstart );
+    float othfidxstart = mCast(float,oth.start) / step;
+    othfidxstart -= Math::Floor( othfidxstart );
+    const float releps = mIsZero(fidxstart,1e-6f) ? 1e-6f
+					    : fidxstart < 0.f ? -fidxstart*1e-6f
+							      : fidxstart*1e-6f;
+    if ( mIsEqual(fidxstart,othfidxstart,releps) )
+	step = othsi->step;
+}

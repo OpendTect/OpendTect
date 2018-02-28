@@ -74,20 +74,35 @@ static bool testIncludes()
 static bool testLimitTo()
 {
     mDeclTrcKeyZSampling( cs1, 3, 63, 6,
-			    10, 100, 1,
-			    1.0, 3.0, 0.004 );
+			10, 100, 1,
+			1.0, 3.0, 0.004 );
     mDeclTrcKeyZSampling( cs2, 13, 69, 4,
-			    4, 100, 1,
-			    -1, 2.0, 0.005 );
-    mDeclTrcKeyZSampling( csexp, 21, 57, 12,
-			    10, 100, 1,
-			    1, 2.0, 0.005 );
+			 4, 100, 1,
+			 -1.0, 2.0, 0.005 );
     mDeclTrcKeyZSampling( cs3, 2, 56, 2,
-			    10, 100, 1,
-			    1, 2.0, 0.004 );
+			10, 100, 1,
+			1.0, 2.0, 0.004 );
+    mDeclTrcKeyZSampling( cs1exp, 15, 63, 6,
+			10, 100, 1,
+			1.0, 2.0, 0.004 );
+    mDeclTrcKeyZSampling( cs2exp, 13, 53, 4,
+			10, 100, 1,
+			1.0, 2.0, 0.005 );
+    mDeclTrcKeyZSampling( csgeom, 1, 1, 1, 1, 1, 1, 0.006f, 4.994f, 0.004f );
+    mDeclTrcKeyZSampling( csvol, 1, 1, 1, 1, 1, 1, 0.008f, 4.992f, 0.004f );
+    mDeclTrcKeyZSampling( cswidevol, 1, 1, 1, 1, 1, 1, -0.116f, 5.116f, 0.004f);
+    TrcKeyZSampling csvol2( csvol );
+    const TrcKeyZSampling csgeomexp( csgeom ), csvolexp( csvol );
+
     cs1.limitTo( cs2 );
     cs2.limitTo( cs3 );
-    if ( cs1 != csexp || !cs2.isEmpty() )
+    csvol.limitTo( csgeomexp );
+    cswidevol.limitTo( csgeomexp );
+    csgeom.limitTo( csgeomexp );
+    csvol2.limitTo( csvolexp );
+    if ( cs1 != cs1exp || cs2 != cs2exp ||
+	 csvol != csvolexp || cswidevol != csvolexp ||
+	 csvol2 != csvolexp || csgeom != csgeomexp )
 	mRetResult( "testLimitTo" );
 }
 
