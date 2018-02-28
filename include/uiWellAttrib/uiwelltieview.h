@@ -59,6 +59,7 @@ public:
     void			enableCtrlNotifiers(bool);
 
     ObjectSet<uiWellLogDisplay>& logDisps() { return logsdisp_; }
+    uiGroup*			displayGroup();
 
     Notifier<uiTieView>		infoMsgChanged;
 

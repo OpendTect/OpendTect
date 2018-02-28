@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiworld2ui.h"
 
 #include "flatposdata.h"
+#include "hiddenparam.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seisbufadapters.h"
@@ -38,8 +39,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mGetWD(act) const Well::Data* wd = data_.wd_; if ( !wd ) act;
+
 namespace WellTie
 {
+
+static HiddenParam<uiTieView,uiGroup*> logdispgrp_( 0 );
 
 uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
     : vwr_(vwr)
@@ -56,6 +60,8 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
     , nrtrcs_(5)
     , infoMsgChanged(this)
 {
+    logdispgrp_.setParam( this, 0 );
+
     initFlatViewer();
     initLogViewers();
     initWellControl();
@@ -74,6 +80,8 @@ uiTieView::~uiTieView()
 {
     delete wellcontrol_;
     delete &trcbuf_;
+
+    logdispgrp_.removeParam( this );
 }
 
 
@@ -135,25 +143,37 @@ void uiTieView::redrawLogsAuxDatas()
 
 void uiTieView::initLogViewers()
 {
+    uiGroup* grp = new uiGroup( parent_, "Log Display" );
+    grp->setBorder(0);
+    logdispgrp_.setParam( this, grp );
     for ( int idx=0; idx<2; idx++ )
     {
 	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
-	logsdisp_ += new uiWellLogDisplay( parent_, wldsu );
-	logsdisp_[idx]->setPrefWidth( vwr_->prefHNrPics()/2 );
-	logsdisp_[idx]->setPrefHeight( vwr_->prefVNrPics() );
-	logsdisp_[idx]->disableScrollZoom();
-	logsdisp_[idx]->getMouseEventHandler().movement.notify(
+	uiWellLogDisplay* logdisp = new uiWellLogDisplay( grp, wldsu );
+	logsdisp_ += logdisp;
+	logdisp->setSceneBorder( 2 );
+	logdisp->setPrefWidth( vwr_->prefHNrPics()/2 );
+	logdisp->setPrefHeight( vwr_->prefVNrPics() );
+	logdisp->disableScrollZoom();
+	logdisp->getMouseEventHandler().movement.notify(
 				mCB(this,uiTieView,mouseMoveCB) );
     }
     logsdisp_[0]->attach( leftOf, logsdisp_[1] );
-    logsdisp_[1]->attach( leftOf, vwr_ );
+
+    grp->attach( leftOf, vwr_ );
+}
+
+
+uiGroup* uiTieView::displayGroup()
+{
+    return logdispgrp_.getParam( this );
 }
 
 
 void uiTieView::initFlatViewer()
 {
     vwr_->setInitialSize( uiSize(520,540) );
-    vwr_->setExtraBorders( uiSize(0,0), uiSize(0,20) );
+    vwr_->setExtraBorders( uiSize(0,3), uiSize(0,23) ); // trial and error
     FlatView::Appearance& app = vwr_->appearance();
     app.setDarkBG( false );
     app.setGeoDefaults( true );
@@ -460,14 +480,15 @@ void uiTieView::mouseMoveCB( CallBacker* cb )
     if ( !mevh ) return;
 
     const MouseEvent& ev = mevh->event();
+    const int ypos = ev.y();
     uiRect rect = logDisps()[0]->getViewArea();
-    linelog1_->setLine( rect.left(), ev.y(), rect.right(), ev.y() );
+    linelog1_->setLine( rect.left(), ypos, rect.right(), ypos );
 
     rect = logDisps()[1]->getViewArea();
-    linelog2_->setLine( rect.left(), ev.y(), rect.right(), ev.y() );
+    linelog2_->setLine( rect.left(), ypos, rect.right(), ypos );
 
     rect = vwr_->rgbCanvas().getViewArea();
-    lineseis_->setLine( rect.left(), ev.y(), rect.right(), ev.y() );
+    lineseis_->setLine( rect.left(), ypos, rect.right(), ypos );
 }
 
 

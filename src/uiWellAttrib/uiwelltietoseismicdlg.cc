@@ -213,39 +213,42 @@ void uiTieWin::snapshotCB( CallBacker* )
 
 void uiTieWin::drawFields()
 {
+    uiSeparator* sep1 = new uiSeparator( this );
+    sep1->attach( stretchedBelow, viewer() );
+    sep1->attach( ensureBelow, drawer_->displayGroup() );
+
     uiGroup* vwrtaskgrp = new uiGroup( this, "task group" );
+    vwrtaskgrp->attach( ensureBelow, sep1 );
     vwrtaskgrp->attach( alignedBelow, viewer() );
     vwrtaskgrp->attach( rightBorder );
     createViewerTaskFields( vwrtaskgrp );
 
     uiGroup* disppropgrp = new uiGroup( this, "Display Properties group" );
     disppropgrp->attach( ensureLeftOf, vwrtaskgrp );
-    disppropgrp->attach( ensureBelow, viewer() );
-    disppropgrp->attach( ensureBelow, drawer_->logDisps()[0] );
-    disppropgrp->attach( ensureBelow, drawer_->logDisps()[1] );
+    disppropgrp->attach( ensureBelow, sep1 );
     createDispPropFields( disppropgrp );
 
-    uiSeparator* horSepar = new uiSeparator( this );
-    horSepar->attach( stretchedBelow, disppropgrp );
-    horSepar->attach( ensureBelow, vwrtaskgrp );
+    uiSeparator* sep2 = new uiSeparator( this );
+    sep2->attach( stretchedBelow, disppropgrp );
+    sep2->attach( ensureBelow, vwrtaskgrp );
 
     uiPushButton* okbut = new uiPushButton( this, tr("OK/Save"),
 			mCB(this,uiTieWin,acceptOK), true );
     okbut->attach( leftBorder, 80 );
-    okbut->attach( ensureBelow, horSepar );
+    okbut->attach( ensureBelow, sep2 );
 
     uiPushButton* infobut = new uiPushButton( this, uiStrings::sInfo(),
 			mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
-    infobut->attach( ensureBelow, horSepar );
+    infobut->attach( ensureBelow, sep2 );
     uiPushButton* helpbut = new uiPushButton( this, uiStrings::sHelp(),
 			mCB(this,uiTieWin,provideWinHelp), true );
     helpbut->attach( rightOf, infobut );
-    helpbut->attach( ensureBelow, horSepar );
+    helpbut->attach( ensureBelow, sep2 );
     uiPushButton* cancelbut = new uiPushButton( this, uiStrings::sCancel(),
 			mCB(this,uiTieWin,rejectOK), true );
     cancelbut->attach( rightBorder );
-    cancelbut->attach( ensureBelow, horSepar );
+    cancelbut->attach( ensureBelow, sep2 );
 }
 
 
@@ -313,7 +316,7 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     zintimefld_ = new uiCheckBox( dispgrp, tr("Z in time") );
     zinftfld_ = new uiCheckBox( dispgrp, tr("Z in %1").arg(
 				SI().depthsInFeet()?tr("feet"):tr("meter")) );
-    zinftfld_ ->attach( alignedBelow, zintimefld_ );
+    zinftfld_->attach( alignedBelow, zintimefld_ );
 
     putDispParams();
 
@@ -360,9 +363,9 @@ void uiTieWin::infoPushed( CallBacker* )
     {
 	if ( !server_.hasSynthetic() || !server_.hasSeismic() )
 	{
-	    uiString errmsg = tr("No %1 data extracted\nCannot go further")
-			    .arg(server_.hasSeismic() ? tr("synthetic")
-						      : tr("seismic"));
+	    uiString errmsg = tr("No %1 extracted.\nCannot go further")
+			    .arg(server_.hasSeismic() ? tr("synthetic data")
+						      : tr("seismic data"));
 	    uiMSG().error( errmsg );
 	    return;
 	}

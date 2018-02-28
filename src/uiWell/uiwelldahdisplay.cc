@@ -133,7 +133,7 @@ void uiWellDahDisplay::gatherInfo()
 				: ld2_->dahobj_ ? ld2_->col_ : Color::Black();
     ld2_->xax_.setup().nmcolor_ = ld2_->dahobj_ ? ld2_->col_
 				: ld1_->dahobj_ ? ld1_->col_ : Color::Black();
-    
+
     BufferString axis1nm = ld1_->dahobj_ ? ld1_->dahobj_->name().buf()
 			 : ld2_->dahobj_ ? ld2_->dahobj_->name().buf() : 0;
     BufferString axis2nm = ld2_->dahobj_ ? ld2_->dahobj_->name().str()
@@ -155,22 +155,22 @@ void uiWellDahDisplay::setAxisRelations()
     ld2_->xax_.setEnd( &ld2_->yax_ );
     ld2_->yax_.setEnd( &ld1_->xax_ );
 
-    ld1_->xax_.setNewDevSize( width(), height() );
-    ld1_->yax_.setNewDevSize( height(), width() );
-    ld2_->xax_.setNewDevSize( width(), height() );
-    ld2_->yax_.setNewDevSize( height(), width() );
+    ld1_->xax_.setNewDevSize( viewWidth(), viewHeight() );
+    ld1_->yax_.setNewDevSize( viewHeight(), viewWidth() );
+    ld2_->xax_.setNewDevSize( viewWidth(), viewHeight() );
+    ld2_->yax_.setNewDevSize( viewHeight(), viewWidth() );
 
     if ( ld2_->xaxprcts_ )
     {
 	ld2_->xaxprcts_->setBegin( &ld1_->yax_ );
 	ld2_->xaxprcts_->setEnd( &ld2_->yax_ );
-	ld2_->xaxprcts_->setNewDevSize( width(), height() );
+	ld2_->xaxprcts_->setNewDevSize( viewWidth(), viewHeight() );
     }
     if ( ld1_->xaxprcts_ )
     {
 	ld1_->xaxprcts_->setBegin( &ld1_->yax_ );
 	ld1_->xaxprcts_->setEnd( &ld2_->yax_ );
-	ld1_->xaxprcts_->setNewDevSize( width(), height() );
+	ld1_->xaxprcts_->setNewDevSize( viewWidth(), viewHeight() );
     }
 }
 
@@ -342,11 +342,11 @@ void uiWellDahDisplay::drawCurve( bool first )
 	ld.curveitms_.add( ti );
     }
 
-    
+
     if ( first )
 	ld.yax_.annotAtEnd( zdata_.zistime_ ? tr("(ms)") :
 			    SI().depthsInFeet() ? tr("(ft)") : tr("(m)") );
-    
+
 }
 
 
