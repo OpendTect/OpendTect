@@ -361,8 +361,8 @@ TrcKeyZSampling VolProc::Step::getInputSampling(
 	    const float geomzstop = geom->sampling().zsamp_.stop;
 	    const float zidxstart = res.zsamp_.getfIndex( geomzstart );
 	    const float zidxstop = res.zsamp_.getfIndex( geomzstop );
-	    res.zsamp_.stop = res.zsamp_.atIndex( Math::Floor(zidxstop) );
-	    res.zsamp_.start = res.zsamp_.atIndex( Math::Ceil(zidxstart) );
+	    res.zsamp_.start = res.zsamp_.snap( zidxstart, -1 );
+	    res.zsamp_.stop = res.zsamp_.snap( zidxstop, 1 );
 	}
     }
 
