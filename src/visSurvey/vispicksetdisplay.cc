@@ -267,7 +267,7 @@ void PickSetDisplay::removePosition( int idx )
 	return;
     }
 
-    if ( !markerset_ || idx>markerset_->size() )
+    if ( !markerset_ || idx>=markerset_->size() )
 	return;
 
     markerset_->removeMarker( idx );
