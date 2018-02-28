@@ -24,8 +24,8 @@ ________________________________________________________________________
 
 #endif
 
-using namespace Network;
-
+namespace Network
+{
 
 HttpRequestProcess::HttpRequestProcess( const HttpRequest* request )
     : finished( this )
@@ -515,3 +515,5 @@ HttpRequestManager& HttpRequestManager::instance()
     namlock.unLock();
     return *nam;
 }
+
+} // namespace Network
