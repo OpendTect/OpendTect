@@ -20,7 +20,11 @@ ________________________________________________________________________
 using namespace Attrib;
 
 uiString uiAttrTypeSel::sAllGroup()
-{ return uiStrings::sAll().embed("<",">"); }
+{
+    uiString ret( uiStrings::sAll() ); ret.embed("<",">");
+
+    return ret;
+}
 
 
 uiAttrTypeSel::uiAttrTypeSel( uiParent* p, bool sorted )
