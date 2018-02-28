@@ -70,6 +70,9 @@ uiPhrase uiStrings::phrCannotLoad( const uiWord& string )
 uiPhrase uiStrings::phrCannotOpen( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotOpen()).arg( string ); }
 
+uiPhrase uiStrings::phrCannotOpen( const char* fnm )
+{ return phrCannotOpen( toUiString( BufferString("'",fnm,"'") ) ); }
+
 uiPhrase uiStrings::phrCannotParse( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotParse()).arg(string); }
 

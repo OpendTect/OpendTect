@@ -1,4 +1,5 @@
-/*
+#pragma once
+/*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -8,10 +9,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "hdf5supportimpl.h"
-#include "H5Cpp.h"
+#include "hdf5mod.h"
+#include "hdf5access.h"
 
-void HDF5SupportImpl::initClass()
+namespace HDF5
 {
-    //TODO :)
-}
+
+} // namespace HDF5

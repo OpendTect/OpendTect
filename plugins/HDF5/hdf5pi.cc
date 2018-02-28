@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "odplugin.h"
-#include "hdf5supportimpl.h"
+#include "hdf5accessimpl.h"
 
 
 mDefODPluginEarlyLoad(HDF5)
@@ -25,6 +25,6 @@ mDefODPluginInfo(HDF5)
 
 mDefODInitPlugin(HDF5)
 {
-    HDF5SupportImpl::initClass();
+    HDF5::AccessProviderImpl::initClass();
     return 0;
 }

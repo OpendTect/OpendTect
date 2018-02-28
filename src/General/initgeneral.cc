@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "elasticpropseltransl.h"
 #include "geometryio.h"
+#include "hdf5access.h"
 #include "ioobjselectiontransl.h"
 #include "mathformulatransl.h"
 #include "mathproperty.h"
@@ -28,6 +29,8 @@ mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc)
 mDefSimpleTranslators(PosProviders,"Subselection",dgb,Misc)
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
+
+mImplClassFactory( HDF5::AccessProvider, factory );
 
 class GeneralModuleIniter { public: GeneralModuleIniter(); };
 

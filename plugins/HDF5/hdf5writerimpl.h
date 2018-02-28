@@ -9,16 +9,26 @@ ________________________________________________________________________
 
 -*/
 
-#include "hdf5mod.h"
-#include "gendefs.h"
+#include "hdf5common.h"
+#include "H5Cpp.h"
 
 
-mExpClass(HDF5) HDF5SupportImpl
+namespace HDF5
+{
+
+mExpClass(HDF5) WriterImpl : public Writer
 {
 public:
 
-    static void		initClass();
+			    WriterImpl();
+			    ~WriterImpl();
+
+    virtual uiRetVal	    open(const char*);
 
 protected:
 
+    H5::H5File*		    file_;
+
 };
+
+} // namespace HDF5
