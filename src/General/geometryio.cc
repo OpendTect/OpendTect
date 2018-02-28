@@ -64,14 +64,15 @@ public:
 
 	uiString errmsg;
 	Geometry* geom = geomtransl->readGeometry( *ioobj, errmsg );
+	if ( !geom )
+	    mReturn
+
 	mDynamicCastGet(Geometry2D*,geom2d,geom)
 	if ( geom2d )
-	{
 	    calcBendPoints( geom2d->dataAdmin() );
-	    geom2d->ref();
-	    geometries_ += geom2d;
-	}
 
+	geom->ref();
+	geometries_ += geom;
 	mReturn
     }
 
