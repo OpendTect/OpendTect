@@ -857,13 +857,13 @@ void StepInterval<T>::limitTo( const Interval<T>& oth )
     if ( othsi->step <= step )
 	return;
 
-    float fidxstart = mCast(float,Interval<T>::start) / step;
+    double fidxstart = mCast(double,Interval<T>::start) / step;
     fidxstart -= Math::Floor( fidxstart );
-    float othfidxstart = mCast(float,oth.start) / step;
+    double othfidxstart = mCast(double,oth.start) / step;
     othfidxstart -= Math::Floor( othfidxstart );
-    const float releps = mIsZero(fidxstart,1e-6f) ? 1e-6f
-					    : fidxstart < 0.f ? -fidxstart*1e-6f
-							      : fidxstart*1e-6f;
+    const double releps = mIsZero(fidxstart,1e-6) ? 1e-6
+					    : fidxstart < 0. ? -fidxstart*1e-6
+							      : fidxstart*1e-6;
     if ( mIsEqual(fidxstart,othfidxstart,releps) )
 	step = othsi->step;
 }
