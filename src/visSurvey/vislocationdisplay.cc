@@ -8,9 +8,10 @@
 #include "vislocationdisplay.h"
 
 #include "dbman.h"
+#include "keystrs.h"
 #include "picksetmanager.h"
 #include "selector.h"
-#include "keystrs.h"
+#include "survgeom2d.h"
 
 #include "visevent.h"
 #include "vismaterial.h"
@@ -468,7 +469,43 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
     if ( !datatransform_ )
 	return true;
 
-    const float newdepth = datatransform_->transform( loc.pos() );
+    float newdepth = mUdf(float);
+    if ( datatransform_->canTransformSurv(TrcKey::std3DSurvID()) )
+	newdepth = datatransform_->transformTrc( loc.trcKey(), loc.z() );
+    else if ( datatransform_->canTransformSurv(TrcKey::std2DSurvID()) )
+    {
+	if ( loc.trcKey().is2D() )
+	    newdepth = datatransform_->transformTrc( loc.trcKey(), loc.z() );
+	else // Pre v6.0 Pickset without TrcKey information
+	{
+	    BufferStringSet nms; TypeSet<Pos::GeomID> ids;
+	    Survey::GM().getList( nms, ids, true );
+	    TrcKey ntk = TrcKey::udf();
+	    float ndist = mUdf(float);
+	    for ( int idx=0; idx<ids.size(); idx++ )
+	    {
+		mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+				Survey::GM().getGeometry(ids[idx]))
+		if ( !geom2d )
+		    continue;
+
+		float dist;
+		const TrcKey tk =
+			geom2d->nearestTrace( loc.pos().getXY(), &dist );
+		if ( dist>ndist || dist>geom2d->averageTrcDist() )
+		    continue;
+
+		ndist = dist;
+		ntk = tk;
+	    }
+
+	    if ( ntk.isUdf() )
+		return false;
+
+	    newdepth = datatransform_->transformTrc( ntk, loc.z() );
+	}
+    }
+
     if ( mIsUdf(newdepth) )
 	return false;
 
