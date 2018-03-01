@@ -29,14 +29,11 @@ public:
 			Setup( const uiString& seltext=uiString::empty() )
 			    : uiIOObjSel::Setup(seltext)
 			    , withextract_(true)
-			    , withman_(true)
-			    , bigbuts_(false)		{}
+			    , withman_(true)		{}
 
 			    // Only when for read:
 	mDefSetupMemb(bool,withextract)
 	mDefSetupMemb(bool,withman)
-	mDefSetupMemb(bool,bigbuts)
-			    // "I ... like ... bigbuts and I don't know why"
 
     };
 

@@ -39,26 +39,36 @@ ________________________________________________________________________
 
 
 #define mGetWD(act) const Well::Data* wd = data_.wd_; if ( !wd ) act;
+
 namespace WellTie
 {
 
 uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
-	: vwr_(vwr)
-	, parent_(p)
-	, trcbuf_(*new SeisTrcBuf(true))
-	, params_(data.dispparams_)
-	, data_(data)
-	, synthpickset_(data.pickdata_.synthpicks_)
-	, seispickset_(data.pickdata_.seispicks_)
-	, zrange_(data.getTraceRange())
-	, checkshotitm_(0)
-	, wellcontrol_(0)
-	, seisdp_(0)
-	, infoMsgChanged(this)
+    : vwr_(vwr)
+    , parent_(p)
+    , trcbuf_(*new SeisTrcBuf(true))
+    , params_(data.dispparams_)
+    , data_(data)
+    , synthpickset_(data.pickdata_.synthpicks_)
+    , seispickset_(data.pickdata_.seispicks_)
+    , zrange_(data.getTraceRange())
+    , checkshotitm_(0)
+    , wellcontrol_(0)
+    , seisdp_(0)
+    , nrtrcs_(5)
+    , infoMsgChanged(this)
 {
     initFlatViewer();
     initLogViewers();
     initWellControl();
+
+    linelog1_ = logsdisp_[0]->scene().addItem( new uiLineItem );
+    linelog2_ = logsdisp_[1]->scene().addItem( new uiLineItem );
+    lineseis_ = vwr_->rgbCanvas().scene().addItem( new uiLineItem );
+    OD::LineStyle ls( OD::LineStyle::Dot, 1, Color::Black() );
+    linelog1_->setPenStyle( ls );
+    linelog2_->setPenStyle( ls );
+    lineseis_->setPenStyle( ls );
 }
 
 
@@ -66,6 +76,13 @@ uiTieView::~uiTieView()
 {
     delete wellcontrol_;
     delete &trcbuf_;
+}
+
+
+void uiTieView::setNrTrcs( int nrtrcs )
+{
+    nrtrcs_ = nrtrcs > 0 ? nrtrcs : 5;
+    redrawViewer();
 }
 
 
@@ -120,23 +137,36 @@ void uiTieView::redrawLogsAuxDatas()
 
 void uiTieView::initLogViewers()
 {
+    displaygrp_ = new uiGroup( parent_, "Log Display" );
+    displaygrp_->setBorder(0);
     for ( int idx=0; idx<2; idx++ )
     {
 	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
-	logsdisp_ += new uiWellLogDisplay( parent_, wldsu );
-	logsdisp_[idx]->setPrefWidth( vwr_->prefHNrPics()/2 );
-	logsdisp_[idx]->setPrefHeight( vwr_->prefVNrPics() );
-	logsdisp_[idx]->disableScrollZoom();
+	uiWellLogDisplay* logdisp = new uiWellLogDisplay( displaygrp_, wldsu );
+	logsdisp_ += logdisp;
+	logdisp->setSceneBorder( 2 );
+	logdisp->setPrefWidth( vwr_->prefHNrPics()/2 );
+	logdisp->setPrefHeight( vwr_->prefVNrPics() );
+	logdisp->disableScrollZoom();
+	logdisp->getMouseEventHandler().movement.notify(
+				mCB(this,uiTieView,mouseMoveCB) );
     }
     logsdisp_[0]->attach( leftOf, logsdisp_[1] );
-    logsdisp_[1]->attach( leftOf, vwr_ );
+
+    displaygrp_->attach( leftOf, vwr_ );
+}
+
+
+uiGroup* uiTieView::displayGroup()
+{
+    return displaygrp_;
 }
 
 
 void uiTieView::initFlatViewer()
 {
     vwr_->setInitialSize( uiSize(520,540) );
-    vwr_->setExtraBorders( uiSize(0,0), uiSize(0,20) );
+    vwr_->setExtraBorders( uiSize(0,3), uiSize(0,23) ); // trial and error
     FlatView::Appearance& app = vwr_->appearance();
     app.setDarkBG( false );
     app.setGeoDefaults( true );
@@ -154,8 +184,10 @@ void uiTieView::initFlatViewer()
     app.annot_.title_ = tr("Synthetics<--------------------"
 			"------------------------------->Seismics");
     vwr_->viewChanged.notify( mCB(this,uiTieView,zoomChg) );
-    vwr_->rgbCanvas().scene().getMouseEventHandler().movement.notify(
-					mCB( this, uiTieView, setInfoMsg ) );
+    vwr_->getMouseEventHandler().movement.notify(
+				mCB(this,uiTieView,setInfoMsg) );
+    vwr_->getMouseEventHandler().movement.notify(
+				mCB(this,uiTieView,mouseMoveCB) );
 }
 
 
@@ -192,7 +224,7 @@ void uiTieView::drawLog( const char* nm, bool first, int dispnr, bool reversed )
 void uiTieView::drawTraces()
 {
     trcbuf_.erase();
-    const int nrtrcs = mNrTrcs;
+    const int nrtrcs = nrtrcs_*2 + 4;
     for ( int idx=0; idx<nrtrcs; idx++ )
     {
 	const int midtrc = nrtrcs/2-1;
@@ -216,7 +248,6 @@ void uiTieView::setUdfTrc( SeisTrc& trc ) const
     for ( int idx=0; idx<trc.size(); idx++)
 	trc.set( idx, mUdf(float), 0 );
 }
-
 
 
 void uiTieView::setDataPack()
@@ -436,6 +467,24 @@ void uiTieView::setInfoMsg( CallBacker* cb )
     }
     CBCapsule<BufferString> caps( infomsg, this );
     infoMsgChanged.trigger( &caps );
+}
+
+
+void uiTieView::mouseMoveCB( CallBacker* cb )
+{
+    mDynamicCastGet(MouseEventHandler*,mevh,cb)
+    if ( !mevh ) return;
+
+    const MouseEvent& ev = mevh->event();
+    const int ypos = ev.y();
+    uiRect rect = logDisps()[0]->getViewArea();
+    linelog1_->setLine( rect.left(), ypos, rect.right(), ypos );
+
+    rect = logDisps()[1]->getViewArea();
+    linelog2_->setLine( rect.left(), ypos, rect.right(), ypos );
+
+    rect = vwr_->rgbCanvas().getViewArea();
+    lineseis_->setLine( rect.left(), ypos, rect.right(), ypos );
 }
 
 

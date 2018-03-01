@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitoolbar.h"
 #include "uitaskrunner.h"
+#include "uiwaveletsel.h"
 #include "uiwelldlgs.h"
 #include "uiwelllogdisplay.h"
 
@@ -69,7 +70,7 @@ uiTieWin::uiTieWin( uiParent* p, Server& wts )
     drawer_ = new uiTieView( this, &viewer(), server_.data() );
     drawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
     server_.pickMgr().pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
-    server_.setTaskRunner( new uiTaskRunner( p ) );
+    server_.setTaskRunner( new uiTaskRunner(p) );
 
     mGetWD(return)
     uiString title = tr("Tie %1 to %2").arg(toUiString(wd->name()))
@@ -130,8 +131,8 @@ void uiTieWin::displayUserMsg( CallBacker* )
 		      "the 'Apply Changes' button to compute a new depth/time "
 		      "model and to re-extract the data.\n"
 		      "Repeat the picking operation if needed.\n"
-		      "To cross-check your operation, press the 'Display "
-		      "additional information' button.\n\n"
+		      "To cross-check your operation, press the 'Quality "
+		      "Control' button.\n\n"
 		      "Press 'OK/Save' to store your new depth/time model.");
 
     uiMSG().message( msg );
@@ -209,39 +210,42 @@ void uiTieWin::snapshotCB( CallBacker* )
 
 void uiTieWin::drawFields()
 {
+    uiSeparator* sep1 = new uiSeparator( this );
+    sep1->attach( stretchedBelow, viewer() );
+    sep1->attach( ensureBelow, drawer_->displayGroup() );
+
     uiGroup* vwrtaskgrp = new uiGroup( this, "task group" );
+    vwrtaskgrp->attach( ensureBelow, sep1 );
     vwrtaskgrp->attach( alignedBelow, viewer() );
     vwrtaskgrp->attach( rightBorder );
     createViewerTaskFields( vwrtaskgrp );
 
     uiGroup* disppropgrp = new uiGroup( this, "Display Properties group" );
     disppropgrp->attach( ensureLeftOf, vwrtaskgrp );
-    disppropgrp->attach( ensureBelow, viewer() );
-    disppropgrp->attach( ensureBelow, drawer_->logDisps()[0] );
-    disppropgrp->attach( ensureBelow, drawer_->logDisps()[1] );
+    disppropgrp->attach( ensureBelow, sep1 );
     createDispPropFields( disppropgrp );
 
-    uiSeparator* horSepar = new uiSeparator( this );
-    horSepar->attach( stretchedBelow, disppropgrp );
-    horSepar->attach( ensureBelow, vwrtaskgrp );
+    uiSeparator* sep2 = new uiSeparator( this );
+    sep2->attach( stretchedBelow, disppropgrp );
+    sep2->attach( ensureBelow, vwrtaskgrp );
 
     uiPushButton* okbut = new uiPushButton( this, tr("OK/Save"),
 			mCB(this,uiTieWin,okPushCB), true );
     okbut->attach( leftBorder, 80 );
-    okbut->attach( ensureBelow, horSepar );
+    okbut->attach( ensureBelow, sep2 );
 
     uiPushButton* infobut = new uiPushButton( this, uiStrings::sInfo(),
 			mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
-    infobut->attach( ensureBelow, horSepar );
+    infobut->attach( ensureBelow, sep2 );
     uiPushButton* helpbut = new uiPushButton( this, uiStrings::sHelp(),
 			mCB(this,uiTieWin,provideWinHelp), true );
     helpbut->attach( rightOf, infobut );
-    helpbut->attach( ensureBelow, horSepar );
+    helpbut->attach( ensureBelow, sep2 );
     uiPushButton* cancelbut = new uiPushButton( this, uiStrings::sCancel(),
 			mCB(this,uiTieWin,cancelPushCB), true );
     cancelbut->attach( rightBorder );
-    cancelbut->attach( ensureBelow, horSepar );
+    cancelbut->attach( ensureBelow, sep2 );
 }
 
 
@@ -260,9 +264,14 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 	eventtypefld_->box()->addItem( toUiString(eventtypes[idx]->buf()) );
 
     eventtypefld_->box()->setCurrentItem( server_.pickMgr().getEventType() );
+    eventtypefld_->box()->selectionChanged.notify(
+				mCB(this,uiTieWin,eventTypeChg) );
 
-    eventtypefld_->box()->selectionChanged.
-	notify(mCB(this,uiTieWin,eventTypeChg));
+    IntInpSpec iis( 5 );
+    iis.setLimits( StepInterval<int>(1,99,2) );
+    nrtrcsfld_ = new uiGenInput( taskgrp, tr("Nr Traces"), iis );
+    nrtrcsfld_->valuechanging.notify( mCB(this,uiTieWin,nrtrcsCB) );
+    nrtrcsfld_->attach( alignedBelow, eventtypefld_ );
 
     applybut_ = new uiPushButton( taskgrp, tr("Apply Changes"),
 	   mCB(this,uiTieWin,applyPushed), true );
@@ -289,7 +298,7 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 		       mCB(this,uiTieWin,matchHorMrks), true );
     matchhormrksbut_->attach( rightBorder );
 
-    infobut_ = new uiPushButton( taskgrp, tr("Display additional information"),
+    infobut_ = new uiPushButton( taskgrp, tr("Quality Control"),
 	               mCB(this,uiTieWin,infoPushed), false );
     infobut_->attach( ensureBelow, applybut_ );
     infobut_->attach( leftOf, matchhormrksbut_ );
@@ -301,17 +310,24 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     mGetWD(return);
     dispgrp->setHSpacing( 50 );
 
-    zinftfld_ = new uiCheckBox( dispgrp, tr("Z in feet") );
     zintimefld_ = new uiCheckBox( dispgrp, tr("Z in time") );
-    zintimefld_ ->attach( alignedAbove, zinftfld_ );
+    zinftfld_ = new uiCheckBox( dispgrp, tr("Z in %1").arg(
+				SI().depthsInFeet()?tr("feet"):tr("meter")) );
+    zinftfld_->attach( alignedBelow, zintimefld_ );
 
     putDispParams();
 
     const CallBack pccb( mCB(this,uiTieWin,dispPropChg) );
-    zinftfld_->activated.notify( pccb );
     zintimefld_->activated.notify( pccb );
+    zinftfld_->activated.notify( pccb );
 
-    zinftfld_->setChecked( SI().depthsInFeet() );
+    uiWaveletIOObjSel::Setup su;
+    su.withextract(false).withman(false);
+    wvltfld_ = new uiWaveletIOObjSel( dispgrp, su );
+    wvltfld_->setInput( server_.data().setup().wvltid_ );
+    wvltfld_->selectionDone.notify( mCB(this,uiTieWin,wvltSelCB) );
+    wvltfld_->attach( rightBorder );
+    wvltfld_->attach( ensureRightOf, zintimefld_ );
 }
 
 
@@ -329,10 +345,14 @@ void uiTieWin::putDispParams()
 }
 
 
-void uiTieWin::dispPropChg( CallBacker* )
+void uiTieWin::dispPropChg( CallBacker* cb )
 {
     getDispParams();
-    zinftfld_->display( !params_.iszintime_ );
+    if ( cb == zintimefld_ )
+	zinftfld_->setChecked( !params_.iszintime_ );
+    else
+	zintimefld_->setChecked( !params_.iszinft_ );
+
     reDrawAll(0);
 }
 
@@ -483,6 +503,28 @@ void uiTieWin::matchHorMrks( CallBacker* )
 }
 
 
+void uiTieWin::nrtrcsCB( CallBacker* )
+{
+    const int nrtrcs = nrtrcsfld_->getIntValue();
+    drawer_->setNrTrcs( nrtrcs );
+}
+
+
+void uiTieWin::wvltSelCB( CallBacker* )
+{
+    ConstRefMan<Wavelet> selwvlt = wvltfld_->getWavelet();
+    if ( !selwvlt ) return;
+
+    if ( !server_.setNewWavelet(wvltfld_->key()) )
+	mErrRet( server_.errMsg() )
+
+    drawer_->redrawViewer();
+
+    if ( infodlg_ )
+	infodlg_->updateInitialWavelet();
+}
+
+
 void uiTieWin::cancelPushCB( CallBacker* )
 {
     drawer_->enableCtrlNotifiers( false );
@@ -560,7 +602,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     const int maxwvltsz = mNINT32( server_.data().getTraceRange().width() *
 				   SI().zDomain().userFactor() );
     estwvltlengthfld_ = new uiGenInput(wvltgrp,
-				       tr("Estimated wavelet length (ms)"),
+				       tr("Deterministic wavelet length (ms)"),
 	IntInpSpec(initwvltsz,mMinWvltLength,maxwvltsz) );
     estwvltlengthfld_->attach( leftAlignedBelow, wvltscaler_ );
     estwvltlengthfld_->setElemSzPol( uiObject::Small );
@@ -631,6 +673,14 @@ uiInfoDlg::~uiInfoDlg()
 {
     delete crosscorr_;
     delete wvltdraw_;
+}
+
+
+void uiInfoDlg::updateInitialWavelet()
+{
+    computeNewWavelet();
+    server_.computeCrossCorrelation();
+    drawData();
 }
 
 

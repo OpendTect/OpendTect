@@ -48,26 +48,16 @@ void uiWaveletIOObjSel::init( const Setup& su, bool forread )
     if ( su.withman_ )
     {
 	uiToolButtonSetup tbsu( "man_wvlt",
-                            uiStrings::phrManage(uiStrings::sWavelet(mPlural)),
-                            mCB(this,uiWaveletIOObjSel,startManCB) );
-	uiButton* but;
-	if ( su.bigbuts_ )
-	    but = tbsu.getPushButton( this );
-	else
-	    but = tbsu.getToolButton( this );
-	extbuts_ += but;
+		uiStrings::phrManage(uiStrings::sWavelet(mPlural)),
+		mCB(this,uiWaveletIOObjSel,startManCB) );
+	extbuts_ += tbsu.getToolButton( this );
     }
 
     if ( su.withextract_ )
     {
 	uiToolButtonSetup tbsu( "wavelet_extract", uiStrings::sExtract(),
 				mCB(this,uiWaveletIOObjSel,extractCB) );
-	uiButton* but;
-	if ( su.bigbuts_ )
-	    but = tbsu.getPushButton( this );
-	else
-	    but = tbsu.getToolButton( this );
-	extbuts_ += but;
+	extbuts_ += tbsu.getToolButton( this );
     }
 }
 

@@ -361,6 +361,9 @@ bool DataPlayer::extractReflectivity()
 	lastspike++;
     }
 
+    if ( lastspike==refmodel_.size() )
+	lastspike--;
+
     uiString msg;
     if ( refmodel_[firstspike].correctedtime_ - zrg_.start < -1e-5f )
     {

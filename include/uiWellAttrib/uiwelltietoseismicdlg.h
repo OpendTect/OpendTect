@@ -19,13 +19,14 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class Wavelet;
-class uiGroup;
-class uiToolBar;
+class uiCheckBox;
 class uiGenInput;
-class uiPushButton;
+class uiGroup;
 class uiLabel;
 class uiLabeledComboBox;
-class uiCheckBox;
+class uiPushButton;
+class uiToolBar;
+class uiWaveletIOObjSel;
 class uiWellLogDisplay;
 
 namespace Well	 { class Data; }
@@ -70,6 +71,8 @@ protected:
     uiCheckBox*			zintimefld_;
     uiGroup*			vwrgrp_;
     uiLabeledComboBox*		eventtypefld_;
+    uiGenInput*			nrtrcsfld_;
+    uiWaveletIOObjSel*		wvltfld_;
     uiPushButton*		infobut_;
     uiPushButton*		applybut_;
     uiPushButton*		undobut_;
@@ -124,6 +127,8 @@ protected:
     void			userDepthsChanged(CallBacker*);
     void			snapshotCB(CallBacker*);
     void			cleanUp(CallBacker*);
+    void			nrtrcsCB(CallBacker*);
+    void			wvltSelCB(CallBacker*);
 
 };
 
@@ -143,6 +148,8 @@ public:
     void			dtmodelChanged(CallBacker*);
     const Wavelet&		getWavelet() const;
     bool			isInitWvltActive() const;
+
+    void			updateInitialWavelet();
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
