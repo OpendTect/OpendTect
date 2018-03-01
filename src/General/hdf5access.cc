@@ -9,6 +9,43 @@
 mImplClassFactory( HDF5::AccessProvider, factory );
 
 
+HDF5::AccessProvider* HDF5::AccessProvider::mkProv( int idx )
+{
+    if ( idx<0 || idx>=factory().size() )
+	idx = factory().size()-1;
+    if ( idx<0 )
+	return 0;
+
+    return factory().create( factory().key(idx) );
+}
+
+
+HDF5::Reader* HDF5::AccessProvider::mkReader( int idx )
+{
+    AccessProvider* prov = mkProv( idx );
+    Reader* rdr = 0;
+    if ( prov )
+    {
+	rdr = prov->getReader();
+	delete prov;
+    }
+    return rdr;
+}
+
+
+HDF5::Writer* HDF5::AccessProvider::mkWriter( int idx )
+{
+    AccessProvider* prov = mkProv( idx );
+    Writer* wrr = 0;
+    if ( prov )
+    {
+	wrr = prov->getWriter();
+	delete prov;
+    }
+    return wrr;
+}
+
+
 HDF5::Access::Access()
     : file_(0)
 {
@@ -32,6 +69,12 @@ uiRetVal HDF5::Access::open( const char* fnm )
 }
 
 
+uiString HDF5::Access::sHDF5PackageDispName()
+{
+    return tr("HDF5 File Access");
+}
+
+
 uiString HDF5::Access::sHDF5Err()
 {
     return tr("HDF5 Error");
@@ -40,5 +83,5 @@ uiString HDF5::Access::sHDF5Err()
 
 uiString HDF5::Access::sFileNotOpen()
 {
-    return tr("Could not open HDF file");
+    return tr("Could not open HDF5 file");
 }

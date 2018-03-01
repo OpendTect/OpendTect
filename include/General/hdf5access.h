@@ -40,6 +40,8 @@ public:
 
     H5::H5File*		getHDF5File()	{ return file_; }
 
+    static uiString	sHDF5PackageDispName();
+
 protected:
 
     H5::H5File*		file_;
@@ -63,8 +65,17 @@ public:
     virtual Reader*		getReader() const			= 0;
     virtual Writer*		getWriter() const			= 0;
 
+    static Reader*		mkReader(int n=-1);
+    static Writer*		mkWriter(int n=-1);
+
+protected:
+
+    static AccessProvider*	mkProv(int);
+
 };
 
 inline bool isAvailable() { return !AccessProvider::factory().isEmpty(); }
+inline Reader* mkReader() { return AccessProvider::mkReader(); }
+inline Writer* mkWriter() { return AccessProvider::mkWriter(); }
 
 } // namespace HDF5

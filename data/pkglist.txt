@@ -8,6 +8,7 @@ Faults and Fractures`dgbflt
 Fluid Contact Finder`dgbccb
 GeoDataSync Accelerate`arkclsgdsa
 GMT Link`gmt_logo
+HDF5 File Access`hdf
 HorizonCube`dgbhc
 Madagascar Link`madagascar
 Matching Pursuit`matching_pursuit
