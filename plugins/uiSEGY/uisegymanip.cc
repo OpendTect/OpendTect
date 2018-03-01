@@ -161,17 +161,20 @@ uiSEGYBinHdrEd( uiParent* p, SEGY::BinHeader& h )
 
 uiString getSummary() const
 {
-    BufferString ret;
+    uiPhrase ret;
     if ( hdr_.isSwapped() )
-	ret.add( "[Swapped] " );
+	ret.appendPhrase( tr("Swapped").optional() );
     if ( hdr_.isRev0() )
-	ret.add( "[Rev 0] " );
+	ret.appendPhrase( tr("Rev 0","SEG-Y revision").optional(),
+							    uiString::NoSep );
     if ( hdr_.isInFeet() )
-	ret.add( "[feet] " );
-    ret.add( hdr_.nrSamples() ).add( " samples (" )
-	.add( hdr_.bytesPerSample() ).add( "-byte), interval=" )
-	.add( hdr_.sampleRate(true) );
-    return toUiString( ret );
+	ret.appendPhrase( uiStrings::sFeet(false).toLower().optional(),
+				    uiString::NoSep  );
+    //have a space
+    ret.appendPhrase( tr("%1 samples( %2 - byte), (interval = %3)")
+	.arg(hdr_.nrSamples()).arg(hdr_.bytesPerSample()))
+	.arg(hdr_.sampleRate(true));
+    return ret;
 }
 
 void doDlg( CallBacker* )

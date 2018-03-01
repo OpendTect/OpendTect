@@ -213,10 +213,10 @@ void Pos::FilterSet::getSummary( uiString& txt ) const
     filts_[0]->getSummary( txt );
     for ( int idx=1; idx<size(); idx++ )
     {
-	txt = toUiString("%1 %2").arg(txt).arg(",");
+	txt = toUiString("%1,").arg(txt);
 	filts_[idx]->getSummary( txt );
     }
-    if ( size() > 1 ) txt = toUiString("%1 %2").arg(txt).arg("}");
+    if ( size() > 1 ) txt = toUiString("%1 }").arg(txt);
 }
 
 

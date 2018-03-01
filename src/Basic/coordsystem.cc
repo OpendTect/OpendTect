@@ -231,9 +231,11 @@ bool AnchorBasedXY::geographicTransformOK() const
 
 uiString AnchorBasedXY::summary() const
 {
-    BufferString ret( "Anchor: " );
-    ret.add( reflatlng_.toString() ).add( refcoord_.toPrettyString() );
-    return ::toUiString(ret);
+    uiString ret( tr("Anchor") );
+    ret.appendPhrase( ::toUiString("%1 %2").arg(reflatlng_.toString())
+	.arg(refcoord_.toPrettyString()), uiString::MoreInfo,
+					uiString::OnSameLine );
+    return ret;
 }
 
 

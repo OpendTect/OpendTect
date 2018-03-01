@@ -169,9 +169,9 @@ void butPushed( CallBacker* )
 uiString getSummary() const
 {
     if ( se_->autogentxthead_ )
-	return tr( "<generate>" );
+	return tr("generate").embed("<",">");
     else
-	return tr( "<user-defined>" );
+	return tr("user-defined").embed("<",">");
 }
 
     uiSEGYExp*	se_;
