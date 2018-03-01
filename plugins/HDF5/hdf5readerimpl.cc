@@ -11,28 +11,25 @@ ________________________________________________________________________
 #include "hdf5readerimpl.h"
 #include "uistrings.h"
 #include "file.h"
+#include "H5Cpp.h"
 
 
 HDF5::ReaderImpl::ReaderImpl()
-    : file_(0)
+    : AccessImpl(*this)
 {
 }
 
 
 HDF5::ReaderImpl::~ReaderImpl()
 {
-    delete file_;
+    closeFile();
 }
 
 
-uiRetVal HDF5::ReaderImpl::open( const char* fnm )
+void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv )
 {
-    uiRetVal uirv;
     if ( !File::exists(fnm) )
-    {
-	uirv.add( uiStrings::phrCannotOpen( fnm ) );
-	return uirv;
-    }
+	{ uirv.add( uiStrings::phrCannotOpen( fnm ) ); return; }
 
     try {
 	file_ = new H5::H5File( fnm, H5F_ACC_RDONLY );
@@ -45,20 +42,18 @@ uiRetVal HDF5::ReaderImpl::open( const char* fnm )
     {
 	uirv.add( uiStrings::phrErrDuringRead( fnm ) );
     }
+}
 
-    return uirv;
+
+int HDF5::ReaderImpl::chunkSize() const
+{
+    //TODO
+    return 64;
 }
 
 
 void HDF5::ReaderImpl::getGroups( const GroupPath& pth,
 				  BufferStringSet& nms ) const
 {
-    //TODO impl
-}
-
-
-HDF5::GroupID HDF5::ReaderImpl::groupIDFor( const GroupPath& pth ) const
-{
-    //TODO impl
-    return -1;
+    //TODO
 }

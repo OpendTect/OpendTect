@@ -15,6 +15,31 @@ ________________________________________________________________________
 namespace HDF5
 {
 
+class ReaderImpl;
+class WriterImpl;
+
+//!brief Mixin for common stuff
+
+mExpClass(HDF5) AccessImpl
+{
+public:
+
+			AccessImpl(ReaderImpl&);
+			AccessImpl(WriterImpl&);
+    virtual		~AccessImpl();
+
+    const char*		gtFileName() const;
+
+protected:
+
+			AccessImpl(const AccessImpl&)	= delete;
+
+    Access&		acc_;
+    static void		doCloseFile(Access&);
+
+};
+
+
 mExpClass(HDF5) AccessProviderImpl : public AccessProvider
 {
 public:

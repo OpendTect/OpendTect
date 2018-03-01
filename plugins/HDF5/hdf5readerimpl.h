@@ -10,26 +10,30 @@ ________________________________________________________________________
 -*/
 
 #include "hdf5common.h"
-#include "H5Cpp.h"
+#include "hdf5accessimpl.h"
+#include "hdf5reader.h"
 
 
 namespace HDF5
 {
 
 mExpClass(HDF5) ReaderImpl : public Reader
+			   , public AccessImpl
 {
 public:
 
 			    ReaderImpl();
 			    ~ReaderImpl();
 
-    virtual uiRetVal	    open(const char*);
+    const char*		    fileName() const	{ return gtFileName(); }
+
+    virtual int		    chunkSize() const;
     virtual void	    getGroups(const GroupPath&,BufferStringSet&) const;
-    virtual GroupID	    groupIDFor(const GroupPath&) const;
 
 protected:
 
-    H5::H5File*		    file_;
+    virtual void	    openFile(const char*,uiRetVal&);
+    virtual void	    closeFile()		{ doCloseFile(*this); }
 
 };
 

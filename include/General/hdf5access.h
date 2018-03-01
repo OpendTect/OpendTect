@@ -12,53 +12,59 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "factory.h"
 
+class ArrayNDInfo;
+template <class T> class ArrayND;
+namespace H5 { class H5File; }
+
 
 namespace HDF5
 {
 
-    typedef od_int64		IDType;
+class Reader;
+class Writer;
 
-    typedef IDType		GroupID;
-    typedef BufferStringSet	GroupPath;
-
-    inline uiString		sHDF5Err()
-				{ return od_static_tr("HDF5","HDF5 Error"); }
-
-    mExpClass(General) Reader
-    {
-    public:
-
-	virtual uiRetVal	open(const char*)			= 0;
-	virtual void		getGroups(const GroupPath&,
-					  BufferStringSet&) const	= 0;
-	virtual GroupID		groupIDFor(const GroupPath&) const	= 0;
-
-	//etc
-
-    };
-
-    mExpClass(General) Writer
-    {
-    public:
-
-	virtual uiRetVal	open(const char*)			= 0;
-
-	//etc
-
-    };
-
-    mExpClass(General) AccessProvider
-    {
-    public:
-
-	mDefineFactory0ParamInClass(AccessProvider,factory);
-
-	virtual Reader*		getReader() const			= 0;
-	virtual Writer*		getWriter() const			= 0;
+typedef BufferStringSet	GroupPath;
 
 
-    };
+mExpClass(General) Access
+{ mODTextTranslationClass(HDF5::Access);
+public:
 
-    inline bool isAvailable() { return !AccessProvider::factory().isEmpty(); }
+			Access();
+    virtual		~Access();
+
+    uiRetVal		open(const char*);
+    virtual const char*	fileName() const			= 0;
+
+    virtual int		chunkSize() const			= 0;
+
+    H5::H5File*		getHDF5File()	{ return file_; }
+
+protected:
+
+    H5::H5File*		file_;
+
+    virtual void	closeFile()				= 0;
+    virtual void	openFile(const char*,uiRetVal&)		= 0;
+
+    static uiString	sHDF5Err();
+    static uiString	sFileNotOpen();
+
+    friend class	AccessImpl;
+
+};
+
+mExpClass(General) AccessProvider
+{
+public:
+
+    mDefineFactory0ParamInClass(AccessProvider,factory);
+
+    virtual Reader*		getReader() const			= 0;
+    virtual Writer*		getWriter() const			= 0;
+
+};
+
+inline bool isAvailable() { return !AccessProvider::factory().isEmpty(); }
 
 } // namespace HDF5

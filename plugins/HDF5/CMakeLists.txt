@@ -12,6 +12,7 @@ set( OD_IS_PLUGIN TRUE )
 set( OD_MODULE_DEPS General )
 
 set( OD_MODULE_SOURCES
+    hdf5accessimpl.cc
     hdf5readerimpl.cc
     hdf5writerimpl.cc
     hdf5pi.cc

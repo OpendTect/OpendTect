@@ -10,24 +10,31 @@ ________________________________________________________________________
 -*/
 
 #include "hdf5common.h"
-#include "H5Cpp.h"
+#include "hdf5accessimpl.h"
+#include "hdf5writer.h"
 
 
 namespace HDF5
 {
 
 mExpClass(HDF5) WriterImpl : public Writer
+			   , public AccessImpl
 {
 public:
 
 			    WriterImpl();
-			    ~WriterImpl();
+    virtual		    ~WriterImpl();
 
-    virtual uiRetVal	    open(const char*);
+    const char*		    fileName() const	{ return gtFileName(); }
+
+    virtual void	    setDims(const ArrayNDInfo&);
+    virtual int		    chunkSize() const;
+    virtual void	    setChunkSize(int);
 
 protected:
 
-    H5::H5File*		    file_;
+    virtual void	    openFile(const char*,uiRetVal&);
+    virtual void	    closeFile()		{ doCloseFile(*this); }
 
 };
 

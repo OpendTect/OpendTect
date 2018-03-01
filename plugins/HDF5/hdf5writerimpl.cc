@@ -10,24 +10,23 @@ ________________________________________________________________________
 
 #include "hdf5writerimpl.h"
 #include "uistrings.h"
+#include "H5Cpp.h"
 
 
 HDF5::WriterImpl::WriterImpl()
-    : file_(0)
+    : AccessImpl(*this)
 {
 }
 
 
 HDF5::WriterImpl::~WriterImpl()
 {
-    delete file_;
+    closeFile();
 }
 
 
-uiRetVal HDF5::WriterImpl::open( const char* fnm )
+void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv )
 {
-    uiRetVal uirv;
-
     try {
 	file_ = new H5::H5File( fnm, H5F_ACC_TRUNC );
     }
@@ -37,8 +36,25 @@ uiRetVal HDF5::WriterImpl::open( const char* fnm )
     }
     catch ( ... )
     {
-	uirv.add( uiStrings::phrErrDuringWrite( fnm ) );
+	uirv.add( uiStrings::phrErrDuringWrite(fnm) );
     }
+}
 
-    return uirv;
+
+void HDF5::WriterImpl::setDims( const ArrayNDInfo& arrinf )
+{
+    //TODO
+}
+
+
+int HDF5::WriterImpl::chunkSize() const
+{
+    //TODO
+    return 64;
+}
+
+
+void HDF5::WriterImpl::setChunkSize( int sz )
+{
+    //TODO
 }
