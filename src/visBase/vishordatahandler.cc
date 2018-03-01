@@ -87,10 +87,12 @@ void HorizonSectionDataHandler::updateZAxisVOI()
 
 void HorizonSectionDataHandler::setZAxisTransform( ZAxisTransform* zt )
 {
-    if ( zaxistransform_==zt )	return ;
+    if ( zaxistransform_==zt )
+	return ;
 
     removeZTransform();
-    if ( !zt )	return ;
+    if ( !zt )
+	return ;
 
     zaxistransform_ = zt;
     zaxistransform_->ref();
@@ -115,8 +117,88 @@ void HorizonSectionDataHandler::removeZTransform()
 }
 
 
+class DataPointSetFiller : public ParallelTask
+{
+public:
+DataPointSetFiller( BinIDValueSet& bivs, const HorizonSection& section,
+	   const ZAxisTransform* zat, double shift, float* vals )
+    : bivs_(bivs)
+    , section_(section)
+    , zat_(zat), shift_(shift), vals_(vals)
+{
+}
+
+
+od_int64 nrIterations() const
+{ return section_.geometry_->nrKnots(); }
+
+protected:
+bool doWork( od_int64 start, od_int64 stop, int threadidx )
+{
+    mAllocVarLenArr( float, vals, bivs_.nrVals() );
+    for ( int idx=0; idx<bivs_.nrVals(); idx++ )
+	vals[idx] = vals_[idx];
+
+    const Array2D<float>* depths = section_.geometry_->getArray();
+    if ( !depths ) return true;
+
+    const  StepInterval<int> inlrg = section_.geometry_->rowRange();
+    const  StepInterval<int> crlrg = section_.geometry_->colRange();
+
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    {
+	const BinID bid = section_.geometry_->getKnotRowCol(idx);
+	const StepInterval<int> displayrrg = section_.displayrrg_;
+	const StepInterval<int> displaycrg = section_.displaycrg_;
+	if ( section_.userchangedisplayrg_ &&
+	    ( !displayrrg.includes(bid.inl(), false) ||
+	      !displaycrg.includes(bid.crl(), false) ||
+	    ((bid.inl()-displayrrg.start)%displayrrg.step) ||
+	    ((bid.crl()-displaycrg.start)%displaycrg.step) ) )
+	    continue;
+
+	const int inlidx = inlrg.getIndex( bid.inl() );
+	const int crlidx = crlrg.getIndex( bid.crl() );
+	float zval = depths->get( inlidx, crlidx );
+	if ( mIsUdf(zval) )
+	    continue;
+
+	if ( shift_ )
+	{
+	    if ( !zat_ )
+		zval += shift_;
+	    else
+	    {
+		zval = zat_->transform( BinIDValue(bid,zval) );
+		if ( mIsUdf(zval) )
+		    continue;
+
+		zval += shift_;
+
+		zval = zat_->transformBack( BinIDValue(bid,zval) );
+		if ( mIsUdf(zval) )
+		    continue;
+	    }
+	}
+
+	vals[0] = zval;
+	BinIDValueSet::SPos bidpos = bivs_.find( bid );
+	bivs_.set( bidpos, vals );
+    }
+
+    return true;
+}
+
+    BinIDValueSet&		bivs_;
+    const HorizonSection&	section_;
+    const ZAxisTransform*	zat_;
+    double			shift_;
+    float*			vals_;
+};
+
+
 void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
-    double zshift, int sectionid ) const
+	double zshift, int sectionid ) const
 {
     if ( !horsection_ || !horsection_->geometry_ ) return;
 
@@ -126,6 +208,7 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
 				SilentTaskRunnerProvider()) )
 	    return;
     }
+
     const char* hrsectionid = "Section ID";
     const DataColDef sidcol( hrsectionid );
     if ( dtpntset.dataSet().findColDef(sidcol,PosVecDataSet::NameExact)==-1 )
@@ -144,42 +227,13 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
     const int nrknots = horsection_->geometry_->nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
     {
-	const BinID bid = horsection_->geometry_->getKnotRowCol(idx);
-	const StepInterval<int> displayrrg = horsection_->displayrrg_;
-	const StepInterval<int> displaycrg = horsection_->displaycrg_;
-	if ( horsection_->userchangedisplayrg_ &&
-	    ( !displayrrg.includes(bid.inl(), false) ||
-	      !displaycrg.includes(bid.crl(), false) ||
-	    ((bid.inl()-displayrrg.start)%displayrrg.step) ||
-	    ((bid.crl()-displaycrg.start)%displaycrg.step) ) )
-	    continue;
-
-	const Coord3 pos = horsection_->geometry_->getKnot(RowCol(bid),false);
-	if ( !pos.isDefined() )
-	    continue;
-
-	float zval = pos.z_;
-	if ( zshift )
-	{
-	    if ( !zaxistransform_ )
-		zval += zshift;
-	    else
-	    {
-		zval = zaxistransform_->transformTrc( bid, zval );
-		if ( mIsUdf(zval) )
-		    continue;
-
-		zval += zshift;
-
-		zval = zaxistransform_->transformTrcBack( bid, zval );
-		if ( mIsUdf(zval) )
-		    continue;
-	    }
-	}
-
-	vals[0] = zval;
-	bivs.add( bid, vals );
+	const BinID bid = horsection_->geometry_->getKnotRowCol( idx );
+	bivs.add( bid );
     }
+
+    DataPointSetFiller filler( bivs, *horsection_, zaxistransform_,
+			       zshift, vals );
+    filler.execute();
 }
 
 } // namespace visBase

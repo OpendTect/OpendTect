@@ -238,6 +238,16 @@ void HorizonSectionTile::setWireframeColor( Color& color )
 }
 
 
+void HorizonSectionTile::setLineWidth( int width )
+{
+    for ( int idx=0; idx<tileresolutiondata_.size(); idx++ )
+    {
+	if ( tileresolutiondata_[idx] )
+	    tileresolutiondata_[idx]->setLineWidth( width );
+    }
+}
+
+
 void HorizonSectionTile::ensureGlueTesselated()
 {
     bool needgluetesselation =

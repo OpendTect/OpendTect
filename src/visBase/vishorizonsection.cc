@@ -25,6 +25,7 @@
 #include <osg/Switch>
 #include <osgUtil/CullVisitor>
 
+
 mCreateFactoryEntry( visBase::HorizonSection );
 
 namespace visBase
@@ -402,6 +403,19 @@ void HorizonSection::setWireframeColor( Color col )
     {
 	if ( tileptrs[idx] )
 	    tileptrs[idx]->setWireframeColor( col );
+    }
+    spinlock_.unLock();
+}
+
+
+void HorizonSection::setLineWidth( int width )
+{
+    HorizonSectionTile** tileptrs = tiles_.getData();
+    spinlock_.lock();
+    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+    {
+	if ( tileptrs[idx] )
+	    tileptrs[idx]->setLineWidth( width );
     }
     spinlock_.unLock();
 }

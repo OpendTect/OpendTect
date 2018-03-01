@@ -28,7 +28,6 @@
 
 #include <osgGeo/LayeredTexture>
 
-
 const char cTowardDown  = 0;
 const char cTowardRight = 1;
 
@@ -66,11 +65,12 @@ TileResolutionData::TileResolutionData( const HorizonSectionTile* sectile,
 	    (int)section.nrcoordspertileside_/spacing :
 	(int)section.nrcoordspertileside_/spacing +1 ;
     }
+
     HorizonSectionTile* tile = const_cast<HorizonSectionTile*>( sectile_ );
     normals_ = tile->getNormals();
     osgvertices_ = tile->getOsgVertexArray();
     buildOsgGeometres();
-};
+}
 
 
 TileResolutionData::~TileResolutionData()
@@ -82,7 +82,7 @@ TileResolutionData::~TileResolutionData()
 
 
 void TileResolutionData::setTexture( const unsigned int unit,
-    osg::Array* tcarr, osg::StateSet* stateset )
+			osg::Array* tcarr, osg::StateSet* stateset )
 {
     setGeometryTexture( unit, tcarr, stateset, Triangle );
     setGeometryTexture( unit, tcarr, stateset, Line );
@@ -115,7 +115,7 @@ void TileResolutionData::enableGeometryTypeDisplay( GeometryType type, bool yn )
     osgswitch_->setAllChildrenOff();
     osgswitch_->setValue( Triangle, true );
     osgswitch_->setValue( Line, true );
-    if ( type >=Triangle && type <= WireFrame )
+    if ( type>=Triangle && type<=WireFrame )
     {
         osgswitch_->setValue( type, yn );
 	if ( yn )
@@ -130,7 +130,7 @@ void TileResolutionData::enableGeometryTypeDisplay( GeometryType type, bool yn )
 
 void TileResolutionData::dirtyGeometry()
 {
-    for ( int type =0; type<=WireFrame; type++ )
+    for ( int type=0; type<=WireFrame; type++ )
     {
 	if ( osgswitch_->getValue((unsigned int)type) )
 	    dirtyGeometry( type );
@@ -141,7 +141,6 @@ void TileResolutionData::dirtyGeometry()
 void TileResolutionData::dirtyGeometry( int type )
 {
     osg::Geode* geode = mGetOsgGeode( geodes_, type );
-
     if ( geode )
     {
 	mGetOsgGeometry( geode )->dirtyBound();
@@ -170,9 +169,9 @@ void TileResolutionData::hideFromDisplay()
 }
 
 
-int getCoordinateIndex(int row,int col,int nrcoords)
+int getCoordinateIndex( int row, int col, int nrcoords )
 {
-    return row*nrcoords+col;
+    return row*nrcoords + col;
 }
 
 
@@ -182,7 +181,7 @@ bool TileResolutionData::tesselateResolution( bool onlyifabsness )
     const int spacing = hrsection.spacing_[resolution_];
 
     if ( resolution_<0 || needsretesselation_==cNoTesselationNeeded ||
-	( needsretesselation_==cShouldRetesselate && onlyifabsness ) )
+	(needsretesselation_==cShouldRetesselate && onlyifabsness) )
 	return false;
 
     mClearPrimitiveSet;
@@ -200,10 +199,12 @@ bool TileResolutionData::tesselateResolution( bool onlyifabsness )
 	    if ( row==hrsection.nrcoordspertileside_-1 &&
 		 col==hrsection.nrcoordspertileside_-1 )
 		 continue;
+
 	    const int coordidx = getCoordinateIndex(
 		row, col, hrsection.nrcoordspertileside_ );
 	    if ( !mIsOsgVec3Def( (*osgvertices)[coordidx] ) )
 		continue;
+
 	    tesselateCell( row, col );
 	}
     }
@@ -217,7 +218,7 @@ bool TileResolutionData::tesselateResolution( bool onlyifabsness )
 
 
 void TileResolutionData::setPrimitiveSet( unsigned int geometrytype,
-    osg::DrawElementsUShort* geomps )
+					  osg::DrawElementsUShort* geomps )
 {
     if( !geomps || geometrytype>geodes_->getNumUserObjects() )
 	return;
@@ -430,12 +431,12 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
     //10 11 12 -- 11 is this
     //20 21 22
 
-    bool                  nbdef01 = false, nbdef02 = false;
+    bool		  nbdef01 = false, nbdef02 = false;
     bool nbdef10 = false,		   nbdef12 = false;
     bool nbdef20 = false, nbdef21 = false, nbdef22 = false;
 
-    unsigned int sum = 0;
     const bool useneigbors =  section.usingNeighborsInIsolatedLine();
+    unsigned int sum = 0;
     if ( direction == cTowardDown )
     {
 	if ( isfirstcol )
@@ -471,7 +472,7 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 		nbdef12 = righttile->hasDefinedCoordinates(
 		    highestresidx - nrroworcol + 2 );
 		nbdef22 = righttile->hasDefinedCoordinates(
-		    highestresidx + 2);
+		    highestresidx + 2 );
 	    }
 	    nbdef10=curtile->hasDefinedCoordinates(highestresidx - 1);
 	    nbdef20=curtile->hasDefinedCoordinates(highestresidx+nrroworcol-1);
@@ -561,7 +562,7 @@ void TileResolutionData::buildOsgGeometres()
     osgswitch_->setValue( Line, true );
 
     buildTraingleGeometry( Triangle );
-    buildLineGeometry( Line,2 );
+    buildLineGeometry( Line, 2 );
     buildLineGeometry( WireFrame, 1 );
     buildPointGeometry( Point );
 
@@ -576,6 +577,22 @@ void TileResolutionData::setWireframeColor( Color& color)
     mGetOsgVec4Arr( linecolor_ )->clear();
     mGetOsgVec4Arr( linecolor_ )->push_back( Conv::to<osg::Vec4>( color ) );
     dirtyGeometry();
+}
+
+
+void TileResolutionData::setLineWidth( int width )
+{
+    osg::Geode* linegeode = mGetOsgGeode( geodes_, Line );
+    if ( !linegeode ) return;
+
+    osg::Geometry* linegeom = mGetOsgGeometry( linegeode );
+    if ( !linegeom ) return;
+
+    osg::ref_ptr<osg::LineWidth> linewidth = new osg::LineWidth;
+    linewidth->setWidth( width );
+    linegeom->getStateSet()->setAttributeAndModes( linewidth );
+
+    dirtyGeometry( Line );
 }
 
 
@@ -613,7 +630,7 @@ void TileResolutionData::createPrimitiveSets()
 void TileResolutionData::buildLineGeometry( int idx, int width )
 {
     osg::Geode* linegeode = mGetOsgGeode( geodes_, idx );
-    if ( ! linegeode ) return;
+    if ( !linegeode ) return;
 
     osg::ref_ptr<osg::LineWidth> linewidth = new osg::LineWidth;
     mGetOsgVec4Arr( linecolor_ )->push_back( osg::Vec4d( 1, 1, 1, 0 ) );

@@ -71,6 +71,7 @@ public:
     ObjectSet<TileResolutionData>& getResolutionData()
 				   { return tileresolutiondata_; }
     void			turnOnGlue(bool);
+    void			setLineWidth(int);
 
 protected:
 

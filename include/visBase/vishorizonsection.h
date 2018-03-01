@@ -133,6 +133,7 @@ public:
     void			setUsingNeighborsInIsolatedLine(bool);
     bool			usingNeighborsInIsolatedLine() const;
 
+    void			setLineWidth(int);
 
 protected:
 				~HorizonSection();
@@ -147,6 +148,7 @@ protected:
     friend class		HorizonSectionTilePosSetup;
     friend class		TileCoordinatesUpdator;
     friend class		HorizonTileResolutionTesselator;
+    friend class		DataPointSetFiller;
 
     void			surfaceChangeCB(CallBacker*);
     void			surfaceChange(const TypeSet<GeomPosID>*,

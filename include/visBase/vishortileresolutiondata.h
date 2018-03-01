@@ -34,7 +34,7 @@ namespace osg
 
 namespace osgUtil { class CullVisitor; }
 
-namespace osgGeo { class LayeredTexture;  }
+namespace osgGeo { class LayeredTexture; }
 
 namespace visBase
 {
@@ -45,19 +45,20 @@ namespace visBase
 class TileResolutionData
 {
 public:
-    TileResolutionData( const HorizonSectionTile* sectile,
-			char resolution );
-    ~TileResolutionData();
+			TileResolutionData(const HorizonSectionTile*,
+					   char resolution);
+			~TileResolutionData();
 
-    void		setTexture(const unsigned int unit, osg::Array* arr,
-				    osg::StateSet* stateset);
-    void		enableGeometryTypeDisplay(GeometryType type, bool yn);
+    void		setTexture(const unsigned int unit,osg::Array* arr,
+				   osg::StateSet* stateset);
+    void		enableGeometryTypeDisplay(GeometryType type,bool yn);
 
     bool		tesselateResolution(bool onlyifabsness);
     void		updatePrimitiveSets();
     void		setWireframeColor(Color& color);
     void		dirtyGeometry();
-    const osg::PrimitiveSet*	   getPrimitiveSet(GeometryType) const;
+    const osg::PrimitiveSet*	getPrimitiveSet(GeometryType) const;
+    void		setLineWidth(int);
 
 protected:
 
@@ -77,7 +78,7 @@ protected:
     osg::DrawElementsUShort*	pointsps_;
     osg::DrawElementsUShort*	wireframesps_;
 
-    osg::DrawElementsUShort*    trianglesosgps_;
+    osg::DrawElementsUShort*	trianglesosgps_;
     osg::DrawElementsUShort*	linesosgps_;
     osg::DrawElementsUShort*	pointsosgps_;
     osg::DrawElementsUShort*	wireframesosgps_;
@@ -113,4 +114,4 @@ private:
     void			dirtyGeometry(int type);
 };
 
-}
+} // namespace visBase
