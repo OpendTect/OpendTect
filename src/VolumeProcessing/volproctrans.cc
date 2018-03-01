@@ -79,9 +79,9 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
     }
     else if ( ioobj->implExists(false) && ioobj->implReadOnly() )
     {
-	errmsg = toUiString("%1 %2").arg(
-				uiStrings::phrCannotWrite( uiStrings::sFile()))
-				.arg(toUiString(ioobj->fullUserExpr())) ;
+	errmsg = uiStrings::phrCannotWrite(uiStrings::sFile())
+			    .appendPhrase(toUiString(ioobj->fullUserExpr()),
+			    uiString::Space, uiString::OnSameLine);
 	return false;
     }
 

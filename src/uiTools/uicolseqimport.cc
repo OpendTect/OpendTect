@@ -121,6 +121,9 @@ void uiColSeqImport::usrSel( CallBacker* )
 	return;
     }
 
+    uiPhrase cannotreadclrtbl = uiStrings::phrCannotRead(
+				    tr("ColorTable from Selected File"));
+
     if ( fromuser )
     {
 	sHomePath = fp.fullPath();
@@ -162,8 +165,7 @@ void uiColSeqImport::usrSel( CallBacker* )
 	    res = cseqiop->read( fnm, 0 );
 	    if ( !res )
 	    {
-		showMessage(uiStrings::phrCannotRead(
-				    tr("ColorTanble from Selected File")));
+		showMessage(cannotreadclrtbl);
 		return;
 	    }
 	}
@@ -195,8 +197,7 @@ void uiColSeqImport::usrSel( CallBacker* )
     }
 
     if ( listfld_->isEmpty() )
-	showMessage(uiStrings::phrCannotRead(
-				    tr("ColorTanble from Selected File")));
+	showMessage(cannotreadclrtbl);
     else
 	showList();
 }

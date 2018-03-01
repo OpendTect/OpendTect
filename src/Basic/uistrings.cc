@@ -528,6 +528,9 @@ uiWord uiStrings::sInputParamsMissing()
 uiWord uiStrings::sSaveBodyFail()
 { return tr("Save body failed"); }
 
+uiWord uiStrings::sSceneWithNr( int scnnr )
+{ return toUiString("%1 %2").arg(sScene()).arg(scnnr); }
+
 uiWord uiStrings::sSelOutpFile()
 { return uiStrings::phrSelect(tr("output file")); }
 

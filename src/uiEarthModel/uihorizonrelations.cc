@@ -131,8 +131,8 @@ HorizonModifyDlg( uiParent* p, const DBKey& mid1, const DBKey& mid2,
 					        uiStrings::sRemove()) );
     modefld_->attach( alignedBelow, horizonfld_ );
 
-    savefld_ = new uiGenInput( this, uiStrings::phrSave(tr("modified horizon")),
-			       BoolInpSpec(true,tr("As new"),
+    savefld_ = new uiGenInput( this, uiStrings::phrSave(
+		      tr("Modified Horizons")), BoolInpSpec(true,tr("As new"),
 					   uiStrings::sOverwrite()) );
     savefld_->valuechanged.notify( mCB(this,HorizonModifyDlg,saveCB) );
     savefld_->attach( alignedBelow, modefld_ );

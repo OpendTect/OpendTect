@@ -52,17 +52,19 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	ls_.fromString( str.buf() );
 
     uiGroup* topgrp = new uiGroup( this, "Info fields" );
-    uiString hdistlbl = tr("Horizontal Distance %1").arg(SI().xyUnitString());
+    uiString hdistlbl = tr("Horizontal Distance")
+					.withUnit(SI().xyUnitString());
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
     hdistfld_->setReadOnly( true );
 
-    uiString zdistlbl = tr("Vertical Distance %1").arg(SI().zUnitString());
+    uiString vertdist = tr("Vertical Distance");
+
+    uiString zdistlbl = vertdist.withUnit(SI().zUnitString());
     zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
 
-    const uiString zintimelbl = tr("sVertical Distance %1")
-						    .arg(SI().xyUnitString());
+    const uiString zintimelbl = vertdist.withUnit(SI().xyUnitString());
     if ( SI().zIsTime() )
     {
 	zdist2fld_ = new uiGenInput( topgrp, zintimelbl, FloatInpSpec(0) );

@@ -727,7 +727,7 @@ class uiDPSCPDisplayPropTab : public uiDlgGroup
 public:
 
 uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
-    : uiDlgGroup(p->tabParent(),tr("Display Properties"))
+    : uiDlgGroup(p->tabParent(),uiStrings::sDisplayProperties())
     , plotter_(p->plotter())
     , hasy2_(p->plotter().axisHandler(2))
     , shapeenums_( OD::MarkerStyle2D::TypeDef() )
@@ -743,17 +743,17 @@ uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
     shapefld_ = llb->box();
     llb->attach( alignedBelow, sizefld_ );
     shapefld_->setCurrentItem( (int)(mstyle.type_-1) );
-
+    uiString axiscolor = tr("%1 Axis Color","<Axis name> Axis Color");
     Color yaxiscol = plotter_.axisHandler(1)->setup().style_.color_;
     ycolinpfld_ = new uiColorInput( this, uiColorInput::Setup(yaxiscol)
-		      .lbltxt(tr("Y Axis Color")) );
+		      .lbltxt(axiscolor.arg(uiStrings::sY())) );
     ycolinpfld_->attach( alignedBelow, llb );
 
     if ( hasy2_ )
     {
 	Color y2axiscol = plotter_.axisHandler(2)->setup().style_.color_;
 	y2colinpfld_ = new uiColorInput( this, uiColorInput::Setup(y2axiscol)
-		       .lbltxt(tr("Y2 Axis Color")) );
+		       .lbltxt(axiscolor.arg(uiStrings::sY2())) );
 	y2colinpfld_->attach( alignedBelow, ycolinpfld_ );
     }
 }

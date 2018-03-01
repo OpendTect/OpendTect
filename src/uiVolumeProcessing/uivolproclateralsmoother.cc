@@ -33,10 +33,10 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
     uiGroup* stepoutgroup = new uiGroup( this, "Stepout" );
     stepoutgroup->setFrame( true );
     const BinID step( SI().inlStep(), is2d ? 1 : SI().crlStep() );
-
+    uiString stepoutstr = tr("%1 Stepout");
     if ( !is2d )
     {
-	uiString linesolabel = tr("Inline Stepout");
+	uiString linesolabel = stepoutstr.arg(uiStrings::sInline());
 	inllenfld_ = new uiLabeledSpinBox( stepoutgroup, linesolabel,
 					    0, "Inline_spinbox" );
 	inllenfld_->box()->setInterval( 0, 200*step.inl(), step.inl() );
@@ -44,7 +44,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
 	    inllenfld_->box()->setValue( step.inl()*pars->stepout_.row() );
     }
 
-    uiString trcsolabel = tr("%1 Stepout").arg(is2d ? uiStrings::sTraceNumber()
+    uiString trcsolabel = stepoutstr.arg(is2d ? uiStrings::sTraceNumber()
 				    : uiStrings::sCrossline());
     crllenfld_ = new uiLabeledSpinBox( stepoutgroup, trcsolabel, 0,
 				       "Crline_spinbox" );

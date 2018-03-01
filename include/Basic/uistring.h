@@ -184,6 +184,7 @@ public:
     uiString&		quote(bool single);
     uiString&		parenthesize();
     uiString&		optional();
+    uiString&		embedFinalState();
     uiString&		withUnit(const char*); //!< just the unit itself, please
     uiString&		withUnit(const uiString&);
     uiString&		addMoreInfo(const uiString&,bool newline=false);
@@ -339,6 +340,8 @@ inline uiString& uiString::parenthesize()
 { return toUiString("(%1)").arg( *this ); }
 inline uiString& uiString::optional()
 { return toUiString("[%1]").arg( *this ); }
+inline uiString& uiString::embedFinalState()
+{ return toUiString("<%1>").arg( *this ); }
 inline uiString& uiString::withUnit( const char* str )
 { return withUnit( toUiString(str) ); }
 inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )

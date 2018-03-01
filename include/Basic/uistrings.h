@@ -594,6 +594,7 @@ public:
     static uiWord sScanning()		{ return tr("Scanning"); }
     static uiWord sScene(int n=1)	{ return tr("Scene",0,n); }
     static uiWord sScenes()		{ return sScene(mPlural); }
+    static uiWord sSceneWithNr(int scnnr);
     static uiWord sSchedule()		{ return tr("Schedule"); }
     static uiWord sScope()		{ return tr("Scope"); }
     static uiWord sSearch()		{ return tr("Search"); }

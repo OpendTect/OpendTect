@@ -61,7 +61,7 @@ class uiDPSDispPropDlg : public uiDialog
 public:
 uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 		  const DataPointSetDisplayProp* prevdispprop )
-    : uiDialog(this,uiDialog::Setup(tr("Display properties"),
+    : uiDialog(this,uiDialog::Setup(uiStrings::sDisplayProperties(),
 				    uiString::empty(),mNoHelpKey).modal(false))
     , plotter_(plotter)
 {
