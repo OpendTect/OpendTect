@@ -90,6 +90,9 @@ public:
     void			setSelectedSector( int i )
 						{ selsector_ = i; }
 
+    void			showColTabItem(bool);
+    void			showScaleItem(bool);
+
 protected:
 
     Setup			setup_;

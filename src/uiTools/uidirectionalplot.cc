@@ -44,7 +44,10 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , hdrannotitm2_(0)
     , scalelineitm_(0)
     , scalearcitm_(0)
+    , scalestartptitem_(0)
     , scaleannotitm_(0)
+    , scalestartitm_(0)
+    , scalestopitm_(0)
     , coltabitm_(0)
     , sectorPicked(this)
 {
@@ -73,7 +76,10 @@ uiDirectionalPlot::~uiDirectionalPlot()
     delete hdrannotitm2_;
     delete scalelineitm_;
     delete scalearcitm_;
+    delete scalestartptitem_;
     delete scaleannotitm_;
+    delete scalestartitm_;
+    delete scalestopitm_;
     delete coltabitm_;
 }
 
@@ -193,6 +199,9 @@ void uiDirectionalPlot::drawGrid()
     }
 
     sectorlines_.removeAll( true );
+    if ( setup_.type_ == Setup::Scatter )
+	return; // TODO: Draw grid only
+
     const int nrsectors = data_.nrSectors();
     for ( int isect=0; isect<nrsectors; isect++ )
     {
@@ -370,8 +379,10 @@ void uiDirectionalPlot::drawScatter()
 	    if ( spd.count_ < 1 ) continue;
 
 	    const float r = spd.pos_ * radius_;
-	    markeritems_.add( new uiMarkerItem(dataUIPos(r,spd.val_),
-					       setup_.markstyle_) );
+	    uiMarkerItem* itm =
+		new uiMarkerItem( dataUIPos(r,spd.val_), setup_.markstyle_ );
+	    itm->setFillColor( setup_.markstyle_.color_ );
+	    markeritems_.add( itm );
 	}
     }
 }
@@ -531,4 +542,23 @@ uiPoint uiDirectionalPlot::dataUIPos( float r, float ang ) const
 uiPoint uiDirectionalPlot::usrUIPos( float r, float ang ) const
 {
     return uiPointFromPolar( center_, r, Angle::usrdeg2rad(ang) );
+}
+
+
+void uiDirectionalPlot::showColTabItem( bool yn )
+{
+    if ( coltabitm_ )
+	coltabitm_->setVisible( yn );
+}
+
+
+void uiDirectionalPlot::showScaleItem( bool yn )
+{
+// TODO: Move all these items in a set
+    if ( scalelineitm_ ) scalelineitm_->setVisible( yn );
+    if ( scalearcitm_ ) scalearcitm_->setVisible( yn );
+    if ( scalestartptitem_ ) scalestartptitem_->setVisible( yn );
+    if ( scaleannotitm_ ) scaleannotitm_->setVisible( yn );
+    if ( scalestartitm_ ) scalestartitm_->setVisible( yn );
+    if ( scalestopitm_ ) scalestopitm_->setVisible( yn );
 }
