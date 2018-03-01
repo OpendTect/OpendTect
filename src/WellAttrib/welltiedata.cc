@@ -102,7 +102,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     , wd_(&wdata)
     , setup_(wts)
     , initwvlt_(new Wavelet)
-    , estimatedwvlt_(new Wavelet("Estimated wavelet"))
+    , estimatedwvlt_(new Wavelet("Deterministic wavelet"))
     , seistrc_(*new SeisTrc)
     , synthtrc_(*new SeisTrc)
     , trunner_(0)
@@ -342,6 +342,20 @@ Server::~Server()
     delete dataplayer_;
     delete pickmgr_;
     delete data_;
+}
+
+
+bool Server::setNewWavelet( const DBKey& key )
+{
+    if ( !data_ ) return false;
+
+    ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( key );
+    if ( !wvlt ) return false;
+
+    *data_->initwvlt_ = *wvlt;
+    data_->initwvlt_->reSample( Data::cDefSeisSr() );
+    const_cast<WellTie::Setup&>(data_->setup()).wvltid_ = key;
+    return updateSynthetics( *data_->initwvlt_ );
 }
 
 
