@@ -60,6 +60,8 @@ mExpClass(General) AccessProvider
 {
 public:
 
+    virtual			~AccessProvider()			{}
+
     mDefineFactory0ParamInClass(AccessProvider,factory);
 
     virtual Reader*		getReader() const			= 0;
