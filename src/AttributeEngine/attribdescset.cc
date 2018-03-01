@@ -35,7 +35,6 @@
 #include "uistrings.h"
 #include "ctxtioobj.h"
 
-using namespace Attrib;
 
 namespace Attrib
 {
@@ -87,7 +86,6 @@ void Make_DescSet_Standard_Manager()
     standard_manager = new DescSet_Standard_Manager;
 }
 
-} // namespace Attrib
 
 
 
@@ -1549,7 +1547,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( const StringPair& inpstr )
 
 
 void DescSet::createAndAddMultOutDescs( const DescID& targetid,
-	                                const TypeSet<int>& seloutputs,
+					const TypeSet<int>& seloutputs,
 					const BufferStringSet& seloutnms,
 					TypeSet<DescID>& outdescids )
 {
@@ -1665,3 +1663,5 @@ bool DescSet::exportToDot( const char* nm, const char* fnm ) const
 
     return true;
 }
+
+} // namespace Attrib
