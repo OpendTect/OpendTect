@@ -225,7 +225,7 @@ bool VolumeReader::usePar( const IOPar& par )
     if ( !Step::usePar(par) )
 	return false;
 
-    par.get( sKey::Component(),components_ );
+    par.get( sKey::Component(), components_ );
     compscalers_.setNullAllowed( true );
     PtrMan<IOPar> scalerpar = par.subselect( sKey::Scale() );
     if ( scalerpar.ptr() )

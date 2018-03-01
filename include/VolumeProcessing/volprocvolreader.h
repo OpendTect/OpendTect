@@ -15,9 +15,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "volprocstep.h"
 
-class IOObj;
 class Scaler;
-class SeisTrcTranslator;
 
 namespace VolProc
 {
@@ -59,7 +57,6 @@ private:
     static const char*		sKeyVolumeID()		{ return "Volume ID"; }
 
     DBKey			mid_;
-    ObjectSet<SeisTrcTranslator> translators_;
     TypeSet<int>		components_;
     ObjectSet<Scaler>		compscalers_;
 
