@@ -165,18 +165,18 @@ bool testIterator()
     do
     {
 	const BinID curbid( iter.curBinID() );
-	mRunStandardTest( curbid == bids[idx], "do-While loop calls" )
+	mRunStandardTest( curbid == bids[idx], "do-While loop calls" );
 	idx++;
     } while ( iter.next() );
 
     mRunStandardTest( idx == bids.size(),
-		      "All positions processed once using iterator" )
+		      "All positions processed once using iterator" );
 
     iter.reset();
     for ( int idy=0; idy<bids.size(); idy++, iter.next() )
     {
 	const BinID curbid( iter.curBinID() );
-	mRunStandardTest( curbid == bids[idy], "For loop calls" )
+	mRunStandardTest( curbid == bids[idy], "For loop calls" );
     }
 
     iter.reset();

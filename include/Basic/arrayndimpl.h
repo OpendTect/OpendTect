@@ -23,6 +23,7 @@ template <class T>
 mClass(Basic) ArrayImplBase
 {
 protected:
+
     virtual od_int64	getStorageSize() const			= 0;
 
 			ArrayImplBase();
@@ -38,7 +39,7 @@ protected:
     bool		getDataFrom(const ArrayND<T>& templ);
 
     ValueSeries<T>*	stor_;
-    T*			ptr_;	//not owned, only a shortcut
+    T*			arr_;	//not owned, only a shortcut
 				//for the 99% percent case
 };
 
@@ -72,7 +73,7 @@ public:
     void		set(int pos,T);
     T			get(int pos) const;
 
-    const Array1DInfo&	info() const		{ return in_; }
+    const Array1DInfo&	info() const		{ return inf_; }
     bool		canSetInfo() const	{ return true; }
     bool		setInfo(const ArrayNDInfo&);
     bool		setSize(int);
@@ -80,15 +81,15 @@ public:
 			    { return setSize( ((int)sz) ); }
 
 			// ValueSeries interface
-    T*			arr()			{ return base::ptr_; }
-    const T*		arr() const		{ return base::ptr_; }
+    T*			arr()			{ return base::arr_; }
+    const T*		arr() const		{ return base::arr_; }
 
 protected:
-    const T*		getData_() const	{ return base::ptr_; }
+    const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return in_.getTotalSz(); }
+    od_int64		getStorageSize() const  { return inf_.getTotalSz(); }
 
-    Array1DInfoImpl	in_;
+    Array1DInfoImpl	inf_;
 
 };
 
@@ -105,7 +106,7 @@ public:
 			Array2DImpl(const Array2DInfo&);
 			Array2DImpl(const Array2D<T>&);
 			Array2DImpl(const Array2DImpl<T>&);
-			~Array2DImpl() { deleteAndZeroArrPtr( ptr2d_ ); }
+			~Array2DImpl() { deleteAndZeroArrPtr( arr2d_ ); }
 
     Array2DImpl<T>&	operator =( const Array2D<T>& ai )
 			    { copyFrom(ai); return *this; }
@@ -120,25 +121,25 @@ public:
     T			get(int,int) const;
     void		copyFrom(const Array2D<T>&);
 
-    const Array2DInfo&	info() const		{ return in_; }
+    const Array2DInfo&	info() const		{ return inf_; }
     bool		canSetInfo() const	{ return true; }
 
     bool		setInfo(const ArrayNDInfo&);
     bool		setSize(int,int);
 
-    T**			get2DData()		{ return ptr2d_; }
-    const T**		get2DData() const	{ return (const T**) ptr2d_; }
+    T**			get2DData()		{ return arr2d_; }
+    const T**		get2DData() const	{ return (const T**)arr2d_; }
 
 protected:
     void		updateStorage();
-    const T*		getData_() const	{ return base::ptr_; }
+    const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return in_.getTotalSz(); }
+    od_int64		getStorageSize() const  { return inf_.getTotalSz(); }
 
     void		updateCachePointers();
 
-    Array2DInfoImpl	in_;
-    T**			ptr2d_;
+    Array2DInfoImpl	inf_;
+    T**			arr2d_;
 };
 
 
@@ -168,26 +169,26 @@ public:
     T			get(int,int,int) const;
     void		copyFrom(const Array3D<T>&);
 
-    const Array3DInfo&	info() const			{ return in_; }
+    const Array3DInfo&	info() const			{ return inf_; }
     bool		canSetInfo() const		{ return true; }
     bool		setInfo(const ArrayNDInfo&);
     bool		setSize(int,int,int);
 
-    T***		get3DData()		{ return ptr3d_; }
-    const T***		get3DData() const	{ return (const T***) ptr3d_; }
+    T***		get3DData()		{ return arr3d_; }
+    const T***		get3DData() const	{ return (const T***)arr3d_; }
 
 protected:
     void		updateStorage();
-    const T*		getData_() const	{ return base::ptr_; }
+    const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return in_.getTotalSz(); }
+    od_int64		getStorageSize() const  { return inf_.getTotalSz(); }
 
     void		updateCachePointers();
     void		eraseCache();
 
     TypeSet<T**>	cachestor_;
-    T***		ptr3d_;
-    Array3DInfoImpl	in_;
+    T***		arr3d_;
+    Array3DInfoImpl	inf_;
 };
 
 
@@ -221,7 +222,7 @@ public:
     void		setND(const int*,T);
     T			getND(const int*) const;
 
-    const ArrayNDInfo&	info() const		{ return *in_; }
+    const ArrayNDInfo&	info() const		{ return *inf_; }
     bool		canSetInfo() const	{ return true; }
     bool		canChangeNrDims() const	{ return true; }
     bool		setInfo(const ArrayNDInfo&);
@@ -231,30 +232,30 @@ public:
 
 protected:
 
-    const T*		getData_() const	{ return base::ptr_; }
+    const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return in_->getTotalSz(); }
+    od_int64		getStorageSize() const  { return inf_->getTotalSz(); }
 
-    ArrayNDInfo*	in_;
+    ArrayNDInfo*	inf_;
 };
 
 
 template <class T> inline
 ArrayImplBase<T>::ArrayImplBase()
     : stor_(0)
-    , ptr_(0)
+    , arr_(0)
 { }
 
 
 template <class T> inline
 bool ArrayImplBase<T>::setStorageNoResize( ValueSeries<T>* s )
 {
-    ptr_ = 0;
+    arr_ = 0;
     delete stor_;
 
     stor_ = s;
 
-    ptr_ = stor_->arr();
+    arr_ = stor_->arr();
 
     return true;
 }
@@ -263,12 +264,9 @@ bool ArrayImplBase<T>::setStorageNoResize( ValueSeries<T>* s )
 template <class T> inline
 bool ArrayImplBase<T>::setStorageInternal( ValueSeries<T>* s )
 {
-    ptr_ = 0;
+    arr_ = 0;
     if ( !s->setSize(getStorageSize()) )
-    {
-	delete s;
-	return false;
-    }
+	{ delete s; return false; }
 
     return setStorageNoResize( s );
 }
@@ -278,20 +276,13 @@ template <class T> inline
 bool ArrayImplBase<T>::updateStorageSize()
 {
     if ( !stor_ )
-    {
 	setStorageNoResize(
 	    new MultiArrayValueSeries<T,T>(getStorageSize()));
-    }
 
     if ( !stor_ || !stor_->setSize( getStorageSize() ) )
-    {
-	ptr_ = 0;
-	delete stor_;
-	stor_ = 0;
-	return false;
-    }
+	{ arr_ = 0; delete stor_; stor_ = 0; return false; }
 
-    ptr_ = stor_->arr();
+    arr_ = stor_->arr();
     return true;
 }
 
@@ -307,23 +298,12 @@ bool ArrayImplBase<T>::getDataFrom( const ArrayND<T>& templ )
     if ( !storageOK() )
 	return false;
 
-    if ( ptr_ )
-    {
-	templ.getAll( ptr_ );
-	return true;
-    }
-
-    if ( stor_ )
-    {
-	templ.getAll( *stor_ );
-	return true;
-    }
-
-    if ( getStorageSize() )
-    {
-	pErrMsg("Cannot store in array without storage" );
-	return false;
-    }
+    if ( arr_ )
+	{ templ.getAll( arr_ ); return true; }
+    else if ( stor_ )
+	{ templ.getAll( *stor_ ); return true; }
+    else if ( getStorageSize() )
+	{ pErrMsg("Cannot store in array without storage" ); return false; }
 
     return true;
 }
@@ -331,7 +311,7 @@ bool ArrayImplBase<T>::getDataFrom( const ArrayND<T>& templ )
 
 template <class T> inline
 Array1DImpl<T>::Array1DImpl( int nsz )
-    : in_(nsz)
+    : inf_(nsz)
 {
     base::updateStorageSize();
 }
@@ -339,7 +319,7 @@ Array1DImpl<T>::Array1DImpl( int nsz )
 
 template <class T> inline
 Array1DImpl<T>::Array1DImpl( const Array1D<T>& templ )
-    : in_(templ.info())
+    : inf_(templ.info())
 {
     base::updateStorageSize();
     copyFrom( templ );
@@ -348,7 +328,7 @@ Array1DImpl<T>::Array1DImpl( const Array1D<T>& templ )
 
 template <class T> inline
 Array1DImpl<T>::Array1DImpl( const Array1DImpl<T>& templ )
-    : in_(templ.info())
+    : inf_(templ.info())
 {
     base::updateStorageSize();
     copyFrom( templ );
@@ -359,11 +339,13 @@ template <class T> inline
 void Array1DImpl<T>::set( int pos, T v )
 {
 #ifdef __debug__
-    if ( !in_.validPos( pos ) )
+    if ( !inf_.validPos( pos ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    if ( base::ptr_ ) base::ptr_[pos] = v;
-    else base::stor_->setValue(pos,v);
+    if ( base::arr_ )
+	base::arr_[pos] = v;
+    else
+	base::stor_->setValue(pos,v);
 }
 
 
@@ -371,17 +353,17 @@ template <class T> inline
 T Array1DImpl<T>::get( int pos ) const
 {
 #ifdef __debug__
-    if ( !in_.validPos( pos ) )
+    if ( !inf_.validPos( pos ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    return base::ptr_ ? base::ptr_[pos] : base::stor_->value(pos);
+    return base::arr_ ? base::arr_[pos] : base::stor_->value(pos);
 }
 
 
 template <class T> inline
 void Array1DImpl<T>::copyFrom( const Array1D<T>& templ )
 {
-    if ( in_ != templ.info() )
+    if ( inf_ != templ.info() )
 	setInfo( templ.info() );
 
     base::getDataFrom( templ );
@@ -391,7 +373,8 @@ void Array1DImpl<T>::copyFrom( const Array1D<T>& templ )
 template <class T> inline
 bool Array1DImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim() != 1 ) return false;
+    if ( ni.getNDim() != 1 )
+	return false;
     return setSize( ni.getSize(0) );
 }
 
@@ -399,7 +382,7 @@ bool Array1DImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool Array1DImpl<T>::setSize( int s )
 {
-    in_.setSize( 0, s );
+    inf_.setSize( 0, s );
     base::updateStorageSize();
     return true;
 }
@@ -407,8 +390,8 @@ bool Array1DImpl<T>::setSize( int s )
 
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( int sz0, int sz1 )
-    : in_(sz0,sz1)
-    , ptr2d_(0)
+    : inf_(sz0,sz1)
+    , arr2d_(0)
 {
     updateStorage();
 }
@@ -416,8 +399,8 @@ Array2DImpl<T>::Array2DImpl( int sz0, int sz1 )
 
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2DInfo& nsz )
-    : in_( nsz )
-    , ptr2d_(0)
+    : inf_( nsz )
+    , arr2d_(0)
 {
     updateStorage();
 }
@@ -425,8 +408,8 @@ Array2DImpl<T>::Array2DImpl( const Array2DInfo& nsz )
 
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2D<T>& templ )
-    : in_(templ.info())
-    , ptr2d_(0)
+    : inf_(templ.info())
+    , arr2d_(0)
 {
     updateStorage();
     copyFrom( templ );
@@ -435,8 +418,8 @@ Array2DImpl<T>::Array2DImpl( const Array2D<T>& templ )
 
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2DImpl<T>& templ )
-    : in_(templ.info())
-    , ptr2d_(0)
+    : inf_(templ.info())
+    , arr2d_(0)
 {
     updateStorage();
     copyFrom( templ );
@@ -447,19 +430,14 @@ template <class T> inline
 void Array2DImpl<T>::set( int p0, int p1, T v )
 {
 #ifdef __debug__
-    if ( !in_.validPos( p0, p1 ) )
-    {
-	pErrMsg("Invalid access");
-	DBG::forceCrash(true);
-    }
+    if ( !inf_.validPos( p0, p1 ) )
+	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    if ( ptr2d_ )
-    {
-	ptr2d_[p0][p1] = v;
-    }
+    if ( arr2d_ )
+	arr2d_[p0][p1] = v;
     else
     {
-	const od_int64 offset = in_.getOffset( p0, p1 );
+	const od_int64 offset = inf_.getOffset( p0, p1 );
 	base::stor_->setValue( offset, v );
     }
 }
@@ -469,17 +447,14 @@ template <class T> inline
 T Array2DImpl<T>::get( int p0, int p1 ) const
 {
 #ifdef __debug__
-    if ( !in_.validPos( p0, p1 ) )
-    {
-	pErrMsg("Invalid access");
-	DBG::forceCrash(true);
-    }
+    if ( !inf_.validPos( p0, p1 ) )
+	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
 
-    if ( ptr2d_ )
-	return ptr2d_[p0][p1];
+    if ( arr2d_ )
+	return arr2d_[p0][p1];
 
-    const od_int64 offset = in_.getOffset( p0, p1 );
+    const od_int64 offset = inf_.getOffset( p0, p1 );
     return base::stor_->value( offset );
 }
 
@@ -496,7 +471,7 @@ bool Array2DImpl<T>::setStorage(ValueSeries<T>* vs)
 template <class T> inline
 void Array2DImpl<T>::copyFrom( const Array2D<T>& templ )
 {
-    if ( in_ != templ.info() )
+    if ( inf_ != templ.info() )
 	setInfo( templ.info() );
 
     base::getDataFrom( templ );
@@ -506,7 +481,8 @@ void Array2DImpl<T>::copyFrom( const Array2D<T>& templ )
 template <class T> inline
 bool Array2DImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim() != 2 ) return false;
+    if ( ni.getNDim() != 2 )
+	return false;
     return setSize( ni.getSize(0), ni.getSize(1) );
 }
 
@@ -514,7 +490,7 @@ bool Array2DImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool Array2DImpl<T>::setSize( int d0, int d1 )
 {
-    in_.setSize( 0, d0 ); in_.setSize( 1, d1 );
+    inf_.setSize( 0, d0 ); inf_.setSize( 1, d1 );
     updateStorage();
     return true;
 }
@@ -531,27 +507,27 @@ void Array2DImpl<T>::updateStorage()
 template <class T> inline
 void Array2DImpl<T>::updateCachePointers()
 {
-    deleteAndZeroArrPtr( ptr2d_ );
+    deleteAndZeroArrPtr( arr2d_ );
 
-    if ( !base::ptr_ )
+    if ( !base::arr_ )
 	return;
 
-    const int n1 = in_.getSize( 0 );
-    mTryAlloc(ptr2d_,T*[n1])
-    if ( !ptr2d_ )
+    const int n1 = inf_.getSize( 0 );
+    mTryAlloc(arr2d_,T*[n1])
+    if ( !arr2d_ )
 	return;
 
-    const int n2 = in_.getSize( 1 );
+    const int n2 = inf_.getSize( 1 );
     od_uint64 offset = 0;
     for ( int idx=0; idx<n1; idx++, offset+=n2 )
-	ptr2d_[idx] = base::ptr_ + offset;
+	arr2d_[idx] = base::arr_ + offset;
 }
 
 
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( int sz0, int sz1, int sz2 )
-    : in_(sz0,sz1,sz2)
-    , ptr3d_(0)
+    : inf_(sz0,sz1,sz2)
+    , arr3d_(0)
 {
     updateStorage();
 }
@@ -559,8 +535,8 @@ Array3DImpl<T>::Array3DImpl( int sz0, int sz1, int sz2 )
 
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3DInfo& nsz )
-    : in_(nsz)
-    , ptr3d_(0)
+    : inf_(nsz)
+    , arr3d_(0)
 {
     updateStorage();
 }
@@ -568,8 +544,8 @@ Array3DImpl<T>::Array3DImpl( const Array3DInfo& nsz )
 
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3D<T>& templ )
-    : in_(templ.info())
-    , ptr3d_(0)
+    : inf_(templ.info())
+    , arr3d_(0)
 {
     updateStorage();
     copyFrom( templ );
@@ -578,8 +554,8 @@ Array3DImpl<T>::Array3DImpl( const Array3D<T>& templ )
 
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3DImpl<T>& templ )
-    : in_(templ.info())
-    , ptr3d_(0)
+    : inf_(templ.info())
+    , arr3d_(0)
 {
     updateStorage();
     copyFrom( templ );
@@ -590,16 +566,14 @@ template <class T> inline
 void Array3DImpl<T>::set( int p0, int p1, int p2, T v )
 {
 #ifdef __debug__
-    if ( !in_.validPos( p0, p1, p2 ) )
+    if ( !inf_.validPos( p0, p1, p2 ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    if ( ptr3d_ )
-    {
-	ptr3d_[p0][p1][p2] = v;
-    }
+    if ( arr3d_ )
+	arr3d_[p0][p1][p2] = v;
     else
     {
-	const od_int64 offset = in_.getOffset( p0, p1, p2 );
+	const od_int64 offset = inf_.getOffset( p0, p1, p2 );
 	base::stor_->setValue( offset, v );
     }
 }
@@ -609,13 +583,13 @@ template <class T> inline
 T Array3DImpl<T>::get( int p0, int p1, int p2 ) const
 {
 #ifdef __debug__
-    if ( !in_.validPos( p0, p1, p2 ) )
+    if ( !inf_.validPos( p0, p1, p2 ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    if ( ptr3d_ )
-	return ptr3d_[p0][p1][p2];
+    if ( arr3d_ )
+	return arr3d_[p0][p1][p2];
 
-    const od_int64 offset = in_.getOffset( p0, p1, p2 );
+    const od_int64 offset = inf_.getOffset( p0, p1, p2 );
     return base::stor_->value( offset );
 }
 
@@ -623,7 +597,7 @@ T Array3DImpl<T>::get( int p0, int p1, int p2 ) const
 template <class T> inline
 void Array3DImpl<T>::copyFrom( const Array3D<T>& templ )
 {
-    if ( in_ != templ.info() )
+    if ( inf_ != templ.info() )
 	setInfo( templ.info() );
 
     base::getDataFrom( templ );
@@ -641,7 +615,8 @@ bool Array3DImpl<T>::setStorage(ValueSeries<T>* vs)
 template <class T> inline
 bool Array3DImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim() != 3 ) return false;
+    if ( ni.getNDim() != 3 )
+	return false;
     return setSize( ni.getSize(0), ni.getSize(1), ni.getSize(2) );
 }
 
@@ -649,7 +624,7 @@ bool Array3DImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool Array3DImpl<T>::setSize( int d0, int d1, int d2 )
 {
-    in_.setSize( 0, d0 ); in_.setSize( 1, d1 ); in_.setSize( 2, d2 );
+    inf_.setSize( 0, d0 ); inf_.setSize( 1, d1 ); inf_.setSize( 2, d2 );
     updateStorage();
     return true;
 }
@@ -672,7 +647,7 @@ void Array3DImpl<T>::eraseCache()
     }
 
     cachestor_.erase();
-    ptr3d_ = 0;
+    arr3d_ = 0;
 }
 
 
@@ -681,12 +656,12 @@ void Array3DImpl<T>::updateCachePointers()
 {
     eraseCache();
 
-    if ( !base::ptr_ )
+    if ( !base::arr_ )
 	return;
 
-    const int n1 = in_.getSize( 0 );
-    const int n2 = in_.getSize( 1 );
-    const int n3 = in_.getSize( 2 );
+    const int n1 = inf_.getSize( 0 );
+    const int n2 = inf_.getSize( 1 );
+    const int n3 = inf_.getSize( 2 );
     od_uint64 offset = 0;
     for ( int idx=0; idx<n1; idx++ )
     {
@@ -695,18 +670,18 @@ void Array3DImpl<T>::updateCachePointers()
 	    return;
 
 	for ( int idy=0; idy<n2; idy++, offset+=n3 )
-	    ptr2d[idy] = base::ptr_ + offset;
+	    ptr2d[idy] = base::arr_ + offset;
 
 	cachestor_ += ptr2d;
     }
 
-    ptr3d_ = &cachestor_[0];
+    arr3d_ = &cachestor_[0];
 }
 
 
 template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDInfo& nsz )
-    : in_(nsz.clone())
+    : inf_(nsz.clone())
 {
     base::updateStorageSize();
 }
@@ -714,7 +689,7 @@ ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDInfo& nsz )
 
 template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayND<T>& templ )
-    : in_( templ.info().clone() )
+    : inf_( templ.info().clone() )
 {
     base::updateStorageSize();
     copyFrom( templ );
@@ -723,7 +698,7 @@ ArrayNDImpl<T>::ArrayNDImpl( const ArrayND<T>& templ )
 
 template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDImpl<T>& templ )
-    : in_( templ.info().clone() )
+    : inf_( templ.info().clone() )
 {
     base::updateStorageSize();
     copyFrom( templ );
@@ -731,17 +706,14 @@ ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDImpl<T>& templ )
 
 
 template <class T> inline ArrayNDImpl<T>::~ArrayNDImpl()
-{ delete in_; }
+{ delete inf_; }
 
 
 template <class T> inline
 void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
 {
-    if ( info()!=templ.info() )
-    {
-	delete in_;
-	in_ = templ.info().clone();
-    }
+    if ( info() != templ.info() )
+	{ delete inf_; inf_ = templ.info().clone(); }
 
     base::getDataFrom( templ );
 }
@@ -751,12 +723,14 @@ template <class T> inline
 void ArrayNDImpl<T>::setND( const int* pos, T v )
 {
 #ifdef __debug__
-    if ( !in_->validPos( pos ) )
+    if ( !inf_->validPos( pos ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    const od_int64 offset = in_->getOffset(pos);
-    if ( base::ptr_ ) base::ptr_[offset] = v ;
-    else base::stor_->setValue( offset, v);
+    const od_int64 offset = inf_->getOffset(pos);
+    if ( base::arr_ )
+	base::arr_[offset] = v ;
+    else
+	base::stor_->setValue( offset, v);
 }
 
 
@@ -764,21 +738,21 @@ template <class T> inline
 T ArrayNDImpl<T>::getND( const int* pos ) const
 {
 #ifdef __debug__
-    if ( !in_->validPos( pos ) )
+    if ( !inf_->validPos( pos ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    const od_int64 offset = in_->getOffset(pos);
-    return base::ptr_ ? base::ptr_[offset] : base::stor_->value( offset );
+    const od_int64 offset = inf_->getOffset(pos);
+    return base::arr_ ? base::arr_[offset] : base::stor_->value( offset );
 }
 
 
 template <class T> inline
 bool ArrayNDImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim() != in_->getNDim() )
-	return false;
+    if ( ni.getNDim() != inf_->getNDim() )
+	{ pErrMsg("Changing dims in ND not supported"); return false; }
 
-    const int ndim = in_->getNDim();
+    const int ndim = inf_->getNDim();
     TypeSet<int> sizes( ndim, 0 );
     for ( int idx=0; idx<ndim; idx++ )
 	sizes[idx] = ni.getSize(idx);
@@ -790,9 +764,9 @@ bool ArrayNDImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool ArrayNDImpl<T>::setSize( const int* d )
 {
-    const int ndim = in_->getNDim();
+    const int ndim = inf_->getNDim();
     for ( int idx=0; idx<ndim; idx++ )
-	in_->setSize( idx, d[idx] );
+	inf_->setSize( idx, d[idx] );
 
     base::updateStorageSize();
     return true;
@@ -800,16 +774,19 @@ bool ArrayNDImpl<T>::setSize( const int* d )
 
 
 template <class T> inline
-ArrayND<T>* ArrayNDImpl<T>::create( const ArrayNDInfo& nsz )
+ArrayND<T>* ArrayNDImpl<T>::create( const ArrayNDInfo& inf )
 {
-    int ndim = nsz.getNDim();
+    int ndim = inf.getNDim();
 
-    if ( ndim==1 ) return new Array1DImpl<T>( nsz.getSize(0) );
-    if ( ndim==2 ) return new Array2DImpl<T>( nsz.getSize(0), nsz.getSize(1) );
-    if ( ndim==3 ) return new Array3DImpl<T>( nsz.getSize(0), nsz.getSize(1),
-					      nsz.getSize(2) );
+    if ( ndim==1 )
+	return new Array1DImpl<T>( inf.getSize(0) );
+    if ( ndim==2 )
+	return new Array2DImpl<T>( inf.getSize(0), inf.getSize(1) );
+    if ( ndim==3 )
+	return new Array3DImpl<T>( inf.getSize(0), inf.getSize(1),
+				   inf.getSize(2) );
 
-    return new ArrayNDImpl<T>( nsz );
+    return new ArrayNDImpl<T>( inf );
 }
 
 
@@ -819,12 +796,9 @@ ArrayND<T>* ArrayNDImpl<T>::clone( const ArrayND<T>& oth )
     ArrayND<T>* out = create( oth.info() );
     if ( !out )
 	return 0;
-
-    if ( !out->isOK() )
+    else if ( !out->isOK() )
 	{ delete out; return 0; }
-
-    const bool success = clone( oth, *out );
-    if ( !success )
+    else if ( !clone(oth,*out) )
 	{ delete out; return 0; }
 
     return out;
@@ -851,21 +825,21 @@ bool ArrayNDImpl<T>::clone( const ArrayND<T>& inp, ArrayND<T>& out )
     }
 
     const int ndim = inp.info().getNDim();
-    if ( ndim==1 )
+    if ( ndim == 1 )
     {
 	mDynamicCastGet(const Array1DImpl<T>*,inp1d,&inp)
 	mDynamicCastGet(Array1DImpl<T>*,out1d,&out)
 	if ( inp1d && out1d )
 	    { *out1d = *inp1d; return true; }
     }
-    else if ( ndim==2 )
+    else if ( ndim == 2 )
     {
 	mDynamicCastGet(const Array2DImpl<T>*,inp2d,&inp)
 	mDynamicCastGet(Array2DImpl<T>*,out2d,&out)
 	if ( inp2d && out2d )
 	    { *out2d = *inp2d; return true; }
     }
-    else if ( ndim==3 )
+    else if ( ndim == 3 )
     {
 	mDynamicCastGet(const Array3DImpl<T>*,inp3d,&inp)
 	mDynamicCastGet(Array3DImpl<T>*,out3d,&out)

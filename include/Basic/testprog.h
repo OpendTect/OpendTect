@@ -82,24 +82,24 @@ static inline mUsedVar od_ostream& tstStream( bool err=false )
     int argc = GetArgC(); char** argv = GetArgV(); \
     mInitTestProg()
 
-#define mRunStandardTestWithError( test, desc, err ) \
-if ( !quiet ) \
-    od_ostream::logStream() << desc;  \
-if ( (test) ) \
-{ \
-    if ( !quiet ) \
-	od_ostream::logStream() << " - SUCCESS\n"; \
-} \
-else \
-{ \
-    if ( quiet ) \
-	od_ostream::logStream() << desc; \
-    od_ostream::logStream() << " - FAIL"; \
-    if ( err ) \
-	od_ostream::logStream() << ": " << err << "\n"; \
-\
-    return false; \
+
+inline bool handleTestResult( bool isok, const char* desc, const char* emsg=0 )
+{
+    if ( isok )
+	tstStream() << "[OK] " << desc << od_endl;
+    else
+    {
+	if ( !emsg )
+	    emsg = "<no details>";
+	tstStream(false) << desc << ": " << emsg << od_endl;
+    }
+
+    return isok;
 }
 
+
 #define mRunStandardTest( test, desc ) \
-	mRunStandardTestWithError( test, desc, BufferString().str() )
+    if ( !handleTestResult((test),desc) ) return false;
+
+#define mRunStandardTestWithError( test, desc, err ) \
+    if ( !handleTestResult((test),desc,err) ) return false;

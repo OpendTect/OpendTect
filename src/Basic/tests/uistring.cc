@@ -73,19 +73,19 @@ bool testArg()
     const uiString part2 = toUiString( "Part 2" );
     uiString res = part1; res.constructWordWith( part2 );
     mRunStandardTest( res.isEqualTo(toUiString("Part 1Part 2")),
-				"constructWordWith(no space)" )
+				"constructWordWith(no space)" );
     res = part1; res.constructWordWith( part2, true );
     mRunStandardTest( res.isEqualTo(toUiString("Part 1 Part 2")),
-				"constructWordWith(with space)" )
+				"constructWordWith(with space)" );
     res = part1; res.appendAfterList( part2 );
     mRunStandardTest( res.isEqualTo(toUiString("Part 1\nPart 2")),
-				"appendAfterList()" )
+				"appendAfterList()" );
     res = part1; res.appendPhraseSameLine( part2 );
     mRunStandardTest( res.isEqualTo(toUiString("Part 1. Part 2")),
-				"appendPhraseSameLine(Unrelated)" )
+				"appendPhraseSameLine(Unrelated)" );
     res = part1; res.appendPhrase( part2 );
     mRunStandardTest( res.isEqualTo(toUiString("Part 1.\nPart 2")),
-				"appendPhrase()" )
+				"appendPhrase()" );
 
     return true;
 }

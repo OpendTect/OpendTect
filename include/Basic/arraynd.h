@@ -17,12 +17,55 @@ ________________________________________________________________________
 
 /*!\brief An ArrayND is an array with a given number of dimensions and a size.
 
-  The ArrayND can be accessed via set() and get().
+  The ArrayND can always be accessed via set() and get(). ArrayND as such is
+  not often used; the most common 1D, 2D and 3D versions have their own
+  subclasses Array1D, Array2D and Array3D. Still, you can work 'ND' mode to
+  do operations nicely generalised, like calculating stats.
 
-  The ArrayND can give away a pointer to its storage, but there is no
-  guarantee that it will. If no pointer is given, the user can copy the
-  ArrayND by constructing an ArrayNDImpl with the original array as an argument
-  to the constructor.
+  There is a simple array-based implementation in arrayndimpl.h of each of
+  ArrayND and its subclasses ArrayxD. These have data in a single array with a
+  standard layout (last dim is fastest).
+
+  If you get an ArrayND, you always have to be able to handle the situation that
+  the data is not in contiguous memory, not in the standard layout, or even not
+  in memory. In that case, getData() returns a null pointer.
+
+  Most ArrayND's are also ValueSeries<float>. That interface can be used
+  instead of the fallback get() and set(), use 'getStorage()'. For
+  non-critical performance stuff get() and set() are your usually easier to
+  use, no extra code required. If you really need performance, try getData().
+  Most bulk data in OpendTect (like in DataPacks) nicely return non-null for
+  getData(), and when this happens the extra code branch may speed up your
+  data-crunchy thingy considerably (yes, you still need to also handle the
+  case of getData() returning null, because it does happen).
+
+  So the following recommendations:
+
+  1) For performance-critial stuff, try getData() first.
+  2) If that returns null, easy old-fashioned index-based work using get()
+  and set() is easy to understand and always works.
+
+Example:
+
+    float getSum( const Array2D<float>& arr2d )
+    {
+	const float* vals = arr2d.getData();
+	if ( vals )
+	    return std::accumulate( vals, vals+arr2d.info().getTotalSz(), 0.f );
+	else
+	{
+	    const int dim0 = arr2d.info().getSize( 0 );
+	    const int dim1 = arr2d.info().getSize( 1 );
+	    float sum = 0.f;
+	    for ( int idx0=0; idx0<dim0; idx0++ )
+	    {
+		for ( int idx1=0; idx1<dim1; idx1++ )
+		    sum += arr2d.get( idx0, idx1 );
+	    }
+	    return sum;
+	}
+    }
+
 */
 
 template <class T>
@@ -89,9 +132,7 @@ protected:
 };
 
 
-/*!
-\brief Array1D ( Subclass of ArrayND ) is a one dimensional array.
-*/
+/*!\brief 1-Dim ArrayND */
 
 template <class T>
 mClass(Basic) Array1D : public ArrayND<T>
@@ -119,9 +160,7 @@ public:
 };
 
 
-/*!
-\brief Array2D ( Subclass of ArrayND ) is a two dimensional array.
-*/
+/*!\brief 2-Dim ArrayND */
 
 template <class T>
 mClass(Basic) Array2D : public ArrayND<T>
@@ -141,9 +180,7 @@ public:
 };
 
 
-/*!
-\brief Array3D ( Subclass of ArrayND ) is a three dimensional array.
-*/
+/*!\brief 3-Dim ArrayND */
 
 template <class T>
 mClass(Basic) Array3D : public ArrayND<T>
@@ -196,13 +233,14 @@ protected:
 
 };
 
-#define mArrayNDVSAdapterNrDim 20
 
+#define mArrayNDVSAdapterMaxNrDims 64
 
-/*!
-\brief Adapter that makes any ArrayND to a (slow) value series.
+/*!\brief Adapter that makes any ArrayND to a (slow) value series.
 
-  Try using other methods (like getting the storage) as this is slow.
+  If you use this without checking getStorage() (much faster) first you will
+  be slapped in the face with a pErrMsg.
+
 */
 
 template <class T>
@@ -212,40 +250,27 @@ public:
 			ArrayNDValseriesAdapter( const ArrayND<T>& a )
 			    : array_( a )
 			{
-			    if ( array_.getData() || array_.getStorage() )
-			    {
-				pErrMsg("Not a good idea to use adapter. "
-					"Use getStorage() instead");
-			    }
-			}
-
-    bool		isOK() const
-			{
-			    if ( array_.info().getNDim()>mArrayNDVSAdapterNrDim)
-			    {
-				pErrMsg( "Too many dimensions");
-				return false;
-			    }
-
-			    return true;
+			    if ( array_.getStorage() )
+				{ pErrMsg("Use getStorage() instead"); }
 			}
 
     ValueSeries<T>*	clone() const
 			{ return new ArrayNDValseriesAdapter<T>( *this ); }
 
-    T			value(od_int64 idx) const
+    T			value( od_int64 idx ) const
 			{
-			    int pos[mArrayNDVSAdapterNrDim];
+			    int pos[mArrayNDVSAdapterMaxNrDims];
 			    array_.info().getArrayPos( idx, pos );
 			    return array_.getND( pos );
 			}
 
-    const T*		arr() const { return array_.getData(); }
-    T*			arr() { return 0; }
+    const T*		arr() const	{ return array_.getData(); }
+    T*			arr()		{ return 0; }
 
 protected:
 
     const ArrayND<T>&	array_;
+
 };
 
 
