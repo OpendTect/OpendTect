@@ -1981,7 +1981,7 @@ void HorizonDisplay::setLineStyle( const OD::LineStyle& lst )
 			: intersectiondata_[0]->line_->getPixelDensity();
     const float factor = pixeldensity / getDefaultPixelDensity();
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setLineWidth( lst.width_*factor );
+	sections_[idx]->setLineWidth( mNINT32(lst.width_*factor) );
 }
 
 
