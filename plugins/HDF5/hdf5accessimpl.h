@@ -53,3 +53,7 @@ public:
 };
 
 } // namespace HDF5
+
+
+#define mRetNoFile(action) \
+    { pErrMsg("HDF5: need successful open() before setting stuff"); action; }

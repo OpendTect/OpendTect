@@ -91,7 +91,7 @@ inline bool handleTestResult( bool isok, const char* desc, const char* emsg=0 )
     {
 	if ( !emsg )
 	    emsg = "<no details>";
-	tstStream(false) << desc << ": " << emsg << od_endl;
+	tstStream(true) << desc << ": " << emsg << od_endl;
     }
 
     return isok;

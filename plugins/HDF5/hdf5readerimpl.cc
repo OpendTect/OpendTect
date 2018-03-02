@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "hdf5readerimpl.h"
 #include "uistrings.h"
 #include "file.h"
-#include "H5Cpp.h"
 
 
 HDF5::ReaderImpl::ReaderImpl()

@@ -11,6 +11,8 @@ include( PreModInit.cmake )
 set( OD_IS_PLUGIN TRUE )
 set( OD_MODULE_DEPS General )
 
+set( OD_TEST_PROGS hdf5.cc )
+
 set( OD_MODULE_SOURCES
     hdf5accessimpl.cc
     hdf5readerimpl.cc
@@ -20,7 +22,7 @@ set( OD_MODULE_SOURCES
 
 set ( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} ${OD_ATTRIB_EXECS} ${OD_VOLUME_EXECS}
 			 ${OD_SEIS_EXECS} ${OD_PRESTACK_EXECS}
-			 ${OD_ZAXISTRANSFORM_EXECS} )
+			 ${OD_ZAXISTRANSFORM_EXECS} test_hdf5 )
 
 OD_INIT_MODULE()
 

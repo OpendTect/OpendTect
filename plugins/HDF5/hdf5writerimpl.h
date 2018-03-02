@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "hdf5common.h"
 #include "hdf5accessimpl.h"
 #include "hdf5writer.h"
+#include "H5Cpp.h"
 
 
 namespace HDF5
@@ -27,9 +28,13 @@ public:
 
     const char*		    fileName() const	{ return gtFileName(); }
 
-    virtual void	    setDims(const ArrayNDInfo&);
+    virtual void	    setDataType(OD::FPDataRepType);
     virtual int		    chunkSize() const;
     virtual void	    setChunkSize(int);
+
+    virtual uiRetVal	    putInfo(const GroupPath&,const IOPar&);
+    virtual uiRetVal	    putData(const GroupPath&,const ArrayND<float>&,
+				    const IOPar* iop=0);
 
 protected:
 

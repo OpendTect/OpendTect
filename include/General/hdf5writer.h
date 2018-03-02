@@ -19,8 +19,12 @@ mExpClass(General) Writer : public Access
 {
 public:
 
-    virtual void	setDims(const ArrayNDInfo&)		= 0;
-    virtual void	setChunkSize(int)			= 0;
+    virtual void	setDataType(OD::FPDataRepType)			= 0;
+    virtual void	setChunkSize(int)				= 0;
+
+    virtual uiRetVal	putInfo(const GroupPath&,const IOPar&)		= 0;
+    virtual uiRetVal	putData(const GroupPath&,const ArrayND<float>&,
+				const IOPar* info=0)			= 0;
 
 };
 

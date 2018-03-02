@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "factory.h"
 
-class ArrayNDInfo;
 template <class T> class ArrayND;
 namespace H5 { class H5File; }
 
