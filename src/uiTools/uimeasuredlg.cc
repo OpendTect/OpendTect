@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibutton.h"
 #include "uicolor.h"
+#include "uiconstvel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uisellinest.h"
@@ -38,7 +39,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     , appvelfld_(0)
     , zdist2fld_(0)
     , dist2fld_(0)
-    , velocity_(2000)
+    , velocity_(Vel::getGUIDefaultVelocity())
     , lineStyleChange(this)
     , clearPressed(this)
     , velocityChange(this)
