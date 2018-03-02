@@ -553,7 +553,7 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 	    if ( ntk.isUdf() )
 		return false;
 
-	    newdepth = datatransform_->transformTrc( ntk, loc.pos_.z );
+	    newdepth = datatransform_->transformTrc( ntk, loc.z() );
 	}
     }
 
