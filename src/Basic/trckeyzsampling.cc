@@ -426,14 +426,17 @@ void TrcKeySampling::growTo( const TrcKeySampling& outertks )
 
 void TrcKeySampling::expand( int nrlines, int nrtrcs )
 {
-    if ( !is2D() )
+    if ( !mIsUdf(nrlines) && !is2D() )
     {
-	start_.lineNr() -= nrlines * step_.lineNr();
-	stop_.lineNr() += nrlines * step_.lineNr();
+	start_.lineNr() -= nrlines*step_.lineNr();
+	stop_.lineNr() += nrlines*step_.lineNr();
     }
 
-    start_.trcNr() -= nrtrcs * step_.trcNr();
-    stop_.trcNr() += nrtrcs * step_.trcNr();
+    if ( !mIsUdf(nrtrcs) )
+    {
+	start_.trcNr() -= nrtrcs*step_.trcNr();
+	stop_.trcNr() += nrtrcs*step_.trcNr();
+    }
 }
 
 
