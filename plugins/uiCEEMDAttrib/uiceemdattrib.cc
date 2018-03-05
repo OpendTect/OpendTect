@@ -42,6 +42,7 @@ static const char* attriboutputStr[] =
     "IMF Component",
     0
 };
+
 mInitAttribUI(uiCEEMDAttrib,CEEMD,"CEEMD",sKeyBasicGrp())
 
 uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
@@ -51,6 +52,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d );
     setHAlignObj( inpfld_ );
+
     methodfld_ = new uiGenInput( this, "Method",
 		StringListInpSpec(methodStr) );
     methodfld_->attach( alignedBelow, inpfld_ );
@@ -82,13 +84,16 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     attriboutputfld_->valuechanged.notify(cboutsel);
     attriboutputfld_->attach( alignedBelow, tfpanelbut_ );
 
+    const float nyqfreq = 0.5f / SI().zRange(false).step;
+    const float freqscale = zIsTime() ? 1.f : 1000.f;
+    const int scalednyfreq = mNINT32( nyqfreq * freqscale );
     outputfreqfld_ = new uiGenInput( this, "Output Frequency / Step (Hz)",
-	IntInpSpec() );
+			    IntInpSpec(5,StepInterval<int>(1,scalednyfreq,1)) );
     outputfreqfld_->setElemSzPol(uiObject::Small);
     outputfreqfld_->attach( alignedBelow, attriboutputfld_ );
 
     stepoutfreqfld_ = new uiGenInput( this, " ",
-	IntInpSpec() );
+			IntInpSpec(5,StepInterval<int>(1,scalednyfreq/2,1)) );
     stepoutfreqfld_->setElemSzPol(uiObject::Small);
     stepoutfreqfld_->attach( rightOf, outputfreqfld_ );
     prevpar_.setEmpty();
@@ -127,11 +132,13 @@ bool uiCEEMDAttrib::getParameters( Desc& desc )
     return true;
 }
 
+
 bool uiCEEMDAttrib::getInput( Attrib::Desc& desc )
 {
     fillInp( inpfld_, desc, 0 );
     return true;
 }
+
 
 bool uiCEEMDAttrib::setParameters( const Desc& desc )
 {

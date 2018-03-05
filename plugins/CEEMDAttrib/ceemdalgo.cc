@@ -765,6 +765,9 @@ bool DecompInput::usePolynomial(
 
 	for ( int f=startfreq; f<=endfreq; f+=stepoutfreq )
 	{
+	    if ( f/stepoutfreq == 0 )
+		continue;
+
 	    if ( f/stepoutfreq > output->info().getSize(1) ) break;
 	    float val;
 	    if ( f < minf || f > maxf ) val = 0;
@@ -779,6 +782,9 @@ bool DecompInput::usePolynomial(
     // copy boundary points to keep number of samples = size_
     for ( int f=startfreq; f<endfreq; f+=stepoutfreq )
     {
+	if ( f/stepoutfreq == 0 )
+	    continue;
+
 	float valzero = output->get( 1, f/stepoutfreq-1 ) ;
 	output->set( 0, f/stepoutfreq-1, valzero );
 	float vallast = output->get( size_-2, f/stepoutfreq-1 ) ;
