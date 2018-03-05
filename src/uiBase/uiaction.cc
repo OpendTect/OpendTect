@@ -185,15 +185,10 @@ void uiAction::updateToolTip( CallBacker* )
 {
     mEnsureExecutedInMainThread( uiAction::updateToolTip );
 
-    if ( !uiMain::isNameToolTipUsed() )
-	qaction_->setToolTip( toQString(text_) );
-    else
-    {
-	BufferString namestr =
-		toString( text_.isEmpty() ? tooltip_ : text_ );
-	uiMain::formatNameToolTipString( namestr );
-	qaction_->setToolTip( namestr.buf() );
-    }
+    BufferString namestr =
+	    toString( text_.isEmpty() ? tooltip_ : text_ );
+    uiMain::formatNameToolTipString( namestr );
+    qaction_->setToolTip( namestr.buf() );
 }
 
 
