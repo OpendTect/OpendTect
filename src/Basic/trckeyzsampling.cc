@@ -526,10 +526,17 @@ bool TrcKeyZSampling::adjustTo( const TrcKeyZSampling& availabletkzs,
 
 void TrcKeySampling::expand( int nrlines, int nrtrcs )
 {
-    start_.lineNr() -= nrlines*step_.lineNr();
-    start_.trcNr() -= nrtrcs*step_.trcNr();
-    stop_.lineNr() += nrlines*step_.lineNr();
-    stop_.trcNr() += nrtrcs*step_.trcNr();
+    if ( !mIsUdf(nrlines) && !is2D() )
+    {
+	start_.lineNr() -= nrlines*step_.lineNr();
+	stop_.lineNr() += nrlines*step_.lineNr();
+    }
+
+    if ( !mIsUdf(nrtrcs) )
+    {
+	start_.trcNr() -= nrtrcs*step_.trcNr();
+	stop_.trcNr() += nrtrcs*step_.trcNr();
+    }
 }
 
 
