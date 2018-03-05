@@ -284,7 +284,7 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const IOObj& obj,
 	: nrwr_(0)
 	, fname_(SeisCBVS2DLineIOProvider::getFileName(obj,geomid))
 	, tr_(CBVSSeisTrcTranslator::getInstance())
-	, preseldt_(OD::AutoFPRep)
+	, preseldt_(OD::AutoDataRep)
 {
     tr_->set2D( true );
     bid_.inl() = geomid;
@@ -314,7 +314,7 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 	    errmsg_ = tr("Cannot open 2D line file:\n%1").arg(tr_->errMsg());
 	    return false;
 	}
-	if ( preseldt_ != OD::AutoFPRep )
+	if ( preseldt_ != OD::AutoDataRep )
 	{
 	    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
 				= tr_->componentInfo();

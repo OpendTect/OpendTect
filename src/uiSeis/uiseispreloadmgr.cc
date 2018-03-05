@@ -530,7 +530,7 @@ uiSeisPreLoadSel::~uiSeisPreLoadSel()
 
 void uiSeisPreLoadSel::finalizeDoneCB( CallBacker* )
 {
-    typefld_->setValue( (int)OD::AutoFPRep );
+    typefld_->setValue( (int)OD::AutoDataRep );
     doScaleCB( 0 );
     seisSel( 0 );
 }
@@ -728,7 +728,7 @@ void uiSeisPreLoadSel::getDataChar( DataCharacteristics& dc ) const
 {
     const DataCharacteristics::UserType type(
 		(DataCharacteristics::UserType)typefld_->getIntValue() );
-    if ( type == OD::AutoFPRep )
+    if ( type == OD::AutoDataRep )
     {
 	SeisIOObjInfo info( seissel_->ioobj(true) );
 	info.getDataChar( dc );

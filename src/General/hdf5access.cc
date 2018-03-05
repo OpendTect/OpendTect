@@ -4,7 +4,10 @@
  * DATE     : March 2018
 -*/
 
-#include "hdf5access.h"
+#include "hdf5reader.h"
+#include "hdf5writer.h"
+#include "arrayndimpl.h"
+#include "uistrings.h"
 
 mImplClassFactory( HDF5::AccessProvider, factory );
 
@@ -84,4 +87,52 @@ uiString HDF5::Access::sHDF5Err()
 uiString HDF5::Access::sFileNotOpen()
 {
     return tr("Could not open HDF5 file");
+}
+
+
+uiRetVal HDF5::Writer::putInfo( const GroupPath& path, const IOPar& iop )
+{
+    uiRetVal uirv;
+    ptInfo( path, iop, uirv );
+    return uirv;
+}
+
+
+uiRetVal HDF5::Writer::putData( const GroupPath& path, const ArrayNDInfo& inf,
+				const Byte* data, ODDataType dt )
+{
+    uiRetVal uirv;
+    if ( data && inf.getTotalSz() > 0 )
+	ptData( path, inf, data, dt, uirv );
+    return uirv;
+}
+
+
+uiRetVal HDF5::Writer::putData( const GroupPath& path, const FloatArrND& arr )
+{
+    uiRetVal uirv;
+    const ArrayNDInfo& inf = arr.info();
+    if ( inf.getTotalSz() < 1 )
+	return uirv;
+
+    Byte* data = (Byte*)arr.getData();
+    ArrayND<float>* regarr = 0;
+    if ( !data )
+    {
+	regarr = ArrayNDImpl<float>::clone( arr );
+	if ( !regarr )
+	    { uirv.add( uiStrings::phrCannotAllocateMemory() ); return uirv; }
+	data = (Byte*)regarr->getData();
+	if ( !data )
+	{
+	    const char* e_msg = "no getData from ArrayNDImpl";
+	    pErrMsg( e_msg );
+	    uirv.add( uiStrings::phrInternalErr(e_msg) );
+	    return uirv;
+	}
+    }
+
+    ptData( path, inf, data, OD::F32, uirv );
+    delete regarr;
+    return uirv;
 }

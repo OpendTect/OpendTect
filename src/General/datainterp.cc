@@ -107,7 +107,7 @@ DataCharacteristics::DataCharacteristics( DataCharacteristics::UserType ut )
 	, fmt_(Ieee)
 	, littleendian_(__islittle__)
 {
-    if ( ut == OD::AutoFPRep )
+    if ( ut == OD::AutoDataRep )
 	*this = DataCharacteristics();
     else
 	nrbytes_ = (BinDataDesc::ByteCount)
@@ -150,7 +150,7 @@ DataCharacteristics::UserType DataCharacteristics::userType() const
     case N4: return isInteger() ? (isSigned() ? OD::SI32 : OD::UI32) : OD::F32;
     case N8: return isInteger() ? OD::SI64 : OD::F64;
     }
-    return OD::AutoFPRep;
+    return OD::AutoDataRep;
 }
 
 

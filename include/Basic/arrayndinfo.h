@@ -43,6 +43,7 @@ public:
 
 protected:
 
+			ArrayNDInfo()		{}
     od_uint64		calcTotalSz() const;
 
 };

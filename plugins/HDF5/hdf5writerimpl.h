@@ -23,23 +23,25 @@ mExpClass(HDF5) WriterImpl : public Writer
 {
 public:
 
-			    WriterImpl();
-    virtual		    ~WriterImpl();
+    typedef H5::DataType	H5DataType;
 
-    const char*		    fileName() const	{ return gtFileName(); }
+			WriterImpl();
+    virtual		~WriterImpl();
 
-    virtual void	    setDataType(OD::FPDataRepType);
-    virtual int		    chunkSize() const;
-    virtual void	    setChunkSize(int);
+    const char*		fileName() const	{ return gtFileName(); }
 
-    virtual uiRetVal	    putInfo(const GroupPath&,const IOPar&);
-    virtual uiRetVal	    putData(const GroupPath&,const ArrayND<float>&,
-				    const IOPar* iop=0);
+    virtual void	setChunkSize(int);
 
 protected:
 
-    virtual void	    openFile(const char*,uiRetVal&);
-    virtual void	    closeFile()		{ doCloseFile(*this); }
+    int			chunksz_;
+    static H5DataType	h5DataTypeFor(ODDataType);
+
+    virtual void	openFile(const char*,uiRetVal&);
+    virtual void	closeFile()		{ doCloseFile(*this); }
+    virtual void	ptInfo(const GroupPath&,const IOPar&,uiRetVal&);
+    virtual void	ptData(const GroupPath&,const ArrayNDInfo&,
+				   const Byte*,ODDataType,uiRetVal&);
 
 };
 

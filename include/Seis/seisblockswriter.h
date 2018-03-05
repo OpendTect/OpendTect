@@ -57,7 +57,7 @@ public:
     void		setFileNameBase(const char*);
     void		setCubeName(const char*);
     void		setZDomain(const ZDomain::Def&);
-    void		setFPRep(OD::FPDataRepType);
+    void		setDataRep(OD::DataRepType);
     void		setScaler(const LinScaler*);
     void		addComponentName(const char*);
     void		addAuxInfo(const char* key,const IOPar&);
@@ -76,7 +76,7 @@ public:
 
 protected:
 
-    OD::FPDataRepType	specifiedfprep_;
+    OD::DataRepType	specifieddatarep_;
     int			nrcomps_;
     bool		isfinished_;
     DataInterp*		interp_;

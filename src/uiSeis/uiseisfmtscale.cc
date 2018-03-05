@@ -29,7 +29,7 @@ public:
     typedef DataCharacteristics::UserType  StorType;
 
 uiSeisFmtScaleData()
-    : stor_(OD::AutoFPRep), sclr_(0), optim_(false), trcgrow_(false)
+    : stor_(OD::AutoDataRep), sclr_(0), optim_(false), trcgrow_(false)
 {
 }
 
@@ -107,7 +107,7 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 
 bool acceptOK()
 {
-    data_.stor_ = OD::FPDataRepType( stortypfld_->getIntValue() );
+    data_.stor_ = OD::DataRepType( stortypfld_->getIntValue() );
     data_.sclr_ = scalefld_->getScaler();
     data_.optim_ = optimfld_ && optimfld_->getBoolValue();
     data_.trcgrow_ = trcgrowfld_ && trcgrowfld_->getBoolValue();
@@ -214,9 +214,9 @@ Scaler* uiSeisFmtScale::getScaler() const
 }
 
 
-OD::FPDataRepType uiSeisFmtScale::getFormat() const
+OD::DataRepType uiSeisFmtScale::getFormat() const
 {
-    return scalefld_ ? OD::AutoFPRep : compfld_->data_.stor_;
+    return scalefld_ ? OD::AutoDataRep : compfld_->data_.stor_;
 }
 
 

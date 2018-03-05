@@ -49,6 +49,7 @@ public:
     static uiPhrase phrCalculate(const uiWord&);
     static uiPhrase phrCalculateFrom(const uiWord&);
     static uiPhrase phrCannotAdd(const uiWord&);
+    static uiPhrase phrCannotAllocateMemory();
     static uiPhrase phrCannotCalculate(const uiWord&);
     static uiPhrase phrCannotCopy(const uiWord&);
     static uiPhrase phrCannotCreate(const uiWord&);

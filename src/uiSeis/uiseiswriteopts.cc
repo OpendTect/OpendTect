@@ -30,7 +30,7 @@ uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
 {
     stortypfld_ = new uiGenInput( this, uiStrings::sStorage(),
 		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
-    stortypfld_->setValue( (int)OD::AutoFPRep );
+    stortypfld_->setValue( (int)OD::AutoDataRep );
 
     optimdirfld_ =
 		new uiCheckBox(this,
@@ -75,7 +75,7 @@ uiSeisBlocksOpts::uiSeisBlocksOpts( uiParent* p )
 {
     stortypfld_ = new uiGenInput( this, uiStrings::sStorage(),
 		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
-    stortypfld_->setValue( (int)OD::AutoFPRep );
+    stortypfld_->setValue( (int)OD::AutoDataRep );
 
     setHAlignObj( stortypfld_ );
 }
@@ -108,7 +108,7 @@ uiCBVSPS3DOpts::uiCBVSPS3DOpts( uiParent* p )
 {
     stortypfld_ = new uiGenInput( this, uiStrings::sStorage(),
 		 StringListInpSpec(DataCharacteristics::UserTypeDef()) );
-    stortypfld_->setValue( (int)OD::AutoFPRep );
+    stortypfld_->setValue( (int)OD::AutoDataRep );
     setHAlignObj( stortypfld_ );
 }
 

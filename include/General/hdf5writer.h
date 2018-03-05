@@ -19,12 +19,18 @@ mExpClass(General) Writer : public Access
 {
 public:
 
-    virtual void	setDataType(OD::FPDataRepType)			= 0;
     virtual void	setChunkSize(int)				= 0;
 
-    virtual uiRetVal	putInfo(const GroupPath&,const IOPar&)		= 0;
-    virtual uiRetVal	putData(const GroupPath&,const ArrayND<float>&,
-				const IOPar* info=0)			= 0;
+    uiRetVal		putInfo(const GroupPath&,const IOPar&);
+    uiRetVal		putData(const GroupPath&,const ArrayNDInfo&,
+				const Byte*,ODDataType);
+    uiRetVal		putData(const GroupPath&,const FloatArrND&);
+
+protected:
+
+    virtual void	ptInfo(const GroupPath&,const IOPar&,uiRetVal&)	= 0;
+    virtual void	ptData(const GroupPath&,const ArrayNDInfo&,
+				const Byte*,ODDataType,uiRetVal&)	= 0;
 
 };
 

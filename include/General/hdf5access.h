@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "factory.h"
 
+class ArrayNDInfo;
 template <class T> class ArrayND;
 namespace H5 { class H5File; }
 
@@ -29,13 +30,15 @@ mExpClass(General) Access
 { mODTextTranslationClass(HDF5::Access);
 public:
 
+    typedef unsigned char	Byte;
+    typedef OD::DataRepType	ODDataType;
+    typedef ArrayND<float>	FloatArrND;
+
 			Access();
     virtual		~Access();
 
     uiRetVal		open(const char*);
     virtual const char*	fileName() const			= 0;
-
-    virtual int		chunkSize() const			= 0;
 
     H5::H5File*		getHDF5File()	{ return file_; }
 
@@ -78,5 +81,6 @@ protected:
 inline bool isAvailable() { return !AccessProvider::factory().isEmpty(); }
 inline Reader* mkReader() { return AccessProvider::mkReader(); }
 inline Writer* mkWriter() { return AccessProvider::mkWriter(); }
+
 
 } // namespace HDF5

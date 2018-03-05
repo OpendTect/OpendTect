@@ -159,7 +159,7 @@ void Seis::Blocks::StepFinder::finish( uiRetVal& uirv )
 
 
 Seis::Blocks::Writer::Writer( const HGeom* geom )
-    : specifiedfprep_(OD::AutoFPRep)
+    : specifieddatarep_(OD::AutoDataRep)
     , nrcomps_(1)
     , isfinished_(false)
     , stepfinder_(0)
@@ -226,11 +226,11 @@ void Seis::Blocks::Writer::setFileNameBase( const char* nm )
 }
 
 
-void Seis::Blocks::Writer::setFPRep( OD::FPDataRepType rep )
+void Seis::Blocks::Writer::setDataRep( OD::DataRepType rep )
 {
-    if ( specifiedfprep_ != rep )
+    if ( specifieddatarep_ != rep )
     {
-	specifiedfprep_ = rep;
+	specifieddatarep_ = rep;
 	needreset_ = true;
     }
 }
@@ -325,11 +325,11 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 	    return uirv;
 	}
 
-	fprep_ = specifiedfprep_;
-	if ( fprep_ == OD::AutoFPRep )
-	    fprep_ = trc.data().getInterpreter()->dataChar().userType();
+	datarep_ = specifieddatarep_;
+	if ( datarep_ == OD::AutoDataRep )
+	    datarep_ = trc.data().getInterpreter()->dataChar().userType();
 	delete interp_;
-	interp_ = DataInterp::create( DataCharacteristics(fprep_), true );
+	interp_ = DataInterp::create( DataCharacteristics(datarep_), true );
 
 	zgeom_.start = trc.startPos();
 	zgeom_.stop = trc.endPos();
@@ -662,7 +662,7 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
     iop.set( sKeyFmtVersion(), version_ );
     iop.set( sKeySurveyName(), SI().name() );
     iop.set( sKeyCubeName(), cubename_ );
-    DataCharacteristics::putUserTypeToPar( iop, fprep_ );
+    DataCharacteristics::putUserTypeToPar( iop, datarep_ );
     if ( scaler_ )
     {
 	// write the scaler needed to reconstruct the org values

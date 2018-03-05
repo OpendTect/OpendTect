@@ -244,7 +244,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
     : dpismine_(false)
     , ioobj_(ioobj.clone())
     , tkzs_(false)
-    , dc_(OD::AutoFPRep)
+    , dc_(OD::AutoDataRep)
     , outcomponents_(0)
     , scaler_(0)
     , line2ddata_(0)
@@ -527,7 +527,7 @@ bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
 
     const SeisIOObjInfo& seisinfo = seissummary_->getFullInformation();
     const DataCharacteristics datasetdc( seissummary_->getDataChar() );
-    if ( dc_.userType() == OD::AutoFPRep )
+    if ( dc_.userType() == OD::AutoDataRep )
 	setDataChar( datasetdc.userType() );
 
     if ( components_.isEmpty() )
@@ -687,7 +687,7 @@ bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 
     const SeisIOObjInfo& seisinfo = seissummary_->getFullInformation();
     const DataCharacteristics datasetdc( seissummary_->getDataChar() );
-    if ( dc_.userType() == OD::AutoFPRep )
+    if ( dc_.userType() == OD::AutoDataRep )
 	setDataChar( datasetdc.userType() );
 
     const Pos::GeomID geomid( tkzs_.hsamp_.getGeomID() );
@@ -864,7 +864,7 @@ bool Seis::SequentialFSLoader::init()
     seisinfo.getRanges( seistkzs );
     seistkzs.hsamp_.limitTo( tkzs_.hsamp_ );
     const DataCharacteristics datasetdc( seissummary_->getDataChar() );
-    if ( dc_.userType() == OD::AutoFPRep )
+    if ( dc_.userType() == OD::AutoDataRep )
 	setDataChar( datasetdc.userType() );
 
     if ( components_.isEmpty() )

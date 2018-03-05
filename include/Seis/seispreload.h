@@ -44,11 +44,11 @@ public:
 			//!< Line 2D only.
 
     bool		load(const TrcKeyZSampling&,
-				DataCharacteristics::UserType=OD::AutoFPRep,
+				DataCharacteristics::UserType=OD::AutoDataRep,
 				const Scaler* =0) const;
     bool		load(const TypeSet<TrcKeyZSampling>&,
 			     const TypeSet<Pos::GeomID>&,
-				DataCharacteristics::UserType=OD::AutoFPRep,
+				DataCharacteristics::UserType=OD::AutoDataRep,
 				const Scaler* =0) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;
     bool		loadPS2D(const char* lnm=0) const;	//!< null => all

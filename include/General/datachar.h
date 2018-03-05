@@ -83,7 +83,7 @@ public:
 			{ return (int)nrbytes_ > 1
 			      && littleendian_ != __islittle__; }
 
-    typedef OD::FPDataRepType	UserType;
+    typedef OD::DataRepType UserType;
 			mDeclareEnumUtils(UserType)
 			DataCharacteristics(UserType);
     UserType		userType() const; //!< will return 'nearest'

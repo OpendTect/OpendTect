@@ -77,7 +77,7 @@ static int doWork( int argc, char** argv )
 
     PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();
     tro->set2D( is2d );
-    tro->setPreselDataType( (OD::FPDataRepType)fmt );
+    tro->setPreselDataType( (OD::DataRepType)fmt );
     tro->packetInfo() = tri->packetInfo();
 
     SeisTrc trc; int nrwr = 0;

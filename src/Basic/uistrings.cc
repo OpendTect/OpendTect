@@ -37,6 +37,9 @@ uiPhrase uiStrings::phrDoesNotExist(const uiWord& string )
 uiPhrase uiStrings::phrCannotAdd( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotAdd()).arg(string); }
 
+uiPhrase uiStrings::phrCannotAllocateMemory()
+{ return tr("Cannot allocate enough memory"); }
+
 uiPhrase uiStrings::phrCannotCalculate( const uiWord& string )
 { return tr("Cannot calculate %1").arg( string ); }
 

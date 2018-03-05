@@ -56,7 +56,7 @@ protected:
 
     Reader*		rdr_;
     Writer*		wrr_;
-    OD::FPDataRepType	preselfprep_;
+    OD::DataRepType	preseldatarep_;
 
     virtual bool	commitSelections_();
     virtual bool	initRead_();

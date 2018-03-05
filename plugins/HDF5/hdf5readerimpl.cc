@@ -44,15 +44,16 @@ void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv )
 }
 
 
-int HDF5::ReaderImpl::chunkSize() const
-{
-    //TODO
-    return 64;
-}
-
-
 void HDF5::ReaderImpl::getGroups( const GroupPath& pth,
 				  BufferStringSet& nms ) const
 {
     //TODO
+}
+
+
+ArrayNDInfo* HDF5::ReaderImpl::getDataSizes( const GroupPath& path,
+					     uiRetVal& uirv ) const
+{
+    uirv.add( mTODONotImplPhrase() );
+    return 0;
 }

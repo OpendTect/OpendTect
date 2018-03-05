@@ -208,7 +208,7 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 	return;
     }
 
-    trc.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.fprep_ );
+    trc.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.datarep_ );
     trc.reSize( nrsamplesintrace_, false );
 
     const int nrtrcs = ((int)locidx.inl()) * dims_.crl() + locidx.crl();
@@ -408,8 +408,8 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
     iop.get( sKey::ZRange(), zgeom_ );
     iop.getYN( sKeyDepthInFeet(), depthinfeet_ );
 
-    DataCharacteristics::getUserTypeFromPar( iop, fprep_ );
-    interp_ = DataInterp::create( DataCharacteristics(fprep_), true );
+    DataCharacteristics::getUserTypeFromPar( iop, datarep_ );
+    interp_ = DataInterp::create( DataCharacteristics(datarep_), true );
     Scaler* scl = Scaler::get( iop );
     mDynamicCast( LinScaler*, scaler_, scl );
 

@@ -27,6 +27,13 @@ HDF5::Writer* HDF5::AccessProviderImpl::getWriter() const
 }
 
 
+void HDF5::AccessProviderImpl::initHDF5()
+{
+    initClass();
+    H5::Exception::dontPrint();
+}
+
+
 HDF5::AccessImpl::AccessImpl( ReaderImpl& rdr )
     : acc_(rdr)
 {

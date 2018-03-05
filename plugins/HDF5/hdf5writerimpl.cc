@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 HDF5::WriterImpl::WriterImpl()
     : AccessImpl(*this)
+    , chunksz_(64)
 {
 }
 
@@ -40,32 +41,18 @@ void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv )
 }
 
 
-
-int HDF5::WriterImpl::chunkSize() const
-{
-    if ( !file_ )
-	mRetNoFile(return -1)
-    //TODO
-    return 64;
-}
-
-
 void HDF5::WriterImpl::setChunkSize( int sz )
 {
-    if ( !file_ )
-	mRetNoFile(return)
-    //TODO
+    chunksz_ = sz;
 }
 
 
-void HDF5::WriterImpl::setDataType( OD::FPDataRepType datarep )
+H5::DataType HDF5::WriterImpl::h5DataTypeFor( ODDataType datarep )
 {
-    if ( !file_ )
-	mRetNoFile(return)
+    H5DataType ret = H5::PredType::IEEE_F32LE;
 
-    H5::DataType dt;
 #   define mHandleCase(od,hdf) \
-	case OD::od:	    dt = H5::PredType::hdf; break;
+	case OD::od:	    ret = H5::PredType::hdf; break
 
     switch ( datarep )
     {
@@ -77,26 +64,32 @@ void HDF5::WriterImpl::setDataType( OD::FPDataRepType datarep )
 	mHandleCase( UI32, STD_U32LE );
 	mHandleCase( SI64, STD_I64LE );
 	mHandleCase( F64, IEEE_F64LE );
-	default:
-	mHandleCase( F32, IEEE_F32LE );
+	default: break;
     }
 
-    //TODO
+    return ret;
 }
 
 
-uiRetVal HDF5::WriterImpl::putInfo( const GroupPath& path, const IOPar& info )
+
+#define mRetInternalErr() \
+    mRetNoFile( uirv.set( uiStrings::phrInternalErr(e_msg) ); return; )
+
+void HDF5::WriterImpl::ptInfo( const GroupPath& path, const IOPar& info,
+			       uiRetVal& uirv )
 {
-    uiRetVal uirv;
+    if ( !file_ )
+	mRetInternalErr()
+
     uirv.add( mTODONotImplPhrase() );
-    return uirv;
 }
 
 
-uiRetVal HDF5::WriterImpl::putData( const GroupPath& path,
-		const ArrayND<float>& data, const IOPar* info )
+void HDF5::WriterImpl::ptData( const GroupPath& path, const ArrayNDInfo& info,
+			       const Byte* data, ODDataType dt, uiRetVal& uirv )
 {
-    uiRetVal uirv;
+    if ( !file_ )
+	mRetInternalErr()
+
     uirv.add( mTODONotImplPhrase() );
-    return uirv;
 }

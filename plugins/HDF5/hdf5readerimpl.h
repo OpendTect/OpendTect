@@ -23,18 +23,20 @@ mExpClass(HDF5) ReaderImpl : public Reader
 {
 public:
 
-			    ReaderImpl();
-			    ~ReaderImpl();
+    typedef H5::DataType	H5DataType;
 
-    const char*		    fileName() const	{ return gtFileName(); }
+			ReaderImpl();
+			~ReaderImpl();
 
-    virtual int		    chunkSize() const;
-    virtual void	    getGroups(const GroupPath&,BufferStringSet&) const;
+    const char*		fileName() const	{ return gtFileName(); }
+
+    virtual void	getGroups(const GroupPath&,BufferStringSet&) const;
+    virtual ArrayNDInfo* getDataSizes(const GroupPath&,uiRetVal&) const;
 
 protected:
 
-    virtual void	    openFile(const char*,uiRetVal&);
-    virtual void	    closeFile()		{ doCloseFile(*this); }
+    virtual void	openFile(const char*,uiRetVal&);
+    virtual void	closeFile()		{ doCloseFile(*this); }
 
 };
 

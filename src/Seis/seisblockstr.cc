@@ -24,7 +24,7 @@ BlocksSeisTrcTranslator::BlocksSeisTrcTranslator( const char* s1,
     : SeisTrcTranslator(s1,s2)
     , rdr_(0)
     , wrr_(0)
-    , preselfprep_(OD::AutoFPRep)
+    , preseldatarep_(OD::AutoDataRep)
 {
 }
 
@@ -49,7 +49,7 @@ void BlocksSeisTrcTranslator::cleanUp()
 {
     // prepare for re-initialization
     SeisTrcTranslator::cleanUp();
-    preselfprep_ = OD::AutoFPRep;
+    preseldatarep_ = OD::AutoDataRep;
 }
 
 
@@ -91,7 +91,7 @@ bool BlocksSeisTrcTranslator::initRead_()
     insd_.step = rdr_->zGeom().step;
     innrsamples_ = rdr_->zGeom().nrSteps() + 1;
 
-    const DataCharacteristics dc( rdr_->fPRep() );
+    const DataCharacteristics dc( rdr_->dataRep() );
     const int nrcomps = rdr_->nrComponents();
     for ( int icomp=0; icomp<nrcomps; icomp++ )
 	addComp( dc, rdr_->componentNames().get(icomp) );
@@ -113,12 +113,12 @@ bool BlocksSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     PtrMan<IOObj> ioobj = DBM().get( dbky );
     if ( ioobj )
     {
-	OD::FPDataRepType fprep = OD::AutoFPRep;
-	if ( preselfprep_ != OD::AutoFPRep )
-	    fprep = preselfprep_;
+	OD::DataRepType datarep = OD::AutoDataRep;
+	if ( preseldatarep_ != OD::AutoDataRep )
+	    datarep = preseldatarep_;
 	else
-	    DataCharacteristics::getUserTypeFromPar( ioobj->pars(), fprep );
-	wrr_->setFPRep( fprep );
+	    DataCharacteristics::getUserTypeFromPar( ioobj->pars(), datarep );
+	wrr_->setDataRep( datarep );
 	ZDomain::Def zdom = ZDomain::Def::get( ioobj->pars() );
 	wrr_->setZDomain( zdom );
 	wrr_->setCubeName( ioobj->name() );
@@ -245,5 +245,5 @@ BufferStringSet BlocksSeisTrcTranslator::auxExtensions() const
 void BlocksSeisTrcTranslator::usePar( const IOPar& iop )
 {
     SeisTrcTranslator::usePar( iop );
-    DataCharacteristics::getUserTypeFromPar( iop, preselfprep_ );
+    DataCharacteristics::getUserTypeFromPar( iop, preseldatarep_ );
 }

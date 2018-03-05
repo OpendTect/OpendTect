@@ -186,7 +186,7 @@ public:
     SzType		version() const		{ return version_; }
     const char*		cubeName() const	{ return cubename_; }
     const BufferStringSet& componentNames() const { return compnms_; }
-    OD::FPDataRepType	fPRep() const		{ return fprep_; }
+    OD::DataRepType	dataRep() const		{ return datarep_; }
     const LinScaler*	scaler() const		{ return scaler_; }
     int			nrAuxInfo() const	{ return auxiops_.size(); }
     const IOPar&	getAuxInfo( int i ) const { return *auxiops_[i]; }
@@ -232,7 +232,7 @@ protected:
     BufferString	cubename_;
     BufferStringSet	compnms_;
     LinScaler*		scaler_;
-    OD::FPDataRepType	fprep_;
+    OD::DataRepType	datarep_;
     ObjectSet<IOPar>	auxiops_;
     DataType		datatype_;
     mutable bool	needreset_;

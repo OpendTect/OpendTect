@@ -1,8 +1,7 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : K. Tingdahl
- * DATE     : Jan 2014
- * FUNCTION :
+ * AUTHOR   : Bert
+ * DATE     : March 2018
 -*/
 
 
@@ -15,6 +14,7 @@
 #include "plugins.h"
 
 static BufferString filename_;
+static const int nrblocks_ = 5;
 static const int dim1_ = 10;
 static const int dim2_ = 20;
 static const int chunksz_ = 6;
@@ -44,13 +44,11 @@ bool testWrite()
 
     mRunStandardTestWithError( filename_==wrr->fileName(), "Retain file name",
 			       BufferString(wrr->fileName(),"!=",filename_) )
-
-    wrr->setDataType( OD::F32 );
     wrr->setChunkSize( chunksz_ );
 
     Array2DImpl<float> arr2d( dim1_, dim2_ );
     uirv.setEmpty();
-    for ( int idx=0; idx<5; idx++ )
+    for ( int idx=0; idx<nrblocks_; idx++ )
     {
 	HDF5::GroupPath path;
 	path.add( BufferString("Block [",idx,"]") ).add( "Component 1" );
@@ -74,6 +72,22 @@ bool testRead()
 {
     PtrMan<HDF5::Reader> rdr = HDF5::mkReader();
     mRunStandardTest( rdr, "Get Reader" );
+
+    HDF5::GroupPath path;
+    BufferStringSet grps;
+    rdr->getGroups( path, grps );
+    mRunStandardTestWithError( grps.size()==nrblocks_, "Nr of blocks in file",
+			       BufferString("nrblocks=",grps.size()) );
+
+    uiRetVal uirv;
+    path.add( BufferString("Block [",3,"]") ).add( "Component 2" );
+
+    ArrayNDInfo* arrinf = rdr->getDataSizes( path, uirv );
+    mAddTestResult( "Get dims from file" );
+
+if ( !arrinf ) // check not needed, remove
+    return false;
+
     //TODO
     return true;
 }

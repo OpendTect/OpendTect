@@ -30,7 +30,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	, donext_(false)
 	, forread_(true)
 	, compsel_(0)
-	, fprep_(OD::AutoFPRep)
+	, datarep_(OD::AutoDataRep)
 	, rdmgr_(0)
 	, wrmgr_(0)
 	, nrdone_(0)
@@ -214,10 +214,10 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     {
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
 	addComp( dc, 0 );
-	if ( fprep_ == OD::AutoFPRep )
+	if ( datarep_ == OD::AutoDataRep )
 	    tarcds_[idx]->datachar_ = trc.data().getInterpreter()->dataChar();
 	else
-	    tarcds_[idx]->datachar_ = DataCharacteristics(fprep_);
+	    tarcds_[idx]->datachar_ = DataCharacteristics(datarep_);
 	tarcds_[idx]->datatype_ = (int)dataType();
     }
 
@@ -475,7 +475,7 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 {
     SeisTrcTranslator::usePar( iopar );
 
-    DataCharacteristics::getUserTypeFromPar( iopar, fprep_ );
+    DataCharacteristics::getUserTypeFromPar( iopar, datarep_ );
 
     const char* res = iopar.find( sKeyOptDir() );
     if ( res && *res )

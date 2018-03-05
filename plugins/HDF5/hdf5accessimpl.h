@@ -50,10 +50,16 @@ public:
     virtual Reader*	getReader() const;
     virtual Writer*	getWriter() const;
 
+    static void		initHDF5(); //!< class initClass()
+
 };
 
 } // namespace HDF5
 
 
 #define mRetNoFile(action) \
-    { pErrMsg("HDF5: need successful open() before setting stuff"); action; }
+{ \
+    const char* e_msg = "HDF5: need successful open() before setting stuff"; \
+    pErrMsg(e_msg); \
+    action; \
+}

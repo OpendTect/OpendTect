@@ -60,7 +60,7 @@ public:
     void		setForceUseCBVSInfo(bool yn)	{ forceusecbvsinfo_=yn;}
 
     void		setCoordPol(bool dowrite,bool intrailer);
-    void		setFPRep( OD::FPDataRepType fprep ) { fprep_ = fprep; }
+    void		setDataRep( OD::DataRepType t )	{ datarep_ = t; }
 
     bool		isUserSelectable(bool) const	{ return true; }
     virtual const char*	iconName() const		{ return "od6"; }
@@ -76,7 +76,7 @@ protected:
 
     // Following variables are inited by commitSelections_
     bool*		compsel_;
-    OD::FPDataRepType	fprep_;
+    OD::DataRepType	datarep_;
     VBrickSpec&		brickspec_;
 
     CBVSReadMgr*	rdmgr_;
