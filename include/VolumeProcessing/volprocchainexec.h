@@ -76,6 +76,7 @@ private:
 
 	void			addStep(Step* s)	{ steps_ += s; }
 	const ObjectSet<Step>&	getSteps() const	{ return steps_; }
+	BufferString		errMsg() const		{ return errmsg_; }
 
 	bool			updateInputs();
 	bool			doPrepare(ProgressMeter* progmeter=0);

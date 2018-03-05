@@ -602,9 +602,12 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	}
 
 	TrcKeyZSampling csamp;
-	if ( !chainexec_.getCalculationScope( currentstep->getID(), csamp ) )
+	if ( !chainexec_.getCalculationScope(currentstep->getID(),csamp) ||
+	     !csamp.isDefined() )
 	{
-	    pErrMsg("This should not happen");
+	    BufferString msg( "This should not happen" );
+	    errmsg_ = msg;
+	    pErrMsg(msg);
 	    return false;
 	}
 
@@ -714,7 +717,9 @@ const RegularSeisDataPack* VolProc::ChainExecutor::getOutput() const
 \
 	errors.add( cursteps[istep]->errMsg() ); \
     } \
-    if ( !prepare && curepoch_->getTask().uiMessage().isSet() ) \
+    if ( prepare && !curepoch_->errMsg().isEmpty() ) \
+	errors.add( toUiString(curepoch_->errMsg()) ); \
+    else if ( !prepare && curepoch_->getTask().uiMessage().isSet() ) \
 	errors.add( curepoch_->getTask().uiMessage() ); \
     \
     if ( !errors.isEmpty() ) \
