@@ -84,19 +84,19 @@ VolProc::Chain::~Chain()
 }
 
 
-bool VolProc::Chain::addConnection( const Chain::Connection& c )
+bool VolProc::Chain::addConnection( const Chain::Connection& conn )
 {
-    if ( !validConnection(c) )
+    if ( !validConnection(conn) )
 	return false;
 
-    web_.getConnections().addIfNew( c );
+    web_.getConnections().addIfNew( conn );
     return true;
 }
 
 
-void VolProc::Chain::removeConnection( const Chain::Connection& c )
+void VolProc::Chain::removeConnection( const Chain::Connection& conn )
 {
-    web_.getConnections() -= c;
+    web_.getConnections() -= conn;
 }
 
 
@@ -126,17 +126,17 @@ void VolProc::Chain::updateConnections()
 }
 
 
-bool VolProc::Chain::validConnection( const Chain::Connection& cc ) const
+bool VolProc::Chain::validConnection( const Chain::Connection& conn ) const
 {
-    if ( cc.isUdf() )
+    if ( conn.isUdf() )
 	return false;
 
-    const Step* outputstep = getStepFromID( cc.outputstepid_ );
-    if ( !outputstep || !outputstep->validOutputSlotID(cc.outputslotid_) )
+    const Step* outputstep = getStepFromID( conn.outputstepid_ );
+    if ( !outputstep || !outputstep->validOutputSlotID(conn.outputslotid_) )
 	return false;
 
-    const Step* inputstep = getStepFromID( cc.inputstepid_ );
-    if ( !inputstep || !inputstep->validInputSlotID(cc.inputslotid_) )
+    const Step* inputstep = getStepFromID( conn.inputstepid_ );
+    if ( !inputstep || !inputstep->validInputSlotID(conn.inputslotid_) )
 	return false;
 
     return true;
@@ -377,19 +377,21 @@ bool VolProc::Chain::usePar( const IOPar& par )
 	}
 
 	BufferString key;
+	uiWord connerr = tr("connection with index %1").arg( toUiString(-1) );
 	for ( int idx=0; idx<nrconns; idx++ )
 	{
 	    Connection newconn;
-	    if ( !newconn.usePar( par, sKeyConnection(idx,key) ) )
+	    if ( !newconn.usePar(par,sKeyConnection(idx,key)) )
 	    {
-		errmsg_ = tr("Cannot parse Connection %1").arg( toString(idx) );
+		connerr.setArg( 0, toUiString(idx) );
+		errmsg_ = uiStrings::phrCannotParse( connerr );
 		return false;
 	    }
 
 	    if ( !addConnection(newconn) )
 	    {
-		errmsg_ = uiStrings::phrCannotAdd(tr("connection %1")
-				    .arg( toString(idx)) );
+		connerr = connerr.setArg( 0, toUiString(idx) );
+		errmsg_ = uiStrings::phrCannotAdd( connerr );
 		return false;
 	    }
 	}

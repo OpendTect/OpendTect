@@ -65,13 +65,14 @@ private:
 	bool			doPrepare();
 	void			releaseData();
 	Task&			getTask()		{ return taskgroup_; }
+	uiString		errMsg() const		{ return errmsg_; }
 
 	bool			needsStepOutput(Step::ID) const;
 	RegularSeisDataPack*	getOutput() const;
 
     private:
 
-	BufferString		errmsg_;
+	uiString		errmsg_;
 	const ChainExecutor&	chainexec_;
 	TaskGroup&		taskgroup_;
 	ObjectSet<Step>		steps_;

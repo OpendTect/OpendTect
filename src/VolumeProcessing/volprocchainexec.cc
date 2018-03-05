@@ -528,9 +528,12 @@ bool VolProc::ChainExecutor::Epoch::doPrepare()
 	}
 
 	TrcKeyZSampling csamp;
-	if ( !chainexec_.getCalculationScope( currentstep->getID(), csamp ) )
+	if ( !chainexec_.getCalculationScope(currentstep->getID(),csamp) ||
+	     !csamp.isDefined() )
 	{
-	    pErrMsg("This should not happen");
+	    BufferString msg( "This should not happen" );
+	    errmsg_ = toUiString( msg );
+	    pErrMsg( msg.str() );
 	    return false;
 	}
 
@@ -562,7 +565,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare()
 	    {
 		if ( !outcube->addComponent(0,false) )
 		{
-		    errmsg_ = "Cannot allocate enough memory.";
+		    errmsg_ = uiStrings::sCannotAllocate();
 		    outcube = 0;
 		    return false;
 		}
@@ -637,7 +640,9 @@ VolProc::Step::VolRef VolProc::ChainExecutor::getOutput()
 \
 	errors.add( cursteps[istep]->errMsg() ); \
     } \
-    if ( !prepare && !curepoch_->getTask().message().isEmpty() ) \
+    if ( prepare && !curepoch_->errMsg().isEmpty() ) \
+        errors.add( curepoch_->errMsg() ); \
+    else if ( !prepare && !curepoch_->getTask().message().isEmpty() ) \
 	errors.add( curepoch_->getTask().message() ); \
     \
     if ( !errors.isEmpty() ) \

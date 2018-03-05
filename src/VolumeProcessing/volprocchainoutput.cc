@@ -256,8 +256,8 @@ int VolProc::ChainOutput::getChain()
     {
 	unRefAndZeroPtr( chain_ );
 	chain_ = new Chain; chain_->ref();
-	if ( chain_->usePar(*chainpar_) )
-	    return MoreToDo();
+	return chain_->usePar( *chainpar_ ) ? MoreToDo()
+					    : retError( chain_->errMsg() );
     }
 
     if ( chainid_.isInvalid() )
