@@ -66,6 +66,7 @@ protected:
 			Loader(const IOObj&,const TrcKeyZSampling*,
 			       const TypeSet<int>* components);
 
+    bool		setOutputComponents();
     bool		setTrcsSamplingFromProv(const Provider&);
     void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
     void		submitUdfWriterTasks();

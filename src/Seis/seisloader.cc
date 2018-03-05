@@ -331,6 +331,22 @@ void Seis::Loader::setComponentScaler( const Scaler& scaler, int compidx )
 }
 
 
+bool Seis::Loader::setOutputComponents()
+{
+    if ( outcomponents_ )
+	return true;
+    else if ( !dp_ )
+	return false;
+
+    const int nrcomps = dp_->nrComponents();
+    TypeSet<int> outcomps;
+    for ( int idx=0; idx<nrcomps; idx++ )
+	outcomps += idx;
+
+    return setOutputComponents( outcomps );
+}
+
+
 bool Seis::Loader::setOutputComponents( const TypeSet<int>& compnrs )
 {
     if ( compnrs.size() != components_.size() )
@@ -604,6 +620,7 @@ bool Seis::ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop,
     const bool needresampling = !zsamp.isCompatible( seissummary.zRange() );
     ObjectSet<Scaler> compscalers;
     compscalers.setNullAllowed( true );
+    setOutputComponents();
     const TypeSet<int>& outcompnrs =
 				outcomponents_ && !outcomponents_->isEmpty()
 				   ? *outcomponents_ : components_;
@@ -766,6 +783,7 @@ bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
     const bool needresampling = !zsamp.isCompatible( seissummary.zRange() );
     ObjectSet<Scaler> compscalers;
     compscalers.setNullAllowed( true );
+    setOutputComponents();
     const TypeSet<int>& outcompnrs =
 				outcomponents_ && !outcomponents_->isEmpty()
 				   ? *outcomponents_ : components_;
@@ -1040,12 +1058,13 @@ int Seis::SequentialFSLoader::nextStep()
 	return ErrorOccurred();
     }
 
-    const TypeSet<int>& outcomponents = outcomponents_
-				      ? *outcomponents_ : components_;
-
+    setOutputComponents();
+    const TypeSet<int>& outcompnrs =
+				outcomponents_ && !outcomponents_->isEmpty()
+				   ? *outcomponents_ : components_;
     Task* task = new ArrayFiller( *rawseq, dpzsamp_, samedatachar_,
 				  needresampling_, components_, compscalers_,
-				   outcomponents, *dp_, (*tks)[0].is2D() );
+				  outcompnrs, *dp_, (*tks)[0].is2D() );
     nrdone_ += rawseq->nrPositions();
     Threads::WorkManager::twm().addWork(
 		Threads::Work(*task,true), 0, queueid_, false, false, true );
