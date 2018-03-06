@@ -43,13 +43,6 @@ public:
     void		setDataChar(DataCharacteristics::UserType);
 
     void		setComponents(const TypeSet<int>&);
-    bool		setOutputComponents(const TypeSet<int>&);
-			/*!< If and only if different from components_
-			     For instance to map the input component 3
-			     with the output component 2
-			     Returns false if size different from components_
-			  */
-
     void		setComponentScaler(const Scaler&,int compidx);
 			/*!< Will force the datapack to float */
 
@@ -81,7 +74,7 @@ protected:
     DataCharacteristics dc_;
     TypeSet<int>	components_;
     ObjectSet<Scaler>	compscalers_; //Same size as components_
-    TypeSet<int>*	outcomponents_;
+    TypeSet<int>	outcomponents_;
     Scaler*		scaler_;
     ObjectSummary*	seissummary_;
     const PosInfo::Line2DData* line2ddata_;

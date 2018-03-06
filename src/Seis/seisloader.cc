@@ -146,6 +146,10 @@ bool doTrace( int itrc )
 	const int idcin = components_[cidx];
 	const Scaler* compscaler = compscalers_[cidx];
 	const int idcout = outcomponents_[cidx];
+#ifdef __debug__
+	if ( !dp.validComp(idcout) )
+	    return false;
+#endif
 	Array3D<float>& arr = dp.data( idcout );
 	ValueSeries<float>* stor = arr.getStorage();
 	float* storptr = stor ? stor->arr() : 0;
@@ -245,7 +249,6 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
     , ioobj_(ioobj.clone())
     , tkzs_(false)
     , dc_(OD::AutoDataRep)
-    , outcomponents_(0)
     , scaler_(0)
     , line2ddata_(0)
     , trcssampling_(0)
@@ -296,7 +299,6 @@ Seis::Loader::~Loader()
 
     delete ioobj_;
     deepErase( compscalers_ );
-    delete outcomponents_;
     delete scaler_;
     delete seissummary_;
     delete line2ddata_;
@@ -333,27 +335,13 @@ void Seis::Loader::setComponentScaler( const Scaler& scaler, int compidx )
 
 bool Seis::Loader::setOutputComponents()
 {
-    if ( outcomponents_ )
-	return true;
-    else if ( !dp_ )
+    if ( !dp_ || dp_->nrComponents() != components_.size() )
 	return false;
 
     const int nrcomps = dp_->nrComponents();
-    TypeSet<int> outcomps;
+    outcomponents_.setEmpty();
     for ( int idx=0; idx<nrcomps; idx++ )
-	outcomps += idx;
-
-    return setOutputComponents( outcomps );
-}
-
-
-bool Seis::Loader::setOutputComponents( const TypeSet<int>& compnrs )
-{
-    if ( compnrs.size() != components_.size() )
-	return false;
-
-    delete outcomponents_;
-    outcomponents_ = new TypeSet<int>( compnrs );
+	outcomponents_.add( idx );
 
     return true;
 }
@@ -368,7 +356,8 @@ void Seis::Loader::setScaler( const Scaler* newsc )
 
 uiString Seis::Loader::nrDoneText() const
 {
-    return tr("%1 read", "Traces read(past tense)").arg(uiStrings::sTrace(mPlural));
+    return tr("%1 read", "Traces read(past tense)")
+		.arg( uiStrings::sTrace(mPlural) );
 }
 
 
@@ -575,8 +564,10 @@ bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
 	    { releaseDP(); return false; }
     }
 
-    submitUdfWriterTasks();
+    if ( !setOutputComponents() )
+	{ releaseDP(); return false; }
 
+    submitUdfWriterTasks();
     deepErase( tks_ );
     for ( int idx=0; idx<nrthreads; idx++ )
     {
@@ -620,15 +611,12 @@ bool Seis::ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop,
     const bool needresampling = !zsamp.isCompatible( seissummary.zRange() );
     ObjectSet<Scaler> compscalers;
     compscalers.setNullAllowed( true );
-    setOutputComponents();
-    const TypeSet<int>& outcompnrs =
-				outcomponents_ && !outcomponents_->isEmpty()
-				   ? *outcomponents_ : components_;
     for ( int idx=0; idx<components_.size(); idx++ )
 	compscalers += 0;
 
     ArrayFiller fillertask( *rawseq, zsamp, samedatachar, needresampling,
-			    components_, compscalers, outcompnrs, *dp_, false );
+			    components_, compscalers, outcomponents_, *dp_,
+			    false );
     int trcseqpos = 0;
     TrcKey& tk = (*tkss)[trcseqpos];
     int currentinl = tk.inl();
@@ -736,6 +724,9 @@ bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 	    { releaseDP(); return false; }
     }
 
+    if ( !setOutputComponents() )
+	{ releaseDP(); return false; }
+
     submitUdfWriterTasks();
     trcnrs_.setEmpty();
     PosInfo::Line2DDataIterator trcsiterator2d( *line2ddata_ );
@@ -783,15 +774,11 @@ bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
     const bool needresampling = !zsamp.isCompatible( seissummary.zRange() );
     ObjectSet<Scaler> compscalers;
     compscalers.setNullAllowed( true );
-    setOutputComponents();
-    const TypeSet<int>& outcompnrs =
-				outcomponents_ && !outcomponents_->isEmpty()
-				   ? *outcomponents_ : components_;
     for ( int idx=0; idx<components_.size(); idx++ )
 	compscalers += 0;
 
     ArrayFiller fillertask( *rawseq, zsamp, samedatachar, needresampling,
-			    components_, compscalers, outcompnrs, *dp_, true );
+			    components_, compscalers, outcomponents_,*dp_,true);
     int trcseqpos = 0;
     TrcKey& tk = (*tkss)[trcseqpos];
     for ( int idx=0; idx<trcnrs.size(); idx++ )
@@ -932,6 +919,9 @@ bool Seis::SequentialFSLoader::init()
 	    { releaseDP(); return false; }
     }
 
+    if ( !setOutputComponents() )
+	{ releaseDP(); return false; }
+
     uiRetVal uirv;
     delete prov_;
     prov_ = Seis::Provider::create( ioobj_->key(), &uirv );
@@ -1058,13 +1048,9 @@ int Seis::SequentialFSLoader::nextStep()
 	return ErrorOccurred();
     }
 
-    setOutputComponents();
-    const TypeSet<int>& outcompnrs =
-				outcomponents_ && !outcomponents_->isEmpty()
-				   ? *outcomponents_ : components_;
     Task* task = new ArrayFiller( *rawseq, dpzsamp_, samedatachar_,
 				  needresampling_, components_, compscalers_,
-				  outcompnrs, *dp_, (*tks)[0].is2D() );
+				  outcomponents_, *dp_, (*tks)[0].is2D() );
     nrdone_ += rawseq->nrPositions();
     Threads::WorkManager::twm().addWork(
 		Threads::Work(*task,true), 0, queueid_, false, false, true );
