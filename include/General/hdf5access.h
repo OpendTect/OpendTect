@@ -23,8 +23,6 @@ namespace HDF5
 class Reader;
 class Writer;
 
-typedef BufferStringSet	GroupPath;
-
 
 mExpClass(General) Access
 { mODTextTranslationClass(HDF5::Access);
@@ -33,6 +31,16 @@ public:
     typedef unsigned char	Byte;
     typedef OD::DataRepType	ODDataType;
     typedef ArrayND<float>	FloatArrND;
+
+    mExpClass(General) DataSetKey
+    {
+    public:
+			DataSetKey( const char* grpnm=0, const char* dsnm=0 )
+			    : grpnm_(grpnm), dsnm_(dsnm)    {}
+
+	BufferString	grpnm_;
+	BufferString	dsnm_;
+    };
 
 			Access();
     virtual		~Access();

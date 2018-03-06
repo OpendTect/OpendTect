@@ -42,23 +42,24 @@ bool testWrite()
     uiRetVal uirv = wrr->open( filename_ );
     mAddTestResult( "Open file for write" );
 
-    mRunStandardTestWithError( filename_==wrr->fileName(), "Retain file name",
+    mRunStandardTestWithError( filename_==wrr->fileName(), "File name retained",
 			       BufferString(wrr->fileName(),"!=",filename_) )
     wrr->setChunkSize( chunksz_ );
 
     Array2DImpl<float> arr2d( dim1_, dim2_ );
     uirv.setEmpty();
+    HDF5::Access::DataSetKey dsky;
     for ( int idx=0; idx<nrblocks_; idx++ )
     {
-	HDF5::GroupPath path;
-	path.add( BufferString("Block [",idx,"]") ).add( "Component 1" );
+	dsky.dsnm_ = BufferString( "Block [", idx, "]" );
 	fillArr2D( arr2d, 1000*idx );
-	uirv = wrr->putData( path, arr2d );
+	dsky.grpnm_ = "Component 1";
+	uirv = wrr->putData( dsky, arr2d );
 	if ( !uirv.isOK() )
 	    break;
-	path.set( 1, new BufferString("Component 2") );
 	fillArr2D( arr2d, 10000*idx );
-	uirv = wrr->putData( path, arr2d );
+	dsky.grpnm_ = "Component 2";
+	uirv = wrr->putData( dsky, arr2d );
 	if ( !uirv.isOK() )
 	    break;
     }
@@ -73,20 +74,15 @@ bool testRead()
     PtrMan<HDF5::Reader> rdr = HDF5::mkReader();
     mRunStandardTest( rdr, "Get Reader" );
 
-    HDF5::GroupPath path;
     BufferStringSet grps;
-    rdr->getGroups( path, grps );
-    mRunStandardTestWithError( grps.size()==nrblocks_, "Nr of blocks in file",
+    rdr->getGroups( grps );
+    mRunStandardTestWithError( grps.size()==2, "Nr of groups in file",
+			       BufferString("nrgrps=",grps.size()) );
+
+    BufferStringSet dsnms;
+    rdr->getDataSets( grps.get(0), dsnms );
+    mRunStandardTestWithError( dsnms.size()==nrblocks_, "Nr of blocks in file",
 			       BufferString("nrblocks=",grps.size()) );
-
-    uiRetVal uirv;
-    path.add( BufferString("Block [",3,"]") ).add( "Component 2" );
-
-    ArrayNDInfo* arrinf = rdr->getDataSizes( path, uirv );
-    mAddTestResult( "Get dims from file" );
-
-if ( !arrinf ) // check not needed, remove
-    return false;
 
     //TODO
     return true;

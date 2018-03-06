@@ -19,10 +19,10 @@ mExpClass(General) Reader : public Access
 {
 public:
 
-    virtual void		getGroups(const GroupPath&,
-					  BufferStringSet&) const	= 0;
-    virtual ArrayNDInfo*	getDataSizes(const GroupPath&,
-					     uiRetVal&) const	= 0;
+    virtual void		getGroups(BufferStringSet&) const	= 0;
+    virtual void		getDataSets(const char*,
+					    BufferStringSet&) const	= 0;
+    virtual ArrayNDInfo*	getDataSizes(const DataSetKey&) const	= 0;
 
 };
 

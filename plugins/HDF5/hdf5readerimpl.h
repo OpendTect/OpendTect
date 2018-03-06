@@ -24,19 +24,25 @@ mExpClass(HDF5) ReaderImpl : public Reader
 public:
 
     typedef H5::DataType	H5DataType;
+    typedef H5::CommonFG	H5Dir;
 
 			ReaderImpl();
 			~ReaderImpl();
 
     const char*		fileName() const	{ return gtFileName(); }
 
-    virtual void	getGroups(const GroupPath&,BufferStringSet&) const;
-    virtual ArrayNDInfo* getDataSizes(const GroupPath&,uiRetVal&) const;
+    virtual void	getGroups(BufferStringSet&) const;
+    virtual void	getDataSets(const char* grpnm,BufferStringSet&) const;
+    virtual ArrayNDInfo* getDataSizes(const DataSetKey&) const;
 
 protected:
 
+    BufferStringSet	grpnms_;
+
     virtual void	openFile(const char*,uiRetVal&);
-    virtual void	closeFile()		{ doCloseFile(*this); }
+    virtual void	closeFile();
+
+    void		listDirs(const H5Dir&,BufferStringSet&) const;
 
 };
 

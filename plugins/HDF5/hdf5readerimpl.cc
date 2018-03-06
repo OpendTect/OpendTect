@@ -31,7 +31,9 @@ void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv )
 	{ uirv.add( uiStrings::phrCannotOpen( fnm ) ); return; }
 
     try {
+	grpnms_.setEmpty();
 	file_ = new H5::H5File( fnm, H5F_ACC_RDONLY );
+	listDirs( *file_, grpnms_ );
     }
     catch ( H5::FileIException error )
     {
@@ -44,16 +46,43 @@ void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv )
 }
 
 
-void HDF5::ReaderImpl::getGroups( const GroupPath& pth,
-				  BufferStringSet& nms ) const
+void HDF5::ReaderImpl::closeFile()
 {
-    //TODO
+    doCloseFile( *this );
+    grpnms_.setEmpty();
 }
 
 
-ArrayNDInfo* HDF5::ReaderImpl::getDataSizes( const GroupPath& path,
-					     uiRetVal& uirv ) const
+void HDF5::ReaderImpl::listDirs( const H5Dir& dir, BufferStringSet& nms ) const
 {
-    uirv.add( mTODONotImplPhrase() );
+    const int nrgrps = dir.getNumObjs();
+    for ( int idir=0; idir<nrgrps; idir++ )
+    {
+	std::string nm = dir.getObjnameByIdx( idir );
+	nms.add( nm.c_str() );
+
+	H5::Group grp = dir.openGroup( nm.c_str() );
+	BufferStringSet subnms;
+	listDirs( grp, subnms );
+	for ( int idx=0; idx<subnms.size(); idx++ )
+	    nms.add( BufferString( nm.c_str(), "/", subnms.get(idx) ) );
+    }
+}
+
+
+void HDF5::ReaderImpl::getGroups( BufferStringSet& nms ) const
+{
+    nms = grpnms_;
+}
+
+
+void HDF5::ReaderImpl::getDataSets( const char* grp,
+				    BufferStringSet& nms ) const
+{
+}
+
+
+ArrayNDInfo* HDF5::ReaderImpl::getDataSizes( const DataSetKey& dsky ) const
+{
     return 0;
 }

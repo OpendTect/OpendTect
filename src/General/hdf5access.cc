@@ -90,25 +90,33 @@ uiString HDF5::Access::sFileNotOpen()
 }
 
 
-uiRetVal HDF5::Writer::putInfo( const GroupPath& path, const IOPar& iop )
+uiRetVal HDF5::Writer::putInfo( const char* grpnm, const IOPar& iop )
 {
     uiRetVal uirv;
-    ptInfo( path, iop, uirv );
+    ptInfo( DataSetKey(grpnm), iop, uirv );
     return uirv;
 }
 
 
-uiRetVal HDF5::Writer::putData( const GroupPath& path, const ArrayNDInfo& inf,
+uiRetVal HDF5::Writer::putInfo( const DataSetKey& dsky, const IOPar& iop )
+{
+    uiRetVal uirv;
+    ptInfo( dsky, iop, uirv );
+    return uirv;
+}
+
+
+uiRetVal HDF5::Writer::putData( const DataSetKey& dsky, const ArrayNDInfo& inf,
 				const Byte* data, ODDataType dt )
 {
     uiRetVal uirv;
     if ( data && inf.getTotalSz() > 0 )
-	ptData( path, inf, data, dt, uirv );
+	ptData( dsky, inf, data, dt, uirv );
     return uirv;
 }
 
 
-uiRetVal HDF5::Writer::putData( const GroupPath& path, const FloatArrND& arr )
+uiRetVal HDF5::Writer::putData( const DataSetKey& dsky, const FloatArrND& arr )
 {
     uiRetVal uirv;
     const ArrayNDInfo& inf = arr.info();
@@ -132,7 +140,7 @@ uiRetVal HDF5::Writer::putData( const GroupPath& path, const FloatArrND& arr )
 	}
     }
 
-    ptData( path, inf, data, OD::F32, uirv );
+    ptData( dsky, inf, data, OD::F32, uirv );
     delete regarr;
     return uirv;
 }

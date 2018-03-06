@@ -21,15 +21,16 @@ public:
 
     virtual void	setChunkSize(int)				= 0;
 
-    uiRetVal		putInfo(const GroupPath&,const IOPar&);
-    uiRetVal		putData(const GroupPath&,const ArrayNDInfo&,
+    uiRetVal		putInfo(const char* grp,const IOPar&);
+    uiRetVal		putInfo(const DataSetKey&,const IOPar&);
+    uiRetVal		putData(const DataSetKey&,const ArrayNDInfo&,
 				const Byte*,ODDataType);
-    uiRetVal		putData(const GroupPath&,const FloatArrND&);
+    uiRetVal		putData(const DataSetKey&,const FloatArrND&);
 
 protected:
 
-    virtual void	ptInfo(const GroupPath&,const IOPar&,uiRetVal&)	= 0;
-    virtual void	ptData(const GroupPath&,const ArrayNDInfo&,
+    virtual void	ptInfo(const DataSetKey&,const IOPar&,uiRetVal&)= 0;
+    virtual void	ptData(const DataSetKey&,const ArrayNDInfo&,
 				const Byte*,ODDataType,uiRetVal&)	= 0;
 
 };

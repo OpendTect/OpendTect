@@ -75,7 +75,7 @@ H5::DataType HDF5::WriterImpl::h5DataTypeFor( ODDataType datarep )
 #define mRetInternalErr() \
     mRetNoFile( uirv.set( uiStrings::phrInternalErr(e_msg) ); return; )
 
-void HDF5::WriterImpl::ptInfo( const GroupPath& path, const IOPar& info,
+void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& info,
 			       uiRetVal& uirv )
 {
     if ( !file_ )
@@ -85,7 +85,7 @@ void HDF5::WriterImpl::ptInfo( const GroupPath& path, const IOPar& info,
 }
 
 
-void HDF5::WriterImpl::ptData( const GroupPath& path, const ArrayNDInfo& info,
+void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
 			       const Byte* data, ODDataType dt, uiRetVal& uirv )
 {
     if ( !file_ )

@@ -39,8 +39,9 @@ protected:
 
     virtual void	openFile(const char*,uiRetVal&);
     virtual void	closeFile()		{ doCloseFile(*this); }
-    virtual void	ptInfo(const GroupPath&,const IOPar&,uiRetVal&);
-    virtual void	ptData(const GroupPath&,const ArrayNDInfo&,
+
+    virtual void	ptInfo(const DataSetKey&,const IOPar&,uiRetVal&);
+    virtual void	ptData(const DataSetKey&,const ArrayNDInfo&,
 				   const Byte*,ODDataType,uiRetVal&);
 
 };
