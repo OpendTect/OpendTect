@@ -35,7 +35,7 @@ static void fillArr2D( Array2D<float>& arr2d, int shft )
     mRunStandardTestWithError( uirv.isOK(), desc, toString(uirv) )
 
 
-bool testWrite()
+static bool testWrite()
 {
     PtrMan<HDF5::Writer> wrr = HDF5::mkWriter();
     mRunStandardTest( wrr, "Get Writer" );
@@ -51,14 +51,14 @@ bool testWrite()
     HDF5::Access::DataSetKey dsky;
     for ( int idx=0; idx<nrblocks_; idx++ )
     {
-	dsky.dsnm_ = BufferString( "Block [", idx, "]" );
+	dsky.setDataSetName( BufferString( "Block [", idx, "]" ) );
 	fillArr2D( arr2d, 1000*idx );
-	dsky.grpnm_ = "Component 1";
+	dsky.setGroupName( "Component 1" );
 	uirv = wrr->putData( dsky, arr2d );
 	if ( !uirv.isOK() )
 	    break;
 	fillArr2D( arr2d, 10000*idx );
-	dsky.grpnm_ = "Component 2";
+	dsky.setGroupName( "Component 2" );
 	uirv = wrr->putData( dsky, arr2d );
 	if ( !uirv.isOK() )
 	    break;
@@ -69,7 +69,7 @@ bool testWrite()
 }
 
 
-bool testRead()
+static bool testRead()
 {
     PtrMan<HDF5::Reader> rdr = HDF5::mkReader();
     mRunStandardTest( rdr, "Get Reader" );

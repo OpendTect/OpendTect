@@ -44,6 +44,8 @@ protected:
     virtual void	ptData(const DataSetKey&,const ArrayNDInfo&,
 				   const Byte*,ODDataType,uiRetVal&);
 
+    void		ensureGroup(const char*);
+
 };
 
 } // namespace HDF5

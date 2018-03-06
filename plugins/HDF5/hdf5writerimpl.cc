@@ -86,6 +86,18 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& info,
 }
 
 
+void HDF5::WriterImpl::ensureGroup( const char* nm )
+{
+    try {
+	file_->createGroup( nm );
+    }
+    catch ( ... )
+    {
+	// group already existed I presume
+    }
+}
+
+
 void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
 			       const Byte* data, ODDataType dt, uiRetVal& uirv )
 {
@@ -110,6 +122,7 @@ void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
 	unsigned szip_pixels_per_block = 16;
 	proplist.setSzip( szip_options_mask, szip_pixels_per_block );
 	const H5DataType h5dt = h5DataTypeFor( dt );
+	ensureGroup( dsky.groupName() );
 	H5::DataSet dataset( file_->createDataSet( dsky.fullName(), h5dt,
 					      dataspace, proplist ) );
 	dataset.write( data, h5dt );

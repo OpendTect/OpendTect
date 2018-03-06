@@ -36,13 +36,27 @@ public:
     {
     public:
 			DataSetKey( const char* grpnm=0, const char* dsnm=0 )
-			    : grpnm_(grpnm), dsnm_(dsnm)    {}
+			    : dsnm_(dsnm)		{ setGroupName(grpnm); }
+
+	const char*	groupName() const		{ return grpnm_; }
+	void		setGroupName( const char* nm )
+			{
+			    grpnm_.set( nm );
+			    if ( !grpnm_.startsWith("/") )
+				grpnm_.insertAt( 0 , "/" );
+			}
+	const char*	dataSetName() const		{ return dsnm_; }
+	void		setDataSetName( const char* nm )
+			{ dsnm_.set( nm ); }
+
+	BufferString	fullName() const
+			{ return BufferString(grpnm_,"/",dsnm_); }
+
+    protected:
 
 	BufferString	grpnm_;
 	BufferString	dsnm_;
 
-	BufferString	fullName() const
-			{ return BufferString(grpnm_,"/",dsnm_); }
     };
 
 			Access();

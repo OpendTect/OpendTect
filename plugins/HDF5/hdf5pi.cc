@@ -29,6 +29,6 @@ mDefODPluginInfo(HDF5)
 
 mDefODInitPlugin(HDF5)
 {
-    HDF5::AccessProviderImpl::initClass();
+    HDF5::AccessProviderImpl::initHDF5();
     return 0;
 }
