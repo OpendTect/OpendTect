@@ -40,6 +40,9 @@ public:
 
 	BufferString	grpnm_;
 	BufferString	dsnm_;
+
+	BufferString	fullName() const
+			{ return BufferString(grpnm_,"/",dsnm_); }
     };
 
 			Access();

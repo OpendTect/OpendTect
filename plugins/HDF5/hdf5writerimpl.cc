@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "hdf5writerimpl.h"
 #include "uistrings.h"
+#include "arrayndimpl.h"
 
 
 HDF5::WriterImpl::WriterImpl()
@@ -30,9 +31,9 @@ void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv )
     try {
 	file_ = new H5::H5File( fnm, H5F_ACC_TRUNC );
     }
-    catch ( H5::FileIException error )
+    catch ( H5::Exception exc )
     {
-	uirv.add( sHDF5Err().addMoreInfo( toUiString(error.getCDetailMsg()) ) );
+	uirv.add( sHDF5Err().addMoreInfo( toUiString(exc.getCDetailMsg()) ) );
     }
     catch ( ... )
     {
@@ -91,5 +92,34 @@ void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
     if ( !file_ )
 	mRetInternalErr()
 
-    uirv.add( mTODONotImplPhrase() );
+    const int nrdims = info.getNDim();
+    TypeSet<hsize_t> dims, chunkdims;
+    for ( int idim=0; idim<nrdims; idim++ )
+    {
+	dims += info.getSize( idim );
+	chunkdims += chunksz_;
+    }
+
+    try {
+	H5::DataSpace dataspace( nrdims, dims.arr() );
+
+	H5::DSetCreatPropList proplist;
+	if ( nrdims > 1 )
+	    proplist.setChunk( nrdims, chunkdims.arr() );
+	unsigned szip_options_mask = H5_SZIP_EC_OPTION_MASK;
+	unsigned szip_pixels_per_block = 16;
+	proplist.setSzip( szip_options_mask, szip_pixels_per_block );
+	const H5DataType h5dt = h5DataTypeFor( dt );
+	H5::DataSet dataset( file_->createDataSet( dsky.fullName(), h5dt,
+					      dataspace, proplist ) );
+	dataset.write( data, h5dt );
+    }
+    catch ( H5::Exception exc )
+    {
+	uirv.add( sHDF5Err().addMoreInfo( toUiString(exc.getCDetailMsg()) ) );
+    }
+    catch ( ... )
+    {
+	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
+    }
 }
