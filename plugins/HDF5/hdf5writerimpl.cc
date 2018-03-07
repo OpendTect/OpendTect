@@ -84,10 +84,8 @@ H5::DataType HDF5::WriterImpl::h5DataTypeFor( ODDataType datarep )
 
 bool HDF5::WriterImpl::ensureGroup( const char* nm )
 {
-    try
-	{ file_->createGroup( nm ); }
-    catch ( ... )
-	{ return false; }
+    try { file_->createGroup( nm ); }
+    mCatchAnyNoMsg( return false )
     return true;
 }
 
