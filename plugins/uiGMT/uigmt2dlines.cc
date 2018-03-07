@@ -40,7 +40,7 @@ uiGMTOverlayGrp* uiGMT2DLinesGrp::createInstance( uiParent* p )
 
 
 uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,mJoinUiStrs(s2D(),sLine(mPlural)))
+    : uiGMTOverlayGrp(p,uiStrings::s2DLine(mPlural))
 {
     namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     namefld_->setElemSzPol( uiObject::Wide );

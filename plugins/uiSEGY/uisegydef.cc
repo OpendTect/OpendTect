@@ -334,8 +334,8 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const uiString& txt,
       "open", uiSEGYFilePars::sRetSavedGrp(), mCB(this,clss,readParsPush) );\
     rtb->attach( rightOf, sep ); \
     uiToolButton* stb = new uiToolButton( grp->attachObj()->parent(), \
-			"save", mJoinUiStrs(sSave(),sSetup().toLower()), \
-			mCB(this,clss,writeParsPush) );\
+		"save", uiStrings::phrSave(uiStrings::sSetup().toLower()), \
+		mCB(this,clss,writeParsPush) );\
     stb->attach( alignedBelow, rtb ); \
 
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,

@@ -20,8 +20,8 @@ ________________________________________________________________________
 #define m3Dots( txt ) \
     uiStrings::phrThreeDots( txt, false )
 //! Incorrect, need replace. use uiStrng::appendXXX() and tool functions
-#define mJoinUiStrs( txt1, txt2 )\
-    uiStrings::phrJoinStrings( uiStrings::txt1, uiStrings::txt2 )
+/*#define mJoinUiStrs( txt1, txt2 )\
+    uiStrings::phrJoinStrings( uiStrings::txt1, uiStrings::txt2 )*/
 //! Shortcut handy macro for during development
 #define mTODONotImplPhrase() \
     uiStrings::phrTODONotImpl( ::className(*this) )
@@ -114,9 +114,9 @@ public:
     static uiPhrase phrInternalErr(const char*); // will add 'contact support'
     static uiPhrase phrInterpretationDataExist(uiWord type,const char* nm);
     static uiPhrase phrInvalid(const uiWord& string);
-    static uiPhrase phrJoinStrings(const uiPhrase&,const uiPhrase&);
-    static uiPhrase phrJoinStrings(const uiPhrase&,const uiPhrase&,
-				   const uiPhrase&);
+    static uiPhrase phrJoinStrings(const char*,const char*);
+    static uiPhrase phrJoinStrings(const char*,const char*,
+				   const char*);
     static uiPhrase phrLoad(const uiWord&);
     static uiPhrase phrLoading(const uiWord&);
     static uiPhrase phrManage(const uiWord&);

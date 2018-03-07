@@ -64,17 +64,13 @@ class uiGeom2DImpDlg : public uiDialog
 public:
 
 uiGeom2DImpDlg( uiParent* p, const char* linenm )
-    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sImport(),
-				 phrJoinStrings(uiStrings::sNew(),
-				 uiStrings::phrJoinStrings(uiStrings::sLine(),
-				 uiStrings::sGeometry()))),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(tr("New lIne Geometry")),
 				 toUiString(linenm),
 				 mODHelpKey(mGeom2DImpDlgHelpID)))
 {
     setOkText( uiStrings::sImport() );
     Table::FormatDesc* geomfd = Geom2dAscIO::getDesc();
-    geom2dinfld_ = new uiFileSel( this, mJoinUiStrs(s2D(), phrJoinStrings(
-				   uiStrings::sGeometry(), uiStrings::sFile())),
+    geom2dinfld_ = new uiFileSel( this, tr("2D Geometry File"),
 				   uiFileSel::Setup().withexamine(true) );
     dataselfld_ = new uiTableImpDataSel( this, *geomfd, mNoHelpKey );
     dataselfld_->attach( alignedBelow, geom2dinfld_ );

@@ -86,7 +86,7 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
     dispbut->activated.notify( mCB(this,uiDipFilterAttrib,panelbutCB) );
     dispbut->attach( rightTo, velfld_ );
 
-    azifld_ = new uiGenInput( this, mJoinUiStrs(sAzimuth(), sFilter()),
+    azifld_ = new uiGenInput( this, tr("Azimuth Filter"),
 			      BoolInpSpec(true) );
     azifld_->setValue( false );
     azifld_->attach( alignedBelow, velfld_ );

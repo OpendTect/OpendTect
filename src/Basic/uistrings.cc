@@ -210,11 +210,11 @@ uiPhrase uiStrings::phrInternalErr( const char* string )
 { return tr( "Internal Error (pease contact support@dgbes.com):\n%1")
 	 .arg( string ); }
 
-uiPhrase uiStrings::phrJoinStrings( const uiWord& a, const uiWord& b )
+uiPhrase uiStrings::phrJoinStrings( const char* a, const char* b )
 { return toUiString(joinstring).arg( a ).arg( b ); }
 
-uiPhrase uiStrings::phrJoinStrings( const uiWord& a, const uiWord& b,
-				    const uiPhrase& c)
+uiPhrase uiStrings::phrJoinStrings( const char* a, const char* b,
+				    const char* c)
 { return toUiString("%1 %2 %3").arg( a ).arg( b ).arg( c ); }
 
 uiPhrase uiStrings::phrLoad( const uiWord& string )
