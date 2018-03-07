@@ -1,5 +1,4 @@
-#ifndef uitutvolproc_h
-#define uitutvolproc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -13,7 +12,9 @@ ________________________________________________________________________
 -*/
 
 #include "uitutmod.h"
-#include "uivolprocchain.h"
+
+#include "uivolprocstepdlg.h"
+
 #include "tutvolproc.h"
 
 class uiGenInput;
@@ -22,19 +23,19 @@ class uiStepOutSel;
 namespace VolProc
 {
 
-class TutOpCalculator;
-
 
 mExpClass(uiTut) uiTutOpCalculator : public uiStepDialog
 { mODTextTranslationClass(uiTutOpCalculator);
 public:
-    mDefaultFactoryInstantiationBase(
-	VolProc::TutOpCalculator::sFactoryKeyword(),
-	VolProc::TutOpCalculator::sFactoryDisplayName())
-	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
+	mDefaultFactoryInstantiationBase(
+	    VolProc::TutOpCalculator::sFactoryKeyword(),
+	    VolProc::TutOpCalculator::sFactoryDisplayName())
+	    mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
+
+				~uiTutOpCalculator();
 
 
-protected:
+private:
 
 				uiTutOpCalculator(uiParent*,TutOpCalculator*,
 						  bool is2d);
@@ -50,5 +51,3 @@ protected:
 };
 
 } // namespace VolProc
-
-#endif

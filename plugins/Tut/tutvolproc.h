@@ -1,5 +1,4 @@
-#ifndef tutvolproc_h
-#define tutvolproc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -14,10 +13,11 @@ ________________________________________________________________________
 -*/
 
 #include "tutmod.h"
+
 #include "paralleltask.h"
 #include "trckeyzsampling.h"
 #include "uistring.h"
-#include "volprocchain.h"
+#include "volprocstep.h"
 
 template<class T> class Array3D;
 
@@ -37,22 +37,22 @@ public:
 					tr("Volume Processing Tutorial") )
 
 				TutOpCalculator();
+				~TutOpCalculator();
 
-    void			setShift( BinID bid )	{ shift_ = bid; }
-    void			setOpType( int type )	{ type_ = type; }
-
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
     static const char*		sKeyTypeIndex()		{ return "Type Index"; }
 
 private:
 
+    virtual bool		prepareWork(int nrthreads=1);
     ReportingTask*		createTask();
-    virtual bool		needsFullVolume() const { return false; }
+
+    virtual bool		needsFullVolume() const		{ return false;}
     virtual bool		canInputAndOutputBeSame() const { return false;}
-    virtual bool		areSamplesIndependent() const { return true; }
-    virtual bool		needsInput() const	{ return true; }
+    virtual bool		areSamplesIndependent() const	{ return true; }
+    virtual bool		needsInput() const		{ return true; }
 
     virtual BinID		getHorizontalStepout() const { return shift_; }
     virtual od_int64		extraMemoryUsage(OutputSlotID,
@@ -61,6 +61,7 @@ private:
 
     BinID			shift_;
     int				type_;
+
 };
 
 
@@ -75,7 +76,8 @@ public:
     od_int64			totalNr() const		{ return totalnr_; }
     uiString			message() const;
 
-protected:
+private:
+
     bool			doWork(od_int64,od_int64,int);
 
     od_int64			nrIterations() const	{ return totalnr_; }
@@ -93,5 +95,3 @@ protected:
 };
 
 } // namespace VolProc
-
-#endif

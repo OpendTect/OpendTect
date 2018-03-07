@@ -11,13 +11,8 @@ ________________________________________________________________________
 #include "tutvolproc.h"
 
 #include "arrayndimpl.h"
-#include "flatposdata.h"
 #include "keystrs.h"
-#include "iopar.h"
-#include "paralleltask.h"
 #include "seisdatapack.h"
-
-#include <iostream>
 
 
 #define mTypeSquare		0
@@ -28,7 +23,13 @@ namespace VolProc
 
 TutOpCalculator::TutOpCalculator()
     : Step()
-{}
+{
+}
+
+
+TutOpCalculator::~TutOpCalculator()
+{
+}
 
 
 void TutOpCalculator::fillPar( IOPar& par ) const
@@ -46,12 +47,28 @@ bool TutOpCalculator::usePar( const IOPar& par )
     if ( !Step::usePar(par) )
 	return false;
 
-    if ( !par.get( sKeyTypeIndex(), type_ ) )
+    if ( !par.get(sKeyTypeIndex(),type_) )
 	return false;
 
     if ( type_ == mTypeShift && ( !par.get(sKey::StepInl(),shift_.inl())
 			       || !par.get(sKey::StepCrl(),shift_.crl()) ) )
 	return false;
+    else if ( type_ == mTypeSquare )
+	shift_ = BinID( 0, 0 );
+
+    return true;
+}
+
+
+bool TutOpCalculator::prepareWork( int )
+{
+    if ( !Step::prepareWork() )
+	return false;
+
+    const RegularSeisDataPack* inputdatapack = inputs_[0];
+    RegularSeisDataPack* outputdatapack = getOutput( getOutputSlotID(0));
+
+    outputdatapack->setComponentName( inputdatapack->getComponentName(0) );
 
     return true;
 }
@@ -62,14 +79,13 @@ ReportingTask* TutOpCalculator::createTask()
     if ( !prepareWork() )
 	return 0;
 
-    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
 
     const TrcKeyZSampling tkzsin = input->sampling();
     const TrcKeyZSampling tkzsout = output->sampling();
-    return new TutOpCalculatorTask( input->data(0), tkzsin,
-				    tkzsout, type_, shift_,
-				    output->data(0) );
+    return new TutOpCalculatorTask( input->data(), tkzsin, tkzsout, type_,
+				    shift_, output->data() );
 }
 
 //--------- TutOpCalculatorTask -------------
