@@ -36,13 +36,7 @@ void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv )
 	file_ = new H5::H5File( fnm, H5F_ACC_RDONLY );
 	listDirs( *file_, grpnms_ );
     }
-    catch ( H5::Exception& exc )
-    {
-	uirv.add( sHDF5Err().addMoreInfo( toUiString(exc.getCDetailMsg()) ) );
-    }
-    mCatchNonHDF(
-	uirv.add( uiStrings::phrErrDuringRead(fnm)
-		 .addMoreInfo(toUiString(exc_msg)) ) )
+    mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fnm) )
 }
 
 

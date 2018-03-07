@@ -228,6 +228,12 @@ void IOPar::sortOnKeys()
 }
 
 
+int IOPar::maxContentSize( bool kys ) const
+{
+    return (kys ? keys_ : vals_).maxLength();
+}
+
+
 void IOPar::merge( const IOPar& oth )
 {
     if ( &oth == this ) return;

@@ -49,7 +49,7 @@ public:
 	void		setDataSetName( const char* nm )
 			{ dsnm_.set( nm ); }
 
-	BufferString	fullName() const
+	BufferString	fullDataSetName() const
 			{ return BufferString(grpnm_,"/",dsnm_); }
 
     protected:

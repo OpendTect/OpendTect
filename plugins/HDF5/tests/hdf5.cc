@@ -11,6 +11,7 @@
 #include "file.h"
 #include "filepath.h"
 #include "arrayndimpl.h"
+#include "iopar.h"
 #include "plugins.h"
 
 static BufferString filename_;
@@ -49,17 +50,30 @@ static bool testWrite()
     Array2DImpl<float> arr2d( dim1_, dim2_ );
     uirv.setEmpty();
     HDF5::Access::DataSetKey dsky;
+    IOPar iop;
+    iop.set( "Apenoot", "pere boom" );
     for ( int idx=0; idx<nrblocks_; idx++ )
     {
 	dsky.setDataSetName( BufferString( "Block [", idx, "]" ) );
+
 	fillArr2D( arr2d, 1000*idx );
 	dsky.setGroupName( "Component 1" );
 	uirv = wrr->putData( dsky, arr2d );
 	if ( !uirv.isOK() )
 	    break;
+	iop.set( "Block and comp idxs", idx, 1 );
+	uirv = wrr->putInfo( dsky, iop );
+	if ( !uirv.isOK() )
+	    break;
+
+
 	fillArr2D( arr2d, 10000*idx );
 	dsky.setGroupName( "Component 2" );
 	uirv = wrr->putData( dsky, arr2d );
+	if ( !uirv.isOK() )
+	    break;
+	iop.set( "Block and comp idxs", idx, 2 );
+	uirv = wrr->putInfo( dsky, iop );
 	if ( !uirv.isOK() )
 	    break;
     }

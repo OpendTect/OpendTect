@@ -76,6 +76,7 @@ public:
     bool		setKey(int,const char*);
     void		setValue(int,const char*);
     void		sortOnKeys();
+    int			maxContentSize(bool keys_else_values) const;
 
     inline bool		hasKey( const char* s ) const { return isPresent(s); }
     const char*		findKeyFor(const char*,int nr=0) const;

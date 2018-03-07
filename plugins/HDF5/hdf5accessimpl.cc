@@ -64,15 +64,18 @@ const char* HDF5::AccessImpl::gtFileName() const
 
 void HDF5::AccessImpl::doCloseFile( Access& acc )
 {
-    // cannot use acc_ here, it may have been deleted
-    if ( acc.file_ )
+    // cannot use acc_ here, it may already have been deleted
+    // Thus, acc needs to be passed to this function
+
+    if ( !acc.file_ )
+	return;
+
+    H5::H5File* h5file = acc.file_;
+    acc.file_ = 0;
+    try
     {
-	try
-	{
-	    H5Fclose( acc.file_->getId() );
-	    delete acc.file_;
-	}
-	mCatchUnexpected( (void)0 )
-	acc.file_ = 0;
+	H5Fclose( h5file->getId() );
+	delete h5file;
     }
+    mCatchUnexpected( return )
 }
