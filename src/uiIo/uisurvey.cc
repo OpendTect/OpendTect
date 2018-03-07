@@ -478,6 +478,17 @@ uiSurvey::uiSurvey( uiParent* p )
 
 uiSurvey::~uiSurvey()
 {
+    ObjectSet<uiSurvInfoProvider>& survprovs =
+					uiSurveyInfoEditor::survInfoProvs();
+    for ( int idx=0; idx<survprovs.size(); idx++ )
+    {
+	mDynamicCastGet(uiCopySurveySIP*,uisurvcpsip,survprovs[idx])
+	if ( !uisurvcpsip )
+	    continue;
+
+	uisurvcpsip->reset();
+    }
+
     delete impiop_;
     delete cursurvinfo_;
 }

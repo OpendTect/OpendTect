@@ -970,6 +970,14 @@ uiCopySurveySIP::uiCopySurveySIP()
     crspars_.setParam( this, 0 );
 }
 
+
+void uiCopySurveySIP::reset()
+{
+    if ( crspars_.hasParam(this) )
+	crspars_.removeAndDeleteParam( this );
+}
+
+
 uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
     survlist_.erase();
@@ -1004,14 +1012,22 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     RefMan<Coords::CoordSystem> crs = survinfo->getCoordSystem();
     IOPar* crspar = new IOPar;
     crs->fillPar( *crspar );
+    if ( crspars_.hasParam(this) )
+	delete crspars_.getParam( this );
+
     crspars_.setParam( this, crspar );
+
     return true;
 }
 
 
 IOPar* uiCopySurveySIP::getCoordSystemPars() const
 {
-    return crspars_.getParam( this );
+    if ( !crspars_.hasParam(this) )
+       return 0;
+
+    IOPar* par = new IOPar( *crspars_.getParam( this ) );
+    return par;
 }
 
 

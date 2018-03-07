@@ -155,6 +155,10 @@ protected:
     bool		inft_;
     BufferStringSet	survlist_;
 
+public:
+			//Do NOT use, for ABI compatibility only
+    void		reset();
+
 };
 
 
