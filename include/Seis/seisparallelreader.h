@@ -69,12 +69,8 @@ public:
 
     void		setComponents( const TypeSet<int>& compnrs )
 			{ components_ = compnrs; }
-    bool		setOutputComponents(const TypeSet<int>&);
-			/*!< If and only if different from components_
-			     For instance to map the input component 3
-			     with the output component 2
-			     Returns false if size different from components_
-			  */
+    mDeprecated bool	setOutputComponents(const TypeSet<int>&);
+			/*!< Will be removed after 6.2 */
 
     void		 setDataPack(RegularSeisDataPack*);
     RegularSeisDataPack* getDataPack();
@@ -84,6 +80,9 @@ public:
 
 protected:
     od_int64		nrIterations() const { return totalnr_; }
+
+    bool		setOutputComponents();
+
     bool		doPrepare(int nrthreads);
     bool		doWork(od_int64,od_int64,int);
     bool		doFinish(bool);
@@ -173,12 +172,8 @@ public:
 
     void		setComponents( const TypeSet<int>& compnrs )
 			{ components_ = compnrs; }
-    bool		setOutputComponents(const TypeSet<int>&);
-			/*!< If and only if different from components_
-			     For instance to map the input component 3
-			     with the output component 2
-			     Returns false if size different from components_
-			 */
+    mDeprecated bool	setOutputComponents(const TypeSet<int>&);
+			/*!< Will be removed after 6.2 */
 
     void		setComponentScaler(const Scaler&,int compidx);
 			/*!< Will force the datapack to float */
@@ -204,6 +199,7 @@ public:
 
 protected:
 
+    bool		setOutputComponents();
     virtual int		nextStep();
     virtual bool	goImpl(od_ostream*,bool,bool,int);
 

@@ -122,6 +122,15 @@ void setTrcScalers( const ObjectSet<Scaler>* trcscalers )
 
 bool execute()
 {
+#ifdef __debug__
+    if ( dp_.nrComponents() != outcomponents_.size() )
+    {
+	pErrMsg("Array Filler is incorrectly setup");
+	DBG::forceCrash( false );
+	return false;
+    }
+#endif
+
     const int nrpos = databuf_.nrPositions();
     for ( int itrc=0; itrc<nrpos; itrc++ )
     {
@@ -156,6 +165,14 @@ bool doTrace( int itrc )
 	const int idcin = components_[cidx];
 	const Scaler* compscaler = compscalers_[cidx];
 	const int idcout = outcomponents_[cidx];
+#ifdef __debug__
+	if ( !dp_.validComp(idcout) )
+	{
+	    pErrMsg("Array Filler is incorrectly setup");
+	    DBG::forceCrash( false );
+	    return false;
+	}
+#endif
 	Array3D<float>& arr = dp_.data( idcout );
 	ValueSeries<float>* stor = arr.getStorage();
 	float* storptr = stor ? stor->arr() : 0;
@@ -322,13 +339,23 @@ Seis::ParallelReader::~ParallelReader()
 }
 
 
-bool Seis::ParallelReader::setOutputComponents( const TypeSet<int>& compnrs )
+bool Seis::ParallelReader::setOutputComponents( const TypeSet<int>& )
 {
-    if ( compnrs.size() != components_.size() )
+    return setOutputComponents();
+}
+
+
+bool Seis::ParallelReader::setOutputComponents()
+{
+    if ( !dp_ || dp_->nrComponents() != components_.size() )
 	return false;
 
-    seisrdroutcompmgr_ =  compnrs;
-    return true;
+     const int nrcomps = dp_->nrComponents();
+     seisrdroutcompmgr_.setEmpty();
+     for ( int idx=0; idx<nrcomps; idx++ )
+	 seisrdroutcompmgr_ += idx;
+
+     return true;
 }
 
 
@@ -423,6 +450,12 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
 	    errmsg_.append( errmsg, true );
 	    return false;
 	}
+    }
+
+    if ( !setOutputComponents() )
+    {
+	DPM( DataPackMgr::SeisID() ).release( dp_ ); dp_ = 0;
+	return false;
     }
 
     submitUdfWriterTasks();
@@ -865,12 +898,22 @@ bool Seis::SequentialReader::goImpl( od_ostream* strm, bool first, bool last,
 }
 
 
-bool Seis::SequentialReader::setOutputComponents( const TypeSet<int>& compnrs )
+bool Seis::SequentialReader::setOutputComponents( const TypeSet<int>& )
 {
-    if ( compnrs.size() != components_.size() )
+    return setOutputComponents();
+}
+
+
+bool Seis::SequentialReader::setOutputComponents()
+{
+    if ( !dp_ || dp_->nrComponents() != components_.size() )
 	return false;
 
-    outcomponents_ = compnrs;
+    const int nrcomps = dp_->nrComponents();
+    outcomponents_.setEmpty();
+    for ( int idx=0; idx<nrcomps; idx++ )
+	outcomponents_ += idx;
+
     return true;
 }
 
@@ -944,11 +987,8 @@ RegularSeisDataPack* Seis::SequentialReader::getDataPack()
 
 bool Seis::SequentialReader::init()
 {
-    if ( initialized_ )
-	return true;
-
-    is2d_ = tkzs_.hsamp_.is2D();
     msg_ = tr("Initializing reader");
+    is2d_ = tkzs_.hsamp_.is2D();
     delete seissummary_;
     seissummary_ = is2d_ ? new ObjectSummary( *ioobj_, tkzs_.hsamp_.getGeomID())
 			 : new ObjectSummary( *ioobj_ );
@@ -1011,6 +1051,12 @@ bool Seis::SequentialReader::init()
 	    DPM( DataPackMgr::SeisID() ).release( dp_ ); dp_ = 0;
 	    return false;
 	}
+    }
+
+    if ( !setOutputComponents() )
+    {
+	DPM( DataPackMgr::SeisID() ).release( dp_ ); dp_ = 0;
+	return false;
     }
 
     PosInfo::CubeData cubedata;
@@ -1180,11 +1226,9 @@ int Seis::SequentialReader::nextStep()
 	return ErrorOccurred();
     }
 
-    const TypeSet<int>& outcomponents = !outcomponents_.isEmpty()
-				      ? outcomponents_ : components_;
     ArrayFiller* task = new ArrayFiller( *databuf, dpzsamp_, samedatachar_,
 				  needresampling_, components_,
-				  compscalers_, outcomponents, *dp_, is2d_ );
+				  compscalers_, outcomponents_, *dp_, is2d_ );
     task->setTrcScalers( trcscalers );
     nrdone_ += databuf->nrPositions();
     Threads::WorkManager::twm().addWork(
