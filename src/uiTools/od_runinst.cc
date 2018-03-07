@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_runinst.cc 8761 2013-12-06 12:06:24Z bert.bril@dgbes.com $";
 
 #include "prog.h"
 
@@ -27,6 +26,6 @@ int main( int argc, char** argv )
     }
     else
 	ODInst::startInstManagement();
- 
+
     return ExitProgram( 0 );
 }

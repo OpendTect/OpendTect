@@ -4,13 +4,13 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
+ Author:	Bert
  Date:		Nov 2006
 ________________________________________________________________________
 
 
 -*/
- 
+
 #include "prestackprocessingmod.h"
 #include "transl.h"
 
@@ -24,7 +24,7 @@ mExpClass(PreStackProcessing) MuteDefTranslatorGroup : public TranslatorGroup
 {   isTranslatorGroup(MuteDef);
     mODTextTranslationClass(MuteDefTranslatorGroup);
 public:
-    			mDefEmptyTranslatorGroupConstructor(MuteDef)
+			mDefEmptyTranslatorGroupConstructor(MuteDef)
 
     const char*		defExtension() const		{ return "mute"; }
 };
@@ -37,7 +37,7 @@ public:
 mExpClass(PreStackProcessing) MuteDefTranslator : public Translator
 { mODTextTranslationClass(MuteDefTranslator)
 public:
-    			mDefEmptyTranslatorBaseConstructor(MuteDef)
+			mDefEmptyTranslatorBaseConstructor(MuteDef)
 
     virtual const char*	read(PreStack::MuteDef&,Conn&)		= 0;
 			//!< returns err msg or null on success
@@ -61,7 +61,7 @@ mExpClass(PreStackProcessing) dgbMuteDefTranslator : public MuteDefTranslator
 {			     isTranslator(dgb,MuteDef)
 public:
 
-    			mDefEmptyTranslatorConstructor(dgb,MuteDef)
+			mDefEmptyTranslatorConstructor(dgb,MuteDef)
 
     const char*		read(PreStack::MuteDef&,Conn&);
     const char*		write(const PreStack::MuteDef&,Conn&);

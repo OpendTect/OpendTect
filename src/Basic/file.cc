@@ -2,7 +2,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
+ Author:	Bert
  Date:		3-5-1994
  Contents:	File utitlities
 ________________________________________________________________________

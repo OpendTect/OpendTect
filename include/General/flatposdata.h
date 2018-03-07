@@ -3,7 +3,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
+ Author:        Bert
  Date:          Feb 2007
 ________________________________________________________________________
 

@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
+ Author:	Bert
  Date:		17-5-1995
  Contents:	Generalized stream opener.
 ________________________________________________________________________

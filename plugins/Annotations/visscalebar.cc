@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "visscalebar.h"
 
@@ -288,7 +287,7 @@ visBase::VisualObject* ScaleBarDisplay::createLocation() const
     sb->setOrientation( orientation_ );
     return sb;
 }
-	
+
 
 void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc )
 {

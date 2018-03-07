@@ -5,8 +5,6 @@
  * DATE     : Aug 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "uibouncymgr.h"
 #include "beachballdata.h"
 #include "visbeachball.h"

@@ -1,7 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
 #	Makefile : 	ui - Volume Processing
-# 	Jul 2000	A.H. Bril
+# 	Jul 2000	Kris
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiVelocity uiWell uiAttributes uiEarthModel VolumeProcessing )

@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
+ Author:        Bert
  Date:          Sep 2005
 ________________________________________________________________________
 

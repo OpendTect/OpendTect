@@ -8,9 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: $";
-
-
 #include "presentationspec.h"
 
 #include "file.h"

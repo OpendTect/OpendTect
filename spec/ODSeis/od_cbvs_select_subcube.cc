@@ -1,11 +1,8 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
+ * AUTHOR   : Bert
  * DATE     : 2000
- * RCS      : $Id$
 -*/
-
-static const char* rcsID = "$Id$";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -38,13 +35,13 @@ static int doWork( int argc, char** argv )
     }
 
     File::Path fp( argv[2] );
-    
+
     if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;
         return 1;
     }
-    
+
     if ( !fp.isAbsolute() )
     {
         fp.insert( File::getCurrentPath() );
@@ -56,7 +53,7 @@ static int doWork( int argc, char** argv )
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
         { std::cerr << tri->errMsg() << std::endl; return 1; }
 
-    fp.set( argv[3] ); 
+    fp.set( argv[3] );
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 

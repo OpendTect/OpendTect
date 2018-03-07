@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril & Kris Tingdahl
+ Author:        Bert & Kris Tingdahl
  Date:          Mar 2005
 ________________________________________________________________________
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 /*\brief interpolates between values of a ValueSeries object
 
   Note that we assume that the values are equidistant in 'X'.
- 
+
  */
 
 template <class T>

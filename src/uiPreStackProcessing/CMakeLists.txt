@@ -1,7 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	ui - Velocities
-# 	Jul 2000	A.H. Bril
+#	Makefile : 	ui - PreStack Processing
+# 	Jul 2000	Kris
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiSeis PreStackProcessing )

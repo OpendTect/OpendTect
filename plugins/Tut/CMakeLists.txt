@@ -1,7 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
 #	Makefile : 	Tutorial plugin
-# 	Jan 2012	A.H. Bril
+# 	Jan 2012	Bert
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS AttributeEngine EarthModel VolumeProcessing Well)

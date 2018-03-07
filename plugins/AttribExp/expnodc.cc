@@ -4,8 +4,6 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "expnodc.h"
 #include "attribprovider.h"
 #include "seistrc.h"
@@ -13,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 NoDCAttrib::NoDCAttrib( Parameters* param )
     : AttribCalc( new NoDCAttrib::Task( *this ) )
-{ 
+{
     param->fillDefStr( desc );
     delete param;
     inputspec += new AttribInputSpec;
@@ -47,7 +45,7 @@ int NoDCAttrib::Task::nextStep()
 {
     if ( !outp ) return 0;
 
-    const NoDCAttrib::Task::Input* inp = 
+    const NoDCAttrib::Task::Input* inp =
 			(const NoDCAttrib::Task::Input*) input;
 
     const SeisTrc* trcp = inp->trc;
@@ -64,11 +62,11 @@ int NoDCAttrib::Task::nextStep()
 	for ( int idy=0; idy<nrtimes; idy++ )
 	{
 	   sum += trc[pos++];
-	}	
+	}
 
 	sum /= nrtimes;
 	pos = firstidx;
-	
+
 	for ( int idx=0; idx<nrtimes; idx++)
 	{
 	    outp[idx] =  trc[pos++] - sum;
@@ -80,7 +78,7 @@ int NoDCAttrib::Task::nextStep()
 	{
 	    const float curt = t1+idy*step;
 	    sum += trc.getValue( curt );
-	}	
+	}
 
 	sum /= nrtimes;
 

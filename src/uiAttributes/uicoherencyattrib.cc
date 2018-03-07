@@ -2,12 +2,11 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
+ Author:        Bert
  Date:          April 2001
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicoherencyattrib.h"
 #include "coherencyattrib.h"

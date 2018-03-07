@@ -1,7 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	Coin Wrapper classes
-# 	July 1995	A.H. Bril
+#	Makefile : 	visualisation: encapsulate OSG
+# 	July 1995	Kris
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS Geometry)

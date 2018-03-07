@@ -8,8 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: $";
-
 #include "uigraphicsscalebar.h"
 
 #include "uigraphicsitemimpl.h"

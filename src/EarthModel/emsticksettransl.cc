@@ -4,8 +4,6 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "emsticksettransl.h"
 
 #include "emstickset.h"

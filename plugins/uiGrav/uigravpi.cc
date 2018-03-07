@@ -1,10 +1,8 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
+ * AUTHOR   : Bert
  * DATE     : Oct 2003
 -*/
-
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigravhorcalc.h"
 #include "uiodmain.h"

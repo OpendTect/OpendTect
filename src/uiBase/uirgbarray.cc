@@ -2,7 +2,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril & H. Huck
+ Author:        Bert & H. Huck
  Date:          08/09/2006
 ________________________________________________________________________
 

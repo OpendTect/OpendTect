@@ -8,8 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: $";
-
 #include "emseedpicker.h"
 
 #include "emobject.h"

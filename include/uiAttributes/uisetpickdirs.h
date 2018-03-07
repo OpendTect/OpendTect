@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
+ Author:        Bert
  Date:          Dec 2003
 ________________________________________________________________________
 
@@ -30,7 +30,7 @@ namespace Pick { class Set; }
 mExpClass(uiAttributes) uiSetPickDirs : public uiDialog
 { mODTextTranslationClass(uiSetPickDirs);
 public:
-    				uiSetPickDirs(uiParent*,Pick::Set&,
+				uiSetPickDirs(uiParent*,Pick::Set&,
 					      const Attrib::DescSet* a=0,
 					      const NLAModel* n=0,
 					      float vel=0);
@@ -58,7 +58,7 @@ protected:
     void			createSteeringDesc(int,const Attrib::DescID&);
     bool			getNLAIds(TypeSet<Attrib::DescID>&);
     Attrib::DescID		getAttribID(uiAttrSel*,
-	    				    const TypeSet<Attrib::DescID>&);
+					    const TypeSet<Attrib::DescID>&);
 
     float			calcPhi(float,float);
     float			calcTheta(float,float);

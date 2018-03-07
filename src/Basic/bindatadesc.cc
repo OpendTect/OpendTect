@@ -1,6 +1,6 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
+ * AUTHOR   : Bert
  * DATE     : Feb 2001
  * FUNCTION : Binary data descritpion
 -*/

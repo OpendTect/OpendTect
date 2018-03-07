@@ -1,7 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	Tutorial plugin
-# 	Jan 2012	A.H. Bril
+#	Makefile : 	PreStack Viewer
+# 	Jan 2012	Y.C. Liu
 #_______________________________________________________________________________
 
 set( OD_MODULE_DEPS uiODMain )

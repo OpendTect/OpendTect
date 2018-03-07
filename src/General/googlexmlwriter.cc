@@ -1,10 +1,8 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Bert Bril
+ * AUTHOR   : Bert
  * DATE     : Nov 2007
 -*/
-
-static const char* rcsID mUsedVar = "$Id";
 
 #include "googlexmlwriter.h"
 #include "survinfo.h"

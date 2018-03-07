@@ -4,8 +4,6 @@
  * DATE     : May 2000
 -*/
 
-static const char* rcsID mUnusedVar = "$Id$";
-
 #include "prog.h"
 #include "file.h"
 

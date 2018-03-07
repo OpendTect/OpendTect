@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
+ Author:	Bert
  Date:		3-4-1996
  Contents:	Data on any stream
 ________________________________________________________________________

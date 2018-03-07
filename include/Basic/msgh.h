@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
+ Author:	Bert
  Date:		19-10-1995
  Contents:	Error handler
 ________________________________________________________________________

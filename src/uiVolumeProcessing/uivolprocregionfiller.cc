@@ -4,8 +4,6 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id: uivolprocregionfiller.cc 35352 2014-06-23 11:02:01Z bart.degroot@dgbes.com $";
-
 #include "uivolprocregionfiller.h"
 #include "volprocregionfiller.h"
 

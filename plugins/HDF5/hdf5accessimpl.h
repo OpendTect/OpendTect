@@ -35,7 +35,8 @@ protected:
 			AccessImpl(const AccessImpl&)	= delete;
 
     Access&		acc_;
-    static void		doCloseFile(Access&);
+
+    void		doCloseFile(Access&);
 
 };
 

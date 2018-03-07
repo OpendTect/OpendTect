@@ -16,3 +16,15 @@ namespace HDF5
 {
 
 } // namespace HDF5
+
+
+#define mCatchNonHDF(act) \
+    catch ( std::exception& exc ) \
+	{ const char* exc_msg = exc.what(); act; } \
+    catch ( ... ) \
+	{ const char* exc_msg = "Unexpected non-std exception"; act; }
+
+#define mCatchUnexpected(act) \
+    catch ( H5::Exception& exc ) \
+	{ const char* exc_msg = exc.getCDetailMsg(); pErrMsg(exc_msg); act; } \
+    mCatchNonHDF( act )

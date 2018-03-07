@@ -12,6 +12,11 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "arrayndimpl.h"
 
+unsigned szip_options_mask = H5_SZIP_EC_OPTION_MASK; // entropy coding
+		     // nearest neighbour coding: H5_SZIP_NN_OPTION_MASK
+unsigned szip_pixels_per_block = 32;
+		    // can be an even number [2,32]
+
 
 HDF5::WriterImpl::WriterImpl()
     : AccessImpl(*this)
@@ -28,17 +33,17 @@ HDF5::WriterImpl::~WriterImpl()
 
 void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv )
 {
-    try {
+    try
+    {
 	file_ = new H5::H5File( fnm, H5F_ACC_TRUNC );
     }
-    catch ( H5::Exception exc )
+    catch ( H5::Exception& exc )
     {
 	uirv.add( sHDF5Err().addMoreInfo( toUiString(exc.getCDetailMsg()) ) );
     }
-    catch ( ... )
-    {
-	uirv.add( uiStrings::phrErrDuringWrite(fnm) );
-    }
+    mCatchNonHDF(
+	uirv.add( uiStrings::phrErrDuringWrite(fnm)
+		 .addMoreInfo(toUiString(exc_msg)) ) )
 }
 
 
@@ -76,25 +81,35 @@ H5::DataType HDF5::WriterImpl::h5DataTypeFor( ODDataType datarep )
 #define mRetInternalErr() \
     mRetNoFile( uirv.set( uiStrings::phrInternalErr(e_msg) ); return; )
 
-void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& info,
+
+bool HDF5::WriterImpl::ensureGroup( const char* nm )
+{
+    try
+	{ file_->createGroup( nm ); }
+    catch ( ... )
+	{ return false; }
+    return true;
+}
+
+
+void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& iop,
 			       uiRetVal& uirv )
 {
     if ( !file_ )
 	mRetInternalErr()
 
-    uirv.add( mTODONotImplPhrase() );
-}
-
-
-void HDF5::WriterImpl::ensureGroup( const char* nm )
-{
-    try {
-	file_->createGroup( nm );
-    }
-    catch ( ... )
+    try
     {
-	// group already existed I presume
+	ensureGroup( dsky.groupName() );
+	// H5::PropList proplist;
     }
+    catch ( H5::Exception& exc )
+    {
+	uirv.add( sHDF5Err().addMoreInfo( toUiString(exc.getCDetailMsg()) ) );
+    }
+    mCatchNonHDF(
+	uirv.add( uiStrings::phrErrDuringWrite(fileName())
+		 .addMoreInfo(toUiString(exc_msg)) ) )
 }
 
 
@@ -112,27 +127,24 @@ void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
 	chunkdims += chunksz_;
     }
 
-    try {
+    const H5DataType h5dt = h5DataTypeFor( dt );
+    try
+    {
 	H5::DataSpace dataspace( nrdims, dims.arr() );
-
 	H5::DSetCreatPropList proplist;
 	if ( nrdims > 1 )
 	    proplist.setChunk( nrdims, chunkdims.arr() );
-	unsigned szip_options_mask = H5_SZIP_EC_OPTION_MASK;
-	unsigned szip_pixels_per_block = 16;
 	proplist.setSzip( szip_options_mask, szip_pixels_per_block );
-	const H5DataType h5dt = h5DataTypeFor( dt );
 	ensureGroup( dsky.groupName() );
 	H5::DataSet dataset( file_->createDataSet( dsky.fullName(), h5dt,
 					      dataspace, proplist ) );
 	dataset.write( data, h5dt );
     }
-    catch ( H5::Exception exc )
+    catch ( H5::Exception& exc )
     {
 	uirv.add( sHDF5Err().addMoreInfo( toUiString(exc.getCDetailMsg()) ) );
     }
-    catch ( ... )
-    {
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-    }
+    mCatchNonHDF(
+	uirv.add( uiStrings::phrErrDuringWrite(fileName())
+		 .addMoreInfo(toUiString(exc_msg)) ) )
 }

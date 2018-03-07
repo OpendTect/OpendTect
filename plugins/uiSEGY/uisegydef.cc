@@ -2,7 +2,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
+ Author:        Bert
  Date:          Sep 2008
 ________________________________________________________________________
 
@@ -75,7 +75,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
 
     uiString disptxt;
     uiString filetym = needmulti_ ? tr("SEG-Y files") : tr("SEG-Y file");
-    disptxt = forread_ ? uiStrings::phrInput(filetym) : 
+    disptxt = forread_ ? uiStrings::phrInput(filetym) :
 						uiStrings::phrOutput(filetym);
     BufferString defdir( forread_ ? lastreaddir : lastwritedir );
     if ( defdir.isEmpty() ) defdir = GetDataDir();
@@ -315,7 +315,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const uiString& txt,
 	FloatInpSpec fis( val );
 	uiString fldtxt( txt );
 	if ( isz )
-	    fldtxt.appendPhrase(SI().zUnitString(), uiString::Space, 
+	    fldtxt.appendPhrase(SI().zUnitString(), uiString::Space,
 							uiString::OnSameLine);
 	inp = new uiGenInput( grp, fldtxt, fis );
     }

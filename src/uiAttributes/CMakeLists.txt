@@ -1,7 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
 #	Makefile : 	Attribute-related UI
-# 	Jul 2000	A.H. Bril
+# 	Jul 2000	Bert
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiPreStackProcessing Attributes )

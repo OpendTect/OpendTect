@@ -44,7 +44,8 @@ protected:
     virtual void	ptData(const DataSetKey&,const ArrayNDInfo&,
 				   const Byte*,ODDataType,uiRetVal&);
 
-    void		ensureGroup(const char*);
+    bool		ensureGroup(const char*);
+			//!< returns false if group already existed
 
 };
 

@@ -4,9 +4,6 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
-
 #include "expextremedip.h"
 #include "simpnumer.h"
 #include "attribprovider.h"
@@ -21,7 +18,7 @@ ExtremeDipAttrib::ExtremeDipAttrib( Parameters* params )
     , common( 0 )
     , stepout( 1, 1)
     , maxdip( params->maxdip )
-{ 
+{
     params->fillDefStr( desc );
     delete params;
 
@@ -42,7 +39,7 @@ bool ExtremeDipAttrib::init()
     crldist = common->crldist*common->stepoutstep.crl;
 
     return AttribCalc::init();
-} 
+}
 
 
 void ExtremeDipAttrib::Task::set( float t1_, int nrtimes_, float step_,
@@ -58,7 +55,7 @@ void ExtremeDipAttrib::Task::set( float t1_, int nrtimes_, float step_,
 }
 
 AttribCalc::Task* ExtremeDipAttrib::Task::clone() const
-{ 
+{
     return new ExtremeDipAttrib::Task( calculator );
 }
 
@@ -75,10 +72,10 @@ bool ExtremeDipAttrib::Task::Input::set( const BinID& pos,
 	trcs = new Array2DImpl<SeisTrc*>( sz, sz );
 
     for ( int idx=-hsz; idx<=hsz; idx++ )
-    { 
+    {
 	for ( int idy=-hsz; idy<=hsz; idy++ )
 	{
-	    SeisTrc* trc = inputproviders[0]->getTrc( 	pos.inl + idx, 
+	    SeisTrc* trc = inputproviders[0]->getTrc(	pos.inl + idx,
 							pos.crl + idy);
 	    if ( !trc ) return false;
 	    trcs->set( idx + hsz, idy + hsz, trc);
@@ -86,14 +83,14 @@ bool ExtremeDipAttrib::Task::Input::set( const BinID& pos,
     }
 
     attribute = inputproviders[0]->attrib2component( inputattribs[0] );
-    
+
     return true;
 }
 
 
 int ExtremeDipAttrib::Task::nextStep()
 {
-    const ExtremeDipAttrib::Task::Input* inp = 
+    const ExtremeDipAttrib::Task::Input* inp =
 			(const ExtremeDipAttrib::Task::Input*) input;
 
     const int sz = 3;
@@ -151,7 +148,7 @@ int ExtremeDipAttrib::Task::nextStep()
 	float centralmaxpos = maxpositions[1];
 	float previnlmaxpos = maxpositions[0];
 	float nextinlmaxpos = maxpositions[2];
-	    
+
 	int nrinlvals = 0;
 
 	if ( !mIsUndefined( previnlmaxpos ) )
@@ -179,7 +176,7 @@ int ExtremeDipAttrib::Task::nextStep()
 	centralmaxpos = maxpositions[1];
 	float prevcrlmaxpos = maxpositions[0];
 	float nextcrlmaxpos = maxpositions[2];
-	
+
 	int nrcrlvals = 0;
 
 	if ( !mIsUndefined( prevcrlmaxpos ) )
@@ -278,7 +275,7 @@ int ExtremeDipAttrib::Task::nextStep()
 
 
 float ExtremeDipAttrib::Task::getMaxPos( float val1, float val2,
-					     	     float val3 ) const
+						     float val3 ) const
 {
     // y(x) = ax2 + bx + c
     // y'(x) = 0;  =>  2ax + b = 0   => x = -b / 2a;
@@ -302,7 +299,7 @@ float ExtremeDipAttrib::Task::getRealMaxPos( SeisTrc* trc, float curt,
 	float vals0 = trc->getValue( time0, 0 );
 	float vals1 = trc->getValue( time1, 0 );
 	float vals2 = trc->getValue( time2, 0 );
-	if ( (vals1 > vals0 && vals1 > vals2) || 
+	if ( (vals1 > vals0 && vals1 > vals2) ||
 		(vals1 < vals0 && vals1 < vals2) )
 	    return getMaxPos( vals0, vals1, vals2 )+shift;
 	else if ( vals0 < vals1 && vals1 < vals2 )

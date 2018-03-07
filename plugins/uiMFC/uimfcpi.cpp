@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id$";
 
 #include "uimfcdialog.h"
 #include "uimenu.h"
@@ -38,7 +37,7 @@ MnuMgr::MnuMgr( uiODMain& a )
 
 
 void MnuMgr::Mnufnctn( CallBacker* )
-{ 
+{
     initMFCDialog( NULL );
 }
 
@@ -50,11 +49,11 @@ mExternC  int GetuiMFCPluginType()
 
 mExternC PluginInfo* GetuiMFCPluginInfo()
 {
-    static PluginInfo retpi = { 
+    static PluginInfo retpi = {
         "MFC Classes for UI -- Demo",
         "dGB Earth Science -India- (Ranojay)",
         "1.0",
-        "Shows simple MFC Dialog Class built in.\nDeveloper Studio" }; 
+        "Shows simple MFC Dialog Class built in.\nDeveloper Studio" };
     return &retpi;
 }
 

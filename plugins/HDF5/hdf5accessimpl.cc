@@ -64,11 +64,15 @@ const char* HDF5::AccessImpl::gtFileName() const
 
 void HDF5::AccessImpl::doCloseFile( Access& acc )
 {
-    // cannot use non-static fn, acc_ may have been deleted
+    // cannot use acc_ here, it may have been deleted
     if ( acc.file_ )
     {
-	H5Fclose( acc.file_->getId() );
-	delete acc.file_;
+	try
+	{
+	    H5Fclose( acc.file_->getId() );
+	    delete acc.file_;
+	}
+	mCatchUnexpected( (void)0 )
 	acc.file_ = 0;
     }
 }

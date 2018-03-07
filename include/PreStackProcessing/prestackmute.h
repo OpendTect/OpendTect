@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
+ Author:	Bert
  Date:		Nov 2006
 ________________________________________________________________________
 
@@ -33,8 +33,8 @@ public:
 				Processor, Mute,
 				"Mute", toUiString(sFactoryKeyword()))
 
- 			Mute();
-    			~Mute();
+			Mute();
+			~Mute();
 
     bool		prepareWork();
 

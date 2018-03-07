@@ -4,8 +4,6 @@
  * DATE     : Aug 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "uiodmain.h"
 #include "odplugin.h"
 #include "uibouncymgr.h"

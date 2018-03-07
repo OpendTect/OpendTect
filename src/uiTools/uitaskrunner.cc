@@ -2,7 +2,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink/A.H. Bril
+ Author:        A.H. Lammertink/Bert
  Date:          Aug 2000/Oct 2001
 ________________________________________________________________________
 

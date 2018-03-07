@@ -4,8 +4,6 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "odplugin.h"
 
 #include "bouncymod.h"

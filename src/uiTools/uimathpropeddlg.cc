@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimathpropeddlg.h"
 #include "mathexpression.h"
@@ -116,7 +115,7 @@ void uiMathPropEdDlg::insProp( CallBacker* )
 void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Rock Physics",
-		  "Use a rock physics formula", 
+		  "Use a rock physics formula",
                   mODHelpKey(mMathPropEdDlgrockPhysReqHelpID) ) );
     uiRockPhysForm* formgrp = new uiRockPhysForm( &dlg, prop_.ref().stdType() );
     if ( dlg.go() )

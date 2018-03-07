@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
+ Author:	Bert
  Date:		Nov 2006
 ________________________________________________________________________
 
@@ -18,16 +18,16 @@ template <class T> class ValueSeries;
 
 /*!
 \brief Sets start or end part of a float series to 0.
-  
+
   This object measures distance in units of samples.
-  
+
   Taper is cosine taper.
 */
 
 mExpClass(Algo) Muter
 {
 public:
-    			Muter( float taperlen, bool tail=false )
+			Muter( float taperlen, bool tail=false )
 			    : taperlen_(taperlen)
 			    , tail_(tail)		{}
 
@@ -37,7 +37,7 @@ public:
     void		mute(ValueSeries<float>&,int sz,float mutepos) const;
 
 
-    static void 	muteIntervalsPos(const TypeSet< Interval<float> >&,
+    static void	muteIntervalsPos(const TypeSet< Interval<float> >&,
 					TypeSet< Interval<float> >&,
 					const SamplingData<double>&);
     void		muteIntervals(ValueSeries<float>&,int sz,

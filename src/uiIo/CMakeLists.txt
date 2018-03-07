@@ -1,7 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
 #	Makefile : 	uiIo - OpendTect specific tools on top of uiBase/Tools
-# 	Jul 2000	A.H. Bril
+# 	Jul 2000	Bert
 #_______________________________________________________________________________
 
 set( OD_MODULE_DEPS uiTools uiFlatView Geometry )

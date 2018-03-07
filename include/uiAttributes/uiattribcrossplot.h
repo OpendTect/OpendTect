@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
+ Author:        Bert
  Date:          June 2005
 ________________________________________________________________________
 
@@ -44,7 +44,7 @@ public:
 
 protected:
 
-    const Attrib::DescSet& 		ads_;
+    const Attrib::DescSet&		ads_;
     Attrib::SelInfo*			attrinfo_;
     TypeSet<int>			selidxs_;
     DBKeySet			selids_;

@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
+ Author:	Bert
  Date:		Nov 2006
 ________________________________________________________________________
 
@@ -29,8 +29,8 @@ public:
 				mDefaultFactoryInstantiation( Processor, Stack,
 				    "Stack", toUiString(sFactoryKeyword()))
 
- 				Stack();
-    				~Stack();
+				Stack();
+				~Stack();
 
     uiString			errMsg() const		{ return errmsg_; }
 

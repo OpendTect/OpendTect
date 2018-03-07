@@ -1,18 +1,16 @@
-/* $Id$ */
-
 /*
  * Copyright (C) 1999-2006  Brian Paul   All Rights Reserved.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
@@ -38,8 +36,6 @@
 #if defined (WIN32) || defined (_WINDOWS)
 #include "w32glxinfo.c"
 #else
-
-static const char* rcsID mUsedVar = "$Id$";
 
 #define GLX_GLXEXT_PROTOTYPES
 
@@ -100,7 +96,7 @@ struct visual_attribs
    int visualCaveat;
 };
 
-   
+
 /*
  * Print a list of extensions, with word-wrapping.
  */
@@ -443,7 +439,7 @@ print_screen_info(Display *dpy, int scrnum, Bool allowDirect, GLboolean limits)
       int glxVersionMinor;
       char *displayName = NULL;
       char *colon = NULL, *period = NULL;
-      
+
       if (! glXQueryVersion( dpy, & glxVersionMajor, & glxVersionMinor )) {
          fprintf(stderr, "Error: glXQueryVersion failed\n");
          exit(1);
@@ -463,7 +459,7 @@ print_screen_info(Display *dpy, int scrnum, Bool allowDirect, GLboolean limits)
       }
       printf("display: %s  screen: %d\n", displayName, scrnum);
       free(displayName);
-      printf("direct rendering: %s\n", glXIsDirect(dpy, ctx) ? "Yes" 
+      printf("direct rendering: %s\n", glXIsDirect(dpy, ctx) ? "Yes"
 							     : "No" );
       printf("server glx vendor string: %s\n", serverVendor);
       printf("server glx version string: %s\n", serverVersion);
@@ -677,7 +673,7 @@ print_visual_attribs_short(const struct visual_attribs *attribs)
       caveat = "None";
 #else
       caveat = "None";
-#endif 
+#endif
 
    printf("0x%2x %2d %2s %2d %2d %2d %1s %2s %2s %2d %2d %2d %2d %2d %2d %2d",
           attribs->id,

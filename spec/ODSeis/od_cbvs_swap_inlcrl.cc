@@ -1,11 +1,8 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
+ * AUTHOR   : Bert
  * DATE     : 2000
- * RCS      : $Id$
 -*/
-
-static const char* rcsID = "$Id$";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -35,13 +32,13 @@ static int doWork( int argc, char** argv )
     }
 
     File::Path fp( argv[1] );
-    
+
     if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;
         return 1;
     }
-    
+
     if ( !fp.isAbsolute() )
     {
         fp.insert( File::getCurrentPath() );
@@ -56,7 +53,7 @@ static int doWork( int argc, char** argv )
     const CBVSReadMgr& rdmgr = *tri->readMgr();
     const CBVSInfo::SurvGeom& geom = rdmgr.info().geom;
 
-    fp.set( argv[2] ); 
+    fp.set( argv[2] );
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
@@ -66,10 +63,10 @@ static int doWork( int argc, char** argv )
     TextStreamProgressMeter pm( std::cerr );
 
     for ( int linenr = geom.start.crl; linenr <= geom.stop.crl;
-	    linenr += geom.step.crl ) 
+	    linenr += geom.step.crl )
     {
 	for ( int trcnr = geom.start.inl; trcnr <= geom.stop.inl;
-		trcnr += geom.step.inl ) 
+		trcnr += geom.step.inl )
 	{
 	    pm.setNrDone( nrwr );
 	    if ( !tri->goTo(BinID(trcnr,linenr)) )

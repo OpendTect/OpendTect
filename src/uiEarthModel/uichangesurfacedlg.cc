@@ -2,7 +2,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Nanne Hemstra / Bert Bril
+ Author:	Nanne Hemstra / Bert
  Date:		Sep 2005 / Nov 2006
 ________________________________________________________________________
 

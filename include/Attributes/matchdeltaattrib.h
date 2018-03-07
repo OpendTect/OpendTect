@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
+ Author:        Bert
  Date:          Aug 2006
 ________________________________________________________________________
 
@@ -40,7 +40,7 @@ protected:
 
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,const BinID&,
-	    				    int,int,int) const;
+					    int,int,int) const;
     const Interval<int>*	desZSampMargin(int,int) const;
 
     float			maxsamps_;

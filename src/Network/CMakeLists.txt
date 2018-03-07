@@ -1,7 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	Basic utilities
-# 	July 1995	A.H. Bril
+#	Makefile : 	Network utilities
+# 	July 1995	Bert
 #_______________________________________________________________________________
 
 set ( OD_USEQT Network)

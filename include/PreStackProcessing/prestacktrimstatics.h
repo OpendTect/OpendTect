@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
+ Author:	Bert
  Date:		Nov 2006
 ________________________________________________________________________
 
@@ -30,11 +30,11 @@ mExpClass(PreStackProcessing) TrimStatics : public Processor
 { mODTextTranslationClass(TrimStatics)
 public:
 			mDefaultFactoryInstantiation(
-				Processor, TrimStatics, "Trim Statics", 
+				Processor, TrimStatics, "Trim Statics",
 				toUiString(sFactoryKeyword()))
 
- 				TrimStatics();
-    				~TrimStatics();
+				TrimStatics();
+				~TrimStatics();
 
     bool			prepareWork();
 

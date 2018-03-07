@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
+ Author:	Bert
  Date:		May 2005
 ________________________________________________________________________
 
@@ -29,7 +29,7 @@ public:
 
 /*!
 \brief Event in value series.
-  
+
   Template args are: Value Type, Position Type.
   Usually float,float
 */
@@ -75,19 +75,19 @@ public:
     const SamplingData<PT>&	samplingData() const { return sd_; }
 
     ValueSeriesEvent<VT,PT>	find(VSEvent::Type,const Interval<PT>&,
-	    				int occ=1) const;
+					int occ=1) const;
     bool			findEvents(TypeSet<PT>&,Interval<PT>,
-	    				   VSEvent::Type);
+					   VSEvent::Type);
 
     static ValueSeriesEvent<VT,PT> exactExtreme(VSEvent::Type,
-	    				   int idxminus1,int idx0,int idx1,
-	    				   VT vminus1,VT v0,VT v1,
+					   int idxminus1,int idx0,int idx1,
+					   VT vminus1,VT v0,VT v1,
 					   const SamplingData<PT>&);
-    				//!< 2nd order polynome where values
-    				//!< can be separated more than 1 sample
+				//!< 2nd order polynome where values
+				//!< can be separated more than 1 sample
 
     VSEvent::Type		lastFound() const	{ return lastfound_; }
-    				//!< Useful when finding Extr or ZC
+				//!< Useful when finding Extr or ZC
 
 protected:
 
@@ -97,9 +97,9 @@ protected:
     mutable VSEvent::Type	lastfound_;
 
     ValueSeriesEvent<VT,PT>	getZC(const Interval<int>&,int,
-	    				VSEvent::Type) const;
+					VSEvent::Type) const;
     ValueSeriesEvent<VT,PT>	getExtreme(const Interval<int>&,int,
-	    				VSEvent::Type) const;
+					VSEvent::Type) const;
     ValueSeriesEvent<VT,PT>	getGateExtr(const Interval<int>&,bool) const;
 
 };
@@ -108,7 +108,7 @@ protected:
 #undef mIncSampIdx
 #define mIncSampIdx(idx) { \
 	idx += inc; \
-       	if ( idx == sg.stop+inc ) \
+	if ( idx == sg.stop+inc ) \
 	    return ValueSeriesEvent<VT,PT>( 0, mUdf(PT) ); }
 #undef mDecrOccAtZero
 #define mDecrOccAtZero(idx) { \
@@ -164,7 +164,7 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getZC(
 	    if ( occ < 1 )
 	    {
 		lastfound_ = istopos ? VSEvent::ZCNegPos
-		    		     : VSEvent::ZCPosNeg;
+				     : VSEvent::ZCPosNeg;
 		PT pos = idx - inc * (v1 / ( v1 - v0 ));
 		return ValueSeriesEvent<VT,PT>( 0, sd_.start + pos * sd_.step );
 	    }
@@ -180,7 +180,7 @@ template <class VT,class PT>
 inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::exactExtreme(
 			    VSEvent::Type evtype, int idxm1, int idx0, int idx1,
 			    VT vm1, VT v0, VT v1,
-       			    const SamplingData<PT>& sd )
+			    const SamplingData<PT>& sd )
 {
     if ( idxm1 > idx1 )
 	{ Swap( idxm1, idx1 ); Swap( vm1, v1 ); }
@@ -239,7 +239,7 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getGateExtr(
     if ( mIsUdf(v1) ) v1 = v0;
 
     return exactExtreme( needmax ? VSEvent::Max : VSEvent::Min,
-	    		 extridx-1, extridx, extridx+1, vm1, v0, v1, sd_ );
+			 extridx-1, extridx, extridx+1, vm1, v0, v1, sd_ );
 }
 
 
@@ -280,7 +280,7 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getExtreme(
 
 	if ( occ < 1 )
 	    return exactExtreme( evtype, idx0-inc, idx0, idx1,
-		    		 vm1, v0, v1, sd_ );
+				 vm1, v0, v1, sd_ );
 
 	upw0 = upw1; idx0 = idx1; vm1 = v0; v0 = v1;
 	havevm1 = !mIsUdf(v0);
@@ -352,12 +352,12 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
 	    ev = getZC( sg, occ, evtype );
 	    if ( inc < 0 )
 		lastfound_ = lastfound_ == VSEvent::ZCPosNeg
-		    	   ? VSEvent::ZCNegPos : VSEvent::ZCPosNeg;
+			   ? VSEvent::ZCNegPos : VSEvent::ZCPosNeg;
 	}
 	if ( mIsUdf(ev.pos) )
 	    break;
 
-	if ( ( inc > 0 && ev.pos < pg.start ) || 
+	if ( ( inc > 0 && ev.pos < pg.start ) ||
 	     ( inc < 0 && ev.pos > pg.start ) )
 	    occ++;
 	else
@@ -368,7 +368,7 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
 }
 
 
-//  Gives a TypeSet of all the events of a type making sure that there is an 
+//  Gives a TypeSet of all the events of a type making sure that there is an
 //  'opposite'(with phase diff 180deg) event type between any two of them:
 template <class VT,class PT>
 inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,

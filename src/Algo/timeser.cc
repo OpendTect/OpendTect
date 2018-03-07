@@ -1,6 +1,6 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Dave Hale / A.H. Bril
+ * AUTHOR   : Dave Hale / Bert
  * DATE     : 24-3-1996
  * FUNCTION : Time series manipulation
 

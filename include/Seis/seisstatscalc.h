@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
+ Author:	Bert
  Date:		Feb 2004
  RCS:		$Id: seisscanner.h 37589 2014-12-17 09:12:16Z bart.degroot@dgbes.com $
 ________________________________________________________________________

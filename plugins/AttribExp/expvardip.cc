@@ -4,9 +4,6 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
-
 #include "expvardip.h"
 #include "periodicvalue.h"
 #include "attribprovider.h"

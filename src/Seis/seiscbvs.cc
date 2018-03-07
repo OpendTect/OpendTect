@@ -1,6 +1,6 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
+ * AUTHOR   : Bert
  * DATE     : 24-1-2001
  * FUNCTION : CBVS Seismic data translator
 -*/

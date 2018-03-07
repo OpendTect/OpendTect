@@ -1,7 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	ui - Seis
-# 	Jul 2000	A.H. Bril
+#	Makefile : 	ui - System Administrator tools
+# 	Jul 2000	Bert
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiIo )

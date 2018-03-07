@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril & Kris Tingdahl
+ Author:	Bert & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
 ________________________________________________________________________

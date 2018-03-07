@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "gpucalc.h"
 
@@ -39,7 +38,7 @@ public:
 class DeviceData
 {
 public:
-    				~DeviceData()
+				~DeviceData()
 				{
 				    clReleaseCommandQueue( queue_ );
 				}

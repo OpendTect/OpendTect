@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
+ Author:        Bert
  Date:          January 2007
 ________________________________________________________________________
 
@@ -34,14 +34,14 @@ public:
 
     bool			doDisplay() const;
     DBKey			getSelID() const;
-    EM::Horizon3D* 		getHor3D();
+    EM::Horizon3D*		getHor3D();
 
 protected:
 
     bool			acceptOK();
 
-    const EM::Horizon2D& 	hor2d_;
-    EM::Horizon3D* 		hor3d_;
+    const EM::Horizon2D&	hor2d_;
+    EM::Horizon3D*		hor3d_;
     uiEMPartServer*		emserv_;
 
     uiArray2DInterpolSel*	interpolsel_;

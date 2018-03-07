@@ -1,6 +1,6 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : B.Bril & H.Huck
+ * AUTHOR   : Bert & H.Huck
  * DATE     : Jan 2008
 -*/
 

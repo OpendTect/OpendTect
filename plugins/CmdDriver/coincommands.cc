@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "coincommands.h"
 #include "cmdrecorder.h"
@@ -22,20 +21,20 @@ bool WheelCmd::act( const char* parstr )
     mParKeyStrInit( "thumbwheel", parstr, parnext, keys, selnr );
 
     char* parnexxt;
-    const float angle = (float) (strtod( parnext, &parnexxt) * M_PI / 180); 
+    const float angle = (float) (strtod( parnext, &parnexxt) * M_PI / 180);
     if ( parnexxt == parnext )
     {
 	mParseErrStrm << "Turning the wheel requires angle in degrees"
-	    	      << std::endl;
+		      << std::endl;
 	return false;
     }
     mParSteps( parnexxt, partail, nrsteps, 1, 1 );
     mParTail( partail );
-    
+
     mFindObjects( objsfound, uiThumbWheel, keys, nrgrey );
     mParKeyStrPre( "thumbwheel", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiThumbWheel*, uiwheel, objsfound[0] );
-	
+
     const uiMainWin* prevwin = curWin();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
@@ -90,7 +89,7 @@ bool GetWheelCmd::act( const char* parstr )
 
 
 void WheelCmdComposer::init()
-{ 
+{
     oldvalue_ = mUdf(float);
     bursteventnames_.add( "wheelMoved" );
 }
@@ -110,7 +109,7 @@ bool WheelCmdComposer::accept( const CmdRecEvent& ev )
     mDynamicCastGet( const uiThumbWheel*, uiwheel, ev.object_ );
 
     if ( mMatchCI(ev.msg_, "wheelPressed") )
-	oldvalue_ = uiwheel->getValue(); 
+	oldvalue_ = uiwheel->getValue();
     else if ( mMatchCI(ev.msg_, "wheelReleased") )
     {
 	const float newvalue = uiwheel->getValue();

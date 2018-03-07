@@ -3,7 +3,6 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* __rcsID mUsedVar = "$Id$";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 

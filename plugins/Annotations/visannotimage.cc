@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "visannotimage.h"
 
@@ -107,7 +106,7 @@ ImageDisplay::ImageDisplay()
     image_->ref();
     image_->replaceMaterial(true);
     insertChild( childIndex( group_->getInventorNode() ),
-	    	image_->getInventorNode());
+		image_->getInventorNode());
 
     shape_->ref();
     shape_->removeSwitch();
@@ -211,7 +210,7 @@ int ImageDisplay::isMarkerClick(const TypeSet<int>& path) const
 	mDynamicCastGet( Image*, image, group_->getObject(idx) );
 	if ( !image )
 	    continue;
-	
+
 	if ( path.isPresent(group_->getObject(idx)->id()) )
 	    return idx;
     }

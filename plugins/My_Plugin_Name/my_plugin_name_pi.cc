@@ -4,8 +4,6 @@
  * DATE     : Apr 2012
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "my_first_separate_source.h"
 #include "odplugin.h"
 #include <iostream>
@@ -17,9 +15,9 @@ mDefODPluginInfo(My_Plugin_Name)
 	"My plugin",
 	"You!",
 	"My version",
-    	"My description ..."
+	"My description ..."
 	    "\n ... which can span many lines."
-    	    "\nDon't put commas between those lines though ..." };
+	    "\nDon't put commas between those lines though ..." };
     return &retpi;
 }
 

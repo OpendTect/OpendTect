@@ -1,11 +1,9 @@
 
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
+ * AUTHOR   : Bert
  * DATE     : Jan 2009
 -*/
-
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "qtclss.h"
 

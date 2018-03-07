@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "visarrow.h"
 
@@ -104,7 +103,7 @@ visBase::VisualObject* ArrowDisplay::createLocation() const
     pl->unRefNoDelete();
     return pl;
 }
-	
+
 
 void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 {
@@ -137,7 +136,7 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
     const Quaternion minus45rot(planenormal, -M_PI/4 );
     Coord3 arrowheadvec = minus45rot.rotate( displayvector*.3 );
     line->getCoordinates()->setPos( 2, display2World(d0+arrowheadvec) );
-    
+
     arrowheadvec = plus45rot.rotate( displayvector*.3 );
     line->getCoordinates()->setPos( 3, display2World(d0+arrowheadvec) );
 }

@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiarrowdlg.h"
@@ -37,8 +36,8 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     linestylefld_->attach( alignedBelow, typefld_ );
 
     scalefld_ = new uiSliderExtra( this,
-	    		uiSliderExtra::Setup("Scale").nrdec(1).logscale(true),
-	   		"Size" );
+			uiSliderExtra::Setup("Scale").nrdec(1).logscale(true),
+			"Size" );
     scalefld_->sldr()->setMinValue( 0.1 );
     scalefld_->sldr()->setMaxValue( 10 );
     scalefld_->sldr()->setValue( 1 );

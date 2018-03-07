@@ -8,8 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "";
-
 #include "uiimpexpselgrp.h"
 
 #include "uiaxishandler.h"

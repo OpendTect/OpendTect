@@ -8,8 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "madhdr.h"
 #include "od_iostream.h"
 

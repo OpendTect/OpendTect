@@ -8,8 +8,6 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "horflatvieweditor.h"
 
 #include "attribstorprovider.h"

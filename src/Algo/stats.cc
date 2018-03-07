@@ -1,10 +1,8 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Bert Bril
+ * AUTHOR   : Bert
  * DATE     : Sep 2006
 -*/
-
-
 
 #define _CRT_RAND_S
 
@@ -14,9 +12,7 @@
 #include "envvars.h"
 #include "settings.h"
 
-
 Threads::Atomic<int> partsortglobalseed( 0 );
-
 
 mDefineNameSpaceEnumUtils(Stats,Type,"Statistic type")
 {

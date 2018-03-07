@@ -4,8 +4,6 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id: volprocbodyfiller.cc 36479 2014-09-16 13:06:37Z kristofer.tingdahl@dgbes.com $";
-
 #include "volprocregionfiller.h"
 
 #include "emfault.h"

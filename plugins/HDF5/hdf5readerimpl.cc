@@ -30,19 +30,19 @@ void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv )
     if ( !File::exists(fnm) )
 	{ uirv.add( uiStrings::phrCannotOpen( fnm ) ); return; }
 
-    try {
+    try
+    {
 	grpnms_.setEmpty();
 	file_ = new H5::H5File( fnm, H5F_ACC_RDONLY );
 	listDirs( *file_, grpnms_ );
     }
-    catch ( H5::Exception exc )
+    catch ( H5::Exception& exc )
     {
 	uirv.add( sHDF5Err().addMoreInfo( toUiString(exc.getCDetailMsg()) ) );
     }
-    catch ( ... )
-    {
-	uirv.add( uiStrings::phrErrDuringRead( fnm ) );
-    }
+    mCatchNonHDF(
+	uirv.add( uiStrings::phrErrDuringRead(fnm)
+		 .addMoreInfo(toUiString(exc_msg)) ) )
 }
 
 
@@ -55,18 +55,22 @@ void HDF5::ReaderImpl::closeFile()
 
 void HDF5::ReaderImpl::listDirs( const H5Dir& dir, BufferStringSet& nms ) const
 {
-    const int nrgrps = dir.getNumObjs();
-    for ( int idir=0; idir<nrgrps; idir++ )
+    try
     {
-	std::string nm = dir.getObjnameByIdx( idir );
-	nms.add( nm.c_str() );
+	const int nrgrps = dir.getNumObjs();
+	for ( int idir=0; idir<nrgrps; idir++ )
+	{
+	    std::string nm = dir.getObjnameByIdx( idir );
+	    nms.add( nm.c_str() );
 
-	H5::Group grp = dir.openGroup( nm.c_str() );
-	BufferStringSet subnms;
-	listDirs( grp, subnms );
-	for ( int idx=0; idx<subnms.size(); idx++ )
-	    nms.add( BufferString( nm.c_str(), "/", subnms.get(idx) ) );
+	    H5::Group grp = dir.openGroup( nm.c_str() );
+	    BufferStringSet subnms;
+	    listDirs( grp, subnms );
+	    for ( int idx=0; idx<subnms.size(); idx++ )
+		nms.add( BufferString( nm.c_str(), "/", subnms.get(idx) ) );
+	}
     }
+    mCatchUnexpected( return );
 }
 
 

@@ -3,7 +3,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
+ Author:        Bert
  Date:          Sep 2006
 ________________________________________________________________________
 
@@ -18,7 +18,7 @@ namespace Stats
     /* One-dimensional statistical properties of value series */
 enum Type
 {
-    	Count,
+	Count,
 	Average, Median, RMS,
 	StdDev, Variance, NormVariance,
 	Min, Max, Extreme,

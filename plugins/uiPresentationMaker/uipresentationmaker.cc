@@ -8,9 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: $";
-
-
 #include "uipresentationmaker.h"
 
 #include "uibuttongroup.h"

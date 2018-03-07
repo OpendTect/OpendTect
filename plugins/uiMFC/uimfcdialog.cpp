@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id$";
 
 #include "uimfcdialog.h"
 
@@ -18,7 +17,7 @@ bool initMFCDialog( HWND hwnd )
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
     CWnd* parent = CWnd::FromHandle( hwnd );
     uiMFCDialog* dialog = new uiMFCDialog;
-    dialog->Create( IDD_DIALOG1, parent );  
+    dialog->Create( IDD_DIALOG1, parent );
     return dialog->ShowWindow( SW_SHOW );
 }
 

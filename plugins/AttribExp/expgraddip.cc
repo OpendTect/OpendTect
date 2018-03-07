@@ -4,9 +4,6 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
-
 #include "expgraddip.h"
 #include "sorting.h"
 #include "simpnumer.h"
@@ -22,7 +19,7 @@ GradientDipAttrib::GradientDipAttrib( Parameters* params )
     , common( 0 )
     , stepout( params->size/2, params->size/2 )
     , AttribCalc( new GradientDipAttrib::Task( *this ) )
-{ 
+{
     params->fillDefStr( desc );
     delete params;
 
@@ -43,7 +40,7 @@ bool GradientDipAttrib::init()
     crldist = common->crldist*common->stepoutstep.crl;
 
     return AttribCalc::init();
-} 
+}
 
 
 AttribCalc::Task* GradientDipAttrib::Task::clone() const
@@ -75,10 +72,10 @@ bool GradientDipAttrib::Task::Input::set( const BinID& pos,
 	trcs = new Array2DImpl<SeisTrc*>( sz, sz );
 
     for ( int idx=-hsz; idx<=hsz; idx++ )
-    { 
+    {
 	for ( int idy=-hsz; idy<=hsz; idy++ )
 	{
-	    SeisTrc* trc = inputproviders[0]->getTrc( 	pos.inl + idx, 
+	    SeisTrc* trc = inputproviders[0]->getTrc(	pos.inl + idx,
 							pos.crl + idy);
 	    if ( !trc ) return false;
 	    trcs->set( idx + hsz, idy + hsz, trc);
@@ -86,14 +83,14 @@ bool GradientDipAttrib::Task::Input::set( const BinID& pos,
     }
 
     attribute = inputproviders[0]->attrib2component( inputattribs[0] );
-    
+
     return true;
 }
 
 
 int GradientDipAttrib::Task::nextStep()
 {
-    const GradientDipAttrib::Task::Input* inp = 
+    const GradientDipAttrib::Task::Input* inp =
 			(const GradientDipAttrib::Task::Input*) input;
 
     const int sz = calculator.sz;
@@ -126,21 +123,21 @@ int GradientDipAttrib::Task::nextStep()
 	    for ( int idc=0; idc<sz; idc++ )
 	    {
 		float grad;
-	
+
 		SeisTrc* trcp = inp->trcs->get(idi,idc);
 		SeisDataTrc trc( *trcp, attribute );
 		getGradient( timescale, trc, sz,
 			     0, trc.getIndex( curt )- hsz, &grad );
 
 		statvals[idi*sz+idc] = grad;
-	    }	
+	    }
 	}
 
 	sort_idxabl( statvals, sz2 );
 	float timegrad = (sz2 % 2)
 			? statvals[sz2/2]
 			: ((statvals[sz2/2] + statvals[sz2/2+1]) / 2);
-			     
+
 	for ( int idc=0; idc<sz; idc++ )
 	{
 	    for ( int idt=0; idt<sz; idt++ )
@@ -151,20 +148,20 @@ int GradientDipAttrib::Task::nextStep()
 		    SeisDataTrc trc( *trcp, attribute );
 		    vals[idi] = trc[trc.getIndex(curt)+idt-hsz];
 		}
- 
+
 		float grad;
 
 		getGradient( inlscale, vals, sz, 0, 0, &grad );
 
 		statvals[idt*sz+idc] = grad;
-	    }	
+	    }
 	}
 
 	sort_idxabl( statvals, sz2 );
 	float inlgrad = (sz2 % 2)
 			? statvals[sz2/2]
 			: ((statvals[sz2/2] + statvals[sz2/2+1]) / 2);
-			     
+
 	for ( int idi=0; idi<sz; idi++ )
 	{
 	    for ( int idt=0; idt<sz; idt++ )
@@ -175,22 +172,22 @@ int GradientDipAttrib::Task::nextStep()
 		    SeisDataTrc trc( *trcp, attribute );
 		    vals[idc] = trc[trc.getIndex(curt)+idt-hsz];
 		}
- 
+
 		float grad;
 
 		getGradient( crlscale, vals, sz, 0, 0, &grad );
 
 		statvals[idt*sz+idi] = grad;
-	    }	
+	    }
 	}
 
 	sort_idxabl( statvals, sz2 );
 	float crlgrad = (sz2 % 2)
 			? statvals[sz2/2]
 			: ((statvals[sz2/2] + statvals[sz2/2+1]) / 2);
-			    
-	if ( inldips ) inldips[idx] = -inlgrad / timegrad; 
-	if ( crldips ) crldips[idx] = -crlgrad / timegrad; 
+
+	if ( inldips ) inldips[idx] = -inlgrad / timegrad;
+	if ( crldips ) crldips[idx] = -crlgrad / timegrad;
     }
 
     return 0;

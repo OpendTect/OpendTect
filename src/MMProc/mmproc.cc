@@ -1,6 +1,6 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Bert Bril
+ * AUTHOR   : Bert
  * DATE     : Sep 2006
 -*/
 
@@ -11,7 +11,7 @@
 
 const ObjectSet<MMProc::AssetMgr>& MMProc::ASMGRS()
 {
-    mDefineStaticLocalObject( PtrMan<ObjectSet<MMProc::AssetMgr> >, mgrs, 
+    mDefineStaticLocalObject( PtrMan<ObjectSet<MMProc::AssetMgr> >, mgrs,
 			      = new ObjectSet<MMProc::AssetMgr> );
     return *mgrs;
 }
@@ -27,7 +27,7 @@ int MMProc::AssetMgr::add( AssetMgr* am )
 
 ObjectSet<MMProc::ProgSpec>& MMProc::PRSPS()
 {
-    mDefineStaticLocalObject( PtrMan<ObjectSet<MMProc::ProgSpec> >, mgrs, 
+    mDefineStaticLocalObject( PtrMan<ObjectSet<MMProc::ProgSpec> >, mgrs,
 			      = new ObjectSet<MMProc::ProgSpec> );
     return *mgrs;
 }

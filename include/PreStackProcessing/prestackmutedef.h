@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
+ Author:	Bert
  Date:		Nov 2006
 ________________________________________________________________________
 
@@ -44,8 +44,8 @@ public:
     const BinID&			getPos(int idx) const;
 
     void				add(PointBasedMathFunction*,
-	    				    const BinID& pos);
-    					//!<Function becomes mine.
+					    const BinID& pos);
+					//!<Function becomes mine.
     void				remove(int idx);
     float				value(float offs,const BinID&) const;
 					//!< Interpolates between defined
@@ -53,7 +53,7 @@ public:
     void				computeIntervals(float offs,
 					    const BinID&,
 					    TypeSet<Interval<float> >&) const;
-					/*!<Interpolates between 
+					/*!<Interpolates between
 					  defined positions. */
 
     bool				isChanged() const { return ischanged_; }

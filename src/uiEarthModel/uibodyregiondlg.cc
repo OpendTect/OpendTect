@@ -4,8 +4,6 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID mUsedVar = "$Id: uibodyregiondlg.cc 37872 2015-01-15 12:13:45Z bart.degroot@dgbes.com $";
-
 #include "uibodyregiondlg.h"
 
 #include "arrayndimpl.h"
