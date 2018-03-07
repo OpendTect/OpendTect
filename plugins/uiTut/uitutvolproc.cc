@@ -8,10 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitutvolproc.h"
 
-#include "od_helpids.h"
-#include "survinfo.h"
 #include "uigeninput.h"
-#include "uimsg.h"
 #include "uistepoutsel.h"
 
 

@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uitutmod.h"
 
-#include "uivolprocchain.h"
+#include "uivolprocstepdlg.h"
 
 #include "tutvolproc.h"
 
