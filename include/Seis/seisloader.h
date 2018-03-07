@@ -10,6 +10,8 @@ ________________________________________________________________________
 */
 
 #include "seiscommon.h"
+
+#include "atomic.h"
 #include "datachar.h"
 #include "executor.h"
 #include "paralleltask.h"
@@ -67,6 +69,7 @@ protected:
 
     RefMan<RegularSeisDataPack> dp_;
     bool		dpismine_;
+    Threads::Atomic<bool>	arrayfillererror_;
     bool		udftraceswritefinished_;
     IOObj*		ioobj_;
     TrcKeyZSampling	tkzs_;
@@ -88,6 +91,11 @@ protected:
 private:
 
     void		udfTracesWrittenCB(CallBacker*);
+
+public:
+
+    void		arrayFillerCB(CallBacker*);
+
 };
 
 

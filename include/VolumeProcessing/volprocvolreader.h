@@ -43,10 +43,11 @@ private:
     virtual ReportingTask*	createTask();
 
     virtual bool		needsFullVolume() const		{ return false;}
-    virtual bool		canInputAndOutputBeSame() const	{ return true; }
     virtual bool		areSamplesIndependent() const	{ return true; }
     virtual bool		canHandle2D() const		{ return true; }
     virtual bool		needsInput() const		{ return false;}
+    virtual bool		canInputAndOutputBeSame() const
+							{ return needsInput(); }
     virtual int			getNrOutComponents(OutputSlotID,
 						   Pos::GeomID) const;
 

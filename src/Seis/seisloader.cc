@@ -81,7 +81,7 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 
 
 class ArrayFiller : public Task
-{
+{ mODTextTranslationClass(ArrayFiller)
 public:
 ArrayFiller( const RawTrcsSequence& rawseq, const StepInterval<float>& zsamp,
 	     bool samedatachar, bool needresampling,
@@ -89,7 +89,8 @@ ArrayFiller( const RawTrcsSequence& rawseq, const StepInterval<float>& zsamp,
 	     const ObjectSet<Scaler>& compscalers,
 	     const TypeSet<int>& outcomponents,
 	     RegularSeisDataPack& dp, bool is2d )
-    : rawseq_(rawseq)
+    : Task("Datapack Array Filler")
+    , rawseq_(rawseq)
     , zsamp_(zsamp)
     , samedatachar_(samedatachar)
     , needresampling_(needresampling)
@@ -107,10 +108,17 @@ ArrayFiller( const RawTrcsSequence& rawseq, const StepInterval<float>& zsamp,
 }
 
 
+virtual uiString message() const
+{ return msg_; }
+
+
 bool execute()
 {
-    if ( !dp_ )
+    if ( !dp_ || dp_->nrComponents() != outcomponents_.size() )
+    {
+	msg_ = tr("%1 is incorrectly setup").arg( name() );
 	return false;
+    }
 
     for ( int itrc=0; itrc<rawseq_.nrpos_; itrc++ )
     {
@@ -148,7 +156,10 @@ bool doTrace( int itrc )
 	const int idcout = outcomponents_[cidx];
 #ifdef __debug__
 	if ( !dp.validComp(idcout) )
+	{
+	    msg_ = tr("%1 is incorrectly setup").arg( name() );
 	    return false;
+	}
 #endif
 	Array3D<float>& arr = dp.data( idcout );
 	ValueSeries<float>* stor = arr.getStorage();
@@ -226,7 +237,7 @@ bool doTrace( int itrc )
     return true;
 }
 
-protected:
+private:
 
     const RawTrcsSequence&	rawseq_;
     const StepInterval<float>&	zsamp_;
@@ -237,6 +248,7 @@ protected:
     bool			is2d_;
     bool			samedatachar_;
     bool			needresampling_;
+    uiString			msg_;
 };
 
 }; // namespace Seis
@@ -253,6 +265,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
     , line2ddata_(0)
     , trcssampling_(0)
     , queueid_(Threads::WorkManager::cDefaultQueueID())
+    , arrayfillererror_(false)
     , udftraceswritefinished_(true)
 {
     compscalers_.setNullAllowed( true );
@@ -432,6 +445,18 @@ void Seis::Loader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 }
 
 
+void Seis::Loader::arrayFillerCB( CallBacker* cb )
+{
+    const uiString msg = Threads::WorkManager::twm().message( cb );
+    const bool res = msg.isEmpty();
+    if ( res )
+	return;
+
+    arrayfillererror_ = !res;
+    msg_ = msg;
+}
+
+
 void Seis::Loader::udfTracesWrittenCB( CallBacker* )
 {
     udftraceswritefinished_ = true;
@@ -527,6 +552,7 @@ uiString Seis::ParallelFSLoader3D::message() const
 
 bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
 {
+    arrayfillererror_ = false;
     if ( !seissummary_ || !seissummary_->isOK() )
 	{ deleteAndZeroPtr(seissummary_); return false; }
 
@@ -687,6 +713,7 @@ uiString Seis::ParallelFSLoader2D::message() const
 
 bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 {
+    arrayfillererror_ = false;
     if ( !seissummary_ || !seissummary_->isOK() )
 	{ deleteAndZeroPtr(seissummary_); return false; }
 
@@ -853,9 +880,7 @@ bool Seis::SequentialFSLoader::goImpl( od_ostream* strm, bool first, bool last,
 
 bool Seis::SequentialFSLoader::init()
 {
-    if ( initialized_ )
-	return true;
-
+    arrayfillererror_ = false;
     msg_ = tr("Initializing reader");
     const bool is2d = tkzs_.hsamp_.is2D();
     const Pos::GeomID geomid = is2d ? tkzs_.hsamp_.getGeomID() : mUdfGeomID;
@@ -1007,11 +1032,14 @@ bool Seis::SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
 
 int Seis::SequentialFSLoader::nextStep()
 {
-    if ( !init() )
+    if ( !initialized_ && !init() )
 	{ releaseDP(); return ErrorOccurred(); }
 
     if ( nrdone_ == 0 )
 	submitUdfWriterTasks();
+
+    if ( arrayfillererror_ )
+	return ErrorOccurred();
 
     if ( nrdone_ >= totalnr_ )
 	return Finished();
@@ -1052,8 +1080,9 @@ int Seis::SequentialFSLoader::nextStep()
 				  needresampling_, components_, compscalers_,
 				  outcomponents_, *dp_, (*tks)[0].is2D() );
     nrdone_ += rawseq->nrPositions();
+    CallBack finishedcb( mCB(this,Seis::Loader,arrayFillerCB) );
     Threads::WorkManager::twm().addWork(
-		Threads::Work(*task,true), 0, queueid_, false, false, true );
+	Threads::Work(*task,true), &finishedcb, queueid_, false, false, true );
 
     return MoreToDo();
 }
@@ -1144,7 +1173,8 @@ od_int64 Seis::SequentialPSLoader::totalNr() const
 
 uiString Seis::SequentialPSLoader::nrDoneText() const
 {
-    return tr("%1 read", "Traces read(past tense)").arg(uiStrings::sTrace(mPlural));
+    return tr("%1 read", "Traces read(past tense)")
+		.arg(uiStrings::sTrace(mPlural));
 }
 
 

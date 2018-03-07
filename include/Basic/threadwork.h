@@ -12,11 +12,13 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "task.h"
-#include "genc.h"
-#include "objectset.h"
-#include "notify.h"
+
 #include "bufstringset.h"
+#include "genc.h"
+#include "notify.h"
+#include "objectset.h"
+#include "task.h"
+#include "uistring.h"
 
 typedef bool (*StaticTaskFunction)();
 typedef bool (CallBacker::*TaskFunction)();
@@ -35,7 +37,7 @@ singlethread or manual.
 */
 
 mExpClass(Basic) WorkManager : public CallBacker
-{
+{ mODTextTranslationClass(WorkManager)
 public:
 
 				//Interface from outside world
@@ -74,7 +76,7 @@ public:
 					bool firstinline = false);
 				/*!<Will wait for all work to be finished.
 				   \returns true if all Work was completed
-				   	    without error.*/
+					    without error.*/
 
     bool			executeWork( Work*, int sz, int queueid = -1,
 					bool firstinline = false );
@@ -86,7 +88,7 @@ public:
 				    before it had started.*/
 
     const Work*			getWork(CallBacker*) const;
-				/*!<When a work is sumbmitted with a
+				/*!<When a work is submitted with a
 				    callback, the callback is called with a
 				    callbacker. If called from the callback and
 				    the callbacker is non-zero, a pointer to the
@@ -94,13 +96,18 @@ public:
 				    If not possible, a zero pointer will be
 				    returned. */
     bool			getWorkExitStatus(CallBacker*) const;
-				/*!<When a work is sumbmitted with a
+				/*!<When a work is submitted with a
 				    callback, the callback is called with a
 				    callbacker. If called from the callback and
 				    the callbacker is non-zero, the exit status
 				    of the work will be returned. Otherwise
 				    false.
 				*/
+    uiString			message(CallBacker*) const;
+				/*!<When a work is submitted and setup with a
+				    task, returns the task message when not
+				    finished successfully.
+				  */
 
     int				nrThreads() const { return threads_.size(); }
     int				nrFreeThreads() const;
@@ -178,28 +185,33 @@ the work is done, or if there is an error.
 */
 
 mExpClass(Basic) Work
-{
+{ mODTextTranslationClass(Work)
 public:
     inline		Work();
     inline		Work(const CallBack&);
     inline		Work(CallBacker* o,TaskFunction f);
     inline		Work(StaticTaskFunction f);
     inline		Work(Task& t,bool takeover);
+
     bool		operator==(const Work&) const;
 
     inline bool		isOK() const;
-    inline bool	doRun();
+    inline bool		execute();
+    inline uiString	errMsg() const	{ return msg_; }
 
-protected:
+private:
 
-    friend class	WorkThread;
-    friend class	WorkManager;
     void		destroy();
     CallBacker*		obj_;
     CallBackFunction	cbf_;
     TaskFunction	tf_;
     StaticTaskFunction	stf_;
     bool		takeover_;
+
+    uiString		msg_;
+
+    friend class	WorkThread;
+    friend class	WorkManager;
 };
 
 #define mSTFN(clss,fn) ((::TaskFunction)(&clss::fn))
@@ -231,16 +243,25 @@ inline Threads::Work::Work( Task& t, bool takeover )
 
 
 inline bool Threads::Work::isOK() const
-{ return stf_ || (obj_ && (tf_ || cbf_ ) ); }
+{ return stf_ || (obj_ && (tf_ || cbf_) ); }
 
 
-inline bool Threads::Work::doRun()
+inline bool Threads::Work::execute()
 {
-    if ( stf_ )     return stf_();
+    if ( stf_ ) return stf_();
     if ( tf_ )
     {
 	const bool res = (obj_->*tf_)();
+	if ( res )
+	    msg_ = uiString::empty();
+	else
+	{
+	    mDynamicCastGet(Task*,task,obj_)
+	    msg_ = task ? task->message() : uiString::empty();
+	}
+
 	if ( takeover_ ) delete obj_;
+
 	return res;
     }
 
