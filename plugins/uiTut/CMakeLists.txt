@@ -12,6 +12,7 @@ set(OD_MODULE_SOURCES
 	uitutseistools.cc
 	uituthortools.cc
 	uitutorialattrib.cc
+	uitutvolproc.cc
 	uitutwelltools.cc
 	uitutpi.cc)
 SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )

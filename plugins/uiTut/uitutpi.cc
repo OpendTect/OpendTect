@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
 #include "uitutseistools.h"
+#include "uitutvolproc.h"
 #include "uitutwelltools.h"
 
 #include "uihelpview.h"
@@ -172,6 +173,7 @@ mDefODInitPlugin(uiTut)
 
     uiTutorialAttrib::initClass();
     TutHelpProvider::initClass();
+    VolProc::uiTutOpCalculator::initClass();
 
     return 0;
 }
