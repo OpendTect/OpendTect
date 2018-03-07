@@ -21,10 +21,11 @@ public:
 
     virtual void	setChunkSize(int)				= 0;
 
-    uiRetVal		putInfo(const char* grp,const IOPar&);
     uiRetVal		putInfo(const DataSetKey&,const IOPar&);
     uiRetVal		putData(const DataSetKey&,const ArrayNDInfo&,
 				const Byte*,ODDataType);
+
+			//TODO put in stand-alone template fn in separate .h
     uiRetVal		putData(const DataSetKey&,const FloatArrND&);
 
 protected:

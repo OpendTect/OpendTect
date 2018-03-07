@@ -23,6 +23,32 @@ namespace HDF5
 class Reader;
 class Writer;
 
+/*\brief baseclass for reader and writer of HDF5 files.
+
+  Summary.
+
+  HDF5 is a (simple) database in a file. The data model is bloated by many
+  options only interesting for some, we restrict to the following concepts:
+
+  * The main structure is a tree structure of nodes that are called 'Group'.
+  You can see this structure as a file system and it does use names like a
+  UNIX file system. The root group '/' is always there, and it is the 'H5File'
+  itself. Thus, the Group is a 'directory'. Actually, it maps to a class
+  called H5::CommonFG, the base class for H5::H5File and H5::Group.
+
+  * Where 'Group' is like a directory, the files are 'DataSet' objects. Every
+  'DataSet' can be seen as an N-dimensional array of data. The dimensionalities
+  are covered by the 'DataSpace' object, which maps to our ArrayNDInfo.
+  Actually, as you will most likely get/put ArrayND data there, you can
+  see a DataSet as an ArrayND with accompanying properties.
+
+  * Each DataSet can have properties attached, like 'file header values'.
+  These are key-value pairs. The value can be anything - but our interface
+  will only read and write strings. This maps the set of properties to one
+  IOPar.
+
+  */
+
 
 mExpClass(General) Access
 { mODTextTranslationClass(HDF5::Access);

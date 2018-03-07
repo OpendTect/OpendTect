@@ -42,7 +42,7 @@ protected:
     virtual void	openFile(const char*,uiRetVal&);
     virtual void	closeFile();
 
-    void		listDirs(const H5Dir&,BufferStringSet&) const;
+    void		listObjs(const H5Dir&,BufferStringSet&,bool) const;
 
 };
 

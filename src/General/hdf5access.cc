@@ -7,6 +7,7 @@
 #include "hdf5reader.h"
 #include "hdf5writer.h"
 #include "arrayndimpl.h"
+#include "iopar.h"
 #include "uistrings.h"
 
 mImplClassFactory( HDF5::AccessProvider, factory );
@@ -90,18 +91,11 @@ uiString HDF5::Access::sFileNotOpen()
 }
 
 
-uiRetVal HDF5::Writer::putInfo( const char* grpnm, const IOPar& iop )
-{
-    uiRetVal uirv;
-    ptInfo( DataSetKey(grpnm), iop, uirv );
-    return uirv;
-}
-
-
 uiRetVal HDF5::Writer::putInfo( const DataSetKey& dsky, const IOPar& iop )
 {
     uiRetVal uirv;
-    ptInfo( dsky, iop, uirv );
+    if ( !iop.isEmpty() )
+	ptInfo( dsky, iop, uirv );
     return uirv;
 }
 

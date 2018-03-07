@@ -88,6 +88,9 @@ static bool testRead()
     PtrMan<HDF5::Reader> rdr = HDF5::mkReader();
     mRunStandardTest( rdr, "Get Reader" );
 
+    uiRetVal uirv = rdr->open( filename_ );
+    mAddTestResult( "Open file for read" );
+
     BufferStringSet grps;
     rdr->getGroups( grps );
     mRunStandardTestWithError( grps.size()==2, "Nr of groups in file",
