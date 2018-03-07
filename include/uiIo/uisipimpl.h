@@ -20,6 +20,7 @@ mExpClass(uiIo) ui2DSurvInfoProvider : public uiSurvInfoProvider
 public:
 			ui2DSurvInfoProvider()
 			    : xyft_(false)	{}
+			~ui2DSurvInfoProvider()	{}
 
     virtual uiString	usrText() const		{ return tr("Set for 2D only");}
     virtual uiDialog*	dialog(uiParent*,TDInfo);
@@ -38,7 +39,8 @@ protected:
 mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
 { mODTextTranslationClass(uiCopySurveySIP)
 public:
-			uiCopySurveySIP()   {}
+			uiCopySurveySIP()	{}
+			~uiCopySurveySIP()	{}
 
     virtual uiString	usrText() const
 			{ return tr("Copy from other survey"); }
@@ -66,6 +68,7 @@ mExpClass(uiIo) uiSurveyFileSIP : public uiSurvInfoProvider
 { mODTextTranslationClass(uiSurveyFileSIP)
 public:
 			uiSurveyFileSIP();
+			~uiSurveyFileSIP()	{}
 
     virtual uiString	usrText() const;
     virtual uiDialog*	dialog(uiParent*,TDInfo);
