@@ -14,10 +14,11 @@ ________________________________________________________________________
 -*/
 
 #include "tutmod.h"
+
 #include "paralleltask.h"
 #include "trckeyzsampling.h"
 #include "uistring.h"
-#include "volprocchain.h"
+#include "volprocstep.h"
 
 template<class T> class Array3D;
 
@@ -31,31 +32,37 @@ namespace VolProc
 mExpClass(Tut) TutOpCalculator : public Step
 { mODTextTranslationClass(TutOpCalculator);
 public:
-				mDefaultFactoryInstantiation(
+			mDefaultFactoryInstantiation(
 					VolProc::Step, TutOpCalculator,
 					"VolumeProcessingTutorial",
 					tr("Volume Processing Tutorial") )
 
-				TutOpCalculator();
+			TutOpCalculator();
+			~TutOpCalculator();
 
-    bool			needsInput() const	{ return true; }
-    void			setShift( BinID bid )	{ shift_ = bid; }
-    void			setOpType( int type )	{ type_ = type; }
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    static const char*	sKeyTypeIndex()		{ return "Type Index"; }
 
-    TrcKeySampling		getInputHRg(const TrcKeySampling&) const;
+private:
 
-    Task*			createTask();
-    virtual bool		needsFullVolume() const { return false; }
+    virtual bool	needsInput() const	{ return true; }
+    virtual bool	needsFullVolume() const { return false; }
 
-protected:
+    bool		prepareWork();
+    Task*		createTask();
 
-    static const char*		sKeyTypeIndex()		{ return "Type Index"; }
+    void		setStepParameters();
+			//Replaced by virtual functions after 6.2
 
-    BinID			shift_;
-    int				type_;
+    od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const
+			{ return 0; }
+
+    BinID		shift_;
+    int			type_;
+
 };
 
 
@@ -70,7 +77,8 @@ public:
     od_int64			totalNr() const		{ return totalnr_; }
     uiString			uiMessage() const;
 
-protected:
+private:
+
     bool			doWork(od_int64,od_int64,int);
 
     od_int64			nrIterations() const	{ return totalnr_; }

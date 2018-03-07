@@ -8,13 +8,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitutvolproc.h"
 
-#include "survinfo.h"
-#include "uimsg.h"
-#include "tutvolproc.h"
-#include "uigeninput.h"
-#include "uistepoutsel.h"
-#include "uivolprocchain.h"
 #include "od_helpids.h"
+#include "survinfo.h"
+#include "uigeninput.h"
+#include "uimsg.h"
+#include "uistepoutsel.h"
 
 
 static const char* possibleoperations[] =
@@ -32,16 +30,22 @@ uiTutOpCalculator::uiTutOpCalculator( uiParent* p, TutOpCalculator* opcalc )
     , opcalc_( opcalc )
 {
     typefld_ = new uiGenInput( this,
-	    tr("Choose action to execute"),
-	    StringListInpSpec( possibleoperations ) );
-    typefld_->valuechanged.notify( mCB(this,uiTutOpCalculator,typeSel) );
+				tr("Choose action to execute"),
+				StringListInpSpec( possibleoperations ) );
+    mAttachCB( typefld_->valuechanged, uiTutOpCalculator::typeSel );
 
     shiftfld_ = new uiStepOutSel( this, false  );
     shiftfld_->attach( alignedBelow, typefld_ );
 
     addNameFld( shiftfld_ );
 
-    typeSel(0);
+    mAttachCB( postFinalise(), uiTutOpCalculator::typeSel );
+}
+
+
+uiTutOpCalculator::~uiTutOpCalculator()
+{
+    detachAllNotifiers();
 }
 
 
@@ -57,25 +61,28 @@ uiStepDialog* uiTutOpCalculator::createInstance( uiParent* parent, Step* ps,
 
 bool uiTutOpCalculator::acceptOK( CallBacker* cb )
 {
-    if ( !uiStepDialog::acceptOK( cb ) )
+    if ( !uiStepDialog::acceptOK(cb) )
 	return false;
 
-    const FixedString type = typefld_->text();
-    BufferStringSet strs( possibleoperations );
-    const int opidx = strs.indexOf(type);
-    opcalc_->setOpType( opidx>0 ? opidx : 0 );
-
+    const BufferString type( typefld_->text() );
+    const BufferStringSet strs( possibleoperations );
+    const int opidx = strs.indexOf( type );
+    IOPar steppar;
+    steppar.set( TutOpCalculator::sKeyTypeIndex(), opidx>0 ? opidx : 0 );
     if ( opidx == 1 )
-	opcalc_->setShift( shiftfld_->getBinID() );
+    {
+	steppar.set( sKey::StepInl(), shiftfld_->getBinID().inl() );
+	steppar.set( sKey::StepCrl(), shiftfld_->getBinID().crl() );
+    }
 
-    return true;
+    return opcalc_->usePar( steppar );
 }
 
 
 void uiTutOpCalculator::typeSel( CallBacker* )
 {
-    const FixedString type = typefld_->text();
-    BufferStringSet strs( possibleoperations );
+    const BufferString type( typefld_->text() );
+    const BufferStringSet strs( possibleoperations );
     const int opidx = strs.indexOf(type);
     shiftfld_->display( opidx == 1 );
 }

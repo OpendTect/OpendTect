@@ -13,12 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "tutvolproc.h"
 
 #include "arrayndimpl.h"
-#include "flatposdata.h"
-#include "iopar.h"
-#include "paralleltask.h"
 #include "seisdatapack.h"
-
-#include <iostream>
 
 
 #define mTypeSquare		0
@@ -29,7 +24,28 @@ namespace VolProc
 
 TutOpCalculator::TutOpCalculator()
     : Step()
-{}
+{
+    setStepParameters();
+}
+
+
+TutOpCalculator::~TutOpCalculator()
+{
+}
+
+
+void TutOpCalculator::setStepParameters()
+{
+    setHStep( shift_ );
+
+    /* Not required for this specific step:
+
+    setVStep( 0 );		//No vertical stepout required by the algorithm
+    setInpNrComps( 0, 1 );	// The input datapack needs only one component
+    setOutputNrComps( 1 );	// The output datapack needs only one component
+
+    */
+}
 
 
 void TutOpCalculator::fillPar( IOPar& par ) const
@@ -37,49 +53,67 @@ void TutOpCalculator::fillPar( IOPar& par ) const
     Step::fillPar( par );
 
     par.set( sKeyTypeIndex(), type_ );
-    par.set( sKey::StepInl(), shift_.row() );
-    par.set( sKey::StepCrl(), shift_.col() );
+    par.set( sKey::StepInl(), shift_.inl() );
+    par.set( sKey::StepCrl(), shift_.crl() );
 }
 
 
 bool TutOpCalculator::usePar( const IOPar& par )
 {
-    if ( !Step::usePar( par ) )
+    if ( !Step::usePar(par) )
 	return false;
 
-    if ( !par.get( sKeyTypeIndex(), type_ ) )
+    if ( !par.get(sKeyTypeIndex(),type_) )
 	return false;
 
-    if ( type_ == mTypeShift && ( !par.get( sKey::StepInl(), shift_.row() )
-	 			|| !par.get( sKey::StepCrl(), shift_.col() ) ) )
+    if ( type_ == mTypeShift && ( !par.get(sKey::StepInl(),shift_.inl())
+			      ||  !par.get(sKey::StepCrl(),shift_.crl()) ) )
 	return false;
+    else if ( type_ == mTypeSquare )
+	shift_ = BinID( 0, 0 );
+
+    setStepParameters();
 
     return true;
 }
 
 
-TrcKeySampling TutOpCalculator::getInputHRg( const TrcKeySampling& hrg ) const
+bool TutOpCalculator::prepareWork()
 {
-    TrcKeySampling res = hrg;
-    res.start_.inl() = hrg.start_.inl() + res.step_.inl() * shift_.row();
-    res.start_.crl() = hrg.start_.crl() + res.step_.crl() * shift_.col();
-    res.stop_.inl() = hrg.stop_.inl() + res.step_.inl() * shift_.row();
-    res.stop_.crl() = hrg.stop_.crl() + res.step_.crl() * shift_.col();
-    return res;
+    if ( inputs_.isEmpty() )
+	return false;
+
+    const RegularSeisDataPack* inputdatapack = inputs_[0];
+    if ( !inputdatapack || inputdatapack->nrComponents() !=
+			   getNrInputComponents( getInputSlotID(0) ) )
+	return false;
+
+    RegularSeisDataPack* outputdatapack = getOutput( getOutputSlotID(0));
+    if ( !outputdatapack || outputdatapack->nrComponents() !=
+			    getNrOutComponents() )
+	return false;
+    /*All of the implementation above will be in the base class after 6.2,
+      prepareWork will be virtual.
+      */
+
+    outputdatapack->setComponentName( inputdatapack->getComponentName(0) );
+
+    return true;
 }
 
 
 Task* TutOpCalculator::createTask()
 {
-    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    if ( !prepareWork() )
+	return 0;
+
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
-    if ( !input || !output ) return 0;
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
 
     const TrcKeyZSampling tkzsin = input->sampling();
     const TrcKeyZSampling tkzsout = output->sampling();
-    return new TutOpCalculatorTask( input->data(0), tkzsin,
-				    tkzsout, type_, shift_,
-				    output->data(0) );
+    return new TutOpCalculatorTask( input->data(), tkzsin, tkzsout, type_,
+				    shift_, output->data() );
 }
 
 //--------- TutOpCalculatorTask -------------
@@ -90,7 +124,8 @@ TutOpCalculatorTask::TutOpCalculatorTask( const Array3D<float>& input,
 					  const TrcKeyZSampling& tkzsout,
 					  int optype, BinID shift,
 					  Array3D<float>& output )
-    : input_( input )
+    : ParallelTask("Tut VolProc::Step Executor")
+    , input_( input )
     , output_( output )
     , shift_( shift )
     , tkzsin_( tkzsin )
@@ -150,6 +185,5 @@ uiString TutOpCalculatorTask::uiMessage() const
 {
     return tr("Computing Tutorial Operations");
 }
-
 
 }//namespace

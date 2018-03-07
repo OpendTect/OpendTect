@@ -13,7 +13,9 @@ ________________________________________________________________________
 -*/
 
 #include "uitutmod.h"
+
 #include "uivolprocchain.h"
+
 #include "tutvolproc.h"
 
 class uiGenInput;
@@ -22,19 +24,19 @@ class uiStepOutSel;
 namespace VolProc
 {
 
-class TutOpCalculator;
-
 
 mExpClass(uiTut) uiTutOpCalculator : public uiStepDialog
 { mODTextTranslationClass(uiTutOpCalculator);
 public:
-    mDefaultFactoryInstanciationBase(
-	VolProc::TutOpCalculator::sFactoryKeyword(),
-	VolProc::TutOpCalculator::sFactoryDisplayName())
-	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
+	    mDefaultFactoryInstanciationBase(
+		VolProc::TutOpCalculator::sFactoryKeyword(),
+		VolProc::TutOpCalculator::sFactoryDisplayName())
+		mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
+
+				~uiTutOpCalculator();
 
 
-protected:
+private:
 
 				uiTutOpCalculator(uiParent*,TutOpCalculator*);
     static uiStepDialog*	createInstance(uiParent*,Step*,bool);
