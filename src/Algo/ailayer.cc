@@ -813,7 +813,7 @@ bool ElasticModel::getRatioValues( bool vel, bool den, bool svel,
     if ( !getValues(vel,den,svel,*vals) )
 	mRet(return false)
 
-    const int nrcomp = vals->info().getSize( 0 );
+    const int nrcomp = vals->getSize( 0 );
     if ( nrcomp == 0 || !ratiovals.setSize(nrcomp,sz) )
 	mRet(return false)
 
@@ -854,8 +854,8 @@ bool ElasticModel::doBlocking( float relthreshold, bool pvelonly,
     if ( !getRatioValues(true,!pvelonly,!pvelonly,ratiovals,&vals) )
 	return false;
 
-    const int nrcomp = vals.info().getSize( 0 );
-    const int modelsize = vals.info().getSize( 1 );
+    const int nrcomp = vals.getSize( 0 );
+    const int modelsize = vals.getSize( 1 );
 
     TypeSet<Interval<int> > investigationqueue;
     investigationqueue += Interval<int>( 0, modelsize-1 );

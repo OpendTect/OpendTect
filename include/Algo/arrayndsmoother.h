@@ -60,14 +60,14 @@ ArrayNDGentleSmoother<T>::ArrayNDGentleSmoother( const ArrayND<T>& inp,
     : Executor("Data smoother")
     , inp_(inp)
     , out_(out)
-    , nrdims_(inp.info().getNDim())
+    , nrdims_(inp.getNDim())
     , it_(inp.info())
     , nrdone_(0)
 {
     totnr_ = 1;
     for ( int idim=0; idim<nrdims_; idim++ )
     {
-	int dimsz = inp_.info().getSize(idim);
+	int dimsz = inp_.getSize(idim);
 	maxidxs_ += dimsz - 1;
 	totnr_ *= dimsz;
     }

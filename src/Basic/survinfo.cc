@@ -1232,14 +1232,14 @@ void SurveyInfo::saveComments( const char* basedir ) const
 bool SurveyInfo::has2D() const
 {
     mLock4Read();
-    return pol2d3d_ == OD::Only2D || pol2d3d_ == OD::Both2DAnd3D;
+    return ::has2D( pol2d3d_ );
 }
 
 
 bool SurveyInfo::has3D() const
 {
     mLock4Read();
-    return pol2d3d_ == OD::Only3D || pol2d3d_ == OD::Both2DAnd3D;
+    return ::has3D( pol2d3d_ );
 }
 
 

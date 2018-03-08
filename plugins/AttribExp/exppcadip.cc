@@ -277,9 +277,9 @@ int PCADipAttrib::Task::nextStep()
     float inpstep;
     int nrtrcs = 0;
 
-    for ( int idx=0; idx<trcs.info().getSize(0); idx++ )
+    for ( int idx=0; idx<trcs.getSize(0); idx++ )
     {
-	for ( int idy=0; idy<trcs.info().getSize(0); idy++ )
+	for ( int idy=0; idy<trcs.getSize(0); idy++ )
 	{
 	    if ( trcs.get(idx,idy) )
 	    {

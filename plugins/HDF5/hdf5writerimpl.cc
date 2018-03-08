@@ -138,7 +138,7 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& iop,
 
 
 void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
-			       const Byte* data, ODDataType dt, uiRetVal& uirv )
+			       const void* data, ODDataType dt, uiRetVal& uirv )
 {
     if ( !file_ )
 	mRetInternalErr()

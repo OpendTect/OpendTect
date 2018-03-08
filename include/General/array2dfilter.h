@@ -143,8 +143,8 @@ Array2DFilterer<T>::Array2DFilterer( Array2D<T>& a, const Array2DFilterPars& p )
     , pars_(p)
     , output_(a)
     , calc_(0)
-    , inputrowsize_(a.info().getSize(0))
-    , inputcolsize_(a.info().getSize(1))
+    , inputrowsize_(a.getSize(0))
+    , inputcolsize_(a.getSize(1))
     , nrcols_(2 * p.stepout_.col() + 1)
     , nrrowsdone_(0)
     , origin_( 0, 0 )
@@ -167,17 +167,17 @@ Array2DFilterer<T>::Array2DFilterer( const Array2D<T>& input, Array2D<T>& a,
     , pars_(p)
     , output_(a)
     , calc_(0)
-    , inputrowsize_(input.info().getSize(0))
-    , inputcolsize_(input.info().getSize(1))
+    , inputrowsize_(input.getSize(0))
+    , inputcolsize_(input.getSize(1))
     , nrcols_(2 * p.stepout_.col() + 1)
     , nrrowsdone_(0)
     , origin_( origin )
 {
     outputrowrg_.start = origin.row();
-    outputrowrg_.stop = origin.row()+a.info().getSize(0)-1;
+    outputrowrg_.stop = origin.row()+a.getSize(0)-1;
 
     outputcolrg_.start = origin.col();
-    outputcolrg_.stop = origin.col()+a.info().getSize(1)-1;
+    outputcolrg_.stop = origin.col()+a.getSize(1)-1;
 
     Stats::CalcSetup setup( !mIsUdf(pars_.rowdist_) );
     setup.require( pars_.type_ );

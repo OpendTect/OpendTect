@@ -67,7 +67,7 @@ public:
 				const ArrayOperExecSetup& setup )
 		    : xarr_(xvals)
 		    , yarr_(0)
-		    , sz_(xvals.info().getTotalSz())
+		    , sz_(xvals.info().totalSize())
 		    , noudf_(noudf)
 		    , xshift_(mUdf(SumType))
 		    , yshift_(mUdf(SumType))
@@ -111,7 +111,7 @@ private:
 
     bool	doPrepare( int nrthreads )
 		{
-		    if ( yarr_ && yarr_->info().getTotalSz() != sz_ )
+		    if ( yarr_ && yarr_->info().totalSize() != sz_ )
 			return false;
 
 		    cumsum_ = (SumType)0;
@@ -265,7 +265,7 @@ public:
 		    : xarr_(xvals)
 		    , yarr_(yvals)
 		    , outarr_(outvals)
-		    , sz_(xvals.info().getTotalSz())
+		    , sz_(xvals.info().totalSize())
 		    , noudf_(noudf)
 		    , xfact_(mUdf(OperType))
 		    , yfact_(mUdf(OperType))
@@ -294,10 +294,10 @@ private:
 
     bool	doPrepare( int )
 		{
-		    if ( outarr_.info().getTotalSz() != sz_ )
+		    if ( outarr_.info().totalSize() != sz_ )
 			return false;
 
-		    if ( yarr_ && yarr_->info().getTotalSz() != sz_ )
+		    if ( yarr_ && yarr_->info().totalSize() != sz_ )
 			return false;
 
 		    return true;
@@ -689,7 +689,7 @@ inline bool getInterceptGradient( const ArrayND<ArrType>& iny,
     const ArrayND<ArrType>* inx = hasxvals ? inx_ : 0;
     if ( !hasxvals )
     {
-	const od_uint64 sz = iny.info().getTotalSz();
+	const od_uint64 sz = iny.info().totalSize();
 	Array1DImpl<ArrType>* inxtmp = new Array1DImpl<ArrType>( mCast(int,sz));
 	if ( !inxtmp->isOK() )
 	    { delete inxtmp; return false; }
@@ -735,7 +735,7 @@ inline bool getInterceptGradient( const ArrayND<ArrType>& iny,
 template <class ArrType,class OperType>
 inline bool removeTrend( const ArrayND<ArrType>& in, ArrayND<ArrType>& out )
 {
-    const od_uint64 sz = in.info().getTotalSz();
+    const od_uint64 sz = in.info().totalSize();
     Array1DImpl<ArrType> trendx( mCast(int,sz) );
     if ( !trendx.isOK() )
 	return false;
@@ -776,7 +776,7 @@ template <class fT>
 inline bool hasUndefs( const ArrayND<fT>& in )
 {
     const fT* vals = in.getData();
-    const od_uint64 sz = in.info().getTotalSz();
+    const od_uint64 sz = in.info().totalSize();
     if ( vals )
     {
 	for ( od_uint64 idx=0; idx<sz; idx++ )
@@ -831,7 +831,7 @@ inline bool interpUdf( Array1D<fT>& in,
 	return false;
 
     BendPointBasedMathFunction<fT,fT> data( ipoltyp );
-    const int sz = in.info().getSize(0);
+    const int sz = in.getSize(0);
     for ( int idx=0; idx<sz; idx++ )
     {
 	const fT val = in.get( idx );
@@ -893,7 +893,7 @@ public:
 	if ( out_ && in->info() != out_->info() ) return false;
 	if ( in->info() != size_ ) return false;
 
-	const od_int64 totalsz = size_.getTotalSz();
+	const od_int64 totalsz = size_.totalSize();
 
 	Type* indata = in->getData();
 	Type* outdata = out->getData();
@@ -1371,14 +1371,14 @@ private:
 
     bool	doPrepare( int )
 		{
-		    if ( in_.info().getSize(0) != tksin_.nrLines() ||
-			 in_.info().getSize(1) != tksin_.nrTrcs() )
+		    if ( in_.getSize(0) != tksin_.nrLines() ||
+			 in_.getSize(1) != tksin_.nrTrcs() )
 		    {
 			return false;
 		    }
 
-		    if ( out_.info().getSize(0) != tksout_.nrLines() ||
-			 out_.info().getSize(1) != tksout_.nrTrcs() )
+		    if ( out_.getSize(0) != tksout_.nrLines() ||
+			 out_.getSize(1) != tksout_.nrTrcs() )
 		    {
 			mDynamicCastGet(Array2DImpl<T>*,outimpl,&out_)
 			if ( !outimpl || !outimpl->setSize( tksout_.nrLines(),
@@ -1734,7 +1734,7 @@ public:
 		    , undefidxs_(undefidxs)
 		    , tks_(0)
 		    , trcssampling_(0)
-		    , totalnr_(inp.info().getTotalSz()/inp.info().getSize(1))
+		    , totalnr_(inp.totalSize()/inp.getSize(1))
 		{}
 
 		ArrayUdfValReplacer( Array3D<T>& inp,
@@ -1745,7 +1745,7 @@ public:
 		    , undefidxs_(undefidxs)
 		    , tks_(0)
 		    , trcssampling_(0)
-		    , totalnr_(inp.info().getTotalSz()/inp.info().getSize(2))
+		    , totalnr_(inp.totalSize()/inp.getSize(2))
 		{}
 
     uiString	message() const
@@ -1913,7 +1913,7 @@ private:
 		{
 		    T* outpptr = outp_.getData();
 		    ValueSeries<T>* outpstor = outp_.getStorage();
-		    mDeclareAndTryAlloc(int*,pos,int[outp_.info().getNDim()])
+		    mDeclareAndTryAlloc(int*,pos,int[outp_.getNDim()])
 		    if ( !pos )
 			    return false;
 
@@ -1960,7 +1960,7 @@ public:
 		    , outp_(outp)
 		    , totalnr_(trcssampling.totalSizeInside(tks) ==
 			       mCast(int,tks.totalNr()) ? 0 :
-			       outp.info().getTotalSz()/outp.info().getSize(2))
+			       outp.totalSize()/outp.getSize(2))
 		{}
 
     uiString	message() const { return tr("Restoring undefined values"); }
@@ -2052,8 +2052,8 @@ public:
 		    , tailmute_(tailmute)
 		    , tks_(0)
 		    , trcssampling_(0)
-		    , totalnr_(data.info().getTotalSz()/
-			       data.info().getSize(data.get1DDim()))
+		    , totalnr_(data.totalSize()/
+			       data.getSize(data.get1DDim()))
 		{}
 
     uiString	message() const
@@ -2085,8 +2085,7 @@ private:
 			return false;
 
 		    topmute_.setAll( 0 );
-		    const int nrz =
-				mCast(int,data_.info().getTotalSz()/totalnr_);
+		    const int nrz = mCast(int,data_.totalSize()/totalnr_);
 		    tailmute_.setAll( nrz-1 );
 
 		    return true;

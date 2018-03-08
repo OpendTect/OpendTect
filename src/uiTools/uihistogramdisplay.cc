@@ -151,20 +151,18 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 	{ rc_.setEmpty(); return; }
 
     if ( array->getData() )
-    {
-	setData( array->getData(), array->info().getTotalSz() );
-	return;
-    }
+	{ setData( array->getData(), array->totalSize() ); return; }
 
-    const int sz2d0 = array->info().getSize( 0 );
-    const int sz2d1 = array->info().getSize( 1 );
+    const int sz2d0 = array->getSize( 0 );
+    const int sz2d1 = array->getSize( 1 );
     TypeSet<float> valarr;
     for ( int idx0=0; idx0<sz2d0; idx0++ )
     {
 	for ( int idx1=0; idx1<sz2d1; idx1++ )
 	{
 	    const float val = array->get( idx0, idx1 );
-	    if ( mIsUdf(val) ) continue;
+	    if ( mIsUdf(val) )
+		continue;
 
 	    valarr += val;
 	}
@@ -180,14 +178,11 @@ void uiHistogramDisplay::setData( const Array3D<float>* array )
 	{ rc_.setEmpty(); return; }
 
     if ( array->getData() )
-    {
-	setData( array->getData(), array->info().getTotalSz() );
-	return;
-    }
+	{ setData( array->getData(), array->totalSize() ); return; }
 
-    const int sz0 = array->info().getSize( 0 );
-    const int sz1 = array->info().getSize( 1 );
-    const int sz2 = array->info().getSize( 2 );
+    const int sz0 = array->getSize( 0 );
+    const int sz1 = array->getSize( 1 );
+    const int sz2 = array->getSize( 2 );
     TypeSet<float> valarr;
     for ( int idx0=0; idx0<sz0; idx0++ )
 	for ( int idx1=0; idx1<sz1; idx1++ )

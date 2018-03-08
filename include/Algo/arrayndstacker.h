@@ -35,7 +35,7 @@ public:
 		    , normalize_(false)
 		{
 		    if ( !inp.isEmpty() && inp[0] )
-			totalnr_ = inp[0]->info().getTotalSz();
+			totalnr_ = inp[0]->totalSize();
 		}
 
     bool	doPrepare( int nrthreads )
@@ -48,8 +48,8 @@ public:
 			if ( !inp_[iarr] )
 			    continue;
 
-			if ( inp_[iarr]->info().getTotalSz() > totalnr_ )
-			    totalnr_ = inp_[iarr]->info().getTotalSz();
+			if ( inp_[iarr]->totalSize() > totalnr_ )
+			    totalnr_ = inp_[iarr]->totalSize();
 		    }
 
 		    out_.setSize( totalnr_ );
@@ -75,7 +75,7 @@ public:
 			    if ( !inp_[iarr] ) continue;
 			    const fT* inparr = inp_[iarr]->getData();
 			    if ( !inparr ||
-				 idx >= inp_[iarr]->info().getTotalSz() )
+				 idx >= inp_[iarr]->totalSize() )
 			       continue;
 
 			    const fT val = inparr[idx];

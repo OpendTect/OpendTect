@@ -194,8 +194,8 @@ bool Array2DInterpol::setArray( Array2D<float>& arr, const TaskRunnerProvider& )
 {
     arr_ = &arr;
     arrsetter_ = 0;
-    nrrows_ = arr.info().getSize(0);
-    nrcols_ = arr.info().getSize(1);
+    nrrows_ = arr.getSize(0);
+    nrcols_ = arr.getSize(1);
     nrcells_ = nrrows_*nrcols_;
 
     return true;
@@ -425,8 +425,8 @@ void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
     if ( !mask_ )
 	return;
 
-    if ( mask_->info().getSize(0)==nrrows_ &&
-	 mask_->info().getSize(1)==nrcols_ &&
+    if ( mask_->getSize(0)==nrrows_ &&
+	 mask_->getSize(1)==nrcols_ &&
 	 (mask_->getData() || mask_->getStorage() ) )
     {
 	const bool* maskptr = mask_->getData();
@@ -450,8 +450,8 @@ void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
     }
     else
     {
-	const int masknrrows = mMIN(nrrows_,mask_->info().getSize(0) );
-	const int masknrcols = mMIN(nrcols_,mask_->info().getSize(1) );
+	const int masknrrows = mMIN(nrrows_,mask_->getSize(0) );
+	const int masknrcols = mMIN(nrcols_,mask_->getSize(1) );
 	for ( int irow=0; irow<masknrrows; irow++ )
 	{
 	    int offset = irow * nrcols_;

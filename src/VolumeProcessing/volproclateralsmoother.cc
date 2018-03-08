@@ -178,8 +178,8 @@ bool processKernel( int start, int stop, int thread )
 
     const int kernelorigin0 = (i0samples_.stop+i0samples_.start-ksz0)/2;
     const int kernelorigin1 = (i1samples_.stop+i1samples_.start-ksz1)/2;
-    const int lastinput0 = input_.info().getSize(0)-1;
-    const int lastinput1 = input_.info().getSize(1)-1;
+    const int lastinput0 = input_.getSize(0)-1;
+    const int lastinput1 = input_.getSize(1)-1;
     const int outputsz0 = i0samples_.width()+1;
     const int outputsz1 = i1samples_.width()+1;
 
@@ -254,8 +254,7 @@ bool processKernel( int start, int stop, int thread )
 		    val = fixedval_;
 		}
 
-		for ( int idx=mCast(int,slice.info().getTotalSz()-1); idx>=0;
-									idx-- )
+		for ( int idx=mCast(int,slice.totalSize()-1); idx>=0; idx-- )
 		{
 		    if ( wasudfptr[idx] )
 			sliceptr[idx] = val;

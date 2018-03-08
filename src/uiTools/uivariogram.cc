@@ -184,8 +184,8 @@ void uiVariogramDisplay::draw()
 {
     float maxdataval = 0;
     float maxdatavalcomp1 = 0;
-    const int nrcomp = data_->info().getSize(0);
-    const int size = data_->info().getSize(1);
+    const int nrcomp = data_->getSize(0);
+    const int size = data_->getSize(1);
     for ( int icomp=0; icomp<nrcomp; icomp++ )
     {
 	for ( int ilag=0; ilag<size; ilag++ )
@@ -217,7 +217,7 @@ void uiVariogramDisplay::draw()
 
 void uiVariogramDisplay::labelChangedCB( CallBacker* c )
 {
-    const int size = axes_->info().getSize(1);
+    const int size = axes_->getSize(1);
     const int curcomp = labelfld_->getIntValue();
     int nbpts = 0;
     TypeSet<float> xaxisvals;
@@ -238,7 +238,7 @@ void uiVariogramDisplay::labelChangedCB( CallBacker* c )
 void uiVariogramDisplay::fieldChangedCB( CallBacker* c )
 {
     const float nugget = 0;
-    const int size = axes_->info().getSize(1);
+    const int size = axes_->getSize(1);
     Array1DImpl<float> xaxisvals(size);
     Array1DImpl<float> yaxisvals(size);
 

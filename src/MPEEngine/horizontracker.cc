@@ -38,7 +38,7 @@ public:
     int bestIdx() const { return bestidx_; }
 
     od_int64 nrIterations() const
-    { return (od_int64) arr_.info().getTotalSz(); }
+    { return (od_int64) arr_.totalSize(); }
 
     bool doWork( od_int64, od_int64, int )
     {

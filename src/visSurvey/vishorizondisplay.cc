@@ -2187,7 +2187,7 @@ void HorizonDisplay::selectChildren()
 
     const TrcKeySampling tks = hor3d->getTrackingSampling();
     TypeSet<int> pidxs;
-    for ( od_int64 gidx=0; gidx<children->info().getTotalSz(); gidx++ )
+    for ( od_int64 gidx=0; gidx<children->totalSize(); gidx++ )
     {
 	if ( children->getData()[gidx] == '0' )
 	    continue;
@@ -2265,7 +2265,7 @@ void HorizonDisplay::calculateLockedPoints()
 
     const TrcKeySampling tks = hor3d->getTrackingSampling();
     TypeSet<int> pidxs;
-    for ( od_int64 gidx=0; gidx<lockednodes->info().getTotalSz(); gidx++ )
+    for ( od_int64 gidx=0; gidx<lockednodes->totalSize(); gidx++ )
     {
 	if ( lockednodes->getData()[gidx] == '0' )
 	    continue;

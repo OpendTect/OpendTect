@@ -36,7 +36,7 @@ BodyVolumeCalculator::BodyVolumeCalculator( const TrcKeyZSampling& cs,
 
 
 od_int64 BodyVolumeCalculator::nrIterations() const
-{ return arr_.info().getSize(2)-1; }
+{ return arr_.getSize(2)-1; }
 
 
 uiString BodyVolumeCalculator::message() const
@@ -52,8 +52,8 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
     if ( mIsUdf(unitvol_) || mIsUdf(threshold_) )
 	return 0;
 
-    const int inlsz = arr_.info().getSize(0);
-    const int crlsz = arr_.info().getSize(1);
+    const int inlsz = arr_.getSize(0);
+    const int crlsz = arr_.getSize(1);
 
     float nrunits = 0;
     for ( int idx=0; idx<inlsz-1; idx++ )

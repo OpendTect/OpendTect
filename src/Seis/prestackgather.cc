@@ -481,7 +481,7 @@ void GatherSetDataPack::fill( Array2D<float>& inp, int offsetidx ) const
     for ( int idx=0; idx<gathers_.size(); idx++ )
     {
 	const Array2D<float>& data = gathers_[idx]->data();
-	for ( int idz=0; idz<data.info().getSize(0); idz++ )
+	for ( int idz=0; idz<data.getSize(0); idz++ )
 	    inp.set( idx, idz, data.get( offsetidx, idz ) );
     }
 }

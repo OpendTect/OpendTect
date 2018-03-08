@@ -211,7 +211,7 @@ bool FFTFilter::setTimeTaperWindow( int sz, BufferString wintype, float var )
 
 bool FFTFilter::apply( Array1DImpl<float_complex>& outp, bool dopreproc )
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     if ( !sz || !fft_ )
 	return false;
 
@@ -279,7 +279,7 @@ bool FFTFilter::apply( Array1DImpl<float_complex>& outp, bool dopreproc )
 
 bool FFTFilter::apply( Array1DImpl<float>& outp )
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     if ( !sz )
 	return false;
 
@@ -347,7 +347,7 @@ bool FFTFilter::isHighPass() const
 
 bool FFTFilter::interpUdf( Array1DImpl<float>& outp, bool isimag )
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     if ( !sz )
 	return false;
 
@@ -386,7 +386,7 @@ bool FFTFilter::interpUdf( Array1DImpl<float>& outp, bool isimag )
 
 bool FFTFilter::interpUdf( Array1DImpl<float_complex>& outp )
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     if ( !sz )
 	return false;
 
@@ -416,7 +416,7 @@ bool FFTFilter::interpUdf( Array1DImpl<float_complex>& outp )
 
 void FFTFilter::restoreUdf( Array1DImpl<float>& outp, bool isimag ) const
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     const BoolTypeSet& isudf = isimag ? isudfimag_ : isudfreal_;
     if ( !sz || (isudf.size() != sz) )
 	return;
@@ -430,7 +430,7 @@ void FFTFilter::restoreUdf( Array1DImpl<float>& outp, bool isimag ) const
 
 void FFTFilter::restoreUdf( Array1DImpl<float_complex>& outp ) const
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     if ( !sz || (isudfreal_.size() != sz) || (isudfimag_.size() != sz) )
 	return;
 
@@ -452,7 +452,7 @@ void FFTFilter::restoreUdf( Array1DImpl<float_complex>& outp ) const
 
 bool FFTFilter::deTrend( Array1DImpl<float>& outp, bool isimag )
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     if ( !sz )
 	return false;
 
@@ -495,7 +495,7 @@ bool FFTFilter::deTrend( Array1DImpl<float>& outp, bool isimag )
 
 bool FFTFilter::deTrend( Array1DImpl<float_complex>& outp )
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     if ( !sz )
 	return false;
 
@@ -519,12 +519,12 @@ bool FFTFilter::deTrend( Array1DImpl<float_complex>& outp )
 
 bool FFTFilter::restoreTrend( Array1DImpl<float>& outp, bool isimag ) const
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     const Array1DImpl<float>* trend = isimag ? trendimag_ : trendreal_;
     if ( !sz || !trend )
 	return false;
 
-    if ( trend->info().getSize(0) != sz )
+    if ( trend->getSize(0) != sz )
 	return false;
 
     for ( int idx=0; idx<sz; idx++ )
@@ -541,7 +541,7 @@ bool FFTFilter::restoreTrend( Array1DImpl<float>& outp, bool isimag ) const
 
 bool FFTFilter::restoreTrend( Array1DImpl<float_complex>& outp ) const
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     if ( !sz )
 	return true;
 
@@ -566,7 +566,7 @@ bool FFTFilter::restoreTrend( Array1DImpl<float_complex>& outp ) const
 void FFTFilter::reSize( const Array1DImpl<float_complex>& inp,
 			Array1DImpl<float_complex>& outp ) const
 {
-    const int sz = inp.info().getSize(0);
+    const int sz = inp.getSize(0);
     const int shift = mNINT32((float) sz/2) - mNINT32((float) sz_/2);
     for ( int idx=0; idx<sz_; idx++ )
     {
@@ -580,7 +580,7 @@ void FFTFilter::reSize( const Array1DImpl<float_complex>& inp,
 void FFTFilter::reSize( const Array1DImpl<float>& inp,
 			Array1DImpl<float>& outp ) const
 {
-    const int sz = inp.info().getSize(0);
+    const int sz = inp.getSize(0);
     const int shift = mNINT32((float) sz/2) - mNINT32((float) sz_/2);
     for ( int idx=0; idx<sz_; idx++ )
     {
@@ -594,7 +594,7 @@ void FFTFilter::reSize( const Array1DImpl<float>& inp,
 void FFTFilter::restoreSize( const Array1DImpl<float_complex>& inp,
 			     Array1DImpl<float_complex>& outp ) const
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     const int shift = mNINT32((float) sz_/2) - mNINT32((float) sz/2);
     for ( int idx=0; idx<sz; idx++ )
 	outp.set( idx, inp.get( idx + shift ) );
@@ -604,7 +604,7 @@ void FFTFilter::restoreSize( const Array1DImpl<float_complex>& inp,
 void FFTFilter::restoreSize( const Array1DImpl<float>& inp,
 			     Array1DImpl<float>& outp ) const
 {
-    const int sz = outp.info().getSize(0);
+    const int sz = outp.getSize(0);
     const int shift = mNINT32((float) sz_/2) - mNINT32((float) sz/2);
     for ( int idx=0; idx<sz; idx++ )
 	outp.set( idx, inp.get( idx + shift ) );

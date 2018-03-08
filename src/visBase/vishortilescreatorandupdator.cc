@@ -50,8 +50,8 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
     horsection_->tesselationlock_ = true;
     updateTileArray( rrg, crg );
 
-    const int nrrowsz = horsection_->tiles_.info().getSize(0);
-    const int nrcolsz = horsection_->tiles_.info().getSize(1);
+    const int nrrowsz = horsection_->tiles_.getSize(0);
+    const int nrcolsz = horsection_->tiles_.getSize(1);
 
     ObjectSet<HorizonSectionTile> oldupdatetiles;
     TypeSet<RowCol> fullupdatetiles;
@@ -195,8 +195,8 @@ void HorTilesCreatorAndUpdator::updateTileArray( const StepInterval<int>& rrg,
 {
     const int rowsteps = horsection_->tilesidesize_ * rrg.step;
     const int colsteps = horsection_->tilesidesize_ * crg.step;
-    const int oldrowsize = horsection_->tiles_.info().getSize(0);
-    const int oldcolsize = horsection_->tiles_.info().getSize(1);
+    const int oldrowsize = horsection_->tiles_.getSize(0);
+    const int oldcolsize = horsection_->tiles_.getSize(1);
     int newrowsize = oldrowsize;
     int newcolsize = oldcolsize;
     int nrnewrowsbefore = 0;
@@ -277,7 +277,7 @@ void HorTilesCreatorAndUpdator::setNeighbors( HorizonSectionTile* tile,
     for ( int rowidx=-1; rowidx<=1; rowidx++ )
     {
 	const int neighborrow = tilerowidx+rowidx;
-	if (neighborrow<0 || neighborrow>=horsection_->tiles_.info().getSize(0))
+	if (neighborrow<0 || neighborrow>=horsection_->tiles_.getSize(0))
 	    continue;
 
 	for ( int colidx=-1; colidx<=1; colidx++ )
@@ -287,7 +287,7 @@ void HorTilesCreatorAndUpdator::setNeighbors( HorizonSectionTile* tile,
 
 	    const int neighborcol = tilecolidx+colidx;
 	    if ( neighborcol<0 ||
-		 neighborcol>=horsection_->tiles_.info().getSize(1) )
+		 neighborcol>=horsection_->tiles_.getSize(1) )
 		continue;
 	    HorizonSectionTile* neighbor =
 		horsection_->tiles_.get(neighborrow,neighborcol);
@@ -403,7 +403,7 @@ void HorTilesCreatorAndUpdator::updateTilesAutoResolution(
 				    horsection_->desiredresolution_ );
     task.execute();
 
-    const int tilesz = horsection_->tiles_.info().getTotalSz();
+    const int tilesz = horsection_->tiles_.totalSize();
     if ( !tilesz ) return;
 
     HorizonSectionTile** tileptrs = horsection_->tiles_.getData();
@@ -424,7 +424,7 @@ void HorTilesCreatorAndUpdator::updateTilesAutoResolution(
 
 void HorTilesCreatorAndUpdator::updateTilesPrimitiveSets()
 {
-    const int tilesz = horsection_->tiles_.info().getTotalSz();
+    const int tilesz = horsection_->tiles_.totalSize();
 
     if ( tilesz )
     {
@@ -444,7 +444,7 @@ void HorTilesCreatorAndUpdator::updateTilesPrimitiveSets()
 
 void HorTilesCreatorAndUpdator::setFixedResolution( char res, TaskRunner* tskr )
 {
-    const int tilesz = horsection_->tiles_.info().getTotalSz();
+    const int tilesz = horsection_->tiles_.totalSize();
     if ( !tilesz ) return;
 
     HorizonSectionTile** tileptrs = horsection_->tiles_.getData();

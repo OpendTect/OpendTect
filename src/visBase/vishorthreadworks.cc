@@ -25,8 +25,8 @@ HorizonTileRenderPreparer::HorizonTileRenderPreparer(
     : hrsection_( hrsection )
     , tkzs_( cs )
     , hrsectiontiles_( hrsection.tiles_.getData() )
-    , nrtiles_( hrsection.tiles_.info().getTotalSz() )
-    , nrcoltiles_( hrsection.tiles_.info().getSize(1) )
+    , nrtiles_( hrsection.tiles_.totalSize() )
+    , nrcoltiles_( hrsection.tiles_.getSize(1) )
     , resolution_( res )
     , permutation_( 0 )
 {
@@ -98,7 +98,7 @@ bool HorizonTileRenderPreparer::doWork( od_int64 start, od_int64 stop, int )
 HorizonTileResolutionTesselator::HorizonTileResolutionTesselator(
     const HorizonSection* hrsection, char res )
     : horsection_( hrsection )
-    , nrtiles_( hrsection->tiles_.info().getTotalSz() )
+    , nrtiles_( hrsection->tiles_.totalSize() )
     , resolution_( res )
 {
     setName( "Horizon resolution tessellation" );

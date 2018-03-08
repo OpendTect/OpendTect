@@ -219,10 +219,10 @@ protected:
 	    arr_.info().getOffset( hrg.lineIdx( trk.lineNr() ),
 				   hrg.trcIdx( trk.trcNr() ), 0 );
 
-	OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset );
+	OffsetValueSeries<float> arrvs( *arr_.valueSeries(), offset );
 
 	const BinID& curbid = trk.position();
-	const int nrz = arr_.info().getSize( 2 );
+	const int nrz = arr_.getSize( 2 );
 	if ( !seisdatapack_ )
 	{
 	    SeisTrc velocitytrc;
@@ -422,8 +422,8 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
     const TrcKeySampling& hrg = voivols_[bestidx].hsamp_;
     const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
 						 hrg.crlIdx(bid.crl()), 0 );
-    const OffsetValueSeries<float> vs( *arr.getStorage(), offset );
-    const int zsz = arr.info().getSize(2);
+    const OffsetValueSeries<float> vs( *arr.valueSeries(), offset );
+    const int zsz = arr.getSize(2);
 
     const StepInterval<float> zrg = voivols_[bestidx].zsamp_;
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( vs, zsz,
@@ -493,8 +493,8 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
     const TrcKeySampling& hrg = voivols_[bestidx].hsamp_;
     const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
 						 hrg.crlIdx(bid.crl()), 0 );
-    const OffsetValueSeries<float> vs( *arr.getStorage(), offset );
-    const int zsz = arr.info().getSize(2);
+    const OffsetValueSeries<float> vs( *arr.valueSeries(), offset );
+    const int zsz = arr.getSize(2);
 
     const StepInterval<float> zrg = voivols_[bestidx].zsamp_;
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( vs, zsz,
@@ -533,7 +533,7 @@ Interval<float> Time2DepthStretcher::getTimeInterval( const BinID& bid,
 		voidata_[idx]->get(
 			voivols_[idx].hsamp_.inlIdx(bid.inl()),
 			voivols_[idx].hsamp_.crlIdx(bid.crl()),
-			voidata_[idx]->info().getSize(2)-1 ) );
+			voidata_[idx]->getSize(2)-1 ) );
 }
 
 
@@ -545,7 +545,7 @@ Interval<float> Time2DepthStretcher::getDepthInterval( const BinID& bid,
 
     const int inlidx = voivols_[idx].hsamp_.inlIdx(bid.inl());
     const int crlidx = voivols_[idx].hsamp_.crlIdx(bid.crl());
-    const int zsz = voidata_[idx]->info().getSize(2);
+    const int zsz = voidata_[idx]->getSize(2);
 
     return Interval<float>( voidata_[idx]->get( inlidx, crlidx, 0 ),
 			    voidata_[idx]->get( inlidx, crlidx, zsz-1 ) );

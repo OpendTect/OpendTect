@@ -234,9 +234,9 @@ bool MarchingCubesModel::operator==( const MarchingCubesModel& mc ) const
 bool MarchingCubesModel::set( const Array3D<float>& arr, int i0, int i1, int i2,
 		              float threshold )
 {
-    const bool use0 = i0!=arr.info().getSize( mX )-1;
-    const bool use1 = i1!=arr.info().getSize( mY )-1;
-    const bool use2 = i2!=arr.info().getSize( mZ )-1;
+    const bool use0 = i0!=arr.getSize( mX )-1;
+    const bool use1 = i1!=arr.getSize( mY )-1;
+    const bool use2 = i2!=arr.getSize( mZ )-1;
 
     const float val000 = arr.get( i0, i1, i2 );
     const float val001 = use2 ? arr.get( i0, i1, i2+1 ) : mUdf(float);
@@ -391,13 +391,13 @@ bool MarchingCubesSurface::setVolumeData( int xorigin, int yorigin, int zorigin,
     else
     {
 	changepos_[mX].start = xorigin;
-	changepos_[mX].stop = xorigin+arr.info().getSize(mX)-1;
+	changepos_[mX].stop = xorigin+arr.getSize(mX)-1;
 
 	changepos_[mY].start = yorigin;
-	changepos_[mY].stop = yorigin+arr.info().getSize(mY)-1;
+	changepos_[mY].stop = yorigin+arr.getSize(mY)-1;
 
 	changepos_[mZ].start = zorigin;
-	changepos_[mZ].stop = zorigin+arr.info().getSize(mZ)-1;
+	changepos_[mZ].stop = zorigin+arr.getSize(mZ)-1;
 	allchanged_ = false;
     }
 
@@ -464,7 +464,7 @@ Implicit2MarchingCubes::~Implicit2MarchingCubes() {}
 
 od_int64 Implicit2MarchingCubes::nrIterations() const
 {
-    return array_.info().getTotalSz();
+    return array_.totalSize();
 }
 
 
@@ -667,12 +667,12 @@ MarchingCubes2Implicit::MarchingCubes2Implicit(
     , originx_( originx )
     , originy_( originy )
     , originz_( originz )
-    , newfloodfillers_( new bool[arr.info().getTotalSz()] )
+    , newfloodfillers_( new bool[arr.totalSize()] )
     , nrdefined_( 0 )
     , nodistance_( nodistance )
 {
     for ( int idx=0; idx<3; idx++ )
-	size_[idx] = arr.info().getSize( idx );
+	size_[idx] = arr.getSize( idx );
 }
 
 
@@ -683,7 +683,7 @@ MarchingCubes2Implicit::~MarchingCubes2Implicit()
 
 
 od_int64 MarchingCubes2Implicit::nrIterations() const
-{ return result_.info().getTotalSz(); }
+{ return result_.totalSize(); }
 
 
 od_int64 MarchingCubes2Implicit::nrDone() const

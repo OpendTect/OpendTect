@@ -80,7 +80,7 @@ Smoother2D<T>::~Smoother2D()
 
 template <class T> inline
 int Smoother2D<T>::getWindowSize(int dim) const
-{ return window_->info().getSize( dim ); }
+{ return window_->getSize( dim ); }
 
 
 template <class T> inline
@@ -135,8 +135,7 @@ void Smoother2D<T>::fillPar( IOPar& par ) const
     if ( !mIsUdf(windowparam_) )
 	par.set( sKeyWinParam(), windowparam_ );
 
-    par.set( sKeyWinSize(), window_->info().getSize(0),
-			    window_->info().getSize(1));
+    par.set( sKeyWinSize(), window_->getSize(0), window_->getSize(1) );
 }
 
 
@@ -196,8 +195,8 @@ bool Smoother2D<T>::execute()
 	const float hwinsz1 = ((float)windowsz1_)/2;
 	Coord pos;
 
-	const int sz0 = window_->info().getSize( 0 );
-	const int sz1 = window_->info().getSize( 1 );
+	const int sz0 = window_->getSize( 0 );
+	const int sz1 = window_->getSize( 1 );
 	const int hsz0 = sz0/2;
 	const int hsz1 = sz1/2;
 
@@ -219,8 +218,7 @@ bool Smoother2D<T>::execute()
 
 	if ( weightsum>1 )
 	    mDoArrayPtrOperation( float, window_->getData(),
-			/= (float)weightsum,
-		        window_->info().getTotalSz(), ++ );
+			/= (float)weightsum, window_->totalSize(), ++ );
 
 	convolver_.setY( *window_, false );
     }

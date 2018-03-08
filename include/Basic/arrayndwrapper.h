@@ -78,13 +78,13 @@ template <class T>
 void Array3DWrapper<T>::init()
 {
     for ( int idx=0; idx<dimmap_.size(); idx++ )
-	info_.setSize( dimmap_[idx], srcarr_.info().getSize(idx) );
+	info_.setSize( dimmap_[idx], srcarr_.getSize(idx) );
 }
 
 
 template <class T>
 bool Array3DWrapper<T>::isOK() const
-{ return srcarr_.info().getNDim() <  3; }
+{ return srcarr_.getNDim() <  3; }
 
 
 template <class T>

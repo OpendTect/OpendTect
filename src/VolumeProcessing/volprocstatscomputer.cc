@@ -109,7 +109,7 @@ StatsCalculatorTask::StatsCalculatorTask( const Array3D<float>& input,
     , statstype_(statstype)
 {
     shape_ = sKeyEllipse();	//only possible choice for now
-    totalnr_ = output.info().getSize(0) * output.info().getSize(1);
+    totalnr_ = output.getSize(0) * output.getSize(1);
     prepareWork();
 }
 
@@ -119,9 +119,9 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
     //for now only median and average with shape Ellipse for dip filtering
     //We might reconsider the handling of undefs in corners
     const int incr = mCast( int, stop-start+1 );
-    const int nrinlines = input_.info().getSize( 0 );
-    const int nrcrosslines = input_.info().getSize( 1 );
-    const int nrsamples = input_.info().getSize( 2 );
+    const int nrinlines = input_.getSize( 0 );
+    const int nrcrosslines = input_.getSize( 1 );
+    const int nrsamples = input_.getSize( 2 );
     const int nrpos = positions_.size();
     TrcKeySamplingIterator iter;
     iter.setSampling( tkzsout_.hsamp_ );

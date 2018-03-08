@@ -425,9 +425,8 @@ int VolumeDisplay::addSlice( int dim )
     if ( attribs_[0]->cache_ )
     {
 	const Array3D<float>& arr = attribs_[0]->cache_->data();
-	slice->setVolumeDataSize( arr.info().getSize(2),
-				  arr.info().getSize(1),
-				  arr.info().getSize(0) );
+	slice->setVolumeDataSize( arr.getSize(2), arr.getSize(1),
+				  arr.getSize(0) );
     }
 
     return slice->id();
@@ -787,14 +786,14 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tskr )
 	float* newdata = newarr.getData();
 	if ( newdata )
 	{
-            for ( od_int64 idy=newarr.info().getTotalSz()-1; idy>=0; idy-- )
+            for ( od_int64 idy=newarr.totalSize()-1; idy>=0; idy-- )
 		newdata[idy] = mIsUdf(newdata[idy]) ? outsideval
 						    : threshold-newdata[idy];
 	}
         else if ( newarr.getStorage() )
         {
             ValueSeries<float>* newstor = newarr.getStorage();
-            for ( od_int64 idy=newarr.info().getTotalSz()-1; idy>=0; idy-- )
+            for ( od_int64 idy=newarr.totalSize()-1; idy>=0; idy-- )
             {
 		newstor->setValue(idy, mIsUdf(newstor->value(idy))
                         ? outsideval : threshold-newstor->value(idy) );
@@ -803,11 +802,11 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tskr )
         }
 	else
 	{
-	    for ( int id0=0; id0<newarr.info().getSize(0); id0++ )
+	    for ( int id0=0; id0<newarr.getSize(0); id0++ )
             {
-		for ( int idy=0; idy<newarr.info().getSize(1); idy++ )
+		for ( int idy=0; idy<newarr.getSize(1); idy++ )
                 {
-		    for ( int idz=0; idz<newarr.info().getSize(2); idz++ )
+		    for ( int idz=0; idz<newarr.getSize(2); idz++ )
 		    {
 			float val = newarr.get(id0,idy,idz);
 			val = mIsUdf(val) ? outsideval : threshold-val;
@@ -865,7 +864,7 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tskr )
 	    const Array3D<float>& arr = cache->data();
 	    if ( !arr.isOK() )  return;
 
-	    const od_int64 size = arr.info().getTotalSz();
+	    const od_int64 size = arr.totalSize();
 	    PtrMan< Array3D<float> > newarr =
 		new Array3DImpl<float>(arr.info());
 	    if ( !newarr->isOK() )
@@ -889,11 +888,11 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tskr )
 	    }
 	    else
 	    {
-		for ( int id0=0; id0<arr.info().getSize(0); id0++ )
+		for ( int id0=0; id0<arr.getSize(0); id0++ )
 		{
-		    for ( int idy=0; idy<arr.info().getSize(1); idy++ )
+		    for ( int idy=0; idy<arr.getSize(1); idy++ )
 		    {
-			for ( int idz=0; idz<arr.info().getSize(2); idz++ )
+			for ( int idz=0; idz<arr.getSize(2); idz++ )
 			{
 			    newarr->set( id0, idy, idz,
 				    threshold - arr.get(id0,idy,idz) );
@@ -1144,9 +1143,9 @@ bool VolumeDisplay::setDataVolume( int attrib,
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 
     for ( int idx=0; idx<slices_.size(); idx++ )
-	slices_[idx]->setVolumeDataSize( usedarray->info().getSize(2),
-					 usedarray->info().getSize(1),
-					 usedarray->info().getSize(0) );
+	slices_[idx]->setVolumeDataSize( usedarray->getSize(2),
+					 usedarray->getSize(1),
+					 usedarray->getSize(0) );
 
     if ( attribs_[attrib]->cache_ != attribdata )
     {

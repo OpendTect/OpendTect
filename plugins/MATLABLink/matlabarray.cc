@@ -34,12 +34,12 @@ ArrayNDCopier::~ArrayNDCopier()
 
 bool ArrayNDCopier::init( bool managemxarr )
 {
-    totalnr_ = arrnd_.info().getTotalSz();
+    totalnr_ = arrnd_.totalSize();
 
-    const int nrdim = arrnd_.info().getNDim();
+    const int nrdim = arrnd_.getNDim();
     mAllocVarLenArr( mwSize, dims, nrdim );
     for ( int idx=0; idx<nrdim; idx++ )
-	dims[idx] = arrnd_.info().getSize( nrdim-1-idx );
+	dims[idx] = arrnd_.getSize( nrdim-1-idx );
 
     mxarr_ = mxCreateNumericArray( nrdim, mVarLenArr(dims),
 				   mxDOUBLE_CLASS, mxREAL );
@@ -51,7 +51,7 @@ bool ArrayNDCopier::init( bool managemxarr )
 
 bool ArrayNDCopier::doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    const int nrdim = arrnd_.info().getNDim();
+    const int nrdim = arrnd_.getNDim();
     mAllocVarLenArr( int, pos, nrdim );
     double* mxarrptr = mxGetPr( mxarr_ );
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
@@ -80,11 +80,11 @@ mxArrayCopier::~mxArrayCopier()
 
 bool mxArrayCopier::init()
 {
-    totalnr_ = arrnd_.info().getTotalSz();
+    totalnr_ = arrnd_.totalSize();
     const mwSize* dimsz = mxGetDimensions( &mxarr_ );
-    const bool samesz = dimsz[0]==arrnd_.info().getSize(2) &&
-			dimsz[1]==arrnd_.info().getSize(1) &&
-			dimsz[2]==arrnd_.info().getSize(0);
+    const bool samesz = dimsz[0]==arrnd_.getSize(2) &&
+			dimsz[1]==arrnd_.getSize(1) &&
+			dimsz[2]==arrnd_.getSize(0);
     return samesz;
 
     // TODO: what if dimensions don't match?
@@ -94,7 +94,7 @@ bool mxArrayCopier::init()
 bool mxArrayCopier::doWork( od_int64 start, od_int64 stop, int threadid )
 {
     double* mxarrptr = mxGetPr( &mxarr_ );
-    const int nrdim = arrnd_.info().getNDim();
+    const int nrdim = arrnd_.getNDim();
     mAllocVarLenArr( int, pos, nrdim );
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {

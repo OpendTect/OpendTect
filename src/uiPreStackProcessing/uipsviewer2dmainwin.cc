@@ -402,17 +402,15 @@ RefMan<Gather> uiViewer2DMainWin::getAngleGather(
 }
 
 
-void uiStoredViewer2DMainWin::convAngleDataToDegrees(
-	Gather* angledata ) const
+void uiStoredViewer2DMainWin::convAngleDataToDegrees( Gather* angledata ) const
 {
     if ( !angledata || !angledata->data().getData() )
 	return;
 
     Array2D<float>& data = angledata->data();
     float* ptr = data.getData();
-    const int size = mCast(int,data.info().getTotalSz());
-
-    for( int idx = 0; idx<size; idx++ )
+    const od_uint64 size = data.totalSize();
+    for( od_uint64 idx=0; idx<size; idx++ )
 	ptr[idx] = Math::toDegrees( ptr[idx] );
 }
 

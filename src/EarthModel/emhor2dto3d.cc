@@ -33,8 +33,8 @@ Hor2DTo3DSectionData( const BinID& minbid, const BinID& maxbid,
     , count_( getSz(minbid.inl(),maxbid.inl(),step.inl()),
 	      getSz(minbid.crl(),maxbid.crl(),step.crl()) )
 {
-    inlsz_ = count_.info().getSize( 0 );
-    crlsz_ = count_.info().getSize( 1 );
+    inlsz_ = count_.getSize( 0 );
+    crlsz_ = count_.getSize( 1 );
 
     count_.setAll( 0 );
     arr_.setAll( mUdf(float) );

@@ -162,15 +162,15 @@ void DataClipper::putData( const ValueSeries<float>& vals, od_int64 nrvals )
 
 void DataClipper::putData( const ArrayND<float>& vals )
 {
-    const od_int64 nrvals = vals.info().getTotalSz();
+    const od_int64 nrvals = vals.totalSize();
     if ( vals.getData() )
 	putData( vals.getData(), nrvals );
-    else if ( vals.getStorage() )
-	putData( *vals.getStorage(), nrvals );
+    else if ( vals.valueSeries() )
+	putData( *vals.valueSeries(), nrvals );
     else
     {
 	ArrayNDValseriesAdapter<float> adapter( vals );
-	putData( adapter, vals.info().getTotalSz() );
+	putData( adapter, vals.totalSize() );
     }
 }
 

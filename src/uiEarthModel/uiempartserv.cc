@@ -1222,8 +1222,7 @@ bool uiEMPartServer::changeAuxData( const DBKey& oid,
 	    bool* maskptr = mask->getData();
 	    if ( maskptr )
 	    {
-		for ( int idx=mCast(int,mask->info().getTotalSz()-1); idx>=0;
-									idx-- )
+		for ( int idx=mCast(int,mask->totalSize()-1); idx>=0; idx-- )
 		{
 		    *maskptr = !mIsUdf(*arrptr);
 		    maskptr++;

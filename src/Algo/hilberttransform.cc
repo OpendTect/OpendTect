@@ -247,11 +247,12 @@ bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
 bool HilbertTransform::transform( const ArrayND<float>& in,
 				  ArrayND<float>& out ) const
 {
-    const int insize = in.info().getSize(0);
-    const int outsize = out.info().getSize(0);
-    const ValueSeries<float>* inptr = in.getStorage();
-    ValueSeries<float>* outptr = out.getStorage();
-    if ( !inptr || !outptr ) return false;
+    const int insize = in.getSize(0);
+    const int outsize = out.getSize(0);
+    const ValueSeries<float>* inptr = in.valueSeries();
+    ValueSeries<float>* outptr = out.valueSeries();
+    if ( !inptr || !outptr )
+	return false;
 
     return transform( *inptr, insize, *outptr, outsize );
 }
@@ -268,7 +269,7 @@ bool HilbertTransform::transform( const ArrayND<float_complex>& in,
 bool HilbertTransform::transform( const ArrayND<float>& real,
 				  ArrayND<float_complex>& img ) const
 {
-    const int insize = real.info().getSize(0);
+    const int insize = real.getSize(0);
     Array1DImpl<float> imgout( insize );
     const bool trans = transform( real, imgout );
     if ( !trans ) return false;

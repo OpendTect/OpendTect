@@ -25,9 +25,9 @@ public:
 		SampledExtremeFinderND(const ArrayND<T>& arr, bool minima)
 		    : array_( arr )
 		    , minima_( minima )
-		    , relcube_( arr.info().getNDim() )
+		    , relcube_( arr.getNDim() )
 		{
-		    const int ndim = array_.info().getNDim();
+		    const int ndim = array_.getNDim();
 		    for ( int idx=0; idx<ndim; idx++ )
 		    relcube_.setSize( idx, 3 );
 		}
@@ -54,13 +54,13 @@ protected:
 
 template <class T> inline
 od_int64 SampledExtremeFinderND<T>::nrIterations() const
-{ return array_.info().getTotalSz(); }
+{ return array_.totalSize(); }
 
 
 template <class T> inline
 int SampledExtremeFinderND<T>::nrExtremes() const
 {
-    const int ndim = array_.info().getNDim();
+    const int ndim = array_.getNDim();
     return extremes_.size()/ndim;
 }
 
@@ -68,7 +68,7 @@ int SampledExtremeFinderND<T>::nrExtremes() const
 template <class T> inline
 bool SampledExtremeFinderND<T>::doWork( od_int64 start, od_int64 stop, int )
 {
-    const int ndim = array_.info().getNDim();
+    const int ndim = array_.getNDim();
     mAllocVarLenArr( int, pos, ndim );
     if ( !array_.info().getArrayPos( start, pos ) )
 	return false;
@@ -117,7 +117,7 @@ template <class T> inline
 int SampledExtremeFinderND<T>::indexOf( const int* pos ) const
 {
     const int nrextremes = nrExtremes();
-    const int ndim = array_.info().getNDim();
+    const int ndim = array_.getNDim();
 
     for ( int idx=0; idx<nrextremes; idx++ )
     {
@@ -143,7 +143,7 @@ int SampledExtremeFinderND<T>::indexOf( const int* pos ) const
 template <class T> inline
 bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 {
-    const int ndim = array_.info().getNDim();
+    const int ndim = array_.getNDim();
 
     T extremeval = array_.getND( extremepos );
 
@@ -166,7 +166,7 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 	    {
 		if ( iter[idx] ) isnull = false;
 		const int newpos = extremepos[idx]+iter[idx]-1;
-		if ( newpos<0 || newpos>=array_.info().getSize(idx) )
+		if ( newpos<0 || newpos>=array_.getSize(idx) )
 		{
 		    invalid = true;
 		    break;

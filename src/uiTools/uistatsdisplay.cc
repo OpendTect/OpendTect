@@ -128,26 +128,26 @@ bool uiStatsDisplay::setDataPackID(
 
 	    const float* array = arr3d->getData();
 	    if ( array )
-    		rc.setValues( array, mCast(int,arr3d->info().getTotalSz()) );
+		rc.setValues( array, mCast(int,arr3d->totalSize()) );
 	    else
 	    {
-		valarr.setCapacity(mCast(int,arr3d->info().getTotalSz()),false);
-		const int sz0 = arr3d->info().getSize( 0 );
-		const int sz1 = arr3d->info().getSize( 1 );
-		const int sz2 = arr3d->info().getSize( 2 );
+		valarr.setCapacity(mCast(int,arr3d->totalSize()),false);
+		const int sz0 = arr3d->getSize( 0 );
+		const int sz1 = arr3d->getSize( 1 );
+		const int sz2 = arr3d->getSize( 2 );
 		for ( int idx=0; idx<sz0; idx++ )
 		{
 		    for ( int idy=0; idy<sz1; idy++ )
 		    {
 			for ( int idz=0; idz<sz2; idz++ )
 			{
-    			    const float val = arr3d->get( idx, idy, idz );
-    			    if ( !mIsUdf(val) )
-    				valarr += val;
+			    const float val = arr3d->get( idx, idy, idz );
+			    if ( !mIsUdf(val) )
+				valarr += val;
 			}
 		    }
 		}
-		
+
 		rc.setValues( valarr.arr(), valarr.size() );
 	    }
 	}
@@ -165,13 +165,12 @@ bool uiStatsDisplay::setDataPackID(
 		return false;
 
 	    if ( array->getData() )
-		rc.setValues( array->getData(),
-				mCast(int,array->info().getTotalSz()) );
+		rc.setValues( array->getData(), (int)array->totalSize() );
 	    else
 	    {
-		valarr.setCapacity(mCast(int,array->info().getTotalSz()),false);
-		const int sz2d0 = array->info().getSize( 0 );
-		const int sz2d1 = array->info().getSize( 1 );
+		valarr.setCapacity(mCast(int,array->totalSize()),false);
+		const int sz2d0 = array->getSize( 0 );
+		const int sz2d1 = array->getSize( 1 );
 		for ( int idx0=0; idx0<sz2d0; idx0++ )
 		{
 		    for ( int idx1=0; idx1<sz2d1; idx1++ )

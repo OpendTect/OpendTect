@@ -1294,9 +1294,9 @@ bool uiODContourTreeItem::computeUICContourSteps( const Array2D<float>& field )
 {
     if ( mIsUdf(contoursteprange_.start) )
     {
-	for ( int idx=0; idx<field.info().getSize(0); idx++ )
+	for ( int idx=0; idx<field.getSize(0); idx++ )
 	{
-	    for ( int idy=0; idy<field.info().getSize(1); idy++ )
+	    for ( int idy=0; idy<field.getSize(1); idy++ )
 	    {
 		const float val = field.get( idx, idy );
 		if ( !mIsUdf(val) ) contoursteprange_.include( val, false );

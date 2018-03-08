@@ -173,10 +173,10 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     const int inputcrlidx = input
 	? input->sampling().hsamp_.crlRange().nearestIndex(bid.crl()) : 0;
     const bool useinput = input &&
-	inputinlidx>=0 && inputinlidx<input->data(0).info().getSize(0) &&
-	inputcrlidx>=0 && inputcrlidx<input->data(0).info().getSize(1);
+	inputinlidx>=0 && inputinlidx<input->data(0).getSize(0) &&
+	inputcrlidx>=0 && inputcrlidx<input->data(0).getSize(1);
     const int inputzsz = useinput && input
-	? input->data(0).info().getSize(2) : 0;
+	? input->data(0).getSize(2) : 0;
 
     int bodyinlidx = mUdf(int), bodycrlidx = mUdf(int);
     bool alloutside = true;
@@ -193,8 +193,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	    implicitbody_->tkzs_.hsamp_.crlRange().nearestIndex( bid.crl() );
 
 	alloutside = bodyinlidx<0 || bodycrlidx<0 ||
-	    bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
-	    bodycrlidx>=implicitbody_->arr_->info().getSize(1);
+	    bodyinlidx>=implicitbody_->arr_->getSize(0) ||
+	    bodycrlidx>=implicitbody_->arr_->getSize(1);
     }
 
     for ( int zidx=0; zidx<outputzsz; zidx++ )
@@ -231,7 +231,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 		const int bodyzidx =
 			implicitbody_->tkzs_.zsamp_.nearestIndex(z);
 		if ( bodyzidx<0 ||
-			bodyzidx >= implicitbody_->arr_->info().getSize(2) )
+			bodyzidx >= implicitbody_->arr_->getSize(2) )
 		    val = outsideval_;
 		else
 		{

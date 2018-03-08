@@ -1713,18 +1713,18 @@ void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
 
     rgbarr_.clear( Color::White() );
 
-    for( int idx=0; idx<data->info().getSize(true); idx++ )
+    for( int idx=0; idx<data->getSize(0); idx++ )
     {
-	for( int idy=0; idy<data->info().getSize(false); idy++ )
+	for( int idy=0; idy<data->getSize(1); idy++ )
 	{
-	    if ( !data->info().validPos(idy,idx) )
+	    if ( !data->info().validPos(idx,idy) )
 		continue;
 
-	    const float val = data->get( idy, idx );
+	    const float val = data->get( idx, idy );
 	    const float mappedval = ctmapper_->seqPosition( val );
 	    Color col = ( val == 0 ) ? Color::White() : ctab_->color(mappedval);
 	    if ( col.isVisible() )
-		rgbarr_.set( idy, idx, col );
+		rgbarr_.set( idx, idy, col );
 	}
     }
 
@@ -1788,7 +1788,7 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
     int itmidx = 0;
     usedxpixrg_ = Interval<int>(0,0);
     Array1D<char>* rowidx = isy2 ? y2rowidxs_ : yrowidxs_;
-    for ( int idx=0; idx<rowidx->info().getSize(0); idx++ )
+    for ( int idx=0; idx<rowidx->getSize(0); idx++ )
     {
 	if ( rowidx->get(idx) == '0' )
 	    continue;

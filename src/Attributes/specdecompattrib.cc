@@ -382,7 +382,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     cwt.init();
     Array2DImpl<float> outputdata(0,0);
     cwt.transform( inputdata, outputdata );
-    const int nrscales = outputdata.info().getSize(1);
+    const int nrscales = outputdata.getSize(1);
 
     const char* fname = GetEnvVar( "OD_PRINT_SPECDECOMP_FILE" );
     if ( fname && *fname )

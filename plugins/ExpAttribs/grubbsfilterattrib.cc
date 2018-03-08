@@ -128,7 +128,7 @@ bool GrubbsFilter::getInputData( const BinID& relpos, int zintv )
 static void checkTopBotUndefs( Array1D<float>& inpvals )
 {
     int firstvalidsample=0, lastvalidsample=0;
-    const int size = inpvals.info().getSize(0);
+    const int size = inpvals.getSize(0);
     for ( int idx=0; idx<size; idx++ )
     {
 	if ( !mIsUdf(inpvals.get(idx))  )
@@ -228,7 +228,7 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 		    newval = positive ? newval * 1 : newval * -1;
 		    break;
 		case GrubbsFilter::Interpolate:
-		    for ( int arridx=0; arridx<vals.info().getSize(0); arridx++)
+		    for ( int arridx=0; arridx<vals.getSize(0); arridx++ )
 		    {
 			float arrval = vals.get( arridx );
 			grubbsval = (float) fabs((arrval - rc.average())/stdev);

@@ -23,16 +23,13 @@ public:
 
     uiRetVal		putInfo(const DataSetKey&,const IOPar&);
     uiRetVal		putData(const DataSetKey&,const ArrayNDInfo&,
-				const Byte*,ODDataType);
-
-			//TODO put in stand-alone template fn in separate .h
-    uiRetVal		putData(const DataSetKey&,const FloatArrND&);
+				const void*,ODDataType);
 
 protected:
 
     virtual void	ptInfo(const DataSetKey&,const IOPar&,uiRetVal&)= 0;
     virtual void	ptData(const DataSetKey&,const ArrayNDInfo&,
-				const Byte*,ODDataType,uiRetVal&)	= 0;
+				const void*,ODDataType,uiRetVal&)	= 0;
 
 };
 

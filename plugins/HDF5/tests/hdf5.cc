@@ -5,8 +5,7 @@
 -*/
 
 
-#include "hdf5writer.h"
-#include "hdf5reader.h"
+#include "hdf5arraynd.h"
 #include "testprog.h"
 #include "file.h"
 #include "filepath.h"
@@ -49,16 +48,17 @@ static bool testWrite()
 
     Array2DImpl<float> arr2d( dim1_, dim2_ );
     uirv.setEmpty();
-    HDF5::Access::DataSetKey dsky;
+    HDF5::DataSetKey dsky;
     IOPar iop;
     iop.set( "Apenoot", "pere boom" );
+    HDF5::ArrayNDTool<float> arrtool( arr2d );
     for ( int idx=0; idx<nrblocks_; idx++ )
     {
 	dsky.setDataSetName( BufferString( "Block [", idx, "]" ) );
 
 	fillArr2D( arr2d, 1000*idx );
 	dsky.setGroupName( "Component 1" );
-	uirv = wrr->putData( dsky, arr2d );
+	uirv = arrtool.putData( *wrr, dsky );
 	if ( !uirv.isOK() )
 	    break;
 	iop.set( "Block and comp idxs", idx, 1 );
@@ -69,7 +69,7 @@ static bool testWrite()
 
 	fillArr2D( arr2d, 10000*idx );
 	dsky.setGroupName( "Component 2" );
-	uirv = wrr->putData( dsky, arr2d );
+	uirv = arrtool.putData( *wrr, dsky );
 	if ( !uirv.isOK() )
 	    break;
 	iop.set( "Block and comp idxs", idx, 2 );
@@ -93,13 +93,16 @@ static bool testRead()
 
     BufferStringSet grps;
     rdr->getGroups( grps );
-    mRunStandardTestWithError( grps.size()==2, "Nr of groups in file",
+    mRunStandardTestWithError( grps.size()==2, "Groups in file",
 			       BufferString("nrgrps=",grps.size()) );
 
     BufferStringSet dsnms;
     rdr->getDataSets( grps.get(0), dsnms );
-    mRunStandardTestWithError( dsnms.size()==nrblocks_, "Nr of blocks in file",
+    mRunStandardTestWithError( dsnms.size()==nrblocks_, "Datasets in group",
 			       BufferString("nrblocks=",grps.size()) );
+
+
+
 
     //TODO
     return true;

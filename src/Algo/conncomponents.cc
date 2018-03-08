@@ -22,7 +22,7 @@ public:
 CC2DExtracor( const Array3D<bool>& inp )
     : input_(inp)
 {
-    const int slicesz = input_.info().getSize(2);
+    const int slicesz = input_.getSize(2);
     for ( int idx=0; idx<slicesz; idx++ )
     {
 	TypeSet<TypeSet<int> > comps;
@@ -33,7 +33,7 @@ CC2DExtracor( const Array3D<bool>& inp )
 const TypeSet<TypeSet<TypeSet<int> > >&	getCubeComps()	{ return slicecomps_; }
 
 protected:
-od_int64 nrIterations() const	{ return input_.info().getSize(2); }
+od_int64 nrIterations() const	{ return input_.getSize(2); }
 uiString message() const	{
 			    return tr("Calculating 2D connected components");
 				}
@@ -86,7 +86,7 @@ void ConnComponents::compute( TaskRunner* tskr )
     label_->setAll(0);
     classifyMarks( *label_ );
 
-    const int sz = mCast( int,input_.info().getTotalSz() );
+    const int sz = mCast( int,input_.totalSize() );
     int* markers = label_->getData();
     components_.erase();
     TypeSet<int> labels;
@@ -126,8 +126,8 @@ void ConnComponents::compute( TaskRunner* tskr )
 
 void ConnComponents::classifyMarks( Array2D<int>& mark )
 {
-    const int r = mark.info().getSize(0);
-    const int c = mark.info().getSize(1);
+    const int r = mark.getSize(0);
+    const int c = mark.getSize(1);
 
     int index = 0;
     for ( int i=1; i<r-1; i++ )
@@ -208,7 +208,7 @@ void ConnComponents::classifyMarks( Array2D<int>& mark )
 
 void ConnComponents::setMark( Array2D<int>& mark, int source, int newval )
 {
-    const int sz = mCast( int, mark.info().getTotalSz() );
+    const int sz = mCast( int, mark.totalSize() );
     int* vals = mark.getData();
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -231,7 +231,7 @@ const TypeSet<int>* ConnComponents::getComponent( int cidx )
 
 void ConnComponents::trimCompBranches( TypeSet<int>& comp )
 {
-    return trimCompBranches( comp, input_.info().getSize(1) );
+    return trimCompBranches( comp, input_.getSize(1) );
 }
 
 
@@ -493,7 +493,7 @@ float ConnComponents::overLapRate( int componentidx )
 	return 1;
 
     const int csz = comp->size();
-    const int ysz = input_.info().getSize(1);
+    const int ysz = input_.getSize(1);
 
     TypeSet<int> idxs, idys;
     for ( int idx=0; idx<csz; idx++ )
@@ -603,7 +603,7 @@ void ConnComponents3D::addToComponent(
 
     const TypeSet<int>& startcomp = slicecomps[compidx];
     const int compsz = startcomp.size();
-    const int nrcrls = input_.info().getSize(1);
+    const int nrcrls = input_.getSize(1);
     for ( int idx=0; idx<compsz; idx++ )
     {
 	VPos* v = new VPos();

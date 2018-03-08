@@ -89,9 +89,7 @@ bool Convolver2D<float>::shouldFFT() const
 template <> inline
 od_int64 Convolver2D<float>::nrIterations() const
 {
-    return shouldFFT()
-        ? 1
-        : z_->info().getTotalSz();
+    return shouldFFT() ? 1 : z_->totalSize();
 }
 
 
@@ -175,9 +173,7 @@ if ( idy##dim>=ysz##dim ) \
 template <class T> inline
 od_int64 Convolver2D<T>::nrIterations() const
 {
-    return shouldFFT()
-	? 1
-	: z_->info().getTotalSz();
+    return shouldFFT() ? 1 : z_->totalSize();
 }
 
 
@@ -195,10 +191,10 @@ bool Convolver2D<T>::doWork( od_int64 start, od_int64 stop, int thread )
 template <class T> inline
 bool Convolver2D<T>::doNonFFTWork( od_int64 start, od_int64 stop, int )
 {
-    const int xsz0 = x_->info().getSize( 0 );
-    const int xsz1 = x_->info().getSize( 1 );
-    const int ysz0 = y_->info().getSize( 0 );
-    const int ysz1 = y_->info().getSize( 1 );
+    const int xsz0 = x_->getSize( 0 );
+    const int xsz1 = x_->getSize( 1 );
+    const int ysz0 = y_->getSize( 0 );
+    const int ysz1 = y_->getSize( 1 );
 
     int startpos[2];
 

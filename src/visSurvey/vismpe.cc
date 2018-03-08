@@ -1027,8 +1027,8 @@ int MPEDisplay::addSlice( int dim, bool show )
     if ( volumecache_ )
     {
 	const Array3D<float>& arr = volumecache_->data();
-	slice->setVolumeDataSize( arr.info().getSize(2),
-		arr.info().getSize(1), arr.info().getSize(0) );
+	slice->setVolumeDataSize( arr.getSize(2), arr.getSize(1),
+				  arr.getSize(0) );
     }
 
     slice->setTextureChannels( channels_ );

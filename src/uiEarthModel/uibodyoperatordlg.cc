@@ -446,15 +446,15 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     float* data = impbd->arr_->getData();
     if ( data )
     {
-	const od_int64 sz = impbd->arr_->info().getTotalSz();
+	const od_int64 sz = impbd->arr_->totalSize();
 	for ( od_int64 idx=0; idx<sz; idx++ )
 	    data[idx] = -data[idx];
     }
     else
     {
-	const int isz = impbd->arr_->info().getSize(0);
-	const int csz = impbd->arr_->info().getSize(1);
-	const int zsz = impbd->arr_->info().getSize(2);
+	const int isz = impbd->arr_->getSize(0);
+	const int csz = impbd->arr_->getSize(1);
+	const int zsz = impbd->arr_->getSize(2);
 	for ( int idx=0; idx<isz; idx++ )
 	{
 	    for ( int idy=0; idy<csz; idy++ )

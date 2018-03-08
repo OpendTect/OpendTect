@@ -329,9 +329,9 @@ void HorizonTextureHandler::updateTileTextureOrigin()
 
     const float tilesize = horsection_->nrcoordspertileside_ - 1;
 
-    for ( int idx=0; idx<horsection_->tiles_.info().getSize(0); idx++ )
+    for ( int idx=0; idx<horsection_->tiles_.getSize(0); idx++ )
     {
-	for ( int idy=0; idy<horsection_->tiles_.info().getSize(1); idy++ )
+	for ( int idy=0; idy<horsection_->tiles_.getSize(1); idy++ )
 	{
 	    HorizonSectionTile* tile = horsection_->tiles_.get( idx, idy );
 	    if ( !tile )

@@ -87,7 +87,7 @@ public:
 protected:
     const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return inf_.getTotalSz(); }
+    od_int64		getStorageSize() const  { return inf_.totalSize(); }
 
     Array1DInfoImpl	inf_;
 
@@ -134,7 +134,7 @@ protected:
     void		updateStorage();
     const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return inf_.getTotalSz(); }
+    od_int64		getStorageSize() const  { return inf_.totalSize(); }
 
     void		updateCachePointers();
 
@@ -181,7 +181,7 @@ protected:
     void		updateStorage();
     const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return inf_.getTotalSz(); }
+    od_int64		getStorageSize() const  { return inf_.totalSize(); }
 
     void		updateCachePointers();
     void		eraseCache();
@@ -234,7 +234,7 @@ protected:
 
     const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return inf_->getTotalSz(); }
+    od_int64		getStorageSize() const  { return inf_->totalSize(); }
 
     ArrayNDInfo*	inf_;
 };
@@ -808,8 +808,8 @@ ArrayND<T>* ArrayNDImpl<T>::clone( const ArrayND<T>& oth )
 template <class T> inline
 bool ArrayNDImpl<T>::clone( const ArrayND<T>& inp, ArrayND<T>& out )
 {
-    const od_uint64 sz = inp.info().getTotalSz();
-    if ( !inp.isOK() )
+    const od_uint64 sz = inp.totalSize();
+    if ( sz < 1 || !inp.isOK() )
 	return false;
 
     if ( !out.isOK() || out.info() != inp.info() )
@@ -824,7 +824,7 @@ bool ArrayNDImpl<T>::clone( const ArrayND<T>& inp, ArrayND<T>& out )
 	return true;
     }
 
-    const int ndim = inp.info().getNDim();
+    const int ndim = inp.getNDim();
     if ( ndim == 1 )
     {
 	mDynamicCastGet(const Array1DImpl<T>*,inp1d,&inp)

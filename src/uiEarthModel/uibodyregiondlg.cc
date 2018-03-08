@@ -536,7 +536,7 @@ void computeHorOuterRange()
 	const Geometry::BinIDSurface* surf =
 	    hors_[idx]->geometry().geometryElement();
 	const Array2D<float>* depth = surf ? surf->getArray() : 0;
-	const int sz = depth ? mCast( int,depth->info().getTotalSz() ) : 0;
+	const int sz = depth ? mCast(int,depth->totalSize()) : 0;
 	if ( !sz ) continue;
 
 	const float* data = depth->getData();

@@ -751,7 +751,7 @@ bool Seis::Blocks::Writer::writeOverviewFileData( od_ostream& strm )
 
     Array2DImpl<float> data( nrinl, nrcrl );
     MemSetter<float> memsetter( data.getData(), mUdf(float),
-			 (od_int64)data.info().getTotalSz() );
+				(od_int64)data.totalSize() );
     memsetter.execute();
 
     Pos::IdxPairDataSet::SPos spos;

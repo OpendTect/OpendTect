@@ -100,8 +100,7 @@ bool ZAxisTransformer::getInterpolate() const
 
 od_int64 ZAxisTransformer::nrIterations() const
 {
-    return input_
-	? input_->info().getSize(mInl) * input_->info().getSize(mCrl) : 0;
+    return input_ ? input_->getSize(mInl) * input_->getSize(mCrl) : 0;
 }
 
 
@@ -113,11 +112,11 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	SamplingData<double>(outputcs_.zsamp_.start, outputcs_.zsamp_.step),
 	false );
 
-    const int inputzsz = input_->info().getSize(mZ);
-    const int outputzsz = output_->info().getSize(mZ);
+    const int inputzsz = input_->getSize(mZ);
+    const int outputzsz = output_->getSize(mZ);
 
-    const int inlsz = input_->info().getSize(mInl);
-    const int crlsz = input_->info().getSize(mCrl);
+    const int inlsz = input_->getSize(mInl);
+    const int crlsz = input_->getSize(mCrl);
     if ( inputzsz==0 || outputzsz==0 || inlsz==0 || crlsz==0 )
 	return false;
 

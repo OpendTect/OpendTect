@@ -566,16 +566,16 @@ bool CWT::init()
 bool CWT::transform( const ArrayND<float_complex>& inp,
 		     ArrayND<float>& outp )
 {
-    const int ndim = inp.info().getNDim();
+    const int ndim = inp.getNDim();
     if ( ndim > 1 ) return false;
 
-    const int outdim = outp.info().getNDim();
+    const int outdim = outp.getNDim();
     if ( outdim != 2 ) return false;
 
     mDynamicCastGet(Array2DImpl<float>*,arr2d,&outp)
     if ( !arr2d ) return false;
 
-    const int nrsamples = inp.info().getSize( 0 );
+    const int nrsamples = inp.getSize( 0 );
     Array1DImpl<float_complex> freqdom( nrsamples );
     fft_->setInput( inp.getData() );
     fft_->setOutput( freqdom.getData() );

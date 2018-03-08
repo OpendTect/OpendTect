@@ -402,13 +402,10 @@ void VolumeRenderScalarField::setScalarField( int attr,
     if ( !sc )
 	return;
 
-    if ( sc->info().getSize(0)!=tkzs.nrLines() ||
-	 sc->info().getSize(1)!=tkzs.nrTrcs() ||
-	 sc->info().getSize(2)!=tkzs.nrZ() )
-    {
-	pErrMsg( "Unexpected volume data sampling mismatch" );
-	return;
-    }
+    if ( sc->getSize(0)!=tkzs.nrLines() ||
+	 sc->getSize(1)!=tkzs.nrTrcs() ||
+	 sc->getSize(2)!=tkzs.nrZ() )
+	{ pErrMsg( "Unexpected volume data sampling mismatch" ); return; }
 
     const TrcKeyZSampling oldmatkzs = getMultiAttribTrcKeyZSampling();
 

@@ -86,7 +86,7 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
 	    createarr.set( idx, val );
 	}
 
-	padtrace = createarr.getStorage();
+	padtrace = createarr.valueSeries();
 	if ( !padtrace )
 	    return false;
     }

@@ -23,15 +23,46 @@ namespace HDF5
 class Reader;
 class Writer;
 
+
+/*\brief Key to the actual data in HDF5 files. */
+
+mExpClass(General) DataSetKey
+{
+public:
+			DataSetKey( const char* grpnm=0, const char* dsnm=0 )
+			    : dsnm_(dsnm)	{ setGroupName(grpnm); }
+
+    const char*		groupName() const	{ return grpnm_; }
+    void		setGroupName( const char* nm )
+			{
+			    grpnm_.set( nm );
+			    if ( !grpnm_.startsWith("/") )
+				grpnm_.insertAt( 0 , "/" );
+			}
+
+    const char*		dataSetName() const	{ return dsnm_; }
+    void		setDataSetName( const char* nm )
+			{ dsnm_.set( nm ); }
+
+    BufferString	fullDataSetName() const
+			{ return BufferString(grpnm_,"/",dsnm_); }
+
+protected:
+
+    BufferString	grpnm_;
+    BufferString	dsnm_;
+
+};
+
+
 /*\brief baseclass for reader and writer of HDF5 files.
 
-  Summary.
+  HDF5 can be seen as a (simple) database in a file. As usual with this sort of
+  general-purpose utilities, the data model is bloated by many options that are
+  only interesting for some. As usual, we take our pick of the core stuff:
 
-  HDF5 is a (simple) database in a file. The data model is bloated by many
-  options only interesting for some, we restrict to the following concepts:
-
-  * The main structure is a tree structure of nodes that are called 'Group'.
-  You can see this structure as a file system and it does use names like a
+  * The database is essentially a tree of nodes that are called 'Group'.
+  You can see this structure as a file system and it does use names like in a
   UNIX file system. The root group '/' is always there, and it is the 'H5File'
   itself. Thus, the Group is a 'directory'. Actually, it maps to a class
   called H5::CommonFG, the base class for H5::H5File and H5::Group.
@@ -47,6 +78,15 @@ class Writer;
   will only read and write strings. This maps the set of properties to one
   IOPar.
 
+  Notes:
+  * HDF5 'stores' can refer to more than 1 file. We do not use or support this
+    facilty.
+  * If you read HDF5 files not produced by us, there may be 'advanced' stuff
+    in there that we don't handle. The strategy is to do as if they do not
+    exist, and handle everything gracefully.
+  * The HDF5 data type system is richer than ours. We'll try to map to the
+    'nearest'.
+
   */
 
 
@@ -54,36 +94,8 @@ mExpClass(General) Access
 { mODTextTranslationClass(HDF5::Access);
 public:
 
-    typedef unsigned char	Byte;
     typedef OD::DataRepType	ODDataType;
     typedef ArrayND<float>	FloatArrND;
-
-    mExpClass(General) DataSetKey
-    {
-    public:
-			DataSetKey( const char* grpnm=0, const char* dsnm=0 )
-			    : dsnm_(dsnm)		{ setGroupName(grpnm); }
-
-	const char*	groupName() const		{ return grpnm_; }
-	void		setGroupName( const char* nm )
-			{
-			    grpnm_.set( nm );
-			    if ( !grpnm_.startsWith("/") )
-				grpnm_.insertAt( 0 , "/" );
-			}
-	const char*	dataSetName() const		{ return dsnm_; }
-	void		setDataSetName( const char* nm )
-			{ dsnm_.set( nm ); }
-
-	BufferString	fullDataSetName() const
-			{ return BufferString(grpnm_,"/",dsnm_); }
-
-    protected:
-
-	BufferString	grpnm_;
-	BufferString	dsnm_;
-
-    };
 
 			Access();
     virtual		~Access();
@@ -108,6 +120,7 @@ protected:
     friend class	AccessImpl;
 
 };
+
 
 mExpClass(General) AccessProvider
 {

@@ -165,9 +165,9 @@ void uiAmplSpectrum::setData( const Array3D<float>& array )
     data->copyFrom( array );
     data_ = data;
 
-    const int sz0 = array.info().getSize( 0 );
-    const int sz1 = array.info().getSize( 1 );
-    const int sz2 = array.info().getSize( 2 );
+    const int sz0 = array.getSize( 0 );
+    const int sz1 = array.getSize( 1 );
+    const int sz2 = array.getSize( 2 );
 
     nrtrcs_ = sz0 * sz1;
     initFFT( sz2 );
@@ -207,11 +207,11 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 {
     if ( !timedomain_ || !freqdomain_ ) return false;
 
-    const int fftsz = timedomain_->info().getSize(0);
+    const int fftsz = timedomain_->getSize(0);
 
-    const int sz0 = array.info().getSize( 0 );
-    const int sz1 = array.info().getSize( 1 );
-    const int sz2 = array.info().getSize( 2 );
+    const int sz0 = array.getSize( 0 );
+    const int sz1 = array.getSize( 1 );
+    const int sz2 = array.getSize( 2 );
 
     const int start = (fftsz-sz2) / 2;
     for ( int idx=0; idx<sz0; idx++ )
@@ -233,7 +233,7 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 	}
     }
 
-    const int freqsz = freqdomainsum_->info().getSize(0) / 2;
+    const int freqsz = freqdomainsum_->getSize(0) / 2;
     delete specvals_;
     specvals_ = new Array1DImpl<float>( fftsz );
     maxspecval_ = 0.f;
@@ -253,7 +253,7 @@ void uiAmplSpectrum::putDispData( CallBacker* cb )
 {
     const bool isnormalized = normfld_->isChecked();
     const bool dbscale = powerdbfld_->isChecked();
-    const int fftsz = freqdomainsum_->info().getSize(0) / 2;
+    const int fftsz = freqdomainsum_->getSize(0) / 2;
     Array1DImpl<float> dbspecvals( fftsz );
     for ( int idx=0; idx<fftsz; idx++ )
     {
@@ -282,7 +282,7 @@ void uiAmplSpectrum::putDispData( CallBacker* cb )
 void uiAmplSpectrum::getSpectrumData( Array1DImpl<float>& data )
 {
     if ( !specvals_ ) return;
-    const int datasz = specvals_->info().getSize(0);
+    const int datasz = specvals_->getSize(0);
     data.setSize( datasz );
     for ( int idx=0; idx<datasz; idx++ )
 	data.set( idx, specvals_->get(idx) );
@@ -346,7 +346,7 @@ void uiAmplSpectrum::valChgd( CallBacker* )
 	return;
 
     const float ratio = (rg.start-posrange_.start)/posrange_.width();
-    const float specsize = mCast( float, specvals_->info().getSize(0) );
+    const float specsize = mCast( float, specvals_->getSize(0) );
     const int specidx = mNINT32( ratio * specsize );
     const TypeSet<float>& specvals = disp_->yVals();
     if ( !specvals.validIdx(specidx) )

@@ -164,7 +164,7 @@ void HorizonSection::NodeCallbackHandler::operator()( osg::Node* node,
     }
     else if( nv->getVisitorType()==osg::NodeVisitor::CULL_VISITOR )
     {
-	if ( hrsection_->tiles_.info().getTotalSz()==0 )
+	if ( hrsection_->tiles_.totalSize() < 1 )
 	    return;
 
 	osgUtil::CullVisitor* cv = dynamic_cast<osgUtil::CullVisitor*>(nv);
@@ -287,7 +287,7 @@ HorizonSection::~HorizonSection()
     hortexturehandler_->unRef();
 
     HorizonSectionTile** tileptrs = tiles_.getData();
-    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+    for ( int idx=0; idx<tiles_.totalSize(); idx++ )
     {
 	if ( !tileptrs[idx] )
 	    continue;
@@ -342,11 +342,11 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 
     if ( transformation_ )
     {
-	if ( tileptrs && tiles_.info().getTotalSz()>0 )
+	if ( tileptrs && tiles_.totalSize()>0 )
 	{
 	    spinlock_.lock();
 	    TileCoordinatesUpdator backupdator(
-		this, od_int64(tiles_.info().getTotalSz()),
+		this, od_int64(tiles_.totalSize()),
 		transformation_,true);
 	    backupdator.execute();
 	    spinlock_.unLock();
@@ -359,19 +359,19 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
     if ( transformation_ )
 	transformation_->ref();
 
-    if ( (transformation_ && tileptrs) || (tiles_.info().getTotalSz()>0) )
+    if ( (transformation_ && tileptrs) || (tiles_.totalSize()>0) )
     {
-	for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+	for ( int idx=0; idx<tiles_.totalSize(); idx++ )
 	    if ( tileptrs[idx] ) tileptrs[idx]->bbox_.init();
 	spinlock_.lock();
         TileCoordinatesUpdator forwardupdator(
-	    this, od_int64(tiles_.info().getTotalSz()),
+	    this, od_int64(tiles_.totalSize()),
 	    transformation_,false );
 	forwardupdator.execute();
 	spinlock_.unLock();
     }
 
-    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+    for ( int idx=0; idx<tiles_.totalSize(); idx++ )
     {
 	if ( tileptrs[idx] )
 	{
@@ -389,7 +389,7 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 HorizonSectionTile* HorizonSection::getTitle(int idx)
 {
     HorizonSectionTile** tileptrs = tiles_.getData();
-    if ( !tileptrs || (idx>=tiles_.info().getTotalSz()) )
+    if ( !tileptrs || (idx>=tiles_.totalSize()) )
 	return 0;
     return tileptrs[idx];
 }
@@ -399,7 +399,7 @@ void HorizonSection::setWireframeColor( Color col )
 {
     HorizonSectionTile** tileptrs = tiles_.getData();
     spinlock_.lock();
-    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+    for ( int idx=0; idx<tiles_.totalSize(); idx++ )
     {
 	if ( tileptrs[idx] )
 	    tileptrs[idx]->setWireframeColor( col );
@@ -412,7 +412,7 @@ void HorizonSection::setLineWidth( int width )
 {
     HorizonSectionTile** tileptrs = tiles_.getData();
     spinlock_.lock();
-    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+    for ( int idx=0; idx<tiles_.totalSize(); idx++ )
     {
 	if ( tileptrs[idx] )
 	    tileptrs[idx]->setLineWidth( width );
@@ -471,7 +471,7 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
 	return;
 
     HorizonSectionTile** tileptrs = tiles_.getData();
-    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+    for ( int idx=0; idx<tiles_.totalSize(); idx++ )
     {
 	if ( tileptrs[idx] )
 	{
@@ -557,7 +557,7 @@ const mVisTrans* HorizonSection::getDisplayTransformation() const
 void HorizonSection::enableGeometryTypeDisplay( GeometryType type, bool yn )
 {
     HorizonSectionTile** tileptrs = tiles_.getData();
-    const int tilesz = tiles_.info().getTotalSz();
+    const int tilesz = tiles_.totalSize();
 
     Threads::MutexLocker renderemutex( updatelock_ );
     for ( int idx=0; idx<tilesz; idx++ )
@@ -607,7 +607,7 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    return;
     }
 
-    if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
+    if ( !gpids || !tiles_.getSize(0) || !tiles_.getSize(1) )
 	hortilescreatorandupdator_->createAllTiles( tskr );
     else
     {
@@ -789,14 +789,14 @@ HorizonTextureHandler& HorizonSection::getTextureHandler()
 
 int HorizonSection::getNrTitles() const
 {
-    return tiles_.info().getTotalSz();
+    return tiles_.totalSize();
 }
 
 
 bool HorizonSection::checkTileIndex( int tidx ) const
 {
     return tiles_.getData() &&
-	   tidx<tiles_.info().getTotalSz() &&
+	   tidx<tiles_.totalSize() &&
 	   tiles_.getData()[tidx];
 }
 

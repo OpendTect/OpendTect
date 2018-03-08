@@ -23,7 +23,7 @@ Dip3DCalculator( Dip3D& fd )
 {}
 
 protected:
-od_int64 nrIterations() const	{ return fd_.input_.info().getTotalSz(); }
+od_int64 nrIterations() const	{ return fd_.input_.totalSize(); }
 uiString message() const	{ return tr("Dip/Azimuth calculating.."); }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
@@ -175,7 +175,8 @@ Dip2DCalculator( Dip2D& fd )
 {}
 
 protected:
-od_int64 nrIterations() const	{ return fd_.input_.info().getTotalSz(); }
+
+od_int64 nrIterations() const	{ return fd_.input_.totalSize(); }
 uiString message() const	{ return tr("Dip calculating.."); }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
@@ -303,8 +304,8 @@ DipPCA::Setup& DipPCA::Setup::operator=(const DipPCA::Setup& sp )
 
 Dip2D::Dip2D( const Array2D<float>& input, float xdist, float ydist )
     : input_(input)
-    , xsz_(input.info().getSize(0))
-    , ysz_(input.info().getSize(1))
+    , xsz_(input.getSize(0))
+    , ysz_(input.getSize(1))
     , xdist_(xdist)
     , ydist_(ydist)
 {
@@ -683,9 +684,9 @@ bool Dip2D::fillGap()
 Dip3D::Dip3D( const Array3D<float>& input, float xdist, float ydist,
 	float zdist )
     : input_(input)
-    , xsz_(input.info().getSize(0))
-    , ysz_(input.info().getSize(1))
-    , zsz_(input.info().getSize(2))
+    , xsz_(input.getSize(0))
+    , ysz_(input.getSize(1))
+    , zsz_(input.getSize(2))
     , xdist_(xdist)
     , ydist_(ydist)
     , zdist_(zdist)

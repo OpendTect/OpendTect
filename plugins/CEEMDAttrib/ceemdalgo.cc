@@ -584,7 +584,7 @@ bool CEEMD::DecompInput::doHilbert(
 	    createarr.set( idx, val );
 	}
 
-	padtrace = createarr.getStorage();
+	padtrace = createarr.valueSeries();
 	if ( !padtrace )
 	    return false;
 
@@ -706,7 +706,7 @@ bool CEEMD::DecompInput::useGridding(
 
 	for ( int f=startfreq; f<endfreq; f+=stepoutfreq )
 	{
-	    if ( f >= output->info().getSize(1) ) break;
+	    if ( f >= output->getSize(1) ) break;
 	    double dff = mCast(double, f);
 	    double dtt = mCast(double, idt);
 	    float val;
@@ -771,7 +771,7 @@ bool CEEMD::DecompInput::usePolynomial(
 	    if ( f/stepoutfreq == 0 )
 		continue;
 
-	    if ( f/stepoutfreq > output->info().getSize(1) ) break;
+	    if ( f/stepoutfreq > output->getSize(1) ) break;
 	    float val;
 	    if ( f < minf || f > maxf ) val = 0;
 	    else
@@ -881,7 +881,7 @@ bool CEEMD::DecompInput::outputAttribute(
 	int size = realizatns[0]->size();
 	for ( int comp=startcomp; comp<=endcomp && comp<size; comp++ )
 	{
-	    if ( comp>= output->info().getSize(1) ) break;
+	    if ( comp>= output->getSize(1) ) break;
 	    for ( int idx=0; idx<size_; idx++ )
 	    {
 		float val =  (*realizatns[0])[comp]->values_[idx];
@@ -891,7 +891,7 @@ bool CEEMD::DecompInput::outputAttribute(
 	// add zeroes
 	for ( int comp=size; comp<setup_.maxnrimf_; comp++ )
 	{
-	    if ( comp>= output->info().getSize(1) ) break;
+	    if ( comp>= output->getSize(1) ) break;
 	    for ( int idx=0; idx<size_; idx++ )
 		output->set( idx, comp, 0 );
 	}

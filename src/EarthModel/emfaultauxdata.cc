@@ -395,15 +395,15 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
     IOPar sdinfo;
     sdinfo.setYN( sKey::Binary(), binary );
     File::Path fpnm( fltfullnm_ );
-    sdinfo.set( "RowSize", dataset_[sdidx]->data->info().getSize(0) );
-    sdinfo.set( "ColSize", dataset_[sdidx]->data->info().getSize(1) );
+    sdinfo.set( "RowSize", dataset_[sdidx]->data->getSize(0) );
+    sdinfo.set( "ColSize", dataset_[sdidx]->data->getSize(1) );
     sdinfo.putTo( astream );
 
     od_ostream& strm = astream.stream();
     const float* vals = dataset_[sdidx]->data->getData();
     if ( vals )
     {
-	const od_uint64 datasz = dataset_[sdidx]->data->info().getTotalSz();
+	const od_uint64 datasz = dataset_[sdidx]->data->totalSize();
 	for ( od_int64 idy=0; idy<datasz; idy++ )
 	{
 	    if ( binary )
@@ -414,8 +414,8 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
     }
     else
     {
-	const int isz = dataset_[sdidx]->data->info().getSize( 0 );
-	const int jsz = dataset_[sdidx]->data->info().getSize( 1 );
+	const int isz = dataset_[sdidx]->data->getSize( 0 );
+	const int jsz = dataset_[sdidx]->data->getSize( 1 );
 	for ( int idx=0; idx<isz; idx++ )
 	{
 	    for ( int jdx=0; jdx<jsz; jdx++ )

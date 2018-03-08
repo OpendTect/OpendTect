@@ -79,8 +79,8 @@ void Seis::MSCProvider::setStepout( Array2D<bool>* mask )
 {
     if ( !mask ) return;
 
-    setStepout( (mask->info().getSize(0)-1)/2,
-		(mask->info().getSize(1)-1)/2, true );
+    setStepout( (mask->getSize(0)-1)/2,
+		(mask->getSize(1)-1)/2, true );
     reqmask_ = mask;
 }
 
@@ -518,8 +518,8 @@ void SeisFixedCubeProvider::clear()
     if ( !data_ )
 	return;
 
-    for ( int idx=0; idx<data_->info().getSize(0); idx++ )
-	for ( int idy=0; idy<data_->info().getSize(1); idy++ )
+    for ( int idx=0; idx<data_->getSize(0); idx++ )
+	for ( int idy=0; idy<data_->getSize(1); idy++ )
 	    delete data_->get( idx, idy );
 
     delete data_;
@@ -594,8 +594,8 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     clear();
     data_ = new Array2DImpl<SeisTrc*>( tkzs_.hsamp_.nrInl(),
 				       tkzs_.hsamp_.nrCrl() );
-    for ( int idx=0; idx<data_->info().getSize(0); idx++ )
-	for ( int idy=0; idy<data_->info().getSize(1); idy++ )
+    for ( int idx=0; idx<data_->getSize(0); idx++ )
+	for ( int idy=0; idy<data_->getSize(1); idy++ )
 	    data_->set( idx, idy, 0 );
 
     PtrMan<Seis::TrcDataLoader> loader =

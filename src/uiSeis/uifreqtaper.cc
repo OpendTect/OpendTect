@@ -495,7 +495,7 @@ void uiFuncTaperDisp::adaptFreqRangesToDataSize( bool isleft, bool isright )
 
 void uiFuncTaperDisp::setFunction( Array1DImpl<float>& data, Interval<float> rg)
 {
-    datasz_ = data.info().getSize(0);
+    datasz_ = data.getSize(0);
     adaptFreqRangesToDataSize( true, true );
 
     delete orgfuncvals_;

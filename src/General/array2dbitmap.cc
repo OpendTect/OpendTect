@@ -69,7 +69,7 @@ void A2DBitMapInpData::determineMidVal()
 void A2DBitMapInpData::collectData()
 {
     clipper_.reset();
-    clipper_.setApproxNrValues( data_.info().getTotalSz(), mMaxNrStatPts );
+    clipper_.setApproxNrValues( data_.totalSize(), mMaxNrStatPts );
     clipper_.putData( data_ );
     clipper_.fullSort();
     determineMidVal();
@@ -199,7 +199,7 @@ A2DBitMapGenerator::A2DBitMapGenerator( const A2DBitMapInpData& dat,
 
 void A2DBitMapGenerator::initBitMap( A2DBitMap& bm )
 {
-    const od_uint64 totsz = bm.info().getTotalSz();
+    const od_uint64 totsz = bm.totalSize();
     if ( totsz > 0 )
 	OD::memSet( bm.getData(), A2DBitMapGenPars::cNoFill(),
 			totsz*sizeof(char) );
@@ -208,7 +208,7 @@ void A2DBitMapGenerator::initBitMap( A2DBitMap& bm )
 
 int A2DBitMapGenerator::bitmapSize( int dim ) const
 {
-    return bitmap_ ? bitmap_->info().getSize( dim ? 1 : 0 ) : 0;
+    return bitmap_ ? bitmap_->getSize( dim ? 1 : 0 ) : 0;
 }
 
 
@@ -594,10 +594,10 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 	    {
 		if ( idim0 < 0 ) idim0 = 0;
 		if ( idim1 < 0 ) idim1 = 0;
-		if ( idim0 >= inpdata.info().getSize(0) )
-		    idim0 = inpdata.info().getSize(0)-1;
-		if ( idim1 >= inpdata.info().getSize(1) )
-		    idim1 = inpdata.info().getSize(1)-1;
+		if ( idim0 >= inpdata.getSize(0) )
+		    idim0 = inpdata.getSize(0)-1;
+		if ( idim1 >= inpdata.getSize(1) )
+		    idim1 = inpdata.getSize(1)-1;
 		if ( dim0offs <= 0.5 && dim1offs <= 0.5 )
 		    { val = mV00Val; }
 		else
@@ -646,26 +646,26 @@ void VDA2DBitMapGenerator::fillInterpPars(
 {
     float v[12];
     const Array2D<float>& inpdata = data_.data();
-    const ValueSeries<float>* storage = inpdata.getStorage();
-    const float* storageptr = storage ? storage->arr() : 0;
+    const float* arrptr = inpdata.getData();
+    const ValueSeries<float>* vsptr = inpdata.valueSeries();
 
-    if ( storageptr )
+    if ( arrptr )
     {
-	storageptr += inpdata.info().getOffset( idim0, idim1 );
+	arrptr += inpdata.info().getOffset( idim0, idim1 );
 #define mGet( i0, i1 ) \
     (idim0+i0)<szdim0_ && (idim0+i0)>=0 && (idim1+i1)<szdim1_ && (idim1+i1)>=0 \
-	? storageptr[i0*szdim1_+i1] : mUdf(float);
+	? arrptr[i0*szdim1_+i1] : mUdf(float);
 
 	mGetAll;
 #undef mGet
     }
-    else if ( storage )
+    else if ( vsptr )
     {
 	const od_int64 offset =
 	    mCast(od_int64,inpdata.info().getOffset(idim0,idim1));
 #define mGet( i0, i1 ) \
     (idim0+i0)<szdim0_ && (idim0+i0)>=0 && (idim1+i1)<szdim1_ && (idim1+i1)>=0 \
-	? storage->value(offset+i0*szdim1_+i1) : mUdf(float);
+	? vsptr->value(offset+i0*szdim1_+i1) : mUdf(float);
 	mGetAll;
 #undef mGet
     }

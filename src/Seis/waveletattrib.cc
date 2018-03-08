@@ -178,7 +178,7 @@ bool WaveletAttrib::getFreqFiltered( float* out, float f1, float f2,
 
 void WaveletAttrib::muteZeroFrequency( Array1DImpl<float>& vals )
 {
-    const int arraysz = vals.info().getSize(0);
+    const int arraysz = vals.getSize(0);
     Array1DImpl<float_complex> cvals( arraysz ), tmparr( arraysz );
 
     for ( int idx=0; idx<arraysz; idx++ )
@@ -212,7 +212,7 @@ void WaveletAttrib::transform( Array1D<float_complex>& fftwvlt, int sz )
 void WaveletAttrib::transformBack( const Array1D<float_complex>& fftwvlt,
                                    Array1D<float>& wvlt )
 {
-    const int arraysz = fftwvlt.info().getSize( 0 );
+    const int arraysz = fftwvlt.getSize( 0 );
     Array1DImpl<float_complex> cwvlt( arraysz );
     doFFT( false, fftwvlt, cwvlt,  arraysz );
 

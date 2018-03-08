@@ -443,13 +443,13 @@ int Seis2DTo3D::nextStep()
     if (smartscaling_ && nrdone_ == 0)
     {
 	mDoTransform( fft_, true, geom_ , taskrun_);
-	ArrayMultiplierExec meexec( butterfly_->info().getTotalSz(),
-				   butterfly_->getData(), geom_->getData() );
+	ArrayMultiplierExec meexec( butterfly_->totalSize(),
+				    butterfly_->getData(), geom_->getData() );
 	taskrun_->execute( meexec );
 	mDoTransform( fft_, false, geom_ , taskrun_);
     }
-    ArrayMultiplierExec meexec( butterfly_->info().getTotalSz(),
-			       butterfly_->getData(), trcarr_->getData() );
+    ArrayMultiplierExec meexec( butterfly_->totalSize(),
+			        butterfly_->getData(), trcarr_->getData() );
     taskrun_->execute( meexec );
     mDoTransform( fft_, false, trcarr_ , taskrun_);
 
@@ -528,7 +528,7 @@ bool Seis2DTo3D::scaleArray()
 
 void Seis2DTo3D::smartScale()
 {
-    ArrayDivideExec adexec( trcarr_->info().getTotalSz(), geom_->getData(),
+    ArrayDivideExec adexec( trcarr_->totalSize(), geom_->getData(),
 			       trcarr_->getData() );
     taskrun_->execute( adexec );
 }

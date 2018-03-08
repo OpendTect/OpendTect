@@ -51,7 +51,7 @@ clip if a certain clip percentage is desired.
   float	   otherdata;
 
   DataClipper clipper;
-  setApproxNrValues( somedata.info().getTotalSz()+moredata.size()+1, 2000 );
+  setApproxNrValues( somedata.totalSize()+moredata.size()+1, 2000 );
   clipper.putData( somedata );
   clipper.putData( moredata.arr(), moredata.size() );
   clipper.putData( otherdata );

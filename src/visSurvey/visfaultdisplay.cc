@@ -1187,7 +1187,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
 			 Array2DImpl<float>(sz.col(),sz.row()) );
 
     float* texturedataptr = texturedata->getData();
-    for ( int idy=0; idy<texturedata->info().getTotalSz(); idy++ )
+    for ( int idy=0; idy<texturedata->totalSize(); idy++ )
 	(*texturedataptr++) = mUdf(float);
 
     const DataColDef texturei(Geometry::ExplFaultStickSurface::sKeyTextureI());
@@ -1208,8 +1208,8 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     }
 
     delete texuredatas_.replace( attrib, texturedata );
-    channels_->setSize( attrib, 1, texturedata->info().getSize(0),
-			texturedata->info().getSize(1) );
+    channels_->setSize( attrib, 1, texturedata->getSize(0),
+			texturedata->getSize(1) );
     channels_->setUnMappedData( attrib, 0, texturedata->getData(),
 				OD::UsePtr, taskr );
     validtexture_ = true;
@@ -1236,8 +1236,7 @@ void FaultDisplay::showSelectedSurfaceData()
 	if ( !data )
 	    continue;
 
-	channels_->setSize( lastattridx, 1, data->info().getSize(0),
-			       data->info().getSize(1) );
+	channels_->setSize( lastattridx, 1, data->getSize(0), data->getSize(1));
 	channels_->setUnMappedData( lastattridx--, 0, data->getData(),
 				    OD::UsePtr, 0 );
 	if ( lastattridx<0 )

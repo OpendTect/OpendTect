@@ -74,21 +74,21 @@ bool MarchingCubesSurfaceEditor::setKernel( const Array3D<unsigned char>& arr,
     yorigin_ = ypos-1;
     zorigin_ = zpos-1;
 
-    kernel_ = new Array3DImpl<unsigned char>( arr.info().getSize(mX)+2,
-					      arr.info().getSize(mY)+2,
-					      arr.info().getSize(mZ)+2 );
+    kernel_ = new Array3DImpl<unsigned char>( arr.getSize(mX)+2,
+					      arr.getSize(mY)+2,
+					      arr.getSize(mZ)+2 );
 
     if ( !kernel_ || !kernel_->isOK() )
 	mErrRet;
 
     OD::memZero( kernel_->getData(),
-	    sizeof(unsigned char) * kernel_->info().getTotalSz() );
+	    sizeof(unsigned char) * kernel_->totalSize() );
 
-    for ( int idz=0; idz<arr.info().getSize(mZ); idz++ )
+    for ( int idz=0; idz<arr.getSize(mZ); idz++ )
     {
-	for ( int idy=0; idy<arr.info().getSize(mY); idy++ )
+	for ( int idy=0; idy<arr.getSize(mY); idy++ )
 	{
-	    for ( int idx=0; idx<arr.info().getSize(mX); idx++ )
+	    for ( int idx=0; idx<arr.getSize(mX); idx++ )
 	    {
 		kernel_->set( idx+1, idy+1, idz+1, arr.get(idx,idy,idz));
 	    }
@@ -108,9 +108,9 @@ bool MarchingCubesSurfaceEditor::setKernel( const Array3D<unsigned char>& arr,
     if ( !mc2i.execute() )
 	mErrRet;
 
-    Interval<int> xrg(0, kernel_->info().getSize(mX)+1 );
-    Interval<int> yrg(0, kernel_->info().getSize(mY)+1 );
-    Interval<int> zrg(0, kernel_->info().getSize(mZ)+1 );
+    Interval<int> xrg(0, kernel_->getSize(mX)+1 );
+    Interval<int> yrg(0, kernel_->getSize(mY)+1 );
+    Interval<int> zrg(0, kernel_->getSize(mZ)+1 );
     int centval = originalsurface_->get(xrg.center(),yrg.center(),zrg.center());
     int dx = originalsurface_->get(xrg.center()+1,yrg.center(),zrg.center())-
 		centval;
@@ -157,9 +157,9 @@ bool MarchingCubesSurfaceEditor::affectedVolume(Interval<int>& xrg,
     if ( !kernel_ )
 	return false;
 
-    xrg =  Interval<int>(xorigin_, xorigin_+kernel_->info().getSize(mX)-1 );
-    yrg =  Interval<int>(yorigin_, yorigin_+kernel_->info().getSize(mY)-1 );
-    zrg =  Interval<int>(zorigin_, zorigin_+kernel_->info().getSize(mZ)-1 );
+    xrg =  Interval<int>(xorigin_, xorigin_+kernel_->getSize(mX)-1 );
+    yrg =  Interval<int>(yorigin_, yorigin_+kernel_->getSize(mY)-1 );
+    zrg =  Interval<int>(zorigin_, zorigin_+kernel_->getSize(mZ)-1 );
 
     return true;
 }
@@ -170,9 +170,7 @@ od_int64 MarchingCubesSurfaceEditor::nrIterations() const
     if ( !kernel_ )
 	return 0;
 
-    return ( kernel_->info().getSize(mX) ) *
-	   ( kernel_->info().getSize(mY) ) *
-	   ( kernel_->info().getSize(mZ) );
+    return kernel_->getSize(mX) * kernel_->getSize(mY) * kernel_->getSize(mZ);
 }
 
 
@@ -193,7 +191,7 @@ bool MarchingCubesSurfaceEditor::doFinish( bool success )
 	Array3DImpl<float> convarr( originalsurface_->info() );
 	ValueSeries<float>* valseries =
 	  new ArrayValueSeries<float,int>(changedsurface_->getData(),false,
-		    changedsurface_->info().getTotalSz() );
+		    changedsurface_->totalSize() );
 
 	if ( convarr.setStorage( valseries ) )
 	    surface_.setVolumeData( xorigin_, yorigin_, zorigin_,

@@ -52,7 +52,7 @@ void BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
 
 void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 {
-    const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
+    const Geom::Size2D<int> bmpsz(bmp.getSize(0),bmp.getSize(1));
     const Geom::Size2D<int> arrsz(array_.getSize(true),array_.getSize(false));
     const FlatView::DataDispPars::VD& pars = app_.ddpars_.vd_;
     ConstRefMan<ColTab::Sequence> colseq = ColTab::SeqMGR()
@@ -82,7 +82,7 @@ void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 
 void BitMap2RGB::drawWVA( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 {
-    const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
+    const Geom::Size2D<int> bmpsz(bmp.getSize(0),bmp.getSize(1));
     const Geom::Size2D<int> arrsz(array_.getSize(true),array_.getSize(false));
     const FlatView::DataDispPars::WVA& pars = app_.ddpars_.wva_;
 

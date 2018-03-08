@@ -83,7 +83,7 @@ public:
 template <class fT>
 inline int Array2DMatrix<fT>::size( bool dim1 ) const
 {
-    return a2d_.info().getSize( dim1 ? 1 : 0 );
+    return a2d_.getSize( dim1 ? 1 : 0 );
 }
 
 
@@ -102,7 +102,7 @@ template <class fT>
 inline bool Array2DMatrix<fT>::isEq( const Array2D<fT>& a2d, fT eps ) const
 {
     mDefineImplA2DMatSizes;
-    if ( a2d_.info().getSize(0) != sz0 || a2d_.info().getSize(1) != sz1 )
+    if ( a2d_.getSize(0) != sz0 || a2d_.getSize(1) != sz1 )
 	return false;
 
     for ( int idx0=0; idx0<sz0; idx0++ )
@@ -215,7 +215,7 @@ inline void Array2DMatrix<fT>::getProduct( const Array1DVector& vin,
 				    Array1DVector& vout ) const
 {
     mDefineImplA2DMatSizes;
-    const int vsz = vin.info().getSize(0);
+    const int vsz = vin.getSize(0);
     mA2DMatHandleDimErr(vsz,sz1)
     vout.setSize( vsz );
 

@@ -504,7 +504,7 @@ void SynthGenerator::getWaveletTrace( Array1D<float>& trc, float z,
 				      float scal,
 				      SamplingData<float>& sampling ) const
 {
-    const int sz = trc.info().getSize(0);
+    const int sz = trc.getSize(0);
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float twt = sampling.atIndex( idx );

@@ -366,8 +366,8 @@ float RayTracer1D::getSinAngle( int layer, int offset ) const
 
     const int offsetidx = offsetpermutation_[offset];
 
-    if ( !sini_ || layer<0 || layer>=sini_->info().getSize(0) ||
-	 offsetidx<0 || offsetidx>=sini_->info().getSize(1) )
+    if ( !sini_ || layer<0 || layer>=sini_->getSize(0) ||
+	 offsetidx<0 || offsetidx>=sini_->getSize(1) )
 	return mUdf(float);
 
     return sini_->get( layer, offsetidx );
@@ -382,10 +382,10 @@ bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
 
     const int offsetidx = offsetpermutation_[offset];
 
-    if ( offsetidx<0 || offsetidx>=reflectivity_->info().getSize(1) )
+    if ( offsetidx<0 || offsetidx>=reflectivity_->getSize(1) )
 	return false;
 
-    const int nrinterfaces = reflectivity_->info().getSize(0);
+    const int nrinterfaces = reflectivity_->getSize(0);
 
     model.erase();
     model.setCapacity( nrinterfaces, false );
@@ -419,7 +419,7 @@ bool RayTracer1D::getTDModel( int offset, TimeDepthModel& d2tm ) const
 
     const int offsetidx = offsetpermutation_[offset];
 
-    if ( !twt_ || offsetidx<0 || offsetidx>=twt_->info().getSize(1) )
+    if ( !twt_ || offsetidx<0 || offsetidx>=twt_->getSize(1) )
 	return false;
     Array1DSlice<float> offstwt( *twt_ );
     offstwt.setDimMap( 0, 0 );

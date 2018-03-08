@@ -77,7 +77,7 @@ void setDataPack( const FlatDataPack* fdp, bool wva )
     if ( mapper.distribution().isEmpty() )
     {
 	const ArrayND<float>* dataarr = fdp->arrayData( 0 );
-	if ( dataarr->info().getTotalSz() )
+	if ( dataarr->totalSize() > 0 )
 	{
 	    RangeLimitedDataDistributionExtracter<float> extracter(
 							*fdp->arrayData(0) );

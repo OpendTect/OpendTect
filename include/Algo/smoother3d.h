@@ -73,7 +73,7 @@ Smoother3D<T>::Smoother3D()
 
 template <class T> inline
 int Smoother3D<T>::getWindowSize(int dim) const
-{ return window_.info().getSize( dim ); }
+{ return window_.getSize( dim ); }
 
 
 template <class T> inline
@@ -152,8 +152,8 @@ void Smoother3D<T>::fillPar( IOPar& par ) const
     par.set( sKeyWinFunc(), windowname_ );
     if ( !mIsUdf(windowparam_) )
 	par.set( sKeyWinParam(), windowparam_ );
-    par.set( sKeyWinSize(), window_.info().getSize(0),window_.info().getSize(1),
-			    window_.info().getSize(2) );
+    par.set( sKeyWinSize(), window_.getSize(0), window_.getSize(1),
+			    window_.getSize(2) );
 }
 
 

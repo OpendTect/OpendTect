@@ -686,13 +686,13 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 				VolumeDataPack::categoryStr(false,false) );
 	    output->setSampling( tkzs );
 	    if ( !output->addComponent(targetspecs_[0].userRef(),true) ||
-		    !output->data(0).getStorage() )
+		    !output->data(0).valueSeries() )
 	    {
 		output = 0;
 	    }
 	    else
 	    {
-		ValueSeries<float>* arr3dvs = output->data(0).getStorage();
+		ValueSeries<float>* arr3dvs = output->data(0).valueSeries();
 		ValueSeriesGetAll<float> copier( avs, *arr3dvs, vals.size() );
 		copier.execute();
 	    }
@@ -918,7 +918,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
 	const TrcKeyPath& tkpath = newpack->getPath();
 	const int pathsz = tkpath.size();
-	const int nrz = newpack->data(idx).info().getSize(2);
+	const int nrz = newpack->data(idx).getSize(2);
 
 	for ( int idy=0; idy<pathsz; idy++ )
 	{

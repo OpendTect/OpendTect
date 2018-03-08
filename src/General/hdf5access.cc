@@ -4,8 +4,7 @@
  * DATE     : March 2018
 -*/
 
-#include "hdf5reader.h"
-#include "hdf5writer.h"
+#include "hdf5arraynd.h"
 #include "arrayndimpl.h"
 #include "iopar.h"
 #include "uistrings.h"
@@ -101,40 +100,10 @@ uiRetVal HDF5::Writer::putInfo( const DataSetKey& dsky, const IOPar& iop )
 
 
 uiRetVal HDF5::Writer::putData( const DataSetKey& dsky, const ArrayNDInfo& inf,
-				const Byte* data, ODDataType dt )
+				const void* data, ODDataType dt )
 {
     uiRetVal uirv;
-    if ( data && inf.getTotalSz() > 0 )
+    if ( data && inf.totalSize() > 0 )
 	ptData( dsky, inf, data, dt, uirv );
-    return uirv;
-}
-
-
-uiRetVal HDF5::Writer::putData( const DataSetKey& dsky, const FloatArrND& arr )
-{
-    uiRetVal uirv;
-    const ArrayNDInfo& inf = arr.info();
-    if ( inf.getTotalSz() < 1 )
-	return uirv;
-
-    Byte* data = (Byte*)arr.getData();
-    ArrayND<float>* regarr = 0;
-    if ( !data )
-    {
-	regarr = ArrayNDImpl<float>::clone( arr );
-	if ( !regarr )
-	    { uirv.add( uiStrings::phrCannotAllocateMemory() ); return uirv; }
-	data = (Byte*)regarr->getData();
-	if ( !data )
-	{
-	    const char* e_msg = "no getData from ArrayNDImpl";
-	    pErrMsg( e_msg );
-	    uirv.add( uiStrings::phrInternalErr(e_msg) );
-	    return uirv;
-	}
-    }
-
-    ptData( dsky, inf, data, OD::F32, uirv );
-    delete regarr;
     return uirv;
 }

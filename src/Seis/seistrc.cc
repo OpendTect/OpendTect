@@ -291,7 +291,7 @@ float* SeisTrcValueSeries::arr()
 bool SeisTrcValueSeries::copytoArray( Array1D<float>& seistrcarr )
 {
     const int trcsz = trc_.size();
-    if ( seistrcarr.info().getSize(0) != trcsz )
+    if ( seistrcarr.getSize(0) != trcsz )
 	return false;
 
     if ( arr() )

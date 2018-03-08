@@ -172,7 +172,7 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 
     StepInterval<int> curcolrg = surf->colRange();
     const StepInterval<int> targetcolrg( origin.col(),
-	origin.col()+curcolrg.step*(arr.info().getSize(1)-1), curcolrg.step );
+	origin.col()+curcolrg.step*(arr.getSize(1)-1), curcolrg.step );
 
     while ( curcolrg.start-curcolrg.step>=targetcolrg.start )
     {
@@ -190,7 +190,7 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 
     StepInterval<int> currowrg = surf->rowRange();
     const StepInterval<int> targetrowrg( origin.row(),
-	origin.row()+currowrg.step*(arr.info().getSize(0)-1), currowrg.step );
+	origin.row()+currowrg.step*(arr.getSize(0)-1), currowrg.step );
 
     while ( currowrg.start-currowrg.step>=targetrowrg.start )
     {

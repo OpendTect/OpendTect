@@ -168,7 +168,7 @@ ArrayNDProbDenFunc& ArrayNDProbDenFunc::operator =(
 
 void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
 {
-    const int nrdim = getData().info().getNDim();
+    const int nrdim = getData().getNDim();
     for ( int idx=0; idx<nrdim; idx++ )
     {
 	par.set( IOPar::compKey(sKey::Size(),idx), size(idx) );
@@ -178,7 +178,7 @@ void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
 
 #define mDefArrVars(retval,constspec) \
     constspec ArrayND<float>& array = getData(); \
-    const od_int64 totalsz = array.info().getTotalSz(); \
+    const od_int64 totalsz = array.totalSize(); \
     if ( totalsz < 1 ) \
 	return retval; \
     constspec float* values = array.getData(); \
@@ -189,7 +189,7 @@ bool ArrayNDProbDenFunc::gtIsEq( const ProbDenFunc& pdf ) const
     mDynamicCastGet(const ArrayNDProbDenFunc&,oth,pdf)
     mDefArrVars(true,const);
 
-    if ( totalsz != oth.getData().info().getTotalSz() )
+    if ( totalsz != oth.getData().totalSize() )
 	return false;
 
     const float* othvalues = oth.getData().getData();
@@ -331,7 +331,7 @@ float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
     TypeSet<float> integrvals( tardimsz, 0 );
     const ArrayND<float>& arrnd = getData();
     const ArrayNDInfo& arrndinfo = arrnd.info();
-    const od_uint64 totsz = arrndinfo.getTotalSz();
+    const od_uint64 totsz = arrndinfo.totalSize();
     const float* arr = arrnd.getData();
     float grandtotal = 0;
     TypeSet<int> dimidxsts( arrndinfo.getNDim(), 0 );
@@ -635,7 +635,7 @@ SampledNDProbDenFunc::SampledNDProbDenFunc( int nrdims )
 SampledNDProbDenFunc::SampledNDProbDenFunc( const ArrayND<float>& arr )
     : bins_(arr)
 {
-    for ( int idx=0; idx<arr.info().getNDim(); idx++ )
+    for ( int idx=0; idx<arr.getNDim(); idx++ )
     {
 	sds_ += SamplingData<float>(0,1);
 	dimnms_.add( BufferString("Dim ",idx) );
@@ -817,7 +817,7 @@ bool SampledNDProbDenFunc::usePar( const IOPar& par )
     }
 
     bins_.setSize( szs.arr() );
-    return bins_.info().getTotalSz() > 0;
+    return bins_.totalSize() > 0;
 }
 
 

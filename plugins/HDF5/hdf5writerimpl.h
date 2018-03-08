@@ -42,7 +42,7 @@ protected:
 
     virtual void	ptInfo(const DataSetKey&,const IOPar&,uiRetVal&);
     virtual void	ptData(const DataSetKey&,const ArrayNDInfo&,
-				   const Byte*,ODDataType,uiRetVal&);
+				const void*,ODDataType,uiRetVal&);
 
     bool		ensureGroup(const char*);
 			//!< returns false if group already existed

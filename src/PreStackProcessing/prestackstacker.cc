@@ -75,12 +75,12 @@ bool Stack::doWork( od_int64 start, od_int64 stop, int )
 	     if ( !output || !input )
 		 continue;
 
-	     if ( idz>=input->data().info().getSize( Gather::zDim() ) ||
-		  idz>=output->data().info().getSize( Gather::zDim() ) )
+	     if ( idz>=input->data().getSize( Gather::zDim() ) ||
+		  idz>=output->data().getSize( Gather::zDim() ) )
 		 continue;
 
 	    const int nroffsets =
-		input->data().info().getSize(Gather::offsetDim());
+		input->data().getSize(Gather::offsetDim());
 	    int nrvals = 0;
 	    float stack = mUdf(float);
 	    for ( int ioff=0; ioff<nroffsets; ioff++ )
@@ -115,7 +115,7 @@ od_int64 Stack::nrIterations() const
 	if ( !inputs_[idx] )
 	    continue;
 
-	const int nrz = inputs_[idx]->data().info().getSize( Gather::zDim() );
+	const int nrz = inputs_[idx]->data().getSize( Gather::zDim() );
 
 	max = mMAX(max,nrz);
     }

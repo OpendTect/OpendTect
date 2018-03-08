@@ -50,7 +50,7 @@ protected:
 
     bool		doFFT();
     inline bool		doWork(od_int64,od_int64,int);
-    od_int64		nrIterations() const { return z_->info().getTotalSz(); }
+    od_int64		nrIterations() const { return z_->totalSize(); }
     const Array3D<T>*	x_;
     int			xshift0_;
     int			xshift1_;
@@ -143,12 +143,12 @@ if ( idy##dim>=ysz##dim ) \
 template <class T> inline
 bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
 {
-    const int xsz0 = x_->info().getSize( 0 );
-    const int xsz1 = x_->info().getSize( 1 );
-    const int xsz2 = x_->info().getSize( 2 );
-    const int ysz0 = y_->info().getSize( 0 );
-    const int ysz1 = y_->info().getSize( 1 );
-    const int ysz2 = y_->info().getSize( 2 );
+    const int xsz0 = x_->getSize( 0 );
+    const int xsz1 = x_->getSize( 1 );
+    const int xsz2 = x_->getSize( 2 );
+    const int ysz0 = y_->getSize( 0 );
+    const int ysz1 = y_->getSize( 1 );
+    const int ysz2 = y_->getSize( 2 );
 
     int startpos[3];
 
@@ -266,13 +266,13 @@ bool Convolver3D<float>::shouldFFT() const
     if ( !x_ || !y_ || !z_ )
 	return false;
 
-    const int xsz = x_->info().getTotalSz();
-    const int ysz = y_->info().getTotalSz();
-    const int zsz = z_->info().getTotalSz();
+    const int xsz = x_->totalSize();
+    const int ysz = y_->totalSize();
+    const int zsz = z_->totalSize();
 
-    int maxsz = x_->info().getTotalSz();
-    maxsz = mMAX( maxsz, y_->info().getTotalSz() );
-    maxsz = mMAX( maxsz, z_->info().getTotalSz() );
+    int maxsz = xsz;
+    maxsz = mMAX( maxsz, ysz );
+    maxsz = mMAX( maxsz, zsz );
 
     const int tradsz = zsz * mMIN(ysz,xsz);
     const float fftszf = maxsz * Math::Log( (float) maxsz );

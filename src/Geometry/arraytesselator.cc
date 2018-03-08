@@ -14,29 +14,29 @@ ________________________________________________________________________
 namespace Geometry
 {
 
-ArrayTesselator::ArrayTesselator( const float* data, int rowsz, int colsz, 
-				  const StepInterval<int>& rrg, 
+ArrayTesselator::ArrayTesselator( const float* data, int rowsz, int colsz,
+				  const StepInterval<int>& rrg,
 				  const StepInterval<int>& crg )
     : data_( data )
     , datarowsize_( rowsz )
     , datacolsize_( colsz )
     , rowrange_( rrg )
     , colrange_( crg )
-{}		      
+{}
 
 
 ArrayTesselator::ArrayTesselator( const Array2D<float>& data,
-				  const StepInterval<int>& rrg, 
+				  const StepInterval<int>& rrg,
 				  const StepInterval<int>& crg )
     : data_( data.getData() )
-    , datarowsize_( data.info().getSize(0) )
-    , datacolsize_( data.info().getSize(1) )
+    , datarowsize_( data.getSize(0) )
+    , datacolsize_( data.getSize(1) )
     , rowrange_( rrg )
     , colrange_( crg )
-{}		      
+{}
 
 
-#define mGlobleIdx(row,col) row*datacolsize_+col 
+#define mGlobleIdx(row,col) row*datacolsize_+col
 
 #define mAddTriangle( ci0, ci1, ci2 ) \
 stripcis_ += ci0; \
@@ -52,9 +52,9 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int currow = mCast(int,(idx/colsz)*rowrange_.step + 
+	const int currow = mCast(int,(idx/colsz)*rowrange_.step +
 							    rowrange_.start);
-	const int curcol = mCast(int,(idx%colsz)*colrange_.step + 
+	const int curcol = mCast(int,(idx%colsz)*colrange_.step +
 							    colrange_.start);
 	if ( currow > glastrowidx || curcol > glastcolidx )
 	    continue;
@@ -62,9 +62,9 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 	const bool islastrow = currow == glastrowidx;
 	const bool islastcol = curcol == glastcolidx;
 	int nextrow = currow + rowrange_.step;
-  	if ( nextrow>glastrowidx ) nextrow = glastrowidx;
-  	int nextcol = curcol + colrange_.step;
- 	if ( nextcol>glastcolidx ) nextcol = glastcolidx;
+	if ( nextrow>glastrowidx ) nextrow = glastrowidx;
+	int nextcol = curcol + colrange_.step;
+	if ( nextcol>glastcolidx ) nextcol = glastcolidx;
 
 	const int c11 = mGlobleIdx(currow,curcol);
 	const int c12 = mGlobleIdx(currow,nextcol);
@@ -78,11 +78,11 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 	const int nrdefined = def11 + def12 + def21 + def22;
 	if ( !nrdefined )
 	    continue;
-	
+
 	if ( nrdefined>2 )
 	{
-    	    if ( nrdefined==4 )
-    	    {
+	    if ( nrdefined==4 )
+	    {
 		mAddTriangle(c21,c22,c11);
 		mAddTriangle(c11,c22,c12);
 	    }
@@ -110,7 +110,7 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 	    const int precol = curcol - colrange_.step;
 
 	    const int c01 = mGlobleIdx( prerow, curcol );
-    	    const int c10 = mGlobleIdx( currow, precol );
+	    const int c10 = mGlobleIdx( currow, precol );
 	    bool def01 = prerow<0 ? false : !mIsUdf(data_[c01]);
 	    bool def10 = precol<0 ? false : !mIsUdf(data_[c10]);
 	    if ( nrdefined==1 )
@@ -123,7 +123,7 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 		if ( def12 && !def01 )
 		{
 		    const int c02 = mGlobleIdx(prerow,nextcol);
-		    bool def02 = prerow<0 || islastcol ? false 
+		    bool def02 = prerow<0 || islastcol ? false
 						       : !mIsUdf(data_[c02]);
 		    if ( !def02 )
 		    {
@@ -134,7 +134,7 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 		else if ( def21 && !def10 )
 		{
 		    const int c20 = mGlobleIdx(nextrow,precol);
-		    bool def20 = islastrow || precol<0 ? false 
+		    bool def20 = islastrow || precol<0 ? false
 						       : !mIsUdf(data_[c20]);
 		    if ( !def20 )
 		    {
@@ -149,7 +149,7 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
     }
 
     return true;
-} 
+}
 
 
 

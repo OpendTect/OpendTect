@@ -72,7 +72,7 @@ void BitMapMgr::setup()
     Monitorable::AccessLocker updlckr( *datapack_ );
     const FlatPosData& pd = datapack_->posData();
     const Array2D<float>& arr = datapack_->data();
-    if ( pd.nrPts(true) < arr.info().getSize(0) )
+    if ( pd.nrPts(true) < arr.getSize(0) )
 	return;
 
     pos_ = new A2DBitMapPosSetup( arr.info(), pd.getPositions(true) );

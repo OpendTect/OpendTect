@@ -442,7 +442,7 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
     if ( !fdp ) return 0;
 
     vwr.setPack( false, dpid, true );
-    int pw = 400 + 5 * fdp->data().info().getSize( 0 );
+    int pw = 400 + 5 * fdp->data().getSize( 0 );
     if ( pw > 800 ) pw = 800;
 
     vwr.setInitialSize( uiSize(pw,600) );

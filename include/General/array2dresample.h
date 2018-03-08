@@ -32,39 +32,39 @@ public:
     inline		Array2DReSampler(const Array2D<T>& from,
 			    Array2D<TT>& to, bool fromhasudfs,
 			    const Geom::PosRectangle<float>* rectinfrom=0 );
-    			/*!<\param rectinfrom specifies a part of from
+			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
     inline		Array2DReSampler(const Array2D<T>& from,
 			    TT* to, int sz0, int sz1, bool fromhasudfs,
 			    const Geom::PosRectangle<float>* rectinfrom=0 );
-    			/*!<\param rectinfrom specifies a part of from
+			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
     inline		Array2DReSampler(const Array2D<T>& from,
 			    ValueSeries<TT>& to,int sz0,int sz1,
 			    bool fromhasudfs,
 			    const Geom::PosRectangle<float>* rectinfrom=0 );
-    			/*!<\param rectinfrom specifies a part of from
+			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
 
     inline void		set(const Array2D<T>& from, Array2D<TT>& to,
-	    		    bool fromhasudfs,
+			    bool fromhasudfs,
 			    const Geom::PosRectangle<float>* rectinfrom=0 );
-    			/*!<\param rectinfrom specifies a part of from
+			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
     inline void		set(const Array2D<T>& from, TT* to, int sz0, int sz1,
-	    		    bool fromhasudfs,
+			    bool fromhasudfs,
 			    const Geom::PosRectangle<float>* rectinfrom=0 );
-    			/*!<\param rectinfrom specifies a part of from
+			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
     inline void		set(const Array2D<T>& from,ValueSeries<TT>& to,
 			    int sz0, int sz1,bool fromhasudfs,
 			    const Geom::PosRectangle<float>* rectinfrom=0 );
-    			/*!<\param rectinfrom specifies a part of from
+			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
 
@@ -75,7 +75,7 @@ private:
     inline void		updateScale(const Geom::PosRectangle<float>*);
     inline bool		doWork(od_int64,od_int64, int );
     uiString		nrDoneText() const
-    			{ return tr("Data columns resampled"); }
+			{ return tr("Data columns resampled"); }
 
     const Array2D<T>*		from_;
     Array2D<TT>*		to_;
@@ -156,7 +156,7 @@ void Array2DReSampler<T,TT>::set( const Array2D<T>& from, TT* to,
 	int sz0, int sz1, bool fromhasudfs,
 	const Geom::PosRectangle<float>* rectinfromptr)
 {
-    toptr_ = to; 
+    toptr_ = to;
     to_ = 0;
     tovs_ = 0;
 
@@ -180,7 +180,7 @@ void Array2DReSampler<T,TT>::set( const Array2D<T>& from, ValueSeries<TT>& to,
     }
     else
     {
-	toptr_ = 0; 
+	toptr_ = 0;
 	tovs_ = &to;
 	to_ = 0;
     }
@@ -198,9 +198,9 @@ void Array2DReSampler<T,TT>::updateScale(
     const int xsize = toinfo_.getSize( mXDim );
     const int ysize = toinfo_.getSize( mYDim );
 
-    Geom::PosRectangle<float> rectinfrom( 0, 0, 
-				mCast(float,from_->info().getSize(mXDim)-1),
-				mCast(float,from_->info().getSize(mYDim)-1) );
+    Geom::PosRectangle<float> rectinfrom( 0, 0,
+				mCast(float,from_->getSize(mXDim)-1),
+				mCast(float,from_->getSize(mYDim)-1) );
 
     if ( rectinfromptr )
     {
@@ -240,7 +240,7 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
 	{
 	    const float sourcey = ysampling_.atIndex( idy );
 
-	    const TT val = interpolate_ 
+	    const TT val = interpolate_
 		? func_.getValue( sourcex, sourcey )
 		: from_->get( mNINT32(sourcex), mNINT32( sourcey ) );
 	    if ( toptr )

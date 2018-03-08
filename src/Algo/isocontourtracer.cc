@@ -432,10 +432,10 @@ bool ContourTracer::doWork( od_int64 start, od_int64 stop, int )
 
 IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
     : field_( field )
-    , xsampling_( 0, field.info().getSize(0)-1, 1 )
-    , ysampling_( 0, field.info().getSize(1)-1, 1 )
-    , xrange_( 0, field.info().getSize(0)-1 )
-    , yrange_( 0, field.info().getSize(1)-1 )
+    , xsampling_( 0, field.getSize(0)-1, 1 )
+    , ysampling_( 0, field.getSize(1)-1, 1 )
+    , xrange_( 0, field.getSize(0)-1 )
+    , yrange_( 0, field.getSize(1)-1 )
     , polyroi_( 0 )
     , minnrvertices_( 2 )
     , nrlargestonly_( -1 )
@@ -450,8 +450,8 @@ void IsoContourTracer::setSampling( const StepInterval<int>& xsamp,
 {
     xsampling_ = xsamp;
     ysampling_ = ysamp;
-    xsampling_.stop = xsampling_.atIndex( field_.info().getSize(0)-1 );
-    ysampling_.stop = ysampling_.atIndex( field_.info().getSize(1)-1 );
+    xsampling_.stop = xsampling_.atIndex( field_.getSize(0)-1 );
+    ysampling_.stop = ysampling_.atIndex( field_.getSize(1)-1 );
 }
 
 
@@ -462,8 +462,8 @@ void IsoContourTracer::selectRectROI( const Interval<int>& xintv,
     xrange_.stop = xsampling_.nearestIndex( xintv.stop );
     yrange_.start = ysampling_.nearestIndex( yintv.start );
     yrange_.stop = ysampling_.nearestIndex( yintv.stop );
-    xrange_.limitTo( Interval<int>(0, field_.info().getSize(0)-1) );
-    yrange_.limitTo( Interval<int>(0, field_.info().getSize(1)-1) );
+    xrange_.limitTo( Interval<int>(0, field_.getSize(0)-1) );
+    yrange_.limitTo( Interval<int>(0, field_.getSize(1)-1) );
 }
 
 void IsoContourTracer::selectPolyROI( const ODPolygon<float>* poly )

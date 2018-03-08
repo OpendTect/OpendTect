@@ -788,8 +788,8 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
     for ( int idx=0; idx<nrversions; idx++ )
     {
 	const Array3DImpl<float>& array = randsdp->data( idx );
-	const int sz0 = 1 + (array.info().getSize(1)-1) * (resolution_+1);
-	const int sz1 = 1 + (array.info().getSize(2)-1) * (resolution_+1);
+	const int sz0 = 1 + (array.getSize(1)-1) * (resolution_+1);
+	const int sz1 = 1 + (array.getSize(2)-1) * (resolution_+1);
 	const float* arr = array.getData();
 	OD::PtrPolicy cp = OD::UsePtr;
 

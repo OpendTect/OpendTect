@@ -561,8 +561,8 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr,
 
     Array2D<float>* oldarr = undodesc ? createArray2D( 0 ) : 0;
 
-    const int arrnrrows = arr.info().getSize( 0 );
-    const int arrnrcols = arr.info().getSize( 1 );
+    const int arrnrrows = arr.getSize( 0 );
+    const int arrnrcols = arr.getSize( 1 );
 
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
     {
@@ -704,12 +704,12 @@ bool Horizon3D::saveNodeArrays()
     if ( !parents_ || !nodesource_ || !lockednodes_ || !children_ )
 	return true;
 
-    if ( parents_->info().getTotalSz()!=nodesource_->info().getTotalSz()
-	|| parents_->info().getTotalSz() != lockednodes_->info().getTotalSz()
-	|| parents_->info().getTotalSz() != children_->info().getTotalSz() )
+    const od_int64 totalsz = parents_->totalSize();
+    if ( totalsz != nodesource_->totalSize()
+      || totalsz != lockednodes_->totalSize()
+      || totalsz != children_->totalSize() )
 	return true;
 
-    const od_int64 totalsz = parents_->info().getTotalSz();
     const od_int64* ptdata = parents_->getData();
     const char*	itpnodesdata = nodesource_->getData();
     const char* lckdata = lockednodes_->getData();
@@ -777,7 +777,7 @@ bool Horizon3D::readNodeArrays()
     char* chddata = children_->getData();
     od_int64* ptdata = parents_->getData();
 
-    const od_int64 totalsz = parents_->info().getTotalSz();
+    const od_int64 totalsz = parents_->totalSize();
     for ( od_int64 idx=0; idx<totalsz; idx++ )
     {
 	strm.getBin( ptdata[idx] );
@@ -796,7 +796,7 @@ bool Horizon3D::saveParentArray()
 {
     if ( !parents_ ) return true;
 
-    const od_int64 totalsz = parents_->info().getTotalSz();
+    const od_int64 totalsz = parents_->totalSize();
     const od_int64* data = parents_->getData();
     if ( totalsz<1 || !data ) return false;
 
@@ -841,7 +841,7 @@ bool Horizon3D::readParentArray()
     if ( !data )
     { delete parents_; parents_ = 0; return false; }
 
-    const od_int64 totalsz = parents_->info().getTotalSz();
+    const od_int64 totalsz = parents_->totalSize();
     for ( od_int64 idx=0; idx<totalsz; idx++ )
 	strm.getBin( data[idx] );
 
@@ -858,7 +858,7 @@ void Horizon3D::setParent( const TrcKey& node, const TrcKey& parent )
     if ( !parents_ ) return;
 
     const od_int64 gidx = trackingsamp_.globalIdx( node );
-    if ( gidx >= 0 && gidx < parents_->info().getTotalSz() )
+    if ( gidx >= 0 && gidx < parents_->totalSize() )
 	parents_->getData()[gidx] = trackingsamp_.globalIdx( parent );
 }
 
@@ -879,13 +879,13 @@ void Horizon3D::getParents( const TrcKey& node, TypeSet<TrcKey>& parents ) const
     if ( !parents_ || node.isUdf() ) return;
 
     od_int64 gidx = trackingsamp_.globalIdx( node );
-    if ( gidx<0 || gidx>=parents_->info().getTotalSz() )
+    if ( gidx<0 || gidx>=parents_->totalSize() )
 	return;
 
     while ( true )
     {
 	gidx = parents_->getData()[gidx];
-	if ( gidx==-1 || gidx>=parents_->info().getTotalSz() )
+	if ( gidx==-1 || gidx>=parents_->totalSize() )
 	    break;
 
 	const TrcKey tk = trackingsamp_.atIndex( gidx );
@@ -1153,7 +1153,7 @@ void Horizon3D::setNodeLocked( const TrcKey& node, bool locked )
 #ifdef __debug__
     if ( !lockednodes_->getData() ||
 	 pos < 0 || pos >= trackingsamp_.totalNr() ||
-		    pos >= lockednodes_->info().getTotalSz() )
+		    pos >= lockednodes_->totalSize() )
 	pErrMsg("Invalid access");
 #endif
 
@@ -1177,7 +1177,7 @@ bool Horizon3D::isNodeLocked( const TrcKey& node ) const
 #ifdef __debug__
     if ( !lockednodes_->getData() ||
 	 pos < 0 || pos >= trackingsamp_.totalNr() ||
-		    pos >= lockednodes_->info().getTotalSz() )
+		    pos >= lockednodes_->totalSize() )
 	pErrMsg("Invalid access");
 #endif
 

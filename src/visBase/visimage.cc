@@ -52,8 +52,7 @@ void Image::replaceMaterial( bool yn )
 
 void Image::setData( const Array2D<Color>& arr, bool usetrans )
 {
-    texture_->image.setValue( SbVec2s(arr.info().getSize(0),
-				      arr.info().getSize(1)),
+    texture_->image.setValue( SbVec2s(arr.getSize(0),arr.getSize(1)),
 			      usetrans ? 4 : 3, 0 );
     SbVec2s sz;
     int nrcomponents;

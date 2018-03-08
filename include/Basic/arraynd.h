@@ -51,11 +51,11 @@ Example:
     {
 	const float* vals = arr2d.getData();
 	if ( vals )
-	    return std::accumulate( vals, vals+arr2d.info().getTotalSz(), 0.f );
+	    return std::accumulate( vals, vals+arr2d.info().totalSize(), 0.f );
 	else
 	{
-	    const int dim0 = arr2d.info().getSize( 0 );
-	    const int dim1 = arr2d.info().getSize( 1 );
+	    const int dim0 = arr2d.getSize( 0 );
+	    const int dim1 = arr2d.getSize( 1 );
 	    float sum = 0.f;
 	    for ( int idx0=0; idx0<dim0; idx0++ )
 	    {
@@ -73,62 +73,62 @@ mClass(Basic) ArrayND
 {
 public:
 
-    virtual				~ArrayND()	{}
+    typedef T			DataType;
 
-    virtual inline bool			isOK() const;
-    virtual inline bool			isEmpty() const;
+    virtual			~ArrayND()	{}
 
-    virtual T				getND(const int*) const	= 0;
-    virtual bool			isSettable() const	{ return true; }
-    virtual void			setND(const int*,T)	= 0;
+    virtual inline bool		isOK() const;
+    virtual inline bool		isEmpty() const;
 
-    inline const ValueSeries<T>*	getStorage() const
-					{ return getStorage_(); }
-    inline ValueSeries<T>*		getStorage();
-    virtual bool			canSetStorage() const { return false; }
-    virtual bool			setStorage(ValueSeries<T>* s)
-					{ delete s; return true; }
-					/*!<becomes mine. The size must be
-					    settable, or I return false. */
+    virtual DataType		getND(const int*) const	= 0;
+    virtual bool		isSettable() const	{ return true; }
+    virtual void		setND(const int*,T)	= 0;
 
-    inline const T*			getData() const
-					{ return getData_(); }
-    inline T*				getData();
-    virtual const T*			get1D(const int*) const;
-    virtual T*				get1D(const int*);
-    virtual int				get1DDim() const;
+    inline const ValueSeries<T>* getStorage() const { return getStorage_(); }
+    inline ValueSeries<T>*	getStorage();
+    virtual bool		canSetStorage() const { return false; }
+    virtual bool		setStorage( ValueSeries<T>* s )
+				    { delete s; return true; }
+				    /*!<becomes mine. size must be settable */
+
+    inline const DataType*	getData() const		{ return getData_(); }
+    inline DataType*		getData();
+    virtual const DataType*	get1D(const int*) const;
+    virtual DataType*		get1D(const int*);
+    virtual int			get1DDim() const;
 
 
-    virtual const ArrayNDInfo&		info() const		= 0;
-    virtual bool			canSetInfo() const
-					{ return false; }
-    virtual bool			canChangeNrDims() const
-					{ return false; }
-    virtual bool			setInfo( const ArrayNDInfo& )
-					{ return false; }
+    virtual const ArrayNDInfo&	info() const		= 0;
+    virtual bool		canSetInfo() const	{ return false; }
+    virtual bool		canChangeNrDims() const	{ return false; }
+    virtual bool		setInfo( const ArrayNDInfo& ) { return false; }
 
-    virtual void			setAll(T);
-    virtual void			getAll(T* ptr) const;
-					/*!<Fills ptr with values from array.
-					    ptr is assumed to be allocated
-					    with info().getTotalSz() number
-					    of values. */
-    virtual void			getAll(ValueSeries<T>& vs) const;
-					/*!<Fills vs with values from array.
-					    ptr is assumed to be allocated
-					    with info().getTotalSz() number
-					    of values. */
+    virtual void		setAll(DataType);
+    virtual void		getAll(DataType*) const;
+				/*!< ptr must be allocated, min totalSize() */
+    virtual void		getAll(ValueSeries<T>& vs) const;
+
+				// rank/size info
+    inline int			getNDim() const
+				{ return info().getNDim(); }
+    inline int			getSize( int dim ) const
+				{ return info().getSize(dim); }
+    inline od_uint64		totalSize() const
+				{ return info().totalSize(); }
+
+				// aliases
+    inline int			rank() const		{ return getNDim(); }
+    inline const ValueSeries<T>* valueSeries() const	{ return getStorage(); }
+    inline ValueSeries<T>*	valueSeries()		{ return getStorage(); }
 
 protected:
 
-    virtual const ValueSeries<T>*	getStorage_() const { return 0; }
+    virtual const ValueSeries<T>* getStorage_() const { return 0; }
 
-    virtual const T*			getData_() const
-					{
-					    if ( getStorage_() )
-						return getStorage()->arr();
-					    return 0;
-					}
+    virtual const T*		getData_() const
+				{ return getStorage_() ? getStorage_()->arr()
+						       : 0; }
+
 };
 
 
@@ -354,7 +354,7 @@ bool ArrayND<T>::isOK() const
 template <class T> inline
 bool ArrayND<T>::isEmpty() const
 {
-    return !isOK() || info().getTotalSz() == 0;
+    return !isOK() || totalSize() < 1;
 }
 
 
@@ -362,9 +362,10 @@ template <class T> inline
 const T* ArrayND<T>::get1D( const int* i ) const
 {
     const T* ptr = getData();
-    if ( !ptr ) return 0;
+    if ( !ptr )
+	return 0;
 
-    int ndim = info().getNDim();
+    int ndim = getNDim();
 
     mAllocLargeVarLenArr( int, pos, ndim );
     OD::memCopy(pos,i, (int) sizeof(int)*(ndim-1));
@@ -377,7 +378,7 @@ const T* ArrayND<T>::get1D( const int* i ) const
 
 template <class T> inline
 int ArrayND<T>::get1DDim() const
-{ return info().getNDim()-1; }
+{ return getNDim()-1; }
 
 
 template <class T> inline
@@ -416,7 +417,7 @@ void ArrayND<T>::setAll( T val )
 	    stor->setAll( val );
 	else
 	{
-	    MemSetter<T> setter( *stor, val, info().getTotalSz() );
+	    MemSetter<T> setter( *stor, val, totalSize() );
 	    setter.execute();
 	}
 
@@ -441,20 +442,20 @@ public:
 		ArrayNDDataExtracter( T* ptr, const ArrayND<T>& arr )
 		    : ptr_( ptr )
 		    , arr_( arr )
-		    , totalnr_( arr.info().getTotalSz() )
+		    , totalnr_( arr.totalSize() )
 		    , vs_( 0 )
 		{}
 
 		ArrayNDDataExtracter( ValueSeries<T>& vs, const ArrayND<T>& arr)
 		    : ptr_( vs.arr() )
 		    , arr_( arr )
-		    , totalnr_( arr.info().getTotalSz() )
+		    , totalnr_( arr.totalSize() )
 		    , vs_( vs.arr() ? 0 : &vs )
 		{}
 
     bool	doWork( od_int64 start, od_int64 stop, int )
 		{
-		    mAllocVarLenArr( int, pos, arr_.info().getNDim() );
+		    mAllocVarLenArr( int, pos, arr_.getNDim() );
 		    if ( !arr_.info().getArrayPos( start, pos ) )
 			return false;
 
@@ -509,8 +510,8 @@ void ArrayND<T>::getAll( ValueSeries<T>& vs ) const
     if ( vs.arr() )
 	{ getAll( vs.arr() ); return; }
 
-    const od_int64 totalsz = info().getTotalSz();
-    if ( !totalsz )
+    const od_int64 totalsz = totalSize();
+    if ( totalsz < 1 )
 	return;
 
     const ValueSeries<T>* stor = getStorage();
@@ -527,7 +528,7 @@ void ArrayND<T>::getAll( ValueSeries<T>& vs ) const
 template <class T> inline
 void ArrayND<T>::getAll( T* ptr ) const
 {
-    const od_int64 totalsz = info().getTotalSz();
+    const od_int64 totalsz = totalSize();
     if ( !totalsz )
 	return;
 

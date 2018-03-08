@@ -296,7 +296,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( !freqdomain ) return false;
 
-	const int fftsz = freqdomain->info().getSize(0);
+	const int fftsz = freqdomain->getSize(0);
 	const float df = 1.f / (refstep_ * fftsz);
 
 	TypeSet<float> freqdomainpower( fftsz, 0 );

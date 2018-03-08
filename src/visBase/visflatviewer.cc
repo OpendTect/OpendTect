@@ -110,8 +110,8 @@ void FlatViewer::handleChange( unsigned int dt)
 		    const float* arr = dparr.getData();
 		    OD::PtrPolicy cp = OD::UsePtr;
 
-		    int rowsz = dparr.info().getSize(0);
-		    int colsz = dparr.info().getSize(1);
+		    int rowsz = dparr.getSize(0);
+		    int colsz = dparr.getSize(1);
 
 		    if ( !arr || resolution_!=0 )
 		    {

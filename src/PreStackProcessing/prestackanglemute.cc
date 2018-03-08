@@ -300,7 +300,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 	const BinID bid = input->getBinID();
 
-	int nrlayers = input->data().info().getSize( Gather::zDim() );
+	int nrlayers = input->data().getSize( Gather::zDim() );
 	ElasticModel layers; SamplingData<float> sd;
 	if ( !getLayers( bid, layers, sd, nrlayers ) )
 	    continue;

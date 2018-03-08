@@ -900,8 +900,8 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* tskr )
     for ( int idx=0; idx<nrversions; idx++ )
     {
 	const Array3D<float>& array = regsdp->data( idx );
-	const int sz0 = 1 + (array.info().getSize(dim0)-1) * (resolution_+1);
-	const int sz1 = 1 + (array.info().getSize(dim1)-1) * (resolution_+1);
+	const int sz0 = 1 + (array.getSize(dim0)-1) * (resolution_+1);
+	const int sz1 = 1 + (array.getSize(dim1)-1) * (resolution_+1);
 
 	const float* arr = array.getData();
 	OD::PtrPolicy cp = OD::UsePtr;

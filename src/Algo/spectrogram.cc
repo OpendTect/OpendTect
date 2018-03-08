@@ -8,19 +8,19 @@
 #include "spectrogram.h"
 #include "arrayndimpl.h"
 
-    
+
 Spectrogram::Spectrogram()
     : fft_( Fourier::CC::createDefault() )
     , tempin_( 0 )
     , tempout_( 0 )
-{}    
+{}
 
 
-Spectrogram::~Spectrogram() 
-{ 
+Spectrogram::~Spectrogram()
+{
     delete fft_;
-    delete tempin_; 
-    delete tempout_; 
+    delete tempin_;
+    delete tempout_;
 }
 
 
@@ -35,7 +35,7 @@ bool Spectrogram::init()
     const ArrayNDInfo& info = fft_->getInputInfo();
     tempin_ = ArrayNDImpl<float_complex>::create( info );
     tempout_= ArrayNDImpl<float_complex>::create( info );
- 
+
     fft_->setInput( tempin_->getData() );
     fft_->setOutput( tempout_->getData() );
 
@@ -47,7 +47,7 @@ bool Spectrogram::setInputInfo( const ArrayNDInfo& ni )
 { return fft_->setInputInfo( ni ); }
 
 
-const ArrayNDInfo& Spectrogram::getInputInfo() const 
+const ArrayNDInfo& Spectrogram::getInputInfo() const
 { return fft_->getInputInfo(); }
 
 
@@ -57,7 +57,7 @@ bool Spectrogram::transform( const ArrayND< float > &in, ArrayND< float > &out )
 
     float_complex* tindata = tempin_->getData();
     const float* indata = in.getData();
-    unsigned long size = (unsigned int) info.getTotalSz();
+    od_uint64 size = info.totalSize();
 
     for ( unsigned int idx=0; idx<size; idx++ )
 	tindata[idx] = indata[idx];
@@ -77,7 +77,7 @@ bool Spectrogram::transform( const ArrayND< float > &in, ArrayND< float > &out )
 }
 
 
-bool Spectrogram::transform( const ArrayND< float_complex > &in, 
+bool Spectrogram::transform( const ArrayND< float_complex > &in,
 			     ArrayND< float_complex > &out )
 {
     fft_->setInputInfo( in.info() );
@@ -85,7 +85,7 @@ bool Spectrogram::transform( const ArrayND< float_complex > &in,
     fft_->setOutput( out.getData() );
     if ( !fft_->run(true) ) return false;
 
-    unsigned long size = (unsigned int) in.info().getTotalSz();
+    unsigned long size = (unsigned int) in.totalSize();
     float_complex* data = out.getData();
 
     for ( unsigned int idx=0; idx<size; idx++ )

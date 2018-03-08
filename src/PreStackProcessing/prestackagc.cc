@@ -114,7 +114,7 @@ bool AGC::doWork( od_int64 start, od_int64 stop, int )
 	    if ( !inputtrace.init() || !outputtrace.init() )
 		continue;
 
-	    agc.setInput( inputtrace, inputtrace.info().getSize(0) );
+	    agc.setInput( inputtrace, inputtrace.getSize(0) );
 	    agc.setOutput( outputtrace );
 	    agc.executeParallel( false );
 	}

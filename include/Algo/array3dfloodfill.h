@@ -62,7 +62,7 @@ public:
 			/*<Only when use input value. */
 
     int			maxNrThreads() const	{ return compartments_.size(); }
-    od_int64		nrIterations() const{return input_.info().getTotalSz();}
+    od_int64		nrIterations() const{return input_.totalSize();}
 
 protected:
 
@@ -128,9 +128,9 @@ Array3DFloodfill<T>::Array3DFloodfill( const Array3D<T>& input, T threshold,
     , insideval_(mUdf(T))
     , use6neighbors_(true)
     , useinputval_(true)
-    , sz0_(input.info().getSize(0))
-    , sz1_(input.info().getSize(1))
-    , sz2_(input.info().getSize(2))
+    , sz0_(input.getSize(0))
+    , sz1_(input.getSize(1))
+    , sz2_(input.getSize(2))
     , isdefined_(0)
     , nrcomp0_(0)
     , nrcomp1_(0)

@@ -985,10 +985,10 @@ void CubicBezierSurface::_setKnot( int idx, const Coord3& np )
 
 
 int CubicBezierSurface::nrRows() const
-{ return positions ? positions->info().getSize(rowDim()) : 0; }
+{ return positions ? positions->getSize(rowDim()) : 0; }
 
 
 int CubicBezierSurface::nrCols() const
-{ return positions ? positions->info().getSize(colDim()) : 0; }
+{ return positions ? positions->getSize(colDim()) : 0; }
 
 };

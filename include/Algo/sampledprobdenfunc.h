@@ -36,9 +36,9 @@ public:
     ArrayNDProbDenFunc&	operator =(const ArrayNDProbDenFunc&);
 
     int			size( int dim ) const
-			{ return getArrND().info().getSize(dim); }
+			{ return getArrND().getSize(dim); }
     od_uint64		totalSize() const
-			{ return getArrND().info().getTotalSz(); }
+			{ return getArrND().totalSize(); }
 
     virtual const ArrayND<float>& getData() const
 			{ return getArrND(); }
@@ -190,7 +190,7 @@ public:
     virtual void	copyFrom(const ProbDenFunc&);
 			mDefArrayNDProbDenFuncFns(SampledND)
 
-    virtual int		nrDims() const	{ return bins_.info().getNDim(); }
+    virtual int		nrDims() const	{ return bins_.getNDim(); }
     virtual const char*	dimName(int) const;
     virtual void	setDimName( int dim, const char* nm )
 					{ *dimnms_[dim] = nm; }
@@ -213,7 +213,7 @@ public:
 protected:
 
     virtual const ArrayND<float>& getArrND() const
-    			{ return bins_;}
+			{ return bins_;}
     virtual const SamplingData<float>& getSampling( int d ) const
 			{ return sds_[d]; }
 

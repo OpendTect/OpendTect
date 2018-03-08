@@ -631,8 +631,8 @@ protected:
 void convertAngleDataToDegrees( Gather* ag ) const
 {
     Array2D<float>& agdata = ag->data();
-    const int dim0sz = agdata.info().getSize(0);
-    const int dim1sz = agdata.info().getSize(1);
+    const int dim0sz = agdata.getSize(0);
+    const int dim1sz = agdata.getSize(1);
     for ( int idx=0; idx<dim0sz; idx++ )
     {
 	for ( int idy=0; idy<dim1sz; idy++ )

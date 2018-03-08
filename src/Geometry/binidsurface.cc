@@ -152,8 +152,8 @@ void BinIDSurface::setArray( const BinID& start, const BinID& step,
     bool ismovement = false;
     if ( depths_ && na )
     {
-	if ( depths_->info().getSize(0)==na->info().getSize(0) &&
-	     depths_->info().getSize(1)==na->info().getSize(1) &&
+	if ( depths_->getSize(0)==na->getSize(0) &&
+	     depths_->getSize(1)==na->getSize(1) &&
 	     step == step_ && origin_==start )
 	    ismovement = true;
     }
@@ -182,8 +182,8 @@ void BinIDSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
     }
 
     pids.erase();
-    const int nrcols = depths_->info().getSize( 1 );
-    const od_uint64 totalsz = depths_->info().getTotalSz();
+    const int nrcols = depths_->getSize( 1 );
+    const od_uint64 totalsz = depths_->totalSize();
     for ( int idx=0; idx<totalsz; idx++ )
     {
 	if ( !remudf || !mIsUdf(zvals[idx]) )
@@ -319,11 +319,11 @@ StepInterval<int> BinIDSurface::rowRange( int col ) const
 {
     StepInterval<int> ret( mUdf(int), mUdf(int), step_.row() );
     const int colidx = colIndex( col );
-    if ( colidx < 0  || !depths_ || colidx >= depths_->info().getSize(1) )
+    if ( colidx < 0  || !depths_ || colidx >= depths_->getSize(1) )
 	return ret;
 
     int startidx = -1, stopidx = -1;
-    for ( int idx=0; idx<depths_->info().getSize(0); idx++ )
+    for ( int idx=0; idx<depths_->getSize(0); idx++ )
     {
 	if ( !mIsUdf(depths_->get(idx,colidx)) )
 	{
@@ -336,7 +336,7 @@ StepInterval<int> BinIDSurface::rowRange( int col ) const
     if ( startidx < 0 )
 	return ret;
 
-    for ( int idx=depths_->info().getSize(0)-1; idx>=0; idx-- )
+    for ( int idx=depths_->getSize(0)-1; idx>=0; idx-- )
     {
 	if ( !mIsUdf(depths_->get(idx,colidx)) )
 	{
@@ -356,11 +356,11 @@ StepInterval<int> BinIDSurface::colRange( int row ) const
 {
     StepInterval<int> ret( mUdf(int), mUdf(int), step_.col() );
     const int rowidx = rowIndex( row );
-    if ( rowidx < 0  || !depths_ || rowidx >= depths_->info().getSize(0) )
+    if ( rowidx < 0  || !depths_ || rowidx >= depths_->getSize(0) )
 	return ret;
 
     int startidy = -1, stopidy = -1;
-    for ( int idy=0; idy<depths_->info().getSize(1); idy++ )
+    for ( int idy=0; idy<depths_->getSize(1); idy++ )
     {
 	if ( !mIsUdf(depths_->get(rowidx,idy)) )
 	{
@@ -373,7 +373,7 @@ StepInterval<int> BinIDSurface::colRange( int row ) const
     if ( startidy < 0 )
 	return ret;
 
-    for ( int idy=depths_->info().getSize(1)-1; idy>=0; idy-- )
+    for ( int idy=depths_->getSize(1)-1; idy>=0; idy-- )
     {
 	if ( !mIsUdf(depths_->get(rowidx,idy)) )
 	{
@@ -454,8 +454,8 @@ Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
     if ( !depths_ || index<0 )
 	return res;
 
-    const int rowsz = depths_->info().getSize(0);
-    const int colsz = depths_->info().getSize(1);
+    const int rowsz = depths_->getSize(0);
+    const int colsz = depths_->getSize(1);
     const int row = index / colsz;
     const int col = index % colsz;
     if ( !depths_->info().validPos(row,col) )
@@ -515,18 +515,18 @@ void BinIDSurface::_setKnot( int idx, const Coord3& np )
 	idx = 0;
     }
 
-    const int row = idx / depths_->info().getSize(1);
-    const int col = idx % depths_->info().getSize(1);
+    const int row = idx / depths_->getSize(1);
+    const int col = idx % depths_->getSize(1);
     depths_->set( row, col, (float) np.z_ );
 }
 
 
 int BinIDSurface::nrRows() const
-{ return depths_ ? depths_->info().getSize(rowDim()) : 0; }
+{ return depths_ ? depths_->getSize(rowDim()) : 0; }
 
 
 int BinIDSurface::nrCols() const
-{ return depths_ ? depths_->info().getSize(colDim()) : 0; }
+{ return depths_ ? depths_->getSize(colDim()) : 0; }
 
 
 };

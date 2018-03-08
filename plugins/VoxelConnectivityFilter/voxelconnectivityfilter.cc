@@ -62,7 +62,7 @@ public:
     uiString	nrDoneText() const { return uiStrings::sPositionsDone(); }
     uiString	message() const { return tr("Calculating voxel connectivity"); }
 
-    od_int64	nrIterations() const { return input_.info().getTotalSz(); }
+    od_int64	nrIterations() const { return input_.totalSize(); }
     int		maxNrThreads() const { return 1; } //Todo: remove
     bool	doPrepare(int);
     bool	doWork(od_int64,od_int64,int);
@@ -107,7 +107,7 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
 {
     releaseData();
     barrier_.setNrThreads( nrthreads );
-    const od_int64 size = input_.info().getTotalSz();
+    const od_int64 size = input_.totalSize();
     mTryAlloc( statusarr_, int[size] );
     if ( !statusarr_ )
 	return false;
@@ -215,7 +215,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 
     const bool doextremes = range.isRev();
 
-    const ValueSeries<float>* inputvs = input_.getStorage();
+    const ValueSeries<float>* inputvs = input_.valueSeries();
     const VoxelConnectivityFilter::Connectivity connectivity =
 	step_.getConnectivity();
 
@@ -466,7 +466,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
     //Phase 2
     //Go through all bodyids, and find the lowest aliases and replace all
     //instances
-    ValueSeries<float>* outputvs = output_.getStorage();
+    ValueSeries<float>* outputvs = output_.valueSeries();
 
 #define mOutputLoopStart \
         if ( nrdone>10000 ) \

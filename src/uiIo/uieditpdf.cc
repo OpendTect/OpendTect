@@ -316,7 +316,7 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
     if ( nrdims_ == 1 )
     {
 	TypeSet<float> xvals;
-	const int sz = data.info().getSize(0);
+	const int sz = data.getSize(0);
 	for ( int idx=0; idx<sz; idx++ )
 	    xvals += andpdf->sampling(0).atIndex(idx);
 

@@ -222,7 +222,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     const int outputcrlidx = outputcrlrg.nearestIndex( bid.crl() );
 
     Array3D<float>& outputarray = output->data(0);
-    for ( int idx=outputarray.info().getSize(2)-1; idx>=0; idx-- )
+    for ( int idx=outputarray.getSize(2)-1; idx>=0; idx-- )
     {
 	bool dobg = false;
 	if ( mIsUdf(topsample) && mIsUdf(bottomsample) )

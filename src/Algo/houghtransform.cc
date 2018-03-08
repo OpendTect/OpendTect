@@ -103,11 +103,11 @@ void PlaneFrom3DSpaceHoughTransform::setResolution( double dangle,
 
 
 int PlaneFrom3DSpaceHoughTransform::getParamSpaceSize() const
-{ return mCast(int, paramspace_->info().getTotalSz()); }
+{ return mCast(int, paramspace_->totalSize()); }
 
 
 int PlaneFrom3DSpaceHoughTransform::getNrDistVals() const
-{ return paramspace_->info().getSize(1); }
+{ return paramspace_->getSize(1); }
 
 
 void PlaneFrom3DSpaceHoughTransform::setClipRate( float cliprt )
@@ -121,7 +121,7 @@ float PlaneFrom3DSpaceHoughTransform::clipRate() const
 void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
 {
     const float* dataptr = data->getData();
-    const int datasize = mCast(int, data->info().getTotalSz());
+    const int datasize = mCast(int, data->totalSize());
 
     mAllocLargeVarLenArr( float, datacopy, datasize );
     mAllocLargeVarLenArr( unsigned int, indexes, datasize );
@@ -233,8 +233,8 @@ LineFrom2DSpaceHoughTransform::LineFrom2DSpaceHoughTransform(
     , threshold_(mUdf(float))
     , abovethreshold_(true)
 {
-    const int sz0 = input.info().getSize(0);
-    const int sz1 = input.info().getSize(1);
+    const int sz0 = input.getSize(0);
+    const int sz1 = input.getSize(1);
 
     mDeclareAndTryAlloc(Array2DImpl<int>*,arr,Array2DImpl<int>(sz0,sz1));
     if ( !arr )	return;
@@ -287,8 +287,8 @@ bool LineFrom2DSpaceHoughTransform::compute()
     if ( !origcnt_ || !hougharr_ || !result_ )
 	return false;
 
-    const int rsz = input_.info().getSize(0);
-    const int csz = input_.info().getSize(1);
+    const int rsz = input_.getSize(0);
+    const int csz = input_.getSize(1);
     const float maxrho = (float) Math::Sqrt((double)(rsz*rsz+csz*csz));
 
     TypeSet<float> sintable, costable;
@@ -428,8 +428,8 @@ bool LineFrom2DSpaceHoughTransform::compute()
 
 bool LineFrom2DSpaceHoughTransform::setLineFlag(float radius, float theta)
 {
-    const int rsz = origcnt_->info().getSize(0);
-    const int csz = origcnt_->info().getSize(1);
+    const int rsz = origcnt_->getSize(0);
+    const int csz = origcnt_->getSize(1);
 
     const bool usec = fabs(theta)>=M_PI_4 && fabs(theta)<=3*M_PI_4;
     const float slop = usec ? cos(theta)/sin(theta) : sin(theta)/cos(theta);
@@ -489,8 +489,8 @@ bool LineFrom2DSpaceHoughTransform::setLineFlag(float radius, float theta)
     if ( !origcnt_ || !hougharr_ || !result_ )
 	return false;
 
-    const int rsz = input_.info().getSize(0);
-    const int csz = input_.info().getSize(1);
+    const int rsz = input_.getSize(0);
+    const int csz = input_.getSize(1);
     const float maxrho = Math::Sqrt((double)((rsz-1)*(rsz-1)+(csz-1)*(csz-1)));
 
     TypeSet<float> sintable, costable;

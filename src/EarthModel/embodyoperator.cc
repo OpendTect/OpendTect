@@ -50,7 +50,7 @@ BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
 {}
 
 float	 getThreshold() const	{ return 0.f; }
-od_int64 nrIterations() const	{ return arr_.info().getTotalSz(); }
+od_int64 nrIterations() const	{ return arr_.totalSize(); }
 uiString message() const { return tr("Calculating implicit body operation"); }
 
 protected:
@@ -256,7 +256,7 @@ bool Expl2ImplBodyExtracter::doPrepare( int nrthreads )
 
 
 od_int64 Expl2ImplBodyExtracter::nrIterations() const
-{ return arr_.info().getSize(0)*arr_.info().getSize(1); }
+{ return arr_.getSize(0)*arr_.getSize(1); }
 
 
 #define mSetSegment() \
@@ -270,8 +270,8 @@ nrintersections++
 bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 {
     const TypeSet<Coord3>& crds = tree_.coordList();
-    const int crlsz = arr_.info().getSize(1);
-    const int zsz = arr_.info().getSize(2);
+    const int crlsz = arr_.getSize(1);
+    const int zsz = arr_.getSize(2);
     const int planesize = planes_.size();
 
     for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
@@ -394,8 +394,8 @@ bool Expl2ImplBodyExtracter::doP2P( od_int64 start, od_int64 stop )
 {
     const TypeSet<Coord3>& crds = tree_.coordList();
     const int planesize = planes_.size();
-    const int crlsz = arr_.info().getSize(1);
-    const int zsz = arr_.info().getSize(2);
+    const int crlsz = arr_.getSize(1);
+    const int zsz = arr_.getSize(2);
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
     {

@@ -447,31 +447,32 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 	if ( !idx )
 	{
-	    sz0 = 1 + (array.info().getSize(1)-1) * (resolution_+1);
-	    sz1 = 1 + (array.info().getSize(2)-1) * (resolution_+1);
+	    sz0 = 1 + (array.getSize(1)-1) * (resolution_+1);
+	    sz1 = 1 + (array.getSize(2)-1) * (resolution_+1);
 	}
 
-	ValueSeries<float>* stor = !resolution_ ? array.getStorage() : 0;
-	bool ownsstor = false;
+	ValueSeries<float>* vsptr = !resolution_ ? array.valueSeries() : 0;
+	bool ownsvsptr = false;
 
-	if ( !stor )
+	if ( !vsptr )
 	{
-	    stor = new MultiArrayValueSeries<float,float>(sz0*sz1);
-	    ownsstor = true;
+	    vsptr = new MultiArrayValueSeries<float,float>(sz0*sz1);
+	    ownsvsptr = true;
 	}
 
-	if ( !stor || !stor->isOK() )
+	if ( !vsptr || !vsptr->isOK() )
 	{
 	    channels_->turnOn( false );
 	    pErrMsg("Insufficient memory; cannot display the 2D seismics.");
-	    if ( ownsstor ) delete stor;
+	    if ( ownsvsptr )
+		delete vsptr;
 	    return;
 	}
 
-	if ( ownsstor )
+	if ( ownsvsptr )
 	{
 	    if ( resolution_ == 0 )
-		array.getAll( *stor );
+		array.getAll( *vsptr );
 	    else
 	    {
 		Array2DSlice<float> slice2d( array );
@@ -481,15 +482,15 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 		slice2d.init();
 
 		Array2DReSampler<float,float> resampler(
-				slice2d, *stor, sz0, sz1, true );
+				slice2d, *vsptr, sz0, sz1, true );
 		resampler.setInterpolate( true );
 		TaskRunner::execute( taskr, resampler );
 	    }
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedVSData( attrib, idx, stor,
-			ownsstor ? OD::TakeOverPtr : OD::UsePtr, taskr );
+	channels_->setUnMappedVSData( attrib, idx, vsptr,
+			ownsvsptr ? OD::TakeOverPtr : OD::UsePtr, taskr );
     }
 
     channels_->turnOn( true );

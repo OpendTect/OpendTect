@@ -221,13 +221,15 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 	return false;
 
     const Array3D<float>& array = vdp->data( 0 );
-    if ( !array.getStorage() ) return false;
+    if ( !array.getStorage() )
+	return false;
 
     if ( !horizon_.hasZ(to) )
 	return false;
 
     const int totrcidx = vdp->getGlobalIdx( to );
-    if ( totrcidx < 0 ) return false;
+    if ( totrcidx < 0 )
+	return false;
 
     const OffsetValueSeries<float> tovs = vdp->getTrcStorage( 0, totrcidx );
     const float startz = horizon_.getZ( to );

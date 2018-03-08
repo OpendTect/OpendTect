@@ -38,7 +38,7 @@ Phase::Phase( const Array1DImpl<float>& timesignal )
     , domfreqidx_(-1)
     , avgphase_(0.f)
 {
-    const int sz = timesignal.info().getSize(0);
+    const int sz = timesignal.getSize(0);
     if ( !sz )
 	return;
 
@@ -62,7 +62,7 @@ Phase::~Phase()
 
 void Phase::init()
 {
-    const int sz = cfreq_.info().getSize(0);
+    const int sz = cfreq_.getSize(0);
     phase_.setSize( sz );
     phase_.setAll( mUdf(float) );
 }
@@ -77,7 +77,7 @@ bool Phase::convert()
     if ( !indegrees_ )
 	return true;
 
-    const int sz = phase_.info().getSize(0);
+    const int sz = phase_.getSize(0);
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float ph = phase_.get( idx );
@@ -96,7 +96,7 @@ bool Phase::convert()
 bool Phase::extract()
 {
     float max = -1.f;
-    const int sz = cfreq_.info().getSize(0);
+    const int sz = cfreq_.getSize(0);
     for ( int idx=0;idx<sz;idx++ )
     {
 	const float val = std::abs( cfreq_.get(idx) );
@@ -118,7 +118,7 @@ bool Phase::extract()
 
 bool Phase::unWrap( float wrapparam )
 {
-    const int sz = cfreq_.info().getSize(0);
+    const int sz = cfreq_.getSize(0);
     if ( domfreqidx_ < 0 || domfreqidx_ >= sz )
     {
 	return false;

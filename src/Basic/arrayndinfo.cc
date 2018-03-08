@@ -25,8 +25,10 @@ bool ArrayNDInfo::isOK() const
 }
 
 
-od_uint64 ArrayNDInfo::getTotalSz() const
-{ return calcTotalSz(); }
+od_uint64 ArrayNDInfo::totalSize() const
+{
+    return calcTotalSz();
+}
 
 
 od_uint64 ArrayNDInfo::getOffset( const int* pos ) const
@@ -285,7 +287,7 @@ ArrayNDIter::ArrayNDIter( const ArrayNDInfo& sz )
     : sz_ ( sz )
     , position_( new int[sz.getNDim()] )
 {
-    if ( !sz.getTotalSz() )
+    if ( !sz.totalSize() )
     {
 	pErrMsg( "Not a valid array for iteration" );
     }

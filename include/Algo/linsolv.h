@@ -81,13 +81,13 @@ template <class T>
 LinSolverTask<T>::LinSolverTask( Array2DImpl<T>& A, int* croutsidx )
     : Executor("Generating linear model")
     , croutsmatrix_(A)
-    , totalnr_(A.info().getSize(0))
+    , totalnr_(A.getSize(0))
     , curidx_(0)
     , imax_(mUdf(int))
     , vv_(totalnr_,0)
     , croutsidx_(croutsidx)
 {
-    if ( A.info().getSize(0) != A.info().getSize(1) )
+    if ( A.getSize(0) != A.getSize(1) )
     {
 	errmsg_ = uiStrings::phrInvalid(uiStrings::sInput());
 	return;
@@ -187,8 +187,8 @@ int LinSolverTask<T>::nextStep()
 template <class T> inline
 LinSolver<T>::LinSolver( const Array2D<T>& A )
     : croutsmatrix_(A)
-    , croutsidx_(new int[A.info().getSize(0)])
-    , n_(A.info().getSize(0))
+    , croutsidx_(new int[A.getSize(0)])
+    , n_(A.getSize(0))
     , ready_(false)
 {
 }

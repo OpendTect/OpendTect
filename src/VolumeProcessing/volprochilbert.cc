@@ -27,7 +27,7 @@ static bool hasTraceData( const PosInfo::CubeData& trcssampling,
 
 static bool traceIsUdf( const Array1D<float>& in )
 {
-    const int nrz = in.info().getSize( 0 );
+    const int nrz = in.getSize( 0 );
     const float* inptr = in.getData();
     for ( int idz=0; idz<nrz; idz++ )
     {
@@ -43,7 +43,7 @@ static bool traceIsUdf( const Array1D<float>& in )
 
 static void zeroTrace( Array1D<float>& in )
 {
-    const int nrz = in.info().getSize( 0 );
+    const int nrz = in.getSize( 0 );
     float* inptr = in.getData();
     ValueSeries<float>* instor = in.getStorage();
     if ( inptr )
@@ -89,7 +89,7 @@ HilbertCalculatorTask::HilbertCalculatorTask( const Array2D<float>& in,
     , imagdata_(out)
     , is3d_(false)
 {
-    totalnr_ = realdata_.info().getSize( 0 );
+    totalnr_ = realdata_.getSize( 0 );
 
     msg_ = tr("Creating imaginary traces");
 }
@@ -104,8 +104,8 @@ HilbertCalculatorTask::HilbertCalculatorTask( const Array3D<float>& in,
     , tks_(0)
     , is3d_(true)
 {
-    totalnr_ = mCast(od_int64,realdata_.info().getSize( 0 ) ) *
-	       mCast(od_int64,realdata_.info().getSize( 1 ) );
+    totalnr_ = mCast(od_int64,realdata_.getSize( 0 ) ) *
+	       mCast(od_int64,realdata_.getSize( 1 ) );
 
     msg_ = tr("Creating imaginary traces");
 }
@@ -228,7 +228,7 @@ bool HilbertCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 void HilbertCalculatorTask::muteHeadTailHilbert( const Array1D<float>& real,
 						 Array1D<float>& imag )
 {
-    const int nrz = real.info().getSize( 0 );
+    const int nrz = real.getSize( 0 );
     const float* realtrcptr = real.getData();
     float* imagtrcptr = imag.getData();
     const ValueSeries<float>* instor = real.getStorage();

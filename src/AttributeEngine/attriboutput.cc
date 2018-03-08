@@ -209,7 +209,7 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 	    continue;
 
 	Array3D<float>& outarr3d = output_->data( desout );
-	const int zarrsz = outarr3d.info().getSize( 2 );
+	const int zarrsz = outarr3d.getSize( 2 );
 
 	for ( int idx=transrg.start; idx<=transrg.stop; idx++)
 	{

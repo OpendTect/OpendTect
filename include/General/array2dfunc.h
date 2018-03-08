@@ -26,8 +26,8 @@ public:
     inline void		set( const Array2D<T>& t, bool hasudfs )
 			{
 			    arr_ = &t;
-			    xsize_ = arr_->info().getSize(0);
-			    ysize_ = arr_->info().getSize(1);
+			    xsize_ = arr_->getSize(0);
+			    ysize_ = arr_->getSize(1);
 			    hasudfs_ = hasudfs;
 			}
 

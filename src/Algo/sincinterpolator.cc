@@ -29,13 +29,13 @@ bool SincTableManager::Table::hasSameDesign( float fmax, int lmax ) const
 
 
 od_int64 SincTableManager::Table::getTableBytes() const
-{ return mCast(od_int64, sizeof(float) * asinc_.info().getTotalSz() ); }
+{ return mCast(od_int64, sizeof(float) * asinc_.totalSize() ); }
 
 int SincTableManager::Table::getNumbers() const
-{ return asinc_.info().getSize(0); }
+{ return asinc_.getSize(0); }
 
 int SincTableManager::Table::getLength() const
-{ return asinc_.info().getSize(1); }
+{ return asinc_.getSize(1); }
 
 int SincTableManager::Table::getShift() const
 { return - getLength()/2+1; }

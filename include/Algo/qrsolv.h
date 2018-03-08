@@ -49,11 +49,11 @@ protected:
 template <class T> inline
 QRSolver<T>::QRSolver( const Array2D<T>& A )
     : qr_(A)
-    , m_(A.info().getSize(0))
-    , n_(A.info().getSize(1))
+    , m_(A.getSize(0))
+    , n_(A.getSize(1))
     , isfullrank_(true)
 {
-    if ( A.info().getSize(0) < A.info().getSize(1) )
+    if ( A.getSize(0) < A.getSize(1) )
 	return;
 
     rdiag_ = new Array1DImpl<T>( n_ );
@@ -107,7 +107,7 @@ const Array1DImpl<T>* QRSolver<T>::apply( const Array1D<T>& b ) const
     if( !rdiag_ )
 	return 0;
 
-    const int sz = b.info().getSize(0);
+    const int sz = b.getSize(0);
     Array2DImpl<T>* arr = new  Array2DImpl<T>( sz, 1 );
     for ( int idx=0; idx<sz; idx++ )
 	arr->set( idx, 0, b.get( idx ) );
@@ -121,10 +121,10 @@ const Array1DImpl<T>* QRSolver<T>::apply( const Array1D<T>& b ) const
 template <class T> inline
 const Array1DImpl<T>* QRSolver<T>::apply( const Array2D<T>& b ) const
 {
-    if ( b.info().getSize(0) != m_ || !isfullrank_ || !rdiag_ )
+    if ( b.getSize(0) != m_ || !isfullrank_ || !rdiag_ )
 	return 0;
 
-    const int nx = b.info().getSize(1);
+    const int nx = b.getSize(1);
     Array2DImpl<T>* arr = new  Array2DImpl<T>( b );
 
     // Compute Y = transpose(Q)*B.

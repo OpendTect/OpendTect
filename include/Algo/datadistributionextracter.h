@@ -36,7 +36,7 @@ public:
 			DataDistributionExtracter( const ArrNDType& arr )
 			    : arrnd_(&arr)
 			    , vs_(0)
-			    , totalsz_(arr.info().getTotalSz())
+			    , totalsz_(arr.totalSize())
 			    , arr_(arr.getData())	{ init(); }
 			DataDistributionExtracter( const vT* arr, od_int64 sz )
 			    : arr_(arr)

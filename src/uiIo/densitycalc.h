@@ -120,12 +120,12 @@ DensityCalc::DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,
 {
     if ( data_ )
     {
-	const int celldatawdth = data_->info().getSize(0)%mNINT32(cellxsize_)
-			    ? data_->info().getSize(0)/mNINT32(cellxsize_) + 1
-			    : data_->info().getSize(0)/mNINT32(cellxsize_);
-	const int celldataheight = data_->info().getSize(1)%mNINT32(cellysize_)
-			    ? data_->info().getSize(1)/mNINT32(cellysize_) + 1
-			    : data_->info().getSize(1)/mNINT32(cellysize_);
+	const int celldatawdth = data_->getSize(0)%mNINT32(cellxsize_)
+			    ? data_->getSize(0)/mNINT32(cellxsize_) + 1
+			    : data_->getSize(0)/mNINT32(cellxsize_);
+	const int celldataheight = data_->getSize(1)%mNINT32(cellysize_)
+			    ? data_->getSize(1)/mNINT32(cellysize_) + 1
+			    : data_->getSize(1)/mNINT32(cellysize_);
 	freqdata_ = new Array2DImpl<float>( celldatawdth, celldataheight );
 	freqdata_->setAll( (float)0 );
     }
@@ -316,11 +316,10 @@ void DensityCalc::getFreqData( Array2D<float>& freqdata ) const
 {
     mDynamicCastGet(Array2DImpl<float>*,freqdataimpl,&freqdata)
     if ( !freqdataimpl ) return;
-    freqdataimpl->setSize( freqdata_->info().getSize(0),
-			   freqdata_->info().getSize(1) );
-    for ( int idx=0; idx<freqdata_->info().getSize(0); idx++ )
+    freqdataimpl->setSize( freqdata_->getSize(0), freqdata_->getSize(1) );
+    for ( int idx=0; idx<freqdata_->getSize(0); idx++ )
     {
-	for ( int idy=0; idy<freqdata_->info().getSize(1); idy++ )
+	for ( int idy=0; idy<freqdata_->getSize(1); idy++ )
 	    freqdata.set( idx, idy, freqdata_->get(idx,idy) );
     }
 }

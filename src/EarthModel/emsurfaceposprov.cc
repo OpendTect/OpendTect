@@ -904,11 +904,11 @@ bool Pos::EMImplicitBodyProvider::includes( const BinID& bid, float z ) const
 
 
 od_int64 Pos::EMImplicitBodyProvider::estNrPos() const
-{ return isOK() ? imparr_->info().getTotalSz() : 0; }
+{ return isOK() ? imparr_->totalSize() : 0; }
 
 
 int Pos::EMImplicitBodyProvider::estNrZPerPos() const
-{ return  isOK() ?  imparr_->info().getSize(2) : 0; }
+{ return  isOK() ? imparr_->getSize(2) : 0; }
 
 
 void Pos::EMImplicitBodyProvider::initClass()

@@ -31,8 +31,8 @@ public:
 	if ( anglenorth > M_PI_2f )
 	    anglenorth =  M_PIf - anglenorth;
 
-	const int inlsz = mdp_.arr2d_->info().getSize(0);
-	const int crlsz = mdp_.arr2d_->info().getSize(1);
+	const int inlsz = mdp_.arr2d_->getSize(0);
+	const int crlsz = mdp_.arr2d_->getSize(1);
 	const float truelength = inlsz*cos(anglenorth) + crlsz*sin(anglenorth);
 	const float truewidth = inlsz*sin(anglenorth) + crlsz*cos(anglenorth);
 	const int length = mNINT32( truelength );
@@ -65,7 +65,7 @@ public:
     }
 
     od_int64 nrIterations() const
-    { return mdp_.xyrotarr2d_->info().getTotalSz(); }
+    { return mdp_.xyrotarr2d_->totalSize(); }
 
     bool doFinish( bool success )
     {
@@ -274,7 +274,7 @@ void FlatDataPack::doDumpInfo( IOPar& iop ) const
 
 int FlatDataPack::size( bool dim0 ) const
 {
-    return data().info().getSize( dim0 ? 0 : 1 );
+    return data().getSize( dim0 ? 0 : 1 );
 }
 
 
@@ -338,8 +338,8 @@ void MapDataPack::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 
 float MapDataPack::getValAtIdx( int idx, int idy ) const
 {
-    const int nrrows = arr2d_->info().getSize(0);
-    const int nrcols = arr2d_->info().getSize(1);
+    const int nrrows = arr2d_->getSize(0);
+    const int nrcols = arr2d_->getSize(1);
     return ( idx>=0 && idy>=0 && idx<nrrows && idy<nrcols )
 	     ? arr2d_->get( idx, idy ) : mUdf(float);
 }
@@ -514,7 +514,7 @@ const OffsetValueSeries<float>
 {
     const Array3D<float>* array = arrays_[comp];
     return OffsetValueSeries<float>( *array->getStorage(),
-			(od_int64)globaltrcidx * array->info().getSize(2) );
+			(od_int64)globaltrcidx * array->getSize(2) );
 }
 
 
@@ -523,7 +523,7 @@ OffsetValueSeries<float> VolumeDataPack::getTrcStorage( int comp,
 {
     Array3D<float>* array = arrays_[comp];
     return OffsetValueSeries<float>( *array->getStorage(),
-			(od_int64)globaltrcidx * array->info().getSize(2) );
+			(od_int64)globaltrcidx * array->getSize(2) );
 }
 
 
@@ -534,7 +534,7 @@ const float* VolumeDataPack::getTrcData( int comp, int globaltrcidx ) const
 
     const Array3D<float>* array = arrays_[comp];
     if ( !array->getData() ) return 0;
-    return array->getData() + (od_int64)globaltrcidx * array->info().getSize(2);
+    return array->getData() + (od_int64)globaltrcidx * array->getSize(2);
 }
 
 
@@ -545,7 +545,7 @@ float* VolumeDataPack::getTrcData( int comp, int globaltrcidx )
 
     Array3D<float>* array = arrays_[comp];
     if ( !array->getData() ) return 0;
-    return array->getData() + (od_int64)globaltrcidx * array->info().getSize(2);
+    return array->getData() + (od_int64)globaltrcidx * array->getSize(2);
 }
 
 
@@ -575,12 +575,11 @@ bool VolumeDataPack::getCopiedTrcData( int comp, int globaltrcidx,
     }
 
     const Array1DInfoImpl info1d( nrz );
-    if ( out.info().getSize(0) != nrz && !out.setInfo(info1d) )
+    if ( out.getSize(0) != nrz && !out.setInfo(info1d) )
 	return false;
 
     const Array3D<float>& array = *arrays_[comp];
-    const ValueSeries<float>* stor = array.getStorage();
-    if ( stor )
+    if ( array.getStorage() )
     {
 	const OffsetValueSeries<float> offstor(
 				       getTrcStorage(comp,globaltrcidx) );
@@ -599,7 +598,7 @@ bool VolumeDataPack::getCopiedTrcData( int comp, int globaltrcidx,
     }
 
     const od_uint64 offset = mCast(od_uint64,globaltrcidx) * nrz;
-    mAllocLargeVarLenArr( int, pos, array.info().getNDim() );
+    mAllocLargeVarLenArr( int, pos, array.getNDim() );
     if ( !array.info().getArrayPos(offset,pos) )
 	return false;
 
@@ -701,7 +700,7 @@ float VolumeDataPack::gtNrKBytes() const
 {
     const int nrcomps = nrComponents();
     if ( nrcomps == 0 ) return 0.0f;
-    return nrcomps * arrays_[0]->info().getTotalSz() * desc_.nrBytes() / 1024.f;
+    return nrcomps * arrays_[0]->totalSize() * desc_.nrBytes() / 1024.f;
 }
 
 

@@ -143,8 +143,8 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 			      const Array2DImpl<DataHolder*>& re,
 			      const Array2DImpl<DataHolder*>& im ) const
 {
-    const int inlsz = re.info().getSize(0);
-    const int crlsz = re.info().getSize(1);
+    const int inlsz = re.getSize(0);
+    const int crlsz = re.getSize(1);
 
     float numerator = 0;
     float denominator = 0;

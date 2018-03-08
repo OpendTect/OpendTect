@@ -31,7 +31,7 @@ public:
 
     virtual bool	isOK() const;
 
-    virtual od_uint64	getTotalSz() const;
+    virtual od_uint64	totalSize() const;
     virtual od_uint64	getOffset(const int*) const;
 			/*!<Returns offset in a 'flat' array.*/
     virtual bool	validPos(const int*) const;
@@ -40,6 +40,9 @@ public:
 			/*!<Checks if the position exists on a certain dim. */
     virtual bool	getArrayPos(od_uint64, int*) const;
 			/*!<Given an offset, what is the ND position. */
+
+    inline int		rank() const			{ return getNDim(); }
+    mDeprecated inline od_uint64 getTotalSz() const	{ return totalSize(); }
 
 protected:
 
@@ -149,7 +152,7 @@ public:
     virtual int		getSize(int dim) const;
     virtual bool	setSize(int dim,int nsz);
     virtual bool	isOK() const			{ return dimsz_>=0; }
-    virtual od_uint64	getTotalSz() const		{ return dimsz_; }
+    virtual od_uint64	totalSize() const		{ return dimsz_; }
 
 protected:
 
@@ -175,7 +178,7 @@ public:
     virtual bool	setSize(int dim,int nsz);
     virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
 
-    virtual od_uint64	getTotalSz() const	{ return cachedtotalsz_; }
+    virtual od_uint64	totalSize() const	{ return cachedtotalsz_; }
 
 protected:
 
@@ -201,7 +204,7 @@ public:
     virtual int		getSize(int dim) const;
     virtual bool	setSize(int dim,int nsz);
     virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
-    virtual od_uint64	getTotalSz() const	{ return cachedtotalsz_; }
+    virtual od_uint64	totalSize() const	{ return cachedtotalsz_; }
 
 protected:
 
@@ -228,14 +231,14 @@ public:
 			~ArrayNDInfoImpl();
     virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
 
-    virtual od_uint64	getTotalSz() const	{ return cachedtotalsz_; }
+    virtual od_uint64	totalSize() const	{ return cachedtotalsz_; }
     virtual int		getNDim() const;
     virtual int		getSize(int dim) const;
     virtual bool	setSize(int dim,int nsz);
 
 protected:
 
-    int		ndim_;
+    int			ndim_;
     int*		dimsz_;
 
     od_uint64		cachedtotalsz_;

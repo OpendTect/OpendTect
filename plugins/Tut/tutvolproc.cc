@@ -104,16 +104,16 @@ TutOpCalculatorTask::TutOpCalculatorTask( const Array3D<float>& input,
     , tkzsout_( tkzsout )
     , type_( optype )
 {
-    totalnr_ = output.info().getSize(0) * output.info().getSize(1);
+    totalnr_ = output.getSize(0) * output.getSize(1);
 }
 
 
 bool TutOpCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 {
     const int incr = mCast( int, stop-start+1 );
-    const int nrinlines = input_.info().getSize( 0 );
-    const int nrcrosslines = input_.info().getSize( 1 );
-    const int nrsamples = input_.info().getSize( 2 );
+    const int nrinlines = input_.getSize( 0 );
+    const int nrcrosslines = input_.getSize( 1 );
+    const int nrsamples = input_.getSize( 2 );
     TrcKeySamplingIterator iter;
     iter.setSampling( tkzsout_.hsamp_ );
     BinID curbid = iter.curBinID();

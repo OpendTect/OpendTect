@@ -68,7 +68,7 @@ public:
 
     bool			isLoaded() const	{ return arr2d_; }
     int				nrOffsets() const
-				{ return data().info().getSize( 0 ); }
+				{ return data().getSize( 0 ); }
 
     const char*			dimName(bool dim0) const;
     void			getAuxInfo(int,int,IOPar&) const;

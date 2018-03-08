@@ -488,8 +488,8 @@ int Well::TrackSampler::nextStep()
 
     uiRetVal uirv;
     ConstRefMan<Data> wd = MGR().fetch( ids_[curid_],
-	    				LoadReqs(Trck,D2T,Mrkrs).add(Logs),
-				       	uirv);
+					LoadReqs(Trck,D2T,Mrkrs).add(Logs),
+					uirv);
     if ( !wd )
 	{ errmsgs_.add( uirv ); mRetNext() }
 
@@ -1165,9 +1165,9 @@ bool Well::LogSampler::doLog( int logidx )
     const Well::Log* log = logset_.validIdx( logidx ) ? logset_[logidx] : 0;
     if ( !log || log->isEmpty() ) return false;
 
-    const int winszidx = data_->info().getSize(0)-1;
+    const int winszidx = data_->getSize(0)-1;
 
-    for ( int idz=0; idz<data_->info().getSize(1); idz++ )
+    for ( int idz=0; idz<data_->getSize(1); idz++ )
     {
 	float dah = data_->get( 0, idz );
 	float lval = mUdf(float);
@@ -1188,23 +1188,23 @@ bool Well::LogSampler::doLog( int logidx )
 
 float Well::LogSampler::getDah( int idz ) const
 {
-    return data_ && ( idz < data_->info().getSize(1) ) ?
+    return data_ && ( idz < data_->getSize(1) ) ?
 				  data_->get( 0, idz ) : mUdf( float );
 }
 
 
 float Well::LogSampler::getThickness( int idz ) const
 {
-    const int winszidx = data_->info().getSize(0) - 1;
-    return data_ && ( idz < data_->info().getSize(1) ) ?
+    const int winszidx = data_->getSize(0) - 1;
+    return data_ && ( idz < data_->getSize(1) ) ?
 				data_->get( winszidx, idz ) : mUdf( float );
 }
 
 
 float Well::LogSampler::getLogVal( int logidx, int idz ) const
 {
-    const int xsz = data_->info().getSize(0);
-    const int zsz = data_->info().getSize(1);
+    const int xsz = data_->getSize(0);
+    const int zsz = data_->getSize(1);
 
     return data_ && logidx+1 < xsz && idz < zsz ?
 	data_->get( logidx + 1, idz ) : mUdf( float );
@@ -1225,4 +1225,4 @@ float Well::LogSampler::getLogVal( const char* lnm, int idz ) const
 
 
 int Well::LogSampler::nrZSamples() const
-{ return data_ ? data_->info().getSize(1) : 0; }
+{ return data_ ? data_->getSize(1) : 0; }

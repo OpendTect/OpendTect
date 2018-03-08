@@ -21,7 +21,7 @@ template <class T>
 mClass(General) Array2DSubSelection : public Array2D<T>
 {
 public:
-    		Array2DSubSelection( int start0, int start1,
+		Array2DSubSelection( int start0, int start1,
 				     int sz0, int sz1,
 				     Array2D<T>& data );
 		/*!<\param start0	position of the subselection in data.
@@ -29,7 +29,7 @@ public:
 		    \param sz0		size of the subselection.
 		    \param sz1		size of the subselection.
 		    \param data		The array in which the subselection
-		    			is done. */
+					is done. */
 
     T		get( int, int ) const;
     void	set( int, int, T );
@@ -53,7 +53,7 @@ template <class T>
 mClass(General) Array3DSubSelection : public Array3D<T>
 {
 public:
-    		Array3DSubSelection( int start0, int start1, int start2,
+		Array3DSubSelection( int start0, int start1, int start2,
 				     int sz0, int sz1, int sz2,
 				     Array3D<T>& data );
 		/*!<\param start0	position of the subselection in data.
@@ -63,7 +63,7 @@ public:
 		    \param sz1		size of the subselection.
 		    \param sz2		size of the subselection.
 		    \param data		The array in which the subselection
-		    			is done. */
+					is done. */
 
     T		get( int, int, int ) const;
     void	set( int, int, int, T );
@@ -81,12 +81,12 @@ protected:
 
 #define mSetupDim( dim ) \
     start_[dim] = s##dim; \
-    info_.setSize( dim, mMIN( sz##dim, src_.info().getSize(dim)-s##dim) );
+    info_.setSize( dim, mMIN( sz##dim, src_.getSize(dim)-s##dim) );
 
 
 template <class T>
-Array2DSubSelection<T>::Array2DSubSelection( int s0, int s1, 
-					     int sz0, int sz1, 
+Array2DSubSelection<T>::Array2DSubSelection( int s0, int s1,
+					     int sz0, int sz1,
 					     Array2D<T>& data )
     : src_( data )
 {
@@ -126,7 +126,7 @@ bool Array2DSubSelection<T>::isOK() const
 
     for ( int dim=info_.getNDim()-1; dim>=0; dim-- )
     {
-	if ( start_[dim]<0 || start_[dim]>=src_.info().getSize(dim) ||
+	if ( start_[dim]<0 || start_[dim]>=src_.getSize(dim) ||
 	     info_.getSize(dim)<=0 )
 	    return false;
     }
@@ -186,7 +186,7 @@ bool Array3DSubSelection<T>::isOK() const
 
     for ( int dim=info_.getNDim()-1; dim>=0; dim-- )
     {
-	if ( start_[dim]<0 || start_[dim]>=src_.info().getSize(dim) ||
+	if ( start_[dim]<0 || start_[dim]>=src_.getSize(dim) ||
 	     info_.getSize(dim)<=0 )
 	    return false;
     }

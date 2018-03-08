@@ -217,8 +217,8 @@ void uiFKSpectrum::setDataPackID(
 
 void uiFKSpectrum::setData( const Array2D<float>& array )
 {
-    const int sz0 = array.info().getSize( 0 );
-    const int sz1 = array.info().getSize( 1 );
+    const int sz0 = array.getSize( 0 );
+    const int sz1 = array.getSize( 1 );
     initFFT( sz0, sz1 );
     if ( !fft_ )
     {
@@ -269,8 +269,8 @@ bool uiFKSpectrum::compute( const Array2D<float>& array )
 {
     if ( !output_ ) return false;
 
-    const int sz0 = array.info().getSize( 0 );
-    const int sz1 = array.info().getSize( 1 );
+    const int sz0 = array.getSize( 0 );
+    const int sz1 = array.getSize( 1 );
     for ( int idx=0; idx<sz0; idx++ )
     {
 	for ( int idy=0; idy<sz1; idy++ )
@@ -292,13 +292,13 @@ bool uiFKSpectrum::view( Array2D<float>& array )
 {
     FlatDataPack* datapack = new FlatDataPack( sKey::Attribute(), &array );
     datapack->setName( "Power" );
-    const int nrk = array.info().getSize( 0 );
-    const int nrtrcs = input_->info().getSize( 0 );
+    const int nrk = array.getSize( 0 );
+    const int nrtrcs = input_->getSize( 0 );
     const float dk = fft_->getDf( SI().crlDistance(), nrtrcs );
     const StepInterval<double> krg( -dk*(nrk-1)/2, dk*(nrk-1)/2, dk );
 
-    const int nrf = array.info().getSize( 1 );
-    const int nrz = input_->info().getSize( 1 );
+    const int nrf = array.getSize( 1 );
+    const int nrz = input_->getSize( 1 );
     const float df = fft_->getDf( SI().zStep(), nrz );
     const StepInterval<double> frg( 0, df*(nrf-1), df );
 
