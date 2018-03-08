@@ -521,10 +521,12 @@ uiInvDistInterpolPars::uiInvDistInterpolPars( uiParent* p, bool cornersfirst,
     stepsizefld_->attach( alignedBelow, cornersfirstfld_ );
 
 
-    IntInpSpec iis2( nrsteps ); iis2.setLimits( Interval<int>(1,99) );
+    const bool nrstepsudf = mIsUdf(nrsteps);
+    IntInpSpec iis2( nrstepsudf ? 1 : nrsteps );
+    iis2.setLimits( Interval<int>(1,99) );
     nrstepsfld_ = new uiGenInput( this, tr("Nr steps"), iis2 );
     nrstepsfld_->setWithCheck( true );
-    nrstepsfld_->setChecked( !mIsUdf(nrsteps) );
+    nrstepsfld_->setChecked( !nrstepsudf );
     nrstepsfld_->attach( alignedBelow, stepsizefld_ );
 }
 
