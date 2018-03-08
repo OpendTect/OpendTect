@@ -36,7 +36,7 @@ bool ArrayNDCopier::init( bool managemxarr )
 {
     totalnr_ = arrnd_.totalSize();
 
-    const int nrdim = arrnd_.getNDim();
+    const int nrdim = arrnd_.nrDims();
     mAllocVarLenArr( mwSize, dims, nrdim );
     for ( int idx=0; idx<nrdim; idx++ )
 	dims[idx] = arrnd_.getSize( nrdim-1-idx );
@@ -51,7 +51,7 @@ bool ArrayNDCopier::init( bool managemxarr )
 
 bool ArrayNDCopier::doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    const int nrdim = arrnd_.getNDim();
+    const int nrdim = arrnd_.nrDims();
     mAllocVarLenArr( int, pos, nrdim );
     double* mxarrptr = mxGetPr( mxarr_ );
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
@@ -94,7 +94,7 @@ bool mxArrayCopier::init()
 bool mxArrayCopier::doWork( od_int64 start, od_int64 stop, int threadid )
 {
     double* mxarrptr = mxGetPr( &mxarr_ );
-    const int nrdim = arrnd_.getNDim();
+    const int nrdim = arrnd_.nrDims();
     mAllocVarLenArr( int, pos, nrdim );
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {

@@ -187,14 +187,14 @@ bool testForwardCC2D( const Array2D<float_complex>& input )
     transform.setDir( true );
 
     BufferString testname( "Running FFT size ",
-			   toString( input.info().getTotalSz() ) );
+			   toString( input.info().totalSize() ) );
     mTest( testname.buf(), transform.run( transformdata ));
 
     testname = "FFT results ";
-    testname.add( input.info().getTotalSz() );
+    testname.add( input.info().totalSize() );
     mTest( testname.buf(),
 	   checkRMSDifference( transformdata, reference.getData(),
-			       reference.info().getTotalSz(), 2e-5 ) );
+			       reference.info().totalSize(), 2e-5 ) );
     return true;
 }
 

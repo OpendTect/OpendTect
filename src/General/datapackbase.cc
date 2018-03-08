@@ -598,7 +598,7 @@ bool VolumeDataPack::getCopiedTrcData( int comp, int globaltrcidx,
     }
 
     const od_uint64 offset = mCast(od_uint64,globaltrcidx) * nrz;
-    mAllocLargeVarLenArr( int, pos, array.getNDim() );
+    mAllocLargeVarLenArr( int, pos, array.nrDims() );
     if ( !array.info().getArrayPos(offset,pos) )
 	return false;
 

@@ -168,7 +168,7 @@ ArrayNDProbDenFunc& ArrayNDProbDenFunc::operator =(
 
 void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
 {
-    const int nrdim = getData().getNDim();
+    const int nrdim = getData().nrDims();
     for ( int idx=0; idx<nrdim; idx++ )
     {
 	par.set( IOPar::compKey(sKey::Size(),idx), size(idx) );
@@ -207,7 +207,7 @@ void ArrayNDProbDenFunc::writeBulkData( od_ostream& strm, bool binary ) const
     mDefArrVars(,const);
     const ArrayNDInfo& info = array.info();
 
-    const od_int64 rowsz = info.getSize( info.getNDim()-1 );
+    const od_int64 rowsz = info.getSize( info.nrDims()-1 );
     for ( od_int64 idx=0; idx<totalsz; idx++ )
     {
 	if ( binary )
@@ -334,7 +334,7 @@ float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
     const od_uint64 totsz = arrndinfo.totalSize();
     const float* arr = arrnd.getData();
     float grandtotal = 0;
-    TypeSet<int> dimidxsts( arrndinfo.getNDim(), 0 );
+    TypeSet<int> dimidxsts( arrndinfo.nrDims(), 0 );
     int* dimidxs = dimidxsts.arr();
 
     for ( od_uint64 idx=0; idx<totsz; idx++ )
@@ -635,7 +635,7 @@ SampledNDProbDenFunc::SampledNDProbDenFunc( int nrdims )
 SampledNDProbDenFunc::SampledNDProbDenFunc( const ArrayND<float>& arr )
     : bins_(arr)
 {
-    for ( int idx=0; idx<arr.getNDim(); idx++ )
+    for ( int idx=0; idx<arr.nrDims(); idx++ )
     {
 	sds_ += SamplingData<float>(0,1);
 	dimnms_.add( BufferString("Dim ",idx) );

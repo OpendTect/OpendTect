@@ -61,7 +61,7 @@ T PolynomialND<T>::getValue( const TypeSet<float>& pos ) const
 {
     ArrayNDIter coeffiter( coeffs.info() );
 
-    const int ndim = coeffs.getNDim();
+    const int ndim = coeffs.nrDims();
 
     T res = 0;
 
@@ -81,7 +81,7 @@ template <class T> inline
 T PolynomialND<T>::getValue3D( float p0, float p1, float p2 ) const
 {
     const ArrayNDInfo& size = coeffs.info();
-    if ( size.getNDim() != 3 || size.totalSize() != 64 )
+    if ( size.nrDims() != 3 || size.totalSize() != 64 )
     {
 	TypeSet<float> pos( 3,0  );
 	pos[0] = p0; pos[1] = p1; pos[2] = p2;
@@ -205,7 +205,7 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
 	Array2DImpl<T> poscoeffs(totalsz,totalsz);
 
 	ArrayNDIter positer( input.info() );
-	const int ndim = input.getNDim();
+	const int ndim = input.nrDims();
 	int row = 0;
 	do
 	{

@@ -25,9 +25,9 @@ public:
 		SampledExtremeFinderND(const ArrayND<T>& arr, bool minima)
 		    : array_( arr )
 		    , minima_( minima )
-		    , relcube_( arr.getNDim() )
+		    , relcube_( arr.nrDims() )
 		{
-		    const int ndim = array_.getNDim();
+		    const int ndim = array_.nrDims();
 		    for ( int idx=0; idx<ndim; idx++ )
 		    relcube_.setSize( idx, 3 );
 		}
@@ -60,7 +60,7 @@ od_int64 SampledExtremeFinderND<T>::nrIterations() const
 template <class T> inline
 int SampledExtremeFinderND<T>::nrExtremes() const
 {
-    const int ndim = array_.getNDim();
+    const int ndim = array_.nrDims();
     return extremes_.size()/ndim;
 }
 
@@ -68,7 +68,7 @@ int SampledExtremeFinderND<T>::nrExtremes() const
 template <class T> inline
 bool SampledExtremeFinderND<T>::doWork( od_int64 start, od_int64 stop, int )
 {
-    const int ndim = array_.getNDim();
+    const int ndim = array_.nrDims();
     mAllocVarLenArr( int, pos, ndim );
     if ( !array_.info().getArrayPos( start, pos ) )
 	return false;
@@ -117,7 +117,7 @@ template <class T> inline
 int SampledExtremeFinderND<T>::indexOf( const int* pos ) const
 {
     const int nrextremes = nrExtremes();
-    const int ndim = array_.getNDim();
+    const int ndim = array_.nrDims();
 
     for ( int idx=0; idx<nrextremes; idx++ )
     {
@@ -143,7 +143,7 @@ int SampledExtremeFinderND<T>::indexOf( const int* pos ) const
 template <class T> inline
 bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 {
-    const int ndim = array_.getNDim();
+    const int ndim = array_.nrDims();
 
     T extremeval = array_.getND( extremepos );
 

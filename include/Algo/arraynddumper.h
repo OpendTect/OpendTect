@@ -52,7 +52,7 @@ public:
 template <class T>
 void ArrayNDDumper<T>::setOneLinePerFastestDim()
 {
-    const int nrdims = inp_.getNDim();
+    const int nrdims = inp_.nrDims();
     nlafter_ = nrdims < 2 ? 0 : inp_.getSize( nrdims - 1 );
 }
 
@@ -60,7 +60,7 @@ void ArrayNDDumper<T>::setOneLinePerFastestDim()
 template <class T>
 void ArrayNDDumper<T>::setOneLinePerSlowestDim()
 {
-    const int nrdims = inp_.getNDim();
+    const int nrdims = inp_.nrDims();
     if ( nrdims < 2 )
 	{ nlafter_ = 0; return; }
 
@@ -76,7 +76,7 @@ void ArrayNDDumper<T>::dump( od_ostream& strm ) const
     if ( inp_.isEmpty() ) return;
 
     ArrayNDIter it( inp_.info() );
-    const int nrdims = inp_.getNDim();
+    const int nrdims = inp_.nrDims();
 
     od_int64 nrthisline = 0;
     while ( true )

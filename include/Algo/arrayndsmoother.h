@@ -60,7 +60,7 @@ ArrayNDGentleSmoother<T>::ArrayNDGentleSmoother( const ArrayND<T>& inp,
     : Executor("Data smoother")
     , inp_(inp)
     , out_(out)
-    , nrdims_(inp.getNDim())
+    , nrdims_(inp.nrDims())
     , it_(inp.info())
     , nrdone_(0)
 {

@@ -27,7 +27,7 @@ public:
 
 protected:
 			ArrayNDWrapper(const ArrayNDInfo& info)
-			{ dimmap_.setSize( info.getNDim(), 0 ); }
+			{ dimmap_.setSize( info.nrDims(), 0 ); }
 
     TypeSet<int>	dimmap_;
 };
@@ -84,7 +84,7 @@ void Array3DWrapper<T>::init()
 
 template <class T>
 bool Array3DWrapper<T>::isOK() const
-{ return srcarr_.getNDim() <  3; }
+{ return srcarr_.nrDims() <  3; }
 
 
 template <class T>

@@ -109,15 +109,15 @@ public:
     virtual void		getAll(ValueSeries<T>& vs) const;
 
 				// rank/size info
-    inline int			getNDim() const
-				{ return info().getNDim(); }
+    inline int			nrDims() const
+				{ return info().nrDims(); }
     inline int			getSize( int dim ) const
 				{ return info().getSize(dim); }
     inline od_uint64		totalSize() const
 				{ return info().totalSize(); }
 
 				// aliases
-    inline int			rank() const		{ return getNDim(); }
+    inline int			rank() const		{ return nrDims(); }
     inline const ValueSeries<T>* valueSeries() const	{ return getStorage(); }
     inline ValueSeries<T>*	valueSeries()		{ return getStorage(); }
 
@@ -276,7 +276,7 @@ protected:
 
 template <class T> inline void ArrayNDIter::setPos( const T& idxable )
 {
-    for ( int idx=sz_.getNDim()-1; idx>=0; idx-- )
+    for ( int idx=sz_.nrDims()-1; idx>=0; idx-- )
 	position_[idx] = idxable[idx];
 }
 
@@ -365,7 +365,7 @@ const T* ArrayND<T>::get1D( const int* i ) const
     if ( !ptr )
 	return 0;
 
-    int ndim = getNDim();
+    int ndim = nrDims();
 
     mAllocLargeVarLenArr( int, pos, ndim );
     OD::memCopy(pos,i, (int) sizeof(int)*(ndim-1));
@@ -378,7 +378,7 @@ const T* ArrayND<T>::get1D( const int* i ) const
 
 template <class T> inline
 int ArrayND<T>::get1DDim() const
-{ return getNDim()-1; }
+{ return nrDims()-1; }
 
 
 template <class T> inline
@@ -455,7 +455,7 @@ public:
 
     bool	doWork( od_int64 start, od_int64 stop, int )
 		{
-		    mAllocVarLenArr( int, pos, arr_.getNDim() );
+		    mAllocVarLenArr( int, pos, arr_.nrDims() );
 		    if ( !arr_.info().getArrayPos( start, pos ) )
 			return false;
 

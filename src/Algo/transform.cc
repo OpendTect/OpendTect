@@ -153,7 +153,7 @@ int GenericTransformND::nextStep()
 	return ErrorOccurred();
 
     curdim_++;
-    if ( curdim_>=info_->getNDim() )
+    if ( curdim_>=info_->nrDims() )
     {
 	curdim_ = 0;
 	return Finished();
@@ -174,7 +174,7 @@ bool GenericTransformND::setup()
     for ( int idx=0; idx<nr_; idx++ )
 	starts += batchstarts_ ? batchstarts_[idx] : batchsampling_ * idx;
 
-    const int ndim = info_->getNDim();
+    const int ndim = info_->nrDims();
     if ( ndim==1 )
     {
 	Transform1D* trans = createTransform();

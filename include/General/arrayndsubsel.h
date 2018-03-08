@@ -124,7 +124,7 @@ bool Array2DSubSelection<T>::isOK() const
     if ( !src_.isOK() )
 	return false;
 
-    for ( int dim=info_.getNDim()-1; dim>=0; dim-- )
+    for ( int dim=info_.nrDims()-1; dim>=0; dim-- )
     {
 	if ( start_[dim]<0 || start_[dim]>=src_.getSize(dim) ||
 	     info_.getSize(dim)<=0 )
@@ -184,7 +184,7 @@ bool Array3DSubSelection<T>::isOK() const
     if ( !src_.isOK() )
 	return false;
 
-    for ( int dim=info_.getNDim()-1; dim>=0; dim-- )
+    for ( int dim=info_.nrDims()-1; dim>=0; dim-- )
     {
 	if ( start_[dim]<0 || start_[dim]>=src_.getSize(dim) ||
 	     info_.getSize(dim)<=0 )

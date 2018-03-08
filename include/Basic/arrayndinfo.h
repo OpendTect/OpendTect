@@ -25,7 +25,7 @@ public:
     virtual ArrayNDInfo* clone() const					= 0;
     virtual		~ArrayNDInfo()					{}
 
-    virtual int		getNDim() const					= 0;
+    virtual int		nrDims() const					= 0;
     virtual int		getSize(int dim) const				= 0;
     virtual bool	setSize(int dim,int sz);
 
@@ -41,7 +41,8 @@ public:
     virtual bool	getArrayPos(od_uint64, int*) const;
 			/*!<Given an offset, what is the ND position. */
 
-    inline int		rank() const			{ return getNDim(); }
+    inline int		rank() const			{ return nrDims(); }
+    mDeprecated inline int getNDim() const		{ return nrDims(); }
     mDeprecated inline od_uint64 getTotalSz() const	{ return totalSize(); }
 
 protected:
@@ -54,8 +55,8 @@ protected:
 
 inline bool operator ==( const ArrayNDInfo& a1, const ArrayNDInfo& a2 )
 {
-    int nd = a1.getNDim();
-    if ( nd != a2.getNDim() ) return false;
+    int nd = a1.nrDims();
+    if ( nd != a2.nrDims() ) return false;
     for ( int idx=0; idx<nd; idx++ )
 	if ( a1.getSize(idx) != a2.getSize(idx) ) return false;
     return true;
@@ -74,7 +75,7 @@ mExpClass(Basic) Array1DInfo : public ArrayNDInfo
 {
 public:
 
-    virtual int		getNDim() const			{ return 1; }
+    virtual int		nrDims() const			{ return 1; }
 
     virtual od_uint64	getOffset( int pos ) const
 			{ return pos; }
@@ -98,7 +99,7 @@ mExpClass(Basic) Array2DInfo : public ArrayNDInfo
 {
 public:
 
-    virtual int		getNDim() const			{ return 2; }
+    virtual int		nrDims() const			{ return 2; }
 
     virtual od_uint64	getOffset(int,int) const;
 			/*!<Returns offset in a 'flat' array.*/
@@ -121,7 +122,7 @@ mExpClass(Basic) Array3DInfo : public ArrayNDInfo
 {
 public:
 
-    virtual int		getNDim() const			{ return 3; }
+    virtual int		nrDims() const			{ return 3; }
 
     virtual od_uint64	getOffset(int, int, int) const;
 			/*!<Returns offset in a 'flat' array.*/
@@ -232,7 +233,7 @@ public:
     virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
 
     virtual od_uint64	totalSize() const	{ return cachedtotalsz_; }
-    virtual int		getNDim() const;
+    virtual int		nrDims() const;
     virtual int		getSize(int dim) const;
     virtual bool	setSize(int dim,int nsz);
 

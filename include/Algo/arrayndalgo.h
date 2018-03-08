@@ -1125,8 +1125,8 @@ inline bool ArrayNDCopy( ArrayND<T>& dest, const ArrayND<T>& src,
     const ArrayNDInfo& destsz = dest.info();
     const ArrayNDInfo& srcsz = src.info();
 
-    const int ndim = destsz.getNDim();
-    if ( ndim != srcsz.getNDim() || ndim != copypos.size() ) return false;
+    const int ndim = destsz.nrDims();
+    if ( ndim != srcsz.nrDims() || ndim != copypos.size() ) return false;
 
     for ( int idx=0; idx<ndim; idx++ )
     {
@@ -1209,8 +1209,8 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
     const ArrayNDInfo& destsz = dest.info();
     const ArrayNDInfo& srcsz = src.info();
 
-    const int ndim = destsz.getNDim();
-    if ( ndim != srcsz.getNDim() || ndim != pastepos.size() ) return false;
+    const int ndim = destsz.nrDims();
+    if ( ndim != srcsz.nrDims() || ndim != pastepos.size() ) return false;
 
     for ( int idx=0; idx<ndim; idx++ )
     {
@@ -1913,7 +1913,7 @@ private:
 		{
 		    T* outpptr = outp_.getData();
 		    ValueSeries<T>* outpstor = outp_.getStorage();
-		    mDeclareAndTryAlloc(int*,pos,int[outp_.getNDim()])
+		    mDeclareAndTryAlloc(int*,pos,int[outp_.nrDims()])
 		    if ( !pos )
 			    return false;
 
@@ -2119,7 +2119,7 @@ private:
 		    }
 
 		    od_uint64 validx = offset;
-		    const int ndim = info.getNDim();
+		    const int ndim = info.nrDims();
 		    const bool is2d = ndim == 2;
 		    const int nrlines = is2d ? 1 : info.getSize(0);
 		    const int nrtrcs = info.getSize( is2d ? 0 : 1 );

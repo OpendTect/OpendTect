@@ -15,7 +15,7 @@ bool ArrayNDInfo::setSize(int dim, int sz)
 
 bool ArrayNDInfo::isOK() const
 {
-    for ( int idx=getNDim()-1; idx>=0; idx-- )
+    for ( int idx=nrDims()-1; idx>=0; idx-- )
     {
 	if ( getSize(idx)<0 )
 	    return false;
@@ -33,7 +33,7 @@ od_uint64 ArrayNDInfo::totalSize() const
 
 od_uint64 ArrayNDInfo::getOffset( const int* pos ) const
 {
-    const int ndim = getNDim();
+    const int ndim = nrDims();
     od_uint64 unitsize = 1;
     od_uint64 res = 0;
 
@@ -49,7 +49,7 @@ od_uint64 ArrayNDInfo::getOffset( const int* pos ) const
 
 bool ArrayNDInfo::validPos( const int* pos ) const
 {
-    const int ndim = getNDim();
+    const int ndim = nrDims();
     for ( int idx=ndim-1; idx>=0; idx-- )
     {
 	if ( !validDimPos(idx,pos[idx]) )
@@ -68,7 +68,7 @@ bool ArrayNDInfo::validDimPos( int dim, int pos ) const
 
 bool ArrayNDInfo::getArrayPos( od_uint64 mempos, int* pos ) const
 {
-    const int ndim = getNDim();
+    const int ndim = nrDims();
     TypeSet<int> dimdevisor( ndim, 1 );
 
     int product = 1;
@@ -97,7 +97,7 @@ bool ArrayNDInfo::getArrayPos( od_uint64 mempos, int* pos ) const
 
 od_uint64 ArrayNDInfo::calcTotalSz() const
 {
-    const int ndim = getNDim();
+    const int ndim = nrDims();
     od_uint64 res = 1;
 
     for ( int idx=0; idx<ndim; idx++ )
@@ -236,7 +236,7 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( int ndim )
 
 ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfo& nsz )
 	: ArrayNDInfo( nsz )
-	, ndim_(nsz.getNDim())
+	, ndim_(nsz.nrDims())
 	, dimsz_( ndim_<1 ? 0 : new int[ndim_] )
 {
     for ( int idx=0; idx<ndim_; idx++ )
@@ -247,7 +247,7 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfo& nsz )
 // To avoid using default copy constructor created by compiler.
 ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfoImpl& nsz )
 	: ArrayNDInfo(nsz)
-	, ndim_(nsz.getNDim())
+	, ndim_(nsz.nrDims())
 	, dimsz_(ndim_<1 ? 0 : new int[ndim_])
 {
     for ( int idx=0; idx<ndim_; idx++ )
@@ -261,7 +261,7 @@ ArrayNDInfoImpl::~ArrayNDInfoImpl()
 }
 
 
-int ArrayNDInfoImpl::getNDim() const
+int ArrayNDInfoImpl::nrDims() const
 {
     return ndim_;
 }
@@ -285,7 +285,7 @@ int ArrayNDInfoImpl::getSize( int dim ) const
 
 ArrayNDIter::ArrayNDIter( const ArrayNDInfo& sz )
     : sz_ ( sz )
-    , position_( new int[sz.getNDim()] )
+    , position_( new int[sz.nrDims()] )
 {
     if ( !sz.totalSize() )
     {
@@ -303,13 +303,13 @@ ArrayNDIter::~ArrayNDIter()
 
 bool ArrayNDIter::next()
 {
-    return inc( sz_.getNDim() - 1 );
+    return inc( sz_.nrDims() - 1 );
 }
 
 
 void ArrayNDIter::reset()
 {
-    const int ndim = sz_.getNDim();
+    const int ndim = sz_.nrDims();
 
     for ( int idx=0; idx<ndim; idx++ )
 	position_[idx] = 0;

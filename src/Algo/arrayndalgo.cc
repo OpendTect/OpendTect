@@ -96,7 +96,7 @@ bool ArrayNDWindow::buildWindow( const char* winnm, float val )
     const od_int64 totalsz = size_.totalSize();
     if ( totalsz <= 0 ) return false;
     window_ = new float[totalsz];
-    const int ndim = size_.getNDim();
+    const int ndim = size_.nrDims();
     ArrayNDIter position( size_ );
 
     WindowFunction* windowfunc = WindowFunction::factory().create( winnm );

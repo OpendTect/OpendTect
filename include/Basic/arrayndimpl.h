@@ -373,7 +373,7 @@ void Array1DImpl<T>::copyFrom( const Array1D<T>& templ )
 template <class T> inline
 bool Array1DImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim() != 1 )
+    if ( ni.nrDims() != 1 )
 	return false;
     return setSize( ni.getSize(0) );
 }
@@ -481,7 +481,7 @@ void Array2DImpl<T>::copyFrom( const Array2D<T>& templ )
 template <class T> inline
 bool Array2DImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim() != 2 )
+    if ( ni.nrDims() != 2 )
 	return false;
     return setSize( ni.getSize(0), ni.getSize(1) );
 }
@@ -615,7 +615,7 @@ bool Array3DImpl<T>::setStorage(ValueSeries<T>* vs)
 template <class T> inline
 bool Array3DImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim() != 3 )
+    if ( ni.nrDims() != 3 )
 	return false;
     return setSize( ni.getSize(0), ni.getSize(1), ni.getSize(2) );
 }
@@ -749,10 +749,10 @@ T ArrayNDImpl<T>::getND( const int* pos ) const
 template <class T> inline
 bool ArrayNDImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim() != inf_->getNDim() )
+    if ( ni.nrDims() != inf_->nrDims() )
 	{ pErrMsg("Changing dims in ND not supported"); return false; }
 
-    const int ndim = inf_->getNDim();
+    const int ndim = inf_->nrDims();
     TypeSet<int> sizes( ndim, 0 );
     for ( int idx=0; idx<ndim; idx++ )
 	sizes[idx] = ni.getSize(idx);
@@ -764,7 +764,7 @@ bool ArrayNDImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool ArrayNDImpl<T>::setSize( const int* d )
 {
-    const int ndim = inf_->getNDim();
+    const int ndim = inf_->nrDims();
     for ( int idx=0; idx<ndim; idx++ )
 	inf_->setSize( idx, d[idx] );
 
@@ -776,7 +776,7 @@ bool ArrayNDImpl<T>::setSize( const int* d )
 template <class T> inline
 ArrayND<T>* ArrayNDImpl<T>::create( const ArrayNDInfo& inf )
 {
-    int ndim = inf.getNDim();
+    int ndim = inf.nrDims();
 
     if ( ndim==1 )
 	return new Array1DImpl<T>( inf.getSize(0) );
@@ -824,7 +824,7 @@ bool ArrayNDImpl<T>::clone( const ArrayND<T>& inp, ArrayND<T>& out )
 	return true;
     }
 
-    const int ndim = inp.getNDim();
+    const int ndim = inp.nrDims();
     if ( ndim == 1 )
     {
 	mDynamicCastGet(const Array1DImpl<T>*,inp1d,&inp)

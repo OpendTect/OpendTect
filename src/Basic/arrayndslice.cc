@@ -17,8 +17,8 @@ ArrayNDSliceBase::ArrayNDSliceBase( ArrayNDInfo* localinfo,
 				    const ArrayNDInfo& sourceinfo )
     : info_( *localinfo )
     , sourceinfo_( sourceinfo )
-    , position_( sourceinfo.getNDim(), -1 )
-    , vardim_( localinfo->getNDim(), -1 )
+    , position_( sourceinfo.nrDims(), -1 )
+    , vardim_( localinfo->nrDims(), -1 )
     , offset_( -1 )
     , isinited_( false )
 { }

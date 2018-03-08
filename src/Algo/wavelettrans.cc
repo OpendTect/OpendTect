@@ -566,10 +566,10 @@ bool CWT::init()
 bool CWT::transform( const ArrayND<float_complex>& inp,
 		     ArrayND<float>& outp )
 {
-    const int ndim = inp.getNDim();
+    const int ndim = inp.nrDims();
     if ( ndim > 1 ) return false;
 
-    const int outdim = outp.getNDim();
+    const int outdim = outp.nrDims();
     if ( outdim != 2 ) return false;
 
     mDynamicCastGet(Array2DImpl<float>*,arr2d,&outp)

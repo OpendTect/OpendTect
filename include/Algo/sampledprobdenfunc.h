@@ -190,7 +190,7 @@ public:
     virtual void	copyFrom(const ProbDenFunc&);
 			mDefArrayNDProbDenFuncFns(SampledND)
 
-    virtual int		nrDims() const	{ return bins_.getNDim(); }
+    virtual int		nrDims() const	{ return bins_.nrDims(); }
     virtual const char*	dimName(int) const;
     virtual void	setDimName( int dim, const char* nm )
 					{ *dimnms_[dim] = nm; }

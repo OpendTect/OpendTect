@@ -143,7 +143,7 @@ void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
     if ( !file_ )
 	mRetInternalErr()
 
-    const int nrdims = info.getNDim();
+    const int nrdims = info.nrDims();
     TypeSet<hsize_t> dims, chunkdims;
     for ( int idim=0; idim<nrdims; idim++ )
     {
