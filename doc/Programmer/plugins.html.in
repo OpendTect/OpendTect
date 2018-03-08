@@ -60,7 +60,7 @@ environment, it should be much easier to convince the opendtect.org
 people to take over or even implement those things themselves. </p>
 
 <p id="text"> One thing you <i>cannot</i> do, is use another compiler than
-<b>gcc/g++</b> on Linux/Mac or <b>VC++</b> on Windows. OpendTect is built with it, if you want to use another compiler (why?) you'll have to make all libs and supporting libs (Qt, OpenSceneGraph, fftw) yourself. The make itself should be pretty easy to get started, but there will probably be some porting to do, too.</p>
+<b>gcc/g++</b> on Linux/Mac or <b>VC++</b> on Windows. OpendTect is built with it, if you want to use another compiler (why?) you'll have to make all libs and supporting libs (Qt, OpenSceneGraph) yourself. The make itself should be pretty easy to get started, but there will probably be some porting to do, too.</p>
 
 <br><br>
 <a name="concept"><h2 id="heading2">The concept</h2></a>
@@ -170,8 +170,9 @@ be loaded from within OpendTect (Menu Utilities-Plugins; press the
 <code><pre id="code">
 mDefODPluginInfo(uiTut)
 {
-    static PluginInfo retpi = {
+    DefineStaticLocalObject( PluginInfo, retpi,(
 	"Tutorial plugin",
+	"OpendTect",
 	"dGB (Raman/Bert)",
 	"3.2",
     	"Shows some simple plugin development basics."
@@ -184,10 +185,15 @@ mDefODPluginInfo(uiTut)
 
 <code><pre id="code">mDefODInitPlugin(uiTut)
 {
-    static uiTutMgr* mgr = 0; if ( mgr ) return 0;
-    mgr = new uiTutMgr( ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiTutMgr( ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate Tutorial plugin";
 
     uiTutorialAttrib::initClass();
+    TutHelpProvider::initClass();
     return 0;
 }
 
@@ -237,7 +243,8 @@ mDefODPluginEarlyLoad(Tut)
 
 <p id="text"> Scaling and squaring are single-sample operations. But as you can see in the implementation of the function <code>handleTrace()</code> below, smoothening involves multi-sample computation. It requires separate input and output traces. Otherwise, if we did the operation on the same trace, we would be taking the modified values of samples preceding the current sample. For the sake of simplicity, we make a copy of the input trace to store the output values. This is not a good practice as it results in duplication of data. But since it is a tutorial, our aim is to keep the code as simple as possible and leave the efficiency part for serious programming.</p>
 
-<code><pre id="code">void Tut::SeisTools::handleTrace()
+<code><pre id="code">
+void Tut::SeisTools::handleTrace()
 {
     switch ( action_ )
     {
@@ -332,6 +339,12 @@ mDefODPluginEarlyLoad(Tut)
 <p id="text"> A <i>Steering cube</i>, as the name suggests, works as a guiding cube. It stores the <i>Inline dip</i> and <i>Crossline dip</i> at each point, which guides the attribute engine in multi-trace computations. In case of our <i>Tutorial</i> attribute, we can use the steering data for horizontal smoothening. The key function is <a href=#initsteer><code>initSteering()</code></a> which makes the steering data available in the form of shifts relative to the central trace. To understand how this shift is used during computation, please refer to the <a href=#horsmooth><i>horizontal smoothening</i></a> section in the function <a href=#compdata><code>computeData().</code></a></p>
 
 <p id="text">Some fundamental attribute functions are listed here:</p>
+
+<h3 id="heading3">createInstance()</h3>
+<p id="text">This function is standard for every attribute, 
+here is the attribute constructor called. Use the macro mAttrDefCreateInstance to define createInstance:<br>
+<br><code>mAttrDefCreateInstance(Tutorial)</code></p>
+
 <h3 id="heading3">initClass()</h3>
 <p id="text"> This static function initializes the attribute: sets up the parameters and 
 the number and type of the inputs and outputs. You can compare this to what you see in Opendtect in the attribute definition window after loading the uiTut 
@@ -354,11 +367,6 @@ this example: </p>
 In this case, as every attribute is a provider, the Tutorial attribute is 
 added to PF() (the <a href="Generated/AttributeEngine/classAttrib_1_1ProviderFactory.html"
 >Attrib::ProviderFactory</a> singleton access function).</p>
-
-
-<h3 id="heading3">createInstance()</h3>
-<p id="text">This function is standard for every attribute, 
-here is the attribute constructor called.</p>
 
 
 <h3 id="heading3">updateDesc()</h3>
@@ -683,6 +691,13 @@ auto-extracting installer to do this. For more info on this, see the
 
 <h3 id="heading3">Preparing for the installation manager</h3>
 <p id="text">
+The general structure of a package is explained in the following diagram:</p>
+
+<center>
+<img src="fig_explain_pkg.png" alt="Explaining Package Structure">
+</center>
+
+<p id="text">
 It is important that you make the packages nicely modular. Even if you have only two platforms yet, still it's a good idea to split the stuff in platform-independent and platform-dependent stuff. And separate documentation. In that case there would be 4 packages:</p>
 <ul>
 <li>The platform-independent part (hidden for the user)
@@ -692,15 +707,15 @@ It is important that you make the packages nicely modular. Even if you have only
 </ul>
 <p id="text">The user will see only two: the plugin itself and the documentation.
 </p><p id="text">
-Then the naming of the packages. Let's not make a big specification document; you can guess this by looking at what is now already on the <a href="ftp://ftp.opendtect.org/pub/relman">relman part of the ftp site</a>. Specifics:
+Then the naming of the packages. Let's not make a big specification document; you can guess this by looking at what is now in the <a href="http://download.opendtect.org/relman/defs/opendtect.txt">opendtect.txt</a> file. Specifics:
 <ul>
-<li>In the directory 'defs' you'll see the definition files. That is the sort of info we need. Don't worry about the codes you see in there, just the basic info like descriptions and dependencies. That would allow us to make a defs/your_name.txt. You can deliver the whole file if you want to, but we can also maintain it.
-<li>Provide an image for each package you deliver and put it in a zip file, for the images/ subdirectory. The target size would be around 120x120.
+    <li>We will need a similar package definition file (&ltvendor&gt.txt). That is the sort of info we need. Don't worry about the codes you see in there, just the basic info like descriptions and dependencies. That would allow us to make this file. You can deliver the whole file if you want to, but we can also maintain it.
+<li>Provide an image for each package you deliver and one for your company (vendor). The target size would be around 100x100 for the product logo and 16x16 for the vendor logo.
 <li>Make sure every package contains a file:
-<version>/relinfo/ver.<package_name>[_plf].txt
+&ltOpendTect version&gt/relinfo/ver.&ltpackage_name&gt[_plf].txt
 Like:<br>
-<code>4.3.1/relinfo/ver.jimsinversion_lux64.txt</code><br>
-<code>4.4.0/relinfo/ver.pppraytrace.txt</code><br>
+<code>6.2.0/relinfo/ver.jimsinversion_lux64.txt</code><br>
+<code>6.2.0/relinfo/ver.pppraytrace.txt</code><br>
 </ul>
 <p id="text">You can have your own version numbering, but it has to have this form:<br>
 <code>number.number.number[optional_free_text_without_dots_starting_with_non_digit]</code><br>
@@ -736,3 +751,4 @@ Users cannot update a packages without also updating the packages that these are
  </div>
  </body>
  </html>
+
