@@ -714,8 +714,8 @@ Then the naming of the packages. Let's not make a big specification document; yo
 <li>Make sure every package contains a file:
 &ltOpendTect version&gt/relinfo/ver.&ltpackage_name&gt[_plf].txt
 Like:<br>
-<code>6.2.0/relinfo/ver.jimsinversion_lux64.txt</code><br>
-<code>6.2.0/relinfo/ver.pppraytrace.txt</code><br>
+<code>@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@.0/relinfo/ver.jimsinversion_lux64.txt</code><br>
+<code>@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@.0/relinfo/ver.pppraytrace.txt</code><br>
 </ul>
 <p id="text">You can have your own version numbering, but it has to have this form:<br>
 <code>number.number.number[optional_free_text_without_dots_starting_with_non_digit]</code><br>
