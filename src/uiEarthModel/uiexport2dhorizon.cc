@@ -211,6 +211,7 @@ bool uiExport2DHorizon::doExport()
 		BufferString controlstr = !isbulk_ ? "%15s" : "%15s\t%15s";
 		if ( zudf )
 		{
+		    line.setEmpty();
 		    if ( !wrlnms )
 		    {
 			if ( isbulk_ )
@@ -248,6 +249,7 @@ bool uiExport2DHorizon::doExport()
 		    }
 		    else
 		    {
+			line.setEmpty();
 			if ( isbulk_ )
 			    line.add(horname).add("\t");
 			line.add( pos.x_ ).add( "\t" ).add( pos.y_ )
@@ -280,8 +282,12 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
     BufferString headerstr;
     if ( headerfld_->getIntValue() == 1 )
     {
-	wrtlnm ? headerstr = "\"Line name\"\t\"X\"\t\"Y\"\t\"TrcNr\"\t"
-	       : headerstr = " \"X\"\t\"Y\"\t";
+	if ( isbulk_  )
+	    headerstr = "\"Horizon Name\"\t";
+
+	wrtlnm ? headerstr.add( "\"Line name\"\t\"X\"\t\"Y\"\t\"ShotPointNr\""
+                                                      "\t\"TraceNr\"\t" )
+             : headerstr.add( " \"X\"\t\"Y\"\t" );
 
 	headerstr.add( "\"" ).add( zstr ).add( "\"" );
     }
@@ -289,6 +295,13 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
     {
 	int id = 1;
 	BufferString str( wrtlnm ? " LineName" : "" );
+	if ( isbulk_ )
+	{
+	    headerstr.add( id ).add( ":" ).add( "Horizon Name" ).add( "\n" )
+		    .add( "# " );
+	    id++;
+	}
+
 	if ( !str.isEmpty() )
 	{
 	    headerstr.add( id ).add( ":" )
@@ -300,12 +313,13 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	headerstr.add( "# " ).add( ++id ).add( ": " ).add( "Y\n" );
 	if ( wrtlnm )
 	    headerstr.add( "# " ).add( ++id )
-                     .add( ": " ).add( "TraceNr\n" );
+		    .add( ": " ).add( "ShotPointNr\n" ).add( "# " ).add( ++id )
+                    .add( ": " ).add( "TraceNr\n" );
 
-	headerstr.add( "# " ).add( ++id ).add( ": " ).add( zstr );
+	headerstr.add( "#" ).add( ++id ).add( ": " ).add( zstr );
     }
 
-    strm << "# " << headerstr << od_newline;
+    strm << "#" << headerstr << od_newline;
     strm << "#-------------------" << od_endl;
 }
 
