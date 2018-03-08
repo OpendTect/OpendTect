@@ -64,7 +64,7 @@ class uiGeom2DImpDlg : public uiDialog
 public:
 
 uiGeom2DImpDlg( uiParent* p, const char* linenm )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(tr("New lIne Geometry")),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(tr("New Line Geometry")),
 				 toUiString(linenm),
 				 mODHelpKey(mGeom2DImpDlgHelpID)))
 {
