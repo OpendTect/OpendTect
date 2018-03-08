@@ -297,26 +297,27 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	BufferString str( wrtlnm ? " LineName" : "" );
 	if ( isbulk_ )
 	{
-	    headerstr.add( id ).add( ":" ).add( "Horizon Name" ).add( "\n" )
+	    headerstr.add( id++ ).add( ":" ).add( "Horizon Name" ).add( "\n" )
 		    .add( "# " );
-	    id++;
 	}
 
 	if ( !str.isEmpty() )
 	{
-	    headerstr.add( id ).add( ":" )
+	    headerstr.add( id++ ).add( ":" )
                      .add( str ).add( "\n" ).add( "# " );
-	    id++;
 	}
 
-	headerstr.add( id ).add( ": " ).add( "X\n" );
-	headerstr.add( "# " ).add( ++id ).add( ": " ).add( "Y\n" );
+	headerstr.add( id++ ).add( ": " ).add( "X\n" );
+	headerstr.add( "# " ).add( id++ ).add( ": " ).add( "Y\n" );
 	if ( wrtlnm )
-	    headerstr.add( "# " ).add( ++id )
-		    .add( ": " ).add( "ShotPointNr\n" ).add( "# " ).add( ++id )
-                    .add( ": " ).add( "TraceNr\n" );
+	{
+	    headerstr.add( "# " ).add( id++ ).add( ": " );
+	    // don't make one .add because of pfx oper vs order of evaluation
+	    headerstr.add( "ShotPointNr\n" ).add( "# " )
+		.add( id++ ).add( ": " ).add( "TraceNr\n" );
+	}
 
-	headerstr.add( "#" ).add( ++id ).add( ": " ).add( zstr );
+	headerstr.add( "#" ).add( id++ ).add( ": " ).add( zstr );
     }
 
     strm << "#" << headerstr << od_newline;
