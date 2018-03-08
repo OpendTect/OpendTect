@@ -232,8 +232,7 @@ bool uiExport2DHorizon::doExport()
 			    line.add(horname).add("\t");
 
 			line.add( crd.x ).add( "\t" ).add( crd.y )
-					 .add("\t" ).add( "\t" )
-					 .add( undefstr );
+					 .add("\t" ).add( undefstr );
 		    }
 		    else
 		    {
