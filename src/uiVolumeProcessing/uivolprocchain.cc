@@ -338,7 +338,7 @@ void uiChain::updWriteStatus( const IOObj* ioobj )
     if ( readonlyvbs )
     {
 	setCaption( toUiString("%1 %2").arg(setup().wintitle_)
-				.arg(tr("%1 Read-only").embed("[","]") ) );
+				.arg(tr("%1 Read-only").optional() ) );
 	objfld_->setEmpty();
     }
     else

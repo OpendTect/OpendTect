@@ -92,7 +92,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& seisinpnms,
 	if ( seisinpnms.size()>1 )
 	{
 	    BufferString displaydatanm = seisinpnms.get(idx);
-	    displaydatanm.embed('"','"');
+	    displaydatanm.quote(false);
 	    sssu.seltxt( uiStrings::phrInput(toUiString("%1 %2")
 			   .arg(uiStrings::sSeisObjName(is2d, !is2d, false))
 			   .arg(displaydatanm ) ) );
@@ -113,7 +113,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& seisinpnms,
 	    BufferString steerdatanm = steeringinpnms.get(idx);
 	    steerdatanm.remove("_inline_dip");
 	    steerdatanm.remove("_crline_dip");
-	    steerdatanm.embed('"','"');
+	    steerdatanm.quote(false);
 	    tmpstr = uiStrings::phrInput(toUiString("%1 %2")
 					   .arg(uiStrings::sSteering())
 					   .arg(steerdatanm) );
