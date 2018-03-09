@@ -701,6 +701,51 @@ uiString& uiString::appendPhrase( const uiString& txt,
 }
 
 
+uiString& uiString::embed( const char* open,const char* close )
+{
+    Threads::Locker datalocker( datalock_ );
+    uiString self( *this );
+    self.makeIndependent();
+    mEnsureData;
+
+    RefMan<uiStringData> tmpptr = data_;
+    Threads::Locker contentlocker( tmpptr->contentlock_ );
+
+    if  ( isEmpty() || self.isEmpty() )
+	return *this;
+
+    BufferString fmtstr;
+
+    fmtstr.add(open).add("%1").add(close);
+
+    *this = toUiString( fmtstr ).arg( self );
+
+    mSetDBGStr;
+    return *this;
+}
+
+inline uiString& uiString::quote( bool single )
+{ 
+    const char* qustr = single ? "'" : "\""; 
+    return embed(qustr,qustr); 
+}
+
+inline uiString& uiString::parenthesize()
+{ 
+    return embed("(",")");
+}
+
+inline uiString& uiString::optional()
+{ 
+    return embed("[","]");
+}
+
+inline uiString& uiString::embedFinalState()
+{ 
+    return embed("<",">"); 
+}
+
+
 uiString& uiString::appendPhrases( const uiStringSet& strs,
 				   SeparType septyp, AppendType apptyp )
 {

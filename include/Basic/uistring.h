@@ -167,6 +167,8 @@ public:
 
     enum SeparType	{ NoSep, CloseLine, Space, Tab, Comma, MoreInfo, SemiColon };
     enum AppendType	{ OnSameLine, OnNewLine, AfterEmptyLine };
+    enum EmbedType	{ Round, Square, Angle, SingleQuote, DoubleQuote };
+
     uiString&		appendPhrase(const uiString&,muiStringAppendDefArgs);
     uiString&		appendPhrases(const uiStringSet&,
 				      muiStringAppendDefArgs);
@@ -332,16 +334,6 @@ inline uiString& uiString::preFixWord( const uiString& str )
 { const uiString kp(*this); *this = str; return postFixWord(kp); }
 inline uiString& uiString::postFixWord( const uiString& str )
 { return constructWordWith( str, true ); }
-inline uiString& uiString::embed( const char* open, const char* close )
-{ return toUiString("%1%2%3)").arg( open ).arg( *this ).arg( close ); }
-inline uiString& uiString::quote( bool single )
-{ const char* qustr = single ? "'" : "\""; return embed(qustr,qustr); }
-inline uiString& uiString::parenthesize()
-{ return toUiString("(%1)").arg( *this ); }
-inline uiString& uiString::optional()
-{ return toUiString("[%1]").arg( *this ); }
-inline uiString& uiString::embedFinalState()
-{ return toUiString("<%1>").arg( *this ); }
 inline uiString& uiString::withUnit( const char* str )
 { return withUnit( toUiString(str) ); }
 inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )

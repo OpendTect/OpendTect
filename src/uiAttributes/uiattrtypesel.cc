@@ -21,9 +21,7 @@ using namespace Attrib;
 
 uiString uiAttrTypeSel::sAllGroup()
 {
-    uiString ret( uiStrings::sAll() ); ret.embed("<",">");
-
-    return ret;
+    return uiStrings::sAll().embedFinalState();
 }
 
 

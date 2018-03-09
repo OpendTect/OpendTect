@@ -583,7 +583,7 @@ uiString getSummary() const
 {
     uiString ret;
     if ( !impsel_.desc().isGood() )
-	ret = tr("Incomplete").embed("<",">");
+	ret = tr("Incomplete").embedFinalState();
     else
     {
 	bool isstor = !impsel_.fmtname_.isEmpty();
@@ -594,7 +594,7 @@ uiString getSummary() const
 	}
 
 	if ( !isstor )
-	    ret = tr("Defined").embed("<",">");
+	    ret = tr("Defined").embedFinalState();
 	else
 	    ret = toUiString( impsel_.fmtname_ );
     }

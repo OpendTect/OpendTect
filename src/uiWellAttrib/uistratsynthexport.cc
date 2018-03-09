@@ -90,9 +90,9 @@ virtual uiString getSummary() const
     const int selsz = selidxs_.size();
 
     if ( sz < 1 )
-	ret = tr("None available").embed("<",">");
+	ret = tr("None available").embedFinalState();
     else if ( selsz == 0 )
-	ret = tr("None selected").embed("<",">");
+	ret = tr("None selected").embedFinalState();
     else
     {
 	if ( selsz > 1 )
@@ -101,7 +101,7 @@ virtual uiString getSummary() const
 	    if ( sz == selsz )
 		ret.appendPhrase( uiStrings::sAll().toLower().parenthesize(),
 				    uiString::Space,uiString::OnSameLine );
-	    ret.embed( "<",">" );
+	    ret.embedFinalState();
 	}
 	ret.appendPhrase(toUiString(nms_.get( selidxs_[0] )), uiString::NoSep);
 	if ( selsz > 1 )

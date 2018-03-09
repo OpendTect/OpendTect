@@ -147,7 +147,7 @@ void Pos::SeisProvider3D::fillPar( IOPar& iop ) const
 void Pos::SeisProvider3D::getSummary( uiString& txt ) const
 {
     if ( id_.isInvalid() )
-	txt = tr("No selection").embed("<",">");
+	txt = tr("No selection").embedFinalState();
     else
 	txt = toUiString( "=> %1" ).arg( toUiString(DBM().nameOf(id_)) );
     const int nrsamps = nrSamples();
