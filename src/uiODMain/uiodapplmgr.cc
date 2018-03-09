@@ -1273,7 +1273,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	    float usrshift = shift * SI().zDomain().userFactor();
 	    if ( mIsZero(usrshift,1e-3) ) usrshift = 0.f;
 	    BufferString shiftstr;
-	    shiftstr.set( usrshift ).optional();
+	    shiftstr.set( usrshift ).embed( '[', ']' );
 	    BufferString nm( emattrserv_->getAttribBaseNm(), " ", shiftstr );
 	    emserv_->setAuxData( emid, *data, nm, idx+2, shift );
 	    BufferString dummy;
