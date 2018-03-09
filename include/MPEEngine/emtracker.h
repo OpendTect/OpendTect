@@ -22,7 +22,7 @@ class Executor;
 
 namespace Geometry { class Element; }
 namespace EM { class Object; }
-namespace Attrib { class SelSpec; }
+namespace Attrib { class SelSpec; class SelSpecList; }
 
 namespace MPE
 {
@@ -58,8 +58,7 @@ public:
     virtual bool		snapPositions(const TypeSet<TrcKey>&);
 
     virtual TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
-    void			getNeededAttribs(
-					TypeSet<Attrib::SelSpec>&) const;
+    void			getNeededAttribs(Attrib::SelSpecList&) const;
 
     virtual SectionTracker*	createSectionTracker() = 0;
     SectionTracker*		cloneSectionTracker();

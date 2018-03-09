@@ -292,7 +292,7 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 }
 
 
-void HorizonAdjuster::getNeededAttribs( TypeSet<Attrib::SelSpec>& specs ) const
+void HorizonAdjuster::getNeededAttribs( Attrib::SelSpecList& specs ) const
 {
     if ( !attribsel_ || !attribsel_->id().isValid() )
 	return;

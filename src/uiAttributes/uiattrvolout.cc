@@ -409,7 +409,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
 	    uiAttrSelData attrdata( *ads_ );
 	    Attrib::SelInfo attrinf( attrdata.attrSet(), Attrib::DescID(),
 				     attrdata.nlamodel_ );
-	    TypeSet<Attrib::SelSpec> targetspecs;
+	    Attrib::SelSpecList targetspecs;
 	    if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
 				is2d, attrinf, *ads_, this, targetspecs ))
 		return 0;

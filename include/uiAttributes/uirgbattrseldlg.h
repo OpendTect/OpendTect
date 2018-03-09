@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 #include "uidialog.h"
 
-namespace Attrib { class DescSet; class SelSpec; }
+namespace Attrib { class DescSet; class SelSpec; class SelSpecList; }
 class uiAttrSel;
 
 
@@ -22,8 +22,8 @@ public:
 			uiRGBAttrSelDlg(uiParent*,const Attrib::DescSet&);
 			~uiRGBAttrSelDlg();
 
-    void		setSelSpec(const TypeSet<Attrib::SelSpec>&);
-    void		fillSelSpec(TypeSet<Attrib::SelSpec>&) const;
+    void		setSelSpec(const Attrib::SelSpecList&);
+    void		fillSelSpec(Attrib::SelSpecList&) const;
 
 protected:
 

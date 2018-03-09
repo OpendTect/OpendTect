@@ -253,7 +253,7 @@ EngineMan* calcFingParsObject::createEngineMan()
 {
     EngineMan* aem = new EngineMan;
 
-    TypeSet<SelSpec> attribspecs;
+    SelSpecList attribspecs;
     for ( int idx=0; idx<reflist_->size(); idx++ )
     {
 	for ( int idxdesc=0; idxdesc<attrset_->size(); idxdesc++ )

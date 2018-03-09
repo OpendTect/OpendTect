@@ -117,8 +117,7 @@ public:
 				/*Attribute stuff */
     void			setOneActiveTracker(const EMTracker*);
     void			unsetOneActiveTracker();
-    void			getNeededAttribs(
-				TypeSet<Attrib::SelSpec>&) const;
+    void			getNeededAttribs(Attrib::SelSpecList&) const;
     TrcKeyZSampling		getAttribCube(const Attrib::SelSpec&) const;
 				/*!< Returns the cube that is needed for
 				     this attrib, given that the activearea

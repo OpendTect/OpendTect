@@ -631,7 +631,7 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 }
 
 
-void EngineMan::setAttribSpecs( const TypeSet<SelSpec>& specs )
+void EngineMan::setAttribSpecs( const SelSpecList& specs )
 { attrspecs_ = specs; }
 
 

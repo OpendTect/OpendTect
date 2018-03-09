@@ -310,7 +310,7 @@ HorizonDisplay::HorizonDisplay()
 	mMAX( s3dgeom_->inlDistance() * s3dgeom_->inlRange().width(),
 	      s3dgeom_->crlDistance() * s3dgeom_->crlRange().width() );
 
-    as_ += new TypeSet<Attrib::SelSpec>( 1, Attrib::SelSpec() );
+    as_ += new Attrib::SelSpecList( 1, Attrib::SelSpec() );
     coltabmappers_ += new ColTab::Mapper;
     coltabsequences_ += ColTab::SeqMGR().getDefault();
 
@@ -687,7 +687,7 @@ void HorizonDisplay::setAttribShift( int channel, const TypeSet<float>& shifts )
 
 bool HorizonDisplay::addAttrib()
 {
-    as_ += new TypeSet<Attrib::SelSpec>( 1, Attrib::SelSpec() );
+    as_ += new Attrib::SelSpecList( 1, Attrib::SelSpec() );
     TypeSet<float> shift;
     shift += 0.0;
     curshiftidx_ += 0;
@@ -819,14 +819,13 @@ const Attrib::SelSpec* HorizonDisplay::getSelSpec(
 }
 
 
-const TypeSet<Attrib::SelSpec>* HorizonDisplay::getSelSpecs( int channel ) const
+const Attrib::SelSpecList* HorizonDisplay::getSelSpecs( int channel ) const
 {
     return as_.validIdx(channel) ? as_[channel] : 0;
 }
 
 
-void HorizonDisplay::setSelSpecs(
-			int channel, const TypeSet<Attrib::SelSpec>& as )
+void HorizonDisplay::setSelSpecs( int channel, const Attrib::SelSpecList& as )
 {
     SurveyObject::setSelSpecs( channel, as );
 

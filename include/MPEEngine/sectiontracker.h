@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 class BinIDValue;
 
-namespace Attrib { class SelSpec; }
+namespace Attrib { class SelSpec; class SelSpecList; }
 namespace EM { class Object; }
 
 namespace MPE
@@ -71,8 +71,7 @@ public:
     const Attrib::SelSpec&	getDisplaySpec() const;
     void			setDisplaySpec(const Attrib::SelSpec&);
 
-    void			getNeededAttribs(
-					TypeSet<Attrib::SelSpec>&) const;
+    void			getNeededAttribs(Attrib::SelSpecList&) const;
     virtual TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
 
     void			fillPar(IOPar&) const;

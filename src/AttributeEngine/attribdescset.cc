@@ -1593,19 +1593,17 @@ DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu,
 }
 
 
-void DescSet::fillInSelSpecs( Attrib::DescSetup dsu,
-			      TypeSet<Attrib::SelSpec>& specs ) const
+void DescSet::fillInSelSpecs( DescSetup dsu, SelSpecList& specs ) const
 {
     //TODO check all dsu cases
     for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	const Attrib::Desc* tmpdsc = desc(idx);
+	const Desc* tmpdsc = desc(idx);
 	if ( !tmpdsc || (tmpdsc->isHidden() && !dsu.hidden_) ||
 	     (dsu.stored_ != tmpdsc->isStored())  )
 	    continue;
 
-	Attrib::SelSpec sp( 0, tmpdsc->id() );
-	specs += sp;
+	specs.add( SelSpec(0,tmpdsc->id()) );
     }
 }
 

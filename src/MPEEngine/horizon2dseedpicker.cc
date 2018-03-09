@@ -55,7 +55,7 @@ bool Horizon2DSeedPicker::canAddSeed( const Attrib::SelSpec& as )
 	return true;
 
     seedToBeAddedRemoved.trigger();
-    TypeSet<Attrib::SelSpec> neededattribs;
+    Attrib::SelSpecList neededattribs;
     tracker_.getNeededAttribs( neededattribs );
     for ( int idx=0; idx<neededattribs.size(); idx++ )
     {

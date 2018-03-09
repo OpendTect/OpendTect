@@ -59,11 +59,11 @@ protected:
     MenuItem		displayallitm_;
     MenuItem		hideallitm_;
 
-    mutable TypeSet<Attrib::SelSpec> selattribs_;
+    mutable Attrib::SelSpecList selattribs_;
 
     bool		getSelAttrSelSpec(Probe&,Attrib::SelSpec&) const;
     bool		getSelRGBAttrSelSpecs(Probe&,
-					      TypeSet<Attrib::SelSpec>&) const;
+					      Attrib::SelSpecList&) const;
     BufferStringSet	getDisplayedAttribNames() const;
 
 };

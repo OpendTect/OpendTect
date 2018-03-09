@@ -602,14 +602,14 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 {
     if ( visid<0 ) return false;
 
-    const TypeSet<Attrib::SelSpec>* as = visserv_->getSelSpecs( visid, attrib );
+    const Attrib::SelSpecList* as = visserv_->getSelSpecs( visid, attrib );
     if ( !as )
     {
 	uiMSG().error( tr("Cannot calculate attribute on this object") );
 	return false;
     }
 
-    TypeSet<Attrib::SelSpec> myas( *as );
+    Attrib::SelSpecList myas( *as );
     for ( int idx=0; idx<myas.size(); idx++ )
     {
 	if ( myas[idx].id().isValid() )
@@ -1758,7 +1758,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 
 	const DBKey emid = visserv_->getDBKey( visid );
 	const float shift = (float) visserv_->getTranslation(visid).z_;
-	const TypeSet<Attrib::SelSpec>& specs = attrserv_->getTargetSelSpecs();
+	const Attrib::SelSpecList& specs = attrserv_->getTargetSelSpecs();
 	const int nrvals = data->bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
@@ -1776,7 +1776,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 
 	Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
 		visserv_->getSelSpec(visid,attrib) );
-	const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
+	const Attrib::SelSpecList& tmpset = attrserv_->getTargetSelSpecs();
 	const int sliceidx = attrserv_->getSliceIdx();
 	if ( as && tmpset.validIdx(sliceidx) )
 	{
@@ -1808,7 +1808,7 @@ bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     const int visid = visserv_->getEventObjId();
     const int attrib = visserv_->getSelAttribNr();
-    const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
+    const Attrib::SelSpecList& tmpset = attrserv_->getTargetSelSpecs();
     BufferString savedusrref = tmpset.size() ? tmpset[0].objectRef() : "";
     as.setObjectRef( savedusrref );
     as.set2D( attrserv_->is2DEvent() );

@@ -61,11 +61,11 @@ public:
     virtual void		allowShading(bool);
 
     const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
-    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
+    const Attrib::SelSpecList*	getSelSpecs(int attrib) const;
 
     void			setSelSpec(int attrib,const Attrib::SelSpec&);
     void			setSelSpecs(int attrib,
-					    const TypeSet<Attrib::SelSpec>&);
+					    const Attrib::SelSpecList&);
     void			clearTextures();
 				/*!<Blanks all textures. */
 
@@ -125,7 +125,7 @@ protected:
 
 private:
 
-    ObjectSet<TypeSet<Attrib::SelSpec> >	as_;
+    ObjectSet<Attrib::SelSpecList> as_;
 
     bool			enabletextureinterp_;
     bool			onoffstatus_;

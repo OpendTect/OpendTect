@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class Probe;
 class ProbeLayer;
+namespace Attrib { class SelSpecList; }
 
 mExpClass(uiODMain) uiODSceneProbeParentTreeItem
 			: public uiODSceneParentTreeItem
@@ -55,7 +56,7 @@ protected:
     virtual bool	setRGBProbeLayers(Probe&) const;
     virtual bool	getSelAttrSelSpec(Probe&,Attrib::SelSpec&) const;
     virtual bool	getSelRGBAttrSelSpecs(Probe&,
-					      TypeSet<Attrib::SelSpec>&) const;
+					      Attrib::SelSpecList&) const;
 
     AddType		typetobeadded_;
     uiMenu*		menu_;

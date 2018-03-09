@@ -87,7 +87,7 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 					bool is2d, const SelInfo& attrinf,
 					const Attrib::DescSet& curdescset,
 					uiParent* parent,
-					TypeSet<Attrib::SelSpec>& targetspecs)
+					Attrib::SelSpecList& targetspecs)
 {
     const Desc* seldesc = curdescset.getDesc( attribid );
     if ( !seldesc )

@@ -159,7 +159,7 @@ bool MultiTextureSurveyObject::addAttrib()
 	as.set2D( true );
 	as.setObjectRef( getDBKey().toString() );
     }
-    as_ += new TypeSet<Attrib::SelSpec>( 1, as );
+    as_ += new Attrib::SelSpecList( 1, as );
     addCache();
 
     while ( channels_->nrChannels()<as_.size() )
@@ -246,7 +246,7 @@ unsigned char MultiTextureSurveyObject::getAttribTransparency(int attrib) const
 }
 
 
-const TypeSet<Attrib::SelSpec>* MultiTextureSurveyObject::getSelSpecs(
+const Attrib::SelSpecList* MultiTextureSurveyObject::getSelSpecs(
 							int attrib ) const
 {
     return as_.validIdx(attrib) ? as_[attrib] : 0;
@@ -264,12 +264,12 @@ const Attrib::SelSpec* MultiTextureSurveyObject::getSelSpec(
 void MultiTextureSurveyObject::setSelSpec( int attrib,
 					   const Attrib::SelSpec& as )
 {
-    setSelSpecs( attrib, TypeSet<Attrib::SelSpec>(1,as) );
+    setSelSpecs( attrib, Attrib::SelSpecList(1,as) );
 }
 
 
 void MultiTextureSurveyObject::setSelSpecs( int attrib,
-					   const TypeSet<Attrib::SelSpec>& as )
+					    const Attrib::SelSpecList& as )
 {
     SurveyObject::setSelSpecs( attrib, as );
 

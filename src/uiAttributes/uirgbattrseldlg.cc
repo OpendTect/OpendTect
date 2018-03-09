@@ -39,7 +39,7 @@ uiRGBAttrSelDlg::~uiRGBAttrSelDlg()
 }
 
 
-void uiRGBAttrSelDlg::setSelSpec( const TypeSet<Attrib::SelSpec>& as )
+void uiRGBAttrSelDlg::setSelSpec( const Attrib::SelSpecList& as )
 {
     if ( as.size() != 4 )
 	return;
@@ -51,7 +51,7 @@ void uiRGBAttrSelDlg::setSelSpec( const TypeSet<Attrib::SelSpec>& as )
 }
 
 
-void uiRGBAttrSelDlg::fillSelSpec( TypeSet<Attrib::SelSpec>& as ) const
+void uiRGBAttrSelDlg::fillSelSpec( Attrib::SelSpecList& as ) const
 {
     if ( as.size() != 4 )
 	as.setSize( 4 );

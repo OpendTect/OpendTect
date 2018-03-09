@@ -604,7 +604,7 @@ bool uiMPEPartServer::saveSetup( const DBKey& emid )
     tracker->fillPar( iopar );
 
     const Attrib::DescSet& attrset = Attrib::DescSet::global( tracker->is2D() );
-    TypeSet<Attrib::SelSpec> usedattribs;
+    Attrib::SelSpecList usedattribs;
     MPE::engine().getNeededAttribs( usedattribs );
 
     TypeSet<Attrib::DescID> usedattribids;

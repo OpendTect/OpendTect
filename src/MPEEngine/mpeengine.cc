@@ -593,7 +593,7 @@ void Engine::unsetOneActiveTracker()
 { oneactivetracker_ = 0; }
 
 
-void Engine::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
+void Engine::getNeededAttribs( Attrib::SelSpecList& res ) const
 {
     for ( int trackeridx=0; trackeridx<trackers_.size(); trackeridx++ )
     {
@@ -603,7 +603,7 @@ void Engine::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
 	if ( oneactivetracker_ && oneactivetracker_!=tracker )
 	    continue;
 
-	TypeSet<Attrib::SelSpec> specs;
+	Attrib::SelSpecList specs;
 	tracker->getNeededAttribs( specs );
 	for ( int idx=0; idx<specs.size(); idx++ )
 	{
@@ -846,7 +846,7 @@ ObjectSet<TrcKeyZSampling>* Engine::getTrackedFlatCubes( const int idx ) const
 DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
 					const StepInterval<float>& zintv ) const
 {
-    TypeSet<Attrib::SelSpec> specs; getNeededAttribs( specs );
+    Attrib::SelSpecList specs; getNeededAttribs( specs );
     if ( specs.isEmpty() ) return DataPack::cNoID();
 
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );

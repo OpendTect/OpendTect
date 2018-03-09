@@ -497,7 +497,7 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
 {
     Attrib::EngineMan* aem = new Attrib::EngineMan;
 
-    TypeSet<Attrib::SelSpec> attribspecs;
+    Attrib::SelSpecList attribspecs;
     attrs.fillInSelSpecs( Attrib::DescSetup().hidden(false), attribspecs );
 
     aem->setAttribSet( &attrs );

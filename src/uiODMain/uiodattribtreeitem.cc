@@ -305,7 +305,7 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid )
 
 	    if ( so && !so->canHaveMultipleTextures() )
 	    {
-		const TypeSet<Attrib::SelSpec>& selspecs =
+		const Attrib::SelSpecList& selspecs =
 						attrserv->getTargetSelSpecs();
 		if ( selspecs.size() )
 		{

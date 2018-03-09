@@ -385,7 +385,7 @@ RefMan<SyntheticData> StratSynth::createSynthData( const SyntheticData& sd,
     if ( !descset ) return 0;
     Attrib::DescID attribid = descset->addDesc( psdesc );
     PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
-    TypeSet<Attrib::SelSpec> attribspecs;
+    Attrib::SelSpecList attribspecs;
     Attrib::SelSpec sp( 0, attribid );
     sp.set( *psdesc );
     attribspecs += sp;

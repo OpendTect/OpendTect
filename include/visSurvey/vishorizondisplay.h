@@ -105,9 +105,9 @@ public:
 
     void			allowShading(bool);
     const Attrib::SelSpec*	getSelSpec(int channel,int version=0) const;
-    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
+    const Attrib::SelSpecList*	getSelSpecs(int attrib) const;
     void			setSelSpecs(int attrib,
-					   const TypeSet<Attrib::SelSpec>&);
+					    const Attrib::SelSpecList&);
     void			setDepthAsAttrib(int);
     void			setDisplayDataPackIDs(int attrib,
 					const TypeSet<DataPack::ID>&);
@@ -309,7 +309,7 @@ private:
     char				resolution_;
     int					curtextureidx_;
 
-    ObjectSet<TypeSet<Attrib::SelSpec> > as_;
+    ObjectSet<Attrib::SelSpecList>	as_;
     ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;

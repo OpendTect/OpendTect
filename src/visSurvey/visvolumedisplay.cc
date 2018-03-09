@@ -89,7 +89,7 @@ static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 
 
 VolumeDisplay::AttribData::AttribData()
-    : as_(new TypeSet<Attrib::SelSpec>(1,Attrib::SelSpec()))
+    : as_(new Attrib::SelSpecList(1,Attrib::SelSpec()))
     , cache_(0)
 {}
 
@@ -1038,7 +1038,7 @@ SurveyObject::AttribFormat VolumeDisplay::getAttributeFormat( int ) const
 { return visSurvey::SurveyObject::Cube; }
 
 
-const TypeSet<Attrib::SelSpec>* VolumeDisplay::getSelSpecs( int attrib ) const
+const Attrib::SelSpecList* VolumeDisplay::getSelSpecs( int attrib ) const
 {
     return attribs_.validIdx(attrib) ? attribs_[attrib]->as_ : 0;
 }
@@ -1050,7 +1050,7 @@ const Attrib::SelSpec* VolumeDisplay::getSelSpec( int attrib, int version )const
 }
 
 
-void VolumeDisplay::setSelSpecs( int attrib, const TypeSet<Attrib::SelSpec>& as)
+void VolumeDisplay::setSelSpecs( int attrib, const Attrib::SelSpecList& as)
 {
     SurveyObject::setSelSpecs( attrib, as );
 

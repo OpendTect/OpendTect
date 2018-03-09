@@ -512,7 +512,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     descset->addDesc( inpdesccp );
     Attrib::DescID attribid = descset->addDesc( voldesc );
     PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
-    TypeSet<SelSpec> attribspecs;
+    SelSpecList attribspecs;
     SelSpec sp( 0, attribid );
     sp.set( desc );
     attribspecs += sp;

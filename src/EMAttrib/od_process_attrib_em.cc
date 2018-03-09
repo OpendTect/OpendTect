@@ -418,7 +418,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !attribids.size() )
 	mErrRetNoProc( "No attributes selected" );
 
-    TypeSet<SelSpec> selspecs;
+    SelSpecList selspecs;
     BufferStringSet attribrefs;
     for ( int idx=0; idx<attribids.size(); idx++ )
     {

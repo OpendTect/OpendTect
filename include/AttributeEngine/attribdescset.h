@@ -25,7 +25,9 @@ namespace Attrib
 
 class DescSetup;
 class SelSpec;
+class SelSpecList;
 class DescSet_Standard_Manager;
+
 
 /*!\brief Set of attribute descriptions.
 
@@ -163,10 +165,9 @@ public:
     Desc*		getDescFromUIListEntry(const StringPair&);
 
 			//!<will create an empty DataPointSet
-    DataPointSet*	createDataPointSet(Attrib::DescSetup,
+    DataPointSet*	createDataPointSet(DescSetup,
 					   bool withstored=true) const;
-    void		fillInSelSpecs(Attrib::DescSetup,
-				       TypeSet<Attrib::SelSpec>&) const;
+    void		fillInSelSpecs(DescSetup,SelSpecList&) const;
 
     inline bool		is2D() const			{ return is2d_; }
     bool		hasStoredInMem() const;

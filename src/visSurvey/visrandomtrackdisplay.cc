@@ -1405,7 +1405,7 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* tskr ) const
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
+	const Attrib::SelSpecList* selspecs = getSelSpecs( idx );
 	if ( selspecs ) rtd->setSelSpecs( idx, *selspecs );
 	rtd->setDataPackID( idx, getDataPackID(idx), tskr );
 	rtd->setColTabMapper( idx, getColTabMapper(idx), tskr );

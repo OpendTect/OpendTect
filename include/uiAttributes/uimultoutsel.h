@@ -40,7 +40,7 @@ public:
 					 const Attrib::DescID& multicompinpid,
 					 bool,const Attrib::SelInfo&,
 					 const Attrib::DescSet&,uiParent*,
-					 TypeSet<Attrib::SelSpec>&);
+					 Attrib::SelSpecList&);
 
 protected:
 

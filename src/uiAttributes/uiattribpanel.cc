@@ -85,7 +85,7 @@ EngineMan* uiAttribPanel::createEngineMan()
 {
     EngineMan* aem = new EngineMan;
 
-    TypeSet<SelSpec> attribspecs;
+    SelSpecList attribspecs;
     SelSpec sp( 0, attribid_ );
     attribspecs += sp;
 

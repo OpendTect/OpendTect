@@ -352,12 +352,12 @@ void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
 
 void SurveyObject::setSelSpec( int attrib, const Attrib::SelSpec& newselspec )
 {
-    setSelSpecs( attrib, TypeSet<Attrib::SelSpec>(1,newselspec) );
+    setSelSpecs( attrib, Attrib::SelSpecList(1,newselspec) );
 }
 
 
 void SurveyObject::setSelSpecs(
-	int attrib, const TypeSet<Attrib::SelSpec>& newselspecs )
+	int attrib, const Attrib::SelSpecList& newselspecs )
 {
     const Attrib::SelSpec* oldselspec = getSelSpec( attrib );
     if ( !oldselspec || (*oldselspec)!=newselspecs[0] )

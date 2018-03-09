@@ -21,7 +21,7 @@ namespace Attrib
 {
     class Desc;
     class DescSet;
-    class SelSpec;
+    class SelSpecList;
     class ValParam;
 }
 
@@ -72,7 +72,7 @@ public:
 				~uiEvaluateDlg();
 
     Attrib::Desc*		getAttribDesc() const	{ return seldesc_; }
-    void			getEvalSpecs(TypeSet<Attrib::SelSpec>&) const;
+    void			getEvalSpecs(Attrib::SelSpecList&) const;
     Attrib::DescSet*		getEvalSet() const	{ return attrset_; }
     bool			storeSlices() const;
     bool			evaluationPossible() const { return haspars_; }
@@ -105,7 +105,7 @@ protected:
     BufferStringSet		lbls_;
     ObjectSet<AttribParamGroup>	grps_;
 
-    TypeSet<Attrib::SelSpec>	specs_;
+    Attrib::SelSpecList&	specs_;
     bool			enabstore_;
     bool			haspars_;
 };

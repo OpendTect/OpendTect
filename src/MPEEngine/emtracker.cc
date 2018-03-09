@@ -97,12 +97,12 @@ TrcKeyZSampling EMTracker::getAttribCube( const Attrib::SelSpec& spec ) const
 }
 
 
-void EMTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
+void EMTracker::getNeededAttribs( Attrib::SelSpecList& res ) const
 {
     if ( !sectiontracker_ )
 	return;
 
-    TypeSet<Attrib::SelSpec> specs;
+    Attrib::SelSpecList specs;
     sectiontracker_->getNeededAttribs( specs );
 
     for ( int idx=0; idx<specs.size(); idx++ )

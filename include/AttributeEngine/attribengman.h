@@ -63,7 +63,7 @@ public:
     void		setAttribSet(const DescSet*);
     void		setNLAModel(const NLAModel*);
     void		setAttribSpec(const SelSpec&);
-    void		setAttribSpecs(const TypeSet<SelSpec>&);
+    void		setAttribSpecs(const SelSpecList&);
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setGeomID( const Pos::GeomID geomid )
 			{ geomid_ = geomid; }
@@ -131,7 +131,7 @@ protected:
 
     DescSet*		procattrset_;
     int			curattridx_;
-    TypeSet<SelSpec>	attrspecs_;
+    SelSpecList		attrspecs_;
 
     Processor*		getProcessor(uiString& err);
     void		setExecutorName(Executor*);

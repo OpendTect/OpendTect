@@ -287,6 +287,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     , seldesc_(0)
     , enabstore_(store)
     , haspars_(false)
+    , specs_(*new Attrib::SelSpecList)
 {
     srcid_ = ade.curDesc()->id();
     DescSet* newattrset = ade.curDesc()->descSet()->optimizeClone( srcid_ );
@@ -349,6 +350,7 @@ void uiEvaluateDlg::doFinalise( CallBacker* )
 
 uiEvaluateDlg::~uiEvaluateDlg()
 {
+    delete &specs_;
 }
 
 
@@ -442,7 +444,7 @@ bool uiEvaluateDlg::acceptOK()
 }
 
 
-void uiEvaluateDlg::getEvalSpecs( TypeSet<Attrib::SelSpec>& specs ) const
+void uiEvaluateDlg::getEvalSpecs( Attrib::SelSpecList& specs ) const
 {
     specs = specs_;
 }

@@ -61,7 +61,7 @@ TrcKeyZSampling
 { return engine().activeVolume(); }
 
 
-void SectionAdjuster::getNeededAttribs( TypeSet<Attrib::SelSpec>& ) const
+void SectionAdjuster::getNeededAttribs( Attrib::SelSpecList& ) const
 {}
 
 

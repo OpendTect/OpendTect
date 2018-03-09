@@ -231,11 +231,11 @@ public:
 
     virtual void		setSelSpec(int attrib,const Attrib::SelSpec&);
     virtual void		setSelSpecs(int attrib,
-					   const TypeSet<Attrib::SelSpec>&);
+					    const Attrib::SelSpecList&);
 
     virtual const Attrib::SelSpec* getSelSpec( int attrib, int version=0 ) const
 				   { return 0; }
-    virtual const TypeSet<Attrib::SelSpec>*	getSelSpecs( int attrib ) const
+    virtual const Attrib::SelSpecList* getSelSpecs( int attrib ) const
 						{ return 0; }
 
     virtual bool		canHaveMultipleTextures() const { return false;}

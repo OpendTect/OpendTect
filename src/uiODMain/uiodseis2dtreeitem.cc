@@ -267,7 +267,7 @@ bool uiODLine2DParentTreeItem::getSelAttrSelSpec(
 
 
 bool uiODLine2DParentTreeItem::getSelRGBAttrSelSpecs( Probe& probe,
-				    TypeSet<Attrib::SelSpec>& rgbaspecs ) const
+				    Attrib::SelSpecList& rgbaspecs ) const
 {
     if ( selattribs_.isEmpty() )
     {

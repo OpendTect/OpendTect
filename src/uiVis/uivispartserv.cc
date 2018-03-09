@@ -1006,7 +1006,7 @@ int uiVisPartServer::getEventObjId() const { return eventobjid_; }
 int uiVisPartServer::getEventAttrib() const { return eventattrib_; }
 
 
-const TypeSet<Attrib::SelSpec>* uiVisPartServer::getSelSpecs(
+const Attrib::SelSpecList* uiVisPartServer::getSelSpecs(
 						int id, int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -1782,7 +1782,7 @@ void uiVisPartServer::setSelSpec( int id, int attrib,
 
 
 void uiVisPartServer::setSelSpecs( int id, int attrib,
-				   const TypeSet<Attrib::SelSpec>& selspecs )
+				   const Attrib::SelSpecList& selspecs )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->setSelSpecs( attrib, selspecs );

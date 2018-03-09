@@ -83,7 +83,7 @@ public:
                      selspec.id==NoAttrib, or a zeropointer
                      if selspec.id==notsel */
     const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
-    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
+    const Attrib::SelSpecList*	getSelSpecs(int attrib) const;
 
     const ColTab::Mapper& getColTabMapper(int) const;
     void		setColTabMapper(int,const ColTab::Mapper&,TaskRunner*);
@@ -222,7 +222,7 @@ protected:
     visBase::EventCatcher*	sceneeventcatcher_;
     MouseCursor			mousecursor_;
     Notifier<MPEDisplay>	movement;
-    TypeSet<Attrib::SelSpec>&	as_;
+    Attrib::SelSpecList&	as_;
     bool			manipulated_;
     int				lasteventnr_;
 

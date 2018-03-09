@@ -44,7 +44,7 @@ MPEDisplay::MPEDisplay()
     , dim_(0)
     , engine_(MPE::engine())
     , sceneeventcatcher_(0)
-    , as_(*new TypeSet<Attrib::SelSpec>(1,Attrib::SelSpec()))
+    , as_(*new Attrib::SelSpecList(1,Attrib::SelSpec()))
     , manipulated_(false)
     , movement( this )
     , boxDraggerStatusChange( this )
@@ -265,7 +265,7 @@ const Attrib::SelSpec* MPEDisplay::getSelSpec( int attrib, int version ) const
 }
 
 
-const TypeSet<Attrib::SelSpec>* MPEDisplay::getSelSpecs( int attrib ) const
+const Attrib::SelSpecList* MPEDisplay::getSelSpecs( int attrib ) const
 {
     return attrib ? 0 : &as_;
 }

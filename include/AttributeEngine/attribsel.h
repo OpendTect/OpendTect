@@ -122,6 +122,20 @@ protected:
 };
 
 
+/*!\brief An ordered list of SelSpec's */
+
+mExpClass(AttributeEngine) SelSpecList : public TypeSet<SelSpec>
+{
+public:
+				SelSpecList()			{}
+				SelSpecList( int nr, const SelSpec& ss )
+				    : TypeSet<SelSpec>(nr,ss)	{}
+
+    inline bool	is2D() const	{ return !isEmpty() && first().is2D(); }
+
+};
+
+
 /*!\brief All info needed to make attribute selections.
 
   On construction, the data is filled. If you need to re-read, fill with
@@ -171,7 +185,6 @@ protected:
     bool		onlymulticomp_;
 
 };
-
 
 
 } // namespace Attrib

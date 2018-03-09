@@ -171,7 +171,7 @@ TrcKeyZSampling
 }
 
 
-void SectionTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
+void SectionTracker::getNeededAttribs( Attrib::SelSpecList& res ) const
 {
     if ( adjuster_ ) adjuster_->getNeededAttribs( res );
 }

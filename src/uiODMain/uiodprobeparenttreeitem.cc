@@ -244,7 +244,7 @@ bool uiODSceneProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
 
 
 bool uiODSceneProbeParentTreeItem::getSelRGBAttrSelSpecs( Probe& probe,
-				    TypeSet<Attrib::SelSpec>& rgbaspecs ) const
+				    Attrib::SelSpecList& rgbaspecs ) const
 {
     if ( !applMgr() || !applMgr()->attrServer() )
 	return false;
@@ -258,7 +258,7 @@ bool uiODSceneProbeParentTreeItem::getSelRGBAttrSelSpecs( Probe& probe,
 
 bool uiODSceneProbeParentTreeItem::setRGBProbeLayers( Probe& probe ) const
 {
-    TypeSet<Attrib::SelSpec> rgbaspecs;
+    Attrib::SelSpecList rgbaspecs;
     if ( !getSelRGBAttrSelSpecs(probe,rgbaspecs) )
 	return false;
 

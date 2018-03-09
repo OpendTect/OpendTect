@@ -251,13 +251,13 @@ bool MarchingCubesDisplay::canSetColTabSequence() const
 }
 
 
-void MarchingCubesDisplay::setSelSpecs(
-		int attrib, const TypeSet<Attrib::SelSpec>& spec )
+void MarchingCubesDisplay::setSelSpecs( int attrib,
+					const Attrib::SelSpecList& specs )
 {
-    SurveyObject::setSelSpecs( attrib, spec );
+    SurveyObject::setSelSpecs( attrib, specs );
 
     if ( !attrib )
-	as_ = spec;
+	as_ = specs;
 }
 
 
@@ -268,7 +268,7 @@ const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec(
 }
 
 
-const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
+const Attrib::SelSpecList* MarchingCubesDisplay::getSelSpecs(
 							int attrib ) const
 {
     return attrib ? 0 : &as_;

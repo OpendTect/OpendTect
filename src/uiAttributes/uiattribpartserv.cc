@@ -96,6 +96,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , multiattrdlg_(0)
     , dataattrdlg_(0)
     , evalmapperbackup_ (0)
+    , targetspecs_(*new Attrib::SelSpecList)
 {
     attrsetclosetim_.tick.notify(
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
@@ -127,6 +128,8 @@ uiAttribPartServer::~uiAttribPartServer()
     delete volattrdlg_;
     delete multiattrdlg_;
     delete dataattrdlg_;
+
+    delete &targetspecs_;
 }
 
 
@@ -380,7 +383,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 }
 
 
-bool uiAttribPartServer::selectRGBAttribs( TypeSet<SelSpec>& rgbaspecs,
+bool uiAttribPartServer::selectRGBAttribs( SelSpecList& rgbaspecs,
 					   const ZDomain::Info* zinf,
 					   Pos::GeomID geomid )
 {

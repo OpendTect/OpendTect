@@ -25,6 +25,7 @@ namespace Attrib
     class Desc;
     class DescSet;
     class SelSpec;
+    class SelSpecList;
     class EngineMan;
 }
 
@@ -46,9 +47,7 @@ namespace ColTab { class Mapper; }
 namespace Pick { class Set; }
 namespace ZDomain { class Info; class Def; }
 
-/*!
-\brief Service provider for application level - Attributes
-*/
+/*!\brief Service provider for application level - Attributes */
 
 mExpClass(uiAttributes) uiAttribPartServer : public uiApplPartServer
 { mODTextTranslationClass(uiAttribPartServer);
@@ -58,6 +57,7 @@ public:
     typedef Attrib::DescSet	DescSet;
     typedef Attrib::DescID	DescID;
     typedef Attrib::SelSpec	SelSpec;
+    typedef Attrib::SelSpecList	SelSpecList;
 
 			uiAttribPartServer(uiApplService&);
 			~uiAttribPartServer();
@@ -102,7 +102,7 @@ public:
     bool		selectAttrib(SelSpec&,const ZDomain::Info*,
 				     Pos::GeomID geomid,
 				     const uiString& seltxt=tr("View Data")) ;
-    bool		selectRGBAttribs(TypeSet<SelSpec>&,
+    bool		selectRGBAttribs(SelSpecList&,
 					 const ZDomain::Info*,Pos::GeomID);
     bool		setPickSetDirs(Pick::Set&,const NLAModel*,float vel);
     void		outputVol(const DBKey&,bool is2d,bool multioutput);
@@ -112,9 +112,9 @@ public:
     void		getPossibleOutputs(bool is2d,BufferStringSet&) const;
 
     void		setTargetSelSpec(const SelSpec&);
-    void		setTargetSelSpecs(const TypeSet<SelSpec>& specs)
+    void		setTargetSelSpecs(const SelSpecList& specs)
 			{ targetspecs_ = specs; }
-    const TypeSet<SelSpec>& getTargetSelSpecs() const
+    const SelSpecList&	getTargetSelSpecs() const
 			{ return targetspecs_; }
     const Desc*		getTargetDesc() const;
 
@@ -251,7 +251,7 @@ protected:
     bool		alloweval_;
     bool		allowevalstor_;
     int			sliceidx_;
-    TypeSet<SelSpec>	targetspecs_;
+    SelSpecList&	targetspecs_;
 
     DataPointSetDisplayMgr*	dpsdispmgr_;
 

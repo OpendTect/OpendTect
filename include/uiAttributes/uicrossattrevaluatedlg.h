@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "attribdescset.h"
+#include "attribsel.h"
 
 class AttribParamGroup;
 class uiAttribDescSetEd;
@@ -33,7 +34,7 @@ public:
 				~uiCrossAttrEvaluateDlg();
 
     Attrib::Desc*		getAttribDesc() const   { return seldesc_; }
-    void			getEvalSpecs(TypeSet<Attrib::SelSpec>&) const;
+    void			getEvalSpecs(Attrib::SelSpecList&) const;
     Attrib::DescSet*		getEvalSet() const	{ return &attrset_; }
     bool			storeSlices() const;
     bool			evaluationPossible() const { return haspars_; }
@@ -75,8 +76,8 @@ protected:
 
     TypeSet<Attrib::DescID>	srcspecids_;
     TypeSet<Attrib::DescID>	seldeschildids_;
-    BufferStringSet		lbls_; //size is nr of steps
-    TypeSet<Attrib::SelSpec>	specs_;//size is nr of steps
+    BufferStringSet		lbls_;  //!< size is nr of steps
+    Attrib::SelSpecList		specs_; //!< size is nr of steps
 
     BufferStringSet		defstr_;
     bool			enabstore_;

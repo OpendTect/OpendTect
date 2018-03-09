@@ -38,8 +38,7 @@ public:
     void		reset();
     int			nextStep();
 
-    void		getNeededAttribs(
-				TypeSet<Attrib::SelSpec>&) const;
+    void		getNeededAttribs(Attrib::SelSpecList&) const;
     TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
 
     void		setCompareMethod(EventTracker::CompareMethod);

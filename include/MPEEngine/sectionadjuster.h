@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "trckey.h"
 #include "trckeyzsampling.h"
 
-namespace Attrib { class SelSpec; }
+namespace Attrib { class SelSpec; class SelSpecList; }
 
 
 namespace MPE
@@ -42,8 +42,7 @@ public:
     virtual TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
 				/*!<\returns the cube in which I need the
 				     given attrib to track in activevolum. */
-    virtual void		getNeededAttribs(
-					TypeSet<Attrib::SelSpec>&) const;
+    virtual void		getNeededAttribs(Attrib::SelSpecList&) const;
     virtual bool		is2D() const			{ return false;}
     virtual bool		hasInitializedSetup() const	{ return true; }
 

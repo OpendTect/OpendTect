@@ -305,8 +305,7 @@ BufferString uiCrossAttrEvaluateDlg::acceptedDefStr() const
 }
 
 
-void uiCrossAttrEvaluateDlg::getEvalSpecs(
-	TypeSet<Attrib::SelSpec>& specs ) const
+void uiCrossAttrEvaluateDlg::getEvalSpecs( Attrib::SelSpecList& specs ) const
 { specs = specs_; }
 
 
