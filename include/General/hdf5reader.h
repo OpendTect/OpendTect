@@ -15,6 +15,13 @@ ________________________________________________________________________
 namespace HDF5
 {
 
+/*!\brief Reads HDF5 file data.
+
+  You can only get actual data after you set the scope, i.e. you have to
+  select the 'current' DataSet using teh DataSetKey.
+
+  */
+
 mExpClass(General) Reader : public Access
 {
 public:
@@ -24,22 +31,27 @@ public:
     virtual void		getDataSets(const char*,
 					    BufferStringSet&) const	= 0;
 				//!< Pass a full group name
-    virtual ArrayNDInfo*	getDataSizes(const DataSetKey&) const	= 0;
+
+    virtual bool		setScope(const DataSetKey&)		= 0;
+				//!< Must be done before any data query
+
+    virtual ArrayNDInfo*	getDataSizes() const			= 0;
 				//!< Can return null when:
 				//!< - there is no such group
 				//!< - the group has an empty dataset
     virtual ODDataType		getDataType() const			= 0;
 
-    uiRetVal			getInfo(const DataSetKey&,IOPar&) const;
-    uiRetVal			getAll(const DataSetKey&,void*) const;
+    uiRetVal			getInfo(IOPar&) const;
+    uiRetVal			getAll(void*) const;
+				//!< Get the entire data set in current scope
 
     //TODO slices
     //TODO point-wise
 
 protected:
 
-    virtual void	gtInfo(const DataSetKey&,IOPar&,uiRetVal&) const= 0;
-    virtual void	gtAll(const DataSetKey&,void*,uiRetVal&) const	= 0;
+    virtual void	gtInfo(IOPar&,uiRetVal&) const= 0;
+    virtual void	gtAll(void*,uiRetVal&) const	= 0;
 
 };
 

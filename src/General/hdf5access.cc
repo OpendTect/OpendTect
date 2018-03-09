@@ -113,20 +113,20 @@ uiRetVal HDF5::Writer::putData( const DataSetKey& dsky, const ArrayNDInfo& inf,
 }
 
 
-uiRetVal HDF5::Reader::getInfo( const DataSetKey& dsky, IOPar& iop ) const
+uiRetVal HDF5::Reader::getInfo( IOPar& iop ) const
 {
     uiRetVal uirv;
-    gtInfo( dsky, iop, uirv );
+    gtInfo( iop, uirv );
     return uirv;
 }
 
 
-uiRetVal HDF5::Reader::getAll( const DataSetKey& dsky, void* data ) const
+uiRetVal HDF5::Reader::getAll( void* data ) const
 {
     uiRetVal uirv;
     if ( !data )
 	{ pErrMsg("data == null"); }
     else
-	gtAll( dsky, data, uirv );
+	gtAll( data, uirv );
     return uirv;
 }

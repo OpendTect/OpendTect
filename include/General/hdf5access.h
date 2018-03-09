@@ -89,6 +89,7 @@ protected:
     exist, and handle everything gracefully.
   * The HDF5 data type system is richer than ours. We'll try to map to the
     'nearest'.
+  * HDF5 and this interface are *not* MT-safe. Build your own locking.
 
   */
 

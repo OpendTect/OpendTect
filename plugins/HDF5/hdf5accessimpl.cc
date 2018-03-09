@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "H5Cpp.h"
 
 const char* HDF5::AccessImpl::sOpenFileFirst()
-{ return "HDF5: need successful open() before further actions"; }
+{ return "HDF5: Access not open. Use/check open()"; }
+const char* HDF5::AccessImpl::sNeedScope()
+{ return "HDF5: No valid scope set for data retrieval. Use/check setScope()"; }
 
 
 HDF5::Reader* HDF5::AccessProviderImpl::getReader() const

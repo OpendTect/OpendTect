@@ -33,20 +33,28 @@ public:
 
     virtual void	getGroups(BufferStringSet&) const;
     virtual void	getDataSets(const char* grpnm,BufferStringSet&) const;
-    virtual ArrayNDInfo* getDataSizes(const DataSetKey&) const;
+
+    virtual bool	setScope(const DataSetKey&);
+
+    virtual ArrayNDInfo* getDataSizes() const;
     virtual ODDataType	getDataType() const;
 
 protected:
 
     BufferStringSet	grpnms_;
+    H5::Group*		group_;
+    H5::DataSet*	dataset_;
 
     virtual void	openFile(const char*,uiRetVal&);
     virtual void	closeFile();
 
-    virtual void	gtInfo(const DataSetKey&,IOPar&,uiRetVal&) const;
-    virtual void	gtAll(const DataSetKey&,void*,uiRetVal&) const;
+    virtual void	gtInfo(IOPar&,uiRetVal&) const;
+    virtual void	gtAll(void*,uiRetVal&) const;
 
     void		listObjs(const H5Dir&,BufferStringSet&,bool) const;
+    bool		selectGroup(const char*);
+    bool		selectDataSet(const char*);
+    inline bool		haveScope() const   { return group_ && dataset_; }
 
 };
 

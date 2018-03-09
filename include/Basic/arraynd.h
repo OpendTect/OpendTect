@@ -104,6 +104,7 @@ public:
     virtual bool		setInfo( const ArrayNDInfo& ) { return false; }
 
     virtual void		setAll(DataType);
+    virtual void		setData(const DataType*);
     virtual void		getAll(DataType*) const;
 				/*!< ptr must be allocated, min totalSize() */
     virtual void		getAll(ValueSeries<T>& vs) const;
@@ -431,9 +432,8 @@ void ArrayND<T>::setAll( T val )
     } while ( iterator.next() );
 }
 
-/*!
-\brief Gets a one dimensional array from an ArrayND.
-*/
+
+/*!\brief Gets a one dimensional array from an ArrayND. */
 
 template <class T>
 mClass(Basic) ArrayNDDataExtracter : public ParallelTask
@@ -529,7 +529,7 @@ template <class T> inline
 void ArrayND<T>::getAll( T* ptr ) const
 {
     const od_int64 totalsz = totalSize();
-    if ( !totalsz )
+    if ( totalsz < 1 )
 	return;
 
     const T* tdata = getData();
@@ -548,5 +548,76 @@ void ArrayND<T>::getAll( T* ptr ) const
 	    ArrayNDDataExtracter<T> extr( ptr, *this );
 	    extr.execute();
 	}
+    }
+}
+
+/*!\brief Gets ArrayND data from a one dimensional array.  */
+
+template <class T>
+mClass(Basic) ArrayNDDataSetter : public ParallelTask
+{
+public:
+		ArrayNDDataSetter( ArrayND<T>& arr, const T* ptr )
+		    : ptr_( ptr )
+		    , arr_( arr )
+		    , totalnr_( arr.totalSize() )
+		    , pos_(0)
+		{
+		    const int nrdims = arr_.nrDims();
+		    if ( nrdims > 0 )
+			pos_ = new int [nrdims];
+		    else
+			totalnr_ = 0;
+		}
+
+		~ArrayNDDataSetter()	    { delete [] pos_; }
+
+    bool	doWork( od_int64 start, od_int64 stop, int )
+		{
+		    if ( !arr_.info().getArrayPos( start, pos_ ) )
+			return false;
+
+		    ArrayNDIter iterator( arr_.info() );
+		    iterator.setPos( pos_ );
+
+		    const T* res = ptr_ + start;
+		    for ( od_int64 idx=start; idx<=stop; idx++, res++ )
+		    {
+			arr_.setND( iterator.getPos(), *res );
+			if ( idx==stop )
+			    break;
+			else if ( !iterator.next() )
+			    return false;
+		    }
+
+		    return true;
+		}
+
+    od_int64	nrIterations() const { return totalnr_; }
+
+protected:
+
+    od_int64		totalnr_;
+    ArrayND<T>&		arr_;
+    const T*		ptr_;
+    int*		pos_;
+
+};
+
+
+template <class T> inline
+void ArrayND<T>::setData( const T* ptr )
+{
+    const od_int64 totalsz = totalSize();
+    if ( totalsz < 1 )
+	return;
+
+    T* tdata = getData();
+    if ( tdata )
+	OD::memCopy( tdata, ptr, totalsz * sizeof(T) );
+    else
+    {
+	ArrayNDDataSetter<T> setter( *this, ptr );
+	setter.execute();
     }
 }

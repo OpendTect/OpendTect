@@ -38,6 +38,7 @@ protected:
 
     void		doCloseFile(Access&);
     static const char*	sOpenFileFirst();
+    static const char*	sNeedScope();
 
 };
 
@@ -64,3 +65,10 @@ public:
 
 #define mRetNoFileInUiRv() \
     mRetNoFile( uirv.set(uiStrings::phrInternalErr(sOpenFileFirst()) ); return )
+
+#define mRetNeedScopeInUiRv() \
+{ \
+    pErrMsg( sNeedScope() ); \
+    uirv.set( uiStrings::phrInternalErr(sNeedScope()) ); \
+    return; \
+}

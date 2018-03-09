@@ -24,22 +24,24 @@ mExpClass(General) ArrayNDTool
 public:
 
 			ArrayNDTool( const ArrayND<T>& arrnd )
-			    : arrnd_(arrnd)			{}
+			    : arrnd_(arrnd)				{}
+			ArrayNDTool( ArrayND<T>& arrnd )
+			    : arrnd_(const_cast<ArrayND<T>&>(arrnd))	{}
 
-    inline static ArrayND<T>* createArray(Reader&,const DataSetKey&);
-    inline bool		getData(Reader&,const DataSetKey&);
+    inline static ArrayND<T>* createArray(Reader&);
+    inline uiRetVal	getAll(Reader&);
+
     inline uiRetVal	putData(Writer&,const DataSetKey&);
 
-    const ArrayND<T>&	arrnd_;
+    ArrayND<T>&		arrnd_;
 
 };
 
 
 template <class T>
-inline ArrayND<T>* ArrayNDTool<T>::createArray( Reader& rdr,
-						const DataSetKey& dsky )
+inline ArrayND<T>* ArrayNDTool<T>::createArray( Reader& rdr )
 {
-    PtrMan<ArrayNDInfo> inf = rdr.getDataSizes( dsky );
+    PtrMan<ArrayNDInfo> inf = rdr.getDataSizes();
     if ( !inf )
 	return 0;
 
@@ -48,16 +50,27 @@ inline ArrayND<T>* ArrayNDTool<T>::createArray( Reader& rdr,
 
 
 template <class T>
-inline bool ArrayNDTool<T>::getData( Reader& rdr, const DataSetKey& dsky )
+inline uiRetVal ArrayNDTool<T>::getAll( Reader& rdr )
 {
-    PtrMan<ArrayNDInfo> inf = rdr.getDataSizes( dsky );
-    if ( !inf )
-	return false;
+    uiRetVal uirv;
+    const od_int64 nrelems = arrnd_.totalSize();
+    if ( nrelems < 1 )
+	return uirv;
 
-    if ( *inf != arrnd_.info() )
-	{ pErrMsg("Fect array has bad dims"); return false; }
-
-
+    T* data = arrnd_.getData();
+    const bool arrhasdata = data;
+    if ( !arrhasdata )
+    {
+	mTryAlloc( data, T [ nrelems ] );
+	if ( !data )
+	    { uirv.add( uiStrings::phrCannotAllocateMemory() ); return uirv; }
+    }
+    uirv = rdr.getAll( data );
+    if ( !arrhasdata )
+    {
+	arrnd_.setAll( data );
+	delete [] data;
+    }
 }
 
 

@@ -101,8 +101,14 @@ static bool testRead()
     mRunStandardTestWithError( dsnms.size()==nrblocks_, "Datasets in group",
 			       BufferString("nrblocks=",grps.size()) );
 
-    const HDF5::DataSetKey dsky( "Component 2", "Block [3]" );
-    PtrMan<ArrayNDInfo> arrinf = rdr->getDataSizes( dsky );
+    HDF5::DataSetKey dsky( "Component 3", "Block [3]" );
+    bool scoperes = rdr->setScope( dsky );
+    mRunStandardTest( !scoperes, "Set scope (non-existing)" )
+    dsky = HDF5::DataSetKey( "Component 2", "Block [3]" );
+    scoperes = rdr->setScope( dsky );
+    mRunStandardTest( scoperes, "Set scope (existing)" )
+
+    PtrMan<ArrayNDInfo> arrinf = rdr->getDataSizes();
     mRunStandardTest( arrinf, "Get dimensions" )
     const int nrdims = arrinf->nrDims();
     mRunStandardTestWithError( nrdims==2, "Correct nr dimensions",
@@ -110,12 +116,12 @@ static bool testRead()
     const int dim1 = arrinf->getSize( 0 );
     mRunStandardTestWithError( dim1==dim1_, "Correct size of 1st dim",
 				BufferString("dim1=",dim1) )
-    const int dim2 = arrinf->getSize( 0 );
+    const int dim2 = arrinf->getSize( 1 );
     mRunStandardTestWithError( dim2==dim2_, "Correct size of 2nd dim",
 				BufferString("dim2=",dim2) )
 
     IOPar iop;
-    uirv = rdr->getInfo( dsky, iop );
+    uirv = rdr->getInfo( iop );
     mAddTestResult( "Get dataset property" );
     int iblk=0, icomp=0;
     iop.get( sPropNm, iblk, icomp );
