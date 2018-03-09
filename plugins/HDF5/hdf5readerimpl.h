@@ -34,6 +34,7 @@ public:
     virtual void	getGroups(BufferStringSet&) const;
     virtual void	getDataSets(const char* grpnm,BufferStringSet&) const;
     virtual ArrayNDInfo* getDataSizes(const DataSetKey&) const;
+    virtual ODDataType	getDataType() const;
 
 protected:
 
@@ -41,6 +42,9 @@ protected:
 
     virtual void	openFile(const char*,uiRetVal&);
     virtual void	closeFile();
+
+    virtual void	gtInfo(const DataSetKey&,IOPar&,uiRetVal&) const;
+    virtual void	gtAll(const DataSetKey&,void*,uiRetVal&) const;
 
     void		listObjs(const H5Dir&,BufferStringSet&,bool) const;
 

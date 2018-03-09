@@ -18,6 +18,7 @@ static const int nrblocks_ = 5;
 static const int dim1_ = 10;
 static const int dim2_ = 20;
 static const int chunksz_ = 6;
+static const char* sPropNm = "Block and comp idxs";
 
 static void fillArr2D( Array2D<float>& arr2d, int shft )
 {
@@ -61,18 +62,17 @@ static bool testWrite()
 	uirv = arrtool.putData( *wrr, dsky );
 	if ( !uirv.isOK() )
 	    break;
-	iop.set( "Block and comp idxs", idx, 1 );
+	iop.set( sPropNm, idx, 1 );
 	uirv = wrr->putInfo( dsky, iop );
 	if ( !uirv.isOK() )
 	    break;
-
 
 	fillArr2D( arr2d, 10000*idx );
 	dsky.setGroupName( "Component 2" );
 	uirv = arrtool.putData( *wrr, dsky );
 	if ( !uirv.isOK() )
 	    break;
-	iop.set( "Block and comp idxs", idx, 2 );
+	iop.set( sPropNm, idx, 2 );
 	uirv = wrr->putInfo( dsky, iop );
 	if ( !uirv.isOK() )
 	    break;
@@ -101,8 +101,26 @@ static bool testRead()
     mRunStandardTestWithError( dsnms.size()==nrblocks_, "Datasets in group",
 			       BufferString("nrblocks=",grps.size()) );
 
+    const HDF5::DataSetKey dsky( "Component 2", "Block [3]" );
+    PtrMan<ArrayNDInfo> arrinf = rdr->getDataSizes( dsky );
+    mRunStandardTest( arrinf, "Get dimensions" )
+    const int nrdims = arrinf->nrDims();
+    mRunStandardTestWithError( nrdims==2, "Correct nr dimensions",
+				BufferString("nrdims=",nrdims) )
+    const int dim1 = arrinf->getSize( 0 );
+    mRunStandardTestWithError( dim1==dim1_, "Correct size of 1st dim",
+				BufferString("dim1=",dim1) )
+    const int dim2 = arrinf->getSize( 0 );
+    mRunStandardTestWithError( dim2==dim2_, "Correct size of 2nd dim",
+				BufferString("dim2=",dim2) )
 
-
+    IOPar iop;
+    uirv = rdr->getInfo( dsky, iop );
+    mAddTestResult( "Get dataset property" );
+    int iblk=0, icomp=0;
+    iop.get( sPropNm, iblk, icomp );
+    mRunStandardTestWithError( iblk==3 && icomp==2, "Property contents",
+		BufferString("iblk=",iblk).add(" icomp=").add(icomp) );
 
     //TODO
     return true;

@@ -14,6 +14,9 @@ ________________________________________________________________________
 #include "file.h"
 #include "H5Cpp.h"
 
+const char* HDF5::AccessImpl::sOpenFileFirst()
+{ return "HDF5: need successful open() before further actions"; }
+
 
 HDF5::Reader* HDF5::AccessProviderImpl::getReader() const
 {

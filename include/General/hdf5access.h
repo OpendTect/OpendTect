@@ -23,6 +23,9 @@ namespace HDF5
 class Reader;
 class Writer;
 
+typedef OD::DataRepType	ODDataType;
+typedef ArrayND<float> FloatArrND;
+
 
 /*\brief Key to the actual data in HDF5 files. */
 
@@ -93,9 +96,6 @@ protected:
 mExpClass(General) Access
 { mODTextTranslationClass(HDF5::Access);
 public:
-
-    typedef OD::DataRepType	ODDataType;
-    typedef ArrayND<float>	FloatArrND;
 
 			Access();
     virtual		~Access();

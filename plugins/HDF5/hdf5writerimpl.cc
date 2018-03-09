@@ -92,15 +92,11 @@ static void getWriteStr( const char* inpstr, int nrchars, BufferString& ret )
 }
 
 
-#define mRetInternalErr() \
-    mRetNoFile( uirv.set( uiStrings::phrInternalErr(e_msg) ); return; )
-
-
 void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& iop,
 			       uiRetVal& uirv )
 {
     if ( !file_ )
-	mRetInternalErr()
+	mRetNoFileInUiRv()
     const hsize_t nrvals = iop.size();
     if ( nrvals < 1 )
 	return;
@@ -141,7 +137,7 @@ void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
 			       const void* data, ODDataType dt, uiRetVal& uirv )
 {
     if ( !file_ )
-	mRetInternalErr()
+	mRetNoFileInUiRv()
 
     const int nrdims = info.nrDims();
     TypeSet<hsize_t> dims, chunkdims;

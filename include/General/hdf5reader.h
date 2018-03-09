@@ -28,6 +28,18 @@ public:
 				//!< Can return null when:
 				//!< - there is no such group
 				//!< - the group has an empty dataset
+    virtual ODDataType		getDataType() const			= 0;
+
+    uiRetVal			getInfo(const DataSetKey&,IOPar&) const;
+    uiRetVal			getAll(const DataSetKey&,void*) const;
+
+    //TODO slices
+    //TODO point-wise
+
+protected:
+
+    virtual void	gtInfo(const DataSetKey&,IOPar&,uiRetVal&) const= 0;
+    virtual void	gtAll(const DataSetKey&,void*,uiRetVal&) const	= 0;
 
 };
 

@@ -26,12 +26,39 @@ public:
 			ArrayNDTool( const ArrayND<T>& arrnd )
 			    : arrnd_(arrnd)			{}
 
-    uiRetVal		getData(Reader&,const DataSetKey&);
-    uiRetVal		putData(Writer&,const DataSetKey&);
+    inline static ArrayND<T>* createArray(Reader&,const DataSetKey&);
+    inline bool		getData(Reader&,const DataSetKey&);
+    inline uiRetVal	putData(Writer&,const DataSetKey&);
 
     const ArrayND<T>&	arrnd_;
 
 };
+
+
+template <class T>
+inline ArrayND<T>* ArrayNDTool<T>::createArray( Reader& rdr,
+						const DataSetKey& dsky )
+{
+    PtrMan<ArrayNDInfo> inf = rdr.getDataSizes( dsky );
+    if ( !inf )
+	return 0;
+
+    return ArrayNDImpl<T>::create( *inf );
+}
+
+
+template <class T>
+inline bool ArrayNDTool<T>::getData( Reader& rdr, const DataSetKey& dsky )
+{
+    PtrMan<ArrayNDInfo> inf = rdr.getDataSizes( dsky );
+    if ( !inf )
+	return false;
+
+    if ( *inf != arrnd_.info() )
+	{ pErrMsg("Fect array has bad dims"); return false; }
+
+
+}
 
 
 template <class T>

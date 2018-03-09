@@ -103,7 +103,30 @@ uiRetVal HDF5::Writer::putData( const DataSetKey& dsky, const ArrayNDInfo& inf,
 				const void* data, ODDataType dt )
 {
     uiRetVal uirv;
-    if ( data && inf.totalSize() > 0 )
+    if ( !data )
+	{ pErrMsg("data == null"); }
+    else if ( inf.totalSize() < 1 )
+	{ pErrMsg("zero dims"); }
+    else
 	ptData( dsky, inf, data, dt, uirv );
+    return uirv;
+}
+
+
+uiRetVal HDF5::Reader::getInfo( const DataSetKey& dsky, IOPar& iop ) const
+{
+    uiRetVal uirv;
+    gtInfo( dsky, iop, uirv );
+    return uirv;
+}
+
+
+uiRetVal HDF5::Reader::getAll( const DataSetKey& dsky, void* data ) const
+{
+    uiRetVal uirv;
+    if ( !data )
+	{ pErrMsg("data == null"); }
+    else
+	gtAll( dsky, data, uirv );
     return uirv;
 }

@@ -107,5 +107,35 @@ void HDF5::ReaderImpl::getDataSets( const char* grpnm,
 
 ArrayNDInfo* HDF5::ReaderImpl::getDataSizes( const DataSetKey& dsky ) const
 {
+    if ( !file_ )
+	mRetNoFile( return 0 )
+
     return 0;
+}
+
+
+HDF5::ODDataType HDF5::ReaderImpl::getDataType() const
+{
+    //TODO
+    return OD::F32;
+}
+
+
+void HDF5::ReaderImpl::gtInfo( const DataSetKey& dsky, IOPar& iop,
+				uiRetVal& uirv ) const
+{
+    if ( !file_ )
+	mRetNoFileInUiRv()
+
+    uirv.set( mTODONotImplPhrase() );
+}
+
+
+void HDF5::ReaderImpl::gtAll( const DataSetKey& dsky, void* data,
+				uiRetVal& uirv ) const
+{
+    if ( !file_ )
+	mRetNoFileInUiRv()
+
+    uirv.set( mTODONotImplPhrase() );
 }

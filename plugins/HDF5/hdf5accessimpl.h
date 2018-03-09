@@ -37,6 +37,7 @@ protected:
     Access&		acc_;
 
     void		doCloseFile(Access&);
+    static const char*	sOpenFileFirst();
 
 };
 
@@ -59,8 +60,7 @@ public:
 
 
 #define mRetNoFile(action) \
-{ \
-    const char* e_msg = "HDF5: need successful open() before setting stuff"; \
-    pErrMsg(e_msg); \
-    action; \
-}
+    { pErrMsg( sOpenFileFirst() ); action; }
+
+#define mRetNoFileInUiRv() \
+    mRetNoFile( uirv.set(uiStrings::phrInternalErr(sOpenFileFirst()) ); return )
