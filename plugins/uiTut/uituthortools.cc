@@ -63,12 +63,6 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     strengthfld_->attach( alignedBelow, attribnamefld_ );
 
     postFinalise().notify( mCB(this,uiTutHorTools,choiceSel) );
-
-    uiString str; str = tr("undef");
-    str.parenthesize();
-    str.optional();
-    str.embedFinalState();
-    int i = 0;
 }
 
 
