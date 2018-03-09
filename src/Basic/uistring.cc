@@ -724,21 +724,25 @@ uiString& uiString::embed( const char* open,const char* close )
     return *this;
 }
 
+
 inline uiString& uiString::quote( bool single )
 { 
     const char* qustr = single ? "'" : "\""; 
     return embed(qustr,qustr); 
 }
 
+
 inline uiString& uiString::parenthesize()
 { 
     return embed("(",")");
 }
 
+
 inline uiString& uiString::optional()
 { 
     return embed("[","]");
 }
+
 
 inline uiString& uiString::embedFinalState()
 { 
