@@ -78,7 +78,7 @@ enum Pol2D3D
     { Only3D=0, Both2DAnd3D=1, Only2D=2 };
 
 enum DataRepType
-    { AutoDataRep=0, SI8, UI8, SI16, UI16, SI32, UI32, SI64, F32, F64 };
+    { AutoDataRep=0, SI8, UI8, SI16, UI16, SI32, UI32, F32, F64, SI64 };
 
 template <class T> DataRepType GetDataRepType()	{ return AutoDataRep; }
 #   define mDefDataRepTypeGetFn( ctyp, drtyp ) \
@@ -109,6 +109,7 @@ inline DataRepType GetDataRepType( bool isfp, bool issigned, int nbytes )
 inline bool has2D( OD::Pol2D3D pol )		{ return pol!=OD::Only3D; }
 inline bool has3D( OD::Pol2D3D pol )		{ return pol!=OD::Only2D; }
 
-inline bool isFP( OD::DataRepType dr )		{ return dr > OD::SI64; }
+inline bool isFP( OD::DataRepType dr )
+{ return dr == OD::F32 || dr == OD::F64; }
 inline bool isSigned( OD::DataRepType dr )
 { return dr != OD::UI8 && dr != OD::UI16 && dr != OD::UI32; }

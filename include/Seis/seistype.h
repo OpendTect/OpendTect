@@ -29,17 +29,17 @@ namespace Seis
     enum ReadMode		{ PreScan, Scan, Prod };
 
     enum GeomType		{ Line, LinePS, Vol, VolPS };
-    mGlobal(Seis) inline bool	is2D( GeomType gt )
+    inline bool			is2D( GeomType gt )
 				{ return gt < Vol; }
-    mGlobal(Seis) inline bool	is3D( GeomType gt )
+    inline bool			is3D( GeomType gt )
 				{ return gt > LinePS; }
-    mGlobal(Seis) inline bool	isPS( GeomType gt )
+    inline bool			isPS( GeomType gt )
 				{ return gt == VolPS || gt == LinePS; }
-    mGlobal(Seis) inline int	dimSize( GeomType gt )
+    inline int			dimSize( GeomType gt )
 				{ return gt == Line ? 2 : (gt==VolPS ? 4 : 3); }
     mGlobal(Seis) const char*	nameOf(GeomType);
     mGlobal(Seis) GeomType	geomTypeOf(const char*);
-    mGlobal(Seis) inline GeomType geomTypeOf( bool is2d, bool isps )
+    inline GeomType		geomTypeOf( bool is2d, bool isps )
 				{ return is2d ? (isps ? LinePS : Line)
 					      : (isps ? VolPS : Vol); }
     mGlobal(Seis) uiString	dataName(GeomType,bool both_pre_post=false);
