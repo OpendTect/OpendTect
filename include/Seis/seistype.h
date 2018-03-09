@@ -23,7 +23,7 @@ class IOObjContext;
 namespace Seis
 {
 
-    mGlobal(Seis) enum SelType	{ Range, Table, Polygon };
+    enum SelType	{ Range, Table, Polygon };
     mGlobal(Seis) const char*	nameOf(SelType);
     mGlobal(Seis) SelType	selTypeOf(const char*);
     mGlobal(Seis) const char**	selTypeNames();

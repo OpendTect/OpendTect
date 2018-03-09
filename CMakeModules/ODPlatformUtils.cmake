@@ -154,7 +154,11 @@ if(WIN32)
     set ( CMAKE_C_FLAGS   "-DmUsedVar= ${CMAKE_C_FLAGS}")
     string ( REPLACE "/W3" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
-    set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
+    if ( Qt5Core_DIR STREQUAL "" )
+	set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
+    else()
+	message( "Info: (unsupported) Qt5 used, using native wchar_t" )
+    endif()
 
     set ( CMAKE_CXX_FLAGS  "/wd4389 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed mismatch
     set ( CMAKE_CXX_FLAGS  "/wd4018 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed compare
@@ -176,7 +180,14 @@ if(WIN32)
     set ( CMAKE_CXX_FLAGS  "/wd4127 ${CMAKE_CXX_FLAGS}" ) # conditional expression is constant, e.g. while ( true )
     set ( CMAKE_CXX_FLAGS  "/wd4189 ${CMAKE_CXX_FLAGS}" ) # local variable is initialized but not referenced
     set ( CMAKE_CXX_FLAGS  "/wd4305 ${CMAKE_CXX_FLAGS}" ) # truncation from dowble to float
-    set ( CMAKE_CXX_FLAGS_DEBUG  "/WX ${CMAKE_CXX_FLAGS_DEBUG}" ) # Treat warnings as errors
+    if ( NOT MSVC14 )
+	set ( CMAKE_CXX_FLAGS_DEBUG  "/WX ${CMAKE_CXX_FLAGS_DEBUG}" ) # Treat warnings as errors
+    else()
+	set ( CMAKE_CXX_FLAGS  "/wd4311 ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS  "/wd4302 ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS  "/wd4714 ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS  "/wd4838 ${CMAKE_CXX_FLAGS}" )
+    endif()
 
     string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} )
@@ -192,10 +203,13 @@ if(WIN32)
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
     if ( OD_64BIT )
-        set  ( OD_PLFSUBDIR "win64" )
+        set ( OD_PLFSUBDIR "win64" )
     else()
-        set  ( OD_PLFSUBDIR "win32" )
+        set ( OD_PLFSUBDIR "win32" )
 	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
+    endif()
+    if ( MSVC14 )
+	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" )
     endif()
 
     set ( OD_GUI_SYSTEM "WIN32" )

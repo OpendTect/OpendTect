@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 
 #include "vissurveymod.h"
+#include "vissurvobj.h"
 #include "visobject.h"
 #include "mousecursor.h"
 #include "vissurvobj.h"

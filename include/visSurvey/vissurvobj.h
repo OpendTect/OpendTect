@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "vissurvscene.h"
 #include "factory.h"
+#include "attribsel.h"
 
 
 class DataPointSet;

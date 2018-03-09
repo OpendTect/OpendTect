@@ -9,9 +9,9 @@ endif()
 
 SET( INCLUDES
     ODSubversion
+    ${OD_QT_INCLUDE}
     ODPlatformUtils
     ODUtils
-    ${OD_QT_INCLUDE}
     ODZlibUtils
     ODOsgUtils
     ODPythonUtils
