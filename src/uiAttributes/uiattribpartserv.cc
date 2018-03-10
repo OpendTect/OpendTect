@@ -712,8 +712,11 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 
 static const Desc* getTargetDesc( const TypeSet<Attrib::SelSpec>& targetspecs )
 {
-    const bool isstortarget = targetspecs.size() && targetspecs[0].isStored();
-    const bool is2d = targetspecs.size() && targetspecs[0].is2D();
+    if ( targetspecs.isEmpty() )
+	return 0;
+
+    const bool isstortarget = targetspecs[0].isStored();
+    const bool is2d = targetspecs[0].is2D();
     const DescSet* attrds = DSHolder().getDescSet( is2d, isstortarget );
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
 				: attrds->getDesc( targetspecs[0].id() );
@@ -735,7 +738,7 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 
     if ( targetdesc )
     {
-	if ( targetdesc->isStored() )
+	if ( targetdesc->isStored() && !targetspecs_[0].isNLA() )
 	{
 	    const MultiID mid( targetdesc->getStoredID() );
 	    mDynamicCast( RegularSeisDataPack*, preloadeddatapack,
