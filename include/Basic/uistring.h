@@ -141,8 +141,8 @@ public:
     int		size() const;
     bool	isPlainAscii() const;
 
-    static const uiString&  empty()		{ return emptystring_; }
-    static uiString&	    dummy()		{ return dummystring_; }
+    static const uiString&  empty();
+    static uiString&	    dummy();
 
 
 			/*! the arg() functions allow numbers, other uiStrings,
@@ -167,7 +167,6 @@ public:
 
     enum SeparType	{ NoSep, CloseLine, Space, Tab, Comma, MoreInfo, SemiColon };
     enum AppendType	{ OnSameLine, OnNewLine, AfterEmptyLine };
-    enum EmbedType	{ Round, Square, Angle, SingleQuote, DoubleQuote };
 
     uiString&		appendPhrase(const uiString&,muiStringAppendDefArgs);
     uiString&		appendPhrases(const uiStringSet&,
@@ -182,8 +181,8 @@ public:
     uiString&		constructWordWith(const uiString&,bool addspace=false);
     uiString&		preFixWord(const uiString&);
     uiString&		postFixWord(const uiString&);
-    uiString&		embed(const char* open,const char* close);
-    uiString&		quote(bool single);
+    uiString		embed(const char* open,const char* close);
+    uiString		quote(bool single);
     uiString&		parenthesize();
     uiString&		optional();
     uiString&		embedFinalState();
