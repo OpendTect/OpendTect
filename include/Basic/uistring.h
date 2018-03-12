@@ -181,8 +181,8 @@ public:
     uiString&		constructWordWith(const uiString&,bool addspace=false);
     uiString&		preFixWord(const uiString&);
     uiString&		postFixWord(const uiString&);
-    uiString		embed(const char* open,const char* close);
-    uiString		quote(bool single);
+    uiString&		embed(const char* open,const char* close);
+    uiString&		quote(bool single);
     uiString&		parenthesize();
     uiString&		optional();
     uiString&		embedFinalState();
