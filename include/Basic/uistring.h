@@ -141,8 +141,8 @@ public:
     int		size() const;
     bool	isPlainAscii() const;
 
-    static const uiString&  empty();
-    static uiString&	    dummy();
+    static const uiString&  empty()		{ return emptystring_; }
+    static uiString&	    dummy()		{ return dummystring_; }
 
 
 			/*! the arg() functions allow numbers, other uiStrings,
