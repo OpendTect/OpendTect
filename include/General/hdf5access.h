@@ -27,7 +27,14 @@ typedef OD::DataRepType	ODDataType;
 typedef ArrayND<float> FloatArrND;
 
 
-/*\brief Key to the actual data in HDF5 files. */
+/*\brief Key to groups and data sets in HDF5 files.
+
+  The group name and dataset key correspond to one dataset. Some attributes
+  are valid for an entire group, then leave the dataset name empty. The
+  reader and writer will use a special data set (called
+  sGroupInfoDataSetName()).
+
+ */
 
 mExpClass(General) DataSetKey
 {
@@ -46,6 +53,7 @@ public:
     const char*		dataSetName() const	{ return dsnm_; }
     void		setDataSetName( const char* nm )
 			{ dsnm_.set( nm ); }
+    bool		hasDataSet() const	{ return !dsnm_.isEmpty(); }
 
     BufferString	fullDataSetName() const
 			{ return BufferString(grpnm_,"/",dsnm_); }
@@ -102,18 +110,20 @@ public:
     virtual		~Access();
 
     uiRetVal		open(const char*);
-    virtual const char*	fileName() const			= 0;
+    virtual const char*	fileName() const		= 0;
 
-    H5::H5File*		getHDF5File()	{ return file_; }
+    H5::H5File*		getHDF5File()			{ return file_; }
 
     static uiString	sHDF5PackageDispName();
+    static const char*	sGroupInfoDataSetName()
+			{ return "++group-info++"; }
 
 protected:
 
     H5::H5File*		file_;
 
-    virtual void	closeFile()				= 0;
-    virtual void	openFile(const char*,uiRetVal&)		= 0;
+    virtual void	closeFile()			= 0;
+    virtual void	openFile(const char*,uiRetVal&)	= 0;
 
     static uiString	sHDF5Err();
     static uiString	sFileNotOpen();

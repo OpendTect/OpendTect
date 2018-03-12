@@ -54,7 +54,8 @@ protected:
     void		listObjs(const H5Dir&,BufferStringSet&,bool) const;
     bool		selectGroup(const char*);
     bool		selectDataSet(const char*);
-    inline bool		haveScope() const   { return group_ && dataset_; }
+    inline bool		haveScope( bool needds=true ) const
+			{ return group_ && (!needds || dataset_); }
 
 };
 

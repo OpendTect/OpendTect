@@ -92,7 +92,12 @@ static void getWriteStr( const char* inpstr, int nrchars, BufferString& ret )
 }
 
 
-void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& iop,
+
+#define mCatchErrDuringWrite() \
+    mCatchAdd2uiRv( uiStrings::phrErrDuringWrite(fileName()) )
+
+
+void HDF5::WriterImpl::ptInfo( const DataSetKey& reqdsky, const IOPar& iop,
 			       uiRetVal& uirv )
 {
     if ( !file_ )
@@ -101,22 +106,42 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& iop,
     if ( nrvals < 1 )
 	return;
 
+    const bool forgroupinfo = !reqdsky.hasDataSet();
+    DataSetKey dsky( reqdsky );
+    if ( forgroupinfo )
+	dsky.setDataSetName( sGroupInfoDataSetName() );
+    const H5::DataType h5dt = H5::PredType::C_S1;
     H5::DataSet dataset;
     bool notpresent = false;
+    const BufferString fulldsname( dsky.fullDataSetName() );
     try
     {
-	dataset = file_->openDataSet( dsky.fullDataSetName() );
+	dataset = file_->openDataSet( fulldsname );
     }
     mCatchAnyNoMsg( notpresent = true )
+
+    hsize_t dims[1];
     if ( notpresent )
     {
-	uirv.add( uiStrings::phrInternalErr("Write data before properties") );
-	return;
+	if ( !forgroupinfo )
+	{
+	    uirv.add(
+		uiStrings::phrInternalErr("Use putData first, then putInfo"));
+	    return;
+	}
+	dims[0] = 1; // 0 needed but seems like a bad idea
+	try
+	{
+	    dataset = file_->createDataSet( fulldsname, h5dt,
+					    H5::DataSpace(1,dims) );
+	    float data = 0.f;
+	    dataset.write( &data, h5dt );
+	}
+	mCatchErrDuringWrite()
     }
 
-    const H5::DataType h5dt = H5::PredType::C_S1;
     const int nrchars = iop.maxContentSize( false ) + 1;
-    hsize_t dims[1]; dims[0] = nrchars;
+    dims[0] = nrchars;
     try
     {
 	H5::DataSpace dataspace( 1, dims );
@@ -129,7 +154,7 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& iop,
 	    attribute.write( H5::PredType::C_S1, str2write.getCStr() );
 	}
     }
-    mCatchAdd2uiRv( uiStrings::phrErrDuringWrite(fileName()) )
+    mCatchErrDuringWrite()
 }
 
 
@@ -160,5 +185,5 @@ void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
 					      dataspace, proplist ) );
 	dataset.write( data, h5dt );
     }
-    mCatchAdd2uiRv( uiStrings::phrErrDuringWrite(fileName()) )
+    mCatchErrDuringWrite()
 }

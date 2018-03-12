@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "arrayndinfo.h"
 #include "file.h"
+#include "iopar.h"
 
 
 HDF5::ReaderImpl::ReaderImpl()
@@ -63,10 +64,12 @@ void HDF5::ReaderImpl::listObjs( const H5Dir& dir, BufferStringSet& nms,
 	{
 	    const std::string nmstr = dir.getObjnameByIdx( iobj );
 	    const BufferString nm( nmstr.c_str() );
-	    const H5O_type_t h5objtyp = dir.childObjType( nm );
-	    if ( wantgroups && h5objtyp != H5O_TYPE_GROUP )
+	    if ( nm == sGroupInfoDataSetName() )
 		continue;
-	    if ( !wantgroups && h5objtyp != H5O_TYPE_DATASET )
+
+	    const H5O_type_t h5objtyp = dir.childObjType( nm );
+	    if ( (wantgroups  && h5objtyp != H5O_TYPE_GROUP)
+	      || (!wantgroups && h5objtyp != H5O_TYPE_DATASET) )
 		continue;
 
 	    nms.add( wantgroups && islevel0 ? BufferString("/",nm) : nm );
@@ -131,8 +134,12 @@ bool HDF5::ReaderImpl::selectDataSet( const char* dsnm )
 
 bool HDF5::ReaderImpl::setScope( const DataSetKey& dsky )
 {
-    return selectGroup( dsky.groupName() )
-	&& selectDataSet( dsky.dataSetName() );
+    if ( !selectGroup(dsky.groupName()) )
+	return false;
+    if ( !dsky.hasDataSet() )
+	return true;
+
+    return selectDataSet( dsky.dataSetName() );
 }
 
 
@@ -206,12 +213,41 @@ HDF5::ODDataType HDF5::ReaderImpl::getDataType() const
 
 void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
 {
+    iop.setEmpty();
     if ( !file_ )
 	mRetNoFileInUiRv()
-    else if ( !haveScope() )
+    else if ( !haveScope(false) )
 	mRetNeedScopeInUiRv()
 
-    uirv.set( mTODONotImplPhrase() );
+    H5::DataSet groupinfdataset;
+    const H5::DataSet* dset = dataset_;
+    int nrattrs = 0;
+    try
+    {
+	if ( !dset )
+	{
+	    groupinfdataset = group_->openDataSet( sGroupInfoDataSetName() );
+	    dset = &groupinfdataset;
+	}
+	nrattrs = dset->getNumAttrs();
+    }
+    catch ( ... ) {}
+
+    const H5::DataType h5dt = H5::PredType::C_S1;
+    for ( int idx=0; idx<nrattrs; idx++ )
+    {
+	try {
+	    const H5::Attribute attr = dset->openAttribute( (unsigned int)idx );
+	    const std::string ky = attr.getName();
+	    if ( ky.empty() )
+		continue;
+
+	    std::string valstr;
+	    attr.read( h5dt, valstr );
+	    iop.set( ky.c_str(), valstr.c_str() );
+	}
+	mCatchUnexpected( continue );
+    }
 }
 
 

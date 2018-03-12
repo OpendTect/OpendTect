@@ -18,7 +18,8 @@ namespace HDF5
 /*!\brief Reads HDF5 file data.
 
   You can only get actual data after you set the scope, i.e. you have to
-  select the 'current' DataSet using teh DataSetKey.
+  select the 'current' DataSet using the DataSetKey. Leave the
+  dataset name empty only for retrieving attributes for the entire group.
 
   */
 

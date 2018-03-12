@@ -48,11 +48,15 @@ static bool testWrite()
     wrr->setChunkSize( chunksz_ );
 
     Array2DImpl<float> arr2d( dim1_, dim2_ );
-    uirv.setEmpty();
     HDF5::DataSetKey dsky;
     IOPar iop;
-    iop.set( "Apenoot", "pere boom" );
+    iop.set( "File attr", "file attr value" );
+    uirv = wrr->putInfo( dsky, iop );
+    mAddTestResult( "Write file attribute" );
+
+    iop.setEmpty();
     HDF5::ArrayNDTool<float> arrtool( arr2d );
+    iop.set( "Apenoot", "pere boom" );
     for ( int idx=0; idx<nrblocks_; idx++ )
     {
 	dsky.setDataSetName( BufferString( "Block [", idx, "]" ) );
@@ -122,13 +126,21 @@ static bool testRead()
 
     IOPar iop;
     uirv = rdr->getInfo( iop );
-    mAddTestResult( "Get dataset property" );
+    mAddTestResult( "Get dataset info" );
     int iblk=0, icomp=0;
     iop.get( sPropNm, iblk, icomp );
-    mRunStandardTestWithError( iblk==3 && icomp==2, "Property contents",
+    mRunStandardTestWithError( iblk==3 && icomp==2, "dataset info contents",
 		BufferString("iblk=",iblk).add(" icomp=").add(icomp) );
 
-    //TODO
+    HDF5::DataSetKey filedsky;
+    scoperes = rdr->setScope( filedsky );
+    mRunStandardTest( scoperes, "Set scope (file)" )
+    uirv = rdr->getInfo( iop );
+    mAddTestResult( "Get file info" );
+    const BufferString iopval = iop.find( "File attr" );
+    mRunStandardTestWithError( iopval=="file attr value", "file info contents",
+				BufferString("found: '",iopval,"'") );
+
     return true;
 }
 
