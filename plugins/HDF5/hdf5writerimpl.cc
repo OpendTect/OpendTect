@@ -48,30 +48,6 @@ void HDF5::WriterImpl::setChunkSize( int sz )
 }
 
 
-H5::DataType HDF5::WriterImpl::h5DataTypeFor( ODDataType datarep )
-{
-    H5DataType ret = H5::PredType::IEEE_F32LE;
-
-#   define mHandleCase(od,hdf) \
-	case OD::od:	    ret = H5::PredType::hdf; break
-
-    switch ( datarep )
-    {
-	mHandleCase( SI8, STD_I8LE );
-	mHandleCase( UI8, STD_U8LE );
-	mHandleCase( SI16, STD_I16LE );
-	mHandleCase( UI16, STD_U16LE );
-	mHandleCase( SI32, STD_I32LE );
-	mHandleCase( UI32, STD_U32LE );
-	mHandleCase( SI64, STD_I64LE );
-	mHandleCase( F64, IEEE_F64LE );
-	default: break;
-    }
-
-    return ret;
-}
-
-
 bool HDF5::WriterImpl::ensureGroup( const char* nm )
 {
     try { file_->createGroup( nm ); }

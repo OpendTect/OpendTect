@@ -132,6 +132,13 @@ static bool testRead()
     mRunStandardTestWithError( iblk==3 && icomp==2, "dataset info contents",
 		BufferString("iblk=",iblk).add(" icomp=").add(icomp) );
 
+    Array2DImpl<float> arr2d( arrinf->getSize(0), arrinf->getSize(1) );
+    uirv = rdr->getAll( arr2d.getData() );
+    mAddTestResult( "Get block data" );
+    const float arrval = arr2d.get( 6, 15 );
+    mRunStandardTestWithError( arrval==30615.f, "Correct value [comp2,6,16]",
+				BufferString("arrval=",arrval) )
+
     HDF5::DataSetKey filedsky;
     scoperes = rdr->setScope( filedsky );
     mRunStandardTest( scoperes, "Set scope (file)" )

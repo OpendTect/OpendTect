@@ -250,6 +250,8 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
     }
 }
 
+#define mCatchErrDuringRead() \
+        mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fileName()) )
 
 void HDF5::ReaderImpl::gtAll( void* data, uiRetVal& uirv ) const
 {
@@ -258,5 +260,13 @@ void HDF5::ReaderImpl::gtAll( void* data, uiRetVal& uirv ) const
     else if ( !haveScope() )
 	mRetNeedScopeInUiRv()
 
-    uirv.set( mTODONotImplPhrase() );
+    // make sure we get data one of our data types
+    ODDataType oddt = getDataType();
+    const H5::DataType h5dt = h5DataTypeFor( oddt );
+
+    try
+    {
+	dataset_->read( data, h5dt );
+    }
+    mCatchErrDuringRead()
 }

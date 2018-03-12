@@ -10,6 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "hdf5common.h"
+#include "H5Cpp.h"
 
 
 namespace HDF5
@@ -32,11 +33,15 @@ public:
 
 protected:
 
+    typedef H5::DataType H5DataType;
+
 			AccessImpl(const AccessImpl&)	= delete;
 
     Access&		acc_;
 
     void		doCloseFile(Access&);
+    static H5::DataType	h5DataTypeFor(ODDataType);
+
     static const char*	sOpenFileFirst();
     static const char*	sNeedScope();
 

@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "hdf5common.h"
 #include "hdf5accessimpl.h"
 #include "hdf5reader.h"
-#include "H5Cpp.h"
 
 
 namespace HDF5

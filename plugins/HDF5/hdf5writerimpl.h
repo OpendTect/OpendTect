@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "hdf5common.h"
 #include "hdf5accessimpl.h"
 #include "hdf5writer.h"
-#include "H5Cpp.h"
 
 
 namespace HDF5
@@ -22,8 +21,6 @@ mExpClass(HDF5) WriterImpl : public Writer
 			   , public AccessImpl
 {
 public:
-
-    typedef H5::DataType	H5DataType;
 
 			WriterImpl();
     virtual		~WriterImpl();
@@ -35,7 +32,6 @@ public:
 protected:
 
     int			chunksz_;
-    static H5DataType	h5DataTypeFor(ODDataType);
 
     virtual void	openFile(const char*,uiRetVal&);
     virtual void	closeFile()		{ doCloseFile(*this); }
