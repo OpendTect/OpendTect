@@ -129,7 +129,7 @@ static bool testRead()
     mAddTestResult( "Get dataset info" );
     int iblk=0, icomp=0;
     iop.get( sPropNm, iblk, icomp );
-    mRunStandardTestWithError( iblk==3 && icomp==2, "dataset info contents",
+    mRunStandardTestWithError( iblk==3 && icomp==2, "Dataset info contents",
 		BufferString("iblk=",iblk).add(" icomp=").add(icomp) );
 
     Array2DImpl<float> arr2d( arrinf->getSize(0), arrinf->getSize(1) );
@@ -139,13 +139,15 @@ static bool testRead()
     mRunStandardTestWithError( arrval==30615.f, "Correct value [comp2,6,16]",
 				BufferString("arrval=",arrval) )
 
+    //TODO get only slices
+
     HDF5::DataSetKey filedsky;
     scoperes = rdr->setScope( filedsky );
     mRunStandardTest( scoperes, "Set scope (file)" )
     uirv = rdr->getInfo( iop );
     mAddTestResult( "Get file info" );
     const BufferString iopval = iop.find( "File attr" );
-    mRunStandardTestWithError( iopval=="file attr value", "file info contents",
+    mRunStandardTestWithError( iopval=="file attr value", "File info contents",
 				BufferString("found: '",iopval,"'") );
 
     return true;

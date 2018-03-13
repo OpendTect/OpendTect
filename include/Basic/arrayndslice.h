@@ -15,13 +15,12 @@ ________________________________________________________________________
 #include "varlenarray.h"
 #include "valseriesimpl.h"
 
-/*!
-\brief Base class of Array1DSlice and Array2DSlice. Access-tool to another
+/*!\brief Base class of Array1DSlice and Array2DSlice. Access-tool to another
 ArrayND with higher dimensionality.
 
   ArrayXDSlice is an ArrayND that is an access-tool to another ArrayND with
   higher dimensionality. It can be used to get Array1D through a Array3D cube.
-  Use setPos(int,int) to set the fixed positions and leave out the positions
+  Use setPos() to set the fixed positions and leave out the positions
   that should vary. When all positions are set, call init().
 
   To unset a position, set it to -1. If positions are unset, init has to be
@@ -31,23 +30,29 @@ ArrayND with higher dimensionality.
 mExpClass(Basic) ArrayNDSliceBase
 {
 public:
+
+				mTypeDefArrNDTypes;
+
     virtual			~ArrayNDSliceBase();
-    int				getDimSize(int dim) const;
-    int				getPos(int dim) const;
-    bool			setPos(int dim,int pos);
+
+    SzType			getDimSize(DimIdxType) const;
+    IdxType			getPos(DimIdxType) const;
+    bool			setPos(DimIdxType,IdxType);
     bool			init();
-    void			setDimMap(int localdim, int remotedim );
+    void			setDimMap(DimIdxType localdim,
+					  DimIdxType remotedim);
+
 protected:
-				ArrayNDSliceBase( ArrayNDInfo*,
-						  const ArrayNDInfo& );
-    void			getSourcePos(const int* localpos,
-					     int* sourcepos) const;
+				ArrayNDSliceBase(ArrayNDInfo*,
+						 const ArrayNDInfo&);
+    void			getSourcePos(NDPos localpos,
+					     IdxType* sourcepos) const;
     ArrayNDInfo&		info_;
     const ArrayNDInfo&		sourceinfo_;
 
-    TypeSet<int>		vardim_;
-    TypeSet<int>		position_;
-    od_int64			offset_;
+    TypeSet<DimIdxType>		vardim_;
+    TypeSet<IdxType>		position_;
+    OffsetType			offset_;
     bool			isinited_;
 };
 
@@ -66,8 +71,8 @@ public:
 
     ValueSeries<T>*		clone() const;
 
-    T				get( int ) const;
-    void			set( int, T );
+    T				get(IdxType) const;
+    void			set(IdxType,T);
     const Array1DInfo&		info() const;
     bool			isSettable() const;
 
@@ -75,9 +80,9 @@ protected:
 
     const ValueSeries<T>*	getStorage_() const;
 
-    bool				writable_;
-    ArrayND<T>&				source_;
-    mutable OffsetValueSeries<T>*	storage_;
+    bool			writable_;
+    ArrayND<T>&			source_;
+    mutable OffsetValueSeries<T>* storage_;
 
 };
 
@@ -94,8 +99,8 @@ public:
 				Array2DSlice(const ArrayND<T>&);
 				~Array2DSlice();
 
-    T				get(int,int) const;
-    void			set(int,int, T );
+    T				get(IdxType,IdxType) const;
+    void			set(IdxType,IdxType,T);
     const Array2DInfo&		info() const;
     bool			isSettable() const;
 
@@ -104,8 +109,8 @@ protected:
     const ValueSeries<T>*	getStorage_() const;
     bool			writable_;
 
-    ArrayND<T>&				source_;
-    mutable OffsetValueSeries<T>*	storage_;
+    ArrayND<T>&			source_;
+    mutable OffsetValueSeries<T>* storage_;
 
 };
 
@@ -140,25 +145,25 @@ bool Array1DSlice<T>::isSettable() const
 
 
 template <class T> inline
-void Array1DSlice<T>::set( int pos, T val )
+void Array1DSlice<T>::set( IdxType pos, T val )
 {
     if ( !isinited_ )
     { pErrMsg("ArrayNDSlice not inited!"); }
 
     if ( !writable_ ) return;
-    mAllocVarLenArr( int, srcpos, position_.size() );
+    mAllocVarLenArr( IdxType, srcpos, position_.size() );
     getSourcePos( &pos, srcpos );
     source_.setND( srcpos, val );
 }
 
 
 template <class T> inline
-T Array1DSlice<T>::get( int pos ) const
+T Array1DSlice<T>::get( IdxType pos ) const
 {
     if ( !isinited_ )
     { pErrMsg("ArrayNDSlice not inited!"); }
 
-    mAllocVarLenArr( int, srcpos, position_.size() );
+    mAllocVarLenArr( IdxType, srcpos, position_.size() );
     getSourcePos( &pos, srcpos );
     return source_.getND( srcpos );
 }
@@ -219,7 +224,8 @@ Array2DSlice<T>::Array2DSlice( ArrayND<T>& source )
     , source_( source )
     , storage_( 0 )
     , writable_( true )
-{}
+{
+}
 
 
 template <class T> inline
@@ -228,7 +234,8 @@ Array2DSlice<T>::Array2DSlice( const ArrayND<T>& source )
     , source_( const_cast<ArrayND<T>&>(source) )
     , storage_( 0 )
     , writable_( false )
-{}
+{
+}
 
 
 template <class T> inline
@@ -242,36 +249,38 @@ bool Array2DSlice<T>::isSettable() const
 
 
 template <class T> inline
-void Array2DSlice<T>::set( int pos0, int pos1, T val )
+void Array2DSlice<T>::set( IdxType pos0, IdxType pos1, T val )
 {
     if ( !isinited_ )
     { pErrMsg("ArrayNDSlice not inited!"); }
 
     if ( !writable_ ) return;
 
-    const int localpos[] = { pos0, pos1 };
-    mAllocVarLenArr( int, srcpos, position_.size() );
-    getSourcePos( localpos, srcpos );
+    const IdxType localpos[] = { pos0, pos1 };
+    mAllocVarLenArr( IdxType, srcpos, position_.size() );
+    getSourcePos( const_cast<NDPos>(localpos), srcpos );
     source_.setND( srcpos, val );
 }
 
 
 template <class T> inline
-T Array2DSlice<T>::get( int pos0, int pos1 ) const
+T Array2DSlice<T>::get( IdxType pos0, IdxType pos1 ) const
 {
     if ( !isinited_ )
-    { pErrMsg("ArrayNDSlice not inited!"); }
+	{ pErrMsg("ArrayNDSlice not inited!"); }
 
-    const int localpos[] = { pos0, pos1 };
-    mAllocVarLenArr( int, srcpos, position_.size() );
-    getSourcePos( localpos, srcpos );
+    const IdxType localpos[] = { pos0, pos1 };
+    mAllocVarLenArr( IdxType, srcpos, position_.size() );
+    getSourcePos( const_cast<NDPos>(localpos), srcpos );
     return source_.getND( srcpos );
 }
 
 
 template <class T> inline
 const Array2DInfo& Array2DSlice<T>::info() const
-{ return (const Array2DInfo&) info_; }
+{
+    return (const Array2DInfo&)info_;
+}
 
 
 template <class T> inline

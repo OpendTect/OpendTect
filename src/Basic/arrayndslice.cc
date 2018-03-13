@@ -21,16 +21,19 @@ ArrayNDSliceBase::ArrayNDSliceBase( ArrayNDInfo* localinfo,
     , vardim_( localinfo->nrDims(), -1 )
     , offset_( -1 )
     , isinited_( false )
-{ }
+{
+}
 
 
 ArrayNDSliceBase::~ArrayNDSliceBase()
-{ delete &info_; }
-
-
-bool ArrayNDSliceBase::setPos( int dim, int pos )
 {
-    const int ndim = position_.size();
+    delete &info_;
+}
+
+
+bool ArrayNDSliceBase::setPos( DimIdxType dim, IdxType pos )
+{
+    const DimSzType ndim = position_.size();
     if ( dim<0 || dim>=ndim || pos<0 || pos>=getDimSize(dim) )
 	return false;
 
@@ -41,19 +44,19 @@ bool ArrayNDSliceBase::setPos( int dim, int pos )
 }
 
 
-int ArrayNDSliceBase::getPos( int dim ) const
+ArrayNDInfo::IdxType ArrayNDSliceBase::getPos( DimIdxType dim ) const
 {
     return position_[dim];
 }
 
 
-int ArrayNDSliceBase::getDimSize( int dim ) const
+ArrayNDSliceBase::SzType ArrayNDSliceBase::getDimSize( DimIdxType dim ) const
 {
     return sourceinfo_.getSize( dim );
 }
 
 
-void ArrayNDSliceBase::setDimMap( int localdim, int remotedim )
+void ArrayNDSliceBase::setDimMap( DimIdxType localdim, DimIdxType remotedim )
 {
     vardim_[localdim] = remotedim;
     position_[remotedim] = -1;
@@ -63,11 +66,11 @@ void ArrayNDSliceBase::setDimMap( int localdim, int remotedim )
 
 bool ArrayNDSliceBase::init()
 {
-    const int nrowndims = vardim_.size();
-    const int ndim = position_.size();
+    const DimSzType nrowndims = vardim_.size();
+    const DimSzType ndim = position_.size();
 
-    TypeSet<int> unkdims;
-    for ( int idx=0; idx<ndim; idx++ )
+    TypeSet<DimSzType> unkdims;
+    for ( DimIdxType idx=0; idx<ndim; idx++ )
     {
 	if ( position_[idx] == -1 )
 	    unkdims += idx;
@@ -76,7 +79,7 @@ bool ArrayNDSliceBase::init()
     if ( unkdims.size() != nrowndims )
 	return false;
 
-    for ( int idx=0; idx<nrowndims; idx++ )
+    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
     {
 	if ( vardim_[idx]==-1 )
 	{
@@ -100,7 +103,7 @@ bool ArrayNDSliceBase::init()
 	return false;
 
     bool ismemorder = true;
-    for ( int idx=0; idx<nrowndims; idx++ )
+    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
     {
 	if ( vardim_[idx]+nrowndims-idx!=ndim )
 	{
@@ -112,7 +115,7 @@ bool ArrayNDSliceBase::init()
     if ( !ismemorder )
     {
 	bool hasonlyoneslice = true;
-	for ( int dimidx=0; dimidx<ndim; dimidx++ )
+	for ( DimIdxType dimidx=0; dimidx<ndim; dimidx++ )
 	    if ( position_[dimidx]!=-1 && getDimSize(dimidx)!=1 )
 		{ hasonlyoneslice = false; break; }
 
@@ -126,15 +129,15 @@ bool ArrayNDSliceBase::init()
     }
     else
     {
-	mAllocVarLenArr( int, localpos, nrowndims );
-	OD::memZero( localpos, nrowndims * sizeof(int) );
+	mAllocVarLenArr( IdxType, localpos, nrowndims );
+	OD::memZero( localpos, nrowndims * sizeof(IdxType) );
 
-	mAllocVarLenArr( int, tpos, ndim );
+	mAllocVarLenArr( IdxType, tpos, ndim );
 	getSourcePos( localpos, tpos );
 	offset_ = sourceinfo_.getOffset(tpos);
     }
 
-    for ( int idx=0; idx<nrowndims; idx++ )
+    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
 	info_.setSize( idx, sourceinfo_.getSize(vardim_[idx]) );
 
     isinited_ = true;
@@ -142,13 +145,14 @@ bool ArrayNDSliceBase::init()
 }
 
 
-void ArrayNDSliceBase::getSourcePos( const int* localpos, int* arraypos ) const
+void ArrayNDSliceBase::getSourcePos( NDPos localpos,
+				     IdxType* arraypos ) const
 {
-    const int ndim = position_.size();
-    const int nrowndims = vardim_.size();
+    const DimSzType ndim = (DimSzType)position_.size();
+    const DimSzType nrowndims = (DimSzType)vardim_.size();
 
-    OD::memCopy( arraypos, position_.arr(), ndim*sizeof(int) );
+    OD::memCopy( arraypos, position_.arr(), ndim*sizeof(IdxType) );
 
-    for ( int idx=0; idx<nrowndims; idx++ )
+    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
 	arraypos[vardim_[idx]] = localpos[idx];
 }

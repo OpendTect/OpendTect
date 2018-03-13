@@ -10,16 +10,18 @@ ________________________________________________________________________
 
 -*/
 
+#include "arraynd.h"
 
-/*!
-\brief Access tool to another array with a lower number of dimensions
-*/
+/*!\brief Access tool to another array with a lower number of dimensions */
 
 //TODO: Write more info
 mClass(Basic) ArrayNDWrapper
 {
 public:
-    void		setDimMap(int srcdim,int targetdim)
+
+			mTypeDefArrNDTypes;
+
+    void		setDimMap(DimIdxType srcdim,DimIdxType targetdim)
 			{ dimmap_[srcdim] = targetdim; }
 
     virtual void	init()		= 0;
@@ -29,7 +31,8 @@ protected:
 			ArrayNDWrapper(const ArrayNDInfo& info)
 			{ dimmap_.setSize( info.nrDims(), 0 ); }
 
-    TypeSet<int>	dimmap_;
+    TypeSet<DimIdxType>	dimmap_;
+
 };
 
 
@@ -48,8 +51,8 @@ public:
     void		init();
     bool		isOK() const;
 
-    void		set(int,int,int,T);
-    T			get(int,int,int) const;
+    void		set(IdxType,IdxType,IdxType,T);
+    T			get(IdxType,IdxType,IdxType) const;
 
     const Array3DInfo&	info() const		{ return info_; }
 
@@ -88,10 +91,10 @@ bool Array3DWrapper<T>::isOK() const
 
 
 template <class T>
-void Array3DWrapper<T>::set( int i0, int i1, int i2, T val )
+void Array3DWrapper<T>::set( IdxType i0, IdxType i1, IdxType i2, T val )
 {
-    int pos3d[] = { i0, i1, i2 };
-    TypeSet<int> posnd;
+    IdxType pos3d[] = { i0, i1, i2 };
+    TypeSet<IdxType> posnd;
     for ( int idx=0; idx<dimmap_.size(); idx++ )
 	posnd += pos3d[ dimmap_[idx] ];
 
@@ -100,10 +103,10 @@ void Array3DWrapper<T>::set( int i0, int i1, int i2, T val )
 
 
 template <class T>
-T Array3DWrapper<T>::get( int i0, int i1, int i2 ) const
+T Array3DWrapper<T>::get( IdxType i0, IdxType i1, IdxType i2 ) const
 {
-    int pos3d[] = { i0, i1, i2 };
-    TypeSet<int> posnd;
+    IdxType pos3d[] = { i0, i1, i2 };
+    TypeSet<IdxType> posnd;
     for ( int idx=0; idx<dimmap_.size(); idx++ )
 	posnd += pos3d[ dimmap_[idx] ];
 
