@@ -18,6 +18,7 @@ set(OD_MODULE_SOURCES
 	uivolprocregionfiller.cc
 	uivolprocsmoother.cc
 	uivolprocsurfacelimitedfiller.cc
+	uivolprocudfreplacer.cc
 	uivolprocvolreader.cc
 	uiwellloginterpolator.cc
 )

@@ -14,14 +14,15 @@ ________________________________________________________________________
 
 #include "uivelocitygridder.h"
 #include "uivolprocattrib.h"
+#include "uivolprocbatchsetup.h"
 #include "uivolprocbodyfiller.h"
 #include "uivolprochorinterfiller.h"
 #include "uivolproclateralsmoother.h"
 #include "uivolprocregionfiller.h"
 #include "uivolprocsmoother.h"
 #include "uivolprocsurfacelimitedfiller.h"
+#include "uivolprocudfreplacer.h"
 #include "uivolprocvolreader.h"
-#include "uivolprocbatchsetup.h"
 #include "uiwellloginterpolator.h"
 
 
@@ -30,14 +31,15 @@ mDefModInitFn(uiVolumeProcessing)
 {
     mIfNotFirstTime( return );
 
-    VolProc::uiBodyFiller::initClass();
+    VolProc::uiVolumeReader::initClass();
+    VolProc::uiUdfValReplacer::initClass();
     VolProc::uiLateralSmoother::initClass();
     VolProc::uiSmoother::initClass();
+    VolProc::uiBodyFiller::initClass();
     VolProc::uiHorInterFiller::initClass();
     VolProc::uiSurfaceLimitedFiller::initClass();
     VolProc::uiRegionFiller::initClass();
     VolProc::uiVelocityGridder::initClass();
-    VolProc::uiVolumeReader::initClass();
     VolProc::uiWellLogInterpolator::initClass();
 
 #ifdef __debug__

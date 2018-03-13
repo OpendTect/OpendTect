@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "moddepmgr.h"
+
 #include "velocitygridder.h"
 #include "volprocattrib.h"
 #include "volprocbodyfiller.h"
@@ -20,6 +21,7 @@ ________________________________________________________________________
 #include "volprocstatscomputer.h"
 #include "volprocsurfacelimitedfiller.h"
 #include "volproctrans.h"
+#include "volprocudfreplacer.h"
 #include "volprocvolreader.h"
 #include "wellloginterpolator.h"
 
@@ -33,17 +35,18 @@ mDefModInitFn(VolumeProcessing)
     dgbVolProcessingTranslator::initClass();
     dgbVolProcessing2DTranslator::initClass();
 
-    VolProc::VolumeReader::initClass();
     VolProc::BodyFiller::initClass();
+    VolProc::ExternalAttribCalculator::initClass();
     VolProc::HilbertCalculator::initClass();
     VolProc::HorInterFiller::initClass();
-    VolProc::SurfaceLimitedFiller::initClass();
-    VolProc::RegionFiller::initClass();
     VolProc::LateralSmoother::initClass();
+    VolProc::RegionFiller::initClass();
     VolProc::Smoother::initClass();
     VolProc::StatsCalculator::initClass();
-    VolProc::ExternalAttribCalculator::initClass();
+    VolProc::SurfaceLimitedFiller::initClass();
+    VolProc::UdfReplacer::initClass();
     VolProc::VelocityGridder::initClass();
+    VolProc::VolumeReader::initClass();
     VolProc::WellLogInterpolator::initClass();
 
 #ifdef __debug__

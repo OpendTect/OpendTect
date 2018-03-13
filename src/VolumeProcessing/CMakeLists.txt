@@ -23,9 +23,10 @@ set( OD_MODULE_SOURCES
 	volprocregionfiller.cc
 	volprocsmoother.cc
 	volprocstatscomputer.cc
+	volprocstep.cc
 	volprocsurfacelimitedfiller.cc
 	volproctrans.cc
-	volprocstep.cc
+	volprocudfreplacer.cc
 	volprocvolreader.cc
 	wellloginterpolator.cc
 )
