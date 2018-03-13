@@ -41,7 +41,7 @@ bool VolProc::Processor::run( od_ostream& strm, JobCommunic* comm )
     DBKey chainid, outid;
     PtrMan<IOPar> chainpar = procpars_.subselect( sKey::Chain() );
     if ( !chainpar &&
-	!procpars_.get(VolProcessingTranslatorGroup::sKeyChainID(),chainid) )
+	 !procpars_.get(VolProcessingTranslatorGroup::sKeyChainID(),chainid) )
     {
 	strm << "\nNo Volume Processing chain found\n";
 	return false;
