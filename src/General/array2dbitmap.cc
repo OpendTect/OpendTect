@@ -199,7 +199,7 @@ A2DBitMapGenerator::A2DBitMapGenerator( const A2DBitMapInpData& dat,
 
 void A2DBitMapGenerator::initBitMap( A2DBitMap& bm )
 {
-    const od_uint64 totsz = bm.totalSize();
+    const od_int64 totsz = bm.totalSize();
     if ( totsz > 0 )
 	OD::memSet( bm.getData(), A2DBitMapGenPars::cNoFill(),
 			totsz*sizeof(char) );

@@ -50,7 +50,7 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
     od_int64 totmem, freemem;
     OD::getSystemMemory( totmem, freemem );
     NrBytesToStringCreator nbstr( totmem );
-    const od_uint64 reqsz = nrcomp * dp.sampling().totalNr() *
+    const od_int64 reqsz = ((od_int64)nrcomp) * dp.sampling().totalNr() *
 			    dp.getDataDesc().nrBytes();
 			    // dp.nrKBytes() cannot be used before allocation
 

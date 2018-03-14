@@ -99,7 +99,7 @@ public:
     VolRef			getOutput()		{ return output_; }
 
     TrcKeyZSampling		getInputSampling(const TrcKeyZSampling&) const;
-    od_uint64			getComponentMemory(const TrcKeyZSampling&,
+    od_int64			getComponentMemory(const TrcKeyZSampling&,
 						   bool input) const;
 
     od_int64			getExtraMemoryUsage(const TrcKeyZSampling&,

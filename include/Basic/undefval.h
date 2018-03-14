@@ -25,7 +25,7 @@ ________________________________________________________________________
 #define __mUndefIntVal64          9223344556677889900LL
 
 
-/*!  \brief Templatized undefined and initialisation (i.e. null) values.
+/*!\brief Templatized undefined and initialisation (i.e. null) values.
 
     Since these are all templates, they can be used much more generic
     than previous solutions with macros.
@@ -41,9 +41,7 @@ Use like:
 namespace Values
 {
 
-/*!
-\brief Templatized undefined values.
-*/
+/*!\brief Templatized undefined values. */
 
 template<class T>
 mClass(Basic) Undef
@@ -56,9 +54,7 @@ public:
 };
 
 
-/*!
-\brief Undefined od_int16.
-*/
+/*!\brief Undefined od_int16. */
 
 template<>
 mClass(Basic) Undef<od_int16>
@@ -71,9 +67,7 @@ public:
 };
 
 
-/*!
-\brief Undefined od_uint16.
-*/
+/*!\brief Undefined od_uint16. */
 
 template<>
 mClass(Basic) Undef<od_uint16>
@@ -86,9 +80,7 @@ public:
 };
 
 
-/*!
-\brief Undefined od_int32.
-*/
+/*!\brief Undefined od_int32. */
 
 template<>
 mClass(Basic) Undef<od_int32>
@@ -101,9 +93,7 @@ public:
 };
 
 
-/*!
-\brief Undefined od_uint32.
-*/
+/*!\brief Undefined od_uint32. */
 
 template<>
 mClass(Basic) Undef<od_uint32>
@@ -116,9 +106,7 @@ public:
 };
 
 
-/*!
-\brief Undefined od_int64.
-*/
+/*!\brief Undefined od_int64. */
 
 template<>
 mClass(Basic) Undef<od_int64>
@@ -131,9 +119,7 @@ public:
 };
 
 
-/*!
-\brief Undefined od_uint64.
-*/
+/*!\brief Undefined od_uint64. */
 
 template<>
 mClass(Basic) Undef<od_uint64>
@@ -146,9 +132,7 @@ public:
 };
 
 
-/*!
-\brief Undefined bool.
-*/
+/*!\brief Undefined bool (tricky!). */
 
 template<>
 mClass(Basic) Undef<bool>
@@ -161,9 +145,7 @@ public:
 };
 
 
-/*!
-\brief Undefined float.
-*/
+/*!\brief Undefined float. */
 
 template<>
 mClass(Basic) Undef<float>
@@ -176,9 +158,7 @@ public:
 };
 
 
-/*!
-\brief Undefined double.
-*/
+/*!\brief Undefined double. */
 
 template<>
 mClass(Basic) Undef<double>
@@ -191,9 +171,7 @@ public:
 };
 
 
-/*!
-\brief Undefined const char*.
-*/
+/*!\brief Undefined const char*. */
 
 template<>
 mClass(Basic) Undef<const char*>
@@ -206,9 +184,7 @@ public:
 };
 
 
-/*!
-\brief Undefined char*.
-*/
+/*!\brief Undefined char* (i.e. empty string or null). */
 
 template<>
 mClass(Basic) Undef<char*>
@@ -221,9 +197,7 @@ public:
 };
 
 
-/*!
-\brief Undefined char.
-*/
+/*!\brief Undefined char (tricky). */
 
 template<>
 mClass(Basic) Undef<char>

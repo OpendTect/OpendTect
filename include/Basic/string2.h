@@ -129,7 +129,7 @@ mGlobal(Basic) const char* getVelUnitString(bool isfeet,bool withparentheses);
 
 mGlobal(Basic) const char* getRankPostFix(int);
 	/*!< returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */
-mGlobal(Basic) const char* getBytesString(od_uint64);
+mGlobal(Basic) const char* getBytesString(od_int64);
 	/*!< returns a nicely, readable size, in bytes, KB, MB, GB, or TB */
 mGlobal(Basic) const char* getLimitedDisplayString(const char*,int nrchars,
 					    bool trimright);

@@ -211,9 +211,9 @@ const char* GetOSIdentifier()
 	dwBuild = (DWORD)(HIWORD(dwVersion));
 
     const char* dot = ".";
-    tmp->add( "Windows ").add( (od_uint64) dwMajorVersion )
-	.add( dot ).add((od_uint64) dwMinorVersion )
-	.add( dot ).add( (od_uint64) dwBuild );
+    tmp->add( "Windows ").add( (od_int64)dwMajorVersion )
+	.add( dot ).add((od_int64)dwMinorVersion )
+	.add( dot ).add( (od_int64)dwBuild );
 #endif
 
 #ifdef __lux__

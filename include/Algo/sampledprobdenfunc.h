@@ -37,7 +37,7 @@ public:
 
     int			size( int dim ) const
 			{ return getArrND().getSize(dim); }
-    od_uint64		totalSize() const
+    od_int64		totalSize() const
 			{ return getArrND().totalSize(); }
 
     virtual const ArrayND<float>& getData() const
@@ -72,8 +72,8 @@ protected:
 
     void		prepRndDrw() const;
     void		fillCumBins() const;
-    od_uint64		getRandBin() const;
-    od_uint64		getBinPos(float) const;
+    od_int64		getRandBin() const;
+    od_int64		getBinPos(float) const;
 
 };
 

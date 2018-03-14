@@ -81,7 +81,7 @@ class GridInitializer: public ParallelTask
 {
 public:
 GridInitializer( ContinuousCurvatureArray2DInterpol* p, int gridsize,
-		 od_int64 size)
+		 od_int64 size )
     : interpol_( p )
     , nriterations_( size )
     , gridsize_(gridsize)
@@ -453,8 +453,8 @@ bool ContinuousCurvatureArray2DInterpol::updateArray2D()
       {
 	  for ( int c=mPadSize; c<padnrcols-mPadSize; c++ )
 	  {
-	      int idx= (od_uint64)r*padnrcols+c;
-	      int odidx = (r-mPadSize)*nrcols_+(c-mPadSize);
+	      od_int64 idx = r*((od_int64)padnrcols) + c;
+	      od_int64 odidx = (r-mPadSize)*((od_int64)nrcols_) + (c-mPadSize);
 	      if ( nodestofill_[odidx] )
 		  arr_->set( r-mPadSize, c-mPadSize, griddata_[idx] );
 	  }
@@ -565,7 +565,8 @@ bool ContinuousCurvatureArray2DInterpol::usePar( const IOPar& par )
 
 bool ContinuousCurvatureArray2DInterpol::removePlanarTrend()
 {
-    if ( nrdata_ <=0 ) return false;
+    if ( nrdata_ <=0 )
+	return false;
 
     double sx(0), sy(0), sz(0), sxx(0), sxy(0), sxz(0), syy(0), syz(0);
     for ( int idx=0; idx<nrdata_; idx++ )
@@ -580,7 +581,7 @@ bool ContinuousCurvatureArray2DInterpol::removePlanarTrend()
 	syz += hordata_[idx].y_*hordata_[idx].z_;
     }
 
-    const od_uint64 count = nrdata_;
+    const od_int64 count = nrdata_;
     const double d = count*sxx*syy + 2*sx*sy*sxy - count*sxy*sxy -
 		     sx*sx*syy - sy*sy*sxx;
 

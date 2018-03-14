@@ -31,7 +31,7 @@ public:
 				     The execution can start if success */
     bool			setCalculationScope(const TrcKeySampling&,
 						    const ZSampling&,
-						    od_uint64& maxmemusage,
+						    od_int64& maxmemusage,
 						    int* nrchunks=0);
 
     bool			areSamplesIndependent() const;
@@ -83,9 +83,9 @@ private:
     void			updateScheduledStepsSampling(
 					const TrcKeySampling&,const ZSampling&);
     int				nrChunks(const TrcKeySampling&,const ZSampling&,
-					 od_uint64& memusage);
+					 od_int64& memusage);
 
-    od_uint64			calculateMaximumMemoryUsage(
+    od_int64			calculateMaximumMemoryUsage(
 							const TrcKeySampling&,
 							const ZSampling&);
     void			adjustStepsNrComponents(Pos::GeomID) const;

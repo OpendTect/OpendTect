@@ -15,6 +15,7 @@
 
 static BufferString filename_;
 static const int nrblocks_ = 5;
+static const int nrdims_ = 2;
 static const int dim1_ = 10;
 static const int dim2_ = 20;
 static const int chunksz_ = 6;
@@ -87,35 +88,42 @@ static bool testWrite()
 }
 
 
-static bool testRead()
+static bool testReadInfo( HDF5::Reader& rdr )
 {
-    PtrMan<HDF5::Reader> rdr = HDF5::mkReader();
-    mRunStandardTest( rdr, "Get Reader" );
-
-    uiRetVal uirv = rdr->open( filename_ );
-    mAddTestResult( "Open file for read" );
-
     BufferStringSet grps;
-    rdr->getGroups( grps );
+    rdr.getGroups( grps );
     mRunStandardTestWithError( grps.size()==2, "Groups in file",
 			       BufferString("nrgrps=",grps.size()) );
 
     BufferStringSet dsnms;
-    rdr->getDataSets( grps.get(0), dsnms );
+    rdr.getDataSets( grps.get(0), dsnms );
     mRunStandardTestWithError( dsnms.size()==nrblocks_, "Datasets in group",
 			       BufferString("nrblocks=",grps.size()) );
 
-    HDF5::DataSetKey dsky( "Component 3", "Block [3]" );
-    bool scoperes = rdr->setScope( dsky );
-    mRunStandardTest( !scoperes, "Set scope (non-existing)" )
-    dsky = HDF5::DataSetKey( "Component 2", "Block [3]" );
-    scoperes = rdr->setScope( dsky );
-    mRunStandardTest( scoperes, "Set scope (existing)" )
+    HDF5::DataSetKey filedsky;
+    bool scoperes = rdr.setScope( filedsky );
+    mRunStandardTest( scoperes, "Set scope (file)" )
 
-    PtrMan<ArrayNDInfo> arrinf = rdr->getDataSizes();
+    IOPar iop;
+    uiRetVal uirv = rdr.getInfo( iop );
+    mAddTestResult( "Get file info" );
+
+    const BufferString iopval = iop.find( "File attr" );
+    mRunStandardTestWithError( iopval=="file attr value", "File info contents",
+				BufferString("found: '",iopval,"'") );
+
+    HDF5::DataSetKey dsky( "Component 3", "Block [3]" );
+    scoperes = rdr.setScope( dsky );
+    mRunStandardTest( !scoperes, "Set scope (non-existing)" )
+
+    dsky = HDF5::DataSetKey( "Component 2", "Block [3]" );
+    scoperes = rdr.setScope( dsky );
+    mRunStandardTest( scoperes, "Set scope (Comp2,Block3)" )
+
+    PtrMan<ArrayNDInfo> arrinf = rdr.getDataSizes();
     mRunStandardTest( arrinf, "Get dimensions" )
     const int nrdims = arrinf->nrDims();
-    mRunStandardTestWithError( nrdims==2, "Correct nr dimensions",
+    mRunStandardTestWithError( nrdims==nrdims_, "Correct nr dimensions",
 				BufferString("nrdims=",nrdims) )
     const int dim1 = arrinf->getSize( 0 );
     mRunStandardTestWithError( dim1==dim1_, "Correct size of 1st dim",
@@ -124,39 +132,66 @@ static bool testRead()
     mRunStandardTestWithError( dim2==dim2_, "Correct size of 2nd dim",
 				BufferString("dim2=",dim2) )
 
-    IOPar iop;
-    uirv = rdr->getInfo( iop );
+    iop.setEmpty();
+    uirv = rdr.getInfo( iop );
     mAddTestResult( "Get dataset info" );
     int iblk=0, icomp=0;
     iop.get( sPropNm, iblk, icomp );
     mRunStandardTestWithError( iblk==3 && icomp==2, "Dataset info contents",
 		BufferString("iblk=",iblk).add(" icomp=").add(icomp) );
 
-    Array2DImpl<float> arr2d( arrinf->getSize(0), arrinf->getSize(1) );
-    uirv = rdr->getAll( arr2d.getData() );
-    mAddTestResult( "Get block data" );
+    return true;
+}
+
+
+static bool testReadData( const HDF5::Reader& rdr )
+{
+    Array2DImpl<float> arr2d( dim1_, dim2_ );
+    uiRetVal uirv = rdr.getAll( arr2d.getData() );
+    mAddTestResult( "Get entire block data" );
     const float arrval = arr2d.get( 6, 15 );
     mRunStandardTestWithError( arrval==30615.f, "Correct value [comp2,6,15]",
 				BufferString("arrval=",arrval) )
 
-    TypeSet<HDF5::Reader::IdxType> pos;
-    pos += 7; pos += 16;
+    TypeSet<HDF5::Reader::IdxType> poss;
+    poss += 7; poss += 16;
     float val = 0.f;
-    uirv = rdr->getPoint( pos.arr(), &val );
+    uirv = rdr.getPoint( poss.arr(), &val );
     mAddTestResult( "Get single point value" );
     mRunStandardTestWithError( val==30716.f, "Correct value [comp2,7,16]",
 				BufferString("val=",val) )
 
-    HDF5::DataSetKey filedsky;
-    scoperes = rdr->setScope( filedsky );
-    mRunStandardTest( scoperes, "Set scope (file)" )
-    uirv = rdr->getInfo( iop );
-    mAddTestResult( "Get file info" );
-    const BufferString iopval = iop.find( "File attr" );
-    mRunStandardTestWithError( iopval=="file attr value", "File info contents",
-				BufferString("found: '",iopval,"'") );
+    const int nrpts = 3;
+    HDF5::Reader::NDPosSet positions;
+    for ( int ipt=0; ipt<nrpts; ipt++ )
+    {
+	HDF5::Reader::IdxType* pos = new HDF5::Reader::IdxType [ nrdims_ ];
+	for ( int idim=0; idim<nrdims_; idim++ )
+	    pos[idim] = idim*5 + ipt;
+	positions += pos;
+    }
+
+    TypeSet<float> ptvals( nrpts, 0.f );
+    uirv = rdr.getPoints( positions, ptvals.arr() );
+    mAddTestResult( "Get multi point values" );
+    mRunStandardTestWithError( ptvals[1]==30106.f, "Correct value [comp2,1,6]",
+				BufferString("ptvals[1]=",ptvals[1]) )
+    for ( int ipt=0; ipt<nrpts; ipt++ )
+	delete [] positions[ipt];
 
     return true;
+}
+
+
+static bool testRead()
+{
+    PtrMan<HDF5::Reader> rdr = HDF5::mkReader();
+    mRunStandardTest( rdr, "Get Reader" );
+
+    uiRetVal uirv = rdr->open( filename_ );
+    mAddTestResult( "Open file for read" );
+
+    return testReadInfo(*rdr) && testReadData(*rdr);
 }
 
 

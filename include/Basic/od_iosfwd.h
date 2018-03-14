@@ -15,8 +15,8 @@ class od_ostream;
 class od_istrstream;
 class od_ostrstream;
 
-typedef od_uint64	od_stream_Count;
 typedef od_int64	od_stream_Pos;
+typedef od_stream_Pos	od_stream_Count;
 
 #define od_space	' '
 #define od_tab		'\t'

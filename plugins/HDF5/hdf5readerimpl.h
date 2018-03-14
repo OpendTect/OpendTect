@@ -41,8 +41,8 @@ public:
 protected:
 
     BufferStringSet	grpnms_;
-    H5::Group*		group_;
-    H5::DataSet*	dataset_;
+    mutable H5::Group*	group_;
+    mutable H5::DataSet* dataset_;
 
     virtual void	openFile(const char*,uiRetVal&);
     virtual void	closeFile();
@@ -57,7 +57,7 @@ protected:
     bool		selectDataSet(const char*);
     inline bool		haveScope( bool needds=true ) const
 			{ return group_ && (!needds || dataset_); }
-    H5::DataType	h5DataType() const;
+    H5DataType		h5DataType() const;
 
 };
 

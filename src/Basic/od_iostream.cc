@@ -425,7 +425,7 @@ void od_ostream::flush()
 od_stream::Count od_istream::lastNrBytesRead() const
 {
     if ( sd_.iStrm() )
-	return mCast(od_stream::Count,StrmOper::lastNrBytesRead(*sd_.iStrm()));
+	return StrmOper::lastNrBytesRead( *sd_.iStrm() );
     return 0;
 }
 

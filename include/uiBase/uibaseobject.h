@@ -48,9 +48,8 @@ public:
     int	 /* refnr */		beginCmdRecEvent(const char* msg=0);
     void			endCmdRecEvent(int refnr,const char* msg=0);
 
-    int	 /* refnr */		beginCmdRecEvent(od_uint64 id,
-						 const char* msg=0);
-    void			endCmdRecEvent(od_uint64 id,int refnr,
+    int	 /* refnr */		beginCmdRecEvent(od_int64,const char* msg=0);
+    void			endCmdRecEvent(od_int64,int refnr,
 					       const char* msg=0);
 
     virtual Notifier<uiBaseObject>& preFinalise()

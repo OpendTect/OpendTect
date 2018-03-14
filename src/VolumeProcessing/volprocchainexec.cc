@@ -46,7 +46,7 @@ uiString VolProc::ChainExecutor::errMsg() const
 
 bool VolProc::ChainExecutor::setCalculationScope( const TrcKeySampling& tks,
 						  const ZSampling& zsamp,
-					od_uint64& maxmemusage, int* nrchunks )
+					od_int64& maxmemusage, int* nrchunks )
 {
     isok_ = false;
     if ( !scheduleWork() )
@@ -269,10 +269,10 @@ struct VolumeMemory
 
 int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
 				      const ZSampling& zsamp,
-				      od_uint64& memusage )
+				      od_int64& memusage )
 {
     memusage = calculateMaximumMemoryUsage( tks, zsamp );
-    const od_uint64 nrbytes = mCast( od_uint64, 1.01f * memusage );
+    const od_int64 nrbytes = mCast( od_int64, 1.01f * memusage );
     const bool cansplit = areSamplesIndependent() && !needsFullVolume();
     od_int64 totmem, freemem; OD::getSystemMemory( totmem, freemem );
     const bool needsplit = freemem >= 0 && nrbytes > freemem;
@@ -296,11 +296,11 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
 	starthsamp.limitTo( tks );
 	centerhsamp.limitTo( tks );
 	stophsamp.limitTo( tks );
-	const od_uint64 memstart =
+	const od_int64 memstart =
 			calculateMaximumMemoryUsage( starthsamp, zsamp );
-	const od_uint64 memcenter =
+	const od_int64 memcenter =
 			calculateMaximumMemoryUsage( centerhsamp, zsamp );
-	const od_uint64 memstop =
+	const od_int64 memstop =
 			calculateMaximumMemoryUsage( stophsamp, zsamp );
 	memusage = memcenter;
 	if ( memstart > memusage )
@@ -309,7 +309,7 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
 	if ( memstop > memusage )
 	    memusage = memstop;
 
-	if ( mCast(od_uint64,1.01f*memusage) < freemem )
+	if ( mCast(od_int64,1.01f*memusage) < freemem )
 	    break;
 
 	halfnrlinesperchunk--;
@@ -323,7 +323,7 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
 }
 
 
-od_uint64 VolProc::ChainExecutor::calculateMaximumMemoryUsage(
+od_int64 VolProc::ChainExecutor::calculateMaximumMemoryUsage(
 						    const TrcKeySampling& tks,
 						    const ZSampling& zsamp )
 {
@@ -338,7 +338,7 @@ od_uint64 VolProc::ChainExecutor::calculateMaximumMemoryUsage(
 	TypeSet<Step::ID> inputsids;
 	for ( int stepidx=0; stepidx<steps.size(); stepidx++ )
 	{
-	    od_uint64 epochmemsize = 0;
+	    od_int64 epochmemsize = 0;
 	    const Step* step = steps[stepidx];
 	    const int outputidx = 0;
 	    //No actual support for multiple output datapacks yet!!

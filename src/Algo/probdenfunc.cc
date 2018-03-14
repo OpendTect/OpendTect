@@ -272,26 +272,27 @@ void ArrayNDProbDenFunc::prepRndDrw() const
 
 void ArrayNDProbDenFunc::fillCumBins() const
 {
-    const od_uint64 sz = totalSize();
+    const od_int64 sz = totalSize();
     delete [] cumbins_; cumbins_ = 0;
-    if ( sz < 1 ) return;
+    if ( sz < 1 )
+	return;
 
     const float* vals = getData().getData();
     cumbins_ = new float [ sz ];
     cumbins_[0] = vals[0];
-    for ( od_uint64 idx=1; idx<sz; idx++ )
+    for ( od_int64 idx=1; idx<sz; idx++ )
 	cumbins_[idx] = cumbins_[idx-1] + vals[idx];
 }
 
 
-od_uint64 ArrayNDProbDenFunc::getRandBin() const
+od_int64 ArrayNDProbDenFunc::getRandBin() const
 {
     if ( !cumbins_ ) fillCumBins();
     return getBinPos( (float) ( Stats::randGen().get() ) );
 }
 
 
-od_uint64 ArrayNDProbDenFunc::getBinPos( float pos ) const
+od_int64 ArrayNDProbDenFunc::getBinPos( float pos ) const
 {
     const od_int64 sz = (od_int64)totalSize();
     if ( sz < 2 ) return 0;
@@ -301,7 +302,7 @@ od_uint64 ArrayNDProbDenFunc::getBinPos( float pos ) const
     IdxAble::findPos( cumbins_, sz, cumpos, beforefirst, ibin );
     if ( ibin < sz-1 ) // ibin == sz-1 is hugely unlikely, but still check ...
 	ibin++;
-    return (od_uint64)ibin;
+    return (od_int64)ibin;
 }
 
 
@@ -331,13 +332,13 @@ float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
     TypeSet<float> integrvals( tardimsz, 0 );
     const ArrayND<float>& arrnd = getData();
     const ArrayNDInfo& arrndinfo = arrnd.info();
-    const od_uint64 totsz = arrndinfo.totalSize();
+    const od_int64 totsz = arrndinfo.totalSize();
     const float* arr = arrnd.getData();
     float grandtotal = 0;
     TypeSet<int> dimidxsts( arrndinfo.nrDims(), 0 );
     int* dimidxs = dimidxsts.arr();
 
-    for ( od_uint64 idx=0; idx<totsz; idx++ )
+    for ( od_int64 idx=0; idx<totsz; idx++ )
     {
 	arrndinfo.getArrayPos( idx, dimidxs );
 	const int tardimidx = dimidxs[tardim];
@@ -461,7 +462,7 @@ float Sampled1DProbDenFunc::gtVal( float pos ) const
 
 void Sampled1DProbDenFunc::drwRandPos( float& pos ) const
 {
-    const od_uint64 ibin = getRandBin();
+    const od_int64 ibin = getRandBin();
     pos = mRandSDPos( sd_, ibin );
 }
 
@@ -579,10 +580,10 @@ float Sampled2DProbDenFunc::gtVal( float px, float py ) const
 
 void Sampled2DProbDenFunc::drwRandPos( float& p0, float& p1 ) const
 {
-    const od_uint64 ibin = getRandBin();
-    const od_uint64 dimsz1 = (od_uint64)size( 1 );
-    const od_uint64 i0 = ibin / dimsz1;
-    const od_uint64 i1 = ibin - i0 * dimsz1;
+    const od_int64 ibin = getRandBin();
+    const od_int64 dimsz1 = (od_int64)size( 1 );
+    const od_int64 i0 = ibin / dimsz1;
+    const od_int64 i1 = ibin - i0 * dimsz1;
     p0 = mRandSDPos( sd0_, i0 );
     p1 = mRandSDPos( sd1_, i1 );
 }
@@ -765,12 +766,12 @@ void SampledNDProbDenFunc::drawRandomPos( TypeSet<float>& poss ) const
     const int nrdims = nrDims();
     poss.setSize( nrdims, 0 );
 
-    od_uint64 ibin = getRandBin();
-    od_uint64 dimsz = totalSize();
+    od_int64 ibin = getRandBin();
+    od_int64 dimsz = totalSize();
     for ( int idim=0; idim<nrdims; idim++ )
     {
 	dimsz /= size( idim );
-	const od_uint64 indx = ibin / dimsz;
+	const od_int64 indx = ibin / dimsz;
 	poss[idim] = mRandSDPos( sds_[idim], indx );
 	ibin -= indx * dimsz;
     }

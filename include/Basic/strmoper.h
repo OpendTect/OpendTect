@@ -22,8 +22,8 @@ class StreamData;
 
 namespace StrmOper
 {
-    mGlobal(Basic) bool		readBlock(std::istream&,void*,od_uint64 nrbyts);
-    mGlobal(Basic) bool		writeBlock(std::ostream&,const void*,od_uint64);
+    mGlobal(Basic) bool		readBlock(std::istream&,void*,od_int64 nrbyts);
+    mGlobal(Basic) bool		writeBlock(std::ostream&,const void*,od_int64);
 
     mGlobal(Basic) bool		peekChar(std::istream&,char&);
     mGlobal(Basic) bool		readChar(std::istream&,char&,

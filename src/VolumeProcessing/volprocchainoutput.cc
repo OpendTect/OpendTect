@@ -299,7 +299,7 @@ int VolProc::ChainOutput::setupChunking()
 	return ErrorOccurred();
 
     tkzs_.zsamp_.step = chain_->getZStep();
-    od_uint64 memusage;
+    od_int64 memusage;
     if ( !chainexec_->setCalculationScope(tkzs_.hsamp_,tkzs_.zsamp_,memusage,
 					  &nrexecs_) )
     {
@@ -328,7 +328,7 @@ int VolProc::ChainOutput::setNextChunk()
     }
 
     const TrcKeySampling hsamp( tkzs_.hsamp_.getLineChunk(nrexecs_,curexecnr_));
-    od_uint64 memusage;
+    od_int64 memusage;
     if ( !chainexec_->setCalculationScope(hsamp,tkzs_.zsamp_,memusage) )
     {
 	deleteAndZeroPtr( chainexec_ );

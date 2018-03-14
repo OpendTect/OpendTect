@@ -123,7 +123,7 @@ private:
     bool	doWork( od_int64 start, od_int64 stop, int threadidx )
     {
 	SumType sumval = 0, comp = 0;
-	od_uint64 count = 0;
+	od_int64 count = 0;
 	const ArrType* xvals = xarr_.getData();
 	const ArrType* yvals = yarr_ ? yarr_->getData() : 0;
 	const ValueSeries<ArrType>* xstor = xarr_.getStorage();
@@ -220,7 +220,7 @@ private:
 private:
 
     const ArrayOperExecSetup&	setup_;
-    od_uint64		sz_;
+    od_int64		sz_;
     bool		noudf_;
 
     Threads::Lock	writelock_;
@@ -231,7 +231,7 @@ private:
     OperType		xfact_;
     OperType		yfact_;
     SumType		cumsum_;
-    od_uint64		count_;
+    od_int64		count_;
 };
 
 
@@ -362,7 +362,7 @@ private:
 private:
 
     const ArrayOperExecSetup&	setup_;
-    od_uint64		sz_;
+    od_int64		sz_;
     bool		noudf_;
 
     const ArrayND<ArrType>&	xarr_;
@@ -652,18 +652,18 @@ inline bool removeBias( ArrayND<ArrType>& inout, bool noudf, bool parallel )
     ValueSeries<ArrType>* trendstor = trendx.getStorage(); \
     if ( trendxvals ) \
     { \
-	for ( od_uint64 idx=0; idx<sz; idx++ ) \
+	for ( od_int64 idx=0; idx<sz; idx++ ) \
 	    trendxvals[idx] = mCast(ArrType,idx); \
     } \
     else if ( trendstor ) \
     { \
-	for ( od_uint64 idx=0; idx<sz; idx++ ) \
+	for ( od_int64 idx=0; idx<sz; idx++ ) \
 	    trendstor->setValue(idx,mCast(ArrType,idx)); \
     } \
     else \
     { \
 	ArrayNDIter iter( trendx.info() ); \
-	od_uint64 idx = 0; \
+	od_int64 idx = 0; \
 	do \
 	{ \
 	    trendx.setND( iter.getPos(), mCast(ArrType,idx) ); \
@@ -689,7 +689,7 @@ inline bool getInterceptGradient( const ArrayND<ArrType>& iny,
     const ArrayND<ArrType>* inx = hasxvals ? inx_ : 0;
     if ( !hasxvals )
     {
-	const od_uint64 sz = iny.info().totalSize();
+	const od_int64 sz = iny.info().totalSize();
 	Array1DImpl<ArrType>* inxtmp = new Array1DImpl<ArrType>( mCast(int,sz));
 	if ( !inxtmp->isOK() )
 	    { delete inxtmp; return false; }
@@ -735,7 +735,7 @@ inline bool getInterceptGradient( const ArrayND<ArrType>& iny,
 template <class ArrType,class OperType>
 inline bool removeTrend( const ArrayND<ArrType>& in, ArrayND<ArrType>& out )
 {
-    const od_uint64 sz = in.info().totalSize();
+    const od_int64 sz = in.info().totalSize();
     Array1DImpl<ArrType> trendx( mCast(int,sz) );
     if ( !trendx.isOK() )
 	return false;
@@ -776,10 +776,10 @@ template <class fT>
 inline bool hasUndefs( const ArrayND<fT>& in )
 {
     const fT* vals = in.getData();
-    const od_uint64 sz = in.info().totalSize();
+    const od_int64 sz = in.info().totalSize();
     if ( vals )
     {
-	for ( od_uint64 idx=0; idx<sz; idx++ )
+	for ( od_int64 idx=0; idx<sz; idx++ )
 	{
 	    if ( mIsUdf(vals[idx]) )
 		return true;
@@ -791,7 +791,7 @@ inline bool hasUndefs( const ArrayND<fT>& in )
     const ValueSeries<fT>* stor = in.getStorage();
     if ( stor )
     {
-	for ( od_uint64 idx=0; idx<sz; idx++ )
+	for ( od_int64 idx=0; idx<sz; idx++ )
 	{
 	    if ( mIsUdf(stor->value(idx)) )
 		return true;
@@ -1542,7 +1542,7 @@ private:
 
 		    const od_int64 offsetout = start * nrzout + z0out;
 		    outptr += offsetout;
-		    od_uint64 validxout = offsetout;
+		    od_int64 validxout = offsetout;
 
 		    for ( od_int64 idx=start; idx<=stop; idx++, iter.next(),
 			  outptr+=nrzout, validxout+=nrzout,
@@ -1727,7 +1727,7 @@ mClass(Algo) ArrayUdfValReplacer : public ParallelTask
 { mODTextTranslationClass(ArrayUdfValReplacer)
 public:
 		ArrayUdfValReplacer( Array2D<T>& inp,
-				     LargeValVec<od_uint64>* undefidxs )
+				     LargeValVec<od_int64>* undefidxs )
 		    : ParallelTask("Array Udf Replacer")
 		    , inp_(inp)
 		    , replval_(0.f)
@@ -1738,7 +1738,7 @@ public:
 		{}
 
 		ArrayUdfValReplacer( Array3D<T>& inp,
-				     LargeValVec<od_uint64>* undefidxs )
+				     LargeValVec<od_int64>* undefidxs )
 		    : ParallelTask("Array Udf Replacer")
 		    , inp_(inp)
 		    , replval_(0.f)
@@ -1792,7 +1792,7 @@ private:
 		    const bool neediterator = !hasarrayptr && !hasstorage;
 		    const od_int64 offset = start * nrtrcsp;
 		    dataptr += offset;
-		    od_uint64 validx = offset;
+		    od_int64 validx = offset;
 		    ArrayNDIter* iter = neediterator
 				       ? new ArrayNDIter( info ) : 0;
 		    if ( iter )
@@ -1870,19 +1870,12 @@ private:
 
     ArrayND<T>&			inp_;
     T				replval_;
-    LargeValVec<od_uint64>*		undefidxs_;
+    LargeValVec<od_int64>*	undefidxs_;
     const TrcKeySampling*	tks_;
     const PosInfo::CubeData*	trcssampling_;
     const od_int64		totalnr_;
     Threads::Mutex		lck_;
 };
-
-
-/*!< Filters a list of global indexes with two different sampling */
-
-mGlobal(Algo) void convertUndefinedIndexList(const TrcKeyZSampling& tkzsin,
-					     const TrcKeyZSampling& tkzsout,
-					     LargeValVec<od_uint64>&);
 
 
 /*!<Replaces undefined values back to an ND array */
@@ -1891,7 +1884,7 @@ template <class T>
 mClass(Algo) ArrayUdfValRestorer : public ParallelTask
 { mODTextTranslationClass(ArrayUdfValRestorer)
 public:
-		ArrayUdfValRestorer( const LargeValVec<od_uint64>& undefidxs,
+		ArrayUdfValRestorer( const LargeValVec<od_int64>& undefidxs,
 				      ArrayND<T>& outp )
 		    : ParallelTask("Udf retriever")
 		    , undefidxs_(undefidxs)
@@ -1922,7 +1915,7 @@ private:
 		    for ( od_int64 idx=start; idx<=stop; idx++,
 							 quickAddToNrDone(idx) )
 		    {
-			const od_uint64 sidx = undefidxs_[idx];
+			const od_int64 sidx = undefidxs_[idx];
 			if ( outpptr )
 			    outpptr[sidx] = udfval;
 			else if ( outpstor )
@@ -1939,7 +1932,7 @@ private:
 		    return true;
 		}
 
-    const LargeValVec<od_uint64>&	undefidxs_;
+    const LargeValVec<od_int64>&	undefidxs_;
     ArrayND<T>&			outp_;
     const od_int64		totalnr_;
 };
@@ -1983,7 +1976,7 @@ private:
 		    const bool hasstorage = outstor;
 		    const od_int64 offset = start * nrtrcsp;
 		    outpptr += offset;
-		    od_uint64 validx = offset;
+		    od_int64 validx = offset;
 		    const Array2DInfoImpl hinfo( info.getSize(0),
 						 info.getSize(1) );
 		    ArrayNDIter* hiter = !hasarrayptr && !hasstorage
@@ -2118,7 +2111,7 @@ private:
 			tailmuteptr += start;
 		    }
 
-		    od_uint64 validx = offset;
+		    od_int64 validx = offset;
 		    const int ndim = info.nrDims();
 		    const bool is2d = ndim == 2;
 		    const int nrlines = is2d ? 1 : info.getSize(0);

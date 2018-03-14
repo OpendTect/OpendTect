@@ -448,7 +448,7 @@ TrcKeyZSampling VolProc::Step::getInputSampling(
 }
 
 
-od_uint64 VolProc::Step::getComponentMemory( const TrcKeyZSampling& tkzs,
+od_int64 VolProc::Step::getComponentMemory( const TrcKeyZSampling& tkzs,
 					     bool input ) const
 {
     const TrcKeyZSampling usedtkzs = input ? getInputSampling( tkzs ) : tkzs;
@@ -537,7 +537,7 @@ private:
 		    const int nrz = info.getSize(2);
 		    const od_int64 offset = start * nrz;
 		    if ( hasarrayptr ) dataptr += offset;
-		    od_uint64 validx = hasstorage ? offset : 0;
+		    od_int64 validx = hasstorage ? offset : 0;
 		    Array2DInfoImpl hinfo( info.getSize(0), info.getSize(1) );
 		    ArrayNDIter* hiter = 0;
 		    if ( neediterate )

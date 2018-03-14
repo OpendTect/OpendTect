@@ -81,7 +81,7 @@ void VolProcAttrib::prepareForComputeData()
 
     executor_ = new VolProc::ChainExecutor( *chain_ );
     const TrcKeyZSampling tkzs( *getDesiredVolume() );
-    od_uint64 memusage;
+    od_int64 memusage;
     if ( !executor_->setCalculationScope(tkzs.hsamp_,tkzs.zsamp_,memusage) )
     {
 	errmsg_ = tr("Cannot calculate at this location");
@@ -211,7 +211,7 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
     }
 
     ChainExecutor executor( *chain_ );
-    od_uint64 memusage;
+    od_int64 memusage;
     if ( !executor.setCalculationScope(tkzs.hsamp_,tkzs.zsamp_,memusage) )
     {
 	errmsg_ = uiStrings::phrErrCalculating( tr("at this location") );

@@ -56,7 +56,7 @@ void removeTrailingBlanks( char* str )
 }
 
 
-const char* getBytesString( od_uint64 sz )
+const char* getBytesString( od_int64 sz )
 {
     NrBytesToStringCreator converter;
     converter.setUnitFrom( sz );
@@ -1194,14 +1194,14 @@ NrBytesToStringCreator::NrBytesToStringCreator()
 }
 
 
-NrBytesToStringCreator::NrBytesToStringCreator( od_uint64 nrbytes )
+NrBytesToStringCreator::NrBytesToStringCreator( od_int64 nrbytes )
     : unit_( Bytes )
 {
     setUnitFrom( nrbytes );
 }
 
 
-void NrBytesToStringCreator::setUnitFrom( od_uint64 number, bool max )
+void NrBytesToStringCreator::setUnitFrom( od_int64 number, bool max )
 {
     int nrshifts = 0;
     for ( ; nrshifts<4 && number>=1024; nrshifts++ )
@@ -1215,14 +1215,14 @@ void NrBytesToStringCreator::setUnitFrom( od_uint64 number, bool max )
 }
 
 
-FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
+FixedString NrBytesToStringCreator::getString( od_int64 sz, int nrdecimals,
 					     bool withunit ) const
 {
     if ( nrdecimals>5 ) nrdecimals = 5;
     if ( nrdecimals<0 ) nrdecimals = 0;
 
-    //Deliberatily make 10 times larger, so that rounding off will work
-    od_uint64 nrdecfactor = 10;
+    // Deliberatily make 10 times larger, so that rounding off will work
+    od_int64 nrdecfactor = 10;
     for ( int idx=0; idx<nrdecimals; idx++ )
 	nrdecfactor *= 10;
 
@@ -1253,6 +1253,6 @@ FixedString NrBytesToStringCreator::getUnitString() const
 
 FixedString NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit)
 {
-    const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", 0 };
+    const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", "EB", 0 };
     return units[(int) unit];
 }

@@ -365,6 +365,7 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 
 struct SeisTrcBufArray2DInfo : public Array2DInfo
 {
+
 SeisTrcBufArray2DInfo( const SeisTrcBuf& tb )
     : buf_(tb)
 {
@@ -380,7 +381,7 @@ ArrayNDInfo* clone() const
     return new SeisTrcBufArray2DInfo(buf_);
 }
 
-int getSize( int dim ) const
+SzType getSize( int dim ) const
 {
     if ( dim == 0 )
 	return buf_.size();
@@ -388,16 +389,6 @@ int getSize( int dim ) const
     const SeisTrc* trc = buf_.first();
     return trc ? trc->size() : 0;
 }
-
-// Mandatory functions ... why?
-bool setSize( int, int ) { return false; }
-// Are these really necessary?
-od_uint64 getMemPos( const int* ) const { return 0; }
-bool validPos( const int* pos ) const { return Array2DInfo::validPos(pos); }
-od_uint64 getMemPos( int ) const { return 0; }
-bool validPos( int ) const { return false; }
-od_uint64 getMemPos( int, int ) const { return 0; }
-bool validPos( int p0, int p1 ) const { return Array2DInfo::validPos(p0,p1); }
 
     const SeisTrcBuf&	buf_;
 

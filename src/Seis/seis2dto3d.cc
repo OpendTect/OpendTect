@@ -506,7 +506,7 @@ bool Seis2DTo3D::scaleArray()
 	const TrcKey trk( iter.curTrcKey() );
 	const int inlpos = hrg.lineIdx( trk.lineNr() );
 	const int crlpos = hrg.trcIdx( trk.trcNr() );
-	od_uint64 ipos = trcarr_->info().getOffset( inlpos, crlpos, 0 );
+	od_int64 ipos = trcarr_->info().getOffset( inlpos, crlpos, 0 );
 	for ( int idz=0; idz<nz; idz++ )
 	{
 	    const float_complex val = data[ipos+idz];

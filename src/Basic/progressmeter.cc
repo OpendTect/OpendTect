@@ -212,7 +212,7 @@ void TextStreamProgressMeter::addProgress( int nr )
     for ( int idx=0; idx<nr; idx++ )
     {
 	nrdone_ ++;
-	od_uint64 relprogress = nrdone_ - lastannotatednrdone_;
+	od_int64 relprogress = nrdone_ - lastannotatednrdone_;
 	if ( !(relprogress % nrdoneperchar_) )
 	{
 	    strm_ << (relprogress%(10*nrdoneperchar_)

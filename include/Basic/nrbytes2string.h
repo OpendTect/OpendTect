@@ -21,18 +21,18 @@ mExpClass(Basic) NrBytesToStringCreator
 {
 public:
 			NrBytesToStringCreator();
-			NrBytesToStringCreator(od_uint64 nrbytes);
+			NrBytesToStringCreator(od_int64 nrbytes);
 			/*!< Unit is set from nrbytes*/
-    enum Unit		{ Bytes=0, KB=1, MB=2, GB=3, TB=4, PB=5 };
+    enum Unit		{ Bytes=0, KB=1, MB=2, GB=3, TB=4, PB=5, EB=6 };
 
-    void		setUnitFrom(od_uint64 number,bool maximum=true);
-			/*!<Sets the unit (B, KB, MB, GB, TB) based on the
+    void		setUnitFrom(od_int64 number,bool maximum=true);
+			/*!<Sets the unit (B, KB, MB, GB, TB, EB) based on the
 			 number.
 			 \param maximum will only change unit if a larger
 			 unit is needed.
 			 */
 
-    FixedString		getString(od_uint64 number,int nrdecimals=2,
+    FixedString		getString(od_int64 number,int nrdecimals=2,
 				  bool withunit=true) const;
 			/*!<Use string before doing anything else, as it will be
 			    overwritten at next call from same thread. */

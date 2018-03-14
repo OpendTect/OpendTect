@@ -100,8 +100,8 @@ int Math::HCFOf( int num1, int num2 )
 }
 
 
-unsigned int Math::Abs( int val )	{ return abs(val); }
-od_uint64 Math::Abs( od_int64 val )	{ return llabs(val); }
+int Math::Abs( int val )		{ return (int)abs(val); }
+od_int64 Math::Abs( od_int64 val )	{ return (od_int64)llabs(val); }
 double Math::Abs( double val )		{ return fabs(val); }
 float Math::Abs( float val )		{ return fabsf(val); }
 float Math::Abs( float_complex val )	{ return abs(val); }

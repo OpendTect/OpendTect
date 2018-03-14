@@ -75,10 +75,10 @@ mGlobal(Basic) float Exp(float);
 
 mGlobal(Basic) float toDB(float);
 
-mGlobal(Basic) inline unsigned int Abs( unsigned int i )    { return i; }
-mGlobal(Basic) inline od_uint64 Abs( od_uint64 i )	    { return i; }
-mGlobal(Basic) unsigned int Abs(int i);
-mGlobal(Basic) od_uint64 Abs(od_int64 i);
+mGlobal(Basic) inline int Abs( unsigned int i )		{ return (int)i; }
+mGlobal(Basic) inline od_int64 Abs( od_uint64 i )	{ return (od_int64)i; }
+mGlobal(Basic) int Abs(int);
+mGlobal(Basic) od_int64 Abs(od_int64);
 mGlobal(Basic) float Abs(float);
 mGlobal(Basic) double Abs(double);
 mGlobal(Basic) float Abs(float_complex);

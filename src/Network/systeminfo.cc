@@ -229,7 +229,7 @@ int getFreeMBOnDisk( const IOObj& ioobj )
 
 void getFreeMBOnDiskMsg( int mb, uiString& str )
 {
-    od_uint64 bytes = mb;
+    od_int64 bytes = mb;
     bytes <<= 20;
     NrBytesToStringCreator converter( bytes );
     str = od_static_tr( "getFreeMBOnDiskMsg",

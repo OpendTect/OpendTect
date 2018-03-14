@@ -403,7 +403,7 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
     const float* vals = dataset_[sdidx]->data->getData();
     if ( vals )
     {
-	const od_uint64 datasz = dataset_[sdidx]->data->totalSize();
+	const od_int64 datasz = dataset_[sdidx]->data->totalSize();
 	for ( od_int64 idy=0; idy<datasz; idy++ )
 	{
 	    if ( binary )

@@ -96,11 +96,11 @@ protected:
 #undef mImplArr
 
 #if defined __lux32__
-#define mChunkSize	0x20000000
+#define mPlfDefChunkSize	0x20000000
 #elif defined __win32__
-#define mChunkSize	0x20000000
+#define mPlfDefChunkSize	0x20000000
 #else
-#define mChunkSize	0x800000000
+#define mPlfDefChunkSize	0x800000000
 #endif
 
 
@@ -315,7 +315,7 @@ bool ArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 template <class RT, class AT> inline
 MultiArrayValueSeries<RT,AT>::MultiArrayValueSeries( od_int64 sz )
     : cursize_( -1 )
-    , chunksize_( mChunkSize/sizeof(AT) )
+    , chunksize_( mPlfDefChunkSize/sizeof(AT) )
 {
     ptrs_.setNullAllowed( true );
     setSize( sz );
@@ -437,13 +437,13 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     if ( cursize_==sz )
 	return true;
 
-    od_uint64 lefttoalloc = sz > 0 ? (od_uint64)sz : 0;
+    od_int64 lefttoalloc = sz > 0 ? sz : 0;
     deepEraseArr( ptrs_ );
 
     while ( lefttoalloc )
     {
-	const od_uint64 allocsize = lefttoalloc>=chunksize_
-	    ? (od_uint64)chunksize_ : lefttoalloc;
+	const od_int64 allocsize = lefttoalloc>=chunksize_
+	    ? (od_int64)chunksize_ : lefttoalloc;
 
 	AT* ptr;
 	mTryAlloc( ptr, AT[allocsize] );
@@ -466,4 +466,4 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     return true;
 }
 
-#undef mChunkSize
+#undef mPlfDefChunkSize

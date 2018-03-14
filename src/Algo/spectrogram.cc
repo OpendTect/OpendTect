@@ -57,12 +57,13 @@ bool Spectrogram::transform( const ArrayND< float > &in, ArrayND< float > &out )
 
     float_complex* tindata = tempin_->getData();
     const float* indata = in.getData();
-    od_uint64 size = info.totalSize();
+    od_int64 size = info.totalSize();
 
-    for ( unsigned int idx=0; idx<size; idx++ )
+    for ( od_int64 idx=0; idx<size; idx++ )
 	tindata[idx] = indata[idx];
 
-    if ( !fft_->run(true) ) return false;
+    if ( !fft_->run(true) )
+	return false;
 
     float_complex* toutdata = tempout_->getData();
     float* outdata = out.getData();

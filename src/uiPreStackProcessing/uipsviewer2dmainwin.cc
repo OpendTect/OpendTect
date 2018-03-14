@@ -409,8 +409,8 @@ void uiStoredViewer2DMainWin::convAngleDataToDegrees( Gather* angledata ) const
 
     Array2D<float>& data = angledata->data();
     float* ptr = data.getData();
-    const od_uint64 size = data.totalSize();
-    for( od_uint64 idx=0; idx<size; idx++ )
+    const od_int64 size = data.totalSize();
+    for( od_int64 idx=0; idx<size; idx++ )
 	ptr[idx] = Math::toDegrees( ptr[idx] );
 }
 

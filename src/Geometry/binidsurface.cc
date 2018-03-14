@@ -183,7 +183,7 @@ void BinIDSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
 
     pids.erase();
     const int nrcols = depths_->getSize( 1 );
-    const od_uint64 totalsz = depths_->totalSize();
+    const od_int64 totalsz = depths_->totalSize();
     for ( int idx=0; idx<totalsz; idx++ )
     {
 	if ( !remudf || !mIsUdf(zvals[idx]) )

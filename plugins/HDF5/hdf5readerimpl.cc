@@ -254,7 +254,7 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
         mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fileName()) )
 
 
-H5::DataType HDF5::ReaderImpl::h5DataType() const
+HDF5::ReaderImpl::H5DataType HDF5::ReaderImpl::h5DataType() const
 {
     // makes sure we get data one of our data types
     return h5DataTypeFor( getDataType() );
