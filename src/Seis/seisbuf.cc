@@ -381,7 +381,7 @@ ArrayNDInfo* clone() const
     return new SeisTrcBufArray2DInfo(buf_);
 }
 
-SzType getSize( int dim ) const
+SzType getSize( DimIdxType dim ) const
 {
     if ( dim == 0 )
 	return buf_.size();

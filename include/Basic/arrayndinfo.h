@@ -20,7 +20,7 @@ mExpClass(Basic) ArrayNDInfo
 {
 public:
 
-    typedef int		DimSzType;	// number of dimensions, rank
+    typedef short	DimSzType;	// number of dimensions, rank
     typedef DimSzType	DimIdxType;
     typedef int		SzType;		// size of a singe dimension
     typedef SzType	IdxType;
