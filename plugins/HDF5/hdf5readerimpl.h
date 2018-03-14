@@ -57,6 +57,7 @@ protected:
     bool		selectDataSet(const char*);
     inline bool		haveScope( bool needds=true ) const
 			{ return group_ && (!needds || dataset_); }
+    H5::DataType	h5DataType() const;
 
 };
 

@@ -253,6 +253,14 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
 #define mCatchErrDuringRead() \
         mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fileName()) )
 
+
+H5::DataType HDF5::ReaderImpl::h5DataType() const
+{
+    // makes sure we get data one of our data types
+    return h5DataTypeFor( getDataType() );
+}
+
+
 void HDF5::ReaderImpl::gtAll( void* data, uiRetVal& uirv ) const
 {
     if ( !file_ )
@@ -260,13 +268,10 @@ void HDF5::ReaderImpl::gtAll( void* data, uiRetVal& uirv ) const
     else if ( !haveScope() )
 	mRetNeedScopeInUiRv()
 
-    // make sure we get data one of our data types
-    ODDataType oddt = getDataType();
-    const H5::DataType h5dt = h5DataTypeFor( oddt );
-
     try
     {
-	dataset_->read( data, h5dt );
+	dataset_->getSpace().selectAll();
+	dataset_->read( data, h5DataType() );
     }
     mCatchErrDuringRead()
 }
@@ -280,7 +285,28 @@ void HDF5::ReaderImpl::gtPoints( const NDPosSet& poss, void* data,
     else if ( !haveScope() )
 	mRetNeedScopeInUiRv()
 
-    uirv.add( mTODONotImplPhrase() );
+    try
+    {
+	H5::DataSpace inputdataspace = dataset_->getSpace();
+	const hsize_t nrpts = (hsize_t)poss.size();
+	const int nrdims = inputdataspace.getSimpleExtentNdims();
+
+	mAllocVarLenArr( hsize_t, hdfcoordarr, nrdims * nrpts );
+	if ( !mIsVarLenArrOK(hdfcoordarr) )
+	    { uirv.add( uiStrings::phrCannotAllocateMemory() ); return; }
+	for ( int ipt=0; ipt<nrpts; ipt++ )
+	{
+	    NDPos ndpos = poss[ipt];
+	    const int arroffs = ipt * nrdims;
+	    for ( int idim=0; idim<nrdims; idim++ )
+		hdfcoordarr[arroffs + idim] = ndpos[idim];
+	}
+	inputdataspace.selectElements( H5S_SELECT_SET, nrpts, hdfcoordarr );
+
+	H5::DataSpace outputdataspace( 1, &nrpts );
+	dataset_->read( data, h5DataType(), outputdataspace, inputdataspace );
+    }
+    mCatchErrDuringRead()
 }
 
 
