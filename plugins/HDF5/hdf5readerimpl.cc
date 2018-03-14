@@ -270,3 +270,27 @@ void HDF5::ReaderImpl::gtAll( void* data, uiRetVal& uirv ) const
     }
     mCatchErrDuringRead()
 }
+
+
+void HDF5::ReaderImpl::gtPoints( const NDPosSet& poss, void* data,
+				 uiRetVal& uirv ) const
+{
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    else if ( !haveScope() )
+	mRetNeedScopeInUiRv()
+
+    uirv.add( mTODONotImplPhrase() );
+}
+
+
+void HDF5::ReaderImpl::gtSlab( const IdxRgSet& poss, void* data,
+				uiRetVal& uirv ) const
+{
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    else if ( !haveScope() )
+	mRetNeedScopeInUiRv()
+
+    uirv.add( mTODONotImplPhrase() );
+}

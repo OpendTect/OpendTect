@@ -49,6 +49,8 @@ protected:
 
     virtual void	gtInfo(IOPar&,uiRetVal&) const;
     virtual void	gtAll(void*,uiRetVal&) const;
+    virtual void	gtPoints(const NDPosSet&,void*,uiRetVal&) const;
+    virtual void	gtSlab(const IdxRgSet&,void*,uiRetVal&) const;
 
     void		listObjs(const H5Dir&,BufferStringSet&,bool) const;
     bool		selectGroup(const char*);

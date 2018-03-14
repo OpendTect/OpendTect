@@ -136,10 +136,16 @@ static bool testRead()
     uirv = rdr->getAll( arr2d.getData() );
     mAddTestResult( "Get block data" );
     const float arrval = arr2d.get( 6, 15 );
-    mRunStandardTestWithError( arrval==30615.f, "Correct value [comp2,6,16]",
+    mRunStandardTestWithError( arrval==30615.f, "Correct value [comp2,6,15]",
 				BufferString("arrval=",arrval) )
 
-    //TODO get only slices
+    TypeSet<HDF5::Reader::IdxType> pos;
+    pos += 7; pos += 16;
+    float val = 0.f;
+    uirv = rdr->getPoint( pos.arr(), &val );
+    mAddTestResult( "Get single point value" );
+    mRunStandardTestWithError( val==30716.f, "Correct value [comp2,7,16]",
+				BufferString("val=",val) )
 
     HDF5::DataSetKey filedsky;
     scoperes = rdr->setScope( filedsky );
