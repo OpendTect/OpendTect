@@ -242,6 +242,10 @@ public:
 protected:
 
     void			setSourceData();
+    void			setRegularizedPosData();
+				/*!< Sets distances from start and Z-values
+				 as X1 and X2 posData after regularizing. */
+
     void			setTrcInfoFlds();
     const TrcKeyPath&		path_;
 };

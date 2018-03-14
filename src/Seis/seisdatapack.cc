@@ -823,7 +823,7 @@ void RandomFlatDataPack::setTrcInfoFlds()
 
 void RandomFlatDataPack::setSourceData()
 {
-    setPosData();
+    setRegularizedPosData();
     Array2DSlice<float>* slice2d = new Array2DSlice<float>(source_.data(comp_));
     slice2d->setDimMap( 0, 1 );
     slice2d->setDimMap( 1, 2 );
@@ -831,6 +831,63 @@ void RandomFlatDataPack::setSourceData()
     slice2d->init();
     arr2d_ = slice2d;
     setTrcInfoFlds();
+}
+
+
+void RandomFlatDataPack::setRegularizedPosData()
+{
+    const TrcKeyPath& path = getPath();
+    const int nrtrcs = path.size();
+    float* pos = new float[nrtrcs];
+    pos[0] = 0;
+    int firstvalidposidx = -1, lastvalidposidx = -1;
+    if ( !path[0].isUdf() )
+	firstvalidposidx = 0;
+
+    TrcKey prevtk = path[0];
+    for ( int idx=1; idx<nrtrcs; idx++ )
+    {
+	const TrcKey& trckey = path[idx];
+	if ( trckey.isUdf() )
+	{
+	    if ( firstvalidposidx >= 0 && lastvalidposidx < 0 )
+		lastvalidposidx = idx - 1;
+
+	    pos[idx] = mCast(float,(pos[idx-1]));
+	}
+	else
+	{
+	    if ( firstvalidposidx < 0 )
+		firstvalidposidx = idx;
+
+	    const Coord::DistType dist = prevtk.isUdf() ? mUdf(Coord::DistType)
+						    : prevtk.distTo( trckey );
+	    if ( mIsUdf(dist) )
+		pos[idx] = mCast(float,(pos[idx-1]));
+	    else
+		pos[idx] = mCast(float,(pos[idx-1] + dist));
+
+	    prevtk = trckey;
+	}
+    }
+
+    if ( firstvalidposidx >= 0 )
+    {
+	if ( lastvalidposidx < 0 )
+	    lastvalidposidx = nrtrcs - 1;
+
+	const int nrpostoregularize = lastvalidposidx - firstvalidposidx;
+	if ( nrpostoregularize > 1 )
+	{
+	    const Coord::DistType unitdist =
+			    pos[lastvalidposidx] / nrpostoregularize;
+	    for ( int idx=firstvalidposidx+1; idx<=lastvalidposidx; idx++ )
+		pos[idx] = mCast(float,(pos[idx-1] + unitdist));
+	}
+    }
+
+    posData().setX1Pos( pos, nrtrcs, 0 );
+    posData().setRange( false, mStepIntvD(zsamp_) );
 }
 
 
