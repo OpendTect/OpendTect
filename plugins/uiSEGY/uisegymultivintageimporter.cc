@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uisegybulkimporter.h"
+#include "uisegymultivintageimporter.h"
 
 #include "repos.h"
 #include "rowcol.h"

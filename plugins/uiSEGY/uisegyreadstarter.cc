@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uisegysipclassic.h"
 #include "uisegydef.h"
 #include "uisegyread.h"
-#include "uisegybulkimporter.h"
+#include "uisegymultivintageimporter.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uifilesel.h"

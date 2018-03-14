@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "segydirecttr.h"
 #include "segydirectdef.h"
 #include "segyscanner.h"
-#include "uisegybulkimporter.h"
+#include "uisegymultivintageimporter.h"
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "seisimporter.h"

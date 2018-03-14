@@ -12,7 +12,7 @@
 #include "survinfo.h"
 #include "dbman.h"
 
-#include "uisegybulkimporter.h"
+#include "uisegymultivintageimporter.h"
 #include "uisegydef.h"
 #include "uisegydirectinserter.h"
 #include "uisegysip.h"

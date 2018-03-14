@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uidialog.h"
 #include "uilistbox.h"
-#include "uisegybulkimporter.h"
+#include "uisegymultivintageimporter.h"
 
 class uiTextEdit;
 class uiComboBox;
