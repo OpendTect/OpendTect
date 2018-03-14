@@ -47,6 +47,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "uistrings.h"
+#include "uitextedit.h"
 
 
 uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs, bool issingle )
@@ -103,6 +104,7 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     , coordfileextfld_(0)
     , singlevintage_(singlevintage)
     , vntinfos_(vntinfo)
+    , updateStatus(this)
 {
 
     if ( !singlevintage )
@@ -266,6 +268,7 @@ void uiSEGYReadFinisher::crVSPFields( bool istime )
 
 uiSEGYReadFinisher::~uiSEGYReadFinisher()
 {
+    deepErase( reports_ );
 }
 
 
@@ -430,10 +433,9 @@ bool uiSEGYReadFinisher::doMultiVintage()
     if ( !vntinfos_ && !vntinfos_->size() )
 	return false;
 
-    bool donotshow = false;
-    uiSEGYImportReport reportdlg(this);
     for ( int vidx=0; vidx<vntinfos_->size(); vidx++ )
     {
+	processingvntnm_.setEmpty();
 	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
 	const int selidx = parset.find( vntinfos_->get(vidx)->vintagenm_ );
 	if ( selidx < 0 )
@@ -443,15 +445,22 @@ bool uiSEGYReadFinisher::doMultiVintage()
 	if ( !iop )
 	    return false;
 
+	uiSEGYImportResult* reportdlg = new uiSEGYImportResult( this );
+	reportdlg->vintagenm_ = vntinfos_->get(vidx)->vintagenm_;
+	reports_.add( reportdlg );
+	reportdlg->status_ = tr("Importing");
+	processingvntnm_ = vntinfos_->get(vidx)->vintagenm_;
+	updateStatus.trigger();
+	IOObjContext ctxt = mIOObjContext(SeisTrc);
+	if ( !outimpfld_->getTranslator() )
+	    return false;
+
+	const Translator* transl = outimpfld_->getTranslator();
+	ctxt.fixTranslator( transl->userName().buf() );
+
 	const int size = vntinfos_->get(vidx)->filenms_.size();
 	for ( int nmidx=0; nmidx<size; nmidx++ )
 	{
-	    IOObjContext ctxt = mIOObjContext(SeisTrc);
-	    if ( !outimpfld_->getTranslator() )
-		return false;
-
-	    const Translator* transl = outimpfld_->getTranslator();
-	    ctxt.fixTranslator( transl->userName().buf() );
 	    CtxtIOObj ctio( ctxt );
 	    const BufferString fnm( vntinfos_->get(vidx)->filenms_.get(nmidx) );
 	    File::Path fp( vntinfos_->get(vidx)->fp_.pathOnly(), fnm );
@@ -471,47 +480,40 @@ bool uiSEGYReadFinisher::doMultiVintage()
 	    trcsskipped_ = false;
 	    errmsg_.setEmpty();
 	    const bool impsuccess = do3D( *inioobj, *ctio.ioobj_, true );
-	    const int nrrows = reportdlg.table_->nrRows();
-	    reportdlg.table_->setNrRows( nrrows + 1 );
-	    reportdlg.table_->setText( RowCol(nrrows,0), fnm );
+	    //TODOSegyImpl create separate function to update reportdlg
+	    const int nrrows = reportdlg->table_->nrRows();
+	    reportdlg->table_->setNrRows( nrrows + 1 );
+	    const int currowid = reportdlg->table_->nrRows() - 1;
+	    reportdlg->table_->setText( RowCol(currowid,0), fnm );
 	    uiString tooltip;
 	    tooltip = toUiString( fp.fullPath() );
-	    reportdlg.table_->setCellToolTip( RowCol(nrrows,0), tooltip );
-	    reportdlg.table_->setText( RowCol(nrrows,2), errmsg_ );
-	    reportdlg.table_->setText( RowCol(nrrows,1),
+	    reportdlg->table_->setCellToolTip( RowCol(currowid,0), tooltip );
+	    uiTextEdit* txt = new uiTextEdit( this, "", true );
+	    txt->setDefaultHeight( 25 );
+	    txt->setText( errmsg_ );
+	    reportdlg->table_->setRowStretchable( currowid, true );
+	    reportdlg->table_->setCellObject( RowCol(currowid,2), txt );
+	    reportdlg->table_->setText( RowCol(currowid,2), errmsg_ );
+	    reportdlg->table_->setText( RowCol(currowid,1),
 				       impsuccess ? uiStrings::sSuccess()
 						  : uiStrings::sFailed() );
-	    reportdlg.table_->setCellColor( RowCol(nrrows,1),
+	    reportdlg->table_->setCellColor( RowCol(currowid,1),
 					    impsuccess ? Color::Green()
 						       : Color::Red() );
 	    if ( trcsskipped_ )
 	    {
-		reportdlg.table_->setText( RowCol(nrrows,1), "Partial" );
-		reportdlg.table_->setCellColor( RowCol(nrrows,1),
+		reportdlg->table_->setText( RowCol(currowid,1),
+					   uiStrings::sPartial() );
+		reportdlg->table_->setCellColor( RowCol(currowid,1),
 						Color::Orange() );
 	    }
-	    if ( !impsuccess )
-	    {
-		uiString msg(tr("Failed to import '%1'").arg(fnm) );
-		msg.appendPhrase( tr("Do you wish to continue?") );
-		if ( !donotshow )
-		{
-		    int val = uiMSG().question( msg, uiStrings::sContinue(),
-						     uiStrings::sAbort(),
-						     uiString::empty(),
-						     uiString::empty(),
-						     &donotshow );
-		    if ( !val )
-		    {
-			reportdlg.go();
-			return false;
-		    }
-		}
-	    }
 	}
+
+	reportdlg->status_ = tr("Finished");
+	updateStatus.trigger();
     }
 
-    reportdlg.go();
+    processingvntnm_.setEmpty();
     return true;
 }
 
@@ -833,7 +835,11 @@ void uiSEGYReadFinisher::setAsDefaultObj()
 bool uiSEGYReadFinisher::acceptOK()
 {
     if ( !singlevintage_ )
+    {
+	uiButton* okbut = button( uiDialog::OK );
+	okbut->setSensitive( false );
 	return doMultiVintage();
+    }
 
     outputid_.setInvalid();
     if ( fs_.isVSP() )
@@ -875,8 +881,15 @@ bool uiSEGYReadFinisher::acceptOK()
 }
 
 
-//uiSEGYImportReport
-uiSEGYImportReport::uiSEGYImportReport( uiParent* p )
+
+uiSEGYImportResult* uiSEGYReadFinisher::getImportResult( int id )
+{
+    return reports_.validIdx( id ) ? reports_.get( id ) : 0;
+}
+
+
+//uiSEGYImportResult
+uiSEGYImportResult::uiSEGYImportResult( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("SEGY multi vintage import status"),
 	       mNoDlgTitle, mNoHelpKey) )
 {
@@ -888,19 +901,5 @@ uiSEGYImportReport::uiSEGYImportReport( uiParent* p )
     table_->setPrefWidthInChars( 70  );
     table_->setPrefHeightInRows( 4  );
     table_->setTableReadOnly( true );
-    table_->leftClicked.notify( mCB(this,uiSEGYImportReport,msgDisplayCB) );
     setCtrlStyle( uiDialog::CloseOnly );
-}
-
-
-void uiSEGYImportReport::msgDisplayCB( CallBacker* cb )
-{
-    const RowCol rc( table_->notifiedCell() );
-    if ( rc.col() != 2 )
-	return;
-
-    BufferString msg( table_->text( rc ) );
-    uiString str;
-    str = toUiString( table_->text(rc) );
-    uiMSG().message( str );
 }

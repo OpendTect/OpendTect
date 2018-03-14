@@ -28,7 +28,7 @@ class SeisTrcWriter;
 class SeisStdImporterReader;
 class uiSEGYVintageInfo;
 namespace SEGY { class FileIndexer; }
-class uiSEGYImportReport;
+class uiSEGYImportResult;
 
 
 /*!\brief Finishes reading process of 'any SEG-Y file'. */
@@ -41,12 +41,16 @@ public:
 					   const char* usrspec,bool istime,
 					   bool singlevintage=true,
 				const ObjectSet<uiSEGYVintageInfo>* vintinfo=0);
-			//TODO Implement Setup
+			//TODOSegyImpl Implement Setup
 			~uiSEGYReadFinisher();
 
     FullSpec&		fullSpec()		{ return fs_; }
 
     void		setAsDefaultObj(); //!< call only after successful go()
+    uiSEGYImportResult* getImportResult(int);
+    const BufferString& getCurrentProcessingVntnm()
+			{ return processingvntnm_; }
+    Notifier<uiSEGYReadFinisher> updateStatus;
 
 protected:
 
@@ -70,11 +74,13 @@ protected:
     uiFileSel*		coordfilefld_;
     uiBatchJobDispatcherSel* batchfld_;
     uiString		errmsg_;
-    uiSEGYImportReport* reportdlg_;
+    uiSEGYImportResult* reportdlg_;
+    ObjectSet<uiSEGYImportResult> reports_;
 
     bool		singlevintage_;
     bool		trcsskipped_;
     const ObjectSet<uiSEGYVintageInfo>* vntinfos_;
+    BufferString	processingvntnm_;
 
     void		crVSPFields(bool);
     void		crSeisFields(bool);
@@ -113,12 +119,11 @@ protected:
 };
 
 
-mExpClass(uiSEGY) uiSEGYImportReport : public uiDialog
-{mODTextTranslationClass(uiSEGYImportReport)
+mExpClass(uiSEGY) uiSEGYImportResult : public uiDialog
+{mODTextTranslationClass(uiSEGYImportResult)
 public:
-			uiSEGYImportReport(uiParent*);
+			uiSEGYImportResult(uiParent*);
     uiTable*		table_;
-protected:
-    void		msgDisplayCB(CallBacker*);
-
+    BufferString	vintagenm_;
+    uiString		status_;
 };

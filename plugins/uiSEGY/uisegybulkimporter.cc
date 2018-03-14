@@ -27,20 +27,24 @@ uiSEGYMultiVintageImporter::uiSEGYMultiVintageImporter( uiParent* p )
 	       mNoDlgTitle,mNoHelpKey) )
     , fsdlg_(0)
     , rsdlg_(0)
+    , rfdlg_(0)
 {
-    setOkText( tr("Next >>") );
-
+    setOkCancelText( tr("Import"), tr("Dismiss") );
     imptypefld_ = new uiSEGYImpType( this, false, 0, true );
     imptypefld_->asUiObject().setSensitive( false );
     table_ = new uiTable( this, uiTable::Setup(), "Bulk Import Table" );
-    table_->setPrefWidth( 650 );
+    table_->setPrefWidth( 700 );
     table_->setSelectionMode( uiTable::SingleRow );
     table_->attach( centeredBelow, imptypefld_ );
-    table_->setNrCols( 3 );
+    table_->setNrCols( 5 );
+    table_->setNrRows( 0 );
     table_->setColumnLabel( 0, uiStrings::sVintage() );
     table_->setColumnLabel( 1, tr("File names") );
     table_->setColumnLabel( 2, uiString::empty() );
-    table_->setNrRows(0);
+    table_->setColumnLabel( 3, tr("Import status") );
+    table_->setColumnReadOnly( 3, true );
+    table_->setColumnLabel( 4, uiString::empty() );
+    table_->setColumnWidth( 4, 1 );
     uiGroup* toolgrp = new uiGroup( this, "Tool group" );
     uiToolButton* addbut = new uiToolButton(toolgrp, "create",
 				    uiStrings::phrAdd(uiStrings::sVintage()),
@@ -63,6 +67,7 @@ uiSEGYMultiVintageImporter::~uiSEGYMultiVintageImporter()
     deepErase( vntinfos_ );
     if ( rsdlg_ ) delete rsdlg_;
     if ( fsdlg_ ) delete fsdlg_;
+    if ( rfdlg_ ) delete rfdlg_;
 }
 
 
@@ -134,15 +139,22 @@ void uiSEGYMultiVintageImporter::addCB( CallBacker* )
 	return;
 
     table_->setNrRows( table_->nrRows() + 1 );
+    int rowidx =  table_->nrRows() - 1;
+    table_->setColumnReadOnly( 0, true );
+    table_->setColumnReadOnly( 1, true );
+    table_->setColumnReadOnly( 3, true );
+    table_->setColumnStretchable( 2, false );
+    table_->setColumnStretchable( 4, false );
+    table_->resizeHeaderToContents( true );
     CallBack selcb = mCB(this,uiSEGYMultiVintageImporter,selectFilesCB);
     uiPushButton* selbut = new uiPushButton( 0, uiStrings::sSelect(),
 					     selcb, false );
     selbut->setIcon( "selectfromlist" );
-    int rowidx =  table_->nrRows() - 1;
     table_->setCellObject( RowCol(rowidx,2), selbut );
-    table_->setColumnStretchable( 2, false );
-    table_->setColumnReadOnly( 0, true );
-    table_->setColumnReadOnly( 1, true );
+
+    uiToolButton* infobut = new uiToolButton( 0, "info", tr("Show report"),
+			  mCB(this,uiSEGYMultiVintageImporter,displayReportCB));
+    table_->setCellObject( RowCol(rowidx,4), infobut );
     fillRow( rowidx );
 }
 
@@ -154,9 +166,10 @@ void uiSEGYMultiVintageImporter::fillRow( int rowid )
 	pErrMsg("Something went wrong.segysetup file modified?; return;");
 
     BufferStringSet selnms( vntinfo->filenms_ );
-    BufferString dispstr( selnms.getDispString( selnms.size(), true) );
+    BufferString dispstr( selnms.getDispString(selnms.size(), true) );
     table_->setText( RowCol(rowid,0), vintagenm_.buf() );
     table_->setText( RowCol(rowid,1), dispstr );
+    table_->setText( RowCol(rowid,3), "Process not started" );
 }
 
 
@@ -224,6 +237,52 @@ void uiSEGYMultiVintageImporter::editVntCB( CallBacker* )
 	return;
 }
 
+
+void uiSEGYMultiVintageImporter::updateStatus( CallBacker* )
+{
+    if ( !rfdlg_ )
+	return;
+
+
+    const BufferString& vntnm( rfdlg_->getCurrentProcessingVntnm() );
+    int curvntidx = -1;
+    for ( int vidx=0; vidx<vntinfos_.size(); vidx++ )
+    {
+	if ( vntnm.isEqual( vntinfos_[vidx]->vintagenm_ ) )
+	{
+	    curvntidx = vidx;
+	    break;
+	}
+    }
+
+    if ( curvntidx < 0 )
+	return;
+
+    uiSEGYImportResult* resultdlg = rfdlg_->getImportResult( curvntidx );
+    if ( !resultdlg )
+	return;
+
+    table_->setText( RowCol(curvntidx,3), resultdlg->status_ );
+}
+
+
+void uiSEGYMultiVintageImporter::displayReportCB( CallBacker* )
+{
+    if ( !rfdlg_ )
+	return;
+
+    const RowCol rc( table_->notifiedCell() );
+    if ( rc.col() != 3 )
+	return;
+
+    uiSEGYImportResult* resultdlg = rfdlg_->getImportResult( rc.row() );
+    if ( !resultdlg )
+	return;
+
+    resultdlg->go();
+}
+
+
 bool uiSEGYMultiVintageImporter::acceptOK()
 {
     const Seis::GeomType gt = imptypefld_->impType().geomType();
@@ -239,6 +298,13 @@ bool uiSEGYMultiVintageImporter::acceptOK()
     FullSpec fullspec( gt, false);
     fullspec.usePar( *iop );
 
-    uiSEGYReadFinisher dlg( this, fullspec, "", true, false, &vntinfos_ );
-    return dlg.go();
+    rfdlg_ = new uiSEGYReadFinisher( this, fullspec, "", true,
+				     false, &vntinfos_ );
+    rfdlg_->updateStatus.notify( mCB(this,uiSEGYMultiVintageImporter,
+				      updateStatus) );
+
+    const bool res = rfdlg_->go();
+    uiButton* okbut = button( uiDialog::OK );
+    okbut->setSensitive( !res );
+    return false;
 }

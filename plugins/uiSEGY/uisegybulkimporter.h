@@ -18,6 +18,7 @@ class uiTable;
 class uiSEGYFileSelector;
 class uiSEGYImpType;;
 class uiSEGYReadStarter;
+class uiSEGYReadFinisher;
 
 mExpClass(uiSEGY) uiSEGYVintageInfo
 { mODTextTranslationClass(uiSEGYVintageInfo)
@@ -46,6 +47,8 @@ protected:
     void		fillRow( int rowid);
     bool		acceptOK();
     void		saveIfNewVintage(const BufferString&);
+    void		updateStatus(CallBacker*);
+    void		displayReportCB(CallBacker*);
 
     BufferStringSet	selfilenms_;
     uiTable*		table_;
@@ -54,4 +57,5 @@ protected:
     ObjectSet<uiSEGYVintageInfo> vntinfos_;
     uiSEGYReadStarter*	rsdlg_;
     uiSEGYFileSelector* fsdlg_;
+    uiSEGYReadFinisher* rfdlg_;
 };
