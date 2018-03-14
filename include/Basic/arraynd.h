@@ -486,7 +486,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	return false;
 
     ArrayNDIter iterator( arr_.info() );
-    iterator.setPos( pos );
+    const NDPos ndpos = pos;
+    iterator.setPos( ndpos );
 
     if ( vs_ )
     {
