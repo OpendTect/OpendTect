@@ -1477,7 +1477,7 @@ public:
 		    , out_(out)
 		{}
 
-    uiString	message() const	{ return tr("Resizing 3D Array"); }
+    uiString	message() const	{ return tr("Transferring volume data"); }
 
     uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
 
