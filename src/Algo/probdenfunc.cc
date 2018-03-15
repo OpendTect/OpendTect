@@ -573,7 +573,8 @@ float Sampled2DProbDenFunc::gtVal( float px, float py ) const
     v[3] = idxx > szx-2 || idxy > szy-2	? 0 : bins_.get( idxx+1, idxy+1 );
 
     const float xpos = fidxx - idxx; const float ypos = fidxy - idxy;
-    const float val = Interpolate::LinearReg2D<float>(v).apply( xpos, ypos );
+    const float val = Interpolate::LinearReg2D<float,float>(v)
+				.apply( xpos, ypos );
     return val < 0 ? 0 : val;
 }
 

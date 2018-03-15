@@ -756,7 +756,7 @@ bool ArrayNDImpl<T>::setInfo( const ArrayNDInfo& ni )
     if ( ni.nrDims() != inf_->nrDims() )
 	{ pErrMsg("Changing dims in ND not supported"); return false; }
 
-    const DimSzType ndim = inf_->nrDims();
+    const NrDimsType ndim = inf_->nrDims();
     TypeSet<SzType> sizes( ndim, 0 );
     for ( DimIdxType idx=0; idx<ndim; idx++ )
 	sizes[idx] = ni.getSize(idx);
@@ -768,7 +768,7 @@ bool ArrayNDImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool ArrayNDImpl<T>::setSize( NDSize d )
 {
-    const DimSzType ndim = inf_->nrDims();
+    const NrDimsType ndim = inf_->nrDims();
     for ( DimIdxType idx=0; idx<ndim; idx++ )
 	inf_->setSize( idx, d[idx] );
 
@@ -780,7 +780,7 @@ bool ArrayNDImpl<T>::setSize( NDSize d )
 template <class T> inline
 ArrayND<T>* ArrayNDImpl<T>::create( const ArrayNDInfo& inf )
 {
-    const DimSzType ndim = inf.nrDims();
+    const NrDimsType ndim = inf.nrDims();
 
     if ( ndim==1 )
 	return new Array1DImpl<T>( inf.getSize(0) );
@@ -828,7 +828,7 @@ bool ArrayNDImpl<T>::clone( const ArrayND<T>& inp, ArrayND<T>& out )
 	return true;
     }
 
-    const DimSzType ndim = inp.nrDims();
+    const NrDimsType ndim = inp.nrDims();
     if ( ndim == 1 )
     {
 	mDynamicCastGet(const Array1DImpl<T>*,inp1d,&inp)

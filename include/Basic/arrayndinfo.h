@@ -20,33 +20,39 @@ mExpClass(Basic) ArrayNDInfo
 {
 public:
 
-    typedef short	DimSzType;	// number of dimensions, rank
-    typedef DimSzType	DimIdxType;
+    typedef short	NrDimsType;	// number of dimensions, rank
+    typedef NrDimsType	DimIdxType;
     typedef int		SzType;		// size of a singe dimension
     typedef SzType	IdxType;
     typedef od_int64	OffsetType;	// total size of the entire array
     typedef OffsetType	TotalSzType;
     typedef const int*	NDSize;		// Array with sizes for each dimension
     typedef NDSize	NDPos;
+    typedef TypeSet<IdxType> NDPosBuf;	// to put your own ND-indexes
 
     virtual ArrayNDInfo* clone() const			= 0;
     virtual		~ArrayNDInfo()			{}
 
-    virtual DimSzType	nrDims() const			= 0;
+    virtual bool	isOK() const;
+    virtual NrDimsType	nrDims() const			= 0;
     virtual SzType	getSize(DimIdxType) const	= 0;
     virtual bool	setSize(DimIdxType,SzType)	{ return false; }
-
-    virtual bool	isOK() const;
-
     virtual TotalSzType	totalSize() const;
+
     virtual bool	validPos(NDPos) const;
     bool		validDimPos(DimIdxType,IdxType) const;
+
     virtual bool	getArrayPos(OffsetType,IdxType*) const;
     virtual OffsetType	getOffset(NDPos) const;
 			/*!<Returns offset in a 'flat' array.*/
 
-			// alias
-    inline DimSzType	rank() const			{ return nrDims(); }
+    inline NrDimsType	rank() const			{ return nrDims(); }
+    inline bool		validPos( const NDPosBuf& pos ) const
+			{ return validPos( pos.arr() ); }
+    inline bool		getArrayPos( OffsetType offs, NDPosBuf& pb ) const
+			{ return getArrayPos( offs, pb.arr() ); }
+    inline OffsetType	getOffset( const NDPosBuf& pos ) const
+			{ return getOffset( pos.arr() ); }
 
 protected:
 
@@ -56,7 +62,7 @@ protected:
 
 public:
 
-    mDeprecated inline DimSzType getNDim() const	{ return nrDims(); }
+    mDeprecated inline NrDimsType getNDim() const	{ return nrDims(); }
     mDeprecated inline TotalSzType getTotalSz() const	{ return totalSize(); }
 
 };
@@ -64,18 +70,22 @@ public:
 
 #define mTypeDefArrNDTypes \
     typedef ArrayNDInfo::DimIdxType	DimIdxType; \
-    typedef ArrayNDInfo::DimSzType	DimSzType; \
+    typedef ArrayNDInfo::NrDimsType	NrDimsType; \
     typedef ArrayNDInfo::IdxType	IdxType; \
     typedef ArrayNDInfo::SzType		SzType; \
     typedef ArrayNDInfo::OffsetType	OffsetType; \
     typedef ArrayNDInfo::TotalSzType	TotalSzType; \
     typedef ArrayNDInfo::NDSize		NDSize; \
-    typedef ArrayNDInfo::NDPos		NDPos
+    typedef ArrayNDInfo::NDPos		NDPos; \
+    typedef ArrayNDInfo::NDPosBuf	NDPosBuf
+
+#define mDefNDPosBuf(nm,nrdims) ArrayNDInfo::NDPosBuf nm( nrdims, 0 )
+#define mNDPosFromBuf(nm) nm.arr()
 
 
 inline bool operator ==( const ArrayNDInfo& a1, const ArrayNDInfo& a2 )
 {
-    const ArrayNDInfo::DimSzType nd = a1.nrDims();
+    const ArrayNDInfo::NrDimsType nd = a1.nrDims();
     if ( nd != a2.nrDims() )
 	return false;
     for ( ArrayNDInfo::DimIdxType idx=0; idx<nd; idx++ )
@@ -97,7 +107,7 @@ mExpClass(Basic) Array1DInfo : public ArrayNDInfo
 {
 public:
 
-    virtual DimSzType	nrDims() const			{ return 1; }
+    virtual NrDimsType	nrDims() const			{ return 1; }
 
     virtual OffsetType	getOffset( IdxType pos ) const
 			{ return pos; }
@@ -119,7 +129,7 @@ mExpClass(Basic) Array2DInfo : public ArrayNDInfo
 {
 public:
 
-    virtual DimSzType	nrDims() const			{ return 2; }
+    virtual NrDimsType	nrDims() const			{ return 2; }
 
     virtual OffsetType	getOffset(IdxType,IdxType) const;
 			/*!<Returns offset in a 'flat' array.*/
@@ -140,7 +150,7 @@ mExpClass(Basic) Array3DInfo : public ArrayNDInfo
 {
 public:
 
-    virtual DimSzType	nrDims() const			{ return 3; }
+    virtual NrDimsType	nrDims() const			{ return 3; }
 
     virtual OffsetType	getOffset(IdxType,IdxType,IdxType) const;
 			/*!<Returns offset in a 'flat' array.*/
@@ -235,22 +245,22 @@ mExpClass(Basic) ArrayNDInfoImpl : public ArrayNDInfo
 public:
 
     virtual ArrayNDInfo* clone() const;
-    static ArrayNDInfo*	create(DimSzType);
+    static ArrayNDInfo*	create(NrDimsType);
 
-			ArrayNDInfoImpl(DimSzType);
+			ArrayNDInfoImpl(NrDimsType);
 			ArrayNDInfoImpl(const ArrayNDInfo&);
 			ArrayNDInfoImpl(const ArrayNDInfoImpl&);
 			~ArrayNDInfoImpl();
     virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
 
     virtual TotalSzType	totalSize() const	{ return cachedtotalsz_; }
-    virtual DimSzType	nrDims() const;
+    virtual NrDimsType	nrDims() const;
     virtual SzType	getSize(DimIdxType) const;
     virtual bool	setSize(DimIdxType,SzType);
 
 protected:
 
-    DimSzType		ndim_;
+    NrDimsType		ndim_;
     IdxType*		dimsz_;
 
     TotalSzType		cachedtotalsz_;

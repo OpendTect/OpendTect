@@ -33,7 +33,7 @@ ArrayNDSliceBase::~ArrayNDSliceBase()
 
 bool ArrayNDSliceBase::setPos( DimIdxType dim, IdxType pos )
 {
-    const DimSzType ndim = position_.size();
+    const NrDimsType ndim = position_.size();
     if ( dim<0 || dim>=ndim || pos<0 || pos>=getDimSize(dim) )
 	return false;
 
@@ -66,10 +66,10 @@ void ArrayNDSliceBase::setDimMap( DimIdxType localdim, DimIdxType remotedim )
 
 bool ArrayNDSliceBase::init()
 {
-    const DimSzType nrowndims = vardim_.size();
-    const DimSzType ndim = position_.size();
+    const NrDimsType nrowndims = vardim_.size();
+    const NrDimsType ndim = position_.size();
 
-    TypeSet<DimSzType> unkdims;
+    TypeSet<NrDimsType> unkdims;
     for ( DimIdxType idx=0; idx<ndim; idx++ )
     {
 	if ( position_[idx] == -1 )
@@ -148,8 +148,8 @@ bool ArrayNDSliceBase::init()
 void ArrayNDSliceBase::getSourcePos( NDPos localpos,
 				     IdxType* arraypos ) const
 {
-    const DimSzType ndim = (DimSzType)position_.size();
-    const DimSzType nrowndims = (DimSzType)vardim_.size();
+    const NrDimsType ndim = (NrDimsType)position_.size();
+    const NrDimsType nrowndims = (NrDimsType)vardim_.size();
 
     OD::memCopy( arraypos, position_.arr(), ndim*sizeof(IdxType) );
 

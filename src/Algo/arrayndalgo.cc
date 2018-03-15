@@ -16,9 +16,9 @@ mDefineEnumUtils( ArrayNDWindow, WindowType, "Windowing type")
 
 
 
-ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz, bool rectangular,
+ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& inf, bool rectangular,
 			      ArrayNDWindow::WindowType type )
-    : size_(sz)
+    : arrinfo_(inf)
     , rectangular_(rectangular)
     , window_(0)
     , paramval_(0)
@@ -27,9 +27,9 @@ ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz, bool rectangular,
 }
 
 
-ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz, bool rectangular,
+ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& inf, bool rectangular,
 			      const char* wintypenm, float paramval )
-    : size_(sz)
+    : arrinfo_(inf)
     , rectangular_(rectangular)
     , windowtypename_(wintypenm)
     , paramval_(paramval)
@@ -47,7 +47,7 @@ ArrayNDWindow::~ArrayNDWindow()
 
 bool ArrayNDWindow::resize( const ArrayNDInfo& info )
 {
-    size_ = info;
+    arrinfo_ = info;
     return buildWindow( windowtypename_, paramval_ );
 }
 
@@ -93,17 +93,19 @@ bool ArrayNDWindow::setType( const char* winnm, float val )
 
 bool ArrayNDWindow::buildWindow( const char* winnm, float val )
 {
-    const od_int64 totalsz = size_.totalSize();
-    if ( totalsz <= 0 ) return false;
+    const auto totalsz = arrinfo_.totalSize();
+    if ( totalsz <= 0 )
+	return false;
     window_ = new float[totalsz];
-    const int ndim = size_.nrDims();
-    ArrayNDIter position( size_ );
+    const auto ndim = arrinfo_.nrDims();
+    ArrayNDIter position( arrinfo_ );
 
     WindowFunction* windowfunc = WindowFunction::factory().create( winnm );
-    if ( !windowfunc ) { delete [] window_; window_ = 0; return false; }
+    if ( !windowfunc )
+	{ delete [] window_; window_ = 0; return false; }
 
     if ( windowfunc->hasVariable() && !windowfunc->setVariable(val) )
-    { delete [] window_; window_ = 0; delete windowfunc; return false; }
+	{ delete [] window_; window_ = 0; delete windowfunc; return false; }
 
     if ( !rectangular_ )
     {
@@ -111,17 +113,16 @@ bool ArrayNDWindow::buildWindow( const char* winnm, float val )
 	{
 	    float dist = 0;
 
-	    for ( int idx=0; idx<ndim; idx++ )
+	    for ( auto idx=0; idx<ndim; idx++ )
 	    {
-		int sz =  size_.getSize(idx);
-		int halfsz = sz / 2;
+		auto sz =  arrinfo_.getSize(idx);
+		auto halfsz = sz / 2;
 		float distval = (halfsz==0) ? 0 :
-				( (float) (position[idx] - halfsz) / halfsz );
+				( (float)(position[idx] - halfsz) / halfsz );
 		dist += distval * distval;
 	    }
 
 	    dist = Math::Sqrt( dist );
-
 	    window_[off] = windowfunc->getValue( dist );
 	    position.next();
 	}
@@ -132,10 +133,10 @@ bool ArrayNDWindow::buildWindow( const char* winnm, float val )
 	{
 	    float windowval = 1;
 
-	    for ( int idx=0; idx<ndim; idx++ )
+	    for ( auto idx=0; idx<ndim; idx++ )
 	    {
-		int sz =  size_.getSize(idx);
-		int halfsz = sz / 2;
+		auto sz =  arrinfo_.getSize(idx);
+		auto halfsz = sz / 2;
 		float distval = ((float) (position[idx] - halfsz) / halfsz);
 		windowval *= windowfunc->getValue( distval );
 	    }
@@ -206,9 +207,9 @@ bool PolyTrend::getOrder( int nrpoints, Order& ord, uiString* msg )
 
 void PolyTrend::initOrder0( const TypeSet<double>& vals )
 {
-    const int sz = vals.size();
+    const auto sz = vals.size();
     f0_ = 0.;
-    for ( int idx=0; idx<sz; idx++ )
+    for ( auto idx=0; idx<sz; idx++ )
 	f0_ += vals[idx];
 
     if ( sz < 2 )
@@ -224,13 +225,13 @@ void PolyTrend::initOrder1( const TypeSet<Coord>& pos,
 {
     initCenter( pos );
 
-    const int sz = vals.size();
+    const auto sz = vals.size();
     if ( sz < 3 )
 	initOrder0( vals );
 
     Array2DImpl<double> a( sz, 3 );
     Array1DImpl<double> b( sz );
-    for ( int idx=0; idx<sz; idx++ )
+    for ( auto idx=0; idx<sz; idx++ )
     {
 	const double dx = pos[idx].x_ - posc_.x_;
 	const double dy = pos[idx].y_ - posc_.y_;
@@ -262,13 +263,13 @@ void PolyTrend::initOrder2( const TypeSet<Coord>& pos,
 {
     initCenter( pos );
 
-    const int sz = vals.size();
+    const auto sz = vals.size();
     if ( sz < 6 )
 	initOrder1( pos, vals );
 
     Array2DImpl<double> a( sz, 6 );
     Array1DImpl<double> b( sz );
-    for ( int idx=0; idx<sz; idx++ )
+    for ( auto idx=0; idx<sz; idx++ )
     {
 	const double dx = pos[idx].x_ - posc_.x_;
 	const double dy = pos[idx].y_ - posc_.y_;
@@ -303,8 +304,8 @@ void PolyTrend::initOrder2( const TypeSet<Coord>& pos,
 
 void PolyTrend::initCenter( const TypeSet<Coord>& pos )
 {
-    const int sz = pos.size();
-    for ( int idx=0; idx<sz; idx++ )
+    const auto sz = pos.size();
+    for ( auto idx=0; idx<sz; idx++ )
     {
 	posc_.x_ += pos[idx].x_;
 	posc_.y_ += pos[idx].y_;

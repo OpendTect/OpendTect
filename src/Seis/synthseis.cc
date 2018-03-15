@@ -455,12 +455,12 @@ bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res, int outsz )
     if ( !fft )
 	mErrRet(tr("Cannot allocate memory for FFT"), false)
 
-	mAllocLargeVarLenArr(float_complex, cres, convolvesize_);
+    mAllocLargeVarLenArr(float_complex, cres, convolvesize_);
     if ( !cres )
 	mErrRet(tr("Cannot allocate memory for FFT"), false)
 
-	for (int idx = 0; idx<convolvesize_; idx++)
-	    cres[idx] = freqreflectivities_[idx] * freqwavelet_[idx];
+    for ( auto idx = 0; idx<convolvesize_; idx++ )
+	cres[idx] = freqreflectivities_[idx] * freqwavelet_[idx];
 
     mPrepFFT(fft, cres, false, convolvesize_);
     if ( !fft->run(true) )
@@ -474,26 +474,26 @@ bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res, int outsz )
 
 bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res, int outsz )
 {
-    ObjectSet<Array1D<float> > wavelettrcs;
-    int nrspikes = 0;
     const ReflectivityModel& rm =
 	!sampledrefmodel_.isEmpty() ? sampledrefmodel_ : *refmodel_;
+    Array1DImpl<float> output( outsz );
+    ArrayNDStacker<float> trcstacker( output, 0.f );
+    trcstacker.manageInputs( true ).doNormalize( false );
+
     for ( int iref=0; iref<rm.size(); iref++ )
     {
 	const ReflectivitySpike& spike = rm[iref];
 	if ( !spike.isDefined() )
 	    continue;
 
-	wavelettrcs += new Array1DImpl<float> ( outsz );
-	getWaveletTrace( *wavelettrcs[nrspikes], spike.time_,
-			 spike.reflectivity_.real(), outtrc_.info().sampling_ );
-	nrspikes++;
+	Array1DImpl<float>* newtrc = new Array1DImpl<float>( outsz );
+	getWaveletTrace( *newtrc, spike.time_, spike.reflectivity_.real(),
+			 outtrc_.info().sampling_ );
+	trcstacker.addInput( newtrc );
     }
 
-    Array1DImpl<float> output( outsz );
-    Array1DStacker<float, Array1D<float> > stktrcs( wavelettrcs, output );
-    if ( !stktrcs.execute() )
-	mErrRet( stktrcs.errMsg(), false )
+    if ( !trcstacker.execute() )
+	mErrRet( trcstacker.errMsg(), false )
 
     output.getAll( res );
     return true;

@@ -81,7 +81,7 @@ static bool testSmallFloatArray( Array1D<float>& prices,
     mRunStandardTest( mIsEqual(res[12],7.30533338e10f,1e3f), "SumX2MY2 N-CPU" );
 
     double intercept, gradient;
-    if ( !getInterceptGradient<float,double>(milage,&prices,intercept,gradient,
+    if ( !getInterceptGradient<float,double>(milage,prices,intercept,gradient,
 					     true) )
 	return false;
 
@@ -178,13 +178,13 @@ static bool testBigVector()
     mRunStandardTest( mIsEqual(calcavgf,46.519363f,1e-3f),"Average large float")
 
     double calcintercept = 0., calcgradient = 0.;
-    if ( !getInterceptGradient<double,double>(data,&tvecd,calcintercept,
+    if ( !getInterceptGradient<double,double>(data,tvecd,calcintercept,
 					      calcgradient,true) )
 	return false;
     mRunStandardTest(mIsEqual(calcgradient,3.316465,1e-6),"Gradient double")
     mRunStandardTest(mIsEqual(calcintercept,-152.46854,1e-5),"Intercept double")
 
-    if ( !getInterceptGradient<float,double>(dataf,&tvec,calcintercept,
+    if ( !getInterceptGradient<float,double>(dataf,tvec,calcintercept,
 					     calcgradient,true) )
 	return false;
     mRunStandardTest(mIsEqual(calcgradient,3.316465,1e-6),
@@ -193,7 +193,7 @@ static bool testBigVector()
 		     "Intercept float/double")
 
     float calcinterceptf = 0.f, calcgradientf = 0.f;
-    if ( !getInterceptGradient<float,float>(dataf,&tvec,calcinterceptf,
+    if ( !getInterceptGradient<float,float>(dataf,tvec,calcinterceptf,
 					    calcgradientf,true) )
 	return false;
     mRunStandardTest(mIsEqual(calcgradientf,3.316465f,1e-3f),"Gradient float" )

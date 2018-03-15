@@ -119,8 +119,8 @@ bool uiArray1DInterpolSel::acceptOK()
 
     for ( int idx=0; idx<results_.size(); idx++ )
 	results_[idx]->setMaxGapSize(
-		mCast( float, maxgapszfld_ && maxgapszfld_->isChecked()
-		? maxgapszfld_->getIntValue() : mUdf(int) ) );
+		maxgapszfld_ && maxgapszfld_->isChecked()
+		? maxgapszfld_->getIntValue() : mUdf(int) );
 
     return true;
 }

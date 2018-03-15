@@ -32,7 +32,7 @@ ArrayNDInfo::OffsetType ArrayNDInfo::getOffset( NDPos pos ) const
     TotalSzType unitsize = 1;
     TotalSzType res = 0;
 
-    for ( DimSzType idx=nrDims()-1; idx>=0; idx-- )
+    for ( NrDimsType idx=nrDims()-1; idx>=0; idx-- )
     {
 	res += unitsize*pos[idx];
 	unitsize *= getSize(idx);
@@ -62,7 +62,7 @@ bool ArrayNDInfo::validDimPos( DimIdxType dim, IdxType pos ) const
 
 bool ArrayNDInfo::getArrayPos( OffsetType mempos, IdxType* pos ) const
 {
-    const DimSzType ndim = nrDims();
+    const NrDimsType ndim = nrDims();
     TypeSet<TotalSzType> dimdevisor( ndim, 1 );
 
     TotalSzType product = 1;
@@ -90,7 +90,7 @@ bool ArrayNDInfo::getArrayPos( OffsetType mempos, IdxType* pos ) const
 
 ArrayNDInfo::TotalSzType ArrayNDInfo::calcTotalSz() const
 {
-    const DimSzType ndim = nrDims();
+    const NrDimsType ndim = nrDims();
     TotalSzType res = 1;
 
     for ( DimIdxType idx=0; idx<ndim; idx++ )
@@ -215,7 +215,7 @@ ArrayNDInfo* ArrayNDInfoImpl::clone() const
 }
 
 
-ArrayNDInfo* ArrayNDInfoImpl::create( DimSzType ndim )
+ArrayNDInfo* ArrayNDInfoImpl::create( NrDimsType ndim )
 {
     if ( ndim==1 )
 	return new Array1DInfoImpl;
@@ -228,7 +228,7 @@ ArrayNDInfo* ArrayNDInfoImpl::create( DimSzType ndim )
 }
 
 
-ArrayNDInfoImpl::ArrayNDInfoImpl( DimSzType ndim )
+ArrayNDInfoImpl::ArrayNDInfoImpl( NrDimsType ndim )
 	: ndim_( ndim )
 	, dimsz_( ndim<1 ? 0 : new SzType[ndim_] )
 {
@@ -265,7 +265,7 @@ ArrayNDInfoImpl::~ArrayNDInfoImpl()
 }
 
 
-ArrayNDInfo::DimSzType ArrayNDInfoImpl::nrDims() const
+ArrayNDInfo::NrDimsType ArrayNDInfoImpl::nrDims() const
 {
     return ndim_;
 }
@@ -312,7 +312,7 @@ bool ArrayNDIter::next()
 
 void ArrayNDIter::reset()
 {
-    const DimSzType ndim = sz_.nrDims();
+    const NrDimsType ndim = sz_.nrDims();
 
     for ( DimIdxType idx=0; idx<ndim; idx++ )
 	position_[idx] = 0;

@@ -29,6 +29,8 @@ mClass(Algo) ArrayNDDumper
 {
 public:
 
+				mTypeDefArrNDTypes;
+
 				ArrayNDDumper( const ArrayND<T>& arr )
 				    : inp_(arr), haveudfs_(true)
 				    , withpos_(false)
@@ -44,7 +46,7 @@ public:
     const ArrayND<T>&		inp_;
     bool			withpos_;
     bool			haveudfs_;
-    od_int64			nlafter_;
+    TotalSzType			nlafter_;
 
 };
 
@@ -52,7 +54,7 @@ public:
 template <class T>
 void ArrayNDDumper<T>::setOneLinePerFastestDim()
 {
-    const int nrdims = inp_.nrDims();
+    const auto nrdims = inp_.nrDims();
     nlafter_ = nrdims < 2 ? 0 : inp_.getSize( nrdims - 1 );
 }
 
@@ -60,12 +62,12 @@ void ArrayNDDumper<T>::setOneLinePerFastestDim()
 template <class T>
 void ArrayNDDumper<T>::setOneLinePerSlowestDim()
 {
-    const int nrdims = inp_.nrDims();
+    const auto nrdims = inp_.nrDims();
     if ( nrdims < 2 )
 	{ nlafter_ = 0; return; }
 
     nlafter_ = 1;
-    for ( int idim=1; idim<nrdims; idim++ )
+    for ( auto idim=1; idim<nrdims; idim++ )
 	nlafter_ *= inp_.getSize( idim );
 }
 
@@ -76,15 +78,15 @@ void ArrayNDDumper<T>::dump( od_ostream& strm ) const
     if ( inp_.isEmpty() ) return;
 
     ArrayNDIter it( inp_.info() );
-    const int nrdims = inp_.nrDims();
+    const auto nrdims = inp_.nrDims();
 
-    od_int64 nrthisline = 0;
+    TotalSzType nrthisline = 0;
     while ( true )
     {
-	const int* pos = it.getPos();
+	NDPos pos = it.getPos();
 	if ( withpos_ && nrthisline == 0 )
 	{
-	    for ( int idim=0; idim<nrdims; idim++ )
+	    for ( auto idim=0; idim<nrdims; idim++ )
 		strm.add( pos[idim] ).add( od_tab );
 
 	}

@@ -12,23 +12,26 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+#include "arraynd.h"
 #include "executor.h"
 #include "uistrings.h"
 
-template <class T> class Array1D;
 
-
-/*!
-\brief Base class for one dimensional array interpolators.
-*/
+/*!\brief Base class for one dimensional array interpolators. */
 
 mExpClass(Algo) Array1DInterpol : public Executor
 { mODTextTranslationClass(Array1DInterpol);
 public:
+
+    typedef float		ValT;
+    typedef Array1D<float>	ArrT;
+    typedef ArrT::IdxType	IdxType;
+    typedef ArrT::SzType	SzType;
+
     virtual		~Array1DInterpol();
 
-    void		setMaxGapSize(float);
-    float		getMaxGapSize() const;
+    void		setMaxGapSize( SzType sz )	{ maxgapsize_ = sz; }
+    SzType		getMaxGapSize() const		{ return maxgapsize_; }
 
     void		setArray(Array1D<float>&);
 
@@ -48,14 +51,13 @@ protected:
     bool		arrstarted_;
     bool		doextrapol_;
     bool		fillwithextremes_; //extrapolate with last valid values
-    int			maxgapsize_;
-    unsigned int	nrdone_;
+    SzType		maxgapsize_;
+    SzType		nrdone_;
+
 };
 
 
-/*!
-\brief Does linear interpolation of one dimensional arrays.
-*/
+/*!\brief Does linear interpolation of one dimensional arrays. */
 
 mExpClass(Algo) LinearArray1DInterpol : public Array1DInterpol
 { mODTextTranslationClass(LinearArray1DInterpol);
@@ -73,9 +75,8 @@ protected:
 };
 
 
-/*!
-\brief Uses a 3rd degree polynomial for interpolation of one dimensional arrays.
-*/
+/*!\brief Uses a 3rd degree polynomial for interpolation of one dimensional
+  arrays.  */
 
 mExpClass(Algo) PolyArray1DInterpol : public Array1DInterpol
 { mODTextTranslationClass(PolyArray1DInterpol);
@@ -89,7 +90,7 @@ public:
 
 protected:
 
-    bool		getPositions(int pos,TypeSet<float>& posidxs);
+    bool		getPositions(IdxType pos,TypeSet<IdxType>& posidxs);
     void		extrapolate(bool start);
 
 };

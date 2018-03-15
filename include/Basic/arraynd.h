@@ -73,7 +73,7 @@ mClass(Basic) ArrayND
 {
 public:
 
-    typedef T			DataType;
+    typedef T			ValType;
 				mTypeDefArrNDTypes;
 
     virtual			~ArrayND()	{}
@@ -81,45 +81,56 @@ public:
     virtual inline bool		isOK() const;
     virtual inline bool		isEmpty() const;
 
-    virtual DataType		getND(NDPos) const	= 0;
+    virtual ValType		getND(NDPos) const	= 0;
+    inline ValType		getND( const NDPosBuf& buf ) const
+					{ return getND( buf.arr() ); }
     virtual bool		isSettable() const	{ return true; }
     virtual void		setND(NDPos,T)		= 0;
+    inline void			setND( const NDPosBuf& buf, T val )
+					{ setND( buf.arr(), val ); }
 
     inline const ValueSeries<T>* getStorage() const { return getStorage_(); }
     inline ValueSeries<T>*	getStorage();
     virtual bool		canSetStorage() const	{ return false; }
     virtual bool		setStorage( ValueSeries<T>* s )
-				    { delete s; return true; }
+					{ delete s; return true; }
 				    /*!<becomes mine. size must be settable */
 
-    inline const DataType*	getData() const		{ return getData_(); }
-    inline DataType*		getData();
-    virtual const DataType*	get1D(NDPos) const;
-    virtual DataType*		get1D(NDPos);
-    virtual DimSzType		get1DDim() const;
+    inline const ValType*	getData() const		{ return getData_(); }
+    inline ValType*		getData();
 
+				// these functions allow you to access
+				// the dimension that is contiguous
+				// (i.e. the last dimension)
+    virtual NrDimsType		get1DDim() const	{ return nrDims()-1; }
+    virtual const ValType*	get1D(NDPos) const;
+    virtual ValType*		get1D(NDPos);
 
     virtual const ArrayNDInfo&	info() const		= 0;
     virtual bool		canSetInfo() const	{ return false; }
     virtual bool		canChangeNrDims() const	{ return false; }
     virtual bool		setInfo( const ArrayNDInfo& ) { return false; }
 
-    virtual void		setAll(DataType);
-    virtual void		setData(const DataType*);
-    virtual void		getAll(DataType*) const;
+    virtual void		setAll(ValType);
+    virtual void		setData(const ValType*);
+    virtual void		getAll(ValType*) const;
 				/*!< ptr must be allocated, min totalSize() */
     virtual void		getAll(ValueSeries<T>& vs) const;
 
 				// rank/size info
-    inline DimSzType		nrDims() const
+    inline NrDimsType		nrDims() const
 				{ return info().nrDims(); }
-    inline DimSzType		getSize( DimIdxType dim ) const
+    inline SzType		getSize( DimIdxType dim ) const
 				{ return info().getSize(dim); }
     inline TotalSzType		totalSize() const
 				{ return info().totalSize(); }
+    inline bool			validPos( NDPos pos ) const
+				{ return info().validPos(pos); }
+    inline bool			validPos( const NDPosBuf& pos ) const
+				{ return info().validPos(pos.arr()); }
 
 				// aliases
-    inline DimSzType		rank() const		{ return nrDims(); }
+    inline NrDimsType		rank() const		{ return nrDims(); }
     inline const ValueSeries<T>* valueSeries() const	{ return getStorage(); }
     inline ValueSeries<T>*	valueSeries()		{ return getStorage(); }
 
@@ -146,16 +157,16 @@ public:
     virtual void		set(IdxType,T)				= 0;
     virtual T			get(IdxType) const			= 0;
     void			setND( NDPos pos, T v )
-				{ set( pos[0], v ); }
+					{ set( pos[0], v ); }
     T				getND( NDPos pos ) const
-				{ return get(pos[0]); }
+					{ return get(pos[0]); }
 
 				// implement ValueSeries interface
     T				value(od_int64 i) const
 				{ return get( (IdxType)i );}
     bool			writable() const	{ return true; }
     void			setValue(od_int64 i,T t)
-				{ set( (IdxType)i, t ); }
+					{ set( (IdxType)i, t ); }
     virtual void		setAll( T t )         { ArrayND<T>::setAll(t); }
 
     virtual const Array1DInfo&	info() const = 0;
@@ -177,9 +188,9 @@ public:
     virtual void		set(IdxType,IdxType,T)			= 0;
     virtual T			get(IdxType,IdxType) const		= 0;
     void			setND( NDPos pos, T v )
-				    { set( pos[0], pos[1], v);}
+					{ set( pos[0], pos[1], v);}
     T		                getND( NDPos pos ) const
-				    { return get( pos[0], pos[1] ); }
+					{ return get( pos[0], pos[1] ); }
 
     virtual T**			get2DData()		{ return 0; }
     virtual const T**		get2DData() const	{ return 0; }
@@ -199,9 +210,9 @@ public:
     virtual void		set(IdxType,IdxType,IdxType,T)		= 0;
     virtual T			get(IdxType,IdxType,IdxType) const	= 0;
     void			setND( NDPos pos, T v )
-				{ set( pos[0], pos[1], pos[2], v ); }
+					{ set( pos[0], pos[1], pos[2], v ); }
     T		                getND( NDPos pos ) const
-				{ return get( pos[0], pos[1], pos[2] ); }
+					{ return get( pos[0], pos[1], pos[2] );}
 
     virtual T***		get3DData()		{ return 0; }
     virtual const T***		get3DData() const	{ return 0; }
@@ -224,6 +235,8 @@ public:
 				mTypeDefArrNDTypes;
 
 				ArrayNDIter(const ArrayNDInfo&);
+    template<class T>		ArrayNDIter( const ArrayND<T>& arr )
+				    : ArrayNDIter( arr.info() )		{}
 				~ArrayNDIter();
 
     bool			next();
@@ -386,20 +399,14 @@ const T* ArrayND<T>::get1D( NDPos inppos ) const
     if ( !ptr )
 	return 0;
 
-    DimSzType ndim = nrDims();
+    const NrDimsType ndim = nrDims();
 
     mAllocLargeVarLenArr( IdxType, pos, ndim );
     OD::memCopy( pos, inppos, (IdxType)sizeof(IdxType)*(ndim-1) );
 
     pos[ndim-1] = 0;
-
-    return &ptr[info().getOffset( pos )];
+    return ptr + info().getOffset(pos);
 }
-
-
-template <class T> inline
-ArrayNDInfo::DimSzType ArrayND<T>::get1DDim() const
-{ return nrDims()-1; }
 
 
 template <class T> inline
@@ -596,7 +603,7 @@ ArrayNDDataSetter( ArrayND<T>& arr, const T* ptr )
     , totalnr_( arr.totalSize() )
     , pos_(0)
 {
-    const DimSzType nrdims = arr_.nrDims();
+    const NrDimsType nrdims = arr_.nrDims();
     if ( nrdims > 0 )
 	pos_ = new IdxType [nrdims];
     else

@@ -15,7 +15,7 @@ Array1DInterpol::Array1DInterpol()
     : Executor( "Interpolator" )
     , arr_( 0 )
     , nrdone_( 0 )
-    , maxgapsize_( mUdf(int) )
+    , maxgapsize_( mUdf(SzType) )
     , arrstarted_(false)
     , doextrapol_(false)
 {
@@ -28,15 +28,9 @@ Array1DInterpol::~Array1DInterpol()
 
 
 od_int64 Array1DInterpol::nrIterations() const
-{ return arr_ ? arr_->totalSize() : 0; }
-
-
-void Array1DInterpol::setMaxGapSize( float maxgapsize )
-{ maxgapsize_ = mCast(int,maxgapsize); }
-
-
-float Array1DInterpol::getMaxGapSize() const
-{ return (float)maxgapsize_; }
+{
+    return arr_ ? arr_->totalSize() : 0;
+}
 
 
 void Array1DInterpol::reset()
@@ -46,8 +40,11 @@ void Array1DInterpol::reset()
 }
 
 
-void Array1DInterpol::setArray( Array1D<float>& arr )
-{ arr_ = &arr; reset(); }
+void Array1DInterpol::setArray( ArrT& arr )
+{
+    arr_ = &arr;
+    reset();
+}
 
 
 LinearArray1DInterpol::LinearArray1DInterpol()
@@ -58,14 +55,14 @@ LinearArray1DInterpol::LinearArray1DInterpol()
 
 void LinearArray1DInterpol::extrapolate( bool start )
 {
-    int firstvalidix = start ? 0 : arr_->getSize(0)-1;
+    IdxType firstvalidix = start ? 0 : arr_->getSize(0)-1;
     if ( !mIsUdf(arr_->get(firstvalidix)) ) return;
-    int nextvalidix = firstvalidix;
+    IdxType nextvalidix = firstvalidix;
 
     bool doneonce = false;
     while( true )
     {
-	const int posidx = start ? ++nextvalidix : --nextvalidix;
+	const IdxType posidx = start ? ++nextvalidix : --nextvalidix;
 	if ( !arr_->info().validPos(posidx) )
 	{
 	    if ( !doneonce )
@@ -82,16 +79,16 @@ void LinearArray1DInterpol::extrapolate( bool start )
 	}
     }
 
-    int iteratoridx = start ? 0 : arr_->getSize(0)-1;
+    IdxType iteratoridx = start ? 0 : arr_->getSize(0)-1;
     while( arr_->info().validPos(iteratoridx) && mIsUdf(arr_->get(iteratoridx)))
     {
-	float val =
+	const ValT val =
 	    fillwithextremes_ ? arr_->get(firstvalidix)
-			      : Interpolate::linear1D((float)firstvalidix,
+			      : Interpolate::linear1D( (ValT)firstvalidix,
 				      arr_->get(firstvalidix),
-				      (float)nextvalidix,
+				      (ValT)nextvalidix,
 				      arr_->get(nextvalidix),
-				      (float)iteratoridx );
+				      (ValT)iteratoridx );
 	if ( !mIsUdf(val) )
 	    arr_->set( iteratoridx, val );
 	start ? iteratoridx++ : iteratoridx--;
@@ -125,8 +122,8 @@ int LinearArray1DInterpol::nextStep()
 	return MoreToDo();
     }
 
-    int startidx = nrdone_-1;
-    int stopidx = nrdone_;
+    IdxType startidx = nrdone_-1;
+    IdxType stopidx = nrdone_;
     while ( arr_->info().validPos(++stopidx) )
     {
 	if ( mIsUdf(arr_->get(stopidx)) )
@@ -147,13 +144,13 @@ int LinearArray1DInterpol::nextStep()
 	return MoreToDo();
     }
 
-    float val0,val1;
-    float pos0,pos1;
+    ValT val0,val1;
+    ValT pos0,pos1;
 
-    val0 = arr_->get( startidx ); pos0 = (float)( startidx );
-    val1 = arr_->get( stopidx ); pos1 = (float)stopidx;
+    val0 = arr_->get( startidx ); pos0 = (ValT)( startidx );
+    val1 = arr_->get( stopidx ); pos1 = (ValT)stopidx;
 
-    float val = Interpolate::linear1D( pos0, val0, pos1, val1, (float)nrdone_ );
+    ValT val = Interpolate::linear1D( pos0, val0, pos1, val1, (ValT)nrdone_ );
     if ( !mIsUdf(val) )
 	arr_->set( nrdone_, val );
     nrdone_++;
@@ -168,15 +165,16 @@ PolyArray1DInterpol::PolyArray1DInterpol()
 }
 
 
-bool PolyArray1DInterpol::getPositions( int curpos, TypeSet<float>& posidxs )
+bool PolyArray1DInterpol::getPositions( IdxType curpos,
+					TypeSet<IdxType>& posidxs )
 {
     bool fisrtundef =
 	arr_->info().validPos(curpos-2) && mIsUdf(arr_->get(curpos-2));
-    posidxs[0] = fisrtundef ? (float)(curpos-1) : (float)(curpos-2);
+    posidxs[0] = fisrtundef ? curpos-1 : curpos-2;
     if ( !fisrtundef )
-	posidxs[1] = (float)(curpos-1);
-    int iteratoridx = curpos;
-    int posidx = fisrtundef ? 1 : 2;
+	posidxs[1] = curpos-1;
+    IdxType iteratoridx = curpos;
+    IdxType posidx = fisrtundef ? 1 : 2;
     while ( arr_->info().validPos(++iteratoridx) )
     {
 	if ( mIsUdf(arr_->get(iteratoridx)) )
@@ -185,7 +183,7 @@ bool PolyArray1DInterpol::getPositions( int curpos, TypeSet<float>& posidxs )
 	if ( (iteratoridx-curpos-1)>maxgapsize_ )
 	    return false;
 
-	posidxs[posidx] = (float)iteratoridx;
+	posidxs[posidx] = iteratoridx;
 	posidx++;
 	if ( posidx>=posidxs.size() )
 	    break;
@@ -197,31 +195,31 @@ bool PolyArray1DInterpol::getPositions( int curpos, TypeSet<float>& posidxs )
 
 void PolyArray1DInterpol::extrapolate( bool start )
 {
-    TypeSet<float> posidxs(4,0);
-    TypeSet<float> vals( posidxs.size(), (float)0 );
+    TypeSet<IdxType> posidxs( 4, 0 );
+    TypeSet<ValT> vals( posidxs.size(), 0.f );
 
-    int nextvalidix = start ? 0 : arr_->getSize(0)-1;
+    IdxType nextvalidix = start ? 0 : arr_->getSize(0)-1;
     if ( !mIsUdf(arr_->get(nextvalidix)) ) return;
-    int positridx = 0;
+    IdxType positridx = 0;
     while( positridx<4 )
     {
-	const float arrval = arr_->get( nextvalidix );
+	const ValT arrval = arr_->get( nextvalidix );
 	if ( !mIsUdf(arrval) )
 	{
-	    posidxs[positridx] = (float) nextvalidix;
+	    posidxs[positridx] = nextvalidix;
 	    vals[positridx] = arrval;
 	    positridx++;
 	}
 	start ? nextvalidix++ : nextvalidix--;
     }
 
-    int iteratoridx = start ? 0 : arr_->getSize(0)-1;
+    IdxType iteratoridx = start ? 0 : arr_->getSize(0)-1;
     while( arr_->info().validPos(iteratoridx) && mIsUdf(arr_->get(iteratoridx)))
     {
-	float val = fillwithextremes_ ? vals[0]
+	ValT val = fillwithextremes_ ? vals[0]
 				      : Interpolate::poly1D(posidxs[0],vals[0],
 					posidxs[1],vals[1],posidxs[2],vals[2],
-					posidxs[3],vals[3],(float)iteratoridx);
+					posidxs[3],vals[3],iteratoridx);
 	if ( !mIsUdf(val) )
 	    arr_->set( iteratoridx, val );
 	start ? iteratoridx++ : iteratoridx--;
@@ -255,14 +253,14 @@ int PolyArray1DInterpol::nextStep()
 	return MoreToDo();
     }
 
-    TypeSet<float> posidxs(4,0);
+    TypeSet<IdxType> posidxs( 4, 0 );
     if ( !getPositions(nrdone_,posidxs) )
     {
 	nrdone_++;
 	return MoreToDo();
     }
 
-    if ( mIsUdf(arr_->get((int)posidxs[posidxs.size()-1])) ||
+    if ( mIsUdf(arr_->get(posidxs[posidxs.size()-1])) ||
 	 posidxs[posidxs.size()-1]==0 )
     {
 	if ( doextrapol_ )
@@ -270,14 +268,14 @@ int PolyArray1DInterpol::nextStep()
 	return Finished();
     }
 
-    TypeSet<float> vals( posidxs.size(), (float)0 );
+    TypeSet<ValT> vals( posidxs.size(), (ValT)0 );
 
-    for ( int idx=0; idx<vals.size(); idx++ )
-	vals[idx] = arr_->get( (int)posidxs[idx] );
+    for ( auto idx=0; idx<vals.size(); idx++ )
+	vals[idx] = arr_->get( posidxs[idx] );
 
-    float val = Interpolate::poly1D( posidxs[0], vals[0], posidxs[1], vals[1],
+    ValT val = Interpolate::poly1D( posidxs[0], vals[0], posidxs[1], vals[1],
 				     posidxs[2], vals[2], posidxs[3], vals[3],
-				     (float)nrdone_ );
+				     nrdone_ );
     if ( !mIsUdf(val) )
 	arr_->set( nrdone_, val );
     nrdone_++;

@@ -16,29 +16,27 @@ ________________________________________________________________________
 namespace Interpolate
 {
 
-/*!
-\brief Linear 3D interpolation.
-*/
+/*!\brief Linear 3D interpolation.  */
 
-template <class T>
+template <class ValT>
 mClass(Algo) LinearReg3D
 {
 public:
 
 LinearReg3D()	{}
 
-LinearReg3D( const T* const* const* v )
+LinearReg3D( const ValT* const* const* v )
 {
     set( v[0][0][0], v[1][0][0], v[0][1][0], v[1][1][0],
 	 v[0][0][1], v[1][0][1], v[0][1][1], v[1][1][1] );
 }
 
-LinearReg3D( T v000, T v100, T v010, T v110, T v001, T v101, T v011, T v111 )
+LinearReg3D( ValT v000, ValT v100, ValT v010, ValT v110, ValT v001, ValT v101, ValT v011, ValT v111 )
 {
     set( v000, v100, v010, v110, v001, v101, v011, v111 );
 }
 
-inline void set( T v000, T v100, T v010, T v110, T v001, T v101, T v011, T v111)
+inline void set( ValT v000, ValT v100, ValT v010, ValT v110, ValT v001, ValT v101, ValT v011, ValT v111)
 {
     a_[0] = v000;
     a_[1] = v100 - v000;
@@ -50,24 +48,25 @@ inline void set( T v000, T v100, T v010, T v110, T v001, T v101, T v011, T v111)
     a_[7] = v111 + v100 + v010 + v001 - (v000 + v110 + v101 + v011);
 }
 
-inline T apply( float x, float y, float z ) const
+template <class PosT>
+inline ValT apply( PosT x, PosT y, PosT z ) const
 {
     return a_[0] + a_[1] * x + a_[2] * y + a_[3] * z
 		 + a_[4] * x * y + a_[5] * x * z + a_[6] * y * z
 		 + a_[7] * x * y * z;
 }
 
-    T	a_[8];
+    ValT	a_[8];
 
 };
 
 
-template <class T>
-inline T linearReg3D( T v000, T v100, T v010, T v110,
-		      T v001, T v101, T v011, T v111,
-		      float x, float y, float z )
+template <class PosT,class ValT>
+inline ValT linearReg3D( ValT v000, ValT v100, ValT v010, ValT v110,
+		      ValT v001, ValT v101, ValT v011, ValT v111,
+		      PosT x, PosT y, PosT z )
 {
-    return LinearReg3D<T>( v000, v100, v010, v110, v001, v101, v011, v111 )
+    return LinearReg3D<ValT>( v000, v100, v010, v110, v001, v101, v011, v111 )
 		.apply( x, y, z );
 }
 
@@ -76,26 +75,26 @@ inline T linearReg3D( T v000, T v100, T v010, T v110,
 \brief Linear 3D interpolation with standard undef handling.
 */
 
-template <class T>
+template <class ValT>
 mClass(Algo) LinearReg3DWithUdf
 {
 public:
 
 LinearReg3DWithUdf()	{}
 
-LinearReg3DWithUdf( const T* const* const* v )
+LinearReg3DWithUdf( const ValT* const* const* v )
 {
     set( v[0][0][0], v[1][0][0], v[0][1][0], v[1][1][0],
 	 v[0][0][1], v[1][0][1], v[0][1][1], v[1][1][1] );
 }
 
-LinearReg3DWithUdf( T v000, T v100, T v010, T v110,
-		    T v001, T v101, T v011, T v111 )
+LinearReg3DWithUdf( ValT v000, ValT v100, ValT v010, ValT v110,
+		    ValT v001, ValT v101, ValT v011, ValT v111 )
 {
     set( v000, v100, v010, v110, v001, v101, v011, v111 );
 }
 
-inline static T getReplVal( T v1, T v2, T v3, bool u1, bool u2, bool u3 )
+inline static ValT getReplVal( ValT v1, ValT v2, ValT v3, bool u1, bool u2, bool u3 )
 {
 
     if ( u1 )
@@ -108,7 +107,7 @@ inline static T getReplVal( T v1, T v2, T v3, bool u1, bool u2, bool u3 )
     return (v1 + v2 + v3) / 3;
 }
 
-inline void set( T v000, T v100, T v010, T v110, T v001, T v101, T v011, T v111)
+inline void set( ValT v000, ValT v100, ValT v010, ValT v110, ValT v001, ValT v101, ValT v011, ValT v111)
 {
     u000_ = mIsUdf(v000);
     u100_ = mIsUdf(v100);
@@ -154,7 +153,8 @@ inline void set( T v000, T v100, T v010, T v110, T v001, T v101, T v011, T v111)
     intp_.set( v000, v100, v010, v110, v001, v101, v011, v111 );
 }
 
-inline T apply( float x, float y, float z ) const
+template <class PosT>
+inline ValT apply( PosT x, PosT y, PosT z ) const
 {
     // return undef if the nearest node is undef
     if ( haveudf_ && (
@@ -166,12 +166,12 @@ inline T apply( float x, float y, float z ) const
       || ( u101_ && x >= 0.5 && y < 0.5 && z >= 0.5 )
       || ( u011_ && x < 0.5 && y >= 0.5 && z >= 0.5 )
       || ( u111_ && x >= 0.5 && y >= 0.5 && z >= 0.5 ) ) )
-	return mUdf(T);
+	return mUdf(ValT);
 
     return intp_.apply( x, y, z );
 }
 
-    LinearReg3D<T>	intp_;
+    LinearReg3D<ValT>	intp_;
     bool		haveudf_;
     bool		u000_;
     bool		u100_;
@@ -184,12 +184,12 @@ inline T apply( float x, float y, float z ) const
 
 };
 
-template <class T>
-inline T linearReg3DWithUdf( T v000, T v100, T v010, T v110,
-			     T v001, T v101, T v011, T v111,
-			     float x, float y, float z )
+template <class PosT,class ValT>
+inline ValT linearReg3DWithUdf( ValT v000, ValT v100, ValT v010, ValT v110,
+			     ValT v001, ValT v101, ValT v011, ValT v111,
+			     PosT x, PosT y, PosT z )
 {
-    return LinearReg3DWithUdf<T>(v000,v100,v010,v110,v001,v101,v011,v111)
+    return LinearReg3DWithUdf<ValT>(v000,v100,v010,v110,v001,v101,v011,v111)
 		.apply( x, y, z );
 }
 
@@ -197,7 +197,7 @@ inline T linearReg3DWithUdf( T v000, T v100, T v010, T v110,
 
 /*!
 \brief Interpolate 3D regularly sampled, using a 3rd order surface.
-  
+
   Current implementation takes the average of the outer squares.
   In the parameter passing, the z is the fastest dimension.
   <pre>
@@ -209,18 +209,18 @@ inline T linearReg3DWithUdf( T v000, T v100, T v010, T v110,
 
   ^- From here to -^
   x=-1   0      1     2
-  
+
   </pre>
 */
 
-template <class T>
+template <class ValT>
 mClass(Algo) PolyReg3D
 {
 public:
 
 PolyReg3D() {}
 
-PolyReg3D( const T* const* const * v )
+PolyReg3D( const ValT* const* const * v )
 {
     set( v[0][1][1], v[0][1][2], v[0][2][1], v[0][2][2],
 	 v[1][0][1], v[1][0][2], v[1][1][0], v[1][1][1],
@@ -233,14 +233,14 @@ PolyReg3D( const T* const* const * v )
 }
 
 PolyReg3D(
-	T vm100, T vm101, T vm110, T vm111,
-	T v0m10, T v0m11, T v00m1, T v000,
-	T v001,  T v002,  T v01m1, T v010,
-	T v011,  T v012,  T v020,  T v021,
-	T v1m10, T v1m11, T v10m1, T v100,
-	T v101,  T v102,  T v11m1, T v110,
-	T v111,  T v112,  T v120,  T v121,
-	T v200,  T v201,  T v210,  T v211 )
+	ValT vm100, ValT vm101, ValT vm110, ValT vm111,
+	ValT v0m10, ValT v0m11, ValT v00m1, ValT v000,
+	ValT v001,  ValT v002,  ValT v01m1, ValT v010,
+	ValT v011,  ValT v012,  ValT v020,  ValT v021,
+	ValT v1m10, ValT v1m11, ValT v10m1, ValT v100,
+	ValT v101,  ValT v102,  ValT v11m1, ValT v110,
+	ValT v111,  ValT v112,  ValT v120,  ValT v121,
+	ValT v200,  ValT v201,  ValT v210,  ValT v211 )
 {
     set( vm100, vm101, vm110, vm111,
 	 v0m10, v0m11, v00m1, v000,
@@ -253,14 +253,14 @@ PolyReg3D(
 }
 
 inline void set(
-	T vm100, T vm101, T vm110, T vm111,
-	T v0m10, T v0m11, T v00m1, T v000,
-	T v001,  T v002,  T v01m1, T v010,
-	T v011,  T v012,  T v020,  T v021,
-	T v1m10, T v1m11, T v10m1, T v100,
-	T v101,  T v102,  T v11m1, T v110,
-	T v111,  T v112,  T v120,  T v121,
-	T v200,  T v201,  T v210,  T v211 )
+	ValT vm100, ValT vm101, ValT vm110, ValT vm111,
+	ValT v0m10, ValT v0m11, ValT v00m1, ValT v000,
+	ValT v001,  ValT v002,  ValT v01m1, ValT v010,
+	ValT v011,  ValT v012,  ValT v020,  ValT v021,
+	ValT v1m10, ValT v1m11, ValT v10m1, ValT v100,
+	ValT v101,  ValT v102,  ValT v11m1, ValT v110,
+	ValT v111,  ValT v112,  ValT v120,  ValT v121,
+	ValT v200,  ValT v201,  ValT v210,  ValT v211 )
 {
     set( v000, v100, v010, v110, v001, v101, v011, v111,
 	(v00m1 + v01m1 + v10m1 + v11m1) / 4,
@@ -271,13 +271,15 @@ inline void set(
 	(v200 + v201 + v210 + v211) / 4 );
 }
 
-inline void set( T v000, T v100, T v010, T v110, T v001, T v101, T v011, T v111,
-		 T vxym1, T vxzm1, T vyzm1, T vxy1, T vxz1, T vyz1 )
+inline void set( ValT v000, ValT v100, ValT v010, ValT v110, ValT v001,
+		 ValT v101, ValT v011, ValT v111, ValT vxym1, ValT vxzm1,
+		 ValT vyzm1, ValT vxy1, ValT vxz1, ValT vyz1 )
 {
     // TODO
 }
 
-inline T apply( float x, float y, float z ) const
+template <class PosT>
+inline ValT apply( PosT x, PosT y, PosT z ) const
 {
     return a_[0] + a_[1] * x + a_[2] * y + a_[3] * z
 		 + a_[4] * x * y + a_[5] * x * z + a_[6] * y * z
@@ -287,15 +289,15 @@ inline T apply( float x, float y, float z ) const
 		 + a_[12] * z * z * x + a_[13] * z * z * y;
 }
 
-    T	a_[14];
+    ValT	a_[14];
 
 };
 
 
-template <class T>
-inline T polyReg3D( const T* const* const * v, float x, float y, float z )
+template <class PosT,class ValT>
+inline ValT polyReg3D( const ValT* const* const * v, PosT x, PosT y, PosT z )
 {
-    return PolyReg3D<T>( v ).apply( x, y, z );
+    return PolyReg3D<ValT>( v ).apply( x, y, z );
 }
 
 

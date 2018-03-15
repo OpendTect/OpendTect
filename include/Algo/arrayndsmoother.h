@@ -28,6 +28,7 @@ template <class T>
 mClass(Algo) ArrayNDGentleSmoother : public Executor
 { mODTextTranslationClass(ArrayNDGentleSmoother)
 public:
+			mTypeDefArrNDTypes;
 
 			ArrayNDGentleSmoother(const ArrayND<T>&,
 					      ArrayND<T>&);
@@ -47,9 +48,9 @@ protected:
     ArrayND<T>&			out_;
     od_int64			totnr_;
     od_int64			nrdone_;
-    const int			nrdims_;
+    const NrDimsType		nrdims_;
     ArrayNDIter			it_;
-    TypeSet<int>		maxidxs_;
+    TypeSet<IdxType>		maxidxs_;
 
 };
 
@@ -67,7 +68,7 @@ ArrayNDGentleSmoother<T>::ArrayNDGentleSmoother( const ArrayND<T>& inp,
     totnr_ = 1;
     for ( int idim=0; idim<nrdims_; idim++ )
     {
-	int dimsz = inp_.getSize(idim);
+	auto dimsz = inp_.getSize( idim );
 	maxidxs_ += dimsz - 1;
 	totnr_ *= dimsz;
     }
@@ -77,32 +78,33 @@ ArrayNDGentleSmoother<T>::ArrayNDGentleSmoother( const ArrayND<T>& inp,
 template <class T>
 int ArrayNDGentleSmoother<T>::nextStep()
 {
-    const int* itpos = it_.getPos();
+    NDPos itpos = it_.getPos();
     TypeSet<T> vals;
 
     for ( int idim=0; idim<nrdims_; idim++ )
     {
 	for ( int idx=0; idx<2; idx++ )
 	{
-	    TypeSet<int> arridxs( itpos, nrdims_ );
-	    int& arridx = arridxs[idim];
+	    NDPosBuf pos( itpos, nrdims_ );
+	    int& arridx = pos[idim];
 	    if ( idx )
 	    {
 		arridx++;
-		if ( arridx > maxidxs_[idim] ) arridx = maxidxs_[idim];
+		if ( arridx > maxidxs_[idim] )
+		    arridx = maxidxs_[idim];
 	    }
 	    else
 	    {
 		arridx--;
 		if ( arridx < 0 ) arridx = 0;
 	    }
-	    vals += inp_.getND( arridxs.arr() );
+	    vals += inp_.getND( pos );
 	}
     }
 
-    T smval = 0; const int nrvals = vals.size();
+    T smval = 0; const auto nrvals = vals.size();
     const T val0 = inp_.getND( itpos );
-    for ( int idx=0; idx<nrvals; idx++ )
+    for ( auto idx=0; idx<nrvals; idx++ )
 	{ smval += val0; smval += vals[idx]; }
     smval /= 2 * nrvals;
     out_.setND( itpos, smval );

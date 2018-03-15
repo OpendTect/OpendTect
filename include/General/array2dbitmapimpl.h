@@ -83,11 +83,9 @@ protected:
 };
 
 
-namespace Interpolate { template <class T> class Applier2D; }
+namespace Interpolate { template <class ValT,class PosT> class Applier2D; }
 
-/*!
-\brief Variable density A2DBitMap generation parameters.
-*/
+/*!\brief Variable density A2DBitMap generation parameters. */
 
 mStruct(General) VDA2DBitMapGenPars : public A2DBitMapGenPars
 {
@@ -139,7 +137,8 @@ protected:
 
     void			drawStrip(int);
     void			drawPixLines(int,const Interval<int>&);
-    void			fillInterpPars(Interpolate::Applier2D<float>&,
+    void			fillInterpPars(
+				    Interpolate::Applier2D<float,float>&,
 					       int,int);
     void			drawVal(int,int,float);
 
