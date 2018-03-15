@@ -1,6 +1,28 @@
 OpendTect V6.2.x : Release info
 
 ----
+v6.2.3: March 16, 2018
+* Fix for mix-up of fault and horizon interpretation in 2D viewer
+* Fix for wrongly highlighted horizon in 2D viewer's Tree during
+  interpretation of several horizons
+* Fix for a shift in seismic texture after displaying/hiding scale bar
+  in 2D viewer
+* Fix for incorrect output of Smoother in Volume builder
+* Fix for Attributes display on Bodies
+* Added well names in windows launched from well manager (track, checkshot,
+  time-depth model, markers)
+* Fix for a shift in volume processing output if z-range start is not a
+  multiple of z-range step
+* Disabled the option for Amplitude spectra in a time scene for depth surveys
+  and a depth scene for time surveys
+* Fix for including CRS details when copying setup from another survey
+* Added possibility to select several output frequencies when processing
+  spectral decomposition on a horizon
+* Activation of the polygon removal tool does not require enabling
+  the pick mode
+* On Windows platform, machine will not go to sleep mode if a
+  Batch/Multi Machine process is running
+
 v6.2.2: February 22, 2018
 * Added  "Most Frequent" option to Stratal Amplitude
 * Fix for incorrect depth and sample interval values in SEGY output of Time
