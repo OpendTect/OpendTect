@@ -184,7 +184,7 @@ protected:
 						 int icomp);
 				~SeisFlatDataPack();
 
-    void			setPosData();
+    virtual void		setPosData();
 				/*!< Sets distances from start and Z-values
 				 as X1 and X2 posData. Assumes getPath() is
 				 not empty. */
@@ -264,6 +264,10 @@ protected:
 				~RandomFlatDataPack();
 
     void			setSourceData();
+    void			setPosData();
+				/*!< Sets distances from start and Z-values
+				 as X1 and X2 posData after regularizing. */
+
     void			setTrcInfoFlds();
 
     const RandomSeisDataPack&	rdlSource() const
