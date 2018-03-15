@@ -118,7 +118,7 @@ ArrayNDInfo::OffsetType Array3DInfo::getOffset( IdxType p0, IdxType p1,
 						IdxType p2 ) const
 {
     const IdxType pos[3] = { p0, p1, p2 };
-    return ArrayNDInfo::validPos( const_cast<NDPos>(pos) );
+    return ArrayNDInfo::getOffset( const_cast<NDPos>(pos) );
 }
 
 
