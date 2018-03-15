@@ -210,7 +210,7 @@ EventAscIO::EventAscIO( const Table::FormatDesc& fd, od_istream& strm )
 Table::FormatDesc* EventAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "PreStack Event" );
-    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
+    fd->headerinfos_ += new Table::TargetInfo( uiStrings::sUndefVal(),
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
     createDescBody( fd );
     return fd;
@@ -220,10 +220,10 @@ Table::FormatDesc* EventAscIO::getDesc()
 void EventAscIO::createDescBody( Table::FormatDesc* fd )
 {
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
-    fd->bodyinfos_ += new Table::TargetInfo( "Event ID (optional)",
+    fd->bodyinfos_ += new Table::TargetInfo( tr("Event ID (optional)"),
 					     IntInpSpec(), Table::Optional );
-    fd->bodyinfos_ += new Table::TargetInfo( "Offset", FloatInpSpec(),
-					     Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sOffset(),
+					    FloatInpSpec(), Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
 }
 

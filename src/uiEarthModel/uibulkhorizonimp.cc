@@ -44,9 +44,10 @@ static Table::FormatDesc* getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkHorizon" );
 
-    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
+    fd->headerinfos_ += new Table::TargetInfo( uiStrings::sUndefVal(),
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
-    fd->bodyinfos_ += new Table::TargetInfo( "Horizon name", Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sHorizonName(),
+							    Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     return fd;

@@ -42,8 +42,8 @@ Table::FormatDesc* Well::TrackAscIO::getDesc()
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( false );
     zti->setName( "Z (TVDSS)" );
     fd->bodyinfos_ += zti;
-    Table::TargetInfo* ti = new Table::TargetInfo( "MD", FloatInpSpec(),
-						   Table::Optional );
+    Table::TargetInfo* ti = new Table::TargetInfo( tr("MD", "measured depth"),
+					FloatInpSpec(), Table::Optional );
     ti->setPropertyType( PropertyRef::Dist );
     ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     fd->bodyinfos_ += ti;
@@ -304,8 +304,8 @@ bool Well::TrackAscIO::getData( Data& wd, float kbelev, float td ) const
 
 static Table::TargetInfo* gtDepthTI( bool withuns )
 {
-    Table::TargetInfo* ti = new Table::TargetInfo( "Depth", FloatInpSpec(),
-						   Table::Required );
+    Table::TargetInfo* ti = new Table::TargetInfo( uiStrings::sDepth(),
+					    FloatInpSpec(), Table::Required );
     if ( withuns )
     {
 	ti->setPropertyType( PropertyRef::Dist );
@@ -313,7 +313,8 @@ static Table::TargetInfo* gtDepthTI( bool withuns )
     }
 
     ti->form(0).setName( "MD" );
-    ti->add( new Table::TargetInfo::Form( "TVDSS", FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( uiStrings::sTVDSS(),
+							FloatInpSpec() ) );
     return ti;
 }
 
@@ -326,10 +327,10 @@ Table::FormatDesc* Well::MarkerSetAscIO::getDesc()
 
 #define mAddNmSpec(nm,typ) \
     fd->bodyinfos_ += new Table::TargetInfo(nm,StringInpSpec(),Table::typ)
-    mAddNmSpec( "Marker name", Required );
-    mAddNmSpec( "Nm p2", Hidden );
-    mAddNmSpec( "Nm p3", Hidden );
-    mAddNmSpec( "Nm p4", Hidden );
+    mAddNmSpec( uiStrings::sMarkerNm(), Required );
+    mAddNmSpec( toUiString("Nm p2"), Hidden );
+    mAddNmSpec( toUiString("Nm p3"), Hidden );
+    mAddNmSpec( toUiString("Nm p4"), Hidden );
 
     return fd;
 }

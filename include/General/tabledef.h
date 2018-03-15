@@ -60,11 +60,11 @@ public:
 
     struct Form : NamedObject
     {
-			Form( const char* nm, DataInpSpec* spec )
-			    : NamedObject(nm)
+			Form( const uiString nm, DataInpSpec* spec )
+			    : NamedObject(mFromUiStringTodo(nm))
 				{ add( spec ); }
-			Form( const char* nm, const DataInpSpec& spec )
-			    : NamedObject(nm)
+			Form( const uiString nm, const DataInpSpec& spec )
+			    : NamedObject(mFromUiStringTodo(nm))
 				{ add( spec.clone() ); }
 
 			~Form()	{ deepErase(specs_); }
@@ -75,7 +75,7 @@ public:
 			    { specs_ += spec ? spec : new StringInpSpec;
 			      return *this; }
 
-	Form*		duplicate( const char* nm ) const
+	Form*		duplicate( const uiString nm ) const
 	    		{
 			    Form* ret = new Form( nm, *specs_[0] );
 			    for ( int idx=1; idx<specs_.size(); idx++ )
@@ -87,27 +87,27 @@ public:
     };
 
 
-    			TargetInfo( const char* nm, ReqSpec rs=Optional )
+    			TargetInfo( const uiString nm, ReqSpec rs=Optional )
 					//!< Single string
-			    : NamedObject(nm), req_(rs)
+			    : NamedObject(mFromUiStringTodo(nm)), req_(rs)
     			    , proptype_(PropertyRef::Other)
 				{ add( nm ); }
-    			TargetInfo( const char* nm, DataInpSpec* spec,
+    			TargetInfo( const uiString nm, DataInpSpec* spec,
 				  ReqSpec rs=Optional,
 				  PropertyRef::StdType p=PropertyRef::Other )
-			    : NamedObject(nm), req_(rs), proptype_(p)
+			    : NamedObject(mFromUiStringTodo(nm)), req_(rs), proptype_(p)
 				{ add( nm, spec ); }
-    			TargetInfo( const char* nm, const DataInpSpec& spec,
+    			TargetInfo( const uiString nm, const DataInpSpec& spec,
 				  ReqSpec rs=Optional, 
 				  PropertyRef::StdType p=PropertyRef::Other )
-			    : NamedObject(nm), req_(rs), proptype_(p)
+			    : NamedObject(mFromUiStringTodo(nm)), req_(rs), proptype_(p)
 				{ add( nm, spec ); }
 
 			~TargetInfo()		{ deepErase( forms_ ); }
 
-    TargetInfo&		add( const char* nm, DataInpSpec* spec=0 )
+    TargetInfo&		add( const uiString nm, DataInpSpec* spec=0 )
 			    { forms_ += new Form( nm, spec ); return *this; }
-    TargetInfo&		add( const char* nm, const DataInpSpec& spec )
+    TargetInfo&		add( const uiString nm, const DataInpSpec& spec )
 			    { forms_ += new Form( nm, spec ); return *this; }
     TargetInfo&		add( Form* frm )
 			    { forms_ += frm; return *this; }

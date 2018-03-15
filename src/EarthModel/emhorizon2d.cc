@@ -694,7 +694,7 @@ const IOObjContext& Horizon2D::getIOObjContext() const
 Table::FormatDesc* Horizon2DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );
-    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
+    fd->headerinfos_ += new Table::TargetInfo( uiStrings::ssUndefVal(),
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
     BufferStringSet hornms;
     createDescBody( fd, hornms );

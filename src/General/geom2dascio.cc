@@ -18,7 +18,8 @@ Geom2dAscIO::Geom2dAscIO( const Table::FormatDesc& fd, od_istream& strm )
 Table::FormatDesc* Geom2dAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Geom2D" );
-    fd->bodyinfos_ += new Table::TargetInfo( "Trace Nr", IntInpSpec() );
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sTraceNumber(),
+								IntInpSpec() );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
 
     return fd;

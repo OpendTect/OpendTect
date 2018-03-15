@@ -275,7 +275,7 @@ Table::TargetInfo*
     const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
     if ( ishor )
     {
-	ti = new TargetInfo( "Position", DoubleInpSpec(), reqspec );
+	ti = new TargetInfo( uiStrings::sPosition(), DoubleInpSpec(), reqspec );
 	ti->form(0).setName( "X Y" );
 	ti->form(0).add( DoubleInpSpec() );
 	Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "Inl Crl",

@@ -47,13 +47,14 @@ static Table::FormatDesc* getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkFault" );
 
-    fd->bodyinfos_ += new Table::TargetInfo( "Fault name", Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sFaultName(),
+							    Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
-    fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
-					     Table::Optional );
-    fd->bodyinfos_ += new Table::TargetInfo( "Node index", IntInpSpec(),
-					     Table::Optional );
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sStickIndex(),
+					    IntInpSpec(), Table::Optional );
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sNodeIndex(),
+					    IntInpSpec(), Table::Optional );
     return fd;
 }
 

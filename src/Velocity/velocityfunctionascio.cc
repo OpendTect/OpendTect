@@ -52,8 +52,8 @@ void FunctionAscIO::createDescBody( Table::FormatDesc& fd )
 {
     fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd.bodyinfos_ += Table::TargetInfo::mkZPosition( true );
-    fd.bodyinfos_ += new Table::TargetInfo( "Velocity", FloatInpSpec(),
-					    Table::Required );
+    fd.bodyinfos_ += new Table::TargetInfo( uiStrings::sVelocity(),
+					    FloatInpSpec(), Table::Required );
 }
 
 

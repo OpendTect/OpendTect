@@ -353,6 +353,7 @@ public:
     static uiWord sFailed()		{ return tr("Failed"); }
     static uiWord sFault(int n=1)	{ return tr("Fault",0,n); }
     static uiWord sFaultData()		{ return tr("Fault Data"); }
+    static uiWord sFaultName(int n=1)	{ return tr("Fault Name",0,n); }
     static uiWord sFaultStickSet(int n=1) { return tr("FaultStickSet",0,n); }
     static uiWord sFeet( bool abbr )
     { return abbr ? toUiString("ft") : tr("Feet","not meter"); }
@@ -390,6 +391,7 @@ public:
     static uiWord sHistogram()		{ return tr("Histogram"); }
     static uiWord sHorizon(int n=1)	{ return tr("Horizon",0,n); }
     static uiWord sHorizonData()	{ return tr("Horizon Data"); }
+    static uiWord sHorizonName(int n=1)	{ return tr("Horizon Name",0,n); }
     static uiWord sHorizontal()		{ return tr("Horizontal"); }
     static uiWord sHost()		{ return tr("Host"); }
     static uiWord sID()			{ return tr("ID"); }
@@ -405,8 +407,8 @@ public:
     static uiWord sInline(int n=1)	{ return tr("In-line",0,n); }
     static uiWord sInlineDip()		{ return tr("Inline Dip"); }
     static uiWord sInlineRange()	{ return tr("Inline Range"); }
-	static uiWord sInputASCIIFile() { return tr("Input ASCII File"); }
-	static uiWord sInputParamsMissing();
+    static uiWord sInputASCIIFile()	{ return tr("Input ASCII File"); }
+    static uiWord sInputParamsMissing();
     static uiWord sInput()		{ return tr("Input"); }
     static uiWord sInputFile()		{ return tr("Input File"); }
     static uiWord sInputSelection()	{ return tr("Input Selection"); }
@@ -455,6 +457,7 @@ public:
     static uiWord sManage()		{ return tr("Manage"); }
     static uiWord sManual()		{ return tr("Manual"); }
     static uiWord sMarker(int n=1)	{ return tr("Marker",0,n); }
+    static uiWord sMarkerNm(int n=1)	{ return tr("Marker Name",0,n); }
     static uiWord sMD()			{ return tr("MD"); }
     static uiWord sMatch()		{ return tr("Match"); }
     static uiWord sMaximum()		{ return tr("Maximum"); }
@@ -486,6 +489,7 @@ public:
     static uiWord sNo()			{ return tr("No"); }
     static uiWord sNoInfoAvailable()	{ return tr("No info available"); }
     static uiWord sNode(int n=1)	{ return tr("Node",0,n); }
+    static uiWord sNodeIndex(int n=1)	{ return tr("Node Index",0,n); }
     static uiWord sNoLogSel()		{ return tr("No log selected"); }
     static uiWord sNone()		{ return tr("None"); }
     static uiWord sNormal()		{ return tr("Normal"); }
@@ -664,6 +668,7 @@ public:
     static uiWord sStep(int n=1)	{ return tr("Step",0,n); }
     static uiWord sStepout()		{ return tr("Stepout"); }
     static uiWord sSteps()		{ return sStep(mPlural); }
+    static uiWord sStickIndex(int n=1)	{ return tr("Stick Index",0,1); }
     static uiWord sStop()		{ return tr("Stop"); }
     static uiWord sStorage()		{ return tr("Storage"); }
     static uiWord sStorageDir();
@@ -701,12 +706,13 @@ public:
     static uiWord sTranslator()		{ return tr("Translator"); }
     static uiWord sTransparency()	{ return tr("Transparency"); }
     static uiWord sTriangulation()	{ return tr("Triangulation"); }
-    static uiWord sTVDSS()		{ return tr("TVDSS"); }
+    static uiWord sTVDSS()		{ return tr("TVDSS",
+					    "True Vertical Depth Sub Sea"); }
     static uiWord sTWT(bool abbr=true);
     static uiWord sType()		{ return tr("Type"); }
     static uiWord sUndef(bool abbr=true)
     { return abbr ? tr("undef") : tr("Undefined"); }
-    static uiWord sUndefVal()		{ return tr("Undefined Value"); }
+    static uiWord sUndefVal()		{ return tr("Undefined Value");
     static uiWord sUndo()		{ return tr("Undo"); }
     static uiWord sUnion()		{ return tr("Union","of sets"); }
     static uiWord sUnit(int n=1)	{ return tr("Unit",0,n); }

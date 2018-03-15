@@ -45,8 +45,8 @@ void MuteAscIO::createDescBody( Table::FormatDesc& fd, bool haveposinfo )
     if ( haveposinfo )
 	fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
 
-    fd.bodyinfos_ += new Table::TargetInfo( sKey::Offset(), FloatInpSpec(),
-					    Table::Required );
+    fd.bodyinfos_ += new Table::TargetInfo( uiStrings::sOffset(),
+					    FloatInpSpec(), Table::Required );
 
     fd.bodyinfos_ += Table::TargetInfo::mkZPosition( true );
 }

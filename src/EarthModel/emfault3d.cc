@@ -346,11 +346,11 @@ Table::FormatDesc* FaultAscIO::getDesc( bool is2d )
 
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
-    fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
-					     Table::Optional );
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sStickIndex(),
+						IntInpSpec(), Table::Optional );
     if ( is2d )
-	fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
-						 Table::Required );
+	fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sLineName(),
+					StringInpSpec(), Table::Required );
     return fd;
 }
 

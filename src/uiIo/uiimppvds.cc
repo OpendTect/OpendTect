@@ -51,7 +51,8 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( false );
     fd_.bodyinfos_ += Table::TargetInfo::mkZPosition( false );
     if ( is2d_ )
-	fd_.bodyinfos_ += new Table::TargetInfo("Trace number", IntInpSpec() );
+	fd_.bodyinfos_ += new Table::TargetInfo( uiStrings::sTraceNumber(),
+						    IntInpSpec() );
     dataselfld_ = new uiTableImpDataSel( this, fd_,
                   mODHelpKey(mTableImpDataSelpvdsHelpID)  );
     dataselfld_->attach( alignedBelow, inpfld_ );

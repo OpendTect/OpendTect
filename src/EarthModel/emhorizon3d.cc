@@ -1574,7 +1574,7 @@ const char* Horizon3DAscIO::sKeyAttribFormatStr()
 Table::FormatDesc* Horizon3DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon3D" );
-    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
+    fd->headerinfos_ += new Table::TargetInfo( uiStrings::ssUndefVal(),
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
     BufferStringSet attrnms;
     createDescBody( fd, attrnms );

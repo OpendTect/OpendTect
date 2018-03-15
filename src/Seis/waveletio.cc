@@ -257,12 +257,12 @@ bool dgbWaveletTranslator::write( const Wavelet* inwv, Conn& conn )
 Table::FormatDesc* WaveletAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Wavelet" );
-    fd->headerinfos_ += new Table::TargetInfo( "Sample interval",
+    fd->headerinfos_ += new Table::TargetInfo( tr("Sample Interval"),
 			FloatInpSpec(SI().zRange(true).step), Table::Required,
 			PropertyRef::surveyZType() );
-    fd->headerinfos_ += new Table::TargetInfo( "Center sample",
-						IntInpSpec(), Table::Optional );
-    fd->bodyinfos_ += new Table::TargetInfo( "Data samples", FloatInpSpec(),
+    fd->headerinfos_ += new Table::TargetInfo( tr("Center Sample"),
+					    IntInpSpec(), Table::Optional );
+    fd->bodyinfos_ += new Table::TargetInfo( tr("Data Samples"), FloatInpSpec(),
 					     Table::Required );
     return fd;
 }
