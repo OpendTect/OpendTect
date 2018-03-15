@@ -30,7 +30,6 @@ ArrayND with higher dimensionality.
 mExpClass(Basic) ArrayNDSliceBase
 {
 public:
-
 				mTypeDefArrNDTypes;
 
     virtual			~ArrayNDSliceBase();
@@ -65,6 +64,8 @@ template <class T>
 mClass(Basic) Array1DSlice : public Array1D<T>, public ArrayNDSliceBase
 {
 public:
+				mTypeDefArrNDTypes;
+
 				Array1DSlice(ArrayND<T>&);
 				Array1DSlice(const ArrayND<T>&);
 				~Array1DSlice();
@@ -95,6 +96,8 @@ template <class T>
 mClass(Basic) Array2DSlice : public Array2D<T>, public ArrayNDSliceBase
 {
 public:
+				mTypeDefArrNDTypes;
+
 				Array2DSlice(ArrayND<T>&);
 				Array2DSlice(const ArrayND<T>&);
 				~Array2DSlice();
