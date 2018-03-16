@@ -70,7 +70,7 @@ bool ArrayNDSliceBase::init()
     const NrDimsType ndim = (NrDimsType)position_.size();
 
     TypeSet<NrDimsType> unknowndims;
-    for ( auto idx=0; idx<ndim; idx++ )
+    for ( DimIdxType idx=0; idx<ndim; idx++ )
     {
 	if ( position_[idx] == -1 )
 	    unknowndims += idx;
@@ -79,7 +79,7 @@ bool ArrayNDSliceBase::init()
     if ( unknowndims.size() != nrowndims )
 	return false;
 
-    for ( auto idx=0; idx<nrowndims; idx++ )
+    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
     {
 	if ( vardim_[idx]==-1 )
 	{
@@ -103,7 +103,7 @@ bool ArrayNDSliceBase::init()
 	return false;
 
     bool ismemorder = true;
-    for ( auto idx=0; idx<nrowndims; idx++ )
+    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
     {
 	if ( vardim_[idx]+nrowndims-idx != ndim )
 	    { ismemorder = false; break; }
@@ -112,7 +112,7 @@ bool ArrayNDSliceBase::init()
     if ( !ismemorder )
     {
 	bool hasonlyoneslice = true;
-	for ( auto dimidx=0; dimidx<ndim; dimidx++ )
+	for ( DimIdxType dimidx=0; dimidx<ndim; dimidx++ )
 	    if ( position_[dimidx]!=-1 && getDimSize(dimidx)!=1 )
 		{ hasonlyoneslice = false; break; }
 
