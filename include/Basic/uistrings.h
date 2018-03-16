@@ -198,7 +198,7 @@ public:
     static uiString sAzimuth()		{ return tr("Azimuth"); }
     static uiString sAttribute(int num=1) { return tr("Attribute",0,num); }
     static uiString sAttributes()	{ return sAttribute(mPlural); }
-    static uiString sAttributeSet(int num=1){ return tr("AttributeSet",0,num); }
+    static uiString sAttributeSet(int num=1){ return tr("Attribute Set",0,num); }
     static uiString sAverage()		{ return tr("Average"); }
     static uiString sBatch()		{ return tr("Batch"); }
     static uiString sBatchProgram();
@@ -303,6 +303,7 @@ public:
     static uiString sFinished()		{ return tr("Finished"); }
     static uiString sFilter(int num=1)  { return tr("Filter",0,num); }
     static uiString sFilters()		{ return sFilter(mPlural); }
+    static uiString sFiltering()	    { return tr("Filtering"); }
     static uiString sFlip()		{ return tr("Flip"); }
     static uiString sFlipLeftRight()	{ return tr("Flip left/right"); }
     static uiString sFrequency(int num=1);
@@ -310,6 +311,7 @@ public:
     static uiString sGeometry()		{ return tr("Geometry"); }
     static uiString sGo()	        { return tr("Go"); }
     static uiString sGreen()		{ return tr("Green"); }
+    static uiString sGridding()		    { return tr("Gridding"); }
     static uiString sHelp();
     static uiString sHeight()		{ return tr("Height"); }
     static uiString sHide()		{ return tr("Hide"); }

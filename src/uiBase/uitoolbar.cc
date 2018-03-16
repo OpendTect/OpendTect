@@ -20,12 +20,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "menuhandler.h"
 #include "separstr.h"
+#include "hiddenparam.h"
 
 #include <QToolBar>
 #include <QToolButton>
 #include "i_qtoolbar.h"
 
 mUseQtnamespace
+
+HiddenParam<uiToolBar,uiString*> dispnm_(0);
 
 
 ObjectSet<uiToolBar>& uiToolBar::toolBars()
@@ -46,7 +49,9 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
     , toolbarmenuaction_(0)
     , qtoolbar_(new QToolBar(nm.getQString(), parnt ? parnt->getWidget() : 0))
 {
+    dispnm_.setParam( this, new uiString(nm) );
     qtoolbar_->setObjectName( nm.getQString() );
+    qtoolbar_->setAccessibleName( nm.getOriginalString() );
     msgr_ = new i_ToolBarMessenger( qtoolbar_, this );
 
     mDynamicCastGet(uiMainWin*,uimw,parnt)
@@ -67,10 +72,15 @@ uiToolBar::~uiToolBar()
 
     delete qtoolbar_;
     delete msgr_;
-
+    dispnm_.removeAndDeleteParam(this);
     toolBars() -= this;
 }
 
+
+uiString uiToolBar::getDispNm()
+{
+    return *dispnm_.getParam(this);
+}
 
 int uiToolBar::addButton( const char* fnm, const uiString& tt,
 			  const CallBack& cb, bool toggle, int id )

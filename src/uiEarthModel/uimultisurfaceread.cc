@@ -24,10 +24,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "od_helpids.h"
 
-
+uiString getDispType(BufferString type)
+{
+    return EMFaultStickSetTranslatorGroup::sGroupName() == type ?
+			uiStrings::sFaultStickSet() : uiStrings::sFault();
+}
 uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg(uiParent* p, const char* type)
-   : uiDialog(p,uiDialog::Setup( tr("Select Input %1 (s)").arg(
-				 mToUiStringTodo(type)),mNoDlgTitle,
+   : uiDialog(p,uiDialog::Setup( uiStrings::phrSelect(getDispType(type)),
+				 mNoDlgTitle,
                                  mODHelpKey(mMultiSurfaceReadDlgHelpID) )
                                  .nrstatusflds(1) )
 {

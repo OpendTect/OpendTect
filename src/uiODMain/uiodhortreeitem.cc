@@ -309,10 +309,10 @@ void uiODHorizonTreeItem::initMenuItems()
     hordatamnuitem_.text = tr("Horizon Data");
     algomnuitem_.text = uiStrings::sTools();
     workflowsmnuitem_.text = tr("Workflows");
-    positionmnuitem_.text = m3Dots(tr("Position"));
+    positionmnuitem_.text = m3Dots(uiStrings::sPosition());
     shiftmnuitem_.text = m3Dots(uiStrings::sShift());
-    fillholesmnuitem_.text = m3Dots(tr("Gridding"));
-    filterhormnuitem_.text = m3Dots(tr("Filtering"));
+    fillholesmnuitem_.text = m3Dots(uiStrings::sGridding());
+    filterhormnuitem_.text = m3Dots(uiStrings::sFiltering());
     snapeventmnuitem_.text = m3Dots(tr("Snapping"));
     geom2attrmnuitem_.text = m3Dots(tr("Store Z as Attribute"));
 

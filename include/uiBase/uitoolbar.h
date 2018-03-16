@@ -98,6 +98,8 @@ public:
 
     void		clear();
 
+    uiString		getDispNm();
+
     static ToolBarArea	pluginArea()		{ return uiToolBar::Right; }
     ToolBarArea		prefArea() const	{ return tbarea_; }
     mQtclass(QToolBar*)	qwidget()		{ return qtoolbar_; }

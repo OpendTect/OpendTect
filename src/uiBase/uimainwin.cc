@@ -673,8 +673,9 @@ void uiMainWinBody::renewToolbarsMenu()
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
 	uiToolBar& tb = *toolbars_[idx];
+	uiString strnm = tb.getDispNm();
 	uiAction* itm =
-	    new uiAction( mToUiStringTodo(tb.name()),
+	    new uiAction( tb.getDispNm(),
 	    mCB(this,uiMainWinBody,toggleToolbar) );
 	toolbarsmnu_->insertItem( itm );
 	tb.setToolBarMenuAction( itm );
