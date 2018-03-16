@@ -66,8 +66,8 @@ void ArrayNDSliceBase::setDimMap( DimIdxType localdim, DimIdxType remotedim )
 
 bool ArrayNDSliceBase::init()
 {
-    const auto nrowndims = vardim_.size();
-    const auto ndim = position_.size();
+    const NrDimsType nrowndims = (NrDimsType)vardim_.size();
+    const NrDimsType ndim = (NrDimsType)position_.size();
 
     TypeSet<NrDimsType> unkdims;
     for ( auto idx=0; idx<ndim; idx++ )
