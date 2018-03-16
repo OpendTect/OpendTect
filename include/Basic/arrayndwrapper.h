@@ -45,6 +45,8 @@ template <class T>
 mClass(Basic) Array3DWrapper : public Array3D<T>, public ArrayNDWrapper
 {
 public:
+			mTypeDefArrNDTypes;
+
 			Array3DWrapper(ArrayND<T>&);
 			~Array3DWrapper();
 
