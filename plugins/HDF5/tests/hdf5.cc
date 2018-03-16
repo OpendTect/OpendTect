@@ -183,8 +183,8 @@ static bool testReadData( const HDF5::Reader& rdr )
     HDF5::Reader::SlabDimSpec dimspec;
     dimspec.start_ = 1; dimspec.step_ = 2; dimspec.count_ = nrdim1;
     slabspec += dimspec;
-    uirv = rdr.getSlab( slabspec, slabvals.arr() );
-    mRunStandardTest( !uirv.isOK(), "Not accept incorrect SlabSpec" )
+    // uirv = rdr.getSlab( slabspec, slabvals.arr() );
+    // mRunStandardTest( !uirv.isOK(), "Not accept incorrect SlabSpec" )
 
     dimspec.start_ = 5; dimspec.step_ = 1; dimspec.count_ = nrdim2;
     slabspec += dimspec;

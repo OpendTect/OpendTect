@@ -33,7 +33,7 @@ ArrayNDSliceBase::~ArrayNDSliceBase()
 
 bool ArrayNDSliceBase::setPos( DimIdxType dim, IdxType pos )
 {
-    const NrDimsType ndim = position_.size();
+    const NrDimsType ndim = (NrDimsType)position_.size();
     if ( dim<0 || dim>=ndim || pos<0 || pos>=getDimSize(dim) )
 	return false;
 
@@ -69,47 +69,44 @@ bool ArrayNDSliceBase::init()
     const NrDimsType nrowndims = (NrDimsType)vardim_.size();
     const NrDimsType ndim = (NrDimsType)position_.size();
 
-    TypeSet<NrDimsType> unkdims;
+    TypeSet<NrDimsType> unknowndims;
     for ( auto idx=0; idx<ndim; idx++ )
     {
 	if ( position_[idx] == -1 )
-	    unkdims += idx;
+	    unknowndims += idx;
     }
 
-    if ( unkdims.size() != nrowndims )
+    if ( unknowndims.size() != nrowndims )
 	return false;
 
     for ( auto idx=0; idx<nrowndims; idx++ )
     {
 	if ( vardim_[idx]==-1 )
 	{
-	    if ( unkdims.size() )
+	    if ( unknowndims.size() )
 	    {
-		vardim_[idx] = unkdims[0];
-		unkdims.removeSingle( 0 );
+		vardim_[idx] = unknowndims[0];
+		unknowndims.removeSingle( 0 );
 	    }
 	    else
 		return false;
 	}
 	else
 	{
-	    if ( !unkdims.isPresent(vardim_[idx]) )
+	    if ( !unknowndims.isPresent(vardim_[idx]) )
 		return false;
-	    unkdims -= vardim_[idx];
+	    unknowndims -= vardim_[idx];
 	}
     }
 
-    if ( unkdims.size() )
+    if ( !unknowndims.isEmpty() )
 	return false;
 
     bool ismemorder = true;
     for ( auto idx=0; idx<nrowndims; idx++ )
     {
-	if ( vardim_[idx]+nrowndims-idx!=ndim )
-	{
-	    ismemorder = false;
-	    break;
-	}
+	if ( vardim_[idx]+nrowndims-idx != ndim )
+	    { ismemorder = false; break; }
     }
 
     if ( !ismemorder )
@@ -124,9 +121,7 @@ bool ArrayNDSliceBase::init()
     }
 
     if ( !ismemorder )
-    {
 	offset_ = -1;
-    }
     else
     {
 	mAllocVarLenArr( IdxType, localpos, nrowndims );
@@ -137,8 +132,8 @@ bool ArrayNDSliceBase::init()
 	offset_ = sourceinfo_.getOffset(tpos);
     }
 
-    for ( auto idx=0; idx<nrowndims; idx++ )
-	info_.setSize( idx, sourceinfo_.getSize(vardim_[idx]) );
+    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
+	info_.setSize( idx, sourceinfo_.getSize((DimIdxType)vardim_[idx]) );
 
     isinited_ = true;
     return true;
