@@ -80,7 +80,8 @@ public:
     typedef ArrayNDInfo::NDPosBuf	NDPosBuf
 
 #define mDefNDPosBuf(nm,nrdims) ArrayNDInfo::NDPosBuf nm( nrdims, 0 )
-#define mNDPosFromBuf(nm) nm.arr()
+#define mNDPosFromPosBuf(bufnm) bufnm.arr()
+#define mNDPosBufFromPos(pos,nrdims) ArrayNDInfo::NDPosBuf( pos, nrdims )
 
 
 inline bool operator ==( const ArrayNDInfo& a1, const ArrayNDInfo& a2 )

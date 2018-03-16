@@ -19,7 +19,7 @@ namespace HDF5
 
 mExpClass(HDF5) ReaderImpl : public Reader
 			   , public AccessImpl
-{
+{ mODTextTranslationClass(HDF5::ReaderImpl)
 public:
 
     typedef H5::DataType	H5DataType;
@@ -43,14 +43,16 @@ protected:
     BufferStringSet	grpnms_;
     mutable H5::Group*	group_;
     mutable H5::DataSet* dataset_;
+    mutable NrDimsType	nrdims_;
 
     virtual void	openFile(const char*,uiRetVal&);
     virtual void	closeFile();
 
+    virtual NrDimsType	nrDims() const		{ return nrdims_; }
     virtual void	gtInfo(IOPar&,uiRetVal&) const;
     virtual void	gtAll(void*,uiRetVal&) const;
-    virtual void	gtPoints(const NDPosSet&,void*,uiRetVal&) const;
-    virtual void	gtSlab(const IdxRgSet&,void*,uiRetVal&) const;
+    virtual void	gtPoints(const NDPosBufSet&,void*,uiRetVal&) const;
+    virtual void	gtSlab(const SlabSpec&,void*,uiRetVal&) const;
 
     void		listObjs(const H5Dir&,BufferStringSet&,bool) const;
     bool		selectGroup(const char*);
@@ -58,6 +60,9 @@ protected:
     inline bool		haveScope( bool needds=true ) const
 			{ return group_ && (!needds || dataset_); }
     H5DataType		h5DataType() const;
+
+    static uiString	sBadDataSpace()
+			{ return tr("Empty Data Set Selected"); }
 
 };
 

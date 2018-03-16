@@ -1204,7 +1204,7 @@ inline bool Array2DPaste( Array2D<T>& dest, const Array2D<T>& src,
     {
 	mDefNDPosBuf( posbuf, 2 );
 	posbuf[0] = p0; posbuf[1] = p1;
-	ArrayNDPaste( dest, src, mNDPosFromBuf(posbuf), destperiodic );
+	ArrayNDPaste( dest, src, mNDPosFromPosBuf(posbuf), destperiodic );
     }
 
     const auto srcsz0 = src.getSize( 0 );
@@ -1242,7 +1242,7 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
     {
 	mDefNDPosBuf( posbuf, 3 );
 	posbuf[0] = p0; posbuf[1] = p1; posbuf[2] = p2;
-	ArrayNDPaste( dest, src, mNDPosFromBuf(posbuf), destperiodic );
+	ArrayNDPaste( dest, src, mNDPosFromPosBuf(posbuf), destperiodic );
     }
 
     const auto srcsz0 = src.getSize( 0 );

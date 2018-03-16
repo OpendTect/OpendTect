@@ -14,6 +14,10 @@ ________________________________________________________________________
 #include "file.h"
 #include "iopar.h"
 
+#define mGetDataSpaceDims( dims, dataspace ) \
+    TypeSet<hsize_t> dims( nrdims_, (hsize_t)0 ); \
+    dataspace.getSimpleExtentDims( dims.arr() )
+
 
 HDF5::ReaderImpl::ReaderImpl()
     : AccessImpl(*this)
@@ -60,7 +64,7 @@ void HDF5::ReaderImpl::listObjs( const H5Dir& dir, BufferStringSet& nms,
     try
     {
 	const int nrobjs = dir.getNumObjs();
-	for ( int iobj=0; iobj<nrobjs; iobj++ )
+	for ( auto iobj=0; iobj<nrobjs; iobj++ )
 	{
 	    const std::string nmstr = dir.getObjnameByIdx( iobj );
 	    const BufferString nm( nmstr.c_str() );
@@ -79,7 +83,7 @@ void HDF5::ReaderImpl::listObjs( const H5Dir& dir, BufferStringSet& nms,
 		H5::Group grp = dir.openGroup( nm );
 		BufferStringSet subnms;
 		listObjs( grp, subnms, true );
-		for ( int idx=0; idx<subnms.size(); idx++ )
+		for ( auto idx=0; idx<subnms.size(); idx++ )
 		    nms.add( BufferString( nm.str(), "/", subnms.get(idx) ) );
 	    }
 	}
@@ -125,6 +129,7 @@ bool HDF5::ReaderImpl::selectDataSet( const char* dsnm )
     {
 	delete dataset_; dataset_ = 0;
 	dataset_ = new H5::DataSet( group_->openDataSet(dsnm) );
+	nrdims_ = dataset_->getSpace().getSimpleExtentNdims();
     }
     mCatchAnyNoMsg( return false )
 
@@ -165,19 +170,16 @@ ArrayNDInfo* HDF5::ReaderImpl::getDataSizes() const
 	mRetNoFile( return ret )
     else if ( !haveScope() )
 	return ret;
+    else if ( nrdims_ < 1 )
+	{ ErrMsg( "HDF5: Empty dataspace found" ); return 0; }
 
     try
     {
 	const H5::DataSpace dataspace = dataset_->getSpace();
-	const int nrdims = dataspace.getSimpleExtentNdims();
-	if ( nrdims < 1 )
-	    { ErrMsg( "HDF5: Empty dataspace found" ); return 0; }
+	mGetDataSpaceDims( dims, dataspace );
 
-	TypeSet<hsize_t> dims( nrdims, (hsize_t)0 );
-	dataspace.getSimpleExtentDims( dims.arr() );
-
-	ret = ArrayNDInfoImpl::create( nrdims );
-	for ( int idim=0; idim<nrdims; idim++ )
+	ret = ArrayNDInfoImpl::create( nrdims_ );
+	for ( auto idim=0; idim<nrdims_; idim++ )
 	    ret->setSize( idim, (int)dims[idim] );
     }
     mCatchUnexpected( return ret );
@@ -234,7 +236,7 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
     catch ( ... ) {}
 
     const H5::DataType h5dt = H5::PredType::C_S1;
-    for ( int idx=0; idx<nrattrs; idx++ )
+    for ( auto idx=0; idx<nrattrs; idx++ )
     {
 	try {
 	    const H5::Attribute attr = dset->openAttribute( (unsigned int)idx );
@@ -252,6 +254,8 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
 
 #define mCatchErrDuringRead() \
         mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fileName()) )
+#define mRetDataSpaceBad() \
+	{ uirv.add( sBadDataSpace() ); return; }
 
 
 HDF5::ReaderImpl::H5DataType HDF5::ReaderImpl::h5DataType() const
@@ -267,6 +271,8 @@ void HDF5::ReaderImpl::gtAll( void* data, uiRetVal& uirv ) const
 	mRetNoFileInUiRv()
     else if ( !haveScope() )
 	mRetNeedScopeInUiRv()
+    else if ( nrdims_ < 1 )
+	mRetDataSpaceBad()
 
     try
     {
@@ -277,29 +283,30 @@ void HDF5::ReaderImpl::gtAll( void* data, uiRetVal& uirv ) const
 }
 
 
-void HDF5::ReaderImpl::gtPoints( const NDPosSet& poss, void* data,
+void HDF5::ReaderImpl::gtPoints( const NDPosBufSet& posbufs, void* data,
 				 uiRetVal& uirv ) const
 {
     if ( !file_ )
 	mRetNoFileInUiRv()
     else if ( !haveScope() )
 	mRetNeedScopeInUiRv()
+    else if ( nrdims_ < 1 )
+	mRetDataSpaceBad()
 
     try
     {
 	H5::DataSpace inputdataspace = dataset_->getSpace();
-	const hsize_t nrpts = (hsize_t)poss.size();
-	const int nrdims = inputdataspace.getSimpleExtentNdims();
+	const hsize_t nrpts = (hsize_t)posbufs.size();
 
-	mAllocVarLenArr( hsize_t, hdfcoordarr, nrdims * nrpts );
+	mAllocVarLenArr( hsize_t, hdfcoordarr, nrdims_ * nrpts );
 	if ( !mIsVarLenArrOK(hdfcoordarr) )
 	    { uirv.add( uiStrings::phrCannotAllocateMemory() ); return; }
-	for ( int ipt=0; ipt<nrpts; ipt++ )
+	for ( auto ipt=0; ipt<nrpts; ipt++ )
 	{
-	    NDPos ndpos = poss[ipt];
-	    const int arroffs = ipt * nrdims;
-	    for ( int idim=0; idim<nrdims; idim++ )
-		hdfcoordarr[arroffs + idim] = ndpos[idim];
+	    const NDPosBuf& posbuf = posbufs[ipt];
+	    const int arroffs = ipt * nrdims_;
+	    for ( auto idim=0; idim<nrdims_; idim++ )
+		hdfcoordarr[arroffs + idim] = posbuf[idim];
 	}
 	inputdataspace.selectElements( H5S_SELECT_SET, nrpts, hdfcoordarr );
 
@@ -310,13 +317,36 @@ void HDF5::ReaderImpl::gtPoints( const NDPosSet& poss, void* data,
 }
 
 
-void HDF5::ReaderImpl::gtSlab( const IdxRgSet& poss, void* data,
-				uiRetVal& uirv ) const
+void HDF5::ReaderImpl::gtSlab( const SlabSpec& spec, void* data,
+			       uiRetVal& uirv ) const
 {
     if ( !file_ )
 	mRetNoFileInUiRv()
     else if ( !haveScope() )
 	mRetNeedScopeInUiRv()
+    else if ( nrdims_ < 1 )
+	mRetDataSpaceBad()
 
-    uirv.add( mTODONotImplPhrase() );
+    TypeSet<hsize_t> counts, offss, strides;
+    try
+    {
+	H5::DataSpace inputdataspace = dataset_->getSpace();
+	mGetDataSpaceDims( dimsizes, inputdataspace );
+	for ( auto idim=0; idim<nrdims_; idim++ )
+	{
+	    SlabDimSpec sds = spec[idim];
+	    if ( sds.count_ < 0 )
+		sds.count_ = (dimsizes[idim]-sds.start_) / sds.step_;
+	    counts += sds.count_;
+	    offss += sds.start_;
+	    strides += sds.step_;
+	}
+
+	inputdataspace.selectHyperslab( H5S_SELECT_SET,
+			counts.arr(), offss.arr(), strides.arr() );
+
+	H5::DataSpace outputdataspace( nrdims_, counts.arr() );
+	dataset_->read( data, h5DataType(), outputdataspace, inputdataspace );
+    }
+    mCatchErrDuringRead()
 }

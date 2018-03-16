@@ -139,15 +139,15 @@ uiRetVal HDF5::Reader::getPoint( NDPos pos, void* data ) const
 	{ pErrMsg("data == null"); }
     else
     {
-	NDPosSet pts;
-	pts += pos;
+	NDPosBufSet pts;
+	pts += mNDPosBufFromPos( pos, nrDims() );
 	gtPoints( pts, data, uirv );
     }
     return uirv;
 }
 
 
-uiRetVal HDF5::Reader::getPoints( const NDPosSet& pts, void* data ) const
+uiRetVal HDF5::Reader::getPoints( const NDPosBufSet& pts, void* data ) const
 {
     uiRetVal uirv;
     if ( !data )
@@ -158,12 +158,12 @@ uiRetVal HDF5::Reader::getPoints( const NDPosSet& pts, void* data ) const
 }
 
 
-uiRetVal HDF5::Reader::getSlab( const IdxRgSet& rgs, void* data ) const
+uiRetVal HDF5::Reader::getSlab( const SlabSpec& spec, void* data ) const
 {
     uiRetVal uirv;
     if ( !data )
 	{ pErrMsg("data == null"); }
     else
-	gtSlab( rgs, data, uirv );
+	gtSlab( spec, data, uirv );
     return uirv;
 }

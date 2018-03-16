@@ -162,10 +162,10 @@ static bool testReadData( const HDF5::Reader& rdr )
 				BufferString("val=",val) )
 
     const int nrpts = 3;
-    HDF5::Reader::NDPosSet positions;
+    HDF5::Reader::NDPosBufSet positions;
     for ( int ipt=0; ipt<nrpts; ipt++ )
     {
-	HDF5::Reader::IdxType* pos = new HDF5::Reader::IdxType [ nrdims_ ];
+	mDefNDPosBuf( pos, nrdims_ );
 	for ( int idim=0; idim<nrdims_; idim++ )
 	    pos[idim] = idim*5 + ipt;
 	positions += pos;
@@ -176,8 +176,6 @@ static bool testReadData( const HDF5::Reader& rdr )
     mAddTestResult( "Get multi point values" );
     mRunStandardTestWithError( ptvals[1]==30106.f, "Correct value [comp2,1,6]",
 				BufferString("ptvals[1]=",ptvals[1]) )
-    for ( int ipt=0; ipt<nrpts; ipt++ )
-	delete [] positions[ipt];
 
     return true;
 }
