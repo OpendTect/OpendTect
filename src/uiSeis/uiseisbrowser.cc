@@ -208,8 +208,8 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
     }
 
     nrcomps_ = tr_->componentInfo().size();
-    nrsamples_ = tr_->outNrSamples();
-    sd_ = tr_->outSD();
+    nrsamples_ = tr_->inpNrSamples();
+    sd_ = tr_->inpSD();
     return true;
 }
 
