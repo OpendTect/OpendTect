@@ -76,13 +76,11 @@ public:
     {
 			SPos( ArrIdxType ii=-1, ArrIdxType jj=-1 )
 			    : i(ii), j(jj)	{}
-	void		reset()		{ i = j = -1; }
-	inline bool	operator ==( const SPos& oth ) const
-					{ return i == oth.i && j == oth.j; }
-	inline bool	operator !=( const SPos& oth ) const
-					{ return i != oth.i || j != oth.j; }
+			mImplSimpleEqOpers2Memb(SPos,i,j)
 	inline bool	operator>(const SPos&) const;
 	inline bool	operator<(const SPos&) const;
+
+	void		reset()		{ i = j = -1; }
 	inline bool	isValid() const	{ return i > -1 && j > -1; }
 
 	ArrIdxType	i, j;

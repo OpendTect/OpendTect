@@ -185,11 +185,13 @@ public:
 template <class T, class I>
 inline bool operator ==( const TypeSetBase<T,I>& a, const TypeSetBase<T,I>& b )
 {
-    if ( a.size() != b.size() ) return false;
+    if ( a.size() != b.size() )
+	return false;
 
     const I sz = a.size();
     for ( I idx=0; idx<sz; idx++ )
-	if ( !(a[idx] == b[idx]) ) return false;
+	if ( !(a[idx] == b[idx]) )
+	    return false;
 
     return true;
 }

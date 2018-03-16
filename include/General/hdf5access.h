@@ -128,6 +128,10 @@ protected:
     static uiString	sHDF5Err();
     static uiString	sFileNotOpen();
 
+    static const char*	sOpenFileFirst();
+    static const char*	sNeedScope();
+    static const char*	sNoDataPassed();
+
     friend class	AccessImpl;
 
 };

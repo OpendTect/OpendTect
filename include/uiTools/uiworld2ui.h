@@ -26,8 +26,8 @@ public:
 		World2UiData( uiSize s, const uiWorldRect& w );
 		World2UiData( const uiWorldRect& w, uiSize s );
 
-    bool	operator ==( const World2UiData& w2ud ) const;
-    bool	operator !=( const World2UiData& w2ud ) const;
+    bool	operator ==(const World2UiData&) const;
+		mImplSimpleIneqOper(World2UiData)
 
     uiSize	sz;
     uiWorldRect	wr;
@@ -60,7 +60,7 @@ public:
 			uiWorld2Ui( const uiWorldRect& wr, const uiSize& sz );
 			uiWorld2Ui( const World2UiData& w );
 
-    bool		operator==(const uiWorld2Ui& ) const;
+    bool		operator==(const uiWorld2Ui&) const;
 
     void		set( const World2UiData& w );
     void		set( const uiWorldRect& wr, const uiSize& sz );
@@ -124,6 +124,8 @@ protected:
     uiPoint		uiorigin;
 
 private:
-			void getAppropriateRange( float min, float max,
-						 float& newmin, float& newmax );
+
+			void getAppropriateRange(float min,float max,
+						 float& newmin,float& newmax);
+
 };

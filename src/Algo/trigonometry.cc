@@ -510,12 +510,6 @@ bool Plane3::operator==(const Plane3& b ) const
 }
 
 
-bool Plane3::operator!=(const Plane3& b ) const
-{
-    return !((*this)==b);
-}
-
-
 Coord3 Plane3::getProjection( const Coord3& pos )
 {
     const double param = (A_*pos.x_+B_*pos.y_+C_*pos.z_+D_)/(A_*A_+B_*B_+C_*C_);

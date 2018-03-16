@@ -29,10 +29,7 @@ public:
 				GroupLabel( const char* t=0 )
 				    : txt_(t)		{}
 
-    bool			operator ==( const GroupLabel& oth ) const
-				{ return id_ == oth.id_; }
-    inline bool			operator !=( const GroupLabel& oth ) const
-				{ return !(*this == oth); }
+				mImplSimpleEqOpers1Memb(GroupLabel,id_)
 
     inline ID			id() const	{ return id_; }
     inline BufferString		text() const	{ return txt_; }

@@ -37,8 +37,8 @@ public:
     inline T&			operator[](int idx);
     inline T			operator[](int idx) const;
 
-    inline bool			operator==(const Point2D<T>&) const;
-    inline bool			operator!=(const Point2D<T>&) const;
+    inline bool			operator==(const Point2D&) const;
+				mImplSimpleIneqOper(Point2D)
     inline Point2D<T>&		operator+=(T dist);
     inline Point2D<T>&		operator*=(T factor);
     inline Point2D<T>&		operator/=(T den);
@@ -117,10 +117,10 @@ public:
     inline T&			operator[](int idx);
     inline T			operator[](int idx) const;
 
-    inline bool			operator==(const Point3D<T>&) const;
-    inline bool			operator!=(const Point3D<T>&) const;
-    inline bool			isSameAs( const Point3D<T>& pos,
-					  const Point3D<T>& eps ) const;
+    inline bool			operator==(const Point3D&) const;
+				mImplSimpleIneqOper(Point3D)
+    inline bool			isSameAs(const Point3D& pos,
+					 const Point3D& eps) const;
 
     inline Point3D<T>&		operator+=(T dist);
     inline Point3D<T>&		operator*=(T factor);
@@ -189,8 +189,8 @@ mClass(Basic) Size2D
 public:
 			Size2D( T w = 0 , T h = 0 );
 
-    inline bool		operator==(const Size2D<T>&) const;
-    inline bool		operator!=(const Size2D<T>&) const;
+    inline bool		operator==(const Size2D&) const;
+			mImplSimpleIneqOper(Size2D)
 
     inline T		width() const;
     inline T		height() const;
@@ -228,8 +228,8 @@ public:
 			Rectangle(const Point2D<T>& tl,const Point2D<T>& br);
 			Rectangle(const Point2D<T>& tl,const Size2D<T>& sz);
 
-    inline bool		operator==(const Rectangle<T>&) const;
-    inline bool		operator!=(const Rectangle<T>&) const;
+    inline bool		operator==(const Rectangle&) const;
+			mImplSimpleIneqOper(Rectangle)
 
     inline Point2D<T>	topLeft() const;
     inline Point2D<T>	topRight() const;
@@ -376,7 +376,6 @@ template <class T> template <class TT> inline
 Point2D<T>& Point2D<T>::setFrom( const Point2D<TT>& a )
 { x_=(T) a.x_; y_=(T) a.y_; return *this;}
 
-
 template <class T> inline
 void Point2D<T>::setXY( T xx, T yy )
 { x_ = xx ; y_ = yy; }
@@ -393,21 +392,17 @@ template <class T> inline
 Point2D<T> Point2D<T>::operator -() const
 { return Point2D<T>( -x_, -y_ ); }
 
-
 template <class T> inline
 T& Point2D<T>::operator[]( int idx )
 { return idx ? y_ : x_; }
-
 
 template <class T> inline
 T Point2D<T>::operator[]( int idx ) const
 { return idx ? y_ : x_; }
 
-
 template <class T> inline
 bool Point2D<T>::operator ==( const Point2D<T>& p ) const
 { return p.x_ == x_ && p.y_ == y_; }
-
 
 template <class T> inline
 bool Point2D<T>::operator<(const Point2D<T>& crd) const
@@ -417,10 +412,6 @@ template <class T> inline
 bool Point2D<T>::operator>(const Point2D<T>& crd) const
 { return x_>crd.x_ || (x_==crd.x_ && y_>crd.y_); }
 
-
-template <class T> inline
-bool Point2D<T>::operator !=( const Point2D<T>& p ) const
-{ return !(*this==p); }
 
 template <class T> inline
 Point2D<T>& Point2D<T>::operator+=( T dist )
@@ -482,7 +473,6 @@ void Point2D<T>::swapXY()
 {
     Swap( x_, y_ );
 }
-
 
 template <class T> inline
 BufferString Point2D<T>::toString() const
@@ -676,14 +666,6 @@ bool Point3D<T>::operator==( const Point3D<T>& b ) const
     const T dz = z_-b.z_;
     return mIsZero(dx,mDefEps) && mIsZero(dy,mDefEps) && mIsZero(dz,mDefEps);
 }
-
-
-template <class T>
-inline bool Point3D<T>::operator!=( const Point3D<T>& b ) const
-{
-    return !(b==*this);
-}
-
 
 
 template <class T> inline
@@ -925,11 +907,6 @@ bool Size2D<T>::operator ==( const Size2D<T>& s ) const
 
 
 template <class T> inline
-bool Size2D<T>::operator !=( const Size2D<T>& s ) const
-{ return s.width_ != width_ || s.height_ != height_; }
-
-
-template <class T> inline
 T Size2D<T>::width() const
 { return width_; }
 
@@ -1006,11 +983,6 @@ Rectangle<T>::Rectangle( const Point2D<T>& tl, const Size2D<T>& sz )
 template <class T> inline
 bool Rectangle<T>::operator ==( const Rectangle<T>& r ) const
 { return r.topleft_ == topleft_ && r.bottomright_ == bottomright_; }
-
-
-template <class T> inline
-bool Rectangle<T>::operator !=( const Rectangle<T>& r ) const
-{ return r.topleft_ != topleft_ || r.bottomright_ != bottomright_; }
 
 
 template <class T> inline

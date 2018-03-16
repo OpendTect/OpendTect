@@ -48,6 +48,7 @@ public:
     virtual		~IDWithGroup()			{}
     static inline IDWithGroup get( GroupNrT grpnr, ObjNrT objnr )
 			{ return IDWithGroup(grpnr,objnr); }
+			mImplSimpleEqOpers2Memb(IDWithGroup,groupnr_,objnr_)
 
     inline GroupID	groupID() const
 			{ return GroupID::get(groupnr_); }
@@ -59,13 +60,6 @@ public:
     inline void		setObjID( ObjID id )		{ objnr_ = id.getI(); }
     inline void		setGroupNr( GroupNrT nr )	{ groupnr_ = nr; }
     inline void		setObjNr( ObjNrT nr )		{ objnr_ = nr; }
-
-    inline bool		operator ==( const IDWithGroup& oth ) const
-				{ return groupnr_ == oth.groupnr_ &&
-					 objnr_ == oth.objnr_; }
-    inline bool		operator !=( const IDWithGroup& oth ) const
-				{ return groupnr_ != oth.groupnr_ ||
-					 objnr_ != oth.objnr_; }
 
     virtual bool	isInvalid() const
 				{ return groupnr_<0 || objnr_<0; }

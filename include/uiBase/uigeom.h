@@ -81,10 +81,7 @@ public:
 			uiBorder( int i=0 )	: lt_(i,i), rb_(i,i)	{}
 			uiBorder( int l, int t, int r, int b )
 				: lt_(l,t), rb_(r,b)	{}
-    bool		operator ==( const uiBorder& b ) const
-			{ return lt_ == b.lt_ && rb_ == b.rb_; }
-    bool		operator !=( const uiBorder& b ) const
-			{ return !(*this == b); }
+			mImplSimpleEqOpers2Memb(uiBorder,lt_,rb_)
 
     int			left() const		{ return lt_.width(); }
     int			right() const		{ return rb_.width(); }

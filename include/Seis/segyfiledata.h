@@ -41,14 +41,10 @@ public:
     {
 			TrcIdx( int fnr=-1, od_int64 tnr=0 )
 			    : filenr_(fnr), trcidx_(tnr)	{}
+			mImplSimpleEqOpers2Memb(TrcIdx,filenr_,trcidx_)
+
 	bool		isValid() const		{ return filenr_>=0; }
 	void		toNextFile()		{ filenr_++; trcidx_ = 0; }
-	bool		operator ==( const TrcIdx& oth ) const
-			{ return filenr_ == oth.filenr_
-			      && trcidx_ == oth.trcidx_; }
-	bool		operator !=( const TrcIdx& oth ) const
-			{ return filenr_ != oth.filenr_
-			      || trcidx_ != oth.trcidx_; }
 
 	int		filenr_;
 	od_int64	trcidx_;

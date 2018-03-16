@@ -40,28 +40,33 @@ bool World2UiData::operator ==( const World2UiData& w2ud ) const
 }
 
 
-bool World2UiData::operator !=( const World2UiData& w2ud ) const
-{ return !( *this == w2ud ); }
-
-
 uiWorld2Ui::uiWorld2Ui()
-{ };
+{
+}
 
 
 uiWorld2Ui::uiWorld2Ui( const uiSize& sz, const uiWorldRect& wr )
-{ set(sz,wr); }
+{
+    set(sz,wr);
+}
 
 
 uiWorld2Ui::uiWorld2Ui( const uiRect& rc, const uiWorldRect& wr )
-{ set( rc, wr ); }
+{
+    set( rc, wr );
+}
 
 
 uiWorld2Ui::uiWorld2Ui( const uiWorldRect& wr, const uiSize& sz )
-{ set(sz,wr); }
+{
+    set( sz, wr );
+}
 
 
 uiWorld2Ui::uiWorld2Ui( const World2UiData& w )
-{ set( w.sz, w.wr ); }
+{
+    set( w.sz, w.wr );
+}
 
 
 bool uiWorld2Ui::operator==( const uiWorld2Ui& ) const

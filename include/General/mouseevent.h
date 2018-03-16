@@ -79,9 +79,12 @@ public:
 				    , pressed_(false), tabletinfo_(0)
 				{}
 
-				MouseEvent(const MouseEvent& me)
+				MouseEvent( const MouseEvent& oth )
 				    : tabletinfo_(0)
-				{ *this = me; }
+				{ *this = oth; }
+
+				mImplSimpleEqOpers4Memb( MouseEvent,
+					butstate_, pressed_, pos_, angle_ )
 
 				~MouseEvent();
     MouseEvent&			operator=(const MouseEvent&);
@@ -109,10 +112,6 @@ public:
 				    return ctrlStatus() || altStatus()
 					|| shiftStatus();
 				}
-
-    bool			operator ==( const MouseEvent& ev ) const;
-    bool			operator !=( const MouseEvent& ev ) const
-							{ return !(*this==ev); }
 
     TabletInfo*			tabletInfo();
     const TabletInfo*		tabletInfo() const;

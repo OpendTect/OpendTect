@@ -119,14 +119,6 @@ bool OD::MarkerStyle2D::operator==( const OD::MarkerStyle2D& b ) const
 }
 
 
-const OD::MarkerStyle2D& OD::MarkerStyle2D::operator=(
-    const OD::MarkerStyle2D& a )
-{
-    type_ = a.type_ ; size_ = a.size_; color_ = a.color_;
-    rotation_ = a.rotation_; return *this;
-}
-
-
 bool OD::MarkerStyle2D::isVisible() const
 { return type_!=None && size_>0 && color_.isVisible(); }
 
@@ -165,14 +157,6 @@ void OD::MarkerStyle3D::fromString( const char* s, bool v6_or_earlier )
 }
 
 
-bool OD::MarkerStyle3D::operator==(const OD::MarkerStyle3D& b) const
-{ return type_==b.type_ && size_==b.size_ && color_==b.color_; }
-
-
-bool OD::MarkerStyle3D::operator!=(const OD::MarkerStyle3D& b) const
-{ return !(*this==b); }
-
-
 bool OD::MarkerStyle3D::isVisible() const
 { return type_!=None && size_>0 && color_.isVisible(); }
 
@@ -182,7 +166,7 @@ OD::MarkerStyle2D::Type OD::MarkerStyle3D::getMS2DType(
 {
     switch ( ms3d )
     {
-	case None: 	return MarkerStyle2D::None;
+	case None:	return MarkerStyle2D::None;
 	case Cube:	return MarkerStyle2D::Square;
 	case Cone:	return MarkerStyle2D::Triangle;
 	case Cylinder:	return MarkerStyle2D::Square;
@@ -201,14 +185,6 @@ OD::MarkerStyle2D::Type OD::MarkerStyle3D::getMS2DType(
 OD::LineStyle::LineStyle( Type t, int w, Color c )
     : type_(t), width_(w), color_(c)
 {}
-
-
-bool OD::LineStyle::operator ==( const OD::LineStyle& ls ) const
-{ return type_ == ls.type_ && width_ == ls.width_ && color_ == ls.color_; }
-
-
-bool OD::LineStyle::operator !=( const OD::LineStyle& ls ) const
-{ return !(*this == ls); }
 
 
 bool OD::LineStyle::isVisible() const

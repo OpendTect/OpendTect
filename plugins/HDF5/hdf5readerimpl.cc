@@ -14,6 +14,15 @@ ________________________________________________________________________
 #include "file.h"
 #include "iopar.h"
 
+#define mRetNoFile(action) \
+    { pErrMsg( sOpenFileFirst() ); action; }
+
+#define mRetNeedScopeInUiRv() \
+    mPutInternalInUiRv( uirv, sNeedScope(), return )
+
+#define mCatchErrDuringRead() \
+    mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fileName()) )
+
 #define mGetDataSpaceDims( dims, dataspace ) \
     TypeSet<hsize_t> dims( nrdims_, (hsize_t)0 ); \
     dataspace.getSimpleExtentDims( dims.arr() )
@@ -129,7 +138,7 @@ bool HDF5::ReaderImpl::selectDataSet( const char* dsnm )
     {
 	delete dataset_; dataset_ = 0;
 	dataset_ = new H5::DataSet( group_->openDataSet(dsnm) );
-	nrdims_ = dataset_->getSpace().getSimpleExtentNdims();
+	nrdims_ = (NrDimsType)dataset_->getSpace().getSimpleExtentNdims();
     }
     mCatchAnyNoMsg( return false )
 
@@ -216,9 +225,7 @@ HDF5::ODDataType HDF5::ReaderImpl::getDataType() const
 void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
 {
     iop.setEmpty();
-    if ( !file_ )
-	mRetNoFileInUiRv()
-    else if ( !haveScope(false) )
+    if ( !haveScope(false) )
 	mRetNeedScopeInUiRv()
 
     H5::DataSet groupinfdataset;
@@ -252,11 +259,6 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
     }
 }
 
-#define mCatchErrDuringRead() \
-        mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fileName()) )
-#define mRetDataSpaceBad() \
-	{ uirv.add( sBadDataSpace() ); return; }
-
 
 HDF5::ReaderImpl::H5DataType HDF5::ReaderImpl::h5DataType() const
 {
@@ -267,12 +269,8 @@ HDF5::ReaderImpl::H5DataType HDF5::ReaderImpl::h5DataType() const
 
 void HDF5::ReaderImpl::gtAll( void* data, uiRetVal& uirv ) const
 {
-    if ( !file_ )
-	mRetNoFileInUiRv()
-    else if ( !haveScope() )
+    if ( !haveScope() )
 	mRetNeedScopeInUiRv()
-    else if ( nrdims_ < 1 )
-	mRetDataSpaceBad()
 
     try
     {
@@ -286,12 +284,8 @@ void HDF5::ReaderImpl::gtAll( void* data, uiRetVal& uirv ) const
 void HDF5::ReaderImpl::gtPoints( const NDPosBufSet& posbufs, void* data,
 				 uiRetVal& uirv ) const
 {
-    if ( !file_ )
-	mRetNoFileInUiRv()
-    else if ( !haveScope() )
+    if ( !haveScope() )
 	mRetNeedScopeInUiRv()
-    else if ( nrdims_ < 1 )
-	mRetDataSpaceBad()
 
     try
     {
@@ -320,12 +314,8 @@ void HDF5::ReaderImpl::gtPoints( const NDPosBufSet& posbufs, void* data,
 void HDF5::ReaderImpl::gtSlab( const SlabSpec& spec, void* data,
 			       uiRetVal& uirv ) const
 {
-    if ( !file_ )
-	mRetNoFileInUiRv()
-    else if ( !haveScope() )
+    if ( !haveScope() )
 	mRetNeedScopeInUiRv()
-    else if ( nrdims_ < 1 )
-	mRetDataSpaceBad()
 
     TypeSet<hsize_t> counts, offss, strides;
     try

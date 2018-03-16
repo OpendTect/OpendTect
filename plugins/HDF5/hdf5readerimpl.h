@@ -19,7 +19,7 @@ namespace HDF5
 
 mExpClass(HDF5) ReaderImpl : public Reader
 			   , public AccessImpl
-{ mODTextTranslationClass(HDF5::ReaderImpl)
+{
 public:
 
     typedef H5::DataType	H5DataType;
@@ -60,9 +60,6 @@ protected:
     inline bool		haveScope( bool needds=true ) const
 			{ return group_ && (!needds || dataset_); }
     H5DataType		h5DataType() const;
-
-    static uiString	sBadDataSpace()
-			{ return tr("Empty Data Set Selected"); }
 
 };
 

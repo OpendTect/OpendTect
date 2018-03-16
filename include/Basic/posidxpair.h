@@ -30,9 +30,7 @@ public:
 
     inline			IdxPair() : ::IdxPair(0,0)	{}
     inline			IdxPair(IdxType,IdxType);
-    inline bool			operator ==(const IdxPair&) const;
-    inline bool			operator !=( const IdxPair& oth ) const
-						{ return !(*this == oth); }
+				mImplSimpleEqOpers2Memb(IdxPair,first,second)
     inline bool			operator <(const IdxPair& oth) const;
     inline bool			operator >(const IdxPair& oth) const;
 
@@ -67,12 +65,6 @@ public:
 inline IdxPair::IdxPair( IdxType f, IdxType s )
     : ::IdxPair(f,s)
 {
-}
-
-
-inline bool IdxPair::operator ==( const IdxPair& oth ) const
-{
-    return first == oth.first && second == oth.second;
 }
 
 

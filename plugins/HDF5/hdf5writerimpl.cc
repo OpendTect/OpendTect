@@ -76,8 +76,6 @@ static void getWriteStr( const char* inpstr, int nrchars, BufferString& ret )
 void HDF5::WriterImpl::ptInfo( const DataSetKey& reqdsky, const IOPar& iop,
 			       uiRetVal& uirv )
 {
-    if ( !file_ )
-	mRetNoFileInUiRv()
     const hsize_t nrvals = iop.size();
     if ( nrvals < 1 )
 	return;
@@ -137,9 +135,6 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& reqdsky, const IOPar& iop,
 void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
 			       const void* data, ODDataType dt, uiRetVal& uirv )
 {
-    if ( !file_ )
-	mRetNoFileInUiRv()
-
     const int nrdims = info.nrDims();
     TypeSet<hsize_t> dims, chunkdims;
     for ( int idim=0; idim<nrdims; idim++ )

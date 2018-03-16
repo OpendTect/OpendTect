@@ -57,10 +57,8 @@ public:
 			    , mathdef_(0)		{ *this = pr; }
     virtual		~PropertyRef();
     PropertyRef&	operator =(const PropertyRef&);
-    inline bool		operator ==( const PropertyRef& pr ) const
-			{ return name() == pr.name(); }
-    inline bool		operator !=( const PropertyRef& pr ) const
-			{ return name() != pr.name(); }
+			mImplSimpleEqOpers1Memb(PropertyRef,name())
+
     bool		isKnownAs(const char*) const;
     bool		hasFixedDef() const		{ return mathdef_; }
 
@@ -177,6 +175,7 @@ public:
 
 			PropertyRefSelection();
     bool		operator ==(const PropertyRefSelection&) const;
+			mImplSimpleIneqOper(PropertyRefSelection)
 
     int			indexOf(const char*) const;
     int			find(const char*) const; // also uses 'isKnownAs'

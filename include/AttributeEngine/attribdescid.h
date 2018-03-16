@@ -27,10 +27,7 @@ public:
 			    : IntegerID<int>(n)	{}
     inline explicit	operator int() const	{ return this->nr_; }
 
-    inline bool		operator ==( const DescID& oth ) const
-			{ return oth.nr_ == nr_; }
-    inline bool		operator !=( const DescID& oth ) const
-			{ return oth.nr_ != nr_; }
+			mImplSimpleEqOpers1Memb(DescID,nr_)
 
     inline bool		isUnselInvalid() const	{ return nr_ < -2; }
     inline void		setUnselInvalid()	{ nr_ = -3; }

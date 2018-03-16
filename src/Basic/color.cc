@@ -22,13 +22,6 @@ Color::Color( unsigned char r_, unsigned char g_,
 Color::Color( unsigned int rgbval )
 { col_ = rgbval; }
 
-bool Color::operator ==( const Color& c ) const
-{ return col_ == c.col_; }
-
-
-bool Color::operator !=( const Color& c ) const
-{ return col_ != c.col_; }
-
 unsigned char Color::r() const
 { return (unsigned char)((col_ >> 16) & 0xff); }
 

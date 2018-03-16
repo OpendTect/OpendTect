@@ -28,8 +28,9 @@ public:
     enum VPos	{ Top, Bottom, VCenter };
 		mDeclareEnumUtils(VPos)
 
-		Alignment( HPos h=Left, VPos v=Top );
-		Alignment( Pos h, Pos v );
+		Alignment(HPos h=Left,VPos v=Top);
+		Alignment(Pos h,Pos v);
+		mImplSimpleEqOpers2Memb( Alignment, hor_, ver_ )
 
     HPos	hPos() const		{ return hor_; }
     VPos	vPos() const		{ return ver_; }
@@ -50,6 +51,7 @@ protected:
 
     HPos	hor_;
     VPos	ver_;
+
 };
 
 
@@ -72,8 +74,8 @@ public:
 					       Color col=Color::Black(),
 					       float rot=0);
 
-    bool			operator==(const OD::MarkerStyle2D& a) const;
-    const OD::MarkerStyle2D&	operator=(const OD::MarkerStyle2D& a);
+    bool			operator==(const MarkerStyle2D&) const;
+				mImplSimpleIneqOper( MarkerStyle2D )
 
     Type			type_;
     int				size_;
@@ -99,6 +101,8 @@ public:
 
 			MarkerStyle3D( Type tp=Cube, int sz=3,
 				       Color col=Color::White() );
+			mImplSimpleEqOpers3Memb( MarkerStyle3D,
+				type_, size_, color_ )
 
     Type		type_;
     int			size_;
@@ -109,10 +113,8 @@ public:
     void		toString(BufferString&) const;
     void		fromString(const char*,bool v6_or_earlier=false);
 
-    bool		operator==(const OD::MarkerStyle3D& b) const;
-    bool		operator!=(const OD::MarkerStyle3D& b) const;
-
     static MarkerStyle2D::Type getMS2DType(MarkerStyle3D::Type);
+
 };
 
 
@@ -127,8 +129,8 @@ public:
 
 			LineStyle(Type t=Solid,int w=1,Color c=Color::Black());
 
-    bool		operator ==( const OD::LineStyle& ls ) const;
-    bool		operator !=( const OD::LineStyle& ls ) const;
+			mImplSimpleEqOpers3Memb( LineStyle,
+				type_, width_, color_ )
 
     Type		type_;
     int			width_;
@@ -148,6 +150,8 @@ public:
 
 			FillPattern( int typ=0, int opt=0 )
 			    : type_(typ), opt_(opt)		{}
+			mImplSimpleEqOpers2Memb( FillPattern, type_, opt_ )
+
 
     static void	getTypeNames(BufferStringSet&);
     static void	getOptNames(int,BufferStringSet&);
@@ -166,6 +170,7 @@ public:
 mExpClass(General) ArrowHeadStyle
 {
 public:
+
     enum Type		{ Line, Triangle, Square, Cross };
     enum HandedNess	{ TwoHanded, LeftHanded, RightHanded };
 
@@ -193,9 +198,9 @@ public:
     bool		hasTail() const;
 
     Type		type_;
-    OD::LineStyle		linestyle_;	//!< contains the color
-    OD::ArrowHeadStyle	headstyle_;
-    OD::ArrowHeadStyle	tailstyle_;
+    LineStyle		linestyle_;	//!< contains the color
+    ArrowHeadStyle	headstyle_;
+    ArrowHeadStyle	tailstyle_;
 
 };
 
@@ -215,7 +220,7 @@ public:
     uiString		txt_;
     LineType		linetype_;
 
-    OD::PlotAnnotation&	operator=( const OD::PlotAnnotation& from )
+    OD::PlotAnnotation&	operator=( const PlotAnnotation& from )
 			{
 			    pos_ = from.pos_;
 			    linetype_ = from.linetype_;
@@ -223,11 +228,8 @@ public:
 			    return *this;
 			}
 
-    bool		operator==( const OD::PlotAnnotation& from ) const
-			{
-			    return pos_ == from.pos_
-				&& linetype_ == from.linetype_;
-			}
+			mImplSimpleEqOpers2Memb( PlotAnnotation,
+				pos_, linetype_ )
 
     bool		isNormal() const
 			{ return linetype_ == Normal; }

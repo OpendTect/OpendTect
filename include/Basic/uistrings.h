@@ -19,12 +19,22 @@ ________________________________________________________________________
 //! Adds '...' to string, usable for menu items
 #define m3Dots( txt ) \
     uiStrings::phrThreeDots( txt, false )
-//! Incorrect, need replace. use uiStrng::appendXXX() and tool functions
+//! Incorrect, need replace. use uiString::appendXXX() and tool functions
 #define mJoinUiStrs( txt1, txt2 )\
     uiStrings::phrJoinStrings( uiStrings::txt1, uiStrings::txt2 )
 //! Shortcut handy macro for during development
 #define mTODONotImplPhrase() \
     uiStrings::phrTODONotImpl( ::className(*this) )
+//! Puts untranslated internal in pErrMsg and in uiRetVal and returns that
+#define mPutInternalInUiRv( uirv, msg, act ) \
+{ \
+    pErrMsg( msg ); \
+    uirv.add( uiStrings::phrInternalErr(msg) ); \
+    act; \
+}
+//! As mPutInternalInUiRv but also returns the uiRetVal
+#define mRetInternalInUiRv( uirv, msg ) \
+    mPutInternalInUiRv( uirv, msg, return uirv )
 
 
 /*!\brief Phrases and words that can (and must!) be re-used when possible.

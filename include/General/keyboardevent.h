@@ -22,18 +22,21 @@ ________________________________________________________________________
 mExpClass(General) KeyboardEvent
 {
 public:
+
 				KeyboardEvent();
+				mImplSimpleEqOpers3Memb( KeyboardEvent,
+				    key_, modifier_, isrepeat_ )
+
 
     OD::KeyboardKey		key_;
     OD::ButtonState		modifier_;	//Alt/Ctrl/Shift++
     bool			isrepeat_;
 
-    bool			operator ==(const KeyboardEvent&) const;
-    bool			operator !=( const KeyboardEvent& ev ) const;
     static bool			isUnDo(const KeyboardEvent&);
     static bool			isReDo(const KeyboardEvent&);
     static bool			isSave(const KeyboardEvent&);
     static bool			isSaveAs(const KeyboardEvent&);
+
 };
 
 

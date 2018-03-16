@@ -36,15 +36,14 @@ public:
 							{ *this = fm; }
 
     ElasticFormula&	operator =(const ElasticFormula&);
-    inline bool	operator ==( const ElasticFormula& pr ) const
+    inline bool		operator ==( const ElasticFormula& pr ) const
 			{ return name() == pr.name(); }
-    inline bool         operator !=( const ElasticFormula& pr ) const
-			{ return name() != pr.name(); }
+			mImplSimpleIneqOper(ElasticFormula)
 
     void		setExpression( const char* expr) { expression_ = expr; }
     const char*		expression() const	{ return expression_.str();}
 
-    inline Type	type() const 		{ return type_; }
+    inline Type	type() const		{ return type_; }
     inline bool	hasType( Type t ) const	{ return type_ == t;}
 
     BufferStringSet&	variables()		{ return variables_; }

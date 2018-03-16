@@ -57,8 +57,7 @@ public:
 			~Location();
 
     bool		operator ==(const Location&) const;
-    inline bool		operator !=( const Location& oth ) const
-			{ return !(*this == oth); }
+			mImplSimpleIneqOper(Location)
     Location&		operator =(const Location&);
 
     inline bool		hasPos() const		{ return pos_.isDefined(); }
@@ -77,7 +76,7 @@ public:
     const BinID&	binID() const;
     const Sphere&	dir() const;
     const BufferString&	text() const;
-    GroupLabelID	groupLabelID() const		{ return grplblid_; }
+    GroupLabelID	groupLabelID() const	{ return grplblid_; }
 
     inline Location&	setPos( const Coord3& c )
 			{ pos_ = c; return *this; }
@@ -114,7 +113,7 @@ public:
 
     static const Location& udf();
     static Location&	dummy();
-    bool		isUdf() const	{ return *this == udf(); }
+    bool		isUdf() const		{ return *this == udf(); }
 
 protected:
 

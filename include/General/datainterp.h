@@ -57,6 +57,8 @@ public:
 			DataInterpreter(const DataCharacteristics&,
 					bool ignoreendianness=false);
 			DataInterpreter(const DataInterpreter<T>&);
+			mImplSimpleEqOpers1Memb(DataInterpreter,getfn)
+
     void		set(const DataCharacteristics&,
 			    bool ignoreendianness=false);
 			//!< use ignoreendianness when you pre-byteswap the data
@@ -77,10 +79,6 @@ public:
     inline void		put( void* buf, od_int64 nr, T t ) const
 			{ (this->*putfn)( buf, nr, t ); }
 
-    inline bool		operator ==( const DataInterpreter& di ) const
-			{ return di.getfn == getfn; }
-    inline bool		operator !=( const DataInterpreter& di ) const
-			{ return di.getfn != getfn; }
     inline bool		isF32() const
 			{ return getfn == &DataInterpreter::getF; }
     int			nrBytes() const;

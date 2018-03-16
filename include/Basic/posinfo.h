@@ -68,8 +68,7 @@ public:
 
 				LineData( int i ) : linenr_(i)	{}
     bool			operator ==(const LineData&) const;
-    bool			operator !=( const LineData& oth ) const
-				{ return !(*this == oth); }
+				mImplSimpleIneqOper(LineData)
 
     const int			linenr_;
     SegmentSet			segments_;

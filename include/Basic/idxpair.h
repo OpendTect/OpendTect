@@ -30,9 +30,7 @@ public:
 				IdxPair() : Index_Type_Twins(0,0)	{}
 				IdxPair( IdxType f, IdxType s )
 				    : Index_Type_Twins(f,s)		{}
-    inline bool			operator ==(const IdxPair&) const;
-    inline bool			operator !=( const IdxPair& oth ) const
-						{ return !(*this == oth); }
+				mImplSimpleEqOpers2Memb(IdxPair,first,second)
 
     bool			isUdf() const	{ return *this == udf(); }
     void			setUdf()	{ *this = udf(); }
@@ -48,10 +46,3 @@ public:
     bool			parseUsrStr(const char* str,const char* prefx,
 				    const char* sep,const char* postfx);
 };
-
-
-
-inline bool IdxPair::operator ==( const IdxPair& oth ) const
-{
-    return first == oth.first && second == oth.second;
-}

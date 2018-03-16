@@ -42,9 +42,6 @@ protected:
     void		doCloseFile(Access&);
     static H5::DataType	h5DataTypeFor(ODDataType);
 
-    static const char*	sOpenFileFirst();
-    static const char*	sNeedScope();
-
 };
 
 
@@ -63,17 +60,3 @@ public:
 };
 
 } // namespace HDF5
-
-
-#define mRetNoFile(action) \
-    { pErrMsg( sOpenFileFirst() ); action; }
-
-#define mRetNoFileInUiRv() \
-    mRetNoFile( uirv.set(uiStrings::phrInternalErr(sOpenFileFirst()) ); return )
-
-#define mRetNeedScopeInUiRv() \
-{ \
-    pErrMsg( sNeedScope() ); \
-    uirv.set( uiStrings::phrInternalErr(sNeedScope()) ); \
-    return; \
-}

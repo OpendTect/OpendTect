@@ -53,19 +53,14 @@ public:
     inline explicit	IntegerID( IntType nr )
 			: nr_(nr)		{}
     inline explicit	operator IntType() const{ return nr_; }
-    static inline IntegerID get( IntType i )
-						{ return IntegerID(i); }
+    static inline IntegerID get( IntType i )	{ return IntegerID(i); }
+			mImplSimpleEqOpers1Memb(IntegerID,nr_)
+				// Do not add '>' or similar!
 
     inline IntType&	getI()			{ return nr_; }
     inline IntType	getI() const		{ return nr_; }
     inline void		setI( IntType i )	{ nr_ = i; }
     inline void		setI( const char* s )	{ nr_ = Conv::to<IntType>(s); }
-
-    inline bool		operator ==( const IntegerID& oth ) const
-					{ return nr_ == oth.nr_;};
-    inline bool		operator !=( const IntegerID& oth ) const
-					{ return nr_ != oth.nr_;};
-				// Do not add '>' or similar!
 
     inline bool		isInvalid() const	{ return nr_ < 0; }
     inline bool		isValid() const		{ return !isInvalid(); }

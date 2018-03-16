@@ -405,6 +405,7 @@ public:
     static Line2	fromPosAndDir(const Coord&, const Coord&);
 
     bool		operator==(const Line2&) const;
+			mImplSimpleIneqOper(Line2)
 
     Coord		intersection(const Line2&,bool checkinlimit=true) const;
 			/*!<If checkinlimit is true, Coord::udf() will be
@@ -472,7 +473,7 @@ public:
 			*/
 
     bool		operator==(const Plane3&) const;
-    bool		operator!=(const Plane3&) const;
+			mImplSimpleIneqOper(Plane3)
 
     Coord3		normal() const { return Coord3( A_, B_, C_ ); }
 
@@ -554,8 +555,7 @@ public:
 			    : radius_((float) crd.x_),theta_((float) crd.y_)
 			    , phi_((float) crd.z_)		{}
     inline bool		operator ==(const Sphere&) const;
-    inline bool		operator !=( const Sphere& oth ) const
-			{ return !(oth == *this); }
+			mImplSimpleIneqOper(Sphere)
 
     float		radius_;
     float		theta_;

@@ -27,8 +27,7 @@ public:
     inline		PosKey( int trcnr, float offs=mUdf(float) )
 			    : binid_(mUdf(int),trcnr), offset_(offs)	{}
     inline bool		operator ==(const PosKey&) const;
-    inline bool		operator !=( const PosKey& oth ) const
-						{ return !(*this == oth); }
+			mImplSimpleIneqOper(PosKey)
 
     inline bool		is2D() const		{ return mIsUdf(binid_.inl()); }
     inline bool		isPS() const		{ return !mIsUdf(offset_); }

@@ -11,6 +11,17 @@
 
 mImplClassFactory( HDF5::AccessProvider, factory );
 
+#define mRetNoFileInUiRv() mRetInternalInUiRv( uirv, sOpenFileFirst() )
+#define mRetNoDataInUiRv() mRetInternalInUiRv( uirv, sNoDataPassed() )
+#define mRetDataSpaceBad() { uirv.add( sBadDataSpace() ); return uirv; }
+
+const char* HDF5::Access::sOpenFileFirst()
+{ return "HDF5: Access not open. Use/check open()"; }
+const char* HDF5::Access::sNeedScope()
+{ return "HDF5: No valid scope set for data retrieval. Use/check setScope()"; }
+const char* HDF5::Access::sNoDataPassed()
+{ return "HDF5: Null data passed"; }
+
 
 HDF5::AccessProvider* HDF5::AccessProvider::mkProv( int idx )
 {
@@ -93,6 +104,8 @@ uiString HDF5::Access::sFileNotOpen()
 uiRetVal HDF5::Writer::putInfo( const DataSetKey& dsky, const IOPar& iop )
 {
     uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
     if ( !iop.isEmpty() )
 	ptInfo( dsky, iop, uirv );
     return uirv;
@@ -103,12 +116,14 @@ uiRetVal HDF5::Writer::putData( const DataSetKey& dsky, const ArrayNDInfo& inf,
 				const void* data, ODDataType dt )
 {
     uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
     if ( !data )
-	{ pErrMsg("data == null"); }
+	mRetNoDataInUiRv()
     else if ( inf.totalSize() < 1 )
 	{ pErrMsg("zero dims"); }
-    else
-	ptData( dsky, inf, data, dt, uirv );
+
+    ptData( dsky, inf, data, dt, uirv );
     return uirv;
 }
 
@@ -116,6 +131,9 @@ uiRetVal HDF5::Writer::putData( const DataSetKey& dsky, const ArrayNDInfo& inf,
 uiRetVal HDF5::Reader::getInfo( IOPar& iop ) const
 {
     uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+
     gtInfo( iop, uirv );
     return uirv;
 }
@@ -124,10 +142,15 @@ uiRetVal HDF5::Reader::getInfo( IOPar& iop ) const
 uiRetVal HDF5::Reader::getAll( void* data ) const
 {
     uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
     if ( !data )
-	{ pErrMsg("data == null"); }
-    else
-	gtAll( data, uirv );
+	mRetNoDataInUiRv()
+    const auto nrdims = nrDims();
+    if ( nrdims < 1 )
+	mRetDataSpaceBad()
+
+    gtAll( data, uirv );
     return uirv;
 }
 
@@ -135,14 +158,19 @@ uiRetVal HDF5::Reader::getAll( void* data ) const
 uiRetVal HDF5::Reader::getPoint( NDPos pos, void* data ) const
 {
     uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
     if ( !data )
-	{ pErrMsg("data == null"); }
-    else
-    {
-	NDPosBufSet pts;
-	pts += mNDPosBufFromPos( pos, nrDims() );
-	gtPoints( pts, data, uirv );
-    }
+	mRetNoDataInUiRv()
+    if ( !pos )
+	mRetInternalInUiRv( uirv, "No position provided" )
+    const auto nrdims = nrDims();
+    if ( nrdims < 1 )
+	mRetDataSpaceBad()
+
+    NDPosBufSet pts;
+    pts += mNDPosBufFromPos( pos, nrdims );
+    gtPoints( pts, data, uirv );
     return uirv;
 }
 
@@ -150,10 +178,17 @@ uiRetVal HDF5::Reader::getPoint( NDPos pos, void* data ) const
 uiRetVal HDF5::Reader::getPoints( const NDPosBufSet& pts, void* data ) const
 {
     uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    if ( pts.isEmpty() )
+	return uirv;
     if ( !data )
-	{ pErrMsg("data == null"); }
-    else
-	gtPoints( pts, data, uirv );
+	mRetNoDataInUiRv()
+    const auto nrdims = nrDims();
+    if ( nrdims < 1 )
+	mRetDataSpaceBad()
+
+    gtPoints( pts, data, uirv );
     return uirv;
 }
 
@@ -161,9 +196,20 @@ uiRetVal HDF5::Reader::getPoints( const NDPosBufSet& pts, void* data ) const
 uiRetVal HDF5::Reader::getSlab( const SlabSpec& spec, void* data ) const
 {
     uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
     if ( !data )
-	{ pErrMsg("data == null"); }
-    else
-	gtSlab( spec, data, uirv );
+	mRetNoDataInUiRv()
+    const auto nrdims = nrDims();
+    if ( nrdims < 1 )
+	mRetDataSpaceBad()
+    if ( spec.size() != nrdims )
+    {
+	if ( spec.size() < nrdims )
+	    mRetInternalInUiRv( uirv, "Specify all dimensions in SlabSpec" );
+	pErrMsg( "Probably wrong: SlabSpec too big" );
+    }
+
+    gtSlab( spec, data, uirv );
     return uirv;
 }

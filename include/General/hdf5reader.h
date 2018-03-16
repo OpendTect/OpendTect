@@ -26,39 +26,44 @@ namespace HDF5
   */
 
 mExpClass(General) Reader : public Access
-{
+{ mODTextTranslationClass(HDF5::Reader)
 public:
 				mTypeDefArrNDTypes;
     typedef TypeSet<NDPosBuf>	NDPosBufSet;
 
-    virtual void		getGroups(BufferStringSet&) const	= 0;
+    virtual void	getGroups(BufferStringSet&) const	= 0;
 				//!< All groups with full names (recursive)
-    virtual void		getDataSets(const char*,
-					    BufferStringSet&) const	= 0;
+    virtual void	getDataSets(const char*,
+				    BufferStringSet&) const	= 0;
 				//!< Pass a full group name
 
-    virtual bool		setScope(const DataSetKey&)		= 0;
+    virtual bool	setScope(const DataSetKey&)		= 0;
 				//!< Must be done before any data query
 
-    virtual ArrayNDInfo*	getDataSizes() const			= 0;
+    virtual ArrayNDInfo* getDataSizes() const			= 0;
 				//!< Can return null when:
 				//!< - there is no such group
 				//!< - the group has an empty dataset
-    virtual ODDataType		getDataType() const			= 0;
-    uiRetVal			getInfo(IOPar&) const;
+    virtual ODDataType	getDataType() const			= 0;
+    uiRetVal		getInfo(IOPar&) const;
 
 
-    uiRetVal			getAll(void*) const;
+    uiRetVal		getAll(void*) const;
 				//!< Get the entire data set in current scope
-    uiRetVal			getPoint(NDPos,void*) const;
+    uiRetVal		getPoint(NDPos,void*) const;
 				//!< Get a single point value
-    uiRetVal			getPoints(const NDPosBufSet&,void*) const;
+    uiRetVal		getPoints(const NDPosBufSet&,void*) const;
 				//!< Get a set of distinct points' values
 
-    mExpStruct(General)		SlabDimSpec
-				{ IdxType start_=0, step_=1, count_=-1; };
+    mExpStruct(General)	SlabDimSpec
+			{
+			    IdxType start_=0, step_=1, count_=-1;
+			    mImplSimpleEqOpers3Memb( SlabDimSpec,
+				    start_, step_, count_ )
+			};
     typedef TypeSet<SlabDimSpec> SlabSpec;
-    uiRetVal			getSlab(const SlabSpec&,void*) const;
+
+    uiRetVal		getSlab(const SlabSpec&,void*) const;
 
 protected:
 
@@ -70,6 +75,9 @@ protected:
 
     virtual NrDimsType	nrDims() const					= 0;
 			//!< in the current scope
+
+    static uiString	sBadDataSpace()
+			{ return tr("Empty Data Set Selected"); }
 
 };
 

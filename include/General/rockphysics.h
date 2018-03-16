@@ -46,10 +46,7 @@ public:
 			~Formula();
 			Formula( const Formula& f ) { *this = f; }
     Formula&		operator =(const Formula&);
-    inline bool		operator ==( const Formula& pr ) const
-			{ return name() == pr.name(); }
-    inline bool		operator !=( const Formula& pr ) const
-			{ return name() != pr.name(); }
+			mImplSimpleEqOpers1Memb(Formula,name())
 
     inline bool		hasPropType( PropType t ) const
 						{ return type_ == t; }

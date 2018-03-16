@@ -25,12 +25,10 @@ mExpClass(Basic) Color
 {
 public:
 
-			Color( unsigned char r_=255, unsigned char g_=255,
-				unsigned char b_=255, unsigned char t_=0 );
-			Color( unsigned int rgbval );
-
-    bool		operator ==( const Color& c ) const;
-    bool		operator !=( const Color& c ) const;
+			Color(unsigned char r_=255, unsigned char g_=255,
+				unsigned char b_=255, unsigned char t_=0);
+			Color(unsigned int rgbval);
+			mImplSimpleEqOpers1Memb(Color,col_)
 
     unsigned char	r() const;
     unsigned char	g() const;

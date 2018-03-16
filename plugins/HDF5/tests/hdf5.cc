@@ -177,6 +177,20 @@ static bool testReadData( const HDF5::Reader& rdr )
     mRunStandardTestWithError( ptvals[1]==30106.f, "Correct value [comp2,1,6]",
 				BufferString("ptvals[1]=",ptvals[1]) )
 
+    const int nrdim1 = 3; const int nrdim2 = 4;
+    TypeSet<float> slabvals( nrdim1*nrdim2, 0.f );
+    HDF5::Reader::SlabSpec slabspec;
+    HDF5::Reader::SlabDimSpec dimspec;
+    dimspec.start_ = 1; dimspec.step_ = 2; dimspec.count_ = nrdim1;
+    slabspec += dimspec;
+    uirv = rdr.getSlab( slabspec, slabvals.arr() );
+    mRunStandardTest( !uirv.isOK(), "Not accept incorrect SlabSpec" )
+
+    dimspec.start_ = 5; dimspec.step_ = 1; dimspec.count_ = nrdim2;
+    slabspec += dimspec;
+    uirv = rdr.getSlab( slabspec, slabvals.arr() );
+    mAddTestResult( "Get slab values" );
+
     return true;
 }
 

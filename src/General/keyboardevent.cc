@@ -20,16 +20,6 @@ KeyboardEvent::KeyboardEvent()
 }
 
 
-bool KeyboardEvent::operator ==( const KeyboardEvent& ev ) const
-{
-    return key_==ev.key_ && modifier_==ev.modifier_ && isrepeat_==ev.isrepeat_;
-}
-
-
-bool KeyboardEvent::operator !=( const KeyboardEvent& ev ) const
-{ return !(ev==*this); }
-
-
 bool KeyboardEvent::isUnDo( const KeyboardEvent& kbe )
 {
     const OD::ButtonState bs =
@@ -59,8 +49,8 @@ bool KeyboardEvent::isSave( const KeyboardEvent& kbe )
 {
     const OD::ButtonState bs =
 	OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
-    return bs == OD::ControlButton && 
-	!OD::shiftKeyboardButton(bs) && 
+    return bs == OD::ControlButton &&
+	!OD::shiftKeyboardButton(bs) &&
 	kbe.key_==OD::KB_S && !kbe.isrepeat_;
 }
 
@@ -69,7 +59,7 @@ bool KeyboardEvent::isSaveAs( const KeyboardEvent& kbe )
 {
     const OD::ButtonState bs =
 	OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
-    const bool ctrlplusshift = 
+    const bool ctrlplusshift =
 	OD::ctrlKeyboardButton(bs) && OD::shiftKeyboardButton(bs) ;
     return ctrlplusshift && kbe.key_==OD::KB_S && !kbe.isrepeat_;
 }

@@ -121,21 +121,15 @@ public:
     bool		usePar(const IOPar&);
     void		updateInPar(const char* ky,const char* val);
 
-    mExpClass(General) Disp
+    mExpStruct(General) Disp
     {
-    public:
-	enum Connection { None, Open, Close };
-			mDeclareEnumUtils(Connection);
-			Disp() : connect_(None) {}
-	inline bool	operator ==( const Disp& oth ) const
-			{ return connect_ == oth.connect_
-			      && mkstyle_ == oth.mkstyle_; }
-	inline bool	operator !=( const Disp& oth ) const
-			{ return !(*this == oth); }
-
-	Connection		connect_;	//!< connect picks in set order
+	enum Connection		{ None, Open, Close };
+				mDeclareEnumUtils(Connection);
+				mImplSimpleEqOpers2Memb(Disp,connect_,mkstyle_)
+	Connection		connect_ = None;
 	OD::MarkerStyle3D	mkstyle_;
     };
+
     mImplSimpleMonitoredGetSet(inline,getDisp,setDisp,Disp,disp_,cDispChange())
     mImplSimpleMonitoredGetSet(inline,connection,setConnection,
 				Disp::Connection,disp_.connect_,cDispChange())

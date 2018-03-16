@@ -111,10 +111,6 @@ bool MouseEvent::altStatus() const	{ return butstate_ & OD::AltButton; }
 bool MouseEvent::shiftStatus() const	{ return butstate_ & OD::ShiftButton; }
 
 
-bool MouseEvent::operator ==( const MouseEvent& ev ) const
-{ return butstate_ == ev.butstate_ && pos_==ev.pos_ && angle_==ev.angle_; } 
-
-
 TabletInfo* MouseEvent::tabletInfo()
 { return tabletinfo_; }
 
@@ -199,7 +195,7 @@ MouseCursorExchange::MouseCursorExchange()
 
 MouseCursorExchange::Info::Info( const TrcKeyValue& pos, float offset )
     : trkv_( pos )
-    , offset_( offset ) 
+    , offset_( offset )
 {}
 
 
