@@ -54,11 +54,14 @@ ________________________________________________________________________
 #endif
 
 
-namespace OD { Export_Basic od_ostream& logMsgStrm(); }
+namespace OD { Export_Basic od_ostream& logMsgStrm(); class ForcedCrash {}; }
 Export_Basic int gLogFilesRedirectCode = -1; // 0 = stderr, 1 = log file
 static bool crashonprogerror = false;
 static PtrMan<od_ostream> dbglogstrm = 0;
 
+
+namespace OD
+{
 
 class StaticStringRepos
 {
@@ -76,13 +79,18 @@ public:
 				}
 
 private:
+
     ObjectSet<const OD::String>	strings_;
     mutable Threads::Lock	lock_;
+
 };
 
-static StaticStringRepos getStaticStringRepos()
+} // namespace OD
+
+
+static OD::StaticStringRepos getStaticStringRepos()
 {
-    mDefineStaticLocalObject( StaticStringRepos, repos, );
+    mDefineStaticLocalObject( OD::StaticStringRepos, repos, );
     return repos;
 }
 
@@ -237,7 +245,9 @@ void forceCrash( bool withdump )
     if ( withdump )
 	SignalHandling::SH().doStop( 6, false ); // 6 = SIGABRT
     else
-	{ char* ptr = 0; *ptr = 0; }
+    {
+	throw( OD::ForcedCrash() );
+    }
 }
 
 

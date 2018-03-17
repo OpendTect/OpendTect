@@ -58,26 +58,26 @@ static bool testWrite()
     iop.setEmpty();
     HDF5::ArrayNDTool<float> arrtool( arr2d );
     iop.set( "Apenoot", "pere boom" );
-    for ( int idx=0; idx<nrblocks_; idx++ )
+    for ( int iblk=0; iblk<nrblocks_; iblk++ )
     {
-	dsky.setDataSetName( BufferString( "Block [", idx, "]" ) );
+	dsky.setDataSetName( BufferString( "Block [", iblk, "]" ) );
 
-	fillArr2D( arr2d, 1000*idx );
+	fillArr2D( arr2d, 1000*iblk );
 	dsky.setGroupName( "Component 1" );
 	uirv = arrtool.putData( *wrr, dsky );
 	if ( !uirv.isOK() )
 	    break;
-	iop.set( sPropNm, idx, 1 );
+	iop.set( sPropNm, iblk, 1 );
 	uirv = wrr->putInfo( dsky, iop );
 	if ( !uirv.isOK() )
 	    break;
 
-	fillArr2D( arr2d, 10000*idx );
+	fillArr2D( arr2d, 10000*iblk );
 	dsky.setGroupName( "Component 2" );
 	uirv = arrtool.putData( *wrr, dsky );
 	if ( !uirv.isOK() )
 	    break;
-	iop.set( sPropNm, idx, 2 );
+	iop.set( sPropNm, iblk, 2 );
 	uirv = wrr->putInfo( dsky, iop );
 	if ( !uirv.isOK() )
 	    break;
@@ -183,13 +183,36 @@ static bool testReadData( const HDF5::Reader& rdr )
     HDF5::Reader::SlabDimSpec dimspec;
     dimspec.start_ = 1; dimspec.step_ = 2; dimspec.count_ = nrdim1;
     slabspec += dimspec;
-    // uirv = rdr.getSlab( slabspec, slabvals.arr() );
-    // mRunStandardTest( !uirv.isOK(), "Not accept incorrect SlabSpec" )
+    DBG::setCrashOnProgError( false );
+    uirv = rdr.getSlab( slabspec, slabvals.arr() );
+    DBG::setCrashOnProgError( true );
+    mRunStandardTest( !uirv.isOK(), "Not accept incorrect SlabSpec" )
 
     dimspec.start_ = 5; dimspec.step_ = 1; dimspec.count_ = nrdim2;
     slabspec += dimspec;
     uirv = rdr.getSlab( slabspec, slabvals.arr() );
     mAddTestResult( "Get slab values" );
+
+    mRunStandardTestWithError( slabvals[0]==30105.f, "Correct slab value [0,0]",
+				BufferString("slabvals[1]=",slabvals[0]) )
+    mRunStandardTestWithError( slabvals[3]==30108.f, "Correct slab value [0,3]",
+				BufferString("slabvals[2]=",slabvals[2]) )
+    mRunStandardTestWithError( slabvals[8]==30505.f, "Correct slab value [2,0]",
+				BufferString("slabvals[9]=",slabvals[9]) )
+    mRunStandardTestWithError( slabvals[11]==30508.f,"Correct slab value [2,3]",
+				BufferString("slabvals[11]=",slabvals[11]) )
+
+    dimspec.start_ = 2; dimspec.step_ = 3; dimspec.count_ = 100;
+    slabspec += dimspec;
+    const char* slabspecmsg = "Should have pErrMsg but no error";
+    try {
+	uirv = rdr.getSlab( slabspec, slabvals.arr() );
+	mRunStandardTest( false, slabspecmsg )
+    } catch ( ... )
+    {
+	mRunStandardTest( true, slabspecmsg )
+    }
+    mAddTestResult( "Get slab values again" );
 
     return true;
 }
