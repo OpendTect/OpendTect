@@ -278,14 +278,15 @@ Table::TargetInfo*
 	ti = new TargetInfo( uiStrings::sPosition(), DoubleInpSpec(), reqspec );
 	ti->form(0).setName( "X Y" );
 	ti->form(0).add( DoubleInpSpec() );
-	Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "Inl Crl",
+	Table::TargetInfo::Form* form = new Table::TargetInfo::Form( 
+	    toUiString("%1 %2").arg(uiStrings::sInl()).arg(uiStrings::sCrl()),
 								IntInpSpec() );
 	form->add( IntInpSpec() );
 	ti->add( form );
     }
     else
     {
-	ti = new TargetInfo( "Z", FloatInpSpec(), reqspec );
+	ti = new TargetInfo( uiStrings::sZ(), FloatInpSpec(), reqspec );
 	if ( wu )
 	{
 	    if ( zopt == 0 )

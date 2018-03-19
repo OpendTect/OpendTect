@@ -175,7 +175,8 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
 			     uiFileSel::Setup().withexamine(true)
 			     .examstyle(File::Table) );
 
-    fd_.bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
+    fd_.bodyinfos_ += new Table::TargetInfo( uiStrings::sWellName(),
+							    Table::Required );
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     Table::TargetInfo* ti = Table::TargetInfo::mkDepthPosition( false );
     ti->setName( Well::Info::sKeyKBElev() );
@@ -187,7 +188,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     ti->setName( Well::Info::sKeyGroundElev() );
     fd_.bodyinfos_ += ti;
     fd_.bodyinfos_ +=
-	new Table::TargetInfo( Well::Info::sKeyUwid(), Table::Optional );
+	new Table::TargetInfo( Well::Info::sUwid(), Table::Optional );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 				mODHelpKey(mTableImpDataSelwellsHelpID));

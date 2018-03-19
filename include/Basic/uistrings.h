@@ -504,6 +504,8 @@ public:
     static uiWord sOffsetRange()	{ return tr("Offset Range"); }
     static uiWord sOk()			{ return tr("OK"); }
     static uiWord sOn()			{ return tr("On","in action"); }
+    static uiWord sOneWayTT()		{ return tr("One-way TT",
+					       "TT stands for two way time"); }
     static uiWord sOnlyAtSections()	{ return tr("Only at Sections"); }
     static uiWord sOpen()		{ return tr("Open"); }
     static uiWord sOpendTect()		{ return tr("OpendTect"); }
@@ -655,7 +657,7 @@ public:
     static uiWord sSpecify()		{ return tr("Specify"); }
     static uiWord sSpecifyOut();
     static uiWord sSphere()		{ return tr("Sphere"); }
-    static uiWord sSPNumber()		{ return tr("Shot-Point number"); }
+    static uiWord sSPNumber(bool abbr=false);
     static uiWord sSquare()		{ return tr("Square"); }
     static uiWord sStandard()		{ return tr("Standard"); }
     static uiWord sStack()		{ return tr("Stack","verb, seismics"); }
@@ -706,13 +708,19 @@ public:
     static uiWord sTranslator()		{ return tr("Translator"); }
     static uiWord sTransparency()	{ return tr("Transparency"); }
     static uiWord sTriangulation()	{ return tr("Triangulation"); }
+    static uiWord sTVDRelSRD()		{ return tr("TVD rel SRD",
+						    "TVD relative to SRD");}  
+    static uiWord sTVDRelKB()		{ return tr("TVD rel KB",
+						    "TVD relative to KB");}
+    static uiWord sTVDRelGL()		{ return tr("TVD rel GL",
+						    "TVD relative to GL");}
     static uiWord sTVDSS()		{ return tr("TVDSS",
 					    "True Vertical Depth Sub Sea"); }
     static uiWord sTWT(bool abbr=true);
     static uiWord sType()		{ return tr("Type"); }
     static uiWord sUndef(bool abbr=true)
     { return abbr ? tr("undef") : tr("Undefined"); }
-    static uiWord sUndefVal()		{ return tr("Undefined Value");
+    static uiWord sUndefVal()		{ return tr("Undefined Value"); }
     static uiWord sUndo()		{ return tr("Undo"); }
     static uiWord sUnion()		{ return tr("Union","of sets"); }
     static uiWord sUnit(int n=1)	{ return tr("Unit",0,n); }
@@ -780,5 +788,4 @@ public:
     static uiWord sZSlice(int n=1)	{ return tr("Z-slice",0,n); }
     static uiWord sZUnit()		{ return tr("Z-unit"); }
     static uiWord sZValue(int n=1)	{ return tr("Z value",0,n); }
-
 };

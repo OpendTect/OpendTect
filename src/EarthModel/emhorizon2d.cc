@@ -694,7 +694,7 @@ const IOObjContext& Horizon2D::getIOObjContext() const
 Table::FormatDesc* Horizon2DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );
-    fd->headerinfos_ += new Table::TargetInfo( uiStrings::ssUndefVal(),
+    fd->headerinfos_ += new Table::TargetInfo( uiStrings::sUndefVal(),
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
     BufferStringSet hornms;
     createDescBody( fd, hornms );
@@ -733,21 +733,25 @@ bool Horizon2DAscIO::isFormatOK(  const Table::FormatDesc& fd,
 void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 				     const BufferStringSet& hornms )
 {
-    fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
-    Table::TargetInfo* ti = new Table::TargetInfo( "Position", DoubleInpSpec(),
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sLineName(),
+							Table::Required );
+    Table::TargetInfo* ti = new Table::TargetInfo( uiStrings::sPosition(),
+							    DoubleInpSpec(),
 					    Table::Optional );
     ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
     fd->bodyinfos_ += ti;
-    Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Required );
+    Table::TargetInfo* trcspti = new Table::TargetInfo( uiString::empty(),
+							    Table::Required );
     trcspti->form(0).setName( "Trace Nr" );
     Table::TargetInfo::Form* spform =
-			new Table::TargetInfo::Form( "SP Nr", IntInpSpec() );
+			new Table::TargetInfo::Form( uiStrings::sSPNumber(true),
+								IntInpSpec() );
     trcspti->add( spform );
     fd->bodyinfos_ += trcspti;
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	BufferString fldname = hornms.get( idx );
-	ti = new Table::TargetInfo( fldname.buf(), FloatInpSpec(),
+	ti = new Table::TargetInfo( toUiString(fldname), FloatInpSpec(),
 			Table::Required, PropertyRef::surveyZType() );
 	ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
 	fd->bodyinfos_ += ti;

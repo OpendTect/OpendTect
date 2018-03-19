@@ -55,19 +55,23 @@ static Table::FormatDesc* getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Bulk 2D Horizon" );
 
-    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
+    fd->headerinfos_ += new Table::TargetInfo( uiStrings::sUndefVal(),
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
-    fd->bodyinfos_ += new Table::TargetInfo( "Horizon name",
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sHorizonName(),
 							    Table::Required );
-    fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
-    Table::TargetInfo* ti = new Table::TargetInfo( "Position", DoubleInpSpec(),
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sLineName(),
+							    Table::Required );
+    Table::TargetInfo* ti = new Table::TargetInfo( uiStrings::sPosition(),
+							    DoubleInpSpec(),
 					    Table::Optional );
     ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
     fd->bodyinfos_ += ti;
-    Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Required );
+    Table::TargetInfo* trcspti = new Table::TargetInfo( uiString::empty(),
+							    Table::Required );
     trcspti->form(0).setName( "Trace Nr" );
     Table::TargetInfo::Form* spform =
-		    new Table::TargetInfo::Form( "ShotPt Nr", IntInpSpec() );
+		    new Table::TargetInfo::Form( uiStrings::sSPNumber(true),
+								IntInpSpec() );
     trcspti->add( spform );
     fd->bodyinfos_ += trcspti;
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );

@@ -391,7 +391,7 @@ Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "DepthTimeModel" );
     fd->headerinfos_ +=
-	new Table::TargetInfo( "Undefined Value",
+	new Table::TargetInfo( uiStrings::sUndefVal(),
 				StringInpSpec(sKey::FloatUdf()),
 				Table::Required );
     createDescBody( fd, withunitfld );
@@ -403,15 +403,19 @@ void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
 					  bool withunits )
 {
     Table::TargetInfo* ti = gtDepthTI( withunits );
-    ti->add( new Table::TargetInfo::Form( "TVD rel SRD", FloatInpSpec() ) );
-    ti->add( new Table::TargetInfo::Form( "TVD rel KB", FloatInpSpec() ) );
-    ti->add( new Table::TargetInfo::Form( "TVD rel GL", FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( uiStrings::sTVDRelSRD(),
+							    FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( uiStrings::sTVDRelKB(),
+							    FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( uiStrings::sTVDRelGL(),
+							    FloatInpSpec() ) );
     fd->bodyinfos_ += ti;
 
-    ti = new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
+    ti = new Table::TargetInfo( uiStrings::sTime(), FloatInpSpec(), Table::Required,
 				PropertyRef::Time );
     ti->form(0).setName( "TWT" );
-    ti->add( new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( uiStrings::sOneWayTT(),
+							    FloatInpSpec() ) );
     ti->selection_.unit_ = UoMR().get( "Milliseconds" );
     fd->bodyinfos_ += ti;
 }
@@ -481,17 +485,18 @@ Well::BulkTrackAscIO::BulkTrackAscIO( const Table::FormatDesc& fd,
 Table::FormatDesc* Well::BulkTrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkWellTrack" );
-    fd->bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sWellName(),
+							    Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( true );
     zti->setName( "Z (TVDSS)" );
     fd->bodyinfos_ += zti;
     Table::TargetInfo* mdti =
-	new Table::TargetInfo( "MD", FloatInpSpec(), Table::Optional,
-				PropertyRef::Dist );
+	new Table::TargetInfo( uiStrings::sMD(), FloatInpSpec(),
+					Table::Optional, PropertyRef::Dist );
     mdti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     fd->bodyinfos_ += mdti;
-    fd->bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyUwid(),
+    fd->bodyinfos_ += new Table::TargetInfo( Well::Info::sUwid(),
 					     Table::Optional );
     return fd;
 }
@@ -515,10 +520,11 @@ bool Well::BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float& md,
 
 Table::TargetInfo* gtWellNameTI()
 {
-    Table::TargetInfo* ti = new Table::TargetInfo( "Well identifier",
-						   Table::Required );
+    Table::TargetInfo* ti = new Table::TargetInfo( od_static_tr("gtWellNameTI",
+					"Well identifier"), Table::Required );
     ti->form(0).setName( "Name" );
-    ti->add( new Table::TargetInfo::Form("UWI",StringInpSpec()) );
+    ti->add( new Table::TargetInfo::Form( od_static_tr("gtWellNameTI", "UWI", 
+					"Unique Well ID"), StringInpSpec()) );
     return ti;
 }
 
@@ -536,7 +542,8 @@ Table::FormatDesc* Well::BulkMarkerAscIO::getDesc()
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkMarkerSet" );
     fd->bodyinfos_ += gtWellNameTI();
     fd->bodyinfos_ += gtDepthTI( true );
-    fd->bodyinfos_ += new Table::TargetInfo( "Marker name", Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sMarkerNm(),
+							    Table::Required );
     return fd;
 }
 
@@ -572,15 +579,19 @@ Table::FormatDesc* Well::BulkD2TModelAscIO::getDesc()
     fd->bodyinfos_ += gtWellNameTI();
 
     Table::TargetInfo* ti = gtDepthTI( true );
-    ti->add( new Table::TargetInfo::Form( "TVD rel SRD", FloatInpSpec() ) );
-    ti->add( new Table::TargetInfo::Form( "TVD rel KB", FloatInpSpec() ) );
-    ti->add( new Table::TargetInfo::Form( "TVD rel GL", FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( uiStrings::sTVDRelSRD(),
+							FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( uiStrings::sTVDRelKB(),
+							    FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( uiStrings::sTVDRelGL(),
+							    FloatInpSpec() ) );
     fd->bodyinfos_ += ti;
 
-    ti = new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
+    ti = new Table::TargetInfo( uiStrings::sTime(), FloatInpSpec(), Table::Required,
 				PropertyRef::Time );
     ti->form(0).setName( "TWT" );
-    ti->add( new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( uiStrings::sOneWayTT(),
+							    FloatInpSpec() ) );
     ti->selection_.unit_ = UoMR().get( "Milliseconds" );
     fd->bodyinfos_ += ti;
     return fd;

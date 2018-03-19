@@ -540,6 +540,11 @@ uiWord uiStrings::sSelOutpFile()
 uiWord uiStrings::sSpecifyOut()
 { return uiStrings::phrSpecify( uiStrings::sOutput() ); }
 
+uiWord uiStrings::sSPNumber( bool abbr )
+{
+    return abbr ? tr("Shot Pt Nr") : tr("Shot-Point number");
+}
+
 uiWord uiStrings::sStorageDir()
 { return tr("Storage Directory"); }
 
