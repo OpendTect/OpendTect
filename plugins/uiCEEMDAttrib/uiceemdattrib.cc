@@ -46,7 +46,7 @@ static const char* attriboutputStr[] =
 mInitAttribUI(uiCEEMDAttrib,CEEMD,"CEEMD",sKeyBasicGrp())
 
 uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mTODOHelpKey)
+	: uiAttrDescEd(p,is2d, mODHelpKey(mCEEMDAttribHelpID) )
 	, positiondlg_(0)
 	, panelview_( new uiCEEMDPanel(p) )
 {
