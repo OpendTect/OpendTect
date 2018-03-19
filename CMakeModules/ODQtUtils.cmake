@@ -36,15 +36,21 @@ macro(OD_SETUP_QT)
 	    find_package( Qt5 REQUIRED ${OD_USEQT} )
 
 	    if( QT_MOC_HEADERS )
+		set ( OD_MODULE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_MODULE_NAME} )
+		if ( NOT EXISTS ${OD_MODULE_DIR} ) # Allow plugins
+		    set ( OD_MODULE_DIR
+			  ${CMAKE_SOURCE_DIR}/plugins/${OD_MODULE_NAME} )
+		endif()
+
 		foreach( HEADER ${QT_MOC_HEADERS} )
-		    list( APPEND QT_MOC_INPUT
-			  ${CMAKE_SOURCE_DIR}/src/${OD_MODULE_NAME}/${HEADER} )
+		    list( APPEND QT_MOC_INPUT ${OD_MODULE_DIR}/${HEADER} )
 		endforeach()
 		QT5_WRAP_CPP( QT_MOC_OUTFILES ${QT_MOC_INPUT} )
 	    endif( QT_MOC_HEADERS )
 
 	    foreach ( QTMOD ${OD_USEQT} )
-		list( APPEND OD_MODULE_INCLUDESYSPATH ${Qt5${QTMOD}_INCLUDE_DIRS} )
+		list( APPEND OD_MODULE_INCLUDESYSPATH
+		      ${Qt5${QTMOD}_INCLUDE_DIRS} )
 		list( APPEND OD_QT_LIBS ${Qt5${QTMOD}_LIBRARIES} )
 
 		if ( NOT DEFINED QT_LIBRARY_DIR )
@@ -119,12 +125,17 @@ macro(OD_SETUP_QT)
 	    endif()
 
 	    if( QT_MOC_HEADERS )
-	    foreach( HEADER ${QT_MOC_HEADERS} )
-		list(APPEND QT_MOC_INPUT
-		    ${CMAKE_SOURCE_DIR}/src/${OD_MODULE_NAME}/${HEADER})
-	    endforeach()
+		set ( OD_MODULE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_MODULE_NAME} )
+		if ( NOT EXISTS ${OD_MODULE_DIR} ) # Allow plugins
+		    set ( OD_MODULE_DIR
+			  ${CMAKE_SOURCE_DIR}/plugins/${OD_MODULE_NAME} )
+		endif()
 
-	    QT4_WRAP_CPP (QT_MOC_OUTFILES ${QT_MOC_INPUT})
+		foreach( HEADER ${QT_MOC_HEADERS} )
+		    list(APPEND QT_MOC_INPUT ${OD_MODULE_DIR}/${HEADER})
+		endforeach()
+
+		QT4_WRAP_CPP (QT_MOC_OUTFILES ${QT_MOC_INPUT})
 	    endif( QT_MOC_HEADERS )
 
 	    list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_QT_LIBS} )
