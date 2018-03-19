@@ -13,7 +13,6 @@ set(OD_MODULE_SOURCES
 	initseis.cc
 	offsetazimuth.cc
 	prestackgather.cc
-	seisdatapackwriter.cc
 	segydirect.cc
 	segydirect2d.cc
 	segydirecttr.cc
@@ -33,6 +32,7 @@ set(OD_MODULE_SOURCES
 	seisblocks.cc
 	seisblocksreader.cc
 	seisblockswriter.cc
+	seisblocksbackend.cc
 	seisblockstr.cc
 	seisbuf.cc
 	seiscbvs.cc
@@ -43,6 +43,7 @@ set(OD_MODULE_SOURCES
 	seismscprov.cc
 	seiscube2linedata.cc
 	seisdatapack.cc
+	seisdatapackwriter.cc
 	seiseventsnapper.cc
 	seisfetcher.cc
 	seisimpbpsif.cc

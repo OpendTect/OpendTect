@@ -42,7 +42,7 @@ class OffsetTable;
 
 */
 
-mExpClass(Seis) Reader : public IOClass
+mExpClass(Seis) Reader : public Access
 { mODTextTranslationClass(Seis::Blocks::Reader);
 public:
 

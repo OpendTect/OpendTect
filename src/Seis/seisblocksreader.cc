@@ -24,8 +24,13 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "ascstream.h"
 #include "zdomain.h"
+#include "hdf5access.h"
 #include "genc.h"
 #include <map>
+
+
+//TODO remove when reader has a backend
+static Seis::Blocks::SzType columnHeaderSize( int ver ) { return 32; }
 
 
 namespace Seis
@@ -96,7 +101,7 @@ Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const HGlobIdx& gidx,
 
     strm_.setReadPosition( startoffsinfile_ );
     strm_.getBin( headernrbytes_ );
-    const SzType expectedhdrbts = rdr_.columnHeaderSize( rdr_.version_ );
+    const SzType expectedhdrbts = columnHeaderSize( rdr_.version_ );
     if ( headernrbytes_ != expectedhdrbts )
     {
 	uirv.set( tr("%1: unexpected size in file.\nFound %2, should be %3.")
@@ -525,13 +530,31 @@ bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
 	return false;
     }
 
-    const BufferString fnm( dataFileName() );
+    BufferString fnm( dataFileName() );
+    if ( !File::exists(fnm) )
+    {
+	const BufferString altfnm(
+			dataFileNameFor(basepath_.fullPath(),!usehdf_) );
+	if ( File::exists(altfnm) )
+	{
+	    if ( !usehdf_ && !HDF5::isAvailable() )
+	    {
+		uirv.add( HDF5::Access::sHDF5NotAvailable(altfnm) );
+		return false;
+	    }
+	    fnm.set( altfnm );
+	    usehdf_ = !usehdf_;
+	}
+    }
+
     if ( strm_ && fnm != strm_->fileName() )
 	closeStream();
+
     if ( !strm_ )
 	strm_ = new od_istream( fnm );
     else
 	strm_->setReadPosition( 0 );
+
     if ( !strm_->isOK() )
     {
 	closeStream();

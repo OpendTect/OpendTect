@@ -8,6 +8,8 @@
 #include "arrayndimpl.h"
 #include "iopar.h"
 #include "uistrings.h"
+#include "envvars.h"
+#include "settings.h"
 
 mImplClassFactory( HDF5::AccessProvider, factory );
 
@@ -21,6 +23,24 @@ const char* HDF5::Access::sNeedScope()
 { return "HDF5: No valid scope set for data retrieval. Use/check setScope()"; }
 const char* HDF5::Access::sNoDataPassed()
 { return "HDF5: Null data passed"; }
+
+
+bool HDF5::Access::isEnabled( const char* typ )
+{
+    if ( !HDF5::isAvailable() || GetEnvVarYN("OD_NO_HDF5")
+      || Settings::common().isFalse(sSettingsEnabKey()) )
+	return false;
+
+    if ( FixedString(typ).isEmpty() )
+	return true;
+
+    const BufferString envvar( "OD_NO_HDF5_", BufferString(typ).toUpper() );
+    if ( GetEnvVarYN(envvar) )
+	return false;
+
+    const BufferString settky( sSettingsEnabKey(), ".", typ );
+    return !Settings::common().isFalse( settky );
+}
 
 
 HDF5::AccessProvider* HDF5::AccessProvider::mkProv( int idx )
@@ -86,6 +106,13 @@ uiRetVal HDF5::Access::open( const char* fnm )
 uiString HDF5::Access::sHDF5PackageDispName()
 {
     return tr("HDF5 File Access");
+}
+
+
+uiString HDF5::Access::sHDF5NotAvailable( const char* fnm )
+{
+    return tr("HDF5 access needed for '%1'."
+	      "\nTo access the file, please install HDF5");
 }
 
 

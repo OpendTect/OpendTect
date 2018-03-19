@@ -110,13 +110,17 @@ public:
     virtual		~Access();
 
     uiRetVal		open(const char*);
-    virtual const char*	fileName() const		= 0;
+    virtual const char*	fileName() const	= 0;
 
-    H5::H5File*		getHDF5File()			{ return file_; }
+    H5::H5File*		getHDF5File()		{ return file_; }
 
     static uiString	sHDF5PackageDispName();
-    static const char*	sGroupInfoDataSetName()
-			{ return "++group-info++"; }
+    static uiString	sHDF5NotAvailable(const char* fnm);
+    static const char*	sFileExtension()	{ return "hdf5"; }
+    static const char*	sGroupInfoDataSetName()	{ return "++info++"; }
+
+    static bool		isEnabled(const char* fortype=0);
+    static const char*	sSettingsEnabKey()	{ return "dTect.Use HDF5"; }
 
 protected:
 
@@ -157,9 +161,12 @@ protected:
 
 };
 
-inline bool isAvailable() { return !AccessProvider::factory().isEmpty(); }
 inline Reader* mkReader() { return AccessProvider::mkReader(); }
 inline Writer* mkWriter() { return AccessProvider::mkWriter(); }
+inline const char* sFileExtension() { return Access::sFileExtension(); }
 
+inline bool isAvailable() { return !AccessProvider::factory().isEmpty(); }
+inline bool isEnabled( const char* typ ) { return Access::isEnabled( typ ); }
+inline const char* sSeismicsType()	{ return "Seismics"; }
 
 } // namespace HDF5

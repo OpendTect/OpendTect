@@ -25,9 +25,12 @@ namespace Blocks
 {
 
 class ColumnWriter;
+class HDF5WriteBackEnd;
 class MemBlock;
 class MemBlockColumn;
 class StepFinder;
+class StreamWriteBackEnd;
+class WriteBackEnd;
 class WriterFinisher;
 
 
@@ -46,7 +49,7 @@ class WriterFinisher;
 
 */
 
-mExpClass(Seis) Writer : public IOClass
+mExpClass(Seis) Writer : public Access
 { mODTextTranslationClass(Seis::Blocks::Writer);
 public:
 
@@ -80,7 +83,7 @@ protected:
     int			nrcomps_;
     bool		isfinished_;
     DataInterp*		interp_;
-    od_ostream*		strm_;
+    WriteBackEnd*	backend_;
 
     IdxType		nrglobzidxs_;
     ObjectSet<ZEvalPosSet> zevalpositions_;
@@ -97,9 +100,6 @@ protected:
     MemBlockColumn*	mkNewColumn(const HGlobIdx&);
     bool		isCompleted(const MemBlockColumn&) const;
     void		writeColumn(MemBlockColumn&,uiRetVal&);
-    bool		writeColumnHeader(const MemBlockColumn&,
-				    const HLocIdx&,const HDimensions&) const;
-    bool		writeBlock(MemBlock&,HLocIdx,HDimensions);
     void		writeInfoFiles(uiRetVal&);
     bool		writeInfoFileData(od_ostream&);
     bool		writeOverviewFileData(od_ostream&);
@@ -114,6 +114,25 @@ protected:
     friend class	StepFinder;
     friend class	ColumnWriter;
     friend class	WriterFinisher;
+    friend class	StreamWriteBackEnd;
+    friend class	HDF5WriteBackEnd;
+
+};
+
+
+mExpClass(Seis) WriteBackEnd
+{
+public:
+
+			WriteBackEnd( Writer& wrr ) : wrr_(wrr)		{}
+    virtual		~WriteBackEnd()					{}
+
+    virtual void	setColumnInfo(const MemBlockColumn&,const HLocIdx&,
+				  const HDimensions&,uiRetVal&)		= 0;
+    virtual void	putBlock(int,MemBlock&,HLocIdx,HDimensions,
+				 uiRetVal&)				= 0;
+
+    Writer&		wrr_;
 
 };
 

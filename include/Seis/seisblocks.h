@@ -172,11 +172,11 @@ protected:
 
 */
 
-mExpClass(Seis) IOClass
+mExpClass(Seis) Access
 {
 public:
 
-    virtual		~IOClass();
+    virtual		~Access();
 
     virtual const HGeom& hGeom() const		{ return hgeom_; }
     const ZGeom&	zGeom() const		{ return zgeom_; }
@@ -197,9 +197,9 @@ public:
     BufferString	dataFileName() const;
     BufferString	overviewFileName() const;
     static BufferString	infoFileNameFor(const char*);
-    static BufferString	dataFileNameFor(const char*);
+    static BufferString	dataFileNameFor(const char*,bool usehdf);
 
-    static const char*	sKeyDataFileExt() { return "blocks"; }
+    static const char*	sDataFileExt()	  { return "blocks"; }
     static const char*	sKeyOvvwFileExt() { return "ovvw"; }
     static const char*	sKeyFileType()	  { return "Column Cube"; }
     static const char*	sKeySectionPre()  { return "Section-"; }
@@ -219,7 +219,7 @@ public:
 
 protected:
 
-			IOClass();
+			Access();
 
     mutable Threads::Lock accesslock_;
     Pos::IdxPairDataSet& columns_;
@@ -236,11 +236,12 @@ protected:
     ObjectSet<IOPar>	auxiops_;
     DataType		datatype_;
     mutable bool	needreset_;
+    mutable bool	usehdf_;
 
     Column*		findColumn(const HGlobIdx&) const;
     void		addColumn(Column*) const;
     void		clearColumns();
-    static SzType	columnHeaderSize(SzType ver);
+    static bool		useHDF();
 
 };
 

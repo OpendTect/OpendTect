@@ -17,14 +17,15 @@ ________________________________________________________________________
 #include "genc.h"
 #include "survgeom3d.h"
 #include "posidxpairdataset.h"
+#include "envvars.h"
+#include "settings.h"
+#include "hdf5access.h"
 
 static const Seis::Blocks::SzType cVersion	= 1;
 static const Seis::Blocks::SzType cDefDim	= 64;
-Seis::Blocks::SzType Seis::Blocks::IOClass::columnHeaderSize( SzType ver )
-						{ return 32; }
 
 
-Seis::Blocks::IOClass::IOClass()
+Seis::Blocks::Access::Access()
     : basepath_(GetBaseDataDir(),sSeismicSubDir(),"new_cube")
     , dims_(Block::defDims())
     , version_(cVersion)
@@ -34,11 +35,12 @@ Seis::Blocks::IOClass::IOClass()
     , columns_(*new Pos::IdxPairDataSet(sizeof(Block*),false,false))
     , needreset_(true)
     , datatype_(UnknownData)
+    , usehdf_(HDF5::isEnabled(HDF5::sSeismicsType()))
 {
 }
 
 
-Seis::Blocks::IOClass::~IOClass()
+Seis::Blocks::Access::~Access()
 {
     deepErase( auxiops_ );
     delete scaler_;
@@ -48,13 +50,13 @@ Seis::Blocks::IOClass::~IOClass()
 }
 
 
-const ZDomain::Def& Seis::Blocks::IOClass::zDomain() const
+const ZDomain::Def& Seis::Blocks::Access::zDomain() const
 {
     return hgeom_.zDomain();
 }
 
 
-BufferString Seis::Blocks::IOClass::infoFileName() const
+BufferString Seis::Blocks::Access::infoFileName() const
 {
     File::Path fp( basepath_ );
     fp.setExtension( sInfoFileExtension(), false );
@@ -62,15 +64,18 @@ BufferString Seis::Blocks::IOClass::infoFileName() const
 }
 
 
-BufferString Seis::Blocks::IOClass::dataFileName() const
+#define mFileExt(usehdf) usehdf ? HDF5::sFileExtension() : sDataFileExt()
+
+
+BufferString Seis::Blocks::Access::dataFileName() const
 {
     File::Path fp( basepath_ );
-    fp.setExtension( sKeyDataFileExt(), false );
+    fp.setExtension( mFileExt(usehdf_), false );
     return fp.fullPath();
 }
 
 
-BufferString Seis::Blocks::IOClass::overviewFileName() const
+BufferString Seis::Blocks::Access::overviewFileName() const
 {
     File::Path fp( basepath_ );
     fp.setExtension( sKeyOvvwFileExt(), false );
@@ -78,7 +83,7 @@ BufferString Seis::Blocks::IOClass::overviewFileName() const
 }
 
 
-BufferString Seis::Blocks::IOClass::infoFileNameFor( const char* fnm )
+BufferString Seis::Blocks::Access::infoFileNameFor( const char* fnm )
 {
     File::Path fp( fnm );
     fp.setExtension( sInfoFileExtension(), true );
@@ -86,15 +91,16 @@ BufferString Seis::Blocks::IOClass::infoFileNameFor( const char* fnm )
 }
 
 
-BufferString Seis::Blocks::IOClass::dataFileNameFor( const char* fnm )
+BufferString Seis::Blocks::Access::dataFileNameFor( const char* fnm,
+						    bool usehdf )
 {
     File::Path fp( fnm );
-    fp.setExtension( sKeyDataFileExt(), false );
+    fp.setExtension( mFileExt(usehdf), false );
     return fp.fullPath();
 }
 
 
-void Seis::Blocks::IOClass::clearColumns()
+void Seis::Blocks::Access::clearColumns()
 {
     Pos::IdxPairDataSet::SPos spos;
     while ( columns_.next(spos) )
@@ -103,7 +109,7 @@ void Seis::Blocks::IOClass::clearColumns()
 }
 
 
-Seis::Blocks::Column* Seis::Blocks::IOClass::findColumn(
+Seis::Blocks::Column* Seis::Blocks::Access::findColumn(
 						const HGlobIdx& gidx ) const
 {
     const Pos::IdxPair idxpair( gidx.inl(), gidx.crl() );
@@ -112,7 +118,7 @@ Seis::Blocks::Column* Seis::Blocks::IOClass::findColumn(
 }
 
 
-void Seis::Blocks::IOClass::addColumn( Column* column ) const
+void Seis::Blocks::Access::addColumn( Column* column ) const
 {
     if ( !column )
 	return;
