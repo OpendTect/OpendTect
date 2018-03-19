@@ -51,7 +51,6 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
 {
     dispnm_.setParam( this, new uiString(nm) );
     qtoolbar_->setObjectName( nm.getQString() );
-    qtoolbar_->setAccessibleName( nm.getOriginalString() );
     msgr_ = new i_ToolBarMessenger( qtoolbar_, this );
 
     mDynamicCastGet(uiMainWin*,uimw,parnt)
