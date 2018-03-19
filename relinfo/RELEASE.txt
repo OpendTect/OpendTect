@@ -2,6 +2,7 @@ OpendTect V6.2.x : Release info
 
 ----
 v6.2.3: March 16, 2018
+* Added new attribute Complete Ensemble Empirical Mode Decomposition (CEEMD)
 * Fix for mix-up of fault and horizon interpretation in 2D viewer
 * Fix for wrongly highlighted horizon in 2D viewer's Tree during
   interpretation of several horizons
