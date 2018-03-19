@@ -30,7 +30,7 @@ using namespace Attrib;
 mInitAttribUI(uiCEEMDAttrib,CEEMD,toUiString("CEEMD"),sBasicGrp())
 
 uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mTODOHelpKey)
+	: uiAttrDescEd(p,is2d, mODHelpKey(mCEEMDAttribHelpID) )
 	, positiondlg_(0)
 	, panelview_( new uiCEEMDPanel(p) )
 {
