@@ -71,8 +71,10 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 				: (tinf_.selection_.isInFile(0) ? 2 : 0) );
     }
 
+    uiString dispnm = tinf_.dispnm_;
+
     uiString  lbltxt = tinf_.isOptional()
-	    ? toUiString("[%1]").arg(tinf_.name()) : toUiString(tinf_.name());
+	    ? toUiString("[%1]").arg(dispnm) : toUiString(dispnm);
     uiLabel* lbl = new uiLabel( this, lbltxt );
     if ( formfld_ )
 	lbl->attach( rightOf, formfld_ );
@@ -81,8 +83,9 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     {
 	rightmostfld_ = rightmostleftfld_;
 	const Table::TargetInfo::Form& form = tinf_.form( iform );
+	uiString nm = form.dispnm_;
 	if ( formfld_ )
-	    formfld_->addItem( toUiString(form.name()) );
+	    formfld_->addItem( form.dispnm_ );
 	mkColFlds( iform );
     }
 

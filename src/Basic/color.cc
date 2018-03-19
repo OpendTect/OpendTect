@@ -132,14 +132,14 @@ float Color::getFloat( unsigned char c )
 const int nrstddrawcols = 10;
 Color stddrawcols[] = {
 	Color( 220,  20,  60 ), // Crimson
-	Color(  65, 105, 225 ), // RoyalBlue
-	Color(  50, 205,  50 ), // LimeGreen
-	Color(  72, 209, 204 ), // MediumTurquoise
+	Color(	65, 105, 225 ), // RoyalBlue
+	Color(	50, 205,  50 ), // LimeGreen
+	Color(	72, 209, 204 ), // MediumTurquoise
 	Color( 255, 215,   0 ), // Gold
 	Color( 148,   0, 211 ), // DarkViolet
 	Color( 128, 128,   0 ), // Olive
 	Color( 255, 140,   0 ), // DarkOrange
-	Color(  72,  61, 139 ), // DarkSlateBlue
+	Color(	72,  61, 139 ), // DarkSlateBlue
 	Color( 205, 133,  63 ), // Peru
 };
 

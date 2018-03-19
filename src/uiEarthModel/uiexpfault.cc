@@ -101,7 +101,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     zmodes.add(uiStrings::sNo());
     zmodes.add(tr("Transformed"));
 
-    zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),
+    zfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sZ() ),
 			    StringListInpSpec(zmodes) );
     zfld_->valuechanged.notify( mCB(this,uiExportFault,addZChg ) );
     zfld_->attach( alignedBelow, coordfld_ );

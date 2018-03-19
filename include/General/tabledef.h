@@ -60,11 +60,13 @@ public:
 
     struct Form : NamedObject
     {
-			Form( const uiString nm, DataInpSpec* spec )
-			    : NamedObject(mFromUiStringTodo(nm))
+			Form( const uiString dispnm, DataInpSpec* spec )
+			    : NamedObject(mFromUiStringTodo(dispnm))
+			    , dispnm_(dispnm)
 				{ add( spec ); }
-			Form( const uiString nm, const DataInpSpec& spec )
-			    : NamedObject(mFromUiStringTodo(nm))
+			Form( const uiString dispnm, const DataInpSpec& spec )
+			    : NamedObject(mFromUiStringTodo(dispnm))
+			    , dispnm_(dispnm)
 				{ add( spec.clone() ); }
 
 			~Form()	{ deepErase(specs_); }
@@ -84,23 +86,32 @@ public:
 			}
 
 	ObjectSet<DataInpSpec>	specs_;
+
+	uiString	dispnm_;
     };
 
 
-    			TargetInfo( const uiString nm, ReqSpec rs=Optional )
+			TargetInfo( const uiString nm, ReqSpec rs=Optional )
 					//!< Single string
 			    : NamedObject(mFromUiStringTodo(nm)), req_(rs)
+			    , dispnm_(nm)
     			    , proptype_(PropertyRef::Other)
 				{ add( nm ); }
-    			TargetInfo( const uiString nm, DataInpSpec* spec,
+			TargetInfo( const uiString nm, DataInpSpec* spec,
 				  ReqSpec rs=Optional,
 				  PropertyRef::StdType p=PropertyRef::Other )
-			    : NamedObject(mFromUiStringTodo(nm)), req_(rs), proptype_(p)
+			    : NamedObject(mFromUiStringTodo(nm))
+			    , req_(rs)
+			    , proptype_(p)
+			    , dispnm_(nm)
 				{ add( nm, spec ); }
-    			TargetInfo( const uiString nm, const DataInpSpec& spec,
+			TargetInfo( const uiString nm, const DataInpSpec& spec,
 				  ReqSpec rs=Optional, 
 				  PropertyRef::StdType p=PropertyRef::Other )
-			    : NamedObject(mFromUiStringTodo(nm)), req_(rs), proptype_(p)
+			    : NamedObject(mFromUiStringTodo(nm))
+			    , req_(rs)
+			    , proptype_(p)
+			    , dispnm_(nm)
 				{ add( nm, spec ); }
 
 			~TargetInfo()		{ deepErase( forms_ ); }
@@ -127,6 +138,8 @@ public:
 				    return idx;
 			    return -1;
 			}
+
+    uiString		dispnm_;
 
     /*!\brief Selected element/positioning
       This selects the specific form and where/how it can be found in the file,

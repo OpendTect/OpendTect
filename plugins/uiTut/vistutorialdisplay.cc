@@ -76,11 +76,11 @@ void visSurvey::TutorialWellDisplay::loadAndDisplayWell( const DBKey& wellid )
 	timetrack.toTime( *data );  // convert to time (if required)
     else
 	timetrack = data->track();
-   
+
     if ( data->track().size()<1 )
 	return;
 
-    Well::TrackIter iter( timetrack );  /* using iterator */
+    Well::TrackIter iter( timetrack );	/* using iterator */
     while ( iter.next() )
     {
 	Coord3 pt = iter.pos();

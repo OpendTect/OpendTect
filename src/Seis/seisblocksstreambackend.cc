@@ -162,7 +162,7 @@ public:
 	int		trcpartnrbytes_;
 	int		blockznrbytes_;
     };
-    ObjectSet<Chunk>    chunks_;
+    ObjectSet<Chunk>	chunks_;
 
 protected:
 
@@ -196,7 +196,7 @@ Seis::Blocks::FileColumn::FileColumn( const StreamReadBackEnd& rdrbe,
     if ( headernrbytes_ != expectedhdrbts )
     {
 	uirv.set( tr("%1: unexpected size in file.\nFound %2, should be %3.")
-	          .arg( strm_.fileName() )
+		  .arg( strm_.fileName() )
 		  .arg( headernrbytes_ ).arg( expectedhdrbts ) );
 	return;
     }

@@ -42,7 +42,7 @@ Table::FormatDesc* Well::TrackAscIO::getDesc()
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( false );
     zti->setName( "Z (TVDSS)" );
     fd->bodyinfos_ += zti;
-    Table::TargetInfo* ti = new Table::TargetInfo( tr("MD", "measured depth"),
+    Table::TargetInfo* ti = new Table::TargetInfo( uiStrings::sMD(),
 					FloatInpSpec(), Table::Optional );
     ti->setPropertyType( PropertyRef::Dist );
     ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
@@ -411,8 +411,8 @@ void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
 							    FloatInpSpec() ) );
     fd->bodyinfos_ += ti;
 
-    ti = new Table::TargetInfo( uiStrings::sTime(), FloatInpSpec(), Table::Required,
-				PropertyRef::Time );
+    ti = new Table::TargetInfo( uiStrings::sTime(), FloatInpSpec(),
+					Table::Required, PropertyRef::Time );
     ti->form(0).setName( "TWT" );
     ti->add( new Table::TargetInfo::Form( uiStrings::sOneWayTT(),
 							    FloatInpSpec() ) );
@@ -523,7 +523,7 @@ Table::TargetInfo* gtWellNameTI()
     Table::TargetInfo* ti = new Table::TargetInfo( od_static_tr("gtWellNameTI",
 					"Well identifier"), Table::Required );
     ti->form(0).setName( "Name" );
-    ti->add( new Table::TargetInfo::Form( od_static_tr("gtWellNameTI", "UWI", 
+    ti->add( new Table::TargetInfo::Form( od_static_tr("gtWellNameTI", "UWI",
 					"Unique Well ID"), StringInpSpec()) );
     return ti;
 }
@@ -587,8 +587,8 @@ Table::FormatDesc* Well::BulkD2TModelAscIO::getDesc()
 							    FloatInpSpec() ) );
     fd->bodyinfos_ += ti;
 
-    ti = new Table::TargetInfo( uiStrings::sTime(), FloatInpSpec(), Table::Required,
-				PropertyRef::Time );
+    ti = new Table::TargetInfo( uiStrings::sTime(), FloatInpSpec(),
+					  Table::Required, PropertyRef::Time );
     ti->form(0).setName( "TWT" );
     ti->add( new Table::TargetInfo::Form( uiStrings::sOneWayTT(),
 							    FloatInpSpec() ) );

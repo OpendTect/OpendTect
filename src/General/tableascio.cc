@@ -278,7 +278,7 @@ Table::TargetInfo*
 	ti = new TargetInfo( uiStrings::sPosition(), DoubleInpSpec(), reqspec );
 	ti->form(0).setName( "X Y" );
 	ti->form(0).add( DoubleInpSpec() );
-	Table::TargetInfo::Form* form = new Table::TargetInfo::Form( 
+	Table::TargetInfo::Form* form = new Table::TargetInfo::Form(
 	    toUiString("%1 %2").arg(uiStrings::sInl()).arg(uiStrings::sCrl()),
 								IntInpSpec() );
 	form->add( IntInpSpec() );

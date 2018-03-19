@@ -391,7 +391,7 @@ public:
     static uiWord sHistogram()		{ return tr("Histogram"); }
     static uiWord sHorizon(int n=1)	{ return tr("Horizon",0,n); }
     static uiWord sHorizonData()	{ return tr("Horizon Data"); }
-    static uiWord sHorizonName(int n=1)	{ return tr("Horizon Name",0,n); }
+    static uiWord sHorizonName(int n=1) { return tr("Horizon Name",0,n); }
     static uiWord sHorizontal()		{ return tr("Horizontal"); }
     static uiWord sHost()		{ return tr("Host"); }
     static uiWord sID()			{ return tr("ID"); }
@@ -458,7 +458,7 @@ public:
     static uiWord sManual()		{ return tr("Manual"); }
     static uiWord sMarker(int n=1)	{ return tr("Marker",0,n); }
     static uiWord sMarkerNm(int n=1)	{ return tr("Marker Name",0,n); }
-    static uiWord sMD()			{ return tr("MD"); }
+    static uiWord sMD()			{ return tr("MD","Measured Depth"); }
     static uiWord sMatch()		{ return tr("Match"); }
     static uiWord sMaximum()		{ return tr("Maximum"); }
     static uiWord sMedian()		{ return tr("Median"); }
@@ -709,7 +709,7 @@ public:
     static uiWord sTransparency()	{ return tr("Transparency"); }
     static uiWord sTriangulation()	{ return tr("Triangulation"); }
     static uiWord sTVDRelSRD()		{ return tr("TVD rel SRD",
-						    "TVD relative to SRD");}  
+						    "TVD relative to SRD");}
     static uiWord sTVDRelKB()		{ return tr("TVD rel KB",
 						    "TVD relative to KB");}
     static uiWord sTVDRelGL()		{ return tr("TVD rel GL",

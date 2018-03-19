@@ -1594,7 +1594,7 @@ void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
 	if ( fldname == "Z values" )
 	    ti = Table::TargetInfo::mkZPosition( true );
 	else
-	    ti = new Table::TargetInfo( fldname.buf(), FloatInpSpec(),
+	    ti = new Table::TargetInfo( toUiString(fldname), FloatInpSpec(),
 					Table::Required );
 	fd->bodyinfos_ += ti;
     }

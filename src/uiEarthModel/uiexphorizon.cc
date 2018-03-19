@@ -272,7 +272,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk)
 				      false );
     settingsbutt_->attach( rightOf, typfld_ );
 
-    zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),
+    zfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sZ() ),
 			    StringListInpSpec(zmodes) );
     zfld_->valuechanged.notify( mCB(this,uiExportHorizon,addZChg ) );
     zfld_->attach( alignedBelow, typfld_ );
