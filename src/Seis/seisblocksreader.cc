@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "seisblocksreader.h"
+#include "seisblocksbackend.h"
 #include "seisselection.h"
 #include "seistrc.h"
 #include "uistrings.h"
@@ -24,218 +25,12 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "ascstream.h"
 #include "zdomain.h"
-#include "hdf5access.h"
 #include "genc.h"
-#include <map>
-
-
-//TODO remove when reader has a backend
-static Seis::Blocks::SzType columnHeaderSize( int ver ) { return 32; }
-
-
-namespace Seis
-{
-
-namespace Blocks
-{
-
-
-class OffsetTable : public std::map<HGlobIdx,od_stream_Pos> {};
-
-
-class FileColumn : public Column
-{ mODTextTranslationClass(Seis::Blocks::FileColumn)
-public:
-
-			FileColumn(const Reader&,const HGlobIdx&,uiRetVal&);
-			~FileColumn();
-
-    void		fillTrace(const BinID&,SeisTrc&,uiRetVal&) const;
-
-    const Reader&	rdr_;
-    const HGeom&	hgeom_;
-    od_istream&		strm_;
-
-    od_stream_Pos	startoffsinfile_;
-    SzType		headernrbytes_;
-    HLocIdx		start_;
-    const Dimensions	dims_;
-    int			nrsamplesintrace_;
-
-    struct Chunk
-    {
-	int		comp_;
-	int		startsamp_;
-	int		nrsamps_;
-	od_stream_Pos	offs_;
-	int		trcpartnrbytes_;
-	int		blockznrbytes_;
-    };
-    ObjectSet<Chunk>    chunks_;
-
-protected:
-
-    char*		trcpartbuf_;
-
-    void		createOffsetTable();
-
-};
-
-} // namespace Blocks
-
-} // namespace Seis
-
-
-Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const HGlobIdx& gidx,
-				      uiRetVal& uirv )
-    : Column(gidx,Dimensions(0,0,0),rdr.nrComponents())
-    , rdr_(rdr)
-    , start_(0,0)
-    , strm_(*rdr.strm_)
-    , nrsamplesintrace_(0)
-    , trcpartbuf_(0)
-    , hgeom_(rdr_.hGeom())
-    , startoffsinfile_(rdr.offstbl_[globidx_])
-{
-    uirv.setEmpty();
-
-    strm_.setReadPosition( startoffsinfile_ );
-    strm_.getBin( headernrbytes_ );
-    const SzType expectedhdrbts = columnHeaderSize( rdr_.version_ );
-    if ( headernrbytes_ != expectedhdrbts )
-    {
-	uirv.set( tr("%1: unexpected size in file.\nFound %2, should be %3.")
-	          .arg( strm_.fileName() )
-		  .arg( headernrbytes_ ).arg( expectedhdrbts ) );
-	return;
-    }
-
-    Dimensions& dms( const_cast<Dimensions&>(dims_) );
-    strm_.getBin( dms.first ).getBin( dms.second ).getBin( dms.third );
-    strm_.getBin( start_.first ).getBin( start_.second );
-    HGlobIdx gidx4dbg; // will be ignored, but helps debugging
-    strm_.getBin( gidx4dbg.first ).getBin( gidx4dbg.second );
-
-    if ( !strm_.isOK() )
-    {
-	uirv.set( tr("%1: unexpected end of file.").arg( strm_.fileName() ) );
-	return;
-    }
-
-    createOffsetTable();
-}
-
-
-Seis::Blocks::FileColumn::~FileColumn()
-{
-    deepErase( chunks_ );
-    delete [] trcpartbuf_;
-}
-
-
-void Seis::Blocks::FileColumn::createOffsetTable()
-{
-    const int nrsamplesinfile = rdr_.zgeom_.nrSteps() + 1;
-    const int nrbytespersample = rdr_.interp_->nrBytes();
-    const int nrbytespercompslice = ((int)dims_.inl()) * dims_.crl()
-				    * nrbytespersample;
-
-    const IdxType lastglobzidxinfile = Block::globIdx4Z( rdr_.zgeom_,
-					rdr_.zgeom_.stop, dims_.z() );
-    Interval<IdxType> trcgzidxrg(
-	    Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start, dims_.z() ),
-	    Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop, dims_.z() ) );
-    nrsamplesintrace_ = 0;
-    int blocknrbytes = dims_.z() * nrbytespercompslice;
-    od_stream_Pos blockstartoffs = startoffsinfile_ + headernrbytes_
-				 + trcgzidxrg.start * blocknrbytes * nrcomps_;
-    for ( IdxType gzidx=trcgzidxrg.start; gzidx<=trcgzidxrg.stop; gzidx++ )
-    {
-	SzType blockzdim = dims_.z();
-	if ( gzidx == lastglobzidxinfile )
-	{
-	    SzType lastdim = SzType( nrsamplesinfile%dims_.z() );
-	    if ( lastdim > 0 )
-		blockzdim = lastdim;
-	}
-
-	IdxType startzidx = 0;
-	IdxType stopzidx = IdxType( blockzdim ) - 1;
-	if ( gzidx == trcgzidxrg.start )
-	    startzidx = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start,
-					 dims_.z() );
-	if ( gzidx == trcgzidxrg.stop )
-	    stopzidx = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop,
-					 dims_.z() );
-
-	blocknrbytes = nrbytespercompslice * blockzdim;
-	int nrsampsthisblock = stopzidx - startzidx + 1;
-
-	int compintrc = 0;
-	for ( int icomp=0; icomp<nrcomps_; icomp++ )
-	{
-	    if ( rdr_.compsel_[icomp] )
-	    {
-		Chunk* chunk = new Chunk;
-		chunk->comp_ = compintrc;
-		chunk->offs_ = blockstartoffs + startzidx * nrbytespersample;
-		chunk->startsamp_ = nrsamplesintrace_;
-		chunk->nrsamps_ = nrsampsthisblock;
-		chunk->trcpartnrbytes_ = nrsampsthisblock * nrbytespersample;
-		chunk->blockznrbytes_ = blockzdim * nrbytespersample;
-		chunks_ += chunk;
-		compintrc++;
-	    }
-	    blockstartoffs += blocknrbytes;
-	}
-
-	nrsamplesintrace_ += nrsampsthisblock;
-    }
-
-    delete [] trcpartbuf_;
-    trcpartbuf_ = new char [dims_.z() * nrbytespersample];
-}
-
-
-void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
-					  uiRetVal& uirv ) const
-{
-    const HLocIdx locidx(
-	Block::locIdx4Inl(hgeom_,bid.inl(),rdr_.dims_.inl()) - start_.inl(),
-	Block::locIdx4Crl(hgeom_,bid.crl(),rdr_.dims_.crl()) - start_.crl() );
-    if ( locidx.inl() < 0 || locidx.crl() < 0
-      || locidx.inl() >= dims_.inl() || locidx.crl() >= dims_.crl() )
-    {
-	// something's diff between bin block and info file; a getNext() found
-	// this position in the CubeData, but the position is not available
-	uirv.set( tr("Location from .info file (%1/%2) not in file")
-		.arg(bid.inl()).arg(bid.crl()) );
-	return;
-    }
-
-    trc.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.datarep_ );
-    trc.reSize( nrsamplesintrace_, false );
-
-    const int nrtrcs = ((int)locidx.inl()) * dims_.crl() + locidx.crl();
-    for ( int idx=0; idx<chunks_.size(); idx++ )
-    {
-	const Chunk& chunk = *chunks_[idx];
-	strm_.setReadPosition( chunk.offs_ + nrtrcs * chunk.blockznrbytes_ );
-	strm_.getBin( trcpartbuf_, chunk.trcpartnrbytes_ );
-	for ( int isamp=0; isamp<chunk.nrsamps_; isamp++ )
-	{
-	    float val = rdr_.interp_->get( trcpartbuf_, isamp );
-	    if ( rdr_.scaler_ )
-		val = (float)rdr_.scaler_->scale( val );
-	    trc.set( chunk.startsamp_ + isamp, val, chunk.comp_ );
-	}
-    }
-}
 
 
 #define mSeisBlocksReaderInitList() \
-      offstbl_(*new OffsetTable) \
-    , strm_(0) \
+      fileidtbl_(*new FileIDTable) \
+    , backend_(0) \
     , scaler_(0) \
     , interp_(0) \
     , cubedata_(*new PosInfo::CubeData) \
@@ -249,7 +44,6 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 
 Seis::Blocks::Reader::Reader( const char* inp )
     : mSeisBlocksReaderInitList()
-    , strmmine_(true)
 {
     initFromFileName( inp );
 }
@@ -258,41 +52,26 @@ Seis::Blocks::Reader::Reader( const char* inp )
 Seis::Blocks::Reader::Reader( od_istream& strm )
     : mSeisBlocksReaderInitList()
 {
-    basepath_.set( strm.fileName() );
-    const BufferString ext = basepath_.extension();
-    if ( ext == sInfoFileExtension() )
-    {
-	strmmine_ = true;
-	readInfoFile( strm );
-    }
-    else
-    {
-	strmmine_ = false;
-	strm_ = &strm;
-	File::Path fp( basepath_ );
-	fp.setExtension( sInfoFileExtension() );
-	initFromFileName( fp.fullPath() );
-    }
-    basepath_.setExtension( 0 );
+    initFromFileName( strm.fileName() );
+    backend_ = new StreamReadBackEnd( *this, strm );
 }
-
 
 
 void Seis::Blocks::Reader::initFromFileName( const char* inp )
 {
-    if ( !File::exists(inp) )
+    const BufferString datafnm( findDataFileName(inp) );
+    if ( !File::exists(datafnm) )
     {
-	if ( !inp || !*inp )
+	if ( datafnm.isEmpty() )
 	    state_.set( tr("No input specified") );
 	else
-	    state_.set( uiStrings::phrFileDoesNotExist( inp ) );
+	    state_.set( uiStrings::phrFileDoesNotExist(datafnm) );
 	return;
     }
 
-    basepath_.set( inp );
+    basepath_.set( datafnm );
     basepath_.setExtension( 0 );
 
-    const BufferString fnm( infoFileName() );
     od_istream strm( infoFileName() );
     if ( !strm.isOK() )
     {
@@ -307,27 +86,46 @@ void Seis::Blocks::Reader::initFromFileName( const char* inp )
 
 Seis::Blocks::Reader::~Reader()
 {
-    closeStream();
+    closeBackEnd();
     delete seldata_;
     delete &cubedata_;
     delete &curcdpos_;
-    delete &offstbl_;
+    delete &fileidtbl_;
+}
+
+
+BufferString Seis::Blocks::Reader::findDataFileName( const char* inp ) const
+{
+    File::Path fp( inp );
+    fp.setExtension( 0 );
+    const BufferString basepth( fp.fullPath() );
+    const BufferString expectedfnm( dataFileNameFor(basepth,usehdf_) );
+    if ( File::exists(expectedfnm) )
+	return expectedfnm;
+
+    BufferString altfnm( dataFileNameFor(basepth,!usehdf_) );
+    if ( File::exists(altfnm) )
+    {
+	usehdf_ = !usehdf_;
+	return altfnm;
+    }
+
+    return expectedfnm;
 }
 
 
 void Seis::Blocks::Reader::close()
 {
-    closeStream();
-    offstbl_.clear();
+    closeBackEnd();
+    fileidtbl_.clear();
     needreset_ = true;
 }
 
 
-void Seis::Blocks::Reader::closeStream() const
+void Seis::Blocks::Reader::closeBackEnd()
 {
-    if ( strmmine_ )
-	delete strm_;
-    strm_ = 0;
+    delete backend_;
+    backend_ = 0;
 }
 
 
@@ -393,7 +191,7 @@ void Seis::Blocks::Reader::readInfoFile( od_istream& strm )
 	state_.set( tr("%1\nlacks '%2' section").arg(strm.fileName())
 	       .arg( !havegensection ? "General"
 		  : (!havepossection ? "Positioning"
-				     : "File Offset") ) );
+				     : usehdf_ ? "HDF ID" : "File Offset") ) );
 }
 
 
@@ -459,10 +257,10 @@ bool Seis::Blocks::Reader::getOffsetSectionData( const IOPar& iop )
 	*ptr++ = '\0';
 	const HGlobIdx globidx( (IdxType)toInt(kw), (IdxType)toInt(ptr) );
 	const od_stream_Pos pos = toInt64( iop.getValue(idx) );
-	offstbl_[globidx] = pos;
+	fileidtbl_[globidx] = pos;
     }
 
-    return !offstbl_.empty();
+    return !fileidtbl_.empty();
 }
 
 
@@ -530,37 +328,19 @@ bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
 	return false;
     }
 
-    BufferString fnm( dataFileName() );
-    if ( !File::exists(fnm) )
-    {
-	const BufferString altfnm(
-			dataFileNameFor(basepath_.fullPath(),!usehdf_) );
-	if ( File::exists(altfnm) )
-	{
-	    if ( !usehdf_ && !HDF5::isAvailable() )
-	    {
-		uirv.add( HDF5::Access::sHDF5NotAvailable(altfnm) );
-		return false;
-	    }
-	    fnm.set( altfnm );
-	    usehdf_ = !usehdf_;
-	}
-    }
-
-    if ( strm_ && fnm != strm_->fileName() )
-	closeStream();
-
-    if ( !strm_ )
-	strm_ = new od_istream( fnm );
+    const BufferString fnm( findDataFileName(dataFileName()) );
+    if ( backend_ )
+	backend_->reset( fnm, uirv );
     else
-	strm_->setReadPosition( 0 );
-
-    if ( !strm_->isOK() )
     {
-	closeStream();
-	uirv.set( uiStrings::phrCannotOpen( toUiString(fnm) ) );
-	return false;
+	Reader& self = *const_cast<Reader*>( this );
+	if ( !usehdf_ )
+	    self.backend_ = new StreamReadBackEnd( self, fnm, uirv );
+	else
+	    self.backend_ = new HDF5ReadBackEnd( self, fnm, uirv );
     }
+    if ( !uirv.isOK() )
+	return false;
 
     int& nrcomps = const_cast<int&>( nrcomponentsintrace_ );
     nrcomps = 0;
@@ -686,13 +466,13 @@ void Seis::Blocks::Reader::doGet( SeisTrc& trc, uiRetVal& uirv ) const
 }
 
 
-Seis::Blocks::FileColumn* Seis::Blocks::Reader::getColumn(
+Seis::Blocks::Column* Seis::Blocks::Reader::getColumn(
 		const HGlobIdx& globidx, uiRetVal& uirv ) const
 {
-    FileColumn* column = static_cast<FileColumn*>( findColumn(globidx) );
+    Column* column = findColumn( globidx );
     if ( !column )
     {
-	column = new FileColumn( *this, globidx, uirv );
+	column = backend_->createColumn( globidx, uirv );
 	if ( uirv.isError() )
 	    return 0;
 	addColumn( column );
@@ -708,10 +488,10 @@ void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
     const HGlobIdx globidx( Block::globIdx4Inl(hgeom_,bid.inl(),dims_.inl()),
 			    Block::globIdx4Crl(hgeom_,bid.crl(),dims_.crl()) );
 
-    FileColumn* column = getColumn( globidx, uirv );
+    Column* column = getColumn( globidx, uirv );
     if ( column )
     {
-	column->fillTrace( bid, trc, uirv );
+	backend_->fillTrace( *column, bid, trc, uirv );
 	fillInfo( bid, trc.info() );
     }
 }

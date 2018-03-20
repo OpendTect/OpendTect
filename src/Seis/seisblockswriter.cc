@@ -639,7 +639,7 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
 	    const HGlobIdx& gidx = column.globIdx();
 	    BufferString ky;
 	    ky.add( gidx.inl() ).add( '.' ).add( gidx.crl() );
-	    offsiop.add( ky, column.fileoffset_ );
+	    offsiop.add( ky, column.fileid_ );
 	}
     }
     offsiop.putTo( ascostrm );

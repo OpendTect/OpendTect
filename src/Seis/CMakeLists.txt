@@ -30,9 +30,10 @@ set(OD_MODULE_SOURCES
 	seis2dto3d.cc
 	seisbayesclass.cc
 	seisblocks.cc
+	seisblockshdf5backend.cc
 	seisblocksreader.cc
 	seisblockswriter.cc
-	seisblocksbackend.cc
+	seisblocksstreambackend.cc
 	seisblockstr.cc
 	seisbuf.cc
 	seiscbvs.cc

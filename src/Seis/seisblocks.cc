@@ -351,7 +351,7 @@ Seis::Blocks::MemBlockColumn::MemBlockColumn( const HGlobIdx& gidx,
 					      int nrcomps )
     : Column(gidx,bldims,nrcomps)
     , nruniquevisits_(0)
-    , fileoffset_(0)
+    , fileid_(0)
 {
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
 	blocksets_ += new BlockSet;

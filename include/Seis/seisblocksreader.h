@@ -31,7 +31,10 @@ namespace Blocks
 {
 
 class FileColumn;
-class OffsetTable;
+class FileIDTable;
+class HDF5ReadBackEnd;
+class ReadBackEnd;
+class StreamReadBackEnd;
 
 /*!\brief Reads data from Blocks Storage.
 
@@ -75,12 +78,11 @@ protected:
 
     typedef PosInfo::CubeDataPos    CubeDataPos;
 
-    mutable od_istream*	strm_;
-    bool		strmmine_;
+    ReadBackEnd*	backend_;
     SelData*		seldata_;
     LinScaler*		scaler_;
     DataInterp*		interp_;
-    OffsetTable&	offstbl_;
+    FileIDTable&	fileidtbl_;
     CubeData&		cubedata_;
     CubeDataPos&	curcdpos_;
     BufferString	survname_;
@@ -92,26 +94,47 @@ protected:
     const int		nrcomponentsintrace_;
     mutable bool	lastopwasgetinfo_;
 
-    void		closeStream() const;
     bool		reset(uiRetVal&) const;
     bool		isSelected(const CubeDataPos&) const;
     bool		advancePos(CubeDataPos&) const;
     bool		doGoTo(const BinID&,uiRetVal&) const;
     void		doGet(SeisTrc&,uiRetVal&) const;
     void		fillInfo(const BinID&,SeisTrcInfo&) const;
-    FileColumn*		getColumn(const HGlobIdx&,uiRetVal&) const;
+    Column*		getColumn(const HGlobIdx&,uiRetVal&) const;
     void		readTrace(SeisTrc&,uiRetVal&) const;
 
     friend class	FileColumn;
+    friend class	StreamReadBackEnd;
+    friend class	HDF5ReadBackEnd;
 
 private:
 
+    void		closeBackEnd();
+    BufferString	findDataFileName(const char*) const;
     void		initFromFileName(const char*);
     void		readInfoFile(od_istream&);
     bool		getGeneralSectionData(const IOPar&);
     bool		getOffsetSectionData(const IOPar&);
 
 };
+
+
+mExpClass(Seis) ReadBackEnd
+{
+public:
+
+			ReadBackEnd( Reader& rdr ) : rdr_(rdr)		{}
+    virtual		~ReadBackEnd()					{}
+
+    virtual void	reset(const char*,uiRetVal&)			= 0;
+    virtual Column*	createColumn(const HGlobIdx&,uiRetVal&)		= 0;
+    virtual void	fillTrace(Column&,const BinID&,
+				  SeisTrc&,uiRetVal&) const		= 0;
+
+    Reader&		rdr_;
+
+};
+
 
 
 } // namespace Blocks
