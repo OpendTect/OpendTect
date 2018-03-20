@@ -150,7 +150,6 @@ protected:
 mExpClass(Geometry) MarchingCubes2Implicit : public ParallelTask
 { mODTextTranslationClass(MarchingCubes2Implicit);
 public:
-		mTypeDefArrNDTypes;
 		MarchingCubes2Implicit(const MarchingCubesSurface&,
 					Array3D<int>&,
 					int originx,int originy,int originz,

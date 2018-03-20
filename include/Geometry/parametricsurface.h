@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "geometrymod.h"
 #include "rowcol.h"
 #include "rowcolsurface.h"
+#include "arrayndinfo.h"
 
 
 namespace Geometry
