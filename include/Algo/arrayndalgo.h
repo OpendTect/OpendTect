@@ -375,9 +375,6 @@ private:
 };
 
 
-
-
-
 /*!\brief returns the sum of all defined values in the Array.
    Returns UDF if empty or only udfs encountered. */
 
@@ -914,6 +911,7 @@ protected:
     bool			buildWindow(const char* winnm,float pval);
 };
 
+mTypeDefArrNDTypes;
 
 template<class T>
 inline T Array3DInterpolate( const Array3D<T>& array,
@@ -1170,7 +1168,7 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
     if ( src.isEmpty() || dest.isEmpty() || ndim != src.nrDims() )
 	return false;
 
-    for ( ArrayNDInfo::DimIdxType idx=0; idx<ndim; idx++ )
+    for ( DimIdxType idx=0; idx<ndim; idx++ )
     {
 	if ( !destperiodic &&
 	     pastepos[idx] + src.getSize(idx) > dest.getSize(idx) )
@@ -1181,7 +1179,7 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
     mDefNDPosBuf( destpos, ndim );
     do
     {
-	for ( ArrayNDInfo::DimIdxType idx=0; idx<ndim; idx++ )
+	for ( DimIdxType idx=0; idx<ndim; idx++ )
 	{
 	    destpos[idx] = pastepos[idx] + srciter[idx];
 	    if ( destperiodic )

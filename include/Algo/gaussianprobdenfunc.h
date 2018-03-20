@@ -120,6 +120,7 @@ public:
 
     virtual NrDimsType	nrDims() const
 				    { return mCast(NrDimsType,vars_.size()); }
+				    //IntToShortHack
     virtual const char*	dimName(int) const;
     virtual void	setDimName(int,const char*);
     virtual float	averagePos(DimIdxType) const;

@@ -110,7 +110,8 @@ bool AGC::doWork( od_int64 start, od_int64 stop, int )
 	const int lastoffset = input->size( Gather::offsetDim()==0 ) - 1;
 
 	const int curstop = mCast( int, mMIN(lastoffset,stop) );
-	for ( IdxType offsetidx=mCast(int,start); offsetidx<=curstop; offsetidx++ )
+	for ( IdxType offsetidx=mCast(int,start); offsetidx<=curstop;
+								offsetidx++ )
 	{
 	    inputtrace.setPos( dimidx, offsetidx );
 	    outputtrace.setPos( dimidx, offsetidx );

@@ -205,6 +205,7 @@ void uiFKSpectrum::setDataPackID(
 		regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
 
 	short dirval = mCast(short,TrcKeyZSampling::DirDef().indexOf(dir));
+							       //IntToShortHack
 
 	const DimIdxType dim0 = dir==TrcKeyZSampling::Inl ? 1 : 0;
 

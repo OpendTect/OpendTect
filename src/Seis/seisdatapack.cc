@@ -945,6 +945,7 @@ void RegularFlatDataPack::setSourceData()
     slice2d->setDimMap( 0, dim0 );
     slice2d->setDimMap( 1, dim1 );
     short dirval = mCast(short,TrcKeyZSampling::DirDef().indexOf(dir()));
+							    //IntToShortHack
     slice2d->setPos( dirval, 0 );
     slice2d->init();
     arr2d_ = slice2d;

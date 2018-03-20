@@ -918,7 +918,8 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* tskr )
 		Array2DSlice<float> slice2d( array );
 		slice2d.setDimMap( 0, dim0 );
 		slice2d.setDimMap( 1, dim1 );
-		short orientation = mCast(short,orientation_);
+		short orientation = mCast(short,orientation_); 
+							 //SliceTypeToShortHack
 		slice2d.setPos( orientation, 0 );
 		slice2d.init();
 

@@ -24,7 +24,7 @@ template <class fT>
 mClass(Algo) ArrayNDStacker : public ParallelTask
 { mODTextTranslationClass(ArrayNDStacker)
 public:
-
+    mTypeDefArrNDTypes;
     typedef ArrayND<fT>	ArrT;
 
 ArrayNDStacker( ArrT& out, fT udfval=mUdf(fT) )
@@ -75,7 +75,7 @@ bool doPrepare( int nrthreads )
     if ( inps_.isEmpty() )
 	{ out_.setAll( udfval_ ); return true; }
 
-    const ArrayNDInfo::NrDimsType nrdims = out_.nrDims();
+    const NrDimsType nrdims = out_.nrDims();
     if ( totalnr_ < 1 )
     {
 	if ( !out_.canSetInfo() )
@@ -86,7 +86,7 @@ bool doPrepare( int nrthreads )
 	    for ( auto iarr=0; iarr<inps_.size(); iarr++ )
 	    {
 		const ArrT* inparr = inps_[iarr];
-		for ( ArrayNDInfo::DimIdxType idim=0; idim<nrdims; idim++ )
+		for ( DimIdxType idim=0; idim<nrdims; idim++ )
 		{
 		    if ( info.getSize(idim) < inparr->getSize(idim) )
 			info.setSize( idim, inparr->getSize(idim) );
