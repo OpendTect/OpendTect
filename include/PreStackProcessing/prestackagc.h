@@ -18,14 +18,12 @@ ________________________________________________________________________
 namespace PreStack
 {
 
-/*!
-\brief Processor for PreStack %AGC
-*/
+/*!\brief Processor for PreStack AGC */
 
 mExpClass(PreStackProcessing) AGC : public Processor
 { mODTextTranslationClass(AGC)
 public:
-				mTypeDefArrNDTypes;
+
     				mDefaultFactoryInstantiation(
 					Processor, AGC, "AGC", 
 					toUiString(sFactoryKeyword()))

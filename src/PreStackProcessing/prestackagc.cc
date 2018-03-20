@@ -91,6 +91,8 @@ bool AGC::doWork( od_int64 start, od_int64 stop, int )
     agc.setSampleGate( samplewindow_ );
 
     const int incr = mCast( int, stop-start+1 );
+    typedef Array1DSlice<float>::DimIdxType DimIdxType;
+    typedef Array1DSlice<float>::IdxType IdxType;
     DimIdxType dimidx = Gather::offsetDim();
     DimIdxType zdim = Gather::zDim();
 
@@ -110,7 +112,7 @@ bool AGC::doWork( od_int64 start, od_int64 stop, int )
 	const int lastoffset = input->size( Gather::offsetDim()==0 ) - 1;
 
 	const int curstop = mCast( int, mMIN(lastoffset,stop) );
-	for ( IdxType offsetidx=mCast(int,start); offsetidx<=curstop;
+	for ( IdxType offsetidx=mCast(IdxType,start); offsetidx<=curstop;
 								offsetidx++ )
 	{
 	    inputtrace.setPos( dimidx, offsetidx );
