@@ -538,10 +538,13 @@ void Seis::Blocks::Writer::writeColumn( MemBlockColumn& column, uiRetVal& uirv )
     if ( !backend_ )
     {
 	if ( usehdf_ )
-	    backend_ = new HDF5WriteBackEnd( *this );
+	    backend_ = new HDF5WriteBackEnd( *this, uirv );
 	else
-	    backend_ = new StreamWriteBackEnd( *this );
+	    backend_ = new StreamWriteBackEnd( *this, uirv );
+	if ( !uirv.isOK() )
+	    return;
     }
+
     ColumnWriter wrr( *backend_, column );
     if ( !wrr.execute() )
 	uirv = wrr.uirv_;

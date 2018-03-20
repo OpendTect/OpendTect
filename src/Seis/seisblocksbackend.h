@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "seisblockswriter.h"
 #include "od_iosfwd.h"
 #include <map>
+namespace HDF5 { class Reader; class Writer; }
 
 
 namespace Seis
@@ -61,6 +62,8 @@ public:
     virtual void	fillTrace(Column&,const BinID&,SeisTrc&,
 				  uiRetVal&) const;
 
+    HDF5::Reader*	hdfrdr_;
+
 };
 
 
@@ -68,7 +71,7 @@ class StreamWriteBackEnd : public WriteBackEnd
 {
 public:
 
-			StreamWriteBackEnd(Writer&);
+			StreamWriteBackEnd(Writer&,uiRetVal&);
 			~StreamWriteBackEnd();
 
     virtual void	setColumnInfo(const MemBlockColumn&,const HLocIdx&,
@@ -83,12 +86,14 @@ class HDF5WriteBackEnd : public WriteBackEnd
 {
 public:
 
-			HDF5WriteBackEnd(Writer&);
+			HDF5WriteBackEnd(Writer&,uiRetVal&);
 			~HDF5WriteBackEnd();
 
     virtual void	setColumnInfo(const MemBlockColumn&,const HLocIdx&,
 				      const HDimensions&,uiRetVal&);
     virtual void	putBlock(int,MemBlock&,HLocIdx,HDimensions,uiRetVal&);
+
+    HDF5::Writer*	hdfwrr_;
 
 };
 

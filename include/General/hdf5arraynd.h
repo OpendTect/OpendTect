@@ -22,6 +22,7 @@ template <class T>
 mExpClass(General) ArrayNDTool
 {
 public:
+			mTypeDefArrNDTypes;
 
 			ArrayNDTool( const ArrayND<T>& arrnd )
 			    : arrnd_(arrnd)				{}
@@ -53,7 +54,7 @@ template <class T>
 inline uiRetVal ArrayNDTool<T>::getAll( Reader& rdr )
 {
     uiRetVal uirv;
-    const od_int64 nrelems = arrnd_.totalSize();
+    const TotalSzType nrelems = arrnd_.totalSize();
     if ( nrelems < 1 )
 	return uirv;
 
@@ -79,7 +80,7 @@ inline uiRetVal ArrayNDTool<T>::putData( Writer& wrr, const DataSetKey& dsky )
 {
     uiRetVal uirv;
     const ArrayNDInfo& inf = arrnd_.info();
-    const od_int64 nrelems = inf.totalSize();
+    const TotalSzType nrelems = inf.totalSize();
     if ( nrelems < 1 )
 	return uirv;
 

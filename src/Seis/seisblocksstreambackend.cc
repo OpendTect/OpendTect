@@ -21,19 +21,6 @@ typedef Seis::Blocks::SzType SzType;
 static SzType columnHeaderSize( SzType ver ) { return 32; }
 
 
-Seis::Blocks::StreamWriteBackEnd::StreamWriteBackEnd( Writer& wrr )
-    : WriteBackEnd(wrr)
-    , strm_(new od_ostream(wrr.dataFileName()))
-{
-}
-
-
-Seis::Blocks::StreamWriteBackEnd::~StreamWriteBackEnd()
-{
-    delete strm_;
-}
-
-
 #define mRetIfStrmFail() \
     if ( !strm_->isOK() ) \
     { \
@@ -43,6 +30,21 @@ Seis::Blocks::StreamWriteBackEnd::~StreamWriteBackEnd()
 	uirv.add( msg ); \
 	return; \
     }
+
+
+Seis::Blocks::StreamWriteBackEnd::StreamWriteBackEnd( Writer& wrr,
+						      uiRetVal& uirv )
+    : WriteBackEnd(wrr)
+    , strm_(new od_ostream(wrr.dataFileName()))
+{
+    mRetIfStrmFail()
+}
+
+
+Seis::Blocks::StreamWriteBackEnd::~StreamWriteBackEnd()
+{
+    delete strm_;
+}
 
 
 void Seis::Blocks::StreamWriteBackEnd::setColumnInfo(

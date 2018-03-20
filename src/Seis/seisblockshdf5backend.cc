@@ -16,15 +16,22 @@ ________________________________________________________________________
 #include "hdf5writer.h"
 
 
-Seis::Blocks::HDF5WriteBackEnd::HDF5WriteBackEnd( Writer& wrr )
+Seis::Blocks::HDF5WriteBackEnd::HDF5WriteBackEnd( Writer& wrr, uiRetVal& uirv )
     : WriteBackEnd(wrr)
+    , hdfwrr_(HDF5::mkWriter())
 {
+    const BufferString fnm( wrr_.dataFileName() );
+    if ( !hdfwrr_ )
+	uirv.set( HDF5::Access::sHDF5NotAvailable(fnm) );
+    else
+	uirv = hdfwrr_->open( fnm );
 }
 
 
 Seis::Blocks::HDF5WriteBackEnd::~HDF5WriteBackEnd()
 {
-    //TODO add file-level info before close
+    pErrMsg( "TODO impl add file-level info before close" );
+    delete hdfwrr_;
 }
 
 
@@ -33,6 +40,8 @@ void Seis::Blocks::HDF5WriteBackEnd::setColumnInfo(
 	    const HDimensions& dims, uiRetVal& uirv )
 {
     uirv.add( mTODONotImplPhrase() );
+    // ensure one group per component
+    // add dataset
 }
 
 
@@ -40,18 +49,25 @@ void Seis::Blocks::HDF5WriteBackEnd::putBlock( int icomp, MemBlock& block,
 		    HLocIdx wrstart, HDimensions wrhdims, uiRetVal& uirv )
 {
     uirv.add( mTODONotImplPhrase() );
+    // put block in dataset
 }
 
 
 Seis::Blocks::HDF5ReadBackEnd::HDF5ReadBackEnd( Reader& rdr, const char* fnm,
 						uiRetVal& uirv )
     : ReadBackEnd(rdr)
+    , hdfrdr_(HDF5::mkReader())
 {
+    if ( !hdfrdr_ )
+	uirv.set( HDF5::Access::sHDF5NotAvailable(fnm) );
+    else
+	uirv = hdfrdr_->open( fnm );
 }
 
 
 Seis::Blocks::HDF5ReadBackEnd::~HDF5ReadBackEnd()
 {
+    delete hdfrdr_;
 }
 
 
