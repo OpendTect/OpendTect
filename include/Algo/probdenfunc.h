@@ -92,7 +92,7 @@ public:
 
     virtual const char*	varName() const		{ return varnm_; }
 
-    virtual float	averagePos(int) const	{ return gtAvgPos(); }
+    virtual float	averagePos(DimIdxType) const { return gtAvgPos(); }
     inline float	value( float v ) const	{ return gtVal( v ); }
     virtual float	value( const TypeSet<float>& v ) const
 						{ return gtVal( v[0] ); }

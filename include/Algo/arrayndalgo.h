@@ -911,7 +911,6 @@ protected:
     bool			buildWindow(const char* winnm,float pval);
 };
 
-mTypeDefArrNDTypes;
 
 template<class T>
 inline T Array3DInterpolate( const Array3D<T>& array,
@@ -1168,6 +1167,7 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
     if ( src.isEmpty() || dest.isEmpty() || ndim != src.nrDims() )
 	return false;
 
+    typedef ArrayNDInfo::DimIdxType DimIdxType;
     for ( DimIdxType idx=0; idx<ndim; idx++ )
     {
 	if ( !destperiodic &&
