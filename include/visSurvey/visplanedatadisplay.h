@@ -45,7 +45,6 @@ mExpClass(visSurvey) PlaneDataDisplay :
 				public visSurvey::MultiTextureSurveyObject
 { mODTextTranslationClass(PlaneDataDisplay);
 public:
-				mTypeDefArrNDTypes;
 
     typedef OD::SliceType	SliceType;
 				mDeclareEnumUtils(SliceType);

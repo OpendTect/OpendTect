@@ -894,6 +894,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* tskr )
     const int nrversions = regsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
 
+    typedef Array3D<float>::DimIdxType DimIdxType;
     const DimIdxType dim0 = orientation_==OD::InlineSlice ? 1 : 0;
     const DimIdxType dim1 = orientation_==OD::ZSlice ? 1 : 2;
 
