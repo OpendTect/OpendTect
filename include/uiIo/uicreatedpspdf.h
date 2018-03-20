@@ -12,11 +12,11 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uidialog.h"
+#include "probdenfunc.h"
 
 class ArrayNDProbDenFunc;
 class BufferStringSet;
 class DataPointSet;
-class ProbDenFunc;
 
 class uiComboBox;
 class uiGenInput;
@@ -31,13 +31,13 @@ class uiPrDenFunVarSel;
 mExpClass(uiIo) uiCreateDPSPDF : public uiDialog
 { mODTextTranslationClass(uiCreateDPSPDF);
 public:
-			mTypeDefArrNDTypes;
 
 			uiCreateDPSPDF(uiParent*,
 				       const uiDataPointSetCrossPlotter*);
 			uiCreateDPSPDF(uiParent*,const DataPointSet&,
 				       bool restricted=false);
 			~uiCreateDPSPDF();
+
     const ProbDenFunc*	probDensFunc() const			{ return pdf_; }
     void		setPrefDefNames(const BufferStringSet&);
 
@@ -47,7 +47,7 @@ protected:
     ObjectSet<uiButton>		addbuts_;
     ObjectSet<uiButton>		rmbuts_;
     ProbDenFunc*		pdf_;
-    NrDimsType			nrdisp_;
+    ProbDenFunc::NrDimsType	nrdisp_;
     bool			restrictedmode_;
 
     uiIOObjSel*			outputfld_;
