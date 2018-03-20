@@ -207,7 +207,8 @@ void uiFKSpectrum::setDataPackID(
 	short dirval = mCast(short,TrcKeyZSampling::DirDef().indexOf(dir));
 							       //IntToShortHack
 
-	const DimIdxType dim0 = dir==TrcKeyZSampling::Inl ? 1 : 0;
+	const Array2DSlice<float>::DimIdxType dim0
+	    	= dir==TrcKeyZSampling::Inl ? 1 : 0;
 
 	Array2DSlice<float> slice2d( voldp->data(version) );
 	slice2d.setDimMap( 0, dim0 );
