@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "trckeysampling.h"
+#include "enums.h"
 
 
 /*!
@@ -40,6 +41,7 @@ public:
     bool		is2D() const		{ return hsamp_.is2D(); }
 
     enum Dir		{ Inl=0, Crl=1, Z=2 };
+			mDeclareEnumUtils(Dir);
     Dir			defaultDir() const;
 			//!< 'flattest' direction, i.e. direction with
 			//!< smallest size. If equal, prefer Inl then Crl then Z

@@ -825,6 +825,7 @@ inline bool interpUdf( Array1D<fT>& in,
 mExpClass(Algo) ArrayNDWindow
 {
 public:
+			mTypeDefArrNDTypes;
 
     enum WindowType	{ Box, Hamming, Hanning, Blackman, Bartlett,
 			  CosTaper5, CosTaper10, CosTaper20 };
@@ -1169,7 +1170,7 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
     if ( src.isEmpty() || dest.isEmpty() || ndim != src.nrDims() )
 	return false;
 
-    for ( auto idx=0; idx<ndim; idx++ )
+    for ( ArrayNDInfo::DimIdxType idx=0; idx<ndim; idx++ )
     {
 	if ( !destperiodic &&
 	     pastepos[idx] + src.getSize(idx) > dest.getSize(idx) )
@@ -1180,7 +1181,7 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
     mDefNDPosBuf( destpos, ndim );
     do
     {
-	for ( auto idx=0; idx<ndim; idx++ )
+	for ( ArrayNDInfo::DimIdxType idx=0; idx<ndim; idx++ )
 	{
 	    destpos[idx] = pastepos[idx] + srciter[idx];
 	    if ( destperiodic )

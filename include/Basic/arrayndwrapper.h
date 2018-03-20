@@ -82,7 +82,7 @@ Array3DWrapper<T>::~Array3DWrapper()
 template <class T>
 void Array3DWrapper<T>::init()
 {
-    for ( int idx=0; idx<dimmap_.size(); idx++ )
+    for ( DimIdxType idx=0; idx<dimmap_.size(); idx++ )
 	info_.setSize( dimmap_[idx], srcarr_.getSize(idx) );
 }
 

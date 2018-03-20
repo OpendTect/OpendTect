@@ -66,7 +66,7 @@ ArrayNDGentleSmoother<T>::ArrayNDGentleSmoother( const ArrayND<T>& inp,
     , nrdone_(0)
 {
     totnr_ = 1;
-    for ( int idim=0; idim<nrdims_; idim++ )
+    for ( DimIdxType idim=0; idim<nrdims_; idim++ )
     {
 	auto dimsz = inp_.getSize( idim );
 	maxidxs_ += dimsz - 1;

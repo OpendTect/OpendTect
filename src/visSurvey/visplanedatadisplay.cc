@@ -894,8 +894,8 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* tskr )
     const int nrversions = regsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
 
-    const int dim0 = orientation_==OD::InlineSlice ? 1 : 0;
-    const int dim1 = orientation_==OD::ZSlice ? 1 : 2;
+    const DimIdxType dim0 = orientation_==OD::InlineSlice ? 1 : 0;
+    const DimIdxType dim1 = orientation_==OD::ZSlice ? 1 : 2;
 
     for ( int idx=0; idx<nrversions; idx++ )
     {
@@ -918,7 +918,8 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* tskr )
 		Array2DSlice<float> slice2d( array );
 		slice2d.setDimMap( 0, dim0 );
 		slice2d.setDimMap( 1, dim1 );
-		slice2d.setPos( orientation_, 0 );
+		short orientation = mCast(short,orientation_);
+		slice2d.setPos( orientation, 0 );
 		slice2d.init();
 
 		UserShowWait usw( this, uiStrings::sCollectingData() );

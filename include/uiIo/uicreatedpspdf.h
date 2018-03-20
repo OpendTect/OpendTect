@@ -31,6 +31,8 @@ class uiPrDenFunVarSel;
 mExpClass(uiIo) uiCreateDPSPDF : public uiDialog
 { mODTextTranslationClass(uiCreateDPSPDF);
 public:
+			mTypeDefArrNDTypes;
+
 			uiCreateDPSPDF(uiParent*,
 				       const uiDataPointSetCrossPlotter*);
 			uiCreateDPSPDF(uiParent*,const DataPointSet&,
@@ -45,7 +47,7 @@ protected:
     ObjectSet<uiButton>		addbuts_;
     ObjectSet<uiButton>		rmbuts_;
     ProbDenFunc*		pdf_;
-    int				nrdisp_;
+    NrDimsType			nrdisp_;
     bool			restrictedmode_;
 
     uiIOObjSel*			outputfld_;

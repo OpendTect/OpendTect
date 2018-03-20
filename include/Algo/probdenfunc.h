@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "ranges.h"
 #include "od_iosfwd.h"
+#include "arrayndinfo.h"
 
 
 /*!
@@ -29,6 +30,7 @@ ________________________________________________________________________
 mExpClass(Algo) ProbDenFunc : public NamedObject
 {
 public:
+			mTypeDefArrNDTypes;
 
     virtual ProbDenFunc* clone() const				= 0;
     virtual		~ProbDenFunc()				{}
@@ -36,10 +38,10 @@ public:
     virtual bool	isEqual(const ProbDenFunc&) const;
 
     virtual const char*	getTypeStr() const			= 0;
-    virtual int		nrDims() const				= 0;
+    virtual NrDimsType	nrDims() const				= 0;
     virtual const char*	dimName(int dim) const			= 0;
     virtual void	setDimName(int dim,const char*)		= 0;
-    virtual float	averagePos(int dim) const		= 0;
+    virtual float	averagePos(DimIdxType dim) const	= 0;
     virtual float	value(const TypeSet<float>&) const	= 0;
 
     virtual bool	canScale() const			{ return false;}
@@ -83,7 +85,7 @@ public:
     virtual void	copyFrom( const ProbDenFunc& pdf )
 			{ varnm_ = pdf.dimName(0); setName(pdf.name()); }
 
-    virtual int		nrDims() const		{ return 1; }
+    virtual NrDimsType	nrDims() const		{ return 1; }
     virtual const char*	dimName(int) const	{ return varName(); }
     virtual void	setDimName( int dim, const char* nm )
 						{ if ( !dim ) varnm_ = nm; }
@@ -129,7 +131,7 @@ public:
 			{ dim0nm_ = pdf.dimName(0); dim1nm_ = pdf.dimName(1);
 			  setName(pdf.name()); }
 
-    virtual int		nrDims() const			{ return 2; }
+    virtual NrDimsType	nrDims() const			{ return 2; }
     virtual const char*	dimName(int) const;
     virtual void	setDimName( int dim, const char* nm )
 			{ if ( dim < 2 ) (dim ? dim1nm_ : dim0nm_) = nm; }

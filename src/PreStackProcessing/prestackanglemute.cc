@@ -300,7 +300,9 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 	const BinID bid = input->getBinID();
 
-	int nrlayers = input->data().getSize( Gather::zDim() );
+	const DimIdxType zdim = Gather::zDim();
+
+	int nrlayers = input->data().getSize(zdim);
 	ElasticModel layers; SamplingData<float> sd;
 	if ( !getLayers( bid, layers, sd, nrlayers ) )
 	    continue;
@@ -317,7 +319,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	    { errmsg_ = rtrunners_[thread]->errMsg(); continue; }
 
 	Array1DSlice<float> trace( output->data() );
-	trace.setDimMap( 0, Gather::zDim() );
+	trace.setDimMap( 0, zdim );
 
 	for ( int ioffs=0; ioffs<nroffsets; ioffs++ )
 	{

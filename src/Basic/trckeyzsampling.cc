@@ -15,6 +15,13 @@
 
 #include <math.h>
 
+mDefineEnumUtils(TrcKeyZSampling,Dir,"Dir") {
+    "Inline",
+    "CrossLine",
+    "ZSlice",
+    0
+};
+
 
 TrcKeySampling::TrcKeySampling()
     : survid_( mUdf(int) )

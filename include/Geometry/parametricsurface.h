@@ -21,6 +21,7 @@ class ParametricCurve;
 mExpClass(Geometry) ParametricSurface : public RowColSurface
 { mODTextTranslationClass(ParametricSurface);
 public:
+			mTypeDefArrNDTypes;
     			ParametricSurface(const RowCol& origin=RowCol(0,0),
 					const RowCol& step=RowCol(1,1) );
     			~ParametricSurface();
@@ -90,8 +91,8 @@ protected:
     {
 	return (col - origin_.col()) / step_.col();
     }
-    static int	rowDim() { return 0; }
-    static int	colDim() { return 1; }
+    static DimIdxType	rowDim() { return 0; }
+    static DimIdxType	colDim() { return 1; }
     virtual int	nrRows() const 						= 0;
     virtual int	nrCols() const 						= 0;
     bool	isAtSameEdge(const RowCol&,const RowCol&,

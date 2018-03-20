@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "task.h"
 #include "sets.h"
 #include "odcomplex.h"
+#include "arrayndinfo.h"
 
 class ArrayNDInfo;
 template <class T> class ArrayND;
@@ -29,6 +30,8 @@ GenericTransformND.
 mExpClass(Algo) GenericTransformND : public SequentialTask
 {
 public:
+			mTypeDefArrNDTypes;
+
 			GenericTransformND();
     bool		setInputInfo(const ArrayNDInfo&);
     const ArrayNDInfo&	getInputInfo() const;

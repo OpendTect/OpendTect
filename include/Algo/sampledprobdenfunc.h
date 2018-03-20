@@ -27,6 +27,7 @@ ________________________________________________________________________
 mExpClass(Algo) ArrayNDProbDenFunc
 {
 public:
+			mTypeDefArrNDTypes;
 
 			ArrayNDProbDenFunc()
 			: cumbins_(0)		{}
@@ -35,7 +36,7 @@ public:
     virtual		~ArrayNDProbDenFunc()	{}
     ArrayNDProbDenFunc&	operator =(const ArrayNDProbDenFunc&);
 
-    int			size( int dim ) const
+    SzType		size( DimIdxType dim ) const
 			{ return getArrND().getSize(dim); }
     od_int64		totalSize() const
 			{ return getArrND().totalSize(); }
@@ -57,7 +58,7 @@ public:
     void		writeBulkData(od_ostream&,bool) const;
     bool		readBulkData(od_istream&,bool);
 
-    float		getAveragePos(int dim) const;
+    float		getAveragePos(DimIdxType dim) const;
     static float	findAveragePos(const float*,int,float grandtotal);
 
 protected:
@@ -99,6 +100,7 @@ mExpClass(Algo) Sampled1DProbDenFunc : public ProbDenFunc1D
 				     , public ArrayNDProbDenFunc
 {
 public:
+			mTypeDefArrNDTypes;
 
 			Sampled1DProbDenFunc();
 			Sampled1DProbDenFunc(const Array1D<float>&);
@@ -115,6 +117,9 @@ public:
     virtual bool	readBulk(od_istream&,bool binary);
     virtual ArrayND<float>* getArrClone() const
 			{ return new Array1DImpl<float>(bins_); }
+
+    virtual float	averagePos(DimIdxType) const { return 0; };
+
 
     SamplingData<float>	sd_;
     Array1DImpl<float>	bins_;
@@ -139,6 +144,7 @@ mExpClass(Algo) Sampled2DProbDenFunc : public ProbDenFunc2D
 				     , public ArrayNDProbDenFunc
 {
 public:
+			mTypeDefArrNDTypes;
 
 			Sampled2DProbDenFunc();
 			Sampled2DProbDenFunc(const Array2D<float>&);
@@ -153,7 +159,7 @@ public:
     virtual bool	readBulk(od_istream&,bool binary);
     virtual ArrayND<float>* getArrClone() const
 			{ return new Array2DImpl<float>(bins_); }
-    virtual float	averagePos( int dim ) const
+    virtual float	averagePos( DimIdxType dim ) const
 			{ return getAveragePos( dim ); }
 
     SamplingData<float>	sd0_;
@@ -182,19 +188,20 @@ mExpClass(Algo) SampledNDProbDenFunc : public ProbDenFunc
 				     , public ArrayNDProbDenFunc
 {
 public:
+			mTypeDefArrNDTypes;
 
-			SampledNDProbDenFunc(int nrdims);
+			SampledNDProbDenFunc(NrDimsType nrdims);
 			SampledNDProbDenFunc(const ArrayND<float>&);
 			SampledNDProbDenFunc(const SampledNDProbDenFunc&);
     SampledNDProbDenFunc& operator =(const SampledNDProbDenFunc&);
     virtual void	copyFrom(const ProbDenFunc&);
 			mDefArrayNDProbDenFuncFns(SampledND)
 
-    virtual int		nrDims() const	{ return bins_.nrDims(); }
+    virtual NrDimsType	nrDims() const	{ return bins_.nrDims(); }
     virtual const char*	dimName(int) const;
     virtual void	setDimName( int dim, const char* nm )
 					{ *dimnms_[dim] = nm; }
-    virtual float	averagePos( int dim ) const
+    virtual float	averagePos( DimIdxType dim ) const
 			{ return getAveragePos( dim ); }
     virtual float	value(const TypeSet<float>&) const;
     virtual void	drawRandomPos(TypeSet<float>&) const;

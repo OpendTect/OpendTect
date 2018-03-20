@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "geometrymod.h"
 #include "parametricsurface.h"
+#include "arrayndinfo.h"
 
 class Line3;
 template <class T> class Array2D;
@@ -52,6 +53,8 @@ public:
 mExpClass(Geometry) CubicBezierSurface : public ParametricSurface
 { mODTextTranslationClass(CubicBezierSurface);
 public:
+			mTypeDefArrNDTypes;
+
     			CubicBezierSurface( const RowCol& step=RowCol(1,1));
     			CubicBezierSurface( const CubicBezierSurface& );
 			~CubicBezierSurface();
@@ -98,8 +101,8 @@ protected:
 
     void	_setKnot( int idx, const Coord3& );
 
-    int		nrRows() const;
-    int		nrCols() const;
+    ArrayNDInfo::SzType nrRows() const;
+    ArrayNDInfo::SzType nrCols() const;
 
     Array2D<Coord3>*	rowdirections;
     Array2D<Coord3>*	coldirections;

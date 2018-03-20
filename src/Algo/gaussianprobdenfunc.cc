@@ -299,7 +299,7 @@ void GaussianNDProbDenFunc::setDimName( int idim, const char* nm )
 }
 
 
-float GaussianNDProbDenFunc::averagePos( int idim ) const
+float GaussianNDProbDenFunc::averagePos( DimIdxType idim ) const
 {
     if ( !vars_.validIdx(idim) )
 	{ pErrMsg("bad dim"); return 0; }

@@ -169,7 +169,7 @@ ArrayNDProbDenFunc& ArrayNDProbDenFunc::operator =(
 void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
 {
     const int nrdim = getData().nrDims();
-    for ( int idx=0; idx<nrdim; idx++ )
+    for ( DimIdxType idx=0; idx<nrdim; idx++ )
     {
 	par.set( IOPar::compKey(sKey::Size(),idx), size(idx) );
 	par.set( IOPar::compKey(sKey::Sampling(),idx), sampling(idx) );
@@ -326,7 +326,7 @@ float ArrayNDProbDenFunc::findAveragePos( const float* arr, int sz,
 }
 
 
-float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
+float ArrayNDProbDenFunc::getAveragePos( DimIdxType tardim ) const
 {
     const int tardimsz = size( tardim );
     TypeSet<float> integrvals( tardimsz, 0 );
@@ -623,7 +623,7 @@ bool Sampled2DProbDenFunc::readBulk( od_istream& strm, bool binary )
 
 // ND
 
-SampledNDProbDenFunc::SampledNDProbDenFunc( int nrdims )
+SampledNDProbDenFunc::SampledNDProbDenFunc( NrDimsType nrdims )
     : bins_( ArrayNDInfoImpl(nrdims) )
 {
     for ( int idx=0; idx<nrdims; idx++ )
@@ -706,7 +706,7 @@ float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
     if ( vals.size() < nrdims )
 	return 0;
     TypeSet<int> szs;
-    for ( int idim=0; idim<nrdims; idim++ )
+    for ( DimIdxType idim=0; idim<nrdims; idim++ )
     {
 	const int sz = size( idim );
 	if ( sz < 1 ) return 0;
@@ -769,7 +769,7 @@ void SampledNDProbDenFunc::drawRandomPos( TypeSet<float>& poss ) const
 
     od_int64 ibin = getRandBin();
     od_int64 dimsz = totalSize();
-    for ( int idim=0; idim<nrdims; idim++ )
+    for ( DimIdxType idim=0; idim<nrdims; idim++ )
     {
 	dimsz /= size( idim );
 	const od_int64 indx = ibin / dimsz;
@@ -793,9 +793,12 @@ void SampledNDProbDenFunc::fillPar( IOPar& par ) const
 
 bool SampledNDProbDenFunc::usePar( const IOPar& par )
 {
-    int nrdims = nrDims();
-    int newnrdims = nrdims;
-    par.get( sKeyNrDim(), newnrdims );
+    NrDimsType nrdims = nrDims();
+    NrDimsType newnrdims = nrdims;
+    //par.get( sKeyNrDim(), newnrdims );
+    int dimsvals;
+    par.get( sKeyNrDim(), dimsvals );
+    newnrdims = mCast(NrDimsType,dimsvals);
     if ( newnrdims < 1 )
 	return false;
     else if ( newnrdims != nrdims )

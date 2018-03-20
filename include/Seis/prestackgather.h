@@ -28,6 +28,8 @@ class SeisTrcBuf;
 mExpClass(Seis) Gather : public FlatDataPack
 { mODTextTranslationClass(Gather)
 public:
+				mTypeDefArrNDTypes;
+
 				Gather();
 				Gather(const FlatPosData&);
 				mDeclMonitorableAssignment(Gather);
@@ -73,8 +75,8 @@ public:
     const char*			dimName(bool dim0) const;
     void			getAuxInfo(int,int,IOPar&) const;
 
-    static int			offsetDim()		{ return 0; }
-    static int			zDim()			{ return 1; }
+    static DimIdxType		offsetDim()		{ return 0; }
+    static DimIdxType		zDim()			{ return 1; }
 
     float			getOffset(int) const;
     float			getAzimuth(int) const;

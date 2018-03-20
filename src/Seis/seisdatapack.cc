@@ -938,13 +938,14 @@ void RegularFlatDataPack::setSourceData()
     else
 	setPosData();
 
-    const int dim0 = dir()==TrcKeyZSampling::Inl ? 1 : 0;
-    const int dim1 = dir()==TrcKeyZSampling::Z ? 1 : 2;
+    const DimIdxType dim0 = dir()==TrcKeyZSampling::Inl ? 1 : 0;
+    const DimIdxType dim1 = dir()==TrcKeyZSampling::Z ? 1 : 2;
     Array2DSlice<float>* slice2d
 		= new Array2DSlice<float>(source_->data(comp_));
     slice2d->setDimMap( 0, dim0 );
     slice2d->setDimMap( 1, dim1 );
-    slice2d->setPos( dir(), 0 );
+    short dirval = mCast(short,TrcKeyZSampling::DirDef().indexOf(dir()));
+    slice2d->setPos( dirval, 0 );
     slice2d->init();
     arr2d_ = slice2d;
     setTrcInfoFlds();

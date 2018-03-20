@@ -52,6 +52,7 @@ private:
 mExpClass(VolumeProcessing) HilbertCalculatorTask : public ParallelTask
 { mODTextTranslationClass(HilbertCalculatorTask)
 public:
+				mTypeDefArrNDTypes;
 				HilbertCalculatorTask(const Array2D<float>&,
 						      Array2D<float>&);
 				HilbertCalculatorTask(const Array3D<float>&,

@@ -91,6 +91,9 @@ bool AGC::doWork( od_int64 start, od_int64 stop, int )
     agc.setSampleGate( samplewindow_ );
 
     const int incr = mCast( int, stop-start+1 );
+    DimIdxType dimidx = Gather::offsetDim();
+    DimIdxType zdim = Gather::zDim();
+
     for ( int idx=outputs_.size()-1; idx>=0; idx--, addToNrDone(incr) )
     {
 	Gather* output = outputs_[idx];
@@ -99,18 +102,18 @@ bool AGC::doWork( od_int64 start, od_int64 stop, int )
 	    continue;
 
 	Array1DSlice<float> inputtrace( input->data() );
-	inputtrace.setDimMap( 0, Gather::zDim() );
+	inputtrace.setDimMap( 0, zdim );
 
 	Array1DSlice<float> outputtrace( output->data() );
-	outputtrace.setDimMap( 0, Gather::zDim() );
+	outputtrace.setDimMap( 0, zdim );
 
 	const int lastoffset = input->size( Gather::offsetDim()==0 ) - 1;
 
 	const int curstop = mCast( int, mMIN(lastoffset,stop) );
-	for ( int offsetidx=mCast(int,start); offsetidx<=curstop; offsetidx++ )
+	for ( IdxType offsetidx=mCast(int,start); offsetidx<=curstop; offsetidx++ )
 	{
-	    inputtrace.setPos( Gather::offsetDim(), offsetidx );
-	    outputtrace.setPos( Gather::offsetDim(), offsetidx );
+	    inputtrace.setPos( dimidx, offsetidx );
+	    outputtrace.setPos( dimidx, offsetidx );
 	    if ( !inputtrace.init() || !outputtrace.init() )
 		continue;
 

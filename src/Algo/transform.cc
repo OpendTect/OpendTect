@@ -174,7 +174,7 @@ bool GenericTransformND::setup()
     for ( int idx=0; idx<nr_; idx++ )
 	starts += batchstarts_ ? batchstarts_[idx] : batchsampling_ * idx;
 
-    const int ndim = info_->nrDims();
+    const NrDimsType ndim = info_->nrDims();
     if ( ndim==1 )
     {
 	Transform1D* trans = createTransform();
@@ -194,15 +194,15 @@ bool GenericTransformND::setup()
 	ArrayNDInfoImpl curarrsz( ndim-1 );
 	mAllocVarLenArr(int,globalarrpos,ndim);
 	OD::memZero( globalarrpos, ndim*sizeof(int) );
-	for ( int dim=0; dim<ndim; dim++ )
+	for ( DimIdxType dim=0; dim<ndim; dim++ )
 	{
 	    globalarrpos[dim] = 0;
-	    for ( int idy=0; idy<ndim; idy++ )
+	    for ( DimIdxType idy=0; idy<ndim; idy++ )
 	    {
 		if ( idy==dim )
 		    continue;
 
-		const int curdim = idy>dim ? idy-1 : idy;
+		const DimIdxType curdim = idy>dim ? idy-1 : idy;
 		curarrsz.setSize( curdim, info_->getSize(idy) );
 	    }
 

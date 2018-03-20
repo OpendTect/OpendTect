@@ -25,6 +25,7 @@ template <class T>
 mClass(Algo) Smoother3D : public ReportingTask
 {
 public:
+				mTypeDefArrNDTypes;
 
 				Smoother3D();
 
@@ -33,7 +34,7 @@ public:
 				/*!Must be at least the size of input.*/
     bool			setWindow(const char* nm,float param,
 					  int sz0,int sz1,int sz2);
-    int				getWindowSize(int dim) const;
+    int				getWindowSize(DimIdxType dim) const;
     const char*			getWindowName() const;
     float			getWindowParam() const;
 
@@ -72,8 +73,10 @@ Smoother3D<T>::Smoother3D()
 
 
 template <class T> inline
-int Smoother3D<T>::getWindowSize(int dim) const
-{ return window_.getSize( dim ); }
+int Smoother3D<T>::getWindowSize(DimIdxType dim) const
+{
+    return window_.getSize( dim );
+}
 
 
 template <class T> inline

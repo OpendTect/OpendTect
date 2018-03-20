@@ -671,7 +671,7 @@ MarchingCubes2Implicit::MarchingCubes2Implicit(
     , nrdefined_( 0 )
     , nodistance_( nodistance )
 {
-    for ( int idx=0; idx<3; idx++ )
+    for ( DimIdxType idx=0; idx<3; idx++ )
 	size_[idx] = arr.getSize( idx );
 }
 

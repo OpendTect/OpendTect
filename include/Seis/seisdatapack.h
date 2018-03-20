@@ -204,6 +204,7 @@ protected:
 mExpClass(Seis) RegularFlatDataPack : public SeisFlatDataPack
 {
 public:
+				mTypeDefArrNDTypes;
 
 				RegularFlatDataPack(const RegularSeisDataPack&,
 						    int component);

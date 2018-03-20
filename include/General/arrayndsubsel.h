@@ -53,6 +53,7 @@ template <class T>
 mClass(General) Array3DSubSelection : public Array3D<T>
 {
 public:
+		mTypeDefArrNDTypes;
 		Array3DSubSelection( int start0, int start1, int start2,
 				     int sz0, int sz1, int sz2,
 				     Array3D<T>& data );
@@ -184,7 +185,7 @@ bool Array3DSubSelection<T>::isOK() const
     if ( !src_.isOK() )
 	return false;
 
-    for ( int dim=info_.nrDims()-1; dim>=0; dim-- )
+    for ( DimIdxType dim=info_.nrDims()-1; dim>=0; dim-- )
     {
 	if ( start_[dim]<0 || start_[dim]>=src_.getSize(dim) ||
 	     info_.getSize(dim)<=0 )

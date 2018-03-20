@@ -25,6 +25,8 @@ class uiToolButton;
 mExpClass(uiSeis) uiFKSpectrum : public uiFlatViewMainWin
 { mODTextTranslationClass(uiFKSpectrum);
 public:
+				mTypeDefArrNDTypes;
+
 				uiFKSpectrum(uiParent*,bool setbp=false);
 				~uiFKSpectrum();
 

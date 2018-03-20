@@ -203,12 +203,15 @@ void uiFKSpectrum::setDataPackID(
 	mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack.ptr());
 	const TrcKeyZSampling::Dir dir = regsdp ?
 		regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
-	const int dim0 = dir==TrcKeyZSampling::Inl ? 1 : 0;
+
+	short dirval = mCast(short,TrcKeyZSampling::DirDef().indexOf(dir));
+
+	const DimIdxType dim0 = dir==TrcKeyZSampling::Inl ? 1 : 0;
 
 	Array2DSlice<float> slice2d( voldp->data(version) );
 	slice2d.setDimMap( 0, dim0 );
 	slice2d.setDimMap( 1, 2 );
-	slice2d.setPos( dir, 0 );
+	slice2d.setPos( dirval, 0 );
 	slice2d.init();
 	setData( slice2d );
     }
