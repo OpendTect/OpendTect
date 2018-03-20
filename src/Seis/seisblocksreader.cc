@@ -334,10 +334,10 @@ bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
     else
     {
 	Reader& self = *const_cast<Reader*>( this );
-	if ( !usehdf_ )
-	    self.backend_ = new StreamReadBackEnd( self, fnm, uirv );
-	else
+	if ( usehdf_ )
 	    self.backend_ = new HDF5ReadBackEnd( self, fnm, uirv );
+	else
+	    self.backend_ = new StreamReadBackEnd( self, fnm, uirv );
     }
     if ( !uirv.isOK() )
 	return false;

@@ -53,6 +53,13 @@ void BlocksSeisTrcTranslator::cleanUp()
 }
 
 
+const char* BlocksSeisTrcTranslator::defExtension() const
+{
+    return Seis::Blocks::Access::sDataFileExt(
+		Seis::Blocks::Access::hdf5Active() );
+}
+
+
 void BlocksSeisTrcTranslator::convToConnExpr( BufferString& fnm ) const
 {
     if ( !fnm.isEmpty() )

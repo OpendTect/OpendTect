@@ -480,6 +480,7 @@ ColumnWriter( WriteBackEnd& be, MemBlockColumn& colmn )
     , nrblocks_(be.wrr_.nrColumnBlocks())
     , iblock_(0)
 {
+    column_.getDefArea( start_, dims_ );
     backend_.setColumnInfo( column_, start_, dims_, uirv_ );
 }
 
@@ -537,9 +538,9 @@ void Seis::Blocks::Writer::writeColumn( MemBlockColumn& column, uiRetVal& uirv )
     if ( !backend_ )
     {
 	if ( usehdf_ )
-	    backend_ = new StreamWriteBackEnd( *this );
-	else
 	    backend_ = new HDF5WriteBackEnd( *this );
+	else
+	    backend_ = new StreamWriteBackEnd( *this );
     }
     ColumnWriter wrr( *backend_, column );
     if ( !wrr.execute() )

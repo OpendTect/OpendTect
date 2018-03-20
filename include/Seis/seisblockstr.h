@@ -26,7 +26,7 @@ public:
 
 			BlocksSeisTrcTranslator(const char*,const char*);
 			~BlocksSeisTrcTranslator();
-    virtual const char*	defExtension() const		{ return "blocks"; }
+    virtual const char*	defExtension() const;
     virtual bool	forRead() const			{ return !wrr_; }
 
     virtual bool	readInfo(SeisTrcInfo&);

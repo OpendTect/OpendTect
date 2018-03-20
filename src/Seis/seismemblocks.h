@@ -84,7 +84,7 @@ public:
     void		getDefArea(HLocIdx&,HDimensions&) const;
 
     int			nruniquevisits_;
-    od_int64		fileid_;
+    mutable od_int64	fileid_;
     bool**		visited_;
     ObjectSet<BlockSet> blocksets_; // one set per component
     MemColumnSummary	summary_;

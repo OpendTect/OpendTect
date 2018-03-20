@@ -50,6 +50,24 @@ Seis::Blocks::Access::~Access()
 }
 
 
+bool Seis::Blocks::Access::hdf5Active()
+{
+    return HDF5::isEnabled( HDF5::sSeismicsType() );
+}
+
+
+const char* Seis::Blocks::Access::fileExtension() const
+{
+    return sDataFileExt( usehdf_ );
+}
+
+
+const char* Seis::Blocks::Access::sDataFileExt( bool forhdf5 )
+{
+    return forhdf5 ? HDF5::sFileExtension() : "blocks";
+}
+
+
 const ZDomain::Def& Seis::Blocks::Access::zDomain() const
 {
     return hgeom_.zDomain();
@@ -64,13 +82,10 @@ BufferString Seis::Blocks::Access::infoFileName() const
 }
 
 
-#define mFileExt(usehdf) usehdf ? HDF5::sFileExtension() : sDataFileExt()
-
-
 BufferString Seis::Blocks::Access::dataFileName() const
 {
     File::Path fp( basepath_ );
-    fp.setExtension( mFileExt(usehdf_), false );
+    fp.setExtension( fileExtension(), false );
     return fp.fullPath();
 }
 
@@ -95,7 +110,7 @@ BufferString Seis::Blocks::Access::dataFileNameFor( const char* fnm,
 						    bool usehdf )
 {
     File::Path fp( fnm );
-    fp.setExtension( mFileExt(usehdf), false );
+    fp.setExtension( sDataFileExt(usehdf), false );
     return fp.fullPath();
 }
 

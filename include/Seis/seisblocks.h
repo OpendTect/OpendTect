@@ -194,12 +194,13 @@ public:
 
     const File::Path&	basePath() const	{ return basepath_; }
     BufferString	infoFileName() const;
+    const char*		fileExtension() const;
     BufferString	dataFileName() const;
     BufferString	overviewFileName() const;
     static BufferString	infoFileNameFor(const char*);
     static BufferString	dataFileNameFor(const char*,bool usehdf);
 
-    static const char*	sDataFileExt()	  { return "blocks"; }
+    static const char*	sDataFileExt(bool forhdf5);
     static const char*	sKeyOvvwFileExt() { return "ovvw"; }
     static const char*	sKeyFileType()	  { return "Column Cube"; }
     static const char*	sKeySectionPre()  { return "Section-"; }
@@ -216,6 +217,8 @@ public:
     static const char*	sKeyComponents()  { return "Components"; }
     static const char*	sKeyDataType()    { return "Data Type"; }
     static const char*	sKeyDepthInFeet() { return "Depth in Feet"; }
+
+    static bool		hdf5Active();
 
 protected:
 
@@ -241,7 +244,6 @@ protected:
     Column*		findColumn(const HGlobIdx&) const;
     void		addColumn(Column*) const;
     void		clearColumns();
-    static bool		useHDF();
 
 };
 

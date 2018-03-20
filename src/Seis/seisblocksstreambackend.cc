@@ -53,6 +53,7 @@ void Seis::Blocks::StreamWriteBackEnd::setColumnInfo(
 
     const SzType hdrsz = columnHeaderSize( wrr_.version_ );
     const od_stream_Pos orgstrmpos = strm_->position();
+    column.fileid_ = orgstrmpos;
 
     strm_->addBin( hdrsz );
     strm_->addBin( dims.first ).addBin( dims.second ).addBin(wrr_.dims_.third);
