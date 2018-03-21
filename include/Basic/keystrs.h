@@ -116,6 +116,7 @@ namespace sKey
     inline FixedString SeisID()		{ return "SeisID"; }
     inline FixedString SeisCubePositions() { return "Seismic Cube Positions"; }
     inline FixedString Selection()	{ return "Selection"; }
+    inline FixedString SelectionStatus(){ return "Selection status"; }
     inline FixedString Series()		{ return "Series"; }
     inline FixedString Setup()		{ return "Setup"; }
     inline FixedString Subsample()	{ return "Subsample"; }
@@ -154,8 +155,10 @@ namespace sKey
     inline FixedString Weight()		{ return "Weight"; }
     inline FixedString Well()		{ return "Well"; }
     inline FixedString XCoord()		{ return "X-Coord"; }
+    inline FixedString XOffset()	{ return "X Offset"; }
     inline FixedString XRange()		{ return "X range"; }
     inline FixedString YCoord()		{ return "Y-Coord"; }
+    inline FixedString YOffset()	{ return "Y Offset"; }
     inline FixedString YRange()		{ return "Y range"; }
     inline FixedString Yes()		{ return "Yes"; }
     inline FixedString ZCoord()		{ return "Z-Coord"; }
