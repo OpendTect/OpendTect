@@ -29,7 +29,7 @@ public:
 				RowCol(const Pos::IdxPair&);
 
     inline RowCol		operator+(const RowCol&) const;
-    inline RowCol	 	operator-(const RowCol&) const;
+    inline RowCol		operator-(const RowCol&) const;
     inline RowCol		operator+() const;
     inline RowCol		operator-() const;
     inline RowCol		operator*(const RowCol&) const;
@@ -49,7 +49,7 @@ public:
     static inline RowCol	fromInt32(int);
 
     RowCol			getDirection() const;
-    		/*!<\returns a rowcol where row/col are either -1, 0 or 1 where
+		/*!<\returns a rowcol where row/col are either -1, 0 or 1 where
 		    depending on if row/col of the object is negative, zero or
 		    positive. */
 
@@ -58,7 +58,7 @@ public:
 		      going from 0,0 to the object and the vector
 		      going from 0,0 to rc.*/
     float			clockwiseAngleTo(const RowCol& rc) const;
-    		/*!<\returns the angle between the vector going from
+		/*!<\returns the angle between the vector going from
 		     0,0 to the object and the vector going from 0,0
 		     to rc in the clockwise direction.*/
     float			counterClockwiseAngleTo(const RowCol&) const;
@@ -115,13 +115,13 @@ inline const RowCol& RowCol::operator-=( const RowCol& rc )
 inline const RowCol& RowCol::operator*=( const RowCol& rc )
 	{ row() *= rc.row(); col() *= rc.col(); return *this; }
 inline const RowCol& RowCol::operator*=( int factor )
-	{ row() *= factor; col() *= factor;  return *this; } 
+	{ row() *= factor; col() *= factor;  return *this; }
 inline const RowCol& RowCol::operator/=( const RowCol& rc )
-	{ row() /= rc.row(); col() /= rc.col();  return *this; } 
-inline int RowCol::toInt32() const
-	{ return (((unsigned int) row())<<16)+ ((unsigned int) col() & 0xFFFF);}
-inline RowCol RowCol::fromInt32(int ll)
-	{ return RowCol ( ll>>16, ((short)(ll&0xFFFF)) ); }
+	{ row() /= rc.row(); col() /= rc.col();  return *this; }
+inline od_int32 RowCol::toInt32() const
+	{ return (((od_uint32)row()) << 16)+ ((od_uint32)col() & 0xFFFF); }
+inline RowCol RowCol::fromInt32( od_int32 i32 )
+	{ return RowCol ( i32>>16, ((od_int16)(i32&0xFFFF)) ); }
 
 
 

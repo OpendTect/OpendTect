@@ -60,6 +60,14 @@ inline T udfto( const F& fr, const T& und = Values::Undef<T>::val() )
 //----- specialisations 1: simple types -> const char*
 
 template <>
+inline void set( const char*& _to, const od_int16& i )
+    { _to = toString(i); }
+
+template <>
+inline void set( const char*& _to, const od_uint16& i )
+    { _to = toString(i); }
+
+template <>
 inline void set( const char*& _to, const od_int32& i )
     { _to = toString(i); }
 
@@ -87,16 +95,12 @@ template <>
 inline void set( const char*& _to, const double& d )
     { _to = toString(d); }
 
-template <>
-inline void set( const char*& _to, const short& i )
-    { _to = toString(i); }
-
-template <>
-inline void set( const char*& _to, const unsigned short& i )
-    { _to = toString(i); }
-
 
 //----- specialisations 2: floating point types -> integer types
+
+template <>
+inline void set( od_int16& _to, const float& f )
+    { _to = mRounded(od_int16,f); }
 
 template <>
 inline void set( od_int32& _to, const float& f )
@@ -107,11 +111,7 @@ inline void set( od_int64& _to, const float& f )
     { _to = mRounded(od_int64,f); }
 
 template <>
-inline void set( short& _to, const float& f )
-    { _to = mRounded(short,f); }
-
-template <>
-inline void set( unsigned short& _to, const float& f )
+inline void set( od_uint16& _to, const float& f )
     { _to = mRounded(od_uint16,f); }
 
 template <>
@@ -123,28 +123,28 @@ inline void set( od_uint64& _to, const float& f )
     { _to = mRounded(od_uint64,f); }
 
 template <>
-inline void set( od_int32& _to, const double& f )
-    { _to = mRounded(od_int32,f); }
-
-template <>
-inline void set( od_int64& _to, const double& f )
-    { _to = mRounded(od_int64,f); }
-
-template <>
-inline void set( short& _to, const double& f )
-    { _to = mRounded(short,f); }
-
-template <>
-inline void set( unsigned short& _to, const double& f )
+inline void set( od_uint16& _to, const double& f )
     { _to = mRounded(od_uint16,f); }
+
+template <>
+inline void set( od_int16& _to, const double& f )
+    { _to = mRounded(od_int16,f); }
 
 template <>
 inline void set( od_uint32& _to, const double& f )
     { _to = mRounded(od_uint32,f); }
 
 template <>
+inline void set( od_int32& _to, const double& f )
+    { _to = mRounded(od_int32,f); }
+
+template <>
 inline void set( od_uint64& _to, const double& f )
     { _to = mRounded(od_uint64,f); }
+
+template <>
+inline void set( od_int64& _to, const double& f )
+    { _to = mRounded(od_int64,f); }
 
 
 //----- specialisations 3: strings and simple types -> bool
@@ -182,9 +182,9 @@ template <> mGlobal(Basic) void set(type&,const char* const&); \
 template <> mGlobal(Basic) void set(type&,const FixedString&); \
 template <> mGlobal(Basic) void set(type&,const BufferString&)
 
-mConvDeclFromStrToSimpleType(short);
-mConvDeclFromStrToSimpleType(unsigned short);
-mConvDeclFromStrToSimpleType(int);
+mConvDeclFromStrToSimpleType(od_int16);
+mConvDeclFromStrToSimpleType(od_uint16);
+mConvDeclFromStrToSimpleType(od_int32);
 mConvDeclFromStrToSimpleType(od_uint32);
 mConvDeclFromStrToSimpleType(od_int64);
 mConvDeclFromStrToSimpleType(od_uint64);

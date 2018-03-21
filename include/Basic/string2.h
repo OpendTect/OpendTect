@@ -27,6 +27,8 @@ ________________________________________________________________________
 #include <wctype.h>
 namespace OD { class String; }
 
+mGlobal(Basic) const char*	toString(od_int16);
+mGlobal(Basic) const char*	toString(od_uint16);
 mGlobal(Basic) const char*	toString(od_int32);
 mGlobal(Basic) const char*	toString(od_uint32);
 mGlobal(Basic) const char*	toString(od_int64);
@@ -37,8 +39,6 @@ mGlobal(Basic) const char*	toStringPrecise(float);
 mGlobal(Basic) const char*	toString(double);
 mGlobal(Basic) const char*	toStringLim(double,int maxtxtwdth);
 mGlobal(Basic) const char*	toStringPrecise(double);
-mGlobal(Basic) const char*	toString(short);
-mGlobal(Basic) const char*	toString(unsigned short);
 mGlobal(Basic) const char*	toString(const char*);
 mGlobal(Basic) const char*	toString(unsigned char);
 mGlobal(Basic) const char*	toString(signed char);

@@ -47,7 +47,9 @@ public:
     bool	fn(const char*,typ,typ); \
     bool	fn(const char*,typ,typ,typ); \
     bool	fn(const char*,typ,typ,typ,typ)
-		mAscStreamDefFns(put,int);
+		mAscStreamDefFns(put,od_int16);
+		mAscStreamDefFns(put,od_uint16);
+		mAscStreamDefFns(put,od_int32);
 		mAscStreamDefFns(put,od_uint32);
 		mAscStreamDefFns(put,od_int64);
 		mAscStreamDefFns(put,od_uint64);
@@ -106,7 +108,9 @@ public:
     const char*		value() const		{ return valbuf_.buf(); }
     bool		hasKeyword(const char*) const;
     bool		hasValue(const char*) const;
-    int			getIValue(int i=0) const;
+    od_int16		getI16Value(int i=0) const;
+    od_uint16		getUI16Value(int i=0) const;
+    od_int32		getIValue(int i=0) const;
     od_uint32		getUIValue(int i=0) const;
     od_int64		getI64Value(int i=0) const;
     od_uint64		getUI64Value(int i=0) const;

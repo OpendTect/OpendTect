@@ -20,19 +20,19 @@ ________________________________________________________________________
 
 /*!
 \brief Description of binary data.
-  
+
   Binary data in 'blobs' can usually be described by only a few pieces of info.
   These are:
-  
+
   * Is the data of floating point type or integer?
   * Is the data signed or unsigned? Usually, floating point data cannot be
     unsigned.
   * How big is each number in terms of bytes? This can be 1, 2, 4 or 8
     bytes.
-    
+
   The info from this class can be stringified (user readable string) or dumped
   binary into two unsigned chars.
-  
+
   In normal work one will use the DataCharacteristics subclass, which can also
   provide a 'run-time' data interpreter class for fast conversion to internal
   data types.
@@ -51,7 +51,7 @@ public:
 			: isint_(ii), issigned_(is),
 			  nrbytes_(nearestByteCount(ii,b))	{}
 			BinDataDesc( unsigned char c1, unsigned char c2 )
-			    					{ set(c1,c2); }
+								{ set(c1,c2); }
 			BinDataDesc( const char* s )		{ set(s); }
     virtual		~BinDataDesc()				{}
 
@@ -77,11 +77,11 @@ public:
     virtual void	set(unsigned char,unsigned char);
 
 			mDeclBinDataDescConstr(signed char,true,true)
-			mDeclBinDataDescConstr(short,true,true)
-			mDeclBinDataDescConstr(int,true,true)
+			mDeclBinDataDescConstr(od_int16,true,true)
+			mDeclBinDataDescConstr(od_int32,true,true)
 			mDeclBinDataDescConstr(unsigned char,true,false)
-			mDeclBinDataDescConstr(unsigned short,true,false)
-			mDeclBinDataDescConstr(unsigned int,true,false)
+			mDeclBinDataDescConstr(od_uint16,true,false)
+			mDeclBinDataDescConstr(od_uint32,true,false)
 			mDeclBinDataDescConstr(float,false,true)
 			mDeclBinDataDescConstr(double,false,true)
 

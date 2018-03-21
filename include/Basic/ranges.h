@@ -548,8 +548,8 @@ T BasicInterval<T>::atIndex( int idx, const T& step ) const
 { return start + step * idx; }
 
 template <> inline
-short BasicInterval<short>::atIndex( int idx, const short& step ) const
-{ return start + step * mCast(short,idx); }
+od_int16 BasicInterval<od_int16>::atIndex( int idx, const od_int16& step ) const
+{ return start + step * mCast(od_int16,idx); }
 
 template <class T> template <class X> inline
 int BasicInterval<T>::getIndex( const X& t, const T& step ) const

@@ -934,6 +934,12 @@ static const char* getLimStringFromFPNumber( T val, int maxtxtwdth )
 }
 
 
+const char* toString( od_int16 i )
+{ return getStringFromInt( (od_int32)i, 0 ); }
+
+const char* toString( od_uint16 i )
+{ return getStringFromUInt( (od_uint32)i, 0 ); }
+
 const char* toString( od_int32 i )
 { return getStringFromInt( i, 0 ); }
 
@@ -946,14 +952,8 @@ const char* toString( od_int64 i )
 const char* toString( od_uint64 i )
 { return getStringFromUInt64( i, 0 ); }
 
-const char* toString( short i )
-{ return getStringFromInt( (int)i, 0 ); }
-
-const char* toString( unsigned short i )
-{ return getStringFromUInt( (unsigned int)i, 0 ); }
-
 const char* toString( unsigned char c )
-{ return toString( (unsigned short)c ); }
+{ return toString( (od_uint16)c ); }
 
 const char* toString( const OD::String& ods )
 { return ods.buf(); }
@@ -1124,10 +1124,10 @@ namespace Conv { \
 \
 }
 
-mConvDefFromStrToSimpleType( short, gtIntFromString )
-mConvDefFromStrToSimpleType( unsigned short, gtUIntFromString )
-mConvDefFromStrToSimpleType( int, gtIntFromString )
-mConvDefFromStrToSimpleType( unsigned int, gtUIntFromString )
+mConvDefFromStrToSimpleType( od_int16, gtIntFromString )
+mConvDefFromStrToSimpleType( od_uint16, gtUIntFromString )
+mConvDefFromStrToSimpleType( od_int32, gtIntFromString )
+mConvDefFromStrToSimpleType( od_uint32, gtUIntFromString )
 mConvDefFromStrToSimpleType( od_int64, gtInt64FromString )
 mConvDefFromStrToSimpleType( od_uint64, gtUInt64FromString )
 mConvDefFromStrToSimpleType( float, gtFloatFromString )

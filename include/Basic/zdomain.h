@@ -44,7 +44,7 @@ mExpClass(Basic) Def
 { mODTextTranslationClass(Def)
 public:
 
-    typedef unsigned short  GenID;
+    typedef od_uint16	GenID;
 
     static const Def&	get(const char*);
     static const Def&	get(const IOPar&);

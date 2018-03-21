@@ -48,7 +48,9 @@ public:
     FixedString		operator[](int) const;		//!< Output unescaped
     FixedString		from(int) const;		//!< Output escaped
 
-    int			getIValue(int) const;
+    od_int16		getI16Value(int) const;
+    od_uint16		getUI16Value(int) const;
+    od_int32		getIValue(int) const;
     od_uint32		getUIValue(int) const;
     od_int64		getI64Value(int) const;
     od_uint64		getUI64Value(int) const;

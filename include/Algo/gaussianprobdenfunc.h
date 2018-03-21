@@ -25,10 +25,10 @@ inline const char* sGaussianCCRangeErrMsg()
 { return "Correlation coefficients should be in range <-1,1>.\n"
 	 "Maximum correlation is 0.99999."; }
 inline const uiString sUiGaussianCCRangeErrMsg()
-{ 
+{
     return od_static_tr("sUiGaussianCCRangeErrMsg",
 		        "Correlation coefficients should be in range <-1,1>.\n"
-		        "Maximum correlation is 0.99999."); 
+		        "Maximum correlation is 0.99999.");
 }
 
 #define mDefGaussianProbDenFuncFns(nm) \
@@ -118,9 +118,7 @@ public:
 						{ *this = oth; }
 			mDefGaussianProbDenFuncFns(GaussianND)
 
-    virtual NrDimsType	nrDims() const
-				    { return mCast(NrDimsType,vars_.size()); }
-				    //IntToShortHack
+    virtual NrDimsType	nrDims() const { return (NrDimsType)vars_.size(); }
     virtual const char*	dimName(int) const;
     virtual void	setDimName(int,const char*);
     virtual float	averagePos(DimIdxType) const;

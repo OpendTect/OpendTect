@@ -795,9 +795,7 @@ bool SampledNDProbDenFunc::usePar( const IOPar& par )
 {
     NrDimsType nrdims = nrDims();
     NrDimsType newnrdims = nrdims;
-    int dimsvals;
-    par.get( sKeyNrDim(), dimsvals );
-    newnrdims = mCast(NrDimsType,dimsvals);	    //IntToShortHack
+    par.get( sKeyNrDim(), newnrdims );
     if ( newnrdims < 1 )
 	return false;
     else if ( newnrdims != nrdims )

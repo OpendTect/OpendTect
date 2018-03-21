@@ -77,11 +77,11 @@ mExpClass(Basic) TextStreamProgressMeter : public ProgressMeter
 public:
 
 			TextStreamProgressMeter(od_ostream&,
-					unsigned short rowlen=cDefaultRowLen());
+					od_uint16 rowlen=cDefaultRowLen());
 			~TextStreamProgressMeter();
 
-    static int		cDefaultRowLen() { return 50; }
-    static int		cNrCharsPerRow() { return 80; }
+    static od_uint16	cDefaultRowLen() { return 50; }
+    static od_uint16	cNrCharsPerRow() { return 80; }
 
     void		setName(const char*);
     void		setStarted();
@@ -107,7 +107,7 @@ protected:
     od_ostream&		strm_;
     uiString		message_;
     BufferString	name_;
-    unsigned short	rowlen_;
+    od_uint16		rowlen_;
     unsigned char	distcharidx_;
     od_int64		nrdoneperchar_;
     od_int64		nrdone_;
@@ -121,4 +121,5 @@ protected:
     bool		skipprog_;
 
     void		annotate(bool);
+
 };

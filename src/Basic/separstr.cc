@@ -227,7 +227,9 @@ typ SeparString::fn( int idx ) const \
 { \
     return Conv::to<typ>( (*this)[idx] ); \
 }
-mDeclGetFn(int,getIValue)
+mDeclGetFn(od_int16,getI16Value)
+mDeclGetFn(od_uint16,getUI16Value)
+mDeclGetFn(od_int32,getIValue)
 mDeclGetFn(od_uint32,getUIValue)
 mDeclGetFn(od_int64,getI64Value)
 mDeclGetFn(od_uint64,getUI64Value)

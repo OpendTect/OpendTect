@@ -292,15 +292,14 @@ bool MemSetter<Type>::setPtr( od_int64 start, od_int64 size ) \
     return true; \
 }
 
-
-mODMemSpecialImpl( float );
-mODMemSpecialImpl( double );
-mODMemSpecialImpl( int );
-mODMemSpecialImpl( unsigned int );
-mODMemSpecialImpl( short );
-mODMemSpecialImpl( unsigned short );
+mODMemSpecialImpl( od_int16 );
+mODMemSpecialImpl( od_uint16 );
+mODMemSpecialImpl( od_int32 );
+mODMemSpecialImpl( od_uint32 );
 mODMemSpecialImpl( od_int64 );
 mODMemSpecialImpl( od_uint64 );
+mODMemSpecialImpl( float );
+mODMemSpecialImpl( double );
 
 
 

@@ -75,8 +75,8 @@ mClass(Basic) Undef<od_uint16>
 public:
     static od_uint16	val()			{ return 65534; }
     static bool		hasUdf()		{ return false; }
-    static bool		isUdf( od_uint32 i )	{ return i == 65534; }
-    static void		setUdf( od_uint32& i )	{ i = 65534; }
+    static bool		isUdf( od_uint16 i )	{ return i == 65534; }
+    static void		setUdf( od_uint16& i )	{ i = 65534; }
 };
 
 

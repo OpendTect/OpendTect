@@ -198,22 +198,22 @@ void uiFKSpectrum::setDataPackID(
     if ( dmid == DataPackMgr::SeisID() )
     {
 	mDynamicCastGet(const VolumeDataPack*,voldp,datapack.ptr());
-	if ( !voldp || voldp->isEmpty() ) return;
+	if ( !voldp || voldp->isEmpty() )
+	    return;
 
 	mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack.ptr());
-	const TrcKeyZSampling::Dir dir = regsdp ?
+	const TrcKeyZSampling::Dir tkzsdir = regsdp ?
 		regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
 
-	short dirval = mCast(short,TrcKeyZSampling::DirDef().indexOf(dir));
-							       //IntToShortHack
-
-	const Array2DSlice<float>::DimIdxType dim0
-	    	= dir==TrcKeyZSampling::Inl ? 1 : 0;
+	typedef Array2DSlice<float>::DimIdxType DimIdxType;
+	const DimIdxType valdim = (DimIdxType)TrcKeyZSampling::DirDef()
+						    .indexOf( tkzsdir );
+	const DimIdxType dim0 = tkzsdir == TrcKeyZSampling::Inl ? 1 : 0;
 
 	Array2DSlice<float> slice2d( voldp->data(version) );
 	slice2d.setDimMap( 0, dim0 );
 	slice2d.setDimMap( 1, 2 );
-	slice2d.setPos( dirval, 0 );
+	slice2d.setPos( valdim, 0 );
 	slice2d.init();
 	setData( slice2d );
     }

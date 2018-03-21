@@ -541,31 +541,20 @@ void IOPar::add( const char* keyw, type v1, type v2, type v3, type v4 ) \
     add( keyw, fms ); \
 }
 
-mDefSet1Val(int)	mDefSet2Val(int)
-mDefSet3Val(int)	mDefSet4Val(int)
-mDefSet1Val(od_uint32)	mDefSet2Val(od_uint32)
-mDefSet3Val(od_uint32)	mDefSet4Val(od_uint32)
-mDefSet1Val(od_int64)	mDefSet2Val(od_int64)
-mDefSet3Val(od_int64)	mDefSet4Val(od_int64)
-mDefSet1Val(od_uint64)	mDefSet2Val(od_uint64)
-mDefSet3Val(od_uint64)	mDefSet4Val(od_uint64)
-mDefSet1Val(float)	mDefSet2Val(float)
-mDefSet3Val(float)	mDefSet4Val(float)
-mDefSet1Val(double)	mDefSet2Val(double)
-mDefSet3Val(double)	mDefSet4Val(double)
+#define mDefAddSetIUpto4Vals( typ ) \
+    mDefSet1Val(typ) mDefAdd1Val(typ) \
+    mDefSet2Val(typ) mDefAdd2Val(typ) \
+    mDefSet3Val(typ) mDefAdd3Val(typ) \
+    mDefSet4Val(typ) mDefAdd4Val(typ) \
 
-mDefAdd1Val(int)	mDefAdd2Val(int)
-mDefAdd3Val(int)	mDefAdd4Val(int)
-mDefAdd1Val(od_uint32)	mDefAdd2Val(od_uint32)
-mDefAdd3Val(od_uint32)	mDefAdd4Val(od_uint32)
-mDefAdd1Val(od_int64)	mDefAdd2Val(od_int64)
-mDefAdd3Val(od_int64)	mDefAdd4Val(od_int64)
-mDefAdd1Val(od_uint64)	mDefAdd2Val(od_uint64)
-mDefAdd3Val(od_uint64)	mDefAdd4Val(od_uint64)
-mDefAdd1Val(float)	mDefAdd2Val(float)
-mDefAdd3Val(float)	mDefAdd4Val(float)
-mDefAdd1Val(double)	mDefAdd2Val(double)
-mDefAdd3Val(double)	mDefAdd4Val(double)
+mDefAddSetIUpto4Vals(od_int16)
+mDefAddSetIUpto4Vals(od_uint16)
+mDefAddSetIUpto4Vals(od_int32)
+mDefAddSetIUpto4Vals(od_uint32)
+mDefAddSetIUpto4Vals(od_int64)
+mDefAddSetIUpto4Vals(od_uint64)
+mDefAddSetIUpto4Vals(float)
+mDefAddSetIUpto4Vals(double)
 
 
 #define mGetStart(pval) \
@@ -589,18 +578,18 @@ mDefAdd3Val(double)	mDefAdd4Val(double)
     if ( !*pval ) return false
 
 
-#define mDefGetI1Val( type, convfunc ) \
+#define mDefGetI1Val( type, fncall ) \
 bool IOPar::get( const char* keyw, type& v1 ) const \
 { \
     mGetStartNotEmpty(pval); \
     char* endptr; \
-    type valfound = convfunc; \
+    type valfound = fncall; \
     if ( pval==endptr ) return false; \
     v1 = valfound; \
     return true; \
 }
 
-#define mDefGetI2Val( type, convfunc ) \
+#define mDefGetI2Val( type, fncall ) \
 bool IOPar::get( const char* keyw, type& v1, type& v2 ) const \
 { \
     mGetStartNotEmpty(pval); \
@@ -609,17 +598,17 @@ bool IOPar::get( const char* keyw, type& v1, type& v2 ) const \
     char* endptr; \
 \
     pval = fms[0]; \
-    type valfound = convfunc; \
+    type valfound = fncall; \
     if ( pval == endptr ) return false; \
     v1 = valfound; \
 \
-    pval = fms[1]; valfound = convfunc; \
+    pval = fms[1]; valfound = fncall; \
     if ( pval != endptr ) v2 = valfound; \
 \
     return true; \
 }
 
-#define mDefGetI3Val( type, convfunc ) \
+#define mDefGetI3Val( type, fncall ) \
 bool IOPar::get( const char* keyw, type& v1, type& v2, type& v3 ) const \
 { \
     mGetStartNotEmpty(pval); \
@@ -628,20 +617,20 @@ bool IOPar::get( const char* keyw, type& v1, type& v2, type& v3 ) const \
     char* endptr; \
 \
     pval = fms[0]; \
-    type valfound = convfunc; \
+    type valfound = fncall; \
     if ( pval == endptr ) return false; \
     v1 = valfound; \
 \
-    pval = fms[1]; valfound = convfunc; \
+    pval = fms[1]; valfound = fncall; \
     if ( pval != endptr ) v2 = valfound; \
 \
-    pval = fms[2]; valfound = convfunc; \
+    pval = fms[2]; valfound = fncall; \
     if ( pval != endptr ) v3 = valfound; \
 \
     return true; \
 }
 
-#define mDefGetI4Val( type, convfunc ) \
+#define mDefGetI4Val( type, fncall ) \
 bool IOPar::get( const char* keyw, type& v1,type& v2,type& v3,type& v4 ) const \
 { \
     mGetStartNotEmpty(pval); \
@@ -650,49 +639,45 @@ bool IOPar::get( const char* keyw, type& v1,type& v2,type& v3,type& v4 ) const \
     char* endptr; \
 \
     pval = fms[0]; \
-    type valfound = convfunc; \
+    type valfound = fncall; \
     if ( pval == endptr ) return false; \
     v1 = valfound; \
 \
-    pval = fms[1]; valfound = convfunc; \
+    pval = fms[1]; valfound = fncall; \
     if ( pval != endptr ) v2 = valfound; \
 \
-    pval = fms[2]; valfound = convfunc; \
+    pval = fms[2]; valfound = fncall; \
     if ( pval != endptr ) v3 = valfound; \
 \
-    pval = fms[3]; valfound = convfunc; \
+    pval = fms[3]; valfound = fncall; \
     if ( pval != endptr ) v4 = valfound; \
 \
     return true; \
 }
 
-mDefGetI1Val(int,strtol(pval, &endptr, 0));
-mDefGetI2Val(int,strtol(pval, &endptr, 0));
-mDefGetI3Val(int,strtol(pval, &endptr, 0));
-mDefGetI4Val(int,strtol(pval, &endptr, 0));
-mDefGetI1Val(od_uint32,strtoul(pval, &endptr, 0));
-mDefGetI2Val(od_uint32,strtoul(pval, &endptr, 0));
-mDefGetI3Val(od_uint32,strtoul(pval, &endptr, 0));
-mDefGetI4Val(od_uint32,strtoul(pval, &endptr, 0));
-mDefGetI1Val(od_int64,strtoll(pval, &endptr, 0));
-mDefGetI2Val(od_int64,strtoll(pval, &endptr, 0));
-mDefGetI3Val(od_int64,strtoll(pval, &endptr, 0));
-mDefGetI4Val(od_int64,strtoll(pval, &endptr, 0));
-mDefGetI1Val(od_uint64,strtoull(pval, &endptr, 0));
-mDefGetI2Val(od_uint64,strtoull(pval, &endptr, 0));
-mDefGetI3Val(od_uint64,strtoull(pval, &endptr, 0));
-mDefGetI4Val(od_uint64,strtoull(pval, &endptr, 0));
+#define mDefGetIUpto4Vals( typ, fncall ) \
+mDefGetI1Val( typ, (typ)fncall ); \
+mDefGetI2Val( typ, (typ)fncall ); \
+mDefGetI3Val( typ, (typ)fncall ); \
+mDefGetI4Val( typ, (typ)fncall )
+
+mDefGetIUpto4Vals( od_int16, strtol( pval, &endptr, 0 ) )
+mDefGetIUpto4Vals( od_uint16, strtoul( pval, &endptr, 0 ) )
+mDefGetIUpto4Vals( od_int32, strtol( pval, &endptr, 0 ) )
+mDefGetIUpto4Vals( od_uint32, strtoul( pval, &endptr, 0 ) )
+mDefGetIUpto4Vals( od_int64, strtoll( pval, &endptr, 0 ) )
+mDefGetIUpto4Vals( od_uint64, strtoull( pval, &endptr, 0 ) )
 
 
 #define mDefGetFVals(typ) \
 bool IOPar::get( const char* k, typ& v ) const \
-{ return getScaled(k,v,1,false); } \
+{ return getScaled(k,v,(typ)1,false); } \
 bool IOPar::get( const char* k, typ& v1, typ& v2 ) const \
-{ return getScaled(k,v1,v2,1,false); } \
+{ return getScaled(k,v1,v2,(typ)1,false); } \
 bool IOPar::get( const char* k, typ& v1, typ& v2, typ& v3 ) const \
-{ return getScaled(k,v1,v2,v3,1,false); } \
+{ return getScaled(k,v1,v2,v3,(typ)1,false); } \
 bool IOPar::get( const char* k, typ& v1, typ& v2, typ& v3, typ& v4 ) const \
-{ return getScaled(k,v1,v2,v3,v4,1,false); }
+{ return getScaled(k,v1,v2,v3,v4,(typ)1,false); }
 
 mDefGetFVals(float)
 mDefGetFVals(double)
@@ -762,7 +747,7 @@ void IOPar::set( const char* keyw, const TypeSet<typ>& vals ) \
     iopset_typeset( *this, keyw, vals ); \
 }
 
-mDefTSFns(int)
+mDefTSFns(od_int32)
 mDefTSFns(od_uint32)
 mDefTSFns(od_int64)
 mDefTSFns(od_uint64)

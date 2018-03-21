@@ -148,7 +148,9 @@ bool ascostream::put( const char* keyword, typ value ) \
     putKeyword( keyword ); strm_ << value << od_newline; \
     return strm_.isOK(); \
 }
-mDeclPut1IFn(int)
+mDeclPut1IFn(od_int16)
+mDeclPut1IFn(od_uint16)
+mDeclPut1IFn(od_int32)
 mDeclPut1IFn(od_uint32)
 mDeclPut1IFn(od_int64)
 mDeclPut1IFn(od_uint64)
@@ -183,7 +185,9 @@ bool ascostream::fn( const char* keyword, typ v1, typ v2 ) \
     putKeyword( keyword ); strm_ << fms << od_newline; \
     return strm_.isOK(); \
 }
-mDeclPut2Fn(put,int)
+mDeclPut2Fn(put,od_int16)
+mDeclPut2Fn(put,od_uint16)
+mDeclPut2Fn(put,od_int32)
 mDeclPut2Fn(put,od_uint32)
 mDeclPut2Fn(put,od_int64)
 mDeclPut2Fn(put,od_uint64)

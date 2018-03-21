@@ -122,7 +122,7 @@ void ProgressRecorder::setFrom( const Task& t )
 
 
 TextStreamProgressMeter::TextStreamProgressMeter( od_ostream& out,
-						  unsigned short rowlen )
+						  od_uint16 rowlen )
     : strm_(out)
     , rowlen_(rowlen)
     , finished_(true)

@@ -20,14 +20,14 @@ mExpClass(Basic) ArrayNDInfo
 {
 public:
 
-    typedef short	NrDimsType;	// number of dimensions, rank
+    typedef od_int16	NrDimsType;	// number of dimensions, rank
     typedef NrDimsType	DimIdxType;
-    typedef int		SzType;		// size of a singe dimension
+    typedef od_int32	SzType;		// size of a singe dimension
     typedef SzType	IdxType;
     typedef od_int64	OffsetType;	// total size of the entire array
     typedef OffsetType	TotalSzType;
-    typedef const int*	NDSize;		// Array with sizes for each dimension
-    typedef NDSize	NDPos;
+    typedef const SzType* NDSize;	// arr with sizes for each dimension
+    typedef const IdxType* NDPos;
     typedef TypeSet<IdxType> NDPosBuf;	// to put your own ND-indexes
 
     virtual ArrayNDInfo* clone() const			= 0;

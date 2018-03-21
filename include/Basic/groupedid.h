@@ -26,7 +26,7 @@ Usually there are a lot less groups than possible objects, so the group ID can
 be represented by a short int.
 
 The most standard GroupedID class (used for o.a. DataPack IDs) is a typedef for
-IDWithGroup<short,int>.
+IDWithGroup<od_int16,int>.
 
 */
 
@@ -94,7 +94,7 @@ protected:
 };
 
 
-typedef IDWithGroup<short,int> GroupedID;
+typedef IDWithGroup<od_int16,int> GroupedID;
 
 
 
