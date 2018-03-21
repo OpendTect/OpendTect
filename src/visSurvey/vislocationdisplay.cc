@@ -66,6 +66,7 @@ LocationDisplay::LocationDisplay()
     , voiidx_(-1)
     , selectionmodel_(false)
     , ctrldown_(false)
+    , allowdoubleclick_(true)
 {
     sower_ = new Sower( this );
     addChild( sower_->osgNode() );
@@ -187,6 +188,12 @@ void LocationDisplay::showAll( bool yn )
 }
 
 
+void LocationDisplay::allowDoubleClick( bool yn )
+{
+    allowdoubleclick_ = yn;
+}
+
+
 void LocationDisplay::setOnlyAtSectionsDisplay( bool yn )
 { showAll( !yn); }
 
@@ -217,7 +224,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 
     const bool sowerenabled = set_->connection() != Pick::Set::Disp::None;
 
-    if ( eventinfo.type == visBase::MouseDoubleClick && sowerenabled )
+    if ( eventinfo.type==visBase::MouseDoubleClick && sowerenabled
+						   && allowdoubleclick_ )
 	{ set_->setConnection( Pick::Set::Disp::Close ); return; }
 
     if ( directionlocationid_.isValid() )

@@ -55,6 +55,7 @@ public:
     bool			allShown() const	{ return showall_; }
     virtual void		setOnlyAtSectionsDisplay(bool);
     virtual bool		displayedOnlyAtSections() const;
+    void			allowDoubleClick(bool yn);
 
     virtual BufferString	getManipulationString() const;
     void			getObjectInfo(BufferString&) const;
@@ -137,6 +138,7 @@ protected:
     LocID			directionlocationid_;
     LocID			movinglocationid_;
 
+    bool			allowdoubleclick_;
     TypeSet<int>		invalidpicks_;
     bool			showall_;
     int				mousepressid_;
