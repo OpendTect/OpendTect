@@ -303,18 +303,21 @@ BufferString uiObjFileMan::getFileInfo()
 	if ( iostrm->isMulti() )
 	    nrfiles = iostrm->nrFiles();
 
+	if ( !txt.isEmpty() )
+	    txt.addNewLine();
+
 	const od_int64 totsz = getFileSize( fname, nrfiles );
 	const BufferString fileszstr( File::getFileSizeString( totsz ) );
 	if ( isdir )
 	{
-	    txt.add( "\nDirectory name: " ).add( usrnm );
+	    txt.add( "Directory name: " ).add( usrnm );
 	    txt.add( "\nTotal size on disk: " ).add( fileszstr );
 	    txt.add( "\nNumber of files: " ).add( nrfiles );
 	}
 	else
 	{
 	    FilePath fp( usrnm );
-	    txt.add( "\nFile name: " ).add( fp.fileName() );
+	    txt.add( "File name: " ).add( fp.fileName() );
 	    fp.set( fname );
 	    txt.add( "\nLocation: " ).add( fp.pathOnly() );
 	    txt.add( "\nSize: " ).add( fileszstr );
@@ -323,7 +326,7 @@ BufferString uiObjFileMan::getFileInfo()
 	if ( !timestr.isEmpty() )
 	    txt.add( "\nLast modified: " ).add( timestr );
     }
-    txt.add( "\n" );
+    txt.addNewLine();
 
     BufferString crspec;
     curioobj_->pars().get( sKey::CrBy(), crspec );
