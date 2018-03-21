@@ -88,6 +88,8 @@ HilbertCalculatorTask::HilbertCalculatorTask( const Array2D<float>& in,
     , realdata_(in)
     , imagdata_(out)
     , is3d_(false)
+    , trcssampling_(0)
+    , tks_(0)
 {
     totalnr_ = realdata_.getSize( 0 );
 
