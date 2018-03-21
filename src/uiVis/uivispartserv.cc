@@ -88,6 +88,7 @@ const char* uiVisPartServer::sKeyAppVel()	{ return "AppVel"; }
 const char* uiVisPartServer::sKeyWorkArea()	{ return "Work Area"; }
 static const char* sKeyNumberScenes()		{ return "Number of Scene";}
 static const char* sKeySceneID()		{ return "Scene ID"; }
+static const char* sKeySliceSteps()		{ return "Slice Steps"; }
 static const char* sceneprefix()		{ return "Scene"; }
 
 
@@ -1427,6 +1428,10 @@ bool uiVisPartServer::displayedOnlyAtSections( int id ) const
 
 bool uiVisPartServer::usePar( const IOPar& par )
 {
+    int step0=-1, step1=-1, step2=-1;
+    par.get( sKeySliceSteps(), step0, step1, step2 );
+    slicepostools_->setSteps( step0, step1, step2 );
+
     if ( !visBase::DM().usePar( par ) )
 	return false;
 
@@ -1543,6 +1548,10 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     fms += cs.zsamp_.stop;
     par.set( sKeyWorkArea(), fms );
 
+    par.set( sKeySliceSteps(), slicepostools_->getStep(OD::InlineSlice),
+			       slicepostools_->getStep(OD::CrosslineSlice),
+			       slicepostools_->getStep(OD::ZSlice) );
+
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	IOPar scenepar;
@@ -1551,7 +1560,6 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 	scenes_[idx]->fillPar( scenepar );
 	par.mergeComp( scenepar, key.buf() );
     }
-
 }
 
 
