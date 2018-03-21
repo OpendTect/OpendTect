@@ -214,7 +214,7 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
 	    do
 	    {
 		int coeff = 1;
-		for ( ArrayND<T>::DimIdxType idx=0; idx<ndim; idx++ )
+		for ( ArrayNDInfo::DimIdxType idx=0; idx<ndim; idx++ )
 		    coeff *= Math::IntPowerOf( positer[idx], powiter[idx] );
 
 		poscoeffs.set( row, col, (T)coeff );
