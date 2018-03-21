@@ -336,6 +336,9 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 
 	bool reverse = stop[fastdim] - start[fastdim] < 0;
 	int step = geom->sampling().hsamp_.step_[fastdim];
+	StepInterval<int> slowdimrg =
+		    inlwise ? geom->sampling().hsamp_.trcRange()
+			    : geom->sampling().hsamp_.lineRange();
 	if ( reverse ) step *= -1;
 
 	for ( int idi=0; idi<nrlines; idi++ )
@@ -347,9 +350,8 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 					      (float)stop[fastdim],
 					      (float)stop[slowdim],
 					      (float)bidx );
-	    int bidy = (int)(val + .5);
+	    int bidy = slowdimrg.snap( val );
 	    BinID nextbid = inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx);
-	    geom->snap( nextbid );
 
 	    bool doadd = duplicatemode==AllDups;
 	    if ( duplicatemode == NoDups )
