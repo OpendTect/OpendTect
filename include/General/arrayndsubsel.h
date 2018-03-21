@@ -125,7 +125,7 @@ bool Array2DSubSelection<T>::isOK() const
     if ( !src_.isOK() )
 	return false;
 
-    for ( Array2D<T>::DimIdxType dim=info_.nrDims()-1; dim>=0; dim-- )
+    for ( DimIdxType dim=info_.nrDims()-1; dim>=0; dim-- )
     {
 	if ( start_[dim]<0 || start_[dim]>=src_.getSize(dim) ||
 	     info_.getSize(dim)<=0 )

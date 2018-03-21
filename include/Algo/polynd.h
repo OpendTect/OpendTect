@@ -60,8 +60,6 @@ template <class T> inline
 T PolynomialND<T>::getValue( const TypeSet<float>& pos ) const
 {
     ArrayNDIter coeffiter( coeffs.info() );
-    typedef ArrayNDIter::DimIdxType DimIdxType;
-
     const int ndim = coeffs.nrDims();
 
     T res = 0;
@@ -69,7 +67,7 @@ T PolynomialND<T>::getValue( const TypeSet<float>& pos ) const
     do
     {
 	float posproduct = 1;
-	for ( DimIdxType idx=0; idx<ndim; idx++ )
+	for ( ArrayNDInfo::DimIdxType idx=0; idx<ndim; idx++ )
 	    posproduct *= Math::IntPowerOf( pos[idx], coeffiter[idx] );
 
 	res += posproduct * coeffs.getND( coeffiter.getPos() );
@@ -198,7 +196,6 @@ template<class T>
 bool PolynomialND<T>::fit( const ArrayND<T>& input )
 {
     const int totalsz = mCast( int, input.totalSize() );
-    typedef ArrayNDIter::DimIdxType DimIdxType;
 
     if ( !solver || solver->size() != totalsz )
     {
@@ -217,7 +214,7 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
 	    do
 	    {
 		int coeff = 1;
-		for ( DimIdxType idx=0; idx<ndim; idx++ )
+		for ( ArrayND<T>::DimIdxType idx=0; idx<ndim; idx++ )
 		    coeff *= Math::IntPowerOf( positer[idx], powiter[idx] );
 
 		poscoeffs.set( row, col, (T)coeff );
