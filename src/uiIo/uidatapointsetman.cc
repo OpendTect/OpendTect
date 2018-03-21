@@ -45,7 +45,7 @@ uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
     createDefaultUI();
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "mergeseis", 
+    manipgrp->addButton( "mergeseis",
 			 uiStrings::phrMerge(uiStrings::sCrossPlot()),
 			 mCB(this,uiDataPointSetMan,mergePush) );
 
@@ -122,7 +122,7 @@ void uiDataPointSetMan::mkFileInfo()
     mGetDPS(dps);
     if ( !dps ) return;
 
-    txt += "Properties: \n";
+    txt += "\nProperties: \n";
     for ( int colnr=0; colnr<dps->nrCols(); colnr++ )
     {
 	txt += dps->colName( colnr );
