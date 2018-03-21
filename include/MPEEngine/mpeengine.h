@@ -157,6 +157,8 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
+    Notifier<Engine>		settingsChanged;
+
 protected:
     void			applClosingCB(CallBacker*);
 
