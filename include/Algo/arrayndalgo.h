@@ -2100,7 +2100,7 @@ private:
 			    hiter->next();
 			}
 
-			bool allnull = false;
+			bool allnull = true;
 			for ( auto idz=0; idz<nrtrcsp; idz++ )
 			{
 			    if ( hiter )
@@ -2125,9 +2125,8 @@ private:
 			    }
 			    else
 				topmute_.setND( hpos, idz );
-
+			    allnull = false;
 			    break;
-			    allnull = true;
 			}
 
 			if ( allnull )

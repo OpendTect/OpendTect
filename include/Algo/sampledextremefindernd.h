@@ -27,8 +27,9 @@ public:
 		    , minima_( minima )
 		    , relcube_( arr.nrDims() )
 		{
-		    const int ndim = array_.nrDims();
-		    for ( int idx=0; idx<ndim; idx++ )
+		    typedef ArrayND<T>::DimIdxType DimIdxType;
+		    const DimIdxType ndim = array_.nrDims();
+		    for ( DimIdxType idx=0; idx<ndim; idx++ )
 		    relcube_.setSize( idx, 3 );
 		}
 
@@ -154,6 +155,8 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
     bool change = true;
     bool anychange = false;
 
+    typedef ArrayNDIter::DimIdxType DimIdxType;
+
     while ( change )
     {
 	ArrayNDIter iter( relcube_ );
@@ -162,7 +165,7 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 	{
 	    bool invalid = false;
 	    bool isnull = true;
-	    for ( int idx=0; idx<ndim; idx++ )
+	    for ( DimIdxType idx=0; idx<ndim; idx++ )
 	    {
 		if ( iter[idx] ) isnull = false;
 		const int newpos = extremepos[idx]+iter[idx]-1;
