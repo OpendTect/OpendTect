@@ -95,10 +95,15 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
     if ( seldesc )
     {
 	uiMultOutSel dlg( this, *seldesc );
-	if ( dlg.doDisp() && dlg.go() )
+	if ( dlg.doDisp() )
 	{
-	    dlg.getSelectedOutputs( seloutputs );
-	    dlg.getSelectedOutNames( outdescnms_ );
+	    if ( dlg.go() )
+	    {
+		dlg.getSelectedOutputs( seloutputs );
+		dlg.getSelectedOutNames( outdescnms_ );
+	    }
+	    else
+		return 0;
 	}
     }
 
