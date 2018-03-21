@@ -712,7 +712,11 @@ int Table::AscIO::getNextBodyVals( od_istream& strm ) const
     {
 	if ( !getHdrVals(strm) )
 	{
+	    uiString prevmsg = errmsg_;
 	    errmsg_ = uiStrings::phrCannotRead(tr("file header" ));
+	    if ( !prevmsg.isEmpty() )
+		errmsg_.append( prevmsg, true );
+
 	    return -1;
 	}
     }
