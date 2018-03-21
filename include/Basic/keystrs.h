@@ -109,6 +109,7 @@ namespace sKey
     inline FixedString Scale()		{ return "Scale"; }
     inline FixedString SeisID()		{ return "SeisID"; }
     inline FixedString Selection()	{ return "Selection"; }
+    inline FixedString SelectionStatus(){ return "Selection status"; }
     inline FixedString Series()		{ return "Series"; }
     inline FixedString Setup()		{ return "Setup"; }
     inline FixedString Subsample()	{ return "Subsample"; }
@@ -146,7 +147,9 @@ namespace sKey
     inline FixedString Weight()		{ return "Weight"; }
     inline FixedString Well()		{ return "Well"; }
     inline FixedString XCoord()		{ return "X-Coord"; }
+    inline FixedString XOffset()	{ return "X Offset"; }
     inline FixedString YCoord()		{ return "Y-Coord"; }
+    inline FixedString YOffset()	{ return "Y Offset"; }
     inline FixedString Yes()		{ return "Yes"; }
     inline FixedString ZCoord()		{ return "Z-Coord"; }
     inline FixedString ZRange()		{ return "Z range"; }
@@ -189,7 +192,5 @@ namespace sKey
     inline FixedString StrFtPolygon()   { return "FaultPolygons"; }
 
 };
-
-
 
 #endif
