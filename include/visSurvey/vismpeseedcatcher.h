@@ -56,6 +56,7 @@ public:
     const Coord3&		getPos() const;
     int				getObjID() const;
     const DBKey&		getEMObjID() const; // avail when clicked on hor
+    int				getEMVisID() const; // avail when clicked on hor
     const TrcKeyZSampling&	getObjCS() const;
     const TrcKeyPath*		getObjTKPath() const;
     int				getObjRandomLineID() const;
@@ -63,7 +64,7 @@ public:
     const RegularSeisDataPack*	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
 
-    Pos::GeomID		getGeomID() const;
+    Pos::GeomID			getGeomID() const;
     const char*			getObjLineName() const;
     const Attrib::Data2DHolder*	getObjLineData() const;
 
@@ -79,6 +80,7 @@ protected:
     void			setNode(const TrcKey&);
     void			setPos(const Coord3&);
     void			setEMObjID(const DBKey&);
+    void			setEMVisID(int);
     void			setObjID(int);
     void			setObjCS(const TrcKeyZSampling&);
     void			setObjTKPath(const TrcKeyPath*);
@@ -102,15 +104,16 @@ protected:
     Coord3				clickedpos_;
 
     DBKey				clickedemobjid_;
+    int					clickedemvisid_;
     int					clickedobjid_;
     TrcKeyZSampling			clickedcs_;
     const RegularSeisDataPack*		attrdata_;
+    Attrib::SelSpec			attrsel_;
     const TrcKeyPath*			rdltkpath_;
     int					rdlid_;
-    Attrib::SelSpec			attrsel_;
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
-    Pos::GeomID			geomid_;
+    Pos::GeomID				geomid_;
     BufferString			linename_;
     DataPack::ID			datapackid_;
 };

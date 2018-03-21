@@ -221,6 +221,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( hor2ddisp )
 	{
 	    info().setEMObjID( hor2ddisp->getObjectID() );
+	    info().setEMVisID( hor2ddisp->id() );
 	    sendUnderlying2DSeis( hor2ddisp, eventinfo );
 	    click.trigger();
 	    eventcatcher_->setHandled();
@@ -231,6 +232,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( emod )
 	{
 	    info().setEMObjID( emod->getObjectID() );
+	    info().setEMVisID( emod->id() );
 	    sendUnderlyingPlanes( emod, eventinfo );
 	    click.trigger();
 	    eventcatcher_->setHandled();
@@ -490,7 +492,6 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    info().setObjDataPackID( datapackid );
 	    info().setObjDataSelSpec( *pdd->getSelSpec(attrib) );
 	    allowPickBasedReselection();
-	    click.trigger();
 	}
     }
 
@@ -524,8 +525,6 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	info().setObjRandomLineID( rtd->getRandomLineID() );
 	info().setObjDataPackID( datapackid );
 	info().setObjDataSelSpec( *rtd->getSelSpec(attrib) );
-
-	click.trigger();
     }
 }
 
@@ -569,6 +568,7 @@ void MPEClickCatcher::sowingEndCB( CallBacker* )
 {
     endSowing.trigger();
 }
+
 
 bool MPEClickCatcher::sequentSowing() const
 { return editor_ && editor_->sower().mode()==Sower::SequentSowing; }
@@ -637,6 +637,10 @@ const DBKey& MPEClickInfo::getEMObjID() const
 { return clickedemobjid_; }
 
 
+int MPEClickInfo::getEMVisID() const
+{ return clickedemvisid_; }
+
+
 const TrcKeyZSampling& MPEClickInfo::getObjCS() const
 { return clickedcs_; }
 
@@ -680,6 +684,7 @@ void MPEClickInfo::clear()
     clickedpos_ = Coord3::udf();
     clickedobjid_ = -1;
     clickedemobjid_ = DBKey::getInvalid();
+    clickedemvisid_ = -1;
     clickedcs_.init( false);
     attrsel_ = 0;
     attrdata_ = 0;
@@ -732,6 +737,10 @@ void MPEClickInfo::setEMObjID( const DBKey& emobjid )
 { clickedemobjid_ = emobjid; }
 
 
+void MPEClickInfo::setEMVisID( int visid )
+{ clickedemvisid_ = visid; }
+
+
 void MPEClickInfo::setObjCS( const TrcKeyZSampling& cs )
 { clickedcs_ = cs; }
 
@@ -770,6 +779,5 @@ void MPEClickInfo::setObjRandomLineID( int rdlid )
 
 int MPEClickInfo::getObjRandomLineID() const
 { return rdlid_; }
-
 
 } // namespce visSurvey

@@ -180,6 +180,9 @@ static const int sSaveAs = 16;
 static const int sAtSect = 17;
 static const int sFull = 18;
 static const int sSett = 19;
+static const int sAutoMode = 20;
+static const int sManMode = 21;
+static const int sSnapMode = 22;
 
 
 void uiMPEMan::keyEventCB( CallBacker* )
@@ -221,11 +224,17 @@ void uiMPEMan::keyEventCB( CallBacker* )
 	action = sLock;
     else if ( kev.key_ == OD::KB_U )
 	action = sUnlock;
-    else if ( kev.key_ == OD::KB_S && OD::ctrlKeyboardButton(kev.modifier_) )
-	action = sSave;
     else if ( kev.key_ == OD::KB_S && OD::ctrlKeyboardButton(kev.modifier_)
 				&& OD::shiftKeyboardButton(kev.modifier_) )
 	action = sSaveAs;
+    else if ( kev.key_ == OD::KB_S && OD::ctrlKeyboardButton(kev.modifier_) )
+	action = sSave;
+    else if ( kev.key_ == OD::KB_T )
+	action = sAutoMode;
+    else if ( kev.key_ == OD::KB_M )
+	action = sManMode;
+    else if ( kev.key_ == OD::KB_S )
+	action = sSnapMode;
 
     if ( action != -1 )
 	handleAction( action );
@@ -365,6 +374,9 @@ void uiMPEMan::handleAction( int res )
     case sAtSect: emod->setOnlyAtSectionsDisplay( true ); break;
     case sFull: emod->setOnlyAtSectionsDisplay( false ); break;
     case sSett: showSetupDlg(); break;
+    case sAutoMode:
+    case sManMode:
+    case sSnapMode: changeMode(res);
     default:
 	break;
     }
@@ -502,7 +514,8 @@ void uiMPEMan::seedClick( CallBacker* )
     const bool clickedonhorizon = clickedhor;
     if ( clickedhor && clickedhor!=hor )
     {
-	visBase::DM().selMan().select( clickedobject );
+	const int emvisid = clickcatcher_->info().getEMVisID();
+	visBase::DM().selMan().select( emvisid >= 0 ? emvisid : clickedobject );
 	mSeedClickReturn();
     }
 
@@ -859,6 +872,24 @@ void uiMPEMan::showParentsPath()
 
 void uiMPEMan::showSetupDlg()
 { visserv_->sendVisEvent( uiVisPartServer::evShowMPESetupDlg() ); }
+
+
+void uiMPEMan::changeMode( int mode )
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( !seedpicker )
+	return;
+
+    if ( mode==sAutoMode )
+	seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
+    else if ( mode==sManMode )
+	seedpicker->setTrackMode( MPE::EMSeedPicker::DrawBetweenSeeds );
+    else if ( mode==sSnapMode )
+	seedpicker->setTrackMode( MPE::EMSeedPicker::DrawAndSnap );
+
+    MPE::engine().settingsChanged.trigger();
+}
 
 
 bool uiMPEMan::isSeedPickingOn() const
