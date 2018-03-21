@@ -95,6 +95,26 @@ void uiSlicePos::initSteps( CallBacker* )
 }
 
 
+int uiSlicePos::getStep( SliceDir dir ) const
+{
+    return laststeps_[ (int)dir ];
+}
+
+
+void uiSlicePos::setStep( SliceDir dir, int step )
+{
+    laststeps_[ (int)dir ] = step;
+}
+
+
+void uiSlicePos::setSteps( int inl, int crl, int z )
+{
+    laststeps_[0] = inl>0 ? inl : SI().inlStep();
+    laststeps_[1] = crl>0 ? crl : SI().crlStep();
+    laststeps_[2] = z>0 ? z : mNINT32( SI().zStep()*zfactor_ );
+}
+
+
 void uiSlicePos::setLabels( const uiString& inl, const uiString& crl,
 			    const uiString& z )
 {

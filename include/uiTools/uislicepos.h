@@ -36,6 +36,9 @@ public:
 
     void		setLabels(const uiString& inl,const uiString& crl,
 							    const uiString& z);
+    int			getStep(SliceDir) const;
+    void		setStep(SliceDir,int step);
+    void		setSteps(int inl,int crl,int z);
 
     Notifier<uiSlicePos> positionChg;
 
