@@ -584,31 +584,30 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
     if ( !ascostrm.putHeader(sKeyFileType()) )
 	return false;
 
-    PosInfo::CubeData cubedata;
     Interval<IdxType> globinlidxrg, globcrlidxrg;
     Interval<double> xrg, yrg;
-    scanPositions( cubedata, globinlidxrg, globcrlidxrg, xrg, yrg );
+    scanPositions( globinlidxrg, globcrlidxrg, xrg, yrg );
+		    // also fills cubedata_
 
-    IOPar iop( sKeyGenSection() );
-    iop.set( sKeyFmtVersion(), version_ );
-    iop.set( sKeySurveyName(), SI().name() );
-    iop.set( sKeyCubeName(), cubename_ );
-    DataCharacteristics::putUserTypeToPar( iop, datarep_ );
+    gensectioniop_.set( sKeyFmtVersion(), version_ );
+    gensectioniop_.set( sKeySurveyName(), SI().name() );
+    gensectioniop_.set( sKeyCubeName(), cubename_ );
+    DataCharacteristics::putUserTypeToPar( gensectioniop_, datarep_ );
     if ( scaler_ )
     {
 	// write the scaler needed to reconstruct the org values
 	LinScaler* invscaler = scaler_->inverse();
-	invscaler->put( iop );
+	invscaler->put( gensectioniop_ );
 	delete invscaler;
     }
-    iop.set( sKey::XRange(), xrg );
-    iop.set( sKey::YRange(), yrg );
-    iop.set( sKey::InlRange(), finalinlrg_ );
-    iop.set( sKey::CrlRange(), finalcrlrg_ );
-    iop.set( sKey::ZRange(), zgeom_ );
-    hgeom_.zDomain().set( iop );
+    gensectioniop_.set( sKey::XRange(), xrg );
+    gensectioniop_.set( sKey::YRange(), yrg );
+    gensectioniop_.set( sKey::InlRange(), finalinlrg_ );
+    gensectioniop_.set( sKey::CrlRange(), finalcrlrg_ );
+    gensectioniop_.set( sKey::ZRange(), zgeom_ );
+    hgeom_.zDomain().set( gensectioniop_ );
     if ( hgeom_.zDomain().isDepth() && SI().zInFeet() )
-	iop.setYN( sKeyDepthInFeet(), true );
+	gensectioniop_.setYN( sKeyDepthInFeet(), true );
 
     FileMultiString fms;
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
@@ -620,21 +619,20 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
 	    nm.set( "Component " ).add( icomp+1 );
 	fms += nm;
     }
-    iop.set( sKeyComponents(), fms );
+    gensectioniop_.set( sKeyComponents(), fms );
     if ( datatype_ != UnknownData )
-	iop.set( sKeyDataType(), nameOf(datatype_) );
+	gensectioniop_.set( sKeyDataType(), nameOf(datatype_) );
 
-    hgeom_.putMapInfo( iop );
-    iop.set( sKeyDimensions(), dims_.inl(), dims_.crl(), dims_.z() );
-    iop.set( sKeyGlobInlRg(), globinlidxrg );
-    iop.set( sKeyGlobCrlRg(), globcrlidxrg );
+    hgeom_.putMapInfo( gensectioniop_ );
+    gensectioniop_.set( sKeyDimensions(), dims_.inl(), dims_.crl(), dims_.z() );
+    gensectioniop_.set( sKeyGlobInlRg(), globinlidxrg );
+    gensectioniop_.set( sKeyGlobCrlRg(), globcrlidxrg );
 
-    iop.putTo( ascostrm );
+    gensectioniop_.putTo( ascostrm );
     if ( !strm.isOK() )
 	return false;
 
     Pos::IdxPairDataSet::SPos spos;
-    IOPar offsiop( sKeyOffSection() );
     while ( columns_.next(spos) )
     {
 	const MemBlockColumn& column = *(MemBlockColumn*)columns_.getObj(spos);
@@ -643,10 +641,12 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
 	    const HGlobIdx& gidx = column.globIdx();
 	    BufferString ky;
 	    ky.add( gidx.inl() ).add( '.' ).add( gidx.crl() );
-	    offsiop.add( ky, column.fileid_ );
+	    fileidsectioniop_.add( ky, column.fileid_ );
 	}
     }
-    offsiop.putTo( ascostrm );
+    fileidsectioniop_.setName( usehdf_ ? sKeyFileIDSection()
+				       : sKeyOffSection() );
+    fileidsectioniop_.putTo( ascostrm );
     if ( !strm.isOK() )
 	return false;
 
@@ -658,7 +658,7 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
     }
 
     strm << sKeyPosSection() << od_endl;
-    return cubedata.write( strm, true );
+    return cubedata_.write( strm, true );
 }
 
 
@@ -823,7 +823,7 @@ void Seis::Blocks::Writer::writeLevelSummary( od_ostream& strm,
 }
 
 
-void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
+void Seis::Blocks::Writer::scanPositions(
 	Interval<IdxType>& globinlrg, Interval<IdxType>& globcrlrg,
 	Interval<double>& xrg, Interval<double>& yrg )
 {
@@ -881,7 +881,7 @@ void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
 	first = false;
     }
 
-    PosInfo::CubeDataFiller cdf( cubedata );
+    PosInfo::CubeDataFiller cdf( cubedata_ );
     spos.reset();
     while ( sortedpositions.next(spos) )
     {
@@ -963,8 +963,9 @@ virtual int nextStep()
 
 int wrapUp()
 {
-    delete wrr_.backend_; wrr_.backend_ = 0;
     wrr_.writeInfoFiles( uirv_ );
+    wrr_.backend_->close( uirv_ );
+    delete wrr_.backend_; wrr_.backend_ = 0;
     wrr_.isfinished_ = true;
     return uirv_.isOK() ? Finished() : ErrorOccurred();
 }
@@ -982,8 +983,5 @@ int wrapUp()
 
 Task* Seis::Blocks::Writer::finisher()
 {
-    WriterFinisher* wf = new WriterFinisher( *this );
-    if ( wf->towrite_.isEmpty() )
-	{ delete wf; wf = 0; }
-    return wf;
+    return new WriterFinisher( *this );
 }

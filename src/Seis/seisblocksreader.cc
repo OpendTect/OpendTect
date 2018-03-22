@@ -33,7 +33,6 @@ ________________________________________________________________________
     , backend_(0) \
     , scaler_(0) \
     , interp_(0) \
-    , cubedata_(*new PosInfo::CubeData) \
     , curcdpos_(*new PosInfo::CubeDataPos) \
     , seldata_(0) \
     , nrcomponentsintrace_(0) \
@@ -88,7 +87,6 @@ Seis::Blocks::Reader::~Reader()
 {
     closeBackEnd();
     delete seldata_;
-    delete &cubedata_;
     delete &curcdpos_;
     delete &fileidtbl_;
 }
@@ -165,7 +163,7 @@ void Seis::Blocks::Reader::readInfoFile( od_istream& strm )
 	    failed = !getGeneralSectionData( iop );
 	    havegensection = true;
 	}
-	else if ( sectnm == sKeyOffSection() )
+	else if ( sectnm == sKeyOffSection() || sectnm == sKeyFileIDSection() )
 	{
 	    IOPar iop;
 	    iop.getFrom( astrm );

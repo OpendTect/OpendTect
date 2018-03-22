@@ -381,19 +381,29 @@ void PosInfo::CubeData::copyContents( const PosInfo::CubeData& cd )
 }
 
 
+int PosInfo::CubeData::totalNrSegments() const
+{
+    int nrseg = 0;
+    for ( int idx=0; idx<size(); idx++ )
+	nrseg += (*this)[idx]->segments_.size();
+
+    return nrseg;
+}
+
+
 int PosInfo::CubeData::totalSize() const
 {
-    int totalsize = 0;
+    int nrpos = 0;
     for ( int idx=0; idx<size(); idx++ )
-	totalsize += (*this)[idx]->size();
+	nrpos += (*this)[idx]->size();
 
-    return totalsize;
+    return nrpos;
 }
 
 
 int PosInfo::CubeData::totalSizeInside( const TrcKeySampling& hrg ) const
 {
-    int totalsize = 0;
+    int nrpos = 0;
     for ( int idx=0; idx<size(); idx++ )
     {
 	const PosInfo::LineData* linedata = (*this)[idx];
@@ -408,12 +418,12 @@ int PosInfo::CubeData::totalSizeInside( const TrcKeySampling& hrg ) const
 	    for ( int crl=segment.start; crl<=segment.stop; crl+=segment.step )
 	    {
 		if ( hrg.crlOK(crl) )
-		    totalsize ++;
+		    nrpos ++;
 	    }
 	}
     }
 
-    return totalsize;
+    return nrpos;
 }
 
 

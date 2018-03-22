@@ -736,10 +736,11 @@ template <class fT>
 inline bool hasUndefs( const ArrayND<fT>& in )
 {
     const fT* vals = in.getData();
-    const auto sz = in.totalSize();
+    typedef ArrayNDInfo::TotalSzType TotalSzType;
+    const TotalSzType sz = in.totalSize();
     if ( vals )
     {
-	for ( auto idx=0; idx<sz; idx++ )
+	for ( TotalSzType idx=0; idx<sz; idx++ )
 	{
 	    if ( mIsUdf(vals[idx]) )
 		return true;
@@ -751,7 +752,7 @@ inline bool hasUndefs( const ArrayND<fT>& in )
     const ValueSeries<fT>* stor = in.getStorage();
     if ( stor )
     {
-	for ( auto idx=0; idx<sz; idx++ )
+	for ( TotalSzType idx=0; idx<sz; idx++ )
 	{
 	    if ( mIsUdf(stor->value(idx)) )
 		return true;
@@ -790,15 +791,16 @@ inline bool interpUdf( Array1D<fT>& in,
 	return false;
 
     BendPointBasedMathFunction<fT,fT> data( ipoltyp );
-    const auto sz = in.getSize( 0 );
-    for ( auto idx=0; idx<sz; idx++ )
+    typedef ArrayNDInfo::IdxType IdxType;
+    const IdxType sz = in.getSize( 0 );
+    for ( IdxType idx=0; idx<sz; idx++ )
     {
 	const fT val = in.get( idx );
 	if ( !mIsUdf(val) )
 	    data.add( mCast(fT,idx), val );
     }
 
-    for ( auto idx=0; idx<sz; idx++ )
+    for ( IdxType idx=0; idx<sz; idx++ )
     {
 	const fT val = in.get( idx );
 	if ( mIsUdf(val) )
@@ -856,13 +858,13 @@ public:
 	if ( in->info() != arrinfo_ )
 	    return false;
 
-	const auto totalsz = arrinfo_.totalSize();
+	const TotalSzType totalsz = arrinfo_.totalSize();
 
 	Type* indata = in->getData();
 	Type* outdata = out->getData();
 	if ( indata && outdata )
 	{
-	    for ( auto idx=0; idx<totalsz; idx++ )
+	    for ( TotalSzType idx=0; idx<totalsz; idx++ )
 	    {
 		Type inval = indata[idx];
 		outdata[idx] = mIsUdf( inval ) ? inval : inval * window_[idx];
@@ -875,10 +877,10 @@ public:
 
 	    if ( instorage && outstorage )
 	    {
-		for ( auto idx=0; idx<totalsz; idx++ )
+		for ( TotalSzType idx=0; idx<totalsz; idx++ )
 		{
-		    Type inval = instorage->value(idx);
-		    outstorage->setValue(idx,
+		    Type inval = instorage->value( idx );
+		    outstorage->setValue( idx,
 			    mIsUdf( inval ) ? inval : inval * window_[idx] );
 		}
 	    }
@@ -1101,7 +1103,7 @@ inline bool ArrayNDCopyPeriodic( ArrayND<T>& dest, const ArrayND<T>& src,
 
     do
     {
-	for ( auto idx=0; idx<ndim; idx++ )
+	for ( ArrayNDInfo::DimIdxType idx=0; idx<ndim; idx++ )
 	    srcposition[idx] = dePeriodize( copypos[idx] + destiter[idx],
 					    srcsz.getSize(idx) );
 	dest.setND( destiter.getPos(), src.get( srcposition ));
@@ -1119,13 +1121,14 @@ inline bool Array3DCopyPeriodic( Array3D<T>& dest, const Array3D<T>& src,
     if ( src.isEmpty() )
 	return true;
 
-    const auto destsz0 = dest.getSize( 0 );
-    const auto destsz1 = dest.getSize( 1 );
-    const auto destsz2 = dest.getSize( 2 );
-
-    const auto srcsz0 = src.getSize( 0 );
-    const auto srcsz1 = src.getSize( 1 );
-    const auto srcsz2 = src.getSize( 2 );
+    typedef ArrayNDInfo::SzType SzType;
+    typedef ArrayNDInfo::IdxType IdxType;
+    const SzType destsz0 = dest.getSize( 0 );
+    const SzType destsz1 = dest.getSize( 1 );
+    const SzType destsz2 = dest.getSize( 2 );
+    const SzType srcsz0 = src.getSize( 0 );
+    const SzType srcsz1 = src.getSize( 1 );
+    const SzType srcsz2 = src.getSize( 2 );
 
     T* ptr = dest.getData();
     if ( !ptr )
@@ -1140,11 +1143,11 @@ inline bool Array3DCopyPeriodic( Array3D<T>& dest, const Array3D<T>& src,
 	} while ( it.next() );
     }
 
-    for ( auto id0=0; id0<destsz0; id0++ )
+    for ( IdxType id0=0; id0<destsz0; id0++ )
     {
-	for ( auto id1=0; id1<destsz1; id1++ )
+	for ( IdxType id1=0; id1<destsz1; id1++ )
 	{
-	    for ( auto id2=0; id2<destsz2; id2++ )
+	    for ( IdxType id2=0; id2<destsz2; id2++ )
 	    {
 		*ptr = src.get( dePeriodize( id0+p0, srcsz0 ),
 				dePeriodize( id1+p1, srcsz1 ),
@@ -1206,20 +1209,21 @@ inline bool Array2DPaste( Array2D<T>& dest, const Array2D<T>& src,
 	ArrayNDPaste( dest, src, mNDPosFromPosBuf(posbuf), destperiodic );
     }
 
-    const auto srcsz0 = src.getSize( 0 );
-    const auto srcsz1 = src.getSize( 1 );
-
-    const auto destsz0 = dest.getSize( 0 );
-    const auto destsz1 = dest.getSize( 1 );
+    typedef ArrayNDInfo::SzType SzType;
+    typedef ArrayNDInfo::IdxType IdxType;
+    const SzType srcsz0 = src.getSize( 0 );
+    const SzType srcsz1 = src.getSize( 1 );
+    const SzType destsz0 = dest.getSize( 0 );
+    const SzType destsz1 = dest.getSize( 1 );
 
     if ( !destperiodic
       && ( p0 + srcsz0 > destsz0
 	|| p1 + srcsz1 > destsz1 ) )
 	 return false;
 
-    for ( auto id0=0; id0<srcsz0; id0++ )
+    for ( IdxType id0=0; id0<srcsz0; id0++ )
     {
-	for ( auto id1=0; id1<srcsz1; id1++ )
+	for ( IdxType id1=0; id1<srcsz1; id1++ )
 	{
 	    dest.set( dePeriodize(id0 + p0,destsz0),
 		      dePeriodize(id1 + p1,destsz1), *ptr );
@@ -1244,13 +1248,14 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 	ArrayNDPaste( dest, src, mNDPosFromPosBuf(posbuf), destperiodic );
     }
 
-    const auto srcsz0 = src.getSize( 0 );
-    const auto srcsz1 = src.getSize( 1 );
-    const auto srcsz2 = src.getSize( 2 );
-
-    const auto destsz0 = dest.getSize( 0 );
-    const auto destsz1 = dest.getSize( 1 );
-    const auto destsz2 = dest.getSize( 2 );
+    typedef ArrayNDInfo::SzType SzType;
+    typedef ArrayNDInfo::IdxType IdxType;
+    const SzType srcsz0 = src.getSize( 0 );
+    const SzType srcsz1 = src.getSize( 1 );
+    const SzType srcsz2 = src.getSize( 2 );
+    const SzType destsz0 = dest.getSize( 0 );
+    const SzType destsz1 = dest.getSize( 1 );
+    const SzType destsz2 = dest.getSize( 2 );
 
     if ( !destperiodic
       && ( p0 + srcsz0 > destsz0
@@ -1258,11 +1263,11 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 	|| p2 + srcsz2 > destsz2 ) )
 	 return false;
 
-    for ( auto id0=0; id0<srcsz0; id0++ )
+    for ( IdxType id0=0; id0<srcsz0; id0++ )
     {
-	for ( auto id1=0; id1<srcsz1; id1++ )
+	for ( IdxType id1=0; id1<srcsz1; id1++ )
 	{
-	    for ( auto id2=0; id2<srcsz2; id2++ )
+	    for ( IdxType id2=0; id2<srcsz2; id2++ )
 	    {
 		dest.set( dePeriodize( id0+p0, destsz0 ),
 			  dePeriodize( id1+p1, destsz1 ),
@@ -1610,7 +1615,7 @@ bool PolyTrend::set( const TypeSet<Coord>& poslist, const IDXABLE& vals )
     f0_ = f1_ = f2_ = f11_ = f12_ = f22_ = posc_.x_ = posc_.y_ = 0.;
     TypeSet<Coord> posnoudf;
     TypeSet<double> valsnoudf;
-    for ( auto idx=0; idx<sz; idx++ )
+    for ( int idx=0; idx<sz; idx++ )
     {
 	if ( !poslist[idx].isDefined() || mIsUdf(vals[idx]) )
 	    continue;
@@ -1801,12 +1806,12 @@ private:
 			    }
 			    else if ( hasstorage )
 			    {
-				for ( auto idz=0; idz<nrtrcsp; idz++ )
+				for ( int idz=0; idz<nrtrcsp; idz++ )
 				    datastor->setValue( validx++, replval );
 			    }
 			    else
 			    {
-				for ( auto idz=0; idz<nrtrcsp; idz++ )
+				for ( int idz=0; idz<nrtrcsp; idz++ )
 				{
 				    inp_.setND( iter->getPos(), replval );
 				    iter->next();
@@ -1950,14 +1955,14 @@ private:
 			}
 			else if ( hasstorage )
 			{
-			    for ( auto idz=0; idz<nrtrcsp; idz++ )
+			    for ( int idz=0; idz<nrtrcsp; idz++ )
 				outstor->setValue( validx++, mUdf(T) );
 			}
 			else
 			{
 			    const int inlidx = (*hiter)[0];
 			    const int crlidx = (*hiter)[1];
-			    for ( auto idz=0; idz<nrtrcsp; idz++ )
+			    for ( int idz=0; idz<nrtrcsp; idz++ )
 				outp_.set( inlidx, crlidx, idz, mUdf(T) );
 			}
 		    }
@@ -2072,6 +2077,7 @@ private:
 
 		    const T zeroval = mCast(T,0);
 		    mDefNDPosBuf( pos, ndim );
+		    typedef ArrayNDInfo::DimIdxType DimIdxType;
 
 		    for ( auto idx=start; idx<=stop; idx++,
 						     quickAddToNrDone(idx) )
@@ -2095,13 +2101,13 @@ private:
 			ArrayNDInfo::NDPos hpos = hiter ? hiter->getPos() : 0;
 			if ( hiter )
 			{
-			    for ( auto ipos=0; ipos<ndim; ipos++ )
+			    for ( DimIdxType ipos=0; ipos<ndim; ipos++ )
 				pos[ipos] = hpos[ipos];
 			    hiter->next();
 			}
 
 			bool allnull = true;
-			for ( auto idz=0; idz<nrtrcsp; idz++ )
+			for ( int idz=0; idz<nrtrcsp; idz++ )
 			{
 			    if ( hiter )
 				pos[zidx] = idz;
@@ -2150,7 +2156,7 @@ private:
 			    continue;
 			}
 
-			for ( auto idz=nrtrcsp-1; idz>=0; idz-- )
+			for ( int idz=nrtrcsp-1; idz>=0; idz-- )
 			{
 			    if ( hiter )
 				pos[zidx] = idz;

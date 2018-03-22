@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "zdomain.h"
 #include "threadlock.h"
+#include "iopar.h"
 
 class DataBuffer;
 class LinScaler;
@@ -206,6 +207,7 @@ public:
     static const char*	sKeySectionPre()  { return "Section-"; }
     static const char*	sKeyGenSection()  { return "Section-General"; }
     static const char*	sKeyOffSection()  { return "Section-Offsets"; }
+    static const char*	sKeyFileIDSection()  { return "Section-FileIDs"; }
     static const char*	sKeyPosSection()  { return "Section-Positions"; }
     static const char*	sKeySurveyName()  { return "Name.Survey"; }
     static const char*	sKeyCubeName()	  { return "Name.Cube"; }
@@ -236,7 +238,10 @@ protected:
     BufferStringSet	compnms_;
     LinScaler*		scaler_;
     OD::DataRepType	datarep_;
+    IOPar		gensectioniop_;
+    IOPar		fileidsectioniop_;
     ObjectSet<IOPar>	auxiops_;
+    PosInfo::CubeData&	cubedata_;
     DataType		datatype_;
     mutable bool	needreset_;
     mutable bool	usehdf_;

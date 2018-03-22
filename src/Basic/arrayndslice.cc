@@ -148,6 +148,6 @@ void ArrayNDSliceBase::getSourcePos( NDPos localpos,
 
     OD::memCopy( arraypos, position_.arr(), ndim*sizeof(IdxType) );
 
-    for ( auto idx=0; idx<nrowndims; idx++ )
+    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
 	arraypos[vardim_[idx]] = localpos[idx];
 }

@@ -83,7 +83,6 @@ protected:
     LinScaler*		scaler_;
     DataInterp*		interp_;
     FileIDTable&	fileidtbl_;
-    CubeData&		cubedata_;
     CubeDataPos&	curcdpos_;
     BufferString	survname_;
     bool		depthinfeet_;
@@ -130,6 +129,7 @@ public:
     virtual Column*	createColumn(const HGlobIdx&,uiRetVal&)		= 0;
     virtual void	fillTrace(Column&,const BinID&,
 				  SeisTrc&,uiRetVal&) const		= 0;
+    virtual void	close()						= 0;
 
     Reader&		rdr_;
 

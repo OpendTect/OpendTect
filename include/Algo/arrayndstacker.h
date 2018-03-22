@@ -83,7 +83,7 @@ bool doPrepare( int nrthreads )
 	else
 	{
 	    ArrayNDInfoImpl info( nrdims );
-	    for ( auto iarr=0; iarr<inps_.size(); iarr++ )
+	    for ( int iarr=0; iarr<inps_.size(); iarr++ )
 	    {
 		const ArrT* inparr = inps_[iarr];
 		for ( DimIdxType idim=0; idim<nrdims; idim++ )
@@ -120,7 +120,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	out_.info().getArrayPos( idx, ndpos );
 
 	int count = 0;
-	for ( auto iarr=0; iarr<inps_.size(); iarr++ )
+	for ( int iarr=0; iarr<inps_.size(); iarr++ )
 	{
 	    const ArrT* inparr = inps_[iarr];
 	    if ( inparr->validPos(ndpos) )

@@ -10,10 +10,11 @@ ________________________________________________________________________
 
 #include "seisblocksbackend.h"
 #include "seismemblocks.h"
+#include "hdf5arraynd.h"
 #include "od_iostream.h"
 #include "uistrings.h"
-#include "hdf5reader.h"
-#include "hdf5writer.h"
+#include "posinfo.h"
+#include "keystrs.h"
 
 
 Seis::Blocks::HDF5WriteBackEnd::HDF5WriteBackEnd( Writer& wrr, uiRetVal& uirv )
@@ -30,8 +31,56 @@ Seis::Blocks::HDF5WriteBackEnd::HDF5WriteBackEnd( Writer& wrr, uiRetVal& uirv )
 
 Seis::Blocks::HDF5WriteBackEnd::~HDF5WriteBackEnd()
 {
-    pErrMsg( "TODO impl add file-level info before close" );
+    if ( hdfwrr_ )
+    {
+	pErrMsg( "need an explicit close()" );
+	uiRetVal uirv;
+	close( uirv );
+    }
+}
+
+
+void Seis::Blocks::HDF5WriteBackEnd::close( uiRetVal& uirv )
+{
+    if ( !hdfwrr_ )
+	return;
+
+    writeGlobalInfo( uirv );
+
     delete hdfwrr_;
+    hdfwrr_ = 0;
+}
+
+
+void Seis::Blocks::HDF5WriteBackEnd::writeGlobalInfo( uiRetVal& uirv )
+{
+    HDF5::DataSetKey dsky;
+    uirv = hdfwrr_->putInfo( dsky, wrr_.gensectioniop_ );
+    if ( !uirv.isOK() )
+	return;
+
+    const int nrsegs = wrr_.cubedata_.totalNrSegments();
+    if ( nrsegs > 0 )
+    {
+	dsky.setDataSetName( sKey::SeisCubePositions() );
+	Array2DImpl<int> arr( 4, nrsegs );
+	int segnr = 0;
+	for ( int iln=0; iln<wrr_.cubedata_.size(); iln++ )
+	{
+	    const PosInfo::LineData& ld = *wrr_.cubedata_[iln];
+	    for ( int iseg=0; iseg<ld.segments_.size(); iln++ )
+	    {
+		const PosInfo::LineData::Segment& seg = ld.segments_[iseg];
+		arr.set( 0, segnr, ld.linenr_ );
+		arr.set( 1, segnr, seg.start );
+		arr.set( 2, segnr, seg.stop );
+		arr.set( 3, segnr, seg.step );
+		segnr++;
+	    }
+	}
+	HDF5::ArrayNDTool<int> arrtool( arr );
+	uirv = arrtool.putData( *hdfwrr_, dsky );
+    }
 }
 
 
@@ -68,6 +117,13 @@ Seis::Blocks::HDF5ReadBackEnd::HDF5ReadBackEnd( Reader& rdr, const char* fnm,
 Seis::Blocks::HDF5ReadBackEnd::~HDF5ReadBackEnd()
 {
     delete hdfrdr_;
+}
+
+
+void Seis::Blocks::HDF5ReadBackEnd::close()
+{
+    delete hdfrdr_;
+    hdfrdr_ = 0;
 }
 
 

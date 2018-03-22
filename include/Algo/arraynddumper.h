@@ -67,7 +67,7 @@ void ArrayNDDumper<T>::setOneLinePerSlowestDim()
 	{ nlafter_ = 0; return; }
 
     nlafter_ = 1;
-    for ( auto idim=1; idim<nrdims; idim++ )
+    for ( DimIdxType idim=1; idim<nrdims; idim++ )
 	nlafter_ *= inp_.getSize( idim );
 }
 
@@ -86,7 +86,7 @@ void ArrayNDDumper<T>::dump( od_ostream& strm ) const
 	NDPos pos = it.getPos();
 	if ( withpos_ && nrthisline == 0 )
 	{
-	    for ( auto idim=0; idim<nrdims; idim++ )
+	    for ( DimIdxType idim=0; idim<nrdims; idim++ )
 		strm.add( pos[idim] ).add( od_tab );
 
 	}

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "uistring.h"
 #include "ranges.h"
+#include "iopar.h"
 class od_ostream;
 class ascostream;
 class Task;
@@ -84,6 +85,7 @@ protected:
     bool		isfinished_;
     DataInterp*		interp_;
     WriteBackEnd*	backend_;
+    IOPar		infoiop_;
 
     IdxType		nrglobzidxs_;
     ObjectSet<ZEvalPosSet> zevalpositions_;
@@ -107,9 +109,8 @@ protected:
 				const Array2D<float>&) const;
     void		writeLevelSummary(od_ostream&,
 				const Array2D<float>&,int_pair) const;
-    void		scanPositions(PosInfo::CubeData& cubedata,
-			    Interval<IdxType>&,Interval<IdxType>&,
-			    Interval<double>&,Interval<double>&);
+    void		scanPositions(Interval<IdxType>&,Interval<IdxType>&,
+				Interval<double>&,Interval<double>&);
 
     friend class	StepFinder;
     friend class	ColumnWriter;
@@ -131,6 +132,7 @@ public:
 				  const HDimensions&,uiRetVal&)		= 0;
     virtual void	putBlock(int,MemBlock&,HLocIdx,HDimensions,
 				 uiRetVal&)				= 0;
+    virtual void	close(uiRetVal&)				= 0;
 
     Writer&		wrr_;
 

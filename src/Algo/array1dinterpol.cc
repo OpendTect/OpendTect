@@ -270,7 +270,7 @@ int PolyArray1DInterpol::nextStep()
 
     TypeSet<ValT> vals( posidxs.size(), (ValT)0 );
 
-    for ( auto idx=0; idx<vals.size(); idx++ )
+    for ( int idx=0; idx<vals.size(); idx++ )
 	vals[idx] = arr_->get( posidxs[idx] );
 
     ValT val = Interpolate::poly1D( posidxs[0], vals[0], posidxs[1], vals[1],

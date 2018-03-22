@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "posidxpairdataset.h"
 #include "envvars.h"
 #include "settings.h"
+#include "posinfo.h"
 #include "hdf5access.h"
 
 static const Seis::Blocks::SzType cVersion	= 1;
@@ -35,6 +36,9 @@ Seis::Blocks::Access::Access()
     , columns_(*new Pos::IdxPairDataSet(sizeof(Block*),false,false))
     , needreset_(true)
     , datatype_(UnknownData)
+    , gensectioniop_(sKeyGenSection())
+    , fileidsectioniop_(sKeyFileIDSection())
+    , cubedata_(*new PosInfo::CubeData)
     , usehdf_(HDF5::isEnabled(HDF5::sSeismicsType()))
 {
 }
@@ -47,6 +51,7 @@ Seis::Blocks::Access::~Access()
     clearColumns();
     delete &columns_;
     delete &hgeom_;
+    delete &cubedata_;
 }
 
 

@@ -73,7 +73,7 @@ void HDF5::ReaderImpl::listObjs( const H5Dir& dir, BufferStringSet& nms,
     try
     {
 	const int nrobjs = dir.getNumObjs();
-	for ( auto iobj=0; iobj<nrobjs; iobj++ )
+	for ( int iobj=0; iobj<nrobjs; iobj++ )
 	{
 	    const std::string nmstr = dir.getObjnameByIdx( iobj );
 	    const BufferString nm( nmstr.c_str() );
@@ -92,7 +92,7 @@ void HDF5::ReaderImpl::listObjs( const H5Dir& dir, BufferStringSet& nms,
 		H5::Group grp = dir.openGroup( nm );
 		BufferStringSet subnms;
 		listObjs( grp, subnms, true );
-		for ( auto idx=0; idx<subnms.size(); idx++ )
+		for ( int idx=0; idx<subnms.size(); idx++ )
 		    nms.add( BufferString( nm.str(), "/", subnms.get(idx) ) );
 	    }
 	}
@@ -188,7 +188,7 @@ ArrayNDInfo* HDF5::ReaderImpl::getDataSizes() const
 	mGetDataSpaceDims( dims, dataspace );
 
 	ret = ArrayNDInfoImpl::create( nrdims_ );
-	for ( auto idim=0; idim<nrdims_; idim++ )
+	for ( DimIdxType idim=0; idim<nrdims_; idim++ )
 	    ret->setSize( idim, (int)dims[idim] );
     }
     mCatchUnexpected( return ret );
@@ -243,7 +243,7 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
     catch ( ... ) {}
 
     const H5::DataType h5dt = H5::PredType::C_S1;
-    for ( auto idx=0; idx<nrattrs; idx++ )
+    for ( int idx=0; idx<nrattrs; idx++ )
     {
 	try {
 	    const H5::Attribute attr = dset->openAttribute( (unsigned int)idx );
@@ -295,11 +295,11 @@ void HDF5::ReaderImpl::gtPoints( const NDPosBufSet& posbufs, void* data,
 	mAllocVarLenArr( hsize_t, hdfcoordarr, nrdims_ * nrpts );
 	if ( !mIsVarLenArrOK(hdfcoordarr) )
 	    { uirv.add( uiStrings::phrCannotAllocateMemory() ); return; }
-	for ( auto ipt=0; ipt<nrpts; ipt++ )
+	for ( hsize_t ipt=0; ipt<nrpts; ipt++ )
 	{
 	    const NDPosBuf& posbuf = posbufs[ipt];
 	    const int arroffs = ipt * nrdims_;
-	    for ( auto idim=0; idim<nrdims_; idim++ )
+	    for ( DimIdxType idim=0; idim<nrdims_; idim++ )
 		hdfcoordarr[arroffs + idim] = posbuf[idim];
 	}
 	inputdataspace.selectElements( H5S_SELECT_SET, nrpts, hdfcoordarr );
@@ -322,7 +322,7 @@ void HDF5::ReaderImpl::gtSlab( const SlabSpec& spec, void* data,
     {
 	H5::DataSpace inputdataspace = dataset_->getSpace();
 	mGetDataSpaceDims( dimsizes, inputdataspace );
-	for ( auto idim=0; idim<nrdims_; idim++ )
+	for ( DimIdxType idim=0; idim<nrdims_; idim++ )
 	{
 	    SlabDimSpec sds = spec[idim];
 	    if ( sds.count_ < 0 )

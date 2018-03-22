@@ -36,9 +36,9 @@ public:
     virtual Column*	createColumn(const HGlobIdx&,uiRetVal&);
     virtual void	fillTrace(Column&,const BinID&,SeisTrc&,
 				  uiRetVal&) const;
+    virtual void	close();
 
     void		openStream(const char*,uiRetVal&);
-    void		closeStream();
 
 protected:
 
@@ -61,6 +61,7 @@ public:
     virtual Column*	createColumn(const HGlobIdx&,uiRetVal&);
     virtual void	fillTrace(Column&,const BinID&,SeisTrc&,
 				  uiRetVal&) const;
+    virtual void	close();
 
     HDF5::Reader*	hdfrdr_;
 
@@ -77,6 +78,7 @@ public:
     virtual void	setColumnInfo(const MemBlockColumn&,const HLocIdx&,
 				      const HDimensions&,uiRetVal&);
     virtual void	putBlock(int,MemBlock&,HLocIdx,HDimensions,uiRetVal&);
+    virtual void	close(uiRetVal&);
 
     od_ostream*		strm_;
 
@@ -92,8 +94,13 @@ public:
     virtual void	setColumnInfo(const MemBlockColumn&,const HLocIdx&,
 				      const HDimensions&,uiRetVal&);
     virtual void	putBlock(int,MemBlock&,HLocIdx,HDimensions,uiRetVal&);
+    virtual void	close(uiRetVal&);
 
     HDF5::Writer*	hdfwrr_;
+
+protected:
+
+    void		writeGlobalInfo(uiRetVal&);
 
 };
 

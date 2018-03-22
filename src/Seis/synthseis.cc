@@ -459,7 +459,7 @@ bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res, int outsz )
     if ( !cres )
 	mErrRet(tr("Cannot allocate memory for FFT"), false)
 
-    for ( auto idx = 0; idx<convolvesize_; idx++ )
+    for ( int idx=0; idx<convolvesize_; idx++ )
 	cres[idx] = freqreflectivities_[idx] * freqwavelet_[idx];
 
     mPrepFFT(fft, cres, false, convolvesize_);

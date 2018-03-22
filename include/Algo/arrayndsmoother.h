@@ -104,7 +104,7 @@ int ArrayNDGentleSmoother<T>::nextStep()
 
     T smval = 0; const auto nrvals = vals.size();
     const T val0 = inp_.getND( itpos );
-    for ( auto idx=0; idx<nrvals; idx++ )
+    for ( int idx=0; idx<nrvals; idx++ )
 	{ smval += val0; smval += vals[idx]; }
     smval /= 2 * nrvals;
     out_.setND( itpos, smval );

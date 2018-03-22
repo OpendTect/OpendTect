@@ -43,7 +43,19 @@ Seis::Blocks::StreamWriteBackEnd::StreamWriteBackEnd( Writer& wrr,
 
 Seis::Blocks::StreamWriteBackEnd::~StreamWriteBackEnd()
 {
+    if ( strm_ )
+    {
+	pErrMsg( "need an explicit close()" );
+	uiRetVal uirv;
+	close( uirv );
+    }
+}
+
+
+void Seis::Blocks::StreamWriteBackEnd::close( uiRetVal& )
+{
     delete strm_;
+    strm_ = 0;
 }
 
 
@@ -335,25 +347,25 @@ Seis::Blocks::StreamReadBackEnd::StreamReadBackEnd( Reader& rdr,
 
 Seis::Blocks::StreamReadBackEnd::~StreamReadBackEnd()
 {
-    closeStream();
+    close();
 }
 
 
 void Seis::Blocks::StreamReadBackEnd::openStream( const char* fnm,
 						  uiRetVal& uirv )
 {
-    closeStream();
+    close();
     strm_ = new od_istream( fnm );
     if ( !strm_->isOK() )
     {
 	uirv.set( uiStrings::phrCannotOpen( toUiString(fnm) ) );
 	strm_->addErrMsgTo( uirv );
-	closeStream();
+	close();
     }
 }
 
 
-void Seis::Blocks::StreamReadBackEnd::closeStream()
+void Seis::Blocks::StreamReadBackEnd::close()
 {
     if ( strmmine_ )
 	delete strm_;
@@ -364,7 +376,7 @@ void Seis::Blocks::StreamReadBackEnd::closeStream()
 void Seis::Blocks::StreamReadBackEnd::reset( const char* fnm, uiRetVal& uirv )
 {
     if ( strm_ && fnm != strm_->fileName() )
-	closeStream();
+	close();
 
     if ( !strm_ )
 	strm_ = new od_istream( fnm );
@@ -375,7 +387,7 @@ void Seis::Blocks::StreamReadBackEnd::reset( const char* fnm, uiRetVal& uirv )
     {
 	uirv.set( uiStrings::phrCannotOpen( toUiString(fnm) ) );
 	strm_->addErrMsgTo( uirv );
-	closeStream();
+	close();
     }
 }
 

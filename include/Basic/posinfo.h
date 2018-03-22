@@ -131,6 +131,7 @@ public:
     int			totalSize() const;
     int			totalSizeInside(const TrcKeySampling& hrg) const;
 			/*!<Only take positions that are inside hrg. */
+    int			totalNrSegments() const;
 
     virtual int		indexOf(int inl,int* newidx=0) const;
 			//!< newidx only filled if not null and -1 is returned
