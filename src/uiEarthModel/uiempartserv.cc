@@ -306,9 +306,8 @@ bool uiEMPartServer::export3DHorizon( bool bulk )
 
 bool uiEMPartServer::importBulkFaults()
 {
-    if ( !impbulkfltdlg_ )
-	impbulkfltdlg_ = new uiBulkFaultImport( parent() );//,
-				    //EMFault3DTranslatorGroup::sGroupName() );
+    impbulkfltdlg_ = new uiBulkFaultImport( parent(), 
+				EMFault3DTranslatorGroup::sGroupName(), false );
 
     return impbulkfltdlg_->go();
 }
@@ -365,9 +364,8 @@ void uiEMPartServer::import2DFaultStickset()
 
 bool uiEMPartServer::importBulkFaultStickSet( bool is2d )
 {
-    if ( !impbulkfssdlg_ )
-	impbulkfssdlg_ =
-	    new uiBulkFaultImport( parent() );
+    impbulkfssdlg_ = new uiBulkFaultImport( parent(),
+		EMFaultStickSetTranslatorGroup::sGroupName().buf(), is2d );
 
     return impbulkfssdlg_->go();
 }
