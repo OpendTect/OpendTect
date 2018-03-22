@@ -18,8 +18,7 @@ ________________________________________________________________________
 namespace HDF5
 {
 
-template <class T>
-mExpClass(General) ArrayNDTool
+template <class T> class ArrayNDTool
 {
 public:
 			mTypeDefArrNDTypes;
