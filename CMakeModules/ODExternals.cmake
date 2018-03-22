@@ -49,3 +49,42 @@ macro( DEFINE_SVN_EXTERNAL DIR URL REVISION )
 
 
 endmacro()
+
+
+find_package( Git QUIET )
+
+if ( Git_FOUND )
+    set ( GIT_EXEC ${GIT_EXECUTABLE} )
+else()
+    set ( GIT_EXEC "git" )
+endif()
+
+macro( DEFINE_GIT_EXTERNAL DIR URL BRANCH )
+
+    if ( NOT EXISTS ${OpendTect_DIR}/external/${DIR} )
+	execute_process(
+	    COMMAND ${GIT_EXEC} clone ${URL} --branch ${BRANCH} --depth 1 ${DIR}
+		WORKING_DIRECTORY ${OpendTect_DIR}/external
+		OUTPUT_VARIABLE OUTPUT
+		ERROR_VARIABLE OUTPUT
+		RESULT_VARIABLE RESULT )
+	if ( ${RESULT} EQUAL 0 )
+	    message ( STATUS "git checkout success for: ${URL}" )
+	else()
+	    message ( FATAL_ERROR "git checkout failed" )
+	endif()
+    else()
+	execute_process(
+	    COMMAND ${GIT_EXEC} pull
+	    WORKING_DIRECTORY ${OpendTect_DIR}/external/${DIR}
+	    OUTPUT_VARIABLE OUTPUT
+	    ERROR_VARIABLE OUTPUT
+	    RESULT_VARIABLE RESULT )
+	if ( ${RESULT} EQUAL 0 )
+	    message ( STATUS "external/${DIR} is updated to ${URL}" )
+	else()
+	    message ( FATAL_ERROR "${DIR} is not up to date" )
+	endif()
+    endif()
+
+endmacro()
