@@ -516,7 +516,8 @@ void uiMPEMan::seedClick( CallBacker* )
     const bool clickedonhorizon = clickedhor;
     if ( clickedhor && clickedhor!=hor )
     {
-	visBase::DM().selMan().select( clickedobject );
+	const int emvisid = clickcatcher_->info().getEMVisID();
+	visBase::DM().selMan().select( emvisid >= 0 ? emvisid : clickedobject );
 	mSeedClickReturn();
     }
 

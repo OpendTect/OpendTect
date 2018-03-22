@@ -43,7 +43,8 @@ mExpClass(visSurvey) MPEClickInfo
 {
     friend class MPEClickCatcher;
 public:
-    				MPEClickInfo();
+				MPEClickInfo();
+				~MPEClickInfo();
 
     bool			isLegalClick() const;
 
@@ -59,12 +60,13 @@ public:
     const Coord3&		getPos() const;
     int				getObjID() const;
     EM::ObjectID		getEMObjID() const; // avail when clicked on hor
+    int				getEMVisID() const; // avail when clicked on hor
     const TrcKeyZSampling&	getObjCS() const;
     DataPack::ID		getObjDataPackID() const;
     const RegularSeisDataPack*	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
 
-    Pos::GeomID 		getGeomID() const;
+    Pos::GeomID			getGeomID() const;
     const char*			getObjLineName() const;
     const Attrib::Data2DHolder*	getObjLineData() const;
 
@@ -80,6 +82,7 @@ protected:
     void			setNode(const TrcKey&);
     void			setPos(const Coord3&);
     void			setEMObjID(EM::ObjectID);
+    void			setEMVisID(int);
     void			setObjID(int);
     void			setObjCS(const TrcKeyZSampling&);
     void			setObjDataPackID(DataPack::ID);
@@ -109,12 +112,13 @@ protected:
     int					rdlid_;
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
-    Pos::GeomID 			geomid_;
+    Pos::GeomID				geomid_;
     BufferString			linename_;
     DataPack::ID			datapackid_;
 
     void			setObjTKPath(const TrcKeyPath*);
     void			setObjRandomLineID(int);
+
 public:
     const TrcKeyPath*		getObjTKPath() const;
     int				getObjRandomLineID() const;
@@ -155,10 +159,10 @@ protected:
 				~MPEClickCatcher();
     void			clickCB(CallBacker*);
 
-    void 			sendUnderlying2DSeis(
+    void			sendUnderlying2DSeis(
 					const EMObjectDisplay*,
 					const visBase::EventInfo&);
-    void 			sendUnderlyingPlanes(
+    void			sendUnderlyingPlanes(
 					const EMObjectDisplay*,
 					const visBase::EventInfo&);
     void			handleObjectOnSeis2DDisplay(Seis2DDisplay*,

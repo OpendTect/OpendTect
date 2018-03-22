@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emobject.h"
 #include "emsurfacetr.h"
 #include "emhorizon2d.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "linekey.h"
@@ -227,6 +228,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( hor2ddisp )
 	{
 	    info().setEMObjID( hor2ddisp->getObjectID() );
+	    info().setEMVisID( hor2ddisp->id() );
 	    sendUnderlying2DSeis( hor2ddisp, eventinfo );
 	    eventcatcher_->setHandled();
 	    click.trigger();
@@ -237,6 +239,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( emod )
 	{
 	    info().setEMObjID( emod->getObjectID() );
+	    info().setEMVisID( emod->id() );
 	    sendUnderlyingPlanes( emod, eventinfo );
 	    click.trigger();
 	    eventcatcher_->setHandled();
@@ -500,7 +503,6 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    info().setObjDataPackID( datapackid );
 	    info().setObjDataSelSpec( *pdd->getSelSpec(attrib) );
 	    allowPickBasedReselection();
-	    click.trigger();
 	}
     }
 
@@ -534,8 +536,6 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	info().setObjRandomLineID( rtd->getRandomLineID() );
 	info().setObjDataPackID( datapackid );
 	info().setObjDataSelSpec( *rtd->getSelSpec(attrib) );
-
-	click.trigger();
     }
 }
 
@@ -604,9 +604,20 @@ void MPEClickCatcher::allowPickBasedReselection()
 
 
 // MPEClickInfo
+static HiddenParam<MPEClickInfo,int> emvisids_(0);
+
 MPEClickInfo::MPEClickInfo()
     : pickednode_(TrcKey::udf())
-{ clear(); }
+{
+    clear();
+    emvisids_.setParam( this, -1 );
+}
+
+
+MPEClickInfo::~MPEClickInfo()
+{
+    emvisids_.removeParam( this );
+}
 
 
 bool MPEClickInfo::isLegalClick() const
@@ -647,6 +658,10 @@ int MPEClickInfo::getObjID() const
 
 EM::ObjectID MPEClickInfo::getEMObjID() const
 { return clickedemobjid_; }
+
+
+int MPEClickInfo::getEMVisID() const
+{ return emvisids_.getParam(this); }
 
 
 const TrcKeyZSampling& MPEClickInfo::getObjCS() const
@@ -701,6 +716,7 @@ void MPEClickInfo::clear()
     doubleclicked_ = false;
     rdltkpath_ = 0;
     rdlid_ = -1;
+    emvisids_.setParam( this, -1 );
 }
 
 
@@ -742,6 +758,10 @@ void MPEClickInfo::setObjID( int visid )
 
 void MPEClickInfo::setEMObjID( EM::ObjectID emobjid )
 { clickedemobjid_ = emobjid; }
+
+
+void MPEClickInfo::setEMVisID( int visid )
+{ emvisids_.setParam( this, visid ); }
 
 
 void MPEClickInfo::setObjCS( const TrcKeyZSampling& cs )
