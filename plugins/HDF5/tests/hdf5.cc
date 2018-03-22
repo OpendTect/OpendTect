@@ -64,7 +64,7 @@ static bool testWrite()
 
 	fillArr2D( arr2d, 1000*iblk );
 	dsky.setGroupName( "Component 1" );
-	uirv = arrtool.putData( *wrr, dsky );
+	uirv = arrtool.put( *wrr, dsky );
 	if ( !uirv.isOK() )
 	    break;
 	iop.set( sPropNm, iblk, 1 );
@@ -74,7 +74,7 @@ static bool testWrite()
 
 	fillArr2D( arr2d, 10000*iblk );
 	dsky.setGroupName( "Component 2" );
-	uirv = arrtool.putData( *wrr, dsky );
+	uirv = arrtool.put( *wrr, dsky );
 	if ( !uirv.isOK() )
 	    break;
 	iop.set( sPropNm, iblk, 2 );

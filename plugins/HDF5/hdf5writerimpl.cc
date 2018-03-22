@@ -19,6 +19,10 @@ unsigned szip_pixels_per_block = 32;
 		    // can be an even number [2,32]
 
 
+#define mCatchErrDuringWrite() \
+    mCatchAdd2uiRv( uiStrings::phrErrDuringWrite(fileName()) )
+
+
 HDF5::WriterImpl::WriterImpl()
     : AccessImpl(*this)
     , chunksz_(64)
@@ -48,10 +52,18 @@ void HDF5::WriterImpl::setChunkSize( int sz )
 }
 
 
-bool HDF5::WriterImpl::ensureGroup( const char* nm )
+bool HDF5::WriterImpl::ensureGroup( const char* grpnm )
 {
-    try { file_->createGroup( nm ); }
+    if ( group_ && group_->getObjName() == grpnm )
+	return true;
+
+    try {
+	delete dataset_; dataset_ = 0;
+	delete group_; group_ = 0;
+	group_ = new H5::Group( file_->createGroup(grpnm) );
+    }
     mCatchAnyNoMsg( return false )
+
     return true;
 }
 
@@ -69,10 +81,6 @@ static void getWriteStr( const char* inpstr, int nrchars, BufferString& ret )
 
 
 
-#define mCatchErrDuringWrite() \
-    mCatchAdd2uiRv( uiStrings::phrErrDuringWrite(fileName()) )
-
-
 void HDF5::WriterImpl::ptInfo( const DataSetKey& reqdsky, const IOPar& iop,
 			       uiRetVal& uirv )
 {
@@ -80,10 +88,7 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& reqdsky, const IOPar& iop,
     if ( nrvals < 1 )
 	return;
 
-    const bool forgroupinfo = !reqdsky.hasDataSet();
     DataSetKey dsky( reqdsky );
-    if ( forgroupinfo )
-	dsky.setDataSetName( sGroupInfoDataSetName() );
     const H5::DataType h5dt = H5::PredType::C_S1;
     H5::DataSet dataset;
     bool notpresent = false;
@@ -97,10 +102,10 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& reqdsky, const IOPar& iop,
     hsize_t dims[1];
     if ( notpresent )
     {
-	if ( !forgroupinfo )
+	if ( reqdsky.hasDataSet() )
 	{
-	    uirv.add(
-		uiStrings::phrInternalErr("Use putData first, then putInfo"));
+	    uirv.add( uiStrings::phrInternalErr(
+			"Use createDataSet first, then putInfo") );
 	    return;
 	}
 	dims[0] = 1; // 0 needed but seems like a bad idea
@@ -132,9 +137,16 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& reqdsky, const IOPar& iop,
 }
 
 
-void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
-			       const void* data, ODDataType dt, uiRetVal& uirv )
+void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
+			       ODDataType dt, uiRetVal& uirv )
 {
+    if ( !ensureGroup(dsky.groupName()) )
+    {
+	uirv.add( sHDF5Err(tr("Cannot create group '%1'")
+		    .arg( dsky.groupName() ) ) );
+	return;
+    }
+
     const int nrdims = info.nrDims();
     TypeSet<hsize_t> dims, chunkdims;
     for ( int idim=0; idim<nrdims; idim++ )
@@ -151,10 +163,32 @@ void HDF5::WriterImpl::ptData( const DataSetKey& dsky, const ArrayNDInfo& info,
 	if ( nrdims > 1 )
 	    proplist.setChunk( nrdims, chunkdims.arr() );
 	proplist.setSzip( szip_options_mask, szip_pixels_per_block );
-	ensureGroup( dsky.groupName() );
-	H5::DataSet dataset( file_->createDataSet( dsky.fullDataSetName(), h5dt,
-					      dataspace, proplist ) );
-	dataset.write( data, h5dt );
+	delete dataset_; dataset_ = 0;
+	dataset_ = new H5::DataSet( group_->createDataSet( dsky.dataSetName(),
+				    h5dt, dataspace, proplist ) );
     }
     mCatchErrDuringWrite()
+}
+
+
+void HDF5::WriterImpl::ptAll( const void* data, uiRetVal& uirv )
+{
+    if ( !dataset_ )
+	mRetNeedScopeInUiRv()
+
+    try
+    {
+	dataset_->write( data, dataset_->getSpace().getSimpleExtentType() );
+    }
+    mCatchErrDuringWrite()
+}
+
+
+void HDF5::WriterImpl::ptSlab( const SlabSpec& spec,
+			       const void* data, uiRetVal& uirv )
+{
+    if ( !dataset_ )
+	mRetNeedScopeInUiRv()
+
+    mPutInternalInUiRv( uirv, "TODO: implement", return )
 }

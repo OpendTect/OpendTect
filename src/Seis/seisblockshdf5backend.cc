@@ -79,7 +79,7 @@ void Seis::Blocks::HDF5WriteBackEnd::writeGlobalInfo( uiRetVal& uirv )
 	    }
 	}
 	HDF5::ArrayNDTool<int> arrtool( arr );
-	uirv = arrtool.putData( *hdfwrr_, dsky );
+	uirv = arrtool.put( *hdfwrr_, dsky );
     }
 }
 
@@ -88,9 +88,11 @@ void Seis::Blocks::HDF5WriteBackEnd::setColumnInfo(
 	    const MemBlockColumn& column, const HLocIdx& start,
 	    const HDimensions& dims, uiRetVal& uirv )
 {
-    uirv.add( mTODONotImplPhrase() );
-    // ensure one group per component
-    // add dataset
+    /*
+    columndims_.set( dims );
+    columndims_.z() = wrr_.dims_.z();
+    startlocidx_ = start;
+    */
 }
 
 
@@ -99,6 +101,7 @@ void Seis::Blocks::HDF5WriteBackEnd::putBlock( int icomp, MemBlock& block,
 {
     uirv.add( mTODONotImplPhrase() );
     // put block in dataset
+    // column.fileid_ = ...;
 }
 
 

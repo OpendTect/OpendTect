@@ -81,6 +81,10 @@ public: \
     inline bool		operator ==( const clss& oth ) const \
 			{ return H##clss::operator==(oth) \
 			      && third == oth.third; } \
+    inline clss&	set( const H##clss& oth ) \
+			{ first=oth.first; second=oth.second; return *this; } \
+    inline clss&	set( const clss& oth ) \
+			{ *this = oth; return *this; } \
  \
     inline typ		z() const	{ return third; } \
     inline typ&		z()		{ return third; } \

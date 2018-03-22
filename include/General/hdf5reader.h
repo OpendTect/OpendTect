@@ -10,7 +10,6 @@ ________________________________________________________________________
 -*/
 
 #include "hdf5access.h"
-#include "arrayndinfo.h"
 #include "ranges.h"
 
 
@@ -28,7 +27,7 @@ namespace HDF5
 mExpClass(General) Reader : public Access
 { mODTextTranslationClass(HDF5::Reader)
 public:
-				mTypeDefArrNDTypes;
+
     typedef TypeSet<NDPosBuf>	NDPosBufSet;
 
     virtual void	getGroups(BufferStringSet&) const	= 0;
@@ -54,15 +53,6 @@ public:
 				//!< Get a single point value
     uiRetVal		getPoints(const NDPosBufSet&,void*) const;
 				//!< Get a set of distinct points' values
-
-    mExpStruct(General)	SlabDimSpec
-			{
-			    IdxType start_=0, step_=1, count_=-1;
-			    mImplSimpleEqOpers3Memb( SlabDimSpec,
-				    start_, step_, count_ )
-			};
-    typedef TypeSet<SlabDimSpec> SlabSpec;
-
     uiRetVal		getSlab(const SlabSpec&,void*) const;
 
 protected:

@@ -31,7 +31,12 @@ public:
     inline static ArrayND<T>* createArray(Reader&);
     inline uiRetVal	getAll(Reader&);
 
-    inline uiRetVal	putData(Writer&,const DataSetKey&);
+    inline uiRetVal	put(Writer&,const DataSetKey&);
+			//!< creates dataset and writes the array
+    inline uiRetVal	createDataSet(Writer&,const DataSetKey&);
+			//!< creates appropriate dataset
+    inline uiRetVal	putAll(Writer&);
+			//!< writes to current dataset
 
     ArrayND<T>&		arrnd_;
 
@@ -75,7 +80,17 @@ inline uiRetVal ArrayNDTool<T>::getAll( Reader& rdr )
 
 
 template <class T>
-inline uiRetVal ArrayNDTool<T>::putData( Writer& wrr, const DataSetKey& dsky )
+inline uiRetVal ArrayNDTool<T>::createDataSet( Writer& wrr,
+					       const DataSetKey& dsky )
+{
+    uiRetVal uirv;
+    uirv = wrr.createDataSet( dsky, arrnd_.info(), OD::GetDataRepType<T>() );
+    return uirv;
+}
+
+
+template <class T>
+inline uiRetVal ArrayNDTool<T>::putAll( Writer& wrr )
 {
     uiRetVal uirv;
     const ArrayNDInfo& inf = arrnd_.info();
@@ -93,10 +108,21 @@ inline uiRetVal ArrayNDTool<T>::putData( Writer& wrr, const DataSetKey& dsky )
 	arrnd_.getAll( const_cast<T*>(data) );
     }
 
-    uirv = wrr.putData( dsky, inf, data, OD::GetDataRepType<T>() );
+    uirv = wrr.putAll( data );
     if ( !arrhasdata )
 	delete [] data;
     return uirv;
 }
+
+
+template <class T>
+inline uiRetVal ArrayNDTool<T>::put( Writer& wrr, const DataSetKey& dsky )
+{
+    uiRetVal uirv = createDataSet( wrr, dsky );
+    if ( uirv.isOK() )
+	uirv = putAll( wrr );
+    return uirv;
+}
+
 
 } // namespace HDF5

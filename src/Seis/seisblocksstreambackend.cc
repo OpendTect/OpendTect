@@ -70,9 +70,9 @@ void Seis::Blocks::StreamWriteBackEnd::setColumnInfo(
     column.fileid_ = orgstrmpos;
 
     strm_->addBin( hdrsz );
-    strm_->addBin( dims.first ).addBin( dims.second ).addBin(wrr_.dims_.third);
-    strm_->addBin( start.first ).addBin( start.second );
-    strm_->addBin( column.globIdx().first ).addBin( column.globIdx().second );
+    strm_->addBin( dims.inl() ).addBin( dims.crl() ).addBin( wrr_.dims_.z() );
+    strm_->addBin( start.inl() ).addBin( start.crl() );
+    strm_->addBin( column.globIdx().inl() ).addBin( column.globIdx().crl() );
     mRetIfStrmFail();
 
     const int bytes_left_in_hdr = hdrsz - (int)(strm_->position()-orgstrmpos);

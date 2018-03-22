@@ -25,6 +25,19 @@ const char* HDF5::Access::sNoDataPassed()
 { return "HDF5: Null data passed"; }
 
 
+BufferString HDF5::DataSetKey::fullDataSetName() const
+{
+    BufferString grpnm;
+    if ( grpnm_.isEmpty() )
+	grpnm = "/";
+    BufferString dsnm( dsnm_ );
+    if ( dsnm.isEmpty() )
+	dsnm = sGroupInfoDataSetName();
+
+    return BufferString( grpnm, "/", dsnm );
+}
+
+
 bool HDF5::Access::isEnabled( const char* typ )
 {
     if ( !HDF5::isAvailable() || GetEnvVarYN("OD_NO_HDF5")
@@ -116,16 +129,34 @@ uiString HDF5::Access::sHDF5NotAvailable( const char* fnm )
 }
 
 
-uiString HDF5::Access::sHDF5Err()
+uiString HDF5::Access::sHDF5Err( const uiString& err )
 {
-    return tr("HDF5 Error");
+    uiString ret( tr("HDF5 Error") );
+    if ( !err.isEmpty() )
+	ret.addMoreInfo( err );
+    return ret;
 }
 
 
 uiString HDF5::Access::sFileNotOpen()
 {
-    return tr("Could not open HDF5 file");
+    return sHDF5Err( tr("Could not open file") );
 }
+
+
+uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
+				      const ArrayNDInfo& inf, ODDataType dt )
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    else if ( inf.totalSize() < 1 )
+	{ pErrMsg("zero dims"); }
+
+    crDS( dsky, inf, dt, uirv );
+    return uirv;
+}
+
 
 
 uiRetVal HDF5::Writer::putInfo( const DataSetKey& dsky, const IOPar& iop )
@@ -133,26 +164,38 @@ uiRetVal HDF5::Writer::putInfo( const DataSetKey& dsky, const IOPar& iop )
     uiRetVal uirv;
     if ( !file_ )
 	mRetNoFileInUiRv()
+
     if ( !iop.isEmpty() )
 	ptInfo( dsky, iop, uirv );
     return uirv;
 }
 
 
-uiRetVal HDF5::Writer::putData( const DataSetKey& dsky, const ArrayNDInfo& inf,
-				const void* data, ODDataType dt )
+uiRetVal HDF5::Writer::putAll( const void* data )
 {
     uiRetVal uirv;
     if ( !file_ )
 	mRetNoFileInUiRv()
     if ( !data )
 	mRetNoDataInUiRv()
-    else if ( inf.totalSize() < 1 )
-	{ pErrMsg("zero dims"); }
 
-    ptData( dsky, inf, data, dt, uirv );
+    ptAll( data, uirv );
     return uirv;
 }
+
+
+uiRetVal HDF5::Writer::putSlab( const SlabSpec& spec, const void* data )
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    if ( !data )
+	mRetNoDataInUiRv()
+
+    ptSlab( spec, data, uirv );
+    return uirv;
+}
+
 
 
 uiRetVal HDF5::Reader::getInfo( IOPar& iop ) const

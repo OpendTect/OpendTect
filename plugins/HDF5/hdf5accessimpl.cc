@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "hdf5writerimpl.h"
 #include "uistrings.h"
 #include "file.h"
+#include "envvars.h"
 #include "H5Cpp.h"
 
 
@@ -30,18 +31,23 @@ HDF5::Writer* HDF5::AccessProviderImpl::getWriter() const
 void HDF5::AccessProviderImpl::initHDF5()
 {
     initClass();
-    H5::Exception::dontPrint();
+    if ( !GetEnvVarYN("OD_HDF5_PRINT_EXCEPTIONS") )
+	H5::Exception::dontPrint();
 }
 
 
 HDF5::AccessImpl::AccessImpl( ReaderImpl& rdr )
     : acc_(rdr)
+    , group_(0)
+    , dataset_(0)
 {
 }
 
 
 HDF5::AccessImpl::AccessImpl( WriterImpl& wrr )
     : acc_(wrr)
+    , group_(0)
+    , dataset_(0)
 {
 }
 

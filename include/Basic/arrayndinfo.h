@@ -11,7 +11,7 @@ ________________________________________________________________________
 */
 
 #include "basicmod.h"
-#include "gendefs.h"
+#include "typeset.h"
 
 /*!\brief Contains the information about the size of ArrayND, and
 in what order the data is stored (if accessable via a pointer). */

@@ -41,8 +41,6 @@ public:
 protected:
 
     BufferStringSet	grpnms_;
-    mutable H5::Group*	group_;
-    mutable H5::DataSet* dataset_;
     mutable NrDimsType	nrdims_;
 
     virtual void	openFile(const char*,uiRetVal&);

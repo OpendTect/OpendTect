@@ -10,9 +10,9 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+#include "arrayndinfo.h"
 #include "factory.h"
 
-class ArrayNDInfo;
 template <class T> class ArrayND;
 namespace H5 { class H5File; }
 
@@ -44,19 +44,16 @@ public:
 
     const char*		groupName() const	{ return grpnm_; }
     void		setGroupName( const char* nm )
-			{
-			    grpnm_.set( nm );
-			    if ( !grpnm_.startsWith("/") )
-				grpnm_.insertAt( 0 , "/" );
-			}
+						{ grpnm_.set( nm ); }
 
     const char*		dataSetName() const	{ return dsnm_; }
     void		setDataSetName( const char* nm )
-			{ dsnm_.set( nm ); }
+						{ dsnm_.set( nm ); }
     bool		hasDataSet() const	{ return !dsnm_.isEmpty(); }
 
-    BufferString	fullDataSetName() const
-			{ return BufferString(grpnm_,"/",dsnm_); }
+    BufferString	fullDataSetName() const;
+
+    static const char*	sGroupInfoDataSetName()	{ return "++info++"; }
 
 protected:
 
@@ -105,6 +102,7 @@ protected:
 mExpClass(General) Access
 { mODTextTranslationClass(HDF5::Access);
 public:
+			mTypeDefArrNDTypes;
 
 			Access();
     virtual		~Access();
@@ -117,10 +115,17 @@ public:
     static uiString	sHDF5PackageDispName();
     static uiString	sHDF5NotAvailable(const char* fnm);
     static const char*	sFileExtension()	{ return "hdf5"; }
-    static const char*	sGroupInfoDataSetName()	{ return "++info++"; }
 
     static bool		isEnabled(const char* fortype=0);
     static const char*	sSettingsEnabKey()	{ return "dTect.Use HDF5"; }
+
+    mExpStruct(General)	SlabDimSpec
+			{
+			    IdxType start_=0, step_=1, count_=-1;
+			    mImplSimpleEqOpers3Memb( SlabDimSpec,
+				    start_, step_, count_ )
+			};
+    typedef TypeSet<SlabDimSpec> SlabSpec;
 
 protected:
 
@@ -129,7 +134,7 @@ protected:
     virtual void	closeFile()			= 0;
     virtual void	openFile(const char*,uiRetVal&)	= 0;
 
-    static uiString	sHDF5Err();
+    static uiString	sHDF5Err(const uiString&);
     static uiString	sFileNotOpen();
 
     static const char*	sOpenFileFirst();

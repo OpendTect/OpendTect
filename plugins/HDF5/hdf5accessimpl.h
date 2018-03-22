@@ -38,6 +38,8 @@ protected:
 			AccessImpl(const AccessImpl&)	= delete;
 
     Access&		acc_;
+    mutable H5::Group*	group_;
+    mutable H5::DataSet* dataset_;
 
     void		doCloseFile(Access&);
     static H5::DataType	h5DataTypeFor(ODDataType);

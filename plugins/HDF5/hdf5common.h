@@ -25,7 +25,7 @@ namespace HDF5
 	{ const char* exc_msg = exc.getCDetailMsg(); act; }
 
 #define mCatchHDFAdd2uiRv() \
-    mCatchHDF( uirv.add( sHDF5Err().addMoreInfo( toUiString(exc_msg) ) ) )
+    mCatchHDF( uirv.add( sHDF5Err( toUiString(exc_msg) ) ) )
 
 #define mCatchNonHDF( act ) \
     catch ( std::exception& exc ) \
@@ -55,3 +55,11 @@ namespace HDF5
     catch ( ... ) \
 	{ const char* exc_msg = "Unexpected non-std exception"; \
 	    pErrMsg(exc_msg); act; }
+
+// Err Ret stuff
+
+#define mRetNoFile(action) \
+    { pErrMsg( sOpenFileFirst() ); action; }
+
+#define mRetNeedScopeInUiRv() \
+    mPutInternalInUiRv( uirv, sNeedScope(), return )

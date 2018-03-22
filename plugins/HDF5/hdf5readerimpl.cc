@@ -14,12 +14,6 @@ ________________________________________________________________________
 #include "file.h"
 #include "iopar.h"
 
-#define mRetNoFile(action) \
-    { pErrMsg( sOpenFileFirst() ); action; }
-
-#define mRetNeedScopeInUiRv() \
-    mPutInternalInUiRv( uirv, sNeedScope(), return )
-
 #define mCatchErrDuringRead() \
     mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fileName()) )
 
@@ -30,8 +24,6 @@ ________________________________________________________________________
 
 HDF5::ReaderImpl::ReaderImpl()
     : AccessImpl(*this)
-    , group_(0)
-    , dataset_(0)
 {
 }
 
@@ -77,7 +69,7 @@ void HDF5::ReaderImpl::listObjs( const H5Dir& dir, BufferStringSet& nms,
 	{
 	    const std::string nmstr = dir.getObjnameByIdx( iobj );
 	    const BufferString nm( nmstr.c_str() );
-	    if ( nm == sGroupInfoDataSetName() )
+	    if ( nm == DataSetKey::sGroupInfoDataSetName() )
 		continue;
 
 	    const H5O_type_t h5objtyp = dir.childObjType( nm );
@@ -235,7 +227,8 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
     {
 	if ( !dset )
 	{
-	    groupinfdataset = group_->openDataSet( sGroupInfoDataSetName() );
+	    groupinfdataset = group_->openDataSet(
+					DataSetKey::sGroupInfoDataSetName() );
 	    dset = &groupinfdataset;
 	}
 	nrattrs = dset->getNumAttrs();

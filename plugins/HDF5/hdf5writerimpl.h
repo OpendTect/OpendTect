@@ -19,7 +19,7 @@ namespace HDF5
 
 mExpClass(HDF5) WriterImpl : public Writer
 			   , public AccessImpl
-{
+{ mODTextTranslationClass(HDF5::Writer)
 public:
 
 			WriterImpl();
@@ -37,8 +37,10 @@ protected:
     virtual void	closeFile()		{ doCloseFile(*this); }
 
     virtual void	ptInfo(const DataSetKey&,const IOPar&,uiRetVal&);
-    virtual void	ptData(const DataSetKey&,const ArrayNDInfo&,
-				const void*,ODDataType,uiRetVal&);
+    virtual void	crDS(const DataSetKey&,const ArrayNDInfo&,ODDataType,
+			     uiRetVal&);
+    virtual void	ptAll(const void*,uiRetVal&);
+    virtual void	ptSlab(const SlabSpec&,const void*,uiRetVal&);
 
     bool		ensureGroup(const char*);
 			//!< returns false if group already existed

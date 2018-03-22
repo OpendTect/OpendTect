@@ -18,11 +18,11 @@ namespace HDF5
 /*!\brief writes to HDF5 file
 
 Notes:
-* You can only write info *after* you have written the dataset itself. This
-  may be annoying, but it saves us the hassle/management of dummy datasets.
-* Writing datasets in the root group is not recommended, but may work.
+* The Writer has a notion of a 'current' DataSet.
 * You can write info for an entire group by simpy leaving the dataset name
   empty in the DataSetKey.
+* To be able to put info for a DataSet, you have to create it first. Info for
+  a group can be written at all times.
 
   */
 
@@ -32,15 +32,21 @@ public:
 
     virtual void	setChunkSize(int)				= 0;
 
-    uiRetVal		putData(const DataSetKey&,const ArrayNDInfo&,
-				const void*,ODDataType);
+    uiRetVal		createDataSet(const DataSetKey&,const ArrayNDInfo&,
+				      ODDataType);
+
     uiRetVal		putInfo(const DataSetKey&,const IOPar&);
+
+    uiRetVal		putAll(const void*);
+    uiRetVal		putSlab(const SlabSpec&,const void*);
 
 protected:
 
     virtual void	ptInfo(const DataSetKey&,const IOPar&,uiRetVal&)= 0;
-    virtual void	ptData(const DataSetKey&,const ArrayNDInfo&,
-				const void*,ODDataType,uiRetVal&)	= 0;
+    virtual void	crDS(const DataSetKey&,const ArrayNDInfo&,
+				ODDataType,uiRetVal&)			= 0;
+    virtual void	ptAll(const void*,uiRetVal&)			= 0;
+    virtual void	ptSlab(const SlabSpec&,const void*,uiRetVal&)	= 0;
 
 };
 
