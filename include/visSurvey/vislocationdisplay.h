@@ -54,7 +54,7 @@ public:
     bool			allShown() const	{ return showall_; }
     virtual void		setOnlyAtSectionsDisplay(bool);
     virtual bool		displayedOnlyAtSections() const;
-
+    void			allowDoubleClick(bool yn);
 
     virtual BufferString	getManipulationString() const;
     void			getObjectInfo(BufferString&) const;
@@ -77,7 +77,7 @@ public:
     virtual const mVisTrans*	getDisplayTransformation() const;
     void			setRightHandSystem(bool yn);
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
-    virtual void		turnOnSelectionMode(bool){};
+    virtual void		turnOnSelectionMode(bool)		{}
 
     int				getPickIdx(visBase::DataObject*) const;
 

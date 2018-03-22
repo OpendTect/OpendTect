@@ -410,6 +410,8 @@ void PickSetDisplay::removeAll()
     {
 	polylines_->removeAllPrimitiveSets();
 	polylines_->getCoordinates()->setEmpty();
+	removeChild( polylines_->osgNode() );
+	unRefAndZeroPtr( polylines_ );
     }
 }
 

@@ -76,20 +76,22 @@ void MeasureToolMan::objSelected( CallBacker* cb )
     appl_.menuMgr().viewTB()->turnOn( butidx_, isownsel );
     if ( measuredlg_ && !isownsel )
     {
+	if ( measuredlg_->doClear() )
+	    clearCB( 0 );
+
 	measuredlg_->windowClosed.remove( mCB(this,MeasureToolMan,dlgClosed) );
-	appl_.sceneMgr().setToViewMode( true );
 	measuredlg_->close();
 	measuredlg_ = 0;
     }
 }
 
 
-void MeasureToolMan::dlgClosed( CallBacker* cb )
+void MeasureToolMan::dlgClosed( CallBacker* )
 {
     if ( measuredlg_->doClear() )
 	clearCB( 0 );
+
     appl_.menuMgr().viewTB()->turnOn( butidx_, false );
-    appl_.sceneMgr().setToViewMode( true );
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
 	visBase::DM().selMan().deSelect( displayobjs_[idx]->id() );
 
@@ -160,6 +162,7 @@ void MeasureToolMan::sceneAdded( CallBacker* cb )
 void MeasureToolMan::addScene( int sceneid )
 {
     visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay();
+    psd->allowDoubleClick( false );
     psd->ref();
 
     Pick::Set* ps = new Pick::Set( "Measure picks" );

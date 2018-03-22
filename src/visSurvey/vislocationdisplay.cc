@@ -8,8 +8,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vislocationdisplay.h"
 
+#include "hiddenparam.h"
 #include "ioman.h"
-
 #include "pickset.h"
 #include "picksettr.h"
 #include "selector.h"
@@ -26,6 +26,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 namespace visSurvey {
+
+static HiddenParam<LocationDisplay,char> allowdoubleclicks_(0);
 
 const char* LocationDisplay::sKeyID()		{ return "Location.ID"; }
 const char* LocationDisplay::sKeyMgrName()	{ return "Location.Manager"; }
@@ -75,6 +77,8 @@ LocationDisplay::LocationDisplay()
 
     sower_ = new Sower( this );
     addChild( sower_->osgNode() );
+
+    allowdoubleclicks_.setParam( this, true );
 }
 
 
@@ -97,6 +101,8 @@ LocationDisplay::~LocationDisplay()
     removeChild( sower_->osgNode() );
     delete sower_;
     sower_ = 0;
+
+    allowdoubleclicks_.removeParam( this );
 }
 
 
@@ -227,6 +233,12 @@ void LocationDisplay::showAll( bool yn )
 }
 
 
+void LocationDisplay::allowDoubleClick( bool yn )
+{
+    allowdoubleclicks_.setParam( this, yn );
+}
+
+
 void LocationDisplay::setOnlyAtSectionsDisplay( bool yn )
 { showAll( !yn); }
 
@@ -259,7 +271,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 
     const bool sowerenabled = set_->disp_.connect_ != Pick::Set::Disp::None;
 
-    if ( eventinfo.type == visBase::MouseDoubleClick )
+    const bool allowdblclick = allowdoubleclicks_.getParam( this );
+    if ( eventinfo.type == visBase::MouseDoubleClick && allowdblclick )
     {
 	if ( set_ && set_->disp_.connect_!=Pick::Set::Disp::None )
 	{
