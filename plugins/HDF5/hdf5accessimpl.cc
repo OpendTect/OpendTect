@@ -68,6 +68,21 @@ const char* HDF5::AccessImpl::gtFileName() const
 }
 
 
+bool HDF5::AccessImpl::atGroup( const char*& grpnm ) const
+{
+    if ( !grpnm || !*grpnm )
+	grpnm = "/";
+    return group_ && group_->getObjName() == grpnm;
+}
+
+
+bool HDF5::AccessImpl::atDataSet( const char* dsnm ) const
+{
+    return !dataset_ || !dsnm || !*dsnm ? false
+	 : dataset_->getObjName() == dsnm;
+}
+
+
 void HDF5::AccessImpl::doCloseFile( Access& acc )
 {
     // cannot use acc_ here, it may already have been deleted

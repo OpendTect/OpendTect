@@ -52,19 +52,28 @@ void HDF5::WriterImpl::setChunkSize( int sz )
 }
 
 
-bool HDF5::WriterImpl::ensureGroup( const char* grpnm )
+bool HDF5::WriterImpl::ensureGroup( const char* grpnm, uiRetVal& uirv )
 {
-    if ( group_ && group_->getObjName() == grpnm )
+    if ( atGroup(grpnm) )
 	return true;
 
+    bool waspresent = true;
     try {
 	delete dataset_; dataset_ = 0;
 	delete group_; group_ = 0;
-	group_ = new H5::Group( file_->createGroup(grpnm) );
+	group_ = new H5::Group( file_->openGroup(grpnm) );
     }
-    mCatchAnyNoMsg( return false )
+    mCatchAnyNoMsg( waspresent = false )
 
-    return true;
+    if ( !waspresent || !group_ )
+    {
+	try {
+	    group_ = new H5::Group( file_->createGroup(grpnm) );
+	}
+	mCatchAdd2uiRv( tr("Cannot create Group '%1'").arg(grpnm) )
+    }
+
+    return uirv.isOK();
 }
 
 
@@ -81,42 +90,45 @@ static void getWriteStr( const char* inpstr, int nrchars, BufferString& ret )
 
 
 
-void HDF5::WriterImpl::ptInfo( const DataSetKey& reqdsky, const IOPar& iop,
+void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& iop,
 			       uiRetVal& uirv )
 {
     const hsize_t nrvals = iop.size();
-    if ( nrvals < 1 )
+    if ( nrvals < 1 || !ensureGroup(dsky.groupName(),uirv) )
 	return;
 
-    DataSetKey dsky( reqdsky );
     const H5::DataType h5dt = H5::PredType::C_S1;
-    H5::DataSet dataset;
-    bool notpresent = false;
-    const BufferString fulldsname( dsky.fullDataSetName() );
-    try
-    {
-	dataset = file_->openDataSet( fulldsname );
-    }
-    mCatchAnyNoMsg( notpresent = true )
-
+    H5::DataSet* useds = dataset_;
+    H5::DataSet ds;
     hsize_t dims[1];
-    if ( notpresent )
+    if ( !atDataSet(dsky.dataSetName()) )
     {
-	if ( reqdsky.hasDataSet() )
-	{
-	    uirv.add( uiStrings::phrInternalErr(
-			"Use createDataSet first, then putInfo") );
-	    return;
-	}
-	dims[0] = 1; // 0 needed but seems like a bad idea
+	bool notpresent = false;
 	try
 	{
-	    dataset = file_->createDataSet( fulldsname, h5dt,
-					    H5::DataSpace(1,dims) );
-	    float data = 0.f;
-	    dataset.write( &data, h5dt );
+	    ds = group_->openDataSet( dsky.dataSetName() );
 	}
-	mCatchErrDuringWrite()
+	mCatchAnyNoMsg( notpresent = true )
+
+	if ( notpresent )
+	{
+	    if ( !dsky.dataSetEmpty() )
+	    {
+		uirv.add( uiStrings::phrInternalErr(
+			    "Use createDataSet first, then putInfo") );
+		return;
+	    }
+	    dims[0] = 1; // 0 needed but seems like a bad idea
+	    const char data = '\0';
+	    try
+	    {
+		ds = group_->createDataSet( DataSetKey::sGroupInfoDataSetName(),
+					    h5dt, H5::DataSpace(1,dims) );
+		ds.write( &data, h5dt );
+	    }
+	    mCatchErrDuringWrite()
+	}
+	useds = &ds;
     }
 
     const int nrchars = iop.maxContentSize( false ) + 1;
@@ -126,11 +138,11 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& reqdsky, const IOPar& iop,
 	H5::DataSpace dataspace( 1, dims );
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    H5::Attribute attribute = dataset.createAttribute(
+	    H5::Attribute attribute = useds->createAttribute(
 				iop.getKey(idx), h5dt, dataspace );
 	    BufferString str2write;
 	    getWriteStr( iop.getValue(idx), nrchars, str2write );
-	    attribute.write( H5::PredType::C_S1, str2write.getCStr() );
+	    attribute.write( h5dt, str2write.getCStr() );
 	}
     }
     mCatchErrDuringWrite()
@@ -140,12 +152,8 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& reqdsky, const IOPar& iop,
 void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
 			       ODDataType dt, uiRetVal& uirv )
 {
-    if ( !ensureGroup(dsky.groupName()) )
-    {
-	uirv.add( sHDF5Err(tr("Cannot create group '%1'")
-		    .arg( dsky.groupName() ) ) );
+    if ( !ensureGroup(dsky.groupName(),uirv) )
 	return;
-    }
 
     const int nrdims = info.nrDims();
     TypeSet<hsize_t> dims, chunkdims;
@@ -178,7 +186,7 @@ void HDF5::WriterImpl::ptAll( const void* data, uiRetVal& uirv )
 
     try
     {
-	dataset_->write( data, dataset_->getSpace().getSimpleExtentType() );
+	dataset_->write( data, dataset_->getDataType() );
     }
     mCatchErrDuringWrite()
 }

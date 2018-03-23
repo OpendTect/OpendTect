@@ -42,14 +42,17 @@ public:
 			DataSetKey( const char* grpnm=0, const char* dsnm=0 )
 			    : dsnm_(dsnm)	{ setGroupName(grpnm); }
 
-    const char*		groupName() const	{ return grpnm_; }
-    void		setGroupName( const char* nm )
+    inline const char*	groupName() const	{ return grpnm_; }
+    inline void		setGroupName( const char* nm )
 						{ grpnm_.set( nm ); }
+    bool		hasGroup(const char* nm) const;
 
-    const char*		dataSetName() const	{ return dsnm_; }
-    void		setDataSetName( const char* nm )
+    inline const char*	dataSetName() const	{ return dsnm_; }
+    inline void		setDataSetName( const char* nm )
 						{ dsnm_.set( nm ); }
-    bool		hasDataSet() const	{ return !dsnm_.isEmpty(); }
+    inline bool		dataSetEmpty() const	{ return dsnm_.isEmpty(); }
+    inline bool		hasDataSet( const char* nm ) const
+						{ return dsnm_ == nm; }
 
     BufferString	fullDataSetName() const;
 

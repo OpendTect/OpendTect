@@ -103,8 +103,7 @@ bool HDF5::ReaderImpl::selectGroup( const char* grpnm )
 {
     if ( !grpnm || !*grpnm )
 	grpnm = "/";
-
-    if ( group_ && group_->getObjName() == grpnm )
+    if ( atGroup(grpnm) )
 	return true;
 
     try
@@ -123,7 +122,7 @@ bool HDF5::ReaderImpl::selectDataSet( const char* dsnm )
 {
     if ( !group_ )
 	{ pErrMsg("check successful selectGroup"); return false; }
-    if ( dataset_ && dataset_->getObjName() == dsnm )
+    else if ( atDataSet(dsnm) )
 	return true;
 
     try
@@ -142,7 +141,7 @@ bool HDF5::ReaderImpl::setScope( const DataSetKey& dsky )
 {
     if ( !selectGroup(dsky.groupName()) )
 	return false;
-    if ( !dsky.hasDataSet() )
+    else if ( dsky.dataSetEmpty() )
 	return true;
 
     return selectDataSet( dsky.dataSetName() );

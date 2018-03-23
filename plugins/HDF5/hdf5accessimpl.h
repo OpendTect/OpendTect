@@ -43,6 +43,8 @@ protected:
 
     void		doCloseFile(Access&);
     static H5::DataType	h5DataTypeFor(ODDataType);
+    bool		atGroup(const char*&) const;
+    bool		atDataSet(const char*) const;
 
 };
 

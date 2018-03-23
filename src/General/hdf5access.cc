@@ -27,14 +27,33 @@ const char* HDF5::Access::sNoDataPassed()
 
 BufferString HDF5::DataSetKey::fullDataSetName() const
 {
-    BufferString grpnm;
-    if ( grpnm_.isEmpty() )
-	grpnm = "/";
     BufferString dsnm( dsnm_ );
     if ( dsnm.isEmpty() )
-	dsnm = sGroupInfoDataSetName();
+	dsnm.set( sGroupInfoDataSetName() );
 
-    return BufferString( grpnm, "/", dsnm );
+    if ( grpnm_.isEmpty() )
+	return BufferString( "/", dsnm );
+
+    BufferString ret( "/", grpnm_, "/" );
+    ret.add( dsnm );
+    return ret;
+}
+
+
+bool HDF5::DataSetKey::hasGroup( const char* reqnm ) const
+{
+    const bool rootgrpreq = !reqnm || !*reqnm || FixedString(reqnm) == "/";
+    const bool haverootgrp = grpnm_.isEmpty() || grpnm_ == "/";
+    if ( rootgrpreq || haverootgrp )
+	return rootgrpreq == haverootgrp;
+
+    const char* grpnm = grpnm_.str();
+    if ( *reqnm == '/' )
+	reqnm++;
+    if ( *grpnm == '/' )
+	grpnm++;
+
+    return FixedString(grpnm) == FixedString(reqnm);
 }
 
 

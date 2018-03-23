@@ -42,8 +42,7 @@ protected:
     virtual void	ptAll(const void*,uiRetVal&);
     virtual void	ptSlab(const SlabSpec&,const void*,uiRetVal&);
 
-    bool		ensureGroup(const char*);
-			//!< returns false if group already existed
+    bool		ensureGroup(const char*,uiRetVal&);
 
 };
 
