@@ -320,16 +320,9 @@ const OD::String& File::Path::fileName() const
 
 BufferString File::Path::baseName() const
 {
-    BufferString ret = fileName();
-    if ( ret.isEmpty() )
-	return ret;
-
-    char* ptr = ret.getCStr();
-    char* lastdot = lastOcc( ptr, '.' );
-    if ( lastdot )
-	*lastdot = '\0';
-
-    return ret;
+    FilePath selfcopy( *this );
+    selfcopy.setExtension( 0 );
+    return selfcopy.fileName();
 }
 
 
