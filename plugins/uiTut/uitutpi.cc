@@ -16,6 +16,7 @@
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
+#include "uiodscenemgr.h"
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
 #include "viswelldisplay.h"
@@ -30,7 +31,7 @@
 
 #include "odplugin.h"
 
-#include "uiTutorialText.h"
+#include "vistutorialdisplay.h"
 
 static const int cTutIdx = -1100;
 
@@ -65,8 +66,7 @@ public:
     void		launchDialog(Seis::GeomType);
     void		doHor(CallBacker*);
     void		doWells(CallBacker*);
-    void		doVisTutorialText(CallBacker*);  
-			/*added for tutorial: some text*/
+    void		doVisTutorial(CallBacker*);
 };
 
 
@@ -98,23 +98,24 @@ void uiTutMgr::updateMenu( CallBacker* )
     mnumgr.addAction( mnu, uiStrings::sHorizon(), "tree-horizon3d",
 		      mCB(this,uiTutMgr,doHor) );
 
-     mnumgr.addAction( mnu, tr("Tutorial: SomeText"), "tree-horizon3d",
-		      mCB(this,uiTutMgr,doVisTutorialText) );
+     mnumgr.addAction( mnu, tr("Visualization"), "tree-horizon3d",
+		      mCB(this,uiTutMgr,doVisTutorial) );
 }
 
-void uiTutMgr::doVisTutorialText(CallBacker *)
+void uiTutMgr::doVisTutorial( CallBacker* )
 {
-    uiODSceneMgr& u=appl_->sceneMgr(); 
+    Coord xypos =
+	SI().transform( SI().sampling(false).hsamp_.center().binID() );
+    Coord3 xyzpos( xypos, SI().zRange(false).center() );
 
-    Coord c=SI().transform( SI().sampling( false ).hsamp_.center().binID() );
-    Coord3 coord( c.x_,c.y_,SI().zRange( false ).center() );
+    visSurvey::TutorialDisplay* tutdisplay =
+	new visSurvey::TutorialDisplay( tr("Tutorial: Some Text"), xyzpos );
 
-    visSurvey::TutTextDisplay* tutTextDisplay=new 
-	visSurvey::TutTextDisplay( tr( "Tutorial: Some Text" ),coord );
-
-    appl_->applMgr().visServer()->addObject(
-	tutTextDisplay,u.getActiveSceneID(), true );
+    uiODSceneMgr& scenemgr = appl_->sceneMgr();
+    appl_->applMgr().visServer()->addObject( tutdisplay,
+					    scenemgr.getActiveSceneID(), true );
 }
+
 
 void uiTutMgr::do3DSeis( CallBacker* )
 {
