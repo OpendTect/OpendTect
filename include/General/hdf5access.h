@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "arrayndinfo.h"
 #include "factory.h"
 
-template <class T> class ArrayND;
 namespace H5 { class H5File; }
 
 
@@ -24,7 +23,6 @@ class Reader;
 class Writer;
 
 typedef OD::DataRepType	ODDataType;
-typedef ArrayND<float> FloatArrND;
 
 
 /*\brief Key to groups and data sets in HDF5 files.
@@ -64,6 +62,22 @@ protected:
     BufferString	dsnm_;
 
 };
+
+
+/*\brief simple specification of the 'hyperslab' concept in HDF5 */
+
+mExpClass(General) SlabDimSpec
+{
+public:
+
+    typedef ArrayNDInfo::IdxType	IdxType;
+
+    ArrayNDInfo::IdxType start_=0, step_=1, count_=-1;
+    mImplSimpleEqOpers3Memb( SlabDimSpec, start_, step_, count_ )
+
+};
+
+typedef TypeSet<SlabDimSpec> SlabSpec;
 
 
 /*\brief baseclass for reader and writer of HDF5 files.
@@ -121,14 +135,6 @@ public:
 
     static bool		isEnabled(const char* fortype=0);
     static const char*	sSettingsEnabKey()	{ return "dTect.Use HDF5"; }
-
-    mExpStruct(General)	SlabDimSpec
-			{
-			    IdxType start_=0, step_=1, count_=-1;
-			    mImplSimpleEqOpers3Memb( SlabDimSpec,
-				    start_, step_, count_ )
-			};
-    typedef TypeSet<SlabDimSpec> SlabSpec;
 
 protected:
 

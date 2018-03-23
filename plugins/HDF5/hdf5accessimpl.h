@@ -41,10 +41,15 @@ protected:
     mutable H5::Group*	group_;
     mutable H5::DataSet* dataset_;
 
+			// no throw
     void		doCloseFile(Access&);
     static H5::DataType	h5DataTypeFor(ODDataType);
     bool		atGroup(const char*&) const;
     bool		atDataSet(const char*) const;
+
+			// can throw
+    void		selectSlab(H5::DataSpace&,const SlabSpec&,
+				   TypeSet<hsize_t>* pcounts=0) const;
 
 };
 
@@ -64,3 +69,8 @@ public:
 };
 
 } // namespace HDF5
+
+
+#define mGetDataSpaceDims( dims, nrdims, dataspace ) \
+    TypeSet<hsize_t> dims( nrdims, (hsize_t)0 ); \
+    dataspace.getSimpleExtentDims( dims.arr() )

@@ -186,6 +186,8 @@ void HDF5::WriterImpl::ptAll( const void* data, uiRetVal& uirv )
 
     try
     {
+	H5::DataSpace dataspace = dataset_->getSpace();
+	dataspace.selectAll();
 	dataset_->write( data, dataset_->getDataType() );
     }
     mCatchErrDuringWrite()
@@ -198,5 +200,14 @@ void HDF5::WriterImpl::ptSlab( const SlabSpec& spec,
     if ( !dataset_ )
 	mRetNeedScopeInUiRv()
 
-    mPutInternalInUiRv( uirv, "TODO: implement", return )
+    TypeSet<hsize_t> counts;
+    try
+    {
+	H5::DataSpace outputdataspace = dataset_->getSpace();
+	selectSlab( outputdataspace, spec, &counts );
+	H5::DataSpace inputdataspace( (NrDimsType)spec.size(), counts.arr() );
+	dataset_->write( data, dataset_->getDataType(), inputdataspace,
+			 outputdataspace );
+    }
+    mCatchErrDuringWrite()
 }

@@ -17,10 +17,6 @@ ________________________________________________________________________
 #define mCatchErrDuringRead() \
     mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fileName()) )
 
-#define mGetDataSpaceDims( dims, dataspace ) \
-    TypeSet<hsize_t> dims( nrdims_, (hsize_t)0 ); \
-    dataspace.getSimpleExtentDims( dims.arr() )
-
 
 HDF5::ReaderImpl::ReaderImpl()
     : AccessImpl(*this)
@@ -176,7 +172,7 @@ ArrayNDInfo* HDF5::ReaderImpl::getDataSizes() const
     try
     {
 	const H5::DataSpace dataspace = dataset_->getSpace();
-	mGetDataSpaceDims( dims, dataspace );
+	mGetDataSpaceDims( dims, nrdims_, dataspace );
 
 	ret = ArrayNDInfoImpl::create( nrdims_ );
 	for ( DimIdxType idim=0; idim<nrdims_; idim++ )
@@ -309,24 +305,11 @@ void HDF5::ReaderImpl::gtSlab( const SlabSpec& spec, void* data,
     if ( !haveScope() )
 	mRetNeedScopeInUiRv()
 
-    TypeSet<hsize_t> counts, offss, strides;
+    TypeSet<hsize_t> counts;
     try
     {
 	H5::DataSpace inputdataspace = dataset_->getSpace();
-	mGetDataSpaceDims( dimsizes, inputdataspace );
-	for ( DimIdxType idim=0; idim<nrdims_; idim++ )
-	{
-	    SlabDimSpec sds = spec[idim];
-	    if ( sds.count_ < 0 )
-		sds.count_ = (dimsizes[idim]-sds.start_) / sds.step_;
-	    counts += sds.count_;
-	    offss += sds.start_;
-	    strides += sds.step_;
-	}
-
-	inputdataspace.selectHyperslab( H5S_SELECT_SET,
-			counts.arr(), offss.arr(), strides.arr() );
-
+	selectSlab( inputdataspace, spec, &counts );
 	H5::DataSpace outputdataspace( nrdims_, counts.arr() );
 	dataset_->read( data, h5DataType(), outputdataspace, inputdataspace );
     }

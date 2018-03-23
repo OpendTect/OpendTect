@@ -84,6 +84,25 @@ static bool testWrite()
     }
     mAddTestResult( "Write blocks" );
 
+    Array2DImpl<float> arr2dx2( dim1_, (short)(2*dim2_) );
+    HDF5::ArrayNDTool<float> arrtoolx2( arr2dx2 );
+    dsky.setGroupName( "Slabby" );
+    dsky.setDataSetName( "Slabby Data" );
+    uirv = arrtoolx2.createDataSet( *wrr, dsky );
+    mAddTestResult( "Create Slabby DataSet" );
+    HDF5::SlabSpec slabspec; HDF5::SlabDimSpec dimspec;
+    dimspec.start_ = 0; dimspec.step_ = 1; dimspec.count_ = dim1_;
+    slabspec += dimspec;
+    dimspec.start_ = 0; dimspec.step_ = 1; dimspec.count_ = dim2_;
+    slabspec += dimspec;
+    fillArr2D( arr2d, 100 );
+    uirv = arrtool.putSlab( *wrr, slabspec );
+    mAddTestResult( "Write Slabby First Slab" );
+    slabspec[1].start_ = dim2_;
+    fillArr2D( arr2d, 6000 );
+    uirv = arrtool.putSlab( *wrr, slabspec );
+    mAddTestResult( "Write Slabby Second Slab" );
+
     return true;
 }
 
@@ -92,7 +111,7 @@ static bool testReadInfo( HDF5::Reader& rdr )
 {
     BufferStringSet grps;
     rdr.getGroups( grps );
-    mRunStandardTestWithError( grps.size()==2, "Groups in file",
+    mRunStandardTestWithError( grps.size()==3, "Groups in file",
 			       BufferString("nrgrps=",grps.size()) );
 
     BufferStringSet dsnms;
@@ -144,7 +163,7 @@ static bool testReadInfo( HDF5::Reader& rdr )
 }
 
 
-static bool testReadData( const HDF5::Reader& rdr )
+static bool testReadData( HDF5::Reader& rdr )
 {
     Array2DImpl<float> arr2d( dim1_, dim2_ );
     uiRetVal uirv = rdr.getAll( arr2d.getData() );
@@ -179,8 +198,7 @@ static bool testReadData( const HDF5::Reader& rdr )
 
     const int nrdim1 = 3; const int nrdim2 = 4;
     TypeSet<float> slabvals( nrdim1*nrdim2, 0.f );
-    HDF5::Reader::SlabSpec slabspec;
-    HDF5::Reader::SlabDimSpec dimspec;
+    HDF5::SlabSpec slabspec; HDF5::SlabDimSpec dimspec;
     dimspec.start_ = 1; dimspec.step_ = 2; dimspec.count_ = nrdim1;
     slabspec += dimspec;
     DBG::setCrashOnProgError( false );
@@ -213,6 +231,19 @@ static bool testReadData( const HDF5::Reader& rdr )
 	mRunStandardTest( true, slabspecmsg )
     }
     mAddTestResult( "Get slab values again" );
+
+    const HDF5::DataSetKey dsky( "Slabby", "Slabby Data" );
+    bool scoperes = rdr.setScope( dsky );
+    mRunStandardTest( scoperes, "Set scope (Slabby)" )
+    Array2DImpl<float> arr2dx2( dim1_, 2*dim2_ );
+    uirv = rdr.getAll( const_cast<float*>(arr2dx2.getData()) );
+    mAddTestResult( "Get Slabby values" );
+    const float v3_11 = arr2dx2.get( 3, 11 );
+    const float v3_31 = arr2dx2.get( 3, 31 );
+    mRunStandardTestWithError( v3_11==411.f, "Correct Slabby value [3,11]",
+				BufferString("v3_11=",v3_11) )
+    mRunStandardTestWithError( v3_31==6311.f,"Correct Slabby value [3,31]",
+				BufferString("v3_31=",v3_31) )
 
     return true;
 }

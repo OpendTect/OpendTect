@@ -125,3 +125,26 @@ H5::DataType HDF5::AccessImpl::h5DataTypeFor( ODDataType datarep )
     return ret;
 }
 
+
+void HDF5::AccessImpl::selectSlab( H5::DataSpace& ds, const SlabSpec& spec,
+				   TypeSet<hsize_t>* pcounts ) const
+{
+    TypeSet<hsize_t> counts, offss, strides;
+    if ( !pcounts )
+	pcounts = &counts;
+    const Access::NrDimsType nrdims = spec.size();
+    mGetDataSpaceDims( dimsizes, nrdims, ds );
+
+    for ( Access::DimIdxType idim=0; idim<nrdims; idim++ )
+    {
+	SlabDimSpec sds = spec[idim];
+	if ( sds.count_ < 0 )
+	    sds.count_ = (dimsizes[idim]-sds.start_) / sds.step_;
+	*pcounts += sds.count_;
+	offss += sds.start_;
+	strides += sds.step_;
+    }
+
+    ds.selectHyperslab( H5S_SELECT_SET,
+			pcounts->arr(), offss.arr(), strides.arr() );
+}
