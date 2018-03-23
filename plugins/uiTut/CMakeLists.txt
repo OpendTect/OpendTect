@@ -13,7 +13,8 @@ set(OD_MODULE_SOURCES
 	uitutorialattrib.cc
 	uitutvolproc.cc
 	uitutwelltools.cc
-	uitutpi.cc)
+	uitutpi.cc
+	uiTutorialText.cc)
 set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 set( OD_NO_ALO_ENTRY 1 )
 OD_INIT_MODULE()
