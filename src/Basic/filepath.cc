@@ -320,7 +320,7 @@ const OD::String& File::Path::fileName() const
 
 BufferString File::Path::baseName() const
 {
-    FilePath selfcopy( *this );
+    File::Path selfcopy( *this );
     selfcopy.setExtension( 0 );
     return selfcopy.fileName();
 }
