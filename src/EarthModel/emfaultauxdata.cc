@@ -89,7 +89,7 @@ bool FaultAuxData::init()
 	return false;
 
     File::Path fp( ioobj->mainFileName() );
-    fp.setExtension( "" );
+    fp.setExtension( 0 );
     fltfullnm_ = fp.fullPath();
 
     deepErase( dataset_ );
@@ -219,7 +219,7 @@ void FaultAuxData::removeAllData()
     }
 
     File::Path fp( fltfullnm_ );
-    fp.setExtension( sKeyExtension() );
+    fp.setExtension( sKeyExtension(), false );
     File::remove( fp.fullPath() );
 }
 
@@ -245,7 +245,7 @@ void FaultAuxData::renameFault( const char* fltnewname )
     }
 
     File::Path oldfp( oldfltfulnm );
-    oldfp.setExtension( sKeyExtension() );
+    oldfp.setExtension( sKeyExtension(), false );
     File::remove( oldfp.fullPath() );
     for ( int idx=0; idx<dataset_.size(); idx++ )
 	updateDataFiles( SetName, idx, dataset_[idx]->username );
@@ -258,9 +258,9 @@ void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
 	return;
 
     File::Path fp( fltfullnm_ );
-    fp.setExtension( sKeyExtension() );
-    File::Path backupfp(fp);
-    backupfp.setExtension(".old");
+    fp.setExtension( sKeyExtension(), false );
+    File::Path backupfp( fp );
+    backupfp.setExtension( ".old", false );
 
     if ( File::exists(fp.fullPath()) )
         File::rename(fp.fullPath(), backupfp.fullPath());
@@ -325,7 +325,7 @@ void FaultAuxData::readSDInfoFile( ObjectSet<IOPar>& sdnmpars )
 {
     deepErase( sdnmpars );
     File::Path fp( fltfullnm_ );
-    fp.setExtension( sKeyExtension() );
+    fp.setExtension( sKeyExtension(), false );
 
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(true) )
@@ -376,8 +376,8 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
     const BufferString fltsdnm = createFltDataName( fltfullnm_, sdidx );
     File::Path fp( fltsdnm );
 
-    File::Path backupfp(fp);
-    backupfp.setExtension(".old");
+    File::Path backupfp( fp );
+    backupfp.setExtension( ".old", false );
     if ( File::exists(fp.fullPath()) )
 	File::copy( fp.fullPath(), backupfp.fullPath() );
 

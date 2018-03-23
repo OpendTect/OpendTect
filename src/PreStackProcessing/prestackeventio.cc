@@ -640,7 +640,8 @@ int EventWriter::nextStep()
 	    File::Path filename;
 	    filename.setPath( fnm.buf() );
 	    filename.add( filenamebase.buf() );
-	    filename.setExtension( PSEventTranslatorGroup::sDefExtension() );
+	    filename.setExtension( PSEventTranslatorGroup::sDefExtension(),
+				   false );
 
 	    const BufferString patchfnm = filename.fullPath().buf();
 

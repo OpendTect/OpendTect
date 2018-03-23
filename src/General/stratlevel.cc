@@ -617,7 +617,7 @@ BufferString Strat::getStdFileName( const char* inpnm, const char* basenm )
     if ( basenm )
 	fp.add( basenm );
     if ( nm && *nm )
-	fp.setExtension( nm );
+	fp.setExtension( nm, false );
     return fp.fullPath();
 }
 

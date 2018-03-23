@@ -145,7 +145,7 @@ void Batch::JobDispatcher::getDefParFilename( const char* prognm,
     if ( !prognm || !*prognm )
 	prognm = "batchjob";
     File::Path parfp( GetProcFileName(prognm) );
-    parfp.setExtension( ".par" );
+    parfp.setExtension( ".par", false );
     const BufferString filename = parfp.fileName();
     if ( filename.startsWith("od_") )
     {

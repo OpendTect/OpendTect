@@ -117,7 +117,7 @@ od_ostream& RemCommHandler::createLogFile()
     BufferString lhname = System::localAddress();
     lhname.replace( '.',  '_' );
     logfp.add( lhname );
-    logfp.setExtension( ".log" );
+    logfp.setExtension( ".log", false );
     od_ostream* strm = new od_ostream( logfp.fullPath() );
     return *strm;
 }

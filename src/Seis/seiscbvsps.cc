@@ -80,14 +80,10 @@ bool CBVSSeisPSIOProvider::getGeomIDs( const char* dirnm,
     DirList dl( dirnm, File::FilesInDir, "*.cbvs" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	BufferString filenm = dl.get( idx );
+	BufferString filenm = FilePath( dl.get(idx) ).baseName();
 	char* capptr = filenm.find( '^' );
 	if ( !capptr ) continue;
 	BufferString geomidstr( ++capptr );
-	char* dotptr = geomidstr.find( '.' );
-	if ( !dotptr ) continue;
-
-	*dotptr = '\0';
 	const Pos::GeomID geomid = Conv::to<Pos::GeomID>( geomidstr );
 	if ( !mIsUdfGeomID(geomid) && Survey::GM().getGeometry(geomid) )
 	    geomids += geomid;
@@ -142,7 +138,7 @@ BufferString SeisCBVSPSIO::get2DFileName( Pos::GeomID geomid ) const
     File::Path fp( dirnm_ );
     BufferString fnm( fp.fileName(), "^", toString(geomid) );
     fp.add( fnm );
-    fp.setExtension( "cbvs" );
+    fp.setExtension( "cbvs", false );
 
     fnm = fp.fullPath();
     return fnm;

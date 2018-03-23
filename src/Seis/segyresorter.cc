@@ -35,7 +35,7 @@ BufferString SEGY::ReSorter::Setup::getFileName( const Interval<int>& rg ) const
     File::Path fp( outfnm_ );
     const BufferString ext( fp.extension() );
     if ( !ext.isEmpty() )
-	fp.setExtension( "" );
+	fp.setExtension( 0 );
 
     BufferString fnm( fp.fileName(), "_" );
     if ( inlnames_ )

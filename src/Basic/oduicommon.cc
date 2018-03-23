@@ -60,7 +60,7 @@ static BufferString getFileName( const File::Path& basedir,
 				 const char* ext )
 {
     File::Path fp( basedir, filebase );
-    fp.setExtension( ext );
+    fp.setExtension( ext, false );
     return fp.fullPath();
 }
 

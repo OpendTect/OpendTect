@@ -261,7 +261,7 @@ od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
     if ( !File::isDirectory(actualfilenm) )
     {
 	File::Path dirnm( actualfilenm );
-	dirnm.setExtension( "" );
+	dirnm.setExtension( 0 );
 	if ( !File::isDirectory(dirnm.fullPath()) )
 	    return ret;
 
@@ -284,7 +284,7 @@ void uiObjFileMan::getTimeStamp( const char* fname,
 {
     timestamp = File::timeLastModified( fname );
     File::Path fp( fname );
-    fp.setExtension( "" );
+    fp.setExtension( 0 );
     const BufferString dirnm = fp.fullPath();
     if ( File::isDirectory(dirnm) )
 	getTimeLastModified( dirnm, timestamp );

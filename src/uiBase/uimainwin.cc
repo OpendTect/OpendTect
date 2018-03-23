@@ -685,7 +685,7 @@ static BufferString getSettingsFileName()
     File::Path fp( GetSettingsDir(), fnm );
     const char* swusr = GetSoftwareUser();
     if ( swusr )
-	fp.setExtension( swusr );
+	fp.setExtension( swusr, false );
     return fp.fullPath();
 }
 

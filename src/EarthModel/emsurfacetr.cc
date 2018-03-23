@@ -213,7 +213,7 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 	if ( ioinfo.type() == EM::IOObjInfo::Fault )
 	{
 	    File::Path fp( newnm );
-	    fp.setExtension("");
+	    fp.setExtension( 0 );
 	    EM::FaultAuxData fad( ioobj->key() );
 	    fad.renameFault( fp.fileName() );
 	}
