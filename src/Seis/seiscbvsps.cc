@@ -80,7 +80,7 @@ bool CBVSSeisPSIOProvider::getGeomIDs( const char* dirnm,
     DirList dl( dirnm, File::FilesInDir, "*.cbvs" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	BufferString filenm = FilePath( dl.get(idx) ).baseName();
+	BufferString filenm = File::Path( dl.get(idx) ).baseName();
 	char* capptr = filenm.find( '^' );
 	if ( !capptr ) continue;
 	BufferString geomidstr( ++capptr );
