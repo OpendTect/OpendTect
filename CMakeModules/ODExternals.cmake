@@ -18,10 +18,10 @@ endif()
 
 macro( DEFINE_SVN_EXTERNAL DIR URL REVISION )
 
-    if ( NOT EXISTS ${DIR} )
+    if ( NOT EXISTS ${CMAKE_SOURCE_DIR}/${DIR} )
 	execute_process(
-	    COMMAND ${SUBVERSION_EXEC} checkout ${EXTRA_SVN_ARGS} -r ${REVISION} ${URL} ${DIR}
-	    TIMEOUT 120
+	    COMMAND ${SUBVERSION_EXEC} checkout ${EXTRA_SVN_ARGS} -r ${REVISION} ${URL} ${CMAKE_SOURCE_DIR}/${DIR}
+	    TIMEOUT 600
 	    OUTPUT_VARIABLE OUTPUT
 	    ERROR_VARIABLE OUTPUT
 	    RESULT_VARIABLE RESULT )
@@ -34,8 +34,8 @@ macro( DEFINE_SVN_EXTERNAL DIR URL REVISION )
 	if ( UPDATE STREQUAL "Yes" )
 	    execute_process(
 		COMMAND ${SUBVERSION_EXEC} update ${EXTRA_SVN_ARGS} -r ${REVISION}
-		WORKING_DIRECTORY ${DIR}
-		TIMEOUT 120
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/${DIR}
+		TIMEOUT 600
 		OUTPUT_VARIABLE OUTPUT
 		ERROR_VARIABLE OUTPUT
 		RESULT_VARIABLE RESULT )
@@ -47,5 +47,44 @@ macro( DEFINE_SVN_EXTERNAL DIR URL REVISION )
 	endif()
     endif()
 
+
+endmacro()
+
+
+find_package( Git QUIET )
+
+if ( Git_FOUND )
+    set ( GIT_EXEC ${GIT_EXECUTABLE} )
+else()
+    set ( GIT_EXEC "git" )
+endif()
+
+macro( DEFINE_GIT_EXTERNAL DIR URL BRANCH )
+
+    if ( NOT EXISTS ${CMAKE_SOURCE_DIR}/external/${DIR} )
+	execute_process(
+	    COMMAND ${GIT_EXEC} clone ${URL} --branch ${BRANCH} --depth 1 ${DIR}
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external
+		OUTPUT_VARIABLE OUTPUT
+		ERROR_VARIABLE OUTPUT
+		RESULT_VARIABLE RESULT )
+	if ( ${RESULT} EQUAL 0 )
+	    message ( STATUS "git checkout success for: ${URL}" )
+	else()
+	    message ( FATAL_ERROR "git checkout failed" )
+	endif()
+    else()
+	execute_process(
+	    COMMAND ${GIT_EXEC} pull
+	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/${DIR}
+	    OUTPUT_VARIABLE OUTPUT
+	    ERROR_VARIABLE OUTPUT
+	    RESULT_VARIABLE RESULT )
+	if ( ${RESULT} EQUAL 0 )
+	    message ( STATUS "external/${DIR} is updated" )
+	else()
+	    message ( FATAL_ERROR "${DIR} is not up to date" )
+	endif()
+    endif()
 
 endmacro()
