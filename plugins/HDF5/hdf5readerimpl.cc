@@ -104,9 +104,9 @@ bool HDF5::ReaderImpl::selectGroup( const char* grpnm )
 
     try
     {
+	H5::Group grp = file_->openGroup( grpnm );
 	delete dataset_; dataset_ = 0;
-	delete group_; group_ = 0;
-	group_ = new H5::Group( file_->openGroup(grpnm) );
+	delete group_; group_ = new H5::Group( grp );
     }
     mCatchAnyNoMsg( return false )
 
@@ -118,13 +118,15 @@ bool HDF5::ReaderImpl::selectDataSet( const char* dsnm )
 {
     if ( !group_ )
 	{ pErrMsg("check successful selectGroup"); return false; }
+    else if ( !dsnm || !*dsnm )
+	return false;
     else if ( atDataSet(dsnm) )
 	return true;
 
     try
     {
-	delete dataset_; dataset_ = 0;
-	dataset_ = new H5::DataSet( group_->openDataSet(dsnm) );
+	H5::DataSet ds = group_->openDataSet( dsnm );
+	delete dataset_; dataset_ = new H5::DataSet( ds );
 	nrdims_ = (NrDimsType)dataset_->getSpace().getSimpleExtentNdims();
     }
     mCatchAnyNoMsg( return false )

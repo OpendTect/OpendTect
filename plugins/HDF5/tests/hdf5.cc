@@ -21,7 +21,8 @@ static const int dim2_ = 20;
 static const int chunksz_ = 6;
 static const char* sPropNm = "Block and comp idxs";
 
-static void fillArr2D( Array2D<float>& arr2d, int shft )
+template <class T>
+static void fillArr2D( Array2D<T>& arr2d, int shft )
 {
     const int dim0 = arr2d.info().getSize( 0 );
     const int dim1 = arr2d.info().getSize( 1 );
@@ -84,23 +85,25 @@ static bool testWrite()
     }
     mAddTestResult( "Write blocks" );
 
-    Array2DImpl<float> arr2dx2( dim1_, (short)(2*dim2_) );
-    HDF5::ArrayNDTool<float> arrtoolx2( arr2dx2 );
+    Array2DImpl<int> iarr2d( dim1_, dim2_ );
+    Array2DImpl<int> iarr2dx2( dim1_, (short)(2*dim2_) );
+    HDF5::ArrayNDTool<int> iarrtoolx2( iarr2dx2 );
+    HDF5::ArrayNDTool<int> iarrtool( iarr2d );
     dsky.setGroupName( "Slabby" );
     dsky.setDataSetName( "Slabby Data" );
-    uirv = arrtoolx2.createDataSet( *wrr, dsky );
+    uirv = iarrtoolx2.createDataSet( *wrr, dsky );
     mAddTestResult( "Create Slabby DataSet" );
     HDF5::SlabSpec slabspec; HDF5::SlabDimSpec dimspec;
     dimspec.start_ = 0; dimspec.step_ = 1; dimspec.count_ = dim1_;
     slabspec += dimspec;
     dimspec.start_ = 0; dimspec.step_ = 1; dimspec.count_ = dim2_;
     slabspec += dimspec;
-    fillArr2D( arr2d, 100 );
-    uirv = arrtool.putSlab( *wrr, slabspec );
+    fillArr2D( iarr2d, 100 );
+    uirv = iarrtool.putSlab( *wrr, slabspec );
     mAddTestResult( "Write Slabby First Slab" );
     slabspec[1].start_ = dim2_;
-    fillArr2D( arr2d, 6000 );
-    uirv = arrtool.putSlab( *wrr, slabspec );
+    fillArr2D( iarr2d, 100 + dim2_ );
+    uirv = iarrtool.putSlab( *wrr, slabspec );
     mAddTestResult( "Write Slabby Second Slab" );
 
     return true;
@@ -235,14 +238,14 @@ static bool testReadData( HDF5::Reader& rdr )
     const HDF5::DataSetKey dsky( "Slabby", "Slabby Data" );
     bool scoperes = rdr.setScope( dsky );
     mRunStandardTest( scoperes, "Set scope (Slabby)" )
-    Array2DImpl<float> arr2dx2( dim1_, 2*dim2_ );
-    uirv = rdr.getAll( const_cast<float*>(arr2dx2.getData()) );
+    Array2DImpl<int> iarr2dx2( dim1_, (short)2*dim2_ );
+    uirv = rdr.getAll( const_cast<int*>(iarr2dx2.getData()) );
     mAddTestResult( "Get Slabby values" );
-    const float v3_11 = arr2dx2.get( 3, 11 );
-    const float v3_31 = arr2dx2.get( 3, 31 );
-    mRunStandardTestWithError( v3_11==411.f, "Correct Slabby value [3,11]",
+    const int v3_11 = iarr2dx2.get( 3, 11 );
+    const int v3_31 = iarr2dx2.get( 3, 31 );
+    mRunStandardTestWithError( v3_11==411, "Correct Slabby value [3,11]",
 				BufferString("v3_11=",v3_11) )
-    mRunStandardTestWithError( v3_31==6311.f,"Correct Slabby value [3,31]",
+    mRunStandardTestWithError( v3_31==431,"Correct Slabby value [3,31]",
 				BufferString("v3_31=",v3_31) )
 
     return true;
