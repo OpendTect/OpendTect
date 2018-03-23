@@ -146,7 +146,7 @@ BufferString SeisCBVSPSIO::get2DFileName( Pos::GeomID geomid ) const
     FilePath fp( dirnm_ );
     BufferString fnm( fp.fileName(), "^", toString(geomid) );
     fp.add( fnm );
-    fp.setExtension( "cbvs" );
+    fp.setExtension( "cbvs", false );
 
     fnm = fp.fullPath();
     return fnm;

@@ -64,7 +64,7 @@ static void convert2DPSData()
 	    const BufferString newfnm( newfp.fileName(), "^",
 				       toString(geomid) );
 	    newfp.add( newfnm );
-	    newfp.setExtension( fp.extension() );
+	    newfp.setExtension( fp.extension(), false );
 	    File::rename( fp.fullPath().buf(), newfp.fullPath().buf() );
 	}
     }
@@ -428,7 +428,7 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
 	    if ( !iop->get(sKey::GeomID(),geomid) || geomid <= 0 )
 		continue;
 	    newfn.add( geomid );
-	    newfp.add( newfn ).setExtension( oldfp.extension() );
+	    newfp.add( newfn ).setExtension( oldfp.extension(), false );
 
 	    if ( oldfp == newfp )
 		continue;
@@ -511,14 +511,14 @@ bool OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 						iop.name()) );
 	    FilePath newfp( IOObjContext::getDataDirName(IOObjContext::Seis),
 			    attrname, newfile );
-	    newfp.setExtension( oldfp.extension() );
+	    newfp.setExtension( oldfp.extension(), false );
 	    const BufferString newfullfnm = newfp.fullPath();
 	    if ( newfullfnm == oldfullfnm || !File::exists(newfullfnm.buf()) )
 		continue;
 
 	    FilePath newfnm( attrname );
 	    newfnm.add( newfile );
-	    newfnm.setExtension( oldfp.extension() );
+	    newfnm.setExtension( oldfp.extension(), false );
 	    iop.set( sKey::FileName(), newfnm.fullPath(FilePath::Unix) );
 	    if ( File::exists(oldfullfnm) )
 		filestobedeleted.add( oldfullfnm );

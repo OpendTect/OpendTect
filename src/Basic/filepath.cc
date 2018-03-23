@@ -289,12 +289,9 @@ const OD::String& FilePath::fileName() const
 
 BufferString FilePath::baseName() const
 {
-    BufferString ret = fileName();
-    char* ptr = ret.getCStr();
-    while ( *ptr && *ptr != '.' ) ptr++;
-    if ( !*ptr ) return ret;
-    *ptr++ = '\0';
-    return ret;
+    FilePath selfcopy( *this );
+    selfcopy.setExtension( 0 );
+    return selfcopy.fileName();
 }
 
 
