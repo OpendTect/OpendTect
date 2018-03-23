@@ -30,6 +30,8 @@
 
 #include "odplugin.h"
 
+#include "uiTutorialText.h"
+
 static const int cTutIdx = -1100;
 
 
@@ -63,6 +65,8 @@ public:
     void		launchDialog(Seis::GeomType);
     void		doHor(CallBacker*);
     void		doWells(CallBacker*);
+    void		doVisTutorialText(CallBacker*);  
+			/*added for tutorial: some text*/
 };
 
 
@@ -94,8 +98,23 @@ void uiTutMgr::updateMenu( CallBacker* )
     mnumgr.addAction( mnu, uiStrings::sHorizon(), "tree-horizon3d",
 		      mCB(this,uiTutMgr,doHor) );
 
+     mnumgr.addAction( mnu, tr("Tutorial: SomeText"), "tree-horizon3d",
+		      mCB(this,uiTutMgr,doVisTutorialText) );
 }
 
+void uiTutMgr::doVisTutorialText(CallBacker *)
+{
+    uiODSceneMgr& u=appl_->sceneMgr(); 
+
+    Coord c=SI().transform( SI().sampling( false ).hsamp_.center().binID() );
+    Coord3 coord( c.x_,c.y_,SI().zRange( false ).center() );
+
+    visSurvey::TutTextDisplay* tutTextDisplay=new 
+	visSurvey::TutTextDisplay( tr( "Tutorial: Some Text" ),coord );
+
+    appl_->applMgr().visServer()->addObject(
+	tutTextDisplay,u.getActiveSceneID(), true );
+}
 
 void uiTutMgr::do3DSeis( CallBacker* )
 {
