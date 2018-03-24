@@ -54,6 +54,7 @@ void HDF5::ReaderImpl::closeFile()
 }
 
 
+template <class H5Dir>
 void HDF5::ReaderImpl::listObjs( const H5Dir& dir, BufferStringSet& nms,
 				 bool wantgroups ) const
 {

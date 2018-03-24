@@ -23,7 +23,6 @@ mExpClass(HDF5) ReaderImpl : public Reader
 public:
 
     typedef H5::DataType	H5DataType;
-    typedef H5::CommonFG	H5Dir;
 
 			ReaderImpl();
 			~ReaderImpl();
@@ -52,6 +51,7 @@ protected:
     virtual void	gtPoints(const NDPosBufSet&,void*,uiRetVal&) const;
     virtual void	gtSlab(const SlabSpec&,void*,uiRetVal&) const;
 
+    template <class H5Dir>
     void		listObjs(const H5Dir&,BufferStringSet&,bool) const;
     bool		selectGroup(const char*);
     bool		selectDataSet(const char*);
