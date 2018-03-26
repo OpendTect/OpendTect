@@ -99,6 +99,7 @@ ExecutorGroup::ExecutorGroup( const char* nm, bool p, bool ownsexecs )
 	, parallel_( p )
 	, sumstart_( 0 )
         , ownsexecs_(ownsexecs)
+	, continueonerror_(false)
 {
 }
 
@@ -142,15 +143,19 @@ void ExecutorGroup::add( Executor* n )
 }
 
 
+void ExecutorGroup::setContinueOnError( bool yn )
+{ continueonerror_ = yn; }
+
 int ExecutorGroup::nextStep()
 {
     const int nrexecs = executors_.size();
     if ( !nrexecs ) return Finished();
 
     int res = executorres_[currentexec_] = executors_[currentexec_]->doStep();
-    if ( res == ErrorOccurred() )
+    if ( res == ErrorOccurred() && !continueonerror_ )
 	return ErrorOccurred();
-    else if ( parallel_ || res==Finished() )
+
+    if ( parallel_ || res==Finished() || res==ErrorOccurred() )
 	res = goToNextExecutor() ? MoreToDo() : Finished();
 
     return res;

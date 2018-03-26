@@ -85,6 +85,9 @@ public:
     virtual		~ExecutorGroup();
     virtual void	add( Executor* );
 			/*!< You will become mine if ownsexecs_ is true!! */
+    void		setContinueOnError(bool yn=true);
+			/*!< If true, will skip the failed exec and go to next,
+			  otherwise will abort */
 
     uiString		message() const;
     virtual od_int64	totalNr() const;
@@ -112,5 +115,6 @@ protected:
     ObjectSet<Executor>& executors_;
     TypeSet<int>	executorres_;
     bool		ownsexecs_;
+    bool		continueonerror_;
 
 };
