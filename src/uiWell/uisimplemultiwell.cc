@@ -56,10 +56,10 @@ public:
 
 
 uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
-    : uiDialog( p, Setup(tr("Import Simple Wells"),mNoDlgTitle,
-                         mODHelpKey(mSimpleMultiWellCreateHelpID) )
-			.savebutton(true).savetext(tr("Display after import"))
-			.modal(false) )
+    : uiDialog(p,Setup(tr("Import Simple Wells"),mNoDlgTitle,
+		       mODHelpKey(mSimpleMultiWellCreateHelpID) )
+		 .savebutton(true).savetext(tr("Display after import"))
+		 .modal(false))
     , velfld_(0)
     , zinft_(SI().depthsInFeet())
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
@@ -163,7 +163,7 @@ bool getLine()
 
 
 class uiSimpleMultiWellCreateReadData : public uiDialog
-{ mODTextTranslationClass(uiSimpleMultiWellCreateReadData);
+{ mODTextTranslationClass(uiSimpleMultiWellCreateReadData)
 public:
 
 uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
@@ -373,6 +373,7 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 			     uiStrings::sYes(), tr("No, Quit") );
     }
 
+    tbl_->clearTable();
     return true;
 }
 
