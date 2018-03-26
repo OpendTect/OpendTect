@@ -148,7 +148,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     statsfld_ = new uiStatsDisplay( graphgrp, su );
     statsfld_->setData( datavals.arr(), datavals.size() );
     bsetup_.nrptsperclss = statsfld_->funcDisp()->nrClasses() > 0
-		? statsfld_->funcDisp()->nrInpVals() / 
+		? statsfld_->funcDisp()->nrInpVals() /
 		  statsfld_->funcDisp()->nrClasses() : 1;
     statsfld_->setMarkValue( mCast(float,bsetup_.nrptsperclss), false );
 
@@ -505,7 +505,9 @@ bool uiNLAPartServer::doDPSDlg()
     bss.add( NLACreationDesc::DataTypeNames()[1] );
     uidps_->setGroupNames( bss );
     uidps_->setGroupType( "Data Set" );
-    return uidps_->go();
+    const bool res = uidps_->go();
+    deleteAndZeroPtr( uidps_ );
+    return res;
 }
 
 
