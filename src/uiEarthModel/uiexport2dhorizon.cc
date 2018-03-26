@@ -329,9 +329,12 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	headerstr.add( id ).add( ": " ).add( "X\n" );
 	headerstr.add( "# " ).add( ++id ).add( ": " ).add( "Y\n" );
 	if ( wrtlnm )
+	{
 	    headerstr.add( "# " ).add( ++id )
-		     .add( ": " ).add( "ShotPointNr\n" ).add( "# " ).add( ++id )
+		     .add( ": " ).add( "ShotPointNr\n" );
+	    headerstr.add( "# " ).add( ++id )
                      .add( ": " ).add( "TraceNr\n" );
+	}
 
 	headerstr.add( "# " ).add( ++id ).add( ": " ).add( zstr );
     }
