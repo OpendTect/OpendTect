@@ -372,6 +372,7 @@ bool uiSimpleMultiWellCreate::acceptOK()
 			     uiStrings::sYes(), tr("No, Quit") );
     }
 
+    tbl_->clearTable();
     return true;
 }
 
