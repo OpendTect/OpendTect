@@ -2462,7 +2462,7 @@ private:
 			    hiter->next();
 			}
 
-			bool allnull = false;
+			bool allnull = true;
 			for ( int idz=0; idz<nrtrcsp; idz++ )
 			{
 			    if ( hiter ) pos[zidx] = idz;
@@ -2487,8 +2487,8 @@ private:
 			    else
 				topmute_.setND( hpos, idz );
 
+			    allnull = false;
 			    break;
-			    allnull = true;
 			}
 
 			if ( allnull )
