@@ -15,34 +15,34 @@ else()
     set ( SUBVERSION_EXEC "svn" )
 endif()
 
+# EXTBASEDIR: Default: ${CMAKE_SOURCE_DIR}/external
+macro( DEFINE_SVN_EXTERNAL DIR URL EXTBASEDIR REVISION )
 
-macro( DEFINE_SVN_EXTERNAL DIR URL REVISION )
-
-    if ( NOT EXISTS ${CMAKE_SOURCE_DIR}/${DIR} )
+    if ( NOT EXISTS ${EXTBASEDIR}/${DIR} )
 	execute_process(
-	    COMMAND ${SUBVERSION_EXEC} checkout ${EXTRA_SVN_ARGS} -r ${REVISION} ${URL} ${CMAKE_SOURCE_DIR}/${DIR}
+	    COMMAND ${SUBVERSION_EXEC} checkout ${EXTRA_SVN_ARGS} -r ${REVISION} ${URL} ${EXTBASEDIR}/${DIR}
 	    TIMEOUT 600
 	    OUTPUT_VARIABLE OUTPUT
 	    ERROR_VARIABLE OUTPUT
 	    RESULT_VARIABLE RESULT )
 	if ( ${RESULT} EQUAL 0 )
-	     message( "${DIR} is updated to ${URL} revision ${REVISION}" )
+	     message( STATUS "svn checkout success for: ${URL} revision ${REVISION}" )
 	else()
-	     message( "${DIR} is not up to date:\n${OUTPUT}" )
+	     message( FATAL_ERROR "svn checkout failed:\n${OUTPUT}" )
 	endif()
     else()
 	if ( UPDATE STREQUAL "Yes" )
 	    execute_process(
 		COMMAND ${SUBVERSION_EXEC} update ${EXTRA_SVN_ARGS} -r ${REVISION}
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/${DIR}
+		WORKING_DIRECTORY ${EXTBASEDIR}/${DIR}
 		TIMEOUT 600
 		OUTPUT_VARIABLE OUTPUT
 		ERROR_VARIABLE OUTPUT
 		RESULT_VARIABLE RESULT )
 	    if ( ${RESULT} EQUAL 0 )
-		 message( "${DIR} is updated to ${URL} revision ${REVISION}" )
+		 message ( STATUS "${EXTBASEDIR}/${DIR} is updated" )
 	    else()
-		 message( "${DIR} is not up to date:\n${OUTPUT}" )
+		 message ( FATAL_ERROR "${DIR} is not up to date:\n${OUTPUT}" )
 	    endif()
 	endif()
     endif()
