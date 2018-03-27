@@ -45,7 +45,6 @@ macro( DEFINE_SVN_EXTERNAL DIR URL EXTBASEDIR REVISION )
 	endif()
     endif()
 
-
 endmacro()
 
 
