@@ -40,19 +40,19 @@ bool GLInfo::isOK() const
 
 
 bool GLInfo::isPlatformSupported() const
-{ return glinfo_->isPlatformSupported(); }
+{ return glinfo_ && glinfo_->isPlatformSupported(); }
 
 
 const char* GLInfo::glVendor() const
-{ return glinfo_->glVendor(); }
+{ return glinfo_ ? glinfo_->glVendor() : ""; }
 
 
 const char* GLInfo::glRenderer() const
-{ return glinfo_->glRenderer(); }
+{ return glinfo_ ? glinfo_->glRenderer() : ""; }
 
 
 const char* GLInfo::glVersion() const
-{ return glinfo_->glVersion(); }
+{ return glinfo_ ? glinfo_->glVersion() : ""; }
 
 
 BufferStringSet GLInfo::allInfo() const
@@ -146,6 +146,10 @@ void uiGLInfo::showMessage( uiString msg, bool warn,
     {
 	Settings::common().get( dontshowagainkey, lastinfo );
 	if ( allinfo == lastinfo )
+	    return;
+
+	// Don't show message at startup for NVidia cards
+	if ( stringStartsWithCI("nvidia",allinfo[0]->buf()) )
 	    return;
     }
 
