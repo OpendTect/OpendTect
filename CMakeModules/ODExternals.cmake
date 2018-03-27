@@ -31,19 +31,17 @@ macro( DEFINE_SVN_EXTERNAL DIR URL EXTBASEDIR REVISION )
 	     message( FATAL_ERROR "svn checkout failed:\n${OUTPUT}" )
 	endif()
     else()
-	if ( UPDATE STREQUAL "Yes" )
-	    execute_process(
-		COMMAND ${SUBVERSION_EXEC} update ${EXTRA_SVN_ARGS} -r ${REVISION}
-		WORKING_DIRECTORY ${EXTBASEDIR}/${DIR}
-		TIMEOUT 600
-		OUTPUT_VARIABLE OUTPUT
-		ERROR_VARIABLE OUTPUT
-		RESULT_VARIABLE RESULT )
-	    if ( ${RESULT} EQUAL 0 )
-		 message ( STATUS "${EXTBASEDIR}/${DIR} is updated" )
-	    else()
-		 message ( FATAL_ERROR "${DIR} is not up to date:\n${OUTPUT}" )
-	    endif()
+	execute_process(
+	    COMMAND ${SUBVERSION_EXEC} update ${EXTRA_SVN_ARGS} -r ${REVISION}
+	    WORKING_DIRECTORY ${EXTBASEDIR}/${DIR}
+	    TIMEOUT 600
+	    OUTPUT_VARIABLE OUTPUT
+	    ERROR_VARIABLE OUTPUT
+	    RESULT_VARIABLE RESULT )
+	if ( ${RESULT} EQUAL 0 )
+	     message ( STATUS "${EXTBASEDIR}/${DIR} is updated" )
+	else()
+	     message ( FATAL_ERROR "${DIR} is not up to date:\n${OUTPUT}" )
 	endif()
     endif()
 
