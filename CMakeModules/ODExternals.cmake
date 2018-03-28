@@ -28,7 +28,7 @@ macro( DEFINE_SVN_EXTERNAL DIR URL EXTBASEDIR REVISION )
 	if ( ${RESULT} EQUAL 0 )
 	     message( STATUS "svn checkout success for: ${URL} revision ${REVISION}" )
 	else()
-	     message( FATAL_ERROR "svn checkout failed:\n${OUTPUT}" )
+	     message( FATAL_ERROR "svn checkout failed for dir ${DIR} in directory ${EXTBASEDIR}:\n${OUTPUT}" )
 	endif()
     else()
 	execute_process(
