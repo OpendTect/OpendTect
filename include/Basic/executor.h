@@ -96,6 +96,7 @@ public:
 
     int			nrExecutors() const { return executors_.size(); }
     Executor*		getExecutor(int idx) { return executors_[idx]; }
+    const Executor*	getExecutor(int idx) const { return executors_[idx]; }
 
     void		setNrDoneText(const uiString& txt)
 			{ nrdonetext_ = txt; }
