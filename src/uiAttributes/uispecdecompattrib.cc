@@ -73,7 +73,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     tfpanelbut_->attach( alignedBelow, gatefld_ );
 
     uiString lbl = uiStrings::phrOutput(uiStrings::phrJoinStrings(
-	uiStrings::sFrequency().toLower(), toUiString("(%1")
+	uiStrings::sFrequency().toLower(), toUiString("(%1)")
 	.arg(zIsTime() ? tr("Hz") : (SI().zInMeter() ? tr("cycles/km") 
 	: tr("cycles/kft")))));
     outpfld_ = new uiLabeledSpinBox( this, lbl, 1 );
