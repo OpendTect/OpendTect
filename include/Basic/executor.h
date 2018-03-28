@@ -94,7 +94,7 @@ public:
     virtual od_int64	nrDone() const;
     uiString		nrDoneText() const;
 
-    int			nrExecutors() { return executors_.size(); }
+    int			nrExecutors() const { return executors_.size(); }
     Executor*		getExecutor(int idx) { return executors_[idx]; }
 
     void		setNrDoneText(const uiString& txt)
