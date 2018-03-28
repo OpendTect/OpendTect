@@ -5,11 +5,13 @@
 -*/
 
 #include "vistutorialdisplay.h"
+#include "vistransform.h"
 
 
-visSurvey::TutorialDisplay::TutorialDisplay():
-				  visBase::VisualObjectImpl( true ),
-				  text_( visBase::Text2::create() )
+visSurvey::TutorialDisplay::TutorialDisplay()
+    : visBase::VisualObjectImpl(true)
+    , text_(visBase::Text2::create())
+    , transformation_(0)
 {
     text_->ref();
 }
@@ -19,6 +21,7 @@ visSurvey::TutorialDisplay::TutorialDisplay( const uiString& texttodisp,
 					   const Coord3& pos )
     : visBase::VisualObjectImpl(true)
     , text_(visBase::Text2::create())
+    , transformation_(0)
 {
     text_->ref();
     text_->addText();
@@ -31,6 +34,26 @@ visSurvey::TutorialDisplay::TutorialDisplay( const uiString& texttodisp,
     text_->text( 0 )->setFontData( fd, 500 );
 
     addChild( text_->osgNode() );
+}
+
+
+const mVisTrans* visSurvey::TutorialDisplay::getDisplayTransformation() const
+{ return text_->getDisplayTransformation(); }
+
+void visSurvey::TutorialDisplay::setDisplayTransformation( const mVisTrans* nt )
+{
+    if ( transformation_==nt  )
+	return;
+
+    if ( transformation_ )
+	transformation_->unRef();
+
+    transformation_ = nt;
+
+    if ( transformation_ )
+	transformation_->ref();
+
+    text_->setDisplayTransformation( transformation_ );
 }
 
 

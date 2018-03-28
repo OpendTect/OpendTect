@@ -27,9 +27,14 @@ public:
 					       const Coord3& position);
 				~TutorialDisplay();
 
+    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(const mVisTrans*);
+
 private:
 
     visBase::Text2*             text_;
+    const mVisTrans*		transformation_;
+
     virtual const char*		getClassName() const
 				{ return sFactoryKeyword(); }
 				/* defined in mDefaultFactoryInstantiation */
