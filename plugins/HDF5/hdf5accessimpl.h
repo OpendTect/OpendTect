@@ -30,6 +30,7 @@ public:
     virtual		~AccessImpl();
 
     const char*		gtFileName() const;
+    DataSetKey		gtScope() const;
 
 protected:
 
@@ -40,12 +41,18 @@ protected:
     Access&		acc_;
     mutable H5::Group*	group_;
     mutable H5::DataSet* dataset_;
+    mutable ArrayNDInfo::NrDimsType nrdims_;
 
 			// no throw
     void		doCloseFile(Access&);
     static H5::DataType	h5DataTypeFor(ODDataType);
     bool		atGroup(const char*&) const;
     bool		atDataSet(const char*) const;
+    bool		selectGroup(const char*);
+    bool		selectDataSet(const char*);
+    bool		stScope(const DataSetKey&);
+    inline bool		haveScope( bool needds=true ) const
+			{ return group_ && (!needds || dataset_); }
 
 			// can throw
     void		selectSlab(H5::DataSpace&,const SlabSpec&,

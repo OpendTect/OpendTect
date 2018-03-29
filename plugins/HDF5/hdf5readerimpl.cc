@@ -96,57 +96,6 @@ void HDF5::ReaderImpl::getGroups( BufferStringSet& nms ) const
 }
 
 
-bool HDF5::ReaderImpl::selectGroup( const char* grpnm )
-{
-    if ( !grpnm || !*grpnm )
-	grpnm = "/";
-    if ( atGroup(grpnm) )
-	return true;
-
-    try
-    {
-	H5::Group grp = file_->openGroup( grpnm );
-	delete dataset_; dataset_ = 0;
-	delete group_; group_ = new H5::Group( grp );
-    }
-    mCatchAnyNoMsg( return false )
-
-    return true;
-}
-
-
-bool HDF5::ReaderImpl::selectDataSet( const char* dsnm )
-{
-    if ( !group_ )
-	{ pErrMsg("check successful selectGroup"); return false; }
-    else if ( !dsnm || !*dsnm )
-	return false;
-    else if ( atDataSet(dsnm) )
-	return true;
-
-    try
-    {
-	H5::DataSet ds = group_->openDataSet( dsnm );
-	delete dataset_; dataset_ = new H5::DataSet( ds );
-	nrdims_ = (NrDimsType)dataset_->getSpace().getSimpleExtentNdims();
-    }
-    mCatchAnyNoMsg( return false )
-
-    return true;
-}
-
-
-bool HDF5::ReaderImpl::setScope( const DataSetKey& dsky )
-{
-    if ( !selectGroup(dsky.groupName()) )
-	return false;
-    else if ( dsky.dataSetEmpty() )
-	return true;
-
-    return selectDataSet( dsky.dataSetName() );
-}
-
-
 void HDF5::ReaderImpl::getDataSets( const char* grpnm,
 				    BufferStringSet& nms ) const
 {

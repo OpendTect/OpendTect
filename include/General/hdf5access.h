@@ -125,7 +125,10 @@ public:
     virtual		~Access();
 
     uiRetVal		open(const char*);
-    virtual const char*	fileName() const	= 0;
+    virtual const char*	fileName() const		= 0;
+
+    virtual DataSetKey	scope() const			= 0;
+    virtual bool	setScope(const DataSetKey&)	= 0;
 
     H5::H5File*		getHDF5File()		{ return file_; }
 

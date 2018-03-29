@@ -102,6 +102,8 @@ public:
 
 protected:
 
+    Dimensions		columndims_;
+
     void		writeGlobalInfo(uiRetVal&);
 
 };

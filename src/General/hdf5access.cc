@@ -178,6 +178,19 @@ uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
 
 
 
+uiRetVal HDF5::Writer::putInfo( const IOPar& iop )
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+
+    if ( !iop.isEmpty() )
+	ptInfo( iop, uirv, 0 );
+    return uirv;
+}
+
+
+
 uiRetVal HDF5::Writer::putInfo( const DataSetKey& dsky, const IOPar& iop )
 {
     uiRetVal uirv;
@@ -185,7 +198,7 @@ uiRetVal HDF5::Writer::putInfo( const DataSetKey& dsky, const IOPar& iop )
 	mRetNoFileInUiRv()
 
     if ( !iop.isEmpty() )
-	ptInfo( dsky, iop, uirv );
+	ptInfo( iop, uirv, &dsky );
     return uirv;
 }
 

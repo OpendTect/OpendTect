@@ -18,7 +18,8 @@ namespace HDF5
 /*!\brief writes to HDF5 file
 
 Notes:
-* The Writer has a notion of a 'current' DataSet.
+* The Writer has a notion of a 'current' DataSet. Using 'setScope' implies
+  that you have created the Data Set first.
 * You can write info for an entire group by simpy leaving the dataset name
   empty in the DataSetKey.
 * To be able to put info for a DataSet, you have to create it first. Info for
@@ -35,16 +36,17 @@ public:
     uiRetVal		createDataSet(const DataSetKey&,const ArrayNDInfo&,
 				      ODDataType);
 
+    uiRetVal		putInfo(const IOPar&); //!< current scope only
     uiRetVal		putInfo(const DataSetKey&,const IOPar&);
-
+			    //!< also for file/group info
     uiRetVal		putAll(const void*);
     uiRetVal		putSlab(const SlabSpec&,const void*);
 
 protected:
 
-    virtual void	ptInfo(const DataSetKey&,const IOPar&,uiRetVal&)= 0;
     virtual void	crDS(const DataSetKey&,const ArrayNDInfo&,
 				ODDataType,uiRetVal&)			= 0;
+    virtual void	ptInfo(const IOPar&,uiRetVal&,const DataSetKey*)= 0;
     virtual void	ptAll(const void*,uiRetVal&)			= 0;
     virtual void	ptSlab(const SlabSpec&,const void*,uiRetVal&)	= 0;
 

@@ -36,9 +36,6 @@ public:
 				    BufferStringSet&) const	= 0;
 				//!< Pass a full group name
 
-    virtual bool	setScope(const DataSetKey&)		= 0;
-				//!< Must be done before any data query
-
     virtual ArrayNDInfo* getDataSizes() const			= 0;
 				//!< Can return null when:
 				//!< - there is no such group

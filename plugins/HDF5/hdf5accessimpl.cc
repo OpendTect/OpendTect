@@ -76,10 +76,77 @@ bool HDF5::AccessImpl::atGroup( const char*& grpnm ) const
 }
 
 
+HDF5::DataSetKey HDF5::AccessImpl::gtScope() const
+{
+    if ( !group_ )
+	return DataSetKey();
+
+    DataSetKey ret( group_->getObjName().c_str() );
+    if ( dataset_ )
+	ret.setDataSetName( dataset_->getObjName().c_str() );
+
+    return ret;
+}
+
+
 bool HDF5::AccessImpl::atDataSet( const char* dsnm ) const
 {
     return !dataset_ || !dsnm || !*dsnm ? false
 	 : dataset_->getObjName() == dsnm;
+}
+
+
+bool HDF5::AccessImpl::selectGroup( const char* grpnm )
+{
+    if ( !grpnm || !*grpnm )
+	grpnm = "/";
+    if ( atGroup(grpnm) )
+	return true;
+    else if ( !acc_.file_ )
+	return false;
+
+    try
+    {
+	H5::Group grp = acc_.file_->openGroup( grpnm );
+	delete dataset_; dataset_ = 0;
+	delete group_; group_ = new H5::Group( grp );
+    }
+    mCatchAnyNoMsg( return false )
+
+    return true;
+}
+
+
+bool HDF5::AccessImpl::selectDataSet( const char* dsnm )
+{
+    if ( !group_ )
+	{ pErrMsg("check successful selectGroup"); return false; }
+    else if ( !dsnm || !*dsnm )
+	return false;
+    else if ( atDataSet(dsnm) )
+	return true;
+
+    try
+    {
+	H5::DataSet ds = group_->openDataSet( dsnm );
+	delete dataset_; dataset_ = new H5::DataSet( ds );
+	nrdims_ = (ArrayNDInfo::NrDimsType)dataset_->getSpace()
+						.getSimpleExtentNdims();
+    }
+    mCatchAnyNoMsg( return false )
+
+    return true;
+}
+
+
+bool HDF5::AccessImpl::stScope( const DataSetKey& dsky )
+{
+    if ( !selectGroup(dsky.groupName()) )
+	return false;
+    else if ( dsky.dataSetEmpty() )
+	return true;
+
+    return selectDataSet( dsky.dataSetName() );
 }
 
 

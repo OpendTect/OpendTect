@@ -32,7 +32,9 @@ public:
     virtual void	getGroups(BufferStringSet&) const;
     virtual void	getDataSets(const char* grpnm,BufferStringSet&) const;
 
-    virtual bool	setScope(const DataSetKey&);
+    virtual DataSetKey	scope() const		{ return gtScope(); }
+    virtual bool	setScope( const DataSetKey& dsky )
+						{ return stScope( dsky ); }
 
     virtual ArrayNDInfo* getDataSizes() const;
     virtual ODDataType	getDataType() const;
@@ -40,7 +42,6 @@ public:
 protected:
 
     BufferStringSet	grpnms_;
-    mutable NrDimsType	nrdims_;
 
     virtual void	openFile(const char*,uiRetVal&);
     virtual void	closeFile();
@@ -53,10 +54,6 @@ protected:
 
     template <class H5Dir>
     void		listObjs(const H5Dir&,BufferStringSet&,bool) const;
-    bool		selectGroup(const char*);
-    bool		selectDataSet(const char*);
-    inline bool		haveScope( bool needds=true ) const
-			{ return group_ && (!needds || dataset_); }
     H5DataType		h5DataType() const;
 
 };

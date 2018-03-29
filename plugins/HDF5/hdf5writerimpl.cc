@@ -54,18 +54,7 @@ void HDF5::WriterImpl::setChunkSize( int sz )
 
 bool HDF5::WriterImpl::ensureGroup( const char* grpnm, uiRetVal& uirv )
 {
-    if ( atGroup(grpnm) )
-	return true;
-
-    bool waspresent = true;
-    try {
-	delete dataset_; dataset_ = 0;
-	delete group_; group_ = 0;
-	group_ = new H5::Group( file_->openGroup(grpnm) );
-    }
-    mCatchAnyNoMsg( waspresent = false )
-
-    if ( !waspresent || !group_ )
+    if ( !selectGroup(grpnm) )
     {
 	try {
 	    group_ = new H5::Group( file_->createGroup(grpnm) );
@@ -77,30 +66,60 @@ bool HDF5::WriterImpl::ensureGroup( const char* grpnm, uiRetVal& uirv )
 }
 
 
-static void getWriteStr( const char* inpstr, int nrchars, BufferString& ret )
+void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
+			       ODDataType dt, uiRetVal& uirv )
 {
-    ret.set( inpstr );
-    int termpos = ret.size();
-    if ( termpos > nrchars-2 )
-	termpos = nrchars - 1;
-    else
-	ret.addSpace( nrchars - termpos );
-    *(ret.getCStr()+termpos) = '\0';
+    if ( !ensureGroup(dsky.groupName(),uirv) )
+	return;
+
+    nrdims_ = info.nrDims();
+    TypeSet<hsize_t> dims, chunkdims;
+    for ( int idim=0; idim<nrdims_; idim++ )
+    {
+	dims += info.getSize( idim );
+	chunkdims += chunksz_;
+    }
+
+    const H5DataType h5dt = h5DataTypeFor( dt );
+    try
+    {
+	H5::DataSpace dataspace( nrdims_, dims.arr() );
+	H5::DSetCreatPropList proplist;
+	if ( nrdims_ > 1 )
+	    proplist.setChunk( nrdims_, chunkdims.arr() );
+	proplist.setSzip( szip_options_mask, szip_pixels_per_block );
+	delete dataset_; dataset_ = 0;
+	dataset_ = new H5::DataSet( group_->createDataSet( dsky.dataSetName(),
+				    h5dt, dataspace, proplist ) );
+    }
+    mCatchErrDuringWrite()
 }
 
 
-
-void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& iop,
-			       uiRetVal& uirv )
+void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
+			       const DataSetKey* ptrdsky )
 {
-    const hsize_t nrvals = iop.size();
-    if ( nrvals < 1 || !ensureGroup(dsky.groupName(),uirv) )
+    if ( iop.isEmpty() )
 	return;
 
-    const H5::DataType h5dt = H5::PredType::C_S1;
+    DataSetKey dsky;
+    if ( ptrdsky )
+	dsky = *ptrdsky;
+    else
+    {
+	if ( dataset_ )
+	{
+	    putAttrib( *dataset_, iop, uirv );
+	    return;
+	}
+	// No datasetkey, nothing open yet: work with file level
+    }
+
+    if ( !ensureGroup(dsky.groupName(),uirv) )
+	return;
+
     H5::DataSet* useds = dataset_;
     H5::DataSet ds;
-    hsize_t dims[1];
     if ( !atDataSet(dsky.dataSetName()) )
     {
 	bool notpresent = false;
@@ -118,8 +137,9 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& iop,
 			    "Use createDataSet first, then putInfo") );
 		return;
 	    }
-	    dims[0] = 1; // 0 needed but seems like a bad idea
+	    hsize_t dims[1]; dims[0] = 1;
 	    const char data = '\0';
+	    const H5::DataType h5dt = H5::PredType::C_S1;
 	    try
 	    {
 		ds = group_->createDataSet( DataSetKey::sGroupInfoDataSetName(),
@@ -131,49 +151,39 @@ void HDF5::WriterImpl::ptInfo( const DataSetKey& dsky, const IOPar& iop,
 	useds = &ds;
     }
 
-    const int nrchars = iop.maxContentSize( false ) + 1;
-    dims[0] = nrchars;
-    try
-    {
-	H5::DataSpace dataspace( 1, dims );
-	for ( int idx=0; idx<nrvals; idx++ )
-	{
-	    H5::Attribute attribute = useds->createAttribute(
-				iop.getKey(idx), h5dt, dataspace );
-	    BufferString str2write;
-	    getWriteStr( iop.getValue(idx), nrchars, str2write );
-	    attribute.write( h5dt, str2write.getCStr() );
-	}
-    }
-    mCatchErrDuringWrite()
+    putAttrib( *useds, iop, uirv );
 }
 
 
-void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
-			       ODDataType dt, uiRetVal& uirv )
+static BufferString getWriteStr( const char* inpstr, int nrchars )
 {
-    if ( !ensureGroup(dsky.groupName(),uirv) )
-	return;
+    BufferString ret( inpstr );
+    int termpos = ret.size();
+    if ( termpos > nrchars-2 )
+	termpos = nrchars - 1;
+    else
+	ret.addSpace( nrchars - termpos );
+    *(ret.getCStr()+termpos) = '\0';
+    return ret;
+}
 
-    const int nrdims = info.nrDims();
-    TypeSet<hsize_t> dims, chunkdims;
-    for ( int idim=0; idim<nrdims; idim++ )
-    {
-	dims += info.getSize( idim );
-	chunkdims += chunksz_;
-    }
 
-    const H5DataType h5dt = h5DataTypeFor( dt );
+void HDF5::WriterImpl::putAttrib( H5::DataSet& h5ds, const IOPar& iop,
+				  uiRetVal& uirv )
+{
+    const H5::DataType h5dt = H5::PredType::C_S1;
+    const int nrchars = iop.maxContentSize( false ) + 1;
+    hsize_t dims[1]; dims[0] = nrchars;
     try
     {
-	H5::DataSpace dataspace( nrdims, dims.arr() );
-	H5::DSetCreatPropList proplist;
-	if ( nrdims > 1 )
-	    proplist.setChunk( nrdims, chunkdims.arr() );
-	proplist.setSzip( szip_options_mask, szip_pixels_per_block );
-	delete dataset_; dataset_ = 0;
-	dataset_ = new H5::DataSet( group_->createDataSet( dsky.dataSetName(),
-				    h5dt, dataspace, proplist ) );
+	H5::DataSpace dataspace( 1, dims );
+	for ( int idx=0; idx<iop.size(); idx++ )
+	{
+	    H5::Attribute attribute = h5ds.createAttribute(
+				iop.getKey(idx), h5dt, dataspace );
+	    BufferString str2write = getWriteStr( iop.getValue(idx), nrchars );
+	    attribute.write( h5dt, str2write.getCStr() );
+	}
     }
     mCatchErrDuringWrite()
 }

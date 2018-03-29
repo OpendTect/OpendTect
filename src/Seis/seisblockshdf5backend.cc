@@ -17,6 +17,9 @@ ________________________________________________________________________
 #include "keystrs.h"
 
 
+static const char* sKeyStartLoc = "Loc00";
+
+
 Seis::Blocks::HDF5WriteBackEnd::HDF5WriteBackEnd( Writer& wrr, uiRetVal& uirv )
     : WriteBackEnd(wrr)
     , hdfwrr_(HDF5::mkWriter())
@@ -88,11 +91,30 @@ void Seis::Blocks::HDF5WriteBackEnd::setColumnInfo(
 	    const MemBlockColumn& column, const HLocIdx& start,
 	    const HDimensions& dims, uiRetVal& uirv )
 {
-    /*
     columndims_.set( dims );
     columndims_.z() = wrr_.dims_.z();
-    startlocidx_ = start;
-    */
+
+    BufferString blocknm;
+    blocknm.add( column.globIdx().inl() ).add( "." )
+	   .add( column.globIdx().crl() );
+    const OD::DataRepType datatype = wrr_.dataRep();
+    IOPar blockiop;
+    blockiop.set( sKeyStartLoc, start.inl(), start.crl() );
+    const Array3DInfoImpl arrinf( columndims_.inl(), columndims_.crl(),
+				  columndims_.z() );
+
+    for ( int icomp=0; icomp<wrr_.componentNames().size(); icomp++ )
+    {
+	const BufferString groupnm = wrr_.componentNames().get( icomp );
+	const HDF5::DataSetKey dsky( groupnm, blocknm );
+	uirv = hdfwrr_->createDataSet( dsky, arrinf, datatype );
+	if ( !uirv.isOK() )
+	    return;
+
+	uirv = hdfwrr_->putInfo( dsky, blockiop );
+	if ( !uirv.isOK() )
+	    return;
+    }
 }
 
 
