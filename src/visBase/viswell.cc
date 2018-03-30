@@ -237,6 +237,7 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 					    SilentTaskRunnerProvider() );
     }
 
+    track_->getCoordinates()->setEmpty();
     int ptidx = 0;
     for ( int idx=0; idx<pts.size(); idx++ )
     {
@@ -296,11 +297,9 @@ void Well::updateText( Text* vistxt, const char* txt, const Coord3* pos,
     vistxt->setText( toUiString(txt) );
     vistxt->setFontData( fnt, getPixelDensity() );
     vistxt->setPosition( *pos );
-    vistxt->setJustification( Text::Left );
     vistxt->setCharacterSizeMode( sizedynamic ? Text::Object : Text::Screen );
     vistxt->setAxisAlignment( Text::OnScreen );
 }
-
 
 
 void Well::setWellName( const TrackParams& tp )
@@ -319,8 +318,17 @@ void Well::setWellName( const TrackParams& tp )
     transformZIfNeeded( crdtop );
     transformZIfNeeded( crdbot );
 
+    const int nrpos = track_->getCoordinates()->size();
+    if ( nrpos>1 && mIsUdf(crdtop.z_) )
+	crdtop.z_ = track_->getCoordinates()->getPos( 0 ).z_;
+    if ( nrpos>1 && mIsUdf(crdbot.z_) )
+	crdbot.z_ = track_->getCoordinates()->getPos( nrpos-1 ).z_;
+
+    welltoptxt_->text(0)->setJustification( Text::Bottom );
     updateText( welltoptxt_->text(0), tp.isdispabove_ ? tp.name_.str() : 0,
 		&crdtop, tp.font_, tp.nmsizedynamic_ );
+
+    wellbottxt_->text(0)->setJustification( Text::Top );
     updateText( wellbottxt_->text(0), tp.isdispbelow_ ? tp.name_.str() : 0,
 		&crdbot, tp.font_, tp.nmsizedynamic_ );
 }
@@ -394,11 +402,12 @@ void Well::addMarker( const MarkerParams& mp )
 	  return;
 
     const int markerid = markerset_->addPos( markerpos );
-    markerset_->getMaterial()->setColor( mp.col_,markerid ) ;
+    markerset_->getMaterial()->setColor( mp.col_, markerid ) ;
 
     const int textidx = markernames_->addText();
     Text* txt = markernames_->text( textidx );
     txt->setColor( mp.namecol_ );
+    txt->setJustification( Text::Left );
 
     updateText( txt, mp.name_, &markerpos, mp.font_, mp.nmsizedynamic_ );
 
@@ -408,15 +417,14 @@ void Well::addMarker( const MarkerParams& mp )
 
 void Well::updateMakerSize(float sizefactor)
 {
-    float size = markerset_->getScreenSize();
+    const float size = markerset_->getScreenSize();
     markerset_->setScreenSize( size + (markersize_/sizefactor)*markersize_ );
 }
 
 
 void Well::updateMakerNamePosition(Side side,float sizefactor)
 {
-    float ratio = displaytube_[side] ? 2 : 1;
-
+    const float ratio = displaytube_[side] ? 2 : 1;
     for ( int idx=0; idx<markernames_->nrTexts(); idx++ )
     {
 	const Coord3 pos = markernames_->text(idx)->getPosition();
@@ -676,7 +684,7 @@ void Well::setRepeat( int rpt, Side side )
 
 unsigned int Well::getRepeat( Side side ) const
 {
-    osgGeo::WellLog* logdisplay =
+    const osgGeo::WellLog* logdisplay =
 	( side==Left ) ? leftlogdisplay_ : rightlogdisplay_;
     return logdisplay->getRepeatNumber();
 }
@@ -684,7 +692,7 @@ unsigned int Well::getRepeat( Side side ) const
 
 float Well::getRepeatStep( Side side ) const
 {
-    osgGeo::WellLog* logdisplay =
+    const osgGeo::WellLog* logdisplay =
 	( side==Left ) ? leftlogdisplay_ : rightlogdisplay_;
     return logdisplay->getRepeatStep();
 }
@@ -723,7 +731,7 @@ void Well::setLogStyle( int style, Side side )
 
 void Well::getLogStyle( Side side, int& style ) const
 {
-    osgGeo::WellLog* logdisplay =
+    const osgGeo::WellLog* logdisplay =
 	( side==Left ) ? leftlogdisplay_ : rightlogdisplay_;
 
     if ( logdisplay->getSeisLogStyle() )
@@ -751,9 +759,9 @@ void Well::setLogColor( const Color& col, Side side )
 }
 
 
-const Color& Well::logColor( Side side  ) const
+const Color& Well::logColor( Side side ) const
 {
-    osgGeo::WellLog* logdisplay =
+    const osgGeo::WellLog* logdisplay =
 	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
     static Color color;
     const osg::Vec4d& col = logdisplay->getLineColor();
@@ -978,7 +986,6 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
 	TypeSet<Color>& colors, TypeSet<TypeSet<int> >& pss,
 	TypeSet<Coord3>& normals, bool path ) const
 {
-
     if ( style==Logtube && !displaytube_[(int)side] )
 	return false;
 
@@ -1005,8 +1012,8 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
     if ( !geom )
 	return false;
 
-    if ( geom->getNumPrimitiveSets() == 0
-	|| geom->getVertexArray()->getNumElements() == 0 )
+    if ( geom->getNumPrimitiveSets()==0 ||
+	 geom->getVertexArray()->getNumElements()==0 )
 	return false;
 
     coords.erase();
@@ -1047,8 +1054,6 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
 	colors += Conv::to<Color>( (*clrarr)[idx] );
 
     return true;
-
 }
 
-
-}; // namespace visBase
+} // namespace visBase
