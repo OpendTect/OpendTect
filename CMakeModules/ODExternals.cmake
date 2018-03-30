@@ -10,7 +10,7 @@ find_package( Subversion QUIET )
 if ( Subversion_FOUND )
     set ( SUBVERSION_EXEC ${Subversion_SVN_EXECUTABLE} )
 else()
-    set ( SUBVERSION_EXEC "svn" )
+    set ( SUBVERSION_EXEC "svn" ) # In user-defined path
 endif()
 execute_process(
     COMMAND ${SUBVERSION_EXEC} --version
@@ -22,8 +22,6 @@ endif()
 
 # EXTBASEDIR: Default: ${CMAKE_SOURCE_DIR}/external
 macro( DEFINE_SVN_EXTERNAL DIR URL EXTBASEDIR REVISION )
-
-
 
     if ( NOT EXISTS ${EXTBASEDIR}/${DIR} )
 	execute_process(
@@ -53,6 +51,7 @@ macro( DEFINE_SVN_EXTERNAL DIR URL EXTBASEDIR REVISION )
     endif()
 
 endmacro()
+
 
 find_package( Git QUIET )
 if ( Git_FOUND )
