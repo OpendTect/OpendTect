@@ -633,7 +633,7 @@ public:
     static uiWord sSettings()		{ return tr("Settings"); }
     static uiWord sSetup()		{ return tr("Setup"); }
     static uiWord sShape()		{ return tr("Shape"); }
-    static uiWord sShapeFile(int n=1)	{ return tr("ShapeFile",0,n); }
+    static uiWord sShapefile(int n=1)	{ return tr("Shapefile",0,n); }
     static uiWord sShift()		{ return tr("Shift"); }
     static uiWord sShow()		{ return tr("Show"); }
     static uiWord sShowIn()		{ return tr("Show In"); }
