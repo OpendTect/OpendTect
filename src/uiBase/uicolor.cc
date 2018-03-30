@@ -252,6 +252,7 @@ void uiColorInput::descSel( CallBacker* )
 {
     const int selidx = descfld_ ? descfld_->currentItem() : -1;
     if ( selidx < 0 ) return;
+
     Color newcol( Color::descriptionCenters()[selidx] );
     mSetTranspFromFld(newcol);
     setColor( newcol );
@@ -261,7 +262,11 @@ void uiColorInput::descSel( CallBacker* )
 
 void uiColorInput::transpChg( CallBacker* )
 {
+    const int oldt = color_.t();
     mSetTranspFromFld( color_ );
+    const int newt = color_.t();
+    if ( oldt != newt )
+	colorChanged.trigger();
 }
 
 
