@@ -7,16 +7,23 @@ if ( WIN32 )
 endif()
 
 find_package( Subversion QUIET )
-
-# extract working copy information for SOURCE_DIR into MY_XXX variables
 if ( Subversion_FOUND )
     set ( SUBVERSION_EXEC ${Subversion_SVN_EXECUTABLE} )
 else()
     set ( SUBVERSION_EXEC "svn" )
 endif()
+execute_process(
+    COMMAND ${SUBVERSION_EXEC} --version
+	RESULT_VARIABLE RESULT OUTPUT_QUIET
+)
+if ( NOT ${RESULT} EQUAL 0 )
+    message ( FATAL_ERROR "svn not found: Install it and re-configure." )
+endif()
 
 # EXTBASEDIR: Default: ${CMAKE_SOURCE_DIR}/external
 macro( DEFINE_SVN_EXTERNAL DIR URL EXTBASEDIR REVISION )
+
+
 
     if ( NOT EXISTS ${EXTBASEDIR}/${DIR} )
 	execute_process(
@@ -47,13 +54,18 @@ macro( DEFINE_SVN_EXTERNAL DIR URL EXTBASEDIR REVISION )
 
 endmacro()
 
-
 find_package( Git QUIET )
-
 if ( Git_FOUND )
     set ( GIT_EXEC ${GIT_EXECUTABLE} )
 else()
-    set ( GIT_EXEC "git" )
+    set ( GIT_EXEC "git" ) # In user-defined path
+endif()
+execute_process(
+    COMMAND ${GIT_EXEC} --version
+	    RESULT_VARIABLE RESULT OUTPUT_QUIET
+)
+if ( NOT ${RESULT} EQUAL 0 )
+    message ( FATAL_ERROR "git not found: Install it and re-configure." )
 endif()
 
 macro( DEFINE_GIT_EXTERNAL DIR URL BRANCH )
@@ -68,6 +80,8 @@ macro( DEFINE_GIT_EXTERNAL DIR URL BRANCH )
 	if ( ${RESULT} EQUAL 0 )
 	    message ( STATUS "git checkout success for: ${URL}" )
 	else()
+	    message( "git cmd=${GIT_EXEC} clone ${URL} --branch ${BRANCH} --depth 1 ${DIR}" )
+	    message( "git workdir=${CMAKE_SOURCE_DIR}/external" )
 	    message ( FATAL_ERROR "git checkout failed" )
 	endif()
     else()
