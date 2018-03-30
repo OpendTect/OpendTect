@@ -106,6 +106,16 @@ static bool testWrite()
     uirv = iarrtool.putSlab( *wrr, slabspec );
     mAddTestResult( "Write Slabby Second Slab" );
 
+    dsky.setGroupName( "Component 1" );
+    dsky.setDataSetName( "Apenoot" );
+    mRunStandardTest( !wrr->setScope(dsky), "Set to non-existing scope" );
+    dsky.setDataSetName( "Block [1]" );
+    mRunStandardTest( wrr->setScope(dsky), "Set to existing scope" );
+    iop.setEmpty();
+    iop.set( "Appel", "peer" );
+    uirv = wrr->putInfo( dsky, iop );
+    mAddTestResult( "Write Comp1/Block1 attrib" );
+
     return true;
 }
 
@@ -134,12 +144,12 @@ static bool testReadInfo( HDF5::Reader& rdr )
     mRunStandardTestWithError( iopval=="file attr value", "File info contents",
 				BufferString("found: '",iopval,"'") );
 
-    HDF5::DataSetKey dsky( "Component 3", "Block [3]" );
-    scoperes = rdr.setScope( dsky );
+    HDF5::DataSetKey dsky33( "Component 3", "Block [3]" );
+    scoperes = rdr.setScope( dsky33 );
     mRunStandardTest( !scoperes, "Set scope (non-existing)" )
 
-    dsky = HDF5::DataSetKey( "Component 2", "Block [3]" );
-    scoperes = rdr.setScope( dsky );
+    dsky33 = HDF5::DataSetKey( "Component 2", "Block [3]" );
+    scoperes = rdr.setScope( dsky33 );
     mRunStandardTest( scoperes, "Set scope (Comp2,Block3)" )
 
     PtrMan<ArrayNDInfo> arrinf = rdr.getDataSizes();
@@ -161,6 +171,19 @@ static bool testReadInfo( HDF5::Reader& rdr )
     iop.get( sPropNm, iblk, icomp );
     mRunStandardTestWithError( iblk==3 && icomp==2, "Dataset info contents",
 		BufferString("iblk=",iblk).add(" icomp=").add(icomp) );
+
+    iop.setEmpty();
+    HDF5::DataSetKey dsky11( "Component 1", "Block [1]" );
+    scoperes = rdr.setScope( dsky11 );
+    mAddTestResult( "Set scope to Comp1/Block1" );
+    uirv = rdr.getInfo( iop );
+    const BufferString iopres( iop.find( "Appel" ) );
+    iop.set( "Appel", "peer" );
+    mRunStandardTestWithError( iopres=="peer", "Attr value in Comp1/Block1",
+				BufferString("iopres=",iopres) );
+
+    scoperes = rdr.setScope( dsky33 );
+    mRunStandardTest( scoperes, "Set scope back to (Comp2,Block3)" )
 
     return true;
 }
