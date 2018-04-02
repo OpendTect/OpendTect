@@ -74,7 +74,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 
     uiString lbl = uiStrings::phrOutput(uiStrings::phrJoinStrings(
 	uiStrings::sFrequency().toLower(), toUiString("(%1)")
-	.arg(zIsTime() ? tr("Hz") : (SI().zInMeter() ? tr("cycles/km") 
+	.arg(zIsTime() ? tr("Hz") : (SI().zInMeter() ? tr("cycles/km")
 	: tr("cycles/kft")))));
     outpfld_ = new uiLabeledSpinBox( this, lbl, 1 );
     outpfld_->attach( alignedBelow, tfpanelbut_ );
@@ -82,10 +82,10 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 
     stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), 1 );
     stepfld_->attach( rightTo, outpfld_ );
-    stepfld_->box()->valueChanged.notify( 
+    stepfld_->box()->valueChanged.notify(
 	    			mCB(this,uiSpecDecompAttrib,stepChg) );
 
-    waveletfld_ = new uiGenInput( this, uiStrings::sWavelet(), 
+    waveletfld_ = new uiGenInput( this, uiStrings::sWavelet(),
 	    			 StringListInpSpec(CWT::WaveletTypeNames()) );
     waveletfld_->attach( alignedBelow, typefld_ );
 
@@ -204,7 +204,7 @@ bool uiSpecDecompAttrib::getParameters( Desc& desc )
     mSetEnum( SpecDecomp::cwtwaveletStr(), waveletfld_->getIntValue() );
 
     const float freqscale = zIsTime() ? 1.f : 1000.f;
-    mSetFloat( SpecDecomp::deltafreqStr(), 
+    mSetFloat( SpecDecomp::deltafreqStr(),
 	       stepfld_->box()->getFValue()/freqscale );
 
     return true;
@@ -296,7 +296,7 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
 
     getPrevSel();
     DescSet* dset = ads_ ? new DescSet( *ads_ ) : new DescSet( is2D() );
-    DescID specdecompid = createSpecDecompDesc( dset ); 
+    DescID specdecompid = createSpecDecompDesc( dset );
     const TrcKeyZSampling cs( positiondlg_->getTrcKeyZSampling() );
 
     LineKey lk;
@@ -363,7 +363,7 @@ void uiSpecDecompAttrib::setPrevSel()
 
 
 void uiSpecDecompAttrib::getInputMID( MultiID& mid ) const
-{                                                                               
+{
     if ( !is2D() ) return;
 
     Desc* tmpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : 0;
@@ -415,7 +415,7 @@ DescID uiSpecDecompAttrib::createSpecDecompDesc( DescSet* dset ) const
     createHilbertDesc( dset, hilbid );
     if ( !newdesc->setInput( 1, dset->getDesc(hilbid)) )
 	return DescID::undef();
-    
+
     fillInSDDescParams( newdesc );
     newdesc->updateParams();
     newdesc->setUserRef( "spectral decomposition" );
@@ -435,7 +435,7 @@ Desc* uiSpecDecompAttrib::createNewDesc( DescSet* descset, DescID inpid,
     newdesc->selectOutput( seloutidx );
     newdesc->setInput( inpidx, inpdesc );
     newdesc->setHidden( true );
-    BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += specref; 
+    BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += specref;
     newdesc->setUserRef( usrref );
     return newdesc;
 }
@@ -455,11 +455,11 @@ void uiSpecDecompAttrib::fillInSDDescParams( Desc* newdesc ) const
     mSetParam(Enum,cwt,SpecDecomp::cwtwaveletStr(),waveletfld_->getIntValue())
     mSetParam(ZGate,gate,SpecDecomp::gateStr(), gatefld_->getFInterval())
 
-    //show Frequencies with a step of 1 in Time and 1000 in Depth,
+    //show Frequencies with a step of 1 in Time and 1e-3 in Depth,
     //independently of what the user can have specified previously
     //in the output/step fields
-    //little trick to have correct axes annotation (at least in time )
-    mSetParam(Float,dfreq,SpecDecomp::deltafreqStr(), zIsTime() ? 1.f : 1000.f )
+    //little trick to have correct axes annotation (at least in time)
+    mSetParam(Float,dfreq,SpecDecomp::deltafreqStr(), zIsTime() ? 1.f : 0.001f )
 }
 
 
