@@ -53,13 +53,15 @@ mDefineEnumUtils( uiCreatePicks, TimeType, "TimeType" )
 
 
 uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds,
-								bool zvalreq )
+			      bool zvalreq )
     : uiDialog(p,uiDialog::Setup(
 		aspoly ? uiStrings::phrCreateNew(uiStrings::sPolygon())
 		       : uiStrings::phrCreateNew(uiStrings::sPointSet()),
 			       mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
     , aspolygon_(aspoly)
     , iszvalreq_(zvalreq)
+    , zvalfld_(0)
+    , zvaltypfld_(0)
 {
     if ( addstdflds )
 	addStdFields( 0 );
@@ -78,15 +80,13 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
     if ( lastobject )
 	nmfld_->attach( alignedBelow, lastobject );
 
-    zvalfld_ = new uiGenInput( this, tr("Depth for Picks") );
-    zvalfld_->attach( alignedBelow, colsel_ );
-    EnumDef filldeftype = SI().zDomain().isDepth() ?
-		    (EnumDef)DepthTypeDef() : (EnumDef)TimeTypeDef();
-    zvaltypfld_ = new uiComboBox(this, filldeftype, "Depth value type");
-    zvaltypfld_->attach( rightOf, zvalfld_ );
-
-    zvalfld_->display(iszvalreq_);
-    zvaltypfld_->display(iszvalreq_);
+    if ( iszvalreq_ )
+    {
+	const uiString lbl(
+		tr("Z value for Points %1").arg(SI().getUiZUnitString()) );
+	zvalfld_ = new uiGenInput( this, lbl, FloatInpSpec() );
+	zvalfld_->attach( alignedBelow, colsel_ );
+    }
 }
 
 
@@ -105,16 +105,8 @@ Pick::Set* uiCreatePicks::getPickSet() const
 bool uiCreatePicks::acceptOK( CallBacker* )
 {
     name_.set( nmfld_->text() ).trimBlanks();
-    if ( iszvalreq_ )
-    {
-	const int selid = zvaltypfld_->getIntValue();
-	if ( SI().zDomain().isDepth() )
-	    zdepthvaltyp_ = DepthTypeDef().getEnumForIndex(selid);
-	else
-	    ztimevaltyp_ = TimeTypeDef().getEnumForIndex(selid);
-	if ( !calcZValAccToSurvDepth() )
-	    return false;
-    }
+    if ( iszvalreq_ && !calcZValAccToSurvDepth() )
+	return false;
 
     return true;
 }
@@ -122,40 +114,25 @@ bool uiCreatePicks::acceptOK( CallBacker* )
 
 bool uiCreatePicks::calcZValAccToSurvDepth()
 {
-    float zval = zvalfld_->getFValue();
+    const float zval = zvalfld_->getFValue();
+    zval_ = zval / SI().zDomain().userFactor();
+
     StepInterval<float> zrg = SI().zRange(false);
     if ( SI().zDomain().isTime() )
 	zrg.scale( (float)(SI().zDomain().userFactor()) );
-    if ( SI().zDomain().isDepth() )
-    {
-	if ( SI().zInMeter() && zdepthvaltyp_ == Feet )
-	    zval_ = mFromFeetFactorF*zval;
-	else if ( SI().zInFeet() && zdepthvaltyp_ == Meter )
-	    zval_ = zval/mFromFeetFactorF;
-	else
-	    zval_ = zval;
-    }
-    else
-    {
-	if ( (int)ztimevaltyp_ == (int)MilliSeconds )
-	    zval_ = zval/1000;
-	else if ( (int)ztimevaltyp_ == (int)MicroSeconds )
-	    zval_ = zval/1000000;
-	else
-	    zval_ = zval;
-    }
-    if ( SI().zRange(false).includes(zval_,true) )
+    if ( zrg.includes(zval,true) )
 	return true;
-    else
-    {
-	uiMSG().error(tr("Input Depth Value lies outside the survey range.\n"
-			 "Survey Range is: %1-%2%3").arg(zrg.start)
-			 .arg(zrg.stop).arg(SI().zDomain().uiUnitStr()));
-	return false;
-    }
+
+    uiMSG().error( tr("Input Z Value lies outside the survey range.\n"
+		      "Survey Range is: %1-%2%3")
+	.arg(zrg.start).arg(zrg.stop).arg(SI().zDomain().uiUnitStr()));
+
+    return false;
 }
 
 
+
+// uiGenPosPicks
 uiGenPosPicks::uiGenPosPicks( uiParent* p )
     : uiCreatePicks(p,false,false)
     , posprovfld_(0)
@@ -167,7 +144,7 @@ uiGenPosPicks::uiGenPosPicks( uiParent* p )
     posprovfld_ = new uiPosProvider( this, psu );
     posprovfld_->setExtractionDefaults();
 
-    maxnrpickfld_ = new uiGenInput( this, tr("Maximum number of Picks"),
+    maxnrpickfld_ = new uiGenInput( this, tr("Maximum number of Points"),
 				    IntInpSpec(100) );
     maxnrpickfld_->attach( alignedBelow, posprovfld_ );
 
@@ -228,8 +205,8 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
 
     if ( size>50000 )
     {
-	uiString msg = tr("PointSet would contain %1 "
-			  "points which might consume unexpected time & memory."
+	uiString msg = tr("PointSet would contain %1 points "
+			  "which might consume unexpected time and memory."
 			  "\n\nDo you want to continue?")
 		     .arg(dpssize);
 	if ( !uiMSG().askGoOn(msg) )
@@ -271,7 +248,7 @@ Pick::Set* uiGenPosPicks::getPickSet() const
 
 
 
-
+// uiGenRandPicks2D
 uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 				    const BufferStringSet& lnms )
     : uiCreatePicks(p,false,false)
@@ -279,7 +256,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     , hornms_(hornms)
     , linenms_(lnms)
 {
-    nrfld_ = new uiGenInput( this, tr("Number of picks to generate"),
+    nrfld_ = new uiGenInput( this, tr("Number of Points to generate"),
 		    IntInpSpec(defnrpicks).setLimits(Interval<int>(1,10000)) );
 
     if ( hornms_.size() )
@@ -352,7 +329,6 @@ void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
     tosel->addItems( hornms );
     tosel->setCurrentItem( curnm );
 }
-
 
 
 void uiGenRandPicks2D::geomSel( CallBacker* cb )
