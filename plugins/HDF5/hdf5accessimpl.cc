@@ -89,6 +89,13 @@ HDF5::DataSetKey HDF5::AccessImpl::gtScope() const
 }
 
 
+od_int64 HDF5::AccessImpl::gtGroupID() const
+{
+    return group_ ? (od_int64)group_->getLocId()
+		  : (acc_.file_ ? acc_.file_->getLocId() : -1);
+}
+
+
 bool HDF5::AccessImpl::atDataSet( const char* dsnm ) const
 {
     return !dataset_ || !dsnm || !*dsnm ? false

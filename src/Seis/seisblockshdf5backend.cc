@@ -23,6 +23,7 @@ static const char* sKeyStartLoc = "Loc00";
 Seis::Blocks::HDF5WriteBackEnd::HDF5WriteBackEnd( Writer& wrr, uiRetVal& uirv )
     : WriteBackEnd(wrr)
     , hdfwrr_(HDF5::mkWriter())
+    , slabspec_(3)
 {
     const BufferString fnm( wrr_.dataFileName() );
     if ( !hdfwrr_ )
@@ -71,7 +72,7 @@ void Seis::Blocks::HDF5WriteBackEnd::writeGlobalInfo( uiRetVal& uirv )
 	for ( int iln=0; iln<wrr_.cubedata_.size(); iln++ )
 	{
 	    const PosInfo::LineData& ld = *wrr_.cubedata_[iln];
-	    for ( int iseg=0; iseg<ld.segments_.size(); iln++ )
+	    for ( int iseg=0; iseg<ld.segments_.size(); iseg++ )
 	    {
 		const PosInfo::LineData::Segment& seg = ld.segments_[iseg];
 		arr.set( 0, segnr, ld.linenr_ );
@@ -92,11 +93,10 @@ void Seis::Blocks::HDF5WriteBackEnd::setColumnInfo(
 	    const HDimensions& dims, uiRetVal& uirv )
 {
     columndims_.set( dims );
-    columndims_.z() = wrr_.dims_.z();
+    columndims_.z() = wrr_.traceSize();
+    blockname_.set( column.globIdx().inl() ).add( "." )
+	      .add( column.globIdx().crl() );
 
-    BufferString blocknm;
-    blocknm.add( column.globIdx().inl() ).add( "." )
-	   .add( column.globIdx().crl() );
     const OD::DataRepType datatype = wrr_.dataRep();
     IOPar blockiop;
     blockiop.set( sKeyStartLoc, start.inl(), start.crl() );
@@ -106,7 +106,7 @@ void Seis::Blocks::HDF5WriteBackEnd::setColumnInfo(
     for ( int icomp=0; icomp<wrr_.componentNames().size(); icomp++ )
     {
 	const BufferString groupnm = wrr_.componentNames().get( icomp );
-	const HDF5::DataSetKey dsky( groupnm, blocknm );
+	const HDF5::DataSetKey dsky( groupnm, blockname_ );
 	uirv = hdfwrr_->createDataSet( dsky, arrinf, datatype );
 	if ( !uirv.isOK() )
 	    return;
@@ -114,6 +114,8 @@ void Seis::Blocks::HDF5WriteBackEnd::setColumnInfo(
 	uirv = hdfwrr_->putInfo( dsky, blockiop );
 	if ( !uirv.isOK() )
 	    return;
+
+	column.fileid_ = hdfwrr_->curGroupID();
     }
 }
 
@@ -121,9 +123,17 @@ void Seis::Blocks::HDF5WriteBackEnd::setColumnInfo(
 void Seis::Blocks::HDF5WriteBackEnd::putBlock( int icomp, MemBlock& block,
 		    HLocIdx wrstart, HDimensions wrhdims, uiRetVal& uirv )
 {
-    uirv.add( mTODONotImplPhrase() );
-    // put block in dataset
-    // column.fileid_ = ...;
+    slabspec_[0].count_ = columndims_.inl();
+    slabspec_[1].count_ = columndims_.crl();
+    slabspec_[2].start_ = block.globIdx().z() * wrr_.dimensions().z();
+    slabspec_[2].count_ = block.dims().z();
+
+    const BufferString groupnm = wrr_.componentNames().get( icomp );
+    const HDF5::DataSetKey dsky( groupnm, blockname_ );
+    if ( !hdfwrr_->setScope(dsky) )
+	mPutInternalInUiRv( uirv, "DataSet not present", return )
+
+    uirv = hdfwrr_->putSlab( slabspec_, block.dbuf_.data() );
 }
 
 

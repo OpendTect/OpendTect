@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "seisblocksreader.h"
 #include "seisblockswriter.h"
+#include "hdf5access.h"
 #include "od_iosfwd.h"
 #include <map>
 namespace HDF5 { class Reader; class Writer; }
@@ -103,6 +104,8 @@ public:
 protected:
 
     Dimensions		columndims_;
+    BufferString	blockname_;
+    HDF5::SlabSpec	slabspec_;
 
     void		writeGlobalInfo(uiRetVal&);
 

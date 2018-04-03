@@ -64,7 +64,12 @@ protected:
 };
 
 
-/*\brief simple specification of the 'hyperslab' concept in HDF5 */
+/*\brief simple specification of the 'hyperslab' concept in HDF5.
+
+  Basically, we offer a range + step in all dimensions, which seems enough for
+  almost all normal work.
+
+ */
 
 mExpClass(General) SlabDimSpec
 {
@@ -72,12 +77,28 @@ public:
 
     typedef ArrayNDInfo::IdxType	IdxType;
 
-    ArrayNDInfo::IdxType start_=0, step_=1, count_=-1;
+    ArrayNDInfo::IdxType start_=0, step_=1, count_=-1; //!< -1 == full size
     mImplSimpleEqOpers3Memb( SlabDimSpec, start_, step_, count_ )
 
 };
 
-typedef TypeSet<SlabDimSpec> SlabSpec;
+mExpClass(General) SlabSpec : public TypeSet<SlabDimSpec>
+{
+public:
+
+			mTypeDefArrNDTypes;
+
+			SlabSpec()			{}
+			SlabSpec( NrDimsType nrdims )	{ setNrDims( nrdims ); }
+
+    void		setNrDims( NrDimsType nrdims )
+			{
+			    for ( DimIdxType idim=nrdims; idim<size(); idim++ )
+				removeSingle( size()-1 );
+			    for ( DimIdxType idim=size(); idim<nrdims; idim++ )
+				*this += SlabDimSpec();
+			}
+};
 
 
 /*\brief baseclass for reader and writer of HDF5 files.
@@ -129,6 +150,7 @@ public:
 
     virtual DataSetKey	scope() const			= 0;
     virtual bool	setScope(const DataSetKey&)	= 0;
+    virtual od_int64	curGroupID() const		= 0;
 
     H5::H5File*		getHDF5File()		{ return file_; }
 

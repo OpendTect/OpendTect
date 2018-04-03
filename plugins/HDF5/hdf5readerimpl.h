@@ -35,6 +35,7 @@ public:
     virtual DataSetKey	scope() const		{ return gtScope(); }
     virtual bool	setScope( const DataSetKey& dsky )
 						{ return stScope( dsky ); }
+    virtual od_int64	curGroupID() const	{ return gtGroupID(); }
 
     virtual ArrayNDInfo* getDataSizes() const;
     virtual ODDataType	getDataType() const;

@@ -74,6 +74,7 @@ public:
     typedef std::pair<IdxType,float>	ZEvalPos;
     typedef TypeSet<ZEvalPos>		ZEvalPosSet;
 
+    int			traceSize() const;
     inline int		nrColumnBlocks() const
 			{ return zevalpositions_.size(); }
     void		setBasePath(const File::Path&);

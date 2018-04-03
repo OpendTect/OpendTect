@@ -310,6 +310,16 @@ void Seis::Blocks::Writer::resetZ()
 }
 
 
+int Seis::Blocks::Writer::traceSize() const
+{
+    if ( zevalpositions_.isEmpty() )
+	return 0;
+
+    return (zevalpositions_.size()-1) * dims_.z()
+	 + zevalpositions_.last()->size();
+}
+
+
 uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 {
     uiRetVal uirv;

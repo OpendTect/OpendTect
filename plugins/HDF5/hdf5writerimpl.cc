@@ -76,8 +76,9 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
     TypeSet<hsize_t> dims, chunkdims;
     for ( int idim=0; idim<nrdims_; idim++ )
     {
-	dims += info.getSize( idim );
-	chunkdims += chunksz_;
+	const auto dimsz = info.getSize( idim );
+	dims += dimsz;
+	chunkdims += chunksz_ < dimsz ? chunksz_ : dimsz;
     }
 
     const H5DataType h5dt = h5DataTypeFor( dt );
@@ -122,16 +123,20 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
     H5::DataSet ds;
     if ( !atDataSet(dsky.dataSetName()) )
     {
-	bool notpresent = false;
-	try
+	const bool dsempty = dsky.dataSetEmpty();
+	bool notpresent = dsempty;
+	if ( !dsempty )
 	{
-	    ds = group_->openDataSet( dsky.dataSetName() );
+	    try
+	    {
+		ds = group_->openDataSet( dsky.dataSetName() );
+	    }
+	    mCatchAnyNoMsg( notpresent = true )
 	}
-	mCatchAnyNoMsg( notpresent = true )
 
 	if ( notpresent )
 	{
-	    if ( !dsky.dataSetEmpty() )
+	    if ( !dsempty )
 	    {
 		uirv.add( uiStrings::phrInternalErr(
 			    "Use createDataSet first, then putInfo") );

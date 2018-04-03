@@ -31,6 +31,7 @@ public:
 
     const char*		gtFileName() const;
     DataSetKey		gtScope() const;
+    od_int64		gtGroupID() const;
 
 protected:
 
