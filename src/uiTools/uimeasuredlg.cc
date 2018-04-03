@@ -54,20 +54,20 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 
     uiGroup* topgrp = new uiGroup( this, "Info fields" );
     uiString hdistlbl = uiStrings::phrJoinStrings(uiStrings::sHorizontal(),
-			uiStrings::phrJoinStrings(uiStrings::sDistance(), 
+			uiStrings::phrJoinStrings(uiStrings::sDistance(),
 			SI().getUiXYUnitString()) );
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
     hdistfld_->setReadOnly( true );
 
     uiString zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
-			uiStrings::phrJoinStrings(uiStrings::sDistance(), 
+			uiStrings::phrJoinStrings(uiStrings::sDistance(),
 			SI().getUiZUnitString()) );
     zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
 
     uiString zintimelbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
-			  uiStrings::phrJoinStrings(uiStrings::sDistance(), 
+			  uiStrings::phrJoinStrings(uiStrings::sDistance(),
 			  SI().getUiXYUnitString()) );
     if ( SI().zIsTime() )
     {
@@ -89,8 +89,8 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 
     if ( !SI().zIsTime() && SI().xyInFeet() != SI().zInFeet() )
     {
-	uiString lbl = uiStrings::phrJoinStrings(uiStrings::sDistance(),
-		       SI().getUiXYUnitString());
+	uiString lbl = uiStrings::phrJoinStrings( uiStrings::sDistance(),
+		uiStrings::sDistUnitString(!SI().xyInFeet(),true,true) );
 	dist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
 	dist2fld_->setReadOnly( true );
 	dist2fld_->attach( alignedBelow, distfld_ );
@@ -110,14 +110,12 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 				mCB(this,uiMeasureDlg,stylebutCB), false );
     stylebut->attach( rightTo, clearbut );
 
-    clearchkbut_ = new uiCheckBox( botgrp,tr("Clear line on Close") );
-
+    clearchkbut_ = new uiCheckBox( botgrp, tr("Clear line on Close") );
     clearchkbut_->attach( alignedBelow, clearbut );
     clearchkbut_->setChecked( true );
     clearchkbut_->setSensitive( true );
 
     botgrp->attach( centeredBelow, topgrp );
-
 }
 
 
@@ -128,7 +126,7 @@ uiMeasureDlg::~uiMeasureDlg()
 
 
 bool uiMeasureDlg::doClear() const
-{ 
+{
    return clearchkbut_->isChecked();
 }
 
@@ -154,7 +152,7 @@ void uiMeasureDlg::clearCB( CallBacker* cb )
 void uiMeasureDlg::stylebutCB( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup(tr("Line Style"),mNoDlgTitle,
-                                        mNoHelpKey) );
+					mNoHelpKey) );
     dlg.setCtrlStyle( uiDialog::CloseOnly );
     uiSelLineStyle* linestylefld = new uiSelLineStyle( &dlg, ls_,
 				   uiSelLineStyle::Setup().drawstyle(false) );
