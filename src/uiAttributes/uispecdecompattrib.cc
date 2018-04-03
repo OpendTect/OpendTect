@@ -457,11 +457,11 @@ void uiSpecDecompAttrib::fillInSDDescParams( Desc* newdesc ) const
     mSetParam(Enum,cwt,SpecDecomp::cwtwaveletStr(),waveletfld_->getIntValue())
     mSetParam(ZGate,gate,SpecDecomp::gateStr(), gatefld_->getFInterval())
 
-    //show Frequencies with a step of 1 in Time and 1000 in Depth,
+    //show Frequencies with a step of 1 in Time and 1e-3 in Depth,
     //independently of what the user can have specified previously
     //in the output/step fields
-    //little trick to have correct axes annotation (at least in time )
-    mSetParam(Float,dfreq,SpecDecomp::deltafreqStr(), zIsTime() ? 1.f : 1000.f )
+    //little trick to have correct axes annotation (at least in time)
+    mSetParam(Float,dfreq,SpecDecomp::deltafreqStr(), zIsTime() ? 1.f : 0.001f )
 }
 
 
