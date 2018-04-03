@@ -57,19 +57,17 @@ uiString uiNLAPartServer::sKeyUsrCancel()	{ return tr("User cancel");  }
 
 
 uiNLAPartServer::uiNLAPartServer( uiApplService& a )
-	: uiApplPartServer(a)
-	, uidps_(0)
-	, dps_(0)
-	, storepars_(*new IOPar)
-	, is2d_(false)
-	, dpsdispmgr_(0)
+    : uiApplPartServer(a)
+    , dps_(0)
+    , storepars_(*new IOPar)
+    , is2d_(false)
+    , dpsdispmgr_(0)
 {
 }
 
 
 uiNLAPartServer::~uiNLAPartServer()
 {
-    delete uidps_;
     delete &storepars_;
 }
 
@@ -535,16 +533,15 @@ bool uiNLAPartServer::doDPSDlg()
 {
     uiDataPointSet::Setup su( uiStrings::sInputData(), true );
     su.isconst(false).allowretrieve(false).canaddrow(false);
-    delete uidps_;
-    uidps_ = new uiDataPointSet( appserv().parent(), *dps(), su, dpsdispmgr_ );
-    uidps_->setCtrlStyle( uiDialog::RunAndClose );
-    uidps_->storePars() = storepars_;
+    uiDataPointSet uidps( appserv().parent(), *dps(), su, dpsdispmgr_ );
+    uidps.setCtrlStyle( uiDialog::RunAndClose );
+    uidps.storePars() = storepars_;
     BufferStringSet bss;
     bss.add( NLACreationDesc::DataTypeNames()[0] );
     bss.add( NLACreationDesc::DataTypeNames()[1] );
-    uidps_->setGroupNames( bss );
-    uidps_->setGroupType( "Data Set" );
-    return uidps_->go();
+    uidps.setGroupNames( bss );
+    uidps.setGroupType( "Data Set" );
+    return uidps.go();
 }
 
 

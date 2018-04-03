@@ -33,7 +33,7 @@ class NLACreationDesc;
 */
 
 mExpClass(uiNLA) uiNLAPartServer : public uiApplPartServer
-{ mODTextTranslationClass(uiNLAPartServer);
+{ mODTextTranslationClass(uiNLAPartServer)
 public:
 			uiNLAPartServer(uiApplService&);
     virtual		~uiNLAPartServer();
@@ -95,7 +95,6 @@ public:
 protected:
 
     RefMan<DataPointSet> dps_;
-    uiDataPointSet*	uidps_;
     BufferStringSet	inpnms_;
     bool		is2d_;
     IOPar&		storepars_;
