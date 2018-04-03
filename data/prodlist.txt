@@ -28,3 +28,4 @@ CLAS Computer Log Analysis Software`clas
 ethos(TM) Processing System`ethos
 M-GS Destriping`estimages
 FracTex`fractex
+Bayesian Linearized Inversion`ltracebli
