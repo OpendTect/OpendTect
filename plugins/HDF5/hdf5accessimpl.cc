@@ -28,11 +28,19 @@ HDF5::Writer* HDF5::AccessProviderImpl::getWriter() const
 }
 
 
+static H5E_auto_t hdf_err_print_fn;
+static void* hdf_err_client_data;
+static bool errprint_ = false;
+
 void HDF5::AccessProviderImpl::initHDF5()
 {
     initClass();
-    if ( !GetEnvVarYN("OD_HDF5_PRINT_EXCEPTIONS") )
-	H5::Exception::dontPrint();
+
+    H5::Exception::getAutoPrint( hdf_err_print_fn, &hdf_err_client_data );
+#ifdef __debug__
+    errprint_ = true;
+#endif
+    AccessImpl::setErrPrint( errprint_ );
 }
 
 
@@ -40,6 +48,7 @@ HDF5::AccessImpl::AccessImpl( ReaderImpl& rdr )
     : acc_(rdr)
     , group_(0)
     , dataset_(0)
+    , nrdims_(-1)
 {
 }
 
@@ -54,6 +63,41 @@ HDF5::AccessImpl::AccessImpl( WriterImpl& wrr )
 
 HDF5::AccessImpl::~AccessImpl()
 {
+}
+
+
+bool HDF5::AccessImpl::haveErrPrint()
+{
+    return errprint_;
+}
+
+
+void HDF5::AccessImpl::setErrPrint( bool yn )
+{
+    errprint_ = yn;
+    if ( yn )
+	enableErrPrint();
+    else
+	disableErrPrint();
+}
+
+
+void HDF5::AccessImpl::disableErrPrint()
+{
+    H5::Exception::dontPrint();
+}
+
+
+void HDF5::AccessImpl::enableErrPrint()
+{
+    H5::Exception::setAutoPrint( hdf_err_print_fn, hdf_err_client_data );
+}
+
+
+void HDF5::AccessImpl::restoreErrPrint()
+{
+    if ( errprint_ )
+	enableErrPrint();
 }
 
 
@@ -112,15 +156,20 @@ bool HDF5::AccessImpl::selectGroup( const char* grpnm )
     else if ( !acc_.file_ )
 	return false;
 
+    bool haveselected = true;
+    disableErrPrint();
+
     try
     {
 	H5::Group grp = acc_.file_->openGroup( grpnm );
 	delete dataset_; dataset_ = 0;
-	delete group_; group_ = new H5::Group( grp );
+	delete group_; group_ = 0;
+	group_ = new H5::Group( grp );
     }
-    mCatchAnyNoMsg( return false )
+    mCatchAnyNoMsg( haveselected = false )
 
-    return true;
+    restoreErrPrint();
+    return haveselected;
 }
 
 
@@ -133,16 +182,21 @@ bool HDF5::AccessImpl::selectDataSet( const char* dsnm )
     else if ( atDataSet(dsnm) )
 	return true;
 
+    bool haveselected = true;
+    disableErrPrint();
+
     try
     {
 	H5::DataSet ds = group_->openDataSet( dsnm );
-	delete dataset_; dataset_ = new H5::DataSet( ds );
+	delete dataset_; dataset_ = 0; nrdims_ = -1;
+	dataset_ = new H5::DataSet( ds );
 	nrdims_ = (ArrayNDInfo::NrDimsType)dataset_->getSpace()
 						.getSimpleExtentNdims();
     }
-    mCatchAnyNoMsg( return false )
+    mCatchAnyNoMsg( haveselected = false )
 
-    return true;
+    restoreErrPrint();
+    return haveselected;
 }
 
 

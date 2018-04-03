@@ -33,6 +33,9 @@ public:
     DataSetKey		gtScope() const;
     od_int64		gtGroupID() const;
 
+    static bool		haveErrPrint();
+    static void		setErrPrint(bool);	//!< user switch on/off
+
 protected:
 
     typedef H5::DataType H5DataType;
@@ -54,10 +57,16 @@ protected:
     bool		stScope(const DataSetKey&);
     inline bool		haveScope( bool needds=true ) const
 			{ return group_ && (!needds || dataset_); }
-
-			// can throw
     void		selectSlab(H5::DataSpace&,const SlabSpec&,
 				   TypeSet<hsize_t>* pcounts=0) const;
+				//!< can throw, use in try block
+
+    static void		disableErrPrint(); // before action with 'normal' throw
+    static void		restoreErrPrint(); // after such an action
+
+private:
+
+    static void		enableErrPrint();
 
 };
 
