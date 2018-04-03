@@ -316,7 +316,8 @@ int uiPluginSel::getProductIndex( const char* prodnm ) const
 {
     for ( int idx=0; idx<products_.size(); idx++ )
     {
-	if ( products_[idx]->productname_ == prodnm )
+	if ( products_[idx]->productname_ == prodnm
+		|| products_[idx]->pckgnm_ == prodnm )
 	    return idx;
     }
 
