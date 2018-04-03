@@ -41,7 +41,6 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     , lineStyleChange(this)
     , clearPressed(this)
     , velocityChange(this)
-    , clearchkbut_( 0 )
 {
     setCtrlStyle( CloseOnly );
     showAlwaysOnTop();
@@ -84,7 +83,9 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 
     if ( !SI().zIsTime() && SI().xyInFeet() != SI().zInFeet() )
     {
-	dist2fld_ = new uiGenInput( topgrp, distlbl, FloatInpSpec(0) );
+	uiString lbl = toUiString("%1 %2").arg( uiStrings::sDistance() )
+		.arg(uiStrings::sDistUnitString(!SI().xyInFeet(),true,true) );
+	dist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
 	dist2fld_->setReadOnly( true );
 	dist2fld_->attach( alignedBelow, distfld_ );
     }
@@ -118,6 +119,12 @@ uiMeasureDlg::~uiMeasureDlg()
 }
 
 
+bool uiMeasureDlg::doClear() const
+{
+   return clearchkbut_->isChecked();
+}
+
+
 void uiMeasureDlg::lsChangeCB( CallBacker* cb )
 {
     mDynamicCastGet(uiColorInput*,uicol,cb)
@@ -139,7 +146,7 @@ void uiMeasureDlg::clearCB( CallBacker* cb )
 void uiMeasureDlg::stylebutCB( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup(tr("Line Style"),mNoDlgTitle,
-	mNoHelpKey) );
+					mNoHelpKey) );
     dlg.setCtrlStyle( uiDialog::CloseOnly );
     uiSelLineStyle* linestylefld = new uiSelLineStyle( &dlg, ls_,
 				   uiSelLineStyle::Setup().drawstyle(false) );
@@ -235,10 +242,3 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
     inlcrldistfld_->setValue( Interval<int>(totinldist,totcrldist) );
     raise();
 }
-
-
-bool uiMeasureDlg::doClear() const
-{
-    return clearchkbut_->isChecked();
-}
-
