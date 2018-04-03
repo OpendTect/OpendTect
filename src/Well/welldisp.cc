@@ -607,15 +607,17 @@ void Well::LogDispProps::usePar( const IOPar& iop, bool isleft )
     iop.get( mGetLRIOpKey(sKeySeqname), seqname_ );
     iop.getYN( mGetLRIOpKey(sKeyScale), islogarithmic_ );
     iop.get( mGetLRIOpKey(sKeyLogStyle),style_);
-    iop.get( mGetLRIOpKey(sKeyLogWidthXY),logwidth_ );
     bool isflipped = ColTab::isFlipped( sequsemode_ );
     bool iscyclic = ColTab::isCyclic( sequsemode_ );
     iop.getYN( mGetLRIOpKey(sKeyColTabFlipped), isflipped );
     iop.getYN( mGetLRIOpKey(sKeyColTabCyclic), iscyclic );
     sequsemode_ = ColTab::getSeqUseMode( isflipped, iscyclic );
 
+    float logwidth = 250.f;
+    iop.get( mGetLRIOpKey(sKeyLogWidthXY), logwidth );
     if ( SI().xyInFeet() )
-	logwidth_ = (WidthType)( logwidth_*mToFeetFactorF );
+	logwidth *= mToFeetFactorF;
+    logwidth_ = mNINT32( logwidth );
 }
 
 
@@ -623,9 +625,11 @@ void Well::LogDispProps::fillPar( IOPar& iop, bool isleft ) const
 {
     mLock4Read();
     baseFillPar( iop, sKeyLogNmFont );
-    const WidthType logwidth = logwidth_*
-	(int)( SI().xyInFeet() ? mFromFeetFactorF : 1.0f );
     const char* subj = subjectName();
+
+    float logwidth = (float)logwidth_;
+    if ( SI().xyInFeet() )
+	logwidth *= mFromFeetFactorF;
 
     iop.set( mGetLRIOpKey(sKeyLogName), logname_ );
     iop.set( mGetLRIOpKey(sKeyRange), range_ );
