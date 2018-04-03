@@ -43,8 +43,8 @@ indices 0 - N-1 (the LocIdx).
 
 namespace Blocks
 {
-    typedef short		IdxType;
-    typedef unsigned short	SzType;
+    typedef od_uint16		SzType;
+    typedef od_int16		IdxType;
     typedef Survey::Geometry3D	HGeom;
     typedef StepInterval<float>	ZGeom;
     typedef DataInterpreter<float> DataInterp;

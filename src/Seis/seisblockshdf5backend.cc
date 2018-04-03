@@ -93,7 +93,7 @@ void Seis::Blocks::HDF5WriteBackEnd::setColumnInfo(
 	    const HDimensions& dims, uiRetVal& uirv )
 {
     columndims_.set( dims );
-    columndims_.z() = wrr_.traceSize();
+    columndims_.z() = (SzType)wrr_.traceSize();
     blockname_.set( column.globIdx().inl() ).add( "." )
 	      .add( column.globIdx().crl() );
 
