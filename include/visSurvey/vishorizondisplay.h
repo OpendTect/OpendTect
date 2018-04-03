@@ -32,16 +32,13 @@ namespace visBase
     class PolyLine;
 }
 
-
-class HorizonPathIntersector;
-
 namespace visSurvey
 {
 
 mExpClass(visSurvey) HorizonDisplay : public EMObjectDisplay
 { mODTextTranslationClass(HorizonDisplay)
 
-    friend class ::HorizonPathIntersector;
+    friend class HorizonPathIntersector;
 
 public:
 				HorizonDisplay();

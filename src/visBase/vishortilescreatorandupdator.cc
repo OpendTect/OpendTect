@@ -25,7 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgGeo/LayeredTexture>
 
 
-using namespace visBase;
+namespace visBase
+{
 
 #define cFullResolution 0
 
@@ -99,7 +100,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 		tilerowidx*horsection_->tilesidesize_*step.row(),
 		horsection_->origin_.col() +
 		tilecolidx*horsection_->tilesidesize_*step.col() );
-	   
+
 	    if ( fullupdatetiles.indexOf(tileorigin) !=-1 )
 		continue;
 
@@ -274,7 +275,7 @@ HorizonSectionTile* HorTilesCreatorAndUpdator::createOneTile( int tilerowidx,
 }
 
 
-void HorTilesCreatorAndUpdator::setNeighbors( HorizonSectionTile* tile, 
+void HorTilesCreatorAndUpdator::setNeighbors( HorizonSectionTile* tile,
     int tilerowidx, int tilecolidx )
 {
     for ( int rowidx=-1; rowidx<=1; rowidx++ )
@@ -371,10 +372,10 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
 
     horsection_->setUpdateVar( horsection_->forceupdate_,  false );
 
-    HorizonSectionTilePosSetup postask( createtiles, tileindexes, 
+    HorizonSectionTilePosSetup postask( createtiles, tileindexes,
 	horsection_, rrg, crg );
     TaskRunner::execute(tr,postask);
-    
+
     HorizonSectionTile** tileptrs = horsection_->tiles_.getData();
     int tidx = 0;
     for ( int tilerowidx = 0; tilerowidx<nrrows; tilerowidx++ )
@@ -470,3 +471,5 @@ void HorTilesCreatorAndUpdator::setFixedResolution( char res, TaskRunner* tr )
     Threads::WorkManager::twm().addWork( work,
 	Threads::WorkManager::cDefaultQueueID() );
 }
+
+} // namespace visBase

@@ -19,10 +19,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/Vec3f>
 #include <osg/Vec3d>
 
-mCreateFactoryEntry( visBase::Transformation );
+mCreateFactoryEntry( visBase::Transformation )
 
-
-using namespace visBase;
+namespace visBase
+{
 
 Transformation::Transformation()
     : node_( 0 )
@@ -297,3 +297,5 @@ mDeclConvTrans( Coord3, osg::Vec3f )
 mDeclConvTrans( osg::Vec3f, Coord3 )
 #undef mToOsgVec
 #undef mFromOsgVec
+
+} // namespace visBase

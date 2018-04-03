@@ -10,7 +10,8 @@
 #include <osg/Geometry>
 #include <osg/Geode>
 
-using namespace visBase;
+namespace visBase
+{
 
 HorizonSectionTileGlue::HorizonSectionTileGlue()
     : gluegeode_( new osg::Geode )
@@ -44,7 +45,7 @@ HorizonSectionTileGlue::~HorizonSectionTileGlue()
 
 void HorizonSectionTileGlue::removeGlue()
 {
-    if ( gluegeom_ ) 
+    if ( gluegeom_ )
 	gluegeom_->removePrimitiveSet( 0,gluegeom_->getNumPrimitiveSets() );
 
     gluevtexarr_->setEmpty();
@@ -83,7 +84,7 @@ void HorizonSectionTileGlue::buildOsgGeometry()
 }
 
 
-void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile, 
+void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 		    HorizonSectionTile* neighbortile, bool rightneighbor )
 {
     datalock_.lock();
@@ -97,7 +98,7 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
     const char thisres = thistile->getActualResolution();
     const char neighborres = neighbortile->getActualResolution();
 
-    const HorizonSectionTile* gluetile = 
+    const HorizonSectionTile* gluetile =
 			    thisres <= neighborres ? thistile : neighbortile;
 
     if ( gluetile->txunits_.isEmpty() )
@@ -171,7 +172,7 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 							(*tcoords)[coordidx] );
 	    }
 
-	    if ( normals  ) 
+	    if ( normals  )
 	    {
 		const osg::Vec3f osgnmcrd = (*normals)[coordidx];
 		Coord3 nmcrd = Conv::to<Coord3>( osgnmcrd );
@@ -245,3 +246,5 @@ void HorizonSectionTileGlue::setDisplayTransformation( const mVisTrans* nt )
     gluegeom_->dirtyBound();
     gluegeom_->dirtyDisplayList();
 }
+
+} // namespace visBase

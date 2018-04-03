@@ -19,7 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
-using namespace visBase;
+namespace visBase
+{
 
 HorizonTileRenderPreparer::HorizonTileRenderPreparer(
     HorizonSection& hrsection, const osg::CullStack* cs, char res )
@@ -122,7 +123,7 @@ bool HorizonTileResolutionTesselator:: doPrepare( int nrthreads )
 }
 
 
-bool HorizonTileResolutionTesselator::doWork( 
+bool HorizonTileResolutionTesselator::doWork(
     od_int64 start, od_int64 stop, int )
 {
     mDefineRCRange( horsection_,-> );
@@ -143,7 +144,7 @@ bool HorizonTileResolutionTesselator::doWork(
 	{
 	    const int row = origin.row() + rowidx*rrg.step;
 	    const bool rowok = rrg.includes(row, false);
-	    const StepInterval<int> geocolrg = 
+	    const StepInterval<int> geocolrg =
 		horsection_->geometry_->colRange( row );
 	    const StepInterval<int> colrg(
 		mMAX(geocolrg.start,crg.start),
@@ -192,18 +193,18 @@ bool HorizonTileResolutionTesselator::createTiles()
 		horsection_->origin_.col() +
 		tilecolidx*horsection_->tilesidesize_*step.col() );
 
-	    HorizonSectionTile* tile = 
+	    HorizonSectionTile* tile =
 		new HorizonSectionTile( *horsection_, tileorigin );
 	    tile->setResolution( resolution_ );
 	    hrtiles_ += tile;
 	}
     }
-    
+
     return true;
 }
 
 
-bool HorizonTileResolutionTesselator::getTitleCoordinates( int idx, 
+bool HorizonTileResolutionTesselator::getTitleCoordinates( int idx,
     TypeSet<Coord3>& coords ) const
 {
     if ( idx>=0 && idx<hrtiles_.size() )
@@ -213,7 +214,7 @@ bool HorizonTileResolutionTesselator::getTitleCoordinates( int idx,
 }
 
 
-bool HorizonTileResolutionTesselator::getTitleNormals( 
+bool HorizonTileResolutionTesselator::getTitleNormals(
     int idx, TypeSet<Coord3>& normals ) const
 {
     if ( idx>=0 && idx<hrtiles_.size() )
@@ -223,7 +224,7 @@ bool HorizonTileResolutionTesselator::getTitleNormals(
 }
 
 
-bool HorizonTileResolutionTesselator::getTitlePrimitiveSet( int idx, 
+bool HorizonTileResolutionTesselator::getTitlePrimitiveSet( int idx,
     TypeSet<int>& ps, GeometryType type ) const
 {
     if ( idx>=0 && idx<hrtiles_.size() )
@@ -297,8 +298,8 @@ void HorizonSectionTilePosSetup::setTesselationResolution( char res )
 }
 
 
-od_int64 HorizonSectionTilePosSetup::nrIterations() const 
-{ 
+od_int64 HorizonSectionTilePosSetup::nrIterations() const
+{
     return hortiles_.size();
 }
 
@@ -427,3 +428,5 @@ bool HorizonSectionTilePosSetup::doNewWork( od_int64 start, od_int64 stop, int )
 
     return true;
 }
+
+} // namespace visBase

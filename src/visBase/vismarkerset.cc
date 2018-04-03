@@ -28,7 +28,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mCreateFactoryEntry( visBase::MarkerSet );
 
-using namespace visBase;
+namespace visBase
+{
 
 MarkerSet::MarkerSet()
     : VisualObjectImpl(true)
@@ -489,3 +490,5 @@ void MarkerSet::removePolygonOffsetNodeState()
     offset_ = 0;
 
 }
+
+} // namespace visBase

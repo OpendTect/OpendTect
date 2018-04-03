@@ -27,9 +27,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgUtil/CullVisitor>
 #include <osg/UserDataContainer>
 
-using namespace visBase;
+namespace visBase
+{
 
-HorizonSectionTile::HorizonSectionTile( const visBase::HorizonSection& section,
+HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
 					const RowCol& origin )
     : osgswitchnode_( new osg::Switch )
     , desiredresolution_( cNoneResolution )
@@ -216,7 +217,8 @@ void HorizonSectionTile::enableGeometryTypeDisplay( GeometryType type, bool yn )
     {
 	if ( !tileresolutiondata_.validIdx(res) )
 	    continue;
-	visBase::TileResolutionData* tileres = tileresolutiondata_[res];
+
+	TileResolutionData* tileres = tileresolutiondata_[res];
 	if ( tileres )
 	    tileres->enableGeometryTypeDisplay( type, yn );
     }
@@ -229,7 +231,8 @@ void HorizonSectionTile::setWireframeColor( Color& color )
     {
 	if ( !tileresolutiondata_.validIdx(res) )
 	    continue;
-	visBase::TileResolutionData* tileres = tileresolutiondata_[res];
+
+	TileResolutionData* tileres = tileresolutiondata_[res];
 	if ( tileres )
 	    tileres->setWireframeColor( color );
     }
@@ -785,3 +788,4 @@ bool HorizonSectionTile::getResolutionPrimitiveSet(
     return true;
 }
 
+} // namespace visBase

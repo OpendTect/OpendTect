@@ -24,7 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mousecursor.h"
 #include "mouseevent.h"
 
-using namespace visSurvey;
+namespace visSurvey
+{
 
 #define mDefaultMarkerSize 3
 #define mSceneIdx (ownerscene_ ? ownerscene_->fixedIdx() : -1)
@@ -368,3 +369,4 @@ void StickSetDisplay::setStickMarkerStyle( const MarkerStyle3D& mkstyle )
     mForceDrawMarkerSet();
 }
 
+} // namespace visSurvey

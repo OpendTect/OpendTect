@@ -21,10 +21,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/Geometry>
 #include <osg/TexMat>
 
-mCreateFactoryEntry( visBase::TextureRectangle );
+mCreateFactoryEntry( visBase::TextureRectangle )
 
-using namespace visBase;
-
+namespace visBase
+{
 
 TextureRectangle::TextureRectangle()
     : VisualObjectImpl( false )
@@ -205,7 +205,7 @@ void TextureRectangle::getTextureCoordinates( TypeSet<Coord3>& coords ) const
     char thindim = 0;
     if ( width.x == 0 )
 	thindim = 0;
-    else if ( width.y == 0 ) 
+    else if ( width.y == 0 )
 	thindim = 1;
     else thindim = 2;
 
@@ -217,12 +217,12 @@ void TextureRectangle::getTextureCoordinates( TypeSet<Coord3>& coords ) const
 
     const int tw = channels_->getChannels2RGBA()->getTextureWidth();
     const int th = channels_->getChannels2RGBA()->getTextureHeight();
-    
+
     coords.erase();
 
     for ( int idx=0; idx<4; idx++ )
 	coords += Coord3();
-    
+
     coords[0] = Coord3( 0.0f, 0.0f, 0.0f );
     coords[1] = Coord3( tw, 0.0f, 0.0f );
     coords[2] = Coord3( 0.0f, th, 0.0f );
@@ -326,3 +326,5 @@ bool TextureRectangle::getTextureInfo( int& width, int& height,
 
     return true;
 }
+
+} // namespace visBase
