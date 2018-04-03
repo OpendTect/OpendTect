@@ -93,9 +93,9 @@ public:
 
     void		setNrDims( NrDimsType nrdims )
 			{
-			    for ( DimIdxType idim=nrdims; idim<size(); idim++ )
+			    for ( int idim=nrdims; idim<size(); idim++ )
 				removeSingle( size()-1 );
-			    for ( DimIdxType idim=size(); idim<nrdims; idim++ )
+			    for ( int idim=size(); idim<nrdims; idim++ )
 				*this += SlabDimSpec();
 			}
 };
