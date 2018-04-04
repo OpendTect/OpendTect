@@ -104,16 +104,17 @@ void uiTutMgr::updateMenu( CallBacker* )
 
 void uiTutMgr::doVisTutorial( CallBacker* )
 {
-    Coord xypos =
+    uiODSceneMgr& scenemgr = appl_->sceneMgr();
+    visSurvey::TutorialDisplay* tutdisplay = new visSurvey::TutorialDisplay();
+    appl_->applMgr().visServer()->addObject( tutdisplay,
+					   scenemgr.getActiveSceneID(), true );
+
+     Coord xypos =
 	SI().transform( SI().sampling(false).hsamp_.center().binID() );
     Coord3 xyzpos( xypos, SI().zRange(false).center() );
 
-    visSurvey::TutorialDisplay* tutdisplay =
-	new visSurvey::TutorialDisplay( tr("Tutorial: Some Text"), xyzpos );
-
-    uiODSceneMgr& scenemgr = appl_->sceneMgr();
-    appl_->applMgr().visServer()->addObject( tutdisplay,
-					    scenemgr.getActiveSceneID(), true );
+    tutdisplay->displayAllWells();
+    tutdisplay->displayText( tr("Tutorial: Some Text"), xyzpos);
 }
 
 
