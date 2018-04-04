@@ -15,7 +15,11 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "oscommand.h"
 
+#ifdef __debug__
+static const char* sRedirect = "";
+#else
 static const char* sRedirect = " > /dev/null 2>&1";
+#endif
 
 #define mGetReqFnm() const BufferString reqfnm( File::Path(dir_,fnm).fullPath() )
 
