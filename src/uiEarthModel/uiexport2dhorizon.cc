@@ -129,6 +129,8 @@ bool uiExport2DHorizon::doExport()
 	    undefstr = "-";
     }
 
+    writeHeader( strm );
+
     for ( int horidx=0; horidx<midset.size(); horidx++ )
     {
 	MultiID horid;
@@ -199,7 +201,6 @@ bool uiExport2DHorizon::doExport()
 	if ( !strm.isOK() )
 	    mErrRet(uiStrings::sCantOpenOutpFile())
 
-	writeHeader( strm );
 	for ( int idx=0; idx<linenms.size(); idx++ )
 	{
 	    BufferString linename = linenms.get( idx );
@@ -361,8 +362,9 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
 	return false;
     }
 
-    uiString msg = tr("2D Horizon successfully exported."
-		      "\n\nDo you want to export more horizons?");
+    uiString msg = tr("2D %1 successfully exported."
+		      "\n\nDo you want to export more 2D %1?")
+		      .arg(uiStrings::sHorizon(isbulk_ ? mPlural:1));
     return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
 }
 
