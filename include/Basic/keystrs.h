@@ -97,6 +97,7 @@ namespace sKey
     inline FixedString NrValues()	{ return "Nr Values"; }
     inline FixedString Object()		{ return "Object"; }
     inline FixedString Offset()		{ return "Offset"; }
+    inline FixedString OffsetRange()	{ return "Offset Range"; }
     inline FixedString Order()		{ return "Order"; }
     inline FixedString Output()		{ return "Output"; }
     inline FixedString Pars()		{ return "Parameters"; }

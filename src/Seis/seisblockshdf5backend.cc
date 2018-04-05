@@ -140,12 +140,9 @@ void Seis::Blocks::HDF5WriteBackEnd::putBlock( int icomp, MemBlock& block,
 Seis::Blocks::HDF5ReadBackEnd::HDF5ReadBackEnd( Reader& rdr, const char* fnm,
 						uiRetVal& uirv )
     : ReadBackEnd(rdr)
-    , hdfrdr_(HDF5::mkReader())
+    , hdfrdr_(0)
 {
-    if ( !hdfrdr_ )
-	uirv.set( HDF5::Access::sHDF5NotAvailable(fnm) );
-    else
-	uirv = hdfrdr_->open( fnm );
+    reset( fnm, uirv );
 }
 
 
@@ -164,9 +161,12 @@ void Seis::Blocks::HDF5ReadBackEnd::close()
 
 void Seis::Blocks::HDF5ReadBackEnd::reset( const char* fnm, uiRetVal& uirv )
 {
-    if ( !HDF5::isAvailable() )
-	{ uirv.add( HDF5::Access::sHDF5NotAvailable(fnm) ); return; }
-    uirv.add( mTODONotImplPhrase() );
+    delete hdfrdr_;
+    hdfrdr_ = HDF5::mkReader();
+    if ( !hdfrdr_ )
+	uirv.set( HDF5::Access::sHDF5NotAvailable(fnm) );
+    else
+	uirv = hdfrdr_->open( fnm );
 }
 
 

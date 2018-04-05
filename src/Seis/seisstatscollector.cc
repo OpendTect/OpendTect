@@ -22,6 +22,7 @@ static const int cSampleBufferSize = 1048576;
 SeisStatsCollector::SeisStatsCollector( int icomp )
     : vals_(0)
     , selcomp_(icomp)
+    , offsrg_(mUdf(float),0.f)
 {
     setEmpty();
 }
@@ -126,6 +127,12 @@ void SeisStatsCollector::useTrace( const SeisTrc& trc )
 
 	totalnrsamples_ += sz;
     }
+
+    const float offs = trc.info().offset_;
+    if ( mIsUdf(offsrg_.start) || offsrg_.start > offs )
+	offsrg_.start = offs;
+    if ( offsrg_.stop < offs )
+	offsrg_.stop = offs;
 }
 
 
@@ -161,15 +168,22 @@ bool SeisStatsCollector::fillPar( IOPar& iop ) const
 	return false;
 
     tkzs_.fillPar( iop );
+
+    if ( !mIsUdf(offsrg_.start) && offsrg_.stop > 0.1f )
+	iop.set( sKey::OffsetRange(), offsrg_ );
+
     iop.set( "Count.Traces", nrtrcshandled_ );
     iop.set( "Count.Samples", totalnrsamples_ );
     iop.set( "Count.UnDefs", totalnrsamples_-nrvalshandled_ );
     iop.set( "Count.Random Sample Size", nrvalscollected_ );
+
     if ( !mIsUdf(valrg_.start) )
 	iop.set( "Extremes", valrg_ );
+
     IOPar distribpar;
     DataDistributionInfoExtracter<float>(*distrib_).fillPar( distribpar );
     iop.mergeComp( distribpar, sKey::Distribution() );
+
     return true;
 }
 

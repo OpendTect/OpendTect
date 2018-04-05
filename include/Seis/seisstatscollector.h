@@ -45,6 +45,7 @@ protected:
 
     float*		vals_;
     Interval<float>	valrg_;
+    Interval<float>	offsrg_;
     const int		selcomp_;
     od_int64		nrtrcshandled_;
     od_int64		nrvalshandled_;
