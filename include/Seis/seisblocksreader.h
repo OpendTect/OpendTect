@@ -31,6 +31,7 @@ namespace Blocks
 {
 
 class FileColumn;
+class HDF5Column;
 class FileIDTable;
 class HDF5ReadBackEnd;
 class ReadBackEnd;
@@ -103,6 +104,7 @@ protected:
     void		readTrace(SeisTrc&,uiRetVal&) const;
 
     friend class	FileColumn;
+    friend class	HDF5Column;
     friend class	StreamReadBackEnd;
     friend class	HDF5ReadBackEnd;
 

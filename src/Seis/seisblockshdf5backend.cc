@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "posinfo.h"
 #include "keystrs.h"
+#include "seistrc.h"
 
 
 static const char* sKeyStartLoc = "Loc00";
@@ -137,6 +138,122 @@ void Seis::Blocks::HDF5WriteBackEnd::putBlock( int icomp, MemBlock& block,
 }
 
 
+namespace Seis
+{
+
+namespace Blocks
+{
+
+class HDF5Column : public Column
+{ mODTextTranslationClass(Seis::Blocks::HDF5Column)
+public:
+
+			HDF5Column(const HDF5ReadBackEnd&,const HGlobIdx&,
+				   uiRetVal&);
+			~HDF5Column();
+
+    void		fillTrace(const BinID&,SeisTrc&,uiRetVal&) const;
+
+    const Reader&	rdr_;
+    const HGeom&	hgeom_;
+    HDF5::Reader&	hdfrdr_;
+
+    const HGlobIdx	globidx_;
+    const HLocIdx	start_;
+    const Dimensions	dims_;
+    int			nrsamplesintrace_;
+
+protected:
+
+    uiString		probInBlockStr(const uiString&) const;
+
+};
+
+} // namespace Blocks
+
+} // namespace Seis
+
+
+#define mRetOnInitialBlockProb(msg) \
+    { uirv.set( probInBlockStr(msg) ); return; }
+
+
+Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
+				      const HGlobIdx& gidx, uiRetVal& uirv )
+    : Column(gidx,Dimensions(0,0,0),rdrbe.rdr_.nrComponents())
+    , rdr_(rdrbe.rdr_)
+    , globidx_(gidx)
+    , start_(0,0)
+    , dims_(0,0,0)
+    , hdfrdr_(*rdrbe.hdfrdr_)
+    , nrsamplesintrace_(0)
+    , hgeom_(rdrbe.rdr_.hGeom())
+{
+    BufferString blockname;
+    blockname.set( globidx_.inl() ).add( "." ).add( globidx_.crl() );
+    const HDF5::DataSetKey dsky( rdr_.componentNames().get(0), blockname );
+    if ( !hdfrdr_.setScope(dsky) )
+	mRetOnInitialBlockProb( tr("Block is not present") )
+
+    IOPar blockiop;
+    uirv = hdfrdr_.getInfo( blockiop );
+    if ( !uirv.isOK() )
+	mRetOnInitialBlockProb( uirv )
+
+    HLocIdx& start( const_cast<HLocIdx&>(start_) );
+    blockiop.get( sKeyStartLoc, start.inl(), start.crl() );
+    PtrMan<ArrayNDInfo> ainf = hdfrdr_.getDataSizes();
+    if ( !ainf )
+	mRetOnInitialBlockProb( tr("Cannot extract block sizes") )
+    else if ( ainf->nrDims() != 3 )
+	mRetOnInitialBlockProb( tr("Improper block found") )
+
+    Dimensions& dms( const_cast<Dimensions&>(dims_) );
+    dms.inl() = ainf->getSize( 0 );
+    dms.crl() = ainf->getSize( 1 );
+    dms.z() = ainf->getSize( 2 );
+}
+
+
+uiString Seis::Blocks::HDF5Column::probInBlockStr( const uiString& msg ) const
+{
+    return tr("Problem in Block %1.%2 in '%3':\n%4" )
+	  .arg( globidx_.inl() ).arg( globidx_.crl() )
+	  .arg( hdfrdr_.fileName() )
+	  .addMoreInfo( msg, true );
+}
+
+
+Seis::Blocks::HDF5Column::~HDF5Column()
+{
+}
+
+
+void Seis::Blocks::HDF5Column::fillTrace( const BinID& bid, SeisTrc& trc,
+					  uiRetVal& uirv ) const
+{
+    const HLocIdx locidx(
+	Block::locIdx4Inl(hgeom_,bid.inl(),rdr_.dims_.inl()) - start_.inl(),
+	Block::locIdx4Crl(hgeom_,bid.crl(),rdr_.dims_.crl()) - start_.crl() );
+    if ( locidx.inl() < 0 || locidx.crl() < 0
+      || locidx.inl() >= dims_.inl() || locidx.crl() >= dims_.crl() )
+    {
+	// something's diff between bin block and info file; a getNext() found
+	// this position in the CubeData, but the position is not available
+	uirv.set( tr("Location from .info file (%1/%2) not in file")
+		.arg(bid.inl()).arg(bid.crl()) );
+	return;
+    }
+
+    trc.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.datarep_ );
+    trc.reSize( nrsamplesintrace_, false );
+
+    //TODO fill the trace
+    trc.zero();
+}
+
+
+
 Seis::Blocks::HDF5ReadBackEnd::HDF5ReadBackEnd( Reader& rdr, const char* fnm,
 						uiRetVal& uirv )
     : ReadBackEnd(rdr)
@@ -173,13 +290,16 @@ void Seis::Blocks::HDF5ReadBackEnd::reset( const char* fnm, uiRetVal& uirv )
 Seis::Blocks::Column* Seis::Blocks::HDF5ReadBackEnd::createColumn(
 				const HGlobIdx& gidx, uiRetVal& uirv )
 {
-    uirv.add( mTODONotImplPhrase() );
-    return 0;
+    HDF5Column* ret = new HDF5Column( *this, gidx, uirv );
+    if ( uirv.isError() )
+	{ delete ret; ret = 0; }
+    return ret;
 }
 
 
 void Seis::Blocks::HDF5ReadBackEnd::fillTrace( Column& column, const BinID& bid,
 				SeisTrc& trc, uiRetVal& uirv ) const
 {
-    uirv.add( mTODONotImplPhrase() );
+    HDF5Column& hdfcolumn = static_cast<HDF5Column&>( column );
+    hdfcolumn.fillTrace( bid, trc, uirv );
 }
