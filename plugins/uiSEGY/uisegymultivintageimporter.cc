@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uisegyfileselector.h"
 #include "uisegyreadfinisher.h"
 #include "uisegyreadstarter.h"
+#include "segyvintageimporter.h"
 #include "uimsg.h"
 #include "uitable.h"
 #include "uitoolbutton.h"
@@ -105,7 +106,7 @@ bool uiSEGYMultiVintageImporter::selectVintage()
     saveIfNewVintage( vintagenm_ );
     fsdlg_->getSelNames( selfilenms_ );
     selfilenms_.sort();
-    uiSEGYVintageInfo* vntinfo = new uiSEGYVintageInfo();
+    SEGY::Vintage::Info* vntinfo = new SEGY::Vintage::Info();
     vntinfo->vintagenm_ = vintagenm_;
     vntinfo->filenms_ = selfilenms_;
     vntinfo->fp_ = File::Path( rsdlg_->userFileName() );
@@ -161,7 +162,7 @@ void uiSEGYMultiVintageImporter::addCB( CallBacker* )
 
 void uiSEGYMultiVintageImporter::fillRow( int rowid )
 {
-    uiSEGYVintageInfo* vntinfo = vntinfos_.get( rowid );
+    SEGY::Vintage::Info* vntinfo = vntinfos_.get( rowid );
     if ( !vntinfo )
 	pErrMsg("Something went wrong.segysetup file modified?; return;");
 
@@ -180,7 +181,7 @@ void uiSEGYMultiVintageImporter::selectFilesCB( CallBacker* cb )
 	 return;
 
      const RowCol rc( table_->getCell(obj) );
-     uiSEGYVintageInfo* vntinfo = vntinfos_.get( rc.row() );
+     SEGY::Vintage::Info* vntinfo = vntinfos_.get( rc.row() );
      if ( !vntinfo )
 	 return;
 

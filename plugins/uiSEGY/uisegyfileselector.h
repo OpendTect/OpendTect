@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uidialog.h"
 #include "uilistbox.h"
-#include "uisegymultivintageimporter.h"
+#include "segyvintageimporter.h"
 
 class uiTextEdit;
 class uiComboBox;
@@ -25,7 +25,7 @@ mExpClass(uiSEGY) uiSEGYFileSelector : public uiDialog
 public:
 		uiSEGYFileSelector(uiParent*, const char* fnm,
 				   const SEGY::ImpType&,
-				   const ObjectSet<uiSEGYVintageInfo>&,
+				   const ObjectSet<SEGY::Vintage::Info>&,
 				   const bool editmode=false,
 				   const char* vntnm=0);
 		~uiSEGYFileSelector();
@@ -54,5 +54,5 @@ protected:
     const File::Path&			fp_;
     const SEGY::ImpType&		imptype_;
     const bool				editmode_;
-    const ObjectSet<uiSEGYVintageInfo>&		vntinfos_;
+    const ObjectSet<SEGY::Vintage::Info>&	vntinfos_;
 };

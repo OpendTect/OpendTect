@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uisegysipclassic.h"
 #include "uisegydef.h"
 #include "uisegyread.h"
-#include "uisegymultivintageimporter.h"
+#include "segyvintageimporter.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
@@ -1297,7 +1297,7 @@ bool uiSEGYReadStarter::isExampleVntSelected( const BufferString& inpnm )
     for ( int vntidx=0; vntidx<setup_.vntinfos_->size(); vntidx++ )
     {
 	BufferString fnm;
-	const uiSEGYVintageInfo* vntinfo = setup_.vntinfos_->get(vntidx);
+	const SEGY::Vintage::Info* vntinfo = setup_.vntinfos_->get(vntidx);
 	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
 	int selidx = parset.find( vntinfo->vintagenm_ );
 	Repos::IOPar* iop = selidx<0 ? 0 : parset[selidx];

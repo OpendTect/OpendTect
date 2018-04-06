@@ -21,10 +21,10 @@ ________________________________________________________________________
 #include "uisegyreadstarter.h"
 
 uiSEGYFileSelector::uiSEGYFileSelector(uiParent* p, const char* fnm,
-				   const SEGY::ImpType& imptype,
-				   const ObjectSet<uiSEGYVintageInfo>& vntinfos,
-				   const bool editmode,
-				   const char* vntnm )
+			const SEGY::ImpType& imptype,
+			const ObjectSet<SEGY::Vintage::Info>& vntinfos,
+			const bool editmode,
+			const char* vntnm )
     : uiDialog(p, uiDialog::Setup(editmode ? tr("Edit selection")
 					   : tr("Select SEGY file(s)"),
 	       mNoDlgTitle,mNoHelpKey) )
@@ -91,7 +91,7 @@ void uiSEGYFileSelector::getSelectableFiles(const BufferString& dirpath,
 	bool found = false;
 	for ( int vidx=0; vidx<vntinfos_.size(); vidx++ )
 	{
-	    const uiSEGYVintageInfo* vntinfo = vntinfos_[vidx];
+	    const SEGY::Vintage::Info* vntinfo = vntinfos_[vidx];
 	    const BufferStringSet& selnms = vntinfo->filenms_;
 	    if ( dirpath==vntinfo->fp_.pathOnly() )
 	    {
@@ -170,7 +170,7 @@ bool uiSEGYFileSelector::acceptOK()
 
     for ( int idx=0; idx<vntinfos_.size(); idx++ )
     {
-	const uiSEGYVintageInfo* vntinfo = vntinfos_[idx];
+	const SEGY::Vintage::Info* vntinfo = vntinfos_[idx];
 	if ( vntinfo->vintagenm_.isEqual(vntnm) )
 	{
 	    uiMSG().message( tr("The selected vinatge name is assigned to "

@@ -19,16 +19,7 @@ class uiSEGYFileSelector;
 class uiSEGYImpType;;
 class uiSEGYReadStarter;
 class uiSEGYReadFinisher;
-
-mExpClass(uiSEGY) uiSEGYVintageInfo
-{ mODTextTranslationClass(uiSEGYVintageInfo)
-public:
-
-    BufferString	vintagenm_;
-    BufferStringSet	filenms_;
-    File::Path		fp_;
-};
-
+namespace SEGY{ namespace Vintage {class Info; }}
 
 mExpClass(uiSEGY) uiSEGYMultiVintageImporter : public uiDialog
 { mODTextTranslationClass(uiSEGYMultiVintageImporter)
@@ -54,8 +45,8 @@ protected:
     uiTable*		table_;
     uiSEGYImpType*	imptypefld_;
     BufferString	vintagenm_;
-    ObjectSet<uiSEGYVintageInfo> vntinfos_;
     uiSEGYReadStarter*	rsdlg_;
     uiSEGYFileSelector* fsdlg_;
     uiSEGYReadFinisher* rfdlg_;
+    ObjectSet<SEGY::Vintage::Info> vntinfos_;
 };

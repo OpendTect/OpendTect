@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "segydirecttr.h"
 #include "segydirectdef.h"
 #include "segyscanner.h"
-#include "uisegymultivintageimporter.h"
+#include "segyvintageimporter.h"
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "seisimporter.h"
@@ -83,9 +83,9 @@ uiString uiSEGYReadFinisher::getDlgTitle( const char* usrspec )
 
 
 uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
-					const char* usrspec, bool istime,
-					bool singlevintage,
-				   const ObjectSet<uiSEGYVintageInfo>* vntinfo )
+				const char* usrspec, bool istime,
+				bool singlevintage,
+				const ObjectSet<SEGY::Vintage::Info>* vntinfo)
     : uiDialog(p,uiDialog::Setup(getWinTile(fs,singlevintage),
 	       singlevintage ? getDlgTitle(usrspec) : mNoDlgTitle,
 	       mODHelpKey(mSEGYReadFinisherHelpID)))
@@ -424,7 +424,6 @@ SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
 }
 
 
-
 bool uiSEGYReadFinisher::doMultiVintage()
 {
     if ( singlevintage_ )
@@ -436,15 +435,6 @@ bool uiSEGYReadFinisher::doMultiVintage()
     for ( int vidx=0; vidx<vntinfos_->size(); vidx++ )
     {
 	processingvntnm_.setEmpty();
-	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
-	const int selidx = parset.find( vntinfos_->get(vidx)->vintagenm_ );
-	if ( selidx < 0 )
-	    pErrMsg("Something went wrong with segysetup file; return false");
-
-	Repos::IOPar* iop = parset[selidx];
-	if ( !iop )
-	    return false;
-
 	uiSEGYImportResult* reportdlg = new uiSEGYImportResult( this );
 	reportdlg->vintagenm_ = vntinfos_->get(vidx)->vintagenm_;
 	reports_.add( reportdlg );
@@ -458,57 +448,18 @@ bool uiSEGYReadFinisher::doMultiVintage()
 	const Translator* transl = outimpfld_->getTranslator();
 	ctxt.fixTranslator( transl->userName().buf() );
 
-	const int size = vntinfos_->get(vidx)->filenms_.size();
-	for ( int nmidx=0; nmidx<size; nmidx++ )
-	{
-	    CtxtIOObj ctio( ctxt );
-	    const BufferString fnm( vntinfos_->get(vidx)->filenms_.get(nmidx) );
-	    File::Path fp( vntinfos_->get(vidx)->fp_.pathOnly(), fnm );
-	    ctio.setName( fp.baseName() );
-	    DBM().getEntry( ctio );
-	    if ( !ctio.ioobj_ )
-		return false;
+	const SEGY::Vintage::Info* vntinfo = vntinfos_->get(vidx);
+	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+	if ( parset.isEmpty() )
+	    continue;
 
-	    iop->set( sKey::FileName(), fp.fullPath() );
-	    fs_.usePar( *iop );
-	    IOObj* inioobj = fs_.spec_.getIOObj( true );
-	    if ( !inioobj )
-		return false;
-
-	    DBM().setEntry(*inioobj);
-
-	    trcsskipped_ = false;
-	    errmsg_.setEmpty();
-	    const bool impsuccess = do3D( *inioobj, *ctio.ioobj_, true );
-	    //TODOSegyImpl create separate function to update reportdlg
-	    const int nrrows = reportdlg->table_->nrRows();
-	    reportdlg->table_->setNrRows( nrrows + 1 );
-	    const int currowid = reportdlg->table_->nrRows() - 1;
-	    reportdlg->table_->setText( RowCol(currowid,0), fnm );
-	    uiString tooltip;
-	    tooltip = toUiString( fp.fullPath() );
-	    reportdlg->table_->setCellToolTip( RowCol(currowid,0), tooltip );
-	    uiTextEdit* txt = new uiTextEdit( this, "", true );
-	    txt->setDefaultHeight( 25 );
-	    txt->setText( errmsg_ );
-	    reportdlg->table_->setRowStretchable( currowid, true );
-	    reportdlg->table_->setCellObject( RowCol(currowid,2), txt );
-	    reportdlg->table_->setText( RowCol(currowid,2), errmsg_ );
-	    reportdlg->table_->setText( RowCol(currowid,1),
-				       impsuccess ? uiStrings::sSuccess()
-						  : uiStrings::sFailed() );
-	    reportdlg->table_->setCellColor( RowCol(currowid,1),
-					    impsuccess ? Color::Green()
-						       : Color::Red() );
-	    if ( trcsskipped_ )
-	    {
-		reportdlg->table_->setText( RowCol(currowid,1),
-					   uiStrings::sPartial() );
-		reportdlg->table_->setCellColor( RowCol(currowid,1),
-						Color::Orange() );
-	    }
-	}
-
+	SEGY::Vintage::Importer vntimporter( *vntinfo, transl->userName(),
+					     fs_.geomType(),
+					     transffld_->getSelData() );
+	vntimporter.setContinueOnError( true );
+	uiTaskRunner dlg( this, singlevintage_ );
+	dlg.execute( vntimporter );
+	updateResultDlg( vntimporter, reportdlg );
 	reportdlg->status_ = tr("Finished");
 	updateStatus.trigger();
     }
@@ -518,8 +469,74 @@ bool uiSEGYReadFinisher::doMultiVintage()
 }
 
 
+const SEGY::Vintage::Info* uiSEGYReadFinisher::getVintageInfo(
+						     const BufferString& vntnm )
+{
+    if ( !vntinfos_ || vntinfos_->isEmpty() )
+	return 0;
+
+    for ( int vint=0; vint<vntinfos_->size(); vint++ )
+    {
+	const SEGY::Vintage::Info* vinfo = vntinfos_->get( vint );
+	if ( !vinfo )
+	    continue;
+
+	if ( vinfo->vintagenm_.isEqual(vntnm) )
+	    return vinfo;
+    }
+
+    return 0;
+}
+
+
+void uiSEGYReadFinisher::updateResultDlg(
+				      const SEGY::Vintage::Importer& importer,
+				      uiSEGYImportResult* reportdlg )
+{
+    const SEGY::Vintage::Info* vntinfo = getVintageInfo( importer.getName() );
+    if ( !vntinfo )
+	return;
+
+    reportdlg->vintagenm_ = importer.getName();
+    int nrexes = importer.nrExecutors();
+    if ( nrexes != mNINT64(vntinfo->filenms_.size()) )
+	return;
+
+    for ( int idx=0; idx<importer.nrExecutors(); idx++ )
+    {
+	const int nrrows = reportdlg->table_->nrRows();
+	reportdlg->table_->setNrRows( nrrows + 1 );
+	const int currowid = reportdlg->table_->nrRows() - 1;
+	const BufferString fnm( vntinfo->filenms_.get(idx) );
+	reportdlg->table_->setText( RowCol(currowid,0), fnm );
+	uiString tooltip;
+	File::Path fp( vntinfo->fp_.pathOnly(), fnm );
+	tooltip = toUiString( fp.fullPath() );
+	reportdlg->table_->setCellToolTip( RowCol(currowid,0), tooltip );
+	uiTextEdit* txt = new uiTextEdit( this, "", true );
+	txt->setDefaultHeight( 25 );
+	mDynamicCastGet(const SeisImporter*,seisimp,importer.getExecutor(idx));
+	if ( !seisimp )
+	    continue;
+
+	bool impsuccess = seisimp->errorMsg().isEmpty();
+	txt->setText( impsuccess ? tr("Imported successfully")
+				 : seisimp->errorMsg() );
+	reportdlg->table_->setRowStretchable( currowid, true );
+	reportdlg->table_->setCellObject( RowCol(currowid,2), txt );
+	reportdlg->table_->setText( RowCol(currowid,1),
+				    impsuccess ? uiStrings::sSuccess()
+					       : uiStrings::sFailed() );
+	reportdlg->table_->setCellColor( RowCol(currowid,1),
+					 impsuccess ? Color::Green()
+						    : Color::Red() );
+
+    }
+}
+
+
 bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
-				bool doimp, bool trcsskipped )
+				bool doimp )
 {
     Executor* exec;
     const Seis::GeomType gt = fs_.geomType();
@@ -849,6 +866,7 @@ bool uiSEGYReadFinisher::acceptOK()
     const IOObj* outioobj = outFld(doimp)->ioobj();
     if ( !outioobj )
 	return false;
+
     outputid_ = outioobj->key();
 
     const bool is2d = Seis::is2D( fs_.geomType() );

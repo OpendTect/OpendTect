@@ -14,6 +14,9 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "dbkey.h"
 
+class SeisImporter;
+class SeisStdImporterReader;
+class SeisTrcWriter;
 class uiIOObjSel;
 class uiSeisSel;
 class uiComboBox;
@@ -23,12 +26,9 @@ class uiFileSel;
 class uiTable;
 class uiBatchJobDispatcherSel;
 class uiSeisTransfer;
-class SeisImporter;
-class SeisTrcWriter;
-class SeisStdImporterReader;
-class uiSEGYVintageInfo;
-namespace SEGY { class FileIndexer; }
 class uiSEGYImportResult;
+namespace SEGY { class FileIndexer; }
+namespace SEGY { namespace Vintage {class Info; class Importer; }}
 
 
 /*!\brief Finishes reading process of 'any SEG-Y file'. */
@@ -40,7 +40,7 @@ public:
 			uiSEGYReadFinisher(uiParent*,const FullSpec&,
 					   const char* usrspec,bool istime,
 					   bool singlevintage=true,
-				const ObjectSet<uiSEGYVintageInfo>* vintinfo=0);
+			    const ObjectSet<SEGY::Vintage::Info>* vintinfo=0);
 			//TODOSegyImpl Implement Setup
 			~uiSEGYReadFinisher();
 
@@ -50,6 +50,7 @@ public:
     uiSEGYImportResult* getImportResult(int);
     const BufferString& getCurrentProcessingVntnm()
 			{ return processingvntnm_; }
+    const SEGY::Vintage::Info*	    getVintageInfo(const BufferString& Vntnm);
     Notifier<uiSEGYReadFinisher> updateStatus;
 
 protected:
@@ -74,25 +75,24 @@ protected:
     uiFileSel*		coordfilefld_;
     uiBatchJobDispatcherSel* batchfld_;
     uiString		errmsg_;
-    uiSEGYImportResult* reportdlg_;
     ObjectSet<uiSEGYImportResult> reports_;
 
     bool		singlevintage_;
     bool		trcsskipped_;
-    const ObjectSet<uiSEGYVintageInfo>* vntinfos_;
     BufferString	processingvntnm_;
+    const ObjectSet<SEGY::Vintage::Info>* vntinfos_;
 
     void		crVSPFields(bool);
     void		crSeisFields(bool);
     void		cr2DCoordSrcFields(uiGroup*&,bool);
 
     bool		doVSP();
-    bool		do3D(const IOObj&,const IOObj&,bool,
-			     bool trcsckipped=false);
+    bool		do3D(const IOObj&,const IOObj&,bool);
     bool		do2D(const IOObj&,const IOObj&,bool,const char*);
     bool		doBatch(bool);
     bool		doMultiVintage();
-
+    void		updateResultDlg(const SEGY::Vintage::Importer&,
+					uiSEGYImportResult*);
     void		updateInIOObjPars(IOObj&,const IOObj& outioobj);
     SeisStdImporterReader* getImpReader(const IOObj&,SeisTrcWriter&,
 					Pos::GeomID);

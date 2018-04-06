@@ -35,8 +35,8 @@ class uiSEGYRead;
 class uiSEGYImpType;
 class uiSEGYReadStartInfo;
 class uiSEGYClassicSurvInfoProvider;
-class uiSEGYVintageInfo;
 namespace SEGY { class ScanInfoCollectors; class ImpType; }
+namespace SEGY { namespace Vintage { class Info; }}
 
 
 /*!\brief Starts reading process of 'any SEG-Y file'. */
@@ -62,7 +62,7 @@ public:
 		mDefSetupMemb(BufferString, vintagenm);
 		mDefSetupMemb(bool, fixedfnm);
 		mDefSetupMemb(bool, vintagecheckmode);
-		mDefSetupMemb(const ObjectSet<uiSEGYVintageInfo>*, vntinfos);
+		mDefSetupMemb(const ObjectSet<SEGY::Vintage::Info>*,vntinfos);
     };
 
 			uiSEGYReadStarter(uiParent*, const Setup&);

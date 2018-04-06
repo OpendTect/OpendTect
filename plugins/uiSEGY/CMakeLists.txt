@@ -9,6 +9,7 @@ set(OD_IS_PLUGIN yes)
 set(OD_MODULE_SOURCES
     segyhdrkeydata.cc
     segyuiscandata.cc
+    segyvintageimporter.cc
     uisegycommon.cc
     uisegydef.cc
     uisegydefdlg.cc

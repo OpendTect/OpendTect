@@ -61,6 +61,8 @@ public:
     od_int64		totalNr() const;
     int			nextStep();
     int			Finished();
+    uiString		errorMsg() const
+			{ return errmsg_; }
 
     int			nrSkipped() const	{ return nrskipped_; }
     Reader&		reader()		{ return *rdr_; }
