@@ -209,9 +209,9 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
 	mRetOnInitialBlockProb( tr("Improper block found") )
 
     Dimensions& dms( const_cast<Dimensions&>(dims_) );
-    dms.inl() = ainf->getSize( 0 );
-    dms.crl() = ainf->getSize( 1 );
-    dms.z() = ainf->getSize( 2 );
+    dms.inl() = (SzType)ainf->getSize( 0 );
+    dms.crl() = (SzType)ainf->getSize( 1 );
+    dms.z() = (SzType)ainf->getSize( 2 );
 }
 
 
