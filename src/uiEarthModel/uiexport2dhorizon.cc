@@ -198,6 +198,8 @@ bool uiExport2DHorizon::doExport()
 	    const int lineidx = hor->geometry().lineIndex( linename );
 	    linename.quote('\"');
 	    StepInterval<int> trcrg = geom->colRange( lineidx );
+	    if ( trcrg.isUdf() || !trcrg.step ) continue;
+
 	    for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
 	    {
 		Coord3 pos = geom->getKnot( RowCol(lineidx,trcnr) );

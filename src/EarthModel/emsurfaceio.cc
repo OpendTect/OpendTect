@@ -771,6 +771,9 @@ int dgbSurfaceReader::nextStep()
     const SectionID sectionid = sectionids_[sectionindex_];
 
     int nrcols = readInt32( strm );
+    if ( !nrcols )
+	return skipRow(strm) == ErrorOccurred() ? ErrorOccurred() : MoreToDo();
+
     int firstcol = nrcols ? readInt32( strm ) : 0;
     int noofcoltoskip = 0;
 
