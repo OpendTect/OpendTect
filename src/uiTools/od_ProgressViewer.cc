@@ -407,6 +407,8 @@ int main( int argc, char** argv )
     uiProgressViewer* pv = new uiProgressViewer( 0, inpfile, pid, delay );
     app.setTopLevel( pv );
     pv->show();
+    const bool success = app.exec();
+    delete pv;
 
-    return ExitProgram( app.exec() );
+    return ExitProgram( success );
 }
