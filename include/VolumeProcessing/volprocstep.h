@@ -123,6 +123,7 @@ public:
     virtual bool		canHandle2D() const		{ return false;}
     virtual bool		needsInput() const		{ return true; }
     virtual bool		prefersBinIDWise() const	{ return false;}
+    virtual bool		canHandleUndefs() const		{ return true; }
     virtual bool		isInputPrevStep() const
 				{ return needsInput(); }
 

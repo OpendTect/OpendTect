@@ -123,7 +123,6 @@ void VolProc::Step::resetInput()
     deepUnRef( inputs_ );
 
     inputslotids_.setEmpty();
-    inputcompnrs_.setEmpty();
     for ( int idx=0; idx<getNrInputs(); idx++ )
     {
 	if ( inputs_.validIdx(idx) )
@@ -132,7 +131,6 @@ void VolProc::Step::resetInput()
 	    inputs_ += 0;
 
 	inputslotids_ += idx;
-	inputcompnrs_ += mUdf(int);
     }
 }
 
@@ -172,7 +170,7 @@ void VolProc::Step::setChain( VolProc::Chain& c )
 
 const char* VolProc::Step::userName() const
 {
-    return username_.isEmpty() ? 0 : username_.buf();
+    return username_.buf();
 }
 
 
@@ -248,11 +246,7 @@ void VolProc::Step::setInput( InputSlotID slotid,
 			      const RegularSeisDataPack* dc )
 {
     if ( inputs_.isEmpty() )
-    {
-	TypeSet<int> inputcompnrs( inputcompnrs_ );
 	resetInput();
-	inputcompnrs_ = inputcompnrs;
-    }
 
     const int idx = inputslotids_.indexOf( slotid );
     if ( !inputs_.validIdx(idx) )
@@ -305,18 +299,30 @@ int VolProc::Step::getOutputIdx( OutputSlotID slotid ) const
 void VolProc::Step::fillPar( IOPar& par ) const
 {
     if ( !username_.isEmpty() )
-	par.set( sKey::Name(), username_.buf() );
+	par.set( sKey::Name(), username_ );
 
     par.set( sKey::ID(), id_ );
+    if ( inputcompnrs_.isEmpty() ||
+	 (inputcompnrs_.size() == 1 &&	inputcompnrs_[0] == 1) )
+	return;
+
+    par.set( IOPar::compKey(sKey::Input(),sKey::Component()), inputcompnrs_ );
+    if ( outputcompnrs_.isEmpty() ||
+	 (outputcompnrs_.size() == 1 &&  outputcompnrs_[0] == 1) )
+	return;
+
+    par.set( IOPar::compKey(sKey::Output(),sKey::Component()), outputcompnrs_ );
 }
 
 
 bool VolProc::Step::usePar( const IOPar& par )
 {
-    username_.empty();
     par.get( sKey::Name(), username_ );
-    if ( !par.get(sKey::ID(),id_) && chain_ )
+    if ( !par.get(sKey::ID(),id_) && id_ == cUndefID() && chain_ )
 	id_ = chain_->getNewStepID();
+
+    par.get( IOPar::compKey(sKey::Input(),sKey::Component()), inputcompnrs_ );
+    par.get( IOPar::compKey(sKey::Output(),sKey::Component()), outputcompnrs_ );
 
     return true;
 }
@@ -334,12 +340,22 @@ bool VolProc::Step::prepareWork( int nrthreads )
     const Pos::GeomID geomid = output_->sampling().hsamp_.getGeomID();
     if ( needsInput() )
     {
-	for ( int idx=0; idx<getNrInputs(); idx++ )
+	const int nrinputs = getNrInputs();
+	if ( nrinputs < 1 )
+	{
+	    errmsg_ = tr( "This Volume Processing Step requires an input "
+			  "but none was provided" );
+	    releaseData();
+	    return false;
+	}
+
+	for ( int idx=0; idx<nrinputs; idx++ )
 	{
 	    if ( !inputs_.validIdx(idx) || !inputs_[idx] )
 	    {
 		errmsg_ = tr( "Volume Processing step does not have the "
 			      "required input datapack" );
+		releaseData();
 		return false;
 	    }
 
@@ -348,10 +364,18 @@ bool VolProc::Step::prepareWork( int nrthreads )
 					getNrInputComponents(slotid,geomid) )
 	    {
 		errmsg_ = tr( "Volume Processing step does not have the "
-				"required number of components for its input" );
+			      "required number of components for its input" );
 		releaseData();
 		return false;
 	    }
+	}
+
+	if ( canInputAndOutputBeSame() && output_ != inputs_[0] )
+	{
+	    errmsg_ = tr( "Volume Processing step requires the step output "
+			  "to be its input" );
+	    releaseData();
+	    return false;
 	}
     }
 
@@ -361,7 +385,8 @@ bool VolProc::Step::prepareWork( int nrthreads )
     if ( !success )
     {
 	errmsg_ = tr( "Volume Processing step does not have the "
-			"required number of components for its output" );
+		      "required number of components for its output" );
+	releaseData();
     }
 
     return success;
@@ -383,7 +408,7 @@ int VolProc::Step::getNrInputComponents( InputSlotID slotid,
     if ( !validInputSlotID(slotid) )
 	return 0;
 
-    if ( needsInput() && slotid >=0 && slotid < getNrInputs() )
+    if ( needsInput() )
 	return inputcompnrs_.validIdx(slotid) && !mIsUdf(inputcompnrs_[slotid])
 		 ? inputcompnrs_[slotid] : 1;
 
@@ -391,19 +416,21 @@ int VolProc::Step::getNrInputComponents( InputSlotID slotid,
 }
 
 
-int VolProc::Step::getNrOutComponents( OutputSlotID slotid, Pos::GeomID ) const
+int VolProc::Step::getNrOutComponents( OutputSlotID slotid,
+				       Pos::GeomID geomid ) const
 {
-    return validOutputSlotID(slotid) && slotid == 0 ?
-	( outputcompnrs_.validIdx(slotid) && !mIsUdf(outputcompnrs_[slotid])
-	  ? outputcompnrs_[slotid] : 1 ) : 0;
+    if ( !validOutputSlotID(slotid) || slotid != getOutputSlotID(0) )
+	return 0;
+
+    return outputcompnrs_.validIdx(slotid) && !mIsUdf(outputcompnrs_[slotid])
+	  ? outputcompnrs_[slotid]
+	  : (canInputAndOutputBeSame()
+		  ? getNrInputComponents(getInputSlotID(0),geomid) : 1);
 }
 
 
 void VolProc::Step::setInputNrComps( InputSlotID slotid, int nrcomps )
 {
-    if ( !validInputSlotID(slotid) )
-	return;
-
     if ( !inputcompnrs_.validIdx(slotid) )
     {
 	for ( int idx=0; idx<=slotid; idx++ )

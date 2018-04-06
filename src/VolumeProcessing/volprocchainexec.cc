@@ -478,6 +478,7 @@ bool VolProc::ChainExecutor::Epoch::updateInputs()
 	    pErrMsg("Output is not available");
 	    return false;
 	}
+
 	TypeSet<Chain::Connection> connections;
 	chainexec_.web_.getConnections( finishedstep->getID(), false,
 					connections );
@@ -490,14 +491,15 @@ bool VolProc::ChainExecutor::Epoch::updateInputs()
 
 	    const Step::OutputSlotID finishedslot =
 					connections[idy].outputslotid_;
-	    const int outputidx = finishedstep->getOutputIdx( finishedslot );
-	    if ( !input->validComp(outputidx) )
+	    const Step::InputSlotID futureslot = connections[idy].inputslotid_;
+	    if ( !finishedstep->validOutputSlotID(finishedslot) ||
+		 !futurestep->validInputSlotID(futureslot) )
 	    {
 		pErrMsg("Output is not available");
 		return false;
 	    }
 
-	    futurestep->setInput( connections[idy].inputslotid_, input );
+	    futurestep->setInput( futureslot, input );
 	}
     }
 
