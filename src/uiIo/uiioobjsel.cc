@@ -136,6 +136,12 @@ uiString uiIOObjSelDlg::selTxt( bool forread )
 }
 
 
+bool uiIOObjSelDlg::isForRead()
+{
+    return selgrp_ ? selgrp_->getContext().forread_ : false;
+}
+
+
 void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 {
     uiIOObjSelGrp::Setup sgsu( ctio.ctxt_.forread_ && setup_.multisel_
@@ -148,23 +154,21 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     statusBar()->setTxtAlign( 0, Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
 
+    int nr = setup_.multisel_ ? mPlural : 1;
+
     uiString titletext( setup_.titletext_ );
     if ( titletext.isEmpty() )
     {
 	if ( selgrp_->getContext().forread_ )
-	    titletext = uiStrings::phrSelect(uiStrings::sInput().toLower());
+	    titletext = uiStrings::phrSelect(uiStrings::sInput());
 	else
-	    titletext = uiStrings::phrSelect(uiStrings::sOutput().toLower());
-
+	    titletext = uiStrings::phrSelect(uiStrings::sOutput());
 	if ( selgrp_->getContext().name().isEmpty() )
 	    titletext = toUiString("%1 %2").arg(titletext)
-					.arg( ctio.ctxt_.trgroup_->typeName() );
+				    .arg( ctio.ctxt_.trgroup_->typeName(nr) );
 	else
 	    titletext = toUiString("%1 %2").arg(titletext)
 				   .arg( toUiString( ctio.ctxt_.name() ) );
-
-	titletext = toUiString("%1 %2").arg(titletext)
-	         .arg( setup_.multisel_ ? tr("(s)") : uiString::emptyString() );
     }
 
     setTitleText( titletext );
@@ -173,15 +177,10 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     if ( !selgrp_->getContext().forread_ )
 	captn = tr("Save %1 as" );
     else
-    {
-	if ( setup_.multisel_ )
-	    captn = tr( "Load %1(s)");
-	else
-	    captn = tr( "Load %1" );
-    }
+	captn = tr( "Load %1" );
 
-    if ( selgrp_->getContext().name().isEmpty() )
-	captn = captn.arg( ctio.ctxt_.trgroup_->typeName() );
+   if ( selgrp_->getContext().name().isEmpty() )
+	captn = captn.arg( ctio.ctxt_.trgroup_->typeName(nr) );
     else
 	captn = captn.arg( toUiString(ctio.ctxt_.name()) );
     setCaption( captn );

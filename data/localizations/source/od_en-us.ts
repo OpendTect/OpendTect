@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.1" language="en_US">
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
@@ -88,7 +88,7 @@
 <context>
     <name>SurvGeom2DTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/General/survgeometrytransl.cc" line="+25"/>
+        <location filename="../../../src/General/survgeometrytransl.cc" line="+30"/>
         <source>Geometry</source>
         <translation>
             <numerusform>Geometry</numerusform>
@@ -118,9 +118,20 @@
     </message>
 </context>
 <context>
+    <name>VolProcessing2DTranslatorGroup</name>
+    <message numerus="yes">
+        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+171"/>
+        <source>2D Volume Processing Setup</source>
+        <translation>
+            <numerusform>2D Volume Processing Setup</numerusform>
+            <numerusform>2D Volumes Processing Setup</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>VolProcessingTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+22"/>
+        <location line="-149"/>
         <source>Volume Processing Setup</source>
         <translation>
             <numerusform>Volume Processing Setup</numerusform>
@@ -131,9 +142,8 @@
 <context>
     <name>uiCreateLogCubeDlg</name>
     <message numerus="yes">
-        <location filename="../../../src/uiWellAttrib/uicreatelogcubedlg.cc" line="+75"/>
         <source>Successfully created the log cube(s)</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>Successfully created the log cube</numerusform>
             <numerusform>Successfully created the log cubes</numerusform>
         </translation>
@@ -150,7 +160,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+143"/>
+        <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+148"/>
         <source>Unload checked horizon(s)?
 (This will not delete the file(s) from disk)</source>
         <translation>
@@ -174,7 +184,7 @@
 <context>
     <name>uiSaveDataDlg</name>
     <message numerus="yes">
-        <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+169"/>
+        <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+175"/>
         <source>Cannot write log(s)</source>
         <translation>
             <numerusform>Cannot write log</numerusform>
@@ -185,7 +195,7 @@
 <context>
     <name>uiStrings</name>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+189"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+192"/>
         <source>Amplitude</source>
         <translation>
             <numerusform>Amplitude</numerusform>
@@ -201,15 +211,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Body</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform>Body</numerusform>
-            <numerusform>Body</numerusform>
+            <numerusform>Bodies</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+35"/>
+        <location line="+36"/>
         <source>Code</source>
         <translation>
             <numerusform>Code</numerusform>
@@ -258,7 +268,7 @@
     </message>
     <message numerus="yes">
         <location line="+2"/>
-        <location filename="../../../src/Basic/uistrings.cc" line="+625"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="+632"/>
         <source>Cube</source>
         <translation>
             <numerusform>Cube</numerusform>
@@ -282,7 +292,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Filter</source>
         <translation>
             <numerusform>Filter</numerusform>
@@ -290,7 +300,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+19"/>
+        <location line="+20"/>
         <source>In-line</source>
         <translation>
             <numerusform>In-line</numerusform>
@@ -330,7 +340,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+18"/>
+        <location line="+20"/>
         <source>Mute</source>
         <translation>
             <numerusform>Mute</numerusform>
@@ -363,6 +373,14 @@
     </message>
     <message numerus="yes">
         <location line="+1"/>
+        <source>PointSet</source>
+        <translation>
+            <numerusform>PointSet</numerusform>
+            <numerusform>PointSets</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
         <source>Polygon</source>
         <translation>
             <numerusform>Polygon</numerusform>
@@ -378,7 +396,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Range</source>
         <translation>
             <numerusform>Range</numerusform>
@@ -394,7 +412,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+21"/>
+        <location line="+22"/>
         <source>Scene</source>
         <translation>
             <numerusform>Scene</numerusform>
@@ -505,7 +523,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../src/Basic/uistrings.cc" line="-580"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="-583"/>
         <source>%1 does not exist</source>
         <translation>
             <numerusform>%1 does not exist</numerusform>
@@ -513,7 +531,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+212"/>
+        <location line="+215"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>

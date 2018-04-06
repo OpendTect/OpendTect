@@ -78,7 +78,8 @@ void uiPickPartServer::survChangedCB( CallBacker* )
 void uiPickPartServer::managePickSets()
 {
     delete manpicksetsdlg_;
-    manpicksetsdlg_ = new uiPickSetMan( parent(), dgbPickSetTranslator::translKey() );
+    manpicksetsdlg_ = new uiPickSetMan( parent(),
+					   dgbPickSetTranslator::translKey() );
     manpicksetsdlg_->go();
 }
 
@@ -169,7 +170,15 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     PickSetTranslator::fillConstraints( ctio->ctxt_, poly );
 
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
+    uiString titletxt = uiStrings::phrSelect(uiStrings::sInput());
+    uiString disptyp = poly ? uiStrings::sPolygon(mPlural) :
+						uiStrings::sPointSet(mPlural);
+    sdsu.titletext_ = toUiString("%1 %2").arg(titletxt).arg(disptyp);
     uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
+    bool isforread = dlg.isForRead();
+    uiString caption = isforread ? tr("Save %1 as") :
+				uiStrings::phrLoad(toUiString("%1"));
+    dlg.setCaption(caption.arg(disptyp));
     dlg.showAlwaysOnTop();
     if ( !dlg.go() )
 	return false;

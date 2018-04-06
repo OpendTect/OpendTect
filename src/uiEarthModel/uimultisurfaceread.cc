@@ -27,7 +27,13 @@ static const char* rcsID mUsedVar = "$Id$";
 uiString getDispType(BufferString type)
 {
     return EMFaultStickSetTranslatorGroup::sGroupName() == type ?
-			uiStrings::sFaultStickSet() : uiStrings::sFault();
+	uiStrings::sFaultStickSet(mPlural) :
+	EMHorizon3DTranslatorGroup::sGroupName() == type ?
+	uiStrings::sHorizon(mPlural) :
+	EMHorizon2DTranslatorGroup::sGroupName() == type ?
+	toUiString("%1 %2").arg(uiStrings::s2D())
+			    .arg(uiStrings::sHorizon(mPlural)) :
+	uiStrings::sFault(mPlural);
 }
 uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg(uiParent* p, const char* type)
    : uiDialog(p,uiDialog::Setup( uiStrings::phrSelect(getDispType(type)),

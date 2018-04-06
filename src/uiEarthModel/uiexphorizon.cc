@@ -572,7 +572,8 @@ bool uiExportHorizon::acceptOK( CallBacker* )
       uiMSG().error( uiStrings::phrCannotWrite(tr("output file.")));
       return false;
     }
-    uiString msg = tr("%1 successfully exported").arg(
+    uiString msg = tr("%1 successfully exported."
+			"\nDo you want to export more %1").arg(
 				  uiStrings::sHorizon(!isbulk_?1:mPlural));
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );

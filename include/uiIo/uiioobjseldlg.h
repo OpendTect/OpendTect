@@ -72,6 +72,7 @@ public:
     void		usePar( const IOPar& i ) { selgrp_->usePar(i); }
 
     void		setSurveyDefaultSubsel(const char*);
+    bool		isForRead();
 
 protected:
 
