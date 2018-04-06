@@ -73,6 +73,8 @@ public:
 
 
     static const char*	sKeyDataDir()	{ return "datadir"; }
+    static const char*	sKeySurveyDir() { return "surveydir"; }
+    static const char*	sKeySimpleBatch()	{ return "noparfile"; }
     static const char*	sKeyFinishMsg()	{ return "Finished batch processing."; }
     static bool		doImport( od_ostream& strm, IOPar& iop, bool is2d );
     static bool		doExport( od_ostream& strm, IOPar& iop, bool is2d );

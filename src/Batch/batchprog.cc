@@ -106,7 +106,8 @@ void BatchProgram::init()
 	parfilnm.setEmpty();
     }
 
-    if ( parfilnm.isEmpty() )
+    const bool simplebatch = clparser_->hasKey( sKeySimpleBatch()  );
+    if ( parfilnm.isEmpty() && !simplebatch )
     {
 	errorMsg( tr("%1: No existing parameter file name specified")
 		 .arg(clparser_->getExecutableName()) );
@@ -114,30 +115,33 @@ void BatchProgram::init()
     }
 
     setName( parfilnm );
-    od_istream odstrm( parfilnm );
-    if ( !odstrm.isOK() )
+    if ( !parfilnm.isEmpty() )
     {
+	od_istream odstrm( parfilnm );
+	if ( !odstrm.isOK() )
+	{
 	errorMsg( tr("%1: Cannot open parameter file: %2")
-		    .arg( clparser_->getExecutableName() )
-		    .arg( parfilnm ));
-	return;
-    }
+			.arg( clparser_->getExecutableName() )
+			.arg( parfilnm ));
+	    return;
+	}
 
-    ascistream aistrm( odstrm, true );
-    if ( sKey::Pars() != aistrm.fileType() )
-    {
+	ascistream aistrm( odstrm, true );
+	if ( sKey::Pars() != aistrm.fileType() )
+	{
 	errorMsg( tr("%1: Input file %2 is not a parameter file")
-		    .arg( clparser_->getExecutableName() )
-		    .arg( parfilnm ));
+			.arg( clparser_->getExecutableName() )
+			.arg( parfilnm ));
 
 	od_cerr() << aistrm.fileType() << od_endl;
-	return;
+	    return;
+	}
+
+	iopar_->getFrom( aistrm );
+	odstrm.close();
     }
 
-    iopar_->getFrom( aistrm );
-    odstrm.close();
-
-    if ( iopar_->size() == 0 )
+    if ( iopar_->size() == 0 && !simplebatch )
     {
 	errorMsg( tr( "%1: Invalid input file %2")
 		    .arg( clparser_->getExecutableName() )
@@ -158,9 +162,11 @@ void BatchProgram::init()
 	iopar_->set( sKey::DataRoot(), res );
     }
 
-    if ( !iopar_->get(sKey::Survey(),res) )
+    if ( simplebatch && clparser_->getVal(sKeySurveyDir(),res) )
+	iopar_->set( sKey::Survey(), res );
+    else if ( !iopar_->get(sKey::Survey(),res) )
     {
-	errorMsg( tr("Invalid paramater file %1\nSurvey key is missing.")
+	errorMsg( tr("Invalid parameter file %1\nSurvey key is missing.")
 			.arg( parfilnm ) );
 	return;
     }
