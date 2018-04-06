@@ -209,7 +209,7 @@ bool uiExport2DHorizon::doExport()
 	    const StepInterval<int> trcrg = hor->geometry().colRange( geomid );
 	    mDynamicCastGet(const Survey::Geometry2D*,survgeom2d,
 			    Survey::GM().getGeometry(geomid))
-	    if ( !survgeom2d ) continue;
+	    if ( !survgeom2d || trcrg.isUdf() || !trcrg.step) continue;
 
 	    TrcKey tk( geomid, -1 );
 	    Coord crd; int spnr = mUdf(int);
