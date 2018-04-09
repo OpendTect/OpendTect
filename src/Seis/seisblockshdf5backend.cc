@@ -222,8 +222,8 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
     slabspec_[0].count_ = slabspec_[1].count_ = 1;
     HDF5::SlabDimSpec& zdimspec = slabspec_[2];
     const Interval<IdxType> zidxrg(
-	    rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.start ),
-	    rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.stop ) );
+	    (IdxType)rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.start ),
+	    (IdxType)rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.stop ) );
     nrsamples2read_ = zidxrg.width() + 1;
     zdimspec.start_ = (HDF5::SlabDimSpec::IdxType)zidxrg.start;
     zdimspec.count_ = (HDF5::SlabDimSpec::IdxType)nrsamples2read_;
