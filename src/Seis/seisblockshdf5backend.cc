@@ -161,7 +161,11 @@ public:
     const HGlobIdx	globidx_;
     const HLocIdx	start_;
     const Dimensions	dims_;
-    int			nrsamplesintrace_;
+    int			trcnrsamples_;
+    int			trcnrbytes_;
+    HDF5::SlabSpec	slabspec_;
+    OD::DataRepType	datatype_;
+    char*		trcpartbuf_;
 
 protected:
 
@@ -186,8 +190,10 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
     , start_(0,0)
     , dims_(0,0,0)
     , hdfrdr_(*rdrbe.hdfrdr_)
-    , nrsamplesintrace_(0)
+    , trcnrsamples_(0)
     , hgeom_(rdrbe.rdr_.hGeom())
+    , trcpartbuf_(0)
+    , slabspec_(3)
 {
     BufferString blockname;
     blockname.set( globidx_.inl() ).add( "." ).add( globidx_.crl() );
@@ -212,6 +218,25 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
     dms.inl() = (SzType)ainf->getSize( 0 );
     dms.crl() = (SzType)ainf->getSize( 1 );
     dms.z() = (SzType)ainf->getSize( 2 );
+
+    slabspec_[0].count_ = 1;
+    slabspec_[1].count_ = 1;
+    slabspec_[2].count_ = (HDF5::SlabDimSpec::IdxType)dms.z();
+    trcnrsamples_ = rdr_.zrgintrace_.width() + 1;
+
+    datatype_ = hdfrdr_.getDataType();
+    const int bytesperval = nrBytes( datatype_ );
+    if ( !rdr_.interp_ || rdr_.interp_->nrBytes() != bytesperval )
+    {
+	if ( rdr_.interp_ )
+	    { pErrMsg("Dataype in info file != stored data type"); }
+	Reader& rdr = const_cast<Reader&>( rdr_ );
+	delete rdr.interp_;
+	rdr.interp_ = DataInterpreter<float>::create( datatype_, true );
+    }
+
+    trcnrbytes_ = trcnrsamples_ * bytesperval;
+    trcpartbuf_ = new char [ trcnrbytes_ ];
 }
 
 
@@ -226,6 +251,7 @@ uiString Seis::Blocks::HDF5Column::probInBlockStr( const uiString& msg ) const
 
 Seis::Blocks::HDF5Column::~HDF5Column()
 {
+    delete [] trcpartbuf_;
 }
 
 
@@ -246,7 +272,7 @@ void Seis::Blocks::HDF5Column::fillTrace( const BinID& bid, SeisTrc& trc,
     }
 
     trc.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.datarep_ );
-    trc.reSize( nrsamplesintrace_, false );
+    trc.reSize( trcnrsamples_, false );
 
     //TODO fill the trace
     trc.zero();

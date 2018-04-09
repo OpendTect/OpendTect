@@ -65,8 +65,6 @@ public:
     virtual void	close();
 
     HDF5::Reader*	hdfrdr_;
-    Dimensions		columndims_;
-    HLocIdx		startlocidx_;
 
 };
 

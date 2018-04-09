@@ -113,3 +113,5 @@ inline bool isFP( OD::DataRepType dr )
 { return dr == OD::F32 || dr == OD::F64; }
 inline bool isSigned( OD::DataRepType dr )
 { return dr != OD::UI8 && dr != OD::UI16 && dr != OD::UI32; }
+inline int nrBytes( OD::DataRepType dr )
+{ return dr < OD::SI16 ? 1 : (dr < OD::SI32 ? 2 : (dr > OD::F32 ? 8 : 4)); }

@@ -46,10 +46,13 @@ public:
 
 			BinDataDesc( bool ii=false, bool is=true,
 				     ByteCount b=N4 )
-			: isint_(ii), issigned_(is), nrbytes_(b)	{}
+			    : isint_(ii), issigned_(is), nrbytes_(b) {}
 			BinDataDesc( bool ii, bool is, int b )
-			: isint_(ii), issigned_(is),
-			  nrbytes_(nearestByteCount(ii,b))	{}
+			    : isint_(ii), issigned_(is),
+			      nrbytes_(nearestByteCount(ii,b))	{}
+			BinDataDesc( OD::DataRepType dt )
+			    : BinDataDesc( !isFP(dt), ::isSigned(dt),
+				   (ByteCount)::nrBytes(dt) )	{}
 			BinDataDesc( unsigned char c1, unsigned char c2 )
 								{ set(c1,c2); }
 			BinDataDesc( const char* s )		{ set(s); }

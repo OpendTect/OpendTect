@@ -37,22 +37,13 @@ mGenClass DataInterpreter
 public:
     static DataInterpreter<T>	create();
     static DataInterpreter<T>*	create(const DataCharacteristics&,
-				       bool alsoifequal);
-				/*!<\param alsoifequal determines whether an
-				           interpreter should be created
-					   if the format in DataChar is
-					   identical to the current machine's.*/
+				       bool also_if_equal_to_native);
+				/*!<\param also_if_equal_to_native
+				      if false, return null if DC is native */
+    static DataInterpreter<T>*	create(OD::DataRepType,bool alsoifequal);
     static DataInterpreter<T>*	create(const char*,bool alsoifequal);
-				/*!<\param alsoifequal determines whether an
-				           interpreter should be created
-					   if the format in DataChar is
-					   identical to the current machine's.*/
     static DataInterpreter<T>*	create(const IOPar& par,const char* key,
 				       bool alsoifequal);
-				/*!<\param alsoifequal determines whether an
-				           interpreter should be created
-					   if the format in DataChar is
-					   identical to the current machine's.*/
 
 			DataInterpreter(const DataCharacteristics&,
 					bool ignoreendianness=false);

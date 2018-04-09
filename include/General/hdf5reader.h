@@ -36,13 +36,14 @@ public:
 				    BufferStringSet&) const	= 0;
 				//!< Pass a full group name
 
+    // use setScope() before reading anything using the functions below
+
     virtual ArrayNDInfo* getDataSizes() const			= 0;
 				//!< Can return null when:
 				//!< - there is no such group
 				//!< - the group has an empty dataset
     virtual ODDataType	getDataType() const			= 0;
     uiRetVal		getInfo(IOPar&) const;
-
 
     uiRetVal		getAll(void*) const;
 				//!< Get the entire data set in current scope

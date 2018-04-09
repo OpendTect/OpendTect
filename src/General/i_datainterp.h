@@ -278,3 +278,83 @@ void DataInterpreter<mTheType>::swpSwap()
 
     }
 }
+
+
+template <>
+mTheType DataInterpreter<mTheType>::get( od_istream& strm ) const
+{
+    char buf[16];
+    strm.getBin( buf, nrBytes() );
+    return get( buf, 0 );
+}
+
+template <>
+bool DataInterpreter<mTheType>::get( const DataInterpreter<mTheType>* di,
+				 od_istream& strm, mTheType& res )
+{
+    if ( di )
+    {
+	char buf[16];
+        if ( !strm.getBin( buf, di->nrBytes() ) )
+	    return false;\
+	res = di->get( buf, 0 );
+	return true;
+    }
+
+    return !strm.getBin( res ).isBad();
+}
+
+
+template <>
+mTheType DataInterpreter<mTheType>::get( const DataInterpreter<mTheType>* di,
+					 od_istream& strm )
+{
+    mTheType val;
+    get( di, strm, val );
+    return val;
+}
+
+
+template <> DataInterpreter<mTheType>*
+DataInterpreter<mTheType>::create( const DataCharacteristics& dchar,
+				   bool alsoifequal )
+{
+    if ( !alsoifequal )
+    {
+	mTheType dummy;
+	const DataCharacteristics nativedc( dummy );
+	if ( dchar == nativedc )
+	    return 0;
+    }
+    return new DataInterpreter<mTheType>( dchar );
+}
+
+
+template <> DataInterpreter<mTheType>*
+DataInterpreter<mTheType>::create( OD::DataRepType dt, bool alsoifequal )
+{
+    return create( DataCharacteristics(dt), alsoifequal );
+}
+
+
+template <> DataInterpreter<mTheType>*
+DataInterpreter<mTheType>::create( const char* str, bool alsoifequal )
+{
+    DataCharacteristics dcinstr;
+    dcinstr.set( str );
+    return create( dcinstr, alsoifequal );
+}
+
+
+template <> DataInterpreter<mTheType>*
+DataInterpreter<mTheType>::create( const IOPar& par,  const char* key,
+			       bool alsoifequal )
+{
+    const char* iopval = par.find( key );
+    if ( iopval && *iopval )
+	return create( iopval, alsoifequal );
+
+    mTheType dummy;
+    const DataCharacteristics nativedc( dummy );
+    return create( nativedc, alsoifequal );
+}
