@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seismemblocks.h"
 #include "seisselection.h"
-#include "scaler.h"
 #include "od_iostream.h"
 #include "uistrings.h"
 
@@ -316,10 +315,8 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 	strm_.getBin( trcpartbuf_, chunk.trcpartnrbytes_ );
 	for ( int isamp=0; isamp<chunk.nrsamps_; isamp++ )
 	{
-	    float val = rdr_.interp_->get( trcpartbuf_, isamp );
-	    if ( rdr_.scaler_ )
-		val = (float)rdr_.scaler_->scale( val );
-	    trc.set( chunk.startsamp_ + isamp, val, chunk.comp_ );
+	    const float val = rdr_.interp_->get( trcpartbuf_, isamp );
+	    trc.set( chunk.startsamp_+isamp, rdr_.scaledVal(val), chunk.comp_ );
 	}
     }
 }

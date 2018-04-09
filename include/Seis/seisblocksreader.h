@@ -102,6 +102,7 @@ protected:
     void		fillInfo(const BinID&,SeisTrcInfo&) const;
     Column*		getColumn(const HGlobIdx&,uiRetVal&) const;
     void		readTrace(SeisTrc&,uiRetVal&) const;
+    float		scaledVal(float) const;
 
     friend class	FileColumn;
     friend class	HDF5Column;

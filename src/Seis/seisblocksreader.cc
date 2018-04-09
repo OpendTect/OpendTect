@@ -493,3 +493,9 @@ void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
 	fillInfo( bid, trc.info() );
     }
 }
+
+
+float Seis::Blocks::Reader::scaledVal( float val ) const
+{
+    return scaler_ ? (float)scaler_->scale(val) : val;
+}

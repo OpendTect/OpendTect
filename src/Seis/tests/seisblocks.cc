@@ -14,11 +14,12 @@
 #include "oddirs.h"
 #include "genc.h"
 #include "executor.h"
+#include "plugins.h"
 
 
 static const char* sNormSeisIDStr = "100010.2";
 static const char* sSteerSeisIDStr = "100010.3";
-static const char* sMonsterSeisIDStr = "100010.311";
+static const char* sMonsterSeisIDStr = "100010.321";
 
 static const bool usesteer = false;
 static const bool usemonster = true;
@@ -144,12 +145,58 @@ static bool testReading()
     return true;
 }
 
+/* Expected output:
+
+   175/560(401):
+   0.24=2236
+   0.32=-184
+   0.4=2641
+   0.48=1923
+   0.56=2484
+   0.64=165
+   0.72=1600
+   0.8=-1866
+   0.88=4456
+   0.96=-555
+   1.04=3853
+   1.12=1410
+   1.2=-1148
+   1.28=-4339
+   1.36=1431
+   1.44=246
+   1.52=4077
+   1.6=4706
+   1.68=1953
+   1.76=-1134
+   425/800(401):
+   0.24=639
+   0.32=790
+   0.4=-2913
+   0.48=864
+   0.56=5691
+   0.64=-2615
+   0.72=-1428
+   0.8=831
+   0.88=1933
+   0.96=774
+   1.04=3927
+   1.12=-311
+   1.2=-1351
+   1.28=2836
+   1.36=-2900
+   1.44=5421
+   1.52=-207
+   1.6=-5437
+   1.68=862
+   1.76=176
+*/
+
 
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
     OD::ModDeps().ensureLoaded("Seis");
-
+    PIM().loadAuto( false );
 
     if ( !testWriting() )
 	return 1;

@@ -158,12 +158,13 @@ public:
     const HGeom&	hgeom_;
     HDF5::Reader&	hdfrdr_;
 
+    BufferString	blockname_;
     const HGlobIdx	globidx_;
     const HLocIdx	start_;
     const Dimensions	dims_;
-    int			trcnrsamples_;
-    int			trcnrbytes_;
-    HDF5::SlabSpec	slabspec_;
+    int			nrsamples2read_;
+    int			nrbytes2read_;
+    mutable HDF5::SlabSpec slabspec_;
     OD::DataRepType	datatype_;
     char*		trcpartbuf_;
 
@@ -190,14 +191,13 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
     , start_(0,0)
     , dims_(0,0,0)
     , hdfrdr_(*rdrbe.hdfrdr_)
-    , trcnrsamples_(0)
+    , nrsamples2read_(0)
     , hgeom_(rdrbe.rdr_.hGeom())
     , trcpartbuf_(0)
     , slabspec_(3)
 {
-    BufferString blockname;
-    blockname.set( globidx_.inl() ).add( "." ).add( globidx_.crl() );
-    const HDF5::DataSetKey dsky( rdr_.componentNames().get(0), blockname );
+    blockname_.set( globidx_.inl() ).add( "." ).add( globidx_.crl() );
+    const HDF5::DataSetKey dsky( rdr_.componentNames().get(0), blockname_ );
     if ( !hdfrdr_.setScope(dsky) )
 	mRetOnInitialBlockProb( tr("Block is not present") )
 
@@ -219,10 +219,14 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
     dms.crl() = (SzType)ainf->getSize( 1 );
     dms.z() = (SzType)ainf->getSize( 2 );
 
-    slabspec_[0].count_ = 1;
-    slabspec_[1].count_ = 1;
-    slabspec_[2].count_ = (HDF5::SlabDimSpec::IdxType)dms.z();
-    trcnrsamples_ = rdr_.zrgintrace_.width() + 1;
+    slabspec_[0].count_ = slabspec_[1].count_ = 1;
+    HDF5::SlabDimSpec& zdimspec = slabspec_[2];
+    const Interval<IdxType> zidxrg(
+	    rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.start ),
+	    rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.stop ) );
+    nrsamples2read_ = zidxrg.width() + 1;
+    zdimspec.start_ = (HDF5::SlabDimSpec::IdxType)zidxrg.start;
+    zdimspec.count_ = (HDF5::SlabDimSpec::IdxType)nrsamples2read_;
 
     datatype_ = hdfrdr_.getDataType();
     const int bytesperval = nrBytes( datatype_ );
@@ -235,8 +239,8 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
 	rdr.interp_ = DataInterpreter<float>::create( datatype_, true );
     }
 
-    trcnrbytes_ = trcnrsamples_ * bytesperval;
-    trcpartbuf_ = new char [ trcnrbytes_ ];
+    nrbytes2read_ = nrsamples2read_ * bytesperval;
+    trcpartbuf_ = new char [ nrbytes2read_ ];
 }
 
 
@@ -270,12 +274,35 @@ void Seis::Blocks::HDF5Column::fillTrace( const BinID& bid, SeisTrc& trc,
 		.arg(bid.inl()).arg(bid.crl()) );
 	return;
     }
+    slabspec_[0].start_ = locidx.inl();
+    slabspec_[1].start_ = locidx.crl();
 
     trc.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.datarep_ );
-    trc.reSize( trcnrsamples_, false );
-
-    //TODO fill the trace
+    trc.reSize( nrsamples2read_, false );
     trc.zero();
+
+    int trccompnr = 0;
+    for ( int icomp=0; icomp<rdr_.compsel_.size(); icomp++ )
+    {
+	if ( !rdr_.compsel_[icomp] )
+	    continue;
+
+	const HDF5::DataSetKey dsky( rdr_.componentNames().get(icomp),
+				     blockname_ );
+	if ( !hdfrdr_.setScope(dsky) )
+	    { pErrMsg("scope not found"); continue; }
+	uirv = hdfrdr_.getSlab( slabspec_, trcpartbuf_ );
+	if ( !uirv.isOK() )
+	    return;
+
+	for ( int isamp=0; isamp<nrsamples2read_; isamp++ )
+	{
+	    const float val = rdr_.interp_->get( trcpartbuf_, isamp );
+	    trc.set( isamp, rdr_.scaledVal(val), trccompnr );
+	}
+
+	trccompnr++;
+    }
 }
 
 
