@@ -25,20 +25,23 @@ namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; class Processor; }
 
 mExpClass(HorizonAttrib) StratAmpCalc  : public Executor
-{
+{ mODTextTranslationClass(StratAmpCalc);
 public:
 
-    			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*, 
+			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*,
 				     Stats::Type,const TrcKeySampling&,bool);
-    			~StratAmpCalc();
+			~StratAmpCalc();
 
     int                 nextStep();
     od_int64		totalNr() const		{ return totnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
 
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const;
+
     int			init(const IOPar&);
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,
-	    			      bool overwrite,od_ostream* s=0);
+				      bool overwrite,od_ostream* s=0);
 
     static const char*	sKeyTopHorizonID();
     static const char*	sKeyBottomHorizonID();
@@ -69,8 +72,12 @@ protected:
     int				dataidxfold_;
     bool			addtotop_;
     bool			outfold_;
-    TrcKeySampling			hs_;
+    TrcKeySampling		hs_;
     Attrib::DescSet*		descset_;
     Attrib::Processor*		proc_;
+
+private:
+
+    uiString			msg_;
 };
 #endif

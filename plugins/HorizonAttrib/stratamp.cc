@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "odver.h"
@@ -31,6 +30,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "od_ostream.h"
+
+#include "hiddenparam.h"
 
 static HiddenParam<StratAmpCalc,char> isclassification_( 0 );
 
@@ -50,7 +51,7 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
 			    Stats::Type stattyp, const TrcKeySampling& hs,
 			    bool outputfold )
-    : Executor("Computing Stratal amplitude...")
+    : Executor("Stratal amplitude Executor")
     , rdr_(0)
     , tophorizon_(tophor)
     , bothorizon_(bothor)
@@ -73,6 +74,8 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 
     descset_ = new Attrib::DescSet( false );
     isclassification_.setParam( this, 0 );
+
+    msg_ = tr("Computing trace statistics");
 }
 
 
@@ -85,6 +88,12 @@ StratAmpCalc::~StratAmpCalc()
     delete rdr_;
 
     isclassification_.removeParam( this );
+}
+
+
+uiString StratAmpCalc::uiNrDoneText() const
+{
+    return ParallelTask::sTrcFinished();
 }
 
 
@@ -180,7 +189,12 @@ int StratAmpCalc::init( const IOPar& pars )
 
 
 #define mRet( event ) \
-{ delete trc; return event; }
+{ \
+    delete trc; \
+    if ( event == Executor::ErrorOccurred() ) \
+	msg_ = rdr_->errMsg(); \
+    return event; \
+}
 
 int StratAmpCalc::nextStep()
 {
@@ -201,10 +215,18 @@ int StratAmpCalc::nextStep()
     {
 	res = proc_->nextStep();
 	if ( res == 0 ) return Executor::Finished();
-	if ( res == -1 ) return Executor::ErrorOccurred();
+	if ( res == -1 )
+	{
+	    msg_ = proc_->uiMessage();
+	    return Executor::ErrorOccurred();
+	}
 
 	trc = proc_->outputs_[0]->getTrc();
-	if ( !trc ) return Executor::ErrorOccurred();
+	if ( !trc )
+	{
+	    msg_ = proc_->uiMessage();
+	    return Executor::ErrorOccurred();
+	}
     }
 
     const BinID bid = trc->info().binid;

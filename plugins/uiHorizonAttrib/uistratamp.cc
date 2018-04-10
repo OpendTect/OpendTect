@@ -47,7 +47,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
     inpfld_ = new uiAttrSel( this, *ads, "Quantity to output" );
-    inpfld_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
+    mAttachCB( inpfld_->selectionDone, uiStratAmpCalc::inpSel );
 
     uiGenInput* classfld = new uiGenInput( this,
 		tr("Values are classifications"), BoolInpSpec(false) );
@@ -56,21 +56,21 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     winoption_= new uiGenInput( this, tr("Window Option"),
 		BoolInpSpec(true,tr("Single Horizon"),tr("Double Horizon")) );
-    winoption_->valuechanged.notify( mCB(this,uiStratAmpCalc,choiceSel) );
+    mAttachCB( winoption_->valuechanged, uiStratAmpCalc::choiceSel );
     winoption_->attach( alignedBelow, classfld );
 
     horfld1_ = new uiIOObjSel( this, horctio1_, uiStrings::sHorizon() );
-    horfld1_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
+    mAttachCB( horfld1_->selectionDone, uiStratAmpCalc::inpSel );
     horfld1_->attach( alignedBelow, winoption_ );
 
     horfld2_ = new uiIOObjSel( this, horctio2_, uiStrings::sBottomHor() );
-    horfld2_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
+    mAttachCB( horfld2_->selectionDone, uiStratAmpCalc::inpSel );
     horfld2_->attach( alignedBelow, horfld1_ );
 
     BufferString lbltxt = "Z Offset ";
     lbltxt += SI().getZUnitString(); lbltxt += " Top";
     tophorshiftfld_ = new uiGenInput( this, lbltxt,
-	    			      FloatInpSpec(0).setName("Top") );
+				      FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
     tophorshiftfld_->setElemSzPol( uiObject::Small );
     bothorshiftfld_ = new uiGenInput( this, uiStrings::sBottom(),
@@ -82,12 +82,12 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     rangefld_->attach( alignedBelow, tophorshiftfld_ );
 
     ampoptionfld_ = new uiLabeledComboBox( this, statstrs,
-	    				   tr("Amplitude Option") );
+					   tr("Amplitude Option") );
     ampoptionfld_->attach( alignedBelow, rangefld_ );
 
     selfld_= new uiGenInput( this, tr("Add result as HorizonData to"),
 	BoolInpSpec(true,uiStrings::sTopHor(),uiStrings::sBottomHor()) );
-    selfld_->valuechanged.notify( mCB(this,uiStratAmpCalc,setParFileNameCB) );
+    mAttachCB( selfld_->valuechanged, uiStratAmpCalc::setParFileNameCB );
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
     foldfld_ = new uiGenInput( this, tr("Output fold as an extra attribute"),
@@ -96,8 +96,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     attribnamefld_ = new uiGenInput( this, uiStrings::sAttribName(),
 				     StringInpSpec("Stratal Amplitude") );
-    attribnamefld_->valuechanged.notify(
-	    			mCB(this,uiStratAmpCalc,setParFileNameCB) );
+    mAttachCB( attribnamefld_->valuechanged, uiStratAmpCalc::setParFileNameCB );
     attribnamefld_->attach( alignedBelow, foldfld_ );
 
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
@@ -106,12 +105,13 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     batchfld_->jobSpec().prognm_ = "od_stratamp";
     setParFileName();
 
-    postFinalise().notify( mCB(this,uiStratAmpCalc,choiceSel) );
+    mAttachCB( postFinalise(), uiStratAmpCalc::choiceSel );
 }
 
 
 uiStratAmpCalc::~uiStratAmpCalc()
 {
+    detachAllNotifiers();
     delete horctio1_.ioobj_; delete &horctio1_;
     delete horctio2_.ioobj_; delete &horctio2_;
     classfld_.removeParam( this );
@@ -215,13 +215,13 @@ bool uiStratAmpCalc::prepareProcessing()
     if ( !checkInpFlds() ) return false;
 
     const bool addtotop = usesingle_ || selfld_->getBoolValue();
-    EM::IOObjInfo eminfo( addtotop ? horctio1_.ioobj_->key()
-				   : horctio2_.ioobj_->key() );
+    const EM::IOObjInfo eminfo( addtotop ? horctio1_.ioobj_->key()
+					 : horctio2_.ioobj_->key() );
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
     const char* attribnm = attribnamefld_->text();
     isoverwrite_ = false;
-    if ( attrnms.isPresent( attribnm ) )
+    if ( attrnms.isPresent(attribnm) )
     {
 	uiString errmsg = tr("Attribute name %1 already exists, Overwrite?")
 			.arg(attribnm);
@@ -238,6 +238,8 @@ bool uiStratAmpCalc::prepareProcessing()
 bool uiStratAmpCalc::fillPar()
 {
     IOPar& iop = batchfld_->jobSpec().pars_;
+    iop.setEmpty();
+
     iop.setYN( StratAmpCalc::sKeySingleHorizonYN(), usesingle_ );
     iop.set( StratAmpCalc::sKeyTopHorizonID() , horctio1_.ioobj_->key() );
     if ( !usesingle_ )
@@ -280,10 +282,11 @@ bool uiStratAmpCalc::fillPar()
 		   attrpar .getValue(idx) );
     }
 
-    Attrib::Desc* desc = clonedset->getDesc( targetid );
-    BufferString storedid = desc ? desc->getStoredID() : "";
-    if ( !storedid.isEmpty() )
-	iop.set( "Input Line Set", storedid.buf() );
+    const Attrib::Desc* desc = clonedset->getDesc( targetid );
+    if ( desc && desc->is2D() )
+	iop.set( "Input Line Set", desc->getStoredID() );
+
+    delete clonedset;
 
     const BufferString keybase = IOPar::compKey( Attrib::Output::outputstr(),0);
     const BufferString attribkey =
