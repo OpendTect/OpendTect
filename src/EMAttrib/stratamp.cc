@@ -47,7 +47,7 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
 			    Stats::Type stattyp, const TrcKeySampling& hs,
 			    bool outputfold )
-    : Executor("Calculating Stratal amplitude")
+    : Executor("Stratal amplitude Executor")
     , prov_(0)
     , tophorizon_(tophor)
     , bothorizon_(bothor)

@@ -38,7 +38,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 {
     inpfld_ = new uiAttrSel( this, Attrib::DescSet::global3D(),
 			     uiAttrSel::sQuantityToOutput() );
-    inpfld_->selectionChanged.notify( mCB(this,uiStratAmpCalc,inpSel) );
+    mAttachCB( inpfld_->selectionChanged, uiStratAmpCalc::inpSel );
 
     classfld_ = new uiGenInput( this, tr("Values are classifications"),
 				  BoolInpSpec(false) );
@@ -47,17 +47,17 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     winoption_= new uiGenInput( this, tr("Window Option"),
 				BoolInpSpec(true, tr("Single Horizon"),
 				tr("Double Horizon")) );
-    winoption_->valuechanged.notify( mCB(this,uiStratAmpCalc,choiceSel) );
+    mAttachCB( winoption_->valuechanged, uiStratAmpCalc::choiceSel );
     winoption_->attach( alignedBelow, classfld_ );
 
     const IOObjContext ctxt1 = mIOObjContext( EMHorizon3D );
     horfld1_ = new uiIOObjSel( this, ctxt1, uiStrings::sHorizon() );
-    horfld1_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
+    mAttachCB( horfld1_->selectionDone, uiStratAmpCalc::inpSel );
     horfld1_->attach( alignedBelow, winoption_ );
 
     const IOObjContext ctxt2 = mIOObjContext( EMHorizon3D );
     horfld2_ = new uiIOObjSel( this, ctxt2, uiStrings::sBottomHor() );
-    horfld2_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
+    mAttachCB( horfld2_->selectionDone, uiStratAmpCalc::inpSel );
     horfld2_->attach( alignedBelow, horfld1_ );
 
     uiString lbltxt = tr("Z Offset %1 Top").arg(SI().zUnitString());
@@ -80,7 +80,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     selfld_= new uiGenInput( this, tr("Add result as an attribute to"),
 			     BoolInpSpec(true,
 			     uiStrings::sTopHor(),uiStrings::sBottomHor()) );
-    selfld_->valuechanged.notify( mCB(this,uiStratAmpCalc,setParFileNameCB) );
+    mAttachCB( selfld_->valuechanged, uiStratAmpCalc::setParFileNameCB );
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
     foldfld_ = new uiGenInput( this, tr("Output fold as an extra attribute"),
@@ -89,8 +89,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     attribnamefld_ = new uiGenInput( this, uiStrings::sAttribName(),
 			             StringInpSpec("Stratal Amplitude") );
-    attribnamefld_->valuechanged.notify(
-				mCB(this,uiStratAmpCalc,setParFileNameCB) );
+    mAttachCB( attribnamefld_->valuechanged, uiStratAmpCalc::setParFileNameCB );
     attribnamefld_->attach( alignedBelow, foldfld_ );
 
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
@@ -99,12 +98,13 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     batchfld_->jobSpec().prognm_ = "od_stratamp";
     setParFileName();
 
-    postFinalise().notify( mCB(this,uiStratAmpCalc,choiceSel) );
+    mAttachCB( postFinalise(), uiStratAmpCalc::choiceSel );
 }
 
 
 uiStratAmpCalc::~uiStratAmpCalc()
 {
+    detachAllNotifiers();
 }
 
 
