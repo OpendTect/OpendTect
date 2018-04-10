@@ -74,7 +74,9 @@ void BlocksSeisTrcTranslator::convToConnExpr( BufferString& fnm ) const
 bool BlocksSeisTrcTranslator::initRead_()
 {
     StreamConn& sconn = *static_cast<StreamConn*>( conn_ );
-    rdr_ = new Seis::Blocks::Reader( sconn.iStream() );
+    const BufferString fnm( sconn.fileName() );
+    sconn.close();
+    rdr_ = new Seis::Blocks::Reader( fnm );
     if ( !rdr_->state().isOK() )
     {
 	errmsg_ = rdr_->state();

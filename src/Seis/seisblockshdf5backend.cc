@@ -163,10 +163,13 @@ public:
     const HLocIdx	start_;
     const Dimensions	dims_;
     int			nrsamples2read_;
-    int			nrbytes2read_;
     mutable HDF5::SlabSpec slabspec_;
     OD::DataRepType	datatype_;
-    char*		trcpartbuf_;
+    char*		valbuf_;
+    ObjectSet<char>	zslicebufs_;
+    mutable bool	zslicebufsread_;
+
+    bool		isZSlice() const	{ return nrsamples2read_==1; }
 
 protected:
 
@@ -193,8 +196,9 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
     , hdfrdr_(*rdrbe.hdfrdr_)
     , nrsamples2read_(0)
     , hgeom_(rdrbe.rdr_.hGeom())
-    , trcpartbuf_(0)
+    , valbuf_(0)
     , slabspec_(3)
+    , zslicebufsread_(false)
 {
     blockname_.set( globidx_.inl() ).add( "." ).add( globidx_.crl() );
     const HDF5::DataSetKey dsky( rdr_.componentNames().get(0), blockname_ );
@@ -219,7 +223,6 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
     dms.crl() = (SzType)ainf->getSize( 1 );
     dms.z() = (SzType)ainf->getSize( 2 );
 
-    slabspec_[0].count_ = slabspec_[1].count_ = 1;
     HDF5::SlabDimSpec& zdimspec = slabspec_[2];
     const Interval<IdxType> zidxrg(
 	    (IdxType)rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.start ),
@@ -227,6 +230,14 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
     nrsamples2read_ = zidxrg.width() + 1;
     zdimspec.start_ = (HDF5::SlabDimSpec::IdxType)zidxrg.start;
     zdimspec.count_ = (HDF5::SlabDimSpec::IdxType)nrsamples2read_;
+    if ( !isZSlice() )
+	{ slabspec_[0].count_ = slabspec_[1].count_ = 1; }
+    else
+    {
+	slabspec_[0].start_ = slabspec_[1].start_ = 0;
+	slabspec_[0].count_ = (IdxType)dims_.inl();
+	slabspec_[1].count_ = (IdxType)dims_.crl();
+    }
 
     datatype_ = hdfrdr_.getDataType();
     const int bytesperval = nrBytes( datatype_ );
@@ -239,8 +250,18 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
 	rdr.interp_ = DataInterpreter<float>::create( datatype_, true );
     }
 
-    nrbytes2read_ = nrsamples2read_ * bytesperval;
-    trcpartbuf_ = new char [ nrbytes2read_ ];
+    try {
+	if ( !isZSlice() )
+	    valbuf_ = new char [ nrsamples2read_ * bytesperval ];
+	else
+	{
+	    od_int64 nrelems = dims_.inl(); nrelems *= dims_.crl();
+	    for ( int icomp=0; icomp<rdr_.compsel_.size(); icomp++ )
+		if ( rdr_.compsel_[icomp] )
+		    zslicebufs_ += new char [ nrelems * bytesperval ];
+	}
+    } catch ( ... )
+	{ uirv.set( uiStrings::phrCannotAllocateMemory() ); }
 }
 
 
@@ -255,7 +276,9 @@ uiString Seis::Blocks::HDF5Column::probInBlockStr( const uiString& msg ) const
 
 Seis::Blocks::HDF5Column::~HDF5Column()
 {
-    delete [] trcpartbuf_;
+    delete [] valbuf_;
+    for ( int idx=0; idx<zslicebufs_.size(); idx++ )
+	delete [] zslicebufs_[idx];
 }
 
 
@@ -268,18 +291,19 @@ void Seis::Blocks::HDF5Column::fillTrace( const BinID& bid, SeisTrc& trc,
     if ( locidx.inl() < 0 || locidx.crl() < 0
       || locidx.inl() >= dims_.inl() || locidx.crl() >= dims_.crl() )
     {
-	// something's diff between bin block and info file; a getNext() found
-	// this position in the CubeData, but the position is not available
 	uirv.set( tr("Location from .info file (%1/%2) not in file")
 		.arg(bid.inl()).arg(bid.crl()) );
 	return;
     }
-    slabspec_[0].start_ = locidx.inl();
-    slabspec_[1].start_ = locidx.crl();
 
     trc.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.datarep_ );
     trc.reSize( nrsamples2read_, false );
-    trc.zero();
+    if ( !isZSlice() )
+    {
+	trc.zero();
+	slabspec_[0].start_ = locidx.inl();
+	slabspec_[1].start_ = locidx.crl();
+    }
 
     int trccompnr = 0;
     for ( int icomp=0; icomp<rdr_.compsel_.size(); icomp++ )
@@ -287,22 +311,38 @@ void Seis::Blocks::HDF5Column::fillTrace( const BinID& bid, SeisTrc& trc,
 	if ( !rdr_.compsel_[icomp] )
 	    continue;
 
-	const HDF5::DataSetKey dsky( rdr_.componentNames().get(icomp),
-				     blockname_ );
-	if ( !hdfrdr_.setScope(dsky) )
-	    { pErrMsg("scope not found"); continue; }
-	uirv = hdfrdr_.getSlab( slabspec_, trcpartbuf_ );
-	if ( !uirv.isOK() )
-	    return;
-
-	for ( int isamp=0; isamp<nrsamples2read_; isamp++ )
+	const bool needread = !isZSlice() || !zslicebufsread_;
+	char* buf = isZSlice() ? (char*)zslicebufs_[trccompnr] : valbuf_;
+	if ( needread )
 	{
-	    const float val = rdr_.interp_->get( trcpartbuf_, isamp );
-	    trc.set( isamp, rdr_.scaledVal(val), trccompnr );
+	    const HDF5::DataSetKey dsky( rdr_.componentNames().get(icomp),
+					 blockname_ );
+	    if ( !hdfrdr_.setScope(dsky) )
+		{ pErrMsg("scope not found"); continue; }
+	    uirv = hdfrdr_.getSlab( slabspec_, buf );
+	    if ( !uirv.isOK() )
+		return;
+	}
+
+	if ( isZSlice() )
+	{
+	    const int posnr = ((IdxType)dims_.crl()) * locidx.inl()
+			    + locidx.crl();
+	    trc.set( 0, rdr_.interp_->get(buf,posnr), trccompnr );
+	}
+	else
+	{
+	    for ( int isamp=0; isamp<nrsamples2read_; isamp++ )
+	    {
+		const float val = rdr_.interp_->get( buf, isamp );
+		trc.set( isamp, rdr_.scaledVal(val), trccompnr );
+	    }
 	}
 
 	trccompnr++;
     }
+
+    zslicebufsread_ = true;
 }
 
 
