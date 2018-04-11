@@ -223,6 +223,7 @@ void uiMdiArea::grpClosed( CallBacker* cb )
 	grp->closed().remove( mCB(this,uiMdiArea,grpClosed) );
 	grp->changed.remove( mCB(this,uiMdiArea,grpChanged) );
 	grps_ -= grp;
+	grp->qWidget()->deleteLater();
     }
     windowActivated.trigger();
 }
