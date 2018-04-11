@@ -21,7 +21,7 @@ public:
 	bool				isOK() const;
 	uiString			errMsg() const		{ return msg_; }
 
-	void				setMessage( const uiString& msg )	{ msg_; }
+	void		setMessage( const uiString& msg )	{ msg_ = msg; }
 
 protected:
 

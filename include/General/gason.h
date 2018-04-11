@@ -314,7 +314,7 @@ int jsonParse( char *s, char **endptr, JsonValue *value, JsonAllocator &allocato
 					case '\\':
 					case '"':
 					case '/':
-						*it = c;
+						*it = (char)c;
 						break;
 					case 'b':
 						*it = '\b';
@@ -343,14 +343,14 @@ int jsonParse( char *s, char **endptr, JsonValue *value, JsonAllocator &allocato
 							}
 						}
 						if (c < 0x80) {
-							*it = c;
+							*it = (char)c;
 						}
 						else if (c < 0x800) {
-							*it++ = 0xC0 | (c >> 6);
+							*it++ = mCast(char,0xC0 | (c >> 6));
 							*it = 0x80 | (c & 0x3F);
 						}
 						else {
-							*it++ = 0xE0 | (c >> 12);
+							*it++ = mCast(char,0xE0 | (c >> 12));
 							*it++ = 0x80 | ((c >> 6) & 0x3F);
 							*it = 0x80 | (c & 0x3F);
 						}
