@@ -6,8 +6,7 @@
 #include "gason.h"
 
 
-class ascistream;
-class ascostream;
+class od_istream;
 
 mExpClass(General) IOParTree : public NamedObject
 { mODTextTranslationClass(IOParTree)
@@ -15,21 +14,23 @@ public:
 
 						~IOParTree();
 	IOParTree&			operator =(const IOParTree&);
-	virtual bool		read(const char*)				=0;
-	virtual bool		read(ascistream&)				=0;
+
+	bool				read(const char*);
+	virtual bool		read(od_istream&)				=0;
 	virtual bool		write(od_ostream&)				=0;
 	bool				isOK() const;
-	uiString			errMsg() const;
+	uiString			errMsg() const		{ return msg_; }
+
+	void				setMessage( const uiString& msg )	{ msg_; }
 
 protected:
 
-						IOParTree(const char*);
-						IOParTree(ascistream&);
+						IOParTree(const char* nm=0);
 						IOParTree(const IOParTree&);
 	JsonValue			data_;
 	short				level_;
 	short				index_;
-	mutable uiString	errmsg_;
+	mutable uiString	msg_;
 };
 
 
@@ -40,12 +41,13 @@ mExpClass(General) JsonObject : public IOParTree
 { mODTextTranslationClass(JsonObject)
 public:
 
-						JsonObject(const char*);
-						JsonObject(ascistream&);
+						JsonObject();
+						JsonObject(const char* fnm);
+						JsonObject(od_istream&);
 						JsonObject(const JsonObject&);
 						~JsonObject();
-	virtual bool		read(const char*);
-	virtual bool		read(ascistream&);
+
+	virtual bool		read(od_istream&);
 	virtual bool		write(od_ostream&)				{ return false; }
 	bool				isGeoJson() const;
 	void				setType(JsonTag);
@@ -67,12 +69,13 @@ mExpClass(General) GeoJsonObject : public NamedObject
 
 public:
 
-						GeoJsonObject(const char*);
-						GeoJsonObject(ascistream&);
+						GeoJsonObject(const char* fnm);
+						GeoJsonObject(od_istream&);
 						GeoJsonObject(const GeoJsonObject&);
 						~GeoJsonObject();
+
 	bool				fillCollection(const char*);
-	bool				fillCollection(ascistream&);
+	bool				fillCollection(od_istream&);
 	BufferString		getCollectionName() const;
 	BufferString		getCRS() const;
 	BufferString		getID() const;
@@ -80,7 +83,14 @@ public:
 	Coord3				getCoordinates() const;
 	TypeSet<Coord3>		getMultipleCoordinates() const;
 
+	uiString			errMsg() const;
+
+	static const char*	sKeyName()		{ return "name"; }
+	static const char*	sKeyType()		{ return "type"; }
+
 private:
+
+	void				setCollectionName();
 
 	JsonObject			jsonobj_;
 	BufferString		crs_;
@@ -88,6 +98,7 @@ private:
 	BufferString		geomtp_;
 	Coord3				crds_;
 	TypeSet<Coord3>		multicrds_;
+	uiString			msg_;
 };
 
 } // namespace GeoJson

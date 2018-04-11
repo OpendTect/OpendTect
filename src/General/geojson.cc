@@ -1,6 +1,5 @@
 #include "geojson.h"
 
-#include "ascstream.h"
 #include "filepath.h"
 #include "od_istream.h"
 #include "od_ostream.h"
@@ -12,22 +11,16 @@ IOParTree::IOParTree( const char* nm )
 	, level_( 0 )
 	, index_( 0 )
 {
-	errmsg_.setEmpty();
-}
-
-
-IOParTree::IOParTree( ascistream& strm )
-	: NamedObject( 0 )
-	, data_( 0 )
-	, level_( 0 )
-	, index_( 0 )
-{
-	errmsg_.setEmpty();
 }
 
 
 IOParTree::IOParTree( const IOParTree& oth )
 { *this = oth; }
+
+
+IOParTree::~IOParTree()
+{
+}
 
 
 IOParTree& IOParTree::operator=( const IOParTree& oth )
@@ -39,41 +32,47 @@ IOParTree& IOParTree::operator=( const IOParTree& oth )
 	index_ = oth.index_;
 	level_ = oth.level_;
 	data_ = oth.data_;
-	errmsg_ = oth.errmsg_;
+	msg_ = oth.msg_;
 	return *this;
 }
 
 
 bool IOParTree::isOK() const
-{ return errmsg_.isEmpty(); }
+{ return msg_.isEmpty(); }
 
 
-uiString IOParTree::errMsg() const
-{ return errmsg_; }
 
-
-IOParTree::~IOParTree()
+bool IOParTree::read( const char* filenm )
 {
-	data_ = 0;
-	index_ = 0;
-	level_ = 0;
-	errmsg_.setEmpty();
+	od_istream strm( filenm );
+	if (!strm.isOK())
+	{
+		msg_ = strm.errMsg();
+		return false;
+	}
+
+	return read( strm );
 }
 
 
 namespace Json
 {
 
-
-JsonObject::JsonObject( const char* nm )
-	: IOParTree( nm )
+JsonObject::JsonObject()
+	: IOParTree()
 {
-	read( nm );
 }
 
 
-JsonObject::JsonObject( ascistream& strm )
-	: IOParTree( strm )
+JsonObject::JsonObject( const char* fnm )
+	: IOParTree()
+{
+	IOParTree::read( fnm );
+}
+
+
+JsonObject::JsonObject( od_istream& strm )
+	: IOParTree()
 {
 	read( strm );
 }
@@ -84,39 +83,16 @@ JsonObject::JsonObject( const JsonObject& obj )
 {}
 
 
-bool JsonObject::read( const char* filenm )
+bool JsonObject::read( od_istream& strm )
 {
-	od_istream strm( filenm );
-	if (!strm.isOK())
-	{
-		errmsg_ = strm.errMsg();
-		return false;
-	}
 	BufferString datastr;
-	strm.getAll( datastr );
-	strm.close();
+	datastr = strm.getAll( datastr );
 	JsonAllocator alloc;
 	char* endptr;
 	const int status = jsonParse( datastr.getCStr(), &endptr, &data_, alloc );
 	if ( status != JSON_OK )
 	{
-		errmsg_ = tr( "Could not parse string" );
-		return false;
-	}
-	return true;
-}
-
-
-bool JsonObject::read( ascistream& strm )
-{
-	BufferString datastr;
-	datastr = strm.value();
-	JsonAllocator alloc;
-	char* endptr;
-	const int status = jsonParse( datastr.getCStr(), &endptr, &data_, alloc );
-	if ( status != JSON_OK )
-	{
-		errmsg_ = tr( "Could not parse string" );
+		msg_ = tr( "Could not parse string" );
 		return false;
 	}
 	return true;
@@ -151,22 +127,20 @@ JsonObject::~JsonObject()
 {}
 
 
-GeoJsonObject::GeoJsonObject( const char* nm )
-	: NamedObject( nm )
-	, jsonobj_( nm )
+GeoJsonObject::GeoJsonObject( const char* fnm )
+	: NamedObject()
 	, crs_( 0 )
 	, id_( 0 )
 	, geomtp_( 0 )
 	, crds_( 0 )
 {
 	multicrds_.setEmpty();
-	fillCollection( nm );
+	fillCollection( fnm );
 }
 
 
-GeoJsonObject::GeoJsonObject( ascistream& strm )
-	: NamedObject( 0 )
-	, jsonobj_( strm )
+GeoJsonObject::GeoJsonObject( od_istream& strm )
+	: NamedObject()
 	, crs_( 0 )
 	, id_( 0 )
 	, geomtp_( 0 )
@@ -183,12 +157,41 @@ GeoJsonObject::GeoJsonObject( const GeoJsonObject& oth )
 { *this = oth; }
 
 
-bool GeoJsonObject::fillCollection( const char* str )
-{ return jsonobj_.read( str ); }
+uiString GeoJsonObject::errMsg() const
+{ return jsonobj_.errMsg(); }
 
 
-bool GeoJsonObject::fillCollection( ascistream& strm )
-{ return jsonobj_.read( strm ); }
+bool GeoJsonObject::fillCollection( const char* fnm )
+{
+	od_istream strm( fnm );
+	if ( !strm.isOK() )
+	{
+		jsonobj_.setMessage( strm.errMsg() );
+		return false;
+	}
+
+	return jsonobj_.read( strm );
+}
+
+
+bool GeoJsonObject::fillCollection( od_istream& strm )
+{
+	const bool parsesuccess = jsonobj_.read( strm );
+	if ( parsesuccess )
+	{
+		// check type is good
+		setCollectionName();
+		// set CRS
+	}
+
+	return parsesuccess;
+}
+
+void GeoJsonObject::setCollectionName()
+{
+	/*Implement
+	setName( collectionnm ); */
+}
 
 
 BufferString GeoJsonObject::getCollectionName() const
