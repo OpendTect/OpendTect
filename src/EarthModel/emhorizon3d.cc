@@ -399,7 +399,8 @@ void Horizon3D::setNodeSourceType( const PosID& posid, NodeSourceType type )
 
 void Horizon3D::setNodeSourceType(const TrcKey& tk,NodeSourceType type)
 {
-    if ( !nodesource_ ) return;
+    if ( !nodesource_ || !trackingsamp_.includes(tk) ) return;
+
     nodesource_->getData()[trackingsamp_.globalIdx(tk)] = (char)type;
 }
 
@@ -958,23 +959,33 @@ void Horizon3D::updateNodeSourceArray( const TrcKeySampling tks,
     Array2D<char>* arr = getNodeSourceArray( arrtype );
     Array2DCopier<char> nodescopier( *arr, curtks, tks, *newnodes );
     if ( nodescopier.execute() )
-    {
-	delete arr;
-	arr = newnodes;
-    }
+	setNodeSourceArray( newnodes, arrtype );
 }
 
 
 Array2D<char>* Horizon3D::getNodeSourceArray( ArrayType arrtype ) const
 {
-    if ( arrtype== Children )
+    if ( arrtype==Children )
 	return children_;
-    else if ( arrtype== NodeSource )
+    else if ( arrtype==NodeSource )
 	return nodesource_;
     else if ( arrtype==LockNode )
 	return lockednodes_;
     else
 	return 0;
+}
+
+
+void Horizon3D::setNodeSourceArray( Array2D<char>* newarr, ArrayType arrtype )
+{
+#define mDeleteAndSetNew(arr) { delete arr; arr = newarr; }
+
+    if ( arrtype==Children )
+	mDeleteAndSetNew(children_)
+    else if ( arrtype==NodeSource )
+	mDeleteAndSetNew(nodesource_)
+    else if ( arrtype==LockNode )
+	mDeleteAndSetNew(lockednodes_)
 }
 
 

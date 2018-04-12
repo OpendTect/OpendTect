@@ -219,6 +219,7 @@ protected:
     void			updateNodeSourceArray(const TrcKeySampling,
 						      ArrayType);
     Array2D<char>*		getNodeSourceArray(ArrayType) const;
+    void			setNodeSourceArray(Array2D<char>*,ArrayType);
     void			createNodeSourceArray(const StepInterval<int>&,
 						const StepInterval<int>&,
 						ArrayType);
