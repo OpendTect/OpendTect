@@ -42,6 +42,7 @@ list ( APPEND OD_MODULE_SOURCES
 	flatauxdataeditor.cc
 	flatview.cc
 	fontdata.cc
+	gason.cc
 	geojson.cc
 	geom2dascio.cc
 	geometryio.cc
