@@ -76,11 +76,6 @@ public:
     void			updateConnections();
     const Web&			getWeb() const	{ return web_; }
 
-    void			setZStep( float z, bool zist )
-				{ zstep_=z; zist_ = zist; }
-    float			getZStep() const	{ return zstep_; }
-    bool			zIsT() const		{ return zist_; }
-
     int				nrSteps() const;
     Step*			getStep(int);
     Step*			getStepFromName(const char*);
@@ -134,9 +129,6 @@ private:
     ObjectSet<Step>		steps_;
     Web				web_;
     ObjectSet<Scaler>		outcompscalers_;
-
-    float			zstep_;
-    bool			zist_;
 
     uiString			errmsg_;
     Threads::Atomic<int>	freeid_;

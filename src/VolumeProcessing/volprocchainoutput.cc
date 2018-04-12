@@ -298,7 +298,6 @@ int VolProc::ChainOutput::setupChunking()
     if ( !chainexec_ )
 	return ErrorOccurred();
 
-    tkzs_.zsamp_.step = chain_->getZStep();
     od_int64 memusage;
     if ( !chainexec_->setCalculationScope(tkzs_.hsamp_,tkzs_.zsamp_,memusage,
 					  &nrexecs_) )

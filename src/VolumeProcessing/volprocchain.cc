@@ -12,7 +12,6 @@
 #include "iopar.h"
 #include "keystrs.h"
 #include "scaler.h"
-#include "survinfo.h"
 
 
 VolProc::Chain::Connection::Connection( Step::ID outpstepid,
@@ -67,9 +66,7 @@ bool VolProc::Chain::Connection::operator!=( const Chain::Connection& b ) const
 
 
 VolProc::Chain::Chain()
-    : zstep_( SI().zRange(true).step )
-    , zist_( SI().zIsTime() )
-    , freeid_( 0 )
+    : freeid_( 0 )
     , outputstepid_( Step::cUndefID() )
     , outputslotid_( Step::cUndefSlotID() )
 {
