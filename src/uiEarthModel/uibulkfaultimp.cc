@@ -148,7 +148,7 @@ uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type, bool is2d )
 				tr("Import Multiple Faults") ),mNoDlgTitle,
 				mGetHelpKey(type)).modal(false))
     , isfss_(mGet(type,true,false))
-    , fd_(BulkFaultAscIO::getDesc(isfss_,is2d))
+    , fd_(BulkFaultAscIO::getDesc(mGet(type,true,false),is2d))
 {
     is2d_.setParam( this, is2d );
     init();
@@ -372,10 +372,13 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 
     if ( TaskRunner::execute( &taskr, saver ) )
     {
-	uiMSG().message( tr("Imported all %1 from file %2").arg(isfss_ ?
-	  uiStrings::sFaultStickSet(mPlural) : uiStrings::sFault(mPlural))
-	  .arg(fnm) );
-	return true;
+	uiString msg = tr("%1 succesfully imported.\n\n"
+			"Do you want to import more %1?").arg(isfss_ ?
+	  uiStrings::sFaultStickSet(mPlural) : uiStrings::sFault(mPlural));
+
+	bool ret= uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+	return !ret;
     }
     else
     {

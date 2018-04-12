@@ -351,17 +351,17 @@ void uiODMenuMgr::fillImportMenu()
     if ( have2d )
     {
 	uiMenu* impfltss2Dasc = new uiMenu( &appl_, tr("ASCII 2D"), ascic );
-	mInsertItem( impfltss2Dasc, m3Dots(tr("Single 2D FaultStiCKSet")),
+	mInsertItem( impfltss2Dasc, m3Dots(tr("Single 2D FaultStickSet")),
 	    mImpFaultSSAscii2DMnuItm );
-	mInsertItem( impfltss2Dasc, m3Dots(tr("Bulk 2D FaultStiCKSet")),
+	mInsertItem( impfltss2Dasc, m3Dots(tr("Bulk 2D FaultStickSets")),
 	    mImpFaultSSAscii2DBulkMnuItm );
 	impfaultstick->insertItem( impfltss2Dasc );
     }
 
     uiMenu* impfltss3Dasc = new uiMenu( &appl_, tr("ASCII 3D"), ascic );
-    mInsertItem( impfltss3Dasc, m3Dots(tr("Single 3D FaultStiCKSet")),
+    mInsertItem( impfltss3Dasc, m3Dots(tr("Single 3D FaultStickSet")),
 	mImpFaultSSAscii3DMnuItm );
-    mInsertItem( impfltss3Dasc, m3Dots(tr("Bulk 3D FaultStiCKSet")),
+    mInsertItem( impfltss3Dasc, m3Dots(tr("Bulk 3D FaultStickSets")),
 	mImpFaultSSAscii3DBulkMnuItm );
     impfaultstick->insertItem( impfltss3Dasc );
 

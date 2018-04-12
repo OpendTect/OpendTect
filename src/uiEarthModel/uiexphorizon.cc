@@ -573,8 +573,9 @@ bool uiExportHorizon::acceptOK( CallBacker* )
       return false;
     }
     uiString msg = tr("%1 successfully exported."
-			"\nDo you want to export more %1").arg(
-				  uiStrings::sHorizon(!isbulk_?1:mPlural));
+			"\n\nDo you want to export more %2?").arg(
+				  uiStrings::sHorizon(!isbulk_?1:mPlural))
+				  .arg(uiStrings::sHorizon(mPlural));
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

@@ -213,7 +213,7 @@
     <message numerus="yes">
         <location line="+8"/>
         <source>Body</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Body</numerusform>
             <numerusform>Bodies</numerusform>
         </translation>

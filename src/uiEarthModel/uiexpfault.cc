@@ -40,6 +40,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_ostream.h"
 #include "uit2dconvsel.h"
 #include "zaxistransform.h"
+#include "hiddenparam.h"
+
+HiddenParam<uiExportFault,FixedString*> typ_(0);
 
 #define mGetObjNr \
     issingle ? 1 : mPlural \
@@ -67,7 +70,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     , infld_(0)
     , bulkinfld_(0)
 {
-
+    typ_.setParam( this, new FixedString(typ) );
     setModal( false );
     setDeleteOnClose( false );
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
@@ -415,9 +418,12 @@ bool uiExportFault::acceptOK( CallBacker* )
 						    tr("selected faults")));
 	return false;
     }
-
     uiString msg = tr( "%1 successfully exported.\n\n"
-		    "Do you want to export more %1?" ).arg(dispstr_);
+		    "Do you want to export more %2?" ).arg(dispstr_)
+		    .arg(*typ_.getParam(this) ==
+				EMFaultStickSetTranslatorGroup::sGroupName()
+				? uiStrings::sFaultStickSet(mPlural)
+				: uiStrings::sFault(mPlural));
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;
