@@ -284,7 +284,10 @@ int VolProc::ChainOutput::setupChunking()
     if ( !chainexec_ )
 	return ErrorOccurred();
 
-    cs_.zsamp_.step = chain_->getZStep();
+    chainexec_->chain_.setZStep( cs_.zsamp_.step, SI().zIsTime() );
+    /* chain_.zstep_ is not used, but setting it for external plugin builders
+       in case they read chain_.getZStep() */
+
     outputzrg_ = StepInterval<int>( 0, cs_.zsamp_.nrSteps(), 1 );
     od_uint64 memusage;
     if ( !chainexec_->setCalculationScope(cs_.hsamp_,cs_.zsamp_,memusage,
