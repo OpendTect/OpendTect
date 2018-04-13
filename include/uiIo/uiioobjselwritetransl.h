@@ -87,8 +87,12 @@ public:
     const Translator*	selectedTranslator() const;
 
     IOObj*		mkEntry(const char*,bool in_shared=false) const;
-    void		use(const IOObj&);
     void		updatePars(IOObj&) const;
+    bool		hasWriteOpts() const	{ return !optflds_.isEmpty(); }
+    bool		hasSameWriteOpts(const uiIOObjSelWriteTranslator&);
+
+    void		use(const IOObj&);
+    void		resetPars();
 
     bool		hasSelectedTranslator(const IOObj&) const;
 

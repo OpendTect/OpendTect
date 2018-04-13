@@ -179,6 +179,8 @@ private:
     void		mkWriteFlds();
     void		mkManipulators();
 
+    void		newOutputNameCB(CallBacker*);
+
     friend class	uiIOObjSelDlg;
     friend class	uiIOObjSelGrpManipSubj;
 
