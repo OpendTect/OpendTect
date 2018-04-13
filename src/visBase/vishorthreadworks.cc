@@ -98,9 +98,12 @@ bool HorizonTileRenderPreparer::doWork( od_int64 start, od_int64 stop, int )
 HorizonTileResolutionTesselator::HorizonTileResolutionTesselator(
     const HorizonSection* hrsection, char res )
     : horsection_( hrsection )
-    , nrtiles_( hrsection->tiles_.totalSize() )
+    , nrtiles_( 0 )
     , resolution_( res )
 {
+    if ( hrsection )
+	nrtiles_ = hrsection->tiles_.totalSize();
+
     setName( "Horizon resolution tessellation" );
 }
 
