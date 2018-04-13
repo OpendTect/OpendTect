@@ -1,6 +1,5 @@
 #pragma once
 
-#include "generalmod.h"
 #include "genc.h"
 #include <assert.h>
 #include <stddef.h>

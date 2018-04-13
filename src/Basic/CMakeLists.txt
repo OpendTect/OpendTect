@@ -63,11 +63,13 @@ set( OD_MODULE_SOURCES
 	filemultispec.cc
 	filepath.cc
 	filesystemaccess.cc
+	gason.cc
 	genc.cc
 	gpuprog.cc
 	globexpr.cc
 	iopar.cc
 	initbasic.cc
+	keyedvaluetree.cc
 	latlong.cc
 	legal.cc
 	math2.cc
