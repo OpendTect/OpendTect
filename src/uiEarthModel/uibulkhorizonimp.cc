@@ -160,7 +160,9 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
 
     // TODO: Check if name exists, ask user to overwrite or give new name
     BufferStringSet errors;
-    uiTaskRunner dlg( this );
+    uiTaskRunner taskr( this );
+    const BufferString savernm = "Saving Horizons";
+    ExecutorGroup saver( savernm );
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	RefMan<EM::Horizon3D> hor3d = EM::Horizon3D::create( hornms.get(idx) );
@@ -185,13 +187,25 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
 	detector.getTrcKeySampling( hs );
 	ObjectSet<BinIDValueSet> curdata; curdata += bidvs;
 	PtrMan<Executor> importer = hor3d->importer( curdata, hs );
-	if ( !importer || !TaskRunner::execute( &dlg, *importer ) )
+	if ( !importer || !TaskRunner::execute( &taskr, *importer ) )
 	    continue;
 
-	PtrMan<Executor> saver = hor3d->saver();
-	if ( !saver || !TaskRunner::execute( &dlg, *saver ) )
-	    continue;
+	saver.add(hor3d->saver());
     }
 
-    return true;
+
+    if ( TaskRunner::execute( &taskr, saver ) )
+    {
+	uiString msg = tr("%1 successfully imported."
+		      "\n\nDo you want to import more %1?")
+		      .arg( uiStrings::sHorizon(mPlural) );
+	bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+	return !ret;
+    }
+    else
+    {
+	saver.uiMessage();
+	return false;
+    }
 }
