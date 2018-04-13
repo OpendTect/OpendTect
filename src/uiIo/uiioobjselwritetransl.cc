@@ -77,8 +77,8 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
 	    optflds_ += fld;
 	    if ( fld )
 	    {
-		fld->suggestedNameAvailble.notify(
-			    mCB(this,uiIOObjSelWriteTranslator,nmAvCB) );
+		mAttachCB( fld->suggestedNameAvailble,
+			   uiIOObjSelWriteTranslator::nmAvCB );
 		if ( !firstoptfld )
 		    firstoptfld = fld;
 		if ( selfld_ )
@@ -116,14 +116,14 @@ void uiIOObjSelWriteTranslator::mkSelFld( const CtxtIOObj& ctio, bool withopts )
     }
     selfld_->setCurrentItem( cur );
 
-    const CallBack selchgcb( mCB(this,uiIOObjSelWriteTranslator,selChg) );
-    selfld_->selectionChanged.notify( selchgcb );
-    postFinalise().notify( selchgcb );
+    mAttachCB( selfld_->selectionChanged, uiIOObjSelWriteTranslator::selChg );
+    mAttachCB( postFinalise(), uiIOObjSelWriteTranslator::selChg );
 }
 
 
 uiIOObjSelWriteTranslator::~uiIOObjSelWriteTranslator()
 {
+    detachAllNotifiers();
     delete &ctxt_;
 }
 
@@ -262,6 +262,40 @@ void uiIOObjSelWriteTranslator::updatePars( IOObj& ioobj ) const
 
 	IOM().commitChanges( ioobj );
     }
+}
+
+
+bool uiIOObjSelWriteTranslator::hasSameWriteOpts(
+				const uiIOObjSelWriteTranslator& writetransfld )
+{
+    uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
+    uiIOObjTranslatorWriteOpts* othfld = writetransfld.getCurOptFld();
+    if ( !fld || !othfld )
+	return true;
+
+    IOPar thiswritepars, othwritepars;
+    fld->fill( thiswritepars );
+    othfld->fill( othwritepars );
+
+    return thiswritepars == othwritepars;
+}
+
+
+void uiIOObjSelWriteTranslator::resetPars()
+{
+    uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
+    const Translator* selectedtrans = selectedTranslator();
+    if ( !fld || !selectedtrans || !fld->isPresent(*selectedtrans) )
+	return;
+
+    PtrMan<uiIOObjTranslatorWriteOpts> defwriteopts =
+		    uiIOObjTranslatorWriteOpts::create( this, *selectedtrans );
+    if ( !defwriteopts )
+	return;
+
+    IOPar par;
+    defwriteopts->fill( par );
+    fld->use( par );
 }
 
 

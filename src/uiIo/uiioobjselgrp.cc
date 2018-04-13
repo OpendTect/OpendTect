@@ -220,6 +220,7 @@ void uiIOObjSelGrp::mkWriteFlds()
     nmfld_ = new uiGenInput( wrgrp, uiStrings::sName() );
     nmfld_->setElemSzPol( uiObject::SmallMax );
     nmfld_->setStretch( 2, 0 );
+    mAttachCB( nmfld_->valuechanged, uiIOObjSelGrp::newOutputNameCB );
     if ( wrtrselfld_ && !wrtrselfld_->isEmpty() )
 	nmfld_->attach( alignedBelow, wrtrselfld_ );
     wrgrp->setHAlignObj( nmfld_ );
@@ -290,6 +291,7 @@ void uiIOObjSelGrp::mkManipulators()
 
 uiIOObjSelGrp::~uiIOObjSelGrp()
 {
+    detachAllNotifiers();
     deepErase( ioobjids_ );
     deepErase( inserters_ );
     if ( manipgrpsubj )
@@ -842,6 +844,32 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
 }
 
 
+void uiIOObjSelGrp::newOutputNameCB( CallBacker* )
+{
+    const int deftransidx = ctio_.ctxt_.trgroup_->defTranslIdx();
+    const Translator* deftrans = ctio_.ctxt_.trgroup_->templates()[deftransidx];
+    PtrMan<IOObj> curioobj = IOM().get( currentID() );
+    const Translator* selectedtrans =  wrtrselfld_->selectedTranslator();
+    const bool translatorchanged = curioobj && selectedtrans
+			 ? curioobj->translator() != selectedtrans->userName()
+			 : false;
+
+    if ( !translatorchanged && wrtrselfld_ )
+    {
+	if ( curioobj && wrtrselfld_->hasWriteOpts() )
+	{
+	    uiIOObjSelWriteTranslator currentwrtselfld(this,ctio_.ctxt_,true);
+	    currentwrtselfld.use( *curioobj );
+	    if ( wrtrselfld_->hasSameWriteOpts(currentwrtselfld) )
+		wrtrselfld_->resetPars();
+	}
+
+	wrtrselfld_->setTranslator( deftrans );
+	updateCtxtIOObj();
+    }
+}
+
+
 void uiIOObjSelGrp::readChoiceDone( CallBacker* )
 {
     if ( !lbchoiceio_ ) return;
@@ -849,7 +877,7 @@ void uiIOObjSelGrp::readChoiceDone( CallBacker* )
     TypeSet<MultiID> mids;
     for ( int idx=0; idx<lbchoiceio_->chosenKeys().size(); idx++ )
 	mids += MultiID( lbchoiceio_->chosenKeys().get(idx).buf() );
-    
+
     setChosen( mids );
 }
 
