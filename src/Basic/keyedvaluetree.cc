@@ -267,8 +267,11 @@ KeyedValue::DataType KeyedValue::Node::getDataType( const Key& ky ) const
 }
 
 
+namespace KeyedValue
+{ // older compilers need some template specializations to be in a namespace
+
 template <class T>
-bool KeyedValue::Node::getSubNodeValue( const Key& ky, T& val ) const
+bool Node::getSubNodeValue( const Key& ky, T& val ) const
 {
     if ( ky.size() < 1 )
 	{ return false; }
@@ -284,7 +287,7 @@ bool KeyedValue::Node::getSubNodeValue( const Key& ky, T& val ) const
 
 
 template <>
-bool KeyedValue::Node::getValue( const Key& ky, BufferString& str ) const
+bool Node::getValue( const Key& ky, BufferString& str ) const
 {
     if ( ky.size() != 1 )
 	return getSubNodeValue( ky, str );
@@ -305,7 +308,7 @@ bool KeyedValue::Node::getValue( const Key& ky, BufferString& str ) const
 
 
 template <class IT>
-bool KeyedValue::Node::getIValue( const Key& ky, IT& val ) const
+bool Node::getIValue( const Key& ky, IT& val ) const
 {
     if ( ky.size() != 1 )
 	return getSubNodeValue( ky, val );
@@ -342,26 +345,85 @@ bool KeyedValue::Node::getIValue( const Key& ky, IT& val ) const
 
 
 template <>
-bool KeyedValue::Node::getValue( const Key& ky, od_int16& val ) const
+bool Node::getValue( const Key& ky, od_int16& val ) const
 {
     return getIValue( ky, val );
 }
 
 
 template <>
-bool KeyedValue::Node::getValue( const Key& ky, od_int32& val ) const
+bool Node::getValue( const Key& ky, od_int32& val ) const
 {
     return getIValue( ky, val );
 }
 
 
 template <>
-bool KeyedValue::Node::getValue( const Key& ky, od_int64& val ) const
+bool Node::getValue( const Key& ky, od_int64& val ) const
 {
     return getIValue( ky, val );
 }
 
 //TODO float types, arrays
+
+
+template <class T>
+bool Node::implAddValue( const Key& ky, const T& val )
+{
+    const int keysz = ky.size();
+    if ( keysz < 1 )
+	{ return false; }
+
+    const BufferString& nm = ky.get( 0 );
+    const std::string nmstr( nm.str() );
+    if ( keysz > 1 )
+    {
+	auto it = children_.find( nmstr );
+	if ( it == children_.end() )
+	    return false;
+
+	const Key chldky( ky, 1 );
+	return it->second->addValue( chldky, val );
+    }
+
+    const BufferString& valnm = ky.get( 0 );
+    const std::string valnmstr( valnm.str() );
+    values_[valnmstr] = new Value( val );
+    return true;
+}
+
+
+bool KeyedValue::Node::addValue( const Key& ky, const char* str )
+{
+    return implAddValue( ky, str );
+}
+
+
+bool KeyedValue::Node::addValue( const Key& ky, const OD::String& str )
+{
+    return implAddValue( ky, str.buf() );
+}
+
+
+#define mImplAddValue(typ) \
+template <> \
+bool Node::addValue( const Key& ky, const typ& val ) \
+{ \
+    return implAddValue( ky, val ); \
+}
+
+mImplAddValue( od_int16 )
+mImplAddValue( od_int32 )
+mImplAddValue( od_int64 )
+mImplAddValue( float )
+mImplAddValue( double )
+mImplAddValue( BufferStringSet )
+mImplAddValue( TypeSet<od_int16> )
+mImplAddValue( TypeSet<od_int32> )
+mImplAddValue( TypeSet<od_int64> )
+//TODO Array1D, and float and bool typeset versions
+
+} // namespace KeyedValue
 
 
 KeyedValue::Node* KeyedValue::Node::gtNode( IdxType idx ) const
@@ -408,63 +470,6 @@ void KeyedValue::Node::addNode( Node* node, const char* nm )
     node->parent_ = this;
     children_[nm] = node;
 }
-
-
-template <class T>
-bool KeyedValue::Node::implAddValue( const Key& ky, const T& val )
-{
-    const int keysz = ky.size();
-    if ( keysz < 1 )
-	{ return false; }
-
-    const BufferString& nm = ky.get( 0 );
-    const std::string nmstr( nm.str() );
-    if ( keysz > 1 )
-    {
-	auto it = children_.find( nmstr );
-	if ( it == children_.end() )
-	    return false;
-
-	const Key chldky( ky, 1 );
-	return it->second->addValue( chldky, val );
-    }
-
-    const BufferString& valnm = ky.get( 0 );
-    const std::string valnmstr( valnm.str() );
-    values_[valnmstr] = new Value( val );
-    return true;
-}
-
-
-bool KeyedValue::Node::addValue( const Key& ky, const char* str )
-{
-    return implAddValue( ky, str );
-}
-
-
-bool KeyedValue::Node::addValue( const Key& ky, const OD::String& str )
-{
-    return implAddValue( ky, str.buf() );
-}
-
-
-#define mImplAddValue(typ) \
-template <> \
-bool KeyedValue::Node::addValue( const Key& ky, const typ& val ) \
-{ \
-    return implAddValue( ky, val ); \
-}
-
-mImplAddValue( od_int16 )
-mImplAddValue( od_int32 )
-mImplAddValue( od_int64 )
-mImplAddValue( float )
-mImplAddValue( double )
-mImplAddValue( BufferStringSet )
-mImplAddValue( TypeSet<od_int16> )
-mImplAddValue( TypeSet<od_int32> )
-mImplAddValue( TypeSet<od_int64> )
-//TODO Array1D, and float and bool typeset versions
 
 
 void KeyedValue::Node::fillPar( IOPar& iop ) const
