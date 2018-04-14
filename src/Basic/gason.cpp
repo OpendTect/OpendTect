@@ -29,8 +29,8 @@
 #include "gason.h"
 #include <stdlib.h>
 
-namespace Gason		// ---- added for OD
-{			// ---- added for OD
+namespace Gason		// --OD added
+{			// --OD added
 
 #define JSON_ZONE_SIZE 4096
 #define JSON_STACK_SIZE 32
@@ -245,9 +245,12 @@ int jsonParse(char *s, char **endptr, JsonValue *value, JsonAllocator &allocator
                             *it++ = 0xC0 | (c >> 6);
                             *it = 0x80 | (c & 0x3F);
                         } else {
-                            *it++ = 0xE0 | (c >> 12);
-                            *it++ = 0x80 | ((c >> 6) & 0x3F);
-                            *it = 0x80 | (c & 0x3F);
+                            // --OD chg, was: *it++ = 0xE0 | (c >> 12);
+                            *it++ = (char)(0xE0 | (c >> 12));
+                            // --OD chg, was: *it++ = 0x80 | ((c >> 6) & 0x3F);
+                            *it++ = (char)(0x80 | ((c >> 6) & 0x3F));
+                            // --OD chg, was: *it = 0x80 | (c & 0x3F);
+                            *it = (char)(0x80 | (c & 0x3F));
                         }
                         break;
                     default:
@@ -364,4 +367,4 @@ int jsonParse(char *s, char **endptr, JsonValue *value, JsonAllocator &allocator
     return JSON_BREAKING_BAD;
 }
 
-}	// ---- added for OD
+}	// --OD added

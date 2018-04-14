@@ -33,8 +33,8 @@
 #include <stddef.h>
 #include <assert.h>
 
-namespace Gason		// ---- added for OD
-{			// ---- added for OD
+namespace Gason		// --OD added
+{			// --OD added
 
 enum JsonTag {
     JSON_NUMBER = 0,
@@ -166,4 +166,4 @@ public:
 
 int jsonParse(char *str, char **endptr, JsonValue *value, JsonAllocator &allocator);
 
-}   // ---- added for OD
+}   // --OD added

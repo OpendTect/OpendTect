@@ -84,14 +84,14 @@ void initFromContainer( const CT& vals, bool isint )
 	{
 	    od_int64* arr = new od_int64[arrsz_];
 	    for ( int idx=0; idx<arrsz_; idx++ )
-		arr[idx] = vals[idx];
+		arr[idx] = (od_int64)vals[idx];
 	    contents_.ptr_ = arr;
 	}
 	else
 	{
 	    double* arr = new double[arrsz_];
 	    for ( int idx=0; idx<arrsz_; idx++ )
-		arr[idx] = vals[idx];
+		arr[idx] = (double)vals[idx];
 	    contents_.ptr_ = arr;
 	}
     }
@@ -186,14 +186,12 @@ KeyedValue::Node::~Node()
 
 void KeyedValue::Node::setEmpty()
 {
-    for ( ValueMap::iterator it=values_.begin();
-			     it!=values_.end(); it++ )
-	delete it->second;
+    for ( auto it : values_ )
+	delete it.second;
 
-    for ( ChildrenMap::iterator it=children_.begin();
-			        it!=children_.end(); it++ )
+    for ( auto it : children_ )
     {
-	Node* child = it->second;
+	Node* child = it.second;
 	child->setEmpty();
 	delete child;
     }
@@ -386,7 +384,7 @@ bool Node::getFValue( const Key& ky, FT& val ) const
 	if ( valptr->isint_ )
 	    val = (FT)valptr->contents_.ival_;
 	else
-	    val = valptr->contents_.dval_;
+	    val = (FT)valptr->contents_.dval_;
     }
     else if ( valptr->type_ == String )
     {
@@ -510,11 +508,10 @@ KeyedValue::Node* KeyedValue::Node::gtNode( IdxType idx ) const
 {
     if ( idx >= 0 )
     {
-	for ( ChildrenMap::const_iterator it = children_.begin();
-	      it!=children_.end(); it++ )
+	for ( auto it : children_ )
 	{
 	    if ( idx == 0 )
-		return const_cast<Node*>( it->second );
+		return const_cast<Node*>( it.second );
 	    idx--;
 	}
     }
@@ -680,8 +677,7 @@ void KeyedValue::Node::parseJSon( char* buf, int bufsz, uiRetVal& uirv )
 	return;
     }
 
-    Gason::JsonIterator endit = Gason::end( root );
-    for ( Gason::JsonIterator it=Gason::begin( root ); it!=endit; ++it )
+    for ( auto it : root )
 	useJsonValue( it->value, it->key );
 }
 
