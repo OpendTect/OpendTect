@@ -4,7 +4,6 @@
  * DATE     : April 2018
 -*/
 
-
 #include "keyedvaluetree.h"
 #include "od_iostream.h"
 #include "separstr.h"
@@ -74,7 +73,7 @@ Value( const BufferStringSet& bss )
 }
 
 template <class CT>
-void initContainer( const CT& vals, bool isint )
+void initFromContainer( const CT& vals, bool isint )
 {
     type_ = ArrayNumber;
     isint_ = isint;
@@ -100,7 +99,7 @@ void initContainer( const CT& vals, bool isint )
 
 
 #define mDefContainerConstr(ct,isint) \
-    Value( const ct& vals ) { initContainer( vals, isint ); }
+    Value( const ct& vals ) { initFromContainer( vals, isint ); }
 
 mDefContainerConstr(BoolTypeSet,true)
 
@@ -294,7 +293,7 @@ namespace KeyedValue
 { // older compilers need template specializations to be in the namespace
 
 template <class T>
-bool Node::getSubNodeValue( const Key& ky, T& val ) const
+bool Node::getChildValue( const Key& ky, T& val ) const
 {
     if ( ky.size() < 1 )
 	{ return false; }
@@ -313,7 +312,7 @@ template <>
 bool Node::getValue( const Key& ky, BufferString& str ) const
 {
     if ( ky.size() != 1 )
-	return getSubNodeValue( ky, str );
+	return getChildValue( ky, str );
 
     const Value* valptr = findValue( ky.get(0) );
     if ( valptr->type_ == String )
@@ -334,7 +333,7 @@ template <class IT>
 bool Node::getIValue( const Key& ky, IT& val ) const
 {
     if ( ky.size() != 1 )
-	return getSubNodeValue( ky, val );
+	return getChildValue( ky, val );
 
     const Value* valptr = findValue( ky.get(0) );
     if ( !valptr )
@@ -371,7 +370,7 @@ template <class FT>
 bool Node::getFValue( const Key& ky, FT& val ) const
 {
     if ( ky.size() != 1 )
-	return getSubNodeValue( ky, val );
+	return getChildValue( ky, val );
 
     const Value* valptr = findValue( ky.get(0) );
     if ( !valptr )
@@ -430,11 +429,11 @@ bool Node::getValue( const Key& ky, bool& val ) const
 }
 
 
-//TODO arrays
+//TODO getValue for TypeSet and Array1D
 
 
 template <class T>
-bool Node::implAddValue( const Key& ky, const T& tval )
+bool Node::implSetValue( const Key& ky, const T& tval )
 {
     const int keysz = ky.size();
     if ( keysz < 1 )
@@ -444,34 +443,43 @@ bool Node::implAddValue( const Key& ky, const T& tval )
     const std::string nmstr( nm.str() );
     if ( keysz > 1 )
     {
-	auto it = children_.find( nmstr );
-	if ( it == children_.end() )
-	    return false;
+	auto chit = children_.find( nmstr );
+	Node* child = chit == children_.end() ? 0 : chit->second;
+	if ( !child )
+	{
+	    child = new Node( this );
+	    addNode( child, nm );
+	}
 
 	const Key chldky( ky, 1 );
-	return it->second->implAddValue( chldky, tval );
+	return child->implSetValue( chldky, tval );
     }
 
     const BufferString& valnm = ky.get( 0 );
     const std::string valnmstr( valnm.str() );
+
+    auto vit = values_.find( valnmstr );
+    if ( vit != values_.end() )
+	delete vit->second;
+
     values_[valnmstr] = new Value( tval );
     return true;
 }
 
 
-bool KeyedValue::Node::addValue( const Key& ky, const char* str )
-{ return implAddValue( ky, str ); }
-bool KeyedValue::Node::addValue( const Key& ky, char* str )
-{ return implAddValue( ky, (const char*)str ); }
-bool KeyedValue::Node::addValue( const Key& ky, const OD::String& str )
-{ return implAddValue( ky, str.str() ); }
+bool KeyedValue::Node::setValue( const Key& ky, const char* str )
+{ return implSetValue( ky, str ); }
+bool KeyedValue::Node::setValue( const Key& ky, char* str )
+{ return implSetValue( ky, (const char*)str ); }
+bool KeyedValue::Node::setValue( const Key& ky, const OD::String& str )
+{ return implSetValue( ky, str.str() ); }
 
 
 #define mImplAddValue(typ) \
 template <> \
-bool Node::addValue( const Key& ky, const typ& val ) \
+bool Node::setValue( const Key& ky, const typ& val ) \
 { \
-    return implAddValue( ky, val ); \
+    return implSetValue( ky, val ); \
 }
 
 mImplAddValue( bool )
@@ -558,6 +566,12 @@ void KeyedValue::Node::usePar( const IOPar& iop )
 }
 
 
+#define mJvalInt(jval) ((od_int64)jval.getPayload())
+#define mJvalDouble(jval) (jval.toNumber())
+#define mJvalString(jval) (jval.toString())
+#define mJvalBool(jval) ((bool)jval.getPayload())
+
+
 void KeyedValue::Node::useJsonValue( Gason::JsonValue& jsonval,
 				     const char* jsonky )
 {
@@ -569,20 +583,58 @@ void KeyedValue::Node::useJsonValue( Gason::JsonValue& jsonval,
 	case Gason::JSON_NUMBER:
 	{
 	    if ( jsonval.isDouble() )
-		addValue( ky, jsonval.toNumber() );
+		setValue( ky, mJvalDouble(jsonval) );
 	    else
-		addValue( ky, (od_int64)jsonval.getPayload() );
+		setValue( ky, mJvalInt(jsonval) );
 	} break;
 
 	case Gason::JSON_STRING:
 	{
-	    addValue( ky, jsonval.toString() );
+	    setValue( ky, mJvalString(jsonval) );
 	} break;
 
 	case Gason::JSON_ARRAY:
 	{
-	    //TODO
-	    // How do we know what the type of the elements is??
+	    Gason::JsonTag valtag = Gason::JSON_NULL;
+	    BufferStringSet strs; TypeSet<od_int64> ints;
+	    TypeSet<double> doubles; BoolTypeSet bools;
+	    for ( auto it : jsonval )
+	    {
+		const Gason::JsonValue& arrjval = it->value;
+
+		if ( valtag == Gason::JSON_NULL )
+		    valtag = arrjval.getTag();
+
+		switch ( valtag )
+		{
+		    case Gason::JSON_NUMBER:
+		    {
+			if ( arrjval.isDouble() )
+			    doubles += mJvalDouble( arrjval );
+			else
+			    ints += mJvalInt( arrjval );
+		    } break;
+		    case Gason::JSON_STRING:
+		    {
+			strs.add( mJvalString(arrjval) );
+		    } break;
+		    case Gason::JSON_TRUE:
+		    case Gason::JSON_FALSE:
+		    {
+			bools.add( mJvalBool(arrjval) );
+		    } break;
+		    default:
+			break;
+		}
+	    }
+	    if ( !strs.isEmpty() )
+		setValue( ky, strs );
+	    if ( !bools.isEmpty() )
+		setValue( ky, bools );
+	    if ( !ints.isEmpty() )
+		setValue( ky, ints );
+	    if ( !doubles.isEmpty() )
+		setValue( ky, doubles );
 	} break;
 
 	case Gason::JSON_OBJECT:
@@ -601,7 +653,7 @@ void KeyedValue::Node::useJsonValue( Gason::JsonValue& jsonval,
 	case Gason::JSON_TRUE:
 	case Gason::JSON_FALSE:
 	{
-	    addValue( ky, (bool)jsonval.getPayload() );
+	    setValue( ky, (bool)jsonval.getPayload() );
 	} break;
 
 	case Gason::JSON_NULL:
@@ -631,13 +683,12 @@ void KeyedValue::Node::parseJSon( char* buf, int bufsz, uiRetVal& uirv )
     Gason::JsonIterator endit = Gason::end( root );
     for ( Gason::JsonIterator it=Gason::begin( root ); it!=endit; ++it )
 	useJsonValue( it->value, it->key );
-
-    uirv.set( mTODONotImplPhrase() );
 }
 
 
 void KeyedValue::Node::dumpJSon( BufferString& str ) const
 {
+    str.set( "TODO" );
 }
 
 
@@ -658,6 +709,13 @@ uiRetVal KeyedValue::Tree::readJSon( od_istream& strm )
 
 uiRetVal KeyedValue::Tree::writeJSon( od_ostream& strm )
 {
-    // Implement something that looks reasonably pretty-printed
-    return uiRetVal( mTODONotImplPhrase() );
+    BufferString buf;
+    dumpJSon( buf );
+    uiRetVal uirv;
+    if ( !strm.add(buf).isOK() )
+    {
+	uirv.set( uiStrings::phrCannotWrite( toUiString(strm.fileName()) ) );
+	strm.addErrMsgTo( uirv );
+    }
+    return uirv;
 }
