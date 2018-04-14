@@ -171,6 +171,9 @@ public:
 
     virtual const Array1DInfo&	info() const = 0;
 
+    // Compatibility with other classes:
+
+    inline SzType		size() const	{ return info().getSize(0); }
     inline T			operator []( IdxType idx ) const
 				{ return get( idx ); }
 

@@ -9,16 +9,18 @@
 #include "od_iostream.h"
 #include "separstr.h"
 #include "typeset.h"
+#include "arraynd.h"
 #include "uistrings.h"
+#include "gason.h"
 #include <string.h>
 
 
 namespace KeyedValue
 {
 
-#define mDefSimpleConstr(ctyp,enumtyp,isint,contmemb) \
+#define mDefSimpleConstr(ctyp,enumtyp,isint,contmemb,utype) \
     Value( ctyp i ) \
-	: type_(enumtyp), isint_(isint) { contents_.contmemb = i; }
+	: type_(enumtyp), isint_(isint) { contents_.contmemb = (utype)i; }
 
 class Value
 {
@@ -26,11 +28,14 @@ public:
 
     union Contents  { double dval_; od_int64 ival_; void* ptr_; };
 
-mDefSimpleConstr( od_int16, Number, true, ival_ )
-mDefSimpleConstr( od_int32, Number, true, ival_ )
-mDefSimpleConstr( od_int64, Number, true, ival_ )
-mDefSimpleConstr( float, Number, false, dval_ )
-mDefSimpleConstr( double, Number, false, dval_ )
+mDefSimpleConstr( bool, Boolean, true, ival_, od_int64 )
+mDefSimpleConstr( od_int16, Number, true, ival_, od_int64 )
+mDefSimpleConstr( od_uint16, Number, true, ival_, od_int64 )
+mDefSimpleConstr( od_int32, Number, true, ival_, od_int64 )
+mDefSimpleConstr( od_uint32, Number, true, ival_, od_int64 )
+mDefSimpleConstr( od_int64, Number, true, ival_, od_int64 )
+mDefSimpleConstr( float, Number, false, dval_, double )
+mDefSimpleConstr( double, Number, false, dval_, double )
 
 
 Value( const char* str )
@@ -68,30 +73,48 @@ Value( const BufferStringSet& bss )
     }
 }
 
-
-Value( const TypeSet<od_int16>& vals )
-{ initI( vals ); }
-Value( const TypeSet<od_int32>& vals )
-{ initI( vals ); }
-Value( const TypeSet<od_int64>& vals )
-{ initI( vals ); }
-
-template <class IT>
-void initI( const TypeSet<IT>& vals )
+template <class CT>
+void initContainer( const CT& vals, bool isint )
 {
     type_ = ArrayNumber;
-    isint_ = true;
-    arrsz_ = vals.size();
+    isint_ = isint;
+    arrsz_ = (int)vals.size();
     if ( arrsz_ > 0 )
     {
-	od_int64* arr = new od_int64[arrsz_];
-	for ( int idx=0; idx<arrsz_; idx++ )
-	    arr[idx] = vals[idx];
-	contents_.ptr_ = arr;
+	if ( isint_ )
+	{
+	    od_int64* arr = new od_int64[arrsz_];
+	    for ( int idx=0; idx<arrsz_; idx++ )
+		arr[idx] = vals[idx];
+	    contents_.ptr_ = arr;
+	}
+	else
+	{
+	    double* arr = new double[arrsz_];
+	    for ( int idx=0; idx<arrsz_; idx++ )
+		arr[idx] = vals[idx];
+	    contents_.ptr_ = arr;
+	}
     }
 }
 
-//TODO Array1D, and float and bool typeset versions
+
+#define mDefContainerConstr(ct,isint) \
+    Value( const ct& vals ) { initContainer( vals, isint ); }
+
+mDefContainerConstr(BoolTypeSet,true)
+
+#define mDefContainerConstr4All(clss) \
+mDefContainerConstr(clss<od_int16>,true) \
+mDefContainerConstr(clss<od_uint16>,true) \
+mDefContainerConstr(clss<od_int32>,true) \
+mDefContainerConstr(clss<od_uint32>,true) \
+mDefContainerConstr(clss<od_int64>,true) \
+mDefContainerConstr(clss<float>,false) \
+mDefContainerConstr(clss<double>,false)
+
+mDefContainerConstr4All(TypeSet)
+mDefContainerConstr4All(Array1D)
 
 
 ~Value()
@@ -212,7 +235,7 @@ BufferString KeyedValue::Node::name() const
     BufferString nm;
     if ( parent_ )
     {
-	ChildrenMap::iterator it = parent_->childIter( *this );
+	ChildrenMap::const_iterator it = parent_->childIter( *this );
 	nm.set( it->first.c_str() );
     }
     return nm;
@@ -268,7 +291,7 @@ KeyedValue::DataType KeyedValue::Node::getDataType( const Key& ky ) const
 
 
 namespace KeyedValue
-{ // older compilers need some template specializations to be in a namespace
+{ // older compilers need template specializations to be in the namespace
 
 template <class T>
 bool Node::getSubNodeValue( const Key& ky, T& val ) const
@@ -301,7 +324,7 @@ bool Node::getValue( const Key& ky, BufferString& str ) const
     else if ( valptr->type_ == Boolean )
 	str.set( valptr->contents_.ival_ ? "True" : "False" );
     else
-	{ pErrMsg("Impl string get for this type"); return false; }
+	{ pErrMsg("Don't try to get arrays in one string"); return false; }
 
     return true;
 }
@@ -344,31 +367,74 @@ bool Node::getIValue( const Key& ky, IT& val ) const
 }
 
 
-template <>
-bool Node::getValue( const Key& ky, od_int16& val ) const
+template <class FT>
+bool Node::getFValue( const Key& ky, FT& val ) const
 {
-    return getIValue( ky, val );
+    if ( ky.size() != 1 )
+	return getSubNodeValue( ky, val );
+
+    const Value* valptr = findValue( ky.get(0) );
+    if ( !valptr )
+	return false;
+
+    if ( isArray(valptr->type_) )
+	{ pErrMsg("Type is array"); return false; }
+    if ( valptr->type_ == Boolean )
+	{ pErrMsg("Type is boolean"); return false; }
+
+    if ( valptr->type_ == Number )
+    {
+	if ( valptr->isint_ )
+	    val = (FT)valptr->contents_.ival_;
+	else
+	    val = valptr->contents_.dval_;
+    }
+    else if ( valptr->type_ == String )
+    {
+	const char* valstr = (const char*)valptr->contents_.ptr_;
+	if ( !isNumberString(valstr) )
+	    { pErrMsg("Not a number string"); return false; }
+	val = (FT)toDouble( valstr );
+    }
+    else
+	{ pErrMsg("Huh"); return false; }
+
+    return true;
 }
 
 
+#define mImplGetValue(typ,fn) \
+template <> \
+bool Node::getValue( const Key& ky, typ& val ) const \
+{ \
+    return fn( ky, val ); \
+}
+
+mImplGetValue(od_int16,getIValue)
+mImplGetValue(od_uint16,getIValue)
+mImplGetValue(od_int32,getIValue)
+mImplGetValue(od_uint32,getIValue)
+mImplGetValue(od_int64,getIValue)
+mImplGetValue(float,getFValue)
+mImplGetValue(double,getFValue)
+
 template <>
-bool Node::getValue( const Key& ky, od_int32& val ) const
+bool Node::getValue( const Key& ky, bool& val ) const
 {
-    return getIValue( ky, val );
+    od_int16 i = 0;
+    if ( getValue(ky,i) )
+	val = (bool)i;
+    else
+	return false;
+    return true;
 }
 
 
-template <>
-bool Node::getValue( const Key& ky, od_int64& val ) const
-{
-    return getIValue( ky, val );
-}
-
-//TODO float types, arrays
+//TODO arrays
 
 
 template <class T>
-bool Node::implAddValue( const Key& ky, const T& val )
+bool Node::implAddValue( const Key& ky, const T& tval )
 {
     const int keysz = ky.size();
     if ( keysz < 1 )
@@ -383,26 +449,22 @@ bool Node::implAddValue( const Key& ky, const T& val )
 	    return false;
 
 	const Key chldky( ky, 1 );
-	return it->second->addValue( chldky, val );
+	return it->second->implAddValue( chldky, tval );
     }
 
     const BufferString& valnm = ky.get( 0 );
     const std::string valnmstr( valnm.str() );
-    values_[valnmstr] = new Value( val );
+    values_[valnmstr] = new Value( tval );
     return true;
 }
 
 
 bool KeyedValue::Node::addValue( const Key& ky, const char* str )
-{
-    return implAddValue( ky, str );
-}
-
-
+{ return implAddValue( ky, str ); }
+bool KeyedValue::Node::addValue( const Key& ky, char* str )
+{ return implAddValue( ky, (const char*)str ); }
 bool KeyedValue::Node::addValue( const Key& ky, const OD::String& str )
-{
-    return implAddValue( ky, str.buf() );
-}
+{ return implAddValue( ky, str.str() ); }
 
 
 #define mImplAddValue(typ) \
@@ -412,16 +474,26 @@ bool Node::addValue( const Key& ky, const typ& val ) \
     return implAddValue( ky, val ); \
 }
 
+mImplAddValue( bool )
 mImplAddValue( od_int16 )
 mImplAddValue( od_int32 )
 mImplAddValue( od_int64 )
 mImplAddValue( float )
 mImplAddValue( double )
 mImplAddValue( BufferStringSet )
-mImplAddValue( TypeSet<od_int16> )
-mImplAddValue( TypeSet<od_int32> )
-mImplAddValue( TypeSet<od_int64> )
-//TODO Array1D, and float and bool typeset versions
+mImplAddValue( BoolTypeSet )
+
+#define mImplContainerAddValue(clss) \
+mImplAddValue(clss<od_int16>) \
+mImplAddValue(clss<od_uint16>) \
+mImplAddValue(clss<od_int32>) \
+mImplAddValue(clss<od_uint32>) \
+mImplAddValue(clss<od_int64>) \
+mImplAddValue(clss<float>) \
+mImplAddValue(clss<double>)
+
+mImplContainerAddValue(TypeSet)
+mImplContainerAddValue(Array1D)
 
 } // namespace KeyedValue
 
@@ -486,10 +558,101 @@ void KeyedValue::Node::usePar( const IOPar& iop )
 }
 
 
+void KeyedValue::Node::useJsonValue( Gason::JsonValue& jsonval,
+				     const char* jsonky )
+{
+    const Gason::JsonTag tag = jsonval.getTag();
+    const Key ky( jsonky );
+
+    switch ( tag )
+    {
+	case Gason::JSON_NUMBER:
+	{
+	    if ( jsonval.isDouble() )
+		addValue( ky, jsonval.toNumber() );
+	    else
+		addValue( ky, (od_int64)jsonval.getPayload() );
+	} break;
+
+	case Gason::JSON_STRING:
+	{
+	    addValue( ky, jsonval.toString() );
+	} break;
+
+	case Gason::JSON_ARRAY:
+	{
+	    //TODO
+	    // How do we know what the type of the elements is??
+	} break;
+
+	case Gason::JSON_OBJECT:
+	{
+	    Gason::JsonNode* jsonnode = jsonval.toNode();
+	    if ( !jsonnode )
+		{ pErrMsg("Huh"); }
+	    else
+	    {
+		Node* child = new Node( this );
+		addNode( child, jsonnode->key );
+		child->useJsonValue( jsonnode->value, jsonnode->key );
+	    }
+	} break;
+
+	case Gason::JSON_TRUE:
+	case Gason::JSON_FALSE:
+	{
+	    addValue( ky, (bool)jsonval.getPayload() );
+	} break;
+
+	case Gason::JSON_NULL:
+	{
+	    // simply ignore ... right?
+	} break;
+    }
+}
+
+
+void KeyedValue::Node::parseJSon( char* buf, int bufsz, uiRetVal& uirv )
+{
+    if ( !buf || bufsz < 1 )
+	{ uirv.set( uiStrings::phrInternalErr("No data to parse (JSON)") );
+	    return; }
+
+    Gason::JsonAllocator allocator;
+    Gason::JsonValue root; char* endptr;
+    int status = Gason::jsonParse( buf, &endptr, &root, allocator );
+    if ( status != Gason::JSON_OK )
+    {
+	//TODO figure out the errmsg for this status
+	uirv.set( tr("Could not parse JSON data") );
+	return;
+    }
+
+    Gason::JsonIterator endit = Gason::end( root );
+    for ( Gason::JsonIterator it=Gason::begin( root ); it!=endit; ++it )
+	useJsonValue( it->value, it->key );
+
+    uirv.set( mTODONotImplPhrase() );
+}
+
+
+void KeyedValue::Node::dumpJSon( BufferString& str ) const
+{
+}
+
+
 uiRetVal KeyedValue::Tree::readJSon( od_istream& strm )
 {
-    // use Gason
-    return uiRetVal( mTODONotImplPhrase() );
+    uiRetVal uirv;
+    BufferString buf;
+    if ( strm.getAll(buf) )
+	parseJSon( buf.getCStr(), buf.size(), uirv );
+    else
+    {
+	uirv.set( uiStrings::phrCannotRead( toUiString(strm.fileName()) ) );
+	strm.addErrMsgTo( uirv );
+    }
+    return uirv;
 }
 
 

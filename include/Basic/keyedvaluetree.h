@@ -7,6 +7,7 @@
 #include <string>
 
 class SeparString;
+namespace Gason { union JsonValue; }
 
 
 namespace KeyedValue
@@ -48,7 +49,7 @@ class Tree;
 
 
 mExpClass(Basic) Node
-{
+{ mODTextTranslationClass(KeyedValue::Node)
 public:
 
     typedef int		SzType;
@@ -80,6 +81,7 @@ public:
     void		addNode(Node*,const char*);
     template<class T>
     bool		addValue(const Key&,const T&);
+    bool		addValue(const Key&,char*);
     bool		addValue(const Key&,const char*);
     bool		addValue(const Key&,const OD::String&);
 
@@ -89,8 +91,11 @@ public:
     const Node*		top() const
 			{ return parent_ ? parent_->top() : this; }
 
-    void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
+    void		parseJSon(char* buf,int bufsz,uiRetVal&);
+
+    void		fillPar(IOPar&) const;
+    void		dumpJSon(BufferString&) const;
 
 protected:
 
@@ -113,14 +118,18 @@ protected:
     bool		getSubNodeValue(const Key&,T&) const;
     template<class IT>
     bool		getIValue(const Key&,IT&) const;
+    template<class FT>
+    bool		getFValue(const Key&,FT&) const;
     template<class T>
     bool		implAddValue(const Key&,const T&);
+
+    void		useJsonValue(Gason::JsonValue&,const char*);
 
 };
 
 
 mExpClass(Basic) Tree : public Node
-{ mODTextTranslationClass(Tree)
+{ mODTextTranslationClass(KeyedValue::Tree)
 public:
 
 			Tree() : Node(0)		{}

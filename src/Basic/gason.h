@@ -1,12 +1,40 @@
 #pragma once
 
-#include "genc.h"
-#include <assert.h>
-#include <stddef.h>
+/*
+    Origin: https://github.com/vivkin/gason
+
+    ---------------------------------------------------
+
+    The MIT License (MIT)
+
+    Copyright (c) 2013-2015 Ivan Vashchaev
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal in
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+    the Software, and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+    FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+    COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+    IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*/
+
+
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include <stddef.h>
+#include <assert.h>
+
+namespace Gason		// ---- added for OD
+{			// ---- added for OD
 
 enum JsonTag {
     JSON_NUMBER = 0,
@@ -50,16 +78,15 @@ union JsonValue {
         assert(getTag() == JSON_NUMBER);
         return fval;
     }
-    const char *toString() const {
+    char *toString() const {
         assert(getTag() == JSON_STRING);
-        return (const char *)getPayload();
+        return (char *)getPayload();
     }
     JsonNode *toNode() const {
         assert(getTag() == JSON_ARRAY || getTag() == JSON_OBJECT);
         return (JsonNode *)getPayload();
     }
 };
-
 
 struct JsonNode {
     JsonValue value;
@@ -112,9 +139,6 @@ enum JsonErrno {
 
 const char *jsonStrError(int err);
 
-#define JSON_ZONE_SIZE 4096
-#define JSON_STACK_SIZE 32
-
 class JsonAllocator {
     struct Zone {
         Zone *next;
@@ -136,68 +160,10 @@ public:
     ~JsonAllocator() {
         deallocate();
     }
-	void *allocate(size_t size) {
-		size = (size + 7) & ~7;
-
-		if (head && head->used + size <= JSON_ZONE_SIZE) {
-			char *p = (char *)head + head->used;
-			head->used += size;
-			return p;
-		}
-
-		size_t allocSize = sizeof(Zone) + size;
-		Zone *zone = (Zone *)malloc(allocSize <= JSON_ZONE_SIZE ? JSON_ZONE_SIZE : allocSize);
-		if (zone == nullptr)
-			return nullptr;
-		zone->used = allocSize;
-		if (allocSize <= JSON_ZONE_SIZE || head == nullptr) {
-			zone->next = head;
-			head = zone;
-		}
-		else {
-			zone->next = head->next;
-			head->next = zone;
-		}
-		return (char *)zone + sizeof(Zone);
-	}
-
-	void deallocate() {
-		while (head) {
-			Zone *next = head->next;
-			free(head);
-			head = next;
-		}
-	}
+    void *allocate(size_t size);
+    void deallocate();
 };
 
-namespace JsonParser {
+int jsonParse(char *str, char **endptr, JsonValue *value, JsonAllocator &allocator);
 
-	inline bool isspace(char c) {
-		return c == ' ' || (c >= '\t' && c <= '\r');
-	}
-
-	inline bool isdelim(char c) {
-		return c == ',' || c == ':' || c == ']' || c == '}' || isspace(c) || !c;
-	}
-
-	inline bool isdigit(char c) {
-		return c >= '0' && c <= '9';
-	}
-
-	inline bool isxdigit(char c) {
-		return (c >= '0' && c <= '9') || ((c & ~' ') >= 'A' && (c & ~' ') <= 'F');
-	}
-
-	inline int char2int(char c) {
-		if (c <= '9')
-			return c - '0';
-		return (c & ~' ') - 'A' + 10;
-	}
-
-	double string2double(char *s, char **endptr);
-	JsonNode *insertAfter(JsonNode *tail, JsonNode *node);
-	JsonValue listToValue(JsonTag tag, JsonNode *tail);
-
-} //namespace JsonParser
-
-int jsonParse(char *,char **,JsonValue *,JsonAllocator&);
+}   // ---- added for OD

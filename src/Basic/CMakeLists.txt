@@ -63,7 +63,7 @@ set( OD_MODULE_SOURCES
 	filemultispec.cc
 	filepath.cc
 	filesystemaccess.cc
-	gason.cc
+	gason.cpp
 	genc.cc
 	gpuprog.cc
 	globexpr.cc
