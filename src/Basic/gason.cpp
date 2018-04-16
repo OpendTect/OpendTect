@@ -212,7 +212,8 @@ int jsonParse(char *s, char **endptr, JsonValue *value, JsonAllocator &allocator
                     case '\\':
                     case '"':
                     case '/':
-                        *it = c;
+			// --OD chg, was: *it = c;
+                        *it = (char)c;
                         break;
                     case 'b':
                         *it = '\b';
@@ -240,9 +241,11 @@ int jsonParse(char *s, char **endptr, JsonValue *value, JsonAllocator &allocator
                             }
                         }
                         if (c < 0x80) {
-                            *it = c;
+			    // --OD chg, was: *it = c;
+                            *it = (char)c;
                         } else if (c < 0x800) {
-                            *it++ = 0xC0 | (c >> 6);
+			    // --OD chg, was: *it++ = 0xC0 | (c >> 6);
+                            *it++ = (char)(0xC0 | (c >> 6));
                             *it = 0x80 | (c & 0x3F);
                         } else {
                             // --OD chg, was: *it++ = 0xE0 | (c >> 12);
