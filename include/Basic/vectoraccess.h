@@ -50,9 +50,9 @@ public:
     inline const_iterator end() const		{ return v_.cend(); }
     inline const_iterator cend() const		{ return v_.end(); }
     inline size_type	idx( iterator it ) const
-			{ return (size_type)it-cbegin(); }
+			{ return (size_type)(it-cbegin()); }
     inline size_type	idx( const_iterator it ) const
-			{ return (size_type)it-cbegin(); }
+			{ return (size_type)(it-cbegin()); }
 
     inline		VectorAccess()			{}
     inline		VectorAccess( IT n ) : v_(n)	{}

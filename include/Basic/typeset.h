@@ -152,7 +152,7 @@ public: \
 		    : OD::ValVec<T,size_type>( nr, typ )	{} \
 		clss( const T* t, size_type nr ) \
 		    : OD::ValVec<T,size_type>( t, nr )		{} \
-		clss( const TypeSet<T>& t ) \
+		clss( const clss& t ) \
 		    : OD::ValVec<T,size_type>( t )		{} \
  \
     inline void	swap( clss& oth ) \
