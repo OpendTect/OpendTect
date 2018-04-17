@@ -237,7 +237,7 @@ public:
 				operator bool() const;
     bool			operator!() const;
     bool			operator==( const WeakPtrBase& r ) const
-    				{ return ptr_==r.ptr_; }
+				{ return ptr_==r.ptr_; }
 protected:
 				WeakPtrBase();
 	void			set(Referenced*);
@@ -270,7 +270,7 @@ public:
 protected:
     Threads::Atomic<int>	blockcleanup_	= 0;
 private:
-    friend 			class CleanupBlocker;
+    friend			class CleanupBlocker;
     void			blockCleanup();
     void			unblockCleanup();
 };
@@ -344,15 +344,22 @@ template <class T> inline
 void unRefAndZeroPtr( const T*& ptr )
 { unRefPtr( static_cast<const RefCount::Referenced*>( ptr ) ); ptr = 0; }
 
-mObjectSetApplyToAllFunc( deepUnRef, unRefPtr( os[idx] ), os.plainErase() )
-mObjectSetApplyToAllFunc( deepUnRefNoDelete, unRefNoDeletePtr( os[idx] ),
-			 os.plainErase() )
-mObjectSetApplyToAllFunc( deepRef, refPtr( os[idx] ), )
+#define mDefineRefUnrefObjectSetFn( fn, op, extra ) \
+template <class T> \
+inline void fn( ObjectSet<T>& os ) \
+{ \
+    for ( auto obj : os ) \
+	op( obj ); \
+    extra; \
+}
 
+mDefineRefUnrefObjectSetFn( deepUnRef, unRefPtr, os.plainErase() )
+mDefineRefUnrefObjectSetFn( deepUnRefNoDelete, unRefNoDeletePtr,
+			    os.plainErase() )
+mDefineRefUnrefObjectSetFn( deepRef, refPtr, )
 
 
 //Implementations and legacy stuff below
-
 
 template <class T>
 WeakPtr<T>& WeakPtr<T>::operator=(const WeakPtr<T>& p)
@@ -402,7 +409,7 @@ bool WeakPtrSet<T>::operator+=(const WeakPtr<T>& n)
 	    ptrs_.removeSingle( idx );
             continue;
         }
-        
+
         if ( ptrs_[idx]==n )
         {
             if ( cleanup ) blockcleanup_ = 0;
@@ -410,7 +417,7 @@ bool WeakPtrSet<T>::operator+=(const WeakPtr<T>& n)
             return false;
         }
     }
-    
+
     if ( cleanup ) blockcleanup_ = 0;
 
     ptrs_ += n;

@@ -653,5 +653,6 @@ void uiActionContainer::removeAction( int id )
 
 void uiActionContainer::reloadIcons()
 {
-    mObjectSetApplyToAll( actions_, actions_[idx]->reloadIcon() );
+    for ( auto action : actions_ )
+	action->reloadIcon();
 }

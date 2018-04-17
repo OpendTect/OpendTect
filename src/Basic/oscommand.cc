@@ -55,7 +55,8 @@ public:
     void	deleteProcesses()
 		{
 #ifndef OD_NO_QT
-		    mObjectSetApplyToAll( processes_, processes_[idx]->close());
+		    for ( auto process : processes_ )
+			process->close();
 		    deepErase( processes_ );
 #endif
 		}

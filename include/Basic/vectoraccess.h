@@ -76,7 +76,7 @@ public:
 			/*!<\returns max size without reallocation.*/
     inline bool		setSize(IT sz,T val);
 
-    inline bool		validIdx( IT idx ) const { return idx>=0 && idx<size();}
+    inline bool		validIdx( IT i ) const { return i>=0 && i<size();}
     inline IT		indexOf(const T&,bool forward,IT start=-1) const;
     inline IT		count(const T&) const;
     inline bool		isPresent(const T&) const;
@@ -91,13 +91,13 @@ public:
 			{ v_.clear(); }
     inline void		erase( const T& t )
 			{
-			    for ( IT idx=size()-1; idx!=-1; idx-- )
-				{ if ( v_[idx] == t ) { remove(idx); return; } }
+			    for ( IT i=size()-1; i!=-1; i-- )
+				{ if ( v_[i] == t ) { remove(i); return; } }
 			}
-    inline void		remove( IT idx )
+    inline void		remove( IT i )
 			{
-			    if ( idx < size() )
-				v_.erase( v_.begin() + idx );
+			    if ( i < size() )
+				v_.erase( v_.begin() + i );
 			}
     inline void		remove( IT i1, IT i2 )
 			{
@@ -120,30 +120,30 @@ public:
     {
 	if ( t == aft || size() < 2 ) return;
 	IT tidx = -1; IT aftidx = -1;
-	for ( IT idx=size()-1; idx!=-1; idx-- )
+	for ( IT vidx=size()-1; vidx!=-1; vidx-- )
 	{
-	    if ( v_[idx] == t )
-		{ tidx = idx; if ( aftidx != -1 ) break; }
-	    if ( v_[idx] == aft )
-		{ aftidx = idx; if ( tidx != -1 ) break; }
+	    if ( v_[vidx] == t )
+		{ tidx = vidx; if ( aftidx != -1 ) break; }
+	    if ( v_[vidx] == aft )
+		{ aftidx = vidx; if ( tidx != -1 ) break; }
 	}
 	if ( tidx == -1 || aftidx == -1 || tidx == aftidx ) return;
 	if ( aftidx > tidx )
-	    for ( IT idx=tidx; idx<aftidx; idx++ )
-		swapElems( idx, idx+1 );
+	    for ( IT vidx=tidx; vidx<aftidx; vidx++ )
+		swapElems( vidx, vidx+1 );
 	else
-	    for ( IT idx=tidx; idx>aftidx+1; idx-- )
-		swapElems( idx, idx-1 );
+	    for ( IT vidx=tidx; vidx>aftidx+1; vidx-- )
+		swapElems( vidx, vidx-1 );
     }
 
     void moveToStart( const T& t )
     {
 	if ( size() < 2 ) return;
 	IT tidx = -1;
-	for ( IT idx=size()-1; idx!=-1; idx-- )
-	    if ( v_[idx] == t ) { tidx = idx; break; }
-	for ( IT idx=tidx; idx>0; idx-- )
-	    swapElems( idx, idx-1 );
+	for ( IT vidx=size()-1; vidx!=-1; vidx-- )
+	    if ( v_[vidx] == t ) { tidx = vidx; break; }
+	for ( IT vidx=tidx; vidx>0; vidx-- )
+	    swapElems( vidx, vidx-1 );
     }
 
 protected:

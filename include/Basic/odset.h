@@ -62,16 +62,10 @@ inline void removeRange( ODSET& inst, size_type start, size_type stop )
 /*!\brief Adds all names from a set to another set with an add() function
 	(typically a BufferStringSet) */
 
-template <class ODSET,class WITHADD>
-inline void addNames( const ODSET& inp, WITHADD& withadd )
+template <class ODSET,class SET>
+inline void addNames( const ODSET& inp, SET& setwithadd )
 {
-    const typename ODSET::size_type sz = inp.size();
-    for ( typename ODSET::size_type idx=0; idx<sz; idx++ )
-	withadd.add( inp[idx]->name() );
+    for ( auto obj : inp )
+	if ( obj )
+	    setwithadd.add( obj->name() );
 }
-
-#define mODSetApplyToAll( itp, os, op ) \
-    for ( itp idx=(itp) os.nrItems()-1; idx>=0; idx-- ) \
-    { \
-        op; \
-    }

@@ -23,20 +23,13 @@ static const char* sKeyCommon = "Common";
 
 static PtrMan<ObjectSet<Settings> > theinst_ = 0;
 
-static void RemoveAllSettings(void)
-{
-    mObjectSetApplyToAll( (*theinst_), theinst_->removeSingle(idx)->remove() );
-}
-
 static ObjectSet<Settings>& getSetts()
 {
     if ( !theinst_ )
     {
 	ObjectSet<Settings>* ptr = new ObjectSet<Settings>;
-	if ( theinst_.setIfNull( ptr, true ) )
-	{
-	    NotifyExitProgram( RemoveAllSettings );
-	}
+	if ( !theinst_.setIfNull(ptr,true) )
+	    delete ptr;
     }
 
     return *theinst_;

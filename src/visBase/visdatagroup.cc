@@ -32,8 +32,8 @@ DataObjectGroup::DataObjectGroup()
 
 DataObjectGroup::~DataObjectGroup()
 {
-    mObjectSetApplyToAll( objects_, objects_[idx]->setParent( 0 ));
-
+    for ( auto obj : objects_ )
+	obj->setParent( 0 );
     deepUnRef( objects_ );
 }
 

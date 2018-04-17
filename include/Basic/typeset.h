@@ -53,7 +53,6 @@ public:
     inline virtual bool		validIdx(od_int64) const;
     inline virtual size_type	indexOf(T,bool forward=true,
 					  size_type start=-1) const;
-    size_type			idx( const T* t ) const	{ return t-&first(); }
     inline bool			isPresent(const T&) const;
     inline size_type		count(const T&) const;
 
@@ -226,8 +225,8 @@ bool OD::ValVec<T,IT>::operator ==( const OD::ValVec<T,IT>& oth ) const
     if ( sz != oth.size() )
 	return false;
 
-    for ( IT idx=0; idx<sz; idx++ )
-	if ( !(get(idx) == oth.get(idx)) )
+    for ( IT vidx=0; vidx<sz; vidx++ )
+	if ( !(get(vidx) == oth.get(vidx)) )
 	    return false;
 
     return true;
@@ -246,8 +245,8 @@ inline bool append( OD::ValVec<T,IT>& to, const OD::ValVec<S,J>& from )
     if ( !to.setCapacity( sz + to.size(), true ) )
 	return false;
 
-    for ( J idx=0; idx<sz; idx++ )
-	to.add( (T)from.get(idx) );
+    for ( J vidx=0; vidx<sz; vidx++ )
+	to.add( (T)from.get(vidx) );
 
     return true;
 }
@@ -323,27 +322,27 @@ template <class T, class IT> inline
 
 
 template <class T, class IT> inline
-bool OD::ValVec<T,IT>::validIdx( od_int64 idx ) const
-{ return vec_.validIdx( (IT)idx ); }
+bool OD::ValVec<T,IT>::validIdx( od_int64 vidx ) const
+{ return vec_.validIdx( (IT)vidx ); }
 
 template <class T, class IT> inline
-T& OD::ValVec<T,IT>::get( IT idx )
+T& OD::ValVec<T,IT>::get( IT vidx )
 {
 #ifdef __debug__
-    if ( !validIdx(idx) )
+    if ( !validIdx(vidx) )
 	DBG::forceCrash(true);
 #endif
-    return vec_[idx];
+    return vec_[vidx];
 }
 
 template <class T, class IT> inline
-const T& OD::ValVec<T,IT>::get( IT idx ) const
+const T& OD::ValVec<T,IT>::get( IT vidx ) const
 {
 #ifdef __debug__
-    if ( !validIdx(idx) )
+    if ( !validIdx(vidx) )
 	DBG::forceCrash(true);
 #endif
-    return vec_[idx];
+    return vec_[vidx];
 }
 
 template <class T, class IT> inline
@@ -403,8 +402,8 @@ void OD::ValVec<T,IT>::removeRange( IT i1, IT i2 )
 { vec_.remove( i1, i2 ); }
 
 template <class T, class IT> inline
-void OD::ValVec<T,IT>::insert( IT idx, const T& typ )
-{ vec_.insert( idx, typ );}
+void OD::ValVec<T,IT>::insert( IT vidx, const T& typ )
+{ vec_.insert( vidx, typ );}
 
 template <class T, class IT> inline
 std::vector<T>& OD::ValVec<T,IT>::vec()
@@ -456,8 +455,8 @@ void OD::ValVec<T,IT>::getReOrdered( const IT* idxs, OD::ValVec<T,IT>& out )
 
     out.erase();
     out.setCapacity( sz, true );
-    for ( size_type idx=0; idx<sz; idx++ )
-	out.add( vec_[idxs[idx]] );
+    for ( size_type vidx=0; vidx<sz; vidx++ )
+	out.add( vec_[idxs[vidx]] );
 }
 
 
@@ -466,8 +465,8 @@ void OD::ValVec<T,IT>::reverse()
 {
     const IT sz = size();
     const IT hsz = sz/2;
-    for ( IT idx=0; idx<hsz; idx++ )
-	swap( idx, sz-1-idx );
+    for ( IT vidx=0; vidx<hsz; vidx++ )
+	swap( vidx, sz-1-vidx );
 }
 
 
@@ -478,8 +477,8 @@ OD::ValVec<T,IT>& OD::ValVec<T,IT>::copy( const T* tarr, IT sz )
 	{ erase(); append(tarr,sz); }
     else
     {
-	for ( IT idx=0; idx<sz; idx++ )
-	    (*this)[idx] = tarr[idx];
+	for ( IT vidx=0; vidx<sz; vidx++ )
+	    (*this)[vidx] = tarr[vidx];
     }
     return *this;
 }
@@ -504,8 +503,8 @@ bool OD::ValVec<T,IT>::append( const T* tarr, IT sz )
     if ( !setCapacity( sz+size(), true ) )
 	return false;
 
-    for ( IT idx=0; idx<sz; idx++ )
-	*this += tarr[idx];
+    for ( IT vidx=0; vidx<sz; vidx++ )
+	*this += tarr[vidx];
 
     return true;
 }
@@ -516,7 +515,7 @@ inline void OD::ValVec<T,IT>::createUnion( const OD::ValVec<T,IT>& oth )
 {
     const IT sz = oth.size();
     const T* ptr = oth.arr();
-    for ( IT idx=0; idx<sz; idx++, ptr++ )
+    for ( IT vidx=0; vidx<sz; vidx++, ptr++ )
 	addIfNew( *ptr );
 }
 
@@ -524,11 +523,11 @@ inline void OD::ValVec<T,IT>::createUnion( const OD::ValVec<T,IT>& oth )
 template <class T, class IT>
 inline void OD::ValVec<T,IT>::createIntersection( const OD::ValVec<T,IT>& oth )
 {
-    for ( IT idx=0; idx<size(); idx++ )
+    for ( IT vidx=0; vidx<size(); vidx++ )
     {
-	if ( oth.isPresent((*this)[idx]) )
+	if ( oth.isPresent((*this)[vidx]) )
 	    continue;
-	removeSingle( idx--, false );
+	removeSingle( vidx--, false );
     }
 }
 
@@ -538,9 +537,9 @@ inline void OD::ValVec<T,IT>::createDifference( const OD::ValVec<T,IT>& oth,
     bool kporder )
 {
     const IT sz = oth.size();
-    for ( IT idx=0; idx<sz; idx++ )
+    for ( IT vidx=0; vidx<sz; vidx++ )
     {
-	const T typ = oth[idx];
+	const T typ = oth[vidx];
 	for ( IT idy=0; idy<size(); idy++ )
 	{
 	    if ( vec_[idy] == typ )
@@ -560,15 +559,15 @@ bool OD::ValVec<T,IT>::addIfNew( const T& typ )
 
 
 template <class T, class IT> inline
-void OD::ValVec<T,IT>::removeSingle( IT idx, bool kporder )
+void OD::ValVec<T,IT>::removeSingle( IT vidx, bool kporder )
 {
     if ( kporder )
-	vec_.remove( idx );
+	vec_.remove( vidx );
     else
     {
 	const IT lastidx = size()-1;
-	if ( idx != lastidx )
-	    vec_[idx] = vec_[lastidx];
+	if ( vidx != lastidx )
+	    vec_[vidx] = vec_[lastidx];
 	vec_.remove( lastidx );
     }
 }

@@ -274,7 +274,8 @@ void Counter::clearAllObservers()
 {
     observerslock_.lock();
 
-    mObjectSetApplyToAll( observers_, observers_[idx]->clearPtr() );
+    for ( auto observer : observers_ )
+	observer->clearPtr();
     observers_.erase();
 
     observerslock_.unLock();

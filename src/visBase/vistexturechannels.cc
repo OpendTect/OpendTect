@@ -198,9 +198,15 @@ bool ChannelInfo::reMapData( TaskRunner* tskr )
 
 void ChannelInfo::removeImages()
 {
-    mObjectSetApplyToAll( osgimages_,
-	    { if ( osgimages_[idx] ) osgimages_[idx]->unref();
-	      osgimages_.replace( idx, 0 ); } );
+    int nrimages = 0;
+    for ( auto img : osgimages_ )
+    {
+	if ( img )
+	{
+	    img->unref();
+	    osgimages_->replace( osgimages_.indexOf(img), 0 );
+	}
+    }
 }
 
 
