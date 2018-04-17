@@ -49,9 +49,9 @@ public:
     inline iterator	end()			{ return v_.end(); }
     inline const_iterator end() const		{ return v_.cend(); }
     inline const_iterator cend() const		{ return v_.end(); }
-    inline size_type	idx( iterator it ) const
+    inline size_type	getIdx( iterator it ) const
 			{ return (size_type)(it-cbegin()); }
-    inline size_type	idx( const_iterator it ) const
+    inline size_type	getIdx( const_iterator it ) const
 			{ return (size_type)(it-cbegin()); }
 
     inline		VectorAccess()			{}

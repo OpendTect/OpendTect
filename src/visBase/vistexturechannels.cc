@@ -198,13 +198,13 @@ bool ChannelInfo::reMapData( TaskRunner* tskr )
 
 void ChannelInfo::removeImages()
 {
-    int nrimages = 0;
-    for ( auto img : osgimages_ )
+    for ( int idx=0; idx<osgimages_.size(); idx++ )
     {
+	auto img = osgimages_[idx];
 	if ( img )
 	{
+	    osgimages_.replace( idx, 0 );
 	    img->unref();
-	    osgimages_->replace( osgimages_.indexOf(img), 0 );
 	}
     }
 }

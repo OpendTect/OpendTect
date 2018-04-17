@@ -25,7 +25,7 @@ ________________________________________________________________________
 
   Note: you can use indexOf(ptr) to see whether the object is in the set. If
   you *know* that the object is in the set, and you need the index of it, then
-  you can use idx(ptr) to obtain its index.
+  you can use getIdx(ptr) to obtain its index.
 
 */
 
@@ -123,8 +123,8 @@ public:
     inline bool			empty() const	{ return isEmpty(); }
 
     // Usability
-    size_type	idx( iterator it ) const	{ return vec_.idx(it); }
-    size_type	idx( const_iterator it ) const	{ return vec_.idx(it); }
+    size_type	getIdx( iterator it ) const	{ return vec_.getIdx(it); }
+    size_type	getIdx( const_iterator it ) const { return vec_.getIdx(it); }
 
 };
 

@@ -130,8 +130,8 @@ public:
     inline bool			empty() const	{ return isEmpty(); }
 
     // Usability
-    size_type	idx( iterator it ) const	{ return vec_.idx(it); }
-    size_type	idx( const_iterator it ) const	{ return vec_.idx(it); }
+    size_type	getIdx( iterator it ) const	{ return vec_.getIdx(it); }
+    size_type	getIdx( const_iterator it ) const { return vec_.getIdx(it); }
 
 };
 

@@ -106,6 +106,14 @@ static bool testTypeSetSetFns()
     const DataElem des3( des[3] );
     mPrElems("testTypeSetSetFns")
 
+    int curidx = 0;
+    for ( auto elem=des.cbegin(); elem!=des.cend(); ++elem )
+    {
+	if ( des.getIdx(elem) != curidx )
+	    mErrRet("getIdx()" );
+	curidx++;
+    }
+
     DataElem el( des.pop() );
     if ( des.size() != 3 || des[0] != des0 || des[1] != des1 || des[2] != des2 )
 	mErrRet("pop()" );
@@ -125,6 +133,7 @@ static bool testTypeSetSetFns()
     des.setAll( des0 );
     if ( des.size() != 2 || des[0] != des0 || des[1] != des0 )
 	mErrRet("setAll() or previous pop()'s" );
+
 
     mRetAllOK()
 }
