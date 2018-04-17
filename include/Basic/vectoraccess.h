@@ -222,28 +222,28 @@ bool VectorAccess<T,IT>::setSize( IT sz, T val )
 #ifdef __debug__
 
 #define mImplOperator \
-    try { return v_.at(idx); } \
+    try { return v_.at(vidx); } \
     catch ( std::out_of_range ) \
     { DBG::forceCrash(true); } \
-    return v_[(typename std::vector<T>::size_type)idx]
+    return v_[(typename std::vector<T>::size_type)vidx]
 
 #else
 
 #define mImplOperator \
-    return v_[(typename std::vector<T>::size_type)idx]
+    return v_[(typename std::vector<T>::size_type)vidx]
 
 #endif
 
 
 template<class T,class IT> inline
-T& VectorAccess<T,IT>::operator[]( IT idx )
+T& VectorAccess<T,IT>::operator[]( IT vidx )
 {
     mImplOperator;
 }
 
 
 template<class T,class IT> inline
-const T& VectorAccess<T,IT>::operator[]( IT idx ) const
+const T& VectorAccess<T,IT>::operator[]( IT vidx ) const
 {
     mImplOperator;
 }
