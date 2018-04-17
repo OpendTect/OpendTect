@@ -296,6 +296,6 @@ IT VectorAccess<T,IT>::count( const T& t ) const
 template<class T,class IT> inline
 bool VectorAccess<T,IT>::isPresent( const T& t ) const
 {
-    const_iterator end = v_.cend();
-    return std::find( v_.cbegin(), end, t ) != end;
+    const_iterator endit = v_.cend();
+    return std::find( v_.cbegin(), endit, t ) != endit;
 }

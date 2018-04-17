@@ -322,8 +322,8 @@ bool ObjectSet<T>::operator ==( const ObjectSet<T>& oth ) const
     if ( sz != oth.size() )
 	return false;
 
-    for ( size_type idx=sz; idx!=-1; idx-- )
-	if ( (*this)[idx] != oth[idx] )
+    for ( size_type vidx=sz; vidx!=-1; vidx-- )
+	if ( (*this)[vidx] != oth[vidx] )
 	    return false;
     return true;
 }
@@ -336,45 +336,45 @@ void ObjectSet<T>::setNullAllowed( bool yn )
 	allow0_ = yn;
 	if ( !allow0_ )
 	{
-	    for ( size_type idx=size()-1; idx!=-1; idx-- )
+	    for ( size_type vidx=size()-1; vidx!=-1; vidx-- )
 	    {
-		T* obj = (*this)[idx];
+		T* obj = (*this)[vidx];
 		if ( !obj )
-		    removeSingle( idx );
+		    removeSingle( vidx );
 	    }
 	}
     }
 }
 
 template <class T> inline
-bool ObjectSet<T>::validIdx( od_int64 idx ) const
-{ return idx>=0 && idx<size(); }
+bool ObjectSet<T>::validIdx( od_int64 vidx ) const
+{ return vidx>=0 && vidx<size(); }
 
 template <class T> inline
-T* ObjectSet<T>::get( size_type idx )
+T* ObjectSet<T>::get( size_type vidx )
 {
 #ifdef __debug__
-    if ( !validIdx(idx) )
+    if ( !validIdx(vidx) )
 	DBG::forceCrash(true);
 #endif
-    return vec_[idx];
+    return vec_[vidx];
 }
 
 template <class T> inline
-const T* ObjectSet<T>::get( size_type idx ) const
+const T* ObjectSet<T>::get( size_type vidx ) const
 {
 #ifdef __debug__
-    if ( !validIdx(idx) )
+    if ( !validIdx(vidx) )
 	DBG::forceCrash(true);
 #endif
-    return vec_[idx];
+    return vec_[vidx];
 }
 
 template <class T> inline
 T* ObjectSet<T>::get( const T* t ) const
 {
-    const size_type idx = indexOf(t);
-    return idx < 0 ? 0 : const_cast<T*>(t);
+    const size_type vidx = indexOf(t);
+    return vidx < 0 ? 0 : const_cast<T*>(t);
 }
 
 template <class T> inline
@@ -423,38 +423,38 @@ void ObjectSet<T>::reverse()
 {
     const size_type sz = size();
     const size_type hsz = sz/2;
-    for ( size_type idx=0; idx<hsz; idx++ )
-	swap( idx, sz-1-idx );
+    for ( size_type vidx=0; vidx<hsz; vidx++ )
+	swap( vidx, sz-1-vidx );
 }
 
 template <class T> inline
-T* ObjectSet<T>::replace( size_type idx, T* newptr )
+T* ObjectSet<T>::replace( size_type vidx, T* newptr )
 {
-    if ( !validIdx(idx) )
+    if ( !validIdx(vidx) )
 #ifdef __debug__
 	DBG::forceCrash(true);
 #else
 	return 0;
 #endif
-    T* ptr = static_cast<T*>( vec_[idx] );
-    vec_[idx] = newptr;
+    T* ptr = static_cast<T*>( vec_[vidx] );
+    vec_[vidx] = newptr;
     return ptr;
 }
 
 template <class T> inline
-void ObjectSet<T>::insertAt( T* newptr, size_type idx )
+void ObjectSet<T>::insertAt( T* newptr, size_type vidx )
 {
-    vec_.insert( idx, newptr );
+    vec_.insert( vidx, newptr );
 }
 
 template <class T> inline
-void ObjectSet<T>::insertAfter( T* newptr, size_type idx )
+void ObjectSet<T>::insertAfter( T* newptr, size_type vidx )
 {
     add( newptr );
-    if ( idx < 0 )
+    if ( vidx < 0 )
 	vec_.moveToStart( newptr );
     else
-	vec_.moveAfter( newptr, vec_[idx] );
+	vec_.moveAfter( newptr, vec_[vidx] );
 }
 
 template <class T> inline
@@ -473,8 +473,8 @@ void ObjectSet<T>::append( const ObjectSet<T>& os )
 {
     const size_type sz = os.size();
     vec_.setCapacity( size()+sz, true );
-    for ( size_type idx=0; idx<sz; idx++ )
-	add( const_cast<T*>( os[idx] ) );
+    for ( size_type vidx=0; vidx<sz; vidx++ )
+	add( const_cast<T*>( os[vidx] ) );
 }
 
 template <class T> inline
@@ -492,16 +492,16 @@ bool ObjectSet<T>::addIfNew( T* ptr )
 }
 
 template <class T> inline
-T* ObjectSet<T>::removeSingle( size_type idx, bool kporder )
+T* ObjectSet<T>::removeSingle( size_type vidx, bool kporder )
 {
-    T* res = static_cast<T*>(vec_[idx]);
+    T* res = static_cast<T*>(vec_[vidx]);
     if ( kporder )
-	vec_.remove( idx );
+	vec_.remove( vidx );
     else
     {
 	const size_type lastidx = size()-1;
-	if ( idx!=lastidx )
-	    vec_[idx] = vec_[lastidx];
+	if ( vidx!=lastidx )
+	    vec_[vidx] = vec_[lastidx];
 	vec_.remove( lastidx );
     }
     return res;
