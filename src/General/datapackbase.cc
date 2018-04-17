@@ -34,8 +34,8 @@ public:
 	const int crlsz = mdp_.arr2d_->info().getSize(1);
 	const float truelength = inlsz*cos(anglenorth) + crlsz*sin(anglenorth);
 	const float truewidth = inlsz*sin(anglenorth) + crlsz*cos(anglenorth);
-	const int length = mNINT32( truelength );
-	const int width = mNINT32( truewidth );
+	const int length = Math::Abs( mNINT32(truelength) );
+	const int width = Math::Abs( mNINT32(truewidth) );
 
 	delete mdp_.xyrotarr2d_;
 	mdp_.xyrotarr2d_ = new Array2DImpl<float>( length+1, width+1 );
