@@ -42,27 +42,27 @@ public:
     if ( !quiet ) { \
     mPrElems("-> Failure ..." ) \
     od_cout() << msg << " failed.\n"; } \
-    return 1; \
+    return false; \
 }
 
 #define mRetAllOK() \
     if ( !quiet ) { \
     od_cout() << "All OK.\n" << od_endl; } \
-    return 0;
+    return true;
 
 #define mPrintFunc des[idx].print()
 
 
-static int testTypeSetFind()
+static bool testTypeSetFind()
 {
     od_cout() << od_endl;
     TypeSet<DataElem> des( 6, DataElem() );
-    des[0] = DataElem( 1, 0.1 );
-    des[1] = DataElem( 2, 0.2 );
-    des[2] = DataElem( 3, 0.3 );
-    des[3] = DataElem( 1, 0.4 );
-    des[4] = DataElem( 7, 0.1 );
-    des[5] = DataElem( 8, 0.1 );
+    des[0] = DataElem( 1, 0.1f );
+    des[1] = DataElem( 2, 0.2f );
+    des[2] = DataElem( 3, 0.3f );
+    des[3] = DataElem( 1, 0.4f );
+    des[4] = DataElem( 7, 0.1f );
+    des[5] = DataElem( 8, 0.1f );
     const DataElem& des0 = des[0];
     const DataElem& des3 = des[3];
     mPrElems("testTypeSetFind")
@@ -79,7 +79,7 @@ static int testTypeSetFind()
     if ( des.indexOf( des0, false, -1 ) != 3 )
 	mErrRet("backward indexOf");
 
-    if ( des.indexOf( des0, false, 2 ) != 0 )
+    if ( des.indexOf( des0, false, 1 ) != 0 )
 	mErrRet("backward indexOf with offset");
 
     if ( !des.isPresent(des3) )
@@ -92,7 +92,7 @@ static int testTypeSetFind()
 }
 
 
-static int testTypeSetSetFns()
+static bool testTypeSetSetFns()
 {
     od_cout() << od_endl;
     TypeSet<DataElem> des;
@@ -132,7 +132,7 @@ static int testTypeSetSetFns()
 #undef mPrintFunc
 #define mPrintFunc od_cout().addPtr( des[idx] )
 
-static int testObjSetFind()
+static bool testObjSetFind()
 {
     od_cout() << od_endl;
     ObjectSet<DataElem> des;
@@ -158,7 +158,7 @@ static int testObjSetFind()
     if ( des.isPresent( 0 ) )
 	mErrRet("isPresent returns true for non-existing");
 
-    des.swap( 0, 4 );
+    des.swapItems( 0, 4 );
 
     if ( des.indexOf( des4 ) != 0 )
 	mErrRet("indexOf swapped elem3 != 0");
@@ -177,7 +177,7 @@ static int testObjSetFind()
     mRetAllOK()
 }
 
-static int testObjSetEqual()
+static bool testObjSetEqual()
 {
     ObjectSet<DataElem> s1;
     ObjectSet<DataElem> s2; s2.setNullAllowed();
@@ -215,7 +215,7 @@ static int testObjSetEqual()
 }
 
 
-bool testSetCapacity()
+static bool testSetCapacity()
 {
     TypeSet<int> vec;
     mRunStandardTest( vec.setCapacity( 4, true ) &&
@@ -247,7 +247,7 @@ class TestClass
 };
 
 
-bool testManagedObjectSet()
+static bool testManagedObjectSet()
 {
 
     int delcount = 0;
@@ -334,17 +334,21 @@ bool testManagedObjectSet()
 }
 
 
+#define mDoSetTest(nm) \
+    if ( !nm() ) \
+	return 1
+
 
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    int res = testTypeSetFind();
-    res += testTypeSetSetFns();
-    res += testObjSetFind();
-    res += testObjSetEqual();
-    res += testSetCapacity() ? 0 : 1;
-    res += testManagedObjectSet() ? 0 : 1;
+    mDoSetTest( testTypeSetFind );
+    mDoSetTest( testTypeSetSetFns );
+    mDoSetTest( testObjSetFind );
+    mDoSetTest( testObjSetEqual );
+    mDoSetTest( testSetCapacity );
+    mDoSetTest( testManagedObjectSet );
 
-    return res;
+    return 0;
 }

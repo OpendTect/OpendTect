@@ -32,84 +32,95 @@ ________________________________________________________________________
   reference to T! This is why there is a 'BoolTypeSet'.
 */
 
-template <class T,class I>
+template <class T,class IT>
 mClass(Basic) VectorAccess
 {
 public:
 
-    typedef I		size_type;
-    typedef T		object_type;
+    typedef IT					size_type;
+    typedef T					object_type;
+    typedef std::vector<T>			impl_type;
+    typedef typename impl_type::iterator	iterator;
+    typedef typename impl_type::const_iterator	const_iterator;
+
+    inline iterator	begin()			{ return v_.begin(); }
+    inline const_iterator begin() const		{ return v_.cbegin(); }
+    inline const_iterator cbegin() const	{ return v_.cbegin(); }
+    inline iterator	end()			{ return v_.end(); }
+    inline const_iterator end() const		{ return v_.cend(); }
+    inline const_iterator cend() const		{ return v_.end(); }
+    inline size_type	idx( iterator it ) const
+			{ return (size_type)it-cbegin(); }
+    inline size_type	idx( const_iterator it ) const
+			{ return (size_type)it-cbegin(); }
 
     inline		VectorAccess()			{}
-    inline		VectorAccess( I n ) : v_(n)	{}
-    inline		VectorAccess( I n, const T& t )
+    inline		VectorAccess( IT n ) : v_(n)	{}
+    inline		VectorAccess( IT n, const T& t )
 				: v_(n,t)		{}
     inline		VectorAccess( const VectorAccess& v2 )
 				: v_(v2.v_)		{}
-    inline std::vector<T>&	 vec()			{ return v_; }
-    inline const std::vector<T>& vec() const		{ return v_; }
+    inline impl_type&	 vec()			{ return v_; }
+    inline const impl_type& vec() const		{ return v_; }
 
-    inline T&		operator[](I idx);
-    inline const T&	operator[](I idx) const;
-    inline T&		first()				{ return v_.front(); }
-    inline const T&	first() const			{ return v_.front(); }
-    inline T&		last()				{ return v_.back(); }
-    inline const T&	last() const			{ return v_.back(); }
-    inline I		size() const			{ return (I)v_.size(); }
-    inline bool		setCapacity(I sz, bool withmargin);
+    inline T&		operator[](IT);
+    inline const T&	operator[](IT) const;
+    inline T&		first()			{ return v_.front(); }
+    inline const T&	first() const		{ return v_.front(); }
+    inline T&		last()			{ return v_.back(); }
+    inline const T&	last() const		{ return v_.back(); }
+    inline IT		size() const		{ return (IT)v_.size();}
+    inline bool		setCapacity(IT sz,bool withmargin);
 			/*!<Allocates mem for sz, does not change size.*/
-    inline I		getCapacity() const		{ return (I)v_.capacity();}
+    inline IT		getCapacity() const	{ return (IT)v_.capacity();}
 			/*!<\returns max size without reallocation.*/
-    inline bool		setSize(I sz,T val);
+    inline bool		setSize(IT sz,T val);
 
-    inline bool		validIdx(I idx) const { return idx>=0 && idx<size(); }
-    inline I		indexOf(const T&,bool forward,I start=-1) const;
-    inline I		count(const T&) const;
+    inline bool		validIdx( IT idx ) const { return idx>=0 && idx<size();}
+    inline IT		indexOf(const T&,bool forward,IT start=-1) const;
+    inline IT		count(const T&) const;
     inline bool		isPresent(const T&) const;
 
     inline VectorAccess& operator =( const VectorAccess& v2 )
 			{ v_ = v2.v_; return *this; }
     inline bool		push_back( const T& t );
     inline T		pop_back();
-    inline void		insert( I pos, const T& val )
+    inline void		insert( IT pos, const T& val )
 			{ v_.insert(v_.begin() + pos,val); }
     inline void		erase()
 			{ v_.clear(); }
     inline void		erase( const T& t )
 			{
-			    for ( I idx=size()-1; idx!=-1; idx-- )
+			    for ( IT idx=size()-1; idx!=-1; idx-- )
 				{ if ( v_[idx] == t ) { remove(idx); return; } }
 			}
-    inline void		remove( I idx )
+    inline void		remove( IT idx )
 			{
 			    if ( idx < size() )
 				v_.erase( v_.begin() + idx );
 			}
-    inline void		remove( I i1, I i2 )
+    inline void		remove( IT i1, IT i2 )
 			{
 			    if ( i1 == i2 ) { remove( i1 ); return; }
 			    if ( i1 > i2 ) std::swap( i1, i2 );
-			    const I sz = size();
+			    const IT sz = size();
 			    if ( i1 >= sz ) return;
 
 			    if ( i2 >= sz-1 ) i2 = sz-1;
 			    v_.erase( v_.begin()+i1, v_.begin()+i2+1 );
 			}
-    inline void		swap( I i, I j )
+    inline void		swapElems( IT i, IT j )
 			{ std::swap( v_[i], v_[j] ); }
-
     inline void		fillWith( const T& val )
 			{ std::fill( v_.begin(), v_.end(), val ); }
     inline void		replace( const T& val, const T& newval )
-			{
-			    std::replace( v_.begin(), v_.end(), val, newval );
-			}
+			{ std::replace( v_.begin(), v_.end(), val, newval ); }
 
     void moveAfter( const T& t, const T& aft )
     {
 	if ( t == aft || size() < 2 ) return;
-	I tidx = -1; I aftidx = -1;
-	for ( I idx=size()-1; idx!=-1; idx-- )
+	IT tidx = -1; IT aftidx = -1;
+	for ( IT idx=size()-1; idx!=-1; idx-- )
 	{
 	    if ( v_[idx] == t )
 		{ tidx = idx; if ( aftidx != -1 ) break; }
@@ -118,26 +129,26 @@ public:
 	}
 	if ( tidx == -1 || aftidx == -1 || tidx == aftidx ) return;
 	if ( aftidx > tidx )
-	    for ( I idx=tidx; idx<aftidx; idx++ )
-		swap( idx, idx+1 );
+	    for ( IT idx=tidx; idx<aftidx; idx++ )
+		swapElems( idx, idx+1 );
 	else
-	    for ( I idx=tidx; idx>aftidx+1; idx-- )
-		swap( idx, idx-1 );
+	    for ( IT idx=tidx; idx>aftidx+1; idx-- )
+		swapElems( idx, idx-1 );
     }
 
     void moveToStart( const T& t )
     {
 	if ( size() < 2 ) return;
-	I tidx = -1;
-	for ( I idx=size()-1; idx!=-1; idx-- )
+	IT tidx = -1;
+	for ( IT idx=size()-1; idx!=-1; idx-- )
 	    if ( v_[idx] == t ) { tidx = idx; break; }
-	for ( I idx=tidx; idx>0; idx-- )
-	    swap( idx, idx-1 );
+	for ( IT idx=tidx; idx>0; idx-- )
+	    swapElems( idx, idx-1 );
     }
 
 protected:
 
-    std::vector<T>	v_;
+    impl_type	v_;
 
 };
 
@@ -149,15 +160,15 @@ template mExpClass(mod) std::vector<tp>;\
 template mExpClass(mod) VectorAccess<tp,itp>;\
 
 
-template<class T,class I> inline
-bool VectorAccess<T,I>::setCapacity( I sz, bool withmargin )
+template<class T,class IT> inline
+bool VectorAccess<T,IT>::setCapacity( IT sz, bool withmargin )
 {
     if ( sz<=v_.capacity() )
 	return true;
 
     if ( withmargin )
     {
-	I tmp = sz-1;
+	IT tmp = sz-1;
 	sz = 1;
 
 	while ( tmp )
@@ -177,8 +188,8 @@ bool VectorAccess<T,I>::setCapacity( I sz, bool withmargin )
 }
 
 
-template<class T,class I> inline
-bool VectorAccess<T,I>::push_back( const T& t )
+template<class T,class IT> inline
+bool VectorAccess<T,IT>::push_back( const T& t )
 {
     try
 	{ v_.push_back(t); }
@@ -189,8 +200,8 @@ bool VectorAccess<T,I>::push_back( const T& t )
 }
 
 
-template<class T,class I> inline
-T VectorAccess<T,I>::pop_back()
+template<class T,class IT> inline
+T VectorAccess<T,IT>::pop_back()
 {
     const T lastelem = v_.back();
     v_.pop_back();
@@ -198,8 +209,8 @@ T VectorAccess<T,I>::pop_back()
 }
 
 
-template<class T,class I> inline
-bool VectorAccess<T,I>::setSize( I sz, T val )
+template<class T,class IT> inline
+bool VectorAccess<T,IT>::setSize( IT sz, T val )
 {
     try { v_.resize(sz,val); }
     catch ( std::bad_alloc )
@@ -224,15 +235,15 @@ bool VectorAccess<T,I>::setSize( I sz, T val )
 #endif
 
 
-template<class T,class I> inline
-T& VectorAccess<T,I>::operator[]( I idx )
+template<class T,class IT> inline
+T& VectorAccess<T,IT>::operator[]( IT idx )
 {
     mImplOperator;
 }
 
 
-template<class T,class I> inline
-const T& VectorAccess<T,I>::operator[]( I idx ) const
+template<class T,class IT> inline
+const T& VectorAccess<T,IT>::operator[]( IT idx ) const
 {
     mImplOperator;
 }
@@ -240,51 +251,51 @@ const T& VectorAccess<T,I>::operator[]( I idx ) const
 #undef mImplOperator
 
 
-template<class T,class I> inline
-I VectorAccess<T,I>::indexOf( const T& t, bool forward, I start ) const
+template<class T,class IT> inline
+IT VectorAccess<T,IT>::indexOf( const T& t, bool forward, IT start ) const
 {
     if ( forward )
     {
-	typename std::vector<T>::const_iterator begin = v_.begin();
-	const typename std::vector<T>::const_iterator end = v_.end();
+	typename std::vector<T>::const_iterator begit = v_.cbegin();
+	const typename std::vector<T>::const_iterator endit = v_.cend();
 	if ( start>0 )
-	    begin += start;
+	    begit += start;
 
 	const typename std::vector<T>::const_iterator res =
-						    std::find( begin, end, t );
-	if ( res==end )
+						std::find( begit, endit, t );
+	if ( res==endit )
 	    return -1;
 
-	return mCast(I,res-v_.begin());
+	return mCast( IT, res-v_.begin() );
     }
 
-    typename std::vector<T>::const_reverse_iterator begin = v_.rbegin();
-    const typename std::vector<T>::const_reverse_iterator end = v_.rend();
+    typename std::vector<T>::const_reverse_iterator rebegit = v_.rbegin();
+    const typename std::vector<T>::const_reverse_iterator rendit = v_.rend();
     if ( start>0 )
     {
-	const I nrskipped = size()-1-start;
-	begin += nrskipped;
+	const IT nrskipped = size()-1-start;
+	rebegit += nrskipped;
     }
 
-    const typename std::vector<T>::const_reverse_iterator res =
-						    std::find( begin, end, t );
-    if ( res==end )
+    const typename impl_type::const_reverse_iterator res
+			= std::find( rebegit, rendit, t );
+    if ( res == rendit )
 	return -1;
 
-    return mCast(I,end-res)-1;
+    return mCast( IT, rendit-res) - 1;
 }
 
 
-template<class T,class I> inline
-I VectorAccess<T,I>::count( const T& t ) const
+template<class T,class IT> inline
+IT VectorAccess<T,IT>::count( const T& t ) const
 {
-    return mCast(I,std::count(v_.begin(),v_.end(),t));
+    return mCast( IT, std::count(v_.cbegin(),v_.end(),t) );
 }
 
 
-template<class T,class I> inline
-bool VectorAccess<T,I>::isPresent( const T& t ) const
+template<class T,class IT> inline
+bool VectorAccess<T,IT>::isPresent( const T& t ) const
 {
-    const typename std::vector<T>::const_iterator end = v_.end();
-    return std::find( v_.begin(), end, t )!=end;
+    const_iterator end = v_.cend();
+    return std::find( v_.cbegin(), end, t ) != end;
 }

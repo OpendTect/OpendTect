@@ -14,141 +14,82 @@
 #include <string.h>
 
 
-namespace KeyedValue
+namespace OD
 {
 
-#define mDefSimpleConstr(ctyp,enumtyp,isint,contmemb,utype) \
-    Value( ctyp i ) \
-	: type_(enumtyp), isint_(isint) { contents_.contmemb = (utype)i; }
+namespace JSON
+{
 
-class Value
+#define mDefSimpleConstr(ctyp,enumtyp,contmemb,utype) \
+    Value( ctyp i ) \
+	: type_(enumtyp) { contents_.contmemb = (utype)i; }
+
+class Value : public NamedObj
 {
 public:
 
-    union Contents  { double dval_; od_int64 ival_; void* ptr_; };
+    union Contents
+    {
+	Contents() { ival_ = 0; }
+	double dval_; od_int64 ival_; char* str_;
+	Array* arr_;
+    };
 
-mDefSimpleConstr( bool, Boolean, true, ival_, od_int64 )
-mDefSimpleConstr( od_int16, Number, true, ival_, od_int64 )
-mDefSimpleConstr( od_uint16, Number, true, ival_, od_int64 )
-mDefSimpleConstr( od_int32, Number, true, ival_, od_int64 )
-mDefSimpleConstr( od_uint32, Number, true, ival_, od_int64 )
-mDefSimpleConstr( od_int64, Number, true, ival_, od_int64 )
-mDefSimpleConstr( float, Number, false, dval_, double )
-mDefSimpleConstr( double, Number, false, dval_, double )
+mDefSimpleConstr( bool, Boolean, ival_, od_int64 )
+mDefSimpleConstr( od_int16, Int, ival_, od_int64 )
+mDefSimpleConstr( od_uint16, Int, ival_, od_int64 )
+mDefSimpleConstr( od_int32, Int, ival_, od_int64 )
+mDefSimpleConstr( od_uint32, Int, ival_, od_int64 )
+mDefSimpleConstr( od_int64, Int, ival_, od_int64 )
+mDefSimpleConstr( float, Double, dval_, double )
+mDefSimpleConstr( double, Double, dval_, double )
 
+Value( Array* arr )
+    : type_((int)String+1)
+{
+    contents_.arr_ = arr_;
+}
 
 Value( const char* str )
-    : type_(String)
+    : type_((int)String)
 {
     if ( !str )
 	str = "";
     const int len = FixedString(str).size();
     char* contstr = new char[ len + 1 ];
     strcpy( contstr, str );
-    contents_.ptr_ = contstr;
+    contents_.str_ = contstr;
 }
-
 
 Value( const OD::String& str )
-    : Value(str.buf())
+    : Value(str.str())
 {
 }
-
-Value( const BufferStringSet& bss )
-    : type_(ArrayString)
-    , arrsz_(bss.size())
-{
-    if ( arrsz_ > 0 )
-    {
-	char** strs = new char* [arrsz_];
-	for ( int idx=0; idx<arrsz_; idx++ )
-	{
-	    const BufferString& bs = bss.get( idx );
-	    const int sz = bs.size();
-	    strs[idx] = new char [sz];
-	    strcpy( strs[idx], bs.buf() );
-	}
-	contents_.ptr_ = strs;
-    }
-}
-
-template <class CT>
-void initFromContainer( const CT& vals, bool isint )
-{
-    type_ = ArrayNumber;
-    isint_ = isint;
-    arrsz_ = (int)vals.size();
-    if ( arrsz_ > 0 )
-    {
-	if ( isint_ )
-	{
-	    od_int64* arr = new od_int64[arrsz_];
-	    for ( int idx=0; idx<arrsz_; idx++ )
-		arr[idx] = (od_int64)vals[idx];
-	    contents_.ptr_ = arr;
-	}
-	else
-	{
-	    double* arr = new double[arrsz_];
-	    for ( int idx=0; idx<arrsz_; idx++ )
-		arr[idx] = (double)vals[idx];
-	    contents_.ptr_ = arr;
-	}
-    }
-}
-
-
-#define mDefContainerConstr(ct,isint) \
-    Value( const ct& vals ) { initFromContainer( vals, isint ); }
-
-mDefContainerConstr(BoolTypeSet,true)
-
-#define mDefContainerConstr4All(clss) \
-mDefContainerConstr(clss<od_int16>,true) \
-mDefContainerConstr(clss<od_uint16>,true) \
-mDefContainerConstr(clss<od_int32>,true) \
-mDefContainerConstr(clss<od_uint32>,true) \
-mDefContainerConstr(clss<od_int64>,true) \
-mDefContainerConstr(clss<float>,false) \
-mDefContainerConstr(clss<double>,false)
-
-mDefContainerConstr4All(TypeSet)
-mDefContainerConstr4All(Array1D)
-
 
 ~Value()
 {
-    if ( type_ == String )
-	delete [] (char*)contents_.ptr_;
-    else if ( type_ == ArrayBoolean )
-	delete [] (bool*)contents_.ptr_;
-    else if ( type_ == ArrayNumber )
-    {
-	if ( isint_ )
-	    delete [] (od_int64*)contents_.ptr_;
-	else
-	    delete [] (double*)contents_.ptr_;
-    }
-    else if ( type_ == ArrayString )
-    {
-	char** strs = (char**)contents_.ptr_;
-	for ( int idx=0; idx<arrsz_; idx++ )
-	    delete [] strs[idx];
-	delete [] strs;
-    }
+    if ( isArr() )
+	delete ((Array*)contents_.arr_);
+    else if ( type_ == (int)String )
+	delete [] (char*)contents_.str_;
 }
 
-    DataType	type_;
+bool isArr() const
+{
+    return type_ > String;
+}
+
+    int		type_;
     Contents	contents_;
-    bool	isint_		= true;
-    int		arrsz_		= 0;
 
 };
 
-} // namespace KeyedValue
+} // namespace JSON
+
+} // namespace OD
 
 
-void KeyedValue::Key::set( const char* inp )
+void OD::JSON::Key::set( const char* inp )
 {
     setEmpty();
     if ( !inp || !*inp )
@@ -161,7 +102,7 @@ void KeyedValue::Key::set( const char* inp )
 }
 
 
-void KeyedValue::Key::set( const SeparString& ss )
+void OD::JSON::Key::set( const SeparString& ss )
 {
     setEmpty();
     const int sz = ss.size();
@@ -170,7 +111,7 @@ void KeyedValue::Key::set( const SeparString& ss )
 }
 
 
-void KeyedValue::Key::set( const BufferStringSet& bss, int startat )
+void OD::JSON::Key::set( const BufferStringSet& bss, int startat )
 {
     setEmpty();
     for ( int idx=startat; idx<bss.size(); idx++ )
@@ -178,96 +119,120 @@ void KeyedValue::Key::set( const BufferStringSet& bss, int startat )
 }
 
 
-KeyedValue::Node::~Node()
+
+OD::JSON::ValArr::ValArr( DataType typ )
+    : type_(typ)
 {
-    setEmpty();
-}
-
-
-void KeyedValue::Node::setEmpty()
-{
-    for ( auto it : values_ )
-	delete it.second;
-
-    for ( auto it : children_ )
+    switch ( type_ )
     {
-	Node* child = it.second;
-	child->setEmpty();
-	delete child;
+	case Boolean:	set_ = new BSet;	break;
+	case Int:	set_ = new ISet;	break;
+	case Double:	set_ = new DSet;	break;
+	default:	{ pErrMsg("Unknown type"); type_ = String; }
+	case String:	set_ = new SSet;	break;
     }
-
-    children_.clear();
-    values_.clear();
 }
 
 
-KeyedValue::Node::ChildrenMap::const_iterator KeyedValue::Node::childIter(
-		const Node& child ) const
+void OD::JSON::Container::setEmpty()
 {
-    ChildrenMap::const_iterator it = children_.begin();
-    for ( ; it!=children_.end(); it++ )
-    {
-	if ( it->second == &child )
-	    break;
-    }
-    return it;
+    for ( int idx=0; idx<containers_.size(); idx++ )
+	containers_[idx]->setEmpty();
+    deepErase( containers_ );
 }
 
 
-KeyedValue::Node::ChildrenMap::iterator KeyedValue::Node::childIter(
-		const Node& child )
+OD::JSON::Array::Array( bool nodes, const char* nm, Container* p )
+    : Container(nm,p)
+    , type_(nodes ? Nodes : Arrays)
+    , valarr_(0)
 {
-    ChildrenMap::iterator it = children_.begin();
-    for ( ; it!=children_.end(); it++ )
-    {
-	if ( it->second == &child )
-	    break;
-    }
-    return it;
 }
 
 
-BufferString KeyedValue::Node::name() const
+OD::JSON::Array::Array( DataType dt, const char* nm, Container* p )
+    : Container(nm,p)
+    , type_(Values)
+    , valarr_(new ValArr(dt))
 {
-    BufferString nm;
-    if ( parent_ )
-    {
-	ChildrenMap::const_iterator it = parent_->childIter( *this );
-	nm.set( it->first.c_str() );
-    }
-    return nm;
 }
 
 
-KeyedValue::Key KeyedValue::Node::key() const
+OD::JSON::Array::~Array()
+{
+    delete valarr_;
+    deepErase( containers_ );
+}
+
+
+void OD::JSON::Array::setEmpty()
+{
+    if ( valarr_ )
+	valarr_->setEmpty();
+    Container::setEmpty();
+}
+
+
+OD::JSON::Container::SzType OD::JSON::Array::nrChildren() const
+{
+    return type_ == Values ? 0 : containers_.size();
+}
+
+
+OD::JSON::Container::SzType OD::JSON::Array::nrValues() const
+{
+    return type_ == Values ? valArr().size() : 0;
+}
+
+
+OD::JSON::Container::SzType OD::JSON::Array::size() const
+{
+    return type_ == Values ? valArr().size() : containers_.size();
+}
+
+
+void OD::JSON::Array::add( Node* node )
+{
+    if ( type_ != Nodes )
+	{ pErrMsg("Type not Nodes"); delete node; }
+    else
+	containers_ += node;
+}
+
+
+void OD::JSON::Array::add( Array* arr )
+{
+    if ( type_ != Arrays )
+	{ pErrMsg("Type not Arrays"); delete arr; }
+    else
+	containers_ += arr;
+}
+
+
+OD::JSON::Node::~Node()
+{
+    deepErase( values_ );
+}
+
+
+void OD::JSON::Node::setEmpty()
+{
+    deepErase( values_ );
+    Container::setEmpty();
+}
+
+
+OD::JSON::Key OD::JSON::Container::key() const
 {
     Key ky;
     if ( parent_ )
-	parent_->fillKey( *this, ky );
+	ky = parent_->key();
+    ky.add( name() );
     return ky;
 }
 
 
-void KeyedValue::Node::fillKey( const Node& child, Key& ky ) const
-{
-    ChildrenMap::const_iterator it = childIter( child );
-    if ( it != children_.end() )
-	ky.insertAt( new BufferString(it->first.c_str()), 0 );
-
-    if ( parent_ )
-	parent_->fillKey( *this, ky );
-}
-
-
-KeyedValue::Value* KeyedValue::Node::findValue( const char* nm ) const
-{
-    const std::string valnmstr( nm );
-    auto vit = values_.find( valnmstr );
-    return vit == values_.end() ? 0 : const_cast<Value*>(vit->second);
-}
-
-
-KeyedValue::DataType KeyedValue::Node::getDataType( const Key& ky ) const
+OD::JSON::DataType OD::JSON::Node::getDataType( const Key& ky ) const
 {
     const DataType defdt = Boolean; // whatever
     if ( ky.size() < 1 )
@@ -287,7 +252,23 @@ KeyedValue::DataType KeyedValue::Node::getDataType( const Key& ky ) const
 }
 
 
-namespace KeyedValue
+bool OD::JSON::Node::isArray( IdxType idx ) const
+{
+    for ( auto it : values_ )
+    {
+	if ( idx < 0 )
+	    break;
+	else if ( idx == 0 )
+	    return it.second->isArray();
+	idx--;
+    }
+    return false;
+}
+
+
+namespace OD
+{
+namespace JSON
 { // older compilers need template specializations to be in the namespace
 
 template <class T>
@@ -314,7 +295,7 @@ bool Node::getValue( const Key& ky, BufferString& str ) const
 
     const Value* valptr = findValue( ky.get(0) );
     if ( valptr->type_ == String )
-	str.set( (const char*)valptr->contents_.ptr_ );
+	str.set( (const char*)valptr->contents_.str_ );
     else if ( valptr->type_ == Number )
 	str.set( valptr->isint_ ? toString(valptr->contents_.ival_)
 				: toString(valptr->contents_.dval_) );
@@ -351,7 +332,7 @@ bool Node::getIValue( const Key& ky, IT& val ) const
     }
     else if ( valptr->type_ == String )
     {
-	const char* valstr = (const char*)valptr->contents_.ptr_;
+	const char* valstr = (const char*)valptr->contents_.str_;
 	if ( !isNumberString(valstr) )
 	    { pErrMsg("Not a number string"); return false; }
 	const double dval = toDouble( valstr );
@@ -388,7 +369,7 @@ bool Node::getFValue( const Key& ky, FT& val ) const
     }
     else if ( valptr->type_ == String )
     {
-	const char* valstr = (const char*)valptr->contents_.ptr_;
+	const char* valstr = (const char*)valptr->contents_.str_;
 	if ( !isNumberString(valstr) )
 	    { pErrMsg("Not a number string"); return false; }
 	val = (FT)toDouble( valstr );
@@ -446,7 +427,7 @@ bool Node::implSetValue( const Key& ky, const T& tval )
 	if ( !child )
 	{
 	    child = new Node( this );
-	    addNode( child, nm );
+	    addChld( nm, child );
 	}
 
 	const Key chldky( ky, 1 );
@@ -465,11 +446,11 @@ bool Node::implSetValue( const Key& ky, const T& tval )
 }
 
 
-bool KeyedValue::Node::setValue( const Key& ky, const char* str )
+bool OD::JSON::Node::setValue( const Key& ky, const char* str )
 { return implSetValue( ky, str ); }
-bool KeyedValue::Node::setValue( const Key& ky, char* str )
+bool OD::JSON::Node::setValue( const Key& ky, char* str )
 { return implSetValue( ky, (const char*)str ); }
-bool KeyedValue::Node::setValue( const Key& ky, const OD::String& str )
+bool OD::JSON::Node::setValue( const Key& ky, const OD::String& str )
 { return implSetValue( ky, str.str() ); }
 
 
@@ -501,46 +482,119 @@ mImplAddValue(clss<double>)
 mImplContainerAddValue(TypeSet)
 mImplContainerAddValue(Array1D)
 
-} // namespace KeyedValue
+} // namespace JSON
+} // namespace OD
 
 
-KeyedValue::Node* KeyedValue::Node::gtNode( IdxType idx ) const
+OD::JSON::Node::IdxType OD::JSON::Node::valueIdx( const char* nm ) const
 {
-    if ( idx >= 0 )
+    for ( int idx=values_.size()-1; idx>=0; idx-- )
     {
-	for ( auto it : children_ )
-	{
-	    if ( idx == 0 )
-		return const_cast<Node*>( it.second );
-	    idx--;
-	}
+	Value* valptr = values_[idx];
+	if ( values_[idx]->name() == nm )
+	    return idx;
     }
-
-    return 0;
+    return -1;
 }
 
 
-KeyedValue::Node* KeyedValue::Node::gtNode( const Key& ky ) const
+OD::JSON::Value* OD::JSON::Node::gtVal( IdxType idx ) const
+{
+    return values_.validIdx(idx) ? values_[idx] : 0;
+}
+
+
+OD::JSON::Value* OD::JSON::Node::gtVal( const Key& ky ) const
 {
     const int keysz = ky.size();
     if ( keysz < 1 )
-	return const_cast<Node*>( this );
-
-    const BufferString& nm = ky.get( 0 );
-    const std::string nmstr( nm.str() );
-    auto it = children_.find( nmstr );
-    if ( it == children_.end() )
 	return 0;
 
-    const Node* ret = it->second;
+    int idxof = idxOf( ky.get(0) );
+    if ( idxof < 0 )
+	return 0;
+
+    const Node* ret = children_[idxof];
     if ( keysz > 1 )
-	ret = ret->gtNode( Key(ky,1) );
+	ret = ret->gtChld( Key(ky,1) );
 
     return const_cast<Node*>( ret );
 }
 
 
-void KeyedValue::Node::addNode( Node* node, const char* nm )
+OD::JSON::Node::IdxType OD::JSON::Node::childIdx( const char* nm )
+{
+    for ( int idx=children_.size()-1; idx>=0; idx-- )
+    {
+	Node* child = children_[idx];
+	if ( child->name() == nm )
+	    return idx;
+    }
+    return -1;
+}
+
+
+OD::JSON::Node* OD::JSON::Node::gtChld( IdxType idx ) const
+{
+    return children_.validIdx(idx) ? children_[idx] : 0;
+}
+
+
+OD::JSON::Node* OD::JSON::Node::gtChld( const Key& ky ) const
+{
+    const int keysz = ky.size();
+    if ( keysz < 1 )
+	return const_cast<Node*>( this );
+
+    int idxof = idxOf( ky.get(0) );
+    if ( idxof < 0 )
+	return 0;
+
+    const Node* ret = children_[idxof];
+    if ( keysz > 1 )
+	ret = ret->gtChld( Key(ky,1) );
+
+    return const_cast<Node*>( ret );
+}
+
+
+void OD::JSON::Node::setChild( const Key& ky, Node* node )
+{
+    const int keysz = ky.size();
+    if ( keysz < 1 )
+    {
+	if ( !parent_ )
+	    delete node;
+	else
+	    parent_->stChild( name(), node );
+    }
+
+    const BufferString& nm = ky.get( 0 );
+    int idxof = idxOf( nm );
+    if ( idxof >= 0 )
+    {
+	if ( keysz > 1 )
+	    children_[idxof]->setChild( Key(ky,1), node );
+	else
+	{
+	    Node* oldchild = 0;
+	    if ( !node )
+		oldchild = children_.removeSingle( idxof );
+	    else
+		oldchild = children_.replace( idxof, node );
+	    delete oldchild;
+	}
+	return;
+    }
+
+    Node* newchild = new Node( nm, this );
+    children_ += newchild;
+    if ( keysz > 1 )
+	newchild->setChild( Key(ky,1), node );
+}
+
+
+void OD::JSON::Node::addChld( const char* nm, Node* node )
 {
     if ( !nm || !*nm )
 	nm = "ERR:EMPTY_KEY";
@@ -549,14 +603,14 @@ void KeyedValue::Node::addNode( Node* node, const char* nm )
 }
 
 
-void KeyedValue::Node::fillPar( IOPar& iop ) const
+void OD::JSON::Node::fillPar( IOPar& iop ) const
 {
     // Put '.' for subnode keys
     pErrMsg("Needs impl");
 }
 
 
-void KeyedValue::Node::usePar( const IOPar& iop )
+void OD::JSON::Node::usePar( const IOPar& iop )
 {
     // Scan for '.' to make subnodes
     pErrMsg("Needs impl");
@@ -569,7 +623,7 @@ void KeyedValue::Node::usePar( const IOPar& iop )
 #define mJvalBool(jval) ((bool)jval.getPayload())
 
 
-void KeyedValue::Node::useJsonValue( Gason::JsonValue& jsonval,
+void OD::JSON::Node::useJsonValue( Gason::JsonValue& jsonval,
 				     const char* jsonky )
 {
     const Gason::JsonTag tag = jsonval.getTag();
@@ -642,7 +696,7 @@ void KeyedValue::Node::useJsonValue( Gason::JsonValue& jsonval,
 	    else
 	    {
 		Node* child = new Node( this );
-		addNode( child, jsonnode->key );
+		addChld( jsonnode->key, child );
 		child->useJsonValue( jsonnode->value, jsonnode->key );
 	    }
 	} break;
@@ -661,8 +715,9 @@ void KeyedValue::Node::useJsonValue( Gason::JsonValue& jsonval,
 }
 
 
-void KeyedValue::Node::parseJSon( char* buf, int bufsz, uiRetVal& uirv )
+void OD::JSON::Node::parseJSon( char* buf, int bufsz, uiRetVal& uirv )
 {
+    uirv.setOK();
     if ( !buf || bufsz < 1 )
 	{ uirv.set( uiStrings::phrInternalErr("No data to parse (JSON)") );
 	    return; }
@@ -682,13 +737,13 @@ void KeyedValue::Node::parseJSon( char* buf, int bufsz, uiRetVal& uirv )
 }
 
 
-void KeyedValue::Node::dumpJSon( BufferString& str ) const
+void OD::JSON::Node::dumpJSon( BufferString& str ) const
 {
     str.set( "TODO" );
 }
 
 
-uiRetVal KeyedValue::Tree::readJSon( od_istream& strm )
+uiRetVal OD::JSON::Tree::read( od_istream& strm )
 {
     uiRetVal uirv;
     BufferString buf;
@@ -703,7 +758,7 @@ uiRetVal KeyedValue::Tree::readJSon( od_istream& strm )
 }
 
 
-uiRetVal KeyedValue::Tree::writeJSon( od_ostream& strm )
+uiRetVal OD::JSON::Tree::write( od_ostream& strm )
 {
     BufferString buf;
     dumpJSon( buf );

@@ -50,13 +50,13 @@ mClass(Basic) ManagedObjectSet : public ManagedObjectSetBase<T>
 {
 public:
     inline			ManagedObjectSet();
-    				
+
     inline			ManagedObjectSet(const ManagedObjectSet<T>&);
-    				//Must be implemented as default
+				//Must be implemented as default
 				//copy constructor will call
-				//operator= before class is fully setup and 
+				//operator= before class is fully setup and
 				//append is not in virtual table
-    				
+
     inline			ManagedObjectSet(const ObjectSet<T>&);
 
     ManagedObjectSet<T>&	operator=(const ObjectSet<T>& os);
@@ -103,7 +103,7 @@ ManagedObjectSetBase<T>& ManagedObjectSetBase<T>::operator -=( T* ptr )
 {
     if ( ptr )
     {
-	this->vec_.erase( (void*)ptr );
+	this->vec_.erase( (T*)ptr );
 	delfunc_( ptr );
     }
 

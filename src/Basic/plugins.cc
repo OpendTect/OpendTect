@@ -263,9 +263,8 @@ const PluginManager::Data* PluginManager::findDataWithDispName(
 			const char* nm ) const
 {
     if ( !nm || !*nm ) return 0;
-    for ( int idx=0; idx<data_.size(); idx++ )
+    for ( auto data : data_ )
     {
-	const Data* data = data_[idx];
 	const PluginInfo* piinf = data->info_;
 	if ( piinf && piinf->dispname_ && FixedString(piinf->dispname_)==nm)
 	    return data;
@@ -289,9 +288,8 @@ const char* PluginManager::getFileName( const PluginManager::Data& data ) const
 
 PluginManager::Data* PluginManager::fndData( const char* nm ) const
 {
-    for ( int idx=0; idx<data_.size(); idx++ )
+    for ( auto data : data_ )
     {
-	const Data* data = data_[idx];
 	if ( data->name_ == nm )
 	    return const_cast<Data*>(data);
     }
@@ -364,9 +362,9 @@ void PluginManager::getNotLoadedByUser( BufferStringSet& dontloadlist ) const
 
 void PluginManager::openALOEntries()
 {
-    for ( int idx=0; idx<data_.size(); idx++ )
+    for ( auto dataptr : data_ )
     {
-	Data& data = *data_[idx];
+	Data& data = *dataptr;
 	data.sla_ = 0;
 	if ( data.autosource_ == Data::None )
 	    continue;
@@ -572,9 +570,9 @@ void PluginManager::loadAuto( bool late )
     BufferStringSet dontloadlist;
     getNotLoadedByUser( dontloadlist );
 
-    for ( int idx=0; idx<data_.size(); idx++ )
+    for ( auto dataptr : data_ )
     {
-	Data& data = *data_[idx];
+	Data& data = *dataptr;
 	if ( !data.sla_ || !data.sla_->isOK() || data.autosource_==Data::None )
 	    continue;
 
@@ -617,9 +615,9 @@ void PluginManager::loadSurveyRelatedTools()
     BufferStringSet dontloadlist;
     getNotLoadedByUser( dontloadlist );
 
-    for ( int idx=0; idx<data_.size(); idx++ )
+    for ( auto dataptr : data_ )
     {
-	Data& data = *data_[idx];
+	Data& data = *dataptr;
 	if ( !data.sla_ || !data.sla_->isOK() || data.autosource_==Data::None )
 	    continue;
 

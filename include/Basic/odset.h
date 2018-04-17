@@ -36,12 +36,14 @@ public:
 
     virtual od_int64	nrItems() const				= 0;
     virtual bool	validIdx(od_int64) const		= 0;
-    virtual void	swap(od_int64,od_int64)			= 0;
+    virtual void	swapItems(od_int64,od_int64)		= 0;
     virtual void	erase()					= 0;
 
     inline bool		isEmpty() const		{ return nrItems() <= 0; }
     inline void		setEmpty()		{ erase(); }
 
+    static inline od_int32	maxIdx32()	{ return 2147483647; }
+    static inline od_int64	maxIdx64()	{ return 9223372036854775807LL; }
 };
 
 } // namespace

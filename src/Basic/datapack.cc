@@ -173,9 +173,8 @@ DataPackMgr* DataPackMgr::gtDPM( DataPackMgr::ID dpid, bool crnew )
 {
     Threads::Locker lock( mgrlistlock_ );
 
-    for ( int idx=0; idx<mgrs_.size(); idx++ )
+    for ( auto mgr : mgrs_ )
     {
-	DataPackMgr* mgr = mgrs_[idx];
 	if ( mgr->id() == dpid )
 	    return mgr;
     }
@@ -229,13 +228,13 @@ void DataPackMgr::dumpDPMs( od_ostream& strm )
 {
     Threads::Locker lock( mgrlistlock_ );
     strm << "** Data Pack Manager dump **\n";
-    if ( !mgrs_.size() )
+    if ( mgrs_.isEmpty() )
 	{ strm << "No Data pack managers (yet)" << od_newline; return; }
 
-    for ( int imgr=0; imgr<mgrs_.size(); imgr++ )
+    for ( auto mgr : mgrs_ )
     {
 	strm << "\n\n";
-	mgrs_[imgr]->dumpInfo(strm);
+	mgr->dumpInfo( strm );
     }
 }
 

@@ -69,7 +69,6 @@ set( OD_MODULE_SOURCES
 	globexpr.cc
 	iopar.cc
 	initbasic.cc
-	keyedvaluetree.cc
 	latlong.cc
 	legal.cc
 	math2.cc

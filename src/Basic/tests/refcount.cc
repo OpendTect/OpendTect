@@ -155,7 +155,7 @@ bool testRefObjectSet()
 	ref_os += new ReferencedClass( &deleted1 );
 	ref_os += new ReferencedClass( &deleted2 );
 
-	ref_os.swap( 0, 1 );
+	ref_os.swapItems( 0, 1 );
 	mRunStandardTest( !deleted1 && !deleted2,
 			 "No unref during swap");
 

@@ -22,6 +22,11 @@ ________________________________________________________________________
 
   The ObjectSet does not manage the objects, it is just a collection of
   pointers to the objects. If you want management, use ManagedObjectSet.
+
+  Note: you can use indexOf(ptr) to see whether the object is in the set. If
+  you *know* that the object is in the set, and you need the index of it, then
+  you can use idx(ptr) to obtain its index.
+
 */
 
 template <class T>
@@ -33,9 +38,9 @@ public:
     typedef T			object_type;
 
     inline			ObjectSet();
-    inline			ObjectSet(const ObjectSet<T>&);
+    inline			ObjectSet(const ObjectSet&);
     inline virtual		~ObjectSet()		{}
-    inline ObjectSet<T>&	operator=(const ObjectSet<T>&);
+    inline ObjectSet&		operator=(const ObjectSet&);
     virtual bool		isManaged() const	{ return false; }
 
     inline bool			nullAllowed() const	{ return allow0_; }
@@ -46,6 +51,7 @@ public:
     inline virtual bool		validIdx(od_int64) const;
     inline virtual bool		isPresent(const T*) const;
     inline virtual size_type	indexOf(const T*) const;
+    size_type			idx( const T* t ) const	{ return t-first(); }
     inline virtual T*		get(size_type);
     inline virtual const T*	get(size_type) const;
     inline virtual T*		get(const T*) const; //!< check & unconst
@@ -54,16 +60,18 @@ public:
     inline T*			last();
     inline const T*		last() const;
 
-    inline ObjectSet<T>&	add( T* t )		{ return doAdd(t); }
+    inline ObjectSet&		add( T* t )		{ return doAdd(t); }
     inline void			push( T* t )		{ doAdd( t ); }
     inline bool			addIfNew(T*);
     inline virtual T*		replace(size_type idx,T*);
     inline virtual void		insertAt(T* newptr,size_type);
     inline virtual void		insertAfter(T* newptr,size_type);
+    inline void			swap(size_type,size_type);
 
-    inline virtual void		copy(const ObjectSet<T>&);
-    inline virtual void		append(const ObjectSet<T>&);
-    inline virtual void		swap(od_int64,od_int64);
+    inline virtual void		copy(const ObjectSet&);
+    inline virtual void		append(const ObjectSet&);
+    inline virtual void		swapItems( od_int64 i1, od_int64 i2 )
+				{ swap( (size_type)i1, (size_type)i2 ); }
     inline virtual void		reverse();
 
 
@@ -73,18 +81,19 @@ public:
 				/*!<\returns the removed pointer. */
     virtual void		removeRange(size_type from,size_type to);
 
-    inline ObjectSet<T>&	operator +=( T* t )	{ return doAdd( t ); }
+    inline ObjectSet&		operator +=( T* t )	{ return doAdd( t ); }
     inline T*			operator[]( size_type i )	{return get(i);}
     inline const T*		operator[]( size_type i ) const	{return get(i);}
     inline const T*		operator[]( const T* t ) const	{return get(t);}
-    virtual ObjectSet<T>&	operator -=(T*);
+    virtual ObjectSet&		operator -=(T*);
 
 protected:
 
-    VectorAccess<void*,size_type> vec_;
+    typedef VectorAccess<T*,size_type>   impl_type;
+    impl_type			vec_;
     bool			allow0_;
 
-    inline virtual ObjectSet<T>& doAdd(T*);
+    inline virtual ObjectSet&	doAdd(T*);
 
 public:
 
@@ -93,15 +102,32 @@ public:
     mDeprecated inline void	allowNull( bool yn=true )
 				{ setNullAllowed( yn ); }
 
-};
+    // Compat with std containers
+    typedef T*					value_type;
+    typedef value_type&				reference;
+    typedef const value_type&			const_reference;
+    typedef typename impl_type::iterator	iterator;
+    typedef typename impl_type::const_iterator	const_iterator;
+    typedef size_type				difference_type;
 
-				// useful for iterating over any OD::Set
-template <class T>
-mGlobal(Basic) inline T& getRef( ObjectSet<T>& objset, int i )
-{ return *objset.get( i ); }
-template <class T>
-mGlobal(Basic) inline const T& getRef( const ObjectSet<T>& objset, int i )
-{ return *objset.get( i ); }
+    iterator			begin()		{ return vec_.begin(); }
+    const_iterator		begin() const	{ return vec_.cbegin(); }
+    const_iterator		cbegin() const	{ return vec_.cbegin(); }
+    iterator			end()		{ return vec_.end(); }
+    const_iterator		end() const	{ return vec_.cend(); }
+    const_iterator		cend() const	{ return vec_.cend(); }
+    inline bool			operator==(const ObjectSet&) const;
+    inline bool			operator!=( const ObjectSet& oth ) const
+				{ return !(oth == *this); }
+    inline void			swap(ObjectSet&);
+    inline size_type		max_size() const { return maxIdx32(); }
+    inline bool			empty() const	{ return isEmpty(); }
+
+    // Usability
+    size_type	idx( iterator it ) const	{ return vec_.idx(it); }
+    size_type	idx( const_iterator it ) const	{ return vec_.idx(it); }
+
+};
 
 
 #define mObjectSetApplyToAll( os, op ) \
@@ -291,11 +317,27 @@ ObjectSet<T>::ObjectSet( const ObjectSet<T>& t )
 
 
 template <class T> inline
-ObjectSet<T>& ObjectSet<T>::operator =( const ObjectSet<T>& os )
+ObjectSet<T>& ObjectSet<T>::operator =( const ObjectSet<T>& oth )
 {
-    allow0_ = os.allow0_;
-    copy( os );
+    allow0_ = oth.allow0_;
+    copy( oth );
     return *this;
+}
+
+
+template <class T> inline
+bool ObjectSet<T>::operator ==( const ObjectSet<T>& oth ) const
+{
+    if ( this == &oth )
+	return true;
+    const size_type sz = size();
+    if ( sz != oth.size() )
+	return false;
+
+    for ( size_type idx=sz; idx!=-1; idx-- )
+	if ( (*this)[idx] != oth[idx] )
+	    return false;
+    return true;
 }
 
 
@@ -330,7 +372,7 @@ T* ObjectSet<T>::get( size_type idx )
     if ( !validIdx(idx) )
 	DBG::forceCrash(true);
 #endif
-    return static_cast<T*>( vec_[idx] );
+    return vec_[idx];
 }
 
 
@@ -341,7 +383,7 @@ const T* ObjectSet<T>::get( size_type idx ) const
     if ( !validIdx(idx) )
 	DBG::forceCrash(true);
 #endif
-    return static_cast<const T*>( vec_[idx] );
+    return vec_[idx];
 }
 
 
@@ -356,14 +398,14 @@ T* ObjectSet<T>::get( const T* t ) const
 template <class T> inline
 typename ObjectSet<T>::size_type ObjectSet<T>::indexOf( const T* ptr ) const
 {
-    return vec_.indexOf( (void*) ptr, true );
+    return vec_.indexOf( (T*)ptr, true );
 }
 
 
 template <class T> inline
 bool ObjectSet<T>::isPresent( const T* ptr ) const
 {
-    return vec_.isPresent( (void*) ptr );
+    return vec_.isPresent( (T*)ptr );
 }
 
 
@@ -371,7 +413,7 @@ template <class T> inline
 ObjectSet<T>& ObjectSet<T>::doAdd( T* ptr )
 {
     if ( ptr || allow0_ )
-	vec_.push_back( (void*)ptr );
+	vec_.push_back( ptr );
     return *this;
 }
 
@@ -380,19 +422,22 @@ template <class T> inline
 ObjectSet<T>& ObjectSet<T>::operator -=( T* ptr )
 {
     if ( ptr || allow0_ )
-	vec_.erase( (void*)ptr );
+	vec_.erase( ptr );
     return *this;
 }
 
 
 template <class T> inline
-void ObjectSet<T>::swap( od_int64 idx0, od_int64 idx1 )
+void ObjectSet<T>::swap( size_type idx1, size_type idx2 )
 {
+    if ( !validIdx(idx1) || !validIdx(idx2) )
+    {
 #ifdef __debug__
-    if ( !validIdx(idx0) || !validIdx(idx1) )
 	DBG::forceCrash(true);
 #endif
-    vec_.swap( mCast(size_type,idx0), mCast(size_type,idx1) );
+	return;
+    }
+    vec_.swapElems( idx1, idx2 );
 }
 
 
@@ -416,7 +461,7 @@ T* ObjectSet<T>::replace( size_type idx, T* newptr )
 	return 0;
 #endif
     T* ptr = static_cast<T*>( vec_[idx] );
-    vec_[idx] = (void*)newptr;
+    vec_[idx] = newptr;
     return ptr;
 }
 
@@ -424,7 +469,7 @@ T* ObjectSet<T>::replace( size_type idx, T* newptr )
 template <class T> inline
 void ObjectSet<T>::insertAt( T* newptr, size_type idx )
 {
-    vec_.insert( idx, (void*)newptr );
+    vec_.insert( idx, newptr );
 }
 
 
@@ -433,9 +478,9 @@ void ObjectSet<T>::insertAfter( T* newptr, size_type idx )
 {
     add( newptr );
     if ( idx < 0 )
-	vec_.moveToStart( (void*)newptr );
+	vec_.moveToStart( newptr );
     else
-	vec_.moveAfter( (void*)newptr, vec_[idx] );
+	vec_.moveAfter( newptr, vec_[idx] );
 }
 
 
@@ -504,3 +549,27 @@ template <class T> inline T* ObjectSet<T>::last()
 { return isEmpty() ? 0 : (*this)[size()-1]; }
 template <class T> inline const T* ObjectSet<T>::last() const
 { return isEmpty() ? 0 : (*this)[size()-1]; }
+
+
+				//--- compat with std containers
+template <class T> inline
+void ObjectSet<T>::swap( ObjectSet<T>& oth )
+{
+    const ObjectSet<T> tmp( *this );
+    *this = oth;
+    oth = tmp;
+}
+
+template <class T>
+mGlobal(Basic) inline void swap( ObjectSet<T>& os1, ObjectSet<T>& os2 )
+{
+    os1.swap( os2 );
+}
+
+				//--- useful for iterating over any OD::Set
+template <class T>
+mGlobal(Basic) inline T& getRef( ObjectSet<T>& objset, int i )
+{ return *objset.get( i ); }
+template <class T>
+mGlobal(Basic) inline const T& getRef( const ObjectSet<T>& objset, int i )
+{ return *objset.get( i ); }
