@@ -17,13 +17,17 @@ template <class T>
 mClass(Basic) ManagedObjectSetBase : public ObjectSet<T>
 {
 public:
+
+    typedef typename ObjectSet<T>::size_type	size_type;
+
     virtual bool		isManaged() const	{ return true; }
-    inline virtual T*		removeSingle(int idx,bool kporder=true );
+
+    inline virtual T*		removeSingle(size_type,bool kporder=true);
 				/*!<Removes entry and returns 0 */
-    inline virtual void		removeRange(int,int);
-    inline virtual T*		replace(int idx, T*);
+    inline virtual void		removeRange(size_type,size_type);
+    inline virtual T*		replace(size_type, T*);
 				/*!<Deletes entry and returns 0 */
-    inline virtual T*		removeAndTake(int idx, bool kporder=true );
+    inline virtual T*		removeAndTake(size_type,bool kporder=true);
 				/*!<Does not delete the entry. */
     inline virtual void		erase();
 
@@ -37,18 +41,20 @@ protected:
 				{}
 				~ManagedObjectSetBase();
 private:
+
     PtrFunc			delfunc_;
 };
 
 
-/*!
-\brief ObjectSet where the objects contained are owned by this set.
-*/
+/*!\brief ObjectSet where the objects contained are owned by this set. */
 
 template <class T>
 mClass(Basic) ManagedObjectSet : public ManagedObjectSetBase<T>
 {
 public:
+
+    typedef typename ObjectSet<T>::size_type	size_type;
+
     inline			ManagedObjectSet();
 
     inline			ManagedObjectSet(const ManagedObjectSet<T>&);
@@ -78,13 +84,16 @@ template <class T>
 mClass(Basic) RefObjectSet : public ManagedObjectSetBase<T>
 {
 public:
+
+    typedef typename ObjectSet<T>::size_type	size_type;
+
 				RefObjectSet();
 				RefObjectSet(const RefObjectSet<T>&);
 				RefObjectSet(const ObjectSet<T>&);
 
-    RefObjectSet<T>&		operator=(const ObjectSet<T>& os);
-    inline virtual T*		replace(int idx, T*);
-    inline virtual void		insertAt(T*,int idx);
+    RefObjectSet<T>&		operator=(const ObjectSet<T>&);
+    inline virtual T*		replace(size_type,T*);
+    inline virtual void		insertAt(T*,size_type);
 
 private:
     virtual ObjectSet<T>&	doAdd(T* ptr);
@@ -112,26 +121,26 @@ ManagedObjectSetBase<T>& ManagedObjectSetBase<T>::operator -=( T* ptr )
 
 
 template <class T> inline
-T* ManagedObjectSetBase<T>::removeSingle( int idx, bool kporder )
+T* ManagedObjectSetBase<T>::removeSingle( size_type vidx, bool kporder )
 {
-    delfunc_( ObjectSet<T>::removeSingle( idx, kporder ) );
+    delfunc_( ObjectSet<T>::removeSingle( vidx, kporder ) );
     return 0; //Don't give anyone a chance to play with the deleted object
 }
 
 
 template <class T> inline
-T* ManagedObjectSetBase<T>::replace( int idx , T* ptr )
+T* ManagedObjectSetBase<T>::replace( size_type vidx , T* ptr )
 {
-    delfunc_( ObjectSet<T>::replace( idx, ptr ) );
+    delfunc_( ObjectSet<T>::replace( vidx, ptr ) );
     return 0; //Don't give anyone a chance to play with the deleted object
 }
 
 
 template <class T> inline
-void ManagedObjectSetBase<T>::removeRange( int i1, int i2 )
+void ManagedObjectSetBase<T>::removeRange( size_type i1, size_type i2 )
 {
-    for ( int idx=(int)i1; idx<=i2; idx++ )
-	delfunc_((*this)[idx]);
+    for ( size_type vidx=i1; vidx<=i2; vidx++ )
+	delfunc_( this->get(vidx) );
 
     ObjectSet<T>::removeRange( i1, i2 );
 }
@@ -140,17 +149,17 @@ void ManagedObjectSetBase<T>::removeRange( int i1, int i2 )
 template <class T> inline
 void ManagedObjectSetBase<T>::erase()
 {
-    for ( int idx=ObjectSet<T>::size()-1; idx>=0; idx-- )
-	delfunc_((*this)[idx]);
+    for ( size_type vidx=ObjectSet<T>::size()-1; vidx>=0; vidx-- )
+	delfunc_( this->get(vidx) );
 
     ObjectSet<T>::erase();
 }
 
 
 template <class T> inline
-T* ManagedObjectSetBase<T>::removeAndTake(int idx, bool kporder )
+T* ManagedObjectSetBase<T>::removeAndTake( size_type vidx, bool kporder )
 {
-    return ObjectSet<T>::removeSingle( idx, kporder );
+    return ObjectSet<T>::removeSingle( vidx, kporder );
 }
 
 
@@ -183,13 +192,16 @@ ManagedObjectSet<T>& ManagedObjectSet<T>::operator =(const ObjectSet<T>& os)
 template <class T> inline
 void ManagedObjectSet<T>::append( const ObjectSet<T>& os )
 {
-    const int sz = os.size();
+    const  size_type sz = os.size();
     this->vec_.setCapacity( this->size()+sz, true );
     if ( !os.isManaged() )
 	ObjectSet<T>::append( os );
     else
-	for ( int idx=0; idx<sz; idx++ )
-	    ObjectSet<T>::add( os[idx] ? new T( *os[idx] ) : 0 );
+	for ( size_type vidx=0; vidx<sz; vidx++ )
+	{
+	    auto obj = os.get( vidx );
+	    ObjectSet<T>::add( obj ? new T(*obj) : 0 );
+	}
 }
 
 
@@ -217,18 +229,18 @@ RefObjectSet<T>& RefObjectSet<T>::operator =(const ObjectSet<T>& os)
 
 
 template <class T> inline
-T* RefObjectSet<T>::replace( int idx, T *ptr )
+T* RefObjectSet<T>::replace( size_type vidx, T *ptr )
 {
     refPtr( ptr );
-    return ManagedObjectSetBase<T>::replace(idx, ptr );
+    return ManagedObjectSetBase<T>::replace( vidx, ptr );
 }
 
 
 template <class T> inline
-void RefObjectSet<T>::insertAt( T *ptr, int idx )
+void RefObjectSet<T>::insertAt( T *ptr, size_type vidx )
 {
     refPtr( ptr );
-    ManagedObjectSetBase<T>::insertAt( ptr, idx );
+    ManagedObjectSetBase<T>::insertAt( ptr, vidx );
 }
 
 
