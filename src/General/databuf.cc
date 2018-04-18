@@ -217,7 +217,7 @@ void TraceData::convertTo( const DataCharacteristics& dc, bool pres )
     for ( int icomp=0; icomp<nrComponents(); icomp++ )
     {
 	const TraceDataInterpreter* di = getInterpreter( icomp );
-	if ( di && di->dataChar() == dc )
+	if ( di && di->dataChar() != dc )
 	    { allok = false; break; }
     }
     if ( allok )
