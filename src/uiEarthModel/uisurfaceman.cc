@@ -300,7 +300,6 @@ void uiSurfaceMan::setToolButtonProperties()
      if ( type_ == Body )
      {
 	 applybodybut_->setSensitive( curioobj_ );
-	 createregbodybut_->setSensitive( curioobj_ );
 	 volestimatebut_->setSensitive( curioobj_ );
 	 switchvalbut_->setSensitive( curioobj_ );
 	 mSetButToolTip(volestimatebut_,"Estimate volume of '",cursel,
