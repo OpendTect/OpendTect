@@ -74,6 +74,21 @@ mDefineEnumUtils( Well::Info, WellType, "Well Type" )
   "pluggedgaswell", "pluggedoilgaswell", "permittedlocation",
   "canceledlocation", "injectiondisposalwell", 0 };
 
+template<>
+void EnumDefImpl<Well::Info::WellType>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += mEnumTr("Oil Well");
+    uistrings_ += mEnumTr("Gas Well");
+    uistrings_ += mEnumTr("Oil-Gas Well");
+    uistrings_ += mEnumTr("Dry Hole");
+    uistrings_ += mEnumTr("Plugged Oil Well");
+    uistrings_ += mEnumTr("Plugged Gas Well");
+    uistrings_ += mEnumTr("Plugged Oil-Gas Well");
+    uistrings_ += mEnumTr("Permitted Location");
+    uistrings_ += mEnumTr("Canceled Location");
+    uistrings_ += mEnumTr("Injection Disposal Well");
+}
 
 static const char* sWellName = "Well name";
 

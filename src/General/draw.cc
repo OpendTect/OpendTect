@@ -14,6 +14,7 @@ The main chunk is color table related.
 #include "separstr.h"
 #include "bufstringset.h"
 #include "iopar.h"
+#include "uistrings.h"
 
 // Beware if you add or change: there is a 'mirror' in
 // uiGraphicsItem::setFillPattern. Not an enum to keep full flexibility.
@@ -23,16 +24,71 @@ static const int cLinesFillPatternType = 2;
 
 mDefineEnumUtils(OD::Alignment,HPos,"OD::Alignment")
 { "Left", "Right", "Center", 0 };
+template<>
+void EnumDefImpl<OD::Alignment::HPos>::init()
+{
+    uistrings_ += uiStrings::sLeft();
+    uistrings_ += uiStrings::sRight();
+    uistrings_ += uiStrings::sCenter();
+}
+
 mDefineEnumUtils(OD::Alignment,VPos,"OD::Alignment")
 { "Top", "Bottom", "Center", 0 };
+template<>
+void EnumDefImpl<OD::Alignment::HPos>::init()
+{
+    uistrings_ += uiStrings::sTop();
+    uistrings_ += uiStrings::sBottom();
+    uistrings_ += uiStrings::sCenter();
+}
 mDefineEnumUtils(OD::MarkerStyle2D,Type,"Marker type")
 { "None", "Square", "Circle", "Cross", "Plus", "Target",
   "Horizontal line", "Vertical line", "Plane", "Triangle", "Arrow", 0 };
+template<>
+void EnumDefImpl<OD::MarkerStyle2D::Type>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += uiStrings::sSquare();
+    uistrings_ += mEnumTr("Circle", "Shape");
+    uistrings_ += uiStrings::sCross();
+    uistrings_ += mEnumTr("Plus", "Shape");
+    uistrings_ += mEnumTr("Target", "Shape");
+    uistrings_ += mEnumTr("Horizontal Line", "Shape");
+    uistrings_ += mEnumTr("Vertical Line", "Shape");
+    uistrings_ += uiStrings::sPlane();
+    uistrings_ += mEnumTr("Triangle");
+    uistrings_ += uiStrings::sArrow();
+}
+
 mDefineEnumUtils(OD::MarkerStyle3D,Type,"Marker type")
 { "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross",
   "Point", "Plane", 0 };
+template<>
+void EnumDefImpl<OD::MarkerStyle3D::Type>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += uiStrings::sCube();
+    uistrings_ += mEnumTr("Cone","Shape");
+    uistrings_ += mEnumTr("Cylinder","Shape");
+    uistrings_ += uiStrings::sSphere();
+    uistrings_ += uiStrings::sArrow();
+    uistrings_ += uiStrings::sCross();
+    uistrings_ += mEnumTr("Point","Shape");
+    uistrings_ += uiStrings::sPlane();
+}
+
 mDefineEnumUtils(OD::LineStyle,Type,"Line style")
 { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
+template<>
+void EnumDefImpl<OD::LineStyle::Type>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += mEnumTr("Solid","LineStyle");
+    uistrings_ += mEnumTr("Dashed","LineStyle");
+    uistrings_ += mEnumTr("Dotted","LineStyle");
+    uistrings_ += mEnumTr("Dash-Dotted","LineStyle");
+    uistrings_ += mEnumTr("Dash-Dot-Dotted","LineStyle");
+}
 
 OD::Alignment::Alignment( HPos h, VPos v )
     : hor_(h), ver_(v)                                  {}

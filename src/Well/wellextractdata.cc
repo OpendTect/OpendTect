@@ -60,6 +60,14 @@ mDefineEnumUtils(ZRangeSelector,ZSelection,"Type of selection")
 
 } // namespace Well
 
+template<>
+void EnumDefImpl<Well::ZRangeSelector::ZSelection>::init()
+{
+    uistrings_ += uiStrings::sMarker(mPlural);
+    uistrings_ += uiStrings::sDepthRange();
+    uistrings_ += uiStrings::sTimeRange();
+}
+
 static const char* sKeyDAHColName()	    { return "<MD>"; }
 
 

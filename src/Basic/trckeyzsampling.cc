@@ -12,6 +12,7 @@
 #include "separstr.h"
 #include "survinfo.h"
 #include "survgeom.h"
+#include "uistrings.h"
 
 #include <math.h>
 
@@ -21,6 +22,14 @@ mDefineEnumUtils(TrcKeyZSampling,Dir,"Dir") {
     "ZSlice",
     0
 };
+
+template<>
+void EnumDefImpl<TrcKeyZSampling::Dir>::init()
+{
+    uistrings_ += uiStrings::sInline();
+    uistrings_ += uiStrings::sCrossline();
+    uistrings_ += uiStrings::sZSlice();
+}
 
 
 TrcKeySampling::TrcKeySampling()

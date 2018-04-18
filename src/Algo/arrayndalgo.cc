@@ -14,6 +14,18 @@ mDefineEnumUtils( ArrayNDWindow, WindowType, "Windowing type")
 { "Box", "Hamming", "Hanning", "Blackman", "Bartlett",
   "CosTaper5", "CosTaper10", "CosTaper20", 0 };
 
+template<>
+void EnumDefImpl<ArrayNDWindow::WindowType>::init()
+{
+    uistrings_ += mEnumTr("Box");
+    uistrings_ += mEnumTr("Hamming");
+    uistrings_ += mEnumTr("Hanning");
+    uistrings_ += mEnumTr("Blackman");
+    uistrings_ += mEnumTr("Bartlett");
+    uistrings_ += mEnumTr("CosTaper5");
+    uistrings_ += mEnumTr("CosTaper10");
+    uistrings_ += mEnumTr("CosTaper20");
+}
 
 
 ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& inf, bool rectangular,
@@ -154,7 +166,14 @@ bool ArrayNDWindow::buildWindow( const char* winnm, float val )
 mDefineEnumUtils( PolyTrend, Order, "Polynomial Order")
 { "None", "Order0", "Order1", "Order2", 0 };
 
-
+template<>
+void EnumDefImpl<PolyTrend::Order>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += mEnumTr("Order0");
+    uistrings_ += mEnumTr("Order1");
+    uistrings_ += mEnumTr("Order2");
+}
 
 PolyTrend::PolyTrend()
     : order_(None)

@@ -11,6 +11,7 @@
 #include "timefun.h"
 #include "envvars.h"
 #include "settings.h"
+#include "uistrings.h"
 
 Threads::Atomic<int> partsortglobalseed( 0 );
 
@@ -25,12 +26,40 @@ mDefineNameSpaceEnumUtils(Stats,Type,"Statistic type")
 	0
 };
 
+template<>
+void EnumDefImpl<Stats::Type>::init()
+{
+    uistrings_ += mEnumTr("Count");
+    uistrings_ += uiStrings::sAverage();
+    uistrings_ += uiStrings::sMedian();
+    uistrings_ += uiStrings::sRMS();
+    uistrings_ += mEnumTr("Standard Deviation");
+    uistrings_ += mEnumTr("Variance");
+    uistrings_ += mEnumTr("Normal Variance");
+    uistrings_ += uiStrings::sMinimum();
+    uistrings_ += uiStrings::sMaximum();
+    uistrings_ += mEnumTr("Extreme","Statistic Type");
+    uistrings_ += mEnumTr("Sum","Statistic Type");
+    uistrings_ += mEnumTr("Square Sum","Statistic Type");
+    uistrings_ += mEnumTr("Most Frequent","Statistic Type");
+}
+
 mDefineNameSpaceEnumUtils(Stats,UpscaleType,"Upscale type")
 {
 	"Take Nearest Sample",
 	"Use Average", "Use Median", "Use RMS", "Use Most Frequent",
 	0
 };
+
+template<>
+void EnumDefImpl<Stats::UpscaleType>::init()
+{
+    uistrings_ += mEnumTr("Take Nearest Sample");
+    uistrings_ += mEnumTr("Use Average");
+    uistrings_ += mEnumTr("Use Median");
+    uistrings_ += mEnumTr("Use Root Mean Square");
+    uistrings_ += mEnumTr("Use Most Frequent");
+}
 
 
 #include <math.h>

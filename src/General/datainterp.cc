@@ -17,18 +17,35 @@
 #include "keystrs.h"
 #include <limits>
 
-mDefineEnumUtils(DataCharacteristics,UserType,"Data storage") {
-	"0 - auto",
-	"1 - 8  bit signed",
-        "2 - 8  bit unsigned",
-        "3 - 16 bit signed",
-        "4 - 16 bit unsigned",
-        "5 - 32 bit signed",
-        "6 - 32 bit unsigned",
-        "7 - 32 bit floating point",
-        "8 - 64 bit floating point",
-        "9 - 64 bit signed",
-	0 };
+mDefineEnumUtils(DataCharacteristics,UserType,"Data storage")
+{
+    "0 - auto",
+    "1 - 8  bit signed",
+    "2 - 8  bit unsigned",
+    "3 - 16 bit signed",
+    "4 - 16 bit unsigned",
+    "5 - 32 bit signed",
+    "6 - 32 bit unsigned",
+    "7 - 32 bit floating point",
+    "8 - 64 bit floating point",
+    "9 - 64 bit signed",
+    0
+};
+
+template<>
+void EnumDefImpl<DataCharacteristics::UserType>::init()
+{
+    uistrings_ += mEnumTr("0 - auto");
+    uistrings_ += mEnumTr("1 - 8  bit signed");
+    uistrings_ += mEnumTr("2 - 8  bit unsigned");
+    uistrings_ += mEnumTr("3 - 16 bit signed");
+    uistrings_ += mEnumTr("4 - 16 bit unsigned");
+    uistrings_ += mEnumTr("5 - 32 bit signed");
+    uistrings_ += mEnumTr("6 - 32 bit unsigned");
+    uistrings_ += mEnumTr("7 - 32 bit floating point");
+    uistrings_ += mEnumTr("8 - 64 bit floating point");
+    uistrings_ += mEnumTr("9 - 64 bit signed");
+}
 
 bool DataCharacteristics::getUserTypeFromPar( const IOPar& iop, UserType& ut )
 {

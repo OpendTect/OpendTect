@@ -63,6 +63,24 @@ static const char* fullmonths[] = {
 	"December",
 	0
 };
+
+template <>
+void EnumDefImpl<DateInfo::Month>::init()
+{
+    uistrings_ += mEnumTr("January");
+    uistrings_ += mEnumTr("February");
+    uistrings_ += mEnumTr("March");
+    uistrings_ += mEnumTr("April");
+    uistrings_ += mEnumTr("May");
+    uistrings_ += mEnumTr("June");
+    uistrings_ += mEnumTr("July");
+    uistrings_ += mEnumTr("August");
+    uistrings_ += mEnumTr("September");
+    uistrings_ += mEnumTr("October");
+    uistrings_ += mEnumTr("November");
+    uistrings_ += mEnumTr("December");
+}
+
 const char** DateInfo::sFullMonths()	{ return fullmonths; }
 
 

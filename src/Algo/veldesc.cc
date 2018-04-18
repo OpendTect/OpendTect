@@ -25,6 +25,18 @@ const char* VelocityDesc::sKeyVelocityVolume()	{ return "Velocity volume"; }
 mDefineEnumUtils(VelocityDesc,Type,"Velocity Types")
 { "Unknown", "Vint", "Vrms", "Vavg", "Delta", "Epsilon", "Eta", 0 };
 
+template<>
+void EnumDefImpl<VelocityDesc::Type>::init()
+{
+    uistrings_ += uiStrings::sUnknown();
+    uistrings_ += mEnumTr("Interval Velocity");
+    uistrings_ += mEnumTr("RMS Velocity");
+    uistrings_ += mEnumTr("Average Velocity");
+    uistrings_ += mEnumTr("Delta","Velocity Type");
+    uistrings_ += mEnumTr("Epsilon","Velocity Type");
+    uistrings_ += mEnumTr("Eta","Velocity Type");
+}
+
 VelocityDesc::VelocityDesc()
     : type_( Unknown )
 {}

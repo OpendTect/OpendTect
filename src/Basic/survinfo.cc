@@ -67,6 +67,14 @@ const uiString SurveyInfo::sSeismicRefDatum()
 mDefineEnumUtils(SurveyInfo,Pol2D3D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 
+template<>
+void EnumDefImpl<SurveyInfo::Pol2D3D>::init()
+{
+    uistrings_ += mEnumTr("Only 3D");
+    uistrings_ += mEnumTr("Both 2D and 3D");
+    uistrings_ += mEnumTr("Only 2D");
+}
+
 #define mXYInFeet() (coordsystem_ && coordsystem_->isFeet())
 #define mXYUnit() (mXYInFeet() ? Feet : Meter)
 #define mZUnit() (zdef_.isTime() ? Second : (depthsinfeet_ ? Feet : Meter))

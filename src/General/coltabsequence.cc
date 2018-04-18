@@ -34,7 +34,15 @@ static const char* sKeyCtabSettsKey = "coltabs";
 mDefineInstanceCreatedNotifierAccess(ColTab::Sequence);
 
 mDefineEnumUtils(ColTab::Sequence,Status,"Color Sequence Status")
-	{ "System", "Edited", "Added", 0 };
+{ "System", "Edited", "Added", 0 };
+
+template<>
+void EnumDefImpl<ColTab::Sequence::Status>::init()
+{
+    uistrings_ += mEnumTr("System");
+    uistrings_ += mEnumTr("Edited");
+    uistrings_ += mEnumTr("Added");
+}
 
 static const char* sKeyDefNameSeis = "dTect.Disp.Default Color Table.Seismics";
 static const char* sKeyDefNameAttrib

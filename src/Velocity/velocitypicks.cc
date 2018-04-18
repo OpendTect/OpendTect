@@ -31,13 +31,21 @@
 #define mDepthIndex	0
 #define mVelIndex	1
 
-namespace Vel
-{
-
-mDefineEnumUtils( Picks, PickType, "Pick types" )
+mDefineEnumUtils( Vel::Picks, PickType, "Pick types" )
 { "RMO", "RMS", "Delta", "Epsilon", "Eta", 0 };
 
+template<>
+void EnumDefImpl<Vel::Picks::PickType>::init()
+{
+    uistrings_ += uiStrings::sRMO();
+    uistrings_ += uiStrings::sRMS();
+    uistrings_ += uiStrings::sDelta();
+    uistrings_ += uiStrings::sEpsilon();
+    uistrings_ += uiStrings::sEta();
+}
 
+namespace Vel
+{
 Pick::Pick( float depth, float vel, float offset, DBKey oid )
     : depth_( depth )
     , vel_( vel )

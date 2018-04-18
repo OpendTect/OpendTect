@@ -23,18 +23,33 @@
 #include "vispolyline.h"
 #include "visprestackdisplay.h"
 #include "vistransform.h"
+#include "uistrings.h"
 
+mDefineEnumUtils( visSurvey::PSEventDisplay, MarkerColor, "Marker Color" )
+{ "Single", "Quality", "Velocity", "Velocity fit", 0 };
+template<>
+void EnumDefImpl<visSurvey::PSEventDisplay::MarkerColor>::init()
+{
+    uistrings_ += uiStrings::sSingle();
+    uistrings_ += mEnumTr("Quality");
+    uistrings_ += uiStrings::sVelocity();
+    uistrings_ += mEnumTr("Velocity Fit");
+}
+
+mDefineEnumUtils( visSurvey::PSEventDisplay, DisplayMode, "Display Mode" )
+{ "Zero offset", "Sticks from sections", "Zero offset on sections",
+  "Sticks to gathers", 0 };
+template<>
+void EnumDefImpl<visSurvey::PSEventDisplay::DisplayMode>::init()
+{
+    uistrings_ += mEnumTr("Zero Offset");
+    uistrings_ += mEnumTr("Sticks from sections");
+    uistrings_ += mEnumTr("Zero offset on sections");
+    uistrings_ += mEnumTr("Sticks to gathers");
+}
 
 namespace visSurvey
 {
-
-mDefineEnumUtils( PSEventDisplay, MarkerColor, "Marker Color" )
-{ "Single", "Quality", "Velocity", "Velocity fit", 0 };
-
-mDefineEnumUtils( PSEventDisplay, DisplayMode, "Display Mode" )
-{ "Zero offset", "Sticks from sections", "Zero offset on sections",
-  "Sticks to gathers", 0 };
-
 PSEventDisplay::PSEventDisplay()
     : VisualObjectImpl( false )
     , displaymode_( ZeroOffsetOnSections )

@@ -19,6 +19,7 @@
 #include "filepath.h"
 #include "survinfo.h"
 #include "keystrs.h"
+#include "uistrings.h"
 
 mDefineEnumUtils(IOObjContext,StdSelType,"Std sel type") {
 
@@ -34,8 +35,23 @@ mDefineEnumUtils(IOObjContext,StdSelType,"Std sel type") {
 	"Survey Geometries",
 	"None",
 	0
-
 };
+
+template<>
+void EnumDefImpl<IOObjContext::StdSelType>::init()
+{
+    uistrings_ += uiStrings::sSeismicData();
+    uistrings_ += mEnumTr("Surface Data");
+    uistrings_ += mEnumTr("Location Data");
+    uistrings_ += mEnumTr("Feature Sets");
+    uistrings_ += mEnumTr("Well Information");
+    uistrings_ += mEnumTr("Neural Networks");
+    uistrings_ += mEnumTr("Miscellaneous data");
+    uistrings_ += mEnumTr("Attribute definitions");
+    uistrings_ += mEnumTr("Model Data");
+    uistrings_ += mEnumTr("Survey Geometries");
+    uistrings_ += uiStrings::sNone();
+}
 
 #define mStdDirD(nr,dirnm,typ) \
     IOObjContext::StdDirData( nr, dirnm, \

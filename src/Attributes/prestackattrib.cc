@@ -27,21 +27,35 @@
 #include "dbman.h"
 #include "ioobj.h"
 
-namespace Attrib
-{
-mDefineEnumUtils(PSAttrib,GatherType,"Gather type")
+mDefineEnumUtils(Attrib::PSAttrib,GatherType,"Gather type")
 {
     "Offset",
     "Angle",
     0
 };
+template<>
+void EnumDefImpl<Attrib::PSAttrib::GatherType>::init()
+{
+    uistrings_ += uiStrings::sOffset();
+    uistrings_ += uiStrings::sAngle();
+}
 
-mDefineEnumUtils(PSAttrib,XaxisUnit,"X-Axis unit")
+mDefineEnumUtils(Attrib::PSAttrib,XaxisUnit,"X-Axis unit")
 {
     "in Degrees",
     "in Radians",
     0
 };
+template<>
+void EnumDefImpl<Attrib::PSAttrib::XaxisUnit>::init()
+{
+    uistrings_ += uiStrings::sDegree(mPlural);
+    uistrings_ += uiStrings::sRadian(mPlural);
+}
+
+namespace Attrib
+{
+
 
 
 mAttrDefCreateInstance(PSAttrib)

@@ -11,6 +11,15 @@
 
 mDefineEnumUtils(FontData,Weight,"Font weight")
 { "Light", "Normal", "Demi-Bold", "Bold", "Black", 0 };
+template<>
+void EnumDefImpl<FontData::Weight>::init()
+{
+    uistrings_ += mEnumTr("Light","Font Weight");
+    uistrings_ += mEnumTr("Normal","Font Weight");
+    uistrings_ += mEnumTr("Demi-Bold","Font Weight");
+    uistrings_ += mEnumTr("Bold","Font Weight");
+    uistrings_ += mEnumTr("Black","Font Weight");
+}
 
 const char* universalfamilies[] =
 { "Helvetica", "Courier", "Times", 0 };

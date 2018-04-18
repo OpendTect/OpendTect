@@ -31,6 +31,18 @@
 #include "zaxistransformutils.h"
 
 
+mDefineEnumUtils(visSurvey::PlaneDataDisplay,SliceType,"Orientation")
+{ "Inline", "Crossline", "Z-slice", 0 };
+
+template<>
+void EnumDefImpl<visSurvey::PlaneDataDisplay::SliceType>::init()
+{
+    uistrings_ += uiStrings::sInline();
+    uistrings_ += uiStrings::sCrossline();
+    uistrings_ += uiStrings::sZSlice();
+}
+
+
 namespace visSurvey {
 
 class PlaneDataMoveUndoEvent: public UndoEvent
@@ -60,10 +72,6 @@ private:
     const TrcKeyZSampling starttkz_;
     const TrcKeyZSampling endtkz_;
 };
-
-
-mDefineEnumUtils(PlaneDataDisplay,SliceType,"Orientation")
-{ "Inline", "Crossline", "Z-slice", 0 };
 
 
 PlaneDataDisplay::PlaneDataDisplay()

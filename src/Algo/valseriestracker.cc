@@ -10,6 +10,7 @@
 #include "genericnumer.h"
 #include "iopar.h"
 #include "samplfunc.h"
+#include "uistrings.h"
 
 ValSeriesTracker::ValSeriesTracker()
     : sourcevs_(0)
@@ -55,6 +56,14 @@ mDefineEnumUtils(EventTracker,CompareMethod,"Compare Method")
 	"Adjacent Parent",
 	0
 };
+
+template<>
+void EnumDefImpl<EventTracker::CompareMethod>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += mEnumTr("Seed Trace");
+    uistrings_ += mEnumTr("Adjacent Parent","Event Tracking");
+}
 
 
 const char* EventTracker::sKeyPermittedRange()	{ return "Permitted range"; }

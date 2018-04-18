@@ -88,6 +88,13 @@ mDefineEnumUtils(SeisEnum,SelType,"Selection type")
 	sKey::Polygon(),
 	0
 };
+template<>
+void EnumDefImpl<SeisEnum::SelType>::init()
+{
+    uistrings_ += uiStrings::sRange();
+    uistrings_ += uiStrings::sTable();
+    uistrings_ += uiStrings::sPolygon();
+}
 
 mDefineEnumUtils(SeisEnum,GeomType,"Geometry type")
 {
@@ -97,6 +104,14 @@ mDefineEnumUtils(SeisEnum,GeomType,"Geometry type")
 	"Pre-Stack Volume",
 	0
 };
+template<>
+void EnumDefImpl<SeisEnum::GeomType>::init()
+{
+    uistrings_ += uiStrings::s2DLine();
+    uistrings_ += mEnumTr("Line 2D Pre-Stack");
+    uistrings_ += mEnumTr("3D Volume");
+    uistrings_ += mEnumTr("Pre-Stack Volume");
+}
 
 mDefineEnumUtils(SeisEnum,WaveType,"Wave type")
 {
@@ -106,6 +121,14 @@ mDefineEnumUtils(SeisEnum,WaveType,"Wave type")
 	"Other",
 	0
 };
+template<>
+void EnumDefImpl<SeisEnum::WaveType>::init()
+{
+    uistrings_ += mEnumTr("P-Wave");
+    uistrings_ += mEnumTr("Sh-PWave");
+    uistrings_ += mEnumTr("Sv-Wave");
+    uistrings_ += uiStrings::sOther();
+}
 
 mDefineEnumUtils(SeisEnum,DataType,"Data type")
 {
@@ -119,6 +142,18 @@ mDefineEnumUtils(SeisEnum,DataType,"Data type")
 	"Other",
 	0
 };
+template<>
+void EnumDefImpl<SeisEnum::DataType>::init()
+{
+    uistrings_ += uiStrings::sAmplitude();
+    uistrings_ += uiStrings::sDip();
+    uistrings_ += uiStrings::sFrequency();
+    uistrings_ += uiStrings::sPhase(false);
+    uistrings_ += mEnumTr("AVO Gradient");
+    uistrings_ += uiStrings::sAzimuth();
+    uistrings_ += uiStrings::sClassification();
+    uistrings_ += uiStrings::sOther();
+}
 
 const char* Seis::nameOf( SelType st )
 { return SeisEnum::toString(st); }

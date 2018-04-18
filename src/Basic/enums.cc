@@ -124,7 +124,7 @@ void EnumDef::add(const char* key, const uiString& string, int enumval,
 }
 
 
-void EnumDef::fillUiStrings()
+void EnumDef::fillUiStringsWithKeys()
 {
     for ( int idx=0; idx<keys_.size(); idx++ )
 	uistrings_ += ::toUiString( keys_.get(idx) );

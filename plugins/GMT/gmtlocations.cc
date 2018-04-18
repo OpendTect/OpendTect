@@ -26,9 +26,29 @@ ________________________________________________________________________
 mDefineNameSpaceEnumUtils(ODGMT,Shape,"Shapes")
 { "Star", "Circle", "Diamond", "Square", "Triangle", "Cross", "Polygon",
   "Line", 0 };
+template<>
+void EnumDefImpl<ODGMT::Shape>::init()
+{
+    uistrings_ += mEnumTr("Star");
+    uistrings_ += uiStrings::sCircle();
+    uistrings_ += mEnumTr("Diamond");
+    uistrings_ += uiStrings::sSquare();
+    uistrings_ += uiStrings::sTriangle();
+    uistrings_ += uiStrings::sCross();
+    uistrings_ += uiStrings::sPolygon();
+    uistrings_ += uiStrings::sLine();
+}
 
 mDefineNameSpaceEnumUtils(ODGMT,Alignment,"Alignments")
 { "Above", "Below", "Left", "Right", 0 };
+template<>
+void EnumDefImpl<ODGMT::Alignment>::init()
+{
+    uistrings_ += uiStrings::sAbove();
+    uistrings_ += uiStrings::sBelow();
+    uistrings_ += uiStrings::sLeft();
+    uistrings_ += uiStrings::sRight();
+}
 
 
 // Well Symbols

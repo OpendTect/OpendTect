@@ -23,13 +23,22 @@
 #include "thread.h"
 #include "randcolor.h"
 #include "binidvalue.h"
+#include "uistrings.h"
+
+
+mDefineEnumUtils( PreStack::EventManager::DipSource,Type,"Dip source" )
+{ "None", "Horizon", "SteeringCube", 0 };
+
+template<>
+void EnumDefImpl<PreStack::EventManager::DipSource::Type>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += uiStrings::sHorizon();
+    uistrings_ += uiStrings::sSteeringCube();
+}
 
 namespace PreStack
 {
-
-mDefineEnumUtils( EventManager::DipSource,Type,"Dip source" )
-{ "None", "Horizon", "SteeringCube", 0 };
-
 
 Event::Event( int sz, bool quality )
     : pick_( 0 )

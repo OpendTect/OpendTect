@@ -6,6 +6,7 @@
 
 
 #include "valseriesevent.h"
+#include "uistrings.h"
 
 mDefineEnumUtils(VSEvent,Type,"Event type")
 {
@@ -20,3 +21,17 @@ mDefineEnumUtils(VSEvent,Type,"Event type")
 	"Largest trough",
 	0
 };
+
+template<>
+void EnumDefImpl<VSEvent::Type>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += mEnumTr("Peak or trough");
+    uistrings_ += mEnumTr("Peak (Maximum)");
+    uistrings_ += mEnumTr("Trough (Minimum)");
+    uistrings_ += mEnumTr("Zero crossing");
+    uistrings_ += mEnumTr("Zero crossing - to +");
+    uistrings_ += mEnumTr("Zero crossing + to -");
+    uistrings_ += mEnumTr("Largest peak");
+    uistrings_ += mEnumTr("Largest trough");
+}

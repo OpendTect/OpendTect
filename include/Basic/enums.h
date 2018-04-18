@@ -66,10 +66,10 @@ public:
     void			remove(const char* key);
     void			add(const char* key, const uiString&,
 	    int enumval, const char* iconfile);
+    void			fillUiStringsWithKeys();
 
 protected:
 
-    void		fillUiStrings();
     uiStringSet		uistrings_;
     BufferStringSet	keys_;
     TypeSet<int>	enums_;
@@ -340,8 +340,8 @@ uiString EnumDefImpl<ENUM>::toUiString( ENUM theenum ) const
 }
 
 
-template <class ENUM> inline
+/*template <class ENUM> inline
 void EnumDefImpl<ENUM>::init()
 {
      fillUiStrings();
-}
+}*/

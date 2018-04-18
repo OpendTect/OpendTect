@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uigroup.h"
 #include "uitreeview.h"
+#include "uistrings.h"
 
 #include "color.h"
 #include "settingsaccess.h"
@@ -28,6 +29,15 @@ mUseQtnamespace
 
 
 mDefineEnumUtils(uiRect,Side,"Side") { "Left", "Right", "Top", "Bottom", 0 };
+
+template<>
+void EnumDefImpl<uiRect::Side>::init()
+{
+    uistrings_ += uiStrings::sLeft();
+    uistrings_ += uiStrings::sRight();
+    uistrings_ += uiStrings::sTop();
+    uistrings_ += uiStrings::sBottom();
+}
 
 #define mBody_( imp_ )	dynamic_cast<uiObjectBody*>( imp_ )
 #define mBody()		mBody_( body() )

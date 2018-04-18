@@ -88,9 +88,23 @@ FixedString ui3DViewer::sKeyBindingSettingsKey()
 
 mDefineEnumUtils(ui3DViewer,StereoType,"StereoType")
 { sKey::None().str(), "RedCyan", "QuadBuffer", 0 };
+template<>
+void EnumDefImpl<ui3DViewer::StereoType>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += mEnumTr("RedCyan","StereoType");
+    uistrings_ += mEnumTr("QuadBuffer","StereoType");
+}
 
 mDefineEnumUtils(ui3DViewer,WheelMode,"WheelMode")
 { "Never", "Always", "On Hover", 0 };
+template<>
+void EnumDefImpl<ui3DViewer::WheelMode>::init()
+{
+    uistrings_ += mEnumTr("Never");
+    uistrings_ += mEnumTr("Always");
+    uistrings_ += mEnumTr("On Hover");
+}
 
 
 class TrackBallManipulatorMessenger : public osg::NodeCallback

@@ -28,6 +28,14 @@ mDefSimpleTranslators(StratLayerSequenceAttribSet,mFileType,od,Attr);
 mDefineEnumUtils(Strat::LaySeqAttrib,Transform,"Value Transformation")
 { "Power", "Log", "Exp", 0 };
 
+template<>
+void EnumDefImpl<Strat::LaySeqAttrib::Transform>::init()
+{
+    uistrings_ += mEnumTr("Power");
+    uistrings_ += uiStrings::sLog();
+    uistrings_ += mEnumTr("Exponential");
+}
+
 
 Strat::LaySeqAttrib* Strat::LaySeqAttribSet::gtAttr( const char* nm ) const
 {

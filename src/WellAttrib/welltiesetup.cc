@@ -16,6 +16,18 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "od_iostream.h"
 #include "staticstring.h"
+#include "uistrings.h"
+
+mDefineEnumUtils(WellTie::Setup,CorrType,"Check Shot Corrections")
+{ "None", "Automatic", "Use editor", 0 };
+
+template<>
+void EnumDefImpl<WellTie::Setup::CorrType>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += uiStrings::sAutomatic();
+    uistrings_ += mEnumTr("Use Editor");
+}
 
 namespace WellTie
 {
@@ -30,10 +42,6 @@ static const char* sKeyWavltID = "ID of selected wavelet";
 static const char* sKeyIsSonic = "Provided TWT log is sonic";
 static const char* sKeySetupPar = "Well Tie Setup";
 static const char* sKeySeisLineID = "ID of selected Line"; //backward compat.
-
-mDefineEnumUtils(Setup,CorrType,"Check Shot Corrections")
-{ "None", "Automatic", "Use editor", 0 };
-
 
 void Setup::supportOldPar( const IOPar& iop )
 {

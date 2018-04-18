@@ -40,6 +40,14 @@ mDefSimpleTranslators(ElasticPropSelection,
 mDefineEnumUtils(ElasticFormula,Type,"Elastic Property")
 { "Density", "PWave", "SWave", 0 };
 
+template<>
+void EnumDefImpl<ElasticFormula::Type>::init()
+{
+    uistrings_ += uiStrings::sDensity();
+    uistrings_ += mEnumTr("PWave");
+    uistrings_ += mEnumTr("SWave");
+}
+
 
 ElasticFormula& ElasticFormula::operator =( const ElasticFormula& ef )
 {

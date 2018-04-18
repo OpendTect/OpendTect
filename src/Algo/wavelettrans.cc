@@ -19,6 +19,11 @@ mDefineEnumUtils(WaveletTransform,WaveletType,"Wavelet Type")
   "Coiflet4", "Coiflet5", "Symmlet4", "Symmlet5", "Symmlet6",
   "Symmlet7", "Symmlet8", "Symmlet9", "Symmlet10", "Vaidyanathan", 0 };
 
+template<>
+void EnumDefImpl<WaveletTransform::WaveletType>::init()
+{
+    fillUiStringsWithKeys();
+}
 
 
 bool WaveletTransform::isCplx( WaveletType )
@@ -478,6 +483,12 @@ const TypeSet<float>* CWT::CWTWavelets::getWavelet( float scale ) const
 
 mDefineEnumUtils(CWT,WaveletType,"Wavelet Type")
 { "Morlet", "Gaussian", "Mexican Hat", 0 };
+
+template<>
+void EnumDefImpl<CWT::WaveletType>::init()
+{
+    fillUiStringsWithKeys();
+}
 
 
 CWT::CWT()

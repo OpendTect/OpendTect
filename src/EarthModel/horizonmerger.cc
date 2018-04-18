@@ -19,12 +19,19 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "statruncalc.h"
 
+mDefineEnumUtils(EM::HorizonMerger,Mode,"Merge mode")
+{ "Take average", "Use top", "Use base", 0 };
+
+template<>
+void EnumDefImpl<EM::HorizonMerger::Mode>::init()
+{
+    uistrings_ += mEnumTr("Take Average");
+    uistrings_ += mEnumTr("Use Top","Top of a geologic model");
+    uistrings_ += mEnumTr("Use Base","Base of a geologic model");
+}
 
 namespace EM
 {
-
-mDefineEnumUtils(HorizonMerger,Mode,"Merge mode")
-{ "Take average", "Use top", "Use base", 0 };
 
 Horizon3DMerger::Horizon3DMerger( const TypeSet<DBKey>& ids )
     : outputhor_(0)

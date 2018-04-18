@@ -33,6 +33,16 @@ mDefineEnumUtils(OD::Platform,Type,"Platform")
 	0
 };
 
+template<>
+void EnumDefImpl<OD::Platform::Type>::init()
+{
+    uistrings_ += mEnumTr("Linux (32 bits)");
+    uistrings_ += mEnumTr("Linux (64 bits)");
+    uistrings_ += mEnumTr("Windows (32 bits)");
+    uistrings_ += mEnumTr("Windows (64 bits)");
+    uistrings_ += mEnumTr("Mac OS X");
+}
+
 
 extern "C" const char* GetFullODVersion()
 {

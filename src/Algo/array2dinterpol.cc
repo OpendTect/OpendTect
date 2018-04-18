@@ -57,6 +57,14 @@ const char* ExtensionArray2DInterpol::sKeyNrSteps()
 mDefineEnumUtils( Array2DInterpol, FillType, "Filltypes" )
 { "Only Holes", "Convex Hull", "Full", 0 };
 
+template<>
+void EnumDefImpl<Array2DInterpol::FillType>::init()
+{
+    uistrings_ += mEnumTr("Only Holes");
+    uistrings_ += mEnumTr("Convex Hull");
+    uistrings_ += uiStrings::sFull();
+}
+
 mImplClassFactory( Array2DInterpol, factory );
 
 class Extension2DInterpolExecutor : public Executor

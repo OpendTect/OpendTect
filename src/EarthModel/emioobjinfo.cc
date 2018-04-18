@@ -23,10 +23,7 @@
 #include "keystrs.h"
 #include "uistrings.h"
 
-namespace EM
-{
-
-mDefineEnumUtils( IOObjInfo, ObjectType, "Object Type" )
+mDefineEnumUtils( EM::IOObjInfo, ObjectType, "Object Type" )
 {
   "Unknown",
   EMHorizon3DTranslatorGroup::sGroupName(),
@@ -37,6 +34,19 @@ mDefineEnumUtils( IOObjInfo, ObjectType, "Object Type" )
   0
 };
 
+template<>
+void EnumDefImpl<EM::IOObjInfo::ObjectType>::init()
+{
+    uistrings_ += uiStrings::sUnknown();
+    uistrings_ += uiStrings::s3DHorizon();
+    uistrings_ += uiStrings::s2DHorizon();
+    uistrings_ += uiStrings::sFaultStickSet();
+    uistrings_ += uiStrings::sFault();
+    uistrings_ += uiStrings::sBody();
+}
+
+namespace EM
+{
 
 IOObjInfo::IOObjInfo( const IOObj* ioobj )
     : ioobj_(ioobj ? ioobj->clone() : 0)

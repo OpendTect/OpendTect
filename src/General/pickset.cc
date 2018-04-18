@@ -41,6 +41,13 @@ int Pick::Set::getSizeThreshold()
 
 mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
 { "None", "Open", "Close", 0 };
+template<>
+void EnumDefImpl<Pick::Set::Disp::Connection>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += mEnumTr("Open","Display State, like Open Polygon");
+    uistrings_ += mEnumTr("Close","Display State, like Close Polygon");
+}
 
 Pick::Set::Set( const char* nm, const char* cat )
     : SharedObject(nm)

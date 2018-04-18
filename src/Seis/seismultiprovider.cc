@@ -28,12 +28,26 @@ mDefineEnumUtils(Seis::MultiProvider,Policy,"Policy") {
     "Require all",
     0
 };
+template<>
+void EnumDefImpl<Seis::MultiProvider::Policy>::init()
+{
+    uistrings_ += mEnumTr("Get Everywhere");
+    uistrings_ += mEnumTr("Require Only One");
+    uistrings_ += mEnumTr("Require Atleast One");
+    uistrings_ += mEnumTr("Require All");
+}
 
 mDefineEnumUtils(Seis::MultiProvider,ZPolicy,"Z policy") {
     "Maximum",
     "Minimum",
     0
 };
+template<>
+void EnumDefImpl<Seis::MultiProvider::ZPolicy>::init()
+{
+    uistrings_ += uiStrings::sMaximum();
+    uistrings_ += uiStrings::sMinimum();
+}
 
 static const char* sKeySpecialValue()	{ return "Special Value"; }
 static const char* sKeyGeomIDs()	{ return "Geom IDs"; }

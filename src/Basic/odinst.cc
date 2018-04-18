@@ -52,6 +52,15 @@ static BufferString getInstDir()
 mDefineNameSpaceEnumUtils(ODInst,AutoInstType,"Auto update")
 { "Manager", "Inform", "Full", "None", 0 };
 
+template<>
+void EnumDefImpl<ODInst::AutoInstType>::init()
+{
+    uistrings_ += mEnumTr("Manager");
+    uistrings_ += mEnumTr("Inform");
+    uistrings_ += mEnumTr("Full");
+    uistrings_ += mEnumTr("None");
+}
+
 
 mDefineNameSpaceEnumUtils(ODInst,RelType,"Release type")
 {
@@ -63,6 +72,17 @@ mDefineNameSpaceEnumUtils(ODInst,RelType,"Release type")
 	"Other",
 	0
 };
+
+template<>
+void EnumDefImpl<ODInst::RelType>::init()
+{
+    uistrings_ += mEnumTr("Stable");
+    uistrings_ += mEnumTr("Development");
+    uistrings_ += mEnumTr("Pre-Release Stable");
+    uistrings_ += mEnumTr("Pre-Release Development");
+    uistrings_ += mEnumTr("Old Version");
+    uistrings_ += mEnumTr("Other");
+}
 
 
 BufferString ODInst::GetRelInfoDir()

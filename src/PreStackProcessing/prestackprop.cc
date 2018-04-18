@@ -14,17 +14,22 @@
 #include "statruncalc.h"
 #include "linear.h"
 #include "math2.h"
+#include "uistrings.h"
 
-namespace PreStack
-{
-mDefineEnumUtils(PropCalc,CalcType,"Calculation type")
+mDefineEnumUtils(PreStack::PropCalc,CalcType,"Calculation type")
 {
 	"Statistics",
 	"AVO Attributes",
 	0
 };
+template<>
+void EnumDefImpl<PreStack::PropCalc::CalcType>::init()
+{
+    uistrings_ += uiStrings::sStatistics();
+    uistrings_ += mEnumTr("AVO Attributes");
+}
 
-mDefineEnumUtils(PropCalc,AxisType,"Axis transformation")
+mDefineEnumUtils(PreStack::PropCalc,AxisType,"Axis transformation")
 {
 	"None",
 	"Logarithmic",
@@ -35,8 +40,20 @@ mDefineEnumUtils(PropCalc,AxisType,"Axis transformation")
 	"Sine-square",
 	0
 };
+template<>
+void EnumDefImpl<PreStack::PropCalc::AxisType>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += mEnumTr("Logarithmic");
+    uistrings_ += mEnumTr("Exponential");
+    uistrings_ += mEnumTr("Quadratic");
+    uistrings_ += mEnumTr("Square root");
+    uistrings_ += mEnumTr("Absolute value");
+    uistrings_ += mEnumTr("Sine-Square");
 
-mDefineEnumUtils(PropCalc,LSQType,"Axis type")
+}
+
+mDefineEnumUtils(PreStack::PropCalc,LSQType,"Axis type")
 {
 	"Intercept",
 	"Gradient",
@@ -45,8 +62,18 @@ mDefineEnumUtils(PropCalc,LSQType,"Axis type")
 	"Correlation coefficient",
 	0
 };
+template<>
+void EnumDefImpl<PreStack::PropCalc::AxisType>::init()
+{
+    uistrings_ += mEnumTr("Intercept");
+    uistrings_ += uiStrings::sGradient();
+    uistrings_ += mEnumTr("StdDev of Intercept");
+    uistrings_ += mEnumTr("StdDev of Gradient");
+    uistrings_ += mEnumTr("Correlation Coefficient");
+}
 
-
+namespace PreStack
+{
 PropCalc::PropCalc( const Setup& s )
     : setup_(s)
     , gather_( 0 )

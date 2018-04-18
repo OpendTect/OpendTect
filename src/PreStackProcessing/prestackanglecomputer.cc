@@ -22,11 +22,7 @@
 #include "velocitycalc.h"
 #include "velocityfunction.h"
 
-
-namespace PreStack
-{
-
-mDefineEnumUtils(AngleComputer,smoothingType,"Smoothing Type")
+mDefineEnumUtils(PreStack::AngleComputer,smoothingType,"Smoothing Type")
 {
 	"None",
 	"Moving-Average",
@@ -34,6 +30,16 @@ mDefineEnumUtils(AngleComputer,smoothingType,"Smoothing Type")
 	0
 };
 
+template<>
+void EnumDefImpl<PreStack::AngleComputer::smoothingType>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += mEnumTr("Moving-Average");
+    uistrings_ += mEnumTr("Low-Pass Frequency Filter");
+}
+
+namespace PreStack
+{
 const char* AngleComputer::sKeySmoothType()	{ return "Smoothing type"; }
 const char* AngleComputer::sKeyWinFunc()	{ return "Window function"; }
 const char* AngleComputer::sKeyWinParam()	{ return "Window parameter"; }

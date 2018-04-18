@@ -63,6 +63,17 @@ mDefineEnumUtils(uiSurfaceMan,Type,"Surface type")
     0
 };
 
+template<>
+void EnumDefImpl<uiSurfaceMan::Type>::init()
+{
+    uistrings_ += uiStrings::s2DHorizon();
+    uistrings_ += uiStrings::s3DHorizon();
+    uistrings_ += uiStrings::sHorizon();
+    uistrings_ += uiStrings::sFaultStickSet();
+    uistrings_ += uiStrings::sFault();
+    uistrings_ += uiStrings::sBody();
+}
+
 mDefineInstanceCreatedNotifierAccess(uiSurfaceMan)
 
 

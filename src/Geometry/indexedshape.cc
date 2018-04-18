@@ -8,16 +8,27 @@
 #include "indexedshape.h"
 
 #include "positionlist.h"
+#include "uistrings.h"
+
+mDefineEnumUtils(Geometry::PrimitiveSet, PrimitiveType, "PrimitiveType" )
+{ "Points", "Lines", "Triangles", "LineStrips", "TriangleStrips", "Fans",
+  "Other", 0 };
+template<>
+void EnumDefImpl<Geometry::PrimitiveSet::PrimitiveType>::init()
+{
+    uistrings_ += uiStrings::sPoint(mPlural);
+    uistrings_ += uiStrings::sLine(mPlural);
+    uistrings_ += mEnumTr("Triangles","Shape");
+    uistrings_ += mEnumTr("Line Strips");
+    uistrings_ += mEnumTr("Triangle Strips");
+    uistrings_ += mEnumTr("Fans","Geometry Type");
+    uistrings_ += uiStrings::sOther();
+}
 
 namespace Geometry
 {
 
 PtrMan<PrimitiveSetCreator> PrimitiveSetCreator::creator_ = 0;
-
-mDefineEnumUtils(PrimitiveSet, PrimitiveType, "PrimitiveType" )
-{ "Points", "Lines", "Triangles", "LineStrips", "TriangleStrips", "Fans",
-  "Other", 0 };
-
 
 PrimitiveSet::PrimitiveSet()
     : primitivetype_( Triangles )

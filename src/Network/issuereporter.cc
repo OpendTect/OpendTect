@@ -46,25 +46,27 @@ bool System::IssueReporter::readReport( const char* filename )
 	return false;
     }
 
-#define mStreamError( op ) \
+#define mStreamError() \
 { \
-    errmsg_ = errmsg.arg( op ).arg( filename ).arg( fstream.errMsg() ); \
+    errmsg_ = errmsg.arg( filename ).arg( fstream.errMsg() ); \
     return false; \
 }
 
-    uiString errmsg = tr( "Cannot %1 %2. Reason: %3");
+    uiString errmsg = uiStrings::phrCannotOpen(tr(" %2. Reason: %3"));
 
     od_istream fstream( filename );
     if ( fstream.isBad() )
-	mStreamError( uiStrings::sOpen().toLower() );
+	mStreamError();
 
 
     report_.add( "User: ").add( GetSoftwareUser() ).add( "\n\n" );
 
     BufferString unfilteredreport;
 
+    errmsg = uiStrings::phrCannotRead(tr(" %2. Reason: %3"));
+
     if ( !fstream.getAll( unfilteredreport ) )
-	mStreamError( uiStrings::sRead().toLower() );
+	mStreamError();
 
     report_.add( unfilteredreport.buf() );
 

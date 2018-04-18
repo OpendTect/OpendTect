@@ -56,6 +56,15 @@ mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 	0
 };
 
+template<>
+void EnumDefImpl<File::ViewStyle>::init()
+{
+    uistrings_ += mEnumTr("Text");
+    uistrings_ += mEnumTr("Log");
+    uistrings_ += mEnumTr("Text");
+    uistrings_ += mEnumTr("Text");
+}
+
 
 static inline bool isSane( const char*& fnm )
 {

@@ -15,10 +15,21 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "strmprov.h"
 #include "od_iostream.h"
+#include "uistrings.h"
 
 
 mDefineNameSpaceEnumUtils(ODGMT,Resolution,"Resolutions")
 { "Full", "High", "Intermediate", "Low", "Crude", 0 };
+
+template<>
+void EnumDefImpl<ODGMT::Resolution>::init()
+{
+    uistrings_ += uiStrings::sFull();
+    uistrings_ += uiStrings::sHigh();
+    uistrings_ += mEnumTr("Intermediate","Resolution");
+    uistrings_ += uiStrings::sLow();
+    uistrings_ += mEnumTr("Crude","Resolution");
+}
 
 
 static const char* sResKeys[] = { "f", "h", "i", "l", "c", 0 };

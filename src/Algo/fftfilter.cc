@@ -21,6 +21,14 @@ ________________________________________________________________________
 mDefineEnumUtils(FFTFilter,Type,"Filter type")
 { "LowPass", "HighPass", "BandPass", 0 };
 
+template<>
+void EnumDefImpl<FFTFilter::Type>::init()
+{
+    uistrings_ += mEnumTr("Low Pass", "FFT FilterType");
+    uistrings_ += mEnumTr("High Pass", "FFT FilterType");
+    uistrings_ += mEnumTr("Band Pass", "FFT FilterType");
+}
+
 
 FFTFilter::FFTFilter( int sz, float step )
     : fft_(Fourier::CC::createDefault())
