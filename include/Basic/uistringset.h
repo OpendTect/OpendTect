@@ -20,11 +20,11 @@ class uiRetVal;
 /*\brief Set of uiStrings */
 
 mExpClass(Basic) uiStringSet
-{ mODTextTranslationClass(uiStringSet);
+{	mODTextTranslationClass(uiStringSet)
+	mIsContainer( uiStringSet, ObjectSet<uiString>, strs_ )
 public:
 
-    typedef ObjectSet<uiString>::size_type	size_type;
-    typedef size_type				IdxType;
+
     typedef uiString::AppendType		AppendType;
     typedef uiString::SeparType			SeparType;
 
@@ -36,15 +36,16 @@ public:
 			~uiStringSet();
     uiStringSet&	operator =(const uiStringSet&);
 
-    inline size_type	size() const		    { return strs_.size(); }
-    inline bool		validIdx( IdxType i ) const { return strs_.validIdx(i);}
-    bool		isEmpty() const		    { return strs_.isEmpty(); }
+    inline size_type	size() const		{ return strs_.size(); }
+    inline bool		validIdx( idx_type i ) const
+						{ return strs_.validIdx(i); }
+    bool		isEmpty() const		{ return strs_.isEmpty(); }
     bool		isPresent(const uiString&) const;
-    IdxType		indexOf(const uiString&) const;
-    uiString&		get(IdxType);
-    const uiString&	get(IdxType) const;
-    uiString&		operator []( IdxType i )    { return get(i); }
-    const uiString&	operator []( IdxType i ) const { return get(i); }
+    idx_type		indexOf(const uiString&) const;
+    uiString&		get(idx_type);
+    const uiString&	get(idx_type) const;
+    uiString&		operator []( idx_type i )	{ return get(i); }
+    const uiString&	operator []( idx_type i ) const	{ return get(i); }
 
     void		setEmpty();
     uiStringSet&	set(const uiString&);
@@ -54,10 +55,10 @@ public:
     uiStringSet&	add(const uiStringSet&);
     uiStringSet&	add(const uiRetVal&);
     uiStringSet&	append( const uiStringSet& ss )	{ return add(ss); }
-    uiStringSet&	insert(IdxType,const uiString&);
+    uiStringSet&	insert(idx_type,const uiString&);
     uiStringSet&	operator +=( const uiString& s ) { return add(s); }
-    void		removeSingle(IdxType,bool keep_order=true);
-    void		removeRange(IdxType,IdxType);
+    void		removeSingle(idx_type,bool keep_order=true);
+    void		removeRange(idx_type,idx_type);
 
     uiString		cat(muiStringAppendDefArgs) const;
     uiStringSet		getNonEmpty() const;
@@ -67,26 +68,16 @@ public:
 
     void		fill(mQtclass(QStringList)&) const;
     void		sort(const bool caseinsens=true,bool asc=true);
-    void		useIndexes( const IdxType* idxs );
-    IdxType*		getSortIndexes(bool caseinsens,bool asc) const;
-
-protected:
-
-    ObjectSet<uiString>	strs_;
+    void		useIndexes( const idx_type* idxs );
+    idx_type*		getSortIndexes(bool caseinsens,bool asc) const;
 
 };
 
+mDefContainerSwapFunction( Basic, uiStringSet )
 
-#ifndef UISTRING_FULL_SEPARATION
 
-	typedef uiStringSet uiPhraseSet;
-	typedef uiStringSet uiWordSet;
-
-#else
-
-	//TODO
-
-#endif
+typedef uiStringSet uiPhraseSet;
+typedef uiStringSet uiWordSet;
 
 
 /*\brief allows returning status and accompanying user info.
@@ -98,7 +89,7 @@ protected:
 */
 
 mExpClass(Basic) uiRetVal
-{
+{ mIsContainer( uiRetVal, uiPhraseSet, msgs_ )
 public:
 
 			uiRetVal()		{}
@@ -135,12 +126,13 @@ public:
 
 private:
 
-    uiPhraseSet		msgs_;
     mutable Threads::Lock lock_;
 
     static const uiRetVal ok_;
 
 };
+
+mDefContainerSwapFunction( Basic, uiRetVal )
 
 mGlobal(Basic) bool isFinished(const uiRetVal&);
 mGlobal(Basic) bool isCancelled(const uiRetVal&);

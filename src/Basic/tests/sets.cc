@@ -8,7 +8,7 @@
 
 #include "typeset.h"
 #include "testprog.h"
-#include "manobjectset.h"
+#include "bufstringset.h"
 
 
 class DataElem
@@ -95,11 +95,17 @@ static bool testTypeSetFind()
 static bool testTypeSetSetFns()
 {
     od_cout() << od_endl;
+    TypeSet<DataElem> org;
     TypeSet<DataElem> des;
-    des += DataElem( 1, 0.1 );
-    des += DataElem( 2, 0.2 );
-    des += DataElem( 3, 0.3 );
-    des += DataElem( 4, 0.4 );
+    org += DataElem( 1, 0.1 );
+    org += DataElem( 2, 0.2 );
+    org += DataElem( 3, 0.3 );
+    org += DataElem( 4, 0.4 );
+
+    des.swap( org );
+    if ( des.size() != 4 || !org.isEmpty() )
+	mErrRet("swap()" );
+
     const DataElem des0( des[0] );
     const DataElem des1( des[1] );
     const DataElem des2( des[2] );
@@ -342,6 +348,27 @@ static bool testManagedObjectSet()
     return true;
 }
 
+static bool testStringSetFns()
+{
+    BufferStringSet bss;
+    bss.add( "Aap" );
+    bss.add( "Noot" );
+
+    int idx = 0;
+    for ( auto bsptr : bss )
+    {
+	if ( idx == 0 )
+	    { mRunStandardTest( *bsptr == "Aap", "BufferStringSet iter 0" ) }
+	else if ( idx == 1 )
+	    { mRunStandardTest( *bsptr == "Noot", "BufferStringSet iter 1" ) }
+	else
+	    { mRunStandardTest( false, "BufferStringSet iter 2" ) }
+	idx++;
+    }
+
+    return true;
+}
+
 
 #define mDoSetTest(nm) \
     if ( !nm() ) \
@@ -358,6 +385,7 @@ int mTestMainFnName( int argc, char** argv )
     mDoSetTest( testObjSetEqual );
     mDoSetTest( testSetCapacity );
     mDoSetTest( testManagedObjectSet );
+    mDoSetTest( testStringSetFns );
 
     return 0;
 }

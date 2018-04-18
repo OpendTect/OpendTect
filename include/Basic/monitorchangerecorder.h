@@ -47,7 +47,7 @@ public:
 
 protected:
 
-    typedef ObjectSet<Record>::size_type    IdxType;
+    typedef ObjectSet<Record>::idx_type    IdxType;
 
 			ChangeRecorder(Monitorable&,const char* nm);
 			ChangeRecorder(const Monitorable&,const char*);

@@ -143,6 +143,7 @@ public:
     static od_int32	cStartRefCount();
 
 private:
+
     ObjectSet<WeakPtrBase>	observers_;
     Threads::SpinLock		observerslock_;
 

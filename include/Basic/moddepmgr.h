@@ -20,9 +20,7 @@ class SharedLibAccess;
 namespace OD
 {
 
-/*!
-\brief Module Dependency
-*/
+/*!\brief Module Dependency */
 
 mExpClass(Basic) ModDep
 {

@@ -26,6 +26,8 @@ mClass(Basic) ValVec : public Set
 public:
 
     typedef IT			size_type;
+    typedef size_type		idx_type;
+    typedef T			object_type;
 
     inline virtual		~ValVec();
     inline ValVec&		operator =( const ValVec& oth )
@@ -44,20 +46,20 @@ public:
     inline void			setAll(T);
     inline void			replace(T,T);
 
-    inline T&			get(size_type);
-    inline const T&		get(size_type) const;
+    inline T&			get(idx_type);
+    inline const T&		get(idx_type) const;
     inline T&			first();
     inline const T&		first() const;
     inline T&			last();
     inline const T&		last() const;
     inline virtual bool		validIdx(od_int64) const;
-    inline virtual size_type	indexOf(T,bool forward=true,
-					  size_type start=-1) const;
+    inline virtual idx_type	indexOf(T,bool forward=true,
+					  idx_type start=-1) const;
     inline bool			isPresent(const T&) const;
     inline size_type		count(const T&) const;
 
     inline ValVec&		add(const T&);
-    inline virtual void		insert(size_type,const T&);
+    inline virtual void		insert(idx_type,const T&);
     inline bool			push(const T&);
     inline T			pop();
     inline virtual bool		append(const T*,size_type);
@@ -76,16 +78,16 @@ public:
 
     inline virtual void		swapItems( od_int64 i1, od_int64 i2 )
 				{ swap( (IT)i1, (IT)i2 ); }
-    inline virtual void		move(size_type from,size_type to);
-    inline virtual void		getReOrdered(const size_type*,ValVec&);
+    inline virtual void		move(idx_type from,idx_type to);
+    inline virtual void		getReOrdered(const idx_type*,ValVec&);
 				//!< Fills as per the given array of indexes.
 
     inline virtual void		reverse();
 
     inline virtual void		erase();
-    inline virtual void		removeSingle(size_type,
+    inline virtual void		removeSingle(idx_type,
 					     bool preserver_order=true);
-    inline virtual void		removeRange(size_type from,size_type to);
+    inline virtual void		removeRange(idx_type from,idx_type to);
 
 				//! 3rd party access
     inline virtual T*		arr()		{ return gtArr(); }
@@ -93,9 +95,9 @@ public:
     inline std::vector<T>&	vec();
     inline const std::vector<T>& vec() const;
 
-    inline T&			operator[](size_type i)	    { return get(i); }
-    inline const T&		operator[](size_type i) const { return get(i); }
-    inline ValVec&		operator+=(const T& t)	    { return add(t); }
+    inline T&			operator[](idx_type i)       { return get(i); }
+    inline const T&		operator[](idx_type i) const { return get(i); }
+    inline ValVec&		operator+=(const T& t)       { return add(t); }
     inline ValVec&		operator-=(const T& t);
 
 protected:
@@ -128,10 +130,11 @@ public:
     const_iterator		cend() const	{ return vec_.cend(); }
     inline size_type		max_size() const { return maxIdx32(); }
     inline bool			empty() const	{ return isEmpty(); }
+    inline void			swap( ValVec& oth ) { vec_.swap(oth.vec_); }
 
     // Usability
-    size_type	getIdx( iterator it ) const	{ return vec_.getIdx(it); }
-    size_type	getIdx( const_iterator it ) const { return vec_.getIdx(it); }
+    idx_type	getIdx( iterator it ) const	{ return vec_.getIdx(it); }
+    idx_type	getIdx( const_iterator it ) const { return vec_.getIdx(it); }
 
 };
 
@@ -144,6 +147,7 @@ mClass(Basic) clss : public OD::ValVec<T,idxtype> \
 { \
 public: \
  \
+    typedef typename OD::ValVec<T,idxtype>::idx_type	idx_type; \
     typedef typename OD::ValVec<T,idxtype>::size_type	size_type; \
  \
 		clss() \
@@ -154,17 +158,6 @@ public: \
 		    : OD::ValVec<T,size_type>( t, nr )		{} \
 		clss( const clss& t ) \
 		    : OD::ValVec<T,size_type>( t )		{} \
- \
-    inline void	swap( clss& oth ) \
-    { \
-	const clss<T> tmp( *this ); \
-	*this = oth; \
-	oth = tmp; \
-    } \
-    inline void	swap( size_type idx1, size_type idx2 ) \
-    { \
-	OD::ValVec<T,size_type>::swap( idx1, idx2 ); \
-    } \
 }; \
  \
 template <class T> \
@@ -455,7 +448,7 @@ void OD::ValVec<T,IT>::getReOrdered( const IT* idxs, OD::ValVec<T,IT>& out )
 
     out.erase();
     out.setCapacity( sz, true );
-    for ( size_type vidx=0; vidx<sz; vidx++ )
+    for ( idx_type vidx=0; vidx<sz; vidx++ )
 	out.add( vec_[idxs[vidx]] );
 }
 

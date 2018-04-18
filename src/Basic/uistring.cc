@@ -726,27 +726,27 @@ uiString& uiString::embed( const char* open,const char* close )
 
 
 uiString& uiString::quote( bool single )
-{ 
-    const char* qustr = single ? "'" : "\""; 
-    return embed(qustr,qustr); 
+{
+    const char* qustr = single ? "'" : "\"";
+    return embed(qustr,qustr);
 }
 
 
 uiString& uiString::parenthesize()
-{ 
+{
     return embed("(",")");
 }
 
 
 uiString& uiString::optional()
-{ 
+{
     return embed("[","]");
 }
 
 
 uiString& uiString::embedFinalState()
-{ 
-    return embed("<",">"); 
+{
+    return embed("<",">");
 }
 
 
@@ -995,7 +995,7 @@ int uiString::size() const
 
 uiStringSet::uiStringSet( const uiString strs[] )
 {
-    for ( IdxType idx=0; ; idx++ )
+    for ( idx_type idx=0; ; idx++ )
     {
 	const uiString& str = strs[idx];
 	if ( str.isEmpty() )
@@ -1024,23 +1024,23 @@ bool uiStringSet::isPresent( const uiString& str ) const
 }
 
 
-uiStringSet::IdxType uiStringSet::indexOf( const uiString& str ) const
+uiStringSet::idx_type uiStringSet::indexOf( const uiString& str ) const
 {
     const size_type sz = size();
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	if ( strs_[idx]->isEqualTo(str) )
 	    return idx;
     return -1;
 }
 
 
-uiString& uiStringSet::get( IdxType idx )
+uiString& uiStringSet::get( idx_type idx )
 {
     return strs_.validIdx(idx) ? *strs_[idx] : uiString::dummy();
 }
 
 
-const uiString& uiStringSet::get( IdxType idx ) const
+const uiString& uiStringSet::get( idx_type idx ) const
 {
     return strs_.validIdx(idx) ? *strs_[idx] : uiString::empty();
 }
@@ -1085,14 +1085,14 @@ uiStringSet& uiStringSet::add( const uiRetVal& uirv )
 }
 
 
-uiStringSet& uiStringSet::insert( IdxType idx, const uiString& str )
+uiStringSet& uiStringSet::insert( idx_type idx, const uiString& str )
 {
     strs_.insertAt( new uiString(str), idx );
     return *this;
 }
 
 
-void uiStringSet::removeSingle( IdxType idx, bool kporder )
+void uiStringSet::removeSingle( idx_type idx, bool kporder )
 {
     delete strs_.removeSingle( idx, kporder );
 }
@@ -1101,7 +1101,7 @@ void uiStringSet::removeSingle( IdxType idx, bool kporder )
 void uiStringSet::fill( QStringList& qlist ) const
 {
     QString qstr;
-    for ( IdxType idx=0; idx<size(); idx++ )
+    for ( idx_type idx=0; idx<size(); idx++ )
     {
 	strs_[idx]->fillQString( qstr );
 	qlist.append( qstr );
@@ -1112,7 +1112,7 @@ void uiStringSet::fill( QStringList& qlist ) const
 uiStringSet uiStringSet::getNonEmpty() const
 {
     uiStringSet ret;
-    for ( IdxType idx=0; idx<size(); idx++ )
+    for ( idx_type idx=0; idx<size(); idx++ )
     {
 	const uiString& str = *strs_[idx];
 	if ( !str.isEmpty() )
@@ -1144,7 +1144,7 @@ uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
 	maxnr = sz;
 
 
-    for ( IdxType idx=1; idx<maxnr; idx++ )
+    for ( idx_type idx=1; idx<maxnr; idx++ )
     {
 	if ( idx == sz-1 )
 	{
@@ -1169,7 +1169,7 @@ uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
 uiString uiStringSet::cat( SeparType septyp, AppendType apptyp ) const
 {
     uiString result;
-    for ( IdxType idx=0; idx<size(); idx++ )
+    for ( idx_type idx=0; idx<size(); idx++ )
 	result.appendPhrase( *strs_[idx], septyp, apptyp );
     return result;
 }
@@ -1200,8 +1200,8 @@ void uiStringSet::useIndexes( const size_type* idxs )
 }
 
 
-uiStringSet::IdxType* uiStringSet::getSortIndexes( bool caseinsens,
-							    bool asc ) const
+uiStringSet::idx_type* uiStringSet::getSortIndexes( bool caseinsens,
+						    bool asc ) const
 {
     const size_type sz = size();
     if ( sz < 1 )

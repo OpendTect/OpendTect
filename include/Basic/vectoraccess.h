@@ -38,6 +38,7 @@ mClass(Basic) VectorAccess
 public:
 
     typedef IT					size_type;
+    typedef size_type				idx_type;
     typedef T					object_type;
     typedef std::vector<T>			impl_type;
     typedef typename impl_type::iterator	iterator;
@@ -49,10 +50,10 @@ public:
     inline iterator	end()			{ return v_.end(); }
     inline const_iterator end() const		{ return v_.cend(); }
     inline const_iterator cend() const		{ return v_.end(); }
-    inline size_type	getIdx( iterator it ) const
-			{ return (size_type)(it-cbegin()); }
-    inline size_type	getIdx( const_iterator it ) const
-			{ return (size_type)(it-cbegin()); }
+    inline idx_type	getIdx( iterator it ) const
+			{ return (idx_type)(it-cbegin()); }
+    inline idx_type	getIdx( const_iterator it ) const
+			{ return (idx_type)(it-cbegin()); }
 
     inline		VectorAccess()			{}
     inline		VectorAccess( IT n ) : v_(n)	{}
@@ -115,6 +116,8 @@ public:
 			{ std::fill( v_.begin(), v_.end(), val ); }
     inline void		replace( const T& val, const T& newval )
 			{ std::replace( v_.begin(), v_.end(), val, newval ); }
+    inline void		swap( VectorAccess& oth )
+			{ v_.swap( oth.v_ ); }
 
     void moveAfter( const T& t, const T& aft )
     {

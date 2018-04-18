@@ -62,7 +62,7 @@ protected:
 
 
 mExpClass(Basic) FormatList
-{
+{ mIsContainer( FormatList, ObjectSet<Format>, fmts_ )
 public:
 
 			FormatList()		{}
@@ -90,10 +90,6 @@ public:
 
     BufferString	getFileFilter(int) const;
     BufferString	getFileFilters() const;
-
-protected:
-
-    ObjectSet<Format>	fmts_;
 
 };
 

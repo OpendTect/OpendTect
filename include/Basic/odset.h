@@ -21,7 +21,7 @@ namespace OD
 
 Guaranteed are also:
 
-* typedef of indices and sizes: size_type
+* typedef of indices and sizes: idx_type and size_type
 * typedef of object contained: object_type
 * a member 'size() const'
 * a member 'removeRange(size_type start,size_type stop)'
@@ -68,4 +68,43 @@ inline void addNames( const ODSET& inp, SET& setwithadd )
     for ( auto obj : inp )
 	if ( obj )
 	    setwithadd.add( obj->name() );
+}
+
+
+#define mIsContainer( clss, typ, memb ) \
+protected: \
+ \
+    typedef typ		impl_type; \
+    impl_type		memb; \
+ \
+public: \
+ \
+    typedef typename impl_type::size_type	size_type; \
+    typedef typename impl_type::idx_type	idx_type; \
+    typedef typename impl_type::object_type	object_type; \
+    typedef typename impl_type::value_type	value_type; \
+    typedef typename impl_type::iterator	iterator; \
+    typedef typename impl_type::const_iterator	const_iterator; \
+    typedef typename impl_type::difference_type	difference_type; \
+    typedef typename impl_type::reference	reference; \
+    typedef typename impl_type::const_reference	const_reference; \
+ \
+    iterator		begin()		{ return memb.begin(); } \
+    const_iterator	begin() const	{ return memb.cbegin(); } \
+    const_iterator	cbegin() const	{ return memb.cbegin(); } \
+    iterator		end()		{ return memb.end(); } \
+    const_iterator	end() const	{ return memb.cend(); } \
+    const_iterator	cend() const	{ return memb.cend(); } \
+    inline size_type	max_size() const { return memb.max_size(); } \
+    inline bool		empty() const	{ return memb.empty(); } \
+    inline void		swap( clss& oth ) { memb.swap(oth.memb); } \
+ \
+    size_type	getIdx( iterator it ) const	{ return memb.getIdx(it); } \
+    size_type	getIdx( const_iterator it ) const { return memb.getIdx(it); }
+
+
+#define mDefContainerSwapFunction( mod, clss ) \
+mGlobal(mod) inline void swap( clss& o1, clss& o2 ) \
+{ \
+    o1.swap( o2 ); \
 }

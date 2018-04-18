@@ -243,7 +243,7 @@ static bool testLimFToStringFns()
     return true;
 }
 
-bool testEmptyStringComparison()
+static bool testEmptyStringComparison()
 {
     BufferString bfstr;
     mRunStandardTest( bfstr=="", "Empty string comparison - BufferString");
@@ -262,7 +262,7 @@ static void printBufStr( const char* pfx, BufferString bs )
 
 mDefIntegerIDType(int,AnIntID);
 
-void prId( const char* pfx, AnIntID id )
+static void prId( const char* pfx, AnIntID id )
 {
     TypeSet<AnIntID> ids;
     ids += id;

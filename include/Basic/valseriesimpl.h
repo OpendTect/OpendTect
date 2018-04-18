@@ -140,9 +140,11 @@ public:
     char	bytesPerItem() const		{ return sizeof(AT); }
 
 protected:
+
     ObjectSet<AT>	ptrs_;
     od_int64		cursize_;
     const od_int64	chunksize_;
+
 };
 
 

@@ -23,11 +23,10 @@ mFDQtclass( QStringList )
 /*!\brief Set of BufferString objects. */
 
 mExpClass(Basic) BufferStringSet
-{
+{ mIsContainer( BufferStringSet, ManagedObjectSet<BufferString>, strs_ )
 public:
 
     typedef ObjectSet<BufferString>	SetType;
-    typedef SetType::size_type		size_type;
 
 			BufferStringSet(size_type n=0,const char* s=0);
 			BufferStringSet(const char* arr[],size_type len=-1);
@@ -36,20 +35,20 @@ public:
 
     inline size_type	size() const		{ return strs_.size(); }
     inline bool		isEmpty() const		{ return strs_.isEmpty(); }
-    inline bool		validIdx( size_type i ) const
+    inline bool		validIdx( idx_type i ) const
 						{ return strs_.validIdx(i); }
-    size_type		indexOf(const char*,CaseSensitivity s=CaseSensitive
+    idx_type		indexOf(const char*,CaseSensitivity s=CaseSensitive
 						) const; //!< first match
-    size_type		indexOf(const GlobExpr&) const;	//!< first match
-    size_type		indexOf( const BufferString* b ) const
+    idx_type		indexOf(const GlobExpr&) const;	//!< first match
+    idx_type		indexOf( const BufferString* b ) const
 						{ return strs_.indexOf(b); }
     inline bool		isPresent( const BufferString* b ) const
 						{ return strs_.isPresent(b);}
     inline bool		isPresent( const char* s,
 				   CaseSensitivity c=CaseSensitive ) const
 						{ return indexOf(s,c) >= 0; }
-    BufferString&	get( size_type idx )	{ return *strs_.get(idx); }
-    const BufferString&	get( size_type idx ) const { return *strs_.get(idx); }
+    BufferString&	get( idx_type idx )	{ return *strs_.get(idx); }
+    const BufferString&	get( idx_type idx ) const { return *strs_.get(idx); }
     BufferString*	first()			{ return strs_.first(); }
     const BufferString*	first() const		{ return strs_.first(); }
     BufferString*	last()			{ return strs_.last(); }
@@ -57,10 +56,10 @@ public:
 
     inline void		setEmpty()		{ strs_.setEmpty(); }
     inline void		erase()			{ setEmpty(); }
-    void		removeSingle( size_type i ) { strs_.removeSingle(i); }
-    void		removeRange( size_type i1, size_type i2 )
+    void		removeSingle( idx_type i ) { strs_.removeSingle(i); }
+    void		removeRange( idx_type i1, idx_type i2 )
 						{ strs_.removeRange(i1,i2); }
-    void		swap( size_type i1, size_type i2 )
+    void		swap( idx_type i1, idx_type i2 )
 						{ strs_.swap( i1, i2 ); }
 
     BufferStringSet&	add(const char*);
@@ -75,20 +74,20 @@ public:
     void		append( const BufferStringSet& oth )
 			{ strs_.append( oth.strs_ ); }
 
-    size_type		nearestMatch(const char*,bool caseinsens=true) const;
+    idx_type		nearestMatch(const char*,bool caseinsens=true) const;
     bool		isSubsetOf(const BufferStringSet&) const;
     size_type		maxLength() const;
-    size_type		firstDuplicateOf(size_type,
+    idx_type		firstDuplicateOf(idx_type,
 					 CaseSensitivity s=CaseSensitive,
-					 size_type startat=0) const;
+					 idx_type startat=0) const;
     bool		hasUniqueNames(CaseSensitivity s=CaseSensitive) const;
     BufferString	commonStart() const;
 
     void		sort(bool caseinsens=true,bool asc=true);
-    size_type*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
+    idx_type*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
 			//!< returns new int [size()] for you to 'delete []'
 			//!< does NOT sort but provides data for useIndexes
-    void		useIndexes(const size_type*);
+    void		useIndexes(const idx_type*);
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
@@ -105,22 +104,20 @@ public:
 				      bool quoted=true) const;
 
     // uncommon stuff
-    BufferString*	operator[]( size_type idx )	  { return strs_[idx]; }
-    const BufferString*	operator[]( size_type idx ) const { return strs_[idx]; }
+    BufferString*	operator[]( idx_type idx )	 { return strs_[idx]; }
+    const BufferString*	operator[]( idx_type idx ) const { return strs_[idx]; }
     const SetType&	getStringSet() const	    { return strs_; }
     SetType&		getStringSet()		    { return strs_; }
     void		setNullAllowed( bool yn=true )
 				{ strs_.setNullAllowed( yn ); }
     BufferStringSet&	operator +=( BufferString* bs )	{ return add(bs); }
-    BufferStringSet&	set( size_type idx, BufferString* bs )
+    BufferStringSet&	set( idx_type idx, BufferString* bs )
 				{ strs_.replace(idx,bs); return *this; }
-    void		insertAt( BufferString* bs, size_type idx )
+    void		insertAt( BufferString* bs, idx_type idx )
 				{ strs_.insertAt(bs,idx); }
 				    //generate non translated uiStrings's set
     uiStringSet		getUiStringSet() const;
 
-protected:
-
-    ManagedObjectSet<BufferString>  strs_;
-
 };
+
+mDefContainerSwapFunction( Basic, BufferStringSet )
