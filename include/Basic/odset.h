@@ -71,6 +71,12 @@ inline void addNames( const ODSET& inp, SET& setwithadd )
 }
 
 
+#ifdef __msvc__
+# define mTypeName
+#else
+# define mTypeName typename
+#endif
+
 #define mIsContainer( clss, typ, memb ) \
 protected: \
  \
@@ -79,15 +85,15 @@ protected: \
  \
 public: \
  \
-    typedef typename impl_type::size_type	size_type; \
-    typedef typename impl_type::idx_type	idx_type; \
-    typedef typename impl_type::object_type	object_type; \
-    typedef typename impl_type::value_type	value_type; \
-    typedef typename impl_type::iterator	iterator; \
-    typedef typename impl_type::const_iterator	const_iterator; \
-    typedef typename impl_type::difference_type	difference_type; \
-    typedef typename impl_type::reference	reference; \
-    typedef typename impl_type::const_reference	const_reference; \
+    typedef mTypeName impl_type::size_type	size_type; \
+    typedef mTypeName impl_type::idx_type	idx_type; \
+    typedef mTypeName impl_type::object_type	object_type; \
+    typedef mTypeName impl_type::value_type	value_type; \
+    typedef mTypeName impl_type::iterator	iterator; \
+    typedef mTypeName impl_type::const_iterator	const_iterator; \
+    typedef mTypeName impl_type::difference_type difference_type; \
+    typedef mTypeName impl_type::reference	reference; \
+    typedef mTypeName impl_type::const_reference const_reference; \
  \
     iterator		begin()		{ return memb.begin(); } \
     const_iterator	begin() const	{ return memb.cbegin(); } \
