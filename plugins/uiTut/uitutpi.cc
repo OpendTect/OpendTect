@@ -33,6 +33,8 @@
 
 #include "vistutorialdisplay.h"
 
+#include "uitutorialtreeitem.h"
+
 static const int cTutIdx = -1100;
 
 
@@ -66,7 +68,6 @@ public:
     void		launchDialog(Seis::GeomType);
     void		doHor(CallBacker*);
     void		doWells(CallBacker*);
-    void		doVisTutorial(CallBacker*);
 };
 
 
@@ -97,24 +98,6 @@ void uiTutMgr::updateMenu( CallBacker* )
 				mCB(this,uiTutMgr,do3DSeis) );
     mnumgr.addAction( mnu, uiStrings::sHorizon(), "tree-horizon3d",
 		      mCB(this,uiTutMgr,doHor) );
-
-     mnumgr.addAction( mnu, tr("Visualization"), "tree-horizon3d",
-		      mCB(this,uiTutMgr,doVisTutorial) );
-}
-
-void uiTutMgr::doVisTutorial( CallBacker* )
-{
-    uiODSceneMgr& scenemgr = appl_->sceneMgr();
-    visSurvey::TutorialDisplay* tutdisplay = new visSurvey::TutorialDisplay();
-    appl_->applMgr().visServer()->addObject( tutdisplay,
-					   scenemgr.getActiveSceneID(), true );
-
-     Coord xypos =
-	SI().transform( SI().sampling(false).hsamp_.center().binID() );
-    Coord3 xyzpos( xypos, SI().zRange(false).center() );
-
-    tutdisplay->displayAllWells();
-    tutdisplay->displayText( tr("Tutorial: Some Text"), xyzpos);
 }
 
 
@@ -174,10 +157,12 @@ TutHelpProvider( const char* baseurl, const char* linkfnm )
 {
 }
 
+
 static void initClass()
 {
     HelpProvider::factory().addCreator( TutHelpProvider::createInstance, "tut");
 }
+
 
 static HelpProvider* createInstance()
 {
@@ -191,6 +176,7 @@ static HelpProvider* createInstance()
 
 };
 
+
 mDefODInitPlugin(uiTut)
 {
     mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_, = 0 );
@@ -203,6 +189,9 @@ mDefODInitPlugin(uiTut)
     uiTutorialAttrib::initClass();
     TutHelpProvider::initClass();
     VolProc::uiTutOpCalculator::initClass();
+   
+    ODMainWin()->sceneMgr().treeItemFactorySet()->addFactory( 
+	new uiODTutorialParentTreeItemfactory, 9750, OD::Both2DAnd3D );
 
     return 0;
 }

@@ -8,6 +8,7 @@
 #include "vissurvobj.h"
 #include "visobject.h"
 #include "uitutmod.h"
+#include "dbdir.h"
 
 namespace visBase /*forward declaration*/
 {
@@ -17,50 +18,26 @@ namespace visBase /*forward declaration*/
 
 namespace visSurvey
 {
-mExpClass(uiTut) TutorialDisplay: public visBase::VisualObjectImpl,
+    struct TutorialWellDisplay:public visBase::VisualObjectImpl,
 				  public visSurvey::SurveyObject
-{ mODTextTranslationClass(TutorialDisplay)  /* to define tr(...) */
-public:
-
-    mDefaultFactoryInstantiation(visSurvey::SurveyObject,TutorialDisplay,
-				"TutorialDisplay",
-				toUiString(sFactoryKeyword()) )
-			      /* to provide create() to instantiate the class */
-
-				TutorialDisplay();
-				~TutorialDisplay();
-
-    void			displayText(const uiString& texttodisplay,
-	    				    const Coord3& position);
-    void			displayAllWells();
-
-    const mVisTrans*		getDisplayTransformation() const;
-    void			setDisplayTransformation(const mVisTrans*);
-
-private:
-    virtual const char*		getClassName() const
-				{ return sFactoryKeyword(); }
-				/* defined in mDefaultFactoryInstantiation */
-
-    visBase::Text2*             text_;
-    visBase::Text2*             welllabels_;
-    const mVisTrans*		transformation_;
-
-    struct WellDisplay
     {
 	visBase::PolyLine*	welltrack_;
 	visBase::MarkerSet*	wellmarkers_;
+	visBase::Text2*         welllabels_;
+	DBKey                   key_;
 
-	void			removeFromNodeandUnref(TutorialDisplay*) const;
 	void			setDisplayTransformation(const mVisTrans*);
-    };
+
+				~TutorialWellDisplay();
+				TutorialWellDisplay(const DBKey);
+				TutorialWellDisplay();
 	
-    ObjectSet<WellDisplay>	wells_;
-    				/* One for each well */
+	virtual const char*	getClassName() const 
+					       { return typeid(*this).name(); }
 	
 
-    void			displayWell(const IOObj&);
-    void			displayWellLabel(const uiString&,const Coord3&);
-    void			removeFromNodeAndUnRef();
-};
+	void			displayWellLabel(visBase::Text2*, 
+						const uiString&,const Coord3&);
+	void			loadAndDisplayWell();
+    };
 } // namespace visSurvey
