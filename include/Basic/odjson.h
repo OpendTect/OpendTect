@@ -34,8 +34,11 @@ class Node;
 
 enum DataType
 {
-    Boolean, Int, Double, String
+    Boolean, Int, FP, String
 };
+
+typedef od_int64 IntType;
+typedef double FPType;
 
 
 /*! holds 'flat' value sets of each of the DataType's */
@@ -47,8 +50,8 @@ public:
     typedef BoolTypeSet::size_type	size_type;
     typedef size_type			idx_type;
     typedef BoolTypeSet			BSet;
-    typedef TypeSet<od_int64>		ISet;
-    typedef TypeSet<double>		DSet;
+    typedef TypeSet<IntType>		ISet;
+    typedef TypeSet<FPType>		FPSet;
     typedef BufferStringSet		SSet;
 
 			ValArr(DataType);
@@ -68,8 +71,8 @@ public:
     const BSet&		bools() const		{ return *((BSet*)set_); }
     ISet&		ints()			{ return *((ISet*)set_); }
     const ISet&		ints() const		{ return *((ISet*)set_); }
-    DSet&		doubles()		{ return *((DSet*)set_); }
-    const DSet&		doubles() const		{ return *((DSet*)set_); }
+    FPSet&		fps()			{ return *((FPSet*)set_); }
+    const FPSet&	fps() const		{ return *((FPSet*)set_); }
     SSet&		strings()		{ return *((SSet*)set_); }
     const SSet&		strings() const		{ return *((SSet*)set_); }
 
@@ -89,11 +92,11 @@ public:
 
     typedef ValArr::size_type	size_type;
     typedef size_type		idx_type;
-    enum ValueType		{ Data, SubArray, SubNode };
+    enum Type			{ Data, SubArray, SubNode };
 
     virtual		~ValueSet()			{ setEmpty(); }
+    virtual bool	isArray() const			 = 0;
 
-    virtual bool	isNode() const				= 0;
     inline size_type	size() const
 			{ return (size_type)values_.size(); }
     virtual bool	isEmpty() const
@@ -104,37 +107,45 @@ public:
     bool		isPresent( const char* ky ) const
 						{ return indexOf(ky) >= 0; }
 
-    virtual ValueType	valueType(idx_type) const		= 0;
-    inline bool		isArray( idx_type i ) const
+    virtual Type	valueType(idx_type) const;
+    inline bool		isPlainData( idx_type i ) const
+			{ return valueType(i) == Data; }
+    inline bool		isArrayChild( idx_type i ) const
 			{ return valueType(i) == Array; }
-    inline bool		isNode( idx_type i ) const
+    inline bool		isNodeChild( idx_type i ) const
 			{ return valueType(i) == Node; }
+
     bool		isTop() const		{ return !parent_; }
     Tree*		tree();
     const Tree*		tree() const;
 
 #   define		mMkSubFn(typ,getfn,implfn) \
-    typ*		getfn( const char* ky )		{ return implfn(ky); } \
-    const typ*		getfn( const char* ky ) const	{ return implfn(ky); }
-
+    inline typ*		getfn( const char* ky )		{ return implfn(ky); } \
+    inline const typ*	getfn( const char* ky ) const	{ return implfn(ky); }
     mMkSubFn(ValueSet,	getChild, gtChild )
-    mMkSubFn(Node,	getNode, gtNode )
     mMkSubFn(Array,	getArray, gtArray )
+    mMkSubFn(Node,	getNode, gtNode )
 
-    inline Value&	value( idx_type i )		{ return *values_[i]; }
-    inline const Value&	value( idx_type i ) const	{ return *values_[i]; }
-    Array&		array(idx_type);
-    const Array&	array(idx_type) const;
-    Node&		node(idx_type);
-    const Node&		node(idx_type) const;
+#   undef		mMkSubFn
+#   define		mMkSubFn(typ,getfn,implfn) \
+    inline typ&		getfn( idx_type i )		{ return implfn(i); } \
+    inline const typ&	getfn( idx_type i ) const	{ return implfn(i); }
+    mMkSubFn(ValueSet,	child, gtChild )
+    mMkSubFn(Array,	array, gtArray )
+    mMkSubFn(Node,	node, gtNode )
 
-    BufferString	getStringValue(const char* ky) const;
+#   define		mDeclGetFns(typ,getfn) \
+    inline typ		getfn( const char* ky ) const \
+			{ return getfn(indexOf(ky); } \
+    typ			getfn(idx_type) const
+    mDeclGetFns(BufferString, getStringValue);
 
-    virtual void	add(const char* ky,ValueSet*);
+    virtual void	addChild(const char* ky,ValueSet*);
+    void		add(const char* ky,bool);
+    void		add(const char* ky,IntType);
+    void		add(const char* ky,FPType);
     void		add(const char* ky,const char*);
     void		add(const char* ky,const OD::String&);
-    void		add(const char* ky,od_int64);
-    void		add(const char* ky,double);
 
 protected:
 
@@ -149,6 +160,9 @@ protected:
     ValueSet*		gtChild(const char*) const;
     Array*		gtArray(const char*) const;
     Node*		gtNode(const char*) const;
+    ValueSet*		gtChild(idx_type) const;
+    Array*		gtArray(idx_type) const;
+    Node*		gtNode(idx_type) const;
 
 };
 
@@ -160,23 +174,23 @@ mExpClass(Basic) Array : public ValueSet
 {
 public:
 
-			Array(bool nodes,const char*,ValueSet*);
-			Array(DataType,const char*,ValueSet*);
+			Array(bool nodes,ValueSet*);
+			Array(DataType,ValueSet*);
 			~Array();
     virtual bool	isArray() const		{ return true; }
     virtual void	setEmpty();
 
-    virtual ValueType	valueType(idx_type) const { return valtype_; }
+    virtual Type	valueType(idx_type) const { return valtype_; }
     size_type		nrElements() const;
 
     inline ValArr&	valArr()		{ return *valarr_; }
     inline const ValArr& valArr() const		{ return *valarr_; }
 
-    virtual void	add(ValueSet*);
+    virtual void	addChild(const char* ky,ValueSet*);
 
 protected:
 
-    ValueType		valtype_;
+    Type		valtype_;
     ValArr*		valarr_;
 
 };
@@ -188,10 +202,11 @@ mExpClass(Basic) Node : public ValueSet
 { mODTextTranslationClass(OD::JSON::Node)
 public:
 
-			Node( const char* nm, ValueSet* p )
-			    : NamedObj(nm), parent_(p)	{}
+			Node( ValueSet* p )
+			    : ValueSet(p)	{}
     virtual bool	isArray() const		{ return false; }
-    virtual ValueType	valueType(idx_type) const;
+
+    virtual void	addChild(const char* ky,ValueSet*);
 
     void		usePar(const IOPar&);
     void		parseJSon(char* buf,int bufsz,uiRetVal&);
@@ -236,8 +251,8 @@ public:
   You can spacify indexes in arrays using the intuitive [] subscript.
 
   GeoJSon example of fullKey:
-  features[1].geometry.coordinates[0][3][1]	(double - Y value)
-  features[1].geometry.coordinates[0][3]	(ValArr of type Double - Coord)
+  features[1].geometry.coordinates[0][3][1]	(FPType - Y value)
+  features[1].geometry.coordinates[0][3]	(ValArr of type FP - Coord)
   features[1].geometry.coordinates[0]		(Array - PtSet/Polygon)
   features[1].geometry.coordinates		(Array - Set of PtSet/Polygon)
   features[1].geometry				(Node)
