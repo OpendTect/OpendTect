@@ -381,8 +381,9 @@ Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )
 
 void Horizon3D::setNodeSourceType( const TrcKey& tk, NodeSourceType type )
 {
-    if ( !nodesource_ ) return;
-	nodesource_->getData()[trackingsamp_.globalIdx(tk)] = (char)type;
+    if ( !nodesource_ || !trackingsamp_.includes(tk) ) return;
+
+    nodesource_->getData()[trackingsamp_.globalIdx(tk)] = (char)type;
 }
 
 
@@ -972,7 +973,7 @@ void Horizon3D::updateNodeSourceArray( const TrcKeySampling tks,
 	new Array2DImpl<char>( tks.nrLines(),tks.nrTrcs() );
     newnodes->setAll( (char)None );
 
-    Array2D<char>* arr = getNodeSourceArray( arrtype );
+    Array2D<char>*& arr = getNodeSourceArray( arrtype );
     Array2DCopier<char> nodescopier( *arr, curtks, tks, *newnodes );
     if ( nodescopier.execute() )
     {
@@ -982,16 +983,17 @@ void Horizon3D::updateNodeSourceArray( const TrcKeySampling tks,
 }
 
 
-Array2D<char>* Horizon3D::getNodeSourceArray( ArrayType arrtype ) const
+Array2D<char>*& Horizon3D::getNodeSourceArray( ArrayType arrtype )
 {
     if ( arrtype== Children )
 	return children_;
     else if ( arrtype== NodeSource )
 	return nodesource_;
-    else if ( arrtype==LockNode )
-	return lockednodes_;
-    else
-	return 0;
+    
+    if ( arrtype != LockNode )
+	pErrMsg("Wrong ArrayType requested");
+
+    return lockednodes_;
 }
 
 
