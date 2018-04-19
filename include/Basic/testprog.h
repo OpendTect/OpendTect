@@ -99,7 +99,7 @@ inline bool handleTestResult( bool isok, const char* desc, const char* emsg=0 )
 
 
 #define mRunStandardTest( test, desc ) \
-    if ( !handleTestResult((test),desc) ) return false;
+    { if ( !handleTestResult((test),desc) ) return false; }
 
 #define mRunStandardTestWithError( test, desc, err ) \
-    if ( !handleTestResult((test),desc,err) ) return false;
+    { if ( !handleTestResult((test),desc,err) ) return false; }
