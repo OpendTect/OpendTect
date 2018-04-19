@@ -14,7 +14,8 @@ set(OD_MODULE_SOURCES
 	uitutvolproc.cc
 	uitutwelltools.cc
 	uitutpi.cc
-	vistutorialdisplay.cc )
+	vistutorialdisplay.cc 
+	uitutorialtreeitem.cc )
 
 set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 set( OD_NO_ALO_ENTRY 1 )
