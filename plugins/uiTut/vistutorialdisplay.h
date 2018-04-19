@@ -16,28 +16,30 @@ namespace visBase /*forward declaration*/
     class Text2;
 }
 
+
 namespace visSurvey
 {
-    struct TutorialWellDisplay:public visBase::VisualObjectImpl,
-				  public visSurvey::SurveyObject
-    {
-	visBase::PolyLine*	welltrack_;
-	visBase::MarkerSet*	wellmarkers_;
-	visBase::Text2*         welllabels_;
-	DBKey                   key_;
-
-	void			setDisplayTransformation(const mVisTrans*);
-
-				~TutorialWellDisplay();
-				TutorialWellDisplay(const DBKey);
+mExpClass(uiTut) TutorialWellDisplay : public visBase::VisualObjectImpl,
+				  	public visSurvey::SurveyObject
+{
+public:
 				TutorialWellDisplay();
-	
-	virtual const char*	getClassName() const 
-					       { return typeid(*this).name(); }
-	
+				~TutorialWellDisplay();
+    
+    void			loadAndDisplayWell(const DBKey&);
 
-	void			displayWellLabel(visBase::Text2*, 
-						const uiString&,const Coord3&);
-	void			loadAndDisplayWell();
-    };
+protected:
+
+    visBase::PolyLine*		welltrack_;
+    visBase::MarkerSet*		wellmarkers_;
+    visBase::Text2*		welllabels_;
+
+    void			setDisplayTransformation(const mVisTrans*);
+    void			displayWellLabel(visBase::Text2*, 
+					    const uiString&,const Coord3&);
+
+    virtual const char*		getClassName() const 
+				{ return typeid(*this).name(); }
+    
+};
 } // namespace visSurvey

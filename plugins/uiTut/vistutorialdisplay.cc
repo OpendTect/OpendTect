@@ -6,46 +6,20 @@
 
 #include "vistutorialdisplay.h"
 
+#include "dbman.h"
 #include "randcolor.h"
 
 #include "vismarkerset.h"
 #include "vispolyline.h"
 #include "vistext.h"
-
 #include "vismaterial.h"
 #include "vistransform.h"
 #include "visscene.h"
 
 #include "wellmanager.h"
-#include "welltransl.h"
 #include "welldata.h"
 #include "welltrack.h"
 #include "wellmarker.h"
-
-#include "uiodmain.h"
-#include "uiodapplmgr.h"
-#include "uivispartserv.h"
-#include "uiodscenemgr.h"
-#include "dbman.h"
-
-void visSurvey::TutorialWellDisplay::displayWellLabel( 
-						   visBase::Text2* welllabels
-						   ,const uiString& texttodisp
-						   ,const Coord3& pos )
-{
-    const int index = welllabels->addText();
-    welllabels->text( index )->setText( texttodisp );
-    welllabels->text( index )->setPosition( pos );
-}
-
-
-void visSurvey::TutorialWellDisplay::
-		     setDisplayTransformation(const mVisTrans* transformation )
-{
-    if( welltrack_ )   welltrack_->setDisplayTransformation( transformation );
-    if( wellmarkers_ ) wellmarkers_->setDisplayTransformation( transformation);
-    if( welllabels_ )  welllabels_->setDisplayTransformation( transformation );
-}
 
 
 visSurvey::TutorialWellDisplay::~TutorialWellDisplay()
@@ -53,62 +27,48 @@ visSurvey::TutorialWellDisplay::~TutorialWellDisplay()
     if ( welltrack_ )   
     {
 	removeChild( welltrack_->osgNode() );
-	welltrack_->unRef();
-	welltrack_ = NULL;
+	unRefAndZeroPtr( welltrack_ );
     }
 
     if( wellmarkers_ ) 
     {
 	removeChild( wellmarkers_->osgNode() );
-	wellmarkers_->unRef();
-	wellmarkers_ = NULL;
+	unRefAndZeroPtr( wellmarkers_ );
     }
 
     if( welllabels_ )  
     {
 	removeChild( welllabels_->osgNode() );
-	welllabels_->unRef();
-	welllabels_ = NULL;
+	unRefAndZeroPtr( welllabels_ );
     }
-
 }
 
 
 visSurvey::TutorialWellDisplay::TutorialWellDisplay()
-					: wellmarkers_(0)
-					, welllabels_(0),welltrack_(0)
-					, visBase::VisualObjectImpl(true)
+    : visBase::VisualObjectImpl(true)
+    , wellmarkers_(0)
+    , welllabels_(0)
+    , welltrack_(0)
 					    
 {
-    wellmarkers_ = visBase::MarkerSet::create();wellmarkers_->ref();
-    welllabels_  = visBase::Text2::create();welllabels_->ref();
-    welltrack_   = visBase::PolyLine::create();welltrack_->ref();
+    wellmarkers_ = visBase::MarkerSet::create(); wellmarkers_->ref();
+    welllabels_ = visBase::Text2::create(); welllabels_->ref();
+    welltrack_ = visBase::PolyLine::create(); welltrack_->ref();
 
-    addChild(wellmarkers_->osgNode());
-    addChild(welllabels_->osgNode());
-    addChild(welltrack_->osgNode());
-
-    uiODSceneMgr& scenemgr = ODMainWin()->applMgr().sceneMgr();
-    ODMainWin()->applMgr().visServer()->addObject(this,
-					     scenemgr.getActiveSceneID(),true);
+    addChild( wellmarkers_->osgNode() );
+    addChild( welllabels_->osgNode() );
+    addChild( welltrack_->osgNode() );
 }
 
 
-visSurvey::TutorialWellDisplay::TutorialWellDisplay
-				     (const DBKey key):TutorialWellDisplay()
+void visSurvey::TutorialWellDisplay::loadAndDisplayWell( const DBKey& wellid )
 {
-    key_ = key;
-    IOObj* ioobj = DBM().get( key_ );
-    if( ioobj ) setName( ioobj->getName() );
-}
+    PtrMan<IOObj> ioobj = DBM().get( wellid );
+    if ( ioobj ) setName( ioobj->getName() );
 
-
-void visSurvey::TutorialWellDisplay::loadAndDisplayWell()
-{
     uiRetVal uirv;
-
     ConstRefMan<Well::Data> data =
-	Well::MGR().fetch( key_, Well::LoadReqs::All(), uirv);
+		Well::MGR().fetch( wellid, Well::LoadReqs::All(), uirv);
 
     Well::Track timetrack;
     
@@ -139,11 +99,33 @@ void visSurvey::TutorialWellDisplay::loadAndDisplayWell()
 	wellmarkers_->getMaterial()->setColor( markercol, index );
 
 	OD::MarkerStyle3D markerstyle;
-
-	markerstyle.size_ = 3; /*cylindrical marker style*/
+	markerstyle.size_ = 3;
 	markerstyle.type_ = OD::MarkerStyle3D::Cylinder;
 	wellmarkers_->setMarkerStyle( markerstyle );
 
-	displayWellLabel(welllabels_, toUiString(marker.name()), markerpos );
+	displayWellLabel( welllabels_, toUiString(marker.name()), markerpos );
     } 
+}
+
+
+void visSurvey::TutorialWellDisplay::displayWellLabel( 
+						   visBase::Text2* welllabels,
+						   const uiString& texttodisp,
+						   const Coord3& pos )
+{
+    const int index = welllabels->addText();
+    welllabels->text( index )->setText( texttodisp );
+    welllabels->text( index )->setPosition( pos );
+}
+
+
+void visSurvey::TutorialWellDisplay::
+		setDisplayTransformation( const mVisTrans* transformation )
+{
+    if ( welltrack_ )
+	welltrack_->setDisplayTransformation( transformation );
+    if ( wellmarkers_ )
+	wellmarkers_->setDisplayTransformation( transformation );
+    if ( welllabels_ )
+	welllabels_->setDisplayTransformation( transformation );
 }

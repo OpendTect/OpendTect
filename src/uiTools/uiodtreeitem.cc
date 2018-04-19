@@ -17,12 +17,6 @@ ___________________________________________________________________
 #include "uitreeview.h"
 
 
-#define cShowAllItems		200
-#define cHideAllItems		199
-#define cRemoveAllItems		198
-#define cExpandAllItems		197
-#define cCollapseAllItems	196
-
 
 uiODTreeItem::uiODTreeItem( const uiString& nm )
     : uiTreeItem(nm)

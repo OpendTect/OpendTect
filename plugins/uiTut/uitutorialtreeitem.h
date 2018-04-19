@@ -27,7 +27,7 @@ class uiODTutorialParentTreeItem : public uiODSceneParentTreeItem
 
     const char*			childObjTypeKey() const;
     void			addWells();
-    bool			handleSubMenu( int );
+    bool			handleSubMenu(int);
     DBKeySet			wellids_;
 };
 
@@ -43,9 +43,14 @@ public:
 class uiODTutorialTreeItem : public uiODDisplayTreeItem
 {
 public:
-				uiODTutorialTreeItem(const DBKey );
-    visSurvey::TutorialWellDisplay* viswell_;
+				uiODTutorialTreeItem(const DBKey&);
+
+    DBKey			key_;
 
     mODTextTranslationClass(uiODTutorialParentTreeItem)
-    mDefineItemMembers( Tutorial, DisplayTreeItem,TutorialParentTreeItem);
+    mDefineItemMembers(Tutorial,DisplayTreeItem,TutorialParentTreeItem);
+
+protected:
+
+    virtual bool		init();
 };

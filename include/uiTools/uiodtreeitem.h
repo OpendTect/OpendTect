@@ -42,3 +42,10 @@ protected:
     MenuItem		expandallitems_;
     MenuItem		collapseallitems_;
 };
+
+#define cShowAllItems		200
+#define cHideAllItems		199
+#define cRemoveAllItems		198
+#define cExpandAllItems		197
+#define cCollapseAllItems	196
+
