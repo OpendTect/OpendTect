@@ -754,7 +754,7 @@ public:
     static uiWord sWindow()		{ return tr("Window"); }
     static uiWord sWizBack()		{ return toUiString("<< %1")
 							.arg(sBack()); }
-    static uiWord sWizNext()		{ return toUiString("<< %1")
+    static uiWord sWizNext()		{ return toUiString("%1 >>")
 							.arg(sNext()); }
     static uiWord sWorkflow(int n=1)	{ return tr("Workflow",0,n); }
     static uiWord sWrite()		{ return tr("Write"); }
