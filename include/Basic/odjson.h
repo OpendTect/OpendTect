@@ -92,7 +92,7 @@ public:
 
     typedef ValArr::size_type	size_type;
     typedef size_type		idx_type;
-    enum Type			{ Data, SubArray, SubNode };
+    enum ValueType		{ Data, SubArray, SubNode };
 
     virtual		~ValueSet()			{ setEmpty(); }
     virtual bool	isArray() const			 = 0;
@@ -107,7 +107,7 @@ public:
     bool		isPresent( const char* ky ) const
 						{ return indexOf(ky) >= 0; }
 
-    virtual Type	valueType(idx_type) const;
+    virtual ValueType	valueType(idx_type) const;
     inline bool		isPlainData( idx_type i ) const
 			{ return valueType(i) == Data; }
     inline bool		isArrayChild( idx_type i ) const
@@ -119,33 +119,15 @@ public:
     Tree*		tree();
     const Tree*		tree() const;
 
-#   define		mMkSubFn(typ,getfn,implfn) \
-    inline typ*		getfn( const char* ky )		{ return implfn(ky); } \
-    inline const typ*	getfn( const char* ky ) const	{ return implfn(ky); }
-    mMkSubFn(ValueSet,	getChild, gtChild )
-    mMkSubFn(Array,	getArray, gtArray )
-    mMkSubFn(Node,	getNode, gtNode )
-
-#   undef		mMkSubFn
-#   define		mMkSubFn(typ,getfn,implfn) \
+#   define		mMkGetFns(typ,getfn,implfn) \
     inline typ&		getfn( idx_type i )		{ return implfn(i); } \
     inline const typ&	getfn( idx_type i ) const	{ return implfn(i); }
-    mMkSubFn(ValueSet,	child, gtChild )
-    mMkSubFn(Array,	array, gtArray )
-    mMkSubFn(Node,	node, gtNode )
+    mMkGetFns(ValueSet,	child, gtChild )
+    mMkGetFns(Array,	array, gtArray )
+    mMkGetFns(Node,	node, gtNode )
+#   undef		mMkSubFn
 
-#   define		mDeclGetFns(typ,getfn) \
-    inline typ		getfn( const char* ky ) const \
-			{ return getfn(indexOf(ky); } \
-    typ			getfn(idx_type) const
-    mDeclGetFns(BufferString, getStringValue);
-
-    virtual void	addChild(const char* ky,ValueSet*);
-    void		add(const char* ky,bool);
-    void		add(const char* ky,IntType);
-    void		add(const char* ky,FPType);
-    void		add(const char* ky,const char*);
-    void		add(const char* ky,const OD::String&);
+    BufferString	getStringValue(idx_type) const;
 
 protected:
 
@@ -156,10 +138,6 @@ protected:
     ValueSet*		parent_;
     ObjectSet<Value>	values_;
 
-    Value*		findValue(const char*) const;
-    ValueSet*		gtChild(const char*) const;
-    Array*		gtArray(const char*) const;
-    Node*		gtNode(const char*) const;
     ValueSet*		gtChild(idx_type) const;
     Array*		gtArray(idx_type) const;
     Node*		gtNode(idx_type) const;
@@ -180,23 +158,33 @@ public:
     virtual bool	isArray() const		{ return true; }
     virtual void	setEmpty();
 
-    virtual Type	valueType(idx_type) const { return valtype_; }
+    virtual ValueType	valueType(idx_type) const { return valtype_; }
     size_type		nrElements() const;
 
     inline ValArr&	valArr()		{ return *valarr_; }
     inline const ValArr& valArr() const		{ return *valarr_; }
 
-    virtual void	addChild(const char* ky,ValueSet*);
+    void		addChild(ValueSet*);
+
+    void		add(bool);
+    void		add(IntType);
+    void		add(FPType);
+    void		add(const char*);
+    void		add( const OD::String& odstr ) { add( odstr.str(); }
+    void		set(const ValArr::BSet&);
+    void		set(const ValArr::ISet&);
+    void		set(const ValArr::FPSet&);
+    void		set(const ValArr::SSet&);
 
 protected:
 
-    Type		valtype_;
+    ValueType		valtype_;
     ValArr*		valarr_;
 
 };
 
 
-/*!\brief container holding a mix of key-value pairs and other ValueSets. */
+/*!\brief ValueSet holding a mix of key-value pairs and other ValueSets. */
 
 mExpClass(Basic) Node : public ValueSet
 { mODTextTranslationClass(OD::JSON::Node)
@@ -206,7 +194,20 @@ public:
 			    : ValueSet(p)	{}
     virtual bool	isArray() const		{ return false; }
 
-    virtual void	addChild(const char* ky,ValueSet*);
+#   define		mMkGetFn(typ,getfn,implfn) \
+    inline typ*		getfn( const char* ky )		{ return implfn(ky); } \
+    inline const typ*	getfn( const char* ky ) const	{ return implfn(ky); }
+    mMkGetFn(ValueSet,	getChild, gtChild )
+    mMkGetFn(Array,	getArray, gtArray )
+    mMkGetFn(Node,	getNode, gtNode )
+#   undef		mMkGetFn
+
+    void		setChild(const char* ky,ValueSet*);
+    void		set(const char* ky,bool);
+    void		set(const char* ky,IntType);
+    void		set(const char* ky,FPType);
+    void		set(const char* ky,const char*);
+    void		set(const char* ky,const OD::String&);
 
     void		usePar(const IOPar&);
     void		parseJSon(char* buf,int bufsz,uiRetVal&);
@@ -215,6 +216,10 @@ public:
     void		dumpJSon(BufferString&) const;
 
 protected:
+
+    ValueSet*		gtChild(const char*) const;
+    Array*		gtArray(const char*) const;
+    Node*		gtNode(const char*) const;
 
     void		useJsonValue(Gason::JsonValue&,const char*);
 

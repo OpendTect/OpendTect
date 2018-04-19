@@ -21,8 +21,8 @@ namespace JSON
 {
 
 #define mDefSimpleConstr(ctyp,enumtyp,contmemb,utype) \
-    Value( const char* ky, ctyp i ) \
-	: key_(ky), type_(enumtyp) { cont_.contmemb = (utype)i; }
+    Value( ctyp i ) \
+	: type_(enumtyp) { cont_.contmemb = (utype)i; }
 
 class Value
 {
@@ -35,23 +35,18 @@ public:
 	ValueSet* vset_;
     };
 
-const char* key() const { return name().str(); }
-bool hasKey( const char* nm ) const { return name() == nm; }
-
 mDefSimpleConstr( bool, Boolean, ival_, IntType )
 mDefSimpleConstr( IntType, Int, ival_, IntType )
 mDefSimpleConstr( FPType, Double, fpval_, FPType )
 
-Value( const char* ky, ValueSet* vset )
-    : key_(ky)
-    , type_((int)String+1)
+Value( ValueSet* vset )
+    : type_((int)String+1)
 {
     cont_.vset_ = vset;
 }
 
-Value( const char* ky, const char* cstr )
-    : key_(ky)
-    , type_((int)String)
+Value( const char* cstr )
+    : type_((int)String)
 {
     if ( !cstr )
 	cstr = "";
@@ -61,7 +56,7 @@ Value( const char* ky, const char* cstr )
     cont_.str_ = contstr;
 }
 
-~Value()
+virtual ~Value()
 {
     if ( isValSet() )
 	delete vSet();
@@ -74,6 +69,8 @@ bool isValSet() const
     return type_ > String;
 }
 
+virtual bool isKeyed() const { return false; }
+
 ValueSet* vSet()	{ return cont_.vset_; }
 const ValueSet* vSet()	{ return cont_.vset_; }
 IntType& iVal()		{ return cont_.ival_; }
@@ -84,8 +81,27 @@ char* str()		{ return cont_.str_; }
 const char* str() const	{ return cont_.str_; }
 
     Contents		cont_;
-    BufferString	key_;
     int			type_;
+
+};
+
+#define mDefSimpleKeyedConstr(ctyp) \
+    KeyedValue( const char* ky, ctyp i ) \
+	: Value(i), key_(ky) {}
+
+class KeyedValue :public Value
+{
+public:
+
+    mDefSimpleKeyedConstr( bool )
+    mDefSimpleKeyedConstr( IntType )
+    mDefSimpleKeyedConstr( FPType )
+    mDefSimpleKeyedConstr( const char* )
+    mDefSimpleKeyedConstr( ValueSet* )
+
+    virtual bool isKeyed() const { return true; }
+
+    BufferString	key_;
 
 };
 
@@ -94,6 +110,7 @@ const char* str() const	{ return cont_.str_; }
 } // namespace OD
 
 
+//--------- ValArr
 
 OD::JSON::ValArr::ValArr( DataType typ )
     : type_(typ)
@@ -108,6 +125,8 @@ OD::JSON::ValArr::ValArr( DataType typ )
     }
 }
 
+
+//--------- ValueSet
 
 void OD::JSON::ValueSet::setEmpty()
 {
@@ -152,44 +171,6 @@ const OD::JSON::Tree* OD::JSON::ValueSet::tree() const
 }
 
 
-OD::JSON::ValueSet* OD::JSON::ValueSet::gtChild( const char* ky ) const
-{
-    const idx = indexOf( ky );
-    if ( idx < 0 )
-	return 0;
-
-    Value* val  = values_[idx];
-    if ( !val->isValSet() )
-	{ pErrMsg("Request for child set which is a plain value"); return 0; }
-
-    return const_cast<ValueSet*>( val->valSet() );
-}
-
-
-OD::JSON::Array* OD::JSON::ValueSet::gtArray( const char* ky ) const
-{
-    ValueSet* vs = gtChild( ky );
-    if ( !vs )
-	return 0;
-    else if ( !vs->isArray() )
-	{ pErrMsg("Request for child Array which is a Node"); return 0; }
-
-    return static_cast<Array*>( vs );
-}
-
-
-OD::JSON::Node* OD::JSON::ValueSet::gtNode( const char* ky ) const
-{
-    ValueSet* vs = gtChild( ky );
-    if ( !vs )
-	return 0;
-    else if ( vs->isArray() )
-	{ pErrMsg("Request for child Node which is an Array"); return 0; }
-
-    return static_cast<Node*>( vs );
-}
-
-
 OD::JSON::ValueSet& OD::JSON::ValueSet::gtChild( idx_type idx ) const
 {
     Value* val = values_[idx];
@@ -204,7 +185,7 @@ OD::JSON::Array& OD::JSON::ValueSet::gtArray( idx_type idx ) const
     ValueSet& vset = gtChild( idx );
     if ( !vset.isArray() )
 	{ pErrMsg("ValueSet at idx is not Array - crash follows"); }
-    return static_cast<Array&>( vst );
+    return static_cast<Array&>( vset );
 }
 
 
@@ -232,50 +213,13 @@ BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
 	case Boolean:	ret.set( val->iVal() ? "true" : "false" );  break;
 	case Int:	ret.set( val->iVal() );  break;
 	case FP:	ret.set( val->fpVal() );  break;
-	default: { pErrMsg("Huh"); }
+	default:	{ pErrMsg("Huh"); }
 	case String:	ret.set( val->str() );  break;
     }
 }
 
 
-void OD::JSON::ValueSet::addChild( const char* ky, ValueSet* vset )
-{
-    if ( !vset )
-	{ pErrMsg("Null ValueSet added"); return; }
-
-    values_ += new Value( ky, vset );
-}
-
-
-void OD::JSON::ValueSet::add( const char* ky, bool yn )
-{
-    values_ += new Value( ky, yn );
-}
-
-
-void OD::JSON::ValueSet::add( const char* ky, IntType ival )
-{
-    values_ += new Value( ky, ival );
-}
-
-
-void OD::JSON::ValueSet::add( const char* ky, FPType fpval )
-{
-    values_ += new Value( ky, fpval );
-}
-
-
-void OD::JSON::ValueSet::add( const char* ky, const char* str )
-{
-    values_ += new Value( ky, str );
-}
-
-
-void OD::JSON::ValueSet::add( const char* ky, const OD::String& str )
-{
-    values_ += new Value( ky, str.str() );
-}
-
+//--------- Array
 
 OD::JSON::Array::Array( bool nodes, ValueSet* p )
     : ValueSet(p)
@@ -313,22 +257,119 @@ OD::JSON::Container::SzType OD::JSON::Array::nrElements() const
 }
 
 
-void OD::JSON::Array::addChild( const char* ky, ValueSet* vset )
+void OD::JSON::Array::addChild( ValueSet* vset )
 {
     if ( valtype_ == Data )
 	{ pErrMsg("add child to value Array"); return; }
-    else if ( valtype_ == SubNode != vset->isNode() )
+    else if ( valtype_ == SubArray != vset->isArray() )
 	{ pErrMsg("add wrong child type to Array"); return; }
 
-    ValueSet::addChild( ky, vset );
+    values_ += new Value( vset );
 }
 
 
-void OD::JSON::Node::addChild( const char* ky, ValueSet* vset )
+#define mDefArrayAddVal(typ,fn) \
+void OD::JSON::Array::add( typ val ) \
+{ \
+    if ( valtype_ != Data ) \
+	{ pErrMsg("add value to non-value Array"); } \
+    else \
+	valarr_->fn().add( val ); \
+}
+
+mDefArrayAddVal( bool, bools )
+mDefArrayAddVal( IntType, ints )
+mDefArrayAddVal( FPType, fps )
+mDefArrayAddVal( const char*, strings )
+
+
+#define mDefArraySetVals(typ,fn) \
+void OD::JSON::Array::set( const ValArr::typ& vals ) \
+{ \
+    if ( valtype_ != Data ) \
+	{ pErrMsg("set values for non-value Array"); } \
+    else \
+	valarr_->fn() = vals; \
+}
+
+mDefArraySetVals( BSet, bools )
+mDefArrayAddVal( ISet, ints )
+mDefArrayAddVal( FPSet, fps )
+mDefArrayAddVal( SSet, strings )
+
+
+//--------- Node
+
+OD::JSON::ValueSet* OD::JSON::Node::gtChild( const char* ky ) const
+{
+    const idx = indexOf( ky );
+    if ( idx < 0 )
+	return 0;
+
+    Value* val  = values_[idx];
+    if ( !val->isValSet() )
+	{ pErrMsg("Request for child set which is a plain value"); return 0; }
+
+    return const_cast<ValueSet*>( val->valSet() );
+}
+
+
+OD::JSON::Array* OD::JSON::Node::gtArray( const char* ky ) const
+{
+    ValueSet* vs = gtChild( ky );
+    if ( !vs )
+	return 0;
+    else if ( !vs->isArray() )
+	{ pErrMsg("Request for child Array which is a Node"); return 0; }
+
+    return static_cast<Array*>( vs );
+}
+
+
+OD::JSON::Node* OD::JSON::Node::gtNode( const char* ky ) const
+{
+    ValueSet* vs = gtChild( ky );
+    if ( !vs )
+	return 0;
+    else if ( vs->isArray() )
+	{ pErrMsg("Request for child Node which is an Array"); return 0; }
+
+    return static_cast<Node*>( vs );
+}
+
+
+void OD::JSON::Node::setChild( const char* ky, ValueSet* vset )
 {
     if ( !ky || !*ky )
-	{ pErrMsg("Empty key not allowed for Node's"); return; }
-    ValueSet::addChild( ky, vset );
+	{ pErrMsg("Empty key not allowed for children of Node's"); return; }
+    set( ky, new KeyedValue( ky, vset ) );
+}
+
+
+void OD::JSON::Node::set( KeyedValue* val )
+{
+    const int idx = indexOf( val->key_ );
+    if ( idx < 0 )
+	values_ += val;
+    else
+	delete values_.replace( idx, val );
+}
+
+
+#define mDefNodeSetVal(typ) \
+void OD::JSON::Node::set( const char* ky, typ t ) \
+{ \
+    set( new KeyedValue(ky,t) ); \
+}
+
+mDefNodeSetVal( bool )
+mDefNodeSetVal( IntType )
+mDefNodeSetVal( FPType )
+mDefNodeSetVal( const char* )
+
+void OD::JSON::Node::set( const char* ky, const OD::String& str )
+{
+    set( ky, str.str() );
 }
 
 
