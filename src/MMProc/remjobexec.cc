@@ -59,7 +59,12 @@ void RemoteJobExec::ckeckConnection()
     BufferString errmsg( "Connection to Daemon on ", host_ );
     errmsg += " failed";
     if ( !isconnected_ )
+    {
+	const uiString socketmsg = socket_.errMsg();
+	if ( !socketmsg.isEmpty() )
+	    errmsg.add( ": " ).add( socketmsg.getFullString() );
 	mErrRet( errmsg.buf() );
+    }
 }
 
 
