@@ -82,6 +82,8 @@ int mTestMainFnName( int argc, char** argv )
 	return 1;
     }
 
-    printGasonValue( tstStream(false), root );
+    if ( !quiet )
+	printGasonValue( tstStream(false), root );
+
     return 0;
 }

@@ -531,11 +531,26 @@ void OD::JSON::ValueSet::use( const Gason::JsonValue& gasonval )
 	    if ( isArray() )
 		valArr().vals() += val;
 	    else
-		values_.last()->setVal( val );
+		values_.last()->setValue( val );
 	} break;
 
 	case Gason::JSON_STRING:
 	{
+	    const char* val = gasonval.toString();
+	    if ( isArray() )
+		valArr().strings().add( val );
+	    else
+		values_.last()->setValue( val );
+	} break;
+
+	case Gason::JSON_TRUE:
+	case Gason::JSON_FALSE:
+	{
+	    const bool val = tag == Gason::JSON_TRUE;
+	    if ( isArray() )
+		valArr().bools() += val;
+	    else
+		values_.last()->setValue( val );
 	} break;
 
 	case Gason::JSON_ARRAY:
@@ -551,14 +566,8 @@ void OD::JSON::ValueSet::use( const Gason::JsonValue& gasonval )
 		newnode->set( new KeyedValue( gasonnode->key ) );
 	} break;
 
-	case Gason::JSON_TRUE:
-	case Gason::JSON_FALSE:
-	{
-	} break;
-
 	case Gason::JSON_NULL:
 	{
-	    // simply ignore ... right?
 	} break;
     }
 }
