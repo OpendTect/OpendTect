@@ -40,9 +40,10 @@ public:
 
     bool	hasDisplays() const
 		{ return displayinfos_.size()>0; }
-    DispID	getDisplayID( const DataPointSet&) const;
+    DispID	getDisplayID(const DataPointSet&) const;
+    DispID	getDisplayID(int visid) const;
 
-    int		addDisplay(const TypeSet<int>& parents, const DataPointSet&);
+    DispID	addDisplay(const TypeSet<int>& parents, const DataPointSet&);
     void	updateDisplay(DispID id, const TypeSet<int>& parents,
 			      const DataPointSet&);
     void	turnOn(DispID id,bool);
