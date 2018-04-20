@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include <string>
 
 class SeparString;
-namespace Gason { union JsonValue; }
+namespace Gason { union JsonValue; struct JsonNode; }
 
 
 namespace OD
@@ -127,6 +127,11 @@ public:
     double		getDoubleValue(idx_type) const;
     BufferString	getStringValue(idx_type) const;
 
+    void		usePar(const IOPar&);
+    static ValueSet*	parseJSon(char* buf,int bufsz,uiRetVal&);
+    void		fillPar(IOPar&) const;
+    void		dumpJSon(BufferString&) const;
+
 protected:
 
 			ValueSet( ValueSet* p )
@@ -140,6 +145,10 @@ protected:
     Array*		gtArray(idx_type) const;
     Node*		gtNode(idx_type) const;
 
+    static ValueSet*	getNew(ValueSet*,const Gason::JsonNode&,
+			       const Gason::JsonNode&);
+    void		use(const Gason::JsonValue&);
+
 };
 
 
@@ -149,10 +158,6 @@ protected:
 mExpClass(Basic) Array : public ValueSet
 {
 public:
-
-    typedef BoolTypeSet	BoolSet;
-    typedef TypeSet<int> IntSet;
-    typedef TypeSet<int> IntSet;
 
 			Array(bool nodes,ValueSet*);
 			Array(DataType,ValueSet*);
@@ -233,12 +238,6 @@ public:
     void		set(const char* ky,const char*);
     void		set( const char* ky, const OD::String& str )
 			{ set( ky, str.str() ); }
-
-    void		usePar(const IOPar&);
-    void		parseJSon(char* buf,int bufsz,uiRetVal&);
-
-    void		fillPar(IOPar&) const;
-    void		dumpJSon(BufferString&) const;
 
 protected:
 

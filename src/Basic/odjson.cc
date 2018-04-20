@@ -493,90 +493,30 @@ void OD::JSON::Node::usePar( const IOPar& iop )
 }
 
 
-#define mJvalDouble(jval) (jval.toNumber())
-#define mJvalString(jval) (jval.toString())
-
-
-void OD::JSON::Node::useJsonValue( Gason::JsonValue& jsonval,
-				     const char* jsonky )
+void OD::JSON::ValueSet::use( const Gason::JsonValue& jsonval )
 {
     const Gason::JsonTag tag = jsonval.getTag();
-    const Key ky( jsonky );
-
     switch ( tag )
     {
 	case Gason::JSON_NUMBER:
 	{
-	    if ( jsonval.isDouble() )
-		setValue( ky, mJvalDouble(jsonval) );
-	    else
-		setValue( ky, mJvalInt(jsonval) );
 	} break;
 
 	case Gason::JSON_STRING:
 	{
-	    setValue( ky, mJvalString(jsonval) );
 	} break;
 
 	case Gason::JSON_ARRAY:
 	{
-	    Gason::JsonTag valtag = Gason::JSON_NULL;
-	    for ( auto it : jsonval )
-	    {
-		const Gason::JsonValue& arrjval = it->value;
-
-		if ( valtag == Gason::JSON_NULL )
-		    valtag = arrjval.getTag();
-
-		switch ( valtag )
-		{
-		    case Gason::JSON_NUMBER:
-		    {
-			if ( arrjval.isDouble() )
-			    fps += mJvalDouble( arrjval );
-			else
-			    ints += mJvalInt( arrjval );
-		    } break;
-		    case Gason::JSON_STRING:
-		    {
-			strs.add( mJvalString(arrjval) );
-		    } break;
-		    case Gason::JSON_TRUE:
-		    case Gason::JSON_FALSE:
-		    {
-			bools.add( mJvalBool(arrjval) );
-		    } break;
-		    default:
-			break;
-		}
-	    }
-	    if ( !strs.isEmpty() )
-		setValue( ky, strs );
-	    if ( !bools.isEmpty() )
-		setValue( ky, bools );
-	    if ( !ints.isEmpty() )
-		setValue( ky, ints );
-	    if ( !fps.isEmpty() )
-		setValue( ky, fps );
 	} break;
 
 	case Gason::JSON_OBJECT:
 	{
-	    Gason::JsonNode* jsonnode = jsonval.toNode();
-	    if ( !jsonnode )
-		{ pErrMsg("Huh"); }
-	    else
-	    {
-		Node* child = new Node( this );
-		addChld( jsonnode->key, child );
-		child->useJsonValue( jsonnode->value, jsonnode->key );
-	    }
 	} break;
 
 	case Gason::JSON_TRUE:
 	case Gason::JSON_FALSE:
 	{
-	    setValue( ky, (bool)jsonval.getPayload() );
 	} break;
 
 	case Gason::JSON_NULL:
@@ -587,25 +527,68 @@ void OD::JSON::Node::useJsonValue( Gason::JsonValue& jsonval,
 }
 
 
-void OD::JSON::Node::parseJSon( char* buf, int bufsz, uiRetVal& uirv )
+OD::JSON::ValueSet* OD::JSON::ValueSet::getNew( ValueSet* parent,
+		const Gason::JsonNode& node, const Gason::JsonNode& next )
+{
+    const Gason::JsonTag tag = node.getTag();
+    const Gason::JsonTag nexttag = next.getTag();
+    if ( tag == Gason::JSON_NULL || nexttag == Gason::JSON_NULL )
+	return 0;
+    else if ( tag != Gason::JSON_ARRAY )
+	return new Node( parent );
+
+    const bool nextisarr = nexttag == Gason::JSON_ARRAY;
+    const bool nextisnode = nexttag == Gason::JSON_OBJECT;
+    if ( nextisarr || nextisnode )
+	return new Array( nextisnode, parent );
+
+    DataType dt = Boolean;
+    if ( nexttag == Gason::JSON_NUMBER )
+	dt = Number;
+    else if ( nexttag == Gason::JSON_STRING )
+	dt = String;
+    return new Array( dt, parent );
+}
+
+
+OD::JSON::ValueSet* OD::JSON::ValueSet::parseJSon( char* buf, int bufsz,
+						    uiRetVal& uirv )
 {
     uirv.setOK();
     if ( !buf || bufsz < 1 )
 	{ uirv.set( uiStrings::phrInternalErr("No data to parse (JSON)") );
-	    return; }
+	    return 0; }
 
     Gason::JsonAllocator allocator;
-    Gason::JsonValue root; char* endptr;
-    int status = Gason::jsonParse( buf, &endptr, &root, allocator );
+    Gason::JsonValue rootjval; char* endptr;
+    int status = Gason::jsonParse( buf, &endptr, &rootjval, allocator );
     if ( status != Gason::JSON_OK )
     {
 	//TODO figure out the errmsg for this status
 	uirv.set( tr("Could not parse JSON data") );
-	return;
+	return 0;
     }
 
-    for ( auto it : root )
-	useJsonValue( it->value, it->key );
+    Gason::JsonNode* topnode = 0;
+    Gason::JsonNode* nextnode = 0;
+    for ( auto node : rootjval )
+    {
+	if ( !topnode )
+	    topnode = node;
+	else
+	    { nextnode = node; break; }
+    }
+
+    ValueSet* vset = 0;
+    if ( nextnode )
+	vset = getNew( 0, *topnode, *nextnode );
+
+    if ( !vset )
+	uirv.set( tr("No meaningful JSON content found") );
+    else
+	vset->use( rootjval );
+
+    return vset;
 }
 
 
