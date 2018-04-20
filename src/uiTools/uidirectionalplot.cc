@@ -22,6 +22,9 @@ ________________________________________________________________________
 #include <iostream>
 
 
+#define mDefMarkerZValue 2
+#define mHLMarkerZValue 3
+
 static uiPoint uiPointFromPolar( const uiPoint& c, float r, float angrad )
 {
     Geom::Point2D<float> fpt( c.x_ + r * cos(angrad), c.y_ - r * sin(angrad) );
@@ -49,6 +52,7 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , scalestartitm_(0)
     , scalestopitm_(0)
     , coltabitm_(0)
+    , highlightidx_(-1)
     , sectorPicked(this)
 {
     disableScrollZoom();
@@ -311,7 +315,8 @@ void uiDirectionalPlot::drawAnnot()
 {
     drawDirAnnot();
     drawHeader();
-    drawScale();
+    if ( setup_.drawscale_ )
+	drawScale();
     if ( setup_.type_ == Setup::Vals )
 	drawColTab();
 }
@@ -381,10 +386,41 @@ void uiDirectionalPlot::drawScatter()
 	    const float r = spd.pos_ * radius_;
 	    uiMarkerItem* itm =
 		new uiMarkerItem( dataUIPos(r,spd.val_), setup_.markstyle_ );
+	    itm->setZValue( mDefMarkerZValue );
 	    itm->setFillColor( setup_.markstyle_.color_ );
 	    markeritems_.add( itm );
 	}
     }
+}
+
+
+void uiDirectionalPlot::setHighlighted( int dataidx )
+{
+    if ( !markeritems_.validIdx(dataidx) )
+	return;
+
+    if ( markeritems_.validIdx(highlightidx_) ) // Un-highlight the previous one
+    {
+	mDynamicCastGet(uiMarkerItem*,oldmarker,
+			markeritems_.getUiItem(highlightidx_))
+	if ( oldmarker )
+	{
+	    oldmarker->setMarkerStyle( setup_.markstyle_ );
+	    oldmarker->setFillColor( setup_.markstyle_.color_ );
+	    oldmarker->setZValue( mDefMarkerZValue );
+	}
+    }
+
+    highlightidx_ = dataidx;
+    mDynamicCastGet(uiMarkerItem*,marker,markeritems_.getUiItem(highlightidx_))
+    if ( marker )
+    {
+	marker->setMarkerStyle( setup_.hlmarkstyle_ );
+	marker->setFillColor( setup_.hlmarkstyle_.color_ );
+	marker->setZValue( mHLMarkerZValue );
+    }
+
+    rePaint();
 }
 
 

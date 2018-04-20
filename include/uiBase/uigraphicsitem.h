@@ -168,6 +168,7 @@ public:
     void		removeAll(bool withdelete);
     bool		isEmpty() const		{ return items_.isEmpty(); }
     int			size() const		{ return items_.size(); }
+    bool		validIdx(int idx)	{ return items_.validIdx(idx); }
     uiGraphicsItem*	getUiItem( int idx )	{ return gtItm(idx); }
     const uiGraphicsItem* getUiItem( int idx ) const	{ return gtItm(idx); }
     bool		isPresent(const uiGraphicsItem&) const;

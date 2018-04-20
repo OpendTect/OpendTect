@@ -49,9 +49,12 @@ public:
 				    , sectorls_(OD::LineStyle::Solid)
 				    , equils_(OD::LineStyle::Dot)
 				    , markstyle_(OD::MarkerStyle2D::Circle)
+				    , hlmarkstyle_(OD::MarkerStyle2D::Square,4,
+					    	   Color::Green())
 				    , docount_(false)
 				    , curissel_(true)
 				    , valcolor_(true)
+				    , drawscale_(true)
 				    , clipratio_(0.02)
 				    , prefsize_(400,400)	{}
 
@@ -60,9 +63,11 @@ public:
 	mDefSetupMemb(OD::LineStyle,sectorls)
 	mDefSetupMemb(OD::LineStyle,equils)
 	mDefSetupMemb(OD::MarkerStyle2D,markstyle)
+	mDefSetupMemb(OD::MarkerStyle2D,hlmarkstyle) // Highlight marker style
 	mDefSetupMemb(bool,curissel)	// Must clicked sector become selected?
 	mDefSetupMemb(bool,docount)	// Show count rather than val_ (Vals)
 	mDefSetupMemb(bool,valcolor)	// Use val_ to color (Rose)
+	mDefSetupMemb(bool,drawscale)	// Draw scale annotations
 	mDefSetupMemb(float,clipratio)	// Vals
 	mDefSetupMemb(uiString,hdrannot)
 	mDefSetupMemb(BufferString,nameforpos)
@@ -93,10 +98,13 @@ public:
     void			showColTabItem(bool);
     void			showScaleItem(bool);
 
+    void			setHighlighted(int dataidx);
+
 protected:
 
     Setup			setup_;
     Stats::DirectionalData	data_;
+    int				highlightidx_;
 
     bool			isempty_;
     Interval<float>		posrg_;
