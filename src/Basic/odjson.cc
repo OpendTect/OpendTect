@@ -47,28 +47,55 @@ public:
     Contents		cont_;
     int			type_;
 
-#define mDefSimpleConstr(inptyp,enumtyp,contmemb,valtyp) \
-    Value( inptyp i ) \
-	: type_(enumtyp) { cont_.contmemb = (valtyp)i; }
+Value() : type_((int)Number) {}
 
-mDefSimpleConstr( bool, Boolean, bool_, bool )
-mDefSimpleConstr( od_int16, Number, val_, NumberType )
-mDefSimpleConstr( od_uint16, Number, val_, NumberType )
-mDefSimpleConstr( od_int32, Number, val_, NumberType )
-mDefSimpleConstr( od_uint32, Number, val_, NumberType )
-mDefSimpleConstr( od_int64, Number, val_, NumberType )
-mDefSimpleConstr( float, Number, val_, NumberType )
-mDefSimpleConstr( double, Number, val_, NumberType )
+#define mDefSimpleConstr( typ, cast ) \
+    Value( typ val ) { setValue( (cast)val ); }
 
-Value( ValueSet* vset )
-    : type_((int)String+1)
+mDefSimpleConstr( bool, bool )
+mDefSimpleConstr( od_int16, NumberType )
+mDefSimpleConstr( od_uint16,NumberType )
+mDefSimpleConstr( od_int32, NumberType )
+mDefSimpleConstr( od_uint32, NumberType )
+mDefSimpleConstr( od_int64, NumberType )
+mDefSimpleConstr( float, NumberType )
+mDefSimpleConstr( double, NumberType )
+mDefSimpleConstr( const char*, const char* )
+mDefSimpleConstr( ValueSet*, ValueSet* )
+
+virtual ~Value()
 {
-    cont_.vset_ = vset;
+    cleanUp();
 }
 
-Value( const char* cstr )
-    : type_((int)String)
+void cleanUp()
 {
+    if ( isValSet() )
+	delete vSet();
+    else if ( type_ == (int)String )
+	delete [] str();
+    contents_.val_ = 0;
+}
+
+void setValue( bool val )
+{
+    cleanUp();
+    type_ = (int)Boolean;
+    cont_.bool_ = val;
+}
+
+void setValue( NumberType val )
+{
+    cleanUp();
+    type_ = (int)Number;
+    cont_.val_ = val;
+}
+
+void setValue( const char* cstr )
+{
+    cleanUp();
+    type_ = (int)String;
+
     if ( !cstr )
 	cstr = "";
     const int len = FixedString(cstr).size();
@@ -77,12 +104,11 @@ Value( const char* cstr )
     cont_.str_ = contstr;
 }
 
-virtual ~Value()
+void setValue( ValueSet* vset )
 {
-    if ( isValSet() )
-	delete vSet();
-    else if ( type_ == (int)String )
-	delete [] str();
+    cleanUp();
+    type_ = (int)String + 1;
+    cont_.vset_ = vset;
 }
 
 bool isValSet() const
@@ -92,10 +118,6 @@ bool isValSet() const
 
 };
 
-#define mDefSimpleKeyedConstr(ctyp) \
-    KeyedValue( const char* ky, ctyp i ) \
-	: Value(i), key_(ky) {}
-
 class KeyedValue :public Value
 {
 public:
@@ -103,6 +125,12 @@ public:
     BufferString	key_;
 
     virtual bool isKeyed() const { return true; }
+
+KeyedValue( const char* ky ) : key_(ky)	{}
+
+#define mDefSimpleKeyedConstr(ctyp) \
+    KeyedValue( const char* ky, ctyp i ) \
+	: Value(i), key_(ky) {}
 
 mDefSimpleKeyedConstr( bool )
 mDefSimpleKeyedConstr( od_int16 )
@@ -450,10 +478,9 @@ void OD::JSON::Node::setChild( const char* ky, ValueSet* vset )
 void OD::JSON::Node::set( KeyedValue* val )
 {
     const int idx = indexOf( val->key_ );
-    if ( idx < 0 )
-	values_ += val;
-    else
-	delete values_.replace( idx, val );
+    if ( idx >= 0 )
+	delete values_.removeSingle( idx );
+    values_ += val;
 }
 
 
@@ -493,13 +520,18 @@ void OD::JSON::Node::usePar( const IOPar& iop )
 }
 
 
-void OD::JSON::ValueSet::use( const Gason::JsonValue& jsonval )
+void OD::JSON::ValueSet::use( const Gason::JsonValue& gasonval )
 {
-    const Gason::JsonTag tag = jsonval.getTag();
+    const Gason::JsonTag tag = gasonval.getTag();
     switch ( tag )
     {
 	case Gason::JSON_NUMBER:
 	{
+	    const double val = gasonval.toNumber();
+	    if ( isArray() )
+		valArr().vals() += val;
+	    else
+		values_.last()->setVal( val );
 	} break;
 
 	case Gason::JSON_STRING:
@@ -512,6 +544,11 @@ void OD::JSON::ValueSet::use( const Gason::JsonValue& jsonval )
 
 	case Gason::JSON_OBJECT:
 	{
+	    Node* newnode = new Node( this );
+	    Value* nodeval = new Value( newnode );
+	    values_ += nodeval;
+	    for ( auto gasonnode : gasonval )
+		newnode->set( new KeyedValue( gasonnode->key ) );
 	} break;
 
 	case Gason::JSON_TRUE:

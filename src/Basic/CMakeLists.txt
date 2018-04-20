@@ -33,9 +33,12 @@ set( OD_TEST_PROGS
 	od_iostream.cc
 	oscommand.cc
 	svnversion.cc
-	gason.cc
 	Basic_Composite.cc
 )
+
+if ( NOT WIN32 )
+    set( OD_TEST_PROGS ${OD_TEST_PROGS} gason.cc )
+endif()
 
 set( OD_MODULE_SOURCES
 	applicationdata.cc
