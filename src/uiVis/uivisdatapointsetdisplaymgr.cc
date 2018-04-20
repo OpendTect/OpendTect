@@ -377,8 +377,20 @@ int uiVisDataPointSetDisplayMgr::getDisplayID( const DataPointSet& dps ) const
 }
 
 
-int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
-					    const DataPointSet& dps )
+int uiVisDataPointSetDisplayMgr::getDisplayID( int visid ) const
+{
+    for ( int idx=0; idx<displayinfos_.size(); idx++ )
+    {
+	if ( displayinfos_[idx]->visids_.isPresent(visid) )
+	    return ids_[idx];
+    }
+
+    return -1;
+}
+
+
+int uiVisDataPointSetDisplayMgr::addDisplay( const TypeSet<int>& parents,
+					     const DataPointSet& dps )
 {
     // TODO: Check situation where parents != allsceneids_
     if ( !parents.size() )
