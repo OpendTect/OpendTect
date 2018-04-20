@@ -31,10 +31,10 @@ mDefineEnumUtils(Seis::MultiProvider,Policy,"Policy") {
 template<>
 void EnumDefImpl<Seis::MultiProvider::Policy>::init()
 {
-    uistrings_ += mEnumTr("Get Everywhere");
-    uistrings_ += mEnumTr("Require Only One");
-    uistrings_ += mEnumTr("Require Atleast One");
-    uistrings_ += mEnumTr("Require All");
+    uistrings_ += mEnumTr("Get Everywhere",0);
+    uistrings_ += mEnumTr("Require Only One",0);
+    uistrings_ += mEnumTr("Require Atleast One",0);
+    uistrings_ += mEnumTr("Require All",0);
 }
 
 mDefineEnumUtils(Seis::MultiProvider,ZPolicy,"Z policy") {

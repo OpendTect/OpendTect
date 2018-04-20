@@ -26,7 +26,7 @@ void EnumDefImpl<WellTie::Setup::CorrType>::init()
 {
     uistrings_ += uiStrings::sNone();
     uistrings_ += uiStrings::sAutomatic();
-    uistrings_ += mEnumTr("Use Editor");
+    uistrings_ += mEnumTr("Use Editor",0);
 }
 
 namespace WellTie

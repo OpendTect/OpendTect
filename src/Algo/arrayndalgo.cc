@@ -17,14 +17,14 @@ mDefineEnumUtils( ArrayNDWindow, WindowType, "Windowing type")
 template<>
 void EnumDefImpl<ArrayNDWindow::WindowType>::init()
 {
-    uistrings_ += mEnumTr("Box");
-    uistrings_ += mEnumTr("Hamming");
-    uistrings_ += mEnumTr("Hanning");
-    uistrings_ += mEnumTr("Blackman");
-    uistrings_ += mEnumTr("Bartlett");
-    uistrings_ += mEnumTr("CosTaper5");
-    uistrings_ += mEnumTr("CosTaper10");
-    uistrings_ += mEnumTr("CosTaper20");
+    uistrings_ += mEnumTr("Box",0);
+    uistrings_ += mEnumTr("Hamming",0);
+    uistrings_ += mEnumTr("Hanning",0);
+    uistrings_ += mEnumTr("Blackman",0);
+    uistrings_ += mEnumTr("Bartlett",0);
+    uistrings_ += mEnumTr("CosTaper5",0);
+    uistrings_ += mEnumTr("CosTaper10",0);
+    uistrings_ += mEnumTr("CosTaper20",0);
 }
 
 
@@ -170,9 +170,9 @@ template<>
 void EnumDefImpl<PolyTrend::Order>::init()
 {
     uistrings_ += uiStrings::sNone();
-    uistrings_ += mEnumTr("Order0");
-    uistrings_ += mEnumTr("Order1");
-    uistrings_ += mEnumTr("Order2");
+    uistrings_ += mEnumTr("Order0",0);
+    uistrings_ += mEnumTr("Order1",0);
+    uistrings_ += mEnumTr("Order2",0);
 }
 
 PolyTrend::PolyTrend()

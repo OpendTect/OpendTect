@@ -34,8 +34,8 @@ template<>
 void EnumDefImpl<PreStack::AngleComputer::smoothingType>::init()
 {
     uistrings_ += uiStrings::sNone();
-    uistrings_ += mEnumTr("Moving-Average");
-    uistrings_ += mEnumTr("Low-Pass Frequency Filter");
+    uistrings_ += mEnumTr("Moving-Average",0);
+    uistrings_ += mEnumTr("Low-Pass Frequency Filter",0);
 }
 
 namespace PreStack

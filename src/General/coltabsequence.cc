@@ -39,9 +39,9 @@ mDefineEnumUtils(ColTab::Sequence,Status,"Color Sequence Status")
 template<>
 void EnumDefImpl<ColTab::Sequence::Status>::init()
 {
-    uistrings_ += mEnumTr("System");
-    uistrings_ += mEnumTr("Edited");
-    uistrings_ += mEnumTr("Added");
+    uistrings_ += mEnumTr("System",0);
+    uistrings_ += mEnumTr("Edited",0);
+    uistrings_ += mEnumTr("Added",0);
 }
 
 static const char* sKeyDefNameSeis = "dTect.Disp.Default Color Table.Seismics";

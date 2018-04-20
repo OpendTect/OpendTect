@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "staticstring.h"
 #include "bufstringset.h"
+#include "uistrings.h"
 
 #define mDeclEnvVarVal const char* envvarval = GetEnvVar("OD_INSTALLER_POLICY")
 #define mRelRootDir GetSoftwareDir(1)
@@ -55,10 +56,10 @@ mDefineNameSpaceEnumUtils(ODInst,AutoInstType,"Auto update")
 template<>
 void EnumDefImpl<ODInst::AutoInstType>::init()
 {
-    uistrings_ += mEnumTr("Manager");
-    uistrings_ += mEnumTr("Inform");
-    uistrings_ += mEnumTr("Full");
-    uistrings_ += mEnumTr("None");
+    uistrings_ += mEnumTr("Manager",0);
+    uistrings_ += mEnumTr("Inform",0);
+    uistrings_ += uiStrings::sFull();
+    uistrings_ += uiStrings::sNone();
 }
 
 
@@ -76,12 +77,12 @@ mDefineNameSpaceEnumUtils(ODInst,RelType,"Release type")
 template<>
 void EnumDefImpl<ODInst::RelType>::init()
 {
-    uistrings_ += mEnumTr("Stable");
-    uistrings_ += mEnumTr("Development");
-    uistrings_ += mEnumTr("Pre-Release Stable");
-    uistrings_ += mEnumTr("Pre-Release Development");
-    uistrings_ += mEnumTr("Old Version");
-    uistrings_ += mEnumTr("Other");
+    uistrings_ += mEnumTr("Stable",0);
+    uistrings_ += mEnumTr("Development",0);
+    uistrings_ += mEnumTr("Pre-Release Stable",0);
+    uistrings_ += mEnumTr("Pre-Release Development",0);
+    uistrings_ += mEnumTr("Old Version",0);
+    uistrings_ += uiStrings::sOther();
 }
 
 

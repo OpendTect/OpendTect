@@ -35,16 +35,16 @@ mDefineEnumUtils(DataCharacteristics,UserType,"Data storage")
 template<>
 void EnumDefImpl<DataCharacteristics::UserType>::init()
 {
-    uistrings_ += mEnumTr("0 - auto");
-    uistrings_ += mEnumTr("1 - 8  bit signed");
-    uistrings_ += mEnumTr("2 - 8  bit unsigned");
-    uistrings_ += mEnumTr("3 - 16 bit signed");
-    uistrings_ += mEnumTr("4 - 16 bit unsigned");
-    uistrings_ += mEnumTr("5 - 32 bit signed");
-    uistrings_ += mEnumTr("6 - 32 bit unsigned");
-    uistrings_ += mEnumTr("7 - 32 bit floating point");
-    uistrings_ += mEnumTr("8 - 64 bit floating point");
-    uistrings_ += mEnumTr("9 - 64 bit signed");
+    uistrings_ += mEnumTr("0 - auto",0);
+    uistrings_ += mEnumTr("1 - 8  bit signed",0);
+    uistrings_ += mEnumTr("2 - 8  bit unsigned",0);
+    uistrings_ += mEnumTr("3 - 16 bit signed",0);
+    uistrings_ += mEnumTr("4 - 16 bit unsigned",0);
+    uistrings_ += mEnumTr("5 - 32 bit signed",0);
+    uistrings_ += mEnumTr("6 - 32 bit unsigned",0);
+    uistrings_ += mEnumTr("7 - 32 bit floating point",0);
+    uistrings_ += mEnumTr("8 - 64 bit floating point",0);
+    uistrings_ += mEnumTr("9 - 64 bit signed",0);
 }
 
 bool DataCharacteristics::getUserTypeFromPar( const IOPar& iop, UserType& ut )

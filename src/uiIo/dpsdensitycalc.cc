@@ -27,9 +27,9 @@ mDefineEnumUtils(DPSDensityCalcND,CalcAreaType,"Calculation Area Type")
 template<>
 void EnumDefImpl<DPSDensityCalcND::CalcAreaType>::init()
 {
-    uistrings_ += mEnumTr("Whole Region");
-    uistrings_ += mEnumTr("Selected Region");
-    uistrings_ += mEnumTr("Non Selected Region");
+    uistrings_ += mEnumTr("Whole Region",0);
+    uistrings_ += mEnumTr("Selected Region",0);
+    uistrings_ += mEnumTr("Non Selected Region",0);
 }
 
 

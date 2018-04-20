@@ -29,13 +29,13 @@ mDefineNameSpaceEnumUtils(Stats,Type,"Statistic type")
 template<>
 void EnumDefImpl<Stats::Type>::init()
 {
-    uistrings_ += mEnumTr("Count");
+    uistrings_ += mEnumTr("Count",0);
     uistrings_ += uiStrings::sAverage();
     uistrings_ += uiStrings::sMedian();
     uistrings_ += uiStrings::sRMS();
-    uistrings_ += mEnumTr("Standard Deviation");
-    uistrings_ += mEnumTr("Variance");
-    uistrings_ += mEnumTr("Normal Variance");
+    uistrings_ += mEnumTr("Standard Deviation",0);
+    uistrings_ += mEnumTr("Variance",0);
+    uistrings_ += mEnumTr("Normal Variance",0);
     uistrings_ += uiStrings::sMinimum();
     uistrings_ += uiStrings::sMaximum();
     uistrings_ += mEnumTr("Extreme","Statistic Type");
@@ -54,11 +54,11 @@ mDefineNameSpaceEnumUtils(Stats,UpscaleType,"Upscale type")
 template<>
 void EnumDefImpl<Stats::UpscaleType>::init()
 {
-    uistrings_ += mEnumTr("Take Nearest Sample");
-    uistrings_ += mEnumTr("Use Average");
-    uistrings_ += mEnumTr("Use Median");
-    uistrings_ += mEnumTr("Use Root Mean Square");
-    uistrings_ += mEnumTr("Use Most Frequent");
+    uistrings_ += mEnumTr("Take Nearest Sample",0);
+    uistrings_ += mEnumTr("Use Average",0);
+    uistrings_ += mEnumTr("Use Median",0);
+    uistrings_ += mEnumTr("Use Root Mean Square",0);
+    uistrings_ += mEnumTr("Use Most Frequent",0);
 }
 
 

@@ -24,6 +24,14 @@ const char* ODMad::ProcExec::sKeyCurProc()	{ return "Current proc"; }
 mDefineEnumUtils(ODMad::ProcExec,FlowStage,"Flow Stage")
 { "Start", "Intermediate", "Finish", 0 };
 
+template<>
+void EnumDefImpl<ODMad::ProcExec::FlowStage>::init()
+{
+    uistrings_ += uiStrings::sStart();
+    uistrings_ += mEnumTr("Intermediate",0);
+    uistrings_ += uiStrings::sFinish();
+}
+
 #ifdef __win__
 
 /* Windows needs this approach as Madagascar binaries on Windows are not native

@@ -29,9 +29,9 @@ template<>
 void EnumDefImpl<VelocityDesc::Type>::init()
 {
     uistrings_ += uiStrings::sUnknown();
-    uistrings_ += mEnumTr("Interval Velocity");
-    uistrings_ += mEnumTr("RMS Velocity");
-    uistrings_ += mEnumTr("Average Velocity");
+    uistrings_ += mEnumTr("Interval Velocity",0);
+    uistrings_ += mEnumTr("RMS Velocity",0);
+    uistrings_ += mEnumTr("Average Velocity",0);
     uistrings_ += mEnumTr("Delta","Velocity Type");
     uistrings_ += mEnumTr("Epsilon","Velocity Type");
     uistrings_ += mEnumTr("Eta","Velocity Type");

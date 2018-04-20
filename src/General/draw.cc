@@ -35,7 +35,7 @@ void EnumDefImpl<OD::Alignment::HPos>::init()
 mDefineEnumUtils(OD::Alignment,VPos,"OD::Alignment")
 { "Top", "Bottom", "Center", 0 };
 template<>
-void EnumDefImpl<OD::Alignment::HPos>::init()
+void EnumDefImpl<OD::Alignment::VPos>::init()
 {
     uistrings_ += uiStrings::sTop();
     uistrings_ += uiStrings::sBottom();
@@ -56,7 +56,7 @@ void EnumDefImpl<OD::MarkerStyle2D::Type>::init()
     uistrings_ += mEnumTr("Horizontal Line", "Shape");
     uistrings_ += mEnumTr("Vertical Line", "Shape");
     uistrings_ += uiStrings::sPlane();
-    uistrings_ += mEnumTr("Triangle");
+    uistrings_ += mEnumTr("Triangle",0);
     uistrings_ += uiStrings::sArrow();
 }
 

@@ -108,9 +108,9 @@ template<>
 void EnumDefImpl<SeisEnum::GeomType>::init()
 {
     uistrings_ += uiStrings::s2DLine();
-    uistrings_ += mEnumTr("Line 2D Pre-Stack");
-    uistrings_ += mEnumTr("3D Volume");
-    uistrings_ += mEnumTr("Pre-Stack Volume");
+    uistrings_ += mEnumTr("Line 2D Pre-Stack",0);
+    uistrings_ += mEnumTr("3D Volume",0);
+    uistrings_ += mEnumTr("Pre-Stack Volume",0);
 }
 
 mDefineEnumUtils(SeisEnum,WaveType,"Wave type")
@@ -124,9 +124,9 @@ mDefineEnumUtils(SeisEnum,WaveType,"Wave type")
 template<>
 void EnumDefImpl<SeisEnum::WaveType>::init()
 {
-    uistrings_ += mEnumTr("P-Wave");
-    uistrings_ += mEnumTr("Sh-PWave");
-    uistrings_ += mEnumTr("Sv-Wave");
+    uistrings_ += mEnumTr("P-Wave",0);
+    uistrings_ += mEnumTr("Sh-PWave",0);
+    uistrings_ += mEnumTr("Sv-Wave",0);
     uistrings_ += uiStrings::sOther();
 }
 
@@ -149,7 +149,7 @@ void EnumDefImpl<SeisEnum::DataType>::init()
     uistrings_ += uiStrings::sDip();
     uistrings_ += uiStrings::sFrequency();
     uistrings_ += uiStrings::sPhase(false);
-    uistrings_ += mEnumTr("AVO Gradient");
+    uistrings_ += mEnumTr("AVO Gradient",0);
     uistrings_ += uiStrings::sAzimuth();
     uistrings_ += uiStrings::sClassification();
     uistrings_ += uiStrings::sOther();
@@ -237,6 +237,20 @@ mDefineEnumUtils(SeisTrcInfo,Fld,"Header field") {
 	"Azimuth",
 	0
 };
+
+template<>
+void EnumDefImpl<SeisTrcInfo::Fld>::init()
+{
+    uistrings_ += uiStrings::sTraceNumber();
+    uistrings_ += mEnumTr("Pick Position",0);
+    uistrings_ += mEnumTr("Ref/SP Number",0);
+    uistrings_ += uiStrings::sXcoordinate();
+    uistrings_ += uiStrings::sYcoordinate();
+    uistrings_ += uiStrings::sInline();
+    uistrings_ += uiStrings::sCrossline();
+    uistrings_ += uiStrings::sOffset();
+    uistrings_ += uiStrings::sAzimuth();
+}
 
 
 SeisTrcInfo::SeisTrcInfo()

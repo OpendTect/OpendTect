@@ -31,9 +31,9 @@ mDefineEnumUtils(Strat::LaySeqAttrib,Transform,"Value Transformation")
 template<>
 void EnumDefImpl<Strat::LaySeqAttrib::Transform>::init()
 {
-    uistrings_ += mEnumTr("Power");
+    uistrings_ += mEnumTr("Power",0);
     uistrings_ += uiStrings::sLog();
-    uistrings_ += mEnumTr("Exponential");
+    uistrings_ += mEnumTr("Exponential",0);
 }
 
 

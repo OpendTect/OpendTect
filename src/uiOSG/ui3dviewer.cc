@@ -101,9 +101,9 @@ mDefineEnumUtils(ui3DViewer,WheelMode,"WheelMode")
 template<>
 void EnumDefImpl<ui3DViewer::WheelMode>::init()
 {
-    uistrings_ += mEnumTr("Never");
-    uistrings_ += mEnumTr("Always");
-    uistrings_ += mEnumTr("On Hover");
+    uistrings_ += mEnumTr("Never",0);
+    uistrings_ += mEnumTr("Always",0);
+    uistrings_ += mEnumTr("On Hover",0);
 }
 
 

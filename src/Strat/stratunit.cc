@@ -15,9 +15,18 @@
 #include "iopar.h"
 #include "keystrs.h"
 #include "randcolor.h"
+#include "uistrings.h"
 
 mDefineEnumUtils(Strat::UnitRef,Type,"Unit Type")
 { "Node", "Leaved", "Leaf", 0 };
+
+template<>
+void EnumDefImpl<Strat::UnitRef::Type>::init()
+{
+    uistrings_ += uiStrings::sNode();
+    uistrings_ += mEnumTr("Leaved","Startigraphic Unit Type");
+    uistrings_ += mEnumTr("Leaf","Startigraphic Unit Type");
+}
 
 
 //class UnitRef

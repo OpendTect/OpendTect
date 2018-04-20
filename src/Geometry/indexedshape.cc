@@ -19,8 +19,8 @@ void EnumDefImpl<Geometry::PrimitiveSet::PrimitiveType>::init()
     uistrings_ += uiStrings::sPoint(mPlural);
     uistrings_ += uiStrings::sLine(mPlural);
     uistrings_ += mEnumTr("Triangles","Shape");
-    uistrings_ += mEnumTr("Line Strips");
-    uistrings_ += mEnumTr("Triangle Strips");
+    uistrings_ += mEnumTr("Line Strips",0);
+    uistrings_ += mEnumTr("Triangle Strips",0);
     uistrings_ += mEnumTr("Fans","Geometry Type");
     uistrings_ += uiStrings::sOther();
 }

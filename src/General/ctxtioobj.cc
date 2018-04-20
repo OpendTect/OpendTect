@@ -41,15 +41,15 @@ template<>
 void EnumDefImpl<IOObjContext::StdSelType>::init()
 {
     uistrings_ += uiStrings::sSeismicData();
-    uistrings_ += mEnumTr("Surface Data");
-    uistrings_ += mEnumTr("Location Data");
-    uistrings_ += mEnumTr("Feature Sets");
-    uistrings_ += mEnumTr("Well Information");
-    uistrings_ += mEnumTr("Neural Networks");
-    uistrings_ += mEnumTr("Miscellaneous data");
-    uistrings_ += mEnumTr("Attribute definitions");
-    uistrings_ += mEnumTr("Model Data");
-    uistrings_ += mEnumTr("Survey Geometries");
+    uistrings_ += mEnumTr("Surface Data",0);
+    uistrings_ += mEnumTr("Location Data",0);
+    uistrings_ += mEnumTr("Feature Sets",0);
+    uistrings_ += mEnumTr("Well Information",0);
+    uistrings_ += mEnumTr("Neural Networks",0);
+    uistrings_ += mEnumTr("Miscellaneous data",0);
+    uistrings_ += mEnumTr("Attribute definitions",0);
+    uistrings_ += mEnumTr("Model Data",0);
+    uistrings_ += mEnumTr("Survey Geometries",0);
     uistrings_ += uiStrings::sNone();
 }
 

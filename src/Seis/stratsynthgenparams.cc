@@ -41,10 +41,10 @@ template<>
 void EnumDefImpl<SynthGenParams::SynthType>::init()
 {
     uistrings_ += uiStrings::sPreStack();
-    uistrings_ += mEnumTr("Zero Offset Stack");
-    uistrings_ += mEnumTr("Startigraphic Property");
-    uistrings_ += mEnumTr("Angle Mute");
-    uistrings_ += mEnumTr("AVO Gradient");
+    uistrings_ += mEnumTr("Zero Offset Stack",0);
+    uistrings_ += mEnumTr("Startigraphic Property",0);
+    uistrings_ += mEnumTr("Angle Mute",0);
+    uistrings_ += mEnumTr("AVO Gradient",0);
 }
 
 

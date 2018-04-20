@@ -17,6 +17,7 @@
 #include "keystrs.h"
 #include "iopar.h"
 #include "dbman.h"
+#include "uistrings.h"
 #include <typeinfo>
 
 static const char* filenamebase = "Properties";
@@ -51,6 +52,33 @@ mDefineEnumUtils(PropertyRef,StdType,"Standard Property")
 	"Other",
 	0
 };
+
+template<>
+void EnumDefImpl<PropertyRef::StdType>::init()
+{
+    uistrings_ += mEnumTr("Anisotropy",0);
+    uistrings_ += uiStrings::sArea();
+    uistrings_ += uiStrings::sClassification();
+    uistrings_ += mEnumTr("Compressibility",0);
+    uistrings_ += uiStrings::sDensity();
+    uistrings_ += ::toUiString("%1/%2").arg(uiStrings::sDistance())
+						    .arg(uiStrings::sDepth());
+    uistrings_ += mEnumTr("Elastic Ratio",0);
+    uistrings_ += mEnumTr("Electrical Potential",0);
+    uistrings_ += mEnumTr("Gamma Ray",0);
+    uistrings_ += mEnumTr("Impedance",0);
+    uistrings_ += mEnumTr("Permeability",0);
+    uistrings_ += mEnumTr("Pressure",0);
+    uistrings_ += mEnumTr("Pressure-Weight",0);
+    uistrings_ += mEnumTr("Resistivity",0);
+    uistrings_ += mEnumTr("Sonic Travel Time",0);
+    uistrings_ += mEnumTr("Temperature",0);
+    uistrings_ += uiStrings::sTime();
+    uistrings_ += uiStrings::sVelocity();
+    uistrings_ += mEnumTr("Volumetrics",0);
+    uistrings_ += uiStrings::sVolume();
+    uistrings_ += uiStrings::sOther();
+}
 
 static bool thickness_proprefman_is_deleting_thickness = false;
 

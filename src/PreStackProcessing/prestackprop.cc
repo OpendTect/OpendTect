@@ -26,7 +26,7 @@ template<>
 void EnumDefImpl<PreStack::PropCalc::CalcType>::init()
 {
     uistrings_ += uiStrings::sStatistics();
-    uistrings_ += mEnumTr("AVO Attributes");
+    uistrings_ += mEnumTr("AVO Attributes",0);
 }
 
 mDefineEnumUtils(PreStack::PropCalc,AxisType,"Axis transformation")
@@ -44,12 +44,12 @@ template<>
 void EnumDefImpl<PreStack::PropCalc::AxisType>::init()
 {
     uistrings_ += uiStrings::sNone();
-    uistrings_ += mEnumTr("Logarithmic");
-    uistrings_ += mEnumTr("Exponential");
-    uistrings_ += mEnumTr("Quadratic");
-    uistrings_ += mEnumTr("Square root");
-    uistrings_ += mEnumTr("Absolute value");
-    uistrings_ += mEnumTr("Sine-Square");
+    uistrings_ += mEnumTr("Logarithmic",0);
+    uistrings_ += mEnumTr("Exponential",0);
+    uistrings_ += mEnumTr("Quadratic",0);
+    uistrings_ += mEnumTr("Square root",0);
+    uistrings_ += mEnumTr("Absolute value",0);
+    uistrings_ += mEnumTr("Sine-Square",0);
 
 }
 
@@ -63,13 +63,13 @@ mDefineEnumUtils(PreStack::PropCalc,LSQType,"Axis type")
 	0
 };
 template<>
-void EnumDefImpl<PreStack::PropCalc::AxisType>::init()
+void EnumDefImpl<PreStack::PropCalc::LSQType>::init()
 {
-    uistrings_ += mEnumTr("Intercept");
+    uistrings_ += mEnumTr("Intercept",0);
     uistrings_ += uiStrings::sGradient();
-    uistrings_ += mEnumTr("StdDev of Intercept");
-    uistrings_ += mEnumTr("StdDev of Gradient");
-    uistrings_ += mEnumTr("Correlation Coefficient");
+    uistrings_ += mEnumTr("StdDev of Intercept",0);
+    uistrings_ += mEnumTr("StdDev of Gradient",0);
+    uistrings_ += mEnumTr("Correlation Coefficient",0);
 }
 
 namespace PreStack

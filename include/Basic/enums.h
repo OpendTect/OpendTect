@@ -177,7 +177,7 @@ private:
  {
      uistrings_ += uiStrings::sYes();
      uistrings_ += uiStrings::sNo();
-     uistrings_ += tr("Not sure");
+     uistrings_ += mEnumTr("Not sure","disambiguation");
  }
  \endcode
 
@@ -263,7 +263,7 @@ const char* nmspc##enm##Keys_[] =
 mDefineEnumUtils(clss,enm,prettynm)
 #define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
 mDefineNameSpaceEnumUtils(nmspc,enm,prettynm)
-#define mEnumTr(str) tr(str)
+#define mEnumTr(str,disambiguation) tr(str,disambiguation)
 
 template <class ENUM> inline
 EnumDefImpl<ENUM>::EnumDefImpl( const char* nm, const char* nms[] )

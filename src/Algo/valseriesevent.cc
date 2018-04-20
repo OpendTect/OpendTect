@@ -26,12 +26,12 @@ template<>
 void EnumDefImpl<VSEvent::Type>::init()
 {
     uistrings_ += uiStrings::sNone();
-    uistrings_ += mEnumTr("Peak or trough");
-    uistrings_ += mEnumTr("Peak (Maximum)");
-    uistrings_ += mEnumTr("Trough (Minimum)");
-    uistrings_ += mEnumTr("Zero crossing");
-    uistrings_ += mEnumTr("Zero crossing - to +");
-    uistrings_ += mEnumTr("Zero crossing + to -");
-    uistrings_ += mEnumTr("Largest peak");
-    uistrings_ += mEnumTr("Largest trough");
+    uistrings_ += mEnumTr("Peak or trough",0);
+    uistrings_ += mEnumTr("Peak (Maximum)",0);
+    uistrings_ += mEnumTr("Trough (Minimum)",0);
+    uistrings_ += mEnumTr("Zero crossing",0);
+    uistrings_ += mEnumTr("Zero crossing - to +",0);
+    uistrings_ += mEnumTr("Zero crossing + to -",0);
+    uistrings_ += mEnumTr("Largest peak",0);
+    uistrings_ += mEnumTr("Largest trough",0);
 }

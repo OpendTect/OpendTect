@@ -31,9 +31,9 @@ template<>
 void EnumDefImpl<visSurvey::PSEventDisplay::MarkerColor>::init()
 {
     uistrings_ += uiStrings::sSingle();
-    uistrings_ += mEnumTr("Quality");
+    uistrings_ += mEnumTr("Quality",0);
     uistrings_ += uiStrings::sVelocity();
-    uistrings_ += mEnumTr("Velocity Fit");
+    uistrings_ += mEnumTr("Velocity Fit",0);
 }
 
 mDefineEnumUtils( visSurvey::PSEventDisplay, DisplayMode, "Display Mode" )
@@ -42,10 +42,10 @@ mDefineEnumUtils( visSurvey::PSEventDisplay, DisplayMode, "Display Mode" )
 template<>
 void EnumDefImpl<visSurvey::PSEventDisplay::DisplayMode>::init()
 {
-    uistrings_ += mEnumTr("Zero Offset");
-    uistrings_ += mEnumTr("Sticks from sections");
-    uistrings_ += mEnumTr("Zero offset on sections");
-    uistrings_ += mEnumTr("Sticks to gathers");
+    uistrings_ += mEnumTr("Zero Offset",0);
+    uistrings_ += mEnumTr("Sticks from sections",0);
+    uistrings_ += mEnumTr("Zero offset on sections",0);
+    uistrings_ += mEnumTr("Sticks to gathers",0);
 }
 
 namespace visSurvey

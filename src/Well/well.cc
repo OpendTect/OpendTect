@@ -78,16 +78,16 @@ template<>
 void EnumDefImpl<Well::Info::WellType>::init()
 {
     uistrings_ += uiStrings::sNone();
-    uistrings_ += mEnumTr("Oil Well");
-    uistrings_ += mEnumTr("Gas Well");
-    uistrings_ += mEnumTr("Oil-Gas Well");
-    uistrings_ += mEnumTr("Dry Hole");
-    uistrings_ += mEnumTr("Plugged Oil Well");
-    uistrings_ += mEnumTr("Plugged Gas Well");
-    uistrings_ += mEnumTr("Plugged Oil-Gas Well");
-    uistrings_ += mEnumTr("Permitted Location");
-    uistrings_ += mEnumTr("Canceled Location");
-    uistrings_ += mEnumTr("Injection Disposal Well");
+    uistrings_ += mEnumTr("Oil Well",0);
+    uistrings_ += mEnumTr("Gas Well",0);
+    uistrings_ += mEnumTr("Oil-Gas Well",0);
+    uistrings_ += mEnumTr("Dry Hole",0);
+    uistrings_ += mEnumTr("Plugged Oil Well",0);
+    uistrings_ += mEnumTr("Plugged Gas Well",0);
+    uistrings_ += mEnumTr("Plugged Oil-Gas Well",0);
+    uistrings_ += mEnumTr("Permitted Location",0);
+    uistrings_ += mEnumTr("Canceled Location",0);
+    uistrings_ += mEnumTr("Injection Disposal Well",0);
 }
 
 static const char* sWellName = "Well name";

@@ -60,8 +60,8 @@ mDefineEnumUtils( Array2DInterpol, FillType, "Filltypes" )
 template<>
 void EnumDefImpl<Array2DInterpol::FillType>::init()
 {
-    uistrings_ += mEnumTr("Only Holes");
-    uistrings_ += mEnumTr("Convex Hull");
+    uistrings_ += mEnumTr("Only Holes",0);
+    uistrings_ += mEnumTr("Convex Hull",0);
     uistrings_ += uiStrings::sFull();
 }
 

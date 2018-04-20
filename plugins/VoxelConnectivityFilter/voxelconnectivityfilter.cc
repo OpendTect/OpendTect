@@ -28,10 +28,10 @@ mDefineEnumUtils(VolProc::VoxelConnectivityFilter, AcceptOutput, "AcceptOutput")
 template<>
 void EnumDefImpl<VolProc::VoxelConnectivityFilter::AcceptOutput>::init()
 {
-    uistrings_ += mEnumTr("Body-size Rank");
-    uistrings_ += mEnumTr("Body Size");
+    uistrings_ += mEnumTr("Body-size Rank",0);
+    uistrings_ += mEnumTr("Body Size",0);
     uistrings_ += uiStrings::sValue();
-    uistrings_ += mEnumTr("Transparent");
+    uistrings_ += mEnumTr("Transparent",0);
 }
 
 mDefineEnumUtils(VolProc::VoxelConnectivityFilter, Connectivity, "Connectivity")
@@ -40,9 +40,9 @@ mDefineEnumUtils(VolProc::VoxelConnectivityFilter, Connectivity, "Connectivity")
 template<>
 void EnumDefImpl<VolProc::VoxelConnectivityFilter::Connectivity>::init()
 {
-    uistrings_ += mEnumTr("Common Faces (6 Neighbors)");
-    uistrings_ += mEnumTr("Common Edges (18 Neighbors)");
-    uistrings_ += mEnumTr("Full (26 Neighbors)");
+    uistrings_ += mEnumTr("Common Faces (6 Neighbors)",0);
+    uistrings_ += mEnumTr("Common Edges (18 Neighbors)",0);
+    uistrings_ += mEnumTr("Full (26 Neighbors)",0);
 }
 
 namespace VolProc

@@ -36,11 +36,11 @@ mDefineEnumUtils(OD::Platform,Type,"Platform")
 template<>
 void EnumDefImpl<OD::Platform::Type>::init()
 {
-    uistrings_ += mEnumTr("Linux (32 bits)");
-    uistrings_ += mEnumTr("Linux (64 bits)");
-    uistrings_ += mEnumTr("Windows (32 bits)");
-    uistrings_ += mEnumTr("Windows (64 bits)");
-    uistrings_ += mEnumTr("Mac OS X");
+    uistrings_ += mEnumTr("Linux (32 bits)",0);
+    uistrings_ += mEnumTr("Linux (64 bits)",0);
+    uistrings_ += mEnumTr("Windows (32 bits)",0);
+    uistrings_ += mEnumTr("Windows (64 bits)",0);
+    uistrings_ += mEnumTr("Mac OS X",0);
 }
 
 

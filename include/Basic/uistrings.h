@@ -296,6 +296,7 @@ public:
     static uiWord sCopy()		{ return tr("Copy"); }
     static uiWord sCorrelCoeff()	{ return tr("Correlation Coefficient");}
     static uiWord sCorrelation(int n=1)	{ return tr("Correlation",0,n); }
+    static uiWord sCount()		{ return tr("Count"); }
     static uiWord sCreate()		{ return tr("Create"); }
     static uiWord sCreateGroup()	{ return tr("Create Group"); }
     static uiWord sCreateNew();
@@ -306,6 +307,7 @@ public:
     static uiWord sCrossPlot()		{ return tr("Cross Plot"); }
     static uiWord sCrossline(int n=1)	{ return tr("Cross-line", 0, n ); }
     static uiWord sCrosslineDip()	{ return sLineDip(false); }
+    static uiWord sCrosslineNumber(int n=1) { return tr("Cross-line Number",0,n); }
     static uiWord sCrosslineRange()	{ return tr("Crossline Range"); }
 	static uiWord sCrossPlotData()	   { return tr("Cross Plot Data"); }
     static uiWord sCube(int n=1)	{ return tr("Cube",0,n); }
@@ -415,6 +417,7 @@ public:
     static uiWord sInl()		{ return tr("Inl","abbr In-line"); }
     static uiWord sInline(int n=1)	{ return tr("In-line",0,n); }
     static uiWord sInlineDip()		{ return tr("Inline Dip"); }
+    static uiWord sInlineNumber(int num=1) { return tr("Inline Number",0,num); }
     static uiWord sInlineRange()	{ return tr("Inline Range"); }
     static uiWord sInputASCIIFile()	{ return tr("Input ASCII File"); }
     static uiWord sInputParamsMissing();

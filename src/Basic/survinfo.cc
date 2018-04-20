@@ -70,9 +70,9 @@ mDefineEnumUtils(SurveyInfo,Pol2D3D,"Survey Type")
 template<>
 void EnumDefImpl<SurveyInfo::Pol2D3D>::init()
 {
-    uistrings_ += mEnumTr("Only 3D");
-    uistrings_ += mEnumTr("Both 2D and 3D");
-    uistrings_ += mEnumTr("Only 2D");
+    uistrings_ += mEnumTr("Only 3D",0);
+    uistrings_ += mEnumTr("Both 2D and 3D",0);
+    uistrings_ += mEnumTr("Only 2D",0);
 }
 
 #define mXYInFeet() (coordsystem_ && coordsystem_->isFeet())

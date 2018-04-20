@@ -61,7 +61,7 @@ template<>
 void EnumDefImpl<EventTracker::CompareMethod>::init()
 {
     uistrings_ += uiStrings::sNone();
-    uistrings_ += mEnumTr("Seed Trace");
+    uistrings_ += mEnumTr("Seed Trace",0);
     uistrings_ += mEnumTr("Adjacent Parent","Event Tracking");
 }
 

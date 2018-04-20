@@ -25,7 +25,7 @@ mDefineEnumUtils(EM::HorizonMerger,Mode,"Merge mode")
 template<>
 void EnumDefImpl<EM::HorizonMerger::Mode>::init()
 {
-    uistrings_ += mEnumTr("Take Average");
+    uistrings_ += mEnumTr("Take Average",0);
     uistrings_ += mEnumTr("Use Top","Top of a geologic model");
     uistrings_ += mEnumTr("Use Base","Base of a geologic model");
 }

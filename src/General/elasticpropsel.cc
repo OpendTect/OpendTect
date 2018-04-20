@@ -44,8 +44,8 @@ template<>
 void EnumDefImpl<ElasticFormula::Type>::init()
 {
     uistrings_ += uiStrings::sDensity();
-    uistrings_ += mEnumTr("PWave");
-    uistrings_ += mEnumTr("SWave");
+    uistrings_ += mEnumTr("PWave",0);
+    uistrings_ += mEnumTr("SWave",0);
 }
 
 

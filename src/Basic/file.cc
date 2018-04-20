@@ -59,10 +59,10 @@ mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 template<>
 void EnumDefImpl<File::ViewStyle>::init()
 {
-    uistrings_ += mEnumTr("Text");
-    uistrings_ += mEnumTr("Log");
-    uistrings_ += mEnumTr("Text");
-    uistrings_ += mEnumTr("Text");
+    uistrings_ += mEnumTr("Text",0);
+    uistrings_ += uiStrings::sTable();
+    uistrings_ += uiStrings::sLog();
+    uistrings_ += mEnumTr("Bin",0);
 }
 
 

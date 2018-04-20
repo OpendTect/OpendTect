@@ -29,9 +29,9 @@ mDefineNameSpaceEnumUtils(ODGMT,Shape,"Shapes")
 template<>
 void EnumDefImpl<ODGMT::Shape>::init()
 {
-    uistrings_ += mEnumTr("Star");
+    uistrings_ += mEnumTr("Star",0);
     uistrings_ += uiStrings::sCircle();
-    uistrings_ += mEnumTr("Diamond");
+    uistrings_ += mEnumTr("Diamond",0);
     uistrings_ += uiStrings::sSquare();
     uistrings_ += uiStrings::sTriangle();
     uistrings_ += uiStrings::sCross();

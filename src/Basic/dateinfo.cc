@@ -34,13 +34,13 @@ mDefineEnumUtils(DateInfo,DayOfWeek,"Week day") {
 template <>
 void EnumDefImpl<DateInfo::DayOfWeek>::init()
 {
-    uistrings_ += mEnumTr("Sunday");
-    uistrings_ += mEnumTr("Monday");
-    uistrings_ += mEnumTr("Tuesday");
-    uistrings_ += mEnumTr("Wednesday");
-    uistrings_ += mEnumTr("Thursday");
-    uistrings_ += mEnumTr("Friday");
-    uistrings_ += mEnumTr("Saturday");
+    uistrings_ += mEnumTr("Sunday",0);
+    uistrings_ += mEnumTr("Monday",0);
+    uistrings_ += mEnumTr("Tuesday",0);
+    uistrings_ += mEnumTr("Wednesday",0);
+    uistrings_ += mEnumTr("Thursday",0);
+    uistrings_ += mEnumTr("Friday",0);
+    uistrings_ += mEnumTr("Saturday",0);
 }
 
 mDefineEnumUtils(DateInfo,Month,"Month") {
@@ -67,18 +67,18 @@ static const char* fullmonths[] = {
 template <>
 void EnumDefImpl<DateInfo::Month>::init()
 {
-    uistrings_ += mEnumTr("January");
-    uistrings_ += mEnumTr("February");
-    uistrings_ += mEnumTr("March");
-    uistrings_ += mEnumTr("April");
-    uistrings_ += mEnumTr("May");
-    uistrings_ += mEnumTr("June");
-    uistrings_ += mEnumTr("July");
-    uistrings_ += mEnumTr("August");
-    uistrings_ += mEnumTr("September");
-    uistrings_ += mEnumTr("October");
-    uistrings_ += mEnumTr("November");
-    uistrings_ += mEnumTr("December");
+    uistrings_ += mEnumTr("January",0);
+    uistrings_ += mEnumTr("February",0);
+    uistrings_ += mEnumTr("March",0);
+    uistrings_ += mEnumTr("April",0);
+    uistrings_ += mEnumTr("May",0);
+    uistrings_ += mEnumTr("June",0);
+    uistrings_ += mEnumTr("July",0);
+    uistrings_ += mEnumTr("August",0);
+    uistrings_ += mEnumTr("September",0);
+    uistrings_ += mEnumTr("October",0);
+    uistrings_ += mEnumTr("November",0);
+    uistrings_ += mEnumTr("December",0);
 }
 
 const char** DateInfo::sFullMonths()	{ return fullmonths; }
