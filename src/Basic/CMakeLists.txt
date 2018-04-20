@@ -33,6 +33,7 @@ set( OD_TEST_PROGS
 	od_iostream.cc
 	oscommand.cc
 	svnversion.cc
+	gason.cc
 	Basic_Composite.cc
 )
 

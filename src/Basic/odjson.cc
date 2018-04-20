@@ -20,24 +20,45 @@ namespace OD
 namespace JSON
 {
 
-#define mDefSimpleConstr(ctyp,enumtyp,contmemb,utype) \
-    Value( ctyp i ) \
-	: type_(enumtyp) { cont_.contmemb = (utype)i; }
-
 class Value
 {
 public:
 
     union Contents
     {
-	Contents() { ival_ = 0; }
-	FPType fpval_; IntType ival_; char* str_;
+	Contents() { val_ = 0; }
+	NumberType val_;
+	bool bool_;
+	char* str_;
 	ValueSet* vset_;
     };
 
-mDefSimpleConstr( bool, Boolean, ival_, IntType )
-mDefSimpleConstr( IntType, Int, ival_, IntType )
-mDefSimpleConstr( FPType, Double, fpval_, FPType )
+    virtual bool	isKeyed() const	{ return false; }
+
+    ValueSet*		vSet()		{ return cont_.vset_; }
+    const ValueSet*	vSet() const	{ return cont_.vset_; }
+    bool&		boolVal()	{ return cont_.bool_; }
+    bool		boolVal() const	{ return cont_.bool_; }
+    NumberType&		val()		{ return cont_.val_; }
+    NumberType		val() const	{ return cont_.val_; }
+    char*		str()		{ return cont_.str_; }
+    const char*		str() const	{ return cont_.str_; }
+
+    Contents		cont_;
+    int			type_;
+
+#define mDefSimpleConstr(inptyp,enumtyp,contmemb,valtyp) \
+    Value( inptyp i ) \
+	: type_(enumtyp) { cont_.contmemb = (valtyp)i; }
+
+mDefSimpleConstr( bool, Boolean, bool_, bool )
+mDefSimpleConstr( od_int16, Number, val_, NumberType )
+mDefSimpleConstr( od_uint16, Number, val_, NumberType )
+mDefSimpleConstr( od_int32, Number, val_, NumberType )
+mDefSimpleConstr( od_uint32, Number, val_, NumberType )
+mDefSimpleConstr( od_int64, Number, val_, NumberType )
+mDefSimpleConstr( float, Number, val_, NumberType )
+mDefSimpleConstr( double, Number, val_, NumberType )
 
 Value( ValueSet* vset )
     : type_((int)String+1)
@@ -69,20 +90,6 @@ bool isValSet() const
     return type_ > String;
 }
 
-virtual bool isKeyed() const { return false; }
-
-ValueSet* vSet()	{ return cont_.vset_; }
-const ValueSet* vSet()	{ return cont_.vset_; }
-IntType& iVal()		{ return cont_.ival_; }
-IntType iVal() const	{ return cont_.ival_; }
-FPType& fpVal()		{ return cont_.fpval_; }
-FPType fpVal() const	{ return cont_.fpval_; }
-char* str()		{ return cont_.str_; }
-const char* str() const	{ return cont_.str_; }
-
-    Contents		cont_;
-    int			type_;
-
 };
 
 #define mDefSimpleKeyedConstr(ctyp) \
@@ -93,15 +100,20 @@ class KeyedValue :public Value
 {
 public:
 
-    mDefSimpleKeyedConstr( bool )
-    mDefSimpleKeyedConstr( IntType )
-    mDefSimpleKeyedConstr( FPType )
-    mDefSimpleKeyedConstr( const char* )
-    mDefSimpleKeyedConstr( ValueSet* )
+    BufferString	key_;
 
     virtual bool isKeyed() const { return true; }
 
-    BufferString	key_;
+mDefSimpleKeyedConstr( bool )
+mDefSimpleKeyedConstr( od_int16 )
+mDefSimpleKeyedConstr( od_uint16 )
+mDefSimpleKeyedConstr( od_int32 )
+mDefSimpleKeyedConstr( od_uint32 )
+mDefSimpleKeyedConstr( od_int64 )
+mDefSimpleKeyedConstr( float )
+mDefSimpleKeyedConstr( double )
+mDefSimpleKeyedConstr( const char* )
+mDefSimpleKeyedConstr( ValueSet* )
 
 };
 
@@ -118,8 +130,7 @@ OD::JSON::ValArr::ValArr( DataType typ )
     switch ( type_ )
     {
 	case Boolean:	set_ = new BSet;	break;
-	case Int:	set_ = new ISet;	break;
-	case Double:	set_ = new DSet;	break;
+	case Number:	set_ = new NSet;	break;
 	default:	{ pErrMsg("Unknown type"); type_ = String; }
 	case String:	set_ = new SSet;	break;
     }
@@ -198,23 +209,61 @@ OD::JSON::Node& OD::JSON::ValueSet::gtNode( idx_type idx ) const
 }
 
 
+static const char* gtvalnotplaindatastr = "ValueSet at idx is not plain data";
+
 BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
 {
     BufferString ret;
     if ( !values_.validIdx(idx) )
 	return ret;
-
     const Value* val = values_[idx];
     if ( val->isValSet() )
-	{ pErrMsg("ValueSet at idx is not plain data"); return ret; }
+	{ pErrMsg(gtvalnotplaindatastr); return ret; }
 
     switch ( (DataType)val->type_ )
     {
-	case Boolean:	ret.set( val->iVal() ? "true" : "false" );  break;
-	case Int:	ret.set( val->iVal() );  break;
-	case FP:	ret.set( val->fpVal() );  break;
+	case Boolean:	ret.set( val->boolVal() ? "true" : "false" );  break;
+	case Number:	ret.set( val->val() );  break;
 	default:	{ pErrMsg("Huh"); }
 	case String:	ret.set( val->str() );  break;
+    }
+}
+
+
+od_int64 OD::JSON::ValueSet::getIntValue( idx_type idx ) const
+{
+    od_int64 ret = mUdf(od_int64);
+    if ( !values_.validIdx(idx) )
+	return ret;
+    const Value* val = values_[idx];
+    if ( val->isValSet() )
+	{ pErrMsg(gtvalnotplaindatastr); return ret; }
+
+    switch ( (DataType)val->type_ )
+    {
+	case Boolean:	ret = val->boolVal() ? 0 : 1;  break;
+	case Number:	ret = mNINT64( val->val() );  break;
+	default:	{ pErrMsg("Huh"); }
+	case String:	ret = toInt64( val->str() );  break;
+    }
+}
+
+
+double OD::JSON::ValueSet::getDoubleValue( idx_type idx ) const
+{
+    double ret = mUdf(double);
+    if ( !values_.validIdx(idx) )
+	return ret;
+    const Value* val = values_[idx];
+    if ( val->isValSet() )
+	{ pErrMsg(gtvalnotplaindatastr); return ret; }
+
+    switch ( (DataType)val->type_ )
+    {
+	case Boolean:	ret = val->boolVal() ? 0 : 1;  break;
+	case Number:	ret = val->val();  break;
+	default:	{ pErrMsg("Huh"); }
+	case String:	ret = toDouble( val->str() );  break;
     }
 }
 
@@ -268,34 +317,86 @@ void OD::JSON::Array::addChild( ValueSet* vset )
 }
 
 
-#define mDefArrayAddVal(typ,fn) \
-void OD::JSON::Array::add( typ val ) \
+static const char* addarrnonvalstr = "add value to non-value Array";
+
+#define mDefArrayAddVal(inptyp,fn,valtyp) \
+void OD::JSON::Array::add( inptyp val ) \
 { \
     if ( valtype_ != Data ) \
-	{ pErrMsg("add value to non-value Array"); } \
+	{ pErrMsg(addarrnonvalstr); } \
     else \
-	valarr_->fn().add( val ); \
+	valarr_->fn().add( (valtyp)val ); \
 }
 
-mDefArrayAddVal( bool, bools )
-mDefArrayAddVal( IntType, ints )
-mDefArrayAddVal( FPType, fps )
-mDefArrayAddVal( const char*, strings )
+mDefArrayAddVal( bool, bools, bool )
+mDefArrayAddVal( od_int16, vals, NumberType )
+mDefArrayAddVal( od_uint16, vals, NumberType )
+mDefArrayAddVal( od_int32, vals, NumberType )
+mDefArrayAddVal( od_uint32, vals, NumberType )
+mDefArrayAddVal( od_int64, vals, NumberType )
+mDefArrayAddVal( float, vals, NumberType )
+mDefArrayAddVal( double, vals, NumberType )
+mDefArrayAddVal( const char*, strings, const char* )
 
-
-#define mDefArraySetVals(typ,fn) \
-void OD::JSON::Array::set( const ValArr::typ& vals ) \
-{ \
-    if ( valtype_ != Data ) \
-	{ pErrMsg("set values for non-value Array"); } \
-    else \
-	valarr_->fn() = vals; \
+void OD::JSON::Array::add( const uiString& val )
+{
+    BufferString bs;
+    val.fillUTF8String( bs );
+    add( bs );
 }
 
-mDefArraySetVals( BSet, bools )
-mDefArrayAddVal( ISet, ints )
-mDefArrayAddVal( FPSet, fps )
-mDefArrayAddVal( SSet, strings )
+
+template<class T>
+void OD::JSON::Array::setValsImpl( const TypeSet<T>& vals )
+{
+    setEmpty();
+    valtype_ = Data;
+    delete valarr_; valarr_ = new ValArr( Number );
+    valarr_->vals().copy( vals );
+}
+
+
+#define mDefArraySetVals( inptyp ) \
+void OD::JSON::Array::set( const TypeSet<inptyp>& vals ) { setVals( vals ); }
+
+mDefArraySetVals( od_int16, vals )
+mDefArraySetVals( od_uint16, vals )
+mDefArraySetVals( od_int32, vals )
+mDefArraySetVals( od_uint32, vals )
+mDefArraySetVals( od_int64, vals )
+mDefArraySetVals( float, vals )
+mDefArraySetVals( double, vals )
+
+
+void OD::JSON::Array::set( const BoolTypeSet& vals )
+{
+    setEmpty();
+    valtype_ = Data;
+    delete valarr_; valarr_ = new ValArr( Boolean );
+    valarr_->bools() = vals;
+}
+
+
+void OD::JSON::Array::set( const BufferStringSet& vals )
+{
+    setEmpty();
+    valtype_ = Data;
+    delete valarr_; valarr_ = new ValArr( String );
+    valarr_->strings() = vals;
+}
+
+
+void OD::JSON::Array::set( const uiStringSet& vals )
+{
+    BufferStringSet bss;
+    for ( auto uistrptr : vals )
+    {
+	BufferString bs;
+	uistrptr->fillUTF8String( bs );
+	bss.add( bs );
+    }
+    set( bss );
+}
 
 
 //--------- Node
@@ -356,41 +457,44 @@ void OD::JSON::Node::set( KeyedValue* val )
 }
 
 
-#define mDefNodeSetVal(typ) \
-void OD::JSON::Node::set( const char* ky, typ t ) \
-{ \
-    set( new KeyedValue(ky,t) ); \
+
+template <class T>
+void OD::JSON::Node::setVal( const char* ky, T t )
+{
+    set( new KeyedValue(ky,t) );
 }
+
+
+#define mDefNodeSetVal(typ) \
+void OD::JSON::Node::set( const char* ky, T val ) { setVal(ky,val); }
 
 mDefNodeSetVal( bool )
-mDefNodeSetVal( IntType )
-mDefNodeSetVal( FPType )
+mDefNodeSetVal( od_int16 )
+mDefNodeSetVal( od_uint16 )
+mDefNodeSetVal( od_int32 )
+mDefNodeSetVal( od_uint32 )
+mDefNodeSetVal( od_int64 )
+mDefNodeSetVal( float )
+mDefNodeSetVal( double )
 mDefNodeSetVal( const char* )
-
-void OD::JSON::Node::set( const char* ky, const OD::String& str )
-{
-    set( ky, str.str() );
-}
 
 
 void OD::JSON::Node::fillPar( IOPar& iop ) const
 {
     // Put '.' for subnode keys
-    pErrMsg("Needs impl");
+    pErrMsg("TODO: Needs impl");
 }
 
 
 void OD::JSON::Node::usePar( const IOPar& iop )
 {
     // Scan for '.' to make subnodes
-    pErrMsg("Needs impl");
+    pErrMsg("TODO: Needs impl");
 }
 
 
-#define mJvalInt(jval) ((od_int64)jval.getPayload())
 #define mJvalDouble(jval) (jval.toNumber())
 #define mJvalString(jval) (jval.toString())
-#define mJvalBool(jval) ((bool)jval.getPayload())
 
 
 void OD::JSON::Node::useJsonValue( Gason::JsonValue& jsonval,
@@ -417,8 +521,6 @@ void OD::JSON::Node::useJsonValue( Gason::JsonValue& jsonval,
 	case Gason::JSON_ARRAY:
 	{
 	    Gason::JsonTag valtag = Gason::JSON_NULL;
-	    BufferStringSet strs; TypeSet<IntType> ints;
-	    TypeSet<FPType> fps; BoolTypeSet bools;
 	    for ( auto it : jsonval )
 	    {
 		const Gason::JsonValue& arrjval = it->value;
@@ -540,6 +642,7 @@ uiRetVal OD::JSON::Tree::write( od_ostream& strm )
     }
     return uirv;
 }
+
 
 void OD::JSON::Key::set( const char* inp )
 {

@@ -34,11 +34,10 @@ class Node;
 
 enum DataType
 {
-    Boolean, Int, FP, String
+    Boolean, Number, String
 };
 
-typedef od_int64 IntType;
-typedef double FPType;
+typedef double NumberType;
 
 
 /*! holds 'flat' value sets of each of the DataType's */
@@ -50,8 +49,7 @@ public:
     typedef BoolTypeSet::size_type	size_type;
     typedef size_type			idx_type;
     typedef BoolTypeSet			BSet;
-    typedef TypeSet<IntType>		ISet;
-    typedef TypeSet<FPType>		FPSet;
+    typedef TypeSet<NumberType>		NSet;
     typedef BufferStringSet		SSet;
 
 			ValArr(DataType);
@@ -69,10 +67,8 @@ public:
     const OD::Set&	odSet() const		{ return *set_; }
     BSet&		bools()			{ return *((BSet*)set_); }
     const BSet&		bools() const		{ return *((BSet*)set_); }
-    ISet&		ints()			{ return *((ISet*)set_); }
-    const ISet&		ints() const		{ return *((ISet*)set_); }
-    FPSet&		fps()			{ return *((FPSet*)set_); }
-    const FPSet&	fps() const		{ return *((FPSet*)set_); }
+    NSet&		vals()			{ return *((NSet*)set_); }
+    const NSet&		vals() const		{ return *((NSet*)set_); }
     SSet&		strings()		{ return *((SSet*)set_); }
     const SSet&		strings() const		{ return *((SSet*)set_); }
 
@@ -127,6 +123,8 @@ public:
     mMkGetFns(Node,	node, gtNode )
 #   undef		mMkSubFn
 
+    od_int64		getIntValue(idx_type) const;
+    double		getDoubleValue(idx_type) const;
     BufferString	getStringValue(idx_type) const;
 
 protected:
@@ -152,6 +150,10 @@ mExpClass(Basic) Array : public ValueSet
 {
 public:
 
+    typedef BoolTypeSet	BoolSet;
+    typedef TypeSet<int> IntSet;
+    typedef TypeSet<int> IntSet;
+
 			Array(bool nodes,ValueSet*);
 			Array(DataType,ValueSet*);
 			~Array();
@@ -159,6 +161,7 @@ public:
     virtual void	setEmpty();
 
     virtual ValueType	valueType(idx_type) const { return valtype_; }
+    ValueType		valType() const		{ return valtype_; }
     size_type		nrElements() const;
 
     inline ValArr&	valArr()		{ return *valarr_; }
@@ -167,19 +170,35 @@ public:
     void		addChild(ValueSet*);
 
     void		add(bool);
-    void		add(IntType);
-    void		add(FPType);
+    void		add(od_int16);
+    void		add(od_uint16);
+    void		add(od_int32);
+    void		add(od_uint32);
+    void		add(od_int64);
+    void		add(float);
+    void		add(double);
     void		add(const char*);
     void		add( const OD::String& odstr ) { add( odstr.str(); }
-    void		set(const ValArr::BSet&);
-    void		set(const ValArr::ISet&);
-    void		set(const ValArr::FPSet&);
-    void		set(const ValArr::SSet&);
+    void		add(const uiString&);
+
+    void		set(const BoolTypeSet&);
+    void		set(const TypeSet<od_int16>&);
+    void		set(const TypeSet<od_uint16>&);
+    void		set(const TypeSet<od_int32>&);
+    void		set(const TypeSet<od_uint32>&);
+    void		set(const TypeSet<od_int64>&);
+    void		set(const TypeSet<float>&);
+    void		set(const TypeSet<double>&);
+    void		set(const BufferStringSet&);
+    void		set(const uiStringSet&);
 
 protected:
 
     ValueType		valtype_;
     ValArr*		valarr_;
+
+    template <class T>
+    void		setVals(const TypeSet<T>&);
 
 };
 
@@ -204,10 +223,16 @@ public:
 
     void		setChild(const char* ky,ValueSet*);
     void		set(const char* ky,bool);
-    void		set(const char* ky,IntType);
-    void		set(const char* ky,FPType);
+    void		set(const char* ky,od_int16);
+    void		set(const char* ky,od_uint16);
+    void		set(const char* ky,od_int32);
+    void		set(const char* ky,od_uint32);
+    void		set(const char* ky,od_int64);
+    void		set(const char* ky,float);
+    void		set(const char* ky,double);
     void		set(const char* ky,const char*);
-    void		set(const char* ky,const OD::String&);
+    void		set( const char* ky, const OD::String& str )
+			{ set( ky, str.str() ); }
 
     void		usePar(const IOPar&);
     void		parseJSon(char* buf,int bufsz,uiRetVal&);
@@ -221,6 +246,8 @@ protected:
     Array*		gtArray(const char*) const;
     Node*		gtNode(const char*) const;
 
+    template <class T>
+    void		setVal(const char*,T);
     void		useJsonValue(Gason::JsonValue&,const char*);
 
 };
@@ -256,8 +283,8 @@ public:
   You can spacify indexes in arrays using the intuitive [] subscript.
 
   GeoJSon example of fullKey:
-  features[1].geometry.coordinates[0][3][1]	(FPType - Y value)
-  features[1].geometry.coordinates[0][3]	(ValArr of type FP - Coord)
+  features[1].geometry.coordinates[0][3][1]	(NumberType - Y value)
+  features[1].geometry.coordinates[0][3]	(ValArr of type Number - Coord)
   features[1].geometry.coordinates[0]		(Array - PtSet/Polygon)
   features[1].geometry.coordinates		(Array - Set of PtSet/Polygon)
   features[1].geometry				(Node)

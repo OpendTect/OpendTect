@@ -61,6 +61,19 @@ static bool testUseJSON()
 	const BufferString namestr = crspropnode->getStringValue( "name" );
 	mRunStandardTestWithError( name == "urn:ogc:def:crs:OGC:1.3:CRS84",
 				   "crs name" )
+	const auto* featsarr = tree.getArray( "features" );
+	mRunStandardTestWithError( featsarr, mNFStr(Array,features) )
+	const int sz = featsarr->size();
+	mRunStandardTestWithError( sz==2, "Number of features" )
+        const auto& feat2 = featsarr->getNode( 1 );
+        const auto* feat2props = feat2.getNode( "properties" );
+	mRunStandardTestWithError( feat2props, mNFStr(Node,feats[1].props) )
+        const auto* f2pgeom = feat2props->getNode( "geometry" );
+	mRunStandardTestWithError( f2pgeom, mNFStr(Node,props.geom) )
+        const Array* coords = f2pgeom->getArray( "coordinates" );
+	mRunStandardTestWithError( coords, mNFStr(Node,geom.coords) )
+	const Array* point3 = coords->getArray( 3 );
+	mRunStandardTestWithError( coords, mNFStr(Node,coords[2]) )
     }
 }
 
