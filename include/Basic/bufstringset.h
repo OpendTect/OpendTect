@@ -22,7 +22,7 @@ mFDQtclass( QStringList )
 
 /*!\brief Set of BufferString objects. */
 
-mExpClass(Basic) BufferStringSet
+mExpClass(Basic) BufferStringSet : public OD::Set
 { mIsContainer( BufferStringSet, ManagedObjectSet<BufferString>, strs_ )
 public:
 
@@ -35,7 +35,7 @@ public:
 
     inline size_type	size() const		{ return strs_.size(); }
     inline bool		isEmpty() const		{ return strs_.isEmpty(); }
-    inline bool		validIdx( idx_type i ) const
+    virtual bool	validIdx( od_int64 i ) const
 						{ return strs_.validIdx(i); }
     idx_type		indexOf(const char*,CaseSensitivity s=CaseSensitive
 						) const; //!< first match
@@ -55,7 +55,7 @@ public:
     const BufferString*	last() const		{ return strs_.last(); }
 
     inline void		setEmpty()		{ strs_.setEmpty(); }
-    inline void		erase()			{ setEmpty(); }
+    virtual void	erase()			{ setEmpty(); }
     void		removeSingle( idx_type i ) { strs_.removeSingle(i); }
     void		removeRange( idx_type i1, idx_type i2 )
 						{ strs_.removeRange(i1,i2); }
@@ -106,8 +106,8 @@ public:
     // uncommon stuff
     BufferString*	operator[]( idx_type idx )	 { return strs_[idx]; }
     const BufferString*	operator[]( idx_type idx ) const { return strs_[idx]; }
-    const SetType&	getStringSet() const	    { return strs_; }
-    SetType&		getStringSet()		    { return strs_; }
+    const SetType&	getStringSet() const		 { return strs_; }
+    SetType&		getStringSet()			 { return strs_; }
     void		setNullAllowed( bool yn=true )
 				{ strs_.setNullAllowed( yn ); }
     BufferStringSet&	operator +=( BufferString* bs )	{ return add(bs); }
@@ -117,6 +117,12 @@ public:
 				{ strs_.insertAt(bs,idx); }
 				    //generate non translated uiStrings's set
     uiStringSet		getUiStringSet() const;
+
+    // remainder of OD::Set interface
+
+    virtual od_int64	nrItems() const		{ return size(); }
+    virtual void	swapItems( od_int64 i1, od_int64 i2 )
+			{ swap( (idx_type)i1, (idx_type)i2 ); }
 
 };
 

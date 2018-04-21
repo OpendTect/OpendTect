@@ -74,7 +74,7 @@ void cleanUp()
 	delete vSet();
     else if ( type_ == (int)String )
 	delete [] str();
-    contents_.val_ = 0;
+    cont_.val_ = 0;
 }
 
 void setValue( bool val )
@@ -173,67 +173,59 @@ void OD::JSON::ValueSet::setEmpty()
 }
 
 
-OD::JSON::ValueSet::idx_type OD::JSON::ValueSet::indexOf( const char* nm ) const
+OD::JSON::ValueSet::ValueType OD::JSON::ValueSet::valueType(
+				    idx_type idx ) const
 {
-    for ( auto val : values_ )
-    {
-	if ( val->key_ == nm )
-	    return idx;
-    }
-    return -1;
-}
-
-
-OD::JSON::ValueSet::Type OD::JSON::ValueSet::valueType( idx_type idx )
-{
-    Type ret = Data;
+    ValueType ret = Data;
     if ( !values_.validIdx(idx) )
 	{ pErrMsg("Idx out of range"); return ret; }
 
     const Value& val = *values_[idx];
     if ( val.isValSet() )
-	ret = val.valSet()->isArray() ? SubArray : SubNode;
+	ret = val.vSet()->isArray() ? SubArray : SubNode;
 
     return ret;
 }
 
 
-OD::JSON::Tree* OD::JSON::ValueSet::tree()
+OD::JSON::ValueSet* OD::JSON::ValueSet::top()
 {
-    return parent_ ? parent_->tree() : (Tree*)this; }
+    return parent_ ? parent_->top() : this;
 }
 
 
-const OD::JSON::Tree* OD::JSON::ValueSet::tree() const
+const OD::JSON::ValueSet* OD::JSON::ValueSet::top() const
 {
-    return parent_ ? parent_->tree() : (const Tree*)this; }
+    return parent_ ? parent_->top() : this;
 }
 
 
-OD::JSON::ValueSet& OD::JSON::ValueSet::gtChild( idx_type idx ) const
+OD::JSON::ValueSet* OD::JSON::ValueSet::gtChildByIdx( idx_type idx ) const
 {
-    Value* val = values_[idx];
+    if ( !values_.validIdx(idx) )
+	return 0;
+    const Value* val = values_[idx];
     if ( !val->isValSet() )
-	{ pErrMsg("Value at idx is not ValSet - crash follows"); }
-    return *const_cast<ValueSet*>( values_[idx]->vSet() );
+	{ pErrMsg("Value at idx is not ValSet"); }
+    return const_cast<ValueSet*>( val->vSet() );
 }
 
 
-OD::JSON::Array& OD::JSON::ValueSet::gtArray( idx_type idx ) const
+OD::JSON::Array* OD::JSON::ValueSet::gtArrayByIdx( idx_type idx ) const
 {
-    ValueSet& vset = gtChild( idx );
-    if ( !vset.isArray() )
-	{ pErrMsg("ValueSet at idx is not Array - crash follows"); }
-    return static_cast<Array&>( vset );
+    ValueSet* vset = gtChildByIdx( idx );
+    if ( !vset || !vset->isArray() )
+	return 0;
+    return static_cast<Array*>( vset );
 }
 
 
-OD::JSON::Node& OD::JSON::ValueSet::gtNode( idx_type idx ) const
+OD::JSON::Node* OD::JSON::ValueSet::gtNodeByIdx( idx_type idx ) const
 {
-    ValueSet& vset = gtChild( idx );
-    if ( vset.isArray() )
-	{ pErrMsg("ValueSet at idx is not Node - crash follows"); }
-    return static_cast<Array&>( vst );
+    ValueSet* vset = gtChildByIdx( idx );
+    if ( !vset || vset->isArray() )
+	return 0;
+    return static_cast<Node*>( vset );
 }
 
 
@@ -255,6 +247,7 @@ BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
 	default:	{ pErrMsg("Huh"); }
 	case String:	ret.set( val->str() );  break;
     }
+    return ret;
 }
 
 
@@ -274,6 +267,7 @@ od_int64 OD::JSON::ValueSet::getIntValue( idx_type idx ) const
 	default:	{ pErrMsg("Huh"); }
 	case String:	ret = toInt64( val->str() );  break;
     }
+    return ret;
 }
 
 
@@ -293,6 +287,159 @@ double OD::JSON::ValueSet::getDoubleValue( idx_type idx ) const
 	default:	{ pErrMsg("Huh"); }
 	case String:	ret = toDouble( val->str() );  break;
     }
+    return ret;
+}
+
+
+static Gason::JsonTag getNextTag( const Gason::JsonValue& gasonval )
+{
+    for ( auto gasonnode : gasonval )
+	return gasonnode->value.getTag();
+    return Gason::JSON_NULL;
+}
+
+
+static OD::JSON::ValueSet* getSubVS( OD::JSON::ValueSet* parent,
+		Gason::JsonTag tag, Gason::JsonTag nexttag )
+{
+    if ( tag == Gason::JSON_OBJECT )
+	return new OD::JSON::Node( parent );
+    else if ( tag != Gason::JSON_ARRAY )
+	return 0;
+
+    const bool nextisarr = nexttag == Gason::JSON_ARRAY;
+    const bool nextisnode = nexttag == Gason::JSON_OBJECT;
+    if ( nextisarr || nextisnode )
+	return new OD::JSON::Array( nextisnode, parent );
+
+    OD::JSON::DataType dt = OD::JSON::Boolean;
+    if ( nexttag == Gason::JSON_NUMBER )
+	dt = OD::JSON::Number;
+    else if ( nexttag == Gason::JSON_STRING )
+	dt = OD::JSON::String;
+    return new OD::JSON::Array( dt, parent );
+}
+
+
+void OD::JSON::ValueSet::use( const Gason::JsonValue& gasonval )
+{
+    const Gason::JsonTag tag = gasonval.getTag();
+    switch ( tag )
+    {
+	case Gason::JSON_NUMBER:
+	{
+	    const double val = gasonval.toNumber();
+	    if ( isArray() )
+		asArray().valArr().vals() += val;
+	    else
+		values_.last()->setValue( val );
+	} break;
+
+	case Gason::JSON_STRING:
+	{
+	    const char* val = gasonval.toString();
+	    if ( isArray() )
+		asArray().valArr().strings().add( val );
+	    else
+		values_.last()->setValue( val );
+	} break;
+
+	case Gason::JSON_TRUE:
+	case Gason::JSON_FALSE:
+	{
+	    const bool val = tag == Gason::JSON_TRUE;
+	    if ( isArray() )
+		asArray().valArr().bools() += val;
+	    else
+		values_.last()->setValue( val );
+	} break;
+
+	case Gason::JSON_ARRAY:
+	{
+	    const Gason::JsonTag nexttag = getNextTag( gasonval );
+	    Array* arr = (Array*)getSubVS( this, tag, nexttag );
+	    if ( arr )
+		values_ += new Value( arr );
+	} break;
+
+	case Gason::JSON_OBJECT:
+	{
+	    Node* newnode = new Node( this );
+	    Value* nodeval = new Value( newnode );
+	    values_ += nodeval;
+	    for ( auto gasonnode : gasonval )
+		newnode->set( new KeyedValue( gasonnode->key ) );
+	} break;
+
+	case Gason::JSON_NULL:
+	{
+	} break;
+    }
+}
+
+
+OD::JSON::ValueSet* OD::JSON::ValueSet::parseJSon( char* buf, int bufsz,
+						    uiRetVal& uirv )
+{
+    uirv.setOK();
+    if ( !buf || bufsz < 1 )
+	{ uirv.set( uiStrings::phrInternalErr("No data to parse (JSON)") );
+	    return 0; }
+
+    Gason::JsonAllocator allocator;
+    Gason::JsonValue rootgasonval; char* endptr;
+    int status = Gason::jsonParse( buf, &endptr, &rootgasonval, allocator );
+    if ( status != Gason::JSON_OK )
+    {
+	uirv.set( tr("JSON parse error: '%1' at char %2")
+		    .arg( Gason::jsonStrError(status) )
+		    .arg( endptr-buf ) );
+	return 0;
+    }
+
+    ValueSet* vset = getSubVS( 0, rootgasonval.getTag(),
+				  getNextTag(rootgasonval) );
+    if ( !vset )
+	uirv.set( tr("No meaningful JSON content found") );
+    else
+	vset->use( rootgasonval );
+
+    return vset;
+}
+
+
+void OD::JSON::ValueSet::dumpJSon( BufferString& str ) const
+{
+    str.set( "TODO" );
+}
+
+
+uiRetVal OD::JSON::ValueSet::read( od_istream& strm )
+{
+    uiRetVal uirv;
+    BufferString buf;
+    if ( strm.getAll(buf) )
+	parseJSon( buf.getCStr(), buf.size(), uirv );
+    else
+    {
+	uirv.set( uiStrings::phrCannotRead( toUiString(strm.fileName()) ) );
+	strm.addErrMsgTo( uirv );
+    }
+    return uirv;
+}
+
+
+uiRetVal OD::JSON::ValueSet::write( od_ostream& strm )
+{
+    BufferString buf;
+    dumpJSon( buf );
+    uiRetVal uirv;
+    if ( !strm.add(buf).isOK() )
+    {
+	uirv.set( uiStrings::phrCannotWrite( toUiString(strm.fileName()) ) );
+	strm.addErrMsgTo( uirv );
+    }
+    return uirv;
 }
 
 
@@ -300,7 +447,7 @@ double OD::JSON::ValueSet::getDoubleValue( idx_type idx ) const
 
 OD::JSON::Array::Array( bool nodes, ValueSet* p )
     : ValueSet(p)
-    , type_(nodes ? Nodes : Arrays)
+    , valtype_(nodes ? SubNode : SubArray)
     , valarr_(0)
 {
 }
@@ -308,7 +455,7 @@ OD::JSON::Array::Array( bool nodes, ValueSet* p )
 
 OD::JSON::Array::Array( DataType dt, ValueSet* p )
     : ValueSet(p)
-    , type_(Values)
+    , valtype_(Data)
     , valarr_(new ValArr(dt))
 {
 }
@@ -328,9 +475,9 @@ void OD::JSON::Array::setEmpty()
 }
 
 
-OD::JSON::Container::SzType OD::JSON::Array::nrElements() const
+OD::JSON::ValueSet::size_type OD::JSON::Array::nrElements() const
 {
-    return type_ == Values ? valArr().size() : size();
+    return valtype_ == Data ? valArr().size() : size();
 }
 
 
@@ -338,7 +485,7 @@ void OD::JSON::Array::addChild( ValueSet* vset )
 {
     if ( valtype_ == Data )
 	{ pErrMsg("add child to value Array"); return; }
-    else if ( valtype_ == SubArray != vset->isArray() )
+    else if ( (valtype_==SubArray) != vset->isArray() )
 	{ pErrMsg("add wrong child type to Array"); return; }
 
     values_ += new Value( vset );
@@ -375,25 +522,25 @@ void OD::JSON::Array::add( const uiString& val )
 
 
 template<class T>
-void OD::JSON::Array::setValsImpl( const TypeSet<T>& vals )
+void OD::JSON::Array::setVals( const TypeSet<T>& vals )
 {
     setEmpty();
     valtype_ = Data;
     delete valarr_; valarr_ = new ValArr( Number );
-    valarr_->vals().copy( vals );
+    copy( valarr_->vals(), vals );
 }
 
 
 #define mDefArraySetVals( inptyp ) \
-void OD::JSON::Array::set( const TypeSet<inptyp>& vals ) { setVals( vals ); }
+void OD::JSON::Array::set( const TypeSet<inptyp>& vals ) { setVals(vals); }
 
-mDefArraySetVals( od_int16, vals )
-mDefArraySetVals( od_uint16, vals )
-mDefArraySetVals( od_int32, vals )
-mDefArraySetVals( od_uint32, vals )
-mDefArraySetVals( od_int64, vals )
-mDefArraySetVals( float, vals )
-mDefArraySetVals( double, vals )
+mDefArraySetVals( od_int16 )
+mDefArraySetVals( od_uint16 )
+mDefArraySetVals( od_int32 )
+mDefArraySetVals( od_uint32 )
+mDefArraySetVals( od_int64 )
+mDefArraySetVals( float )
+mDefArraySetVals( double )
 
 
 void OD::JSON::Array::set( const BoolTypeSet& vals )
@@ -429,23 +576,29 @@ void OD::JSON::Array::set( const uiStringSet& vals )
 
 //--------- Node
 
-OD::JSON::ValueSet* OD::JSON::Node::gtChild( const char* ky ) const
+OD::JSON::ValueSet::idx_type OD::JSON::Node::indexOf( const char* nm ) const
 {
-    const idx = indexOf( ky );
-    if ( idx < 0 )
-	return 0;
+    idx_type idx = 0;
+    for ( auto val : values_ )
+    {
+	const KeyedValue& kydval = *static_cast<KeyedValue*>( val );
+	if ( kydval.key_ == nm )
+	    return idx;
+	idx++;
+    }
+    return -1;
+}
 
-    Value* val  = values_[idx];
-    if ( !val->isValSet() )
-	{ pErrMsg("Request for child set which is a plain value"); return 0; }
-
-    return const_cast<ValueSet*>( val->valSet() );
+OD::JSON::ValueSet* OD::JSON::Node::gtChildByKey( const char* ky ) const
+{
+    const idx_type idx = indexOf( ky );
+    return idx < 0 ? 0 : gtChildByIdx( idx );
 }
 
 
-OD::JSON::Array* OD::JSON::Node::gtArray( const char* ky ) const
+OD::JSON::Array* OD::JSON::Node::gtArrayByKey( const char* ky ) const
 {
-    ValueSet* vs = gtChild( ky );
+    ValueSet* vs = gtChildByKey( ky );
     if ( !vs )
 	return 0;
     else if ( !vs->isArray() )
@@ -455,15 +608,33 @@ OD::JSON::Array* OD::JSON::Node::gtArray( const char* ky ) const
 }
 
 
-OD::JSON::Node* OD::JSON::Node::gtNode( const char* ky ) const
+OD::JSON::Node* OD::JSON::Node::gtNodeByKey( const char* ky ) const
 {
-    ValueSet* vs = gtChild( ky );
+    ValueSet* vs = gtChildByKey( ky );
     if ( !vs )
 	return 0;
     else if ( vs->isArray() )
 	{ pErrMsg("Request for child Node which is an Array"); return 0; }
 
     return static_cast<Node*>( vs );
+}
+
+
+od_int64 OD::JSON::Node::getIntValue( const char* ky ) const
+{
+    return ValueSet::getIntValue( indexOf(ky) );
+}
+
+
+double OD::JSON::Node::getDoubleValue( const char* ky ) const
+{
+    return ValueSet::getDoubleValue( indexOf(ky) );
+}
+
+
+BufferString OD::JSON::Node::getStringValue( const char* ky ) const
+{
+    return ValueSet::getStringValue( indexOf(ky) );
 }
 
 
@@ -477,7 +648,7 @@ void OD::JSON::Node::setChild( const char* ky, ValueSet* vset )
 
 void OD::JSON::Node::set( KeyedValue* val )
 {
-    const int idx = indexOf( val->key_ );
+    const idx_type idx = indexOf( val->key_ );
     if ( idx >= 0 )
 	delete values_.removeSingle( idx );
     values_ += val;
@@ -493,7 +664,7 @@ void OD::JSON::Node::setVal( const char* ky, T t )
 
 
 #define mDefNodeSetVal(typ) \
-void OD::JSON::Node::set( const char* ky, T val ) { setVal(ky,val); }
+void OD::JSON::Node::set( const char* ky, typ val ) { setVal(ky,val); }
 
 mDefNodeSetVal( bool )
 mDefNodeSetVal( od_int16 )
@@ -504,173 +675,6 @@ mDefNodeSetVal( od_int64 )
 mDefNodeSetVal( float )
 mDefNodeSetVal( double )
 mDefNodeSetVal( const char* )
-
-
-void OD::JSON::Node::fillPar( IOPar& iop ) const
-{
-    // Put '.' for subnode keys
-    pErrMsg("TODO: Needs impl");
-}
-
-
-void OD::JSON::Node::usePar( const IOPar& iop )
-{
-    // Scan for '.' to make subnodes
-    pErrMsg("TODO: Needs impl");
-}
-
-
-void OD::JSON::ValueSet::use( const Gason::JsonValue& gasonval )
-{
-    const Gason::JsonTag tag = gasonval.getTag();
-    switch ( tag )
-    {
-	case Gason::JSON_NUMBER:
-	{
-	    const double val = gasonval.toNumber();
-	    if ( isArray() )
-		valArr().vals() += val;
-	    else
-		values_.last()->setValue( val );
-	} break;
-
-	case Gason::JSON_STRING:
-	{
-	    const char* val = gasonval.toString();
-	    if ( isArray() )
-		valArr().strings().add( val );
-	    else
-		values_.last()->setValue( val );
-	} break;
-
-	case Gason::JSON_TRUE:
-	case Gason::JSON_FALSE:
-	{
-	    const bool val = tag == Gason::JSON_TRUE;
-	    if ( isArray() )
-		valArr().bools() += val;
-	    else
-		values_.last()->setValue( val );
-	} break;
-
-	case Gason::JSON_ARRAY:
-	{
-	} break;
-
-	case Gason::JSON_OBJECT:
-	{
-	    Node* newnode = new Node( this );
-	    Value* nodeval = new Value( newnode );
-	    values_ += nodeval;
-	    for ( auto gasonnode : gasonval )
-		newnode->set( new KeyedValue( gasonnode->key ) );
-	} break;
-
-	case Gason::JSON_NULL:
-	{
-	} break;
-    }
-}
-
-
-OD::JSON::ValueSet* OD::JSON::ValueSet::getNew( ValueSet* parent,
-		const Gason::JsonNode& node, const Gason::JsonNode& next )
-{
-    const Gason::JsonTag tag = node.getTag();
-    const Gason::JsonTag nexttag = next.getTag();
-    if ( tag == Gason::JSON_NULL || nexttag == Gason::JSON_NULL )
-	return 0;
-    else if ( tag != Gason::JSON_ARRAY )
-	return new Node( parent );
-
-    const bool nextisarr = nexttag == Gason::JSON_ARRAY;
-    const bool nextisnode = nexttag == Gason::JSON_OBJECT;
-    if ( nextisarr || nextisnode )
-	return new Array( nextisnode, parent );
-
-    DataType dt = Boolean;
-    if ( nexttag == Gason::JSON_NUMBER )
-	dt = Number;
-    else if ( nexttag == Gason::JSON_STRING )
-	dt = String;
-    return new Array( dt, parent );
-}
-
-
-OD::JSON::ValueSet* OD::JSON::ValueSet::parseJSon( char* buf, int bufsz,
-						    uiRetVal& uirv )
-{
-    uirv.setOK();
-    if ( !buf || bufsz < 1 )
-	{ uirv.set( uiStrings::phrInternalErr("No data to parse (JSON)") );
-	    return 0; }
-
-    Gason::JsonAllocator allocator;
-    Gason::JsonValue rootjval; char* endptr;
-    int status = Gason::jsonParse( buf, &endptr, &rootjval, allocator );
-    if ( status != Gason::JSON_OK )
-    {
-	//TODO figure out the errmsg for this status
-	uirv.set( tr("Could not parse JSON data") );
-	return 0;
-    }
-
-    Gason::JsonNode* topnode = 0;
-    Gason::JsonNode* nextnode = 0;
-    for ( auto node : rootjval )
-    {
-	if ( !topnode )
-	    topnode = node;
-	else
-	    { nextnode = node; break; }
-    }
-
-    ValueSet* vset = 0;
-    if ( nextnode )
-	vset = getNew( 0, *topnode, *nextnode );
-
-    if ( !vset )
-	uirv.set( tr("No meaningful JSON content found") );
-    else
-	vset->use( rootjval );
-
-    return vset;
-}
-
-
-void OD::JSON::Node::dumpJSon( BufferString& str ) const
-{
-    str.set( "TODO" );
-}
-
-
-uiRetVal OD::JSON::Tree::read( od_istream& strm )
-{
-    uiRetVal uirv;
-    BufferString buf;
-    if ( strm.getAll(buf) )
-	parseJSon( buf.getCStr(), buf.size(), uirv );
-    else
-    {
-	uirv.set( uiStrings::phrCannotRead( toUiString(strm.fileName()) ) );
-	strm.addErrMsgTo( uirv );
-    }
-    return uirv;
-}
-
-
-uiRetVal OD::JSON::Tree::write( od_ostream& strm )
-{
-    BufferString buf;
-    dumpJSon( buf );
-    uiRetVal uirv;
-    if ( !strm.add(buf).isOK() )
-    {
-	uirv.set( uiStrings::phrCannotWrite( toUiString(strm.fileName()) ) );
-	strm.addErrMsgTo( uirv );
-    }
-    return uirv;
-}
 
 
 void OD::JSON::Key::set( const char* inp )

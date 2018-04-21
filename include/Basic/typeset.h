@@ -250,7 +250,7 @@ inline bool append( OD::ValVec<T,IT>& to, const OD::ValVec<S,J>& from )
 template <class T, class IT,class S>
 inline void copy( OD::ValVec<T,IT>& to, const OD::ValVec<S,IT>& from )
 {
-    if ( &to == &from ) return;
+    if ( (void*)(&to) == (void*)(&from) ) return;
     to.erase();
     append( to, from );
 }

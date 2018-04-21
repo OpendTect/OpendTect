@@ -31,6 +31,7 @@ set( OD_TEST_PROGS
 	file.cc
 	memcopying.cc
 	od_iostream.cc
+	odjson.cc
 	oscommand.cc
 	svnversion.cc
 	Basic_Composite.cc
@@ -84,6 +85,7 @@ set( OD_MODULE_SOURCES
 	oddirs.cc
 	odimage.cc
 	odinst.cc
+	odjson.cc
 	odmemory.cc
 	odstring.cc
 	oduicommon.cc

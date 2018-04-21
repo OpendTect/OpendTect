@@ -9,12 +9,10 @@ ________________________________________________________________________
 
 */
 
-#include "namedobj.h"
 #include "bufstringset.h"
-#include "uistring.h"
+#include "uistringset.h"
+#include "typeset.h"
 #include "od_iosfwd.h"
-#include <map>
-#include <string>
 
 class SeparString;
 namespace Gason { union JsonValue; struct JsonNode; }
@@ -26,9 +24,10 @@ namespace OD
 namespace JSON
 {
 
-class Value;
 class Array;
 class Node;
+class Value;
+class KeyedValue;
 
 /*! data types you can find in a JSON file */
 
@@ -83,7 +82,7 @@ protected:
 /*!\brief holds Simple values, Node's, and/or Array's. */
 
 mExpClass(Basic) ValueSet
-{
+{ mODTextTranslationClass(OD::JSON::ValueSet)
 public:
 
     typedef ValArr::size_type	size_type;
@@ -92,6 +91,10 @@ public:
 
     virtual		~ValueSet()			{ setEmpty(); }
     virtual bool	isArray() const			 = 0;
+    inline Array&	asArray();
+    inline const Array&	asArray() const;
+    inline Node&	asNode();
+    inline const Node&	asNode() const;
 
     inline size_type	size() const
 			{ return (size_type)values_.size(); }
@@ -99,51 +102,47 @@ public:
 			{ return values_.isEmpty(); }
     virtual void	setEmpty();
 
-    index_type		indexOf(const char*) const;
-    bool		isPresent( const char* ky ) const
-						{ return indexOf(ky) >= 0; }
-
     virtual ValueType	valueType(idx_type) const;
     inline bool		isPlainData( idx_type i ) const
 			{ return valueType(i) == Data; }
     inline bool		isArrayChild( idx_type i ) const
-			{ return valueType(i) == Array; }
+			{ return valueType(i) == SubArray; }
     inline bool		isNodeChild( idx_type i ) const
-			{ return valueType(i) == Node; }
+			{ return valueType(i) == SubNode; }
 
     bool		isTop() const		{ return !parent_; }
-    Tree*		tree();
-    const Tree*		tree() const;
+    ValueSet*		top();
+    const ValueSet*	top() const;
 
 #   define		mMkGetFns(typ,getfn,implfn) \
-    inline typ&		getfn( idx_type i )		{ return implfn(i); } \
-    inline const typ&	getfn( idx_type i ) const	{ return implfn(i); }
-    mMkGetFns(ValueSet,	child, gtChild )
-    mMkGetFns(Array,	array, gtArray )
-    mMkGetFns(Node,	node, gtNode )
+    inline typ&		getfn( idx_type i )		{ return *implfn(i); } \
+    inline const typ&	getfn( idx_type i ) const	{ return *implfn(i); }
+    mMkGetFns(ValueSet,	child, gtChildByIdx )
+    mMkGetFns(Array,	array, gtArrayByIdx )
+    mMkGetFns(Node,	node, gtNodeByIdx )
 #   undef		mMkSubFn
 
     od_int64		getIntValue(idx_type) const;
     double		getDoubleValue(idx_type) const;
     BufferString	getStringValue(idx_type) const;
 
-    void		usePar(const IOPar&);
     static ValueSet*	parseJSon(char* buf,int bufsz,uiRetVal&);
-    void		fillPar(IOPar&) const;
     void		dumpJSon(BufferString&) const;
+
+    uiRetVal		read(od_istream&);
+    uiRetVal		write(od_ostream&);
 
 protected:
 
 			ValueSet( ValueSet* p )
 			    : parent_(p)	{}
-    virtual		~Node();
 
     ValueSet*		parent_;
     ObjectSet<Value>	values_;
 
-    ValueSet*		gtChild(idx_type) const;
-    Array*		gtArray(idx_type) const;
-    Node*		gtNode(idx_type) const;
+    ValueSet*		gtChildByIdx(idx_type) const;
+    Array*		gtArrayByIdx(idx_type) const;
+    Node*		gtNodeByIdx(idx_type) const;
 
     static ValueSet*	getNew(ValueSet*,const Gason::JsonNode&,
 			       const Gason::JsonNode&);
@@ -183,7 +182,7 @@ public:
     void		add(float);
     void		add(double);
     void		add(const char*);
-    void		add( const OD::String& odstr ) { add( odstr.str(); }
+    void		add( const OD::String& odstr ) { add( odstr.str() ); }
     void		add(const uiString&);
 
     void		set(const BoolTypeSet&);
@@ -205,26 +204,36 @@ protected:
     template <class T>
     void		setVals(const TypeSet<T>&);
 
+    friend class	ValueSet;
+
 };
 
 
 /*!\brief ValueSet holding a mix of key-value pairs and other ValueSets. */
 
 mExpClass(Basic) Node : public ValueSet
-{ mODTextTranslationClass(OD::JSON::Node)
+{
 public:
 
 			Node( ValueSet* p )
 			    : ValueSet(p)	{}
     virtual bool	isArray() const		{ return false; }
 
+    idx_type		indexOf(const char*) const;
+    bool		isPresent( const char* ky ) const
+						{ return indexOf(ky) >= 0; }
+
 #   define		mMkGetFn(typ,getfn,implfn) \
     inline typ*		getfn( const char* ky )		{ return implfn(ky); } \
     inline const typ*	getfn( const char* ky ) const	{ return implfn(ky); }
-    mMkGetFn(ValueSet,	getChild, gtChild )
-    mMkGetFn(Array,	getArray, gtArray )
-    mMkGetFn(Node,	getNode, gtNode )
+    mMkGetFn(ValueSet,	getChild, gtChildByKey )
+    mMkGetFn(Array,	getArray, gtArrayByKey )
+    mMkGetFn(Node,	getNode, gtNodeByKey )
 #   undef		mMkGetFn
+
+    od_int64		getIntValue(const char*) const;
+    double		getDoubleValue(const char*) const;
+    BufferString	getStringValue(const char*) const;
 
     void		setChild(const char* ky,ValueSet*);
     void		set(const char* ky,bool);
@@ -241,33 +250,16 @@ public:
 
 protected:
 
-    ValueSet*		gtChild(const char*) const;
-    Array*		gtArray(const char*) const;
-    Node*		gtNode(const char*) const;
+    ValueSet*		gtChildByKey(const char*) const;
+    Array*		gtArrayByKey(const char*) const;
+    Node*		gtNodeByKey(const char*) const;
 
+    void		set(KeyedValue*);
     template <class T>
     void		setVal(const char*,T);
     void		useJsonValue(Gason::JsonValue&,const char*);
 
-};
-
-
-/*!\brief is just a Node that can be read/written to/from a stream.
-
-  The necessity of this class is debatable, but I guess it will make code more
-  understandable.
-*/
-
-mExpClass(Basic) Tree : public Node
-{ mODTextTranslationClass(OD::JSON::Tree)
-public:
-
-			Tree() : Node(0)		{}
-			Tree( const IOPar& iop )
-			    : Node(0)			{ usePar(iop); }
-
-    uiRetVal		read(od_istream&);
-    uiRetVal		write(od_ostream&);
+    friend class	ValueSet;
 
 };
 
@@ -309,6 +301,16 @@ public:
     void		set(const BufferStringSet&,int startlvl=0);
 
 };
+
+
+inline Array& ValueSet::asArray()
+{ return *static_cast<Array*>( this ); }
+inline const Array& ValueSet::asArray() const
+{ return *static_cast<const Array*>( this ); }
+inline Node& ValueSet::asNode()
+{ return *static_cast<Node*>( this ); }
+inline const Node& ValueSet::asNode() const
+{ return *static_cast<const Node*>( this ); }
 
 
 } // namespace JSON

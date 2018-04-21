@@ -62,6 +62,7 @@ static void printGasonValue( od_ostream& strm, const Gason::JsonValue& gsonval )
 	    strm << "null,";
 	break;
     }
+    strm << od_endl;
 }
 
 
