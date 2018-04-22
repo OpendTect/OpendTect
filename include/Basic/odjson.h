@@ -226,7 +226,7 @@ protected:
 };
 
 
-/*!\brief ValueSet holding key-value pairs and other ValueSets */
+/*!\brief ValueSet where the values and subsets have a key. */
 
 mExpClass(Basic) Object : public ValueSet
 {

@@ -168,7 +168,7 @@ OD::JSON::ValArr::ValArr( DataType typ )
 void OD::JSON::ValArr::dumpJSon( BufferString& bs ) const
 {
     const int sz = (size_type)set_->nrItems();
-    bs.add( "[ " );
+    bs.add( "[" );
     for ( int idx=0; idx<sz; idx++ )
     {
 	switch ( type_ )
@@ -190,9 +190,9 @@ void OD::JSON::ValArr::dumpJSon( BufferString& bs ) const
 	    } break;
 	}
 	if ( idx != sz-1 )
-	    bs.add( ", " );
+	    bs.add( "," );
     }
-    bs.add( " ]" );
+    bs.add( "]" );
 }
 
 
@@ -473,7 +473,7 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::parseJSon( char* buf, int bufsz,
 void OD::JSON::ValueSet::dumpJSon( BufferString& str ) const
 {
     const bool isarr = isArray();
-    str.add( isarr ? "[ " : "{ " );
+    str.add( isarr ? "[" : "{" );
     for ( int idx=0; idx<values_.size(); idx++ )
     {
 	const Value& val = *values_[idx];
@@ -481,7 +481,7 @@ void OD::JSON::ValueSet::dumpJSon( BufferString& str ) const
 	if ( val.isKeyed() )
 	{
 	    const KeyedValue& keyedval = static_cast<const KeyedValue&>( val );
-	    toadd.set( "\"" ).add( keyedval.key_ ).add( "\": " );
+	    toadd.set( "\"" ).add( keyedval.key_ ).add( "\":" );
 	}
 
 	if ( val.isValSet() )
@@ -508,10 +508,10 @@ void OD::JSON::ValueSet::dumpJSon( BufferString& str ) const
 	    }
 	}
 	if ( &val != values_.last() )
-	    toadd.add( ", " );
+	    toadd.add( "," );
 	str.add( toadd );
     }
-    str.add( isarr ? " ]" : " }" );
+    str.add( isarr ? "]" : "}" );
 }
 
 
