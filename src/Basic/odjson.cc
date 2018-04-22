@@ -377,14 +377,14 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 
 	case Gason::JSON_OBJECT:
 	{
-	    Node* node = new Node( this );
+	    Node* nd = new Node( this );
 	    if ( isnode )
-		values_ += new KeyedValue( gasonnode.key, node );
+		values_ += new KeyedValue( gasonnode.key, nd );
 	    else
-		values_ += new Value( node );
+		values_ += new Value( nd );
 
 	    for ( auto subgasonnode : gasonval )
-		node->use( *subgasonnode );
+		nd->use( *subgasonnode );
 	} break;
 
 	case Gason::JSON_NULL:
