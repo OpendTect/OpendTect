@@ -71,6 +71,8 @@ public:
     SSet&		strings()		{ return *((SSet*)set_); }
     const SSet&		strings() const		{ return *((SSet*)set_); }
 
+    void		dumpJSon(BufferString&) const;
+
 protected:
 
     DataType		type_;
@@ -262,6 +264,8 @@ public:
     void		set(const char* ky,const char*);
     void		set( const char* ky, const OD::String& str )
 			{ set( ky, str.str() ); }
+
+    void		remove(const char*);
 
 protected:
 

@@ -165,6 +165,37 @@ OD::JSON::ValArr::ValArr( DataType typ )
 }
 
 
+void OD::JSON::ValArr::dumpJSon( BufferString& bs ) const
+{
+    const int sz = (size_type)set_->nrItems();
+    bs.add( "[ " );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	switch ( type_ )
+	{
+	    case Boolean:
+	    {
+		const bool val = bools()[idx];
+		bs.add( val ? "true" : "false" );
+	    } break;
+	    case Number:
+	    {
+		const NumberType val = vals()[idx];
+		bs.add( val );
+	    } break;
+	    case String:
+	    {
+		const BufferString toadd( "\"", strings().get(idx), "\"" );
+		bs.add( toadd );
+	    } break;
+	}
+	if ( idx != sz-1 )
+	    bs.add( ", " );
+    }
+    bs.add( " ]" );
+}
+
+
 //--------- ValueSet
 
 void OD::JSON::ValueSet::setEmpty()
@@ -441,7 +472,46 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::parseJSon( char* buf, int bufsz,
 
 void OD::JSON::ValueSet::dumpJSon( BufferString& str ) const
 {
-    str.set( "TODO" );
+    const bool isarr = isArray();
+    str.add( isarr ? "[ " : "{ " );
+    for ( int idx=0; idx<values_.size(); idx++ )
+    {
+	const Value& val = *values_[idx];
+	BufferString toadd;
+	if ( val.isKeyed() )
+	{
+	    const KeyedValue& keyedval = static_cast<const KeyedValue&>( val );
+	    toadd.set( "\"" ).add( keyedval.key_ ).add( "\": " );
+	}
+
+	if ( val.isValSet() )
+	{
+	    const ValueSet& vset = *val.vSet();
+	    if ( !vset.isArray() || vset.asArray().valType() != Data )
+		vset.dumpJSon( toadd );
+	    else
+		vset.asArray().valArr().dumpJSon( toadd );
+	}
+	else
+	{
+	    switch ( (DataType)val.type_ )
+	    {
+		case Boolean:
+		    toadd.add( val.boolVal() ? "true" : "false" );
+		break;
+		case Number:
+		    toadd.add( val.val() );
+		break;
+		case String:
+		    toadd.add( "\"" ).add( val.str() ).add( "\"" );
+		break;
+	    }
+	}
+	if ( &val != values_.last() )
+	    toadd.add( ", " );
+	str.add( toadd );
+    }
+    str.add( isarr ? " ]" : " }" );
 }
 
 
@@ -747,6 +817,14 @@ mDefNodeSetVal( od_int64 )
 mDefNodeSetVal( float )
 mDefNodeSetVal( double )
 mDefNodeSetVal( const char* )
+
+
+void OD::JSON::Node::remove( const char* ky )
+{
+    const idx_type idx = indexOf( ky );
+    if ( idx >= 0 )
+	delete values_.removeSingle( idx );
+}
 
 
 //--------- Key
