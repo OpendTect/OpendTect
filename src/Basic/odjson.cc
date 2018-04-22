@@ -506,9 +506,9 @@ void OD::JSON::Array::setEmpty()
 }
 
 
-OD::JSON::ValueSet::size_type OD::JSON::Array::nrElements() const
+OD::JSON::ValueSet::size_type OD::JSON::Array::size() const
 {
-    return valtype_ == Data ? valArr().size() : size();
+    return valtype_ == Data ? valArr().size() : ValueSet::size();
 }
 
 

@@ -7,6 +7,7 @@
 
 #include "testprog.h"
 #include "odjson.h"
+#include "geometry.h"
 
 using namespace OD::JSON;
 
@@ -93,12 +94,16 @@ static bool testUseJSON()
     mRunStandardTestWithError( nrcoords==6, "Number of coordinates",
 			       BufferString("nrcoords=",nrcoords) );
 
-    /* TODO: this fails
     const auto& point3 = poly.array( 3 );
     const int coordsz = point3.size();
     mRunStandardTestWithError( coordsz==3, "size of coords",
 			       BufferString("coordsz=",coordsz) );
-    */
+    mRunStandardTest( point3.valType()==OD::JSON::ValueSet::Data,
+			       "array type" );
+
+    const auto& val_ts = point3.valArr().vals();
+    const Coord3 coord( val_ts[0], val_ts[1], val_ts[2] );
+    mRunStandardTest( coord==Coord3(8,53.7419173548,0.0), "coordinate value" );
 
     return true;
 }

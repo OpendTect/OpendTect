@@ -97,7 +97,7 @@ public:
     inline Node&	asNode();
     inline const Node&	asNode() const;
 
-    inline size_type	size() const
+    virtual size_type	size() const
 			{ return (size_type)values_.size(); }
     virtual bool	isEmpty() const
 			{ return values_.isEmpty(); }
@@ -165,8 +165,9 @@ public:
 
     virtual ValueType	valueType(idx_type) const { return valtype_; }
     ValueType		valType() const		{ return valtype_; }
-    size_type		nrElements() const;
+    virtual size_type	size() const;
 
+			// Only available if valType() == Data
     inline ValArr&	valArr()		{ return *valarr_; }
     inline const ValArr& valArr() const		{ return *valarr_; }
 
