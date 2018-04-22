@@ -50,7 +50,7 @@ public:
 Value() : type_((int)Number) {}
 
 #define mDefSimpleConstr( typ, cast ) \
-    Value( typ val ) { setValue( (cast)val ); }
+    Value( typ v ) { setValue( (cast)v ); }
 
 mDefSimpleConstr( bool, bool )
 mDefSimpleConstr( od_int16, NumberType )
@@ -77,18 +77,18 @@ void cleanUp()
     cont_.val_ = 0;
 }
 
-void setValue( bool val )
+void setValue( bool v )
 {
     cleanUp();
     type_ = (int)Boolean;
-    cont_.bool_ = val;
+    cont_.bool_ = v;
 }
 
-void setValue( NumberType val )
+void setValue( NumberType v )
 {
     cleanUp();
     type_ = (int)Number;
-    cont_.val_ = val;
+    cont_.val_ = v;
 }
 
 void setValue( const char* cstr )
