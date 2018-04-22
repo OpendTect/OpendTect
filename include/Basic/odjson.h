@@ -25,9 +25,9 @@ namespace JSON
 {
 
 class Array;
-class Node;
-class Value;
 class KeyedValue;
+class Object;
+class Value;
 
 /*! data types you can find in a JSON file */
 
@@ -81,7 +81,8 @@ protected:
 };
 
 
-/*!\brief holds Simple values, Node's, and/or Array's. Is base class for either Array or Node. */
+/*!\brief holds values and sets of values.
+	    Is base class for either Array or Object. */
 
 mExpClass(Basic) ValueSet
 { mODTextTranslationClass(OD::JSON::ValueSet)
@@ -89,15 +90,15 @@ public:
 
     typedef ValArr::size_type	size_type;
     typedef size_type		idx_type;
-    enum ValueType		{ Data, SubArray, SubNode };
+    enum ValueType		{ Data, SubArray, SubObject };
     typedef Gason::JsonNode	GasonNode;
 
     virtual		~ValueSet()			{ setEmpty(); }
     virtual bool	isArray() const			 = 0;
     inline Array&	asArray();
     inline const Array&	asArray() const;
-    inline Node&	asNode();
-    inline const Node&	asNode() const;
+    inline Object&	asObject();
+    inline const Object& asObject() const;
 
     virtual size_type	size() const
 			{ return (size_type)values_.size(); }
@@ -110,8 +111,8 @@ public:
 			{ return valueType(i) == Data; }
     inline bool		isArrayChild( idx_type i ) const
 			{ return valueType(i) == SubArray; }
-    inline bool		isNodeChild( idx_type i ) const
-			{ return valueType(i) == SubNode; }
+    inline bool		isObjectChild( idx_type i ) const
+			{ return valueType(i) == SubObject; }
 
     bool		isTop() const		{ return !parent_; }
     ValueSet*		top();
@@ -122,7 +123,7 @@ public:
     inline const typ&	getfn( idx_type i ) const	{ return *implfn(i); }
     mMkGetFns(ValueSet,	child, gtChildByIdx )
     mMkGetFns(Array,	array, gtArrayByIdx )
-    mMkGetFns(Node,	node, gtNodeByIdx )
+    mMkGetFns(Object,	object, gtObjectByIdx )
 #   undef		mMkSubFn
 
     od_int64		getIntValue(idx_type) const;
@@ -147,27 +148,28 @@ protected:
 
     ValueSet*		gtChildByIdx(idx_type) const;
     Array*		gtArrayByIdx(idx_type) const;
-    Node*		gtNodeByIdx(idx_type) const;
+    Object*		gtObjectByIdx(idx_type) const;
 
     void		use(const GasonNode&);
 
     friend class	Array;
-    friend class	Node;
+    friend class	Object;
 
 };
 
 
-/*!\brief ValueSet holding simple data arrays or other ValueSet's.
+/*!\brief ValueSet where the values and subsets have no key.
 
   If it holds plain data (valType()==Data), then you can only add
-  plain values or set all at once. Otherwise, you can only add ValueSet's of the same type (either Array or Node).
+  plain values or set all at once. Otherwise, you can only add ValueSet's of
+  the same type (either Array or Object).
  */
 
 mExpClass(Basic) Array : public ValueSet
 {
 public:
 
-			Array(bool nodes,ValueSet* p=0);
+			Array(bool objects,ValueSet* p=0);
 			Array(DataType,ValueSet* p=0);
 			~Array();
     virtual bool	isArray() const		{ return true; }
@@ -182,7 +184,7 @@ public:
     inline const ValArr& valArr() const		{ return *valarr_; }
 
     Array*		add(Array*);
-    Node*		add(Node*);
+    Object*		add(Object*);
 
 			// only usable if valType() == Data
     Array&		add(bool);
@@ -226,11 +228,11 @@ protected:
 
 /*!\brief ValueSet holding key-value pairs and other ValueSets */
 
-mExpClass(Basic) Node : public ValueSet
+mExpClass(Basic) Object : public ValueSet
 {
 public:
 
-			Node( ValueSet* p=0 )
+			Object( ValueSet* p=0 )
 			    : ValueSet(p)	{}
     virtual bool	isArray() const		{ return false; }
 
@@ -243,7 +245,7 @@ public:
     inline const typ*	getfn( const char* ky ) const	{ return implfn(ky); }
     mMkGetFn(ValueSet,	getChild, gtChildByKey )
     mMkGetFn(Array,	getArray, gtArrayByKey )
-    mMkGetFn(Node,	getNode, gtNodeByKey )
+    mMkGetFn(Object,	getObject, gtObjectByKey )
 #   undef		mMkGetFn
 
     od_int64		getIntValue(const char*) const;
@@ -251,7 +253,7 @@ public:
     BufferString	getStringValue(const char*) const;
 
     Array*		set(const char* ky,Array*);
-    Node*		set(const char* ky,Node*);
+    Object*		set(const char* ky,Object*);
 
     void		set(const char* ky,bool);
     void		set(const char* ky,od_int16);
@@ -271,7 +273,7 @@ protected:
 
     ValueSet*		gtChildByKey(const char*) const;
     Array*		gtArrayByKey(const char*) const;
-    Node*		gtNodeByKey(const char*) const;
+    Object*		gtObjectByKey(const char*) const;
 
     void		set(KeyedValue*);
     void		setVS(const char*,ValueSet*);
@@ -283,53 +285,14 @@ protected:
 };
 
 
-/*!\brief The key to any value in a JSON Node/Tree
-
-  Full keys can and will most often be multi-level. You can specify:
-  * Create it as the BufferStringSet it is
-  * From a string where the keys are separated by dots ('.')
-  * A SeparString (hence also FileMultiString)
-
-  You can spacify indexes in arrays using the intuitive [] subscript.
-
-  GeoJSon example of fullKey:
-  features[1].geometry.coordinates[0][3][1]	(NumberType - Y value)
-  features[1].geometry.coordinates[0][3]	(ValArr of type Number - Coord)
-  features[1].geometry.coordinates[0]		(Array - PtSet/Polygon)
-  features[1].geometry.coordinates		(Array - Set of PtSet/Polygon)
-  features[1].geometry				(Node)
-  features[1]					(Node)
-  features					(Array)
-
- */
-
-mExpClass(Basic) Key : public BufferStringSet
-{
-public:
-
-			Key()					{}
-			Key( const char* s )			{ set(s); }
-			Key( const SeparString& ss )		{ set(ss); }
-			Key( const BufferStringSet& bss,
-			     int startlvl=0 ) { set(bss,startlvl); }
-
-    BufferString	toString() const		{ return cat("."); }
-
-    void		set(const char* dot_sep_if_multilevel);
-    void		set(const SeparString&);
-    void		set(const BufferStringSet&,int startlvl=0);
-
-};
-
-
 inline Array& ValueSet::asArray()
 { return *static_cast<Array*>( this ); }
 inline const Array& ValueSet::asArray() const
 { return *static_cast<const Array*>( this ); }
-inline Node& ValueSet::asNode()
-{ return *static_cast<Node*>( this ); }
-inline const Node& ValueSet::asNode() const
-{ return *static_cast<const Node*>( this ); }
+inline Object& ValueSet::asObject()
+{ return *static_cast<Object*>( this ); }
+inline const Object& ValueSet::asObject() const
+{ return *static_cast<const Object*>( this ); }
 
 
 } // namespace JSON

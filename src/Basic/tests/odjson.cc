@@ -35,6 +35,8 @@ static bool testParseJSON()
     for ( auto strptr : bss )
     {
 	BufferString& str = *strptr;
+	if ( idx )
+	    tstStream() << "\t>> '" << str << "' <<" << od_endl;
 
 	uiRetVal uirv;
 	ValueSet* tree = ValueSet::parseJSon( str.getCStr(), str.size(), uirv );
@@ -46,6 +48,8 @@ static bool testParseJSON()
 	if ( isok )
 	    jsontree = tree;
 	idx++;
+	if ( idx == 1 )
+	    tstStream() << "\nNext strings should not parse:\n\n";
     }
 
     return true;
@@ -58,34 +62,34 @@ static bool testParseJSON()
 
 static bool testUseJSON( bool created )
 {
-    const Node& tree = *static_cast<const Node*>( jsontree );
+    const Object& tree = *static_cast<const Object*>( jsontree );
     tstStream() << "\n\nUse JSON, " << (created ? "Created." : "Original.")
 		<< od_endl;
 
-    const auto* crsnode = tree.getNode( "crs" );
-    mCheckNonNull( crsnode, crs );
-    const auto* crspropnode = crsnode->getNode( "properties" );
-    mCheckNonNull( crspropnode, crs.properties );
-    BufferString namestr = crspropnode->getStringValue( "name" );
+    const auto* crsobj = tree.getObject( "crs" );
+    mCheckNonNull( crsobj, crs );
+    const auto* crspropobj = crsobj->getObject( "properties" );
+    mCheckNonNull( crspropobj, crs.properties );
+    BufferString namestr = crspropobj->getStringValue( "name" );
     mRunStandardTest( namestr=="urn:ogc:def:crs:OGC:1.3:CRS84", "crs name" );
 
     const auto* featsarr = tree.getArray( "features" );
     mCheckNonNull( featsarr, features );
     const int sz = featsarr->size();
     mRunStandardTest( sz==2, "Number of features" );
-    const auto& feat2 = featsarr->node( 1 );
+    const auto& feat2 = featsarr->object( 1 );
 
-    const auto* feat2props = feat2.getNode( "properties" );
+    const auto* feat2props = feat2.getObject( "properties" );
     mCheckNonNull( feat2props, feats[1].props );
     namestr = feat2props->getStringValue( "name" );
     mRunStandardTest( namestr=="MagellanesBasin", "props.name" );
 
-    const auto* geomnode = feat2.getNode( "geometry" );
-    mCheckNonNull( geomnode, feat2.geometry );
-    BufferString typestr = geomnode->getStringValue( "type" );
+    const auto* geomobj = feat2.getObject( "geometry" );
+    mCheckNonNull( geomobj, feat2.geometry );
+    BufferString typestr = geomobj->getStringValue( "type" );
     mRunStandardTest( typestr=="Polygon", "geometry.type" );
 
-    const auto* coords = geomnode->getArray( "coordinates" );
+    const auto* coords = geomobj->getArray( "coordinates" );
     mCheckNonNull( coords, geometry.coordinates );
     const int nrpolys = coords->size();
     mRunStandardTestWithError( nrpolys==1, "Number of polys",
@@ -114,17 +118,17 @@ static bool testUseJSON( bool created )
 static Array* createFeatCoordArray( Array* featarr,
 	const char* id, const char* nm, const char* typ )
 {
-    Node* featnode = featarr->add( new Node );
-    featnode->set( "type", "Feature" );
+    Object* featobj = featarr->add( new Object );
+    featobj->set( "type", "Feature" );
 
-    Node* propnode = featnode->set( "properties", new Node );
-    propnode->set( "id", id );
-    propnode->set( "name", nm );
+    Object* propobj = featobj->set( "properties", new Object );
+    propobj->set( "id", id );
+    propobj->set( "name", nm );
 
-    Node* geomnode = featnode->set( "geometry", new Node );
-    geomnode->set( "type", typ );
+    Object* geomobj = featobj->set( "geometry", new Object );
+    geomobj->set( "type", typ );
 
-    return geomnode->set( "coordinates", new Array(false) );
+    return geomobj->set( "coordinates", new Array(false) );
 }
 
 
@@ -140,18 +144,18 @@ static void addCoords( const TypeSet<Coord3>& coords, Array& poly )
 
 static bool testCreateJSON()
 {
-    Node& topnode = *new Node;
+    Object& topobj = *new Object;
 
-    topnode.set( "type", "FeatureCollection" );
-    topnode.set( "name", "3D Seismic" );
-    topnode.set( "root", "/auto/d43/surveys" );
+    topobj.set( "type", "FeatureCollection" );
+    topobj.set( "name", "3D Seismic" );
+    topobj.set( "root", "/auto/d43/surveys" );
 
-    Node* crsnode = topnode.set( "crs", new Node );
-    crsnode->set( "type", "name" );
-    Node* crspropsnode = crsnode->set( "properties", new Node );
-    crspropsnode->set( "name", "urn:ogc:def:crs:OGC:1.3:CRS84" );
+    Object* crsobj = topobj.set( "crs", new Object );
+    crsobj->set( "type", "name" );
+    Object* crspropsobj = crsobj->set( "properties", new Object );
+    crspropsobj->set( "name", "urn:ogc:def:crs:OGC:1.3:CRS84" );
 
-    Array* featarr = topnode.set( "features", new Array(true) );
+    Array* featarr = topobj.set( "features", new Array(true) );
     Array* polyarr = createFeatCoordArray( featarr, "Z3NAM1982A", "F3_Demo_d30",
 					   "Polygon" );
     Array* poly = polyarr->add( new Array(false) );
@@ -183,14 +187,14 @@ static bool testCreateJSON()
     addCoords( coords, *poly );
 
     delete jsontree;
-    jsontree = &topnode;
+    jsontree = &topobj;
     return true;
 }
 
 
 static bool testDumpJSON()
 {
-    const Node& tree = *static_cast<const Node*>( jsontree );
+    const Object& tree = *static_cast<const Object*>( jsontree );
     BufferString dumpstr;
     tree.dumpJSon( dumpstr );
     if ( !quiet )

@@ -213,7 +213,7 @@ OD::JSON::ValueSet::ValueType OD::JSON::ValueSet::valueType(
 
     const Value& val = *values_[idx];
     if ( val.isValSet() )
-	ret = val.vSet()->isArray() ? SubArray : SubNode;
+	ret = val.vSet()->isArray() ? SubArray : SubObject;
 
     return ret;
 }
@@ -251,12 +251,12 @@ OD::JSON::Array* OD::JSON::ValueSet::gtArrayByIdx( idx_type idx ) const
 }
 
 
-OD::JSON::Node* OD::JSON::ValueSet::gtNodeByIdx( idx_type idx ) const
+OD::JSON::Object* OD::JSON::ValueSet::gtObjectByIdx( idx_type idx ) const
 {
     ValueSet* vset = gtChildByIdx( idx );
     if ( !vset || vset->isArray() )
 	return 0;
-    return static_cast<Node*>( vset );
+    return static_cast<Object*>( vset );
 }
 
 
@@ -334,14 +334,14 @@ static OD::JSON::ValueSet* getSubVS( OD::JSON::ValueSet* parent,
 		Gason::JsonTag tag, Gason::JsonTag nexttag )
 {
     if ( tag == Gason::JSON_OBJECT )
-	return new OD::JSON::Node( parent );
+	return new OD::JSON::Object( parent );
     else if ( tag != Gason::JSON_ARRAY )
 	return 0;
 
     const bool nextisarr = nexttag == Gason::JSON_ARRAY;
-    const bool nextisnode = nexttag == Gason::JSON_OBJECT;
-    if ( nextisarr || nextisnode )
-	return new OD::JSON::Array( nextisnode, parent );
+    const bool nextisobj = nexttag == Gason::JSON_OBJECT;
+    if ( nextisarr || nextisobj )
+	return new OD::JSON::Array( nextisobj, parent );
 
     OD::JSON::DataType dt = OD::JSON::Boolean;
     if ( nexttag == Gason::JSON_NUMBER )
@@ -356,15 +356,15 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 {
     const Gason::JsonValue& gasonval = gasonnode.value;
     const Gason::JsonTag tag = gasonval.getTag();
-    bool isnode = !isArray();
-    const char* ky = isnode ? gasonnode.key : 0;
+    bool isobj = !isArray();
+    const char* ky = isobj ? gasonnode.key : 0;
 
     switch ( tag )
     {
 	case Gason::JSON_NUMBER:
 	{
 	    const double val = gasonval.toNumber();
-	    if ( isnode )
+	    if ( isobj )
 		values_ += new KeyedValue( ky, val );
 	    else
 		asArray().valArr().vals() += val;
@@ -373,7 +373,7 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 	case Gason::JSON_STRING:
 	{
 	    const char* val = gasonval.toString();
-	    if ( isnode )
+	    if ( isobj )
 		values_ += new KeyedValue( gasonnode.key, val );
 	    else
 		asArray().valArr().strings().add( val );
@@ -383,7 +383,7 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 	case Gason::JSON_FALSE:
 	{
 	    const bool val = tag == Gason::JSON_TRUE;
-	    if ( isnode )
+	    if ( isobj )
 		values_ += new KeyedValue( gasonnode.key, val );
 	    else
 		asArray().valArr().bools() += val;
@@ -395,7 +395,7 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 	    Array* arr = (Array*)getSubVS( this, tag, nexttag );
 	    if ( arr )
 	    {
-		if ( isnode )
+		if ( isobj )
 		    values_ += new KeyedValue( ky, arr );
 		else
 		    values_ += new Value( arr );
@@ -408,14 +408,14 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 
 	case Gason::JSON_OBJECT:
 	{
-	    Node* nd = new Node( this );
-	    if ( isnode )
-		values_ += new KeyedValue( gasonnode.key, nd );
+	    Object* obj = new Object( this );
+	    if ( isobj )
+		values_ += new KeyedValue( gasonnode.key, obj );
 	    else
-		values_ += new Value( nd );
+		values_ += new Value( obj );
 
 	    for ( auto subgasonnode : gasonval )
-		nd->use( *subgasonnode );
+		obj->use( *subgasonnode );
 	} break;
 
 	case Gason::JSON_NULL:
@@ -546,9 +546,9 @@ uiRetVal OD::JSON::ValueSet::write( od_ostream& strm )
 
 //--------- Array
 
-OD::JSON::Array::Array( bool nodes, ValueSet* p )
+OD::JSON::Array::Array( bool objs, ValueSet* p )
     : ValueSet(p)
-    , valtype_(nodes ? SubNode : SubArray)
+    , valtype_(objs ? SubObject : SubArray)
     , valarr_(0)
 {
 }
@@ -603,10 +603,10 @@ OD::JSON::Array* OD::JSON::Array::add( Array* arr )
 }
 
 
-OD::JSON::Node* OD::JSON::Array::add( Node* nd )
+OD::JSON::Object* OD::JSON::Array::add( Object* obj )
 {
-    addVS( nd );
-    return nd;
+    addVS( obj );
+    return obj;
 }
 
 
@@ -693,9 +693,9 @@ void OD::JSON::Array::set( const uiStringSet& vals )
 }
 
 
-//--------- Node
+//--------- Object
 
-OD::JSON::ValueSet::idx_type OD::JSON::Node::indexOf( const char* nm ) const
+OD::JSON::ValueSet::idx_type OD::JSON::Object::indexOf( const char* nm ) const
 {
     idx_type idx = 0;
     for ( auto val : values_ )
@@ -708,56 +708,56 @@ OD::JSON::ValueSet::idx_type OD::JSON::Node::indexOf( const char* nm ) const
     return -1;
 }
 
-OD::JSON::ValueSet* OD::JSON::Node::gtChildByKey( const char* ky ) const
+OD::JSON::ValueSet* OD::JSON::Object::gtChildByKey( const char* ky ) const
 {
     const idx_type idx = indexOf( ky );
     return idx < 0 ? 0 : gtChildByIdx( idx );
 }
 
 
-OD::JSON::Array* OD::JSON::Node::gtArrayByKey( const char* ky ) const
+OD::JSON::Array* OD::JSON::Object::gtArrayByKey( const char* ky ) const
 {
     ValueSet* vs = gtChildByKey( ky );
     if ( !vs )
 	return 0;
     else if ( !vs->isArray() )
-	{ pErrMsg("Request for child Array which is a Node"); return 0; }
+	{ pErrMsg("Request for child Array which is an Object"); return 0; }
 
     return static_cast<Array*>( vs );
 }
 
 
-OD::JSON::Node* OD::JSON::Node::gtNodeByKey( const char* ky ) const
+OD::JSON::Object* OD::JSON::Object::gtObjectByKey( const char* ky ) const
 {
     ValueSet* vs = gtChildByKey( ky );
     if ( !vs )
 	return 0;
     else if ( vs->isArray() )
-	{ pErrMsg("Request for child Node which is an Array"); return 0; }
+	{ pErrMsg("Request for child Object which is an Array"); return 0; }
 
-    return static_cast<Node*>( vs );
+    return static_cast<Object*>( vs );
 }
 
 
-od_int64 OD::JSON::Node::getIntValue( const char* ky ) const
+od_int64 OD::JSON::Object::getIntValue( const char* ky ) const
 {
     return ValueSet::getIntValue( indexOf(ky) );
 }
 
 
-double OD::JSON::Node::getDoubleValue( const char* ky ) const
+double OD::JSON::Object::getDoubleValue( const char* ky ) const
 {
     return ValueSet::getDoubleValue( indexOf(ky) );
 }
 
 
-BufferString OD::JSON::Node::getStringValue( const char* ky ) const
+BufferString OD::JSON::Object::getStringValue( const char* ky ) const
 {
     return ValueSet::getStringValue( indexOf(ky) );
 }
 
 
-void OD::JSON::Node::set( KeyedValue* val )
+void OD::JSON::Object::set( KeyedValue* val )
 {
     const idx_type idx = indexOf( val->key_ );
     if ( idx >= 0 )
@@ -766,9 +766,9 @@ void OD::JSON::Node::set( KeyedValue* val )
 }
 
 
-static const char* errnoemptykey = "Empty key not allowed for Node's";
+static const char* errnoemptykey = "Empty key not allowed for Object's";
 
-void OD::JSON::Node::setVS( const char* ky, ValueSet* vset )
+void OD::JSON::Object::setVS( const char* ky, ValueSet* vset )
 {
     if ( !vset )
 	{}
@@ -782,22 +782,22 @@ void OD::JSON::Node::setVS( const char* ky, ValueSet* vset )
 }
 
 
-OD::JSON::Array* OD::JSON::Node::set( const char* ky, Array* arr )
+OD::JSON::Array* OD::JSON::Object::set( const char* ky, Array* arr )
 {
     setVS( ky, arr );
     return arr;
 }
 
 
-OD::JSON::Node* OD::JSON::Node::set( const char* ky, Node* nd )
+OD::JSON::Object* OD::JSON::Object::set( const char* ky, Object* obj )
 {
-    setVS( ky, nd );
-    return nd;
+    setVS( ky, obj );
+    return obj;
 }
 
 
 template <class T>
-void OD::JSON::Node::setVal( const char* ky, T t )
+void OD::JSON::Object::setVal( const char* ky, T t )
 {
     if ( !ky || !*ky )
 	{ pErrMsg(errnoemptykey); return; }
@@ -805,55 +805,23 @@ void OD::JSON::Node::setVal( const char* ky, T t )
 }
 
 
-#define mDefNodeSetVal(typ) \
-void OD::JSON::Node::set( const char* ky, typ val ) { setVal(ky,val); }
+#define mDefObjectSetVal(typ) \
+void OD::JSON::Object::set( const char* ky, typ val ) { setVal(ky,val); }
 
-mDefNodeSetVal( bool )
-mDefNodeSetVal( od_int16 )
-mDefNodeSetVal( od_uint16 )
-mDefNodeSetVal( od_int32 )
-mDefNodeSetVal( od_uint32 )
-mDefNodeSetVal( od_int64 )
-mDefNodeSetVal( float )
-mDefNodeSetVal( double )
-mDefNodeSetVal( const char* )
+mDefObjectSetVal( bool )
+mDefObjectSetVal( od_int16 )
+mDefObjectSetVal( od_uint16 )
+mDefObjectSetVal( od_int32 )
+mDefObjectSetVal( od_uint32 )
+mDefObjectSetVal( od_int64 )
+mDefObjectSetVal( float )
+mDefObjectSetVal( double )
+mDefObjectSetVal( const char* )
 
 
-void OD::JSON::Node::remove( const char* ky )
+void OD::JSON::Object::remove( const char* ky )
 {
     const idx_type idx = indexOf( ky );
     if ( idx >= 0 )
 	delete values_.removeSingle( idx );
-}
-
-
-//--------- Key
-
-void OD::JSON::Key::set( const char* inp )
-{
-    setEmpty();
-    if ( !inp || !*inp )
-	return;
-
-    if ( FixedString(inp).contains('.') )
-	set( SeparString(inp,'.') );
-    else
-	add( inp );
-}
-
-
-void OD::JSON::Key::set( const SeparString& ss )
-{
-    setEmpty();
-    const int sz = ss.size();
-    for ( int idx=0; idx<sz; idx++ )
-	add( ss[idx] );
-}
-
-
-void OD::JSON::Key::set( const BufferStringSet& bss, int startat )
-{
-    setEmpty();
-    for ( int idx=startat; idx<bss.size(); idx++ )
-	add( bss.get(idx) );
 }
