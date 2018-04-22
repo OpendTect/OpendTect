@@ -16,7 +16,7 @@ static ValueSet* jsontree;
 static const char* jsonstrs[] = {
 
 // one good
-"{ \"type\": \"FeatureCollection\", \"name\": \"3D Seismic\", \"root\": \"/auto/d43/surveys\", \"crs\": { \"type\": \"name\", \"properties\": { \"name\": \"urn:ogc:def:crs:OGC:1.3:CRS84\" } }, \"features\": [ { \"type\": \"Feature\", \"properties\": { \"id\": \"Z3NAM1982A\", \"name\": \"F3_Demo_d30\" }, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [ [ [ 7, 55.0554844553, 0.0 ], [ 6, 55.0556671475, 0.0 ], [ 6, 54.9236026526, 0.0 ], [ 7, 54.9229699809, 0.0 ], [ 7, 55.0554844553, 0.0 ] ] ] } }, { \"type\": \"Feature\", \"properties\": { \"id\": \"Z3GDF2010A\", \"name\": \"MagellanesBasin\" }, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [ [ [ 9, 53.8820024932, 0.0 ], [ 7, 53.877063624,  0.0 ], [ 7, 53.7857242316, 0.0 ], [ 8, 53.7419173548, 0.0 ], [ 9, 53.7461123222, 0.0 ], [ 9, 53.8820024932, 0.0 ] ] ] } } ] }",
+"{ \"type\": \"FeatureCollection\", \"name\": \"3D Seismic\", \"root\": \"/auto/d43/surveys\", \"crs\": { \"type\": \"name\", \"properties\": { \"name\": \"urn:ogc:def:crs:OGC:1.3:CRS84\" } }, \"features\": [ { \"type\": \"Feature\", \"properties\": { \"id\": \"Z3NAM1982A\", \"name\": \"F3_Demo_d30\" }, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [ [ [ 7, 55.0554844553, 0.0 ], [ 6, 55.0556671475, 0.0 ], [ 6, 54.9236026526, 0.0 ], [ 7, 54.9229699809, 0.0 ], [ 7, 55.0554844553, 0.0 ] ] ] } }, { \"type\": \"Feature\", \"properties\": { \"id\": \"Z3GDF2010A\", \"name\": \"MagellanesBasin\", \"the_answer_to_everything\": 42 }, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [ [ [ 9, 53.8820024932, 0.0 ], [ 7, 53.877063624,  0.0 ], [ 7, 53.7857242316, 0.0 ], [ 8, 53.7419173548, 0.0 ], [ 9, 53.7461123222, 0.0 ], [ 9, 53.8820024932, 0.0 ] ] ] } } ] }",
 
 // any number of bad ones
 "\"aap\": \"noot\"]",
@@ -56,9 +56,11 @@ static bool testParseJSON()
     mRunStandardTest( ptr != 0, #nm " present" )
 
 
-static bool testUseJSON()
+static bool testUseJSON( bool created )
 {
     const Node& tree = *static_cast<const Node*>( jsontree );
+    tstStream() << "\n\nUse JSON, " << (created ? "Created." : "Original.")
+		<< od_endl;
 
     const auto* crsnode = tree.getNode( "crs" );
     mCheckNonNull( crsnode, crs );
@@ -77,6 +79,13 @@ static bool testUseJSON()
     mCheckNonNull( feat2props, feats[1].props );
     namestr = feat2props->getStringValue( "name" );
     mRunStandardTest( namestr=="MagellanesBasin", "props.name" );
+    if ( !created )
+    {
+	od_int64 intval = feat2props->getIntValue( "the_answer_to_nothing" );
+	mRunStandardTest( mIsUdf(intval), "props.the_answer_to_nothing" );
+	intval = feat2props->getIntValue( "the_answer_to_everything" );
+	mRunStandardTest( intval==42, "props.the_answer_to_everything" );
+    }
 
     const auto* geomnode = feat2.getNode( "geometry" );
     mCheckNonNull( geomnode, feat2.geometry );
@@ -109,11 +118,91 @@ static bool testUseJSON()
 }
 
 
+static Array* createFeatCoordArray( Array* featarr,
+	const char* id, const char* nm, const char* typ )
+{
+    Node* featnode = featarr->add( new Node );
+    featnode->set( "type", "Feature" );
+
+    Node* propnode = featnode->set( "properties", new Node );
+    propnode->set( "id", id );
+    propnode->set( "name", nm );
+
+    Node* geomnode = featnode->set( "geometry", new Node );
+    geomnode->set( "type", typ );
+
+    return geomnode->set( "coordinates", new Array(false) );
+}
+
+
+static void addCoords( const TypeSet<Coord3>& coords, Array& poly )
+{
+    for ( const auto& coord : coords )
+    {
+	Array* coordarr = poly.add( new Array(Number) );
+	coordarr->add( coord.x_ ).add( coord.y_ ).add( coord.z_ );
+    }
+}
+
+
+static bool testCreateJSON()
+{
+    Node& topnode = *new Node;
+
+    topnode.set( "type", "FeatureCollection" );
+    topnode.set( "name", "3D Seismic" );
+    topnode.set( "root", "/auto/d43/surveys" );
+
+    Node* crsnode = topnode.set( "crs", new Node );
+    crsnode->set( "type", "name" );
+    Node* crspropsnode = crsnode->set( "properties", new Node );
+    crspropsnode->set( "name", "urn:ogc:def:crs:OGC:1.3:CRS84" );
+
+    Array* featarr = topnode.set( "features", new Array(true) );
+    Array* polyarr = createFeatCoordArray( featarr, "Z3NAM1982A", "F3_Demo_d30",
+					   "Polygon" );
+    Array* poly = polyarr->add( new Array(false) );
+
+    // Once via TypeSet<double> for test
+    Array* coord = poly->add( new Array(Number) );
+    TypeSet<double> cvals;
+    cvals += 7; cvals += 55.0554844553; cvals += 0.0;
+    coord->set( cvals );
+
+    // Once via TypeSet for test
+    TypeSet<Coord3> coords;
+    coords += Coord3( 6, 55.0556671475, 0.0 );
+    coords += Coord3( 6, 54.9236026526, 0.0 );
+    coords += Coord3( 7, 54.9229699809, 0.0 );
+    coords += Coord3( 7, 55.0554844553, 0.0 );
+    addCoords( coords, *poly );
+
+    polyarr = createFeatCoordArray( featarr, "Z3GDF2010A", "MagellanesBasin",
+					   "Polygon" );
+    poly = polyarr->add( new Array(false) );
+    coords.setEmpty();
+    coords += Coord3( 9, 53.8820024932, 0.0 );
+    coords += Coord3( 7, 53.877063624,  0.0 );
+    coords += Coord3( 7, 53.7857242316, 0.0 );
+    coords += Coord3( 8, 53.7419173548, 0.0 );
+    coords += Coord3( 9, 53.7461123222, 0.0 );
+    coords += Coord3( 9, 53.8820024932, 0.0 );
+    addCoords( coords, *poly );
+
+    delete jsontree;
+    jsontree = &topnode;
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testParseJSON() || !testUseJSON() )
+    if ( !testParseJSON()
+      || !testUseJSON(false)
+      || !testCreateJSON()
+      || !testUseJSON(true) )
 	return 1;
 
     return 0;

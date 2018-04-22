@@ -512,26 +512,44 @@ OD::JSON::ValueSet::size_type OD::JSON::Array::size() const
 }
 
 
-void OD::JSON::Array::addChild( ValueSet* vset )
+void OD::JSON::Array::addVS( ValueSet* vset )
 {
     if ( valtype_ == Data )
-	{ pErrMsg("add child to value Array"); return; }
+	{ pErrMsg("add child to value Array"); }
     else if ( (valtype_==SubArray) != vset->isArray() )
-	{ pErrMsg("add wrong child type to Array"); return; }
+	{ pErrMsg("add wrong child type to Array"); }
+    else
+    {
+	vset->setParent( this );
+	values_ += new Value( vset );
+    }
+}
 
-    values_ += new Value( vset );
+
+OD::JSON::Array* OD::JSON::Array::add( Array* arr )
+{
+    addVS( arr );
+    return arr;
+}
+
+
+OD::JSON::Node* OD::JSON::Array::add( Node* nd )
+{
+    addVS( nd );
+    return nd;
 }
 
 
 static const char* addarrnonvalstr = "add value to non-value Array";
 
 #define mDefArrayAddVal(inptyp,fn,valtyp) \
-void OD::JSON::Array::add( inptyp val ) \
+OD::JSON::Array& OD::JSON::Array::add( inptyp val ) \
 { \
     if ( valtype_ != Data ) \
 	{ pErrMsg(addarrnonvalstr); } \
     else \
 	valarr_->fn().add( (valtyp)val ); \
+    return *this; \
 }
 
 mDefArrayAddVal( bool, bools, bool )
@@ -544,11 +562,11 @@ mDefArrayAddVal( float, vals, NumberType )
 mDefArrayAddVal( double, vals, NumberType )
 mDefArrayAddVal( const char*, strings, const char* )
 
-void OD::JSON::Array::add( const uiString& val )
+OD::JSON::Array& OD::JSON::Array::add( const uiString& val )
 {
     BufferString bs;
     val.fillUTF8String( bs );
-    add( bs );
+    return add( bs.str() );
 }
 
 
@@ -669,14 +687,6 @@ BufferString OD::JSON::Node::getStringValue( const char* ky ) const
 }
 
 
-void OD::JSON::Node::setChild( const char* ky, ValueSet* vset )
-{
-    if ( !ky || !*ky )
-	{ pErrMsg("Empty key not allowed for children of Node's"); return; }
-    set( ky, new KeyedValue( ky, vset ) );
-}
-
-
 void OD::JSON::Node::set( KeyedValue* val )
 {
     const idx_type idx = indexOf( val->key_ );
@@ -686,10 +696,41 @@ void OD::JSON::Node::set( KeyedValue* val )
 }
 
 
+static const char* errnoemptykey = "Empty key not allowed for Node's";
+
+void OD::JSON::Node::setVS( const char* ky, ValueSet* vset )
+{
+    if ( !vset )
+	{}
+    else if ( !ky || !*ky )
+	{ pErrMsg(errnoemptykey); }
+    else
+    {
+	vset->setParent( this );
+	set( new KeyedValue(ky,vset) );
+    }
+}
+
+
+OD::JSON::Array* OD::JSON::Node::set( const char* ky, Array* arr )
+{
+    setVS( ky, arr );
+    return arr;
+}
+
+
+OD::JSON::Node* OD::JSON::Node::set( const char* ky, Node* nd )
+{
+    setVS( ky, nd );
+    return nd;
+}
+
 
 template <class T>
 void OD::JSON::Node::setVal( const char* ky, T t )
 {
+    if ( !ky || !*ky )
+	{ pErrMsg(errnoemptykey); return; }
     set( new KeyedValue(ky,t) );
 }
 
@@ -707,6 +748,8 @@ mDefNodeSetVal( float )
 mDefNodeSetVal( double )
 mDefNodeSetVal( const char* )
 
+
+//--------- Key
 
 void OD::JSON::Key::set( const char* inp )
 {

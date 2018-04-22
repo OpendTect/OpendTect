@@ -79,7 +79,7 @@ protected:
 };
 
 
-/*!\brief holds Simple values, Node's, and/or Array's. */
+/*!\brief holds Simple values, Node's, and/or Array's. Is base class for either Array or Node. */
 
 mExpClass(Basic) ValueSet
 { mODTextTranslationClass(OD::JSON::ValueSet)
@@ -141,24 +141,32 @@ protected:
     ValueSet*		parent_;
     ObjectSet<Value>	values_;
 
+    void		setParent( ValueSet* p )	{ parent_ = p; }
+
     ValueSet*		gtChildByIdx(idx_type) const;
     Array*		gtArrayByIdx(idx_type) const;
     Node*		gtNodeByIdx(idx_type) const;
 
     void		use(const GasonNode&);
 
+    friend class	Array;
+    friend class	Node;
+
 };
 
 
-/*!\brief container holding simple arrays of data or either other Arrays
-  or other Nodes. Note that Arrays held by other Arrays may have no name. */
+/*!\brief ValueSet holding simple data arrays or other ValueSet's.
+
+  If it holds plain data (valType()==Data), then you can only add
+  plain values or set all at once. Otherwise, you can only add ValueSet's of the same type (either Array or Node).
+ */
 
 mExpClass(Basic) Array : public ValueSet
 {
 public:
 
-			Array(bool nodes,ValueSet*);
-			Array(DataType,ValueSet*);
+			Array(bool nodes,ValueSet* p=0);
+			Array(DataType,ValueSet* p=0);
 			~Array();
     virtual bool	isArray() const		{ return true; }
     virtual void	setEmpty();
@@ -171,20 +179,24 @@ public:
     inline ValArr&	valArr()		{ return *valarr_; }
     inline const ValArr& valArr() const		{ return *valarr_; }
 
-    void		addChild(ValueSet*);
+    Array*		add(Array*);
+    Node*		add(Node*);
 
-    void		add(bool);
-    void		add(od_int16);
-    void		add(od_uint16);
-    void		add(od_int32);
-    void		add(od_uint32);
-    void		add(od_int64);
-    void		add(float);
-    void		add(double);
-    void		add(const char*);
-    void		add( const OD::String& odstr ) { add( odstr.str() ); }
-    void		add(const uiString&);
+			// only usable if valType() == Data
+    Array&		add(bool);
+    Array&		add(od_int16);
+    Array&		add(od_uint16);
+    Array&		add(od_int32);
+    Array&		add(od_uint32);
+    Array&		add(od_int64);
+    Array&		add(float);
+    Array&		add(double);
+    Array&		add(const char*);
+    Array&		add( const OD::String& odstr )
+			{ return add( odstr.str() ); }
+    Array&		add(const uiString&);
 
+			// also, only usable if valType() == Data
     void		set(const BoolTypeSet&);
     void		set(const TypeSet<od_int16>&);
     void		set(const TypeSet<od_uint16>&);
@@ -203,19 +215,20 @@ protected:
 
     template <class T>
     void		setVals(const TypeSet<T>&);
+    void		addVS(ValueSet*);
 
     friend class	ValueSet;
 
 };
 
 
-/*!\brief ValueSet holding a mix of key-value pairs and other ValueSets. */
+/*!\brief ValueSet holding key-value pairs and other ValueSets */
 
 mExpClass(Basic) Node : public ValueSet
 {
 public:
 
-			Node( ValueSet* p )
+			Node( ValueSet* p=0 )
 			    : ValueSet(p)	{}
     virtual bool	isArray() const		{ return false; }
 
@@ -235,7 +248,9 @@ public:
     double		getDoubleValue(const char*) const;
     BufferString	getStringValue(const char*) const;
 
-    void		setChild(const char* ky,ValueSet*);
+    Array*		set(const char* ky,Array*);
+    Node*		set(const char* ky,Node*);
+
     void		set(const char* ky,bool);
     void		set(const char* ky,od_int16);
     void		set(const char* ky,od_uint16);
@@ -255,6 +270,7 @@ protected:
     Node*		gtNodeByKey(const char*) const;
 
     void		set(KeyedValue*);
+    void		setVS(const char*,ValueSet*);
     template <class T>
     void		setVal(const char*,T);
 
