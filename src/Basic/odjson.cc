@@ -321,37 +321,41 @@ static OD::JSON::ValueSet* getSubVS( OD::JSON::ValueSet* parent,
 }
 
 
-void OD::JSON::ValueSet::use( const Gason::JsonValue& gasonval )
+void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 {
+    const Gason::JsonValue& gasonval = gasonnode.value;
     const Gason::JsonTag tag = gasonval.getTag();
+    bool isnode = !isArray();
+    const char* ky = isnode ? gasonnode.key : 0;
+
     switch ( tag )
     {
 	case Gason::JSON_NUMBER:
 	{
 	    const double val = gasonval.toNumber();
-	    if ( isArray() )
-		asArray().valArr().vals() += val;
+	    if ( isnode )
+		values_ += new KeyedValue( ky, val );
 	    else
-		values_.last()->setValue( val );
+		asArray().valArr().vals() += val;
 	} break;
 
 	case Gason::JSON_STRING:
 	{
 	    const char* val = gasonval.toString();
-	    if ( isArray() )
-		asArray().valArr().strings().add( val );
+	    if ( isnode )
+		values_ += new KeyedValue( gasonnode.key, val );
 	    else
-		values_.last()->setValue( val );
+		asArray().valArr().strings().add( val );
 	} break;
 
 	case Gason::JSON_TRUE:
 	case Gason::JSON_FALSE:
 	{
 	    const bool val = tag == Gason::JSON_TRUE;
-	    if ( isArray() )
-		asArray().valArr().bools() += val;
+	    if ( isnode )
+		values_ += new KeyedValue( gasonnode.key, val );
 	    else
-		values_.last()->setValue( val );
+		asArray().valArr().bools() += val;
 	} break;
 
 	case Gason::JSON_ARRAY:
@@ -359,16 +363,28 @@ void OD::JSON::ValueSet::use( const Gason::JsonValue& gasonval )
 	    const Gason::JsonTag nexttag = getNextTag( gasonval );
 	    Array* arr = (Array*)getSubVS( this, tag, nexttag );
 	    if ( arr )
-		values_ += new Value( arr );
+	    {
+		if ( isnode )
+		    values_ += new KeyedValue( ky, arr );
+		else
+		    values_ += new Value( arr );
+	    }
+
+	    for ( auto subgasonnode : gasonval )
+		if ( arr )
+		    arr->use( *subgasonnode );
 	} break;
 
 	case Gason::JSON_OBJECT:
 	{
-	    Node* newnode = new Node( this );
-	    Value* nodeval = new Value( newnode );
-	    values_ += nodeval;
-	    for ( auto gasonnode : gasonval )
-		newnode->set( new KeyedValue( gasonnode->key ) );
+	    Node* node = new Node( this );
+	    if ( isnode )
+		values_ += new KeyedValue( gasonnode.key, node );
+	    else
+		values_ += new Value( node );
+
+	    for ( auto subgasonnode : gasonval )
+		node->use( *subgasonnode );
 	} break;
 
 	case Gason::JSON_NULL:
@@ -391,9 +407,21 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::parseJSon( char* buf, int bufsz,
     int status = Gason::jsonParse( buf, &endptr, &rootgasonval, allocator );
     if ( status != Gason::JSON_OK )
     {
+	BufferString gasonerr;
+	if ( status == Gason::JSON_BREAKING_BAD )
+	    gasonerr.set( "incomplete input" );
+	else
+	    gasonerr.set( Gason::jsonStrError(status) );
 	uirv.set( tr("JSON parse error: '%1' at char %2")
-		    .arg( Gason::jsonStrError(status) )
-		    .arg( endptr-buf ) );
+		    .arg( gasonerr )
+		    .arg( endptr-buf+1 ) );
+	return 0;
+    }
+
+    const Gason::JsonTag roottag = rootgasonval.getTag();
+    if ( roottag != Gason::JSON_ARRAY && roottag != Gason::JSON_OBJECT )
+    {
+	uirv.set( tr("Make sure JSON content starts with '{' or '['") );
 	return 0;
     }
 
@@ -402,7 +430,10 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::parseJSon( char* buf, int bufsz,
     if ( !vset )
 	uirv.set( tr("No meaningful JSON content found") );
     else
-	vset->use( rootgasonval );
+    {
+	for ( auto gasonnode : rootgasonval )
+	    vset->use( *gasonnode );
+    }
 
     return vset;
 }

@@ -42,7 +42,7 @@ public:
     inline		BufferString();
     inline		BufferString(const char*);
 			BufferString(const OD::String&);
-			BufferString(int minlen,bool setnull);
+			BufferString(size_type minlen,bool setnull);
 			BufferString(const BufferString&);
     template <class T>
     inline explicit	BufferString(const T&);
@@ -74,10 +74,11 @@ public:
 
     inline char*	getCStr()
     { return const_cast<char*>(const_cast<BufferString*>(this)->gtBuf()); }
-    void                fill(char*,int maxnrchar) const;
+    void                fill(char*,size_type maxnrchar) const;
 			//!< fill old C-style char buf
 
-    inline char&	operator []( int idx )	{ return getCStr()[idx]; }
+    inline char&	operator []( idx_type idx )
+						{ return getCStr()[idx]; }
     inline char&	first()			{ return getCStr()[0]; }
     inline char&	last()			{ return getCStr()[size()-1]; }
     char*		find(char);
@@ -101,19 +102,19 @@ public:
     BufferString&	add( const OD::String& s )	{ return add(s.str()); }
     template <class T>
     BufferString&	add(const T&);
-    BufferString&	addLim(float,int maxnrchars);
-    BufferString&	addLim(double,int maxnrchars);
+    BufferString&	addLim(float,size_type maxnrchars);
+    BufferString&	addLim(double,size_type maxnrchars);
     BufferString&	addPrecise(float);
     BufferString&	addPrecise(double);
 
-    BufferString&	addSpace(int nrspaces=1);
-    BufferString&	addTab(int nrtabs=1);
-    BufferString&	addNewLine(int nrnewlines=1);
+    BufferString&	addSpace(size_type nrspaces=1);
+    BufferString&	addTab(size_type nrtabs=1);
+    BufferString&	addNewLine(size_type nrnewlines=1);
 
-    inline unsigned int	bufSize() const		{ return len_; }
-    bool		setBufSize(unsigned int);
-    inline unsigned int	minBufSize() const	{ return minlen_; }
-    void		setMinBufSize(unsigned int);
+    inline size_type	bufSize() const		{ return len_; }
+    bool		setBufSize(size_type);
+    inline size_type	minBufSize() const	{ return minlen_; }
+    void		setMinBufSize(size_type);
 
     BufferString&	replace(char from,char to);
     BufferString&	replace(const char* from,const char* to);
@@ -121,9 +122,9 @@ public:
     inline BufferString& remove( const char* s )	{ return replace(s,0); }
     BufferString&	trimBlanks(); //!< removes front and back whitespaces
 
-    BufferString&	insertAt(int idx, const char*);
+    BufferString&	insertAt(idx_type idx, const char*);
 				//< If idx >= size(), pads spaces
-    BufferString&	replaceAt(int idx, const char*,bool cutoff=true);
+    BufferString&	replaceAt(idx_type idx, const char*,bool cutoff=true);
 				//< If idx >= size(), pads spaces
     BufferString&	toLower();
     BufferString&	toUpper(bool onlyfirstchar=false);
@@ -141,8 +142,8 @@ public:
 protected:
 
     char*		buf_;
-    unsigned int	len_;
-    const unsigned int	minlen_;
+    size_type		len_;
+    const size_type	minlen_;
 
     BufferString&	assignTo(const char*);
 
@@ -153,7 +154,7 @@ private:
 
     void		init();
     inline void		destroy()	{ delete [] buf_; buf_ = 0; }
-    BufferString&	addArr32Chars(const char*,int);
+    BufferString&	addArr32Chars(const char*,size_type);
 
 public:
 

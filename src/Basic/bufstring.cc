@@ -22,14 +22,15 @@
 #endif
 
 
-BufferString::BufferString( int sz, bool mknull )
-    : minlen_(sz)
+BufferString::BufferString( size_type minlen, bool mknull )
+    : minlen_(minlen)
     , len_(0)
     , buf_(0)
 {
-    if ( sz < 1 ) return;
+    if ( minlen_ < 1 )
+	return;
 
-    setBufSize( sz );
+    setBufSize( minlen_ );
     if ( len_ > 0 )
     {
 	if ( len_ == 1 )
@@ -106,7 +107,7 @@ BufferString& BufferString::assignTo( const char* s )
     if ( buf_ == s ) return *this;
 
     if ( !s ) s = "";
-    setBufSize( (unsigned int)(strLength(s) + 1) );
+    setBufSize( (size_type)(strLength(s) + 1) );
     char* ptr = buf_;
     while ( *s ) *ptr++ = *s++;
     *ptr = '\0';
@@ -126,7 +127,7 @@ BufferString& BufferString::add( const char* s )
 {
     if ( s && *s )
     {
-	const unsigned int newsize = strLength(s) +
+	const size_type newsize = strLength(s) +
 				     ( buf_ ? strLength(buf_) : 0 ) +1;
 	setBufSize( newsize );
 
@@ -162,13 +163,13 @@ BufferString& BufferString::addPrecise( double d )
 }
 
 
-BufferString& BufferString::addLim( float f, int maxnrchars )
+BufferString& BufferString::addLim( float f, size_type maxnrchars )
 {
     return add( toStringLim( f, maxnrchars ) );
 }
 
 
-BufferString& BufferString::addLim( double d, int maxnrchars )
+BufferString& BufferString::addLim( double d, size_type maxnrchars )
 {
     return add( toStringLim( d, maxnrchars ) );
 }
@@ -182,40 +183,40 @@ static const char* nl32 =
 "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
 
 
-BufferString& BufferString::addArr32Chars( const char* carr, int nr )
+BufferString& BufferString::addArr32Chars( const char* carr, size_type nr )
 {
     if ( nr == 1 )
 	return add( carr + 31 ); // shortcut for majority of calls
     else if ( nr < 1 )
 	return *this;
 
-    const int nr32 = nr / 32;
-    for ( int idx=0; idx<nr32; idx++ )
+    const size_type nr32 = nr / 32;
+    for ( idx_type idx=0; idx<nr32; idx++ )
 	add( carr );
 
     return add( carr + 31 - (nr%32) + 1 );
 }
 
 
-BufferString& BufferString::addSpace( int nr )
+BufferString& BufferString::addSpace( size_type nr )
 {
     return addArr32Chars( spc32, nr );
 }
 
 
-BufferString& BufferString::addTab( int nr )
+BufferString& BufferString::addTab( size_type nr )
 {
     return addArr32Chars( tab32, nr );
 }
 
 
-BufferString& BufferString::addNewLine( int nr )
+BufferString& BufferString::addNewLine( size_type nr )
 {
     return addArr32Chars( nl32, nr );
 }
 
 
-bool BufferString::setBufSize( unsigned int newlen )
+bool BufferString::setBufSize( size_type newlen )
 {
     if ( newlen < minlen_ )
 	newlen = minlen_;
@@ -224,7 +225,7 @@ bool BufferString::setBufSize( unsigned int newlen )
 
     if ( minlen_ > 1 )
     {
-	int nrminlens = newlen / minlen_;
+	size_type nrminlens = newlen / minlen_;
 	if ( newlen % minlen_ ) nrminlens++;
 	newlen = nrminlens * minlen_;
     }
@@ -239,7 +240,7 @@ bool BufferString::setBufSize( unsigned int newlen )
 	*buf_ = '\0';
     else
     {
-	unsigned int newsz = (oldbuf ? strLength( oldbuf ) : 0) + 1;
+	size_type newsz = (oldbuf ? strLength( oldbuf ) : 0) + 1;
 	if ( newsz > newlen )
 	{
 	    newsz = newlen;
@@ -255,9 +256,9 @@ bool BufferString::setBufSize( unsigned int newlen )
 }
 
 
-void BufferString::setMinBufSize( unsigned int newlen )
+void BufferString::setMinBufSize( size_type newlen )
 {
-    const_cast<unsigned int&>(minlen_) = newlen;
+    const_cast<size_type&>(minlen_) = newlen;
     setBufSize( len_ );
 }
 
@@ -283,7 +284,7 @@ BufferString& BufferString::replace( const char* from, const char* to )
     if ( isEmpty() || !from || !*from )
 	return *this;
 
-    const int fromlen = strLength( from );
+    const size_type fromlen = strLength( from );
 
     char* ptrfound = find( from );
     while ( ptrfound )
@@ -291,7 +292,7 @@ BufferString& BufferString::replace( const char* from, const char* to )
 	BufferString rest( ptrfound + fromlen );
 	*ptrfound = '\0';
 	add( to );
-	const int curpos = size();
+	const idx_type curpos = size();
 	add( rest );
 	ptrfound = firstOcc( getCStr()+curpos, from );
     }
@@ -344,9 +345,10 @@ BufferString& BufferString::trimBlanks()
 }
 
 
-BufferString& BufferString::insertAt( int atidx, const char* string )
+BufferString& BufferString::insertAt( idx_type atidx, const char* string )
 {
-    const int cursz = size();	// Had to do this to avoid weird compiler bug
+    const size_type cursz = size();
+		// Had to do this to avoid weird compiler bug
     if ( atidx >= cursz )	// i.e. do not replace cursz with size() ...!
 	{ replaceAt( atidx, string ); return *this; }
     if ( !string || !*string )
@@ -354,7 +356,7 @@ BufferString& BufferString::insertAt( int atidx, const char* string )
 
     if ( atidx < 0 )
     {
-	const int lenstr = strLength( string );
+	const size_type lenstr = strLength( string );
 	if ( atidx <= -lenstr )
 	    return *this;
 	string += -atidx;
@@ -369,14 +371,15 @@ BufferString& BufferString::insertAt( int atidx, const char* string )
 }
 
 
-BufferString& BufferString::replaceAt( int atidx, const char* string, bool cut )
+BufferString& BufferString::replaceAt( idx_type atidx, const char* string,
+					bool cut )
 {
-    const int strsz = string ? strLength(string) : 0;
-    int cursz = size();
-    const int nrtopad = atidx - cursz;
+    const size_type strsz = string ? strLength(string) : 0;
+    size_type cursz = size();
+    const size_type nrtopad = atidx - cursz;
     if ( nrtopad > 0 )
     {
-	const int newsz = cursz + nrtopad + strsz + 1;
+	const size_type newsz = cursz + nrtopad + strsz + 1;
 	setBufSize( newsz );
 	mDoArrayPtrOperation( char, buf_+cursz, = ' ', atidx, ++ );
 	buf_[atidx] = '\0';
@@ -392,9 +395,9 @@ BufferString& BufferString::replaceAt( int atidx, const char* string, bool cut )
 	    buf_[cursz-1] = '\0';
 	}
 
-	for ( int idx=0; idx<strsz; idx++ )
+	for ( idx_type idx=0; idx<strsz; idx++ )
 	{
-	    const int replidx = atidx + idx;
+	    const idx_type replidx = atidx + idx;
 	    if ( replidx >= 0 )
 		buf_[replidx] = *(string + idx);
 	}
@@ -507,7 +510,7 @@ void BufferString::init()
 }
 
 
-void BufferString::fill( char* output, int maxnrchar ) const
+void BufferString::fill( char* output, size_type maxnrchar ) const
 {
     if ( !output || maxnrchar < 1 )
 	return;
@@ -656,7 +659,8 @@ BufferStringSet::size_type BufferStringSet::nearestMatch( const char* s,
     for ( size_type idx=0; idx<candidates.size(); idx++ )
     {
 	const size_type myidx = candidates[idx];
-	const unsigned int curdist = get(myidx).getLevenshteinDist( s, !caseinsens );
+	const unsigned int curdist
+		= get(myidx).getLevenshteinDist( s, !caseinsens );
 	if ( idx == 0 || curdist < mindist  )
 	    { mindist = curdist; minidx = myidx; }
     }
@@ -673,19 +677,19 @@ BufferString BufferStringSet::commonStart() const
 
     ret.set( get(0) );
 
-    for ( int idx=1; idx<sz; idx++ )
+    for ( idx_type idx=1; idx<sz; idx++ )
     {
-	int retsz = ret.size();
+	size_type retsz = ret.size();
 	if ( retsz < 1 )
 	    return ret;
 
 	const BufferString& cur = get( idx );
-	const int cursz = cur.size();
+	const size_type cursz = cur.size();
 	if ( cursz < 1 )
 	    { ret.setEmpty(); break; }
 	if ( cursz < retsz )
 	    { ret[cursz-1] = '\0'; retsz = cursz; }
-	for ( int ich=retsz-1; ich>-1; ich-- )
+	for ( idx_type ich=retsz-1; ich>-1; ich-- )
 	{
 	    if ( ret[ich] != cur[ich] )
 		ret[ich] = '\0';
@@ -868,8 +872,8 @@ BufferStringSet::size_type* BufferStringSet::getSortIndexes(
 
 bool BufferStringSet::hasUniqueNames( CaseSensitivity sens ) const
 {
-    const int lastidx = size() - 1;
-    for ( int idx=0; idx<lastidx; idx++ )
+    const idx_type lastidx = size() - 1;
+    for ( idx_type idx=0; idx<lastidx; idx++ )
 	if ( firstDuplicateOf(idx,sens,idx+1) >= 0 )
 	    return false;
     return true;
@@ -879,12 +883,12 @@ bool BufferStringSet::hasUniqueNames( CaseSensitivity sens ) const
 BufferStringSet::size_type BufferStringSet::firstDuplicateOf(
 	    size_type idx2find, CaseSensitivity sens, size_type startat ) const
 {
-    const int sz = size();
+    const size_type sz = size();
     if ( idx2find < 0 || idx2find >= sz )
 	return -1;
 
     const BufferString& tofind = get( idx2find );
-    for ( int idx=startat; idx<sz; idx++ )
+    for ( idx_type idx=startat; idx<sz; idx++ )
     {
 	if ( idx == idx2find )
 	    continue;
@@ -1012,7 +1016,7 @@ void BufferStringSet::unCat( const char* inpstr, const char* sepstr )
 uiStringSet BufferStringSet::getUiStringSet() const
 {
     uiStringSet uistrset;
-    for ( int idx=0; idx<(*this).size(); idx++ )
-	uistrset.add( toUiString((*this).get(idx)) );
+    for ( idx_type idx=0; idx<size(); idx++ )
+	uistrset.add( toUiString(get(idx)) );
     return uistrset;
 }

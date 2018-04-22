@@ -26,10 +26,10 @@ bool FixedString::operator!=( const BufferString& s ) const
 { return !isEqual(s.str()); }
 
 
-unsigned int OD::String::size() const
+OD::String::size_type OD::String::size() const
 {
     const char* my_str = gtStr();
-    return my_str ? (unsigned int)strLength( my_str ) : 0;
+    return my_str ? (size_type)strLength( my_str ) : 0;
 }
 
 
@@ -138,7 +138,7 @@ const char* OD::String::findLast( const char* s ) const
 unsigned int OD::String::count( char tocount ) const
 {
     const char* ptr = gtStr();
-    int ret = 0;
+    unsigned int ret = 0;
     if ( !ptr )
 	return ret;
 
@@ -153,7 +153,8 @@ unsigned int OD::String::count( char tocount ) const
 }
 
 
-unsigned int OD::String::getLevenshteinDist( const char* s, bool casesens ) const
+unsigned int OD::String::getLevenshteinDist( const char* s,
+					     bool casesens ) const
 {
     const unsigned int len1 = size();
     const unsigned int len2 = FixedString(s).size();

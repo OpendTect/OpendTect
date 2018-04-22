@@ -30,6 +30,8 @@ mExpClass(Basic) String
 {
 public:
 
+    typedef int		size_type;
+    typedef int		idx_type;
 
     virtual		~String()		{}
 
@@ -45,9 +47,10 @@ public:
     inline		const char* buf() const		{ return gtBuf(); }
     inline		const char* str() const		{ return gtStr(); }
     inline		operator const char*() const	{ return gtBuf(); }
-    unsigned int	size() const;
+    size_type		size() const;
     inline bool		isEmpty() const			{ return !gtStr(); }
-    inline const char&	operator []( int idx ) const	{ return gtBuf()[idx]; }
+    inline const char&	operator []( idx_type idx ) const
+						{ return gtBuf()[idx]; }
     virtual char	firstChar() const	{ return gtBuf()[0]; }
     virtual char	lastChar() const	{ return gtBuf()[size()-1]; }
 

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 
 class SeparString;
-namespace Gason { union JsonValue; struct JsonNode; }
+namespace Gason { struct JsonNode; }
 
 
 namespace OD
@@ -88,6 +88,7 @@ public:
     typedef ValArr::size_type	size_type;
     typedef size_type		idx_type;
     enum ValueType		{ Data, SubArray, SubNode };
+    typedef Gason::JsonNode	GasonNode;
 
     virtual		~ValueSet()			{ setEmpty(); }
     virtual bool	isArray() const			 = 0;
@@ -144,9 +145,7 @@ protected:
     Array*		gtArrayByIdx(idx_type) const;
     Node*		gtNodeByIdx(idx_type) const;
 
-    static ValueSet*	getNew(ValueSet*,const Gason::JsonNode&,
-			       const Gason::JsonNode&);
-    void		use(const Gason::JsonValue&);
+    void		use(const GasonNode&);
 
 };
 
@@ -257,7 +256,6 @@ protected:
     void		set(KeyedValue*);
     template <class T>
     void		setVal(const char*,T);
-    void		useJsonValue(Gason::JsonValue&,const char*);
 
     friend class	ValueSet;
 
