@@ -75,4 +75,8 @@ foreach fil ( odinit.* )
     if ( -r "$fil" ) source "$fil"
 end
 
-
+# Put back the user environment
+source ${DTECT_APPL}/bin/init_dtect_GL
+if ( $?OD_SYSTEM_LIBRARY_PATH ) then
+    setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${OD_SYSTEM_LIBRARY_PATH}"
+endif

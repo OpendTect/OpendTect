@@ -1,0 +1,69 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) dGB Beheer B.V.
+# OpenTect environment initialisation script 
+#_______________________________________________________________________________
+
+if ( $HDIR != lux ) then
+    exit 0
+endif
+
+if ( -d /usr/lib64 ) then
+   set sysglxlibdir=/usr/lib64
+else if ( -d /usr/lib ) then
+   set sysglxlibdir=/usr/lib
+endif
+
+if ( -d /usr/X11R6/lib64 ) then
+   set nvglxlibdir=/usr/X11R6/lib64
+else if ( -d /usr/X11R6/lib ) then
+   set nvglxlibdir=/usr/X11R6/lib
+endif
+
+if ( ${binsubdir} == "lux64" ) then
+    set libglcount=`/sbin/ldconfig -p | grep libGL.so | grep x86-64 | grep -v "libGL.so\." | /usr/bin/wc -l`
+else
+    set libglcount=`/sbin/ldconfig -p | grep libGL.so | grep -v "libGL.so\." | /usr/bin/wc -l`
+endif
+
+if ( ${libglcount} == "0" ) then
+    echo "No OpenGL library found. Cannot start OpendTect."
+    exec /bin/false
+else if ( ${libglcount} == "1" ) then
+    exit 0
+else if ( ! $?OD_SYSTEM_LIBRARY_PATH ) then
+    # Input LD_LIBRARY_PATH was empty: The system can handle duplicates
+    exit 0
+endif
+
+set mesafound=false
+set nvidiafound=false
+foreach libpath ( $OD_SYSTEM_LIBRARY_PATH:as/:/ /  )
+    if ( ${libpath} == ${sysglxlibdir} ) then
+	if ( -e ${libpath}/libGL.so ) then
+	    set mesastrs=`strings ${libpath}/libGL.so | grep GLX_MESA | wc -l`
+	    if ( ${mesastrs} > 0 ) then
+		set mesafound=true
+	    endif
+	endif
+    else if ( ${libpath} == ${nvglxlibdir} ) then
+	if ( -e ${libpath}/libGL.so ) then
+	    set nvidiastrs=`strings ${libpath}/libGL.so | grep GLX_nvidia | wc -l`
+	    if ( ${nvidiastrs} > 0 ) then
+		set nvidiafound=true
+	    endif
+	endif
+    else if ( ${libpath} == ${nvglxlibdir} ) then
+    endif
+end
+
+if ( ${mesafound} == "true" && ${nvidiafound} == "true" ) then
+    echo "Your LD_LIBRARY_PATH should not include ${sysglxlibdir} if"
+    echo "${sysglxlibdir} contains the mesa libGL.so library and"
+    echo "${nvglxlibdir} contains the nvidia libGL.so library."
+    echo -n "Cannot start OpendTect before ${sysglxlibdir} is removed from LD_LIBRARY_PATH"
+    echo " (it should not be there anyway)."
+    exec /bin/false
+endif
+
