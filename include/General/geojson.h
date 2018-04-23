@@ -31,6 +31,8 @@ public:
     static const char*	sKeyName()			{ return "name"; }
     static const char*	sKeyType()			{ return "type"; }
     static const char*	sKeyFeatures()			{ return "features"; }
+    static const char*	sKeyProperties()		{ return "properties"; }
+    static const char*	sKeyCRS()			{ return "crs"; }
 
 			// use when constructing from general JSON Object
     void		doGeoJSonCheck(uiRetVal&);

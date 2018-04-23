@@ -12,6 +12,10 @@
 
 
 #undef mTestMainFnName
+#define mTestMainFnName test_main_jsonwriter
+#include "jsonwriter.cc"
+
+#undef mTestMainFnName
 #define mTestMainFnName test_main_ibmformat
 #include "ibmformat.cc"
 
@@ -39,6 +43,8 @@
 int testMain( int argc, char** argv )
 {
     mInitCompositeTestProg( General );
+
+    mRunSubTest( jsonwriter );
 
 #ifndef __win32__
     mRunSubTest( ibmformat );
