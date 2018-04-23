@@ -52,6 +52,7 @@ public:
     typedef BufferStringSet		SSet;
 
 			ValArr(DataType);
+			ValArr(const ValArr&);
 			~ValArr()		{ delete set_; }
     DataType		dataType() const	{ return type_; }
 
@@ -93,6 +94,7 @@ public:
     enum ValueType		{ Data, SubArray, SubObject };
     typedef Gason::JsonNode	GasonNode;
 
+    virtual ValueSet*	clone() const			= 0;
     virtual		~ValueSet()			{ setEmpty(); }
     virtual bool	isArray() const			 = 0;
     inline Array&	asArray();
@@ -130,16 +132,19 @@ public:
     double		getDoubleValue(idx_type) const;
     BufferString	getStringValue(idx_type) const;
 
-    static ValueSet*	parseJSon(char* buf,int bufsz,uiRetVal&);
+    uiRetVal		parseJSon(char* buf,int bufsz);
+    static ValueSet*	getFromJSon(char* buf,int bufsz,uiRetVal&);
     void		dumpJSon(BufferString&) const;
 
     uiRetVal		read(od_istream&);
+    static ValueSet*	read(od_istream&,uiRetVal&);
     uiRetVal		write(od_ostream&);
 
 protected:
 
 			ValueSet( ValueSet* p )
 			    : parent_(p)	{}
+			ValueSet(const ValueSet&);
 
     ValueSet*		parent_;
     ObjectSet<Value>	values_;
@@ -150,10 +155,12 @@ protected:
     Array*		gtArrayByIdx(idx_type) const;
     Object*		gtObjectByIdx(idx_type) const;
 
+    static ValueSet*	gtByParse(char*,int,uiRetVal&,ValueSet*);
     void		use(const GasonNode&);
 
     friend class	Array;
     friend class	Object;
+    friend class	Value;
 
 };
 
@@ -171,7 +178,9 @@ public:
 
 			Array(bool objects,ValueSet* p=0);
 			Array(DataType,ValueSet* p=0);
+			Array(const Array&);
 			~Array();
+    virtual Array*	clone() const		{ return new Array(*this); }
     virtual bool	isArray() const		{ return true; }
     virtual void	setEmpty();
 
@@ -234,6 +243,8 @@ public:
 
 			Object( ValueSet* p=0 )
 			    : ValueSet(p)	{}
+			Object(const Object&);
+    virtual Object*	clone() const		{ return new Object(*this); }
     virtual bool	isArray() const		{ return false; }
 
     idx_type		indexOf(const char*) const;

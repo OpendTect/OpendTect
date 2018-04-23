@@ -39,11 +39,15 @@ static bool testParseJSON()
 	    tstStream() << "\t>> '" << str << "' <<" << od_endl;
 
 	uiRetVal uirv;
-	ValueSet* tree = ValueSet::parseJSon( str.getCStr(), str.size(), uirv );
+	ValueSet* tree = ValueSet::getFromJSon( str.getCStr(), str.size(),uirv);
 	const bool isok = uirv.isOK();
-	mRunStandardTest( isok==(idx == 0), BufferString("Parse result ",idx) )
 	if ( !quiet && !isok )
 	    tstStream() << "\tmsg=" << toString(uirv) << od_endl;
+
+	if ( idx )
+	    mRunStandardTest( !isok, "Parse bad string" )
+	else
+	    mRunStandardTest( isok, "JSon parses fine" )
 
 	if ( isok )
 	    jsontree = tree;
@@ -62,8 +66,8 @@ static bool testParseJSON()
 
 static bool testUseJSON( bool created )
 {
-    const Object& tree = *static_cast<const Object*>( jsontree );
-    tstStream() << "\n\nUse JSON, " << (created ? "Created." : "Original.")
+    const Object& tree = jsontree->asObject();
+    tstStream() << "\n\nUse JSON, " << (created ? "Constructed." : "Original.")
 		<< od_endl;
 
     const auto* crsobj = tree.getObject( "crs" );
@@ -109,7 +113,7 @@ static bool testUseJSON( bool created )
 
     const auto& val_ts = point3.valArr().vals();
     const Coord3 coord( val_ts[0], val_ts[1], val_ts[2] );
-    mRunStandardTest( coord==Coord3(8,53.7419173548,0.0), "coordinate value" );
+    mRunStandardTest( coord==Coord3(8,53.7419173548,0), "coordinate value" );
 
     return true;
 }
@@ -144,7 +148,7 @@ static void addCoords( const TypeSet<Coord3>& coords, Array& poly )
 
 static bool testCreateJSON()
 {
-    Object& topobj = *new Object;
+    Object topobj;
 
     topobj.set( "type", "FeatureCollection" );
     topobj.set( "name", "3D Seismic" );
@@ -162,48 +166,50 @@ static bool testCreateJSON()
 
     // Once via TypeSet<double> for test
     Array* coord = poly->add( new Array(Number) );
-    TypeSet<double> cvals;
+    TypeSet<NumberType> cvals;
     cvals += 7; cvals += 55.0554844553; cvals += 0.0;
     coord->set( cvals );
 
     // Once via TypeSet for test
     TypeSet<Coord3> coords;
-    coords += Coord3( 6, 55.0556671475, 0.0 );
-    coords += Coord3( 6, 54.9236026526, 0.0 );
-    coords += Coord3( 7, 54.9229699809, 0.0 );
-    coords += Coord3( 7, 55.0554844553, 0.0 );
+    coords += Coord3( 6, 55.0556671475, 0 );
+    coords += Coord3( 6, 54.9236026526, 0 );
+    coords += Coord3( 7, 54.9229699809, 0 );
+    coords += Coord3( 7, 55.0554844553, 0 );
     addCoords( coords, *poly );
 
     polyarr = createFeatCoordArray( featarr, "Z3GDF2010A", "MagellanesBasin",
 					   "Polygon" );
     poly = polyarr->add( new Array(false) );
     coords.setEmpty();
-    coords += Coord3( 9, 53.8820024932, 0.0 );
-    coords += Coord3( 7, 53.877063624,  0.0 );
-    coords += Coord3( 7, 53.7857242316, 0.0 );
-    coords += Coord3( 8, 53.7419173548, 0.0 );
-    coords += Coord3( 9, 53.7461123222, 0.0 );
-    coords += Coord3( 9, 53.8820024932, 0.0 );
+    coords += Coord3( 9, 53.8820024932, 0 );
+    coords += Coord3( 7, 53.877063624,  0 );
+    coords += Coord3( 7, 53.7857242316, 0 );
+    coords += Coord3( 8, 53.7419173548, 0 );
+    coords += Coord3( 9, 53.7461123222, 0 );
+    coords += Coord3( 9, 53.8820024932, 0 );
     addCoords( coords, *poly );
 
     delete jsontree;
-    jsontree = &topobj;
+    jsontree = topobj.clone();
     return true;
 }
 
 
 static bool testDumpJSON()
 {
-    const Object& tree = *static_cast<const Object*>( jsontree );
     BufferString dumpstr;
-    tree.dumpJSon( dumpstr );
+    jsontree->dumpJSon( dumpstr );
     if ( !quiet )
 	tstStream() << "\ndump:\n\n" << dumpstr << '\n' << od_endl;
 
     BufferString orgstr( jsonstrs[0] );
     dumpstr.remove( ' ' ).remove( '\t' ).remove( '\n' );
     orgstr.remove( ' ' ).remove( '\t' ).remove( '\n' );
-    mRunStandardTest( dumpstr==orgstr, "dumped JSON == original JSON" );
+    const bool aresame = dumpstr == orgstr;
+    if ( !aresame )
+	tstStream() << "\norg was:\n\n" << orgstr << '\n' << od_endl;
+    mRunStandardTest( aresame, "dumped JSON == original JSON" );
 
     return true;
 }

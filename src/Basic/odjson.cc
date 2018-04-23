@@ -32,6 +32,8 @@ public:
 	char* str_;
 	ValueSet* vset_;
     };
+    Contents		cont_;
+    int			type_;
 
     virtual bool	isKeyed() const	{ return false; }
 
@@ -44,10 +46,30 @@ public:
     char*		str()		{ return cont_.str_; }
     const char*		str() const	{ return cont_.str_; }
 
-    Contents		cont_;
-    int			type_;
 
-Value() : type_((int)Number) {}
+Value() : type_((int)Number)		{}
+virtual Value* getEmptyClone() const	{ return new Value; }
+
+Value* clone( ValueSet* parent ) const
+{
+    Value* newval = getEmptyClone();
+    if ( isValSet() )
+    {
+	ValueSet* newset = vSet()->clone();
+	newset->setParent( parent );
+	newval->setValue( newset );
+    }
+    else
+    {
+	switch ( (DataType)type_ )
+	{
+	    case Boolean:	newval->setValue( boolVal() );	break;
+	    case Number:	newval->setValue( val() );	break;
+	    case String:	newval->setValue( str() );	break;
+	}
+    }
+    return newval;
+}
 
 #define mDefSimpleConstr( typ, cast ) \
     Value( typ v ) { setValue( (cast)v ); }
@@ -125,6 +147,7 @@ public:
     BufferString	key_;
 
     virtual bool isKeyed() const { return true; }
+    virtual Value* getEmptyClone() const { return new KeyedValue(key_); }
 
 KeyedValue( const char* ky ) : key_(ky)	{}
 
@@ -165,6 +188,18 @@ OD::JSON::ValArr::ValArr( DataType typ )
 }
 
 
+OD::JSON::ValArr::ValArr( const ValArr& oth )
+    : ValArr(oth.type_)
+{
+    switch ( type_ )
+    {
+	case Boolean:	bools() = oth.bools();		break;
+	case Number:	vals() = oth.vals();		break;
+	case String:	strings() = oth.strings();	break;
+    }
+}
+
+
 void OD::JSON::ValArr::dumpJSon( BufferString& bs ) const
 {
     const int sz = (size_type)set_->nrItems();
@@ -197,6 +232,15 @@ void OD::JSON::ValArr::dumpJSon( BufferString& bs ) const
 
 
 //--------- ValueSet
+
+
+OD::JSON::ValueSet::ValueSet( const ValueSet& oth )
+    : parent_(oth.parent_)
+{
+    for ( const auto* val : oth.values_ )
+	values_ += val->clone( this );
+}
+
 
 void OD::JSON::ValueSet::setEmpty()
 {
@@ -425,13 +469,13 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 }
 
 
-OD::JSON::ValueSet* OD::JSON::ValueSet::parseJSon( char* buf, int bufsz,
-						    uiRetVal& uirv )
+OD::JSON::ValueSet* OD::JSON::ValueSet::gtByParse( char* buf, int bufsz,
+			    uiRetVal& uirv, ValueSet* intovset )
 {
-    uirv.setOK();
+    uirv.setEmpty();
     if ( !buf || bufsz < 1 )
 	{ uirv.set( uiStrings::phrInternalErr("No data to parse (JSON)") );
-	    return 0; }
+	    return intovset; }
 
     Gason::JsonAllocator allocator;
     Gason::JsonValue rootgasonval; char* endptr;
@@ -446,27 +490,58 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::parseJSon( char* buf, int bufsz,
 	uirv.set( tr("JSON parse error: '%1' at char %2")
 		    .arg( gasonerr )
 		    .arg( endptr-buf+1 ) );
-	return 0;
+	return intovset;
     }
 
     const Gason::JsonTag roottag = rootgasonval.getTag();
-    if ( roottag != Gason::JSON_ARRAY && roottag != Gason::JSON_OBJECT )
+    const bool buf_has_array = roottag == Gason::JSON_ARRAY;
+    if ( !buf_has_array && roottag != Gason::JSON_OBJECT )
     {
 	uirv.set( tr("Make sure JSON content starts with '{' or '['") );
-	return 0;
+	return intovset;
     }
 
-    ValueSet* vset = getSubVS( 0, rootgasonval.getTag(),
-				  getNextTag(rootgasonval) );
-    if ( !vset )
-	uirv.set( tr("No meaningful JSON content found") );
+    ValueSet* usevset = intovset;
+    bool intoisarray = buf_has_array;
+    if ( intovset )
+	intoisarray = intovset->isArray();
     else
     {
-	for ( auto gasonnode : rootgasonval )
-	    vset->use( *gasonnode );
+	usevset = getSubVS( 0, rootgasonval.getTag(), getNextTag(rootgasonval));
+	if ( !usevset )
+	{
+	    uirv.set( tr("No meaningful JSON content found") );
+	    return intovset;
+	}
     }
 
-    return vset;
+    if ( intoisarray != buf_has_array )
+    {
+	if ( intoisarray )
+	    intovset->asArray().add( &usevset->asObject() );
+	else
+	    intovset->asObject().set( "JSON", &usevset->asArray() );
+    }
+
+    for ( auto gasonnode : rootgasonval )
+	usevset->use( *gasonnode );
+
+    return usevset;
+}
+
+
+OD::JSON::ValueSet* OD::JSON::ValueSet::getFromJSon( char* buf, int bufsz,
+						    uiRetVal& uirv )
+{
+    return gtByParse( buf, bufsz, uirv, 0 );
+}
+
+
+uiRetVal OD::JSON::ValueSet::parseJSon( char* buf, int bufsz )
+{
+    uiRetVal uirv;
+    gtByParse( buf, bufsz, uirv, this );
+    return uirv;
 }
 
 
@@ -517,16 +592,24 @@ void OD::JSON::ValueSet::dumpJSon( BufferString& str ) const
 
 uiRetVal OD::JSON::ValueSet::read( od_istream& strm )
 {
-    uiRetVal uirv;
     BufferString buf;
     if ( strm.getAll(buf) )
-	parseJSon( buf.getCStr(), buf.size(), uirv );
-    else
-    {
-	uirv.set( uiStrings::phrCannotRead( toUiString(strm.fileName()) ) );
-	strm.addErrMsgTo( uirv );
-    }
+	return parseJSon( buf.getCStr(), buf.size() );
+    uiRetVal uirv( uiStrings::phrCannotRead(toUiString(strm.fileName())) );
+    strm.addErrMsgTo( uirv );
     return uirv;
+}
+
+
+OD::JSON::ValueSet* OD::JSON::ValueSet::read( od_istream& strm, uiRetVal& uirv )
+{
+    BufferString buf;
+    if ( strm.getAll(buf) )
+	return getFromJSon( buf.getCStr(), buf.size(), uirv );
+
+    uirv.set( uiStrings::phrCannotRead( toUiString(strm.fileName()) ) );
+    strm.addErrMsgTo( uirv );
+    return 0;
 }
 
 
@@ -559,6 +642,16 @@ OD::JSON::Array::Array( DataType dt, ValueSet* p )
     , valtype_(Data)
     , valarr_(new ValArr(dt))
 {
+}
+
+
+OD::JSON::Array::Array( const Array& oth )
+    : ValueSet(oth)
+    , valtype_(oth.valtype_)
+    , valarr_(0)
+{
+    if ( oth.valarr_ )
+	valarr_ = new ValArr( *oth.valarr_ );
 }
 
 
@@ -694,6 +787,12 @@ void OD::JSON::Array::set( const uiStringSet& vals )
 
 
 //--------- Object
+
+
+OD::JSON::Object::Object( const Object& oth )
+    : ValueSet(oth)
+{
+}
 
 OD::JSON::ValueSet::idx_type OD::JSON::Object::indexOf( const char* nm ) const
 {
