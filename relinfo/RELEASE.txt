@@ -1,6 +1,20 @@
 OpendTect V6.2.x : Release info
 
 ----
+v6.2.4: April 24, 2018
+* Support of dots in the 2D Seismic output names
+* Improved interactive switching between Horizons in tracking mode
+* Fix for Spectral Decomposition frequencies being read twice while restoring
+  a session
+* Fix for white stripes on random lines in 2D viewer
+* Fix for Bulk FaultStickSets Import
+* Fix for crash in Fingerprint attribute when empty Pointset is selected
+* Corrected 2D Line intersections display in 2D viewer
+* Fix for crash while deriving 3D Horizon from 2D Horizon that extends beyond
+  survey box
+* Fix for crash when going back in a windows session remotely on VPN
+* Create Region Body button is now active even when the survey has no Bodies
+
 v6.2.3: March 16, 2018
 * Added new attribute Complete Ensemble Empirical Mode Decomposition (CEEMD)
 * Fix for mix-up of fault and horizon interpretation in 2D viewer
