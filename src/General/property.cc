@@ -224,7 +224,7 @@ bool MathProperty::hasCyclicalDependency( BufferStringSet& parentnms ) const
     for ( int iinp=0; iinp<inps_.size(); iinp++ )
     {
 	const Property* inpprop = inps_[iinp];
-	if ( parentnms.isPresent(inpprop->name()) )
+	if ( inpprop && parentnms.isPresent(inpprop->name()) )
 	{
 	    errmsg_ =
 		tr( "Input '%1' is dependent on itself" ).arg(name());
