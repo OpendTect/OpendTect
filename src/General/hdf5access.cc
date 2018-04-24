@@ -141,10 +141,15 @@ uiString HDF5::Access::sHDF5PackageDispName()
 }
 
 
+uiString HDF5::Access::sHDF5NotAvailable()
+{
+    return tr("HDF5 access is needed but no installation found");
+}
+
+
 uiString HDF5::Access::sHDF5NotAvailable( const char* fnm )
 {
-    return tr("HDF5 access needed for '%1'."
-	      "\nTo access the file, please install HDF5");
+    return sHDF5NotAvailable().appendPhrase( tr("Needed to access '%1'") );
 }
 
 

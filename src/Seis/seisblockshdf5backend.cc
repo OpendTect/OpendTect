@@ -25,12 +25,18 @@ Seis::Blocks::HDF5WriteBackEnd::HDF5WriteBackEnd( Writer& wrr, uiRetVal& uirv )
     : WriteBackEnd(wrr)
     , hdfwrr_(HDF5::mkWriter())
     , slabspec_(3)
+    , databuf_(0)
 {
     const BufferString fnm( wrr_.dataFileName() );
     if ( !hdfwrr_ )
 	uirv.set( HDF5::Access::sHDF5NotAvailable(fnm) );
     else
 	uirv = hdfwrr_->open( fnm );
+
+    const Dimensions& dims = wrr_.dimensions();
+    od_int64 bufsz = nrBytes( wrr_.dataRep() );
+    bufsz *= dims.inl(); bufsz *= dims.crl(); bufsz *= dims.z();
+    mTryAlloc( databuf_, char [ bufsz ] )
 }
 
 
@@ -42,6 +48,7 @@ Seis::Blocks::HDF5WriteBackEnd::~HDF5WriteBackEnd()
 	uiRetVal uirv;
 	close( uirv );
     }
+    delete [] databuf_;
 }
 
 
@@ -59,6 +66,9 @@ void Seis::Blocks::HDF5WriteBackEnd::close( uiRetVal& uirv )
 
 void Seis::Blocks::HDF5WriteBackEnd::writeGlobalInfo( uiRetVal& uirv )
 {
+    if ( !databuf_ )
+	{ uirv.set( uiStrings::phrCannotAllocateMemory() ); return; }
+
     HDF5::DataSetKey dsky;
     uirv = hdfwrr_->putInfo( dsky, wrr_.gensectioniop_ );
     if ( !uirv.isOK() )
@@ -134,7 +144,31 @@ void Seis::Blocks::HDF5WriteBackEnd::putBlock( int icomp, MemBlock& block,
     if ( !hdfwrr_->setScope(dsky) )
 	mPutInternalInUiRv( uirv, "DataSet not present", return )
 
-    uirv = hdfwrr_->putSlab( slabspec_, block.dbuf_.data() );
+    const DataBuffer::buf_type* bufdata = block.dbuf_.data();
+    const int bytespersample = block.dbuf_.bytesPerElement();
+    const int bytesperentirecrl = bytespersample * block.dims().z();
+    const int bytesperentireinl = bytesperentirecrl * block.dims().crl();
+
+    const Dimensions wrdims( wrhdims.inl(), wrhdims.crl(), block.dims().z() );
+    const int bytes2write = wrdims.z() * bytespersample;
+    const IdxType wrstopinl = wrstart.inl() + wrdims.inl();
+    const IdxType wrstopcrl = wrstart.crl() + wrdims.crl();
+
+    const DataBuffer::buf_type* dataptr;
+    char* bufptr = databuf_;
+    for ( IdxType iinl=wrstart.inl(); iinl<wrstopinl; iinl++ )
+    {
+	dataptr = bufdata + iinl * bytesperentireinl
+			  + wrstart.crl() * bytesperentirecrl;
+	for ( IdxType icrl=wrstart.crl(); icrl<wrstopcrl; icrl++ )
+	{
+	    OD::sysMemCopy( bufptr, dataptr, bytes2write );
+	    bufptr += bytes2write;
+	    dataptr += bytesperentirecrl;
+	}
+    }
+
+    uirv = hdfwrr_->putSlab( slabspec_, databuf_ );
 }
 
 
@@ -383,9 +417,13 @@ void Seis::Blocks::HDF5ReadBackEnd::reset( const char* fnm, uiRetVal& uirv )
 Seis::Blocks::Column* Seis::Blocks::HDF5ReadBackEnd::createColumn(
 				const HGlobIdx& gidx, uiRetVal& uirv )
 {
+    if ( !hdfrdr_ )
+	{ uirv.set( HDF5::Access::sHDF5NotAvailable() ); return 0; }
+
     HDF5Column* ret = new HDF5Column( *this, gidx, uirv );
     if ( uirv.isError() )
 	{ delete ret; ret = 0; }
+
     return ret;
 }
 
@@ -393,6 +431,8 @@ Seis::Blocks::Column* Seis::Blocks::HDF5ReadBackEnd::createColumn(
 void Seis::Blocks::HDF5ReadBackEnd::fillTrace( Column& column, const BinID& bid,
 				SeisTrc& trc, uiRetVal& uirv ) const
 {
+    if ( !hdfrdr_ )
+	{ uirv.set( HDF5::Access::sHDF5NotAvailable() ); return; }
     HDF5Column& hdfcolumn = static_cast<HDF5Column&>( column );
     hdfcolumn.fillTrace( bid, trc, uirv );
 }

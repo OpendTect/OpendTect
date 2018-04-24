@@ -155,6 +155,7 @@ public:
     H5::H5File*		getHDF5File()		{ return file_; }
 
     static uiString	sHDF5PackageDispName();
+    static uiString	sHDF5NotAvailable();
     static uiString	sHDF5NotAvailable(const char* fnm);
     static const char*	sFileExtension()	{ return "hdf5"; }
 

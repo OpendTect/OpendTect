@@ -149,7 +149,7 @@ void Pos::RangeProvider3D::getSummary( uiString& txt ) const
     const int nrsamps = zsampsz_;
     if ( nrsamps > 1 )
 	txt.appendPhrase( toUiString(" (%1 %2)").arg(nrsamps)
-					.arg(uiStrings::sSample(mPlural)) );
+			.arg( uiStrings::sSample(mPlural).toLower() ) );
 }
 
 

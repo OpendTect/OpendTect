@@ -104,6 +104,7 @@ protected:
     Dimensions		columndims_;
     BufferString	blockname_;
     HDF5::SlabSpec	slabspec_;
+    char*		databuf_;
 
     void		writeGlobalInfo(uiRetVal&);
 
