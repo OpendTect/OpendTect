@@ -137,6 +137,8 @@ void DecompInput::computeStats(
     Stats::RunCalc<float> stats( rcsetup );
     for ( int idx=0; idx<size_ - 1; idx++ )
     {
+	if ( mIsUdf(values_[idx]) )
+	    continue;
 	stats += values_[idx];
     }
     average = mCast(float,stats.average());
@@ -374,25 +376,26 @@ void DecompInput::stackCeemdComponents(
 
     for ( int idx=0; idx<size_; idx++)
     {
-	currentstackedcomponents[0]->values_[idx] =
-	    (*currentrealizations[0])[0]->values_[idx]
-	    / stackcount;
+	const float val = (*currentrealizations[0])[0]->values_[idx];
+	if ( !currentrealizations.size() || mIsUdf(val) )
+	    continue;
+	currentstackedcomponents[0]->values_[idx] = val / stackcount;
     }
 
     for ( int nrnoise=1; nrnoise < setup_.maxnoiseloop_; nrnoise++)
     {
 	for ( int idx=0; idx<size_; idx++)
 	{
-	    currentstackedcomponents[0]->values_[idx] +=
-		(*currentrealizations[nrnoise])[0]->values_[idx]
-		/ stackcount;
+	    const float val = (*currentrealizations[nrnoise])[0]->values_[idx];
+	    if ( mIsUdf(val) )
+		continue;
+	    currentstackedcomponents[0]->values_[idx] += val / stackcount;
 	}
     }
 
     for ( int idx=0; idx < size_; idx++ )
-    {
 	imf.values_[idx] = currentstackedcomponents[0]->values_[idx] ;
-    }
+
     imf.findExtrema( nrmax, nrmin,
 	nrzeros, setup_.symmetricboundary_ , maxima, minima );
     currentstackedcomponents[0]->nrzeros_ = nrzeros;
@@ -431,9 +434,7 @@ void DecompInput::stackEemdComponents(
 	stackedcomponents[comp]->name_ += comp+1;
 
 	for ( int idx=0; idx<size_; idx++)
-	{
 	    stackedcomponents[comp]->values_[idx] = 0;
-	}
 
 	for ( int nrnoise=0; nrnoise < setup_.maxnoiseloop_; nrnoise++ )
 	{
@@ -447,9 +448,8 @@ void DecompInput::stackEemdComponents(
 	    }
 	}
 	for ( int idx=0; idx<size_; idx++ )
-	{
 	    imf.values_[idx] = stackedcomponents[comp]->values_[idx];
-	}
+
 	imf.findExtrema( nrmax, nrmin,
 	    nrzeros, setup_.symmetricboundary_ , maxima, minima );
 	stackedcomponents[comp]->nrzeros_ = nrzeros;
@@ -459,38 +459,34 @@ void DecompInput::stackEemdComponents(
 
 void DecompInput::resetInput( const OrgTraceMinusAverage* orgminusaverage) const
 {
-     for ( int idx=0; idx<size_; idx++ )
-    {
+    for ( int idx=0; idx<size_; idx++ )
 	values_[idx] = orgminusaverage->values_[idx];
-    }
+
     return;
 }
 
 void DecompInput::addDecompInputs( const DecompInput* arraytoadd ) const
 {
-     for ( int idx=0; idx<size_; idx++ )
-    {
+    for ( int idx=0; idx<size_; idx++ )
 	values_[idx] += arraytoadd->values_[idx];
-    }
-    return;
+
+     return;
 }
 
 void DecompInput::rescaleDecompInput( float scaler) const
 {
-     for ( int idx=0; idx<size_; idx++ )
-    {
+    for ( int idx=0; idx<size_; idx++ )
 	values_[idx] = values_[idx] * scaler;
-    }
+
     return;
 }
 
 void DecompInput::subtractDecompInputs(
 	    const DecompInput* arraytosubtract ) const
 {
-     for ( int idx=0; idx<size_; idx++ )
-    {
+    for ( int idx=0; idx<size_; idx++ )
 	values_[idx] -= arraytosubtract->values_[idx];
-    }
+
     return;
 }
 
@@ -547,7 +543,7 @@ void DecompInput::addToComponent(
     return;
 }
 
-void DecompInput::createNoise( float stdev) const
+void DecompInput::createNoise( float stdev ) const
 {
     double dnoise, sd;
     int seed=0;
@@ -562,7 +558,7 @@ void DecompInput::createNoise( float stdev) const
 }
 
 bool DecompInput::doHilbert(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realcomponents,
+	const ManagedObjectSet<ManagedObjectSet<IMFComponent>>& realcomponents,
 	ManagedObjectSet<IMFComponent>& imagcomponents ) const
 {
     const int hilbfilterlen = halflen_*2 + 1;
@@ -603,9 +599,7 @@ bool DecompInput::doHilbert(
     {
 	IMFComponent* imagcomp = new IMFComponent( size_ );
 	for ( int idx=0; idx<size_; idx++ )
-	{
 	    inparr.set(shift+idx, (*realcomponents[0])[compidx]->values_[idx]);
-	}
 
 	const bool transformok = enoughsamps
 		    ? ht.transform(inparr, size_, outarr, size_ )
@@ -623,7 +617,7 @@ bool DecompInput::doHilbert(
 }
 
 #define mCheckRetUdf(val1,val2) \
-    if ( mIsUdf(val1) || mIsUdf(val2) ) return mUdf(float);
+    if ( mIsUdf(val1) || mIsUdf(val2) ) continue;
 
 bool DecompInput::calcFrequencies(
 	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realcomponents,
@@ -672,7 +666,7 @@ bool DecompInput::useGridding(
     step = max ( step, 1. );
     TriangulatedGridder2D grdr;
     TypeSet<Coord> pts; TypeSet<float> zvals;
-    for ( int idt=1; idt<size_-1; idt++ )
+    for ( int idt=0; idt<size_; idt++ )
     {
 	double maxf = 0;
 	double minf = 0;
@@ -743,7 +737,7 @@ bool DecompInput::usePolynomial(
 	    PointBasedMathFunction::Poly,
 	    PointBasedMathFunction::ExtraPolGradient);
 
-    for ( int idt=1; idt<size_-1; idt++ )
+    for ( int idt=0; idt<size_; idt++ )
     {
 	float maxf = 0;
 	float minf = 0;
@@ -764,6 +758,7 @@ bool DecompInput::usePolynomial(
 	    sortedampspectrum, fsize+2 );
 
 	for ( int f=startfreq; f<=endfreq; f+=stepoutfreq )
+	//for ( int f=startfreq; f<endfreq; f+=stepoutfreq )
 	{
 	    if ( f/stepoutfreq == 0 )
 		continue;
@@ -774,8 +769,10 @@ bool DecompInput::usePolynomial(
 	    else
 	    {
 		val = sortedampspectrum.myGetValue(mCast(float,f)) ;
-		if ( mIsUdf(val) || ( val<0 ) ) val = 0;
+		if ( mIsUdf(val) || ( val<0 ) )
+		    val = 0;
 	    }
+
 	    output->set( idt, f/stepoutfreq-1, val );
 	}
     }
@@ -804,9 +801,8 @@ bool DecompInput::sortSpectrum(
     sortedampspectrum.setEmpty();
 
     for ( int i=0; i<size; i++ )
-    {
 	indexsortedamplitudes[i] = i;
-    }
+
     sort_coupled( unsortedfrequencies, indexsortedamplitudes, size );
 
     for (int i=0; i<size; i++ )
@@ -934,7 +930,8 @@ bool DecompInput::doDecompMethod(
     DecompInput* noisearray = new DecompInput( setup_, nrsamples );
     DecompInput* copynoisearray = new DecompInput( setup_, nrsamples );
     int nrnoise=0, nrimf=0, nrmax=0, nrmin=0, nrzeros=0;
-    float average, stdev, stopimf;
+    float average, stopimf;
+    float stdev;
     float epsilon = setup_.noisepercentage_ / mCast(float,100.0);
 
     //defined and set but not used: TODO review Paul
@@ -1007,7 +1004,7 @@ bool DecompInput::doDecompMethod(
 	{
 	    ManagedObjectSet<IMFComponent>* noisecomponents =
 	    new ManagedObjectSet<IMFComponent>();
-	    noisearray->createNoise( stdev); // w_i
+	    noisearray->createNoise( stdev ); // w_i
 	    copynoisearray->replaceDecompInputs( noisearray );
 	    enddecomp = noisearray->decompositionLoop(
 		*noisecomponents, setup_.maxnrimf_, orgminusaverage->stdev_ );
@@ -1082,7 +1079,6 @@ bool DecompInput::doDecompMethod(
     {
 	readComponents( realizations );
     }
-
     if ( outputattrib < 3 ) // these outputs rely on instantaneous frequencies
     {
 	ManagedObjectSet<IMFComponent>* imagcomponents =
@@ -1101,7 +1097,6 @@ bool DecompInput::doDecompMethod(
 	calcAmplitudes( realizations, *imagcomponents,
 		    *frequencycomponents, *amplitudecomponents );
 	realizations += amplitudecomponents;
-
     }
 
 /* Signal is decomposed and frequencies are computed where needed

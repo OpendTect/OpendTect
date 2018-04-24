@@ -2020,6 +2020,8 @@ void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
     {
 	uiCrossAttrEvaluateDlg* crossevaldlg =
 	    new uiCrossAttrEvaluateDlg(attrsetdlg_,*attrsetdlg_,allowevalstor_);
+	if ( !crossevaldlg->evaluationPossible() )
+	    mErrRet( tr("This attribute has no parameters to evaluate") );
 	crossevaldlg->calccb.notify(
 		mCB(this,uiAttribPartServer,calcEvalAttrs) );
 	crossevaldlg->showslicecb.notify(

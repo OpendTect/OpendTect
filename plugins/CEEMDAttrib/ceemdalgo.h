@@ -30,7 +30,7 @@ public:
 			IMFComponent( int nrsamples )
 				: values_( new float[nrsamples] )
 				, size_( nrsamples )
-			{}
+			{ OD::memValueSet(values_,0.f,nrsamples); }
 
 			IMFComponent( const IMFComponent& comp )
 				: values_( new float[comp.size_] )
@@ -149,7 +149,7 @@ public:
 		    OrgTraceMinusAverage( int nrsamples )
 			    : values_( new float[nrsamples] )
 			    , size_( nrsamples )
-		    {}
+		    { OD::memValueSet(values_,0.f,nrsamples); }
 		    ~OrgTraceMinusAverage() { delete [] values_; }
     BufferString    name_;
     float	    averageinput_;
@@ -193,97 +193,105 @@ mExpClass(CEEMDAttrib) Setup
 mExpClass(CEEMDAttrib) DecompInput
 {
 public:
-		    DecompInput( const Setup& setup, int nrsamples )
-			    : values_( new float[nrsamples] )
-			    , size_( nrsamples )
-			    , setup_(setup)
-			    , halflen_(30) // Hilbert Halflength
-		    {}
-		    ~DecompInput() { delete [] values_; }
+			DecompInput( const Setup& setup, int nrsamples )
+				: values_( new float[nrsamples] )
+				, size_( nrsamples )
+				, setup_(setup)
+				, halflen_(30) // Hilbert Halflength
+			{ OD::memValueSet(values_,0.f,nrsamples); }
+			~DecompInput() { delete [] values_; }
 
-    bool doDecompMethod( int nrsamples , float refstep,
+    bool		doDecompMethod(int nrsamples , float refstep,
 			   Array2DImpl<float>* output, int outputattrib,
 			   int startfreq, int endfreq, int stepoutfreq,
-			   int startcomp, int endcomp );
+			   int startcomp, int endcomp);
 
-    Setup	setup_;
-    int		size_;
-    int		halflen_;
-    float*	values_;
+    Setup		setup_;
+    int			size_;
+    int			halflen_;
+    float*		values_;
     static const char*	transMethodNamesStr(int);
 
 protected:
-    void computeStats(float&, float&) const;
-    void createNoise(float stdev) const;
-    void addDecompInputs(const DecompInput* arraytoadd) const;
-    void rescaleDecompInput(float scaler) const;
-    void subtractDecompInputs( const DecompInput* arraytosubtract ) const;
-    void replaceDecompInputs(const DecompInput* replacement) const;
-    void retrieveFromComponent(
-		    const ManagedObjectSet<IMFComponent>& components,
-		    int comp) const;
-    void addToComponent(
-		    ManagedObjectSet<IMFComponent>& components,
-		    int comp, int nrzeros) const;
-    void addZeroComponents(
-		    ManagedObjectSet<IMFComponent>& components,
-		    int comp ) const;
-    void findExtrema(
-		    int& nrmax, int& nrmin, int& nrzeros ,
-		    bool symmetricboundary ,
-		    MyPointBasedMathFunction& maxima ,
-		    MyPointBasedMathFunction& minima) const;
-    void testFunction(
-		    int& nrmax, int& nrmin, int& nrzeros ,
-		    MyPointBasedMathFunction& maxima ,
-		    MyPointBasedMathFunction& minima) const;
-    void resetInput( const OrgTraceMinusAverage* orgminusaverage) const;
-    bool decompositionLoop(
-		    ManagedObjectSet<IMFComponent>& components ,
-		    int maxnrimf , float stdevinput) const;
-    void stackEemdComponents(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations,
-	ManagedObjectSet<IMFComponent>& stackedcomponents) const;
-    void stackCeemdComponents(
-		    const ManagedObjectSet<ManagedObjectSet<IMFComponent> >&
+    void		computeStats(float&, float&) const;
+    void		createNoise(float stdev) const;
+    void		addDecompInputs(const DecompInput* arraytoadd) const;
+    void		rescaleDecompInput(float scaler) const;
+    void		subtractDecompInputs(const DecompInput*) const;
+    void		replaceDecompInputs(const DecompInput*) const;
+    void		retrieveFromComponent(
+			const ManagedObjectSet<IMFComponent>& components,
+			int comp) const;
+    void		addToComponent(ManagedObjectSet<IMFComponent>&,
+			int comp, int nrzeros) const;
+    void		addZeroComponents(
+			ManagedObjectSet<IMFComponent>& components,
+			int comp ) const;
+    void		findExtrema(int& nrmax, int& nrmin, int& nrzeros ,
+			bool symmetricboundary ,
+			MyPointBasedMathFunction& maxima ,
+			MyPointBasedMathFunction& minima) const;
+    void		testFunction(int& nrmax, int& nrmin, int& nrzeros ,
+			MyPointBasedMathFunction& maxima ,
+			MyPointBasedMathFunction& minima) const;
+    void		resetInput(const OrgTraceMinusAverage*) const;
+    bool		decompositionLoop(ManagedObjectSet<IMFComponent>&,
+			int maxnrimf , float stdevinput) const;
+    void		stackEemdComponents(
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>
+			& realizations,
+			ManagedObjectSet<IMFComponent>& stackedcomponents)
+									const;
+    void		stackCeemdComponents(
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
 							currentrealizations,
-		    ManagedObjectSet<IMFComponent>& currentstackedcomponents,
-		    int nrimf ) const;
-    bool dumpComponents(
-		    OrgTraceMinusAverage* orgminusaverage,
-		    const ManagedObjectSet<ManagedObjectSet<IMFComponent> >&
+			ManagedObjectSet<IMFComponent>&
+						    currentstackedcomponents,
+			int nrimf ) const;
+    bool		dumpComponents(OrgTraceMinusAverage* orgminusaverage,
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
 							realizations) const;
-    void readComponents( ManagedObjectSet<ManagedObjectSet<IMFComponent> >&
+    void		readComponents(
+			ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
 							realizations ) const;
-    bool doHilbert(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realcomponents,
-	ManagedObjectSet<IMFComponent>& imagcomponents) const;
-    bool calcFrequencies(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realcomponents,
-	const ManagedObjectSet<IMFComponent>& imagcomponents,
-	ManagedObjectSet<IMFComponent>& frequencycomponents,
-	const float refstep) const;
-    bool calcAmplitudes(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realcomponents,
-	const ManagedObjectSet<IMFComponent>& imagcomponents,
-	const ManagedObjectSet<IMFComponent>& frequencycomponents,
-	ManagedObjectSet<IMFComponent>& amplitudecomponents) const;
-    bool outputAttribute(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations,
-	Array2DImpl<float>* output, int outputattrib,
-	int startfreq, int endfreq, int stepoutfreq,
-	int startcomp, int outputcomp, float average) const;
-    bool useGridding(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations,
-	Array2DImpl<float>* output, int startfreq, int endfreq,
-	int stepoutfreq) const;
-    bool usePolynomial(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations,
-	Array2DImpl<float>* output, int startfreq, int endfreq,
-	int stepoutfreq) const;
-    bool sortSpectrum(
-	float* unsortedfrequencies, float* unsortedamplitudes,
-	MyPointBasedMathFunction& sortedampspectrum, int size ) const;
+    bool		doHilbert(
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
+								realcomponents,
+			ManagedObjectSet<IMFComponent>& imagcomponents) const;
+    bool		calcFrequencies(
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
+								realcomponents,
+			const ManagedObjectSet<IMFComponent>& imagcomponents,
+			ManagedObjectSet<IMFComponent>& frequencycomponents,
+			const float refstep) const;
+    bool		calcAmplitudes(
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
+								realcomponents,
+			const ManagedObjectSet<IMFComponent>& imagcomponents,
+			const ManagedObjectSet<IMFComponent>&
+							frequencycomponents,
+			ManagedObjectSet<IMFComponent>&
+						    amplitudecomponents) const;
+    bool		outputAttribute(
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
+								realizations,
+			Array2DImpl<float>* output, int outputattrib,
+			int startfreq, int endfreq, int stepoutfreq,
+			int startcomp, int outputcomp, float average) const;
+    bool		useGridding(
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
+								realizations,
+			Array2DImpl<float>* output, int startfreq, int endfreq,
+			int stepoutfreq) const;
+    bool		usePolynomial(
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
+								realizations,
+			Array2DImpl<float>* output, int startfreq, int endfreq,
+			int stepoutfreq) const;
+    bool		sortSpectrum(
+			float* unsortedfrequencies,float* unsortedamplitudes,
+			MyPointBasedMathFunction& sortedampspectrum,
+							    int size ) const;
 
 };
 

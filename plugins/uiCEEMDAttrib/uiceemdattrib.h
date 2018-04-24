@@ -19,9 +19,10 @@ class uiLabel;
 class uiPushButton;
 class uiSpecDecompPanel;
 class uiTrcPositionDlg;
+class uiLabeledSpinBox;
 
 class uiCEEMDAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiCEEMDAttrib)
 public:
 
     uiCEEMDAttrib(uiParent*,bool);
@@ -34,8 +35,8 @@ protected:
     uiGenInput*		stopimffld_;
     uiGenInput*		maxsiftfld_;
     uiGenInput*		stopsiftfld_;
-    uiGenInput*		outputfreqfld_;
-    uiGenInput*		stepoutfreqfld_;
+    uiLabeledSpinBox*	outputfreqfld_;
+    uiLabeledSpinBox*	stepoutfreqfld_;
     uiGenInput*		attriboutputfld_;
     uiGenInput*		outputcompfld_;
 
@@ -46,6 +47,7 @@ protected:
 
     void		panelTFPush(CallBacker*);
     void		outSel(CallBacker*);
+    void		stepChg(CallBacker*);
     void		getInputMID(MultiID&) const;
     void		setPrevSel();
     void		getPrevSel();

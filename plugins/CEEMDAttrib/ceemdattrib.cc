@@ -180,6 +180,8 @@ CEEMD::CEEMD( Desc& desc )
     mGetBool( symmetricboundary_, symmetricboundaryStr() );
     mGetFloat( noisepercentage_, noisepercentageStr() );
     mGetInt( maxnoiseloop_, maxnoiseloopStr() );
+
+    dessampgate_ =  Interval<int>( -(1024-1), 1024-1 );
 }
 
 bool CEEMD::getInputOutput( int input, TypeSet<int>& res ) const
@@ -205,6 +207,7 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& relpos,
     if ( !inputdata_ || inputdata_->isEmpty() || output.isEmpty() )
     return false;
 
+    const int inpsz = inputdata_->nrsamples_;
     DecompInput input( Setup().method(method_)
 				.attriboutput(attriboutput_)
 				.maxnrimf(maxnrimf_)
@@ -214,7 +217,7 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& relpos,
 				.outputcomp(outputcomp_)
 				.stopsift(stopsift_)
 				.stopimf(stopimf_)
-				, nrsamples);
+				, inpsz );
 
     int nyquist = mCast( int, 1.f/(2.f*SI().zStep()));
     int first = 0;
@@ -226,17 +229,16 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& relpos,
     int endcomp = last;
     int stepoutfreq = usetfpanel_ ? 1 : stepoutfreq_;
     Array2DImpl<float>* decompoutput =
-		new Array2DImpl<float>( nrsamples, outputinterest_.size() );
+		new Array2DImpl<float>( inpsz, outputinterest_.size() );
 
     for ( int idx=0; idx<nrsamples; idx++ )
-    {
 	input.values_[idx] = getInputValue( *inputdata_, dataidx_, idx,z0 );
-    }
 
-    bool success = input.doDecompMethod( nrsamples, refstep_,
+    const bool success = input.doDecompMethod( inpsz, refstep_,
 	decompoutput, attriboutput_, startfreq, endfreq, stepoutfreq,
 	startcomp, endcomp );
     if ( !success ) return false;
+
 
     for ( int comp=0; comp<outputinterest_.size(); comp++ )
     {
@@ -244,10 +246,11 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& relpos,
 
 	for ( int idx=0; idx<nrsamples; idx++ )
 	{
-	    float val = decompoutput->get(idx, comp);
+	    const float val = decompoutput->get(idx, comp);
 	    setOutputValue( output, comp, idx, z0, val );
 	}
     }
+
     delete decompoutput;
     return true;
 }
@@ -260,9 +263,9 @@ void CEEMD::getCompNames( BufferStringSet& nms ) const
 	const float fnyq = 0.5f / refstep_;
 	const char* basestr = "frequency = ";
 	BufferString suffixstr = zIsTime() ? " Hz" : " cycles/mm";
-	int startfreq = usetfpanel_ ? 0 : outputfreq_;
 	int stepoutfreq = usetfpanel_ ? 1 : stepoutfreq_;
-	for ( int freq=startfreq; freq<fnyq; freq+=stepoutfreq )
+	//0 Frequency is not allowed, so starting frequency should be stepout
+	for ( int freq=stepoutfreq; freq<fnyq; freq+=stepoutfreq )
 	{
 	    BufferString tmpstr = basestr; tmpstr += freq; tmpstr += suffixstr;
 	    nms.add( tmpstr.buf() );

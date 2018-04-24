@@ -23,6 +23,7 @@
 #include "uimsg.h"
 #include "uispinbox.h"
 #include "uitrcpositiondlg.h"
+#include "uispinbox.h"
 
 using namespace Attrib;
 
@@ -87,15 +88,15 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     const float nyqfreq = 0.5f / SI().zRange(false).step;
     const float freqscale = zIsTime() ? 1.f : 1000.f;
     const int scalednyfreq = mNINT32( nyqfreq * freqscale );
-    outputfreqfld_ = new uiGenInput( this, "Output Frequency / Step (Hz)",
-			    IntInpSpec(5,StepInterval<int>(1,scalednyfreq,1)) );
-    outputfreqfld_->setElemSzPol(uiObject::Small);
+    uiString lbl = uiStrings::phrOutput(uiStrings::sFrequency());
+    outputfreqfld_ = new uiLabeledSpinBox( this, lbl, 1 );
     outputfreqfld_->attach( alignedBelow, attriboutputfld_ );
+    outputfreqfld_->box()->doSnap( true );
 
-    stepoutfreqfld_ = new uiGenInput( this, " ",
-			IntInpSpec(5,StepInterval<int>(1,scalednyfreq/2,1)) );
-    stepoutfreqfld_->setElemSzPol(uiObject::Small);
+    stepoutfreqfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), 1 );
     stepoutfreqfld_->attach( rightOf, outputfreqfld_ );
+    stepoutfreqfld_->box()->valueChanged.notify(
+					mCB(this,uiCEEMDAttrib,stepChg));
     prevpar_.setEmpty();
 
     outputcompfld_ = new uiGenInput( this, "Output IMF Component Nr.",
@@ -103,6 +104,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     outputcompfld_->setElemSzPol(uiObject::Small);
     outputcompfld_->attach( alignedBelow, attriboutputfld_ );
 
+    stepChg(0);
     outSel(0);
 }
 
@@ -121,8 +123,8 @@ bool uiCEEMDAttrib::getParameters( Desc& desc )
     mSetFloat( CEEMD::stopsiftStr(), stopsift );
     mSetInt( CEEMD::maxnrimfStr(), maximffld_->getIntValue() );
     mSetInt( CEEMD::maxsiftStr(), maxsiftfld_->getIntValue() );
-    mSetInt( CEEMD::outputfreqStr(), outputfreqfld_->getIntValue() );
-    mSetInt( CEEMD::stepoutfreqStr(), stepoutfreqfld_->getIntValue() );
+    mSetInt( CEEMD::outputfreqStr(), outputfreqfld_->box()->getIntValue() );
+    mSetInt( CEEMD::stepoutfreqStr(), stepoutfreqfld_->box()->getIntValue() );
     mSetInt( CEEMD::outputcompStr(), outputcompfld_->getIntValue() );
     BufferStringSet strs1( attriboutputStr );
     const char* attriboutput = attriboutputfld_->text();
@@ -156,15 +158,16 @@ bool uiCEEMDAttrib::setParameters( const Desc& desc )
     mIfGetInt( CEEMD::maxsiftStr(), maxsift,
 	       maxsiftfld_->setValue(maxsift) );
     mIfGetInt( CEEMD::outputfreqStr(), outputfreq,
-	       outputfreqfld_->setValue(outputfreq) );
+	       outputfreqfld_->box()->setValue(outputfreq) );
     mIfGetInt( CEEMD::stepoutfreqStr(), stepoutfreq,
-	       stepoutfreqfld_->setValue(stepoutfreq) );
+	       stepoutfreqfld_->box()->setValue(stepoutfreq) );
     mIfGetEnum( CEEMD::attriboutputStr(), attriboutput,
 		attriboutputfld_->setText(attriboutputStr[attriboutput]) )
     mIfGetInt( CEEMD::outputcompStr(), outputcomp,
 	       outputcompfld_->setValue(outputcomp) );
 
-	outSel(0);
+    stepChg(0);
+    outSel(0);
 
     return true;
 }
@@ -183,12 +186,29 @@ bool uiCEEMDAttrib::getOutput( Attrib::Desc& desc )
     const bool needoutcompfld = attriboutputfld_->getIntValue()==3;
 
     const int outidx = needoutfreqfld
-	? mCast(int,outputfreqfld_->getIntValue()
-		/stepoutfreqfld_->getIntValue()-1)
+	? mCast(int,outputfreqfld_->box()->getIntValue()
+		/stepoutfreqfld_->box()->getIntValue()-1)
 	: needoutcompfld ? outputcompfld_->getIntValue()-1
 			 : 0;
     fillOutput( desc, outidx );
     return true;
+}
+
+
+void uiCEEMDAttrib::stepChg( CallBacker* )
+{
+    if ( mIsZero(stepoutfreqfld_->box()->getFValue(),mDefEps) )
+    {
+	stepoutfreqfld_->box()->setValue( 1 );
+	outputfreqfld_->box()->setStep( 1, true );
+    }
+    else
+    {
+	outputfreqfld_->box()->setMinValue(
+					stepoutfreqfld_->box()->getFValue() );
+	outputfreqfld_->box()->setStep(
+				   stepoutfreqfld_->box()->getFValue(), true );
+    }
 }
 
 
@@ -352,9 +372,9 @@ void uiCEEMDAttrib::fillInCEEMDDescParams( Desc* newdesc ) const
     mSetParam(Float,stopsift,CEEMD::stopsiftStr(),stopsiftfld_->getfValue())
     mSetParam(Int,maximf,CEEMD::maxnrimfStr(), maximffld_->getIntValue())
     mSetParam(Int,outputfreq,CEEMD::outputfreqStr(),
-	outputfreqfld_->getIntValue())
+	outputfreqfld_->box()->getIntValue())
     mSetParam(Int,stepoutfreq,CEEMD::stepoutfreqStr(),
-	stepoutfreqfld_->getIntValue())
+	stepoutfreqfld_->box()->getIntValue())
     mSetParam(Enum,output,CEEMD::attriboutputStr(), 0 )
     mSetParam(Int,outputcomp,CEEMD::outputcompStr(),
 	outputcompfld_->getIntValue())

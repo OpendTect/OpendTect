@@ -79,7 +79,7 @@ protected:
     const Interval<float>* reqZMargin(int input,int output) const
 			   {return &gate_;}
     const Interval<int>* desZSampMargin(int input,int output) const
-			   {return &dessampgate_;}
+			 { return &dessampgate_; }
 
     Interval<float>	gate_;
     Interval<int>	dessampgate_;
