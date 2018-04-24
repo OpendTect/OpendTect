@@ -32,6 +32,8 @@ public:
     static const char*	sKeyType()			{ return "type"; }
     static const char*	sKeyFeatures()			{ return "features"; }
     static const char*	sKeyProperties()		{ return "properties"; }
+    static const char*	sKeyGeometry()			{ return "geometry"; }
+    static const char*	sKeyCoord()			{ return "coordinates";}
     static const char*	sKeyCRS()			{ return "crs"; }
 
 			// use when constructing from general JSON Object
