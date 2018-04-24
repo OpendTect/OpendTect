@@ -46,6 +46,7 @@ public:
     int			addButton(uiButton*);
 			//!< Only use if you need ID. Then, set 0 as parent
 			//!< when constructing the button.
+    void		removeButton(uiButton*);
 
 protected:
 

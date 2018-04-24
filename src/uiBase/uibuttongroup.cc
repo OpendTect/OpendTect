@@ -62,6 +62,20 @@ int uiButtonGroup::addButton( uiButton* button )
 }
 
 
+void uiButtonGroup::removeButton( uiButton* button )
+{
+    if ( !button )
+	return;
+
+    const int butidx = uibuts_.indexOf( button );
+    if ( !uibuts_.validIdx(butidx) )
+	return;
+
+    qbuttongrp_->removeButton( button->qButton() );
+    delete uibuts_.removeSingle( butidx );
+}
+
+
 void uiButtonGroup::selectButton( int id )
 {
     if ( qbuttongrp_->button( id ) )
