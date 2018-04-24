@@ -357,7 +357,8 @@ int SeisBayesClass::createOutput()
 {
     for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
 	calcProbs( ipdf );
-    if ( dopostnorm_ )
+
+    if ( nrpdfs_>1 && dopostnorm_ )
 	postScaleProbs();
 
     SeisTrcWriter* wrr;
