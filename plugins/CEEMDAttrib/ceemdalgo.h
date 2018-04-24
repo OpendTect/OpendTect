@@ -238,54 +238,54 @@ protected:
     bool		decompositionLoop(ManagedObjectSet<IMFComponent>&,
 			int maxnrimf , float stdevinput) const;
     void		stackEemdComponents(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
 			& realizations,
 			ManagedObjectSet<IMFComponent>& stackedcomponents)
 									const;
     void		stackCeemdComponents(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
-							currentrealizations,
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
+							& currentrealizations,
 			ManagedObjectSet<IMFComponent>&
 						    currentstackedcomponents,
 			int nrimf ) const;
     bool		dumpComponents(OrgTraceMinusAverage* orgminusaverage,
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
-							realizations) const;
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
+							& realizations) const;
     void		readComponents(
-			ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
+			ManagedObjectSet<ManagedObjectSet<IMFComponent> >&
 							realizations ) const;
     bool		doHilbert(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
-								realcomponents,
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
+							& realcomponents,
 			ManagedObjectSet<IMFComponent>& imagcomponents) const;
     bool		calcFrequencies(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
-								realcomponents,
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
+							& realcomponents,
 			const ManagedObjectSet<IMFComponent>& imagcomponents,
 			ManagedObjectSet<IMFComponent>& frequencycomponents,
 			const float refstep) const;
     bool		calcAmplitudes(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
-								realcomponents,
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
+							& realcomponents,
 			const ManagedObjectSet<IMFComponent>& imagcomponents,
 			const ManagedObjectSet<IMFComponent>&
 							frequencycomponents,
 			ManagedObjectSet<IMFComponent>&
 						    amplitudecomponents) const;
     bool		outputAttribute(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
-								realizations,
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
+							& realizations,
 			Array2DImpl<float>* output, int outputattrib,
 			int startfreq, int endfreq, int stepoutfreq,
 			int startcomp, int outputcomp, float average) const;
     bool		useGridding(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
-								realizations,
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
+								& realizations,
 			Array2DImpl<float>* output, int startfreq, int endfreq,
 			int stepoutfreq) const;
     bool		usePolynomial(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent>>&
-								realizations,
+			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
+								& realizations,
 			Array2DImpl<float>* output, int startfreq, int endfreq,
 			int stepoutfreq) const;
     bool		sortSpectrum(

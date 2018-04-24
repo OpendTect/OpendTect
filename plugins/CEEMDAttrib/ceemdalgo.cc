@@ -558,7 +558,7 @@ void DecompInput::createNoise( float stdev ) const
 }
 
 bool DecompInput::doHilbert(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent>>& realcomponents,
+    const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realcomponents,
 	ManagedObjectSet<IMFComponent>& imagcomponents ) const
 {
     const int hilbfilterlen = halflen_*2 + 1;
