@@ -366,12 +366,21 @@ double OD::JSON::ValueSet::getDoubleValue( idx_type idx ) const
 }
 
 
-static Gason::JsonTag getNextTag( const Gason::JsonValue& gasonval )
+#ifdef __msvc__
+#pragma warning(push)
+#pragma warning( disable : 4702)  // ln 376 was unreachable on VS13
+#endif
+
+static Gason::JsonTag getNextTag( const Gason::JsonValue gasonval )
 {
     for ( auto gasonnode : gasonval )
-	return gasonnode->value.getTag();
+     	return gasonnode->value.getTag();
     return Gason::JSON_NULL;
 }
+
+#ifdef __msvc__
+#pragma warning(pop)
+#endif
 
 
 static OD::JSON::ValueSet* getSubVS( OD::JSON::ValueSet* parent,
