@@ -12,8 +12,8 @@
 
 
 #undef mTestMainFnName
-#define mTestMainFnName test_main_jsonwriter
-#include "jsonwriter.cc"
+#define mTestMainFnName test_main_geojson
+#include "geojson.cc"
 
 #undef mTestMainFnName
 #define mTestMainFnName test_main_ibmformat
@@ -44,8 +44,7 @@ int testMain( int argc, char** argv )
 {
     mInitCompositeTestProg( General );
 
-    mRunSubTest( jsonwriter );
-
+    mRunSubTest( geojson );
 #ifndef __win32__
     mRunSubTest( ibmformat );
 #endif
