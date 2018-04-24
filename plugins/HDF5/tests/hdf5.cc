@@ -223,34 +223,38 @@ static bool testReadData( HDF5::Reader& rdr )
 				BufferString("ptvals[1]=",ptvals[1]) )
 
     const int nrdim1 = 3; const int nrdim2 = 4;
-    TypeSet<float> slabvals( nrdim1*nrdim2, 0.f );
+    float* valarr = new float [nrdim1*nrdim2];
     HDF5::SlabSpec slabspec; HDF5::SlabDimSpec dimspec;
     dimspec.start_ = 1; dimspec.step_ = 2; dimspec.count_ = nrdim1;
     slabspec += dimspec;
     DBG::setCrashOnProgError( false );
-    uirv = rdr.getSlab( slabspec, slabvals.arr() );
+    uirv = rdr.getSlab( slabspec, valarr );
     DBG::setCrashOnProgError( true );
     mRunStandardTest( !uirv.isOK(), "Not accept incorrect SlabSpec" )
 
     dimspec.start_ = 5; dimspec.step_ = 1; dimspec.count_ = nrdim2;
     slabspec += dimspec;
-    uirv = rdr.getSlab( slabspec, slabvals.arr() );
+    uirv = rdr.getSlab( slabspec, valarr );
     mAddTestResult( "Get slab values" );
 
-    mRunStandardTestWithError( slabvals[0]==30105.f, "Correct slab value [0,0]",
-				BufferString("slabvals[1]=",slabvals[0]) )
-    mRunStandardTestWithError( slabvals[3]==30108.f, "Correct slab value [0,3]",
-				BufferString("slabvals[2]=",slabvals[2]) )
-    mRunStandardTestWithError( slabvals[8]==30505.f, "Correct slab value [2,0]",
-				BufferString("slabvals[9]=",slabvals[9]) )
-    mRunStandardTestWithError( slabvals[11]==30508.f,"Correct slab value [2,3]",
-				BufferString("slabvals[11]=",slabvals[11]) )
+    mRunStandardTestWithError( valarr[0]==30105.f,
+			"Correct slab value [0,0]",
+			BufferString("valarr[0]=",valarr[0]) )
+    mRunStandardTestWithError( valarr[3]==30108.f,
+			"Correct slab value [0,3]",
+			BufferString("valarr[3]=",valarr[3]) )
+    mRunStandardTestWithError( valarr[8]==30505.f,
+			"Correct slab value [2,0]",
+			BufferString("valarr[8]=",valarr[8]) )
+    mRunStandardTestWithError( valarr[11]==30508.f,
+			"Correct slab value [2,3]",
+			BufferString("valarr[11]=",valarr[11]) )
 
     dimspec.start_ = 2; dimspec.step_ = 3; dimspec.count_ = 100;
     slabspec += dimspec;
     const char* slabspecmsg = "Should have pErrMsg but no error";
     try {
-	uirv = rdr.getSlab( slabspec, slabvals.arr() );
+	uirv = rdr.getSlab( slabspec, valarr );
 	mRunStandardTest( false, slabspecmsg )
     } catch ( ... )
     {
