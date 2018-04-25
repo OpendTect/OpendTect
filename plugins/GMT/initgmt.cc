@@ -36,13 +36,14 @@ static const char* sKeyGMTExec()	{ return "gmt"; }
 
 
 
-static void extractVersionString( const BufferString& ret )
+static void extractVersionString( const BufferString& inp )
 {
-    if ( ret.isEmpty() )
+    if ( inp.isEmpty() )
 	return;
 
-    const SeparString retsep( ret, '\n' );
-    if ( retsep.size() < 1 )
+    const SeparString retsep( inp, '\n' );
+    const int nrlines = retsep.size();
+    if ( nrlines < 1 )
 	return;
 
     int linenr = mUdf(int);
@@ -50,7 +51,7 @@ static void extractVersionString( const BufferString& ret )
 	linenr = 0;
     else
     {
-	for ( int idx=0; idx<retsep.size(); idx++ )
+	for ( int idx=0; idx<nrlines; idx++ )
 	{
 	    if ( retsep[idx].contains("Version") )
 	    {
@@ -64,7 +65,8 @@ static void extractVersionString( const BufferString& ret )
 	return;
 
     const SeparString versionstr( retsep[linenr], ' ' );
-    if ( versionstr.size() < 1 )
+    const int nrrecords = versionstr.size();
+    if ( nrrecords < 1 )
 	return;
 
     int recnr;
@@ -72,16 +74,16 @@ static void extractVersionString( const BufferString& ret )
 	recnr = 0;
     else
     {
-	BufferString needle;
+	BufferString tofind;
 #if defined __lux__
-	needle.set( "Version" );
+	tofind.set( "Version" );
 #elif defined __win__
-	needle.set( sKeyWindowsGMT4TestExec() );
+	tofind.set( sKeyWindowsGMT4TestExec() );
 #endif
-	recnr = versionstr.size()-1; //Fallback: last record
-	for ( int idx=0; idx<versionstr.size()-1; idx++ )
+	recnr = nrrecords-1; //Fallback: last record
+	for ( int idx=0; idx<nrrecords-1; idx++ )
 	{
-	    if ( versionstr[idx].contains(needle) )
+	    if ( versionstr[idx].contains(tofind) )
 	    {
 		recnr = idx+1;
 		break;
@@ -95,13 +97,13 @@ static void extractVersionString( const BufferString& ret )
 
 static void checkGMTAvailability()
 {
-    BufferString stdoutstr;
+    BufferString versiontxt;
     const BufferString comm5( sKeyGMTExec(), " --version" );
     hasgmt5_ = OS::ExecCommand( comm5.str(), OS::Wait4Finish,
-				&stdoutstr );
+				&versiontxt );
     if ( hasgmt5_ )
     {
-	extractVersionString( stdoutstr );
+	extractVersionString( versiontxt );
 	return; //One is enough to get going
     }
 
@@ -113,11 +115,11 @@ static void checkGMTAvailability()
     const BufferString comm4( sKeyWindowsGMT4TestExec() );
 #endif
 
-    BufferString stderrstr;
+    versiontxt.setEmpty();
     hasgmt4_ = OS::ExecCommand( comm4.str(), OS::Wait4Finish,
-				0, &stderrstr );
+				0, &versiontxt );
     if ( hasgmt4_ )
-	extractVersionString( stderrstr );
+	extractVersionString( versiontxt );
 }
 
 };

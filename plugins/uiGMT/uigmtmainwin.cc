@@ -536,8 +536,5 @@ bool uiGMTMainWin::acceptOK()
 
 uiString uiGMTMainWin::getCaptionStr() const
 {
-    const uiString ret = tr("GMT Mapping Tool for GMT v%1")
-				.arg(GMT::versionStr() );
-
-    return ret;
+    return tr("GMT Mapping Tool for GMT v%1").arg(GMT::versionStr() );
 }
