@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 #include "gmtprocflow.h"
 #include "gmtprocflowtr.h"
+#include "initgmtplugin.h"
 #include "oddirs.h"
 #include "strmprov.h"
 #include "timer.h"
@@ -39,7 +40,7 @@ ________________________________________________________________________
 
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("GMT Mapping Tool"),mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(getCaptionStr(),mNoDlgTitle,
                                  mODHelpKey(mGMTMainWinHelpID) )
 				.modal(false) )
     , addbut_(0)
@@ -530,4 +531,13 @@ bool uiGMTMainWin::usePar( const IOPar& par )
 bool uiGMTMainWin::acceptOK()
 {
     return fillPar() && batchfld_->start();
+}
+
+
+uiString uiGMTMainWin::getCaptionStr() const
+{
+    const uiString ret = tr("GMT Mapping Tool for GMT v%1")
+				.arg(GMT::versionStr() );
+
+    return ret;
 }

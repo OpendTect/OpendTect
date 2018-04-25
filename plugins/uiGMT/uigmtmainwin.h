@@ -73,4 +73,8 @@ protected:
 
     bool		fillPar();
     bool		usePar( const IOPar&);
+
+private:
+
+    uiString		getCaptionStr() const;
 };
