@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gmtpar.h"
 #include "gmtprocflow.h"
 #include "gmtprocflowtr.h"
+#include "initgmtplugin.h"
 #include "oddirs.h"
 #include "strmprov.h"
 #include "timer.h"
@@ -38,7 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("GMT Mapping Tool"),mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(getCaptionStr(),mNoDlgTitle,
                                  mODHelpKey(mGMTMainWinHelpID) )
 				.modal(false) )
     , addbut_(0)
@@ -526,4 +527,10 @@ bool uiGMTMainWin::usePar( const IOPar& par )
 bool uiGMTMainWin::acceptOK( CallBacker*)
 {
     return fillPar() && batchfld_->start();
+}
+
+
+uiString uiGMTMainWin::getCaptionStr() const
+{
+    return tr("GMT Mapping Tool for GMT v%1").arg(GMT::versionStr() );
 }

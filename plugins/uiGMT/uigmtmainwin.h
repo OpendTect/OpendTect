@@ -29,7 +29,7 @@ class uiTabStack;
 mClass(uiGMT) uiGMTMainWin : public uiDialog
 { mODTextTranslationClass(uiGMTMainWin);
 public:
-    			uiGMTMainWin(uiParent*);
+			uiGMTMainWin(uiParent*);
 			~uiGMTMainWin();
 
 protected:
@@ -75,6 +75,10 @@ protected:
 
     bool		fillPar();
     bool		usePar( const IOPar&);
+
+private:
+
+    uiString		getCaptionStr() const;
 };
 
 #endif
