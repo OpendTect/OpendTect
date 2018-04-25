@@ -9,8 +9,10 @@
 #include "testprog.h"
 #include "file.h"
 #include "filepath.h"
+#include "oddirs.h"
 #include "arrayndimpl.h"
 #include "iopar.h"
+#include "moddepmgr.h"
 #include "plugins.h"
 
 static BufferString filename_;
@@ -291,9 +293,57 @@ static bool testRead()
 }
 
 
+static bool testSmallCube()
+{
+    const char* fnm = "ORG_420-430_500-600_500-1500_HDF.hdf5";
+    File::Path fp( GetDataDir(), "Seismics", fnm );
+    const BufferString fullfnm( fp.fullPath() );
+    if ( !File::exists(fullfnm) )
+	return true;
+
+    PtrMan<HDF5::Reader> rdr = HDF5::mkReader();
+    mRunStandardTest( rdr, "Get Reader for small cube" );
+
+    uiRetVal uirv = rdr->open( fullfnm );
+    mAddTestResult( "Open small cube for read" );
+
+    const HDF5::DataSetKey dsky( "Component 1", "5.3" );
+    mRunStandardTest( rdr->setScope(dsky), "Set scope (Small Cube)" )
+
+    HDF5::SlabSpec slabspec( 3 );
+    slabspec[0].count_ = slabspec[1].count_ = 1;
+    slabspec[2].count_ = 251;
+    short* data = new short [slabspec[2].count_];
+    uirv = rdr->getSlab( slabspec, data );
+    mAddTestResult( "Read entire first trace in block" );
+
+#define mCheckSample( isamp, expval ) \
+    mRunStandardTestWithError( data[isamp] == expval, \
+	  BufferString("Sample value ", isamp), \
+	  BufferString(data[isamp]).add(" (expected ").add(expval).add(")") )
+    mCheckSample( 0, 3786 );
+    mCheckSample( 1, -3128 );
+    mCheckSample( 2, -2840 );
+    mCheckSample( 3, 3555 );
+    slabspec[0].start_ = 2;
+    slabspec[1].start_ = 1;
+    slabspec[2].start_ = 10;
+    slabspec[2].count_ = 10;
+    uirv = rdr->getSlab( slabspec, data );
+    mAddTestResult( "Read another trace (+2 inls, +1 crl, +10 samps)" );
+    mCheckSample( 0, 2559 );
+    mCheckSample( 1, -1551 );
+    mCheckSample( 2, -4620 );
+    mCheckSample( 3, -2825 );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+    OD::ModDeps().ensureLoaded("General");
     PIM().loadAuto( false );
 
     if ( !HDF5::isAvailable() )
@@ -301,6 +351,9 @@ int mTestMainFnName( int argc, char** argv )
 	tstStream( true ) << "HDF5 not available" << od_endl;
 	return 0;
     }
+
+    if ( !testSmallCube() )
+	return 1;
 
     filename_.set( File::Path(File::getTempPath(),"test.hd5").fullPath() );
     return testWrite() && testRead() ? 0 : 1;

@@ -278,6 +278,7 @@ Seis::Blocks::MemBlock::MemBlock( GlobIdx gidx, const Dimensions& dms,
     dbuf_.reByte( bytesperval, false );
     const int totsz = (((int)dims_.inl())*dims_.crl()) * dims_.z();
     dbuf_.reSize( totsz, false );
+    dbuf_.zero();
 }
 
 
