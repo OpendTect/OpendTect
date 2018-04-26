@@ -1461,7 +1461,16 @@ private:
 			return false;
 
 		    if ( !tkzsin_.zsamp_.isCompatible(tkzsout_.zsamp_) )
-			return false; //Not supported
+		    {
+			//Check step multiple of input
+			const float zratio = tkzsout_.zsamp_.step /
+						tkzsin_.zsamp_.step;
+
+			if ( !mIsEqual(zratio,mNINT32(zratio),1e-5f) )
+			    return false; //Not supported
+
+			sample_fact_ = mNINT32(zratio);
+		    }
 
 		    out_.setAll( mUdf(T) );
 
@@ -1498,6 +1507,7 @@ private:
 		    const od_int64 offsetout = start * nrzout + z0out;
 		    outptr += offsetout;
 		    od_int64 validxout = offsetout;
+		    const bool samezstep = sample_fact_ == 1;
 
 		    for ( od_int64 idx=start; idx<=stop; idx++, iter.next(),
 			  outptr+=nrzout, validxout+=nrzout,
@@ -1515,20 +1525,30 @@ private:
 				: infoin.getOffset( inlidxin, crlidxin, z0in );
 			if ( hasarrayptr )
 			{
-			    OD::sysMemCopy( outptr, inptr+offsetin, nrbytes );
+			    if ( samezstep )
+			    {
+				OD::sysMemCopy( outptr, inptr+offsetin,nrbytes);
+				continue;
+			    }
+
+			    const float* inptrcptr = inptr+offsetin;
+			    for ( int idz=0, idzin=0; idz<nrztocopy; idz++,
+							idzin+=sample_fact_ )
+				outptr[idz] = inptrcptr[idzin];
 			}
 			else if ( hasstorage )
 			{
-			    for ( int idz=0; idz<nrztocopy; idz++ )
+			    for ( int idz=0, idzin=0; idz<nrztocopy; idz++,
+							   idzin+=sample_fact_ )
 			    {
 				outstor->setValue( validxout+idz,
-						   instor->value(offsetin+idz));
+					       instor->value(offsetin+idzin));
 			    }
 			}
 			else
 			{
 			    for ( int idz=0, idzin=z0in; idz<nrztocopy; idz++,
-									idzin++)
+							   idzin+=sample_fact_ )
 			    {
 				const T val =
 					in_.get( inlidxin, crlidxin, idzin );
@@ -1546,6 +1566,8 @@ private:
 
     const Array3D<T>&		in_;
     Array3D<T>&			out_;
+
+    int				sample_fact_	    = 1;
 };
 
 
