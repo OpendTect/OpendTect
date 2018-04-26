@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiarray2dinterpol.h"
 
 #include "array2dinterpolimpl.h"
+#include "gridder2d.h"
 #include "iopar.h"
 #include "survinfo.h"
 #include "uigeninput.h"
@@ -19,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "od_helpids.h"
 
-mImplFactory1Param(uiArray2DInterpol,uiParent*,uiArray2DInterpolSel::factory);
+mImplFactory1Param(uiArray2DInterpol,uiParent*,uiArray2DInterpolSel::factory)
 
 
 uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
@@ -405,8 +406,8 @@ void uiTriangulationArray2DInterpol::setValuesFrom(
    maxdistfld_->setChecked( triang->isMaxInterPolChecked()  );
    if ( maxdistfld_->isChecked() )
    {
-       maxdistfld_->setValue( triang->getMaxDistance() );
-       maxdistfld_->setSensitive( true );
+	maxdistfld_->setValue( triang->getMaxDistance() );
+	maxdistfld_->setSensitive( true );
    }
 }
 
@@ -593,8 +594,7 @@ bool uiInverseDistanceArray2DInterpol::acceptOK()
     const float radius = radiusfld_->getFValue(0);
     if ( radiusfld_->isChecked() && (mIsUdf(radius) || radius<=0 ) )
     {
-	uiMSG().error(uiStrings::phrEnter(tr("a positive value for the search "
-			 "radius\n(or uncheck the field)")) );
+	uiMSG().error( InverseDistanceGridder2D::searchRadiusErrMsg() );
 	return false;
     }
 

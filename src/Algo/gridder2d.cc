@@ -249,7 +249,16 @@ InverseDistanceGridder2D::InverseDistanceGridder2D(
 
 
 Gridder2D* InverseDistanceGridder2D::clone() const
-{ return new InverseDistanceGridder2D( *this ); }
+{
+    return new InverseDistanceGridder2D( *this );
+}
+
+
+uiString InverseDistanceGridder2D::searchRadiusErrMsg()
+{
+    return tr("Please enter a positive value for the search "
+	      "radius\n(or uncheck field).");
+}
 
 
 bool InverseDistanceGridder2D::operator==( const Gridder2D& b ) const

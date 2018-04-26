@@ -115,9 +115,15 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
     InterpolationLayerModel* mdl = layermodelfld_->getModel();
     hwinterpolator_.setLayerModel( mdl );
 
-    const bool validrad =  !algosel_->getIntValue() &&
+    const bool validrad = !algosel_->getIntValue() &&
 	radiusfld_->isChecked() && !mIsUdf(radiusfld_->getFValue());
     const float radius = validrad ? radiusfld_->getFValue() : mUdf(float);
+    if ( radius<=0 )
+    {
+	uiMSG().error( InverseDistanceGridder2D::searchRadiusErrMsg() );
+	return false;
+    }
+
     const int algoselint = algosel_->getIntValue();
     const char* nm = ( algoselint == 0 )
 	? InverseDistanceGridder2D::sFactoryKeyword()

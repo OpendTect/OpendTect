@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "gridder2d.h"
 #include "horizongridder.h"
 #include "pickset.h"
 #include "picksettr.h"
@@ -174,15 +175,16 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     {
 	Interval<int> polyinlrg( Interval<int>::udf() );
 	Interval<int> polycrlrg( Interval<int>::udf() );
-	
+
 	bool usepolygon = false;
 	if ( interpolhor3dsel_ )
-	    usepolygon = interpolhor3dsel_->getPolygonRange( polyinlrg, polycrlrg );
-	
+	    usepolygon = interpolhor3dsel_->getPolygonRange( polyinlrg,
+							     polycrlrg );
+
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
 	uiRetVal rv = HorizonGridder::executeGridding(
 		interpolator.ptr(), hor3d, sid, interpolhor3dsel_->getStep(),
-		usepolygon ? &polyinlrg : 0, 
+		usepolygon ? &polyinlrg : 0,
 		usepolygon ? &polycrlrg : 0, &taskrunner );
 	if ( rv.isError() )
 	    errors += rv;
@@ -575,7 +577,13 @@ void uiInvDistHor3DInterpol::doParamDlg( CallBacker* )
 
 bool uiInvDistHor3DInterpol::fillPar( IOPar& par ) const
 {
-    const float radius = radiusfld_->isChecked() ? radiusfld_->getFValue(0) : mUdf(float);
+    const float radius = radiusfld_->isChecked() ?
+				radiusfld_->getFValue(0) : mUdf(float);
+    if ( radius<=0 )
+    {
+	uiMSG().error( InverseDistanceGridder2D::searchRadiusErrMsg() );
+	return false;
+    }
 
     const TypeSet<MultiID>& selfaultids = fltselfld_->selFaultIDs();
     par.set( HorizonGridder::sKeyNrFaults(), selfaultids.size() );

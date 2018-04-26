@@ -28,6 +28,7 @@ public:
     				~uiGridder2DSel();
 
     const Gridder2D*		getSel();
+    const char*			errMsg() const;
 
 protected:
     void			selChangeCB(CallBacker*);

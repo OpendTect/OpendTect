@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigridder2d.h"
 #include "uiinterpollayermodel.h"
 #include "uilabel.h"
+#include "uimsg.h"
 #include "uiselectvelocityfunction.h"
 #include "uivolprocchain.h"
 
@@ -90,7 +91,17 @@ bool uiVelocityGridder::acceptOK( CallBacker* cb )
     if ( !operation_ ) return true;
 
     operation_->setSources( velfuncsel_->getVelSources() );
-    operation_->setGridder( griddersel_->getSel()->clone() );
+    const Gridder2D* gridder2d = griddersel_->getSel();
+    if ( !gridder2d )
+    {
+	const BufferString errmsg = griddersel_->errMsg();
+	if ( !errmsg.isEmpty() )
+	    uiMSG().error( errmsg );
+
+	return false;
+    }
+
+    operation_->setGridder( gridder2d->clone() );
     operation_->setLayerModel( layermodelfld_->getModel() );
 
     return true;

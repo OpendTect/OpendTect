@@ -89,6 +89,16 @@ const Gridder2D* uiGridder2DSel::getSel()
 }
 
 
+const char* uiGridder2DSel::errMsg() const
+{
+    const int selidx = griddingsel_->getIntValue();
+    if ( griddingparams_[selidx] )
+	return griddingparams_[selidx]->errMsg();
+
+    return 0;
+}
+
+
 void uiGridder2DSel::selChangeCB( CallBacker* )
 {
     for ( int idx=griddingparams_.size()-1; idx>=0; idx-- )
@@ -125,20 +135,25 @@ uiInverseDistanceGridder2D::uiInverseDistanceGridder2D ( uiParent* p,
 {
     uiString radius = tr("Search radius %1").arg(SI().getUiXYUnitString());
     searchradiusfld_ = new uiGenInput( this, radius, FloatInpSpec() );
+    searchradiusfld_->setWithCheck();
+    searchradiusfld_->setChecked( !mIsUdf(initialsearchradius_) );
     searchradiusfld_->setValue( initialsearchradius_ );
     setHAlignObj( searchradiusfld_ );
 }
 
 
 const char* uiInverseDistanceGridder2D::errMsg() const
-{ return "Searchradius must be more than zero"; }
+{
+    return InverseDistanceGridder2D::searchRadiusErrMsg().getOriginalString();
+}
 //the only thing that can go wrong
 
 
 bool uiInverseDistanceGridder2D::acceptOK()
 {
-    const float searchradius = searchradiusfld_->getFValue();
-    if ( searchradius<0 )
+    const float searchradius = searchradiusfld_->isChecked()
+		       ? searchradiusfld_->getFValue() : mUdf(float);
+    if ( searchradius<=0 )
 	return false;
 
     idg_.setSearchRadius( searchradius );

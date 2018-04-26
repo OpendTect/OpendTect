@@ -123,6 +123,7 @@ public:
 
     Gridder2D*		clone() const;
 
+    static uiString	searchRadiusErrMsg();
     static const char*	sKeySearchRadius()	{ return "SearchRadius"; }
 
     bool		operator==(const Gridder2D&) const;
