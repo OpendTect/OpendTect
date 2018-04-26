@@ -338,10 +338,3 @@ uiString EnumDefImpl<ENUM>::toUiString( ENUM theenum ) const
     const int idx = enums_.indexOf( (int) theenum );
     return getUiStringForIndex( idx );
 }
-
-
-/*template <class ENUM> inline
-void EnumDefImpl<ENUM>::init()
-{
-     fillUiStrings();
-}*/
