@@ -84,7 +84,6 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 	}
 	SetErrorMode( oldmod );
     }
-
 #else
 
     if ( File::exists(lnm) )
@@ -96,8 +95,12 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
 	dlerror();    /* Clear any existing error */
     }
-
 #endif
+    else
+    {
+	errmsg_.set( "Library file not found: " )
+	       .set(  lnm );
+    }
 
 #ifdef __debug__
     if ( !errmsg_.isEmpty() )
