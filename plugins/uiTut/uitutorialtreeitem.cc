@@ -26,7 +26,7 @@ const char* uiODTutorialParentTreeItem::childObjTypeKey() const
 
 const char* uiODTutorialParentTreeItem::iconName() const
 { 
-    return "tree-uiODTutorialParentTreeItem"; 
+    return "tutorial"; 
 }
 
 
