@@ -596,6 +596,8 @@ void uiSEGYReadStarter::typChg( CallBacker* )
     detectrev0flds_ = true;
     forceRescan( KeepBasic );
     setToolStates();
+    defaultpar_.setEmpty();
+    fillPar( defaultpar_ );
 }
 
 

@@ -77,13 +77,16 @@ bool uiSEGYMultiVintageImporter::selectVintage()
     while( true ) // do not let user escape before good selection or cancel
     {
 	const SEGY::ImpType imptype = imptypefld_->impType();
-	uiSEGYReadStarter::Setup rsdlgsu( false, &imptype );
+	uiSEGYReadStarter::Setup rsdlgsu( false, 0 );
 	rsdlgsu.filenm( 0 ).fixedfnm( false ).vintagecheckmode( true );
 	vntinfos_.isEmpty() ? rsdlgsu.vntinfos( 0 )
 			    : rsdlgsu.vntinfos( &vntinfos_ );
 	rsdlg_ = new uiSEGYReadStarter( this, rsdlgsu );
 	if ( !rsdlg_->go() )
 	    return false;
+
+	const Seis::GeomType gt = rsdlg_->impType().geomType();
+	imptypefld_->setGeomType( gt );
 
 	fsdlg_ = new uiSEGYFileSelector( this, rsdlg_->userFileName(),
 					 imptype, vntinfos_ );
@@ -230,11 +233,11 @@ void uiSEGYMultiVintageImporter::editVntCB( CallBacker* )
 
     uiSEGYReadStarter::Setup su( false, &imptypefld_->impType() );
     su.filenm(fnm).fixedfnm(true).vintagecheckmode(true).vintagenm(vntnm);
-    uiSEGYReadStarter* readstrdlg = new uiSEGYReadStarter( this, su );
-    readstrdlg->setCaption( tr("Edit vintage '%1'").arg(vntnm) );
-    readstrdlg->usePar( *iop );
+    rsdlg_ = new uiSEGYReadStarter( this, su );
+    rsdlg_->setCaption( tr("Edit vintage '%1'").arg(vntnm) );
+    rsdlg_->usePar( *iop );
 
-    if ( !readstrdlg->go() )
+    if ( !rsdlg_->go() )
 	return;
 }
 
@@ -287,19 +290,8 @@ void uiSEGYMultiVintageImporter::displayReportCB( CallBacker* )
 bool uiSEGYMultiVintageImporter::acceptOK()
 {
     const Seis::GeomType gt = imptypefld_->impType().geomType();
-    Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
-    int selidx = parset.find( vntinfos_[0]->vintagenm_ );
-    if ( selidx < 0 )
-	return false;
-
-    Repos::IOPar* iop = parset[selidx];
-    if ( !iop )
-	return false;
-
     FullSpec fullspec( gt, false);
-    fullspec.usePar( *iop );
-
-    rfdlg_ = new uiSEGYReadFinisher( this, fullspec, "", true,
+    rfdlg_ = new uiSEGYReadFinisher( this, fullspec, "", rsdlg_->fileIsInTime(),
 				     false, &vntinfos_ );
     rfdlg_->updateStatus.notify( mCB(this,uiSEGYMultiVintageImporter,
 				      updateStatus) );

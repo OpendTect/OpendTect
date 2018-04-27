@@ -18,25 +18,29 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "seiswrite.h"
 #include "survgeom.h"
+#include "ui2dgeomman.h"
 
 SEGY::Vintage::Importer::Importer( const SEGY::Vintage::Info& vntinfo,
 				   const OD::String& trnalnm,
-				   const Seis::GeomType gt, Seis::SelData* sd )
+				   const Seis::GeomType gt, Seis::SelData* sd,
+				   const char* attr2dnm )
 	: ExecutorGroup( vntinfo.vintagenm_ )
 {
     Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
     const int selidx = parset.find( vntinfo.vintagenm_ );
     Repos::IOPar* iop = parset[selidx];
     FullSpec fullspec( gt, false);
-    IOObjContext ctxt = mIOObjContext(SeisTrc);
-    ctxt.fixTranslator( trnalnm );
+    IOObjContext* ctxt =  Seis::getIOObjContext( gt, false );
+    ctxt->fixTranslator( trnalnm );
     const int size = vntinfo.filenms_.size();
     for ( int nmidx=0; nmidx<size; nmidx++ )
     {
-	CtxtIOObj ctio( ctxt );
+	CtxtIOObj ctio( *ctxt );
 	const BufferString fnm( vntinfo.filenms_.get( nmidx ) );
 	const File::Path fp( vntinfo.fp_.pathOnly(), fnm );
-	ctio.setName( fp.baseName() );
+	if ( Seis::is2D(gt) && attr2dnm )
+	    ctio.setName( attr2dnm );
+
 	DBM().getEntry( ctio );
 	if ( !ctio.ioobj_ )
 	    continue;
@@ -47,6 +51,7 @@ SEGY::Vintage::Importer::Importer( const SEGY::Vintage::Info& vntinfo,
 	if ( !inioobj )
 	    continue;
 
+	inioobj->pars() = *iop;
 	DBM().setEntry(*inioobj);
 
 	SeisTrcWriter* writer = new SeisTrcWriter( ctio.ioobj_ );
@@ -54,7 +59,12 @@ SEGY::Vintage::Importer::Importer( const SEGY::Vintage::Info& vntinfo,
 				new SeisStdImporterReader( *inioobj, "SEG-Y" );
 	if ( sd )
 	{
-	    sd->setGeomID( mUdfGeomID );
+	    Pos::GeomID geomid = mUdfGeomID;
+	    //TODOSegyImpl Haldle overwrite 2D lines
+	    if ( Seis::is2D(gt) )
+		geomid = Geom2DImpHandler::getGeomID( fp.baseName(), true );
+
+	    sd->setGeomID( geomid );
 	    rdr->setSelData( sd->clone() );
 	    writer->setSelData( sd->clone() );
 	}

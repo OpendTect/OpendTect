@@ -114,7 +114,7 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     const bool is2d = Seis::is2D( fs_.geomType() );
     if ( !is2d )
 	objname_.replace( '*', 'x' );
-    if ( !singlevintage )
+    if ( !singlevintage  && !is2d )
 	objname_ = "From SEGY file names";
 
     if ( fs_.isVSP() )
@@ -150,13 +150,13 @@ void uiSEGYReadFinisher::crSeisFields( bool istime )
     if ( is2d )
     {
 	uiSeis2DSubSel& selfld = *transffld_->selFld2D();
-	if ( !ismulti )
-	    selfld.setSelectedLine( objname_ );
-	else
+	if ( ismulti || !singlevintage_ )
 	{
 	    selfld.setSelectedLine( "*" );
 	    selfld.setSensitive( false );
 	}
+	else
+	    selfld.setSelectedLine( objname_ );
     }
     attgrp = transffld_;
 
@@ -164,7 +164,7 @@ void uiSEGYReadFinisher::crSeisFields( bool istime )
 	cr2DCoordSrcFields( attgrp, ismulti );
 
     uiSeisSel::Setup copysu( gt );
-    copysu.optionsselectable( singlevintage_ );
+    copysu.optionsselectable( singlevintage_ || is2d );
     copysu.enabotherdomain( singlevintage_ )
 	  .isotherdomain( istime != SI().zIsTime() );
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
@@ -424,7 +424,7 @@ SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
 }
 
 
-bool uiSEGYReadFinisher::doMultiVintage()
+bool uiSEGYReadFinisher::doMultiVintage( const char* attr2dnm )
 {
     if ( singlevintage_ )
 	return false;
@@ -441,12 +441,12 @@ bool uiSEGYReadFinisher::doMultiVintage()
 	reportdlg->status_ = tr("Importing");
 	processingvntnm_ = vntinfos_->get(vidx)->vintagenm_;
 	updateStatus.trigger();
-	IOObjContext ctxt = mIOObjContext(SeisTrc);
 	if ( !outimpfld_->getTranslator() )
 	    return false;
 
+	IOObjContext* ctxt = Seis::getIOObjContext( fs_.geomType(), false );
 	const Translator* transl = outimpfld_->getTranslator();
-	ctxt.fixTranslator( transl->userName().buf() );
+	ctxt->fixTranslator( transl->userName().buf() );
 
 	const SEGY::Vintage::Info* vntinfo = vntinfos_->get(vidx);
 	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
@@ -455,7 +455,8 @@ bool uiSEGYReadFinisher::doMultiVintage()
 
 	SEGY::Vintage::Importer vntimporter( *vntinfo, transl->userName(),
 					     fs_.geomType(),
-					     transffld_->getSelData() );
+					     transffld_->getSelData(),
+					     attr2dnm );
 	vntimporter.setContinueOnError( true );
 	uiTaskRunner dlg( this, singlevintage_ );
 	dlg.execute( vntimporter );
@@ -851,11 +852,23 @@ void uiSEGYReadFinisher::setAsDefaultObj()
 
 bool uiSEGYReadFinisher::acceptOK()
 {
+    const bool is2d = Seis::is2D( fs_.geomType() );
     if ( !singlevintage_ )
     {
 	uiButton* okbut = button( uiDialog::OK );
-	okbut->setSensitive( false );
-	return doMultiVintage();
+	const char* attr2dnm = 0;
+	if ( is2d )
+	{
+	    const IOObj* outioobj = outFld(true)->ioobj();
+	    if ( !outioobj )
+		return false;
+
+	    attr2dnm = outioobj->name().buf();
+	}
+
+	const bool res = doMultiVintage( attr2dnm );
+	okbut->setSensitive( res );
+	return res;
     }
 
     outputid_.setInvalid();
@@ -869,7 +882,6 @@ bool uiSEGYReadFinisher::acceptOK()
 
     outputid_ = outioobj->key();
 
-    const bool is2d = Seis::is2D( fs_.geomType() );
     BufferString lnm;
 
     if ( is2d )
@@ -897,7 +909,6 @@ bool uiSEGYReadFinisher::acceptOK()
     return is2d ? do2D( *inioobj, *outioobj, doimp, lnm )
 		: do3D( *inioobj, *outioobj, doimp );
 }
-
 
 
 uiSEGYImportResult* uiSEGYReadFinisher::getImportResult( int id )

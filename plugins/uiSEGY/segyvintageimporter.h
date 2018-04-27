@@ -29,7 +29,8 @@ mExpClass(uiSEGY) Importer : public ExecutorGroup
 { mODTextTranslationClass(Importer)
 public:
 		Importer(const Info&, const OD::String& trnalnm,
-			 const Seis::GeomType gt, Seis::SelData* sd);
+			 const Seis::GeomType gt, Seis::SelData* sd,
+			 const char* attr2dnm=0);
 		~Importer();
 protected:
     ObjectSet<SeisTrcWriter>	seistrcwriters_;

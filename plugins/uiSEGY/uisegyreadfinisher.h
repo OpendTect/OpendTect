@@ -90,7 +90,7 @@ protected:
     bool		do3D(const IOObj&,const IOObj&,bool);
     bool		do2D(const IOObj&,const IOObj&,bool,const char*);
     bool		doBatch(bool);
-    bool		doMultiVintage();
+    bool		doMultiVintage(const char* attr2dnm=0);
     void		updateResultDlg(const SEGY::Vintage::Importer&,
 					uiSEGYImportResult*);
     void		updateInIOObjPars(IOObj&,const IOObj& outioobj);
