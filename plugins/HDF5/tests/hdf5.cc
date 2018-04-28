@@ -293,6 +293,22 @@ static bool testRead()
 }
 
 
+static bool sampsOK( const short* data, const short* expected )
+{
+    bool allok = true;
+    for ( int isamp=0; isamp<25; isamp++ )
+    {
+	if ( data[isamp] != expected[isamp] )
+	{
+	    tstStream() << isamp << "-> " << data[isamp]
+		<< " should be " << expected[isamp] << od_endl;
+	    allok = false;
+	}
+    }
+    return allok;
+}
+
+
 static bool testSmallCube()
 {
     const char* fnm = "ORG_420-430_500-600_500-1500_HDF.hdf5";
@@ -314,27 +330,32 @@ static bool testSmallCube()
     slabspec[0].count_ = slabspec[1].count_ = 1;
     slabspec[2].count_ = 251;
     short* data = new short [slabspec[2].count_];
+    for ( int isamp=0; isamp<25; isamp++ )
+	data[isamp] = -999;
+
     uirv = rdr->getSlab( slabspec, data );
     mAddTestResult( "Read entire first trace in block" );
 
-#define mCheckSample( isamp, expval ) \
-    mRunStandardTestWithError( data[isamp] == expval, \
-	  BufferString("Sample value ", isamp), \
-	  BufferString(data[isamp]).add(" (expected ").add(expval).add(")") )
-    mCheckSample( 0, 3786 );
-    mCheckSample( 1, -3128 );
-    mCheckSample( 2, -2840 );
-    mCheckSample( 3, 3555 );
+    const short expected_0_0[25] = {
+	3786, -3128, -2840, 3555, -2726, -8136, 3820, 9823, -1327, -5408,
+	686, -142, -3595, -1721, 21, 1817, 4446, 2600, 59, 437,
+	-2379, -5331, -775, 3593, 1407 };
+    bool sampsok1 = sampsOK( data, expected_0_0 );
+
     slabspec[0].start_ = 2;
     slabspec[1].start_ = 1;
     slabspec[2].start_ = 10;
     slabspec[2].count_ = 10;
     uirv = rdr->getSlab( slabspec, data );
     mAddTestResult( "Read another trace (+2 inls, +1 crl, +10 samps)" );
-    mCheckSample( 0, 2559 );
-    mCheckSample( 1, -1551 );
-    mCheckSample( 2, -4620 );
-    mCheckSample( 3, -2825 );
+    const short expected_2_1[25] = {
+	2559, -1551, -4620, -2825, -571, 2442, 4799, 3742, 2602, 892,
+	-3967, -5537, -587, 2497, 501, -734, 569, 1439, 323, -1323,
+	-498, 1270, -396, -1966, 1029 };
+    bool sampsok2 = sampsOK( data, expected_2_1 );
+
+    mRunStandardTest( sampsok1, "Sample values @ 0/0/0" )
+    mRunStandardTest( sampsok2, "Sample values @ 2/1/10" )
 
     return true;
 }
