@@ -29,6 +29,7 @@ public:
     typedef size_type		idx_type;
     typedef T			object_type;
 
+    ValVec*			clone() const		= 0;
     inline virtual		~ValVec();
     inline ValVec&		operator =( const ValVec& oth )
 				{ return copy( oth ); }
@@ -79,8 +80,7 @@ public:
     inline virtual void		swapItems( od_int64 i1, od_int64 i2 )
 				{ swap( (IT)i1, (IT)i2 ); }
     inline virtual void		move(idx_type from,idx_type to);
-    inline virtual void		getReOrdered(const idx_type*,ValVec&);
-				//!< Fills as per the given array of indexes.
+    inline virtual void		useIndexes(const idx_type*);
 
     inline virtual void		reverse();
 
@@ -158,6 +158,7 @@ public: \
 		    : OD::ValVec<T,size_type>( t, nr )		{} \
 		clss( const clss& t ) \
 		    : OD::ValVec<T,size_type>( t )		{} \
+    virtual clss* clone() const		{ return new clss(*this); } \
 }; \
  \
 template <class T> \
@@ -253,6 +254,30 @@ inline void copy( OD::ValVec<T,IT>& to, const OD::ValVec<S,IT>& from )
     if ( (void*)(&to) == (void*)(&from) ) return;
     to.erase();
     append( to, from );
+}
+
+
+//! Get sort indexes. Must have operator > defined for elements
+template <class T, class IT> inline
+typename OD::ValVec<T,IT>::idx_type* getSortIndexes( OD::ValVec<T,IT>& vv,
+						     bool ascending=true )
+{
+    typedef typename OD::ValVec<T,IT>::idx_type idx_type;
+    const IT sz = vv.size();
+    if ( sz < 2 )
+	{ idx_type* ret = new int [1]; *ret = 0; return ret; }
+
+    mGetIdxArr( idx_type, idxs, sz );
+
+    for ( IT d=sz/2; d>0; d=d/2 )
+	for ( IT i=d; i<sz; i++ )
+	    for ( IT j=i-d; j>=0 && vv[idxs[j]]>vv[idxs[j+d]]; j-=d )
+		std::swap( idxs[j], idxs[j+d] );
+
+    if ( !ascending )
+	std::reverse( idxs, idxs+sz );
+
+    return idxs;
 }
 
 
@@ -428,6 +453,20 @@ void OD::ValVec<T,IT>::swap( IT idx1, IT idx2 )
 
 
 template <class T, class IT> inline
+void OD::ValVec<T,IT>::useIndexes( const idx_type* idxs )
+{
+    const size_type sz = size();
+    if ( idxs && sz > 1 )
+    {
+	ValVec* tmp = clone();
+	for ( size_type idx=0; idx<sz; idx++ )
+	    get(idx) = tmp->get( idxs[idx] );
+	delete tmp;
+    }
+}
+
+
+template <class T, class IT> inline
 void OD::ValVec<T,IT>::move( IT idxfrom, IT idxto )
 {
     if ( !validIdx(idxfrom) || !validIdx(idxto) )
@@ -436,20 +475,6 @@ void OD::ValVec<T,IT>::move( IT idxfrom, IT idxto )
     T tmp = vec_[idxfrom];
     insert( idxto, tmp );
     vec_.remove( idxfrom < idxto ? idxfrom : idxfrom+1 );
-}
-
-
-template <class T, class IT> inline
-void OD::ValVec<T,IT>::getReOrdered( const IT* idxs, OD::ValVec<T,IT>& out )
-{
-    const IT sz = size();
-    if ( !idxs || sz < 2 )
-	return;
-
-    out.erase();
-    out.setCapacity( sz, true );
-    for ( idx_type vidx=0; vidx<sz; vidx++ )
-	out.add( vec_[idxs[vidx]] );
 }
 
 
@@ -471,7 +496,7 @@ OD::ValVec<T,IT>& OD::ValVec<T,IT>::copy( const T* tarr, IT sz )
     else
     {
 	for ( IT vidx=0; vidx<sz; vidx++ )
-	    (*this)[vidx] = tarr[vidx];
+	    get(vidx) = tarr[vidx];
     }
     return *this;
 }
@@ -483,8 +508,10 @@ bool OD::ValVec<T,IT>::append( const OD::ValVec<T,IT>& oth )
     if ( this != &oth )
 	return append( oth.arr(), oth.size() );
 
-    const OD::ValVec<T,IT> othcp( oth );
-    return append( othcp );
+    const ValVec* cln = clone();
+    const bool ret = append( *cln );
+    delete cln;
+    return ret;
 }
 
 
@@ -497,7 +524,7 @@ bool OD::ValVec<T,IT>::append( const T* tarr, IT sz )
 	return false;
 
     for ( IT vidx=0; vidx<sz; vidx++ )
-	*this += tarr[vidx];
+	add( tarr[vidx] );
 
     return true;
 }

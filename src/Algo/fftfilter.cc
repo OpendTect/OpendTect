@@ -62,7 +62,7 @@ FFTFilter::~FFTFilter()
 void FFTFilter::setLowPass( float cutf3, float cutf4 )
 {
     if ( cutf3 > cutf4 )
-	{ pErrMsg( "f3 must be <= f4"); Swap( cutf3, cutf4 ); }
+	{ pErrMsg( "f3 must be <= f4"); std::swap( cutf3, cutf4 ); }
 
     cutfreq_[2] = cutf3;
     cutfreq_[3] = cutf4;
@@ -73,7 +73,7 @@ void FFTFilter::setLowPass( float cutf3, float cutf4 )
 void FFTFilter::setHighPass( float cutf1, float cutf2 )
 {
     if ( cutf1 > cutf2 )
-	{ pErrMsg( "f1 must be <= f2"); Swap( cutf1, cutf2 ); }
+	{ pErrMsg( "f1 must be <= f2"); std::swap( cutf1, cutf2 ); }
 
     cutfreq_[0] = cutf1;
     cutfreq_[1] = cutf2;

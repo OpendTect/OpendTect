@@ -38,7 +38,8 @@ Wavelet1DAttrib::Wavelet1DAttrib( Parameters* param)
     param->fillDefStr( desc );
     delete param;
 
-    if ( maxwaveletlen<minwaveletlen ) Swap(minwaveletlen, maxwaveletlen);
+    if ( maxwaveletlen<minwaveletlen )
+	std::swap(minwaveletlen, maxwaveletlen);
     scalelen = Math::IntPowerOf( 2, maxwaveletlen );
     dsg = Interval<int>( -(scalelen-1), (scalelen-1) );
 

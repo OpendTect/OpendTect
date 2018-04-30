@@ -339,7 +339,7 @@ void Well::ZRangeSelector::getMarkerRange( const Data& wd,
 
     zrg = newzrg;
     if ( zrg.start > zrg.stop )
-	Swap( zrg.start, zrg.stop );
+	std::swap( zrg.start, zrg.stop );
 }
 
 

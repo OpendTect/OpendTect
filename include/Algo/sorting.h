@@ -48,7 +48,7 @@ mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,I)
 	for ( sztype i=d; i<sz; i++ ) \
 	    for ( sztype j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
 	    { \
-		Swap( arr[j], arr[j+d] ); \
+		std::swap( arr[j], arr[j+d] ); \
 		extra_action; \
 	    } \
 }

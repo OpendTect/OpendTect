@@ -183,7 +183,7 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::exactExtreme(
 			    const SamplingData<PT>& sd )
 {
     if ( idxm1 > idx1 )
-	{ Swap( idxm1, idx1 ); Swap( vm1, v1 ); }
+	{ std::swap( idxm1, idx1 ); std::swap( vm1, v1 ); }
 
     vm1 -= v0; v1 -= v0;
     idxm1 -= idx0; idx1 -= idx0;

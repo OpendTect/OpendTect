@@ -321,11 +321,11 @@ void Color::setStdStr( const char* str )
     if ( !isnorm )
     {
 	if ( len > 6 )
-	    { Swap( r_, t_ ); Swap( g_, b_ ); }
+	    { std::swap( r_, t_ ); std::swap( g_, b_ ); }
 	else if ( len > 4 )
-	    Swap( r_, b_ );
+	    std::swap( r_, b_ );
 	else if ( len > 2 )
-	    Swap( r_, g_ );
+	    std::swap( r_, g_ );
     }
 
     set( r_, g_, b_, len > 6 ? t_ : t() );

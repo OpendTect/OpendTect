@@ -619,7 +619,7 @@ static void copyDataStepwise( od_int64 nrbytes,
 			      bool mutual=false )
 {
     if ( mutual )
-	mStepwiseDataIteration( Swap(*destptr,*srcptr) )
+	mStepwiseDataIteration( std::swap(*destptr,*srcptr) )
     else
 	mStepwiseDataIteration( *destptr=*srcptr )
 }
@@ -833,7 +833,7 @@ void VolumeRenderScalarField::swapAttribs( int attr0, int attr1 )
     }
 
     if ( attribs_[attr0]->isInVolumeCache() )
-	Swap( attr0, attr1 );
+	std::swap( attr0, attr1 );
     else if ( !attribs_[attr1]->isInVolumeCache() )
 	return;
 

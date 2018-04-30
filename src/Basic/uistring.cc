@@ -1201,7 +1201,7 @@ void uiStringSet::useIndexes( const size_type* idxs )
 
 
 uiStringSet::idx_type* uiStringSet::getSortIndexes( bool caseinsens,
-						    bool asc ) const
+						    bool ascending ) const
 {
     const size_type sz = size();
     if ( sz < 1 )
@@ -1224,17 +1224,13 @@ uiStringSet::idx_type* uiStringSet::getSortIndexes( bool caseinsens,
 		strset->get(idxs[j+d]).fillQString( qs2 );
 		if ( QString::compare(qs1,qs2,cs) <= 0 )
 		    break;
-		Swap( idxs[j+d], idxs[j] );
+		std::swap( idxs[j+d], idxs[j] );
 	    }
 	}
     }
 
-    if ( !asc )
-    {
-	const size_type hsz = sz/2;
-	for ( size_type idx=0; idx<hsz; idx++ )
-	    Swap( idxs[idx], idxs[sz-idx-1] );
-    }
+    if ( !ascending )
+	std::reverse( idxs, idxs+sz );
 
     return idxs;
 }

@@ -216,8 +216,8 @@ void ExtremeFinder1D::reStart( const Interval<float>& sinterval,
     float fb = mGetFuncVal( bx_ );
     if ( fb > fa )
     {
-	Swap( ax_, bx_ );
-	Swap( fb, fa );
+	std::swap( ax_, bx_ );
+	std::swap( fb, fa );
     }
 
     cx_=bx_+GOLD*(bx_-ax_);

@@ -458,7 +458,7 @@ uiCurvedItem* uiDirectionalPlot::drawSectorPart( int isect, Interval<float> rrg,
 
     ci->drawTo( dataUIPos(rrg.start,angrg.stop) );
     as.radius_ = rrg.start;
-    Swap( as.angles_.start, as.angles_.stop );
+    std::swap( as.angles_.start, as.angles_.stop );
     ci->drawTo( as );
     ci->setFillColor( col );
     ci->closeCurve();

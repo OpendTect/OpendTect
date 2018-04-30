@@ -61,7 +61,8 @@ mExpClass(uiIo) uiIOObjManipGroupSubj : public CallBacker
 { mODTextTranslationClass(uiIOObjManipGroupSubj);
 public:
 				uiIOObjManipGroupSubj( uiObject* o )
-				    : obj_(o), grp_(0)		{}
+				    : obj_(o), grp_(0)			{}
+				~uiIOObjManipGroupSubj();
 
     virtual DBKey		currentID() const			= 0;
     virtual void		getChosenIDs(DBKeySet&) const	= 0;

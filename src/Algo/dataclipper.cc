@@ -438,7 +438,8 @@ Interval<float> DataClipSampler::getRange( float clip ) const
     const float fidx = nv * .5f * clip;
     od_int64 idx0 = mNINT64(fidx);
     od_int64 idx1 = nv - idx0 - 1;
-    if ( idx0 > idx1 ) Swap( idx0, idx1 );
+    if ( idx0 > idx1 )
+	std::swap( idx0, idx1 );
 
     return Interval<float>( vals_[idx0], vals_[idx1] );
 }

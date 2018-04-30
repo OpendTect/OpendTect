@@ -97,7 +97,7 @@ inline void Stats::RandGen::subselect( T* arr, SzTp sz, SzTp targetsz ) const
     {
 	const SzTp notselidx = getIndex( idx );
 	if ( notselidx != idx )
-	    Swap( arr[notselidx], arr[idx] );
+	    std::swap( arr[notselidx], arr[idx] );
     }
 }
 

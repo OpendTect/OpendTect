@@ -247,7 +247,7 @@ void uiWellDahDisplay::setAxisRanges( bool first )
     }
 
     if ( ld.xrev_ )
-	Swap( dispvalrg.start, dispvalrg.stop );
+	std::swap( dispvalrg.start, dispvalrg.stop );
 
     ld.xax_.setBounds( dispvalrg );
 

@@ -154,7 +154,8 @@ void AxesDrawer::updateViewRect()
 	uiPoint from( right-10, bottom+9 );
 	uiPoint to( right, bottom+9 );
 
-	if ( ad1.reversed_ ) Swap( from, to );
+	if ( ad1.reversed_ )
+	    std::swap( from, to );
 	if ( !arrowitem1_ )
 	    arrowitem1_ = view_.scene().addItem(
 		    new uiArrowItem(from,to,arrowstyle) );
@@ -191,7 +192,8 @@ void AxesDrawer::updateViewRect()
 	uiPoint from( left , bottom+13 );
 	uiPoint to( left, bottom+3 );
 
-	if ( ad2.reversed_ ) Swap( from, to );
+	if ( ad2.reversed_ )
+	    std::swap( from, to );
 	if ( !arrowitem2_ )
 	    arrowitem2_ = view_.scene().addItem(
 		    new uiArrowItem(from,to,arrowstyle) );

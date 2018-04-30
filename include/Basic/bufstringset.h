@@ -30,6 +30,8 @@ public:
 
 			BufferStringSet(size_type n=0,const char* s=0);
 			BufferStringSet(const char* arr[],size_type len=-1);
+    BufferStringSet*	clone() const
+			{ return new BufferStringSet(*this); }
     virtual		~BufferStringSet()	{}
     bool		operator ==(const BufferStringSet&) const;
 
@@ -87,7 +89,8 @@ public:
     idx_type*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
 			//!< returns new int [size()] for you to 'delete []'
 			//!< does NOT sort but provides data for useIndexes
-    void		useIndexes(const idx_type*);
+    void		useIndexes( const idx_type* idxs )
+			{ strs_.useIndexes(idxs); }
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
@@ -123,6 +126,7 @@ public:
     virtual od_int64	nrItems() const		{ return size(); }
     virtual void	swapItems( od_int64 i1, od_int64 i2 )
 			{ swap( (idx_type)i1, (idx_type)i2 ); }
+    virtual void	reverse()		{ strs_.reverse(); }
 
 };
 

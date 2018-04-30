@@ -58,7 +58,7 @@ protected:
     void			finaliseStartCB(CallBacker*);
     void			saveNotes(CallBacker*);
     void			selChg(CallBacker*);
-    void			updateCB(CallBacker*);
+    void			refreshObjsCB(CallBacker*);
 
     void			updateFromSelected();
     void			setInfo(const uiString&);

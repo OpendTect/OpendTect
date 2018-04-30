@@ -616,18 +616,18 @@ void PosInfo::Detector::getBinIDRanges()
 
     if ( crlSorted() )
     {
-	Swap( inlrg, crlrg );
-	Swap( inlirreg_, crlirreg_ );
+	std::swap( inlrg, crlrg );
+	std::swap( inlirreg_, crlirreg_ );
     }
     if ( !sorting_.inlUpward() )
     {
 	inlrg.start = -inlrg.start; inlrg.stop = -inlrg.stop;
-	Swap( inlrg.start, inlrg.stop );
+	std::swap( inlrg.start, inlrg.stop );
     }
     if ( !sorting_.crlUpward() )
     {
 	crlrg.start = -crlrg.start; crlrg.stop = -crlrg.stop;
-	Swap( crlrg.start, crlrg.stop );
+	std::swap( crlrg.start, crlrg.stop );
     }
 
     start_.inl() = inlrg.start; start_.crl() = crlrg.start;
@@ -702,7 +702,7 @@ PosInfo::CrdBidOffs PosInfo::Detector::workCBO(
 	if ( !sorting_.crlUpward() )
 	    workcbo.binid_.crl() = -workcbo.binid_.crl();
 	if ( !inlSorted() )
-	    Swap( workcbo.binid_.inl(), workcbo.binid_.crl() );
+	    std::swap( workcbo.binid_.inl(), workcbo.binid_.crl() );
     }
 
     return workcbo;
@@ -721,7 +721,7 @@ PosInfo::CrdBidOffs PosInfo::Detector::userCBO(
     else
     {
 	if ( !inlSorted() )
-	    Swap( usrcbo.binid_.inl(), usrcbo.binid_.crl() );
+	    std::swap( usrcbo.binid_.inl(), usrcbo.binid_.crl() );
 	if ( !sorting_.crlUpward() )
 	    usrcbo.binid_.crl() = -usrcbo.binid_.crl();
 	if ( !sorting_.inlUpward() )

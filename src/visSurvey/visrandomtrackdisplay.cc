@@ -1352,7 +1352,7 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 	}
 
 	if ( abs(x1-x0) < abs(y1-y0) )
-	    { Swap(x,y); Swap(x0,y0); Swap(x1,y1); }
+	    { std::swap(x,y); std::swap(x0,y0); std::swap(x1,y1); }
 
 	const float slope = mCast(float,y1-y0) / mCast(float,x1-x0);
 	const float ydiff = y - y0 - slope * (x-x0);

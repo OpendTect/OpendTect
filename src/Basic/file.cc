@@ -871,7 +871,7 @@ const char* File::timeLastModified( const char* fnm )
 
 od_int64 File::getTimeInSeconds( const char* fnm, bool lastmodif )
 {
-    if ( !isLocal(fnm) )
+    if ( !isLocal(fnm) || isEmpty(fnm) )
 	return 0;
 
 #ifndef OD_NO_QT

@@ -206,7 +206,8 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
 	    return false;
     }
 
-    if ( z2 < z1 ) Swap( z1, z2 );
+    if ( z2 < z1 )
+	std::swap( z1, z2 );
 
     if( !trc.dataPresent(z1 + extz.start) || !trc.dataPresent(z2 + extz.stop) )
 	return false;

@@ -167,9 +167,9 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
     {
 	if ( mIsZero(cov00,mDefEps) )
 	{
-	    Swap( cov00, cov20 );
-	    Swap( cov01, cov21 );
-	    Swap( cov02, cov22 );
+	    std::swap( cov00, cov20 );
+	    std::swap( cov01, cov21 );
+	    std::swap( cov02, cov22 );
 	 }
 
 	 cov11-=cov10*cov01/cov00;

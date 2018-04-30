@@ -471,7 +471,7 @@ inline T Point2D<T>::dot(const Point2D<T>& b) const
 template <class T> inline
 void Point2D<T>::swapXY()
 {
-    Swap( x_, y_ );
+    std::swap( x_, y_ );
 }
 
 template <class T> inline

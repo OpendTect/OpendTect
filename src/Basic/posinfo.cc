@@ -346,10 +346,14 @@ void PosInfo::CubeData::generate( BinID start, BinID stop, BinID step,
 
     if ( !allowreversed )
     {
-	if ( start.inl() > stop.inl() ) Swap( start.inl(), stop.inl() );
-	if ( start.crl() > stop.crl() ) Swap( start.crl(), stop.crl() );
-	if ( step.inl() < 0 ) step.inl() = -step.inl();
-	if ( step.crl() < 0 ) step.crl() = -step.crl();
+	if ( start.inl() > stop.inl() )
+	    std::swap( start.inl(), stop.inl() );
+	if ( start.crl() > stop.crl() )
+	    std::swap( start.crl(), stop.crl() );
+	if ( step.inl() < 0 )
+	    step.inl() = -step.inl();
+	if ( step.crl() < 0 )
+	    step.crl() = -step.crl();
     }
 
     const bool isinlrev = step.inl()<0;

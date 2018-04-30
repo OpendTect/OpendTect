@@ -43,6 +43,8 @@ public:
     inline virtual		~ObjectSet()		{}
     inline ObjectSet&		operator=(const ObjectSet&);
     virtual bool		isManaged() const	{ return false; }
+    virtual ObjectSet*		clone() const
+				{ return new ObjectSet(*this); }
 
     inline bool			nullAllowed() const	{ return allow0_; }
     inline void			setNullAllowed(bool yn=true);
@@ -67,6 +69,7 @@ public:
     inline virtual void		insertAt(T* newptr,idx_type);
     inline virtual void		insertAfter(T* newptr,idx_type);
     inline void			swap(idx_type,idx_type);
+    inline void			useIndexes(const idx_type*);
 
     inline virtual void		copy(const ObjectSet&);
     inline virtual void		append(const ObjectSet&);
@@ -418,6 +421,19 @@ void ObjectSet<T>::swap( idx_type idx1, idx_type idx2 )
 	return;
     }
     vec_.swapElems( idx1, idx2 );
+}
+
+
+template <class T> inline
+void ObjectSet<T>::useIndexes( const idx_type* idxs )
+{
+    const size_type sz = size();
+    if ( idxs && sz > 1 )
+    {
+	ObjectSet<T> tmp( *this );
+	for ( size_type idx=0; idx<sz; idx++ )
+	    ObjectSet<T>::replace( idx, tmp.get(idxs[idx]) );
+    }
 }
 
 template <class T> inline

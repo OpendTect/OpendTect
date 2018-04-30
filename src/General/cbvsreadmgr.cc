@@ -418,7 +418,7 @@ void CBVSReadMgr::getPositions( TypeSet<BinID>& posns ) const
 		{
 		    StepInterval<int> lseg( seg );
 		    if ( lseg.start < lseg.stop )
-			Swap( lseg.start, lseg.stop );
+			std::swap( lseg.start, lseg.stop );
 		    for ( bid.crl()=lseg.stop; bid.crl()<=seg.start;
 			  bid.crl()-=seg.step )
 			posns += bid;

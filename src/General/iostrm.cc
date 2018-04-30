@@ -303,7 +303,7 @@ bool IOStream::getFrom( ascistream& stream )
 	if ( fnrs.step == 0 ) fnrs.step = 1;
 	if ( ( fnrs.start < fnrs.stop && fnrs.step < 0 )
 	  || ( fnrs.stop < fnrs.start && fnrs.step > 0 ) )
-	    Swap( fnrs.start, fnrs.stop );
+	    std::swap( fnrs.start, fnrs.stop );
 	fs_.zeropad_ = fms.getIValue( 3 );
 	curfidx_ = 0;
 	mStrmNext()

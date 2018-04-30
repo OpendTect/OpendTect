@@ -20,7 +20,9 @@ class IOObj;
 class CtxtIOObj;
 class Translator;
 class IOObjContext;
+class uiComboBox;
 class uiGenInput;
+class uiLineEdit;
 class uiIOObjManipGroup;
 class uiIOObjSelGrp;
 class uiIOObjSelGrpManipSubj;
@@ -109,7 +111,7 @@ public:
 
     uiGroup*		getTopGroup()			{ return topgrp_; }
     uiGenInput*		getNameField()			{ return nmfld_; }
-    uiGenInput*		getFilterField()		{ return filtfld_; }
+    uiLineEdit*		getFilterField()		{ return filtfld_; }
     uiListBox*		getListField()			{ return listfld_; }
     uiIOObjManipGroup*	getManipGroup();
     const DBKeySet&	getIOObjIds() const		{ return ioobjids_; }
@@ -140,13 +142,15 @@ protected:
     DBKeySet		ioobjids_;
     BufferStringSet	ioobjnms_;
     BufferStringSet	dispnms_;
+    TypeSet<od_int64>	modiftimes_;
     BufferString	surveydefaultsubsel_;
     bool		asked2overwrite_;
     ObjectSet<const char> iconnms_;
 
     uiListBox*		listfld_;
     uiGenInput*		nmfld_;
-    uiGenInput*		filtfld_;
+    uiLineEdit*		filtfld_;
+    uiComboBox*		sortfld_;
     uiIOObjSelGrpManipSubj* manipgrpsubj;
     uiIOObjSelWriteTranslator* wrtrselfld_;
     uiToolButton*	mkdefbut_;
@@ -164,7 +168,9 @@ protected:
     void		setInitial(CallBacker*);
     void		selChg(CallBacker*);
     void		choiceChg(CallBacker*);
-    void		filtChg(CallBacker*);
+    void		refreshCB(CallBacker*);
+    void		sortChgCB(CallBacker*);
+    void		orderChgCB(CallBacker*);
     void		objInserted(CallBacker*);
     void		nameAvCB(CallBacker*);
     void		delPress(CallBacker*);

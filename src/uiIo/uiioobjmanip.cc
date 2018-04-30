@@ -104,6 +104,12 @@ void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
 }
 
 
+uiIOObjManipGroupSubj::~uiIOObjManipGroupSubj()
+{
+    detachAllNotifiers();
+}
+
+
 uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool withreloc,
 				      bool withremove )
 	: uiManipButGrp(s.obj_->parent())

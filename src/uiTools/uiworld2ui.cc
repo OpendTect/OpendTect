@@ -251,14 +251,16 @@ uiWorldPoint uiWorld2Ui::worldPerPixel() const
 void uiWorld2Ui::getWorldXRange( float& xmin, float& xmax ) const
 {
     xmax=(float) wrdrect_.right();  xmin=(float) wrdrect_.left();
-    if ( xmin > xmax ) Swap( xmax, xmin );
+    if ( xmin > xmax )
+	std::swap( xmax, xmin );
 }
 
 
 void uiWorld2Ui::getWorldYRange( float& ymin, float& ymax ) const
 {
     ymax=(float) wrdrect_.top();  ymin=(float) wrdrect_.bottom();
-    if ( ymin > ymax ) Swap( ymax, ymin );
+    if ( ymin > ymax )
+	std::swap( ymax, ymin );
 }
 
 
@@ -266,10 +268,12 @@ void uiWorld2Ui::getAppropriateRange( float min, float max,
 				     float& newmin, float& newmax )
 {
     bool rev = min > max;
-    if ( rev )	Swap( min, max );
+    if ( rev )
+	std::swap( min, max );
     Interval<float> intv( min, max );
     AxisLayout<float> al( intv );
     newmin = al.sd_.start;
     newmax = al.findEnd( max );
-    if ( rev )	Swap( newmin, newmax );
+    if ( rev )
+	std::swap( newmin, newmax );
 }

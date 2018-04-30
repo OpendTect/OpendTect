@@ -961,9 +961,12 @@ void TrcKeyZSampling::init( bool tosi )
 
 static void normaliseZ( StepInterval<float>& zsamp )
 {
-    if ( zsamp.start > zsamp.stop )	Swap(zsamp.start,zsamp.stop);
-    if ( zsamp.step < 0 )		zsamp.step = -zsamp.step;
-    else if ( !zsamp.step )		zsamp.step = SI().zStep();
+    if ( zsamp.start > zsamp.stop )
+	std::swap(zsamp.start,zsamp.stop);
+    if ( zsamp.step < 0 )
+	zsamp.step = -zsamp.step;
+    else if ( !zsamp.step )
+	zsamp.step = SI().zStep();
 }
 
 
@@ -1328,9 +1331,9 @@ void TrcKeyZSampling::removeInfo( IOPar& par )
 void TrcKeySampling::normalise()
 {
     if ( start_.lineNr() > stop_.lineNr() )
-	Swap(start_.lineNr(),stop_.lineNr());
+	std::swap(start_.lineNr(),stop_.lineNr());
     if ( start_.trcNr() > stop_.trcNr() )
-	Swap(start_.trcNr(),stop_.trcNr());
+	std::swap(start_.trcNr(),stop_.trcNr());
     if ( step_.lineNr() < 0 )
 	step_.lineNr() = -step_.lineNr();
     else if ( !step_.lineNr() )

@@ -230,6 +230,28 @@ static bool testObjSetEqual()
 }
 
 
+static bool testTypeSetSort()
+{
+    TypeSet<int> vals;
+    vals.add( 10 ).add( 0 ).add( 20 ).add( 5 ).add( 0 ).add( -4 ).add( 15 );
+    // 5 1 4 3 0 6 2
+    int* idxarr = getSortIndexes( vals );
+    TypeSet<int> idxs( idxarr, vals.size() );
+    delete [] idxarr;
+    TypeSet<int> expected;
+    expected.add( 5 ).add( 1 ).add( 4 ).add( 3 ).add( 0 ).add( 6 ).add( 2 );
+    mRunStandardTest( idxs == expected, "Sort Indexes" )
+
+    TypeSet<int> sortedvals( vals );
+    sortedvals.useIndexes( idxs.arr() );
+    expected.setEmpty();
+    expected.add( -4 ).add( 0 ).add( 0 ).add( 5 ).add( 10 ).add( 15 ).add( 20 );
+    mRunStandardTest( sortedvals == expected, "Sort Values" )
+
+    return true;
+}
+
+
 static bool testSetCapacity()
 {
     TypeSet<int> vec;
@@ -379,6 +401,7 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
+    mDoSetTest( testTypeSetSort );
     mDoSetTest( testTypeSetFind );
     mDoSetTest( testTypeSetSetFns );
     mDoSetTest( testObjSetFind );

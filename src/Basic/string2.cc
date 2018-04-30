@@ -305,9 +305,9 @@ static const char* getLastOcc( const char* str, const char* tofind )
 
     BufferString srev( str ), frev( tofind );
     for ( int idx=0; idx<slen/2; idx++ )
-	Swap( srev[idx], srev[slen-idx-1] );
+	std::swap( srev[idx], srev[slen-idx-1] );
     for ( int idx=0; idx<flen/2; idx++ )
-	Swap( frev[idx], frev[flen-idx-1] );
+	std::swap( frev[idx], frev[flen-idx-1] );
     const char* ptr = strstr( srev.buf(), frev.buf() );
     if ( !ptr )
 	return ptr;

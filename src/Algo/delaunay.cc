@@ -480,7 +480,7 @@ char DAGTriangleTree::isInside( const Coord& pt, int ti, int& dupid ) const
     if ( clockwise(*tricoord0, *tricoord1, *tricoord2) )
     {
 	pErrMsg( "Did not expect clockwise triangle!" );
-	Swap( tricoord0, tricoord2 );
+	std::swap( tricoord0, tricoord2 );
     }
 
     if ( isPointLeftOfLine(pt, *tricoord0, *tricoord1) ||

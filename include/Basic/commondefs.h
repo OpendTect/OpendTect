@@ -31,7 +31,7 @@ template <class RT>
 inline RT roundOff( float x )	{ return (RT) ((x)>0 ? (x)+.5f : (x)-.5f); }
 
 template <class T>
-inline void Swap( T& a, T& b )			{ T tmp = a; a = b; b = tmp; }
+inline mDeprecated void Swap( T& a, T& b )	{ std::swap(a,b); }
 
 template <class fT,class eT>
 inline bool isFPZero( fT v, eT eps )		{ return v < eps && v > -eps; }

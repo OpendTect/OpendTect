@@ -590,7 +590,7 @@ void Interval<T>::sort( bool asc )
 {
     if ( (asc && BasicInterval<T>::stop<BasicInterval<T>::start) ||
 	 (!asc && BasicInterval<T>::start<BasicInterval<T>::stop) )
-	Swap(BasicInterval<T>::start,BasicInterval<T>::stop);
+	std::swap( BasicInterval<T>::start, BasicInterval<T>::stop );
 }
 
 

@@ -684,8 +684,8 @@ void Well::Log::ensureAscZ()
     const size_type hsz = sz / 2;
     for ( IdxType idx=0; idx<hsz; idx++ )
     {
-	Swap( dahs_[idx], dahs_[sz-idx-1] );
-	Swap( vals_[idx], vals_[sz-idx-1] );
+	std::swap( dahs_[idx], dahs_[sz-idx-1] );
+	std::swap( vals_[idx], vals_[sz-idx-1] );
     }
 
 }

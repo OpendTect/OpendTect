@@ -64,11 +64,6 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     selgrp_->itemChosen.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
 
-    uiToolButton* refreshbut =
-	new uiToolButton( selgrp_->getListField(), "refresh", tr("Refresh"),
-			  mCB(this,uiObjFileMan,updateCB) );
-    refreshbut->attach( rightTo, selgrp_->getFilterField() );
-
     extrabutgrp_ = new uiButtonGroup( listgrp_, "Extra Buttons",
 				      OD::Horizontal );
     extrabutgrp_->attach( alignedBelow, selgrp_ );
@@ -388,10 +383,8 @@ void uiObjFileMan::setPrefWidth( int width )
 }
 
 
-void uiObjFileMan::updateCB( CallBacker* )
+void uiObjFileMan::refreshObjsCB( CallBacker* )
 {
-    mEnsureExecutedInMainThread( uiObjFileMan::updateCB );
-
-    const DBKey curmid = selgrp_->currentID();
-    selgrp_->fullUpdate( curmid );
+    mEnsureExecutedInMainThread( uiObjFileMan::refreshObjsCB );
+    selgrp_->fullUpdate( selgrp_->currentID() );
 }

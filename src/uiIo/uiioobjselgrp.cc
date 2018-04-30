@@ -15,24 +15,29 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "dbdir.h"
 #include "dbman.h"
+#include "file.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "strmprov.h"
 #include "ioobjselectiontransl.h"
 #include "od_iostream.h"
 #include "ascstream.h"
+#include "settings.h"
+#include "sorting.h"
+#include "od_helpids.h"
 
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
+#include "uilineedit.h"
 #include "uilistbox.h"
 #include "uilistboxchoiceio.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uistrings.h"
-#include "settings.h"
-#include "od_helpids.h"
 
 #define mObjTypeName ctio_.ctxt_.objectTypeName()
+static const char* sKeySortingDef = "dTect.Disp.Objects.Sorting";
 
 
 class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
@@ -44,8 +49,8 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
     , selgrp_(sg)
     , manipgrp_(0)
 {
-    selgrp_->selectionChanged.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
-    selgrp_->itemChosen.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
+    mAttachCB( selgrp_->selectionChanged, uiIOObjSelGrpManipSubj::selChg );
+    mAttachCB( selgrp_->itemChosen, uiIOObjSelGrpManipSubj::selChg );
 }
 
 
@@ -163,7 +168,7 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     mkManipulators();
 
     setHAlignObj( topgrp_ );
-    postFinalise().notify( mCB(this,uiIOObjSelGrp,setInitial) );
+    mAttachCB( postFinalise(), uiIOObjSelGrp::setInitial );
 }
 
 
@@ -174,11 +179,29 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     uiListBox::Setup su( setup_.choicemode_, seltxt );
     listfld_ = new uiListBox( topgrp_, su, "Objects" );
 
-    filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter(), "*" );
-    filtfld_->updateRequested.notify( mCB(this,uiIOObjSelGrp,filtChg) );
-    listfld_->box()->attach( centeredBelow, filtfld_ );
+    filtfld_ = new uiLineEdit( listfld_, StringInpSpec("*"), "Filter" );
+    filtfld_->setHSzPol( uiObject::Small );
+    mAttachCB( filtfld_->editingFinished, uiIOObjSelGrp::orderChgCB );
+    mAttachCB( filtfld_->returnPressed, uiIOObjSelGrp::orderChgCB );
 
-    topgrp_->setHAlignObj( listfld_ );
+    uiStringSet sorts;
+    sorts.add( tr("[A->Z]") )
+	 .add( tr("[Z->A]") )
+	 .add( tr("[Old->New]") )
+	 .add( tr("[New->Old]") );
+    sortfld_ = new uiComboBox( listfld_, "Sorting" );
+    sortfld_->addItems( sorts );
+    int defidx = 0;
+    Settings::common().get( sKeySortingDef, defidx );
+    sortfld_->setCurrentItem( defidx );
+    sortfld_->setHSzPol( uiObject::Small );
+    mAttachCB( sortfld_->selectionChanged, uiIOObjSelGrp::sortChgCB );
+
+    uiToolButton* refreshbut = new uiToolButton( listfld_,
+		"refresh", tr("Refresh"), mCB(this,uiIOObjSelGrp,refreshCB) );
+    refreshbut->attach( rightAlignedAbove, listfld_->box() );
+    sortfld_->attach( leftOf, refreshbut );
+    filtfld_->attach( leftOf, sortfld_ );
 
     listfld_->setName( "Objects list" );
     listfld_->box()->setPrefHeightInChar( 8 );
@@ -186,13 +209,13 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     if ( isMultiChoice() )
     {
 	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_, mObjTypeName );
-	lbchoiceio_->readDone.notify( mCB(this,uiIOObjSelGrp,readChoiceDone) );
-	lbchoiceio_->storeRequested.notify(
-				mCB(this,uiIOObjSelGrp,writeChoiceReq) );
+	mAttachCB( lbchoiceio_->readDone, uiIOObjSelGrp::readChoiceDone );
+	mAttachCB( lbchoiceio_->storeRequested, uiIOObjSelGrp::writeChoiceReq );
     }
 
-    fullUpdate( -1 );
+    topgrp_->setHAlignObj( listfld_ );
 
+    fullUpdate( -1 );
     if ( ctio_.ioobj_ )
 	listfld_->setCurrentItem( ctio_.ioobj_->name() );
 }
@@ -205,8 +228,7 @@ void uiIOObjSelGrp::mkWriteFlds()
     if ( setup_.withwriteopts_ )
     {
 	wrtrselfld_ = new uiIOObjSelWriteTranslator( wrgrp, ctio_, true );
-	wrtrselfld_->suggestedNameAvailble.notify(
-				mCB(this,uiIOObjSelGrp,nameAvCB) );
+	mAttachCB( wrtrselfld_->suggestedNameAvailble, uiIOObjSelGrp::nameAvCB);
     }
 
     nmfld_ = new uiGenInput( wrgrp, uiStrings::sName() );
@@ -272,7 +294,7 @@ void uiIOObjSelGrp::mkManipulators()
 	if ( prevnrbuts > 0 )
 	    but->attach( rightAlignedBelow, insertbuts_[prevnrbuts-1] );
 
-	inserter->objectInserted.notify( mCB(this,uiIOObjSelGrp,objInserted) );
+	mAttachCB( inserter->objectInserted, uiIOObjSelGrp::objInserted );
 	inserters_ += inserter;
     }
 
@@ -565,13 +587,14 @@ void uiIOObjSelGrp::fullUpdate( const DBKey& ky )
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
-
     mDefineStaticLocalObject( const bool, icsel_,
 			      = Settings::common().isTrue("Ui.Icons.ObjSel") );
     ioobjnms_.setEmpty(); dispnms_.setEmpty(); iconnms_.setEmpty();
-    ioobjids_.setEmpty();
+    ioobjids_.setEmpty(); modiftimes_.setEmpty();
 
-    const DBDirEntryList entrylist( ctio_.ctxt_, filtfld_->text() );
+    const bool needtimes = sortfld_->currentItem() > 1;
+    DBDirEntryList entrylist( ctio_.ctxt_, false );
+    entrylist.fill( filtfld_->text() );
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
 	const IOObj& ioobj = entrylist.ioobj( idx );
@@ -592,6 +615,14 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	ioobjids_.add( objid );
 	ioobjnms_.add( ioobj.name() );
 	dispnms_.add( entrylist.dispName(idx) );
+	if ( needtimes )
+	{
+	    od_int64 modiftm = File::getTimeInSeconds( ioobj.mainFileName() );
+	    if ( modiftm < 1 )
+		modiftm = mUdf(od_int64);
+	    modiftimes_ += modiftm;
+	}
+
 	if ( icsel_ )
 	    iconnms_.add( entrylist.iconName(idx) );
     }
@@ -608,6 +639,34 @@ void uiIOObjSelGrp::fillListBox()
     NotifyStopper ns2( listfld_->itemChosen );
 
     listfld_->setEmpty();
+    const int sorting = sortfld_->currentItem();
+    const int sz = ioobjids_.size();
+    if ( sz > 1 && sorting > 0 )
+    {
+	if ( sorting == 1 )
+	    { ioobjids_.reverse(); ioobjnms_.reverse(); dispnms_.reverse(); }
+	else if ( modiftimes_.size() != sz )
+	    { pErrMsg("Huh"); }
+	else
+	{
+	    // modif time: newest files have largest values
+	    const bool ascending = (sorting == 2);
+	    if ( !ascending )
+	    {
+		// make sure undefs are displayed last
+		for ( int idx=0; idx<sz; idx++ )
+		    if ( mIsUdf(modiftimes_[idx]) )
+			modiftimes_[idx] = 0;
+	    }
+	    int* idxs = getSortIndexes( modiftimes_, ascending );
+
+	    ioobjids_.useIndexes( idxs );
+	    ioobjnms_.useIndexes( idxs );
+	    dispnms_.useIndexes( idxs );
+	    modiftimes_.useIndexes( idxs );
+	    delete [] idxs;
+	}
+    }
     listfld_->addItems( dispnms_.getUiStringSet() );
     for ( int idx=0; idx<iconnms_.size(); idx++ )
     {
@@ -712,12 +771,14 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 	}
     }
 
-    listfld_->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
-    listfld_->itemChosen.notify( mCB(this,uiIOObjSelGrp,choiceChg) );
-    listfld_->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
+    mAttachCB( listfld_->selectionChanged, uiIOObjSelGrp::selChg );
+    mAttachCB( listfld_->itemChosen, uiIOObjSelGrp::choiceChg );
+    mAttachCB( listfld_->deleteButtonPressed, uiIOObjSelGrp::delPress );
 
     if ( ctio_.ctxt_.forread_ )
 	selChg( 0 );
+
+    sortChgCB( 0 );
 }
 
 
@@ -756,9 +817,31 @@ void uiIOObjSelGrp::choiceChg( CallBacker* )
 }
 
 
-void uiIOObjSelGrp::filtChg( CallBacker* )
+void uiIOObjSelGrp::refreshCB( CallBacker* )
+{
+    fullUpdate( currentID() );
+}
+
+
+void uiIOObjSelGrp::orderChgCB( CallBacker* )
 {
     fullUpdate( 0 );
+}
+
+
+void uiIOObjSelGrp::sortChgCB( CallBacker* cb )
+{
+    const int newidx = sortfld_->currentItem();
+    int oldidx = newidx;
+    const bool hadentry = Settings::common().get( sKeySortingDef, oldidx );
+
+    if ( !hadentry || oldidx != newidx )
+    {
+	Settings::common().set( sKeySortingDef, newidx );
+	Settings::common().write();
+    }
+
+    orderChgCB( cb );
 }
 
 

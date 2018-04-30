@@ -1451,7 +1451,7 @@ Coord3 Scene::getTopBottomIntersection( const visBase::EventInfo& eventinfo,
 	tempzstretchtrans_->transform( p2 );
 
 	if ( mCast(bool,top) == (outerside == s3dgeom->isRightHandSystem()) )
-	    Swap( p1, p2 );
+	    std::swap( p1, p2 );
 
 	const Plane3 plane( p0, p1, p2 );
 	double t;

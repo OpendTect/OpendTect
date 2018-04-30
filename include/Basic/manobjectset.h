@@ -58,6 +58,8 @@ public:
     typedef typename ObjectSet<T>::idx_type	idx_type;
 
     inline			ManagedObjectSet();
+    virtual ManagedObjectSet*	clone() const
+				{ return new ManagedObjectSet(*this); }
 
     inline			ManagedObjectSet(const ManagedObjectSet<T>&);
 				//Must be implemented as default
@@ -93,6 +95,8 @@ public:
 				RefObjectSet();
 				RefObjectSet(const RefObjectSet<T>&);
 				RefObjectSet(const ObjectSet<T>&);
+    virtual RefObjectSet*	clone() const
+				{ return new RefObjectSet(*this); }
 
     RefObjectSet<T>&		operator=(const ObjectSet<T>&);
     inline virtual T*		replace(idx_type,T*);

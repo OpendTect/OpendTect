@@ -69,7 +69,8 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
     Interval<T> intv = dr;
     sd_.start = intv.start;
     const bool rev = intv.start > intv.stop;
-    if ( rev ) Swap( intv.start, intv.stop );
+    if ( rev )
+	std::swap( intv.start, intv.stop );
     T wdth = intv.width();
 
 
@@ -149,7 +150,7 @@ T AxisLayout<T>::findEnd( T datastop ) const
     const double dnrsteps = double(datastop-worksd.start)/worksd.step - 1e-6;
     int nrsteps =
 	mNINT32( (annotinsiderg_ ? Math::Floor(dnrsteps)
-		    		 : Math::Ceil(dnrsteps)) );
+				 : Math::Ceil(dnrsteps)) );
     if ( nrsteps < 1 ) nrsteps = 1;
     T wdth = nrsteps * worksd.step;
     return sd_.start + (rev ? -wdth : wdth);

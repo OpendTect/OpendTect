@@ -76,7 +76,7 @@ static int doWork( int argc, char** argv )
 		{ std::cerr << "Cannot read " << linenr << '/' << trcnr
 		       << std::endl; return 1; }
 
-	    Swap( trc.info().binid.inl, trc.info().binid.crl );
+	    std::swap( trc.info().binid.inl, trc.info().binid.crl );
 	    trc.info().coord = SI().transform( trc.info().binid );
 
 	    if ( !nrwr
