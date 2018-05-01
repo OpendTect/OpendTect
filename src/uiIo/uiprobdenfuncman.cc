@@ -115,7 +115,7 @@ bool uiProbDenFuncMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
     for ( int idx=0; idx<pdf->nrDims(); idx++ )
     {
 	uiWord txt = toUiString( "\t%1 %2" )
-			    .arg( tr("Dimension") ).arg( idx+1 );
+			    .arg( uiStrings::sDimension() ).arg( idx+1 );
 	inf.add( txt.addMoreInfo( toUiString(pdf->dimName(idx)) ) );
     }
 

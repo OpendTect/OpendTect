@@ -56,7 +56,8 @@ uiIconSetSel::uiIconSetSel( uiParent* p, const BufferStringSet& setnms,
 {
     if ( withlabel )
     {
-	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Icons") );
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+					uiStrings::sIcon(mPlural) );
 	selfld_ = lcb->box();
 	setHAlignObj( lcb );
     }

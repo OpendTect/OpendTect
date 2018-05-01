@@ -44,7 +44,7 @@ uiStratLayerContent::uiStratLayerContent( uiParent* p, bool isfinal,
     , contentSelected(this)
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-				isfinal ? tr("Content") : tr("Content zone") );
+			isfinal ? uiStrings::sContent() : tr("Content zone") );
     fld_ = lcb->box();
     fld_->addItem( toUiString("-") );
     for ( int idx=0; idx<rt_.contents().size(); idx++ )

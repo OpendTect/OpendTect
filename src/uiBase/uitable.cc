@@ -1465,7 +1465,7 @@ void uiTable::popupMenu( CallBacker* )
     int cptxt = 0;
     if ( isTableReadOnly() && setup_.enablecopytext_ )
     {
-	itmtxt = uiStrings::phrCopy(tr("text"));
+	itmtxt = uiStrings::phrCopy( uiStrings::sText().toLower() );
 	cptxt = mnu->insertAction( new uiAction(itmtxt), 8 );
     }
 

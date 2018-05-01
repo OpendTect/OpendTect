@@ -341,7 +341,7 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     if ( is2d_ )
     {
 	failfld_ = new uiGenInput( grp, tr("If tracking fails"),
-			BoolInpSpec(true,tr("Extrapolate"),uiStrings::sStop()));
+		BoolInpSpec(true,uiStrings::sExtrapolate(),uiStrings::sStop()));
 	failfld_->attach( alignedBelow, methodfld_ );
 	failfld_->valuechanged.notify(
 		mCB(this,uiHorizonSetupGroup,seedModeChange) );

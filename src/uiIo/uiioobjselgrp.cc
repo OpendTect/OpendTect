@@ -181,6 +181,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 
     filtfld_ = new uiLineEdit( listfld_, StringInpSpec("*"), "Filter" );
     filtfld_->setHSzPol( uiObject::Small );
+    filtfld_->setToolTip( uiStrings::sFilter() );
     mAttachCB( filtfld_->editingFinished, uiIOObjSelGrp::orderChgCB );
     mAttachCB( filtfld_->returnPressed, uiIOObjSelGrp::orderChgCB );
 
@@ -191,6 +192,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 	 .add( tr("[New->Old]") );
     sortfld_ = new uiComboBox( listfld_, "Sorting" );
     sortfld_->addItems( sorts );
+    sortfld_->setToolTip( uiStrings::sSorting() );
     int defidx = 0;
     Settings::common().get( sKeySortingDef, defidx );
     sortfld_->setCurrentItem( defidx );

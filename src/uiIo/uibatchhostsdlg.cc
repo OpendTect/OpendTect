@@ -76,7 +76,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     tsu.rowdesc(uiStrings::sHost()).defrowlbl(true).selmode(uiTable::SingleRow);
     table_ = new uiTable( this, tsu, "Batch Hosts" );
     uiStringSet collbls;
-    collbls.add( tr("IP address") ).add( tr("Hostname") )
+    collbls.add( tr("IP address") ).add( uiStrings::sHostName() )
 	   .add( tr("Display Name") ).add( uiStrings::sPlatform() )
 	   .add( tr("Survey Data Root") );
     table_->setColumnLabels( collbls );

@@ -155,7 +155,7 @@ protected:
 				  const uiString& post) const;
     uiString		gateLabel() const
 			{ return zDepLabel( uiString::empty(),
-					    tr("gate")); }
+					    uiStrings::sGate() ); }
     uiString		shiftLabel() const
 			{ return zDepLabel( uiString::empty(),
 				    uiStrings::sShift().toLower());}

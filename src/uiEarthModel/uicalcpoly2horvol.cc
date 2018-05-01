@@ -55,7 +55,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 
     optsfld_ = new uiCheckList( grp );
     optsfld_->addItem( tr("Ignore negative thicknesses") )
-	     .addItem( tr("Upward") );
+	     .addItem( uiStrings::sUpward() );
     optsfld_->setChecked( 0, true ).setChecked( 1, true );
 
     uiObject* attobj = optsfld_->attachObj();

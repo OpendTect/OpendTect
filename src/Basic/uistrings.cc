@@ -32,7 +32,7 @@ uiPhrase uiStrings::phrCrossline( const uiWord& string )
 { return tr("Cross-line %1").arg( string ); }
 
 uiPhrase uiStrings::phrDoesNotExist(const uiWord& string )
-{ return tr( "%1 does not exist" ).arg( string ); }
+{ return tr("%1 does not exist").arg( string ); }
 
 uiPhrase uiStrings::phrCannotAdd( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotAdd()).arg(string); }
@@ -56,7 +56,7 @@ uiPhrase uiStrings::phrCannotCreateDirectory( const char* dirnm )
 { return phrCannotCreate( tr("directory '%1'").arg(dirnm) ); }
 
 uiPhrase uiStrings::phrCannotCreateHor()
-{ return phrCannotCreate( tr("horizon") ); }
+{ return phrCannotCreate( sHorizon() ); }
 
 uiPhrase uiStrings::phrCannotEdit( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotEdit()).arg(string); }
@@ -166,7 +166,7 @@ uiPhrase uiStrings::phrErrDuringIO( bool read, const char* nm )
 
 uiPhrase uiStrings::phrExistsContinue( const uiWord& string, bool overwrite )
 {
-    return tr( "%1 exists. %2?").arg( string )
+    return tr("%1 exists. %2?").arg( string )
 	.arg( overwrite ? sOverwrite() : sContinue() );
 }
 
@@ -186,10 +186,10 @@ uiPhrase uiStrings::phrGenerating( const uiWord& string )
 { return toUiString(joinstring).arg(sGenerating()).arg(string); }
 
 uiPhrase uiStrings::phrHandled( const uiWord& string )
-{ return tr( "%1 handled").arg( string ); }
+{ return tr("%1 handled").arg( string ); }
 
 uiPhrase uiStrings::phrHandling( const uiWord& string )
-{ return tr( "Handling %1").arg( string ); }
+{ return tr("Handling %1").arg( string ); }
 
 uiPhrase uiStrings::phrImport( const uiWord& string )
 { return toUiString(joinstring).arg( sImport() ).arg( string ); }
@@ -207,7 +207,7 @@ uiPhrase uiStrings::phrInvalid( const uiWord& string )
 { return toUiString(joinstring).arg(sInvalid()).arg(string); }
 
 uiPhrase uiStrings::phrInternalErr( const char* string )
-{ return tr( "Internal Error (pease contact support@dgbes.com):\n%1")
+{ return tr("Internal Error (pease contact support@dgbes.com):\n%1")
 	 .arg( string ); }
 
 uiPhrase uiStrings::phrJoinStrings( const char* a, const char* b )
@@ -259,7 +259,7 @@ uiPhrase uiStrings::phrPlsContactSupport( bool firstdoc )
 	return tr("Please contact OpendTect support at support@dgbes.com.");
 
     uiPhrase ret( tr("Please consult the documentation at opendtect.org") );
-    ret.appendPhrase( tr( "If that fails you may want to contact "
+    ret.appendPhrase( tr("If that fails you may want to contact "
 			    "OpendTect support at support@dgbes.com") );
     return ret;
 }
@@ -271,10 +271,10 @@ uiPhrase uiStrings::phrPlsSpecifyAtLeastOne( const uiWord& string )
 { return tr("Please specify at least one %1").arg( string ); }
 
 uiPhrase uiStrings::phrRead( const uiWord& string )
-{ return tr( "%1 read").arg( string ); }
+{ return tr("%1 read").arg( string ); }
 
 uiPhrase uiStrings::phrReading( const uiWord& string )
-{ return tr( "Reading %1").arg( string ); }
+{ return tr("Reading %1").arg( string ); }
 
 uiPhrase uiStrings::phrRemove( const uiWord& string )
 { return toUiString(joinstring).arg(sRemove()).arg(string); }
@@ -289,7 +289,7 @@ uiPhrase uiStrings::phrSave( const uiWord& string )
 { return toUiString(joinstring).arg(sSave()).arg(string); }
 
 uiPhrase uiStrings::phrSaveAs( const uiWord& string )
-{ return tr( "Save %1 as" ).arg( string ); }
+{ return tr("Save %1 as" ).arg( string ); }
 
 uiPhrase uiStrings::phrSelect( const uiWord& string )
 { return toUiString(joinstring).arg( sSelect() ).arg( string ); }
@@ -306,17 +306,20 @@ uiPhrase uiStrings::phrSetAs( const uiWord& string )
 uiPhrase uiStrings::phrShowIn( const uiWord& string )
 { return toUiString(joinstring).arg(sShowIn()).arg(string); }
 
+uiPhrase uiStrings::phrSorting( const uiWord& string )
+{ return tr("Sorting %1").arg(string); }
+
 uiPhrase uiStrings::phrSpecify( const uiWord& string )
 { return toUiString(joinstring).arg(sSpecify()).arg(string); }
 
 uiPhrase uiStrings::phrStart( const uiWord& word )
-{ return tr( "Start %1" ).arg( word ); }
+{ return tr("Start %1" ).arg( word ); }
 
 uiPhrase uiStrings::phrStorageDir( const uiWord& string )
 { return toUiString(joinstring).arg(sStorageDir()).arg(string); }
 
 uiPhrase uiStrings::phrSuccessfullyExported( const uiWord& string )
-{ return tr( "Successfully exported %1").arg( string );}
+{ return tr("Successfully exported %1").arg( string );}
 
 uiPhrase uiStrings::phrThreeDots( const uiWord& string, bool immediate )
 { return immediate ? string : toUiString( "%1 ..." ).arg( string ); }
@@ -325,10 +328,10 @@ uiPhrase uiStrings::phrTODONotImpl( const char* clssnm )
 { return toUiString( "[%1] TODO: Not Implemented" ).arg( clssnm ); }
 
 uiPhrase uiStrings::phrWriting( const uiWord& string )
-{ return tr( "Writing %1").arg( string ); }
+{ return tr("Writing %1").arg( string ); }
 
 uiPhrase uiStrings::phrWritten( const uiWord& string )
-{ return tr( "%1 written").arg( string ); }
+{ return tr("%1 written").arg( string ); }
 
 uiPhrase uiStrings::phrXcoordinate( const uiWord& string )
 { return toUiString(joinstring).arg(sXcoordinate()).arg(string); }
@@ -337,7 +340,7 @@ uiPhrase uiStrings::phrYcoordinate( const uiWord& string )
 { return toUiString(joinstring).arg(sYcoordinate()).arg(string); }
 
 uiPhrase uiStrings::phrZIn( const uiWord& string )
-{ return tr( "Z in %1" ).arg( string ); }
+{ return tr("Z in %1").arg( string ); }
 
 uiPhrase uiStrings::phrZRange( const uiWord& string )
 { return toUiString(joinstring).arg(sZRange()).arg(string); }
@@ -375,7 +378,7 @@ uiWord uiStrings::sSeisObjName( bool is2d, bool is3d, bool isprestack,
 			        bool both_pre_post_in_context )
 {
     if ( is2d && is3d )
-	return tr( "Seismic data" );
+	return sSeismicData();
 
     if ( is2d )
     {
@@ -383,17 +386,17 @@ uiWord uiStrings::sSeisObjName( bool is2d, bool is3d, bool isprestack,
 	{
 	    if ( both_2d_3d_in_context )
 	    {
-		return tr( "Prestack 2D Data" );
+		return tr("Prestack 2D Data");
 	    }
 
-	    return tr( "Prestack Data" );
+	    return sPreStackData();
 	}
 
 	if ( both_2d_3d_in_context )
 	{
 	    if ( both_pre_post_in_context )
 	    {
-		return tr( "Poststack 2D Data" );
+		return tr("Poststack 2D Data");
 	    }
 
 	    return tr("2D Data (attribute)");
@@ -412,17 +415,15 @@ uiWord uiStrings::sSeisObjName( bool is2d, bool is3d, bool isprestack,
 	if ( isprestack )
 	{
 	    if ( both_2d_3d_in_context )
-	    {
-		return tr( "Prestack 3D Data");
-	    }
+		return tr("Prestack 3D Data");
 
-	    return tr( "Prestack Data" );
+	    return sPreStackData();
 	}
 
-	return tr("Cube");
+	return sCube();
     }
 
-    return tr("Data");
+    return sData();
 }
 
 
@@ -490,7 +491,7 @@ uiWord uiStrings::sCantFindODB()
 { return phrCannotFind( tr("object in data base") ); }
 
 uiWord uiStrings::sCantFindSurf()
-{ return phrCannotFind( tr("surface") ); }
+{ return phrCannotFind( sSurface().toLower() ); }
 
 uiWord uiStrings::sCantOpenInpFile( int num )
 { return phrCannotOpen( tr("input file", 0, num ) ); }
@@ -499,10 +500,10 @@ uiWord uiStrings::sCantOpenOutpFile( int num )
 { return phrCannotOpen( tr("output file", 0, num ) ); }
 
 uiWord uiStrings::sCantReadHor()
-{ return phrCannotRead( tr("horizon") ); }
+{ return phrCannotRead( sHorizon().toLower() ); }
 
 uiWord uiStrings::sCantReadInp()
-{ return phrCannotRead( tr("input") ); }
+{ return phrCannotRead( sInput().toLower() ); }
 
 uiWord uiStrings::sCantWriteSettings()
 { return phrCannotWrite(sSettings());}
@@ -510,17 +511,8 @@ uiWord uiStrings::sCantWriteSettings()
 uiWord uiStrings::sCheckPermissions()
 { return tr("Please check your permissions"); }
 
-uiWord uiStrings::sCreateNew()
-{ return tr("Create New"); }
-
-uiWord uiStrings::sCreateOutput()
-{ return tr("Create Output"); }
-
 uiWord uiStrings::sCreateProbDesFunc()
 { return phrCreate( sProbDensFunc(false) ); }
-
-uiWord uiStrings::sEnter()
-{ return tr("Enter"); }
 
 uiWord uiStrings::sEnterValidName()
 { return uiStrings::phrEnter(tr("a valid name")); }
@@ -539,29 +531,3 @@ uiWord uiStrings::sSelOutpFile()
 
 uiWord uiStrings::sSpecifyOut()
 { return uiStrings::phrSpecify( uiStrings::sOutput() ); }
-
-uiWord uiStrings::sSPNumber( bool abbr )
-{
-    return abbr ? tr("Shot Pt Nr") : tr("Shot-Point number");
-}
-
-uiWord uiStrings::sStorageDir()
-{ return tr("Storage Directory"); }
-
-uiWord uiStrings::sStored()
-{ return tr("Stored" ); }
-
-uiWord uiStrings::sStratigraphy()
-{ return tr( "Stratigraphy" ); }
-
-uiWord uiStrings::sVolume(int num)
-{ return tr("Volume",0,num); }
-
-uiWord uiStrings::sWaveNumber( int num )
-{ return tr("Wavenumber", 0, num ); }
-
-uiWord uiStrings::sTWT( bool abbr )
-{
-    return abbr ? tr("TWT","abrrreviation for Two way travel time") :
-	tr("Two Way Travel Time");
-}

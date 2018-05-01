@@ -27,7 +27,7 @@ public:
 
 			mDefaultFactoryInstantiation(
 				VolProc::Step, HilbertCalculator,
-				"Hilbert", tr("Hilbert") )
+				"Hilbert", toUiString("Hilbert") )
 
 			HilbertCalculator()
 			    : Step()		{}

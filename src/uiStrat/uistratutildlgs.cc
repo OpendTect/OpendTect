@@ -473,7 +473,7 @@ class uiStratContentsEd : public uiEditObjectList
 public:
 
 uiStratContentsEd( uiParent* p, bool& chg )
-    : uiEditObjectList(p,tr("content"),true)
+    : uiEditObjectList(p,uiStrings::sContent().toLower(),true)
     , anychg_(chg)
 {
     fillList( 0 );
@@ -545,7 +545,7 @@ void itemSwitch( bool up )
 
 
 uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( tr("Contents")),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( uiStrings::sContent() ),
 		tr("Define special layer contents"),
                 mODHelpKey(mStratContentsDlgHelpID) ))
     , anychg_(false)

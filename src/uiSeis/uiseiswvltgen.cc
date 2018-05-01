@@ -71,7 +71,7 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
 				 mODHelpKey(mSeisWvltManCrWvltHelpID) ))
 {
     isrickfld_ = new uiGenInput( this, tr("Wavelet type"),
-				BoolInpSpec(true,tr("Ricker"),tr("Sinc")) );
+		    BoolInpSpec(true,toUiString("Ricker"),toUiString("Sinc")) );
 
     const float sisr = SI().zStep();
     const float deffrq = mCast( float, mNINT32(getFreqScaler()*0.1f/sisr) );

@@ -84,7 +84,7 @@ uiSlideLayoutGrp( uiParent* p, PresentationSpec& spec )
     uiLabel* lbl = new uiLabel( this, tr("Custom Template Slide Format:") );
     lbl->attach( leftBorder );
 
-    uiLabeledComboBox* lcc = new uiLabeledComboBox( this, tr("Format") );
+    uiLabeledComboBox* lcc = new uiLabeledComboBox( this, uiStrings::sFormat());
     formatfld_ = lcc->box();
     formatfld_->setHSzPol( uiObject::MedVar );
     lcc->attach( ensureBelow, lbl );

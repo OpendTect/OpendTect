@@ -114,7 +114,7 @@ void uiSliceSel::createInlFld()
 void uiSliceSel::createCrlFld()
 {
     uiString label = is2d_ ? uiStrings::sTraceRange() :
-		     (iscrl_ ? uiStrings::phrCrossline(tr("nr")) :
+		     (iscrl_ ? uiStrings::phrCrossline(uiStrings::sNumber()) :
 			       uiStrings::phrCrossline(uiStrings::sRange()) );
     crl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			 BufferString( iscrl_ ? "Crl nr" : "Crl Start ") );
@@ -598,7 +598,7 @@ uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const TrcKeyZSampling& curcs,
 			const TrcKeyZSampling& maxcs,
 			const CallBack& acb, uiSliceSel::Type type,
 			const ZDomain::Info& zdominfo )
-    : uiDialog(p,uiDialog::Setup(tr("Positioning"),
+    : uiDialog(p,uiDialog::Setup(uiStrings::sPositioning(),
 				 tr("Specify the element's position"),
                                  mODHelpKey(mSliceSelHelpID) )
 		 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD))

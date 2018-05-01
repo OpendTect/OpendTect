@@ -310,9 +310,10 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     mGetWD(return);
     dispgrp->setHSpacing( 50 );
 
-    zintimefld_ = new uiCheckBox( dispgrp, tr("Z in time") );
-    zinftfld_ = new uiCheckBox( dispgrp, tr("Z in %1").arg(
-				SI().depthsInFeet()?tr("feet"):tr("meter")) );
+    uiString zinstr( tr("Z in %1") );
+    zintimefld_ = new uiCheckBox( dispgrp, zinstr.arg(uiStrings::sTime()) );
+    zinftfld_ = new uiCheckBox( dispgrp, zinstr.arg(
+		uiStrings::sDistUnitString(SI().depthsInFeet(),false) ) );
     zinftfld_->attach( alignedBelow, zintimefld_ );
 
     putDispParams();

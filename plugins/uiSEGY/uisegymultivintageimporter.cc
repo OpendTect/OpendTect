@@ -30,7 +30,7 @@ uiSEGYMultiVintageImporter::uiSEGYMultiVintageImporter( uiParent* p )
     , rsdlg_(0)
     , rfdlg_(0)
 {
-    setOkCancelText( tr("Import"), tr("Dismiss") );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sDismiss() );
     imptypefld_ = new uiSEGYImpType( this, false, 0, true );
     imptypefld_->asUiObject().setSensitive( false );
     table_ = new uiTable( this, uiTable::Setup(), "Bulk Import Table" );

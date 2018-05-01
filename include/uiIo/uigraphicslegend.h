@@ -59,7 +59,6 @@ private:
     const uiString	sScale()	    { return uiStrings::sScale(); }
     const uiString	sContourInc()	    { return tr("Contour Increment"); }
     const uiString	sUserNm()	    { return tr("User Name"); }
-    const uiString	sDate()		    { return tr("Date"); }
     const uiString	sSignature()	    { return tr("Signature"); }
     const uiString	sMap()		    { return tr("Map"); }
 

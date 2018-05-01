@@ -313,7 +313,7 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
     filegrp_->setHAlignObj( inpfilefld_ );
     filegrp_->attach( alignedBelow, ismanfld_ );
 
-    uiPushButton* convbut = new uiPushButton( this, tr("Convert"),
+    uiPushButton* convbut = new uiPushButton( this, uiStrings::sConvert(),
 			mCB(this,uiConvertGeographicPos,applyCB), true );
     convbut->attach( centeredBelow, mangrp_ );
 

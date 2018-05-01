@@ -352,7 +352,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 	      .addItem( uiStrings::sSeismic() );
     if ( !setup_.onlyfor2ddisplay_ )
 	stylefld_->addItem( tr("Log tube") );
-    stylefld_->setLabel( tr("Style") );
+    stylefld_->setLabel( uiStrings::sStyle() );
     stylefld_->attach( alignedAbove, szfld_ );
 
     uiSeparator* sep1 = new uiSeparator( this, "Sep" );

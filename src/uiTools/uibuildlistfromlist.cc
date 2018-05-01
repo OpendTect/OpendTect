@@ -135,9 +135,9 @@ uiBuildListFromList::Setup::Setup( bool mv, const uiString& avitmtp,
     , deftitle_(tr("Defined [%1]"))
 {
     if ( avitemtype_.isEmpty() )
-	avitemtype_ = tr("ingredient");
+	avitemtype_ = uiStrings::sIngredient().toLower();
     if ( defitemtype_.isEmpty() )
-	defitemtype_ = tr("definition");
+	defitemtype_ = uiStrings::sDefinition().toLower();
     addtt_ = uiStrings::sAdd(); addtt_.postFixWord( defitemtype_ );
     edtt_ = uiStrings::sEdit(); edtt_.postFixWord( defitemtype_ );
     rmtt_ = uiStrings::sRemove(); rmtt_.postFixWord( defitemtype_ );

@@ -39,6 +39,8 @@ ________________________________________________________________________
 
 #include "odlogo128x128.xpm"
 static const char** sODLogo = od_logo_128x128;
+#define sError() uiStrings::sError()
+#define sWarning() uiStrings::sWarning()
 
 mUseQtnamespace
 

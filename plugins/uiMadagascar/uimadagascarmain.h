@@ -64,4 +64,7 @@ protected:
     void		updateCaption();
     uiGroup*		crProcGroup(uiGroup*);
     bool		acceptOK();
+
+    static uiString	sFlow()	    { return tr("Flow"); }
+
 };

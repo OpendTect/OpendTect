@@ -30,7 +30,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 			      tr("Specify process parameters"),
 			      HelpKey("tut","hor") ) )
 {
-    taskfld_= new uiGenInput( this, tr("Task"),
+    taskfld_= new uiGenInput( this, uiStrings::sTask(),
 			BoolInpSpec(true,tr("Thickness between two horizons"),
 					 tr("Smooth a horizon")) );
     taskfld_->valuechanged.notify( mCB(this,uiTutHorTools,choiceSel) );

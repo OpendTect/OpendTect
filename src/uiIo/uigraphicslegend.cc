@@ -40,7 +40,7 @@ void uiLegendItem::buildLayout()
     uiAdvancedTextItem* mapscale = new uiAdvancedTextItem( sScale() );
     uiAdvancedTextItem* contourinc = new uiAdvancedTextItem( sContourInc() );
     uiAdvancedTextItem* username = new uiAdvancedTextItem( sUserNm() );
-    uiAdvancedTextItem* date = new uiAdvancedTextItem( sDate() );
+    uiAdvancedTextItem* date = new uiAdvancedTextItem( uiStrings::sDate() );
     uiAdvancedTextItem* sign = new uiAdvancedTextItem( sSignature() );
 
     const int width = 100;
@@ -105,7 +105,7 @@ void uiLegendItem::buildLayout()
     mapscale_ = new uiAdvancedTextItem( sScale(), al, true );
     contourinc_ = new uiAdvancedTextItem( sContourInc(), al, true );
     username_ = new uiAdvancedTextItem( sUserNm(), al, true );
-    date_ = new uiAdvancedTextItem( sDate(), al, true );
+    date_ = new uiAdvancedTextItem( uiStrings::sDate(), al, true );
     sign_ = new uiAdvancedTextItem( sSignature(), al, true );
 
     addChild( title_ );

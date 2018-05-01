@@ -42,7 +42,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     setOkText( uiStrings::sApply() );
     setCancelText( uiStrings::sClose() );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
-    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Synthetics"),
+    uiListBox::Setup su( OD::ChooseOnlyOne, uiStrings::sSynthetics(),
 			 uiListBox::AboveMid );
     synthnmlb_ = new uiListBox( syntlistgrp, su );
     synthnmlb_->selectionChanged.notify(

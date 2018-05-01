@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uisegycommon.h"
 #include "uidialog.h"
 #include "segyhdr.h"
+#include "uistrings.h"
 #include "od_iosfwd.h"
 
 class uiLabel;
@@ -40,7 +41,7 @@ public:
 
     od_int64		traceBytes() const;
 
-    static uiWord	sByte()		{ return tr("Byte"); }
+    static uiWord	sByte()		{ return uiStrings::sByte(); }
 
 protected:
 

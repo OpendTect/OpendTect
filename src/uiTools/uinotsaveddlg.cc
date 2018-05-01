@@ -65,7 +65,7 @@ public:
 
     void	reportSuccessfullSave()
     {
-	buttons_[activebutton_]->setText( tr("Saved") );
+	buttons_[activebutton_]->setText( uiStrings::sSaved() );
 	buttons_[activebutton_]->setSensitive( false );
     }
     void	buttonCB(CallBacker* cb)

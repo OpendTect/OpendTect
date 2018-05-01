@@ -105,7 +105,7 @@ bool uiPickSetMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
     else
     {
 	txt.appendPhrase(toUiString(" < %1 %2").arg(sz).arg(ispoly ?
-				tr("vertices") : tr("picks")));
+				tr("vertices") : uiStrings::sPick(mPlural)));
 	if ( !ispoly && ps->first().hasDir() )
 	{
 	    txt.addSpace();

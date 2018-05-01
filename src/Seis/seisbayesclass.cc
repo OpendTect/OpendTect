@@ -273,7 +273,7 @@ uiString SeisBayesClass::message() const
 
 uiString SeisBayesClass::nrDoneText() const
 {
-    return initstep_ ? tr("Step") : tr("Positions handled");
+    return initstep_ ? uiStrings::sStep() : uiStrings::sPositionsDone();
 }
 
 

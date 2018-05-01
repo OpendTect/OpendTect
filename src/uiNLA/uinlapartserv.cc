@@ -150,7 +150,7 @@ class uiPrepNLAData : public uiDialog
 public:
 
 uiPrepNLAData( uiParent* p, const DataPointSet& dps )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrData(tr("preparation")),
+    : uiDialog(p,uiDialog::Setup(tr("Data Preparation"),
 	       gtUiTitle(dps), mODHelpKey(mPrepNLADataHelpID)))
     , statsfld_(0)
 {

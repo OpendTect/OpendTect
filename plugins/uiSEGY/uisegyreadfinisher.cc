@@ -438,7 +438,7 @@ bool uiSEGYReadFinisher::doMultiVintage( const char* attr2dnm )
 	uiSEGYImportResult* reportdlg = new uiSEGYImportResult( this );
 	reportdlg->vintagenm_ = vntinfos_->get(vidx)->vintagenm_;
 	reports_.add( reportdlg );
-	reportdlg->status_ = tr("Importing");
+	reportdlg->status_ = uiStrings::sImporting();
 	processingvntnm_ = vntinfos_->get(vidx)->vintagenm_;
 	updateStatus.trigger();
 	if ( !outimpfld_->getTranslator() )
@@ -461,7 +461,7 @@ bool uiSEGYReadFinisher::doMultiVintage( const char* attr2dnm )
 	uiTaskRunner dlg( this, singlevintage_ );
 	dlg.execute( vntimporter );
 	updateResultDlg( vntimporter, reportdlg );
-	reportdlg->status_ = tr("Finished");
+	reportdlg->status_ = uiStrings::sFinished();
 	updateStatus.trigger();
     }
 

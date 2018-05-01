@@ -596,7 +596,7 @@ uiString getSummary() const
 	}
 
 	if ( !isstor )
-	    ret = tr("Defined").embedFinalState();
+	    ret = uiStrings::sDefined().embedFinalState();
 	else
 	    ret = toUiString( impsel_.fmtname_ );
     }

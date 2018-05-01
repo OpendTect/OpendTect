@@ -45,7 +45,7 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
     , drawRangeChanged(this)
 {
     xAxis()->setCaption( uiStrings::sValue() );
-    yAxis(false)->setCaption( tr("Count") );
+    yAxis(false)->setCaption( uiStrings::sCount() );
 }
 
 

@@ -38,18 +38,19 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
 {
 
     inptypefld_ = new uiGenInput( this, tr("Input type"),
-				  BoolInpSpec(true, tr("Acoustic"),
-					      tr("Elastic")) );
+				  BoolInpSpec(true, uiStrings::sAcoustic(),
+					      uiStrings::sElastic()) );
     inptypefld_->valuechanged.notify(
 			    mCB(this,uiElasticModelProvider,inpTypeSel) );
 
-    inpsourceacfld_ = new uiGenInput( this, tr("Input Source"),
+    const uiString inpsrcstr = tr("Input Source");
+    inpsourceacfld_ = new uiGenInput( this, inpsrcstr,
 				      StringListInpSpec(inpsourceacstrs) );
     inpsourceacfld_->valuechanged.notify(
 			    mCB(this,uiElasticModelProvider,sourceSel) );
     inpsourceacfld_->attach( alignedBelow, inptypefld_ );
 
-    inpsourceelfld_ = new uiGenInput( this, tr("Input Source"),
+    inpsourceelfld_ = new uiGenInput( this, inpsrcstr,
 				      StringListInpSpec(inpsourceelstrs) );
     inpsourceelfld_->valuechanged.notify(
 			    mCB(this,uiElasticModelProvider,sourceSel) );

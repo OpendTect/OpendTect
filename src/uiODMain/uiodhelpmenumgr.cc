@@ -184,7 +184,7 @@ uiODLegalInfo(uiParent* p)
 	       "open source projects that are licensed under different "
 	       "licenses.") );
 
-    textsel_ = new uiGenInput( this, tr("Project"),
+    textsel_ = new uiGenInput( this, uiStrings::sProject(),
 		StringListInpSpec(legalInformation().getUserNames()) );
     textsel_->valuechanged.notify( mCB(this,uiODLegalInfo,selChgCB) );
     textsel_->attach( alignedBelow, label );

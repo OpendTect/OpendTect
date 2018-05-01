@@ -67,7 +67,7 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     typefld_->valuechanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
     typefld_->attach( alignedBelow, horfld_ );
 
-    isrelbox_ = new uiCheckBox( this, tr("Relative") );
+    isrelbox_ = new uiCheckBox( this, uiStrings::sRelative() );
     isrelbox_->attach( rightOf, typefld_ );
 
     surfdatafld_ = new uiGenInput( this, tr("Select Horizon Data"),

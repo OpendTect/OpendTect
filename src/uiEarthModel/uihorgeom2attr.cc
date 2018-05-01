@@ -186,7 +186,7 @@ int nextStep()
 {
     if ( !horarray_ )
     {
-	uimsg_ = uiStrings::phrCannotCreate( tr("Array") );
+	uimsg_ = uiStrings::phrCannotCreate( toUiString("array") );
 	return ErrorOccurred();
     }
 

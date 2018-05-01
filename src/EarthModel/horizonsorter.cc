@@ -28,7 +28,7 @@ HorizonSorter::HorizonSorter( const DBKeySet& ids,
     , iterator_(0)
     , result_(0)
     , is2d_(is2d)
-    , message_(tr("Sorting"))
+    , message_(uiStrings::phrSorting(uiStrings::sHorizon(mPlural)))
     , trprov_(trprov)
 {}
 

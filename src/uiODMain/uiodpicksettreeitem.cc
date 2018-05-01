@@ -110,8 +110,10 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mLoadIdx );
     uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
-    newmnu->insertAction( new uiAction(m3Dots(tr("Empty"))), mEmptyIdx );
-    newmnu->insertAction( new uiAction(m3Dots(tr("Generate 3D"))), mGen3DIdx );
+    newmnu->insertAction( new uiAction(m3Dots(uiStrings::sEmpty())), mEmptyIdx);
+    uiString mnustr3d = SI().has2D() ? tr("Generate 3D")
+				     : uiStrings::sGenerate();
+    newmnu->insertAction( new uiAction(m3Dots(mnustr3d)), mGen3DIdx );
     if ( SI().has2D() )
 	newmnu->insertAction( new uiAction(m3Dots(tr("Generate 2D"))),
                             mRandom2DIdx);

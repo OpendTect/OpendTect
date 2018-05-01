@@ -591,7 +591,8 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     uiRadioButton* leftbut = new uiRadioButton( alignbutsfld_,
 							   uiStrings::sLeft() );
     leftbut->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
-    uiRadioButton* centerbut = new uiRadioButton( alignbutsfld_, tr("Center") );
+    uiRadioButton* centerbut = new uiRadioButton( alignbutsfld_,
+						  uiStrings::sCenter() );
     centerbut->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
     uiRadioButton* rightbut = new uiRadioButton( alignbutsfld_,
 							  uiStrings::sRight() );

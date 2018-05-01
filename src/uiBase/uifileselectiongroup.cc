@@ -80,9 +80,11 @@ uiGroup* uiFileSelectionGroup::createMainGroup()
     if ( fsaselfld_ )
 	filtfld_->attach( rightTo, fsaselfld_ );
 
+    /* share with uiIOObjSel
     sortfld_ = new uiComboBox( maingrp, "Sorting" );
     sortfld_->addItem( tr("Alphabetical") );
     sortfld_->addItem( uiStrings::sTime() );
+    */
 
     uiListBox::Setup lbsu;
     lbsu.prefnrlines( 8 ).prefwidth( 5 );

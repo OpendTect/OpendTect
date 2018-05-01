@@ -44,7 +44,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 		mCB(this,uiFreqFilterAttrib,selectionDoneCB) );
 
     isfftfld_ = new uiGenInput( this, tr("Filtering method"),
-				BoolInpSpec(true,tr("FFT"),tr("ButterWorth")) );
+			BoolInpSpec(true,uiStrings::sFFT(),tr("ButterWorth")) );
     isfftfld_->attach( alignedBelow, inpfld_ );
     isfftfld_->valuechanged.notify( mCB(this,uiFreqFilterAttrib,isfftSel) );
 

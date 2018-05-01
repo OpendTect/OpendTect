@@ -32,7 +32,7 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     hostfld_ = new uiGenInput( this, tr("HTTP Proxy"), StringInpSpec() );
     hostfld_->attach( alignedBelow, useproxyfld_ );
 
-    portfld_ = new uiLabeledSpinBox( this, tr("Port") );
+    portfld_ = new uiLabeledSpinBox( this, tr("Port","computer networks") );
     portfld_->attach( rightTo, hostfld_ );
     portfld_->box()->setInterval( 1, 65535 );
 

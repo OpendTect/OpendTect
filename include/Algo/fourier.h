@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "transform.h"
 #include "paralleltask.h"
+#include "uistrings.h"
 #include "factory.h"
 
 
@@ -30,7 +31,7 @@ mExpClass(Algo) CC : public GenericTransformND
 public:
 
     mDefaultFactoryCreatorImpl0Param( CC );
-    mDefaultFactoryInstantiationBase( "PFAFFT", tr("FFT") );
+    mDefaultFactoryInstantiationBase( "PFAFFT", uiStrings::sFFT() );
 
     typedef ::Factory0Param<CC>	FactoryType;
     static FactoryType&	factory();

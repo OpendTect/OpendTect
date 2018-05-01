@@ -73,7 +73,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 				mCB(this,uiGMTMainWin,addCB), true );
     addbut_->setToolTip( tr("Add to current flow") );
     addbut_->attach( alignedBelow, tabstack_ );
-    editbut_ = new uiPushButton( rightgrp, tr("Replace"),
+    editbut_ = new uiPushButton( rightgrp, uiStrings::sReplace(),
 				mCB(this,uiGMTMainWin,editCB), true );
     editbut_->setToolTip( tr("Update current item in flow") );
     editbut_->attach( rightOf, addbut_ );

@@ -191,7 +191,7 @@ void uiSEGYReadImpParsDlg::selectionChanged()
 		"\nSEG-Y Revision: %3"
 		"\nData type: %4"
 		"\nCreated by %5 at %6." )
-		.arg( Repos::isUserDefined(iop.src_) ? tr("User-defined")
+		.arg( Repos::isUserDefined(iop.src_) ? uiStrings::sUserDefined()
 						     : tr("Internal") )
 		.arg( Repos::descriptionOf(iop.src_) )
 		.arg( iop.find(SEGY::FilePars::sKeyRevision()) )

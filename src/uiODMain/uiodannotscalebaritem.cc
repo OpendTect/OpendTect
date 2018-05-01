@@ -53,7 +53,7 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
 	BoolInpSpec(true,tr("Inl/Crl"),uiStrings::sZSlice()) );
     objectfld_->setSensitive( false );
 
-    const uiString orientstr( tr("Orientation") );
+    const uiString orientstr( uiStrings::sOrientation() );
     const BoolInpSpec horverspec( true, uiStrings::sHorizontal(),
                                   uiStrings::sVertical() );
     horverfld_ = new uiGenInput( this, orientstr, horverspec );
@@ -67,7 +67,7 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     inlcrlfld_->valuechanged.notify( mCB(this,uiScaleBarDialog,changeCB) );
     inlcrlfld_->display( false );
 
-    lengthfld_ = new uiGenInput( this, tr("Length"), DoubleInpSpec() );
+    lengthfld_ = new uiGenInput( this, uiStrings::sLength(), DoubleInpSpec() );
     lengthfld_->attach( alignedBelow, horverfld_ );
     lengthfld_->updateRequested.notify( mCB(this,uiScaleBarDialog,changeCB) );
     unitlbl_ = new uiLabel( this, uiString::empty() );

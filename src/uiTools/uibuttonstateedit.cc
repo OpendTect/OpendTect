@@ -52,13 +52,13 @@ uiString uiButtonStateEdit::createName( int status )
 	bool first = true;
 	if ( status & OD::ShiftButton )
 	{
-	    res = tr("Shift");
+	    res = tr("Shift","button");
 	    first = false;
 	}
 
 	if ( status & OD::ControlButton )
 	{
-	    const uiString control = tr("Control");
+	    const uiString control = tr("Control","button");
 	    if ( !first )
 		res = toUiString( "%1-%2").arg( res ).arg( control );
 	    else
@@ -68,7 +68,7 @@ uiString uiButtonStateEdit::createName( int status )
 
 	if ( status & OD::AltButton )
 	{
-	    const uiString alt = tr("Alt");
+	    const uiString alt = tr("Alt","button");
 
 	    if ( !first )
 		res = toUiString( "%1-%2").arg( res ).arg( alt );

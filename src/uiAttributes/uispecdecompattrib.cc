@@ -61,7 +61,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     inpfld_->selectionChanged.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
 
     typefld_ = new uiGenInput( this, tr("Transform type"),
-			      BoolInpSpec(true,tr("FFT"),tr("CWT")) );
+			      BoolInpSpec(true,uiStrings::sFFT(),tr("CWT")) );
     typefld_->attach( alignedBelow, inpfld_ );
     typefld_->valuechanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
 
@@ -77,8 +77,9 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 
     uiString lbl = uiStrings::phrOutput(toUiString("%1 (%2)")
 		.arg(uiStrings::sFrequency().toLower())
-		.arg(zIsTime() ? tr("Hz") : (SI().zInMeter() ? tr("cycles/km")
-		: tr("cycles/kft"))));
+		.arg(zIsTime() ? toUiString("Hz")
+			       : (SI().zInMeter() ? toUiString("cycles/km")
+		: toUiString("cycles/kft"))));
     outpfld_ = new uiLabeledSpinBox( this, lbl, 1 );
     outpfld_->attach( alignedBelow, tfpanelbut_ );
     outpfld_->box()->doSnap( true );

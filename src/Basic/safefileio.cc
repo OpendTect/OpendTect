@@ -100,9 +100,9 @@ bool SafeFileIO::openRead( bool ignorelock )
 	    else if ( !File::isReadable(toopen) )
 		postfix = tr("not readable");
 	    else if (  File::isEmpty(toopen) )
-		postfix = tr("empty" );
+		postfix = uiStrings::sEmpty().toLower();
 
-	    errmsg_ = tr("File '%1' is %2").arg( filenm_ ).arg( postfix );
+	    errmsg_ = toUiString("'%1': %2").arg( filenm_ ).arg( postfix );
 	    rmLock();
 	    return false;
 	}

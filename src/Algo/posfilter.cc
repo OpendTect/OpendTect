@@ -285,13 +285,15 @@ void Pos::RandomFilter::getSummary( uiString& txt ) const
 
 void Pos::RandomFilter3D::initClass()
 {
-    Pos::Filter3D::factory().addCreator( create, sKey::Random(), tr("Random") );
+    Pos::Filter3D::factory().addCreator( create, sKey::Random(),
+					 uiStrings::sRandom() );
 }
 
 
 void Pos::RandomFilter2D::initClass()
 {
-    Pos::Filter2D::factory().addCreator( create, sKey::Random(), tr("Random") );
+    Pos::Filter2D::factory().addCreator( create, sKey::Random(),
+					 uiStrings::sRandom() );
 }
 
 

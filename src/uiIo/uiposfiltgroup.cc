@@ -66,7 +66,7 @@ void uiRandPosFiltGroup::getSummary( uiString& txt ) const
 void uiRandPosFiltGroup::initClass()
 {
     uiPosFiltGroup::factory().addCreator( create, sKey::Random(),
-								tr("Random") );
+					  uiStrings::sRandom() );
 }
 
 

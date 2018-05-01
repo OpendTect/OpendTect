@@ -205,7 +205,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     contfld_->selectionChanged.notify(
 				mCB(this,uiStratLayModEditTools,selContentCB));
 
-    eachlbl_ = new uiLabel( leftgrp, tr("each") );
+    eachlbl_ = new uiLabel( leftgrp, uiStrings::sEach().toLower() );
     eachlbl_->attach( rightOf, contfld_ );
     eachfld_ = new uiSpinBox( leftgrp, 0, "DispEach" );
     eachfld_->setInterval( 1, 1000 );

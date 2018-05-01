@@ -158,9 +158,9 @@ void uiGatherPosSliceSel::reDoTable()
     const int nrrows = trcrg.nrSteps()+1;
     posseltbl_->setNrRows( nrrows );
 
-    uiString lbl = tr("%1 Nr").arg(issynthetic_ ? tr("Model")
-			      : is2d_ ? uiStrings::sTrace() : isinl_ ?
-			      uiStrings::sCrossline() : uiStrings::sInline() );
+    uiString lbl = tr("%1 Nr").arg(issynthetic_ ? uiStrings::sModel()
+			  : (is2d_ ? uiStrings::sTrace() : (isinl_ ?
+			  uiStrings::sCrossline() : uiStrings::sInline()) ) );
     for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
     {
 	int rowidx = 0;

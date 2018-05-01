@@ -250,9 +250,7 @@ bool uiImpExpPickSet::acceptOK()
     bool ret = import_ ? doImport() : doExport();
     if ( !ret ) return false;
 
-    uiString msg = tr("PointSet successfully %1."
-		      "\n\nDo you want to %2 more PointSets?")
-		 .arg(import_ ? tr("imported") : tr("exported"))
+    uiString msg = tr("Success.\n\nDo you want to %2 more PointSets?")
 		 .arg(import_ ? uiStrings::sImport() : uiStrings::sExport());
     return !uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
 }

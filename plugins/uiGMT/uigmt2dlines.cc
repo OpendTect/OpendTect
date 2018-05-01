@@ -66,7 +66,7 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
 
     trclabelfld_ = new uiCheckBox( this, tr("Post Trace numbers"),
 				   mCB(this,uiGMT2DLinesGrp,labelSel) );
-    trcstepfld_ = new uiGenInput( this, tr("Steps"), IntInpSpec(100) );
+    trcstepfld_ = new uiGenInput( this, uiStrings::sStep(), IntInpSpec(100) );
     trcstepfld_->attach( alignedBelow, labelposfld_ );
     trclabelfld_->attach( leftOf, trcstepfld_ );
 

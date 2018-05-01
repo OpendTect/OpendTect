@@ -41,7 +41,8 @@ uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )
     smoothzradiusfld_ = new uiGenInput( this, tr("Z smoothing radius"),
 					IntInpSpec(0) );
     smoothzradiusfld_->attach( alignedBelow, inpfld_ );
-    uiLabel* lbl = new uiLabel( this, tr("samples").parenthesize() );
+    uiLabel* lbl = new uiLabel( this,
+				uiStrings::sSample(mPlural).parenthesize() );
     lbl->attach( rightTo, smoothzradiusfld_ );
 
     uiStepOutSel::Setup setup( is2d );

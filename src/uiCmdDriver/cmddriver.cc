@@ -278,9 +278,9 @@ void CmdDriver::checkTailErrMsg( const int linenr, const BufferString& action)
 void CmdDriver::preProcSubstitutionErrMsg( const int nrsubst, const int linenr,
 						const BufferString& action )
 {
-    errmsg_.appendPhrase(tr("has %1 substitution %2 at line %3: '%4'")
+    errmsg_.appendPhrase(tr("has %1 substitution failure(s) at line %2: '%3'")
 	   .arg(-nrsubst)
-	   .arg(nrsubst<-1 ? tr("failures") : tr("failure")).arg(linenr)
+	   .arg(linenr)
 	   .arg(action));
 }
 
@@ -369,8 +369,7 @@ void CmdDriver::preProcSubstitutionErrMsg( const int nrsubst, const int linenr,
 
 bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 {
-    errmsg_ = tr("%1 file \"%2\"").arg(actionlist.isEmpty() ?
-			    tr("Command") : tr("Included command")).arg(fnm);
+    errmsg_ = tr("%1 file \"%2\"").arg(uiStrings::sCommand().arg(fnm));
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
@@ -378,9 +377,9 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType("OpendTect commands") )
-    { 
-	errmsg_.appendPhrase( tr("is invalid") ); 
-	return false; 
+    {
+	errmsg_.appendPhrase( tr("is invalid") );
+	return false;
     }
 
     int linenr = 4;		// Header has four lines

@@ -41,7 +41,7 @@ uiGMTOverlayGrp* uiGMTPolylineGrp::createInstance( uiParent* p )
 
 
 uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,tr("Polyline"))
+    : uiGMTOverlayGrp(p,uiStrings::sPolyLine())
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
     ctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );

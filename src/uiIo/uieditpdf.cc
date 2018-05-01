@@ -564,9 +564,9 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	    varsgrp->setHAlignObj( expfld );
 	    uiLabel* lbl = new uiLabel( varsgrp, tr("Variable name") );
 	    lbl->attach( centeredAbove, nmfld );
-	    lbl = new uiLabel( varsgrp, tr("Expectation") );
+	    lbl = new uiLabel( varsgrp, uiStrings::sExpectation() );
 	    lbl->attach( centeredAbove, expfld );
-	    lbl = new uiLabel( varsgrp, tr("Standard Deviation") );
+	    lbl = new uiLabel( varsgrp, uiStrings::sStdDev() );
 	    lbl->attach( centeredAbove, stdfld );
 	}
 	expfld->attach( rightOf, nmfld );
@@ -597,7 +597,7 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	{
 	    ccgrp = new uiGroup( tabstack_->tabGroup(), "CC group" );
 	    mkCorrTabFlds( ccgrp );
-	    tabstack_->addTab( varsgrp, tr("Distributions") );
+	    tabstack_->addTab( varsgrp, uiStrings::sDistribution(mPlural) );
 	    tabstack_->addTab( ccgrp, uiStrings::sCorrelation(mPlural) );
 	    tabstack_->selChange().notify(
 				mCB(this,uiEditGaussianProbDenFunc,tabChg) );
