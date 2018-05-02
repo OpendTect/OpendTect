@@ -21,6 +21,7 @@
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
+#include "od_istream.h"
 #include "ptrman.h"
 #include "seistrctr.h"
 #include "seis2dlineio.h"
@@ -468,6 +469,8 @@ bool SeisIOObjInfo::havePars() const
 { return haveAux( sParFileExtension() ); }
 bool SeisIOObjInfo::haveStats() const
 { return haveAux( sStatsFileExtension() ); }
+bool SeisIOObjInfo::haveImportInfo() const
+{ return haveAux( sImportInfoFileExtension() ); }
 
 
 bool SeisIOObjInfo::getAux( const char* ext, const char* filetyp,
@@ -484,6 +487,16 @@ bool SeisIOObjInfo::getPars( IOPar& iop ) const
 { return getAux( sParFileExtension(), sKey::Pars(), iop ); }
 bool SeisIOObjInfo::getStats( IOPar& iop ) const
 { return getAux( sStatsFileExtension(), sKey::Stats(), iop ); }
+
+
+bool SeisIOObjInfo::getImportInfo( BufferString& txt ) const
+{
+    mChk(false);
+    File::Path fp( ioobj_->mainFileName() );
+    fp.setExtension( sImportInfoFileExtension() );
+    od_istream strm( fp.fullPath() );
+    return strm.getAll( txt );
+}
 
 
 bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const

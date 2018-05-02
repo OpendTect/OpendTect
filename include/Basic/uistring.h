@@ -165,7 +165,8 @@ public:
 			    or groups of words at the risk of hilarious
 			    translations. */
 
-    enum SeparType	{ NoSep, CloseLine, Space, Tab, Comma, MoreInfo, SemiColon };
+    enum SeparType	{ NoSep, CloseLine, Space, Tab, Comma, MoreInfo,
+			  SemiColon };
     enum AppendType	{ OnSameLine, OnNewLine, AfterEmptyLine };
 
     uiString&		appendPhrase(const uiString&,muiStringAppendDefArgs);

@@ -123,6 +123,8 @@ mGlobal(Basic) inline const char* sParFileExtension()	{ return "par"; }
 mGlobal(Basic) inline const char* sInfoFileExtension()	{ return "info"; }
 mGlobal(Basic) inline const char* sProcFileExtension()	{ return "proc"; }
 mGlobal(Basic) inline const char* sStatsFileExtension()	{ return "stats"; }
+mGlobal(Basic) inline const char* sImportInfoFileExtension()
+							{ return "import"; }
 
 
 mDeprecated typedef File::Path FilePath;

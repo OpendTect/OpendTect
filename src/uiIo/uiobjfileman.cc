@@ -381,10 +381,3 @@ void uiObjFileMan::setPrefWidth( int width )
     selgrp_->setPrefWidthInChar( mCast(float,width) );
     infofld_->setPrefWidthInChar( width );
 }
-
-
-void uiObjFileMan::refreshObjsCB( CallBacker* )
-{
-    mEnsureExecutedInMainThread( uiObjFileMan::refreshObjsCB );
-    selgrp_->fullUpdate( selgrp_->currentID() );
-}

@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "cbvsreadmgr.h"
 #include "ioobj.h"
 #include "ptrman.h"
-#include "seiscbvs.h"
+#include "seisprovider.h"
 #include "separstr.h"
 #include "systeminfo.h"
 #include "od_ostream.h"
@@ -44,26 +44,31 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     if ( is2D() )
 	return provideUserInfo2D();
 
-    PtrMan<Translator> t = ioObj()->createTranslator();
-    if ( !t )
-	{ pErrMsg("No Translator"); return true; }
-    mDynamicCastGet(CBVSSeisTrcTranslator*,trans,t.ptr());
-    if ( !trans )
-	{ return true; }
-
-    Conn* conn = ioObj()->getConn( Conn::Read );
-    if ( !conn || !trans->initRead(conn) )
+    uiRetVal uirv;
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( ioObj()->key(),
+							  &uirv );
+    if ( !prov )
     {
-	if ( doerrs )
-	    uiMSG().error( tr("No output cube produced") );
+	if ( !uirv.isOK() )
+	    uiMSG().error( uirv );
 	return false;
     }
 
-    od_ostrstream strm;
-    strm << "The cube is available for work.\n\n";
-    trans->readMgr()->dumpInfo( strm, false );
-    uiMSG().message( toUiString(strm.result()) );
+    const Seis::GeomType gt = prov->geomType();
+    const uiString datanm( Seis::dataName(gt) );
+    const Seis::Provider3D& prov3d = *(Seis::Provider3D*)prov.ptr();
+    PosInfo::CubeData cd;
+    prov3d.getGeometryInfo( cd );
+    if ( cd.isEmpty() )
+    {
+	uiMSG().error( tr("The %1 is empty").arg( datanm ) );
+	return false;
+    }
 
+    uiStringSet msgs;
+    msgs.add( tr("The %1 is usable").arg( datanm ) );
+    msgs.add( tr("Total number of traces: %1").arg( cd.totalSize() ) );
+    uiMSG().message( msgs.cat(uiString::CloseLine,uiString::AfterEmptyLine) );
     return true;
 }
 

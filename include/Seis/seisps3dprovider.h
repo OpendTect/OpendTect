@@ -31,8 +31,8 @@ public:
 			~PS3DProvider();
     virtual GeomType	geomType() const	{ return VolPS; }
 
-    virtual bool		getRanges(TrcKeyZSampling&) const;
-    virtual void		getGeometryInfo(PosInfo::CubeData&) const;
+    virtual bool	getRanges(TrcKeyZSampling&) const;
+    virtual void	getGeometryInfo(PosInfo::CubeData&) const;
 
 protected:
 
