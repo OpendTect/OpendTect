@@ -68,6 +68,7 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     uiStringSet msgs;
     msgs.add( tr("The %1 is usable").arg( datanm ) );
     msgs.add( tr("Total number of traces: %1").arg( cd.totalSize() ) );
+    msgs.add( toUiString("TODO: add more info as per user's wishes") );
     uiMSG().message( msgs.cat(uiString::CloseLine,uiString::AfterEmptyLine) );
     return true;
 }

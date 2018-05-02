@@ -220,6 +220,7 @@ public:
     static uiWord sAttribName()		{ return tr("Attribute Name"); }
     static uiWord sAttribute(int n=1)	{ return tr("Attribute",0,n); }
     static uiWord sAttributeSet(int n=1){ return tr("Attribute Set",0,n);}
+    static uiWord sAttributeStats()	{ return tr("Attribute Statistics"); }
     static uiWord sAuto()		{ return tr("Auto"); }
     static uiWord sAutomatic()		{ return tr("Automatic"); }
     static uiWord sAvailable()		{ return tr("Available"); }
@@ -318,6 +319,7 @@ public:
 	static uiWord sCrossPlotData()	   { return tr("Cross Plot Data"); }
     static uiWord sCube(int n=1)	{ return tr("Cube",0,n); }
     static uiWord sCurve()		{ return tr("Curve"); }
+    static uiWord sCurvature()		{ return tr("Curvature"); }
     static uiWord sData()		{ return tr("Data"); }
     static uiWord sDate()		{ return tr("Date"); }
     static uiWord sDataStore(int n=1)	{ return tr("Data Store",0,n); }
@@ -773,6 +775,7 @@ public:
     static uiWord sTransform()		{ return tr("Transform"); }
     static uiWord sTranslator()		{ return tr("Translator"); }
     static uiWord sTransparency()	{ return tr("Transparency"); }
+    static uiWord sTransparent()	{ return tr("Transparent"); }
     static uiWord sTriangle()		{ return tr("Triangle"); }
     static uiWord sTriangulation()	{ return tr("Triangulation"); }
     static uiWord sTVDRelSRD()		{ return tr("TVD rel SRD",
