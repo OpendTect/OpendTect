@@ -25,7 +25,7 @@ public:
 			WriterImpl();
     virtual		~WriterImpl();
 
-    virtual const char* fileName() const	{ return gtFileName(); }
+    virtual const char*	fileName() const	{ return gtFileName(); }
 
     virtual DataSetKey	scope() const		{ return gtScope(); }
     virtual bool	setScope( const DataSetKey& dsky )
