@@ -157,6 +157,15 @@ if(WIN32)
     set ( OD_CREATE_LAUNCHERS 1 )
     set ( OD_SET_TARGET_PROPERTIES 1 )
 
+    #Setting Stack Reserve size for Executables only
+    if ( NOT DEFINED STACK_RESERVE_SIZE )
+        MATH ( EXPR STACK_RESERVE_SIZE "8 * 1024 * 1024" ) #Setting default stack size to 8MB
+	message( "STACK_RESERVE_SIZE ${STACK_RESERVE_SIZE}")
+	set ( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${STACK_RESERVE_SIZE}" )
+    else()
+	set ( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${STACK_RESERVE_SIZE}" )
+    endif()
+
     set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
 
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP" )
