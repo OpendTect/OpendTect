@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "filepath.h"
 #include "dbman.h"
+#include "initgmtplugin.h"
 #include "ioobj.h"
 #include "od_ostream.h"
 #include "keystrs.h"
@@ -99,7 +100,9 @@ int GMTWellSymbolRepository::size() const
 
 void GMTWellSymbolRepository::init()
 {
-    const char* gmtsharedir = GetOSEnvVar( "GMT_SHAREDIR" );
+    const char* gmt5sharedir = GetOSEnvVar( "GMT5_SHAREDIR" );
+    const char* gmtsharedir = gmt5sharedir ? gmt5sharedir
+					   : GetOSEnvVar( "GMT_SHAREDIR" );
     if ( !gmtsharedir || !*gmtsharedir )
 	return;
 
@@ -488,7 +491,8 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     get( ODGMT::sKeyFontSize(), fontsz );
     comm = "@pstext "; comm += rgstr;
     comm += " -D"; comm += dx; comm += "/"; comm += dy;
-    comm += " -F+f12p,Sans,"; comm += outcolstr;
+    if ( GMT::hasModernGMT() )
+	comm += " -F+f12p,Sans,"; comm += outcolstr;
     comm += " -O -K 1>> "; comm += fileName( fnm );
     procstrm = makeOStream( comm, strm );
     if ( !procstrm.isOK() )

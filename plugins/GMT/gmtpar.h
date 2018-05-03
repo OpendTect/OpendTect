@@ -35,6 +35,10 @@ public:
     BufferString        fileName(const char*) const;
     bool		execCmd(const BufferString&,od_ostream& logstrm);
     od_ostream		makeOStream(const BufferString&,od_ostream& logstrm);
+
+protected:
+
+    static void		addWrapperComm(BufferString&);
 };
 
 

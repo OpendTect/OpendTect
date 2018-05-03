@@ -27,4 +27,6 @@ namespace GMT
 
     mGlobal(GMT) const char* versionStr();
 
+    mGlobal(GMT) const char* sKeyDefaultExec();
+
 }

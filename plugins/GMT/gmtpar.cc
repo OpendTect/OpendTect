@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "debug.h"
 #include "envvars.h"
+#include "initgmtplugin.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "od_istream.h"
@@ -87,7 +88,6 @@ BufferString GMTPar::fileName( const char* fnm ) const
 
 bool GMTPar::execCmd( const BufferString& comm, od_ostream& strm )
 {
-    DBG::message( comm );
     BufferString cmd;
     const char* errfilenm = GetProcFileName( "gmterr.err" );
     const char* shellnm = GetOSEnvVar( "SHELL" );
@@ -99,6 +99,7 @@ bool GMTPar::execCmd( const BufferString& comm, od_ostream& strm )
     if ( commstr && commstr[0] == '@' )
 	commstr++;
 
+    addWrapperComm( cmd );
     cmd += commstr;
     cmd += " 2> \"";
     cmd += errfilenm;
@@ -106,6 +107,7 @@ bool GMTPar::execCmd( const BufferString& comm, od_ostream& strm )
     if ( needsbash )
 	cmd += "\'";
 
+    DBG::message( DBG_PROGSTART, cmd );
     if ( system(cmd) )
     {
 	od_istream errstrm( errfilenm );
@@ -124,7 +126,6 @@ bool GMTPar::execCmd( const BufferString& comm, od_ostream& strm )
 
 od_ostream GMTPar::makeOStream( const BufferString& comm, od_ostream& strm )
 {
-    DBG::message( comm );
     BufferString cmd;
     const char* errfilenm = GetProcFileName( "gmterr.err" );
     const char* shellnm = GetOSEnvVar( "SHELL" );
@@ -137,6 +138,7 @@ od_ostream GMTPar::makeOStream( const BufferString& comm, od_ostream& strm )
 	    commptr ++;
     }
 
+    addWrapperComm( cmd );
     cmd += commptr;
     cmd += " 2> \"";
     cmd += errfilenm;
@@ -144,6 +146,7 @@ od_ostream GMTPar::makeOStream( const BufferString& comm, od_ostream& strm )
     if ( needsbash )
 	cmd += "\'";
 
+    DBG::message( DBG_PROGSTART, cmd );
     od_ostream ret( cmd );
     if ( !ret.isOK() )
     {
@@ -158,4 +161,14 @@ od_ostream GMTPar::makeOStream( const BufferString& comm, od_ostream& strm )
     }
 
     return ret;
+}
+
+
+void GMTPar::addWrapperComm( BufferString& comm )
+{
+    const char* wrapper = GMT::sKeyDefaultExec();
+    if ( !wrapper )
+	return;
+
+    comm.add( wrapper ).addSpace();
 }

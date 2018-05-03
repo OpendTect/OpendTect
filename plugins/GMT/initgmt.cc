@@ -173,3 +173,21 @@ const char* GMT::versionStr()
 {
     return gmtversionstr_.str();
 }
+
+
+const char* GMT::sKeyDefaultExec()
+{
+    if ( hasModernGMT() )
+	return sKeyGMTExec();
+
+    if ( hasLegacyGMT() )
+    {
+#if defined __lux__
+	return sKeyUnixGMT4Wrapper();
+#elif defined __win__
+	return 0;
+#endif
+    }
+
+    return 0;
+}
