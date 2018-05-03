@@ -139,6 +139,14 @@ if(WIN32)
     set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
     set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
 
+    #Setting Stack Reserve size for Executables only
+    if ( NOT DEFINED STACK_RESERVE_SIZE )
+	MATH ( EXPR STACK_RESERVE_SIZE "8 * 1024 * 1024" ) #Setting default stack size to 8MB
+	set ( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${STACK_RESERVE_SIZE}" )
+    else()
+	set ( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${STACK_RESERVE_SIZE}" )
+    endif()
+
     if ( CTEST_MODEL STREQUAL "Experimental" )
 	set ( OD_PLATFORM_LINK_OPTIONS "${OD_PLATFORM_LINK_OPTIONS} /debug" )
 	#/debug will enable the generation of pdb-files.
