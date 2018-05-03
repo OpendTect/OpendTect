@@ -160,7 +160,6 @@ if(WIN32)
     #Setting Stack Reserve size for Executables only
     if ( NOT DEFINED STACK_RESERVE_SIZE )
         MATH ( EXPR STACK_RESERVE_SIZE "8 * 1024 * 1024" ) #Setting default stack size to 8MB
-	message( "STACK_RESERVE_SIZE ${STACK_RESERVE_SIZE}")
 	set ( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${STACK_RESERVE_SIZE}" )
     else()
 	set ( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${STACK_RESERVE_SIZE}" )
