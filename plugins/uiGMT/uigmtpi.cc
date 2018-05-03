@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "gmtdef.h"
+#include "initgmtplugin.h"
 #include "ioman.h"
 #include "uibutton.h"
 #include "uidesktopservices.h"
@@ -61,9 +62,9 @@ uiGMTIntro( uiParent* p )
 
     uiString msg = tr("You need to install the GMT mapping tool package\n"
 			"before you can use this utility\nAlso make sure that "
-			"the environment variable GMTROOT is set "
-			"to the GMT installation directory\n and your PATH "
-			"variable includes the GMT bin directory");
+			"the environment variable GMT5_SHAREDIR is set "
+			"to the GMT installation 'share' directory\n"
+		       "and your PATH variable includes the GMT bin directory");
 
     uiLabel* lbl = new uiLabel( this, msg );
     lbl->setAlignment( Alignment::HCenter );
@@ -142,8 +143,11 @@ void uiGMTMgr::createMap( CallBacker* )
 {
     if ( !dlg_ )
     {
-	FilePath gmtroot( GetEnvVar("GMTROOT") );
-	if ( !File::isDirectory(gmtroot.fullPath()) )
+	const char* gmtsharedir = GetEnvVar("GMT5_SHAREDIR");
+	if ( !gmtsharedir )
+	    gmtsharedir = GetEnvVar("GMT_SHAREDIR");
+
+	if ( !GMT::hasGMT() || !gmtsharedir )
 	{
 	    uiGMTIntro introdlg( appl_ );
 	    if ( !introdlg.go() )
