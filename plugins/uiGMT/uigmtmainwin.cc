@@ -530,6 +530,12 @@ bool uiGMTMainWin::usePar( const IOPar& par )
 
 bool uiGMTMainWin::acceptOK()
 {
+    if ( !GMT::hasGMT() )
+    {
+	uiMSG().error( tr("GMT installation not found. Cannot start.") );
+	return false;
+    }
+
     return fillPar() && batchfld_->start();
 }
 
