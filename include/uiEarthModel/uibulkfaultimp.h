@@ -30,5 +30,6 @@ protected:
     uiTableImpDataSel*	dataselfld_;
     Table::FormatDesc*	fd_;
     bool		isfss_;
+    bool		is2d_;
 
 };
