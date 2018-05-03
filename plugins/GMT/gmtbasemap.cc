@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 #include "filepath.h"
 #include "gmtbasemap.h"
+#include "initgmtplugin.h"
 #include "keystrs.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -22,6 +23,27 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const int cTitleBoxHeight = 4;
 static const int cTitleBoxWidth = 8;
+
+namespace GMT {
+
+static void setDefaults( BufferString& comm )
+{
+    const bool moderngmt = GMT::hasModernGMT();
+
+    comm.add( moderngmt ? " --FONT_TITLE" : " --HEADER_FONT_SIZE" ).add( "=24");
+    comm.add( " --" ).add( moderngmt ? "FONT_ANNOT" : "ANNOT_FONT_SIZE" )
+	.add( "_PRIMARY=12" );
+    if ( !moderngmt )
+	comm.add( " --FRAME_PEN=2p" );
+
+    comm.add( " --" )
+	      .add( moderngmt ? "FONT_LABEL" : "LABEL_FONT_SIZE" )
+	      .add( "=" ).add( 12 ).add( " --")
+      .add( moderngmt ? "FONT_ANNOT_PRIMARY" : "ANNOT_FONT_SIZE_PRIMARY" )
+	      .add( "=10 " );
+}
+
+};
 
 int GMTBaseMap::factoryid_ = -1;
 
@@ -49,6 +71,7 @@ bool GMTBaseMap::execute( od_ostream& strm, const char* fnm )
     getYN( ODGMT::sKeyClosePS(), closeps );
     getYN( ODGMT::sKeyDrawGridLines(), dogrid );
 
+
     BufferString comm = "psbasemap ";
     BufferString rangestr; mGetRangeProjString( rangestr, "X" );
     comm += rangestr; comm += " -Ba";
@@ -56,15 +79,21 @@ bool GMTBaseMap::execute( od_ostream& strm, const char* fnm )
     if ( dogrid ) { comm += "g"; comm += lblintv.start; }
     comm += "/a"; comm += lblintv.stop;
     if ( dogrid ) { comm += "g"; comm += lblintv.stop; }
-    comm += ":\"."; comm += maptitle; comm += "\":";
-    comm += " --MAP_ANNOT_ORTHO=ver_text";
-    comm += " --FONT_TITLE=24";
+    comm.add( ":\"." ).add( maptitle ).add( "\":" );
+    comm.add( GMT::hasModernGMT() ? " --MAP_ANNOT_ORTHO=z"
+				  : " --Y_AXIS_TYPE=ver_text" );
+    GMT::setDefaults( comm );
+
+    const bool moderngmt = GMT::hasModernGMT();
+
     get( ODGMT::sKeyMapDim(), mapdim );
     const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3;
     const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3;
-    comm += " --MAP_ORIGIN_X="; comm += xmargin;
-    comm += "c --MAP_ORIGIN_Y="; comm += ymargin;
-    comm += "c --PS_MEDIA=Custom_";
+    comm.add( moderngmt ? " --MAP_ORIGIN_X=" : " --X_ORIGIN=" );
+    comm.add( xmargin ).add( "c" ).addSpace();
+    comm.add( moderngmt ? "--MAP_ORIGIN_Y=" : " --Y_ORIGIN=" );
+    comm.add( ymargin ).add( "c" ).addSpace();
+    comm.add( moderngmt ? "--PS" : "--PAPER" ).add( "_MEDIA=Custom_" );
     float pagewidth = mapdim.start + 5 * xmargin;
     const float pageheight = mapdim.stop + 3 * ymargin;
     comm += pageheight < 21 ? 21 : pageheight; comm += "cx";
@@ -77,15 +106,15 @@ bool GMTBaseMap::execute( od_ostream& strm, const char* fnm )
     strm << "Done" << od_endl;
 
     strm << "Posting title box ...  ";
-    comm = "@pslegend "; comm += rangestr; comm += " -F -O -Dx";
-    comm += mapdim.start + xmargin; comm += "c/";
-    comm += 0; comm += "c/";
-    comm += cTitleBoxWidth; comm += "c/";
-    comm += cTitleBoxHeight; comm += "c/BL ";
-    if ( !closeps ) comm += "-K ";
+    comm.set( "@pslegend " ).add( rangestr ).add( " -F -O -Dx" );
+    comm.add( mapdim.start + xmargin ).add( "c/" ).add( 0 ).add( "c" );
+    comm.add( moderngmt ? "+w" : "/" ).add( cTitleBoxWidth ).add( "c/" );
+    comm.add( cTitleBoxHeight ).add( "c" ).add( moderngmt ? "+j" : "/" );
+    comm.add( "BL " );
+    if ( !closeps ) comm.add( "-K " );
 
-    comm += "-UBL/"; comm += mapdim.start + xmargin; comm += "c/";
-    comm += 0; comm += "c ";
+    comm.add( "-UBL/" );
+    comm.add( moderngmt ? mapdim.start + xmargin : 0 ).add( "c/0c " );
     comm += "1>> "; comm += fileName( fnm );
     od_ostream procstrm = makeOStream( comm, strm );
     if ( !procstrm.isOK() ) mErrStrmRet("Failed to overlay title box")
@@ -137,6 +166,8 @@ bool GMTLegend::execute( od_ostream& strm, const char* fnm )
 	parset += par;
     }
 
+    const bool moderngmt = GMT::hasModernGMT();
+
     BufferString rangestr; mGetRangeProjString( rangestr, "X" );
     get( ODGMT::sKeyMapDim(), mapdim );
     const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3;
@@ -149,8 +180,9 @@ bool GMTLegend::execute( od_ostream& strm, const char* fnm )
 	par->get( ODGMT::sKeyDataRange(), rg );
 	FilePath fp( fnm );
 	fp.setExtension( "cpt" );
-	BufferString colbarcomm = "psscale --FONT_LABEL=12 ";
-	colbarcomm += "--FONT_ANNOT_PRIMARY=10 -D";
+	BufferString colbarcomm( "psscale" );
+	GMT::setDefaults( colbarcomm );
+	colbarcomm.add( "-D" );
 	colbarcomm += mapdim.start + xmargin; colbarcomm += "c/";
 	colbarcomm += 1.2 * ymargin + cTitleBoxHeight; colbarcomm += "c/";
 	colbarcomm += 2 * ymargin; colbarcomm += "c/";
@@ -168,11 +200,12 @@ bool GMTLegend::execute( od_ostream& strm, const char* fnm )
 
     const int nritems = parset.size();
     BufferString comm = "@pslegend ";
-    comm += rangestr; comm += " -O -Dx";
-    comm += mapdim.start + xmargin; comm += "c/";
-    comm += ymargin / 2 + cTitleBoxHeight + ( hascolbar ? 2 * ymargin : 0 );
-    comm += "c/"; comm += 10; comm += "c/";
-    comm += nritems ? nritems : 1; comm += "c/BL ";
+    comm.add( rangestr ).add( " -O -Dx" );
+    comm.add( mapdim.start + xmargin ).add( "c/" );
+    comm.add( ymargin / 2 + cTitleBoxHeight + ( hascolbar ? 2 * ymargin : 0 ) );
+    comm.add( "c" ).add( moderngmt ? "+w" : "/" ).add( 10 ).add( "c/" );
+    comm.add( nritems ? nritems : 1 ).add( "c" );
+    comm.add( moderngmt ? "+j" : "/" ).add( "BL" ).addSpace();
 
     comm += "1>> "; comm += fileName( fnm );
     od_ostream procstrm = makeOStream( comm, strm );
@@ -255,6 +288,7 @@ bool GMTLegend::execute( od_ostream& strm, const char* fnm )
 
 	legendstring += " "; legendstring += 1.3;
 	legendstring += " "; legendstring += namestr;
+	DBG::message( DBG_PROGSTART, legendstring.str() );
 	procstrm << legendstring << "\n";
 	procstrm << "G0.2c" << "\n";
     }

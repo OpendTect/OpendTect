@@ -162,7 +162,8 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     rstr += botleft.x; rstr += "/"; rstr += topright.x; rstr += "/";
     rstr += botleft.y; rstr += "/"; rstr += topright.y;
     BufferString comm = "@blockmean "; comm += rstr;
-    comm += " -I100 | surface "; comm += rstr; comm += " -I100 -T0.7 -N250 -G";
+    comm += " -I100 | "; addWrapperComm( comm );
+    comm += "surface "; comm += rstr; comm += " -I100 -T0.7 -N250 -G";
     comm += grd100fnm;
     od_ostream procstrm = makeOStream( comm, strm );
     if ( !procstrm.isOK() ) mErrStrmRet("Failed")

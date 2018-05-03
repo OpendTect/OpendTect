@@ -105,7 +105,8 @@ bool BatchProgram::go( od_ostream& strm )
 
     strm << "Map created successfully" << od_endl;
 
-    outputfp.setFileName( ".gmtcommands4" );
+    outputfp.setFileName( GMT::hasModernGMT() ? "gmt.history"
+					      : ".gmtcommands4" );
     StreamProvider( outputfp.fullPath() ).remove();
     File::changeDir( cwd.buf() );
     StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream();
