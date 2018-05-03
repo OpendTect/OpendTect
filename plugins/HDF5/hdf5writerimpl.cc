@@ -57,7 +57,7 @@ bool HDF5::WriterImpl::ensureGroup( const char* grpnm, uiRetVal& uirv )
     if ( !selectGroup(grpnm) )
     {
 	try {
-	    group_ = new H5::Group( file_->createGroup(grpnm) );
+	    group_ = file_->createGroup( grpnm );
 	}
 	mCatchAdd2uiRv( tr("Cannot create Group '%1'").arg(grpnm) )
     }
@@ -89,9 +89,8 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
 	if ( nrdims_ > 1 )
 	    proplist.setChunk( nrdims_, chunkdims.arr() );
 	proplist.setSzip( szip_options_mask, szip_pixels_per_block );
-	delete dataset_; dataset_ = 0;
-	dataset_ = new H5::DataSet( group_->createDataSet( dsky.dataSetName(),
-				    h5dt, dataspace, proplist ) );
+	dataset_ = group_.createDataSet( dsky.dataSetName(),
+					 h5dt, dataspace, proplist );
     }
     mCatchErrDuringWrite()
 }
@@ -108,9 +107,9 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
 	dsky = *ptrdsky;
     else
     {
-	if ( dataset_ )
+	if ( haveScope() )
 	{
-	    putAttrib( *dataset_, iop, uirv );
+	    putAttrib( dataset_, iop, uirv );
 	    return;
 	}
 	// No datasetkey, nothing open yet: work with file level
@@ -119,7 +118,7 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
     if ( !ensureGroup(dsky.groupName(),uirv) )
 	return;
 
-    H5::DataSet* useds = dataset_;
+    H5::DataSet* useds = &dataset_;
     H5::DataSet ds;
     if ( !atDataSet(dsky.dataSetName()) )
     {
@@ -129,7 +128,7 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
 	{
 	    try
 	    {
-		ds = group_->openDataSet( dsky.dataSetName() );
+		ds = group_.openDataSet( dsky.dataSetName() );
 	    }
 	    mCatchAnyNoMsg( notpresent = true )
 	}
@@ -147,7 +146,7 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
 	    const H5::DataType h5dt = H5::PredType::C_S1;
 	    try
 	    {
-		ds = group_->createDataSet( DataSetKey::sGroupInfoDataSetName(),
+		ds = group_.createDataSet( DataSetKey::sGroupInfoDataSetName(),
 					    h5dt, H5::DataSpace(1,dims) );
 		ds.write( &data, h5dt );
 	    }
@@ -196,14 +195,14 @@ void HDF5::WriterImpl::putAttrib( H5::DataSet& h5ds, const IOPar& iop,
 
 void HDF5::WriterImpl::ptAll( const void* data, uiRetVal& uirv )
 {
-    if ( !dataset_ )
+    if ( !haveScope() )
 	mRetNeedScopeInUiRv()
 
     try
     {
-	H5::DataSpace dataspace = dataset_->getSpace();
+	H5::DataSpace dataspace = dataset_.getSpace();
 	dataspace.selectAll();
-	dataset_->write( data, dataset_->getDataType() );
+	dataset_.write( data, dataset_.getDataType() );
     }
     mCatchErrDuringWrite()
 }
@@ -212,17 +211,17 @@ void HDF5::WriterImpl::ptAll( const void* data, uiRetVal& uirv )
 void HDF5::WriterImpl::ptSlab( const SlabSpec& spec,
 			       const void* data, uiRetVal& uirv )
 {
-    if ( !dataset_ )
+    if ( !haveScope() )
 	mRetNeedScopeInUiRv()
 
     TypeSet<hsize_t> counts;
     try
     {
-	H5::DataSpace outputdataspace = dataset_->getSpace();
-	selectSlab( outputdataspace, spec, &counts );
-	H5::DataSpace inputdataspace( (NrDimsType)spec.size(), counts.arr() );
-	dataset_->write( data, dataset_->getDataType(), inputdataspace,
-			 outputdataspace );
+	H5::DataSpace filedataspace = dataset_.getSpace();
+	selectSlab( filedataspace, spec, &counts );
+	H5::DataSpace memdataspace( (NrDimsType)spec.size(), counts.arr() );
+	dataset_.write( data, dataset_.getDataType(), memdataspace,
+			filedataspace );
     }
     mCatchErrDuringWrite()
 }

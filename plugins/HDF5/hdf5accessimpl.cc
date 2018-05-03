@@ -46,8 +46,6 @@ void HDF5::AccessProviderImpl::initHDF5()
 
 HDF5::AccessImpl::AccessImpl( ReaderImpl& rdr )
     : acc_(rdr)
-    , group_(0)
-    , dataset_(0)
     , nrdims_(-1)
 {
 }
@@ -55,8 +53,6 @@ HDF5::AccessImpl::AccessImpl( ReaderImpl& rdr )
 
 HDF5::AccessImpl::AccessImpl( WriterImpl& wrr )
     : acc_(wrr)
-    , group_(0)
-    , dataset_(0)
 {
 }
 
@@ -116,34 +112,29 @@ bool HDF5::AccessImpl::atGroup( const char*& grpnm ) const
 {
     if ( !grpnm || !*grpnm )
 	grpnm = "/";
-    return group_ && group_->getObjName() == grpnm;
+    return haveGroup() && group_.getObjName() == grpnm;
 }
 
 
 HDF5::DataSetKey HDF5::AccessImpl::gtScope() const
 {
-    if ( !group_ )
-	return DataSetKey();
-
-    DataSetKey ret( group_->getObjName().c_str() );
-    if ( dataset_ )
-	ret.setDataSetName( dataset_->getObjName().c_str() );
-
-    return ret;
+    return DataSetKey( haveGroup() ? group_.getObjName().c_str() : "",
+		       haveDataSet() ? dataset_.getObjName().c_str() : "" );
 }
 
 
 od_int64 HDF5::AccessImpl::gtGroupID() const
 {
-    return group_ ? (od_int64)group_->getLocId()
-		  : (acc_.file_ ? acc_.file_->getLocId() : -1);
+    const od_int64 grpid = group_.getLocId();
+    if ( grpid < 0 )
+	  return acc_.file_ ? acc_.file_->getLocId() : -1;
+    return grpid;
 }
 
 
 bool HDF5::AccessImpl::atDataSet( const char* dsnm ) const
 {
-    return !dataset_ || !dsnm || !*dsnm ? false
-	 : dataset_->getObjName() == dsnm;
+    return dsnm && *dsnm && haveDataSet() && dataset_.getObjName() == dsnm;
 }
 
 
@@ -161,10 +152,8 @@ bool HDF5::AccessImpl::selectGroup( const char* grpnm )
 
     try
     {
-	H5::Group grp = acc_.file_->openGroup( grpnm );
-	delete dataset_; dataset_ = 0;
-	delete group_; group_ = 0;
-	group_ = new H5::Group( grp );
+	group_ = acc_.file_->openGroup( grpnm );
+	dataset_ = H5::DataSet();
     }
     mCatchAnyNoMsg( haveselected = false )
 
@@ -175,9 +164,7 @@ bool HDF5::AccessImpl::selectGroup( const char* grpnm )
 
 bool HDF5::AccessImpl::selectDataSet( const char* dsnm )
 {
-    if ( !group_ )
-	{ pErrMsg("check successful selectGroup"); return false; }
-    else if ( !dsnm || !*dsnm )
+    if ( !dsnm || !*dsnm )
 	return false;
     else if ( atDataSet(dsnm) )
 	return true;
@@ -187,10 +174,8 @@ bool HDF5::AccessImpl::selectDataSet( const char* dsnm )
 
     try
     {
-	H5::DataSet ds = group_->openDataSet( dsnm );
-	delete dataset_; dataset_ = 0; nrdims_ = -1;
-	dataset_ = new H5::DataSet( ds );
-	nrdims_ = (ArrayNDInfo::NrDimsType)dataset_->getSpace()
+	dataset_ = group_.openDataSet( dsnm );
+	nrdims_ = (ArrayNDInfo::NrDimsType)dataset_.getSpace()
 						.getSimpleExtentNdims();
     }
     mCatchAnyNoMsg( haveselected = false )
@@ -208,6 +193,33 @@ bool HDF5::AccessImpl::stScope( const DataSetKey& dsky )
 	return true;
 
     return selectDataSet( dsky.dataSetName() );
+}
+
+
+bool HDF5::AccessImpl::validH5Obj( const H5::H5Object& obj )
+{
+    return obj.getId() >= 0 && !obj.getObjName().empty();
+}
+
+
+bool HDF5::AccessImpl::haveScope( bool needds ) const
+{
+    if ( !haveGroup() )
+	return false;
+
+    return !needds || haveDataSet();
+}
+
+
+bool HDF5::AccessImpl::haveGroup() const
+{
+    return validH5Obj( group_ );
+}
+
+
+bool HDF5::AccessImpl::haveDataSet() const
+{
+    return validH5Obj( dataset_ );
 }
 
 

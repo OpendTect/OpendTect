@@ -373,9 +373,11 @@ int mTestMainFnName( int argc, char** argv )
 	return 0;
     }
 
+    filename_.set( File::Path(File::getTempPath(),"test.hd5").fullPath() );
+    if ( !testWrite() || !testRead() )
+	return 1;
     if ( !testSmallCube() )
 	return 1;
 
-    filename_.set( File::Path(File::getTempPath(),"test.hd5").fullPath() );
-    return testWrite() && testRead() ? 0 : 1;
+    return 0;
 }

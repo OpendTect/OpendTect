@@ -37,12 +37,20 @@ ________________________________________________________________________
     mPutInternalInUiRv( uirv, msg, return uirv )
 
 
-/*!\brief Phrases and words that can (and must!) be re-used when possible.
+/*!\brief Phrases and words that can (and should!) be re-used when possible.
 
   OpendTect has a tremendous amount of translatable strings; translating these
   into a non-English language can be a huge amount of work. To keep the work
   at least to a minimum we should try to re-use as many translations as
   possible.
+
+  If you need the words here but maybe in another form, think about using:
+  * toUpper() and toLower()
+  * parenthesize(), embed(), optional(), quote(), ...
+
+  Do not construct your own phrases by combining various words. Langauages have
+  different order, different translations for word combinations, and many more
+  traps.
 
 */
 
@@ -314,9 +322,10 @@ public:
     static uiWord sCrossPlot()		{ return tr("Cross Plot"); }
     static uiWord sCrossline(int n=1)	{ return tr("Cross-line", 0, n ); }
     static uiWord sCrosslineDip()	{ return sLineDip(false); }
-    static uiWord sCrosslineNumber(int n=1) { return tr("Cross-line Number",0,n); }
+    static uiWord sCrosslineNumber(int n=1)
+					{ return tr("Cross-line Number",0,n); }
     static uiWord sCrosslineRange()	{ return tr("Crossline Range"); }
-	static uiWord sCrossPlotData()	   { return tr("Cross Plot Data"); }
+    static uiWord sCrossPlotData()	   { return tr("Cross Plot Data"); }
     static uiWord sCube(int n=1)	{ return tr("Cube",0,n); }
     static uiWord sCurve()		{ return tr("Curve"); }
     static uiWord sCurvature()		{ return tr("Curvature"); }
@@ -324,7 +333,7 @@ public:
     static uiWord sDate()		{ return tr("Date"); }
     static uiWord sDataStore(int n=1)	{ return tr("Data Store",0,n); }
     static uiWord sDataSet()		{ return tr("Data Set"); }
-	static uiWord sDataRange()	{ return tr("Data Range"); }
+    static uiWord sDataRange()		{ return tr("Data Range"); }
     static uiWord sDecimal()		{ return tr("Decimal"); }
     static uiWord sDegree(int num=1)	{ return tr("Degree",0,num); }
     static uiWord sDefault()		{ return tr("Default"); }
@@ -550,8 +559,7 @@ public:
     static uiWord sOffsetRange()	{ return tr("Offset Range"); }
     static uiWord sOk()			{ return tr("OK"); }
     static uiWord sOn()			{ return tr("On","in action"); }
-    static uiWord sOneWayTT()		{ return tr("One-way TT",
-					       "TT stands for two way time"); }
+    static uiWord sOneWayTT()		{ return tr("One-Way Travel Time"); }
     static uiWord sOnlyAtSections()	{ return tr("Only at Sections"); }
     static uiWord sOpen()		{ return tr("Open","Verb"); }
     static uiWord sOpendTect()		{ return tr("OpendTect"); }
@@ -597,7 +605,7 @@ public:
     static uiWord sPointSet(int n=1)	{ return tr("PointSet",0,n); }
     static uiWord sPolygon(int n=1)	{ return tr("Polygon",0,n); }
     static uiWord sPolyLine(int n=1)	{ return tr("PolyLine",0,n); }
-    static uiWord sPolyBody(int num=1) { return tr("Polygon Body",0,num); }
+    static uiWord sPolyBody(int num=1)	{ return tr("Polygon Body",0,num); }
     static uiWord sPosition(int n=1)	{ return tr("Position",0,n); }
     static uiWord sPositioning()	{ return tr("Positioning"); }
     static uiWord sPositionsDone()	{ return tr("Positions done"); }
@@ -667,7 +675,7 @@ public:
     static uiWord sScanning()		{ return tr("Scanning"); }
     static uiWord sScene(int n=1)	{ return tr("Scene",0,n); }
     static uiWord sScenes()		{ return sScene(mPlural); }
-    static uiWord sSceneWithNr(int scnnr);
+    static uiWord sSceneWithNr(int scenenr);
     static uiWord sSchedule()		{ return tr("Schedule"); }
     static uiWord sScore()		{ return tr("Score"); }
     static uiWord sScope()		{ return tr("Scope"); }
@@ -768,7 +776,7 @@ public:
     static uiWord sTrc()		{ return tr("Trc","abbr trace"); }
     static uiWord sTrace(int n=1)	{ return tr("Trace",0,n); }
     static uiWord sTraceNumber()	{ return tr("Trace number"); }
-    static uiWord sTraceRange()		 { return tr("Trace Range"); }
+    static uiWord sTraceRange()		{ return tr("Trace Range"); }
     static uiWord sTrack()		{ return tr("Track","verb"); }
     static uiWord sTracking()		{ return tr("Tracking"); }
     static uiWord sTrackPad()		{ return tr("Track Pad"); }
@@ -817,8 +825,8 @@ public:
     static uiWord sVD(bool abbr=false)
     { return abbr ? tr("VD","abbr Var Density") : tr("Variable Density"); }
     static uiWord sVelocity(int n=1)	{ return tr("Velocity",0,n); }
-    static uiWord sValRange()	       { return tr("Value Range"); }
-    static uiWord sVelRange()	       { return tr("Velocity Range"); }
+    static uiWord sValRange()		{ return tr("Value Range"); }
+    static uiWord sVelRange()		{ return tr("Velocity Range"); }
     static uiWord sVertical()		{ return tr("Vertical"); }
     static uiWord sView()		{ return tr("View"); }
     static uiWord sVintage()		{ return tr("Vintage"); }
@@ -863,4 +871,5 @@ public:
     static uiWord sZSlice(int n=1)	{ return tr("Z-slice",0,n); }
     static uiWord sZUnit()		{ return tr("Z-unit"); }
     static uiWord sZValue(int n=1)	{ return tr("Z value",0,n); }
+
 };

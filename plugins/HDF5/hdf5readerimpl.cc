@@ -47,8 +47,6 @@ void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv )
 
 void HDF5::ReaderImpl::closeFile()
 {
-    delete dataset_; dataset_ = 0;
-    delete group_; group_ = 0;
     doCloseFile( *this );
     grpnms_.setEmpty();
 }
@@ -105,7 +103,7 @@ void HDF5::ReaderImpl::getDataSets( const char* grpnm,
 
     try
     {
-	listObjs( *group_, nms, false );
+	listObjs( group_, nms, false );
     }
     mCatchUnexpected( return );
 }
@@ -123,7 +121,7 @@ ArrayNDInfo* HDF5::ReaderImpl::getDataSizes() const
 
     try
     {
-	const H5::DataSpace dataspace = dataset_->getSpace();
+	const H5::DataSpace dataspace = dataset_.getSpace();
 	mGetDataSpaceDims( dims, nrdims_, dataspace );
 
 	ret = ArrayNDInfoImpl::create( nrdims_ );
@@ -146,12 +144,12 @@ HDF5::ODDataType HDF5::ReaderImpl::getDataType() const
 
     try
     {
-	const H5::DataType dt = dataset_->getDataType();
+	const H5::DataType dt = dataset_.getDataType();
 	bool issigned = true, isfp = true;
 	if ( dt.getClass() == H5T_INTEGER )
 	{
 	    isfp = false;
-	    issigned = dataset_->getIntType().getSign() == H5T_SGN_NONE;
+	    issigned = dataset_.getIntType().getSign() == H5T_SGN_NONE;
 	}
 	ret = OD::GetDataRepType( isfp, issigned, dt.getSize() );
     }
@@ -168,19 +166,20 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
 	mRetNeedScopeInUiRv()
 
     H5::DataSet groupinfdataset;
-    const H5::DataSet* dset = dataset_;
+    const H5::DataSet* dset = &dataset_;
     int nrattrs = 0;
     try
     {
-	if ( !dset )
+	if ( !validH5Obj(*dset) )
 	{
-	    groupinfdataset = group_->openDataSet(
+	    groupinfdataset = group_.openDataSet(
 					DataSetKey::sGroupInfoDataSetName() );
 	    dset = &groupinfdataset;
 	}
 	nrattrs = dset->getNumAttrs();
     }
-    catch ( ... ) {}
+    catch ( ... )
+	{ return; }
 
     const H5::DataType h5dt = H5::PredType::C_S1;
     for ( int idx=0; idx<nrattrs; idx++ )
@@ -214,8 +213,8 @@ void HDF5::ReaderImpl::gtAll( void* data, uiRetVal& uirv ) const
 
     try
     {
-	dataset_->getSpace().selectAll();
-	dataset_->read( data, h5DataType() );
+	dataset_.getSpace().selectAll();
+	dataset_.read( data, h5DataType() );
     }
     mCatchErrDuringRead()
 }
@@ -229,7 +228,7 @@ void HDF5::ReaderImpl::gtPoints( const NDPosBufSet& posbufs, void* data,
 
     try
     {
-	H5::DataSpace inputdataspace = dataset_->getSpace();
+	H5::DataSpace inputdataspace = dataset_.getSpace();
 	const hsize_t nrpts = (hsize_t)posbufs.size();
 
 	mAllocVarLenArr( hsize_t, hdfcoordarr, nrdims_ * nrpts );
@@ -245,7 +244,7 @@ void HDF5::ReaderImpl::gtPoints( const NDPosBufSet& posbufs, void* data,
 	inputdataspace.selectElements( H5S_SELECT_SET, nrpts, hdfcoordarr );
 
 	H5::DataSpace outputdataspace( 1, &nrpts );
-	dataset_->read( data, h5DataType(), outputdataspace, inputdataspace );
+	dataset_.read( data, h5DataType(), outputdataspace, inputdataspace );
     }
     mCatchErrDuringRead()
 }
@@ -260,10 +259,10 @@ void HDF5::ReaderImpl::gtSlab( const SlabSpec& spec, void* data,
     TypeSet<hsize_t> counts;
     try
     {
-	H5::DataSpace inputdataspace = dataset_->getSpace();
-	selectSlab( inputdataspace, spec, &counts );
-	H5::DataSpace outputdataspace( nrdims_, counts.arr() );
-	dataset_->read( data, h5DataType(), outputdataspace, inputdataspace );
+	H5::DataSpace filedataspace = dataset_.getSpace();
+	selectSlab( filedataspace, spec, &counts );
+	H5::DataSpace memdataspace( nrdims_, counts.arr() );
+	dataset_.read( data, h5DataType(), memdataspace, filedataspace );
     }
     mCatchErrDuringRead()
 }

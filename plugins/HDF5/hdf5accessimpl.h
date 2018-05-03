@@ -43,8 +43,8 @@ protected:
 			AccessImpl(const AccessImpl&)	= delete;
 
     Access&		acc_;
-    mutable H5::Group*	group_;
-    mutable H5::DataSet* dataset_;
+    mutable H5::Group	group_;
+    mutable H5::DataSet	dataset_;
     mutable ArrayNDInfo::NrDimsType nrdims_;
 
 			// no throw
@@ -55,11 +55,14 @@ protected:
     bool		selectGroup(const char*);
     bool		selectDataSet(const char*);
     bool		stScope(const DataSetKey&);
-    inline bool		haveScope( bool needds=true ) const
-			{ return group_ && (!needds || dataset_); }
+    bool		haveScope(bool needds=true) const;
+    bool		haveGroup() const;
+    bool		haveDataSet() const;
     void		selectSlab(H5::DataSpace&,const SlabSpec&,
 				   TypeSet<hsize_t>* pcounts=0) const;
 				//!< can throw, use in try block
+
+    static bool		validH5Obj(const H5::H5Object&);
 
     static void		disableErrPrint(); // before action with 'normal' throw
     static void		restoreErrPrint(); // after such an action
