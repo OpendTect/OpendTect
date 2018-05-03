@@ -109,4 +109,9 @@ protected:
 
     BufferString	noStdStreamPErrMsg() const;
 
+private:
+
+    static bool		isCommand(const char*);
+    bool		setFromCommand(const char*);
+
 };

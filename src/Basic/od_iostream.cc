@@ -93,6 +93,12 @@ od_istream& od_istream::operator=( od_istream&& o )
 
 od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
 {
+    if ( isCommand(fnm) )
+    {
+	setFromCommand( fnm );
+	return;
+    }
+
     const File::SystemAccess& fsa = File::SystemAccess::get( fnm );
     if ( forwrite )
 	sd_ = fsa.createOStream( fnm, true, useexist );
@@ -202,6 +208,36 @@ void od_stream::addErrMsgTo( uiRetVal& uirv ) const
     uiString msg = errMsg();
     if ( !msg.isEmpty() )
 	uirv.add( msg );
+}
+
+
+bool od_stream::isCommand( const char* nm )
+{
+    if ( !nm || !*nm )
+	return false;
+
+    BufferString workstr( nm );
+    if ( workstr.isEmpty() )
+	return false;
+
+    const char* pwork = workstr.buf();
+    bool iscomm = false;
+    while ( *pwork == '@' )
+	{ iscomm = true; pwork++; }
+
+    return iscomm;
+}
+
+
+bool od_stream::setFromCommand( const char* nm )
+{
+    StreamProvider strmprov( nm );
+    if ( strmprov.isBad() )
+	return false;
+
+    sd_ = strmprov.makeOStream( nm );
+
+    return sd_.oStrm();
 }
 
 
