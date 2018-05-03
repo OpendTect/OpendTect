@@ -307,7 +307,7 @@ bool uiEMPartServer::importFault( bool bulk )
     {
 	if ( !impbulkfltdlg_ )
 	    impbulkfltdlg_ = new uiBulkFaultImport( parent(),
-				    EMFault3DTranslatorGroup::sGroupName() );
+			      EMFault3DTranslatorGroup::sGroupName(), false );
 
 	return impbulkfltdlg_->go();
     }
