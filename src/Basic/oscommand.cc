@@ -613,10 +613,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     addShellIfNeeded( cmd );
 #endif
 
-
-#ifdef __debug__
-    od_cout() << "About to execute:\n" << cmd << od_endl;
-#endif
+    DBG::message( BufferString( "About to execute:\n", cmd ) );
 
 #ifndef OD_NO_QT
     process_ = wt4finish || createstreams ? new QProcess : 0;
