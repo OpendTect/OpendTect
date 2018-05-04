@@ -156,11 +156,33 @@ bool TextTranslatorLanguage::load()
 }
 
 
+namespace TextTranslation {
+
+static Threads::Lock mgrlock_( Threads::Lock::SmallWork );
+
+};
+
+
 // TextTranslateMgr
 mGlobal(Basic) TextTranslateMgr& TrMgr()
 {
+    Threads::Locker lock( TextTranslation::mgrlock_, Threads::Locker::ReadLock);
     mDefineStaticLocalObject( PtrMan<TextTranslateMgr>, trmgr, = 0 );
-    if ( !trmgr ) trmgr = new TextTranslateMgr();
+
+    if ( !trmgr )
+    {
+	if ( lock.convertToWriteLock() )
+	{
+	    TextTranslateMgr* newmgr = new TextTranslateMgr;
+	    if ( trmgr.setIfNull(newmgr) )
+		return *trmgr;
+	    else
+		delete newmgr;
+	}
+
+	//Fallback, not thread safe
+	trmgr = new TextTranslateMgr;
+    }
     return *trmgr;
 }
 
