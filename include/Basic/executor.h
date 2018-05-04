@@ -89,10 +89,10 @@ public:
 			/*!< If true, will skip the failed exec and go to next,
 			  otherwise will abort */
 
-    uiString		message() const;
+    virtual uiString	message() const;
     virtual od_int64	totalNr() const;
     virtual od_int64	nrDone() const;
-    uiString		nrDoneText() const;
+    virtual uiString	nrDoneText() const;
 
     int			nrExecutors() const { return executors_.size(); }
     Executor*		getExecutor(int idx) { return executors_[idx]; }
