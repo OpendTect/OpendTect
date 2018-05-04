@@ -229,12 +229,31 @@ bool TextTranslation::LanguageEntry::load()
 }
 
 
+namespace TextTranslation {
+
+static Threads::Lock mgrlock_( Threads::Lock::SmallWork );
+
+};
+
+
 // TranslateMgr
 mGlobal(Basic) TextTranslation::TranslateMgr& TrMgr()
 {
+    Threads::Locker lock( TextTranslation::mgrlock_, Threads::Locker::ReadLock);
     mDefineStaticLocalObject( PtrMan<TextTranslation::TranslateMgr>, trmgr,= 0);
+
     if ( !trmgr )
     {
+	if ( lock.convertToWriteLock() )
+	{
+	    if ( trmgr.setIfNull(new TextTranslation::TranslateMgr,true) )
+	    {
+		trmgr->reInit();
+		return *trmgr;
+	    }
+	}
+
+	//Fallback, not thread safe
 	trmgr = new TextTranslation::TranslateMgr;
 	trmgr->reInit();
     }
