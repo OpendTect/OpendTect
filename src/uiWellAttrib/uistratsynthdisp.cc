@@ -712,7 +712,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     uiDialog::Setup su( uiStrings::phrSelect(tr("Stratigraphic Level")),
 			tr("The scaling tool compares the amplitudes there to "
 			   "real amplitudes along a horizon"), mTODOHelpKey );
-    const char* sellvlnm =
+    const BufferString sellvlnm =
 	uiStratLayModEditTools::getSelLevelFromDlg( this, su, sellvlnms,
 						    flattenlvl_.name() );
     bool is2d = SI().has2D();

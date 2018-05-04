@@ -497,7 +497,8 @@ bool uiRadioButton::isChecked() const
 void uiRadioButton::setChecked( bool check )
 {
     mBlockCmdRec;
-    rbbody_->setChecked( check );
+    if ( check != isChecked() )
+	rbbody_->setChecked( check );
 }
 
 
@@ -537,7 +538,8 @@ bool uiCheckBox::isChecked() const
 void uiCheckBox::setChecked( bool yn )
 {
     mBlockCmdRec;
-    cbbody_->setChecked( yn );
+    if ( yn != isChecked() )
+	cbbody_->setChecked( yn );
 }
 
 
@@ -692,7 +694,8 @@ bool uiToolButton::isOn() const { return tbbody_->isChecked(); }
 void uiToolButton::setOn( bool yn )
 {
     mBlockCmdRec;
-    tbbody_->setChecked( yn );
+    if ( yn != isOn() )
+	tbbody_->setChecked( yn );
 }
 
 

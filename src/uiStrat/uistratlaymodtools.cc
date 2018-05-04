@@ -266,7 +266,7 @@ const char* uiStratLayModEditTools::getSelLevelFromDlg(
 	uiParent* parent, const uiDialog::Setup& dlgsu,
 	const uiStringSet& alllvlnms, const char* sellevlnm )
 {
-    uiDialog dlg( parent, dlgsu);
+    uiDialog dlg( parent, dlgsu );
 
     const uiListBox::Setup setup( OD::ChooseOnlyOne, tr("Selected Markers"),
 				  uiListBox::AboveMid );
@@ -278,7 +278,9 @@ const char* uiStratLayModEditTools::getSelLevelFromDlg(
     if ( !dlg.go() )
 	return 0;
 
-    return lcb->box()->text();
+    mDeclStaticString( ret );
+    ret.set( lcb->box()->text() );
+    return ret.str();
 }
 
 
