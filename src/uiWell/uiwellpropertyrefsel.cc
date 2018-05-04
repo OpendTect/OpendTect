@@ -37,7 +37,7 @@ uiWellSinglePropSel::uiWellSinglePropSel( uiParent* p, const PropertyRef& pr,
     , propref_(pr)
     , altpropref_(alternatepr)
     , altbox_(0)
-    , altpref_(0)
+    , altpref_(-1)
     , altPropChosen(this)
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox(this, toUiString(pr.name()));
@@ -61,12 +61,15 @@ uiWellSinglePropSel::uiWellSinglePropSel( uiParent* p, const PropertyRef& pr,
 }
 
 
+static const char* sNoUnMeasLbl = "-";
+
+
 bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
 {
     normnms_.setEmpty(); altnms_.setEmpty();
     normnms_.add( sKeyPlsSel ); altnms_.add( sKeyPlsSel );
     normunmeaslbls_.setEmpty(); altunmeaslbls_.setEmpty();
-    normunmeaslbls_.add( "-" ); altunmeaslbls_.add( "-" );
+    normunmeaslbls_.add( sNoUnMeasLbl ); altunmeaslbls_.add( sNoUnMeasLbl );
 
     BoolTypeSet arealt;
     TypeSet<int> logidxs = wls.getSuitable( propref_.stdType(),
@@ -85,13 +88,13 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
     const int nrnorm = normnms_.size();
     const int nralt = altnms_.size();
 
-    if ( !altpref_ )
+    if ( altpref_ < 0 )
     {
-	altpref_ = nrnorm < nralt ? 1 : -1;
-	if ( altpref_ && altbox_ )
+	altpref_ = nralt > nrnorm ? 1 : 0;
+	if ( altbox_ )
 	{
 	    NotifyStopper ns( altbox_->activated );
-	    altbox_->setChecked( true );
+	    altbox_->setChecked( altpref_ );
 	}
     }
 
@@ -115,18 +118,31 @@ void uiWellSinglePropSel::switchPropCB( CallBacker* )
 
 void uiWellSinglePropSel::updateLogInfo()
 {
-    const BufferStringSet& nms = altPropSelected() ? altnms_ : normnms_;
-    lognmfld_->setEmpty(); lognmfld_->addItems( nms );
+    const bool isalt = altPropSelected();
+    const BufferStringSet& nms = isalt ? altnms_ : normnms_;
     const int sz = nms.size();
-    const int selidx = nms.size() < 3 ? sz-1
-			: nms.nearestMatch( selPropRef().name() );
+    if ( sz < 1 )
+	return;
+
+    const BufferString selpropnm = selPropRef().name();
+    int selidx = 0;
+    if ( sz < 2 || nms.get(0) != sKeyPlsSel )
+	selidx = nms.nearestMatch( selpropnm );
+    else
+    {
+	BufferStringSet matchnms = nms;
+	matchnms.removeSingle( 0 );
+	selidx = matchnms.nearestMatch( selpropnm ) + 1;
+    }
+
+    lognmfld_->setEmpty(); lognmfld_->addItems( nms );
     BufferString selunstr;
     if ( selidx >= 0 )
     {
 	lognmfld_->setCurrentItem( selidx );
-	selunstr.set( (altPropSelected() ? altunmeaslbls_ : normunmeaslbls_)
-				.get(selidx) );
+	selunstr.set( (isalt ? altunmeaslbls_ : normunmeaslbls_).get(selidx) );
     }
+
     if ( !selunstr.isEmpty() )
 	unfld_->setUnit( selunstr );
 
@@ -238,12 +254,15 @@ uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
 
 void uiWellPropSel::updateSelCB( CallBacker* c )
 {
-    if ( !c ) return;
+    if ( !c )
+	return;
 
     mDynamicCastGet(uiWellSinglePropSel*, fld, c);
-    if ( !fld ) return;
+    if ( !fld )
+	return;
     const Well::Data* wd = Well::MGR().get( wellid_ );
-    if  ( !wd ) return;
+    if  ( !wd )
+	return;
 
     const Well::Log* log = wd->logs().getLog( fld->logName() );
     const char* logunitnm = log ? log->unitMeasLabel() : 0;
@@ -261,7 +280,8 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
 	isreverted = false;
     else if ( altpropref && altpropref->stdType() == logun->propType() )
 	isreverted = true;
-    else return;
+    else
+	return;
     fld->selectAltProp( isreverted );
     fld->setUOM ( *logun );
 }
