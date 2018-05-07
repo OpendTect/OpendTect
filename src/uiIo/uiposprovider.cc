@@ -53,7 +53,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	    reqnms.add( sKey::Table() );
 	    reqnms.add( sKey::Polygon() );
 	    reqnms.add( "Seismic Cube Positions" );
-	    			// In 7.x, sKey::SeisCubePositions()
+				// In 7.x, sKey::SeisCubePositions()
 	}
 	else if ( setup_.choicetype_ == Setup::VolumeTypes )
 	{
@@ -241,7 +241,8 @@ void uiPosProvider::setSampling( const TrcKeyZSampling& tkzs )
 }
 
 
-void uiPosProvider::getSampling( TrcKeyZSampling& tkzs, const IOPar* pars ) const
+void uiPosProvider::getSampling( TrcKeyZSampling& tkzs,
+				 const IOPar* pars ) const
 {
     IOPar iop;
     if ( pars )
@@ -566,6 +567,7 @@ ret uiPosSubSel::nm( typ arg ) cnst \
 ret uiPosSubSel::nm( typ1 arg1, typ2 arg2 ) cnst \
 { \
     ps_->nm( arg1, arg2 ); \
+    selChg(0); \
 }
 
 mDefFn(void,usePar,const IOPar&,iop,,)
