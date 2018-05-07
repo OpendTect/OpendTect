@@ -566,6 +566,7 @@ ret uiPosSubSel::nm( typ arg ) cnst \
 ret uiPosSubSel::nm( typ1 arg1, typ2 arg2 ) cnst \
 { \
     ps_->nm( arg1, arg2 ); \
+    selChg(0); \
 }
 
 mDefFn(void,usePar,const IOPar&,iop,,)
