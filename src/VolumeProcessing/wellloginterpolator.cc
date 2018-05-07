@@ -47,8 +47,8 @@ bool init( InterpolationLayerModel& layermodel )
 {
     const bool zistime = SI().zIsTime();
     RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbky_,
-				  Well::LoadReqs( Well::Trck, Well::D2T,
-						  Well::Logs ) );
+		Well::LoadReqs(Well::Trck,Well::D2T,
+			       Well::Logs).add(Well::Mrkrs) );
     if ( !wd )
 	return false;
 
