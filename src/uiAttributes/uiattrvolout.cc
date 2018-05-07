@@ -172,9 +172,9 @@ void uiAttrVolOut::updateAttributes( const Attrib::DescSet& descset,
     delete ads_;
     ads_ = new Attrib::DescSet( descset );
     if ( todofld_ )
-    {
-	todofld_->setDescSet( ads_ );
+    { // Do not change this order!
 	todofld_->setNLAModel( nlamodel );
+	todofld_->setDescSet( ads_ );
     }
 
     if ( attrselfld_ )
