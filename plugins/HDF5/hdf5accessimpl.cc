@@ -242,12 +242,10 @@ void HDF5::AccessImpl::doCloseFile( Access& acc )
 }
 
 
-H5::DataType HDF5::AccessImpl::h5DataTypeFor( ODDataType datarep )
+const H5::PredType& HDF5::AccessImpl::h5DataTypeFor( ODDataType datarep )
 {
-    H5DataType ret = H5::PredType::IEEE_F32LE;
-
-#   define mHandleCase(od,hdf) \
-	case OD::od:	    ret = H5::PredType::hdf; break
+#   define mHandleCase(odtyp,hdftyp) \
+	case OD::odtyp:	    return H5::PredType::hdftyp;
 
     switch ( datarep )
     {
@@ -262,7 +260,7 @@ H5::DataType HDF5::AccessImpl::h5DataTypeFor( ODDataType datarep )
 	default: break;
     }
 
-    return ret;
+    return H5::PredType::IEEE_F32LE;
 }
 
 

@@ -38,7 +38,7 @@ public:
 
 protected:
 
-    typedef H5::DataType H5DataType;
+    typedef H5::PredType H5DataType;
 
 			AccessImpl(const AccessImpl&)	= delete;
 
@@ -49,7 +49,7 @@ protected:
 
 			// no throw
     void		doCloseFile(Access&);
-    static H5::DataType	h5DataTypeFor(ODDataType);
+    static const H5DataType& h5DataTypeFor(ODDataType);
     bool		atGroup(const char*&) const;
     bool		atDataSet(const char*) const;
     bool		selectGroup(const char*);

@@ -144,12 +144,12 @@ HDF5::ODDataType HDF5::ReaderImpl::getDataType() const
 
     try
     {
-	const H5::DataType dt = dataset_.getDataType();
+	const H5::DataType& dt = dataset_.getDataType();
 	bool issigned = true, isfp = true;
 	if ( dt.getClass() == H5T_INTEGER )
 	{
 	    isfp = false;
-	    issigned = dataset_.getIntType().getSign() == H5T_SGN_NONE;
+	    issigned = dataset_.getIntType().getSign() != H5T_SGN_NONE;
 	}
 	ret = OD::GetDataRepType( isfp, issigned, dt.getSize() );
     }
@@ -181,7 +181,7 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
     catch ( ... )
 	{ return; }
 
-    const H5::DataType h5dt = H5::PredType::C_S1;
+    const H5DataType h5dt = H5::PredType::C_S1;
     for ( int idx=0; idx<nrattrs; idx++ )
     {
 	try {
@@ -199,7 +199,7 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
 }
 
 
-HDF5::ReaderImpl::H5DataType HDF5::ReaderImpl::h5DataType() const
+const HDF5::ReaderImpl::H5DataType& HDF5::ReaderImpl::h5DataType() const
 {
     // makes sure we get data one of our data types
     return h5DataTypeFor( getDataType() );
@@ -260,9 +260,11 @@ void HDF5::ReaderImpl::gtSlab( const SlabSpec& spec, void* data,
     try
     {
 	H5::DataSpace filedataspace = dataset_.getSpace();
+	filedataspace.selectAll();
 	selectSlab( filedataspace, spec, &counts );
 	H5::DataSpace memdataspace( nrdims_, counts.arr() );
-	dataset_.read( data, h5DataType(), memdataspace, filedataspace );
+	const H5DataType& h5dt = h5DataType();
+	dataset_.read( data, h5dt, memdataspace, filedataspace );
     }
     mCatchErrDuringRead()
 }

@@ -293,10 +293,10 @@ static bool testRead()
 }
 
 
-static bool sampsOK( const short* data, const short* expected )
+static bool sampsOK( const short* data, const short* expected, int nrsamps )
 {
     bool allok = true;
-    for ( int isamp=0; isamp<25; isamp++ )
+    for ( int isamp=0; isamp<nrsamps; isamp++ )
     {
 	if ( data[isamp] != expected[isamp] )
 	{
@@ -337,10 +337,10 @@ static bool testSmallCube()
     mAddTestResult( "Read entire first trace in block" );
 
     const short expected_0_0[25] = {
-	3786, -3128, -2840, 3555, -2726, -8136, 3820, 9823, -1327, -5408,
+	3786, -3128, -2840, 3555, -2726, -8163, 3820, 9823, -1327, -5408,
 	686, -142, -3595, -1721, 21, 1817, 4446, 2600, 59, 437,
 	-2379, -5331, -775, 3593, 1407 };
-    bool sampsok1 = sampsOK( data, expected_0_0 );
+    bool sampsok1 = sampsOK( data, expected_0_0, 25 );
 
     slabspec[0].start_ = 2;
     slabspec[1].start_ = 1;
@@ -348,11 +348,9 @@ static bool testSmallCube()
     slabspec[2].count_ = 10;
     uirv = rdr->getSlab( slabspec, data );
     mAddTestResult( "Read another trace (+2 inls, +1 crl, +10 samps)" );
-    const short expected_2_1[25] = {
-	2559, -1551, -4620, -2825, -571, 2442, 4799, 3742, 2602, 892,
-	-3967, -5537, -587, 2497, 501, -734, 569, 1439, 323, -1323,
-	-498, 1270, -396, -1966, 1029 };
-    bool sampsok2 = sampsOK( data, expected_2_1 );
+    const short expected_2_1[10] = {
+	2559, -1551, -4620, -2825, -571, 2442, 4799, 3742, 2602, 892 };
+    bool sampsok2 = sampsOK( data, expected_2_1, 10 );
 
     mRunStandardTest( sampsok1, "Sample values @ 0/0/0" )
     mRunStandardTest( sampsok2, "Sample values @ 2/1/10" )
@@ -374,9 +372,10 @@ int mTestMainFnName( int argc, char** argv )
     }
 
     filename_.set( File::Path(File::getTempPath(),"test.hd5").fullPath() );
-    if ( !testWrite() || !testRead() )
-	return 1;
     if ( !testSmallCube() )
+	return 1;
+
+    if ( !testWrite() || !testRead() )
 	return 1;
 
     return 0;

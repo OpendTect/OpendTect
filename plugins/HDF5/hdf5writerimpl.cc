@@ -143,7 +143,7 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
 	    }
 	    hsize_t dims[1]; dims[0] = 1;
 	    const char data = '\0';
-	    const H5::DataType h5dt = H5::PredType::C_S1;
+	    const H5DataType h5dt = H5::PredType::C_S1;
 	    try
 	    {
 		ds = group_.createDataSet( DataSetKey::sGroupInfoDataSetName(),
@@ -175,7 +175,7 @@ static BufferString getWriteStr( const char* inpstr, int nrchars )
 void HDF5::WriterImpl::putAttrib( H5::DataSet& h5ds, const IOPar& iop,
 				  uiRetVal& uirv )
 {
-    const H5::DataType h5dt = H5::PredType::C_S1;
+    const H5DataType h5dt = H5::PredType::C_S1;
     const int nrchars = iop.maxContentSize( false ) + 1;
     hsize_t dims[1]; dims[0] = nrchars;
     try

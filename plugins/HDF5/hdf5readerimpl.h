@@ -22,8 +22,6 @@ mExpClass(HDF5) ReaderImpl : public Reader
 {
 public:
 
-    typedef H5::DataType	H5DataType;
-
 			ReaderImpl();
 			~ReaderImpl();
 
@@ -55,7 +53,7 @@ protected:
 
     template <class H5Dir>
     void		listObjs(const H5Dir&,BufferStringSet&,bool) const;
-    H5DataType		h5DataType() const;
+    const H5DataType&	h5DataType() const;
 
 };
 
