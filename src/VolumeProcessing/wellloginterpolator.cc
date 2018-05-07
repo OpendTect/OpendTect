@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
+#include "wellmarker.h"
 #include "wellreader.h"
 #include "welltrack.h"
 
@@ -66,10 +67,14 @@ bool init( InterpolationLayerModel& layermodel )
 	    return false;
 
 	wd = const_cast<Well::Data*>( wddb );
-	if ( !wd->logs().getLog(logname_) )
+	const bool haslog = wd->logs().getLog( logname_ );
+	const bool hasmarkers = !wd->markers().isEmpty();
+	if ( !haslog || !hasmarkers )
 	{
 	    Well::Reader wrdr( mid_, *wd );
-	    if ( !wrdr.getLog(logname_) )
+	    if ( !haslog && !wrdr.getLog(logname_) )
+		return false;
+	    if ( !hasmarkers && !wrdr.getMarkers() )
 		return false;
 	}
     }
@@ -77,7 +82,7 @@ bool init( InterpolationLayerModel& layermodel )
     {
 	Well::Reader wrdr( mid_, *wd );
 	if ( !wrdr.getTrack() || ( zistime && !wrdr.getD2T() ) ||
-	     !wrdr.getLog(logname_) )
+	     !wrdr.getLog(logname_) || !wrdr.getMarkers() )
 	    return false;
     }
 
