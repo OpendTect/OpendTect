@@ -300,6 +300,39 @@ void Pos::EMSurfaceProvider::getSummary( uiString& txt ) const
 }
 
 
+bool Pos::EMSurfaceProvider::getZRange( const TrcKey& tk,
+				   Interval<float>& zrg ) const
+{
+    zrg.setUdf();
+    mDynamicCastGet(EM::Horizon*,hor1,surf1_)
+    if ( !hor1 )
+	return false;
+
+    const float z1 = hor1->getZ( tk );
+    if ( mIsUdf(z1) )
+	return false;
+
+    mDynamicCastGet(EM::Horizon*,hor2,surf2_)
+    if ( hor2 )
+    {
+	const float z2 = hor2->getZ( tk );
+	if ( mIsUdf(z2) )
+	    return false;
+
+	zrg.set( z1, z2 );
+	zrg.sort();
+    }
+    else
+    {
+	zrg.start = z1 - SI().zStep()/2;
+	zrg.stop = z1 + SI().zStep()/2;
+    }
+
+    zrg += extraz_;
+    return true;
+}
+
+
 void Pos::EMSurfaceProvider::getZRange( Interval<float>& zrg ) const
 {
     if ( !surf1_ ) return;
@@ -370,31 +403,13 @@ bool Pos::EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
     if ( !surf1_ )
 	return true;
 
-    // TODO: support multiple sections
     Interval<float> zrg;
-    const EM::PosID posid = EM::PosID::getFromRowCol(bid);
-    const Coord3 crd1 = surf1_->getPos( posid );
-    if ( !crd1.isDefined() )
+    const bool res =
+	EMSurfaceProvider::getZRange( TrcKey(bid), zrg );
+    if ( !res || zrg.isUdf() )
 	return false;
 
-    if ( surf2_ )
-    {
-	const Coord3 crd2 = surf2_->getPos( posid );
-	if ( !crd2.isDefined() )
-	    return false;
-
-	zrg.start = (float) crd1.z_;
-	zrg.stop = (float) crd2.z_;
-	zrg.sort();
-    }
-    else
-    {
-	zrg.start = (float) crd1.z_ - SI().zStep()/2;
-	zrg.stop = (float) crd1.z_ + SI().zStep()/2;
-    }
-
-    zrg += extraz_;
-    return zrg.includes( z, false );
+    return mIsUdf(z) ? true : zrg.includes( z, false );
 }
 
 
@@ -491,50 +506,15 @@ bool Pos::EMSurfaceProvider2D::includes( const Coord& c, float z ) const
 }
 
 
-bool Pos::EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
+bool Pos::EMSurfaceProvider2D::includes( int trcnr, float z, int lidx ) const
 {
-    const Survey::Geometry* geometry = Survey::GM().getGeometry( geomID(lidx) );
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
-    if ( !geom2d )
-	return false;
-
-    const PosInfo::Line2DData& l2d = geom2d->data();
-    if ( l2d.lineName().isEmpty() || l2d.indexOf(nr)<0 )
-	return false;
-
-    mDynamicCastGet(EM::Horizon2D*,hor2d1,surf1_);
-    if ( !hor2d1 )
-	return false;
-
     Interval<float> zrg;
-    BinID bid;
-    bid.crl() = nr;
-    bid.inl() = hor2d1->geometry().lineIndex( l2d.lineName().buf() );
-    const Coord3 crd1 =
-	hor2d1->getPos( EM::PosID::getFromRowCol(bid) );
-    if ( !crd1.isDefined() )
+    const bool res =
+	EMSurfaceProvider::getZRange( TrcKey(geomID(lidx),trcnr), zrg );
+    if ( !res || zrg.isUdf() )
 	return false;
 
-    mDynamicCastGet(EM::Horizon2D*,hor2d2,surf2_);
-    if ( hor2d2 )
-    {
-	bid.inl() =hor2d2->geometry().lineIndex(l2d.lineName().buf());
-	const Coord3 crd2 = hor2d2->getPos( EM::PosID::getFromRowCol(bid) );
-	if ( !crd2.isDefined() )
-	    return false;
-
-	zrg.start = (float) crd1.z_;
-	zrg.stop = (float) crd2.z_;
-	zrg.sort();
-    }
-    else
-    {
-	zrg.start = (float) crd1.z_ - SI().zStep()/2;
-	zrg.stop = (float) crd1.z_ + SI().zStep()/2;
-    }
-
-    zrg += extraz_;
-    return zrg.includes( z, false );
+    return mIsUdf(z) ? true : zrg.includes( z, false );
 }
 
 
