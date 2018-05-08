@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
 static const int cMaxNrPDFs = 5;
-static const uiString sKeyBayesClss() 
+static const uiString sKeyBayesClss()
 { return  od_static_tr("sKeyBayesClss","Bayesian classification"); }
 #define mInpPDFs	10
 #define mGetNorm	11
@@ -120,7 +120,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	else
 	{
 	    fld->attach( alignedBelow, flds_[idx-1] );
-	    uiButton* rmbut = new uiPushButton( this, tr("<- Less"), 
+	    uiButton* rmbut = new uiPushButton( this, tr("<- Less"),
 						pushcb, true);
 	    rmbut->attach( rightAlignedBelow, fld );
 	    rmbuts_ += rmbut;
@@ -413,7 +413,7 @@ public:
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Seismics").arg(sKeyBayesClss()),
 					tr("[3] Specify Seismic input"),
-					mODHelpKey(mSeisBayesSeisInpHelpID) ), 
+					mODHelpKey(mSeisBayesSeisInpHelpID) ),
 					pars,Middle)
     , lsfld_(0)
     , is2d_(*pars[sKey::Type()] == '2')
@@ -505,7 +505,7 @@ public:
 uiSeisBayesOut( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Output").arg(sKeyBayesClss()),
 					tr("[4] Select and specify output"),
-					mODHelpKey(mSeisBayesOutHelpID) ), 
+					mODHelpKey(mSeisBayesOutHelpID) ),
 					pars,DoWork)
     , is2d_(*pars[sKey::Type()] == '2')
     , haveclass_(true)
@@ -550,11 +550,13 @@ void addOut( const char* nm, bool ispdf )
     if ( !ispdf )
 	su.seltxt_ = toUiString(nm);
     else
-    { su.seltxt_ = uiString(tr("P: '%1'")).arg( nm ); }
+	su.seltxt_ = uiString(tr("Probability: '%1'")).arg( nm );
 
     const int nrflds = flds3d_.size();
     int curidx = nrflds;
-    if ( !ispdf && !haveclass_ ) curidx += 2;
+    if ( !ispdf && !haveclass_ )
+	curidx += 2;
+
     uiSeisSel* fld = new uiSeisSel( this, ctxt, su );
     const char* id = pars_.find( mGetSeisBayesSeisOutIDKey(curidx) );
     fld->setInput( MultiID(id) );
