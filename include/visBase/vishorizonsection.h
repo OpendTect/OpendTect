@@ -149,6 +149,7 @@ public:
     bool			usingNeighborsInIsolatedLine() const;
 
     void			setLineWidth(int);
+    int				getLineWidth() const;
 
 protected:
 				~HorizonSection();

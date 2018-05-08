@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vishorizonsectiontileglue.h"
 
 #include "binidsurface.h"
+#include "hiddenparam.h"
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "vistransform.h"
@@ -27,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgUtil/CullVisitor>
 
 
-mCreateFactoryEntry( visBase::HorizonSection );
+mCreateFactoryEntry( visBase::HorizonSection )
 
 namespace visBase
 {
@@ -219,6 +220,7 @@ bool HorizonSection::NodeCallbackHandler::eyeChanged( const osg::Vec3 projdir )
 
 //===========================================================================
 
+static HiddenParam<HorizonSection,int> linewidths(0);
 
 HorizonSection::HorizonSection()
     : VisualObjectImpl( false )
@@ -269,6 +271,8 @@ HorizonSection::HorizonSection()
 
     queueid_ = Threads::WorkManager::twm().addQueue(
 		Threads::WorkManager::Manual, "HorizonSection" );
+
+    linewidths.setParam( this, 1 );
 }
 
 
@@ -305,6 +309,7 @@ HorizonSection::~HorizonSection()
     hortilescreatorandupdator_->unRef();
 
     Threads::WorkManager::twm().removeQueue( queueid_, false );
+    linewidths.removeParam( this );
 }
 
 
@@ -411,6 +416,7 @@ void HorizonSection::setWireframeColor( Color col )
 
 void HorizonSection::setLineWidth( int width )
 {
+    linewidths.setParam( this, width );
     HorizonSectionTile** tileptrs = tiles_.getData();
     spinlock_.lock();
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
@@ -419,6 +425,12 @@ void HorizonSection::setLineWidth( int width )
 	    tileptrs[idx]->setLineWidth( width );
     }
     spinlock_.unLock();
+}
+
+
+int HorizonSection::getLineWidth() const
+{
+    return linewidths.getParam( this );
 }
 
 

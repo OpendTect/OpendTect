@@ -78,6 +78,7 @@ void HorizonSectionTile::buildOsgGeometries()
     osgswitchnode_->addChild( bottomtileglue_->getGeode() );
 
     initvertices();
+    setLineWidth( hrsection_.getLineWidth() );
 }
 
 
