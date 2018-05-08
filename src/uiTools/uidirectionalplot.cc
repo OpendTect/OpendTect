@@ -60,7 +60,7 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     setPrefHeight( setup_.prefsize_.height() );
     setStretch( 2, 2 );
     getMouseEventHandler().buttonReleased.notify(
-			    mCB(this,uiDirectionalPlot,mouseRelease) );
+			mCB(this,uiDirectionalPlot,mouseRelease) );
 
     reSize.notify( mCB(this,uiDirectionalPlot,reSized) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
@@ -158,9 +158,11 @@ void uiDirectionalPlot::gatherInfo()
 
 void uiDirectionalPlot::draw()
 {
-    if ( isempty_ ) return;
-    const uiSize uitotsz( width(), height() );
-    uiBorder border( font()->height() + 5 );
+    if ( isempty_ )
+	return;
+
+    const uiSize uitotsz( viewWidth(), viewHeight() );
+    uiBorder border( 20 );
     center_ = uiPoint( uitotsz.width() / 2, uitotsz.height() / 2 );
     const uiRect avrect( border.getRect(uitotsz) );
     radius_ = (avrect.width() > avrect.height()
@@ -190,13 +192,13 @@ void uiDirectionalPlot::drawGrid()
     {
 	outercircleitm_ = scene().addItem( new uiCircleItem(center_,radius_) );
 	outercircleitm_->setPenStyle( setup_.circlels_ );
-	outercircleitm_->setZValue( 1 );
+	outercircleitm_->setZValue( 0 );
 	for ( int idx=0; idx<4; idx++ )
 	{
 	    const float rad = (.2f + .2f*idx)*radius_ ;
-	    uiCircleItem* ci = scene().addItem( new uiCircleItem(center_,
-							     mNINT32(rad)) );
-	    ci->setZValue( 1 );
+	    uiCircleItem* ci = scene().addItem(
+				new uiCircleItem(center_,mNINT32(rad)) );
+	    ci->setZValue( 0 );
 	    equicircles_ += ci;
 	    ci->setPenStyle( setup_.equils_ );
 	}
@@ -215,6 +217,7 @@ void uiDirectionalPlot::drawGrid()
 	uiLineItem* li = new uiLineItem( center_, mathang, (float) radius_ );
 	sectorlines_.add( li );
 	li->setPenStyle( setup_.sectorls_ );
+	li->setZValue( 0 );
     }
 }
 
@@ -237,13 +240,15 @@ void uiDirectionalPlot::drawScale()
 	scalestartptitem_->setPos( startpt );
     }
 
+    const bool isvisible = scalearcitm_ ? scalearcitm_->isVisible() : true;
     delete scalearcitm_; scalearcitm_ = 0;
     const Interval<float> angs( Angle::usrdeg2rad(120.F),
 				Angle::usrdeg2rad(150.F) );
     const float r = startpt.distTo<float>( endpt );
     scalearcitm_ = scene().addItem(
-	    new uiCurvedItem(uiPointFromPolar(startpt,r,angs.start)) );
+		new uiCurvedItem(uiPointFromPolar(startpt,r,angs.start)) );
     scalearcitm_->drawTo( uiCurvedItem::ArcSpec(startpt,r,angs) );
+    scalearcitm_->setVisible( isvisible );
 
     const char* nm = setup_.nameforpos_;
     if ( !*nm ) nm = "Values";
@@ -290,7 +295,7 @@ void uiDirectionalPlot::drawHeader()
     }
 
     if ( hdrannotitm2_ )
-	hdrannotitm2_->setPos( uiPoint(width()-1,0) );
+	hdrannotitm2_->setPos( uiPoint(viewWidth()-1,0) );
 }
 
 
@@ -306,7 +311,7 @@ void uiDirectionalPlot::drawColTab()
 	coltabitm_->setSequence( *colseq_ );
 
     const uiRect br( coltabitm_->boundingRect() );
-    uiPoint targettl( 5, height() - br.height() - 5 );
+    uiPoint targettl( 20, viewHeight() - br.height() - 5 );
     coltabitm_->setPos( targettl );
 }
 
@@ -342,20 +347,26 @@ void uiDirectionalPlot::drawDirAnnot()
 	    uiTextItem* ti = scene().addItem( new uiTextItem(txt,al) );
 	    dirtxtitms_ += ti;
 
-	    uiPoint pt( isew ? (idx==1 ? 2 : -2) : 0,
-		        isew ? 0 : (idx==2 ? 2 : -2) );
+	    uiPoint pt( isew ? (idx==1 ? 4 : -4) : 0,
+		        isew ? 0 : (idx==2 ? 4 : -4) );
 	    dirlnitms_ += scene().addItem( new uiLineItem(pt00,pt) );
 	}
     }
 
-    const uiPoint npt( center_.x_, center_.y_ - radius_ - 2 );
-    const uiPoint ept( center_.x_ + radius_ + 2, center_.y_ );
-    const uiPoint spt( center_.x_, center_.y_ + radius_ + 2 );
-    const uiPoint wpt( center_.x_ - radius_ - 2, center_.y_ );
-    dirtxtitms_[0]->setPos( npt ); dirlnitms_[0]->setPos( npt );
-    dirtxtitms_[1]->setPos( ept ); dirlnitms_[1]->setPos( ept );
-    dirtxtitms_[2]->setPos( spt ); dirlnitms_[2]->setPos( spt );
-    dirtxtitms_[3]->setPos( wpt ); dirlnitms_[3]->setPos( wpt );
+    const uiPoint nln( center_.x_,		center_.y_-radius_ );
+    const uiPoint eln( center_.x_+radius_,	center_.y_ );
+    const uiPoint sln( center_.x_,		center_.y_+radius_ );
+    const uiPoint wln( center_.x_-radius_,	center_.y_ );
+
+    const uiPoint npt( center_.x_,		center_.y_-radius_-5 );
+    const uiPoint ept( center_.x_+radius_+6,	center_.y_ );
+    const uiPoint spt( center_.x_,		center_.y_+radius_+2 );
+    const uiPoint wpt( center_.x_-radius_-6,	center_.y_ );
+
+    dirtxtitms_[0]->setPos( npt ); dirlnitms_[0]->setPos( nln );
+    dirtxtitms_[1]->setPos( ept ); dirlnitms_[1]->setPos( eln );
+    dirtxtitms_[2]->setPos( spt ); dirlnitms_[2]->setPos( sln );
+    dirtxtitms_[3]->setPos( wpt ); dirlnitms_[3]->setPos( wln );
 }
 
 
@@ -462,6 +473,7 @@ uiCurvedItem* uiDirectionalPlot::drawSectorPart( int isect, Interval<float> rrg,
     ci->drawTo( as );
     ci->setFillColor( col );
     ci->closeCurve();
+    ci->setZValue( 5 );
     return ci;
 }
 
@@ -521,6 +533,8 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 	    curveitems_.add( ci );
 	}
     }
+
+    curveitems_.setZValue( 10 );
 }
 
 
