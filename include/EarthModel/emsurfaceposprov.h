@@ -57,6 +57,7 @@ public:
     virtual void	fillPar(IOPar&) const;
     virtual void	getSummary(BufferString&) const;
 
+    bool		getZRange(const TrcKey&,Interval<float>&) const;
     virtual void	getZRange(Interval<float>&) const;
     virtual od_int64	estNrPos() const { return estnrpos_; }
     virtual int		estNrZPerPos() const;
