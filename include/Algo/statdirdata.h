@@ -71,6 +71,8 @@ public:
 
 			DirectionalData(int nrsectors=0,int nrparts=0);
 
+    void		init(int nrsectors,int nrparts);
+
     SectorPartData&	get( int isect, int ipart )
 			{ return (*((*this)[isect]))[ipart]; }
     const SectorPartData& get( int isect, int ipart ) const
@@ -117,6 +119,9 @@ inline int DirectionalData::sector( float ang, Angle::Type t ) const
 
 inline int DirectionalData::sector( float ang ) const
 {
+    if ( mIsUdf(ang) )
+	return 0;
+
     ang -= setup_.angle0_;
     const float usrang = Angle::convert(setup_.angletype_,ang,Angle::UsrDeg);
     const float fsect = size() * (usrang / 360);
@@ -128,6 +133,14 @@ inline int DirectionalData::sector( float ang ) const
 
 inline DirectionalData::DirectionalData( int nrsect, int nrparts )
 {
+    init( nrsect, nrparts );
+}
+
+
+inline void DirectionalData::init( int nrsect, int nrparts )
+{
+    erase();
+
     for ( int isect=0; isect<nrsect; isect++ )
     {
 	SectorData* sd = new SectorData;
