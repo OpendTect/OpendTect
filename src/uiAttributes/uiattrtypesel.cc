@@ -233,7 +233,7 @@ void uiAttrTypeSel::attrSel( CallBacker* )
 bool uiAttrTypeSel::isGroupDef( const uiString& anm ) const
 {
     uiString grp4query = anm;
-    if ( grp4query.isEqualTo(sAllGroup()) )
+    if ( grp4query == sAllGroup() )
 	grp4query = uiAttrDescEd::sBasicGrp();
     return uiAF().isGroupDef( uiAF().indexOf(grp4query) );
 }

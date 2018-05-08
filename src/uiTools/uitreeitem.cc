@@ -278,7 +278,7 @@ const uiTreeItem* uiTreeItem::findChild( int selkey ) const
 
 uiTreeItem* uiTreeItem::findChild( const uiString& nm )
 {
-    if ( name_.isEqualTo(nm) )
+    if ( name_ == nm )
 	return this;
 
     for ( int idx=0; idx<children_.size(); idx++ )
@@ -310,7 +310,7 @@ uiTreeItem* uiTreeItem::findChild( const char* nm )
 
 void uiTreeItem::findChildren( const uiString& nm, ObjectSet<uiTreeItem>& set )
 {
-    if ( name_.isEqualTo(nm) )
+    if ( name_ == nm )
 	set += this;
 
     for ( int idx=0; idx<children_.size(); idx++ )

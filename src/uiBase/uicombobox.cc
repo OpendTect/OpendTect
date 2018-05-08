@@ -198,7 +198,7 @@ int uiComboBox::indexOf( const uiString& str ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( itemstrings_[idx].isEqualTo(str) )
+	if ( itemstrings_[idx] == str )
 	    return idx;
     }
     return -1;
@@ -333,7 +333,7 @@ void uiComboBox::setCurrentItem( const uiString& txt )
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( itemstrings_.get(idx).isEqualTo(txt) )
+	if ( itemstrings_.get(idx) == txt )
 	{
 	    NotifyStopper stopper(selectionChanged);
 	    body_->setCurrentIndex( idx );

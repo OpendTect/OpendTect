@@ -115,7 +115,7 @@ MenuItem* MenuItemHolder::findItem( const uiString& tofindtxt )
 {
     for ( int idx=0; idx<items_.size(); idx++ )
     {
-	if ( items_[idx]->text.isEqualTo( tofindtxt ) )
+	if ( items_[idx]->text == tofindtxt )
 	    return items_[idx];
     }
 

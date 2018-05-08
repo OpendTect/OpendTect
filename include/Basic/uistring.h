@@ -41,18 +41,10 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
    The string will have an 'original string' of simple ASCI characters, which
    can be used as a 'key' but never for user display.
 
-   The string can have %N arguments. For these, sooner or later arguments must
-   be provided:
-
- \code
-   uiString string = toUiString( "%1 plus %2 is %3")
-			.arg( 4 )
-			.arg( 5 )
-			.arg( 4+5 );
- \endcode
-
+   The string can have %1, %2, ... arguments. For these, sooner or later
+   arguments must be provided, as in:
+   uiString string = tr( "%1 plus %2 is %3").arg( 4 ).arg( 5 ).arg( 4+5 );
    ... will result in the string "4 plus 5 is 9"
-
 
    As such, uiString's are suited for limited text manipulation. But if we
    are doing this for translated words and phrases, beware that alteration and
@@ -69,8 +61,9 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
   -# If you need specific words or phrases not in uistrings.h, then use the
 	mTextTranslationClass(classname,packagekey)
      macro. The packagekey is a string that identifies your software
-     package. OpendTect's internal classes use the "od" package string, and
-     can for short use the mODTextTranslationClass macro.
+     package (probably a short plugin name). OpendTect's internal classes use
+     the "od" package string, and can for short use the mODTextTranslationClass
+     macro.
   -# Use the tr() function for all non-standard strings. The tr() function
      returns a uiString that can be passed to the ui.
   -# For functions not belonging to a class, use the od_static_tr function.
@@ -123,6 +116,10 @@ public:
 		uiString();
 		uiString(const uiString&);	//!< no copy, ref counted
 		~uiString();
+    bool	operator==( const uiString&  oth ) const
+						{ return isEqualTo(oth); }
+    bool	operator!=( const uiString& oth ) const
+						{ return !isEqualTo(oth); }
     uiString&	operator=(const uiString&);	//!< no copy, ref counted
 
 		uiString(const char*)		= delete; // try 'set()'
@@ -223,26 +220,22 @@ public:
 			//!< *translated* with arguments inserted
     wchar_t*		createWCharString() const;
 			//!< returns new string: use 'delete []'.
+
+protected:
+
+    bool		isEqualTo(const uiString& oth) const;
+
 private:
 
     bool			isCacheValid() const;
     const mQtclass(QString)&	getQStringInternal() const;
 
     friend class		uiStringData;
-
-    char*			debugstr_;
-				//<! full string only filled in debug builds.
-
+    mutable char*		debugstr_; //<! full string only when __debug__
     mutable uiStringData*	data_;
     mutable Threads::Lock	datalock_;
-
     static const uiString	emptystring_;
     static uiString		dummystring_;
-
-    bool			operator==( const uiString&  oth ) const
-				{ return isEqualTo( oth ); }
-    bool			operator!=( const uiString& oth ) const
-				{ return !isEqualTo( oth ); }
 
     void			getFullString(BufferString&) const; // toString
 
@@ -262,32 +255,26 @@ public:
 			 const char* disambiguation,
 			 int pluralnr);
 
-    bool	isEqualTo(const uiString& oth) const;
-
     void	encodeStorageString(BufferString&) const;
     int		useEncodedStorageString(const char*);
 		//!< returns -1 for fail, >= 0 the number of chars used
-
     void	getHexEncoded(BufferString&) const;
 		    /*!<Encodes translated string into a const char*
 				    buffer that can has only 0-9 A-F */
     bool	setFromHexEncoded(const char*);
 		    //!Reads hex-data and sets the translated str.
-
-    static const char*	sODLocalizationApplication() { return "od"; }
-
     void	makeIndependent();
 		//!< create a separate copy (with its own ref count)
     uiString&	setArg(int,const uiString&);
-
     void	setFrom(const mQtclass(QString)&);
 		/*!<Set the translated text. No further
 		    translation will be done. */
     void	addAlternateVersion(const uiString&);
-
     bool	translate(const mQtclass(QTranslator)&,
 			  mQtclass(QString)&) const;
 		//!<Returns true if the translation succeeded
+
+    static const char*	sODLocalizationApplication() { return "od"; }
 
     mDeprecated static const uiString& emptyString()	{ return empty(); }
     mDeprecated static uiString& dummyString()		{ return dummy(); }
@@ -345,28 +332,14 @@ inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )
 #define mFromUiStringTodo(i) ::toString(i)
 
 
-/*!Adds translation of strings outside of classes for the "od" package. It
+/*! Adds translation of strings outside of classes for the "od" package. It
    will return a uistring where the context is "static_func_function", where
    'function' is whatever is given as the function parameter. This matches what
    is done in the filtering of the source files before lupdate is run (in
    ./dtect/update_translations.csh).
-
-   \code
-   bool myFunction( int var )
-   {
-       if ( var<5 )
-       {
-	   uiMSG().error(
-	       od_static_tr( "myFunction", "%1 is less than 5" ).arg( var ) );
-       }
-   }
-
-   \endcode
 */
-mGlobal(Basic) uiString od_static_tr(const char* context,const char* text,
+mGlobal(Basic) uiString od_static_tr(const char* function_name,const char* text,
 				const char* disambiguation=0,int pluralnr=-1);
-
-mGlobal(Basic) uiWord getUiYesNoWord(bool);
 
 template <class T> inline
 uiString& uiString::arg( const T& var )
@@ -388,7 +361,6 @@ inline uiString& uiString::arg( double val, int nrdec )
 #define mGetQStr( qstr, uistring_var ) \
     QString qstr; (uistring_var).fillQString( qstr )
 
-
 #define mDefIncorrectAppendPhrArgs \
     sep=='\n' ? NoSep : (sep=='\t' ? Tab : Space), \
     sep=='\n' ? OnNewLine : OnSameLine
@@ -406,4 +378,5 @@ inline uiString& uiString::appendIncorrect( const OD::String& str, char sep )
 #define mStoreduiStringPreamble		"^&"
 
 
+// We need the sets so often that we include it here
 #include "uistringset.h"

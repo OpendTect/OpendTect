@@ -88,7 +88,7 @@ int uiAttributeFactory::indexOf( const uiString& nm ) const
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
-	if ( entries_[idx]->dispnm_.isEqualTo(nm) )
+	if ( entries_[idx]->dispnm_ == nm )
 	    return idx;
     }
     return -1;

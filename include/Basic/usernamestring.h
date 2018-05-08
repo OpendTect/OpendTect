@@ -5,8 +5,7 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
- Date:		12-4-2000
- Contents:	Variable buffer length strings with minimum size.
+ Date:		2017
 ________________________________________________________________________
 
 -*/
@@ -21,6 +20,9 @@ ________________________________________________________________________
   * Can be created via operations on other UserNameString's (to fill defaults)
   * Has no trivial conversion from/to OD::String's, but does have that for
     translated strings (uiString's)
+
+    This is a sketch of how we could make such a thing work, it's not used yet.
+    To actually start using it would be a *major* undertaking.
 
 */
 
@@ -44,13 +46,13 @@ public:
     explicit operator	const uiString&() const		{ return impl_; }
 
     inline bool		operator==( const UserNameString& oth ) const
-			{ return impl_.isEqualTo( oth.impl_ ); }
+			{ return impl_ == oth.impl_; }
     inline bool		operator==( const uiString& s ) const
-			{ return impl_.isEqualTo( s ); }
+			{ return impl_ == s; }
     inline bool		operator!=( const UserNameString& oth ) const
-			{ return !impl_.isEqualTo( oth.impl_ ); }
+			{ return impl_ != oth.impl_; }
     inline bool		operator!=( const uiString& s ) const
-			{ return !impl_.isEqualTo( s ); }
+			{ return impl_ != s; }
 
     UserNameString&	setEmpty()
 			{ impl_.setEmpty(); return *this; }

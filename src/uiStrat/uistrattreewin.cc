@@ -258,7 +258,7 @@ void uiStratTreeWin::createGroups()
 
 void uiStratTreeWin::setExpCB( CallBacker* )
 {
-    const bool expand = expandmnuitem_->text().isEqualTo( sExpandTxt() );
+    const bool expand = expandmnuitem_->text() == sExpandTxt();
     uitree_->expand( expand );
     expandmnuitem_->setText( expand ? sCollapseTxt() : sExpandTxt() );
     expandmnuitem_->setIcon( expand ? "collapse_tree" : "expand_tree" );
@@ -284,7 +284,7 @@ void uiStratTreeWin::newCB( CallBacker* )
 
 void uiStratTreeWin::editCB( CallBacker* )
 {
-    setEditable( editmnuitem_->text().isEqualTo(sEditTxt(true)) );
+    setEditable( editmnuitem_->text() == sEditTxt(true) );
 }
 
 

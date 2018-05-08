@@ -72,20 +72,18 @@ bool testArg()
     const uiString part1 = toUiString( "Part 1" );
     const uiString part2 = toUiString( "Part 2" );
     uiString res = part1; res.constructWordWith( part2 );
-    mRunStandardTest( res.isEqualTo(toUiString("Part 1Part 2")),
+    mRunStandardTest( res == toUiString("Part 1Part 2"),
 				"constructWordWith(no space)" );
     res = part1; res.constructWordWith( part2, true );
-    mRunStandardTest( res.isEqualTo(toUiString("Part 1 Part 2")),
+    mRunStandardTest( res == toUiString("Part 1 Part 2"),
 				"constructWordWith(with space)" );
     res = part1; res.appendAfterList( part2 );
-    mRunStandardTest( res.isEqualTo(toUiString("Part 1\nPart 2")),
-				"appendAfterList()" );
+    mRunStandardTest( res == toUiString("Part 1\nPart 2"), "appendAfterList()");
     res = part1; res.appendPhraseSameLine( part2 );
-    mRunStandardTest( res.isEqualTo(toUiString("Part 1. Part 2")),
+    mRunStandardTest( res == toUiString("Part 1. Part 2"),
 				"appendPhraseSameLine(Unrelated)" );
     res = part1; res.appendPhrase( part2 );
-    mRunStandardTest( res.isEqualTo(toUiString("Part 1.\nPart 2")),
-				"appendPhrase()" );
+    mRunStandardTest( res == toUiString("Part 1.\nPart 2"), "appendPhrase()" );
 
     return true;
 }
@@ -118,14 +116,12 @@ bool testIsEqual()
     const uiString a2 = toUiString( "A" );
     const uiString b = toUiString( "B" );
 
-    mRunStandardTest( a.isEqualTo(a2),
-	    "Is equal is true for equal strings, test 1" );
-    mRunStandardTest( !a.isEqualTo(b),
+    mRunStandardTest( a == a2, "Is equal is true for equal strings, test 1" );
+    mRunStandardTest( a != b,
 	    "Is equal is false for different strings, test 1" );
 
-    mRunStandardTest( a2.isEqualTo(a),
-	    "Is equal is true for equal strings, test 2" );
-    mRunStandardTest( !b.isEqualTo(a),
+    mRunStandardTest( a2 == a, "Is equal is true for equal strings, test 2" );
+    mRunStandardTest( b != a,
 	    "Is equal is false for different strings, test 2" );
 
     return true;

@@ -112,8 +112,9 @@ static void addRequiredChar( QString& qstr )
 
 void uiLabel::setText( const uiString& txt )
 {
-    if ( text_.isEqualTo(txt) )
+    if ( text_ == txt )
 	return;
+
     const bool wasempty = text_.isEmpty();
     text_ = txt;
 

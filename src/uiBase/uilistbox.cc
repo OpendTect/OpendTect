@@ -1075,7 +1075,7 @@ bool uiListBox::isPresent( const uiString& txt ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( lb_->body().getItemText(idx).isEqualTo(txt) )
+	if ( lb_->body().getItemText(idx) == txt )
 	    return true;
     }
     return false;
@@ -1186,7 +1186,7 @@ int uiListBox::indexOf( const char* txt ) const
 int uiListBox::indexOf( const uiString& txt ) const
 {
     for ( int idx=0; idx<size(); idx++ )
-	if ( txt.isEqualTo(textOfItem(idx)) )
+	if ( txt == textOfItem(idx) )
 	    return idx;
     return -1;
 }

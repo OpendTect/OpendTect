@@ -52,7 +52,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     const CallBack selcb( mCB(this,uiIOSelect,doSel) );
     if ( !su.compact_ )
     {
-	if ( su.buttontxt_.isEqualTo( uiStrings::sSelect() ) )
+	if ( su.buttontxt_ == uiStrings::sSelect() )
 	    selbut_ = uiButton::getStd( this, OD::Select, selcb, false );
 	else if ( !su.buttontxt_.isEmpty() )
 	    selbut_ = new uiPushButton( this, su.buttontxt_, selcb, false );

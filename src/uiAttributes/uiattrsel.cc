@@ -557,8 +557,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     {
 	const bool havecompsel = compfld_->mainObject()->isVisible();
 	const bool haveallcomps = havecompsel
-				 && compfld_->box()->textOfItem( 0 )
-					.isEqualTo( uiStrings::sAll() );
+		     && compfld_->box()->textOfItem(0) == uiStrings::sAll();
 	const int compselidx = havecompsel ? compfld_->box()->currentItem()
 					   : 0;
 	seldata_.setCompNr( haveallcomps ? compselidx-1 : compselidx );
@@ -648,7 +647,7 @@ void uiAttrSel::createFields()
     {
 	uiLabel* lbl = new uiLabel( this, lbltxt_, typfld_ );
 	lbl->setTextSelectable( false );
-	if ( lbltxt_.isEqualTo(uiAttrSel::sQuantityToOutput())
+	if ( lbltxt_ == uiAttrSel::sQuantityToOutput()
 	  && !seldata_.attribid_.isValid() )
 	    seldata_.attribid_ = seldata_.attrSet().getDefaultTargetID();
     }

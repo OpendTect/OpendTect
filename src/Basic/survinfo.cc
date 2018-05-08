@@ -217,7 +217,7 @@ Monitorable::ChangeType SurveyInfo::compareClassData(
     {
 	mCmpRet( set3binids_[idx], cAuxDataChange );
     }
-    if ( !sipnm_.isEqualTo(oth.sipnm_) )
+    if ( sipnm_ != oth.sipnm_ )
         return cAuxDataChange();
 
     mCmpRet( name_, cNameChange );
@@ -645,9 +645,9 @@ Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
 void SurveyInfo::setSipName( const uiString& str )
 {
     mLock4Read();
-    if ( sipnm_.isEqualTo(str) )
+    if ( sipnm_ == str )
 	return;
-    if ( mLock2Write() || !sipnm_.isEqualTo(str) )
+    if ( mLock2Write() || sipnm_ != str )
     {
 	sipnm_ = str;
 	mSendChgNotif( cAuxDataChange(), ChangeData::cUnspecChgID() );

@@ -247,7 +247,7 @@ uiString uiODFaultToolMan::sKeyMergeWithExisting()
 uiString uiODFaultToolMan::sKeyReplaceExisting()
 { return tr( "Replace Existing" ); }
 
-#define mIsCurItem( combo, key ) key().isEqualTo( combo->uiText() )
+#define mIsCurItem( combo, key ) (key() == combo->uiText())
 
 
 uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )

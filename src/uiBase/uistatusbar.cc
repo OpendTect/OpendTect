@@ -28,7 +28,6 @@ mUseQtnamespace
 
 class uiStatusBarBody : public uiBodyImpl<uiStatusBar,QStatusBar>
 {
-friend class		uiStatusBar;
 
 public:
 uiStatusBarBody( uiStatusBar& hndl, uiMainWin* parnt, const char* nm,
@@ -41,22 +40,31 @@ uiStatusBarBody( uiStatusBar& hndl, uiMainWin* parnt, const char* nm,
 
 
 int size() const
-{ return qthing()->children().size(); }
+{
+    return qthing()->children().size();
+}
 
-
-void message( const uiString& msg, int idx, int msecs )
+void setText( const uiString& msg, int idx, int msecs )
 {
     if ( nodispatall_ )
 	return;
 
+    const QString qstr( toQString(msg) );
     if ( msgs_.validIdx(idx) && msgs_[idx] )
-	msgs_[idx]->setText( toQString(msg) );
-    else if ( !msg.isEmpty() )
-	qthing()->showMessage( toQString(msg), msecs<0?0:msecs );
-    else
+    {
+	if ( msgs_[idx]->text() != qstr )
+	    msgs_[idx]->setText( qstr );
+    }
+    else if ( msg.isEmpty() )
 	qthing()->clearMessage();
+    else
+    {
+	if ( msecs > 0 )
+	    qthing()->showMessage( qstr, msecs );
+	else if ( qthing()->currentMessage() != qstr )
+	    qthing()->showMessage( qstr, 0 );
+    }
 }
-
 
 void setBGColor( int idx, const Color& col )
 {
@@ -71,7 +79,6 @@ void setBGColor( int idx, const Color& col )
     palette.setColor( widget->backgroundRole(), qcol );
     widget->setPalette( palette );
 }
-
 
 Color getBGColor( int idx )
 {
@@ -108,8 +115,9 @@ int addMsgFld( const uiString& lbltxt, int stretch )
 
 
 void addWidget( QWidget* qw )
-{ qthing()->addWidget( qw ); }
-
+{
+    qthing()->addWidget( qw );
+}
 
 void repaint()
 {
@@ -121,13 +129,13 @@ void repaint()
 	if (msgs_[idx]) msgs_[idx]->repaint();
 }
 
-
-protected:
-
 virtual const QWidget*	managewidg_() const
-{ return qwidget(); }
+{
+    return qwidget();
+}
 
-ObjectSet<QLabel>		msgs_;
+    friend class	uiStatusBar;
+    ObjectSet<QLabel>	msgs_;
 
 };
 
@@ -168,13 +176,13 @@ void uiStatusBar::setEmpty( int startat )
 {
     const int nrflds = nrFields();
     for ( int idx=startat; idx<nrflds; idx++ )
-	body_->message( uiString::empty(), idx, -1 );
+	body_->setText( uiString::empty(), idx, -1 );
 }
 
 
 void uiStatusBar::message( const uiString& msg, int fldidx, int msecs )
 {
-    body_->message( msg, fldidx, msecs );
+    body_->setText( msg, fldidx, msecs );
     body_->repaint();
     uiMain::theMain().flushX();
 }
@@ -253,10 +261,11 @@ void uiStatusBar::setLabelTxt( int idx, const uiString& lbltxt )
 {
     if ( nodispatall_ )
 	return;
-
-    if ( !body_->msgs_.validIdx(idx) ) return;
+    if ( !body_->msgs_.validIdx(idx) )
+	return;
 
     QLabel* lbl = dynamic_cast<QLabel*>(body_->msgs_[idx]->buddy());
 
-    if ( lbl ) lbl->setText( toQString(lbltxt) );
+    if ( lbl )
+	lbl->setText( toQString(lbltxt) );
 }

@@ -716,7 +716,7 @@ bool uiSurveyManager::commit()
     uiRetVal uirv = setSurveyDirTo( File::Path(dataroot_,selsurv).fullPath() );
     if ( !uirv.isOK() )
     {
-	if ( !uiStrings::sCancel().isEqualTo(uirv) )
+	if ( !uirv.isSingleWord(uiStrings::sCancel()) )
 	    uiMSG().error( uirv );
 	return false;
     }

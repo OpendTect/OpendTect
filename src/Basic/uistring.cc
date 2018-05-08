@@ -977,12 +977,6 @@ uiString od_static_tr( const char* func, const char* text,
 }
 
 
-uiWord getUiYesNoWord( bool res )
-{
-    return res ? uiStrings::sYes() : uiStrings::sNo();
-}
-
-
 int uiString::size() const
 {
     mGetQStr( qstr, *this );
@@ -1028,7 +1022,7 @@ uiStringSet::idx_type uiStringSet::indexOf( const uiString& str ) const
 {
     const size_type sz = size();
     for ( idx_type idx=0; idx<sz; idx++ )
-	if ( strs_[idx]->isEqualTo(str) )
+	if ( *strs_[idx] == str )
 	    return idx;
     return -1;
 }
@@ -1325,7 +1319,7 @@ uiPhraseSet uiRetVal::messages() const
 bool uiRetVal::isSingleWord( const uiWord& str ) const
 {
     Threads::Locker locker( lock_ );
-    return msgs_.size() == 1 && msgs_[0].isEqualTo( str );
+    return msgs_.size() == 1 && msgs_[0] == str;
 }
 
 

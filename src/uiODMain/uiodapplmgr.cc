@@ -1639,7 +1639,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	}
 
 	const uiString res = nlaserv_->prepareInputData( dpss );
-	if ( res.isEqualTo(uiNLAPartServer::sKeyUsrCancel()) )
+	if ( res == uiNLAPartServer::sKeyUsrCancel() )
 	    return true;
 	else if ( !res.isEmpty() )
 	    uiMSG().warning( res );
