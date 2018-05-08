@@ -248,6 +248,7 @@ HorizonSection::HorizonSection()
     , isredrawing_( false )
     , zaxistransform_( 0 )
     , useneighbors_( true )
+    , linewidth_(1)
 {
     setLockable();
     osghorizon_->ref();
@@ -410,6 +411,7 @@ void HorizonSection::setWireframeColor( Color col )
 
 void HorizonSection::setLineWidth( int width )
 {
+    linewidth_ = width;
     HorizonSectionTile** tileptrs = tiles_.getData();
     spinlock_.lock();
     for ( int idx=0; idx<tiles_.totalSize(); idx++ )
@@ -418,6 +420,12 @@ void HorizonSection::setLineWidth( int width )
 	    tileptrs[idx]->setLineWidth( width );
     }
     spinlock_.unLock();
+}
+
+
+int HorizonSection::getLineWidth() const
+{
+    return linewidth_;
 }
 
 

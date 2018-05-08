@@ -134,6 +134,7 @@ public:
     bool			usingNeighborsInIsolatedLine() const;
 
     void			setLineWidth(int);
+    int				getLineWidth() const;
 
 protected:
 				~HorizonSection();
@@ -218,6 +219,7 @@ protected:
     TypeSet<int>		updatedtileresolutions_;
     bool			wireframedisplayed_;
     bool			useneighbors_;
+    int				linewidth_;
 
 };
 

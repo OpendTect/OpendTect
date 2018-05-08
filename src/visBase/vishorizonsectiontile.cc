@@ -77,6 +77,7 @@ void HorizonSectionTile::buildOsgGeometries()
     osgswitchnode_->addChild( bottomtileglue_->getGeode() );
 
     initvertices();
+    setLineWidth( hrsection_.getLineWidth() );
 }
 
 
@@ -364,7 +365,7 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
 	updatenewpoint_ =  false;
     }
     else
-        tileresolutiondata_[res]->tesselateResolution( onlyifabsness );
+	tileresolutiondata_[res]->tesselateResolution( onlyifabsness );
 
     datalock_.unLock();
 }
