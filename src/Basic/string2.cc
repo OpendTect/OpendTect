@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "survinfo.h"
 #include "undefval.h"
+#include "bufstringset.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -705,6 +706,25 @@ int getIndexInStringArrCI( const char* text, const char* const * namearr,
     for( int idx=startnr; namearr[idx]; idx++ )
     {
         if ( caseInsensitiveEqual( text, namearr[idx], nrchar ) )
+            return idx;
+    }
+
+    /* No match found */
+    return notfoundidx;
+}
+
+
+int getIndexInStringArrCI( const char* text, const BufferStringSet nameset,
+			   int startnr, int nrchar, int notfoundidx )
+{
+    /* some sanity */
+    if ( !text || nameset.isEmpty() ) return notfoundidx;
+    mSkipBlanks(text);
+
+    /* Look for match */
+    for( int idx=startnr; idx<nameset.size(); idx++ )
+    {
+        if ( caseInsensitiveEqual( text, nameset.get(idx).buf(), nrchar ) )
             return idx;
     }
 

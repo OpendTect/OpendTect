@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include <wctype.h>
 namespace OD { class String; }
 class CompoundKey;
+class BufferStringSet;
 
 mGlobal(Basic) const char* toString(od_int32);
 mGlobal(Basic) const char* toString(od_uint32);
@@ -149,6 +150,11 @@ mGlobal(Basic) const char* getLimitedDisplayString(const char*,int nrchars,
 	/*!< returns a string for display, never larger than nrchars */
 
 mGlobal(Basic) int getIndexInStringArrCI(const char*,const char* const* arr,
+				  int startnr=0,int nr_chars_to_match=0,
+				  int notfoundidx=-1);
+	/*!< Finds a string in string array, case insensitive */
+
+mGlobal(Basic) int getIndexInStringArrCI(const char*,const BufferStringSet set,
 				  int startnr=0,int nr_chars_to_match=0,
 				  int notfoundidx=-1);
 	/*!< Finds a string in string array, case insensitive */

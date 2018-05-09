@@ -315,7 +315,7 @@ const QLocale* TextTranslateMgr::getQLocale() const
 void TextTranslateMgr::loadUSEnglish()
 {
     RefMan<TextTranslatorLanguage> english =
-				new TextTranslatorLanguage("en-us");
+				new TextTranslatorLanguage("en_US");
     addLanguage( english );
 }
 
@@ -354,7 +354,19 @@ void loadLocalization()
     TextTranslateMgr::GetLocalizationDir( basedir );
     DirList dl( basedir.fullPath(), DirList::FilesOnly, "*.qm");
 
-    const char* accepted_languages[] = { "en-us", "cn-cn", 0 };
+    QList<QLocale> allLocales = QLocale::matchingLocales(
+            QLocale::AnyLanguage,
+            QLocale::AnyScript,
+            QLocale::AnyCountry);
+
+    BufferStringSet accepted_languages;
+    for  ( int i=0; i<allLocales.size(); i++ )
+    {
+	QString localenm = allLocales[i].name();
+	BufferString str(localenm);
+	accepted_languages.add(localenm);
+    }
+
     //This should really be done on build-level, buy as od6 is released,
     //the installer will not remove those qm-files.
 
