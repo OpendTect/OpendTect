@@ -829,8 +829,8 @@ void uiSurvey::newButPushed( CallBacker* )
 
     cursurvinfo_->datadir_ = dataroot_;
     if ( !File::makeWritable(storagedir,true,true) )
-	mRetRollBackNewSurvey(tr("Cannot set the permissions"
-							"for the new survey"))
+	mRetRollBackNewSurvey( tr("Cannot set the permissions "
+				  "for the new survey") )
 
     if ( !cursurvinfo_->write(dataroot_) )
 	mRetRollBackNewSurvey( tr("%1 Info").
