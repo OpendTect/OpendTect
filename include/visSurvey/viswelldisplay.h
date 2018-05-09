@@ -55,7 +55,7 @@ mExpClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl
 public:
 				WellDisplay();
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,WellDisplay,
+				    SurveyObject,WellDisplay,
 				    "WellDisplay",
 				    toUiString(sFactoryKeyword()) )
     virtual const char*		getClassName() const

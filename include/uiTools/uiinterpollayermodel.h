@@ -42,7 +42,8 @@ mExpClass(uiTools) uiZSliceInterpolationModel
 public:
 			mDefaultFactoryInstantiation1Param(
 				uiInterpolationLayerModelGrp,
-				uiZSliceInterpolationModel,uiParent*,
+				uiZSliceInterpolationModel,
+				uiParent*,
 			       "ZSlices",uiStrings::sZSlice(mPlural))
 
     bool		fillPar(IOPar&) const;

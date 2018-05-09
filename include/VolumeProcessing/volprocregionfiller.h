@@ -27,7 +27,7 @@ mExpClass(VolumeProcessing) RegionFiller : public Step
 { mODTextTranslationClass(RegionFiller);
 public:
 
-				mDefaultFactoryInstantiation( VolProc::Step,
+				mDefaultFactoryInstantiation( Step,
 				    RegionFiller, "RegionFiller",
 				    tr("Region painter") )
 

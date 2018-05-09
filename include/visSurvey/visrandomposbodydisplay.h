@@ -30,7 +30,7 @@ mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
 public:
 				RandomPosBodyDisplay();
 				mDefaultFactoryInstantiation(
-				 visSurvey::SurveyObject,RandomPosBodyDisplay,
+				 SurveyObject,RandomPosBodyDisplay,
 				 "RandomPosBodyDisplay",
 				 toUiString(sFactoryKeyword()));
     virtual const char*		getClassName() const

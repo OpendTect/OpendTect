@@ -4313,8 +4313,9 @@ return res;
 
 void CC::initClass()
 {
-    CC::factory().addCreator( createInstance, sFactoryKeyword(),
+    CC::factory().addCreator( createCCInstance, sFactoryKeyword(),
 			      sFactoryDisplayName());
+    
     legalInformation().addCreator( CC::legalInfo, "CWP/Seismic Unix");
 }
 

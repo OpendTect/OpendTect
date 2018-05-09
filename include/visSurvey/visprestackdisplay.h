@@ -39,7 +39,7 @@ public:
 
 				PreStackDisplay();
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PreStackDisplay,
+				    SurveyObject,PreStackDisplay,
 				    "PreStackDisplay",
 				    toUiString(sFactoryKeyword()) );
     virtual const char*		getClassName() const

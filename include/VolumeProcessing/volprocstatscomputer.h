@@ -30,7 +30,7 @@ mExpClass(VolumeProcessing) StatsCalculator : public Step
 { mODTextTranslationClass(StatsCalculator);
 public:
 				mDefaultFactoryInstantiation(
-					VolProc::Step, StatsCalculator,
+					Step, StatsCalculator,
 					"Volume Statistics",
 					tr("Volume Statistics") )
 

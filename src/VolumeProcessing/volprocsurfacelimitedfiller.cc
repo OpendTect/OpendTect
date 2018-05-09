@@ -66,7 +66,7 @@ void SurfaceLimitedFiller::initClass()
     fms += sFactoryKeyword();
     fms += sKeyHorInterFiller();
 
-    FactoryType::Creator cr = (FactoryType::Creator)createInstance;
+    FactoryType::Creator cr = createStepInstance;
     SurfaceLimitedFiller::factory().addCreator( cr, fms.buf(),
 						sFactoryDisplayName() );
 }

@@ -35,7 +35,7 @@ mExpClass(visSurvey) PSEventDisplay : public visBase::VisualObjectImpl,
 public:
 				PSEventDisplay();
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PSEventDisplay,
+				    SurveyObject,PSEventDisplay,
 				    "PSEventDisplay",
 				     ::toUiString(sFactoryKeyword()) );
     virtual const char*		getClassName() const

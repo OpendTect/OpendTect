@@ -31,7 +31,7 @@ namespace VolProc
 mExpClass(VolumeProcessing) BodyFiller : public Step
 { mODTextTranslationClass(BodyFiller);
 public:
-	mDefaultFactoryCreatorImpl0Param( BodyFiller );
+	mDefaultFactoryCreatorImpl0Param( Step, BodyFiller );
 	mDefaultFactoryInstantiationBase( "BodyFiller",
 					tr("Body shape painter") );
 

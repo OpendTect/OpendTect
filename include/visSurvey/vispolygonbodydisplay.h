@@ -45,7 +45,7 @@ mExpClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl,
 public:
 				PolygonBodyDisplay();
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PolygonBodyDisplay,
+				    SurveyObject,PolygonBodyDisplay,
 				    "PolygonBodyDisplay",
 				     toUiString(sFactoryKeyword()));
     virtual const char*		getClassName() const

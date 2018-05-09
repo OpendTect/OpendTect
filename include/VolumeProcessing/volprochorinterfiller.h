@@ -30,7 +30,7 @@ namespace VolProc
 mExpClass(VolumeProcessing) HorInterFiller : public Step
 { mODTextTranslationClass(HorInterFiller);
 public:
-				mDefaultFactoryInstantiation( VolProc::Step,
+				mDefaultFactoryInstantiation( Step,
 				    HorInterFiller, "HorInterFiller",
 				    tr("Horizon-based painter - Simple") )
 

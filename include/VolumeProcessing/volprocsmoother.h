@@ -25,7 +25,7 @@ mExpClass(VolumeProcessing) Smoother : public Step
 { mODTextTranslationClass(Smoother)
 public:
 			mDefaultFactoryInstantiation(
-				VolProc::Step, Smoother,
+				Step, Smoother,
 				"Smoother", tr("Smoother"))
 
 			Smoother();

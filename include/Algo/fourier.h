@@ -30,7 +30,7 @@ mExpClass(Algo) CC : public GenericTransformND
 { mODTextTranslationClass(CC);
 public:
 
-    mDefaultFactoryCreatorImpl0Param( CC );
+    mDefaultFactoryCreatorImpl0Param( CC, CC );
     mDefaultFactoryInstantiationBase( "PFAFFT", uiStrings::sFFT() );
 
     typedef ::Factory0Param<CC>	FactoryType;
@@ -53,7 +53,7 @@ public:
     static void pfacr(int isign,int n,const float_complex*,float* rz);
     static int npfaro(int nmin, int nmax);
     static int npfao(int nmin, int nmax);
-
+    
 protected:
     static uiString* legalInfo();
     static void pfacc(char dir,int sz,int step,float_complex* signal);

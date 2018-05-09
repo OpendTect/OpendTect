@@ -35,7 +35,7 @@ public:
 
 				PickSetDisplay();
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PickSetDisplay,
+				    SurveyObject,PickSetDisplay,
 				    "PickSetDisplay",
 				    toUiString(sFactoryKeyword()))
     virtual const char*		getClassName() const

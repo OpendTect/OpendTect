@@ -46,7 +46,7 @@ void BodyFiller::initClass()
     FileMultiString keys( BodyFiller::sFactoryKeyword() );
     keys += BodyFiller::sKeyOldType();
 
-    FactoryType::Creator cr = (FactoryType::Creator)createInstance;
+    FactoryType::Creator cr = createStepInstance;
     factory().addCreator( cr, keys.str(),
 			  BodyFiller::sFactoryDisplayName() );
 }

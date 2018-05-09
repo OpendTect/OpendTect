@@ -26,7 +26,7 @@ mExpClass(VolumeProcessing) LateralSmoother : public Step
 { mODTextTranslationClass(LateralSmoother);
 public:
 			mDefaultFactoryInstantiation(
-				VolProc::Step, LateralSmoother,
+				Step, LateralSmoother,
 				"LateralSmoother", tr("Lateral Smoother") )
 
 			LateralSmoother();

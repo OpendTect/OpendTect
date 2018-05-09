@@ -37,7 +37,7 @@ mExpClass(visSurvey) Seis2DDisplay : public MultiTextureSurveyObject
 public:
 				Seis2DDisplay();
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,Seis2DDisplay,
+				    SurveyObject,Seis2DDisplay,
 				    "Seis2DDisplay",
 				    toUiString(sFactoryKeyword()))
     virtual const char*		getClassName() const

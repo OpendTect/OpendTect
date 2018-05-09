@@ -31,7 +31,7 @@ mExpClass(visSurvey) PointSetDisplay : public visBase::VisualObjectImpl,
 public:
 				PointSetDisplay();
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PointSetDisplay,
+				    SurveyObject,PointSetDisplay,
 				    "PointSetDisplay",
 				    toUiString(sFactoryKeyword()) );
     virtual const char*		getClassName() const

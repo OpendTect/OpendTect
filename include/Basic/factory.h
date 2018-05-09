@@ -463,34 +463,60 @@ facttyp& fullfuncname() \
     static uiString	sFactoryDisplayName() { return usernm; } \
     static void		initClass()
 
-#define mDefaultFactoryCreatorImpl0Param( clss ) \
-static clss*		createInstance() { return new clss; } \
+
+#define mDefaultFactoryCreatorImpl0Param( baseclss, clss ) \
+static mDeprecated clss* createInstance() { return new clss; } \
+static baseclss*	create##baseclss##Instance() { return new clss; } \
 
 #define mDefaultFactoryInstantiation0Param( baseclss, clss, keywrd, usernm ) \
-    mDefaultFactoryCreatorImpl0Param( clss ); \
+    mDefaultFactoryCreatorImpl0Param( baseclss, clss ); \
     mDefaultFactoryInstantiationBase( keywrd, usernm ) \
-    mDefaultFactoryInitClassImpl( baseclss, createInstance )
+    mDefaultFactoryInitClassImpl( baseclss, create##baseclss##Instance )
 
 #define mDefaultFactoryInstantiation( baseclss, clss, keywrd, usernm ) \
     mDefaultFactoryInstantiation0Param( baseclss, clss, keywrd, usernm )
 
 
-#define mDefaultFactoryCreatorImpl1Param( clss, parclss ) \
-static clss*		createInstance( parclss p1 ) \
+#define mDefaultFactoryCreatorImpl1Param( baseclss, clss, parclss ) \
+static mDeprecated clss* createInstance( parclss p1 ) \
+			{ return new clss( p1 ); } \
+static baseclss*	create##baseclss##Instance( parclss p1 ) \
 			{ return new clss( p1 ); }
 
-#define mDefaultFactoryInstantiation1Param( baseclss, clss, parclss,\
-					    keywrd, usernm ) \
-    mDefaultFactoryCreatorImpl1Param( clss, parclss ) \
-    mDefaultFactoryInstantiationBase( keywrd, usernm ) \
-    mDefaultFactoryInitClassImpl( baseclss, createInstance )
 
-#define mDefaultFactoryCreatorImpl2Param( clss, parclss1, parclss2 ) \
-static clss*		createInstance( parclss1 p1, parclss2 p2 ) \
+#define mDefaultFactoryInstantiation1Param( baseclss, clss, parclss, \
+					    keywrd, usernm ) \
+    mDefaultFactoryCreatorImpl1Param( baseclss, clss, parclss ) \
+    mDefaultFactoryInstantiationBase( keywrd, usernm ) \
+    mDefaultFactoryInitClassImpl( baseclss, create##baseclss##Instance )
+
+
+#define mDefaultFactoryCreatorImpl2Param( baseclss, clss, parclss1, parclss2 ) \
+static mDeprecated clss* createInstance( parclss1 p1, parclss2 p2 ) \
+			{ return new clss( p1, p2 ); } \
+static baseclss*	create##baseclss##Instance( parclss1 p1, parclss2 p2 ) \
 			{ return new clss( p1, p2 ); }
 
-#define mDefaultFactoryInstantiation2Param( baseclss, clss, parclss1,\
+#define mDefaultFactoryInstantiation2Param( baseclss, clss, parclss1, \
 					    parclss2, keywrd, usernm ) \
-    mDefaultFactoryCreatorImpl2Param( clss, parclss1, parclss2 ) \
+    mDefaultFactoryCreatorImpl2Param( baseclss, clss, parclss1, parclss2 ) \
     mDefaultFactoryInstantiationBase( keywrd, usernm ) \
-    mDefaultFactoryInitClassImpl( baseclss, createInstance )
+    mDefaultFactoryInitClassImpl( baseclss, create##baseclss##Instance )
+
+
+#define mDefaultFactoryCreatorImpl3Param( baseclss, clss, parclss1, parclss2, \
+								    parclss3 ) \
+static mDeprecated clss* createInstance( parclss1 p1, parclss2 p2, \
+								parclss3 p3 ) \
+			{ return new clss( p1, p2, p3 ); } \
+static baseclss*	create##baseclss##Instance( parclss1 p1, parclss2 p2, \
+								 parclss3 p3) \
+			{ return new clss( p1, p2, p3 ); }
+
+#define mDefaultFactoryInstantiation3Param( baseclss, clss, parclss1,\
+					    parclss2, parclss3, keywrd, \
+								     usernm ) \
+    mDefaultFactoryCreatorImpl3Param( baseclss, clss, parclss1, parclss2, \
+								   parclss3 ) \
+    mDefaultFactoryInstantiationBase( keywrd, usernm ) \
+    mDefaultFactoryInitClassImpl( baseclss, create##baseclss##Instance )

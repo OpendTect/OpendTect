@@ -31,7 +31,7 @@ mExpClass(visSurvey) Horizon2DDisplay : public EMObjectDisplay
 public:
 				Horizon2DDisplay();
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,Horizon2DDisplay,
+				    SurveyObject,Horizon2DDisplay,
 				    "Horizon2DDisplay",
 				    toUiString(sFactoryKeyword()));
     virtual const char*		getClassName() const

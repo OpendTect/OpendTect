@@ -58,7 +58,7 @@ public:
 				FaultDisplay();
 
 				mDefaultFactoryInstantiation(
-				visSurvey::SurveyObject,FaultDisplay,
+				SurveyObject,FaultDisplay,
 				"FaultDisplay",
 				toUiString(sFactoryKeyword()));
     virtual const char*		getClassName() const

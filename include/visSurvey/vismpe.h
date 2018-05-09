@@ -47,7 +47,7 @@ mExpClass(visSurvey) MPEDisplay : public visBase::VisualObjectImpl,
 public:
 		    MPEDisplay();
 		    mDefaultFactoryInstantiation(
-			visSurvey::SurveyObject,MPEDisplay,
+			SurveyObject,MPEDisplay,
 			     "MPEDisplay", ::toUiString(sFactoryKeyword()));
     virtual const char* getClassName() const { return sFactoryKeyword(); }
 

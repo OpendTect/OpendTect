@@ -31,7 +31,7 @@ mExpClass(visSurvey) PolyLineDisplay : public visBase::VisualObjectImpl,
 public:
 				PolyLineDisplay();
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PolyLineDisplay,
+				    SurveyObject,PolyLineDisplay,
 				    "PolyLineDisplay",
 				    toUiString(sFactoryKeyword()));
     virtual const char*		getClassName() const

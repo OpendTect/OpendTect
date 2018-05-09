@@ -26,7 +26,7 @@ mExpClass(VolumeProcessing) HilbertCalculator : public VolProc::Step
 public:
 
 			mDefaultFactoryInstantiation(
-				VolProc::Step, HilbertCalculator,
+				Step, HilbertCalculator,
 				"Hilbert", toUiString("Hilbert") )
 
 			HilbertCalculator()

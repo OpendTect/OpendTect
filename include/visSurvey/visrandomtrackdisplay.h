@@ -46,7 +46,7 @@ mExpClass(visSurvey) RandomTrackDisplay : public MultiTextureSurveyObject
 public:
 				RandomTrackDisplay();
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,RandomTrackDisplay,
+				    SurveyObject,RandomTrackDisplay,
 				    "RandomTrackDisplay",
 				    toUiString(sFactoryKeyword()));
     virtual const char*		getClassName() const

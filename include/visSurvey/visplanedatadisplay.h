@@ -52,7 +52,7 @@ public:
 				PlaneDataDisplay();
 
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,
+				    SurveyObject,
 				    PlaneDataDisplay, "PlaneDataDisplay",
 				     ::toUiString(sFactoryKeyword()));
     virtual const char*		getClassName() const

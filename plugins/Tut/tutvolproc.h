@@ -32,7 +32,7 @@ mExpClass(Tut) TutOpCalculator : public Step
 { mODTextTranslationClass(TutOpCalculator);
 public:
 				mDefaultFactoryInstantiation(
-					VolProc::Step, TutOpCalculator,
+					Step, TutOpCalculator,
 					"VolumeProcessingTutorial",
 					tr("Volume Processing Tutorial") )
 

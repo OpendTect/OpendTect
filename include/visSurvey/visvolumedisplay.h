@@ -50,7 +50,7 @@ mExpClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
 public:
 				VolumeDisplay();
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,VolumeDisplay,
+				    SurveyObject,VolumeDisplay,
 				    "VolumeDisplay",
 				    toUiString(sFactoryKeyword()));
     virtual const char*		getClassName() const

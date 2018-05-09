@@ -47,7 +47,7 @@ public:
 				FaultStickSetDisplay();
 
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,
+				    SurveyObject,
 				    FaultStickSetDisplay,
 				    "FaultStickSetDisplay",
 				    toUiString(sFactoryKeyword()))
