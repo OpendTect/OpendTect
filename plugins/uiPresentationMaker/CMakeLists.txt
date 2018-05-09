@@ -1,7 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	SEG-Y UI
-# 	June 2015	Bert
+#	Makefile : 	Presentation Maker
+# 	Nov 2015	Nanne
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiODMain)
