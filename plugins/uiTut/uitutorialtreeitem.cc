@@ -10,6 +10,7 @@
 #include "uiodmain.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uistrings.h"
 
 
 uiODTutorialParentTreeItem::uiODTutorialParentTreeItem()
@@ -19,14 +20,14 @@ uiODTutorialParentTreeItem::uiODTutorialParentTreeItem()
 
 
 const char* uiODTutorialParentTreeItem::childObjTypeKey() const
-{ 
+{
     return typeid(*this).name();
 }
 
 
 const char* uiODTutorialParentTreeItem::iconName() const
-{ 
-    return "tutorial"; 
+{
+    return "tutorial";
 }
 
 
@@ -37,7 +38,7 @@ void uiODTutorialParentTreeItem::addWells( )
     for ( int idx=0; idx < wellids_.size() ; idx++ )
     {
 	uiODTutorialTreeItem *treeitem =
-	    		new uiODTutorialTreeItem( wellids_[idx] );
+			new uiODTutorialTreeItem( wellids_[idx] );
 	addChild( treeitem, true );
     }
 }
@@ -62,7 +63,7 @@ bool uiODTutorialParentTreeItem::showSubMenu()
     mnu.insertAction( new uiAction(
 	m3Dots(uiStrings::phrAdd(uiStrings::sWell(mPlural)))), cAddWells );
     addStandardItems( mnu );
-    
+
     mnu.insertSeparator();
     int mnuid = mnu.exec();
 

@@ -52,6 +52,8 @@ uiAutoSaverSettingsGroup::uiAutoSaverSettingsGroup( uiParent* p,
     autoaskfld_->attach( alignedBelow, nrsecondsfld_ );
 
     postFinalise().notify( mCB(this,uiAutoSaverSettingsGroup,isActiveCB) );
+
+    bottomobj_ = autoaskfld_;
 }
 
 

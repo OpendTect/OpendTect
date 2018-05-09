@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodapplmgr.h"
-#include "uisettings.h"
 
 #include "datapack.h"
 #include "flatview.h"
@@ -240,31 +239,4 @@ protected:
     void			font3DChanged(CallBacker*);
 
     friend class		uiODMain;
-};
-
-/*! Settings Tab for mouse interaction. */
-
-mExpClass(uiODMain) uiKeyBindingSettingsGroup : public uiSettingsGroup
-{ mODTextTranslationClass(uiKeyBindingSettingsGroup);
-public:
-
-    mDecluiSettingsGroupPublicFns( uiKeyBindingSettingsGroup,
-				   Interaction, "Mouse interaction", "mouse",
-				   tr("Mouse Interaction"),
-				   mODHelpKey(mODSceneMgrsetKeyBindingsHelpID) )
-
-			uiKeyBindingSettingsGroup(uiParent*,Settings&);
-
-private:
-
-    uiGenInput*		keybindingfld_;
-    uiGenInput*		wheeldirectionfld_;
-    uiGenInput*		trackpadzoomspeedfld_;
-
-    BufferString	initialkeybinding_;
-    float		initialzoomfactor_;
-    bool		initialmousewheelreversal_;
-
-    virtual void	doCommit(uiRetVal&);
-
 };

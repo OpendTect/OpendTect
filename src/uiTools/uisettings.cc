@@ -254,17 +254,31 @@ static int thetbsz_ = -1;
 mImplClassFactory( uiSettingsGroup, factory )
 
 
-uiSettingsGroup::uiSettingsGroup( uiParent* p, Settings& setts )
-    : uiGroup(p,"Settings group")
+uiSettsGrp::uiSettsGrp( uiParent* p, Settings& setts,
+					const char* nm )
+    : uiGroup(p,nm)
     , setts_(setts)
-    , changed_(false)
-    , needsrestart_(false)
-    , needsrenewal_(false)
 {
 }
 
 
-uiSettingsGroup::~uiSettingsGroup()
+uiSettingsSubGroup::uiSettingsSubGroup( uiSettingsGroup& p )
+    : uiSettsGrp(&p,p.setts_,"Settings subgroup")
+{
+    uiGroup* botgrp = p.lastGroup();
+    if ( botgrp )
+	attach( alignedBelow, botgrp );
+}
+
+
+void uiSettingsSubGroup::addToParent( uiSettingsGroup& p )
+{
+    p.add( this );
+}
+
+
+uiSettingsGroup::uiSettingsGroup( uiParent* p, Settings& setts )
+    : uiSettsGrp(p,setts,"Settings group")
 {
 }
 
@@ -287,13 +301,49 @@ bool uiSettingsGroup::commit( uiRetVal& uirv )
 {
     changed_ = needsrestart_ = needsrenewal_ = false;
     doCommit( uirv );
+    if ( uirv.isOK() )
+    {
+	for ( int idx=0; idx<subgrps_.size(); idx++ )
+	{
+	    uiSettingsSubGroup& subgrp = *subgrps_[idx];
+	    subgrp.commit( uirv );
+	    if ( !uirv.isOK() )
+		break;
+	    changed_ = changed_ || subgrp.changed_;
+	    needsrestart_ = needsrestart_ || subgrp.needsrestart_;
+	    needsrenewal_ = needsrenewal_ || subgrp.needsrenewal_;
+	}
+    }
     return uirv.isOK();
 }
 
 
+void uiSettingsGroup::rollBack()
+{
+    doRollBack();
+    for ( int idx=0; idx<subgrps_.size(); idx++ )
+	subgrps_[idx]->rollBack();
+}
+
+
+void uiSettingsGroup::add( uiSettingsSubGroup* subgrp )
+{
+    uiGroup* lastgrp = lastGroup();
+    if ( lastgrp )
+	subgrp->attach( alignedBelow, lastgrp );
+    subgrps_ += subgrp;
+}
+
+
+uiGroup* uiSettingsGroup::lastGroup()
+{
+    return subgrps_.isEmpty() ? bottomobj_
+			      : static_cast<uiGroup*>( subgrps_.last() );
+}
+
+
 #define mDefUpdateSettingsFn( type, setfunc ) \
-void uiSettingsGroup::updateSettings( type oldval, type newval, \
-				      const char* key ) \
+void uiSettsGrp::updateSettings( type oldval, type newval, const char* key ) \
 { \
     if ( oldval != newval ) \
     { \
@@ -309,6 +359,7 @@ mDefUpdateSettingsFn( const OD::String&, set )
 
 
 // uiStorageSettingsGroup
+
 uiStorageSettingsGroup::uiStorageSettingsGroup( uiParent* p, Settings& setts )
     : uiSettingsGroup(p,setts)
     , initialshstorenab_(false)
@@ -317,6 +368,7 @@ uiStorageSettingsGroup::uiStorageSettingsGroup( uiParent* p, Settings& setts )
     enablesharedstorfld_ = new uiGenInput( this,
 				tr("Enable shared survey data storage"),
 				BoolInpSpec(initialshstorenab_) );
+    bottomobj_ = enablesharedstorfld_;
 }
 
 
@@ -328,6 +380,7 @@ void uiStorageSettingsGroup::doCommit( uiRetVal& )
 
 
 // uiGeneralLnFSettingsGroup
+
 uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
     : uiSettingsGroup(p,s)
     , initialtbsz_(thetbsz_ < 0 ? uiObject::toolButtonSize() : thetbsz_)
@@ -348,6 +401,8 @@ uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
     tbszfld_ = new uiGenInput( this, tr("ToolButton Size"),
 				 IntInpSpec(initialtbsz_,10,64) );
     tbszfld_->attach( alignedBelow, hattgrp );
+
+    bottomobj_ = tbszfld_;
 }
 
 
@@ -382,6 +437,7 @@ void uiGeneralLnFSettingsGroup::doCommit( uiRetVal& )
 
 
 // uiProgressSettingsGroup
+
 uiProgressSettingsGroup::uiProgressSettingsGroup( uiParent* p, Settings& s )
     : uiSettingsGroup(p,s)
     , initialshowinlprogress_(true)
@@ -403,6 +459,8 @@ uiProgressSettingsGroup::uiProgressSettingsGroup( uiParent* p, Settings& s )
     showprogressfld_->setChecked( 0, initialshowinlprogress_ );
     showprogressfld_->setChecked( 1, initialshowcrlprogress_ );
     showprogressfld_->setChecked( 2, initialshowrdlprogress_ );
+
+    bottomobj_ = showprogressfld_;
 }
 
 
@@ -418,6 +476,7 @@ void uiProgressSettingsGroup::doCommit( uiRetVal& )
 
 
 // uiVisSettingsGroup
+
 uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     : uiSettingsGroup(p,setts)
     , initialdefsurfres_((int)OD::SurfaceResolution::Automatic)
@@ -492,6 +551,8 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     anisotropicpowerfld_->attach( alignedBelow, enablemipmappingfld_ );
 
     mipmappingToggled( 0 );
+
+    bottomobj_ = anisotropicpowerfld_;
 }
 
 
@@ -587,6 +648,7 @@ uiSettingsSubjectTreeItm( uiSettingsTypeTreeItm* typitm, uiSettingsGroup& grp )
 };
 
 
+mDefineInstanceCreatedNotifierAccess(uiSettingsDlg);
 
 uiSettingsDlg::uiSettingsDlg( uiParent* p, const char* initialgrpky )
     : uiDialog(p,uiDialog::Setup(tr("OpendTect Settings"),mNoDlgTitle,
@@ -642,6 +704,7 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p, const char* initialgrpky )
     spl->setPrefHeightInChar( 15 );
 
     mAttachCB( postFinalise(), uiSettingsDlg::initWin );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -700,6 +763,19 @@ void uiSettingsDlg::handleRestart()
 		       "\nthe next time OpendTect is started."
 		       "\n\nDo you want to restart now?")) )
 	RestartProgram();
+}
+
+
+uiSettingsGroup* uiSettingsDlg::getGroup( const char* factky )
+{
+    const FixedString tofind( factky );
+    for ( int idx=0; idx<treeitms_.size(); idx++ )
+    {
+	uiSettingsGroup* grp = &treeitms_[idx]->grp_;
+	if ( tofind == grp->factoryKeyword() )
+	    return grp;
+    }
+    return 0;
 }
 
 

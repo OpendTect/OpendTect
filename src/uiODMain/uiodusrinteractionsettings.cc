@@ -38,6 +38,7 @@ uiKeyboardInteractionSettingsGroup::uiKeyboardInteractionSettingsGroup(
 		  initialenabvirtualkeyboard_ );
     virtualkeyboardfld_ = new uiGenInput( this, tr("Enable Virtual Keyboard"),
 				BoolInpSpec(initialenabvirtualkeyboard_) );
+    bottomobj_ = virtualkeyboardfld_;
 
     uiGroup* scgrp = new uiGroup( this, "Shortcut fields" );
     eikdboxes_.setNullAllowed();
@@ -80,7 +81,10 @@ uiKeyboardInteractionSettingsGroup::uiKeyboardInteractionSettingsGroup(
     }
 
     if ( lcbox )
+    {
 	scgrp->setHAlignObj( lcbox );
+	bottomobj_ = lcbox;
+    }
     scgrp->attach( alignedBelow, virtualkeyboardfld_ );
 }
 
@@ -160,6 +164,7 @@ uiMouseInteractionSettingsGroup::uiMouseInteractionSettingsGroup( uiParent* p,
 			uiStrings::sNormal(),
 			uiStrings::sReversed()) );
 	wheeldirectionfld_->attach( alignedBelow, keybindingfld_ );
+	bottomobj_ = wheeldirectionfld_;
 
 #ifdef __mac__
 
@@ -173,6 +178,7 @@ uiMouseInteractionSettingsGroup::uiMouseInteractionSettingsGroup( uiParent* p,
 	       BoolInpSpec( istrackpad, uiStrings::sTrackPad(),
 					uiStrings::sMouse()) );
 	trackpadzoomspeedfld_->attach( alignedBelow, wheeldirectionfld_ );
+	bottomobj_ = wheeldirectionfld_;
 #endif
     }
 }

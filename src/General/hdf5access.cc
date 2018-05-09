@@ -57,18 +57,24 @@ bool HDF5::DataSetKey::hasGroup( const char* reqnm ) const
 }
 
 
+bool HDF5::Access::isEnvBlocked( const char* typ )
+{
+    if ( GetEnvVarYN("OD_NO_HDF5") )
+	return true;
+
+    const BufferString envvar( "OD_NO_HDF5_", BufferString(typ).toUpper() );
+    return GetEnvVarYN( envvar );
+}
+
+
 bool HDF5::Access::isEnabled( const char* typ )
 {
-    if ( !HDF5::isAvailable() || GetEnvVarYN("OD_NO_HDF5")
+    if ( !HDF5::isAvailable() || isEnvBlocked(typ)
       || Settings::common().isFalse(sSettingsEnabKey()) )
 	return false;
 
     if ( FixedString(typ).isEmpty() )
 	return true;
-
-    const BufferString envvar( "OD_NO_HDF5_", BufferString(typ).toUpper() );
-    if ( GetEnvVarYN(envvar) )
-	return false;
 
     const BufferString settky( sSettingsEnabKey(), ".", typ );
     return !Settings::common().isFalse( settky );
@@ -143,7 +149,7 @@ uiString HDF5::Access::sHDF5PackageDispName()
 
 uiString HDF5::Access::sHDF5NotAvailable()
 {
-    return tr("HDF5 access is needed but no installation found");
+    return tr("No HDF5 installation found");
 }
 
 

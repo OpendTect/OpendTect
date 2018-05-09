@@ -55,6 +55,8 @@ uiProcSettingsGroup::uiProcSettingsGroup( uiParent* p, Settings& setts )
     clusterfld_ = new uiGenInput( this, tr("Enable cluster processing"),
 				  BoolInpSpec(initialcpenabled_) );
     clusterfld_->attach( alignedBelow, nrinlfld_ );
+
+    bottomobj_ = clusterfld_;
 }
 
 

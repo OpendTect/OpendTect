@@ -33,6 +33,8 @@ uiFontSettingsGroup::uiFontSettingsGroup( uiParent* p, Settings& setts )
     addButton( FontData::Graphics3D, tr("Used in 3D Scenes") );
     addButton( FontData::Fixed, tr("Information, Notes and Progress") );
     addResetButton();
+
+    bottomobj_ = butgrp_;
 }
 
 

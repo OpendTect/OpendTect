@@ -105,6 +105,7 @@ set( OD_PLUGINS
 option( BUILD_HDF5_SUPPORT "Build HDF5 support plugin" OFF )
 if ( BUILD_HDF5_SUPPORT STREQUAL "ON" )
     include( plugins/HDF5/PreInit.cmake )
+    set( OD_PLUGINS ${OD_PLUGINS} uiHDF5 )
 endif()
 
 set( OD_SPECPROGS ODSeis visBase )

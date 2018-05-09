@@ -27,6 +27,7 @@ class uiSettingsSubjectTreeItm;
 class uiTable;
 class uiThemeSel;
 class uiTreeView;
+class uiSettingsGroup;
 
 
 mExpClass(uiTools) uiSettingsDlg : public uiDialog
@@ -39,6 +40,10 @@ public:
     bool		hadChanges() const	{ return havechanges_; }
     bool		neededRestart() const	{ return restartneeded_; }
     bool		neededRenewal() const	{ return renewalneeded_; }
+
+    mDeclInstanceCreatedNotifierAccess(uiSettingsDlg);
+
+    uiSettingsGroup*	getGroup(const char* factky);
 
 protected:
 
@@ -95,34 +100,29 @@ protected:
 };
 
 
-mExpClass(uiTools) uiSettingsGroup : public uiGroup
-{ mODTextTranslationClass(uiSettingsGroup);
+mExpClass(uiTools) uiSettsGrp : public uiGroup
+{
 public:
 
-    enum Type		{ General, LooknFeel, Interaction };
+    virtual		~uiSettsGrp()	{}
 
-			mDefineFactory2ParamInClass(uiSettingsGroup,
-						    uiParent*,Settings&,
-						    factory)
-    virtual		~uiSettingsGroup();
-
-    virtual Type	type() const		= 0;
-    virtual uiWord	subject() const		= 0;
-    virtual const char*	iconID() const		= 0;
-    virtual HelpKey	helpKey() const		= 0;
-
-    bool		commit(uiRetVal&);
-    void		rollBack()		{ doRollBack(); }
+    virtual void	activationChange(bool)	{}
+    virtual bool	commit(uiRetVal&)	= 0;
+    virtual void	rollBack()		{}
 
     bool		isChanged() const	{ return changed_; }
     bool		needsRestart() const	{ return needsrestart_; }
     bool		needsRenewal() const	{ return needsrenewal_; }
-
-    static uiString	dispStr(Type);
+    Settings&		settings()		{ return setts_; }
 
 protected:
 
-			uiSettingsGroup(uiParent*,Settings&);
+			uiSettsGrp(uiParent*,Settings&,const char*);
+
+    Settings&		setts_;
+    bool		changed_				= false;
+    bool		needsrestart_				= false;
+    bool		needsrenewal_				= false;
 
     void		updateSettings(bool oldval,bool newval,const char* key);
     void		updateSettings(int oldval,int newval,const char* key);
@@ -132,20 +132,63 @@ protected:
 				       const OD::String& newval,
 				       const char* key);
 
-    virtual void	activationChange(bool activated)	{}
-    virtual void	doCommit(uiRetVal&)			= 0;
-    virtual void	doRollBack()				{}
-
-    uiRetVal		state_;
-    Settings&		setts_;
-    bool		changed_;
-    bool		needsrestart_;
-    bool		needsrenewal_;
-
 public:
 
-			// use if you make your own dialog for user settings
+			// Usually called for you
     void		setActive( bool yn )	{ activationChange(yn); }
+
+};
+
+
+mExpClass(uiTools) uiSettingsSubGroup : public uiSettsGrp
+{
+public:
+			uiSettingsSubGroup(uiSettingsGroup&);
+
+protected:
+
+    void		addToParent(uiSettingsGroup&);
+    friend class	uiSettingsGroup;
+
+};
+
+
+mExpClass(uiTools) uiSettingsGroup : public uiSettsGrp
+{ mODTextTranslationClass(uiSettingsGroup);
+public:
+
+    enum Type		{ General, LooknFeel, Interaction };
+
+			mDefineFactory2ParamInClass(uiSettingsGroup,
+						    uiParent*,Settings&,
+						    factory)
+
+    virtual Type	type() const		= 0;
+    virtual uiWord	subject() const		= 0;
+    virtual const char*	iconID() const		= 0;
+    virtual HelpKey	helpKey() const		= 0;
+
+    virtual bool	commit(uiRetVal&);
+    virtual void	rollBack();
+
+    static uiString	dispStr(Type);
+
+    uiGroup*		lastGroup();
+
+protected:
+
+			uiSettingsGroup(uiParent*,Settings&);
+
+    virtual void	activationChange(bool)	{}
+    virtual void	doCommit(uiRetVal&)	= 0;
+    virtual void	doRollBack()		{}
+
+    uiRetVal		state_;
+    ObjectSet<uiSettingsSubGroup> subgrps_;
+    uiGroup*		bottomobj_		= 0;
+
+    friend class	uiSettingsSubGroup;
+    void		add(uiSettingsSubGroup*);
 
 };
 

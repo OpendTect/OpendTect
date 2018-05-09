@@ -984,6 +984,8 @@ uiColTabSettingsGroup( uiParent* p, Settings& setts )
     asymfld_ = mCTInpFld( tr("Enable seting asymmetric clipping"),
 			  initialasymclip_ );
     asymfld_->attach( alignedBelow, histeqfld_ );
+
+    bottomobj_ = asymfld_;
 }
 
 

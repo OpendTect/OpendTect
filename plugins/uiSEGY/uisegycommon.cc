@@ -182,6 +182,8 @@ uiSEGYSettingsGroup( uiParent* p, Settings& setts )
 			  BoolInpSpec(!initialebcdic_,
 			  tr("ASCII (recommended)"),tr("EBCDIC (legacy)") ) );
     asctxtfld_->attach( alignedBelow, examinenrtrcsfld_ );
+
+    bottomobj_ = asctxtfld_;
 }
 
 
