@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define FILE        "bert.h5"
+#define FILE        "simple.h5"
 #define DATASETNAME "ShortArray"
 #define RANK 3
 #define RANKW 1
@@ -88,9 +88,9 @@ main (void)
 
     printf ("Write subset:\n\n");
     file_id = H5Fopen (FILE, H5F_ACC_RDWR, H5P_DEFAULT);
-    printf ("H5Fopen returns: %li\n", file_id);
+    printf ("H5Fopen returns ID: %ld\n", file_id);
     dataset_id = H5Dopen2 (file_id, DATASETNAME, H5P_DEFAULT);
-    printf ("H5Dopen2 returns: %li\n", dataset_id);
+    printf ("H5Dopen2 returns ID: %ld\n", dataset_id);
 
 
     offset[0] = 1;
@@ -112,13 +112,13 @@ main (void)
 
     dimsm[0] = DIM2_SUB;
     memspace_id = H5Screate_simple (RANKW, dimsm, NULL);
-    printf ("H5Screate_simple returns: %li\n", memspace_id);
+    printf ("H5Screate_simple returns ID: %ld\n", memspace_id);
 
     dataspace_id = H5Dget_space(dataset_id);
-    printf ("H5Dget_space returns: %li\n", dataspace_id);
+    printf ("H5Dget_space returns ID: %ld\n", dataspace_id);
     status = H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset,
                                   stride, count, block);
-    printf ("H5Sselect_hyperslab returns: %li\n", status);
+    printf ("H5Sselect_hyperslab returns: %d\n", status);
 
     /* No, no - no overwriting! I do not want to change anything in the file ...
     for (k = 0; k < DIM2_SUB; k++)
@@ -126,24 +126,24 @@ main (void)
 
     status = H5Dwrite (dataset_id, H5T_NATIVE_SHORT, memspace_id,
                        dataspace_id, H5P_DEFAULT, wdata);
-    printf ("H5Dwrite returns: %li\n", status);
+    printf ("H5Dwrite returns: %d\n", status);
     */
 
     /* I just need the data in small bits ... */
     status = H5Dread( dataset_id, H5T_NATIVE_SHORT, memspace_id, dataspace_id,
 		      H5P_DEFAULT, wdata );
-    printf ("H5Dread returns: %li\n", status);
+    printf ("H5Dread returns: %d\n", status);
     printf( "Expecting: 141 142 143 144\n" );
     printf( "Read: %hd %hd %hd %hd\n", wdata[10], wdata[11], wdata[12], wdata[13] );
 
     status = H5Sclose (memspace_id);
-    printf ("H5Sclose returns: %li\n", status);
+    printf ("H5Sclose returns: %d\n", status);
     status = H5Sclose (dataspace_id);
-    printf ("H5Sclose returns: %li\n", status);
+    printf ("H5Sclose returns: %d\n", status);
     status = H5Dclose (dataset_id);
-    printf ("H5Dclose returns: %li\n", status);
+    printf ("H5Dclose returns: %d\n", status);
     status = H5Fclose (file_id);
-    printf ("H5Fclose returns: %li\n", status);
+    printf ("H5Fclose returns: %d\n", status);
 
 
 }
