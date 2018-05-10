@@ -14,19 +14,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uifileinput.h"
 #include "uiioobjsel.h"
-#include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "uitoolbutton.h"
 
 #include "ascstream.h"
 #include "ctxtioobj.h"
+#include "filepath.h"
 #include "ioobj.h"
+#include "odver.h"
+#include "od_helpids.h"
+#include "od_iostream.h"
 #include "probdenfunctr.h"
 #include "sampledprobdenfunc.h"
-#include "od_iostream.h"
-#include "odver.h"
 #include "timefun.h"
-#include "od_helpids.h"
 
 static const char* sKeyXLogType = "X Log Type";
 static const char* sKeyYLogType = "Y Log Type";
@@ -107,7 +108,7 @@ void uiImpRokDocPDF::setDisplayedFields( bool dim1, bool dim2 )
 
 
 class RokDocImporter
-{ mODTextTranslationClass(RokDocImporter);
+{ mODTextTranslationClass(RokDocImporter)
 public:
 
 RokDocImporter( const char* fnm )
@@ -135,7 +136,7 @@ int getNrDims()
 
     if ( nrdims != 1 && nrdims != 2 )
     {
-	errmsg_ = tr("Can only handle 1D and 2D PDFs. Dimension found: ")
+	errmsg_ = tr("Can only handle 1D and 2D PDFs. Dimensions found: %1")
 		     .arg( nrdims );
 	return 0;
     }
@@ -324,6 +325,8 @@ void uiImpRokDocPDF::selChg( CallBacker* )
 
     setDisplayedFields( pdf1d || pdf2d, pdf2d );
 
+    const FilePath fnmfp( inpfld_->fileName() );
+    outputfld_->setInputText( fnmfp.baseName() );
     delete pdf;
 }
 
@@ -485,7 +488,7 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
 
 
 class RokDocExporter
-{ mODTextTranslationClass(RokDocExporter);
+{ mODTextTranslationClass(RokDocExporter)
 public:
 
 RokDocExporter( const char* fnm )

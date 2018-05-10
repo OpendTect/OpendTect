@@ -30,12 +30,11 @@ static const int cPrefWidth = 75;
 static const float cMaxProbVal = 100.0f;
 
 uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
-: uiObjFileMan(p,uiDialog::Setup(
-                uiStrings::phrManage( uiStrings::sProbDensFunc(false,mPlural)),
-                 mNoDlgTitle,
-                 mODHelpKey(mProbDenFuncManHelpID) )
-			       .nrstatusflds(1).modal(false),
-	           ProbDenFuncTranslatorGroup::ioContext())
+    : uiObjFileMan(p,uiDialog::Setup(
+		uiStrings::phrManage( uiStrings::sProbDensFunc(false,mPlural)),
+		mNoDlgTitle,mODHelpKey(mProbDenFuncManHelpID))
+			.nrstatusflds(1).modal(false),
+		   ProbDenFuncTranslatorGroup::ioContext())
 {
     createDefaultUI();
     selgrp_->getListField()->doubleClicked.notify(
@@ -115,7 +114,7 @@ void uiProbDenFuncMan::mkFileInfo()
     mGetPDF(pdf);
     if ( pdf )
     {
-	txt += BufferString( "Type: ", pdf->getTypeStr() );
+	txt += BufferString( "\nType: ", pdf->getTypeStr() );
 	for ( int idx=0; idx<pdf->nrDims(); idx++ )
 	{
 	    BufferString lbl( "\nDimension ", idx+1, ": " );
