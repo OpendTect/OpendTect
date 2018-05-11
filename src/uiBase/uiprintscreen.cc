@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <comdef.h>
 #include <algorithm>
 #pragma comment (lib,"Gdiplus.lib")
+#include "errmsg.h"
 
 using namespace Gdiplus;
 
@@ -83,8 +84,8 @@ std::string OD_Win_GetSnapShotFile( const std::string& reqfnm )
     Gdiplus::GdiplusStartup( &gdiplusToken, &gdiplusStartupInput, NULL );
 
     CLSID myClsId;
-    const int clssid = GetEncoderClsid( L"image/png", &myClsId );
-    if ( clssid < 0 )
+    const int retval = GetEncoderClsid( L"image/png", &myClsId );
+    if ( retval < 0 )
 	{ ErrMsg( "No PNG encoder found" ); return ssfnm; }
 
     ssfnm = reqfnm;
