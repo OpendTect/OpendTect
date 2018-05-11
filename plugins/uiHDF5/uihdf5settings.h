@@ -24,7 +24,18 @@ public:
 
     virtual bool	commit(uiRetVal&);
 
+protected:
+
+    BufferStringSet	typenms_;
     uiGenInput*		usehdffld_;
-    const bool		initialenabled_;
+    ObjectSet<uiGenInput> useflds_;
+    const bool		initialglobenabled_;
+    BoolTypeSet		initialenabled_;
+
+    static uiString	envBlockStr(const uiString&,const char*);
+    BufferString	getSubKey(int) const;
+    void		removeWithKey(const char*);
+
+    void		useChgCB(CallBacker*);
 
 };

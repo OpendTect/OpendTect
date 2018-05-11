@@ -61,6 +61,8 @@ bool HDF5::Access::isEnvBlocked( const char* typ )
 {
     if ( GetEnvVarYN("OD_NO_HDF5") )
 	return true;
+    if ( !typ || !*typ )
+	return false;
 
     const BufferString envvar( "OD_NO_HDF5_", BufferString(typ).toUpper() );
     return GetEnvVarYN( envvar );
@@ -70,7 +72,7 @@ bool HDF5::Access::isEnvBlocked( const char* typ )
 bool HDF5::Access::isEnabled( const char* typ )
 {
     if ( !HDF5::isAvailable() || isEnvBlocked(typ)
-      || Settings::common().isFalse(sSettingsEnabKey()) )
+      || !Settings::common().isTrue(sSettingsEnabKey()) )
 	return false;
 
     if ( FixedString(typ).isEmpty() )

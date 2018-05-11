@@ -206,9 +206,13 @@ inline Reader* mkReader() { return AccessProvider::mkReader(); }
 inline Writer* mkWriter() { return AccessProvider::mkWriter(); }
 inline const char* sFileExtension() { return Access::sFileExtension(); }
 
-inline bool isAvailable() { return !AccessProvider::factory().isEmpty(); }
-inline bool isEnabled( const char* typ ) { return Access::isEnabled(typ); }
-inline bool isEnvBlocked( const char* typ ) { return Access::isEnvBlocked(typ);}
+inline bool isAvailable()
+{ return !AccessProvider::factory().isEmpty(); }
+inline bool isEnabled( const char* typ=0 )
+{ return Access::isEnabled(typ); }
+inline bool isEnvBlocked( const char* typ=0 )
+{ return Access::isEnvBlocked(typ);}
+
 inline const char* sSeismicsType()	{ return "Seismics"; }
 inline const char* sPickSetType()	{ return "PickSets"; }
 

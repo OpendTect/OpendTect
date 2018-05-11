@@ -660,7 +660,7 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p, const char* initialgrpky )
     , curtreeitm_(0)
 {
     if ( !initialgrpky )
-	initialgrpky = uiGeneralLnFSettingsGroup::sFactoryKeyword();
+	initialgrpky = uiStorageSettingsGroup::sFactoryKeyword();
 
     uiGroup* leftgrp = new uiGroup( this, "uiSettingsGroup tree" );
     treefld_ = new uiTreeView( leftgrp, "uiSettingsGroup tree" );

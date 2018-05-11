@@ -469,6 +469,7 @@ uiGroup::~uiGroup()
 	body_ = 0;
 	delete bd;
     }
+    detachAllNotifiers();
 }
 
 
