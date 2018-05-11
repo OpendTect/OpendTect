@@ -1290,17 +1290,21 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 }
 
 
+std::string OD_Win_GetSnapShotFile(const std::string&);
+
 bool uiMainWin::grab( const char* filenm, int zoom,
 		      const char* format, int quality ) const
 {
 #ifdef __win__
-    std::string OD_Win_GetSnapShotFile(const std::string&);
+
     std::string snapshotfile = OD_Win_GetSnapShotFile( filenm );
+    if ( snapshotfile.empty() )
+	return false;
 
     QPixmap desktopsnapshot;
 
     if ( !desktopsnapshot.load( snapshotfile.c_str() ) )
-	{ pErrMsg( "Huh...GDI+ Image doesn't load by QT" ); return false; }
+	{ ErrMsg( "Generated GDI+ image does not load in Qt" ); return false; }
 
     File::remove( snapshotfile.c_str() );
 
@@ -1318,17 +1322,21 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 	    qwin = body_;
 
 #ifdef __win__
+
 	RECT rect = {};
 	GetWindowRect( (HWND)qwin->winId() , &rect );
 	const int width  = rect.right - rect.left;
 	const int height = rect.bottom - rect.top;
+
 #else
+
 	const int width = qwin->frameGeometry().width();
 	/*on windows, it gets width till end of monitor and not entire widget*/
 	const int height = qwin->frameGeometry().height();
+
 #endif
 	desktopsnapshot = desktopsnapshot.copy( qwin->x(), qwin->y(),
-						 width, height );
+						width, height );
     }
 
     return desktopsnapshot.save( QString(filenm), format, quality );

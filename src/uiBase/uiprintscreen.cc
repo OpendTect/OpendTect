@@ -57,7 +57,8 @@ static int GetEncoderClsid( const WCHAR* format, CLSID* pClsid )
     3) will use GDI+ to save file to PNG
     4) will return file name of the print screen saved to.
 */
-std::string OD_Win_GetSnapShotFile( const std::string& filepath )
+
+std::string OD_Win_GetSnapShotFile( const std::string& reqfnm )
 {
     INPUT ip[2] = { 0 };
 
@@ -68,29 +69,40 @@ std::string OD_Win_GetSnapShotFile( const std::string& filepath )
     ip[1].ki.dwFlags |= KEYEVENTF_KEYUP;
     SendInput(2, ip, sizeof(INPUT));  //trigger PRNT-SCRN
 
-    Sleep( 1000 ); //wait for 1 seconds
+    Sleep( 1000 ); // one second wait
 
-    if ( OpenClipboard(NULL) )
-    {
-	HBITMAP hbm = (HBITMAP)GetClipboardData( CF_BITMAP );
+    std::string ssfnm;
 
-	ULONG_PTR gdiplusToken;
-	const Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-	Gdiplus::GdiplusStartup( &gdiplusToken, &gdiplusStartupInput, NULL );
+    if ( !OpenClipboard(NULL) )
+	{ ErrMsg( "Cannot open Windows Clipboard" ); return ssfnm; }
 
-	CLSID myClsId;
-	int retVal = GetEncoderClsid( L"image/png", &myClsId );
+    HBITMAP hbm = (HBITMAP)GetClipboardData( CF_BITMAP );
 
+    ULONG_PTR gdiplusToken;
+    const Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+    Gdiplus::GdiplusStartup( &gdiplusToken, &gdiplusStartupInput, NULL );
+
+    CLSID myClsId;
+    const int clssid = GetEncoderClsid( L"image/png", &myClsId );
+    if ( clssid < 0 )
+	{ ErrMsg( "No PNG encoder found" ); return ssfnm; }
+
+    ssfnm = reqfnm;
+    ssfnm += ".png";
+
+    { //limit scope so that image is destroyed before GDI shutdown
+
+	Gdiplus::Bitmap image(hbm, NULL);
+	if ( image.Save(_bstr_t(ssfnm.c_str()),&myClsId) != Gdiplus::Ok )
 	{
-	    Gdiplus::Bitmap image(hbm, NULL);
-	    filepath+=".png";
-	    image.Save( _bstr_t(filepath.c_str()), &myClsId );
-	    //limit its scope so that its destroyed before GDI shutdown
+	    ErrMsg( "GDI+ image cannot be saved" );
+	    ssfnm = ""; return ssfnm;
 	}
-
-	CloseClipboard();
-	DeleteObject( hbm );
-	Gdiplus::GdiplusShutdown( gdiplusToken );
     }
-    return filepath;
+
+    CloseClipboard();
+    DeleteObject( hbm );
+    Gdiplus::GdiplusShutdown( gdiplusToken );
+
+    return ssfnm;
 }
