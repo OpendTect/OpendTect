@@ -265,13 +265,13 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 							    sSelection()) );
 	horselfld_->box()->addItem( uiStrings::sSelect() );
 	horselfld_->box()->addItems( hornms_ );
-	horselfld_->box()->selectionChanged.notify(mCB(this,
-						    uiGenRandPicks2D,hor1Sel));
+	horselfld_->box()->selectionChanged.notify(
+		mCB(this,uiGenRandPicks2D,hor1Sel) );
 	horsel2fld_ = new uiComboBox( this, "" );
 	horsel2fld_->addItem( uiStrings::sSelect()  );
 	horsel2fld_->addItems( hornms_ );
-	horsel2fld_->selectionChanged.notify( mCB(this,
-						 uiGenRandPicks2D,hor2Sel) );
+	horsel2fld_->selectionChanged.notify(
+		mCB(this,uiGenRandPicks2D,hor2Sel) );
     }
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Line(s)") );
@@ -317,9 +317,9 @@ void uiGenRandPicks2D::hor2Sel( CallBacker* cb )
 
 void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
 {
-    const char* nm = sel->text();
-    const char* curnm = tosel->text();
-    const int idx = hornms_.indexOf( nm );
+    const BufferString nm = sel->text();
+    const BufferString curnm = tosel->text();
+    const int idx = hornms_.indexOf( nm.buf() );
     BufferStringSet hornms( hornms_ );
 
     if ( idx >= 0 ) hornms.removeSingle( idx );
@@ -327,7 +327,7 @@ void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
     tosel->setEmpty();
     tosel->addItem( uiStrings::sSelect()  );
     tosel->addItems( hornms );
-    tosel->setCurrentItem( curnm );
+    tosel->setCurrentItem( curnm.buf() );
 }
 
 
