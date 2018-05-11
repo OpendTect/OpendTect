@@ -44,6 +44,7 @@ ________________________________________________________________________
 #include "texttranslation.h"
 #include "thread.h"
 #include "timer.h"
+#include "file.h"
 
 #include <iostream>
 
@@ -67,6 +68,7 @@ ________________________________________________________________________
 #include <QSettings>
 #include <QStatusBar>
 #include <QWidget>
+
 
 mUseQtnamespace
 
@@ -1291,21 +1293,43 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 bool uiMainWin::grab( const char* filenm, int zoom,
 		      const char* format, int quality ) const
 {
+#ifdef __win__
+    std::string OD_Win_GetSnapShotFile( std::string filepath );
+    std::string snapshotfile = OD_Win_GetSnapShotFile(filenm);
+
+    QPixmap desktopsnapshot; 
+    
+    if ( !desktopsnapshot.load( snapshotfile.c_str() ) )
+	{ pErrMsg( "Huh...GDI+ Image doesn't load by QT" ); return false; }
+
+    File::remove( snapshotfile.c_str() ); 
+
+#else
     const WId desktopwinid = QApplication::desktop()->winId();
     const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
-    QPixmap snapshot = desktopsnapshot;
+#endif
+    
     if ( zoom > 0 )
     {
 	QWidget* qwin = qApp->activeModalWidget();
 	if ( !qwin || zoom==1 )
 	    qwin = body_;
 
-	const int width = qwin->frameGeometry().width();
+#ifdef __win__
+	RECT rect = {};
+	GetWindowRect( (HWND)qwin->winId() , &rect );
+	const int width  = rect.right - rect.left;
+	const int height = rect.bottom - rect.top;
+#else
+	const int width = qwin->frameGeometry().width();  
+	/*on windows, it gets width till end of monitor and not entire widget*/
 	const int height = qwin->frameGeometry().height();
-	snapshot = desktopsnapshot.copy( qwin->x(), qwin->y(), width, height );
+#endif
+	desktopsnapshot = desktopsnapshot.copy( qwin->x(), qwin->y(),
+							       width, height );
     }
 
-    return snapshot.save( QString(filenm), format, quality );
+    return desktopsnapshot.save( QString(filenm), format, quality );
 }
 
 

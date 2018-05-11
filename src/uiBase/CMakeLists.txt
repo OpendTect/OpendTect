@@ -95,6 +95,10 @@ if ( APPLE )
     list ( APPEND OD_MODULE_SOURCES uimacinit.cc )
 endif()
 
+if ( WIN32 )
+    list ( APPEND OD_MODULE_SOURCES uiprintscreen.cc )
+endif()
+
 set(OD_MODULE_GUI_PROGS od_DispMsg.cc  )
 OD_ADD_SOURCE_FILES( uimainicon.xpm )
 OD_INIT_MODULE()
