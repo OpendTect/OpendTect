@@ -1325,8 +1325,9 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 	/*on windows, it gets width till end of monitor and not entire widget*/
 	const int height = qwin->frameGeometry().height();
 #endif
-	desktopsnapshot = desktopsnapshot.copy( qwin->x(), qwin->y(),
-							       width, height );
+	return desktopsnapshot.copy( qwin->x(), qwin->y(),
+						width, height )
+		      .save( QString(filenm), format, quality );
     }
 
     return desktopsnapshot.save( QString(filenm), format, quality );
