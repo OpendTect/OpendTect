@@ -129,41 +129,47 @@ StepInterval<float> uiSelZRange::getRange() const
 }
 
 
-#define mAdaptRangeToLimits( rg, limit, newrg ) \
-if ( mIsUdf(rg.start) || mIsUdf(rg.stop) ) \
-    newrg = rg; \
-else \
-{ \
-    const double eps = 1e-4; \
-    if ( mIsZero(limit.step,eps) || mIsUdf(limit.step) ) \
-	limit.step = 1; \
-\
-    const double realstartdif = double(rg.start) - double(limit.start); \
-    const double realstartidx = realstartdif / double(limit.step); \
-    const double realstepfac = double(rg.step) / double(limit.step); \
-    const bool useoldstep = !mIsZero(realstartidx-mNINT32(realstartidx),eps) ||\
-			    !mIsZero(realstepfac-mNINT32(realstepfac),eps); \
-    int stepfac = useoldstep ? 1 : mNINT32(realstepfac); \
-    if ( stepfac == 0 ) \
-	stepfac = 1; \
-\
-    int startidx = mNINT32( ceil(realstartidx-eps) ); \
-    if ( startidx < 0 ) \
-	startidx = (startidx*(1-stepfac)) % stepfac; \
-\
-    const double width = mMIN(rg.stop,limit.stop) - limit.atIndex(startidx); \
-    const double realnrsteps = width / (stepfac*limit.step); \
-    const int stopidx = startidx \
-			+ stepfac * mNINT32( Math::Floor(realnrsteps+eps) );\
-\
-    if ( startidx <= stopidx ) \
-    { \
-	newrg.start = limit.atIndex( startidx ); \
-	newrg.stop = limit.atIndex( stopidx ); \
-	newrg.step = stepfac * limit.step; \
-    } \
-    else \
-	newrg = limit; \
+template <class T>
+static void adaptRangeToLimits( const StepInterval<T>& rg,
+				StepInterval<T>& limit,
+				StepInterval<T>& newrg )
+{
+    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
+    {
+	newrg = rg;
+	return;
+    }
+
+    const double eps = 1e-4;
+    if ( mIsZero(limit.step,eps) || mIsUdf(limit.step) )
+	limit.step = 1;
+
+    const double realstartdif = double(rg.start) - double(limit.start);
+    const double realstartidx = realstartdif / double(limit.step);
+    const double realstepfac = double(rg.step) / double(limit.step);
+    const bool useoldstep = !mIsZero(realstartidx-mNINT32(realstartidx),eps) ||
+			    !mIsZero(realstepfac-mNINT32(realstepfac),eps);
+    int stepfac = useoldstep ? 1 : mNINT32(realstepfac);
+    if ( stepfac == 0 )
+	stepfac = 1;
+
+    int startidx = mNINT32( ceil(realstartidx-eps) );
+    if ( startidx < 0 )
+	startidx = (startidx*(1-stepfac)) % stepfac;
+
+    const double width = mMIN(rg.stop,limit.stop) - limit.atIndex(startidx);
+    const double realnrsteps = width / (stepfac*limit.step);
+    const int stopidx = startidx
+			+ stepfac * mNINT32( Math::Floor(realnrsteps+eps) );
+
+    if ( startidx <= stopidx )
+    {
+	newrg.start = limit.atIndex( startidx );
+	newrg.stop = limit.atIndex( stopidx );
+	newrg.step = stepfac * limit.step;
+    }
+    else
+	newrg = limit;
 }
 
 
@@ -174,7 +180,7 @@ void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
 
     StepInterval<float> limitrg = startfld_->getFInterval();
     StepInterval<float> newzrg;
-    mAdaptRangeToLimits( zrg, limitrg, newzrg );
+    adaptRangeToLimits<float>( zrg, limitrg, newzrg );
 
     if ( cansnap_ )
     {
@@ -391,7 +397,7 @@ void uiSelNrRange::setRange( const StepInterval<int>& rg )
 {
     StepInterval<int> limitrg = startfld_->getInterval();
     StepInterval<int> newrg;
-    mAdaptRangeToLimits( rg, limitrg, newrg );
+    adaptRangeToLimits<int>( rg, limitrg, newrg );
 
     startfld_->setValue( newrg.start );
     setStopVal( newrg.stop );
