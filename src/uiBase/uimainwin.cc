@@ -1294,21 +1294,23 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 		      const char* format, int quality ) const
 {
 #ifdef __win__
-    std::string OD_Win_GetSnapShotFile( std::string filepath );
-    std::string snapshotfile = OD_Win_GetSnapShotFile(filenm);
+    std::string OD_Win_GetSnapShotFile(const std::string&);
+    std::string snapshotfile = OD_Win_GetSnapShotFile( filenm );
 
-    QPixmap desktopsnapshot; 
-    
+    QPixmap desktopsnapshot;
+
     if ( !desktopsnapshot.load( snapshotfile.c_str() ) )
 	{ pErrMsg( "Huh...GDI+ Image doesn't load by QT" ); return false; }
 
-    File::remove( snapshotfile.c_str() ); 
+    File::remove( snapshotfile.c_str() );
 
 #else
+
     const WId desktopwinid = QApplication::desktop()->winId();
-    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
+    QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
+
 #endif
-    
+
     if ( zoom > 0 )
     {
 	QWidget* qwin = qApp->activeModalWidget();
@@ -1321,13 +1323,12 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 	const int width  = rect.right - rect.left;
 	const int height = rect.bottom - rect.top;
 #else
-	const int width = qwin->frameGeometry().width();  
+	const int width = qwin->frameGeometry().width();
 	/*on windows, it gets width till end of monitor and not entire widget*/
 	const int height = qwin->frameGeometry().height();
 #endif
-	return desktopsnapshot.copy( qwin->x(), qwin->y(),
-						width, height )
-		      .save( QString(filenm), format, quality );
+	desktopsnapshot = desktopsnapshot.copy( qwin->x(), qwin->y(),
+						 width, height );
     }
 
     return desktopsnapshot.save( QString(filenm), format, quality );

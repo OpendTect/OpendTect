@@ -51,13 +51,13 @@ static int GetEncoderClsid( const WCHAR* format, CLSID* pClsid )
 }
 
 /*
-    OD_Win_GetSnapShotFile: 
+    OD_Win_GetSnapShotFile:
     1) will trigger print screen key press
     2) will capture data from the clipboard (in this case, an image)
     3) will use GDI+ to save file to PNG
     4) will return file name of the print screen saved to.
 */
-std::string OD_Win_GetSnapShotFile( std::string filepath )
+std::string OD_Win_GetSnapShotFile( const std::string& filepath )
 {
     INPUT ip[2] = { 0 };
 
@@ -73,14 +73,14 @@ std::string OD_Win_GetSnapShotFile( std::string filepath )
     if ( OpenClipboard(NULL) )
     {
 	HBITMAP hbm = (HBITMAP)GetClipboardData( CF_BITMAP );
-	
-	ULONG_PTR gdiplusToken; 
+
+	ULONG_PTR gdiplusToken;
 	const Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 	Gdiplus::GdiplusStartup( &gdiplusToken, &gdiplusStartupInput, NULL );
 
 	CLSID myClsId;
 	int retVal = GetEncoderClsid( L"image/png", &myClsId );
-	
+
 	{
 	    Gdiplus::Bitmap image(hbm, NULL);
 	    filepath+=".png";
