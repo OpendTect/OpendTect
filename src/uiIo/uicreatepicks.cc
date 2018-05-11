@@ -237,7 +237,7 @@ uiGenRandPicks2DDlg::uiGenRandPicks2DDlg( uiParent* p,
     , linenms_(lnms)
     , fillLocs(this)
 {
-    nrfld_ = new uiGenInput( this, tr("Number of picks to generate"),
+    nrfld_ = new uiGenInput( this, tr("Number of Points to generate"),
 		    IntInpSpec(defnrpicks_).setLimits(Interval<int>(1,10000)) );
 
     if ( hornms_.size() )
@@ -245,13 +245,13 @@ uiGenRandPicks2DDlg::uiGenRandPicks2DDlg( uiParent* p,
 	horselfld_ = new uiLabeledComboBox( this, tr("Horizon Selection") );
 	horselfld_->box()->addItem( uiStrings::sSelect() );
 	horselfld_->box()->addItems( hornms_.getUiStringSet() );
-	horselfld_->box()->selectionChanged.notify(mCB(this,
-						uiGenRandPicks2DDlg,hor1Sel));
+	horselfld_->box()->selectionChanged.notify(
+		mCB(this,uiGenRandPicks2DDlg,hor1Sel) );
 	horsel2fld_ = new uiComboBox( this, "" );
 	horsel2fld_->addItem( uiStrings::sSelect()  );
 	horsel2fld_->addItems( hornms_.getUiStringSet() );
-	horsel2fld_->selectionChanged.notify( mCB(this,
-						 uiGenRandPicks2DDlg,hor2Sel) );
+	horsel2fld_->selectionChanged.notify(
+		mCB(this,uiGenRandPicks2DDlg,hor2Sel) );
     }
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Line(s)") );
@@ -297,9 +297,9 @@ void uiGenRandPicks2DDlg::hor2Sel( CallBacker* cb )
 
 void uiGenRandPicks2DDlg::horSel( uiComboBox* sel, uiComboBox* tosel )
 {
-    const char* nm = sel->text();
-    const char* curnm = tosel->text();
-    const int idx = hornms_.indexOf( nm );
+    const BufferString nm = sel->text();
+    const BufferString curnm = tosel->text();
+    const int idx = hornms_.indexOf( nm.buf() );
     BufferStringSet hornms( hornms_ );
 
     if ( idx >= 0 ) hornms.removeSingle( idx );
@@ -307,7 +307,7 @@ void uiGenRandPicks2DDlg::horSel( uiComboBox* sel, uiComboBox* tosel )
     tosel->setEmpty();
     tosel->addItem( uiStrings::sSelect()  );
     tosel->addItems( hornms.getUiStringSet() );
-    tosel->setCurrentItem( curnm );
+    tosel->setCurrentItem( curnm.buf() );
 }
 
 
