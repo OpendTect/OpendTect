@@ -154,6 +154,7 @@ static int doWork( int argc, char** argv )
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::BatchProgCtxt );
     EarthModel::initStdClasses();
     return ExitProgram( doWork(argc,argv) );
 }

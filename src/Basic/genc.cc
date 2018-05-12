@@ -21,6 +21,7 @@
 #include "survinfo.h"
 #include "od_iostream.h"
 #include "odmemory.h"
+#include "odruncontext.h"
 #include "convert.h"
 #include "iopar.h"
 #include <iostream>
@@ -39,7 +40,18 @@
 # include <signal.h>
 #endif
 
+static OD::RunCtxt runctxt_ = OD::UnknownCtxt;
+namespace OD
+{
+    RunCtxt GetRunContext()		{ return runctxt_; }
+    void SetRunContext( RunCtxt rm )	{ runctxt_ = rm; }
+}
+
+//Implemented in src/Basic/qpaths.cc
+void setQtPaths();
+//Implemented in src/Basic/oddirs.cc
 mGlobal(Basic) void SetBaseDataDir(const char*);
+
 
 
 #ifdef __lux__
@@ -165,11 +177,6 @@ static Threads::Lock& getEnvVarLock()
     mDefineStaticLocalObject( Threads::Lock, lock, (false) );
     return lock;
 }
-
-static IOPar envvar_entries;
-static int insysadmmode_ = 0;
-mExternC( Basic ) int InSysAdmMode(void) { return insysadmmode_; }
-mExternC( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
 
 
 #ifdef __win__
@@ -499,6 +506,8 @@ mExtern(Basic) void UnsetOSEnvVar( const char* env )
 }
 
 
+static IOPar envvar_entries;
+
 static void loadEntries( const char* fnm, IOPar* iop=0 )
 {
     if ( !fnm || !*fnm )
@@ -534,7 +543,7 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
     Threads::Locker lock( getEnvVarLock() );
     if ( !env || !*env )
 	{ pFreeFnErrMsg( "Asked for empty env var" ); return 0; }
-    if ( insysadmmode_ )
+    if ( OD::InSysAdmRunContext() )
 	return GetOSEnvVar( env );
 
     mDefineStaticLocalObject( bool, filesread, = false );
@@ -629,7 +638,7 @@ mExtern(Basic) bool WriteEnvVar( const char* env, const char* val )
 
     Threads::Locker lock( getEnvVarLock() );
 
-    BufferString fnm( insysadmmode_
+    BufferString fnm( OD::InSysAdmRunContext()
 	    ? GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1)
 	    : GetSettingsFileName("envvars") );
     IOPar iop;
@@ -671,10 +680,6 @@ static void insertInPath( const char* envkey, const char* dir, const char* sep )
     SetEnvVar( envkey, pathval.buf() );
 }
 #endif
-
-
-//Implemented in src/Basic/qpaths.cc
-void setQtPaths();
 
 
 static void getDataRoot( bool isrequired )

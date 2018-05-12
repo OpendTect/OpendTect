@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 int main( int argc_in, char ** argv_in )
 {
+    OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc_in, argv_in );
     OD::ModDeps().ensureLoaded( "uiSeis" );
 

@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 int main( int argc, char ** argv )
 {
+    OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
 
     IOPar jobpars;

@@ -33,8 +33,6 @@ uiODSysAdm& ODSysAdmMainWin()
 mGlobal(uiSysAdm) int ODSysAdmMain(int,char**); // keep compiler happy
 int ODSysAdmMain( int argc, char** argv )
 {
-    SetInSysAdmMode();
-
     PIM().loadAuto( false );
     uiMain app( argc, argv );
     uiODSysAdm& odsa = ODSysAdmMainWin(); // Has to be done here - constructs

@@ -20,6 +20,7 @@
 #include "envvars.h"
 #include "staticstring.h"
 #include "od_ostream.h"
+#include "odruncontext.h"
 
 const char* ColTab::Sequence::sKeyValCol()	{ return "Value-Color"; }
 const char* ColTab::Sequence::sKeyMarkColor()	{ return "Marker color"; }
@@ -659,7 +660,7 @@ ColTab::SequenceManager::SequenceManager()
     if ( iop )
 	{ addFromPar( *iop, true ); delete iop; }
 
-    if ( !InSysAdmMode() )
+    if ( !OD::InSysAdmRunContext() )
     {
 	Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
 	addFromPar( setts, false );

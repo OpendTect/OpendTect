@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
     CommandLineParser cl( argc, argv );
     const int nrargs = cl.nrArgs();

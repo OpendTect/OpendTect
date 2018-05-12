@@ -17,6 +17,7 @@
 # include "genc.h"
 # include "file.h"
 # include "uifileselector.h"
+# include "odruncontext.h"
 # ifdef __msvc__
 #  include "winmain.h"
 # endif
@@ -25,6 +26,7 @@
 int main( int narg, char** argv )
 {
 #ifdef USESOODCLASSES
+    OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( narg, argv );
 #endif
 

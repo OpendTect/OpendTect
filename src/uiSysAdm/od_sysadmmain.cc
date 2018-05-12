@@ -16,9 +16,9 @@ extern int ODSysAdmMain(int,char**);
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::SysAdmCtxt );
     SetProgramArgs( argc, argv );
 
     int ret = ODSysAdmMain( argc, argv );
     return ExitProgram( ret );
 }
-

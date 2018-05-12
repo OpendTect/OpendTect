@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::BatchProgCtxt );
     SetProgramArgs( argc, argv );
     ApplicationData app;
 

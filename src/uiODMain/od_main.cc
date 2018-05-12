@@ -10,9 +10,9 @@ ________________________________________________________________________
 
 #include "prog.h"
 #include "envvars.h"
-#include "odver.h"
-#include "msgh.h"
 #include "fixedstring.h"
+#include "msgh.h"
+#include "odver.h"
 #include <iostream>
 
 #ifdef __mac__
@@ -28,6 +28,8 @@ extern Export_Basic int gLogFilesRedirectCode;
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::NormalCtxt );
+
     const FixedString argv1( argc < 2 ? "" : argv[1] );
     if ( argv1 == "-v" || argv1 == "--version" )
 	{ std::cerr << GetFullODVersion() << std::endl; ExitProgram( 0 ); }

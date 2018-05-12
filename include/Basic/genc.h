@@ -90,9 +90,6 @@ mGlobal(Basic) void PutIsLittleEndian(unsigned char*);
 mGlobal(Basic) void SwapBytes(void*,int nbytes);
 		/*!< nbytes=2,4,... e.g. nbytes=4: abcd becomes cdab */
 
-mGlobal(Basic) int InSysAdmMode(void);
-		/*!< returns 0 unless in sysadm mode */
-
 mGlobal(Basic) void sleepSeconds(double);
 		/*!< puts current thread to sleep for (fraction of) seconds */
 
@@ -102,10 +99,6 @@ mGlobal(Basic) const char* GetVCSVersion(void);
 mGlobal( Basic ) const char* GetLastSystemErrorMessage(void);
 
 mGlobal( Basic ) void ForkProcess(void);
-
-mGlobal( Basic ) int InSysAdmMode(void);
-mGlobal( Basic ) void SetInSysAdmMode(void);
-
 
 inline void EmptyFunction()			{}
 /* Used in some macros and ifdefs */

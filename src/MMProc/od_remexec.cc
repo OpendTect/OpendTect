@@ -45,6 +45,7 @@ static void printBatchUsage()
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::BatchProgCtxt );
     SetProgramArgs( argc, argv );
     CommandLineParser clp;
     if ( clp.nrArgs() < 5 )

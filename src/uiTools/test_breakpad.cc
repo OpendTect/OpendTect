@@ -7,6 +7,7 @@
 #include "genc.h"
 #include "signal.h"
 #include "moddepmgr.h"
+#include "odruncontext.h"
 
 
 /*On windows, this will only trigger outside a debugger. Hence, set the path
@@ -16,6 +17,7 @@ If everything works Breakpad should trigger and write out a crash report.
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs(argc, argv);
     OD::ModDeps().ensureLoaded("uiTools");
 

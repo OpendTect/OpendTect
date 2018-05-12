@@ -156,6 +156,7 @@ if ( comm_ ) \
 #define mMainIsDefined
     int main( int argc, char** argv )
     {
+	OD::SetRunContext( OD::BatchProgCtxt );
 	SetProgramArgs( argc, argv );
 	int ret = Execute_batch(&argc,argv);
 	ExitProgram( ret );

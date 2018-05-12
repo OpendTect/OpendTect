@@ -45,6 +45,7 @@ static void printBatchUsage()
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
     CommandLineParser clp;
     const int nrargs = clp.nrArgs();

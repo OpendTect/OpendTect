@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "plugins.h"
 #include "debug.h"
 #include "od_ostream.h"
+#include "odruncontext.h"
 #include "genc.h"
 
 

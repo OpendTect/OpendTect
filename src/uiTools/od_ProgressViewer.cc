@@ -365,6 +365,7 @@ static void printBatchUsage( const char* prognm )
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "uiBase" );
 

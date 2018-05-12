@@ -22,6 +22,7 @@
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::BatchProgCtxt );
     if ( argc < 3 )
     {
 	std::cerr << "Usage: " << argv[0]

@@ -36,6 +36,7 @@ static bool ExecODMain( int argc, char** argv )
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::NormalCtxt );
     SetProgramArgs( argc, argv );
     ODInst::runInstMgrForUpdt();
     return ExecODMain( argc, argv );

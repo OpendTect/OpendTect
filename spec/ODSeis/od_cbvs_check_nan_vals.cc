@@ -25,6 +25,7 @@
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::BatchProgCtxt );
     if ( argc < 1 )
     {
 	od_cout() << "Usage: " << argv[0]

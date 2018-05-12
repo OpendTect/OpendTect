@@ -4,8 +4,9 @@
 
 int main( int, char** )
 {
+    OD::SetRunContext( OD::TestProgCtxt );
     Grav::Block blk( Coord(-100,100), Coord( 300, -100 ),
-	    		Interval<double>(50,150) );
+			Interval<double>(50,150) );
 
     Coord3 c3( 0, 0, 0 );
 

@@ -35,6 +35,7 @@ static void exitWithErrMsg( const char* msg )
 
 int main( int argc, char ** argv )
 {
+    OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
 
     CommandLineParser clp;

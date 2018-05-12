@@ -316,6 +316,7 @@ static int doWork( int argc, char** argv )
 
 int main( int argc, char** argv )
 {
+    OD::SetRunContext( OD::BatchProgCtxt );
     return ExitProgram( doWork(argc,argv) );
 }
 

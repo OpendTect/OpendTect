@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "debug.h"
 #include "ptrman.h"
 #include "od_ostream.h"
+#include "odruncontext.h"
 
 #ifdef __win__
 # include "winmain.h"
@@ -37,6 +38,7 @@ int testMain(int,char**);
 #define mMainIsDefined
 int main(int argc, char** argv)
 {
+    OD::SetRunContext( OD::TestProgCtxt );
     ExitProgram( testMain( argc, argv ) );
 }
 #endif

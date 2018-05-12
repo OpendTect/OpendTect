@@ -13,6 +13,7 @@
 #include "filepath.h"
 #include "genc.h"
 #include "oddirs.h"
+#include "odruncontext.h"
 #include "safefileio.h"
 #include "staticstring.h"
 
@@ -61,8 +62,8 @@ Settings& Settings::fetch( const char* key )
 				 false );
     if ( !newsett )
     {
-	if ( mIsCommon(key) )
-	    ErrMsg( "Cannot find valid settings file in .od directory" );
+	if ( mIsCommon(key) && !OD::InInstallerRunContext() )
+	    ErrMsg( "Continuing with fresh settings file in .od directory" );
 	newsett = new Settings( settkey );
     }
 
