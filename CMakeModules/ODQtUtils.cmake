@@ -26,7 +26,7 @@ find_package( Qt5Core QUIET )
 
 #Setup Qt5 Language tools
 if ( Qt5Core_FOUND )
-    find_package( Qt5 REQUIRED LinguistTools )
+    find_package( Qt5 QUIET COMPONENTS LinguistTools )
     get_target_property( QT_LRELEASE_EXECUTABLE Qt5::lrelease
 			 IMPORTED_LOCATION )
     get_target_property( QT_LUPDATE_EXECUTABLE Qt5::lupdate

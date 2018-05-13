@@ -325,13 +325,29 @@ static void qtMessageOutput( QtMsgType type, const char* msg )
     if ( str.isEmpty() )
 	return;
 
+    static const char* suppress[] =
+    {
+	"KGlobal",
+	"kfilemodule",
+	"QXcbConnection: XCB error:",
+	"QOpenGLContext::swapBuffers()",
+	0
+    };
+
     switch ( type )
     {
 	case QtDebugMsg:
 	case QtWarningMsg:
-	    if ( !str.startsWith("KGlobal") && !str.startsWith("kfilemodule") )
-		ErrMsg( str, true );
-	    break;
+	{
+	    const char** supprptr = suppress;
+	    while ( *supprptr )
+	    {
+		if ( str.startsWith(*supprptr) )
+		    return;
+		supprptr++;
+	    }
+	    ErrMsg( str, true );
+	} break;
 	case QtFatalMsg:
 	case QtCriticalMsg:
 	    ErrMsg( str );
