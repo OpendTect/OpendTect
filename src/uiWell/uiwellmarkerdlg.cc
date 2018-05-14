@@ -30,12 +30,13 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "od_ostream.h"
-#include "oddirs.h"
+#include "randcolor.h"
 #include "stratlevel.h"
-#include "od_istream.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "od_ostream.h"
+#include "oddirs.h"
+#include "od_istream.h"
 #include "welldata.h"
 #include "wellmanager.h"
 #include "wellimpasc.h"
@@ -209,6 +210,11 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& wd )
 				tr("Edit Stratigraphy to define Levels"),
 				mCB(this,uiMarkerDlg,doStrat) );
     stratbut->attach( rightOf, setregmrkar );
+
+    uiToolButton* randclrbut = new uiToolButton( this, "random_color",
+				tr("Assign random colors to markers"),
+				mCB(this,uiMarkerDlg,assignRandomColorsCB) );
+    randclrbut->attach( rightOf, stratbut );
 
     unitfld_ = new uiCheckBox( this, tr("Z in Feet") );
     unitfld_->attach( rightAlignedBelow, table_ );
@@ -487,6 +493,10 @@ uiReadMarkerFile( uiParent* p )
 			BoolInpSpec(true,uiStrings::sReplace(),
 					 uiStrings::sKeep()) );
     replfld_->attach( alignedBelow, dataselfld_ );
+
+    colorfld_ = new uiCheckBox( this, tr("Assign random colors to markers") );
+    colorfld_->setChecked( false );
+    colorfld_->attach( alignedBelow, replfld_ );
 }
 
 ~uiReadMarkerFile()
@@ -504,17 +514,39 @@ bool acceptOK()
 	return false;
 
     keep_ = !replfld_->getBoolValue();
+    assignrandcolors_ = colorfld_->isChecked();
     return true;
 }
 
     Table::FormatDesc&	fd_;
     BufferString	fnm_;
     bool		keep_;
+    bool		assignrandcolors_;
 
     uiFileSel*		fnmfld_;
     uiGenInput*		replfld_;
     uiTableImpDataSel*	dataselfld_;
+    uiCheckBox*		colorfld_;
 };
+
+
+void uiMarkerDlg::assignRandomColorsCB( CallBacker* )
+{
+    Well::MarkerSet mrkrs;
+    getMarkerSet( mrkrs );
+    assignRandomColors( mrkrs );
+}
+
+
+void uiMarkerDlg::assignRandomColors( Well::MarkerSet& mrkrs,
+				      bool keepexstingmrkrs )
+{
+	Well::MarkerSetIter4Edit mrkriter( mrkrs );
+	while ( mrkriter.next() )
+	    mrkriter.get().setColor( getRandomColor() );
+
+	setMarkerSet( mrkrs, keepexstingmrkrs );
+}
 
 
 void uiMarkerDlg::rdFile( CallBacker* )
@@ -531,6 +563,8 @@ void uiMarkerDlg::rdFile( CallBacker* )
     aio.get( strm, mrkrs, track_ );
     if ( mrkrs.isEmpty() )
 	uiMSG().error( tr("No valid markers found") );
+    else if ( dlg.assignrandcolors_ )
+	assignRandomColors( mrkrs, dlg.keep_ );
     else
 	setMarkerSet( mrkrs, dlg.keep_ );
 }

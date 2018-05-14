@@ -69,6 +69,9 @@ protected:
     bool			rejectOK();
     bool			updateMarkerDepths(int rowidx,bool md2tvdss);
     float			getOldMarkerVal(const Well::Marker&) const;
+    void			assignRandomColorsCB(CallBacker*);
+    void			assignRandomColors(Well::MarkerSet&,
+						   bool keepexstingmrkrs=false);
 
     Well::Marker		getMarker(int rowidx,bool fromname) const;
     void			setColorCell(int,const Color&);
