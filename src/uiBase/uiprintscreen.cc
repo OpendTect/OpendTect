@@ -51,6 +51,22 @@ static int GetEncoderClsid( const WCHAR* format, CLSID* pClsid )
    return -1;  // Failure
 }
 
+
+static void triggerKeyboardToDoPrScreen()
+{
+    INPUT ip[2] = { 0 };
+
+    ip[0].type = INPUT_KEYBOARD;
+    ip[0].ki.wVk = VK_SNAPSHOT;
+
+    ip[1] = ip[0];
+    ip[1].ki.dwFlags |= KEYEVENTF_KEYUP;
+    SendInput(2, ip, sizeof(INPUT));  //trigger PRNT-SCRN
+
+    Sleep( 1000 ); // one second wait to enable clipboard to fill
+}
+
+
 /*
     OD_Win_GetSnapShotFile:
     1) will trigger print screen key press
@@ -62,47 +78,43 @@ static int GetEncoderClsid( const WCHAR* format, CLSID* pClsid )
 
 std::string OD_Win_GetSnapShotFile( const std::string& reqfnm )
 {
-    INPUT ip[2] = { 0 };
-
-    ip[0].type = INPUT_KEYBOARD;
-    ip[0].ki.wVk = VK_SNAPSHOT;
-
-    ip[1] = ip[0];
-    ip[1].ki.dwFlags |= KEYEVENTF_KEYUP;
-    SendInput(2, ip, sizeof(INPUT));  //trigger PRNT-SCRN
-
-    Sleep( 1000 ); // one second wait
+    triggerKeyboardToDoPrScreen();
 
     std::string ssfnm;
 
+#define mRetSimp(s) \
+    { \
+	if ( s && *s ) \
+	    { ErrMsg( s ); ssfnm = ""; } \
+	return ssfnm;
+    }
+
     if ( !OpenClipboard(NULL) )
-	{ ErrMsg( "Cannot open Windows Clipboard" ); return ssfnm; }
+	mRetSimp( "Cannot open Windows Clipboard" )
+
+#define mRetErrCloseClipBoard(s) { CloseClipboard(); mRetSimp(s); }
 
     HBITMAP hbm = (HBITMAP)GetClipboardData( CF_BITMAP );
+    if ( !hbm )
+	mRetErrCloseClipBoard( "Cannot get Windows clipboard data" )
+
+#define mRetErrDelBMAndCloseClipboard(s) \
+    { DeleteObject( hbm ); mRetErrCloseClipBoard(s); }
+
     ULONG_PTR gdiplusToken;
-    const Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-    Gdiplus::GdiplusStartup( &gdiplusToken, &gdiplusStartupInput, NULL );
+    if ( Gdiplus::GdiplusStartup(&gdiplusToken,&Gdiplus::GdiplusStartupInput(),
+				    NULL) != Gdiplus::Ok )
+	mRetErrDelBMAndCloseClipboard( "Cannot start GDI+" )
 
-#define mCloseSubsystems() \
-{ \
-    CloseClipboard(); \
-    DeleteObject( hbm ); \
-    Gdiplus::GdiplusShutdown( gdiplusToken ); \
-}
-
-#define mRetErr(s) \
-{ \
-    ssfnm = ""; \
-    ErrMsg(s); \
-    mCloseSubsystems(); \
-    return false; \
-}
+#define mRetWithMsg(s) \
+	{ Gdiplus::GdiplusShutdown( gdiplusToken ); \
+	    mRetErrDelBMAndCloseClipboard(s); }
 
     CLSID myClsId;
     retval = GetEncoderClsid( L"image/png", &myClsId );
     const int retval = GetEncoderClsid( L"image/png", &myClsId );
     if ( retval < 0 )
-	mRetErr( "No PNG encoder found" )
+	mRetWithMsg( "No PNG encoder found" )
 
     ssfnm = reqfnm;
     ssfnm += ".png";
@@ -111,9 +123,8 @@ std::string OD_Win_GetSnapShotFile( const std::string& reqfnm )
 
 	Gdiplus::Bitmap image(hbm, NULL);
 	if ( image.Save(_bstr_t(ssfnm.c_str()),&myClsId) != Gdiplus::Ok )
-	    mRetErr( "GDI+ image cannot be saved" )
+	    mRetWithMsg( "GDI+ image cannot be saved to file" )
     }
 
-    mCloseSubsystems()
-    return ssfnm;
+    mRetWithMsg( "" ) // no message; still close everything and return ssfnm
 }

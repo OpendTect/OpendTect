@@ -162,7 +162,6 @@ void SignalHandling::initFatalSignalHandling()
 	mCatchSignal( SIGBREAK );/* Control-break */
 #else
 	mCatchSignal( SIGQUIT );/* Quit */
-	mCatchSignal( SIGTRAP );/* Trace trap */
 	mCatchSignal( SIGIOT );	/* IOT instruction */
 	mCatchSignal( SIGBUS );	/* Bus error */
 	mCatchSignal( SIGXCPU );/* Cpu time limit exceeded */
@@ -182,7 +181,7 @@ void SignalHandling::handle( int signalnr )
 #ifdef __win__
     case SIGBREAK:
 #else
-    case SIGQUIT: case SIGTRAP: case SIGBUS: case SIGXCPU: case SIGXFSZ:
+    case SIGQUIT: case SIGBUS: case SIGXCPU: case SIGXFSZ:
 #endif
 
 					SH().doKill( signalnr );	break;
@@ -222,7 +221,6 @@ void SignalHandling::doKill( int signalnr )
 	    SIGERRORMSG( SIGINT );
 	    SIGERRORMSG( SIGQUIT );
 	    SIGERRORMSG( SIGILL );
-	    SIGERRORMSG( SIGTRAP );
 	    SIGERRORMSG( SIGABRT );
 	    SIGERRORMSG( SIGBUS );
 	    SIGERRORMSG( SIGFPE );
