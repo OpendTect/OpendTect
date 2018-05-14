@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "hdf5reader.h"
 #include "hdf5writer.h"
+#include "hdf5arraynd.h"
 #include "iopar.h"
 #include "ptrman.h"
 #include "separstr.h"
@@ -191,9 +192,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 
 static bool wantHDF5()
 {
-    //TODO
-    return false;
-    // return HDF5::isEnabled( HDF5::sPickSetType() );
+    return HDF5::isEnabled( HDF5::sPickSetType() );
 }
 
 
@@ -210,6 +209,14 @@ public:
     virtual		~dgbPickSetTranslatorBackEnd()	{}
     virtual uiString	read(Pick::Set&)		= 0;
     virtual uiString	write(const Pick::Set&)		= 0;
+
+void fillPar( const Pick::Set& ps, IOPar& iop ) const
+{
+    ps.fillPar( iop );
+    iop.set( sKey::ZUnit(),
+	     UnitOfMeasure::surveyDefZStorageUnit()->name() );
+}
+
 };
 
 
@@ -368,10 +375,7 @@ uiString dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
     if ( !astrm.isOK() )
 	return uiStrings::sCantOpenOutpFile();
 
-    IOPar par;
-    ps.fillPar( par );
-    par.set( sKey::ZUnit(),
-	     UnitOfMeasure::surveyDefZStorageUnit()->name() );
+    IOPar par; fillPar( ps, par );
     par.putTo( astrm );
 
     od_ostream& strm = astrm.stream();
@@ -392,13 +396,78 @@ uiString dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
 
 uiString dgbPickSetTranslatorHDF5BackEnd::read( Pick::Set& ps )
 {
-    //TODO implement
-    return uiStrings::phrCannotRead( uiStrings::sPickSet() );
+    PtrMan<HDF5::Reader> rdr = HDF5::mkReader();
+    if ( !rdr )
+	return HDF5::Access::sHDF5NotAvailable( filenm_ );
+
+    uiRetVal uirv = rdr->open( filenm_ );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    HDF5::DataSetKey dsky;
+    rdr->setScope( dsky );
+    IOPar iop;
+    uirv = rdr->getInfo( iop );
+    if ( uirv.isOK() )
+	ps.usePar( iop );
+
+    dsky.setDataSetName( sKey::Positions() );
+    if ( !rdr->setScope(dsky) )
+	return HDF5::Access::sDataSetNotFound( dsky );
+
+    ArrayND<double>* posns = HDF5::ArrayNDTool<double>::createArray( *rdr );
+    if ( !posns )
+	return HDF5::Access::sCannotReadDataSet( dsky );
+
+    HDF5::ArrayNDTool<double> arrtool( *posns );
+    uirv = arrtool.getAll( *rdr );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    //TODO read the rest
+
+    return uirv;
 }
 
 
 uiString dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
 {
-    //TODO implement
-    return uiStrings::phrCannotWrite( uiStrings::sPickSet() );
+    PtrMan<HDF5::Writer> wrr = HDF5::mkWriter();
+    if ( !wrr )
+	return HDF5::Access::sHDF5NotAvailable( filenm_ );
+
+    uiRetVal uirv = wrr->open( filenm_ );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    IOPar iop; fillPar( ps, iop );
+    HDF5::DataSetKey dsky;
+    uirv = wrr->putInfo( dsky, iop );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    const int sz = ps.size();
+    if ( sz < 1 )
+	return uiString::empty();
+
+    dsky.setDataSetName( sKey::Positions() );
+    Array2DImpl<double> posns( 3, sz );
+    Pick::SetIter psiter( ps );
+    while ( psiter.next() )
+    {
+	const Coord3& pos = psiter.get().pos();
+	const int ipos = psiter.curIdx();
+	posns.set( 0, ipos, pos.x_ );
+	posns.set( 1, ipos, pos.y_ );
+	posns.set( 2, ipos, pos.z_ );
+    }
+    psiter.retire();
+    HDF5::ArrayNDTool<double> arrtool( posns );
+    uirv = arrtool.put( *wrr, dsky );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    //TODO write the rest
+
+    return uirv;
 }

@@ -157,6 +157,8 @@ public:
     static uiString	sHDF5PackageDispName();
     static uiString	sHDF5NotAvailable();
     static uiString	sHDF5NotAvailable(const char* fnm);
+    static uiString	sDataSetNotFound(const DataSetKey&);
+    static uiString	sCannotReadDataSet(const DataSetKey&);
     static const char*	sFileExtension()	{ return "hdf5"; }
 
     static bool		isEnabled(const char* fortype=0);

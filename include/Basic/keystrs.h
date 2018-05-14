@@ -104,6 +104,7 @@ namespace sKey
     inline FixedString PickSet()	{ return "PickSet"; }
     inline FixedString Polygon()	{ return "Polygon"; }
     inline FixedString Position()	{ return "Position"; }
+    inline FixedString Positions()	{ return "Positions"; }
     inline FixedString Property()	{ return "Property"; }
     inline FixedString Provider()	{ return "Provider"; }
     inline FixedString Probe()		{ return "Probe"; }

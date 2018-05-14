@@ -94,7 +94,7 @@ inline uiRetVal ArrayNDTool<T>::getAll( Reader& rdr )
     {
 	uirv = rdr.getAll( arr );
 	if ( workarr_ )
-	    arrnd_.setAll( arr );
+	    arrnd_.setData( arr );
     }
 
     return uirv;

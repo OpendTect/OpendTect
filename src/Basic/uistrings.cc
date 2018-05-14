@@ -295,7 +295,7 @@ uiPhrase uiStrings::phrSelect( const uiWord& string )
 { return mJoinStr.arg( sSelect() ).arg( string ); }
 
 uiPhrase uiStrings::phrSelectObjectWrongType( const uiWord& string )
-{ return mJoinStr.arg( tr("Select object is not a ") ).arg( string );}
+{ return mJoinStr.arg( tr("Selected object is not a ") ).arg( string );}
 
 uiPhrase uiStrings::phrSelectPos( const uiWord& string )
 { return mJoinStr.arg( sSelectPos() ).arg( string ); }

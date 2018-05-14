@@ -11,6 +11,7 @@
 #include "envvars.h"
 #include "settings.h"
 #include "file.h"
+#include "genc.h"
 #include "od_istream.h"
 
 mImplClassFactory( HDF5::AccessProvider, factory );
@@ -92,7 +93,9 @@ bool HDF5::Access::isHDF5File( const char* fnm )
 
     od_istream strm( fnm );
     od_int64 magicnumb = 0;
-    strm.get( magicnumb );
+    strm.getBin( magicnumb );
+    if ( __islittle__ )
+	SwapBytes( &magicnumb, sizeof(magicnumb) );
     return magicnumb == 0x894844460d0a1a0a;
 }
 
@@ -181,6 +184,20 @@ uiString HDF5::Access::sHDF5Err( const uiString& err )
     if ( !err.isEmpty() )
 	ret.addMoreInfo( err );
     return ret;
+}
+
+
+uiString HDF5::Access::sDataSetNotFound( const DataSetKey& dsky )
+{
+    return sHDF5Err( tr("Could not find DataSet '%1'")
+			.arg( dsky.fullDataSetName() ) );
+}
+
+
+uiString HDF5::Access::sCannotReadDataSet( const DataSetKey& dsky )
+{
+    return sHDF5Err( tr("Could not read DataSet '%1'")
+			.arg( dsky.fullDataSetName() ) );
 }
 
 
