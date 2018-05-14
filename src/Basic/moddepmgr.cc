@@ -141,6 +141,9 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
     for ( int idep=md->mods_.size()-1; idep>=0; idep-- )
     {
 	const BufferString& modnm( md->mods_.get(idep) );
+	if ( modnm == sAllNonUI() )
+	    continue;
+
 	const int loadedidx = getLoadIdx( modnm );
 	if ( loadedidx >= 0 )
 	    continue;
