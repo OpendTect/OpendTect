@@ -58,6 +58,8 @@ public:
 
 			mDefEmptyTranslatorConstructor(dgb,PickSet)
 
+    const char*		defExtension() const;
+
 protected:
     uiString		read(Pick::Set&,Conn&);
     uiString		write(const Pick::Set&,Conn&);

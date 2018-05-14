@@ -10,6 +10,8 @@
 #include "uistrings.h"
 #include "envvars.h"
 #include "settings.h"
+#include "file.h"
+#include "od_istream.h"
 
 mImplClassFactory( HDF5::AccessProvider, factory );
 
@@ -80,6 +82,18 @@ bool HDF5::Access::isEnabled( const char* typ )
 
     const BufferString settky( sSettingsEnabKey(), ".", typ );
     return !Settings::common().isFalse( settky );
+}
+
+
+bool HDF5::Access::isHDF5File( const char* fnm )
+{
+    if ( !File::exists(fnm) )
+	return false;
+
+    od_istream strm( fnm );
+    od_int64 magicnumb = 0;
+    strm.get( magicnumb );
+    return magicnumb == 0x894844460d0a1a0a;
 }
 
 

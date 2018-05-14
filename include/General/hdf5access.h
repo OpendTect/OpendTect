@@ -161,6 +161,7 @@ public:
 
     static bool		isEnabled(const char* fortype=0);
     static bool		isEnvBlocked(const char* fortype=0);
+    static bool		isHDF5File(const char*);
     static const char*	sSettingsEnabKey()	{ return "dTect.Use HDF5"; }
 
 protected:
@@ -212,6 +213,8 @@ inline bool isEnabled( const char* typ=0 )
 { return Access::isEnabled(typ); }
 inline bool isEnvBlocked( const char* typ=0 )
 { return Access::isEnvBlocked(typ);}
+inline bool isHDF5File( const char* fnm )
+{ return Access::isHDF5File(fnm); }
 
 inline const char* sSeismicsType()	{ return "Seismics"; }
 inline const char* sPickSetType()	{ return "PickSets"; }

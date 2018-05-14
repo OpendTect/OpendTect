@@ -10,12 +10,14 @@ ________________________________________________________________________
 
 #include "picksettr.h"
 #include "pickset.h"
+#include "ascstream.h"
 #include "ioobjctxt.h"
 #include "binidvalset.h"
 #include "datapointset.h"
-#include "ascstream.h"
 #include "ioobj.h"
 #include "dbman.h"
+#include "hdf5reader.h"
+#include "hdf5writer.h"
 #include "iopar.h"
 #include "ptrman.h"
 #include "separstr.h"
@@ -187,17 +189,114 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 }
 
 
+static bool wantHDF5()
+{
+    //TODO
+    return false;
+    // return HDF5::isEnabled( HDF5::sPickSetType() );
+}
+
+
+const char* dgbPickSetTranslator::defExtension() const
+{
+    return wantHDF5() ? HDF5::sFileExtension() : "pck";
+}
+
+
+class dgbPickSetTranslatorBackEnd
+{
+public:
+
+    virtual		~dgbPickSetTranslatorBackEnd()	{}
+    virtual uiString	read(Pick::Set&)		= 0;
+    virtual uiString	write(const Pick::Set&)		= 0;
+};
+
+
+class dgbPickSetTranslatorStreamBackEnd : public dgbPickSetTranslatorBackEnd
+{
+public:
+			dgbPickSetTranslatorStreamBackEnd( od_stream& strm )
+			    : strm_(strm)		{}
+
+    virtual uiString	read(Pick::Set&);
+    virtual uiString	write(const Pick::Set&);
+
+    od_stream&		strm_;
+
+};
+
+
+class dgbPickSetTranslatorHDF5BackEnd : public dgbPickSetTranslatorBackEnd
+{
+public:
+			dgbPickSetTranslatorHDF5BackEnd( const char* fnm )
+			    : filenm_(fnm)		{}
+
+    virtual uiString	read(Pick::Set&);
+    virtual uiString	write(const Pick::Set&);
+
+    const BufferString	filenm_;
+
+};
+
+
 uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
 	return uiStrings::sCantOpenInpFile();
 
-    ascistream astrm( ((StreamConn&)conn).iStream() );
+    od_istream& strm = ((StreamConn&)conn).iStream();
+    const BufferString fnm( strm.fileName() );
+    bool usehdf5 = HDF5::isHDF5File( fnm );
+
+    dgbPickSetTranslatorBackEnd* be;
+    if ( !usehdf5 )
+	be = new dgbPickSetTranslatorStreamBackEnd( strm );
+    else
+    {
+	conn.close();
+	be = new dgbPickSetTranslatorHDF5BackEnd( fnm );
+    }
+
+    uiString ret = be->read( ps );
+    delete be;
+    return ret;
+}
+
+
+uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
+{
+    if ( !conn.forWrite() || !conn.isStream() )
+	return uiStrings::sCantOpenOutpFile();
+
+    od_ostream& strm = ((StreamConn&)conn).oStream();
+
+    dgbPickSetTranslatorBackEnd* be;
+    if ( !wantHDF5() )
+	be = new dgbPickSetTranslatorStreamBackEnd( strm );
+    else
+    {
+	const BufferString fnm( strm.fileName() );
+	conn.close();
+	be = new dgbPickSetTranslatorHDF5BackEnd( fnm );
+    }
+
+    uiString ret = be->write( ps );
+    delete be;
+    return ret;
+}
+
+
+uiString dgbPickSetTranslatorStreamBackEnd::read( Pick::Set& ps )
+{
+    ascistream astrm( static_cast<od_istream&>(strm_) );
     if ( !astrm.isOK() )
 	return uiStrings::sCantOpenInpFile();
     else if ( !astrm.isOfFileType(mTranslGroupName(PickSet)) )
 	return uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
-    if ( atEndOfSection(astrm) ) astrm.next();
+    if ( atEndOfSection(astrm) )
+	astrm.next();
     if ( atEndOfSection(astrm) )
 	return uiStrings::sNoValidData();
 
@@ -262,12 +361,9 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 }
 
 
-uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
+uiString dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
 {
-    if ( !conn.forWrite() || !conn.isStream() )
-	return uiStrings::sCantOpenOutpFile();
-
-    ascostream astrm( ((StreamConn&)conn).oStream() );
+    ascostream astrm( static_cast<od_ostream&>(strm_) );
     astrm.putHeader( mTranslGroupName(PickSet) );
     if ( !astrm.isOK() )
 	return uiStrings::sCantOpenOutpFile();
@@ -291,4 +387,18 @@ uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     astrm.newParagraph();
     return astrm.isOK() ? uiString::empty()
 			: uiStrings::phrCannotWrite( uiStrings::sPickSet() );
+}
+
+
+uiString dgbPickSetTranslatorHDF5BackEnd::read( Pick::Set& ps )
+{
+    //TODO implement
+    return uiStrings::phrCannotRead( uiStrings::sPickSet() );
+}
+
+
+uiString dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
+{
+    //TODO implement
+    return uiStrings::phrCannotWrite( uiStrings::sPickSet() );
 }
