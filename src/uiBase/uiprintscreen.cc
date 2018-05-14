@@ -59,6 +59,7 @@ static int GetEncoderClsid( const WCHAR* format, CLSID* pClsid )
     4) will return file name of the print screen saved to.
 */
 
+
 std::string OD_Win_GetSnapShotFile( const std::string& reqfnm )
 {
     INPUT ip[2] = { 0 };
@@ -78,15 +79,30 @@ std::string OD_Win_GetSnapShotFile( const std::string& reqfnm )
 	{ ErrMsg( "Cannot open Windows Clipboard" ); return ssfnm; }
 
     HBITMAP hbm = (HBITMAP)GetClipboardData( CF_BITMAP );
-
     ULONG_PTR gdiplusToken;
     const Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     Gdiplus::GdiplusStartup( &gdiplusToken, &gdiplusStartupInput, NULL );
 
+#define mCloseSubsystems() \
+{ \
+    CloseClipboard(); \
+    DeleteObject( hbm ); \
+    Gdiplus::GdiplusShutdown( gdiplusToken ); \
+}
+
+#define mRetErr(s) \
+{ \
+    ssfnm = ""; \
+    ErrMsg(s); \
+    mCloseSubsystems(); \
+    return false; \
+}
+
     CLSID myClsId;
+    retval = GetEncoderClsid( L"image/png", &myClsId );
     const int retval = GetEncoderClsid( L"image/png", &myClsId );
     if ( retval < 0 )
-	{ ErrMsg( "No PNG encoder found" ); return ssfnm; }
+	mRetErr( "No PNG encoder found" )
 
     ssfnm = reqfnm;
     ssfnm += ".png";
@@ -95,15 +111,9 @@ std::string OD_Win_GetSnapShotFile( const std::string& reqfnm )
 
 	Gdiplus::Bitmap image(hbm, NULL);
 	if ( image.Save(_bstr_t(ssfnm.c_str()),&myClsId) != Gdiplus::Ok )
-	{
-	    ErrMsg( "GDI+ image cannot be saved" );
-	    ssfnm = ""; return ssfnm;
-	}
+	    mRetErr( "GDI+ image cannot be saved" )
     }
 
-    CloseClipboard();
-    DeleteObject( hbm );
-    Gdiplus::GdiplusShutdown( gdiplusToken );
-
+    mCloseSubsystems()
     return ssfnm;
 }
