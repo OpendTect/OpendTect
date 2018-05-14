@@ -86,8 +86,9 @@ std::string OD_Win_GetSnapShotFile( const std::string& reqfnm )
     { \
 	if ( s && *s ) \
 	    { ErrMsg( s ); ssfnm = ""; } \
-	return ssfnm;
-    }
+	return ssfnm;\
+    }\
+
 
     if ( !OpenClipboard(NULL) )
 	mRetSimp( "Cannot open Windows Clipboard" )
@@ -102,7 +103,8 @@ std::string OD_Win_GetSnapShotFile( const std::string& reqfnm )
     { DeleteObject( hbm ); mRetErrCloseClipBoard(s); }
 
     ULONG_PTR gdiplusToken;
-    if ( Gdiplus::GdiplusStartup(&gdiplusToken,&Gdiplus::GdiplusStartupInput(),
+    const Gdiplus::GdiplusStartupInput gdistart;
+    if ( Gdiplus::GdiplusStartup(&gdiplusToken,&gdistart,
 				    NULL) != Gdiplus::Ok )
 	mRetErrDelBMAndCloseClipboard( "Cannot start GDI+" )
 
@@ -111,7 +113,6 @@ std::string OD_Win_GetSnapShotFile( const std::string& reqfnm )
 	    mRetErrDelBMAndCloseClipboard(s); }
 
     CLSID myClsId;
-    retval = GetEncoderClsid( L"image/png", &myClsId );
     const int retval = GetEncoderClsid( L"image/png", &myClsId );
     if ( retval < 0 )
 	mRetWithMsg( "No PNG encoder found" )
