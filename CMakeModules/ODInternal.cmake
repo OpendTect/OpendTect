@@ -260,6 +260,9 @@ endif()
 
 install( PROGRAMS ${SCRIPTS} DESTINATION ${MISC_INSTALL_PREFIX}/bin )
 install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mksethdir DESTINATION ${MISC_INSTALL_PREFIX}/bin )
+if( UNIX )
+    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/init_dtect_GL DESTINATION ${MISC_INSTALL_PREFIX}/bin )
+endif()
 install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION ${MISC_INSTALL_PREFIX}/bin )
 
 #Installing unix syatem libraries

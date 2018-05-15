@@ -47,7 +47,7 @@ else()
 		   .lic_inst_common .lic_start_common mk_datadir .start_dtect
 		   setup.od odinit.matlab )
     set( SPECFILES ${SPECFILES} ${TXTFILES} )
-    set( ODSCRIPTS od_* mksethdir macterm.in process_dumpfile.sh )
+    set( ODSCRIPTS od_* mksethdir macterm.in process_dumpfile.sh init_dtect_GL )
 endif()
 
 if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
