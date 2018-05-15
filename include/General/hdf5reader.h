@@ -45,6 +45,7 @@ public:
     virtual ODDataType	getDataType() const			= 0;
     uiRetVal		getInfo(IOPar&) const;
 
+    uiRetVal		get(BufferStringSet&) const;
     uiRetVal		getAll(void*) const;
 				//!< Get the entire data set in current scope
     uiRetVal		getPoint(NDPos,void*) const;
@@ -56,6 +57,7 @@ public:
 protected:
 
     virtual void	gtInfo(IOPar&,uiRetVal&) const			= 0;
+    virtual void	gtStrings(BufferStringSet&,uiRetVal&) const	= 0;
     virtual void	gtAll(void*,uiRetVal&) const			= 0;
     virtual void	gtPoints(const NDPosBufSet&,void*,
 				 uiRetVal&) const			= 0;

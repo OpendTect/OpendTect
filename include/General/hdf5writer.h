@@ -35,6 +35,7 @@ public:
 
     uiRetVal		createDataSet(const DataSetKey&,const ArrayNDInfo&,
 				      ODDataType);
+    uiRetVal		createDataSet(const DataSetKey&,int,ODDataType);
 
     uiRetVal		putInfo(const IOPar&); //!< current scope only
     uiRetVal		putInfo(const DataSetKey&,const IOPar&);
@@ -42,14 +43,31 @@ public:
     uiRetVal		putAll(const void*);
     uiRetVal		putSlab(const SlabSpec&,const void*);
 
+    template <class T>
+    uiRetVal		put(const DataSetKey&,const TypeSet<T>&);
+    uiRetVal		put(const DataSetKey&,const BufferStringSet&);
+
 protected:
 
     virtual void	crDS(const DataSetKey&,const ArrayNDInfo&,
 				ODDataType,uiRetVal&)			= 0;
+    virtual void	ptStrings(const DataSetKey&,const BufferStringSet&,
+				  uiRetVal&)				= 0;
     virtual void	ptInfo(const IOPar&,uiRetVal&,const DataSetKey*)= 0;
     virtual void	ptAll(const void*,uiRetVal&)			= 0;
     virtual void	ptSlab(const SlabSpec&,const void*,uiRetVal&)	= 0;
 
 };
+
+
+template <class T>
+inline uiRetVal	Writer::put( const DataSetKey& dsky, const TypeSet<T>& vals )
+{
+    uiRetVal uirv;
+    uirv = createDataSet( dsky, (int)vals.size(), OD::GetDataRepType<T>() );
+    if ( uirv.isOK() )
+	uirv = putAll( vals.arr() );
+    return uirv;
+}
 
 } // namespace HDF5

@@ -208,6 +208,13 @@ uiString HDF5::Access::sFileNotOpen()
 
 
 uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
+				      int sz, ODDataType dt )
+{
+    return createDataSet( dsky, Array1DInfoImpl(sz), dt );
+}
+
+
+uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
 				      const ArrayNDInfo& inf, ODDataType dt )
 {
     uiRetVal uirv;
@@ -247,6 +254,18 @@ uiRetVal HDF5::Writer::putInfo( const DataSetKey& dsky, const IOPar& iop )
 }
 
 
+uiRetVal HDF5::Writer::put( const DataSetKey& dsky, const BufferStringSet& bss )
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+
+    if ( !bss.isEmpty() )
+	ptStrings( dsky, bss, uirv );
+    return uirv;
+}
+
+
 uiRetVal HDF5::Writer::putAll( const void* data )
 {
     uiRetVal uirv;
@@ -281,6 +300,20 @@ uiRetVal HDF5::Reader::getInfo( IOPar& iop ) const
 	mRetNoFileInUiRv()
 
     gtInfo( iop, uirv );
+    return uirv;
+}
+
+
+uiRetVal HDF5::Reader::get( BufferStringSet& bss ) const
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    const auto nrdims = nrDims();
+    if ( nrdims < 2 )
+	mRetDataSpaceBad()
+
+    gtStrings( bss, uirv );
     return uirv;
 }
 

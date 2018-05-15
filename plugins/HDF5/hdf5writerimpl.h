@@ -43,6 +43,8 @@ protected:
 
     virtual void	crDS(const DataSetKey&,const ArrayNDInfo&,ODDataType,
 			     uiRetVal&);
+    virtual void	ptStrings(const DataSetKey&,const BufferStringSet&,
+				  uiRetVal&);
     virtual void	ptInfo(const IOPar&,uiRetVal&,const DataSetKey*);
     virtual void	ptAll(const void*,uiRetVal&);
     virtual void	ptSlab(const SlabSpec&,const void*,uiRetVal&);

@@ -47,6 +47,7 @@ protected:
 
     virtual NrDimsType	nrDims() const		{ return nrdims_; }
     virtual void	gtInfo(IOPar&,uiRetVal&) const;
+    virtual void	gtStrings(BufferStringSet&,uiRetVal&) const;
     virtual void	gtAll(void*,uiRetVal&) const;
     virtual void	gtPoints(const NDPosBufSet&,void*,uiRetVal&) const;
     virtual void	gtSlab(const SlabSpec&,void*,uiRetVal&) const;

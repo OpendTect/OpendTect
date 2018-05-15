@@ -25,9 +25,15 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "streamconn.h"
 #include "polygon.h"
+#include "trigonometry.h"
 #include "keystrs.h"
 #include "unitofmeasure.h"
 #include "uistrings.h"
+
+static const char* sKeyDirections = "Directions";
+static const char* sKeyLabels = "Labels";
+static const char* sKeyGroups = "Groups";
+
 
 defineTranslatorGroup(PickSet,"PickSet Group");
 defineTranslator(dgb,PickSet,mDGBKey);
@@ -237,13 +243,24 @@ public:
 class dgbPickSetTranslatorHDF5BackEnd : public dgbPickSetTranslatorBackEnd
 {
 public:
+
 			dgbPickSetTranslatorHDF5BackEnd( const char* fnm )
 			    : filenm_(fnm)		{}
+			~dgbPickSetTranslatorHDF5BackEnd()
+			{ delete rdr_; delete wrr_; }
 
     virtual uiString	read(Pick::Set&);
     virtual uiString	write(const Pick::Set&);
 
     const BufferString	filenm_;
+    HDF5::DataSetKey	dsky_;
+    HDF5::Reader*	rdr_		= 0;
+    HDF5::Writer*	wrr_		= 0;
+
+    bool		putPositions(const Pick::Set&,uiRetVal&);
+    bool		putDirs(const Pick::Set&,uiRetVal&);
+    bool		putGroups(const Pick::Set&,uiRetVal&);
+    bool		putTexts(const Pick::Set&,uiRetVal&);
 
 };
 
@@ -396,32 +413,31 @@ uiString dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
 
 uiString dgbPickSetTranslatorHDF5BackEnd::read( Pick::Set& ps )
 {
-    PtrMan<HDF5::Reader> rdr = HDF5::mkReader();
-    if ( !rdr )
+    rdr_ = HDF5::mkReader();
+    if ( !rdr_ )
 	return HDF5::Access::sHDF5NotAvailable( filenm_ );
 
-    uiRetVal uirv = rdr->open( filenm_ );
+    uiRetVal uirv = rdr_->open( filenm_ );
     if ( !uirv.isOK() )
 	return uirv;
 
-    HDF5::DataSetKey dsky;
-    rdr->setScope( dsky );
+    rdr_->setScope( dsky_ );
     IOPar iop;
-    uirv = rdr->getInfo( iop );
+    uirv = rdr_->getInfo( iop );
     if ( uirv.isOK() )
 	ps.usePar( iop );
 
-    dsky.setDataSetName( sKey::Positions() );
-    if ( !rdr->setScope(dsky) )
-	return HDF5::Access::sDataSetNotFound( dsky );
+    dsky_.setDataSetName( sKey::Positions() );
+    if ( !rdr_->setScope(dsky_) )
+	return HDF5::Access::sDataSetNotFound( dsky_ );
 
-    ArrayND<double>* arrnd = HDF5::ArrayNDTool<double>::createArray( *rdr );
+    ArrayND<double>* arrnd = HDF5::ArrayNDTool<double>::createArray( *rdr_ );
     mDynamicCastGet( Array2D<double>*, posns, arrnd );
     if ( !posns )
-	return HDF5::Access::sCannotReadDataSet( dsky );
+	return HDF5::Access::sCannotReadDataSet( dsky_ );
 
     HDF5::ArrayNDTool<double> arrtool( *posns );
-    uirv = arrtool.getAll( *rdr );
+    uirv = arrtool.getAll( *rdr_ );
     if ( !uirv.isOK() )
 	return uirv;
 
@@ -440,28 +456,10 @@ uiString dgbPickSetTranslatorHDF5BackEnd::read( Pick::Set& ps )
 }
 
 
-uiString dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
+bool dgbPickSetTranslatorHDF5BackEnd::putPositions( const Pick::Set& ps,
+						    uiRetVal& uirv )
 {
-    PtrMan<HDF5::Writer> wrr = HDF5::mkWriter();
-    if ( !wrr )
-	return HDF5::Access::sHDF5NotAvailable( filenm_ );
-
-    uiRetVal uirv = wrr->open( filenm_ );
-    if ( !uirv.isOK() )
-	return uirv;
-
-    IOPar iop; fillPar( ps, iop );
-    HDF5::DataSetKey dsky;
-    uirv = wrr->putInfo( dsky, iop );
-    if ( !uirv.isOK() )
-	return uirv;
-
-    const int sz = ps.size();
-    if ( sz < 1 )
-	return uiString::empty();
-
-    dsky.setDataSetName( sKey::Positions() );
-    Array2DImpl<double> posns( 3, sz );
+    Array2DImpl<double> posns( 3, ps.size() );
     Pick::SetIter psiter( ps );
     while ( psiter.next() )
     {
@@ -473,11 +471,96 @@ uiString dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
     }
     psiter.retire();
     HDF5::ArrayNDTool<double> arrtool( posns );
-    uirv = arrtool.put( *wrr, dsky );
+    dsky_.setDataSetName( sKey::Positions() );
+    uirv = arrtool.put( *wrr_, dsky_ );
+    return uirv.isOK();
+}
+
+
+bool dgbPickSetTranslatorHDF5BackEnd::putDirs( const Pick::Set& ps,
+						    uiRetVal& uirv )
+{
+    Array2DImpl<double> dirs( 3, ps.size() );
+    Pick::SetIter psiter( ps );
+    while ( psiter.next() )
+    {
+	const Sphere& dir = psiter.get().dir();
+	const int ipos = psiter.curIdx();
+	dirs.set( 0, ipos, dir.radius_ );
+	dirs.set( 1, ipos, dir.theta_ );
+	dirs.set( 2, ipos, dir.phi_ );
+    }
+    psiter.retire();
+    HDF5::ArrayNDTool<double> arrtool( dirs );
+    dsky_.setDataSetName( sKeyDirections );
+    uirv = arrtool.put( *wrr_, dsky_ );
+    return uirv.isOK();
+}
+
+
+bool dgbPickSetTranslatorHDF5BackEnd::putGroups( const Pick::Set& ps,
+						 uiRetVal& uirv )
+{
+    typedef Pick::GroupLabel::ID::IDType IDType;
+    TypeSet<IDType> lblids;
+    Pick::SetIter psiter( ps );
+    while ( psiter.next() )
+	lblids += psiter.get().groupLabelID().getI();
+    psiter.retire();
+    dsky_.setDataSetName( sKeyGroups );
+    uirv = wrr_->put( dsky_, lblids );
+    return uirv.isOK();
+}
+
+
+bool dgbPickSetTranslatorHDF5BackEnd::putTexts( const Pick::Set& ps,
+						uiRetVal& uirv )
+{
+    BufferStringSet lbls;
+    Pick::SetIter psiter( ps );
+    while ( psiter.next() )
+	lbls.add( psiter.get().text() );
+    dsky_.setDataSetName( sKeyLabels );
+    uirv = wrr_->put( dsky_, lbls );
+    return uirv.isOK();
+}
+
+
+uiString dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
+{
+    wrr_ = HDF5::mkWriter();
+    if ( !wrr_ )
+	return HDF5::Access::sHDF5NotAvailable( filenm_ );
+
+    uiRetVal uirv = wrr_->open( filenm_ );
     if ( !uirv.isOK() )
 	return uirv;
 
-    //TODO write the rest
+    const bool havedirs = ps.haveDirections();
+    const bool havetexts = ps.haveTexts();
+    const bool havegrps = ps.haveGroupLabels();
+
+    IOPar iop;
+    fillPar( ps, iop );
+    iop.setYN( sKeyDirections, havedirs );
+    iop.setYN( sKeyLabels, havetexts );
+    iop.setYN( sKeyGroups, havegrps );
+
+    uirv = wrr_->putInfo( dsky_, iop );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    if ( ps.isEmpty() )
+	return uiString::empty();
+
+    if ( !putPositions(ps,uirv)  )
+	return uirv;
+    if ( havedirs && !putDirs(ps,uirv) )
+	return uirv;
+    if ( havegrps && !putGroups(ps,uirv) )
+	return uirv;
+    if ( havetexts && !putTexts(ps,uirv) )
+	return uirv;
 
     return uirv;
 }
