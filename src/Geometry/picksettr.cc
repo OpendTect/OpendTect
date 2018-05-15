@@ -415,7 +415,8 @@ uiString dgbPickSetTranslatorHDF5BackEnd::read( Pick::Set& ps )
     if ( !rdr->setScope(dsky) )
 	return HDF5::Access::sDataSetNotFound( dsky );
 
-    ArrayND<double>* posns = HDF5::ArrayNDTool<double>::createArray( *rdr );
+    ArrayND<double>* arrnd = HDF5::ArrayNDTool<double>::createArray( *rdr );
+    mDynamicCastGet( Array2D<double>*, posns, arrnd );
     if ( !posns )
 	return HDF5::Access::sCannotReadDataSet( dsky );
 
@@ -423,6 +424,15 @@ uiString dgbPickSetTranslatorHDF5BackEnd::read( Pick::Set& ps )
     uirv = arrtool.getAll( *rdr );
     if ( !uirv.isOK() )
 	return uirv;
+
+    const int nrpoints = posns->getSize( 1 );
+    for ( int ipt=0; ipt<nrpoints; ipt++ )
+    {
+	const double x = posns->get( 0, ipt );
+	const double y = posns->get( 1, ipt );
+	const double z = posns->get( 2, ipt );
+	ps.add( Pick::Location(x,y,z) );
+    }
 
     //TODO read the rest
 
