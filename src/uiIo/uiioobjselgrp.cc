@@ -587,6 +587,21 @@ void uiIOObjSelGrp::fullUpdate( const DBKey& ky )
 }
 
 
+bool uiIOObjSelGrp::needTimes() const
+{
+    return sortfld_->currentItem() > 1;
+}
+
+
+void uiIOObjSelGrp::addModifTime( const IOObj& ioobj )
+{
+    od_int64 modiftm = File::getTimeInSeconds( ioobj.mainFileName() );
+    if ( modiftm < 1 )
+	modiftm = mUdf(od_int64);
+    modiftimes_ += modiftm;
+}
+
+
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
     mDefineStaticLocalObject( const bool, icsel_,
@@ -594,7 +609,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     ioobjnms_.setEmpty(); dispnms_.setEmpty(); iconnms_.setEmpty();
     ioobjids_.setEmpty(); modiftimes_.setEmpty();
 
-    const bool needtimes = sortfld_->currentItem() > 1;
+    const bool needtimes = needTimes();
     DBDirEntryList entrylist( ctio_.ctxt_, false );
     entrylist.fill( filtfld_->text() );
     for ( int idx=0; idx<entrylist.size(); idx++ )
@@ -618,12 +633,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	ioobjnms_.add( ioobj.name() );
 	dispnms_.add( entrylist.dispName(idx) );
 	if ( needtimes )
-	{
-	    od_int64 modiftm = File::getTimeInSeconds( ioobj.mainFileName() );
-	    if ( modiftm < 1 )
-		modiftm = mUdf(od_int64);
-	    modiftimes_ += modiftm;
-	}
+	    addModifTime( ioobj );
 
 	if ( icsel_ )
 	    iconnms_.add( entrylist.iconName(idx) );
@@ -646,7 +656,10 @@ void uiIOObjSelGrp::fillListBox()
     if ( sz > 1 && sorting > 0 )
     {
 	if ( sorting == 1 )
-	    { ioobjids_.reverse(); ioobjnms_.reverse(); dispnms_.reverse(); }
+	{
+	    ioobjids_.reverse(); ioobjnms_.reverse();
+	    dispnms_.reverse(); modiftimes_.reverse();
+	}
 	else if ( modiftimes_.size() != sz )
 	    { pErrMsg("Huh"); }
 	else
@@ -708,7 +721,11 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
     ioobjnms_.add( ioobj->name() );
     dispnms_.add( ioobj->name() );
     ioobjids_.add( ioobj->key() );
+    if ( needTimes() )
+	addModifTime( *ioobj );
+
     fillListBox();
+
     listfld_->setCurrentItem( ioobj->name() );
     if ( nmfld_ && ioobj->name() != seltxt )
 	nmfld_->setText( ioobj->name() );

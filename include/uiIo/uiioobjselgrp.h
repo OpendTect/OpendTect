@@ -159,6 +159,8 @@ protected:
     ObjectSet<uiIOObjInserter> inserters_;
     uiGroup*		topgrp_;
 
+    bool		needTimes() const;
+    void		addModifTime(const IOObj&);
     void		fillListBox();
     IOObj*		getIOObj(int);
     virtual bool	createEntry(const char*);
