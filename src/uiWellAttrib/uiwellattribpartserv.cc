@@ -12,11 +12,15 @@ ________________________________________________________________________
 #include "uiwellattribpartserv.h"
 
 #include "uiamplspectrum.h"
+#include "uiattribpartserv.h"
+#include "uibuttongroup.h"
 #include "uichecklist.h"
 #include "uicreateattriblogdlg.h"
 #include "uicreatelogcubedlg.h"
 #include "uimsg.h"
+#include "uitoolbutton.h"
 #include "uiwellattribxplot.h"
+#include "uiwellman.h"
 #include "uiwelltiemgrdlg.h"
 #include "uiwellto2dlinedlg.h"
 
@@ -49,13 +53,15 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , wellto2ddlg_(0)
     , crlogcubedlg_(0)
 {
-    DBM().surveyChanged.notify(
-	    mCB(this,uiWellAttribPartServer,surveyChangedCB) );
+    mAttachCB( DBM().surveyChanged, uiWellAttribPartServer::surveyChangedCB );
+    mAttachCB( uiWellMan::instanceCreated(),
+	       uiWellAttribPartServer::wellManCreatedCB );
 }
 
 
 uiWellAttribPartServer::~uiWellAttribPartServer()
 {
+    detachAllNotifiers();
     cleanUp();
 }
 
@@ -64,6 +70,24 @@ uiWellAttribPartServer::~uiWellAttribPartServer()
 void uiWellAttribPartServer::surveyChangedCB( CallBacker* )
 {
     cleanUp();
+}
+
+
+void uiWellAttribPartServer::wellManCreatedCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiWellMan*,wm,cb)
+    if ( !wm ) return;
+
+    new uiToolButton( wm->extraButtonGroup(), "xplot_wells", tr("Cross-plot"),
+			mCB(this,uiWellAttribPartServer,xplotCB) );
+}
+
+
+void uiWellAttribPartServer::xplotCB( CallBacker* )
+{
+    const Attrib::DescSet* ads = uiAttribPartServer::getUserPrefDescSet();
+    if ( ads )
+	doXPlot( ads->is2D() );
 }
 
 
