@@ -69,25 +69,31 @@ void uiFontSettingsGroup::addResetButton()
 void uiFontSettingsGroup::butPushed( CallBacker* obj )
 {
     mDynamicCastGet(uiButton*,sender,obj)
-    const int idx = buttons_.indexOf( sender );
-    if ( idx < 0 ) { pErrMsg("idx < 0. Why?"); return; }
+    const int typidx = buttons_.indexOf( sender );
+    if ( typidx < 0 )
+	{ pErrMsg("Huh?"); return; }
 
-    uiFont& selfont = FontList().get( types_[idx] );
-    if ( !selectFont(selfont,sender->parent()) )
+    int prop_opt = 0;
+    if ( types_[typidx] == FontData::Control )
+	prop_opt = 1;
+    else if ( types_[typidx] == FontData::Fixed )
+	prop_opt = -1;
+    uiFont& selfont = FontList().get( types_[typidx] );
+    if ( !selectFont(selfont,sender->parent(),uiString::empty(),prop_opt) )
 	return;
 
     FontData fd = selfont.fontData();
     const int ptsz = fd.pointSize();
     const int smallsz = ptsz - 2;
     const int largesz = ptsz + 2;
-    if ( types_[idx] == FontData::Control )
+    if ( types_[typidx] == FontData::Control )
     {
 	fd.setPointSize( smallsz );
 	FontList().get( FontData::ControlSmall ).setFontData( fd );
 	fd.setPointSize( largesz );
 	FontList().get( FontData::ControlLarge ).setFontData( fd );
     }
-    else if ( types_[idx] == FontData::Graphics2D )
+    else if ( types_[typidx] == FontData::Graphics2D )
     {
 	fd.setPointSize( smallsz );
 	FontList().get( FontData::Graphics2DSmall ).setFontData( fd );
@@ -96,8 +102,9 @@ void uiFontSettingsGroup::butPushed( CallBacker* obj )
     }
 
     FontList().update( Settings::common() );
-    if ( !idx ) uiMain::theMain().setFont( FontList().get(), true );
-    lbls_[idx]->setFont( selfont );
+    if ( typidx == 0 )
+	uiMain::theMain().setFont( FontList().get(), true );
+    lbls_[typidx]->setFont( selfont );
 }
 
 

@@ -376,11 +376,20 @@ mQtclass(QFont)* uiFont::createQFont( const FontData& fd )
 
 static bool getFont( mQtclass(QFont)& qfontout,
 		     const mQtclass(QFont)& qfontin,
-		     uiParent* par, const uiString& nm )
+		     uiParent* par, const uiString& nm, int opt )
 {
     QFontDialog dlg( qfontin,
 		     par && par->getNrWidgets() ? par->getWidget( 0 ) : 0 );
     dlg.setWindowTitle( toQString(nm) );
+    if ( opt )
+    {
+	const bool selprop = opt > 0;
+	dlg.setOption( selprop	? QFontDialog::ProportionalFonts
+				: QFontDialog::MonospacedFonts, true );
+	dlg.setOption( selprop	? QFontDialog::MonospacedFonts
+				: QFontDialog::ProportionalFonts, false );
+    }
+    dlg.setOption( QFontDialog::DontUseNativeDialog );
 
     if ( dlg.exec() != QDialog::Accepted )
 	return false;
@@ -390,10 +399,10 @@ static bool getFont( mQtclass(QFont)& qfontout,
 }
 
 
-bool selectFont( uiFont& fnt, uiParent* par, const uiString& nm )
+bool selectFont( uiFont& fnt, uiParent* par, const uiString& nm, int opt )
 {
     mQtclass(QFont) qfont;
-    if ( !getFont(qfont,fnt.qFont(),par,nm) )
+    if ( !getFont(qfont,fnt.qFont(),par,nm,opt) )
 	return false;
 
     FontData fd;
@@ -403,11 +412,11 @@ bool selectFont( uiFont& fnt, uiParent* par, const uiString& nm )
 }
 
 
-bool selectFont( FontData& fd, uiParent* par, const uiString& nm )
+bool selectFont( FontData& fd, uiParent* par, const uiString& nm, int opt )
 {
     mQtclass(QFont) qfont;
     uiFont::setFontData( qfont, fd );
-    if ( !getFont(qfont,qfont,par,nm) )
+    if ( !getFont(qfont,qfont,par,nm,opt) )
 	return false;
 
     uiFont::getFontData( fd, qfont );

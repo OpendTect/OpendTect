@@ -23,14 +23,18 @@ mFDQtclass(QFontMetrics)
 
 
 mGlobal(uiBase) bool selectFont(uiFont&,uiParent* =0,
-			const uiString& title=uiString::empty());
+			const uiString& title=uiString::empty(),
+			int proportional_opt=0);
 /*!< \brief pops a selector box to select a new font
+     proportional_opt < 0 no prop, > 0 only prop
      \return true if new font selected
 */
 
 mGlobal(uiBase) bool selectFont(FontData&,uiParent* =0,
-			const uiString& title = uiString::empty());
+			const uiString& title = uiString::empty(),
+			int proportional_opt=0);
 /*!< \brief pops a selector box to select a new font
+     proportional_opt < 0 no prop, > 0 only prop
      \return true if new font selected
 */
 

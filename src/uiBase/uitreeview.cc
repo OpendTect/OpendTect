@@ -104,6 +104,7 @@ uiTreeViewBody::uiTreeViewBody( uiTreeView& hndle, uiParent* p,
     setSelectionBehavior( QTreeWidget::SelectItems );
     setExpandsOnDoubleClick( false );
     setMouseTracking( true );
+    setUniformRowHeights( true );
 
     if ( header() )
     {
