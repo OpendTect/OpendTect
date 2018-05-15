@@ -555,7 +555,7 @@ void addOut( const char* nm, bool ispdf )
     if ( !ispdf )
 	su.seltxt_ = toUiString(nm);
     else
-    { su.seltxt_ = uiString(tr("P: '%1'")).arg( nm ); }
+	su.seltxt_ = uiString(tr("Probability: '%1'")).arg( nm );
 
     const int nrflds = flds3d_.size();
     int curidx = nrflds;
