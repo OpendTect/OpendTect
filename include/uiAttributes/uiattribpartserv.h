@@ -180,7 +180,7 @@ public:
 
     void		set2DEvent( bool is2d )		{ is2devsent_ = is2d; }
     bool		is2DEvent()			{ return is2devsent_; }
-    const DescSet*	getUserPrefDescSet() const;
+    static const DescSet* getUserPrefDescSet();
 				//!< For services that can work on 2D or 3D
 				//!< Null return means user wants to cancel
     void		showXPlot(CallBacker*);

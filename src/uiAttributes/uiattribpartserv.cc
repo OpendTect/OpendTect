@@ -449,12 +449,12 @@ bool uiAttribPartServer::setSaved( bool is2d ) const
 }
 
 
-const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
+const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() // static
 {
-    const DescSet& ds2d = curDescSet( true );
+    const DescSet& ds2d = DescSet::global( true );
     if ( !SI().has3D() )
 	return &ds2d;
-    const DescSet& ds3d = curDescSet( false );
+    const DescSet& ds3d = DescSet::global( false );
     if ( !SI().has2D() )
 	return &ds3d;
 
