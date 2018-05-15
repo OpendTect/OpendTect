@@ -245,6 +245,24 @@ BufferString Pick::Set::category() const
 }
 
 
+#define mDefHaveFn(what,locfn) \
+bool Pick::Set::have##what() const \
+{ \
+    mPrepRead( sz ); \
+ \
+    for ( int idx=0; idx<sz; idx++ ) \
+	if ( locs_[idx].locfn() ) \
+	    return true; \
+ \
+    return false; \
+}
+
+mDefHaveFn( Texts, hasText )
+mDefHaveFn( Directions, hasDir )
+mDefHaveFn( GroupLabels, groupLabelID().isValid )
+mDefHaveFn( TrcKeys, hasTrcKey )
+
+
 Pick::Set::GroupLabelID Pick::Set::addGroupLabel( const GroupLabel& lbl )
 {
     mLock4Write();
@@ -339,20 +357,6 @@ void Pick::Set::setGroupLabel( const GroupLabel& lbl )
     mLock2Write();
     grouplabels_[idxof] = lbl;
     mSendChgNotif( cGroupLabelsChange(), lbl.id_.getI() );
-}
-
-
-bool Pick::Set::haveGroupLabels() const
-{
-    mPrepRead( sz );
-    if ( grouplabels_.isEmpty() )
-	return false;
-
-    for ( int idx=0; idx<sz; idx++ )
-	if ( locs_[idx].groupLabelID().isValid() )
-	    return true;
-
-    return false;
 }
 
 

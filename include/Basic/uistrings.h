@@ -827,6 +827,7 @@ public:
     static uiWord sVelocity(int n=1)	{ return tr("Velocity",0,n); }
     static uiWord sValRange()		{ return tr("Value Range"); }
     static uiWord sVelRange()		{ return tr("Velocity Range"); }
+    static uiWord sVertex(int n=1)	{ return tr("Vertex",0,n); }
     static uiWord sVertical()		{ return tr("Vertical"); }
     static uiWord sView()		{ return tr("View"); }
     static uiWord sVintage()		{ return tr("Vintage"); }

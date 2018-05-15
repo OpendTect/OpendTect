@@ -12,14 +12,12 @@ ________________________________________________________________________
 
 
 #include "basicmod.h"
-#include "gendefs.h"
+#include "uistring.h"
 class BufferStringSet;
 
 
-/*!
-\brief Color is an RGB color object, with a transparancy. The storage is in
-a 4-byte integer, similar to Qt.
-*/
+/*!\brief Color is an RGB color object, with a transparancy.
+  The storage is in a 4-byte integer, similar to Qt. */
 
 mExpClass(Basic) Color
 {
@@ -100,7 +98,7 @@ public:
     static void		getDescriptions(BufferStringSet&);
     static void		getDescriptionCenters(TypeSet<Color>&);
 
-    BufferString	largeUserInfoString() const;
+    uiString		userInfoString(bool withdetails=false) const;
 
 protected:
 

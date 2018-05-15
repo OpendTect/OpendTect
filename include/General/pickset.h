@@ -81,6 +81,12 @@ public:
     Set&		setZ(LocID,double,bool istemp=false);
     Set&		setByIndex(IdxType,const Location&,bool istemp=false);
 
+			// At any of the locations:
+    bool		haveDirections() const;
+    bool		haveTexts() const;
+    bool		haveTrcKeys() const;
+    bool		haveGroupLabels() const;
+
 			// Manipulate the defined labels
     GroupLabelID	addGroupLabel(const GroupLabel&);
     void		removeGroupLabel(GroupLabelID);
@@ -89,7 +95,6 @@ public:
     void		setGroupLabel(const GroupLabel&); //!< adds if ID udf
 
 			// Get/set location labels
-    bool		haveGroupLabels() const; //!< at any of the locations
     void		getGroupLabelIDs(TypeSet<GroupLabelID>&,
 					 bool include_used_only=false) const;
     GroupLabelID	groupLabelID(LocID) const;

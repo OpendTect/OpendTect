@@ -83,55 +83,52 @@ bool uiPickSetMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
     if ( !ps )
 	{ inf.add( uirv ); return false; }
 
-    mImplTODOGtItemInfo();
-
-    /*
     const bool ispoly = ps->isPolygon();
     const BufferString cat = ps->category();
-    txt = tr("Type:");
+    uiString typestr = uiStrings::sType();
     if ( ispoly )
-	txt.appendPhrase( uiStrings::sPolygon(), uiString::Space,
-						uiString::OnSameLine );
+	typestr.addMoreInfo( uiStrings::sPolygon() );
     else if ( !cat.isEmpty() )
-	txt.appendPlainText( cat );
+	typestr.addMoreInfo( toUiString(cat) );
     else
-	txt.appendPhrase(uiStrings::sPickSet(), uiString::Space,
-						uiString::OnSameLine );
+	typestr.addMoreInfo( uiStrings::sPickSet() );
 
     MonitorLock ml( *ps );
     const int sz = ps->size();
+    uiString szstr = toUiString("<%1>");
     if ( sz < 1 )
-	txt.appendPhrase( tr("Empty Pick Set") );
+	szstr.set( toUiString("<%1>").arg( uiStrings::sEmpty() ) );
     else
     {
-	txt.appendPhrase(toUiString(" < %1 %2").arg(sz).arg(ispoly ?
-				tr("vertices") : uiStrings::sPick(mPlural)));
-	if ( !ispoly && ps->first().hasDir() )
-	{
-	    txt.addSpace();
-	    txt.appendPhrase(tr("(with directions)"));
-	}
+	szstr = toUiString("%1 %2")
+		    .arg( sz )
+		    .arg( ispoly ? uiStrings::sVertex(mPlural)
+				 : uiStrings::sPick(mPlural) );
+	if ( !ispoly && ps->haveDirections() )
+	    szstr.postFixWord( tr("with directions").parenthesize() );
 	if ( ispoly && sz > 2 )
 	{
 	    const float area = ps->getXYArea();
 	    if ( !mIsUdf(area) )
-		txt.appendPhrase( tr(", area=%1").arg( area ));
+		szstr.postFixWord( toUiString(" %1=%2")
+			.arg( uiStrings::sArea().toLower() )
+			.arg( area ) );
 	}
-	txt.appendPlainText( ">" );
+	szstr.embed( "<", ">" );
     }
+    inf.add( typestr.postFixWord(szstr) );
 
     const Pick::Set::Disp disp = ps->getDisp();
-    Color col( disp.mkstyle_.color_ ); col.setTransparency( 0 );
-    txt.appendPhrase(uiStrings::sColor(), uiString::NoSep)
-	.appendPlainText(": ").appendPlainText(col.largeUserInfoString());
-    txt.appendPhrase(tr("Marker size (pixels): %1"), uiString::NoSep)
-						.arg(disp.mkstyle_.size_);
-    txt.appendPhrase(tr("Marker type: %1")
-		    .arg(OD::MarkerStyle3D::TypeDef()
-	     .getUiStringForIndex(disp.mkstyle_.type_)), uiString::NoSep);
+    inf.add( uiStrings::sColor()
+	     .addMoreInfo( disp.mkstyle_.color_.userInfoString(true) ) );
 
-    txt.appendPhrase( getFileInfo(), uiString::NoSep );
-    */
+    inf.add( tr("Marker size (pixels)")
+	     .addMoreInfo( toUiString(disp.mkstyle_.size_)) );
+
+    inf.add( tr("Marker type").addMoreInfo( OD::MarkerStyle3D::TypeDef()
+			.getUiStringForIndex(disp.mkstyle_.type_) ) );
+
+    return true;
 }
 
 

@@ -12,6 +12,7 @@
 #include "typeset.h"
 #include "ptrman.h"
 #include "staticstring.h"
+#include "uistrings.h"
 
 
 Color::Color( unsigned char r_, unsigned char g_,
@@ -606,26 +607,29 @@ void Color::getDescriptionCenters( TypeSet<Color>& cols )
 }
 
 
-BufferString Color::largeUserInfoString() const
+uiString Color::userInfoString( bool withdetails ) const
 {
-    BufferString ret( getStdStr() );
+    uiString ret = toUiString("%1 (%2)")
+	.arg( getStdStr() ).arg( getDescription() );
+    if ( !withdetails )
+	return ret;
 
-    ret.add( " (" ).add( getDescription() ).add( ")" )
-       .add( " RGB=" )
-       .add((int)r()).add("|").add((int)g()).add("|").add((int)b());
-
+    BufferString rgbvalstr( "RGB=" );
+    rgbvalstr.add((int)r()).add("|").add((int)g()).add("|").add((int)b());
     unsigned char ch, cs, cv; getHSV( ch, cs, cv );
-    ret.add( ", HSV=" )
-       .add((int)ch).add("|").add((int)cs).add("|").add((int)cv);
+    BufferString hsvvalstr( "HSV=" );
+    hsvvalstr.add((int)ch).add("|").add((int)cs).add("|").add((int)cv);
+
+    ret.appendPhraseSameLine( toUiString("%3, %4")
+			.arg( rgbvalstr ).arg( hsvvalstr ) );
 
     if ( t() )
     {
 	const int promille = (int)( (t() / 0.255) + .5 );
-	ret.add( ". Transparency=" ).add( promille/10 );
-	if ( promille % 10 )
-	    ret.add( "." ).add( promille % 10 );
-	ret.add( "%" );
+	ret.appendPhraseSameLine( toUiString("%1=%2.%3%")
+		.arg( uiStrings::sTransparency() )
+		.arg( promille/10 ).arg( promille%10 ) );
     }
 
-    return ret.buf();
+    return ret;
 }
