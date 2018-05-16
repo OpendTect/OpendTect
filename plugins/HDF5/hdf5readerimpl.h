@@ -35,7 +35,6 @@ public:
 						{ return stScope( dsky ); }
     virtual od_int64	curGroupID() const	{ return gtGroupID(); }
 
-    virtual ArrayNDInfo* getDataSizes() const;
     virtual ODDataType	getDataType() const;
 
 protected:
@@ -45,7 +44,8 @@ protected:
     virtual void	openFile(const char*,uiRetVal&);
     virtual void	closeFile();
 
-    virtual NrDimsType	nrDims() const		{ return nrdims_; }
+    virtual NrDimsType	gtNrDims() const	{ return nrdims_; }
+    virtual ArrayNDInfo* gtDataSizes() const;
     virtual void	gtInfo(IOPar&,uiRetVal&) const;
     virtual void	gtStrings(BufferStringSet&,uiRetVal&) const;
     virtual void	gtAll(void*,uiRetVal&) const;

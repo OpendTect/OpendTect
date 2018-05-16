@@ -294,6 +294,32 @@ static bool testReadData( HDF5::Reader& rdr )
     mRunStandardTestWithError( v3_31==431,"Correct Slabby value [3,31]",
 				BufferString("v3_31=",v3_31) )
 
+    HDF5::DataSetKey dsky2( "", "ShortArr" );
+    scoperes = rdr.setScope( dsky2 );
+    mRunStandardTest( scoperes, "Set scope (ShortArr)" )
+    TypeSet<short> shortvals;
+    uirv = rdr.get( shortvals );
+    mAddTestResult( "Get ShortArr values" );
+    mRunStandardTestWithError( shortvals[0]==1, "Correct ShortArr value [0]",
+				BufferString("v[0]=",shortvals[0]) )
+    mRunStandardTestWithError( shortvals[3]==4, "Correct ShortArr value [3]",
+				BufferString("v[3]=",shortvals[3]) )
+
+    dsky2.setDataSetName( "Strings" );
+    BufferStringSet bss;
+    scoperes = rdr.setScope( dsky2 );
+    mRunStandardTest( scoperes, "Set scope (Strings)" )
+    uirv = rdr.get( bss );
+    mAddTestResult( "Get Strings values" );
+    mRunStandardTestWithError( bss.get(0)=="Str 1", "Correct Strings value [0]",
+				BufferString("s[0]=",bss.get(0)) )
+    mRunStandardTestWithError( bss.get(3).isEmpty(),
+				"Correct Strings value [3]",
+				BufferString("s[3]=",bss.get(3)) )
+    mRunStandardTestWithError( bss.get(4)=="Str5/Str 4 is empty",
+				"Correct Strings value [4]",
+				BufferString("s[4]=",bss.get(4)) )
+
     return true;
 }
 

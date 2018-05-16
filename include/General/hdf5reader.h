@@ -38,13 +38,15 @@ public:
 
     // use setScope() before reading anything using the functions below
 
-    virtual ArrayNDInfo* getDataSizes() const			= 0;
-				//!< Can return null when:
-				//!< - there is no such group
-				//!< - the group has an empty dataset
+    NrDimsType		nrDims() const	{ return gtNrDims(); }
+    SzType		dimSize(DimIdxType) const;
+    ArrayNDInfo*	getDataSizes() const { return gtDataSizes(); }
+
     virtual ODDataType	getDataType() const			= 0;
     uiRetVal		getInfo(IOPar&) const;
 
+    template <class T>
+    uiRetVal		get(TypeSet<T>&) const;
     uiRetVal		get(BufferStringSet&) const;
     uiRetVal		getAll(void*) const;
 				//!< Get the entire data set in current scope
@@ -63,12 +65,32 @@ protected:
 				 uiRetVal&) const			= 0;
     virtual void	gtSlab(const SlabSpec&,void*,uiRetVal&) const	= 0;
 
-    virtual NrDimsType	nrDims() const					= 0;
+    virtual ArrayNDInfo* gtDataSizes() const				= 0;
+    virtual NrDimsType	gtNrDims() const				= 0;
 			//!< in the current scope
 
     static uiString	sBadDataSpace()
 			{ return tr("Empty Data Set Selected"); }
 
 };
+
+
+template <class T>
+inline uiRetVal Reader::get( TypeSet<T>& vals ) const
+{
+    uiRetVal uirv;
+    if ( nrDims() != 1 )
+	{ pErrMsg("Only read TypeSet from 1-D dataset"); return uirv; }
+    if ( getDataType() != OD::GetDataRepType<T>() )
+	{ pErrMsg("Wrong type"); return uirv; }
+
+    const SzType sz = dimSize( 0 );
+    if ( sz < 1 )
+	return uirv;
+
+    vals.setSize( sz );
+    gtAll( vals.arr(), uirv );
+    return uirv;
+}
 
 } // namespace HDF5

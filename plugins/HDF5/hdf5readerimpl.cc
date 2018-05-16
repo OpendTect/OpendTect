@@ -109,7 +109,7 @@ void HDF5::ReaderImpl::getDataSets( const char* grpnm,
 }
 
 
-ArrayNDInfo* HDF5::ReaderImpl::getDataSizes() const
+ArrayNDInfo* HDF5::ReaderImpl::gtDataSizes() const
 {
     ArrayNDInfo* ret = 0;
     if ( !file_ )
