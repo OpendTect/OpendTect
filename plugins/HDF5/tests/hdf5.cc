@@ -118,6 +118,23 @@ static bool testWrite()
     uirv = wrr->putInfo( dsky, iop );
     mAddTestResult( "Write Comp1/Block1 attrib" );
 
+    TypeSet<short> ts;
+    ts += 1; ts += 2; ts += 3; ts += 4;
+    dsky.setGroupName( "" );
+    dsky.setDataSetName( "ShortArr" );
+    uirv = wrr->put( dsky, ts );
+    mAddTestResult( "Write TypeSet" );
+
+    BufferStringSet bss;
+    bss.add( "Str 1" );
+    bss.add( "Str 2" );
+    bss.add( "String 3" );
+    bss.add( "" );
+    bss.add( "Str5/Str 4 is empty" );
+    dsky.setDataSetName( "Strings" );
+    uirv = wrr->put( dsky, bss );
+    mAddTestResult( "Write BufferStringSet" );
+
     return true;
 }
 

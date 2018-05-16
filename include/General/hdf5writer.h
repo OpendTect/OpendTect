@@ -40,12 +40,15 @@ public:
     uiRetVal		putInfo(const IOPar&); //!< current scope only
     uiRetVal		putInfo(const DataSetKey&,const IOPar&);
 			    //!< also for file/group info
-    uiRetVal		putAll(const void*);
-    uiRetVal		putSlab(const SlabSpec&,const void*);
 
+    template <class T>
+    uiRetVal		put(const DataSetKey&,const T*,int sz);
     template <class T>
     uiRetVal		put(const DataSetKey&,const TypeSet<T>&);
     uiRetVal		put(const DataSetKey&,const BufferStringSet&);
+
+    uiRetVal		putAll(const void*);
+    uiRetVal		putSlab(const SlabSpec&,const void*);
 
 protected:
 
@@ -63,10 +66,21 @@ protected:
 template <class T>
 inline uiRetVal	Writer::put( const DataSetKey& dsky, const TypeSet<T>& vals )
 {
+    return put( dsky, vals.arr(), vals.size() );
+}
+
+
+template <class T>
+inline uiRetVal	Writer::put( const DataSetKey& dsky, const T* vals, int sz )
+{
     uiRetVal uirv;
-    uirv = createDataSet( dsky, (int)vals.size(), OD::GetDataRepType<T>() );
+    if ( !vals )
+	return uirv;
+
+    uirv = createDataSet( dsky, sz, OD::GetDataRepType<T>() );
     if ( uirv.isOK() )
-	uirv = putAll( vals.arr() );
+	uirv = putAll( vals );
+
     return uirv;
 }
 

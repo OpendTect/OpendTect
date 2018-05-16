@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 unsigned szip_options_mask = H5_SZIP_EC_OPTION_MASK; // entropy coding
 		     // nearest neighbour coding: H5_SZIP_NN_OPTION_MASK
-unsigned szip_pixels_per_block = 32;
+unsigned szip_pixels_per_block = 16;
 		    // can be an even number [2,32]
 
 
@@ -74,24 +74,28 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
 
     nrdims_ = info.nrDims();
     TypeSet<hsize_t> dims, chunkdims;
-    bool needchunk = false;
+    int maxdim = 0;
     for ( int idim=0; idim<nrdims_; idim++ )
     {
 	const auto dimsz = info.getSize( idim );
+	if ( dimsz > maxdim )
+	    maxdim = dimsz;
 	dims += dimsz;
-	if ( dimsz > chunksz_ )
-	    needchunk = true;
 	chunkdims += chunksz_ < dimsz ? chunksz_ : dimsz;
     }
+
+    const bool needchunk = maxdim > chunksz_;
+    const bool canzip = maxdim >= szip_pixels_per_block;
 
     const H5DataType h5dt = h5DataTypeFor( dt );
     try
     {
 	H5::DataSpace dataspace( nrdims_, dims.arr() );
 	H5::DSetCreatPropList proplist;
-	if ( nrdims_ > 1 && needchunk )
+	if ( needchunk )
 	    proplist.setChunk( nrdims_, chunkdims.arr() );
-	proplist.setSzip( szip_options_mask, szip_pixels_per_block );
+	if ( canzip )
+	    proplist.setSzip( szip_options_mask, szip_pixels_per_block );
 	dataset_ = group_.createDataSet( dsky.dataSetName(),
 					 h5dt, dataspace, proplist );
     }
@@ -162,16 +166,25 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
 }
 
 
-static BufferString getWriteStr( const char* inpstr, int nrchars )
+static void getWriteStr( const char* inpstr, int nrchars, char* buf )
 {
-    BufferString ret( inpstr );
-    int termpos = ret.size();
+    if ( !inpstr )
+	inpstr = "";
+
+    int termpos = FixedString(inpstr).size();
     if ( termpos > nrchars-2 )
 	termpos = nrchars - 1;
-    else
-	ret.addSpace( nrchars - termpos );
-    *(ret.getCStr()+termpos) = '\0';
-    return ret;
+    for ( int ichar=0; ichar<nrchars; ichar++ )
+    {
+	if ( ichar > termpos )
+	    *buf = ' ';
+	else
+	{
+	    *buf = *inpstr;
+	    inpstr++;
+	}
+	buf++;
+    }
 }
 
 
@@ -181,6 +194,8 @@ void HDF5::WriterImpl::putAttrib( H5::DataSet& h5ds, const IOPar& iop,
     const H5DataType h5dt = H5::PredType::C_S1;
     const int nrchars = iop.maxContentSize( false ) + 1;
     hsize_t dims[1]; dims[0] = nrchars;
+    mDeclareAndTryAlloc( char*, writestr, char [ nrchars ] );
+
     try
     {
 	H5::DataSpace dataspace( 1, dims );
@@ -188,8 +203,8 @@ void HDF5::WriterImpl::putAttrib( H5::DataSet& h5ds, const IOPar& iop,
 	{
 	    H5::Attribute attribute = h5ds.createAttribute(
 				iop.getKey(idx), h5dt, dataspace );
-	    BufferString str2write = getWriteStr( iop.getValue(idx), nrchars );
-	    attribute.write( h5dt, str2write.getCStr() );
+	    getWriteStr( iop.getValue(idx), nrchars, writestr );
+	    attribute.write( h5dt, writestr );
 	}
     }
     mCatchErrDuringWrite()
@@ -212,8 +227,7 @@ void HDF5::WriterImpl::ptStrings( const DataSetKey& dsky,
     for ( int idx=0; idx<bss.size(); idx++ )
     {
 	const BufferString& inpstr = bss.get( idx );
-	const BufferString paddedstr = getWriteStr( inpstr, nrchars );
-	OD::sysMemCopy( buf + idx*nrchars, paddedstr.str(), nrchars );
+	getWriteStr( inpstr, nrchars, buf + idx*nrchars );
     }
 
     const H5DataType h5dt = H5::PredType::C_S1;
