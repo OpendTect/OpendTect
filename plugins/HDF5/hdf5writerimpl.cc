@@ -84,7 +84,7 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
 	chunkdims += chunksz_ < dimsz ? chunksz_ : dimsz;
     }
 
-    const bool needchunk = maxdim > chunksz_;
+    const bool canchunk = maxdim > chunksz_;
     const bool canzip = maxdim >= szip_pixels_per_block;
 
     const H5DataType h5dt = h5DataTypeFor( dt );
@@ -92,10 +92,12 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
     {
 	H5::DataSpace dataspace( nrdims_, dims.arr() );
 	H5::DSetCreatPropList proplist;
-	if ( needchunk )
+	if ( canchunk )
+	{
 	    proplist.setChunk( nrdims_, chunkdims.arr() );
-	if ( canzip )
-	    proplist.setSzip( szip_options_mask, szip_pixels_per_block );
+	    if ( canzip )
+		proplist.setSzip( szip_options_mask, szip_pixels_per_block );
+	}
 	dataset_ = group_.createDataSet( dsky.dataSetName(),
 					 h5dt, dataspace, proplist );
     }

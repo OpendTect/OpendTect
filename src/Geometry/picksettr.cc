@@ -271,7 +271,8 @@ public:
     bool		putTexts(const Pick::Set&,uiRetVal&);
     bool		putGeomIDs(const Pick::Set&,uiRetVal&);
 
-    Array2D<double>*	readDArr(uiRetVal&);
+    template <class T>
+    Array2D<T>*		readFPArr(uiRetVal&);
 
 };
 
@@ -421,14 +422,15 @@ uiString dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
 }
 
 
-Array2D<double>* dgbPickSetTranslatorHDF5BackEnd::readDArr( uiRetVal& uirv )
+template <class T>
+Array2D<T>* dgbPickSetTranslatorHDF5BackEnd::readFPArr( uiRetVal& uirv )
 {
-    ArrayND<double>* arrnd = HDF5::ArrayNDTool<double>::createArray( *rdr_ );
-    mDynamicCastGet( Array2D<double>*, arr2d, arrnd );
+    ArrayND<T>* arrnd = HDF5::ArrayNDTool<T>::createArray( *rdr_ );
+    mDynamicCastGet( Array2D<T>*, arr2d, arrnd );
     if ( !arr2d )
 	{ uirv = HDF5::Access::sCannotReadDataSet( dsky_ ); return 0; }
 
-    HDF5::ArrayNDTool<double> arrtool( *arr2d );
+    HDF5::ArrayNDTool<T> arrtool( *arr2d );
     uirv = arrtool.getAll( *rdr_ );
     if ( !uirv.isOK() )
 	{ delete arr2d; arr2d = 0; }
@@ -444,7 +446,7 @@ bool dgbPickSetTranslatorHDF5BackEnd::setPositions( Pick::Set& ps,
     if ( !rdr_->setScope(dsky_) )
 	{ uirv = HDF5::Access::sDataSetNotFound( dsky_ ); return false; }
 
-    Array2D<double>* posns = readDArr( uirv );
+    Array2D<double>* posns = readFPArr<double>( uirv );
     if ( !posns )
 	return false;
 
@@ -469,15 +471,18 @@ void dgbPickSetTranslatorHDF5BackEnd::setDirs( Pick::Set& ps )
 	return;
 
     uiRetVal uirv;
-    Array2D<double>* dirs = readDArr( uirv );
+    Array2D<float>* dirs = readFPArr<float>( uirv );
     if ( !dirs )
 	return;
 
+    const ArrayNDInfo::SzType arrsz = dirs->getSize( 1 );
     Pick::SetIter4Edit it( ps );
     while ( it.next() )
     {
-	int ipt = it.curIdx();
-	const Sphere sph( dirs->get(0,ipt), dirs->get(1,ipt), dirs->get(2,ipt));
+	const int idx = it.curIdx();
+	if ( idx >= arrsz )
+	    break;
+	const Sphere sph( dirs->get(0,idx), dirs->get(1,idx), dirs->get(2,idx));
 	it.get().setDir( sph );
     }
 
@@ -490,7 +495,20 @@ void dgbPickSetTranslatorHDF5BackEnd::setGroups( Pick::Set& ps )
     dsky_.setDataSetName( sKeyGroups );
     if ( !rdr_->setScope(dsky_) )
 	return;
-    //TODO
+
+    TypeSet<Pick::GroupLabel::ID::IDType> lblids;
+    uiRetVal uirv = rdr_->get( lblids );
+    if ( !uirv.isOK() )
+	return;
+
+    Pick::SetIter4Edit it( ps );
+    while ( it.next() )
+    {
+	const int idx = it.curIdx();
+	if ( idx >= lblids.size() )
+	    break;
+	it.get().setGroupLabelID( Pick::GroupLabel::ID(lblids[idx]) );
+    }
 }
 
 
@@ -499,14 +517,52 @@ void dgbPickSetTranslatorHDF5BackEnd::setTexts( Pick::Set& ps )
     dsky_.setDataSetName( sKeyLabels );
     if ( !rdr_->setScope(dsky_) )
 	return;
-    //TODO
+
+    BufferStringSet lbls;
+    uiRetVal uirv = rdr_->get( lbls );
+    if ( !uirv.isOK() )
+	return;
+
+    Pick::SetIter4Edit it( ps );
+    while ( it.next() )
+    {
+	const int idx = it.curIdx();
+	if ( idx >= lbls.size() )
+	    break;
+	it.get().setText( lbls.get(idx) );
+    }
 }
 
 
 void dgbPickSetTranslatorHDF5BackEnd::setGeomIDs( Pick::Set& ps,
 						  Pos::GeomID geomid )
 {
-    //TODO
+    TypeSet<Pos::GeomID> geomids;
+    if ( !mIsUdfGeomID(geomid) )
+	geomids.setSize( ps.size(), geomid );
+    else
+    {
+	dsky_.setDataSetName( sKeyGeomIDs );
+	if ( !rdr_->setScope(dsky_) )
+	    return;
+
+	uiRetVal uirv = rdr_->get( geomids );
+	if ( !uirv.isOK() )
+	    return;
+    }
+
+    Pick::SetIter4Edit it( ps );
+    while ( it.next() )
+    {
+	const int idx = it.curIdx();
+	if ( idx >= geomids.size() )
+	    break;
+
+	TrcKey tk;
+	tk.setGeomID( geomids[idx] );
+	tk.setFrom( it.get().pos().getXY() );
+	it.get().setTrcKey( tk );
+    }
 }
 
 
@@ -572,7 +628,7 @@ bool dgbPickSetTranslatorHDF5BackEnd::putPositions( const Pick::Set& ps,
 bool dgbPickSetTranslatorHDF5BackEnd::putDirs( const Pick::Set& ps,
 						    uiRetVal& uirv )
 {
-    Array2DImpl<double> dirs( 3, ps.size() );
+    Array2DImpl<float> dirs( 3, ps.size() );
     Pick::SetIter psiter( ps );
     while ( psiter.next() )
     {
@@ -582,7 +638,7 @@ bool dgbPickSetTranslatorHDF5BackEnd::putDirs( const Pick::Set& ps,
 	dirs.set( 1, ipos, dir.theta_ );
 	dirs.set( 2, ipos, dir.phi_ );
     }
-    HDF5::ArrayNDTool<double> arrtool( dirs );
+    HDF5::ArrayNDTool<float> arrtool( dirs );
     dsky_.setDataSetName( sKeyDirections );
     uirv = arrtool.put( *wrr_, dsky_ );
     return uirv.isOK();
@@ -592,8 +648,7 @@ bool dgbPickSetTranslatorHDF5BackEnd::putDirs( const Pick::Set& ps,
 bool dgbPickSetTranslatorHDF5BackEnd::putGroups( const Pick::Set& ps,
 						 uiRetVal& uirv )
 {
-    typedef Pick::GroupLabel::ID::IDType IDType;
-    TypeSet<IDType> lblids;
+    TypeSet<Pick::GroupLabel::ID::IDType> lblids;
     Pick::SetIter psiter( ps );
     while ( psiter.next() )
 	lblids += psiter.get().groupLabelID().getI();
@@ -644,17 +699,16 @@ uiString dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
     const bool havetexts = ps.haveTexts();
     const bool havegrps = ps.haveGroupLabels();
     const bool havegeomids = ps.haveMultipleGeomIDs();
-    const int sz = ps.size();
 
     IOPar iop;
     fillPar( ps, iop );
-    if ( sz < 1 )
-	return uirv;
 
     iop.setYN( sKeyDirections, havedirs );
     iop.setYN( sKeyLabels, havetexts );
     iop.setYN( sKeyGroups, havegrps );
-    if ( !havegeomids )
+    if ( havegeomids )
+	iop.removeWithKey( sKeyGeomID );
+    else
 	iop.set( sKeyGeomID, ps.first().trcKey().geomID() );
 
     uirv = wrr_->putInfo( dsky_, iop );
