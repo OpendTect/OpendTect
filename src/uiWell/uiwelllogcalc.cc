@@ -400,7 +400,7 @@ void uiWellLogCalc::vwLog( CallBacker* cb )
     if ( !wl ) return;
 
     uiWellLogDisplay::Setup wldsu;
-    wldsu.annotinside( true ).nrmarkerchars( 10 ).drawcurvenames( true );
+    wldsu.nrmarkerchars( 10 );
     uiWellLogDispDlg* dlg = new uiWellLogDispDlg( this, wldsu, true );
     dlg->setLog( wl, true );
     dlg->setDeleteOnClose( true );
@@ -417,7 +417,8 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 {
     if ( !formfld_ )
 	return true;
-    else if ( !formfld_->updateForm() )
+
+    if ( !formfld_->updateForm() )
 	return false;
 
     const BufferString newnm = nmfld_ ? nmfld_->text() : "";
@@ -429,17 +430,15 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
     zsampintv_ = srfld_->getfValue();
     if ( mIsUdf(zsampintv_) )
-	mErrRet(tr("Please provide the Z dample rate for the  output log"))
+	mErrRet(tr("Please provide the Z sample rate for the  output log"))
     if ( ftbox_->isChecked() )
 	zsampintv_ *= mFromFeetFactorF;
-
 
     bool successfulonce = false;
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
     {
 	const MultiID wmid = wellids_[iwell];
-				     
-	RefMan<Well::Data> wd = Well::MGR().get( wmid ); 
+	RefMan<Well::Data> wd = Well::MGR().get( wmid );
 	bool isinplogunitsi = true;
 	for ( int i = 0; i<form_.nrInputs(); i++ )
 	{
@@ -450,10 +449,10 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 		break;
 	}
 
-	bool isoutputlogunitsi = true; 
-	if ( outunfld_->getUnit() )
-	    isoutputlogunitsi = outunfld_->getUnit()->scaler().isEmpty();
-    
+	bool isoutputlogunitsi = true;
+	if ( form_.outputUnit() )
+	    isoutputlogunitsi = form_.outputUnit()->scaler().isEmpty();
+
 	if ( !isinplogunitsi && !isoutputlogunitsi )
 	{
 	    bool res = uiMSG().askContinue(tr("The log units are not SI units. "
@@ -461,14 +460,13 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    if ( !res )
 		return false;
 	}
-
 	else if ( !isinplogunitsi || !isoutputlogunitsi )
 	{
 	    uiMSG().error(tr("Input and Output Log units do not match.\n"
 		"Please correct the units and proceed"));
 	    return false;
 	}
-    
+
 	if ( !wd )
 	    mErrContinue( tr("%1").arg(Well::MGR().errMsg()) )
 
