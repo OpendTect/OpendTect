@@ -1432,7 +1432,7 @@ public:
 		    , out_(out)
 		{}
 
-    uiString	message() const	{ return tr("Transferring volume data"); }
+    uiString	message() const	{ return msg_; }
 
     uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
 
@@ -1450,15 +1450,26 @@ private:
 
     bool	doPrepare( int )
 		{
+		    msg_ = tr("Transferring volume data");
+
 		    mGetInfo()
 		    if ( in_.info() != infoin )
+		    {
+			msg_ = tr("Input info is not the same");
 			return false;
+		    }
 
 		    if ( out_.info() != infoout && !out_.setInfo(infoout) )
+		    {
+			msg_ = tr("Output info is not the same");
 			return false;
+		    }
 
 		    if ( tkzsin_.hsamp_.survid_ != tkzsout_.hsamp_.survid_ )
+		    {
+			msg_ = tr("Incompatible Survey ID");
 			return false;
+		    }
 
 		    if ( !tkzsin_.zsamp_.isCompatible(tkzsout_.zsamp_) )
 		    {
@@ -1467,7 +1478,12 @@ private:
 						tkzsin_.zsamp_.step;
 
 			if ( !mIsEqual(zratio,mNINT32(zratio),1e-5f) )
+			{
+			    msg_ = tr("Incompatible sample rate: %1 vs %2")
+					.arg(tkzsin_.zsamp_.step)
+					.arg(tkzsout_.zsamp_.step);
 			    return false; //Not supported
+			}
 
 			sample_fact_ = mNINT32(zratio);
 		    }
@@ -1568,6 +1584,7 @@ private:
     Array3D<T>&			out_;
 
     int				sample_fact_	    = 1;
+    uiString			msg_;
 };
 
 
