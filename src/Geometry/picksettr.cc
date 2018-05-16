@@ -33,6 +33,8 @@ ________________________________________________________________________
 static const char* sKeyDirections = "Directions";
 static const char* sKeyLabels = "Labels";
 static const char* sKeyGroups = "Groups";
+static const char* sKeyGeomID = "GeomID";
+static const char* sKeyGeomIDs = "GeomIDs";
 
 
 defineTranslatorGroup(PickSet,"PickSet Group");
@@ -257,10 +259,19 @@ public:
     HDF5::Reader*	rdr_		= 0;
     HDF5::Writer*	wrr_		= 0;
 
+    bool		setPositions(Pick::Set&,uiRetVal&);
+    void		setDirs(Pick::Set&);
+    void		setGroups(Pick::Set&);
+    void		setTexts(Pick::Set&);
+    void		setGeomIDs(Pick::Set&,Pos::GeomID);
+
     bool		putPositions(const Pick::Set&,uiRetVal&);
     bool		putDirs(const Pick::Set&,uiRetVal&);
     bool		putGroups(const Pick::Set&,uiRetVal&);
     bool		putTexts(const Pick::Set&,uiRetVal&);
+    bool		putGeomIDs(const Pick::Set&,uiRetVal&);
+
+    Array2D<double>*	readDArr(uiRetVal&);
 
 };
 
@@ -403,11 +414,99 @@ uiString dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
 	psiter.get().toString( str );
 	strm << str << od_newline;
     }
-    psiter.retire();
 
     astrm.newParagraph();
     return astrm.isOK() ? uiString::empty()
 			: uiStrings::phrCannotWrite( uiStrings::sPickSet() );
+}
+
+
+Array2D<double>* dgbPickSetTranslatorHDF5BackEnd::readDArr( uiRetVal& uirv )
+{
+    ArrayND<double>* arrnd = HDF5::ArrayNDTool<double>::createArray( *rdr_ );
+    mDynamicCastGet( Array2D<double>*, arr2d, arrnd );
+    if ( !arr2d )
+	{ uirv = HDF5::Access::sCannotReadDataSet( dsky_ ); return 0; }
+
+    HDF5::ArrayNDTool<double> arrtool( *arr2d );
+    uirv = arrtool.getAll( *rdr_ );
+    if ( !uirv.isOK() )
+	{ delete arr2d; arr2d = 0; }
+
+    return arr2d;
+}
+
+
+bool dgbPickSetTranslatorHDF5BackEnd::setPositions( Pick::Set& ps,
+						    uiRetVal& uirv )
+{
+    dsky_.setDataSetName( sKey::Positions() );
+    if ( !rdr_->setScope(dsky_) )
+	{ uirv = HDF5::Access::sDataSetNotFound( dsky_ ); return false; }
+
+    Array2D<double>* posns = readDArr( uirv );
+    if ( !posns )
+	return false;
+
+    const int nrpoints = posns->getSize( 1 );
+    for ( int ipt=0; ipt<nrpoints; ipt++ )
+    {
+	const double x = posns->get( 0, ipt );
+	const double y = posns->get( 1, ipt );
+	const double z = posns->get( 2, ipt );
+	ps.add( Pick::Location(x,y,z) );
+    }
+
+    delete posns;
+    return true;
+}
+
+
+void dgbPickSetTranslatorHDF5BackEnd::setDirs( Pick::Set& ps )
+{
+    dsky_.setDataSetName( sKeyDirections );
+    if ( !rdr_->setScope(dsky_) )
+	return;
+
+    uiRetVal uirv;
+    Array2D<double>* dirs = readDArr( uirv );
+    if ( !dirs )
+	return;
+
+    Pick::SetIter4Edit it( ps );
+    while ( it.next() )
+    {
+	int ipt = it.curIdx();
+	const Sphere sph( dirs->get(0,ipt), dirs->get(1,ipt), dirs->get(2,ipt));
+	it.get().setDir( sph );
+    }
+
+    delete dirs;
+}
+
+
+void dgbPickSetTranslatorHDF5BackEnd::setGroups( Pick::Set& ps )
+{
+    dsky_.setDataSetName( sKeyGroups );
+    if ( !rdr_->setScope(dsky_) )
+	return;
+    //TODO
+}
+
+
+void dgbPickSetTranslatorHDF5BackEnd::setTexts( Pick::Set& ps )
+{
+    dsky_.setDataSetName( sKeyLabels );
+    if ( !rdr_->setScope(dsky_) )
+	return;
+    //TODO
+}
+
+
+void dgbPickSetTranslatorHDF5BackEnd::setGeomIDs( Pick::Set& ps,
+						  Pos::GeomID geomid )
+{
+    //TODO
 }
 
 
@@ -427,30 +526,24 @@ uiString dgbPickSetTranslatorHDF5BackEnd::read( Pick::Set& ps )
     if ( uirv.isOK() )
 	ps.usePar( iop );
 
-    dsky_.setDataSetName( sKey::Positions() );
-    if ( !rdr_->setScope(dsky_) )
-	return HDF5::Access::sDataSetNotFound( dsky_ );
-
-    ArrayND<double>* arrnd = HDF5::ArrayNDTool<double>::createArray( *rdr_ );
-    mDynamicCastGet( Array2D<double>*, posns, arrnd );
-    if ( !posns )
-	return HDF5::Access::sCannotReadDataSet( dsky_ );
-
-    HDF5::ArrayNDTool<double> arrtool( *posns );
-    uirv = arrtool.getAll( *rdr_ );
-    if ( !uirv.isOK() )
+    if ( !setPositions(ps,uirv) )
 	return uirv;
 
-    const int nrpoints = posns->getSize( 1 );
-    for ( int ipt=0; ipt<nrpoints; ipt++ )
-    {
-	const double x = posns->get( 0, ipt );
-	const double y = posns->get( 1, ipt );
-	const double z = posns->get( 2, ipt );
-	ps.add( Pick::Location(x,y,z) );
-    }
+    bool havedirs = false, havetexts = false, havegrps = false;
+    iop.getYN( sKeyDirections, havedirs );
+    iop.getYN( sKeyLabels, havetexts );
+    iop.getYN( sKeyGroups, havegrps );
 
-    //TODO read the rest
+    if ( havedirs )
+	setDirs( ps );
+    if ( havetexts )
+	setTexts( ps );
+    if ( havegrps )
+	setGroups( ps );
+
+    Pos::GeomID geomid = mUdfGeomID;;
+    iop.get( sKeyGeomID, geomid );
+    setGeomIDs( ps, geomid );
 
     return uirv;
 }
@@ -469,7 +562,6 @@ bool dgbPickSetTranslatorHDF5BackEnd::putPositions( const Pick::Set& ps,
 	posns.set( 1, ipos, pos.y_ );
 	posns.set( 2, ipos, pos.z_ );
     }
-    psiter.retire();
     HDF5::ArrayNDTool<double> arrtool( posns );
     dsky_.setDataSetName( sKey::Positions() );
     uirv = arrtool.put( *wrr_, dsky_ );
@@ -490,7 +582,6 @@ bool dgbPickSetTranslatorHDF5BackEnd::putDirs( const Pick::Set& ps,
 	dirs.set( 1, ipos, dir.theta_ );
 	dirs.set( 2, ipos, dir.phi_ );
     }
-    psiter.retire();
     HDF5::ArrayNDTool<double> arrtool( dirs );
     dsky_.setDataSetName( sKeyDirections );
     uirv = arrtool.put( *wrr_, dsky_ );
@@ -506,7 +597,6 @@ bool dgbPickSetTranslatorHDF5BackEnd::putGroups( const Pick::Set& ps,
     Pick::SetIter psiter( ps );
     while ( psiter.next() )
 	lblids += psiter.get().groupLabelID().getI();
-    psiter.retire();
     dsky_.setDataSetName( sKeyGroups );
     uirv = wrr_->put( dsky_, lblids );
     return uirv.isOK();
@@ -526,6 +616,19 @@ bool dgbPickSetTranslatorHDF5BackEnd::putTexts( const Pick::Set& ps,
 }
 
 
+bool dgbPickSetTranslatorHDF5BackEnd::putGeomIDs( const Pick::Set& ps,
+						  uiRetVal& uirv )
+{
+    TypeSet<Pos::GeomID> geomids;
+    Pick::SetIter psiter( ps );
+    while ( psiter.next() )
+	geomids += psiter.get().geomID();
+    dsky_.setDataSetName( sKeyGeomIDs );
+    uirv = wrr_->put( dsky_, geomids );
+    return uirv.isOK();
+}
+
+
 uiString dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
 {
     wrr_ = HDF5::mkWriter();
@@ -536,15 +639,23 @@ uiString dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
     if ( !uirv.isOK() )
 	return uirv;
 
+    MonitorLock ml( ps );
     const bool havedirs = ps.haveDirections();
     const bool havetexts = ps.haveTexts();
     const bool havegrps = ps.haveGroupLabels();
+    const bool havegeomids = ps.haveMultipleGeomIDs();
+    const int sz = ps.size();
 
     IOPar iop;
     fillPar( ps, iop );
+    if ( sz < 1 )
+	return uirv;
+
     iop.setYN( sKeyDirections, havedirs );
     iop.setYN( sKeyLabels, havetexts );
     iop.setYN( sKeyGroups, havegrps );
+    if ( !havegeomids )
+	iop.set( sKeyGeomID, ps.first().trcKey().geomID() );
 
     uirv = wrr_->putInfo( dsky_, iop );
     if ( !uirv.isOK() )
@@ -560,6 +671,8 @@ uiString dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
     if ( havegrps && !putGroups(ps,uirv) )
 	return uirv;
     if ( havetexts && !putTexts(ps,uirv) )
+	return uirv;
+    if ( havegeomids && !putGeomIDs(ps,uirv) )
 	return uirv;
 
     return uirv;

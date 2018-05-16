@@ -262,6 +262,20 @@ mDefHaveFn( Directions, hasDir )
 mDefHaveFn( GroupLabels, groupLabelID().isValid )
 mDefHaveFn( TrcKeys, hasTrcKey )
 
+bool Pick::Set::haveMultipleGeomIDs() const
+{
+    mPrepRead( sz );
+    if ( sz < 2 )
+	return false;
+
+    const Pos::GeomID geomid = locs_[0].geomID();
+    for ( int idx=1; idx<sz; idx++ )
+	if ( locs_[idx].geomID() != geomid )
+	    return true;
+
+    return false;
+}
+
 
 Pick::Set::GroupLabelID Pick::Set::addGroupLabel( const GroupLabel& lbl )
 {

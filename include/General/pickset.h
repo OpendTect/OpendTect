@@ -86,6 +86,7 @@ public:
     bool		haveTexts() const;
     bool		haveTrcKeys() const;
     bool		haveGroupLabels() const;
+    bool		haveMultipleGeomIDs() const;
 
 			// Manipulate the defined labels
     GroupLabelID	addGroupLabel(const GroupLabel&);
