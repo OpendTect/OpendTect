@@ -13,15 +13,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwellattribpartserv.h"
 
 #include "uiamplspectrum.h"
+#include "uibuttongroup.h"
 #include "uichecklist.h"
 #include "uicreateattriblogdlg.h"
 #include "uicreatelogcubedlg.h"
 #include "uimsg.h"
+#include "uitoolbutton.h"
 #include "uiwellattribxplot.h"
+#include "uiwellman.h"
 #include "uiwelltiemgrdlg.h"
 #include "uiwellto2dlinedlg.h"
 
 #include "attribdescset.h"
+#include "attribdescsetsholder.h"
 #include "datapointset.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -34,6 +38,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellman.h"
 #include "welltiesetup.h"
 
+using namespace Attrib;
+
 
 int uiWellAttribPartServer::evPreview2DFromWells()	{ return 0; }
 int uiWellAttribPartServer::evShow2DFromWells()		{ return 1; }
@@ -41,7 +47,7 @@ int uiWellAttribPartServer::evCleanPreview()		{ return 2; }
 
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , attrset_(new Attrib::DescSet(false)) //Default, set afterwards
+    , attrset_(new DescSet(false)) //Default, set afterwards
     , nlamodel_(0)
     , xplotwin2d_(0)
     , xplotwin3d_(0)
@@ -50,16 +56,17 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , wellto2ddlg_(0)
     , crlogcubedlg_(0)
 {
-    IOM().surveyChanged.notify(
-	    mCB(this,uiWellAttribPartServer,surveyChangedCB) );
+    mAttachCB( IOM().surveyChanged, uiWellAttribPartServer::surveyChangedCB );
+    mAttachCB( uiWellMan::instanceCreated(),
+	       uiWellAttribPartServer::wellManCreatedCB );
 }
 
 
 uiWellAttribPartServer::~uiWellAttribPartServer()
 {
+    detachAllNotifiers();
     cleanUp();
 }
-
 
 
 void uiWellAttribPartServer::surveyChangedCB( CallBacker* )
@@ -68,27 +75,62 @@ void uiWellAttribPartServer::surveyChangedCB( CallBacker* )
 }
 
 
-void uiWellAttribPartServer::cleanUp()
+void uiWellAttribPartServer::wellManCreatedCB( CallBacker* cb )
 {
-    delete attrset_; attrset_ = 0;
-    delete xplotwin2d_; xplotwin2d_ = 0;
-    delete xplotwin3d_; xplotwin3d_ = 0;
-    delete welltiedlg_; welltiedlg_ = 0;
-    delete crlogcubedlg_; crlogcubedlg_ = 0;
+    mDynamicCastGet(uiWellMan*,wm,cb)
+    if ( !wm ) return;
 
-    if ( wellto2ddlg_ )
-    {
-	wellto2ddlg_->wantspreview_.remove(
-		mCB(this,uiWellAttribPartServer,previewWellto2DLine) );
-	delete wellto2ddlg_; wellto2ddlg_ = 0;
-    }
+    new uiToolButton( wm->extraButtonGroup(), "xplot_wells", tr("Cross-plot"),
+			mCB(this,uiWellAttribPartServer,xplotCB) );
 }
 
 
-void uiWellAttribPartServer::setAttribSet( const Attrib::DescSet& ads )
+static const Attrib::DescSet* getUserPrefDescSet()
+{
+    const DescSet* ds3d = DSHolder().getDescSet( false, false );
+    const DescSet* ds2d = DSHolder().getDescSet( true, false );
+    if ( !ds3d && !ds2d ) return 0;
+    if ( !(ds3d && ds2d) ) return ds3d ? ds3d : ds2d;
+    if ( !SI().has3D() ) return ds2d;
+    if ( !SI().has2D() ) return ds3d;
+
+    const int nr3d = ds3d->nrDescs( false, true );
+    const int nr2d = ds2d->nrDescs( false, true );
+    if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
+
+    const int res =
+	uiMSG().ask2D3D( toUiString("Which attributes do you want to use?"),
+	true );
+    return res==-1 ? 0 : (res==1 ? ds2d : ds3d);
+}
+
+
+void uiWellAttribPartServer::xplotCB( CallBacker* )
+{
+    const DescSet* ds = getUserPrefDescSet();
+    if ( !ds )
+	return;
+
+    setAttribSet( *ds );
+    doXPlot();
+}
+
+
+void uiWellAttribPartServer::cleanUp()
+{
+    deleteAndZeroPtr( attrset_ );
+    deleteAndZeroPtr( xplotwin2d_ );
+    deleteAndZeroPtr( xplotwin3d_ );
+    deleteAndZeroPtr( welltiedlg_ );
+    deleteAndZeroPtr( crlogcubedlg_ );
+    deleteAndZeroPtr( wellto2ddlg_ );
+}
+
+
+void uiWellAttribPartServer::setAttribSet( const DescSet& ads )
 {
     delete attrset_;
-    attrset_ = new Attrib::DescSet( ads );
+    attrset_ = new DescSet( ads );
 }
 
 

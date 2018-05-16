@@ -79,6 +79,8 @@ protected:
     DataPointSetDisplayMgr*	dpsdispmgr_;
 
     void			surveyChangedCB(CallBacker*);
+    void			wellManCreatedCB(CallBacker*);
+    void			xplotCB(CallBacker*);
     void			previewWellto2DLine(CallBacker*);
     void			wellTo2DDlgClosed(CallBacker*);
 
