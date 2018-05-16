@@ -439,7 +439,6 @@ bool uiWellLogCalc::acceptOK()
     if ( ftbox_->isChecked() )
 	zsampintv_ *= mFromFeetFactorF;
 
-
     bool successfulonce = false;
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
     {
@@ -455,8 +454,8 @@ bool uiWellLogCalc::acceptOK()
 	}
 
 	bool isoutputlogunitsi = true;
-	if ( outunfld_->getUnit() )
-	    isoutputlogunitsi = outunfld_->getUnit()->scaler().isEmpty();
+	if ( form_.outputUnit() )
+	    isoutputlogunitsi = form_.outputUnit()->scaler().isEmpty();
 
 	if ( !isinplogunitsi && !isoutputlogunitsi )
 	{
