@@ -229,7 +229,6 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	batchfld_ = new uiBatchJobDispatcherSel( this, true,
 						 Batch::JobSpec::SEGY );
 	batchfld_->checked.notify( mCB(this,uiSEGYExp,batchChg) );
-	batchfld_->setJobName( "Output SEG-Y" );
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyExport() );
 	js.pars_.setYN( SEGY::IO::sKeyIs2D(), is2d );
@@ -411,6 +410,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 
     if ( batchfld_ && batchfld_->wantBatch() )
     {
+	batchfld_->setJobName( fsfld_->getJobNameFromFileName() );
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	IOPar inpars;
 	seissel_->fillPar( inpars );

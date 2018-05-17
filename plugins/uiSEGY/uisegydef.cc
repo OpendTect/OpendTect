@@ -97,9 +97,15 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
 }
 
 
+BufferString uiSEGYFileSpec::getFileName() const
+{
+    return  fnmfld_->fileName();
+}
+
+
 SEGY::FileSpec uiSEGYFileSpec::getSpec() const
 {
-    SEGY::FileSpec spec( fnmfld_->fileName() );
+    SEGY::FileSpec spec( getFileName() );
     if ( multifld_ && multifld_->isChecked() )
     {
 	spec.nrs_ = multifld_->getIStepInterval();
@@ -186,6 +192,12 @@ void uiSEGYFileSpec::setFileName( const char* fnm )
 }
 
 
+BufferString uiSEGYFileSpec::getJobNameFromFileName() const
+{
+    //At this point the fileName() value cannot be empty.
+    return BufferString( FilePath(getFileName()).baseName() );
+}
+
 void uiSEGYFileSpec::setSpec( const SEGY::FileSpec& spec )
 {
     setFileName( spec.fileName(0) );
@@ -215,7 +227,7 @@ void uiSEGYFileSpec::use( const IOObj* ioobj, bool force )
 	return;
     }
 
-    if ( !force && *fnmfld_->fileName() )
+    if ( !force && getFileName().isEmpty() )
 	return;
 
     mDynamicCastGet(const IOStream*,iostrm,ioobj)
