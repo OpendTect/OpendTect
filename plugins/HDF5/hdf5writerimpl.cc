@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "hdf5writerimpl.h"
+#include "hdf5readerimpl.h"
 #include "uistrings.h"
 #include "arrayndimpl.h"
 #include "iopar.h"
@@ -36,11 +37,20 @@ HDF5::WriterImpl::~WriterImpl()
 }
 
 
+HDF5::Reader* HDF5::WriterImpl::createCoupledReader() const
+{
+    return file_ ? new HDF5::ReaderImpl( *const_cast<H5::H5File*>(file_) ) : 0;
+}
+
+
 void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv )
 {
     try
     {
-	file_ = new H5::H5File( fnm, H5F_ACC_TRUNC );
+	H5::H5File* newfile = new H5::H5File( fnm, H5F_ACC_TRUNC );
+	closeFile();
+	myfile_ = true;
+	file_ = newfile;
     }
     mCatchAdd2uiRv( uiStrings::phrCannotOpen(fnm) )
 }

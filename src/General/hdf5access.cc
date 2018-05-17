@@ -139,6 +139,7 @@ HDF5::Writer* HDF5::AccessProvider::mkWriter( int idx )
 
 HDF5::Access::Access()
     : file_(0)
+    , myfile_(true)
 {
 }
 
@@ -155,6 +156,7 @@ uiRetVal HDF5::Access::open( const char* fnm )
 
     uiRetVal uirv;
     openFile( fnm, uirv );
+    myfile_ = true;
 
     return uirv;
 }

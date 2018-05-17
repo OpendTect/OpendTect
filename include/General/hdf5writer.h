@@ -24,12 +24,16 @@ Notes:
   empty in the DataSetKey.
 * To be able to put info for a DataSet, you have to create it first. Info for
   a group can be written at all times.
+* When opened in 'edit' mode, you can get info about the file from a coupled
+  Reader. Do not try to use such a Reader when the Writer is closed/destroyed.
 
   */
 
 mExpClass(General) Writer : public Access
 {
 public:
+
+    virtual Reader*	createCoupledReader() const			= 0;
 
     virtual void	setChunkSize(int)				= 0;
 

@@ -142,7 +142,6 @@ mExpClass(General) Access
 public:
 			mTypeDefArrNDTypes;
 
-			Access();
     virtual		~Access();
 
     uiRetVal		open(const char*);
@@ -168,7 +167,10 @@ public:
 
 protected:
 
+			Access();
+
     H5::H5File*		file_;
+    bool		myfile_;
 
     virtual void	closeFile()			= 0;
     virtual void	openFile(const char*,uiRetVal&)	= 0;

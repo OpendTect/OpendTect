@@ -24,6 +24,14 @@ HDF5::ReaderImpl::ReaderImpl()
 }
 
 
+HDF5::ReaderImpl::ReaderImpl( const H5::H5File& h5file )
+    : AccessImpl(*this)
+{
+    myfile_ = false;
+    file_ = const_cast<H5::H5File*>( &h5file );
+}
+
+
 HDF5::ReaderImpl::~ReaderImpl()
 {
     closeFile();
@@ -37,18 +45,12 @@ void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv )
 
     try
     {
-	grpnms_.setEmpty();
-	file_ = new H5::H5File( fnm, H5F_ACC_RDONLY );
-	listObjs( *file_, grpnms_, true );
+	H5::H5File* newfile = new H5::H5File( fnm, H5F_ACC_RDONLY );
+	closeFile();
+	myfile_ = true;
+	file_ = newfile;
     }
     mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fnm) )
-}
-
-
-void HDF5::ReaderImpl::closeFile()
-{
-    doCloseFile( *this );
-    grpnms_.setEmpty();
 }
 
 
@@ -90,7 +92,9 @@ void HDF5::ReaderImpl::listObjs( const H5Dir& dir, BufferStringSet& nms,
 
 void HDF5::ReaderImpl::getGroups( BufferStringSet& nms ) const
 {
-    nms = grpnms_;
+    nms.setEmpty();
+    if ( file_ )
+	listObjs( *file_, nms, true );
 }
 
 
@@ -101,11 +105,7 @@ void HDF5::ReaderImpl::getDataSets( const char* grpnm,
     if ( !const_cast<ReaderImpl*>(this)->selectGroup(grpnm) )
 	return;
 
-    try
-    {
-	listObjs( group_, nms, false );
-    }
-    mCatchUnexpected( return );
+    listObjs( group_, nms, false );
 }
 
 

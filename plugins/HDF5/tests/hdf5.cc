@@ -40,105 +40,6 @@ static void fillArr2D( Array2D<T>& arr2d, int shft )
     mRunStandardTestWithError( uirv.isOK(), desc, toString(uirv) )
 
 
-static bool testWrite()
-{
-    PtrMan<HDF5::Writer> wrr = HDF5::mkWriter();
-    mRunStandardTest( wrr, "Get Writer" );
-    uiRetVal uirv = wrr->open( filename_ );
-    mAddTestResult( "Open file for write" );
-
-    mRunStandardTestWithError( filename_==wrr->fileName(), "File name retained",
-			       BufferString(wrr->fileName(),"!=",filename_) )
-    wrr->setChunkSize( chunksz_ );
-
-    Array2DImpl<float> arr2d( dim1_, dim2_ );
-    HDF5::DataSetKey dsky;
-    IOPar iop;
-    iop.set( "File attr", "file attr value" );
-    uirv = wrr->putInfo( dsky, iop );
-    mAddTestResult( "Write file attribute" );
-
-    iop.setEmpty();
-    HDF5::ArrayNDTool<float> arrtool( arr2d );
-    iop.set( "Apenoot", "pere boom" );
-    for ( int iblk=0; iblk<nrblocks_; iblk++ )
-    {
-	dsky.setDataSetName( BufferString( "Block [", iblk, "]" ) );
-
-	fillArr2D( arr2d, 1000*iblk );
-	dsky.setGroupName( "Component 1" );
-	uirv = arrtool.put( *wrr, dsky );
-	if ( !uirv.isOK() )
-	    break;
-	iop.set( sPropNm, iblk, 1 );
-	uirv = wrr->putInfo( dsky, iop );
-	if ( !uirv.isOK() )
-	    break;
-
-	fillArr2D( arr2d, 10000*iblk );
-	dsky.setGroupName( "Component 2" );
-	uirv = arrtool.put( *wrr, dsky );
-	if ( !uirv.isOK() )
-	    break;
-	iop.set( sPropNm, iblk, 2 );
-	uirv = wrr->putInfo( dsky, iop );
-	if ( !uirv.isOK() )
-	    break;
-    }
-    mAddTestResult( "Write blocks" );
-
-    Array2DImpl<int> iarr2d( dim1_, dim2_ );
-    Array2DImpl<int> iarr2dx2( dim1_, (short)(2*dim2_) );
-    HDF5::ArrayNDTool<int> iarrtoolx2( iarr2dx2 );
-    HDF5::ArrayNDTool<int> iarrtool( iarr2d );
-    dsky.setGroupName( "Slabby" );
-    dsky.setDataSetName( "Slabby Data" );
-    uirv = iarrtoolx2.createDataSet( *wrr, dsky );
-    mAddTestResult( "Create Slabby DataSet" );
-    HDF5::SlabSpec slabspec; HDF5::SlabDimSpec dimspec;
-    dimspec.start_ = 0; dimspec.step_ = 1; dimspec.count_ = dim1_;
-    slabspec += dimspec;
-    dimspec.start_ = 0; dimspec.step_ = 1; dimspec.count_ = dim2_;
-    slabspec += dimspec;
-    fillArr2D( iarr2d, 100 );
-    uirv = iarrtool.putSlab( *wrr, slabspec );
-    mAddTestResult( "Write Slabby First Slab" );
-    slabspec[1].start_ = dim2_;
-    fillArr2D( iarr2d, 100 + dim2_ );
-    uirv = iarrtool.putSlab( *wrr, slabspec );
-    mAddTestResult( "Write Slabby Second Slab" );
-
-    dsky.setGroupName( "Component 1" );
-    dsky.setDataSetName( "Apenoot" );
-    mRunStandardTest( !wrr->setScope(dsky), "Set to non-existing scope" );
-    dsky.setDataSetName( "Block [1]" );
-    mRunStandardTest( wrr->setScope(dsky), "Set to existing scope" );
-    iop.setEmpty();
-    iop.set( "Appel", "peer" );
-    uirv = wrr->putInfo( dsky, iop );
-    mAddTestResult( "Write Comp1/Block1 attrib" );
-
-    TypeSet<short> ts;
-    ts += 1; ts += 2; ts += 3; ts += 4;
-    dsky.setGroupName( "" );
-    dsky.setDataSetName( "ShortArr" );
-    uirv = wrr->put( dsky, ts );
-    mAddTestResult( "Write TypeSet" );
-
-    BufferStringSet bss;
-    bss.add( "Str 1" );
-    bss.add( "Str 2" );
-    bss.add( "String 3" );
-    bss.add( "" );
-    bss.add( "Str5/Str 4 is empty" );
-    dsky.setDataSetName( "Strings" );
-    uirv = wrr->put( dsky, bss );
-    mAddTestResult( "Write BufferStringSet" );
-
-    return true;
-}
-
-
 static bool testReadInfo( HDF5::Reader& rdr )
 {
     BufferStringSet grps;
@@ -324,15 +225,121 @@ static bool testReadData( HDF5::Reader& rdr )
 }
 
 
+static bool testReadFrom( HDF5::Reader& rdr )
+{
+    return testReadInfo(rdr) && testReadData(rdr);
+}
+
+
 static bool testRead()
 {
     PtrMan<HDF5::Reader> rdr = HDF5::mkReader();
     mRunStandardTest( rdr, "Get Reader" );
-
     uiRetVal uirv = rdr->open( filename_ );
     mAddTestResult( "Open file for read" );
+    return testReadFrom( *rdr );
+}
 
-    return testReadInfo(*rdr) && testReadData(*rdr);
+
+static bool testWrite()
+{
+    PtrMan<HDF5::Writer> wrr = HDF5::mkWriter();
+    mRunStandardTest( wrr, "Get Writer" );
+    uiRetVal uirv = wrr->open( filename_ );
+    mAddTestResult( "Open file for write" );
+
+    mRunStandardTestWithError( filename_==wrr->fileName(), "File name retained",
+			       BufferString(wrr->fileName(),"!=",filename_) )
+    wrr->setChunkSize( chunksz_ );
+
+    Array2DImpl<float> arr2d( dim1_, dim2_ );
+    HDF5::DataSetKey dsky;
+    IOPar iop;
+    iop.set( "File attr", "file attr value" );
+    uirv = wrr->putInfo( dsky, iop );
+    mAddTestResult( "Write file attribute" );
+
+    iop.setEmpty();
+    HDF5::ArrayNDTool<float> arrtool( arr2d );
+    iop.set( "Apenoot", "pere boom" );
+    for ( int iblk=0; iblk<nrblocks_; iblk++ )
+    {
+	dsky.setDataSetName( BufferString( "Block [", iblk, "]" ) );
+
+	fillArr2D( arr2d, 1000*iblk );
+	dsky.setGroupName( "Component 1" );
+	uirv = arrtool.put( *wrr, dsky );
+	if ( !uirv.isOK() )
+	    break;
+	iop.set( sPropNm, iblk, 1 );
+	uirv = wrr->putInfo( dsky, iop );
+	if ( !uirv.isOK() )
+	    break;
+
+	fillArr2D( arr2d, 10000*iblk );
+	dsky.setGroupName( "Component 2" );
+	uirv = arrtool.put( *wrr, dsky );
+	if ( !uirv.isOK() )
+	    break;
+	iop.set( sPropNm, iblk, 2 );
+	uirv = wrr->putInfo( dsky, iop );
+	if ( !uirv.isOK() )
+	    break;
+    }
+    mAddTestResult( "Write blocks" );
+
+    Array2DImpl<int> iarr2d( dim1_, dim2_ );
+    Array2DImpl<int> iarr2dx2( dim1_, (short)(2*dim2_) );
+    HDF5::ArrayNDTool<int> iarrtoolx2( iarr2dx2 );
+    HDF5::ArrayNDTool<int> iarrtool( iarr2d );
+    dsky.setGroupName( "Slabby" );
+    dsky.setDataSetName( "Slabby Data" );
+    uirv = iarrtoolx2.createDataSet( *wrr, dsky );
+    mAddTestResult( "Create Slabby DataSet" );
+    HDF5::SlabSpec slabspec; HDF5::SlabDimSpec dimspec;
+    dimspec.start_ = 0; dimspec.step_ = 1; dimspec.count_ = dim1_;
+    slabspec += dimspec;
+    dimspec.start_ = 0; dimspec.step_ = 1; dimspec.count_ = dim2_;
+    slabspec += dimspec;
+    fillArr2D( iarr2d, 100 );
+    uirv = iarrtool.putSlab( *wrr, slabspec );
+    mAddTestResult( "Write Slabby First Slab" );
+    slabspec[1].start_ = dim2_;
+    fillArr2D( iarr2d, 100 + dim2_ );
+    uirv = iarrtool.putSlab( *wrr, slabspec );
+    mAddTestResult( "Write Slabby Second Slab" );
+
+    dsky.setGroupName( "Component 1" );
+    dsky.setDataSetName( "Apenoot" );
+    mRunStandardTest( !wrr->setScope(dsky), "Set to non-existing scope" );
+    dsky.setDataSetName( "Block [1]" );
+    mRunStandardTest( wrr->setScope(dsky), "Set to existing scope" );
+    iop.setEmpty();
+    iop.set( "Appel", "peer" );
+    uirv = wrr->putInfo( dsky, iop );
+    mAddTestResult( "Write Comp1/Block1 attrib" );
+
+    TypeSet<short> ts;
+    ts += 1; ts += 2; ts += 3; ts += 4;
+    dsky.setGroupName( "" );
+    dsky.setDataSetName( "ShortArr" );
+    uirv = wrr->put( dsky, ts );
+    mAddTestResult( "Write TypeSet" );
+
+    BufferStringSet bss;
+    bss.add( "Str 1" );
+    bss.add( "Str 2" );
+    bss.add( "String 3" );
+    bss.add( "" );
+    bss.add( "Str5/Str 4 is empty" );
+    dsky.setDataSetName( "Strings" );
+    uirv = wrr->put( dsky, bss );
+    mAddTestResult( "Write BufferStringSet" );
+
+    HDF5::Reader* rdr = wrr->createCoupledReader();
+    const bool ret = testReadFrom( *rdr );
+    delete rdr;
+    return ret;
 }
 
 

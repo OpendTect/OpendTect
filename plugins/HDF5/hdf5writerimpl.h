@@ -34,6 +34,8 @@ public:
 
     virtual void	setChunkSize(int);
 
+    virtual Reader*	createCoupledReader() const;
+
 protected:
 
     int			chunksz_;

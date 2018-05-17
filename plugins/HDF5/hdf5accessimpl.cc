@@ -228,7 +228,7 @@ void HDF5::AccessImpl::doCloseFile( Access& acc )
     // cannot use acc_ here, it may already have been deleted
     // Thus, acc needs to be passed to this function
 
-    if ( !acc.file_ )
+    if ( !acc.file_ || !acc.myfile_ )
 	return;
 
     H5::H5File* h5file = acc.file_;

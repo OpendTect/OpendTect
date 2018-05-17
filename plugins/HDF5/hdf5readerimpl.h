@@ -23,6 +23,7 @@ mExpClass(HDF5) ReaderImpl : public Reader
 public:
 
 			ReaderImpl();
+			ReaderImpl(const H5::H5File&);
 			~ReaderImpl();
 
     const char*		fileName() const	{ return gtFileName(); }
@@ -39,10 +40,8 @@ public:
 
 protected:
 
-    BufferStringSet	grpnms_;
-
     virtual void	openFile(const char*,uiRetVal&);
-    virtual void	closeFile();
+    virtual void	closeFile()		{ doCloseFile(*this); }
 
     virtual NrDimsType	gtNrDims() const	{ return nrdims_; }
     virtual ArrayNDInfo* gtDataSizes() const;
