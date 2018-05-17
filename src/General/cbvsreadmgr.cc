@@ -663,8 +663,15 @@ void CBVSReadMgr::dumpInfo( od_ostream& strm, bool inclcompinfo ) const
     }
     strm << info().geom_.start.crl() << " - " << info().geom_.stop.crl()
 	 << " (step " << info().geom_.step.crl() << ").\n";
-    strm << "\nZ start: " << info().sd_.start
-	 << " step: " << info().sd_.step << '\n';
+    strm << "\nZ range: " << info().sd_.start << " - "
+	 << info().sd_.atIndex(info().nrsamples_)
+	 << " step: " << info().sd_.step;
+    if ( SI().zIsTime() )
+	 strm << " (s)\n";
+    else if ( SI().zInFeet() )
+	 strm << " (ft)\n";
+    else
+	 strm << " (m)\n";
     strm << "Number of samples: " << info().nrsamples_ << "\n\n";
     strm << od_endl;
 
