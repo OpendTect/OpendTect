@@ -219,25 +219,20 @@ void HDF5::WriterImpl::ptStrings( const DataSetKey& dsky,
     if ( !ensureGroup(dsky.groupName(),uirv) )
 	return;
 
-    const hsize_t nrchars = bss.maxLength() + 1;
-    hsize_t dims[2] = { (hsize_t)bss.size(), nrchars };
-    mDeclareAndTryAlloc( char*, buf, char [ dims[0] * dims[1] ] );
-    if ( !buf )
-	{ uirv.set( uiStrings::phrCannotAllocateMemory() ); return; }
-    ArrPtrMan<char> deleter = buf;
+    const int nrstrs = bss.size();
+    char** strs = new char* [ nrstrs ];
+    ArrPtrMan<char*> deleter = strs;
 
-    for ( int idx=0; idx<bss.size(); idx++ )
-    {
-	const BufferString& inpstr = bss.get( idx );
-	getWriteStr( inpstr, nrchars, buf + idx*nrchars );
-    }
+    for ( int istr=0; istr<nrstrs; istr++ )
+	strs[istr] = (char*)bss.get( istr ).buf();
+    hsize_t dims[1] = { (hsize_t)nrstrs };
 
-    const H5DataType h5dt = H5::PredType::C_S1;
     try
     {
+	const H5::StrType strtyp( 0, H5T_VARIABLE );
 	dataset_ = group_.createDataSet( dsky.dataSetName(),
-				    h5dt, H5::DataSpace(2,dims) );
-	dataset_.write( buf, h5dt );
+					 strtyp, H5::DataSpace(1,dims) );
+	dataset_.write( strs, strtyp );
     }
     mCatchErrDuringWrite()
 }

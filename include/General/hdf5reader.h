@@ -70,7 +70,7 @@ protected:
 			//!< in the current scope
 
     static uiString	sBadDataSpace()
-			{ return tr("Empty Data Set Selected"); }
+			{ return sHDF5Err(tr("Unexpected DataSet found")); }
 
 };
 

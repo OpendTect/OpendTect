@@ -225,27 +225,19 @@ void HDF5::ReaderImpl::gtStrings( BufferStringSet& bss, uiRetVal& uirv ) const
     if ( !haveScope() )
 	mRetNeedScopeInUiRv()
 
-    const H5DataType h5dt = H5::PredType::C_S1;
     try
     {
 	H5::DataSpace dataspace = dataset_.getSpace();
 	mGetDataSpaceDims( dims, nrdims_, dataspace );
-
 	const hsize_t nrstrs = dims[0];
-	const hsize_t nrchars = dims[1];
-	mDeclareAndTryAlloc( char*, buf, char [ nrstrs*nrchars ] );
-	if ( !buf )
-	    { uirv.set( uiStrings::phrCannotAllocateMemory() ); return; }
-	ArrPtrMan<char> deleter = buf;
+	char** strs = new char* [ nrstrs ];
+	ArrPtrMan<char*> deleter = strs;
 
 	dataspace.selectAll();
-	dataset_.read( buf, h5dt );
+	dataset_.read( strs, dataset_.getDataType() );
 
 	for ( int istr=0; istr<nrstrs; istr++ )
-	{
-	    bss.add( buf );
-	    buf += nrchars;
-	}
+	    bss.add( strs[istr] );
     }
     mCatchErrDuringRead()
 }

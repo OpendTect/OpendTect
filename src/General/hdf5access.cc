@@ -319,7 +319,7 @@ uiRetVal HDF5::Reader::get( BufferStringSet& bss ) const
     if ( !file_ )
 	mRetNoFileInUiRv()
     const auto nrdims = nrDims();
-    if ( nrdims < 2 )
+    if ( nrdims != 1 )
 	mRetDataSpaceBad()
 
     gtStrings( bss, uirv );
