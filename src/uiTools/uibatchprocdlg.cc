@@ -49,7 +49,10 @@ bool uiBatchProcDlg::acceptOK()
     if ( !fillPar(par) )
 	return false;
 
-    return batchjobfld_->start();
+    if ( !batchjobfld_->start() )
+	uiMSG().error( uiStrings::phrBatchProgramFailedStart() );
+
+    return false;
 }
 
 

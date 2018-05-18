@@ -63,7 +63,7 @@ public:
 
     static uiPhrase phrAdd(const uiWord&);
     static uiPhrase phrASCII(const uiWord&);
-    static uiPhrase phrInterpretDataAlreadyLoadedAskForRename();
+    static uiPhrase phrBatchProgramFailedStart();
     static uiPhrase phrCalculate(const uiWord&);
     static uiPhrase phrCalculateFrom(const uiWord&);
     static uiPhrase phrCannotAdd(const uiWord&);
@@ -131,6 +131,7 @@ public:
     static uiPhrase phrInsert(const uiWord&);
     static uiPhrase phrInternalErr(const char*); // will add 'contact support'
     static uiPhrase phrInterpretationDataExist(uiWord type,const char* nm);
+    static uiPhrase phrInterpretDataAlreadyLoadedAskForRename();
     static uiPhrase phrInvalid(const uiWord& string);
     static uiPhrase phrJoinStrings(const char*,const char*);
     static uiPhrase phrJoinStrings(const char*,const char*,
@@ -215,7 +216,7 @@ public:
     static uiWord sAll()		{ return tr("All"); }
     static uiWord sAlpha()		{ return tr("Alpha"); }
     static uiWord sAmplitude(int n=1)	{ return tr("Amplitude",0,n); }
-    static uiWord sAnalyse()		{ return tr("Analyse"); }
+    static uiWord sAnalyze()		{ return tr("Analyze"); }
     static uiWord sAnalysis()		{ return tr("Analysis"); }
     static uiWord sAnd()		{ return tr("and"); }
     static uiWord sAngle()		{ return tr("Angle"); }

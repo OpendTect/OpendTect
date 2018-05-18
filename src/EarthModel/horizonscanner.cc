@@ -331,7 +331,7 @@ int HorizonScanner::nextStep()
     }
 
     if ( data.size() < 1 )
-	mErrRet(tr("Not enough data read to analyse"))
+	mErrRet(tr("Not enough data read to analyze"))
 
     if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
     bvalset_->allowDuplicateBinIDs(true);

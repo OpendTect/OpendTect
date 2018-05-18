@@ -19,6 +19,9 @@ uiPhrase uiStrings::phrAdd( const uiWord& string )
 uiPhrase uiStrings::phrASCII( const uiWord& string )
 { return tr("ASCII %1").arg( string ); }
 
+uiPhrase uiStrings::phrBatchProgramFailedStart()
+{ return tr("Batch Program failed to start"); }
+
 uiPhrase uiStrings::phrInterpretDataAlreadyLoadedAskForRename()
 { return tr("Interpretation data is already loaded. Enter a different name"); }
 

@@ -20,7 +20,7 @@ namespace Attrib { class DescSet; }
 class NLAModel;
 
 mExpClass(uiTools) uiBatchProcDlg : public uiDialog
-{ mODTextTranslationClass(uiBatchProcDlg);
+{ mODTextTranslationClass(uiBatchProcDlg)
 public:
 			uiBatchProcDlg(uiParent*,const uiString& dlgnm,
 				       bool optional,
