@@ -553,6 +553,7 @@ public:
     { return abbr ? tr("N","abbr North") : tr("North"); }
     static uiWord sNoValidData()	{ return tr("No valid data found"); }
     static uiWord sNumber(int n=1)	{ return tr("Number",0,n); }
+    static uiWord sNrSamples()		{ return tr("Number of Samples"); }
     static uiWord sObject()		{ return tr("Object"); }
     static uiWord sOff()		{ return tr("Off","not in action"); }
     static uiWord sOffset()		{ return tr("Offset"); }
@@ -663,6 +664,7 @@ public:
     static uiWord sRockPhy()		{ return tr("Rock Physics"); }
     static uiWord sRow(int n=1)		{ return tr("Row",0,n); }
     static uiWord sSample(int n=1)	{ return tr("Sample",0,n); }
+    static uiWord sSampleIntrvl(int n=1){ return tr("Sample Interval",0,1); }
     static uiWord sSave()		{ return tr("Save"); }
     static uiWord sSaveAs()		{ return tr("Save As"); }
     static uiWord sSaveAsDefault()	{ return tr("Save as Default"); }

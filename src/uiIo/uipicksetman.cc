@@ -85,19 +85,21 @@ bool uiPickSetMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 
     const bool ispoly = ps->isPolygon();
     const BufferString cat = ps->category();
-    uiString typestr = uiStrings::sType();
+    uiString typestr;
+
     if ( ispoly )
-	typestr.addMoreInfo( uiStrings::sPolygon() );
+	typestr = uiStrings::sPolygon();
     else if ( !cat.isEmpty() )
-	typestr.addMoreInfo( toUiString(cat) );
+	typestr = toUiString(cat);
     else
-	typestr.addMoreInfo( uiStrings::sPickSet() );
+	typestr = uiStrings::sPickSet();
+
 
     MonitorLock ml( *ps );
     const int sz = ps->size();
-    uiString szstr = toUiString("<%1>");
+    uiString szstr;
     if ( sz < 1 )
-	szstr.set( toUiString("<%1>").arg( uiStrings::sEmpty() ) );
+	szstr = uiStrings::sEmpty();
     else
     {
 	szstr = toUiString("%1 %2")
@@ -114,19 +116,20 @@ bool uiPickSetMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 			.arg( uiStrings::sArea().toLower() )
 			.arg( area ) );
 	}
-	szstr.embed( "<", ">" );
     }
-    inf.add( typestr.postFixWord(szstr) );
+
+    szstr.embedFinalState();
+    typestr.postFixWord( szstr );
+
+    addObjInfo( inf, uiStrings::sType(), typestr );
 
     const Pick::Set::Disp disp = ps->getDisp();
-    inf.add( uiStrings::sColor()
-	     .addMoreInfo( disp.mkstyle_.color_.userInfoString(true) ) );
 
-    inf.add( tr("Marker size (pixels)")
-	     .addMoreInfo( toUiString(disp.mkstyle_.size_)) );
-
-    inf.add( tr("Marker type").addMoreInfo( OD::MarkerStyle3D::TypeDef()
-			.getUiStringForIndex(disp.mkstyle_.type_) ) );
+    addObjInfo( inf, uiStrings::sColor(),
+				disp.mkstyle_.color_.userInfoString(true) );
+    addObjInfo( inf, tr("Marker size (pixels)"), disp.mkstyle_.size_ );
+    addObjInfo( inf, tr("Marker Type"), OD::MarkerStyle3D::TypeDef()
+			.getUiStringForIndex(disp.mkstyle_.type_) );
 
     return true;
 }

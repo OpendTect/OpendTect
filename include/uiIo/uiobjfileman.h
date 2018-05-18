@@ -20,9 +20,6 @@ class uiGroup;
 class uiIOObjSelGrp;
 class uiTextEdit;
 
-#define mImplTODOGtItemInfo() \
-    inf.add( toUiString("TODO: implement gtItemInfo()") ); return true
-
 
 mExpClass(uiIo) uiObjFileMan : public uiDialog
 { mODTextTranslationClass(uiObjFileMan)

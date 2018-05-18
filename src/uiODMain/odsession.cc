@@ -293,6 +293,8 @@ uiSessionMan::~uiSessionMan()
 
 bool uiSessionMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    // Can we establish existence? Info about the session?
-    mImplTODOGtItemInfo();
+    if ( !curioobj_ )
+    { inf.add( uiStrings::sNoInfoAvailable() ); return false; }
+
+    return true;
 }

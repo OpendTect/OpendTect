@@ -240,12 +240,12 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
     if ( rdrinfo.geom_.step.crl() != info_.geom_.step.crl() )
 	mErrRet(tr("Cross-line number step"))
     if ( !mIsEqual(rdrinfo.sd_.step,info_.sd_.step,mDefEps) )
-	mErrRet(tr("Sample interval"))
+	mErrRet(uiStrings::sSampleIntrvl())
     if ( mIsEqual(rdrinfo.sd_.start,info_.sd_.start,mDefEps) )
     {
 	// Normal, horizontal (=vertical optimised)  storage
 	if ( rdrinfo.nrsamples_ != info_.nrsamples_ )
-	    mErrRet(tr("Number of samples"))
+	    mErrRet(uiStrings::sNrSamples())
     }
     else
     {

@@ -178,9 +178,9 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& lddf,
     setCellTxt( mUseTxtCol, mRevRow, sEmpty );
     setCellTxt( mItemCol, mDataFormatRow, tr("Data format") );
     setCellTxt( mUseTxtCol, mDataFormatRow, sEmpty );
-    setCellTxt( mItemCol, mNrSamplesRow, tr("Number of samples") );
+    setCellTxt( mItemCol, mNrSamplesRow, uiStrings::sNrSamples() );
     setCellTxt( mUseTxtCol, mNrSamplesRow, sEmpty );
-    setCellTxt( mItemCol, mZRangeRow, tr("Z Range") );
+    setCellTxt( mItemCol, mZRangeRow, uiStrings::sZRange() );
     setCellTxt( mUseTxtCol, mZRangeRow, tr("start / interval") );
 
     mkBasicInfoFlds();

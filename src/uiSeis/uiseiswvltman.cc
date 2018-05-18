@@ -236,7 +236,9 @@ void uiSeisWvltMan::ownSelChg()
 						       tr("Reverse polarity"));
     mSetButToolTip(rotatephbut_,tr("Rotate %1 phase").arg(wvltname),
 							   tr("Rotate phase"));
-    mSetButToolTip(taperbut_,tr("Taper %1").arg(wvltname), uiStrings::sTaper() );
+    mSetButToolTip(taperbut_,
+			    tr("%1 %2").arg(uiStrings::sTaper()).arg(wvltname),
+							uiStrings::sTaper() );
     mSetButToolTip(disppropbut_,toUiString("%1 %2 %3")
 		   .arg(uiStrings::sDisplay()).arg(wvltname)
 		   .arg(uiStrings::sProperties().toLower()),
@@ -248,46 +250,47 @@ bool uiSeisWvltMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
     ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( ioobj.key() );
     if ( !wvlt )
-	return false;
+    { inf.add( uiStrings::sNoInfoAvailable() ); return false; }
 
-    mImplTODOGtItemInfo();
-
-    /*
+    uiString msg;
     const float zfac = mCast( float, SI().zDomain().userFactor() );
     WaveletAttrib wvltattrib( *wvlt );
 
-    uiPhrase msg;
-    msg.appendPhrase( tr("Number of samples: %1" ).arg(wvlt->size()) );
-    msg.appendPhrase( tr("Sample interval %1: %2" )
-       .arg(SI().zUnitString(true)).arg(wvlt->sampleRate() * zfac) );
+    addObjInfo( inf, uiStrings::sNrSamples(), wvlt->size() );
+
+    addObjInfo( inf, uiStrings::sSampleIntrvl()
+	    .withUnit(SI().zUnitString(false)), wvlt->sampleRate() * zfac );
 
     Interval<float> extremevals;
     wvlt->getExtrValues( extremevals );
-    msg.appendPhrase( tr("Min/Max amplitude: %1/%2" )
-       .arg(extremevals.start).arg( extremevals.stop ) );
+    uiString extremevalrng = toUiString("%1 - %2").arg(extremevals.start)
+							.arg(extremevals.stop);
+
+    addObjInfo( inf, tr("Min/Max amplitude"), extremevalrng );
+
     float avgphase = wvltattrib.getAvgPhase( true );
     if ( mIsZero(avgphase,1e-3f) ) avgphase = 0.f;
-    msg.appendPhrase( tr("Average phase (deg): %1").arg(avgphase) );
-    txt.appendPhrase( msg );
-    wvlt = 0;
 
+    addObjInfo( inf, tr("Average phase (deg)"), avgphase );
+
+    wvlt = 0;
     DBKey orgid; DBKey horid; DBKey seisid; BufferString lvlnm;
     if ( WaveletMGR().getScalingInfo(ioobj.key(),
 			orgid,horid,seisid,lvlnm) )
     {
-	msg = tr("Scaled: ");
 	if ( orgid.isInvalid() )
-	    msg.appendPhrase( tr("Outside OpendTect") );
+	    msg = tr("Outside OpendTect");
 	else
 	{
-	    msg.appendPhrase( tr("'%1' scaled to '%2'")
-	       .arg(DBM().nameOf(orgid)).arg(DBM().nameOf(seisid)) );
-	    msg.appendPhrase( tr("\n\t(along '%1' at '%2')")
-	       .arg(DBM().nameOf(horid)).arg(lvlnm) );
+	    msg = tr("'%1' scaled to '%2' (along '%3' at '%4')")
+	       .arg(DBM().nameOf(orgid)).arg(DBM().nameOf(seisid))
+	       .arg(DBM().nameOf(horid)).arg(lvlnm);
 	}
-	txt.appendPhrase( msg );
+
+	addObjInfo( inf, tr("Scaled"), msg );
     }
-    */
+
+    return true;
 }
 
 

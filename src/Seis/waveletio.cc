@@ -257,7 +257,7 @@ bool dgbWaveletTranslator::write( const Wavelet* inwv, Conn& conn )
 Table::FormatDesc* WaveletAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Wavelet" );
-    fd->headerinfos_ += new Table::TargetInfo( tr("Sample Interval"),
+    fd->headerinfos_ += new Table::TargetInfo( uiStrings::sSampleIntrvl(),
 			FloatInpSpec(SI().zRange(true).step), Table::Required,
 			PropertyRef::surveyZType() );
     fd->headerinfos_ += new Table::TargetInfo( tr("Center Sample"),

@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "randomlinetr.h"
 #include "od_helpids.h"
+#include "randomlinegeom.h"
+#include "geometry.h"
 
 
 mDefineInstanceCreatedNotifierAccess(uiRandomLineMan)
@@ -37,6 +39,13 @@ uiRandomLineMan::~uiRandomLineMan()
 
 bool uiRandomLineMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    // should at least check existence
-    mImplTODOGtItemInfo();
+    ConstRefMan<Geometry::RandomLine> rl = Geometry::RLM().get( ioobj.key() );
+    if ( !rl )
+    { inf.add( uiStrings::sNoInfoAvailable() ); return false; }
+
+    addObjInfo( inf, tr("Number of Nodes"), rl->nrNodes() );
+    addObjInfo( inf, uiStrings::sZRange(), toUiString("%1-%2")
+			.arg(rl->zRange().start).arg(rl->zRange().stop) );
+
+    return true;
 }

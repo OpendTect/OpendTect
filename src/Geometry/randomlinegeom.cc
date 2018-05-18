@@ -595,7 +595,8 @@ RandomLine* RandomLineManager::get( const DBKey& dbky )
 	return rl;
 
     PtrMan<IOObj> ioobj = DBM().get( dbky );
-    if ( !ioobj ) return 0;
+    if ( !ioobj )
+	return 0;
 
     PtrMan<RandomLineSet> rdlset = new RandomLineSet;
     BufferString msg;
