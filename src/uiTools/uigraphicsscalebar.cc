@@ -73,11 +73,9 @@ void uiScaleBarItem::update()
     adjustValues();
     setPolygons( pxwidth_/4, pxheight_ );
 
-    uiString unit = SI().xyUnitString( true, false );
     startnr_->setPlainText( toUiString("0") );
     midnr_->setPlainText( toUiString(worldwidth_/2) );
-    stopnr_->setPlainText( (toUiString("%1 %2")).arg(toUiString(worldwidth_))
-								.arg(unit) );
+    stopnr_->setPlainText( toUiString(worldwidth_).withSurvXYUnit() );
 }
 
 

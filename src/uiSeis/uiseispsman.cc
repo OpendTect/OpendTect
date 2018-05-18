@@ -163,10 +163,10 @@ bool uiSeisPreStackMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 	const bool zistm = objinf.isTime();
 	const ZDomain::Def& zddef = objinf.zDomainDef();
 #	    define mAddZValTxt(memb) .arg(zistm ? mNINT32(1000*memb) : memb)
-	inf.add( toUiString("%1 %2 %3: %4 - %5 [%6]")
+	inf.add( toUiString("%1 %2 (%3): %4 - %5 [%6]")
 				    .arg(zddef.userName())
 				    .arg(uiStrings::sRange().toLower())
-				    .arg(toString(zddef.unitStr(true)))
+				    .arg(toString(zddef.unitStr()))
 				    mAddZValTxt(cs.zsamp_.start)
 				    mAddZValTxt(cs.zsamp_.stop)
 				    mAddZValTxt(cs.zsamp_.step) );

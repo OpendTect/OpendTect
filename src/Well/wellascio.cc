@@ -139,7 +139,7 @@ bool Well::TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
     }
 
     const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
-    const uiString uomlbl(UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
+    const uiString uomlbl(UnitOfMeasure::surveyDefDepthUnitAnnot(true) );
     for ( int idz=1; idz<pos.size(); idz++ )
     {
 	Coord3& curpos = pos[idz];
@@ -153,8 +153,8 @@ bool Well::TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	    if ( dist < hdist )
 	    {
 		const double usrval = mScaledValue( dah, uom );
-		mErrRet( tr("Impossible MD to TVD transformation for MD=%1 %2" )
-			 .arg(usrval).arg(uomlbl) )
+		mErrRet( tr("Impossible MD to TVD transformation for MD=%1" )
+			 .arg(usrval).withUnit(uomlbl) )
 	    }
 
 	    curpos.z_ = prevpos.z_ + Math::Sqrt( dist*dist - hdist*hdist );
@@ -165,8 +165,8 @@ bool Well::TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	    if ( dist < 0. )
 	    {
 		const double usrval = mScaledValue( curpos.z_, uom );
-		mErrRet( tr( "Impossible TVD to MD transformation for Z=%1%2" )
-			  .arg(usrval).arg(uomlbl) )
+		mErrRet( tr( "Impossible TVD to MD transformation for Z=%1" )
+			  .arg(usrval).withUnit(uomlbl) )
 	    }
 
 	    dah = prevdah + dist;

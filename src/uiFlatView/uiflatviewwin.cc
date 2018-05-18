@@ -140,9 +140,9 @@ void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
 	if ( SI().xyInFeet() )
 	    val *= mToFeetFactorF;
 	mAddSep();
-	mesg.constructWordWith( toUiString("%1=%2 %3")
+	mesg.constructWordWith( toUiString("%1=%2")
 				.arg( uiStrings::sOffset() ).arg( val )
-				.arg( SI().xyUnitString() ) );
+				.withSurvXYUnit() );
     }
 
     valstr = pars.find( sKey::Azimuth() );

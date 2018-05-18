@@ -321,8 +321,7 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     stepfld_->setValue( BinID(SI().inlStep(),SI().crlStep()) );
     stepfld_->attach( alignedBelow, filltypefld_ );
 
-    uiString titletext( tr("Keep holes larger than %1")
-				    .arg(SI().xyUnitString()) );
+    uiString titletext( tr("Keep holes larger than").withSurvXYUnit() );
     maxholeszfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
     maxholeszfld_->setWithCheck( true );
     maxholeszfld_->attach( alignedBelow, stepfld_ );
@@ -496,7 +495,7 @@ uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
 {
     fltselfld_ = new uiFaultParSel( this, false );
 
-    uiString titletext( tr("Search radius %1").arg(SI().xyUnitString()) );
+    uiString titletext( tr("Search radius").withSurvXYUnit() );
     radiusfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
     radiusfld_->setWithCheck( true );
     radiusfld_->setChecked( true );
@@ -575,8 +574,7 @@ uiTriangulationHor3DInterpol::uiTriangulationHor3DInterpol( uiParent* p )
 		mCB(this,uiTriangulationHor3DInterpol,useNeighborCB) );
     useneighborfld_->attach( alignedBelow, fltselfld_ );
 
-    uiString titletext( tr("Max interpolate distance %1")
-			.arg(SI().xyUnitString()) );
+    uiString titletext( tr("Max interpolate distance").withSurvXYUnit() );
     maxdistfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
     maxdistfld_->setWithCheck( true );
     maxdistfld_->attach( alignedBelow, useneighborfld_ );
@@ -677,7 +675,7 @@ uiContinuousCurvatureHor3DInterpol::uiContinuousCurvatureHor3DInterpol(
     tensionfld_ = new uiGenInput(this,uiStrings::sTension(),
 				 FloatInpSpec(0.25) );
 
-    uiString titletext( tr("Search radius %1").arg(SI().xyUnitString()) );
+    uiString titletext( tr("Search radius").withSurvXYUnit() );
     radiusfld_ = new uiGenInput( this, titletext, FloatInpSpec(0.0) );
     radiusfld_->attach( alignedBelow,tensionfld_ );
 

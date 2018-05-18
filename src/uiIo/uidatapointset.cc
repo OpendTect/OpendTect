@@ -161,12 +161,12 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, dps_(const_cast<DataPointSet*>(&dps))
 	, setup_(su)
 	, zfac_(mCast(float,SI().zDomain().userFactor()))
-	, zunitnm_(SI().zUnitString(false))
 	, tbl_(0)
 	, unsavedchgs_(false)
 	, fillingtable_(true)
 	, showbids_(false)
 	, posdisptypechgd_(false)
+	, zunitnm_(SI().zUnitString())
 	, valueChanged(this)
 	, selPtsToBeShown(this)
 	, rowAdded(this)
@@ -388,7 +388,8 @@ void uiDataPointSet::updColNames()
 	    colnm = axnm;
 
 	if ( tid == zcid )
-	    colnm = tr("%1 Z (%2)").arg(colnm).arg(zunitnm_);
+	    colnm = toUiString("%1 %2").arg(colnm).arg(uiStrings::sZ())
+			.withUnit(zunitnm_);
 	else
 	    colnm = toUiString("%1 %2").arg(colnm).arg(toUiString(
 							userName(dColID(tid))));

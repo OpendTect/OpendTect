@@ -116,8 +116,9 @@ void updateOrientationFld()
 
 void changeCB( CallBacker* )
 {
-    unitlbl_->setText( !objectfld_->getBoolValue() || horverfld_->getBoolValue()
-		? SI().xyUnitString(true) : zinf_.unitStr(true) );
+    const bool isxy = !objectfld_->getBoolValue() || horverfld_->getBoolValue();
+    uiString unlbl = isxy ? SI().xyUnitString() : zinf_.unitStr();
+    unitlbl_->setText( unlbl.parenthesize() );
     propertyChange.trigger();
 }
 

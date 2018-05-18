@@ -91,15 +91,14 @@ private:
 /*!\brief Info on IOObj for seismics */
 
 mExpClass(Seis) SeisIOObjInfo
-{
+{ mODTextTranslationClass(SeisIOObjInfo)
 public:
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
 			SeisIOObjInfo(const DBKey&);
 			SeisIOObjInfo(const char* ioobjnm,Seis::GeomType);
 			SeisIOObjInfo(const SeisIOObjInfo&);
-			~SeisIOObjInfo();
-
+    virtual		~SeisIOObjInfo();
     SeisIOObjInfo&	operator =(const SeisIOObjInfo&);
 
     inline bool		isOK() const	{ return !bad_; }
@@ -129,7 +128,7 @@ public:
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRectAndRegular() const;
     bool		getDataChar(DataCharacteristics&) const;
-    bool		getBPS(int&,int icomp) const;
+    bool		getBPS(int&,int icomp=0) const;
 			//!< max bytes per sample, component -1 => add all
     bool		havePars() const;
     bool		getPars(IOPar&) const;
@@ -140,6 +139,8 @@ public:
     bool		getDisplayPars( IOPar& iop ) const
 			{ return getPars(iop); }
     void		saveDisplayPars(const IOPar&);
+
+    void		getUserInfo(uiPhraseSet&) const;
 
     int			nrComponents(Pos::GeomID geomid=mUdfGeomID) const;
     void		getComponentNames(BufferStringSet&,
@@ -177,9 +178,6 @@ public:
     static void		getDataSetNamesForLine( const char* nm,
 						BufferStringSet& b,
 						Opts2D o2d=Opts2D() );
-    static void		getCompNames(const DBKey&,BufferStringSet&);
-			//!< Function useful in attribute environments
-			//!< The 'DBKey' must be IOObj_ID
     static void		getLinesWithData(BufferStringSet& lnms,
 					 TypeSet<Pos::GeomID>& gids);
     static bool		isCompatibleType(const char* omftypestr1,
@@ -197,5 +195,8 @@ protected:
     int			getComponentInfo(Pos::GeomID,BufferStringSet*) const;
     bool		haveAux(const char* ext) const;
     bool		getAux(const char* ext,const char* ftyp,IOPar&) const;
+    void		getCommonUserInfo(uiPhraseSet&) const;
+    void		getPostStackUserInfo(uiPhraseSet&) const;
+    void		getPreStackUserInfo(uiPhraseSet&) const;
 
 };

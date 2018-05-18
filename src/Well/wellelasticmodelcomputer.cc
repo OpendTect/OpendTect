@@ -180,10 +180,10 @@ bool Well::ElasticModelComputer::computeFromLogs()
 	emodel_.interpolate( true, true, false );
 
 	warnmsg_ = tr("Invalid log values found.\n"
-		      "First occurences at depth: %1%2\n"
+		      "First occurences at depth: %1\n"
 		      "Invalid values will be interpolated.")
 		  .arg( depth )
-		  .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
+		  .withUnit( UnitOfMeasure::surveyDefDepthUnitAnnot(true) );
     }
 
     float startdepth = zrange_.start;

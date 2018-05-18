@@ -33,6 +33,7 @@
 #include "seispacketinfo.h"
 #include "seistrc.h"
 #include "survinfo.h"
+#include "timedepthconv.h"
 #include "trckeyzsampling.h"
 #include "zdomain.h"
 
@@ -696,20 +697,19 @@ void SeisIOObjInfo::getComponentNames( BufferStringSet& nms,
 }
 
 
-void SeisIOObjInfo::getCompNames( const DBKey& dbky, BufferStringSet& nms )
-{
-    SeisIOObjInfo ioobjinf( dbky );
-    ioobjinf.getComponentNames( nms, mUdfGeomID );
-}
-
-
 int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 				     BufferStringSet* nms ) const
 {
-    int ret = 0; if ( nms ) nms->erase();
+    int ret = 0;
+    if ( nms ) nms->erase();
     mChk(ret);
+
     if ( isPS() )
+    {
+	if ( nms )
+	    nms->add( "Component 1" );
 	return 1;
+    }
 
     if ( !is2D() )
     {
@@ -895,4 +895,138 @@ void SeisIOObjInfo::saveDisplayPars( const IOPar& par )
     File::Path fp( ioobj_->mainFileName() );
     fp.setExtension( sParFileExtension() );
     par.write( fp.fullPath(), sKey::Pars() );
+}
+
+
+void SeisIOObjInfo::getUserInfo( uiPhraseSet& inf ) const
+{
+    if ( !isOK() )
+	{ inf.add( uiStrings::sNoInfoAvailable() ); return; }
+
+    getCommonUserInfo( inf );
+    if ( isPS() )
+	getPreStackUserInfo( inf );
+    else
+	getPostStackUserInfo( inf );
+}
+
+
+void SeisIOObjInfo::getCommonUserInfo( uiPhraseSet& inf ) const
+{
+    const bool is2d = is2D();
+    if ( is2d )
+    {
+	BufferStringSet nms;
+	Opts2D opts2d; opts2d.zdomky_ = "*";
+	getLineNames( nms, opts2d );
+	inf.addKeyValue( tr("Number of lines"), nms.size() );
+    }
+
+#define mOnNewLineLine(str) \
+    txt.appendPhrase(str,uiString::NoSep) \
+
+#define mAddICRangeLine(key,memb) \
+    inf.addKeyValue( key, uiStrings::sRangeTemplate(true) \
+	.arg( cs.hsamp_.start_.memb() ) \
+	.arg( cs.hsamp_.stop_.memb() ) \
+	.arg( cs.hsamp_.step_.memb() ) )
+
+    if ( !is2d )
+    {
+	const ZDomain::Def& zddef = zDomainDef();
+	TrcKeyZSampling cs;
+	if ( getRanges(cs) )
+	{
+	    if ( !mIsUdf(cs.hsamp_.stop_.inl()) )
+		mAddICRangeLine( uiStrings::sInlineRange(), inl );
+	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
+		mAddICRangeLine( uiStrings::sCrosslineRange(), crl );
+
+	    const float area = SI().getArea( cs.hsamp_.inlRange(),
+					     cs.hsamp_.crlRange() );
+	    inf.addKeyValue( uiStrings::sArea(), getAreaString(area,true,0) );
+
+	    StepInterval<float> dispzrg( cs.zsamp_ );
+	    dispzrg.scale( (float)zddef.userFactor() );
+	    inf.addKeyValue( zddef.getRange().withUnit(zddef.unitStr()),
+		    uiStrings::sRangeTemplate(true)
+		    .arg(dispzrg.start).arg(dispzrg.stop).arg(dispzrg.step) );
+	}
+    }
+
+    if ( !ioobj_->pars().isEmpty() )
+    {
+	const IOPar& pars = ioobj_->pars();
+	FixedString parstr = pars.find( sKey::Type() );
+	if ( !parstr.isEmpty() )
+	    inf.addKeyValue( uiStrings::sType(), parstr );
+
+	parstr = pars.find( "Optimized direction" );
+	if ( !parstr.isEmpty() )
+	    inf.addKeyValue( tr("Optimized direction"), parstr );
+
+	if ( pars.isTrue("Is Velocity") )
+	{
+	    parstr = pars.find( "Velocity Type" );
+	    if ( !parstr.isEmpty() )
+		inf.addKeyValue( tr("Velocity Type"), parstr );
+
+	    Interval<float> topvavg, botvavg;
+	    if ( pars.get(VelocityStretcher::sKeyTopVavg(),topvavg)
+	      && pars.get(VelocityStretcher::sKeyBotVavg(),botvavg))
+	    {
+		const StepInterval<float> sizrg = SI().zRange(true);
+		StepInterval<float> dispzrg;
+		uiString keystr;
+		if ( SI().zIsTime() )
+		{
+		    dispzrg.start = sizrg.start * topvavg.start / 2;
+		    dispzrg.stop = sizrg.stop * botvavg.stop / 2;
+		    dispzrg.step = (dispzrg.stop-dispzrg.start)
+					/ sizrg.nrSteps();
+		    dispzrg.scale( (float)ZDomain::Depth().userFactor() );
+		    keystr = tr("Depth Range")
+			    .withUnit( ZDomain::Depth().unitStr() );
+		}
+
+		else
+		{
+		    dispzrg.start = 2 * sizrg.start / topvavg.stop;
+		    dispzrg.stop = 2 * sizrg.stop / botvavg.start;
+		    dispzrg.step = (dispzrg.stop-dispzrg.start)
+					/ sizrg.nrSteps();
+		    dispzrg.scale( (float)ZDomain::Time().userFactor() );
+		    keystr = tr("Time Range")
+			    .withUnit( ZDomain::Time().unitStr() );
+		}
+
+		inf.addKeyValue( keystr, uiStrings::sRangeTemplate(true)
+		    .arg(dispzrg.start).arg(dispzrg.stop).arg(dispzrg.step) );
+	    }
+	}
+    }
+
+    DataCharacteristics dc;
+    getDataChar( dc );
+    const BufferString dcstr( DataCharacteristics::toString(dc.userType()) );
+    inf.addKeyValue( uiStrings::sStorage(), dcstr );
+}
+
+
+void SeisIOObjInfo::getPostStackUserInfo( uiPhraseSet& inf ) const
+{
+    BufferStringSet compnms;
+    getComponentNames( compnms );
+    if ( compnms.size() > 1 )
+    {
+	for ( int idx=0; idx<compnms.size(); idx++ )
+	    inf.addKeyValue( toUiString("%1[%2]")
+		 .arg(uiStrings::sComponent()).arg(idx), compnms.get(idx) );
+    }
+}
+
+
+void SeisIOObjInfo::getPreStackUserInfo( uiPhraseSet& inf ) const
+{
+    //TODO
 }

@@ -51,19 +51,18 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	ls_.fromString( str.buf() );
 
     uiGroup* topgrp = new uiGroup( this, "Info fields" );
-    uiString hdistlbl = tr("Horizontal Distance")
-					.withUnit(SI().xyUnitString());
+    uiString hdistlbl = tr("Horizontal Distance").withSurvXYUnit();
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
     hdistfld_->setReadOnly( true );
 
-    uiString vertdist = tr("Vertical Distance");
+    uiString vertdiststr = tr("Vertical Distance");
 
-    uiString zdistlbl = vertdist.withUnit(SI().zUnitString());
+    uiString zdistlbl = vertdiststr.withSurvZUnit();
     zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
 
-    const uiString zintimelbl = vertdist.withUnit(SI().xyUnitString());
+    const uiString zintimelbl = vertdiststr.withSurvXYUnit();
     if ( SI().zIsTime() )
     {
 	zdist2fld_ = new uiGenInput( topgrp, zintimelbl, FloatInpSpec(0) );
@@ -75,16 +74,15 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	appvelfld_->attach( alignedBelow, zdist2fld_ );
     }
 
-    uiString distlbl = toUiString("%1 %2").arg(uiStrings::sDistance())
-						.arg(SI().xyUnitString());
+    uiString distlbl = uiStrings::sDistance().withSurvXYUnit();
     distfld_ = new uiGenInput( topgrp, distlbl, FloatInpSpec(0) );
     distfld_->setReadOnly( true );
     distfld_->attach( alignedBelow, appvelfld_ ? appvelfld_ : zdistfld_ );
 
     if ( !SI().zIsTime() && SI().xyInFeet() != SI().zInFeet() )
     {
-	uiString lbl = toUiString("%1 %2").arg( uiStrings::sDistance() )
-		.arg(uiStrings::sDistUnitString(!SI().xyInFeet(),true,true) );
+	uiString lbl = uiStrings::sDistance()
+		.withUnit(uiStrings::sDistUnitString(!SI().xyInFeet(),true));
 	dist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
 	dist2fld_->setReadOnly( true );
 	dist2fld_->attach( alignedBelow, distfld_ );

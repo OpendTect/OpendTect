@@ -178,11 +178,9 @@ public:
 
 //Words
 
-    static uiWord sDistUnitString(bool isfeet,bool abbr=true,
-				 bool withparentheses=false);
+    static uiWord sDistUnitString(bool isfeet,bool abbr=true);
 	/*!< returns "m", "ft", or translated "meter", or "feet" */
-    static uiWord sTimeUnitString(bool ismilli=false,
-			bool abbr=true,bool withparentheses=false);
+    static uiWord sTimeUnitString(bool ismilli=false,bool abbr=true);
 	/*!< returns "s", "ms", or translated "seconds" or "milliseconds" */
     static uiWord sSeisObjName(bool is2d,bool is3d,bool isprestack,
 				     bool both_2d_3d_in_context=false,
@@ -635,6 +633,7 @@ public:
     static uiWord sProperties()		{ return sProperty(mPlural); }
     static uiWord sProperty(int n=1)	{ return tr("Property",0,n); }
     static uiWord sRadian(int num=1)	{ return tr("Radian",0,num); }
+    static uiWord sRandius()		{ return tr("Randius"); }
     static uiWord sRandom()		{ return tr("Random"); }
     static uiWord sRandomLine(int n=1)	{ return tr("Random Line",0,n); }
     static uiWord sRange(int n=1)	{ return tr("Range",0,n); }
@@ -751,6 +750,7 @@ public:
     static uiWord sStratigraphy()	{ return tr("Stratigraphy"); }
     static uiWord sStyle(int n=1)	{ return tr("Style",0,n); }
     static uiWord sSuccess()		{ return tr("Success"); }
+    static uiWord sSum()		{ return tr("Sum"); }
     static uiWord sSurface(int n=1)	{ return tr("Surface",0,n); }
     static uiWord sSurvey(int n=1)	{ return tr("Survey",0,n); }
     static uiWord sSurveys()		{ return sSurvey(mPlural); }

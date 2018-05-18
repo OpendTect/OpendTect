@@ -461,8 +461,8 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 			const char* linenm )
 {
     const bool is2d = Seis::is2D( geom_ );
-    PtrMan<uiSeisIOObjInfo> ioobjinfo = new uiSeisIOObjInfo( outioobj, true );
-    if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
+    PtrMan<uiSeisIOObjInfo> ioobjinfo = new uiSeisIOObjInfo( outioobj );
+    if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo(),true) )
 	return false;
 
     const IOObj* useoutioobj = &outioobj;

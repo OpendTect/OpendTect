@@ -9,32 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiseisioobjinfo.h"
-
-#include "cbvsreadmgr.h"
 #include "ioobj.h"
-#include "ptrman.h"
-#include "seisprovider.h"
-#include "separstr.h"
-#include "systeminfo.h"
-#include "od_ostream.h"
-#include "uimsg.h"
-#include "od_strstream.h"
 #include "survinfo.h"
+#include "systeminfo.h"
+#include "uimsg.h"
 
 
-uiSeisIOObjInfo::uiSeisIOObjInfo( const IOObj& ioobj, bool errs )
-	: sii(ioobj)
-	, doerrs(errs)
+static void dispInf( const uiPhraseSet& inf )
 {
+    uiMSG().message( inf.cat(uiString::CloseLine,uiString::AfterEmptyLine) );
 }
-
-
-uiSeisIOObjInfo::uiSeisIOObjInfo( const DBKey& key, bool errs )
-	: sii(key)
-	, doerrs(errs)
-{
-}
-
 
 #define mChk(ret) if ( !isOK() ) return ret
 
@@ -42,76 +26,59 @@ bool uiSeisIOObjInfo::provideUserInfo() const
 {
     mChk(false);
     if ( is2D() )
-	return provideUserInfo2D();
+	return provideLineInfo();
 
-    uiRetVal uirv;
-    PtrMan<Seis::Provider> prov = Seis::Provider::create( ioObj()->key(),
-							  &uirv );
-    if ( !prov )
-    {
-	if ( !uirv.isOK() )
-	    uiMSG().error( uirv );
-	return false;
-    }
+    uiPhraseSet inf;
+    getUserInfo( inf );
+    dispInf( inf );
 
-    const Seis::GeomType gt = prov->geomType();
-    const uiString datanm( Seis::dataName(gt) );
-    const Seis::Provider3D& prov3d = *(Seis::Provider3D*)prov.ptr();
-    PosInfo::CubeData cd;
-    prov3d.getGeometryInfo( cd );
-    if ( cd.isEmpty() )
-    {
-	uiMSG().error( tr("The %1 is empty").arg( datanm ) );
-	return false;
-    }
-
-    uiStringSet msgs;
-    msgs.add( tr("The %1 is usable").arg( datanm ) );
-    msgs.add( tr("Total number of traces: %1").arg( cd.totalSize() ) );
-    msgs.add( toUiString("TODO: add more info as per user's wishes") );
-    uiMSG().message( msgs.cat(uiString::CloseLine,uiString::AfterEmptyLine) );
     return true;
 }
 
 
-bool uiSeisIOObjInfo::provideUserInfo2D( const TypeSet<Pos::GeomID>* sel ) const
+bool uiSeisIOObjInfo::provideLineInfo( const TypeSet<Pos::GeomID>* sel ) const
 {
     mChk(false);
-    //TODO: Handle errors
 
     TypeSet<Pos::GeomID> geomids;
     if ( sel )
 	geomids = *sel;
     else
-	sii.getGeomIDs( geomids );
+	getGeomIDs( geomids );
 
     const int nrlines = geomids.size();
-    const BufferString datanm( sii.ioObj()->name() );
-    uiString msg = nrlines < 2 ?
-	tr("The following line was added to dataset %2:").arg(datanm)
-	: tr("%1 lines were added to dataset %2:").arg(nrlines).arg(datanm);
+    if ( nrlines < 1 )
+	return false;
+
+    uiPhraseSet inf;
+    const BufferString datanm( ioObj()->name() );
+    inf.add( nrlines < 2 ?
+	    tr("The following line was added to dataset %1").arg(datanm)
+	  : tr("%1 lines were added to dataset %2").arg(nrlines).arg(datanm) );
+
     const uiString zunitstr( SI().zUnitString() );
     const float zfac = SI().showZ2UserFactor();
-    for ( int idx=0; idx<geomids.size(); idx++ )
+    for ( int idx=0; idx<nrlines; idx++ )
     {
 	const BufferString linenm = Survey::GM().getName( geomids[idx] );
 	StepInterval<int> trcrg( 0, 0, 1 );
 	StepInterval<float> zrg( 0.f, 0.f, 1.f );
-	if ( sii.getRanges(geomids[idx],trcrg,zrg) )
+	if ( getRanges(geomids[idx],trcrg,zrg) )
 	    zrg.scale( zfac );
 
-	msg.appendPhrase( tr("Line: %1, Trace range: %2 to %3 (step %4), "
-		    "Z range %5: %6 to %7 (step %8)")
+	inf.add( tr("Line: %1, Trace range: %2 - %3 (step %4), "
+		    "Z range (%5): %6 - %7 (step %8)")
 		.arg(linenm).arg(trcrg.start).arg(trcrg.stop).arg(trcrg.step)
 		.arg(zunitstr).arg(zrg.start).arg(zrg.stop).arg(zrg.step) );
     }
 
-    uiMSG().message( msg);
+    dispInf( inf );
     return true;
 }
 
 
-bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
+bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si,
+				      bool doerrs ) const
 {
     mChk(false);
 

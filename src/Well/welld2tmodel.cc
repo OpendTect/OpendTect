@@ -685,15 +685,15 @@ void Well::D2TModel::checkReplacementVelocity( Well::Info& info,
 	{
 	    const UnitOfMeasure* uomvel = UnitOfMeasure::surveyDefVelUnit();
 	    const uiString veluomlbl(
-		    UnitOfMeasure::surveyDefVelUnitAnnot(true,false) );
+		    UnitOfMeasure::surveyDefVelUnitAnnot(true) );
 	    const double fileval = mScaledValue( vreplinfile, uomvel );
 	    const double replval = mScaledValue( replvel, uomvel );
 	    msg = tr("Input error with the %1\n"
 		  "Your time-depth model suggests a %1 of %2%4\n "
-		  "but the %1 was set to: %3%4\n"
+		  "but the %1 was set to: %3\n"
 		  "Velocity information from input was overruled.");
 	    msg.arg( replvelbl ).arg( fileval )
-		.arg( replval ).arg( veluomlbl );
+		.arg( replval ).withUnit( veluomlbl );
 	}
     }
 }
@@ -719,8 +719,8 @@ void Well::D2TModel::shiftTimesIfNecessary( TypeSet<double>& tvals,
     const double usrtshftval = mScaledValue( timeshift, uomz );
     msg.appendPhrase(
 	tr( "OpendTect will correct for this error by applying a "
-		  "time shift of: %1%2").arg( usrtshftval )
-		  .arg(UnitOfMeasure::surveyDefTimeUnitAnnot(true,false)) );
+		  "time shift of %1").arg( usrtshftval )
+		  .withUnit(UnitOfMeasure::surveyDefTimeUnitAnnot(true)) );
     msg.appendPhrase(tr("The resulting travel-times will differ from "
 		    "the file") );
 

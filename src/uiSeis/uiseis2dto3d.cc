@@ -90,20 +90,20 @@ bool uiSeis2DTo3D::prepareProcessing()
 
 bool uiSeis2DTo3D::fillSeisPar()
 {
-	IOPar& iop = jobSpec().pars_;
+    IOPar& iop = jobSpec().pars_;
 
-	iop.set( Seis2DTo3D::sKeyInput(), inpfld_->key() );
+    iop.set( Seis2DTo3D::sKeyInput(), inpfld_->key() );
     iop.set( SeisJobExecProv::sKeySeisOutIDKey(), outfld_->key() );
 
     IOPar sampling;
     possubsel_->fillPar( sampling );
     IOPar subsel;
     subsel.mergeComp( sampling, sKey::Subsel() );
-    uiSeisIOObjInfo ioobjinfo( *(outfld_->ioobj()), true );
+    uiSeisIOObjInfo ioobjinfo( *outfld_->ioobj() );
     TrcKeyZSampling cs = possubsel_->envelope();
     SeisIOObjInfo::SpaceInfo spi( cs.nrZ(), (int)cs.hsamp_.totalNr() );
     subsel.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );
-    if ( !ioobjinfo.checkSpaceLeft(spi) )
+    if ( !ioobjinfo.checkSpaceLeft(spi,true) )
 	return false;
 
     iop.mergeComp( subsel, sKey::Output() );

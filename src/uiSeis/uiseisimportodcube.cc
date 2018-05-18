@@ -239,8 +239,8 @@ bool uiSeisImportODCube::acceptOK()
 	 return !ret;
     }
 
-    uiSeisIOObjInfo ioobjinfo( *outioobj_, true );
-    if ( !ioobjinfo.checkSpaceLeft(transffld_->spaceInfo()) )
+    uiSeisIOObjInfo ioobjinfo( *outioobj_ );
+    if ( !ioobjinfo.checkSpaceLeft(transffld_->spaceInfo(),true) )
 	{ rmTmpIOObj(); return false; }
 
     PtrMan<Executor> exec = transffld_->getTrcProc( *inioobj, *outioobj_,

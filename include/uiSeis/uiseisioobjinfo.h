@@ -13,42 +13,27 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 
 
-mExpClass(uiSeis) uiSeisIOObjInfo
+mExpClass(uiSeis) uiSeisIOObjInfo : public SeisIOObjInfo
 { mODTextTranslationClass(uiSeisIOObjInfo);
 public:
 
-			uiSeisIOObjInfo(const IOObj&,bool error_feedback=true);
-			uiSeisIOObjInfo(const DBKey&,bool err_feedback=true);
-
-    bool		isOK() const		{ return sii.isOK(); }
-    bool		is2D() const		{ return sii.is2D(); }
-    bool		isPS() const		{ return sii.isPS(); }
-    bool		isTime() const		{ return sii.isTime(); }
-    bool		isDepth() const		{ return sii.isDepth(); }
-    const ZDomain::Def&	zDomainDef() const	{ return sii.zDomainDef(); }
+			uiSeisIOObjInfo( const IOObj* ioobj )
+			    : SeisIOObjInfo(ioobj)		{}
+			uiSeisIOObjInfo( const IOObj& ioobj )
+			    : SeisIOObjInfo(ioobj)		{}
+			uiSeisIOObjInfo( const DBKey& dbky )
+			    : SeisIOObjInfo(dbky)		{}
+			uiSeisIOObjInfo( const char* ioobjnm, Seis::GeomType gt)
+			    : SeisIOObjInfo(ioobjnm,gt)		{}
+			uiSeisIOObjInfo( const SeisIOObjInfo& sii )
+			    : SeisIOObjInfo(sii)		{}
+			uiSeisIOObjInfo( const uiSeisIOObjInfo& oth )
+			    : SeisIOObjInfo(oth)		{}
 
     bool		provideUserInfo() const;
-    bool		provideUserInfo2D(
-				const TypeSet<Pos::GeomID>* sel=0) const;
-			// By default (sel=0) gives info for all lines.
+    bool		provideLineInfo(const TypeSet<Pos::GeomID>* ts=0) const;
 
-    bool		checkSpaceLeft(const SeisIOObjInfo::SpaceInfo&) const;
-
-    int			expectedMBs( const SeisIOObjInfo::SpaceInfo& s ) const
-					{ return sii.expectedMBs(s); }
-    bool		getRanges( TrcKeyZSampling& cs ) const
-					{ return sii.getRanges( cs ); }
-    bool		getBPS( int& b, int icmp=-1 ) const
-					{ return sii.getBPS(b,icmp); }
-
-    static const char*	sKeyEstMBs;
-
-    const SeisIOObjInfo& ioObjInfo() const	{ return sii; }
-    const IOObj*	ioObj() const		{ return sii.ioObj(); }
-
-protected:
-
-    SeisIOObjInfo	sii;
-    bool		doerrs;
+    bool		checkSpaceLeft(const SeisIOObjInfo::SpaceInfo&,
+					bool error_feedback=true) const;
 
 };

@@ -84,10 +84,6 @@ protected :
     uiGenInput*		smoothwinlengthfld_;
     uiGenInput*		freqf3fld_;
     uiGenInput*		freqf4fld_;
-    uiLabel*		smoothwinparamlbl_;
-    uiLabel*		smoothwinlengthlbl_;
-    uiLabel*		freqf3lbl_;
-    uiLabel*		freqf4lbl_;
 
     bool		isformute_;
     PreStack::AngleCompParams&	params_;

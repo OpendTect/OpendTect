@@ -1598,12 +1598,12 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& ass,
     const bool nocompsel = is2d && issteering;
     if ( isstored && !nocompsel )
     {
-	BufferStringSet complist;
-	SeisIOObjInfo::getCompNames( dbkey, complist );
-	if ( complist.size()>1 )
+	const SeisIOObjInfo ioobjinf( dbkey ); BufferStringSet compnms;
+	ioobjinf.getComponentNames( compnms );
+	if ( compnms.size()>1 )
 	{
 	    TypeSet<int> selcomps;
-	    if ( !handleMultiComp( dbkey, is2d, issteering, complist,
+	    if ( !handleMultiComp( dbkey, is2d, issteering, compnms,
 				   attribid, selcomps ) )
 		return false;
 
@@ -1675,19 +1675,19 @@ void uiAttribPartServer::info2DAttribSubMenu( int mnuid, BufferString& attbnm,
 
 bool uiAttribPartServer::handleMultiComp( const DBKey& dbkey, bool is2d,
 					  bool issteering,
-					  BufferStringSet& complist,
+					  BufferStringSet& compnms,
 					  DescID& attribid,
 					  TypeSet<int>& selectedcomps )
 {
     //Trick for old steering cubes: fake good component names
-    if ( !is2d && issteering && complist.isPresent("Component 1") )
+    if ( !is2d && issteering && compnms.isPresent("Component 1") )
     {
-	complist.erase();
-	complist.add( toString(uiStrings::sInlineDip()) );
-	complist.add( toString(uiStrings::sCrosslineDip()) );
+	compnms.erase();
+	compnms.add( toString(uiStrings::sInlineDip()) );
+	compnms.add( toString(uiStrings::sCrosslineDip()) );
     }
 
-    uiMultCompDlg compdlg( parent(), complist );
+    uiMultCompDlg compdlg( parent(), compnms );
     if ( compdlg.go() )
     {
 	selectedcomps.erase();

@@ -60,10 +60,11 @@ uiMultCompSel::~uiMultCompSel()
 }
 
 
-void uiMultCompSel::setUpList( const DBKey& mid )
+void uiMultCompSel::setUpList( const DBKey& dbky )
 {
-    compnms_.erase();
-    SeisIOObjInfo::getCompNames( mid, compnms_ );
+    compnms_.setEmpty();
+    const SeisIOObjInfo ioobjinf( dbky );
+    ioobjinf.getComponentNames( compnms_ );
     butPush.notify( mCB(this,uiMultCompSel,doDlg) );
     prepareDlg();
 }

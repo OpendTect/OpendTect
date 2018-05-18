@@ -506,17 +506,14 @@ void uiAttrSelDlg::cubeSelCB( CallBacker* c )
     const bool isstoreddata = seltyp==Stored || seltyp==Steer;
     filtfld_->display( !is2d && isstoreddata );
 
-    compfld_->box()->setCurrentItem( 0 );
-    BufferStringSet compnms;
-    if ( is2d )
-	SeisIOObjInfo( ioobjkey ).getComponentNames( compnms );
-    else
-	SeisIOObjInfo::getCompNames( ioobjkey, compnms );
+    const SeisIOObjInfo ioobjinf( ioobjkey ); BufferStringSet compnms;
+    ioobjinf.getComponentNames( compnms );
 
     compfld_->box()->setEmpty();
     compfld_->box()->addItem( uiStrings::sAll() );
     compfld_->box()->addItems( compnms );
     compfld_->display( compnms.size()>=2 );
+    compfld_->box()->setCurrentItem( 0 );
 }
 
 

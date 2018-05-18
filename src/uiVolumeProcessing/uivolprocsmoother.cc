@@ -65,7 +65,7 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf, bool is2d )
 	crllenfld_->attach( alignedBelow, inllenfld_ );
 
     const float zstep = SI().zStep() * SI().zDomain().userFactor();
-    uiString zlabel = tr("Vertical %1").arg( SI().zUnitString(true) );
+    uiString zlabel = tr("Vertical").withSurvZUnit();
 
     zlenfld_ = new uiLabeledSpinBox( stepoutgroup, zlabel, 0,
 				     "Z_spinbox" );

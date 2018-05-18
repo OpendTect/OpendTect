@@ -849,10 +849,10 @@ const char* SurveyInfo::fileZUnitString( bool wp ) const
 }
 
 
-uiString SurveyInfo::zUnitString( bool wp ) const
+uiString SurveyInfo::zUnitString() const
 {
     mLock4Read();
-    return zDomain().unitStr( wp );
+    return zDomain().unitStr();
 }
 
 
@@ -883,15 +883,15 @@ const ZDomain::Def& SurveyInfo::zDomain() const
 }
 
 
-uiString SurveyInfo::xyUnitString( bool abbrvt, bool wparens ) const
+uiString SurveyInfo::xyUnitString( bool abbrvt ) const
 {
-    return uiStrings::sDistUnitString( xyInFeet(), abbrvt, wparens );
+    return uiStrings::sDistUnitString( xyInFeet(), abbrvt );
 }
 
 
-const char* SurveyInfo::fileXYUnitString( bool wb ) const
+const char* SurveyInfo::fileXYUnitString( bool wp ) const
 {
-    return getDistUnitString( xyInFeet(), wb );
+    return getDistUnitString( xyInFeet(), wp );
 }
 
 

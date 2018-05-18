@@ -134,8 +134,7 @@ void setDefaultVals( const PropertyRef* otherthref )
 
 void setZUnit( CallBacker* cb=0 )
 {
-    ref_->disp_.unit_ = toString(
-	UnitOfMeasure::zUnitAnnot( false, true, false ) );
+    ref_->disp_.unit_ = toString( UnitOfMeasure::zUnitAnnot( false, true ) );
 }
 
     ThicknessPropertyRef*	ref_;

@@ -37,7 +37,7 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
 	evfld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     }
 
-    uiString srchwindtxt( tr("Search window %1").arg(SI().zUnitString()) );
+    uiString srchwindtxt( tr("Search window").withSurvZUnit() );
     srchgatefld_ =
 	new uiGenInput( this, srchwindtxt, FloatInpIntervalSpec());
     const Interval<float> srchintv(
@@ -77,8 +77,7 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     usesimifld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     usesimifld_->attach( alignedBelow, ampthresholdfld_ );
 
-    uiString compwindtxt(
-		tr("Compare window %1").arg(SI().zUnitString()) );
+    uiString compwindtxt( tr("Compare window").withSurvZUnit() );
     compwinfld_ = new uiGenInput( this, compwindtxt, FloatInpIntervalSpec() );
     compwinfld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     compwinfld_->attach( alignedBelow, usesimifld_ );

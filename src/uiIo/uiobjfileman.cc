@@ -232,13 +232,11 @@ void uiObjFileMan::refreshItemInfo()
 }
 
 
-uiString& uiObjFileMan::addObjInfo( uiPhraseSet& info, const uiWord& key,
+uiString& uiObjFileMan::addObjInfo( uiPhraseSet& inf, const uiWord& subj,
 					    const uiString& val ) const
 {
-    uiString ret( key );
-    ret.addMoreInfo( val );
-    info.add( ret );
-    return info.get( info.size()-1 );
+    inf.addKeyValue( subj, val );
+    return inf.get( inf.size()-1 );
 }
 
 

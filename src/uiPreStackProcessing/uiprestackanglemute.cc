@@ -134,13 +134,9 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
     , smoothtypefld_(0)
     , smoothwindowfld_(0)
     , smoothwinparamfld_(0)
-    , smoothwinparamlbl_(0)
     , smoothwinlengthfld_(0)
-    , smoothwinlengthlbl_(0)
     , freqf3fld_(0)
-    , freqf3lbl_(0)
     , freqf4fld_(0)
-    , freqf4lbl_(0)
 {
     uiRayTracer1D::Setup rsu;
     rsu.dooffsets_ = offset;
@@ -171,27 +167,21 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
     smoothwindowfld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
 					       smoothWindowSel) );
 
-    smoothwinparamfld_ = new uiGenInput( this, tr("Taper length"),
+    smoothwinparamfld_ = new uiGenInput( this, tr("Taper length").withUnit("%"),
 					 FloatInpSpec() );
     smoothwinparamfld_->attach( rightOf, smoothwindowfld_ );
-    smoothwinparamlbl_ = new uiLabel( this, toUiString("%") );
-    smoothwinparamlbl_->attach( rightOf, smoothwinparamfld_ );
 
-    smoothwinlengthfld_ = new uiGenInput(this, tr("Window width"),
-								FloatInpSpec());
+    smoothwinlengthfld_ = new uiGenInput( this,
+	    tr("Window width").withSurvZUnit(), FloatInpSpec());
     smoothwinlengthfld_->attach( alignedBelow, smoothwindowfld_ );
-    smoothwinlengthlbl_ = new uiLabel( this, SI().zUnitString(false) );
-    smoothwinlengthlbl_->attach( rightOf, smoothwinlengthfld_ );
 
-    freqf3fld_ = new uiGenInput( this, tr("Frequency F3"), FloatInpSpec() );
+    freqf3fld_ = new uiGenInput( this, tr("Frequency F3").withUnit("Hz"),
+				 FloatInpSpec() );
     freqf3fld_->attach( alignedBelow, smoothtypefld_ );
-    freqf3lbl_ = new uiLabel( this, toUiString("Hz") );
-    freqf3lbl_->attach( rightOf, freqf3fld_ );
 
-    freqf4fld_ = new uiGenInput( this, tr("Frequency F4"), FloatInpSpec() );
+    freqf4fld_ = new uiGenInput( this, tr("Frequency F4").withUnit("Hz"),
+				 FloatInpSpec() );
     freqf4fld_->attach( alignedBelow, freqf3fld_ );
-    freqf4lbl_ = new uiLabel( this, toUiString("Hz") );
-    freqf4lbl_->attach( rightOf, freqf4fld_ );
 }
 
 
@@ -285,11 +275,8 @@ void uiAngleCompAdvParsDlg::smoothTypeSel( CallBacker* )
     const bool isfftfilter = isSmoothTypeFFTFilter();
     smoothwindowfld_->display( ismovingavg );
     smoothwinlengthfld_->display( ismovingavg );
-    smoothwinlengthlbl_->display( ismovingavg );
     freqf3fld_->display( isfftfilter );
     freqf4fld_->display( isfftfilter );
-    freqf3lbl_->display( isfftfilter );
-    freqf4lbl_->display( isfftfilter );
 
     smoothWindowSel(0);
 }
@@ -301,7 +288,6 @@ void uiAngleCompAdvParsDlg::smoothWindowSel( CallBacker* )
     FixedString smoothwindow = smoothwindowfld_->text();
     const bool iscostaper = smoothwindow==CosTaperWindow::sName();
     smoothwinparamfld_->display( ismovingavg && iscostaper );
-    smoothwinparamlbl_->display( ismovingavg && iscostaper );
 }
 
 

@@ -758,7 +758,7 @@ uiString uiODZsliceTreeItem::createDisplayName() const
     const TrcKeyZSampling probepos = probe->position();
     const ZDomain::Info& scnezdinfo = vwr->zDomain();
     const float zposval = probepos.zsamp_.start * scnezdinfo.userFactor();
-    return tr( "%1 (%2)" ).arg( zposval ).arg( scnezdinfo.unitStr() );
+    return toUiString(zposval).withUnit( scnezdinfo.unitStr() );
 }
 
 

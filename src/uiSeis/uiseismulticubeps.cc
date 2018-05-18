@@ -105,7 +105,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     sep->attach( stretchedBelow, compfld_ );
     sep->attach( ensureBelow, allcompfld_ );
 
-    uiString offsetstr = tr("Offset (start/step) %1").arg(SI().xyUnitString());
+    uiString offsetstr = tr("Offset start/step").withSurvXYUnit();
     const Interval<float> offsets( 0, 100 );
     offsfld_ = new uiGenInput( this, offsetstr,
 			       FloatInpIntervalSpec(offsets).setName("Offset"));

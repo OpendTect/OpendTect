@@ -87,11 +87,11 @@ public:
 				//!<Default depth unit in storage (m,ft)
     static const UnitOfMeasure* surveyDefVelUnit();
 				//!<Default velocity unit in displays (m/s,ft/s)
-    static uiString	surveyDefZUnitAnnot(bool symbol,bool withparens);
-    static uiString	surveyDefTimeUnitAnnot(bool symbol,bool withparens);
-    static uiString	surveyDefDepthUnitAnnot(bool symbol,bool withparens);
-    static uiString	surveyDefVelUnitAnnot(bool symbol,bool withparens);
-    static uiString	zUnitAnnot(bool time,bool symbol,bool withparens);
+    static uiString	surveyDefZUnitAnnot(bool symbol);
+    static uiString	surveyDefTimeUnitAnnot(bool symbol);
+    static uiString	surveyDefDepthUnitAnnot(bool symbol);
+    static uiString	surveyDefVelUnitAnnot(bool symbol);
+    static uiString	zUnitAnnot(bool time,bool symbol);
 
     static IOPar&	currentDefaults();
 			//!< just a list of key -> unit of measure

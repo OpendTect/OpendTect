@@ -114,8 +114,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 			.setName("Inl position",0).setName("Crl position",1) );
     refposfld_->attach( alignedBelow, refgrp_ );
 
-    uiString zlabel = toUiString("%1 %2").arg(uiStrings::sZ())
-					 .arg(SI().zUnitString());
+    uiString zlabel = toUiString("%1 (%2)").arg(uiStrings::sZ())
+					   .arg(SI().zUnitString());
     refposzfld_ = new uiGenInput( this, zlabel );
     refposzfld_->setElemSzPol( uiObject::Small );
     refposzfld_->attach( rightTo, refposfld_ );

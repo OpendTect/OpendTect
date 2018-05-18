@@ -114,15 +114,18 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 
 void uiResortSEGYDlg::inpSel( CallBacker* cb )
 {
-    if ( !ps2dfld_ || (cb && cb != ps2dfld_) ) return;
+    if ( !ps2dfld_ || (cb && cb != ps2dfld_) )
+	return;
     linenmfld_->setEmpty();
     const IOObj* ioobj = ps2dfld_->ioobj();
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
     uiSeisIOObjInfo uioi( *ioobj );
-    if ( !uioi.isOK() ) return;
+    if ( !uioi.isOK() )
+	return;
 
     BufferStringSet lnms;
-    uioi.ioObjInfo().getLineNames( lnms );
+    uioi.getLineNames( lnms );
     linenmfld_->addItems( lnms.getUiStringSet() );
 }
 

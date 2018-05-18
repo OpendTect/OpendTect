@@ -44,8 +44,9 @@ namespace Seis
 static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 			   TypeSet<int>& selcomponents, uiString& msg )
 {
-    BufferStringSet cnames;
-    SeisIOObjInfo::getCompNames( ioobj.key(), cnames );
+    const SeisIOObjInfo ioobjinf( ioobj ); BufferStringSet compnms;
+    ioobjinf.getComponentNames( compnms );
+
     const int nrcomp = selcomponents.size();
     od_int64 totmem, freemem;
     OD::getSystemMemory( totmem, freemem );
@@ -66,8 +67,8 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
     for ( int idx=0; idx<nrcomp; idx++ )
     {
 	const int cidx = selcomponents[idx];
-	const char* cnm = cnames.size()>1 && cnames.validIdx(cidx) ?
-			  cnames.get(cidx).buf() : BufferString::empty().buf();
+	const char* cnm = compnms.size()>1 && compnms.validIdx(cidx) ?
+			  compnms.get(cidx).buf() : "";
 
 	// assembles composite "<attribute>|<component>" name
 	const StringPair compstr( ioobj.name().str(), cnm );

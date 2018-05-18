@@ -582,7 +582,7 @@ bool uiSurfaceMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
     if ( !rg.isUdf() ) \
     { \
 	const int usrfac = SI().zDomain().userFactor(); \
-	addObjInfo(inf,uiStrings::sZRange().withUnit(SI().zUnitString(false)), \
+	addObjInfo(inf,uiStrings::sZRange().withSurvZUnit(), \
 		   rg.isUdf()	? ::toUiString("-") \
 				: uiStrings::sRangeTemplate( false ) \
 				    .arg(mNINT32(rg.start*usrfac)) \

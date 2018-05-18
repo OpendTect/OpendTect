@@ -154,8 +154,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 {
     if ( s.dooffsets_ )
     {
-	uiString olb = tr( "Offset range (start/stop) %1" )
-			.arg( SI().xyUnitString(true) );;
+	uiString olb = uiStrings::sOffsetRange().withSurvXYUnit();
 	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
 	offsetfld_->setValue(
 			Interval<float>(s.offsetrg_.start,s.offsetrg_.stop));

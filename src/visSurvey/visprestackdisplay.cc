@@ -932,12 +932,10 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 
     info = "Offset: ";
     if ( SI().xyInFeet() )
-    {
 	traceoffset *= mToFeetFactorD;
-    }
 
-    info.add( (float) traceoffset );
-    info.add( " " ).add( toString(SI().xyUnitString(false)) );
+    info.add( (float)traceoffset );
+    info.add( " (" ).add( toString(SI().xyUnitString()).add( ")" ) );
 
     const int zsample = posdata.range(false).nearestIndex( pos.z_ );
     val = fdp->data().get( offsetsample, zsample );

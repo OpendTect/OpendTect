@@ -67,9 +67,8 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
 
     // Parameters for change sample rate
 
-    newsdfld_ = new uiGenInput( this, tr("New sampling ")
-				.arg(SI().zUnitString()), FloatInpSpec(),
-				FloatInpSpec() );
+    newsdfld_ = new uiGenInput( this, tr("New sampling").withSurvZUnit(),
+				FloatInpSpec(), FloatInpSpec() );
     newsdfld_->attach( alignedBelow, actionfld_ );
 
     // The output seismic object

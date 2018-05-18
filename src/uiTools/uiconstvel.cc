@@ -27,9 +27,8 @@ float getGUIDefaultVelocity()
 
 
 uiConstantVel::uiConstantVel( uiParent* p, float defvel, const uiString& lbl )
-    : uiGenInput(p,tr( "%1 %2" )
-		   .arg(lbl.isEmpty() ? uiStrings::sVelocity() : lbl)
-		   .arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,true)),
+    : uiGenInput(p,(lbl.isEmpty() ? uiStrings::sVelocity() : uiString(lbl))
+		   .withUnit(UnitOfMeasure::surveyDefVelUnitAnnot(true)),
 		   FloatInpSpec(defvel) )
 {}
 

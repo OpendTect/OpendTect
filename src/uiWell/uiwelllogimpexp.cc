@@ -269,8 +269,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     , multiwellsnamefld_(0)
 {
     const bool zinft = SI().depthsInFeet();
-    const uiString lbl = tr( "Depth range %1" ).
-	arg( uiStrings::sDistUnitString( zinft, true, true ) );
+    const uiString lbl = tr( "Depth range" )
+		.withUnit( uiStrings::sDistUnitString(zinft,true) );
     zrangefld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     setDefaultRange( zinft );
 
@@ -284,10 +284,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     uiLabel* zlbl = new uiLabel( this,
 				 uiStrings::phrOutput( uiStrings::sZUnit() ));
     zlbl->attach( leftOf, zunitgrp_ );
-    new uiRadioButton( zunitgrp_,
-		       uiStrings::sDistUnitString( false, false, false ) );
-    new uiRadioButton( zunitgrp_,
-		      uiStrings::sDistUnitString( true, false, false ) );
+    new uiRadioButton( zunitgrp_, uiStrings::sDistUnitString(false,false) );
+    new uiRadioButton( zunitgrp_, uiStrings::sDistUnitString(true,false) );
     bool have2dtmodel = true;
     for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {

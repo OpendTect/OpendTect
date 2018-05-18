@@ -133,8 +133,9 @@ bool rejectOK()
 
 void changeCB( CallBacker* )
 {
-    unitlbl_->setText( !objectfld_->getBoolValue() || horverfld_->getBoolValue()
-		    ? SI().xyUnitString(true) : zinf_.def_.unitStr(true) );
+    const bool isxy = !objectfld_->getBoolValue() || horverfld_->getBoolValue();
+    uiString unstr( isxy ? SI().xyUnitString() : zinf_.def_.unitStr() );
+    unitlbl_->setText( unstr.parenthesize() );
     propertyChange.trigger();
 }
 

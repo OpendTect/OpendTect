@@ -77,8 +77,9 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     fdsu.noy2axis(true).noy2gridline(true);
 
     waveletdisplay_ = new uiFunctionDisplay( wvltdispgrp, fdsu );
-    const uiString ztxt = toUiString("%1 %2").arg(SI().zIsTime() ?
-	 uiStrings::sTime() : uiStrings::sDepth()).arg(SI().zUnitString());
+    const uiString ztxt = (SI().zIsTime() ? uiStrings::sTime()
+					  : uiStrings::sDepth())
+			    .withSurvZUnit();
     waveletdisplay_->xAxis()->setCaption( ztxt );
     waveletdisplay_->yAxis(false)->setCaption( uiStrings::sAmplitude() );
 
@@ -258,8 +259,8 @@ bool uiSeisWvltMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 
     addObjInfo( inf, uiStrings::sNrSamples(), wvlt->size() );
 
-    addObjInfo( inf, uiStrings::sSampleIntrvl()
-	    .withUnit(SI().zUnitString(false)), wvlt->sampleRate() * zfac );
+    addObjInfo( inf, uiStrings::sSampleIntrvl().withSurvZUnit(),
+		     wvlt->sampleRate() * zfac );
 
     Interval<float> extremevals;
     wvlt->getExtrValues( extremevals );

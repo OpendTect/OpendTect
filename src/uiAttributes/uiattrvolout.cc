@@ -131,8 +131,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	datastorefld_->attach( alignedBelow, cb );
 
 	const Interval<float> offsets( 0, 100 );
-	const uiString lbl = tr( "Offset (start/step) %1" )
-				.arg( SI().xyUnitString() );
+	const uiString lbl = tr( "Offset start/step" ).withSurvXYUnit();
 	offsetfld_ = new uiGenInput( pargrp_, lbl,
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );
@@ -371,12 +370,12 @@ bool uiAttrVolOut::prepareProcessing()
 	    { uiMSG().error( errmsg ); return false; }
     }
 
-    uiSeisIOObjInfo ioobjinfo( *outioobj, true );
+    uiSeisIOObjInfo ioobjinfo( *outioobj );
     SeisIOObjInfo::SpaceInfo spi( transffld_->spaceInfo() );
     subselpar_.setEmpty();
     transffld_->selfld->fillPar( subselpar_ );
     subselpar_.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );
-    return ioobjinfo.checkSpaceLeft(spi);
+    return ioobjinfo.checkSpaceLeft( spi, true );
 }
 
 

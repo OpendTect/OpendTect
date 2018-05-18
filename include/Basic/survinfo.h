@@ -76,12 +76,11 @@ public:
 			/*!<\note BinID will be snapped using work step. */
 
     bool		xyInFeet() const;
-    uiString		xyUnitString(bool abbrviated=true,
-				     bool withparens=true) const;
+    uiString		xyUnitString(bool abbrviated=true) const;
     const char*		fileXYUnitString(bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
     float		showZ2UserFactor() const;
-    uiString		zUnitString(bool withparens=true) const;
+    uiString		zUnitString() const; // No parentheses. Use withUnit()
     const char*		fileZUnitString(bool withparens=true) const;
     mImplSimpleMonitoredGetSet(inline,depthsInFeet,setDepthsInFeet,
 				bool,depthsinfeet_,cParsChange());
@@ -308,12 +307,8 @@ public:
 				{ work ? setWorkRange(cs) : setRange(cs); }
     mDeprecated const char*	getZUnitString( bool wp=true ) const
 				{ return fileZUnitString( wp ); }
-    mDeprecated uiString	getUiZUnitString( bool wp=true ) const
-				{ return zUnitString( wp ); }
     mDeprecated const char*	getXYUnitString( bool wp=true ) const
 				{ return fileXYUnitString( wp ); }
-    mDeprecated uiString	getUiXYUnitString(bool a=true,bool p=true) const
-				{ return xyUnitString( a, p ); }
 
     enum Unit		{ Second, Meter, Feet };
     Unit		xyUnit() const;

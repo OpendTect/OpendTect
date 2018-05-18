@@ -152,7 +152,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     llimitfld_ = new uiAmplThresholdGrp( leftgrp, tr("Upper limit") );
     llimitfld_->attach( alignedBelow, ulimitfld_ );
 
-    uiString srchwindtxt = tr("Search window %1").arg(SI().zUnitString());
+    uiString srchwindtxt = tr("Search window").withSurvZUnit();
     StepInterval<int> swin0( -10000, -1, -1 );
     StepInterval<int> swin1( 1, 10000, 1 );
     IntInpIntervalSpec iis; iis.setSymmetric( true );
@@ -169,7 +169,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     IntInpIntervalSpec diis; diis.setSymmetric( true );
     diis.setLimits( intv, 0 ); diis.setLimits( intv, 1 );
 
-    uiString disptxt = tr("Data Display window %1").arg(SI().zUnitString());
+    uiString disptxt = tr("Data Display window").withSurvZUnit();
     nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
     nrzfld_->attach( alignedBelow, srchgatefld_ );
     nrzfld_->attach( ensureBelow, sep );

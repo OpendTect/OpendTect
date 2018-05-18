@@ -422,14 +422,14 @@ void uiSeisSampleEditor::fillTable()
     NotifyStopper notifstop( tbl_->valueChanged );
 
     const int zfac = zdomdef_.userFactor();
-    const uiString zunstr = zdomdef_.unitStr( false );
+    const uiString zunstr = zdomdef_.unitStr();
     for ( int idx=0; idx<nrsamples_; idx++ )
     {
 	const BufferString zvalstr( getZValStr(sampling_.atIndex(idx),zfac) );
 	tbl_->setRowLabel( idx, toUiString(zvalstr) );
 	uiString tt;
-	tt = toUiString("%1%2 sample at %3 %4").arg(idx+1)
-			.arg(getRankPostFix(idx+1)).arg(zvalstr).arg(zunstr);
+	tt = toUiString("%1%2 sample at %3").arg(idx+1)
+		    .arg(getRankPostFix(idx+1)).arg(zvalstr).withUnit(zunstr);
 	tbl_->setRowToolTip( idx, tt );
     }
 
@@ -1043,7 +1043,7 @@ uiSeisSampleEditorInfoVwr::uiSeisSampleEditorInfoVwr( uiSeisSampleEditor& p,
     minamplatfld_->attach( rightOf, minamplfld_ );
     minamplatfld_->setElemSzPol( uiObject::Small );
     minamplatfld_->setReadOnly();
-    uiLabel* lbl = new uiLabel( valgrp, zdomdef_.unitStr(true) );
+    uiLabel* lbl = new uiLabel( valgrp, zdomdef_.unitStr().parenthesize() );
     lbl->attach( rightOf, minamplatfld_ );
 
     maxamplfld_ = new uiGenInput( valgrp, tr("Maximum %1").arg(dtypstr),
@@ -1055,7 +1055,7 @@ uiSeisSampleEditorInfoVwr::uiSeisSampleEditorInfoVwr( uiSeisSampleEditor& p,
     maxamplatfld_->attach( rightOf, maxamplfld_ );
     maxamplatfld_->setElemSzPol( uiObject::Small );
     maxamplatfld_->setReadOnly();
-    lbl = new uiLabel( valgrp, zdomdef_.unitStr(true) );
+    lbl = new uiLabel( valgrp, zdomdef_.unitStr().parenthesize() );
     lbl->attach( rightOf, maxamplatfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );

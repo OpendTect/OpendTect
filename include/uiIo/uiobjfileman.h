@@ -69,13 +69,14 @@ protected:
     virtual bool		gtItemInfo(const IOObj&,uiPhraseSet&) const= 0;
 				//!< used to be in 'mkFileInfo'
     virtual void		ownSelChg()		{}
+    virtual od_int64		getFileSize(const char*,int&) const;
+
     uiString&			addObjInfo(uiPhraseSet&,const uiWord& subj,
 					    const uiString& val) const;
     template <class T>
-    inline uiString&		addObjInfo( uiPhraseSet& inf,
+    inline uiString&		addObjInfo( uiPhraseSet& ps,
 				    const uiWord& subj, const T& val ) const
-				{ return addObjInfo(inf,subj,toUiString(val)); }
-    virtual od_int64		getFileSize(const char*,int&) const;
+				{ return addObjInfo(ps,subj,toUiString(val)); }
 
 private:
 

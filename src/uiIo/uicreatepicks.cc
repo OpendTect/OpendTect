@@ -269,8 +269,7 @@ uiGenRandPicks2DDlg::uiGenRandPicks2DDlg( uiParent* p,
 	horsel2fld_->attach( rightOf, horselfld_ );
     }
 
-    uiString zlbl = toUiString("%1 %2").arg(uiStrings::sZRange())
-				       .arg(SI().zUnitString());
+    uiString zlbl = uiStrings::sZRange().withSurvZUnit();
     StepInterval<float> survzrg = SI().zRange(false);
     Interval<float> inpzrg( survzrg.start, survzrg.stop );
     inpzrg.scale( mCast(float,SI().zDomain().userFactor()) );

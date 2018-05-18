@@ -836,7 +836,7 @@ void uiBodyRegionGrp::updateTable()
 	mDynamicCastGet(const EM::RegionHor3DBoundary*,horbd,bd)
 	if ( singlehormode && horbd )
 	{
-	    uiString unt = tr(" %1").arg( SI().zDomain().unitStr(false) );
+	    const uiString unt = SI().zDomain().unitStr();
 
 	    uiSpinBox* shiftupfld = new uiSpinBox( 0, 0, "Shift up" );
 	    shiftupfld->setSuffix(unt);
@@ -856,7 +856,7 @@ void uiBodyRegionGrp::updateTable()
 	{
 	    uiSpinBox* iczbox = new uiSpinBox( 0, 0, "Inl/Crl/Z" );
 	    if ( zbd )
-		iczbox->setSuffix( SI().zDomain().unitStr(false) );
+		iczbox->setSuffix( SI().zDomain().unitStr() );
 	    if ( inlbd )
 	    {
 		iczbox->setInterval( SI().inlRange(false) );

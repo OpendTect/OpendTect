@@ -217,7 +217,7 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
     if ( valstr.isEmpty() )
 	return;
     modelidx = toInt(valstr)-1;
-    uiString modelnrstr = tr("Model Number: %1").arg(modelidx);
+    uiString modelnrstr = tr("Model Number").addMoreInfo(toUiString(modelidx));
     msg.appendPhrase( modelnrstr );
     valstr = pars.find( "Z" );
     if ( !valstr ) valstr = pars.find( "Z-Coord" );
@@ -225,8 +225,8 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
     if ( valstr )
     {
 	zval = toFloat( valstr );
-	uiString depthstr = tr("Depth: %1%2").arg((int)zval)
-						    .arg(SI().zUnitString());
+	uiString depthstr = uiStrings::sDepth().addMoreInfo(
+		    toUiString((int)zval) ).withSurvZUnit();
 	msg.appendPhrase( depthstr, uiString::Space, uiString::OnSameLine );
     }
 
@@ -281,7 +281,7 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 
 	mAddSep();
 	sepalreadyadded = true;
-	msg.appendPhrase(tr("Offs = %1%2").arg(val).arg(SI().xyUnitString()),
+	msg.appendPhrase(tr("Offs=%1").arg(val).withSurvXYUnit(),
 			uiString::NoSep, uiString::OnSameLine);
     }
 

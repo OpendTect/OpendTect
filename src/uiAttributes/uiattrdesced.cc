@@ -301,7 +301,7 @@ uiString uiAttrDescEd::zDepLabel( const uiString& pre,
     uiString ret;
     if ( !pre.isEmpty() && !post.isEmpty() )
     {
-	return toUiString( "%1 %2 %3 %4" )
+	return toUiString( "%1 %2 %3 (%4)" )
 	    .arg( pre )
 	    .arg( zstr.toLower() )
 	    .arg( post )
@@ -311,16 +311,16 @@ uiString uiAttrDescEd::zDepLabel( const uiString& pre,
     if ( !pre.isEmpty() )
     {
 	zstr.toLower( true );
-	return toUiString("%1 %2 %3").arg(pre).arg(zstr)
+	return toUiString("%1 %2 (%3)").arg(pre).arg(zstr)
 						.arg(SI().zUnitString());
     }
 
     if ( !post.isEmpty() )
-	return toUiString("%1 %2 %3").arg(zstr).arg(post)
+	return toUiString("%1 %2 (%3)").arg(zstr).arg(post)
 						.arg(SI().zUnitString());
 
 
-    return toUiString("%1 %2").arg(zstr).arg(SI().zUnitString());
+    return toUiString("%1 (%2)").arg(zstr).arg(SI().zUnitString());
 }
 
 

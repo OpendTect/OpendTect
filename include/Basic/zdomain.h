@@ -63,7 +63,7 @@ public:
 
     const char*		fileUnitStr(bool withparens=false) const;
 			//In case of depth, ft or m will come from SurvInfo
-    uiString		unitStr(bool withparens=false) const;
+    uiString		unitStr() const;
 
     bool		isSI() const;
     bool		isTime() const;
@@ -93,13 +93,16 @@ protected:
 public:
 
     mDeprecated uiString	uiUnitStr( bool wp=false ) const
-				{ return unitStr( wp ); }
+				{
+				    uiString res = unitStr();
+				    if ( wp )
+					res.parenthesize();
+				    return res;
+				}
 };
 
 
-/*!
-\brief Information of z-domain.
-*/
+/*!\brief Information of z-domain. */
 
 mExpClass(Basic) Info
 {
@@ -124,14 +127,18 @@ public:
     uiString		userName() const	{ return def_.userName(); }
     const char*		fileUnitStr(bool wp=false) const
 						{ return def_.fileUnitStr(wp); }
-    uiString		unitStr(bool wp=false) const
-						{ return def_.unitStr(wp); }
+    uiString		unitStr() const		{ return def_.unitStr(); }
     uiString		getLabel() const	{ return def_.getLabel(); }
     int			userFactor() const	{ return def_.userFactor(); }
 
 
     mDeprecated uiString	uiUnitStr(bool wp=false) const
-				{ return def_.unitStr(wp); }
+				{
+				    uiString res = def_.unitStr();
+				    if ( wp )
+					res.parenthesize();
+				    return res;
+				}
 
 };
 

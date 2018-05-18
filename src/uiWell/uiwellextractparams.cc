@@ -68,16 +68,15 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     zchoicefld_->valuechanged.notify( cb );
     setHAlignObj( zchoicefld_ );
 
-    uiString dptlbl = UnitOfMeasure::zUnitAnnot( false, true, true );
-    uiString timelbl = UnitOfMeasure::zUnitAnnot( true, true, true );
+    uiString dptlbl = UnitOfMeasure::zUnitAnnot( false, true );
+    uiString timelbl = UnitOfMeasure::zUnitAnnot( true, true );
     uiStringSet units;
     units.add(uiString::empty()).add(dptlbl).add(timelbl);
 
     StringListInpSpec slis; const bool istime = SI().zIsTime();
     for ( int idx=0; idx<mMIN(zchoiceset.size(),units.size()); idx++ )
     {
-	uiString msg = tr( "Start / stop %1" );
-	msg.arg( units[idx] );
+	uiString msg = tr("Start / stop").withUnit( units[idx] );
 	uiGenInput* newgeninp = 0; uiWellMarkerSel* newmarksel = 0;
 	if ( idx == 0 )
 	{
@@ -109,8 +108,8 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 
     }
 
-    uiString txt = tr("Distance above/below %1")
-		.arg( UnitOfMeasure::zUnitAnnot(false,true,true) );
+    uiString txt = tr("Distance above/below")
+		.withUnit( UnitOfMeasure::zUnitAnnot(false,true) );
 
     abovefld_ = new uiGenInput( this, txt, FloatInpSpec(0).setName("above") );
     abovefld_->setElemSzPol( uiObject::Medium );
@@ -145,10 +144,10 @@ void uiWellZRangeSelector::clear()
 
 
 void uiWellZRangeSelector::setRangeSel( const Well::ZRangeSelector& sel )
-{ 
+{
     delete params_;
-    params_ = sel.clone();  
-    putToScreen(); 
+    params_ = sel.clone();
+    putToScreen();
 }
 
 
@@ -273,11 +272,9 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 				    : s.defmeterstep_;
 	const float timestep = SI().zStep()*ztimefac_;
 	params().zstep_ = dptstep;
-	uiString dptstpbuf = toUiString("%1 %2").arg(uiStrings::sStep()).arg(
-					SI().xyUnitString());
-	uiString timelbl = UnitOfMeasure::zUnitAnnot( true, true, true );
-	uiString timestpbuf = toUiString("%1 %2").arg(uiStrings::sStep())
-						 .arg(timelbl);
+	uiString dptstpbuf = uiStrings::sStep().withSurvXYUnit();
+	uiString timelbl = UnitOfMeasure::zUnitAnnot( true, true );
+	uiString timestpbuf = uiStrings::sStep().withUnit(timelbl);
 	depthstepfld_ = new uiGenInput(this, dptstpbuf, FloatInpSpec(dptstep));
 	timestepfld_ = new uiGenInput(this, timestpbuf, FloatInpSpec(timestep));
 	depthstepfld_->setElemSzPol( uiObject::Small );

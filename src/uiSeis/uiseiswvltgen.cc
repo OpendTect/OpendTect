@@ -86,7 +86,7 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
     freqfld_->attach( alignedBelow, isrickfld_ );
 
     const float usrsr = sisr * SI().zDomain().userFactor();
-    txt = uiStrings::sSampleIntrvl().withUnit(SI().zUnitString());
+    txt = uiStrings::sSampleIntrvl().withSurvZUnit();
     srfld_ = new uiGenInput( this, txt, FloatInpSpec(usrsr) );
     srfld_->attach( alignedBelow, freqfld_ );
 

@@ -40,8 +40,8 @@ uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
 	    mCB(this,uiStaticsDesc,updateFlds));
     useconstantvelfld_->attach( alignedBelow, horfld_ );
 
-    uiString label = tr("Statics velocity %1")
-			 .arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,true));
+    uiString label = tr("Statics velocity")
+			 .withUnit(UnitOfMeasure::surveyDefVelUnitAnnot(true));
     constantvelfld_ = new uiGenInput( this, label, FloatInpSpec());
     constantvelfld_->attach( alignedBelow, useconstantvelfld_ );
 

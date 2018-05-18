@@ -111,7 +111,7 @@ void uiSeis2DFileMan::fillLineBox()
     const int curitm = lb->size() ? lb->currentItem() : 0;
     BufferStringSet linenames;
     SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
-    objinfo_->ioObjInfo().getLineNames( linenames, opts2d );
+    objinfo_->getLineNames( linenames, opts2d );
     lb->setEmpty();
     lb->addItems( linenames.getUiStringSet() );
     lb->setCurrentItem( curitm );
@@ -241,7 +241,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     , objinf_(objinf)
 {
     uiGroup* geomgrp = new uiGroup( this );
-    BufferStringSet lnms; objinf_.ioObjInfo().getLineNames( lnms );
+    BufferStringSet lnms; objinf_.getLineNames( lnms );
     uiLabeledComboBox* lcb1 =
 	new uiLabeledComboBox( geomgrp, lnms.getUiStringSet(),
 							tr("First line") );

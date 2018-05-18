@@ -186,6 +186,8 @@ public:
     uiString&		embedFinalState();
     uiString&		withUnit(const char*); //!< just the unit itself, please
     uiString&		withUnit(const uiString&);
+    uiString&		withSurvZUnit();
+    uiString&		withSurvXYUnit();
     uiString&		addMoreInfo(const uiString&,bool newline=false);
 			//!< will deliver ": the string with more info"
 

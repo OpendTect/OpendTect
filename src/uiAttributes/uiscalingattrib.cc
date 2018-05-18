@@ -122,16 +122,16 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     table->setNrCols( 3 );
     table->setNrRows( initnrrows );
     const uiString zunstr = SI().zUnitString();
-    table->setColumnLabel( 0, tr( "Start %1" ).arg( zunstr ) );
-    table->setColumnLabel( 1, tr( "Stop %1" ).arg( zunstr ) );
-    table->setColumnLabel( 2, tr( "Scale value" ) );
+    table->setColumnLabel( 0, uiStrings::sStart().withUnit( zunstr ) );
+    table->setColumnLabel( 1, uiStrings::sStop().withUnit( zunstr ) );
+    table->setColumnLabel( 2, uiStrings::sScale() );
     table->setColumnStretchable( startcol, true );
     table->setColumnStretchable( stopcol, true );
     table->setStretch( 2, 0 );
     table->setToolTip( tr("Right-click to add, insert or remove a gate") );
 
     // for AGC
-    uiString label = tr("Window width %1").arg(SI().zUnitString( true ));
+    uiString label = tr("Window width").withSurvZUnit();
     // TODO: make default value dependent on survey type
     windowfld = new uiGenInput( this, label, FloatInpSpec(200) );
     windowfld->attach( alignedBelow, typefld );

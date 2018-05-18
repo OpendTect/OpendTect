@@ -330,8 +330,8 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     PtrMan<uiSeisIOObjInfo> ioobjinfo;
     if ( !isps )
     {
-	ioobjinfo = new uiSeisIOObjInfo( outioobj, true );
-	if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
+	ioobjinfo = new uiSeisIOObjInfo( outioobj );
+	if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo(),true) )
 	    return false;
     }
 

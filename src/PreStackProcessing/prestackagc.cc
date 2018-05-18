@@ -58,8 +58,12 @@ void AGC::setWindow( const Interval<float>& iv )
 const Interval<float>& AGC::getWindow() const
 { return window_; }
 
-void AGC::getWindowUnit( uiString& buf, bool parens ) const
-{ buf = SI().zUnitString( parens ); }
+void AGC::getWindowUnit( uiString& uistr, bool parens ) const
+{
+    uistr = SI().zUnitString();
+    if ( parens )
+	uistr.parenthesize();
+}
 
 
 void AGC::setLowEnergyMute( float iv )

@@ -65,6 +65,10 @@ public:
     uiString		createOptionString(bool use_and=true,int maxnritems=-1,
 				   bool separate_lines=false) const;
 				//!< example: "option1, option2 and option3"
+    uiStringSet&	addKeyValue(const uiWord& ky,const uiString& val);
+    template <class T>
+    uiStringSet&	addKeyValue( const uiWord& ky,const T& val )
+			{ return addKeyValue( ky, toUiString(val) ); }
 
     void		fill(mQtclass(QStringList)&) const;
     void		sort(const bool caseinsens=true,bool asc=true);

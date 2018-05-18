@@ -591,7 +591,7 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 	uiSEGY::displayReport( parent(), rep );
     }
 
-    uiSeisIOObjInfo oinf( outioobj, true );
+    uiSeisIOObjInfo oinf( outioobj );
     return oinf.provideUserInfo();
 }
 
@@ -625,8 +625,8 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 	geomids += geomid;
     }
 
-    uiSeisIOObjInfo oinf( outioobj, true );
-    return oinf.provideUserInfo2D( &geomids );
+    uiSeisIOObjInfo oinf( outioobj );
+    return oinf.provideLineInfo( &geomids );
 }
 
 
@@ -895,8 +895,8 @@ bool uiSEGYReadFinisher::acceptOK()
 
     if ( doimp && !Seis::isPS(fs_.geomType()) )
     {
-	uiSeisIOObjInfo oinf( *outioobj, true );
-	if ( !oinf.checkSpaceLeft(transffld_->spaceInfo()) )
+	uiSeisIOObjInfo oinf( *outioobj );
+	if ( !oinf.checkSpaceLeft(transffld_->spaceInfo(),true) )
 	    return false;
     }
 

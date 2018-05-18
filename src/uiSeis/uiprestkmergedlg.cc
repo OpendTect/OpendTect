@@ -302,7 +302,7 @@ uiPreStackOutputGroup::uiPreStackOutputGroup( uiParent* p )
 	 .withstep( true );
     subselfld_ = new uiPosSubSel( this, psssu );
 
-    uiString offsetrangestr (tr("Offset range %1").arg(SI().xyUnitString()));
+    uiString offsetrangestr = tr("Offset range").withSurvXYUnit();
     offsrgfld_ = new uiGenInput( this, offsetrangestr,
 				 FloatInpSpec(0), FloatInpSpec() );
     offsrgfld_->attach( alignedBelow, subselfld_ );

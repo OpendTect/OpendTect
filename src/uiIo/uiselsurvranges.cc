@@ -83,8 +83,8 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
     if ( ltxt.isEmpty() )
 	ltxt = zddef_.getRange();
 
-    uiLabel* lbl = new uiLabel( this, toUiString("%1 %2").arg(ltxt)
-					.arg(zddef_.unitStr(true)), startfld_ );
+    uiLabel* lbl = new uiLabel( this, ltxt.withUnit(zddef_.unitStr()),
+			        startfld_ );
 
     stopfld_ = new uiSpinBox( this, nrdecimals, "Z stop" );
     stopfld_->attach( rightOf, startfld_ );

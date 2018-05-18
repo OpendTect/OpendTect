@@ -349,27 +349,14 @@ uiPhrase uiStrings::phrZRange( const uiWord& string )
 { return mJoinStr.arg( sZRange() ).arg( string ); }
 
 
-uiWord uiStrings::sDistUnitString( bool isfeet, bool abbr, bool withparens )
+uiWord uiStrings::sDistUnitString( bool isfeet, bool abbr )
 {
-    if ( withparens )
-    {
-	uiString res = sDistUnitString( isfeet, abbr, false );
-	res.parenthesize();
-	return res;
-    }
-
     return isfeet ? (abbr ? toUiString("ft") : sFeet(false).toLower())
 		  : (abbr ? toUiString("m") : sMeter(false).toLower());
 }
 
-uiWord uiStrings::sTimeUnitString( bool ismilli, bool abbr, bool withparens )
+uiWord uiStrings::sTimeUnitString( bool ismilli, bool abbr )
 {
-    if ( withparens )
-    {
-	uiString res = sTimeUnitString( ismilli, abbr, false );
-	res.parenthesize();
-	return res;
-    }
     return abbr ?  toUiString( (ismilli ? "ms" : "s") )
      : ((ismilli ? sMSec(false,mPlural)
 		 : sSec(false,mPlural)).toLower());

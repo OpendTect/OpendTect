@@ -639,8 +639,8 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 
     zrginft_ = SI().depthsInFeet();
     const uiString units[] = { uiString::empty(),
-		UnitOfMeasure::zUnitAnnot(true,true,false),
-		UnitOfMeasure::surveyDefDepthUnitAnnot(false,false) };
+		UnitOfMeasure::zUnitAnnot(true,true).parenthesize(),
+		UnitOfMeasure::surveyDefDepthUnitAnnot(false).parenthesize() };
 
     zrangeflds_ += new uiGenInput( markergrp, uiString::empty(),
 				   slis.setName(markernms[0]),

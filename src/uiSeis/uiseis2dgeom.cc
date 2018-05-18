@@ -59,7 +59,7 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 static void getLineNames( const IOObj& ioobj, BufferStringSet& lnms )
 {
     uiSeisIOObjInfo oinf( ioobj );
-    oinf.ioObjInfo().getLineNames( lnms );
+    oinf.getLineNames( lnms );
 }
 
 

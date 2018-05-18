@@ -14,11 +14,12 @@ ________________________________________________________________________
 
 
 uiZRangeInput::uiZRangeInput( uiParent* p, bool depth, bool withstep )
-    : uiGenInput( p, tr("%1 %2 %3")
-		     .arg((depth ? ZDomain::Depth().userName() :
-		     ZDomain::Time().userName())).arg(uiStrings::sRange())
-		     .arg(depth ? ZDomain::Depth().unitStr(true)
-		     : ZDomain::Time().unitStr(true)),
+    : uiGenInput( p, tr("%1 %2")
+		     .arg((depth ? ZDomain::Depth().userName()
+				 : ZDomain::Time().userName()))
+		     .arg(uiStrings::sRange())
+		     .withUnit(depth ? ZDomain::Depth().unitStr()
+				     : ZDomain::Time().unitStr()),
 		     FloatInpIntervalSpec(withstep) )
     , isdepth_( depth )
     , withstep_( withstep )

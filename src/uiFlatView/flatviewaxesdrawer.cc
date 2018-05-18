@@ -181,7 +181,7 @@ void AxesDrawer::updateViewRect()
 	if ( axis1nm_ ) axis1nm_->setVisible( false );
     }
 
-    uiString userfacstr = vwr_.zDomain().unitStr( true );
+    uiString zdomstr = vwr_.zDomain().unitStr();
     const bool usewva = !vwr_.isVisible( false );
     ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
     if ( showx2annot && !ad2.name_.isEmpty() &&
@@ -203,7 +203,7 @@ void AxesDrawer::updateViewRect()
 
 	uiString x2axisstr( toUiString(ad2.name_) );
 	if ( fdp && fdp->isVertical() )
-	    x2axisstr.constructWordWith( userfacstr, true );
+	    x2axisstr.withUnit( zdomstr );
 
 	if ( !axis2nm_ )
 	    axis2nm_ = view_.scene().addItem(

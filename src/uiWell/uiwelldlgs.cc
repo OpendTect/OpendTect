@@ -241,7 +241,7 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
     NotifyStopper nskbelev( kbelevfld_->updateRequested );
 
     uiString coordlbl = tr("%1 of well head");
-    const uiString coordun( SI().xyUnitString(true,false) );
+    const uiString coordun( SI().xyUnitString() );
     uiString xcoordlbl = coordlbl.arg( uiStrings::sXcoordinate() );
     uiString ycoordlbl = coordlbl.setArg( 0, uiStrings::sYcoordinate() );
     const uiString depthunit = uiStrings::sDistUnitString(
@@ -333,16 +333,14 @@ uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
     dataselfld_->attach( alignedBelow, wtinfld_ );
     dataselfld_->descChanged.notify( mCB(this,uiWellTrackReadDlg,trckFmtChg) );
 
-    const uiString zunit = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
-    uiString kblbl = tr( "%1 %2" )
-		     .arg(Well::Info::sKBElev()).arg( zunit );
+    const uiString zunit = UnitOfMeasure::surveyDefDepthUnitAnnot( true );
+    uiString kblbl = Well::Info::sKBElev().withUnit( zunit );
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->setWithCheck();
     kbelevfld_->setChecked( false );
     kbelevfld_->attach( alignedBelow, dataselfld_ );
 
-    uiString tdlbl = tr( "%1 %2" )
-		     .arg(Well::Info::sTD()).arg( zunit );
+    uiString tdlbl = Well::Info::sTD().withUnit( zunit );
     tdfld_ = new uiGenInput( this, tdlbl, FloatInpSpec() );
     tdfld_->setWithCheck();
     tdfld_->setChecked( false );
@@ -878,7 +876,9 @@ void uiD2TModelDlg::getColLabels( BufferStringSet& lbls ) const
     }
 
     curlbl.set( timeisoneway ? sKeyOWT() : sKeyTWT() );
-    curlbl.add( toString(UnitOfMeasure::surveyDefTimeUnitAnnot(true,true)) );
+    curlbl.add( " (" )
+	  .add( toString(UnitOfMeasure::surveyDefTimeUnitAnnot(true)) )
+	  .add( ")" );
     lbls.add( curlbl );
 
     curlbl.set( sKeyVint() );
@@ -1015,7 +1015,7 @@ void uiD2TModelDlg::fillReplVel( CallBacker* )
     NotifyStopper ns( replvelfld_->updateRequested );
     uiString lbl = toUiString("%1 (%2/%3)").arg(Well::Info::sKeyReplVel())
 		   .arg(uiStrings::sDistUnitString(
-		   zinftfld_->isChecked(),true,false))
+		   zinftfld_->isChecked(),true))
 		   .arg(uiStrings::sTimeUnitString());
     replvelfld_->setTitleText( lbl );
     replvelfld_->setValue( mConvertVal(wd_.info().replacementVelocity(),true) );

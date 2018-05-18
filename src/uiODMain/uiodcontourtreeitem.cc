@@ -545,8 +545,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 
 #define mAddZUnitStr(str) \
     if ( iszval_ ) \
-	str.appendPhrase( scene->zDomainInfo().unitStr(true), uiString::Space,\
-					    uiString::OnSameLine )
+	str.withUnit( scene->zDomainInfo().unitStr() )
 
     uiString lbltxt( tr("Total %1 range").arg(attrnm) );
     mAddZUnitStr(lbltxt); lbltxt.appendPlainText( ": " );

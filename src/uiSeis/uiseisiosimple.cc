@@ -241,12 +241,12 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 
     if ( isimp_ )
     {
-	uiString txt = tr("Sampling info: start, step %1 and #samples")
-			.arg(SI().zUnitString(true));
+	uiString fldtxt = tr("Sampling info: start, step (%1) and #samples")
+			.arg(SI().zUnitString());
 	SamplingData<float> sd( data().sd_ );
 	if ( SI().zIsTime() )
 	    { sd.start *= 1000; sd.step *= 1000; }
-	sdfld_ = new uiGenInput( this, txt,
+	sdfld_ = new uiGenInput( this, fldtxt,
 			DoubleInpSpec(sd.start).setName("SampInfo start"),
 			DoubleInpSpec(sd.step).setName("SampInfo step"),
 			IntInpSpec(data().nrsamples_).setName("Nr samples") );
@@ -346,8 +346,8 @@ void uiSeisIOSimple::inpSeisSel( CallBacker* )
     if ( ioobj )
     {
 	subselfld_->setInput( *ioobj );
-	BufferStringSet compnms;
-	SeisIOObjInfo::getCompNames( ioobj->key(), compnms );
+	const SeisIOObjInfo ioobjinf( *ioobj ); BufferStringSet compnms;
+	ioobjinf.getComponentNames( compnms );
 	multcompfld_->newSpec( StringListInpSpec(compnms), 0 );
 	multcompfld_->display( compnms.size()>1 );
 	multcompfld_->setSensitive( compnms.size()>1 );

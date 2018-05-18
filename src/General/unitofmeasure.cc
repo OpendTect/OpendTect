@@ -158,30 +158,29 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefVelUnit()
 }
 
 
-uiString UnitOfMeasure::surveyDefZUnitAnnot( bool symb, bool withparens )
+uiString UnitOfMeasure::surveyDefZUnitAnnot( bool symb )
 {
-    return zUnitAnnot( SI().zIsTime(), symb, withparens );
+    return zUnitAnnot( SI().zIsTime(), symb );
 }
 
 
-uiString UnitOfMeasure::surveyDefTimeUnitAnnot( bool symb, bool withparens )
+uiString UnitOfMeasure::surveyDefTimeUnitAnnot( bool symb )
 {
-    return zUnitAnnot( true, symb, withparens );
+    return zUnitAnnot( true, symb );
 }
 
 
-uiString UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb, bool withparens )
+uiString UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb )
 {
-    return zUnitAnnot( false, symb, withparens );
+    return zUnitAnnot( false, symb );
 }
 
 
 #define mRetLbl() \
     return !uom ? uiString::empty() \
-		: toUiString( withparens ? "(%1)" : "%1" ) \
-			      .arg( symb ? uom->symbol() : uom->name() )
+		: toUiString(symb ? uom->symbol() : uom->name())
 
-uiString UnitOfMeasure::zUnitAnnot( bool time, bool symb, bool withparens )
+uiString UnitOfMeasure::zUnitAnnot( bool time, bool symb )
 {
     const UnitOfMeasure* uom = time  ? surveyDefTimeUnit()
 				     : surveyDefDepthUnit();
@@ -189,7 +188,7 @@ uiString UnitOfMeasure::zUnitAnnot( bool time, bool symb, bool withparens )
 }
 
 
-uiString UnitOfMeasure::surveyDefVelUnitAnnot( bool symb, bool withparens )
+uiString UnitOfMeasure::surveyDefVelUnitAnnot( bool symb )
 {
     const UnitOfMeasure* uom = surveyDefVelUnit();
     mRetLbl();

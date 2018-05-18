@@ -143,7 +143,7 @@ void ZDomain::Def::set( IOPar& iop ) const
 
 
 uiString ZDomain::Def::getLabel() const
-{ return toUiString("%1 %2").arg( userName() ).arg( unitStr(true) ); }
+{ return userName().withUnit( unitStr() ); }
 
 
 uiString ZDomain::Def::getRange() const
@@ -169,22 +169,12 @@ const char* ZDomain::Def::fileUnitStr( bool withparens ) const
 }
 
 
-uiString ZDomain::Def::unitStr( bool withparens ) const
+uiString ZDomain::Def::unitStr() const
 {
-    if ( withparens )
-    {
-	mDeclStaticString( ret );
-	ret.setEmpty();
-	BufferString unitstr = fileUnitStr( false );
-	if ( !unitstr.isEmpty() )
-	    ret.add( "(" ).add( unitstr ).add( ")" );
-	return toUiString(ret);
-    }
-
     if ( !isDepth() )
 	return toUiString(defunit_);
 
-    return uiStrings::sDistUnitString( ::SI().depthsInFeet(), false, false );
+    return uiStrings::sDistUnitString( ::SI().depthsInFeet(), false );
 }
 
 

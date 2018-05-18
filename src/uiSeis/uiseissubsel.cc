@@ -168,7 +168,7 @@ uiCompoundParSel* uiSeisSubSel::compoundParSel()
 
 void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 {
-    uiSeisIOObjInfo oinf(ioobj,false); TrcKeyZSampling cs;
+    SeisIOObjInfo oinf( ioobj ); TrcKeyZSampling cs;
     if ( !oinf.getRanges(cs) )
 	clear();
     else

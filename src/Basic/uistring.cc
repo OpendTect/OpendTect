@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "texttranslation.h"
 #include "typeset.h"
 #include "uistrings.h"
+#include "survinfo.h"
 
 #ifndef OD_NO_QT
 # include <QString>
@@ -783,6 +784,18 @@ uiString& uiString::withUnit( const uiString& unstr )
 }
 
 
+uiString& uiString::withSurvZUnit()
+{
+    return withUnit( SI().zUnitString() );
+}
+
+
+uiString& uiString::withSurvXYUnit()
+{
+    return withUnit( SI().xyUnitString() );
+}
+
+
 bool uiString::translate( const QTranslator& qtr , QString& res ) const
 {
 #ifndef OD_NO_QT
@@ -1063,6 +1076,14 @@ uiStringSet& uiStringSet::add( const uiString& str )
 {
     strs_ += new uiString( str );
     return *this;
+}
+
+
+uiStringSet& uiStringSet::addKeyValue( const uiWord& ky, const uiString& val )
+{
+    uiString toadd( ky );
+    toadd.addMoreInfo( val );
+    return add( toadd );
 }
 
 

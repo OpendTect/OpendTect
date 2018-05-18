@@ -52,7 +52,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     IntInpIntervalSpec iis; iis.setSymmetric( true );
     StepInterval<int> swin( -10000, 10000, 1 );
     iis.setLimits( swin, 0 ); iis.setLimits( swin, 1 );
-    uiString compwindtxt = tr("Compare window %1").arg(SI().zUnitString());
+    uiString compwindtxt = tr("Compare window").withSurvZUnit();
     compwinfld_ = new uiGenInput( leftgrp, compwindtxt, iis );
     compwinfld_->attach( alignedBelow, usecorrfld_ );
     compwinfld_->valuechanging.notify(
@@ -80,7 +80,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     IntInpIntervalSpec diis; diis.setSymmetric( true );
     diis.setLimits( intv, 0 ); diis.setLimits( intv, 1 );
 
-    uiString disptxt=tr("Data Display window %1").arg(SI().zUnitString());
+    uiString disptxt=tr("Data Display window").withSurvZUnit();
     nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
     nrzfld_->attach( alignedBelow, corrthresholdfld_ );
     nrzfld_->attach( ensureBelow, sep );

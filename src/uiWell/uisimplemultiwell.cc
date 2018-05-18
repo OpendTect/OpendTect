@@ -75,12 +75,12 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     const uiString xunstr = SI().xyUnitString();
     tbl_->setColumnLabel( 1, uiStrings::sX().withUnit(xunstr).optional() );
     tbl_->setColumnLabel( 2, uiStrings::sY().withUnit(xunstr).optional() );
-    const uiString zun = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
-    tbl_->setColumnLabel( 3, toUiString("[KB%1]").arg(zun) );
+    const uiString zun = UnitOfMeasure::surveyDefDepthUnitAnnot( true );
+    tbl_->setColumnLabel( 3, toUiString("[KB (%1)]").arg(zun) );
     tbl_->setColumnToolTip( 3, Well::Info::sKBElev() );
-    tbl_->setColumnLabel( 4, toUiString("[TD%1]").arg(zun) );
+    tbl_->setColumnLabel( 4, toUiString("[TD (%1)]").arg(zun) );
     tbl_->setColumnToolTip( 4, Well::Info::sTD() );
-    tbl_->setColumnLabel( 5, toUiString("[GL%1]").arg(zun) );
+    tbl_->setColumnLabel( 5, toUiString("[GL (%1)]").arg(zun) );
     tbl_->setColumnToolTip( 5, Well::Info::sGroundElev() );
     tbl_->setColumnLabel( 6, toUiString("[UWI]") );
     tbl_->setColumnToolTip( 6, Well::Info::sUwid() );

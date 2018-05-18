@@ -76,22 +76,19 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     dataselfld_->attach( alignedBelow, trckinpfld_ );
     dataselfld_->descChanged.notify( mCB(this,uiWellImportAsc,trckFmtChg) );
 
-    uiString coordunitslbl = toUiString("%1 %2").arg(uiStrings::sCoordinate())
-						.arg(SI().xyUnitString());
+    uiString coordunitslbl = uiStrings::sCoordinate().withSurvXYUnit();
     coordfld_ = new uiGenInput( this, coordunitslbl,
 			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );
 
-    const uiString zunit = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
-    uiString kblbl = toUiString( "%1 %2" ).arg(Well::Info::sKBElev())
-		     .arg( zunit );
+    const uiString zunit = UnitOfMeasure::surveyDefDepthUnitAnnot( true );
+    uiString kblbl = Well::Info::sKBElev().withUnit( zunit );
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->setWithCheck();
     kbelevfld_->setChecked( false );
     kbelevfld_->attach( alignedBelow, dataselfld_ );
 
-    uiString tdlbl = tr( "%1 %2" )
-		     .arg(Well::Info::sTD()).arg( zunit );
+    uiString tdlbl = Well::Info::sTD().withUnit( zunit );
     tdfld_ = new uiGenInput( this, tdlbl, FloatInpSpec() );
     tdfld_->setWithCheck();
     tdfld_->setChecked( false );
@@ -220,17 +217,15 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     if ( zinfeet && zun_ )
 	dispval = zun_->userValue( info.replacementVelocity() );
 
-    uiString lbl = tr("%1 %2")
-		   .arg( Well::Info::sReplVel() )
-		   .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
+    uiString lbl = Well::Info::sReplVel()
+	    .withUnit( UnitOfMeasure::surveyDefVelUnitAnnot(true) );
     replvelfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, coordfld );
 
     dispval = info.groundElevation();
     if ( zinfeet && zun_ ) dispval = zun_->userValue( info.groundElevation() );
-    lbl = tr("%1 %2")
-		  .arg( Well::Info::sGroundElev() )
-	      .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
+    lbl = Well::Info::sGroundElev()
+	      .withUnit( UnitOfMeasure::surveyDefDepthUnitAnnot(true) );
     gdelevfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     gdelevfld->attach( alignedBelow, replvelfld );
 

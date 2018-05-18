@@ -67,9 +67,8 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
     welllogselfld_->attach( ensureBelow, attrsfld_ );
 
     const float inldist = SI().inlDistance();
-    uiString radiusbuf =  tr("Radius around wells %1")
-						.arg(SI().xyUnitString());
-    radiusfld_ = new uiGenInput( this, radiusbuf,
+    uiString radiusstr = tr("Radius around wells").withSurvXYUnit();
+    radiusfld_ = new uiGenInput( this, radiusstr,
 				 FloatInpSpec((float)((int)(inldist+.5))) );
     if ( attrsfld_ )
 	radiusfld_->attach( alignedBelow, attrsfld_ );
@@ -243,8 +242,8 @@ bool uiWellLogExtractGrp::extractDPS()
 {
     ObjectSet<DataColDef> dcds;
 
-    BufferString unit( "MD" );
-    unit.add( toString(UnitOfMeasure::zUnitAnnot(false,true,true)) );
+    BufferString unit( "MD (" );
+    unit.add( toString(UnitOfMeasure::zUnitAnnot(false,true)) ).add( ")" );
     dcds += new DataColDef( unit );
     BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
     for ( int idx=0; idx<lognms.size(); idx++ )

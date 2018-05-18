@@ -315,8 +315,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const uiString& txt,
 	FloatInpSpec fis( val );
 	uiString fldtxt( txt );
 	if ( isz )
-	    fldtxt.appendPhrase(SI().zUnitString(), uiString::Space,
-							uiString::OnSameLine);
+	    fldtxt.withSurvZUnit();
 	inp = new uiGenInput( grp, fldtxt, fis );
     }
 

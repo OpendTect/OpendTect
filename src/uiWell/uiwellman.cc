@@ -737,7 +737,7 @@ bool uiWellMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 
     if ( !track.isEmpty() )
     {
-	const uiString zunstr = SI().zUnitString(false);
+	const uiString zunstr = UnitOfMeasure::surveyDefDepthUnitAnnot( true );
 
 	const float rdelev = track.getKbElev();
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
@@ -753,7 +753,7 @@ bool uiWellMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 
 	const float replvel = info.replacementVelocity();
 	if ( !mIsUdf(replvel) )
-	    addObjInfo( inf, Well::Info::sReplVel(), toUiString(replvel) )
+	    addObjInfo( inf, Well::Info::sReplVel(), replvel )
 			.withUnit( toUiString("m/s") );
 
 	const float groundelev = info.groundElevation();

@@ -153,7 +153,7 @@ uiGMTNearNeighborGrid::uiGMTNearNeighborGrid( uiParent* p )
 {
     if ( hasGMTInst() )
     {
-	uiString lbl( tr("Search radius %1").arg( SI().xyUnitString() ) );
+	uiString lbl( tr("Search radius").withSurvXYUnit() );
 	radiusfld_ = new uiGenInput( this, lbl, FloatInpSpec(1) );
 	const int maxval = (int)mMAX(SI().inlDistance(), SI().crlDistance());
 	radiusfld_->setValue( maxval );

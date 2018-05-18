@@ -381,7 +381,7 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
 				      .arg(toUiString(gathertypefld_->text()));
     xrgfld_->setTitleText( xlbl );
     if ( isoffset )
-	xrglbl_->setText( SI().xyUnitString(false,false) );
+	xrglbl_->setText( SI().xyUnitString(false) );
     else
     {
 	xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
