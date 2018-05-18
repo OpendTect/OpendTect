@@ -103,7 +103,7 @@ HorizonTileResolutionTesselator::HorizonTileResolutionTesselator(
     , nrtiles_( 0 )
     , resolution_( res )
 {
-    if (hrsection)
+    if ( hrsection )
 	nrtiles_ =  hrsection->tiles_.info().getTotalSz();
 
     setName( "Horizon resolution tessellation" );
