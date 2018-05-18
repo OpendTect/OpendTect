@@ -393,7 +393,7 @@ od_int64 SeisIOObjInfo::getFileSize( const char* filenm, int& nrfiles )
 
 od_int64 SeisIOObjInfo::getFileSize() const
 {
-    const char* fnm = ioobj_->mainFileName();
+    BufferString fnm = ioobj_->mainFileName();
     int nrfiles;
     return getFileSize( fnm, nrfiles );
 }
