@@ -35,6 +35,7 @@ public:
 							const ColTab::Mapper&);
     void				setColTabSeq(int,
 						const ColTab::Sequence&);
+    void				setActiveAttribID(int id);
     int					activeAttrbID()
 					{ return activeattrbid_; }
     const ColTab::Mapper&		activeMapper()

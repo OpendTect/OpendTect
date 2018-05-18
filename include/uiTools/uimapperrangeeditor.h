@@ -35,7 +35,9 @@ public:
 				uiMapperRangeEditor(uiParent*,int an_id=0,
 						    bool fixdrawrg=true);
 				~uiMapperRangeEditor();
+
     int				ID() const		{ return id_; }
+    void			setID( int id )		{ id_ = id; }
 
     void			setEmpty();
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID,
@@ -52,7 +54,7 @@ public:
 
 protected:
 
-    const int			id_;
+    int				id_;
     uiHistogramDisplay*		histogramdisp_;
     uiAxisHandler*		xax_;
 
