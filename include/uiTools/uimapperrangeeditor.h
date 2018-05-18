@@ -29,12 +29,12 @@ namespace ColTab { class MapperSetup; class Sequence; }
 mExpClass(uiTools) uiMapperRangeEditor : public uiGroup
 {
 public:
-
-    				uiMapperRangeEditor(uiParent*,int id,
+				uiMapperRangeEditor(uiParent*,int id,
 					bool fixdrawrg=true);
 				~uiMapperRangeEditor();
 
-    int				ID()		       { return id_; }
+    int				ID()			{ return id_; }
+    void			setID( int id )		{ id_ = id; }
 
     void			setEmpty();
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID,

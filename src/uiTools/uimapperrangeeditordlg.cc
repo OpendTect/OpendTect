@@ -153,6 +153,15 @@ void uiMultiMapperRangeEditWin::setColTabSeq( int idx,
 }
 
 
+void uiMultiMapperRangeEditWin::setActiveAttribID( int id )
+{
+    if ( mapperrgeditors_.isEmpty() || mapperrgeditors_.size() > 1 )
+	return;
+
+    mapperrgeditors_[0]->setID( id );
+}
+
+
 void uiMultiMapperRangeEditWin::mouseMoveCB( CallBacker* cb )
 {
     mDynamicCastGet(MouseEventHandler*,meh,cb)
