@@ -153,7 +153,7 @@ uiGMTNearNeighborGrid::uiGMTNearNeighborGrid( uiParent* p )
 {
     if ( hasGMTInst() )
     {
-	uiString lbl( tr("Search radius").withSurvXYUnit() );
+	uiString lbl( uiStrings::sSearchRadius().withSurvXYUnit() );
 	radiusfld_ = new uiGenInput( this, lbl, FloatInpSpec(1) );
 	const int maxval = (int)mMAX(SI().inlDistance(), SI().crlDistance());
 	radiusfld_->setValue( maxval );
@@ -198,7 +198,8 @@ bool uiGMTNearNeighborGrid::acceptOK()
 
     if ( radiusfld_->getFValue() <= 0 )
     {
-	uiMSG().message( tr("Search radius should be greater than 0") );
+	uiMSG().message( toUiString("%1 <= 0")
+			 .arg( uiStrings::sSearchRadius() ) );
 	radiusfld_->setValue(mMAX(SI().inlDistance(), SI().crlDistance()) );
 	return false;
     }

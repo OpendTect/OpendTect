@@ -14,8 +14,8 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "posinfo.h"
 #include "zdomain.h"
-#include "seispsioprov.h"
 #include "seisioobjinfo.h"
+#include "seispsioprov.h"
 
 #include "uibutton.h"
 #include "uiioobjmanip.h"
@@ -117,62 +117,9 @@ void uiSeisPreStackMan::ownSelChg()
 
 bool uiSeisPreStackMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    SeisIOObjInfo objinf( ioobj );
-    if ( !objinf.isOK() )
-	{ inf.add( uiStrings::sNoInfoAvailable() ); return false; }
-
-    if ( is2d_ )
-    {
-	BufferStringSet nms;
-	SPSIOPF().getLineNames( ioobj, nms );
-	addObjInfo( inf, uiStrings::sLine(mPlural),
-						nms.getDispString(3,false) );
-    }
-    else
-    {
-	PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( ioobj );
-	if ( rdr )
-	{
-	    const PosInfo::CubeData& cd = rdr->posData();
-	    addObjInfo( inf, tr("Total number of gathers"), cd.totalSize() );
-
-	    StepInterval<int> rg; cd.getInlRange( rg );
-
-	    uiString inlrngtxt = toUiString("%1 - %2").arg(rg.start)
-								.arg(rg.stop);
-	    if ( cd.haveInlStepInfo() )
-		inlrngtxt.appendPlainText( "[%1]" ).arg( rg.step );
-
-	    addObjInfo( inf, uiStrings::sInlineRange(), inlrngtxt );
-
-	    cd.getCrlRange( rg );
-	    uiString crlrngtxt = tr("%1 - %2").arg(rg.start)
-							    .arg(rg.stop);
-	    if ( cd.haveCrlStepInfo() )
-		crlrngtxt.appendPlainText( "[%1]" ).arg( rg.step );
-
-	    addObjInfo( inf, uiStrings::sCrosslineRange(), crlrngtxt );
-	}
-
-    }
-
-
-    TrcKeyZSampling cs;
-    if ( objinf.getRanges(cs) )
-    {
-	const bool zistm = objinf.isTime();
-	const ZDomain::Def& zddef = objinf.zDomainDef();
-#	    define mAddZValTxt(memb) .arg(zistm ? mNINT32(1000*memb) : memb)
-	inf.add( toUiString("%1 %2 (%3): %4 - %5 [%6]")
-				    .arg(zddef.userName())
-				    .arg(uiStrings::sRange().toLower())
-				    .arg(toString(zddef.unitStr()))
-				    mAddZValTxt(cs.zsamp_.start)
-				    mAddZValTxt(cs.zsamp_.stop)
-				    mAddZValTxt(cs.zsamp_.step) );
-    }
-
-    return true;
+    SeisIOObjInfo oinf( ioobj );
+    oinf.getUserInfo( inf );
+    return oinf.isOK();
 }
 
 

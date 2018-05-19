@@ -435,6 +435,15 @@ bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
 bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 {
     mChk(false);
+    if ( isPS() )
+    {
+	//TODO Make correct implementation
+	DataCharacteristics::UserType ut = OD::F32;
+	DataCharacteristics::getUserTypeFromPar( ioobj_->pars(), ut );
+	dc = DataCharacteristics( ut );
+	return true;
+    }
+
     Translator* trl = ioobj_->createTranslator();
     if ( !trl )
 	{ pErrMsg("No Translator!"); return false; }
@@ -1028,5 +1037,19 @@ void SeisIOObjInfo::getPostStackUserInfo( uiPhraseSet& inf ) const
 
 void SeisIOObjInfo::getPreStackUserInfo( uiPhraseSet& inf ) const
 {
-    //TODO
+    if ( is2D() )
+    {
+	BufferStringSet nms;
+	SPSIOPF().getLineNames( *ioobj_, nms );
+	inf.addKeyValue( uiStrings::sLine(mPlural), nms.getDispString(3,false));
+    }
+    else
+    {
+	PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *ioobj_ );
+	if ( rdr )
+	{
+	    const PosInfo::CubeData& cd = rdr->posData();
+	    inf.addKeyValue( tr("Total number of gathers"), cd.totalSize() );
+	}
+    }
 }

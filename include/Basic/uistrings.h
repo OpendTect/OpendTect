@@ -128,6 +128,7 @@ public:
     static uiPhrase phrImport(const uiWord& string);
     static uiPhrase phrInline(const uiWord&);
     static uiPhrase phrInput(const uiWord&);
+    static uiPhrase phrParamMissing(const char* paramname);
     static uiPhrase phrInsert(const uiWord&);
     static uiPhrase phrInternalErr(const char*); // will add 'contact support'
     static uiPhrase phrInterpretationDataExist(uiWord type,const char* nm);
@@ -458,7 +459,7 @@ public:
     static uiWord sInlineNumber(int num=1) { return tr("Inline Number",0,num); }
     static uiWord sInlineRange()	{ return tr("Inline Range"); }
     static uiWord sInputASCIIFile()	{ return tr("Input ASCII File"); }
-    static uiWord sInputParamsMissing();
+    static uiWord sParsMissing()	{ return tr("Parameters missing"); }
     static uiWord sInput()		{ return tr("Input"); }
     static uiWord sInputFile()		{ return tr("Input File"); }
     static uiWord sInputSelection()	{ return tr("Input Selection"); }
@@ -683,6 +684,7 @@ public:
     static uiWord sScope()		{ return tr("Scope"); }
     static uiWord sSearch()		{ return tr("Search"); }
     static uiWord sSearching()		{ return tr("Searching"); }
+    static uiWord sSearchRadius()	{ return tr("Search Radius"); }
     static uiWord sSec( bool abbr, int n=1 )
     { return abbr ? toUiString("s") : tr("Second","unit of time",n); }
     static uiWord sSEGY()		{ return tr("SEG-Y"); }

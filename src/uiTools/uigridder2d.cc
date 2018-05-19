@@ -225,11 +225,11 @@ uiInverseDistanceGridder2D::uiInverseDistanceGridder2D ( uiParent* p,
     : uiGridder2DGrp(p,InverseDistanceGridder2D::sFactoryDisplayName(),
 		     griddernm)
 {
-    msg_ = tr("Search radius must be more than zero");
+    msg_ = toUiString("%1 <= 0").arg( uiStrings::sSearchRadius() );
     //the only thing that can go wrong
 
-    const uiString radius = tr("Search radius").withSurvXYUnit();
-    searchradiusfld_ = new uiGenInput( this, radius, FloatInpSpec() );
+    const uiString radstr = uiStrings::sSearchRadius().withSurvXYUnit();
+    searchradiusfld_ = new uiGenInput( this, radstr, FloatInpSpec() );
     searchradiusfld_->setWithCheck( true );
     if ( trendFld() )
 	trendFld()->attach( alignedBelow, searchradiusfld_ );

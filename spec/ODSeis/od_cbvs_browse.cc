@@ -76,6 +76,9 @@ int main( int argc, char** argv )
 
     od_cout() << "\n";
     const CBVSReadMgr& mgr = *tri->readMgr();
+    BufferString datastr;
+    mgr.info().compinfo_[0]->datachar_.toString( datastr );
+    od_cout() << "Data is stored as " << datastr << od_endl;
     mgr.dumpInfo( od_cout(), true );
     const CBVSInfo& info = mgr.info();
     const int singinl = info.geom_.start.inl() == info.geom_.stop.inl()

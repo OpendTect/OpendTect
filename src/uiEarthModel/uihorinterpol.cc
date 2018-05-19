@@ -495,7 +495,7 @@ uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
 {
     fltselfld_ = new uiFaultParSel( this, false );
 
-    uiString titletext( tr("Search radius").withSurvXYUnit() );
+    uiString titletext( uiStrings::sSearchRadius().withSurvXYUnit() );
     radiusfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
     radiusfld_->setWithCheck( true );
     radiusfld_->setChecked( true );

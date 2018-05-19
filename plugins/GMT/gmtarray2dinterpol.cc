@@ -295,7 +295,7 @@ bool GMTNearNeighborGrid::mkCommand( BufferString& cmd )
 {
     if ( radius_ < 0 )
     {
-	msg_ = tr("Search radius parameter missing");
+	msg_ = uiStrings::phrParamMissing( sKeyRadius() );
 	return false;
     }
 

@@ -76,14 +76,17 @@ MadStream::MadStream( IOPar& par )
     if ( iswrite_ )
     {
 	PtrMan<IOPar> outpar = par.subselect( sKeyOutput );
-	if (!outpar) mErrRet(tr("Output parameters missing"));
+	if ( !outpar )
+	    mErrRet( uiStrings::sParsMissing()
+		     .addMoreInfo(uiStrings::sOutput()) )
 
 	initWrite( outpar );
     }
     else
     {
 	PtrMan<IOPar> inpar = par.subselect( sKeyInput );
-	if (!inpar) mErrRet(uiStrings::sInputParamsMissing());
+	if ( !inpar )
+	    mErrRet( uiStrings::sParsMissing().addMoreInfo(uiStrings::sInput()))
 
 	initRead( inpar );
     }

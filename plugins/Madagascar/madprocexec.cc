@@ -112,7 +112,7 @@ bool ODMad::ProcExec::init()
 
 	PtrMan<IOPar> inpar = pars_.subselect( ODMad::ProcFlow::sKeyInp() );
 	if ( !inpar || !inpar->size() )
-	    mErrRet(uiStrings::sInputParamsMissing())
+	    mErrRet( uiStrings::sParsMissing().addMoreInfo(uiStrings::sInput()))
 
 	ODMad::ProcFlow::IOType inptyp = ODMad::ProcFlow::ioType( *inpar );
 	const char* comm = getProcString();

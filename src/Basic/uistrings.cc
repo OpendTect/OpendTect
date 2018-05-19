@@ -203,6 +203,9 @@ uiPhrase uiStrings::phrInline( const uiWord& string )
 uiPhrase uiStrings::phrInput( const uiWord& string )
 { return mJoinStr.arg( sInput() ).arg( string ); }
 
+uiPhrase uiStrings::phrParamMissing( const char* pnm )
+{ return tr("Parameter '%1' missing").arg( pnm ); }
+
 uiPhrase uiStrings::phrInsert( const uiWord& string )
 { return tr("Insert %1").arg( string ); }
 
@@ -506,9 +509,6 @@ uiWord uiStrings::sCreateProbDesFunc()
 
 uiWord uiStrings::sEnterValidName()
 { return uiStrings::phrEnter(tr("a valid name")); }
-
-uiWord uiStrings::sInputParamsMissing()
-{ return tr("Input parameters missing"); }
 
 uiWord uiStrings::sSaveBodyFail()
 { return tr("Save body failed"); }

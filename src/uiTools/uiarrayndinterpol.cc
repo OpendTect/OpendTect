@@ -462,7 +462,7 @@ void uiInverseDistanceArray2DInterpol::setValuesFrom( const Array2DInterpol& a )
 
 void uiInverseDistanceArray2DInterpol::setDistanceInFeet( bool yn )
 {
-    uiString res = tr("Search radius [%1]").arg( getDistUnStr(yn) );
+    uiString res = uiStrings::sSearchRadius().withUnit( getDistUnStr(yn) );
     radiusfld_->setTitleText( res );
 }
 
