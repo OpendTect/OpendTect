@@ -2269,6 +2269,8 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
 
     const int nrattribs = attribid==-1 ? getNrAttribs(visid) : 1;
     multirgeditwin_ = new uiMultiMapperRangeEditWin( 0, nrattribs, dpmid );
+    if ( attribid != -1 )
+	multirgeditwin_->setActiveAttribID( attribid );
     multirgeditwin_->setDeleteOnClose( false );
     multirgeditwin_->rangeChange.notify(
 	    mCB(this,uiVisPartServer,mapperRangeEditChanged) );
