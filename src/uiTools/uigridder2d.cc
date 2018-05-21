@@ -225,7 +225,7 @@ uiInverseDistanceGridder2D::uiInverseDistanceGridder2D ( uiParent* p,
     : uiGridder2DGrp(p,InverseDistanceGridder2D::sFactoryDisplayName(),
 		     griddernm)
 {
-    msg_ = toUiString("%1 <= 0").arg( uiStrings::sSearchRadius() );
+    msg_ = InverseDistanceGridder2D::searchRadiusErrMsg();
     //the only thing that can go wrong
 
     const uiString radstr = uiStrings::sSearchRadius().withSurvXYUnit();

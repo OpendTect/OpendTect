@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "gridder2d.h"
 #include "horizongridder.h"
 #include "polygon.h"
 #include "survinfo.h"
@@ -523,7 +524,13 @@ void uiInvDistHor3DInterpol::doParamDlg( CallBacker* )
 
 bool uiInvDistHor3DInterpol::fillPar( IOPar& par ) const
 {
-    const float radius = radiusfld_->isChecked() ? radiusfld_->getFValue(0) : mUdf(float);
+    const float radius = radiusfld_->isChecked() ?
+				radiusfld_->getFValue(0) : mUdf(float);
+    if ( radius<=0 )
+    {
+	uiMSG().error( InverseDistanceGridder2D::searchRadiusErrMsg() );
+	return false;
+    }
 
     const DBKeySet& selfaultids = fltselfld_->selFaultIDs();
     par.set( HorizonGridder::sKeyNrFaults(), selfaultids.size() );
