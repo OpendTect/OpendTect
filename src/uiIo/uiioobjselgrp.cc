@@ -910,7 +910,8 @@ void uiIOObjSelGrp::newOutputNameCB( CallBacker* )
     const int deftransidx = ctio_.ctxt_.trgroup_->defTranslIdx();
     const Translator* deftrans = ctio_.ctxt_.trgroup_->templates()[deftransidx];
     PtrMan<IOObj> curioobj = DBM().get( currentID() );
-    const Translator* selectedtrans =  wrtrselfld_->selectedTranslator();
+    const Translator* selectedtrans =
+		wrtrselfld_ ? wrtrselfld_->selectedTranslator() : 0;
     const bool translatorchanged = curioobj && selectedtrans
 			 ? curioobj->translator() != selectedtrans->userName()
 			 : false;
