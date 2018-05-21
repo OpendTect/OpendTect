@@ -306,7 +306,7 @@ bool uiEMPartServer::export3DHorizon( bool bulk )
 
 bool uiEMPartServer::importBulkFaults()
 {
-    impbulkfltdlg_ = new uiBulkFaultImport( parent(), 
+    impbulkfltdlg_ = new uiBulkFaultImport( parent(),
 				EMFault3DTranslatorGroup::sGroupName(), false );
 
     return impbulkfltdlg_->go();
@@ -1242,14 +1242,8 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 	return false;
 
     const int cid = getColID( dpset, nm );
-    if ( cid < 0 || mIsUdf(cid) )
+    if ( cid<0 || mIsUdf(cid) )
 	return false;
-
-    const EM::SectionID sid = hor3d->sectionID( 0 );
-    const StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
-    const StepInterval<int> colrg = hor3d->geometry().colRange( sid, -1 );
-    BinID step( rowrg.step, colrg.step );
-//    BIDValSetArrAdapter adapter( bivs, cid, step );
 
     uiVariogramDlg varsettings( parent(), false );
     if ( !varsettings.go() )
@@ -1271,6 +1265,7 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 		   : uiMSG().warning( mToUiStringTodo(errmsg.buf()) );
 	return false;
     }
+
     uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), hvc.getData(),
 						       hvc.getXaxes(),
 						       hvc.getLabels(),
