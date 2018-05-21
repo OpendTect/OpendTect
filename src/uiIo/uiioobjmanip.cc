@@ -68,6 +68,21 @@ uiToolButton* uiManipButGrp::addButton( const char* pmnm,
 }
 
 
+
+void uiManipButGrp::remove( uiToolButton* tb )
+{
+    for ( int idx=0; idx<butdata.size(); idx++ )
+    {
+	if ( butdata[idx]->but == tb )
+	{
+	    delete butdata.removeSingle( idx );
+	    delete altbutdata.removeSingle( idx );
+	    removeButton( tb );
+	}
+    }
+}
+
+
 void uiManipButGrp::setAlternative( uiToolButton* button, const char* pm,
 				    const uiString& tt )
 {

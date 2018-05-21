@@ -35,6 +35,7 @@ public:
     uiToolButton*	addButton(Type,const uiString& ttip,const CallBack&);
     uiToolButton*	addButton(const char* iconfnm,const uiString& ttip,
 				  const CallBack&);
+    void		remove(uiToolButton*);
     void		setAlternative(uiToolButton*,const char* icfnm,
 				       const uiString& ttip);
     void		useAlternative(uiToolButton*,bool);
