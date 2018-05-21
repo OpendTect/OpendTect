@@ -76,6 +76,7 @@ public:
     void		usePar(const IOPar&);
     void		use(const IOObj*,bool force);
     void		setFileName(const char*);
+    BufferString	getJobNameForBatchProcess() const;
 
     SEGY::FileSpec	getSpec() const;
     void		setSpec(const SEGY::FileSpec&);
@@ -106,6 +107,7 @@ protected:
     void		fileSel(CallBacker*);
     void		manipFile(CallBacker*);
 
+    BufferString	getFileName() const;
 };
 
 

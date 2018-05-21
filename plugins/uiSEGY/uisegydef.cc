@@ -115,9 +115,22 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
 }
 
 
+BufferString uiSEGYFileSpec::getFileName() const
+{
+    return fnmfld_->fileName();
+}
+
+
+BufferString uiSEGYFileSpec::getJobNameForBatchProcess() const
+{
+    //FileName() value cannot be empty at this point
+    return BufferString( File::Path(getFileName()).baseName() );
+}
+
+
 SEGY::FileSpec uiSEGYFileSpec::getSpec() const
 {
-    SEGY::FileSpec spec( fnmfld_->fileName() );
+    SEGY::FileSpec spec( getFileName() );
     if ( multifld_ && multifld_->isChecked() )
     {
 	spec.nrs_ = multifld_->getIStepInterval();
