@@ -129,7 +129,6 @@ Annotation::Annotation()
     addChild( axisnames_->osgNode() );
 
 #define mAddText \
-    text = new Text; \
     { \
 	const int txtidx = axisnames_->addText(); \
 	text = axisnames_->text( txtidx ); \
