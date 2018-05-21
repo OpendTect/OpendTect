@@ -95,6 +95,7 @@ set( OD_PLUGINS
 	uiMMPTest
 	uiPresentationMaker
 	uiPreStackViewer
+	uiQtApp
 	uiSEGY
 	uiTut
 	uiTutMadagascar
