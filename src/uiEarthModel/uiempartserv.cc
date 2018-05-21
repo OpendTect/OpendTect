@@ -1131,13 +1131,8 @@ bool uiEMPartServer::computeVariogramAuxData( const DBKey& oid,
 	return false;
 
     const int cid = getColID( dpset, nm );
-    if ( cid < 0 || mIsUdf(cid) )
+    if ( cid<0 || mIsUdf(cid) )
 	return false;
-
-    const StepInterval<int> rowrg = hor3d->geometry().rowRange();
-    const StepInterval<int> colrg = hor3d->geometry().colRange( -1 );
-    BinID step( rowrg.step, colrg.step );
-//    BIDValSetArrAdapter adapter( bivs, cid, step );
 
     uiVariogramDlg varsettings( parent(), false );
     if ( !varsettings.go() )
@@ -1159,6 +1154,7 @@ bool uiEMPartServer::computeVariogramAuxData( const DBKey& oid,
 		   : uiMSG().warning( errmsg );
 	return false;
     }
+
     uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), hvc.getData(),
 						       hvc.getXaxes(),
 						       hvc.getLabels(),
