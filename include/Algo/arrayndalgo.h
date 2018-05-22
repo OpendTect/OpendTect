@@ -2466,7 +2466,7 @@ private:
 			for ( int idz=0; idz<nrtrcsp; idz++ )
 			{
 			    if ( hiter ) pos[zidx] = idz;
-			    const float val = hasarrayptr
+			    const T val = hasarrayptr
 					    ? *dataptr++
 					    : hasstorage
 						? datastor->value( validx++ )
@@ -2515,7 +2515,7 @@ private:
 			for ( int idz=nrtrcsp-1; idz>=0; idz-- )
 			{
 			    if ( hiter ) pos[zidx] = idz;
-			    const float val = hasarrayptr
+			    const T val = hasarrayptr
 					    ? *dataptr--
 					    : hasstorage
 						? datastor->value( validx-- )
