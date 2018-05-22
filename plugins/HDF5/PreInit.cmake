@@ -4,6 +4,12 @@
 #       Feb 2018	Bert
 #_______________________________________________________________________________
 
-find_package( HDF5 REQUIRED )
+find_package( HDF5 1.10 QUIET COMPONENTS CXX )
 
-set( OD_PLUGINS ${OD_PLUGINS} HDF5 )
+if ( HDF5_FOUND )
+  set( OD_PLUGINS ${OD_PLUGINS} HDF5 )
+  if ( HDF5_ROOT )
+    unset( HDF5_ROOT CACHE )
+  endif()
+endif()
+
