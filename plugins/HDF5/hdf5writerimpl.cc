@@ -30,14 +30,7 @@ HDF5::WriterImpl::WriterImpl()
     , chunksz_(64)
 {
     if ( szip_encoding_status < 0 )
-    {
-	unsigned int filter_config_flags;
-	H5Zget_filter_info( H5Z_FILTER_SZIP, &filter_config_flags );
-	if ( (filter_config_flags & H5Z_FILTER_CONFIG_ENCODE_ENABLED) == 0 )
-	    szip_encoding_status = 0;
-	else
-	    szip_encoding_status = 1;
-    }
+	szip_encoding_status = H5Zfilter_avail( H5Z_FILTER_SZIP ) ? 1 : 0;
 }
 
 
