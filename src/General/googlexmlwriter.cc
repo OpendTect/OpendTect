@@ -39,7 +39,7 @@ bool ODGoogle::XMLWriter::open( const char* fnm )
 
     strm_ = new od_ostream( fnm );
     if ( !strm_ || !strm_->isOK() )
-	mErrRet( uiStrings::phrCannotOpen( toUiString(fnm) ) )
+	mErrRet( uiStrings::phrCannotOpenForWrite( fnm ) )
 
     strm() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 	    "<kml xmlns=\"http://www.opengis.net/kml/2.2\" "

@@ -71,7 +71,8 @@ void CBVSWriter::init( const CBVSInfo& i )
     nrbytespersample_ = 0;
 
     if ( !strm_.isOK() )
-	{ errmsg_ = uiStrings::phrCannotOpen(tr("file for writing")); return; }
+	{ errmsg_ = uiStrings::phrCannotOpenForWrite(strm_.fileName());
+	    return; }
     if ( !survgeom_.fullyrectandreg && !auxinfo_ )
 	{ pErrMsg("Survey not rectangular but no explicit inl/crl info");
 	  errmsg_ = uiStrings::phrInternalErr("no explicit info"); return; }

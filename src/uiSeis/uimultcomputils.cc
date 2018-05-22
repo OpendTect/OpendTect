@@ -103,7 +103,7 @@ uiString uiMultCompSel::getSummary() const
     uiString ret;
     if ( !allowChoice() || !dlg_ || dlg_->useallfld_->getBoolValue()
 	|| dlg_->outlistfld_->nrChosen() == compnms_.size() )
-	ret = tr( "-- All components --" );
+	ret = tr("-- All components --");
     else
     {
 	uiStringSet selnms;

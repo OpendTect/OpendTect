@@ -159,7 +159,8 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     if ( multihost )
     {
 	stopbut->attach( alignedBelow, usedmachfld_ );
-	addbut = new uiPushButton( machgrp, tr( ">> Add >>" ), true );
+	addbut = new uiPushButton( machgrp,
+		    toUiString( ">> %1 >>" ).arg( uiStrings::sAdd() ), true );
 	if ( avmachfld_ )
 	    addbut->attach( centeredRightOf, avmachfld_ );
 	usedmachgrp->attach( ensureRightOf, addbut );

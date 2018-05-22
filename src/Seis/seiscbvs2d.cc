@@ -333,9 +333,9 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 	nrwr_++;
     else
     {
-	errmsg_ = tr( "Cannot write %1 trace to 2D line file:\n%2")
-	    .arg( uiString::getOrderString( nrwr_+1 ) )
-	    .arg( tr_->errMsg() );
+	errmsg_ = tr("Cannot write %1 trace to 2D line file")
+		    .arg( uiString::getOrderString(nrwr_+1) )
+		    .addMoreInfo( tr_->errMsg() );
 	return false;
     }
     return true;

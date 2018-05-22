@@ -600,11 +600,11 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     if ( *comm == '@' )
 	comm++;
     if ( !*comm )
-	{ errmsg_ = tr( "Command is empty" ); return false; }
+	{ errmsg_ = tr("Command is empty"); return false; }
 
     if ( process_ )
     {
-	errmsg_ = tr( "Command is already running" );
+	errmsg_ = tr("Process is already running ('%1')").arg( comm );
 	return false;
     }
 
@@ -743,19 +743,19 @@ int OS::CommandLauncher::catchError()
     switch ( process_->error() )
     {
 	case QProcess::FailedToStart :
-	    errmsg_ = tr( "Cannot start process %1." );
+	    errmsg_ = tr("Cannot start process %1.");
 	    break;
 	case QProcess::Crashed :
-	    errmsg_ = tr( "%1 crashed." );
+	    errmsg_ = tr("%1 crashed.");
 	    break;
 	case QProcess::Timedout :
-	    errmsg_ = tr( "%1 timeout" );
+	    errmsg_ = tr("%1 timeout");
 	    break;
 	case QProcess::ReadError :
-	    errmsg_ = tr( "Read error from process %1");
+	    errmsg_ = tr("Read error from process %1");
 	    break;
 	case QProcess::WriteError :
-	    errmsg_ = tr( "Read error from process %1");
+	    errmsg_ = tr("Read error from process %1");
 	    break;
 	default :
 	    break;

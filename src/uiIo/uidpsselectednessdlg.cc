@@ -161,7 +161,7 @@ bool uiDPSSelectednessDlg::acceptOK()
 
     if ( colnms.isPresent(nmfld_->text()) )
     {
-	uiMSG().error( tr( "Column '%1' already present, "
+	uiMSG().error( tr("Column '%1' already present, "
 			   "choose a different name").arg( nmfld_->text()) );
 	return false;
     }

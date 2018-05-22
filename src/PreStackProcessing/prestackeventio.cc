@@ -451,10 +451,7 @@ bool EventReader::readAuxData(const char* fnm)
 
     SafeFileIO fileio( auxfilenm );
     if ( !fileio.open( true ) )
-    {
-	errmsg_ = uiStrings::phrCannotOpen(toUiString(auxfilenm));
-	return false;
-    }
+	{ errmsg_ = uiStrings::phrCannotOpenForRead(auxfilenm); return false; }
 
     IOPar par;
     if ( !par.read( fileio.istrm(), EventReader::sHorizonFileType(), true ) )
@@ -842,7 +839,7 @@ int EventDuplicator::nextStep()
     File::Path targetfile( filestocopy_[idx]->buf() );
     targetfile.setPath( tonm.buf() );
 
-    message_ = tr( "Copying %1.").arg( targetfile.fileName() );
+    message_ = tr("Copying '%1'").arg( targetfile.fileName() );
 
     if ( !File::copy( filestocopy_[idx]->buf(), targetfile.fullPath().buf() ) )
     {

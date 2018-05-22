@@ -193,7 +193,7 @@ void impLineGeom( CallBacker* )
     {
 	od_istream strm( filenm );
 	if ( !strm.isOK() )
-	{ uiMSG().error(uiStrings::sCantOpenInpFile()); return; }
+	    { uiMSG().error(uiStrings::phrCannotOpenInpFile()); return; }
 
 	PosInfo::Line2DData geom( linenm_ );
 	Geom2dAscIO geomascio( dlg.dataselfld_->desc(), strm );

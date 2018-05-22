@@ -285,13 +285,13 @@ void uiBatchHostsDlg::rmHostCB( CallBacker* )
     const BufferString hostname = table_->text( RowCol(row,1) );
     uiString msgtxt;
     if ( !hostname.isEmpty() )
-	msgtxt = tr( "Host %1" ).arg( hostname );
+	msgtxt = toUiString( hostname ).quote( true );
     else
-	msgtxt = ( toUiString(table_->rowLabel(row)) );
+	msgtxt = uiStrings::sHost().withNumber( row );
 
     const uiString msg(tr("%1 will be removed from this list").arg(msgtxt));
-    const bool res = uiMSG().askContinue( msg );
-    if ( !res ) return;
+    if ( !uiMSG().askContinue( msg ) )
+	return;
 
     table_->removeRow( row );
     delete hostdatalist_.removeSingle( row );

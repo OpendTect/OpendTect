@@ -64,7 +64,7 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
 	x2fld_->attach( alignedBelow, x1fld_ );
     }
 
-    saveglobalfld_ = new uiCheckBox( this, tr( "Save globally" ) );
+    saveglobalfld_ = new uiCheckBox( this, tr("Save globally") );
     saveglobalfld_->attach( leftAlignedBelow , isvertical ? x2fld_ : x1fld_ );
 
     CallBack cb( mCB( this, uiFlatViewZoomLevelDlg, applyPushedCB ) );

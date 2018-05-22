@@ -244,7 +244,7 @@ bool uiImportFault::handleAscii()
 
     od_istream strm( infld_->fileName() );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::sCantOpenInpFile() )
+	mErrRet( uiStrings::phrCannotOpenForRead(strm.fileName()) )
 
     mDynamicCastGet(EM::Fault3D*,fault3d,fault)
 

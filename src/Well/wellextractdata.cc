@@ -83,7 +83,7 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
 {
     totalnr_ = direntries_.size();
     if ( totalnr_ > 0 )
-	curmsg_ = tr( "Gathering information" );
+	curmsg_ = tr("Gathering information");
 }
 
 
@@ -480,7 +480,7 @@ int Well::TrackSampler::nextStep()
 
     if ( lognms_.isEmpty() )
     {
-	msg_ = tr( "No well logs specified" );
+	msg_ = tr("No well logs specified");
 	return ErrorOccurred();
     }
 

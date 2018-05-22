@@ -592,12 +592,12 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 	    proprefsel.find(PropertyRef::standardPVelStr()) >=0 ||
 	    proprefsel.find( PropertyRef::standardPVelAliasStr()) >= 0;
     if ( !haspwave )
-	errmsg_ = tr( "No reference to P wave velocity found" );
+	errmsg_ = tr("No reference to P wave velocity found");
     const bool hasswave =
 	    proprefsel.find(PropertyRef::standardSVelStr()) >=0 ||
 	    proprefsel.find( PropertyRef::standardSVelAliasStr()) >= 0;
     if ( !hasswave )
-	errmsg_ = tr( "No reference to S wave velocity found" );
+	errmsg_ = tr("No reference to S wave velocity found");
 }
 
 

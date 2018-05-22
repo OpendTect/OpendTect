@@ -153,7 +153,7 @@ void uiConvertPos::convFile( CallBacker* )
     const BufferString outfnm = outfilefld->fileName();
     od_ostream ostream( outfnm );
     if ( !ostream.isOK() )
-    { mErrRet(uiStrings::sCantOpenOutpFile()); }
+    { mErrRet(uiStrings::phrCannotOpenOutpFile()); }
 
     lastinpfile = inpfnm; lastoutfile = outfnm;
 

@@ -55,8 +55,7 @@ void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv )
 	myfile_ = true;
 	file_ = newfile;
     }
-    mCatchAdd2uiRv( uiStrings::phrCannotOpen(fnm) )
-    // mCatchAdd2uiRv( uiStrings::phrCannotOpenForWrite(fnm) )
+    mCatchAdd2uiRv( uiStrings::phrCannotOpenForWrite(fnm) )
 }
 
 

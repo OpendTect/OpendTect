@@ -343,8 +343,8 @@ bool VolProc::Chain::usePar( const IOPar& par )
 	Step* step = Step::factory().create( type.buf() );
 	if ( !step )
 	{
-	    errmsg_ = tr( "Cannot create Volume processing step %1. "
-			  "Perhaps all plugins are not loaded?")
+	    errmsg_ = tr("Cannot create Volume processing step '%1'.\n"
+			 "Perhaps some of the plugins did not load.")
 			  .arg( type.buf() );
 
 	    return false;
@@ -369,26 +369,24 @@ bool VolProc::Chain::usePar( const IOPar& par )
 	if ( !par.get(sKey::Output(),outputstepid,outputslotid) ||
 	     !setOutputSlot(outputstepid,outputslotid) )
 	{
-	    errmsg_ = tr("Cannot parse or set output slot.");
+	    errmsg_ = uiStrings::phrInvalid( tr("output slot") );
 	    return false;
 	}
 
 	BufferString key;
-	uiWord connerr = tr("connection with index %1").arg( toUiString(-1) );
+#	define mErrConnStr() uiStrings::sConnection().withNumber( idx )
 	for ( int idx=0; idx<nrconns; idx++ )
 	{
 	    Connection newconn;
 	    if ( !newconn.usePar(par,sKeyConnection(idx,key)) )
 	    {
-		connerr.setArg( 0, toUiString(idx) );
-		errmsg_ = uiStrings::phrCannotParse( connerr );
+		errmsg_ = uiStrings::phrInvalid( mErrConnStr() );
 		return false;
 	    }
 
 	    if ( !addConnection(newconn) )
 	    {
-		connerr = connerr.setArg( 0, toUiString(idx) );
-		errmsg_ = uiStrings::phrCannotAdd( connerr );
+		errmsg_ = uiStrings::phrCannotAdd( mErrConnStr() );
 		return false;
 	    }
 	}
@@ -405,7 +403,7 @@ bool VolProc::Chain::usePar( const IOPar& par )
 
 	    if ( !addConnection( conn ) )
 	    {
-		pErrMsg("Should never happen");
+		pErrMsg( "Should never happen" );
 		return false;
 	    }
 	}
@@ -413,7 +411,7 @@ bool VolProc::Chain::usePar( const IOPar& par )
 	if ( !setOutputSlot( steps_.last()->getID(),
 			     steps_.last()->getOutputSlotID( 0 ) ) )
 	{
-	    pErrMsg("Should never happen");
+	    pErrMsg( "Should never happen" );
 	    return false;
 	}
     }

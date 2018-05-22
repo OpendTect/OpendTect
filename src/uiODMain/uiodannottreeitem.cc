@@ -145,7 +145,7 @@ bool uiODAnnotTreeItem::showSubMenu()
     RefMan<Pick::Set> newps = 0;
     if ( mnusel == 0 )
     {
-	const uiString title = tr( "%1 Annotations").arg(typestr_);
+	const uiString title = tr("%1 Annotations").arg(typestr_);
 	uiGenInputDlg dlg( getUiParent(), title, tr("Group name"),
 			       new StringInpSpec );
 	dlg.setCaption( uiStrings::sAnnotation(mPlural) );

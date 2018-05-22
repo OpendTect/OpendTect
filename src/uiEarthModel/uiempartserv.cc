@@ -549,8 +549,7 @@ bool uiEMPartServer::askUserToSave( const DBKey& emid,
     if ( !ioobj && emobj->isEmpty() )
 	return true;
 
-    uiString msg = tr( "%1 '%2' has changed.\n\nDo you want to save it?" )
-		   .arg( emobj->getTypeStr() ).arg( emobj->name() );
+    uiString msg = uiStrings::phrIsNotSavedSaveNow( toUiString(emobj->name()) );
 
     const int ret = uiMSG().askSave( msg, withcancel );
     if ( ret == 1 )
@@ -1307,9 +1306,9 @@ bool uiEMPartServer::loadSurface( const DBKey& dbky,
     if ( !obj )
     {
 	PtrMan<IOObj> ioobj = DBM().get(dbky);
-	BufferString nm = ioobj ? (const char*)ioobj->name()
-				: (const char*)dbky.toString().str();
-	uiString msg = tr( "Cannot load '%1'" ).arg( nm );
+	const BufferString nm = ioobj	? (const OD::String&)ioobj->name()
+					: (const OD::String&)dbky.toString();
+	uiString msg = uiStrings::phrCannotLoad( nm );
 	uiMSG().error( msg );
 	return false;
     }

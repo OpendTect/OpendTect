@@ -120,14 +120,14 @@ bool Seis::PS2DFetcher::openReader( Pos::GeomID geomid )
     rdr_ = getReader( *ioobj_, geomid );
     if ( !rdr_ )
     {
-	uirv_ = tr( "Cannot find a reader for this type of data store" );
+	uirv_ = tr("Cannot find a reader for this type of data store");
 	return false;
     }
 
     lditer_ = new PosInfo::Line2DDataIterator( rdr_->posData() );
     if ( !lditer_->next() )
     {
-	uirv_ = tr( "Empty line" );
+	uirv_ = tr("Empty line").addMoreInfo( toUiString(ioobj_->name()) );
 	return false;
     }
 

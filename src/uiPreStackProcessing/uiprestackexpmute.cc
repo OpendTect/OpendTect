@@ -74,7 +74,7 @@ bool uiExportMute::writeAscii()
     const BufferString fname = outfld_->fileName();
     od_ostream strm( fname );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::sCantOpenOutpFile() );
+	mErrRet( uiStrings::phrCannotOpenOutpFile() );
 
     const bool isxy = coordfld_->getBoolValue();
 
@@ -111,7 +111,7 @@ bool uiExportMute::acceptOK()
 {
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
-	mErrRet( uiStrings::sSelOutpFile() );
+	mErrRet( uiStrings::phrSelOutpFile() );
 
     if ( File::exists(outfnm)
 	&& !uiMSG().askContinue(

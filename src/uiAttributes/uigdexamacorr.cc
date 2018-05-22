@@ -200,9 +200,9 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
     if ( setUpViewWin( isqc ) )
 	isqc ? qcwin_->show() : examwin_->show();
     else
-	uiMSG().error( tr( "The window start and stop should be different;\n"
+	uiMSG().error( tr("The window start and stop should be different;\n"
 			   "Please correct the window parameters before"
-			   " restarting the computation" ) );
+			   " restarting the computation") );
 }
 
 

@@ -1019,7 +1019,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     EM::BodyMan().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
-	mRetErrDelHoridx( uiStrings::sSaveBodyFail() )
+	mRetErrDelHoridx( uiStrings::phrSaveBodyFail() )
 
     DBKey key = emcs->dbKey();
     PtrMan<IOObj> ioobj = DBM().get( key );
@@ -1031,7 +1031,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     }
 
     if ( !TaskRunner::execute(&taskrunner,*exec) )
-	mRetErrDelHoridx(uiStrings::sSaveBodyFail());
+	mRetErrDelHoridx(uiStrings::phrSaveBodyFail());
 */
 
     return true;

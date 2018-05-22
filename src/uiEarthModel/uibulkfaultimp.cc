@@ -307,7 +307,7 @@ bool uiBulkFaultImport::acceptOK()
 	mErrRet( uiStrings::phrEnter(tr("the input file name")) )
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()))
+	mErrRet(uiStrings::phrCannotOpenInpFile())
 
     if ( !dataselfld_->commit() )
 	return false;

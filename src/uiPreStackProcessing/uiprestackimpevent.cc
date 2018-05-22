@@ -81,8 +81,8 @@ bool uiEventImport::acceptOK()
 	return false;
     }
 
-    uiString msg = tr( "Prestack Event successfully imported."
-		      "\n\nDo you want to import more Prestack Events?" );
+    uiString msg = tr("Prestack Event successfully imported."
+		      "\n\nDo you want to import more Prestack Events?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

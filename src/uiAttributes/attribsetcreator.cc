@@ -347,7 +347,7 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
     BufferString attribname;
     if ( !Desc::getAttribName(defstr,attribname) )
     {
-	uiMSG().error(uiStrings::sCantFindAttrName());
+	uiMSG().error(uiStrings::phrCannotFindAttrName());
 	return 0;
     }
 

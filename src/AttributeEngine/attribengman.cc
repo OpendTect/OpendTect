@@ -764,7 +764,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 
     nladescid = descset.addDesc( desc );
     if ( !nladescid.isValid() )
-	errmsg = tr( "Error setting learning attribute" );
+	errmsg = tr("Error setting learning attribute");
 }
 
 
@@ -801,7 +801,7 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
     DescID evaldescid = descset.addDesc( desc );
     if ( !evaldescid.isValid() )
     {
-	errmsg = tr( "Cannot set evaluation attribute" );
+	errmsg = tr("Cannot set evaluation attribute");
 	desc->unRef();
     }
 

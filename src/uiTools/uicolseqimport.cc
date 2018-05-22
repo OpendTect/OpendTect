@@ -240,8 +240,8 @@ bool uiColSeqImport::acceptOK()
     bool stay = true;
     if ( nrdone > 0 )
     {
-	uiString msg = tr( "Successfully obtained %1 %2."
-			  "\n\nDo you want to import more Color tables?" )
+	uiString msg = tr("Successfully obtained %1 %2."
+			  "\n\nDo you want to import more Color tables?")
 	    .arg( nrdone ).arg( uiStrings::sColorTable(nrdone) );
 	stay = uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window"));
     }

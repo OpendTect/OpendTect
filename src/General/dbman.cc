@@ -203,7 +203,7 @@ uiRetVal DBMan::handleNewSurvDir()
 {
     uiRetVal uirv;
     if ( survdir_.isEmpty() )
-	uirv = tr( "Directory for data storage is not set" );
+	uirv = tr("Directory for data storage is not set");
     else
     {
 	rootdbdir_ = new DBDir( survdir_ );
@@ -389,7 +389,7 @@ IOObj* DBMan::getFromPar( const IOPar& iop, const char* bky,
 	iopkey.set( basekey ).add( sKey::Name() );
 	res = iop.find( iopkey );
 	if ( res.isEmpty() )
-	    { errmsg = tr( "Please specify '%1'", iopkey ); return 0; }
+	    { errmsg = tr("Please specify '%1'").arg(iopkey); return 0; }
 
 	if ( !DBKey::isValidString(res) )
 	{
@@ -417,7 +417,7 @@ IOObj* DBMan::getFromPar( const IOPar& iop, const char* bky,
 
     IOObj* ioobj = get( DBKey::getFromString(res) );
     if ( !ioobj )
-	errmsg = tr( "Value for %1 is invalid.", iopkey );
+	errmsg = tr("Value for %1 is invalid.").arg( iopkey );
 
     return ioobj;
 }

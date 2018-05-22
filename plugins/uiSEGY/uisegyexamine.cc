@@ -252,8 +252,7 @@ SEGYSeisTrcTranslator* uiSEGYExamine::getReader(
 
     Conn* conn = ioobj->getConn( true );
     if ( !conn || conn->isBad() )
-	{ emsg = uiStrings::phrCannotOpen( toUiString(ioobj->mainFileName()) );
-		return 0; }
+	{ emsg = ioobj->phrCannotOpen(); return 0; }
 
     if ( !segytr->initRead(conn,Seis::PreScan) )
 	{ emsg = uiStrings::phrCannotRead( toUiString(ioobj->mainFileName()) );

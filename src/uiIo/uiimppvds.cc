@@ -89,7 +89,7 @@ bool uiImpPVDS::acceptOK()
 	return false;
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet(uiStrings::sCantOpenInpFile())
+	mErrRet(uiStrings::phrCannotOpenInpFile())
 
     uiUserShowWait usw( this, uiStrings::sCollectingData() );
     RefMan<DataPointSet> dps = new DataPointSet( is2d_ );

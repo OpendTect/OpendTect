@@ -23,6 +23,7 @@
 #include "dateinfo.h"
 #include "compoundkey.h"
 #include "staticstring.h"
+#include "uistrings.h"
 
 static const int cKpTmpObjsInDays = 7;
 
@@ -359,6 +360,12 @@ bool IOObj::isInCurrentSurvey() const
     File::Path cursurvfp( DBM().survDir() ); cursurvfp.makeCanonical();
     File::Path orgfp( mainFileName() ); orgfp.makeCanonical();
     return orgfp.isSubDirOf(cursurvfp);
+}
+
+
+uiString IOObj::phrCannotOpen() const
+{
+    return uiStrings::phrCannotOpen( toUiString(name()).quote(true) );
 }
 
 

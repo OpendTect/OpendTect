@@ -117,7 +117,7 @@ void uiAmplSpectrum::setDataPackID(
     ConstRefMan<DataPack> datapack = DPM(dmid).get( dpid );
     if ( datapack )
 	setCaption( !datapack ? tr("No data")
-	                      : tr( "Amplitude Spectrum for %1" )
+	                      : tr("Amplitude Spectrum for %1")
                                 .arg( datapack->name() ) );
 
     if ( dmid == DataPackMgr::FlatID() )
@@ -314,10 +314,7 @@ void uiAmplSpectrum::exportCB( CallBacker* )
     const BufferString fnm( uifs.fileName() );
     od_ostream strm( fnm );
     if ( strm.isBad() )
-    {
-        uiMSG().error( uiStrings::phrCannotOpen(toUiString(fnm)) );
-	return;
-    }
+	{ uiMSG().error( uiStrings::phrCannotOpenForWrite(fnm) ); return; }
 
     disp_->dump( strm, false );
 

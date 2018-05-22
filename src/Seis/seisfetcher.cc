@@ -236,7 +236,7 @@ void Seis::Fetcher2D::openDataSet()
     dataset_ = new Seis2DDataSet( *ioobj_ );
     if ( dataset_->isEmpty() )
     {
-	uirv_ = tr( "Cannot find any data for this attribute" );
+	uirv_ = tr("Cannot find any data for this attribute");
 	delete dataset_; dataset_ = 0;
     }
 }

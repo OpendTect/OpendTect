@@ -82,10 +82,10 @@ int main( int argc, char ** argv )
 
     od_cout() << "Merging output ..." << od_endl;
     LoggedTaskRunner taskrunner( od_cout() );
-    BufferString msg;
+    uiString msg;
     const bool result =
 	uiClusterProc::mergeOutput( iop, &taskrunner, msg, withdelete );
-    od_cout() << msg << od_endl;
+    od_cout() << toString(msg) << od_endl;
 
     return ExitProgram( result ? 0 : 1 );
 }

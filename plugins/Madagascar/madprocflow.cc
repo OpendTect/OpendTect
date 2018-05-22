@@ -226,8 +226,7 @@ bool ODMadProcFlowTranslator::retrieve( ODMad::ProcFlow& pf, const IOObj* ioobj,
     { errmsg = tr("Selected object is not a processing flow"); return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-    { errmsg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
-								return false; }
+	{ errmsg = ioobj->phrCannotOpen(); return false; }
     errmsg = trltr->read( pf, *conn );
     return errmsg.isEmpty();
 }
@@ -246,10 +245,7 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
     errmsg = uiString::empty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-    {
-	errmsg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(
-								    false)));
-    }
+	{ errmsg = ioobj->phrCannotOpen(); return false; }
     else
 	errmsg = trltr->write( pf, *conn );
 

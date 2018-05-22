@@ -15,7 +15,7 @@ defineTranslator(od,PosVecDataSet,mdTectKey);
 mDefSimpleTranslatorioContext(PosVecDataSet,Feat)
 mDefSimpleTranslatorSelector(PosVecDataSet)
 uiString PosVecDataSetTranslatorGroup::sTypeName( int num )
-{ return tr( "Positioned Vector Data", 0, num ); }
+{ return tr("Positioned Vector Data", 0, num ); }
 
 
 bool odPosVecDataSetTranslator::read( const IOObj& ioobj, PosVecDataSet& vds )

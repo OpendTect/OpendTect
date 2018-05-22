@@ -857,7 +857,7 @@ void uiODContourTreeItem::visClosingCB( CallBacker* )
 
 
 uiString uiODContourTreeItem::createDisplayName() const
-{ return tr( "Contours (%1)" ).arg( attrnm_ ); }
+{ return toUiString("%1 (%2)").arg(uiStrings::sContour(mPlural)).arg(attrnm_); }
 
 
 bool uiODContourTreeItem::init()

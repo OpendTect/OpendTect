@@ -498,7 +498,7 @@ RokDocExporter( const char* fnm )
 bool put1DPDF( const Sampled1DProbDenFunc& pdf )
 {
     if ( !strm_.isOK() )
-	{ errmsg_ = uiStrings::sCantOpenOutpFile(); return false; }
+	{ errmsg_ = uiStrings::phrCannotOpenOutpFile(); return false; }
 
     strm_ << "Probability Density Function 1D \"" << pdf.name()
 	 << "\" output by OpendTect " << GetFullODVersion()
@@ -527,7 +527,8 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf )
     }
 
     if ( !strm_.isOK() )
-	{ errmsg_ = uiStrings::sCannotWrite(); strm_.addErrMsgTo( errmsg_ ); }
+	{ errmsg_ = uiStrings::phrCannotWrite(strm_.fileName());
+	    strm_.addErrMsgTo( errmsg_ ); }
 
     return errmsg_.isEmpty();
 }
@@ -536,7 +537,7 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf )
 bool put2DPDF( const Sampled2DProbDenFunc& pdf )
 {
     if ( !strm_.isOK() )
-	{ errmsg_ = uiStrings::sCantOpenOutpFile(); return false; }
+	{ errmsg_ = uiStrings::phrCannotOpenOutpFile(); return false; }
 
     strm_ << "Probability Density Function 2D \"" << pdf.name()
 	 << "\" output by OpendTect " << GetFullODVersion()
@@ -575,7 +576,8 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf )
     }
 
     if ( !strm_.isOK() )
-	{ errmsg_ = uiStrings::sCannotWrite(); strm_.addErrMsgTo( errmsg_ ); }
+	{ errmsg_ = uiStrings::phrCannotWrite(strm_.fileName());
+	    strm_.addErrMsgTo( errmsg_ ); }
 
     return errmsg_.isEmpty();
 }

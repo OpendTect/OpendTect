@@ -153,7 +153,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
     maniptb_.addButton( "settings", uiStrings::sSettings(),
 			mCB(this,uiDataPointSetCrossPlotWin,editProps) );
-    maniptb_.addButton( "prdfs", uiStrings::sCreateProbDesFunc(),
+    maniptb_.addButton( "prdfs", uiStrings::sProbDensFunc(false),
 			mCB(this,uiDataPointSetCrossPlotWin,exportPDF) );
     overlayproptbid_ = maniptb_.addButton( "overlayattr",
 	    tr("Select Overlay Attribute"), mCB(this,uiDataPointSetCrossPlotWin,

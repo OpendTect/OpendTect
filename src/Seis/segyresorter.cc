@@ -14,6 +14,7 @@
 #include "dbman.h"
 #include "filepath.h"
 #include "od_iostream.h"
+#include "uistrings.h"
 
 SEGY::ReSorter::Setup::Setup( Seis::GeomType gt, const DBKey& ky,
 			      const char* fnm )
@@ -77,7 +78,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 {
     IOObj* ioobj = DBM().get( setup_.inpkey_ );
     if ( !ioobj )
-	msg_ = tr( "Cannot find provided input in data manager" );
+	msg_ = tr("Cannot find provided input in data manager");
     else
     {
 	switch ( setup_.geom_ )
@@ -319,10 +320,7 @@ bool SEGY::ReSorter::openOutputFile()
     delete outstrm_;
     outstrm_ = new od_ostream( fnm );
     if ( !outstrm_->isOK() )
-    {
-	msg_ = tr( "Cannot open output file:\n%1").arg( fnm );
-	return false;
-    }
+	{ msg_ = uiStrings::phrCannotOpenForWrite( fnm ); return false; }
 
     needwritefilehdrs_ = true;
     return true;
@@ -368,7 +366,7 @@ int SEGY::ReSorter::ensureFileOpen( int inpfidx )
 	od_istream* strm = new od_istream( fnm );
 	if ( !strm->isOK() )
 	{
-	    msg_ = tr( "Cannot open input file:\n%1").arg( fnm );
+	    msg_ = uiStrings::phrCannotOpenForRead( fnm );
 	    delete strm;
 	    return -1;
 	}
@@ -391,7 +389,7 @@ bool SEGY::ReSorter::readData( int fidx, int trcidx )
 	odstrm.setReadPosition( 0 );
 	if ( !odstrm.getBin(hdrbuf_,3600) )
 	{
-	    msg_ = tr( "Cannot read SEG-Y file header. Empty file? -\n%1" )
+	    msg_ = tr("Cannot read SEG-Y file header. Empty file? -\n%1" )
 			.arg( inpfnms_.get(fidx) );
 	    return false;
 	}
@@ -401,7 +399,7 @@ bool SEGY::ReSorter::readData( int fidx, int trcidx )
 	StreamConn* sc = new StreamConn( odstrm );
 	if ( !trctr.initRead(sc) || !trctr.commitSelections() )
 	{
-	    msg_ = tr("Cannot read SEG-Y file details. Corrupt file? -\n%1")
+	    msg_ = tr("Cannot read '%1' for details. Corrupt file?")
 		.arg( inpfnms_.get(fidx) );
 	    return false;
 	}
@@ -414,7 +412,7 @@ bool SEGY::ReSorter::readData( int fidx, int trcidx )
     odstrm.setReadPosition( pos );
     if ( !odstrm.getBin(trcbuf_,trcbytes_) )
     {
-	msg_ = tr( "Cannot read trace.\nFile: %1\nTrace: %2" )
+	msg_ = tr("Cannot read trace.\nFile: %1\nTrace: %2")
 		.arg( inpfnms_.get(fidx) )
 		.arg( trcidx );
 	return false;
@@ -430,7 +428,7 @@ bool SEGY::ReSorter::writeData()
     {
 	if ( !outstrm_->addBin(hdrbuf_,3600) )
 	{
-	    msg_ = tr( "Cannot write file header to: %1" )
+	    msg_ = tr("Cannot write file header to: %1")
 		      .arg( outstrm_->fileName() );
 	    outstrm_->addErrMsgTo( msg_ );
 	    return false;
@@ -440,7 +438,7 @@ bool SEGY::ReSorter::writeData()
 
     if ( !outstrm_->addBin(trcbuf_,trcbytes_) )
     {
-	msg_ = tr( "Cannot write trace to:\n%1" ).arg( outstrm_->fileName() );
+	msg_ = tr("Cannot write trace to:\n%1").arg( outstrm_->fileName() );
 	outstrm_->addErrMsgTo( msg_ );
 	return false;
     }

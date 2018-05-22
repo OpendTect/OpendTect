@@ -168,7 +168,7 @@ void uiODViewer2D::setUpAux()
     else
     {
 	vwrannot.x1_.showauxannot_ = true;
-	uiString intersection = tr( "%1 intersection");
+	uiString intersection = tr("%1 intersection");
 	if ( is2d )
 	{
 	    vwrannot.x2_.showauxannot_ = false;

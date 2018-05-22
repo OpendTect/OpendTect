@@ -1162,15 +1162,13 @@ void uiAttribDescSetEd::crossEvalAttrsCB( CallBacker* )
 bool uiAttribDescSetEd::offerSetSave()
 {
     doCommit( true );
-    if ( !attrset_.isChanged() )
-	return true;
 
-    uiString msg = tr( "Attribute set is not saved.\nSave now?" );
-    const int res = uiMSG().askSave( msg );
-    if ( res==1 )
+    if ( attrset_.isChanged()
+      && uiMSG().askSave(
+	   uiStrings::phrIsNotSavedSaveNow(uiStrings::sAttributeSet()) ) )
 	return doSave( true );
 
-    return res==0;
+    return true;
 }
 
 

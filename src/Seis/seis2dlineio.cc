@@ -52,7 +52,7 @@ Seis2DTraceGetter::~Seis2DTraceGetter()
 void Seis2DTraceGetter::setErrMsgForNoTrMade() const
 {
     if ( initmsg_.isEmpty() )
-	initmsg_ = tr( "Cannot make %1 access for '%2'" )
+	initmsg_ = tr("Cannot make %1 access for '%2'")
 		    .arg( ioobj_.translator() ).arg( ioobj_.name() );
 }
 
@@ -70,7 +70,7 @@ bool Seis2DTraceGetter::ensureTranslator() const
 	{
 	    initmsg_ = tr_->errMsg();
 	    if ( initmsg_.isEmpty() )
-		initmsg_ = tr( "%1: no traces in input" ).arg( ioobj_.name() );
+		initmsg_ = tr("No traces in input for '%1'").arg(ioobj_.name());
 	    return false;
 	}
 
@@ -233,7 +233,7 @@ bool TwoDSeisTrcTranslator::initRead_()
     errmsg_.setEmpty();
     PtrMan<IOObj> ioobj = DBM().get( conn_ ? conn_->linkedTo() : DBKey() );
     if ( !ioobj )
-	{ errmsg_ = tr( "Cannot reconstruct 2D filename" ); return false; }
+	{ errmsg_ = tr("Cannot reconstruct 2D filename"); return false; }
     BufferString fnm( ioobj->mainFileName() );
     if ( !File::exists(fnm) )
 	{ errmsg_ = uiStrings::phrFileDoesNotExist(fnm); return false; }
@@ -302,7 +302,7 @@ bool SeisTrc2DTranslator::initRead_()
 	geomid_ = dset.geomID(0);
 
     if ( !mIsUdfGeomID(geomid_) && dset.indexOf(geomid_)<0 )
-	{ errmsg_ = tr( "Cannot find GeomID %1" ).arg(geomid_); return false; }
+	{ errmsg_ = tr("Cannot find Geomtry ID %1").arg(geomid_); return false;}
 
     StepInterval<int> trcrg; StepInterval<float> zrg;
     dset.getRanges( geomid_, trcrg, zrg );

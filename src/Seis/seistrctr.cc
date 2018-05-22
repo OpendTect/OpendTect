@@ -30,6 +30,7 @@
 #include "file.h"
 #include "genc.h"
 #include "od_stream.h"
+#include "uistrings.h"
 #include <math.h>
 
 
@@ -473,7 +474,7 @@ bool SeisTrcTranslator::initConn( Conn* c )
 {
     close(); errmsg_.setEmpty();
     if ( !c )
-	{ errmsg_ = tr("Translator: No connection established"); return false; }
+	{ errmsg_ = tr("Cannot open data store"); return false; }
 
     mDynamicCastGet(StreamConn*,strmconn,c)
     if ( strmconn )
@@ -481,7 +482,7 @@ bool SeisTrcTranslator::initConn( Conn* c )
 	const char* fnm = strmconn->odStream().fileName();
 	if ( c->isBad() && !File::isDirectory(fnm) )
 	{
-	    errmsg_ = tr( "Cannot open file: %1" ).arg( fnm );
+	    errmsg_ = uiStrings::phrCannotOpen( fnm, strmconn->forRead() );
 	    return false;
 	}
     }

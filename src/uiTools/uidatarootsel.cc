@@ -70,7 +70,7 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
 
 uiString uiDataRootSel::userDataRootString()
 {
-    return tr( "Data Root Directory" );
+    return tr("Data Root Directory");
 }
 
 
@@ -153,8 +153,8 @@ uiRetVal uiDataRootSel::getUsableDir( BufferString& dirnm ) const
 
     if ( !File::isWritable(dirnm) )
     {
-	uirv = File::exists(dirnm) ? tr( "Directory is not writable" )
-				   : tr( "Directory does not exist" );
+	uirv = File::exists(dirnm) ? tr("Directory is not writable")
+				   : tr("Directory does not exist");
 	return uirv;
     }
 

@@ -338,10 +338,10 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	    }
 	    else
 	    {
-		errmsg_ = tr( "Importing stopped because trace position "
-			      "found: %1 \nviolates previous trace "
-			      "sorting:\n%2")
-		        .arg( bid.toString() ).arg( sorting_->description() );
+		errmsg_ = tr("Importing stopped because trace position "
+			     "found (%1)\nviolates previous trace sorting (%2)")
+		        .arg( bid.toString() )
+			.arg( sorting_->description() );
 	    }
 
 	    rv = false;

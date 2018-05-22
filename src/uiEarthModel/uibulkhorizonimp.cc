@@ -121,7 +121,7 @@ bool uiBulkHorizonImport::acceptOK()
 	mErrRet( uiStrings::phrEnter(tr("the input file name")) )
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()))
+	mErrRet(uiStrings::phrCannotOpenInpFile())
 
     if ( !dataselfld_->commit() )
 	return false;
@@ -202,8 +202,8 @@ bool uiBulkHorizonImport::acceptOK()
 	}
     }
 
-    uiString msg = tr( "3D Horizons successfully imported.\n\n"
-		    "Do you want to export more 2DHorizons?" );
+    uiString msg = tr("3D Horizons successfully imported.\n\n"
+		    "Do you want to export more 3D Horizons?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

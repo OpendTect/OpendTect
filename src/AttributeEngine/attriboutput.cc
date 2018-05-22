@@ -977,7 +977,7 @@ bool Trc2DVarZStorOutput::doInit()
 	writer_ = new SeisTrcWriter( ioseisout );
 	if ( !writer_->is2D() )
 	{
-	    errmsg_ = tr( "Seismic data with ID: %1 is not 2D\n"
+	    errmsg_ = tr("Seismic data with ID: %1 is not 2D\n"
 			 "Cannot create 2D output.").arg( storid_ );
 	    return false;
 	}

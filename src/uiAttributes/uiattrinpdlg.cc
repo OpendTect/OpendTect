@@ -35,7 +35,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 {
     seisinpflds_.erase();
     steerinpflds_.erase();
-    uiString infotxt = tr( "Provide input for the following attributes: " );
+    uiString infotxt = tr("Provide input for the following attributes: ");
     uiLabel* infolbl = new uiLabel( this, infotxt );
 
     BufferString txt;

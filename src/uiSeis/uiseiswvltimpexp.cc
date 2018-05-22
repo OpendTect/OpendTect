@@ -81,7 +81,7 @@ bool uiSeisWvltImp::acceptOK()
 	return false;
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::sCantOpenInpFile() )
+	mErrRet( uiStrings::phrCannotOpenInpFile() )
 
     WaveletAscIO aio( fd_ );
     RefMan<Wavelet> wvlt = aio.get( strm );
@@ -102,7 +102,7 @@ bool uiSeisWvltImp::acceptOK()
     if ( maxsamp != wvlt->centerSample() )
     {
 	uiString msg;
-	msg = tr( "Center of wavelet is predicted at row number: %1" )
+	msg = tr("Center of wavelet is predicted at row number: %1")
 		.arg( maxsamp + 1 + nrhdrlines );
 	msg.appendPhrase(tr(" The provided center sample row position was: %1")
 	    .arg( wvlt->centerSample() + 1 + nrhdrlines ) );
@@ -169,7 +169,7 @@ bool uiSeisWvltExp::acceptOK()
 	mErrRet( uiStrings::phrEnter(tr("the output file name")) )
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::sCantOpenOutpFile() )
+	mErrRet( uiStrings::phrCannotOpenOutpFile() )
 
     const bool addz = addzfld_->getBoolValue();
     const float zfac = mCast( float, SI().zDomain().userFactor() );

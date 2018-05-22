@@ -126,12 +126,15 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	ctxt.forread_ = false;
 	ctxt.fixTranslator( "MultiCube" );
 	datastorefld_ = new uiIOObjSel( pargrp_, ctxt,
-			    uiStrings::phrOutput(tr("%1 DataStore").arg(
-			    uiStrings::sPreStack())) );
+			    uiStrings::phrOutput(uiStrings::sPreStackData()) );
 	datastorefld_->attach( alignedBelow, cb );
 
 	const Interval<float> offsets( 0, 100 );
-	const uiString lbl = tr( "Offset start/step" ).withSurvXYUnit();
+	const uiString lbl = toUiString( "%1 %2/%3" )
+				.arg( uiStrings::sOffset() )
+				.arg( uiStrings::sStart() )
+				.arg( uiStrings::sStop() )
+				.withSurvXYUnit();
 	offsetfld_ = new uiGenInput( pargrp_, lbl,
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );

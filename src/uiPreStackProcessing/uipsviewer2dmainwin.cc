@@ -1604,8 +1604,8 @@ void uiViewer2DControl::setGatherInfos( const TypeSet<GatherInfo>& gis )
     colseqsel_->setSensitive( showcoltab );
     uiString tooltipstr;
     if ( !showcoltab )
-	tooltipstr = tr( "Mutiple datasets selected. "
-			 "Use 'Set seismic display properties' button" );
+	tooltipstr = tr("Mutiple datasets selected. "
+			 "Use 'Set seismic display properties' button");
     else
 	tooltipstr = uiString::empty();
     colseqsel_->asUiObject().setToolTip( tooltipstr );

@@ -278,8 +278,7 @@ bool Well::odIO::removeAll( const char* ext ) const
 	if ( !File::exists(fnm) )
 	    break;
 	else if ( !File::remove(fnm) )
-	    { errmsg_ = uiString( toUiString("%1 %2") )
-		.arg( uiStrings::sCannotRemove() ).arg( fnm ); return false; }
+	    { errmsg_ = uiStrings::phrCannotRemove( fnm ); return false; }
     }
     return true;
 }
@@ -350,7 +349,7 @@ bool Well::odReader::getInfo() const
 
 void Well::odReader::setInpStrmOpenErrMsg( od_istream& strm ) const
 {
-    errmsg_ = uiStrings::phrCannotOpen( toUiString(strm.fileName()) );
+    errmsg_ = uiStrings::phrCannotOpenForRead( strm.fileName() );
     strm.addErrMsgTo( errmsg_ );
 }
 
@@ -358,7 +357,7 @@ void Well::odReader::setInpStrmOpenErrMsg( od_istream& strm ) const
 void Well::odReader::setStrmOperErrMsg( od_istream& strm,
 					const uiString& oper ) const
 {
-    errmsg_ = tr( "Cannot %1 for %2." ).arg( oper ).arg( strm.fileName() );
+    errmsg_ = tr("Cannot %1 for '%2'").arg( oper ).arg( strm.fileName() );
     strm.addErrMsgTo( errmsg_ );
 }
 

@@ -410,7 +410,7 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     StreamConn* segyconn = new StreamConn( segyfilename_, false );
     if ( !segyconn || segyconn->isBad() )
     {
-	errmsg_  = tr( "Cannot open new SEG-Y file:\n%1" ).arg( segyfilename_ );
+	errmsg_  = uiStrings::phrCannotOpenForWrite( segyfilename_ );
 	return false;
     }
 
@@ -446,7 +446,7 @@ bool SEGYDirectSeisTrcTranslator::commitSelections_()
     def_->setData( *fds_ );
     if ( !def_->writeHeadersToFile(segydeffilename_) )
     {
-	errmsg_ = tr( "Cannot write header for %1" ).arg( segydeffilename_ );
+	errmsg_ = tr("Cannot write header for %1").arg( segydeffilename_ );
 	return false;
     }
 

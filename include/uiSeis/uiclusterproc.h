@@ -28,13 +28,11 @@ public:
                         uiClusterProc(uiParent*,const IOPar& iop);
 			~uiClusterProc();
 
-    static bool		mergeOutput(const IOPar&,TaskRunner*,BufferString&,
-	    			    bool withdel=true);
     static bool		mergeOutput(const IOPar&,TaskRunner*,uiString&,
-	    			    bool withdel=true);
+				    bool withdel=true);
     static const char*	sKeyScriptDir()		{ return "Script dir"; }
-    uiString		sNrDoneText(const uiString& nrdone, 
-				    const uiString& totnr, 
+    uiString		sNrDoneText(const uiString& nrdone,
+				    const uiString& totnr,
 				    const uiString& nrerror);
 protected:
 

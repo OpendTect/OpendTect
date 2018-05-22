@@ -274,7 +274,7 @@ od_int64 SeisSingleTraceProc::nrDone() const
 
 uiString SeisSingleTraceProc::nrDoneText() const
 {
-    return tr( "Traces handled" );
+    return tr("Traces handled");
 }
 
 

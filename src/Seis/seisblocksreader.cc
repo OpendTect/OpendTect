@@ -74,7 +74,7 @@ void Seis::Blocks::Reader::initFromFileName( const char* inp )
     od_istream strm( infoFileName() );
     if ( !strm.isOK() )
     {
-	state_.set( uiStrings::phrCannotOpen(toUiString(strm.fileName())) );
+	state_.set( uiStrings::phrCannotOpenForRead( strm.fileName() ) );
 	strm.addErrMsgTo( state_ );
 	return;
     }

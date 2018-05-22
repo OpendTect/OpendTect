@@ -331,7 +331,7 @@ int ZipHandler::openStrmToRead( const char* src )
     istrm_ = new od_istream( src );
     if ( istrm_->isBad() )
     {
-	errormsg_ = uiStrings::phrCannotOpen(toUiString(src));
+	errormsg_ = uiStrings::phrCannotOpenForRead( src );
 	istrm_->addErrMsgTo( errormsg_ );
 	return mIsError;
     }

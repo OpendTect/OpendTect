@@ -424,7 +424,7 @@ void uiODVolumeAttribTreeItem::handleMenuCB( CallBacker* cb )
 	RefMan<visSurvey::MarchingCubesDisplay> mcdisplay =
 	    new visSurvey::MarchingCubesDisplay;
 
-	uiString newname = tr( "Iso %1").arg( vd->isoValue( mcs ) );
+	uiString newname = tr("Iso %1").arg( vd->isoValue( mcs ) );
 	mcdisplay->setUiName( newname );
 
 	if ( !mcdisplay->setVisSurface(mcs) )
@@ -615,7 +615,7 @@ void uiODVolumeSubTreeItem::handleMenuCB( CallBacker* cb )
 	RefMan<visSurvey::MarchingCubesDisplay> mcdisplay =
 	    new visSurvey::MarchingCubesDisplay;
 
-	uiString newname = tr( "Iso %1" ).arg( vd->isoValue(isosurface) );
+	uiString newname = tr("Iso %1").arg( vd->isoValue(isosurface) );
 	mcdisplay->setUiName( newname );
 
 	if ( !mcdisplay->setVisSurface( isosurface ) )

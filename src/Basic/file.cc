@@ -221,7 +221,7 @@ public:
     od_int64		totalNr() const		{ return totalnr_; }
     uiString		message() const { return msg_; }
     uiString		nrDoneText() const
-			{ return tr( "Files removed" ); }
+			{ return tr("Number of files removed"); }
 
     int			nextStep();
 
@@ -713,7 +713,7 @@ bool File::checkDirectory( const char* fnm, bool forread, uiString& errmsg )
 		     : od_static_tr( "FilecheckDirectory",
 						" Cannot write in folder: %1");
     errmsg.arg(dirnm);
-    errmsg.appendPhrase( uiStrings::sCheckPermissions() );
+    errmsg.appendPhrase( uiStrings::phrCheckPermissions() );
 
     return success;
 }

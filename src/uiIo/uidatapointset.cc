@@ -1385,7 +1385,7 @@ public:
 
 uiDataPointSetSave( uiParent* p, const char* typ )
     : uiDialog(p,uiDialog::Setup(uiStrings::sCreateOutput(),
-				 uiStrings::sSpecifyOut(),
+				 uiStrings::phrSpecifyOutput(),
                                  mODHelpKey(mdataPointSetSaveHelpID) ))
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
     , type_(typ)

@@ -126,7 +126,7 @@ bool Batch::JobDispatcher::go( const Batch::JobSpec& js )
 {
     if ( !canHandle(js) )
     {
-	errmsg_ = tr( "Batch job is not suited for %1 executions" )
+	errmsg_ = tr("Batch job is not suited for %1 execution")
 		.arg( factoryDisplayName() );
 	return false;
     }
@@ -198,7 +198,7 @@ bool Batch::JobDispatcher::writeParFile() const
     parstrm.close();
     if ( !ret )
     {
-	errmsg_ = tr( "Cannot write parameter file:\n %1" ).arg( parfnm_ );
+	errmsg_ = tr("Cannot write parameter file:\n %1").arg( parfnm_ );
 	parstrm.addErrMsgTo( errmsg_ );
     }
     return ret;

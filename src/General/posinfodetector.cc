@@ -462,7 +462,7 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 uiString PosInfo::Detector::createPositionString(
                         const PosInfo::CrdBidOffs& cbo ) const
 {
-    uiString ret = uiString(tr( "%1 %2" ))
+    uiString ret = toUiString("%1 %2")
         .arg( setup_.is2d_ ? uiStrings::sTraceNumber(): uiStrings::sPosition() )
         .arg( cbo.binid_.toString(setup_.is2d_) );
     if ( setup_.isps_ )

@@ -42,9 +42,9 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
 	    : sKey::Time();
 
 	if ( setup_.optional_ )
-	    fldtext = tr( "Convert to %1" ).arg( zunit );
+	    fldtext = tr("Convert to %1","Z unit").arg( zunit );
 	else
-	    fldtext = tr( "%1 conversion").arg( zunit );
+	    fldtext = tr("%1 conversion","Z unit").arg( zunit );
     }
 
     setLabel( fldtext );

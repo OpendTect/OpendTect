@@ -72,8 +72,7 @@ bool uiEventExport::acceptOK()
     od_ostream strm( outfld_->fileName() );
     if ( !strm.isOK() )
     {
-	uiString msg = tr("%1 for writing").arg(uiStrings::phrCannotOpen(
-					 toUiString(outfld_->fileName())));
+	uiString msg = uiStrings::phrCannotOpenForWrite( outfld_->fileName() );
 	strm.addErrMsgTo( msg );
 	uiMSG().error( msg );
 	return false;
@@ -91,8 +90,8 @@ bool uiEventExport::acceptOK()
 	return false;
     }
 
-    uiString msg = tr( "Prestack Event successfully exported"
-		      "\n\nDo you want to export more Prestack Events?" );
+    uiString msg = tr("Prestack Event successfully exported"
+		      "\n\nDo you want to export more Prestack Events?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

@@ -103,7 +103,7 @@ bool uiImportMute::acceptOK()
 
     od_istream strm( inpfld_->fileName() );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::phrCannotOpen(uiStrings::sInputFile()) )
+	mErrRet( uiStrings::phrCannotOpenInpFile() )
 
     MuteAscIO muteascio( fd_, strm );
 

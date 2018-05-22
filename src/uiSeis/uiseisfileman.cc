@@ -57,7 +57,7 @@ public:
 uiSeisSampleEdBrowserMgr()
 {
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef;
-    bdef->tooltip_ = tr( "Browse/Edit cube '%1'" );
+    bdef->tooltip_ = tr("Browse/Edit cube '%1'");
     bdef->cb_ = mCB(this,uiSeisSampleEdBrowserMgr,doBrowse);
     uiSeisFileMan::addBrowser( bdef );
 }

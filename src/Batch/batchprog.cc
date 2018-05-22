@@ -143,7 +143,7 @@ void BatchProgram::init()
 
     if ( iopar_->size() == 0 && !simplebatch )
     {
-	errorMsg( tr( "%1: Invalid input file %2")
+	errorMsg( tr("%1: Invalid input file %2")
 		    .arg( clparser_->getExecutableName() )
 		    .arg( parfilnm) );
         return;

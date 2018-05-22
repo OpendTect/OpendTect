@@ -182,7 +182,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 {
     PtrMan<IOObj> ioobj = DBM().get( surface_.dbKey() );
     if ( !ioobj )
-	{ surface_.errmsg_ = uiStrings::sCantFindSurf(); return 0; }
+	{ surface_.errmsg_ = uiStrings::phrCannotFindObjInDB(); return 0; }
 
     PtrMan<EMSurfaceTranslator> trans =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
@@ -230,7 +230,7 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
     const DBKey& mid = key && key->isValid() ? *key : surface_.dbKey();
     PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( !ioobj )
-	{ surface_.errmsg_ = uiStrings::sCantFindSurf(); return 0; }
+	{ surface_.errmsg_ = uiStrings::phrCannotFindObjInDB(); return 0; }
 
     PtrMan<EMSurfaceTranslator> trans =
 			(EMSurfaceTranslator*)ioobj->createTranslator();

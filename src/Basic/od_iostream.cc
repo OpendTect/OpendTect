@@ -441,8 +441,7 @@ od_stream* od_stream::create( const char* fnm, bool forread,
 	errmsg = tr("Out of memory");
     else if ( !ret->isOK() )
     {
-	uiString addedmsg = tr( "file: %1" ).arg( fnm );
-	errmsg = uiStrings::phrCannotOpen( addedmsg );
+	errmsg = uiStrings::phrCannotOpen( fnm, forread );
 	ret->addErrMsgTo( errmsg );
 	delete ret; return 0;
     }

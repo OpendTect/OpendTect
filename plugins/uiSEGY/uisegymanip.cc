@@ -336,8 +336,7 @@ bool uiSEGYFileManip::openInpFile()
 {
     strm_ = new od_istream( fname_ );
     if ( !strm_ || !strm_->isOK() )
-	{ errmsg_ = uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower());
-								return false; }
+	{ errmsg_ = uiStrings::phrCannotOpenInpFile(); return false; }
 
     if ( !strm().getBin( txthdr_.txt_, SegyTxtHeaderLength ) )
 	{
@@ -776,7 +775,7 @@ bool uiSEGYFileManip::acceptOK()
 
     od_ostream outstrm( outfp.fullPath() );
     if ( !outstrm.isOK() )
-	{ mErrRet(uiStrings::sCantOpenOutpFile()) }
+	{ mErrRet(uiStrings::phrCannotOpenOutpFile()) }
 
     txthdr_.setText( txthdrfld_->text() );
     calcset_.reSetSeqNr( 1 );

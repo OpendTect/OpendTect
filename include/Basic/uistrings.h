@@ -67,7 +67,6 @@ public:
     static uiPhrase phrCalculate(const uiWord&);
     static uiPhrase phrCalculateFrom(const uiWord&);
     static uiPhrase phrCannotAdd(const uiWord&);
-    static uiPhrase phrCannotAllocateMemory();
     static uiPhrase phrCannotCalculate(const uiWord&);
     static uiPhrase phrCannotCopy(const uiWord&);
     static uiPhrase phrCannotCreate(const uiWord&);
@@ -77,23 +76,29 @@ public:
     static uiPhrase phrCannotEdit(const uiWord&);
     static uiPhrase phrCannotExtract(const uiWord&);
     static uiPhrase phrCannotFind(const uiWord&);
+    static uiPhrase phrCannotFind(const char*);
     static uiPhrase phrCannotFindDBEntry(const uiWord&);
     static uiPhrase phrCannotImport(const uiWord&);
     static uiPhrase phrCannotLoad(const uiWord&);
+    static uiPhrase phrCannotLoad(const char*);
     static uiPhrase phrCannotOpen(const uiWord&);
-    static uiPhrase phrCannotOpen(const char* fnm);
-    static uiPhrase phrCannotParse(const uiWord&);
+    static uiPhrase phrCannotOpen(const char*,bool forread);
+    static uiPhrase phrCannotOpenForRead(const char*);
+    static uiPhrase phrCannotOpenForWrite(const char*);
+    static uiPhrase phrCannotParse(const char*);
     static uiPhrase phrCannotRead(const uiWord&);
     static uiPhrase phrCannotRemove(const uiWord&);
+    static uiPhrase phrCannotRemove(const char*);
     static uiPhrase phrCannotSave(const uiWord&);
+    static uiPhrase phrCannotSave(const char*);
     static uiPhrase phrCannotStart(const uiWord&);
     static uiPhrase phrCannotUnZip(const uiWord&);
     static uiPhrase phrCannotWrite(const uiWord&);
+    static uiPhrase phrCannotWrite(const char*);
     static uiPhrase phrCannotWriteDBEntry(const uiWord&);
     static uiPhrase phrCannotZip(const uiWord&);
     static uiPhrase phrCheck(const uiWord&);
     static uiPhrase phrClose(const uiWord&);
-    static uiPhrase phrColonString(const uiWord&);
     static uiPhrase phrCopy(const uiWord&);
     static uiPhrase phrCreate(const uiWord&);
     static uiPhrase phrCreateNew(const uiWord&);
@@ -143,6 +148,8 @@ public:
     static uiPhrase phrMerge(const uiWord&);
     static uiPhrase phrModify(const uiWord&);
     static uiPhrase phrNotImplInThisVersion(const char* fromver);
+    static uiPhrase phrIsNotSaved(const uiWord&);
+    static uiPhrase phrIsNotSavedSaveNow(const uiWord&);
     static uiPhrase phrOpen(const uiWord&);
     static uiPhrase phrOutput(const uiWord&);
     static uiPhrase phrOutputFileExistsOverwrite();
@@ -175,6 +182,23 @@ public:
     static uiPhrase phrYcoordinate(const uiWord&);
     static uiPhrase phrZIn(const uiWord&);
     static uiPhrase phrZRange(const uiWord&);
+
+
+    //Phrases that don't need specifics, can be used when context is obvious
+    static uiPhrase phrCannotAllocateMemory();
+    static uiPhrase phrCannotFindAttrName();
+    static uiPhrase phrCannotFindObjInDB();
+    static uiPhrase phrCannotOpenInpFile(int n=1);
+    static uiPhrase phrCannotOpenOutpFile(int n=1);
+    static uiPhrase phrCannotReadHor();
+    static uiPhrase phrCannotReadInp();
+    static uiPhrase phrCannotWriteSettings();
+    static uiPhrase phrCheckPermissions();
+    static uiPhrase phrCheckUnits();
+    static uiPhrase phrEnterValidName();
+    static uiPhrase phrSaveBodyFail();
+    static uiPhrase phrSelOutpFile();
+    static uiPhrase phrSpecifyOutput();
 
 
 //Words
@@ -258,34 +282,9 @@ public:
     static uiWord sCalculateFrom()	{ return tr("Calculate From"); }
     static uiWord sCancel()		{ return tr("Cancel"); }
     static uiWord sCancelled()		{ return tr("Cancelled"); }
-    static uiWord sCannotAdd();
-    static uiWord sCannotAllocate();
-    static uiWord sCannotCopy();
-    static uiWord sCannotEdit();
-    static uiWord sCannotExtract();
-    static uiWord sCannotFind();
-    static uiWord sCannotImport();
-    static uiWord sCannotLoad();
-    static uiWord sCannotOpen();
-    static uiWord sCannotParse();
-    static uiWord sCannotRemove();
-    static uiWord sCannotSave();
-    static uiWord sCannotStart();
-    static uiWord sCannotUnZip();
-    static uiWord sCannotWrite();
-    static uiWord sCannotZip();
-    static uiWord sCantFindAttrName();
-    static uiWord sCantFindODB();
-    static uiWord sCantFindSurf();
-    static uiWord sCantOpenInpFile(int n=1);
-    static uiWord sCantOpenOutpFile(int n=1);
-    static uiWord sCantReadHor();
-    static uiWord sCantReadInp();
-    static uiWord sCantWriteSettings();
     static uiWord sCenter()		{ return tr("Center","Alignment"); }
     static uiWord sCentral()		{ return tr("Central"); }
     static uiWord sChange()		{ return tr("Change"); }
-    static uiWord sCheckPermissions();
     static uiWord sCircle()		{ return tr("Circle","shape"); }
     static uiWord sClassification()	{ return tr("Classification"); }
     static uiWord sClear()		{ return tr("Clear"); }
@@ -299,6 +298,7 @@ public:
     static uiWord sComment()		{ return tr("Comment"); }
     static uiWord sCommand()		{ return tr("Command"); }
     static uiWord sComponent()		{ return tr("Component"); }
+    static uiWord sConnection()		{ return tr("Connection"); }
     static uiWord sConstant( bool math )
     { return math ? tr("Constant","in math"):tr("Constant","not changing"); }
     static uiWord sContent()		{ return tr("Content"); }
@@ -316,7 +316,6 @@ public:
     static uiWord sCreateGroup()	{ return tr("Create Group"); }
     static uiWord sCreateNew()		{ return tr("Create New"); }
     static uiWord sCreateOutput()	{ return tr("Create Output"); }
-    static uiWord sCreateProbDesFunc();
     static uiWord sCrl()		{ return tr("Crl","abbr Cross-line");}
     static uiWord sCross()		{ return tr("Cross","Shape"); }
     static uiWord sCrossPlot()		{ return tr("Cross Plot"); }
@@ -375,7 +374,6 @@ public:
     static uiWord sEmpty()		{ return tr("Empty"); }
     static uiWord sEnabled()		{ return tr("Enabled"); }
     static uiWord sEnter()		{ return tr("Enter"); }
-    static uiWord sEnterValidName();
     static uiWord sEpsilon()		{ return tr("Epsilon"); }
     static uiWord sError()		{ return tr("Error"); }
     static uiWord sEta()		{ return tr("Eta"); }
@@ -669,7 +667,6 @@ public:
     static uiWord sSave()		{ return tr("Save"); }
     static uiWord sSaveAs()		{ return tr("Save As"); }
     static uiWord sSaveAsDefault()	{ return tr("Save as Default"); }
-    static uiWord sSaveBodyFail();
     static uiWord sSaved()		{ return tr("Saved"); }
     static uiWord sSavingChanges()	{ return tr("Saving changes"); }
     static uiWord sSavingData()		{ return tr("Saving data"); }
@@ -678,7 +675,7 @@ public:
     static uiWord sScanning()		{ return tr("Scanning"); }
     static uiWord sScene(int n=1)	{ return tr("Scene",0,n); }
     static uiWord sScenes()		{ return sScene(mPlural); }
-    static uiWord sSceneWithNr(int scenenr);
+    static uiWord sSceneWithNr(int nr)	{ return sScene().withNumber(nr); }
     static uiWord sSchedule()		{ return tr("Schedule"); }
     static uiWord sScore()		{ return tr("Score"); }
     static uiWord sScope()		{ return tr("Scope"); }

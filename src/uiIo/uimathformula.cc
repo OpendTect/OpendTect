@@ -421,7 +421,7 @@ void uiMathFormula::readReq( CallBacker* )
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	{ uiMSG().error(uiStrings::sCantOpenInpFile()); return; }
+	{ uiMSG().error(uiStrings::phrCannotOpenInpFile()); return; }
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(Math::Formula::sKeyFileType()) )
@@ -446,7 +446,7 @@ void uiMathFormula::writeReq( CallBacker* )
     File::Path fp( fnm ); fp.setExtension( "formula" );
     od_ostream strm( fp.fullPath() );
     if ( !strm.isOK() )
-	{ uiMSG().error(uiStrings::sCantOpenOutpFile()); return; }
+	{ uiMSG().error(uiStrings::phrCannotOpenOutpFile()); return; }
     ascostream astrm( strm );
     if ( !astrm.putHeader(Math::Formula::sKeyFileType()) )
 	{ uiMSG().error(tr("Cannot write file header")); return; }

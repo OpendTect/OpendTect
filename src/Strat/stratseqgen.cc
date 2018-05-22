@@ -182,7 +182,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
 
     if ( isEmpty() )
     {
-	errmsg_ = tr( "Empty description : no valid units found" );
+	errmsg_ = tr("Empty description : no valid units found");
 	return false;
     }
 
@@ -281,7 +281,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 	{
 	    errmsg_ = lgen.errMsg();
 	    if ( errmsg_.isEmpty() )
-		errmsg_ = tr( "Error post-processing %1" ).arg( lgen.name() );
+		errmsg_ = tr("Error post-processing %1").arg( lgen.name() );
 	    return false;
 	}
     }

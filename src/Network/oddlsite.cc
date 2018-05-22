@@ -99,10 +99,7 @@ bool ODDLSite::getLocalFile( const char* relfnm, const char* outfnm )
 
     od_istream strm( inpfnm );
     if ( !strm.isOK() )
-    {
-	errmsg_ = uiStrings::phrCannotOpen( toUiString(inpfnm) );
-	return false;
-    }
+	{ errmsg_ = uiStrings::phrCannotOpenForRead( inpfnm ); return false; }
 
     BufferString bs;
     const bool isok = strm.getAll( bs );

@@ -122,9 +122,8 @@ bool SafeFileIO::openRead( bool ignorelock )
 	}
 	else
 	{
-	    errmsg_ = uiStrings::phrCannotOpen(
-				    toUiString(BufferString(": ",toopen)));
-		errmsg_.appendPhrase( uiStrings::sCheckPermissions() );
+	    errmsg_ = uiStrings::phrCannotOpenForRead( toopen )
+			.appendPhrase( uiStrings::phrCheckPermissions() );
 	}
 
 	rmLock();
@@ -141,7 +140,7 @@ bool SafeFileIO::openWrite( bool ignorelock )
 	{ pErrMsg("Stream open before openWrite"); closeFail(); }
     if ( File::exists(filenm_) && !File::isWritable(filenm_) )
     {
-	errmsg_ = tr( "File %1 is readonly" ).arg( filenm_ );
+	errmsg_ = tr("File %1 is readonly").arg( filenm_ );
 	return false;
     }
 
@@ -165,9 +164,8 @@ bool SafeFileIO::openWrite( bool ignorelock )
 	}
 	else
 	{
-	    errmsg_ = uiStrings::phrCannotOpen(
-				    toUiString(BufferString(": ",newfnm_)));
-	    errmsg_.appendPhrase( uiStrings::sCheckPermissions() );
+	    errmsg_ = uiStrings::phrCannotOpenForWrite( newfnm_ );
+	    errmsg_.appendPhrase( uiStrings::phrCheckPermissions() );
 	}
 
 	rmLock();

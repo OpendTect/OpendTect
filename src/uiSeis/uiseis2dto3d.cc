@@ -139,9 +139,9 @@ bool uiSeis2DTo3D::acceptOK()
 	return false;
 
     if ( !SI().has3D() )
-	uiMSG().warning( tr( "After processing you will need to change\n"
+	uiMSG().warning( tr("After processing you will need to change\n"
 			     "the survey type to 'Both 2D and 3D'\n"
-			     "in survey setup to display/use the cube" ) );
+			     "in survey setup to display/use the cube") );
 
     batchfld_->setJobName( outfld_->getInput() );
     return batchfld_->start();

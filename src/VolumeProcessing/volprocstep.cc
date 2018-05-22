@@ -332,7 +332,7 @@ bool VolProc::Step::prepareWork( int nrthreads )
 {
     if ( !output_ )
     {
-	errmsg_ = tr( "Volume Processing step does not have an output" );
+	errmsg_ = tr("Volume Processing step does not have an output");
 	releaseData();
 	return false;
     }
@@ -343,8 +343,8 @@ bool VolProc::Step::prepareWork( int nrthreads )
 	const int nrinputs = getNrInputs();
 	if ( nrinputs < 1 )
 	{
-	    errmsg_ = tr( "This Volume Processing Step requires an input "
-			  "but none was provided" );
+	    errmsg_ = tr("This Volume Processing Step requires an input "
+			  "but none was provided");
 	    releaseData();
 	    return false;
 	}
@@ -353,8 +353,8 @@ bool VolProc::Step::prepareWork( int nrthreads )
 	{
 	    if ( !inputs_.validIdx(idx) || !inputs_[idx] )
 	    {
-		errmsg_ = tr( "Volume Processing step does not have the "
-			      "required input datapack" );
+		errmsg_ = tr("Volume Processing step does not have the "
+			     "required input datapack");
 		releaseData();
 		return false;
 	    }
@@ -363,8 +363,8 @@ bool VolProc::Step::prepareWork( int nrthreads )
 	    if ( inputs_[idx]->nrComponents() !=
 					getNrInputComponents(slotid,geomid) )
 	    {
-		errmsg_ = tr( "Volume Processing step does not have the "
-			      "required number of components for its input" );
+		errmsg_ = tr("Volume Processing step does not have the "
+			     "required number of components for its input");
 		releaseData();
 		return false;
 	    }
@@ -372,8 +372,8 @@ bool VolProc::Step::prepareWork( int nrthreads )
 
 	if ( canInputAndOutputBeSame() && output_ != inputs_[0] )
 	{
-	    errmsg_ = tr( "Volume Processing step requires the step output "
-			  "to be its input" );
+	    errmsg_ = tr("Volume Processing step requires the step output "
+			 "to be its input");
 	    releaseData();
 	    return false;
 	}
@@ -384,8 +384,8 @@ bool VolProc::Step::prepareWork( int nrthreads )
 					getNrOutComponents( slotid, geomid );
     if ( !success )
     {
-	errmsg_ = tr( "Volume Processing step does not have the "
-		      "required number of components for its output" );
+	errmsg_ = tr("Volume Processing step does not have the "
+		     "required number of components for its output");
 	releaseData();
     }
 

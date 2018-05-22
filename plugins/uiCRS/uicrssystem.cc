@@ -398,7 +398,7 @@ void uiConvertGeographicPos::convFile()
     const BufferString outfnm = outfilefld_->fileName();
     od_ostream ostream( outfnm );
     if ( !ostream.isOK() )
-    { mErrRet(uiStrings::sCantOpenOutpFile()); }
+    { mErrRet(uiStrings::phrCannotOpenOutpFile()); }
 
     lastinpfile = inpfnm; lastoutfile = outfnm;
 

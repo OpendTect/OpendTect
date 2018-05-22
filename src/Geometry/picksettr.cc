@@ -107,10 +107,7 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-    {
-	errmsg = uiStrings::phrCannotOpen( ioobj->uiName() );
-	return false;
-    }
+	{ errmsg = ioobj->phrCannotOpen(); return false; }
 
     ChangeNotifyBlocker cnb( ps );
 
@@ -170,7 +167,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	{ errmsg = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
+	{ errmsg = ioobj->phrCannotOpen(); return false; }
 
     errmsg = tr->write( ps, *conn );
     if ( !errmsg.isEmpty() )
@@ -280,7 +277,7 @@ public:
 uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return uiStrings::sCantOpenInpFile();
+	return uiStrings::phrCannotOpenInpFile();
 
     od_istream& strm = ((StreamConn&)conn).iStream();
     const BufferString fnm( strm.fileName() );
@@ -304,7 +301,7 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return uiStrings::sCantOpenOutpFile();
+	return uiStrings::phrCannotOpenOutpFile();
 
     od_ostream& strm = ((StreamConn&)conn).oStream();
 
@@ -328,7 +325,7 @@ uiString dgbPickSetTranslatorStreamBackEnd::read( Pick::Set& ps )
 {
     ascistream astrm( static_cast<od_istream&>(strm_) );
     if ( !astrm.isOK() )
-	return uiStrings::sCantOpenInpFile();
+	return uiStrings::phrCannotOpenInpFile();
     else if ( !astrm.isOfFileType(mTranslGroupName(PickSet)) )
 	return uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
     if ( atEndOfSection(astrm) )
@@ -402,7 +399,7 @@ uiString dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
     ascostream astrm( static_cast<od_ostream&>(strm_) );
     astrm.putHeader( mTranslGroupName(PickSet) );
     if ( !astrm.isOK() )
-	return uiStrings::sCantOpenOutpFile();
+	return uiStrings::phrCannotOpenOutpFile();
 
     IOPar par; fillPar( ps, par );
     par.putTo( astrm );

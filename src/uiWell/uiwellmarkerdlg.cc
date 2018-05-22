@@ -297,7 +297,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 	const BufferString markernm( table_->text( rc ) );
 	if ( markernm.isEmpty() )
 	{
-	    uiMSG().error( uiStrings::sEnterValidName() );
+	    uiMSG().error( uiStrings::phrEnterValidName() );
 	    return;
 	}
     }

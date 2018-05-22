@@ -205,7 +205,7 @@ bool acceptOK()
 	mErrRet( uiStrings::phrEnter(uiStrings::sInpFileName()) )
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile()))
+	mErrRet(uiStrings::phrCannotOpenInpFile())
 
     if ( !dataselfld_->commit() )
 	return false;

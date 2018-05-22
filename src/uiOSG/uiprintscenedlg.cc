@@ -520,7 +520,7 @@ void uiPrintSceneDlg::writeToSettings()
     fillPar( iopar, false );
     settings_.mergeComp( iopar, "3D" );
     if ( !settings_.write() )
-	uiMSG().error( uiStrings::sCantWriteSettings() );
+	uiMSG().error( uiStrings::phrCannotWriteSettings() );
 }
 
 

@@ -250,7 +250,7 @@ bool MathProperty::init( const PropertySet& ps ) const
 {
     if ( !form_.isOK() )
     {
-	errmsg_ = tr( "No valid definition for '%1'" ).arg( name() );
+	errmsg_ = tr("No valid definition for '%1'").arg( name() );
 	return false;
     }
 
@@ -274,7 +274,7 @@ bool MathProperty::init( const PropertySet& ps ) const
 	    if ( !prop )
 	    {
 		errmsg_ =
-		    tr( "Missing input '%1' for '%2'" ).arg(name()).arg(inpnm);
+		    tr("Missing input '%1' for '%2'").arg(name()).arg(inpnm);
 		return false;
 	    }
 	}

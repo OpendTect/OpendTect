@@ -287,7 +287,8 @@ Executor* PolygonBody::saver( IOObj* inpioobj )
 Executor* PolygonBody::loader()
 {
     PtrMan<IOObj> ioobj = DBM().get( dbKey() );
-    if ( !ioobj ) { errmsg_ = uiStrings::sCantFindSurf(); return 0; }
+    if ( !ioobj )
+	{ errmsg_ = uiStrings::phrCannotFindObjInDB(); return 0; }
 
     EM::dgbSurfaceReader* rd = new EM::dgbSurfaceReader( *ioobj, typeStr() );
     if ( !rd->isOK() )
@@ -317,7 +318,7 @@ Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
     const DBKey dbky = key && key->isValid() ? *key : surface_.dbKey();
     PtrMan<IOObj> ioobj = DBM().get( dbky );
     if ( !ioobj )
-	{ surface_.setErrMsg(uiStrings::sCantFindSurf() ); return 0; }
+	{ surface_.setErrMsg(uiStrings::phrCannotFindObjInDB()); return 0; }
 
     return surface_.saver( ioobj );
 }

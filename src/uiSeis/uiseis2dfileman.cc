@@ -376,9 +376,9 @@ bool acceptOK()
     uiTaskRunner taskrun( this );
     bool rettype = false;
     if ( TaskRunner::execute(&taskrun,lmrgr) )
-	rettype = uiMSG().askGoOn( tr("Merge successfully completed."),
-				   tr( "Done with merging"),
-				   tr( "Want to merge more lines") );
+	rettype = uiMSG().askGoOn( tr("Merge successfully completed"),
+				   tr("Done with merging"),
+				   tr("Want to merge more lines") );
     return rettype;
 }
 

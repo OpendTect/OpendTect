@@ -144,10 +144,10 @@ bool uiFileSelector::go()
     if ( caption_.isEmpty() )
     {
 	if ( isForRead(setup_.selmode_) )
-	    caption_ = isDirectory(setup_.selmode_)
-			? tr( "Select Directory" ) : tr( "Select File" );
+	    caption_ = uiStrings::phrSelect( isDirectory(setup_.selmode_)
+			? uiStrings::sDirectory() : uiStrings::sFile() );
 	else
-	    caption_ = tr( "Specify new file name" );
+	    caption_ = tr("Specify new file name");
     }
 
     BufferString prot;

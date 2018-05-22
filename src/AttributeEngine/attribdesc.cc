@@ -380,7 +380,7 @@ Desc::SatisfyLevel Desc::satisfyLevel() const
 	    const BufferString ky = params_[idx]->getKey();
 	    if ( ky == "id" )
 	    {
-		errmsg_ = tr( "A stored input is incorrect" );
+		errmsg_ = tr("A stored input is incorrect");
 		return StorNotFound;
 	    }
 	    else
@@ -423,7 +423,7 @@ const uiString Desc::errMsg() const
 	else
 	{
 	    pErrMsg( "Stored attrib shld already have the error message set" );
-	    errmsg_ = tr( "Error accessing '%1'" ).arg( userref_ );
+	    errmsg_ = tr("Error accessing '%1'").arg( userref_ );
 	}
     }
 

@@ -51,10 +51,7 @@ public:
 	, surface_( surface )
     {
 	if ( !conn_ || !conn_->forRead() )
-	{
-	    errmsg_ = uiStrings::phrCannotOpen( uiStrings::sBody() );
-	    return;
-	}
+	    { errmsg_ = uiStrings::phrCannotOpen(uiStrings::sBody()); return; }
 
 	od_istream& strm = ((StreamConn*)conn_)->iStream();
 	ascistream astream( strm );
@@ -152,10 +149,7 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
     , surface_( surface )
 {
     if ( !conn_ || !conn_->forWrite() )
-    {
-	errmsg_ = uiStrings::phrCannotOpen( uiStrings::sBody() );
-	return;
-    }
+	{ errmsg_ = uiStrings::phrCannotOpen(uiStrings::sBody()); return; }
 
     od_ostream& strm = ((StreamConn*)conn_)->oStream();
     ascostream astream( strm );

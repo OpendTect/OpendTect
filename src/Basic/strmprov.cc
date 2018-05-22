@@ -233,7 +233,7 @@ int nextStep()
 	return Finished();
     }
 
-    msg_ = tr( "Read error for '%1'").arg( fnm_ );
+    msg_ = tr("Read error for '%1'").arg( fnm_ );
     return ErrorOccurred();
 }
 

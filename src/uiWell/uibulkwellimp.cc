@@ -193,7 +193,7 @@ bool uiBulkTrackImport::acceptOK()
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::sCantOpenInpFile() )
+	mErrRet( uiStrings::phrCannotOpenInpFile() )
 
     if ( !dataselfld_->commit() )
 	return false;
@@ -394,7 +394,7 @@ bool uiBulkMarkerImport::acceptOK()
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::sCantOpenInpFile() )
+	mErrRet( uiStrings::phrCannotOpenInpFile() )
 
     if ( !dataselfld_->commit() )
 	return false;
@@ -518,7 +518,7 @@ bool uiBulkD2TModelImport::acceptOK()
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::sCantOpenInpFile() )
+	mErrRet( uiStrings::phrCannotOpenInpFile() )
 
     if ( !dataselfld_->commit() )
 	return false;

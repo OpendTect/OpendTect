@@ -79,12 +79,12 @@ bool EM::HorizonPreLoader::load( const DBKeySet& newids, bool is2d,
 	if ( notloadedkeys.size() == newids.size() )
 	{
 	    if ( newids.size() == 1 )
-		msg2 = tr( "Cannot find the horizon for pre-load" );
+		msg2 = tr("Cannot find the horizon for pre-load");
 	    else
-		msg2 = tr( "Cannot find any horizons for pre-load" );
+		msg2 = tr("Cannot find any horizons for pre-load");
 	}
 	else
-	    msg2 = tr("Cannot pre-load some horizons");
+	    msg2 = tr("Some of the horizons could not be preloaded");
 
 	errmsg_.appendPhrase( msg2 );
     }

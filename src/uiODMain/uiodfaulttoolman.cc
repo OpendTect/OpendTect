@@ -217,11 +217,11 @@ protected:
 //============================================================================
 
 uiString uiODFaultToolMan::sKeyCopySelection()
-{ return tr( "Copy Selection to" ); }
+{ return tr("Copy Selection to"); }
 
 
 uiString uiODFaultToolMan::sKeyMoveSelection()
-{ return tr( "Move Selection to" ); }
+{ return tr("Move Selection to"); }
 
 
 uiString uiODFaultToolMan::sKeyToFault()
@@ -233,19 +233,19 @@ uiString uiODFaultToolMan::sKeyToFaultStickSet()
 
 
 uiString uiODFaultToolMan::sKeyCreateSingleNew()
-{ return tr( "Create Single New" ); }
+{ return tr("Create Single New"); }
 
 
 uiString uiODFaultToolMan::sKeyCreateNewInSeries()
-{ return tr( "Create New in Series" ); }
+{ return tr("Create New in Series"); }
 
 
 uiString uiODFaultToolMan::sKeyMergeWithExisting()
-{ return tr( "Merge with Existing" ); }
+{ return tr("Merge with Existing"); }
 
 
 uiString uiODFaultToolMan::sKeyReplaceExisting()
-{ return tr( "Replace Existing" ); }
+{ return tr("Replace Existing"); }
 
 #define mIsCurItem( combo, key ) (key() == combo->uiText())
 

@@ -224,7 +224,8 @@ void MadStream::initRead( IOPar* par )
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *ioobj );
 
-	if (!psrdr_) mErrRet(uiStrings::sCantReadInp());
+	if ( !psrdr_ )
+	    mErrRet(uiStrings::phrCannotReadInp());
 
 	fillHeaderParsFromPS( seldata );
     }
@@ -326,7 +327,8 @@ uiString MadStream::sPosFile()
 
 void MadStream::fillHeaderParsFromSeis()
 {
-    if ( !seisprov_ ) mErrRet(uiStrings::sCantReadInp());
+    if ( !seisprov_ )
+	mErrRet(uiStrings::phrCannotReadInp());
 
     if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
 
@@ -429,7 +431,8 @@ void MadStream::fillHeaderParsFromSeis()
 
 void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 {
-    if (!psrdr_) mErrRet(uiStrings::sCantReadInp());
+    if ( !psrdr_ )
+	mErrRet( uiStrings::phrCannotReadInp() );
 
     if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
 
@@ -693,7 +696,8 @@ uiString MadStream::sNoPositionsInPosFile()
     { \
 	haspos = true; \
 	od_istream strm( posfnm ); \
-	if ( !strm.isOK() ) mErrBoolRet(uiStrings::phrCannotOpen(sPosFile())); \
+	if ( !strm.isOK() ) \
+	    mErrBoolRet(uiStrings::phrCannotOpen(sPosFile())); \
 	if ( !obj.read(strm,false) ) \
 	    mErrBoolRet( uiStrings::phrCannotRead(sPosFile()) ); \
 	if ( obj.isEmpty() ) \

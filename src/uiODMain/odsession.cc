@@ -184,7 +184,7 @@ bool ODSessionTranslator::retrieve( ODSession& session,
 				    const IOObj* ioobj, uiString& err )
 {
     if ( !ioobj )
-    { err = uiStrings::sCantFindODB(); return false; }
+    { err = uiStrings::phrCannotFindObjInDB(); return false; }
 
     PtrMan<ODSessionTranslator> trans =
 		dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
@@ -193,10 +193,7 @@ bool ODSessionTranslator::retrieve( ODSession& session,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-    {
-	err = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
-	return false;
-    }
+	{ err = ioobj->phrCannotOpen(); return false; }
 
     err = toUiString(trans->read( session, *conn ));
     bool rv = err.isEmpty();
@@ -220,10 +217,7 @@ bool ODSessionTranslator::store( const ODSession& session,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-    {
-       err = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
-       return false;
-    }
+	{ err = ioobj->phrCannotOpen(); return false; }
 
     err = toUiString(trans->write( session, *conn ) );
     if ( !err.isEmpty() )

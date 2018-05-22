@@ -83,8 +83,7 @@ bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
-								return false; }
+	{ msg = ioobj->phrCannotOpen(); return false; }
 
     msg = toUiString(trnsltr->read( rdls, *conn ));
     if ( msg.isEmpty() )
@@ -143,10 +142,7 @@ bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-    {
-	msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
-	return false;
-    }
+	{ msg = ioobj->phrCannotOpen(); return false; }
 
     msg = toUiString( trnsltr->write( rdl, *conn ) );
     if ( !msg.isEmpty() )

@@ -319,7 +319,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     od_istream& strm = sconn.iStream();
     if ( !strm.isOK() )
     {
-	msg_ = uiStrings::phrCannotOpen(tr("horizon file"));
+	msg_ = uiStrings::phrCannotOpenInpFile();
 	strm.addErrMsgTo( msg_ );
 	delete conn_; conn_ = 0; return false;
     }

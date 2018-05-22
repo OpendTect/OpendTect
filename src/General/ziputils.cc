@@ -124,13 +124,9 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     }
 
     if ( !res )
-    {
-	errmsg_ = tr( "Unzip failed in the command: %1").arg( cmd );
-    }
+	errmsg_ = tr("Unzip failed for command: %1").arg( cmd );
     else
-    {
         errmsg_.setEmpty();
-    }
 
     return res;
 }

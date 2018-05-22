@@ -577,7 +577,7 @@ void valChgCB( CallBacker* )
 
     uiString lbl; bool isok = false;
     if ( !posIsReasonable() )
-	lbl = is2d ? tr("Invalid trace number") : tr( "Invalid position" );
+	lbl = is2d ? tr("Invalid trace number") : tr("Invalid position");
     else if ( !posIsInside() )
 	lbl = is2d ? tr("Trace number not in line geometry")
 		   : tr("Position is outside survey");
@@ -976,7 +976,7 @@ void uiSeisSampleEditor::tblValChgCB( CallBacker* )
 void uiSeisSampleEditor::setTrcBufViewTitle()
 {
     if ( trcbufvwr_ )
-	trcbufvwr_->setWinTitle( tr( "Central Trace: %1")
+	trcbufvwr_->setWinTitle( tr("Central Trace: %1")
 			       .arg(curBinID().toString(is2d_) ) );
 
 }

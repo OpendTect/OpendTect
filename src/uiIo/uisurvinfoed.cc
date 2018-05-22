@@ -409,19 +409,20 @@ void uiSurveyInfoEditor::mkTransfGrp()
     trgrp_ = new uiGroup( tabs_->tabGroup(), "Survey Grid (Advanced)" );
     uiLabel* emptyspace = new uiLabel( trgrp_, uiString::empty() );
 
-    x0fld_ = new uiGenInput( trgrp_, tr( "X = " ),
-					       DoubleInpSpec().setName( "X" ) );
+    x0fld_ = new uiGenInput( trgrp_, tr("%1 = ").arg( uiStrings::sX() ),
+					   DoubleInpSpec().setName( "X" ) );
     x0fld_->setElemSzPol( uiObject::Small );
     x0fld_->attach( alignedBelow, emptyspace );
     mAddCB( x0fld_ );
 
-    xinlfld_ = new uiGenInput ( trgrp_, tr("+ in-line *"),
+    xinlfld_ = new uiGenInput( trgrp_, tr("+ %1 *").arg(uiStrings::sInline()),
 				       DoubleInpSpec().setName("Inl") );
     xinlfld_->setElemSzPol( uiObject::Small );
     mAddCB( xinlfld_ );
 
-    xcrlfld_ = new uiGenInput ( trgrp_, tr("+ cross-line *"),
-				      DoubleInpSpec().setName("Crl") );
+    xcrlfld_ = new uiGenInput( trgrp_, tr("+ %1 *")
+				.arg(uiStrings::sCrossline() ),
+				  DoubleInpSpec().setName("Crl") );
     xcrlfld_->setElemSzPol( uiObject::Small );
     mAddCB( xcrlfld_ );
 

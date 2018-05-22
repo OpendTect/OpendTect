@@ -285,7 +285,7 @@ static od_istream getUiInpStrm( const char* fnm, uiString& errmsg,
 {
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	errmsg = uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower());
+	errmsg = uiStrings::phrCannotOpenForRead( fnm );
     BufferString firstword; strm >> firstword;
     strm.setReadPosition( 0 );
     tabstyle = firstword != "dTect" && firstword != "dGB-GDI";
@@ -637,7 +637,7 @@ bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
 {
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-      errmsg = uiStrings::phrCannotOpen(uiStrings::sOutputFile().toLower());
+      errmsg = uiStrings::phrCannotOpenForWrite(fnm);
 
     BufferString str;
     if ( tabstyle )

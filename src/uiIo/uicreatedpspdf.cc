@@ -38,7 +38,7 @@ static int cMaxNrPDFs = 3;
 
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 				const uiDataPointSetCrossPlotter* plotter )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sCreateProbDesFunc(),
+    : uiDialog(p,uiDialog::Setup(uiStrings::sProbDensFunc(false),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
     , plotter_(plotter)
     , dps_(plotter_->dps())
@@ -53,7 +53,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps,
 				bool restricted )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sCreateProbDesFunc(),
+    : uiDialog(p,uiDialog::Setup(uiStrings::sProbDensFunc(false),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
     , plotter_(0)
     , dps_(dps)

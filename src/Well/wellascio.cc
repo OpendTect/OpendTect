@@ -165,7 +165,7 @@ bool Well::TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	    if ( dist < 0. )
 	    {
 		const double usrval = mScaledValue( curpos.z_, uom );
-		mErrRet( tr( "Impossible TVD to MD transformation for Z=%1" )
+		mErrRet( tr("Impossible TVD to MD transformation for Z=%1")
 			  .arg(usrval).withUnit(uomlbl) )
 	    }
 
@@ -276,7 +276,7 @@ bool Well::TrackAscIO::getData( Data& wd, float kbelev, float td ) const
 	return false;
 
     if ( mIsUdf(kbelev) && mIsUdf(kbelevinfile) )
-	mErrRet( tr( "%1 was not provided and cannot be computed" )
+	mErrRet( tr("%1 was not provided and cannot be calculated")
 		     .arg(Well::Info::sKBElev()) )
 
     if ( !computeMissingValues(pos,mdvals,kbelevinfile) )

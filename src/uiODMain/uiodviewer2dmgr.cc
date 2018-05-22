@@ -308,14 +308,19 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	    curvwr2d->getTrcKeyZSampling().defaultDir();
 	if ( (vwr2ddir==TrcKeyZSampling::Inl && selauxannot_.isx1_) ||
 	     (vwr2ddir==TrcKeyZSampling::Z && !selauxannot_.isx1_) )
-	    selauxannot.txt_ = tr( "CRL %1" ).arg( toString(mNINT32(newpos)) );
+	    selauxannot.txt_ = toUiString( "%1 %2" )
+				.arg(uiStrings::sInl())
+				.arg( mNINT32(newpos) );
 	else if ( (vwr2ddir==TrcKeyZSampling::Crl && selauxannot_.isx1_) ||
 		  (vwr2ddir==TrcKeyZSampling::Z && selauxannot_.isx1_) )
-	    selauxannot.txt_ = tr( "INL %1" ).arg( toString(mNINT32(newpos)) );
+	    selauxannot.txt_ = toUiString( "%1 %2" )
+				.arg(uiStrings::sCrl())
+				.arg( mNINT32(newpos) );
 	else if ( (vwr2ddir==TrcKeyZSampling::Inl && !selauxannot_.isx1_) ||
 		  (vwr2ddir==TrcKeyZSampling::Crl && !selauxannot_.isx1_) )
-	    selauxannot.txt_ = tr( "ZSlice %1" ).arg(
-		    toString(newpos*curvwr2d->zDomain().userFactor()) );
+	    selauxannot.txt_ = toUiString( "%1 %2" )
+				.arg(uiStrings::sZ())
+				.arg( newpos*curvwr2d->zDomain().userFactor() );
     }
 
     setAuxAnnotLineStyles( curvwr, true );

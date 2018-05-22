@@ -248,8 +248,8 @@ void OD_2DLineSetTo2DDataSetConverter::doConversion( uiString& errmsg,
     if ( !copyData(filepathsofold2ddata,errmsg,taskrnr) ||
 	    !update2DSFilesAndAddToDelList(all2dsfiles,filestobedeleted) )
     {
-	errmsg = tr( "Failed to update 2D database. Most probably"
-		     " the survey or its 'Seismics' folder is not writable" );
+	errmsg = tr("Failed to update 2D database. Most probably"
+		    " the survey or its 'Seismics' folder are not writable");
 	return;
     }
 
@@ -435,7 +435,7 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
     OD_FileListCopier exec( srclist, destlist, msg );
     const bool res = TaskRunner::execute( taskrnr, exec );
     if ( !res )
-	errmsg = tr( "Error while converting 2D Seismic data: %1" ).arg( msg );
+	errmsg = tr("Error while converting 2D Seismic data").addMoreInfo(msg);
 
     return res;
 }

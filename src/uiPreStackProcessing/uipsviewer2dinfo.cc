@@ -59,7 +59,7 @@ void uiGatherDisplayInfoHeader::setData( const BinID& pos, bool isinl,
 void uiGatherDisplayInfoHeader::setData( int pos, const char* datanm )
 {
     datalbl_->setText( toUiString(datanm) );
-    uiString posstr = tr( "Model %1" ).arg(pos);
+    uiString posstr = uiStrings::sModel().withNumber( pos );
     poslbl_->setText( posstr );
 }
 

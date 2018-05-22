@@ -630,12 +630,10 @@ class uiFaultOptSel: public uiDialog
 public:
 
     uiFaultOptSel( uiParent* p, uiFaultParSel& fltpar )
-	: uiDialog(p,uiDialog::Setup(
-		    tr( "%1 selection" ).arg( fltpar.is2d_
-					    ? uiStrings::sFaultStickSet()
-					    : uiStrings::sFault() ),
-                                            mNoDlgTitle,
-                                            mODHelpKey(mFaultOptSelHelpID)))
+	: uiDialog(p,uiDialog::Setup( uiStrings::phrSelect(
+		    fltpar.is2d_ ? uiStrings::sFaultStickSet(mPlural)
+				 : uiStrings::sFault()),
+			    mNoDlgTitle, mODHelpKey(mFaultOptSelHelpID)))
 	, fltpar_(fltpar)
     {
 	const uiString& fltnm = fltpar.is2d_ ? uiStrings::sFaultStickSet()

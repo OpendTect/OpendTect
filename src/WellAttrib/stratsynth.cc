@@ -621,7 +621,7 @@ uiString message() const
 
 uiString nrDoneText() const
 {
-    return tr( "Models done" );
+    return tr("Models done");
 }
 
 ObjectSet<Gather>& angleGathers()	{ return anglegathers_; }
@@ -1094,12 +1094,12 @@ od_int64 nrIterations() const
 
 uiString message() const
 {
-    return !errmsg_.isEmpty() ? errmsg_ : tr( "Checking Models" );
+    return !errmsg_.isEmpty() ? errmsg_ : tr("Checking Models");
 }
 
 uiString nrDoneText() const
 {
-    return tr( "Models done" );
+    return tr("Models done");
 }
 
 
@@ -1127,9 +1127,9 @@ bool doWork( od_int64 start , od_int64 stop , int )
 		       tr("prestack synthetics as all")) : uiStrings::sAll() );
 	    uiString propstr( checksvel_ ? tr("Swave velocity")
 					 : tr("Pwave velocity/Density") );
-	    errmsg_ = tr( "%1 the values of %2 in elastic model are invalid. "
-			  "Probably units are not set correctly." )
-				.arg(startstr).arg(propstr);
+	    errmsg_ = tr("All values of %2 in elastic model are invalid")
+			.arg( propstr )
+			.addMoreInfo( uiStrings::phrCheckUnits(), true );
 	    return false;
 	}
 	else if ( erroridx != -1 )
@@ -1187,11 +1187,11 @@ bool doWork( od_int64 start , od_int64 stop , int )
 
 	    if ( infomsg_.isEmpty() )
 	    {
-		infomsg_ = tr( "Layer model contains invalid values of the "
-			       "following properties: %1. First occurence "
-			       "found in layer '%2' of pseudo well number '%3'."
-			       "Invalid values will be interpolated. "
-			       "The resulting synthetics may be incorrect" )
+		infomsg_ = tr("Layer model contains invalid values of the "
+			      "following properties: %1. First occurence "
+			      "found in layer '%2' of pseudo well number '%3'."
+			      "Invalid values will be interpolated. "
+			      "The resulting synthetics may be incorrect")
 		    .arg( msg ).arg(seq.layers()[erroridx]->name()).arg(midx+1);
 	    }
 

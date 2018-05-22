@@ -146,7 +146,7 @@ void Well::odWriter::init()
 void Well::odWriter::setStrmErrMsg( od_stream& strm,
 				    const uiString& oper ) const
 {
-    errmsg_ = tr( "Cannot %1 for %2." ).arg( oper ).arg( strm.fileName() );
+    errmsg_ = tr("Cannot %1 for %2").arg( oper ).arg( strm.fileName() );
     strm.addErrMsgTo( errmsg_ );
 }
 

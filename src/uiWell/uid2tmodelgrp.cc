@@ -116,7 +116,7 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	const char* fname = filefld_->fileName();
 	od_istream strm( fname );
 	if ( !strm.isOK() )
-	    mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()))
+	    mErrRet(uiStrings::phrCannotOpenInpFile())
 
 	if ( !dataselfld_->commit() )
 	    mErrRet( uiStrings::phrSpecify(tr("data format")) )

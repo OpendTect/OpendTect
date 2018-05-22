@@ -570,7 +570,7 @@ void Seis::Blocks::Writer::writeInfoFiles( uiRetVal& uirv )
     od_ostream infostrm( infoFileName() );
     if ( infostrm.isBad() )
     {
-	uirv.add( uiStrings::phrCannotOpen( toUiString(infostrm.fileName()) ) );
+	uirv.add( uiStrings::phrCannotOpenForWrite( infostrm.fileName() ) );
 	return;
     }
 
@@ -582,7 +582,7 @@ void Seis::Blocks::Writer::writeInfoFiles( uiRetVal& uirv )
 
     od_ostream ovvwstrm( ovvwfnm );
     if ( ovvwstrm.isBad() )
-	{ ErrMsg( uiStrings::phrCannotOpen(toUiString(ovvwfnm)) ); return; }
+	{ ErrMsg( uiStrings::phrCannotOpenForWrite(ovvwfnm) ); return; }
     if ( !writeOverviewFileData(ovvwstrm) )
 	File::remove( ovvwfnm );
 }

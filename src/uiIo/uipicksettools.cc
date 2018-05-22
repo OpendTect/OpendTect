@@ -95,7 +95,7 @@ RefMan<Pick::Set> uiPickSetIOObjSel::getPickSetForEdit( bool emptyok ) const
     uiRetVal uirv;
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( psioobj->key(), uirv );
     if ( ps && !emptyok && ps->isEmpty() )
-	{ uirv = tr( "No locations found" ); ps = 0; }
+	{ uirv = tr("No locations found"); ps = 0; }
 
     uiMSG().handleErrors( uirv );
     return ps;

@@ -83,7 +83,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	    winflds_ += new uiWindowFunctionSel( this, su );
 	winflds_[idx]->display (false);
     }
-    uiString seltxt = tr( "Specify Frequency Taper" );
+    uiString seltxt = uiStrings::sTaper();
     freqwinselfld_ = new uiCheckBox( this, seltxt );
     freqwinselfld_->attach( alignedBelow, winflds_[0] );
     freqwinselfld_->activated.notify( mCB(this,uiFreqFilterAttrib,freqWinSel) );

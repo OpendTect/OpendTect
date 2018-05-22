@@ -133,7 +133,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 
 	    if ( lvl == Desc::StorNotFound )
 	    {
-		errstr = tr( "Impossible to find stored data '%1'\n"
+		errstr = tr("Impossible to find stored data '%1'\n"
 				 "used as input for other attribute(s). \n"
 				 "Data might have been deleted or corrupted.\n"
 				 "Please check your attribute set \n"
@@ -141,7 +141,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 				.arg( desc.userRef() );
 	    }
 	    else if ( errmsg.isEmpty() )
-		errstr = tr( "Error in definition of %1 attribute." )
+		errstr = tr("Error in definition of %1 attribute.")
 			 .arg( desc.attribName() );
 	    else
 	    {
@@ -150,8 +150,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 		    || usrref.startsWith("FullSteering") )
 		    return 0;
 
-		errstr = tr( "%1 for '%2' attribute.")
-			 .arg( errmsg ).arg( desc.userRef() );
+		errstr = toUiString("%1: %2").arg( desc.userRef() ).arg(errmsg);
 	    }
 
 	    return 0;

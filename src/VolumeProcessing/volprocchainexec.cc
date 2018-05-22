@@ -567,7 +567,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare()
 	    {
 		if ( !outcube->addComponent(0,false) )
 		{
-		    errmsg_ = uiStrings::sCannotAllocate();
+		    errmsg_ = uiStrings::phrCannotAllocateMemory();
 		    outcube = 0;
 		    return false;
 		}
@@ -593,7 +593,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare()
 	ReportingTask* newtask = currentstep->createTask();
 	if ( !newtask )
 	{
-	    errmsg_ = tr( "Could not create task: %1\n" )
+	    errmsg_ = tr("Could not create task: %1\n")
 			.arg( currentstep->errMsg() );
 	    return false;
 	}

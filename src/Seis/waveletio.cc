@@ -62,15 +62,15 @@ uiRetVal WaveletLoader::read( Wavelet*& wvlt )
     wvlt = 0;
     Conn* connptr = ioobj_->getConn( Conn::Read );
     if ( !connptr || connptr->isBad() )
-	uirv = uiStrings::phrCannotOpen( ioobj_->uiName() );
+	uirv = ioobj_->phrCannotOpen();
     else
     {
 	wvlt = new Wavelet;
-	if ( transl->read( wvlt, *connptr ) )
+	if ( transl->read(wvlt,*connptr) )
 	    wvlt->setName( ioobj_->name() );
 	else
 	{
-	    uirv = tr( "Problem reading Wavelet '%1' from file" )
+	    uirv = tr("Problem reading Wavelet '%1' from file")
 			.arg( ioobj_->uiName() );
 	    wvlt->unRef(); wvlt = 0;
 	}
@@ -163,7 +163,7 @@ uiRetVal WaveletSaver::doStore( const IOObj& ioobj,
 
     Conn* connptr = ioobj.getConn( Conn::Write );
     if ( !connptr || connptr->isBad() )
-	uirv.add( uiStrings::phrCannotOpen(toUiString(ioobj.fullUserExpr())) );
+	uirv.add( ioobj.phrCannotOpen() );
     else
     {
 	RefMan<Wavelet> copiedwvlt = new Wavelet( *wvlt );

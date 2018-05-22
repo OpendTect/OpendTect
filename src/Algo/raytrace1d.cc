@@ -177,9 +177,9 @@ bool RayTracer1D::setModel( const ElasticModel& lys )
     model_.checkAndClean( firsterror, setup().doreflectivity_, !zerooffsetonly);
 
     if ( model_.isEmpty() )
-	errmsg_ = tr( "Model is empty" );
+	errmsg_ = tr("Model is empty");
     else if ( firsterror != -1 )
-	errmsg_ = tr( "Model has invalid values on layer: %1" )
+	errmsg_ = tr("Model has invalid values on layer: %1")
 		      .arg( firsterror+1 );
 
     return !model_.isEmpty();
@@ -471,8 +471,8 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 	    if ( !compute(layer,osidx,rayparam) )
 	    {
-		errmsg_ = tr( "Can not compute layer %1"
-			      "\n most probably the velocity is not correct" )
+		errmsg_ = tr("Can not compute layer %1"
+			     "\n most probably the velocity is not correct")
 			.arg( layer );
 		return false;
 	    }

@@ -37,7 +37,7 @@ bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ errmsg = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
+	{ errmsg = ioobj->phrCannotOpen(); return false; }
 
     mDynamicCastGet(VolProcessingTranslator*,t,ioobj->createTranslator())
     if ( t )
@@ -49,10 +49,7 @@ bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
     {
 	mDynamicCastGet(VolProcessing2DTranslator*,t2,ioobj->createTranslator())
 	if ( !t2 )
-	{
-	    errmsg = uiStrings::phrCannotOpen( ioobj->uiName() );
-	    return false;
-	}
+	    { errmsg = ioobj->phrCannotOpen(); return false; }
 
 	PtrMan<VolProcessing2DTranslator> tr = t2;
 	errmsg = toUiString( tr->read(vr,*conn) );
@@ -88,7 +85,7 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
     errmsg = uiString::empty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	{ errmsg = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
+	{ errmsg = ioobj->phrCannotOpen(); return false; }
 
     mDynamicCastGet(VolProcessingTranslator*,t,ioobj->createTranslator())
     if ( t )
@@ -101,7 +98,7 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
 	mDynamicCastGet(VolProcessing2DTranslator*,t2,ioobj->createTranslator())
 	if ( !t2 )
 	{
-	    errmsg = uiStrings::phrCannotOpen( ioobj->uiName() );
+	    errmsg = ioobj->phrCannotOpen();
 	    conn->rollback();
 	    return false;
 	}

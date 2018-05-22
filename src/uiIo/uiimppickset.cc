@@ -170,7 +170,7 @@ bool uiImpExpPickSet::doImport()
     const char* fname = filefld_->fileName();
     od_istream strm( fname );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()) )
+	mErrRet( uiStrings::phrCannotOpenInpFile() )
 
     const int zchoice = zfld_->box()->currentItem();
     const char* psnm = objfld_->getInput();
@@ -224,8 +224,7 @@ bool uiImpExpPickSet::doExport()
     const char* fname = filefld_->fileName();
     od_ostream strm( fname );
     if ( !strm.isOK() )
-	mErrRet(uiStrings::phrCannotOpen(uiStrings::phrOutput(
-		uiStrings::sFile())))
+	mErrRet(uiStrings::phrCannotOpenOutpFile())
 
     strm.stdStream() << std::fixed;
     BufferString buf;
@@ -262,7 +261,7 @@ bool uiImpExpPickSet::checkInpFlds()
 	mErrRet( uiStrings::phrSelect(uiStrings::sInputFile().toLower()) );
 
     if ( !import_ && filenm.isEmpty() )
-	mErrRet( uiStrings::sSelOutpFile() );
+	mErrRet( uiStrings::phrSelOutpFile() );
 
     if ( !objfld_->commitInput() )
 	return false;

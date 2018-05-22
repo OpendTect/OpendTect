@@ -810,12 +810,12 @@ void uiIOObjSelGrp::selChg( CallBacker* )
 	const bool isdef = ioobj && IOObj::isSurveyDefault( ioobj->key() );
 	if ( ioobj && !isdef )
 	{
-	    uiString tt = tr( "Set '%1' as default").arg(ioobj->uiName());
+	    uiString tt = tr("Set '%1' as default").arg(ioobj->name());
 	    mkdefbut_->setToolTip( tt );
 	}
 	else if ( isdef )
 	{
-	    uiString deftt = tr("'%1' is default object").arg(ioobj->uiName());
+	    uiString deftt = tr("'%1' is default object").arg(ioobj->name());
 	    mkdefbut_->setToolTip( deftt );
 	}
 	else

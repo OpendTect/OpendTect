@@ -117,6 +117,8 @@ bool uiExport2DHorizon::doExport()
 	mErrRet(tr("Cannot find object in database"))
 
     od_ostream strm( outfld_->fileName() );
+    if ( !strm.isOK() )
+	mErrRet(uiStrings::phrCannotOpenForWrite(strm.fileName()))
     const bool wrudfs = udffld_->isChecked();
     BufferString undefstr;
     if ( wrudfs )
@@ -171,7 +173,7 @@ bool uiExport2DHorizon::doExport()
 	}
 	mDynamicCastGet(const EM::Horizon2D*,hor,obj.ptr());
 	if ( !hor )
-	    mErrRet(uiStrings::sCantReadHor())
+	    mErrRet(uiStrings::phrCannotReadHor())
 
 	const Geometry::Horizon2DLine* geom = hor->geometry().geometryElement();
 	if ( !geom )
@@ -184,10 +186,6 @@ bool uiExport2DHorizon::doExport()
 			 : (SI().zIsTime() ? 1000 : mToFeetFactorF);
 	const bool wrlnms = optsfld_->isChecked( 0 );
 	BufferString line( 180, false );
-
-
-	if ( !strm.isOK() )
-	    mErrRet(uiStrings::sCantOpenOutpFile())
 
 	writeHeader( strm );
 
@@ -262,7 +260,8 @@ bool uiExport2DHorizon::doExport()
 		strm << line << od_newline;
 		if ( !strm.isOK() )
 		{
-		    uiString msg = tr( "Error writing to the output file." );
+		    uiString msg
+			= uiStrings::phrErrDuringWrite(strm.fileName());
 		    strm.addErrMsgTo( msg );
 		    mErrRet(msg)
 		}
@@ -331,7 +330,7 @@ bool uiExport2DHorizon::acceptOK()
 {
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
-	mErrRet( uiStrings::sSelOutpFile() );
+	mErrRet( uiStrings::phrSelOutpFile() );
 
     if ( File::exists(outfnm) &&
 	!uiMSG().askOverwrite(uiStrings::phrOutputFileExistsOverwrite()) )

@@ -593,10 +593,11 @@ void VoxelConnectivityFilter::fillPar( IOPar& par ) const
 }
 
 
-#define mTryParse( parcmd, errstr ) \
+#define mTryParse( parcmd, keystr ) \
     if ( !parcmd ) \
     { \
-	errmsg_ = errstr; \
+	errmsg_ = uiStrings::sParsMissing(); \
+	errmsg_.addMoreInfo( ::toUiString(keystr) ); \
 	return false; \
     }
 
@@ -605,19 +606,15 @@ bool VoxelConnectivityFilter::usePar( const IOPar& par )
     if ( !Step::usePar( par ) )
 	return false;
 
-    mTryParse( par.get( sKeyRange(), range_) , uiStrings::phrCannotParse(
-							   tr("value range")) );
-    mTryParse( ConnectivityDef().parse(par, sKeyConnectivity(), connectivity_ ),
-	    uiStrings::phrCannotParse(tr("connectivity")) );
-    mTryParse( AcceptOutputDef().parse( par, sKeyAcceptOutput(),acceptoutput_ ),
-	    uiStrings::phrCannotParse(tr("kept output type")) );
-    if ( acceptoutput_==Value )
-	mTryParse( par.get( sKeyAcceptValue(), acceptvalue_),
-		uiStrings::phrCannotParse(tr("kept value")) );
-    mTryParse( par.get( sKeyMinimumSize(), minbodysize_ ),
-	    uiStrings::phrCannotParse(tr("minimum body size")) );
-    mTryParse( par.get( sKeyRejectValue(), rejectvalue_ ),
-	    uiStrings::phrCannotParse(tr("rejected value")) );
+    mTryParse( par.get(sKeyRange(),range_), sKeyRange() );
+    mTryParse( par.get(sKeyMinimumSize(),minbodysize_), sKeyMinimumSize() );
+    mTryParse( par.get(sKeyRejectValue(),rejectvalue_), sKeyRejectValue() );
+    mTryParse( ConnectivityDef().parse(par,sKeyConnectivity(),connectivity_),
+		sKeyConnectivity() );
+    mTryParse( AcceptOutputDef().parse(par,sKeyAcceptOutput(),acceptoutput_),
+		sKeyAcceptOutput() );
+    if ( acceptoutput_ == Value )
+	mTryParse( par.get(sKeyAcceptValue(),acceptvalue_), sKeyAcceptValue() );
 
     return true;
 }

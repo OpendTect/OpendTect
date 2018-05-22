@@ -51,8 +51,7 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor,
     }
     savefld_ =
 	new uiGenInput( this, uiStrings::phrSave( uiStrings::sHorizon(1) ),
-	BoolInpSpec( true, tr( "As new" ),
-	uiStrings::sOverwrite() ) );
+		BoolInpSpec( true, tr("As new"), uiStrings::sOverwrite() ) );
 
     if ( rgfld_ )
 	savefld_->attach( alignedBelow, rgfld_ );
@@ -65,7 +64,7 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor,
 	uiStrings::phrOutput(uiStrings::sHorizon(1)) );
     outputfld_->attach( alignedBelow, savefld_ );
 
-    addnewfld_ = new uiCheckBox( this, tr( "Display after create" ) );
+    addnewfld_ = new uiCheckBox( this, tr("Display after create") );
     addnewfld_->attach( alignedBelow, outputfld_ );
 
     setHAlignObj( savefld_ );

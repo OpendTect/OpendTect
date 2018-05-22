@@ -336,7 +336,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	    od_istream stream( coordfnm );
 	    if ( !stream.isOK() )
 	    {
-		errmsg_ = tr( "Cannot open coordinate file:\n%1" )
+		errmsg_ = tr("Cannot open coordinate file:\n%1")
 				.arg( coordfnm );
 		return;
 	    }
@@ -345,7 +345,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	    if ( bp2c_->getIDs().size() < 2 )
 	    {
 		errmsg_ =
-		    tr( "Coordinate file bad (need at least 2 points):\n%1" )
+		    tr("Coordinate file bad (need at least 2 points):\n%1")
 			.arg( coordfnm );
 		return;
 	    }
@@ -576,8 +576,7 @@ uiString SEGYSeisTrcTranslator::getTrcPosStr() const
     if ( usecur < 0 )
 	return tr("at start of data");
 
-    ret = usecur ? tr( "at %1 %2%3" ) : tr( "after %1 %2%3" );
-
+    ret = toUiString( "@ %1 %2%3" );
     if ( is2d )
 	ret.arg( uiStrings::sTraceNumber().toLower() )
 	    .arg( usecur ? curtrcnr_ : prevtrcnr_ );

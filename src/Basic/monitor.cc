@@ -234,7 +234,7 @@ void ChangeNotifyBlocker::reBlock()
 
 uiString ChangeRecorder::Record::actionText( Action act ) const
 {
-    return tr( "%1 %2" )
+    return toUiString("%1 %2")
 	.arg( act == Undo ? uiStrings::sUndo() : uiStrings::sRedo() )
 	.arg( name() );
 }

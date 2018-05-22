@@ -180,8 +180,8 @@ bool uiElasticModelProvider::getInputMIDs( DBKey& pwmid, DBKey& swmid,
 						  : DBKey::getInvalid()
 		    : densityfld_->key();
 
-    uiString basestr  = tr( "Selected inputs are not in adequation with "
-			    "chosen model type and source" );
+    uiString basestr  = tr("Selected inputs are not in adequation with "
+			    "chosen model type and source");
     uiStringSet missingvals;
     missingvals.setEmpty();
     if ( needai && aimid.isInvalid() )

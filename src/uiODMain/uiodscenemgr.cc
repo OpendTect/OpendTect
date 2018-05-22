@@ -880,7 +880,7 @@ void uiODSceneMgr::setActiveScene( int idx )
 
 void uiODSceneMgr::initTree( uiODScene& scn, int vwridx )
 {
-    const uiString capt = tr( "Tree scene %1" ).arg( vwridx );
+    const uiString capt = tr("Tree scene").withNumber( vwridx );
     scn.dw_ = new uiDockWin( &appl_, capt );
     scn.dw_->setMinimumWidth( 200 );
     scn.lv_ = new uiTreeView( scn.dw_, toString(capt) );

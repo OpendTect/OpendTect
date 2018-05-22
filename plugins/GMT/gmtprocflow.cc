@@ -101,8 +101,7 @@ bool ODGMTProcFlowTranslator::retrieve( ODGMT::ProcFlow& pf, const IOObj* ioobj,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-        { str = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
-								 return false; }
+        { str = ioobj->phrCannotOpen(); return false; }
     str = trans->read( pf, *conn );
     return str.isEmpty();
 }
@@ -122,8 +121,7 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
     str = uiString::empty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-        { str = uiStrings::phrCannotOpen(
-				    toUiString(ioobj->fullUserExpr(false))); }
+        { str = ioobj->phrCannotOpen(); return false; }
     else
 	str = trans->write( pf, *conn );
 

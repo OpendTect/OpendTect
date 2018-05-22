@@ -108,11 +108,9 @@ uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
     uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Names group" );
     for ( int idim=0; idim<nrdims_; idim++ )
     {
-	uiString txt;
+	uiString txt = uiStrings::sVariable(true);
 	if ( nrdims_ > 1 )
-	    txt = tr( "Variable %1" ).arg( idim + 1 );
-	else
-	    txt = tr("Variable name");
+	    txt.withNumber( idim + 1 );
 	uiGenInput* nmfld = new uiGenInput(dimnmgrp, txt, pdf_.dimName(idim) );
 	if ( idim )
 	    nmfld->attach( alignedBelow, nmflds_[idim-1] );

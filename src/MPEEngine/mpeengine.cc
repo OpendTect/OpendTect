@@ -638,8 +638,8 @@ bool Engine::pickingOnSameData( const Attrib::SelSpec& oldss,
     if ( match ) return true;
 
     // TODO: Other messages for other options
-    error = tr( "This horizon has previously been picked on:\n'%1'.\n"
-		"The new seed has been picked on:\n'%2'." )
+    error = tr("This horizon has previously been picked on:\n'%1'.\n"
+		"The new seed has been picked on:\n'%2'.")
 			 .arg(oldss.userRef())
 			 .arg(newss.userRef());
     return false;

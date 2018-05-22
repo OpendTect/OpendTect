@@ -97,8 +97,8 @@ void Strat::FormulaLayerValue::useForm( const PropertyRefSelection& prs )
 	    inpidx = prs.indexOf( pnm );
 	    if ( inpidx < 0 )
 	    {
-		errmsg_ = tr( "%1 - Formula cannot be resolved:\n'%2'"
-                              "\nCannot find '%3'")
+		errmsg_ = tr("%1 - Formula cannot be resolved:\n'%2'"
+                             "\nCannot find '%3'")
                         .arg(lay_.name()).arg( form_.text() ).arg( pnm );
 
 		return;

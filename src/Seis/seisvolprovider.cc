@@ -151,7 +151,7 @@ void Seis::VolFetcher::openCube()
     getNextTranslator();
 
     if ( !trl_ && uirv_.isEmpty() )
-	uirv_ = tr( "No selected data found" );
+	uirv_ = tr("No selected data found");
 }
 
 
@@ -195,7 +195,7 @@ Conn* Seis::VolFetcher::getConn()
     }
 
     if ( !conn )
-	uirv_ = uiStrings::phrCannotOpen( ioobj_->uiName() );
+	uirv_ = ioobj_->phrCannotOpen();
     return conn;
 }
 
@@ -422,7 +422,7 @@ uiRetVal Seis::VolProvider::doGetComponentInfo( BufferStringSet& nms,
 	    SeisIOObjInfo objinf( dbky_ );
 	    objinf.getComponentNames( nms );
 	    if ( nms.isEmpty() )
-		return tr( "No data found" );
+		return tr("No data found");
 
 	    dt = Seis::UnknownData;
 	}

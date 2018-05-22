@@ -13,6 +13,9 @@ ________________________________________________________________________
 
 #define mJoinStr toUiString("%1 %2")
 
+
+//--- phrases with 'real' args
+
 uiPhrase uiStrings::phrAdd( const uiWord& string )
 { return tr("Add %1").arg( string ); }
 
@@ -38,16 +41,13 @@ uiPhrase uiStrings::phrDoesNotExist(const uiWord& string )
 { return tr("%1 does not exist").arg( string ); }
 
 uiPhrase uiStrings::phrCannotAdd( const uiWord& string )
-{ return mJoinStr.arg( sCannotAdd() ).arg( string ); }
-
-uiPhrase uiStrings::phrCannotAllocateMemory()
-{ return tr("Cannot allocate enough memory"); }
+{ return tr("Cannot add %1").arg( string ); }
 
 uiPhrase uiStrings::phrCannotCalculate( const uiWord& string )
 { return tr("Cannot calculate %1").arg( string ); }
 
 uiPhrase uiStrings::phrCannotCopy( const uiWord& string )
-{ return mJoinStr.arg( sCannotCopy() ).arg( string ); }
+{ return tr("Cannot copy %1").arg( string ); }
 
 uiPhrase uiStrings::phrCannotCreate( const uiWord& string )
 { return tr("Cannot create %1").arg( string ); }
@@ -62,64 +62,81 @@ uiPhrase uiStrings::phrCannotCreateHor()
 { return phrCannotCreate( sHorizon() ); }
 
 uiPhrase uiStrings::phrCannotEdit( const uiWord& string )
-{ return mJoinStr.arg( sCannotEdit() ).arg( string ); }
+{ return tr("Cannot edit %1").arg( string ); }
 
 uiPhrase uiStrings::phrCannotExtract( const uiWord& string )
-{ return mJoinStr.arg( sCannotExtract() ).arg( string ); }
+{ return tr("Cannot extract %1").arg( string ); }
 
 uiPhrase uiStrings::phrCannotFind( const uiWord& string )
-{ return mJoinStr.arg( sCannotFind() ).arg( string ); }
+{ return tr("Cannot find %1").arg( string ); }
+
+uiPhrase uiStrings::phrCannotFind( const char* str )
+{ return phrCannotFind( toUiString(str).quote(true) ); }
 
 uiPhrase uiStrings::phrCannotFindDBEntry( const uiWord& string )
 { return phrCannotFind( tr("database entry for %1").arg( string ) ); }
 
 uiPhrase uiStrings::phrCannotImport( const uiWord& string )
-{ return mJoinStr.arg( sCannotImport() ).arg( string ); }
+{ return tr("Cannot import %1").arg( string ); }
 
 uiPhrase uiStrings::phrCannotLoad( const uiWord& string )
-{ return mJoinStr.arg( sCannotLoad() ).arg( string ); }
+{ return tr("Cannot load %1").arg( string ); }
+
+uiPhrase uiStrings::phrCannotLoad( const char* nm )
+{ return phrCannotLoad( toUiString(nm).quote(true) ); }
 
 uiPhrase uiStrings::phrCannotOpen( const uiWord& string )
-{ return mJoinStr.arg( sCannotOpen() ).arg( string ); }
+{ return tr("Cannot open %1").arg( string ); }
 
-uiPhrase uiStrings::phrCannotOpen( const char* fnm )
-{ return phrCannotOpen( toUiString( BufferString("'",fnm,"'") ) ); }
+uiPhrase uiStrings::phrCannotOpen( const char* fnm, bool forread )
+{
+    return forread ? phrCannotOpen( toUiString(fnm).quote(true) )
+		   : phrCannotCreate( toUiString(fnm).quote(true) );
+}
 
-uiPhrase uiStrings::phrCannotParse( const uiWord& string )
-{ return mJoinStr.arg( sCannotParse() ).arg( string ); }
+uiPhrase uiStrings::phrCannotOpenForRead( const char* fnm )
+{ return phrCannotOpen( fnm, true ); }
+uiPhrase uiStrings::phrCannotOpenForWrite( const char* fnm )
+{ return phrCannotOpen( fnm, false ); }
+
+uiPhrase uiStrings::phrCannotParse( const char* expr )
+{ return tr("Cannot parse '%1'").arg( expr ); }
 
 uiPhrase uiStrings::phrCannotRead( const uiWord& string )
 { return tr("Cannot read %1").arg( string ); }
 
 uiPhrase uiStrings::phrCannotRemove( const uiWord& string )
-{ return mJoinStr.arg( sCannotRemove() ).arg( string ); }
+{ return tr("Cannot remove %1").arg( string ); }
+uiPhrase uiStrings::phrCannotRemove( const char* fnm )
+{ return phrCannotRemove( toUiString(fnm).quote(true) ); }
 
 uiPhrase uiStrings::phrCannotSave( const uiWord& string )
-{ return mJoinStr.arg( sCannotSave() ).arg( string ); }
+{ return tr("Cannot save %1").arg( string ); }
+uiPhrase uiStrings::phrCannotSave( const char* fnm )
+{ return phrCannotSave( toUiString(fnm).quote(true) ); }
 
 uiPhrase uiStrings::phrCannotStart( const uiWord& string )
-{ return mJoinStr.arg( sCannotStart() ).arg( string ); }
+{ return tr("Cannot start %1").arg( string ); }
 
 uiPhrase uiStrings::phrCannotUnZip( const uiWord& string )
-{ return mJoinStr.arg( sCannotUnZip() ).arg( string ); }
+{ return tr("Cannot unzip %1").arg( string ); }
 
 uiPhrase uiStrings::phrCannotWrite( const uiWord& string )
-{ return mJoinStr.arg( sCannotWrite() ).arg( string ); }
+{ return tr("Cannot write %1").arg( string ); }
+uiPhrase uiStrings::phrCannotWrite( const char* fnm )
+{ return phrCannotWrite( toUiString(fnm).quote(true) ); }
 
 uiPhrase uiStrings::phrCannotWriteDBEntry( const uiWord& string )
 { return phrCannotWrite( tr("database entry for %1").arg( string ) ); }
 
 uiPhrase uiStrings::phrCannotZip( const uiWord& string )
-{ return mJoinStr.arg( sCannotZip() ).arg( string ); }
+{ return tr("Cannot zip %1").arg( string ); }
 
 uiPhrase uiStrings::phrCheck( const uiWord& string )
-{ return tr("Please check %1").arg( string ); }
+{ return tr("You may want to check %1").arg( string ); }
 
 uiPhrase uiStrings::phrClose( const uiWord& string )
 { return mJoinStr.arg( sClose() ).arg( string ); }
-
-uiPhrase uiStrings::phrColonString( const uiWord& string )
-{ return tr(": %1").arg( string ); }
 
 uiPhrase uiStrings::phrCopy( const uiWord& string )
 { return mJoinStr.arg( sCopy() ).arg( string ); }
@@ -242,6 +259,16 @@ uiPhrase uiStrings::phrNotImplInThisVersion( const char* fromver )
 { return tr("Not implemented in this version of OpendTect."
 	  "\nPlease use version %1 or higher").arg( fromver ); }
 
+uiPhrase uiStrings::phrIsNotSaved( const uiWord& obj )
+{
+    return tr("%1 not saved").arg( obj );
+}
+
+uiPhrase uiStrings::phrIsNotSavedSaveNow( const uiWord& obj )
+{
+    return phrIsNotSaved( obj ).appendPhrase( tr("Save now?") );
+}
+
 uiPhrase uiStrings::phrOpen( const uiWord& string )
 { return mJoinStr.arg( sOpen() ).arg( string ); }
 
@@ -257,7 +284,7 @@ uiWord uiStrings::phrOutputFileExistsOverwrite()
 { return phrExistsContinue( sOutputFile(), true ); }
 
 uiPhrase uiStrings::phrPlsCheckThe( const uiWord& subj )
-{ return tr("Please chack the %1").arg( subj ); }
+{ return tr("You may want to check the %1").arg( subj ); }
 
 uiPhrase uiStrings::phrPlsContactSupport( bool firstdoc )
 {
@@ -271,10 +298,10 @@ uiPhrase uiStrings::phrPlsContactSupport( bool firstdoc )
 }
 
 uiPhrase uiStrings::phrPlsSelectAtLeastOne( const uiWord& string )
-{ return tr("Please select at least one %1").arg( string ); }
+{ return tr("You should select at least one %1").arg( string ); }
 
 uiPhrase uiStrings::phrPlsSpecifyAtLeastOne( const uiWord& string )
-{ return tr("Please specify at least one %1").arg( string ); }
+{ return tr("You should specify at least one %1").arg( string ); }
 
 uiPhrase uiStrings::phrRead( const uiWord& string )
 { return tr("%1 read").arg( string ); }
@@ -352,6 +379,53 @@ uiPhrase uiStrings::phrZRange( const uiWord& string )
 { return mJoinStr.arg( sZRange() ).arg( string ); }
 
 
+//--- phrases without 'real' args
+
+uiPhrase uiStrings::phrCannotAllocateMemory()
+{ return tr("Not enough system memory available"); }
+
+uiPhrase uiStrings::phrCannotFindAttrName()
+{ return phrCannotFind( tr("attribute name") ); }
+
+uiPhrase uiStrings::phrCannotFindObjInDB()
+{ return phrCannotFind( tr("object in data base") ); }
+
+uiPhrase uiStrings::phrCannotOpenInpFile( int num )
+{ return phrCannotOpen( tr("input file",0,num) ); }
+
+uiPhrase uiStrings::phrCannotOpenOutpFile( int num )
+{ return phrCannotOpen(tr("output file",0,num) ); }
+
+uiPhrase uiStrings::phrCannotReadHor()
+{ return phrCannotRead( sHorizon().toLower() ); }
+
+uiPhrase uiStrings::phrCannotReadInp()
+{ return phrCannotRead( sInput().toLower() ); }
+
+uiPhrase uiStrings::phrCannotWriteSettings()
+{ return phrCannotWrite(sSettings());}
+
+uiPhrase uiStrings::phrCheckPermissions()
+{ return tr("You may want to check the access permissions"); }
+
+uiPhrase uiStrings::phrCheckUnits()
+{ return tr("You may want to check the units of measure"); }
+
+uiPhrase uiStrings::phrEnterValidName()
+{ return uiStrings::phrEnter(tr("a valid name")); }
+
+uiPhrase uiStrings::phrSaveBodyFail()
+{ return tr("Save body failed"); }
+
+uiPhrase uiStrings::phrSelOutpFile()
+{ return uiStrings::phrSelect(tr("output file")); }
+
+uiPhrase uiStrings::phrSpecifyOutput()
+{ return uiStrings::phrSpecify( uiStrings::sOutput() ); }
+
+
+//--- Words
+
 uiWord uiStrings::sDistUnitString( bool isfeet, bool abbr )
 {
     return isfeet ? (abbr ? toUiString("ft") : sFeet(false).toLower())
@@ -426,98 +500,3 @@ uiWord uiStrings::sAdvanced( const uiWord& subj )
 {
     return subj.isEmpty() ? tr("Advanced") : tr("Advanced %1").arg( subj );
 }
-
-// From here all are actually phrases or most certainly illegal stuff
-
-uiWord uiStrings::sCannotAdd()
-{ return tr("Cannot add"); }
-
-uiWord uiStrings::sCannotAllocate()
-{ return tr("Cannot allocate memory"); }
-
-uiWord uiStrings::sCannotCopy()
-{ return tr("Cannot copy"); }
-
-uiWord uiStrings::sCannotEdit()
-{ return tr("Cannot edit"); }
-
-uiWord uiStrings::sCannotExtract()
-{ return tr("Cannot extract"); }
-
-uiWord uiStrings::sCannotFind()
-{ return tr("Cannot find"); }
-
-uiWord uiStrings::sCannotImport()
-{ return tr("Cannot Import"); }
-
-uiWord uiStrings::sCannotLoad()
-{ return tr("Cannot load"); }
-
-uiWord uiStrings::sCannotOpen()
-{ return tr("Cannot open"); }
-
-uiWord uiStrings::sCannotParse()
-{ return tr("Cannot parse"); }
-
-uiWord uiStrings::sCannotRemove()
-{ return tr("Cannot remove"); }
-
-uiWord uiStrings::sCannotSave()
-{ return tr("Cannot Save"); }
-
-uiWord uiStrings::sCannotStart()
-{ return tr("Cannot Start"); }
-
-uiWord uiStrings::sCannotWrite()
-{ return tr("Cannot Write"); }
-
-uiWord uiStrings::sCannotUnZip()
-{ return tr("Cannot UnZip"); }
-
-uiWord uiStrings::sCannotZip()
-{ return tr("Cannot Zip"); }
-
-uiWord uiStrings::sCantFindAttrName()
-{ return phrCannotFind( tr("attribute name") ); }
-
-uiWord uiStrings::sCantFindODB()
-{ return phrCannotFind( tr("object in data base") ); }
-
-uiWord uiStrings::sCantFindSurf()
-{ return phrCannotFind( sSurface().toLower() ); }
-
-uiWord uiStrings::sCantOpenInpFile( int num )
-{ return phrCannotOpen( tr("input file", 0, num ) ); }
-
-uiWord uiStrings::sCantOpenOutpFile( int num )
-{ return phrCannotOpen( tr("output file", 0, num ) ); }
-
-uiWord uiStrings::sCantReadHor()
-{ return phrCannotRead( sHorizon().toLower() ); }
-
-uiWord uiStrings::sCantReadInp()
-{ return phrCannotRead( sInput().toLower() ); }
-
-uiWord uiStrings::sCantWriteSettings()
-{ return phrCannotWrite(sSettings());}
-
-uiWord uiStrings::sCheckPermissions()
-{ return tr("Please check your permissions"); }
-
-uiWord uiStrings::sCreateProbDesFunc()
-{ return phrCreate( sProbDensFunc(false) ); }
-
-uiWord uiStrings::sEnterValidName()
-{ return uiStrings::phrEnter(tr("a valid name")); }
-
-uiWord uiStrings::sSaveBodyFail()
-{ return tr("Save body failed"); }
-
-uiWord uiStrings::sSceneWithNr( int scnnr )
-{ return mJoinStr.arg( sScene() ).arg( scnnr ); }
-
-uiWord uiStrings::sSelOutpFile()
-{ return uiStrings::phrSelect(tr("output file")); }
-
-uiWord uiStrings::sSpecifyOut()
-{ return uiStrings::phrSpecify( uiStrings::sOutput() ); }

@@ -238,7 +238,7 @@ static EMSurfaceTranslator* getTranslator( Horizon& horizon )
     PtrMan<IOObj> ioobj = DBM().get( horizon.dbKey() );
     if ( !ioobj )
     {
-	horizon.setErrMsg( uiStrings::sCantFindSurf() );
+	horizon.setErrMsg( uiStrings::phrCannotFindObjInDB() );
 	return 0;
     }
 
@@ -310,7 +310,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     PtrMan<IOObj> ioobj = DBM().get( horizon_.dbKey() );
     if ( !ioobj )
     {
-	horizon_.setErrMsg( uiStrings::sCantFindSurf() );
+	horizon_.setErrMsg( uiStrings::phrCannotFindObjInDB() );
 	return 0;
     }
 

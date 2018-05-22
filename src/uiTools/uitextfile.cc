@@ -436,8 +436,8 @@ bool uiTextFileDlg::okToExit()
     if ( !editor_->isModified() )
 	return true;
 
-    const uiString msg = tr( "File:\n%1\nwas modified. Save now?")
-						    .arg(editor_->fileName());
+    const uiString msg = uiStrings::phrIsNotSavedSaveNow(
+				toUiString(editor_->fileName()).quote(true) );
     int opt = doMsg( msg, false );
     if ( opt == -1 )
 	return false;

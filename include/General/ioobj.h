@@ -128,6 +128,8 @@ public:
     static inline bool		isTmpObjNr( ObjNrType nr )
 				{ return nr >= tmpObjNrStart(); }
 
+    uiPhrase			phrCannotOpen() const;
+
 protected:
 
     BufferString	dirnm_;

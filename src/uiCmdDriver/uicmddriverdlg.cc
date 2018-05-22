@@ -118,7 +118,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
     tooltipfld_->setChecked( GetEnvVarYN("DTECT_USE_TOOLTIP_NAMEGUIDE") );
     toolTipChangeCB(0);
 
-    const uiString commandfile = tr( "command file" );
+    const uiString commandfile = tr("command file");
 
     const File::Format fmt( tr("Script files"), "odcmd", "cmd" );
     uiFileSel::Setup fssu( OD::GeneralContent );

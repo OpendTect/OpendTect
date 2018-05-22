@@ -98,7 +98,7 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
   , issynthetic_(issynthetic)
 {
     setStretch( 2, 2 );
-    uiString msg = tr( "Dynamic %1 %2" );
+    uiString msg = tr("Dynamic %1 %2");
     const char* linetxt = isinl_ ? is2d_ ? "Trace" : "Xline" : "Inline";
     msg.arg(linetxt);
     msg.arg(is2d_ ? tr(" Number") : tr(" Range"));

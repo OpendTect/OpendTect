@@ -1319,7 +1319,7 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 	return ret;
 
     if ( errmsg_.isEmpty() )
-	errmsg_ = uiStrings::phrCannotParse(toUiString("'%1'")).arg( inpstr );
+	errmsg_ = uiStrings::phrCannotParse( inpstr );
     return 0;
 }
 

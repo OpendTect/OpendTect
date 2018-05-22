@@ -565,7 +565,7 @@ bool uiStratLayerModel::saveGenDesc() const
 
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-	uiMSG().error( uiStrings::sCantOpenOutpFile() );
+	uiMSG().error( uiStrings::phrCannotOpenOutpFile() );
     else if ( !desc_.putTo(strm) )
 	uiMSG().error(desc_.errMsg());
     else
@@ -596,7 +596,7 @@ bool uiStratLayerModel::openGenDesc()
     const BufferString fnm( descctio_.ioobj_->mainFileName() );
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	{ uiMSG().error( uiStrings::sCantOpenInpFile() ); return false; }
+	{ uiMSG().error( uiStrings::phrCannotOpenInpFile() ); return false; }
 
     delete elpropsel_; elpropsel_ = 0;
     deepErase( desc_ );

@@ -282,7 +282,7 @@ bool uiLaySeqAttribEd::acceptOK()
     const BufferString oldnm( attr_.name() );
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() )
-	{ uiMSG().error( uiStrings::sEnterValidName() ); return false; }
+	{ uiMSG().error( uiStrings::phrEnterValidName() ); return false; }
     if ( oldnm != newnm )
     {
 	const Strat::LaySeqAttribSet& lsas = attr_.attrSet();

@@ -181,7 +181,7 @@ Seis::Provider* SeisBayesClass::getProvider(
 	if ( isdim )
 	    msg_ = tr("Cannot find input cube for %1" ).arg(pdf0.dimName(idx));
 	else
-	    msg_ = tr( "Cannot find a priori scaling cube for %1"
+	    msg_ = tr("Cannot find a priori scaling cube for %1"
 		      "\nID found is %2").arg( pdf0.name() ).arg( id );
 
 	return 0;
@@ -191,7 +191,7 @@ Seis::Provider* SeisBayesClass::getProvider(
     Seis::Provider* prov = Seis::Provider::create( dbkey, &uirv );
     if ( !uirv.isOK() )
     {
-	msg_ = tr( "For %1:\n%2" ).arg( ioobj->uiName() ).arg( uirv );
+	msg_ = toUiString( ioobj->name() ).addMoreInfo( uirv );
 	delete prov; return 0;
     }
 

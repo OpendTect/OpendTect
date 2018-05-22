@@ -206,9 +206,9 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 
     if ( status == 3 ) // Pre 4.2 surveys
     {
-	uiString msg( tr( "The survey %1 appears to be too old. "
+	uiString msg( tr("The survey %1 appears to be too old. "
 		"Please open this survey first in OpendTect 4.6 to update "
-		"its database before using it in newer versions of OpendTect." )
+		"its database before using it in newer versions of OpendTect.")
 		.arg(DBM().surveyName()) );
 	if ( uiMSG().askGoOn(msg,tr("Select another survey"),
 			     uiStrings::phrExitOD() ) )
@@ -555,7 +555,7 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
     PtrMan<IOObj> ioobj = DBM().get( hormid );
     const BufferString hornm = ioobj ? BufferString(ioobj->name())
 		: toString( transform->factoryDisplayName() );
-    uiString scenenm = tr( "Flattened on '%1'").arg( hornm );
+    uiString scenenm = tr("Flattened on '%1'").arg( hornm );
     sceneMgr().tile();
     sceneMgr().addScene( true, transform, scenenm );
 }

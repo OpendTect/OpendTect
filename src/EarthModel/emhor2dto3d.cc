@@ -214,7 +214,7 @@ int Hor2DTo3D::nextStep()
 {
     if ( sd_.isEmpty() )
     {
-	msg_ = tr( "No data in selected area");
+	msg_ = tr("No data in selected area");
 	return Executor::ErrorOccurred();
     }
 

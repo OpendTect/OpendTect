@@ -355,7 +355,7 @@ void Seis::Blocks::StreamReadBackEnd::openStream( const char* fnm,
     strm_ = new od_istream( fnm );
     if ( !strm_->isOK() )
     {
-	uirv.set( uiStrings::phrCannotOpen( toUiString(fnm) ) );
+	uirv.set( uiStrings::phrCannotOpenForRead( fnm ) );
 	strm_->addErrMsgTo( uirv );
 	close();
     }
@@ -382,7 +382,7 @@ void Seis::Blocks::StreamReadBackEnd::reset( const char* fnm, uiRetVal& uirv )
 
     if ( !strm_->isOK() )
     {
-	uirv.set( uiStrings::phrCannotOpen( toUiString(fnm) ) );
+	uirv.set( uiStrings::phrCannotOpenForRead( fnm ) );
 	strm_->addErrMsgTo( uirv );
 	close();
     }

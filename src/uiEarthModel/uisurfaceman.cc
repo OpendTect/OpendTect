@@ -373,13 +373,13 @@ void uiSurfaceMan::calcVolCB( CallBacker* )
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
     if ( !emb )
     {
-	uiString msg = tr( "Body '%1' is empty" ).arg( curioobj_->uiName() );
+	uiString msg = tr("Body '%1' is empty").arg( curioobj_->uiName() );
 	uiMSG().error(msg);
 	return;
     }
 
     uiImplBodyCalDlg dlg( this, *emb );
-    uiString dlgtitle = tr( "Body volume estimation for '%1'" )
+    uiString dlgtitle = tr("Body volume estimation for '%1'")
 			  .arg(curioobj_->uiName() );
     dlg.setTitleText( dlgtitle );
     dlg.go();

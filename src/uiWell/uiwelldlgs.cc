@@ -450,7 +450,7 @@ void uiWellTrackDlg::readNew( CallBacker* )
 
     od_istream strm( dlg.fnm_ );
     if ( !strm.isOK() )
-    { uiMSG().error( uiStrings::sCantOpenInpFile() ); return; }
+    { uiMSG().error( uiStrings::phrCannotOpenInpFile() ); return; }
 
     Well::TrackAscIO wellascio(fd_, strm );
     if ( !wellascio.getData(wd_,dlg.getKbElev(),dlg.getTD()) )

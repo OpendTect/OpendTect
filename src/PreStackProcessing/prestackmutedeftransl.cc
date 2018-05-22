@@ -42,7 +42,7 @@ uiString MuteDefTranslator::sSelObjNotMuteDef()
 bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
 				  uiString& msg )
 {
-    if ( !ioobj ) { msg = uiStrings::sCantFindODB(); return false; }
+    if ( !ioobj ) { msg = uiStrings::phrCannotFindObjInDB(); return false; }
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
 		 ioobj->createTranslator());
     if ( !mdtrl )
@@ -50,10 +50,7 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-    {
-	msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
-	return false;
-    }
+	{ msg = ioobj->phrCannotOpen(); return false; }
 
     msg = toUiString( mdtrl->read( md, *conn ) );
     return msg.isEmpty();
@@ -79,9 +76,9 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
     msg.setEmpty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
+	msg = ioobj->phrCannotOpen();
     else
-	msg = toUiString( mdtrl->write( md, *conn ) );
+	msg = toUiString( mdtrl->write(md,*conn) );
 
     if ( !msg.isEmpty() )
     {

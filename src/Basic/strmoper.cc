@@ -461,7 +461,12 @@ uiString StrmOper::getErrorMessage( const StreamData& sd )
 	fnmstr.setEmpty();
 
     if ( !havestrm )
-	msg = uiStrings::phrCannotOpen( toUiString(fnmstr) );
+    {
+	if ( fnmstr.isEmpty() )
+	    msg = uiStrings::phrCannotOpenInpFile();
+	else
+	    msg = uiStrings::phrCannotOpen( toUiString(fnmstr).quote(true) );
+    }
     else if ( sd.streamPtr()->good() )
 	msg = od_static_tr( "StrmOpergetErrorMessage",
 			    "Successfully opened %1" ).arg( fnmstr );
@@ -469,7 +474,7 @@ uiString StrmOper::getErrorMessage( const StreamData& sd )
 	msg = getErrorMessage( *sd.streamPtr() );
 
     if ( !havestrm || !sd.streamPtr()->good() )
-	msg.appendPhrase( uiStrings::sCheckPermissions() );
+	msg.appendPhrase( uiStrings::phrCheckPermissions() );
 
     return msg;
 }

@@ -331,7 +331,7 @@ bool uiBodyOperatorDlg::acceptOK()
     EM::BodyMan().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
-	mRetErr(uiStrings::sSaveBodyFail())
+	mRetErr(uiStrings::phrSaveBodyFail())
 
     DBKey key = emcs->dbKey();
     PtrMan<IOObj> ioobj = DBM().get( key );
@@ -484,7 +484,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     EM::BodyMan().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
-	mRetErr( uiStrings::sSaveBodyFail() );
+	mRetErr( uiStrings::phrSaveBodyFail() );
 
     if ( !outiobj->pars().find(sKey::Type()) )
     {
@@ -495,7 +495,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     }
 
     if ( !trprov.execute(*exec) )
-	mRetErr(uiStrings::sSaveBodyFail());
+	mRetErr(uiStrings::phrSaveBodyFail());
 
     return true;
 }

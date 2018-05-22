@@ -52,8 +52,8 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
     {
 	if ( emsg )
 	{
-	    *emsg = uiStrings::phrCannotOpen(toUiString(fnm));
-	    strm.addErrMsgTo(*emsg);
+	    *emsg = uiStrings::phrCannotOpenForRead( fnm );
+	    strm.addErrMsgTo( *emsg );
 	}
 	return 0;
     }
@@ -85,7 +85,7 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
     {
 	if ( emsg )
 	{
-	    *emsg = uiStrings::phrCannotOpen( toUiString(fnm) );
+	    *emsg = uiStrings::phrCannotOpenForWrite( fnm );
 	    strm.addErrMsgTo(*emsg);
 	}
 	return false;

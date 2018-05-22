@@ -37,7 +37,7 @@ uiString ProbeTranslatorGroup::sTypeName( int num)
 Probe* ProbeTranslator::retrieve( const IOObj* ioobj, uiString& errmsg )
 {
     if ( !ioobj )
-	mErrRet( uiStrings::phrCannotFindDBEntry(ioobj->uiName()) );
+	mErrRet( uiStrings::phrCannotFindDBEntry(uiStrings::sProbe()) );
 
     mDynamicCast(ProbeTranslator*,PtrMan<ProbeTranslator> tr,
 		 ioobj->createTranslator());
@@ -46,7 +46,7 @@ Probe* ProbeTranslator::retrieve( const IOObj* ioobj, uiString& errmsg )
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	mErrRet( uiStrings::phrCannotOpen(ioobj->uiName()) )
+	mErrRet( ioobj->phrCannotOpen() )
 
     Probe* probe = tr->read( *conn, errmsg );
     if ( !errmsg.isEmpty() )
@@ -62,7 +62,7 @@ bool ProbeTranslator::store( const Probe& probe, const IOObj* ioobj,
 {
     ConstRefMan<Probe> proberef( &probe ); // keep it alive
     if ( !ioobj )
-	mErrRet( uiStrings::phrCannotFindDBEntry(ioobj->uiName()) );
+	mErrRet( uiStrings::phrCannotFindDBEntry(uiStrings::sProbe()) );
 
     mDynamicCast(ProbeTranslator*,PtrMan<ProbeTranslator> tr,
 		 ioobj->createTranslator());
@@ -71,7 +71,7 @@ bool ProbeTranslator::store( const Probe& probe, const IOObj* ioobj,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	mErrRet( uiStrings::phrCannotOpen(ioobj->uiName()) )
+	mErrRet( ioobj->phrCannotOpen() )
 
     errmsg = tr->write( probe, *conn );
     if ( !errmsg.isEmpty() )
@@ -97,11 +97,11 @@ bool ProbeTranslator::store( const Probe& probe, const IOObj* ioobj,
 Probe* dgbProbeTranslator::read( Conn& conn, uiString& errmsg )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	mErrRet( uiStrings::sCantOpenInpFile() )
+	mErrRet( uiStrings::phrCannotOpenInpFile() )
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
-	mErrRet( uiStrings::sCantOpenInpFile() )
+	mErrRet( uiStrings::phrCannotOpenInpFile() )
     else if ( !astrm.isOfFileType(mTranslGroupName(Probe)) )
 	mErrRet( uiStrings::phrSelectObjectWrongType(uiStrings::sProbe()) )
     if ( atEndOfSection(astrm) ) astrm.next();
@@ -116,12 +116,12 @@ Probe* dgbProbeTranslator::read( Conn& conn, uiString& errmsg )
 uiString dgbProbeTranslator::write( const Probe& probe, Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return uiStrings::sCantOpenOutpFile();
+	return uiStrings::phrCannotOpenOutpFile();
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(Probe) );
     if ( !astrm.isOK() )
-	return uiStrings::sCantOpenOutpFile();
+	return uiStrings::phrCannotOpenOutpFile();
 
     IOPar par;
     probe.fillPar( par );

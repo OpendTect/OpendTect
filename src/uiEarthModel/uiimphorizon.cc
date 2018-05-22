@@ -672,7 +672,8 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     EM::Object* emobj = mgr.createTempObject( EM::Horizon3D::typeStr() );
     emobj->setDBKey( ctio_.ioobj_->key() );
     Executor* loader = emobj->loader();
-    if ( !loader ) mErrRet( uiStrings::sCantReadHor());
+    if ( !loader )
+	mErrRet( uiStrings::phrCannotReadHor());
 
     if ( !uiTaskRunner(this).execute( *loader ) )
 	return 0;

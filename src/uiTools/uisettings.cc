@@ -800,7 +800,7 @@ bool uiSettingsDlg::acceptOK()
     for ( int idx=0; idx<treeitms_.size(); idx++ )
 	havechanges_ = havechanges_ || treeitms_[idx]->grp_.isChanged();
     if ( havechanges_ && !setts_.write() )
-	{ uiMSG().error( uiStrings::sCantWriteSettings() ); return false; }
+	{ uiMSG().error( uiStrings::phrCannotWriteSettings() ); return false; }
 
     for ( int idx=0; idx<treeitms_.size(); idx++ )
     {

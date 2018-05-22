@@ -224,7 +224,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 {
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::phrCannotOpen( toUiString(fnm)) )
+	mErrRet( uiStrings::phrCannotOpenForRead(fnm) )
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType()) )
@@ -354,7 +354,7 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
     if ( !outstream_->isOK() )
     {
 	delete outstream_; outstream_ = 0;
-	mErrRet( uiStrings::phrCannotOpen(toUiString(fnm)) );
+	mErrRet( uiStrings::phrCannotOpenForWrite(fnm) );
     }
 
     od_ostream& strm = *outstream_;
@@ -645,7 +645,7 @@ int SEGY::FileIndexer::nextStep()
 	    }
 	    if ( !File::isWritable(outfile) )
 	    {
-		msg_ = tr( "Output directory is not writable:\n%1")
+		msg_ = tr("Output directory is not writable:\n%1")
 			   .arg(outfile);
 		return ErrorOccurred();
 	    }
@@ -667,7 +667,7 @@ int SEGY::FileIndexer::nextStep()
 
 	if ( !directdef_->writeHeadersToFile( outfile ) )
 	{
-	    msg_ = tr( "Cannot write to file %1" ).arg( outfile );
+	    msg_ = tr("Cannot write to file %1").arg( outfile );
 	    return ErrorOccurred();
 	}
 

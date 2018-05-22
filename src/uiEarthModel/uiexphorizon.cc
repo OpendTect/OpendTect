@@ -525,7 +525,7 @@ bool uiExportHorizon::writeAscii()
 
 	if ( stream.isBad() )
 	{
-	    mErrRet( uiStrings::sCantOpenOutpFile() );
+	    mErrRet( uiStrings::phrCannotOpenOutpFile() );
 	}
 
 	if ( dogf )
@@ -560,7 +560,7 @@ bool uiExportHorizon::acceptOK()
 
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
-	mErrRet( uiStrings::sSelOutpFile() );
+	mErrRet( uiStrings::phrSelOutpFile() );
 
     if ( File::exists(outfnm) &&
 	 !uiMSG().askOverwrite(uiStrings::phrOutputFileExistsOverwrite()) )

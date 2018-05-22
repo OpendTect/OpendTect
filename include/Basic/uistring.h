@@ -188,6 +188,7 @@ public:
     uiString&		withUnit(const uiString&);
     uiString&		withSurvZUnit();
     uiString&		withSurvXYUnit();
+    uiString&		withNumber(od_int64); // simple add number like "well 1"
     uiString&		addMoreInfo(const uiString&,bool newline=false);
 			//!< will deliver ": the string with more info"
 
@@ -327,6 +328,8 @@ inline uiString& uiString::withUnit( const char* str )
 { return withUnit( toUiString(str) ); }
 inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )
 { return appendPhrase( str, MoreInfo, newline? OnNewLine : OnSameLine ); }
+inline uiString& uiString::withNumber( od_int64 nr )
+{ return postFixWord( toUiString(nr) ); }
 
 
 // Use when string should be revisited later

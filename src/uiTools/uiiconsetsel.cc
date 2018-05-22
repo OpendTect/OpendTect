@@ -73,7 +73,7 @@ uiIconSetSel::uiIconSetSel( uiParent* p, const BufferStringSet& setnms,
 	uiString txt; BufferString icnm;
 	if ( nm == sKeyDefaultIconSetNm() )
 	{
-	    txt = tr( "Default Icons" );
+	    txt = tr("Default Icons");
 	    icnm = "od";
 	}
 	else

@@ -58,8 +58,8 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 						ZDomain::sKeyTime() );
     }
 
-    const uiString depthvol = tr( "Depth Volume" );
-    const uiString timevol = tr( "Time Volume" );
+    const uiString depthvol = tr("Depth Volume");
+    const uiString timevol = tr("Time Volume");
 
     uiSeisSel::Setup sssu(Seis::Vol);
     sssu.seltxt( uiStrings::phrInput( timevol ) );

@@ -34,7 +34,7 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
 {
     if ( !ioobj )
     {
-	msg = uiStrings::sCantFindODB();
+	msg = uiStrings::phrCannotFindObjInDB();
 	return false;
     }
     mDynamicCast(PreStackProcTranslator*,PtrMan<PreStackProcTranslator> ptrl,
@@ -47,10 +47,7 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-    {
-	msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
-	return false;
-    }
+	{ msg = ioobj->phrCannotOpen(); return false; }
 
     msg = ptrl->read( md, *conn );
     return msg.isEmpty();
@@ -77,7 +74,7 @@ bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
     msg.setEmpty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
+	msg = ioobj->phrCannotOpen();
     else
 	msg = ptrl->write( md, *conn );
 

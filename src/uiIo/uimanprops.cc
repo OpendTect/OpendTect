@@ -249,7 +249,7 @@ bool uiEditPropRef::acceptOK()
 {
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() || !iswalpha(newnm[0]) || newnm.size() < 2 )
-	mErrRet(uiStrings::sEnterValidName(),false);
+	mErrRet(uiStrings::phrEnterValidName(),false);
     const BufferString definitionstr( definitionfld_->text() );
     const bool isfund = definitionfld_->isChecked();
     if ( isfund && definitionstr.isEmpty() )
@@ -359,8 +359,8 @@ bool uiBuildPROPS::isPropRemovable( int propidx )
 	ObjectSet<const PropertyRef> subselprs;
 	props_.subselect( propref->stdType(), subselprs );
 	if ( subselprs.size()<=1 )
-	    mErrRet( tr( "Cannot remove this property.Need to have atleast one "
-			 "usable property of type '%1'")
+	    mErrRet( tr("Cannot remove this property."
+		    "\nNeed to have atleast one usable property of type '%1'")
 			.arg(PropertyRef::toString(propref->stdType())), false )
     }
 

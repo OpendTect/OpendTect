@@ -400,7 +400,7 @@ bool uiExportFault::acceptOK()
 
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
-	mErrRet( uiStrings::sSelOutpFile() );
+	mErrRet( uiStrings::phrSelOutpFile() );
 
     if ( File::exists(outfnm)
       && !uiMSG().askOverwrite(uiStrings::phrOutputFileExistsOverwrite()))
@@ -413,8 +413,8 @@ bool uiExportFault::acceptOK()
 	return false;
     }
 
-    uiString msg = tr( "%1 successfully exported.\n\n"
-		    "Do you want to export more %1?" ).arg(dispstr_);
+    uiString msg = tr("%1 successfully exported.\n\n"
+		    "Do you want to export more %1?").arg(dispstr_);
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

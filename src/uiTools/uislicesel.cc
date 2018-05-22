@@ -350,7 +350,7 @@ uiString getTitle( uiSliceSel* ss ) const
     }
     else
     {
-	uiString slicetxt = tr( "%1 slices" )
+	uiString slicetxt = tr("%1 slices")
 	    .arg( SI().zIsTime() ? uiStrings::sTime() : uiStrings::sDepth() );
 	title.arg( slicetxt );
     }

@@ -449,7 +449,7 @@ bool acceptOK()
     nm.clean( BufferString::NoSpecialChars );
     if ( nm.isEmpty() )
     {
-	uiMSG().error( uiStrings::sEnterValidName() );
+	uiMSG().error( uiStrings::phrEnterValidName() );
 	return false;
     }
     cont_.setName( nm );
@@ -809,10 +809,9 @@ bool uiStratLinkLvlUnitDlg::acceptOK()
 
     if ( lur )
     {
-	uiString msg = tr( "This marker is already linked to %1" )
+	uiString msg = tr("This marker is already linked to %1")
 		     .arg(lur->code());
-	uiString movemsg = tr( "Assign to %1 only" )
-			 .arg(unit_.code());
+	uiString movemsg = tr("Assign to %1 only").arg(unit_.code());
 	const int res =
 	    uiMSG().question(msg,tr("Assign to both"), movemsg ,
                              uiStrings::sCancel());

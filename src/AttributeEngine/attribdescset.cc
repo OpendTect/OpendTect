@@ -574,7 +574,7 @@ uiRetVal DescSet::handleOldMathExpression( IOPar& descpar,
 				       BufferString& defstring,
 				       int odversion ) const
 {
-    const uiRetVal erruirv = tr( "Cannot use old Math expression" );
+    const uiRetVal erruirv = tr("Cannot use old Math expression");
     RefMan<Desc> tmpdesc = PF().createDescCopy("Math");
     if ( !tmpdesc || !tmpdesc->parseDefStr(defstring.buf()) )
 	return erruirv;
@@ -866,7 +866,7 @@ uiRetVal DescSet::usePar( const IOPar& par )
 
 	BufferString attribname;
 	if ( !Desc::getAttribName( defstring.buf(), attribname ) )
-	    mHandleParseErr( uiStrings::sCantFindAttrName() );
+	    mHandleParseErr( uiStrings::phrCannotFindAttrName() );
 
 	uirv.add( handleOldAttributes(attribname,*descpar,defstring,
 					par.odVersion()) );
@@ -1103,7 +1103,7 @@ uiRetVal DescSet::createSteeringDesc( const IOPar& steeringpar,
 
     BufferString attribname;
     if ( !Desc::getAttribName(steeringdef,attribname) )
-	uirv.add( uiStrings::sCantFindAttrName() );
+	uirv.add( uiStrings::phrCannotFindAttrName() );
 
     RefMan<Desc> stdesc = PF().createDescCopy(attribname);
     if ( !stdesc )

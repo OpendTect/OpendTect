@@ -243,7 +243,7 @@ uiODMain::uiODMain( uiMain& a )
     const int odnrcpus = Threads::getNrProcessors();
     const bool useallcpus = systemnrcpus == odnrcpus;
 
-    uiString statustt = tr( "System memory: Free/Available" );
+    uiString statustt = tr("System memory: Free/Available");
     if ( !useallcpus )
 	statustt.appendPlainText("| ", true).appendPhrase(
 						tr("CPU: Used/Available") );
@@ -252,7 +252,7 @@ uiODMain::uiODMain( uiMain& a )
     memtimer_.start( 1000 );
 
     if ( !useallcpus )
-	cputxt_ = tr( "[cpu] %1/%2" ).arg( odnrcpus ).arg( systemnrcpus );
+	cputxt_ = tr("[cpu] %1/%2").arg( odnrcpus ).arg( systemnrcpus );
 
     postFinalise().notify( mCB(this,uiODMain,afterStartupCB) );
 }
@@ -675,7 +675,7 @@ void uiODMain::memTimerCB( CallBacker* )
     OD::getSystemMemory( tot, free );
     NrBytesToStringCreator converter;
     converter.setUnitFrom( tot );
-    uiString txt = tr( "[free mem] %1/%2%3" );
+    uiString txt = tr("[free mem] %1/%2%3");
 
     //Use separate calls to avoid the reuse of the converter's buffer
     txt.arg( converter.getString( free, 1, false ) );

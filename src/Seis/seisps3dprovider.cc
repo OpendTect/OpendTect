@@ -136,14 +136,14 @@ void Seis::PS3DFetcher::openStore()
     rdr_ = getReader( *ioobj_ );
     if ( !rdr_ )
     {
-	uirv_ = tr( "Cannot find a reader for this type of data store" );
+	uirv_ = tr("Cannot find a reader for this type of data store");
 	return;
     }
 
     cditer_ = new PosInfo::CubeDataIterator( rdr_->posData() );
     moveNextBinID();
     if ( atend_ )
-	uirv_ = tr( "No selected postion present in data store" );
+	uirv_ = tr("No selected postion present in data store");
     else
 	findDataPack();
 }

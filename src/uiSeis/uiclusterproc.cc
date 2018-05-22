@@ -257,8 +257,8 @@ uiClusterProc::~uiClusterProc()
 uiString uiClusterProc::sNrDoneText( const uiString& nrdone,
 				const uiString& totnr, const uiString& nrerror )
 {
-    return tr( "Number of jobs finished: %1 out of %2 (%3 with error) ")
-					.arg(nrdone).arg(totnr).arg(nrerror);
+    return tr("Number of jobs finished: %1 out of %2 (%3 with error)")
+			.arg(nrdone).arg(totnr).arg(nrerror);
 }
 void uiClusterProc::progressCB( CallBacker* )
 {
@@ -301,79 +301,48 @@ void uiClusterProc::progressCB( CallBacker* )
 
 
 #define mErrRet(s) { msg = s; return false; }
-bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tskr,
-				 BufferString& msg, bool withdelete )
-{
-    DBKey key;
-    if ( !pars.get(uiClusterJobProv::sKeyOutputID(),key) )
-	mErrRet("Missing ID of Temporary storage in the parameters file")
-    PtrMan<IOObj> inobj = DBM().get( key );
-    if ( !pars.get("Output.ID",key) )
-	mErrRet("Missing ID of output dataset in the parameters file")
-    PtrMan<IOObj> outobj = DBM().get( key );
-    if ( !inobj || !outobj )
-	mErrRet("Cannot open Output" )
-    PtrMan<SeisSingleTraceProc> exec = new SeisSingleTraceProc( *inobj, *outobj,
-		"Data transfer", &pars, uiStrings::phrWriting(tr(
-		"results to output cube")) );
-
-    if ( !exec )
-	return false;
-
-    if ( !TaskRunner::execute( tskr, *exec ) )
-	mErrRet("Failed to merge output data")
-    else
-	msg = "Finished merging output data";
-
-    if ( !withdelete )
-	return true;
-
-    DBKey tempid;
-    if ( pars.get("Output.0.Seismic.ID",tempid) )
-	DBM().removeEntry( tempid );
-
-    FixedString tmpdir = pars.find( sKey::TmpStor() );
-    if ( tmpdir && File::isDirectory(tmpdir.str()) )
-	File::removeDir( tmpdir.str() );
-
-    return true;
-}
-
 
 bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tskr,
                                uiString& msg, bool withdelete )
 {
     DBKey key;
+    msg.setEmpty();
     if ( !pars.get(uiClusterJobProv::sKeyOutputID(),key) )
 	msg = tr("Missing ID of Temporary storage in the parameters file");
     PtrMan<IOObj> inobj = DBM().get( key );
     if ( !pars.get("Output.ID",key) )
 	msg = tr("Missing ID of output dataset in the parameters file");
     PtrMan<IOObj> outobj = DBM().get( key );
+    if ( !msg.isEmpty() )
+	return false;
     if ( !inobj || !outobj )
-	msg = uiStrings::phrCannotOpen(uiStrings::sOutput().toLower());
+	{ msg = uiStrings::phrCannotFindObjInDB(); return false; }
+
     PtrMan<SeisSingleTraceProc> exec = new SeisSingleTraceProc( *inobj, *outobj,
 		  "Data transfer", &pars, uiStrings::phrWriting(
 				tr("results to output cube")) );
-
     if ( !exec )
-	return false;
+	{ uiStrings::phrInternalErr("No Trace Processor"); return false; }
 
-    if ( !TaskRunner::execute( tskr, *exec ) )
+    bool retval = false;
+    if ( !TaskRunner::execute(tskr,*exec) )
 	msg = tr("Cannot merge output data");
     else
+    {
+	retval = true;
 	msg = tr("Merging output data complete");
+    }
 
-    if ( !withdelete )
-	return true;
+    if ( withdelete )
+    {
+	DBKey tempid;
+	if ( pars.get("Output.0.Seismic.ID",tempid) )
+	     DBM().removeEntry( tempid );
 
-    DBKey tempid;
-    if ( pars.get("Output.0.Seismic.ID",tempid) )
-	 DBM().removeEntry( tempid );
+	FixedString tmpdir = pars.find( sKey::TmpStor() );
+	if ( tmpdir && File::isDirectory(tmpdir.str()) )
+	    File::removeDir( tmpdir.str() );
+    }
 
-    FixedString tmpdir = pars.find( sKey::TmpStor() );
-    if ( tmpdir && File::isDirectory(tmpdir.str()) )
-	File::removeDir( tmpdir.str() );
-
-    return true;
+    return retval;
 }

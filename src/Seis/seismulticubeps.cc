@@ -148,11 +148,11 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, DBKeySet& keys,
 {
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mRetStrmErrMsg(emsg, uiStrings::phrCannotOpen( toUiString(fnm)) )
+	mRetStrmErrMsg(emsg, uiStrings::phrCannotOpenForRead( fnm) )
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
     {
-	emsg = tr( "File:\n%1\nis not of type %2").arg( fnm ).arg(sKeyFileType);
+	emsg = tr("File:\n%1\nis not of type %2").arg( fnm ).arg(sKeyFileType);
 	return false;
     }
 
@@ -177,7 +177,7 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, DBKeySet& keys,
 
     if ( offs.isEmpty() )
     {
-	emsg = tr( "File:\n%1\n contains no valid data" ).arg( fnm );
+	emsg = tr("File:\n%1\n contains no valid data").arg( fnm );
 	return false;
     }
     return true;
@@ -190,7 +190,7 @@ bool MultiCubeSeisPSReader::writeData( const char* fnm,
 {
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-	mRetStrmErrMsg(emsg, uiStrings::phrCannotOpen( toUiString(fnm)))
+	mRetStrmErrMsg(emsg, uiStrings::phrCannotOpenForWrite(fnm) )
 
     ascostream astrm( strm );
     if ( !astrm.putHeader(sKeyFileType) )

@@ -69,21 +69,20 @@ uiRetVal AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 {
     uiRetVal uirv;
     if ( !ioobj )
-	{ uirv.add( uiStrings::sCantFindODB() ); return uirv; }
+	{ uirv.add( uiStrings::phrCannotFindObjInDB() ); return uirv; }
 
     PtrMan<AttribDescSetTranslator> trans
 	= dynamic_cast<AttribDescSetTranslator*>( ioobj->createTranslator() );
     if ( !trans )
     {
-	uirv.add( tr( "Selected object is not an Attribute Set" ) );
+	uirv.add( tr("Selected object is not an Attribute Set") );
 	return uirv;
     }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     {
-	uirv.add( uiStrings::phrCannotOpen(
-			toUiString(ioobj->fullUserExpr(true)) ) );
+	uirv.add( uiStrings::phrCannotOpenForRead(ioobj->fullUserExpr(true)) );
 	return uirv;
     }
 
@@ -111,8 +110,7 @@ uiRetVal AttribDescSetTranslator::store( const Attrib::DescSet& ads,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
     {
-	uirv.add( uiStrings::phrCannotOpen(
-			toUiString(ioobj->fullUserExpr(false)) ) );
+	uirv.add( uiStrings::phrCannotOpenForWrite(ioobj->fullUserExpr(false)));
 	return uirv;
     }
 

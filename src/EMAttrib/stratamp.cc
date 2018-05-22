@@ -86,7 +86,7 @@ StratAmpCalc::~StratAmpCalc()
 
 int StratAmpCalc::init( const IOPar& pars )
 {
-    const uiString badinp = tr( "Bad input" );
+    const uiString badinp = tr("Bad input");
     pars.get( sKeyTopShift(), tophorshift_ );
     pars.get( sKeyBottomShift(), bothorshift_ );
     if ( mIsUdf(tophorshift_) || mIsUdf(bothorshift_) )
@@ -217,7 +217,7 @@ int StratAmpCalc::nextStep()
 	trc = proc_->outputs_[0]->getTrc();
 	if ( !trc )
 	{
-	    errmsg_ = tr( "No trace processed" );
+	    errmsg_ = tr("No trace processed");
 	    return ErrorOccurred();
 	}
     }
@@ -287,7 +287,7 @@ int StratAmpCalc::nextStep()
 bool StratAmpCalc::saveAttribute( const EM::Horizon3D* hor, int attribidx,
 				  bool overwrite, od_ostream* strm )
 {
-    const uiString nosaver = tr( "Cannot create output saver object" );
+    const uiString nosaver = tr("Cannot create output saver object");
     PtrMan<Executor> saver =
 			hor->auxdata.auxDataSaver( attribidx, overwrite );
     if ( !(saver && saver->go(strm,false,false)) )

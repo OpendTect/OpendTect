@@ -173,11 +173,12 @@ od_ostream* CBVSWriteMgr::mkStrm()
 
     od_ostream* res = new od_ostream( fname );
 
-    if ( res && res->isOK() )
+    if ( res->isOK() )
 	fnames_.add( fname );
     else
     {
-	errmsg_ = uiStrings::phrCannotOpen(tr("%1 for write").arg(*fname));
+	errmsg_ = uiStrings::phrCannotOpenForWrite(fname);
+	res->addErrMsgTo( errmsg_ );
 	delete res;
         return 0;
     }

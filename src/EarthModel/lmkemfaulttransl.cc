@@ -111,7 +111,7 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
 		zinterval.start==-1 || zinterval.stop==-1 ||
 		pointtypeinterval.start==-1 || pointtypeinterval.stop==-1 )
     {
-	msg = tr( "%1, %2 and %3 must be provided for reading")
+	msg = tr("%1, %2 and %3 must be provided for reading")
             .arg( lmkEMFault3DTranslator::xstr() )
             .arg( lmkEMFault3DTranslator::ystr() )
             .arg( lmkEMFault3DTranslator::pointtypestr() );
