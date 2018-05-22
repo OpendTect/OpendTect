@@ -236,7 +236,7 @@ SEGYSeisTrcTranslator* uiSEGYExamine::getReader(
     SEGYSeisTrcTranslator* segytr = 0;
 
     if ( su.fs_.isEmpty() )
-	{ emsg = tr( "No input file specified" ); return 0; }
+	{ emsg = tr("No input file specified"); return 0; }
     PtrMan<IOObj> ioobj = su.fs_.getIOObj( true );
     if ( !ioobj )
 	{ emsg = uiStrings::phrInternalErr("Cannot create DB object");
@@ -280,8 +280,8 @@ int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, uiString& emsg )
 {
     PtrMan<SEGYSeisTrcTranslator> rdr = getReader( su, emsg );
     if ( !rdr && emsg.isEmpty() )
-	emsg = tr( "Error opening file."
-	    "\nPlease check whether the file size is at least 3600 bytes." );
+	emsg = tr("Error opening file."
+	    "\nPlease check whether the file size is at least 3600 bytes.");
     return getRev( rdr );
 }
 

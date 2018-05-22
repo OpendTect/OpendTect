@@ -709,7 +709,7 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     od_ostream strm( uifs.fileName() );
     if ( !strm.isOK() )
     {
-	uiMSG().error( tr( "Cannot open '%1' for write").arg(strm.fileName()) );
+	uiMSG().error( uiStrings::phrCannotOpenForWrite(strm.fileName()) );
 	return;
     }
 

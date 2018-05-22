@@ -366,38 +366,43 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
 {
     const Well::Log* l1 = getLog( true );
     const Well::Log* l2 = getLog( false );
-    uiString capt = tr("Log viewer");
-    if ( l1 || l2 )
-	capt = toUiString("%1 %2").arg(capt).arg(toUiString(": "));
 
-    if ( l1 )
-	capt = toUiString("%1 %2").arg(capt).arg(toUiString(l1->name()));
-    if ( l2 )
+    const bool have2wells = !wellnm1_.isEmpty() && !wellnm2_.isEmpty()
+			 && wellnm1_ != wellnm2_;
+    const bool have2logs = l1 && l2 && l1 != l2;
+    const bool samelognm = have2logs && l1->name() == l2->name();
+
+    uiString capt;
+    if ( have2wells && have2logs && !samelognm )
     {
-	if ( !l1->name().isEqual(l2->name()) )
-	    capt = toUiString("%1 & %2").arg(capt).arg(toUiString(l2->name()));
+	capt = toUiString("%1 [%2] | %3 [%4]")
+		.arg( wellnm1_ ).arg( l1->name() )
+		.arg( wellnm2_ ).arg( l2->name() );
     }
-
-    uiString str;
-    if ( !wellnm1_.isEmpty() )
-	str= toUiString(wellnm1_);
-    if ( !wellnm2_.isEmpty() )
-	str = tr( "%1 and %2" ).arg(str).arg(toUiString(wellnm2_.buf()));
-    if ( !str.isEmpty() )
-	capt = tr("%1 of %2").arg(capt).arg(str);
-
+    else
+    {
+	uiString logstr;
+	if ( !have2logs || samelognm )
+	    logstr = toUiString( (l1 ? l1 : l2)->name() );
+	else
+	    logstr = toUiString("%1|%2").arg(l1->name()).arg(l2->name());
+	uiString wellstr;
+	if ( !have2wells )
+	    wellstr = toUiString(wellnm1_.isEmpty() ? wellnm2_ : wellnm1_);
+	else
+	    wellstr = toUiString("%1|%2").arg( wellnm1_ ).arg( wellnm2_ );
+	capt = toUiString("%1 [%2]").arg( wellstr ).arg( logstr );
+    }
     setCaption( capt );
+
     if ( l1 && !wellnm1_.isEmpty() )
     {
-	capt = tr("%1 of %2").arg(toUiString(l1->name())).arg(
-						    toUiString(wellnm1_));
+	capt = toUiString("%1 [%2]").arg(wellnm1_).arg(l1->name());
 	dispfld_->dahObjData( true ).xax_.setCaption( capt );
     }
-
     if ( l2 && !wellnm2_.isEmpty() )
     {
-	capt = tr("%1 of %2").arg(toUiString(l2->name())).arg(
-						    toUiString(wellnm2_));
+	capt = toUiString("%1 [%2]").arg(wellnm2_).arg(l2->name());
 	dispfld_->dahObjData( false ).xax_.setCaption( capt );
     }
 

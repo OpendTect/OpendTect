@@ -678,40 +678,32 @@ void uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
     }
 
     uiMarkersList dlg( this, mset );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     TypeSet<int> selitems;
     dlg.getSelIDs( selitems );
     if ( !selitems.size() )
-    {
-	uiMSG().message( tr("No markers selected.") );
-	return;
-    }
+	{ uiMSG().message( tr("No markers selected.") ); return; }
 
     MonitorLock ml( mset );
     Strat::LevelSet& lvls = Strat::eLVLS();
+    BufferStringSet alreadysetnms;
     uiString msg;
-    int mid = 0;
     for ( int idx=0; idx<selitems.size(); idx++ )
     {
 	const int selidx = selitems[idx];
-	const FixedString markername = mset.getByIdx(selidx).name().buf();
-	if ( lvls.isPresent(markername) )
-	{
-	    msg = tr( "'%1' %2" ).arg( markername );
-	    mid++;
-	}
+	const BufferString mnm = mset.getByIdx(selidx).name().buf();
+	if ( lvls.isPresent(mnm) )
+	    alreadysetnms.add( mnm );
     }
 
     ml.unlockNow();
-    if ( !msg.isEmpty() )
-    {
-	msg.arg(tr("%1already set as regional marker(s)."
-		   "Press Continue to update properties.")
-	      .arg(mid > 1 ? tr("are ") : tr("is ")));
-	const bool res = uiMSG().askContinue( msg );
-	if ( !res ) return;
-    }
+
+    if ( !alreadysetnms.isEmpty()
+      && !uiMSG().askContinue( tr("%1 already set as regional marker")
+			.arg(alreadysetnms.getDispString(3)) ) )
+	    return;
 
     ml.reLock();
     for ( int idx=0; idx<selitems.size(); idx++ )

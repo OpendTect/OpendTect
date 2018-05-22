@@ -94,7 +94,7 @@ void readPush( CallBacker* )
     fssu.initialselectiondir( fp.fullPath() )
 	.formats( uiSEGYFileSpec::fileFmts() );
     uiFileSelector uifs( this, fssu );
-    uifs.caption() = tr( "Read SEG-Y Textual Header from file" );
+    uifs.caption() = tr("Read SEG-Y Textual Header from file");
     if ( !uifs.go() )
 	return;
 
@@ -117,7 +117,7 @@ void writePush( CallBacker* )
 	.initialselectiondir( fp.fullPath() )
 	.formats( uiSEGYFileSpec::fileFmts() );
     uiFileSelector uifs( this, fssu );
-    uifs.caption() = tr( "Write SEG-Y Textual Header to a file" );
+    uifs.caption() = tr("Write SEG-Y Textual Header to a file");
     if ( !uifs.go() )
 	return;
 

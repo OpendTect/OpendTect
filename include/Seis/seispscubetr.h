@@ -53,7 +53,7 @@ protected:
 
     virtual bool	initRead_();
     virtual bool	initWrite_(const SeisTrc&)
-			{ errmsg_ = tr( "No write to PS Cube" ); return false; }
+			{ errmsg_ = toUiString("PS Cube RO" ); return false; }
     virtual bool	commitSelections_();
 
     bool		doRead(SeisTrc&,TypeSet<float>* offss=0);

@@ -210,7 +210,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmsizedynamicfld_ = new uiCheckBox( this,  uiStrings::sDynamic() );
     nmsizedynamicfld_->attach( rightOf, nmstylefld_ );
 
-    uiString dlgtxt = tr( "Names color" );
+    uiString dlgtxt = tr("Color for Names");
     uiColorInput::Setup csu( mrkprops().color() ); csu.lbltxt( dlgtxt );
     nmcolfld_ = new uiColorInput( this, csu, toString(dlgtxt) );
     nmcolfld_->attach( alignedBelow, nmsizefld_ );
@@ -366,7 +366,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     sep1->attach( stretchedBelow, rangefld_ );
 
     uiStringSet choices;
-    choices.add( tr( "clip rate" ) ).add( tr( "data range" ) );
+    choices.add( tr("Clip Rate") ).add( uiStrings::sDataRange() );
 
     cliprangefld_ = new uiGenInput( this, uiStrings::sSpecify(),
 		StringListInpSpec(choices));
@@ -398,7 +398,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     logfilltypefld_->box()->addItem( tr("Full panel") );
     logfilltypefld_->attach( alignedBelow, colfld_ );
 
-    filllogsfld_ = new uiLabeledComboBox( this, tr( "Fill with ") );
+    filllogsfld_ = new uiLabeledComboBox( this, tr("Fill with") );
     filllogsfld_->attach( alignedBelow, logfilltypefld_ );
 
     singlfillcolfld_ = new uiCheckBox( this, tr("single color") );

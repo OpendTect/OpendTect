@@ -437,7 +437,7 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
     if ( !multiz )
     {
 	if ( !shiftedsingez )
-	    wintitl = tr( "%1 at" ).arg(wintitl);
+	    wintitl = toUiString( "%1 @ " ).arg(wintitl);
 	else
 	{
 	    wintitl = toUiString("%1 %2ms %3").arg(wintitl)

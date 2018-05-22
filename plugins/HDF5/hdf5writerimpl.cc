@@ -14,9 +14,9 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "iopar.h"
 
-unsigned szip_options_mask = H5_SZIP_EC_OPTION_MASK; // entropy coding
+static unsigned szip_options_mask = H5_SZIP_EC_OPTION_MASK; // entropy coding
 		     // nearest neighbour coding: H5_SZIP_NN_OPTION_MASK
-unsigned szip_pixels_per_block = 16;
+static unsigned szip_pixels_per_block = 16;
 		    // can be an even number [2,32]
 static int szip_encoding_status = -1;
 

@@ -82,7 +82,7 @@ uiString uiHDF5Settings::envBlockStr( const uiString& what, const char* typ )
     BufferString envnm( "OD_NO_HDF5" );
     if ( typ && *typ )
 	envnm.add( "_" ).add( typ ).toUpper();
-    return tr( "HDF5 file creation [%1] blocked (\"%2\" set)" )
+    return tr("HDF5 file creation [%1] blocked (\"%2\" set)")
 	    .arg( what ).arg( envnm );
 }
 

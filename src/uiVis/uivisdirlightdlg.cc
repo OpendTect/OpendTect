@@ -53,13 +53,14 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     uiSeparator* sep1 = new uiSeparator( this, "HSep" );
     sep1->attach( stretchedBelow, switchfld_ );
 
+    const uiString ligthintensstr = tr("Light intensity").withUnit("%");
     uiGroup* cameralightgrp = new uiGroup( this,"Camera group" );
     cameralightgrp->attach( ensureBelow,switchfld_ );
     cameralightgrp->attach( leftBorder );
     cameradirintensityfld_ = new uiSlider( cameralightgrp,
-	uiSlider::Setup( tr( "Light intensity (%)" ) ).
-	withedit( true ).nrdec( 1 ).logscale( false ),
-	"Camera light intensity slider" );
+	uiSlider::Setup( ligthintensstr )
+	    .withedit( true ).nrdec( 1 ).logscale( false ),
+	    "Camera light intensity slider" );
     cameradirintensityfld_->setMinValue( 0 );
     cameradirintensityfld_->setMaxValue( 100 );
     cameradirintensityfld_->setStep( 5 );
@@ -70,7 +71,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 
 
     cameraambintensityfld_ = new uiSlider( cameralightgrp,
-	uiSlider::Setup( tr( " Ambient intensity (%)" ) ).
+	uiSlider::Setup( tr("Ambient intensity").withUnit("%") ).
 	withedit( true ).nrdec( 1 ).logscale( false ),
 	"Ambient light intensity slider" );
     cameraambintensityfld_->attach( ensureBelow,cameradirintensityfld_ );
@@ -86,9 +87,9 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     directionallightgrp->attach( alignedBelow,cameralightgrp );
 
     dirintensityfld_ = new uiSlider( directionallightgrp,
-	uiSlider::Setup( tr( "Light intensity (%)" ) ).
-	withedit( true ).nrdec( 1 ).logscale( false ),
-	"Intensity slider" );
+	uiSlider::Setup(ligthintensstr)
+	    .withedit( true ).nrdec( 1 ).logscale( false ),
+	    "Intensity slider" );
     dirintensityfld_->setMinValue( 0 );
     dirintensityfld_->setMaxValue( 100 );
     dirintensityfld_->setStep( 5 );
@@ -101,7 +102,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     const CallBack chgCB( mCB( this,uiDirLightDlg,fieldChangedCB ) );
 
     dipfld_ = new uiSlider( directionallightgrp,
-	uiSlider::Setup( tr( "Dip (degrees)" ) ).withedit( true )
+	uiSlider::Setup( tr("Dip (degrees)") ).withedit( true )
 	.nrdec( 0 ).logscale( false ),"Dip slider" );
     dipfld_->attach( alignedBelow,dirintensityfld_ );
     dipfld_->setMinValue( 0 );
@@ -109,7 +110,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     dipfld_->setStep( 5 );
 
     azimuthfld_ = new uiDialExtra( directionallightgrp,
-	uiDialExtra::Setup( tr( "Azimuth (degrees)" ) ).withedit( true ),
+	uiDialExtra::Setup( tr("Azimuth (degrees)") ).withedit( true ),
 	"Azimuth slider" );
     azimuthfld_->attach( centeredBelow, dipfld_ );
     azimuthfld_->dial()->setWrapping( true );
@@ -118,8 +119,8 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     azimuthfld_->dial()->setInterval( StepInterval<int>( 0,360,5 ) );
     azimuthfld_->setSpacing( 66 );
 
-    showpdfld_ = new uiPushButton(
-	directionallightgrp,tr( "Show polar diagram" ),false );
+    showpdfld_ = new uiPushButton( directionallightgrp,
+			tr("Show polar diagram"), false );
     showpdfld_->attach( centeredBelow,azimuthfld_ );
 
     InitInfoType initinfo;

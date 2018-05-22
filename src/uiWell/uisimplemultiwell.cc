@@ -262,7 +262,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     const uiRetVal uirv = Well::MGR().store( *wd, ioobj.key(), trprov );
     if ( !uirv.isOK() )
     {
-	uiString msg = tr( "Cannot write data for '%1':\n%2" )
+	uiString msg = tr("Cannot write data for '%1':\n%2")
 		     .arg( wcd.nm_ ).arg( uirv );
 	uiMSG().error( msg );
 	return false;

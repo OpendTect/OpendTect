@@ -189,9 +189,9 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     else
     {
 	if ( setup_.multisel_ )
-	    captn = tr( "Load one or more %1");
+	    captn = tr("Load one or more %1");
 	else
-	    captn = tr( "Load %1" );
+	    captn = tr("Load %1");
     }
 
     if ( selgrp_->getContext().name().isEmpty() )

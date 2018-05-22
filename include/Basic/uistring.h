@@ -43,7 +43,7 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 
    The string can have %1, %2, ... arguments. For these, sooner or later
    arguments must be provided, as in:
-   uiString string = tr( "%1 plus %2 is %3").arg( 4 ).arg( 5 ).arg( 4+5 );
+   uiString string = tr("%1 plus %2 is %3").arg( 4 ).arg( 5 ).arg( 4+5 );
    ... will result in the string "4 plus 5 is 9"
 
    As such, uiString's are suited for limited text manipulation. But if we

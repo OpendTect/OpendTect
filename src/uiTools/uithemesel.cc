@@ -42,12 +42,12 @@ uiThemeSel::uiThemeSel( uiParent* p, bool withlabel )
 	uiString txt; BufferString icnm;
 	if ( nm == "default" )
 	{
-	    txt = tr( "Default Theme" );
+	    txt = tr("Default Theme");
 	    icnm = "od";
 	}
 	else if ( nm == "pro" )
 	{
-	    txt = tr( "OpendTect Pro Theme" );
+	    txt = tr("OpendTect Pro Theme");
 	    icnm = "dgbpro";
 	}
 	else

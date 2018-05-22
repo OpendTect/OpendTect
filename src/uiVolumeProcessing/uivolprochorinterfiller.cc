@@ -63,7 +63,7 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
     usegradientfld_->attach( alignedBelow, bottomhorfld_ );
     usegradientfld_->valuechanged.notify(mCB(this,uiHorInterFiller,updateFlds));
 
-    const uiString gradientlabel = tr( "Gradient (/%1)")
+    const uiString gradientlabel = tr("Gradient (/%1)")
 				    .arg( SI().zUnitString() );
     gradientfld_ = new uiGenInput( this, gradientlabel, FloatInpSpec() );
     const float gradient = hf->getGradient();

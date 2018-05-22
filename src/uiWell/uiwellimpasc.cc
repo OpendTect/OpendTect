@@ -359,15 +359,15 @@ bool uiWellImportAsc::doWork()
 
 	if ( !wellascio.getData(wd_,kbelev,td) )
 	{
-	    uiString msg = tr( "The track file cannot be loaded:\n%1" )
-				.arg( wellascio.errMsg() );
+	    uiString msg = tr("The track file cannot be loaded")
+				.addMoreInfo( wellascio.errMsg(), true );
 	    mErrRet( msg );
 	}
 
 	if ( !wellascio.warnMsg().isEmpty() )
 	{
-	    uiString msg = tr( "The track file loading issued a warning:\n%1" )
-				.arg( wellascio.warnMsg() );
+	    uiString msg = tr("The track file loading issued a warning")
+				.addMoreInfo( wellascio.warnMsg(), true );
 	    uiMSG().warning( msg );
 	}
     }
@@ -399,17 +399,17 @@ bool uiWellImportAsc::doWork()
 	    if ( !d2tgrp_->errMsg().isEmpty() )
 		msgs += d2tgrp_->errMsg();
 
-	    msgs += tr( "Alternatively, swith off the use of a"
-			" Depth to Time model file" );
+	    msgs += tr("Alternatively, switch off the use of a"
+			" Depth to Time model file");
 	    uiMSG().errorWithDetails( msgs );
 	    return false;
 	}
 
 	if ( !d2tgrp_->warnMsg().isEmpty() )
 	{
-	    uiString msg = tr( "The Time-Depth Model file loading issued"
-			       " a warning:\n%1" )
-			       .arg( d2tgrp_->warnMsg() );
+	    uiString msg = tr("The Time-Depth Model file loading issued"
+			       " a warning")
+			       .addMoreInfo( d2tgrp_->warnMsg(), true );
 	    uiMSG().warning( msg );
 	}
 

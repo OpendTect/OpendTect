@@ -59,8 +59,8 @@ public:
 
     static uiString	sFaultPlanes() { return tr("Fault Planes" ); }
     static uiString	sFaultSticks() { return tr("Fault Sticks" ); }
-    static uiString	sOnlyAtSections() { return tr( "Only at Sections" ); }
-    static uiString	sOnlyAtHorizons() { return tr( "Only at Horizons" ); }
+    static uiString	sOnlyAtSections() { return tr("Only at Sections"); }
+    static uiString	sOnlyAtHorizons() { return tr("Only at Horizons"); }
 
 protected:
     bool		askContinueAndSaveIfNeeded(bool withcancel);

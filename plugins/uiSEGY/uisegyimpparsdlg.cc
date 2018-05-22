@@ -187,10 +187,10 @@ void uiSEGYReadImpParsDlg::selectionChanged()
 	const Repos::IOPar& iop = *parset_[paridx];
 
 	uiString todisp =
-	    tr( "Origin: %1 (%2)"
+	    tr("Origin: %1 (%2)"
 		"\nSEG-Y Revision: %3"
 		"\nData type: %4"
-		"\nCreated by %5 at %6." )
+		"\nCreated by %5 at %6.")
 		.arg( Repos::isUserDefined(iop.src_) ? uiStrings::sUserDefined()
 						     : tr("Internal") )
 		.arg( Repos::descriptionOf(iop.src_) )

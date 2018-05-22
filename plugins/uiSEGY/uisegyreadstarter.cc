@@ -268,7 +268,7 @@ void uiSEGYReadStarter::createTools()
 
 	usexybut_ = new uiRadioButton( toolgrp, tr("Use (X,Y)"), icvsxycb );
 	usexybut_->setToolTip(
-	    tr( "Select to use (X,Y) for positioning.\nInline/Crossline "
+	    tr("Select to use (X,Y) for positioning.\nInline/Crossline "
 		"will be calculated using the survey setup.\nOnly use this "
 		"option if you do not have valid In- and Crossline numbers.") );
 	usexybut_->attach( alignedBelow, useicbut_ );
@@ -290,9 +290,9 @@ void uiSEGYReadStarter::createTools()
 
     coordscalefld_ = new uiLineEdit( toolgrp, FloatInpSpec(),"CoordScale");
     coordscalefld_->setHSzPol( uiObject::Small );
-    coordscalefld_->setToolTip( tr( "Enter a value if you want to ignore "
+    coordscalefld_->setToolTip( tr("Enter a value if you want to ignore "
 	"the coordinate scaling in the trace headers."
-	"\nAll coordinates read will then be multiplied by that factor." ));
+	"\nAll coordinates read will then be multiplied by that factor.") );
     coordscalefld_->setPlaceholderText( tr("scale XY") );
     coordscalefld_->editingFinished.notify(
 			    mCB(this,uiSEGYReadStarter,coordscaleChg) );

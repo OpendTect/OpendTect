@@ -220,9 +220,9 @@ uiWellDisplayWin::~uiWellDisplayWin()
 
 uiString uiWellDisplayWin::getWinTitle( const DBKey& id, bool foredit )
 {
-    return tr( "%1 '%2'" ).arg( foredit ? uiStrings::sEdit()
-					 : uiStrings::sDisplay() )
-					   .arg( DBM().nameOf( id ) );
+    return toUiString( "%1 '%2'" )
+		.arg( foredit ? uiStrings::sEdit() : uiStrings::sDisplay() )
+		.arg( DBM().nameOf(id) );
 }
 
 

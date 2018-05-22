@@ -52,7 +52,8 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     if ( ttl.isEmpty() )
     {
 	SEGY::FileSpec fs; fs.usePar( iop );
-	ttl = tr( "Import %1 %2" ).arg( Seis::nameOf(setup_.geom_) )
+	ttl = toUiString( "%1 %2 %3" ).arg( uiStrings::sImport() )
+	    .arg( Seis::nameOf(setup_.geom_) )
 	    .arg( getLimitedDisplayString(fs.dispName(),40,0) );
     }
     setTitleText( ttl );

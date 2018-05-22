@@ -197,25 +197,18 @@ Task* MatlabStep::createTask()
 	{
 	    BufferString slotname;
 	    getInputSlotName( getInputSlotID(idx), slotname );
-	    errmsg_ = tr( "%1 not provided." ).arg( slotname );
+	    errmsg_ = tr("%1 not provided").arg( slotname );
 	    return 0;
 	}
     }
 
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( !output || output->isEmpty() )
-    {
-	errmsg_ = tr("No output provided.");
-	return 0;
-    }
+	{ errmsg_ = tr("No output provided"); return 0; }
 
     MatlabTask* task = new MatlabTask( *this );
     if ( !task->init() )
-    {
-	errmsg_ = task->message();
-	delete task;
-	task = 0;
-    }
+	{ errmsg_ = task->message(); delete task; task = 0; }
 
     return task;
 }

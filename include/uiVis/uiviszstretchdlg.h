@@ -47,7 +47,7 @@ protected:
     float		uifactor_;
     bool		valchgd_;
 
-    static uiString	sZStretch() { return tr( "Z stretch" ); }
+    static uiString	sZStretch() { return tr("Z stretch"); }
     void		setZStretch(visSurvey::Scene*,float,bool permanent);
     void		setOneZStretchToAllScenes(float,bool permanent);
     void		setZStretchesToScenes(TypeSet<float>&,bool permanent);

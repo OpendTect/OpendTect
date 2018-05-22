@@ -157,8 +157,8 @@ void uiZStretchDlg::updateSliderValues(  int sceneidx )
 
 	if ( scene->zDomainInfo().def_.isTime() )
 	{
-	    label = tr( "Apparent velocity %1")
-			.arg( VelocityDesc::getVelUnit( true ) );
+	    label = tr("Apparent velocity")
+			.withUnit( VelocityDesc::getVelUnit(true) );
 	}
     }
 

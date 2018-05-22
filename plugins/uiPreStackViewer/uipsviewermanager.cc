@@ -257,7 +257,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 				  .arg( psv->getPosition().crl() )
             : toUiString( psv->getPosition().crl() );
 
-	const uiString capt = tr( "Amplitude spectrum for %1 at %2" )
+	const uiString capt = tr("Amplitude spectrum for %1 at %2")
             .arg( psv->getObjectName() )
             .arg( pos );
 

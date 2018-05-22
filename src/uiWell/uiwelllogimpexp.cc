@@ -253,9 +253,9 @@ uiString uiExportLogs::getDlgTitle( const ObjectSet<Well::Data>& wds,
     if ( nrlogs == 1 )
 	return tr("Export %1 for %2").arg( logstxt ).arg( wllstxt );
     else if ( nrwells == 1 )
-	return tr( "%1: export %2" ).arg( wllstxt ).arg( logstxt );
+	return tr("%1: export %2").arg( wllstxt ).arg( logstxt );
 
-    return tr( "For %1 export %2" ).arg( wllstxt ).arg( logstxt );
+    return tr("For %1 export %2").arg( wllstxt ).arg( logstxt );
 }
 
 
@@ -269,7 +269,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     , multiwellsnamefld_(0)
 {
     const bool zinft = SI().depthsInFeet();
-    const uiString lbl = tr( "Depth range" )
+    const uiString lbl = tr("Depth range")
 		.withUnit( uiStrings::sDistUnitString(zinft,true) );
     zrangefld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     setDefaultRange( zinft );

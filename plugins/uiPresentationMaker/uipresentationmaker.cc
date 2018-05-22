@@ -377,7 +377,7 @@ void uiPresentationMakerDlg::updateScreenList()
     const int nrscreens = uiMain::theMain().nrScreens();
     for ( int idx=0; idx<nrscreens; idx++ )
     {
-	uiString screennm = tr( "Screen %1 - %2" );
+	uiString screennm = tr("Screen %1 - %2");
 	screennm.arg( idx+1 ).arg( uiMain::theMain().getScreenName(idx) );
 	screenfld_->addItem( screennm );
     }

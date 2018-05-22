@@ -146,8 +146,7 @@ bool uiSaveDataDlg::saveLogs()
 
 	if ( data.wd_->logs().isPresent(lognm) )
 	{
-	    msg = tr( "Log: '%1' already exists" )
-					  .arg( lognm );
+	    msg = tr("Log '%1' already exists").arg( lognm );
 	    continue;
 	}
 
@@ -158,16 +157,16 @@ bool uiSaveDataDlg::saveLogs()
     }
     ml.unlockNow();
 
-    uiString endmsg = tr( "Please choose another postfix" );
+    uiString endmsg = tr("Please choose another postfix");
     if ( !msg.isEmpty() )
 	mAppendMsgAndQuit( endmsg, mErrRet( msg ) )
 
     DataWriter& datawtr = dataserver_.dataWriter();
-    endmsg = tr( "Check your permissions" );
+    endmsg = uiStrings::phrCheckPermissions();
     if ( !datawtr.writeLogs(logset,savetolog) )
     {
 	datawtr.removeLogs( logset );
-	msg = tr( "Cannot write log", 0, logset.size() );
+	msg = uiStrings::phrCannotWrite( uiStrings::sLog(logset.size()) );
 	mAppendMsgAndQuit( endmsg, mErrRet( msg ) )
     }
 
@@ -213,9 +212,9 @@ bool uiSaveDataDlg::saveWvlt( bool useest )
     const Wavelet& wvlt = useest ? *data.estimatedwvlt_ : *data.initwvlt_;
     if ( !wvlt.size() && useest )
     {
-	uiString msg = tr( "No estimated wavelet yet" );
+	uiString msg = tr("No estimated wavelet yet");
 	msg.appendPhrase(
-	   tr( "Press 'Display additional information' before saving" ) );
+	   tr("Press 'Display additional information' before saving") );
 	mErrRet( msg )
     }
 
@@ -229,13 +228,13 @@ bool uiSaveDataDlg::acceptOK()
 
     if ( logsfld_->firstChecked() == -1 && !initwvltsel_->isChecked() &&
 	 !estimatedwvltsel_->isChecked() )
-	mErrRet( tr( "Please check at least one item to be saved" ) )
+	mErrRet( tr("Check at least one item to be saved") )
 
     if ( !saveLogs() || !saveWvlt(false) || !saveWvlt(true) )
 	success = false;
 
     if ( success )
-	uiMSG().message( tr( "Successfully saved the selected items" ) );
+	uiMSG().message( tr("Successfully saved the selected items") );
 
     return false;
 }
