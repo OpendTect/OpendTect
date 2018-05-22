@@ -18,7 +18,6 @@ macro( OD_ADD_OSG )
 
     find_package( OpenGL )
     find_package( OSG )
-    find_package( OpenSceneGraph )
 
     #RESTORE DEBUG POSTFIX
     set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
@@ -78,6 +77,7 @@ macro(OD_SETUP_OSG)
 		OSGDB
 		OSGGA
 		OSGUTIL
+		OSGQT
 		OSGMANIPULATOR
 		OSGWIDGET
 		OSGVIEWER
@@ -86,10 +86,6 @@ macro(OD_SETUP_OSG)
 		OSGTEXT
 		OSGSIM )
 
-	if ( OPENSCENEGRAPH_VERSION LESS "3.6" )
-	    set(OSGMODULES ${OSGMODULES} OSGQT)
-	endif()
-
 	foreach( OSGMODULE ${OSGMODULES} )
 	    if ( ${OSGMODULE}_LIBRARY )
 		list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY} )
@@ -97,12 +93,6 @@ macro(OD_SETUP_OSG)
 		message(FATAL_ERROR "${OSGMODULE}_LIBRARY is missing")
 	    endif()
 	endforeach()
-
-	if ( OPENSCENEGRAPH_VERSION LESS "3.6" )
-	else()
-	    #TODO this works on Linux only
-	    list(APPEND OD_OSG_LIBS ${OSG_DIR}/lib64/libosgUI.so )
-	endif()
 
 	list ( APPEND OD_OSG_LIBS osgGeo )
 	list ( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${OSGGEO_LIBRARY_PATH} )
