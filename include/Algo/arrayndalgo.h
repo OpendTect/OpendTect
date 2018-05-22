@@ -1500,7 +1500,7 @@ private:
 		    const TrcKeySampling tksin( tkzsin_.hsamp_ );
 		    const TrcKeySampling tksout( tkzsout_.hsamp_ );
 		    const int nrzout = infoout.getSize(2);
-		    StepInterval<float> zrg( tkzsout_.zsamp_ );
+		    ZSampling zrg( tkzsout_.zsamp_ );
 		    zrg.limitTo( tkzsin_.zsamp_ );
 		    const int nrztocopy = zrg.nrSteps() + 1;
 		    const int z0in = tkzsin_.zsamp_.nearestIndex( zrg.start );
@@ -1547,7 +1547,7 @@ private:
 				continue;
 			    }
 
-			    const float* inptrcptr = inptr+offsetin;
+			    const T* inptrcptr = inptr+offsetin;
 			    for ( int idz=0, idzin=0; idz<nrztocopy; idz++,
 							idzin+=sample_fact_ )
 				outptr[idz] = inptrcptr[idzin];
@@ -2150,7 +2150,7 @@ private:
 			{
 			    if ( hiter )
 				pos[zidx] = idz;
-			    const float val = hasarrayptr
+			    const T val = hasarrayptr
 					    ? *dataptr++
 					    : hasstorage
 						? datastor->value( validx++ )
@@ -2199,7 +2199,7 @@ private:
 			{
 			    if ( hiter )
 				pos[zidx] = idz;
-			    const float val = hasarrayptr
+			    const T val = hasarrayptr
 					    ? *dataptr--
 					    : hasstorage
 						? datastor->value( validx-- )
