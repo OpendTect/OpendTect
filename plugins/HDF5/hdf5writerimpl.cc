@@ -18,6 +18,7 @@ unsigned szip_options_mask = H5_SZIP_EC_OPTION_MASK; // entropy coding
 		     // nearest neighbour coding: H5_SZIP_NN_OPTION_MASK
 unsigned szip_pixels_per_block = 16;
 		    // can be an even number [2,32]
+static int szip_encoding_status = -1;
 
 
 #define mCatchErrDuringWrite() \
@@ -28,6 +29,15 @@ HDF5::WriterImpl::WriterImpl()
     : AccessImpl(*this)
     , chunksz_(64)
 {
+    if ( szip_encoding_status < 0 )
+    {
+	unsigned int filter_config_flags;
+	H5Zget_filter_info( H5Z_FILTER_SZIP, &filter_config_flags );
+	if ( (filter_config_flags & H5Z_FILTER_CONFIG_ENCODE_ENABLED) == 0 )
+	    szip_encoding_status = 0;
+	else
+	    szip_encoding_status = 1;
+    }
 }
 
 
@@ -53,6 +63,7 @@ void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv )
 	file_ = newfile;
     }
     mCatchAdd2uiRv( uiStrings::phrCannotOpen(fnm) )
+    // mCatchAdd2uiRv( uiStrings::phrCannotOpenForWrite(fnm) )
 }
 
 
@@ -95,7 +106,8 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
     }
 
     const bool canchunk = maxdim > chunksz_;
-    const bool canzip = maxdim >= szip_pixels_per_block;
+    const bool canzip = szip_encoding_status>0
+		     && maxdim >= szip_pixels_per_block;
 
     const H5DataType h5dt = h5DataTypeFor( dt );
     try
