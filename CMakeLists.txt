@@ -74,6 +74,7 @@ set( OD_PLUGINS
 	ExpAttribs
 	GLCM
 	GMT
+	HDF5
 	Hello
 	Madagascar
 	MadagascarAttribs
@@ -87,6 +88,7 @@ set( OD_PLUGINS
 	uiGLCM
 	uiGMT
 	uiGoogleIO
+	uiHDF5
 	uiHello
 	uiImpGPR
 	uiMadagascar
@@ -102,12 +104,6 @@ set( OD_PLUGINS
 	uiVoxelConnectivityFilter
 	CmdDriver
 )
-
-option( BUILD_HDF5_SUPPORT "Build HDF5 support plugin" OFF )
-if ( BUILD_HDF5_SUPPORT STREQUAL "ON" )
-    include( plugins/HDF5/PreInit.cmake )
-    set( OD_PLUGINS ${OD_PLUGINS} uiHDF5 )
-endif()
 
 set( OD_SPECPROGS ODSeis visBase )
 OD_CREATE_DEVEL_PACKAGE_DEFINITION()
