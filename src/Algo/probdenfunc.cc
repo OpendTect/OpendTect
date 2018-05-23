@@ -184,15 +184,18 @@ void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
     constspec float* values = array.getData(); \
     if ( !values ) return retval
 
-bool ArrayNDProbDenFunc::gtIsEq( const ProbDenFunc& pdf ) const
+bool ArrayNDProbDenFunc::gtIsEq( const ProbDenFunc& oth ) const
 {
-    mDynamicCastGet(const ArrayNDProbDenFunc&,oth,pdf)
-    mDefArrVars(true,const);
-
-    if ( totalsz != oth.getData().totalSize() )
+    mDynamicCastGet(const ArrayNDProbDenFunc*,ndpdf,&oth)
+    if ( !ndpdf )
 	return false;
 
-    const float* othvalues = oth.getData().getData();
+    mDefArrVars(true,const);
+
+    if ( totalsz != ndpdf->getData().totalSize() )
+	return false;
+
+    const float* othvalues = ndpdf->getData().getData();
     for ( od_int64 idx=0; idx<totalsz; idx++ )
     {
 	if ( !isFPEqual(values[idx],othvalues[idx],mDefEpsF) )
@@ -412,13 +415,13 @@ Sampled1DProbDenFunc& Sampled1DProbDenFunc::operator =(
 }
 
 
-void Sampled1DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
+void Sampled1DProbDenFunc::copyFrom( const ProbDenFunc& oth )
 {
-    mDynamicCastGet(const Sampled1DProbDenFunc*,spdf1d,&pdf)
+    mDynamicCastGet(const Sampled1DProbDenFunc*,spdf1d,&oth)
     if ( spdf1d )
 	*this = *spdf1d;
     else
-	ProbDenFunc1D::copyFrom( pdf );
+	ProbDenFunc1D::copyFrom( oth );
 }
 
 
@@ -536,13 +539,13 @@ Sampled2DProbDenFunc& Sampled2DProbDenFunc::operator =(
 }
 
 
-void Sampled2DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
+void Sampled2DProbDenFunc::copyFrom( const ProbDenFunc& oth )
 {
-    mDynamicCastGet(const Sampled2DProbDenFunc*,spdf2d,&pdf)
+    mDynamicCastGet(const Sampled2DProbDenFunc*,spdf2d,&oth)
     if ( spdf2d )
 	*this = *spdf2d;
     else
-	ProbDenFunc2D::copyFrom( pdf );
+	ProbDenFunc2D::copyFrom( oth );
 }
 
 

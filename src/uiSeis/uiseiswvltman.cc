@@ -237,9 +237,8 @@ void uiSeisWvltMan::ownSelChg()
 						       tr("Reverse polarity"));
     mSetButToolTip(rotatephbut_,tr("Rotate %1 phase").arg(wvltname),
 							   tr("Rotate phase"));
-    mSetButToolTip(taperbut_,
-			    tr("%1 %2").arg(uiStrings::sTaper()).arg(wvltname),
-							uiStrings::sTaper() );
+    mSetButToolTip(taperbut_, toUiString("%1 %2")
+	    .arg(uiStrings::sTaper()).arg(wvltname), uiStrings::sTaper() );
     mSetButToolTip(disppropbut_,toUiString("%1 %2 %3")
 		   .arg(uiStrings::sDisplay()).arg(wvltname)
 		   .arg(uiStrings::sProperties().toLower()),

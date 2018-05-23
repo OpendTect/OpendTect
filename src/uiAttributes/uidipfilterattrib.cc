@@ -69,11 +69,9 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
     fltrtpfld_->valuechanged.notify( mCB(this,uiDipFilterAttrib,filtSel) );
     fltrtpfld_->attach( alignedBelow, szfld_ );
 
-    uiString lbl = tr("Min/max %1").arg(zIsTime() ? tr("%1 %2")
-				   .arg(uiStrings::sVelocity().toLower())
-				   .arg(VelocityDesc::getVelUnit(true))
-				   : tr("%1 (deg)")
-				   .arg(uiStrings::sDip().toLower()));
+    uiString lbl = tr("Min/max %1").arg( zIsTime()
+	    ? uiStrings::sVelocity().withUnit(VelocityDesc::getVelUnit(true))
+	    : uiStrings::sDip().withUnit(uiStrings::sDeg()) );
     const char* fldnm = zIsTime() ? " velocity" : " dip";
     velfld_ = new uiGenInput( this, lbl,
 		FloatInpSpec().setName( BufferString("Min",fldnm).buf() ),

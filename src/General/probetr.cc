@@ -39,16 +39,16 @@ Probe* ProbeTranslator::retrieve( const IOObj* ioobj, uiString& errmsg )
     if ( !ioobj )
 	mErrRet( uiStrings::phrCannotFindDBEntry(uiStrings::sProbe()) );
 
-    mDynamicCast(ProbeTranslator*,PtrMan<ProbeTranslator> tr,
+    mDynamicCast(ProbeTranslator*,PtrMan<ProbeTranslator> trl,
 		 ioobj->createTranslator());
-    if ( !tr )
+    if ( !trl )
 	mErrRet( uiStrings::phrSelectObjectWrongType(uiStrings::sProbe()) )
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
 	mErrRet( ioobj->phrCannotOpenObj() )
 
-    Probe* probe = tr->read( *conn, errmsg );
+    Probe* probe = trl->read( *conn, errmsg );
     if ( !errmsg.isEmpty() )
 	return 0;
 
@@ -64,16 +64,16 @@ bool ProbeTranslator::store( const Probe& probe, const IOObj* ioobj,
     if ( !ioobj )
 	mErrRet( uiStrings::phrCannotFindDBEntry(uiStrings::sProbe()) );
 
-    mDynamicCast(ProbeTranslator*,PtrMan<ProbeTranslator> tr,
+    mDynamicCast(ProbeTranslator*,PtrMan<ProbeTranslator> trl,
 		 ioobj->createTranslator());
-    if ( !tr )
+    if ( !trl )
 	mErrRet( uiStrings::phrSelectObjectWrongType(uiStrings::sProbe()) )
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
 	mErrRet( ioobj->phrCannotOpenObj() )
 
-    errmsg = tr->write( probe, *conn );
+    errmsg = trl->write( probe, *conn );
     if ( !errmsg.isEmpty() )
 	{ conn->rollback(); return false; }
 

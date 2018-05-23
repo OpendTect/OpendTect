@@ -337,6 +337,7 @@ public:
     static uiWord sDataSet()		{ return tr("Data Set"); }
     static uiWord sDataRange()		{ return tr("Data Range"); }
     static uiWord sDecimal()		{ return tr("Decimal"); }
+    static uiWord sDeg()		{ return tr("deg","unit for angles"); }
     static uiWord sDegree(int num=1)	{ return tr("Degree",0,num); }
     static uiWord sDefault()		{ return tr("Default"); }
     static uiWord sDefine()		{ return tr("Define"); }

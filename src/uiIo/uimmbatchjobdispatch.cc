@@ -571,7 +571,7 @@ bool uiMMBatchJobDispatcher::ready4WrapUp( bool& havefails ) const
 	    newpart.addNewLine(); needspace = false;
 	}
     }
-    msg= tr("%1 %2 %3").arg(msg).arg(toUiString(newpart)).
+    msg= toUiString("%1 %2 %3").arg(msg).arg(toUiString(newpart)).
 			arg(tr("\n\nDo you want to re-try?"));
     return !uiMSG().askGoOn(msg);
 }

@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 
 uiZRangeInput::uiZRangeInput( uiParent* p, bool depth, bool withstep )
-    : uiGenInput( p, tr("%1 %2")
+    : uiGenInput( p, toUiString("%1 %2")
 		     .arg((depth ? ZDomain::Depth().userName()
 				 : ZDomain::Time().userName()))
 		     .arg(uiStrings::sRange())

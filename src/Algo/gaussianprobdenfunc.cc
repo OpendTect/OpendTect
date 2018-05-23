@@ -55,21 +55,22 @@ Gaussian1DProbDenFunc& Gaussian1DProbDenFunc::operator =(
 }
 
 
-void Gaussian1DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
+void Gaussian1DProbDenFunc::copyFrom( const ProbDenFunc& oth )
 {
-    mDynamicCastGet(const Gaussian1DProbDenFunc*,gpdf1d,&pdf)
+    mDynamicCastGet(const Gaussian1DProbDenFunc*,gpdf1d,&oth)
     if ( gpdf1d )
 	*this = *gpdf1d;
     else
-	ProbDenFunc1D::copyFrom( pdf );
+	ProbDenFunc1D::copyFrom( oth );
 }
 
 
 bool Gaussian1DProbDenFunc::isEq( const ProbDenFunc& oth ) const
 {
-    mDynamicCastGet(const Gaussian1DProbDenFunc&,gpdf1d,oth)
-    return isFPEqual(exp_,gpdf1d.exp_,mDefEpsF)
-	&& isFPEqual(std_,gpdf1d.std_,mDefEpsF);
+    mDynamicCastGet(const Gaussian1DProbDenFunc*,gpdf1d,&oth)
+    return gpdf1d
+	&& isFPEqual(exp_,gpdf1d->exp_,mDefEpsF)
+	&& isFPEqual(std_,gpdf1d->std_,mDefEpsF);
 }
 
 
@@ -132,24 +133,25 @@ Gaussian2DProbDenFunc& Gaussian2DProbDenFunc::operator =(
 }
 
 
-void Gaussian2DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
+void Gaussian2DProbDenFunc::copyFrom( const ProbDenFunc& oth )
 {
-    mDynamicCastGet(const Gaussian2DProbDenFunc*,gpdf2d,&pdf)
+    mDynamicCastGet(const Gaussian2DProbDenFunc*,gpdf2d,&oth)
     if ( gpdf2d )
 	*this = *gpdf2d;
     else
-	ProbDenFunc2D::copyFrom( pdf );
+	ProbDenFunc2D::copyFrom( oth );
 }
 
 
 bool Gaussian2DProbDenFunc::isEq( const ProbDenFunc& oth ) const
 {
-    mDynamicCastGet(const Gaussian2DProbDenFunc&,gpdf2d,oth)
-    return isFPEqual(exp0_,gpdf2d.exp0_,mDefEpsF)
-	&& isFPEqual(std0_,gpdf2d.std0_,mDefEpsF)
-	&& isFPEqual(exp1_,gpdf2d.exp1_,mDefEpsF)
-	&& isFPEqual(std1_,gpdf2d.std1_,mDefEpsF)
-	&& isFPEqual(cc_,gpdf2d.cc_,mDefEpsF);
+    mDynamicCastGet(const Gaussian2DProbDenFunc*,gpdf2d,&oth)
+    return gpdf2d
+	&& isFPEqual(exp0_,gpdf2d->exp0_,mDefEpsF)
+	&& isFPEqual(std0_,gpdf2d->std0_,mDefEpsF)
+	&& isFPEqual(exp1_,gpdf2d->exp1_,mDefEpsF)
+	&& isFPEqual(std1_,gpdf2d->std1_,mDefEpsF)
+	&& isFPEqual(cc_,gpdf2d->cc_,mDefEpsF);
 }
 
 
@@ -233,32 +235,34 @@ GaussianNDProbDenFunc& GaussianNDProbDenFunc::operator =(
 }
 
 
-void GaussianNDProbDenFunc::copyFrom( const ProbDenFunc& pdf )
+void GaussianNDProbDenFunc::copyFrom( const ProbDenFunc& oth )
 {
-    mDynamicCastGet(const GaussianNDProbDenFunc*,gpdfnd,&pdf)
+    mDynamicCastGet(const GaussianNDProbDenFunc*,gpdfnd,&oth)
     if ( gpdfnd )
 	*this = *gpdfnd;
     else
     {
-	setName( pdf.name() );
+	setName( oth.name() );
 	for ( int idx=0; idx<nrDims(); idx++ )
-	    setDimName( idx, pdf.dimName(idx) );
+	    setDimName( idx, oth.dimName(idx) );
     }
 }
 
 
 bool GaussianNDProbDenFunc::isEq( const ProbDenFunc& oth ) const
 {
-    mDynamicCastGet(const GaussianNDProbDenFunc&,gpdfnd,oth)
+    mDynamicCastGet(const GaussianNDProbDenFunc*,gpdfnd,&oth)
+    if ( !gpdfnd )
+	return false;
 
-    if ( vars_.size() != gpdfnd.vars_.size()
-      || corrs_.size() != gpdfnd.corrs_.size() )
+    if ( vars_.size() != gpdfnd->vars_.size()
+      || corrs_.size() != gpdfnd->corrs_.size() )
 	return false;
 
     for ( int idx=0; idx<vars_.size(); idx++ )
     {
 	const VarDef& myvd = vars_[idx];
-	const VarDef& othvd = gpdfnd.vars_[idx];
+	const VarDef& othvd = gpdfnd->vars_[idx];
 	if ( !(myvd == othvd) || !isFPEqual(myvd.exp_,othvd.exp_,mDefEpsF)
 			      || !isFPEqual(myvd.std_,othvd.std_,mDefEpsF) )
 	    return false;
@@ -267,7 +271,7 @@ bool GaussianNDProbDenFunc::isEq( const ProbDenFunc& oth ) const
     for ( int idx=0; idx<corrs_.size(); idx++ )
     {
 	const Corr& mycorr = corrs_[idx];
-	const Corr& othcorr = gpdfnd.corrs_[idx];
+	const Corr& othcorr = gpdfnd->corrs_[idx];
 	if ( !(mycorr == othcorr)
 	  || !isFPEqual(mycorr.cc_,othcorr.cc_,mDefEpsF) )
 	    return false;
