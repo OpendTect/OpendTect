@@ -10,7 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "fixedstring.h"
+#include "bufstring.h"
 
 
 
@@ -22,7 +22,7 @@ mExpClass(Basic) NrBytesToStringCreator
 public:
 			NrBytesToStringCreator();
 			NrBytesToStringCreator(od_int64 nrbytes);
-			/*!< Unit is set from nrbytes*/
+				/*!< Unit is set from nrbytes*/
     enum Unit		{ Bytes=0, KB=1, MB=2, GB=3, TB=4, PB=5, EB=6 };
 
     void		setUnitFrom(od_int64 number,bool maximum=true);
@@ -32,13 +32,13 @@ public:
 			 unit is needed.
 			 */
 
-    FixedString		getString(od_int64 number,int nrdecimals=2,
+    BufferString	getString(od_int64 number,int nrdecimals=2,
 				  bool withunit=true) const;
 			/*!<Use string before doing anything else, as it will be
 			    overwritten at next call from same thread. */
 
-    FixedString		getUnitString() const;
-    static FixedString	toString(Unit);
+    BufferString	getUnitString() const;
+    static const char*	toString(Unit);
 
 protected:
 

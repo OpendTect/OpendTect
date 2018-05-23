@@ -192,7 +192,7 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     updateTable();
     updateButtons();
     changed_ = false;
-    setCaption( ioobj->uiName() );
+    setCaption( toUiString(ioobj->name()) );
 }
 
 
@@ -225,7 +225,7 @@ void uiDataPointSetPickDlg::doSave( bool saveas )
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
 
-    setCaption( ioobj->uiName() );
+    setCaption( toUiString(ioobj->name()) );
     changed_ = false;
     updateButtons();
 }

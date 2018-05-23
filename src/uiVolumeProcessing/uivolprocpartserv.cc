@@ -59,11 +59,11 @@ void uiVolProcPartServer::doVolProc( bool is2d, const DBKey* mid,
 	uiString errmsg;
 	if ( !VolProcessingTranslator::retrieve(*vprocchain,ioobj,errmsg) )
 	{
-	    uiString fms( uiStrings::phrCannotRead( ioobj->uiName() ) );
+	    uiString fullmsg( ioobj->phrCannotReadObj() );
 	    if ( !errmsg.isEmpty() )
-		fms.appendPhrase( errmsg );
+		fullmsg.appendPhrase( errmsg );
 
-	    uiMSG().error( fms );
+	    uiMSG().error( fullmsg );
 	    vprocchain->unRef();
 	    vprocchain = new VolProc::Chain;
 	    vprocchain->ref();

@@ -50,7 +50,7 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ msg = ioobj->phrCannotOpen(); return false; }
+	{ msg = ioobj->phrCannotOpenObj(); return false; }
 
     msg = toUiString( mdtrl->read( md, *conn ) );
     return msg.isEmpty();
@@ -76,7 +76,7 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
     msg.setEmpty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	msg = ioobj->phrCannotOpen();
+	msg = ioobj->phrCannotOpenObj();
     else
 	msg = toUiString( mdtrl->write(md,*conn) );
 

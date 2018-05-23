@@ -188,7 +188,7 @@ void uiSeisFileMan::setToolButtonProperties()
 	else
 	{
 	    uiString bdeftt( bdef->tooltip_ );
-	    browsebut_->setToolTip( bdeftt.arg(curioobj_->uiName()) );
+	    browsebut_->setToolTip( bdeftt.arg(curioobj_->name()) );
 	}
     }
 

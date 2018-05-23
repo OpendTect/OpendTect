@@ -195,7 +195,7 @@ Conn* Seis::VolFetcher::getConn()
     }
 
     if ( !conn )
-	uirv_ = ioobj_->phrCannotOpen();
+	uirv_ = ioobj_->phrCannotOpenObj();
     return conn;
 }
 

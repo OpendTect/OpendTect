@@ -12,7 +12,6 @@
 #include "cbvsreadmgr.h"
 #include "convmemvalseries.h"
 #include "datapackbase.h"
-#include "nrbytes2string.h"
 #include "ioobj.h"
 #include "od_ostream.h"
 #include "odsysmem.h"
@@ -50,20 +49,17 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
     const int nrcomp = selcomponents.size();
     od_int64 totmem, freemem;
     OD::getSystemMemory( totmem, freemem );
-    NrBytesToStringCreator nbstr( totmem );
     const od_int64 reqsz = ((od_int64)nrcomp) * dp.sampling().totalNr() *
 			    dp.getDataDesc().nrBytes();
 			    // dp.nrKBytes() cannot be used before allocation
 
-    BufferString memszstr( nbstr.getString( reqsz ) );
     if ( reqsz >= freemem )
     {
-	msg = od_static_tr("Seis::addComponents",
-		"Insufficient memory for allocating %1").arg( memszstr );
+	msg = uiStrings::phrCannotAllocateMemory( reqsz );
 	return false;
     }
 
-    msg = od_static_tr("Seis::addComponents","Allocating %1").arg( memszstr );
+    msg = uiStrings::phrAllocating( reqsz );
     for ( int idx=0; idx<nrcomp; idx++ )
     {
 	const int cidx = selcomponents[idx];
@@ -117,7 +113,7 @@ bool execute()
 {
     if ( !dp_ || dp_->nrComponents() != outcomponents_.size() )
     {
-	msg_ = tr("%1 is incorrectly setup").arg( name() );
+	msg_ = uiStrings::phrInternalErr( "Filler incorrectly setup" );
 	return false;
     }
 
@@ -158,7 +154,7 @@ bool doTrace( int itrc )
 #ifdef __debug__
 	if ( !dp.validComp(idcout) )
 	{
-	    msg_ = tr("%1 is incorrectly setup").arg( name() );
+	    msg_ = uiStrings::phrInternalErr( "Filler incorrectly setup" );
 	    return false;
 	}
 #endif
@@ -294,15 +290,15 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
     delete prov;
     const Pos::GeomID geomid = is2d ? tkzs_.hsamp_.getGeomID() : mUdfGeomID;
     seissummary_ = new ObjectSummary( ioobj, geomid );
-    msg_ = uiStrings::phrReading( tr("%1 \'%2\'")
+    msg_ = uiStrings::phrReading( toUiString("%1 '%2'")
 			    .arg( uiStrings::sSeisObjName(is2d,!is2d,false) )
-			    .arg( ioobj_->uiName() ) );
+			    .arg( ioobj_->name() ) );
     if ( is2d )
     {
 	const BufferString linenm(
 			    Survey::GM().getName(tkzs_.hsamp_.getGeomID()) );
 	if ( !linenm.isEmpty() )
-	    msg_.constructWordWith( tr("|%1" ).arg( linenm.str() ) );
+	    msg_.constructWordWith( toUiString("|%1" ).arg( linenm.str() ) );
     }
 }
 
@@ -988,14 +984,14 @@ bool Seis::SequentialFSLoader::init()
     }
 
     initialized_ = true;
-    msg_ = uiStrings::phrReading( tr("%1 \'%2\'")
+    msg_ = uiStrings::phrReading( toUiString("%1 '%2'")
 			    .arg( uiStrings::sSeisObjName(is2d,!is2d,false) )
-			    .arg( ioobj_->uiName() ) );
+			    .arg( ioobj_->name() ) );
     if ( is2d )
     {
 	const BufferString linenm( Survey::GM().getName(geomid) );
 	if ( !linenm.isEmpty() )
-	    msg_.constructWordWith( tr("|%1" ).arg( linenm.str() ) );
+	    msg_.constructWordWith( toUiString("|%1" ).arg( linenm.str() ) );
     }
 
     return true;
@@ -1058,9 +1054,10 @@ int Seis::SequentialFSLoader::nextStep()
     if ( rawseq ) rawseq->setPositions( *tks );
     if ( !rawseq || !rawseq->isOK() )
     {
-	if ( !rawseq ) delete tks;
+	if ( !rawseq )
+	    delete tks;
 	delete rawseq;
-	msg_ = tr("Cannot allocate trace data");
+	msg_ = uiStrings::phrCannotAllocateMemory();
 	releaseDP();
 	return ErrorOccurred();
     }

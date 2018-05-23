@@ -144,7 +144,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     if ( !psioprov_ && !is2d_ && !trl_ )
     {
 	errmsg_ = tr("No data storer available for '%1'")
-		.arg( ioobj_->uiName() );
+		.arg( ioobj_->name() );
 	return false;
     }
     if ( is2d_ && ( !seldata_ || mIsUdfGeomID(seldata_->geomID()) ) )

@@ -218,17 +218,11 @@ bool uiSeisImportODCube::acceptOK()
     {
 	inioobj = getInpIOObj( fname );
 	if ( !DBM().setEntry(*inioobj) )
-	{
-	    uiMSG().error(uiStrings::phrCannotWriteDBEntry(inioobj->uiName()));
-	    return false;
-	}
+	    { uiMSG().error( inioobj->phrCannotWriteToDB() ); return false; }
     }
 
     if ( !DBM().setEntry(*outioobj_) )
-    {
-	uiMSG().error( uiStrings::phrCannotWriteDBEntry(outioobj_->uiName()) );
-	return false;
-    }
+	{ uiMSG().error( outioobj_->phrCannotWriteToDB() ); return false; }
 
     if ( dolink )
     {

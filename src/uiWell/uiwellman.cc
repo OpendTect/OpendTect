@@ -230,12 +230,13 @@ void uiWellMan::setButToolTip( uiButton* but, const uiString& oper,
 
 #define mSetWellButToolTip(but,objtyp) \
     setButToolTip( but, edvwstr, objtyp, curwellnm )
+#define mWellNmUiStr(ioobj) ioobj ? toUiString(ioobj->name()) \
+				  : uiString::empty()
 
 
 void uiWellMan::setWellToolButtonProperties()
 {
-    const uiString curwellnm = curioobj_ ? curioobj_->uiName()
-					 : uiString::empty();
+    const uiString curwellnm = mWellNmUiStr( curioobj_ );
     const uiString edvwstr = curiswritable_ ? uiStrings::sEdit() :
 							     uiStrings::sView();
 
@@ -274,8 +275,7 @@ void uiWellMan::setLogToolButtonProperties()
     logexpbut_->setSensitive( oneormorelog );
     loguombut_->setSensitive( curiswritable_ && nrlogs > 0 );
 
-    const uiString curwellnm = curioobj_ ? curioobj_->uiName()
-					 : uiString::empty();
+    const uiString curwellnm = mWellNmUiStr( curioobj_ );
     const uiString curlognm = toUiString( logsfld_->getText() );
 
     mSetLogButToolTip( logupbut_, uiStrings::sMove(),

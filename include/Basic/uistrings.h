@@ -62,6 +62,7 @@ public:
 // Phrases
 
     static uiPhrase phrAdd(const uiWord&);
+    static uiPhrase phrAllocating(od_int64);
     static uiPhrase phrASCII(const uiWord&);
     static uiPhrase phrBatchProgramFailedStart();
     static uiPhrase phrCalculate(const uiWord&);
@@ -185,7 +186,7 @@ public:
 
 
     //Phrases that don't need specifics, can be used when context is obvious
-    static uiPhrase phrCannotAllocateMemory();
+    static uiPhrase phrCannotAllocateMemory(od_int64 reqsz=-1);
     static uiPhrase phrCannotFindAttrName();
     static uiPhrase phrCannotFindObjInDB();
     static uiPhrase phrCannotOpenInpFile(int n=1);
@@ -195,6 +196,7 @@ public:
     static uiPhrase phrCannotWriteSettings();
     static uiPhrase phrCheckPermissions();
     static uiPhrase phrCheckUnits();
+    static uiPhrase phrDBIDNotValid();
     static uiPhrase phrEnterValidName();
     static uiPhrase phrSaveBodyFail();
     static uiPhrase phrSelOutpFile();
@@ -214,6 +216,7 @@ public:
     static uiWord sRangeTemplate( bool withstep )
     { return withstep ? toUiString("%1 - %2 [%3]") : toUiString("%1 - %2"); }
 
+    static uiWord sMemSizeString(od_int64);
 
     // Words with no inline definition are incorrect;
     // do not use or turn into phrase
@@ -649,6 +652,7 @@ public:
     static uiWord sRename()		{ return tr("Rename"); }
     static uiWord sReplace()		{ return tr("Replace"); }
     static uiWord sReport()		{ return tr("Report"); }
+    static uiWord sRequired()		{ return tr("Required"); }
     static uiWord sReservoir()		{ return tr("Reservoir"); }
     static uiWord sReset()		{ return tr("Reset"); }
     static uiWord sResolution()		{ return tr("Resolution"); }

@@ -47,7 +47,7 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ msg = ioobj->phrCannotOpen(); return false; }
+	{ msg = ioobj->phrCannotOpenObj(); return false; }
 
     msg = ptrl->read( md, *conn );
     return msg.isEmpty();
@@ -74,7 +74,7 @@ bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
     msg.setEmpty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	msg = ioobj->phrCannotOpen();
+	msg = ioobj->phrCannotOpenObj();
     else
 	msg = ptrl->write( md, *conn );
 

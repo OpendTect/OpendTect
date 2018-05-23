@@ -17,6 +17,7 @@
 #include "prestackmutedef.h"
 #include "prestackmutedeftransl.h"
 #include "separstr.h"
+#include "uistrings.h"
 
 namespace PreStack
 {
@@ -85,26 +86,26 @@ void Mute::setTaperLength( float l )
 { taperlen_ = l; delete muter_; muter_ = 0; }
 
 
-bool Mute::setMuteDefID( const DBKey& mid )
+bool Mute::setMuteDefID( const DBKey& dbky )
 {
-    if ( id_==mid )
+    if ( id_==dbky )
 	return true;
 
-    if ( mid.isInvalid() )
-	mErrRet( tr("No MuteDef ID provided.") )
-    PtrMan<IOObj> ioobj = DBM().get( mid );
+    if ( dbky.isInvalid() )
+	mErrRet( uiStrings::phrDBIDNotValid() )
+    PtrMan<IOObj> ioobj = DBM().get( dbky );
     if ( !ioobj )
-	mErrRet(tr("Cannot find MuteDef ID '%1' in Object Manager.").arg(mid) );
+	mErrRet( uiStrings::phrCannotFindObjInDB() );
 
     if ( !MuteDefTranslator::retrieve(def_,ioobj,errmsg_) )
     {
-	uiString errstr( tr("Mute definition '%1' cannot be read")
-			.arg(ioobj->uiName()) );
-	errstr.appendPhrase( errmsg_ );
+	uiString errstr( ioobj->phrCannotReadObj() );
+	if ( !errmsg_.isEmpty() )
+	    errstr.appendPhrase( errmsg_ );
 	mErrRet( errstr );
     }
 
-    id_ = mid;
+    id_ = dbky;
 
     return true;
 }
@@ -131,12 +132,9 @@ bool Mute::usePar( const IOPar& par )
     if ( par.getYN( sTailMute(), tail ) )
 	setTailMute( tail );
 
-    DBKey mid;
-    if ( par.get(sMuteDef(),mid) && !setMuteDefID(mid) )
-    {
-	errmsg_ = tr("No Mute definition ID found.");
-	return false;
-    }
+    DBKey dbky;
+    if ( par.get(sMuteDef(),dbky) )
+	setMuteDefID( dbky );
 
     return true;
 }

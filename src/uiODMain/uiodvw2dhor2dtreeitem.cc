@@ -96,7 +96,8 @@ bool uiODVw2DHor2DParentTreeItem::showSubMenu()
 	{
 	    const EM::Object* emobject =
 			EM::Hor2DMan().getObject( emids[idx] );
-	    uiAction* trackexistingmnu = new uiAction( emobject->uiName() );
+	    uiAction* trackexistingmnu = new uiAction(
+				    toUiString(emobject->name()) );
 	    trackexistingmnu->setEnabled( cantrack );
 	    trackmenu->insertAction( trackexistingmnu, mNewIdx + idx + 1 );
 	}

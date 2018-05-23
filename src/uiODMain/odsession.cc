@@ -193,7 +193,7 @@ bool ODSessionTranslator::retrieve( ODSession& session,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ err = ioobj->phrCannotOpen(); return false; }
+	{ err = ioobj->phrCannotOpenObj(); return false; }
 
     err = toUiString(trans->read( session, *conn ));
     bool rv = err.isEmpty();
@@ -217,7 +217,7 @@ bool ODSessionTranslator::store( const ODSession& session,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	{ err = ioobj->phrCannotOpen(); return false; }
+	{ err = ioobj->phrCannotOpenObj(); return false; }
 
     err = toUiString(trans->write( session, *conn ) );
     if ( !err.isEmpty() )

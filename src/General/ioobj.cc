@@ -363,9 +363,36 @@ bool IOObj::isInCurrentSurvey() const
 }
 
 
-uiString IOObj::phrCannotOpen() const
+
+#define mQuotedName toUiString(name()).quote(true)
+
+uiString IOObj::phrCannotOpenObj() const
 {
-    return uiStrings::phrCannotOpen( toUiString(name()).quote(true) );
+    return uiStrings::phrCannotOpen( mQuotedName );
+}
+
+
+uiString IOObj::phrCannotReadObj() const
+{
+    return uiStrings::phrCannotRead( mQuotedName );
+}
+
+
+uiString IOObj::phrCannotLoadObj() const
+{
+    return uiStrings::phrCannotLoad( mQuotedName );
+}
+
+
+uiString IOObj::phrCannotWriteObj() const
+{
+    return uiStrings::phrCannotWrite( mQuotedName );
+}
+
+
+uiString IOObj::phrCannotWriteToDB() const
+{
+    return uiStrings::phrCannotWriteDBEntry( mQuotedName );
 }
 
 

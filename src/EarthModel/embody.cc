@@ -182,10 +182,7 @@ mGlobal(EarthModel) bool OD_Convert_Body_To_OD5( uiString& errmsg )
     {
 	const IOObj& ioobj = *toset[idx];
 	if ( !DBM().setEntry( ioobj ) )
-	{
-	    errmsg = uiStrings::phrCannotWriteDBEntry( ioobj.uiName() );
-	    return false;
-	}
+	    { errmsg = ioobj.phrCannotWriteToDB(); return false; }
     }
     deepErase( toset );
 

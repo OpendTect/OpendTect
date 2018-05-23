@@ -29,12 +29,12 @@ namespace PosInfo
 /*!\brief read from a seismic data store. Deprecated. Use Seis::Provider. */
 
 mExpClass(Seis) SeisTrcReader : public SeisStoreAccess
-{ mODTextTranslationClass(SeisTrcReader);
+{
 public:
 
 			SeisTrcReader();
-			mDeprecated SeisTrcReader(const IOObj*);
-			mDeprecated SeisTrcReader(const char* fnm);
+    mDeprecated		SeisTrcReader(const IOObj*);
+    mDeprecated		SeisTrcReader(const char* fnm);
     mDeprecated void	setIOObj(const IOObj*);
 			~SeisTrcReader();
 

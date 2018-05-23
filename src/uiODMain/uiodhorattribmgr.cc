@@ -147,7 +147,8 @@ uiSelContourAttribDlg( uiParent* p, const DBKey& id )
     attrnms.add( uiODContourTreeItem::sKeyZValue() );
     eminfo.getAttribNames( attrnms );
 
-    const uiString lbl = emioobj ? emioobj->uiName() : uiString::empty();
+    const uiString lbl = emioobj ? toUiString(emioobj->name())
+				 : uiString::empty();
     uiListBox::Setup su( OD::ChooseOnlyOne, lbl, uiListBox::AboveMid );
     attrlb_ = new uiListBox( this, su );
     attrlb_->addItems( attrnms.getUiStringSet() );

@@ -188,7 +188,8 @@ bool acceptOK()
 	uiIOObjSel* fld = flds_[idx];
 
 	const IOObj* ioobj = fld->ioobj();
-	if ( !ioobj ) return false;
+	if ( !ioobj )
+	    return false;
 	uiString emsg;
 	ProbDenFunc* pdf = ProbDenFuncTranslator::read( *ioobj, &emsg );
 	if ( !pdf )
@@ -202,7 +203,7 @@ bool acceptOK()
 	    if ( !iscompat )
 	    {
 		uiMSG().error(tr("'%1'\nis not compatible with the first")
-			    .arg(ioobj->uiName()));
+			    .arg(ioobj->name()));
 		return false;
 	    }
 	}

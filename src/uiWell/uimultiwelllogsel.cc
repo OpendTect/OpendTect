@@ -168,7 +168,7 @@ void uiMultiWellLogSel::update()
 	wellobjs_ += ioobj;
 
 	if ( wellsfld_ )
-	    wellsfld_->addItem( ioobj->uiName() );
+	    wellsfld_->addItem( ioobj->name() );
     }
 
     updateLogsFldCB( 0 );

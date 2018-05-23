@@ -127,7 +127,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 {
     if ( !ioobj_ )
     {
-	errmsg_ = tr("Info for input seismic data not found in Object Manager");
+	errmsg_ = uiStrings::phrCannotFindObjInDB();
 	return false;
     }
     else if ( psioprov_ )
@@ -137,7 +137,10 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 	else
 	{
 	    if ( !seldata_ )
-		{ errmsg_ = tr("No line geometry ID set"); return false; }
+	    {
+		errmsg_ = uiStrings::phrInternalErr("No line geometry ID set");
+		return false;
+	    }
 	    psrdr2d_ = psioprov_->get2DReader( *ioobj_, seldata_->geomID() );
 	}
     }
@@ -148,8 +151,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     if ( is3dfail && is2dfail && ispsfail )
     {
 	if ( errmsg_.isEmpty() )
-	    errmsg_ = tr("No data interpreter available for '%1'")
-		    .arg(ioobj_->uiName());
+	    errmsg_ = ioobj_->phrCannotOpenObj();
 	return false;
     }
 
@@ -159,11 +161,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 
     Conn* conn = openFirst();
     if ( !conn )
-    {
-	errmsg_ = tr("Cannot open data files for '%1'")
-		.arg(ioobj_->uiName());
-	return false;
-    }
+	{ errmsg_ = ioobj_->phrCannotOpenObj(); return false; }
 
     if ( !initRead(conn) )
 	return false;
@@ -186,7 +184,7 @@ bool SeisTrcReader::startWork()
 	    pscditer_ = new PosInfo::CubeDataIterator( psrdr3d_->posData() );
 	    if ( !pscditer_->next(curpsbid_) )
 	    {
-		errmsg_ = tr("3D Prestack Data storage is empty");
+		errmsg_ = toUiString("3D Prestack Data storage is empty");
 		return false;
 	    }
 	    pscditer_->reset();
@@ -196,7 +194,7 @@ bool SeisTrcReader::startWork()
 	    pslditer_ = new PosInfo::Line2DDataIterator( psrdr2d_->posData() );
 	    if ( !pslditer_->next() )
 	    {
-		errmsg_ = tr("2D Prestack Data storage is empty");
+		errmsg_ = toUiString("2D Prestack Data storage is empty");
 		return false;
 	    }
 	    pslditer_->reset();
@@ -283,7 +281,7 @@ bool SeisTrcReader::initRead( Conn* conn )
     mDynamicCastGet(SeisTrcTranslator*,sttrl,trl_)
     if ( !sttrl )
     {
-	errmsg_ = tr("%1 found where seismic cube was expected")
+	errmsg_ = toUiString("%1 found where seismic cube was expected")
 		.arg(trl_->userName());
 	cleanUp(); return false;
     }
@@ -584,7 +582,7 @@ bool SeisTrcReader::mkNextGetter()
 	}
 	if ( !found )
 	{
-	    errmsg_ = tr("Data not available for the selected line");
+	    errmsg_ = toUiString("Data not available for the selected line");
 	    return false;
 	}
     }

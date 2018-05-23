@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "uistrings.h"
 #include "dbkey.h"
+#include "nrbytes2string.h"
+#include "odsysmem.h"
 
 #define mJoinStr toUiString("%1 %2")
 
@@ -18,6 +20,9 @@ ________________________________________________________________________
 
 uiPhrase uiStrings::phrAdd( const uiWord& string )
 { return tr("Add %1").arg( string ); }
+
+uiPhrase uiStrings::phrAllocating( od_int64 sz )
+{ return tr("Allocating memory: %1").arg( sMemSizeString(sz) ); }
 
 uiPhrase uiStrings::phrASCII( const uiWord& string )
 { return tr("ASCII %1").arg( string ); }
@@ -381,8 +386,24 @@ uiPhrase uiStrings::phrZRange( const uiWord& string )
 
 //--- phrases without 'real' args
 
-uiPhrase uiStrings::phrCannotAllocateMemory()
-{ return tr("Not enough system memory available"); }
+uiPhrase uiStrings::phrCannotAllocateMemory( od_int64 szneeded )
+{
+    uiPhrase insuffstr = tr("Insufficient memory available");
+    if ( szneeded <= 0 )
+	return insuffstr;
+
+    od_int64 totmem, freemem;
+    OD::getSystemMemory( totmem, freemem );
+    NrBytesToStringCreator b2s( totmem );
+
+    return toUiString("%1 (%2: %3, %4: %5/%6)")
+	.arg( insuffstr )
+	.arg( sRequired() )
+	.arg( b2s.getString(szneeded) )
+	.arg( sAvailable() )
+	.arg( b2s.getString(freemem) )
+	.arg( b2s.getString(totmem) );
+}
 
 uiPhrase uiStrings::phrCannotFindAttrName()
 { return phrCannotFind( tr("attribute name") ); }
@@ -410,6 +431,9 @@ uiPhrase uiStrings::phrCheckPermissions()
 
 uiPhrase uiStrings::phrCheckUnits()
 { return tr("You may want to check the units of measure"); }
+
+uiPhrase uiStrings::phrDBIDNotValid()
+{ return tr("Database ID is not valid"); }
 
 uiPhrase uiStrings::phrEnterValidName()
 { return uiStrings::phrEnter(tr("a valid name")); }
@@ -491,6 +515,13 @@ uiWord uiStrings::sSeisObjName( bool is2d, bool is3d, bool isprestack,
     }
 
     return sData();
+}
+
+
+uiWord uiStrings::sMemSizeString( od_int64 memsz )
+{
+    NrBytesToStringCreator cr;
+    return toUiString( cr.getString(memsz) );
 }
 
 

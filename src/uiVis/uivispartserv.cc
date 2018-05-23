@@ -255,7 +255,7 @@ void uiVisPartServer::setObjectName( int id, const char* nm )
 uiString uiVisPartServer::getUiObjectName( int id ) const
 {
     const visBase::DataObject* obj = visBase::DM().getObject( id );
-    return obj ? obj->uiName() : uiString::empty();
+    return obj ? toUiString(obj->name()) : uiString::empty();
 }
 
 

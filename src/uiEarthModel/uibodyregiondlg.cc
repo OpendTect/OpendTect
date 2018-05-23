@@ -1027,7 +1027,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !DBM().setEntry( *ioobj ) )
-	    mRetErr( uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ) )
+	    mRetErr( ioobj->phrCannotWriteToDB() ) )
     }
 
     if ( !TaskRunner::execute(&taskrunner,*exec) )

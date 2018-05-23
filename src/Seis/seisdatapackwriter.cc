@@ -152,9 +152,9 @@ od_int64 SeisDataPackWriter::nrDone() const
 uiString SeisDataPackWriter::message() const
 {
     if ( !writer_ )
-	return uiStrings::phrCannotWrite( tr("the output data to disk.") );
+	return uiStrings::phrCannotWrite( uiStrings::sData() );
 
-    return tr("Writing seismic volume \'%1\'").arg( writer_->ioObj()->uiName());
+    return uiStrings::sWriting();
 }
 
 

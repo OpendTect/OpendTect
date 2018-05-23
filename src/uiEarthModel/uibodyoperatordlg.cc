@@ -284,7 +284,7 @@ void uiBodyOperatorDlg::bodySel( CallBacker* )
     if ( !dlg.go() || !dlg.ioObj() )
 	return;
 
-    tree_->selectedItem()->setText( dlg.ioObj()->uiName() );
+    tree_->selectedItem()->setText( toUiString(dlg.ioObj()->name()) );
     bodyselfld_->setText( dlg.ioObj()->name() );
 
     const int curidx = listsaved_.indexOf( tree_->selectedItem() );
@@ -339,7 +339,7 @@ bool uiBodyOperatorDlg::acceptOK()
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !DBM().setEntry( *ioobj ) )
-	    mRetErr( uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ) )
+	    mRetErr( ioobj->phrCannotWriteToDB() )
     }
 
     if ( trprov.execute(*exec) )
@@ -491,7 +491,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
 	PtrMan<IOObj> chgioobj = outiobj->clone();
 	chgioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !DBM().setEntry(*chgioobj) )
-	    mRetErr( uiStrings::phrCannotWriteDBEntry( chgioobj->uiName() ) )
+	    mRetErr( chgioobj->phrCannotWriteToDB() )
     }
 
     if ( !trprov.execute(*exec) )

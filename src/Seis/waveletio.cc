@@ -62,7 +62,7 @@ uiRetVal WaveletLoader::read( Wavelet*& wvlt )
     wvlt = 0;
     Conn* connptr = ioobj_->getConn( Conn::Read );
     if ( !connptr || connptr->isBad() )
-	uirv = ioobj_->phrCannotOpen();
+	uirv = ioobj_->phrCannotOpenObj();
     else
     {
 	wvlt = new Wavelet;
@@ -70,8 +70,7 @@ uiRetVal WaveletLoader::read( Wavelet*& wvlt )
 	    wvlt->setName( ioobj_->name() );
 	else
 	{
-	    uirv = tr("Problem reading Wavelet '%1' from file")
-			.arg( ioobj_->uiName() );
+	    uirv = ioobj_->phrCannotReadObj();
 	    wvlt->unRef(); wvlt = 0;
 	}
     }
@@ -163,14 +162,14 @@ uiRetVal WaveletSaver::doStore( const IOObj& ioobj,
 
     Conn* connptr = ioobj.getConn( Conn::Write );
     if ( !connptr || connptr->isBad() )
-	uirv.add( ioobj.phrCannotOpen() );
+	uirv.add( ioobj.phrCannotOpenObj() );
     else
     {
 	RefMan<Wavelet> copiedwvlt = new Wavelet( *wvlt );
 	if ( !transl->write(copiedwvlt,*connptr) )
 	{
 	    connptr->rollback();
-	    uirv.add( uiStrings::phrCannotWrite( ioobj.uiName() ) );
+	    uirv.add( ioobj.phrCannotWriteObj() );
 	}
     }
 
@@ -320,6 +319,7 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
 
 bool WaveletAscIO::put( od_ostream& ) const
 {
-    errmsg_ = tr("TODO: WaveletAscIO::put not implemented");
+    errmsg_ = uiStrings::phrInternalErr(
+			"TODO: WaveletAscIO::put not implemented" );
     return false;
 }

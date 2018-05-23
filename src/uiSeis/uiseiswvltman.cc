@@ -219,11 +219,11 @@ void uiSeisWvltMan::wvltExtractedCB( CallBacker* )
 
 void uiSeisWvltMan::ownSelChg()
 {
-    uiString tt, wvltname;
+    BufferString wvltname;
     ConstRefMan<Wavelet> wvlt;
     if ( curioobj_ )
     {
-	wvltname = curioobj_->uiName();
+	wvltname = curioobj_->name();
 	wvlt = WaveletMGR().fetch( curioobj_->key() );
     }
     dispWavelet( wvlt );
@@ -396,7 +396,7 @@ void uiSeisWvltMan::taper( CallBacker* )
     mPrepWvltChg();
 
     uiSeisWvltTaperDlg dlg( this, *wvlt );
-    uiString title = tr("Taper '%1'").arg(curioobj_->uiName());
+    uiString title = tr("Taper '%1'").arg(curioobj_->name());
     dlg.setCaption( title );
     if ( dlg.go() )
 	{ mStoreWvltChg(); }
@@ -423,7 +423,7 @@ void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
     if ( !curioobj_ )
 	return;
 
-    wvnamdisp_->setText( curioobj_->uiName() );
+    wvnamdisp_->setText( toUiString(curioobj_->name()) );
     wvnamdisp_->setPrefWidthInChar( 60 );
     TypeSet<float> samps;
     if ( wvlt )

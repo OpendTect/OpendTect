@@ -423,14 +423,14 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 
     const float km2 = m2* float(1e-6);
 
-    FixedString unit;
+    const char* unit = "";
 
     if ( km2>0.01 )
     {
 	if ( SI().xyInFeet() )
 	{
 	    val = km2*mToSqMileFactor;
-	    unit =  "sq mi";
+	    unit = "sq mi";
 	}
 	else
 	{
@@ -443,7 +443,7 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 	if ( SI().xyInFeet() )
 	{
 	    val = m2*mToFeetFactorF*mToFeetFactorF;
-	    unit =  "sq ft";
+	    unit = "sq ft";
 	}
 	else
 	{
@@ -460,10 +460,8 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 	val += ")";
 
     mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.getCStr();
-    strcpy( ret, val.buf() );
-
-    return ret;
+    retstr = val;
+    return retstr;
 }
 
 
@@ -1215,7 +1213,7 @@ void NrBytesToStringCreator::setUnitFrom( od_int64 number, bool max )
 }
 
 
-FixedString NrBytesToStringCreator::getString( od_int64 sz, int nrdecimals,
+BufferString NrBytesToStringCreator::getString( od_int64 sz, int nrdecimals,
 					     bool withunit ) const
 {
     if ( nrdecimals>5 ) nrdecimals = 5;
@@ -1227,32 +1225,31 @@ FixedString NrBytesToStringCreator::getString( od_int64 sz, int nrdecimals,
 	nrdecfactor *= 10;
 
     sz *= nrdecfactor;
-    unsigned char nrshifts = (unsigned char) unit_;
+    unsigned char nrshifts = (unsigned char)unit_;
     for ( int idx=0; idx<nrshifts; idx++ )
 	sz >>= 10;
 
     float fsz = (float) sz;
     fsz /= nrdecfactor;
 
-    mDeclStaticString( ret );
+    BufferString ret;
     ret.set( getStringFromNumber(fsz,'f',nrdecimals) );
-
     if ( withunit )
 	ret.add( " " ).add( getUnitString() );
 
-    return FixedString( ret.str() );
+    return ret;
 }
 
 
 
-FixedString NrBytesToStringCreator::getUnitString() const
+BufferString NrBytesToStringCreator::getUnitString() const
 {
-    return toString( unit_ );
+    return BufferString( toString(unit_) );
 }
 
 
-FixedString NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit)
+const char* NrBytesToStringCreator::toString( Unit unit )
 {
     const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", "EB", 0 };
-    return units[(int) unit];
+    return units[(int)unit];
 }

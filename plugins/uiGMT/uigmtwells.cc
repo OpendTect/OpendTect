@@ -51,7 +51,7 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     {
 	PtrMan<IOObj> ioobj = DBM().get( wic.ids()[idx] );
 	if ( ioobj )
-	    welllistfld_->addItem( ioobj->uiName() );
+	    welllistfld_->addItem( ioobj->name() );
     }
 
     namefld_ = new uiGenInput( this, uiStrings::sName(),

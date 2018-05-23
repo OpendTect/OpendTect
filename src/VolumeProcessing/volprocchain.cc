@@ -454,9 +454,9 @@ void VolProc::Chain::setStorageID( const DBKey& mid )
 
 uiString VolProc::Chain::name() const
 {
-    PtrMan<IOObj>  ioobj = DBM().get( storageid_ );
+    PtrMan<IOObj> ioobj = DBM().get( storageid_ );
     return !ioobj ? uiString::empty() :
-	tr("Executing volume builder chain \'%1\'").arg(ioobj->uiName());
+	tr("Executing '%1'").arg( ioobj->name() );
 }
 
 

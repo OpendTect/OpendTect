@@ -98,7 +98,7 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 			 const Scaler* scaler ) const
 {
     mPrepIOObj();
-    const uiString caption = tr("Pre-loading %1").arg( ioobj->uiName() );
+    const uiString caption = tr("Pre-loading '%1'").arg( ioobj->name() );
 
     TrcKeyZSampling tkzstoload( tkzs );
     const SeisIOObjInfo info( dbkey_ );
@@ -130,7 +130,7 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 			 const Scaler* scaler ) const
 {
     mPrepIOObj();
-    const uiString caption = tr("Pre-loading %1").arg( ioobj->uiName() );
+    const uiString caption = tr("Pre-loading '%1'").arg( ioobj->name() );
 
     TaskGroup taskgrp;
     ObjectSet<SequentialFSLoader> rdrs;

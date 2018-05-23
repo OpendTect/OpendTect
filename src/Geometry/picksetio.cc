@@ -232,8 +232,8 @@ int Pick::SetLoaderExec::nextStep()
     else
     {
 	ps->unRef();
-	loader_.errmsgs_.add( toUiString("%1 %2").arg(ioobj->uiName())
-						 .arg(errmsg) );
+	loader_.errmsgs_.add( toUiString("[%1]: %2").arg(ioobj->name())
+						    .arg(errmsg) );
     }
 
     return MoreToDo();

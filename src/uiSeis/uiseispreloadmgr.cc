@@ -164,8 +164,8 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
 #define mCheckIOObjExistance( ioobj ) \
 if ( !ioobj->implExists( true ) ) \
 { \
-    uiString msg = toUiString("%1 %2").arg(toUiString(cannotloadstr)). \
-		   arg(ioobj->uiName()); \
+    uiString msg = toUiString("%1 '%2'").arg(toUiString(cannotloadstr)). \
+		   arg(ioobj->name()); \
     uiMSG().error( msg ); \
     return; \
 }
@@ -180,9 +180,9 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     const DBKey key = ioobj->key();
     if ( PLDM().isPresent(key) )
     {
-	uiString msg = tr("%1 is already preloaded."
+	uiString msg = tr("'%1' is already preloaded."
 			"\n\nDo you want to reload the cube?")
-			.arg( ioobj->uiName() );
+			.arg( ioobj->name() );
 	if ( !uiMSG().askGoOn(msg) ) return;
 
 	PreLoader spl( key );

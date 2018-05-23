@@ -148,11 +148,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
 
     EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )
-    {
-	uiString msg = uiStrings::phrCannotRead( ioobj->uiName() );
-	uiMSG().error( msg );
-	return;
-    }
+	{ uiMSG().error( ioobj->phrCannotReadObj() ); return; }
 
     uiString errmsg;
     if ( !eminfo.getSurfaceData(sd_,errmsg) )

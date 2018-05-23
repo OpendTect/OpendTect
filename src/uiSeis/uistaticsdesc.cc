@@ -132,7 +132,7 @@ bool uiStaticsDesc::updateAndCommit( IOObj& ioobj, bool disperr )
     if ( !DBM().setEntry(ioobj) )
     {
 	if ( disperr )
-	    uiMSG().error(uiStrings::phrCannotWriteDBEntry(ioobj.uiName()));
+	    uiMSG().error( ioobj.phrCannotWriteToDB() );
 	return false;
     }
 

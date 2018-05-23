@@ -206,10 +206,7 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
 
 	ConstRefMan<EM::Object> emobj = mgr.fetch( horids[idx], trprov );
 	if ( !emobj )
-	{
-	    errms = tr("Cannot load %1.").arg(ioobj->uiName());
-	    return;
-	}
+	    { errms = ioobj->phrCannotLoadObj(); return; }
 
 	mDynamicCastGet(const EM::Horizon*,hor,emobj.ptr())
 	if ( !hor )

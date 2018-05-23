@@ -172,8 +172,7 @@ uiString uiDataTreeItem::createDisplayName() const
     uiString dispname = uiStrings::sRightClick();
     PtrMan<IOObj> ioobj = DBM().get( mid_ );
     if ( ioobj )
-	dispname = ioobj->uiName();
-
+	dispname = toUiString( ioobj->name() );
     return dispname;
 }
 

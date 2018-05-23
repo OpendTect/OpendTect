@@ -675,9 +675,9 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 
 	uiString title;
 	if ( is3d )
-	    getSeis3DTitle( bid, ioobj->uiName(), title );
+	    getSeis3DTitle( bid, ioobj->name(), title );
 	else
-	    getSeis2DTitle( trcnr, toUiString( name2d ), title );
+	    getSeis2DTitle( trcnr, name2d, title );
 	uiFlatViewMainWin* viewwin = create2DViewer( title, dpid );
 	if ( !viewwin )
 	    continue;
@@ -694,14 +694,14 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 }
 
 
-void uiViewer3DMgr::getSeis2DTitle( int tracenr, const uiString& nm,
+void uiViewer3DMgr::getSeis2DTitle( int tracenr, const char* nm,
 				    uiString& title )
 {
     title = tr("Gather from [%1] at trace %2").arg( nm ).arg( tracenr );
 }
 
 
-void uiViewer3DMgr::getSeis3DTitle( const BinID& bid, const uiString& name,
+void uiViewer3DMgr::getSeis3DTitle( const BinID& bid, const char* name,
 				    uiString& title )
 {
     title = tr("Gather from [%1] at %2" ).arg( name ).arg( bid.toString() );

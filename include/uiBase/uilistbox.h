@@ -142,6 +142,10 @@ public:
     void		addItem(const uiString&,bool marked=false,int id=-1);
     void		addItem(const uiString&,const uiPixmap&,int id=-1);
     void		addItem(const uiString&,const Color&,int id=-1);
+    void		addItem( const char* str, bool marked=false, int id=-1 )
+				{ addItem( toUiString(str), marked, id ); }
+    void		addItem( const OD::String& s, bool m=false, int id=-1 )
+				{ addItem( toUiString(s), m, id ); }
 
     void		addItems(const char**);
     void		addItems(const BufferStringSet&);

@@ -152,8 +152,8 @@ void uiMultiSurfaceRead::getSurfaceIds( DBKeySet& dbkys ) const
 	    if ( !info.ioObj() )
 		continue;
 
-	    errormsgstr += tr("%1 :  %2\n").arg(info.ioObj()->uiName())
-			.arg( errmsg );
+	    errormsgstr += toUiString("'%1': %2\n").arg(info.ioObj()->name())
+					.arg( errmsg );
 	}
 
     }

@@ -95,9 +95,9 @@ void uiSeisPreStackMan::ownSelChg()
     if ( is2d_ )
 	return;
 
-    uiString tt,cursel;
+    BufferString cursel;
     if ( curioobj_ )
-	cursel = curioobj_->uiName();
+	cursel = curioobj_->name();
 
     copybut_->setSensitive( curioobj_ );
     mergebut_->setSensitive( curioobj_ );

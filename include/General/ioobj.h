@@ -62,7 +62,7 @@ public:
     typedef DBKey::ObjNrType	ObjNrType;
     typedef DBKey::GroupID	DirID;
 
-    uiString			uiName() const { return toUiString(name()); }
+    // uiString			uiName() const { return toUiString(name()); }
 
     IOObj*			clone() const;
     virtual DBKey		key() const		{ return key_; }
@@ -128,7 +128,11 @@ public:
     static inline bool		isTmpObjNr( ObjNrType nr )
 				{ return nr >= tmpObjNrStart(); }
 
-    uiPhrase			phrCannotOpen() const;
+    uiPhrase			phrCannotOpenObj() const;
+    uiPhrase			phrCannotReadObj() const;
+    uiPhrase			phrCannotLoadObj() const;
+    uiPhrase			phrCannotWriteObj() const;
+    uiPhrase			phrCannotWriteToDB() const;
 
 protected:
 

@@ -158,11 +158,7 @@ void uiHorizonAttrib::horSel( CallBacker* )
 
     const EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )
-    {
-	uiString msg = uiStrings::phrCannotRead( ioobj->uiName() );
-	uiMSG().error( msg );
-	return;
-    }
+	{ uiMSG().error( ioobj->phrCannotReadObj() ); return; }
 
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );

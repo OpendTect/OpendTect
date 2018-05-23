@@ -94,7 +94,7 @@ bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ err = ioobj->phrCannotOpen(); return false; }
+	{ err = ioobj->phrCannotOpenObj(); return false; }
 
     err = toUiString(trnsltr->read( setup, *conn ));
     bool rv = err.isEmpty();

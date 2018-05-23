@@ -98,7 +98,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 	return false;
 
     uiString wintitl( toUiString("%1/%2").arg(horioobj.name()).
-		      arg(seisioobj.uiName()) );
+		      arg(seisioobj.name()) );
     uiDataPointSet::Setup su( wintitl, false );
     su.canaddrow( true );
     uiDataPointSet* uidps =

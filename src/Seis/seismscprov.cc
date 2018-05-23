@@ -602,7 +602,7 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 	new Seis::TrcDataLoader( *prov, *data_, tkzs_.hsamp_, is2d );
     const bool res = TaskRunner::execute( taskr, *loader );
     if ( !res )
-	mErrRet( uiStrings::phrCannotRead( ioobj_->uiName() ) )
+	mErrRet( ioobj_->phrCannotReadObj() )
 
     return true;
 }

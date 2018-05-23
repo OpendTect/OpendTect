@@ -188,7 +188,7 @@ void uiIOObjManipGroup::selChg()
     if ( !cond ) \
 	tt.setEmpty(); \
     else \
-	tt = toUiString("%1 '%2'").arg(oper).arg(curioobj->uiName()); \
+	tt = toUiString("%1 '%2'").arg(oper).arg(curioobj->name()); \
     tb->setToolTip( tt )
 
     mDynamicCastGet(IOStream*,curiostrm,curioobj)
@@ -294,7 +294,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* trans )
 {
     uiString titl = toUiString("%1 '%2'").arg(uiStrings::sRename())
-					       .arg(ioobj.uiName());
+					       .arg(ioobj.name());
     uiGenInputDlg dlg( this, titl, tr("New Name"),
 					    new StringInpSpec(ioobj.name()) );
     if ( !dlg.go() ) return false;
@@ -385,7 +385,7 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
 	uiString msg = tr("'%1'is not writable; the actual data "
 			  "will not be deleted.\nThe entry will only "
 			  "disappear from the list.\nContinue?")
-		     .arg(ioobj.uiName());
+		     .arg(ioobj.name());
 	if ( !uiMSG().askContinue(msg) )
 	    return false;
 	shldrm = false;
@@ -406,7 +406,7 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
 
     uiStringSet selnms;
     for (int idx = 0; idx<ioobjs.size(); idx++)
-	selnms += ioobjs[idx]->uiName();
+	selnms += toUiString(ioobjs[idx]->name());
 
     info.arg( selnms.createOptionString(true,10,true) );
     if ( !uiMSG().askRemove( info ) )
@@ -422,7 +422,7 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
 bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
 {
     mDynamicCastGet(IOStream&,iostrm,ioobj)
-    uiString caption = tr("New file location for '%1'").arg(ioobj.uiName());
+    uiString caption = tr("New file location for '%1'").arg(ioobj.name());
     BufferString oldfnm( iostrm.mainFileName() );
 
     uiFileSelector::Setup fssu( oldfnm );

@@ -92,10 +92,7 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 				  uiString& errmsg )
 {
     if ( !ioobj )
-    {
-	errmsg = uiStrings::phrCannotFindDBEntry( ioobj->uiName() );
-	return false;
-    }
+	{ errmsg = uiStrings::phrCannotFindObjInDB(); return false; }
 
     mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
 		 ioobj->createTranslator());
@@ -107,7 +104,7 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ errmsg = ioobj->phrCannotOpen(); return false; }
+	{ errmsg = ioobj->phrCannotOpenObj(); return false; }
 
     ChangeNotifyBlocker cnb( ps );
 
@@ -152,10 +149,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 {
     ConstRefMan<Pick::Set> psrefman( &ps ); // keep it alive
     if ( !ioobj )
-    {
-	errmsg = uiStrings::phrCannotFindDBEntry( ioobj->uiName() );
-	return false;
-    }
+	{ errmsg = uiStrings::phrCannotFindObjInDB(); return false; }
 
     mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
 		 ioobj->createTranslator());
@@ -167,7 +161,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	{ errmsg = ioobj->phrCannotOpen(); return false; }
+	{ errmsg = ioobj->phrCannotOpenObj(); return false; }
 
     errmsg = tr->write( ps, *conn );
     if ( !errmsg.isEmpty() )

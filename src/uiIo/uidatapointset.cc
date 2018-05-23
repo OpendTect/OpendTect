@@ -1361,7 +1361,7 @@ void uiDataPointSet::retrieve( CallBacker* )
 	{ uiMSG().error(tr("Data set is not suitable"));return; }
 
     usw.setMessage( uiStrings::sUpdatingDisplay() );
-    setCaption( seldlg.ioObj()->uiName() );
+    setCaption( toUiString(seldlg.ioObj()->name()) );
     removeSelPts( 0 );
     tbl_->clearTable();
     *dps_ = *newdps;
@@ -1485,7 +1485,7 @@ bool uiDataPointSet::doSave()
     {
 	unsavedchgs_ = false;
 	if ( uidpss.ctio_.ioobj_ && !uidpss.istab_ )
-	    setCaption( uidpss.ctio_.ioobj_->uiName() );
+	    setCaption( toUiString(uidpss.ctio_.ioobj_->name()) );
     }
 
     return ret;

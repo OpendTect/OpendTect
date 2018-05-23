@@ -179,8 +179,6 @@ public:
 		  cPrefMarkerStyleChange())
 
     virtual bool		isOK() const		{ return true; }
-
-    virtual uiString		uiName() const	{ return toUiString( name() ); }
     virtual void		setNameToJustCreated();
 
     virtual const Geometry::Element*	geometryElement() const;

@@ -100,12 +100,7 @@ bool uiStoredFunction::acceptOK()
     }
 
     if ( !source_->load( ioobj->key() ) )
-    {
-	uiString errmsg = tr("Cannot load %1")
-			.arg(ioobj->uiName());
-	uiMSG().error( errmsg );
-	return false;
-    }
+	{ uiMSG().error( ioobj->phrCannotLoadObj() ); return false; }
 
     return true;
 }

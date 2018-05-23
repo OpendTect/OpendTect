@@ -280,7 +280,7 @@ void uiSeisMultiCubePS::fillBox( uiListBox* lb )
 		= lb == cubefld_ ? entries_ : selentries_;
     lb->setEmpty();
     for ( int idx=0; idx<es.size(); idx++ )
-	lb->addItem( es[idx]->ioobj_->uiName() );
+	lb->addItem( es[idx]->ioobj_->name() );
 }
 
 

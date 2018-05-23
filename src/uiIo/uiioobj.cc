@@ -32,16 +32,16 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	    uiString mess;
 	    if ( !ioobj_.isSubdir() )
 	    {
-		mess = tr("Permanently Delete '%1'%2");
-		mess.arg( ioobj_.uiName() );
+		mess = tr("Permanently Delete '%1' %2");
+		mess.arg( ioobj_.name() );
 		mess.arg( isoutside ? tr("\nFile is not in current survey.\n"
 				     "Specify what you would like to delete")
-				    : tr(" from Database?") );
+				    : tr("from Database?") );
 	    }
 	    else
 	    {
-		mess = tr("Delete '%1' with folder\n'%2'%3");
-		mess.arg( ioobj_.uiName() );
+		mess = tr("Delete '%1' with folder\n'%2' %3");
+		mess.arg( ioobj_.name() );
 		mess.arg( ioobj_.mainFileName() );
 		mess.arg( tr("\n- and everything in it! - ?") );
 	    }

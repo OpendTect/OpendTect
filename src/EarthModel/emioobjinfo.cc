@@ -328,8 +328,7 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
     {
 	uiString msg( str->errMsg() );
 	if ( msg.isEmpty() )
-	    msg = uiStrings::phrCannotRead(
-				    ::toUiString("'%1'").arg(ioobj_->uiName()));
+	    msg = ioobj_->phrCannotOpenObj();
 	mErrRet( msg )
     }
 

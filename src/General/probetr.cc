@@ -46,7 +46,7 @@ Probe* ProbeTranslator::retrieve( const IOObj* ioobj, uiString& errmsg )
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	mErrRet( ioobj->phrCannotOpen() )
+	mErrRet( ioobj->phrCannotOpenObj() )
 
     Probe* probe = tr->read( *conn, errmsg );
     if ( !errmsg.isEmpty() )
@@ -71,7 +71,7 @@ bool ProbeTranslator::store( const Probe& probe, const IOObj* ioobj,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	mErrRet( ioobj->phrCannotOpen() )
+	mErrRet( ioobj->phrCannotOpenObj() )
 
     errmsg = tr->write( probe, *conn );
     if ( !errmsg.isEmpty() )
