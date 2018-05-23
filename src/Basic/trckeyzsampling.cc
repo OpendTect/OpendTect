@@ -13,10 +13,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "survinfo.h"
 #include "survgeom.h"
+#include "uistrings.h"
 
 #include <math.h>
 
 mStartAllowDeprecatedSection
+
+mDefineEnumUtils(TrcKeyZSampling,Dir,"Direction")
+{ "Inline","Crossline", "ZSlice", 0 };
+
+void EnumDefImpl<TrcKeyZSampling::Dir>::init()
+ {
+     uistrings_ += uiStrings::sInline();
+     uistrings_ += uiStrings::sCrossline();
+     uistrings_ += uiStrings::sZSlice();
+ }
 
 TrcKeySampling::TrcKeySampling()
     : start( start_ )
@@ -1093,7 +1104,9 @@ TrcKeyZSampling::TrcKeyZSampling( const TrcKeyZSampling& tkzs )
 
 TrcKeyZSampling::TrcKeyZSampling( bool settoSI )
     : hrg(hsamp_),zrg(zsamp_)
-{ init( settoSI ); }
+{
+    init( settoSI );
+}
 
 mStopAllowDeprecatedSection
 

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "trckeysampling.h"
+#include "enums.h"
 
 
 /*!
@@ -40,6 +41,7 @@ public:
 			TrcKeyZSampling(bool settoSI);
 
     enum Dir		{ Inl=0, Crl=1, Z=2 };
+			mDeclareEnumUtils(Dir);
     bool		is2D() const		{ return hsamp_.is2D(); }
     Dir			defaultDir() const;
 			//!< 'flattest' direction, i.e. direction with

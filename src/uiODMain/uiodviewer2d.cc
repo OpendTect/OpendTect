@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
+#include "uimsg.h"
 
 #include "emmanager.h"
 #include "emobject.h"
@@ -209,20 +210,17 @@ void uiODViewer2D::setUpAux()
 	    x1auxnm = intersection;
 	    x2auxnm = intersection;
 
-	    if ( tkzs_.defaultDir()==TrcKeyZSampling::Inl )
-	    {
-		x1auxnm.arg( uiStrings::sCrossline() );
-		x2auxnm.arg( uiStrings::sZSlice() );
-	    }
-	    else if ( tkzs_.defaultDir()==TrcKeyZSampling::Crl )
+	    if ( tkzs_.defaultDir()==TrcKeyZSampling::Z )
 	    {
 		x1auxnm.arg( uiStrings::sInline() );
-		x2auxnm.arg( uiStrings::sZSlice() );
+		x2auxnm.arg( uiStrings::sCrossline() );
 	    }
 	    else
 	    {
-		x1auxnm.arg( uiStrings::sInline() );
-		x2auxnm.arg( uiStrings::sCrossline() );;
+		uiString axisnm = tkzs_.defaultDir()==TrcKeyZSampling::Inl ?
+		    uiStrings::sCrossline() : uiStrings::sInline();
+		x1auxnm.arg( axisnm );
+		x2auxnm.arg( uiStrings::sZSlice() );
 	    }
 	}
     }
@@ -254,6 +252,21 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     if ( regfdp )
     {
 	const TrcKeyZSampling& cs = regfdp->sampling();
+	if ( tkzs_.isFlat() || !cs.includes(tkzs_) )
+	{
+	    int nrtrcs;
+	    if ( tkzs_.defaultDir()==TrcKeyZSampling::Inl )
+		nrtrcs = cs.hsamp_.nrTrcs();
+	    else
+		nrtrcs = cs.hsamp_.nrLines();
+	    //nrTrcs() or nrLines() return value 1 means start=stop
+	    if ( nrtrcs < 2 ) 
+	    {
+		uiMSG().error( tr("No data available for current %1 position")
+		    .arg(TrcKeyZSampling::toUiString(tkzs_.defaultDir())) );
+		return;
+	    }
+	}
 	if ( tkzs_ != cs ) { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
     }
 

@@ -141,6 +141,8 @@ protected:
     void		rdmLineDlgClosed(CallBacker*);
     void		inpSel(CallBacker*);
     void		attr2DSelected(CallBacker*);
+
+    void		getSelAttrSamp(TrcKeyZSampling&);
 };
 
 #endif

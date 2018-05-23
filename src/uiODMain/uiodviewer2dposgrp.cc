@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id: uiodviewer2dposgrp.cc 38687 2015-03-30
 #include "randomlinetr.h"
 #include "randomlinegeom.h"
 #include "zdomain.h"
+#include "hiddenparam.h"
 
 
 mDefineEnumUtils(Viewer2DPosDataSel,PosType,"Position Type")
@@ -188,22 +189,35 @@ bool uiODViewer2DPosGrp::is2D() const
 }
 
 
+void uiODViewer2DPosGrp::getSelAttrSamp( TrcKeyZSampling& seltkzs )
+{
+    uiAttrSel* attr = is2D() ? inp2dfld_ : inp3dfld_;
+    attr->getRanges( seltkzs );
+}
+
+
 void uiODViewer2DPosGrp::createSliceSel( uiSliceSel::Type dir )
 {
-    ZDomain::Info zinfo( ZDomain::SI() );
+
+    ZDomain::Info zinfo( SI().zDomain() );
     uiSliceSel* sliceselfld = new uiSliceSel( this, dir, zinfo );
     sliceselfld->attach( alignedBelow, inp3dfld_ );
     sliceselfld->enableScrollButton( false );
-    const TrcKeyZSampling& seltkzs = posdatasel_->tkzs_;
-    TrcKeyZSampling sliceseltkzs = posdatasel_->tkzs_;
+
+    TrcKeyZSampling seltkzs;
+    getSelAttrSamp( seltkzs );
+    TrcKeyZSampling sliceseltkzs;
+
     if( dir == uiSliceSel::Inl )
     {
-	sliceseltkzs.hsamp_.start_.inl() = seltkzs.hsamp_.lineRange().center();
+	sliceseltkzs.hsamp_.start_.inl() = seltkzs.hsamp_.lineRange()
+								    .center();
 	sliceseltkzs.hsamp_.stop_.inl() = sliceseltkzs.hsamp_.start_.inl();
     }
     else if ( dir == uiSliceSel::Crl )
     {
-	sliceseltkzs.hsamp_.start_.crl() = seltkzs.hsamp_.trcRange().center();
+	sliceseltkzs.hsamp_.start_.crl() = seltkzs.hsamp_.trcRange()
+								    .center();
 	sliceseltkzs.hsamp_.stop_.crl() = sliceseltkzs.hsamp_.start_.crl();
     }
     else
@@ -314,24 +328,25 @@ void uiODViewer2DPosGrp::updateDataSelFld()
 
 void uiODViewer2DPosGrp::updateTrcKeySampFld()
 {
-    const TrcKeyZSampling& tkzs = posdatasel_->tkzs_;
+    TrcKeyZSampling seltkzs;
+    getSelAttrSamp( seltkzs );
     switch ( posdatasel_->postype_ )
     {
 	case Viewer2DPosDataSel::Line2D :
 	{
 	    subsel2dfld_->setSelectedLine(
 		    Survey::GM().getName(posdatasel_->geomid_) );
-	    subsel2dfld_->uiSeisSubSel::setInput( tkzs.hsamp_ );
+	    subsel2dfld_->uiSeisSubSel::setInput( seltkzs.hsamp_ );
 	    break;
 	}
 	case Viewer2DPosDataSel::InLine:
-	    sliceselflds_[0]->setTrcKeyZSampling( tkzs );
+	    sliceselflds_[0]->setTrcKeyZSampling( seltkzs );
 	    break;
 	case Viewer2DPosDataSel::CrossLine:
-	    sliceselflds_[1]->setTrcKeyZSampling( tkzs );
+	    sliceselflds_[1]->setTrcKeyZSampling( seltkzs );
 	    break;
 	case Viewer2DPosDataSel::ZSlice:
-	    sliceselflds_[2]->setTrcKeyZSampling( tkzs );
+	    sliceselflds_[2]->setTrcKeyZSampling( seltkzs );
 	    break;
 	case Viewer2DPosDataSel::RdmLine:
 	    rdmlinefld_->setInput( posdatasel_->rdmlinemultiid_ );
@@ -390,7 +405,7 @@ void uiODViewer2DPosGrp::inpSel( CallBacker* )
 	Viewer2DPosDataSel::parseEnum( txtofinp, posdatasel_->postype_ );
     }
 
-    updatePosFlds();
+    updateFlds();
     inpSelected.trigger();
 }
 
