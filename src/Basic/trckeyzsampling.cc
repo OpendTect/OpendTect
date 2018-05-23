@@ -22,6 +22,7 @@ mStartAllowDeprecatedSection
 mDefineEnumUtils(TrcKeyZSampling,Dir,"Direction")
 { "Inline","Crossline", "ZSlice", 0 };
 
+template<>
 void EnumDefImpl<TrcKeyZSampling::Dir>::init()
  {
      uistrings_ += uiStrings::sInline();
