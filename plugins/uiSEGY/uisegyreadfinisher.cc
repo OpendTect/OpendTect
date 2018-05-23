@@ -633,7 +633,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 bool uiSEGYReadFinisher::doBatch( bool doimp )
 {
     const BufferString jobname( doimp ? "Import SEG-Y (" : "Scan SEG-Y (",
-				objname_, ")" );
+				outFld(doimp)->getInput(), ")" );
     batchfld_->setJobName( jobname );
     IOPar& jobpars = batchfld_->jobSpec().pars_;
     const bool isps = Seis::isPS( fs_.geomType() );
