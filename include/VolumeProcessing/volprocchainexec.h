@@ -118,6 +118,8 @@ private:
 				    const TypeSet<TrcKeySampling>& epochstks,
 				    const TypeSet<StepInterval<int> >&) const;
     void			adjustStepsNrComponents(bool is2d);
+    bool			needSplit(od_int64 usage,od_int64& freemem,
+					  int& nrchunks) const;
 
     Epoch*			curepoch_;
     bool			isok_;
