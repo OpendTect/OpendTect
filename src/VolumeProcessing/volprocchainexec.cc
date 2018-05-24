@@ -266,6 +266,48 @@ struct VolumeMemory
 
 } // namespace VolProc
 
+// From ValSeries:
+#if defined __lux32__
+#define mChunkSize	0x20000000
+#elif defined __win32__
+#define mChunkSize	0x20000000
+#else
+#define mChunkSize	0x800000000
+#endif
+
+
+bool VolProc::ChainExecutor::needSplit( od_int64 memusage,
+					od_int64& freemem, int& nrexecs ) const
+{
+    od_int64 totmem;
+    OD::getSystemMemory( totmem, freemem );
+    if ( memusage >= freemem )
+    {
+	nrexecs = freemem <= 0 ? 0
+			       : mNINT32( Math::Ceil( mCast(double,memusage) /
+					  mCast(double,freemem) ) );
+	return true;
+    }
+
+    //Ensure all datapack arrays have contiguous memory
+    for ( int idx=0; idx<tkzss_.size(); idx++ )
+    {
+	const od_int64 nrsamples = tkzss_.get(idx)->totalNr() * sizeof(float);
+	if ( nrsamples < mChunkSize )
+	    continue;
+
+	nrexecs = mNINT32( Math::Ceil(	mCast(double,nrsamples) /
+					mCast(double,mChunkSize) ) );
+	return true;
+    }
+
+    nrexecs = 1;
+
+    return false;
+}
+
+#undef mChunkSize
+
 
 int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
 				      const ZSampling& zsamp,
@@ -274,15 +316,13 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
     memusage = calculateMaximumMemoryUsage( tks, zsamp );
     const od_int64 nrbytes = mCast( od_int64, 1.01f * memusage );
     const bool cansplit = areSamplesIndependent() && !needsFullVolume();
-    od_int64 totmem, freemem; OD::getSystemMemory( totmem, freemem );
-    const bool needsplit = freemem >= 0 && nrbytes > freemem;
-    if ( needsplit && !cansplit )
+    od_int64 freemem; int nrexecs;
+    const bool needsplit = needSplit( nrbytes, freemem, nrexecs );
+    if ( (needsplit && !cansplit) || freemem <=0 )
 	return 0;
     else if ( !needsplit )
 	return 1;
 
-    int nrexecs = mNINT32( Math::Ceil( mCast(double,nrbytes) /
-				       mCast(double,freemem) ) );
     int halfnrlinesperchunk = mNINT32( Math::Ceil( mCast(double,tks.nrLines()) /
 						mCast(double,2 * nrexecs) ) );
     while ( halfnrlinesperchunk > 0 )

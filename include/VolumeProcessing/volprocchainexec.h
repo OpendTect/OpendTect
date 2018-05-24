@@ -89,6 +89,9 @@ private:
 							const TrcKeySampling&,
 							const ZSampling&);
     void			adjustStepsNrComponents(Pos::GeomID) const;
+    bool			needSplit(od_int64 usage,od_int64& freemem,
+					  int& nrchunks) const;
+
     void			releaseMemory();
     int				calculateLatestEpoch(Step::ID) const;
     bool			getCalculationScope(Step::ID stepid,
