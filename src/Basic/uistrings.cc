@@ -24,15 +24,6 @@ uiPhrase uiStrings::phrAdd( const uiWord& string )
 uiPhrase uiStrings::phrAllocating( od_int64 sz )
 { return tr("Allocating memory: %1").arg( sMemSizeString(sz) ); }
 
-uiPhrase uiStrings::phrASCII( const uiWord& string )
-{ return tr("ASCII %1").arg( string ); }
-
-uiPhrase uiStrings::phrBatchProgramFailedStart()
-{ return tr("Batch Program failed to start"); }
-
-uiPhrase uiStrings::phrInterpretDataAlreadyLoadedAskForRename()
-{ return tr("Interpretation data is already loaded. Enter a different name"); }
-
 uiPhrase uiStrings::phrCalculate( const uiWord& string )
 { return tr("Calculate %1").arg( string ); }
 
@@ -74,31 +65,28 @@ uiPhrase uiStrings::phrCannotExtract( const uiWord& string )
 
 uiPhrase uiStrings::phrCannotFind( const uiWord& string )
 { return tr("Cannot find %1").arg( string ); }
-
 uiPhrase uiStrings::phrCannotFind( const char* str )
 { return phrCannotFind( toUiString(str).quote(true) ); }
-
-uiPhrase uiStrings::phrCannotFindDBEntry( const uiWord& string )
-{ return phrCannotFind( tr("database entry for %1").arg( string ) ); }
+uiPhrase uiStrings::phrCannotFindDBEntry( const uiString& what )
+{ return phrCannotFind( toUiString("%1 (%2)").arg(sDBEntry()).arg(what) ); }
+uiPhrase uiStrings::phrCannotFindDBEntry( const DBKey& dbky )
+{ return phrCannotFind( toUiString("%1 <%2>").arg(sDBEntry()).arg(dbky) ); }
 
 uiPhrase uiStrings::phrCannotImport( const uiWord& string )
 { return tr("Cannot import %1").arg( string ); }
 
 uiPhrase uiStrings::phrCannotLoad( const uiWord& string )
 { return tr("Cannot load %1").arg( string ); }
-
 uiPhrase uiStrings::phrCannotLoad( const char* nm )
 { return phrCannotLoad( toUiString(nm).quote(true) ); }
 
 uiPhrase uiStrings::phrCannotOpen( const uiWord& string )
 { return tr("Cannot open %1").arg( string ); }
-
 uiPhrase uiStrings::phrCannotOpen( const char* fnm, bool forread )
 {
     return forread ? phrCannotOpen( toUiString(fnm).quote(true) )
 		   : phrCannotCreate( toUiString(fnm).quote(true) );
 }
-
 uiPhrase uiStrings::phrCannotOpenForRead( const char* fnm )
 { return phrCannotOpen( fnm, true ); }
 uiPhrase uiStrings::phrCannotOpenForWrite( const char* fnm )
@@ -130,9 +118,8 @@ uiPhrase uiStrings::phrCannotWrite( const uiWord& string )
 { return tr("Cannot write %1").arg( string ); }
 uiPhrase uiStrings::phrCannotWrite( const char* fnm )
 { return phrCannotWrite( toUiString(fnm).quote(true) ); }
-
 uiPhrase uiStrings::phrCannotWriteDBEntry( const uiWord& string )
-{ return phrCannotWrite( tr("database entry for %1").arg( string ) ); }
+{ return phrCannotWrite( string ); }
 
 uiPhrase uiStrings::phrCannotZip( const uiWord& string )
 { return tr("Cannot zip %1").arg( string ); }
@@ -238,13 +225,6 @@ uiPhrase uiStrings::phrInternalErr( const char* string )
 { return tr("Internal Error (pease contact support@dgbes.com):\n%1")
 	 .arg( string ); }
 
-uiPhrase uiStrings::phrJoinStrings( const char* a, const char* b )
-{ return mJoinStr.arg( a ).arg( b ); }
-
-uiPhrase uiStrings::phrJoinStrings( const char* a, const char* b,
-				    const char* c )
-{ return toUiString("%1 %2 %3").arg( a ).arg( b ).arg( c ); }
-
 uiPhrase uiStrings::phrLoad( const uiWord& string )
 { return mJoinStr.arg( sLoad() ).arg( string ); }
 
@@ -279,11 +259,6 @@ uiPhrase uiStrings::phrOpen( const uiWord& string )
 
 uiPhrase uiStrings::phrOutput( const uiWord& string )
 { return mJoinStr.arg( sOutput() ).arg( string ); }
-
-uiPhrase uiStrings::phrInterpretationDataExist( uiWord type, const char* nm)
-{
-    return tr("A %1 with name '%2' already exists").arg( type ).arg( nm );
-}
 
 uiWord uiStrings::phrOutputFileExistsOverwrite()
 { return phrExistsContinue( sOutputFile(), true ); }

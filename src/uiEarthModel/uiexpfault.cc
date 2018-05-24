@@ -132,8 +132,8 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     }
 
     uiFileSel::Setup fssu; fssu.setForWrite();
-    outfld_ = new uiFileSel( this, uiStrings::phrOutput(uiStrings::phrASCII(
-			       uiStrings::sFile())), fssu );
+    outfld_ = new uiFileSel( this,
+		    uiStrings::phrOutput(uiStrings::sASCIIFile()), fssu );
     if ( linenmfld_ )
 	outfld_->attach( alignedBelow, linenmfld_ );
     else

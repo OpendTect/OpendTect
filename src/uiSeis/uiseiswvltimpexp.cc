@@ -39,9 +39,8 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::phrASCII(
-		      uiStrings::sFile())), uiFileSel::Setup()
-		      .withexamine(true).examstyle(File::Table) );
+    inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::sASCIIFile()),
+		uiFileSel::Setup().withexamine(true).examstyle(File::Table) );
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );
 

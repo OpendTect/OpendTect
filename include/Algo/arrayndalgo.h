@@ -78,7 +78,7 @@ public:
 		    , setup_(setup)
 		{}
 
-    uiString	nrDoneText() const	{ return ParallelTask::sPosFinished(); }
+    uiString	nrDoneText() const	{ return sPositionsDone(); }
     uiString	message() const	{ return tr("Cumulative sum executor");}
 
     void	setYVals( const ArrayND<ArrType>& yvals ) { yarr_ = &yvals; }
@@ -274,7 +274,7 @@ public:
 		    , setup_(setup)
 		{}
 
-    uiString	nrDoneText() const	{ return ParallelTask::sPosFinished(); }
+    uiString	nrDoneText() const	{ return sPositionsDone(); }
     uiString	message() const	{ return tr("Cumulative sum executor");}
 
     void	setYVals( const ArrayND<ArrType>& yvals ) { yarr_ = &yvals; }
@@ -1434,7 +1434,7 @@ public:
 
     uiString	message() const	{ return msg_; }
 
-    uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	nrDoneText() const	{ return sTracesDone(); }
 
 protected:
 
@@ -1747,7 +1747,7 @@ public:
 		    return tr("Replacing undefined values");
 		}
 
-    uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	nrDoneText() const		{ return sTracesDone(); }
 
     void	setReplacementValue( T val )	{ replval_ = val; }
 
@@ -1890,7 +1890,7 @@ public:
 
     uiString	message() const { return tr("Replacing undefined values"); }
 
-    uiString	nrDoneText() const	{ return ParallelTask::sPosFinished(); }
+    uiString	nrDoneText() const	{ return sPositionsDone(); }
 
 protected:
 
@@ -1950,7 +1950,7 @@ public:
 
     uiString	message() const { return tr("Restoring undefined values"); }
 
-    uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	nrDoneText() const	{ return sTracesDone(); }
 
 protected:
 
@@ -2046,7 +2046,7 @@ public:
 		    return tr("Extracting mute positions");
 		}
 
-    uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	nrDoneText() const	{ return sTracesDone(); }
 
     void	setSampling( const TrcKeySampling& tks,
 			     const PosInfo::CubeData* trcssampling )

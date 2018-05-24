@@ -13,28 +13,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "fixedstring.h"
 #include "uistring.h"
-
-//! Use if you do not know exactly how many, but still it's more than 1
-#define mPlural 2
-//! Adds '...' to string, usable for menu items
-#define m3Dots( txt ) \
-    uiStrings::phrThreeDots( txt, false )
-//! Incorrect, need replace. use uiString::appendXXX() and tool functions
-#define mJoinUiStrs( txt1, txt2 )\
-    uiStrings::phrJoinStrings( uiStrings::txt1, uiStrings::txt2 )
-//! Shortcut handy macro for during development
-#define mTODONotImplPhrase() \
-    uiStrings::phrTODONotImpl( ::className(*this) )
-//! Puts untranslated internal in pErrMsg and in uiRetVal and returns that
-#define mPutInternalInUiRv( uirv, msg, act ) \
-{ \
-    pErrMsg( msg ); \
-    uirv.add( uiStrings::phrInternalErr(msg) ); \
-    act; \
-}
-//! As mPutInternalInUiRv but also returns the uiRetVal
-#define mRetInternalInUiRv( uirv, msg ) \
-    mPutInternalInUiRv( uirv, msg, return uirv )
+class DBKey;
 
 
 /*!\brief Phrases and words that can (and should!) be re-used when possible.
@@ -48,9 +27,10 @@ ________________________________________________________________________
   * toUpper() and toLower()
   * parenthesize(), embed(), optional(), quote(), ...
 
-  Do not construct your own phrases by combining various words. Langauages have
+  Do not construct your own phrases by combining various words. Languages have
   different order, different translations for word combinations, and many more
-  traps.
+  traps. The result will in general be ranging from incorrect to
+  incomprehensible and usually hilarious.
 
 */
 
@@ -63,8 +43,6 @@ public:
 
     static uiPhrase phrAdd(const uiWord&);
     static uiPhrase phrAllocating(od_int64);
-    static uiPhrase phrASCII(const uiWord&);
-    static uiPhrase phrBatchProgramFailedStart();
     static uiPhrase phrCalculate(const uiWord&);
     static uiPhrase phrCalculateFrom(const uiWord&);
     static uiPhrase phrCannotAdd(const uiWord&);
@@ -78,7 +56,8 @@ public:
     static uiPhrase phrCannotExtract(const uiWord&);
     static uiPhrase phrCannotFind(const uiWord&);
     static uiPhrase phrCannotFind(const char*);
-    static uiPhrase phrCannotFindDBEntry(const uiWord&);
+    static uiPhrase phrCannotFindDBEntry(const uiString&);
+    static uiPhrase phrCannotFindDBEntry(const DBKey&);
     static uiPhrase phrCannotImport(const uiWord&);
     static uiPhrase phrCannotLoad(const uiWord&);
     static uiPhrase phrCannotLoad(const char*);
@@ -137,12 +116,7 @@ public:
     static uiPhrase phrParamMissing(const char* paramname);
     static uiPhrase phrInsert(const uiWord&);
     static uiPhrase phrInternalErr(const char*); // will add 'contact support'
-    static uiPhrase phrInterpretationDataExist(uiWord type,const char* nm);
-    static uiPhrase phrInterpretDataAlreadyLoadedAskForRename();
     static uiPhrase phrInvalid(const uiWord& string);
-    static uiPhrase phrJoinStrings(const char*,const char*);
-    static uiPhrase phrJoinStrings(const char*,const char*,
-				   const char*);
     static uiPhrase phrLoad(const uiWord&);
     static uiPhrase phrLoading(const uiWord&);
     static uiPhrase phrManage(const uiWord&);
@@ -251,6 +225,7 @@ public:
     static uiWord sArrow()		{ return tr("Arrow","Shape"); }
     static uiWord sArea()		{ return tr("Area"); }
     static uiWord sASCII()		{ return tr("ASCII"); }
+    static uiWord sASCIIFile()		{ return tr("ASCII File"); }
     static uiWord sAt()			{ return tr("at"); }
     static uiWord sAttribName()		{ return tr("Attribute Name"); }
     static uiWord sAttribute(int n=1)	{ return tr("Attribute",0,n); }
@@ -336,6 +311,7 @@ public:
     static uiWord sDataStore(int n=1)	{ return tr("Data Store",0,n); }
     static uiWord sDataSet()		{ return tr("Data Set"); }
     static uiWord sDataRange()		{ return tr("Data Range"); }
+    static uiWord sDBEntry()		{ return tr("DataBase Entry"); }
     static uiWord sDecimal()		{ return tr("Decimal"); }
     static uiWord sDeg()		{ return tr("deg","unit for angles"); }
     static uiWord sDegree(int num=1)	{ return tr("Degree",0,num); }
@@ -404,7 +380,7 @@ public:
     static uiWord sFileName(int n=1)	{ return tr("File Name",0,n); }
     static uiWord sFilter(int n=1)	{ return tr("Filter",0,n); }
     static uiWord sFiltering()		{ return tr("Filtering"); }
-    static uiWord sFilters()		{ return sFilter(mPlural); }
+    static uiWord sFilters()		{ return sFilter( 10 ); }
     static uiWord sFinish()		{ return tr("Finish"); }
     static uiWord sFinished()		{ return tr("Finished"); }
     static uiWord sFixed()		{ return tr("Fixed"); }
@@ -505,7 +481,7 @@ public:
     static uiWord sLocked()		{ return tr("Locked"); }
     static uiWord sLog(int n=1)		{ return tr("Log",0,n); }
     static uiWord sLogFile()		{ return tr("Log File"); }
-    static uiWord sLogs()		{ return sLog(mPlural); }
+    static uiWord sLogs()		{ return sLog( 10 ); }
     static uiWord sLongitude( bool abbr )
     { return abbr ? tr("Long","not Lat") : tr("Longitude"); }
     static uiWord sLooknFeel()		{ return tr("Look and Feel"); }
@@ -568,7 +544,7 @@ public:
     static uiWord sOpendTect()		{ return tr("OpendTect"); }
     static uiWord sOperator()		{ return tr("Operator"); }
     static uiWord sOption(int n=1)	{ return tr("Option",0,n); }
-    static uiWord sOptions()		{ return sOption(mPlural); }
+    static uiWord sOptions()		{ return sOption( 10 ); }
     static uiWord sOptional()		{ return tr("Optional"); }
     static uiWord sOr()			{ return tr("or"); }
     static uiWord sOrientation()	{ return tr("Orientation"); }
@@ -633,7 +609,7 @@ public:
     static uiWord sProgram()		{ return tr("Program"); }
     static uiWord sProgress()		{ return tr("Progress"); }
     static uiWord sProject()		{ return tr("Project"); }
-    static uiWord sProperties()		{ return sProperty(mPlural); }
+    static uiWord sProperties()		{ return sProperty( 10 ); }
     static uiWord sProperty(int n=1)	{ return tr("Property",0,n); }
     static uiWord sRadian(int num=1)	{ return tr("Radian",0,num); }
     static uiWord sRandius()		{ return tr("Randius"); }
@@ -679,7 +655,7 @@ public:
     static uiWord sScaling()		{ return tr("Scaling"); }
     static uiWord sScanning()		{ return tr("Scanning"); }
     static uiWord sScene(int n=1)	{ return tr("Scene",0,n); }
-    static uiWord sScenes()		{ return sScene(mPlural); }
+    static uiWord sScenes()		{ return sScene( 10 ); }
     static uiWord sSceneWithNr(int nr)	{ return sScene().withNumber(nr); }
     static uiWord sSchedule()		{ return tr("Schedule"); }
     static uiWord sScore()		{ return tr("Score"); }
@@ -694,7 +670,7 @@ public:
     static uiWord sSegment()		{ return tr("Segment"); }
     static uiWord sSegmentation()	{ return tr("Segmentation"); }
     static uiWord sSeismic(int n=1)	{ return tr("Seismic",0,n); }
-    static uiWord sSeismics()		{ return sSeismic(mPlural); }
+    static uiWord sSeismics()		{ return sSeismic( 10 ); }
     static uiWord sSeismicData()	{ return tr("Seismic Data"); }
     static uiWord sSelAttrib()		{ return tr("Select Attribute"); }
     static uiWord sSelOutpFile();
@@ -743,7 +719,7 @@ public:
     static uiWord sSteeringCube(int n=1){ return tr("Steering Cube",0,n); }
     static uiWord sStep(int n=1)	{ return tr("Step",0,n); }
     static uiWord sStepout()		{ return tr("Stepout"); }
-    static uiWord sSteps()		{ return sStep(mPlural); }
+    static uiWord sSteps()		{ return sStep( 10 ); }
     static uiWord sStick(int n=1)	{ return tr("Stick",0,n); }
     static uiWord sStickIndex(int n=1)	{ return tr("Stick Index",0,n); }
     static uiWord sStop()		{ return tr("Stop"); }
@@ -757,9 +733,9 @@ public:
     static uiWord sSum()		{ return tr("Sum"); }
     static uiWord sSurface(int n=1)	{ return tr("Surface",0,n); }
     static uiWord sSurvey(int n=1)	{ return tr("Survey",0,n); }
-    static uiWord sSurveys()		{ return sSurvey(mPlural); }
+    static uiWord sSurveys()		{ return sSurvey( 10 ); }
     static uiWord sSynthetic(int n=1)	{ return tr("Synthetic",0,n); }
-    static uiWord sSynthetics()		{ return sSynthetic(mPlural); }
+    static uiWord sSynthetics()		{ return sSynthetic( 10 ); }
     static uiWord sTable(int n=1)	{ return tr("Table",0,n); }
     static uiWord sTaper()		{ return tr("Taper"); }
     static uiWord sTask()		{ return tr("Task"); }
@@ -851,7 +827,7 @@ public:
     static uiWord sWellName()		{ return tr("Well Name"); }
     static uiWord sWellTrack(int n=1)	{ return tr("Well Track",0,n); }
     static uiWord sWellMarker(int n=1)	{ return tr("Well Marker",0,n); }
-    static uiWord sWells()		{ return sWell(mPlural); }
+    static uiWord sWells()		{ return sWell( 10 ); }
     static uiWord sWest( bool abbr )
     { return abbr ? tr("W","abbr West") : tr("West"); }
     static uiWord sWidth()		{ return tr("Width"); }
@@ -881,3 +857,27 @@ public:
     static uiWord sZValue(int n=1)	{ return tr("Z value",0,n); }
 
 };
+
+
+//! Use if you do not know exactly how many, but still it's more than 1
+#define mPlural 10
+
+//! Adds '...' to string, usable for menu items
+#define m3Dots( txt ) \
+    uiStrings::phrThreeDots( txt, false )
+
+//! Shortcut handy macro for during development
+#define mTODONotImplPhrase() \
+    uiStrings::phrTODONotImpl( ::className(*this) )
+
+//! Puts untranslated internal in pErrMsg and in uiRetVal and returns that
+#define mPutInternalInUiRv( uirv, msg, act ) \
+{ \
+    pErrMsg( msg ); \
+    uirv.add( uiStrings::phrInternalErr(msg) ); \
+    act; \
+}
+
+//! As mPutInternalInUiRv but also returns the uiRetVal
+#define mRetInternalInUiRv( uirv, msg ) \
+    mPutInternalInUiRv( uirv, msg, return uirv )

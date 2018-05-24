@@ -62,8 +62,7 @@ public:
 						const TrcKeySampling&);
 
     uiString			message() const { return msg_; }
-    uiString			nrDoneText() const
-				{ return ParallelTask::sTrcFinished(); }
+    uiString			nrDoneText() const { return sTracesDone(); }
 
 protected:
 

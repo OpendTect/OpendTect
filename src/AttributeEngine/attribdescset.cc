@@ -1023,7 +1023,7 @@ uiRetVal DescSet::store( const DBKey& dbky ) const
     PtrMan<IOObj> ioobj = DBM().get( dbky );
     uiRetVal uirv;
     if ( !ioobj )
-	uirv.add( uiStrings::phrCannotFindDBEntry(dbky_.toUiString()) );
+	uirv.add( uiStrings::phrCannotFindDBEntry(dbky_) );
     else
     {
 	DescSet stords( *this );
@@ -1040,7 +1040,7 @@ uiRetVal DescSet::load( const DBKey& dbky, uiRetVal* warns )
 {
     PtrMan<IOObj> ioobj = DBM().get( dbky );
     if ( !ioobj )
-	return uiRetVal( uiStrings::phrCannotFindDBEntry(dbky.toUiString()) );
+	return uiRetVal( uiStrings::phrCannotFindDBEntry(dbky) );
 
     DescSet loadset( is2D() );
     uiRetVal uirv = AttribDescSetTranslator::retrieve( loadset, ioobj, warns );

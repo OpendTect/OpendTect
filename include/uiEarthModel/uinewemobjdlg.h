@@ -43,6 +43,10 @@ protected:
     uiColorInput*	colorselfld_;
 
     RefMan<EM::Object>	emobj_;
+
+    static uiPhrase	phrAlreadyLoadedAskForRename();
+    static uiPhrase	phrInterpretationDataExist(const uiWord&,const char*);
+
 };
 
 

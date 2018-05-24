@@ -274,7 +274,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zrangefld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     setDefaultRange( zinft );
 
-    typefld_ = new uiGenInput( this, uiStrings::phrASCII( uiStrings::sFile()),
+    typefld_ = new uiGenInput( this, uiStrings::sASCIIFile(),
 			      StringListInpSpec(exptypes) );
     typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld_->attach( alignedBelow, zrangefld_ );

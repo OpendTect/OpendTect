@@ -91,8 +91,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     fssu.withexamine( true ).initialselectiondir( sImportFromPath );
     fssu.formats_.addFormat( File::Format(tr("Text file"),"txt","dat") );
     fssu.formats_.addFormat( File::Format(tr("Position file"),"xy","ic","ix") );
-    inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::phrASCII(
-		  uiStrings::sFile())), fssu );
+    inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::sASCIIFile()),
+			     fssu );
     inpfld_->newSelection.notify( mCB(this,uiImportHorizon,inputChgd) );
 
     OD::ChoiceMode mode =

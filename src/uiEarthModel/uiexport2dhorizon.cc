@@ -163,7 +163,7 @@ bool uiExport2DHorizon::doExport()
 	{
 	    PtrMan<IOObj> ioobj = DBM().get( horid );
 	    if ( !ioobj )
-		mErrRet(uiStrings::phrCannotFindDBEntry( uiString::empty() ));
+		mErrRet(uiStrings::phrCannotFindDBEntry( horid ));
 
 	    EM::SurfaceIOData emdata; EM::IOObjInfo oi( *ioobj );
 	    uiString errmsg;

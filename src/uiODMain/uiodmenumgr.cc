@@ -571,8 +571,8 @@ void uiODMenuMgr::fillWellImpSubMenu( uiMenu* mnu )
     addAction( ascmnu, tr("Multiple Depth-Time Models"), multic,
 					mImpBulkWellD2TItm );
 
-    ascmnu = addSubMenu( implogsmnu_, uiStrings::phrASCII(toUiString("(LAS)")),
-			    ascic );
+    ascmnu = addSubMenu( implogsmnu_, toUiString("%1 (LAS)")
+			    .arg(uiStrings::sASCII()), ascic );
     addAction( ascmnu, singstr, singic, mImpWellAsciiLogsMnuItm );
     addAction( ascmnu, multstr, multic, mImpBulkWellLogsItm );
 

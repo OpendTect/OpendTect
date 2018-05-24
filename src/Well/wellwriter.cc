@@ -40,8 +40,7 @@ Well::Writer::Writer( const DBKey& ky, const Well::Data& wd )
 {
     IOObj* ioobj = DBM().get( ky );
     if ( !ioobj )
-	errmsg_.appendPhrase(uiStrings::phrCannotFindDBEntry(
-				tr("for well ID %1 in data store").arg(ky)));
+	errmsg_.appendPhrase( uiStrings::phrCannotFindDBEntry(ky) );
     else
     {
 	init( *ioobj, wd );

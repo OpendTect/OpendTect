@@ -50,7 +50,7 @@ bool uiBatchProcDlg::acceptOK()
 	return false;
 
     if ( !batchjobfld_->start() )
-	uiMSG().error( uiStrings::phrBatchProgramFailedStart() );
+	uiMSG().error( tr("Could not start batch program") );
 
     return false;
 }

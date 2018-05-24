@@ -16,6 +16,7 @@
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seisprovider.h"
+#include "seispreload.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "survgeom2d.h"
@@ -454,7 +455,7 @@ uiString nrDoneText() const
 { return uiStrings::sPositionsDone(); }
 
 uiString message() const
-{ return errmsg_.isEmpty() ? tr("Reading Steering traces") : errmsg_; }
+{ return errmsg_.isEmpty() ? tr("Reading traces") : errmsg_; }
 
 int nextStep()
 {
@@ -573,6 +574,12 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 {
     if ( !ioobj_ )
 	mErrRet( uiStrings::phrCannotFindDBEntry( uiStrings::sInput() ) );
+
+    if ( Seis::PLDM().isPresent(ioobj_->key()) )
+    {
+	//TODO get datapack and see whether (a superset of) cs is already there
+	// if so, find a way to use the DataPack directly
+    }
 
     uiRetVal uirv;
     Seis::Provider* prov = Seis::Provider::create( ioobj_->key(), &uirv );

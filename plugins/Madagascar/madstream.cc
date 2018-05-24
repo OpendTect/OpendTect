@@ -202,7 +202,7 @@ void MadStream::initRead( IOPar* par )
 
     PtrMan<IOObj> ioobj = DBM().get( inpid );
     if ( !ioobj )
-	mErrRet(uiStrings::phrCannotFindDBEntry(Seis::dataName(gt)));
+	mErrRet( uiStrings::phrCannotFindDBEntry(inpid) );
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
     Seis::SelData* seldata = Seis::SelData::get( *subpar );
@@ -245,7 +245,8 @@ void MadStream::initWrite( IOPar* par )
 	mErrRet(uiStrings::phrCannotRead( tr("paramter file")) );
 
     PtrMan<IOObj> ioobj = DBM().get( outpid );
-    if (!ioobj) mErrRet( uiStrings::phrCannotFindDBEntry(toUiString(outpid)) );
+    if ( !ioobj )
+	mErrRet( uiStrings::phrCannotFindDBEntry(outpid) );
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
     Seis::SelData* seldata = subpar ? Seis::SelData::get(*subpar) : 0;

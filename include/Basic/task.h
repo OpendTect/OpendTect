@@ -51,6 +51,8 @@ public:
 
     static uiString	stdMessage()		{ return tr("Working");}
     static uiString	stdNrDoneText()		{ return tr("Nr Done");}
+    static uiString	sPositionsDone()	{ return tr("Positions done"); }
+    static uiString	sTracesDone()		{ return tr("Traces done"); }
 
 protected:
 

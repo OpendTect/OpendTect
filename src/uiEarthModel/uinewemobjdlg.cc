@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistrings.h"
 
+
 mImplClassFactory( uiNewEMObjectDlg, factory )
 
 uiNewEMObjectDlg::uiNewEMObjectDlg( uiParent* p, const uiString& typ )
@@ -29,12 +30,23 @@ uiNewEMObjectDlg::uiNewEMObjectDlg( uiParent* p, const uiString& typ )
     , emobj_(0)
 
 {
-    nmfld_ = new uiGenInput( this,
-		tr("Name for new %1").arg(typ) );
+    nmfld_ = new uiGenInput( this, tr("Name for new %1").arg(typ) );
     colorselfld_ = new uiColorInput( this,
-				    uiColorInput::Setup(getRandomColor())
-				    .lbltxt(uiStrings::sColor()) );
+	    uiColorInput::Setup(getRandomColor()).lbltxt(uiStrings::sColor()) );
     colorselfld_->attach( alignedBelow, nmfld_ );
+}
+
+
+uiPhrase uiNewEMObjectDlg::phrAlreadyLoadedAskForRename()
+{
+    return tr("Interpretation data is already loaded. Enter a different name" );
+}
+
+
+uiPhrase uiNewEMObjectDlg::phrInterpretationDataExist( const uiWord& typ,
+						       const char* nm )
+{
+    return tr("A %1 with name '%2' already exists").arg( typ ).arg( nm );
 }
 
 
@@ -54,14 +66,10 @@ RefMan<EM::Object> uiNewFSSDlg::getNewEMObject() const
     else
     {
 	const DBKey emid = EM::FSSMan().getIDByName( nm );
-	uiString msg = uiStrings::phrInterpretationDataExist(
-					uiStrings::sFaultStickSet(), nm);
+	uiString msg = phrInterpretationDataExist( uiStrings::sFaultStickSet(),
+						    nm);
 	if ( EM::FSSMan().isLoaded(emid) )
-	{
-	    msg.appendPhrase( 
-		    uiStrings::phrInterpretDataAlreadyLoadedAskForRename() );
-	    return fssret;
-	}
+	    { msg.appendPhrase(phrAlreadyLoadedAskForRename()); return fssret; }
 	msg.appendPhrase( uiStrings::phrOutputFileExistsOverwrite() );
 	if ( !uiMSG().askGoOn( msg ) )
 	    return fssret;
@@ -120,14 +128,9 @@ RefMan<EM::Object> uiNewFlt3DDlg::getNewEMObject() const
     else
     {
 	const DBKey emid = EM::Flt3DMan().getIDByName( nm );
-	uiString msg = uiStrings::phrInterpretationDataExist(
-						    uiStrings::sFault(), nm);
+	uiString msg = phrInterpretationDataExist( uiStrings::sFault(), nm);
 	if ( EM::Flt3DMan().isLoaded(emid) )
-	{
-	    msg.appendPhrase( 
-		    uiStrings::phrInterpretDataAlreadyLoadedAskForRename() );
-	    return flt3d;
-	}
+	    { msg.appendPhrase(phrAlreadyLoadedAskForRename()); return flt3d; }
 	msg.appendPhrase( uiStrings::phrOutputFileExistsOverwrite() );
 	if ( !uiMSG().askGoOn( msg ) )
 	    return flt3d;
@@ -177,14 +180,9 @@ RefMan<EM::Object> uiNewHorizon3DDlg::getNewEMObject() const
     else
     {
 	const DBKey emid = EM::Hor3DMan().getIDByName( nm );
-	uiString msg = uiStrings::phrInterpretationDataExist(
-						  uiStrings::sHorizon(), nm);
+	uiString msg = phrInterpretationDataExist( uiStrings::sHorizon(), nm );
 	if ( EM::Hor3DMan().isLoaded(emid) )
-	{
-	    msg.appendPhrase( 
-		    uiStrings::phrInterpretDataAlreadyLoadedAskForRename() );
-	    return horret;
-	}
+	    { msg.appendPhrase(phrAlreadyLoadedAskForRename()); return horret; }
 	msg.appendPhrase( uiStrings::phrOutputFileExistsOverwrite() );
 	if ( !uiMSG().askGoOn( msg ) )
 	    return horret;

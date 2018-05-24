@@ -572,7 +572,7 @@ void PSAttrib::prepPriorToBoundsCalc()
     {
 	psioobj_ = DBM().get( psid_ );
 	if ( !psioobj_ && isondisc )
-	    mErrRet( uiStrings::phrCannotFindDBEntry( ::toUiString(psid_)) )
+	    mErrRet( uiStrings::phrCannotFindDBEntry(psid_) )
 
 	if ( is2D() )
 	    psrdr_ = SPSIOPF().get2DReader( *psioobj_,

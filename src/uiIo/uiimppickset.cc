@@ -72,7 +72,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     if ( import_ )
 	enableSaveButton( tr("Display after import") );
 
-    const uiString tp = uiStrings::phrASCII( uiStrings::sFile() );
+    const uiString tp = uiStrings::sASCIIFile();
     uiString label = import_
 	? uiStrings::sInputASCIIFile()
 	: uiStrings::sOutputASCIIFile();

@@ -40,7 +40,7 @@ IOObj* PreLoader::getIOObj() const
 {
     IOObj* ret = DBM().get( dbkey_ );
     if ( !ret )
-	errmsg_ = uiStrings::phrCannotFindDBEntry( toUiString(dbkey_) );
+	errmsg_ = uiStrings::phrCannotFindDBEntry( dbkey_ );
     return ret;
 }
 

@@ -54,10 +54,7 @@ bool Seis::Fetcher::fillIOObj()
     delete ioobj_;
     ioobj_ = getIOObj();
     if ( !ioobj_ )
-    {
-	uirv_ = uiStrings::phrCannotFindDBEntry( prov_.dbky_.toUiString() );
-	return false;
-    }
+	{ uirv_ = uiStrings::phrCannotFindDBEntry(prov_.dbky_); return false; }
     return true;
 }
 

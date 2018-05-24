@@ -181,11 +181,7 @@ bool VolumeFunctionSource::setFrom( const DBKey& velid )
 
     PtrMan<IOObj> velioobj = DBM().get( velid );
     if ( !velioobj )
-    {
-	errmsg_ = uiStrings::phrCannotFindDBEntry(
-			    tr("for Velocity volume with id: %1.").arg(velid));
-	return false;
-    }
+	{ errmsg_ = uiStrings::phrCannotFindDBEntry( velid ); return false; }
 
     if ( !desc_.usePar( velioobj->pars() ) )
         return false;
@@ -194,7 +190,6 @@ bool VolumeFunctionSource::setFrom( const DBKey& velid )
     velioobj->pars().getYN( sKeyZIsTime(), zit_ );
 
     mid_ = velid;
-
     return true;
 }
 

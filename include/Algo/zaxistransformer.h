@@ -44,7 +44,7 @@ public:
 
     uiString		message() const    { return tr("Z-axis transform"); }
     uiString		nrDoneText() const
-			{ return ParallelTask::sTrcFinished(); }
+			{ return sTracesDone(); }
 
 protected:
     bool		doPrepare(int);

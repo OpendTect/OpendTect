@@ -47,7 +47,7 @@ public:
     void	setSize( od_int64 sz )		{ sz_ = sz; }
 
     uiString	message() const	{ return tr("Value setter"); }
-    uiString	nrDoneText() const	{ return sPosFinished(); }
+    uiString	nrDoneText() const		{ return sPositionsDone(); }
 
 
 protected:
@@ -96,8 +96,8 @@ public:
 						  outvs_ = &vs; }
     void	setSize(od_int64 sz)		{ sz_ = sz; }
 
-    uiString	message() const	{ return tr("Value copier"); }
-    uiString	nrDoneText() const	{ return sPosFinished(); }
+    uiString	message() const			{ return tr("Copying values"); }
+    uiString	nrDoneText() const		{ return sPositionsDone(); }
 
 
 protected:
@@ -140,8 +140,8 @@ public:
     void        setPtr(ValueSeries<T>& vs)	{ ptr_ = vs.arr(); vs_ = &vs; }
     void        setSize(od_int64 sz)		{ sz_ = sz; }
 
-    uiString	message() const	{ return tr("Value replacer"); }
-    uiString	nrDoneText() const	{ return sPosFinished(); }
+    uiString	message() const		{ return tr("Replacing values"); }
+    uiString	nrDoneText() const		{ return sPositionsDone(); }
 
 
 protected:

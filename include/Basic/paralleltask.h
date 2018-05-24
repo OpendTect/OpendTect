@@ -83,8 +83,6 @@ public:
 			//!<May be -1, i.e. class does not report nrdone.
 
     od_int64		totalNr() const	{ return nrIterations(); }
-    static uiString	sPosFinished()	{ return tr("Positions finished"); }
-    static uiString	sTrcFinished()	{ return tr("Traces finished"); }
 
 protected:
 
@@ -179,8 +177,8 @@ interp.execute();
     bool	reportprogress_; \
     void	setReport(bool yn)		{ reportprogress_ = yn; } \
     od_int64	nrIterations() const		{ return sz_; } \
-    uiString	message() const		{ return uimsg; } \
-    uiString	nrDoneText() const		{ return sPosFinished(); } \
+    uiString	message() const			{ return uimsg; } \
+    uiString	nrDoneText() const		{ return sPositionsDone(); } \
 
 #define mDefParallelCalcNoPars(clss,uimsg) \
 	class clss : public ParallelTask \

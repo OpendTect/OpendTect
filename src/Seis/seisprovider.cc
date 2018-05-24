@@ -74,7 +74,7 @@ Seis::Provider* Seis::Provider::create( const DBKey& dbky, uiRetVal* uirv )
     if ( !objinf.isOK() )
     {
 	if ( uirv )
-	    uirv->set( uiStrings::phrCannotFindDBEntry(dbky.toUiString()) );
+	    uirv->set( uiStrings::phrCannotFindDBEntry(dbky) );
     }
     else
     {
