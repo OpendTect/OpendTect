@@ -40,7 +40,7 @@ protected:
 
     int			chunksz_;
 
-    virtual void	openFile(const char*,uiRetVal&);
+    virtual void	openFile(const char*,uiRetVal&,bool);
     virtual void	closeFile()		{ doCloseFile(*this); }
 
     virtual void	crDS(const DataSetKey&,const ArrayNDInfo&,ODDataType,

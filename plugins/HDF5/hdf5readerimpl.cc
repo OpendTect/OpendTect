@@ -38,7 +38,7 @@ HDF5::ReaderImpl::~ReaderImpl()
 }
 
 
-void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv )
+void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv, bool )
 {
     if ( !File::exists(fnm) )
 	{ uirv.add( uiStrings::phrCannotOpenForRead( fnm ) ); return; }

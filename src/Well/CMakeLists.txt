@@ -15,6 +15,8 @@ set(OD_MODULE_SOURCES
 	welldisp.cc
 	wellelasticmodelcomputer.cc
 	wellextractdata.cc
+	wellhdf5reader.cc
+	wellhdf5writer.cc
 	wellimplas.cc
 	wellioprov.cc
 	welllog.cc

@@ -155,7 +155,7 @@ uiRetVal HDF5::Access::open( const char* fnm )
     closeFile();
 
     uiRetVal uirv;
-    openFile( fnm, uirv );
+    openFile( fnm, uirv, false );
     myfile_ = true;
 
     return uirv;
@@ -189,6 +189,12 @@ uiString HDF5::Access::sHDF5Err( const uiString& err )
 }
 
 
+uiString HDF5::Access::sNotHDF5File( const char* fnm )
+{
+    return tr("'%1' is not an HDF5 file").arg( fnm );
+}
+
+
 uiString HDF5::Access::sDataSetNotFound( const DataSetKey& dsky )
 {
     return sHDF5Err( tr("Could not find DataSet '%1'")
@@ -206,6 +212,18 @@ uiString HDF5::Access::sCannotReadDataSet( const DataSetKey& dsky )
 uiString HDF5::Access::sFileNotOpen()
 {
     return sHDF5Err( tr("Could not open file") );
+}
+
+
+uiRetVal HDF5::Writer::open4Edit( const char* fnm )
+{
+    closeFile();
+
+    uiRetVal uirv;
+    openFile( fnm, uirv, true );
+    myfile_ = true;
+
+    return uirv;
 }
 
 

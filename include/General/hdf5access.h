@@ -156,6 +156,7 @@ public:
     static uiString	sHDF5PackageDispName();
     static uiString	sHDF5NotAvailable();
     static uiString	sHDF5NotAvailable(const char* fnm);
+    static uiString	sNotHDF5File(const char*);
     static uiString	sDataSetNotFound(const DataSetKey&);
     static uiString	sCannotReadDataSet(const DataSetKey&);
     static const char*	sFileExtension()	{ return "hdf5"; }
@@ -172,8 +173,8 @@ protected:
     H5::H5File*		file_;
     bool		myfile_;
 
-    virtual void	closeFile()			= 0;
-    virtual void	openFile(const char*,uiRetVal&)	= 0;
+    virtual void	closeFile()				= 0;
+    virtual void	openFile(const char*,uiRetVal&,bool ed)	= 0;
 
     static uiString	sHDF5Err(const uiString&);
     static uiString	sFileNotOpen();

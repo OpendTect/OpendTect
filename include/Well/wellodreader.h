@@ -13,10 +13,7 @@ ________________________________________________________________________
 
 #include "wellreadaccess.h"
 #include "wellio.h"
-#include "sets.h"
-#include "ranges.h"
 #include "od_iosfwd.h"
-class BufferStringSet;
 class IOObj;
 
 

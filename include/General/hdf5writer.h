@@ -33,6 +33,9 @@ mExpClass(General) Writer : public Access
 {
 public:
 
+			// For normal 'create', use 'open()
+    uiRetVal		open4Edit(const char*);
+
     virtual Reader*	createCoupledReader() const			= 0;
 
     virtual void	setChunkSize(int)				= 0;

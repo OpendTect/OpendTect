@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    virtual void	openFile(const char*,uiRetVal&);
+    virtual void	openFile(const char*,uiRetVal&,bool);
     virtual void	closeFile()		{ doCloseFile(*this); }
 
     virtual NrDimsType	gtNrDims() const	{ return nrdims_; }

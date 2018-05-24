@@ -46,11 +46,12 @@ HDF5::Reader* HDF5::WriterImpl::createCoupledReader() const
 }
 
 
-void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv )
+void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv, bool edit )
 {
     try
     {
-	H5::H5File* newfile = new H5::H5File( fnm, H5F_ACC_TRUNC );
+	H5::H5File* newfile = new H5::H5File( fnm, edit ? H5F_ACC_RDWR
+							: H5F_ACC_TRUNC );
 	closeFile();
 	myfile_ = true;
 	file_ = newfile;
