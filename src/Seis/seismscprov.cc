@@ -14,6 +14,7 @@
 #include "posinfo2d.h"
 #include "seisbounds.h"
 #include "seisbuf.h"
+#include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seisprovider.h"
 #include "seispreload.h"
@@ -499,6 +500,7 @@ SeisFixedCubeProvider::SeisFixedCubeProvider( const DBKey& key )
     , data_(0)
     , ioobj_(DBM().get(key))
     , trcdist_(SI().crlDistance())
+    , geomid_(-1)
 {
 }
 
@@ -516,6 +518,8 @@ uiString SeisFixedCubeProvider::errMsg() const
 
 void SeisFixedCubeProvider::clear()
 {
+    errmsg_.setEmpty();
+    seisdp_ = 0;
     if ( !data_ )
 	return;
 
@@ -529,7 +533,9 @@ void SeisFixedCubeProvider::clear()
 
 
 bool SeisFixedCubeProvider::isEmpty() const
-{ return !data_; }
+{
+    return !seisdp_ && !data_;
+}
 
 
 bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
@@ -572,13 +578,21 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 				      const Pos::GeomID geomid,
 				      TaskRunner* taskr )
 {
+    geomid_ = geomid;
+    clear();
     if ( !ioobj_ )
 	mErrRet( uiStrings::phrCannotFindDBEntry( uiStrings::sInput() ) );
 
-    if ( Seis::PLDM().isPresent(ioobj_->key()) )
+    if ( Seis::PLDM().isPresent(ioobj_->key(),geomid) )
     {
-	//TODO get datapack and see whether (a superset of) cs is already there
-	// if so, find a way to use the DataPack directly
+	RegularSeisDataPack* dp =
+		Seis::PLDM().getAndCast<RegularSeisDataPack>( ioobj_->key(),
+								geomid );
+	if ( dp )
+	{
+	    if ( dp->sampling().includes(cs) )
+		{ seisdp_ = dp; return true; }
+	}
     }
 
     uiRetVal uirv;
@@ -597,8 +611,6 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     }
 
     prov->setSelData( sd );
-
-    clear();
     data_ = new Array2DImpl<SeisTrc*>( tkzs_.hsamp_.nrInl(),
 				       tkzs_.hsamp_.nrCrl() );
     for ( int idx=0; idx<data_->getSize(0); idx++ )
@@ -616,13 +628,25 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 
 
 const SeisTrc* SeisFixedCubeProvider::getTrace( int trcnr ) const
-{ return getTrace( BinID(0,trcnr) ); }
+{
+    return getTrace( BinID(0,trcnr) );
+}
 
 
 const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 {
-    if ( !data_ || !tkzs_.hsamp_.includes(bid) )
+    if ( isEmpty() || !tkzs_.hsamp_.includes(bid) )
 	return 0;
+
+    if ( seisdp_ )
+    {
+	TrcKey tk( bid );
+	if ( geomid_ >= 0 )
+	    tk.setGeomID( geomid_ );
+	SeisTrc& dptrc = dptrc_.getObject();
+	seisdp_->fillTrace( TrcKey(bid), dptrc );
+	return &dptrc;
+    }
 
     return data_->get( tkzs_.inlIdx(bid.inl()), tkzs_.crlIdx(bid.crl()) );
 }

@@ -132,9 +132,9 @@ mGlobal(Seis) PreLoadDataManager& PLDM();
 
 
 template <class T> inline
-RefMan<T> PreLoadDataManager::getAndCast( const DBKey& mid, Pos::GeomID gid )
+RefMan<T> PreLoadDataManager::getAndCast( const DBKey& dbky, Pos::GeomID gid )
 {
-    RefMan<DataPack> dp = get( mid, gid );
+    RefMan<DataPack> dp = get( dbky, gid );
     mDynamicCastGet( T*, casted, dp.ptr() );
     return RefMan<T>( casted );
 }

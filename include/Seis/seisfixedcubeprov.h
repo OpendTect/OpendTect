@@ -11,8 +11,9 @@ ________________________________________________________________________
 */
 
 
-#include "seiscommon.h"
+#include "seisdatapack.h"
 #include "trckeyzsampling.h"
+#include "perthreadrepos.h"
 #include "uistring.h"
 
 template <class T> class Array2D;
@@ -41,6 +42,9 @@ public:
 protected:
 
     Array2D<SeisTrc*>*	data_;
+    RefMan<SeisVolumeDataPack> seisdp_;
+    Pos::GeomID		geomid_;
+    mutable PerThreadObjectRepository<SeisTrc> dptrc_;
 
     TrcKeyZSampling	tkzs_;
     IOObj*		ioobj_;
