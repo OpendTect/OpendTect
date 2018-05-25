@@ -2,7 +2,7 @@ Opendtect 6.0 release info
 
 Build platforms/distributions:
 
-Linux 64   : CentOS release 6 (Final)
+Linux 64   : CentOS release 6.0 (Final)
 Mac	   : Mac OS X 10.9.5 (Mavericks)
 Windows 32 : Windows Server 2012
 Windows 64 : Windows Server 2012
@@ -18,6 +18,6 @@ Windows: Visual C++ 12.0
 OpenSource packages/versions used:
 
 OpenSceneGraph 3.4.0
-Qt: 4.8.6
+Qt: 4.8.7
 
 # $Id$
