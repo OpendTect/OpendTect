@@ -61,7 +61,7 @@ void HDF5::ReaderImpl::listObjs( const H5Dir& dir, BufferStringSet& nms,
     const bool islevel0 = nms.isEmpty();
     try
     {
-	const int nrobjs = dir.getNumObjs();
+	const int nrobjs = mCast(int,dir.getNumObjs());
 	for ( int iobj=0; iobj<nrobjs; iobj++ )
 	{
 	    const std::string nmstr = dir.getObjnameByIdx( iobj );
@@ -257,7 +257,7 @@ void HDF5::ReaderImpl::gtPoints( const NDPosBufSet& posbufs, void* data,
 	mAllocVarLenArr( hsize_t, hdfcoordarr, nrdims_ * nrpts );
 	if ( !mIsVarLenArrOK(hdfcoordarr) )
 	    { uirv.add( uiStrings::phrCannotAllocateMemory() ); return; }
-	for ( hsize_t ipt=0; ipt<nrpts; ipt++ )
+	for ( NDPosBufSet::idx_type ipt=0; ipt<nrpts; ipt++ )
 	{
 	    const NDPosBuf& posbuf = posbufs[ipt];
 	    const int arroffs = ipt * nrdims_;

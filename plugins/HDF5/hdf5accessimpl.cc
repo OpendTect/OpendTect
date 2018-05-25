@@ -270,14 +270,15 @@ void HDF5::AccessImpl::selectSlab( H5::DataSpace& ds, const SlabSpec& spec,
     TypeSet<hsize_t> counts, offss, strides;
     if ( !pcounts )
 	pcounts = &counts;
-    const Access::NrDimsType nrdims = spec.size();
+	const Access::NrDimsType nrdims = mCast(Access::NrDimsType,spec.size());
     mGetDataSpaceDims( dimsizes, nrdims, ds );
 
     for ( Access::DimIdxType idim=0; idim<nrdims; idim++ )
     {
 	SlabDimSpec sds = spec[idim];
 	if ( sds.count_ < 0 )
-	    sds.count_ = (dimsizes[idim]-sds.start_) / sds.step_;
+	    sds.count_ = ((mCast(ArrayNDInfo::IdxType,dimsizes[idim]))-sds.start_)
+						/ sds.step_;
 	*pcounts += sds.count_;
 	offss += sds.start_;
 	strides += sds.step_;

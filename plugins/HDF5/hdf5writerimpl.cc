@@ -89,7 +89,7 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
     nrdims_ = info.nrDims();
     TypeSet<hsize_t> dims, chunkdims;
     int maxdim = 0;
-    for ( int idim=0; idim<nrdims_; idim++ )
+    for ( ArrayNDInfo::DimIdxType idim=0; idim<nrdims_; idim++ )
     {
 	const auto dimsz = info.getSize( idim );
 	if ( dimsz > maxdim )

@@ -31,7 +31,7 @@ static void fillArr2D( Array2D<T>& arr2d, int shft )
     for ( int idx0=0; idx0<dim0; idx0++ )
     {
 	for ( int idx1=0; idx1<dim1; idx1++ )
-	    arr2d.set( idx0, idx1, shft + idx0*100 + idx1 );
+	    arr2d.set( idx0, idx1, mCast(T,100.*idx0 + shft + idx1) );
     }
 }
 
