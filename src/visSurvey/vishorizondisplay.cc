@@ -1043,6 +1043,11 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     validtexture_ = true;
     updateSingleColor();
 
+    BufferStringSet* attrnms = new BufferStringSet();
+    for ( int idx=0; idx<data->nrCols(); idx++ )
+	attrnms->add( data->colDef(idx).name_ );
+    delete userrefs_.replace( channel, attrnms );
+
     createDisplayDataPacks( channel, data );
 }
 
