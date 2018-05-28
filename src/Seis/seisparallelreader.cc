@@ -179,8 +179,8 @@ bool doTrace( int itrc )
 	mDynamicCastGet(ConvMemValueSeries<float>*,convmemstor,stor);
 	char* storarr = convmemstor ? convmemstor->storArr()
 				    : (char*)storptr;
-	const od_int64 offset =  storarr ? arr.info().getOffset( idx0, idx1, 0 )
-					 : 0;
+	const od_int64 offset =  stor ? arr.info().getOffset( idx0, idx1, 0 )
+				      : 0;
 	char* dststartptr = storarr ? storarr + (offset+startidx0)*bytespersamp
 				    : 0;
 	if ( storarr && samedatachar_ && !needresampling_ &&
