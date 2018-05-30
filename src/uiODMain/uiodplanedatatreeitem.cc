@@ -501,7 +501,7 @@ bool uiODInlineParentTreeItem::canShowSubMenu() const
 void uiODInlineParentTreeItem::setDefaultPosToBeAdded()
 {
     TrcKeySampling& hs = probetobeaddedpos_.hsamp_;
-    hs.start_.inl() = hs.stop_.inl() = hs.lineRange().center();
+    hs.start_.inl() = hs.stop_.inl() = hs.lineRange().snappedCenter();
 }
 
 
@@ -598,7 +598,7 @@ bool uiODCrosslineParentTreeItem::canShowSubMenu() const
 void uiODCrosslineParentTreeItem::setDefaultPosToBeAdded()
 {
     TrcKeySampling& hs = probetobeaddedpos_.hsamp_;
-    hs.start_.crl() = hs.stop_.crl() = hs.trcRange().center();
+    hs.start_.crl() = hs.stop_.crl() = hs.trcRange().snappedCenter();
 }
 
 
@@ -705,7 +705,7 @@ void uiODZsliceParentTreeItem::setDefaultPosToBeAdded()
     Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
     const ZAxisTransform* ztransform = vwr ? vwr->getZAxisTransform() : 0;
     if ( !ztransform )
-	zrg.start = zrg.stop = zrg.center();
+	zrg.start = zrg.stop = zrg.snappedCenter();
     else
     {
 	zrg = ztransform->getZInterval( true );
