@@ -873,7 +873,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 
 	const Survey::Geometry* geom = Survey::GM().getGeometry(geomid_);
 	const Survey::Geometry2D* geom2d = geom ? geom->as2D() : 0;
-	if ( geom2d )
+	if ( geom2d && geom2d->spnrs().validIdx(dataidx) )
 	    info.add( ", SP: " ).add( geom2d->spnrs()[dataidx] );
     }
 }
