@@ -97,6 +97,16 @@ void uiMapperRangeEditor::setData( const Array2D<float>* data )
 }
 
 
+void uiMapperRangeEditor::setData( const float* array, od_int64 sz )
+{
+    histogramdisp_->setData( array, sz );
+    const bool nodata = histogramdisp_->xVals().isEmpty();
+    datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
+    datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
+    drawAgain();
+}
+
+
 bool uiMapperRangeEditor::setData( const IOPar& iop )
 {
     RefMan<DataDistribution<float> > distr = new DataDistribution<float>;

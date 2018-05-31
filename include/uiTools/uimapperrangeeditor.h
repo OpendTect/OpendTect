@@ -43,6 +43,7 @@ public:
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID,
 					      int version);
     void			setData(const Array2D<float>*);
+    void			setData(const float*,od_int64 sz);
     bool			setData(const IOPar&);
     void			setMarkValue(float,bool forx);
 
