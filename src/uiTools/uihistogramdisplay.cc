@@ -58,9 +58,9 @@ uiHistogramDisplay::~uiHistogramDisplay()
 static int getNrIntervals( int nrpts )
 {
     int res = nrpts / 25;
-    if ( res < 10 ) res = 10;
-    else if ( res < 20 ) res = 20;
-    else if ( res < 50 ) res = 50;
+    if ( res < 10 && nrpts < 10 ) res = 10;
+    else if ( res < 20 && nrpts < 20 ) res = 20;
+    else if ( res < 50 && nrpts < 50 ) res = 50;
     else res = 100;
 
     return res;
