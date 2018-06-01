@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "";
 
 uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
       TypeSet<float>& zvals, TypeSet<float>& scalefac )
-    : uiDialog(p,uiDialog::Setup(tr("Analyse Gain"), mNoDlgTitle, mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(tr("Analyze Gain"), mNoDlgTitle, mNoHelpKey))
     , zvals_(zvals)
     , scalefactors_(scalefac)
     , trcbuf_(traces)
@@ -43,7 +43,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
 
     SamplingData<float> zsd = trcbuf_.get(0)->info().sampling;
     Interval<float> zrg( zsd.start, zsd.atIndex(trcbuf_.get(0)->size()-1) );
-    
+
     uiFunctionDisplay::Setup su;
     su.fillbelow(true).canvaswidth(600).canvasheight(400).drawborder(true)
       .drawliney2(true).editable(true).fillbelow(false).fillbelowy2(true)
@@ -101,7 +101,7 @@ void uiGainAnalysisDlg::setData( bool sety )
 {
     TypeSet<float> zvals;
     TypeSet<float> scalefactors;
-    
+
     SamplingData<float> zsd = trcbuf_.get(0)->info().sampling;
     StepInterval<float> zrg( zsd.start, zsd.atIndex(trcbuf_.get(0)->size()-1),
 	    		     zsd.step );
@@ -129,7 +129,7 @@ void uiGainAnalysisDlg::setData( bool sety )
 		     .arg(linear ? tr("(Linear)") : tr("(dB)"));
 
     funcdisp_->yAxis(true)->setCaption( label );
-    
+
     TypeSet<float> avgrmsvals;
 
     const int nrsamples = trcbuf_.get(0)->size();
@@ -162,7 +162,7 @@ void uiGainAnalysisDlg::setData( bool sety )
 	funcdisp_->setVals( zvals.arr(), scalefactors.arr(), zvals.size() );
 
     funcdisp_->setY2Vals( zrg, avgrmsvals.arr(), zrg.nrSteps() );
-    
+
     dispRangeChgd( 0 );
 }
 
