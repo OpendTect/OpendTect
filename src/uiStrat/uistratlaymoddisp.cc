@@ -192,7 +192,7 @@ void uiStratLayerModelDisp::displayFRText( bool yn, bool isbrine )
     {
 	const uiPoint pos( mNINT32( scene().nrPixX()/2 ),
 			   mNINT32( scene().nrPixY()-10 ) );
-	frtxtitm_ = scene().addItem( new uiTextItem(pos,uiString::emptyString(),
+	frtxtitm_ = scene().addItem( new uiTextItem(pos,uiString::empty(),
 						mAlignment(HCenter,VCenter)) );
 	frtxtitm_->setPenColor( Color::Black() );
 	frtxtitm_->setZValue( 999999 );
@@ -213,8 +213,8 @@ void uiStratLayerModelDisp::updateTextPosCB( CallBacker* )
     if ( !frtxtitm_ )
 	return;
 
-    const uiPoint pos( mNINT32( scene().width()/2 ),
-		       mNINT32( scene().height()-10 ) );
+    const uiPoint pos( mNINT32( scene().nrPixX()/2 ),
+		       mNINT32( scene().nrPixY()-10 ) );
     frtxtitm_->setPos( pos );
 }
 
@@ -818,7 +818,7 @@ void uiStratSimpleLayerModelDisp::reDrawAll()
 
 	emptyitm_->setPenColor( Color::Black() );
 	emptyitm_->setPos( uiPoint( vwr_.rgbCanvas().width()/2,
-				    vwr_.rgbCanvas().height() / 2 ) );
+				    vwr_.rgbCanvas().height()/2 ) );
 	return;
     }
     else if ( emptyitm_ )
