@@ -569,7 +569,7 @@ void uiStratSynthDisp::displayFRText( bool yn, bool isbrine )
 	const uiPoint pos( mNINT32( scene.nrPixX()/2 ),
 			   mNINT32( scene.nrPixY()-10 ) );
 	frtxtitm_ = scene.addItem(
-				new uiTextItem(pos,uiString::emptyString(),
+				new uiTextItem(pos,uiString::empty(),
 					       mAlignment(HCenter,VCenter)) );
 	frtxtitm_->setPenColor( Color::Black() );
 	frtxtitm_->setZValue( 999999 );
