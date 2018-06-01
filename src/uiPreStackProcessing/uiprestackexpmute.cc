@@ -36,7 +36,7 @@ uiExportMute::uiExportMute( uiParent* p )
                                  mODHelpKey(mPreStackExportMuteHelpID) ))
     , ctio_(*mMkCtxtIOObj(MuteDef))
 {
-    setOkText( uiStrings::sExport() );
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
     infld_ = new uiIOObjSel( this, ctio_, tr("Mute Definition") );
 

@@ -41,13 +41,13 @@ uiImportMute::uiImportMute( uiParent* p )
     , ctio_( *mMkCtxtIOObj(MuteDef) )
     , fd_( *MuteAscIO::getDesc() )
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiFileInput( this, toUiString("%1 %2 %3")
 				.arg(uiStrings::sInput())
 				.arg(uiStrings::sASCII())
 				.arg(uiStrings::sFile()),
-	                       uiFileInput::Setup().withexamine(true)
+			       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
     inpfilehaveposfld_ = new uiGenInput( this, tr("File contains position"),
@@ -60,7 +60,7 @@ uiImportMute::uiImportMute( uiParent* p )
 				 PositionInpSpec(PositionInpSpec::Setup()) );
     inlcrlfld_->attach( alignedBelow, inpfilehaveposfld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
                       mODHelpKey(mPreStackImportMuteParsHelpID) );
     dataselfld_->attach( alignedBelow, inlcrlfld_ );
 
