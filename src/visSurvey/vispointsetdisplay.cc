@@ -16,8 +16,6 @@
 #include "vismaterial.h"
 #include "executor.h"
 #include "uistrings.h"
-#include "timefun.h"
-#include <iostream>
 
 
 namespace visSurvey {
@@ -212,10 +210,8 @@ void PointSetDisplay::updateColors()
 {
     if ( !pointset_ || pointset_->size() != data_->size() ) return;
 
-    Time::Counter ctr; ctr.start();
     PointSetColorUpdater updater( *pointset_, *data_, *dpsdispprop_ );
     updater.execute();
-    std::cerr << "Time elapsed: " << ctr.elapsed();
     pointset_->materialChangeCB( 0 );
     requestSingleRedraw();
 }
