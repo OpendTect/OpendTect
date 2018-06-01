@@ -878,11 +878,14 @@ bool uiSurveyInfoEditor::xyInFeet() const
 }
 
 
-void uiSurveyInfoEditor::coordSystemCB( CallBacker* cb )
+void uiSurveyInfoEditor::coordSystemCB( CallBacker* )
 {
     Coords::uiCoordSystemDlg dlg( this, true, false, &si_, coordsystem_ );
     if ( dlg.go() )
+    {
 	coordsystem_ = dlg.getCoordSystem();
+	updZUnit(0);
+    }
 }
 
 
@@ -927,7 +930,7 @@ void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
 }
 
 
-void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
+void uiSurveyInfoEditor::updZUnit( CallBacker* )
 {
     const UnitOfMeasure* prevdisplayuom = depthdispfld_->getBoolValue()
 					? UoMR().get( "Meter" )
