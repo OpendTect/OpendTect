@@ -112,6 +112,7 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , mansessiondlg_(0)
     , impcrossplotdlg_(0)
     , impmutedlg_(0)
+    , expmutedlg_(0)
     , imppdfdlg_(0)
     , exppdfdlg_(0)
     , impvelfunc_(0)
@@ -139,19 +140,20 @@ void uiODApplMgrDispatcher::survChg( bool before )
 
 void uiODApplMgrDispatcher::deleteDlgs()
 {
-	delete convposdlg_; convposdlg_ = 0;
-	delete mandpsdlg_; mandpsdlg_ = 0;
-	delete man2dgeomdlg_; man2dgeomdlg_ = 0;
-	delete manpdfdlg_; manpdfdlg_ = 0;
-	delete mansessiondlg_; mansessiondlg_ = 0;
-	delete impcrossplotdlg_; impcrossplotdlg_ = 0;
-	delete impmutedlg_; impmutedlg_ = 0;
-	delete imppdfdlg_; imppdfdlg_ = 0;
-	delete exppdfdlg_; exppdfdlg_ = 0;
-	delete impvelfunc_; impvelfunc_ = 0;
-	delete exp2dgeomdlg_; exp2dgeomdlg_ = 0;
-	delete batchprocps2ddlg_; batchprocps2ddlg_ = 0;
-	delete batchprocps3ddlg_; batchprocps3ddlg_ = 0;
+    deleteAndZeroPtr( convposdlg_ );
+    deleteAndZeroPtr( mandpsdlg_ );
+    deleteAndZeroPtr( man2dgeomdlg_ );
+    deleteAndZeroPtr( manpdfdlg_ );
+    deleteAndZeroPtr( mansessiondlg_ );
+    deleteAndZeroPtr( impcrossplotdlg_ );
+    deleteAndZeroPtr( impmutedlg_ );
+    deleteAndZeroPtr( expmutedlg_ );
+    deleteAndZeroPtr( imppdfdlg_ );
+    deleteAndZeroPtr( exppdfdlg_ );
+    deleteAndZeroPtr( impvelfunc_ );
+    deleteAndZeroPtr( exp2dgeomdlg_ );
+    deleteAndZeroPtr( batchprocps2ddlg_ );
+    deleteAndZeroPtr( batchprocps3ddlg_ );
 }
 
 
@@ -328,8 +330,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	break;
 	mCase(Exp):
 	{
-	    PreStack::uiExportMute dlgexp( par_ );
-	    dlgexp.go();
+	    if ( !expmutedlg_ )
+		expmutedlg_ = new PreStack::uiExportMute( par_ );
+
+	    expmutedlg_->show();
 	}
 	break;
 	mCase(Man): break;

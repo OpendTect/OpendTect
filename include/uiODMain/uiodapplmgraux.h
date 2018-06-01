@@ -32,8 +32,9 @@ class ui2DGeomManageDlg;
 
 namespace Attrib { class SelSpec; }
 namespace File { class Path; }
-namespace PreStack { class uiImportMute; class uiBatchProcSetup; }
 namespace Vel { class uiImportVelFunc; }
+namespace PreStack
+{ class uiExportMute; class uiImportMute; class uiBatchProcSetup; }
 
 
 /*!\brief uiApplService for OD */
@@ -93,6 +94,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     uiImpRokDocPDF*	imppdfdlg_;
     uiExpRokDocPDF*	exppdfdlg_;
     PreStack::uiImportMute*	impmutedlg_;
+    PreStack::uiExportMute*	expmutedlg_;
     Vel::uiImportVelFunc*	impvelfunc_;
     uiODApplMgr&	am_;
     uiParent*		par_;
