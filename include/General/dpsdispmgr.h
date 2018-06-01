@@ -51,7 +51,7 @@ public:
 			    , ctmapper_(new ColTab::Mapper)
 			{}
 
-    DataPointSetDisplayProp* clone() const
+    virtual DataPointSetDisplayProp* clone() const
     {
         if ( showsel_ )
 	    return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
@@ -68,7 +68,7 @@ public:
    ColTab::Mapper&		colTabMapper()		{ return *ctmapper_; }
    const ColTab::Mapper&	colTabMapper() const	{ return *ctmapper_; }
 
-Color getColor( float val ) const
+virtual Color getColor( float val ) const
 {
     if ( showsel_ )
     {
@@ -104,7 +104,7 @@ mClass(General) DataPointSetDisplayMgr : public CallBacker
 public:
 
     typedef int			DispID;
-    virtual			~DataPointSetDisplayMgr()		{}
+    virtual			~DataPointSetDisplayMgr() { clearDispProp(); }
     virtual void		lock()					= 0;
     virtual void		unLock()				= 0;
 
