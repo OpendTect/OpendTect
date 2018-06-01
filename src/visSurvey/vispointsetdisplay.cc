@@ -16,6 +16,8 @@
 #include "vismaterial.h"
 #include "executor.h"
 #include "uistrings.h"
+#include "timefun.h"
+#include <iostream>
 
 
 namespace visSurvey {
@@ -109,7 +111,7 @@ uiString nrDoneText() const
 
 int nextStep()
 {
-    if ( nrdone_ >= data_.size()-1 )
+    if ( nrdone_ >= data_.size() )
     {
 	Geometry::RangePrimitiveSet* range =
 	    (Geometry::RangePrimitiveSet*) pointset_.getPrimitiveSet(0);
@@ -169,6 +171,52 @@ void PointSetDisplay::update( TaskRunner* tskr )
 
     PointSetDisplayUpdater displayupdater( *pointset_, *data_, *dpsdispprop_ );
     TaskRunner::execute( tskr, displayupdater );
+    requestSingleRedraw();
+}
+
+
+class PointSetColorUpdater : public ParallelTask
+{
+public:
+PointSetColorUpdater( visBase::PointSet& ps, DataPointSet& dps,
+		      DataPointSetDisplayProp& dispprop )
+    : ParallelTask("Updating Colors")
+    , pointset_(ps)
+    , data_(dps)
+    , dpsdispprop_(dispprop)
+{}
+
+od_int64 nrIterations() const { return data_.size(); }
+
+bool doWork( od_int64 start, od_int64 stop, int )
+{
+    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    {
+	const float val = data_.value( dpsdispprop_.dpsColID(), idx );
+	const Color col = dpsdispprop_.getColor( val );
+	pointset_.getMaterial()->setColor( col, idx );
+    }
+
+    return true;
+}
+
+protected:
+
+    visBase::PointSet&		pointset_;
+    DataPointSet&		data_;
+    DataPointSetDisplayProp&	dpsdispprop_;
+
+};
+
+void PointSetDisplay::updateColors()
+{
+    if ( !pointset_ || pointset_->size() != data_->size() ) return;
+
+    Time::Counter ctr; ctr.start();
+    PointSetColorUpdater updater( *pointset_, *data_, *dpsdispprop_ );
+    updater.execute();
+    std::cerr << "Time elapsed: " << ctr.elapsed();
+    pointset_->materialChangeCB( 0 );
     requestSingleRedraw();
 }
 

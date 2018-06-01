@@ -44,6 +44,7 @@ public:
     bool			hasColor() const	{ return true; }
 
     void			update(TaskRunner*);
+    void			updateColors();
     bool			setDataPack(DataPack::ID);
     const DataPointSet*		getDataPack() const	{ return data_; }
     void			setDisplayTransformation(const mVisTrans*);
