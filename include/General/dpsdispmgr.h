@@ -50,6 +50,7 @@ public:
 			    , colseq_(ColTab::SeqMGR().getDefault())
 			    , ctmapper_(new ColTab::Mapper)
 			{}
+    virtual		~DataPointSetDisplayProp()	{}
 
     virtual DataPointSetDisplayProp* clone() const
     {
