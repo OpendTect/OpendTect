@@ -377,7 +377,8 @@ void uiWellMan::edMarkers( CallBacker* )
     RefMan<Well::Data> wd = new Well::Data;
     PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
 
-    if ( !wrdr->getMarkers() )
+    if ( !wrdr->getMarkers() &&
+	 !uiMSG().askGoOn(tr("No markers found. Continue editing?")) )
 	return;
 
     if ( !iswritable_ )
@@ -413,8 +414,8 @@ void uiWellMan::edWellTrack( CallBacker* )
 
     RefMan<Well::Data> wd = new Well::Data;
     PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
-
-    if ( !wrdr->getTrack() )
+    if ( !wrdr->getTrack() &&
+	 !uiMSG().askGoOn(tr("No track found. Continue editing?")) )
 	return;
 
     const Well::Track origtrck = wd->track();
@@ -814,7 +815,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
 	    txt.add(Well::Info::sKeyKBElev()).add(colonstr);
-	    txt.add( zun ? zun->userValue(rdelev) : rdelev );
+	    txt.add( zun ? zun->userValue(rdelev) : rdelev, 2 );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();
 	}
@@ -823,7 +824,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
 	{
 	    txt.add(Well::Info::sKeyTD()).add( colonstr );
-	    txt.add( zun ? zun->userValue(td) : td );
+	    txt.add( zun ? zun->userValue(td) : td, 2 );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();
 	}
@@ -832,7 +833,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsZero(srd,1e-4) )
 	{
 	    txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
-	    txt.add( zun ? zun->userValue(srd) : srd );
+	    txt.add( zun ? zun->userValue(srd) : srd, 2 );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();
 	}
@@ -851,7 +852,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsUdf(groundelev) )
 	{
 	    txt.add(Well::Info::sKeyGroundElev()).add(colonstr);
-	    txt.add( zun ? zun->userValue(groundelev) : groundelev );
+	    txt.add( zun ? zun->userValue(groundelev) : groundelev, 2 );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();
 	}
