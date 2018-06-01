@@ -22,7 +22,7 @@ namespace PreStack
 {
 
 mExpClass(uiPreStackProcessing) uiExportMute : public uiDialog
-{ mODTextTranslationClass(uiExportMute);
+{ mODTextTranslationClass(uiExportMute)
 public:
 			uiExportMute(uiParent*);
 			~uiExportMute();

@@ -40,7 +40,7 @@ uiImportMute::uiImportMute( uiParent* p )
     , ctio_( *mMkCtxtIOObj(MuteDef) )
     , fd_( *MuteAscIO::getDesc() )
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
 				uiFileSel::Setup().withexamine(true) );

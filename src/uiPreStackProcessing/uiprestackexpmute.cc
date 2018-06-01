@@ -30,12 +30,12 @@ namespace PreStack
 {
 
 uiExportMute::uiExportMute( uiParent* p )
-    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("Mute Function") ),
-				 mNoDlgTitle,
-                                 mODHelpKey(mPreStackExportMuteHelpID) ))
+    : uiDialog(p,uiDialog::Setup(tr("Export Mute Function"),mNoDlgTitle,
+				 mODHelpKey(mPreStackExportMuteHelpID))
+		.modal(false))
     , ctio_(*mMkCtxtIOObj(MuteDef))
 {
-    setOkText( uiStrings::sExport() );
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
     infld_ = new uiIOObjSel( this, ctio_, tr("Mute Definition") );
 
