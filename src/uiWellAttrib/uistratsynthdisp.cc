@@ -18,11 +18,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewslicepos.h"
+#include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
 #include "uipsviewer2dmainwin.h"
 #include "uispinbox.h"
+#include "uistratlayermodel.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -46,6 +49,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "velocitycalc.h"
 #include "waveletio.h"
 
+#include "hiddenparam.h"
+
 #include <stdio.h>
 
 static const int cMarkerSize = 6;
@@ -59,6 +64,9 @@ static const char* sKeyNone()		{ return "None"; }
 static const char* sKeyRainbow()	{ return "Rainbow"; }
 static const char* sKeySeismics()	{ return "Seismics"; }
 static const char* sKeyDecimation()	{ return "Decimation"; }
+
+
+HiddenParam<uiStratSynthDisp,uiTextItem*> stratsynthfrtxtitmmgr_(0);
 
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
@@ -89,11 +97,11 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , currentvdsynthetic_(0)
     , autoupdate_(true)
     , forceupdate_(false)
-    , isbrinefilled_(true)
     , taskrunner_( new uiTaskRunner(this) )
     , relzoomwr_(0,0,1,1)
     , savedzoomwr_(mUdf(double),0,0,0)
 {
+    stratsynthfrtxtitmmgr_.setParam( this, 0 );
     stratsynth_->setTaskRunner( taskrunner_ );
     edstratsynth_->setTaskRunner( taskrunner_ );
 
@@ -176,8 +184,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vwr_->setInitialSize( uiSize(800,300) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
-    vwr_->dispPropChanged.notify( mCB(this,uiStratSynthDisp,parsChangedCB) );
-    vwr_->viewChanged.notify( mCB(this,uiStratSynthDisp,viewChg) );
+    mAttachCB( vwr_->dispPropChanged, uiStratSynthDisp::parsChangedCB );
+    mAttachCB( vwr_->viewChanged, uiStratSynthDisp::viewChg );
+    mAttachCB( vwr_->rgbCanvas().reSize, uiStratSynthDisp::updateTextPosCB );
     setDefaultAppearance( vwr_->appearance() );
 
     uiFlatViewStdControl::Setup fvsu( this );
@@ -185,17 +194,22 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 	.withflip(false).withsnapshot(false);
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->setViewerType( vwr_, true );
-
-    displayPostStackSynthetic( currentwvasynthetic_, true );
-    displayPostStackSynthetic( currentvdsynthetic_, false );
 }
 
 
 uiStratSynthDisp::~uiStratSynthDisp()
 {
+    detachAllNotifiers();
     delete stratsynth_;
     delete edstratsynth_;
     delete d2tmodels_;
+    stratsynthfrtxtitmmgr_.removeParam( this );
+}
+
+
+void uiStratSynthDisp::set( uiStratLayerModel& uislm )
+{
+    mAttachCB( uislm.newModels, uiStratSynthDisp::doModelChange );
 }
 
 
@@ -358,7 +372,7 @@ void uiStratSynthDisp::setDisplayZSkip( float zskip, bool withmodchg )
 {
     dispskipz_ = zskip;
     if ( withmodchg )
-	modelChanged();
+	doModelChange();
 }
 
 
@@ -400,7 +414,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     selectedtraceaux_->linestyle_ =
 	OD::LineStyle( OD::LineStyle::Dot, 2, Color::DgbColor() );
 
-    vwr_->handleChange( FlatView::Viewer::Auxdata );
+    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
 
 
@@ -523,7 +537,8 @@ void uiStratSynthDisp::levelSnapChanged( CallBacker* )
     VSEvent::Type tp;
     VSEvent::parseEnumType( levelsnapselfld_->text(), tp );
     edlvl->snapev_ = tp;
-    drawLevel();
+    if ( currentwvasynthetic_ || currentvdsynthetic_ )
+	drawLevel();
 }
 
 
@@ -535,32 +550,63 @@ const char* uiStratSynthDisp::levelName()  const
 
 
 void uiStratSynthDisp::displayFRText()
-{
-    FlatView::AuxData* filltxtdata =
-	vwr_->createAuxData( isbrinefilled_ ? "Brine filled"
-					    : "Hydrocarbon filled" );
-    filltxtdata->namepos_ = 0;
-    uiWorldPoint txtpos =
-	vwr_->boundingBox().bottomRight() - uiWorldPoint(10,10);
-    filltxtdata->poly_ += txtpos;
+{ displayFRText( true, isbrinefilled_ ); }
 
-    vwr_->addAuxData( filltxtdata );
-    vwr_->handleChange( FlatView::Viewer::Annot );
+
+void uiStratSynthDisp::displayFRText( bool yn, bool isbrine )
+{
+    uiTextItem* frtxtitm = stratsynthfrtxtitmmgr_.getParam( this );
+    if ( !frtxtitm )
+    {
+	uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
+	const uiPoint pos( mNINT32( scene.width()/2 ),
+			   mNINT32( scene.height()-10 ) );
+	frtxtitm = scene.addItem(
+				new uiTextItem(pos,uiString::emptyString(),
+					       mAlignment(HCenter,VCenter)) );
+	frtxtitm->setPenColor( Color::Black() );
+	frtxtitm->setZValue( 999999 );
+	frtxtitm->setMovable( true );
+	stratsynthfrtxtitmmgr_.setParam( this, frtxtitm );
+    }
+
+    frtxtitm->setVisible( yn );
+    if ( yn )
+    {
+	frtxtitm->setText( isbrine ? tr("Brine filled")
+				   : tr("Hydrocarbon filled") );
+    }
+}
+
+
+void uiStratSynthDisp::updateTextPosCB( CallBacker* )
+{
+    uiTextItem* frtxtitm = stratsynthfrtxtitmmgr_.getParam( this );
+    if ( !frtxtitm )
+	return;
+
+    const uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
+    const uiPoint pos( mNINT32( scene.width()/2 ),
+		       mNINT32( scene.height()-10 ) );
+    frtxtitm->setPos( pos );
 }
 
 
 void uiStratSynthDisp::drawLevel()
 {
-    delete vwr_->removeAuxData( levelaux_ );
+    const SyntheticData* synthseis = currentwvasynthetic_ ? currentwvasynthetic_
+							  : currentvdsynthetic_;
+    if ( !synthseis )
+	return;
+
+    delete vwr_->removeAuxData( levelaux_ ); levelaux_ = 0;
 
     const StratSynthLevel* lvl = curSS().getLevel();
     const float offset =
 	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
 				  : 0.0f;
     ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( currentwvasynthetic_ ? currentwvasynthetic_
-					 : currentvdsynthetic_, curd2tmodels,
-					 offset );
+    getCurD2TModel( synthseis, curd2tmodels, offset );
     if ( !curd2tmodels.isEmpty() && lvl )
     {
 	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
@@ -583,12 +629,13 @@ void uiStratSynthDisp::drawLevel()
 	    delete auxd;
 	else
 	{
+	    auxd->zvalue_ = uiFlatViewer::auxDataZVal();
 	    vwr_->addAuxData( auxd );
 	    levelaux_ = auxd;
 	}
     }
 
-    vwr_->handleChange( FlatView::Viewer::Auxdata );
+    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
 
 
@@ -896,27 +943,17 @@ void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
 
 
 void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
-						     bool wva )
+						  bool wva )
 {
+    if ( !sd )
+	return;
+
     const bool hadpack = vwr_->hasPack( wva );
     if ( hadpack )
 	vwr_->removePack( vwr_->packID(wva) );
-    vwr_->removeAllAuxData();
-    mDelD2TM
-    if ( !sd )
-    {
-	SeisTrcBuf* disptbuf = new SeisTrcBuf( true );
-	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line,
-					SeisTrcInfo::TrcNr, "Forward Modeling");
-	dp->posData().setRange( true, StepInterval<double>(1.0,1.0,1.0) );
-	DPM( DataPackMgr::FlatID() ).add( dp );
-	vwr_->setPack( wva, dp->id(), !hadpack );
-	vwr_->setVisible( wva, false );
-	levelSnapChanged( 0 );
-	return;
-    }
 
-    vwr_->setVisible( wva, true );
+    mDelD2TM
+
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
 
@@ -988,6 +1025,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     }
 
     vwr_->setPack( wva, dp->id(), !hadpack );
+    vwr_->setVisible( wva, true );
     control_->setD2TModels( *d2tmodels_ );
     NotifyStopper notstop( vwr_->viewChanged );
     if ( mIsZero(relzoomwr_.left(),1e-3) &&
@@ -1003,7 +1041,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	mapper.type_ = ColTab::MapperSetup::Fixed;
 	dispparsmapper = mapper;
     }
-    displayFRText();
+
     levelSnapChanged( 0 );
 }
 
@@ -1105,7 +1143,7 @@ void uiStratSynthDisp::setPreStackMapper()
 	wvamapper.cliprate_ = Interval<float>(0.0,0.0);
 	wvamapper.autosym0_ = true;
 	wvamapper.symmidval_ = 0.0f;
-	vwr.handleChange( FlatView::Viewer::DisplayPars );
+	vwr.handleChange( mCast(unsigned int,FlatView::Viewer::DisplayPars) );
     }
 }
 
@@ -1266,13 +1304,12 @@ void uiStratSynthDisp::showFRResults()
 
 void uiStratSynthDisp::doModelChange()
 {
-    MouseCursorChanger mcs( MouseCursor::Busy );
-
-    if ( !autoupdate_ && !forceupdate_ ) return;
-
+    if ( !autoupdate_ && !forceupdate_ )
+	return;
     if ( !curSS().errMsg().isEmpty() )
 	mErrRet( curSS().errMsg(), return )
 
+    MouseCursorChanger mcs( MouseCursor::Busy );
     showInfoMsg( false );
     updateSyntheticList( true );
     updateSyntheticList( false );

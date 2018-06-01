@@ -32,6 +32,7 @@ class uiMultiFlatViewControl;
 class uiPushButton;
 class uiSynthGenDlg;
 class uiSeisWaveletSel;
+class uiStratLayerModel;
 class uiSynthSlicePos;
 class uiToolButton;
 class uiToolButtonSetup;
@@ -75,6 +76,7 @@ public:
     void		setDispEach(int);
     void		setZDataRange(const Interval<double>&,bool indpt);
     void		setDisplayZSkip(float zskip,bool withmodchg);
+    void		displayFRText(bool yn,bool isbrine);
 
     const uiWorldRect&	curView(bool indepth) const;
     void		setZoomView(const uiWorldRect&);
@@ -91,7 +93,7 @@ public:
     void		addTool(const uiToolButtonSetup&);
     void		addViewerToControl(uiFlatViewer&);
 
-    void		modelChanged();
+    mDeprecated void	modelChanged();
     bool		haveUserScaleWavelet();
     void		displaySynthetic(const SyntheticData*);
     void		reDisplayPostStackSynthetic(bool wva=true);
@@ -109,7 +111,7 @@ public:
     void		makeInfoMsg(BufferString& msg,IOPar&);
 
     void		showFRResults();
-    void		setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
+    mDeprecated void	setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
     void		setAutoUpdate( bool yn )  { autoupdate_ = yn; }
     void		setForceUpdate( bool yn ) { forceupdate_ = yn; }
     bool		doForceUpdate() const	  { return forceupdate_; }
@@ -136,7 +138,7 @@ protected:
     int			dispeach_;
     float		dispskipz_;
     bool		dispflattened_;
-    bool		isbrinefilled_;
+    mDeprecated bool	isbrinefilled_;
     bool		autoupdate_;
     bool		forceupdate_;
     bool		useed_;
@@ -184,10 +186,12 @@ protected:
 			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 
     void		drawLevel();
-    void		displayFRText();
+    mDeprecated void	displayFRText();
     void		displayPreStackSynthetic(const SyntheticData*);
     void		displayPostStackSynthetic(const SyntheticData*,
 						  bool wva=true);
+    void		updateTextPosCB(CallBacker*);
+
     void		setPreStackMapper();
     void		setAbsoluteViewRect(const uiWorldRect& abswr);
     void		getAbsoluteViewRect(uiWorldRect& abswr) const;
@@ -210,6 +214,12 @@ protected:
     void		syntheticChanged(CallBacker*);
     void		selPreStackDataCB(CallBacker*);
     void		preStackWinClosedCB(CallBacker*);
+
+public:
+
+			//6.2 only: for attaching a notifier
+    void		set(uiStratLayerModel&);
+
 };
 
 

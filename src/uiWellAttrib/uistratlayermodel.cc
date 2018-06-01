@@ -381,6 +381,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     gentools_ = new uiStratGenDescTools( gengrp );
 
     synthdisp_ = new uiStratSynthDisp( topgrp, lmp_ );
+    synthdisp_->set( *this );
     moddisp_ = seqdisp_->getLayModDisp( *modtools_, lmp_, opt );
     if ( !moddisp_ )
     {
@@ -802,10 +803,10 @@ bool uiStratLayerModel::openGenDesc()
     if ( !strm.isOK() )
 	{ uiMSG().error( uiStrings::sCantOpenInpFile() ); return false; }
 
-    delete elpropsel_; elpropsel_ = 0;
+    deleteAndZeroPtr( elpropsel_ );
     deepErase( desc_ );
     MouseCursorChanger mcch( MouseCursor::Wait );
-    bool rv = desc_.getFrom( strm );
+    const bool rv = desc_.getFrom( strm );
     if ( !rv )
 	uiMSG().error(desc_.errMsg());
     strm.close();
@@ -1030,21 +1031,12 @@ void uiStratLayerModel::handleNewModel()
 {
     lmp_.resetEditing();
     synthdisp_->setUseEdited( false );
-    moddisp_->setFluidReplOn( false );
 
+    //First the parameters
     setModelProps();
     setElasticProps();
     useSyntheticsPars( desc_.getWorkBenchParams() );
     useDisplayPars( desc_.getWorkBenchParams() );
-    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
-    synthdisp_->setFlattened( modtools_->showFlattened(), true );
-    moddisp_->setFlattened( modtools_->showFlattened(), true );
-    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-		    modtools_->selLevelColor() );
-    const bool canshowflattened = canShowFlattened();
-    synthdisp_->setSnapLevelSensitive( canshowflattened );
-    modtools_->setFlatTBSensitive( canshowflattened );
-
     if ( needtoretrievefrpars_ )
     {
 	CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(),
@@ -1052,6 +1044,19 @@ void uiStratLayerModel::handleNewModel()
 	const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
 	needtoretrievefrpars_ = false;
     }
+
+    //Then the model display (uiStrat)
+    moddisp_->setFlattened( modtools_->showFlattened(), false );
+    moddisp_->modelUpdate();
+
+    //Finally the synthetics
+    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
+    synthdisp_->setFlattened( modtools_->showFlattened(), false );
+    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
+		    modtools_->selLevelColor() );
+    const bool canshowflattened = canShowFlattened();
+    synthdisp_->setSnapLevelSensitive( canshowflattened );
+    modtools_->setFlatTBSensitive( canshowflattened );
 
     newModels.trigger();
 
@@ -1123,14 +1128,17 @@ bool uiStratLayerModel::closeOK()
 }
 
 
+void uiStratLayerModel::displayFRText( bool yn, bool isbrine )
+{
+    synthdisp_->displayFRText( yn, isbrine );
+    moddisp_->displayFRText( yn, isbrine );
+}
+
+
 void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
-					 bool fwd )
+					 bool isbrine )
 {
     lmp_.setUseEdited( usefr );
-    mostlyfilledwithbrine_ = !fwd;
-    if ( !usefr )
-	mostlyfilledwithbrine_ = !mostlyfilledwithbrine_;
-
     synthdisp_->setUseEdited( usefr );
     if ( parschanged )
     {
@@ -1140,9 +1148,8 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
     synthdisp_->showFRResults();
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 			      modtools_->selLevelColor() );
-    moddisp_->setBrineFilled( fwd );
-    moddisp_->setFluidReplOn( usefr );
     moddisp_->modelChanged();
+    displayFRText( true, isbrine );
     synthdisp_->setForceUpdate( false );
 }
 
@@ -1151,7 +1158,7 @@ void uiStratLayerModel::resetFluidRepl()
 {
     lmp_.setUseEdited( false );
     synthdisp_->setUseEdited( false );
-    moddisp_->setFluidReplOn( false );
+    displayFRText( false );
 }
 
 

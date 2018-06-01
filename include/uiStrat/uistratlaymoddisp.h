@@ -32,7 +32,7 @@ namespace Strat { class LayerModel; class LayerModelProvider; class Layer; }
 
 mStruct(uiStrat) LMPropSpecificDispPars
 {
-    			LMPropSpecificDispPars( const char* nm=0 )
+			LMPropSpecificDispPars( const char* nm=0 )
 			    : propnm_(nm)	{}
     bool		operator==( const LMPropSpecificDispPars& oth ) const
 			{ return propnm_ == oth.propnm_; }
@@ -54,6 +54,7 @@ public:
 
     virtual void	modelChanged()			= 0;
     virtual void	reSetView()			= 0;
+    void		modelUpdate()	{ modelChanged(); reSetView(); }
     virtual uiWorldRect	zoomBox() const			= 0;
     virtual void	setZoomBox(const uiWorldRect&)	= 0;
     virtual float	getDisplayZSkip() const		= 0;
@@ -73,14 +74,14 @@ public:
     uiFlatViewer*	getViewer() { return &vwr_; }
     bool		isFlattened() const		{ return flattened_; }
     void		setFlattened(bool yn,bool trigger=true);
-    bool		isFluidReplOn() const		{ return fluidreplon_; }
-    void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
-    bool		isBrineFilled() const		{return isbrinefilled_;}
-    void		setBrineFilled(bool yn)		{ isbrinefilled_= yn; }
-    
+    mDeprecated bool	isFluidReplOn() const		{ return fluidreplon_; }
+    mDeprecated void	setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
+    mDeprecated bool	isBrineFilled() const		{return isbrinefilled_;}
+    mDeprecated void	setBrineFilled(bool yn)		{ isbrinefilled_= yn; }
+    void		displayFRText(bool yn,bool isbrine);
 
     float		getLayerPropValue(const Strat::Layer&,
-	    				  const PropertyRef*,int) const;
+					  const PropertyRef*,int) const;
     bool		setPropDispPars(const LMPropSpecificDispPars&);
     bool		getCurPropDispPars(LMPropSpecificDispPars&) const;
     void		clearDispPars()		{ lmdisppars_.erase(); }
@@ -101,19 +102,20 @@ protected:
     int			selseqidx_;
     Interval<float>	zrg_;
     bool		flattened_;
-    bool		fluidreplon_;
-    bool		isbrinefilled_;
+    mDeprecated bool	fluidreplon_;
+    mDeprecated bool	isbrinefilled_;
     TypeSet<float>	lvldpths_;
     TypeSet<LMPropSpecificDispPars> lmdisppars_;
     IOPar		dumppars_;
 
     bool		haveAnyZoom() const;
     uiGraphicsScene&	scene() const;
-    void		displayFRText();
+    mDeprecated void	displayFRText();
     virtual void	drawSelectedSequence()		= 0;
 
     int			getClickedModelNr() const;
     void		mouseMoved(CallBacker*);
+    void		updateTextPosCB(CallBacker*);
     void		doubleClicked(CallBacker*);
     void		usrClicked(CallBacker*);
     virtual void	selPropChgCB(CallBacker*)	= 0;
@@ -125,7 +127,7 @@ protected:
     bool		doLayerModelIO(bool);
     virtual void	doLevelChg()			= 0;
     virtual void	handleClick(bool dble)		= 0;
-    				//!< returns whether layermodel has changed
+				//!< returns whether layermodel has changed
 
 };
 

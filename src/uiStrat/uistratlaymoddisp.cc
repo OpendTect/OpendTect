@@ -57,9 +57,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , selseqidx_(-1)
     , vwr_(* new uiFlatViewer(this))
     , flattened_(false)
-    , fluidreplon_(false)
     , frtxtitm_(0)
-    , isbrinefilled_(true)
     , sequenceSelected(this)
     , genNewModelNeeded(this)
     , rangeChanged(this)
@@ -96,6 +94,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 			mCB(this,uiStratLayerModelDisp,doubleClicked) );
     vwr_.rgbCanvas().getMouseEventHandler().movement.notify(
 			mCB(this,uiStratLayerModelDisp,mouseMoved) );
+    mAttachCB( vwr_.rgbCanvas().reSize, uiStratLayerModelDisp::updateTextPosCB);
 #   define mSetCB(notifnm) tools_.notifnm.notify( \
 	mCB(this,uiStratLayerModelDisp,notifnm##CB)  )
 
@@ -147,8 +146,7 @@ void uiStratLayerModelDisp::setFlattened( bool yn, bool trigger )
     flattened_ = yn;
     if ( !trigger ) return;
 
-    modelChanged();
-    reSetView();
+    modelUpdate();
 }
 
 
@@ -173,19 +171,41 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 
 
 void uiStratLayerModelDisp::displayFRText()
+{ displayFRText( fluidreplon_, isbrinefilled_ ); }
+
+
+void uiStratLayerModelDisp::displayFRText( bool yn, bool isbrine )
 {
     if ( !frtxtitm_ )
-	frtxtitm_ = scene().addItem( new uiTextItem( tr("<---empty--->"),
-				 mAlignment(HCenter,VCenter) ) );
-    frtxtitm_->setText(isbrinefilled_ ? tr("Brine filled")
-                                      : tr("Hydrocarbon filled"));
-    frtxtitm_->setPenColor( Color::Black() );
-    const int xpos = mNINT32( scene().width()/2 );
-    const int ypos = mNINT32( scene().height()-10 );
-    frtxtitm_->setPos( uiPoint(xpos,ypos) );
-    frtxtitm_->setZValue( 999999 );
-    frtxtitm_->setVisible( fluidreplon_ );
+    {
+	const uiPoint pos( mNINT32( scene().width()/2 ),
+			   mNINT32( scene().height()-10 ) );
+	frtxtitm_ = scene().addItem( new uiTextItem(pos,uiString::emptyString(),
+						mAlignment(HCenter,VCenter)) );
+	frtxtitm_->setPenColor( Color::Black() );
+	frtxtitm_->setZValue( 999999 );
+	frtxtitm_->setMovable( true );
+    }
+
+    frtxtitm_->setVisible( yn );
+    if ( yn )
+    {
+	frtxtitm_->setText( isbrine ? tr("Brine filled")
+				    : tr("Hydrocarbon filled") );
+    }
 }
+
+
+void uiStratLayerModelDisp::updateTextPosCB( CallBacker* )
+{
+    if ( !frtxtitm_ )
+	return;
+
+    const uiPoint pos( mNINT32( scene().width()/2 ),
+		       mNINT32( scene().height()-10 ) );
+    frtxtitm_->setPos( pos );
+}
+
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
@@ -582,8 +602,7 @@ void uiStratSimpleLayerModelDisp::eraseAll()
     logblcklineitms_.erase();
     logblckrectitms_.erase();
     lvlitms_.erase();
-    delete emptyitm_; emptyitm_ = 0;
-    delete frtxtitm_; frtxtitm_ = 0;
+    delete vwr_.rgbCanvas().scene().removeItem( emptyitm_ ); emptyitm_ = 0;
     lvldpths_.erase();
     vwr_.removeAuxDatas( layerads_ );
     deepErase( layerads_ );
@@ -791,13 +810,18 @@ void uiStratSimpleLayerModelDisp::reDrawAll()
 	    emptyitm_ = vwr_.rgbCanvas().scene().addItem(
 				new uiTextItem( tr("<---empty--->"),
 				mAlignment(HCenter,VCenter) ) );
+
 	emptyitm_->setPenColor( Color::Black() );
 	emptyitm_->setPos( uiPoint( vwr_.rgbCanvas().width()/2,
 				    vwr_.rgbCanvas().height() / 2 ) );
 	return;
     }
+    else if ( emptyitm_ )
+    {
+	delete vwr_.rgbCanvas().scene().removeItem( emptyitm_ );
+	emptyitm_ = 0;
+    }
 
-    delete emptyitm_; emptyitm_ = 0;
     doDraw();
 }
 
@@ -906,6 +930,7 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 	levelads_[auxdataidx++]->enabled_ = false;
 }
 
+
 void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 {
     dispprop_ = tools_.selPropIdx();
@@ -987,6 +1012,7 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	layerads_[auxdataidx++]->enabled_ = false;
 
 }
+
 
 void uiStratSimpleLayerModelDisp::updateDataPack()
 {
@@ -1113,7 +1139,6 @@ void uiStratSimpleLayerModelDisp::doDraw()
     updateLayerAuxData();
     updateLevelAuxData();
     updateSelSeqAuxData();
-    displayFRText();
     vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
 

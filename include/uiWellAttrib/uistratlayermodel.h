@@ -86,9 +86,10 @@ public:
 								int opt=0);
     static uiStratLayerModel*	getUILayerModel();
 
+    void			displayFRText(bool yn,bool isbrine=true);
     uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
     void			displayFRResult(bool usefr,bool parschanged,
-						bool fwd);
+						bool isbrine);
     void			prepareFluidRepl();
     void			resetFluidRepl();
 
@@ -111,7 +112,7 @@ protected:
     uiStratLayerModelLMProvider& lmp_;
     CtxtIOObj&			descctio_;
     ElasticPropSelection*	elpropsel_;
-    bool			mostlyfilledwithbrine_;
+    mDeprecated bool		mostlyfilledwithbrine_;
     bool			needtoretrievefrpars_;
     bool			automksynth_;
 
@@ -127,17 +128,17 @@ protected:
     bool			saveGenDescIfNecessary(
 					bool allowcancel=true) const;
     void			doGenModels(bool forceupdsynth,
-	    				    bool overridedispeach=false);
+					    bool overridedispeach=false);
     void			calcAndSetDisplayEach(bool overridepar);
     bool			closeOK();
-    
+
     void			fillDisplayPars(IOPar&) const;
     void			fillWorkBenchPars(IOPar&) const;
     void			fillSyntheticsPars(IOPar&) const;
     bool			useDisplayPars(const IOPar&);
     bool			useSyntheticsPars(const IOPar&);
 
-    
+
     void			openGenDescCB(CallBacker*) { openGenDesc(); }
     void			saveGenDescCB(CallBacker*) { saveGenDesc(); }
     void			manPropsCB(CallBacker*);
@@ -147,7 +148,7 @@ protected:
     void			selPropChgCB(CallBacker*);
     void			infoChanged(CallBacker*);
     void			selElasticPropsCB(CallBacker*);
- 
+
     void			initWin(CallBacker*);
     void			dispEachChg(CallBacker*);
     void			mkSynthChg(CallBacker*);
