@@ -74,6 +74,7 @@ bool uiHistogramSel::setDataPackID(
     const bool nodata = histogramdisp_->xVals().isEmpty();
     datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
     datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
+    cliprg_ = datarg_;
     if ( retval )
 	drawAgain();
     return retval;
@@ -86,6 +87,7 @@ void uiHistogramSel::setData( const Array2D<float>* data )
     const bool nodata = histogramdisp_->xVals().isEmpty();
     datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
     datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
+    cliprg_ = datarg_;
     drawAgain();
 }
 
@@ -96,6 +98,7 @@ void uiHistogramSel::setData( const float* array, od_int64 sz )
     const bool nodata = histogramdisp_->xVals().isEmpty();
     datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
     datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
+    cliprg_ = datarg_;
     drawAgain();
 }
 
@@ -111,6 +114,7 @@ bool uiHistogramSel::setData( const IOPar& iop )
     const bool nodata = histogramdisp_->xVals().isEmpty();
     datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
     datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
+    cliprg_ = datarg_;
     drawAgain();
     return true;
 }
