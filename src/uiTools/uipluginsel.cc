@@ -246,7 +246,6 @@ void uiPluginSel::makeProductList(
 void uiPluginSel::createUI()
 {
     uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
-    grp->setFrame( true );
 
     uiGraphicsViewBase* banner = new uiGraphicsViewBase( grp, "OpendTect" );
     uiPixmap pm( "banner.png" );
