@@ -469,6 +469,9 @@ void uiFingerPrintAttrib::getPosPush(CallBacker*)
 
 void uiFingerPrintAttrib::pickRetrieved( CallBacker* )
 {
+    if ( getposbut_->sensitive() )
+	return;
+
     Coord3 crd = pickretriever_->getPos();
     if ( !is2d_ )
     {
