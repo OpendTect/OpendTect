@@ -535,17 +535,15 @@ void uiMarkerDlg::assignRandomColorsCB( CallBacker* )
     Well::MarkerSet mrkrs;
     getMarkerSet( mrkrs );
     assignRandomColors( mrkrs );
+    setMarkerSet( mrkrs, false );
 }
 
 
-void uiMarkerDlg::assignRandomColors( Well::MarkerSet& mrkrs,
-				      bool keepexstingmrkrs )
+void uiMarkerDlg::assignRandomColors( Well::MarkerSet& mrkrs )
 {
-	Well::MarkerSetIter4Edit mrkriter( mrkrs );
-	while ( mrkriter.next() )
-	    mrkriter.get().setColor( getRandomColor() );
-
-	setMarkerSet( mrkrs, keepexstingmrkrs );
+    Well::MarkerSetIter4Edit mrkriter( mrkrs );
+    while ( mrkriter.next() )
+	mrkriter.get().setColor( getRandomColor() );
 }
 
 
@@ -562,11 +560,15 @@ void uiMarkerDlg::rdFile( CallBacker* )
     Well::MarkerSet mrkrs;
     aio.get( strm, mrkrs, track_ );
     if ( mrkrs.isEmpty() )
+    {
 	uiMSG().error( tr("No valid markers found") );
-    else if ( dlg.assignrandcolors_ )
-	assignRandomColors( mrkrs, dlg.keep_ );
-    else
-	setMarkerSet( mrkrs, dlg.keep_ );
+	return;
+    }
+
+    if ( dlg.assignrandcolors_ )
+	assignRandomColors( mrkrs );
+
+    setMarkerSet( mrkrs, dlg.keep_ );
 }
 
 
