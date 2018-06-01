@@ -30,11 +30,13 @@ class uiComboBox;
 class uiFlatViewer;
 class uiMultiFlatViewControl;
 class uiPushButton;
+class uiStratLayerModel;
 class uiSynthGenDlg;
-class uiWaveletIOObjSel;
 class uiSynthSlicePos;
+class uiTextItem;
 class uiToolButton;
 class uiToolButtonSetup;
+class uiWaveletIOObjSel;
 namespace Strat { class LayerModel; class LayerModelProvider; }
 namespace FlatView { class AuxData; }
 namespace PreStackView { class uiSyntheticViewer2DMainWin; }
@@ -46,7 +48,7 @@ public:
     typedef TypeSet<float> LVLZVals;
     typedef TypeSet< LVLZVals > LVLZValsSet;
 
-			uiStratSynthDisp(uiParent*,
+			uiStratSynthDisp(uiParent*,uiStratLayerModel&,
 					 const Strat::LayerModelProvider&);
 			~uiStratSynthDisp();
 
@@ -77,6 +79,7 @@ public:
     void		setDispEach(int);
     void		setZDataRange(const Interval<double>&,bool indpt);
     void		setDisplayZSkip(float zskip,bool withmodchg);
+    void		displayFRText(bool yn,bool isbrine);
 
     const uiWorldRect&	curView(bool indepth) const;
     void		setZoomView(const uiWorldRect&);
@@ -93,7 +96,6 @@ public:
     void		addTool(const uiToolButtonSetup&);
     void		addViewerToControl(uiFlatViewer&);
 
-    void		modelChanged();
     bool		haveUserScaleWavelet();
     void		displaySynthetic(ConstRefMan<SyntheticData>);
     void		reDisplayPostStackSynthetic(bool wva=true);
@@ -111,7 +113,6 @@ public:
     void		makeInfoMsg(uiString& msg,IOPar&);
 
     void		showFRResults();
-    void		setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
     void		setAutoUpdate( bool yn )  { autoupdate_ = yn; }
     void		setForceUpdate( bool yn ) { forceupdate_ = yn; }
     bool		doForceUpdate() const	  { return forceupdate_; }
@@ -140,7 +141,6 @@ protected:
     int					dispeach_;
     float				dispskipz_;
     bool				dispflattened_;
-    bool				isbrinefilled_;
     bool				autoupdate_;
     bool				forceupdate_;
     bool				useed_;
@@ -161,6 +161,7 @@ protected:
     uiFlatViewer*			vwr_;
     uiPushButton*			scalebut_;
     uiButton*				lasttool_;
+    uiTextItem*				frtxtitm_;
     uiToolButton*			prestackbut_;
     uiComboBox*				wvadatalist_;
     uiComboBox*				vddatalist_;
@@ -174,7 +175,7 @@ protected:
     void		handleFlattenChange();
     void		setCurrentWavelet();
     void		fillPar(IOPar&,const StratSynth*) const;
-    void		doModelChange();
+    void		doModelChange(CallBacker*);
     const SeisTrcBuf&	curTrcBuf() const;
     void		getCurD2TModel(ConstRefMan<SyntheticData>,
 				    ObjectSet<const TimeDepthModel>&,
@@ -190,10 +191,11 @@ protected:
 			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 
     void		drawLevel();
-    void		displayFRText();
     void		displayPreStackSynthetic(ConstRefMan<SyntheticData>);
     void		displayPostStackSynthetic(ConstRefMan<SyntheticData>,
 						  bool wva=true);
+    void		updateTextPosCB(CallBacker*);
+
     void		setPreStackMapper();
     void		setAbsoluteViewRect(const uiWorldRect& abswr);
     void		getAbsoluteViewRect(uiWorldRect& abswr) const;

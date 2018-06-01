@@ -18,11 +18,14 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewslicepos.h"
+#include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
 #include "uipsviewer2dmainwin.h"
 #include "uispinbox.h"
+#include "uistratlayermodel.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
@@ -60,7 +63,7 @@ static const char* sKeyNone()		{ return "None"; }
 static const char* sKeyDecimation()	{ return "Decimation"; }
 
 
-uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
+uiStratSynthDisp::uiStratSynthDisp( uiParent* p, uiStratLayerModel& uislm,
 				    const Strat::LayerModelProvider& lmp )
     : uiGroup(p,"LayerModel synthetics display")
     , lmp_(lmp)
@@ -73,6 +76,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , dispflattened_(false)
     , selectedtrace_(-1)
     , selectedtraceaux_(0)
+    , frtxtitm_(0)
     , wvltChanged(this)
     , viewChanged(this)
     , modSelChanged(this)
@@ -87,7 +91,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , currentvdsynthetic_(0)
     , autoupdate_(true)
     , forceupdate_(false)
-    , isbrinefilled_(true)
     , relzoomwr_(0,0,1,1)
     , savedzoomwr_(mUdf(double),0,0,0)
     , flattenlvl_(Strat::Level::undef())
@@ -175,7 +178,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vwr_->setInitialSize( uiSize(800,300) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
-    vwr_->dispPropChanged.notify( mCB(this,uiStratSynthDisp,parsChangedCB) );
+    mAttachCB( vwr_->dispPropChanged, uiStratSynthDisp::parsChangedCB );
     FlatView::Appearance& app = vwr_->appearance();
     app.setGeoDefaults( true );
     app.setDarkBG( false );
@@ -188,22 +191,23 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     app.ddpars_.show( true, true );
     app.ddpars_.wva_.allowuserchangedata_ = false;
     app.ddpars_.vd_.allowuserchangedata_ = false;
-    vwr_->viewChanged.notify( mCB(this,uiStratSynthDisp,viewChg) );
+    mAttachCB( vwr_->viewChanged, uiStratSynthDisp::viewChg );
+    mAttachCB( vwr_->rgbCanvas().reSize, uiStratSynthDisp::updateTextPosCB );
     setDefaultAppearance( vwr_->appearance() );
+
+    mAttachCB( uislm.newModels, uiStratSynthDisp::doModelChange );
 
     uiFlatViewStdControl::Setup fvsu( this );
     fvsu.withcoltabed(false).tba((int)uiToolBar::Right)
 	.withflip(false).withsnapshot(false);
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->setViewerType( vwr_, true );
-
-    displayPostStackSynthetic( currentwvasynthetic_, true );
-    displayPostStackSynthetic( currentvdsynthetic_, false );
 }
 
 
 uiStratSynthDisp::~uiStratSynthDisp()
 {
+    detachAllNotifiers();
     delete stratsynth_;
     delete edstratsynth_;
     delete d2tmodels_;
@@ -383,7 +387,7 @@ void uiStratSynthDisp::setDisplayZSkip( float zskip, bool withmodchg )
 {
     dispskipz_ = zskip;
     if ( withmodchg )
-	modelChanged();
+	doModelChange(0);
 }
 
 
@@ -425,7 +429,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     selectedtraceaux_->linestyle_ =
 	OD::LineStyle( OD::LineStyle::Dot, 2, Color::DgbColor() );
 
-    vwr_->handleChange( FlatView::Viewer::Auxdata );
+    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
 
 
@@ -433,7 +437,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
 void uiStratSynthDisp::handleFlattenChange()
 {
     resetRelativeViewRect();
-    doModelChange();
+    doModelChange(0);
     control_->zoomMgr().toStart();
 }
 
@@ -557,18 +561,39 @@ const char* uiStratSynthDisp::levelName( const int idx )  const
 }
 
 
-void uiStratSynthDisp::displayFRText()
+void uiStratSynthDisp::displayFRText( bool yn, bool isbrine )
 {
-    FlatView::AuxData* filltxtdata =
-	vwr_->createAuxData( isbrinefilled_ ? "Brine filled"
-					    : "Hydrocarbon filled" );
-    filltxtdata->namepos_ = 0;
-    uiWorldPoint txtpos =
-	vwr_->boundingBox().bottomRight() - uiWorldPoint(10,10);
-    filltxtdata->poly_ += txtpos;
+    if ( !frtxtitm_ )
+    {
+	uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
+	const uiPoint pos( mNINT32( scene.nrPixX()/2 ),
+			   mNINT32( scene.nrPixY()-10 ) );
+	frtxtitm_ = scene.addItem(
+				new uiTextItem(pos,uiString::emptyString(),
+					       mAlignment(HCenter,VCenter)) );
+	frtxtitm_->setPenColor( Color::Black() );
+	frtxtitm_->setZValue( 999999 );
+	frtxtitm_->setMovable( true );
+    }
 
-    vwr_->addAuxData( filltxtdata );
-    vwr_->handleChange( FlatView::Viewer::Annot );
+    frtxtitm_->setVisible( yn );
+    if ( yn )
+    {
+	frtxtitm_->setText( isbrine ? tr("Brine filled")
+				   : tr("Hydrocarbon filled") );
+    }
+}
+
+
+void uiStratSynthDisp::updateTextPosCB( CallBacker* )
+{
+    if ( !frtxtitm_ )
+	return;
+
+    const uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
+    const uiPoint pos( mNINT32( scene.nrPixX()/2 ),
+		       mNINT32( scene.nrPixY()-10 ) );
+    frtxtitm_->setPos( pos );
 }
 
 
@@ -621,7 +646,7 @@ void uiStratSynthDisp::drawLevel()
 	}
     }
 
-    vwr_->handleChange( FlatView::Viewer::Auxdata );
+    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
 
 
@@ -870,12 +895,6 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 #define mErrRet(s,act) \
 { uiMsgMainWinSetter mws( mainwin() ); if (!s.isEmpty()) uiMSG().error(s); act;}
 
-void uiStratSynthDisp::modelChanged()
-{
-    doModelChange();
-}
-
-
 void uiStratSynthDisp::reDisplayPostStackSynthetic( bool wva )
 {
     displayPostStackSynthetic( wva ? currentwvasynthetic_ : currentvdsynthetic_,
@@ -936,23 +955,14 @@ void uiStratSynthDisp::getCurD2TModel( ConstRefMan<SyntheticData> sd,
 void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
 						  bool wva )
 {
+    if ( !sd.ptr() )
+	return;
+
     const bool hadpack = vwr_->hasPack( wva );
     if ( hadpack )
 	vwr_->removePack( vwr_->packID(wva) );
-    vwr_->removeAllAuxData();
+
     mDelD2TM
-    if ( !sd )
-    {
-	SeisTrcBuf* disptbuf = new SeisTrcBuf( true );
-	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line,
-					SeisTrcInfo::TrcNr, "Forward Modeling");
-	dp->posData().setRange( true, StepInterval<double>(1.0,1.0,1.0) );
-	DPM( DataPackMgr::FlatID() ).add( dp );
-	vwr_->setPack( wva, dp->id(), !hadpack );
-	vwr_->setVisible( wva, false );
-	levelSnapChanged( 0 );
-	return;
-    }
 
     mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr());
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd.ptr());
@@ -1039,7 +1049,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
 	mapsu.setFixedRange( dispparsmapsu.range() );
 	dispparsmapsu = mapsu;
     }
-    displayFRText();
+
     levelSnapChanged( 0 );
 }
 
@@ -1299,10 +1309,11 @@ void uiStratSynthDisp::showFRResults()
 }
 
 
-void uiStratSynthDisp::doModelChange()
+void uiStratSynthDisp::doModelChange( CallBacker* )
 {
     if ( !autoupdate_ && !forceupdate_ )
 	return;
+
     if ( !curSS().errMsg().isEmpty() )
 	mErrRet( curSS().errMsg(), return )
 

@@ -41,7 +41,6 @@ mStruct(uiStrat) LMPropSpecificDispPars
     BufferString	colseqname_;
     float		overlap_;
     BufferString	propnm_;
-
 };
 
 
@@ -57,6 +56,7 @@ public:
 
     virtual void	modelChanged()			= 0;
     virtual void	reSetView()			= 0;
+    void		modelUpdate()	{ modelChanged(); reSetView(); }
     virtual uiWorldRect	zoomBox() const			= 0;
     virtual void	setZoomBox(const uiWorldRect&)	= 0;
     virtual float	getDisplayZSkip() const		= 0;
@@ -76,11 +76,7 @@ public:
     bool		isFlattened() const		{ return flattened_; }
     bool		canBeFlattened() const;
     void		setFlattened(bool yn,bool trigger=true);
-    bool		isFluidReplOn() const		{ return fluidreplon_; }
-    void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
-    bool		isBrineFilled() const		{return isbrinefilled_;}
-    void		setBrineFilled(bool yn)		{ isbrinefilled_= yn; }
-
+    void		displayFRText(bool yn,bool isbrine);
 
     float		getLayerPropValue(const Strat::Layer&,
 					  const PropertyRef*,int) const;
@@ -106,19 +102,17 @@ protected:
     int			selseqidx_;
     Interval<float>	zrg_;
     bool		flattened_;
-    bool		fluidreplon_;
-    bool		isbrinefilled_;
     LVLZValsSet		lvldpths_;
     TypeSet<LMPropSpecificDispPars> lmdisppars_;
     IOPar		dumppars_;
 
     bool		haveAnyZoom() const;
     uiGraphicsScene&	scene() const;
-    void		displayFRText();
     virtual void	drawSelectedSequence()		= 0;
 
     int			getClickedModelNr() const;
     void		mouseMoved(CallBacker*);
+    void		updateTextPosCB(CallBacker*);
     void		doubleClicked(CallBacker*);
     void		usrClicked(CallBacker*);
     virtual void	selPropChgCB(CallBacker*)	= 0;

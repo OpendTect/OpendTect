@@ -56,9 +56,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , selseqidx_(-1)
     , vwr_(* new uiFlatViewer(this))
     , flattened_(false)
-    , fluidreplon_(false)
     , frtxtitm_(0)
-    , isbrinefilled_(true)
     , sequenceSelected(this)
     , genNewModelNeeded(this)
     , rangeChanged(this)
@@ -95,6 +93,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 			mCB(this,uiStratLayerModelDisp,doubleClicked) );
     vwr_.rgbCanvas().getMouseEventHandler().movement.notify(
 			mCB(this,uiStratLayerModelDisp,mouseMoved) );
+    mAttachCB( vwr_.rgbCanvas().reSize, uiStratLayerModelDisp::updateTextPosCB);
 #   define mSetCB(notifnm) tools_.notifnm.notify( \
 	mCB(this,uiStratLayerModelDisp,notifnm##CB)  )
 
@@ -105,6 +104,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 
 uiStratLayerModelDisp::~uiStratLayerModelDisp()
 {
+    detachAllNotifiers();
 }
 
 
@@ -145,8 +145,7 @@ void uiStratLayerModelDisp::setFlattened( bool yn, bool trigger )
     flattened_ = yn;
     if ( !trigger ) return;
 
-    modelChanged();
-    reSetView();
+    modelUpdate();
 }
 
 
@@ -187,20 +186,38 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 }
 
 
-void uiStratLayerModelDisp::displayFRText()
+void uiStratLayerModelDisp::displayFRText( bool yn, bool isbrine )
 {
     if ( !frtxtitm_ )
-	frtxtitm_ = scene().addItem( new uiTextItem( uiString::empty(),
-				 mAlignment(HCenter,VCenter) ) );
-    frtxtitm_->setText(isbrinefilled_ ? tr("Brine filled")
-                                      : tr("Hydrocarbon filled"));
-    frtxtitm_->setPenColor( Color::Black() );
-    const int xpos = scene().nrPixX() / 2;
-    const int ypos = scene().nrPixY() - 10;
-    frtxtitm_->setPos( uiPoint(xpos,ypos) );
-    frtxtitm_->setZValue( 999999 );
-    frtxtitm_->setVisible( fluidreplon_ );
+    {
+	const uiPoint pos( mNINT32( scene().nrPixX()/2 ),
+			   mNINT32( scene().nrPixY()-10 ) );
+	frtxtitm_ = scene().addItem( new uiTextItem(pos,uiString::emptyString(),
+						mAlignment(HCenter,VCenter)) );
+	frtxtitm_->setPenColor( Color::Black() );
+	frtxtitm_->setZValue( 999999 );
+	frtxtitm_->setMovable( true );
+    }
+
+    frtxtitm_->setVisible( yn );
+    if ( yn )
+    {
+	frtxtitm_->setText( isbrine ? tr("Brine filled")
+				    : tr("Hydrocarbon filled") );
+    }
 }
+
+
+void uiStratLayerModelDisp::updateTextPosCB( CallBacker* )
+{
+    if ( !frtxtitm_ )
+	return;
+
+    const uiPoint pos( mNINT32( scene().width()/2 ),
+		       mNINT32( scene().height()-10 ) );
+    frtxtitm_->setPos( pos );
+}
+
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
@@ -432,7 +449,6 @@ bool uiStratLayerModelDisp::getCurPropDispPars(
 }
 
 
-
 bool uiStratLayerModelDisp::setPropDispPars(const LMPropSpecificDispPars& pars)
 {
     BufferStringSet propnms;
@@ -591,8 +607,7 @@ void uiStratSimpleLayerModelDisp::eraseAll()
     logblcklineitms_.erase();
     logblckrectitms_.erase();
     lvlitms_.erase();
-    delete emptyitm_; emptyitm_ = 0;
-    delete frtxtitm_; frtxtitm_ = 0;
+    delete vwr_.rgbCanvas().scene().removeItem( emptyitm_ ); emptyitm_ = 0;
     lvldpths_.erase();
     vwr_.removeAuxDatas( layerads_ );
     deepErase( layerads_ );
@@ -800,13 +815,18 @@ void uiStratSimpleLayerModelDisp::reDrawAll()
 	    emptyitm_ = vwr_.rgbCanvas().scene().addItem(
 				new uiTextItem( uiString::empty(),
 				mAlignment(HCenter,VCenter) ) );
+
 	emptyitm_->setPenColor( Color::Black() );
 	emptyitm_->setPos( uiPoint( vwr_.rgbCanvas().width()/2,
 				    vwr_.rgbCanvas().height() / 2 ) );
 	return;
     }
+    else if ( emptyitm_ )
+    {
+	delete vwr_.rgbCanvas().scene().removeItem( emptyitm_ );
+	emptyitm_ = 0;
+    }
 
-    delete emptyitm_; emptyitm_ = 0;
     doDraw();
 }
 
@@ -826,7 +846,6 @@ float uiStratSimpleLayerModelDisp::getDisplayZSkip() const
 void uiStratSimpleLayerModelDisp::updZoomBox()
 {
 }
-
 
 
 #define mStartLayLoop(chckdisp,perseqstmt) \
@@ -1015,6 +1034,7 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
     }
 }
 
+
 void uiStratSimpleLayerModelDisp::updateDataPack()
 {
     getBounds();
@@ -1114,8 +1134,6 @@ int uiStratSimpleLayerModelDisp::getXPix( int iseq, float relx ) const
 }
 
 
-
-
 bool uiStratSimpleLayerModelDisp::isDisplayedModel( int iseq ) const
 {
     if ( iseq % dispeach_ )
@@ -1154,7 +1172,6 @@ void uiStratSimpleLayerModelDisp::doDraw()
     updateLayerAuxData();
     updateLevelAuxData();
     updateSelSeqAuxData();
-    displayFRText();
     vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
 
