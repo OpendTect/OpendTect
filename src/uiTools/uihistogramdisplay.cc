@@ -82,12 +82,15 @@ bool uiHistogramDisplay::setDataPackID(
     ConstDataPackRef<DataPack> dp = DPM(dmid).obtain( dpid );
     if ( !dp ) return false;
 
+    BufferString dpversionnm;
+
     if ( dmid == DataPackMgr::SeisID() )
     {
 	mDynamicCastGet(const SeisDataPack*,seisdp,dp.ptr());
 	if ( !seisdp || seisdp->isEmpty() ) return false;
 
 	const Array3D<float>* arr3d = &seisdp->data( version );
+	dpversionnm = seisdp->getComponentName(version);
 	setData( arr3d );
     }
     else if ( dmid == DataPackMgr::FlatID() )
@@ -95,9 +98,15 @@ bool uiHistogramDisplay::setDataPackID(
 	mDynamicCastGet(const FlatDataPack*,fdp,dp.ptr())
 	mDynamicCastGet(const MapDataPack*,mdp,dp.ptr())
 	if ( mdp )
+	{
+	    dpversionnm = mdp->name();
 	    setData( &mdp->rawData() );
+	}
 	else if( fdp )
+	{
+	    dpversionnm = fdp->name();
 	    setData( &fdp->data() );
+	}
 	else
 	    return false;
     }
@@ -107,6 +116,7 @@ bool uiHistogramDisplay::setDataPackID(
 	if ( !dpset )
 	    return false;
 
+	dpversionnm = dpset->name();
 	setData( *dpset );
     }
     else
@@ -118,11 +128,11 @@ bool uiHistogramDisplay::setDataPackID(
 	{
 	    const uiPoint pt( width()/2, 0 );
 	    header_ = scene().addItem( new uiTextItem(pt,
-						toUiString(dp->name())) );
+						toUiString(dpversionnm)) );
 	    header_->setZValue( 2 );
 	}
 	else
-	    header_->setText( toUiString(dp->name()) );
+	    header_->setText( toUiString(dpversionnm) );
     }
 
     return true;
