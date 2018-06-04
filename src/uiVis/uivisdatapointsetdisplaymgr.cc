@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "emrandomposbody.h"
 #include "emmanager.h"
+#include "executor.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "visdata.h"
@@ -439,6 +440,75 @@ int uiVisDataPointSetDisplayMgr::addDisplay( const TypeSet<int>& parents,
     ids_ += id;
 
     return id;
+}
+
+
+bool uiVisDataPointSetDisplayMgr::addDisplays( const TypeSet<int>& parents,
+					const ObjectSet<DataPointSet>& dpsset,
+					TypeSet<int>& dispids )
+{
+    if ( !parents.size() )
+	return false;
+
+    const int nrdisplays = dpsset.size();
+    if ( !nrdisplays )
+	return false;
+
+    if ( nrdisplays == 1 )
+    {
+	dispids += addDisplay( parents, *dpsset[0] );
+	return true;
+    }
+
+    ExecutorGroup dispupdatergrp( "Creating PointSet Display" );
+    for ( int didx=0; didx<nrdisplays; didx++ )
+    {
+	const DataPointSet& dps = *dpsset[didx];
+	DisplayInfo* displayinfo = new DisplayInfo;
+	if ( !displayinfo )
+	    return false;
+
+	int id = 0;
+	while ( ids_.isPresent(id) ) id++;
+
+	for ( int idx=0; idx<parents.size(); idx++ )
+	{
+	    RefMan<visBase::DataObject> sceneptr =
+		    visserv_.getObject( allsceneids_[idx] );
+	    if ( !sceneptr )
+		continue;
+
+	    RefMan<visSurvey::PointSetDisplay> display =
+		new visSurvey::PointSetDisplay;
+	    if ( !display )
+		continue;
+
+	    mDynamicCastGet( visSurvey::Scene*, scene, sceneptr.ptr() );
+	    if ( !scene )
+		continue;
+
+	    visserv_.addObject( display, parents[idx], true );
+	    display->setDispProp( dispprop_ );
+	    display->setDataPack( dps.id() );
+	    dispupdatergrp.add( display->getUpdater() );
+
+	    displayinfo->sceneids_ += allsceneids_[idx];
+	    displayinfo->visids_ += display->id();
+	}
+
+	if ( !displayinfo->sceneids_.size() )
+	{
+	    delete displayinfo;
+	    continue;
+	}
+
+	displayinfos_ += displayinfo;
+	ids_ += id;
+	dispids += id;
+    }
+
+    uiTaskRunner taskrunner( visserv_.appserv().parent() );
+    return TaskRunner::execute( &taskrunner, dispupdatergrp );
 }
 
 

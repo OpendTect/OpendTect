@@ -123,6 +123,7 @@ int nextStep()
 	    range->setRange( rg );
 	}
 	pointset_.materialChangeCB( 0 );
+	pointset_.requestSingleRedraw();
 	return Finished();
     }
 
@@ -163,13 +164,22 @@ int nextStep()
 };
 
 
-void PointSetDisplay::update( TaskRunner* tr )
+Executor* PointSetDisplay::getUpdater()
 {
-    if ( !pointset_ ) return;
+    if ( !pointset_ ) return 0;
 
-    PointSetDisplayUpdater displayupdater( *pointset_, *data_, *dpsdispprop_ );
-    TaskRunner::execute( tr, displayupdater );
-    requestSingleRedraw();
+    PointSetDisplayUpdater* ret = new PointSetDisplayUpdater( *pointset_,
+							*data_, *dpsdispprop_ );
+    return ret;
+}
+
+
+void PointSetDisplay::update( TaskRunner* tskr )
+{
+    Executor* updater = getUpdater();
+    if ( !updater ) return;
+
+    TaskRunner::execute( tskr, *updater );
 }
 
 
