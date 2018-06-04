@@ -29,6 +29,7 @@ uiHistogramSel::uiHistogramSel( uiParent* p, int id, bool fixdrawrg )
     , startpix_(mUdf(int))
     , stoppix_(mUdf(int))
     , mousedown_(false)
+    , rangeChanged(this)
 {
     uiHistogramDisplay::Setup hsu;
     hsu.border( uiBorder(20,20,20,40) );
@@ -232,6 +233,7 @@ bool uiHistogramSel::changeLinePos( bool firstclick )
 	cliprg_.stop = mouseposval;
     }
 
+    rangeChanged.trigger();
     return true;
 }
 

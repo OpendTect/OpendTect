@@ -40,7 +40,11 @@ public:
     bool			setData(const IOPar&);
     void			setMarkValue(float,bool forx);
 
+    const Interval<float>&	getSelRange() const	{ return cliprg_; }
+
     uiHistogramDisplay&		getDisplay()	{ return *histogramdisp_; }
+
+    Notifier<uiHistogramSel>	rangeChanged;
 
 protected:
 
