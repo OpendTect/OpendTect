@@ -96,6 +96,16 @@ ArrayFiller( const RawTrcsSequence& rawseq, const StepInterval<float>& zsamp,
     , outcomponents_(outcomponents)
     , dp_(&dp),is2d_(is2d)
 {
+    startidx0_ = dp.sampling().zsamp_.nearestIndex( zsamp_.start );
+    stopidx0_ = dp.sampling().zsamp_.nearestIndex( zsamp_.stop );
+    nrzsamples_ = zsamp_.nrSteps()+1;
+    dpnrzsamples_ = dp.sampling().zsamp_.nrSteps()+1;
+    needsudfpaddingattop_ = dp.sampling().zsamp_.start < zsamp_.start;
+    needsudfpaddingatbottom_ = dp.sampling().zsamp_.stop > zsamp_.stop;
+    nrpadtail_ = needsudfpaddingatbottom_ ? dpnrzsamples_-stopidx0_-1 : 0;
+    trczidx0_ = rawseq_.getZRange().nearestIndex( zsamp_.atIndex(0) );
+    bytespersamp_ = dp.getDataDesc().nrBytes();
+    nrbytes_ = nrzsamples_ * bytespersamp_;
 }
 
 
@@ -128,22 +138,33 @@ bool execute()
     return true;
 }
 
+
+#define mpErrRet(msg) \
+{ \
+    pErrMsg(msg); \
+    DBG::forceCrash( false ); \
+    return false; \
+}
+
+
+#define mCheckPtr(ptr,writesz) \
+{ \
+    if ( ptr < storstartptr || ptr > storstopptr ) \
+	mpErrRet("Invalid write pointer") \
+\
+    if ( writesz > 1 ) \
+    { \
+	if ( ptr+writesz > storstopptr ) \
+	    mpErrRet("Invalid write pointer") \
+    } \
+}
+
 bool doTrace( int itrc )
 {
     RegularSeisDataPack& dp = *dp_;
     const TrcKey& tk = (*rawseq_.tks_)[itrc];
     const int idx0 = is2d_ ? 0 : dp.sampling().hsamp_.lineIdx( tk.lineNr() );
     const int idx1 = dp.sampling().hsamp_.trcIdx( tk.trcNr() );
-
-    const int startidx0 = dp.sampling().zsamp_.nearestIndex( zsamp_.start );
-    const int stopidx0 = dp.sampling().zsamp_.nearestIndex( zsamp_.stop );
-    const int nrzsamples = zsamp_.nrSteps()+1;
-    const bool needsudfpaddingattop =
-			dp.sampling().zsamp_.start < zsamp_.start;
-    const bool needsudfpaddingatbottom =
-			dp.sampling().zsamp_.stop > zsamp_.stop;
-    const int trczidx0 = rawseq_.getZRange().nearestIndex( zsamp_.atIndex(0) );
-    const int bytespersamp = dp.getDataDesc().nrBytes();
     const bool hastrcscaler = rawseq_.trcscalers_[itrc];
 
     for ( int cidx=0; cidx<outcomponents_.size(); cidx++ )
@@ -153,10 +174,7 @@ bool doTrace( int itrc )
 	const int idcout = outcomponents_[cidx];
 #ifdef __debug__
 	if ( !dp.validComp(idcout) )
-	{
-	    msg_ = uiStrings::phrInternalErr( "Filler incorrectly setup" );
-	    return false;
-	}
+	    mpErrRet("Array Filler is incorrectly setup")
 #endif
 	Array3D<float>& arr = dp.data( idcout );
 	ValueSeries<float>* stor = arr.getStorage();
@@ -166,23 +184,31 @@ bool doTrace( int itrc )
 				    : (char*)storptr;
 	const od_int64 offset =  stor ? arr.info().getOffset( idx0, idx1, 0 )
 				      : 0;
-	char* dststartptr = storarr ? storarr + (offset+startidx0)*bytespersamp
+	char* dststartptr = storarr ? storarr +(offset+startidx0_)*bytespersamp_
 				    : 0;
+#ifdef __debug__
+	const float* storstartptr = storptr;
+	const float* storstopptr = storptr + arr.info().getTotalSz();
+#endif
 	if ( storarr && samedatachar_ && !needresampling_ &&
 	     !compscaler && !hastrcscaler )
 	{
 	    const unsigned char* srcptr = rawseq_.getData( itrc, idcin,
-							   trczidx0 );
-	    OD::sysMemCopy( dststartptr, srcptr, nrzsamples*bytespersamp );
+							   trczidx0_ );
+#ifdef __debug__
+	    float* dststartfloatptr = (float*)dststartptr;
+	    mCheckPtr(dststartfloatptr,nrzsamples_)
+#endif
+	    OD::sysMemCopy( dststartptr, srcptr, nrbytes_ );
 	}
 	else
 	{
-	    int startidx = startidx0;
+	    int startidx = startidx0_;
 	    od_int64 valueidx = stor ? offset+startidx : 0;
-	    int trczidx = trczidx0;
+	    int trczidx = trczidx0_;
 	    float zval = zsamp_.start;
 	    float* destptr = storptr ? (float*)dststartptr : 0;
-	    for ( int zidx=0; zidx<nrzsamples; zidx++ )
+	    for ( int zidx=0; zidx<nrzsamples_; zidx++ )
 	    {
 		const float rawval = needresampling_
 				   ? rawseq_.getValue( zval, itrc, idcin )
@@ -192,7 +218,12 @@ bool doTrace( int itrc )
 				   ? mCast(float,compscaler->scale(rawval) )
 				   : rawval;
 		if ( storptr )
+		{
+#ifdef __debug__
+		    mCheckPtr(destptr,1)
+#endif
 		    *destptr++ = trcval;
+		}
 		else if ( stor )
 		    stor->setValue( valueidx++, trcval );
 		else
@@ -200,29 +231,37 @@ bool doTrace( int itrc )
 	    }
 	}
 
-	if ( needsudfpaddingattop )
+	if ( needsudfpaddingattop_ )
 	{
 	    if ( storptr )
-		OD::sysMemValueSet( storptr + offset, mUdf(float), startidx0 );
+	    {
+#ifdef __debug__
+		mCheckPtr(storptr+offset,startidx0_)
+#endif
+		OD::sysMemValueSet( storptr + offset, mUdf(float), startidx0_ );
+	    }
 	    else
 	    {
-		for ( int validx=0; validx<startidx0; validx++ )
+		for ( int validx=0; validx<startidx0_; validx++ )
 		{
 		    if ( stor ) stor->setValue( offset + validx, mUdf(float) );
 		    else arr.set( idx0, idx1, validx, mUdf(float) );
 		}
 	    }
 	}
-	if ( needsudfpaddingatbottom )
+	if ( needsudfpaddingatbottom_ )
 	{
 	    if ( storptr )
-		OD::sysMemValueSet( storptr + offset + stopidx0 + 1,
-				    mUdf(float),
-				    dp.sampling().zsamp_.nrSteps() - stopidx0);
+	    {
+#ifdef __debug__
+		mCheckPtr(storptr+offset+stopidx0_+1,nrpadtail_)
+#endif
+		OD::sysMemValueSet( storptr + offset + stopidx0_ + 1,
+				    mUdf(float), nrpadtail_ );
+	    }
 	    else
 	    {
-		const int lastidx = dp.sampling().zsamp_.nrSteps();
-		for ( int validx=stopidx0+1; validx<=lastidx; validx++ )
+		for ( int validx=stopidx0_+1; validx<dpnrzsamples_; validx++ )
 		{
 		    if ( stor ) stor->setValue( offset + validx, mUdf(float) );
 		    else arr.set( idx0, idx1, validx, mUdf(float) );
@@ -246,6 +285,17 @@ private:
     bool			samedatachar_;
     bool			needresampling_;
     uiString			msg_;
+
+    int				startidx0_;
+    int				stopidx0_;
+    int				nrzsamples_;
+    int				dpnrzsamples_;
+    bool			needsudfpaddingattop_;
+    bool			needsudfpaddingatbottom_;
+    int				nrpadtail_;
+    int				trczidx0_;
+    int				bytespersamp_;
+    od_int64			nrbytes_;
 };
 
 }; // namespace Seis
@@ -975,8 +1025,10 @@ bool Seis::SequentialFSLoader::init()
     needresampling_ = !dpzsamp_.isCompatible( seissummary_->zRange() );
     if ( needresampling_ )
     {
-	dpzsamp_.start = dpzsamp_.snap( seissummary_->zRange().start, 1 );
-	dpzsamp_.stop = dpzsamp_.snap( seissummary_->zRange().stop, -1 );
+	if ( dpzsamp_.start < seissummary_->zRange().start )
+	    dpzsamp_.start = dpzsamp_.snap( seissummary_->zRange().start, 1 );
+	if ( dpzsamp_.stop > seissummary_->zRange().stop )
+	    dpzsamp_.stop = dpzsamp_.snap( seissummary_->zRange().stop, -1 );
     }
     else
     {
