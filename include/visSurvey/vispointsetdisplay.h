@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "vistransform.h"
 
 class DataPointSet;
+class Executor;
 
 namespace visBase { class PointSet; class Transformation; }
 
@@ -44,6 +45,7 @@ public:
     bool			hasColor() const	{ return true; }
 
     void			update(TaskRunner*);
+    Executor*			getUpdater();
     void			updateColors();
     bool			setDataPack(DataPack::ID);
     const DataPointSet*		getDataPack() const	{ return data_; }
@@ -73,6 +75,7 @@ protected:
     visBase::PointSet*		pointset_;
     RefMan<DataPointSet>	data_;
     const mVisTrans*		transformation_;
+
 };
 
 };

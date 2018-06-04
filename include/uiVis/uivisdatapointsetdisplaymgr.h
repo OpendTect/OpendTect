@@ -44,6 +44,8 @@ public:
     DispID	getDisplayID(int visid) const;
 
     DispID	addDisplay(const TypeSet<int>& parents, const DataPointSet&);
+    bool	addDisplays(const TypeSet<int>& parents,
+	    		    const ObjectSet<DataPointSet>&,TypeSet<DispID>&);
     void	updateDisplay(DispID id, const TypeSet<int>& parents,
 			      const DataPointSet&);
     void	turnOn(DispID id,bool);
