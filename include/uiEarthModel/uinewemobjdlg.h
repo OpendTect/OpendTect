@@ -105,6 +105,8 @@ public:
 
 			uiNewFlt3DDlg(uiParent*);
 
+    RefMan<EM::Fault3D>	getFault3D();
+
 protected:
 
     bool		acceptOK();

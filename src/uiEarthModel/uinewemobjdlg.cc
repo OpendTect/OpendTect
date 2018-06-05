@@ -149,7 +149,6 @@ RefMan<EM::Object> uiNewFlt3DDlg::getNewEMObject() const
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-
 bool uiNewFlt3DDlg::acceptOK()
 {
     RefMan<EM::Object> newflt3d = getNewEMObject();
@@ -160,6 +159,13 @@ bool uiNewFlt3DDlg::acceptOK()
 	mErrRet( errmsg )
 
     return true;
+}
+
+
+RefMan<EM::Fault3D> uiNewFlt3DDlg::getFault3D()
+{
+    mDynamicCastGet(EM::Fault3D*,flt,emobj_.ptr())
+    return flt;
 }
 
 
