@@ -188,7 +188,7 @@ bool doTrace( int itrc )
 				    : 0;
 #ifdef __debug__
 	const float* storstartptr = storptr;
-	const float* storstopptr = storptr + arr.info().getTotalSz();
+	const float* storstopptr = storptr + arr.info().totalSize();
 #endif
 	if ( storarr && samedatachar_ && !needresampling_ &&
 	     !compscaler && !hastrcscaler )
