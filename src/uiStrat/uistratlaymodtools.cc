@@ -561,9 +561,7 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 #define mCreatePropSelFld( propnm, txt, prop, prevbox ) \
     uiLabeledComboBox* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
     propnm##fld_ = lblbox##propnm->box(); \
-    PropertyRefSelection subsel##propnm = proprefsel.subselect( prop );\
-    if ( prop == PropertyRef::Volum ) \
-	propnm##fld_->addItem( uiString::empty() ); \
+    const PropertyRefSelection subsel##propnm = proprefsel.subselect( prop );\
     for ( int idx=0; idx<subsel##propnm.size(); idx++ )\
 	if ( subsel##propnm[idx] )\
 	    propnm##fld_->addItem( toUiString(subsel##propnm[idx]->name()) );\
@@ -572,83 +570,138 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 
 
 uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
-					const PropertyRefSelection& proprefsel)
+					const PropertyRefSelection& proprefsel,
+				const uiStratLayModFRPropSelector::Setup& set )
 	: uiDialog(p,uiDialog::Setup(tr("Property Selector"),
 				     tr("There are multiple properties "
 				        "referenced with the same type. \n"
 				        "Please specify which one to use as: "),
 		     mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
+	, porosityfld_(0)
+	, initialsatfld_(0)
+	, finalsatfld_(0)
 {
     mCreatePropSelFld(den, tr("Reference for Density"), PropertyRef::Den, 0);
     mCreatePropSelFld(vp, tr("Reference for Vp"), PropertyRef::Vel, lblboxden);
     mCreatePropSelFld(vs, tr("Reference for Vs"), PropertyRef::Vel, lblboxvp);
-    mCreatePropSelFld(sat1, tr("Reference for Initial Saturation"),
-		       PropertyRef::Volum, lblboxvs);
-    mCreatePropSelFld(sat2, tr("Reference for Final Saturation"),
-		       PropertyRef::Volum, lblboxsat1);
-    mCreatePropSelFld(porosity, tr("Reference for Porosity"),
-		       PropertyRef::Volum, lblboxsat2);
+    uiLabeledComboBox* prevfld = lblboxvs;
+    if ( set.withinitsat_ )
+    {
+	mCreatePropSelFld( initialsat, tr("Reference for Initial Saturation"),
+			   PropertyRef::Volum, prevfld );
+	prevfld = lblboxinitialsat;
+	if ( proprefsel.find("Water Saturation") )
+	    setInitialSatProp( "Water Saturation" );
+    }
+
+    if ( set.withfinalsat_ )
+    {
+	mCreatePropSelFld( finalsat, tr("Reference for Final Saturation"),
+			   PropertyRef::Volum, prevfld );
+	prevfld = lblboxfinalsat;
+	if ( proprefsel.find("Water Saturation") )
+	    setFinalSatProp( "Water Saturation" );
+    }
+
+    if ( set.withpor_ )
+    {
+	mCreatePropSelFld( porosity, tr("Reference for Porosity"),
+			   PropertyRef::Volum, prevfld );
+	if ( proprefsel.find("Porosity") )
+	    setPorProp( "Porosity" );
+    }
+
     const bool haspwave =
 	    proprefsel.find(PropertyRef::standardPVelStr()) >=0 ||
-	    proprefsel.find( PropertyRef::standardPVelAliasStr()) >= 0;
+	    proprefsel.find(PropertyRef::standardPVelAliasStr()) >= 0;
     if ( !haspwave )
-	errmsg_ = tr("No reference to P wave velocity found");
+	errmsg_ = tr( "No reference to P wave velocity found" );
     const bool hasswave =
 	    proprefsel.find(PropertyRef::standardSVelStr()) >=0 ||
-	    proprefsel.find( PropertyRef::standardSVelAliasStr()) >= 0;
+	    proprefsel.find(PropertyRef::standardSVelAliasStr()) >= 0;
     if ( !hasswave )
-	errmsg_ = tr("No reference to S wave velocity found");
+	errmsg_ = tr( "No reference to S wave velocity found" );
 }
 
 
 bool uiStratLayModFRPropSelector::isOK() const
 {
+    if ( denfld_->isEmpty() || vpfld_->isEmpty() || vsfld_->isEmpty() )
+	return false;
+
+    if ( BufferString(vpfld_->text()) == BufferString(vsfld_->text()) )
+    {
+	errmsg_ = tr( "Selected property for P wave velocity and "
+		      "S wave velocity should be different." );
+    }
+
+    if ( (porosityfld_ && porosityfld_->isEmpty()) ||
+	 (initialsatfld_ && initialsatfld_->isEmpty()) ||
+	 (finalsatfld_ && finalsatfld_->isEmpty()) )
+	return false;
+
     return errmsg_.isEmpty();
 }
 
 
+#define mSetPropFromNm(propfunc,propnm) \
+    void uiStratLayModFRPropSelector::set##propfunc##Prop( const char* nm ) \
+    { \
+	if ( !propnm##fld_ ) \
+	    return; \
+	\
+	if ( propnm##fld_->isPresent(nm) ) \
+	    propnm##fld_->setCurrentItem( nm ); \
+	else \
+	    propnm##fld_->setCurrentItem(0); \
+    } \
+
+mSetPropFromNm(Den,den);
+mSetPropFromNm(VP,vp);
+mSetPropFromNm(VS,vs);
+mSetPropFromNm(Por,porosity);
+mSetPropFromNm(InitialSat,initialsat);
+mSetPropFromNm(FinalSat,finalsat);
+
+
 bool uiStratLayModFRPropSelector::needsDisplay() const
 {
-    if ( vpfld_->size() ==2 && vsfld_->size() ==2 && denfld_->size() ==1
-	&& sat1fld_->size() == 1 )
-	return false;
+    if ( denfld_->size() > 1 )
+	return true;
 
-    return vpfld_->size()>1 || vsfld_->size()>1 || denfld_->size()>1
-	|| sat1fld_->size()>1;
+    if ( vpfld_->size()>1 && vsfld_->size()>1 &&
+	 BufferString(getSelVPName()) == BufferString(getSelVSName()) )
+	return true;
+
+    if ( (porosityfld_ && porosityfld_->size() > 1) ||
+	 (initialsatfld_ && initialsatfld_->size() > 1) ||
+	 (finalsatfld_ && finalsatfld_->size() > 1) )
+	return true;
+
+    return !isOK();
+}
+
+
+bool uiStratLayModFRPropSelector::acceptOK()
+{
+    return isOK();
 }
 
 
 const char* uiStratLayModFRPropSelector::getSelVPName() const
-{
-    return vpfld_->text();
-}
-
+{ return vpfld_->text(); }
 
 const char* uiStratLayModFRPropSelector::getSelVSName() const
-{
-    return vsfld_->text();
-}
-
+{ return vsfld_->text(); }
 
 const char* uiStratLayModFRPropSelector::getSelDenName() const
-{
-    return denfld_->text();
-}
-
-
-const char* uiStratLayModFRPropSelector::getSelSat1Name() const
-{
-    return sat1fld_->text();
-}
-
-
-const char* uiStratLayModFRPropSelector::getSelSat2Name() const
-{
-    return sat2fld_->text();
-}
-
+{ return denfld_->text(); }
 
 const char* uiStratLayModFRPropSelector::getSelPorName() const
-{
-    return porosityfld_->text();
-}
+{ return porosityfld_ ? porosityfld_->text() : 0; }
+
+const char* uiStratLayModFRPropSelector::getSelInitialSatName() const
+{ return initialsatfld_ ? initialsatfld_->text() : 0; }
+
+const char* uiStratLayModFRPropSelector::getSelFinalSatName() const
+{ return finalsatfld_ ? finalsatfld_->text() : 0; }
