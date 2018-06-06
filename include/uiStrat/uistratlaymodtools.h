@@ -151,19 +151,47 @@ mExpClass(uiStrat) uiStratLayModFRPropSelector : public uiDialog
 { mODTextTranslationClass(uiStratLayModFRPropSelector)
 public:
 
+    mExpClass(uiStrat) Setup
+    {
+	public:
+			Setup(bool needpor=true,
+			      bool needinitsat=true,
+			      bool needfinalsat=true)
+			    : withpor_(needpor)
+			    , withinitsat_(needinitsat)
+			    , withfinalsat_(needfinalsat)
+			{}
+	mDefSetupMemb(bool,withpor)
+	mDefSetupMemb(bool,withinitsat)
+	mDefSetupMemb(bool,withfinalsat)
+    };
+
 			uiStratLayModFRPropSelector(uiParent*,
 						  const PropertyRefSelection&);
+			uiStratLayModFRPropSelector(uiParent*,
+						  const PropertyRefSelection&,
+						  const Setup&);
+
+    void		setDenProp(const char*);
+    void		setVPProp(const char*);
+    void		setVSProp(const char*);
+    void		setPorProp(const char*);
+    void		setInitialSatProp(const char*);
+    void		setFinalSatProp(const char*);
 
     bool		needsDisplay() const;
     bool		isOK() const;
     const char*		getSelVPName() const;
     const char*		getSelVSName() const;
     const char*		getSelDenName() const;
-    const char*		getSelSat1Name() const;
-    const char*		getSelSat2Name() const;
+    mDeprecated const char*	getSelSat1Name() const;
+    mDeprecated const char*	getSelSat2Name() const;
     const char*		getSelPorName() const;
 
     const uiString&	errMsg() const	{ return errmsg_; }
+
+    const char*		getSelInitialSatName() const;
+    const char*		getSelFinalSatName() const;
 
 protected:
 
