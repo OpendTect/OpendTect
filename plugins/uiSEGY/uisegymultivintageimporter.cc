@@ -47,17 +47,17 @@ uiSEGYMultiVintageImporter::uiSEGYMultiVintageImporter( uiParent* p )
     table_->setColumnLabel( 4, uiString::empty() );
     table_->setColumnWidth( 4, 1 );
     uiGroup* toolgrp = new uiGroup( this, "Tool group" );
-    uiToolButton* addbut = new uiToolButton(toolgrp, "create",
+    addbut_ = new uiToolButton(toolgrp, "create",
 				    uiStrings::phrAdd(uiStrings::sVintage()),
 				    mCB(this,uiSEGYMultiVintageImporter,addCB));
-    uiToolButton* removebut = new uiToolButton(toolgrp, "remove",
+    removebut_ = new uiToolButton(toolgrp, "remove",
 				 uiStrings::phrRemove(uiStrings::sVintage()),
 				 mCB(this,uiSEGYMultiVintageImporter,removeCB));
-    removebut->attach( alignedBelow, addbut );
-    uiToolButton* editbut = new uiToolButton(toolgrp, "edit",
+    removebut_->attach( alignedBelow, addbut_ );
+    editbut_ = new uiToolButton(toolgrp, "edit",
 				uiStrings::phrEdit(uiStrings::sVintage()),
 				mCB(this,uiSEGYMultiVintageImporter,editVntCB));
-    editbut->attach( alignedBelow, removebut );
+    editbut_->attach( alignedBelow, removebut_ );
     toolgrp->attach( rightOf, table_ );
     addCB( 0 );
 }
@@ -137,6 +137,17 @@ void uiSEGYMultiVintageImporter::saveIfNewVintage( const BufferString& vntnm )
 }
 
 
+void uiSEGYMultiVintageImporter::setButtonSensitivity( bool sensitive )
+{
+    const bool hasrows = table_->nrRows() != 0;
+    removebut_->setSensitive( hasrows && sensitive );
+    editbut_->setSensitive( hasrows && sensitive );
+    uiButton* okbut = button( uiDialog::OK );
+    if ( okbut ) okbut->setSensitive( hasrows && sensitive );
+    addbut_->setSensitive( sensitive );
+}
+
+
 void uiSEGYMultiVintageImporter::addCB( CallBacker* )
 {
     if ( !selectVintage() )
@@ -160,6 +171,7 @@ void uiSEGYMultiVintageImporter::addCB( CallBacker* )
 			  mCB(this,uiSEGYMultiVintageImporter,displayReportCB));
     table_->setCellObject( RowCol(rowidx,4), infobut );
     fillRow( rowidx );
+    setButtonSensitivity( true );
 }
 
 
@@ -211,7 +223,10 @@ void uiSEGYMultiVintageImporter::removeCB( CallBacker* cb )
 	return;
 
     const int rowid( table_->currentRow() );
+    SEGY::Vintage::Info* vintage = vntinfos_.removeSingle( rowid );
+    delete vintage;
     table_->removeRow( rowid );
+    setButtonSensitivity( true );
 }
 
 
@@ -297,7 +312,6 @@ bool uiSEGYMultiVintageImporter::acceptOK()
 				      updateStatus) );
 
     const bool res = rfdlg_->go();
-    uiButton* okbut = button( uiDialog::OK );
-    okbut->setSensitive( !res );
+    setButtonSensitivity( !res );
     return false;
 }

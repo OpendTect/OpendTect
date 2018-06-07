@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "filepath.h"
 
 class uiTable;
+class uiToolButton;
 class uiSEGYFileSelector;
 class uiSEGYImpType;;
 class uiSEGYReadStarter;
@@ -40,6 +41,7 @@ protected:
     void		saveIfNewVintage(const BufferString&);
     void		updateStatus(CallBacker*);
     void		displayReportCB(CallBacker*);
+    void		setButtonSensitivity(bool);
 
     BufferStringSet	selfilenms_;
     uiTable*		table_;
@@ -49,4 +51,8 @@ protected:
     uiSEGYFileSelector* fsdlg_;
     uiSEGYReadFinisher* rfdlg_;
     ObjectSet<SEGY::Vintage::Info> vntinfos_;
+
+    uiToolButton*	addbut_;
+    uiToolButton*	removebut_;
+    uiToolButton*	editbut_;
 };
