@@ -79,6 +79,7 @@ public:
     void		remove(PointID);
     void		deInterpolate();	//!< Remove unnecessary points
     void		shiftDahFrom(PointID,ZType);
+    void		convertZ(bool tofeet);
 
 			// Use MonitorLock when iterating
     PointID		pointIDFor(IdxType) const;

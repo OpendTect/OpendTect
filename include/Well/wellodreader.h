@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellreadaccess.h"
-#include "wellio.h"
+#include "wellodio.h"
 #include "od_iosfwd.h"
 class IOObj;
 
@@ -52,16 +52,18 @@ public:
 
 protected:
 
+    float		getZFac(const IOPar&,double) const;
     void		readLogData(Log&,od_istream&,int) const;
-    bool		getTrack(od_istream&) const;
+    bool		gtTrack(od_istream&,float) const;
     bool		doGetD2T(od_istream&,bool csmdl) const;
     bool		doGetD2T(bool) const;
     void		getLogNames(BufferStringSet&,TypeSet<int>&) const;
 
-    static Log*		rdLogHdr(od_istream&,int&,int);
+    static Log*		rdLogHdr(od_istream&,int&,int,IOPar&);
 
     void		setInpStrmOpenErrMsg(od_istream&) const;
     void		setStrmOperErrMsg(od_istream&,const uiString&) const;
+    uiString		sCannotReadFileHeader() const;
 
 };
 

@@ -38,7 +38,7 @@ float Well::getDefaultVelocity()
 
 
 // Keys for IOPars
-const char* Well::Info::sKeyDepthUnit() { return sKey::DepthUnit(); }
+const char* Well::Info::sKeyWellName()	{ return "Well name"; }
 const char* Well::Info::sKeyUwid()	{ return "Unique Well ID"; }
 const char* Well::Info::sKeyOper()	{ return "Operator"; }
 const char* Well::Info::sKeyState()	{ return "State"; }
@@ -89,8 +89,6 @@ void EnumDefImpl<Well::Info::WellType>::init()
     uistrings_ += mEnumTr("Canceled Location",0);
     uistrings_ += mEnumTr("Injection Disposal Well",0);
 }
-
-static const char* sWellName = "Well name";
 
 
 mDefineInstanceCreatedNotifierAccess(Well::Info);
@@ -153,35 +151,34 @@ Monitorable::ChangeType Well::Info::compareClassData( const Info& oth ) const
 }
 
 
-int Well::Info::legacyLogWidthFactor()
+void Well::Info::fillPar( IOPar& iop ) const
 {
-   const int inlnr = SI().inlRange( true ).nrSteps() + 1;
-   const int crlnr = SI().crlRange( true ).nrSteps() + 1;
-   const float survfac = Math::Sqrt( (float)(crlnr*crlnr + inlnr*inlnr) );
-   const int legacylogwidthfac = mNINT32(survfac*43/1000);
-   //hack 43 best factor based on F3_Demo
-   return legacylogwidthfac!=0 ? legacylogwidthfac : 1;
+    if ( surfaceCoord() != Coord(0,0) )
+	iop.set( sKeyCoord(), surfacecoord_ );
+    else
+	iop.removeWithKey( sKeyCoord() );
+
+    iop.set( sKeyUwid(), uwid_ );
+    iop.set( sKeyOper(), oper_ );
+    iop.set( sKeyState(), state_ );
+    iop.set( sKeyCounty(), county_ );
+    iop.set( sKeyWellType(), (int)welltype_ );
+    iop.set( sKeyReplVel(), replvel_ );
+    iop.set( sKeyGroundElev(), groundelev_ );
+    iop.set( sKeyWellName(), name() );
 }
 
 
-void Well::Info::fillPar( IOPar& par ) const
-{
-    par.set( sWellName, name() );
-    par.set( sKeyUwid(), uwid_ );
-    par.set( sKeyOper(), oper_ );
-    par.set( sKeyState(), state_ );
-    par.set( sKeyCounty(), county_ );
-    par.set( sKeyWellType(), (int)welltype_ );
-    par.set( sKeyDepthUnit(), isdepthinfeet_ ? "Feet" : "Meter" );
-    par.set( sKeyCoord(), surfacecoord_.toString() );
-    par.set( sKeyReplVel(), replvel_ );
-    par.set( sKeyGroundElev(), groundelev_ );
-}
+static const char* sKeyOldreplvel = "Replacement velocity";
+static const char* sKeyOldgroundelev = "Ground Level elevation";
 
 
 void Well::Info::usePar( const IOPar& par )
 {
-    setName( par.find(sWellName) );
+    const BufferString parnm( par.find(sKeyWellName()) );
+    if ( !parnm.isEmpty() )
+	setName( parnm );
+
     par.get( sKeyUwid(), uwid_ );
     par.get( sKeyOper(), oper_ );
     par.get( sKeyState(), state_ );
@@ -189,11 +186,13 @@ void Well::Info::usePar( const IOPar& par )
     int welltype = (int)welltype_;
     par.get( sKeyWellType(), welltype );
     welltype_ = (WellType)welltype;
-    BufferString depthtype = 0;
-    par.get( sKeyDepthUnit(), depthtype ); isdepthinfeet_ = depthtype == "Feet";
-    surfacecoord_.fromString( par.find(sKeyCoord()) );
-    par.get( sKeyReplVel(), replvel_ );
-    par.get( sKeyGroundElev(), groundelev_ );
+    const BufferString coordstr( par.find(sKeyCoord()) );
+    if ( !coordstr.isEmpty() )
+	surfacecoord_.fromString( coordstr );
+    if ( !par.get(sKeyReplVel(),replvel_) )
+	par.get( sKeyOldreplvel, replvel_ );
+    if ( !par.get(sKeyGroundElev(),groundelev_) )
+	par.get( sKeyOldgroundelev, groundelev_ );
 }
 
 

@@ -12,9 +12,11 @@ ________________________________________________________________________
 -*/
 
 #include "wellwriteaccess.h"
-#include "wellio.h"
+#include "wellodio.h"
 #include "od_iosfwd.h"
 class IOObj;
+class ascostream;
+
 
 namespace Well
 {
@@ -66,6 +68,7 @@ protected:
     bool		putTrack(od_ostream&) const;
     bool		doPutD2T(bool) const;
     bool		doPutD2T(od_ostream&,bool) const;
+    void		putDepthUnit(ascostream&) const;
 
 private:
 

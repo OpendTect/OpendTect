@@ -62,7 +62,6 @@ public:
 			BufferString,source_,cSourceChg());
 				//!< .e.g. the file name of the .well file
 
-    static const char*	sKeyDepthUnit();
     static const char*	sKeyUwid();
     static const char*	sKeyOper();
     static const char*	sKeyState();
@@ -72,9 +71,8 @@ public:
     static const char*	sKeyTD();
     static const char*	sKeyReplVel();
     static const char*	sKeyGroundElev();
+    static const char*	sKeyWellName();
     static const char*	sKeyWellType();
-    static int		legacyLogWidthFactor();
-    bool		isdepthinfeet_;
 
     static uiString	sUwid();
     static uiString	sOper();

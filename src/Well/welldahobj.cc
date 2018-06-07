@@ -421,6 +421,18 @@ void Well::DahObj::deInterpolate()
 }
 
 
+void Well::DahObj::convertZ( bool tofeet )
+{
+    mLock4Write();
+
+    const float zfac = tofeet ? mToFeetFactorF : mFromFeetFactorF;
+    for ( IdxType idx=0; idx<dahs_.size(); idx++ )
+	dahs_[idx] *= zfac;
+
+    mSendEntireObjChgNotif();
+}
+
+
 void Well::DahObj::shiftDahFrom( PointID id, float dahshift )
 {
     mLock4Write();

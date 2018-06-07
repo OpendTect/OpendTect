@@ -16,7 +16,7 @@
 #include "dbman.h"
 #include "od_ostream.h"
 #include "wellmanager.h"
-#include "wellio.h"
+#include "wellodio.h"
 #include "welllogset.h"
 #include "tutlogtools.h"
 

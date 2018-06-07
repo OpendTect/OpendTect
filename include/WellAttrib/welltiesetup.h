@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "enums.h"
 #include "dbkey.h"
-#include "wellio.h"
+#include "wellodio.h"
 #include "welld2tmodel.h"
 #include "od_iosfwd.h"
 

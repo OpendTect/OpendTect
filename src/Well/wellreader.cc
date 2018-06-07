@@ -33,6 +33,7 @@
 #include "welldisp.h"
 #include "od_istream.h"
 #include "uistrings.h"
+#include "odversion.h"
 
 
 const char* Well::odIO::sKeyWell()	{ return "Well"; }
@@ -297,9 +298,9 @@ static const char* rdHdr( od_istream& strm, const char* fileky,
 	return 0;
     }
 
-    ver = (double)astrm.majorVersion() +
-	  ((double)astrm.minorVersion() / (double)10);
-    mDeclStaticString( hdrln ); hdrln = astrm.headerStartLine();
+    ver = (double)astrm.majorVersion() + ((double)astrm.minorVersion() * 0.1);
+    mDeclStaticString( hdrln );
+    hdrln = astrm.headerStartLine();
     return hdrln.buf();
 }
 
@@ -314,11 +315,6 @@ static const char* rdHdr( od_istream& strm, const char* fileky,
 	todo; \
     }
 
-
-#define mGetZFac() \
-    float zfac = 1.f; \
-    if ( SI().zInFeet() != wd_.info().isdepthinfeet_ ) \
-	zfac = wd_.info().isdepthinfeet_ ? mFromFeetFactorF : mToFeetFactorF;
 
 Well::odReader::odReader( const char* f, Well::Data& w, uiString& e )
     : Well::odIO(f,e)
@@ -357,7 +353,7 @@ void Well::odReader::setInpStrmOpenErrMsg( od_istream& strm ) const
 void Well::odReader::setStrmOperErrMsg( od_istream& strm,
 					const uiString& oper ) const
 {
-    errmsg_ = tr("Cannot %1 for '%2'").arg( oper ).arg( strm.fileName() );
+    errmsg_ = toUiString("%1 ['%2']").arg( oper ).arg( strm.fileName() );
     strm.addErrMsgTo( errmsg_ );
 }
 
@@ -365,72 +361,77 @@ void Well::odReader::setStrmOperErrMsg( od_istream& strm,
 #define mErrStrmOper(oper,todo) { setStrmOperErrMsg( strm, oper ); todo; }
 #define mErrRetStrmOper(oper) mErrStrmOper(oper,return false)
 
-static const char* sKeyOldreplvel()	{ return "Replacement velocity"; }
-static const char* sKeyOldgroundelev()	{ return "Ground Level elevation"; }
+#define mRdHdr(strm,ky) \
+    double version = mODMajorVersion + mODMinorVersion * 0.1; \
+    mUnusedVar const char* hdrinfo = rdHdr( strm, ky, version )
+
+#define mGetZFac(iop) const float zfac = getZFac( iop, version )
+
+
+uiString Well::odReader::sCannotReadFileHeader() const
+{
+    return tr( "Cannot read file header" );
+}
+
+
+float Well::odReader::getZFac( const IOPar& iop, double version ) const
+{
+    float zfac = 1.f;
+    if ( version < 4.19 )
+    {
+	// Policy before 4.2: always store in internal units, i.e. meters
+	if ( SI().zInFeet() )
+	    zfac = mToFeetFactorF;
+    }
+    else
+    {
+	// Policy from 4.2: store in m unkess survey Z unit is feet
+	BufferString depthunstr;
+	iop.get( sKey::DepthUnit(), depthunstr );
+	if ( !depthunstr.isEmpty() )
+	{
+	    const bool storedisfeet = depthunstr.startsWith( "F" );
+	    if ( storedisfeet != SI().zInFeet() )
+		zfac = storedisfeet ? mFromFeetFactorF : mToFeetFactorF;
+	}
+    }
+    return zfac;
+}
+
 
 bool Well::odReader::getInfo( od_istream& strm ) const
 {
     ChangeNotifyBlocker nb( wd_.info() );
-    double version = 0.0;
-    const char* hdrln = rdHdr( strm, sKeyWell(), version );
-    if ( !hdrln )
-	mErrRetStrmOper( tr("read header") )
-    bool badhdr = *hdrln != 'd';
+
+    mRdHdr( strm, sKeyWell() );
+    if ( !hdrinfo )
+	mErrRetStrmOper( sCannotReadFileHeader() )
+    bool badhdr = *hdrinfo != 'd';
     if ( !badhdr )
     {
-	if ( *(hdrln+1) == 'G' )
+	if ( *(hdrinfo+1) == 'G' )
 	{
 	    errmsg_.set( "Cannot read old time wells" );
 	    strm.addErrMsgTo( errmsg_ );
 	    return false;
 	}
-	else if ( *(hdrln+1) != 'T' )
+	else if ( *(hdrinfo+1) != 'T' )
 	    badhdr = true;
     }
     if ( badhdr )
-	mErrRetStrmOper( tr("find proper file header in main well file") )
+	mErrRetStrmOper( tr("File header is incorrect") )
 
-    wd_.info().isdepthinfeet_ = SI().zInFeet() && version > 4.195;
 
+    IOPar iop;
     ascistream astrm( strm, false );
-    while ( !atEndOfSection(astrm.next()) )
-    {
-	if ( astrm.hasKeyword(Well::Info::sKeyDepthUnit()) )
-	{
-	    BufferString depthstr = astrm.value();
-	    wd_.info().isdepthinfeet_ = depthstr == "Feet";
-	}
-	else if ( astrm.hasKeyword(Well::Info::sKeyUwid()) )
-	    wd_.info().setUWI( astrm.value() );
-	else if ( astrm.hasKeyword(Well::Info::sKeyOper()) )
-	    wd_.info().setWellOperator( astrm.value() );
-	else if ( astrm.hasKeyword(Well::Info::sKeyState()) )
-	    wd_.info().setState( astrm.value() );
-	else if ( astrm.hasKeyword(Well::Info::sKeyCounty()) )
-	    wd_.info().setCounty( astrm.value() );
-	else if ( astrm.hasKeyword(sKeyOldreplvel()) ||
-		  astrm.hasKeyword(Well::Info::sKeyReplVel()) )
-	    wd_.info().setReplacementVelocity( astrm.getFValue() );
-	else if ( astrm.hasKeyword(sKeyOldgroundelev()) ||
-		  astrm.hasKeyword(Well::Info::sKeyGroundElev()) )
-	    wd_.info().setGroundElevation( astrm.getFValue() );
-	else if ( astrm.hasKeyword(Well::Info::sKeyCoord()) )
-	{
-	    Coord coord; coord.fromString( astrm.value() );
-	    wd_.info().setSurfaceCoord( coord );
-	}
-	else if ( astrm.hasKeyword(Well::Info::sKeyWellType()) )
-	{
-	    int welltype = astrm.getIValue();
-	    wd_.info().setWellType( (Info::WellType)welltype );
-	}
-    }
+    iop.getFrom( astrm );
 
     const Coord surfcoord = wd_.info().surfaceCoord();
     if ( (mIsZero(surfcoord.x_,0.001) && mIsZero(surfcoord.x_,0.001))
 	    || (mIsUdf(surfcoord.x_) && mIsUdf(surfcoord.x_)) )
     {
-	if ( wd_.track().isEmpty() && !getTrack(strm) )
+	mGetZFac( iop );
+	if ( wd_.track().isEmpty() && !gtTrack(strm,zfac) )
 	    return false;
 
 	wd_.info().setSurfaceCoord( wd_.track().firstPos().getXY() );
@@ -440,12 +441,10 @@ bool Well::odReader::getInfo( od_istream& strm ) const
 }
 
 
-bool Well::odReader::getTrack( od_istream& strm ) const
+bool Well::odReader::gtTrack( od_istream& strm, float zfac ) const
 {
     Coord3 c, c0; float dah;
     wd_.track().setEmpty();
-
-    mGetZFac();
 
     ChangeNotifyBlocker nb( wd_.track() );
     while ( strm.isOK() )
@@ -453,10 +452,10 @@ bool Well::odReader::getTrack( od_istream& strm ) const
 	strm >> c.x_ >> c.y_ >> c.z_ >> dah;
 	if ( !strm.isOK() || c.distTo<float>(c0) < 1 )
 	    break;
-	wd_.track().addPoint( c.getXY(), (float) c.z_*zfac, dah*zfac );
+	wd_.track().addPoint( c.getXY(), (float)c.z_*zfac, dah*zfac );
     }
     if ( wd_.track().isEmpty() )
-	mErrRetStrmOper( tr("find track data") )
+	mErrRetStrmOper( tr("No valid well track data found") )
 
     return true;
 }
@@ -466,13 +465,15 @@ bool Well::odReader::getTrack() const
 {
     od_istream strm( getFileName(sExtWell(),0) );
     if ( !strm.isOK() )
-	mErrRetStrmOper( tr("find valid main well file") )
+	mErrRetStrmOper( tr("No valid main well file found") )
 
-    ascistream astrm( strm );
+    mRdHdr( strm, sKeyWell() );
 
-    IOPar dum; dum.getFrom( astrm );
+    ascistream astrm( strm, false );
+    IOPar iop; iop.getFrom( astrm );
+    mGetZFac( iop );
 
-    return getTrack( strm );
+    return gtTrack( strm, zfac );
 }
 
 
@@ -486,15 +487,16 @@ void Well::odReader::getLogNames( BufferStringSet& nms ) const
 void Well::odReader::getLogNames( BufferStringSet& nms,
 				  TypeSet<int>& idxs ) const
 {
+    IOPar dumiop;
     for ( int idx=1;  ; idx++ )
     {
 	mGetInpStream( sExtLog(), idx, false, break );
 
-	double version = 0.0;
-	if ( rdHdr(strm,sKeyLog(),version) )
+	mRdHdr( strm, sKeyLog() );
+	if ( hdrinfo )
 	{
 	    int bintyp = 0;
-	    RefMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
+	    RefMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1, dumiop );
 	    if ( nms.isPresent(log->name()) )
 	    {
 		BufferString msg( log->name() );
@@ -513,15 +515,16 @@ void Well::odReader::getLogNames( BufferStringSet& nms,
 
 void Well::odReader::getLogInfo( ObjectSet<IOPar>& iops ) const
 {
+    IOPar dumiop;
     for ( int idx=1;  ; idx++ )
     {
 	mGetInpStream( sExtLog(), idx, false, break );
 
-	double version = 0.0;
-	if ( rdHdr(strm,sKeyLog(),version) )
+	mRdHdr( strm, sKeyLog() );
+	if ( hdrinfo )
 	{
 	    int bintyp = 0;
-	    RefMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
+	    RefMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1, dumiop );
 	    IOPar* iop = new IOPar( log->pars() );
 	    iop->set( sKey::Name(), log->name() );
 	    iop->set( sKey::Unit(), log->unitMeasLabel() );
@@ -565,31 +568,34 @@ bool Well::odReader::getLogs() const
 }
 
 
-Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
+Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int ilog,
+				     IOPar& iop )
 {
     Well::Log* newlog = new Well::Log;
     ascistream astrm( strm, false );
-    bool havehdrinfo = false;
+    iop.getFrom( astrm );
+
     bintype = 0;
-    while ( !atEndOfSection(astrm.next()) )
+    for ( int idx=0; idx<iop.size(); idx++ )
     {
-	if ( astrm.hasKeyword(sKey::Name()) )
-	    newlog->setName( astrm.value() );
-	if ( astrm.hasKeyword(Well::Log::sKeyUnitLbl()) )
-	    newlog->setUnitMeasLabel( astrm.value() );
-	if ( astrm.hasKeyword(Well::Log::sKeyHdrInfo()) )
-	    havehdrinfo = astrm.getYN();
-	if ( astrm.hasKeyword(Well::Log::sKeyStorage()) )
-	    bintype = *astrm.value() == 'B' ? 1
-		    : (*astrm.value() == 'S' ? -1 : 0);
+	const FixedString ky = iop.getKey( idx );
+	const FixedString val = iop.getValue( idx );
+	if ( ky == sKey::Name() )
+	    newlog->setName( val );
+	if ( ky == Well::Log::sKeyUnitLbl() )
+	    newlog->setUnitMeasLabel( val );
+	if ( ky == Well::Log::sKeyStorage() )
+	    bintype = val[0] == 'B' ? 1
+		    : val[0] == 'S' ? -1 : 0;
     }
+
     if ( newlog->name().isEmpty() )
     {
-	BufferString nm( "[" ); nm += idx+1; nm += "]";
+	BufferString nm( "[" ); nm += ilog+1; nm += "]";
 	newlog->setName( nm );
     }
 
-    if ( havehdrinfo )
+    if ( iop.isTrue(Well::Log::sKeyHdrInfo()) )
 	newlog->pars().getFrom( astrm );
 
     return newlog;
@@ -598,14 +604,15 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 
 bool Well::odReader::addLog( od_istream& strm ) const
 {
-    double version = 0.0;
-    if ( !rdHdr(strm,sKeyLog(),version) )
+    mRdHdr( strm, sKeyLog() );
+    if ( !hdrinfo )
 	return false;
 
     int bintype = 0;
-    Well::Log* newlog = rdLogHdr( strm, bintype, wd_.logs().size() );
+    IOPar logiop;
+    Well::Log* newlog = rdLogHdr( strm, bintype, wd_.logs().size(), logiop );
     if ( !newlog )
-	mErrRetStrmOper( tr("read log") )
+	mErrRetStrmOper( sCannotReadFileHeader() )
 
     readLogData( *newlog, strm, bintype );
     TypeSet<float> dahvals, zvals;
@@ -627,13 +634,10 @@ bool Well::odReader::addLog( od_istream& strm ) const
 	}
     }
 
-    mGetZFac();
-    for ( int idx=0; idx<dahvals.size(); idx++ )
-	dahvals[idx] *= zfac;
-
     PropertyRef::StdType proptyp =  newlog->propType();
     if ( proptyp == PropertyRef::Son ||  proptyp == PropertyRef::Vel )
     {
+	mGetZFac( logiop );
 	for ( int idx=0; idx<zvals.size(); idx++ )
 	{
 	    if ( mIsUdf(zvals[idx]) )
@@ -684,15 +688,15 @@ bool Well::odReader::getMarkers() const
 
 bool Well::odReader::getMarkers( od_istream& strm ) const
 {
-    double version = 0.0;
-    if ( !rdHdr(strm,sKeyMarkers(),version) )
-	mErrRetStrmOper( tr("read header") )
+    mRdHdr( strm, sKeyMarkers() );
+    if ( !hdrinfo )
+	mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );
 
     IOPar iopar( astrm );
     if ( iopar.isEmpty() )
-	mErrRetStrmOper( tr("find anything in file") )
+	return true;
 
     if ( wd_.track().isEmpty() )
     {
@@ -705,14 +709,14 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
     wd_.markers().setEmpty();
     BufferString bs;
 
-    mGetZFac();
-
     ChangeNotifyBlocker nb( wd_.markers() );
+    mGetZFac( iopar );
     for ( int idx=1;  ; idx++ )
     {
 	BufferString basekey; basekey += idx;
 	BufferString key = IOPar::compKey( basekey, sKey::Name() );
-	if ( !iopar.get(key,bs) ) break;
+	if ( !iopar.get(key,bs) )
+	    break;
 
 	Well::Marker wm( bs );
 	ChangeNotifyBlocker mnb( wm, false );
@@ -720,9 +724,8 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 	key = IOPar::compKey( basekey, Well::Marker::sKeyDah() );
 	if ( !iopar.get(key,bs) )
 	    { continue; }
-	const float val = bs.toFloat();
-	wm.setDah( (SI().zInFeet() && version<4.195) ? (val*zfac)
-						      : val );
+	wm.setDah( bs.toFloat() * zfac );
+
 	key = IOPar::compKey( basekey, sKey::StratRef() );
 	Well::Marker::LevelID lvlid;
 	iopar.get( key, lvlid );
@@ -761,25 +764,28 @@ bool Well::odReader::getCSMdl( od_istream& strm ) const
 { return doGetD2T(strm,true); }
 bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 {
-    double version = 0.0;
-    if ( !rdHdr(strm,sKeyD2T(),version) )
-	mErrRetStrmOper( tr("read D/T file header") )
+    mRdHdr( strm, sKeyD2T() );
+    if ( !hdrinfo )
+	mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );
+    IOPar iop;
+    iop.getFrom( astrm );
     Well::D2TModel d2t;
     ChangeNotifyBlocker nb( d2t );
-    while ( !atEndOfSection(astrm.next()) )
+    for ( int idx=0; idx<iop.size(); idx++ )
     {
-	if ( astrm.hasKeyword(sKey::Name()) )
-	    d2t.setName( astrm.value() );
-	else if ( astrm.hasKeyword(sKey::Desc()) )
-	    d2t.setDesc( astrm.value() );
-	else if ( astrm.hasKeyword(Well::D2TModel::sKeyDataSrc()) )
-	    d2t.setDataSource( astrm.value() );
+	const FixedString ky = iop.getKey( idx );
+	const FixedString val = iop.getValue( idx );
+	if ( ky == sKey::Name() )
+	    d2t.setName( val );
+	else if ( ky == sKey::Desc() )
+	    d2t.setDesc( val );
+	else if ( ky == Well::D2TModel::sKeyDataSrc() )
+	    d2t.setDataSource( val );
     }
 
-    mGetZFac();
-
+    mGetZFac( iop );
     while ( strm.isOK() )
     {
 	float dah, val; strm >> dah >> val;
@@ -789,7 +795,7 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
     }
 
     if ( !updateDTModel(d2t,csmdl,errmsg_) )
-	mErrRetStrmOper( tr("read valid Time/Depth relation") )
+	mErrRetStrmOper( tr("Time/Depth relation in file is not valid") )
 
     return true;
 }
@@ -804,9 +810,9 @@ bool Well::odReader::getDispProps() const
 
 bool Well::odReader::getDispProps( od_istream& strm ) const
 {
-    double version = 0.0;
-    if ( !rdHdr(strm,sKeyDispProps(),version) )
-	mErrRetStrmOper( tr("read well properties header") )
+    mRdHdr( strm, sKeyDispProps() );
+    if ( !hdrinfo )
+	mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );
     IOPar iop; iop.getFrom( astrm );

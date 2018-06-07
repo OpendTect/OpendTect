@@ -60,7 +60,7 @@ void Well::HDF5Writer::init( const char* fnm )
 
     wrr_ = HDF5::mkWriter();
     if ( !wrr_ )
-	{ pErrMsg("Available but no reader?"); return; }
+	{ pErrMsg("Available but no writer?"); return; }
 
     const bool neededit = HDF5::isHDF5File( fnm );
     uiRetVal uirv = neededit ? wrr_->open4Edit( fnm ) : wrr_->open( fnm );

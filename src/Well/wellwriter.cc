@@ -142,6 +142,13 @@ void Well::odWriter::init()
 }
 
 
+void Well::odWriter::putDepthUnit( ascostream& astrm ) const
+{
+    astrm.put( sKey::DepthUnit(),
+		UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
+}
+
+
 void Well::odWriter::setStrmErrMsg( od_stream& strm,
 				    const uiString& oper ) const
 {
@@ -192,20 +199,15 @@ bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
     if ( !wrHdr(strm,sKeyWell()) )
 	mErrRetStrmOper(tr("write header (info/track)"))
 
+    IOPar iop;
+    wd_.info().fillPar( iop );
+
+    // Name can be changed in obj management. Don't want it in file.
+    iop.removeWithKey( Well::Info::sKeyWellName() );
+
     ascostream astrm( strm );
-    astrm.put( Well::Info::sKeyDepthUnit(),
-	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
-    astrm.put( Well::Info::sKeyUwid(), wd_.info().UWI() );
-    astrm.put( Well::Info::sKeyOper(), wd_.info().wellOperator() );
-    astrm.put( Well::Info::sKeyState(), wd_.info().getState() );
-    astrm.put( Well::Info::sKeyCounty(), wd_.info().getCounty() );
-    astrm.put( Well::Info::sKeyWellType(), (int)wd_.info().wellType() );
-    if ( wd_.info().surfaceCoord() != Coord(0,0) )
-	astrm.put( Well::Info::sKeyCoord(),
-			wd_.info().surfaceCoord().toString());
-    astrm.put( Well::Info::sKeyReplVel(), wd_.info().replacementVelocity() );
-    astrm.put( Well::Info::sKeyGroundElev(), wd_.info().groundElevation() );
-    astrm.newParagraph();
+    putDepthUnit( astrm );
+    iop.putTo( astrm );
 
     return putTrack( strm );
 }
@@ -253,8 +255,7 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
 
     MonitorLock ml( wl );
     ascostream astrm( strm );
-    astrm.put( Well::Info::sKeyDepthUnit(),
-	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
+    putDepthUnit( astrm );
     astrm.put( sKey::Name(), wl.name() );
     const BufferString uomlbl = wl.unitMeasLabel();
     const bool haveunits = !uomlbl.isEmpty();
@@ -325,8 +326,7 @@ bool Well::odWriter::putMarkers( od_ostream& strm ) const
 	mErrRetStrmOper(tr("write header (markers)"))
 
     ascostream astrm( strm );
-    astrm.put( Well::Info::sKeyDepthUnit(),
-	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
+    putDepthUnit( astrm );
 
     const Well::MarkerSet&  markerset = wd_.markers();
     Well::MarkerSetIter miter( markerset );
@@ -379,8 +379,7 @@ bool Well::odWriter::doPutD2T( od_ostream& strm, bool csmdl ) const
     astrm.put( sKey::Name(), d2t.name() );
     astrm.put( sKey::Desc(), d2t.desc() );
     astrm.put( D2TModel::sKeyDataSrc(), d2t.dataSource() );
-    astrm.put( Well::Info::sKeyDepthUnit(),
-	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
+    putDepthUnit( astrm );
     astrm.newParagraph();
 
     D2TModelIter iter( d2t );
