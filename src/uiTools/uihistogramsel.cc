@@ -188,6 +188,21 @@ void uiHistogramSel::histogramResized( CallBacker* cb )
 }
 
 
+void uiHistogramSel::setDataRange( const Interval<float>& rg )
+{
+    datarg_ = rg;
+    cliprg_ = datarg_;
+    drawAgain();
+}
+
+
+void uiHistogramSel::setSelRange( const Interval<float>& rg )
+{
+    cliprg_ = rg;
+    drawAgain();
+}
+
+
 bool uiHistogramSel::changeLinePos( bool firstclick )
 {
     MouseEventHandler& meh = histogramdisp_->getMouseEventHandler();

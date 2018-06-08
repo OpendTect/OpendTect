@@ -40,7 +40,10 @@ public:
     bool			setData(const IOPar&);
     void			setMarkValue(float,bool forx);
 
+    const Interval<float>&	getDataRange() const	{ return datarg_; }
+    void			setDataRange(const Interval<float>&);
     const Interval<float>&	getSelRange() const	{ return cliprg_; }
+    void			setSelRange(const Interval<float>&);
 
     uiHistogramDisplay&		getDisplay()	{ return *histogramdisp_; }
 
