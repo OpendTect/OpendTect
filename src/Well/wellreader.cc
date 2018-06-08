@@ -377,22 +377,17 @@ uiString Well::odReader::sCannotReadFileHeader() const
 float Well::odReader::getZFac( const IOPar& iop, double version ) const
 {
     float zfac = 1.f;
-    if ( version < 4.19 )
-    {
+    if ( version > 4.19 )
 	// Policy before 4.2: always store in internal units, i.e. meters
-	if ( SI().zInFeet() )
-	    zfac = mToFeetFactorF;
-    }
-    else
     {
-	// Policy from 4.2: store in m unkess survey Z unit is feet
+	// Policy from 4.2: store in m unless survey Z unit is feet
 	BufferString depthunstr;
 	iop.get( sKey::DepthUnit(), depthunstr );
 	if ( !depthunstr.isEmpty() )
 	{
 	    const bool storedisfeet = depthunstr.startsWith( "F" );
-	    if ( storedisfeet != SI().zInFeet() )
-		zfac = storedisfeet ? mFromFeetFactorF : mToFeetFactorF;
+	    if ( storedisfeet )
+		zfac = mFromFeetFactorF;
 	}
     }
     return zfac;
