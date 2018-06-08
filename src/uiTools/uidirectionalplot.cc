@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dataclipper.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
-#include <iostream>
 
 
 static uiPoint uiPointFromPolar( const uiPoint& c, float r, float angrad )
@@ -58,6 +57,9 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     setPrefHeight( setup_.prefsize_.height() );
     setSceneBorder( 20 );
     setStretch( 2, 2 );
+
+    getMouseEventHandler().movement.notify(
+			mCB(this,uiDirectionalPlot,mouseMoveCB) );
     getMouseEventHandler().buttonReleased.notify(
 			mCB(this,uiDirectionalPlot,mouseRelease) );
 
@@ -340,16 +342,16 @@ void uiDirectionalPlot::drawDirAnnot()
 	    const uiString txt = idx == 0 ? uiStrings::sNorth(true)
 			      : (idx == 1 ? uiStrings::sEast(true)
 			      : (idx == 2 ? uiStrings::sSouth(true)
-			      		  : uiStrings::sWest(true)));
+					  : uiStrings::sWest(true)));
 	    Alignment al( isew ? (idx==1 ? Alignment::Left : Alignment::Right)
 					  : Alignment::HCenter,
-		          isew ? Alignment::VCenter
+			  isew ? Alignment::VCenter
 			  : (idx == 2 ? Alignment::Top : Alignment::Bottom) );
 	    uiTextItem* ti = scene().addItem( new uiTextItem(txt,al) );
 	    dirtxtitms_ += ti;
 
 	    uiPoint pt( isew ? (idx==1 ? 4 : -4) : 0,
-		        isew ? 0 : (idx==2 ? 4 : -4) );
+			isew ? 0 : (idx==2 ? 4 : -4) );
 	    dirlnitms_ += scene().addItem( new uiLineItem(pt00,pt) );
 	}
     }
@@ -519,12 +521,38 @@ void uiDirectionalPlot::drawSelection()
 }
 
 
+void uiDirectionalPlot::mouseMoveCB( CallBacker* )
+{
+    if ( getMouseEventHandler().isHandled() )
+	return;
+
+    const MouseEvent& ev = getMouseEventHandler().event();
+    uiPoint relpos( ev.x(), ev.y() ); relpos -= center_;
+    if ( relpos.x == 0 && relpos.y == 0 ) return;
+
+    const double r = relpos.abs();
+    if ( r > radius_ )
+	return;
+
+/*
+    double azimuthrad = acos( relpos.x/r );
+    if ( relpos.y > 0 )
+	azimuthrad = 2*M_PI - azimuthrad;
+    const double azimuth =
+	Angle::convert( Angle::Rad, azimuthrad, Angle::UsrDeg );
+
+    // Outermost circle - dip = 0, center - dip = 90 degrees
+    const double dip = (r - radius_) * 90 / radius_;
+*/
+}
+
+
 #define mGetMousePos()  \
     if ( getMouseEventHandler().isHandled() ) \
 	return; \
     const MouseEvent& ev = getMouseEventHandler().event(); \
     if ( !(ev.buttonState() & OD::LeftButton) ) \
-        return; \
+	return; \
     const bool isctrl = ev.ctrlStatus(); \
     const bool isoth = ev.shiftStatus() || ev.altStatus(); \
     const bool isnorm = !isctrl && !isoth; \

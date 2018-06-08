@@ -128,6 +128,7 @@ protected:
     uiTextItem*			scalestopitm_;
     uiColTabItem*		coltabitm_;
 
+    void			mouseMoveCB(CallBacker*);
     void			mouseRelease(CallBacker*);
     void			reSized(CallBacker*);
 
