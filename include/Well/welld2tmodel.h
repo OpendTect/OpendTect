@@ -75,10 +75,10 @@ protected:
     BufferString	desc_;
     BufferString	datasource_;
 
-    virtual bool	doSet(IdxType,ValueType);
+    virtual bool	doSet(idx_type,ValueType);
     virtual PointID	doInsAtDah( ZType dh, ValueType val )
 			{ return doIns( dh, val, times_, true  ); }
-    virtual ValueType	gtVal( IdxType idx ) const  { return times_[idx]; }
+    virtual ValueType	gtVal( idx_type idx ) const  { return times_[idx]; }
     virtual void	removeAux( int idx )	    { times_.removeSingle(idx);}
     virtual void	eraseAux()		    { times_.erase(); }
 

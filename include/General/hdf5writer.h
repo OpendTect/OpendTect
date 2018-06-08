@@ -57,6 +57,8 @@ public:
     uiRetVal		putAll(const void*);
     uiRetVal		putSlab(const SlabSpec&,const void*);
 
+    virtual bool	isReader() const	{ return false; }
+
 protected:
 
     virtual void	crDS(const DataSetKey&,const ArrayNDInfo&,

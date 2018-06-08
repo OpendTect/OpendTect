@@ -47,7 +47,7 @@ public:
 			mDeclInstanceCreatedNotifierAccess(Log);
 
     void		setValue(PointID,ValueType);
-    void		setValue(IdxType,ValueType);
+    void		setValue(idx_type,ValueType);
     inline void		addValue( ZType dh, ValueType val )
 			{ setValueAt( dh, val ); }
 
@@ -83,14 +83,14 @@ protected:
     Interval<ValueType>	valrg_;
     bool		valsarecodes_;
 
-    virtual bool	doSet(IdxType,ValueType);
+    virtual bool	doSet(idx_type,ValueType);
     virtual PointID	doInsAtDah(ZType,ValueType);
-    virtual ValueType	gtVal( IdxType idx ) const  { return vals_[idx]; }
-    virtual void	removeAux( IdxType idx )    { vals_.removeSingle(idx); }
+    virtual ValueType	gtVal( idx_type idx ) const { return vals_[idx]; }
+    virtual void	removeAux( idx_type idx )   { vals_.removeSingle(idx); }
     virtual void	eraseAux()		    { vals_.erase(); }
 
     ValueType		gtVal(ZType,int&) const;
-    void		stVal(IdxType,ValueType);
+    void		stVal(idx_type,ValueType);
 
     void		redoValStats();
     void		updValStats(ValueType);

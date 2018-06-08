@@ -202,6 +202,17 @@ uiString HDF5::Access::sDataSetNotFound( const DataSetKey& dsky )
 }
 
 
+uiString HDF5::Access::sCantSetScope( const DataSetKey& dsky ) const
+{
+    if ( isReader() )
+	return sDataSetNotFound( dsky );
+
+    return sHDF5Err( tr("Could not create DataSet '%1' in '%2'")
+			.arg( dsky.fullDataSetName() )
+			.arg(fileName()) );
+}
+
+
 uiString HDF5::Access::sCannotReadDataSet( const DataSetKey& dsky )
 {
     return sHDF5Err( tr("Could not read DataSet '%1'")

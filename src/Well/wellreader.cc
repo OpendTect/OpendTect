@@ -285,23 +285,17 @@ bool Well::odIO::removeAll( const char* ext ) const
 }
 
 
-static const char* rdHdr( od_istream& strm, const char* fileky,
-			  double& ver )
+static bool rdHdr( od_istream& strm, const char* fileky )
 {
     ascistream astrm( strm, true );
-    if ( !astrm.isOfFileType(fileky) )
-    {
-	BufferString msg( strm.fileName(), " has type '" );
-	msg += astrm.fileType(); msg += "' whereas it should be '";
-	msg += fileky; msg += "'";
-	ErrMsg( msg );
-	return 0;
-    }
+    if ( astrm.isOfFileType(fileky) )
+	return true;
 
-    ver = (double)astrm.majorVersion() + ((double)astrm.minorVersion() * 0.1);
-    mDeclStaticString( hdrln );
-    hdrln = astrm.headerStartLine();
-    return hdrln.buf();
+    BufferString msg( strm.fileName(), " has type '" );
+    msg += astrm.fileType(); msg += "' whereas it should be '";
+    msg += fileky; msg += "'";
+    ErrMsg( msg );
+    return false;
 }
 
 
@@ -360,12 +354,7 @@ void Well::odReader::setStrmOperErrMsg( od_istream& strm,
 
 #define mErrStrmOper(oper,todo) { setStrmOperErrMsg( strm, oper ); todo; }
 #define mErrRetStrmOper(oper) mErrStrmOper(oper,return false)
-
-#define mRdHdr(strm,ky) \
-    double version = mODMajorVersion + mODMinorVersion * 0.1; \
-    mUnusedVar const char* hdrinfo = rdHdr( strm, ky, version )
-
-#define mGetZFac(iop) const float zfac = getZFac( iop, version )
+#define mGetZFac(iop) const float zfac = getZFac( iop )
 
 
 uiString Well::odReader::sCannotReadFileHeader() const
@@ -374,52 +363,25 @@ uiString Well::odReader::sCannotReadFileHeader() const
 }
 
 
-float Well::odReader::getZFac( const IOPar& iop, double version ) const
+float Well::odReader::getZFac( const IOPar& iop ) const
 {
-    float zfac = 1.f;
-    if ( version > 4.19 )
-	// Policy before 4.2: always store in internal units, i.e. meters
-    {
-	// Policy from 4.2: store in m unless survey Z unit is feet
-	BufferString depthunstr;
-	iop.get( sKey::DepthUnit(), depthunstr );
-	if ( !depthunstr.isEmpty() )
-	{
-	    const bool storedisfeet = depthunstr.startsWith( "F" );
-	    if ( storedisfeet )
-		zfac = mFromFeetFactorF;
-	}
-    }
-    return zfac;
+    BufferString depthunstr;
+    iop.get( sKey::DepthUnit(), depthunstr );
+    return depthunstr.startsWith("F") ? mFromFeetFactorF : 1.0f;
 }
 
 
 bool Well::odReader::getInfo( od_istream& strm ) const
 {
-    ChangeNotifyBlocker nb( wd_.info() );
-
-    mRdHdr( strm, sKeyWell() );
-    if ( !hdrinfo )
+    if ( !rdHdr(strm,sKeyWell()) )
 	mErrRetStrmOper( sCannotReadFileHeader() )
-    bool badhdr = *hdrinfo != 'd';
-    if ( !badhdr )
-    {
-	if ( *(hdrinfo+1) == 'G' )
-	{
-	    errmsg_.set( "Cannot read old time wells" );
-	    strm.addErrMsgTo( errmsg_ );
-	    return false;
-	}
-	else if ( *(hdrinfo+1) != 'T' )
-	    badhdr = true;
-    }
-    if ( badhdr )
-	mErrRetStrmOper( tr("File header is incorrect") )
-
 
     IOPar iop;
     ascistream astrm( strm, false );
     iop.getFrom( astrm );
+
+    ChangeNotifyBlocker nb( wd_.info() );
+    wd_.info().usePar( iop );
 
     const Coord surfcoord = wd_.info().surfaceCoord();
     if ( (mIsZero(surfcoord.x_,0.001) && mIsZero(surfcoord.x_,0.001))
@@ -462,7 +424,8 @@ bool Well::odReader::getTrack() const
     if ( !strm.isOK() )
 	mErrRetStrmOper( tr("No valid main well file found") )
 
-    mRdHdr( strm, sKeyWell() );
+    if ( !rdHdr(strm,sKeyWell()) )
+	mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );
     IOPar iop; iop.getFrom( astrm );
@@ -486,9 +449,7 @@ void Well::odReader::getLogNames( BufferStringSet& nms,
     for ( int idx=1;  ; idx++ )
     {
 	mGetInpStream( sExtLog(), idx, false, break );
-
-	mRdHdr( strm, sKeyLog() );
-	if ( hdrinfo )
+	if ( rdHdr(strm,sKeyLog()) )
 	{
 	    int bintyp = 0;
 	    RefMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1, dumiop );
@@ -515,8 +476,7 @@ void Well::odReader::getLogInfo( ObjectSet<IOPar>& iops ) const
     {
 	mGetInpStream( sExtLog(), idx, false, break );
 
-	mRdHdr( strm, sKeyLog() );
-	if ( hdrinfo )
+	if ( rdHdr(strm,sKeyLog()) )
 	{
 	    int bintyp = 0;
 	    RefMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1, dumiop );
@@ -535,7 +495,8 @@ bool Well::odReader::getLog( const char* lognm ) const
     TypeSet<int> idxs;
     getLogNames( nms, idxs );
     const int lognmidx = nms.indexOf( lognm );
-    if ( lognmidx<0 ) return false;
+    if ( lognmidx < 0 )
+	return false;
 
     const int logfileidx = idxs[lognmidx];
     mGetInpStream( sExtLog(), logfileidx, true, return false );
@@ -550,7 +511,6 @@ bool Well::odReader::getLogs() const
     for ( int idx=1;  ; idx++ )
     {
 	mGetInpStream( sExtLog(), idx, false, break );
-
 	if ( !addLog(strm) )
 	{
 	    setStrmOperErrMsg( strm, tr("read data") );
@@ -599,8 +559,7 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int ilog,
 
 bool Well::odReader::addLog( od_istream& strm ) const
 {
-    mRdHdr( strm, sKeyLog() );
-    if ( !hdrinfo )
+    if ( !rdHdr(strm,sKeyLog()) )
 	return false;
 
     int bintype = 0;
@@ -683,8 +642,7 @@ bool Well::odReader::getMarkers() const
 
 bool Well::odReader::getMarkers( od_istream& strm ) const
 {
-    mRdHdr( strm, sKeyMarkers() );
-    if ( !hdrinfo )
+    if ( !rdHdr(strm,sKeyMarkers()) )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );
@@ -759,8 +717,7 @@ bool Well::odReader::getCSMdl( od_istream& strm ) const
 { return doGetD2T(strm,true); }
 bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 {
-    mRdHdr( strm, sKeyD2T() );
-    if ( !hdrinfo )
+    if ( !rdHdr(strm,sKeyD2T()) )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );
@@ -805,8 +762,7 @@ bool Well::odReader::getDispProps() const
 
 bool Well::odReader::getDispProps( od_istream& strm ) const
 {
-    mRdHdr( strm, sKeyDispProps() );
-    if ( !hdrinfo )
+    if ( !rdHdr(strm,sKeyDispProps()) )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );

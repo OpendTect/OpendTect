@@ -83,7 +83,7 @@ Monitorable::ChangeType Well::LogSet::compareClassData(
 }
 
 
-Well::LogSet::IdxType Well::LogSet::gtIdx( LogID id ) const
+Well::LogSet::idx_type Well::LogSet::gtIdx( LogID id ) const
 {
     if ( id.isInvalid() )
 	return -1;
@@ -91,7 +91,7 @@ Well::LogSet::IdxType Well::LogSet::gtIdx( LogID id ) const
     const int sz = logs_.size();
     if ( id.getI() < sz && logids_[id.getI()] == id )
 	return id.getI();
-    for ( IdxType idx=0; idx<logids_.size(); idx++ )
+    for ( idx_type idx=0; idx<logids_.size(); idx++ )
 	if ( logids_[idx] == id )
 	    return idx;
 
@@ -101,14 +101,14 @@ Well::LogSet::IdxType Well::LogSet::gtIdx( LogID id ) const
 
 Well::Log* Well::LogSet::gtLog( LogID id ) const
 {
-    const IdxType idx = gtIdx( id );
+    const idx_type idx = gtIdx( id );
     return idx < 0 ? 0 : const_cast<Log*>( logs_[idx] );
 }
 
 
 Well::LogSet::LogID Well::LogSet::gtID( const Log* log ) const
 {
-    for ( IdxType idx=0; idx<logs_.size(); idx++ )
+    for ( idx_type idx=0; idx<logs_.size(); idx++ )
     {
 	if ( logs_[idx] == log )
 	    return logids_[idx];
@@ -117,9 +117,9 @@ Well::LogSet::LogID Well::LogSet::gtID( const Log* log ) const
 }
 
 
-Well::LogSet::IdxType Well::LogSet::gtIdxByName( const char* nm ) const
+Well::LogSet::idx_type Well::LogSet::gtIdxByName( const char* nm ) const
 {
-    for ( IdxType idx=0; idx<logs_.size(); idx++ )
+    for ( idx_type idx=0; idx<logs_.size(); idx++ )
     {
 	const Log& l = *logs_[idx];
 	if ( l.name() == nm )
@@ -131,12 +131,12 @@ Well::LogSet::IdxType Well::LogSet::gtIdxByName( const char* nm ) const
 
 Well::Log* Well::LogSet::gtLogByName( const char* nm ) const
 {
-    const IdxType idx = gtIdxByName( nm );
+    const idx_type idx = gtIdxByName( nm );
     return idx < 0 ? 0 : const_cast<Log*>( logs_[idx] );
 }
 
 
-Well::Log* Well::LogSet::gtLogByIdx( IdxType idx ) const
+Well::Log* Well::LogSet::gtLogByIdx( idx_type idx ) const
 {
     return logs_.validIdx(idx) ? const_cast<Log*>( logs_[idx] ) : 0;
 }
@@ -158,12 +158,12 @@ void Well::LogSet::updateDahIntv( const Well::Log& wl )
 void Well::LogSet::recalcDahIntv()
 {
     dahintv_.start = mSetUdf(dahintv_.stop);
-    for ( IdxType idx=0; idx<logs_.size(); idx++ )
+    for ( idx_type idx=0; idx<logs_.size(); idx++ )
 	updateDahIntv( *logs_[idx] );
 }
 
 
-Well::Log* Well::LogSet::doRemove( IdxType idx )
+Well::Log* Well::LogSet::doRemove( idx_type idx )
 {
     Log* log = logs_.removeSingle( idx );
     logids_.removeSingle( idx );
@@ -207,14 +207,14 @@ Well::LogSet::CLogRefMan Well::LogSet::getLogByName( const char* nm ) const
 }
 
 
-Well::LogSet::LogRefMan Well::LogSet::getLogByIdx( IdxType idx )
+Well::LogSet::LogRefMan Well::LogSet::getLogByIdx( idx_type idx )
 {
     mLock4Read();
     return gtLogByIdx( idx );
 }
 
 
-Well::LogSet::CLogRefMan Well::LogSet::getLogByIdx( IdxType idx ) const
+Well::LogSet::CLogRefMan Well::LogSet::getLogByIdx( idx_type idx ) const
 {
     mLock4Read();
     return gtLogByIdx( idx );
@@ -242,28 +242,28 @@ Well::LogSet::size_type Well::LogSet::size() const
 }
 
 
-Well::LogSet::LogID Well::LogSet::getID( IdxType idx ) const
+Well::LogSet::LogID Well::LogSet::getID( idx_type idx ) const
 {
     mLock4Read();
     return logids_.validIdx( idx ) ? logids_[idx] : LogID::getInvalid();
 }
 
 
-Well::LogSet::IdxType Well::LogSet::indexOf( LogID id ) const
+Well::LogSet::idx_type Well::LogSet::indexOf( LogID id ) const
 {
     mLock4Read();
     return gtIdx( id );
 }
 
 
-Well::LogSet::IdxType Well::LogSet::indexOf( const char* nm ) const
+Well::LogSet::idx_type Well::LogSet::indexOf( const char* nm ) const
 {
     mLock4Read();
     return gtIdxByName( nm );
 }
 
 
-bool Well::LogSet::validIdx( IdxType idx ) const
+bool Well::LogSet::validIdx( idx_type idx ) const
 {
     mLock4Read();
     return logs_.validIdx( idx );
@@ -321,7 +321,7 @@ Well::LogSet::LogID Well::LogSet::add( Well::Log* wl )
 Well::LogSet::LogRefMan Well::LogSet::remove( LogID id )
 {
     mLock4Write();
-    IdxType idx = gtIdx( id );
+    idx_type idx = gtIdx( id );
     if ( idx < 0 )
 	return 0;
 
@@ -340,7 +340,7 @@ Well::LogSet::LogRefMan Well::LogSet::remove( LogID id )
 Well::LogSet::LogRefMan Well::LogSet::removeByName( const char* nm )
 {
     mLock4Write();
-    IdxType idx = gtIdxByName( nm );
+    idx_type idx = gtIdxByName( nm );
     if ( idx < 0 )
 	return 0;
 
@@ -358,7 +358,7 @@ Well::LogSet::LogRefMan Well::LogSet::removeByName( const char* nm )
 bool Well::LogSet::isPresent( const char* nm ) const
 {
     mLock4Read();
-    for ( IdxType idx=0; idx<logs_.size(); idx++ )
+    for ( idx_type idx=0; idx<logs_.size(); idx++ )
 	if ( logs_[idx]->name() == nm )
 	    return true;
     return false;
@@ -368,7 +368,7 @@ bool Well::LogSet::isPresent( const char* nm ) const
 void Well::LogSet::getNames( BufferStringSet& nms ) const
 {
     mLock4Read();
-    for ( IdxType idx=0; idx<logs_.size(); idx++ )
+    for ( idx_type idx=0; idx<logs_.size(); idx++ )
 	nms.add( logs_[idx]->name() );
 }
 
@@ -376,7 +376,7 @@ void Well::LogSet::getNames( BufferStringSet& nms ) const
 void Well::LogSet::getInfo( ObjectSet<IOPar>& iops ) const
 {
     mLock4Read();
-    for ( IdxType idx=0; idx<logs_.size(); idx++ )
+    for ( idx_type idx=0; idx<logs_.size(); idx++ )
     {
 	IOPar* iop = new IOPar( logs_[idx]->pars() );
 	iop->set( sKey::Unit(), logs_[idx]->unitMeasLabel() );
@@ -423,7 +423,7 @@ TypeSet<Well::LogSet::LogID> Well::LogSet::getSuitable(
 }
 
 
-bool Well::LogSet::swap( IdxType idx1, IdxType idx2 )
+bool Well::LogSet::swap( idx_type idx1, idx_type idx2 )
 {
     mLock4Write();
     if ( !logs_.validIdx(idx1) || !logs_.validIdx(idx2) )
@@ -439,14 +439,14 @@ bool Well::LogSet::swap( IdxType idx1, IdxType idx2 )
 // Well::LogSetIter
 
 Well::LogSetIter::LogSetIter( const LogSet& ls, bool atend )
-    : MonitorableIter4Read<LogSet::IdxType>(ls,
+    : MonitorableIter4Read<LogSet::idx_type>(ls,
 	    atend?ls.size()-1:0,atend?0:ls.size()-1)
 {
 }
 
 
 Well::LogSetIter::LogSetIter( const LogSetIter& oth )
-    : MonitorableIter4Read<LogSet::IdxType>(oth)
+    : MonitorableIter4Read<LogSet::idx_type>(oth)
 {
 }
 
@@ -571,7 +571,7 @@ void Well::Log::redoValStats()
     {
 	valsarecodes_ = true;
 	valrg_.start = valrg_.stop = vals_[0];
-	for ( IdxType idx=0; idx<sz; idx++ )
+	for ( idx_type idx=0; idx<sz; idx++ )
 	    updValStats( vals_[idx] );
     }
 
@@ -581,7 +581,7 @@ void Well::Log::redoValStats()
 void Well::Log::setValue( PointID id, ValueType val )
 {
     mLock4Write();
-    const IdxType idx = gtIdx( id );
+    const idx_type idx = gtIdx( id );
     if ( idx < 0 )
 	return;
 
@@ -591,7 +591,7 @@ void Well::Log::setValue( PointID id, ValueType val )
 
 
 
-void Well::Log::setValue( IdxType idx, ValueType val )
+void Well::Log::setValue( idx_type idx, ValueType val )
 {
     mLock4Read();
     if ( !vals_.validIdx(idx) )
@@ -619,7 +619,7 @@ void Well::Log::applyUnit( const UnitOfMeasure* touom )
 
     mLock4Write();
     const size_type sz = vals_.size();
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	convValue( vals_[idx], 0, touom );
     unitmeaslbl_ = touom->symbol();
     mSendEntireObjChgNotif();
@@ -634,7 +634,7 @@ void Well::Log::convertTo( const UnitOfMeasure* touom )
 	return;
 
     const UnitOfMeasure* curuom = mUnitOfMeasure();
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	convValue( vals_[idx], curuom, touom );
 
     if ( touom )
@@ -682,7 +682,7 @@ void Well::Log::ensureAscZ()
 	return;
 
     const size_type hsz = sz / 2;
-    for ( IdxType idx=0; idx<hsz; idx++ )
+    for ( idx_type idx=0; idx<hsz; idx++ )
     {
 	std::swap( dahs_[idx], dahs_[sz-idx-1] );
 	std::swap( vals_[idx], vals_[sz-idx-1] );
@@ -699,15 +699,15 @@ void Well::Log::removeTopBottomUdfs()
     if ( sz < 1 )
 	return;
 
-    Interval<IdxType> defrg( 0, sz-1 );
-    for ( IdxType idx=0; idx<sz; idx++ )
+    Interval<idx_type> defrg( 0, sz-1 );
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	if ( !mIsUdf(vals_[idx]) )
 	    break;
 	defrg.start++;
     }
 
-    for ( IdxType idx=sz-1; idx>=defrg.start; idx-- )
+    for ( idx_type idx=sz-1; idx>=defrg.start; idx-- )
     {
 	if ( !mIsUdf(vals_[idx]) )
 	    break;
@@ -718,7 +718,7 @@ void Well::Log::removeTopBottomUdfs()
 	return;
 
     ZSetType newdahs; ValueSetType newvals;
-    for ( IdxType idx=defrg.start; idx<=defrg.stop; idx++ )
+    for ( idx_type idx=defrg.start; idx<=defrg.stop; idx++ )
 	{ newdahs += dahs_[idx]; newvals += vals_[idx]; }
 
     mUnlockAllAccess();
@@ -726,7 +726,7 @@ void Well::Log::removeTopBottomUdfs()
 }
 
 
-bool Well::Log::doSet( IdxType idx, ValueType val )
+bool Well::Log::doSet( idx_type idx, ValueType val )
 {
     if ( val == vals_[idx] ) // cannot assume any epsilon
 	return false;
@@ -746,7 +746,7 @@ Well::Log::PointID Well::Log::doInsAtDah( ZType dh, ValueType val )
 }
 
 
-void Well::Log::stVal( IdxType idx, ValueType val )
+void Well::Log::stVal( idx_type idx, ValueType val )
 {
     vals_[idx] = val;
     updValStats( val );

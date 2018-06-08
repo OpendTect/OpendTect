@@ -146,6 +146,7 @@ public:
 
     uiRetVal		open(const char*);
     virtual const char*	fileName() const		= 0;
+    virtual bool	isReader() const		= 0;
 
     virtual DataSetKey	scope() const			= 0;
     virtual bool	setScope(const DataSetKey&)	= 0;
@@ -157,6 +158,7 @@ public:
     static uiString	sHDF5NotAvailable();
     static uiString	sHDF5NotAvailable(const char* fnm);
     static uiString	sNotHDF5File(const char*);
+    uiString		sCantSetScope(const DataSetKey&) const;
     static uiString	sDataSetNotFound(const DataSetKey&);
     static uiString	sCannotReadDataSet(const DataSetKey&);
     static const char*	sFileExtension()	{ return "hdf5"; }

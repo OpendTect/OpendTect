@@ -89,7 +89,7 @@ void Well::D2TModel::setData( const ZSetType& zs, const TWTSetType& vals )
 }
 
 
-bool Well::D2TModel::doSet( IdxType idx, ValueType twt )
+bool Well::D2TModel::doSet( idx_type idx, ValueType twt )
 {
     if ( mIsEqual(times_[idx],twt,t_eps) )
 	return false;
@@ -874,7 +874,7 @@ bool Well::D2TModel::calibrateBy( const D2TModel& oth )
     mLock2Write();
 
     sz = gtSize();
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	TWTType delta = func.getValue( dahs_[idx] );
 	if ( !mIsUdf(delta) )

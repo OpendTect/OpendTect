@@ -61,12 +61,12 @@ Monitorable::ChangeType Well::Track::compareClassData(
 Coord3 Well::Track::pos( PointID id ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdx( id );
+    const idx_type idx = gtIdx( id );
     return idx < 0 ? Coord3::udf() : pos_[idx];
 }
 
 
-Coord3 Well::Track::posByIdx( IdxType idx ) const
+Coord3 Well::Track::posByIdx( idx_type idx ) const
 {
     mLock4Read();
     return pos_.validIdx(idx) ? pos_[idx] : Coord3::udf();
@@ -401,7 +401,7 @@ Well::Track::PointID Well::Track::insertPoint( Coord3 c2add )
 }
 
 
-bool Well::Track::doSet( IdxType idx, ValueType newz )
+bool Well::Track::doSet( idx_type idx, ValueType newz )
 {
     Coord3 newpos( pos_[idx] );
     if ( mIsEqual(newpos.z_,newz,dahEps()) )
@@ -456,7 +456,7 @@ Well::Track::PointID Well::Track::doInsAtDah( ZType dh, ZType zpos )
 }
 
 
-Well::Track::ValueType Well::Track::gtVal( IdxType idx ) const
+Well::Track::ValueType Well::Track::gtVal( idx_type idx ) const
 {
     return pos_.validIdx(idx) ? (float)pos_[idx].z_ : mUdf(ValueType);
 }
@@ -481,7 +481,7 @@ void Well::Track::setPoint( PointID id, const Coord3& newpos )
 }
 
 
-void Well::Track::doSetPoint( IdxType idx, const Coord3& newpos )
+void Well::Track::doSetPoint( idx_type idx, const Coord3& newpos )
 {
     const Coord3 oldpos( pos_[idx] );
     float olddist0 = idx > 0 ? oldpos.distTo<float>(pos_[idx-1]) : 0;
@@ -594,8 +594,8 @@ Well::Track::PointID Well::Track::addPt( ZType dh, const Coord3& c,
 }
 
 
-Well::Track::PointID Well::Track::insPt( IdxType idx, ZType dh, const Coord3& c,
-					    AccessLocker* alh )
+Well::Track::PointID Well::Track::insPt( idx_type idx, ZType dh,
+					 const Coord3& c, AccessLocker* alh )
 {
     const PointID ptid = gtNewPointID();
     if ( idx >= gtSize() )

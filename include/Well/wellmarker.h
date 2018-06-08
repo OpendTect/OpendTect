@@ -86,8 +86,8 @@ public:
 
     typedef Marker::LevelID	LevelID;
     typedef TypeSet<Marker>::size_type    size_type;
-    typedef size_type		IdxType;
-    mDefIntegerIDType(IdxType,	 MarkerID);
+    typedef size_type		idx_type;
+    mDefIntegerIDType(idx_type,	 MarkerID);
 
 
 			MarkerSet();
@@ -106,22 +106,22 @@ public:
     void		setDah(MarkerID,float);
     void		removeSingle(MarkerID);
 
-    Marker		getByIdx(IdxType) const;
-    void		removeSingleByIdx(IdxType);
-    float		getDahByIdx(IdxType) const;
-    void		setDahByIdx(IdxType,float);
+    Marker		getByIdx(idx_type) const;
+    void		removeSingleByIdx(idx_type);
+    float		getDahByIdx(idx_type) const;
+    void		setDahByIdx(idx_type,float);
 
     float		getDahFromMarkerName(const char*) const;
     Marker		first() const;
     Marker		last() const;
 
-    IdxType		indexOf(const char* nm) const;
+    idx_type		indexOf(const char* nm) const;
     Marker		getByName(const char* nm) const;
     Marker		getByLvlID(LevelID id) const;
-    MarkerID		markerIDFor(IdxType) const;
+    MarkerID		markerIDFor(idx_type) const;
     MarkerID		markerIDFromName(const char*) const;
-    IdxType		getIdxFor(MarkerID) const;
-    bool		validIdx(IdxType) const;
+    idx_type		getIdxFor(MarkerID) const;
+    bool		validIdx(idx_type) const;
 
     bool		isPresent(const char* n) const;
     bool		isEmpty() const;
@@ -137,7 +137,7 @@ public:
     void		mergeOtherWell(const MarkerSet&);
     void		append(const MarkerSet& ms)
 							{ mergeOtherWell(ms); }
-    IdxType		getIdxAbove(float z,const Well::Track* trck=0) const;
+    idx_type		getIdxAbove(float z,const Well::Track* trck=0) const;
 			//!< is trck provided, compares TVDs
 
     void		fillPar(IOPar&) const;
@@ -153,25 +153,25 @@ protected:
 
     TypeSet<Marker>	markers_;
     TypeSet<MarkerID>	markerids_;
-    mutable Threads::Atomic<IdxType> curmrkridnr_;
+    mutable Threads::Atomic<idx_type> curmrkridnr_;
 
     Marker		gtByName(const char*) const; //without locks for own use
-    Marker		gtByIndex(IdxType) const;
+    Marker		gtByIndex(idx_type) const;
     Marker		gtByLvlID(LevelID) const;
-    IdxType		idxOf(const char*) const;
-    IdxType		gtIdxFor(MarkerID) const;
-    IdxType		gtIdxForDah(float) const;
+    idx_type		idxOf(const char*) const;
+    idx_type		gtIdxFor(MarkerID) const;
+    idx_type		gtIdxForDah(float) const;
     Marker		gtByID(MarkerID) const;
-    MarkerID		mrkrIDFor(IdxType) const;
+    MarkerID		mrkrIDFor(idx_type) const;
 
-    void		addCopy(const MarkerSet&,IdxType,float);
+    void		addCopy(const MarkerSet&,idx_type,float);
     void		alignOrderingWith(const MarkerSet&);
-    void		moveBlock(IdxType,IdxType,const TypeSet<IdxType>&);
+    void		moveBlock(idx_type,idx_type,const TypeSet<idx_type>&);
     bool		insrtNew(const Well::Marker&);
-    void		insrtNewAfter(IdxType,const MarkerSet&);
-    void		insrtAt(IdxType,const Marker&);
-    void		insrtAfter(IdxType,const Marker&);
-    void		rmoveSingle(IdxType);
+    void		insrtNewAfter(idx_type,const MarkerSet&);
+    void		insrtAt(idx_type,const Marker&);
+    void		insrtAfter(idx_type,const Marker&);
+    void		rmoveSingle(idx_type);
     bool		isPrsnt(const char* n) const;
     size_type		gtSize() const;
 
@@ -186,11 +186,12 @@ protected:
 
 */
 
-mExpClass(Well) MarkerSetIter : public MonitorableIter4Read<MarkerSet::IdxType>
+mExpClass(Well) MarkerSetIter : public MonitorableIter4Read<MarkerSet::idx_type>
 {
 public:
 
     typedef MarkerSet::MarkerID	MarkerID;
+    typedef MarkerSet::idx_type	idx_type;
 
 			MarkerSetIter(const MarkerSet&,bool dorev=false);
 			MarkerSetIter(const MarkerSet&,MarkerID,MarkerID);
@@ -217,15 +218,15 @@ public:
 */
 
 mExpClass(Well) MarkerSetIter4Edit
-		    : public MonitorableIter4Write<MarkerSet::IdxType>
+		    : public MonitorableIter4Write<MarkerSet::idx_type>
 {
 public:
 
-    typedef MarkerSet::IdxType	IdxType;
+    typedef MarkerSet::idx_type	idx_type;
     typedef MarkerSet::MarkerID	MarkerID;
 
 			MarkerSetIter4Edit(MarkerSet&,bool dorev=false);
-			MarkerSetIter4Edit(MarkerSet&,Interval<IdxType>);
+			MarkerSetIter4Edit(MarkerSet&,Interval<idx_type>);
 			MarkerSetIter4Edit(MarkerSet&,const char*,const char*);
 			MarkerSetIter4Edit(const MarkerSetIter4Edit&);
 
@@ -255,7 +256,7 @@ mExpClass(Well) MarkerRange
 public:
 
     typedef MarkerSet::size_type	size_type;
-    typedef MarkerSet::IdxType		IdxType;
+    typedef MarkerSet::idx_type		idx_type;
     typedef MarkerSet::MarkerID		MarkerID;
 
 			MarkerRange(const MarkerSet&,MarkerID,MarkerID);
@@ -265,7 +266,7 @@ public:
     size_type		size() const;
     bool		isValid() const;
 
-    bool		isIncluded(IdxType) const;
+    bool		isIncluded(idx_type) const;
     bool		isIncluded(MarkerID) const;
 
     bool		isIncluded(const char*) const;
@@ -281,7 +282,7 @@ public:
 
 protected:
 
-    Interval<IdxType>	idxRange() const;
+    Interval<idx_type>	idxRange() const;
     const MarkerSet&	markerset_;
     MarkerSet::MarkerID	topid_;
     MarkerSet::MarkerID	botid_;

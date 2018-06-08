@@ -221,7 +221,7 @@ void Well::MarkerSet::setEmpty()
 }
 
 
-Well::Marker Well::MarkerSet::getByIdx( IdxType idx ) const
+Well::Marker Well::MarkerSet::getByIdx( idx_type idx ) const
 {
     mLock4Read();
     return gtByIndex( idx );
@@ -231,7 +231,7 @@ Well::Marker Well::MarkerSet::getByIdx( IdxType idx ) const
 Well::MarkerSet::MarkerID Well::MarkerSet::set( const Marker& newmrkr )
 {
     mLock4Write();
-    const IdxType idx = idxOf( newmrkr.name() );
+    const idx_type idx = idxOf( newmrkr.name() );
     if ( idx < 0 )
     {
 	insrtNew( newmrkr );
@@ -246,7 +246,7 @@ Well::MarkerSet::MarkerID Well::MarkerSet::set( const Marker& newmrkr )
 
     oldmrkr = newmrkr;
 
-    const IdxType idxat = gtIdxForDah( newmrkr.dah() );
+    const idx_type idxat = gtIdxForDah( newmrkr.dah() );
     if ( idxat != idx )
     {
 	markers_.move( idx, idxat );
@@ -265,7 +265,7 @@ Well::MarkerSet::MarkerID Well::MarkerSet::set( const Marker& newmrkr )
 void Well::MarkerSet::setNameByID( MarkerID mrkrid , const char* nm )
 {
     mLock4Write();
-    const IdxType idx = gtIdxFor( mrkrid );
+    const idx_type idx = gtIdxFor( mrkrid );
     markers_[idx].setName( nm );
 }
 
@@ -273,14 +273,14 @@ void Well::MarkerSet::setNameByID( MarkerID mrkrid , const char* nm )
 void Well::MarkerSet::setColor( MarkerID mrkrid , const Color& clr)
 {
     mLock4Write();
-    const IdxType idx = gtIdxFor( mrkrid );
+    const idx_type idx = gtIdxFor( mrkrid );
     markers_[idx].setColor( clr );
 }
 
 
 void Well::MarkerSet::setDah( MarkerID id, float dah )
 {
-    const IdxType idx = getIdxFor( id );
+    const idx_type idx = getIdxFor( id );
     setDahByIdx( idx, dah );
 }
 
@@ -288,7 +288,7 @@ void Well::MarkerSet::setDah( MarkerID id, float dah )
 Color Well::MarkerSet::getColor( MarkerID mrkrid ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdxFor( mrkrid );
+    const idx_type idx = gtIdxFor( mrkrid );
     return markers_[idx].color();
 }
 
@@ -296,7 +296,7 @@ Color Well::MarkerSet::getColor( MarkerID mrkrid ) const
 BufferString Well::MarkerSet::getNameByID( MarkerID mrkrid ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdxFor( mrkrid );
+    const idx_type idx = gtIdxFor( mrkrid );
     return markers_[idx].name();
 }
 
@@ -304,19 +304,19 @@ BufferString Well::MarkerSet::getNameByID( MarkerID mrkrid ) const
 float Well::MarkerSet::getDah( MarkerID mrkrid ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdxFor( mrkrid );
+    const idx_type idx = gtIdxFor( mrkrid );
     return markers_[idx].dah();
 }
 
 
-float Well::MarkerSet::getDahByIdx( IdxType idx ) const
+float Well::MarkerSet::getDahByIdx( idx_type idx ) const
 {
     mLock4Read();
     return markers_[idx].dah();
 }
 
 
-void Well::MarkerSet::setDahByIdx( IdxType idx, float dah )
+void Well::MarkerSet::setDahByIdx( idx_type idx, float dah )
 {
     mLock4Read();
     if ( idx < 0 || idx > gtSize()-1 )
@@ -324,7 +324,7 @@ void Well::MarkerSet::setDahByIdx( IdxType idx, float dah )
     if ( markers_[idx].dah() == dah )
 	return;
 
-    IdxType dahidx = gtIdxForDah( dah );
+    idx_type dahidx = gtIdxForDah( dah );
     mLock2Write();
     markers_[idx].setDah( dah );
     if ( dahidx != idx )
@@ -341,7 +341,7 @@ void Well::MarkerSet::setDahByIdx( IdxType idx, float dah )
 float Well::MarkerSet::getDahFromMarkerName( const char* mname ) const
 {
     mLock4Read();
-    const IdxType idx = idxOf( mname );
+    const idx_type idx = idxOf( mname );
     if ( idx<0 || !markers_.validIdx(idx) )
 	return mUdf(float);
     return markers_[idx].dah();
@@ -352,7 +352,7 @@ Well::MarkerSet::MarkerID
     Well::MarkerSet::markerIDFromName( const char* mname ) const
 {
     mLock4Read();
-    const IdxType idx = idxOf( mname );
+    const idx_type idx = idxOf( mname );
     if ( idx<0 || !markerids_.validIdx(idx) )
 	return MarkerID::getInvalid();
 
@@ -363,7 +363,7 @@ Well::MarkerSet::MarkerID
 Well::Marker Well::MarkerSet::getByLvlID( LevelID lvid ) const
 {
     mLock4Read();
-    for ( IdxType idx=0; idx<gtSize(); idx++ )
+    for ( idx_type idx=0; idx<gtSize(); idx++ )
     {
 	if ( markers_[idx].levelID() == lvid )
 	return markers_[idx];
@@ -391,7 +391,7 @@ Well::Marker Well::MarkerSet::last() const
 }
 
 
-Well::Marker Well::MarkerSet::gtByIndex( IdxType idx ) const
+Well::Marker Well::MarkerSet::gtByIndex( idx_type idx ) const
 {
     return markers_[idx];
 }
@@ -406,19 +406,19 @@ Well::Marker Well::MarkerSet::get( MarkerID id ) const
 
 Well::Marker Well::MarkerSet::gtByID( MarkerID id ) const
 {
-    const IdxType idx = gtIdxFor( id );
+    const idx_type idx = gtIdxFor( id );
     return idx != -1 ? markers_[idx] : Marker::udf();
 }
 
 
-Well::MarkerSet::IdxType Well::MarkerSet::getIdxFor( MarkerID id ) const
+Well::MarkerSet::idx_type Well::MarkerSet::getIdxFor( MarkerID id ) const
 {
    mLock4Read();
    return gtIdxFor( id );
 }
 
 
-Well::MarkerSet::IdxType Well::MarkerSet::gtIdxFor( MarkerID id ) const
+Well::MarkerSet::idx_type Well::MarkerSet::gtIdxFor( MarkerID id ) const
 {
     if ( id.isValid() )
     {
@@ -427,7 +427,7 @@ Well::MarkerSet::IdxType Well::MarkerSet::gtIdxFor( MarkerID id ) const
 	if ( id.getI() < sz && markerids_[id.getI()].getI() == id.getI() )
 	    return id.getI();
 
-	for ( IdxType idx=0; idx<sz; idx++ )
+	for ( idx_type idx=0; idx<sz; idx++ )
 	    if ( markerids_[idx] == id )
 		return idx;
     }
@@ -436,9 +436,9 @@ Well::MarkerSet::IdxType Well::MarkerSet::gtIdxFor( MarkerID id ) const
 }
 
 
-Well::MarkerSet::IdxType Well::MarkerSet::gtIdxForDah( float dah ) const
+Well::MarkerSet::idx_type Well::MarkerSet::gtIdxForDah( float dah ) const
 {
-    for ( IdxType imrk=0; imrk<markers_.size(); imrk++ )
+    for ( idx_type imrk=0; imrk<markers_.size(); imrk++ )
     {
 	const Well::Marker& mrk = markers_[imrk];
 	if ( dah < mrk.dah() )
@@ -449,7 +449,7 @@ Well::MarkerSet::IdxType Well::MarkerSet::gtIdxForDah( float dah ) const
 }
 
 
-bool Well::MarkerSet::validIdx( IdxType idx ) const
+bool Well::MarkerSet::validIdx( idx_type idx ) const
 {
     mLock4Read();
     return markers_.validIdx( idx );
@@ -465,7 +465,7 @@ bool Well::MarkerSet::isPresent( const char* mname ) const
 
 bool Well::MarkerSet::isPrsnt( const char* mname ) const
 {
-    const IdxType idx = idxOf( mname );
+    const idx_type idx = idxOf( mname );
     return idx >= 0;
 }
 
@@ -483,7 +483,7 @@ void Well::MarkerSet::fillWithAll( TaskRunner* tskr )
 	return;
 
     *this = *ic.markers()[0];
-    for ( IdxType idx=1; idx<ic.markers().size(); idx++ )
+    for ( idx_type idx=1; idx<ic.markers().size(); idx++ )
 	append( *ic.markers()[idx] );
 }
 
@@ -497,12 +497,12 @@ Well::Marker Well::MarkerSet::getByName( const char* mname ) const
 
 Well::Marker Well::MarkerSet::gtByName( const char* mname ) const
 {
-    const IdxType idx = idxOf( mname );
+    const idx_type idx = idxOf( mname );
     return  idx < 0 ? Marker::udf() : markers_[idx];
 }
 
 
-Well::MarkerSet::IdxType Well::MarkerSet::getIdxAbove( float reqz,
+Well::MarkerSet::idx_type Well::MarkerSet::getIdxAbove( float reqz,
 					    const Track* trck ) const
 {
     PtrMan<MonitorLock> trckml = 0;
@@ -510,7 +510,7 @@ Well::MarkerSet::IdxType Well::MarkerSet::getIdxAbove( float reqz,
 	trckml = new MonitorLock( *trck );
 
     mLock4Read();
-    for ( IdxType idx=0; idx<gtSize(); idx++ )
+    for ( idx_type idx=0; idx<gtSize(); idx++ )
     {
 	const Marker& mrk = markers_[idx];
 	float mrkz = mrk.dah();
@@ -523,17 +523,17 @@ Well::MarkerSet::IdxType Well::MarkerSet::getIdxAbove( float reqz,
 }
 
 
-Well::MarkerSet::IdxType Well::MarkerSet::indexOf( const char* mname ) const
+Well::MarkerSet::idx_type Well::MarkerSet::indexOf( const char* mname ) const
 {
     mLock4Read();
     return idxOf( mname );
 }
 
 
-Well::MarkerSet::IdxType Well::MarkerSet::idxOf( const char* mname ) const
+Well::MarkerSet::idx_type Well::MarkerSet::idxOf( const char* mname ) const
 {
     const BufferString needle( mname );
-    for ( IdxType idx=0; idx<markers_.size(); idx++ )
+    for ( idx_type idx=0; idx<markers_.size(); idx++ )
     {
 	if ( markers_[idx].name() == needle )
 	    return idx;
@@ -542,14 +542,14 @@ Well::MarkerSet::IdxType Well::MarkerSet::idxOf( const char* mname ) const
 }
 
 
-Well::MarkerSet::MarkerID Well::MarkerSet::markerIDFor( IdxType idx ) const
+Well::MarkerSet::MarkerID Well::MarkerSet::markerIDFor( idx_type idx ) const
 {
     mLock4Read();
     return mrkrIDFor( idx );
 }
 
 
-Well::MarkerSet::MarkerID Well::MarkerSet::mrkrIDFor( IdxType idx ) const
+Well::MarkerSet::MarkerID Well::MarkerSet::mrkrIDFor( idx_type idx ) const
 {
     return markerids_.validIdx(idx) ? markerids_[idx] : MarkerID::getInvalid();
 }
@@ -561,7 +561,7 @@ bool Well::MarkerSet::insertNew( const Well::Marker& newmrk )
 	{ return false; }
 
     mLock4Write();
-    IdxType newidx = gtIdxForDah( newmrk.dah() );
+    idx_type newidx = gtIdxForDah( newmrk.dah() );
     insrtAt( newidx, newmrk );
     const MarkerID& mid = mrkrIDFor( newidx );
     mSendChgNotif( cMarkerAdded(), mid.getI() );
@@ -574,14 +574,14 @@ bool Well::MarkerSet::insrtNew( const Well::Marker& newmrk )
     if ( newmrk.isUdf() || isPrsnt(newmrk.name().buf()) )
 	{ return false; }
 
-    IdxType newidx = gtIdxForDah( newmrk.dah() );
+    idx_type newidx = gtIdxForDah( newmrk.dah() );
 
     insrtAt( newidx, newmrk );
     return true;
 }
 
 
-void Well::MarkerSet::addCopy( const MarkerSet& ms, IdxType idx, float dah )
+void Well::MarkerSet::addCopy( const MarkerSet& ms, idx_type idx, float dah )
 {
     Well::Marker newwm = ms.getByIdx( idx );
     newwm.setDah( dah );
@@ -593,7 +593,7 @@ void Well::MarkerSet::addSameWell( const MarkerSet& ms )
 {
     mLock4Write();
     const size_type mssz = ms.size();
-    for ( IdxType idx=0; idx<mssz; idx++ )
+    for ( idx_type idx=0; idx<mssz; idx++ )
     {
 	const Well::Marker& mrkr = ms.gtByIndex( idx );
 	if ( !isPrsnt(mrkr.name()) )
@@ -604,11 +604,11 @@ void Well::MarkerSet::addSameWell( const MarkerSet& ms )
 }
 
 
-void Well::MarkerSet::moveBlock( IdxType fromidx, IdxType toidxblockstart,
-				 const TypeSet<IdxType>& idxs )
+void Well::MarkerSet::moveBlock( idx_type fromidx, idx_type toidxblockstart,
+				 const TypeSet<idx_type>& idxs )
 {
-    Interval<IdxType> fromrg( fromidx, fromidx );
-    for ( IdxType idx=fromidx+1; idx<idxs.size(); idx++ )
+    Interval<idx_type> fromrg( fromidx, fromidx );
+    for ( idx_type idx=fromidx+1; idx<idxs.size(); idx++ )
     {
 	if ( idxs[idx] < 0 )
 	    fromrg.stop = idx;
@@ -617,14 +617,14 @@ void Well::MarkerSet::moveBlock( IdxType fromidx, IdxType toidxblockstart,
     }
 
     Well::MarkerSet tomove;
-    for ( IdxType idx=fromrg.start; idx<=fromrg.stop; idx++ )
+    for ( idx_type idx=fromrg.start; idx<=fromrg.stop; idx++ )
     {
 	Marker& oldmrk = markers_[idx];oldmrk.setName( "" );
 	tomove.add( oldmrk );
     }
 
-    IdxType toidx = toidxblockstart;
-    for ( IdxType idx=toidxblockstart+1; idx<idxs.size(); idx++ )
+    idx_type toidx = toidxblockstart;
+    for ( idx_type idx=toidxblockstart+1; idx<idxs.size(); idx++ )
     {
 	if ( idxs[idx] < 0 )
 	    toidx = idx;
@@ -635,12 +635,12 @@ void Well::MarkerSet::moveBlock( IdxType fromidx, IdxType toidxblockstart,
 
     insrtNewAfter( toidx, tomove );
 
-    for ( IdxType idx=fromrg.start; idx<=fromrg.stop; idx++ )
+    for ( idx_type idx=fromrg.start; idx<=fromrg.stop; idx++ )
 	rmoveSingle( fromrg.start );
 }
 
 
-void Well::MarkerSet::insrtAt( IdxType idx, const Marker& mrkr )
+void Well::MarkerSet::insrtAt( idx_type idx, const Marker& mrkr )
 {
     if ( idx < 0 )
     {
@@ -654,9 +654,9 @@ void Well::MarkerSet::insrtAt( IdxType idx, const Marker& mrkr )
 }
 
 
-void Well::MarkerSet::insrtAfter( IdxType idx ,const Marker& mrkr )
+void Well::MarkerSet::insrtAfter( idx_type idx ,const Marker& mrkr )
 {
-    const IdxType aftidx = idx < 0 ? 0 : idx + 1;
+    const idx_type aftidx = idx < 0 ? 0 : idx + 1;
     if ( aftidx <= markers_.size()-1 )
 	insrtAt( aftidx, mrkr );
     else
@@ -667,7 +667,7 @@ void Well::MarkerSet::insrtAfter( IdxType idx ,const Marker& mrkr )
 }
 
 
-void Well::MarkerSet::rmoveSingle( IdxType idx )
+void Well::MarkerSet::rmoveSingle( idx_type idx )
 {
     markers_.removeSingle( idx );
     markerids_.removeSingle( idx );
@@ -678,13 +678,13 @@ void Well::MarkerSet::removeSingle( MarkerID mrkrid )
 {
     mLock4Write();
 
-    const IdxType idx = getIdxFor( mrkrid );
+    const idx_type idx = getIdxFor( mrkrid );
     rmoveSingle( idx );
     mSendChgNotif( cMarkerRemoved(), mrkrid.getI() );
 }
 
 
-void Well::MarkerSet::removeSingleByIdx( IdxType idx )
+void Well::MarkerSet::removeSingleByIdx( idx_type idx )
 {
     mLock4Write();
 
@@ -694,7 +694,7 @@ void Well::MarkerSet::removeSingleByIdx( IdxType idx )
 }
 
 
-void Well::MarkerSet::insrtNewAfter( IdxType aftidx, const MarkerSet& mrkrs )
+void Well::MarkerSet::insrtNewAfter( idx_type aftidx, const MarkerSet& mrkrs )
 {
     if ( mrkrs.isEmpty() )
 	return;
@@ -705,18 +705,18 @@ void Well::MarkerSet::insrtNewAfter( IdxType aftidx, const MarkerSet& mrkrs )
     Interval<float> dahbounds( markers_[0].dah() - 10,
 			       markers_[mrkrsz-1].dah() + 10 );
 
-    Interval<IdxType> idxs;
+    Interval<idx_type> idxs;
     if ( aftidx < 0 )
     {
-	for ( IdxType idx=mrkrs.size()-1; idx>-1; idx-- )
+	for ( idx_type idx=mrkrs.size()-1; idx>-1; idx-- )
 	    insrtAt( 0, mrkrs.getByIdx(idx) );
-	idxs = Interval<IdxType>( 0, mrkrs.size()-1 );
+	idxs = Interval<idx_type>( 0, mrkrs.size()-1 );
     }
     else
     {
-	for ( IdxType idx=mrkrs.size()-1; idx>-1; idx-- )
+	for ( idx_type idx=mrkrs.size()-1; idx>-1; idx-- )
 	    insrtAfter( aftidx, mrkrs.getByIdx(idx) );
-	idxs = Interval<IdxType>( aftidx+1, aftidx+mrkrs.size() );
+	idxs = Interval<idx_type>( aftidx+1, aftidx+mrkrs.size() );
     }
 
     if ( idxs.start > 0 )
@@ -730,12 +730,12 @@ void Well::MarkerSet::insrtNewAfter( IdxType aftidx, const MarkerSet& mrkrs )
 
     const float gapwdht = dahbounds.stop - dahbounds.start;
     if ( gapwdht == 0 )
-	for ( IdxType idx=idxs.start; idx<=idxs.stop; idx++ )
+	for ( idx_type idx=idxs.start; idx<=idxs.stop; idx++ )
 	    markers_[idx].setDah( dahbounds.start );
     else
     {
 	const float dahstep = gapwdht / (idxs.width() + 2);
-	for ( IdxType idx=idxs.start; idx<=idxs.stop; idx++ )
+	for ( idx_type idx=idxs.start; idx<=idxs.stop; idx++ )
 	   markers_[idx].setDah( dahbounds.start
 				  + dahstep * (idx-idxs.start+1) );
     }
@@ -746,19 +746,19 @@ void Well::MarkerSet::insrtNewAfter( IdxType aftidx, const MarkerSet& mrkrs )
 void Well::MarkerSet::alignOrderingWith( const MarkerSet& ms1 )
 {
     const size_type ms0szs = markers_.size(); const size_type ms1sz =ms1.size();
-    TypeSet<IdxType> idx0s( ms1sz, -1 ); TypeSet<IdxType> idx1s( ms0szs, -1 );
-    for ( IdxType ms1idx=0; ms1idx<ms1sz; ms1idx++ )
+    TypeSet<idx_type> idx0s( ms1sz, -1 ); TypeSet<idx_type> idx1s( ms0szs, -1 );
+    for ( idx_type ms1idx=0; ms1idx<ms1sz; ms1idx++ )
     {
-	const IdxType idx0 = idxOf( ms1.getByIdx(ms1idx).name() );
+	const idx_type idx0 = idxOf( ms1.getByIdx(ms1idx).name() );
 	idx0s[ms1idx] = idx0;
 	if ( idx0 >= 0 )
 	    idx1s[idx0] = ms1idx;
     }
 
-    IdxType previdx0 = idx0s[0];
-    for ( IdxType ms1idx=0; ms1idx<ms1sz; ms1idx++ )
+    idx_type previdx0 = idx0s[0];
+    for ( idx_type ms1idx=0; ms1idx<ms1sz; ms1idx++ )
     {
-	const IdxType idx0 = idx0s[ms1idx];
+	const idx_type idx0 = idx0s[ms1idx];
 	if ( previdx0 < 0 )
 	    { previdx0 = idx0; continue; }
 	else if ( idx0 < 0 )
@@ -785,12 +785,12 @@ void Well::MarkerSet::mergeOtherWell( const MarkerSet& ms1 )
     alignOrderingWith( ms1 );
 
     // Any new (i.e. not present in this) markers there?
-    TypeSet<IdxType> idx0s;
+    TypeSet<idx_type> idx0s;
     const size_type ms1sz = ms1.size();
     bool havenew = false;
-    for ( IdxType ms1idx=0; ms1idx<ms1sz; ms1idx++ )
+    for ( idx_type ms1idx=0; ms1idx<ms1sz; ms1idx++ )
     {
-	const IdxType idx0 = idxOf( ms1.getByIdx(ms1idx).name() );
+	const idx_type idx0 = idxOf( ms1.getByIdx(ms1idx).name() );
 	idx0s += idx0;
 	if ( idx0 < 0 )
 	    havenew = true;
@@ -800,8 +800,8 @@ void Well::MarkerSet::mergeOtherWell( const MarkerSet& ms1 )
 
 
 	// Find first and last common markers.
-    IdxType ms1idxfirstmatch = -1; IdxType ms1idxlastmatch = -1;
-    for ( IdxType ms1idx=0; ms1idx<idx0s.size(); ms1idx++ )
+    idx_type ms1idxfirstmatch = -1; idx_type ms1idxlastmatch = -1;
+    for ( idx_type ms1idx=0; ms1idx<idx0s.size(); ms1idx++ )
     {
 	if ( idx0s[ms1idx] >= 0 )
 	{
@@ -820,12 +820,12 @@ void Well::MarkerSet::mergeOtherWell( const MarkerSet& ms1 )
 	// Add the markers above and below
     float edgediff = ms1.getByIdx(ms1idxfirstmatch).dah()
 			- markers_[ idx0s[ms1idxfirstmatch] ].dah();
-    for ( IdxType ms1idx=0; ms1idx<ms1idxfirstmatch; ms1idx++ )
+    for ( idx_type ms1idx=0; ms1idx<ms1idxfirstmatch; ms1idx++ )
 	addCopy( ms1, ms1idx, ms1.getByIdx(ms1idx).dah() - edgediff );
 
     edgediff = ms1.getByIdx(ms1idxlastmatch).dah()
 			- markers_[ idx0s[ms1idxlastmatch] ].dah();
-    for ( IdxType ms1idx=ms1idxlastmatch+1; ms1idx<ms1sz; ms1idx++ )
+    for ( idx_type ms1idx=ms1idxlastmatch+1; ms1idx<ms1sz; ms1idx++ )
 	addCopy( ms1, ms1idx, ms1.getByIdx(ms1idx).dah() - edgediff );
 
     if ( ms1idxfirstmatch == ms1idxlastmatch )
@@ -833,9 +833,9 @@ void Well::MarkerSet::mergeOtherWell( const MarkerSet& ms1 )
 
 	// There are new markers in the middle. Set up positioning framework.
     TypeSet<float> xvals, yvals;
-    for ( IdxType ms1idx=ms1idxfirstmatch; ms1idx<=ms1idxlastmatch; ms1idx++ )
+    for ( idx_type ms1idx=ms1idxfirstmatch; ms1idx<=ms1idxlastmatch; ms1idx++ )
     {
-	const IdxType idx0 = idx0s[ms1idx];
+	const idx_type idx0 = idx0s[ms1idx];
 	if ( idx0 >= 0 )
 	{
 	    xvals += markers_[idx0].dah();
@@ -845,12 +845,12 @@ void Well::MarkerSet::mergeOtherWell( const MarkerSet& ms1 )
 
 	// Now add the new markers at a good place.
     const size_type nrpts = xvals.size();
-    for ( IdxType ms1idx=ms1idxfirstmatch+1; ms1idx<ms1idxlastmatch; ms1idx++ )
+    for ( idx_type ms1idx=ms1idxfirstmatch+1; ms1idx<ms1idxlastmatch; ms1idx++ )
     {
 	if ( idx0s[ms1idx] >= 0 )
 	    continue;
 
-	IdxType loidx;
+	idx_type loidx;
 	const float ms1dah = ms1.getByIdx(ms1idx).dah();
 	if ( IdxAble::findFPPos(yvals,nrpts,ms1dah,ms1idxfirstmatch,loidx) )
 	    continue; // Two markers in ms1 at same pos. Ignore this one.
@@ -870,7 +870,7 @@ Well::Marker Well::MarkerSet::gtByLvlID( LevelID lvlid ) const
 	return 0;
 
     mLock4Read();
-    for ( IdxType idmrk=0; idmrk<size(); idmrk++ )
+    for ( idx_type idmrk=0; idmrk<size(); idmrk++ )
     {
 	Well::Marker mrk = markers_[idmrk];
 	if ( mrk.levelID() == lvlid )
@@ -884,7 +884,7 @@ Well::Marker Well::MarkerSet::gtByLvlID( LevelID lvlid ) const
 void Well::MarkerSet::getNames( BufferStringSet& nms ) const
 {
     mLock4Read();
-    for ( IdxType idx=0; idx<size(); idx++ )
+    for ( idx_type idx=0; idx<size(); idx++ )
 	nms.add( markers_[idx].name() );
 }
 
@@ -892,7 +892,7 @@ void Well::MarkerSet::getNames( BufferStringSet& nms ) const
 void Well::MarkerSet::getColors( TypeSet<Color>& cols ) const
 {
     mLock4Read();
-    for ( IdxType idx=0; idx<size(); idx++ )
+    for ( idx_type idx=0; idx<size(); idx++ )
 	cols += markers_[idx].color();
 }
 
@@ -900,7 +900,7 @@ void Well::MarkerSet::getColors( TypeSet<Color>& cols ) const
 void Well::MarkerSet::fillPar( IOPar& iop ) const
 {
     mLock4Read();
-    for ( IdxType idx=0; idx<gtSize(); idx++ )
+    for ( idx_type idx=0; idx<gtSize(); idx++ )
     {
 	IOPar mpar;
 	const Marker& mrk = markers_[idx];
@@ -917,7 +917,7 @@ void Well::MarkerSet::usePar( const IOPar& iop )
 {
     setEmpty();
 
-    for ( IdxType imrk=1; ; imrk++ )
+    for ( idx_type imrk=1; ; imrk++ )
     {
 	PtrMan<IOPar> mpar = iop.subselect( imrk );
 	if ( !mpar || mpar->isEmpty() )
@@ -969,29 +969,29 @@ static Well::MarkerSetIter::IdxType gtIterIdx( const Well::MarkerSet& ms,
 
 
 Well::MarkerSetIter::MarkerSetIter( const Well::MarkerSet& ms, bool dorev )
-    : MonitorableIter4Read<Well::MarkerSet::IdxType>( ms,
-	    dorev?ms.size()-1:0, dorev?0:ms.size()-1 )
+    : MonitorableIter4Read<idx_type>( ms, dorev?ms.size()-1:0,
+					  dorev?0:ms.size()-1 )
 {
 }
 
 
 Well::MarkerSetIter::MarkerSetIter( const MarkerSet& ms,
 				    MarkerID startid, MarkerID stopid )
-    : MonitorableIter4Read<IdxType>(ms,gtIterIdx(ms,startid,true),
-				    gtIterIdx(ms,stopid,false) )
+    : MonitorableIter4Read<idx_type>(ms, gtIterIdx(ms,startid,true),
+					 gtIterIdx(ms,stopid,false) )
 {
 }
 
 Well::MarkerSetIter::MarkerSetIter( const Well::MarkerSet& ms,
 				    const char* startnm, const char* stopnm )
-    : MonitorableIter4Read<IdxType>(ms,gtIterIdx(ms,startnm,true),
-				    gtIterIdx(ms,stopnm,false) )
+    : MonitorableIter4Read<idx_type>(ms, gtIterIdx(ms,startnm,true),
+					 gtIterIdx(ms,stopnm,false) )
 {
 }
 
 
 Well::MarkerSetIter::MarkerSetIter( const MarkerSetIter& oth )
-    : MonitorableIter4Read<MarkerSet::IdxType>(oth)
+    : MonitorableIter4Read<idx_type>(oth)
 {
 }
 
@@ -1030,14 +1030,15 @@ BufferString Well::MarkerSetIter::markerName() const
 
 // Well::MarkerSet4Edit
 Well::MarkerSetIter4Edit::MarkerSetIter4Edit( Well::MarkerSet& ms, bool dorev )
-    : MonitorableIter4Write<IdxType>(ms,dorev?ms.size()-1:0,dorev?0:ms.size()-1)
+    : MonitorableIter4Write<idx_type>(ms,dorev?ms.size()-1:0,
+					 dorev?0:ms.size()-1)
 {
 }
 
 
 Well::MarkerSetIter4Edit::MarkerSetIter4Edit( MarkerSet& ms,
-					      Interval<IdxType> rg )
-    : MonitorableIter4Write<IdxType>(ms,rg.start,rg.stop)
+					      Interval<idx_type> rg )
+    : MonitorableIter4Write<idx_type>(ms,rg.start,rg.stop)
 {
 }
 
@@ -1045,14 +1046,14 @@ Well::MarkerSetIter4Edit::MarkerSetIter4Edit( MarkerSet& ms,
 Well::MarkerSetIter4Edit::MarkerSetIter4Edit( MarkerSet& ms,
 					      const char* startnm,
 					      const char* stopnm )
-    : MonitorableIter4Write<IdxType>(ms,gtIterIdx(ms,startnm,true),
-				    gtIterIdx(ms,stopnm,false) )
+    : MonitorableIter4Write<idx_type>(ms,gtIterIdx(ms,startnm,true),
+					 gtIterIdx(ms,stopnm,false) )
 {
 }
 
 
 Well::MarkerSetIter4Edit::MarkerSetIter4Edit( const MarkerSetIter4Edit& oth )
-    : MonitorableIter4Write<IdxType>(oth)
+    : MonitorableIter4Write<idx_type>(oth)
 {
 }
 
@@ -1160,17 +1161,17 @@ Well::MarkerRange::~MarkerRange()
 }
 
 
-Interval<Well::MarkerRange::IdxType> Well::MarkerRange::idxRange() const
+Interval<Well::MarkerRange::idx_type> Well::MarkerRange::idxRange() const
 {
-    return Interval<IdxType>( gtIterIdx(markerset_,topid_,true),
-			      gtIterIdx(markerset_,botid_,false) );
+    return Interval<idx_type>( gtIterIdx(markerset_,topid_,true),
+			       gtIterIdx(markerset_,botid_,false) );
 }
 
 
 Well::MarkerRange::size_type Well::MarkerRange::size() const
 {
     MonitorLock ml( markerset_ );
-    const Interval<IdxType> rg = idxRange();
+    const Interval<idx_type> rg = idxRange();
     return rg.width() + 1;
 }
 
@@ -1178,7 +1179,7 @@ Well::MarkerRange::size_type Well::MarkerRange::size() const
 bool Well::MarkerRange::isValid() const
 {
     MonitorLock ml( markerset_ );
-    const Interval<IdxType> rg = idxRange();
+    const Interval<idx_type> rg = idxRange();
     const size_type inpsz = markerset_.size();
     return inpsz > 0
 	&& rg.start >= 0 && rg.stop >= 0
@@ -1202,17 +1203,17 @@ bool Well::MarkerRange::isIncluded( const char* nm ) const
 }
 
 
-bool Well::MarkerRange::isIncluded( IdxType idx ) const
+bool Well::MarkerRange::isIncluded( idx_type idx ) const
 {
     MonitorLock ml( markerset_ );
-    const Interval<IdxType> rg = idxRange();
+    const Interval<idx_type> rg = idxRange();
     return rg.includes(idx,false);
 }
 
 
 bool Well::MarkerRange::isIncluded( Well::MarkerSet::MarkerID mid ) const
 {
-    const MarkerSet::IdxType idx = markerset_.getIdxFor( mid );
+    const MarkerSet::idx_type idx = markerset_.getIdxFor( mid );
     return isIncluded( idx );
 }
 
@@ -1222,7 +1223,7 @@ bool Well::MarkerRange::isIncluded( float z ) const
     if ( !isValid() ) return false;
 
     MonitorLock ml( markerset_ );
-    const Interval<IdxType> rg = idxRange();
+    const Interval<idx_type> rg = idxRange();
     return z >= markerset_.getByIdx(rg.start).dah()
 	&& z <= markerset_.getByIdx(rg.stop).dah();
 }
@@ -1231,7 +1232,7 @@ bool Well::MarkerRange::isIncluded( float z ) const
 float Well::MarkerRange::thickness() const
 {
     MonitorLock ml( markerset_ );
-    const Interval<IdxType> rg = idxRange();
+    const Interval<idx_type> rg = idxRange();
     return markerset_.getByIdx(rg.stop).dah()
 	    - markerset_.getByIdx(rg.start).dah();
 }
@@ -1262,7 +1263,7 @@ Well::MarkerSet* Well::MarkerRange::getResultSet() const
 
 void Well::MarkerChgRange::setThickness( float newth )
 {
-    Interval<IdxType> rg = idxRange();
+    Interval<idx_type> rg = idxRange();
     if ( !isValid() || rg.start == rg.stop )
 	return;
     if ( newth < 0 )
@@ -1274,7 +1275,7 @@ void Well::MarkerChgRange::setThickness( float newth )
 
     RefMan<MarkerSet> newms = new MarkerSet( markerset_ );
 
-    const Interval<IdxType> rg1( rg.start+1, rg.stop );
+    const Interval<idx_type> rg1( rg.start+1, rg.stop );
     MarkerSetIter4Edit msiter( *newms, rg1 );
     if ( mIsZero(newth,mDefEps) )
     {
@@ -1286,7 +1287,7 @@ void Well::MarkerChgRange::setThickness( float newth )
 	const float comprfac = newth / oldth;
 	while( msiter.next() )
 	{
-	    const IdxType idx = msiter.curIdx();
+	    const idx_type idx = msiter.curIdx();
 	    const float newdist = comprfac * (markerset_.getByIdx(idx).dah()
 								    -startdah);
 	    msiter.setDah( startdah + newdist );
@@ -1296,7 +1297,7 @@ void Well::MarkerChgRange::setThickness( float newth )
 
     const float deltath = oldth - newth;
     const float lastdah = markerset_.getByIdx(rg.stop-1).dah();
-    const Interval<IdxType> rg2( rg.stop, markerset_.size()-1 );
+    const Interval<idx_type> rg2( rg.stop, markerset_.size()-1 );
     MarkerSetIter4Edit msiter2( *newms, rg2 );
     while( msiter2.next() )
     {
@@ -1315,9 +1316,9 @@ void Well::MarkerChgRange::remove()
 {
     if ( !isValid() ) return;
 
-    Interval<IdxType> rg = idxRange();
+    Interval<idx_type> rg = idxRange();
     const size_type nrlays = rg.width() + 1;
-    for ( IdxType idx=0; idx<nrlays; idx++ )
+    for ( idx_type idx=0; idx<nrlays; idx++ )
 	getMarkers().removeSingleByIdx( rg.start );
 
     rg.stop = rg.start = rg.start - 1;

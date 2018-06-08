@@ -26,11 +26,11 @@ mExpClass(Well) LogSet : public NamedMonitorable
 public:
 
     typedef ObjectSet<Log>::size_type	size_type;
-    typedef size_type			IdxType;
+    typedef size_type			idx_type;
     typedef Well::DahObj::ZType		ZType;
     typedef RefMan<Log>			LogRefMan;
     typedef ConstRefMan<Log>		CLogRefMan;
-    mDefIntegerIDType(IdxType,		LogID);
+    mDefIntegerIDType(idx_type,		LogID);
 
 			LogSet();
 			~LogSet();
@@ -41,16 +41,16 @@ public:
     CLogRefMan		getLog(LogID) const;
     LogRefMan		getLogByName(const char*);
     CLogRefMan		getLogByName(const char*) const;
-    LogRefMan		getLogByIdx(IdxType);
-    CLogRefMan		getLogByIdx(IdxType) const;
+    LogRefMan		getLogByIdx(idx_type);
+    CLogRefMan		getLogByIdx(idx_type) const;
     LogRefMan		firstLog();
     CLogRefMan		firstLog() const;
 
     size_type		size() const;
-    LogID		getID(IdxType) const;
+    LogID		getID(idx_type) const;
     int			indexOf(LogID) const;
     int			indexOf(const char*) const;
-    bool		validIdx(IdxType) const;
+    bool		validIdx(idx_type) const;
     bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();
 
@@ -79,29 +79,29 @@ protected:
     ObjectSet<Log>	logs_;
     TypeSet<LogID>	logids_;
     Interval<ZType>	dahintv_;
-    mutable Threads::Atomic<IdxType> curlogidnr_;
+    mutable Threads::Atomic<idx_type> curlogidnr_;
 
-    IdxType		gtIdx(LogID) const;
+    idx_type		gtIdx(LogID) const;
     Log*		gtLog(LogID) const;
     LogID		gtID(const Log*) const;
-    IdxType		gtIdxByName(const char*) const;
+    idx_type		gtIdxByName(const char*) const;
     Log*		gtLogByName(const char*) const;
-    Log*		gtLogByIdx(IdxType) const;
+    Log*		gtLogByIdx(idx_type) const;
     void		updateDahIntv(const Log&);
     void		recalcDahIntv();
-    Log*		doRemove(IdxType);
+    Log*		doRemove(idx_type);
     void		doSetEmpty();
 
     friend class	LogSetIter;
 
 public:
 
-    bool		swap(IdxType,IdxType);
+    bool		swap(idx_type,idx_type);
 
 };
 
 
-mExpClass(Well) LogSetIter : public MonitorableIter4Read<Log::IdxType>
+mExpClass(Well) LogSetIter : public MonitorableIter4Read<Log::idx_type>
 {
 public:
 

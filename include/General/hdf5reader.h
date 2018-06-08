@@ -56,6 +56,8 @@ public:
 				//!< Get a set of distinct points' values
     uiRetVal		getSlab(const SlabSpec&,void*) const;
 
+    virtual bool	isReader() const		{ return true; }
+
 protected:
 
     virtual void	gtInfo(IOPar&,uiRetVal&) const			= 0;

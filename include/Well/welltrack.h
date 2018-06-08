@@ -32,7 +32,7 @@ public:
 			mDeclInstanceCreatedNotifierAccess(Track);
 
     Coord3		pos(PointID) const;
-    Coord3		posByIdx(IdxType) const;
+    Coord3		posByIdx(idx_type) const;
     Coord3		firstPos() const;
     Coord3		lastPos() const;
     Coord3		getPos(ZType d_ah) const;
@@ -69,17 +69,17 @@ protected:
     PosSetType		pos_;
     bool		zistime_;
 
-    virtual bool	doSet(IdxType,ValueType);
+    virtual bool	doSet(idx_type,ValueType);
     virtual PointID	doInsAtDah(ZType,ValueType);
-    virtual ValueType	gtVal(IdxType) const;
-    virtual void	removeAux( IdxType i )	{ pos_.removeSingle(i); }
+    virtual ValueType	gtVal(idx_type) const;
+    virtual void	removeAux( idx_type i )	{ pos_.removeSingle(i); }
     virtual void	eraseAux()		{ pos_.erase(); }
 
-    void		doSetPoint(IdxType,const Coord3&);
+    void		doSetPoint(idx_type,const Coord3&);
     PointID		addPt(ZType,const Coord3&,AccessLocker*);
-    PointID		insPt(IdxType,ZType,const Coord3&,AccessLocker*);
-    PointID		insAfterIdx(IdxType,const Coord3&,AccessLocker&);
-    Coord3		coordAfterIdx(ZType,IdxType) const;
+    PointID		insPt(idx_type,ZType,const Coord3&,AccessLocker*);
+    PointID		insAfterIdx(idx_type,const Coord3&,AccessLocker&);
+    Coord3		coordAfterIdx(ZType,idx_type) const;
     Interval<double>	gtZRangeD() const;
 
     friend class	TrackSampler;

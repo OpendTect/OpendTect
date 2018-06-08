@@ -41,8 +41,8 @@ public:
     typedef TypeSet<ZType>	ZSetType;
     typedef Interval<ZType>	ZIntvType;
     typedef ZSetType::size_type	size_type;
-    typedef size_type		IdxType;
-    typedef IntegerID<IdxType>	PointID;
+    typedef size_type		idx_type;
+    typedef IntegerID<idx_type>	PointID;
     typedef float		ValueType;
     typedef TypeSet<ValueType>	ValueSetType;
     typedef Interval<ValueType>	ValueIntvType;
@@ -82,12 +82,12 @@ public:
     void		convertZ(bool tofeet);
 
 			// Use MonitorLock when iterating
-    PointID		pointIDFor(IdxType) const;
-    IdxType		indexOf(PointID) const;
-    IdxType		indexOf(ZType) const;
-    ZType		dahByIdx(IdxType) const;
-    ValueType		valueByIdx(IdxType) const;
-    void		removeByIdx(IdxType);
+    PointID		pointIDFor(idx_type) const;
+    idx_type		indexOf(PointID) const;
+    idx_type		indexOf(ZType) const;
+    ZType		dahByIdx(idx_type) const;
+    ValueType		valueByIdx(idx_type) const;
+    void		removeByIdx(idx_type);
 
     static ChangeType	cParsChange()		{ return 2; }
     static ChangeType	cPointAdd()		{ return 3; }
@@ -100,17 +100,17 @@ protected:
 
     ZSetType		dahs_;
     TypeSet<PointID>	ptids_;
-    mutable Threads::Atomic<IdxType> curptidnr_;
+    mutable Threads::Atomic<idx_type> curptidnr_;
 
 			// fns for for already locked state
 
-    virtual bool	doSet(IdxType,ValueType)		= 0;
+    virtual bool	doSet(idx_type,ValueType)		= 0;
     virtual PointID	doInsAtDah(ZType,ValueType)		= 0;
-    virtual ValueType	gtVal(IdxType) const			= 0;
-    virtual void	removeAux(IdxType)			= 0;
+    virtual ValueType	gtVal(idx_type) const			= 0;
+    virtual void	removeAux(idx_type)			= 0;
     virtual void	eraseAux()				= 0;
 
-    void		doRemove(IdxType);
+    void		doRemove(idx_type);
     void		doSetEmpty();
     PointID		doIns(ZType dh,ValueType val,ValueSetType&,
 				bool ascendingvalsonly);
@@ -118,12 +118,12 @@ protected:
 				  ValueSetType&);
 
     size_type		gtSize() const		{ return dahs_.size(); }
-    IdxType		gtIsEmpty() const	{ return dahs_.isEmpty(); }
+    idx_type		gtIsEmpty() const	{ return dahs_.isEmpty(); }
     PointID		gtNeighbourID(PointID,bool) const;
     PointID		gtNewPointID() const;
-    IdxType		gtIndexOf(ZType) const;
-    IdxType		gtIdx(PointID) const;
-    ZType		gtDah(IdxType) const;
+    idx_type		gtIndexOf(ZType) const;
+    idx_type		gtIdx(PointID) const;
+    ZType		gtDah(idx_type) const;
     ValueType		gtValueAt(ZType,bool noudfs) const;
     static bool		areEqualDahs(ZType,ZType);
 
@@ -132,7 +132,7 @@ protected:
 };
 
 
-mExpClass(Well) DahObjIter : public MonitorableIter4Read<DahObj::IdxType>
+mExpClass(Well) DahObjIter : public MonitorableIter4Read<DahObj::idx_type>
 {
 public:
 
