@@ -40,7 +40,7 @@ SEGY::Vintage::Importer::Importer( const SEGY::Vintage::Info& vntinfo,
 	const File::Path fp( vntinfo.fp_.pathOnly(), fnm );
 	if ( Seis::is2D(gt) && attr2dnm )
 	    ctio.setName( attr2dnm );
-	else
+	else if ( Seis::is3D(gt) )
 	    ctio.setName( fp.baseName() );
 
 	DBM().getEntry( ctio );
