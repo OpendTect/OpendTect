@@ -76,6 +76,9 @@ protected:
 				//This marker is now yours
     Well::Marker*		getMarker(int rowidx,bool fromname) const;
 
+    void			assignRandomColorsCB(CallBacker*);
+    void			assignRandomColors(Well::MarkerSet&);
+
 };
 
 

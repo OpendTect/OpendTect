@@ -33,8 +33,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "od_ostream.h"
 #include "oddirs.h"
-#include "stratlevel.h"
 #include "od_istream.h"
+#include "randcolor.h"
+#include "stratlevel.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "welldata.h"
@@ -211,6 +212,11 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 				tr("Edit Stratigraphy to define Levels"),
 				mCB(this,uiMarkerDlg,doStrat) );
     stratbut->attach( rightOf, setregmrkar );
+
+    uiToolButton* randclrbut = new uiToolButton( this, "random_color",
+				tr("Assign random colors to markers"),
+				mCB(this,uiMarkerDlg,assignRandomColorsCB) );
+    randclrbut->attach( rightOf, stratbut );
 
     unitfld_ = new uiCheckBox( this, tr("Z in Feet") );
     unitfld_->attach( rightAlignedBelow, table_ );
@@ -489,6 +495,10 @@ uiReadMarkerFile( uiParent* p )
     replfld_ = new uiGenInput( this, tr("Existing markers (if any)"),
 			      BoolInpSpec(true,tr("Replace"),tr("Keep")) );
     replfld_->attach( alignedBelow, dataselfld_ );
+
+    colorfld_ = new uiCheckBox( this, tr("Assign random colors to markers") );
+    colorfld_->setChecked( false );
+    colorfld_->attach( alignedBelow, replfld_ );
 }
 
 ~uiReadMarkerFile()
@@ -506,17 +516,41 @@ bool acceptOK( CallBacker* )
 	return false;
 
     keep_ = !replfld_->getBoolValue();
+    assignrandcolors_ = colorfld_->isChecked();
     return true;
 }
 
     Table::FormatDesc&	fd_;
     BufferString	fnm_;
     bool		keep_;
+    bool		assignrandcolors_;
 
     uiFileInput*	fnmfld_;
     uiGenInput*		replfld_;
     uiTableImpDataSel*	dataselfld_;
+    uiCheckBox*		colorfld_;
 };
+
+
+void uiMarkerDlg::assignRandomColorsCB( CallBacker* )
+{
+    Well::MarkerSet mrkrs;
+    getMarkerSet( mrkrs );
+    assignRandomColors( mrkrs );
+    setMarkerSet( mrkrs, false );
+}
+
+
+void uiMarkerDlg::assignRandomColors( Well::MarkerSet& mrkrs )
+{
+    for ( int midx=0; midx<mrkrs.size(); midx++ )
+    {
+	if ( !mrkrs[midx] || mrkrs[midx]->levelID()!=-1 )
+	    continue;
+
+	mrkrs[midx]->setColor( getRandomColor() );
+    }
+}
 
 
 void uiMarkerDlg::rdFile( CallBacker* )
@@ -532,9 +566,15 @@ void uiMarkerDlg::rdFile( CallBacker* )
     Well::MarkerSet mrkrs;
     aio.get( strm, mrkrs, track_ );
     if ( mrkrs.isEmpty() )
+    {
 	uiMSG().error( tr("No valid markers found") );
-    else
-	setMarkerSet( mrkrs, dlg.keep_ );
+	return;
+    }
+
+    if ( dlg.assignrandcolors_ )
+	assignRandomColors( mrkrs );
+
+    setMarkerSet( mrkrs, dlg.keep_ );
 }
 
 
