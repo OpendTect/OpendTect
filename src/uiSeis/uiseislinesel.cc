@@ -117,6 +117,7 @@ void uiSeis2DLineChoose::objInserted( CallBacker* cb )
 void uiSeis2DLineChoose::init( OD::ChoiceMode cm )
 {
     listfld_ = new uiListBox( this, "Lines", cm );
+    listfld_->setHSzPol( uiObject::MedVar );
     filtfld_ = new uiListBoxFilter( *listfld_ );
     filtfld_->setItems( lnms_ );
     if ( isMultiChoice(cm) )
