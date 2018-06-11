@@ -83,6 +83,7 @@ public:
 			//!< bound: -1=start, 1=stop, 0=center
     int			sector(float ang) const;
     int			sector(float ang,Angle::Type) const;
+    int			part(int isect,float pos) const;
 
     Setup		setup_;
 
@@ -125,6 +126,17 @@ inline int DirectionalData::sector( float ang ) const
     int sect = mNINT32(fsect);
     if ( sect >= size() ) sect = 0;
     return sect;
+}
+
+
+inline int DirectionalData::part( int isect, float pos ) const
+{
+    const int nrparts = nrParts( isect );
+    const float fpart = nrparts * pos / setup_.usrposrg_.width();
+    int prt = (int)fpart;
+    if ( prt<0 ) prt = 0;
+    if ( prt>=nrparts ) prt = nrparts-1;
+    return prt;
 }
 
 
