@@ -14,12 +14,12 @@ ________________________________________________________________________
 #include "uicoltabgraphicsitem.h"
 #include "uifont.h"
 #include "uistrings.h"
+
 #include "angles.h"
-#include "mouseevent.h"
-#include "dataclipper.h"
 #include "coltabseqmgr.h"
 #include "coltabmapper.h"
-#include <iostream>
+#include "dataclipper.h"
+#include "mouseevent.h"
 
 
 #define mDefMarkerZValue 2
@@ -54,6 +54,7 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , coltabitm_(0)
     , highlightidx_(-1)
     , sectorPicked(this)
+    , isempty_(true)
 {
     disableScrollZoom();
     setPrefWidth( setup_.prefsize_.width() );
@@ -161,9 +162,9 @@ void uiDirectionalPlot::draw()
     if ( isempty_ )
 	return;
 
+    center_ = uiPoint( viewWidth()/2, viewHeight()/2 );
     const uiSize uitotsz( viewWidth(), viewHeight() );
-    uiBorder border( 20 );
-    center_ = uiPoint( uitotsz.width() / 2, uitotsz.height() / 2 );
+    const uiBorder border( 30 );
     const uiRect avrect( border.getRect(uitotsz) );
     radius_ = (avrect.width() > avrect.height()
 		     ? avrect.height() : avrect.width()) / 2;
@@ -177,13 +178,14 @@ void uiDirectionalPlot::draw()
 
 void uiDirectionalPlot::drawGrid()
 {
+    const float dr = 1.f / (setup_.nrequicircles_+1);
     if ( outercircleitm_ )
     {
 	outercircleitm_->setPos( center_ );
 	outercircleitm_->setRadius( radius_ );
-	for ( int idx=0; idx<4; idx++ )
+	for ( int idx=0; idx<setup_.nrequicircles_; idx++ )
 	{
-	    const float rad = (.2f + .2f*idx)*radius_ ;
+	    const float rad = (dr + dr*idx)*radius_ ;
 	    uiCircleItem& ci = *equicircles_[idx];
 	    ci.setPos( center_ ); ci.setRadius( mNINT32(rad) );
 	}
@@ -193,9 +195,9 @@ void uiDirectionalPlot::drawGrid()
 	outercircleitm_ = scene().addItem( new uiCircleItem(center_,radius_) );
 	outercircleitm_->setPenStyle( setup_.circlels_ );
 	outercircleitm_->setZValue( 0 );
-	for ( int idx=0; idx<4; idx++ )
+	for ( int idx=0; idx<setup_.nrequicircles_; idx++ )
 	{
-	    const float rad = (.2f + .2f*idx)*radius_ ;
+	    const float rad = (dr + dr*idx)*radius_ ;
 	    uiCircleItem* ci = scene().addItem(
 				new uiCircleItem(center_,mNINT32(rad)) );
 	    ci->setZValue( 0 );
@@ -252,22 +254,26 @@ void uiDirectionalPlot::drawScale()
 
     const char* nm = setup_.nameforpos_;
     if ( !*nm ) nm = "Values";
-    uiPoint midpt( startpt ); midpt += endpt; midpt /= 2;
+    uiPoint annotpt;
+    annotpt.x_ = (startpt.x_ + endpt.x_) / 2;
+    annotpt.y_ = endpt.y_ + 20;
+    uiPoint txtstartpt = startpt; txtstartpt.x_ += 6; txtstartpt.y_ -= 3;
+    uiPoint txtendpt = endpt; txtendpt.x_ += 6; txtendpt.y_ -= 3;
     if ( !scaleannotitm_ )
     {
 	OD::Alignment al( mAlignment(HCenter,VCenter) );
-	scaleannotitm_ = scene().addItem( new uiTextItem(midpt,
+	scaleannotitm_ = scene().addItem( new uiTextItem(annotpt,
 						     toUiString(nm),al) );
 	al.set( OD::Alignment::Left );
-	scalestartitm_ = scene().addItem( new uiTextItem(startpt,
+	scalestartitm_ = scene().addItem( new uiTextItem(txtstartpt,
 						uiString::empty(),al) );
-	al.set( OD::Alignment::Right );
-	scalestopitm_ = scene().addItem( new uiTextItem(endpt,
+
+	scalestopitm_ = scene().addItem( new uiTextItem(txtendpt,
 						uiString::empty(),al) );
     }
-    scalestartitm_->setPos( startpt );
-    scaleannotitm_->setPos( midpt );
-    scalestopitm_->setPos( endpt );
+    scalestartitm_->setPos( txtstartpt );
+    scaleannotitm_->setPos( annotpt );
+    scalestopitm_->setPos( txtendpt );
     scalestartitm_->setText( toUiString(data_.setup_.usrposrg_.start) );
     scalestopitm_->setText( toUiString(data_.setup_.usrposrg_.stop) );
 }
@@ -282,7 +288,7 @@ void uiDirectionalPlot::drawHeader()
     {
 	hdrannotitm1_ = scene().addItem(
 			new uiTextItem(toUiString(setup_.nameforval_),al));
-	hdrannotitm1_->setPos( uiPoint(0,0) );
+	hdrannotitm1_->setPos( uiPoint(2,0) );
     }
 
     if ( setup_.hdrannot_.isEmpty() )
@@ -303,7 +309,7 @@ void uiDirectionalPlot::drawColTab()
 {
     if ( !coltabitm_ )
     {
-	uiColTabItem::Setup su( true );
+	uiColTabItem::Setup su( false );
 	coltabitm_ = scene().addItem( new uiColTabItem(su) );
     }
     coltabitm_->setMapper( new ColTab::Mapper(valrg_) );
@@ -311,7 +317,7 @@ void uiDirectionalPlot::drawColTab()
 	coltabitm_->setSequence( *colseq_ );
 
     const uiRect br( coltabitm_->boundingRect() );
-    uiPoint targettl( 20, viewHeight() - br.height() - 5 );
+    uiPoint targettl( 20, viewHeight() - br.height() );
     coltabitm_->setPos( targettl );
 }
 
@@ -341,14 +347,14 @@ void uiDirectionalPlot::drawDirAnnot()
 					  : uiStrings::sWest(true)));
 	    OD::Alignment al( isew ? (idx==1 ? OD::Alignment::Left :
 				OD::Alignment::Right) : OD::Alignment::HCenter,
-		          isew ? OD::Alignment::VCenter
+			  isew ? OD::Alignment::VCenter
 			  : (idx == 2 ? OD::Alignment::Top :
 						  OD::Alignment::Bottom) );
 	    uiTextItem* ti = scene().addItem( new uiTextItem(txt,al) );
 	    dirtxtitms_ += ti;
 
 	    uiPoint pt( isew ? (idx==1 ? 4 : -4) : 0,
-		        isew ? 0 : (idx==2 ? 4 : -4) );
+			isew ? 0 : (idx==2 ? 4 : -4) );
 	    dirlnitms_ += scene().addItem( new uiLineItem(pt00,pt) );
 	}
     }
@@ -549,12 +555,47 @@ void uiDirectionalPlot::drawSelection()
 }
 
 
+void uiDirectionalPlot::getMousePosInfo( int& count, float& angle, float& pos )
+{
+    count = 0; angle = pos = mUdf(float);
+    if ( getMouseEventHandler().isHandled() )
+	return;
+
+    const MouseEvent& ev = getMouseEventHandler().event();
+    uiPoint relpos( ev.x(), ev.y() ); relpos -= center_;
+    if ( relpos.x_ == 0 && relpos.y_ == 0 )
+	return;
+
+    const double r = relpos.abs<double>();
+    if ( r > radius_ )
+	return;
+
+    double azimuthrad = acos( relpos.x_/r );
+    if ( relpos.y_ > 0 )
+	azimuthrad = 2*M_PI - azimuthrad;
+    const double azimuth =
+	Angle::convert( Angle::Rad, azimuthrad, Angle::UsrDeg );
+    const int sector = data_.sector( azimuth );
+
+    const int nrparts = data_.nrParts( sector );
+    int part = int( nrparts * r / radius_ );
+    if ( part<0 ) part = 0;
+    if ( part>=nrparts ) part = nrparts-1;
+
+    count = data_.getPartData( sector, part ).count_;
+    angle = (float)azimuth;
+    if ( nrparts>1 )
+	pos = data_.setup_.usrposrg_.start +
+	      data_.setup_.usrposrg_.width()*r/radius_;
+}
+
+
 #define mGetMousePos()  \
     if ( getMouseEventHandler().isHandled() ) \
 	return; \
     const MouseEvent& ev = getMouseEventHandler().event(); \
     if ( !(ev.buttonState() & OD::LeftButton) ) \
-        return; \
+	return; \
     const bool isctrl = ev.ctrlStatus(); \
     const bool isoth = ev.shiftStatus() || ev.altStatus(); \
     const bool isnorm = !isctrl && !isoth; \
@@ -592,6 +633,16 @@ uiPoint uiDirectionalPlot::dataUIPos( float r, float ang ) const
 uiPoint uiDirectionalPlot::usrUIPos( float r, float ang ) const
 {
     return uiPointFromPolar( center_, r, Angle::usrdeg2rad(ang) );
+}
+
+
+void uiDirectionalPlot::setColTab( const char* nm )
+{
+    colseq_ = ColTab::SeqMGR().getAny( nm );
+    if ( coltabitm_ )
+	coltabitm_->setSeqName( nm );
+
+    draw();
 }
 
 

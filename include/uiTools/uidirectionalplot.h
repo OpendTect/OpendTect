@@ -48,9 +48,10 @@ public:
 				    , circlels_(OD::LineStyle::Solid)
 				    , sectorls_(OD::LineStyle::Solid)
 				    , equils_(OD::LineStyle::Dot)
+				    , nrequicircles_(3)
 				    , markstyle_(OD::MarkerStyle2D::Circle)
 				    , hlmarkstyle_(OD::MarkerStyle2D::Square,4,
-					    	   Color::Green())
+						   Color::Green())
 				    , docount_(false)
 				    , curissel_(true)
 				    , valcolor_(true)
@@ -62,6 +63,7 @@ public:
 	mDefSetupMemb(OD::LineStyle,circlels)
 	mDefSetupMemb(OD::LineStyle,sectorls)
 	mDefSetupMemb(OD::LineStyle,equils)
+	mDefSetupMemb(int,nrequicircles)
 	mDefSetupMemb(OD::MarkerStyle2D,markstyle)
 	mDefSetupMemb(OD::MarkerStyle2D,hlmarkstyle) // Highlight marker style
 	mDefSetupMemb(bool,curissel)	// Must clicked sector become selected?
@@ -94,7 +96,10 @@ public:
     int				selSector() const { return selsector_; }
     void			setSelectedSector( int i )
 						{ selsector_ = i; }
+    void			getMousePosInfo(int& count,float& angle,
+						float& pos);
 
+    void			setColTab(const char* nm);
     void			showColTabItem(bool);
     void			showScaleItem(bool);
 
