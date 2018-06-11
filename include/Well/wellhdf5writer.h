@@ -12,10 +12,8 @@ ________________________________________________________________________
 -*/
 
 #include "wellwriteaccess.h"
-#include "welldahobj.h"
-#include "uistring.h"
+#include "wellhdf5reader.h"
 #include "hdf5writer.h"
-class IOObj;
 
 
 namespace Well
@@ -24,11 +22,9 @@ namespace Well
 /*!\brief Writes Well::Data to HDF5 file */
 
 mExpClass(Well) HDF5Writer : public WriteAccess
+			   , public HDF5Access
 { mODTextTranslationClass(Well::HDF5Writer)
 public:
-
-    typedef DahObj::size_type	size_type;
-    typedef DahObj::idx_type	idx_type;
 
 			HDF5Writer(const IOObj&,const Data&,uiString& errmsg);
 			HDF5Writer(const char* fnm,const Data&,uiString&);

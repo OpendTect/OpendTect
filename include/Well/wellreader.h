@@ -34,9 +34,6 @@ public:
 			~Reader();
     bool		isUsable() const	{ return ra_; }
 
-    bool		get() const;		//!< Just read all
-			// Should use Well::MGR().get instead to get all
-
     bool		getInfo() const;	//!< Read Info only
     bool		getTrack() const;	//!< Read Track only
     bool		getLogs() const;	//!< Read logs only
@@ -63,6 +60,12 @@ protected:
 private:
 
     void		init(const IOObj&,Data&);
+
+public:
+
+    mDeprecated bool	get() const { return getAll(); /* use Well::MGR() */ }
+    bool		getAll() const;
+			    //!< probably you want to use Well::MGR().get()
 
 };
 

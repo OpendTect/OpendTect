@@ -176,7 +176,7 @@ bool Well::Reader::getTrack() const
 }
 
 
-bool Well::Reader::get() const
+bool Well::Reader::getAll() const
 {
     if ( !ra_ )
 	return false;

@@ -122,7 +122,7 @@ bool Well::HDF5Writer::putInfoAndTrack() const
     }
 
     HDF5::ArrayNDTool<double> arrtool( arr );
-    const HDF5::DataSetKey trackdsky( "", "Track" );
+    const HDF5::DataSetKey trackdsky( "", sTrackDSName() );
     uirv = arrtool.put( *wrr_, trackdsky );
     mErrRetIfUiRvNotOK( trackdsky );
 
@@ -133,8 +133,7 @@ bool Well::HDF5Writer::putInfoAndTrack() const
 bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
 {
     const Well::D2TModel& d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
-    const HDF5::DataSetKey dsky( "", csmdl ? "CheckShot Model"
-					   : "Depth/Time Model" );
+    const HDF5::DataSetKey dsky( "", csmdl ? sCSMdlDSName() : sD2TDSName() );
 
     const size_type sz = d2t.size();
     Array2DImpl<float> arr( 2, sz );
@@ -156,7 +155,8 @@ bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
     putDepthUnit( iop );
     uirv = wrr_->putInfo( dsky, iop );
     mErrRetIfUiRvNotOK( dsky );
-    return false;
+
+    return true;
 }
 
 
@@ -169,6 +169,8 @@ bool Well::HDF5Writer::putD2T() const
 bool Well::HDF5Writer::putLogs() const
 {
     errmsg_.set( mTODONotImplPhrase() );
+    // In a group
+    // got to remove 'extra' data sets
     return false;
 }
 
@@ -189,5 +191,6 @@ bool Well::HDF5Writer::putCSMdl() const
 bool Well::HDF5Writer::putDispProps() const
 {
     errmsg_.set( mTODONotImplPhrase() );
+    // Group DispProps with only attributes
     return false;
 }

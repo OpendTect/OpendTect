@@ -12,9 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "wellreadaccess.h"
+#include "welldahobj.h"
+#include "hdf5reader.h"
 #include "uistring.h"
 class IOObj;
-namespace HDF5 { class Reader; }
 
 
 namespace Well
@@ -22,9 +23,29 @@ namespace Well
 
 class HDF5Writer;
 
+
+/*!\brief stuff common to HDF5 well reader and writer  */
+
+mExpClass(Well) HDF5Access
+{
+public:
+
+    typedef DahObj::size_type	size_type;
+    typedef DahObj::idx_type	idx_type;
+
+    static const char*		sTrackDSName();
+    static const char*		sLogsDSName();
+    static const char*		sMarkersDSName();
+    static const char*		sD2TDSName();
+    static const char*		sCSMdlDSName();
+
+};
+
+
 /*!\brief Reads Well::Data from HDF5 file  */
 
-mExpClass(Well) HDF5Reader : public Well::ReadAccess
+mExpClass(Well) HDF5Reader : public ReadAccess
+			   , public HDF5Access
 { mODTextTranslationClass(Well::HDF5Reader)
 public:
 
