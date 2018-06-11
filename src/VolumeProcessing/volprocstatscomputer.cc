@@ -57,8 +57,7 @@ bool StatsCalculator::usePar( const IOPar& par )
 TrcKeySampling StatsCalculator::getInputHRg( const TrcKeySampling& hrg ) const
 {
     TrcKeySampling res( Step::getInputHRg(hrg) );
-    res.step = BinID( stepout_.row(), stepout_.col() );
-
+    res.step_ = BinID( stepout_.row(), stepout_.col() );
     return res;
 }
 

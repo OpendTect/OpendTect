@@ -96,7 +96,7 @@ bool uiVelocityGridder::acceptOK( CallBacker* cb )
     {
 	const BufferString errmsg = griddersel_->errMsg();
 	if ( !errmsg.isEmpty() )
-	    uiMSG().error( errmsg );
+	    uiMSG().error( toUiString(errmsg) );
 
 	return false;
     }

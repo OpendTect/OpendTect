@@ -112,7 +112,7 @@ protected:
     uiStratLayerModelLMProvider& lmp_;
     CtxtIOObj&			descctio_;
     ElasticPropSelection*	elpropsel_;
-    mDeprecated bool		mostlyfilledwithbrine_;
+    /*mDeprecated*/ bool	mostlyfilledwithbrine_;
     bool			needtoretrievefrpars_;
     bool			automksynth_;
 

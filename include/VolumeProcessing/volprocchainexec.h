@@ -124,8 +124,8 @@ private:
     Epoch*			curepoch_;
     bool			isok_;
     Chain&			chain_;
-    mDeprecated TrcKeySampling	outputhrg_;
-    mDeprecated StepInterval<int>	outputzrg_;
+    TrcKeySampling		outputhrg_; // deprecated
+    StepInterval<int>		outputzrg_; // deprecated
     mutable uiString		errmsg_;
     ObjectSet<Step>		scheduledsteps_;
     ObjectSet<Epoch>		epochs_;

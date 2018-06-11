@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "voxelconnectivityfiltermod.h"
 #include "volprocchain.h"
 #include "enums.h"
-#include "enums.h"
 
 namespace VolProc
 {

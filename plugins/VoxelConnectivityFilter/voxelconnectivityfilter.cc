@@ -618,8 +618,7 @@ bool VoxelConnectivityFilter::usePar( const IOPar& par )
 od_int64 VoxelConnectivityFilter::extraMemoryUsage( OutputSlotID,
 	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
 {
-    return 3 * getBaseMemoryUsage( hsamp, zsamp );
+    return 3 * getComponentMemory( hsamp, false );
 }
 
-
-}; //Namespace
+} // namespace VolProc

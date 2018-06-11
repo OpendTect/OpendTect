@@ -102,8 +102,8 @@ protected:
     int			selseqidx_;
     Interval<float>	zrg_;
     bool		flattened_;
-    mDeprecated bool	fluidreplon_;
-    mDeprecated bool	isbrinefilled_;
+    /*mDeprecated*/ bool	fluidreplon_;
+    /*mDeprecated*/ bool	isbrinefilled_;
     TypeSet<float>	lvldpths_;
     TypeSet<LMPropSpecificDispPars> lmdisppars_;
     IOPar		dumppars_;

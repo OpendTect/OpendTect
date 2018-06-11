@@ -355,7 +355,7 @@ void uiVelSel::setIs2D( bool yn )
     seissetup_.geom_ = yn ? Seis::Line : Seis::Vol;
     IOObjContext ctxt = uiSeisSel::ioContext( seissetup_.geom_, true );
     ctxt.toselect_.require_.setYN( VelocityDesc::sKeyIsVelocity(), true );
-    workctio_.ctxt = inctio_.ctxt = ctxt;
+    workctio_.ctxt_ = inctio_.ctxt_ = ctxt;
     updateInput();
     fillEntries();
 }

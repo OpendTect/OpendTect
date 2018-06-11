@@ -138,7 +138,7 @@ protected:
     int			dispeach_;
     float		dispskipz_;
     bool		dispflattened_;
-    mDeprecated bool	isbrinefilled_;
+    /*mDeprecated*/ bool	isbrinefilled_;
     bool		autoupdate_;
     bool		forceupdate_;
     bool		useed_;

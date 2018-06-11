@@ -179,8 +179,8 @@ protected:
     od_uint64			getComponentMemory(const TrcKeySampling&,
 						   bool input) const;
 
-    mDeprecated TrcKeySampling		tks_;
-    mDeprecated StepInterval<int>	zrg_;
+    /*mDeprecated*/ TrcKeySampling	tks_;
+    /*mDeprecated*/ StepInterval<int>	zrg_;
 
 private:
     od_uint64			extraMemoryUsage(OutputSlotID,
