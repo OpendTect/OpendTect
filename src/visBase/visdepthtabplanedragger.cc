@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include <osgGeo/TabPlaneDragger>
+#include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Switch>
 #include <osg/LightModel>
