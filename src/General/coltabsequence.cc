@@ -187,7 +187,7 @@ Color ColTab::Sequence::color( PosType x ) const
     if ( nrsegments_ > 0 )
 	x = snapToSegmentCenter( x );
 
-    CompType t = Color::getUChar( gtTransparencyAt(x) );
+    CompType t = Color::ratio2Comp( gtTransparencyAt(x) );
 
     PosType x0 = x_[0];
     if ( sz == 1 || x < x0 + mDefEps )
@@ -208,7 +208,8 @@ Color ColTab::Sequence::color( PosType x ) const
 
 	    x0 = x_[idx-1];
 	    const PosType frac = (x-x0) / (x1-x0);
-#	    define mColVal(c) Color::getUChar( frac*c[idx] + (1-frac)*c[idx-1] )
+#	    define mColVal(c) \
+		Color::ratio2Comp( frac*c[idx] + (1-frac)*c[idx-1] )
 	    return Color( mColVal(r_), mColVal(g_), mColVal(b_), t );
 	}
     }

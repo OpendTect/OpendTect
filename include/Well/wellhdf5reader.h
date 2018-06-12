@@ -32,12 +32,18 @@ public:
 
     typedef DahObj::size_type	size_type;
     typedef DahObj::idx_type	idx_type;
+    typedef DahObj::ZType	ZType;
+
+    static const char*		sLogsGrpName();
+    static const char*		sMarkersGrpName();
 
     static const char*		sTrackDSName();
-    static const char*		sLogsDSName();
-    static const char*		sMarkersDSName();
     static const char*		sD2TDSName();
     static const char*		sCSMdlDSName();
+    static const char*		sMDsDSName();
+    static const char*		sColorsDSName();
+    static const char*		sNamesDSName();
+    static const char*		sLvlIDsDSName();
 
 };
 

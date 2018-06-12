@@ -124,7 +124,7 @@ void Material::setColor( const Color& n, int idx, bool trigger )
 	if ( colarr->size()<=idx )
 	    colarr->resizeArray( idx+1 );
 
-	(*colarr)[idx] = osg::Vec4f( n.rF(), n.gF(), n.bF(), 1.0f-n.tF() );
+	(*colarr)[idx] = osg::Vec4f( n.rR(), n.gR(), n.bR(), 1.0f-n.tR() );
     }
 
     lckr.unlockNow();
@@ -184,7 +184,7 @@ void Material::setTransparency( float n, int idx, bool update )
     mGetWriteLock( lckr );
     if ( !osgcolorarray_ )
     {
-	color_.setTransparencyF( n );
+	color_.setTransparencyAsRatio( n );
 	updateOsgMaterial();
     }
 
@@ -236,7 +236,7 @@ void Material::setTransparencies( float n, const Interval<int>& range )
 float Material::getTransparency( int idx ) const
 {
    if ( !osgcolorarray_ )
-       return color_.tF();
+       return color_.tR();
 
    osg::Vec4Array* colarr = mGetOsgVec4Arr( osgcolorarray_ );
    return idx < colarr->size() ? (1.0f-(*colarr)[idx].a()) : 0.0f;

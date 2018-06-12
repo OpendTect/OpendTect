@@ -948,7 +948,7 @@ void uiColTabSel::setLabelText( const uiString& txt )
 mImpluiColSeqSelToolBarTool( uiColTabToolBar, uiColTabSelTool )
 
 uiColTabToolBar::uiColTabToolBar( uiParent* p )
-    : uiToolBar(p,tr("Color Selection"))
+    : uiToolBar(p,tr("Color Table Manipulator"))
     , seltool_(*new uiColTabToolBarTool(this))
 {
 }

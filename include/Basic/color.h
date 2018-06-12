@@ -23,44 +23,45 @@ mExpClass(Basic) Color
 {
 public:
 
-			Color(unsigned char r_=255, unsigned char g_=255,
-				unsigned char b_=255, unsigned char t_=0);
-			Color(unsigned int rgbval);
-			mImplSimpleEqOpers1Memb(Color,col_)
+    typedef unsigned char	CompType;
+    typedef od_uint32		RGBRepType;
 
-    unsigned char	r() const;
-    unsigned char	g() const;
-    unsigned char	b() const;
-    unsigned char	t() const;
-    float		rF() const { return getFloat( r() ); }
-    float		gF() const { return getFloat( g() ); }
-    float		bF() const { return getFloat( b() ); }
-    float		tF() const { return getFloat( t() ); }
+			Color(CompType r_=255, CompType g_=255,
+				CompType b_=255, CompType t_=0);
+			Color(RGBRepType);
+			mImplSimpleEqOpers1Memb(Color,rgb_)
+
+    CompType		r() const;
+    CompType		g() const;
+    CompType		b() const;
+    CompType		t() const;
+    float		rR() const		{ return comp2Ratio( r() ); }
+    float		gR() const		{ return comp2Ratio( g() ); }
+    float		bR() const		{ return comp2Ratio( b() ); }
+    float		tR() const		{ return comp2Ratio( t() ); }
 
     bool		isVisible() const;
 
-    unsigned int	rgb() const;
-    unsigned int&	rgb();
+    RGBRepType		rgb() const		{ return rgb_; }
+    RGBRepType&		rgb()			{ return rgb_; }
+    void		setRgb( RGBRepType v )	{ rgb_ = v; }
 
-    void		set( unsigned char r_, unsigned char g_,
-			     unsigned char b_, unsigned char t_=0 );
+    void		set(CompType r_,CompType g_,CompType b_,CompType t_=0);
 
-    float		average() const { return ((float) r()+g()+b())/3.0f; }
+    float		average() const { return ((float)r() + g() + b())/3.f; }
     Color		complementaryColor() const;
     Color		lighter(float fac) const;
     Color		darker( float fac ) const
 					{ return lighter( -fac ); }
     static Color	between(Color,Color,float relpos=0.5f);
 
-    void		setRgb( unsigned int rgb_  );
-    void		setTransparency( unsigned char t_ );
-    void		setTransparencyF( float tf ); //!< should be from 0 to 1
-    void		setHSV(unsigned char h,unsigned char s,unsigned char v);
-    void		getHSV(unsigned char&,unsigned char&,
-			       unsigned char&) const;
+    void		setTransparency(CompType);
+    void		setTransparencyF(float);
+    void		setTransparencyAsRatio(float);
+    void		setHSV(CompType h,CompType s,CompType v);
+    void		getHSV(CompType&,CompType&,CompType&) const;
     void		setStdStr(const char*); //!< e.g. "#00ff32"
-    BufferString	getStdStr(bool withhash=true,
-				  int transpopt=0) const;
+    BufferString	getStdStr(bool withhash=true,int transpopt=0) const;
 			//!< without hash Google KML standard -> order reversed
 			//!< transpopt -1=opacity 0=not 1=transparency
 
@@ -81,8 +82,9 @@ public:
     static Color	White()		{ return Color(255,255,255,0); }
     static Color	Yellow()	{ return Color(255,255,0,0); }
 
-    static unsigned char getUChar( float v );
-    static float	 getFloat(unsigned char);
+    static CompType	fComp2Comp(float);
+    static CompType	ratio2Comp(float);
+    static float	comp2Ratio(CompType);
 
 			// Std draw colors are distinct colors for data series
     static int		nrStdDrawColors();
@@ -102,7 +104,17 @@ public:
 
 protected:
 
-    unsigned int	col_;
+    RGBRepType		rgb_;
+
+public:
+
+    mDeprecated static	CompType getUChar( float v ) { return fComp2Comp(v); }
+    mDeprecated static	float getFloat( CompType v ) { return comp2Ratio(v); }
+    mDeprecated float	rF() const		{ return rR(); }
+    mDeprecated float	gF() const		{ return gR(); }
+    mDeprecated float	bF() const		{ return bR(); }
+    mDeprecated float	tF() const		{ return tR(); }
+
 };
 
 

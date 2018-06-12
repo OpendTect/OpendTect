@@ -46,11 +46,12 @@ public:
 
     virtual const OD::String& name() const;
     virtual BufferString getName() const;
+    Color		color() const;
 
     mImplSimpleMonitoredGetSet(inline,dah,setDah,ZType,dah_,cDahChange());
     mImplSimpleMonitoredGetSet(inline,levelID,setLevelID,LevelID,levelid_,
 							cLevelChange());
-    Color		color() const;
+    mImplSimpleMonitoredGet(fallBackColor,Color,color_);
     mImplSimpleMonitoredSet(setColor,Color,color_,cColorChange());
 
     Strat::Level	getLevel() const;
@@ -67,7 +68,7 @@ public:
 
 protected:
 
-    float		dah_;
+    ZType		dah_;
     Color		color_;
     LevelID		levelid_;
 
@@ -85,6 +86,7 @@ mExpClass(Well) MarkerSet : public ::SharedObject
 public:
 
     typedef Marker::LevelID	LevelID;
+    typedef Marker::ZType	ZType;
     typedef TypeSet<Marker>::size_type    size_type;
     typedef size_type		idx_type;
     mDefIntegerIDType(idx_type,	 MarkerID);
@@ -102,16 +104,16 @@ public:
     void		setNameByID(MarkerID,const char*);
     Color		getColor(MarkerID) const;
     void		setColor(MarkerID,const Color&);
-    float		getDah(MarkerID) const;
-    void		setDah(MarkerID,float);
+    ZType		getDah(MarkerID) const;
+    void		setDah(MarkerID,ZType);
     void		removeSingle(MarkerID);
 
     Marker		getByIdx(idx_type) const;
     void		removeSingleByIdx(idx_type);
-    float		getDahByIdx(idx_type) const;
-    void		setDahByIdx(idx_type,float);
+    ZType		getDahByIdx(idx_type) const;
+    void		setDahByIdx(idx_type,ZType);
 
-    float		getDahFromMarkerName(const char*) const;
+    ZType		getDahFromMarkerName(const char*) const;
     Marker		first() const;
     Marker		last() const;
 
@@ -137,7 +139,7 @@ public:
     void		mergeOtherWell(const MarkerSet&);
     void		append(const MarkerSet& ms)
 							{ mergeOtherWell(ms); }
-    idx_type		getIdxAbove(float z,const Well::Track* trck=0) const;
+    idx_type		getIdxAbove(ZType,const Well::Track* trck=0) const;
 			//!< is trck provided, compares TVDs
 
     void		fillPar(IOPar&) const;
@@ -160,11 +162,11 @@ protected:
     Marker		gtByLvlID(LevelID) const;
     idx_type		idxOf(const char*) const;
     idx_type		gtIdxFor(MarkerID) const;
-    idx_type		gtIdxForDah(float) const;
+    idx_type		gtIdxForDah(ZType) const;
     Marker		gtByID(MarkerID) const;
     MarkerID		mrkrIDFor(idx_type) const;
 
-    void		addCopy(const MarkerSet&,idx_type,float);
+    void		addCopy(const MarkerSet&,idx_type,ZType);
     void		alignOrderingWith(const MarkerSet&);
     void		moveBlock(idx_type,idx_type,const TypeSet<idx_type>&);
     bool		insrtNew(const Well::Marker&);
@@ -192,6 +194,7 @@ public:
 
     typedef MarkerSet::MarkerID	MarkerID;
     typedef MarkerSet::idx_type	idx_type;
+    typedef MarkerSet::ZType	ZType;
 
 			MarkerSetIter(const MarkerSet&,bool dorev=false);
 			MarkerSetIter(const MarkerSet&,MarkerID,MarkerID);
@@ -203,7 +206,7 @@ public:
     MarkerID		ID() const;
 
     const Marker&	get() const;
-    float		getDah() const;
+    ZType		getDah() const;
     BufferString	markerName() const;
 
     mDefNoAssignmentOper(MarkerSetIter)
@@ -224,6 +227,7 @@ public:
 
     typedef MarkerSet::idx_type	idx_type;
     typedef MarkerSet::MarkerID	MarkerID;
+    typedef MarkerSet::ZType	ZType;
 
 			MarkerSetIter4Edit(MarkerSet&,bool dorev=false);
 			MarkerSetIter4Edit(MarkerSet&,Interval<idx_type>);
@@ -236,8 +240,8 @@ public:
     BufferString	markerName() const;
     MarkerID		ID() const;
     Marker&		get() const;
-    float		getDah() const;
-    void		setDah(float);
+    ZType		getDah() const;
+    void		setDah(ZType);
     void		setColor(const Color&);
 
     void		removeCurrent();
@@ -258,6 +262,7 @@ public:
     typedef MarkerSet::size_type	size_type;
     typedef MarkerSet::idx_type		idx_type;
     typedef MarkerSet::MarkerID		MarkerID;
+    typedef MarkerSet::ZType		ZType;
 
 			MarkerRange(const MarkerSet&,MarkerID,MarkerID);
 			MarkerRange(const MarkerSet&,const char*,const char*);
@@ -270,7 +275,7 @@ public:
     bool		isIncluded(MarkerID) const;
 
     bool		isIncluded(const char*) const;
-    bool		isIncluded(float z) const;
+    bool		isIncluded(ZType) const;
 
     void		getNames(BufferStringSet&) const;
     MarkerSet*		getResultSet() const; //!< returns new set
@@ -278,7 +283,7 @@ public:
     const MarkerSet&	markers() const		{ return markerset_; }
 
     void		setRangeForIDs(MarkerSet::MarkerID,MarkerSet::MarkerID);
-    float		thickness() const;
+    ZType		thickness() const;
 
 protected:
 
@@ -296,6 +301,8 @@ mExpClass(Well) MarkerChgRange : public MarkerRange
 {
 public:
 
+    typedef MarkerSet::ZType	ZType;
+
 			MarkerChgRange( MarkerSet& ms, MarkerID tpid,
 						       MarkerID btid )
 			    : MarkerRange(ms,tpid,btid)	{}
@@ -305,7 +312,7 @@ public:
 			    : MarkerRange(ms,topmrkr,botmrkr) {}
 
 
-    void		setThickness(float);
+    void		setThickness(ZType);
     void		remove();
 
     inline MarkerSet&	getMarkers()

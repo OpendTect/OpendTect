@@ -98,8 +98,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 #endif
     else
     {
-	errmsg_.set( "Library file not found: " )
-	       .set(  lnm );
+	errmsg_.set( "Library file not found: " ).add( lnm );
     }
 
 #ifdef __debug__

@@ -132,19 +132,19 @@ bool Well::HDF5Writer::putInfoAndTrack() const
 
 bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
 {
-    const Well::D2TModel& d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
+    const D2TModel& d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
     const HDF5::DataSetKey dsky( "", csmdl ? sCSMdlDSName() : sD2TDSName() );
 
-    const size_type sz = d2t.size();
-    Array2DImpl<float> arr( 2, sz );
-    D2TModelIter iter( d2t );
+    D2TModelIter iter( d2t ); // this locks
+    const size_type sz = iter.size();
+    Array2DImpl<ZType> arr( 2, sz );
     while ( iter.next() )
     {
 	const idx_type idx = iter.curIdx();
 	arr.set( 0, idx, iter.dah() );
 	arr.set( 1, idx, iter.t() );
     }
-    HDF5::ArrayNDTool<float> arrtool( arr );
+    HDF5::ArrayNDTool<ZType> arrtool( arr );
     uiRetVal uirv = arrtool.put( *wrr_, dsky );
     mErrRetIfUiRvNotOK( trackdsky );
 
@@ -177,8 +177,36 @@ bool Well::HDF5Writer::putLogs() const
 
 bool Well::HDF5Writer::putMarkers() const
 {
-    errmsg_.set( mTODONotImplPhrase() );
-    return false;
+    const MarkerSet& ms = wd_.markers();
+    HDF5::DataSetKey dsky( sMarkersGrpName(), "" );
+    typedef MarkerSet::LevelID::IDType LvlIDType;
+
+    BufferStringSet nms, colors;
+    TypeSet<ZType> mds; TypeSet<LvlIDType> lvlids;
+    MarkerSetIter iter( ms );
+    while ( iter.next() )
+    {
+	const Marker& mrkr = iter.get();
+	nms.add( mrkr.name() );
+	colors.add( mrkr.color().getStdStr() );
+	mds.add( mrkr.dah() );
+	lvlids.add( mrkr.levelID().getI() );
+    }
+    iter.retire();
+
+    dsky.setDataSetName( sMDsDSName() );
+    uiRetVal uirv = wrr_->put( dsky, mds );
+    mErrRetIfUiRvNotOK( dsky );
+
+    dsky.setDataSetName( sColorsDSName() );
+    uirv = wrr_->put( dsky, colors );
+    mErrRetIfUiRvNotOK( dsky );
+
+    dsky.setDataSetName( sLvlIDsDSName() );
+    uirv = wrr_->put( dsky, lvlids );
+    mErrRetIfUiRvNotOK( dsky );
+
+    return true;
 }
 
 

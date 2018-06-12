@@ -40,7 +40,7 @@ public:
 
     typedef TypeSet<PosType>::size_type	size_type;
     typedef size_type			IdxType;
-    typedef unsigned char		CompType;
+    typedef Color::CompType		CompType;
     typedef std::pair<PosType,CompType>	TranspPtType;
 
     enum Status		{ System, Edited, Added };

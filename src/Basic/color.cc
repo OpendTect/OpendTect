@@ -15,46 +15,54 @@
 #include "uistrings.h"
 
 
-Color::Color( unsigned char r_, unsigned char g_,
-	      unsigned char b_, unsigned char t_ )
-{ set( r_, g_, b_, t_ ); }
-
-
-Color::Color( unsigned int rgbval )
-{ col_ = rgbval; }
-
-unsigned char Color::r() const
-{ return (unsigned char)((col_ >> 16) & 0xff); }
-
-
-unsigned char Color::g() const
-{ return (unsigned char)((col_ >> 8) & 0xff); }
-
-
-unsigned char Color::b() const
-{ return (unsigned char)(col_ & 0xff); }
-
-
-unsigned char Color::t() const
-{ return (unsigned char)((col_ >> 24) & 0xff); }
-
-bool Color::isVisible() const	{ return t() < 255; }
-
-unsigned int Color::rgb() const
-{ return col_; }
-
-
-unsigned int& Color::rgb()
-{ return col_; }
-
-
-void Color::set( unsigned char r_, unsigned char g_,
-			 unsigned char b_, unsigned char t_ )
+Color::Color( CompType r_, CompType g_,
+	      CompType b_, CompType t_ )
 {
-    col_ = ( (unsigned int)(t_&0xff) << 24 )
-	    | ( (unsigned int)(r_&0xff) << 16 )
-	    | ( (unsigned int)(g_&0xff) <<  8 )
-	    |		      (b_&0xff);
+    set( r_, g_, b_, t_ );
+}
+
+
+Color::Color( RGBRepType rgbval )
+    : rgb_(rgbval)
+{
+}
+
+Color::CompType Color::r() const
+{
+    return (CompType)((rgb_ >> 16) & 0xff);
+}
+
+
+Color::CompType Color::g() const
+{
+    return (CompType)((rgb_ >> 8) & 0xff);
+}
+
+
+Color::CompType Color::b() const
+{
+    return (CompType)(rgb_ & 0xff);
+}
+
+
+Color::CompType Color::t() const
+{
+    return (CompType)((rgb_ >> 24) & 0xff);
+}
+
+
+bool Color::isVisible() const
+{
+    return t() < 255;
+}
+
+
+void Color::set( CompType r_, CompType g_, CompType b_, CompType t_ )
+{
+    rgb_ = ( (CompType)	(t_&0xff) << 24 )
+	 | ( (CompType)	(r_&0xff) << 16 )
+	 | ( (CompType)	(g_&0xff) <<  8 )
+	 |		(b_&0xff);
 }
 
 
@@ -83,7 +91,7 @@ Color Color::lighter( float fac ) const
 	newb = b() / (1 - fac);
     }
 
-    return Color( getUChar(newr), getUChar(newg), getUChar(newb) );
+    return Color( ratio2Comp(newr), ratio2Comp(newg), ratio2Comp(newb) );
 }
 
 
@@ -93,38 +101,44 @@ Color Color::between( Color c1, Color c2, float relpos )
 #define mGet1Between(cnm) \
     fval = relpos * c1.cnm(); \
     fval += (1 - relpos) * c2.cnm(); \
-    unsigned char res_##cnm = (unsigned char)(fval + 0.5f)
+    CompType res_##cnm = (CompType)(fval + 0.5f)
 
     mGet1Between(r); mGet1Between(g); mGet1Between(b); mGet1Between(t);
     return Color( res_r, res_g, res_b, res_t );
 }
 
 
-void Color::setRgb( unsigned int rgb_  )
-{
-    col_ = rgb_;
-}
-
-
-void Color::setTransparency( unsigned char t_ )
+void Color::setTransparency( CompType t_ )
 {
     set( r(), g(), b(), t_ );
 }
 
 
-void Color::setTransparencyF( float tf )
+void Color::setTransparencyF( float ft )
 {
-    setTransparency( mCast(unsigned char,(tf*255.0f)) );
+    setTransparency( fComp2Comp(ft) );
 }
 
 
-unsigned char Color::getUChar( float v )
+void Color::setTransparencyAsRatio( float ratio )
 {
-    return v > 254.5 ? 255 : (v < 0.5 ? 0 : (unsigned char)(v+.5));
+    setTransparencyF( ratio*255.0f );
 }
 
 
-float Color::getFloat( unsigned char c )
+Color::CompType Color::fComp2Comp( float v )
+{
+    return v > 254.5f ? 255 : (v < .5f ? 0 : (CompType)(v+.5f));
+}
+
+
+Color::CompType Color::ratio2Comp( float v )
+{
+    return v > 254.5 ? 255 : (v < 0.5 ? 0 : (CompType)(v+.5));
+}
+
+
+float Color::comp2Ratio( CompType c )
 {
     return (mCast(float,c)/255.0f);
 }
@@ -179,18 +193,17 @@ bool Color::use( const char* str )
     const int sz = fms.size();
     if ( sz < 3 ) return false;
 
-    unsigned char r_ = (unsigned char)fms.getIValue( 0 );
-    unsigned char g_ = (unsigned char)fms.getIValue( 1 );
-    unsigned char b_ = (unsigned char)fms.getIValue( 2 );
-    unsigned char t_ = sz > 3 ? (unsigned char)fms.getIValue( 3 ) : 0;
+    CompType r_ = (CompType)fms.getIValue( 0 );
+    CompType g_ = (CompType)fms.getIValue( 1 );
+    CompType b_ = (CompType)fms.getIValue( 2 );
+    CompType t_ = sz > 3 ? (CompType)fms.getIValue( 3 ) : 0;
     set( r_, g_, b_, t_ );
 
     return true;
 }
 
 
-void Color::getHSV( unsigned char& h_, unsigned char& s_,
-		    unsigned char& v_ ) const
+void Color::getHSV( CompType& h_, CompType& s_, CompType& v_ ) const
 {
     int r_ = (int)r();
     int g_ = (int)g();
@@ -212,9 +225,9 @@ void Color::getHSV( unsigned char& h_, unsigned char& s_,
     if ( !delta )
     {
         // r == g == b
-        h_ = (unsigned char)0;
-        s_ = (unsigned char)0;
-        v_ = (unsigned char)mNINT32(v*255);
+        h_ = (CompType)0;
+        s_ = (CompType)0;
+        v_ = (CompType)mNINT32(v*255);
         return;
     }
 
@@ -234,15 +247,15 @@ void Color::getHSV( unsigned char& h_, unsigned char& s_,
     if ( h < 0 )
         h += 360;
 
-    h_ = (unsigned char)mNINT32(h);
-    s_ = (unsigned char)mNINT32(s*255);
-    v_ = (unsigned char)mNINT32(v*255);
+    h_ = (CompType)mNINT32(h);
+    s_ = (CompType)mNINT32(s*255);
+    v_ = (CompType)mNINT32(v*255);
 }
 
 
-void Color::setHSV( unsigned char h_, unsigned char s_, unsigned char v_ )
+void Color::setHSV( CompType h_, CompType s_, CompType v_ )
 {
-    unsigned char r_, g_, b_;
+    CompType r_, g_, b_;
     if ( (int)s_ == 0 )
     {
         // achromatic (grey)
@@ -279,24 +292,24 @@ void Color::setHSV( unsigned char h_, unsigned char s_, unsigned char v_ )
             fr = v; fg = p; fb = q; break;
     }
 
-    r_ = (unsigned char)mNINT32(fr*255);
-    g_ = (unsigned char)mNINT32(fg*255);
-    b_ = (unsigned char)mNINT32(fb*255);
+    r_ = (CompType)mNINT32(fr*255);
+    g_ = (CompType)mNINT32(fg*255);
+    b_ = (CompType)mNINT32(fb*255);
     set( r_, g_, b_, t() );
 }
 
 
-static unsigned char fromHexVal( char c )
+static Color::CompType fromHexVal( char c )
 {
     return c >= 'a' && c <= 'f' ? 10 + (c - 'a') : c - '0';
 }
 
 
-static unsigned char getCompFromStrPart( const char* str )
+static Color::CompType getCompFromStrPart( const char* str )
 {
     if ( !str || !*str ) return 255;
-    unsigned char c1 = fromHexVal( *str );
-    unsigned char c2 = *(str+1) ? fromHexVal(*(str+1)) : 0;
+    Color::CompType c1 = fromHexVal( *str );
+    Color::CompType c2 = *(str+1) ? fromHexVal(*(str+1)) : 0;
     return 16 * c1 + c2;
 }
 
@@ -314,10 +327,10 @@ void Color::setStdStr( const char* str )
 	return;
 
     if ( isnorm ) str++;
-    unsigned char r_ = getCompFromStrPart( str );
-    unsigned char g_ = len > 2 ? getCompFromStrPart(str+2) : 255;
-    unsigned char b_ = len > 4 ? getCompFromStrPart(str+4) : 255;
-    unsigned char t_ = len > 6 ? getCompFromStrPart(str+6) : 255;
+    CompType r_ = getCompFromStrPart( str );
+    CompType g_ = len > 2 ? getCompFromStrPart(str+2) : 255;
+    CompType b_ = len > 4 ? getCompFromStrPart(str+4) : 255;
+    CompType t_ = len > 6 ? getCompFromStrPart(str+6) : 255;
 
     if ( !isnorm )
     {
@@ -333,20 +346,20 @@ void Color::setStdStr( const char* str )
 }
 
 
-static char toHexVal( unsigned char c )
+static char toHexVal( Color::CompType c )
 {
     return c < 10 ? '0' + c : 'a' + (c-10);
 }
 
 
-static void addCompToStr( char* str, unsigned char comp )
+static void addCompToStr( char* str, Color::CompType comp )
 {
     *str = toHexVal( comp / 16 );
     *(str+1) = toHexVal( comp % 16 );
 }
 
 
-static void addTranspToStr( char* str, unsigned char val, int transpopt,
+static void addTranspToStr( char* str, Color::CompType val, int transpopt,
 			    int& curidx )
 {
     if ( transpopt == 0 ) return;
@@ -569,9 +582,9 @@ bool Color::fromDescription( const char* inp )
 	const ColorDescriptionData& cdd = cColDD[idx];
 	if ( caseInsensitiveEqual(cdd.nm_,inp) )
 	{
-	    *this = Color( (unsigned char)cdd.r_,
-			   (unsigned char)cdd.g_,
-			   (unsigned char)cdd.b_ );
+	    *this = Color( (CompType)cdd.r_,
+			   (CompType)cdd.g_,
+			   (CompType)cdd.b_ );
 	    return true;
 	}
     }
@@ -600,9 +613,9 @@ void Color::getDescriptionCenters( TypeSet<Color>& cols )
     for ( int idx=0; idx<cNrColDD; idx++ )
     {
 	const ColorDescriptionData& cdd = cColDD[idx];
-	cols += Color(	(unsigned char)cdd.r_,
-			(unsigned char)cdd.g_,
-			(unsigned char)cdd.b_ );
+	cols += Color(	(CompType)cdd.r_,
+			(CompType)cdd.g_,
+			(CompType)cdd.b_ );
     }
 }
 
@@ -616,7 +629,7 @@ uiString Color::userInfoString( bool withdetails ) const
 
     BufferString rgbvalstr( "RGB=" );
     rgbvalstr.add((int)r()).add("|").add((int)g()).add("|").add((int)b());
-    unsigned char ch, cs, cv; getHSV( ch, cs, cv );
+    CompType ch, cs, cv; getHSV( ch, cs, cv );
     BufferString hsvvalstr( "HSV=" );
     hsvvalstr.add((int)ch).add("|").add((int)cs).add("|").add((int)cv);
 
