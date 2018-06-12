@@ -585,8 +585,8 @@ void uiDirectionalPlot::getMousePosInfo( int& count, float& azi, float& pos )
     count = data_.getPartData( sector, part ).count_;
     azi = (float)azimuth;
     if ( nrparts>1 )
-	pos = data_.setup_.usrposrg_.start +
-	      data_.setup_.usrposrg_.width()*r/radius_;
+	pos = (float)(data_.setup_.usrposrg_.start +
+	      data_.setup_.usrposrg_.width()*r/radius_);
 }
 
 
