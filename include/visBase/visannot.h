@@ -62,6 +62,7 @@ public:
     bool		canShowGridLines() const;
     void		showGridLines(bool yn);
     bool		isGridLinesShown() const;
+    bool		isFaceGridShown(int dim,bool first) const;
 
     const FontData&	getFont() const;
     void		setFont(const FontData&);
@@ -87,10 +88,14 @@ public:
 
 
     void		setScene(Scene*);
-    void		allowShading(bool yn) { allowshading_=yn; }
+    void		allowShading(bool yn)	{ allowshading_=yn; }
+    RefMan<Text2>	getAxisNames() const	{ return axisnames_; }
+
 private:
 			~Annotation();
+
     void		firstTraversal(CallBacker*);
+    void		rotatedCB(CallBacker*);
     void		initGridLines();
     void		updateGridLines();
     void		updateTextPos();

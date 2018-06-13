@@ -214,7 +214,10 @@ protected:
 				~Scene();
 
     void			setup();
+    virtual void		runUpdateQueueCB(CallBacker*);
     void			updateAnnotationText();
+    void			updateAnnotationOrientation(
+						const visBase::Camera&);
     void			updateTransforms(const TrcKeyZSampling&);
     void			mouseCB(CallBacker*);
     void			keyPressCB(CallBacker*);

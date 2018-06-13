@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "trckeyvalue.h"
 #include "uistring.h"
 #include "visannot.h"
+#include "viscamera.h"
 #include "visdataman.h"
 #include "visevent.h"
 #include "vismarkerset.h"
@@ -29,6 +30,7 @@ ________________________________________________________________________
 #include "vispolygonselection.h"
 #include "visscenecoltab.h"
 #include "visselman.h"
+#include "vistext.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "vissurvobj.h"
@@ -1529,5 +1531,68 @@ void Scene::setMoreObjectsToDoHint( bool yn )
 bool Scene::getMoreObjectsToDoHint() const
 { return moreobjectstodo_; }
 
+
+void Scene::runUpdateQueueCB( CallBacker* cb )
+{
+    mDynamicCastGet(const visBase::Camera*,cam,cb)
+    if ( cam )
+	updateAnnotationOrientation( *cam );
+
+    visBase::Scene::runUpdateQueueCB( cb );
+}
+
+
+void Scene::updateAnnotationOrientation( const visBase::Camera& cam )
+{
+    if ( !annot_ )
+	return;
+
+    Coord3 eye, center, up;
+    cam.getLookAtMatrix( eye, center, up );
+    const Coord3 raweye = eye;
+
+    const mVisTrans* displaytrans = annot_->getDisplayTransformation();
+    mVisTrans::transformBack( displaytrans, eye );
+    RefMan<visBase::Text2> axisnames = annot_->getAxisNames();
+    TypeSet<Coord3> annotnmspos;
+
+    for ( int idx=0; idx<axisnames->nrTexts(); idx++ )
+    {
+	visBase::Text* txt = axisnames->text( idx );
+	annotnmspos += txt->getPosition();
+	mVisTrans::transformBack( displaytrans, annotnmspos[idx] );
+    }
+
+    const bool firstinlineon = annot_->isFaceGridShown( 0, true );
+    const bool lastinlon = annot_->isFaceGridShown( 0, false );
+    const bool firstcrlon = annot_->isFaceGridShown( 1, true );
+    const bool lastcrlon = annot_->isFaceGridShown( 1, false );
+    const bool firstzon = annot_->isFaceGridShown( 2, true );
+    const bool lastzon = annot_->isFaceGridShown( 2, false );
+    BoolTypeSet verticeshown;
+    verticeshown += firstcrlon	  != firstzon;	// Inline	@ min/min
+    verticeshown += firstinlineon != firstzon;	// Crossline	@ min/min
+    verticeshown += firstinlineon != firstcrlon;// Vertical	@ min/min
+    verticeshown += lastcrlon	  != firstzon;	// Inline	@ max/min
+    verticeshown += lastinlon	  != firstzon;	// Crossline	@ max/min
+    verticeshown += lastinlon	  != firstcrlon;// Vertical	@ max/min
+    verticeshown += firstcrlon	  != lastzon;	// Inline	@ min/max
+    verticeshown += firstinlineon != lastzon;	// Crossline	@ min/max
+    verticeshown += firstinlineon != lastcrlon; // Vertical	@ min/max
+    verticeshown += lastcrlon	  != lastzon;	// Inline	@ max/max
+    verticeshown += lastinlon	  != lastzon;	// Crossline	@ max/max
+    verticeshown += lastinlon	  != lastcrlon; // Vertical	@ max/max
+
+    for ( int idx=0; idx<axisnames->nrTexts(); idx++ )
+    {
+	if ( verticeshown[idx] )
+	{
+	    axisnames->text( idx )->setColor( Color::White() ); // SHOW
+	    //TODO: set justification
+	}
+	else
+	    axisnames->text( idx )->setColor( Color::Black() ); //HIDE - how?
+    }
+}
 
 } // namespace visSurvey

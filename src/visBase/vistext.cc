@@ -222,6 +222,12 @@ Color Text::getColor() const
 }
 
 
+void Text::setSceneText( bool yn )
+{
+    if ( osgtext_ ) osgtext_->setSceneText( yn );
+}
+
+
 void Text::setDisplayTransformation( const mVisTrans* newtrans )
 {
     const Coord3 oldpos = getPosition();
