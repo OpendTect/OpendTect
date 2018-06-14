@@ -83,6 +83,8 @@ void StreamConn::close( bool failed )
 	    writehelper_->rollback();
 	else
 	    writehelper_->commit();
+
+	deleteAndZeroPtr( writehelper_ );
     }
 }
 
