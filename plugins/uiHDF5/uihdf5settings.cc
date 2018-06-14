@@ -44,7 +44,9 @@ uiHDF5Settings::uiHDF5Settings( uiSettingsGroup& pgrp )
     typenms_.add( HDF5::sSeismicsType() );
     uitypenms.add( uiStrings::sSeismicData() );
     typenms_.add( HDF5::sPickSetType() );
-    uitypenms.add( uiStrings::sPickSet() );
+    uitypenms.add( uiStrings::sPickSet(mPlural) );
+    typenms_.add( HDF5::sWellType() );
+    uitypenms.add( uiStrings::sWell(mPlural) );
 
     uiObject* lastfld = usehdffld_->attachObj();
     for ( int ityp=0; ityp<typenms_.size(); ityp++ )

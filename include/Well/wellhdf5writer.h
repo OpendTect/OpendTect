@@ -42,13 +42,14 @@ public:
     virtual bool	put() const;
 
     HDF5::Reader*	createCoupledHDFReader() const;
+    static bool		useHDF5(const IOObj&,uiString&);
 
 protected:
 
     HDF5::Writer*	wrr_;
     uiString&		errmsg_;
 
-    void		init(const char*);
+    void		init(const char*,BufferString* fnm=0,bool* nmchg=0);
     void		putDepthUnit(IOPar&) const;
     bool		doPutD2T(bool) const;
 

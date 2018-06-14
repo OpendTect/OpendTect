@@ -225,5 +225,6 @@ inline bool isHDF5File( const char* fnm )
 
 inline const char* sSeismicsType()	{ return "Seismics"; }
 inline const char* sPickSetType()	{ return "PickSets"; }
+inline const char* sWellType()		{ return "Wells"; }
 
 } // namespace HDF5

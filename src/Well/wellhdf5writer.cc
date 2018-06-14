@@ -17,7 +17,10 @@
 #include "wellmarker.h"
 #include "welldisp.h"
 #include "keystrs.h"
-#include "ioobj.h"
+#include "iostrm.h"
+#include "dbman.h"
+#include "file.h"
+#include "filepath.h"
 
 
 
@@ -36,13 +39,42 @@ Well::HDF5Writer::HDF5Writer( const IOObj& ioobj, const Data& wd,
     , errmsg_(e)
     , wrr_(0)
 {
-    init( ioobj.mainFileName() );
+    if ( !useHDF5(ioobj,errmsg_) || !errmsg_.isEmpty() )
+	return;
+
+    bool fnmchgd; BufferString fnm;
+    init( ioobj.mainFileName(), &fnm, &fnmchgd );
+    if ( errmsg_.isEmpty() && fnmchgd )
+    {
+	IOObj* ioobjclone = ioobj.clone();
+	mDynamicCastGet( IOStream*, iostrm, ioobjclone );
+	if ( iostrm )
+	{
+	    iostrm->fileSpec().setFileName( fnm );
+	    DBM().setEntry( *iostrm );
+	}
+    }
 }
 
 
 Well::HDF5Writer::~HDF5Writer()
 {
     delete wrr_;
+}
+
+
+bool Well::HDF5Writer::useHDF5( const IOObj& ioobj, uiString& emsg )
+{
+    const BufferString fnm( ioobj.mainFileName() );
+    bool usehdf = HDF5::isEnabled( HDF5::sWellType() );
+    emsg.setEmpty();
+    if ( !File::isEmpty(fnm) )
+    {
+	usehdf = HDF5::isHDF5File(fnm);
+	if ( usehdf && !HDF5::isAvailable() )
+	    emsg = HDF5::Access::sHDF5NotAvailable( fnm );
+    }
+    return usehdf;
 }
 
 
@@ -54,14 +86,27 @@ HDF5::Reader* Well::HDF5Writer::createCoupledHDFReader() const
 
 #define mErrRet( s )	{ errmsg_ = s; return; }
 
-void Well::HDF5Writer::init( const char* fnm )
+void Well::HDF5Writer::init( const char* inpfnm, BufferString* usefnm,
+			     bool* fnmchgd )
 {
-    if ( !fnm || !*fnm || !HDF5::isAvailable() )
-	mErrRet( HDF5::Access::sHDF5NotAvailable(fnm) )
+    const BufferString orgfnm( inpfnm );
+    if ( orgfnm.isEmpty() || !HDF5::isAvailable() )
+	mErrRet( HDF5::Access::sHDF5NotAvailable(orgfnm) )
 
     wrr_ = HDF5::mkWriter();
     if ( !wrr_ )
 	{ pErrMsg("Available but no writer?"); return; }
+
+    BufferString fnm( orgfnm );
+    if ( fnmchgd )
+    {
+	File::Path fp( orgfnm );
+	fp.setExtension( HDF5::Access::sFileExtension() );
+	fnm.set( fp.fullPath() );
+	*fnmchgd = fnm != orgfnm;
+    }
+    if ( usefnm )
+	*usefnm = fnm;
 
     const bool neededit = HDF5::isHDF5File( fnm );
     uiRetVal uirv = neededit ? wrr_->open4Edit( fnm ) : wrr_->open( fnm );
@@ -171,7 +216,7 @@ bool Well::HDF5Writer::putLogs() const
     errmsg_.set( mTODONotImplPhrase() );
     // In a group
     // got to remove 'extra' data sets
-    return false;
+    return true;
 }
 
 
