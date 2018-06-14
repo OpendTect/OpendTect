@@ -42,15 +42,15 @@ Well::HDF5Writer::HDF5Writer( const IOObj& ioobj, const Data& wd,
     if ( !useHDF5(ioobj,errmsg_) || !errmsg_.isEmpty() )
 	return;
 
-    bool fnmchgd; BufferString fnm;
-    init( ioobj.mainFileName(), &fnm, &fnmchgd );
+    bool fnmchgd;
+    init( ioobj.mainFileName(), &fnmchgd );
     if ( errmsg_.isEmpty() && fnmchgd )
     {
 	IOObj* ioobjclone = ioobj.clone();
 	mDynamicCastGet( IOStream*, iostrm, ioobjclone );
 	if ( iostrm )
 	{
-	    iostrm->fileSpec().setFileName( fnm );
+	    iostrm->fileSpec().setFileName( filename_ );
 	    DBM().setEntry( *iostrm );
 	}
     }
@@ -86,35 +86,58 @@ HDF5::Reader* Well::HDF5Writer::createCoupledHDFReader() const
 
 #define mErrRet( s )	{ errmsg_ = s; return; }
 
-void Well::HDF5Writer::init( const char* inpfnm, BufferString* usefnm,
-			     bool* fnmchgd )
+void Well::HDF5Writer::init( const char* inpfnm, bool* fnmchgd )
 {
     const BufferString orgfnm( inpfnm );
     if ( orgfnm.isEmpty() || !HDF5::isAvailable() )
-	mErrRet( HDF5::Access::sHDF5NotAvailable(orgfnm) )
+    {
+	errmsg_ = HDF5::Access::sHDF5NotAvailable( orgfnm );
+	return;
+    }
 
     wrr_ = HDF5::mkWriter();
     if ( !wrr_ )
 	{ pErrMsg("Available but no writer?"); return; }
 
-    BufferString fnm( orgfnm );
+    filename_.set( orgfnm );
     if ( fnmchgd )
     {
 	File::Path fp( orgfnm );
 	fp.setExtension( HDF5::Access::sFileExtension() );
-	fnm.set( fp.fullPath() );
-	*fnmchgd = fnm != orgfnm;
+	filename_.set( fp.fullPath() );
+	*fnmchgd = filename_ != orgfnm;
     }
-    if ( usefnm )
-	*usefnm = fnm;
+}
 
-    const bool neededit = HDF5::isHDF5File( fnm );
-    uiRetVal uirv = neededit ? wrr_->open4Edit( fnm ) : wrr_->open( fnm );
+
+bool Well::HDF5Writer::isFunctional() const
+{
+    return wrr_ && !filename_.isEmpty();
+}
+
+
+bool Well::HDF5Writer::ensureFileOpen() const
+{
+    if ( !wrr_ )
+	return false;
+    else if ( wrr_->isOpen() )
+	return true;
+    else if ( filename_.isEmpty() )
+	return false;
+
+    const bool neededit = HDF5::isHDF5File( filename_ );
+    uiRetVal uirv = neededit
+		  ? wrr_->open4Edit( filename_ )
+		  : wrr_->open( filename_ );
+
     if ( !uirv.isOK() )
     {
-	delete wrr_; wrr_ = 0;
-	mErrRet( uirv )
+	delete wrr_; const_cast<HDF5Writer*>(this)->wrr_ = 0;
+	errmsg_.set( uirv );
+	return false;
     }
+
+    return true;
 }
 
 
@@ -139,12 +162,14 @@ void Well::HDF5Writer::putDepthUnit( IOPar& iop ) const
 #define mErrRetIfUiRvNotOK(dsky) \
     if ( !uirv.isOK() ) \
 	{ errmsg_.set( uirv ); return false; }
+#define mEnsureFileOpen() \
+    if ( !ensureFileOpen() ) \
+	return false
 
 
 bool Well::HDF5Writer::putInfoAndTrack() const
 {
-    if ( !wrr_ )
-	return false;
+    mEnsureFileOpen();
 
     IOPar iop;
     wd_.info().fillPar( iop );
@@ -207,12 +232,16 @@ bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
 
 bool Well::HDF5Writer::putD2T() const
 {
+    mEnsureFileOpen();
+
     return doPutD2T( false );
 }
 
 
 bool Well::HDF5Writer::putLogs() const
 {
+    mEnsureFileOpen();
+
     errmsg_.set( mTODONotImplPhrase() );
     // In a group
     // got to remove 'extra' data sets
@@ -222,6 +251,8 @@ bool Well::HDF5Writer::putLogs() const
 
 bool Well::HDF5Writer::putMarkers() const
 {
+    mEnsureFileOpen();
+
     const MarkerSet& ms = wd_.markers();
     HDF5::DataSetKey dsky( sMarkersGrpName(), "" );
     typedef MarkerSet::LevelID::IDType LvlIDType;
@@ -257,12 +288,16 @@ bool Well::HDF5Writer::putMarkers() const
 
 bool Well::HDF5Writer::putCSMdl() const
 {
+    mEnsureFileOpen();
+
     return doPutD2T( true );
 }
 
 
 bool Well::HDF5Writer::putDispProps() const
 {
+    mEnsureFileOpen();
+
     errmsg_.set( mTODONotImplPhrase() );
     // Group DispProps with only attributes
     return false;

@@ -152,7 +152,8 @@ public:
     virtual bool	setScope(const DataSetKey&)	= 0;
     virtual od_int64	curGroupID() const		= 0;
 
-    H5::H5File*		getHDF5File()		{ return file_; }
+    bool		isOpen() const			{ return file_; }
+    H5::H5File*		getHDF5File()			{ return file_; }
 
     static uiString	sHDF5PackageDispName();
     static uiString	sHDF5NotAvailable();

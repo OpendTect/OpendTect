@@ -47,11 +47,15 @@ public:
 protected:
 
     HDF5::Writer*	wrr_;
+    BufferString	filename_;
     uiString&		errmsg_;
 
-    void		init(const char*,BufferString* fnm=0,bool* nmchg=0);
+    void		init(const char*,bool* nmchg=0);
     void		putDepthUnit(IOPar&) const;
     bool		doPutD2T(bool) const;
+    bool		ensureFileOpen() const;
+
+    virtual bool	isFunctional() const;
 
 };
 
