@@ -297,7 +297,7 @@ uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj,
     if ( !fss )
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
-    Executor* exec = fss->geometry().saver( 0, &objid );
+    PtrMan<Executor> exec = fss->geometry().saver( 0, &objid );
     if ( !trprov.execute(*exec)  )
 	return exec->errorWithDetails();
 
@@ -335,7 +335,7 @@ uiRetVal Fault3DSaver::doStore( const IOObj& ioobj,
     if ( !flt3d )
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
-    Executor* exec = flt3d->geometry().saver( 0, &objid );
+    PtrMan<Executor> exec = flt3d->geometry().saver( 0, &objid );
     if ( !trprov.execute(*exec)  )
 	return exec->errorWithDetails();
 
@@ -373,7 +373,7 @@ uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj,
     if ( !hor )
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
-    Executor* exec = hor->geometry().saver( 0, &objid );
+    PtrMan<Executor> exec = hor->geometry().saver( 0, &objid );
     if ( !trprov.execute(*exec)  )
 	return exec->errorWithDetails();
 
@@ -410,7 +410,7 @@ uiRetVal Horizon2DSaver::doStore( const IOObj& ioobj,
     if ( !hor )
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
-    Executor* exec = hor->geometry().saver( 0, &objid );
+    PtrMan<Executor> exec = hor->geometry().saver( 0, &objid );
     if ( !trprov.execute(*exec)  )
 	return exec->errorWithDetails();
 
@@ -447,7 +447,7 @@ uiRetVal BodySaver::doStore( const IOObj& ioobj,
     if ( !copiedemobj )
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
-    Executor* exec = copiedemobj->saver();
+    PtrMan<Executor> exec = copiedemobj->saver();
     if ( !trprov.execute(*exec)  )
 	return exec->errorWithDetails();
 
