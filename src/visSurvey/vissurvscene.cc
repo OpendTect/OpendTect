@@ -1549,7 +1549,6 @@ void Scene::updateAnnotationOrientation( const visBase::Camera& cam )
 
     Coord3 eye, center, up;
     cam.getLookAtMatrix( eye, center, up );
-    const Coord3 raweye = eye;
 
     const mVisTrans* displaytrans = annot_->getDisplayTransformation();
     mVisTrans::transformBack( displaytrans, eye );
