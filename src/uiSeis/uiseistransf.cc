@@ -65,6 +65,12 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
 }
 
 
+void uiSeisTransfer::showSubselFld( bool showselfld )
+{
+    selfld->display( showselfld );
+}
+
+
 uiSeis2DSubSel* uiSeisTransfer::selFld2D()
 {
     mDynamicCastGet(uiSeis2DSubSel*,ret,selfld)
@@ -148,7 +154,9 @@ void uiSeisTransfer::updSteer( CallBacker* )
 Seis::SelData* uiSeisTransfer::getSelData() const
 {
     IOPar iop;
-    if ( !selfld->fillPar( iop ) ) return 0;
+    if ( !selfld || !selfld->isDisplayed() || !selfld->fillPar( iop ) )
+	return 0;
+
     return Seis::SelData::get( iop );
 }
 

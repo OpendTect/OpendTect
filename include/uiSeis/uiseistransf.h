@@ -88,7 +88,8 @@ protected:
     bool		issteer_;
 
     void		updSteer(CallBacker*);
-
+public:
+    void		showSubselFld(bool showselfld);
 };
 
 

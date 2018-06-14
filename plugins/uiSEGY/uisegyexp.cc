@@ -217,7 +217,8 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     if ( is2dline )
     {
 	morebox_ = new uiCheckBox( this,
-		    uiStrings::phrExport( "more lines from the same dataset") );
+		    uiStrings::phrExport( "more lines from the same dataset"),
+		    mCB(this,uiSEGYExp,showSubselCB) );
 	morebox_->attach( alignedBelow, fsfld_ );
     }
     else
@@ -245,6 +246,13 @@ void uiSEGYExp::inpSel( CallBacker* )
     const IOObj* ioobj = seissel_->ioobj(true);
     if ( ioobj )
 	transffld_->updateFrom( *ioobj );
+}
+
+
+void uiSEGYExp::showSubselCB( CallBacker* )
+{
+    const bool multilinesel = morebox_->isChecked();
+    transffld_->showSubselFld( !multilinesel );
 }
 
 
@@ -426,11 +434,12 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 	return false;
     }
 
-    const char* lnm = is2d && transffld_->selFld2D()
+    const bool multilinesel = morebox_ && morebox_->isChecked();
+    const char* lnm = is2d && !multilinesel && transffld_->selFld2D()
 			   && transffld_->selFld2D()->isSingLine()
 		    ? transffld_->selFld2D()->selectedLine() : 0;
     bool needmsgallok = false;
-    if ( morebox_ && morebox_->isChecked() )
+    if ( multilinesel )
     {
 	uiSEGYExpMore dlg( this, *inioobj, *outioobj );
 	dlg.go();

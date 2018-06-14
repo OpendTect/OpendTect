@@ -59,6 +59,8 @@ protected:
     friend class	uiSEGYExpTxtHeader;
     bool		doWork(const IOObj&,const IOObj&,const char*);
 
+    void		showSubselCB(CallBacker*);
+
 };
 
 
