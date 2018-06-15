@@ -148,7 +148,7 @@ Annotation::Annotation()
     gridlinecoords_->ref();
 
     mAttachCB( getMaterial()->change, Annotation::updateTextColor );
-//    getMaterial()->setColor( annotcolor_ );
+    getMaterial()->setColor( annotcolor_ );
 }
 
 
@@ -579,7 +579,7 @@ void Annotation::updateTextPos()
 	axisannot_->removeText( axisannot_->text(idx) );
 
     setFont( fd );
-//    getMaterial()->setColor( col );
+    getMaterial()->setColor( col );
 }
 
 
@@ -592,11 +592,11 @@ void Annotation::setScaleFactor( int dim, int nv )
 
 void Annotation::updateTextColor( CallBacker* )
 {
-/*    for ( int idx=0; idx<axisannot_->nrTexts(); idx++ )
+    for ( int idx=0; idx<axisannot_->nrTexts(); idx++ )
 	axisannot_->text(idx)->setColor( getMaterial()->getColor() );
 
     for ( int idx=0; idx<axisnames_->nrTexts(); idx++ )
-	axisnames_->text(idx)->setColor( getMaterial()->getColor() );*/
+	axisnames_->text(idx)->setColor( getMaterial()->getColor() );
 }
 
 
