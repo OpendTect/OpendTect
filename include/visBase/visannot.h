@@ -89,6 +89,7 @@ public:
 
     void		setScene(Scene*);
     void		allowShading( bool yn )	{ allowshading_=yn; }
+    RefMan<Text2>	getAxisNames() const	{ return axisnames_; }
 
 private:
 			~Annotation();
