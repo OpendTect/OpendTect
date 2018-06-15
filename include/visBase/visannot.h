@@ -88,20 +88,18 @@ public:
 
 
     void		setScene(Scene*);
-    void		allowShading(bool yn)	{ allowshading_=yn; }
-    RefMan<Text2>	getAxisNames() const	{ return axisnames_; }
+    void		allowShading( bool yn )	{ allowshading_=yn; }
 
 private:
 			~Annotation();
 
     void		firstTraversal(CallBacker*);
-    void		rotatedCB(CallBacker*);
     void		initGridLines();
     void		updateGridLines();
     void		updateTextPos();
     void		updateTextColor(CallBacker*);
     void		getAxisCoords(int,osg::Vec3f&,osg::Vec3f&) const;
-    void		setCorner( int, float, float, float );
+    void		setCorner(int,float,float,float);
 
     int				scalefactor_[3];
 

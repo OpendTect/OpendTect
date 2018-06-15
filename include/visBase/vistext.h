@@ -63,8 +63,6 @@ public:
     osg::Drawable&		getDrawable();
     const osg::Drawable&	getDrawable() const;
 
-    void			setSceneText(bool yn);
-
     void			setDisplayTransformation( const mVisTrans*);
     void			setCharacterSizeMode( CharacterSizeMode );
     void			setAxisAlignment( AxisAlignment );
