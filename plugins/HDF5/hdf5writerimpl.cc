@@ -120,6 +120,14 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
 }
 
 
+bool HDF5::WriterImpl::rmObj( const DataSetKey& dsky )
+{
+    const int res = H5Ldelete( file_->getId(), dsky.fullDataSetName(),
+			       H5P_DEFAULT );
+    return res >= 0;
+}
+
+
 void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
 			       const DataSetKey* ptrdsky )
 {
@@ -133,7 +141,7 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
     {
 	if ( haveScope() )
 	{
-	    putAttrib( dataset_, iop, uirv );
+	    putAttribs( dataset_, iop, uirv );
 	    return;
 	}
 	// No datasetkey, nothing open yet: work with file level
@@ -179,7 +187,7 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
 	useds = &ds;
     }
 
-    putAttrib( *useds, iop, uirv );
+    putAttribs( *useds, iop, uirv );
 }
 
 
@@ -205,9 +213,48 @@ static void getWriteStr( const char* inpstr, int nrchars, char* buf )
 }
 
 
-void HDF5::WriterImpl::putAttrib( H5::DataSet& h5ds, const IOPar& iop,
-				  uiRetVal& uirv )
+static void removeAttribsNotInIOPar( H5::DataSet& h5ds, const IOPar& iop )
 {
+    const int nrattrs = h5ds.getNumAttrs();
+    BufferStringSet torem;
+    for ( int idx=0; idx<nrattrs; idx++ )
+    {
+	try {
+	    const H5::Attribute attr = h5ds.openAttribute( (unsigned int)idx );
+	    const std::string attrky = attr.getName();
+	    if ( !iop.isPresent(attrky.c_str()) )
+		torem.add( attrky.c_str() );
+	}
+	catch( ... ) { continue; }
+    }
+
+    for ( int idx=0; idx<torem.size(); idx++ )
+	H5Adelete( h5ds.getId(), torem.get(idx).str() );
+}
+
+
+static bool findAttrib( H5::DataSet& h5ds, const char* ky, H5::Attribute& attr )
+{
+    const int nrattrs = h5ds.getNumAttrs();
+    for ( int idx=0; idx<nrattrs; idx++ )
+    {
+	try {
+	    attr = h5ds.openAttribute( (unsigned int)idx );
+	    const std::string attrky = attr.getName();
+	    if ( attrky == ky )
+		return true;
+	}
+	catch( ... ) { continue; }
+    }
+    return false;
+}
+
+
+void HDF5::WriterImpl::putAttribs( H5::DataSet& h5ds, const IOPar& iop,
+				   uiRetVal& uirv )
+{
+    removeAttribsNotInIOPar( h5ds, iop );
+
     const H5DataType h5dt = H5::PredType::C_S1;
     const int nrchars = iop.maxContentSize( false ) + 1;
     hsize_t dims[1]; dims[0] = nrchars;
@@ -218,14 +265,17 @@ void HDF5::WriterImpl::putAttrib( H5::DataSet& h5ds, const IOPar& iop,
 	H5::DataSpace dataspace( 1, dims );
 	for ( int idx=0; idx<iop.size(); idx++ )
 	{
-	    H5::Attribute attribute = h5ds.createAttribute(
-				iop.getKey(idx), h5dt, dataspace );
+	    const BufferString ky( iop.getKey(idx) );
+	    H5::Attribute attr;
+	    if ( !findAttrib(h5ds,ky,attr) )
+		attr = h5ds.createAttribute( ky, h5dt, dataspace );
 	    getWriteStr( iop.getValue(idx), nrchars, writestr );
-	    attribute.write( h5dt, writestr );
+	    attr.write( h5dt, writestr );
 	}
     }
     mCatchErrDuringWrite()
 }
+
 
 
 void HDF5::WriterImpl::ptStrings( const DataSetKey& dsky,

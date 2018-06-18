@@ -181,7 +181,6 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
     catch ( ... )
 	{ return; }
 
-    const H5DataType h5dt = H5::PredType::C_S1;
     for ( int idx=0; idx<nrattrs; idx++ )
     {
 	try {
@@ -191,7 +190,7 @@ void HDF5::ReaderImpl::gtInfo( IOPar& iop, uiRetVal& uirv ) const
 		continue;
 
 	    std::string valstr;
-	    attr.read( h5dt, valstr );
+	    attr.read( attr.getDataType(), valstr );
 	    iop.set( ky.c_str(), valstr.c_str() );
 	}
 	mCatchUnexpected( continue );

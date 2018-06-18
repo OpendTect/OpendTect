@@ -36,7 +36,8 @@ public:
 			    //!< SlabSpec in file goes to (0,0,...) in arr
 
     inline uiRetVal	put(Writer&,const DataSetKey&);
-			    //!< creates dataset and writes the array
+			    //!< if necessary, creates dataset
+			    //!< then writes the array
     inline uiRetVal	createDataSet(Writer&,const DataSetKey&);
 			    //!< creates appropriate dataset
     inline uiRetVal	putAll(Writer&);
@@ -133,7 +134,9 @@ inline uiRetVal ArrayNDTool<T>::createDataSet( Writer& wrr,
 template <class T>
 inline uiRetVal ArrayNDTool<T>::put( Writer& wrr, const DataSetKey& dsky )
 {
-    uiRetVal uirv = createDataSet( wrr, dsky );
+    uiRetVal uirv;
+    if ( !wrr.setScope(dsky) )
+	uirv = createDataSet( wrr, dsky );
     if ( uirv.isOK() )
 	uirv = putAll( wrr );
     return uirv;

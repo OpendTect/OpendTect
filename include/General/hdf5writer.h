@@ -26,6 +26,9 @@ Notes:
   a group can be written at all times.
 * When opened in 'edit' mode, you can get info about the file from a coupled
   Reader. Do not try to use such a Reader when the Writer is closed/destroyed.
+* Every group or DataSet can have an IOPar attached with info. Although HDF5
+  supports all types of 'attributes', this is the form we support. If there
+  are already attributes for the data set they will be completely replaced.
 
   */
 
@@ -43,6 +46,7 @@ public:
     uiRetVal		createDataSet(const DataSetKey&,const ArrayNDInfo&,
 				      ODDataType);
     uiRetVal		createDataSet(const DataSetKey&,int,ODDataType);
+    bool		deleteObject(const DataSetKey&);
 
     uiRetVal		putInfo(const IOPar&); //!< current scope only
     uiRetVal		putInfo(const DataSetKey&,const IOPar&);
@@ -63,6 +67,8 @@ protected:
 
     virtual void	crDS(const DataSetKey&,const ArrayNDInfo&,
 				ODDataType,uiRetVal&)			= 0;
+    virtual bool	rmObj(const DataSetKey&)			= 0;
+
     virtual void	ptStrings(const DataSetKey&,const BufferStringSet&,
 				  uiRetVal&)				= 0;
     virtual void	ptInfo(const IOPar&,uiRetVal&,const DataSetKey*)= 0;

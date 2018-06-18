@@ -159,17 +159,45 @@ void Well::HDF5Writer::putDepthUnit( IOPar& iop ) const
 }
 
 
+void Well::HDF5Writer::keepDSOnlyIfRight( const HDF5::DataSetKey& dsky,
+					  HDF5::Reader& rdr,
+					  int dim0, int dim1 ) const
+{
+    if ( !rdr.setScope(dsky) )
+	return;
+
+    const int nrdims = dim1 > 0 ? 2 : 1;
+
+    ArrayNDInfo* arrinf = rdr.getDataSizes();
+    if ( !arrinf || arrinf->nrDims() != nrdims || arrinf->getSize(0) != dim0
+      || (dim1 > 0 && arrinf->getSize(1) != dim1) )
+	wrr_->deleteObject( dsky );
+    delete arrinf;
+}
+
+
 #define mErrRetIfUiRvNotOK(dsky) \
     if ( !uirv.isOK() ) \
 	{ errmsg_.set( uirv ); return false; }
+
 #define mEnsureFileOpen() \
     if ( !ensureFileOpen() ) \
 	return false
+
+#define mGetCoupledReader() \
+    PtrMan<HDF5::Reader> rdr = createCoupledHDFReader(); \
+    if ( !rdr ) \
+    { \
+	errmsg_.set( uiStrings::phrInternalErr( \
+		     "Write logs: cannot create coupled reader") ); \
+	return false; \
+    }
 
 
 bool Well::HDF5Writer::putInfoAndTrack() const
 {
     mEnsureFileOpen();
+    mGetCoupledReader();
 
     IOPar iop;
     wd_.info().fillPar( iop );
@@ -191,8 +219,9 @@ bool Well::HDF5Writer::putInfoAndTrack() const
 	arr.set( 3, idx, c.z_ );
     }
 
-    HDF5::ArrayNDTool<double> arrtool( arr );
     const HDF5::DataSetKey trackdsky( "", sTrackDSName() );
+    keepDSOnlyIfRight( trackdsky, *rdr, 4, iter.size() );
+    HDF5::ArrayNDTool<double> arrtool( arr );
     uirv = arrtool.put( *wrr_, trackdsky );
     mErrRetIfUiRvNotOK( trackdsky );
 
@@ -202,6 +231,9 @@ bool Well::HDF5Writer::putInfoAndTrack() const
 
 bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
 {
+    mEnsureFileOpen();
+    mGetCoupledReader();
+
     const D2TModel& d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
     const HDF5::DataSetKey dsky( "", csmdl ? sCSMdlDSName() : sD2TDSName() );
 
@@ -214,6 +246,7 @@ bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
 	arr.set( 0, idx, iter.dah() );
 	arr.set( 1, idx, iter.t() );
     }
+    keepDSOnlyIfRight( dsky, *rdr, 2, iter.size() );
     HDF5::ArrayNDTool<ZType> arrtool( arr );
     uiRetVal uirv = arrtool.put( *wrr_, dsky );
     mErrRetIfUiRvNotOK( trackdsky );
@@ -232,19 +265,72 @@ bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
 
 bool Well::HDF5Writer::putD2T() const
 {
-    mEnsureFileOpen();
-
     return doPutD2T( false );
+}
+
+
+bool Well::HDF5Writer::putCSMdl() const
+{
+    return doPutD2T( true );
 }
 
 
 bool Well::HDF5Writer::putLogs() const
 {
     mEnsureFileOpen();
+    mGetCoupledReader();
 
-    errmsg_.set( mTODONotImplPhrase() );
-    // In a group
-    // got to remove 'extra' data sets
+    HDF5::DataSetKey dsky( sLogsGrpName() );
+    const LogSet& logs = wd_.logs();
+    LogSetIter iter( logs );
+    const int nrlogs = iter.size();
+    uiRetVal uirv;
+    while ( iter.next() )
+    {
+	const idx_type idx = iter.curIdx();
+	const Log& wl = iter.log();
+
+	dsky.setDataSetName( toString(iter.curIdx()) );
+	keepDSOnlyIfRight( dsky, *rdr, 2, wl.size() );
+
+	putLog( idx, wl, uirv );
+	if ( !uirv.isOK() )
+	    mErrRetIfUiRvNotOK( dsky );
+    }
+    iter.retire();
+
+    // remove possible extra data sets (can be there if logs were removed)
+    for ( int idx=nrlogs; ; idx++ )
+    {
+	dsky.setDataSetName( toString(idx) );
+	if ( rdr->setScope(dsky) )
+	    wrr_->deleteObject( dsky );
+	else
+	    break;
+    }
+
+    return true;
+}
+
+
+bool Well::HDF5Writer::putLog( int logidx, const Log& wl, uiRetVal& uirv ) const
+{
+    LogIter iter( wl );
+    const size_type sz = iter.size();
+    Array2DImpl<ZType> arr( 2, sz );
+    while ( iter.next() )
+    {
+	const idx_type arridx = iter.curIdx();
+	arr.set( 0, arridx, iter.dah() );
+	arr.set( 1, arridx, iter.value() );
+    }
+    iter.retire();
+
+    const HDF5::DataSetKey dsky( sLogsGrpName(), toString(logidx) );
+    HDF5::ArrayNDTool<ZType> arrtool( arr );
+    uirv = arrtool.put( *wrr_, dsky );
+    mErrRetIfUiRvNotOK( dsky );
+
     return true;
 }
 
@@ -252,6 +338,7 @@ bool Well::HDF5Writer::putLogs() const
 bool Well::HDF5Writer::putMarkers() const
 {
     mEnsureFileOpen();
+    mGetCoupledReader();
 
     const MarkerSet& ms = wd_.markers();
     HDF5::DataSetKey dsky( sMarkersGrpName(), "" );
@@ -260,6 +347,7 @@ bool Well::HDF5Writer::putMarkers() const
     BufferStringSet nms, colors;
     TypeSet<ZType> mds; TypeSet<LvlIDType> lvlids;
     MarkerSetIter iter( ms );
+    const int sz = iter.size();
     while ( iter.next() )
     {
 	const Marker& mrkr = iter.get();
@@ -271,26 +359,21 @@ bool Well::HDF5Writer::putMarkers() const
     iter.retire();
 
     dsky.setDataSetName( sMDsDSName() );
+    keepDSOnlyIfRight( dsky, *rdr, sz, -1 );
     uiRetVal uirv = wrr_->put( dsky, mds );
     mErrRetIfUiRvNotOK( dsky );
 
     dsky.setDataSetName( sColorsDSName() );
+    keepDSOnlyIfRight( dsky, *rdr, sz, -1 );
     uirv = wrr_->put( dsky, colors );
     mErrRetIfUiRvNotOK( dsky );
 
     dsky.setDataSetName( sLvlIDsDSName() );
+    keepDSOnlyIfRight( dsky, *rdr, sz, -1 );
     uirv = wrr_->put( dsky, lvlids );
     mErrRetIfUiRvNotOK( dsky );
 
     return true;
-}
-
-
-bool Well::HDF5Writer::putCSMdl() const
-{
-    mEnsureFileOpen();
-
-    return doPutD2T( true );
 }
 
 

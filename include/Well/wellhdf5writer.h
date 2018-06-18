@@ -54,6 +54,9 @@ protected:
     void		putDepthUnit(IOPar&) const;
     bool		doPutD2T(bool) const;
     bool		ensureFileOpen() const;
+    void		keepDSOnlyIfRight(const HDF5::DataSetKey&,
+					  HDF5::Reader&,int,int) const;
+    bool		putLog(int,const Log&,uiRetVal&) const;
 
     virtual bool	isFunctional() const;
 

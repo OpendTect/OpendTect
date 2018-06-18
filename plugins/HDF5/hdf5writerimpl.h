@@ -45,6 +45,7 @@ protected:
 
     virtual void	crDS(const DataSetKey&,const ArrayNDInfo&,ODDataType,
 			     uiRetVal&);
+    virtual bool	rmObj(const DataSetKey&);
     virtual void	ptStrings(const DataSetKey&,const BufferStringSet&,
 				  uiRetVal&);
     virtual void	ptInfo(const IOPar&,uiRetVal&,const DataSetKey*);
@@ -52,7 +53,7 @@ protected:
     virtual void	ptSlab(const SlabSpec&,const void*,uiRetVal&);
 
     bool		ensureGroup(const char*,uiRetVal&);
-    void		putAttrib(H5::DataSet&,const IOPar&, uiRetVal&);
+    void		putAttribs(H5::DataSet&,const IOPar&, uiRetVal&);
 
 };
 

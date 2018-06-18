@@ -259,6 +259,12 @@ uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
 }
 
 
+bool HDF5::Writer::deleteObject( const DataSetKey& dsky )
+{
+    return file_ ? rmObj( dsky ) : true;
+}
+
+
 
 uiRetVal HDF5::Writer::putInfo( const IOPar& iop )
 {
