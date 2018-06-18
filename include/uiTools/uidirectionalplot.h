@@ -103,13 +103,14 @@ public:
     void			showColTabItem(bool);
     void			showScaleItem(bool);
 
-    void			setHighlighted(int dataidx);
+    void			setHighlighted(const TypeSet<int>&);
+    void			setHighlighted(int);
 
 protected:
 
     Setup			setup_;
     Stats::DirectionalData	data_;
-    int				highlightidx_;
+    TypeSet<int>		highlightidxs_;
 
     bool			isempty_;
     Interval<float>		posrg_;

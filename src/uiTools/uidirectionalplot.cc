@@ -52,7 +52,6 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , scalestartitm_(0)
     , scalestopitm_(0)
     , coltabitm_(0)
-    , highlightidx_(-1)
     , sectorPicked(this)
     , isempty_(true)
 {
@@ -98,6 +97,7 @@ void uiDirectionalPlot::reSized( CallBacker* )
 void uiDirectionalPlot::setData( const float* vals, int sz )
 {
     data_.erase();
+    highlightidxs_.erase();
     for ( int idx=0; idx<sz; idx++ )
     {
 	Stats::SectorData* sd = new Stats::SectorData;
@@ -113,6 +113,7 @@ void uiDirectionalPlot::setData( const float* vals, int sz )
 void uiDirectionalPlot::setData( const Stats::DirectionalData& dird )
 {
     data_ = dird;
+    highlightidxs_.erase();
 
     cursector_ = selsector_ = -1;
     gatherInfo(); draw();
@@ -395,49 +396,40 @@ void uiDirectionalPlot::drawScatter()
     for ( int isect=0; isect<data_.nrSectors(); isect++ )
     {
 	const Stats::SectorData& sd = *data_[isect];
+	const bool ishighlighted = highlightidxs_.isPresent( isect );
+	const OD::MarkerStyle2D& ms = ishighlighted ? setup_.hlmarkstyle_
+	    					    : setup_.markstyle_;
+	const int zval = ishighlighted ? mHLMarkerZValue : mDefMarkerZValue;
 	for ( int ipart=0; ipart<sd.size(); ipart++ )
 	{
 	    const Stats::SectorPartData& spd = sd[ipart];
 	    if ( spd.count_ < 1 ) continue;
 
 	    const float r = spd.pos_ * radius_;
-	    uiMarkerItem* itm =
-		new uiMarkerItem( dataUIPos(r,spd.val_), setup_.markstyle_ );
-	    itm->setZValue( mDefMarkerZValue );
-	    itm->setFillColor( setup_.markstyle_.color_ );
+	    uiMarkerItem* itm = new uiMarkerItem( dataUIPos(r,spd.val_), ms );
+	    itm->setZValue( zval );
+	    itm->setFillColor( ms.color_ );
 	    markeritems_.add( itm );
 	}
     }
 }
 
 
+void uiDirectionalPlot::setHighlighted( const TypeSet<int>& dataidxs )
+{
+    highlightidxs_ = dataidxs;
+    drawData();
+}
+
+
 void uiDirectionalPlot::setHighlighted( int dataidx )
 {
-    if ( !markeritems_.validIdx(dataidx) )
+    highlightidxs_.erase();
+    if ( !data_.validIdx(dataidx) )
 	return;
 
-    if ( markeritems_.validIdx(highlightidx_) ) // Un-highlight the previous one
-    {
-	mDynamicCastGet(uiMarkerItem*,oldmarker,
-			markeritems_.getUiItem(highlightidx_))
-	if ( oldmarker )
-	{
-	    oldmarker->setMarkerStyle( setup_.markstyle_ );
-	    oldmarker->setFillColor( setup_.markstyle_.color_ );
-	    oldmarker->setZValue( mDefMarkerZValue );
-	}
-    }
-
-    highlightidx_ = dataidx;
-    mDynamicCastGet(uiMarkerItem*,marker,markeritems_.getUiItem(highlightidx_))
-    if ( marker )
-    {
-	marker->setMarkerStyle( setup_.hlmarkstyle_ );
-	marker->setFillColor( setup_.hlmarkstyle_.color_ );
-	marker->setZValue( mHLMarkerZValue );
-    }
-
-    rePaint();
+    highlightidxs_.add( dataidx );
+    drawData();
 }
 
 
