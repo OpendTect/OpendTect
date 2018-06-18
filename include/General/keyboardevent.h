@@ -35,6 +35,7 @@ public:
     static bool			isReDo(const KeyboardEvent&);
     static bool			isSave(const KeyboardEvent&);
     static bool			isSaveAs(const KeyboardEvent&);
+    static bool			isSelectAll(const KeyboardEvent&);
 
 };
 
