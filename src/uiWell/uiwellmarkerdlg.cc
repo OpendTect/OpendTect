@@ -170,7 +170,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	, table_(0)
 	, unitfld_(0)
 {
-    uiString title( "%1: %2" );
+    uiString title( toUiString("%1: %2") );
     title.arg( uiStrings::sWell() ).arg( t.name() );
     setTitleText( title );
 
