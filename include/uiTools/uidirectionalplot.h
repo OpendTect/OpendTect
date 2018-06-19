@@ -92,8 +92,13 @@ public:
     void			setSelectedSector( int i )
 						{ selsector_ = i; }
 
+    void			setColTab(const char* nm);
     void			showColTabItem(bool);
     void			showScaleItem(bool);
+
+    void			setNrEquicircles(int);
+    void			getMousePosInfo(int& count,float& angle,
+						float& pos);
 
 protected:
 
@@ -128,7 +133,6 @@ protected:
     uiTextItem*			scalestopitm_;
     uiColTabItem*		coltabitm_;
 
-    void			mouseMoveCB(CallBacker*);
     void			mouseRelease(CallBacker*);
     void			reSized(CallBacker*);
 
