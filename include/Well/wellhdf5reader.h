@@ -36,6 +36,7 @@ public:
 
     static const char*		sLogsGrpName();
     static const char*		sMarkersGrpName();
+    static const char*		sDispParsGrpName();
 
     static const char*		sTrackDSName();
     static const char*		sD2TDSName();

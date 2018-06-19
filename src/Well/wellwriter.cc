@@ -418,6 +418,7 @@ bool Well::odWriter::putDispProps( od_ostream& strm ) const
     wd_.displayProperties(true).fillPar( iop );
     wd_.displayProperties(false).fillPar( iop );
     iop.putTo( astrm );
+    putDepthUnit( astrm );
     if ( !strm.isOK() )
 	mErrRetStrmOper(tr("write well display parameters"))
     return true;

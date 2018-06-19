@@ -381,7 +381,13 @@ bool Well::HDF5Writer::putDispProps() const
 {
     mEnsureFileOpen();
 
-    errmsg_.set( mTODONotImplPhrase() );
-    // Group DispProps with only attributes
-    return false;
+    IOPar iop;
+    wd_.displayProperties(true).fillPar( iop );
+    wd_.displayProperties(false).fillPar( iop );
+    putDepthUnit( iop );
+    const HDF5::DataSetKey grpdsky( sDispParsGrpName() );
+    uiRetVal uirv = wrr_->putInfo( grpdsky, iop );
+    mErrRetIfUiRvNotOK( grpdsky );
+
+    return true;
 }

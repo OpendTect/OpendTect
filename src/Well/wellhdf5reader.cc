@@ -21,6 +21,7 @@
 
 const char* Well::HDF5Access::sLogsGrpName()	{ return "Logs"; }
 const char* Well::HDF5Access::sMarkersGrpName()	{ return "Markers"; }
+const char* Well::HDF5Access::sDispParsGrpName() { return "Display"; }
 const char* Well::HDF5Access::sTrackDSName()	{ return "Track"; }
 const char* Well::HDF5Access::sD2TDSName()	{ return "MD2Time"; }
 const char* Well::HDF5Access::sCSMdlDSName()	{ return "CheckShot"; }
