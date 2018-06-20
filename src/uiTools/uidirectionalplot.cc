@@ -559,7 +559,7 @@ void uiDirectionalPlot::getMousePosInfo( int& count, float& angle, float& pos )
 	azimuthrad = 2*M_PI - azimuthrad;
     const double azimuth =
 	Angle::convert( Angle::Rad, azimuthrad, Angle::UsrDeg );
-    const int sector = data_.sector( azimuth );
+    const int sector = data_.sector( (float)azimuth );
 
     const int nrparts = data_.nrParts( sector );
     int part = int( nrparts * r / radius_ );
@@ -570,7 +570,7 @@ void uiDirectionalPlot::getMousePosInfo( int& count, float& angle, float& pos )
     angle = (float)azimuth;
     if ( nrparts>1 )
 	pos = data_.setup_.usrposrg_.start +
-	      data_.setup_.usrposrg_.width()*r/radius_;
+	      data_.setup_.usrposrg_.width()*(float)r/radius_;
 }
 
 
