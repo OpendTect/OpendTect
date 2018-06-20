@@ -12,7 +12,7 @@ else()
     cmake_policy( SET CMP0020 OLD )
 endif()
 
-set( MAIN_GIT_BRANCH od6.2 )
+set( MAIN_GIT_BRANCH od6.4 )
 
 set( OpendTect_VERSION_MAJOR 6 )
 set( OpendTect_VERSION_MINOR 4 )
