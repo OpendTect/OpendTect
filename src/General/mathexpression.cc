@@ -760,16 +760,18 @@ int Math::ExpressionParser::constIdxOf( const char* varstr )
 bool Math::ExpressionParser::findOuterParens( char* str, int len,
 					      Math::Expression*& ret ) const
 {
-    if ( str[0] != '(' || str[len-1] != ')' )
-	return false;
-
-    bool haveouterparens = true;
+    bool haveouterparens = str[0] == '(' && str[len-1] == ')';
     int parenslevel = 0;
+    int firstparenpos = -1;
     for ( int idx=0; idx<len; idx++ )
     {
 	const char curch = str[idx];
 	if ( curch == '(' )
+	{
 	    parenslevel++;
+	    if ( firstparenpos < 0 )
+		firstparenpos = idx;
+	}
 	else if ( curch == ')' )
 	{
 	    parenslevel--;
@@ -778,15 +780,23 @@ bool Math::ExpressionParser::findOuterParens( char* str, int len,
 	    else if ( parenslevel < 0 )
 	    {
 		str[idx+1] = '\0';
-		errmsg_ = tr("Found a closing parenthesis ')' too early");
-		if ( idx > 3 )
-		    errmsg_.appendPlainText( str );
+		errmsg_ = tr("Found a closing parenthesis ')' "
+			     "without a matching opening parenthesis '('");
+		if ( idx > 1 )
+		    errmsg_.addMoreInfo( toUiString(str) );
+
 		return true;
 	    }
 	}
     }
+
     if ( parenslevel > 0 )
-	mErrRet( tr("Not enough closing parentheses ')' found") );
+    {
+	errmsg_ = tr("Not enough closing parentheses ')' found" );
+	if ( firstparenpos >= 0 )
+	    errmsg_.addMoreInfo( toUiString(str + firstparenpos) );
+	return true;
+    }
 
     if ( haveouterparens )
     {
@@ -1327,6 +1337,7 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 Math::Expression* Math::ExpressionParser::parse() const
 {
     if ( inp_.isEmpty() )
-	{ errmsg_ = tr("Empty input"); return 0; }
+    { errmsg_ = tr("Empty input"); return 0; }
+
     return parse( inp_.buf() );
 }

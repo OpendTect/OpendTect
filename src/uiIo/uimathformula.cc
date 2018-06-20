@@ -203,7 +203,9 @@ bool uiMathFormula::updateForm() const
 bool uiMathFormula::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 {
     const bool isbad = form_.isBad();
-    exprfld_->setText( isbad ? "" : form_.text() );
+    if ( !isbad )
+	exprfld_->setText( form_.text() );
+
     const UnitOfMeasure* formun = isbad ? 0 : form_.outputUnit();
     if ( unitfld_ )
 	unitfld_->setUnit( formun );
