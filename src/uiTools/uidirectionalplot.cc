@@ -539,9 +539,9 @@ void uiDirectionalPlot::drawSelection()
 }
 
 
-void uiDirectionalPlot::getMousePosInfo( int& count, float& angle, float& pos )
+void uiDirectionalPlot::getMousePosInfo( int& count, float& ang, float& pos )
 {
-    count = 0; angle = pos = mUdf(float);
+    count = 0; ang = pos = mUdf(float);
     if ( getMouseEventHandler().isHandled() )
 	return;
 
@@ -559,7 +559,7 @@ void uiDirectionalPlot::getMousePosInfo( int& count, float& angle, float& pos )
 	azimuthrad = 2*M_PI - azimuthrad;
     const double azimuth =
 	Angle::convert( Angle::Rad, azimuthrad, Angle::UsrDeg );
-    const int sector = data_.sector( azimuth );
+    const int sector = data_.sector( (float)azimuth );
 
     const int nrparts = data_.nrParts( sector );
     int part = int( nrparts * r / radius_ );
@@ -567,10 +567,10 @@ void uiDirectionalPlot::getMousePosInfo( int& count, float& angle, float& pos )
     if ( part>=nrparts ) part = nrparts-1;
 
     count = data_.get( sector, part ).count_;
-    angle = (float)azimuth;
+    ang = (float)azimuth;
     if ( nrparts>1 )
 	pos = data_.setup_.usrposrg_.start +
-	      data_.setup_.usrposrg_.width()*r/radius_;
+	      data_.setup_.usrposrg_.width()*(float)r/radius_;
 }
 
 
