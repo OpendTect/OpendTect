@@ -448,8 +448,8 @@ public:
     static uiString sSettings()		{ return sSetting(mPlural); }
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift();
-    static uiString sSPNumber()		{ return tr("Shot-Point number"); }
-    static uiString sShow()             { return tr("Show"); }
+    static uiString sSPNumber()		{ return tr("Shotpoint number"); }
+    static uiString sShow()		{ return tr("Show"); }
     static uiString sShowIn();
     static uiString sSlice()		{ return tr("Slice"); }
     static uiString sSource(int num=1)	{ return tr("Source",0,num); }
