@@ -68,7 +68,7 @@ public:
 uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
     : uiDialog(p,uiDialog::Setup( mJoinUiStrs(sManage(),
 				  phrJoinStrings(uiStrings::sLine(),
-			          uiStrings::sGeometry())),mNoDlgTitle,
+				  uiStrings::sGeometry())),mNoDlgTitle,
 				  mODHelpKey(mManageLineGeomDlgHelpID)))
     , linenm_(linenm),readonly_(readonly)
 {
@@ -186,11 +186,12 @@ void impLineGeom( CallBacker* )
 void fillTable( const Survey::Geometry2D& geom2d )
 {
     const TypeSet<PosInfo::Line2DPos>& positions = geom2d.data().positions();
+    const TypeSet<int>& spnrs = geom2d.spnrs();
     table_->setNrRows( positions.size() );
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
-	table_->setValue( RowCol(idx,1), geom2d.spnrs()[idx] );
+	table_->setValue( RowCol(idx,1), spnrs.validIdx(idx) ? spnrs[idx] : -1);
 	table_->setValue( RowCol(idx,2), positions[idx].coord_.x );
 	table_->setValue( RowCol(idx,3), positions[idx].coord_.y );
     }
