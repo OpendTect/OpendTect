@@ -39,6 +39,7 @@ namespace EM { class Horizon3D; }
 
 class IsoContourTracer;
 class ZAxisTransform;
+class uiContourParsDlg;
 class uiContourTreeItemContourData;
 
 /*!\brief Tree item for Contour display on 3D horizons */
@@ -64,6 +65,7 @@ private:
     virtual bool		hasTransparencyMenu() const { return false; }
     virtual uiString		createDisplayName() const;
     virtual void		checkCB(CallBacker*);
+    virtual bool		doubleClick(uiTreeViewItem*);
     virtual void		createMenu(MenuHandler*,bool istb);
     virtual void		handleMenuCB(CallBacker*);
     void			saveAreasAsCB(CallBacker*);
@@ -82,8 +84,9 @@ private:
     bool			setLabels(visBase::Text2*);
     bool			computeUICContourSteps(const Array2D<float>&);
     void			getZVSAreaValues(TypeSet<float>& zvals,
-                                                 TypeSet<float>& areas) const;
+						 TypeSet<float>& areas) const;
 
+    void			showPropertyDlg();
     void			updateUICContours(const StepInterval<float>&);
     void			updateColumnText(int);
     void			updateZShift();
@@ -108,6 +111,7 @@ private:
     StepInterval<float>		contourintv_;
     MenuItem			optionsmenuitem_;
     MenuItem			areamenuitm_;
+    uiContourParsDlg*		propdlg_;
 
     friend class	uiContourTreeItemContourGenerator;
 
