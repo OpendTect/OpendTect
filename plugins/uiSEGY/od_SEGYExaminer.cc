@@ -90,5 +90,7 @@ int main( int argc_in, char ** argv_in )
     app.setTopLevel( sgyex );
     sgyex->show();
 
-    return ExitProgram( app.exec() );
+    const int ret = app.exec();
+    delete sgyex;
+    return ExitProgram( ret );
 }

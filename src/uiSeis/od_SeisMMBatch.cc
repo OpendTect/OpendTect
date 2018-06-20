@@ -33,6 +33,8 @@ int main( int argc, char ** argv )
     app.setTopLevel( smmp );
     smmp->show();
 
-    return ExitProgram( app.exec() );
+    const int ret = app.exec();
+    delete smmp;
+    return ExitProgram( ret );
 }
 

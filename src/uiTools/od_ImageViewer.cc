@@ -65,5 +65,7 @@ int main( int argc, char** argv )
     app.setTopLevel( mw );
     mw->show();
 
-    return ExitProgram( app.exec() );
+    const int ret = app.exec();
+    delete mw;
+    return ExitProgram( ret );
 }
