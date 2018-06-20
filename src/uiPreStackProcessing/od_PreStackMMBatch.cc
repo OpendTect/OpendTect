@@ -33,5 +33,7 @@ int main( int argc, char ** argv )
     app.setTopLevel( pmmp );
     pmmp->show();
 
-    return ExitProgram( app.exec() );
+    const int ret = app.exec();
+    delete pmmp;
+    return ExitProgram( ret );
 }

@@ -115,5 +115,7 @@ int main( int argc, char** argv )
     app.setTopLevel( dlg );
     dlg->show();
 
-    return ExitProgram( app.exec() );
+    const int ret = app.exec();
+    delete dlg;
+    return ExitProgram( ret );
 }

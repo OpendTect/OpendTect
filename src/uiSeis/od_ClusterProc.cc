@@ -79,7 +79,8 @@ int main( int argc, char ** argv )
 	app.setTopLevel( cp );
 	cp->show();
 
-	int ret = app.exec();
+	const int ret = app.exec();
+	delete cp;
 	return ExitProgram( ret );
     }
 
