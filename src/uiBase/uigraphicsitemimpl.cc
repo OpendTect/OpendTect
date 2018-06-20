@@ -1291,8 +1291,8 @@ void uiManipHandleItem::setIsHorizontal( bool yn )
 
 void uiManipHandleItem::setPixPos( int pp )
 {
-    if ( pixpos_ != pp )
-	{ pixpos_ = pp; updatePos(); }
+    pixpos_ = pp;
+    updatePos();
 }
 
 
