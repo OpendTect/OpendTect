@@ -25,30 +25,26 @@ class uiGenInput;
 class uiIOObjSel;
 class uiTable;
 
-/*! \brief
-CrossPlot manager
-*/
-
-mExpClass(uiIo) DPSMergerProp 
+mExpClass(uiIo) DPSMergerProp
 { mODTextTranslationClass(DPSMergerProp);
 public:
-    				DPSMergerProp( const MultiID& id, int mid,
+				DPSMergerProp( const MultiID& id, int mid,
 					       int sid )
 				    : masterdpsid_(mid), slavedpsid_(sid)
-			       	    , newdpsid_(id), maxz_(mUdf(float))
-			       	    , maxhordist_(mUdf(float))
-			       	    , dooverwriteundef_(false)	{}
+				    , newdpsid_(id), maxz_(mUdf(float))
+				    , maxhordist_(mUdf(float))
+				    , dooverwriteundef_(false)	{}
 
    void				setColid(int masterid,int slaveid);
-   
+
    enum	MatchPolicy		{ Exact, Nearest, NoMatch };
    void				setMatchPolicy( MatchPolicy pol )
-       				{ matchpol_ = pol; }
+				{ matchpol_ = pol; }
    MatchPolicy			matchPolicy() const	{ return matchpol_; }
-   
+
    enum	ReplacePolicy		{ No, Yes, Average };
    void				setReplacePolicy( ReplacePolicy pol )
-       				{ replacepol_ = pol; }
+				{ replacepol_ = pol; }
 
    ReplacePolicy		replacePolicy() const	{ return replacepol_; }
 
@@ -59,18 +55,18 @@ public:
    const TypeSet<int>&		slaveColIDs() const	{ return slavecolids_;}
 
    float 			maxAllowedHorDist() const
-       				{ return maxhordist_; }
+				{ return maxhordist_; }
    void				setMaxAllowedHorDist( float maxdist )
-   				{ maxhordist_ = maxdist; }
+				{ maxhordist_ = maxdist; }
 
    float			maxAllowedZDist() const	{ return maxz_; }
    void				setMaxAllowedZDist( float maxz )
-       				{ maxz_ = maxz; }
+				{ maxz_ = maxz; }
 
    bool				overWriteUndef() const
-   				{ return dooverwriteundef_; }
+				{ return dooverwriteundef_; }
    void				setOverWriteUndef( bool yn )
-       				{ dooverwriteundef_ = yn; }
+				{ dooverwriteundef_ = yn; }
 protected:
 
    MatchPolicy			matchpol_;
@@ -90,13 +86,13 @@ protected:
 mExpClass(uiIo) DPSMerger : public Executor
 { mODTextTranslationClass(DPSMerger);
 public:
-    				DPSMerger(const DPSMergerProp&);
-    
+				DPSMerger(const DPSMergerProp&);
+
     void			addNewCols(const BufferStringSet&);
     od_int64			nrDone() const		{ return rowdone_; }
     od_int64			totalNr() const		{return sdps_->size();}
     uiString			uiNrDoneText() const
-    				{return uiStrings::phrJoinStrings(
+				{return uiStrings::phrJoinStrings(
 				uiStrings::sPosition(mPlural),tr("processed"));}
     DataPointSet*		getNewDPS()		{ return newdps_; }
 protected:
@@ -118,7 +114,7 @@ protected:
 mExpClass(uiIo) uiDataPointSetMerger : public uiDialog
 { mODTextTranslationClass(uiDataPointSetMerger);
 public:
-    				uiDataPointSetMerger(uiParent*,DataPointSet*,
+				uiDataPointSetMerger(uiParent*,DataPointSet*,
 						     DataPointSet*);
 				~uiDataPointSetMerger();
 protected:
