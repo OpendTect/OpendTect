@@ -28,6 +28,42 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 
+static void splitIOPars( const IOPar& base, ObjectSet<IOPar>& pars, bool is2d )
+{
+    if ( !is2d ) // Splitting only needed for multi 2D line I/O
+    {
+	pars += new IOPar( base );
+	return;
+    }
+
+    BufferStringSet fnms;
+    TypeSet<Pos::GeomID> geomids;
+    BufferString fnm;
+    Pos::GeomID geomid;
+    for ( int idx=0; ; idx++ )
+    {
+	const BufferString key = idx==0 ? "" : toString(idx);
+	const bool res =
+		base.get( IOPar::compKey(sKey::FileName(),key), fnm ) &&
+		base.get( IOPar::compKey( sKey::GeomID(),key), geomid );
+	if ( !res )
+	    break;
+
+	fnms.add( fnm );
+	geomids.add( geomid );
+    }
+
+    for ( int idx=0; idx<fnms.size(); idx++ )
+    {
+	IOPar* par = new IOPar( base );
+	par->removeSubSelection( sKey::FileName() );
+	par->removeSubSelection( sKey::GeomID() );
+	par->set( sKey::FileName(), fnms.get(idx) );
+	par->set( sKey::GeomID(), geomids[idx] );
+	pars += par;
+    }
+}
+
 
 static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
 {
@@ -148,21 +184,26 @@ bool BatchProgram::go( od_ostream& strm )
     const FixedString task = pars().find( SEGY::IO::sKeyTask() );
     const bool isimport = task == SEGY::IO::sKeyImport();
     const bool isexport = task == SEGY::IO::sKeyExport();
-    bool is2d = false; pars().getYN( SEGY::IO::sKeyIs2D(), is2d );
-
-    if ( isimport )
-	return doImport( strm, pars(), is2d );
-    if ( isexport )
-	return doExport( strm, pars(), is2d );
-
     const bool ispsindex = task == SEGY::IO::sKeyIndexPS();
     const bool isvolindex = task == SEGY::IO::sKeyIndex3DVol();
+    bool is2d = false; pars().getYN( SEGY::IO::sKeyIs2D(), is2d );
 
-    if ( ispsindex || isvolindex )
-	return doScan( strm, pars(), ispsindex, is2d );
+    ManagedObjectSet<IOPar> allpars;
+    splitIOPars( pars(), allpars, is2d );
 
+    for ( int idx=0; idx<allpars.size(); idx++ )
+    {
+	IOPar& curpars = *allpars[idx];
+	if ( isimport )
+	    doImport( strm, curpars, is2d );
+	else if ( isexport )
+	    doExport( strm, curpars, is2d );
+	else if ( ispsindex || isvolindex )
+	    doScan( strm, curpars, ispsindex, is2d );
+	else
+	    strm << "Unknown task: " << (task.isEmpty() ? "<empty>" : task)
+		 << od_newline;
+    }
 
-    strm << "Unknown task: " << (task.isEmpty() ? "<empty>" : task)
-			     << od_newline;
-    return false;
+    return true;
 }

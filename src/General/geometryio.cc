@@ -47,21 +47,28 @@ public:
 
 protected:
 
-    bool isLoaded( Geometry::ID geomid ) const
+    int indexOf( Geometry::ID geomid ) const
     {
 	for ( int idx=0; idx<geometries_.size(); idx++ )
 	    if ( geometries_[idx]->getID() == geomid )
-		return true;
-
-	return false;
+		return idx;
+	return -1;
     }
 
     int nextStep()
     {
 	const IOObj* ioobj = objs_[mCast(int,nrdone_)];
 	const Geometry::ID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );
-	if ( updateonly_ && isLoaded(geomid) )
-	    mReturn
+	bool doupdate = false;
+	const int geomidx = indexOf( geomid );
+	if ( updateonly_ && geomidx!=-1 )
+	{
+	    mDynamicCastGet(Geometry2D*,geom2d,geometries_[geomidx])
+	    if ( geom2d && geom2d->data().isEmpty() )
+		doupdate = true;
+	    else
+		mReturn
+	}
 
 	PtrMan<Translator> transl = ioobj->createTranslator();
 	mDynamicCastGet(SurvGeom2DTranslator*,geomtransl,transl.ptr());
@@ -73,7 +80,14 @@ protected:
 	if ( geom )
 	{
 	    geom->ref();
-	    geometries_ += geom;
+	    if ( doupdate )
+	    {
+		Geometry* prevgeom = geometries_.replace( geomidx, geom );
+		if ( prevgeom )
+		    prevgeom->unRef();
+	    }
+	    else
+		geometries_ += geom;
 	}
 
 	mReturn
@@ -156,7 +170,7 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 
 
 bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
-					 TaskRunner* tr ) const
+					 TaskRunner* tskr ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SurvGeom2D);
     const IODir iodir( iocontext.getSelKey() );
@@ -164,11 +178,8 @@ bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
 	return false;
 
     const ObjectSet<IOObj>& objs = iodir.getObjs();
-    if ( objs.size() == geometries.size() )
-	return true; //TODO: Update existing geometries if modified.
-
     GeomFileReader gfr( objs, geometries, true );
-    return TaskRunner::execute( tr, gfr );
+    return TaskRunner::execute( tskr, gfr );
 }
 
 

@@ -563,7 +563,7 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
 				     toUiString("'%1'").arg(toUiString(
 				     log.name())),uiStrings::sLog().toLower()));
     setCaption( dlgcaption );
-    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true); 
+    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true);
     table_ = new uiTable( this, ts, "Well log table" );
     table_->setSelectionMode( uiTable::Multi );
     table_->setSelectionBehavior( uiTable::SelectRows );
@@ -597,7 +597,7 @@ void uiWellLogEditor::fillTable()
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	const float val = depthunit->getUserValueFromSI( log_.dah(idx) );
+	const float val = depthunit->userValue( log_.dah(idx) );
 	table_->setValue( RowCol(idx,0), val );
 	table_->setValue( RowCol(idx,1), log_.value(idx) );
     }
@@ -619,7 +619,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 	return;
     const bool mdchanged = rc.col() == 0;
     const float newval = table_->getfValue( rc );
-    const float oldval = mdchanged ? log_.dah( rc.row() ) : 
+    const float oldval = mdchanged ? log_.dah( rc.row() ) :
 							log_.value( rc.row() );
     if ( mIsEqual(oldval,newval,mDefEpsF) )
 	return;
@@ -629,7 +629,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 	float prevmdval = 0.f;
 	float nextmdval = 0.f;
 	bool ismdok = false;
-	
+
 	if ( rc.row() != 0 )
 	{
 	    prevmdval = log_.dah( rc.row()-1 );
@@ -640,9 +640,9 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 				 "previous MD value. Please Change."));
 		return;
 	    }
-		
+
 	}
-	
+
 	if ( rc.row() < log_.size()-1 )
 	{
 	    nextmdval = log_.dah( rc.row()+1 );
@@ -654,7 +654,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 		return;
 	    }
 	}
-	
+
 	if ( ismdok )
 	    log_.dahArr()[rc.row()] = newval;
     }
@@ -685,13 +685,13 @@ void uiWellLogEditor::rowInsertCB( CallBacker* )
     int rownr = table_->currentRow();
     float prevmdval = 0.f;
     float nextmdval = 0.f;
-	
+
     if ( rownr != 0 )
 	prevmdval = log_.dah( rownr-1 );
-	
+
     if ( rownr < log_.size()-1 )
 	nextmdval = log_.dah( rownr );
-    
+
     log_.insertAtDah( (prevmdval+nextmdval)/2, 0.f );
     valueChanged.trigger();
 }

@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dirlist.h"
 #include "seisselection.h"
 #include "seispacketinfo.h"
+#include "survgeom.h"
 
 
 SEGY::DirectReader::~DirectReader()
@@ -49,24 +50,52 @@ public:
     SeisPSWriter*	make2DWriter( const char* dirnm, Pos::GeomID ) const
 			{ return 0; }
 
+    bool		getGeomIDs(const char*,TypeSet<Pos::GeomID>&) const;
     bool		getLineNames(const char*,BufferStringSet&) const;
 
     static int		factid;
 };
 
 
-bool SEGYDirectPSIOProvider::getLineNames( const char* dirnm,
-					   BufferStringSet& nms ) const
+bool SEGYDirectPSIOProvider::getGeomIDs( const char* dirnm,
+					TypeSet<Pos::GeomID>& geomids ) const
 {
+    geomids.erase();
     DirList dl( dirnm, DirList::FilesOnly, "*.sgydef" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	FilePath fp( dl.fullPath(idx) );
-	fp.setExtension( 0 );
-	nms.add( fp.fileName() );
+	BufferString filenm = dl.get( idx );
+	char* capptr = filenm.find( '^' );
+	if ( !capptr ) continue;
+	BufferString geomidstr( ++capptr );
+	char* dotptr = geomidstr.find( '.' );
+	if ( !dotptr ) continue;
+
+	*dotptr = '\0';
+	Pos::GeomID geomid = Survey::GM().cUndefGeomID();
+	getFromString( geomid, geomidstr, Survey::GM().cUndefGeomID() );
+	if ( geomid != Survey::GM().cUndefGeomID()
+	     && Survey::GM().getGeometry(geomid) )
+	    geomids += geomid;
     }
 
-    return true;
+    return geomids.size();
+}
+
+
+
+bool SEGYDirectPSIOProvider::getLineNames( const char* dirnm,
+					BufferStringSet& linenms) const
+{
+    deepErase( linenms );
+    TypeSet<Pos::GeomID> geomids;
+    if ( !getGeomIDs(dirnm,geomids) )
+	return false;
+
+    for ( int idx=0; idx<geomids.size(); idx++ )
+	linenms.add( Survey::GM().getName(geomids[idx]) );
+
+    return linenms.size();
 }
 
 

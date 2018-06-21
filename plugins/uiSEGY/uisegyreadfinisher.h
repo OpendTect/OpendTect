@@ -15,17 +15,18 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "multiid.h"
 
-class uiIOObjSel;
-class uiSeisSel;
-class uiComboBox;
+class uiBatchJobDispatcherSel;
 class uiCheckBox;
+class uiComboBox;
 class uiGenInput;
 class uiFileInput;
-class uiBatchJobDispatcherSel;
+class uiIOObjSel;
+class uiSeisSel;
 class uiSeisTransfer;
+class uiSeis2DLineNameSel;
 class SeisImporter;
-class SeisTrcWriter;
 class SeisStdImporterReader;
+class SeisTrcWriter;
 namespace SEGY { class FileIndexer; }
 
 
@@ -57,6 +58,7 @@ protected:
     uiSeisSel*		outimpfld_;
     uiSeisSel*		outscanfld_;
     uiSeisTransfer*	transffld_;
+    uiSeis2DLineNameSel* lnmfld_;
     uiGenInput*		docopyfld_;
     uiComboBox*		coordsfromfld_;
     uiGenInput*		coordfileextfld_;
@@ -70,9 +72,12 @@ protected:
     void		cr2DCoordSrcFields(uiGroup*&,bool);
 
     bool		doVSP();
-    bool		do3D(const IOObj&,const IOObj&,bool);
-    bool		do2D(const IOObj&,const IOObj&,bool,const char*);
-    bool		doBatch(bool);
+    bool		do3D(const IOObj&,const IOObj&,bool doimp);
+    bool		do2D(const IOObj&,const IOObj&,bool doimp,const char*);
+    bool		doBatch(bool doimp);
+    bool		doBatch2D(bool doimp,const char* lnm);
+    bool		getGeomID(const char* lnm,bool isnew,
+				  Pos::GeomID&) const;
 
     void		updateInIOObjPars(IOObj&,const IOObj& outioobj);
     SeisStdImporterReader* getImpReader(const IOObj&,SeisTrcWriter&,
