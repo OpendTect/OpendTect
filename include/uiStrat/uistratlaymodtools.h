@@ -154,13 +154,14 @@ public:
     mExpClass(uiStrat) Setup
     {
 	public:
-			Setup(bool needpor=true,
-			      bool needinitsat=true,
-			      bool needfinalsat=true)
-			    : withpor_(needpor)
+			Setup(bool needswave=true,bool needpor=true,
+			      bool needinitsat=true,bool needfinalsat=true)
+			    : withswave_(needswave)
+			    , withpor_(needpor)
 			    , withinitsat_(needinitsat)
 			    , withfinalsat_(needfinalsat)
 			{}
+	mDefSetupMemb(bool,withswave)
 	mDefSetupMemb(bool,withpor)
 	mDefSetupMemb(bool,withinitsat)
 	mDefSetupMemb(bool,withfinalsat)
