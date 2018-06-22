@@ -99,9 +99,8 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    char* closeparptr = firstOcc( unstr, ')' );
 		    if ( closeparptr ) *closeparptr = '\0';
 		}
-		if ( lfi.depthcolnr < 0
-			&& FixedString(wordbuf).startsWith("dept",
-							   CaseInsensitive) )
+		if ( lfi.depthcolnr<0 &&
+			FixedString(wordbuf).startsWith("dept",CaseInsensitive))
 		    lfi.depthcolnr = colnr;
 		else
 		{
@@ -129,7 +128,8 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	{
 	case 'C':
 
-	    if ( lfi.depthcolnr < 0 && (mIsKey("dept") || mIsKey("depth")) )
+	    if ( lfi.depthcolnr < 0 &&
+		 (mIsKey("dept") || mIsKey("depth") || mIsKey("md")) )
 		lfi.depthcolnr = colnr;
 	    else
 	    {
