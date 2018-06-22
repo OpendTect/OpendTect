@@ -154,20 +154,19 @@ public:
     mExpClass(uiStrat) Setup
     {
 	public:
-			Setup(bool needpor=true,
-			      bool needinitsat=true,
-			      bool needfinalsat=true)
-			    : withpor_(needpor)
+			Setup(bool needswave=true,bool needpor=true,
+			      bool needinitsat=true,bool needfinalsat=true)
+			    : withswave_(needswave)
+			    , withpor_(needpor)
 			    , withinitsat_(needinitsat)
 			    , withfinalsat_(needfinalsat)
 			{}
+	mDefSetupMemb(bool,withswave)
 	mDefSetupMemb(bool,withpor)
 	mDefSetupMemb(bool,withinitsat)
 	mDefSetupMemb(bool,withfinalsat)
     };
 
-			uiStratLayModFRPropSelector(uiParent*,
-						  const PropertyRefSelection&);
 			uiStratLayModFRPropSelector(uiParent*,
 						  const PropertyRefSelection&,
 						  const Setup&);
@@ -184,24 +183,23 @@ public:
     const char*		getSelVPName() const;
     const char*		getSelVSName() const;
     const char*		getSelDenName() const;
-    mDeprecated const char*	getSelSat1Name() const;
-    mDeprecated const char*	getSelSat2Name() const;
+    const char*		getSelInitialSatName() const;
+    const char*		getSelFinalSatName() const;
     const char*		getSelPorName() const;
 
     const uiString&	errMsg() const	{ return errmsg_; }
 
-    const char*		getSelInitialSatName() const;
-    const char*		getSelFinalSatName() const;
-
 protected:
+
+    virtual bool	acceptOK(CallBacker*);
 
     uiComboBox*		vpfld_;
     uiComboBox*		vsfld_;
     uiComboBox*		denfld_;
-    uiComboBox*		sat1fld_;
-    uiComboBox*		sat2fld_;
+    uiComboBox*		initialsatfld_;
+    uiComboBox*		finalsatfld_;
     uiComboBox*		porosityfld_;
-    uiString		errmsg_;
+    mutable uiString	errmsg_;
 
 };
 

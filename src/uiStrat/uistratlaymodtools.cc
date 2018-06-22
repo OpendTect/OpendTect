@@ -455,12 +455,6 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 
 //-----------------------------------------------------------------------------
 
-/* HiddenParam<uiStratLayModFRPropSelector>		   TODO 6.4:
-   1. Rename sat1fld_, sat2fld_
-   2. make errmsg_ mutable
-   3. Implement acceptOK !!! should at least check isOK after go()
- */
-
 #define mCreatePropSelFld( propnm, txt, prop, prevbox ) \
     uiLabeledComboBox* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
     propnm##fld_ = lblbox##propnm->box(); \
@@ -473,46 +467,45 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 
 
 uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
-					const PropertyRefSelection& proprefsel)
+					const PropertyRefSelection& proprefsel,
+				const uiStratLayModFRPropSelector::Setup& set )
 	: uiDialog(p,uiDialog::Setup(tr("Property Selector"),
 				     tr("There are multiple properties "
 				        "referenced with the same type. \n"
 				        "Please specify which one to use as: "),
 		     mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
-{}
-
-
-uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
-					const PropertyRefSelection& proprefsel,
-					const Setup& set )
-	: uiDialog(p,uiDialog::Setup(tr("Property Selector"),
-				     tr("There are multiple properties "
-					"referenced with the same type. \n"
-					"Please specify which one to use as: "),
-		     mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
+	, vsfld_(0)
 	, porosityfld_(0)
-	, sat1fld_(0)
-	, sat2fld_(0)
+	, initialsatfld_(0)
+	, finalsatfld_(0)
 {
     mCreatePropSelFld(den, tr("Reference for Density"), PropertyRef::Den, 0);
     mCreatePropSelFld(vp, tr("Reference for Vp"), PropertyRef::Vel, lblboxden);
-    mCreatePropSelFld(vs, tr("Reference for Vs"), PropertyRef::Vel, lblboxvp);
-    uiLabeledComboBox* prevfld = lblboxvs;
+    uiLabeledComboBox* prevfld = lblboxvp;
+    if ( set.withswave_ )
+    {
+	mCreatePropSelFld(vs, tr("Reference for Vs"), PropertyRef::Vel,prevfld);
+	prevfld = lblboxvs;
+	if ( proprefsel.find(PropertyRef::standardSVelStr()) >=0 ||
+	     proprefsel.find(PropertyRef::standardSVelAliasStr()) >= 0 )
+	    setVSProp( PropertyRef::standardSVelStr() );
+    }
+
     if ( set.withinitsat_ )
     {
-	mCreatePropSelFld( sat1, tr("Reference for Initial Saturation"),
+	mCreatePropSelFld( initialsat, tr("Reference for Initial Saturation"),
 			   PropertyRef::Volum, prevfld );
-	prevfld = lblboxsat1;
-	if ( proprefsel.find("Water Saturation") )
+	prevfld = lblboxinitialsat;
+	if ( proprefsel.find("Water Saturation") >=0 )
 	    setInitialSatProp( "Water Saturation" );
     }
 
     if ( set.withfinalsat_ )
     {
-	mCreatePropSelFld( sat2, tr("Reference for Final Saturation"),
+	mCreatePropSelFld( finalsat, tr("Reference for Final Saturation"),
 			   PropertyRef::Volum, prevfld );
-	prevfld = lblboxsat2;
-	if ( proprefsel.find("Water Saturation") )
+	prevfld = lblboxfinalsat;
+	if ( proprefsel.find("Water Saturation") >=0 )
 	    setFinalSatProp( "Water Saturation" );
     }
 
@@ -520,29 +513,31 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
     {
 	mCreatePropSelFld( porosity, tr("Reference for Porosity"),
 			   PropertyRef::Volum, prevfld );
-	if ( proprefsel.find("Porosity") )
+	if ( proprefsel.find("Porosity") >= 0 )
 	    setPorProp( "Porosity" );
     }
 
     const bool haspwave =
 	    proprefsel.find(PropertyRef::standardPVelStr()) >=0 ||
 	    proprefsel.find(PropertyRef::standardPVelAliasStr()) >= 0;
-    if ( !haspwave )
+    if ( haspwave )
+	setVPProp( PropertyRef::standardPVelStr() );
+    else
 	errmsg_ = tr( "No reference to P wave velocity found" );
-    const bool hasswave =
-	    proprefsel.find(PropertyRef::standardSVelStr()) >=0 ||
-	    proprefsel.find(PropertyRef::standardSVelAliasStr()) >= 0;
-    if ( !hasswave )
-	errmsg_ = tr( "No reference to S wave velocity found" );
 }
 
 
 bool uiStratLayModFRPropSelector::isOK() const
 {
-    if ( denfld_->isEmpty() || vpfld_->isEmpty() || vsfld_->isEmpty() )
+    if ( !errmsg_.isEmpty() )
 	return false;
 
-    if ( BufferString(vpfld_->text()) == BufferString(vsfld_->text()) )
+    if ( denfld_->isEmpty() || vpfld_->isEmpty() ||
+	 (vsfld_ && vsfld_->isEmpty()) )
+	return false;
+
+    if ( vsfld_ &&
+	 BufferString(vpfld_->text()) == BufferString(vsfld_->text()) )
     {
 	uiStratLayModFRPropSelector& modsel =
 			const_cast<uiStratLayModFRPropSelector&>( *this );
@@ -551,8 +546,8 @@ bool uiStratLayModFRPropSelector::isOK() const
     }
 
     if ( (porosityfld_ && porosityfld_->isEmpty()) ||
-	 (sat1fld_ && sat1fld_->isEmpty()) ||
-	 (sat2fld_ && sat2fld_->isEmpty()) )
+	 (initialsatfld_ && initialsatfld_->isEmpty()) ||
+	 (finalsatfld_ && finalsatfld_->isEmpty()) )
 	return false;
 
     return errmsg_.isEmpty();
@@ -575,8 +570,8 @@ mSetPropFromNm(Den,den);
 mSetPropFromNm(VP,vp);
 mSetPropFromNm(VS,vs);
 mSetPropFromNm(Por,porosity);
-mSetPropFromNm(InitialSat,sat1);
-mSetPropFromNm(FinalSat,sat2);
+mSetPropFromNm(InitialSat,initialsat);
+mSetPropFromNm(FinalSat,finalsat);
 
 
 bool uiStratLayModFRPropSelector::needsDisplay() const
@@ -584,16 +579,22 @@ bool uiStratLayModFRPropSelector::needsDisplay() const
     if ( denfld_->size() > 1 )
 	return true;
 
-    if ( vpfld_->size()>1 && vsfld_->size()>1 &&
+    if ( vpfld_->size()>1 && (vsfld_ && vsfld_->size()>1) &&
 	 BufferString(getSelVPName()) == BufferString(getSelVSName()) )
 	return true;
 
     if ( (porosityfld_ && porosityfld_->size() > 1) ||
-	 (sat1fld_ && sat1fld_->size() > 1) ||
-	 (sat2fld_ && sat2fld_->size() > 1) )
+	 (initialsatfld_ && initialsatfld_->size() > 1) ||
+	 (finalsatfld_ && finalsatfld_->size() > 1) )
 	return true;
 
     return !isOK();
+}
+
+
+bool uiStratLayModFRPropSelector::acceptOK( CallBacker* )
+{
+    return isOK();
 }
 
 
@@ -601,7 +602,7 @@ const char* uiStratLayModFRPropSelector::getSelVPName() const
 { return vpfld_->text(); }
 
 const char* uiStratLayModFRPropSelector::getSelVSName() const
-{ return vsfld_->text(); }
+{ return vsfld_ ? vsfld_->text() : 0; }
 
 const char* uiStratLayModFRPropSelector::getSelDenName() const
 { return denfld_->text(); }
@@ -610,13 +611,7 @@ const char* uiStratLayModFRPropSelector::getSelPorName() const
 { return porosityfld_ ? porosityfld_->text() : 0; }
 
 const char* uiStratLayModFRPropSelector::getSelInitialSatName() const
-{ return sat1fld_ ? sat1fld_->text() : 0; }
+{ return initialsatfld_ ? initialsatfld_->text() : 0; }
 
 const char* uiStratLayModFRPropSelector::getSelFinalSatName() const
-{ return sat2fld_ ? sat2fld_->text() : 0; }
-
-const char* uiStratLayModFRPropSelector::getSelSat1Name() const
-{ return getSelInitialSatName(); }
-
-const char* uiStratLayModFRPropSelector::getSelSat2Name() const
-{ return getSelFinalSatName(); }
+{ return finalsatfld_ ? finalsatfld_->text() : 0; }
