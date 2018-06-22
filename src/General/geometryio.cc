@@ -54,8 +54,16 @@ public:
     {
 	PtrMan<IOObj> ioobj = dbdir_.getEntryByIdx( mCast(int,nrdone_) );
 	const Geometry::ID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );
-	if ( updateonly_ && isLoaded(geomid) )
-	    mReturn
+	bool doupdate = false;
+	const int geomidx = indexOf( geomid );
+	if ( updateonly_ && geomidx!=-1 )
+	{
+	    mDynamicCastGet(Geometry2D*,geom2d,geometries_[geomidx])
+	    if ( geom2d && geom2d->data().isEmpty() )
+		doupdate = true;
+	    else
+		mReturn
+	}
 
 	PtrMan<Translator> transl = ioobj->createTranslator();
 	mDynamicCastGet(SurvGeom2DTranslator*,geomtransl,transl.ptr());
@@ -64,15 +72,23 @@ public:
 
 	uiString errmsg;
 	Geometry* geom = geomtransl->readGeometry( *ioobj, errmsg );
-	if ( !geom )
-	    mReturn
+	if ( geom )
+	{
+	    geom->ref();
+	    if ( doupdate )
+	    {
+		Geometry* prevgeom = geometries_.replace( geomidx, geom );
+		if ( prevgeom )
+		    prevgeom->unRef();
+	    }
+	    else
+		geometries_ += geom;
+	}
 
 	mDynamicCastGet(Geometry2D*,geom2d,geom)
 	if ( geom2d )
 	    calcBendPoints( geom2d->dataAdmin() );
 
-	geom->ref();
-	geometries_ += geom;
 	mReturn
     }
 
@@ -88,13 +104,12 @@ protected:
 	return true;
     }
 
-    bool isLoaded( Geometry::ID geomid ) const
+    int indexOf( Geometry::ID geomid ) const
     {
 	for ( int idx=0; idx<geometries_.size(); idx++ )
 	    if ( geometries_[idx]->getID() == geomid )
-		return true;
-
-	return false;
+		return idx;
+	return -1;
     }
 
     const DBDir&		dbdir_;
@@ -179,9 +194,6 @@ bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( ctxt.getSelDirID() );
     if ( !dbdir )
 	return false;
-
-    if ( dbdir->size() == geometries.size() )
-	return true; //TODO: Update existing geometries if modified.
 
     GeomFileReader gfr( *dbdir, geometries, true );
     return TaskRunner::execute( tskr, gfr );
