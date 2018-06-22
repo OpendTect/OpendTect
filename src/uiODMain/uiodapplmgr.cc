@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "uiodviewer2dposdlg.h"
 #include "uiodviewer2dmgr.h"
 #include "uipickpartserv.h"
+#include "uiposprovider.h"
 #include "uiseispartserv.h"
 #include "uisip.h"
 #include "uistereodlg.h"
@@ -570,8 +571,18 @@ void uiODApplMgr::show2DViewer()
 
 void uiODApplMgr::setWorkingArea()
 {
-    if ( visserv_->setWorkingArea() )
-	sceneMgr().viewAll(0);
+    uiPosProvider::Setup su( false, false, true );
+    su.useworkarea(false);
+    uiPosProvDlg dlg( &appl_, su, tr("Set Work Area") );
+    dlg.setSampling( SI().sampling(true) );
+    dlg.setHelpKey( mODHelpKey(mWorkAreaDlgHelpID) );
+    if ( !dlg.go() )
+	return;
+
+    TrcKeyZSampling tkzs;
+    dlg.getSampling( tkzs );
+    const_cast<SurveyInfo&>(SI()).setWorkRange( tkzs );
+    sceneMgr().viewAll(0);
 }
 
 

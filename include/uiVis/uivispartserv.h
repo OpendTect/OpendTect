@@ -316,7 +316,6 @@ public:
     bool			deleteAllObjects();
     void			setZStretch();
     void			setDirectionalLight();
-    bool			setWorkingArea();
     void			setOnlyAtSectionsDisplay(int id,bool);
     bool			displayedOnlyAtSections(int id) const;
     static int			evViewModeChange();

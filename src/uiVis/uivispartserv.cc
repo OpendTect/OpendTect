@@ -33,7 +33,6 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uimpeman.h"
 #include "uimapperrangeeditordlg.h"
-#include "uiselsurvranges.h"
 #include "uiscenecolorbarmgr.h"
 #include "uisurvtopbotimg.h"
 #include "uitaskrunner.h"
@@ -476,7 +475,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
 
     mDynamicCastGet( visSurvey::SurveyObject*, surobj, dobj );
     if ( surobj )
-        surobj->setSaveInSessionsFlag( saveinsessions );
+	surobj->setSaveInSessionsFlag( saveinsessions );
 
     setUpConnections( dobj->id() );
     if ( isSoloMode() )
@@ -1387,46 +1386,6 @@ void uiVisPartServer::toHome( CallBacker* )
 { eventmutex_.lock(); sendEvent( evToHomePos() ); }
 
 
-class uiWorkAreaDlg : public uiDialog
-{ mODTextTranslationClass(uiWorkAreaDlg);
-public:
-uiWorkAreaDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Set work volume"),mNoDlgTitle,
-                                    mODHelpKey(mWorkAreaDlgHelpID) ) )
-{
-    selfld_ = new uiSelSubvol( this, false );
-    fullbut_ = new uiToolButton( this, "exttofullsurv",
-				tr("Set ranges to full survey"),
-				 mCB(this,uiWorkAreaDlg,fullPush) );
-    fullbut_->attach( rightOf, selfld_ );
-}
-
-void fullPush( CallBacker* )
-{
-    selfld_->setSampling( SI().sampling(false) );
-}
-
-bool acceptOK()
-{
-    TrcKeyZSampling cs = selfld_->getSampling();
-    const_cast<SurveyInfo&>(SI()).setWorkRange( cs );
-    return true;
-}
-
-    uiSelSubvol*	selfld_;
-    uiToolButton*	fullbut_;
-};
-
-
-bool uiVisPartServer::setWorkingArea()
-{
-    //TODO does not belong in the uiVisPartServer, it's for all viewers
-    uiWorkAreaDlg dlg( appserv().parent() );
-    return dlg.go();
-}
-
-
-
 void uiVisPartServer::survChgCB( CallBacker* cb )
 {
     mGetMonitoredChgData( cb, chgdata );
@@ -2100,7 +2059,7 @@ void uiVisPartServer::interactionCB( CallBacker* cb )
 
 
 void uiVisPartServer::setMarkerPos( const TrcKeyValue& worldpos,
-                                    int dontsetscene )
+				    int dontsetscene )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
 	scenes_[idx]->setMarkerPos( worldpos, dontsetscene );
@@ -2308,6 +2267,8 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
 
     const int nrattribs = attribid==-1 ? getNrAttribs(visid) : 1;
     multirgeditwin_ = new uiMultiMapperRangeEditWin( 0, nrattribs, dpmid );
+    if ( attribid != -1 )
+	multirgeditwin_->setActiveAttribID( attribid );
     multirgeditwin_->setDeleteOnClose( false );
     multirgeditwin_->rangeChange.notify(
 	    mCB(this,uiVisPartServer,mapperRangeEditChanged) );
