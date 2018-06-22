@@ -10,48 +10,53 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id: $";
 
 #include "uisegyreadfinisher.h"
-#include "uiseissel.h"
-#include "uiwellsel.h"
-#include "uiseissubsel.h"
-#include "uiseistransf.h"
-#include "uiseisioobjinfo.h"
+
 #include "uibatchjobdispatchersel.h"
+#include "uibutton.h"
+#include "uichecklist.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
-#include "uichecklist.h"
-#include "uibutton.h"
-#include "uitaskrunner.h"
 #include "uimsg.h"
+#include "uiseisioobjinfo.h"
+#include "uiseislinesel.h"
+#include "uiseissel.h"
+#include "uiseissubsel.h"
+#include "uiseistransf.h"
+#include "uitaskrunner.h"
+#include "uiwellsel.h"
 #include "ui2dgeomman.h"
-#include "welltransl.h"
-#include "wellman.h"
-#include "segybatchio.h"
-#include "segydirecttr.h"
-#include "segydirectdef.h"
-#include "segyscanner.h"
-#include "seistrc.h"
-#include "seisread.h"
-#include "seiswrite.h"
-#include "seisimporter.h"
-#include "seisioobjinfo.h"
-#include "segytr.h"
-#include "welldata.h"
-#include "wellreader.h"
-#include "wellwriter.h"
-#include "wellman.h"
-#include "welllog.h"
-#include "welltrack.h"
-#include "welllogset.h"
-#include "welld2tmodel.h"
-#include "iostrm.h"
-#include "ioman.h"
-#include "survgeom2d.h"
-#include "posinfo2dsurv.h"
+
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
+#include "ioman.h"
+#include "iostrm.h"
+#include "posinfo2dsurv.h"
+#include "segybatchio.h"
+#include "segydirectdef.h"
+#include "segydirecttr.h"
+#include "segydirect2d.h"
+#include "segyscanner.h"
+#include "segytr.h"
+#include "seisimporter.h"
+#include "seisioobjinfo.h"
+#include "seisread.h"
+#include "seistrc.h"
+#include "seiswrite.h"
+#include "survgeom2d.h"
+#include "welldata.h"
+#include "welld2tmodel.h"
+#include "welllog.h"
+#include "welllogset.h"
+#include "wellman.h"
+#include "wellreader.h"
+#include "welltrack.h"
+#include "welltransl.h"
+#include "wellwriter.h"
 
 #define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
 
+static HiddenParam<uiSEGYReadFinisher,uiSeis2DLineNameSel*> linenmfld(0);
 
 uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs )
 {
@@ -83,7 +88,7 @@ uiString uiSEGYReadFinisher::getDlgTitle( const char* usrspec )
 uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
 					const char* usrspec )
     : uiDialog(p,uiDialog::Setup(getWinTile(fs),getDlgTitle(usrspec),
-				  mODHelpKey(mSEGYReadFinisherHelpID) ) )
+				 mODHelpKey(mSEGYReadFinisherHelpID)))
     , fs_(fs)
     , outwllfld_(0)
     , lognmfld_(0)
@@ -98,11 +103,13 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     , coordfilefld_(0)
     , coordfileextfld_(0)
 {
+    setOkText( uiStrings::sImport() );
     objname_ = FilePath( usrspec ).baseName();
     const bool is2d = Seis::is2D( fs_.geomType() );
     if ( !is2d )
 	objname_.replace( '*', 'x' );
 
+    linenmfld.setParam( this, 0 );
     if ( fs_.isVSP() )
 	crVSPFields();
     else
@@ -118,33 +125,36 @@ void uiSEGYReadFinisher::crSeisFields()
     const bool is2d = Seis::is2D( gt );
     const bool ismulti = fs_.spec_.nrFiles() > 1;
 
-    uiGroup* attgrp = 0;
-    if ( gt != Seis::Line )
-    {
-	docopyfld_ = new uiGenInput( this, "Copy data",
-		BoolInpSpec(true,tr("Yes (import)"),tr("No (scan&&link)")) );
-	docopyfld_->valuechanged.notify(mCB(this,uiSEGYReadFinisher,doScanChg));
-	attgrp = docopyfld_;
-    }
+    docopyfld_ = new uiGenInput( this, "Copy data",
+	    BoolInpSpec(true,tr("Yes (import)"),tr("No (scan&&link)")) );
+    docopyfld_->valuechanged.notify(mCB(this,uiSEGYReadFinisher,doScanChg));
 
     uiSeisTransfer::Setup trsu( gt );
     trsu.withnullfill( false ).fornewentry( true );
     transffld_ = new uiSeisTransfer( this, trsu );
-    if ( attgrp )
-	transffld_->attach( alignedBelow, attgrp );
+    transffld_->attach( alignedBelow, docopyfld_ );
     if ( is2d )
     {
+	uiSeis2DLineNameSel* lnmfld = new uiSeis2DLineNameSel(this,false);
+	linenmfld.setParam( this, lnmfld );
+	lnmfld->attach( alignedBelow, docopyfld_ );
+
 	uiSeis2DSubSel& selfld = *transffld_->selFld2D();
 	if ( !ismulti )
-	    selfld.setSelectedLine( objname_ );
+	{
+	    selfld.setSelectedLine( objname_.buf() );
+	    lnmfld->setInput( objname_.buf() );
+	}
 	else
 	{
 	    selfld.setSelectedLine( "*" );
 	    selfld.setSensitive( false );
+	    lnmfld->setInput( "*" );
+	    lnmfld->setSensitive( false );
 	}
     }
-    attgrp = transffld_;
 
+    uiGroup* attgrp = transffld_;
     if ( is2d )
 	cr2DCoordSrcFields( attgrp, ismulti );
 
@@ -155,26 +165,20 @@ void uiSEGYReadFinisher::crSeisFields()
     if ( !is2d )
 	outimpfld_->setInputText( objname_ );
 
-    if ( gt != Seis::Line )
-    {
-	uiSeisSel::Setup scansu( gt );
-	scansu.enabotherdomain( true ).withwriteopts( false );
-	ctxt.toselect_.allownonuserselectable_ = true;
-	ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
-	outscanfld_ = new uiSeisSel( this, ctxt, scansu );
-	outscanfld_->attach( alignedBelow, attgrp );
-	if ( !is2d )
-	    outscanfld_->setInputText( objname_ );
+    uiSeisSel::Setup scansu( gt );
+    scansu.enabotherdomain( true ).withwriteopts( false );
+    ctxt.toselect_.allownonuserselectable_ = true;
+    ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
+    outscanfld_ = new uiSeisSel( this, ctxt, scansu );
+    outscanfld_->attach( alignedBelow, attgrp );
+    if ( !is2d )
+	outscanfld_->setInputText( objname_ );
 
-	if ( gt != Seis::LinePS || !ismulti )
-	{
-	    batchfld_ = new uiBatchJobDispatcherSel( this, true,
-						     Batch::JobSpec::SEGY );
-	    batchfld_->setJobName( "Read SEG-Y" );
-	    batchfld_->jobSpec().pars_.setYN( SEGY::IO::sKeyIs2D(), is2d );
-	    batchfld_->attach( alignedBelow, outimpfld_ );
-	}
-    }
+    batchfld_ = new uiBatchJobDispatcherSel( this, true,
+					     Batch::JobSpec::SEGY );
+    batchfld_->setJobName( "Read SEG-Y" );
+    batchfld_->jobSpec().pars_.setYN( SEGY::IO::sKeyIs2D(), is2d );
+    batchfld_->attach( alignedBelow, outimpfld_ );
 }
 
 
@@ -185,6 +189,7 @@ void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
     lcb->attach( alignedBelow, attgrp );
     attgrp = lcb;
     coordsfromfld_ = lcb->box();
+    coordsfromfld_->setHSzPol( uiObject::WideVar );
     coordsfromfld_->selectionChanged.notify(
 			mCB(this,uiSEGYReadFinisher,coordsFromChg) );
     coordsfromfld_->addItem( tr("The trace headers") );
@@ -248,6 +253,7 @@ void uiSEGYReadFinisher::crVSPFields()
 
 uiSEGYReadFinisher::~uiSEGYReadFinisher()
 {
+    linenmfld.removeParam( this );
 }
 
 
@@ -302,14 +308,15 @@ void uiSEGYReadFinisher::coordsFromChg( CallBacker* )
 
 void uiSEGYReadFinisher::doScanChg( CallBacker* )
 {
-    if ( !docopyfld_ )
-	return;
-
-    const bool copy = docopyfld_->getBoolValue();
+    const bool copy = docopyfld_ ? docopyfld_->getBoolValue() : true;
     outimpfld_->display( copy );
     transffld_->display( copy );
     if ( outscanfld_ )
 	outscanfld_->display( !copy );
+
+    uiSeis2DLineNameSel* lnmfld = linenmfld.getParam( this );
+    if ( lnmfld )
+	lnmfld->display( !copy );
 }
 
 
@@ -452,35 +459,65 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 }
 
 
+bool uiSEGYReadFinisher::getGeomID( const char* lnm, bool isnew,
+				    Pos::GeomID& geomid ) const
+{
+    const bool doimp = docopyfld_ ? docopyfld_->getBoolValue() : true;
+    uiString errmsg =
+	    tr("Internal: Cannot create line geometry in database");
+    geomid = Survey::GM().getGeomID( lnm );
+    if ( isnew && !doimp )
+    {
+	PtrMan<IOObj> geomobj = SurvGeom2DTranslator::createEntry( lnm,
+			    SEGYDirectSurvGeom2DTranslator::translKey() );
+	if ( !geomobj )
+	    mErrRet( errmsg );
+
+	geomobj->pars().set(
+		    SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID(),
+		    outscanfld_->key(true) );
+	IOM().commitChanges( *geomobj );
+	geomid = SurvGeom2DTranslator::getGeomID( *geomobj );
+    }
+    else if ( isnew )
+	geomid = Geom2DImpHandler::getGeomID( lnm );
+
+    if ( geomid == mUdfGeomID )
+	mErrRet( errmsg )
+
+    return true;
+}
+
+
 bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 				bool doimp, const char* inplnm )
 {
     const int nrlines = fs_.spec_.nrFiles();
-    bool overwr_warn = true; bool overwr = true;
+    bool overwr_warn = true; bool overwr = !Seis::isPS( fs_.geomType() );
     TypeSet<Pos::GeomID> geomids;
     for ( int iln=0; iln<nrlines; iln++ )
     {
-	const BufferString fnm( fs_.spec_.fileName(iln) );
 	BufferString lnm( inplnm );
 	if ( nrlines > 1 )
 	    lnm = getWildcardSubstLineName( iln );
 
-	const bool morelines = iln < nrlines - 1;
+	const bool morelines = iln < nrlines-1;
 	bool isnew = true;
 	if ( !handleExistingGeometry(lnm,morelines,overwr_warn,overwr,isnew) )
 	    return false;
 
-	Pos::GeomID geomid = isnew ? Geom2DImpHandler::getGeomID(lnm)
-				   : Survey::GM().getGeomID(lnm);
-	if ( geomid == mUdfGeomID )
-	    mErrRet( tr("Internal: Cannot create line geometry in database") )
+	Pos::GeomID geomid;
+	if ( !getGeomID(lnm,isnew,geomid) )
+	    return false;
 
+	const BufferString fnm( fs_.spec_.fileName(iln) );
 	if ( !exec2Dimp(inioobj,outioobj,doimp,fnm,lnm,geomid) )
 	    return false;
 
 	geomids += geomid;
     }
 
+    Survey::GMAdmin().updateGeometries( 0 );
     uiSeisIOObjInfo oinf( outioobj, true );
     return oinf.provideUserInfo2D( &geomids );
 }
@@ -488,8 +525,8 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 
 bool uiSEGYReadFinisher::doBatch( bool doimp )
 {
-    const BufferString jobname( doimp ? "Import SEG-Y (" : "Scan SEG-Y (",
-				outFld(doimp)->getInput(), ")" );
+    const BufferString jobname( doimp ? "Import_SEG-Y_" : "Scan_SEG-Y_",
+				outFld(doimp)->getInput() );
     batchfld_->setJobName( jobname );
     IOPar& jobpars = batchfld_->jobSpec().pars_;
     const bool isps = Seis::isPS( fs_.geomType() );
@@ -499,6 +536,50 @@ bool uiSEGYReadFinisher::doBatch( bool doimp )
 
     IOPar outpars;
     transffld_->fillPar( outpars );
+    outFld(doimp)->fillPar( outpars );
+    jobpars.mergeComp( outpars, sKey::Output() );
+
+    return batchfld_->start();
+}
+
+
+bool uiSEGYReadFinisher::doBatch2D( bool doimp, const char* inplnm )
+{
+    const int nrlines = fs_.spec_.nrFiles();
+    const BufferString infostr( nrlines ? "multi" : inplnm, "_",
+				outFld(doimp)->getInput() );
+    const BufferString jobname( doimp ? "Import_SEG-Y_" : "Scan_SEG-Y_",
+				infostr );
+    batchfld_->setJobName( jobname );
+    IOPar& jobpars = batchfld_->jobSpec().pars_;
+    const bool isps = Seis::isPS( fs_.geomType() );
+    jobpars.set( SEGY::IO::sKeyTask(), doimp ? SEGY::IO::sKeyImport()
+	    : (isps ? SEGY::IO::sKeyIndexPS() : SEGY::IO::sKeyIndex3DVol()) );
+    fs_.fillPar( jobpars );
+
+    bool overwr_warn = true; bool overwr = !Seis::isPS( fs_.geomType() );
+    for ( int iln=0; iln<nrlines; iln++ )
+    {
+	BufferString lnm( inplnm );
+	if ( nrlines > 1 )
+	    lnm = getWildcardSubstLineName( iln );
+
+	const bool morelines = iln < nrlines-1;
+	bool isnew = true;
+	if ( !handleExistingGeometry(lnm,morelines,overwr_warn,overwr,isnew) )
+	    return false;
+
+	Pos::GeomID geomid;
+	if ( !getGeomID(lnm,isnew,geomid) )
+	    return false;
+
+	if ( iln==0 )
+	    jobpars.set( sKey::GeomID(), geomid );
+	else
+	    jobpars.set( IOPar::compKey(sKey::GeomID(),iln), geomid );
+    }
+
+    IOPar outpars;
     outFld(doimp)->fillPar( outpars );
     jobpars.mergeComp( outpars, sKey::Output() );
 
@@ -528,8 +609,10 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
     }
     else
     {
+	IOPar pars = inioobj.pars();
+	pars.set( sKey::GeomID(), geomid );
 	indexer = new SEGY::FileIndexer( outioobj.key(), !Seis::isPS(gt),
-					 fspec, false, inioobj.pars() );
+					 fspec, true, pars );
 	exec = indexer.ptr();
     }
 
@@ -573,7 +656,7 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 				"doall" );
 	    optfld->addItem( tr("None: keep all existing geometries"),
 				"donone" );
-	    choice = 3;
+	    choice = overwr ? 3 : 4;
 	}
 	optfld->setChecked( choice, true );
 	if ( !dlg.go() || optfld->firstChecked() == 0 )
@@ -721,17 +804,19 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 	return doVSP();
 
     const bool doimp = docopyfld_ ? docopyfld_->getBoolValue() : true;
-    const IOObj* outioobj = outFld(doimp)->ioobj();
-    if ( !outioobj )
+    const IOObj* ioobj = outFld(doimp)->ioobj();
+    if ( !ioobj )
 	return false;
+
+    PtrMan<IOObj> outioobj = ioobj->clone();
     outputid_ = outioobj->key();
 
     const bool is2d = Seis::is2D( fs_.geomType() );
     BufferString lnm;
-
     if ( is2d )
     {
-	lnm = transffld_->selFld2D()->selectedLine();
+	lnm = doimp ? transffld_->selFld2D()->selectedLine()
+		    : linenmfld.getParam(this)->getInput();
 	if ( lnm.isEmpty() )
 	    mErrRet( uiStrings::phrEnter(tr("a line name")) )
 	if ( !putCoordChoiceInSpec() )
@@ -746,7 +831,7 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     }
 
     if ( batchfld_ && batchfld_->wantBatch() )
-	return doBatch( doimp );
+	return is2d ? doBatch2D( doimp, lnm ) : doBatch( doimp );
 
     PtrMan<IOObj> inioobj = fs_.spec_.getIOObj( true );
     updateInIOObjPars( *inioobj, *outioobj );

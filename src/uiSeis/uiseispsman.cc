@@ -32,12 +32,12 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
 #define mHelpID is2d ? mODHelpKey(mSeisPrestackMan2DHelpID) : \
-                       mODHelpKey(mSeisPrestackMan3DHelpID)
+		       mODHelpKey(mSeisPrestackMan3DHelpID)
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(createCaption(is2d),mNoDlgTitle,mHelpID)
 		     .nrstatusflds(1).modal(false),
 		   is2d ? SeisPS2DTranslatorGroup::ioContext()
-		        : SeisPS3DTranslatorGroup::ioContext())
+			: SeisPS3DTranslatorGroup::ioContext())
     , is2d_(is2d)
     , copybut_(0)
     , mergebut_(0)
@@ -75,8 +75,8 @@ uiSeisPreStackMan::~uiSeisPreStackMan()
 uiString uiSeisPreStackMan::createCaption( bool is2d )
 {
     return is2d
-        ? uiStrings::phrManage( SeisPS2DTranslatorGroup::sTypeName() )
-        : uiStrings::phrManage( SeisPS3DTranslatorGroup::sTypeName());
+	? uiStrings::phrManage( SeisPS2DTranslatorGroup::sTypeName() )
+	: uiStrings::phrManage( SeisPS3DTranslatorGroup::sTypeName());
 }
 
 

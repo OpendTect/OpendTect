@@ -59,7 +59,9 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     : uiDialog(p,uiDialog::Setup(forsurvsetup
 	    ? tr("Extract Survey Setup from SEG-Y") : tr("Import SEG-Y Data"),
 	    imptyp ? tr("Import %1").arg(imptyp->dispText())
-            : mNoDlgTitle, mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1))
+		   : mNoDlgTitle,
+	    mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1)
+					       .modal(forsurvsetup))
     , filereadopts_(0)
     , typfld_(0)
     , useicbut_(0)
@@ -94,7 +96,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 			       uiStrings::sInputFile(),tr("*=wildcard")),fisu );
     inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
     editbut_ = uiButton::getStd( topgrp_, OD::Edit,
-			         mCB(this,uiSEGYReadStarter,editFile), false );
+				 mCB(this,uiSEGYReadStarter,editFile), false );
     editbut_->attach( rightOf, inpfld_ );
     editbut_->setSensitive( false );
 

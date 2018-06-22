@@ -497,6 +497,7 @@ void uiSeis2DLineNameSel::fillWithAll()
     BufferStringSet lnms;
     TypeSet<Pos::GeomID> geomids;
     SeisIOObjInfo::getLinesWithData( lnms, geomids );
+    lnms.sort();
     fld_->addItems( lnms );
     if ( fld_->size() )
 	fld_->setCurrentItem( 0 );
@@ -509,6 +510,7 @@ void uiSeis2DLineNameSel::addLineNames( const MultiID& ky )
     if ( !oi.isOK() || !oi.is2D() ) return;
 
     BufferStringSet lnms; oi.getLineNames( lnms );
+    lnms.sort();
     nameChanged.disable();
     fld_->addItems( lnms );
     nameChanged.enable();

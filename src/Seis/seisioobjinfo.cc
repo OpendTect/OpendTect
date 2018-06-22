@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "keystrs.h"
 #include "linekey.h"
+#include "posinfo2d.h"
 #include "ptrman.h"
 #include "seis2ddata.h"
 #include "seisbuf.h"
@@ -33,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 #include "zdomain.h"
@@ -574,16 +576,8 @@ bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
 			       StepInterval<float>& zrg ) const
 {
     mChk(false);
-    if ( !isPS() )
-    {
-	PtrMan<Seis2DDataSet> dataset = new Seis2DDataSet( *ioobj_ );
-	return dataset->getRanges( geomid, trcrg, zrg );
-    }
-
-    //TODO get these ranges for PreStack 2D
-    trcrg.start = 0; trcrg.stop = mUdf(int); trcrg.step = 1;
-    zrg = SI().zRange( false );
-    return false;
+    PtrMan<Seis2DDataSet> dataset = new Seis2DDataSet( *ioobj_ );
+    return dataset->getRanges( geomid, trcrg, zrg );
 }
 
 

@@ -147,7 +147,7 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
 	bool readall,
 	DataInterpreter<int>* int32interp,
 	DataInterpreter<od_int64>* int64interp,
-        DataInterpreter<float>* floatinterp )
+	DataInterpreter<float>* floatinterp )
 {
     if ( strm_ )
 	{ pErrMsg("strm_ not null"); delete strm_; strm_ = 0; }
@@ -160,10 +160,10 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
 	mRet( false )
 
     strm_ = strm;
-    if ( !readHeader( int32interp, int64interp, floatinterp ) )
+    if ( !readHeader(int32interp,int64interp,floatinterp) )
 	mRet( false )
 
-    if ( !readall )
+    if ( !is2d_ && !readall )
     {
 	delete int32interp_;
 	int32interp_ = int32interp
@@ -181,7 +181,7 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
     {
 	TypeSet<int>* crlset = new TypeSet<int>;
 	TypeSet<od_int64>* idxset = new TypeSet<od_int64>;
-	if ( !readLine( *crlset, *idxset, int32interp, int64interp ) )
+	if ( !readLine(*crlset,*idxset,int32interp,int64interp) )
 	{
 	    delete crlset; delete idxset;
 	    mRet( false )
@@ -364,7 +364,7 @@ bool Seis::PosIndexer::readLineCompressed( KeyIdxSet& crlset,
 bool Seis::PosIndexer::readHeader(
 	DataInterpreter<int>* int32interp,
 	DataInterpreter<od_int64>* int64interp,
-        DataInterpreter<float>* floatinterp )
+	DataInterpreter<float>* floatinterp )
 {
     empty();
     strm_->getBin( is2d_ );
@@ -454,7 +454,7 @@ inline static int getIndex( const TypeSet<int>& nrs, int nr, bool& present )
 int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
 				    int& inlidx, int& crlidx )
 {
-    if ( inls_.isEmpty() )
+    if ( !is2d_ && inls_.isEmpty() )
 	return -1;
 
     bool pres = true;

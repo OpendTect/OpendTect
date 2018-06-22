@@ -64,6 +64,9 @@ public:
     uiODMain*		appl_;
     uiODMenuMgr&	mnumgr_;
 
+    uiSEGYReadStarter*	impdlg_;
+    uiSEGYExp*		expdlg_;
+
     void		updateMenu(CallBacker*);
     void		survChg(CallBacker*);
     void		edFiles(CallBacker*);
@@ -95,6 +98,8 @@ public:
 uiSEGYMgr::uiSEGYMgr( uiODMain* a )
     : mnumgr_(a->menuMgr())
     , appl_(a)
+    , impdlg_(0)
+    , expdlg_(0)
 {
     uiSEGYDirectVolOpts::initClass();
     uiSEGYDirectPS3DOpts::initClass();
@@ -173,12 +178,12 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 
 	impsgymnu->insertItem( new uiAction(volstr,muiSEGYMgrCB(imp3DCB),
 					volicid) );
-        impsgymnu->insertItem( new uiAction(volpsstr,muiSEGYMgrCB(imp3DPSCB),
+	impsgymnu->insertItem( new uiAction(volpsstr,muiSEGYMgrCB(imp3DPSCB),
 					volpsicid) );
 
-        expsgymnu->insertItem( new uiAction(volstr,muiSEGYMgrCB(exp3DCB),
+	expsgymnu->insertItem( new uiAction(volstr,muiSEGYMgrCB(exp3DCB),
 					volicid) );
-        expsgymnu->insertItem( new uiAction(volpsstr,muiSEGYMgrCB(exp3DPSCB),
+	expsgymnu->insertItem( new uiAction(volpsstr,muiSEGYMgrCB(exp3DPSCB),
 					volpsicid) );
     }
 
@@ -200,6 +205,9 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 
     mnumgr_.dtectTB()->addButton( segyiconid_, tr("SEG-Y import"),
 				  mCB(this,uiSEGYMgr,readStarterCB) );
+
+    deleteAndZeroPtr( impdlg_ );
+    deleteAndZeroPtr( expdlg_ );
 }
 
 
@@ -207,8 +215,9 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 void uiSEGYMgr::imp##typ##CB( CallBacker* ) \
 { \
     const SEGY::ImpType imptyp( arg ); \
-    uiSEGYReadStarter dlg( appl_, false, &imptyp ); \
-    dlg.go(); \
+    delete impdlg_; \
+    impdlg_ = new uiSEGYReadStarter( appl_, false, &imptyp ); \
+    impdlg_->go(); \
 }
 
 mImplImpCB( 2D, Seis::Line )
@@ -221,8 +230,9 @@ mImplImpCB( VSP, true )
 #define mImplExpCB(typ,arg) \
 void uiSEGYMgr::exp##typ##CB( CallBacker* ) \
 { \
-    uiSEGYExp dlg( appl_, arg ); \
-    dlg.go(); \
+    delete expdlg_; \
+    expdlg_ = new uiSEGYExp( appl_, arg ); \
+    expdlg_->go(); \
 }
 
 mImplExpCB( 2D, Seis::Line )
@@ -234,8 +244,6 @@ mImplExpCB( 3DPS, Seis::VolPS )
 void uiSEGYMgr::impClassic( bool islink )
 {
     uiSEGYRead::Setup su( islink ? uiSEGYRead::DirectDef : uiSEGYRead::Import );
-    if ( islink )
-	su.geoms_ -= Seis::Line;
     new uiSEGYRead( appl_, su );
 }
 

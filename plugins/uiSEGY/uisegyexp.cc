@@ -60,7 +60,7 @@ public:
 
 uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
     : uiDialog(p,Setup(tr("Define SEG-Y Text Header"),txtheadtxt,
-                        mODHelpKey(mSEGYExpTxtHeaderDlgHelpID) ))
+			mODHelpKey(mSEGYExpTxtHeaderDlgHelpID) ))
     , hdr_(hdr)
     , autogen_(ag)
 {
@@ -180,14 +180,14 @@ BufferString getSummary() const
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	: uiDialog(p,uiDialog::Setup(tr("SEG-Y I/O"),
 				     uiStrings::phrExport( "to SEG-Y"),
-                                     mODHelpKey(mSEGYExpHelpID) ))
+				     mODHelpKey(mSEGYExpHelpID)).modal(false))
 	, geom_(gt)
 	, morebox_(0)
 	, manipbox_(0)
 	, batchfld_(0)
 	, autogentxthead_(true)
 {
-    setCtrlStyle( RunAndClose );
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     const CallBack inpselcb( mCB(this,uiSEGYExp,inpSel) );
 
     IOObjContext ctxt( uiSeisSel::ioContext( geom_, true ) );
@@ -274,7 +274,7 @@ public:
 uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
 	: uiDialog(p,uiDialog::Setup(tr("2D SEG-Y multi-export"),
 				     tr("Specify file details"),
-                                     mODHelpKey(mSEGYExpMoreHelpID) ))
+				     mODHelpKey(mSEGYExpMoreHelpID) ))
 	, inioobj_(ii)
 	, outioobj_(oi)
 	, segyexp_(p)
