@@ -27,6 +27,7 @@ class uiTable;
 class uiBatchJobDispatcherSel;
 class uiSeisTransfer;
 class uiSEGYImportResult;
+class uiSeis2DLineNameSel;
 namespace SEGY { class FileIndexer; }
 namespace SEGY { namespace Vintage {class Info; class Importer; }}
 
@@ -68,6 +69,7 @@ protected:
     uiSeisSel*		outscanfld_;
     uiSeisTransfer*	transffld_;
     uiGenInput*		docopyfld_;
+    uiSeis2DLineNameSel* lnmfld_;
     uiComboBox*		coordsfromfld_;
     uiGenInput*		coordfileextfld_;
     uiGenInput*		coordsstartfld_;
@@ -89,7 +91,9 @@ protected:
     bool		doVSP();
     bool		do3D(const IOObj&,const IOObj&,bool);
     bool		do2D(const IOObj&,const IOObj&,bool,const char*);
-    bool		doBatch(bool);
+    bool		doBatch(bool doimp);
+    bool		doBatch2D(bool doimp,const char* lnm);
+    bool		getGeomID(const char* lnm,bool isnw,Pos::GeomID&) const;
     bool		doMultiVintage(const char* attr2dnm=0);
     void		updateResultDlg(const SEGY::Vintage::Importer&,
 					uiSEGYImportResult*);

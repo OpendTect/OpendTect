@@ -166,7 +166,7 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
     if ( !readHeader( int32interp, int64interp, floatinterp ) )
 	mRet( false )
 
-    if ( !readall )
+    if ( !is2d_ && !readall )
     {
 	delete int32interp_;
 	int32interp_ = int32interp
@@ -455,7 +455,7 @@ inline static Seis::PosIndexer::SetIdxType
 Seis::PosIndexer::SetIdxType Seis::PosIndexer::getFirstIdxs( const BinID& bid,
 				SetIdxType& inlidx, SetIdxType& crlidx ) const
 {
-    if ( inls_.isEmpty() )
+    if ( !is2d_ && inls_.isEmpty() )
 	return -1;
 
     bool pres = true;

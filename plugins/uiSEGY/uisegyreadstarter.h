@@ -137,7 +137,7 @@ protected:
     bool		lastscanwasfull_;
     uiSEGYRead*		classicrdr_;
     uiSEGYClassicSurvInfoProvider* classicsip_;
-    const Setup&	setup_;
+    const Setup		setup_;
 
     enum LoadDefChgType	{ KeepAll, KeepBasic, KeepNone };
 
