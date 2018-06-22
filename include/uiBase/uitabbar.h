@@ -39,10 +39,12 @@ public:
     int			currentTabId() const;
     uiString		textOfTab(int idx) const;
     void		setTabIcon(int idx,const char*);
+    void		setTabsClosable(bool closable);
     
     int			size() const;
 
     Notifier<uiTabBar>  selected;
+    CNotifier<uiTabBar,int>  tabToBeClosed;
 
     int			indexOf(const uiGroup*) const;
     int			indexOf(const uiTab*) const;

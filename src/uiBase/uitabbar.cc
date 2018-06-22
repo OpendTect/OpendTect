@@ -56,6 +56,7 @@ private:
 uiTabBar::uiTabBar( uiParent* parnt, const char* nm, const CallBack* cb )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selected( this )
+    , tabToBeClosed(this)
 { if( cb ) selected.notify(*cb); }
 
 
@@ -127,6 +128,12 @@ void uiTabBar::setTabIcon( int idx, const char* icnnm )
 {
     const uiIcon icon( icnnm );
     body_->setTabIcon( idx, icon.qicon() );
+}
+
+
+void uiTabBar::setTabsClosable( bool closable )
+{
+    body_->setTabsClosable( closable );
 }
 
 

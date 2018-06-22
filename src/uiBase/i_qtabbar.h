@@ -15,7 +15,8 @@ ________________________________________________________________________
 #include <QTabBar>
 
 
-//! Helper class for uitabbar to relay Qt's 'currentChanged' messages to uiAction.
+//! Helper class for uitabbar to relay Qt's 'currentChanged' messages to
+// uiAction.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
@@ -33,6 +34,8 @@ i_tabbarMessenger( QTabBar* sndr, uiTabBar* receiver )
     , receiver_(receiver)
 {
     connect( sndr, SIGNAL(currentChanged(int)), this, SLOT(selected(int)) );
+    connect( sndr, SIGNAL(tabCloseRequested(int)), this,
+	     SLOT(tabToBeClosed(int)) );
 }
 
 private:
@@ -46,6 +49,14 @@ private slots:
 			{
 			    const int refnr = receiver_->beginCmdRecEvent();
 			    receiver_->selected.trigger(*receiver_);
+			    receiver_->endCmdRecEvent( refnr );
+			}
+
+    void		tabToBeDeleted( int tabidx )
+			{
+			    const int refnr = receiver_->beginCmdRecEvent();
+			    receiver_->tabToBeClosed.trigger(tabidx,
+							      *receiver_);
 			    receiver_->endCmdRecEvent( refnr );
 			}
 

@@ -31,6 +31,7 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     tabgrp_->attach( stretchedBelow, tabbar_, 0 );
 
     tabbar_->selected.notify( mCB(this,uiTabStack,tabSel) );
+    tabbar_->tabToBeClosed.notify( mCB(this,uiTabStack,tabCloseCB) );
 }
 
 
@@ -122,6 +123,20 @@ void uiTabStack::setCurrentPage( const char* grpnm )
 void uiTabStack::setTabIcon( int idx, const char* icnnm )
 {
     tabbar_->setTabIcon( idx, icnnm );
+}
+
+
+void uiTabStack::setTabsClosable( bool closable )
+{
+    tabbar_->setTabsClosable( closable );
+}
+
+
+void uiTabStack::tabCloseCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,tabid,cb);
+    uiGroup* tabgrp = tabbar_->page( tabid );
+    removeTab( tabgrp );
 }
 
 

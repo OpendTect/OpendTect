@@ -49,6 +49,7 @@ public:
     void		setCurrentPage(const char* grpnm);
     void		setTabIcon(int id,const char* icnnm);
     void		setTabIcon(uiGroup*,const char* icnnm);
+    void		setTabsClosable(bool closable);
 
     uiGroup*		currentPage() const;
     uiGroup* 		page(int idx) const;
@@ -65,4 +66,5 @@ protected:
     uiGroup*		tabgrp_;
 
     void		tabSel(CallBacker* cb);
+    void		tabCloseCB(CallBacker* cb);
 };
