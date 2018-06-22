@@ -55,7 +55,7 @@ uiSurvInfoProvider::TDInfo uiSurvInfoProvider::getTDInfo(
 
 
 bool uiSurvInfoProvider::runDialog( uiParent* p, TDInfo ztyp, SurveyInfo& si,
-	                      bool defdpthinft, bool* havezinfo )
+			      bool defdpthinft, bool* havezinfo )
 {
     PtrMan<uiDialog> dlg = dialog( p, ztyp );
     if ( !dlg || !dlg->go() )
@@ -134,8 +134,8 @@ static void setZValFld( uiGenInput* zfld, int nr, float val, float fac )
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
 				     mNoDlgTitle,
-                                     mODHelpKey(mSurveyInfoEditorHelpID) )
-                                     .nrstatusflds(1))
+				     mODHelpKey(mSurveyInfoEditorHelpID) )
+				     .nrstatusflds(1))
 	, basepath_(SI().getBasePath())
 	, orgdirname_(SI().getDirName())
 	, si_(const_cast<SurveyInfo&>(SI()))
@@ -385,9 +385,9 @@ void uiSurveyInfoEditor::mkCoordGrp()
     xy2fld_ = new uiGenInput( crdgrp_, xystr,
 				PositionInpSpec(psetup).setName("X3",0)
 						       .setName("Y3",1) );
+    xy2fld_->setElemSzPol( uiObject::SmallVar );
     mAddCB( xy2fld_ );
 
-    xy2fld_->setElemSzPol( uiObject::SmallVar );
     ic1fld_->attach( alignedBelow, ic0fld_ );
     ic2fld_->attach( alignedBelow, ic1fld_ );
     xy0fld_->attach( rightOf, ic0fld_ );
@@ -411,33 +411,32 @@ void uiSurveyInfoEditor::mkTransfGrp()
 
     x0fld_ = new uiGenInput( trgrp_, tr("%1 = ").arg( uiStrings::sX() ),
 					   DoubleInpSpec().setName( "X" ) );
-    x0fld_->setElemSzPol( uiObject::Small );
+    x0fld_->setElemSzPol( uiObject::SmallVar );
     x0fld_->attach( alignedBelow, emptyspace );
     mAddCB( x0fld_ );
 
     xinlfld_ = new uiGenInput( trgrp_, tr("+ %1 *").arg(uiStrings::sInline()),
 				       DoubleInpSpec().setName("Inl") );
-    xinlfld_->setElemSzPol( uiObject::Small );
+    xinlfld_->setElemSzPol( uiObject::SmallVar );
     mAddCB( xinlfld_ );
 
-    xcrlfld_ = new uiGenInput( trgrp_, tr("+ %1 *")
-				.arg(uiStrings::sCrossline() ),
-				  DoubleInpSpec().setName("Crl") );
-    xcrlfld_->setElemSzPol( uiObject::Small );
+    xcrlfld_ = new uiGenInput( trgrp_,tr("+ %1 *").arg(uiStrings::sCrossline()),
+			       DoubleInpSpec().setName("Crl") );
+    xcrlfld_->setElemSzPol( uiObject::SmallVar );
     mAddCB( xcrlfld_ );
 
     y0fld_ = new uiGenInput ( trgrp_, tr("Y = "), DoubleInpSpec().setName("Y"));
-    y0fld_->setElemSzPol( uiObject::Small );
+    y0fld_->setElemSzPol( uiObject::SmallVar );
     mAddCB( y0fld_ );
 
-    yinlfld_ = new uiGenInput ( trgrp_, tr("+ in-line *"),
-				      DoubleInpSpec() .setName("Inl"));
-    yinlfld_->setElemSzPol( uiObject::Small );
+    yinlfld_ = new uiGenInput( trgrp_, tr("+ %1 *").arg(uiStrings::sInline()),
+			       DoubleInpSpec() .setName("Inl"));
+    yinlfld_->setElemSzPol( uiObject::SmallVar );
     mAddCB( yinlfld_ );
 
-    ycrlfld_ = new uiGenInput ( trgrp_, tr("+ cross-line *"),
-				      DoubleInpSpec() .setName("Crl"));
-    ycrlfld_->setElemSzPol( uiObject::Small );
+    ycrlfld_ = new uiGenInput( trgrp_,tr("+ %1 *").arg(uiStrings::sCrossline()),
+			       DoubleInpSpec().setName("Crl"));
+    ycrlfld_->setElemSzPol( uiObject::SmallVar );
     overrulefld_ = new uiCheckBox( trgrp_, tr("Overrule easy settings") );
     mAddCB( ycrlfld_ );
 
@@ -654,7 +653,7 @@ bool uiSurveyInfoEditor::acceptOK()
 	if ( !uiMSG().askGoOn(tr("Copy your survey to another location?")) )
 	    return false;
 
-        BufferString olddirnm = orgdirname_;
+	BufferString olddirnm = orgdirname_;
 	if ( !dirnamechanged )
 	{
 	    olddirnm.add( "_org" );
