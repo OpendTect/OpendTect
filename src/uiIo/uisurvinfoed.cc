@@ -59,6 +59,14 @@ uiString uiSurveyInfoEditor::getSRDString( bool infeet )
 }
 
 
+uiString uiSurveyInfoEditor::getCoordString( bool infeet )
+{
+    uiString txt = tr("Coordinates are in %1%2")
+			.arg( getDistUnitString(infeet,false)).arg("  ");
+    return txt;
+}
+
+
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 					bool isnew )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
@@ -158,7 +166,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     crdlbl->attach( leftBorder );
     crdlbl->attach( ensureBelow, horsep2 );
     coordset = new uiGenInput( this, uiStrings::sEmptyString(),
-                         BoolInpSpec(true,tr("Easy"), uiStrings::sAdvanced()) );
+			 BoolInpSpec(true,tr("Easy"), uiStrings::sAdvanced()) );
     coordset->attach( alignedBelow, rangegrp_ );
     coordset->attach( rightTo, crdlbl );
     coordset->valuechanged.notify( mCB(this,uiSurveyInfoEditor,chgSetMode));
@@ -179,6 +187,10 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 			mCB(this,uiSurveyInfoEditor,coordSystemCB), false );
     coordsysfld_->attach( rightTo, coordset );
     coordsysfld_->attach( rightBorder );
+
+    xyunitlbl_ = new uiLabel( this, getCoordString(xyInFeet()) );
+    xyunitlbl_->attach( rightTo, applybut );
+    xyunitlbl_->attach( rightBorder );
 
     postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
     sipCB(0);
@@ -736,8 +748,8 @@ bool uiSurveyInfoEditor::setRelation()
     xtr.c = xcrlfld_->getdValue(); ytr.c = ycrlfld_->getdValue();
     if ( !xtr.valid(ytr) )
     {
-        uiMSG().error( tr("The transformation is not valid.") );
-        return false;
+	uiMSG().error( tr("The transformation is not valid.") );
+	return false;
     }
 
     si_.b2c_.setTransforms( xtr, ytr );
@@ -881,11 +893,12 @@ bool uiSurveyInfoEditor::xyInFeet() const
 void uiSurveyInfoEditor::coordSystemCB( CallBacker* )
 {
     Coords::uiCoordSystemDlg dlg( this, true, false, &si_, coordsystem_ );
-    if ( dlg.go() )
-    {
-	coordsystem_ = dlg.getCoordSystem();
-	updZUnit(0);
-    }
+    if ( !dlg.go() )
+	return;
+
+    coordsystem_ = dlg.getCoordSystem();
+    updZUnit(0);
+    xyunitlbl_->setText( getCoordString(xyInFeet()) );
 }
 
 

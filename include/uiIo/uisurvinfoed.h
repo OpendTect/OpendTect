@@ -23,6 +23,7 @@ class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
 class uiGroup;
+class uiLabel;
 class uiPushButton;
 class uiSurvInfoProvider;
 namespace Coords { class CoordSystem; }
@@ -98,6 +99,7 @@ protected:
     uiCheckBox*		xyinftfld_;
     uiGenInput*		depthdispfld_;
     uiGenInput*		refdatumfld_;
+    uiLabel*		xyunitlbl_;
 
     bool		xyInFeet() const;
     bool		dirnamechanged;
@@ -128,6 +130,7 @@ protected:
     void		coordSystemCB(CallBacker*);
 
     static uiString	getSRDString(bool infeet);
+    static uiString	getCoordString(bool infeet);
 
     friend class	uiSurvey;
 
