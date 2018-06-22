@@ -64,6 +64,9 @@ public:
     uiODMain*		appl_;
     uiODMenuMgr&	mnumgr_;
 
+    uiSEGYReadStarter*	impdlg_;
+    uiSEGYExp*		expdlg_;
+
     void		updateMenu(CallBacker*);
     void		survChg(CallBacker*);
     void		edFiles(CallBacker*);
@@ -97,6 +100,8 @@ mDefODPluginSurvRelToolsLoadFn(uiSEGY)
 uiSEGYMgr::uiSEGYMgr( uiODMain* a )
     : mnumgr_(a->menuMgr())
     , appl_(a)
+    , impdlg_(0)
+    , expdlg_(0)
 {
     uiSEGY::initClasses();
 
@@ -165,6 +170,9 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 		    mCB(this,uiSEGYMgr,readStarterCB),"singlefile") );
     mnu->insertAction(new uiAction(m3Dots(tr("Multiple-Vintage")),
 		    mCB(this,uiSEGYMgr,bulkImport),"copyobj") );
+
+    deleteAndZeroPtr( impdlg_ );
+    deleteAndZeroPtr( expdlg_ );
 }
 
 
@@ -186,13 +194,16 @@ void uiSEGYMgr::handleImpExpMnu( CallBacker* cb )
     {
 	SEGY::ImpType imptyp( gt );
 	uiSEGYReadStarter::Setup su( false, &imptyp );
-	uiSEGYReadStarter dlg( appl_, su );
-	dlg.go();
+	delete impdlg_;
+	impdlg_ = new uiSEGYReadStarter( appl_, su );
+	impdlg_->setModal( false );
+	impdlg_->go();
     }
     else
     {
-	uiSEGYExp dlg( appl_, gt );
-	dlg.go();
+	delete expdlg_;
+	expdlg_ = new uiSEGYExp( appl_, gt );
+	expdlg_->go();
     }
 }
 
@@ -209,8 +220,6 @@ void uiSEGYMgr::impVSPCB( CallBacker* )
 void uiSEGYMgr::impClassic( bool islink )
 {
     uiSEGYRead::Setup su( islink ? uiSEGYRead::DirectDef : uiSEGYRead::Import );
-    if ( islink )
-	su.geoms_ -= Seis::Line;
     new uiSEGYRead( appl_, su );
 }
 
@@ -233,10 +242,13 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 }
 
 
-void uiSEGYMgr::readStarterCB( CallBacker* cb )
+void uiSEGYMgr::readStarterCB( CallBacker* )
 {
-    uiSEGYReadStarter readstdlg( ODMainWin(), uiSEGYReadStarter::Setup(false) );
-    readstdlg.go();
+    delete impdlg_;
+    impdlg_ = new uiSEGYReadStarter( ODMainWin(),
+				     uiSEGYReadStarter::Setup(false) );
+    impdlg_->setModal( false );
+    impdlg_->go();
 }
 
 
