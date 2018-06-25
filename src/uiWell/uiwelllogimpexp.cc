@@ -140,7 +140,7 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 	logsfld_->chooseAll( true );
     }
 
-    uiString lbl = toUiString("(%1)").arg( lfi.zunitstr.buf() );
+    const uiString lbl = toUiString("(%1)").arg( lfi.zunitstr.buf() );
     unitlbl_->setText( lbl );
     unitlbl_->display( true );
 
@@ -148,10 +148,11 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 
     const UnitOfMeasure* uom = UoMR().get( lfi.zunitstr );
     Interval<float> usrzrg = lfi.zrg;
-    if ( uom && !mIsUdf(lfi.zrg.start) )
+    if ( uom )
+    {
 	usrzrg.start = uom->userValue( usrzrg.start );
-    if ( uom && !mIsUdf(lfi.zrg.stop) )
 	usrzrg.stop = uom->userValue( usrzrg.stop );
+    }
 
     intvfld_->setValue( usrzrg );
 }
@@ -191,11 +192,12 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     lfi.undefval = udffld_->getfValue();
 
     const UnitOfMeasure* uom = UoMR().get( lfi.zunitstr );
-    Interval<float> usrzrg = intvfld_->getFInterval();
-    if ( uom && !mIsUdf(usrzrg.start) )
+    const Interval<float> usrzrg = intvfld_->getFInterval();
+    if ( uom )
+    {
 	lfi.zrg.start = uom->internalValue( usrzrg.start );
-    if ( uom && !mIsUdf(usrzrg.stop) )
 	lfi.zrg.stop = uom->internalValue( usrzrg.stop );
+    }
 
     const bool usecurvenms = lognmfld_ ? lognmfld_->getBoolValue() : false;
     BufferStringSet lognms;
