@@ -203,6 +203,7 @@ void uiSEGYMgr::handleImpExpMnu( CallBacker* cb )
     {
 	delete expdlg_;
 	expdlg_ = new uiSEGYExp( appl_, gt );
+	expdlg_->setModal( false );
 	expdlg_->go();
     }
 }
