@@ -33,18 +33,21 @@ public:
     virtual od_int64	curGroupID() const	{ return gtGroupID(); }
 
     virtual void	setChunkSize(int);
+    virtual void	setEditableCreation(bool);
 
     virtual Reader*	createCoupledReader() const;
 
 protected:
 
     int			chunksz_;
+    bool		createeditable_;
 
     virtual void	openFile(const char*,uiRetVal&,bool);
     virtual void	closeFile()		{ doCloseFile(*this); }
 
     virtual void	crDS(const DataSetKey&,const ArrayNDInfo&,ODDataType,
 			     uiRetVal&);
+    virtual void	reSzDS(const DataSetKey&,const ArrayNDInfo&,uiRetVal&);
     virtual bool	rmObj(const DataSetKey&);
     virtual void	ptStrings(const DataSetKey&,const BufferStringSet&,
 				  uiRetVal&);

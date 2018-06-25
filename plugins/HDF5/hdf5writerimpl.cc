@@ -20,6 +20,10 @@ static unsigned szip_pixels_per_block = 16;
 		    // can be an even number [2,32]
 static int szip_encoding_status = -1;
 
+#define mUnLim4 H5S_UNLIMITED, H5S_UNLIMITED, H5S_UNLIMITED, H5S_UNLIMITED
+static hsize_t resizablemaxdims_[24] =
+{ mUnLim4, mUnLim4, mUnLim4, mUnLim4, mUnLim4, mUnLim4 };
+#define mDSResizing (createeditable_ ? resizablemaxdims_ : 0)
 
 #define mCatchErrDuringWrite() \
     mCatchAdd2uiRv( uiStrings::phrErrDuringWrite(fileName()) )
@@ -28,6 +32,7 @@ static int szip_encoding_status = -1;
 HDF5::WriterImpl::WriterImpl()
     : AccessImpl(*this)
     , chunksz_(64)
+    , createeditable_(false)
 {
     if ( szip_encoding_status < 0 )
 	szip_encoding_status = H5Zfilter_avail( H5Z_FILTER_SZIP ) ? 1 : 0;
@@ -37,6 +42,12 @@ HDF5::WriterImpl::WriterImpl()
 HDF5::WriterImpl::~WriterImpl()
 {
     closeFile();
+}
+
+
+void HDF5::WriterImpl::setEditableCreation( bool yn )
+{
+    createeditable_ = yn;
 }
 
 
@@ -80,6 +91,17 @@ bool HDF5::WriterImpl::ensureGroup( const char* grpnm, uiRetVal& uirv )
 }
 
 
+static hsize_t getChunkSz4TwoChunks( hsize_t dimsz )
+{
+    hsize_t ret = dimsz / 2;
+    if ( dimsz % 2 )
+	ret++;
+    if ( ret < 1 )
+	ret = 1;
+    return ret;
+}
+
+
 void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
 			       ODDataType dt, uiRetVal& uirv )
 {
@@ -89,25 +111,32 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
     nrdims_ = info.nrDims();
     TypeSet<hsize_t> dims, chunkdims;
     int maxdim = 0;
+    const bool mustchunk = createeditable_;
+    bool havelargerdimthanchunk = false;
     for ( ArrayNDInfo::DimIdxType idim=0; idim<nrdims_; idim++ )
     {
 	const auto dimsz = info.getSize( idim );
 	if ( dimsz > maxdim )
 	    maxdim = dimsz;
 	dims += dimsz;
-	chunkdims += chunksz_ < dimsz ? chunksz_ : dimsz;
+	const bool dimgtchunksz = dimsz > chunksz_;
+	hsize_t chunkdim = dimgtchunksz ? dimsz : chunksz_;
+	havelargerdimthanchunk |= dimgtchunksz;
+	if ( mustchunk && idim == nrdims_-1 && !havelargerdimthanchunk )
+	    chunkdim = getChunkSz4TwoChunks( chunkdim );
+	chunkdims += chunkdim;
     }
 
-    const bool canchunk = maxdim > chunksz_;
+    const bool wantchunk = maxdim > chunksz_;
     const bool canzip = szip_encoding_status>0
 		     && maxdim >= szip_pixels_per_block;
 
     const H5DataType h5dt = h5DataTypeFor( dt );
     try
     {
-	H5::DataSpace dataspace( nrdims_, dims.arr() );
+	H5::DataSpace dataspace( nrdims_, dims.arr(), mDSResizing );
 	H5::DSetCreatPropList proplist;
-	if ( canchunk )
+	if ( mustchunk || wantchunk )
 	{
 	    proplist.setChunk( nrdims_, chunkdims.arr() );
 	    if ( canzip )
@@ -117,6 +146,38 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
 					 h5dt, dataspace, proplist );
     }
     mCatchErrDuringWrite()
+}
+
+
+void HDF5::WriterImpl::reSzDS( const DataSetKey& dsky, const ArrayNDInfo& info,
+			       uiRetVal& uirv )
+{
+    PtrMan<Reader> rdr = createCoupledReader();
+    if ( !rdr || !rdr->setScope(dsky) )
+	return;
+
+    const NrDimsType nrdims = rdr->nrDims();
+    if ( nrdims != info.nrDims() )
+	mPutInternalInUiRv( uirv, "HDF5 write: dim chg requested", return )
+
+    TypeSet<hsize_t> newdims;
+    bool havechg = false;
+    for ( DimIdxType idim=0; idim<nrdims; idim++ )
+    {
+	const SzType curdimsz = rdr->dimSize( idim );
+	const SzType newdimsz = info.getSize( idim );
+	if ( curdimsz != newdimsz )
+	    havechg = true;
+	newdims += newdimsz;
+    }
+
+    if ( !havechg || !stScope(dsky) )
+	return;
+
+    try {
+	dataset_.extend( newdims.arr() );
+    }
+    mCatchErrDuringWrite();
 }
 
 
@@ -191,7 +252,7 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
 }
 
 
-static void getWriteStr( const char* inpstr, int nrchars, char* buf )
+static void getAttribWriteStr( const char* inpstr, int nrchars, char* buf )
 {
     if ( !inpstr )
 	inpstr = "";
@@ -269,7 +330,7 @@ void HDF5::WriterImpl::putAttribs( H5::DataSet& h5ds, const IOPar& iop,
 	    H5::Attribute attr;
 	    if ( !findAttrib(h5ds,ky,attr) )
 		attr = h5ds.createAttribute( ky, h5dt, dataspace );
-	    getWriteStr( iop.getValue(idx), nrchars, writestr );
+	    getAttribWriteStr( iop.getValue(idx), nrchars, writestr );
 	    attr.write( h5dt, writestr );
 	}
     }
@@ -284,19 +345,39 @@ void HDF5::WriterImpl::ptStrings( const DataSetKey& dsky,
     if ( !ensureGroup(dsky.groupName(),uirv) )
 	return;
 
-    const int nrstrs = bss.size();
+    bool existing = false;
+    if ( stScope(dsky) )
+    {
+	Array1DInfoImpl inf( bss.size() );
+	reSzDS( dsky, inf, uirv );
+	if ( !uirv.isOK() )
+	    return;
+	existing = true;
+    }
+
+    const hsize_t nrstrs = bss.size();
     char** strs = new char* [ nrstrs ];
     ArrPtrMan<char*> deleter = strs;
 
     for ( int istr=0; istr<nrstrs; istr++ )
 	strs[istr] = (char*)bss.get( istr ).buf();
-    hsize_t dims[1] = { (hsize_t)nrstrs };
+    hsize_t dims[1] = { nrstrs };
 
     try
     {
 	const H5::StrType strtyp( 0, H5T_VARIABLE );
-	dataset_ = group_.createDataSet( dsky.dataSetName(),
-					 strtyp, H5::DataSpace(1,dims) );
+	if ( !existing )
+	{
+	    H5::DataSpace dspace( 1, dims, mDSResizing );
+	    H5::DSetCreatPropList proplist;
+	    if ( createeditable_ )
+	    {
+		hsize_t chunkdims[1] = { getChunkSz4TwoChunks(nrstrs) };
+		proplist.setChunk( 1, chunkdims );
+	    }
+	    dataset_ = group_.createDataSet( dsky.dataSetName(), strtyp,
+					     dspace, proplist );
+	}
 	dataset_.write( strs, strtyp );
     }
     mCatchErrDuringWrite()
@@ -310,8 +391,7 @@ void HDF5::WriterImpl::ptAll( const void* data, uiRetVal& uirv )
 
     try
     {
-	H5::DataSpace dataspace = dataset_.getSpace();
-	dataspace.selectAll();
+	dataset_.getSpace().selectAll();
 	dataset_.write( data, dataset_.getDataType() );
     }
     mCatchErrDuringWrite()
@@ -329,7 +409,8 @@ void HDF5::WriterImpl::ptSlab( const SlabSpec& spec,
     {
 	H5::DataSpace filedataspace = dataset_.getSpace();
 	selectSlab( filedataspace, spec, &counts );
-	H5::DataSpace memdataspace( (NrDimsType)spec.size(), counts.arr() );
+	H5::DataSpace memdataspace( (NrDimsType)spec.size(), counts.arr(),
+				    mDSResizing );
 	dataset_.write( data, dataset_.getDataType(), memdataspace,
 			filedataspace );
     }

@@ -98,6 +98,7 @@ void Well::HDF5Writer::init( const char* inpfnm, bool* fnmchgd )
     wrr_ = HDF5::mkWriter();
     if ( !wrr_ )
 	{ pErrMsg("Available but no writer?"); return; }
+    wrr_->setEditableCreation( true );
 
     filename_.set( orgfnm );
     if ( fnmchgd )
@@ -159,20 +160,17 @@ void Well::HDF5Writer::putDepthUnit( IOPar& iop ) const
 }
 
 
-void Well::HDF5Writer::keepDSOnlyIfRight( const HDF5::DataSetKey& dsky,
-					  HDF5::Reader& rdr,
-					  int dim0, int dim1 ) const
+void Well::HDF5Writer::ensureCorrectDSSize( const HDF5::DataSetKey& dsky,
+				int dim0, int dim1, uiRetVal& uirv ) const
 {
-    if ( !rdr.setScope(dsky) )
-	return;
-
     const int nrdims = dim1 > 0 ? 2 : 1;
+    PtrMan<ArrayNDInfo> arrinf;
+    if ( nrdims == 1 )
+	arrinf = new Array1DInfoImpl( dim0 );
+    else
+	arrinf = new Array2DInfoImpl( dim0, dim1 );
 
-    ArrayNDInfo* arrinf = rdr.getDataSizes();
-    if ( !arrinf || arrinf->nrDims() != nrdims || arrinf->getSize(0) != dim0
-      || (dim1 > 0 && arrinf->getSize(1) != dim1) )
-	wrr_->deleteObject( dsky );
-    delete arrinf;
+    uirv = wrr_->resizeDataSet( dsky, *arrinf );
 }
 
 
@@ -220,7 +218,8 @@ bool Well::HDF5Writer::putInfoAndTrack() const
     }
 
     const HDF5::DataSetKey trackdsky( "", sTrackDSName() );
-    keepDSOnlyIfRight( trackdsky, *rdr, 4, iter.size() );
+    ensureCorrectDSSize( trackdsky, 4, iter.size(), uirv );
+    mErrRetIfUiRvNotOK( trackdsky );
     HDF5::ArrayNDTool<double> arrtool( arr );
     uirv = arrtool.put( *wrr_, trackdsky );
     mErrRetIfUiRvNotOK( trackdsky );
@@ -232,7 +231,6 @@ bool Well::HDF5Writer::putInfoAndTrack() const
 bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
 {
     mEnsureFileOpen();
-    mGetCoupledReader();
 
     const D2TModel& d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
     const HDF5::DataSetKey dsky( "", csmdl ? sCSMdlDSName() : sD2TDSName() );
@@ -246,9 +244,10 @@ bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
 	arr.set( 0, idx, iter.dah() );
 	arr.set( 1, idx, iter.t() );
     }
-    keepDSOnlyIfRight( dsky, *rdr, 2, iter.size() );
+    uiRetVal uirv;
+    ensureCorrectDSSize( dsky, 2, iter.size(), uirv );
     HDF5::ArrayNDTool<ZType> arrtool( arr );
-    uiRetVal uirv = arrtool.put( *wrr_, dsky );
+    uirv = arrtool.put( *wrr_, dsky );
     mErrRetIfUiRvNotOK( trackdsky );
 
     IOPar iop;
@@ -291,7 +290,7 @@ bool Well::HDF5Writer::putLogs() const
 	const Log& wl = iter.log();
 
 	dsky.setDataSetName( toString(iter.curIdx()) );
-	keepDSOnlyIfRight( dsky, *rdr, 2, wl.size() );
+	ensureCorrectDSSize( dsky, 2, wl.size(), uirv );
 
 	putLog( idx, wl, uirv );
 	if ( !uirv.isOK() )
@@ -338,7 +337,6 @@ bool Well::HDF5Writer::putLog( int logidx, const Log& wl, uiRetVal& uirv ) const
 bool Well::HDF5Writer::putMarkers() const
 {
     mEnsureFileOpen();
-    mGetCoupledReader();
 
     const MarkerSet& ms = wd_.markers();
     HDF5::DataSetKey dsky( sMarkersGrpName(), "" );
@@ -359,17 +357,18 @@ bool Well::HDF5Writer::putMarkers() const
     iter.retire();
 
     dsky.setDataSetName( sMDsDSName() );
-    keepDSOnlyIfRight( dsky, *rdr, sz, -1 );
-    uiRetVal uirv = wrr_->put( dsky, mds );
+    uiRetVal uirv;
+    ensureCorrectDSSize( dsky, sz, -1, uirv );
+    uirv = wrr_->put( dsky, mds );
     mErrRetIfUiRvNotOK( dsky );
 
     dsky.setDataSetName( sColorsDSName() );
-    keepDSOnlyIfRight( dsky, *rdr, sz, -1 );
+    ensureCorrectDSSize( dsky, sz, -1, uirv );
     uirv = wrr_->put( dsky, colors );
     mErrRetIfUiRvNotOK( dsky );
 
     dsky.setDataSetName( sLvlIDsDSName() );
-    keepDSOnlyIfRight( dsky, *rdr, sz, -1 );
+    ensureCorrectDSSize( dsky, sz, -1, uirv );
     uirv = wrr_->put( dsky, lvlids );
     mErrRetIfUiRvNotOK( dsky );
 

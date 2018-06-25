@@ -201,10 +201,10 @@ static bool testReadData( HDF5::Reader& rdr )
     TypeSet<short> shortvals;
     uirv = rdr.get( shortvals );
     mAddTestResult( "Get ShortArr values" );
-    mRunStandardTestWithError( shortvals[0]==1, "Correct ShortArr value [0]",
+    mRunStandardTestWithError( shortvals.size()==3, "Correct ShortArr size",
+				BufferString("sz=",shortvals.size()) )
+    mRunStandardTestWithError( shortvals[0]==10, "Correct ShortArr value [0]",
 				BufferString("v[0]=",shortvals[0]) )
-    mRunStandardTestWithError( shortvals[3]==4, "Correct ShortArr value [3]",
-				BufferString("v[3]=",shortvals[3]) )
 
     dsky2.setDataSetName( "Strings" );
     BufferStringSet bss;
@@ -212,14 +212,12 @@ static bool testReadData( HDF5::Reader& rdr )
     mRunStandardTest( scoperes, "Set scope (Strings)" )
     uirv = rdr.get( bss );
     mAddTestResult( "Get Strings values" );
-    mRunStandardTestWithError( bss.get(0)=="Str 1", "Correct Strings value [0]",
+    mRunStandardTestWithError( bss.get(0)=="Overwritten 1",
+				"Correct Strings value [0]",
 				BufferString("s[0]=",bss.get(0)) )
     mRunStandardTestWithError( bss.get(3).isEmpty(),
 				"Correct Strings value [3]",
 				BufferString("s[3]=",bss.get(3)) )
-    mRunStandardTestWithError( bss.get(4)=="Str5/Str 4 is empty",
-				"Correct Strings value [4]",
-				BufferString("s[4]=",bss.get(4)) )
 
     return true;
 }
@@ -319,6 +317,9 @@ static bool testWrite()
     uirv = wrr->putInfo( dsky, iop );
     mAddTestResult( "Write Comp1/Block1 attrib" );
 
+    //Editable
+    wrr->setEditableCreation( true );
+
     TypeSet<short> ts;
     ts += 1; ts += 2; ts += 3; ts += 4;
     dsky.setGroupName( "" );
@@ -336,10 +337,34 @@ static bool testWrite()
     uirv = wrr->put( dsky, bss );
     mAddTestResult( "Write BufferStringSet" );
 
-    HDF5::Reader* rdr = wrr->createCoupledReader();
-    const bool ret = testReadFrom( *rdr );
-    delete rdr;
-    return ret;
+    return true;
+}
+
+
+static bool testEdit()
+{
+    PtrMan<HDF5::Writer> wrr = HDF5::mkWriter();
+    mRunStandardTest( wrr, "Get Writer for edit" );
+    uiRetVal uirv = wrr->open4Edit( filename_ );
+    mAddTestResult( "Open file for edit" );
+
+    HDF5::DataSetKey dsky( "", "ShortArr" );
+    TypeSet<short> ts;
+    ts += 10; ts += 20; ts += 30;
+    uirv = wrr->resizeDataSet( dsky, Array1DInfoImpl(3) );
+    mAddTestResult( "Shrink ShortArr's DataSet" );
+    uirv = wrr->put( dsky, ts );
+    mAddTestResult( "Write shrunk ShortArr" );
+
+
+    dsky.setDataSetName( "Strings" );
+    BufferStringSet bss;
+    bss.add( "Overwritten 1" ).add( "Overwritten 2" ).add( "Overwritten 3" );
+    bss.add( "" ).add( "Prev is empty" ).add( "Total 6 strings" );
+    uirv = wrr->put( dsky, bss );
+    mAddTestResult( "Overwrite BufferStringSet with larger" );
+
+    return true;
 }
 
 
@@ -425,7 +450,9 @@ int mTestMainFnName( int argc, char** argv )
     if ( !testSmallCube() )
 	return 1;
 
-    if ( !testWrite() || !testRead() )
+    if ( !testWrite()
+      || !testEdit()
+      || !testRead() )
 	return 1;
 
     return 0;

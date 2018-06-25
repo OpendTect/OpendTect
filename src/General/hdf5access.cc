@@ -259,6 +259,20 @@ uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
 }
 
 
+uiRetVal HDF5::Writer::resizeDataSet( const DataSetKey& dsky,
+				      const ArrayNDInfo& inf )
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    else if ( inf.totalSize() < 1 )
+	{ pErrMsg("zero dims"); }
+
+    reSzDS( dsky, inf, uirv );
+    return uirv;
+}
+
+
 bool HDF5::Writer::deleteObject( const DataSetKey& dsky )
 {
     return file_ ? rmObj( dsky ) : true;
