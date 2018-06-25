@@ -51,6 +51,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
 				 mODHelpKey(mImportLogsHelpID)))
     , logsfld_(0)
     , logstable_(0)
+    , intvunfld_(0)
 {
     setOkText( uiStrings::sImport() );
 
@@ -63,11 +64,6 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
     intvfld_ = new uiGenInput( this, tr("Depth interval to load (empty=all)"),
 			      FloatInpIntervalSpec(false) );
     intvfld_->attach( alignedBelow, lasfld_ );
-
-    BoolInpSpec mft( !SI().depthsInFeet(), tr("Meter"), tr("Feet") );
-    intvunfld_ = new uiGenInput( this, uiString::emptyString(), mft );
-    intvunfld_->attach( rightOf, intvfld_ );
-    intvunfld_->display( false );
 
     unitlbl_ = new uiLabel( this, tr("XXXX") );
     unitlbl_->attach( rightOf, intvfld_ );
@@ -144,23 +140,20 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 	logsfld_->chooseAll( true );
     }
 
-    uiString lbl = toUiString("(%1)").arg(mToUiStringTodo(lfi.zunitstr.buf()));
+    const uiString lbl = toUiString("(%1)").arg( lfi.zunitstr.buf() );
     unitlbl_->setText( lbl );
     unitlbl_->display( true );
-    const bool isft = *lfi.zunitstr.buf() == 'f' || *lfi.zunitstr.buf() == 'F';
-    intvunfld_->setValue( !isft );
-    intvunfld_->display( false );
 
     udffld_->setValue( lfi.undefval );
 
+    const UnitOfMeasure* uom = UoMR().get( lfi.zunitstr );
     Interval<float> usrzrg = lfi.zrg;
-    if ( isft )
+    if ( uom )
     {
-	if ( !mIsUdf(lfi.zrg.start) )
-	    usrzrg.start *= mToFeetFactorF;
-	if ( !mIsUdf(lfi.zrg.stop) )
-	    usrzrg.stop *= mToFeetFactorF;
+	usrzrg.start = uom->userValue( usrzrg.start );
+	usrzrg.stop = uom->userValue( usrzrg.stop );
     }
+
     intvfld_->setValue( usrzrg );
 }
 
@@ -185,25 +178,26 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
 	    mErrRet( uiStrings::phrCannotRead(uiStrings::sWellLog(mPlural)) )
     }
 
-    Well::LASImporter wdai( *wd );
-    Well::LASImporter::FileInfo lfi;
-
-    lfi.undefval = udffld_->getfValue();
-
-    Interval<float> usrzrg = intvfld_->getFInterval();
-    const bool zinft = !intvunfld_->getBoolValue();
-    if ( zinft )
-    {
-	if ( !mIsUdf(usrzrg.start) )
-	    usrzrg.start *= mFromFeetFactorF;
-	if ( !mIsUdf(usrzrg.stop) )
-	    usrzrg.stop *= mFromFeetFactorF;
-    }
-    lfi.zrg.setFrom( usrzrg );
-
     const char* lasfnm = lasfld_->text();
     if ( !lasfnm || !*lasfnm )
 	mErrRet( tr("Please enter a valid file name") )
+
+    Well::LASImporter wdai( *wd );
+    Well::LASImporter::FileInfo lfi;
+    wdai.getLogInfo( lasfnm, lfi );
+    lfi.logcurves.setEmpty();
+    lfi.logunits.setEmpty();
+    lfi.lognms.setEmpty();
+
+    lfi.undefval = udffld_->getfValue();
+
+    const UnitOfMeasure* uom = UoMR().get( lfi.zunitstr );
+    const Interval<float> usrzrg = intvfld_->getFInterval();
+    if ( uom )
+    {
+	lfi.zrg.start = uom->internalValue( usrzrg.start );
+	lfi.zrg.stop = uom->internalValue( usrzrg.stop );
+    }
 
     const bool usecurvenms = lognmfld_ ? lognmfld_->getBoolValue() : false;
     BufferStringSet lognms;
@@ -236,7 +230,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( nrexisting > 0 )
     {
 	uiString msg = tr("The following logs already exist and will not "
-	                  "be imported:\n\n%1\n\nPlease remove them before "
+			  "be imported:\n\n%1\n\nPlease remove them before "
 			  "import.").arg(existlogs.getDispString());
 	if ( lognms.isEmpty() )
 	    mErrRet( msg )
@@ -340,9 +334,9 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->selectButton( zinft );
 
     const bool multiwells = wds.size() > 1;
-    outfld_ = new uiFileInput( this, multiwells ?
-			              mJoinUiStrs(sFile(),sDirectory())
-				    : uiStrings::phrOutput(uiStrings::sFile()),
+    outfld_ = new uiFileInput( this, multiwells
+				? mJoinUiStrs(sFile(),sDirectory())
+				: uiStrings::phrOutput(uiStrings::sFile()),
 			      uiFileInput::Setup().forread(false)
 						  .directories(multiwells) );
     outfld_->attach( alignedBelow, zunitgrp_ );
