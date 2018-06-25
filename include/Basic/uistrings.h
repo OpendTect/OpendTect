@@ -426,6 +426,7 @@ public:
     static uiWord sImported()		{ return tr("Imported"); }
     static uiWord sImporting()		{ return tr("Importing"); }
     static uiWord sImpSuccess()		{ return tr("Import successful"); }
+    static uiWord sInclination()	{ return tr("Inclination"); }
     static uiWord sInfo()		{ return tr("Info"); }
     static uiWord sInformation()	{ return tr("Information"); }
     static uiWord sIngredient(int n=1)	{ return tr("Ingredient",0,n); }
@@ -707,7 +708,7 @@ public:
     static uiWord sSpecifyOut();
     static uiWord sSphere()		{ return tr("Sphere"); }
     static uiWord sSPNumber(bool abbr=false)
-    { return abbr ? tr("SP") : tr("Shot-Point Number"); }
+    { return abbr ? tr("SP") : tr("Shotpoint Number"); }
     static uiWord sSquare()		{ return tr("Square"); }
     static uiWord sStandard()		{ return tr("Standard"); }
     static uiWord sStack()		{ return tr("Stack","verb, seismics"); }
