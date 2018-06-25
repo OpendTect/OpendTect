@@ -274,7 +274,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 		bid_ = nearbid;
 		hasdata = true;
 	    }
-        }
+	}
 	else
 	    mShowMessage( "No gather data at the picked location." )
 
@@ -837,13 +837,13 @@ void PreStackDisplay::draggerMotion( CallBacker* )
     bool showplane = false;
     if ( section_ )
     {
-    const OD::SliceType orientation = section_->getOrientation();
+	const OD::SliceType orientation = section_->getOrientation();
 	const int newinl = SI().inlRange( true ).snap( draggerbidf.x );
 	const int newcrl = SI().crlRange( true ).snap( draggerbidf.y );
 	if ( orientation==OD::InlineSlice && newcrl!=bid_.crl() )
-        showplane = true;
+	    showplane = true;
 	else if ( orientation==OD::CrosslineSlice && newinl!=bid_.inl() )
-	showplane = true;
+	    showplane = true;
 
 	draggerpos_ = BinID( newinl, newcrl );
     }
@@ -860,18 +860,18 @@ void PreStackDisplay::draggerMotion( CallBacker* )
 			SI().binID2Coord().transformBackNoSnap( trcpos );
 
 	const Coord direction = posside_ ? basedirection_ : -basedirection_;
-	const float offsetscale =
-		Coord( basedirection_.x*SI().inlDistance(),
-		       basedirection_.y*SI().crlDistance()).abs();
+	const float offsetscale = mCast(float,
+		Coord(basedirection_.x*SI().inlDistance(),
+		      basedirection_.y*SI().crlDistance()).abs());
 
 	seis2dpos_ = newdraggerbidf;
 	seis2dstoppos_ = autowidth_
 	    ? seis2dpos_ + direction*offsetrange_.width()*factor_ / offsetscale
 	    : seis2dpos_ + direction*width_ / offsetscale;
 
-	const Coord3 c00( seis2dpos_, zrg_.start );
+//	const Coord3 c00( seis2dpos_, zrg_.start );
 	const Coord3 c01( seis2dpos_, zrg_.stop );
-	const Coord3 c11( seis2dstoppos_, zrg_.stop );
+//	const Coord3 c11( seis2dstoppos_, zrg_.stop );
 	const Coord3 c10( seis2dstoppos_, zrg_.start );
 
 	planedragger_->setCenter( (c01+c10)/2 );
