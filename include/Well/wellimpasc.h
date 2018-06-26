@@ -36,7 +36,7 @@ class MarkerSet;
 */
 
 mExpClass(Well) LASImporter
-{ mODTextTranslationClass(LASImporter);
+{ mODTextTranslationClass(LASImporter)
 public:
 
 			LASImporter( Data& d ) : wd_(&d), useconvs_(false)   {}
@@ -44,7 +44,7 @@ public:
 			~LASImporter();
 
     mExpClass(Well) FileInfo
-    { mODTextTranslationClass(FileInfo);
+    { mODTextTranslationClass(FileInfo)
     public:
 			FileInfo()
 			    : zrg(mUdf(float),mUdf(float))
@@ -101,7 +101,7 @@ protected:
 */
 
 mExpClass(Well) TrackAscIO : public Table::AscIO
-{ mODTextTranslationClass(TrackAscIO);
+{ mODTextTranslationClass(TrackAscIO)
 public:
 				TrackAscIO( const Table::FormatDesc& fd,
 					   od_istream& strm )
@@ -132,16 +132,16 @@ protected:
 */
 
 mExpClass(Well) D2TModelAscIO : public Table::AscIO
-{ mODTextTranslationClass(D2TModelAscIO);
+{ mODTextTranslationClass(D2TModelAscIO)
     public:
 				D2TModelAscIO( const Table::FormatDesc& fd )
-				: Table::AscIO(fd)          {}
+				: Table::AscIO(fd)		{}
 
-    static Table::FormatDesc*   getDesc(bool withunitfld);
-    static void                 updateDesc(Table::FormatDesc&,bool withunitfld);
-    static void                 createDescBody(Table::FormatDesc*,bool unitfld);
+    static Table::FormatDesc*	getDesc(bool withunitfld);
+    static void			updateDesc(Table::FormatDesc&,bool withunitfld);
+    static void			createDescBody(Table::FormatDesc*,bool unitfld);
 
-    bool                        get(od_istream&,Well::D2TModel&,
+    bool			get(od_istream&,Well::D2TModel&,
 				    const Well::Data&) const;
 };
 
@@ -151,14 +151,14 @@ mExpClass(Well) D2TModelAscIO : public Table::AscIO
 */
 
 mExpClass(Well) MarkerSetAscIO : public Table::AscIO
-{ mODTextTranslationClass(MarkerSetAscIO);
+{ mODTextTranslationClass(MarkerSetAscIO)
 public:
-			MarkerSetAscIO( const Table::FormatDesc& fd )
-			    : Table::AscIO(fd)		{}
+				MarkerSetAscIO( const Table::FormatDesc& fd )
+				: Table::AscIO(fd)		{}
 
     static Table::FormatDesc*	getDesc();
 
-    bool		get(od_istream&,MarkerSet&,const Track&) const;
+    bool			get(od_istream&,MarkerSet&,const Track&) const;
 
 };
 
@@ -168,9 +168,10 @@ public:
 */
 
 mExpClass(Well) BulkTrackAscIO : public Table::AscIO
-{ mODTextTranslationClass(BulkTrackAscIO);
+{ mODTextTranslationClass(BulkTrackAscIO)
 public:
-			BulkTrackAscIO(const Table::FormatDesc&,od_istream&);
+				BulkTrackAscIO(const Table::FormatDesc&,
+					       od_istream&);
 
     static Table::FormatDesc*	getDesc();
     bool			get(BufferString& wellnm,Coord3& crd,float& md,
@@ -188,7 +189,7 @@ protected:
 */
 
 mExpClass(Well) BulkMarkerAscIO : public Table::AscIO
-{ mODTextTranslationClass(BulkMarkerAscIO);
+{ mODTextTranslationClass(BulkMarkerAscIO)
 public:
 			BulkMarkerAscIO(const Table::FormatDesc&,od_istream&);
 
@@ -209,11 +210,11 @@ protected:
 */
 
 mExpClass(Well) BulkD2TModelAscIO : public Table::AscIO
-{ mODTextTranslationClass(BulkD2TModelAscIO);
+{ mODTextTranslationClass(BulkD2TModelAscIO)
 public:
-			BulkD2TModelAscIO(const Table::FormatDesc&,
-					  od_istream&);
-			~BulkD2TModelAscIO();
+				BulkD2TModelAscIO(const Table::FormatDesc&,
+						  od_istream&);
+				~BulkD2TModelAscIO();
 
     static Table::FormatDesc*	getDesc();
     bool			get(BufferString& wellnm,float& md,float& twt);
@@ -224,6 +225,27 @@ protected:
     od_istream&			strm_;
     BufferStringSet		wells_;
     ObjectSet<Data>		wellsdata_;
+};
+
+
+/*!
+\brief Directional survey Ascii I/O.
+*/
+
+mExpClass(Well) DirectionalAscIO : public Table::AscIO
+{ mODTextTranslationClass(DirectionalAscIO)
+public:
+				DirectionalAscIO(const Table::FormatDesc&,
+						 od_istream&);
+
+    static Table::FormatDesc*	getDesc();
+    bool			getData(Data&,float kb) const;
+
+protected:
+    bool			readFile(TypeSet<double>&,TypeSet<double>&,
+					 TypeSet<double>&) const;
+    od_istream&			strm_;
+
 };
 
 } // namespace Well

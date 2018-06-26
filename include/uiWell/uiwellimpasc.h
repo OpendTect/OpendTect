@@ -32,42 +32,46 @@ namespace Well { class Data; }
 /*! \brief Dialog for well import from Ascii */
 
 mExpClass(uiWell) uiWellImportAsc : public uiDialog
-{ mODTextTranslationClass(uiWellImportAsc);
+{ mODTextTranslationClass(uiWellImportAsc)
 public:
-			uiWellImportAsc(uiParent*);
-			~uiWellImportAsc();
+				uiWellImportAsc(uiParent*);
+				~uiWellImportAsc();
 
-    MultiID		getWellID() const;
-    Notifier<uiWellImportAsc> importReady;
+    MultiID			getWellID() const;
+    Notifier<uiWellImportAsc>	importReady;
 
 protected:
 
-    uiFileInput*	trckinpfld_;
-    uiCheckBox*		havetrckbox_;
-    uiGenInput*		coordfld_;
-    uiGenInput*		kbelevfld_;
-    uiGenInput*		tdfld_;
-    uiLabel*		vertwelllbl_;
+    uiGenInput*			tracksrcfld_;
+    uiFileInput*		trckinpfld_;
+    uiGenInput*			coordfld_;
+    uiGenInput*			kbelevfld_;
+    uiGenInput*			tdfld_;
 
-    Well::Data&		wd_;
+    Well::Data&			wd_;
 
-    Table::FormatDesc&  fd_;
-    uiTableImpDataSel*  dataselfld_;
-    uiD2TModelGroup*	d2tgrp_;
-    uiWellSel*		outfld_;
-    bool		zinft_;
-    const UnitOfMeasure* zun_;
+    Table::FormatDesc&		fd_;
+    uiTableImpDataSel*		dataselfld_;
+    Table::FormatDesc&		dirfd_;
+    uiTableImpDataSel*		dirselfld_;
+    uiD2TModelGroup*		d2tgrp_;
+    uiWellSel*			outfld_;
+    bool			zinft_;
+    const UnitOfMeasure*	zun_;
 
-    virtual bool	acceptOK(CallBacker*);
-    bool		checkInpFlds();
-    bool		doWork();
-    void		doAdvOpt(CallBacker*);
-    void		trckFmtChg(CallBacker*);
-    void		inputChgd(CallBacker*);
-    void		haveTrckSel(CallBacker*);
+    virtual bool		acceptOK(CallBacker*);
+    bool			checkInpFlds();
+    bool			doWork();
+    void			doAdvOpt(CallBacker*);
+    void			trckFmtChg(CallBacker*);
+    void			inputChgd(CallBacker*);
+    void			haveTrckSel(CallBacker*);
 
-    friend class	uiWellImportAscOptDlg;
+    friend class		uiWellImportAscOptDlg;
+
+    // Deprecated
+    uiCheckBox*			havetrckbox_;
+    uiLabel*			vertwelllbl_;
 };
-
 
 #endif

@@ -47,48 +47,56 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 			   sTrack())),mNoDlgTitle,
 			   mODHelpKey(mWellImportAscHelpID)).modal(false))
     , fd_(*Well::TrackAscIO::getDesc())
+    , dirfd_(*Well::DirectionalAscIO::getDesc())
     , wd_(*new Well::Data)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
     , importReady(this)
+    , havetrckbox_(0)
+    , vertwelllbl_(0)
 {
     enableSaveButton( tr("Display after import") );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    havetrckbox_ = new uiCheckBox( this, uiString::emptyString() );
-    havetrckbox_->setChecked( true );
-    havetrckbox_->activated.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
+    uiStringSet options;
+    options.add( tr("Well Track file (XYZ)") )
+	   .add( tr("Directional Well") )
+	   .add( tr("Vertical Well") );
+    tracksrcfld_ = new uiGenInput( this, tr("Input type"),
+				StringListInpSpec(options) );
+    tracksrcfld_->valuechanged.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
 
     trckinpfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
 		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
 		   uiFileInput::Setup().withexamine(true) );
     trckinpfld_->valuechanged.notify( mCB(this,uiWellImportAsc,inputChgd) );
-    trckinpfld_->attach( rightOf, havetrckbox_ );
-
-    vertwelllbl_ = new uiLabel( this, tr("-> Vertical well") );
-    vertwelllbl_->attach( rightTo, havetrckbox_ );
-    vertwelllbl_->attach( alignedWith, trckinpfld_ );
+    trckinpfld_->attach( alignedBelow, tracksrcfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-                      mODHelpKey(mWellImportAscDataSelHelpID) );
+			mODHelpKey(mWellImportAscDataSelHelpID) );
     dataselfld_->attach( alignedBelow, trckinpfld_ );
     dataselfld_->descChanged.notify( mCB(this,uiWellImportAsc,trckFmtChg) );
 
-    uiString coordunitslbl = uiStrings::phrJoinStrings(uiStrings::sCoordinate(),
-						      SI().getUiXYUnitString());
+    dirselfld_ = new uiTableImpDataSel( this, dirfd_,
+			mODHelpKey(mWellImportAscDataSelHelpID) );
+    dirselfld_->attach( alignedBelow, trckinpfld_ );
+    dirselfld_->display( false );
+
+    const uiString coordunitslbl(
+		tr("First Coordinate %1").arg(SI().getUiXYUnitString()) );
     coordfld_ = new uiGenInput( this, coordunitslbl,
 			PositionInpSpec(PositionInpSpec::Setup(true)) );
-    coordfld_->attach( alignedBelow, trckinpfld_ );
+    coordfld_->attach( alignedBelow, dataselfld_ );
 
     const uiString zunit = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
-    uiString kblbl = toUiString( "%1 %2" ).arg(Well::Info::sKBElev())
-		     .arg( zunit );
+    const uiString kblbl =
+		toUiString( "%1 %2" ).arg(Well::Info::sKBElev()).arg(zunit);
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->setWithCheck();
     kbelevfld_->setChecked( false );
-    kbelevfld_->attach( alignedBelow, dataselfld_ );
+    kbelevfld_->attach( alignedBelow, coordfld_ );
 
-    uiString tdlbl = tr( "%1 %2" )
-		     .arg(Well::Info::sTD()).arg( zunit );
+    const uiString tdlbl =
+		toUiString("%1 %2").arg(Well::Info::sTD()).arg(zunit);
     tdfld_ = new uiGenInput( this, tdlbl, FloatInpSpec() );
     tdfld_->setWithCheck();
     tdfld_->setChecked( false );
@@ -130,6 +138,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 uiWellImportAsc::~uiWellImportAsc()
 {
     delete &fd_;
+    delete &dirfd_;
     wd_.unRef();
 }
 
@@ -140,13 +149,18 @@ MultiID uiWellImportAsc::getWellID() const
 
 void uiWellImportAsc::haveTrckSel( CallBacker* )
 {
-    const bool havetrck = havetrckbox_->isChecked();
-    trckinpfld_->display( havetrck );
-    dataselfld_->display( havetrck );
-    vertwelllbl_->display( !havetrck );
-    coordfld_->display( !havetrck );
-    kbelevfld_->setChecked( !havetrck );
-    tdfld_->setChecked( !havetrck );
+    const int cursel = tracksrcfld_->getIntValue();
+    const bool istrack = cursel==0;
+    const bool isdir = cursel==1;
+    const bool isvert = cursel==2;
+    trckinpfld_->setSensitive( istrack || isdir );
+    coordfld_->setSensitive( isdir || isvert );
+    kbelevfld_->setChecked( isvert );
+    tdfld_->setChecked( isvert );
+
+    dataselfld_->display( !isdir );
+    dataselfld_->setSensitive( istrack );
+    dirselfld_->display( isdir );
 }
 
 
@@ -191,13 +205,13 @@ void uiWellImportAsc::trckFmtChg( CallBacker* )
 
 
 class uiWellImportAscOptDlg : public uiDialog
-{ mODTextTranslationClass(uiWellImportAscOptDlg);
+{ mODTextTranslationClass(uiWellImportAscOptDlg)
 public:
 
 uiWellImportAscOptDlg( uiWellImportAsc* p )
     : uiDialog(p,uiDialog::Setup(tr("Import well: Advanced/Optional"),
 				 tr("Advanced and Optional"),
-                                 mODHelpKey(mWellImpPptDlgHelpID)))
+				 mODHelpKey(mWellImpPptDlgHelpID)))
     , uwia_(p)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
 {
@@ -217,17 +231,18 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     if ( zinfeet && zun_ )
 	dispval = zun_->userValue( info.replvel );
 
-    uiString lbl = tr("%1 %2")
-		   .arg( Well::Info::sReplVel() )
-		   .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
+    uiString lbl = toUiString("%1 %2")
+		.arg( Well::Info::sReplVel() )
+		.arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
     replvelfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, coordfld );
 
     dispval = info.groundelev;
-    if ( zinfeet && zun_ ) dispval = zun_->userValue( info.groundelev );
-    lbl = tr("%1 %2")
-		  .arg( Well::Info::sGroundElev() )
-	      .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
+    if ( zinfeet && zun_ )
+	dispval = zun_->userValue( info.groundelev );
+    lbl = toUiString("%1 %2")
+		.arg( Well::Info::sGroundElev() )
+		.arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
     gdelevfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     gdelevfld->attach( alignedBelow, replvelfld );
 
@@ -279,11 +294,7 @@ bool acceptOK( CallBacker* )
     info.state = statefld->text();
     info.county = countyfld->text();
 
-    uiString msg = tr("Well Track successfully imported."
-		      "\n\nDo you want to import more Well Tracks?");
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
-    return !ret;
+    return true;
 }
 
     const UnitOfMeasure* zun_;
@@ -343,8 +354,13 @@ bool uiWellImportAsc::doWork()
     if ( !mIsUdf(td) && zun_ )
 	td = zun_->internalValue( td ) ;
 
+    const int cursel = tracksrcfld_->getIntValue();
+    const bool istrack = cursel==0;
+    const bool isdir = cursel==1;
+    const bool isvert = cursel==2;
+
     BufferStringSet datasrcnms;
-    if ( havetrckbox_->isChecked() )
+    if ( istrack || isdir )
     {
 	const BufferString fnm( trckinpfld_->fileName() );
 	datasrcnms.add( fnm );
@@ -352,28 +368,43 @@ bool uiWellImportAsc::doWork()
 	if ( !strm.isOK() )
 	    mErrRet( tr("Cannot open track file") )
 
-	Well::TrackAscIO wellascio( fd_, strm );
 	if ( !kbelevfld_->isChecked() )
 	    kbelev = mUdf(float);
 
 	if ( !tdfld_->isChecked() )
 	    td = mUdf(float);
 
-	if ( !wellascio.getData(wd_,kbelev,td) )
+	if ( istrack )
 	{
-	    uiString msg = tr( "The track file cannot be loaded:\n%1" )
-				.arg( wellascio.errMsg() );
-	    mErrRet( msg );
-	}
+	    Well::TrackAscIO wellascio( fd_, strm );
+	    if ( !wellascio.getData(wd_,kbelev,td) )
+	    {
+		uiString msg = tr( "The track file cannot be loaded:\n%1" )
+				    .arg( wellascio.errMsg() );
+		mErrRet( msg );
+	    }
 
-	if ( wellascio.warnMsg().isSet() )
+	    if ( wellascio.warnMsg().isSet() )
+	    {
+		uiString msg =
+			tr( "The track file loading issued a warning:\n%1" )
+			.arg( wellascio.warnMsg() );
+		uiMSG().warning( msg );
+	    }
+	}
+	else if ( isdir )
 	{
-	    uiString msg = tr( "The track file loading issued a warning:\n%1" )
-				.arg( wellascio.warnMsg() );
-	    uiMSG().warning( msg );
+	    Well::DirectionalAscIO dirascio( dirfd_, strm );
+	    wd_.info().surfacecoord = coordfld_->getCoord();
+	    if ( !dirascio.getData(wd_,kbelev) )
+	    {
+		uiString msg = tr( "The track file cannot be loaded:\n%1" )
+				    .arg( dirascio.errMsg() );
+		mErrRet( msg );
+	    }
 	}
     }
-    else
+    else if ( isvert )
     {
 	datasrcnms.add( "[Vertical]" );
 
@@ -401,8 +432,8 @@ bool uiWellImportAsc::doWork()
 	    if ( d2tgrp_->errMsg().isSet() )
 		msgs += d2tgrp_->errMsg();
 
-	    msgs += tr( "Alternatively, swith off the use of a"
-			" Depth to Time model file" );
+	    msgs += tr("Alternatively, switch off the use of a"
+			" Depth to Time model file");
 	    uiMSG().errorWithDetails( msgs );
 	    return false;
 	}
@@ -437,24 +468,31 @@ bool uiWellImportAsc::doWork()
 
 bool uiWellImportAsc::checkInpFlds()
 {
-    if ( havetrckbox_->isChecked() )
+    const int cursel = tracksrcfld_->getIntValue();
+    const bool istrack = cursel==0;
+    const bool isdir = cursel==1;
+    const bool isvert = cursel==2;
+    if ( istrack || isdir )
     {
 	if ( !*trckinpfld_->fileName() )
 	    mErrRet(tr("Please specify a well track file"))
 
-	if ( !dataselfld_->commit() )
+	if ( istrack && !dataselfld_->commit() )
+	    return false;
+	if ( isdir && !dirselfld_->commit() )
 	    return false;
     }
-    else
-    {
-	if ( !SI().isReasonable(coordfld_->getCoord()) )
-	{
-	    if ( !uiMSG().askGoOn(
-			tr("Well coordinate seems to be far outside the survey."
-			"\nIs this correct?")) )
-		return false;
-	}
 
+    if ( !istrack && !SI().isReasonable(coordfld_->getCoord()) )
+    {
+	if ( !uiMSG().askGoOn(
+		tr("Well coordinate seems to be far outside the survey."
+		   "\nIs this correct?")) )
+	    return false;
+    }
+
+    if ( isvert )
+    {
 	if ( !kbelevfld_->isChecked() )
 	    mErrRet(tr("Please specify a %1").arg(Well::Info::sKBElev()))
 
@@ -462,10 +500,8 @@ bool uiWellImportAsc::checkInpFlds()
 	    mErrRet(tr("Please specify a %1").arg(Well::Info::sTD()))
     }
 
-    if ( !outfld_->commitInput() )
-	mErrRet( outfld_->isEmpty()
-		? tr("Please enter a name for the well")
-		: uiString::emptyString() )
+    if ( !outfld_->ioobj() )
+	return false;
 
     return true;
 }
