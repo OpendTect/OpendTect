@@ -8,6 +8,8 @@ include/Basic/svnversion.h
 include/Basic/odversion.h
 include/Basic/buildinfo.h
 external/*/*
+external/osgGeo
+external/proj4
 .arcconfig
 doc/Programmer/*.html
 CMakeModules/FindOpendTect.cmake
@@ -28,7 +30,7 @@ Contents/
 plugins/lux64
 data/localizations/*.qm
 data/localizations/generated
-moc*.cxx
+src/*/moc_*
 lib*.dylib
 Info.plist
 Testing/
