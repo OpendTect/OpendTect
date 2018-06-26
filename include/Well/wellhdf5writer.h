@@ -57,6 +57,8 @@ protected:
     void		ensureCorrectDSSize(const HDF5::DataSetKey&,
 					  int,int,uiRetVal&) const;
     bool		putLog(int,const Log&,uiRetVal&) const;
+    bool		setLogAttribs(const HDF5::DataSetKey&,
+				      const Well::Log*) const;
 
     virtual bool	isFunctional() const;
 

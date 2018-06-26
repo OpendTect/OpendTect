@@ -46,6 +46,7 @@ public:
     static const char*		sNamesDSName();
     static const char*		sLvlIDsDSName();
 
+    static const char*		sKeyLogDel();
 };
 
 

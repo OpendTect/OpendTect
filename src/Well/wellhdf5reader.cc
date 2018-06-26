@@ -29,6 +29,7 @@ const char* Well::HDF5Access::sMDsDSName()	{ return "MDs"; }
 const char* Well::HDF5Access::sColorsDSName()	{ return "Colors"; }
 const char* Well::HDF5Access::sNamesDSName()	{ return "Names"; }
 const char* Well::HDF5Access::sLvlIDsDSName()	{ return "LevelIDs"; }
+const char* Well::HDF5Access::sKeyLogDel()	{ return "Deleted"; }
 
 
 Well::HDF5Reader::HDF5Reader( const char* fnm, Well::Data& wd, uiString& e )

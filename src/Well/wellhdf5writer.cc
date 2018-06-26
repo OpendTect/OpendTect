@@ -303,12 +303,32 @@ bool Well::HDF5Writer::putLogs() const
     {
 	dsky.setDataSetName( toString(idx) );
 	if ( rdr->setScope(dsky) )
-	    wrr_->deleteObject( dsky );
+	    setLogAttribs( dsky, 0 );
 	else
 	    break;
     }
 
     return true;
+}
+
+
+bool Well::HDF5Writer::setLogAttribs( const HDF5::DataSetKey& dsky,
+				      const Well::Log* wl ) const
+{
+    IOPar iop;
+    if ( wl )
+    {
+	iop = wl->pars();
+	const BufferString uomlbl = wl->unitMeasLabel();
+	if ( uomlbl.isEmpty() )
+	    iop.removeWithKey( Well::Log::sKeyUnitLbl() );
+	else
+	    iop.set( Well::Log::sKeyUnitLbl(), uomlbl );
+    }
+    iop.setYN( sKeyLogDel(), !wl );
+
+    uiRetVal uirv = wrr_->putInfo( dsky, iop );
+    return uirv.isOK();
 }
 
 
@@ -330,7 +350,7 @@ bool Well::HDF5Writer::putLog( int logidx, const Log& wl, uiRetVal& uirv ) const
     uirv = arrtool.put( *wrr_, dsky );
     mErrRetIfUiRvNotOK( dsky );
 
-    return true;
+    return setLogAttribs( dsky, &wl );
 }
 
 
