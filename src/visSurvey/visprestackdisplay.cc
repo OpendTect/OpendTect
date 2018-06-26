@@ -537,7 +537,19 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 
     bool isinline = true;
     if ( section_ )
+    {
 	isinline = section_->getOrientation()==OD::InlineSlice;
+	if ( isinline )
+	{
+	    xlim.set( mCast(float,startpos.x), mCast(float,stoppos.x) );
+	    xlim.sort();
+	}
+	else
+	{
+	    ylim.set( mCast(float,startpos.y), mCast(float,stoppos.y) );
+	    ylim.sort();
+	}
+    }
     else if ( seis2d_ )
     {
 	const Coord startpt = seis2d_->getGeometry().positions().first().coord_;
@@ -563,23 +575,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 	isinline ?  SI().crlDistance() : (float) fabs(stoppos.y-startpos.y);
 
     planedragger_->setSize( Coord3(xwidth,ywidth,zrg_.width(true)) );
-
     planedragger_->setCenter( (c01+c10)/2 );
-
-    if ( section_ )
-    {
-	if ( isinline )
-	{
-	    xlim.set( mCast(float,startpos.x), mCast(float,stoppos.x) );
-	    xlim.sort();
-	}
-	else
-	{
-	    ylim.set( mCast(float,startpos.y), mCast(float,stoppos.y) );
-	    ylim.sort();
-	}
-    }
-
     planedragger_->setSpaceLimits( xlim, ylim, SI().zRange(true) );
 }
 
@@ -849,6 +845,8 @@ void PreStackDisplay::draggerMotion( CallBacker* )
     }
     else if ( seis2d_ )
     {
+	const int dimtoadjust = planedragger_->getDim() ? 0 : 1;
+	draggerbidf[dimtoadjust] = seis2dpos_[dimtoadjust];
 	const Coord draggercrd = SI().binID2Coord().transform( draggerbidf );
 	const int nearesttrcnr =
 		seis2d_->getNearestTraceNr( Coord3(draggercrd,0.) );
@@ -869,9 +867,7 @@ void PreStackDisplay::draggerMotion( CallBacker* )
 	    ? seis2dpos_ + direction*offsetrange_.width()*factor_ / offsetscale
 	    : seis2dpos_ + direction*width_ / offsetscale;
 
-//	const Coord3 c00( seis2dpos_, zrg_.start );
 	const Coord3 c01( seis2dpos_, zrg_.stop );
-//	const Coord3 c11( seis2dstoppos_, zrg_.stop );
 	const Coord3 c10( seis2dstoppos_, zrg_.start );
 
 	planedragger_->setCenter( (c01+c10)/2 );
@@ -901,6 +897,8 @@ void PreStackDisplay::finishedCB( CallBacker* )
     }
     else if ( seis2d_ )
     {
+	const int dimtoadjust = planedragger_->getDim() ? 0 : 1;
+	draggerbidf[dimtoadjust] = seis2dpos_[dimtoadjust];
 	const Coord draggercrd = SI().binID2Coord().transform( draggerbidf );
 	const int nearesttrcnr =
 		seis2d_->getNearestTraceNr( Coord3(draggercrd,0.) );
