@@ -8,6 +8,7 @@
 set(OD_MODULE_DEPS General)
 set(OD_MODULE_SOURCES
 	initwell.cc
+	directionalsurvey.cc
 	wellascio.cc
 	well.cc
 	welld2tmodel.cc
