@@ -93,6 +93,7 @@ set( OD_PLUGINS
 	uiMadagascarAttribs
 	uiMATLABLink
 	uiPresentationMaker
+	uiQtApp
 	uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
