@@ -159,6 +159,7 @@ public:
     static uiString	sHDF5NotAvailable();
     static uiString	sHDF5NotAvailable(const char* fnm);
     static uiString	sNotHDF5File(const char*);
+    static uiString	sHDF5FileNoLongerAccessibe();
     uiString		sCantSetScope(const DataSetKey&) const;
     static uiString	sDataSetNotFound(const DataSetKey&);
     static uiString	sCannotReadDataSet(const DataSetKey&);

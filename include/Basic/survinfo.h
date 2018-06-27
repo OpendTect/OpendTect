@@ -88,6 +88,9 @@ public:
     bool		zIsTime() const;
     bool		zInMeter() const;
     bool		zInFeet() const;
+			//!< If zInFeet, prepare for ALL z's to be in feet,
+			//!< in ALL objects
+			//!< when displaying, honor depthsInFeet() though!
 
     Coord		minCoord(bool work) const;
     Coord		maxCoord(bool work) const;

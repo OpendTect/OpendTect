@@ -52,7 +52,6 @@ public:
 
 protected:
 
-    float		getZFac(const IOPar&) const;
     void		readLogData(Log&,od_istream&,int) const;
     bool		gtTrack(od_istream&,float) const;
     bool		doGetD2T(od_istream&,bool csmdl) const;

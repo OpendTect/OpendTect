@@ -458,7 +458,7 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
     const UnitOfMeasure* storunit = UnitOfMeasure::surveyDefDepthStorageUnit();
     const UnitOfMeasure* userunit = UnitOfMeasure::surveyDefDepthUnit();
     const UnitOfMeasure* outunit =
-	outinft ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
+	outinft ?  UnitOfMeasure::feetUnit() : UnitOfMeasure::meterUnit();
 
     for ( int idx=0; idx<nrsteps; idx++ )
     {

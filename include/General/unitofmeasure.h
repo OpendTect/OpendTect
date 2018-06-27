@@ -75,18 +75,31 @@ public:
     Repos::Source	source() const			{ return source_; }
     void		setSource( Repos::Source s )	{ source_ = s; }
 
+    static const char*	sKeySeconds()		{ return  "Seconds"; }
+    static const char*	sKeyMilliSeconds()	{ return "Milliseconds"; }
+    static const char*	sKeyFeet()		{ return "Feet"; }
+    static const char*	sKeyMeter()		{ return "Meter"; }
+
+    static const UnitOfMeasure* feetUnit();
+    static const UnitOfMeasure* meterUnit();
+    static const UnitOfMeasure* zUnitInObjects();
+				//!<The unit that ALL z's are in ALL objects
+    static const UnitOfMeasure* xyUnitInObjects();
+				//!<The unit that ALL x/y's are in ALL objects
     static const UnitOfMeasure* surveyDefZUnit();
 				//!<Default unit in displays (ms,m,ft)
-    static const UnitOfMeasure* surveyDefZStorageUnit();
-				//!<Default unit in storage (s,m,ft)
     static const UnitOfMeasure* surveyDefTimeUnit();
 				//!<Default time unit in displays (ms)
     static const UnitOfMeasure* surveyDefDepthUnit();
 				//!<Default depth unit in displays (m,ft)
-    static const UnitOfMeasure* surveyDefDepthStorageUnit();
-				//!<Default depth unit in storage (m,ft)
+				//!<Will be same as zUnitInObjects()
     static const UnitOfMeasure* surveyDefVelUnit();
 				//!<Default velocity unit in displays (m/s,ft/s)
+    static const UnitOfMeasure* surveyDefZStorageUnit();
+				//!<Default unit in storage (s,m,ft)
+    static const UnitOfMeasure* surveyDefDepthStorageUnit();
+				//!<Default depth unit in storage (m,ft)
+
     static uiString	surveyDefZUnitAnnot(bool symbol);
     static uiString	surveyDefTimeUnitAnnot(bool symbol);
     static uiString	surveyDefDepthUnitAnnot(bool symbol);

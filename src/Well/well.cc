@@ -275,6 +275,12 @@ Monitorable::ChangeType Well::Data::compareClassData( const Data& oth ) const
 }
 
 
+bool Well::Data::depthsInFeet()
+{
+    return SI().zInFeet();
+}
+
+
 BufferString Well::Data::getName() const
 {
     return info_.getName();

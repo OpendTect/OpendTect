@@ -182,7 +182,8 @@ const uiString uiWellTrackDlg::sTimeDepthModel()
 static const UnitOfMeasure* getDisplayUnit( uiCheckBox* zinfeet )
 {
     if ( !zinfeet ) return 0;
-    return zinfeet->isChecked() ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
+    return zinfeet->isChecked() ? UnitOfMeasure::feetUnit()
+				: UnitOfMeasure::meterUnit();
 }
 
 #define mDataUom(depth) ( \

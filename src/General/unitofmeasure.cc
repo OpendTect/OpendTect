@@ -19,13 +19,8 @@
 static const char* filenamebase = "UnitsOfMeasure";
 static const char* sKeyUOM = "UOM";
 
-//Must match UoM data file
-static const char* secondsKey = "Seconds";
-static const char* millisecondsKey = "Milliseconds";
-static const char* feetKey = "Feet";
-static const char* meterKey = "Meter";
-static const char* ftpersecondKey = "Feet/second";
-static const char* mpersecondKey = "Meter/second";
+static const char* sKeyFtPerSecond = "Feet/second";
+static const char* sKeyMeterPerSecond = "Meter/second";
 
 
 
@@ -119,6 +114,18 @@ const UnitOfMeasure* UnitOfMeasure::getGuessed( const char* nm )
 }
 
 
+const UnitOfMeasure* UnitOfMeasure::feetUnit()
+{
+    return UoMR().get( sKeyFeet() );
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::meterUnit()
+{
+    return UoMR().get( sKeyMeter() );
+}
+
+
 const UnitOfMeasure* UnitOfMeasure::surveyDefZUnit()
 {
     return SI().zIsTime() ? surveyDefTimeUnit() : surveyDefDepthUnit();
@@ -128,33 +135,45 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefZUnit()
 const UnitOfMeasure* UnitOfMeasure::surveyDefZStorageUnit()
 {
     return SI().zIsTime()
-	? UoMR().get(secondsKey)
+	? UoMR().get( sKeySeconds() )
 	: surveyDefDepthStorageUnit();
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefTimeUnit()
 {
-    return UoMR().get( millisecondsKey );
+    return UoMR().get( sKeyMilliSeconds() );
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefDepthUnit()
 {
-    return UoMR().get( SI().depthsInFeet() ? feetKey : meterKey );
+    return SI().depthsInFeet() ? feetUnit() : meterUnit();
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::xyUnitInObjects()
+{
+    return SI().xyInFeet() ? feetUnit() : meterUnit();
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::zUnitInObjects()
+{
+    return SI().zInFeet() ? feetUnit() : meterUnit();
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefDepthStorageUnit()
 {
-    return UoMR().get( SI().zDomain().isDepth() &&
-		       SI().depthsInFeet() ? feetKey : meterKey );
+    return zUnitInObjects();
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefVelUnit()
 {
-    return UoMR().get( SI().depthsInFeet() ? ftpersecondKey : mpersecondKey );
+    return UoMR().get( SI().depthsInFeet() ? sKeyFtPerSecond
+					   : sKeyMeterPerSecond );
 }
 
 

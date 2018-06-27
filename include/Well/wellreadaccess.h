@@ -53,6 +53,8 @@ protected:
     bool		addToLogSet(Log*) const;
     bool		updateDTModel(D2TModel&,bool ischeckshot,
 					uiString& errmsg) const;
+    static float	getZFac(const IOPar&);
+			    //!< see cc file for explanation
 
 };
 

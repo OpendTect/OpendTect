@@ -18,6 +18,7 @@
 #include "welldisp.h"
 #include "filepath.h"
 #include "ioobj.h"
+#include "keystrs.h"
 
 const char* Well::HDF5Access::sLogsGrpName()	{ return "Logs"; }
 const char* Well::HDF5Access::sMarkersGrpName()	{ return "Markers"; }
@@ -96,27 +97,61 @@ void Well::HDF5Reader::init( const char* fnm )
 
 bool Well::HDF5Reader::ensureFileOpen() const
 {
-    return rdr_ && rdr_->isOpen();
+    if ( rdr_ && rdr_->isOpen() )
+	return true;
+
+    errmsg_.set( HDF5::Access::sHDF5FileNoLongerAccessibe() );
+    return false;
 }
+
+
+#define mGetZFac(iop) const float zfac = getZFac( iop )
+
+#define mEnsureScope(dsky) \
+    mEnsureFileOpen(); \
+    if ( !rdr_->setScope(dsky) ) \
+    { \
+	errmsg_.set( rdr_->sCantSetScope(dsky) ); \
+	return false; \
+    }
 
 
 bool Well::HDF5Reader::getInfo() const
 {
-    mEnsureFileOpen();
-
-    /*
     const HDF5::DataSetKey rootdsky;
-    IOPar iop;
-    */
+    mEnsureScope( rootdsky );
 
+    infoiop_.setEmpty();
+    uiRetVal uirv = rdr_->getInfo( infoiop_ );
+    mErrRetIfUiRvNotOK( uirv );
 
-    return false;
+    wd_.info().usePar( infoiop_ );
+    return true;
 }
 
 
 bool Well::HDF5Reader::getTrack() const
 {
-    return false;
+    const HDF5::DataSetKey trackdsky( "", sTrackDSName() );
+    mEnsureScope( trackdsky );
+
+    const size_type sz = rdr_->dimSize( 1 );
+    Array2DImpl<double> arr( 4, sz );
+    HDF5::ArrayNDTool<double> arrtool( arr );
+    uiRetVal uirv = arrtool.getAll( *rdr_ );
+    mErrRetIfUiRvNotOK( uirv );
+
+    wd_.track().setEmpty();
+    mGetZFac( infoiop_ );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float dah = (float)(zfac * arr.get(0,idx));
+	Coord3 c( arr.get(1,idx), arr.get(2,idx) );
+	c.z_ = zfac * arr.get( 3, idx );
+	wd_.track().addPoint( c, dah );
+    }
+
+    return true;
 }
 
 

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "welldahobj.h"
 #include "hdf5reader.h"
 #include "uistring.h"
+#include "iopar.h"
 class IOObj;
 
 
@@ -79,6 +80,7 @@ protected:
 
     uiString&		errmsg_;
     HDF5::Reader*	rdr_;
+    mutable IOPar	infoiop_;
 
     void		init(const char*);
     bool		ensureFileOpen() const;

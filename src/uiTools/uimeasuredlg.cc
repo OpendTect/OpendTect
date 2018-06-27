@@ -189,16 +189,12 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
     const float velocity = appvelfld_ ? appvelfld_->getInternalVelocity() : 0 ;
     const int size = points.size();
     if ( size<2 )
-    {
-	reset();
-	return;
-    }
-
+	{ reset(); return; }
 
     int totinldist = 0, totcrldist = 0;
     double tothdist = 0, totzdist = 0;
     double totrealdist = 0; // in xy unit
-    const UnitOfMeasure* uom = UoMR().get( "Feet" );
+    const UnitOfMeasure* ftuom = UnitOfMeasure::feetUnit();
     for ( int idx=1; idx<size; idx++ )
     {
 	const Coord xy = points[idx].getXY();
@@ -220,17 +216,17 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 	else
 	{
 	    if ( SI().zInMeter() && SI().xyInFeet() )
-		zdist = uom->getUserValueFromSI( zdist );
+		zdist = ftuom->getUserValueFromSI( zdist );
 
 	    if ( !SI().zInMeter() && !SI().xyInFeet() )
-		zdist = uom->getSIValue( zdist );
+		zdist = ftuom->getSIValue( zdist );
 
 	    totrealdist += Math::Sqrt( hdist*hdist + zdist*zdist );
 	}
     }
 
-    double convdist = SI().xyInFeet() ? uom->getSIValue( totrealdist )
-				      : uom->getUserValueFromSI( totrealdist );
+    double convdist = SI().xyInFeet() ? ftuom->getSIValue( totrealdist )
+				      : ftuom->getUserValueFromSI( totrealdist);
 
     hdistfld_->setValue( tothdist );
     zdistfld_->setValue( totzdist*SI().zDomain().userFactor() );

@@ -278,7 +278,7 @@ bool uiWellLogExtractGrp::extractDPS()
 	new DataPointSet( TypeSet<DataPointSet::DataRow>(), dcds, false, false);
     mDPM.add( curdps_ );
 
-    const UnitOfMeasure* uom = UoMR().get( "Feet" );
+    const UnitOfMeasure* uom = UnitOfMeasure::feetUnit();
     deepErase( dcds );
     const int nrattribs = attrnms.size();
     const int nrlogs = lognms.size() + 1;

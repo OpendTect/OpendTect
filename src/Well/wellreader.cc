@@ -108,6 +108,26 @@ bool Well::ReadAccess::getAll( bool stoponerr ) const
 }
 
 
+/* When a well is stored, it will be stored in the surveyDefZStorageUnit()
+   We need to make sure that the depth will end up in the SI().zInFeet().
+   From 7.0, we can encounter wells from other surveys (shared wells), so we
+   have to be prepared to convert to or from meters to feet. */
+
+float Well::ReadAccess::getZFac( const IOPar& iop )
+{
+    BufferString depthunstr;
+    iop.get( sKey::DepthUnit(), depthunstr );
+
+    const bool needinfeet = SI().zInFeet();
+    const bool storedinfeet = depthunstr.isEmpty() ? needinfeet
+					: depthunstr.startsWith( "F" );
+    if ( storedinfeet == needinfeet )
+	return 1.0f;
+
+    return storedinfeet ? mFromFeetFactorF : mToFeetFactorF;
+}
+
+
 
 Well::Reader::Reader( const IOObj& ioobj, Well::Data& wd )
     : ra_(0)
@@ -227,7 +247,6 @@ bool Well::Reader::getMapLocation( Coord& coord ) const
 }
 
 
-
 Well::odIO::odIO( const char* f, uiString& e )
     : basenm_(f)
     , errmsg_(e)
@@ -266,8 +285,7 @@ const char* Well::odIO::getMainFileName( const IOObj& ioobj )
 const char* Well::odIO::getMainFileName( const DBKey& mid )
 {
     PtrMan<IOObj> ioobj = DBM().get( mid );
-    if ( !ioobj ) return 0;
-    return getMainFileName( *ioobj );
+    return ioobj ? getMainFileName(*ioobj) : 0;
 }
 
 
@@ -360,14 +378,6 @@ void Well::odReader::setStrmOperErrMsg( od_istream& strm,
 uiString Well::odReader::sCannotReadFileHeader() const
 {
     return tr( "Cannot read file header" );
-}
-
-
-float Well::odReader::getZFac( const IOPar& iop ) const
-{
-    BufferString depthunstr;
-    iop.get( sKey::DepthUnit(), depthunstr );
-    return depthunstr.startsWith("F") ? mFromFeetFactorF : 1.0f;
 }
 
 

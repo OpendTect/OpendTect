@@ -93,6 +93,8 @@ public:
     DBKey			dbKey() const;
     mDeprecated DBKey		multiID() const		{ return dbKey(); }
 
+    static bool			depthsInFeet();
+
 protected:
 
     Info&		info_;

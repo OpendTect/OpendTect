@@ -121,7 +121,7 @@ void SeisDataPackWriter::adjustSteeringScaler( int compidx )
 	return;
 
     double trcdist = geom->as2D()->averageTrcDist();
-    const UnitOfMeasure* feetuom = UoMR().get( "Feet" );
+    const UnitOfMeasure* feetuom = UnitOfMeasure::feetUnit();
     if ( feetuom && SI().xyInFeet() )
 	trcdist = feetuom->getSIValue( trcdist );
 
