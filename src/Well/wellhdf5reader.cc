@@ -94,8 +94,22 @@ void Well::HDF5Reader::init( const char* fnm )
 }
 
 
+bool Well::HDF5Reader::ensureFileOpen() const
+{
+    return rdr_ && rdr_->isOpen();
+}
+
+
 bool Well::HDF5Reader::getInfo() const
 {
+    mEnsureFileOpen();
+
+    /*
+    const HDF5::DataSetKey rootdsky;
+    IOPar iop;
+    */
+
+
     return false;
 }
 

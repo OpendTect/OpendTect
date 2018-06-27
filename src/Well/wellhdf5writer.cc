@@ -174,14 +174,6 @@ void Well::HDF5Writer::ensureCorrectDSSize( const HDF5::DataSetKey& dsky,
 }
 
 
-#define mErrRetIfUiRvNotOK(dsky) \
-    if ( !uirv.isOK() ) \
-	{ errmsg_.set( uirv ); return false; }
-
-#define mEnsureFileOpen() \
-    if ( !ensureFileOpen() ) \
-	return false
-
 #define mGetCoupledReader() \
     PtrMan<HDF5::Reader> rdr = createCoupledHDFReader(); \
     if ( !rdr ) \

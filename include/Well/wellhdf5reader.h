@@ -81,7 +81,17 @@ protected:
     HDF5::Reader*	rdr_;
 
     void		init(const char*);
+    bool		ensureFileOpen() const;
 
 };
+
+
+#define mErrRetIfUiRvNotOK(dsky) \
+    if ( !uirv.isOK() ) \
+	{ errmsg_.set( uirv ); return false; }
+
+#define mEnsureFileOpen() \
+    if ( !ensureFileOpen() ) \
+	return false
 
 }; // namespace Well
