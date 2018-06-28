@@ -64,7 +64,7 @@ public:
     void			prepPriorToBoundsCalc();
 
 protected:
-    				~Semblance() {}
+				~Semblance() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
@@ -74,11 +74,12 @@ protected:
     bool			getInputOutput(int inp,TypeSet<int>& res) const;
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,
-	    				    const BinID& relpos,
+					    const BinID& relpos,
 					    int z0,int nrsamples,
 					    int threadid) const;
 
     const BinID*		reqStepout(int input,int output) const;
+    const BinID*		desStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
     const Interval<float>*	desZMargin(int input,int output) const;
     bool			getTrcPos();
@@ -90,7 +91,7 @@ protected:
     int				extension_;
     TypeSet<BinID>		trcpos_;
 
-    Interval<float>             desgate_;
+    Interval<float>		desgate_;
 
     bool			dosteer_;
     TypeSet<int>		steerindexes_;
