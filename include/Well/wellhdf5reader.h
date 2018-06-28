@@ -86,6 +86,7 @@ protected:
     void		init(const char*);
     bool		ensureFileOpen() const;
     bool		doGetD2T(bool) const;
+    bool		getLogPars(const DataSetKey&,IOPar&) const;
     Log*		getWL(const DataSetKey&) const;
 
 };

@@ -220,23 +220,29 @@ bool Well::HDF5Reader::getLogs() const
 }
 
 
+bool Well::HDF5Reader::getLogPars( const DataSetKey& dsky, IOPar& iop ) const
+{
+    mEnsureSetScope( dsky, return false );
+    uiRetVal uirv = rdr_->getInfo( iop );
+    mErrRetIfUiRvNotOK( uirv )
+    return !iop.isTrue( sKeyLogDel() );
+}
+
+
 #define mErrRetNullIfUiRvNotOK() \
     if ( !uirv.isOK() ) \
 	{ errmsg_.set( uirv ); return 0; }
 
 Well::Log* Well::HDF5Reader::getWL( const DataSetKey& dsky ) const
 {
-    mEnsureSetScope( dsky, return 0 );
     IOPar iop;
-    uiRetVal uirv = rdr_->getInfo( iop );
-    mErrRetNullIfUiRvNotOK()
-    if ( iop.isTrue(sKeyLogDel()) )
+    if ( !getLogPars(dsky,iop) )
 	return 0;
 
     const size_type sz = rdr_->dimSize( 1 );
     Array2DImpl<float> arr( 2, sz );
     HDF5::ArrayNDTool<float> arrtool( arr );
-    uirv = arrtool.getAll( *rdr_ );
+    uiRetVal uirv = arrtool.getAll( *rdr_ );
     mErrRetNullIfUiRvNotOK()
 
     BufferString lognm;
@@ -264,19 +270,53 @@ Well::Log* Well::HDF5Reader::getWL( const DataSetKey& dsky ) const
 }
 
 
-bool Well::HDF5Reader::getLog( const char* lognm ) const
+bool Well::HDF5Reader::getLog( const char* reqlognm ) const
 {
-    return false;
+    DataSetKey dsky( sLogsGrpName() );
+    for ( int ilog=0; ; ilog++ )
+    {
+	dsky.setDataSetName( toString(ilog) );
+	IOPar iop;
+	if ( getLogPars(dsky,iop) )
+	{
+	    BufferString lognm;
+	    iop.get( sKey::Name(), lognm );
+	    if ( lognm == reqlognm )
+		return getWL( dsky );
+	}
+    }
 }
 
 
 void Well::HDF5Reader::getLogNames( BufferStringSet& nms ) const
 {
+    DataSetKey dsky( sLogsGrpName() );
+    for ( int ilog=0; ; ilog++ )
+    {
+	dsky.setDataSetName( toString(ilog) );
+	IOPar iop;
+	if ( getLogPars(dsky,iop) )
+	{
+	    BufferString lognm;
+	    iop.get( sKey::Name(), lognm );
+	    nms.add( lognm );
+	}
+    }
 }
 
 
 void Well::HDF5Reader::getLogInfo( ObjectSet<IOPar>& iops ) const
 {
+    DataSetKey dsky( sLogsGrpName() );
+    for ( int ilog=0; ; ilog++ )
+    {
+	dsky.setDataSetName( toString(ilog) );
+	IOPar* iop = new IOPar;
+	if ( getLogPars(dsky,*iop) )
+	    iops += iop;
+	else
+	    { delete iop; break; }
+    }
 }
 
 
