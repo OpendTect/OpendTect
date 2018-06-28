@@ -95,7 +95,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     dtecttb_ = new uiToolBar( &appl_, tr("OpendTect Tools"), uiToolBar::Top );
     viewtb_ = new uiToolBar( &appl_, tr("Graphical Tools"), uiToolBar::Left );
     mantb_ = new uiToolBar( &appl_, uiStrings::phrManage( uiStrings::sData()),
-                            uiToolBar::Right );
+			    uiToolBar::Right );
 
     faulttoolman_ = new uiODFaultToolMan( appl_ );
 
@@ -287,7 +287,7 @@ uiMenu* uiODMenuMgr::addSingMultAsciiSubMenu( uiMenu* mnu, const uiString& nm,
 				    const uiString* altascnm )
 {
     return addDualAsciiSubMenu( mnu, nm, icnm, idsing, idmult, false,
-			        altascnm, false );
+				altascnm, false );
 }
 
 
@@ -337,7 +337,7 @@ uiMenu* uiODMenuMgr::add2D3DActions( uiMenu* mnu, const uiString& nm,
 uiMenu* uiODMenuMgr::addDualAsciiSubMenu( uiMenu* mnu, const uiString& nm,
 					const char* icnm, int id1, int id2,
 					bool is2d3d, const uiString* altascnm,
-				        bool always3d )
+					bool always3d )
 {
     mGet2D3DWithOneChoice();
     if ( !is2d3d )
@@ -346,7 +346,7 @@ uiMenu* uiODMenuMgr::addDualAsciiSubMenu( uiMenu* mnu, const uiString& nm,
     uiMenu* ascmnu;
     if ( haveonechoice )
 	ascmnu = addAsciiActionSubMenu( mnu, nm, icnm, have2d ? id1 : id2,
-				        altascnm );
+					altascnm );
     else
     {
 	const uiString ascnm = altascnm ? *altascnm : uiStrings::sASCII();
@@ -407,7 +407,7 @@ void uiODMenuMgr::fillSurveyMenu()
     impmnu_ = addSubMenu( surveymnu_, uiStrings::sImport(), "import" );
     expmnu_ = addSubMenu( surveymnu_, uiStrings::sExport(), "export" );
     manmnu_ = addSubMenu( surveymnu_, uiStrings::sManage(), "manage" );
-    preloadmnu_ = addSubMenu( surveymnu_, tr("Pre-Load"), "preloaded" );
+    preloadmnu_ = addSubMenu( surveymnu_, tr("Pre-load"), "preloaded" );
 
     setSurveySubMenus();
 
@@ -997,22 +997,22 @@ void uiODMenuMgr::fillManTB()
 {
     const int seisid =
 	mAddTB(mantb_,"man_seis",
-               uiStrings::phrManage(uiStrings::sSeisObjName(true, true, false)),
-                                    false,manSeis);
+	       uiStrings::phrManage(uiStrings::sSeisObjName(true, true, false)),
+				    false,manSeis);
     const int horid = mAddTB(mantb_,"man_hor",
-              uiStrings::phrManage( uiStrings::sHorizon(mPlural)),false,manHor);
+	      uiStrings::phrManage( uiStrings::sHorizon(mPlural)),false,manHor);
     const int fltid = mAddTB(mantb_,"man_flt",
-              uiStrings::phrManage( uiStrings::sFault(mPlural)),false,manFlt);
+	      uiStrings::phrManage( uiStrings::sFault(mPlural)),false,manFlt);
     mAddTB(mantb_,"man_wll",
-           uiStrings::phrManage( uiStrings::sWells()),false,manWll);
+	   uiStrings::phrManage( uiStrings::sWells()),false,manWll);
     mAddTB(mantb_,"man_picks", uiStrings::phrManage(getPointSetsPolygonsStr()),
-                            false, manPick );
+			    false, manPick );
     mAddTB(mantb_,"man_body", uiStrings::phrManage(uiStrings::sBody(mPlural)),
 			    false, manBody );
     mAddTB(mantb_,"man_wvlt",
-           uiStrings::phrManage(uiStrings::sWavelet(mPlural)),false,manWvlt);
+	   uiStrings::phrManage(uiStrings::sWavelet(mPlural)),false,manWvlt);
     mAddTB(mantb_,"man_strat",uiStrings::phrManage( uiStrings::sStratigraphy()),
-           false,manStrat);
+	   false,manStrat);
 
     mGet2D3D();
 
@@ -1056,8 +1056,8 @@ void uiODMenuMgr::fillVisTB( uiODSceneMgr* scenemgr )
 
     mAddTB( viewtb_, "view_all", tr("View All"), false, viewAll );
     cameraid_ = mAddTB( viewtb_, "perspective",
-		        tr("Switch to Orthographic Camera"),
-		        false, switchCameraType );
+			tr("Switch to Orthographic Camera"),
+			false, switchCameraType );
 
     curviewmode_ = ui3DViewer::Inl;
     bool separateviewbuttons = false;
