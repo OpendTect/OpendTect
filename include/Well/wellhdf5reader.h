@@ -34,6 +34,7 @@ public:
     typedef DahObj::size_type	size_type;
     typedef DahObj::idx_type	idx_type;
     typedef DahObj::ZType	ZType;
+    typedef HDF5::DataSetKey	DataSetKey;
 
     static const char*		sLogsGrpName();
     static const char*		sMarkersGrpName();
@@ -84,6 +85,8 @@ protected:
 
     void		init(const char*);
     bool		ensureFileOpen() const;
+    bool		doGetD2T(bool) const;
+    Log*		getWL(const DataSetKey&) const;
 
 };
 

@@ -160,7 +160,7 @@ void Well::HDF5Writer::putDepthUnit( IOPar& iop ) const
 }
 
 
-void Well::HDF5Writer::ensureCorrectDSSize( const HDF5::DataSetKey& dsky,
+void Well::HDF5Writer::ensureCorrectDSSize( const DataSetKey& dsky,
 				int dim0, int dim1, uiRetVal& uirv ) const
 {
     const int nrdims = dim1 > 0 ? 2 : 1;
@@ -192,7 +192,7 @@ bool Well::HDF5Writer::putInfoAndTrack() const
     IOPar iop;
     wd_.info().fillPar( iop );
     putDepthUnit( iop );
-    const HDF5::DataSetKey rootdsky;
+    const DataSetKey rootdsky;
     uiRetVal uirv = wrr_->putInfo( rootdsky, iop );
     mErrRetIfUiRvNotOK( rootdsky );
 
@@ -209,7 +209,7 @@ bool Well::HDF5Writer::putInfoAndTrack() const
 	arr.set( 3, idx, c.z_ );
     }
 
-    const HDF5::DataSetKey trackdsky( "", sTrackDSName() );
+    const DataSetKey trackdsky( "", sTrackDSName() );
     ensureCorrectDSSize( trackdsky, 4, iter.size(), uirv );
     mErrRetIfUiRvNotOK( trackdsky );
     HDF5::ArrayNDTool<double> arrtool( arr );
@@ -225,7 +225,7 @@ bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
     mEnsureFileOpen();
 
     const D2TModel& d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
-    const HDF5::DataSetKey dsky( "", csmdl ? sCSMdlDSName() : sD2TDSName() );
+    const DataSetKey dsky( "", csmdl ? sCSMdlDSName() : sD2TDSName() );
 
     D2TModelIter iter( d2t ); // this locks
     const size_type sz = iter.size();
@@ -236,16 +236,16 @@ bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
 	arr.set( 0, idx, iter.dah() );
 	arr.set( 1, idx, iter.t() );
     }
+    iter.retire();
+
     uiRetVal uirv;
-    ensureCorrectDSSize( dsky, 2, iter.size(), uirv );
+    ensureCorrectDSSize( dsky, 2, sz, uirv );
     HDF5::ArrayNDTool<ZType> arrtool( arr );
     uirv = arrtool.put( *wrr_, dsky );
     mErrRetIfUiRvNotOK( trackdsky );
 
     IOPar iop;
-    iop.set( sKey::Name(), d2t.name() );
-    iop.set( sKey::Desc(), d2t.desc() );
-    iop.set( D2TModel::sKeyDataSrc(), d2t.dataSource() );
+    d2t.fillHdrPar( iop );
     putDepthUnit( iop );
     uirv = wrr_->putInfo( dsky, iop );
     mErrRetIfUiRvNotOK( dsky );
@@ -271,7 +271,7 @@ bool Well::HDF5Writer::putLogs() const
     mEnsureFileOpen();
     mGetCoupledReader();
 
-    HDF5::DataSetKey dsky( sLogsGrpName() );
+    DataSetKey dsky( sLogsGrpName() );
     const LogSet& logs = wd_.logs();
     LogSetIter iter( logs );
     const int nrlogs = iter.size();
@@ -304,8 +304,8 @@ bool Well::HDF5Writer::putLogs() const
 }
 
 
-bool Well::HDF5Writer::setLogAttribs( const HDF5::DataSetKey& dsky,
-				      const Well::Log* wl ) const
+bool Well::HDF5Writer::setLogAttribs( const DataSetKey& dsky,
+				      const Log* wl ) const
 {
     IOPar iop;
     if ( wl )
@@ -313,9 +313,10 @@ bool Well::HDF5Writer::setLogAttribs( const HDF5::DataSetKey& dsky,
 	iop = wl->pars();
 	const BufferString uomlbl = wl->unitMeasLabel();
 	if ( uomlbl.isEmpty() )
-	    iop.removeWithKey( Well::Log::sKeyUnitLbl() );
+	    iop.removeWithKey( Log::sKeyUnitLbl() );
 	else
-	    iop.set( Well::Log::sKeyUnitLbl(), uomlbl );
+	    iop.set( Log::sKeyUnitLbl(), uomlbl );
+	iop.set( sKey::Name(), wl->name() );
     }
     iop.setYN( sKeyLogDel(), !wl );
 
@@ -337,7 +338,7 @@ bool Well::HDF5Writer::putLog( int logidx, const Log& wl, uiRetVal& uirv ) const
     }
     iter.retire();
 
-    const HDF5::DataSetKey dsky( sLogsGrpName(), toString(logidx) );
+    const DataSetKey dsky( sLogsGrpName(), toString(logidx) );
     HDF5::ArrayNDTool<ZType> arrtool( arr );
     uirv = arrtool.put( *wrr_, dsky );
     mErrRetIfUiRvNotOK( dsky );
@@ -351,7 +352,7 @@ bool Well::HDF5Writer::putMarkers() const
     mEnsureFileOpen();
 
     const MarkerSet& ms = wd_.markers();
-    HDF5::DataSetKey dsky( sMarkersGrpName(), "" );
+    DataSetKey dsky( sMarkersGrpName(), "" );
     typedef MarkerSet::LevelID::IDType LvlIDType;
 
     BufferStringSet nms, colors;
@@ -396,7 +397,7 @@ bool Well::HDF5Writer::putDispProps() const
     wd_.displayProperties(true).fillPar( iop );
     wd_.displayProperties(false).fillPar( iop );
     putDepthUnit( iop );
-    const HDF5::DataSetKey grpdsky( sDispParsGrpName() );
+    const DataSetKey grpdsky( sDispParsGrpName() );
     uiRetVal uirv = wrr_->putInfo( grpdsky, iop );
     mErrRetIfUiRvNotOK( grpdsky );
 

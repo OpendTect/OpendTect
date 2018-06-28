@@ -54,11 +54,10 @@ protected:
     void		putDepthUnit(IOPar&) const;
     bool		doPutD2T(bool) const;
     bool		ensureFileOpen() const;
-    void		ensureCorrectDSSize(const HDF5::DataSetKey&,
-					  int,int,uiRetVal&) const;
+    void		ensureCorrectDSSize(const DataSetKey&, int,int,
+					    uiRetVal&) const;
     bool		putLog(int,const Log&,uiRetVal&) const;
-    bool		setLogAttribs(const HDF5::DataSetKey&,
-				      const Well::Log*) const;
+    bool		setLogAttribs(const DataSetKey&,const Log*) const;
 
     virtual bool	isFunctional() const;
 

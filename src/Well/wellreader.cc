@@ -109,7 +109,8 @@ bool Well::ReadAccess::getAll( bool stoponerr ) const
 
 
 /* When a well is stored, it will be stored in the surveyDefZStorageUnit()
-   We need to make sure that the depth will end up in the SI().zInFeet().
+   We need to make sure that the depth will end up in the object as dictated
+   by SI().zInFeet().
    From 7.0, we can encounter wells from other surveys (shared wells), so we
    have to be prepared to convert to or from meters to feet. */
 
@@ -735,18 +736,8 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
     iop.getFrom( astrm );
     Well::D2TModel d2t;
     ChangeNotifyBlocker nb( d2t );
-    for ( int idx=0; idx<iop.size(); idx++ )
-    {
-	const FixedString ky = iop.getKey( idx );
-	const FixedString val = iop.getValue( idx );
-	if ( ky == sKey::Name() )
-	    d2t.setName( val );
-	else if ( ky == sKey::Desc() )
-	    d2t.setDesc( val );
-	else if ( ky == Well::D2TModel::sKeyDataSrc() )
-	    d2t.setDataSource( val );
-    }
 
+    d2t.useHdrPar( iop );
     mGetZFac( iop );
     while ( strm.isOK() )
     {

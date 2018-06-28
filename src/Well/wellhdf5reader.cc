@@ -107,18 +107,21 @@ bool Well::HDF5Reader::ensureFileOpen() const
 
 #define mGetZFac(iop) const float zfac = getZFac( iop )
 
-#define mEnsureScope(dsky) \
-    mEnsureFileOpen(); \
+#define mEnsureSetScope(dsky,act) \
     if ( !rdr_->setScope(dsky) ) \
     { \
 	errmsg_.set( rdr_->sCantSetScope(dsky) ); \
-	return false; \
+	act; \
     }
+
+#define mEnsureScope(dsky) \
+    mEnsureFileOpen(); \
+    mEnsureSetScope( dsky, return false );
 
 
 bool Well::HDF5Reader::getInfo() const
 {
-    const HDF5::DataSetKey rootdsky;
+    const DataSetKey rootdsky;
     mEnsureScope( rootdsky );
 
     infoiop_.setEmpty();
@@ -132,7 +135,7 @@ bool Well::HDF5Reader::getInfo() const
 
 bool Well::HDF5Reader::getTrack() const
 {
-    const HDF5::DataSetKey trackdsky( "", sTrackDSName() );
+    const DataSetKey trackdsky( "", sTrackDSName() );
     mEnsureScope( trackdsky );
 
     const size_type sz = rdr_->dimSize( 1 );
@@ -141,47 +144,123 @@ bool Well::HDF5Reader::getTrack() const
     uiRetVal uirv = arrtool.getAll( *rdr_ );
     mErrRetIfUiRvNotOK( uirv );
 
-    wd_.track().setEmpty();
+    Well::Track& trck = wd_.track();
+    trck.setEmpty();
     mGetZFac( infoiop_ );
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float dah = (float)(zfac * arr.get(0,idx));
 	Coord3 c( arr.get(1,idx), arr.get(2,idx) );
 	c.z_ = zfac * arr.get( 3, idx );
-	wd_.track().addPoint( c, dah );
+	trck.addPoint( c, dah );
     }
 
     return true;
 }
 
 
-bool Well::HDF5Reader::getLogs() const
+bool Well::HDF5Reader::doGetD2T( bool csmdl ) const
 {
-    return false;
-}
+    const DataSetKey dsky( "", csmdl ? sCSMdlDSName() : sD2TDSName() );
+    D2TModel& d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
+    mEnsureScope( dsky );
 
+    IOPar hdriop;
+    uiRetVal uirv = rdr_->getInfo( hdriop );
+    mErrRetIfUiRvNotOK( uirv );
+    d2t.useHdrPar( hdriop );
 
-bool Well::HDF5Reader::getMarkers() const
-{
-    return false;
+    const size_type sz = rdr_->dimSize( 1 );
+    Array2DImpl<float> arr( 2, sz );
+    HDF5::ArrayNDTool<float> arrtool( arr );
+    uirv = arrtool.getAll( *rdr_ );
+    mErrRetIfUiRvNotOK( uirv );
+
+    d2t.setEmpty();
+    mGetZFac( hdriop );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float dah = (float)(zfac * arr.get(0,idx));
+	const float val = arr.get( 1, idx );
+	d2t.setValueAt( dah, val );
+    }
+
+    return true;
 }
 
 
 bool Well::HDF5Reader::getD2T() const
 {
-    return false;
+    return doGetD2T( false );
 }
 
 
 bool Well::HDF5Reader::getCSMdl() const
 {
-    return false;
+    return doGetD2T( true );
 }
 
 
-bool Well::HDF5Reader::getDispProps() const
+bool Well::HDF5Reader::getLogs() const
 {
-    return false;
+    mEnsureFileOpen();
+
+    LogSet& logs = wd_.logs();
+    DataSetKey dsky( sLogsGrpName() );
+    errmsg_.setEmpty();
+    for ( int ilog=0; ; ilog++ )
+    {
+	dsky.setDataSetName( toString(ilog) );
+	Log* wl = getWL( dsky );
+	if ( !wl )
+	    break;
+	logs.add( wl );
+    }
+    return errmsg_.isEmpty();
+}
+
+
+#define mErrRetNullIfUiRvNotOK() \
+    if ( !uirv.isOK() ) \
+	{ errmsg_.set( uirv ); return 0; }
+
+Well::Log* Well::HDF5Reader::getWL( const DataSetKey& dsky ) const
+{
+    mEnsureSetScope( dsky, return 0 );
+    IOPar iop;
+    uiRetVal uirv = rdr_->getInfo( iop );
+    mErrRetNullIfUiRvNotOK()
+    if ( iop.isTrue(sKeyLogDel()) )
+	return 0;
+
+    const size_type sz = rdr_->dimSize( 1 );
+    Array2DImpl<float> arr( 2, sz );
+    HDF5::ArrayNDTool<float> arrtool( arr );
+    uirv = arrtool.getAll( *rdr_ );
+    mErrRetNullIfUiRvNotOK()
+
+    BufferString lognm;
+    iop.get( sKey::Name(), lognm );
+    Log* wl = new Log( lognm );
+
+    mGetZFac( iop );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float dah = (float)(zfac * arr.get(0,idx));
+	const float val = arr.get( 1, idx );
+	wl->addValue( dah, val );
+    }
+
+    BufferString uomlbl;
+    if ( iop.get(Log::sKeyUnitLbl(),uomlbl) )
+	wl->setUnitMeasLabel( uomlbl );
+
+    iop.removeWithKey( sKey::Name() );
+    iop.removeWithKey( sKey::DepthUnit() );
+    iop.removeWithKey( Log::sKeyUnitLbl() );
+    wl->setPars( iop );
+
+    return wl;
 }
 
 
@@ -198,4 +277,16 @@ void Well::HDF5Reader::getLogNames( BufferStringSet& nms ) const
 
 void Well::HDF5Reader::getLogInfo( ObjectSet<IOPar>& iops ) const
 {
+}
+
+
+bool Well::HDF5Reader::getMarkers() const
+{
+    return false;
+}
+
+
+bool Well::HDF5Reader::getDispProps() const
+{
+    return false;
 }

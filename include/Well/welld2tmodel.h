@@ -51,6 +51,9 @@ public:
     bool		getTimeDepthModel(const Well::Data&,
 					  TimeDepthModel&) const;
 
+    void		fillHdrPar(IOPar&) const;
+    void		useHdrPar(const IOPar&);
+
     inline ValueType	t( PointID id ) const	{ return value(id); }
 
     static const char*	sKeyTimeWell(); //!< for well that is only known in time

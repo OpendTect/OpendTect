@@ -73,6 +73,25 @@ Monitorable::ChangeType Well::D2TModel::compareClassData(
 }
 
 
+void Well::D2TModel::fillHdrPar( IOPar& iop ) const
+{
+    putNameInPar( iop );
+    mLock4Read();
+    iop.set( sKey::Desc(), desc_ );
+    iop.set( sKeyDataSrc(), datasource_ );
+}
+
+
+void Well::D2TModel::useHdrPar( const IOPar& iop )
+{
+    getNameFromPar( iop );
+    mLock4Write();
+    iop.get( sKey::Desc(), desc_ );
+    iop.get( sKeyDataSrc(), datasource_ );
+    mSendEntireObjChgNotif();
+}
+
+
 void Well::D2TModel::getData( ZSetType& zs, TWTSetType& vals ) const
 {
     mLock4Read();

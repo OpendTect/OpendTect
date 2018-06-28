@@ -376,11 +376,10 @@ bool Well::odWriter::doPutD2T( od_ostream& strm, bool csmdl ) const
 
     ascostream astrm( strm );
     const Well::D2TModel& d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
-    astrm.put( sKey::Name(), d2t.name() );
-    astrm.put( sKey::Desc(), d2t.desc() );
-    astrm.put( D2TModel::sKeyDataSrc(), d2t.dataSource() );
+    IOPar iop;
+    d2t.fillHdrPar( iop );
     putDepthUnit( astrm );
-    astrm.newParagraph();
+    iop.putTo( astrm );
 
     D2TModelIter iter( d2t );
     while ( iter.next() )
