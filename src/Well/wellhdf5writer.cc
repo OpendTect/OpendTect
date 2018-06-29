@@ -320,6 +320,7 @@ bool Well::HDF5Writer::setLogAttribs( const DataSetKey& dsky,
     }
     iop.setYN( sKeyLogDel(), !wl );
 
+    putDepthUnit( iop );
     uiRetVal uirv = wrr_->putInfo( dsky, iop );
     return uirv.isOK();
 }
@@ -373,6 +374,15 @@ bool Well::HDF5Writer::putMarkers() const
     uiRetVal uirv;
     ensureCorrectDSSize( dsky, sz, -1, uirv );
     uirv = wrr_->put( dsky, mds );
+    mErrRetIfUiRvNotOK( dsky );
+    IOPar iop;
+    putDepthUnit( iop );
+    uirv = wrr_->putInfo( dsky, iop );
+    mErrRetIfUiRvNotOK( dsky );
+
+    dsky.setDataSetName( sNamesDSName() );
+    ensureCorrectDSSize( dsky, sz, -1, uirv );
+    uirv = wrr_->put( dsky, nms );
     mErrRetIfUiRvNotOK( dsky );
 
     dsky.setDataSetName( sColorsDSName() );

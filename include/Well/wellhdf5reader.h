@@ -44,8 +44,8 @@ public:
     static const char*		sD2TDSName();
     static const char*		sCSMdlDSName();
     static const char*		sMDsDSName();
-    static const char*		sColorsDSName();
     static const char*		sNamesDSName();
+    static const char*		sColorsDSName();
     static const char*		sLvlIDsDSName();
 
     static const char*		sKeyLogDel();

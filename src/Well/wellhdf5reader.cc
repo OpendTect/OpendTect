@@ -27,8 +27,8 @@ const char* Well::HDF5Access::sTrackDSName()	{ return "Track"; }
 const char* Well::HDF5Access::sD2TDSName()	{ return "MD2Time"; }
 const char* Well::HDF5Access::sCSMdlDSName()	{ return "CheckShot"; }
 const char* Well::HDF5Access::sMDsDSName()	{ return "MDs"; }
-const char* Well::HDF5Access::sColorsDSName()	{ return "Colors"; }
 const char* Well::HDF5Access::sNamesDSName()	{ return "Names"; }
+const char* Well::HDF5Access::sColorsDSName()	{ return "Colors"; }
 const char* Well::HDF5Access::sLvlIDsDSName()	{ return "LevelIDs"; }
 const char* Well::HDF5Access::sKeyLogDel()	{ return "Deleted"; }
 
@@ -252,7 +252,7 @@ Well::Log* Well::HDF5Reader::getWL( const DataSetKey& dsky ) const
     mGetZFac( iop );
     for ( int idx=0; idx<sz; idx++ )
     {
-	const float dah = (float)(zfac * arr.get(0,idx));
+	const ZType dah = (ZType)(zfac * arr.get(0,idx));
 	const float val = arr.get( 1, idx );
 	wl->addValue( dah, val );
     }
@@ -322,11 +322,63 @@ void Well::HDF5Reader::getLogInfo( ObjectSet<IOPar>& iops ) const
 
 bool Well::HDF5Reader::getMarkers() const
 {
-    return false;
+    DataSetKey dsky( sMarkersGrpName(), "" );
+    MarkerSet& ms = wd_.markers();
+    typedef MarkerSet::LevelID::IDType LvlIDType;
+
+    dsky.setDataSetName( sMDsDSName() );
+    mEnsureScope( dsky );
+    TypeSet<ZType> mds;
+    uiRetVal uirv = rdr_->get( mds );
+    mErrRetIfUiRvNotOK( uirv );
+    IOPar mdiop;
+    uirv = rdr_->getInfo( mdiop );
+
+    dsky.setDataSetName( sNamesDSName() );
+    BufferStringSet nms;
+    uirv = rdr_->get( nms );
+    mErrRetIfUiRvNotOK( uirv )
+
+    dsky.setDataSetName( sColorsDSName() );
+    BufferStringSet colors;
+    uirv = rdr_->get( colors );
+    mErrRetIfUiRvNotOK( uirv )
+
+    dsky.setDataSetName( sLvlIDsDSName() );
+    TypeSet<LvlIDType> lvlids;
+    uirv = rdr_->get( lvlids );
+    mErrRetIfUiRvNotOK( uirv )
+
+    ms.setEmpty();
+    mGetZFac( mdiop );
+    const int sz = mds.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const ZType dah = (ZType)(zfac * mds[idx]);
+	const BufferString nm( nms.validIdx(idx) ? nms.get(idx)
+						 : Marker::udf().name() );
+	Color col( Color::NoColor() );
+	if ( colors.validIdx(idx) )
+	    col.setStdStr( colors.get(idx) );
+	const LvlIDType lvlid = lvlids.validIdx(idx) ? lvlids[idx] : -1;
+
+	Marker mrkr( nm, dah, col );
+	mrkr.setLevelID( Marker::LevelID(lvlid) );
+	ms.add( mrkr );
+    }
+
+    return true;
 }
 
 
 bool Well::HDF5Reader::getDispProps() const
 {
-    return false;
+    const DataSetKey dsky( sDispParsGrpName() );
+    mEnsureScope( dsky );
+    IOPar iop;
+    uiRetVal uirv = rdr_->getInfo( iop );
+    mErrRetIfUiRvNotOK( uirv )
+    wd_.displayProperties(true).usePar( iop );
+    wd_.displayProperties(false).usePar( iop );
+    return true;
 }
