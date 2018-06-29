@@ -163,10 +163,9 @@ if(WIN32)
     set ( CMAKE_C_FLAGS   "-DmUsedVar= ${CMAKE_C_FLAGS}")
     string ( REPLACE "/W3" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
-    if ( NOT DEFINED Qt5Core_DIR OR  Qt5Core_DIR MATCHES "" )
+    if ( NOT DEFINED Qt5Core_DIR OR  Qt5Core_DIR STREQUAL "" )
+	message( "Info: Using Qt4 that does NOT treat wchar as built in type" )
 	set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
-    else()
-	message( "Info: Qt5 used, using native wchar_t" )
     endif()
 
     set ( CMAKE_CXX_FLAGS  "/wd4389 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed mismatch
