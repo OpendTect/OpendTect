@@ -166,7 +166,7 @@ if(WIN32)
     if ( NOT DEFINED Qt5Core_DIR OR  Qt5Core_DIR MATCHES "" )
 	set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
     else()
-	message( "Info: (unsupported) Qt5 used, using native wchar_t" )
+	message( "Info: Qt5 used, using native wchar_t" )
     endif()
 
     set ( CMAKE_CXX_FLAGS  "/wd4389 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed mismatch
