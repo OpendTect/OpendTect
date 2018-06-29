@@ -268,8 +268,9 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 
 void uiSEGYMgr::readStarterCB( CallBacker* )
 {
-    uiSEGYReadStarter dlg( ODMainWin(), false );
-    dlg.go();
+    delete impdlg_;
+    impdlg_ = new uiSEGYReadStarter( appl_, false );
+    impdlg_->go();
 }
 
 
