@@ -201,7 +201,14 @@ bool SeisTrc2DTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 	if ( !trl ) continue;
 
 	PosInfo::CubeData linecd;
-	const bool hasgeometry = trl->getGeometryInfo( linecd );
+	bool hasgeometry = trl->getGeometryInfo( linecd );
+	if ( !hasgeometry )
+	{
+	    StepInterval<int> trcrg; StepInterval<float> zrg;
+	    hasgeometry = dataset_->getRanges( geomid, trcrg, zrg );
+	    linecd.generate( BinID(geomid,trcrg.start),BinID(geomid,trcrg.stop),
+			     BinID(1,trcrg.step) );
+	}
 	delete linefetcher;
 	if ( !hasgeometry ) continue;
 
