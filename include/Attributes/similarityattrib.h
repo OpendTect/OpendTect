@@ -89,7 +89,7 @@ protected:
 				~Similarity() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
-    static void                 updateDefaults(Desc&);
+    static void			updateDefaults(Desc&);
 
     bool			allowParallelComputation() const
 				{ return true; }
@@ -102,6 +102,7 @@ protected:
 					    int threadid) const;
 
     const BinID*		reqStepout(int input,int output) const;
+    const BinID*		desStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
     const Interval<float>*	desZMargin(int input,int output) const;
     bool			getTrcPos();
@@ -115,7 +116,7 @@ protected:
     float			maxdip_;
     float			ddip_;
 
-    Interval<float>             desgate_;
+    Interval<float>		desgate_;
 
     bool			dobrowsedip_;
     bool			dosteer_;
@@ -123,8 +124,8 @@ protected:
     bool			donormalize_;
     int				dataidx_;
     int				imdataidx_;
-    TypeSet<int>                pos0s_;
-    TypeSet<int>                pos1s_;
+    TypeSet<int>		pos0s_;
+    TypeSet<int>		pos1s_;
 
     float			distinl_;
     float			distcrl_;

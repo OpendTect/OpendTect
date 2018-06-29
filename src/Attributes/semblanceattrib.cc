@@ -242,14 +242,25 @@ bool Semblance::getInputData( const BinID& relpos, int zintv )
     while ( inputdata_.size() < trcpos_.size() )
 	inputdata_ += 0;
 
+    int nrvalidtrcs = 0;
     const BinID bidstep = inputs_[0]->getStepoutStep();
     for ( int idx=0; idx<trcpos_.size(); idx++ )
     {
-	const DataHolder* data =
-		    inputs_[0]->getData( relpos+trcpos_[idx]*bidstep, zintv );
-	if ( !data ) return false;
+	const bool atcenterpos = trcpos_[idx] == BinID(0,0);
+	const BinID truepos = relpos + trcpos_[idx]*bidstep;
+	const DataHolder* data = inputs_[0]->getData( truepos, zintv );
+	if ( atcenterpos && !data )
+	    return false;
+
+	if ( !data )
+	    continue;
+
 	inputdata_.replace( idx, data );
+	nrvalidtrcs++;
     }
+
+    if ( nrvalidtrcs==0 )
+	return false;
 
     dataidx_ = getDataIndex( 0 );
 
@@ -319,6 +330,10 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 
 
 const BinID* Semblance::reqStepout( int inp, int out ) const
+{ return 0; }
+
+
+const BinID* Semblance::desStepout( int inp, int out ) const
 { return inp ? 0 : &stepout_; }
 
 
