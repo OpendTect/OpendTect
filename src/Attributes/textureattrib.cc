@@ -134,13 +134,25 @@ bool Texture::getInputData( const BinID& relpos, int zintv )
     while ( inpdata_.size() < posandsteeridx_.posidx_.size() )
 	inpdata_ += 0;
 
+    int nrvalidtrcs = 0;
     const BinID bidstep = inputs_[0]->getStepoutStep();
     for ( int idx=0; idx<posandsteeridx_.posidx_.size(); idx++ )
     {
+	const bool atcenterpos = posandsteeridx_.pos_[idx] == BinID(0,0);
 	const BinID inpos = relpos + bidstep * posandsteeridx_.pos_[idx];
-	const DataHolder* data = inputs_[0]->getData( inpos );
+	const DataHolder* data = inputs_[0]->getData( inpos, zintv );
+	if ( atcenterpos && !data )
+	    return false;
+
+	if ( !data )
+	    continue;
+
 	inpdata_.replace( posandsteeridx_.posidx_[idx], data );
+	nrvalidtrcs++;
     }
+
+    if ( nrvalidtrcs==0 )
+	return false;
 
     dataidx_ = getDataIndex( 0 );
     steeringdata_ = inputs_[1] ? inputs_[1]->getData( relpos, zintv ) : 0;
@@ -152,7 +164,7 @@ const BinID* Texture::desStepout( int inp, int out ) const
 { return inp==0 ? &stepout_ : 0; }
 
 const BinID* Texture::reqStepout( int inp, int out ) const
-{ return inp==0 ? &stepout_ : 0; }
+{ return 0; }
 
 const Interval<int>* Texture::desZSampMargin( int inp, int outp ) const
 { return inp==0 ? &dessampgate_ : 0; }
@@ -263,7 +275,7 @@ bool Texture::computeData( const DataHolder& output, const BinID& relpos,
 	glcm.setAll( 0 );
 
 	const int glcmcount = computeGLCM( idx, z0, glcm );
-	if ( !glcmcount )
+	if ( glcmcount==0 )
 	    continue;
 
 	float con=0, dis=0, hom=0, asmom=0, ent=0, glcm_mean = 0;
