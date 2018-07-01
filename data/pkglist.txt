@@ -1,6 +1,7 @@
 CLAS Computer Log Analysis Software`clas
 Command Driver`commanddriver
 CRS support`crs
+Deep Learning`dgbnn
 Dip Steering`dgbds
 Direct Petrel Link`dgbpetrel
 ethos(TM) Processing System`ethos
@@ -9,14 +10,14 @@ Fluid Contact Finder`dgbccb
 GeoDataSync Accelerate`arkclsgdsa
 GMT Link`gmt_logo
 HDF5 File Access`hdf
-HorizonCube`dgbhc
+Horizon Cube`dgbhc
+Machine Learning`dgbnn
 Madagascar Link`madagascar
 Matching Pursuit`matching_pursuit
 MatLab Access`matlab
 MPSI UltraFast Stochastic Inversion`arkclsmpsi
 MPSI`arkclsmpsi
 Multi-Point Stochastic Inversion`arkclsmpsi
-Neural Networks`dgbnn
 Open Data Connector`arkclsodc
 OpendTect Pro`dgbpro
 PDF-3D`dgbpdf3d
@@ -30,7 +31,7 @@ Seismic Spectral Blueing`arkclsssbplugin
 Sequence Stratigraphic Interpretation System`dgbssis
 Spotlight`arkclsmvse
 SynthRock`dgbstrat
-Velocity Model Building`dgbvmb
+Velocity Model Builder`dgbvmb
 Well Correlation Panel`dgbwcp
 Workstation Access`arkclswsa
 XField`arkclsxf2
