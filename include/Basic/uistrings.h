@@ -264,6 +264,7 @@ public:
     static uiWord sCentral()		{ return tr("Central"); }
     static uiWord sChange()		{ return tr("Change"); }
     static uiWord sCircle()		{ return tr("Circle","shape"); }
+    static uiWord sClass()		{ return tr("Class"); }
     static uiWord sClassification()	{ return tr("Classification"); }
     static uiWord sClear()		{ return tr("Clear"); }
     static uiWord sClose()		{ return tr("Close"); }
