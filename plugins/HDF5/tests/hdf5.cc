@@ -307,9 +307,13 @@ static bool testWrite()
     uirv = iarrtool.putSlab( *wrr, slabspec );
     mAddTestResult( "Write Slabby Second Slab" );
 
+    dsky.setGroupName( "Yo" );
+    dsky.setDataSetName( "" );
+    mRunStandardTest( !wrr->setScope(dsky), "Set to bad scope (group)" );
     dsky.setGroupName( "Component 1" );
     dsky.setDataSetName( "Apenoot" );
-    mRunStandardTest( !wrr->setScope(dsky), "Set to non-existing scope" );
+    mRunStandardTest( !wrr->setScope(dsky), "Set to bad scope (dataset)" );
+
     dsky.setDataSetName( "Block [1]" );
     mRunStandardTest( wrr->setScope(dsky), "Set to existing scope" );
     iop.setEmpty();

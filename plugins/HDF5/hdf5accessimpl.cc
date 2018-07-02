@@ -149,13 +149,9 @@ bool HDF5::AccessImpl::selectGroup( const char* grpnm )
     {
 	if ( atGroup(grpnm) )
 	    return true;
-
-	if ( *grpnm != '/' )
-	{
-	    // Avoid error printing
-	    if ( !H5Lexists(acc_.file_->getId(),grpnm,H5P_DEFAULT) )
-		return false;
-	}
+	else if ( *grpnm != '/'
+	  && !H5Lexists(acc_.file_->getId(),grpnm,H5P_DEFAULT) )
+	    return false;
     }
 
     bool haveerr = false;
@@ -176,20 +172,19 @@ bool HDF5::AccessImpl::selectDataSet( const char* dsnm )
 	return false;
     else if ( atDataSet(dsnm) )
 	return true;
+    else if( !H5Lexists(group_.getId(),dsnm,H5P_DEFAULT) )
+	return false;
 
-    bool haveselected = true;
-    disableErrPrint();
-
+    bool haverr = false;
     try
     {
 	dataset_ = group_.openDataSet( dsnm );
 	nrdims_ = (ArrayNDInfo::NrDimsType)dataset_.getSpace()
 						.getSimpleExtentNdims();
     }
-    mCatchAnyNoMsg( haveselected = false )
+    mCatchAnyNoMsg( haverr = true )
 
-    restoreErrPrint();
-    return haveselected;
+    return !haverr;
 }
 
 
