@@ -140,25 +140,33 @@ bool HDF5::AccessImpl::atDataSet( const char* dsnm ) const
 
 bool HDF5::AccessImpl::selectGroup( const char* grpnm )
 {
-    if ( !grpnm || !*grpnm )
-	grpnm = "/";
-    if ( atGroup(grpnm) )
-	return true;
-    else if ( !acc_.file_ )
+    if ( !acc_.file_ )
 	return false;
 
-    bool haveselected = true;
-    disableErrPrint();
+    if ( !grpnm || !*grpnm )
+	grpnm = "/";
+    else
+    {
+	if ( atGroup(grpnm) )
+	    return true;
 
+	if ( *grpnm != '/' )
+	{
+	    // Avoid error printing
+	    if ( !H5Lexists(acc_.file_->getId(),grpnm,H5P_DEFAULT) )
+		return false;
+	}
+    }
+
+    bool haveerr = false;
     try
     {
 	group_ = acc_.file_->openGroup( grpnm );
 	dataset_ = H5::DataSet();
     }
-    mCatchAnyNoMsg( haveselected = false )
+    mCatchAnyNoMsg( haveerr = true )
 
-    restoreErrPrint();
-    return haveselected;
+    return !haveerr;
 }
 
 
