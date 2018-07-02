@@ -234,24 +234,6 @@ void Text::setDisplayTransformation( const mVisTrans* newtrans )
 }
 
 
-void Text::useRotateToScreenElevation( bool yn )
-{ osgtext_->useRotateToScreenElevation( yn ); }
-
-bool Text::isRotateToScreenElevationUsed() const
-{ return osgtext_->isRotateToScreenElevationUsed(); }
-
-void Text::setRotateToScreenElevationAngle( float angle )
-{ osgtext_->setRotateToScreenElevationAngle( angle ); }
-
-float Text::getRotateToScreenElevationAngle() const
-{ return osgtext_->getRotateToScreenElevationAngle(); }
-
-void Text::setRotateToScreenElevationPlane( const Coord3& normal )
-{ osgtext_->setRotateToScreenElevationPlane( Conv::to<osg::Vec3>(normal) ); }
-
-Coord3 Text::getRotateToScreenElevationPlane() const
-{ return Conv::to<Coord3>( osgtext_->getRotateToScreenElevationPlane() ); }
-
 
 Text2::Text2()
     : VisualObjectImpl( false )

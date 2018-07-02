@@ -514,7 +514,6 @@ void uiContourTreeItemContourGenerator::addContourLabel(
 	label->setJustification( visBase::Text::BottomLeft );
 	label->setPosition( pos, true );
 	label->setFontData( FontData(18), labels_->getPixelDensity() );
-	label->useRotateToScreenElevation( true );
     }
 }
 
@@ -1098,14 +1097,7 @@ void uiContourTreeItem::showPropertyDlg()
 	    propdlg_->setFontData( labels_->text(0)->getFontData() );
 	    propdlg_->setLabelAlignment( (visBase::Text::Justification)
 				   labels_->text(0)->getJustification() );
-
-	    if ( labels_->text(0)->isRotateToScreenElevationUsed() )
-	    {
-		propdlg_->setLabelElevation(
-		    labels_->text(0)->getRotateToScreenElevationAngle() );
-	    }
-	    else
-		propdlg_->disableLabelElevation();
+	    propdlg_->disableLabelElevation();
 	}
     }
 
@@ -1165,15 +1157,6 @@ void uiContourTreeItem::propChangeCB( CallBacker* cb )
 	{
 	    labels_->text(idx)->setJustification(
 		    (visBase::Text::Justification) dlg->getLabelAlignment() );
-
-	    if ( dlg->isLabelElevationDisabled() )
-		labels_->text(idx)->useRotateToScreenElevation( false );
-	    else
-	    {
-		labels_->text(idx)->useRotateToScreenElevation( true );
-		labels_->text(idx)->setRotateToScreenElevationAngle(
-						dlg->getLabelElevation() );
-	    }
 	}
     }
 }

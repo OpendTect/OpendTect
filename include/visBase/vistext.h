@@ -70,14 +70,6 @@ public:
     void			setCharacterSizeMode( CharacterSizeMode );
     void			setAxisAlignment( AxisAlignment );
 
-    void			useRotateToScreenElevation(bool);
-    bool			isRotateToScreenElevationUsed() const;
-    void			setRotateToScreenElevationAngle(float);
-    float			getRotateToScreenElevationAngle() const;
-    void			setRotateToScreenElevationPlane(
-						const Coord3& refPlaneNormal);
-    Coord3			getRotateToScreenElevationPlane() const;
-
 protected:
     const mVisTrans*		displaytrans_;
     osgGeo::Text*		osgtext_;

@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/MatrixTransform>
 #include <osg/AutoTransform>
 #include <osg/ShapeDrawable>
+#include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/LineWidth>
 #include <osgManipulator/Projector>

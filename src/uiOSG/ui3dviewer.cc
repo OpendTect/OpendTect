@@ -1527,7 +1527,9 @@ ui3DViewer::~ui3DViewer()
 
 uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, bool direct, const char* nm )
 {
+#if OSG_VERSION_LESS_THAN( 3, 5, 0 )
     osgQt::initQtWindowingSystem();
+#endif
 
     osgbody_ = direct
 	? (ui3DViewerBody*) new uiDirectViewBody( *this, parnt )
