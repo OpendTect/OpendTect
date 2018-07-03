@@ -228,6 +228,12 @@ void FileSpec::fillPar( IOPar& iop ) const
 	    iop.set( sKeyFileNrs(), fms );
 	}
     }
+
+    if ( !usrstr_.isEmpty() )
+    {
+	const BufferString key( sKey::User(), " ", sKey::FileName() );
+	iop.set( key, usrstr_ );
+    }
 }
 
 
@@ -259,6 +265,11 @@ bool FileSpec::usePar( const IOPar& iop )
 	    fnames_.add( res );
 	}
     }
+
+    const BufferString key( sKey::User(), " ", sKey::FileName() );
+    usrstr_.setEmpty();
+    iop.get( key, usrstr_ );
+
     return true;
 }
 
