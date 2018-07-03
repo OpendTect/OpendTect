@@ -63,9 +63,9 @@ void DBMan::initFirst()
 	strm.getLine( survnm );
 	if ( !survnm.isEmpty() )
 	{
-	    const BufferString basedir = GetBaseDataDir();
-	    SurveyInfo::setSurveyLocation( basedir, survnm, false );
-	    survdir_ = File::Path( basedir, survnm ).fullPath();
+	    const SurveyDiskLocation survloc( survnm );
+	    SurveyInfo::setSurveyLocation( survloc, false );
+	    survdir_ = survloc.fullPath();
 	    handleNewSurvDir();
 	}
     }
@@ -104,21 +104,17 @@ uiRetVal DBMan::setDataSource( const char* fullpath, bool forcerefresh )
 
 mGlobal(Basic) void SetBaseDataDir(const char*);
 
-uiRetVal DBMan::setDataSource( const char* inpdr, const char* sd,
-			       bool forcerefresh )
+uiRetVal DBMan::setDataSource( const char* dr, const char* sd, bool frcrefresh )
 {
     mLock4Read();
 
-    BufferString dr( inpdr );
-    if ( dr.isEmpty() )
-	dr = GetBaseDataDir();
-
-    uiRetVal rv = SurveyInfo::setSurveyLocation( dr, sd, forcerefresh );
+    SurveyDiskLocation survloc( sd, dr );
+    uiRetVal rv = SurveyInfo::setSurveyLocation( survloc, frcrefresh );
     if ( !rv.isOK() )
 	return rv;
 
     const BufferString newdirnm = SI().getFullDirPath();
-    if ( !forcerefresh && survdir_ == newdirnm )
+    if ( !frcrefresh && survdir_ == newdirnm )
 	return uiRetVal::OK();
 
     mUnlockAllAccess();
@@ -126,8 +122,8 @@ uiRetVal DBMan::setDataSource( const char* inpdr, const char* sd,
     surveyChangeOK.trigger();
     if ( surveychangeuserabort_ || !surveychangeabortreason_.isEmpty() )
     {
-	File::Path fp( survdir_ );
-	SurveyInfo::setSurveyLocation( fp.pathOnly(), fp.fileName(), true );
+	survloc.set( File::Path(survdir_) );
+	SurveyInfo::setSurveyLocation( survloc, true );
 	if ( surveychangeuserabort_ )
 	    rv.set( uiStrings::sCancel() );
 	else

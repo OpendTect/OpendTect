@@ -685,8 +685,7 @@ bool uiSurveyInfoEditor::acceptOK()
 	    return false;
     }
 
-    si_.dirname_ = newdirnm;
-    si_.basepath_ = basepath_;
+    si_.diskloc_.set( File::Path(basepath_,newdirnm) );
     si_.setSurvDataType( (SurveyInfo::Pol2D3D)pol2d3dfld_->currentItem() );
     if ( overrulefld_->isChecked() )
 	si_.get3Pts( si_.set3coords_, si_.set3binids_,

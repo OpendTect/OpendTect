@@ -17,13 +17,13 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "trckeyzsampling.h"
 #include "zdomain.h"
+#include "surveydisklocation.h"
 
 namespace Coords { class CoordSystem; }
 namespace Survey { class Geometry3D; }
 
 
-/*!
-\brief Holds survey general information.
+/*!\brief Holds survey general information.
 
   The surveyinfo is the primary source for ranges and steps.It also provides
   the transformation between inline/xline <-> coordinates and lat/long
@@ -170,9 +170,7 @@ public:
 
 protected:
 
-    const BufferString	uniqueid_;
-    BufferString	basepath_;	//!< The 'data root'
-    BufferString	dirname_;	//!< The subdirectory name
+    SurveyDiskLocation	diskloc_;
     ZDomain::Def&	zdef_;
     bool		depthsinfeet_;
     TrcKeyZSampling&	fullcs_;
@@ -210,7 +208,7 @@ private:
     Pos::IdxPair2Coord	rdb2c_;
 
 				// For DBMan only
-    static uiRetVal	setSurveyLocation(const char*,const char*,bool);
+    static uiRetVal	setSurveyLocation(const SurveyDiskLocation&,bool);
     void		setToUnlocatedCoordSys(bool);
 
 public:
@@ -251,9 +249,9 @@ public:
     static const char*	sBasicSurveyName()		{ return "BasicSurvey";}
 
     mImplSimpleMonitoredGetSet(inline,getDirName,setDirName,
-				BufferString,dirname_,cSetupChange());
+				BufferString,diskloc_.dirname_,cSetupChange());
     mImplSimpleMonitoredGetSet(inline,getBasePath,setBasePath,
-				BufferString,basepath_,cSetupChange());
+				BufferString,diskloc_.basepath_,cSetupChange());
     BufferString	getFullDirPath() const;
     static BufferString	dirNameForName(const char*);
 

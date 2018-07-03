@@ -104,6 +104,38 @@ const SurveyInfo& SI()
 }
 
 
+SurveyDiskLocation::SurveyDiskLocation()
+{
+    set( File::Path(SI().getBasePath(),SI().getDirName()) );
+}
+
+
+SurveyDiskLocation::SurveyDiskLocation( const char* dirnm, const char* bp )
+    : dirname_(dirnm)
+    , basepath_(bp && *bp ? bp : GetBaseDataDir())
+{
+}
+
+
+SurveyDiskLocation::SurveyDiskLocation( const File::Path& fp )
+{
+    set( fp );
+}
+
+
+void SurveyDiskLocation::set( const File::Path& fp )
+{
+    basepath_ = fp.pathOnly();
+    dirname_ = fp.fileName();
+}
+
+
+BufferString SurveyDiskLocation::fullPath() const
+{
+    return File::Path( basepath_, dirname_ ).fullPath();
+}
+
+
 
 SurveyInfo::SurveyInfo()
     : fullcs_(*new TrcKeyZSampling(false))
@@ -116,6 +148,7 @@ SurveyInfo::SurveyInfo()
     , seisrefdatum_(0.f)
     , s3dgeom_(0)
     , work_s3dgeom_(0)
+    , diskloc_(0)
 {
     Pos::IdxPair2Coord::DirTransform xtr, ytr;
     xtr.b = ytr.c = 1;
@@ -142,6 +175,7 @@ SurveyInfo::SurveyInfo( const SurveyInfo& oth )
     , zdef_(*new ZDomain::Def( oth.zDomain() ) )
     , s3dgeom_(0)
     , work_s3dgeom_(0)
+    , diskloc_(oth.diskloc_)
 {
     copyClassData( oth );
 }
@@ -168,8 +202,7 @@ mImplMonitorableAssignment( SurveyInfo, NamedMonitorable )
 void SurveyInfo::copyClassData( const SurveyInfo& oth )
 {
     zdef_ = oth.zdef_;
-    basepath_ = oth.basepath_;
-    dirname_ = oth.dirname_;
+    diskloc_ = oth.diskloc_;
     coordsystem_ = oth.coordsystem_;
     depthsinfeet_ = oth.depthsinfeet_;
     b2c_ = oth.b2c_;
@@ -201,8 +234,7 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
 Monitorable::ChangeType SurveyInfo::compareClassData(
 					    const SurveyInfo& oth ) const
 {
-    mCmpRet( basepath_, cEntireObjectChange );
-    mCmpRet( dirname_, cEntireObjectChange ); //TODO name change only?
+    mCmpRet( diskloc_, cEntireObjectChange );
     mCmpRet( zdef_, cSetupChange );
     mCmpRet( b2c_, cSetupChange );
     mCmpRet( pol2d3d_, cSetupChange );
@@ -239,27 +271,28 @@ void SurveyInfo::setToUnlocatedCoordSys( bool xyinfeet )
     { ret.add( uiStrings::phrFileDoesNotExist(fnm) ); return ret; }
 
 
-uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd,
+uiRetVal SurveyInfo::setSurveyLocation( const SurveyDiskLocation& reqloc,
 					bool forcerefresh )
 {
     uiRetVal ret;
-    const BufferString olddataroot = SI().basepath_;
-    const BufferString olddirname = SI().dirname_;
-    BufferString newdataroot( dr ); BufferString newdirname( sd );
-    const bool useolddr = newdataroot.isEmpty() || newdataroot == olddataroot;
-    const bool useoldsd = newdirname.isEmpty() || newdirname == olddirname;
-    if ( !forcerefresh && useolddr && useoldsd )
+    SurveyDiskLocation newloc( reqloc );
+    const SurveyDiskLocation oldloc( SI().diskloc_ );
+    const bool useoldbp = newloc.basepath_.isEmpty()
+			|| newloc.basepath_ == oldloc.basepath_;
+    const bool useolddirnm = newloc.dirname_.isEmpty()
+			|| newloc.dirname_ == oldloc.dirname_;
+    if ( !forcerefresh && useoldbp && useolddirnm )
 	return ret;
 
-    if ( useolddr )
-	newdataroot = olddataroot;
-    if ( useoldsd )
-	newdirname = olddirname;
+    if ( useoldbp )
+	newloc.basepath_ = oldloc.basepath_;
+    if ( useolddirnm )
+	newloc.dirname_ = oldloc.dirname_;
 
-    if ( !File::isDirectory(newdataroot) )
-	mErrRetDoesntExist(newdataroot)
+    if ( !File::isDirectory(newloc.basepath_) )
+	mErrRetDoesntExist(newloc.basepath_)
 
-    File::Path fp( newdataroot, newdirname );
+    File::Path fp( newloc.basepath_, newloc.dirname_ );
     const BufferString survdir = fp.fullPath();
     if ( !File::isDirectory(survdir) )
 	mErrRetDoesntExist(survdir)
@@ -313,9 +346,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiRetVal& uirv )
     //Scrub away old settings (confusing to users)
     si->defpars_.removeWithKey( "Depth in feet" );
 
-    si->dirname_ = fpsurvdir.fileName();
-    si->basepath_ = fpsurvdir.pathOnly();
-    if ( !survdir || si->dirname_.isEmpty() ) return si;
+    si->diskloc_ = SurveyDiskLocation( fpsurvdir );
+    if ( !survdir || si->diskloc_.dirname_.isEmpty() )
+	return si;
 
     const IOPar survpar( astream );
     si->usePar(survpar);
@@ -350,7 +383,7 @@ bool SurveyInfo::wrapUpRead()
 	return false;
     }
 
-    File::Path fp( basepath_, dirname_, sCommentsFile );
+    File::Path fp( diskloc_.fullPath(), sCommentsFile );
     od_istream strm( fp.fullPath() );
     if ( strm.isOK() )
 	strm.getAll( comments_ );
@@ -530,7 +563,7 @@ void SurveyInfo::setDefaultPars( const IOPar& iop, bool dosave ) const
 BufferString SurveyInfo::getFullDirPath() const
 {
     mLock4Read();
-    return File::Path( basepath_, dirname_ ).fullPath();
+    return diskloc_.fullPath();
 }
 
 
@@ -1059,12 +1092,11 @@ bool SurveyInfo::isRightHandSystem() const
 
 bool SurveyInfo::write( const char* basedir ) const
 {
-    if ( !basedir )
-	basedir = basepath_;
-
     mLock4Read();
+    if ( !basedir )
+	basedir = diskloc_.basepath_;
 
-    File::Path fp( basedir, dirname_, sSetupFileName() );
+    File::Path fp( basedir, diskloc_.dirname_, sSetupFileName() );
     const BufferString dotsurvfnm( fp.fullPath() );
     SafeFileIO sfio( dotsurvfnm, false );
     if ( !sfio.open(false) )
@@ -1122,10 +1154,10 @@ bool SurveyInfo::write( const char* basedir ) const
 	return false;
     }
 
-    fp.set( basedir );
-    fp.add( dirname_ );
-    saveDefaultPars( fp.fullPath() );
-    saveComments( fp.fullPath() );
+    fp.set( basedir ).add( diskloc_.dirname_ );
+    const BufferString savedir( fp.fullPath() );
+    saveDefaultPars( savedir );
+    saveComments( savedir );
     return true;
 }
 
