@@ -15,7 +15,7 @@ endif()
 set( MAIN_GIT_BRANCH master )
 
 set( OpendTect_VERSION_MAJOR 6 )
-set( OpendTect_VERSION_MINOR 3 )
+set( OpendTect_VERSION_MINOR 5 )
 if ( NOT DEFINED OpendTect_VERSION_PATCH OR OpendTect_VERSION_PATCH STREQUAL "" )
     set( OpendTect_VERSION_PATCH 0 )
 endif()
