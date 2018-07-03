@@ -257,7 +257,18 @@ int SEGYDirect2DLineGetter::nextStep()
 bool SEGYDirect2DLineIOProvider::getGeometry( const IOObj& obj,
 			Pos::GeomID geomid, PosInfo::Line2DData& geom ) const
 {
-    return false;
+    const OD::String& fnm = getFileName( obj, geomid );
+    if ( fnm.isEmpty() || !File::exists(fnm) )
+    {
+	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
+	errmsg += "' does not exist";
+	ErrMsg( errmsg );
+	return 0;
+    }
+
+    SEGY::DirectDef def( fnm );
+    geom = def.lineData();
+    return geom.size();
 }
 
 
@@ -400,6 +411,7 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
     data->setLineName( ioobj.name() );
     Survey::Geometry2D* geom = new Survey::Geometry2D( data );
     geom->setID( geomid );
+    geom->touch();
     return geom;
 }
 
