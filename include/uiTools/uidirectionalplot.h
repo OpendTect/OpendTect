@@ -51,6 +51,8 @@ public:
 				    , sectorls_(OD::LineStyle::Solid)
 				    , equils_(OD::LineStyle::Dot)
 				    , markstyle_(MarkerStyle2D::Circle)
+				    , hlmarkstyle_(MarkerStyle2D::Square,4,
+						   Color::Green())
 				    , docount_(false)
 				    , curissel_(true)
 				    , valcolor_(true)
@@ -62,6 +64,7 @@ public:
 	mDefSetupMemb(OD::LineStyle,sectorls)
 	mDefSetupMemb(OD::LineStyle,equils)
 	mDefSetupMemb(MarkerStyle2D,markstyle)
+	mDefSetupMemb(MarkerStyle2D,hlmarkstyle) // Highlight marker style
 	mDefSetupMemb(bool,curissel)	// Must clicked sector become selected?
 	mDefSetupMemb(bool,docount)	// Show count rather than val_ (Vals)
 	mDefSetupMemb(bool,valcolor)	// Use val_ to color (Rose)
@@ -100,10 +103,14 @@ public:
     void			getMousePosInfo(int& count,float& angle,
 						float& pos);
 
+    void			setHighlighted(const TypeSet<int>&);
+    void			setHighlighted(int);
+
 protected:
 
     Setup			setup_;
     Stats::DirectionalData	data_;
+    TypeSet<int>		highlightidxs_;
 
     bool			isempty_;
     Interval<float>		posrg_;

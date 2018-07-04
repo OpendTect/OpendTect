@@ -24,6 +24,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mouseevent.h"
 
 
+#define mDefMarkerZValue 2
+#define mHLMarkerZValue 3
+
 static HiddenParam<uiDirectionalPlot,int> nrequicircles_(0);
 
 static uiPoint uiPointFromPolar( const uiPoint& c, float r, float angrad )
@@ -104,6 +107,7 @@ void uiDirectionalPlot::reSized( CallBacker* )
 void uiDirectionalPlot::setData( const float* vals, int sz )
 {
     data_.erase();
+    highlightidxs_.erase();
     for ( int idx=0; idx<sz; idx++ )
     {
 	Stats::SectorData* sd = new Stats::SectorData;
@@ -119,6 +123,7 @@ void uiDirectionalPlot::setData( const float* vals, int sz )
 void uiDirectionalPlot::setData( const Stats::DirectionalData& dird )
 {
     data_ = dird;
+    highlightidxs_.erase();
 
     cursector_ = selsector_ = -1;
     gatherInfo(); draw();
@@ -410,18 +415,40 @@ void uiDirectionalPlot::drawScatter()
     for ( int isect=0; isect<data_.nrSectors(); isect++ )
     {
 	const Stats::SectorData& sd = *data_[isect];
+	const bool ishighlighted = highlightidxs_.isPresent( isect );
+	const MarkerStyle2D& ms = ishighlighted ? setup_.hlmarkstyle_
+						    : setup_.markstyle_;
+	const int zval = ishighlighted ? mHLMarkerZValue : mDefMarkerZValue;
 	for ( int ipart=0; ipart<sd.size(); ipart++ )
 	{
 	    const Stats::SectorPartData& spd = sd[ipart];
 	    if ( spd.count_ < 1 ) continue;
 
 	    const float r = spd.pos_ * radius_;
-	    uiMarkerItem* itm =
-		new uiMarkerItem( dataUIPos(r,spd.val_), setup_.markstyle_ );
-	    itm->setFillColor( setup_.markstyle_.color_ );
+	    uiMarkerItem* itm = new uiMarkerItem( dataUIPos(r,spd.val_), ms );
+	    itm->setZValue( zval );
+	    itm->setFillColor( ms.color_ );
 	    markeritems_.add( itm );
 	}
     }
+}
+
+
+void uiDirectionalPlot::setHighlighted( const TypeSet<int>& dataidxs )
+{
+    highlightidxs_ = dataidxs;
+    drawData();
+}
+
+
+void uiDirectionalPlot::setHighlighted( int dataidx )
+{
+    highlightidxs_.erase();
+    if ( !data_.validIdx(dataidx) )
+	return;
+
+    highlightidxs_.add( dataidx );
+    drawData();
 }
 
 
