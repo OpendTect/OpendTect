@@ -163,7 +163,7 @@ public:
     uiString		sCantSetScope(const DataSetKey&) const;
     static uiString	sDataSetNotFound(const DataSetKey&);
     static uiString	sCannotReadDataSet(const DataSetKey&);
-    static const char*	sFileExtension()	{ return "hdf5"; }
+    static const char*	sFileExtension()	{ return "h5"; }
 
     static bool		isEnabled(const char* fortype=0);
     static bool		isEnvBlocked(const char* fortype=0);

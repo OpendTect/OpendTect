@@ -390,7 +390,7 @@ static bool sampsOK( const short* data, const short* expected, int nrsamps )
 
 static bool testSmallCube()
 {
-    const char* fnm = "ORG_420-430_500-600_500-1500_HDF.hdf5";
+    const char* fnm = "ORG_420-430_500-600_500-1500_HDF.h5";
     File::Path fp( GetDataDir(), "Seismics", fnm );
     const BufferString fullfnm( fp.fullPath() );
     if ( !File::exists(fullfnm) )
@@ -450,7 +450,7 @@ int mTestMainFnName( int argc, char** argv )
 	return 0;
     }
 
-    filename_.set( File::Path(File::getTempPath(),"test.hd5").fullPath() );
+    filename_.set( File::Path(File::getTempPath(),"test.h5").fullPath() );
     if ( !testSmallCube() )
 	return 1;
 
