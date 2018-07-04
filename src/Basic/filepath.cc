@@ -425,7 +425,8 @@ BufferString File::Path::getTempName( const char* ext )
     mDefineStaticLocalObject( int, counter, = 0 );
     BufferString fname( "od_", GetPID() );
     fname.add( '_' ).add( counter++ )
-	 .add( '_' ).add( Time::getISOUTCDateTimeString() );
+	 .add( '_' ).add( Time::getFileTimeInSeconds() );
+			/*windows does not support file name with ":" */
 
     if ( ext && *ext )
 	{ fname.add( "." ).add( ext ); }
