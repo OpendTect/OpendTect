@@ -660,7 +660,8 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     if ( eventinfo.pressed )
 	return;
 
-    if ( insertpid.isInvalid() || makenewstick_ )
+    if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) ||
+	 insertpid.isInvalid() || makenewstick_ )
     {
 	// Add stick
 	const Coord3 editnormal(
