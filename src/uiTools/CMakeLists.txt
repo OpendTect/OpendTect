@@ -51,6 +51,7 @@ SET( OD_MODULE_SOURCES
 	uigvfreehandareaselectiontool.cc
 	uihandledlsitefail.cc
 	uihistogramdisplay.cc
+	uihistogramsel.cc
 	uiinterpollayermodel.cc
 	uiiosel.cc
 	uiissuereporter.cc
