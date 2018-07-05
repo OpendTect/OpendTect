@@ -490,18 +490,18 @@ int uiMsg::askRemove( const uiString& text, bool wcancel )
 }
 
 
-int uiMsg::askContinue( const uiString& text )
+bool uiMsg::askContinue( const uiString& text )
 {
     return question( text, uiStrings::sContinue(), uiStrings::sAbort(),
-		     uiString::empty() );
+		     uiString::empty() ) != 0;
 }
 
 
-int uiMsg::askOverwrite( const uiString& text )
+bool uiMsg::askOverwrite( const uiString& text )
 {
     const uiString yestxt = uiStrings::sOverwrite();
     return question( text, yestxt, uiStrings::sCancel(),
-		     uiString::empty() );
+		     uiString::empty() ) != 0;
 }
 
 

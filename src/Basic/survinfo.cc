@@ -136,6 +136,17 @@ BufferString SurveyDiskLocation::fullPath() const
 }
 
 
+BufferString SurveyDiskLocation::surveyName() const
+{
+    od_istream strm( fullPath() );
+    ascistream astrm( strm );
+    IOPar iop( astrm );
+    BufferString ret( dirname_ );
+    iop.get( sKey::Name(), ret );
+    return ret;
+}
+
+
 
 SurveyInfo::SurveyInfo()
     : fullcs_(*new TrcKeyZSampling(false))
