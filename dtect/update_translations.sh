@@ -34,7 +34,7 @@ binarydir=$3
 application=$4
 lupdate=$5
 tmpoddir=/tmp/lupdate_tmp_$$
-outputdir=${binarydir}/data/localizations/generated
+outputdir=${binarydir}/data/translations
 
 control_c()
  # Control-C Press
@@ -135,16 +135,16 @@ if [ -e ${sourcedir}/plugins ]; then
 	--make-directories --quiet ${tmpoddir}
 fi
 
-projectdir="${tmpoddir}/data/localizations/source"
+projectdir="${tmpoddir}/data/translations"
 mkdir -p ${projectdir}
 
 cd ${olddir}
 
 shopt -s nullglob
 #Copy existing ts-files ot project dir
-cp -a ${tsbasedir}/data/localizations/source/${application}*.ts ${projectdir}
-if [ -d ${tsbasedir}/data/localizations/inprogress ]; then
-    cp -a ${tsbasedir}/data/localizations/inprogress/${application}*.ts ${projectdir}
+cp -a ${tsbasedir}/data/translations/${application}*.ts ${projectdir}
+if [ -d ${tsbasedir}/data/translations ]; then
+    cp -a ${tsbasedir}/data/translations/${application}*.ts ${projectdir}
 fi
 
 #Check if all projects exist in destination if so, check dates
@@ -309,8 +309,8 @@ if [ -e ${pluralpro} ]; then
 	echo
 	echo "Please run:"
 	echo
-	echo  1. cp ${outputdir}/${application}_en-us.ts ${tsbasedir}/data/localizations/source/${application}_en-us.ts
-	echo  2. ${scriptdir}/linguist.csh ${tsbasedir}/data/localizations/source/${application}_en-us.ts
+	echo  1. cp ${outputdir}/${application}_en-us.ts ${tsbasedir}/data/translations/${application}_en-us.ts
+	echo  2. ${scriptdir}/linguist.csh ${tsbasedir}/data/translations/${application}_en-us.ts
 	echo  3. Fix the problem
 	echo  4. Commit
 	echo
