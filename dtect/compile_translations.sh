@@ -1,14 +1,14 @@
 #!/bin/sh 
 
 if [ "$#" -eq "3" ]; then
-    for file in $2/data/localizations/source/*.ts ; do
+    for file in $2/data/translations/*.ts ; do
 	base=`basename ${file%.*}`
 	$0 ${base} $1 $2 $3
     done
 else
     if [ "$#" -eq "4" ]; then
-	src=$3/data/localizations/source/$1.ts
-	dst=$4/data/localizations/$1.qm
+	src=$3/data/translations/$1.ts
+	dst=$4/data/translations/$1.qm
 	
 	#Ensure data directory exists
         if [ ! -e "$4/data/" ]; then
@@ -20,12 +20,12 @@ else
             fi
         fi
 
-	#Ensure data/localizations directory exists
-	if [ ! -e "$4/data/localizations/" ]; then
-	    mkdir $4/data/localizations
+	#Ensure data/translations directory exists
+	if [ ! -e "$4/data/translations/" ]; then
+	    mkdir $4/data/translations
 	else
-	    if [ ! -d $4/data/localizations ]; then
-		echo "$4/data/localizations exists and is not a directory."
+	    if [ ! -d $4/data/translations ]; then
+		echo "$4/data/translations exists and is not a directory."
 		exit 1;
 	    fi
 	fi
