@@ -211,7 +211,6 @@ public:
     void		scrollToBottom();
     bool		handleLongTabletPress();
     void		disableRightClick(bool yn);
-    void		blockScrolling(bool yn) { scrollingblocked_ = yn; }
 
     Notifier<uiListBox> selectionChanged;
     CNotifier<uiListBox,int> itemChosen; /*< if itmidx==-1, many items were
@@ -238,7 +237,6 @@ private:
     OD::ButtonState	buttonstate_;
     CallBack		savecb_;
     CallBack		retrievecb_;
-    bool		scrollingblocked_;
 
     void		menuCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));

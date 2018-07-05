@@ -28,10 +28,6 @@ ________________________________________________________________________
 static const int cIconSz = 16;
 int uiListBox::cDefNrLines()	{ return 7; }
 
-#define mStartScrolling lb_->body().setAutoScroll( true );
-#define mStopScrolling lb_->body().setAutoScroll( false );
-
-
 mUseQtnamespace
 
 
@@ -53,7 +49,6 @@ uiListBoxItem( const QString& txt )
 
 class uiListBoxBody : public uiObjBodyImpl<uiListBoxObj,QListWidget>
 {
-
 public:
 
 			uiListBoxBody(uiListBoxObj&,uiParent*,
@@ -148,7 +143,7 @@ uiListBoxBody::uiListBoxBody( uiListBoxObj& hndle, uiParent* p,
     setSelectionBehavior( QAbstractItemView::SelectItems );
     setSelectionMode( cm == OD::ChooseNone ? QAbstractItemView::NoSelection
 					: QAbstractItemView::SingleSelection );
-    setAutoScroll( false );
+    setAutoScroll( true );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
     setHSzPol( uiObject::Medium );
@@ -287,14 +282,8 @@ void uiListBoxBody::handleSlideChange( int newstop, bool isclear )
     if ( rg.start<0 || rg.stop<0 )
 	return;
 
-    const bool hasautoscroll = hasAutoScroll();
-    if ( !hasautoscroll )
-	setAutoScroll( true );
-
     for ( int idx=rg.start; idx<=rg.stop; idx++ )
 	item(idx)->setCheckState( !isclear ? Qt::Checked : Qt::Unchecked );
-
-    setAutoScroll( hasautoscroll );
 }
 
 
@@ -419,7 +408,6 @@ uiListBoxBody& uiListBoxObj::mkbody( uiParent* p, const char* nm,
     , itemChosen(this) \
     , rightclickmnu_(*new uiMenu(p)) \
     , alignment_(OD::Alignment::Left) \
-    , scrollingblocked_(false) \
     , allowduplicates_(true)
 
 #define mStdConstrEnd \
@@ -796,17 +784,9 @@ void uiListBox::addItem( const uiString& text, bool mark, int id )
 	return;
 
     mListBoxBlockCmdRec;
-    if ( !scrollingblocked_ )
-	mStartScrolling;
     lb_->body().addItem( text, mark, id );
     const int newidx = size() - 1;
-
-    if ( !scrollingblocked_ )
-    {
-	lb_->body().setCurrentRow( newidx );
-	mStopScrolling;
-    }
-
+    lb_->body().setCurrentRow( newidx );
     initNewItem( newidx );
 }
 
@@ -829,10 +809,8 @@ void uiListBox::addItems( const char** textList )
 {
     int curidx = currentItem();
     const char** pt_cur = textList;
-    scrollingblocked_ = true;
     while ( *pt_cur )
 	addItem( toUiString(*pt_cur++) );
-    scrollingblocked_ = false;
     if ( choicemode_ != OD::ChooseNone && curidx < 0 )
 	curidx = 0;
     setCurrentItem( curidx );
@@ -842,11 +820,9 @@ void uiListBox::addItems( const char** textList )
 void uiListBox::addItems( const BufferStringSet& strs )
 {
     int curidx = currentItem();
-    scrollingblocked_ = true;
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( toUiString(strs.get(idx)) );
 
-    scrollingblocked_ = false;
     if ( choicemode_ != OD::ChooseNone && curidx < 0 )
 	curidx = 0;
     setCurrentItem( curidx );
@@ -856,10 +832,8 @@ void uiListBox::addItems( const BufferStringSet& strs )
 void uiListBox::addItems( const uiStringSet& strs )
 {
     int curidx = currentItem();
-    scrollingblocked_ = true;
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs[idx] );
-    scrollingblocked_ = false;
     if ( choicemode_ != OD::ChooseNone && curidx < 0 )
 	curidx = 0;
     setCurrentItem( curidx );
@@ -1038,7 +1012,7 @@ void uiListBox::sortNmItems( bool asc )
     }
     delete [] sortidxs;
     if ( !cur.isEmpty() )
-    setCurrentItem( cur );
+	setCurrentItem( cur );
 }
 
 
@@ -1160,16 +1134,12 @@ void uiListBox::setCurrentItem( int idx )
 
     mListBoxBlockCmdRec;
 
-    if ( !scrollingblocked_ )
-	mStartScrolling;
     lb_->body().setCurrentRow( idx );
     if ( choicemode_ == OD::ChooseOnlyOne )
 	lb_->body().item( idx )->setSelected( true );
-    if ( !scrollingblocked_ )
-    {
-	mStopScrolling;
-	lb_->body().scrollToItem( lb_->body().item(idx) );
-    }
+
+    lb_->body().scrollToItem( lb_->body().item(idx),
+			      QAbstractItemView::PositionAtCenter );
 }
 
 
@@ -1427,10 +1397,8 @@ void uiListBox::setChosen( Interval<int> rg, bool yn )
     else
     {
 	rg.sort();
-	scrollingblocked_ = true;
 	for ( int idx=rg.start; idx<=rg.stop; idx++ )
 	    setItemChecked( idx, yn );
-	scrollingblocked_ = false;
 	setCurrentItem( rg.start );
     }
 }
@@ -1519,7 +1487,6 @@ void uiListBox::setAllItemsChecked( bool yn )
     if ( !isMultiChoice() )
 	return;
 
-    const int selidx = currentItem();
     int lastchg = -1;
     for ( int idx=lb_->body().items_.size()-1; idx>-1; idx-- )
     {
@@ -1530,7 +1497,6 @@ void uiListBox::setAllItemsChecked( bool yn )
     if ( lastchg < 0 )
 	return;
 
-    scrollingblocked_ = true;
     const bool blockstate = lb_->body().blockSignals( true );
     for ( int idx=0; idx<=lastchg; idx++ )
     {
@@ -1545,9 +1511,6 @@ void uiListBox::setAllItemsChecked( bool yn )
     lb_->body().blockSignals( blockstate );
     selectionChanged.trigger();
     itemChosen.trigger( -1 );
-
-    scrollingblocked_ = false;
-    setCurrentItem( selidx );
 }
 
 
@@ -1576,19 +1539,15 @@ int uiListBox::nrChecked() const
 
 void uiListBox::setCheckedItems( const BufferStringSet& itms )
 {
-    scrollingblocked_ = true;
     for ( int idx=0; idx<size(); idx++ )
 	setItemChecked( idx, itms.isPresent(itemText(idx)) );
-    scrollingblocked_ = false;
 }
 
 
 void uiListBox::setCheckedItems( const TypeSet<int>& itms )
 {
-    scrollingblocked_ = true;
     for ( int idx=0; idx<size(); idx++ )
 	setItemChecked( idx, itms.isPresent(idx) );
-    scrollingblocked_ = false;
 }
 
 
