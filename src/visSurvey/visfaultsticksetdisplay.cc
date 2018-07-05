@@ -111,7 +111,7 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
 	viseditor_->unRef();
     if ( fsseditor_ )
 	fsseditor_->unRef();
-  
+
     if ( fault_ )
     {
 	MPE::engine().removeEditor( fault_->id() );
@@ -360,7 +360,7 @@ EM::FaultStickSet* FaultStickSetDisplay::emFaultStickSet()
 
 void FaultStickSetDisplay::updateSticks( bool activeonly )
 {
-    if ( !fault_ || !viseditor_ || !&viseditor_->sower() || 
+    if ( !fault_ || !viseditor_ || !&viseditor_->sower() ||
 	viseditor_->sower().moreToSow() )
 	return;
 
@@ -530,7 +530,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     if ( stickselectmode_ )
 	return stickSelectCB( cb );
 
-    if ( !fault_ || !fsseditor_ || !viseditor_ || !viseditor_->isOn() || 
+    if ( !fault_ || !fsseditor_ || !viseditor_ || !viseditor_->isOn() ||
 	 !isOn() || eventcatcher_->isHandled() || !isSelected() )
 	return;
 
@@ -545,7 +545,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     EM::FaultStickSetGeometry& fssg = emFaultStickSet()->geometry();
 
-    if ( eventinfo.buttonstate_ == OD::ControlButton ) 
+    if ( eventinfo.buttonstate_ == OD::ControlButton )
     {
 	makenewstick_ =  false;
 	if ( !activestickid_.isUdf() )
@@ -613,7 +613,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    mDynamicCast(RandomTrackDisplay*,rdtd,dataobj);
 	    if ( rdtd )
 	    {
-		normal = 
+		normal =
 		    new Coord3( rdtd->getNormal(eventinfo.displaypickedpos) );
 		break;
 	    }
@@ -690,7 +690,8 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     if ( eventinfo.pressed )
 	return;
 
-    if ( insertpid.isUdf() || makenewstick_ )
+    if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) ||
+	 insertpid.isUdf() || makenewstick_ )
     {
 	// Add stick
 	const Coord3 editnormal(
@@ -1069,7 +1070,7 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 		if ( curdragger==EM::PosID(emfss->id(),sid,rc.toInt64()) )
 		    fss->hideKnot( rc, false, mSceneIdx );
 	    }
-	    
+
 	    TypeSet<Coord3> intersectpoints;
 	    fss->hideStick( rc.row(), displayonlyatsections_, mSceneIdx );
 	    if ( !displayonlyatsections_ )
@@ -1165,7 +1166,7 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 	setCurScene( scene_ );
     polygonSelectionCB();
 }
- 
+
 
 bool FaultStickSetDisplay::isInStickSelectMode() const
 { return stickselectmode_; }
@@ -1175,7 +1176,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 {
     if ( !fault_ || (viseditor_ && viseditor_->sower().moreToSow()) )
 	return;
-    
+
     if ( getCurScene() != scene_ )
 	setCurScene(scene_);
     updateStickMarkerSet();
@@ -1249,9 +1250,9 @@ void FaultStickSetDisplay::setPixelDensity( float dpi )
 
     if ( activestick_ )
 	activestick_ ->setPixelDensity( dpi );
-    
+
     for ( int idx =0; idx<knotmarkersets_.size(); idx++ )
-        knotmarkersets_[idx]->setPixelDensity( dpi );
+	knotmarkersets_[idx]->setPixelDensity( dpi );
 }
 
 
@@ -1279,18 +1280,18 @@ const MarkerStyle3D* FaultStickSetDisplay::getPreferedMarkerStyle() const
 }
 
 
-void FaultStickSetDisplay::setPreferedMarkerStyle( 
+void FaultStickSetDisplay::setPreferedMarkerStyle(
     const MarkerStyle3D& mkstyle )
 {
     // for stickset we do use fixed color for dragger, polygon, and selection.
-    // So to guarantee this here we set a fixed color. 
-    
+    // So to guarantee this here we set a fixed color.
+
     MarkerStyle3D sstmkstyle = mkstyle;
     sstmkstyle.color_ = Color::Yellow();
 
     viseditor_->setMarkerStyle( sstmkstyle );
     setStickMarkerStyle( sstmkstyle );
-    
+
     if ( fault_ )
 	fault_->setPosAttrMarkerStyle( 0, sstmkstyle );
 }
