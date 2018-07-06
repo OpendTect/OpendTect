@@ -50,6 +50,8 @@ public:
     void		setTabIcon(int id,const char* icnnm);
     void		setTabIcon(uiGroup*,const char* icnnm);
     void		setTabsClosable(bool closable);
+    int			insertTab(uiGroup*, int index,
+				  const uiString& =uiString::empty());
 
     uiGroup*		currentPage() const;
     uiGroup* 		page(int idx) const;

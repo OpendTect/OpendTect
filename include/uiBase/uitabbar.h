@@ -40,6 +40,7 @@ public:
     uiString		textOfTab(int idx) const;
     void		setTabIcon(int idx,const char*);
     void		setTabsClosable(bool closable);
+    int			insertTab(uiTab* tab, int index);
     
     int			size() const;
 

@@ -68,6 +68,20 @@ void uiTabStack::addTab( uiGroup* grp, const uiString& txt )
 }
 
 
+int uiTabStack::insertTab( uiGroup* grp, int index, const uiString& txt )
+{
+    if ( !grp ) return -1;
+
+    const uiString tabcaption = !txt.isEmpty() ? txt
+						: toUiString(grp->name());
+    uiTab* tab = new uiTab( *grp, tabcaption );
+    if ( !hAlignObj() )
+	setHAlignObj( grp );
+
+    return tabbar_->insertTab( tab, index );
+}
+
+
 void uiTabStack::removeTab( uiGroup* grp )
 { tabbar_->removeTab( grp ); }
 

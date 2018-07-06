@@ -82,6 +82,15 @@ int uiTabBar::addTab( uiTab* tab )
 }
 
 
+int uiTabBar::insertTab( uiTab* tab, int index )
+{
+    mBlockCmdRec;
+    if ( !tab ) return -1;
+    tabs_.insertAt( tab, index );
+    return body_->insertTab( index, toQString(tab->getCaption()) );
+}
+
+
 void uiTabBar::removeTab( uiTab* tab )
 {
     mBlockCmdRec;
