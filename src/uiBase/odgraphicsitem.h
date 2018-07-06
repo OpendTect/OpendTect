@@ -262,14 +262,25 @@ public:
 
 protected:
 
+				class ODLineSegment
+				{
+				public:
+				    QPolygonF		qpolygon_;
+				    QVector<QPen>	qpens_;
+
+				    bool		isEmpty() const;
+				    void		add(const QPointF&,
+							    const QPen&);
+				    void		setWidth(int);
+				};
+
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
     void			cleanupPolygon();
 
     bool			highlight_;
     QPolygonF			inputqpolygon_;
     QVector<QPen>		inputqpens_;
-    QPolygonF			qpolygon_;
-    QVector<QPen>		qpens_;
+    QVector<ODLineSegment>	odlinesegments_;
     QRectF			brect_;
     QPainterPath		path_;
 };
