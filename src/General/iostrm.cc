@@ -97,6 +97,34 @@ void IOStream::setAbsDirectory( const char* dirnm )
 }
 
 
+FullDBKey IOStream::fullKey() const
+{
+    FullDBKey fdbky( key() );
+    if ( fs_.survsubdir_.isEmpty() )
+	return fdbky;
+
+    File::Path fp( fs_.absFileName() );
+    while ( true )
+    {
+	const BufferString dirnm( fp.fileName() );
+	if ( dirnm.isEmpty() )
+	    break;
+
+	fp.setFileName( 0 );
+	if ( dirnm == fs_.survsubdir_ )
+	{
+	    const BufferString survdirnm( fp.fileName() );
+	    fp.setFileName( 0 );
+	    fdbky.survloc_.basepath_.set( fp.fullPath() );
+	    fdbky.survloc_.dirname_.set( survdirnm );
+	    break;
+	}
+    }
+
+    return fdbky;
+}
+
+
 const char* IOStream::connType() const
 {
     return StreamConn::sType();

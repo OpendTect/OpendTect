@@ -16,9 +16,11 @@ ________________________________________________________________________
 #include "typeset.h"
 
 class BufferStringSet;
+class IOObj;
 
 
-/*!\brief Full key to any object in the OpendTect data store.
+/*!\brief Key to an object in the OpendTect data store. The key is valid
+  within the current survey.
 
   The OpendTect data store is a meta-datastore. It is defined only by interfaces
   to store and retreive the data. All objects have at least one default storage
@@ -26,7 +28,8 @@ class BufferStringSet;
   stored in CBVS files. Just as well, it can be stored in other data stores.
 
   To identify the storage of objects, every object somewhere in a data store
-  accessible for opendTect, you need its DBKey.
+  accessible for opendTect, you need its DBKey. If you need to handle objects in
+  multiple surveys, you need the 'FullDBKey'.
 
   Previously, the key was a string-based class called MultiID. The DBKey
   replaces it with the safer and more compact IDWithGroup.
@@ -94,6 +97,10 @@ protected:
 };
 
 
+
+/*!\brief Set of DBKey's. TODO: needs to preserve FullDBKeys
+   (i.e. must hold an ObjectSet rather than inherit TypeSet) */
+
 mExpClass(Basic) DBKeySet : public TypeSet<DBKey>
 {
 public:
@@ -115,3 +122,8 @@ mGlobal(Basic) inline BufferString toString( const DBKey& ky )
 { return ky.toString(); }
 mGlobal(Basic) inline uiString toUiString( const DBKey& ky )
 { return ky.toUiString(); }
+
+// These functions are implemented in dbman.cc in General, so you can only call
+// them from code that also links the General lib
+mGlobal(Basic) BufferString	nameOf(const DBKey&);
+mGlobal(Basic) IOObj*		getIOObj(const DBKey&);

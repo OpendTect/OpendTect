@@ -147,6 +147,16 @@ BufferString SurveyDiskLocation::surveyName() const
 }
 
 
+bool SurveyDiskLocation::isCurrentSurvey() const
+{
+    SurveyDiskLocation cursdl;
+    if ( !basepath_.isEmpty() && basepath_ != cursdl.basepath_ )
+	return false;
+
+    return dirname_ == cursdl.dirname_;
+}
+
+
 
 SurveyInfo::SurveyInfo()
     : fullcs_(*new TrcKeyZSampling(false))

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 
 #include "generalmod.h"
-#include "dbkey.h"
+#include "fulldbkey.h"
 #include "namedobj.h"
 #include "uistring.h"
 
@@ -65,8 +65,9 @@ public:
     // uiString			uiName() const { return toUiString(name()); }
 
     IOObj*			clone() const;
-    virtual DBKey		key() const		{ return key_; }
-    virtual ObjID		objID() const		{ return key_.objID();}
+    virtual DBKey		key() const	{ return key_; }
+    virtual FullDBKey		fullKey() const	{ return FullDBKey(key()); }
+    virtual ObjID		objID() const	{ return key_.objID(); }
 
     virtual			~IOObj();
     virtual bool		isBad() const			= 0;

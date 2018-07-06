@@ -5,7 +5,7 @@
 -*/
 
 
-#include "dbkey.h"
+#include "fulldbkey.h"
 #include "compoundkey.h"
 #include "bufstringset.h"
 
@@ -190,4 +190,67 @@ void DBKeySet::addTo( BufferStringSet& bss ) const
 {
     for ( int idx=0; idx<size(); idx++ )
 	bss.add( ((*this)[idx]).toString() );
+}
+
+
+
+FullDBKey& FullDBKey::operator =( const FullDBKey& oth )
+{
+    if ( this != &oth )
+    {
+	DBKey::operator =( oth );
+	survloc_ = oth.survloc_;
+    }
+    return *this;
+}
+
+
+FullDBKey& FullDBKey::operator =( const DBKey& dbky )
+{
+    if ( this != &dbky )
+    {
+	mDynamicCastGet( const FullDBKey*, fdbky, &dbky )
+	if ( fdbky )
+	    return operator =( *fdbky );
+
+	DBKey::operator =( dbky );
+	survloc_ = SurveyDiskLocation();
+    }
+    return *this;
+}
+
+
+bool FullDBKey::operator ==( const FullDBKey& oth ) const
+{
+    return survloc_ == oth.survloc_
+	&& DBKey::operator ==( oth );
+}
+
+
+bool FullDBKey::operator !=( const FullDBKey& oth ) const
+{
+    return !(*this == oth);
+}
+
+
+bool FullDBKey::operator ==( const DBKey& dbky ) const
+{
+    mDynamicCastGet( const FullDBKey*, fdbky, &dbky )
+    if ( fdbky )
+	return operator ==( *fdbky );
+
+    return survloc_ == SurveyDiskLocation()
+	&& DBKey::operator ==( dbky );
+}
+
+
+bool FullDBKey::operator !=( const DBKey& dbky ) const
+{
+    return !(*this == dbky);
+}
+
+
+BufferString FullDBKey::surveyName() const
+{
+    return survloc_.surveyName();
 }

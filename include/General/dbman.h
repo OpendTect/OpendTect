@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 class DBDir;
 class IOObjSelConstraints;
+class FullDBKey;
 
 
 /*!\brief manages the 'Meta-'data store for the IOObj's.
@@ -36,13 +37,14 @@ public:
     typedef DBKey::DirID DirID;
     typedef DBKey::ObjID ObjID;
 
-    bool		isPresent(DBKey) const;
+    bool		isPresent(const DBKey&) const;
     bool		isPresent(const char*,const char* tgname) const;
-    BufferString	nameOf(DBKey) const;
+    BufferString	nameOf( const DBKey& dbky ) const
+			{ return ::nameOf(dbky); }
     BufferString	nameFor(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
 
-    IOObj*		get(DBKey) const;
+    IOObj*		get(const DBKey&) const;
     IOObj*		getFirst(const IOObjContext&,int* nrpresent=0) const;
     IOObj*		getFromPar(const IOPar&,const char* basekey,
 					const IOObjContext&,bool mknew,
@@ -56,7 +58,7 @@ public:
 				 int translidxingroup=-1);
 				//!< will create a new entry if necessary
     bool		setEntry(const IOObj&);
-    bool		removeEntry(DBKey);
+    bool		removeEntry(const DBKey&);
 
     ConstRefMan<DBDir>	fetchDir(DirID) const;
     ConstRefMan<DBDir>	fetchDir(IOObjContext::StdSelType) const;
@@ -169,6 +171,5 @@ public:
 			//!< Should not be necessary
 
 };
-
 
 mGlobal(General) DBMan&	DBM();

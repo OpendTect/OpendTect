@@ -32,5 +32,6 @@ public:
     void		set(const File::Path&);
     BufferString	fullPath() const;
     BufferString	surveyName() const;
+    bool		isCurrentSurvey() const;
 
 };

@@ -11,6 +11,7 @@
 #include "file.h"
 #include "filepath.h"
 #include "timefun.h"
+#include "fulldbkey.h"
 #include "genc.h"
 #include "survinfo.h"
 #include "survgeom.h"
@@ -237,7 +238,7 @@ void DBMan::readDirs()
 }
 
 
-bool DBMan::isPresent( DBKey dbky ) const
+bool DBMan::isPresent( const DBKey& dbky ) const
 {
     mLock4Read();
     const DBDir* dir = gtDir( dbky.dirID() );
@@ -252,15 +253,13 @@ bool DBMan::isPresent( const char* objnm, const char* trgrpnm ) const
 }
 
 
-BufferString DBMan::nameOf( DBKey dbky ) const
+static BufferString getDBKeyStr( const DBKey& dbky )
 {
-    BufferString ret;
-    IOObj* ioobj = get( dbky );
-    if ( ioobj )
-	{ ret = ioobj->name(); delete ioobj; }
-    else if ( dbky.isValid() )
-	{ ret = "ID=<"; ret += dbky; ret += ">"; }
-
+    BufferString ret( "ID=<" );
+    mDynamicCastGet( const FullDBKey*, fdbky, &dbky )
+    if ( fdbky )
+	ret.add( fdbky->survloc_.fullPath() ).add( "|" );
+    ret.add( dbky ).add( ">" );
     return ret;
 }
 
@@ -297,7 +296,7 @@ ConstRefMan<DBDir> DBMan::fetchDir( IOObjContext::StdSelType seltyp ) const
 }
 
 
-IOObj* DBMan::get( DBKey dbky ) const
+IOObj* DBMan::get( const DBKey& dbky ) const
 {
     if ( isBad() )
 	return 0;
@@ -311,6 +310,55 @@ IOObj* DBMan::get( DBKey dbky ) const
 	return 0;
 
     return dbdir->getEntry( dbky.objID() );
+}
+
+
+IOObj* getIOObj( const DBKey& dbky )
+{
+    if ( !dbky.isValid() )
+	return 0;
+    mDynamicCastGet( const FullDBKey*, fdbky, &dbky )
+    if ( !fdbky || fdbky->survloc_.isCurrentSurvey() )
+	return DBM().get( dbky );
+
+    ConstRefMan<DBDir> survrootdbdir = new DBDir( fdbky->survloc_.fullPath() );
+    IOObj* ret = 0;
+    if ( !survrootdbdir->isBad() )
+    {
+	const DBKey::ObjID dirid = DBKey::ObjID( fdbky->groupID().getI() );
+	const IOObj* iosubdir = survrootdbdir->getEntry( dirid );
+	if ( iosubdir )
+	{
+	    const BufferString datadirnm( iosubdir->fullUserExpr(true) );
+	    ConstRefMan<DBDir> objdbdir = new DBDir( datadirnm );
+	    const IOObj* ioobj = objdbdir->getEntry( fdbky->objID() );
+	    if ( ioobj )
+	    {
+		ret = ioobj->clone();
+		ret->setAbsDirectory( datadirnm );
+	    }
+	}
+    }
+
+    return ret;
+}
+
+
+BufferString nameOf( const DBKey& dbky )
+{
+    BufferString ret;
+    if ( !dbky.isValid() )
+	return ret;
+
+    IOObj* ioobj = getIOObj( dbky );
+    if ( !ioobj )
+	return getDBKeyStr( dbky );
+    else
+    {
+	ret.set( ioobj->name() );
+	delete ioobj;
+    }
+    return ret;
 }
 
 
@@ -555,7 +603,7 @@ bool DBMan::setEntry( const IOObj& ioobj )
 }
 
 
-bool DBMan::removeEntry( DBKey dbky )
+bool DBMan::removeEntry( const DBKey& dbky )
 {
     const ObjID objid = dbky.objID();
     if ( objid.isInvalid() )
