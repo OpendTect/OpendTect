@@ -530,7 +530,7 @@ SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
     , source_(source)
     , comp_(comp)
     , zsamp_(source.getZRange())
-    , rdlid_(-1)
+    , rdlid_(source.getRandomLineID())
 {
     DPM(DataPackMgr::SeisID()).addAndObtain(const_cast<SeisDataPack*>(&source));
     setName( source_.getComponentName(comp_) );
