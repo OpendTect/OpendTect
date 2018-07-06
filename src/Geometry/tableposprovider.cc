@@ -100,8 +100,8 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
     const char* res = iop.find( mGetTableKey("ID") );
     if ( res && *res )
     {
-	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch(
-					DBKey::getFromString(res) );
+	PtrMan<DBKey> dbky = DBKey::getFromString( res );
+	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( *dbky );
 	if ( ps )
 	{
 	    Pick::SetIter psiter( *ps );

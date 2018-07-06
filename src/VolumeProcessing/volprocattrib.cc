@@ -39,7 +39,7 @@ VolProcAttrib::VolProcAttrib( Desc& ds )
     , executor_(0)
 {
     const char* idstr = desc_.getValParam( sKeySetup() )->getStringValue();
-    setupmid_ = DBKey::getFromString( idstr );
+    setupmid_ = DBKey::getFromStr( idstr );
 }
 
 
@@ -168,7 +168,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     if ( !Attrib::Desc::getParamString( definition, sKeySetup(), dbkystring ) )
 	return false;
 
-    DBKey dbky = DBKey::getFromString( dbkystring );
+    DBKey dbky = DBKey::getFromStr( dbkystring );
     PtrMan<IOObj>  ioobj = DBM().get( dbky );
     if ( !ioobj )
     {

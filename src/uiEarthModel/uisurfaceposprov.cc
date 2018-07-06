@@ -104,11 +104,11 @@ void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 {
     if ( !surf1fld_ ) return;
 
-    surf1fld_->setInput( DBKey::getFromString(iop.find(mGetSurfKey(id1))) );
+    surf1fld_->setInput( DBKey::getFromStr(iop.find(mGetSurfKey(id1))) );
     const char* res = iop.find( mGetSurfKey(id2) );
     const bool issing = !res || !*res;
     if ( !issing )
-	surf2fld_->setInput( DBKey::getFromString(res) );
+	surf2fld_->setInput( DBKey::getFromStr(res) );
     issingfld_->setValue( issing );
 
     if ( zstepfld_ )

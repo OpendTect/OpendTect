@@ -56,7 +56,7 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
     usefld_->setValue( douse );
     usefld_->valuechanged.notify( mCB(this,uiAutoAttrSelDlg,useChg) );
 
-    ctio_.setObj( DBKey::getFromString(idstr) );
+    ctio_.setObj( DBKey::getFromStr(idstr) );
     ctio_.ctxt_.forread_ = true;
     ctio_.ctxt_.toselect_.dontallow_.set( sKey::Type(), is2d ? "3D" : "2D" );
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );

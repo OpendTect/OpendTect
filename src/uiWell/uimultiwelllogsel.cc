@@ -255,7 +255,7 @@ void uiMultiWellLogSel::setSelWellIDs( const BufferStringSet& idstrs )
 {
     DBKeySet mids;
     for ( int idx=0; idx<idstrs.size(); idx++ )
-	mids += DBKey::getFromString( idstrs.get(idx) );
+	mids += DBKey::getFromStr( idstrs.get(idx) );
 
     setSelWellIDs( mids );
 }
@@ -299,7 +299,7 @@ void uiMultiWellLogSel::readWellChoiceDone( CallBacker* )
 
     DBKeySet mids;
     for ( int idx=0; idx<wellschoiceio_->chosenKeys().size(); idx++ )
-	mids += DBKey::getFromString( wellschoiceio_->chosenKeys().get(idx) );
+	mids += DBKey::getFromStr( wellschoiceio_->chosenKeys().get(idx) );
     setSelWellIDs( mids );
 }
 

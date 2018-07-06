@@ -126,7 +126,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     {
 	if ( astrm.hasKeyword(sKeyRefHor()) )
 	{
-	    DBKey horky = DBKey::getFromString( astrm.value() );
+	    DBKey horky = DBKey::getFromStr( astrm.value() );
 	    md.setReferenceHorizon( horky );
 	    astrm.next();
 	}

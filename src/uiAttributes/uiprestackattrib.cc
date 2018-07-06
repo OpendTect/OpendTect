@@ -122,7 +122,7 @@ uiPreStackAttrib::~uiPreStackAttrib()
 bool uiPreStackAttrib::setAngleParameters( const Desc& desc )
 {
     mIfGetString( PSAttrib::velocityIDStr(), idstr,
-		  params_.velvolmid_=DBKey::getFromString(idstr) )
+		  params_.velvolmid_=DBKey::getFromStr(idstr) )
 
     Interval<int> anglerange, normalanglevalrange( 0, 90 );
     mIfGetInt( PSAttrib::angleStartStr(), start,

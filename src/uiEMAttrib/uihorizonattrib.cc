@@ -91,7 +91,7 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
 
     mIfGetString( Horizon::sKeyHorID(), horidstr,
 		  if ( horidstr && *horidstr )
-		      horfld_->setInput( DBKey::getFromString(horidstr) ); );
+		      horfld_->setInput( DBKey::getFromStr(horidstr) ); );
 
     if ( horfld_->ioobj(true) )
 	horSel(0);

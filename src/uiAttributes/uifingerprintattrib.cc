@@ -269,7 +269,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     }
 
     mIfGetString( FingerPrint::valpicksetStr(), pickidstr,
-		  IOObj* ioobj = DBM().get( DBKey::getFromString(pickidstr) );
+		  IOObj* ioobj = DBM().get( DBKey::getFromStr(pickidstr) );
 		  if ( ioobj ) picksetfld_->setInput( *ioobj ) );
 
     mIfGetInt( FingerPrint::valreftypeStr(), type, refgrp_->selectButton(type) )
@@ -356,7 +356,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     }
 
     mIfGetString( FingerPrint::rgpicksetStr(), rgp,
-		calcobj_->setRgRefPick(DBKey::getFromString(rgp)))
+		calcobj_->setRgRefPick(DBKey::getFromStr(rgp)))
 
     mIfGetInt(FingerPrint::rgreftypeStr(), rgtyp, calcobj_->setRgRefType(rgtyp))
 

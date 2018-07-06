@@ -50,7 +50,7 @@ bool uiVolProcAttrib::setParameters( const Desc& desc )
     const ValParam* par = desc.getValParam( VolProcAttrib::sKeySetup() );
     if ( !par ) return false;
 
-    const DBKey setupid = DBKey::getFromString( par->getStringValue(0) );
+    const DBKey setupid = DBKey::getFromStr( par->getStringValue(0) );
     setupfld_->setInput( setupid );
 
     return true;

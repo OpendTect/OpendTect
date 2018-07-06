@@ -155,8 +155,8 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
     ODPolygon<float>* ret = 0;
     if ( res && *res )
     {
-	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch(
-						DBKey::getFromString(res) );
+	PtrMan<DBKey> dbky = DBKey::getFromString( res );
+	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( *dbky );
 	if ( ps )
 	{
 	    ret = new ODPolygon<float>;

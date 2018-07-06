@@ -162,7 +162,7 @@ void calcFingParsObject::findDataSetID( DBKey& linesetid ) const
 	    Desc* dsc = attrset_->desc(idxdesc);
 	    const char* key = StorageProvider::keyStr();
 	    if ( dsc->isStored() )
-		linesetid = DBKey::getFromString(
+		linesetid = DBKey::getFromStr(
 				dsc->getValParam(key)->getStringValue() );
 	    else
 	    {
@@ -173,7 +173,7 @@ void calcFingParsObject::findDataSetID( DBKey& linesetid ) const
 		    Desc* inpdsc = dsc->getInput(0);
 		    if ( inpdsc->isStored() )
 		    {
-			linesetid = DBKey::getFromString(
+			linesetid = DBKey::getFromStr(
 				inpdsc->getValParam(key)->getStringValue() );
 			foundstored = true;
 		    }

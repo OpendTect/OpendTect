@@ -73,7 +73,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	return;
     }
 
-    const DBKey key = DBKey::getFromString( storstr );
+    const DBKey key = DBKey::getFromStr( storstr );
     uiRetVal uirv;
     Seis::Provider* prov = Seis::Provider::create( key, &uirv );
     if ( !prov )
@@ -157,7 +157,7 @@ bool StorageProvider::checkInpAndParsAtStart()
     }
 
     const StringPair strpair( desc_.getValParam(keyStr())->getStringValue(0) );
-    const DBKey mid = DBKey::getFromString( strpair.first() );
+    const DBKey mid = DBKey::getFromStr( strpair.first() );
     if ( !isOK() )
 	return false;
 

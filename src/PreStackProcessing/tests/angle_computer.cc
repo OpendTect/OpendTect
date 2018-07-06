@@ -169,7 +169,7 @@ bool BatchProgram::go( od_ostream& strm )
     RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				    new PreStack::VelocityBasedAngleComputer;
 
-    PtrMan<IOObj> velobj = DBM().get( DBKey::getFromString("100010.8") );
+    PtrMan<IOObj> velobj = DBM().get( DBKey::getFromStr("100010.8") );
     if ( !velobj )
     {
 	od_cout() << " Input data is not available.\n";
@@ -256,7 +256,7 @@ bool testAnglesForDifferentSurveys()
 	RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				new PreStack::VelocityBasedAngleComputer;
 
-	PtrMan<IOObj> velobj = DBM().get( DBKey::getFromString("100010.8") );
+	PtrMan<IOObj> velobj = DBM().get( DBKey::getFromStr("100010.8") );
 	if ( !velobj )
 	{
 	    od_cout() << survnm << " : Input data is not available.\n";

@@ -215,7 +215,7 @@ DescID DescSet::defStoredID() const
     }
 
     return const_cast<DescSet*>(this)->getStoredID(
-			    DBKey::getFromString(idstr), 0, true, true );
+			    DBKey::getFromStr(idstr), 0, true, true );
 }
 
 
@@ -667,7 +667,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     {
 	const ValParam* keypar = dsc->getValParam( StorageProvider::keyStr() );
 	const StringPair storkey( keypar->getStringValue() );
-	PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(storkey.first()));
+	PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromStr(storkey.first()));
 	if ( ioobj.ptr() )
 	{
 	    BufferString tentativeuserref = (BufferString)ioobj->name();
@@ -1354,7 +1354,7 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 	    {
 		const ValParam* keypar =
 			dsc.getValParam( StorageProvider::keyStr() );
-		const DBKey dbky = DBKey::getFromString(
+		const DBKey dbky = DBKey::getFromStr(
 					keypar->getStringValue() );
 		PtrMan<IOObj> ioobj = DBM().get( dbky );
 		if ( remstored || !ioobj || !ioobj->implExists(true) )

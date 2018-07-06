@@ -73,9 +73,9 @@ static bool haveColNmMatch( BufferString& colnm, const char* inpnodenm )
 	return true;
 
     if ( IOObj::isKey(colnm) )
-	colnm = DBM().nameOf( DBKey::getFromString(colnm) );
+	colnm = DBM().nameOf( DBKey::getFromStr(colnm) );
     if ( IOObj::isKey(nodenm) )
-	nodenm = DBM().nameOf( DBKey::getFromString(nodenm) );
+	nodenm = DBM().nameOf( DBKey::getFromStr(nodenm) );
     return colnm == nodenm;
 }
 
@@ -165,7 +165,7 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 	{
 	    BufferString psnm = outids.get( iout );
 	    if ( IOObj::isKey(psnm) )
-		psnm = DBM().nameOf( DBKey::getFromString(psnm) );
+		psnm = DBM().nameOf( DBKey::getFromStr(psnm) );
             dps.dataSet().add( new DataColDef( psnm, *outids[iout] ) );
 	}
     }

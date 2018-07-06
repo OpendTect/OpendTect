@@ -20,26 +20,33 @@ mExpClass(Basic) FullDBKey : public DBKey
 {
 public:
 
-			    FullDBKey()				{}
-    explicit		    FullDBKey( const DBKey& dbky )
+			FullDBKey()				{}
+    explicit		FullDBKey( const DBKey& dbky )
 				: DBKey(dbky)			{}
-    explicit		    FullDBKey( const SurveyDiskLocation& sdl )
+    explicit		FullDBKey( const SurveyDiskLocation& sdl )
 				: survloc_(sdl)			{}
-			    FullDBKey( const DBKey& dbky,
+			FullDBKey( const DBKey& dbky,
 				       const SurveyDiskLocation& sdl )
 				: DBKey(dbky), survloc_(sdl)	{}
-			    FullDBKey( const SurveyDiskLocation& sdl,
+			FullDBKey( const SurveyDiskLocation& sdl,
 				       const DBKey& dbky )
 				: DBKey(dbky), survloc_(sdl)	{}
-    FullDBKey&		    operator =(const DBKey&);
-    FullDBKey&		    operator =(const FullDBKey&);
-    bool		    operator ==(const FullDBKey&) const;
-    bool		    operator !=(const FullDBKey&) const;
-    bool		    operator ==(const DBKey&) const;
-    bool		    operator !=(const DBKey&) const;
+    FullDBKey&		operator =(const DBKey&);
+    FullDBKey&		operator =(const FullDBKey&);
+    bool		operator ==(const FullDBKey&) const;
+    bool		operator !=(const FullDBKey&) const;
+    bool		operator ==(const DBKey&) const;
+    bool		operator !=(const DBKey&) const;
 
-    SurveyDiskLocation	    survloc_;
+    virtual DBKey*	clone() const	{ return new FullDBKey(*this); }
 
-    BufferString	    surveyName() const;
+    virtual BufferString toString() const;
+    virtual void	fromString(const char*);
+
+    SurveyDiskLocation	survloc_;
+
+    virtual bool	isInCurrentSurvey() const
+			{ return survloc_.isCurrentSurvey(); }
+    BufferString	surveyName() const;
 
 };

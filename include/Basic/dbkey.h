@@ -50,7 +50,10 @@ public:
 			DBKey( DirID dirid, ObjID oid=ObjID::getInvalid() )
 			    : IDWithGroup<int,int>(dirid,oid)
 			    , auxkey_(0)	{}
-			~DBKey();
+    virtual		~DBKey();
+
+    virtual DBKey*	clone() const		{ return new DBKey(*this); }
+    static DBKey*	getFromString(const char*);
 
     DBKey&		operator =(const DBKey&);
     bool		operator ==(const DBKey&) const;
@@ -59,10 +62,11 @@ public:
     static DBKey	getInvalid()		{ return DBKey(-1,-1); }
     static DBKey	get( DirNrType gnr, ObjNrType onr=-1 )
 						{ return DBKey(gnr,onr); }
-    static DBKey	getFromString(const char*);
-    static DBKey	getFromInt64(od_int64);
+    static DBKey	getFromStr(const char*);
+    static DBKey	getFromI64(od_int64);
 
     virtual bool	isInvalid() const	{ return groupnr_ < 0; }
+    virtual bool	isInCurrentSurvey() const { return true; }
 
 			// aliases
     inline bool		hasValidDirID() const	{ return hasValidGroupID(); }

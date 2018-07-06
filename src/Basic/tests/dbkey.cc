@@ -6,7 +6,7 @@
 
 
 #include "testprog.h"
-#include "dbkey.h"
+#include "fulldbkey.h"
 
 static bool checkCharacteristics( const char* strrep,
 	      bool strvalid, bool kyvalid, bool isdir, bool hasaux )
@@ -22,7 +22,7 @@ static bool checkCharacteristics( const char* strrep,
 	return false;
     }
 
-    const DBKey dbky = DBKey::getFromString( strrep );
+    const DBKey dbky = DBKey::getFromStr( strrep );
     if ( dbky.isValid() == kyvalid )
 	tstStream( false ) << "'" << strrep << "' valid for DBKey OK."
 			  << od_endl;
@@ -78,14 +78,14 @@ static bool testToFromString()
 	return false;
 
     DBKey dbky1; DBKey::DirID dirid; dirid.setInvalid();
-    dbky1 = DBKey::getFromString( kystr1 );
-    DBKey dbky2 = DBKey::getFromString( kystr2 );
-    DBKey dbky3 = DBKey::getFromString( kystr3 );
-    DBKey dbky4 = DBKey::getFromString( kystr4 );
-    DBKey dbky5 = DBKey::getFromString( kystr5 );
-    DBKey dbky6 = DBKey::getFromString( kystr6 );
-    DBKey dbky7 = DBKey::getFromString( kystr7 );
-    DBKey dbky8 = DBKey::getFromString( kystr8 );
+    dbky1 = DBKey::getFromStr( kystr1 );
+    DBKey dbky2 = DBKey::getFromStr( kystr2 );
+    DBKey dbky3 = DBKey::getFromStr( kystr3 );
+    DBKey dbky4 = DBKey::getFromStr( kystr4 );
+    DBKey dbky5 = DBKey::getFromStr( kystr5 );
+    DBKey dbky6 = DBKey::getFromStr( kystr6 );
+    DBKey dbky7 = DBKey::getFromStr( kystr7 );
+    DBKey dbky8 = DBKey::getFromStr( kystr8 );
 
     BufferString kystr1_2 = dbky1.toString(), kystr2_2 = dbky2.toString();
     BufferString kystr3_2 = dbky3.toString(), kystr4_2 = dbky4.toString();
@@ -107,12 +107,36 @@ static bool testToFromString()
 }
 
 
+static bool testFullDBKey()
+{
+    const char* sstr = "100010.5`/tmp/surveys/Apenoot";
+    DBKey* ldbky = DBKey::getFromString( "100010.5" );
+    DBKey* sdbky = DBKey::getFromString( sstr );
+
+    mRunStandardTest( ldbky->isInCurrentSurvey(), "DBKey in current survey" );
+    mRunStandardTest( !sdbky->isInCurrentSurvey(),
+			"FullDBKey not in current survey" );
+
+    FullDBKey& fdbky( *(FullDBKey*)sdbky );
+    const BufferString survdir( fdbky.survloc_.fullPath() );
+    mRunStandardTestWithError( survdir == "/tmp/surveys/Apenoot",
+	    "Correct survdir", BufferString("parsed: '",survdir,"'") );
+    const BufferString fdbkystr( fdbky.toString() );
+    mRunStandardTestWithError( fdbkystr == sstr,
+	    "Correct toString", BufferString("got: '",fdbkystr,"'") );
+
+    return true;
+}
+
+
 
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
     if ( !testToFromString() )
+	return 1;
+    else if ( !testFullDBKey() )
 	return 1;
 
     return 0;

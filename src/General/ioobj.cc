@@ -408,7 +408,7 @@ bool areEqual( const IOObj* o1, const IOObj* o2 )
 static void mkStd( DBKey& ky )
 {
     if ( ky.isInvalid() )
-	ky = DBKey::getFromString( "0" );
+	ky = DBKey::getFromStr( "0" );
     else if ( ky.objID().getI() == 1 )
 	ky.setInvalidObj();
 }
@@ -448,7 +448,7 @@ IOSubDir::IOSubDir( const IOSubDir& oth )
 IOSubDir* IOSubDir::get( ascistream& strm, const char* dirnm )
 {
     IOSubDir* ret = new IOSubDir( strm.value() );
-    DBKey readky = DBKey::getFromString( strm.keyWord() + 1 );
+    DBKey readky = DBKey::getFromStr( strm.keyWord() + 1 );
     ret->key_.setObjID( DBKey::ObjID::get(readky.dirID().getI()) );
     ret->key_.setDirID( DBKey::DirID::get( 0 ) );
     ret->dirnm_ = dirnm;

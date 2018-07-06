@@ -81,7 +81,7 @@ public:
 			// serialization to int64
     virtual od_int64	toInt64() const;
     virtual void	fromInt64(od_int64);
-    static IDWithGroup	getFromInt64(od_int64);
+    static IDWithGroup	getFromI64(od_int64);
 
 protected:
 
@@ -160,7 +160,7 @@ void IDWithGroup<GroupNrT,ObjNrT>::fromInt64( od_int64 i64 )
 
 template <class GroupNrT,class ObjNrT> inline
 IDWithGroup<GroupNrT,ObjNrT>
-IDWithGroup<GroupNrT,ObjNrT>::getFromInt64( od_int64 i64 )
+IDWithGroup<GroupNrT,ObjNrT>::getFromI64( od_int64 i64 )
 {
     IDWithGroup ret = getInvalid();
     ret.fromInt64( i64 );

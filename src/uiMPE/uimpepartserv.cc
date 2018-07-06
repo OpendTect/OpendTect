@@ -726,7 +726,7 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 	{
 	    BufferString idstr;
 	    Attrib::Desc::getParamString( as->defString(), "id", idstr );
-	    attrset.getStoredID( DBKey::getFromString(idstr) );
+	    attrset.getStoredID( DBKey::getFromStr(idstr) );
 
 	    Attrib::SelSpec newas( *as );
 	    newas.setIDFromRef( attrset );

@@ -171,7 +171,7 @@ bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
 bool uiAttribPartServer::addToDescSet( const char* key, bool is2d )
 {
     DescSet& attrset = curDescSet4Edit( is2d );
-    const DBKey dbky = DBKey::getFromString( key );
+    const DBKey dbky = DBKey::getFromStr( key );
     if ( !dbky.isValid() )
 	return false;
 
@@ -1274,7 +1274,7 @@ static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
 	const BufferString& nm = nms.get( idx );
 	MenuItem* itm = new MenuItem( toUiString(nm) );
 	itm->checkable = true;
-	const DBKey dbky = ids ? DBKey::getFromString( ids->get(idx) )
+	const DBKey dbky = ids ? DBKey::getFromStr( ids->get(idx) )
 			       : DBKey::getInvalid();
 	if ( ids && Seis::PLDM().isPresent(dbky) )
 	    itm->iconfnm = "preloaded";

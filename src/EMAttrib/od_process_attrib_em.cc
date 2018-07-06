@@ -97,7 +97,7 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 	objidstr.setEmpty();
     else
     {
-	PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(objid) );
+	PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromStr(objid) );
 	if ( !ioobj )
 	{
 	    errmsg = "Cannot find object for '"; errmsg += objid;
@@ -125,14 +125,14 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 
     if ( !iscubeoutp )
     {
-	dbkys += DBKey::getFromString( objidstr );
+	dbkys += DBKey::getFromStr( objidstr );
 	BufferString newattrnm;
 	iopar.get( sKey::Target(), newattrnm );
 	strm << "Calculating Horizon Data '" << newattrnm << "'." << od_endl;
     }
     else
     {
-	outpid = DBKey::getFromString( objidstr );
+	outpid = DBKey::getFromStr( objidstr );
 	PtrMan<IOObj> ioobj = DBM().get( outpid ); //check already done
 	if ( !ioobj )
 	    return false;
@@ -144,14 +144,14 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) )
 	    return false;
 
-	dbkys += DBKey::getFromString( objidstr );
+	dbkys += DBKey::getFromStr( objidstr );
 
 	BufferString hor2str = IOPar::compKey(basehorstr,1);
 	if( !getObjectID( iopar, hor2str, false, errmsg, objidstr ) )
 	    return false;
 
 	if ( !objidstr.isEmpty() )
-	    dbkys += DBKey::getFromString( objidstr );
+	    dbkys += DBKey::getFromStr( objidstr );
     }
     return true;
 }

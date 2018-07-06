@@ -293,7 +293,7 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 void uiTablePosProvGroup::usePar( const IOPar& iop )
 {
     const char* idres = iop.find( mGetTableKey("ID") );
-    psfld_->setInput( DBKey::getFromString(idres) );
+    psfld_->setInput( DBKey::getFromStr(idres) );
 }
 
 

@@ -6,8 +6,9 @@
 
 
 #include "fulldbkey.h"
-#include "compoundkey.h"
 #include "bufstringset.h"
+#include "compoundkey.h"
+#include "filepath.h"
 
 
 bool isValidGroupedIDString( const char* str )
@@ -47,6 +48,10 @@ void getGroupedIDNumbers( const char* str, od_int64& gnr, od_int64& onr,
     if ( inpstr.isEmpty() )
 	return;
 
+    char* ptrbq = inpstr.find( '`' );
+    if ( ptrbq )
+	*ptrbq = '\0';
+
     char* ptrtrailer = inpstr.find( '|' );
     if ( ptrtrailer )
 	{ *ptrtrailer = '\0'; ptrtrailer++; }
@@ -71,6 +76,18 @@ void getGroupedIDNumbers( const char* str, od_int64& gnr, od_int64& onr,
     }
 }
 
+
+DBKey* DBKey::getFromString( const char* str )
+{
+    FullDBKey* fdbky = new FullDBKey;
+    fdbky->fromString( str );
+    if ( !fdbky->isInCurrentSurvey() )
+	return fdbky;
+
+    DBKey* dbky = new DBKey( *fdbky );
+    delete fdbky;
+    return dbky;
+}
 
 
 DBKey::DBKey( const char* str )
@@ -143,14 +160,6 @@ void DBKey::fromString( const char* str )
 }
 
 
-DBKey DBKey::getFromString( const char* str )
-{
-    DBKey ret = getInvalid();
-    ret.fromString( str );
-    return ret;
-}
-
-
 BufferString DBKey::auxKey() const
 {
     return auxkey_ ? *auxkey_ : BufferString::empty();
@@ -172,7 +181,15 @@ void DBKey::setAuxKey( const char* str )
 
 
 
-DBKey DBKey::getFromInt64( od_int64 i64 )
+DBKey DBKey::getFromStr( const char* str )
+{
+    DBKey ret;
+    ret.fromString( str );
+    return ret;
+}
+
+
+DBKey DBKey::getFromI64( od_int64 i64 )
 {
     GroupedID id = GroupedID::getInvalid();
     id.fromInt64( i64 );
@@ -247,6 +264,29 @@ bool FullDBKey::operator ==( const DBKey& dbky ) const
 bool FullDBKey::operator !=( const DBKey& dbky ) const
 {
     return !(*this == dbky);
+}
+
+
+BufferString FullDBKey::toString() const
+{
+    BufferString ret = DBKey::toString();
+    if ( !survloc_.isCurrentSurvey() )
+	ret.add( "`" ).add( survloc_.fullPath() );
+    return ret;
+}
+
+
+void FullDBKey::fromString( const char* str )
+{
+    DBKey::fromString( str );
+
+    FixedString inpstr( str );
+    const char* ptrbq = inpstr.find( '`' );
+    if ( ptrbq )
+    {
+	const File::Path fp( ptrbq + 1 );
+	survloc_.set( fp );
+    }
 }
 
 

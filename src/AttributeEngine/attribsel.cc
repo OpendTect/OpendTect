@@ -432,7 +432,7 @@ void SelInfo::fillNonStored( const DescSet& attrset, const DescID& ignoreid,
 	{
 	    BufferString nm( *nlamod->design().outputs[idx] );
 	    if ( IOObj::isKey(nm) )
-		nm = DBM().nameOf( DBKey::getFromString(nm) );
+		nm = nameOf( DBKey::getFromStr(nm) );
 	    nlaoutnms_.add( nm );
 	}
     }
@@ -443,7 +443,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 			    bool issteer, bool onlymulticomp )
 {
     nms.erase();
-    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(defstr) );
+    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromStr(defstr) );
     if ( !ioobj || !SeisIOObjInfo(ioobj).is2D() )
 	return;
 

@@ -79,7 +79,7 @@ uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
     BufferString setupmidstr;
     DBKey setupmid;
     if ( Attrib::Desc::getParamString(defstr,parkey,setupmidstr) )
-	setupmid = DBKey::getFromString( setupmidstr.buf() );
+	setupmid = DBKey::getFromStr( setupmidstr.buf() );
 
     return new uiDataTreeItem( parenttype, &setupmid );
 }

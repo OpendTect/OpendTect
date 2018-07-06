@@ -326,7 +326,7 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars, int outidx )
     }
 
     const char* storid = outppar->find( seisidkey() );
-    DBKey dbky = DBKey::getFromString( storid );
+    DBKey dbky = DBKey::getFromStr( storid );
     if ( !setStorageID(dbky) )
     {
 	errmsg_ = uiStrings::phrCannotFind(tr("Output ID: %1").arg( storid ));

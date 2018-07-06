@@ -463,7 +463,7 @@ void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
     const BufferString valstr = SI().getDefaultPars().find( parky );
     if ( !valstr.isEmpty() )
     {
-	DBKey dbky = DBKey::getFromString( valstr );
+	DBKey dbky = DBKey::getFromStr( valstr );
 	setObj( DBM().get(dbky) );
     }
 

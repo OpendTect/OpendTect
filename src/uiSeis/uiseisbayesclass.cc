@@ -46,7 +46,7 @@ static ProbDenFunc* getPDF( const char* id, uiString& emsg )
 {
     if ( !id || !*id )
 	{ emsg = od_static_tr("getPDF","No ID"); return 0; }
-    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(id) );
+    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromStr(id) );
     if ( !ioobj )
 	{ emsg = od_static_tr("getPDF","No IOObj"); return 0; }
     return ProbDenFuncTranslator::read(*ioobj,&emsg);
@@ -141,7 +141,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	const bool haveid = id && *id;
 	if ( haveid || idx )
 	{
-	    fld->setInput( DBKey::getFromString(id) );
+	    fld->setInput( DBKey::getFromStr(id) );
 	    if ( haveid )
 		nrdisp_ = idx+1;
 	}
@@ -296,7 +296,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 
 	uiIOObjSel* os = new uiIOObjSel( this, ctxt, fldtxt );
 	res = pars_.find( mGetSeisBayesAPProbIDKey(idx) );
-	const DBKey dbky = DBKey::getFromString( res );
+	const DBKey dbky = DBKey::getFromStr( res );
 	os->setInput( dbky );
 	os->attach( alignedBelow, alobj );
 	apflds_ += os;
@@ -442,7 +442,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
 	    su.seltxt_ = tr("Input for '%1'").arg( pdf->dimName(idx) );
 	    uiSeisSel* fld = new uiSeisSel( this, ctxt, su );
 	    const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(idx) );
-	    fld->setInput( DBKey::getFromString(id) );
+	    fld->setInput( DBKey::getFromStr(id) );
 	    if ( idx )
 		fld->attach( alignedBelow, flds3d_[idx-1] );
 	    flds3d_ += fld;
@@ -526,7 +526,7 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
     {
 	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
 	if ( !id || !*id ) break;
-	const DBKey dbky = DBKey::getFromString( id );
+	const DBKey dbky = DBKey::getFromStr( id );
 	addOut( DBM().nameOf(dbky), true );
     }
     if ( flds3d_.size() < 2 )
@@ -543,7 +543,7 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
     subselfld_->attach( alignedBelow, flds3d_[ flds3d_.size()-1 ] );
     const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(0) );
     if ( id && *id )
-	subselfld_->setInput( DBKey::getFromString(id) );
+	subselfld_->setInput( DBKey::getFromStr(id) );
     subselfld_->usePar( pars_ );
 }
 
@@ -563,7 +563,7 @@ void addOut( const char* nm, bool ispdf )
     if ( !ispdf && !haveclass_ ) curidx += 2;
     uiSeisSel* fld = new uiSeisSel( this, ctxt, su );
     const char* id = pars_.find( mGetSeisBayesSeisOutIDKey(curidx) );
-    fld->setInput( DBKey::getFromString(id) );
+    fld->setInput( DBKey::getFromStr(id) );
     if ( fld->ctxtIOObj(true).ioobj_ )
 	fld->setChecked( true );
     if ( nrflds > 0 )

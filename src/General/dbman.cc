@@ -269,7 +269,7 @@ BufferString DBMan::nameFor( const char* kystr ) const
     if ( !isKeyString(kystr) )
 	return kystr;
 
-    const DBKey id = DBKey::getFromString( kystr );
+    const DBKey id = DBKey::getFromStr( kystr );
     return nameOf( id );
 }
 
@@ -459,7 +459,8 @@ IOObj* DBMan::getFromPar( const IOPar& iop, const char* bky,
 	}
     }
 
-    IOObj* ioobj = get( DBKey::getFromString(res) );
+    PtrMan<DBKey> dbky = DBKey::getFromString( res );
+    IOObj* ioobj = getIOObj( *dbky );
     if ( !ioobj )
 	errmsg = tr("Value for %1 is invalid.").arg( iopkey );
 
@@ -644,7 +645,7 @@ DBDir* DBMan::gtDir( DirID dirid ) const
 void DBMan::dbdirChgCB( CallBacker* cb )
 {
     mGetMonitoredChgData( cb, chgdata );
-    const DBKey dbky = DBKey::getFromInt64( chgdata.ID() );
+    const DBKey dbky = DBKey::getFromI64( chgdata.ID() );
     if ( chgdata.changeType() == DBDir::cEntryAdded() )
 	entryAdded.trigger( dbky );
     else if ( chgdata.changeType() == DBDir::cEntryRemoved() )

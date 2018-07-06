@@ -312,7 +312,7 @@ bool SeisStorageRefParam::isOK() const
 	return DPM(fid).haveID( fid );
     }
 
-    const DBKey storid = DBKey::getFromString( storstr );
+    const DBKey storid = DBKey::getFromStr( storstr );
     PtrMan<IOObj> ioobj = DBM().get( storid );
     return ioobj;
 }

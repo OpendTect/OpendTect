@@ -48,7 +48,7 @@ static bool testWriting()
     if ( usemonster )
 	seisidstr = sMonsterSeisIDStr;
     Seis::Provider* prov = Seis::Provider::create(
-				    DBKey::getFromString(seisidstr) );
+				    DBKey::getFromStr(seisidstr) );
     if ( !prov )
     {
 	tstStream(true) << "Cur survey has no " << seisidstr << od_endl;

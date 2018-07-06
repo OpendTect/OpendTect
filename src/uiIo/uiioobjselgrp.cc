@@ -552,7 +552,7 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
 	const char* res = iop.find( sKey::ID() );
 	if ( !res || !*res ) return;
 
-	const int selidx = ioobjids_.indexOf( DBKey::getFromString(res) );
+	const int selidx = ioobjids_.indexOf( DBKey::getFromStr(res) );
 	if ( selidx >= 0 )
 	    setCurrent( selidx );
     }
@@ -941,7 +941,7 @@ void uiIOObjSelGrp::readChoiceDone( CallBacker* )
     {
 	const BufferString kystr( lbchoiceio_->chosenKeys().get(idx) );
 	if ( DBKey::isValidString(kystr) )
-	    dbkys += DBKey::getFromString( kystr );
+	    dbkys += DBKey::getFromStr( kystr );
     }
     setChosen( dbkys );
 }

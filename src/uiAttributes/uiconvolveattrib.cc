@@ -123,7 +123,7 @@ void uiConvolveAttrib::kernelSel( CallBacker* cb )
 
 static void setFldInp( uiIOObjSel* fld, const char* str )
 {
-    IOObj* ioobj = DBM().get( DBKey::getFromString(str) );
+    IOObj* ioobj = DBM().get( DBKey::getFromStr(str) );
     if ( ioobj )
     {
 	fld->ctxtIOObj( true ).setObj( ioobj );

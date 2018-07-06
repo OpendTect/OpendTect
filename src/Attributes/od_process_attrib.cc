@@ -81,7 +81,7 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( !seisid )
 	    break;
 
-	const DBKey seisdbky = DBKey::getFromString( seisid );
+	const DBKey seisdbky = DBKey::getFromStr( seisid );
 	PtrMan<IOObj> seisioobj = DBM().get( seisdbky );
 	if ( !seisioobj )
 	{
@@ -115,7 +115,7 @@ bool BatchProgram::go( od_ostream& strm )
 	const char* setid = pars().find( "Attribute Set" );
 	uiRetVal uirv;
 	if ( setid && *setid )
-	    uirv = attribset.load( DBKey::getFromString(setid) );
+	    uirv = attribset.load( DBKey::getFromStr(setid) );
 	else
 	{
 	    PtrMan<IOPar> attribs = pars().subselect("Attributes");

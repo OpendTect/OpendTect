@@ -38,7 +38,7 @@ int main( int argc, char** argv )
     }
 
     OD::ModDeps().ensureLoaded( "Seis" );
-    const DBKey seismid = DBKey::getFromString( argv[1] );
+    const DBKey seismid = DBKey::getFromStr( argv[1] );
     PtrMan<IOObj> ioobj = DBM().get( seismid );
     if ( !ioobj )
     {

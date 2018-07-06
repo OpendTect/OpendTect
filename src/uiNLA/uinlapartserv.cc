@@ -88,7 +88,7 @@ const char* uiNLAPartServer::modelName() const
 #define mGetOutIDs() \
 	DBKeySet outids; \
 	for ( int idx=0; idx<crdesc.outids.size(); idx++ ) \
-	    outids += DBKey::getFromString( crdesc.outids.get( idx ) );
+	    outids += DBKey::getFromStr( crdesc.outids.get( idx ) );
 
 
 void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
@@ -100,7 +100,7 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	for ( int idesc=0; idesc<crdesc.outids.size(); idesc++ )
 	{
 	    uiRetVal uirv;
-	    const DBKey setid = DBKey::getFromString( crdesc.outids.get(idesc));
+	    const DBKey setid = DBKey::getFromStr( crdesc.outids.get(idesc));
 	    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, uirv );
 	    if ( !ps )
 		return;

@@ -204,7 +204,7 @@ void EngineMan::setExecutorName( Executor* ex )
 	nm += nlamodel_->nlaType(true);
 	nm += ": calculating";
 	if ( IOObj::isKey(usernm) )
-	    usernm = DBM().nameOf( DBKey::getFromString(usernm) );
+	    usernm = nameOf( DBKey::getFromStr(usernm) );
     }
     else
     {
@@ -714,7 +714,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 		// It could be 'storage', but it's not yet in the set ...
 		PtrMan<IOObj> ioobj;
 		if ( IOObj::isKey(inpname) )
-		    ioobj = DBM().get( DBKey::getFromString(inpname) );
+		    ioobj = DBM().get( DBKey::getFromStr(inpname) );
 		else
 		{
 		    BufferString rawnmbufstr;
@@ -1067,7 +1067,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 
     const StringPair storkey( storeddesc->getValParam(
 			      StorageProvider::keyStr())->getStringValue(0) );
-    const DBKey key = DBKey::getFromString( storkey.first() );
+    const DBKey key = DBKey::getFromStr( storkey.first() );
     PtrMan<IOObj> ioobj = DBM().get( key );
     if ( !ioobj ) return;
 
@@ -1376,7 +1376,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    if ( refidx > -1 )
 	    {
 		FileMultiString fms( attrrefs.get(refidx) );
-		const DBKey dbky = DBKey::getFromString( fms[1] );
+		const DBKey dbky = DBKey::getFromStr( fms[1] );
 		descid = const_cast<DescSet&>(descset).
 				    getStoredID( dbky, 0, true );
 	    }

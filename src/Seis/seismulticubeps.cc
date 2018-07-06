@@ -90,7 +90,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 #   define mErrCont(s) { errmsg_ = s; continue; }
     while ( !atEndOfSection(astrm.next()) )
     {
-	const DBKey dbky( DBKey::getFromString(astrm.keyWord()) );
+	const DBKey dbky( DBKey::getFromStr(astrm.keyWord()) );
 	FileMultiString fms( astrm.value() );
 	const int fmssz = fms.size();
 	const float offs = fms.getFValue( 0 );
@@ -158,7 +158,7 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, DBKeySet& keys,
 
     while ( !atEndOfSection(astrm.next()) )
     {
-	const DBKey ky( DBKey::getFromString(astrm.keyWord()) );
+	const DBKey ky( DBKey::getFromStr(astrm.keyWord()) );
 	const FileMultiString fms( astrm.value() );
 	if ( ky.isInvalid() || fms.size() < 1 )
 	    continue;
