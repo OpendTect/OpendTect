@@ -34,14 +34,14 @@ i_tabbarMessenger( QTabBar* sndr, uiTabBar* receiver )
     , receiver_(receiver)
 {
     connect( sndr, SIGNAL(currentChanged(int)), this, SLOT(selected(int)) );
-    connect( sndr, SIGNAL(tabCloseRequested(int)), this,
-	     SLOT(tabToBeClosed(int)) );
+    connect( sndr, SIGNAL(tabCloseRequested(int)),
+	     this, SLOT(tabToBeClosed(int)) );
 }
 
 private:
 
     uiTabBar*		receiver_;
-    QTabBar*	sender_;
+    QTabBar*		sender_;
 
 private slots:
 
@@ -52,7 +52,7 @@ private slots:
 			    receiver_->endCmdRecEvent( refnr );
 			}
 
-    void		tabToBeDeleted( int tabidx )
+    void		tabToBeClosed( int tabidx )
 			{
 			    const int refnr = receiver_->beginCmdRecEvent();
 			    receiver_->tabToBeClosed.trigger(tabidx,
