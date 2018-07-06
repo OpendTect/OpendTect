@@ -13,7 +13,7 @@
 # - replace mExpClass and mClass by class
 # - replace *_static_tr( "myfunc", ... ) with static_func_myfunc( ... )
 # - create lupdate.pro
-# - run lupdate for plural (*en-us.ts) and non-plural translations (all others).
+# - run lupdate for plural (*en.ts) and non-plural translations (all others).
 # - copy the new translations into the work-directory.
 # - remove the temporary copy
 
@@ -228,7 +228,7 @@ echo -n "    ${application}_template.ts" >> ${profnm}
 nonomatch=1
 for fnm in ${application}*.ts ; do
     #Don't run any plural here, as that is handled in plural project
-    if [[ "${fnm}" =~ .*en-us.ts ]]; then
+    if [[ "${fnm}" =~ .*en.ts ]]; then
 	continue
     fi
 
@@ -253,7 +253,7 @@ done
 
 #Create a list of .ts files for plural operations
 pluralpro=$projectdir/plural.pro
-pluralfile=${application}_en-us.ts
+pluralfile=${application}_en.ts
 if [ -e ${pluralfile} ]; then
     echo -n "TRANSLATIONS = " > ${pluralpro}
     echo " \\" >> ${pluralpro}
@@ -298,10 +298,10 @@ if [ -e ${pluralpro} ]; then
     fi
 
     #Test if unfinished entries are found
-    grep 'type="unfinished"' --before-context=1 ${application}_en-us.ts > /dev/null
+    grep 'type="unfinished"' --before-context=1 ${application}_en.ts > /dev/null
     if [ $? -eq 0 ]; then
 	echo "The following plural phrase(s) are not translated:"
-	grep 'type="unfinished"' --before-context=1 ${application}_en-us.ts \
+	grep 'type="unfinished"' --before-context=1 ${application}_en.ts \
 			| head -1 \
 			| sed 's/<source>//g' \
 			| sed 's/<\/source>//g' \
@@ -309,8 +309,8 @@ if [ -e ${pluralpro} ]; then
 	echo
 	echo "Please run:"
 	echo
-	echo  1. cp ${outputdir}/${application}_en-us.ts ${tsbasedir}/data/translations/${application}_en-us.ts
-	echo  2. ${scriptdir}/linguist.csh ${tsbasedir}/data/translations/${application}_en-us.ts
+	echo  1. cp ${outputdir}/${application}_en.ts ${tsbasedir}/data/translations/${application}_en.ts
+	echo  2. ${scriptdir}/linguist.csh ${tsbasedir}/data/translations/${application}_en.ts
 	echo  3. Fix the problem
 	echo  4. Commit
 	echo
