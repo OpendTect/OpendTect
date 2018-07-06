@@ -48,24 +48,26 @@ public:
 				        const TypeSet<Color>& cols)
 				    : selgrpnms_(nms), selgrpcols_(cols)
 				    , showsel_(true), dpscolid_(-1)	{}
+    virtual			~DataPointSetDisplayProp()  {}
 
-    DataPointSetDisplayProp* clone() const
+    virtual DataPointSetDisplayProp* clone() const
     {
         if ( showsel_ )
 	    return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
         else
-	    return new DataPointSetDisplayProp(coltab_,coltabmappersu_,dpscolid_);
+	    return new DataPointSetDisplayProp(coltab_,coltabmappersu_,
+					       dpscolid_);
     }
 
-   int				dpsColID() const	{ return dpscolid_; }
-   bool				showSelected() const	{ return showsel_; }
-   const BufferStringSet&	selGrpNames() const	{ return selgrpnms_; }
-   const TypeSet<Color>&	selGrpColors() const	{ return selgrpcols_; }
-   const ColTab::Sequence&	colSequence() const	{ return coltab_; }
-   const ColTab::MapperSetup&	colMapperSetUp() const
+    int				dpsColID() const	{ return dpscolid_; }
+    bool			showSelected() const	{ return showsel_; }
+    const BufferStringSet&	selGrpNames() const	{ return selgrpnms_; }
+    const TypeSet<Color>&	selGrpColors() const	{ return selgrpcols_; }
+    const ColTab::Sequence&	colSequence() const	{ return coltab_; }
+    const ColTab::MapperSetup&	colMapperSetUp() const
 				{ return coltabmappersu_; }
 
-Color getColor( float val ) const
+virtual Color getColor( float val ) const
 {
     if ( showsel_ )
     {
