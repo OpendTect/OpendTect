@@ -301,10 +301,10 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter,
 	{
 	    case ArrowHeadStyle::Square:
 	    {
-	        TypeSet<QPoint> polypts;
+		TypeSet<QPoint> polypts;
 		polypts += qpt;
-	        const QPoint pt1=getEndPoint(qpt,M_PI,headstyle.sz_);
-	        const QPoint pt2 = getEndPoint(qpt, -(M_PI),headstyle.sz_);
+		const QPoint pt1=getEndPoint(qpt,M_PI,headstyle.sz_);
+		const QPoint pt2 = getEndPoint(qpt, -(M_PI),headstyle.sz_);
 		polypts += pt1;
 		polypts += pt2;
 		painter.drawPolygon( polypts.arr(), 3 );
@@ -350,7 +350,7 @@ double ODGraphicsArrowItem::getAddedAngle( double ang, float ratiopi )
 
 
 QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt,
-				         double angle, double len )
+					 double angle, double len )
 {
     QPoint endpt( pt.x(), pt.y() );
     double delta = len * cos( angle );
@@ -405,22 +405,22 @@ QPointF ODGraphicsTextItem::getAlignment() const
 
     switch ( hal_ )
     {
-        case Qt::AlignRight:
-            movex = -1.0f;
-            break;
-        case Qt::AlignHCenter:
-            movex = -0.5f;
-            break;
+	case Qt::AlignRight:
+	    movex = -1.0f;
+	    break;
+	case Qt::AlignHCenter:
+	    movex = -0.5f;
+	    break;
     }
 
     switch ( val_ )
     {
-        case Qt::AlignBottom:
-            movey = -1;
-            break;
-        case Qt::AlignVCenter:
-            movey = -0.5f;
-            break;
+	case Qt::AlignBottom:
+	    movey = -1;
+	    break;
+	case Qt::AlignVCenter:
+	    movey = -0.5f;
+	    break;
     }
 
     return QPointF( movex, movey );
@@ -725,19 +725,41 @@ void ODGraphicsMultiColorPolyLineItem::setQPens( const QVector<QPen>& qpens )
 }
 
 
+bool ODGraphicsMultiColorPolyLineItem::ODLineSegment::isEmpty() const
+{
+    return qpolygon_.isEmpty();
+}
+
+
+void ODGraphicsMultiColorPolyLineItem::ODLineSegment::setWidth( int w )
+{
+    for ( int idx=0; idx<qpens_.size(); idx++ )
+	qpens_[idx].setWidth( w );
+}
+
+
+void ODGraphicsMultiColorPolyLineItem::ODLineSegment::add(
+					const QPointF& pt, const QPen& pen )
+{
+    qpolygon_.append( pt );
+    qpens_.append( pen );
+}
+
+
 void ODGraphicsMultiColorPolyLineItem::setPenWidth( int width )
 {
     for ( int idx=0; idx<inputqpens_.size(); idx++ )
 	inputqpens_[idx].setWidth( width );
 
-    for ( int idx=0; idx<qpens_.size(); idx++ )
-	qpens_[idx].setWidth( width );
+    for ( int idx=0; idx<odlinesegments_.size(); idx++ )
+	odlinesegments_[idx].setWidth( width );
 }
 
 
 void ODGraphicsMultiColorPolyLineItem::cleanupPolygon()
 {
-    qpens_.clear(); qpolygon_.clear();
+    odlinesegments_.clear();
+
     if ( inputqpens_.isEmpty() || inputqpolygon_.isEmpty() )
 	return;
 
@@ -747,43 +769,59 @@ void ODGraphicsMultiColorPolyLineItem::cleanupPolygon()
 	return;
     }
 
-    // remove undefs
+    // remove undefs, create segments
+    odlinesegments_.append( ODLineSegment() );
+    int curseg = 0;
     for ( int idx=0; idx<inputqpolygon_.size(); idx++ )
     {
 	const QPointF& pt = inputqpolygon_[idx];
 	if ( mIsUdf(pt.x()) || mIsUdf(pt.y()) )
+	{
+	    if ( odlinesegments_[curseg].isEmpty() )
+		continue;
+
+	    odlinesegments_.append( ODLineSegment() );
+	    curseg++;
 	    continue;
+	}
 
-	qpens_ += inputqpens_[idx];
-	qpolygon_ += pt;
+	odlinesegments_[curseg].add( pt, inputqpens_[idx] );
     }
-
-    brect_ = qpolygon_.boundingRect();
 
     const QPolygonF poly = mapFromScene( 0, 0, 5, 5 );
     QPainterPathStroker pps;
     pps.setWidth( poly.boundingRect().width() );
-    QPainterPath ppath; ppath.addPolygon( qpolygon_ );
+    QPainterPath ppath;
+    for ( int idx=0; idx<odlinesegments_.size(); idx++ )
+	ppath.addPolygon( odlinesegments_[idx].qpolygon_ );
     path_ = pps.createStroke( ppath );
+    brect_ = ppath.boundingRect();
 }
 
 
 void ODGraphicsMultiColorPolyLineItem::paint( QPainter* painter,
-				const QStyleOptionGraphicsItem* option,
-				QWidget* widget )
+				const QStyleOptionGraphicsItem*, QWidget* )
 {
-    const QPolygonF paintpolygon = painter->worldTransform().map(qpolygon_);
+    QList<QPolygonF> paintpolygons;
+    for ( int idx=0; idx<odlinesegments_.size(); idx++ )
+	paintpolygons.append(
+		painter->worldTransform().map(odlinesegments_[idx].qpolygon_) );
 
     painter->save();
     painter->resetTransform();
 
-    for ( int idx=1; idx<qpens_.size(); idx++ )
+    for ( int idx=0; idx<odlinesegments_.size(); idx++ )
     {
-	QPen qpen = qpens_[idx];
-	if ( highlight_ ) qpen.setWidth( qpen.width()+2 );
+	QVector<QPen>& qpens = odlinesegments_[idx].qpens_;
+	QPolygonF& paintpolygon = paintpolygons[idx];
+	for ( int pidx=1; pidx<qpens.size(); pidx++ )
+	{
+	    QPen qpen = qpens[pidx];
+	    if ( highlight_ ) qpen.setWidth( qpen.width()+2 );
 
-	painter->setPen( qpen );
-	painter->drawLine( paintpolygon[idx-1], paintpolygon[idx] );
+	    painter->setPen( qpen );
+	    painter->drawLine( paintpolygon[pidx-1], paintpolygon[pidx] );
+	}
     }
 
     painter->restore();
