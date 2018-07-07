@@ -21,10 +21,12 @@ mExpClass(Basic) SurveyDiskLocation
 {
 public:
 
-			SurveyDiskLocation(); // current
+			SurveyDiskLocation()	{} //!< current
 			SurveyDiskLocation(const char* dirnm,const char* bp=0);
 			SurveyDiskLocation(const File::Path& fulldir);
-    mImplSimpleEqOpers2Memb(SurveyDiskLocation,basepath_,dirname_)
+    bool		operator ==(const SurveyDiskLocation&) const;
+    bool		operator !=( const SurveyDiskLocation& oth ) const
+			{ return !(*this == oth); }
 
     BufferString	basepath_;	//!< The 'data root'
     BufferString	dirname_;	//!< The subdirectory name
@@ -32,6 +34,9 @@ public:
     void		set(const File::Path&);
     BufferString	fullPath() const;
     BufferString	surveyName() const;
+
     bool		isCurrentSurvey() const;
+    void		setEmpty();	    //!< always current survey
+    void		setCurrentSurvey(); //!< the current survey right now
 
 };

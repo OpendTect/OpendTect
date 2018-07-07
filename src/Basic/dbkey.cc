@@ -231,7 +231,8 @@ FullDBKey& FullDBKey::operator =( const DBKey& dbky )
 	    return operator =( *fdbky );
 
 	DBKey::operator =( dbky );
-	survloc_ = SurveyDiskLocation();
+	if ( !survloc_.isCurrentSurvey() )
+	    survloc_.setCurrentSurvey();
     }
     return *this;
 }

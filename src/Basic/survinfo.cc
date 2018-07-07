@@ -104,12 +104,6 @@ const SurveyInfo& SI()
 }
 
 
-SurveyDiskLocation::SurveyDiskLocation()
-{
-    set( File::Path(SI().getBasePath(),SI().getDirName()) );
-}
-
-
 SurveyDiskLocation::SurveyDiskLocation( const char* dirnm, const char* bp )
     : dirname_(dirnm)
     , basepath_(bp && *bp ? bp : GetBaseDataDir())
@@ -123,10 +117,49 @@ SurveyDiskLocation::SurveyDiskLocation( const File::Path& fp )
 }
 
 
+bool SurveyDiskLocation::operator ==( const SurveyDiskLocation& oth ) const
+{
+    const bool iscur = isCurrentSurvey();
+    if ( iscur != oth.isCurrentSurvey() )
+	return false;
+    if ( iscur )
+	return true;
+
+    return basepath_ == oth.basepath_ && dirname_ == oth.dirname_;
+}
+
+
 void SurveyDiskLocation::set( const File::Path& fp )
 {
     basepath_ = fp.pathOnly();
     dirname_ = fp.fileName();
+}
+
+
+bool SurveyDiskLocation::isCurrentSurvey() const
+{
+    if ( basepath_.isEmpty() && dirname_.isEmpty() )
+	return true;
+
+    SurveyDiskLocation cursdl;
+    cursdl.setCurrentSurvey();
+
+    if ( !basepath_.isEmpty() && basepath_ != cursdl.basepath_ )
+	return false;
+
+    return dirname_ == cursdl.dirname_;
+}
+
+
+void SurveyDiskLocation::setEmpty()
+{
+    dirname_.setEmpty();
+    basepath_.setEmpty();
+}
+
+void SurveyDiskLocation::setCurrentSurvey()
+{
+    set( File::Path(SI().getBasePath(),SI().getDirName()) );
 }
 
 
@@ -144,16 +177,6 @@ BufferString SurveyDiskLocation::surveyName() const
     BufferString ret( dirname_ );
     iop.get( sKey::Name(), ret );
     return ret;
-}
-
-
-bool SurveyDiskLocation::isCurrentSurvey() const
-{
-    SurveyDiskLocation cursdl;
-    if ( !basepath_.isEmpty() && basepath_ != cursdl.basepath_ )
-	return false;
-
-    return dirname_ == cursdl.dirname_;
 }
 
 
