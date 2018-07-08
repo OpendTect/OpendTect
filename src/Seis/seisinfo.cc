@@ -224,6 +224,18 @@ bool Seis::isPSGeom( const IOPar& iop )
     return isPS( gt );
 }
 
+const char* Seis::iconIDOf( GeomType gt )
+{
+    switch ( gt )
+    {
+	case Line: return "seismicline2d";
+	case LinePS: return "prestackdataset2d";
+	case VolPS: return "prestackdataset";
+	default: break;
+    }
+    return "seismiccube";
+}
+
 
 mDefineEnumUtils(SeisTrcInfo,Fld,"Header field") {
 	"Trace number",

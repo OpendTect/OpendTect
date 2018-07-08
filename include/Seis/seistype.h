@@ -38,6 +38,7 @@ namespace Seis
     inline int			dimSize( GeomType gt )
 				{ return gt == Line ? 2 : (gt==VolPS ? 4 : 3); }
     mGlobal(Seis) const char*	nameOf(GeomType);
+    mGlobal(Seis) const char*	iconIDOf(GeomType);
     mGlobal(Seis) GeomType	geomTypeOf(const char*);
     inline GeomType		geomTypeOf( bool is2d, bool isps )
 				{ return is2d ? (isps ? LinePS : Line)
