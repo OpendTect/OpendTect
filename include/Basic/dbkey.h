@@ -127,7 +127,8 @@ mGlobal(Basic) inline BufferString toString( const DBKey& ky )
 mGlobal(Basic) inline uiString toUiString( const DBKey& ky )
 { return ky.toUiString(); }
 
-// These functions are implemented in dbman.cc in General, so you can only call
-// them from code that also links the General lib
+// These functions are implemented in dbman.cc in General, so they only work
+// if you also link (and init) the General lib
+
 mGlobal(Basic) BufferString	nameOf(const DBKey&);
 mGlobal(Basic) IOObj*		getIOObj(const DBKey&);

@@ -11,6 +11,33 @@
 #include "filepath.h"
 
 
+static BufferString noNameOfFn( const DBKey& ) { return BufferString(); }
+static IOObj* noGetIOObjFn( const DBKey& ) { return 0; }
+
+typedef BufferString (*nameOfFn)(const DBKey&);
+typedef IOObj* (*getIOObjFn)(const DBKey&);
+
+static nameOfFn nameoffn_ = noNameOfFn;
+static getIOObjFn getioobjfn_ = noGetIOObjFn;
+
+mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,getIOObjFn);
+void setDBMan_DBKey_Fns( nameOfFn nfn, getIOObjFn ifn )
+{
+    nameoffn_ = nfn;
+    getioobjfn_ = ifn;
+}
+
+BufferString nameOf( const DBKey& dbky )
+{
+    return (*nameoffn_)( dbky );
+}
+
+IOObj* getIOObj( const DBKey& dbky )
+{
+    return (*getioobjfn_)( dbky );
+}
+
+
 bool isValidGroupedIDString( const char* str )
 {
     if ( !str || !*str )

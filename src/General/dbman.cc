@@ -26,6 +26,9 @@
 #define mErrRetDoesntExist(fnm) \
     mErrRet( uiStrings::phrFileDoesNotExist(fnm) )
 
+mGlobal(General) BufferString DBMan_nameOf(const DBKey&);
+mGlobal(General) IOObj* DBMan_getIOObj(const DBKey&);
+
 
 static DBMan* global_dbm_ = 0;
 static Threads::Lock global_dbm_lock_;
@@ -270,7 +273,7 @@ BufferString DBMan::nameFor( const char* kystr ) const
 	return kystr;
 
     const DBKey id = DBKey::getFromStr( kystr );
-    return nameOf( id );
+    return DBMan_nameOf( id );
 }
 
 
@@ -313,7 +316,7 @@ IOObj* DBMan::get( const DBKey& dbky ) const
 }
 
 
-IOObj* getIOObj( const DBKey& dbky )
+IOObj* DBMan_getIOObj( const DBKey& dbky )
 {
     if ( !dbky.isValid() )
 	return 0;
@@ -344,13 +347,13 @@ IOObj* getIOObj( const DBKey& dbky )
 }
 
 
-BufferString nameOf( const DBKey& dbky )
+BufferString DBMan_nameOf( const DBKey& dbky )
 {
     BufferString ret;
     if ( !dbky.isValid() )
 	return ret;
 
-    IOObj* ioobj = getIOObj( dbky );
+    IOObj* ioobj = DBMan_getIOObj( dbky );
     if ( !ioobj )
 	return getDBKeyStr( dbky );
     else
@@ -460,7 +463,7 @@ IOObj* DBMan::getFromPar( const IOPar& iop, const char* bky,
     }
 
     PtrMan<DBKey> dbky = DBKey::getFromString( res );
-    IOObj* ioobj = getIOObj( *dbky );
+    IOObj* ioobj = DBMan_getIOObj( *dbky );
     if ( !ioobj )
 	errmsg = tr("Value for %1 is invalid.").arg( iopkey );
 

@@ -23,12 +23,17 @@ ________________________________________________________________________
 #include "rangeposprovider.h"
 #include "survgeometrytransl.h"
 
+typedef BufferString (*nameOfFn)(const DBKey&);
+typedef IOObj* (*getIOObjFn)(const DBKey&);
+mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,getIOObjFn);
+mGlobal(General) BufferString DBMan_nameOf(const DBKey&);
+mGlobal(General) IOObj* DBMan_getIOObj(const DBKey&);
+
 
 mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc)
 mDefSimpleTranslators(PosProviders,"Subselection",dgb,Misc)
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
-
 class GeneralModuleIniter { public: GeneralModuleIniter(); };
 
 mDefModInitFn(General)
@@ -40,6 +45,8 @@ mDefModInitFn(General)
 
 GeneralModuleIniter::GeneralModuleIniter()
 {
+    setDBMan_DBKey_Fns( DBMan_nameOf, DBMan_getIOObj );
+
     ElasticPropSelectionTranslatorGroup::initClass();
     MathFormulaTranslatorGroup::initClass();
     IOObjSelectionTranslatorGroup::initClass();
