@@ -2,7 +2,7 @@
 
 if [ "$#" -eq "3" ]; then
     for file in $2/data/translations/*.ts ; do
-	base=`basename ${file%.*}`
+	base=`basename ${file} .ts`
 	$0 ${base} $1 $2 $3
     done
 else

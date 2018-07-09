@@ -190,14 +190,14 @@ macro ( SETUP_QT_TRANSLATION POSTFIX )
 	else()
 	    set ( COMPILE_TRANSLATIONS_EXTENSION sh )
 	endif()
-	#add_custom_target( Compile_Translations_${POSTFIX} ALL
-	# ${OpendTect_DIR}/dtect/compile_translations.${COMPILE_TRANSLATIONS_EXTENSION}
-	#   ${QT_LRELEASE_EXECUTABLE} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
-	#   VERBATIM
-	#COMMENT "Compiling translations" )
+	add_custom_target( Compile_Translations_${POSTFIX} ALL
+	    ${OpendTect_DIR}/dtect/compile_translations.${COMPILE_TRANSLATIONS_EXTENSION}
+	    ${QT_LRELEASE_EXECUTABLE} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
+	    VERBATIM
+	COMMENT "Compiling translations" )
     
-	#install(DIRECTORY data/localizations/ DESTINATION ${MISC_INSTALL_PREFIX}/data/localizations
-	# FILES_MATCHING PATTERN "*.qm")
+	install(DIRECTORY data/localizations/ DESTINATION ${MISC_INSTALL_PREFIX}/data/localizations
+          FILES_MATCHING PATTERN "*.qm")
 	
     endif()
 endmacro( SETUP_QT_TRANSLATION )
