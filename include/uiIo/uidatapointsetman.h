@@ -16,13 +16,13 @@ ________________________________________________________________________
 #include "uiobjfileman.h"
 
 /*! \brief
-CrossPlot manager
+Cross-plot manager
 */
 
 mExpClass(uiIo) uiDataPointSetMan : public uiObjFileMan
 { mODTextTranslationClass(uiDataPointSetMan);
 public:
-    				uiDataPointSetMan(uiParent*);
+				uiDataPointSetMan(uiParent*);
 				~uiDataPointSetMan();
 
 protected:
