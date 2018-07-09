@@ -25,7 +25,7 @@ PointSet::PointSet()
 {
     drawstyle_ = addNodeState( new DrawStyle );
     refPtr( drawstyle_ );
-    drawstyle_->setDrawStyle( visBase::DrawStyle::Points );
+    // drawstyle_->setDrawStyle( visBase::DrawStyle::Points ); Gives pErrMsg
     drawstyle_->setPointSize( 5.0 );
 
     setMaterial( new Material );
@@ -41,8 +41,8 @@ PointSet::~PointSet()
 }
 
 
-int PointSet::size() const 
-{ 
+int PointSet::size() const
+{
     return coords_->size();
 }
 
@@ -55,8 +55,8 @@ void PointSet::setPointSize( int sz )
 
 
 int PointSet::getPointSize() const
-{ 
-    return mNINT32( drawstyle_->getPointSize() ); 
+{
+    return mNINT32( drawstyle_->getPointSize() );
 }
 
 
@@ -69,7 +69,7 @@ int PointSet::addPoint( const Coord3& pos )
 
 const Coord3 PointSet::getPoint( int idx ) const
 {
-    return coords_->getPos( idx ); 
+    return coords_->getPos( idx );
 }
 
 
