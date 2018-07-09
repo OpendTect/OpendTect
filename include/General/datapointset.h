@@ -105,7 +105,7 @@ public:
     public:
 			DataRow()
 			    : grp_(1)			{ setSel(false); }
-			DataRow( const Pos& p, unsigned short grp=1,
+			DataRow( const Pos& p, od_uint16 grp=1,
 				   bool issel=false )
 			    : pos_(p), grp_((short)grp)
 							{ setSel( issel ); }
@@ -117,12 +117,12 @@ public:
 	Coord			coord(::Pos::SurvID survid) const
 				{ return pos_.coord(survid); }
 	const TypeSet<float>&	data() const		{ return data_; }
-	unsigned short		group() const;
+	od_uint16		group() const;
 	bool			isSel() const		{ return grp_ > 0; }
 	bool			isInactive() const	{ return grp_ == 0; }
 	void			setSel( bool yn )
 				{ if ( (grp_ >= 0) != yn ) grp_ = -grp_; }
-	void			setGroup(unsigned short grp);
+	void			setGroup(od_uint16);
 	void			getBVSValues(TypeSet<float>&,bool is2d,
 					     bool ismini) const;
 
@@ -168,12 +168,12 @@ public:
     bool		setValue(ColID,RowID,float);
     float*		getValues(RowID);
     const float*	getValues(RowID) const;
-    unsigned short	group(RowID) const;
+    od_uint16		group(RowID) const;
     bool		isSelected(RowID) const;
     int			selGroup(RowID) const;
     bool		isInactive( RowID rid ) const { return group(rid) == 0;}
 
-    void		setGroup(RowID,unsigned short);
+    void		setGroup(RowID,od_uint16);
     void		setSelected(RowID,int selgrp);
     void		setInactive(RowID,bool);
 

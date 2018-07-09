@@ -108,15 +108,15 @@ void DataPointSet::DataRow::getBVSValues( TypeSet<float>& vals,
 }
 
 
-unsigned short DataPointSet::DataRow::group() const
+od_uint16 DataPointSet::DataRow::group() const
 {
     int selgrp,grp;
     getUnCompacted( grp_, selgrp, grp );
-    return (unsigned short)((grp < -0.5 ? -grp : grp)+.5);
+    return (od_uint16)((grp < -0.5 ? -grp : grp)+.5);
 }
 
 
-void DataPointSet::DataRow::setGroup( unsigned short newgrp )
+void DataPointSet::DataRow::setGroup( od_uint16 newgrp )
 {
     grp_ = grp_ >= 0 ? newgrp : -newgrp;
     grp_ = mCast( short, getCompacted( -1, newgrp ) );
@@ -591,14 +591,14 @@ const float* DataPointSet::getValues( DataPointSet::RowID rid ) const
 }
 
 
-unsigned short DataPointSet::group( DataPointSet::RowID rid ) const
+od_uint16 DataPointSet::group( DataPointSet::RowID rid ) const
 {
     if ( minimal_ ) return 0;
     mChkRowID(rid,0);
     int selgrp, grp;
     getUnCompacted( mNINT32(bivSet().getVal(bvsidxs_[rid],groupcol_)),
 		    selgrp, grp );
-    return (unsigned short)((grp < -0.5 ? -grp : grp)+.5);
+    return (od_uint16)((grp < -0.5 ? -grp : grp)+.5);
 }
 
 
@@ -619,9 +619,10 @@ bool DataPointSet::isSelected( DataPointSet::RowID rid ) const
 }
 
 
-void DataPointSet::setGroup( DataPointSet::RowID rid, unsigned short newgrp )
+void DataPointSet::setGroup( DataPointSet::RowID rid, od_uint16 newgrp )
 {
-    if ( minimal_ ) return;
+    if ( minimal_ )
+	return;
     mChkRowID(rid,);
     int grp = getCompacted( -1, newgrp ) ;
     bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = mCast( float, grp );

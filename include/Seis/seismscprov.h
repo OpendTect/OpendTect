@@ -81,7 +81,8 @@ public:
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
     AdvanceState	advance();
-    uiString		errMsg() const		{ return uirv_; }
+    uiRetVal		errMsg() const		{ return uirv_; }
+    bool		toNextPos(); //!< end==false but no errMsg
 
     BinID		getPos() const;
     int			getTrcNr() const;
@@ -128,6 +129,10 @@ protected:
     bool		doAdvance();
 
 };
+
+
+mGlobal(Seis) bool advance(ObjectSet<MSCProvider>&,uiRetVal&);
+
 
 } // namespace Seis
 

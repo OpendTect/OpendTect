@@ -48,6 +48,7 @@ set(OD_MODULE_SOURCES
 	seisdatapackwriter.cc
 	seiseventsnapper.cc
 	seisfetcher.cc
+	seisfixedcubeprov.cc
 	seisimpbpsif.cc
 	seisimporter.cc
 	seisimpps.cc

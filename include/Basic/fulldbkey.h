@@ -48,5 +48,6 @@ public:
     virtual bool	isInCurrentSurvey() const
 			{ return survloc_.isCurrentSurvey(); }
     BufferString	surveyName() const;
+    BufferString	fullPath() const    { return survloc_.fullPath(); }
 
 };
