@@ -106,12 +106,12 @@ static bool testToFromString()
     return true;
 }
 
-
+#include "filepath.h"
 static bool testFullDBKey()
 {
-    const char* sstr = "100010.5`/tmp/surveys/Apenoot";
+    File::Path sstr( "100010.5`/tmp/surveys/Apenoot" );
     DBKey* ldbky = DBKey::getFromString( "100010.5" );
-    DBKey* sdbky = DBKey::getFromString( sstr );
+    DBKey* sdbky = DBKey::getFromString( sstr.fullPath() );
 
     mRunStandardTest( ldbky->isInCurrentSurvey(), "DBKey in current survey" );
     mRunStandardTest( !sdbky->isInCurrentSurvey(),
@@ -119,10 +119,13 @@ static bool testFullDBKey()
 
     FullDBKey& fdbky( *(FullDBKey*)sdbky );
     const BufferString survdir( fdbky.survloc_.fullPath() );
-    mRunStandardTestWithError( survdir == "/tmp/surveys/Apenoot",
+    File::Path fp("/tmp/surveys/Apenoot");
+    BufferString str = fp.fullPath();
+    mRunStandardTestWithError( survdir == fp.fullPath(),
 	    "Correct survdir", BufferString("parsed: '",survdir,"'") );
     const BufferString fdbkystr( fdbky.toString() );
-    mRunStandardTestWithError( fdbkystr == sstr,
+
+    mRunStandardTestWithError( fdbkystr == sstr.fullPath(),
 	    "Correct toString", BufferString("got: '",fdbkystr,"'") );
 
     return true;
