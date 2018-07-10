@@ -17,11 +17,11 @@ ________________________________________________________________________
 
 #include "datapack.h"
 
+class uiAxisHandler;
 class uiHistogramDisplay;
 class uiLineItem;
 class uiPixmapItem;
 class uiTextItem;
-class uiAxisHandler;
 
 template <class T> class Array2D;
 namespace ColTab { class MapperSetup; class Sequence; }
@@ -68,6 +68,8 @@ protected:
 
     uiLineItem*			minline_;
     uiLineItem*			maxline_;
+    uiLineItem*			ctminline_;
+    uiLineItem*			ctmaxline_;
     uiTextItem*			minvaltext_;
     uiTextItem*			maxvaltext_;
 

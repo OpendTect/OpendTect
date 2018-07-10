@@ -59,6 +59,7 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
 uiMapperRangeEditor::~uiMapperRangeEditor()
 {
     delete minline_; delete maxline_;
+    delete ctminline_; delete ctmaxline_;
     delete leftcoltab_; delete centercoltab_; delete rightcoltab_;
     delete minvaltext_; delete maxvaltext_;
     delete ctseq_; delete ctmapper_;
@@ -69,6 +70,7 @@ void uiMapperRangeEditor::setEmpty()
 {
     histogramdisp_->setEmpty();
     minline_->hide(); maxline_->hide();
+    ctminline_->hide(); ctmaxline_->hide();
     minvaltext_->hide(); maxvaltext_->hide();
 }
 
@@ -134,6 +136,16 @@ void uiMapperRangeEditor::setColTabSeq( const ColTab::Sequence& cseq )
 }
 
 
+static uiLineItem* createLineItem( uiGraphicsScene& scene, int zval )
+{
+    uiLineItem* line = scene.addItem( new uiLineItem() );
+    line->setPenStyle(
+	OD::LineStyle(OD::LineStyle::Solid,2,Color(0,255,0)) );
+    line->setZValue( zval+2 );
+    return line;
+}
+
+
 void uiMapperRangeEditor::init()
 {
     uiGraphicsScene& scene = histogramdisp_->scene();
@@ -146,21 +158,14 @@ void uiMapperRangeEditor::init()
     rightcoltab_ = scene.addItem( new uiPixmapItem() );
     rightcoltab_->setZValue( zval );
 
-    minvaltext_ = scene.addItem( new uiTextItem(uiStrings::sEmptyString()
-							  ,Alignment::Right) );
+    minvaltext_ = scene.addItem( new uiTextItem() );
+    minvaltext_->setAlignment( Alignment::Right );
     maxvaltext_ = scene.addItem( new uiTextItem() );
 
-    MouseCursor cursor( MouseCursor::SizeHor );
-    OD::LineStyle ls( OD::LineStyle::Solid, 2, Color(0,255,0) );
-    minline_ = scene.addItem( new uiLineItem() );
-    minline_->setPenStyle( ls );
-    minline_->setCursor( cursor );
-    minline_->setZValue( zval+2 );
-
-    maxline_ = scene.addItem( new uiLineItem() );
-    maxline_->setPenStyle( ls );
-    maxline_->setCursor( cursor );
-    maxline_->setZValue( zval+2 );
+    minline_ = createLineItem( scene, zval );
+    maxline_ = createLineItem( scene, zval );
+    ctminline_ = createLineItem( scene, zval );
+    ctmaxline_ = createLineItem( scene, zval );
 }
 
 
@@ -169,7 +174,7 @@ void uiMapperRangeEditor::drawText()
     if ( mIsUdf(startpix_) || mIsUdf(stoppix_) )
 	return;
 
-    const int posy = histogramdisp_->height() / 3;
+    const int posy = histogramdisp_->viewHeight() / 3;
     minvaltext_->setText( toUiString(cliprg_.start,'g',6) );
     minvaltext_->setPos( uiPoint(startpix_-2,posy) );
     minvaltext_->show();
@@ -185,7 +190,7 @@ void uiMapperRangeEditor::drawPixmaps()
     if ( !ctseq_ || mIsUdf(startpix_) || mIsUdf(stoppix_) )
 	return;
 
-    const int disph = histogramdisp_->height();
+    const int disph = histogramdisp_->viewHeight();
     const int pmh = 20;
     const int datastartpix = xax_->getPix( datarg_.start );
     const int datastoppix = xax_->getPix( datarg_.stop );
@@ -218,14 +223,25 @@ void uiMapperRangeEditor::drawLines()
     if ( mIsUdf(startpix_) || mIsUdf(stoppix_) )
 	return;
 
-    const int height = histogramdisp_->height();
-    minline_->setLine( startpix_, 0, startpix_, height );
+    uiAxisHandler* yax = histogramdisp_->yAxis(false);
+    const int disph = histogramdisp_->viewHeight();
+    int y0pix = yax ? yax->pixRange().start+2 : 0;
+    int y1pix = yax ? yax->pixRange().stop+1 : disph;
+    minline_->setLine( startpix_, y0pix, startpix_, y1pix );
     minline_->setCursor( MouseCursor::SizeHor );
     minline_->show();
 
-    maxline_->setLine( stoppix_, 0, stoppix_, height );
+    maxline_->setLine( stoppix_, y0pix, stoppix_, y1pix );
     maxline_->setCursor( MouseCursor::SizeHor );
     maxline_->show();
+
+    const int pmh = 20;
+    y0pix = disph - pmh;
+    y1pix = y0pix + pmh-2;
+    ctminline_->setLine( startpix_, y0pix, startpix_, y1pix );
+    ctmaxline_->setLine( stoppix_, y0pix, stoppix_, y1pix );
+    ctminline_->show();
+    ctmaxline_->show();
 }
 
 
@@ -371,7 +387,7 @@ void uiMapperRangeEditor::wheelMoved( CallBacker* )
 }
 
 
-void uiMapperRangeEditor::histDRChanged( CallBacker* cb )
+void uiMapperRangeEditor::histDRChanged( CallBacker* )
 {
     const Interval<float>& drg = histogramdisp_->getDrawRange();
     if ( cliprg_.start<drg.start )
@@ -379,16 +395,11 @@ void uiMapperRangeEditor::histDRChanged( CallBacker* cb )
     if ( cliprg_.stop>drg.stop )
 	cliprg_.stop = drg.stop;
 
-    startpix_ = xax_->getPix( cliprg_.start );
-    stoppix_ = xax_->getPix( cliprg_.stop );
+    drawAgain();
 
-    const int height = histogramdisp_->height();
-    minline_->setLine( startpix_, 0, startpix_, height );
-    maxline_->setLine( stoppix_, 0, stoppix_, height );
-
-    ctmapper_->range_.start = ctmapper_->range_.isRev() ? cliprg_.stop
-						       : cliprg_.start;
-    ctmapper_->range_.stop = ctmapper_->range_.isRev() ? cliprg_.start
-						      : cliprg_.stop;
+    ctmapper_->range_.start =
+	ctmapper_->range_.isRev() ? cliprg_.stop : cliprg_.start;
+    ctmapper_->range_.stop =
+	ctmapper_->range_.isRev() ? cliprg_.start : cliprg_.stop;
     rangeChanged.trigger();
 }
