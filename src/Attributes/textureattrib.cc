@@ -131,6 +131,7 @@ bool Texture::getInputData( const BinID& relpos, int zintv )
     const DataHolder* inpdata = inputs_[0]->getData( relpos, zintv );
     if ( !inpdata ) return false;
 
+    inpdata_.erase();
     while ( inpdata_.size() < posandsteeridx_.posidx_.size() )
 	inpdata_ += 0;
 

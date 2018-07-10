@@ -300,6 +300,7 @@ bool Similarity::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Similarity::getInputData( const BinID& relpos, int zintv )
 {
+    inputdata_.erase();
     while ( inputdata_.size() < trcpos_.size() )
 	inputdata_ += 0;
 
