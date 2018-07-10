@@ -40,6 +40,8 @@ static int getCompacted( int selgrp, int grp )
 static void getUnCompacted( int compactedgrp, int& selgrp, int& grp )
 {
     selgrp = ( compactedgrp >> 16 );
+    if ( compactedgrp < 0 )
+	compactedgrp = -compactedgrp;
     grp = ( compactedgrp & 0xFFFF );
 }
 
