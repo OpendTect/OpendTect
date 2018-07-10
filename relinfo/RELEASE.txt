@@ -1,6 +1,22 @@
 OpendTect V6.2.x : Release info
 
 ----
+v6.2.5: July 10, 2018
+* Possibility of Linking 2D SEG-Y Data
+* Fix for unwanted removal of locked Horizon patch during Horizon Editing
+  using Polygon(lasso) selection tool
+* Fix for WellLog interpolator processing between markers
+* Fix for Stratal amplitude processing issue when volume/attribute area is
+  smaller than top/base horizons
+* Fix for crash during 3D horizon import(only on windows platform) with Fill
+  undef parts using Extension algorithm
+* Fix for Windows batch program not allowing multiple SEG-Y files export
+* Fix for not poping up Horizontal variagram window of Horizon data attribute
+* Fix for occasional crash while importing some 2D lines and dislaying them
+* Fix for processing issues with input volumes larger than 32 GB
+* Fix for issue in updating Geometry of new 2D lines made from Random lines
+* Fix for importing 2D Lines used for scanning while creating new Survey
+
 v6.2.4: April 24, 2018
 * Support of dots in the 2D Seismic output names
 * Improved interactive switching between Horizons in tracking mode
