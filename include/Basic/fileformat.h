@@ -43,6 +43,7 @@ public:
     static const Format& textFiles();
     static const Format& parFiles();
     static const Format& zipFiles();
+    static const Format& hdf5Files();
     static const Format& shlibFiles();
     static const Format& imageFiles();
 

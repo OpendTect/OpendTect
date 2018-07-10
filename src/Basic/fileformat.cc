@@ -14,65 +14,73 @@ ________________________________________________________________________
 
 // cannot macro-ise these because of the text translations
 
-static File::Format* allfilesfmt_ = 0;
 const File::Format& File::Format::allFiles()
 {
-    if ( !allfilesfmt_ )
-	allfilesfmt_ = new File::Format( tr("All files"), "" );
-    return *allfilesfmt_;
+    static File::Format* fmt = 0;
+    if ( !fmt )
+	fmt = new File::Format( tr("All files"), "" );
+    return *fmt;
 }
 
-static File::Format* parfilesfmt_ = 0;
 const File::Format& File::Format::parFiles()
 {
-    if ( !parfilesfmt_ )
-	parfilesfmt_ = new File::Format( tr("Parameter files"), "par" );
-    return *parfilesfmt_;
+    static File::Format* fmt = 0;
+    if ( !fmt )
+	fmt = new File::Format( tr("Parameter files"), "par" );
+    return *fmt;
 }
 
-static File::Format* zipfilesfmt_ = 0;
 const File::Format& File::Format::zipFiles()
 {
-    if ( !zipfilesfmt_ )
-	zipfilesfmt_ = new File::Format( tr("Zip files"), "zip" );
-    return *zipfilesfmt_;
+    static File::Format* fmt = 0;
+    if ( !fmt )
+	fmt = new File::Format( tr("Zip files"), "zip" );
+    return *fmt;
 }
 
-static File::Format* textfilesfmt_ = 0;
+const File::Format& File::Format::hdf5Files()
+{
+    static File::Format* fmt = 0;
+    if ( !fmt )
+	fmt = new File::Format( tr("HDF5 files"), "h5", "hdf5", "hdf" );
+    return *fmt;
+}
+
 const File::Format& File::Format::textFiles()
 {
-    if ( !textfilesfmt_ )
-	textfilesfmt_ = new File::Format( tr("Text files"), "txt", "dat" );
-    return *textfilesfmt_;
+    static File::Format* fmt = 0;
+    if ( !fmt )
+	fmt = new File::Format( tr("Text files"), "txt", "dat" );
+    return *fmt;
 }
 
-static File::Format* imagefilesfmt_ = 0;
 const File::Format& File::Format::imageFiles()
 {
-    if ( !imagefilesfmt_ )
-	imagefilesfmt_ = new File::Format( tr("Image files"),
+    static File::Format* fmt = 0;
+    if ( !fmt )
+	fmt = new File::Format( tr("Image files"),
 					    "png", "jpg", "jpeg" );
-    return *imagefilesfmt_;
+    return *fmt;
 }
 
-static File::Format* shlibwinfilesfmt_ = 0;
-static File::Format* shlibmacfilesfmt_ = 0;
-static File::Format* shlibothfilesfmt_ = 0;
 const File::Format& File::Format::shlibFiles()
 {
-    if ( !shlibwinfilesfmt_ )
-	shlibwinfilesfmt_ = new File::Format( tr("DLL files"), "dll" );
-    if ( !shlibmacfilesfmt_ )
-	shlibmacfilesfmt_ = new File::Format( tr("Dynamic Libs"), "dylib" );
-    if ( !shlibothfilesfmt_ )
-	shlibothfilesfmt_ = new File::Format( tr("Shared Libraries"), "so" );
+    static File::Format* winfmt = 0;
+    static File::Format* macfmt = 0;
+    static File::Format* othfmt = 0;
+    if ( !winfmt )
+	winfmt = new File::Format( tr("DLL files"), "dll" );
+    if ( !macfmt )
+	macfmt = new File::Format( tr("Dynamic Libs"), "dylib" );
+    if ( !othfmt )
+	othfmt = new File::Format( tr("Shared Libraries"), "so" );
 #ifdef __win__
-    return *shlibwinfilesfmt_;
+    return *winfmt;
 #else
 # ifdef __mac__
-    return *shlibmacfilesfmt_;
+    return *macfmt;
 # else
-    return *shlibothfilesfmt_;
+    return *othfmt;
 # endif
 #endif
 }
