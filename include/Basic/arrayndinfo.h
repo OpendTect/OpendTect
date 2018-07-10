@@ -165,6 +165,27 @@ public:
 };
 
 
+/*!\brief Contains the information about the size of Array4D, and
+in what order the data is stored (if accessable via a pointer). */
+
+mExpClass(Basic) Array4DInfo : public ArrayNDInfo
+{
+public:
+
+    virtual NrDimsType	nrDims() const			{ return 4; }
+
+    virtual OffsetType	getOffset(IdxType,IdxType,IdxType,IdxType) const;
+			/*!<Returns offset in a 'flat' array.*/
+    virtual bool	validPos(IdxType,IdxType,IdxType,IdxType) const;
+
+    virtual OffsetType	getOffset( NDPos pos ) const
+			{ return ArrayNDInfo::getOffset( pos ); }
+    virtual bool	validPos( NDPos pos ) const
+			{ return ArrayNDInfo::validPos( pos ); }
+
+};
+
+
 /*!\brief Implementation of Array1DInfo. */
 
 mExpClass(Basic) Array1DInfoImpl : public Array1DInfo
@@ -238,6 +259,30 @@ protected:
 
 };
 
+/*!\brief Implementation of Array4DInfo. */
+
+mExpClass(Basic) Array4DInfoImpl : public Array4DInfo
+{
+public:
+
+    virtual Array4DInfo* clone() const { return new Array4DInfoImpl(*this); }
+
+			Array4DInfoImpl(SzType sz0=0,SzType sz1=0,
+					SzType sz2=0,SzType sz3=0);
+			Array4DInfoImpl(const Array4DInfo&);
+
+    virtual SzType	getSize(DimIdxType) const;
+    virtual bool	setSize(DimIdxType,SzType);
+    virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
+    virtual TotalSzType	totalSize() const	{ return cachedtotalsz_; }
+
+protected:
+
+    SzType		dimsz_[4];
+    TotalSzType		cachedtotalsz_;
+
+};
+
 
 /*!\brief Implementation of ArrayNDInfo. */
 
@@ -284,4 +329,10 @@ inline ArrayNDInfo::SzType Array2DInfoImpl::getSize( DimIdxType dim ) const
 inline ArrayNDInfo::SzType Array3DInfoImpl::getSize( DimIdxType dim ) const
 {
     return dim>2 || dim<0 ? 0 : dimsz_[dim];
+}
+
+
+inline ArrayNDInfo::SzType Array4DInfoImpl::getSize( DimIdxType dim ) const
+{
+    return dim>3 || dim<0 ? 0 : dimsz_[dim];
 }

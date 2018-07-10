@@ -224,6 +224,28 @@ public:
 };
 
 
+/*!\brief 4-Dim ArrayND */
+
+template <class T>
+mClass(Basic) Array4D : public ArrayND<T>
+{
+public:
+				mTypeDefArrNDTypes;
+
+    virtual void		set(IdxType,IdxType,IdxType,IdxType,T)	= 0;
+    virtual T			get(IdxType,IdxType,IdxType,IdxType) const = 0;
+    void			setND( NDPos pos, T v )
+				{ set( pos[0], pos[1], pos[2], pos[3], v ); }
+    T		                getND( NDPos pos ) const
+				{ return get( pos[0], pos[1], pos[2], pos[4] );}
+
+    virtual T****		get4DData()		{ return 0; }
+    virtual const T****		get4DData() const	{ return 0; }
+
+    virtual const Array4DInfo&	info() const = 0;
+};
+
+
 /*!\brief Iterates through all samples in an ArrayND.
 
   ArrayNDIter will be on the first position when initiated, and move to
@@ -375,6 +397,17 @@ class Array3DConv : public Array3D<T>
 					{ return (T)arr_->get( p0, p1, p2 ); }
     void		set( IdxType p0, IdxType p1, IdxType p2, T v )
 					{ arr_->set( p0, p1, p2, (TT)v ); }
+
+};
+
+template <class T, class TT>
+class Array4DConv : public Array4D<T>
+{ mDefArrayNDStdMembers(4D);
+
+    T		get( IdxType p0, IdxType p1, IdxType p2, IdxType p3 ) const
+				{ return (T)arr_->get( p0, p1, p2, p3 ); }
+    void	set( IdxType p0, IdxType p1, IdxType p2, IdxType p3, T v )
+				{ arr_->set( p0, p1, p2, p3, (TT)v ); }
 
 };
 

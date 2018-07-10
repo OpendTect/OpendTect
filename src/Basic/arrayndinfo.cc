@@ -129,6 +129,23 @@ bool Array3DInfo::validPos( IdxType p0, IdxType p1, IdxType p2 ) const
 }
 
 
+ArrayNDInfo::OffsetType Array4DInfo::getOffset( IdxType p0, IdxType p1,
+						IdxType p2, IdxType p3 ) const
+{
+    const IdxType pos[4] = { p0, p1, p2, p3 };
+    return ArrayNDInfo::getOffset( const_cast<NDPos>(pos) );
+}
+
+
+bool Array4DInfo::validPos( IdxType p0, IdxType p1,
+			    IdxType p2, IdxType p3 ) const
+{
+    const IdxType pos[4] = { p0, p1, p2, p3 };
+    return ArrayNDInfo::validPos( const_cast<NDPos>(pos) );
+}
+
+
+
 Array1DInfoImpl::Array1DInfoImpl( SzType nsz )
     : dimsz_(nsz)
 {
@@ -202,6 +219,34 @@ bool Array3DInfoImpl::setSize( DimIdxType dim, SzType nsz )
 }
 
 
+Array4DInfoImpl::Array4DInfoImpl( SzType sz0, SzType sz1,
+				  SzType sz2, SzType sz3 )
+{
+    dimsz_[0] = sz0; dimsz_[1] = sz1; dimsz_[2] = sz2; dimsz_[3] = sz3;
+    cachedtotalsz_ = calcTotalSz();
+}
+
+
+Array4DInfoImpl::Array4DInfoImpl( const Array4DInfo& oth )
+{
+    dimsz_[0] = oth.getSize(0);
+    dimsz_[1] = oth.getSize(1);
+    dimsz_[2] = oth.getSize(2);
+    dimsz_[3] = oth.getSize(3);
+    cachedtotalsz_ = calcTotalSz();
+}
+
+
+bool Array4DInfoImpl::setSize( DimIdxType dim, SzType nsz )
+{
+    if( dim > 3 || dim < 0 )
+	return false;
+    dimsz_[dim] = nsz;
+    cachedtotalsz_ = calcTotalSz();
+    return true;
+}
+
+
 ArrayNDInfo* ArrayNDInfoImpl::clone() const
 {
     if ( ndim_==1 )
@@ -210,6 +255,8 @@ ArrayNDInfo* ArrayNDInfoImpl::clone() const
 	return new Array2DInfoImpl( dimsz_[0], dimsz_[1] );
     if ( ndim_==3 )
 	return new Array3DInfoImpl( dimsz_[0], dimsz_[1], dimsz_[2] );
+    if ( ndim_==4 )
+	return new Array4DInfoImpl( dimsz_[0], dimsz_[1], dimsz_[2], dimsz_[3]);
 
     return new ArrayNDInfoImpl( *this );
 }
@@ -223,6 +270,8 @@ ArrayNDInfo* ArrayNDInfoImpl::create( NrDimsType ndim )
 	return new Array2DInfoImpl;
     if ( ndim==3 )
 	return new Array3DInfoImpl;
+    if ( ndim==4 )
+	return new Array4DInfoImpl;
 
     return new ArrayNDInfoImpl(ndim);
 }
