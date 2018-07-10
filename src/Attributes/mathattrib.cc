@@ -30,6 +30,7 @@ const Math::SpecVarSet& Attrib::Mathematics::getSpecVars()
 	svs.add( "DZ", "Z Step" );
 	svs.add( "Inl", "Inline number" );
 	svs.add( "Crl", "Crossline number" );
+	svs.add( "ZIndex", "Z Index" );
 	svs.add( "XCoord", "X Coordinate" );
 	svs.add( "YCoord", "Y Coordinate" );
 	svs.add( "Z", "Z" );
@@ -217,9 +218,10 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 		case 0 :   inpvals += mCast( double, refstep_ ); break;
 		case 1 :   inpvals += mCast( double, currentbid_.inl() ); break;
 		case 2 :   inpvals += mCast( double, currentbid_.crl() ); break;
-		case 3 :   inpvals += SI().transform(currentbid_).x; break;
-		case 4 :   inpvals += SI().transform(currentbid_).y; break;
-		case 5 :   inpvals += mCast( double,(z0+idx)*refstep_ ); break;
+		case 3 :   inpvals += mCast( double, (z0+idx) ); break;
+		case 4 :   inpvals += SI().transform(currentbid_).x; break;
+		case 5 :   inpvals += SI().transform(currentbid_).y; break;
+		case 6 :   inpvals += mCast( double,(z0+idx)*refstep_ ); break;
 	    }
 	    if ( specidx >=0 )
 	    {
