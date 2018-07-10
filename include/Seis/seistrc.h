@@ -90,13 +90,19 @@ public:
 			{ return info_.sampling_.atIndex( size()-1 ); }
     inline float	stepPos() const
 			{ return info_.sampling_.step; }
+    inline float	zStep() const
+			{ return info_.sampling_.step; }
     inline ZSampling	zRange() const
 			{ return ZSampling(startPos(),endPos(),stepPos()); }
     inline float	samplePos( int idx ) const
 			{ return info_.samplePos(idx); }
+    inline float	zPos( int idx ) const
+			{ return info_.samplePos(idx); }
     inline int		nearestSample( float pos ) const
 			{ return info_.nearestSample(pos); }
     void		setStartPos( float p )
+			{ info_.sampling_.start = p; }
+    void		setZStart( float p )
 			{ info_.sampling_.start = p; }
     inline bool		dataPresent( float t ) const
 			{ return info_.dataPresent(t,size()); }
