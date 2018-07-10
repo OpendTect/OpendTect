@@ -197,7 +197,15 @@ uiRetVal SEGYDirect2DLineIOProvider::getGeometry( const IOObj& obj,
 		Pos::GeomID geomid, PosInfo::Line2DData& geom ) const
 {
     uiRetVal uirv;
-    uirv.set( mTODONotImplPhrase() );
+    const BufferString fnm = getFileName( obj, geomid );
+    if ( fnm.isEmpty() || !File::exists(fnm) )
+    {
+	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
+	return uirv;
+    }
+
+    SEGY::DirectDef def( fnm );
+    geom = def.lineData();
     return uirv;
 }
 
@@ -325,6 +333,7 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
     data->setLineName( ioobj.name() );
     Survey::Geometry2D* geom = new Survey::Geometry2D( data );
     geom->setID( geomid );
+    geom->touch();
     return geom;
 }
 
