@@ -142,7 +142,7 @@ void TextTranslation::LanguageEntry::setLangName( const char* qmfnm )
     QTranslator maintrans;
     if ( maintrans.load(QString(qmfnm)) )
     {
-	uiString langnm = tr("LANGUAGE_NAME");
+	uiString langnm = tr("LANGUAGE_NAME",0,1);
 	uiString oldnm( "Language Name", "TextTranslatorLanguage", "od", 0, 1 );
 	langnm.addAlternateVersion( oldnm );
 	langnm.translate( maintrans, *qlangname_ );
