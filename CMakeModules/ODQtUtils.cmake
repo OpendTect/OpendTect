@@ -8,6 +8,12 @@
 set( QTDIR "" CACHE PATH "QT Location" )
 option ( OD_NO_QT "Turn off all QT" NO )
 
+if ( OD_NO_QT STREQUAL "NO" AND NOT ${QTDIR} STREQUAL "" )
+	#Try to find Qt5
+	list ( APPEND CMAKE_PREFIX_PATH ${QTDIR} )
+	find_package( Qt5Core QUIET PATHS ${QTDIR} NO_DEFAULT_PATH )
+endif()
+
 ##Create launcher for linguist
 set( LINGUIST_LAUNCHER "CMakeModules/templates/linguist.csh.in" )
 if ( EXISTS ${LINGUIST_LAUNCHER} )
@@ -29,9 +35,6 @@ macro(OD_SETUP_QT)
 	    MESSAGE( FATAL_ERROR "QTDIR not set")
 	endif()
 
-	#Try to find Qt5
-	list ( APPEND CMAKE_PREFIX_PATH ${QTDIR} )
-	find_package( Qt5Core QUIET PATHS ${QTDIR} NO_DEFAULT_PATH )
 	if ( Qt5Core_FOUND )
 	    find_package( Qt5 REQUIRED ${OD_USEQT} )
 
