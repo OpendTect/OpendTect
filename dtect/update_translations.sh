@@ -97,7 +97,7 @@ if [ "${php}" == "" ]; then
 fi
 
 removetmpoddirsed="s/\/tmp\/"
-removetmpoddirsed+=`basename $tmpoddir`
+removetmpoddirsed+=`basename ${tmpoddir}`
 removetmpoddirsed+="\///g"
 
 kernel=`uname -a | awk '{print $1}'`
@@ -138,56 +138,26 @@ fi
 projectdir="${tmpoddir}/data/translations"
 mkdir -p ${projectdir}
 
+#Converting from *.qm file to *.ts file for update, these files will be deleted later.
+
 cd ${olddir}
 
 shopt -s nullglob
+
+for qmfile in ${tsbasedir}/data/translations/${application}*.qm ; do
+    qmfilename=`basename ${qmfile} .qm`
+    binpath=`dirname ${lupdate}`
+    convertpath=${binpath}/lconvert
+    ${binpath}/lconvert -i ${qmfile} -o ${tsbasedir}/data/translations/${qmfilename}.ts
+done
+
+
 #Copy existing ts-files ot project dir
 cp -a ${tsbasedir}/data/translations/${application}*.ts ${projectdir}
 if [ -d ${tsbasedir}/data/translations ]; then
     cp -a ${tsbasedir}/data/translations/${application}*.ts ${projectdir}
 fi
-
-#Check if all projects exist in destination if so, check dates
-missing=0
-for fnm in ${projectdir}/${application}*.ts ; do
-    basefnm=`basename ${fnm}`
-    if [ ! -e "${outputdir}/${basefnm}" ]; then
-	missing=1
-    fi
-done
-
-if [ ${missing} -eq 0 ]; then
-
-    #Set arguments to stat as they are different on MacOS
-    statarg='-c %Y'
-    kernel=`uname -a | awk '{print $1}'`
-    if [ "${kernel}" == "Darwin" ]; then
-	statarg='-f %m'
-    fi
-
-    #Get the timestamp of all ts-files, and get the oldest one
-    oldest_output_timestamp=`find ${outputdir} -name "${application}*.ts" -type f \
-		    -exec stat ${statarg} '{}' \; \
-		    | sort -rn \
-		    | tail -1`
-
-    #Get the timestamp of all input files, and get the newest one
-    newest_input_timestamp=`find ${tmpoddir} \
-		\( -path "*.h" -o -path "*.cc" -o -name "${application}*.ts" \) \
-		-type f -exec stat ${statarg} '{}' \; | sort -n | tail -1`
-
-    if [ ${oldest_output_timestamp} -gt ${newest_input_timestamp} ]; then
-	if [ "${quiet}" == "off" ]; then
-	    echo "Nothing to do: Dependencies are older than target."
-	fi
-	#Remove temporary dir
-	cleanup
-	exit 0;
-    fi
-fi
-
 profnm=${projectdir}/normaltrans.pro
-
 cd ${projectdir}
 
 headers=`find $tmpoddir -path "*.h"`
@@ -205,14 +175,12 @@ echo "" >> ${filelist}
 
 echo -n "HEADERS = " >> ${filelist}
 for fnm in ${headers} ; do
-    echo " \\" >> ${filelist}
+   echo " \\" >> ${filelist}
     echo -n "    $fnm" >> ${filelist}
 done
-
 echo "" >> ${filelist}
 
 sources=`find ${tmpoddir} -path "*.cc"`
-
 echo -n "SOURCES = " >> ${filelist}
 for fnm in $sources ; do
     echo " \\" >> ${filelist}
@@ -221,17 +189,14 @@ done
 
 # Create a list of target .ts files for normal ts files
 echo -n "TRANSLATIONS = " > ${profnm}
-
 echo " \\" >> ${profnm}
 echo -n "    ${application}_template.ts" >> ${profnm}
-
 nonomatch=1
 for fnm in ${application}*.ts ; do
     #Don't run any plural here, as that is handled in plural project
     if [[ "${fnm}" =~ .*en.ts ]]; then
 	continue
     fi
-
     #Is explicitly added above, so remove eventual entry from the list to avoid duplicates
     if [[ "${fnm}" =~ .*_template.ts ]]; then
 	continue
@@ -240,12 +205,14 @@ for fnm in ${application}*.ts ; do
     echo " \\" >> ${profnm}
     echo -n "    $fnm" >> ${profnm}
 done
-
+echo "I am Line 238"
+echo ${profnm} 
+#vi ${profnm}
 cat ${filelist} >> ${profnm}
 
 echo "" >> ${profnm}
 echo -n "INCLUDEPATH += " >> ${profnm}
-
+#vi ${profnm}
 for dir in ${dirs} ; do
     echo " \\" >> ${profnm}
     echo -n "	${dir}" >>${profnm}
@@ -253,6 +220,7 @@ done
 
 #Create a list of .ts files for plural operations
 pluralpro=$projectdir/plural.pro
+#vi $projectdir/plural.pro
 pluralfile=${application}_en.ts
 if [ -e ${pluralfile} ]; then
     echo -n "TRANSLATIONS = " > ${pluralpro}
@@ -262,13 +230,14 @@ if [ -e ${pluralfile} ]; then
 
     echo "" >> ${pluralpro}
     echo -n "INCLUDEPATH += " >> ${pluralpro}
-
     for dir in ${dirs} ; do
 	    echo " \\" >> ${pluralpro}
 	    echo -n "	${dir}" >>${pluralpro}
     done
 fi
+echo "I am Line 273"
 
+echo "Outside  ${pluralfile}"
 #Remove the filelist
 rm -rf ${filelist}
 
@@ -283,13 +252,13 @@ filter_files ${headers}
 result=0
 #Run lupdate in the background and save jobid
 errfile=${tmpoddir}/stderr
-${lupdate} -silent -locations relative ${profnm} 2> ${errfile} &
+${lupdate}  -locations absolute -pro ${profnm} 2> ${errfile} &
 update_pid=$!
-
+#vi ${tmpoddir}/stderr
 if [ -e ${pluralpro} ]; then
     #Run this in the forground, and the other job is going in the background
     plural_errfile=${tmpoddir}/stderr_plural
-    ${lupdate} -silent -locations relative -pluralonly ${pluralpro} 2> ${plural_errfile}
+    ${lupdate} -locations relative -pluralonly -pro ${pluralpro} 2> ${plural_errfile}
     errors=`cat ${plural_errfile}`
     if [ "${errors}" != "" ]; then
 	echo "Errors during plural processing:"
@@ -317,7 +286,6 @@ if [ -e ${pluralpro} ]; then
 	result=1
     fi
 fi
-
 #Wait for background job to complete
 wait ${update_pid}
 
