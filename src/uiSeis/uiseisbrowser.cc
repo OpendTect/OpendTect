@@ -288,6 +288,7 @@ void uiSeisBrowser::addTrc( SeisTrcBuf& tbuf, const BinID& bid )
 	newtrc->info().coord = SI().transform( bid );
 	fillUdf( *newtrc );
     }
+
     tbuf.add( newtrc );
 }
 
@@ -331,7 +332,11 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
     if ( !canread && !veryfirst )
 	uiMSG().error( tr("Cannot read data at specified location") );
     if ( !havetrc || !canread )
+    {
 	binid = ctrc_.info().binid;
+	if ( !tr_->goTo(binid) || !tr_->read(ctrc_) )
+	    fillUdf( ctrc_ );
+    }
 
     for ( int idx=1; idx<stepout_+1; idx++ )
     {
@@ -341,6 +346,7 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
 
     for ( int idx=0; idx<stepout_; idx++ )
 	tbuf_.add( tbufbefore_.get(stepout_-idx-1) );
+
     tbuf_.add( &ctrc_ );
     for ( int idx=0; idx<stepout_; idx++ )
 	tbuf_.add( tbufafter_.get(idx) );
