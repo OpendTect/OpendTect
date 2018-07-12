@@ -298,8 +298,7 @@ bool FullDBKey::operator !=( const DBKey& dbky ) const
 BufferString FullDBKey::toString() const
 {
     BufferString ret = DBKey::toString();
-    if ( !survloc_.isCurrentSurvey() )
-	ret.add( "`" ).add( survloc_.fullPath() );
+    ret.add( "`" ).add( survloc_.fullPath() );
     return ret;
 }
 

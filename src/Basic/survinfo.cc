@@ -151,6 +151,12 @@ bool SurveyDiskLocation::isCurrentSurvey() const
 }
 
 
+bool SurveyDiskLocation::isEmpty() const
+{
+    return dirname_.isEmpty() && basepath_.isEmpty();
+}
+
+
 void SurveyDiskLocation::setEmpty()
 {
     dirname_.setEmpty();
