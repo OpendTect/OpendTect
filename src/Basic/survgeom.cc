@@ -71,12 +71,6 @@ bool Survey::Geometry::includes( const TrcKey& tk ) const
 }
 
 
-Survey::Geometry::ID Survey::Geometry2D::getIDFrom( const DBKey& dbky )
-{
-    return dbky.objID().getI();
-}
-
-
 Coord Survey::Geometry::toCoord( const TrcKey& tk )
 {
     const Geometry* geom = GM().getGeometry( tk.geomID() );
@@ -222,7 +216,7 @@ Survey::Geometry::ID Survey::GeometryManager::getGeomID( const char* lsnm,
 						     const char* lnnm ) const
 {
     if ( !hasduplnms_ )
-        return getGeomID( lnnm );
+	return getGeomID( lnnm );
 
     BufferString newlnm = lsnm;
     newlnm.add( "-" );
@@ -287,8 +281,8 @@ void Survey::GeometryManager::addGeometry( Geometry& geom )
 bool Survey::GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 {
     fillGeometries(0);
-    PtrMan<GeometryWriter> geomwriter = GeometryWriter::factory()
-				       .create(sKey::TwoD());
+    PtrMan<GeometryWriter> geomwriter =
+		GeometryWriter::factory().create( sKey::TwoD() );
     BufferStringSet lsnames;
     S2DPOS().getLineSets( lsnames );
     bool fetchedgeometry = false;
@@ -448,7 +442,7 @@ bool Survey::GeometryManager::fillGeometries( TaskRunner* taskrunner )
     ensureSIPresent();
     hasduplnms_ = hasDuplicateLineNames();
     PtrMan<GeometryReader> geomreader = GeometryReader::factory()
-				        .create(sKey::TwoD());
+					.create(sKey::TwoD());
     return geomreader ? geomreader->read( geometries_, taskrunner ) : false;
 }
 
