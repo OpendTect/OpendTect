@@ -262,8 +262,18 @@ install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION ${MISC_INSTALL_PRE
 
 #Installing unix syatem libraries
 if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
-    OD_INSTALL_SYSTEM_LIBRARY( /usr/lib64/libstdc++.so.6 Release )
-    OD_INSTALL_SYSTEM_LIBRARY( /lib64/libgcc_s.so.1 Release )
+    get_filename_component( CXXPATH ${CMAKE_CXX_COMPILER} DIRECTORY )
+    get_filename_component( CXXPATH ${CXXPATH} DIRECTORY )
+    if ( EXISTS ${CXXPATH}/lib64/libstdc++.so.6 )
+	OD_INSTALL_SYSTEM_LIBRARY( ${CXXPATH}/lib64/libstdc++.so.6 Release )
+    else()
+	OD_INSTALL_SYSTEM_LIBRARY( /usr/lib64/libstdc++.so.6 Release )
+    endif()
+    if ( EXISTS ${CXXPATH}/lib64/libgcc_s.so.1 )
+	OD_INSTALL_SYSTEM_LIBRARY( ${CXXPATH}/lib64/libgcc_s.so.1 Release )
+    else()
+	OD_INSTALL_SYSTEM_LIBRARY( /lib64/libgcc_s.so.1 Release )
+    endif()
 endif()
 
 OD_CURRENT_DATE( DATE )
