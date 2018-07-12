@@ -22,6 +22,7 @@
 #include "seisprovider.h"
 #include "seispreload.h"
 #include "seispacketinfo.h"
+#include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
@@ -320,6 +321,13 @@ bool Time2DepthStretcher::loadDataIfMissing( int id,
 	voidata_.replace( idx, arr );
     }
 
+    if ( velprovider_->is2D() ) // Now geomid is known. Have to recreate reader.
+    {
+	Seis::SelData* sd = new Seis::RangeSelData( readcs );
+	sd->setGeomID( readcs.hsamp_.start_.lineNr() );
+	velprovider_->setSelData( sd );
+    }
+
     TimeDepthDataLoader loader( *arr, *velprovider_, readcs, veldesc_,
 	    SamplingData<double>(voi.zsamp_), velintime_, voiintime_[idx] );
     if ( !trprov.execute( loader ) )
@@ -378,9 +386,6 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    if ( trckey.is2D() )
-	return;
-
     const BinID bid = trckey.binID();
     if ( bid.isUdf() )
 	return;
@@ -452,9 +457,6 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
 					const SamplingData<float>& sd,
 					int sz, float* res ) const
 {
-    if ( trckey.is2D() )
-	return;
-
     const BinID bid = trckey.binID();
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;
@@ -958,17 +960,16 @@ Interval<float> LinearT2DTransform::getZInterval( bool time ) const
     const bool survistime = SI().zIsTime();
     if ( time && survistime ) return zrg;
 
-    BinIDValue startbidval( 0, 0, zrg.start );
-    BinIDValue stopbidval( 0, 0, zrg.stop );
+    TrcKey tk( BinID(0,0) );
     if ( survistime && !time )
     {
-	zrg.start = ZAxisTransform::transform( startbidval );
-	zrg.stop = ZAxisTransform::transform( stopbidval );
+	zrg.start = ZAxisTransform::transformTrc( tk, zrg.start );
+	zrg.stop = ZAxisTransform::transformTrc( tk, zrg.stop );
     }
     else if ( !survistime && time )
     {
-	zrg.start = ZAxisTransform::transformBack( startbidval );
-	zrg.stop = ZAxisTransform::transformBack( stopbidval );
+	zrg.start = ZAxisTransform::transformTrcBack( tk, zrg.start );
+	zrg.stop = ZAxisTransform::transformTrcBack( tk, zrg.stop );
     }
 
     return getZRange( zrg, getGoodZStep(), toZDomainInfo().userFactor() );
@@ -980,9 +981,10 @@ float LinearT2DTransform::getGoodZStep() const
     if ( !SI().zIsTime() )
 	return SI().zRange(true).step;
 
+    TrcKey tk( BinID(0,0) );
     Interval<float> zrg = SI().zRange( true );
-    zrg.start = transform( BinIDValue(0,0,zrg.start) );
-    zrg.stop = transform( BinIDValue(0,0,zrg.stop) );
+    zrg.start = ZAxisTransform::transformTrc( tk, zrg.start );
+    zrg.stop = ZAxisTransform::transformTrc( tk, zrg.stop );
     return getZStep( zrg, toZDomainInfo().userFactor() );
 }
 
@@ -1012,17 +1014,16 @@ Interval<float> LinearD2TTransform::getZInterval( bool depth ) const
     const bool survistime = SI().zIsTime();
     if ( !survistime && depth ) return zrg;
 
-    BinIDValue startbidval( 0, 0, zrg.start );
-    BinIDValue stopbidval( 0, 0, zrg.stop );
+    TrcKey tk( BinID(0,0) );
     if ( survistime && depth )
     {
-	zrg.start = ZAxisTransform::transformBack( startbidval );
-	zrg.stop = ZAxisTransform::transformBack( stopbidval );
+	zrg.start = ZAxisTransform::transformTrcBack( tk, zrg.start );
+	zrg.stop = ZAxisTransform::transformTrcBack( tk, zrg.stop );
     }
     else if ( !survistime && !depth )
     {
-	zrg.start = ZAxisTransform::transform( startbidval );
-	zrg.stop = ZAxisTransform::transform( stopbidval );
+	zrg.start = ZAxisTransform::transformTrc( tk, zrg.start );
+	zrg.stop = ZAxisTransform::transformTrc( tk, zrg.stop );
     }
 
     return getZRange( zrg, getGoodZStep(), toZDomainInfo().userFactor() );
@@ -1034,8 +1035,9 @@ float LinearD2TTransform::getGoodZStep() const
     if ( SI().zIsTime() )
 	return SI().zRange(true).step;
 
+    TrcKey tk( BinID(0,0) );
     Interval<float> zrg = SI().zRange( true );
-    zrg.start = transform( BinIDValue(0,0,zrg.start) );
-    zrg.stop = transform( BinIDValue(0,0,zrg.stop) );
+    zrg.start = ZAxisTransform::transformTrc( tk, zrg.start );
+    zrg.stop = ZAxisTransform::transformTrc( tk, zrg.stop );
     return getZStep( zrg, toZDomainInfo().userFactor() );
 }
