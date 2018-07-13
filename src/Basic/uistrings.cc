@@ -289,6 +289,9 @@ uiPhrase uiStrings::phrRead( const uiWord& string )
 uiPhrase uiStrings::phrReading( const uiWord& string )
 { return tr("Reading %1").arg( string ); }
 
+uiPhrase uiStrings::phrRemove( const char* nm )
+{ return toUiString( "%1 '%2'" ).arg( sRemove() ).arg( nm ); }
+
 uiPhrase uiStrings::phrRemove( const uiWord& string )
 { return mJoinStr.arg( sRemove() ).arg( string ); }
 

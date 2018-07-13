@@ -134,6 +134,7 @@ public:
     static uiPhrase phrPlsSpecifyAtLeastOne(const uiWord& string);
     static uiPhrase phrRead(const uiWord&);
     static uiPhrase phrReading(const uiWord&);
+    static uiPhrase phrRemove(const char*);
     static uiPhrase phrRemove(const uiWord&);
     static uiPhrase phrRemoveSelected(const uiWord&);
     static uiPhrase phrRename(const uiWord&);

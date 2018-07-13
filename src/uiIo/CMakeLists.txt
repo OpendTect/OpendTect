@@ -64,6 +64,7 @@ set( OD_MODULE_SOURCES
 	uiselsurvranges.cc
 	uisrchprocfiles.cc
 	uisipimpl.cc
+	uistorcollbuilder.cc
 	uisurveymanager.cc
 	uisurveyselect.cc
 	uisurvinfoed.cc
