@@ -21,12 +21,9 @@ ________________________________________________________________________
 #include "commondefs.h"
 #include "envvars.h"
 #include "gmtarray2dinterpol.h"
+#include "initgmtplugin.h"
 #include "iopar.h"
 #include "survinfo.h"
-
-
-static bool hasGMTInst()
-{ return GetEnvVar("GMT_SHAREDIR"); }
 
 
 //uiGMTSurfaceGrid
@@ -66,7 +63,7 @@ uiGMTSurfaceGrid::uiGMTSurfaceGrid( uiParent* p )
     : uiArray2DInterpol( p, tr("GMT grid") )
     , tensionfld_(0)
 {
-    if ( hasGMTInst() )
+    if ( GMT::hasGMT() )
     {
 	tensionfld_ = new uiGenInput( this, uiStrings::sTension(),
 				      FloatInpSpec(0.25) );
@@ -151,7 +148,7 @@ uiGMTNearNeighborGrid::uiGMTNearNeighborGrid( uiParent* p )
     : uiArray2DInterpol( p, tr("GMT grid") )
     , radiusfld_(0)
 {
-    if ( hasGMTInst() )
+    if ( GMT::hasGMT() )
     {
 	uiString lbl( uiStrings::sSearchRadius().withSurvXYUnit() );
 	radiusfld_ = new uiGenInput( this, lbl, FloatInpSpec(1) );
