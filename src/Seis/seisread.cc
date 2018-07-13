@@ -844,12 +844,13 @@ Seis::Bounds* SeisTrcReader::getBounds() const
     {
 	for ( int iln=0; iln<dataset_->nrLines(); iln++ )
 	{
-	    if ( seldata_ && !(seldata_->geomID() < 0)
-		&& seldata_->geomID() != dataset_->geomID(iln) )
+	    const Pos::GeomID selgeomid =
+			seldata_ ? seldata_->geomID() : mUdfGeomID;
+	    if ( !mIsUdfGeomID(selgeomid) && selgeomid != dataset_->geomID(iln))
 		continue;
 
-	    Pos::GeomID geomid = seldata_ ? seldata_->geomID()
-					  : dataset_->geomID( iln );
+	    Pos::GeomID geomid =
+		mIsUdfGeomID(selgeomid) ? dataset_->geomID( iln ) : selgeomid;
 	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 			    Survey::GM().getGeometry(geomid))
 	    if ( !geom2d )
