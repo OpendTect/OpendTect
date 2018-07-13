@@ -13,7 +13,9 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uiobjfileman.h"
 
-/*! \briefCrossPlot data manager */
+/*! \brief
+Cross-plot data manager
+*/
 
 mExpClass(uiIo) uiDataPointSetMan : public uiObjFileMan
 { mODTextTranslationClass(uiDataPointSetMan);
