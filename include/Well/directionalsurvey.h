@@ -22,7 +22,7 @@ namespace Well
 class DirectionalSurvey
 {
 public:
-    enum Type		{ MinCurv, Tangential };
+    enum Method		{ MinCurv, Tangential };
 			DirectionalSurvey(const Coord& surfacecrd,double kb=0);
 			~DirectionalSurvey();
 
