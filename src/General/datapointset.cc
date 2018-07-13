@@ -383,9 +383,9 @@ void DataPointSet::initPVDS()
 {
     if ( !minimal_ )
     {
-	data_.add( new DataColDef("X Offset") );
-	data_.add( new DataColDef("Y Offset") );
-	data_.add( new DataColDef("Selection status") );
+	data_.add( new DataColDef(sKey::XOffset()) );
+	data_.add( new DataColDef(sKey::YOffset()) );
+	data_.add( new DataColDef(sKey::SelectionStatus()) );
     }
     if ( is2d_ )
 	data_.add( new DataColDef(sKey::TraceNr()) );
