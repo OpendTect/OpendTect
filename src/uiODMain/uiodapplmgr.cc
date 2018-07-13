@@ -496,13 +496,13 @@ void uiODApplMgr::setStereoOffset()
 }
 
 
-void uiODApplMgr::addTimeDepthScene()
+void uiODApplMgr::addTimeDepthScene( bool is2d )
 {
     uiZAxisTransformSel* uitrans = SI().zIsTime()
 	? new uiZAxisTransformSel( 0, false, ZDomain::sKeyTime(),
-				  ZDomain::sKeyDepth(), true )
+				  ZDomain::sKeyDepth(), true, false, is2d )
 	: new uiZAxisTransformSel( 0, false, ZDomain::sKeyDepth(),
-				  ZDomain::sKeyTime(), true );
+				  ZDomain::sKeyTime(), true, false, is2d );
 
     if ( !uitrans->isOK() )
     {

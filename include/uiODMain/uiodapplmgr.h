@@ -137,7 +137,7 @@ public:
     void		show2DViewer();
 
     // Scene menu operations
-    void		addTimeDepthScene();
+    void		addTimeDepthScene(bool is2d);
     void		addHorFlatScene(bool is2d);
 
     // Utility menu operations

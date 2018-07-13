@@ -29,6 +29,7 @@ bool uiZAxisTransform::isField( const uiParent* p )
 
 uiZAxisTransform::uiZAxisTransform( uiParent* p )
     : uiDlgGroup( p, uiString::empty() )
+    , is2d_(false)
 {}
 
 
@@ -40,6 +41,19 @@ bool uiZAxisTransform::getTargetSampling( StepInterval<float>& ) const
 { return false; }
 
 
+void uiZAxisTransform::setIs2D( bool yn )
+{
+    is2d_ = yn;
+}
+
+
+bool uiZAxisTransform::is2D() const
+{
+    return is2d_;
+}
+
+
+// uiZAxisTransformSel
 uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	const char* fromdomain, const char* todomain, bool withsampling,
 	bool isfield, bool is2d )
@@ -72,6 +86,7 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	    continue;
 	}
 
+	uizat->setIs2D( is2d );
 	if ( withsampling )
 	    uizat->enableTargetSampling();
 

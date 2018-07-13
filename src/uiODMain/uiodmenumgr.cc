@@ -758,10 +758,12 @@ void uiODMenuMgr::fillSceneMenu()
     scenemnu_->clear();
     addAction( scenemnu_, uiStrings::sNew(), "addnew", mAddSceneMnuItm );
     addAction( scenemnu_, tr("New Map View"), "survey", mAddMapSceneMnuItm );
+
     uiString tdmnutxt = toUiString( "%1 [%2]" ).arg( uiStrings::sNew() )
 	 .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
-    addtimedepthsceneitm_ = addAction( scenemnu_, tdmnutxt,
-	       SI().zIsTime() ? "depth" : "time", mAddTmeDepthMnuItm );
+    const char* iconnm = SI().zIsTime() ? "depth" : "time";
+    add2D3DActions( scenemnu_, tdmnutxt, iconnm, mAddTimeDepth2DMnuItm,
+						 mAddTimeDepth3DMnuItm );
 
     tdmnutxt = toUiString( "%1 [%2]" ).arg( uiStrings::sNew() )
 			.arg( tr("Horizon Flattened") );
@@ -1344,7 +1346,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mOpenXPlotMnuItm:	applMgr().openCrossPlot(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
-    case mAddTmeDepthMnuItm:	applMgr().addTimeDepthScene(); break;
+    case mAddTimeDepth2DMnuItm:	applMgr().addTimeDepthScene(true); break;
+    case mAddTimeDepth3DMnuItm:	applMgr().addTimeDepthScene(false); break;
     case mAddHorFlat2DMnuItm:	applMgr().addHorFlatScene(true); break;
     case mAddHorFlat3DMnuItm:	applMgr().addHorFlatScene(false); break;
     case mCascadeMnuItm:	sceneMgr().cascade(); break;

@@ -22,10 +22,10 @@ class uiZAxisTransformSel;
 /*! Base class for ZAxisTransform ui's*/
 
 mExpClass(uiTools) uiZAxisTransform : public uiDlgGroup
-{ mODTextTranslationClass(uiZAxisTransform);
+{ mODTextTranslationClass(uiZAxisTransform)
 public:
     mDefineFactory3ParamInClass(uiZAxisTransform,uiParent*,
-	    			const char*,const char*,factory);
+				const char*,const char*,factory)
 
     virtual void		enableTargetSampling();
     virtual bool		getTargetSampling(StepInterval<float>&) const;
@@ -41,22 +41,26 @@ public:
 				   construction.
 				 */
 
+    virtual void		setIs2D(bool);
+    virtual bool		is2D() const;
+
 protected:
     static bool 		isField(const uiParent*);
-    				uiZAxisTransform(uiParent*);
+				uiZAxisTransform(uiParent*);
     void			rangeChangedCB(CallBacker*);
     void			finalizeDoneCB(CallBacker*);
 
     uiGenInput* 		rangefld_;
     bool			rangechanged_;
+    bool			is2d_;
 };
 
 
 /*!Selects a ZAxisTransform. */
 mExpClass(uiTools) uiZAxisTransformSel : public uiDlgGroup
-{ mODTextTranslationClass(uiZAxisTransformSel);
+{ mODTextTranslationClass(uiZAxisTransformSel)
 public:
-    				uiZAxisTransformSel(uiParent*, bool withnone,
+				uiZAxisTransformSel(uiParent*, bool withnone,
 						    const char* fromdomain=0,
 						    const char* todomain=0,
 						    bool withsampling=false,

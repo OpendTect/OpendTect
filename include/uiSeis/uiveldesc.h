@@ -32,9 +32,11 @@ public:
     {
     public:
 				Setup( const VelocityDesc* vd=0 )
+				    : is2d_(false)
 				{ if ( vd ) desc_ = *vd; }
 
 	mDefSetupMemb(VelocityDesc,desc)
+	mDefSetupMemb(bool,is2d)
     };
 
 				uiVelocityDesc(uiParent*,const Setup* s=0);
@@ -101,6 +103,8 @@ public:
     Interval<float>		getVelocityBottomRange() const	{ return brg_; }
     Notifier<uiVelSel>		velrgchanged;
 
+    void			setIs2D(bool);
+
 protected:
 
     uiButton*			editbut_;
@@ -126,6 +130,8 @@ public:
     const DBKey&		selID() const { return selkey_; }
 
     bool			canBeField() const { return true; }
+    virtual void		setIs2D(bool);
+
 protected:
 				uiVelModelZAxisTransform(uiParent*,bool);
 				~uiVelModelZAxisTransform();

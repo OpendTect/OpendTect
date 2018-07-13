@@ -44,6 +44,7 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
     hasstaticsfld_ = new uiGenInput( vigrp, tr("Has statics"),
 				     BoolInpSpec(true) );
     hasstaticsfld_->valuechanged.notify(mCB(this,uiVelocityDesc,updateFlds));
+
     staticsfld_ = new uiStaticsDesc( vigrp, 0 );
     staticsfld_->attach( alignedBelow, hasstaticsfld_ );
     vigrp->setHAlignObj( hasstaticsfld_ );
@@ -136,23 +137,26 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
     , toprange_( mUdf(float), mUdf(float ) )
     , bottomrange_( mUdf(float), mUdf(float ) )
 {
-    uiSeisSel::Setup ssu( Seis::Vol ); ssu.seltxt( tr("Velocity cube") );
-    volselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
+    const Seis::GeomType gt = vsu && vsu->is2d_ ? Seis::Line : Seis::Vol;
+    uiSeisSel::Setup ssu( gt ); ssu.seltxt( tr("Velocity cube") );
+    volselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,true),
 				ssu );
     if ( sel )
 	volselfld_->setInput( *sel );
 
-    volselfld_->selectionDone.notify(mCB(this,uiVelocityDescDlg,volSelChange) );
+    mAttachCB( volselfld_->selectionDone, uiVelocityDescDlg::volSelChange );
 
     veldescfld_ = new uiVelocityDesc( this, vsu );
     veldescfld_->attach( alignedBelow, volselfld_ );
 
-    volSelChange( 0 );
+    mAttachCB( postFinalise(), uiVelocityDescDlg::volSelChange );
 }
 
 
 uiVelocityDescDlg::~uiVelocityDescDlg()
-{ }
+{
+    detachAllNotifiers();
+}
 
 
 IOObj* uiVelocityDescDlg::getSelection() const
@@ -287,7 +291,9 @@ void uiVelSel::butPushCB( CallBacker* cb )
     const IOObj* useioobj = 0;
     if ( cb == editbut_ )
 	useioobj = ioobj( true );
-    uiVelocityDescDlg dlg( this, useioobj );
+
+    uiVelocityDesc::Setup vsu; vsu.is2d_ = is2D();
+    uiVelocityDescDlg dlg( this, useioobj, &vsu );
     if ( dlg.go() )
     {
 	PtrMan<IOObj> sel = dlg.getSelection();
@@ -315,7 +321,7 @@ void uiVelSel::fillDefault()
 {
     workctio_.destroyAll();
     if ( !setup_.filldef_ || !workctio_.ctxt_.forread_ )
-        return;
+	return;
 
     workctio_.fillDefaultWithKey( sKeyDefVelCube );
 }
@@ -348,6 +354,20 @@ void uiVelSel::setEditButState()
 }
 
 
+void uiVelSel::setIs2D( bool yn )
+{
+    seissetup_.geom_ = yn ? Seis::Line : Seis::Vol;
+    IOObjContext ctxt = uiSeisSel::ioContext( seissetup_.geom_, true );
+    ctxt.toselect_.require_.setYN( VelocityDesc::sKeyIsVelocity(), true );
+    workctio_.ctxt_ = inctio_.ctxt_ = ctxt;
+    updateInput();
+    fillEntries();
+    selectionDoneCB(0);
+}
+
+
+
+// uiVelModelZAxisTransform
 uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
     : uiTime2DepthZTransformBase( p, t2d )
     , transform_ ( 0 )
@@ -371,6 +391,13 @@ uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
 uiVelModelZAxisTransform::~uiVelModelZAxisTransform()
 {
     unRefAndZeroPtr( transform_ );
+}
+
+
+void uiVelModelZAxisTransform::setIs2D( bool is2d )
+{
+    uiZAxisTransform::setIs2D( is2d );
+    velsel_->setIs2D( is2d );
 }
 
 
