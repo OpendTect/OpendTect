@@ -239,4 +239,11 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
 }
 
 
+DataPack::ID
+ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
+					const LineKey& lk, TaskRunner* taskr )
+{
+    return createAttrib( tkzs, -1, taskr );
+}
+
 } // namespace VolProc

@@ -79,12 +79,11 @@ public:
 			{ return Attrib::ExtAttribCalc::createAttrib(o,trans); }
     virtual bool	createAttrib( const BinIDValueSet& b, SeisTrcBuf& tb,
 				      TaskRunner* trans )
-			{ 
-		    return Attrib::ExtAttribCalc::createAttrib(b,tb,trans); 
+			{
+		    return Attrib::ExtAttribCalc::createAttrib(b,tb,trans);
 			}
-    virtual DataPack::ID createAttrib( const TrcKeyZSampling& cs, 
-				       const LineKey& l, TaskRunner* trans )
-			{ return Attrib::ExtAttribCalc::createAttrib(cs,l,trans); }
+    virtual DataPack::ID createAttrib(const TrcKeyZSampling&,
+				      const LineKey&,TaskRunner*);
 
 protected:
 
