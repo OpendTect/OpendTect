@@ -22,12 +22,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "commondefs.h"
 #include "envvars.h"
 #include "gmtarray2dinterpol.h"
+#include "initgmtplugin.h"
 #include "iopar.h"
 #include "survinfo.h"
-
-
-static bool hasGMTInst()
-{ return GetEnvVar("GMT_SHAREDIR"); }
 
 
 //uiGMTSurfaceGrid
@@ -50,13 +47,13 @@ uiArray2DInterpol* uiGMTSurfaceGrid::create( uiParent* p )
 static void createUi( uiArray2DInterpol* p, const CallBack& cb )
 {
     uiString msg = od_static_tr( "create_GMT_UI",
-	    		"To use this GMT algorithm you need to install GMT."
-	    	       "\nClick on GMT-button for more information" ); 
+			"To use this GMT algorithm you need to install GMT."
+		       "\nClick on GMT-button for more information" );
     uiLabel* lbl = new uiLabel( p, msg );
     uiButton* gmtbut = new uiToolButton( p, "gmt_logo",
-	    				 od_static_tr("create_GMT_UI",
+					 od_static_tr("create_GMT_UI",
 					              "GMT info"),cb);
-	    				 
+
     gmtbut->attach( alignedBelow, lbl );
     p->setHAlignObj( lbl );
 }
@@ -66,7 +63,7 @@ uiGMTSurfaceGrid::uiGMTSurfaceGrid( uiParent* p )
     : uiArray2DInterpol( p, "GMT grid" )
     , tensionfld_(0)
 {
-    if ( hasGMTInst() )
+    if ( GMT::hasGMT() )
     {
 	tensionfld_ = new uiGenInput( this, "Tension", FloatInpSpec(0.25) );
 	setHAlignObj( tensionfld_ );
@@ -149,7 +146,7 @@ uiGMTNearNeighborGrid::uiGMTNearNeighborGrid( uiParent* p )
     : uiArray2DInterpol( p, "GMT grid" )
     , radiusfld_(0)
 {
-    if ( hasGMTInst() )
+    if ( GMT::hasGMT() )
     {
 	BufferString lbl( "Search radius " );
 	lbl.add( SI().getXYUnitString() );
