@@ -35,7 +35,6 @@ protected:
 
     uiFileSel*		lasfld_;
     uiGenInput*		intvfld_;
-    uiGenInput*		intvunfld_;
     uiGenInput*		istvdfld_;
     uiGenInput*		udffld_;
     uiLabel*		unitlbl_;

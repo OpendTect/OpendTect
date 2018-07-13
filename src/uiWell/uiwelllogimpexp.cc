@@ -56,18 +56,12 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
 			      FloatInpIntervalSpec(false) );
     intvfld_->attach( alignedBelow, lasfld_ );
 
-    BoolInpSpec mft( !SI().depthsInFeet(), uiStrings::sMeter(false),
-					   uiStrings::sFeet(false) );
-    intvunfld_ = new uiGenInput( this, uiString::empty(), mft );
-    intvunfld_->attach( rightOf, intvfld_ );
-    intvunfld_->display( false );
-
     unitlbl_ = new uiLabel( this, toUiString("XXXX") );
     unitlbl_->attach( rightOf, intvfld_ );
     unitlbl_->display( false );
 
     istvdfld_ = new uiGenInput( this, tr("Depth values are"),
-		    BoolInpSpec(false,uiStrings::sTVDSS(),uiStrings::sMD()) );
+		BoolInpSpec(false,uiStrings::sTVDSS(),uiStrings::sMD()) );
     istvdfld_->attach( alignedBelow, intvfld_ );
 
     udffld_ = new uiGenInput( this, tr("Undefined value in logs"),
@@ -83,7 +77,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     logstable_->attach( ensureBelow, udffld_ );
 
     lognmfld_ = new uiGenInput( this, tr("Name log after"),
-	    BoolInpSpec(true,uiStrings::sCurve(),uiStrings::sDescription()) );
+	    BoolInpSpec(false,uiStrings::sCurve(),uiStrings::sDescription()) );
     lognmfld_->attach( alignedBelow, udffld_ );
     lognmfld_->attach( ensureBelow, logstable_ );
 
@@ -107,6 +101,7 @@ void uiImportLogsDlg::lasSel( CallBacker* )
     logstable_->setNrRows( lfi.size() );
     for ( int idx=0; idx<lfi.size(); idx++ )
     {
+	logstable_->setCellChecked( RowCol(idx,0), true );
 	logstable_->setText( RowCol(idx,0), lfi.logcurves.get(idx) );
 	logstable_->setText( RowCol(idx,1), lfi.logunits.get(idx) );
 	logstable_->setText( RowCol(idx,2), lfi.lognms.get(idx) );
@@ -115,23 +110,20 @@ void uiImportLogsDlg::lasSel( CallBacker* )
     logstable_->setColumnResizeMode( uiTable::ResizeToContents );
     logstable_->setColumnStretchable( 2, true );
 
-    uiString lbl = toUiString( lfi.zunitstr.buf() ).parenthesize();
+    const uiString lbl = toUiString( lfi.zunitstr.buf() ).parenthesize();
     unitlbl_->setText( lbl );
     unitlbl_->display( true );
-    const bool isft = *lfi.zunitstr.buf() == 'f' || *lfi.zunitstr.buf() == 'F';
-    intvunfld_->setValue( !isft );
-    intvunfld_->display( false );
 
     udffld_->setValue( lfi.undefval );
 
+    const UnitOfMeasure* uom = UoMR().get( lfi.zunitstr );
     Interval<float> usrzrg = lfi.zrg;
-    if ( isft )
+    if ( uom )
     {
-	if ( !mIsUdf(lfi.zrg.start) )
-	    usrzrg.start *= mToFeetFactorF;
-	if ( !mIsUdf(lfi.zrg.stop) )
-	    usrzrg.stop *= mToFeetFactorF;
+	usrzrg.start = uom->userValue( usrzrg.start );
+	usrzrg.stop = uom->userValue( usrzrg.stop );
     }
+
     intvfld_->setValue( usrzrg );
 }
 
@@ -148,25 +140,26 @@ bool uiImportLogsDlg::acceptOK()
     if ( !wd )
 	mErrRet( uirv )
 
-    Well::LASImporter wdai( *wd );
-    Well::LASImporter::FileInfo lfi;
-
-    lfi.undefval = udffld_->getFValue();
-
-    Interval<float> usrzrg = intvfld_->getFInterval();
-    const bool zinft = !intvunfld_->getBoolValue();
-    if ( zinft )
-    {
-	if ( !mIsUdf(usrzrg.start) )
-	    usrzrg.start *= mFromFeetFactorF;
-	if ( !mIsUdf(usrzrg.stop) )
-	    usrzrg.stop *= mFromFeetFactorF;
-    }
-    lfi.zrg.setFrom( usrzrg );
-
     const char* lasfnm = lasfld_->text();
     if ( !lasfnm || !*lasfnm )
 	mErrRet( uiStrings::phrEnter(tr("a valid file name")) )
+
+    Well::LASImporter wdai( *wd );
+    Well::LASImporter::FileInfo lfi;
+    wdai.getLogInfo( lasfnm, lfi );
+    lfi.logcurves.setEmpty();
+    lfi.logunits.setEmpty();
+    lfi.lognms.setEmpty();
+
+    lfi.undefval = udffld_->getFValue();
+
+    const UnitOfMeasure* uom = UoMR().get( lfi.zunitstr );
+    const Interval<float> usrzrg = intvfld_->getFInterval();
+    if ( uom )
+    {
+	lfi.zrg.start = uom->internalValue( usrzrg.start );
+	lfi.zrg.stop = uom->internalValue( usrzrg.stop );
+    }
 
     const bool usecurvenms = lognmfld_ ? lognmfld_->getBoolValue() : false;
     BufferStringSet lognms;
@@ -175,7 +168,7 @@ bool uiImportLogsDlg::acceptOK()
 	const int colidx = usecurvenms ? 0 : 2;
 	for ( int idx=0; idx<logstable_->nrRows(); idx++ )
 	{
-	    if ( logstable_->isRowSelected(idx) )
+	    if ( logstable_->isCellChecked(RowCol(idx,0)))
 		lognms.add( logstable_->text(RowCol(idx,colidx)) );
 	}
     }
