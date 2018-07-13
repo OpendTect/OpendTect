@@ -134,7 +134,7 @@ SeisIOObjInfo::SeisIOObjInfo( const IOObj* ioobj )
 SeisIOObjInfo::SeisIOObjInfo( const IOObj& ioobj )
 	: ioobj_(ioobj.clone())				{ setType(); }
 SeisIOObjInfo::SeisIOObjInfo( const DBKey& id )
-	: ioobj_(DBM().get(id))				{ setType(); }
+	: ioobj_(getIOObj(id))				{ setType(); }
 
 
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
