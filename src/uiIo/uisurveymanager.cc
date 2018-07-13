@@ -478,7 +478,7 @@ void uiSurveyManager::compressButPushed( CallBacker* )
     osrbutton->setIcon( "click" );
     osrbutton->attach( alignedBelow, fnmfld->selectButton() );
     new uiLabel( fnmfld,
-	         tr("You can share surveys to the "
+		 tr("You can share surveys to the "
 		    "Open Seismic Repository. Interested?"), osrbutton );
     if ( !dlg.go() )
 	return;
@@ -641,8 +641,8 @@ void uiSurveyManager::putToScreen()
 
 	const float inldist = si.inlDistance(), crldist = si.crlDistance();
 
-	bininfo.add( toString(inldist) ).add( "/" );
-	bininfo.add( toString(crldist) );
+	bininfo.add( getFPStringWithDecimals(inldist,2) ).add( "/" );
+	bininfo.add( getFPStringWithDecimals(crldist,2) );
 	float area = (float)( si.getArea(false) * 1e-6 ); //in km2
 	if ( si.xyInFeet() )
 	    area /= 2.590; // square miles
