@@ -169,13 +169,13 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 		zval += shift_;
 	    else
 	    {
-		zval = zat_->transform( BinIDValue(bid,zval) );
+		zval = zat_->transformTrc( bid, zval );
 		if ( mIsUdf(zval) )
 		    continue;
 
 		zval += shift_;
 
-		zval = zat_->transformBack( BinIDValue(bid,zval) );
+		zval = zat_->transformTrcBack( bid, zval );
 		if ( mIsUdf(zval) )
 		    continue;
 	    }
