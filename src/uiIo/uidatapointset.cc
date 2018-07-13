@@ -1481,6 +1481,8 @@ bool uiDataPointSet::doSave()
 	unsavedchgs_ = false;
 	if ( uidpss.ctio_.ioobj_ && !uidpss.istab_ )
 	    setCaption( uidpss.ctio_.ioobj_->uiName() );
+
+	uiMSG().message( tr("Cross-plot Data successfully saved") );
     }
 
     return ret;
