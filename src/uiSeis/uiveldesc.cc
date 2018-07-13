@@ -145,17 +145,19 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
     if ( sel )
 	volselfld_->setInput( *sel );
 
-    volselfld_->selectionDone.notify(mCB(this,uiVelocityDescDlg,volSelChange) );
+    mAttachCB( volselfld_->selectionDone, uiVelocityDescDlg::volSelChange );
 
     veldescfld_ = new uiVelocityDesc( this, vsu );
     veldescfld_->attach( alignedBelow, volselfld_ );
 
-    volSelChange( 0 );
+    mAttachCB( postFinalise(), uiVelocityDescDlg::volSelChange );
 }
 
 
 uiVelocityDescDlg::~uiVelocityDescDlg()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 IOObj* uiVelocityDescDlg::getSelection() const
@@ -244,14 +246,14 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
 
 
 uiVelSel::uiVelSel( uiParent* p, const IOObjContext& ctxt,
-		    const uiSeisSel::Setup& setup, bool iseditbutton )
+		    const uiSeisSel::Setup& setup, bool weditbutton )
     : uiSeisSel( p, ctxt, setup )
     , velrgchanged( this )
     , editcubebutt_(0)
 {
     seissetup_.allowsetsurvdefault_ = true;
     seissetup_.survdefsubsel_ = "Velocity";
-    if ( iseditbutton )
+    if ( weditbutton )
     {
 	editcubebutt_ = new uiPushButton( this, uiString::emptyString(),
 		mCB(this,uiVelSel,editCB), false );
@@ -315,7 +317,7 @@ void uiVelSel::fillDefault()
 {
     workctio_.destroyAll();
     if ( !setup_.filldef_ || !workctio_.ctxt_.forread_ )
-        return;
+	return;
 
     workctio_.fillDefaultWithKey( sKeyDefVelCube );
 }
@@ -358,6 +360,7 @@ void uiVelSel::setIs2D( bool yn )
     workctio_.ctxt_ = inctio_.ctxt_ = ctxt;
     updateInput();
     fillEntries();
+    selectionDoneCB(0);
 }
 
 
@@ -453,12 +456,6 @@ const char* uiVelModelZAxisTransform::selName() const
 bool uiVelModelZAxisTransform::acceptOK()
 {
     unRefAndZeroPtr( transform_ );
-
-#ifndef __debug__
-    if ( is2D() )
-	mErrRet( tr("2D velocity models are not yet supported.\n"
-		    "Please choose another Z transform.") );
-#endif
 
     const IOObj* ioobj = velsel_->ioobj( false );
     if ( !ioobj )

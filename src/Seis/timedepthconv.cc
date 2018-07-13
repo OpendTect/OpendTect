@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisread.h"
 #include "seispreload.h"
 #include "seispacketinfo.h"
+#include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
@@ -130,7 +131,7 @@ bool Time2DepthStretcher::usePar( const IOPar& par )
 
     MultiID vid;
     if ( par.get( VelocityDesc::sKeyVelocityVolume(), vid ) &&
-	          !setVelData( vid ) )
+		  !setVelData( vid ) )
 	return false;
 
     return true;
@@ -209,87 +210,23 @@ public:
 		}
 protected:
 
-    od_int64            totalNr() const
-			{return readcs_.hsamp_.nrCrl()*readcs_.hsamp_.nrInl();}
-    od_int64            nrDone() const { return nrdone_; }
-    uiString	uiMessage() const { return tr("Reading velocity model"); };
-    uiString	uiNrDoneText() const { return tr("Position read"); }
+    int		nextStep();
+    od_int64	totalNr() const
+		{ return readcs_.hsamp_.nrCrl()*readcs_.hsamp_.nrInl(); }
+    od_int64	nrDone() const		{ return nrdone_; }
+    uiString	uiMessage() const	{ return tr("Reading velocity model"); }
+    uiString	uiNrDoneText() const	{ return tr("Position read"); }
 
-    int                 nextStep()
-    {
-	const int nrz = arr_.info().getSize( 2 );
-
-	BinID curbid;
-	if ( !hiter_.next( curbid ) )
-	    return Finished();
-	
-	const od_int64 offset =
-	    arr_.info().getOffset(readcs_.hsamp_.inlIdx(curbid.inl()),
-				    readcs_.hsamp_.crlIdx(curbid.crl()), 0 );
-
-	OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset );
-
-	if ( !seisdatapack_ )
-	{
-	    mDynamicCastGet( SeisTrcTranslator*, veltranslator,
-			    reader_.translator() );
-
-	    SeisTrc velocitytrc;
-	    if ( !veltranslator->goTo(curbid) || !reader_.get(velocitytrc) )
-	    {
-		Time2DepthStretcher::udfFill( arrvs, nrz );
-		return MoreToDo();
-	    }
-
-	    const SeisTrcValueSeries trcvs( velocitytrc, 0 );
-	    tdc_.setVelocityModel( trcvs, velocitytrc.size(),
-				    velocitytrc.info().sampling, veldesc_,
-				    velintime_ );
-	}
-	else
-	{
-	    const int globidx = seisdatapack_->getGlobalIdx( curbid );
-	    const OffsetValueSeries<float>& dptrcvs =
-		seisdatapack_->getTrcStorage( 0, globidx );
-
-	    const SamplingData<float> sd = seisdatapack_->sampling().zsamp_;
-	    tdc_.setVelocityModel( dptrcvs,
-				   seisdatapack_->sampling().zsamp_.nrSteps()+1,
-				   sd, veldesc_, velintime_ );
-	}
-
-	nrdone_++;
-
-	if ( voiintime_ )
-	{
-	    if ( !tdc_.calcDepths(arrvs,nrz,voisd_) )
-	    {
-		Time2DepthStretcher::udfFill( arrvs, nrz );
-		return MoreToDo();
-	    }
-	}
-	else
-	{
-	    if ( !tdc_.calcTimes(arrvs,nrz,voisd_) )
-	    {
-		Time2DepthStretcher::udfFill( arrvs, nrz );
-		return MoreToDo();
-	    }
-	}
-
-	return MoreToDo();
-    }
-
-    TrcKeyZSampling        	readcs_;
-    SeisTrcReader&      	reader_;
-    Array3D<float>&     	arr_;
-    TimeDepthConverter  	tdc_;
-    VelocityDesc        	veldesc_;
-    bool                	velintime_;
-    bool                	voiintime_;
+    TrcKeyZSampling		readcs_;
+    SeisTrcReader&		reader_;
+    Array3D<float>&		arr_;
+    TimeDepthConverter		tdc_;
+    VelocityDesc		veldesc_;
+    bool			velintime_;
+    bool			voiintime_;
     const RegularSeisDataPack*	seisdatapack_;
 
-    int                 	nrdone_;
+    int				nrdone_;
 
     SamplingData<double>	voisd_;
 
@@ -297,15 +234,86 @@ protected:
 };
 
 
-bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* trans )
+int TimeDepthDataLoader::nextStep()
+{
+    const int nrz = arr_.info().getSize( 2 );
+
+    BinID curbid;
+    if ( !hiter_.next( curbid ) )
+	return Finished();
+
+    const od_int64 offset =
+	arr_.info().getOffset(readcs_.hsamp_.inlIdx(curbid.inl()),
+				readcs_.hsamp_.crlIdx(curbid.crl()), 0 );
+
+    OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset );
+
+    if ( !seisdatapack_ )
+    {
+	mDynamicCastGet( SeisTrcTranslator*, veltranslator,
+			reader_.translator() );
+
+	SeisTrc velocitytrc;
+	bool res = true;
+	if ( veltranslator->supportsGoTo() )
+	    res = veltranslator->goTo( curbid );
+
+	if ( res )
+	    res = reader_.get( velocitytrc );
+
+	if ( !res )
+	{
+	    Time2DepthStretcher::udfFill( arrvs, nrz );
+	    return MoreToDo();
+	}
+
+	const SeisTrcValueSeries trcvs( velocitytrc, 0 );
+	tdc_.setVelocityModel( trcvs, velocitytrc.size(),
+				velocitytrc.info().sampling, veldesc_,
+				velintime_ );
+    }
+    else
+    {
+	const int globidx = seisdatapack_->getGlobalIdx( curbid );
+	const OffsetValueSeries<float>& dptrcvs =
+	    seisdatapack_->getTrcStorage( 0, globidx );
+
+	const SamplingData<float> sd = seisdatapack_->sampling().zsamp_;
+	tdc_.setVelocityModel( dptrcvs,
+			       seisdatapack_->sampling().zsamp_.nrSteps()+1,
+			       sd, veldesc_, velintime_ );
+    }
+
+    nrdone_++;
+
+    if ( voiintime_ )
+    {
+	if ( !tdc_.calcDepths(arrvs,nrz,voisd_) )
+	{
+	    Time2DepthStretcher::udfFill( arrvs, nrz );
+	    return MoreToDo();
+	}
+    }
+    else
+    {
+	if ( !tdc_.calcTimes(arrvs,nrz,voisd_) )
+	{
+	    Time2DepthStretcher::udfFill( arrvs, nrz );
+	    return MoreToDo();
+	}
+    }
+
+    return MoreToDo();
+}
+
+
+bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* taskr )
 {
     if ( !velreader_ )
 	return true;
-    
-    mDynamicCastGet( SeisTrcTranslator*, veltranslator,
-		     velreader_->translator() );
 
-    if ( !veltranslator || !veltranslator->supportsGoTo() )
+    mDynamicCastGet(SeisTrcTranslator*,veltranslator,velreader_->translator())
+    if ( !veltranslator )
 	return false;
 
     const int idx = voiids_.indexOf( id );
@@ -344,9 +352,19 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* trans )
 	voidata_.replace( idx, arr );
     }
 
+    if ( velreader_->is2D() ) // Now geomid is known. Have to recreate reader.
+    {
+	Seis::SelData* sd = new Seis::RangeSelData( readcs );
+	sd->setGeomID( readcs.hsamp_.start_.lineNr() );
+	PtrMan<IOObj> ioobj = velreader_->ioObj()->clone();
+	delete velreader_; velreader_ = new SeisTrcReader( ioobj );
+	velreader_->prepareWork();
+	velreader_->setSelData( sd );
+    }
+
     TimeDepthDataLoader loader( *arr, *velreader_, readcs, veldesc_,
 	    SamplingData<double>(voi.zsamp_), velintime_, voiintime_[idx] );
-    if ( !TaskRunner::execute( trans, loader ) )
+    if ( !TaskRunner::execute( taskr, loader ) )
 	return false;
 
     return true;
@@ -402,9 +420,6 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    if ( trckey.is2D() )
-	return;
-
     const BinID bid = trckey.pos();
 
     if ( bid.isUdf() )
@@ -467,7 +482,7 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
     else
     {
 	Time2DepthStretcherProcessor proc( samplfunc, zrg,
-	               Interval<float>( vs[0],vs[zsz-1]), sd, res, sz );
+		       Interval<float>( vs[0],vs[zsz-1]), sd, res, sz );
 	proc.execute();
     }
 }
@@ -475,11 +490,8 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
 
 void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
 					const SamplingData<float>& sd,
-				        int sz, float* res ) const
+					int sz, float* res ) const
 {
-    if ( trckey.is2D() )
-	return;
-
     const BinID bid = trckey.pos();
 
     const Interval<float> resrg = sd.interval(sz);
@@ -539,7 +551,7 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
     else
     {
 	Time2DepthStretcherProcessor proc( samplfunc, zrg,
-	               Interval<float>( vs[0],vs[zsz-1]), sd, res, sz );
+		       Interval<float>( vs[0],vs[zsz-1]), sd, res, sz );
 	proc.execute();
     }
 }
@@ -679,7 +691,7 @@ bool Depth2TimeStretcher::needsVolumeOfInterest() const
 
 
 void Depth2TimeStretcher::fillPar( IOPar& par ) const
-{ 
+{
     stretcher_->fillPar( par );
     ZAxisTransform::fillPar( par );
 }
@@ -716,7 +728,7 @@ void Depth2TimeStretcher::transformTrc(const TrcKey& trckey,
 
 void Depth2TimeStretcher::transformTrcBack(const TrcKey& trckey,
 					const SamplingData<float>& sd,
-				        int sz, float* res ) const
+					int sz, float* res ) const
 { stretcher_->transformTrc( trckey, sd, sz, res ); }
 
 
@@ -741,7 +753,7 @@ const char* Depth2TimeStretcher::getZDomainID() const
 { return stretcher_->getZDomainID(); }
 
 
-VelocityModelScanner::VelocityModelScanner( const IOObj& input, 
+VelocityModelScanner::VelocityModelScanner( const IOObj& input,
 					    const VelocityDesc& vd )
     : obj_( input )
     , vd_( vd )
@@ -756,8 +768,10 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
     , nrdone_( 0 )
 {
     reader_->prepareWork();
-    mDynamicCastGet( Seis::Bounds3D*, bd3, reader_->getBounds() );
-    if ( bd3 ) subsel_ = bd3->tkzs_.hsamp_;
+    mDynamicCastGet(Seis::Bounds2D*,b2d,reader_->getBounds());
+    mDynamicCastGet(Seis::Bounds3D*,b3d,reader_->getBounds());
+    if ( b2d ) subsel_.set( Interval<int>(1,1), b2d->nrrg_ );
+    if ( b3d ) subsel_ = b3d->tkzs_.hsamp_;
 
     hsiter_.setSampling(  subsel_ );
     zistime_ = ZDomain::isTime( input.pars() );
@@ -780,36 +794,43 @@ int VelocityModelScanner::nextStep()
 	    msg_ = tr("Velocity volume is not defined for the selected type.");
 	    return ErrorOccurred();
 	}
-	
+
 	return Finished();
     }
-   
-    mDynamicCastGet( SeisTrcTranslator*, veltranslator, reader_->translator() );
-    if ( !veltranslator || !veltranslator->supportsGoTo() )
+
+    mDynamicCastGet(SeisTrcTranslator*,veltranslator,reader_->translator());
+    if ( !veltranslator )
     {
 	msg_ = tr("Cannot read velocity volume");
 	return ErrorOccurred();
     }
 
-    nrdone_++; 
-    
+    nrdone_++;
+
+    bool res = true;
     SeisTrc veltrace;
-    if ( !veltranslator->goTo(curbid) || !reader_->get(veltrace) )
+    if ( veltranslator->supportsGoTo() )
+	res = veltranslator->goTo( curbid );
+
+    if ( res )
+	res = reader_->get( veltrace );
+
+    if ( !res )
 	return MoreToDo();
 
     const SeisTrcValueSeries trcvs( veltrace, 0 );
 
     const int sz = veltrace.size();
     if ( sz<2 ) return MoreToDo();
-    
-    const SamplingData<double> sd = veltrace.info().sampling;    
+
+    const SamplingData<double> sd = veltrace.info().sampling;
 
     TimeDepthConverter tdconverter;
     if ( !tdconverter.setVelocityModel( trcvs, sz, sd, vd_, zistime_ ) )
 	return MoreToDo();
-	
-    ArrayValueSeries<float, float> resvs( sz );
-    
+
+    ArrayValueSeries<float,float> resvs( sz );
+
     if ( zistime_ )
     {
 	if ( !tdconverter.calcDepths( resvs, sz, sd ) )

@@ -68,6 +68,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     , inviewmode_(false)
     , langmnu_(0)
     , plugintb_(0)
+    , addtimedepthsceneitm_(0)
 {
     surveymnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sSurvey()) );
     analmnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sAnalysis()) );
@@ -699,7 +700,7 @@ void uiODMenuMgr::fillAnalMenu()
     }
 
     add2D3DMenuItem( *analmnu_, VolProc::uiChain::pixmapFileName(),
-	    	     tr("Volume Builder"),
+		     tr("Volume Builder"),
 		     mCB(&applMgr(),uiODApplMgr,doVolProc2DCB),
 		     mCB(&applMgr(),uiODApplMgr,doVolProcCB) );
 
@@ -738,14 +739,8 @@ void uiODMenuMgr::fillSceneMenu()
 
     uiString itmtxt = tr( "New [%1]" )
 	      .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
-#ifdef __debug__
     add2D3DMenuItem( *scenemnu_, "empty", itmtxt, mAddTimeDepth2DMnuItm,
 						  mAddTimeDepth3DMnuItm );
-#else
-    addtimedepthsceneitm_ = new uiAction( itmtxt,
-	    				  mCB(this,uiODMenuMgr,handleClick) );
-    scenemnu_->insertItem( addtimedepthsceneitm_, mAddTimeDepth3DMnuItm );
-#endif
 
     add2D3DMenuItem( *scenemnu_, "empty", tr("New [Horizon Flattened]"),
 		     mAddHorFlat2DMnuItm, mAddHorFlat3DMnuItm );
@@ -1055,25 +1050,25 @@ void uiODMenuMgr::fillManTB()
 {
     const int seisid =
 	mAddTB(mantb_,"man_seis",
-               uiStrings::phrManage(uiStrings::sVolDataName(true, true, false)),
-                                    false,manSeis);
+	       uiStrings::phrManage(uiStrings::sVolDataName(true, true, false)),
+				    false,manSeis);
     const int horid = mAddTB(mantb_,"man_hor",
-              uiStrings::phrManage( uiStrings::sHorizon(mPlural)),false,manHor);
+	      uiStrings::phrManage( uiStrings::sHorizon(mPlural)),false,manHor);
     const int fltid = mAddTB(mantb_,"man_flt",
-              uiStrings::phrManage( uiStrings::sFault(mPlural)),false,manFlt);
+	      uiStrings::phrManage( uiStrings::sFault(mPlural)),false,manFlt);
     mAddTB(mantb_,"man_wll",
-           uiStrings::phrManage( uiStrings::sWells()),false,manWll);
+	   uiStrings::phrManage( uiStrings::sWells()),false,manWll);
     mAddTB(mantb_,"man_picks", uiStrings::phrManage(
 			toUiString("%1/%2")
 			   .arg(uiStrings::sPointSet(mPlural))
 			   .arg(uiStrings::sPolygon(mPlural))),
 			false,manPick);
     mAddTB(mantb_,"man_body",
-           uiStrings::phrManage( tr("Bodies/Regions")),false,manBody);
+	   uiStrings::phrManage( tr("Bodies/Regions")),false,manBody);
     mAddTB(mantb_,"man_wvlt",
-           uiStrings::phrManage(uiStrings::sWavelet(mPlural)),false,manWvlt);
+	   uiStrings::phrManage(uiStrings::sWavelet(mPlural)),false,manWvlt);
     mAddTB(mantb_,"man_strat",uiStrings::phrManage( uiStrings::sStratigraphy()),
-           false,manStrat);
+	   false,manStrat);
 
     uiMenu* seispopmnu = new uiMenu( &appl_, tr("Seismics Menu") );
     if ( SI().has2D() )
