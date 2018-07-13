@@ -424,7 +424,7 @@ int VolProc::Step::getNrOutComponents( OutputSlotID slotid,
 
     return outputcompnrs_.validIdx(slotid) && !mIsUdf(outputcompnrs_[slotid])
 	  ? outputcompnrs_[slotid]
-	  : (canInputAndOutputBeSame()
+	  : ((canInputAndOutputBeSame() && needsInput())
 		  ? getNrInputComponents(getInputSlotID(0),geomid) : 1);
 }
 
