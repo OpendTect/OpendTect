@@ -208,4 +208,24 @@ protected:
 };
 
 
+/*!
+\brief Directional survey Ascii I/O.
+*/
+
+mExpClass(Well) DirectionalAscIO : public Table::AscIO
+{ mODTextTranslationClass(DirectionalAscIO)
+public:
+				DirectionalAscIO(const Table::FormatDesc&,
+						 od_istream&);
+
+    static Table::FormatDesc*	getDesc();
+    bool			getData(Data&,float kb) const;
+
+protected:
+    bool			readFile(TypeSet<double>&,TypeSet<double>&,
+					 TypeSet<double>&) const;
+    od_istream&			strm_;
+
+};
+
 } // namespace Well

@@ -8,6 +8,7 @@
 #include "wellimpasc.h"
 
 #include "coordsystem.h"
+#include "directionalsurvey.h"
 #include "idxable.h"
 #include "ioobj.h"
 #include "mathfunc.h"
@@ -645,4 +646,87 @@ bool Well::BulkD2TModelAscIO::get( BufferString& wellnm, float& md, float& twt )
 bool Well::BulkD2TModelAscIO::identifierIsUWI() const
 {
     return formOf( false, 0 ) == 1;
+}
+
+
+// DirectionalAscIO
+Well::DirectionalAscIO::DirectionalAscIO( const Table::FormatDesc& fd,
+					  od_istream& strm )
+    : Table::AscIO(fd)
+    , strm_(strm)
+{}
+
+
+Table::FormatDesc* Well::DirectionalAscIO::getDesc()
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "Directional Survey" );
+    Table::TargetInfo* ti = new Table::TargetInfo( uiStrings::sMD(),
+						   DoubleInpSpec(),
+						   Table::Required );
+    ti->setPropertyType( PropertyRef::Dist );
+    ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
+    fd->bodyinfos_ += ti;
+
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sInclination(),
+					     DoubleInpSpec(),
+					     Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sAzimuth(),
+					     DoubleInpSpec(),
+					     Table::Required );
+    return fd;
+}
+
+
+bool Well::DirectionalAscIO::readFile( TypeSet<double>& mdvals,
+				       TypeSet<double>& incls,
+				       TypeSet<double>& azis ) const
+{
+    if ( !getHdrVals(strm_) )
+	return false;
+
+    while( true )
+    {
+	const int ret = getNextBodyVals( strm_ );
+	if ( ret < 0 ) return false;
+	if ( ret == 0 ) break;
+
+	const double md = getDValue(0);
+	const double incl = getDValue(1);
+	const double azi = getDValue(2);
+
+	if ( mIsUdf(md) )
+	    continue;
+
+	mdvals += md;
+	incls += incl;
+	azis += azi;
+    }
+
+    return !mdvals.isEmpty();
+}
+
+
+bool Well::DirectionalAscIO::getData( Data& wd, float kb ) const
+{
+    TypeSet<double> mdvals;
+    TypeSet<double> incls;
+    TypeSet<double> azis;
+    if ( !readFile(mdvals,incls,azis) )
+	return false;
+
+    if ( mdvals.size() < 2 )
+	mErrRet( tr("Insufficent data for importing the track") )
+
+    if ( mIsUdf(kb) )
+	kb = 0;
+
+    TypeSet<Coord3> track;
+    Well::DirectionalSurvey dirsurvey( wd.info().surfaceCoord(), kb );
+    dirsurvey.calcTrack( mdvals, incls, azis, track );
+
+    wd.track().setEmpty();
+    for ( int idz=0; idz<mdvals.size(); idz++ )
+	wd.track().addPoint( track[idz], mCast(float,mdvals[idz]) );
+
+    return !wd.track().isEmpty();
 }

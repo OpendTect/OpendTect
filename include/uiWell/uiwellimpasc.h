@@ -32,37 +32,38 @@ namespace Well { class Data; }
 mExpClass(uiWell) uiWellImportAsc : public uiDialog
 { mODTextTranslationClass(uiWellImportAsc);
 public:
-			uiWellImportAsc(uiParent*);
-			~uiWellImportAsc();
+				uiWellImportAsc(uiParent*);
+				~uiWellImportAsc();
 
-    DBKey		getWellID() const;
-    Notifier<uiWellImportAsc> importReady;
+    DBKey			getWellID() const;
+    Notifier<uiWellImportAsc>	importReady;
 
 protected:
 
-    uiFileSel*		trckinpfld_;
-    uiCheckBox*		havetrckbox_;
-    uiGenInput*		coordfld_;
-    uiGenInput*		kbelevfld_;
-    uiGenInput*		tdfld_;
-    uiLabel*		vertwelllbl_;
+    uiGenInput*			tracksrcfld_;
+    uiFileSel*			trckinpfld_;
+    uiGenInput*			coordfld_;
+    uiGenInput*			kbelevfld_;
+    uiGenInput*			tdfld_;
 
-    Well::Data&		wd_;
+    Well::Data&			wd_;
 
-    Table::FormatDesc&  fd_;
-    uiTableImpDataSel*  dataselfld_;
-    uiD2TModelGroup*	d2tgrp_;
-    uiWellSel*		outfld_;
-    bool		zinft_;
-    const UnitOfMeasure* zun_;
+    Table::FormatDesc&		fd_;
+    uiTableImpDataSel*		dataselfld_;
+    Table::FormatDesc&		dirfd_;
+    uiTableImpDataSel*		dirselfld_;
+    uiD2TModelGroup*		d2tgrp_;
+    uiWellSel*			outfld_;
+    bool			zinft_;
+    const UnitOfMeasure*	zun_;
 
-    virtual bool	acceptOK();
-    bool		checkInpFlds();
-    bool		doWork();
-    void		doAdvOpt(CallBacker*);
-    void		trckFmtChg(CallBacker*);
-    void		inputChgd(CallBacker*);
-    void		haveTrckSel(CallBacker*);
+    virtual bool		acceptOK();
+    bool			checkInpFlds();
+    bool			doWork();
+    void			doAdvOpt(CallBacker*);
+    void			trckFmtChg(CallBacker*);
+    void			inputChgd(CallBacker*);
+    void			haveTrckSel(CallBacker*);
 
-    friend class	uiWellImportAscOptDlg;
+    friend class		uiWellImportAscOptDlg;
 };

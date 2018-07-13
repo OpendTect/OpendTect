@@ -21,7 +21,7 @@ namespace Well
 class DirectionalSurvey
 {
 public:
-    enum Type		{ MinCurv, Tangential };
+    enum Method		{ MinCurv, Tangential };
 			DirectionalSurvey(const Coord& surfacecrd,double kb=0);
 			~DirectionalSurvey();
 
@@ -33,7 +33,7 @@ public:
 protected:
     Coord		surfacecoord_;
     double		kb_;
-    Type		method_;
+    Method		method_;
 };
 
 } // namespace Well
