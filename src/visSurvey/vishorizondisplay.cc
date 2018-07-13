@@ -867,7 +867,7 @@ bool doWork( od_int64 start, od_int64 stop, int thread )
 	float* vals = bivs_.getVals(pos);
 	if ( !vals ) continue;
 
-	vals[zcol_] = zat_ ? zat_->transform( BinIDValue(bid,vals[0]) )
+	vals[zcol_] = zat_ ? zat_->transformTrc( bid, vals[0] )
 			   : vals[0];
     }
 
