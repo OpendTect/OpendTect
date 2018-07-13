@@ -608,6 +608,7 @@ public:
     static uiWord sProcess(int n=1)	{ return tr("Process",0,n); }
     static uiWord sProcessing()		{ return tr("Processing"); }
     static uiWord sProcessingPars()	{ return tr("Processing parameters"); }
+    static uiWord sProceed(const uiString& withwhat=uiString::empty());
     static uiWord sProgram()		{ return tr("Program"); }
     static uiWord sProgress()		{ return tr("Progress"); }
     static uiWord sProject()		{ return tr("Project"); }

@@ -506,3 +506,12 @@ uiWord uiStrings::sAdvanced( const uiWord& subj )
 {
     return subj.isEmpty() ? tr("Advanced") : tr("Advanced %1").arg( subj );
 }
+
+uiWord uiStrings::sProceed( const uiWord& withwhat )
+{
+    uiString procstr = tr("Proceed");
+    if ( withwhat.isEmpty() )
+	return toUiString( "%1 >>" ).arg( procstr );
+    else
+	return toUiString( "%1 [%2] >>" ).arg( procstr ).arg( withwhat );
+}

@@ -278,6 +278,8 @@ mImplTranslatorInitClass( spec, clss, usrnm )
   //! Convenient when the entire Translator concept is not interesting 4 u.
   //! Use this in your header file to comply with the concept, so you
   //! can make use of OpendTect object selection, retrieval etc.
+  //! Example: mDeclEmptyTranslatorBundle( Config, MyConfig, myFmt, "myfmt" )
+  //! i.e. plugin directory, class prefix, format key, file extension
 #define mDeclEmptyTranslatorBundle(mod,clss,fmt,defext) \
 mExpClass(mod) clss##TranslatorGroup : public TranslatorGroup \
 {			isTranslatorGroup(clss); \
@@ -356,6 +358,19 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 #define mDefSimpleTranslatorsWithSelKey(clss,usrnm,fmt,stdtyp,selky) \
     mDefSimpleTranslatorsWithCtioExtra(clss,usrnm,fmt,stdtyp, \
 		ctxt->dirid_ = DBKey::DirID::get(selky))
+
+  //! Definitions for .cc file:
+  //! Convenient when the entire Translator concept is not interesting 4 u.
+  //! defines one 'format'
+  //! Example: mDefEmptyTranslatorBundle( MyConfig, myFmt, Misc, "MyFmt",
+  //!          "My Format", MyConfigMgr::getUiConfigStr )
+#define mDefEmptyTranslatorBundle(clss,fmt,stdtyp,fmtky,usrnm,uistrfn) \
+    defineTranslatorGroup(clss,usrnm); \
+    uiString clss##TranslatorGroup::sTypeName( int num ) \
+	{ return uistrfn(); } \
+    defineTranslator(fmt,clss,fmtky); \
+    mDefSimpleTranslatorioContext(clss,stdtyp); \
+    mDefSimpleTranslatorSelector(clss)
 
 
 // Convenience macros when using Translator(Group)-related classes
