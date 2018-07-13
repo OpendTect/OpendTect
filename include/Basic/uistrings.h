@@ -66,6 +66,7 @@ public:
     static uiPhrase phrCannotOpenForRead(const char*);
     static uiPhrase phrCannotOpenForWrite(const char*);
     static uiPhrase phrCannotParse(const char*);
+    static uiPhrase phrCannotRead(const char*);
     static uiPhrase phrCannotRead(const uiWord&);
     static uiPhrase phrCannotRemove(const uiWord&);
     static uiPhrase phrCannotRemove(const char*);

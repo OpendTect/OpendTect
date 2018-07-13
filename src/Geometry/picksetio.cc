@@ -151,6 +151,16 @@ Pick::SetLoader::SetLoader( const DBKeySet& kys )
 }
 
 
+Pick::Set* Pick::SetLoader::getSingleSet( const IOObj& ioobj, uiString& errmsg,
+					  const char* cat )
+{
+    Pick::Set* ps = new Pick::Set( 0, cat );
+    if ( !PickSetTranslator::retrieve(*ps,&ioobj,errmsg) )
+	unRefAndZeroPtr( ps );
+    return ps;
+}
+
+
 namespace Pick
 {
 
@@ -218,9 +228,12 @@ int Pick::SetLoaderExec::nextStep()
 	return MoreToDo();
     }
 
-    Pick::Set* ps = new Pick::Set( 0, loader_.category_ );
     uiString errmsg;
-    if ( PickSetTranslator::retrieve(*ps,ioobj,errmsg) )
+    Pick::Set* ps = SetLoader::getSingleSet( *ioobj, errmsg, loader_.category_);
+    if ( !ps )
+	loader_.errmsgs_.add( toUiString("[%1]: %2").arg(ioobj->name())
+						    .arg(errmsg) );
+    else
     {
 	if ( psmgr.isLoaded(id) ) // check, someone may have beat me to it
 	    ps->unRef();
@@ -228,12 +241,6 @@ int Pick::SetLoaderExec::nextStep()
 	    psmgr.addNew( *ps, id, &ioobj->pars(), true );
 
 	loader_.available_ += id;
-    }
-    else
-    {
-	ps->unRef();
-	loader_.errmsgs_.add( toUiString("[%1]: %2").arg(ioobj->name())
-						    .arg(errmsg) );
     }
 
     return MoreToDo();

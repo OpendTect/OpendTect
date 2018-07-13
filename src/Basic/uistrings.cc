@@ -95,6 +95,8 @@ uiPhrase uiStrings::phrCannotOpenForWrite( const char* fnm )
 uiPhrase uiStrings::phrCannotParse( const char* expr )
 { return tr("Cannot parse '%1'").arg( expr ); }
 
+uiPhrase uiStrings::phrCannotRead( const char* fnm )
+{ return phrCannotRead( toUiString(fnm).quote(true) ); }
 uiPhrase uiStrings::phrCannotRead( const uiWord& string )
 { return tr("Cannot read %1").arg( string ); }
 

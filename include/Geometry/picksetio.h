@@ -47,11 +47,13 @@ public:
     const DBKeySet& requested() const	{ return toload_; }
     const DBKeySet& available() const	{ return available_; }
 
+    static Pick::Set*	getSingleSet(const IOObj&,uiString&,const char* cat=0);
+
 protected:
 
-    DBKeySet	toload_;
+    DBKeySet		toload_;
     BufferString	category_;
-    mutable DBKeySet available_;
+    mutable DBKeySet	available_;
     mutable uiStringSet	errmsgs_;
     friend class	SetLoaderExec;
 
