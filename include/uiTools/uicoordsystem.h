@@ -18,7 +18,6 @@ ________________________________________________________________________
 class SurveyInfo;
 class uiGenInput;
 class uiLatLongInp;
-class uiCheckBox;
 
 namespace Coords
 {
@@ -27,7 +26,7 @@ mExpClass(uiTools) uiCoordSystem : public uiDlgGroup
 {
 public:
 
-    mDefineFactory1ParamInClass(uiCoordSystem,uiParent*,factory);
+    mDefineFactory1ParamInClass(uiCoordSystem,uiParent*,factory)
 
     virtual bool		initFields(const CoordSystem*)= 0;
 
@@ -41,14 +40,15 @@ public:
 
 protected:
 				uiCoordSystem(uiParent*,const uiString&);
-    RefMan<CoordSystem>	outputsystem_;
+
+    RefMan<CoordSystem>		outputsystem_;
     HelpKey			helpkey_;
     const SurveyInfo*		si_;
 };
 
 
 mExpClass(uiTools) uiCoordSystemSelGrp : public uiDlgGroup
-{ mODTextTranslationClass(uiCoordSystemSel);
+{ mODTextTranslationClass(uiCoordSystemSel)
 public:
 				uiCoordSystemSelGrp(uiParent*,
 						bool onlyorthogonal,
@@ -74,7 +74,7 @@ private:
 
 
 mExpClass(uiTools) uiCoordSystemDlg : public uiDialog
-{ mODTextTranslationClass(uiCoordSystemDlg);
+{ mODTextTranslationClass(uiCoordSystemDlg)
 public:
 			uiCoordSystemDlg(uiParent*,bool orthogonalonly,
 				bool projectiononly,const CoordSystem*);
@@ -89,12 +89,11 @@ protected:
     uiCoordSystemSelGrp* coordsysselfld_;
 
     bool		acceptOK();
-
 };
 
 
 mExpClass(uiTools) uiCoordSystemSel : public uiCompoundParSel
-{ mODTextTranslationClass(uiCoordSystemSel);
+{ mODTextTranslationClass(uiCoordSystemSel)
 public:
 			uiCoordSystemSel(uiParent*,const uiString& seltxt,
 					bool orthogonalonly,bool projectiononly,
@@ -104,15 +103,14 @@ public:
 
 protected:
 
-    uiCoordSystemDlg* dlg_;
+    uiCoordSystemDlg*	dlg_;
 
-    RefMan<CoordSystem> coordsystem_;
+    RefMan<CoordSystem>	coordsystem_;
     bool		orthogonalonly_;
     bool		projectiononly_;
 
     uiString		getSummary() const;
     void		selCB(CallBacker*);
-
 };
 
 
@@ -122,7 +120,7 @@ public:
 
     mDefaultFactoryInstantiation1Param( uiCoordSystem, uiUnlocatedXYSystem,
 			       uiParent*, UnlocatedXY::sFactoryKeyword(),
-			       UnlocatedXY::sFactoryDisplayName() );
+			       UnlocatedXY::sFactoryDisplayName() )
 
 			uiUnlocatedXYSystem(uiParent*);
 
@@ -131,22 +129,20 @@ public:
 
 protected:
 
-    uiCheckBox*		xyinftfld_;
+    uiGenInput*		xyunitfld_;
 
     bool		acceptOK();
-
 };
 
 
 mExpClass(uiTools) uiAnchorBasedXYSystem : public uiCoordSystem
-{ mODTextTranslationClass(uiAnchorBasedXYSystem);
+{ mODTextTranslationClass(uiAnchorBasedXYSystem)
 public:
     mDefaultFactoryInstantiation1Param( uiCoordSystem, uiAnchorBasedXYSystem,
 			       uiParent*, AnchorBasedXY::sFactoryKeyword(),
-			       AnchorBasedXY::sFactoryDisplayName() );
+			       AnchorBasedXY::sFactoryDisplayName() )
 
 			uiAnchorBasedXYSystem(uiParent*);
-
 
     virtual bool	initFields(const CoordSystem*);
 
@@ -154,11 +150,9 @@ protected:
 
     uiGenInput*		coordfld_;
     uiLatLongInp*	latlngfld_;
-
-    uiCheckBox*		xyinftfld_;
+    uiGenInput*		xyunitfld_;
 
     bool		acceptOK();
-
 };
 
-} //Namespace
+} // namespace Coords
