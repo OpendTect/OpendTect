@@ -71,6 +71,7 @@ public:
     bool		fillPar( IOPar& i ) const {return selgrp_->fillPar(i);}
     void		usePar( const IOPar& i ) { selgrp_->usePar(i); }
 
+    void		setConfirmOverwrite(bool);
     void		setSurveyDefaultSubsel(const char*);
 
 protected:

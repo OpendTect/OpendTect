@@ -219,9 +219,15 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 }
 
 
+void uiIOObjSelDlg::setConfirmOverwrite( bool yn )
+{
+    selgrp_->setConfirmOverwrite( yn );
+}
+
+
 void uiIOObjSelDlg::setSurveyDefaultSubsel( const char* subsel )
 {
-    selgrp_->setSurveyDefaultSubsel(subsel);
+    selgrp_->setSurveyDefaultSubsel( subsel );
 }
 
 
