@@ -34,7 +34,7 @@ public:
 protected:
     Coord		surfacecoord_;
     double		kb_;
-    Type		method_;
+    Method		method_;
 };
 
 } // namespace Well
