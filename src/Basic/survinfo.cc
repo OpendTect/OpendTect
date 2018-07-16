@@ -171,17 +171,33 @@ void SurveyDiskLocation::setCurrentSurvey()
 
 BufferString SurveyDiskLocation::fullPath() const
 {
+    if ( basepath_.isEmpty() || dirname_.isEmpty() )
+    {
+	SurveyDiskLocation sdl;
+	sdl.setCurrentSurvey();
+	if ( !basepath_.isEmpty() )
+	    sdl.basepath_ = basepath_;
+	if ( !dirname_.isEmpty() )
+	    sdl.dirname_ = dirname_;
+	return sdl.fullPath();
+    }
+
     return File::Path( basepath_, dirname_ ).fullPath();
 }
 
 
 BufferString SurveyDiskLocation::surveyName() const
 {
-    od_istream strm( fullPath() );
+    const BufferString survdir( fullPath() );
+    File::Path fp( survdir );
+    fp.add( ".survey" );
+    od_istream strm( fp.fullPath() );
     ascistream astrm( strm );
     IOPar iop( astrm );
     BufferString ret( dirname_ );
     iop.get( sKey::Name(), ret );
+    if ( ret.isEmpty() )
+	ret = File::Path(survdir).fileName();
     return ret;
 }
 
