@@ -210,6 +210,7 @@ bool SeisDataPackWriter::goImpl( od_ostream* strm, bool first, bool last,
 {
     const bool success = Executor::goImpl( strm, first, last, delay );
     dp_ = 0; posinfo_ = 0;
+    deleteAndZeroPtr( trc_ );
 
     return success;
 }
@@ -227,6 +228,7 @@ bool SeisDataPackWriter::setTrc()
     }
 
     const int trcsz = cubezrgidx_.stop - cubezrgidx_.start + 1;
+    delete trc_;
     trc_ = new SeisTrc( trcsz );
 
     trc_->info().sampling_.start = dp_->sampling().zsamp_.atIndex(
@@ -292,5 +294,8 @@ int SeisDataPackWriter::nextStep()
 	return ErrorOccurred();
 
     nrdone_++;
-    return iterator_.next() ? MoreToDo() : Finished();
+    if ( iterator_.next() )
+	return MoreToDo();
+
+    return writer_->close() ? Finished(): ErrorOccurred();
 }
