@@ -84,6 +84,7 @@ void StreamConn::close( bool failed )
 	else
 	    writehelper_->commit();
 
+	strm_ = 0;
 	deleteAndZeroPtr( writehelper_ );
     }
 }
