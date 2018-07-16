@@ -126,7 +126,7 @@ protected:
     BufferString		key_;
     uiString			desc_;
 
-    static ObjectSet<ProjectionRepos>	reposset_;
+    static ManagedObjectSet<ProjectionRepos>	reposset_;
 
 };
 

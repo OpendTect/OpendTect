@@ -402,7 +402,7 @@ bool Coords::Proj4Projection::isOrthogonal() const
 
 
 
-ObjectSet<Coords::ProjectionRepos> Coords::ProjectionRepos::reposset_;
+ManagedObjectSet<Coords::ProjectionRepos> Coords::ProjectionRepos::reposset_;
 
 Coords::ProjectionRepos::ProjectionRepos( const char* reposkey, uiString desc )
     : key_(reposkey), desc_(desc)
@@ -517,7 +517,7 @@ void Coords::ProjectionRepos::initStdRepos()
 {
     File::Path fp( mGetSetupFileName("CRS") );
     Coords::ProjectionRepos* repos = new Coords::ProjectionRepos( "EPSG",
-	    			toUiString("Standard EPSG Projectons") );
+				toUiString("Standard EPSG Projectons") );
     fp.add( "epsg" );
     repos->readFromFile( fp.fullPath() );
     Coords::ProjectionRepos::addRepos( repos );
