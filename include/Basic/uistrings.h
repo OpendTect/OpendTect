@@ -484,6 +484,7 @@ public:
     static uiWord sLock()		{ return tr("Lock"); }
     static uiWord sLocked()		{ return tr("Locked"); }
     static uiWord sLog(int n=1)		{ return tr("Log",0,n); }
+    static uiWord sLogName()		{ return tr("Log Name"); }
     static uiWord sLogFile()		{ return tr("Log File"); }
     static uiWord sLogs()		{ return sLog( 10 ); }
     static uiWord sLongitude( bool abbr )
