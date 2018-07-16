@@ -69,7 +69,11 @@ void uiStorableCollectionBuilder::updLooks()
 {
     const int nrrows = tbl_->nrRows();
     const bool haverows = nrrows > 0;
+
+    if ( haverows && tbl_->currentRow() < 0 )
+	tbl_->setCurrentCell( RowCol(0,0) );
+
     rmbut_->setSensitive( haverows );
-    edbut_->setSensitive( haverows && tbl_->currentRow() >= 0 );
+    edbut_->setSensitive( haverows );
     savebut_->setSensitive( haverows );
 }

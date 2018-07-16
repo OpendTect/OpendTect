@@ -1269,62 +1269,47 @@ void uiTable::setCellToolTip( const RowCol& rc, const uiString& tt )
 }
 
 
+template <class T>
+T uiTable::getValueImpl( const RowCol& rc ) const
+{
+    const char* str = text( rc );
+    if ( !str || !*str )
+	return mUdf(T);
+
+    return Conv::to<T>( str );
+}
+
+
 int uiTable::getIntValue( const RowCol& rc ) const
-{
-    const char* str = text( rc );
-    if ( !str || !*str ) return mUdf(int);
-
-    return Conv::to<int>( str );
-}
-
-
-double uiTable::getDValue( const RowCol& rc ) const
-{
-    const char* str = text( rc );
-    if ( !str || !*str ) return mUdf(double);
-
-    return Conv::to<double>(str);
-}
-
-
+{ return getValueImpl<int>( rc ); }
+int uiTable::getInt64Value( const RowCol& rc ) const
+{ return getValueImpl<od_int64>( rc ); }
 float uiTable::getFValue( const RowCol& rc ) const
-{
-    const char* str = text( rc );
-    if ( !str || !*str ) return mUdf(float);
+{ return getValueImpl<float>( rc ); }
+double uiTable::getDValue( const RowCol& rc ) const
+{ return getValueImpl<double>( rc ); }
 
-    return Conv::to<float>(str);
+
+template <class T> void uiTable::setValueImpl( const RowCol& rc, T val )
+{
+    if ( mIsUdf(val) )
+	setText( rc, "" );
+    else
+    {
+	BufferString txt( Conv::to<const char*>(val) );
+	setText( rc, txt.buf() );
+    }
 }
 
 
 void uiTable::setValue( const RowCol& rc, int i )
-{
-    BufferString txt( Conv::to<const char*>(i) );
-    setText( rc, txt.buf() );
-}
-
-
+{ setValueImpl( rc, i ); }
+void uiTable::setValue( const RowCol& rc, od_int64 i )
+{ setValueImpl( rc, i ); }
 void uiTable::setValue( const RowCol& rc, float f )
-{
-    if ( mIsUdf(f) )
-	setText( rc, "" );
-    else
-    {
-	BufferString txt( Conv::to<const char*>(f) );
-	setText( rc, txt.buf() );
-    }
-}
-
-
+{ setValueImpl( rc, f ); }
 void uiTable::setValue( const RowCol& rc, double d )
-{
-    if ( mIsUdf(d) )
-	setText( rc, "" );
-    else
-    {
-	BufferString txt( Conv::to<const char*>(d) );
-	setText( rc, txt.buf() );
-    }
-}
+{ setValueImpl( rc, d ); }
 
 
 void uiTable::setSelectionMode( SelectionMode m )
