@@ -69,7 +69,8 @@ static bool attribSetQuery( od_ostream& strm, const IOPar& iopar, bool stepout )
 	mErrRet( uirv.getText() )
 
     const BufferString tmpoutstr( IOPar::compKey( sKey::Output(), 0 ) );
-    const BufferString tmpattribstr( IOPar::compKey( sKey::Attributes(), 0 ) );
+    const BufferString tmpattribstr(
+		IOPar::compKey(sKey::Attributes(),0) );
     const char* res = iopar.find( IOPar::compKey( tmpoutstr.buf(),
 						  tmpattribstr.buf() ) );
     if ( !res )

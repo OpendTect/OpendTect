@@ -59,6 +59,9 @@ inline T getLimited( T v, T min, T max )
 #define mDefEpsD		(1e-10)
 #define mDefEps			mDefEpsD
 
+//! Use if you do not know exactly how many, but still it's more than 1
+#define mPlural 42
+
 
 //--- Math-related constants
 

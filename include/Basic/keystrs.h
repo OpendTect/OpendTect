@@ -33,9 +33,10 @@ namespace sKey
 
     inline FixedString All()		{ return "All"; }
     inline FixedString Ascii()		{ return "Ascii"; }
-    inline FixedString Attribute()	{ return "Attribute"; }
+    inline FixedString Attribute(int n=1) { return n<2 ? "Attribute"
+						       : "Attributes"; }
     inline FixedString Attribute2D()	{ return "Attribute2D"; }
-    inline FixedString Attributes()	{ return "Attributes"; }
+    inline FixedString Attributes()	{ return Attribute(mPlural); }
     inline FixedString Azimuth()	{ return "Azimuth"; }
     inline FixedString Binary()		{ return "Binary"; }
     inline FixedString Body()		{ return "Body"; }
@@ -76,17 +77,16 @@ namespace sKey
     inline FixedString IOSelection()	{ return "I/O Selection"; }
     inline FixedString Is2D()		{ return "Is2D"; }
     inline FixedString IsPS()		{ return "IsPS"; }
-    inline FixedString Keys()		{ return "Keys"; }
+    inline FixedString Key(int n=1)	{ return n<2 ? "Key" : "Keys"; }
     inline FixedString Level()		{ return "Level"; }
     inline FixedString Line()		{ return "Line"; }
     inline FixedString LineStyle()	{ return "Line Style"; }
     inline FixedString MarkerStyle()	{ return "Marker Style"; }
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }
-    inline FixedString LineNames()	{ return "Line names"; }
-    inline FixedString Log()		{ return "Log"; }
+    inline FixedString Log(int n=1)	{ return n < 2 ? "Log" : "Logs"; }
     inline FixedString LogFile()	{ return "Log file"; }
-    inline FixedString Name()		{ return "Name"; }
+    inline FixedString Name(int n=1)	{ return n<2 ? "Name" : "Names"; }
     inline FixedString NewLine()	{ return "\n"; }
     inline FixedString No()		{ return "No"; }
     inline FixedString None()		{ return "None"; }
@@ -103,8 +103,7 @@ namespace sKey
     inline FixedString Pars()		{ return "Parameters"; }
     inline FixedString PickSet()	{ return "PickSet"; }
     inline FixedString Polygon()	{ return "Polygon"; }
-    inline FixedString Position()	{ return "Position"; }
-    inline FixedString Positions()	{ return "Positions"; }
+    inline FixedString Position(int n=1) { return n<2 ?"Position":"Positions"; }
     inline FixedString Property()	{ return "Property"; }
     inline FixedString Provider()	{ return "Provider"; }
     inline FixedString Probe()		{ return "Probe"; }
@@ -166,6 +165,7 @@ namespace sKey
     inline FixedString ZCoord()		{ return "Z-Coord"; }
     inline FixedString ZRange()		{ return "Z range"; }
     inline FixedString ZSlice()		{ return "Z-slice"; }
+    inline FixedString ZStep()		{ return "Z step"; }
     inline FixedString ZUnit()		{ return "Z-Unit"; }
     inline FixedString ZValue()		{ return "Z value"; }
 

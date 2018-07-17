@@ -865,9 +865,6 @@ public:
 };
 
 
-//! Use if you do not know exactly how many, but still it's more than 1
-#define mPlural 10
-
 //! Adds '...' to string, usable for menu items
 #define m3Dots( txt ) \
     uiStrings::phrThreeDots( txt, false )

@@ -433,7 +433,7 @@ Array2D<T>* dgbPickSetTranslatorHDF5BackEnd::readFPArr( uiRetVal& uirv )
 bool dgbPickSetTranslatorHDF5BackEnd::setPositions( Pick::Set& ps,
 						    uiRetVal& uirv )
 {
-    dsky_.setDataSetName( sKey::Positions() );
+    dsky_.setDataSetName( sKey::Position(mPlural) );
     if ( !rdr_->setScope(dsky_) )
 	{ uirv = HDF5::Access::sDataSetNotFound( dsky_ ); return false; }
 
@@ -610,7 +610,7 @@ bool dgbPickSetTranslatorHDF5BackEnd::putPositions( const Pick::Set& ps,
 	posns.set( 2, ipos, pos.z_ );
     }
     HDF5::ArrayNDTool<double> arrtool( posns );
-    dsky_.setDataSetName( sKey::Positions() );
+    dsky_.setDataSetName( sKey::Position(mPlural) );
     uirv = arrtool.put( *wrr_, dsky_ );
     return uirv.isOK();
 }

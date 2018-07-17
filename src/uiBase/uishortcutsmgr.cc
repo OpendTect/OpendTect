@@ -255,7 +255,7 @@ void uiShortcutsList::fillPar( IOPar& iop ) const
     {
 	BufferString basekey = IOPar::compKey(selkey_,idx);
 	iop.set( IOPar::compKey(basekey,sKey::Name()), names_.get(idx) );
-	iop.set( IOPar::compKey(basekey,sKey::Keys()),
+	iop.set( IOPar::compKey(basekey,sKey::Key(mPlural)),
 			keydescs_[idx]->stateStr(), keydescs_[idx]->keyStr() );
 	uiKeyDesc* nonconstkd = const_cast<uiKeyDesc*>(keydescs_[idx]);
 	mDynamicCastGet( uiExtraIntKeyDesc*, eikd, nonconstkd )
@@ -274,7 +274,7 @@ bool uiShortcutsList::getKeyValues( const IOPar& par, int scutidx,
 				    BufferString& val1,
 				    BufferString& val2 ) const
 {
-    BufferString key = IOPar::compKey( toString(scutidx), sKey::Keys() );
+    BufferString key = IOPar::compKey( toString(scutidx), sKey::Key(mPlural) );
     return par.get( key.buf(), val1, val2 );
 }
 
