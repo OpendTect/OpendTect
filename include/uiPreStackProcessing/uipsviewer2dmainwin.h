@@ -134,8 +134,8 @@ public:
     void		init(const DBKey&,const BinID& bid,bool isinl,
 			     const StepInterval<int>&,const char* linename=0);
     void		setIDs(const DBKeySet&);
-    void		getIDs(DBKeySet& mids) const
-			{ mids.copy( mids_ ); }
+    void		getIDs( DBKeySet& dbkys ) const
+			{ dbkys = mids_; }
     void		getGatherNames(BufferStringSet& nms) const;
     virtual bool	is2D() const	{ return is2d_; }
     const char*		lineName() const	{ return linename_; }

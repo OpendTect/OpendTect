@@ -17,7 +17,6 @@
 #include "genc.h"
 #include "iopar.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "keystrs.h"
 #include "ptrman.h"
 #include "separstr.h"
@@ -140,7 +139,7 @@ Well::Reader::Reader( const IOObj& ioobj, Well::Data& wd )
 Well::Reader::Reader( const DBKey& ky, Well::Data& wd )
     : ra_(0)
 {
-    IOObj* ioobj = DBM().get( ky );
+    IOObj* ioobj = getIOObj( ky );
     if ( !ioobj )
 	errmsg_ = uiStrings::phrCannotFindDBEntry(
 				tr("for well ID %1 in data store" )).arg( ky );
@@ -283,9 +282,9 @@ const char* Well::odIO::getMainFileName( const IOObj& ioobj )
 }
 
 
-const char* Well::odIO::getMainFileName( const DBKey& mid )
+const char* Well::odIO::getMainFileName( const DBKey& dbky )
 {
-    PtrMan<IOObj> ioobj = DBM().get( mid );
+    PtrMan<IOObj> ioobj = getIOObj( dbky );
     return ioobj ? getMainFileName(*ioobj) : 0;
 }
 

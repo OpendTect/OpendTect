@@ -240,10 +240,10 @@ void uiPickPartServer::fetchHors( bool is2d )
 }
 
 
-RefMan<Pick::Set> uiPickPartServer::loadSet( const DBKey& mid )
+RefMan<Pick::Set> uiPickPartServer::loadSet( const DBKey& dbky )
 {
-    DBKeySet psids( 1, mid );
-    return doLoadSets(psids) ? Pick::SetMGR().fetchForEdit(mid) : 0;
+    DBKeySet psids( dbky );
+    return doLoadSets(psids) ? Pick::SetMGR().fetchForEdit(dbky) : 0;
 }
 
 

@@ -38,6 +38,7 @@ public:
     BufferString	basepath_;	//!< The 'data root'
     BufferString	dirname_;	//!< The subdirectory name
 
+    void		set(const char* fullpath);
     void		set(const File::Path&);
     BufferString	fullPath() const;
     BufferString	surveyName() const;

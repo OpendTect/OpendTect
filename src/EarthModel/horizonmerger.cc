@@ -33,7 +33,7 @@ void EnumDefImpl<EM::HorizonMerger::Mode>::init()
 namespace EM
 {
 
-Horizon3DMerger::Horizon3DMerger( const TypeSet<DBKey>& ids )
+Horizon3DMerger::Horizon3DMerger( const DBKeySet& ids )
     : outputhor_(0)
     , ownsarray_(true)
     , hs_(false)
@@ -42,7 +42,8 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<DBKey>& ids )
     {
 	const DBKey& objid( ids[idx] );
 	mDynamicCastGet(Horizon3D*,hor,Hor3DMan().getObject(objid))
-	if ( !hor ) continue;
+	if ( !hor )
+	    continue;
 	inputhors_ += hor;
 	IOObjInfo oi( objid );
 	SurfaceIOData sd;

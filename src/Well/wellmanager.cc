@@ -136,8 +136,11 @@ RefManType Well::Manager::doFetch( const ObjID& id, const LoadReqs& lr,
 	if ( !readReqData(id,*wd,lreq,uirv) )
 	    return RefManType( 0 );
 
-	curloadstate_.getObject() = lreq;
-	add( *wd, id, mAccessLocker(), 0, true );
+	if ( id.isInCurrentSurvey() )
+	{
+	    curloadstate_.getObject() = lreq;
+	    add( *wd, id, mAccessLocker(), 0, true );
+	}
     }
 
     return RefManType( wd );

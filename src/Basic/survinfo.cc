@@ -129,6 +129,15 @@ bool SurveyDiskLocation::operator ==( const SurveyDiskLocation& oth ) const
 }
 
 
+void SurveyDiskLocation::set( const char* fullpath )
+{
+    if ( !fullpath || !*fullpath )
+	setCurrentSurvey();
+    else
+	set( File::Path(fullpath) );
+}
+
+
 void SurveyDiskLocation::set( const File::Path& fp )
 {
     basepath_ = fp.pathOnly();

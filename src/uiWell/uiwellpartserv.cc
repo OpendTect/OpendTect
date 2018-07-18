@@ -382,8 +382,8 @@ void uiWellPartServer::launchRockPhysics()
 	dlg.go();
     else
     {
-	const DBKeySet mids( 1, dlg.multiwellsel_->currentID() );
-	uiWellLogCalc lcdlg( parent(), mids, true );
+	const DBKeySet dbkys( dlg.multiwellsel_->currentID() );
+	uiWellLogCalc lcdlg( parent(), dbkys, true );
 	lcdlg.go();
     }
 }

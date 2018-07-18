@@ -45,7 +45,7 @@ protected:
 mExpClass(EarthModel) Horizon3DMerger : public HorizonMerger
 {
 public:
-			Horizon3DMerger(const TypeSet<DBKey>&);
+			Horizon3DMerger(const DBKeySet&);
 			~Horizon3DMerger();
 
     Horizon3D*		getOutputHorizon();
@@ -61,7 +61,7 @@ private:
     Horizon3D*		outputhor_;
     ObjectSet<Horizon3D> inputhors_;
 
-    TrcKeySampling		hs_;
+    TrcKeySampling	hs_;
     bool		ownsarray_;
 };
 

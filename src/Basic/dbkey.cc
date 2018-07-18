@@ -230,6 +230,98 @@ uiString DBKey::toUiString() const
 }
 
 
+bool DBKeySet::operator ==( const DBKeySet& oth ) const
+{
+    const size_type sz = size();
+    if ( sz != oth.size() )
+	return false;
+
+    for ( idx_type idx=0; idx<sz; idx++ )
+    {
+	if ( *dbkys_.get(idx) != *oth.dbkys_.get(idx) )
+	    return false;
+    }
+    return true;
+}
+
+
+DBKeySet::idx_type DBKeySet::indexOf( const DBKey& dbky ) const
+{
+    const size_type sz = size();
+    for ( idx_type idx=0; idx<sz; idx++ )
+    {
+	if ( *dbkys_.get(idx) == dbky )
+	    return idx;
+    }
+    return -1;
+}
+
+
+bool DBKeySet::addIfNew( const DBKey& dbky )
+{
+    if ( isPresent(dbky) )
+	return false;
+
+    add( dbky );
+    return true;
+}
+
+
+void DBKeySet::append( const DBKeySet& oth, bool allowduplicates )
+{
+    if ( allowduplicates )
+	deepAppendClone( dbkys_, oth.dbkys_ );
+    else
+    {
+	for ( auto dbky : oth )
+	    addIfNew( *dbky );
+    }
+}
+
+
+void DBKeySet::insert( idx_type idx, const DBKey& dbky )
+{
+    dbkys_.insertAt( dbky.clone(), idx );
+}
+
+
+DBKeySet& DBKeySet::removeSingle( idx_type idx )
+{
+    delete dbkys_.removeSingle( idx );
+    return *this;
+}
+
+
+DBKeySet& DBKeySet::removeRange( idx_type idx1, idx_type idx2 )
+{
+    if ( idx1 == idx2 )
+	return removeSingle( idx1 );
+
+    if ( idx1 > idx2 )
+	std::swap( idx1, idx2 );
+    const size_type sz = size();
+    if ( idx1 >= sz )
+	return *this;
+    if ( idx2 >= sz-1 )
+	idx2 = sz-1;
+
+    for ( idx_type idx=idx1; idx<=idx2; idx++ )
+	delete dbkys_.get( idx );
+
+    dbkys_.removeRange( idx1, idx2 );
+    return *this;
+}
+
+
+DBKeySet& DBKeySet::remove( const DBKey& dbky )
+{
+    const idx_type idx = indexOf( dbky );
+    if ( idx >= 0 )
+	removeSingle( idx );
+    return *this;
+}
+
+
 void DBKeySet::addTo( BufferStringSet& bss ) const
 {
     for ( int idx=0; idx<size(); idx++ )

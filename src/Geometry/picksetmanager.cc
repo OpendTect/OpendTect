@@ -11,6 +11,7 @@
 #include "picksetchangerecorder.h"
 #include "dbman.h"
 #include "ioobj.h"
+#include "uistrings.h"
 
 
 #define mToPS(cnsttyp,reftyp,var) static_cast<cnsttyp Pick::Set reftyp>(var)
@@ -40,6 +41,19 @@ RefManType Pick::SetManager::doFetch( const ObjID& id, uiRetVal& uirv,
     Set* ps = const_cast<Set*>( gtSet(id) );
     if ( ps )
 	return RefManType( ps );		// already loaded
+    else if ( !id.isInCurrentSurvey() )
+    {
+	PtrMan<IOObj> ioobj = getIOObj( id );
+	if ( !ioobj )
+	    uirv.add( uiStrings::phrCannotFindDBEntry(id) );
+	else
+	{
+	    uiString errmsg;
+	    ps = SetLoader::getSingleSet( *ioobj, errmsg, cat );
+	    uirv = errmsg;
+	    return ps;
+	}
+    }
 
     SetLoader loader( id );
     loader.setCategory( cat );
