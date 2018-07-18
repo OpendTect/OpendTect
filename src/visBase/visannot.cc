@@ -79,8 +79,7 @@ static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
 Annotation::Annotation()
     : VisualObjectImpl(false )
     , geode_(new osg::Geode)
-    , axisnames_(Text2::create())
-    , axisannot_(Text2::create())
+    , axisvalues_(Text2::create())
     , gridlines_(new osgGeo::OneSideRender)
     , displaytrans_(0)
     , scale_(false)
@@ -127,19 +126,21 @@ Annotation::Annotation()
 
     geode_->addDrawable( box_ );
 
-    addChild( axisannot_->osgNode() );
-    addChild( axisnames_->osgNode() );
+    addChild( axisvalues_->osgNode() );
 
     for ( int ivert=0; ivert<nrVertPerDim; ivert++ )
     {
 	for ( int dim=0; dim<nrDims; dim++ )
 	{
-	    const int txtidx = axisnames_->addText();
-	    axisnames_->text( txtidx )->setJustification( Text::BottomRight );
 	    const Color& col = dim%3==0 ? Color::Red()
 					: ( dim%3==1 ? Color::Green()
 						     : Color::Blue() );
-	    axisnames_->text( txtidx )->setColor( col );
+
+	    axisnames_.add(Text2::create());
+	    const int idx=axisnames_.last()->addText();
+	    axisnames_.last()->text(idx)->setJustification(Text::BottomRight);
+	    axisnames_.last()->text(idx)->setColor( col );
+	    addChild(axisnames_.last()->osgNode());
 	}
     }
 
@@ -245,9 +246,14 @@ bool Annotation::is##str##Shown() const \
     return childIndex( node )!=-1; \
 }
 
+void Annotation::showText(bool yn)
+{
+    textIsShown_ = yn;
+    for(Text2 *p:axisnames_)
+		p->osgNode(!yn);
+}
 
-mImplSwitches( Text, axisnames_->osgNode() )
-mImplSwitches( Scale, axisannot_->osgNode() )
+mImplSwitches( Scale, axisvalues_->osgNode() )
 mImplSwitches( GridLines, gridlines_ )
 
 
@@ -259,13 +265,15 @@ bool Annotation::isFaceGridShown( int dim, bool first ) const
 
 const FontData& Annotation::getFont() const
 {
-    return axisnames_->text()->getFontData();
+    return axisnames_[0]->text()->getFontData();
 }
 
 void Annotation::setFont( const FontData& fd )
 {
-    axisnames_->setFontData( fd );
-    axisannot_->setFontData( fd );
+    for(Text2 *p:axisnames_)
+	p->setFontData( fd );
+
+    axisvalues_->setFontData( fd );
 }
 
 
@@ -316,8 +324,10 @@ void Annotation::setPixelDensity( float dpi )
 {
     VisualObjectImpl::setPixelDensity( dpi );
 
-    axisnames_->setPixelDensity( dpi );
-    axisannot_->setPixelDensity( dpi );
+    for(Text2 *p:axisnames_)
+	p->setPixelDensity( dpi );
+
+    axisvalues_->setPixelDensity( dpi );
 }
 
 
@@ -335,7 +345,7 @@ void Annotation::setText( int dim, const uiString& string )
     for ( int ivert=0; ivert<nrVertPerDim; ivert++ )
     {
 	const int textidx = ivert*nrDims + dim;
-	axisnames_->text( textidx )->setText( string );
+	axisnames_[textidx]->text(0)->setText( string );
     }
 }
 
@@ -516,7 +526,7 @@ void Annotation::updateTextPos()
     for ( int idx=0; idx<vertcenterpos.size(); idx++ )
     {
 	mVisTrans::transform( displaytrans_, vertcenterpos[idx] );
-	axisnames_->text( idx )->setPosition( vertcenterpos[idx] );
+	axisnames_[idx]->text(0)->setPosition( vertcenterpos[idx] );
     }
 
     int curscale = 0;
@@ -535,16 +545,16 @@ void Annotation::updateTextPos()
 	    if ( val <= range.start )		continue;
 	    else if ( val > range.stop )	break;
 
-	    if ( curscale>=axisannot_->nrTexts() )
+	    if ( curscale>=axisvalues_->nrTexts() )
 	    {
-		axisannot_->addText();
-		axisannot_->addText();
+		axisvalues_->addText();
+		axisvalues_->addText();
 	    }
 
-	    Text* text = axisannot_->text( curscale );
+	    Text* text = axisvalues_->text( curscale );
 	    curscale = curscale+1;
 
-	    Text* text1 = axisannot_->text( curscale );
+	    Text* text1 = axisvalues_->text( curscale );
 	    curscale = curscale+1;
 
 	    osg::Vec3 pos( p0 );
@@ -575,8 +585,8 @@ void Annotation::updateTextPos()
 	}
     }
 
-    for ( int idx=axisannot_->nrTexts()-1; idx>=curscale; idx-- )
-	axisannot_->removeText( axisannot_->text(idx) );
+    for ( int idx=axisvalues_->nrTexts()-1; idx>=curscale; idx-- )
+	axisvalues_->removeText( axisvalues_->text(idx) );
 
     setFont( fd );
     getMaterial()->setColor( col );
@@ -592,11 +602,12 @@ void Annotation::setScaleFactor( int dim, int nv )
 
 void Annotation::updateTextColor( CallBacker* )
 {
-    for ( int idx=0; idx<axisannot_->nrTexts(); idx++ )
-	axisannot_->text(idx)->setColor( getMaterial()->getColor() );
+    for ( int idx=0; idx<axisvalues_->nrTexts(); idx++ )
+	axisvalues_->text(idx)->setColor( getMaterial()->getColor() );
 
-    for ( int idx=0; idx<axisnames_->nrTexts(); idx++ )
-	axisnames_->text(idx)->setColor( getMaterial()->getColor() );
+    for ( int idx=0; idx<axisnames_.size(); idx++ )
+	axisnames_[idx]->text( 0 )->setColor( getMaterial()->getColor() );
+
 }
 
 
@@ -648,7 +659,7 @@ bool Annotation::usePar( const IOPar& par )
 
     bool yn = true;
     par.getYN( showtextstr(), yn );
-    showText( yn );
+    //showText( yn );
 
     yn = true;
     par.getYN( showscalestr(), yn );

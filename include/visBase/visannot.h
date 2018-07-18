@@ -52,9 +52,9 @@ mExpClass(visBase) Annotation : public VisualObjectImpl
 public:
     static Annotation*	create()
 			mCreateDataObj(Annotation);
-
     void		showText(bool yn);
-    bool		isTextShown() const;
+
+    bool		isTextShown() const { return textIsShown_;}
 
     void		showScale(bool yn);
     bool		isScaleShown() const;
@@ -84,12 +84,12 @@ public:
     const mVisTrans*    getDisplayTransformation() const
 			{ return displaytrans_; }
     virtual void	setPixelDensity(float);
-    const Text2*	getAnnotTexts() const { return axisannot_; }
+    const Text2*	getAnnotTexts() const { return axisvalues_; }
 
 
     void		setScene(Scene*);
     void		allowShading( bool yn )	{ allowshading_=yn; }
-    RefMan<Text2>	getAxisNames() const	{ return axisnames_; }
+    RefObjectSet<Text2> getAxisNames() const	{ return axisnames_; }
 
 private:
 			~Annotation();
@@ -111,8 +111,8 @@ private:
     osg::Array*			gridlinecoords_;
     osg::Geode*			geode_;
     osgGeo::OneSideRender*	gridlines_;
-    RefMan<Text2>		axisnames_;
-    RefMan<Text2>		axisannot_;
+    RefObjectSet<Text2>		axisnames_;
+    RefMan<Text2>		axisvalues_;
     visBase::Scene*		scene_;
 
     const mVisTrans*		displaytrans_;
@@ -124,6 +124,7 @@ private:
     static const char*		cornerprefixstr();
     static const char*		showtextstr();
     static const char*		showscalestr();
+    bool			textIsShown_ = true;
 };
 
 } // namespace visBase

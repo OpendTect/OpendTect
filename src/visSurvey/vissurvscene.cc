@@ -1552,12 +1552,12 @@ void Scene::updateAnnotationOrientation( const visBase::Camera& cam )
 
     const mVisTrans* displaytrans = annot_->getDisplayTransformation();
     mVisTrans::transformBack( displaytrans, eye );
-    RefMan<visBase::Text2> axisnames = annot_->getAxisNames();
+    RefObjectSet<visBase::Text2> axisnames = annot_->getAxisNames();
     TypeSet<Coord3> annotnmspos;
 
-    for ( int idx=0; idx<axisnames->nrTexts(); idx++ )
+    for ( int idx=0; idx<axisnames.size(); idx++ )
     {
-	visBase::Text* txt = axisnames->text( idx );
+	visBase::Text* txt = axisnames[idx]->text( 0 );
 	annotnmspos += txt->getPosition();
 	mVisTrans::transformBack( displaytrans, annotnmspos[idx] );
     }
@@ -1582,15 +1582,15 @@ void Scene::updateAnnotationOrientation( const visBase::Camera& cam )
     verticeshown += lastinlon	  != lastzon;	// Crossline	@ max/max
     verticeshown += lastinlon	  != lastcrlon; // Vertical	@ max/max
 
-    for ( int idx=0; idx<axisnames->nrTexts(); idx++ )
+    for ( int idx=0; idx<axisnames.size(); idx++ )
     {
 	if ( verticeshown[idx] )
 	{
-	    axisnames->text( idx )->setColor( Color::White() ); // SHOW
+	    axisnames[idx]->turnOn( true );
 	    //TODO: set justification
 	}
 	else
-	    axisnames->text( idx )->setColor( Color::Black() ); //HIDE - how?
+	    axisnames[idx]->turnOn( false );
     }
 }
 
