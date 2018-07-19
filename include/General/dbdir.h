@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "ioobj.h"
 class TranslatorGroup;
+class SurveyDiskLocation;
 
 
 /*\brief 'Directory' of IOObj objects.
@@ -160,6 +161,9 @@ public:
     typedef size_type			IdxType;
 
 			DBDirEntryList(const IOObjContext&,bool dofill=true);
+			DBDirEntryList(const IOObjContext&,
+				       const SurveyDiskLocation&,
+				       bool dofill=true);
 			DBDirEntryList(const TranslatorGroup&,
 					const char* translator_globexpr=0);
 			~DBDirEntryList();
@@ -171,7 +175,7 @@ public:
     IdxType		indexOf(const char*) const;
 
     const IOObj&	ioobj( IdxType idx ) const { return *entries_[idx]; }
-    DBKey		key(IdxType) const;
+    const DBKey&	key(IdxType) const;
     BufferString	name(IdxType) const;
     BufferString	dispName(IdxType) const;
     BufferString	iconName(IdxType) const;
@@ -180,7 +184,10 @@ protected:
 
     ObjectSet<IOObj>	entries_;
     IOObjContext&	ctxt_;
+    SurveyDiskLocation&	survloc_;
     BufferString	name_;
+    mutable DBKey	retdbky_;
+    FullDBKey&		retfdbky_;
 
     void		sort();
 

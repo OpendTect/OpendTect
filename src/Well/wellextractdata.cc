@@ -31,6 +31,7 @@
 #include "sorting.h"
 #include "envvars.h"
 #include "binidvalue.h"
+#include "surveydisklocation.h"
 
 #include <math.h>
 
@@ -77,13 +78,11 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     , dologs_(dologs)
     , dotracks_(dotracks)
     , curidx_(0)
-    , curmsg_(tr("No wells"))
-    , totalnr_(0)
-    , direntries_(*new DBDirEntryList(mIOObjContext(Well)))
+    , curmsg_(tr("Gathering information"))
+    , totalnr_(-1)
+    , direntries_(0)
+    , survloc_(*new SurveyDiskLocation)
 {
-    totalnr_ = direntries_.size();
-    if ( totalnr_ > 0 )
-	curmsg_ = tr("Gathering information");
 }
 
 
@@ -92,7 +91,8 @@ Well::InfoCollector::~InfoCollector()
     deepErase( infos_ );
     deepErase( markers_ );
     deepErase( logs_ );
-    delete &direntries_;
+    delete direntries_;
+    delete &survloc_;
 }
 
 
@@ -112,17 +112,25 @@ void Well::InfoCollector::getAllMarkerNames( BufferStringSet& nms ) const
 
 int Well::InfoCollector::nextStep()
 {
+    if ( !direntries_ )
+    {
+	direntries_ = new DBDirEntryList( mIOObjContext(Well), survloc_ );
+	totalnr_ = direntries_->size();
+	if ( totalnr_ < 1 )
+	    curmsg_ = tr("No wells");
+    }
+
     if ( curidx_ >= totalnr_ )
 	return totalnr_ > 0 ? Finished() : ErrorOccurred();
 
-    const DBKey wky( direntries_.key(curidx_) );
+    const DBKey& wky = direntries_->key( curidx_ );
     LoadReqs lreqs( Inf );
     if ( dotracks_ )
 	lreqs.add( Trck ).add( D2T );
     if ( domrkrs_ )
 	lreqs.add( Mrkrs );
 
-    RefMan<Data> wd = MGR().fetchForEdit( wky, lreqs );
+    ConstRefMan<Data> wd = MGR().fetch( wky, lreqs );
     if ( wd )
     {
 	ids_ += wky;

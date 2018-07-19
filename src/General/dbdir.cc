@@ -19,6 +19,8 @@
 #include "globexpr.h"
 #include "strmprov.h"
 #include "transl.h"
+#include "surveydisklocation.h"
+#include "fulldbkey.h"
 
 
 #define mIsBad() (readtime_ < 0)
@@ -579,6 +581,19 @@ DBDirIter::ObjID DBDirIter::objID() const
 
 DBDirEntryList::DBDirEntryList( const IOObjContext& ct, bool dofill )
     : ctxt_(*new IOObjContext(ct))
+    , survloc_(*new SurveyDiskLocation)
+    , retfdbky_(*new FullDBKey)
+{
+    if ( dofill )
+	fill( 0 );
+}
+
+
+DBDirEntryList::DBDirEntryList( const IOObjContext& ct,
+				const SurveyDiskLocation& survloc, bool dofill )
+    : ctxt_(*new IOObjContext(ct))
+    , survloc_(*new SurveyDiskLocation(survloc))
+    , retfdbky_(*new FullDBKey)
 {
     if ( dofill )
 	fill( 0 );
@@ -588,6 +603,8 @@ DBDirEntryList::DBDirEntryList( const IOObjContext& ct, bool dofill )
 DBDirEntryList::DBDirEntryList( const TranslatorGroup& tr,
 				const char* allowedtransls )
     : ctxt_(*new IOObjContext(&tr))
+    , survloc_(*new SurveyDiskLocation)
+    , retfdbky_(*new FullDBKey)
 {
     ctxt_.toselect_.allowtransls_ = allowedtransls;
     fill( 0 );
@@ -598,6 +615,8 @@ DBDirEntryList::~DBDirEntryList()
 {
     deepErase( entries_ );
     delete &ctxt_;
+    delete &survloc_;
+    delete &retfdbky_;
 }
 
 
@@ -605,7 +624,19 @@ void DBDirEntryList::fill( const char* nmfilt )
 {
     deepErase( entries_ );
     name_.setEmpty();
-    ConstRefMan<DBDir> dbdir = DBM().fetchDir( ctxt_.getSelDirID() );
+    ConstRefMan<DBDir> dbdir;
+
+    const bool iscursurv = survloc_.isCurrentSurvey();
+    BufferString datadirnm;
+    if ( iscursurv )
+	dbdir = DBM().fetchDir( ctxt_.getSelDirID() );
+    else
+    {
+	File::Path fp( survloc_.fullPath() );
+	fp.add( IOObjContext::getDataDirName(ctxt_.stdseltype_) );
+	datadirnm = fp.fullPath();
+	dbdir = new DBDir( datadirnm );
+    }
     if ( !dbdir || dbdir->isBad() )
 	return;
 
@@ -619,7 +650,12 @@ void DBDirEntryList::fill( const char* nmfilt )
 	if ( !obj.isTmp() && ctxt_.validIOObj(obj) )
 	{
 	    if ( !ge || ge->matches(obj.name()) )
-		entries_ += obj.clone();
+	    {
+		IOObj* newentry = obj.clone();
+		if ( !iscursurv )
+		    newentry->setAbsDirectory( datadirnm );
+		entries_ += newentry;
+	    }
 	}
     }
 
@@ -628,11 +664,19 @@ void DBDirEntryList::fill( const char* nmfilt )
 }
 
 
-DBKey DBDirEntryList::key( IdxType idx ) const
+const DBKey& DBDirEntryList::key( IdxType idx ) const
 {
     if ( !entries_.validIdx(idx) )
-	return DBKey::getInvalid();
-    return entries_[idx]->key();
+	retdbky_ = DBKey::getInvalid();
+    else if ( survloc_.isCurrentSurvey() )
+	retdbky_ = entries_[idx]->key();
+    else
+    {
+	retfdbky_ = entries_[idx]->key();
+	retfdbky_.survloc_ = survloc_;
+	return retfdbky_;
+    }
+    return retdbky_;
 }
 
 

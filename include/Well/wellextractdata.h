@@ -143,6 +143,8 @@ public:
 				      bool trackinfo=false);
 			~InfoCollector();
 
+    void		setSurvey(const SurveyDiskLocation&);
+
     int			nextStep();
     uiString		message() const	{ return curmsg_; }
     uiString		nrDoneText() const	{
@@ -164,11 +166,12 @@ public:
 
 protected:
 
+    SurveyDiskLocation&		survloc_;
     DBKeySet			ids_;
     ObjectSet<Info>		infos_;
     ObjectSet<MarkerSet>	markers_;
     ObjectSet<BufferStringSet>	logs_;
-    DBDirEntryList&		direntries_;
+    DBDirEntryList*		direntries_;
     int				totalnr_;
     int				curidx_;
     uiString			curmsg_;
