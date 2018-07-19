@@ -6,11 +6,6 @@
 
 macro( OD_ADD_PROJ4 )
 
-    #SET DEBUG POSTFIX
-    set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
-    set ( OLD_COMPILER_FLAGS ${CMAKE_C_FLAGS} )
-    set (CMAKE_DEBUG_POSTFIX d)
-
     set ( PROJ4_INSTDIR_LIB_DEBUG ${OD_LIB_INSTALL_PATH_DEBUG} )
     set ( PROJ4_INSTDIR_LIB_RELEASE ${OD_LIB_INSTALL_PATH_RELEASE} )
 
@@ -20,13 +15,15 @@ macro( OD_ADD_PROJ4 )
 	SET( CMAKE_C_FLAGS "/W0 /WX- " )
     endif()
 
+    # Disable modules that are not needed by OD:
+    option ( BUILD_CCT "Build CCT module" OFF )
+    option ( BUILD_CS2CS "Build CS2CS module" OFF )
+    option ( BUILD_GEOD "Build GEOD module" OFF )
+    option ( BUILD_GIE "Build GIE module" OFF )
+    option ( BUILD_NAD2BIN "Build NAD2BIN module" OFF )
+
     add_subdirectory( ${CMAKE_SOURCE_DIR}/external/proj4 
 		  ${CMAKE_BINARY_DIR}/external/proj4 )
-
-    #RESTORE DEBUG POSTFIX
-
-    set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
-    set (CMAKE_C_FLAGS ${OLD_COMPILER_FLAGS} )
 
     set ( PROJ4_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/proj4/src
 			     ${CMAKE_BINARY_DIR}/external/proj4/src )
@@ -48,10 +45,20 @@ macro(OD_SETUP_PROJ4)
 
 	if ( OD_INSTALL_DEPENDENT_LIBS )
 	    set( LIB proj )
-	    if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
-		set( LIB ${LIB}d )
+	    if ( MSVC AND ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
+		set( LIB ${LIB}_d ) # Proj4 uses _d as DEBUG_POSTFIX on MSVC
 	    endif()
-	    include(${PROJ4_LIBRARY_PATH}/../FindProjLibVersion.cmake)
+
+	    file ( STRINGS ${CMAKE_SOURCE_DIR}/external/proj4/CMakeLists.txt
+		   PROJ4_CMAKELIST )
+	    foreach ( line ${PROJ4_CMAKELIST} )
+		if ( ${line} MATCHES "PROJ_API_VERSION" )
+		    string ( REGEX MATCH "[0-9.]+" PROJ_API_VERSION ${line} )
+		endif() 
+		if ( ${line} MATCHES "PROJ_BUILD_VERSION" )
+		    string ( REGEX MATCH "[0-9.]+" PROJ_BUILD_VERSION ${line} )
+		endif() 
+	    endforeach()
 
 	    if( UNIX OR APPLE )
 		if( APPLE )
