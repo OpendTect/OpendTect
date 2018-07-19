@@ -109,11 +109,7 @@ static bool memCanOverCommit()
 }
 
 
-# ifdef __win__
 void* operator new( std::size_t sz )
-# else
-void* operator new( std::size_t sz ) throw(std::bad_alloc)
-# endif
 {
     void* p = malloc( sz );
     if ( !p )
@@ -138,11 +134,7 @@ mDefParallelCalcBody(
 )
 
 
-# ifdef __win__
 void* operator new[]( std::size_t sz )
-# else
-void* operator new[]( std::size_t sz ) throw(std::bad_alloc)
-# endif
 {
     void* p = malloc( sz );
     if ( !p )
