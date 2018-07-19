@@ -90,8 +90,21 @@ BufferString uiSurveySelect::getDirName() const
 
 BufferString uiSurveySelect::getFullDirPath() const
 {
-    const File::Path fp( datarootfld_->getDir(), getDirName() );
-    return fp.fullPath();
+    return surveyDiskLocation().fullPath();
+}
+
+
+SurveyDiskLocation uiSurveySelect::surveyDiskLocation() const
+{
+    return SurveyDiskLocation( getDirName(), datarootfld_->getDir() );
+}
+
+
+void uiSurveySelect::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
+{
+    datarootfld_->setDir( sdl.basepath_ );
+    updateList();
+    survdirfld_->setCurrentItem( sdl.dirname_ );
 }
 
 

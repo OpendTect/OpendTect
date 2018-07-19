@@ -10,7 +10,6 @@
 #include "compoundkey.h"
 #include "filepath.h"
 
-
 static BufferString noNameOfFn( const DBKey& ) { return BufferString(); }
 static IOObj* noGetIOObjFn( const DBKey& ) { return 0; }
 
@@ -154,6 +153,13 @@ bool DBKey::operator ==( const DBKey& oth ) const
 	return false;
 
     return *auxkey_ == *oth.auxkey_;
+}
+
+
+const SurveyDiskLocation& DBKey::surveyDiskLocation() const
+{
+    static SurveyDiskLocation emptysdl_( 0, 0 );
+    return emptysdl_;
 }
 
 

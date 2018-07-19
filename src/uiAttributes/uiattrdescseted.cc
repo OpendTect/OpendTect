@@ -53,7 +53,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiseissel.h"
-#include "uiselobjothersurv.h"
+#include "uisurvioobjseldlg.h"
 #include "uiselsimple.h"
 #include "uiseparator.h"
 #include "uisplitter.h"
@@ -1059,12 +1059,12 @@ void uiAttribDescSetEd::importSetCB( CallBacker* )
 	return;
 
     PtrMan<IOObjContext> ctxt = DescSet::getIOObjContext(true,is2D());
-    uiSelObjFromOtherSurvey objsel( this, *ctxt );
+    uiSurvIOObjSelDlg objsel( this, *ctxt );
     objsel.setHelpKey( mODHelpKey(mAttribDescSetEdimportSetHelpID) );
     if ( !objsel.go() )
 	return;
 
-    const BufferString filenm( objsel.ioObj()->fullUserExpr() );
+    const BufferString filenm( objsel.mainFileName() );
     DescSet impset( !SI().has3D() );
     uiRetVal warns;
     uiRetVal uirv = impset.load( filenm, &warns );

@@ -261,7 +261,7 @@ static BufferString getDBKeyStr( const DBKey& dbky )
     BufferString ret( "ID=<" );
     mDynamicCastGet( const FullDBKey*, fdbky, &dbky )
     if ( fdbky )
-	ret.add( fdbky->survloc_.fullPath() ).add( "|" );
+	ret.add( fdbky->surveyDiskLocation().fullPath() ).add( "|" );
     ret.add( dbky ).add( ">" );
     return ret;
 }
@@ -320,11 +320,12 @@ IOObj* DBMan_getIOObj( const DBKey& dbky )
 {
     if ( !dbky.isValid() )
 	return 0;
+    const SurveyDiskLocation& survloc = dbky.surveyDiskLocation();
     mDynamicCastGet( const FullDBKey*, fdbky, &dbky )
-    if ( !fdbky || fdbky->survloc_.isCurrentSurvey() )
+    if ( !fdbky || survloc.isCurrentSurvey() )
 	return DBM().get( dbky );
 
-    ConstRefMan<DBDir> survrootdbdir = new DBDir( fdbky->survloc_.fullPath() );
+    ConstRefMan<DBDir> survrootdbdir = new DBDir( survloc.fullPath() );
     IOObj* ret = 0;
     if ( !survrootdbdir->isBad() )
     {

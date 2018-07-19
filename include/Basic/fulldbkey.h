@@ -43,11 +43,24 @@ public:
     virtual BufferString toString() const;
     virtual void	fromString(const char*);
 
-    SurveyDiskLocation	survloc_;
+    DBKey		getKey() const	{ return *this; }
+    void		setKey( const DBKey& ky )
+			{ DBKey::operator =( ky ); }
+    virtual const SurveyDiskLocation& surveyDiskLocation() const
+			{ return survloc_; }
+    void		setSurveyDiskLocation( const SurveyDiskLocation& sdl )
+			{ survloc_ = sdl; }
 
     virtual bool	isInCurrentSurvey() const
 			{ return survloc_.isCurrentSurvey(); }
     BufferString	surveyName() const;
-    BufferString	fullPath() const    { return survloc_.fullPath(); }
+    BufferString	fullPath() const	{ return survloc_.fullPath(); }
+    void		hasSoftPath()		{ survloc_.hasSoftPath(); }
+    void		ensureHardPath()	{ survloc_.ensureHardPath(); }
+    void		softenPath()		{ survloc_.softenPath(); }
+
+protected:
+
+    SurveyDiskLocation	survloc_;
 
 };

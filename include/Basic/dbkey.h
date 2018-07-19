@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class IOObj;
+class SurveyDiskLocation;
 
 
 /*!\brief Key to an object in the OpendTect data store. The key is valid
@@ -75,6 +76,7 @@ public:
 
     virtual BufferString toString() const;
     virtual void	fromString(const char*);
+    virtual const SurveyDiskLocation& surveyDiskLocation() const;
 
     uiString		toUiString() const;
 

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uigroup.h"
+#include "surveydisklocation.h"
 class uiListBox;
 class uiDataRootSel;
 class uiSeparator;
@@ -27,9 +28,11 @@ public:
 			~uiSurveySelect();
 
     bool		validSelection() const;
+    SurveyDiskLocation	surveyDiskLocation() const;
+    void		setSurveyDiskLocation(const SurveyDiskLocation&);
+    void		setSurveyDirName(const char*);
     BufferString	getDirName() const;
     BufferString	getFullDirPath() const;
-    void		setSurveyDirName(const char*);
 
     Notifier<uiSurveySelect>	survDirChg;
     Notifier<uiSurveySelect>	survParsChg;

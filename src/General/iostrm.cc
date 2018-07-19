@@ -115,8 +115,8 @@ FullDBKey IOStream::fullKey() const
 	{
 	    const BufferString survdirnm( fp.fileName() );
 	    fp.setFileName( 0 );
-	    fdbky.survloc_.basepath_.set( fp.fullPath() );
-	    fdbky.survloc_.dirname_.set( survdirnm );
+	    const SurveyDiskLocation sdl( fp.fullPath(), survdirnm );
+	    fdbky.setSurveyDiskLocation( sdl );
 	    break;
 	}
     }

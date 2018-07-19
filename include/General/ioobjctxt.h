@@ -114,8 +114,8 @@ public:
 
     static int			totalNrStdDirs();
     static const StdDirData*	getStdDirData(StdSelType);
-    static BufferString		getDataDirName(StdSelType);
-				//!< Including legacy names - smart
+    static BufferString		getDataDirName(StdSelType,
+						bool subdirnmonly=false);
 
     FixedString		objectTypeName() const;
     FixedString		translatorGroupName() const;

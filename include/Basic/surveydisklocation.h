@@ -20,7 +20,9 @@ namespace File { class Path; }
   The survey itself is the only OpendTect database 'object' that has no ID by
   itself. Thus, if you have to work accross surveys, this has to be the ID
   of a survey. To make things like 'relocate' easier, the path is split in a
-  base path (usualy the 'Data Root') and the survey directory name.
+  base path (usualy the 'Data Root') and the survey directory name. If any
+  of the two is empty, it will be taken from surrent survey. The
+  SurveyDiskLocation then has a 'soft path'.
 
  */
 
@@ -42,11 +44,16 @@ public:
     void		set(const File::Path&);
     BufferString	fullPath() const;
     BufferString	surveyName() const;
+    BufferString	fullPathFor(const char* fnm) const;
 
-    bool		isEmpty() const;    //!< meaning current survey
     bool		isCurrentSurvey() const;
-    void		setEmpty();	    //!< always current survey
-    void		setCurrentSurvey(); //!< a snapshot, will remain OK
-					    //!< if you change to another survey
+    void		setCurrentSurvey(bool hard=true);
+
+    bool		isEmpty() const;    //!< current survey, soft path
+    void		setEmpty();	    //!< current survey, soft path
+    inline bool		hasSoftPath() const
+			{ return basepath_.isEmpty() || dirname_.isEmpty(); }
+    void		ensureHardPath();
+    void		softenPath();
 
 };

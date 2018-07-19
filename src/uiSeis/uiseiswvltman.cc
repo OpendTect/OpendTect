@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "uiseiswvltattr.h"
 #include "uiseiswvltgen.h"
 #include "uiseiswvltimpexp.h"
-#include "uiselobjothersurv.h"
+#include "uisurvioobjseldlg.h"
 #include "uistrings.h"
 #include "uitextedit.h"
 #include "uiwaveletextraction.h"
@@ -318,7 +318,7 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 {
     const IOObjContext ctxt( mIOObjContext(Wavelet) );
-    uiSelObjFromOtherSurvey objsel( this, ctxt );
+    uiSurvIOObjSelDlg objsel( this, ctxt );
     objsel.setHelpKey( mODHelpKey(mSeisWvltMangetFromOtherSurveyHelpID) );
     if ( !objsel.go() )
 	return;

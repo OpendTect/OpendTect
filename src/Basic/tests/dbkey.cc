@@ -118,7 +118,7 @@ static bool testFullDBKey()
 			"FullDBKey not in current survey" );
 
     FullDBKey& fdbky( *(FullDBKey*)sdbky );
-    const BufferString survdir( fdbky.survloc_.fullPath() );
+    const BufferString survdir( fdbky.surveyDiskLocation().fullPath() );
     File::Path fp("/tmp/surveys/Apenoot");
     BufferString str = fp.fullPath();
     mRunStandardTestWithError( survdir == fp.fullPath(),

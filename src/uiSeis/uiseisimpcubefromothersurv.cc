@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiseissubsel.h"
 #include "uiseissel.h"
-#include "uiselobjothersurv.h"
+#include "uisurvioobjseldlg.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
@@ -89,17 +89,16 @@ void uiSeisImpCubeFromOtherSurveyDlg::interpSelDone( CallBacker* )
 
 void uiSeisImpCubeFromOtherSurveyDlg::cubeSel( CallBacker* )
 {
-    uiSelObjFromOtherSurvey objsel( this,
-				    uiSeisSel::ioContext( Seis::Vol, true ) );
+    uiSurvIOObjSelDlg objsel( this, uiSeisSel::ioContext( Seis::Vol, true ) );
     if ( objsel.go() )
     {
 	if ( import_ )
 	    delete import_;
 	import_ = new SeisCubeImpFromOtherSurvey( *objsel.ioObj() );
-	BufferString fusrexp = objsel.fullUserExpression();
-	if ( import_->prepareRead( fusrexp ) )
+	BufferString mainfnm = objsel.mainFileName();
+	if ( import_->prepareRead( mainfnm ) )
 	{
-	    finpfld_->setText( fusrexp );
+	    finpfld_->setText( mainfnm );
 	    subselfld_->setInput( import_->cubeSampling() );
 	}
 	else

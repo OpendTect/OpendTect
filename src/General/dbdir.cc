@@ -673,7 +673,7 @@ const DBKey& DBDirEntryList::key( IdxType idx ) const
     else
     {
 	retfdbky_ = entries_[idx]->key();
-	retfdbky_.survloc_ = survloc_;
+	retfdbky_.setSurveyDiskLocation( survloc_ );
 	return retfdbky_;
     }
     return retdbky_;
