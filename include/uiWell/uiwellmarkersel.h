@@ -33,8 +33,9 @@ public:
     mExpClass(uiWell) Setup
     {
     public:
-			Setup(bool one,const char* sel_txt=0);
-				// Pass an empty string ("") to get no label
+			Setup(bool one,const uiString& st=uiString::empty());
+			//!< unspecified, will generate a standard label
+			//!< to get no label, use uiStrings::sNone()
 
 	mDefSetupMemb(bool,single);	//!< false => two levels (a zone)
 	mDefSetupMemb(bool,allowsame);	//!< [true]
@@ -42,7 +43,7 @@ public:
 	mDefSetupMemb(bool,unordered);	//!< [false] true if your markers are
 					//!< not ordered top to bottom
 	mDefSetupMemb(bool,middef);	//!< [false] set center markers(s) def
-	mDefSetupMemb(BufferString,seltxt);
+	mDefSetupMemb(uiString,seltxt);
     };
 
 			uiWellMarkerSel(uiParent*,const Setup&);

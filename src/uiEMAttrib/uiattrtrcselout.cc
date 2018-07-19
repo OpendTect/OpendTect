@@ -297,7 +297,7 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
     setcubeboundsfld_->valuechanged.notify(
 	    mCB(this,uiAttrTrcSelOut,cubeBoundsSel) );
 
-    cubeboundsfld_ = new uiGenInput ( prnt, tr("Z Range"),
+    cubeboundsfld_ = new uiGenInput ( prnt, uiStrings::sZRange(),
                                       FloatInpIntervalSpec()
 				      .setName("Z Start",0)
 				      .setName("Z Stop",1) );

@@ -160,6 +160,8 @@ public:
 				//!< If selected, same size as ids()
     const Interval<float>	getTracksTVDRange() const {return trackstvdrg_;}
 
+    void			getAllMarkerNames(BufferStringSet&) const;
+
 protected:
 
     DBKeySet			ids_;

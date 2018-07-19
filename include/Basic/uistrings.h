@@ -446,6 +446,7 @@ public:
     static uiWord sInputFile()		{ return tr("Input File"); }
     static uiWord sInputSelection()	{ return tr("Input Selection"); }
     static uiWord sInterpolate()	{ return tr("Interpolate"); }
+    static uiWord sInterval()		{ return tr("Interval"); }
     static uiWord sInpFileName()	{ return tr("Input File Name"); }
     static uiWord sInputData()		{ return tr("Input Data"); }
     static uiWord sInsert()		{ return tr("Insert"); }

@@ -96,6 +96,20 @@ Well::InfoCollector::~InfoCollector()
 }
 
 
+void Well::InfoCollector::getAllMarkerNames( BufferStringSet& nms ) const
+{
+    nms.setEmpty();
+    if ( markers_.isEmpty() )
+	return;
+
+    Well::MarkerSet wms( *markers_.get(0) );
+    for ( auto idx=1; idx<markers_.size(); idx++ )
+	wms.append( *markers_.get(idx) );
+
+    wms.getNames( nms );
+}
+
+
 int Well::InfoCollector::nextStep()
 {
     if ( curidx_ >= totalnr_ )

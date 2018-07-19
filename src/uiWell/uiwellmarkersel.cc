@@ -34,7 +34,7 @@ const char* uiWellMarkerSel::sKeyDataEnd()
 
 
 
-uiWellMarkerSel::Setup::Setup( bool issingle, const char* txt )
+uiWellMarkerSel::Setup::Setup( bool issingle, const uiString& txt )
     : seltxt_(txt)
     , single_(issingle)
     , allowsame_(true)
@@ -42,12 +42,14 @@ uiWellMarkerSel::Setup::Setup( bool issingle, const char* txt )
     , unordered_(false)
     , middef_(false)
 {
-    if ( !txt ) // txt may be an empty string!
+    if ( seltxt_ == uiStrings::sNone() )
+	seltxt_ = uiString::empty();
+    else if ( seltxt_.isEmpty() )
     {
 	if ( single_ )
-	    seltxt_ = "Marker";
+	    seltxt_ = uiStrings::sMarker();
 	else
-	    seltxt_ = withudf_ ? "Selected zone" : "Top/bottom";
+	    seltxt_ = withudf_ ? tr("Selected zone") : tr("Top/bottom");
     }
 }
 
@@ -64,8 +66,7 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	topfld_ = new uiComboBox( this, "Top marker" );
     else
     {
-	lcb = new uiLabeledComboBox( this, toUiString(setup_.seltxt_),
-								"Top marker" );
+	lcb = new uiLabeledComboBox( this, setup_.seltxt_, "Top marker" );
 	topfld_ = lcb->box();
     }
     topfld_->selectionChanged.notify( mrkselcb );
