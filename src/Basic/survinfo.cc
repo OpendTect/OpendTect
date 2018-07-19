@@ -184,6 +184,9 @@ BufferString SurveyDiskLocation::fullPath() const
     {
 	SurveyDiskLocation sdl;
 	sdl.setCurrentSurvey();
+	if ( sdl.basepath_.isEmpty() || sdl.dirname_.isEmpty() )
+	    return BufferString::empty();
+
 	if ( !basepath_.isEmpty() )
 	    sdl.basepath_ = basepath_;
 	if ( !dirname_.isEmpty() )
