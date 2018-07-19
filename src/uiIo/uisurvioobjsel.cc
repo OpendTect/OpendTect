@@ -2,13 +2,14 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bruno / Bert
- Date:          Dec 2010 / Oct 2016
+ Author:        Bert
+ Date:          July 2018
 ________________________________________________________________________
 
 -*/
 
 #include "uisurvioobjseldlg.h"
+#include "uisurvioobjselgrp.h"
 
 #include "uisurveyselect.h"
 #include "uilistbox.h"
@@ -19,13 +20,13 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-uiSurvIOObjSelDlg::uiSurvIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
-				      bool selmulti )
-    : uiDialog(p,Setup(tr("Get %1 from any survey")
-			.arg(ctxt.objectTypeName()),
-			mNoDlgTitle,mODHelpKey(mSelObjFromOtherSurveyHelpID)))
+uiSurvIOObjSelGroup::uiSurvIOObjSelGroup( uiParent* p, const IOObjContext& ctxt,
+					  bool selmulti )
+    : uiGroup(p,"Survey IOObj Selector")
     , ctxt_(*new IOObjContext(ctxt))
     , ismultisel_(selmulti)
+    , dClicked(this)
+    , selChange(this)
 {
     survsel_ = new uiSurveySelect( this );
 
@@ -36,57 +37,70 @@ uiSurvIOObjSelDlg::uiSurvIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
     objfld_->setHSzPol( uiObject::WideVar );
     objfld_->setStretch( 2, 2 );
     objfld_->attach( alignedBelow, survsel_ );
+    mAttachCB( objfld_->selectionChanged, uiSurvIOObjSelGroup::selChgCB );
 
-    mAttachCB( postFinalise(), uiSurvIOObjSelDlg::initWin );
+    mAttachCB( postFinalise(), uiSurvIOObjSelGroup::initGrp );
     if ( !ismultisel_ )
-	mAttachCB( objfld_->doubleClicked, uiSurvIOObjSelDlg::accept );
+	mAttachCB( objfld_->doubleClicked, uiSurvIOObjSelGroup::dClickCB );
 }
 
 
-uiSurvIOObjSelDlg::~uiSurvIOObjSelDlg()
+uiSurvIOObjSelGroup::~uiSurvIOObjSelGroup()
 {
     deepErase( ioobjs_ );
 }
 
 
-void uiSurvIOObjSelDlg::initWin( CallBacker* )
+void uiSurvIOObjSelGroup::initGrp( CallBacker* )
 {
-    updWin( true );
+    updGrp( true );
 
-    mAttachCB( survsel_->survDirChg, uiSurvIOObjSelDlg::survSelCB );
+    mAttachCB( survsel_->survDirChg, uiSurvIOObjSelGroup::survSelCB );
 }
 
 
-void uiSurvIOObjSelDlg::survSelCB( CallBacker* )
+void uiSurvIOObjSelGroup::dClickCB( CallBacker* )
 {
-    updWin( false );
+    dClicked.trigger();
 }
 
 
-void uiSurvIOObjSelDlg::setSelected( const DBKey& dbky )
+void uiSurvIOObjSelGroup::selChgCB( CallBacker* )
+{
+    selChange.trigger();
+}
+
+
+void uiSurvIOObjSelGroup::survSelCB( CallBacker* )
+{
+    updGrp( false );
+}
+
+
+void uiSurvIOObjSelGroup::setSelected( const DBKey& dbky )
 {
     seldbkys_.setEmpty();
     seldbkys_.add( dbky );
     if ( finalised() )
-	updWin( true );
+	updGrp( true );
 }
 
 
-void uiSurvIOObjSelDlg::setSelected( const DBKeySet& dbkys )
+void uiSurvIOObjSelGroup::setSelected( const DBKeySet& dbkys )
 {
     seldbkys_ = dbkys;
     if ( finalised() )
-	updWin( true );
+	updGrp( true );
 }
 
 
-SurveyDiskLocation uiSurvIOObjSelDlg::surveyDiskLocation() const
+SurveyDiskLocation uiSurvIOObjSelGroup::surveyDiskLocation() const
 {
     return survsel_->surveyDiskLocation();
 }
 
 
-void uiSurvIOObjSelDlg::updWin( bool withsurvsel )
+void uiSurvIOObjSelGroup::updGrp( bool withsurvsel )
 {
     if ( withsurvsel )
 	selSurvFromSelection();
@@ -95,7 +109,7 @@ void uiSurvIOObjSelDlg::updWin( bool withsurvsel )
 }
 
 
-void uiSurvIOObjSelDlg::updateObjs()
+void uiSurvIOObjSelGroup::updateObjs()
 {
     deepErase( ioobjs_ );
     objfld_->setEmpty();
@@ -131,7 +145,7 @@ void uiSurvIOObjSelDlg::updateObjs()
 }
 
 
-void uiSurvIOObjSelDlg::selSurvFromSelection()
+void uiSurvIOObjSelGroup::selSurvFromSelection()
 {
     if ( seldbkys_.isEmpty() )
 	return;
@@ -143,7 +157,7 @@ void uiSurvIOObjSelDlg::selSurvFromSelection()
 }
 
 
-void uiSurvIOObjSelDlg::setSelection()
+void uiSurvIOObjSelGroup::setSelection()
 {
     objfld_->chooseAll( false );
     if ( seldbkys_.isEmpty() )
@@ -168,13 +182,13 @@ void uiSurvIOObjSelDlg::setSelection()
 }
 
 
-const IOObj* uiSurvIOObjSelDlg::ioObj( int idx ) const
+const IOObj* uiSurvIOObjSelGroup::ioObj( int idx ) const
 {
     return ioobjs_.validIdx(idx) ? ioobjs_[idx] : 0;
 }
 
 
-FullDBKey uiSurvIOObjSelDlg::key( int idx ) const
+FullDBKey uiSurvIOObjSelGroup::key( int idx ) const
 {
     FullDBKey ret( surveyDiskLocation() );
     if ( !chosenidxs_.validIdx(idx) )
@@ -189,15 +203,80 @@ FullDBKey uiSurvIOObjSelDlg::key( int idx ) const
 }
 
 
-BufferString uiSurvIOObjSelDlg::mainFileName( int idx ) const
+BufferString uiSurvIOObjSelGroup::mainFileName( int idx ) const
 {
     const IOObj* ioobj = ioObj( idx );
     return BufferString( ioobj ? ioobj->mainFileName() : "" );
 }
 
 
-bool uiSurvIOObjSelDlg::acceptOK()
+bool uiSurvIOObjSelGroup::evaluateInput()
 {
     objfld_->getChosen( chosenidxs_ );
     return !chosenidxs_.isEmpty();
+}
+
+
+uiSurvIOObjSelDlg::uiSurvIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
+				      bool selmulti )
+    : uiDialog(p,Setup(tr("Get %1 from any survey")
+			.arg(ctxt.objectTypeName()),
+			mNoDlgTitle,mODHelpKey(mSelObjFromOtherSurveyHelpID)))
+{
+    selgrp_ = new uiSurvIOObjSelGroup( this, ctxt, selmulti );
+    mAttachCB( selgrp_->dClicked, uiSurvIOObjSelDlg::accept );
+}
+
+
+void uiSurvIOObjSelDlg::setSelected( const DBKey& dbky )
+{
+    selgrp_->setSelected( dbky );
+}
+
+
+void uiSurvIOObjSelDlg::setSelected( const DBKeySet& dbkys )
+{
+    selgrp_->setSelected( dbkys );
+}
+
+
+int uiSurvIOObjSelDlg::nrSelected() const
+{
+    return selgrp_->nrSelected();
+}
+
+
+SurveyDiskLocation uiSurvIOObjSelDlg::surveyDiskLocation() const
+{
+    return selgrp_->surveyDiskLocation();
+}
+
+
+const IOObj* uiSurvIOObjSelDlg::ioObj( int idx ) const
+{
+    return selgrp_->ioObj( idx );
+}
+
+
+FullDBKey uiSurvIOObjSelDlg::key( int idx ) const
+{
+    return selgrp_->key( idx );
+}
+
+
+BufferString uiSurvIOObjSelDlg::mainFileName( int idx ) const
+{
+    return selgrp_->mainFileName( idx );
+}
+
+
+const ObjectSet<IOObj>& uiSurvIOObjSelDlg::objsInSurvey() const
+{
+    return selgrp_->objsInSurvey();
+}
+
+
+bool uiSurvIOObjSelDlg::acceptOK()
+{
+    return selgrp_->evaluateInput();
 }

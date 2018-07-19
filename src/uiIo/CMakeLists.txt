@@ -67,7 +67,7 @@ set( OD_MODULE_SOURCES
 	uisurveymanager.cc
 	uisurveyselect.cc
 	uisurvinfoed.cc
-	uisurvioobjseldlg.cc
+	uisurvioobjsel.cc
 	uisurvmap.cc
 	uiusercreatesurvey.cc
 	uit2dconvsel.cc
