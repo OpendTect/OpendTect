@@ -39,7 +39,7 @@ namespace osgGeo
 
 namespace visBase
 {
-class Text2;
+class Text;
 class DataObjectGroup;
 
 /*!\brief
@@ -84,12 +84,12 @@ public:
     const mVisTrans*    getDisplayTransformation() const
 			{ return displaytrans_; }
     virtual void	setPixelDensity(float);
-    const Text2*	getAnnotTexts() const { return axisvalues_; }
+    const Text*		getAnnotTexts() const { return axisvalues_; }
 
 
     void		setScene(Scene*);
     void		allowShading( bool yn )	{ allowshading_=yn; }
-    RefObjectSet<Text2> getAxisNames() const	{ return axisnames_; }
+    RefObjectSet<Text>	getAxisNames() const	{ return axisnames_; }
 
 private:
 			~Annotation();
@@ -111,8 +111,8 @@ private:
     osg::Array*			gridlinecoords_;
     osg::Geode*			geode_;
     osgGeo::OneSideRender*	gridlines_;
-    RefObjectSet<Text2>		axisnames_;
-    RefMan<Text2>		axisvalues_;
+    RefObjectSet<Text>		axisnames_;
+    RefMan<Text>		axisvalues_;
     visBase::Scene*		scene_;
 
     const mVisTrans*		displaytrans_;

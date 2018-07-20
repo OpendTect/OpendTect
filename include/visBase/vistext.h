@@ -27,11 +27,11 @@ namespace osg { class Drawable; class Vec3f; class Geode; }
 namespace visBase
 {
 
-mExpClass(visBase) Text
+mExpClass(visBase) TextDrawable
 {
 public:
-				Text();
-				~Text();
+				TextDrawable();
+				~TextDrawable();
 
     enum Justification		{ Left, Right, Center, Top, Bottom,
 				  TopLeft, TopRight, BottomLeft, BottomRight };
@@ -93,22 +93,22 @@ protected:
 };
 
 
-mExpClass(visBase) Text2 : public VisualObjectImpl
+mExpClass(visBase) Text : public VisualObjectImpl
 {
 public:
 
-    static Text2*		create()
-				mCreateDataObj(Text2);
+    static Text*		create()
+				mCreateDataObj(Text);
 
     int				nrTexts() const		{ return texts_.size();}
     int				addText();
-    void			removeText(const Text*);
+    void			removeText(const TextDrawable*);
     void			removeAll();
 
     void			setFontData(const FontData&);
 
-    const Text*			text(int idx=0) const;
-    Text*			text(int idx=0);
+    const TextDrawable*			text(int idx=0) const;
+    TextDrawable*			text(int idx=0);
 
     void			setDisplayTransformation(const mVisTrans*);
     void			setPixelDensity(float);
@@ -117,9 +117,9 @@ public:
 protected:
 
     void			translationChangeCB(CallBacker*);
-				~Text2();
+				~Text();
     osg::Geode*			geode_;
-    ManagedObjectSet<Text>	texts_;
+    ManagedObjectSet<TextDrawable>	texts_;
     float			pixeldensity_;
     const mVisTrans*		displaytransform_;
 

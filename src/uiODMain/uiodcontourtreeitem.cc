@@ -129,7 +129,7 @@ public:
 				~uiODContourTreeItemContourGenerator()
 				{ if ( labels_ ) labels_->unRef(); }
 
-    visBase::Text2*		getLabels() { return labels_; }
+    visBase::Text*		getLabels() { return labels_; }
     const TypeSet<double>&	getAreas() const { return areas_; }
     uiString			nrDoneText() const;
 
@@ -162,7 +162,7 @@ private:
 				// from construction source
     const Array2D<float>*	field_;
 
-    visBase::Text2*		labels_;
+    visBase::Text*		labels_;
 
     StepInterval<int>		rowrg_;
     StepInterval<int>		colrg_;
@@ -454,7 +454,7 @@ bool uiODContourTreeItemContourGenerator::doFinish( bool success )
     if ( !success ) return false;
 
     if ( labels_ ) labels_->unRef();
-    labels_ = visBase::Text2::create();
+    labels_ = visBase::Text::create();
     labels_->ref();
     labels_->setDisplayTransformation( displaytrans_ );
     labels_->setPickable( false, false );
@@ -514,12 +514,12 @@ void uiODContourTreeItemContourGenerator::addContourLabel(
     if ( !labels_ ) return;
 
     const int idx = labels_->addText();
-    visBase::Text* label = labels_->text( idx );
+    visBase::TextDrawable* label = labels_->text( idx );
     if ( label )
     {
 	uiString labelonpole( lbl );
 	label->setText( labelonpole );
-	label->setJustification( visBase::Text::BottomLeft );
+	label->setJustification( visBase::TextDrawable::BottomLeft );
 	label->setPosition( pos, true );
 	label->setFontData( FontData(18), labels_->getPixelDensity() );
     }
@@ -659,11 +659,11 @@ const FontData& getFontData() const
 { return fontdata_; }
 
 
-void setLabelAlignment( visBase::Text::Justification alignment )
+void setLabelAlignment( visBase::TextDrawable::Justification alignment )
 {
-    if ( alignment == visBase::Text::BottomRight )
+    if ( alignment == visBase::TextDrawable::BottomRight )
 	alignbutsfld_->selectButton( 2 );
-    else if ( alignment == visBase::Text::Bottom )
+    else if ( alignment == visBase::TextDrawable::Bottom )
 	alignbutsfld_->selectButton( 1 );
     else
 	alignbutsfld_->selectButton( 0 );
@@ -673,11 +673,11 @@ void setLabelAlignment( visBase::Text::Justification alignment )
 int getLabelAlignment() const
 {
     if ( alignbutsfld_->selectedId() == 1 )
-	return visBase::Text::Bottom;
+	return visBase::TextDrawable::Bottom;
     if ( alignbutsfld_->selectedId() > 1 )
-	return visBase::Text::BottomRight;
+	return visBase::TextDrawable::BottomRight;
 
-    return visBase::Text::BottomLeft;
+    return visBase::TextDrawable::BottomLeft;
 }
 
 
@@ -991,7 +991,7 @@ void uiODContourTreeItem::handleMenuCB( CallBacker* cb )
 	    if ( labels_->nrTexts() )
 	    {
 		dlg.setFontData( labels_->text(0)->getFontData() );
-		dlg.setLabelAlignment( (visBase::Text::Justification)
+		dlg.setLabelAlignment( (visBase::TextDrawable::Justification)
 				       labels_->text(0)->getJustification() );
 
 		dlg.disableLabelElevation();
@@ -1151,7 +1151,7 @@ void uiODContourTreeItem::propChangeCB( CallBacker* cb )
 	for ( int idx=0; idx<labels_->nrTexts(); idx++ )
 	{
 	    labels_->text(idx)->setJustification(
-		    (visBase::Text::Justification) dlg->getLabelAlignment() );
+	    (visBase::TextDrawable::Justification) dlg->getLabelAlignment() );
 	}
     }
 }
@@ -1269,7 +1269,7 @@ bool uiODContourTreeItem::createPolyLines()
 }
 
 
-bool uiODContourTreeItem::setLabels( visBase::Text2* newlabels )
+bool uiODContourTreeItem::setLabels( visBase::Text* newlabels )
 {
     if( !material_ )
 	return false;

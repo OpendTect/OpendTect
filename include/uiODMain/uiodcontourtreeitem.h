@@ -31,7 +31,7 @@ namespace visBase
     class DrawStyle;
     class PolyLine;
     class Material;
-    class Text2;
+    class Text;
 }
 namespace EM { class Horizon3D; }
 
@@ -81,7 +81,7 @@ private:
 
     void			startCreateUICContours();
     bool			createPolyLines();
-    bool			setLabels(visBase::Text2*);
+    bool			setLabels(visBase::Text*);
     bool			computeUICContourSteps(const Array2D<float>&);
     void			getZVSAreaValues(TypeSet<float>& zvals,
                                                  TypeSet<float>& areas) const;
@@ -103,7 +103,7 @@ private:
     visBase::PolyLine*		lines_;
     visBase::DrawStyle*		drawstyle_;
     visBase::Material*		material_;
-    visBase::Text2*		labels_;
+    visBase::Text*		labels_;
 				//
     Interval<float>		contoursteprange_;
     TypeSet<double>		areas_; //empty if no non-udf

@@ -21,7 +21,7 @@ namespace visBase
 {
     class DrawStyle;
     class PolyLine;
-    class Text2;
+    class Text;
     class TexturePanelStrip;
 }
 
@@ -217,7 +217,7 @@ protected:
     StepInterval<int>		maxtrcnrrg_;
 
     const mVisTrans*		transformation_;
-    visBase::Text2*		linename_;
+    visBase::Text*		linename_;
     Notifier<Seis2DDisplay>	geomchanged_;
     Notifier<Seis2DDisplay>	geomidchanged_;
 

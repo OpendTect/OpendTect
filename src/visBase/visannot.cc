@@ -79,7 +79,7 @@ static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
 Annotation::Annotation()
     : VisualObjectImpl(false )
     , geode_(new osg::Geode)
-    , axisvalues_(Text2::create())
+    , axisvalues_(Text::create())
     , gridlines_(new osgGeo::OneSideRender)
     , displaytrans_(0)
     , scale_(false)
@@ -136,9 +136,10 @@ Annotation::Annotation()
 					: ( dim%3==1 ? Color::Green()
 						     : Color::Blue() );
 
-	    axisnames_.add(Text2::create());
+	    axisnames_.add(Text::create());
 	    const int idx=axisnames_.last()->addText();
-	    axisnames_.last()->text(idx)->setJustification(Text::BottomRight);
+	    axisnames_.last()->text(idx)->setJustification(
+						    TextDrawable::BottomRight);
 	    axisnames_.last()->text(idx)->setColor( col );
 	    addChild(axisnames_.last()->osgNode());
 	}
@@ -249,7 +250,7 @@ bool Annotation::is##str##Shown() const \
 void Annotation::showText(bool yn)
 {
     textIsShown_ = yn;
-    for(Text2 *p:axisnames_)
+    for(Text *p:axisnames_)
 		p->osgNode(!yn);
 }
 
@@ -270,7 +271,7 @@ const FontData& Annotation::getFont() const
 
 void Annotation::setFont( const FontData& fd )
 {
-    for(Text2 *p:axisnames_)
+    for(Text *p:axisnames_)
 	p->setFontData( fd );
 
     axisvalues_->setFontData( fd );
@@ -324,7 +325,7 @@ void Annotation::setPixelDensity( float dpi )
 {
     VisualObjectImpl::setPixelDensity( dpi );
 
-    for(Text2 *p:axisnames_)
+    for(Text *p:axisnames_)
 	p->setPixelDensity( dpi );
 
     axisvalues_->setPixelDensity( dpi );
@@ -551,10 +552,10 @@ void Annotation::updateTextPos()
 		axisvalues_->addText();
 	    }
 
-	    Text* text = axisvalues_->text( curscale );
+	    TextDrawable* text = axisvalues_->text( curscale );
 	    curscale = curscale+1;
 
-	    Text* text1 = axisvalues_->text( curscale );
+	    TextDrawable* text1 = axisvalues_->text( curscale );
 	    curscale = curscale+1;
 
 	    osg::Vec3 pos( p0 );

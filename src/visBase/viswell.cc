@@ -79,8 +79,8 @@ Well::Well()
 
     track_->setMaterial( new Material );
 
-    welltoptxt_ =  Text2::create();
-    wellbottxt_ =  Text2::create();
+    welltoptxt_ =  Text::create();
+    wellbottxt_ =  Text::create();
     welltoptxt_->ref();
     wellbottxt_->ref();
     welltoptxt_->setMaterial( track_->getMaterial() );
@@ -89,7 +89,7 @@ Well::Well()
     addChild( welltoptxt_->osgNode() );
     addChild( wellbottxt_->osgNode() );
 
-    markernames_ = Text2::create();
+    markernames_ = Text::create();
     markernames_->ref();
     addChild( markernames_->osgNode() );
 
@@ -291,14 +291,15 @@ const OD::LineStyle& Well::lineStyle() const
 }
 
 
-void Well::updateText( Text* vistxt, const char* txt, const Coord3* pos,
+void Well::updateText( TextDrawable* vistxt, const char* txt, const Coord3* pos,
 		       const FontData& fnt, bool sizedynamic)
 {
     vistxt->setText( toUiString(txt) );
     vistxt->setFontData( fnt, getPixelDensity() );
     vistxt->setPosition( *pos );
-    vistxt->setCharacterSizeMode( sizedynamic ? Text::Object : Text::Screen );
-    vistxt->setAxisAlignment( Text::OnScreen );
+    vistxt->setCharacterSizeMode( sizedynamic ?	
+				 TextDrawable::Object : TextDrawable::Screen );
+    vistxt->setAxisAlignment( TextDrawable::OnScreen );
 }
 
 
@@ -324,11 +325,11 @@ void Well::setWellName( const TrackParams& tp )
     if ( nrpos>1 && mIsUdf(crdbot.z_) )
 	crdbot.z_ = track_->getCoordinates()->getPos( nrpos-1 ).z_;
 
-    welltoptxt_->text(0)->setJustification( Text::Bottom );
+    welltoptxt_->text(0)->setJustification( TextDrawable::Bottom );
     updateText( welltoptxt_->text(0), tp.isdispabove_ ? tp.name_.str() : 0,
 		&crdtop, tp.font_, tp.nmsizedynamic_ );
 
-    wellbottxt_->text(0)->setJustification( Text::Top );
+    wellbottxt_->text(0)->setJustification( TextDrawable::Top );
     updateText( wellbottxt_->text(0), tp.isdispbelow_ ? tp.name_.str() : 0,
 		&crdbot, tp.font_, tp.nmsizedynamic_ );
 }
@@ -405,9 +406,9 @@ void Well::addMarker( const MarkerParams& mp )
     markerset_->getMaterial()->setColor( mp.col_, markerid ) ;
 
     const int textidx = markernames_->addText();
-    Text* txt = markernames_->text( textidx );
+    TextDrawable* txt = markernames_->text( textidx );
     txt->setColor( mp.namecol_ );
-    txt->setJustification( Text::Left );
+    txt->setJustification( TextDrawable::Left );
 
     updateText( txt, mp.name_, &markerpos, mp.font_, mp.nmsizedynamic_ );
 

@@ -35,8 +35,8 @@ namespace visBase
 class PolyLine3D;
 class PolyLine;
 class PolyLineBase;
-class Text2;
 class Text;
+class TextDrawable;
 class Transformation;
 class MarkerSet;
 
@@ -107,7 +107,7 @@ public:
     bool			markersShown() const;
     void			showMarkerName(bool);
     bool			markerNameShown() const;
-    const visBase::Text2*	getMarkerNames() const { return markernames_; }
+    const visBase::Text*	getMarkerNames() const { return markernames_; }
     void			removeAllMarkers();
     void			setMarkerScreenSize(int);
 
@@ -214,8 +214,8 @@ public:
     void			getLogStyle(Side,int&) const;
     unsigned int		getRepeat(Side side) const;
     float			getRepeatStep(Side side) const;
-    const Text2*		getWellTopText() const { return welltoptxt_; }
-    const Text2*		getWellBottomText() const{ return wellbottxt_; }
+    const Text*			getWellTopText() const { return welltoptxt_; }
+    const Text*			getWellBottomText() const{ return wellbottxt_; }
 
 
 protected:
@@ -228,9 +228,9 @@ protected:
     osgGeo::WellLog*		leftlogdisplay_;
     osgGeo::WellLog*		rightlogdisplay_;
 
-    Text2*			welltoptxt_;
-    Text2*			wellbottxt_;
-    Text2*			markernames_;
+    Text*			welltoptxt_;
+    Text*			wellbottxt_;
+    Text*			markernames_;
     const mVisTrans*		transformation_;
 
     bool			showmarkers_;
@@ -245,7 +245,7 @@ protected:
 
 private:
 
-    void			updateText(Text*,const char*,
+    void			updateText(TextDrawable*,const char*,
 					   const Coord3*,
 					   const FontData&,
 					   bool sizedynamic=true);

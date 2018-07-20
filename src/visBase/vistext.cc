@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 #include <osgGeo/Text>
 
-mCreateFactoryEntry( visBase::Text2 );
+mCreateFactoryEntry( visBase::Text );
 
 
 namespace visBase
@@ -32,7 +32,7 @@ namespace visBase
 
 #define cObjectSizeToScreenSizeFactor 10 // experience const
 
-Text::Text()
+TextDrawable::TextDrawable()
     : osgtext_( new osgGeo::Text )
     , displaytrans_( 0 )
 {
@@ -46,28 +46,28 @@ Text::Text()
 }
 
 
-Text::~Text()
+TextDrawable::~TextDrawable()
 {
     if ( displaytrans_ ) displaytrans_->unRef();
     osgtext_->unref();
 }
 
 
-osg::Drawable& Text::getDrawable()
+osg::Drawable& TextDrawable::getDrawable()
 { return *osgtext_; }
 
 
-const osg::Drawable& Text::getDrawable() const
+const osg::Drawable& TextDrawable::getDrawable() const
 { return *osgtext_; }
 
 
-void Text::setPosition( const osg::Vec3f& pos )
+void TextDrawable::setPosition( const osg::Vec3f& pos )
 {
     osgtext_->setPosition( pos );
 }
 
 
-void Text::setPosition( const Coord3& pos, bool scenespace )
+void TextDrawable::setPosition( const Coord3& pos, bool scenespace )
 {
     osg::Vec3 osgpos;
     if( !scenespace )
@@ -79,7 +79,7 @@ void Text::setPosition( const Coord3& pos, bool scenespace )
 }
 
 
-Coord3 Text::getPosition() const
+Coord3 TextDrawable::getPosition() const
 {
     Coord3 pos;
     Transformation::transformBack( displaytrans_, osgtext_->getPosition(), pos);
@@ -87,7 +87,7 @@ Coord3 Text::getPosition() const
 }
 
 
-void Text::setFontData( const FontData& fd, float pixeldensity )
+void TextDrawable::setFontData( const FontData& fd, float pixeldensity )
 {
     fontdata_ = fd;
     if ( osgtext_->getCharacterSizeMode() == osgText::TextBase::OBJECT_COORDS )
@@ -103,7 +103,7 @@ void Text::setFontData( const FontData& fd, float pixeldensity )
 }
 
 
-void Text::updateFontSize( float pixeldensity )
+void TextDrawable::updateFontSize( float pixeldensity )
 {
     const float sizefactor =
 	pixeldensity / DataObject::getDefaultPixelDensity();
@@ -112,7 +112,7 @@ void Text::updateFontSize( float pixeldensity )
 
 
 static const wchar_t emptystring[] =  { 0 } ;
-void Text::setText( const uiString& newtext )
+void TextDrawable::setText( const uiString& newtext )
 {
     ArrPtrMan<wchar_t> wcharbuf = newtext.createWCharString();
 
@@ -126,7 +126,7 @@ void Text::setText( const uiString& newtext )
 }
 
 
-void Text::setJustification( Justification just )
+void TextDrawable::setJustification( Justification just )
 {
     if ( just == Center )
 	osgtext_->setAlignment(osgText::TextBase::CENTER_CENTER );
@@ -149,7 +149,7 @@ void Text::setJustification( Justification just )
 }
 
 
-int Text::getJustification() const
+int TextDrawable::getJustification() const
 {
     if ( osgtext_->getAlignment()==osgText::TextBase::LEFT_CENTER )
 	return Left;
@@ -172,7 +172,7 @@ int Text::getJustification() const
 }
 
 
-void Text::setCharacterSizeMode( CharacterSizeMode mode )
+void TextDrawable::setCharacterSizeMode( CharacterSizeMode mode )
 {
     const osgText::TextBase::CharacterSizeMode osgmode =
 	( osgText::TextBase::CharacterSizeMode ) mode;
@@ -201,7 +201,7 @@ void Text::setCharacterSizeMode( CharacterSizeMode mode )
 }
 
 
-void Text::setAxisAlignment( AxisAlignment axis )
+void TextDrawable::setAxisAlignment( AxisAlignment axis )
 {
     osgText::TextBase::AxisAlignment osgaxis =
 	( osgText::TextBase::AxisAlignment ) axis;
@@ -210,19 +210,19 @@ void Text::setAxisAlignment( AxisAlignment axis )
 
 
 
-void Text::setColor( const Color& col )
+void TextDrawable::setColor( const Color& col )
 {
     osgtext_->setColor( Conv::to<osg::Vec4>(col) );
 }
 
 
-Color Text::getColor() const
+Color TextDrawable::getColor() const
 {
     return Conv::to<Color>( osgtext_->getColor() );
 }
 
 
-void Text::setDisplayTransformation( const mVisTrans* newtrans )
+void TextDrawable::setDisplayTransformation( const mVisTrans* newtrans )
 {
     const Coord3 oldpos = getPosition();
 
@@ -234,13 +234,13 @@ void Text::setDisplayTransformation( const mVisTrans* newtrans )
 }
 
 
-Text2::Text2()
+Text::Text()
     : VisualObjectImpl( false )
     , geode_( new osg::Geode )
     , displaytransform_( 0 )
     , pixeldensity_( getDefaultPixelDensity() )
 {
-    mAttachCB( TrMgr().languageChange, Text2::translationChangeCB );
+    mAttachCB( TrMgr().languageChange, Text::translationChangeCB );
     geode_->ref();
     geode_->setNodeMask( ~visBase::cBBoxTraversalMask() );
     addChild( geode_ );
@@ -249,7 +249,7 @@ Text2::Text2()
 }
 
 
-Text2::~Text2()
+Text::~Text()
 {
     detachAllNotifiers();
     if ( displaytransform_ ) displaytransform_->unRef();
@@ -257,9 +257,9 @@ Text2::~Text2()
 }
 
 
-int Text2::addText()
+int Text::addText()
 {
-    Text* newtext = new Text;
+    TextDrawable* newtext = new TextDrawable;
     newtext->setDisplayTransformation( displaytransform_ );
     texts_ += newtext;
     geode_->addDrawable( &newtext->getDrawable() );
@@ -267,7 +267,7 @@ int Text2::addText()
 }
 
 
-void Text2::removeText( const Text* txt )
+void Text::removeText( const TextDrawable* txt )
 {
     const int idx = texts_.indexOf( txt );
     if ( idx<0 )
@@ -278,20 +278,20 @@ void Text2::removeText( const Text* txt )
 }
 
 
-void Text2::removeAll()
+void Text::removeAll()
 {
     geode_->removeDrawables( 0, geode_->getNumDrawables() );
     texts_.erase();
 }
 
 
-const Text* Text2::text( int idx ) const
+const TextDrawable* Text::text( int idx ) const
 {
     return texts_.validIdx( idx ) ? texts_[idx] : 0;
 }
 
 
-Text* Text2::text( int idx )
+TextDrawable* Text::text( int idx )
 {
     if ( !idx && !texts_.size() )
 	addText();
@@ -300,14 +300,14 @@ Text* Text2::text( int idx )
 }
 
 
-void Text2::setFontData( const FontData& fd )
+void Text::setFontData( const FontData& fd )
 {
     for ( int idx=0; idx<texts_.size(); idx++ )
 	texts_[idx]->setFontData( fd, pixeldensity_ );
 }
 
 
-void Text2::setDisplayTransformation( const mVisTrans* newtr )
+void Text::setDisplayTransformation( const mVisTrans* newtr )
 {
     if ( displaytransform_ ) displaytransform_->unRef();
     displaytransform_ = newtr;
@@ -318,7 +318,7 @@ void Text2::setDisplayTransformation( const mVisTrans* newtr )
 }
 
 
-void Text2::setPixelDensity( float dpi )
+void Text::setPixelDensity( float dpi )
 {
     if ( pixeldensity_==dpi )
 	return;
@@ -330,7 +330,7 @@ void Text2::setPixelDensity( float dpi )
 }
 
 
-void Text2::translationChangeCB(CallBacker *)
+void Text::translationChangeCB(CallBacker *)
 {
     for ( int idx=0; idx<texts_.size(); idx++ )
         texts_[idx]->setText( texts_[idx]->getText() );

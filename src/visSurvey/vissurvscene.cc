@@ -1552,12 +1552,12 @@ void Scene::updateAnnotationOrientation( const visBase::Camera& cam )
 
     const mVisTrans* displaytrans = annot_->getDisplayTransformation();
     mVisTrans::transformBack( displaytrans, eye );
-    RefObjectSet<visBase::Text2> axisnames = annot_->getAxisNames();
+    RefObjectSet<visBase::Text> axisnames = annot_->getAxisNames();
     TypeSet<Coord3> annotnmspos;
 
     for ( int idx=0; idx<axisnames.size(); idx++ )
     {
-	visBase::Text* txt = axisnames[idx]->text( 0 );
+	visBase::TextDrawable* txt = axisnames[idx]->text( 0 );
 	annotnmspos += txt->getPosition();
 	mVisTrans::transformBack( displaytrans, annotnmspos[idx] );
     }

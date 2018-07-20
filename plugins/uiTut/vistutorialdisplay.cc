@@ -52,7 +52,7 @@ visSurvey::TutorialWellDisplay::TutorialWellDisplay()
 					    
 {
     wellmarkers_ = visBase::MarkerSet::create(); wellmarkers_->ref();
-    welllabels_ = visBase::Text2::create(); welllabels_->ref();
+    welllabels_ = visBase::Text::create(); welllabels_->ref();
     welltrack_ = visBase::PolyLine::create(); welltrack_->ref();
 
     addChild( wellmarkers_->osgNode() );
@@ -109,7 +109,7 @@ void visSurvey::TutorialWellDisplay::loadAndDisplayWell( const DBKey& wellid )
 
 
 void visSurvey::TutorialWellDisplay::displayWellLabel( 
-						   visBase::Text2* welllabels,
+						   visBase::Text* welllabels,
 						   const uiString& texttodisp,
 						   const Coord3& pos )
 {

@@ -13,7 +13,7 @@
 namespace visBase /*forward declaration*/
 {
     class PolyLine;
-    class Text2;
+    class Text;
 }
 
 
@@ -32,10 +32,10 @@ protected:
 
     visBase::PolyLine*		welltrack_;
     visBase::MarkerSet*		wellmarkers_;
-    visBase::Text2*		welllabels_;
+    visBase::Text*		welllabels_;
 
     void			setDisplayTransformation(const mVisTrans*);
-    void			displayWellLabel(visBase::Text2*, 
+    void			displayWellLabel(visBase::Text*,
 					    const uiString&,const Coord3&);
 
     virtual const char*		getClassName() const 
