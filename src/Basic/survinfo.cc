@@ -115,7 +115,6 @@ SurveyInfo::SurveyInfo()
     , seisrefdatum_(0.f)
     , s3dgeom_(0)
     , work_s3dgeom_(0)
-    , diskloc_(0)
 {
     Pos::IdxPair2Coord::DirTransform xtr, ytr;
     xtr.b = ytr.c = 1;
@@ -243,23 +242,28 @@ uiRetVal SurveyInfo::setSurveyLocation( const SurveyDiskLocation& reqloc,
 {
     uiRetVal ret;
     SurveyDiskLocation newloc( reqloc );
-    const SurveyDiskLocation oldloc( SI().diskloc_ );
-    const bool useoldbp = newloc.basepath_.isEmpty()
-			|| newloc.basepath_ == oldloc.basepath_;
-    const bool useolddirnm = newloc.dirname_.isEmpty()
-			|| newloc.dirname_ == oldloc.dirname_;
+    newloc.ensureHardPath();
+    SurveyDiskLocation oldloc( SI().diskloc_ );
+
+    bool useoldbp = false, useolddirnm = false;
+    if ( !oldloc.isEmpty() )
+    {
+	useoldbp = newloc.basePath() == oldloc.basePath();
+	useolddirnm = newloc.dirName() == oldloc.dirName();
+    }
+
     if ( !forcerefresh && useoldbp && useolddirnm )
 	return ret;
 
     if ( useoldbp )
-	newloc.basepath_ = oldloc.basepath_;
+	newloc.setBasePath( oldloc.basePath() );
     if ( useolddirnm )
-	newloc.dirname_ = oldloc.dirname_;
+	newloc.setDirName( oldloc.dirName() );
 
-    if ( !File::isDirectory(newloc.basepath_) )
-	mErrRetDoesntExist(newloc.basepath_)
+    if ( !File::isDirectory(newloc.basePath()) )
+	mErrRetDoesntExist(newloc.basePath())
 
-    File::Path fp( newloc.basepath_, newloc.dirname_ );
+    File::Path fp( newloc.basePath(), newloc.dirName() );
     const BufferString survdir = fp.fullPath();
     if ( !File::isDirectory(survdir) )
 	mErrRetDoesntExist(survdir)
@@ -314,7 +318,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiRetVal& uirv )
     si->defpars_.removeWithKey( "Depth in feet" );
 
     si->diskloc_ = SurveyDiskLocation( fpsurvdir );
-    if ( !survdir || si->diskloc_.dirname_.isEmpty() )
+    if ( !survdir || si->diskloc_.isEmpty() )
 	return si;
 
     const IOPar survpar( astream );
@@ -1061,9 +1065,9 @@ bool SurveyInfo::write( const char* basedir ) const
 {
     mLock4Read();
     if ( !basedir )
-	basedir = diskloc_.basepath_;
+	basedir = diskloc_.basePath();
 
-    File::Path fp( basedir, diskloc_.dirname_, sSetupFileName() );
+    File::Path fp( basedir, diskloc_.dirName(), sSetupFileName() );
     const BufferString dotsurvfnm( fp.fullPath() );
     SafeFileIO sfio( dotsurvfnm, false );
     if ( !sfio.open(false) )
@@ -1121,7 +1125,7 @@ bool SurveyInfo::write( const char* basedir ) const
 	return false;
     }
 
-    fp.set( basedir ).add( diskloc_.dirname_ );
+    fp.set( basedir ).add( diskloc_.dirName() );
     const BufferString savedir( fp.fullPath() );
     saveDefaultPars( savedir );
     saveComments( savedir );

@@ -20,31 +20,33 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "filemonitor.h"
 #include "survinfo.h"
-#include "oddirs.h"
+
+uiSurveySelect::uiSurveySelect( uiParent* p, bool al )
+    : uiSurveySelect(p,SurveyDiskLocation(),al)
+{
+}
 
 
-
-uiSurveySelect::uiSurveySelect( uiParent* p, bool al, const char* dr,
-				const char* survdirnm )
+uiSurveySelect::uiSurveySelect( uiParent* p, const SurveyDiskLocation& sdl,
+				bool al )
     : uiGroup(p,"Survey selector")
-    , dataroot_(dr ? dr : GetBaseDataDir())
+    , dataroot_(sdl.basePath())
+    , defsurvdirnm_(sdl.dirName())
     , filemonitor_(0)
     , topsep_(0)
     , survDirChg(this)
     , survParsChg(this)
     , survDirAccept(this)
 {
+    if ( defsurvdirnm_.isEmpty() )
+	defsurvdirnm_ = SI().dirName();
+
     datarootfld_ = new uiDataRootSel( this, dataroot_ );
     maingrp_ = new uiGroup( this, "Main group" );
     survselgrp_ = new uiGroup( maingrp_, "Survey selection group" );
 
     uiListBox::Setup lbsu( OD::ChooseOnlyOne, uiStrings::sSurvey() );
     survdirfld_ = new uiListBox( survselgrp_, lbsu );
-    updateList();
-    BufferString defsurvdirnm( survdirnm );
-    if ( defsurvdirnm.isEmpty() )
-	defsurvdirnm = SI().getDirName();
-    setSurveyDirName( defsurvdirnm );
     survdirfld_->setHSzPol( uiObject::WideVar );
     survdirfld_->setStretch( 2, 2 );
     survselgrp_->setHAlignObj( survdirfld_ );
@@ -62,9 +64,7 @@ uiSurveySelect::uiSurveySelect( uiParent* p, bool al, const char* dr,
 	maingrp_->attach( ensureBelow, topsep_ );
     }
 
-    mAttachCB( datarootfld_->selectionChanged, uiSurveySelect::dataRootChgCB );
-    mAttachCB( survdirfld_->selectionChanged, uiSurveySelect::survDirChgCB );
-    mAttachCB( survdirfld_->doubleClicked, uiSurveySelect::survDirAcceptCB );
+    mAttachCB( postFinalise(), uiSurveySelect::initGrp );
 }
 
 
@@ -72,6 +72,7 @@ uiSurveySelect::~uiSurveySelect()
 {
     stopFileMonitoring();
     detachAllNotifiers();
+    deepErase( excludes_ );
 }
 
 
@@ -102,33 +103,58 @@ SurveyDiskLocation uiSurveySelect::surveyDiskLocation() const
 
 void uiSurveySelect::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
 {
-    datarootfld_->setDir( sdl.basepath_ );
+    datarootfld_->setDir( sdl.basePath() );
     updateList();
-    survdirfld_->setCurrentItem( sdl.dirname_ );
+    setSurveyDirName( sdl.dirName() );
 }
 
 
 void uiSurveySelect::setSurveyDirName( const char* survdirnm )
 {
-    if ( survdirnm && *survdirnm )
-	survdirfld_->setCurrentItem( survdirnm );
+    defsurvdirnm_ = survdirnm;
+    if ( finalised() && !defsurvdirnm_.isEmpty() )
+	survdirfld_->setCurrentItem( defsurvdirnm_ );
+}
+
+
+void uiSurveySelect::addExclude( const SurveyDiskLocation& sdl )
+{
+    excludes_ += new SurveyDiskLocation( sdl );
+    if ( finalised() )
+	updateList();
 }
 
 
 void uiSurveySelect::updateList()
 {
     stopFileMonitoring();
+
     NotifyStopper ns( survdirfld_->selectionChanged );
 
-    const BufferString prevsel( survdirfld_->getText() );
+    BufferString prevsel( survdirfld_->getText() );
+    if ( prevsel.isEmpty() )
+	prevsel = defsurvdirnm_;
+
     survdirfld_->setEmpty();
-    BufferStringSet dirlist; uiSurvey::getDirectoryNames( dirlist, false,
-							  dataroot_ );
-    survdirfld_->addItems( dirlist.getUiStringSet() );
+    BufferStringSet dirlist;
+    uiSurvey::getDirectoryNames( dirlist, false, dataroot_ );
+    for ( int idx=0; idx<excludes_.size(); idx++ )
+    {
+	const SurveyDiskLocation& sdl = *excludes_[idx];
+	if ( sdl.basePath() == dataroot_ )
+	{
+	    const int idxof = dirlist.indexOf( sdl.dirName() );
+	    if ( idxof >= 0 )
+		dirlist.removeSingle( idxof );
+	}
+    }
+    survdirfld_->addItems( dirlist );
 
     if ( !survdirfld_->isEmpty() )
     {
 	int newselidx = survdirfld_->indexOf( prevsel );
+	if ( newselidx < 0 )
+	    newselidx = survdirfld_->indexOf( defsurvdirnm_ );
 	if ( newselidx < 0 )
 	    newselidx = 0;
 	survdirfld_->setCurrentItem( newselidx );
@@ -160,6 +186,16 @@ void uiSurveySelect::stopFileMonitoring()
 {
     delete filemonitor_;
     filemonitor_ = 0;
+}
+
+
+void uiSurveySelect::initGrp( CallBacker* )
+{
+    updateList();
+
+    mAttachCB( datarootfld_->selectionChanged, uiSurveySelect::dataRootChgCB );
+    mAttachCB( survdirfld_->selectionChanged, uiSurveySelect::survDirChgCB );
+    mAttachCB( survdirfld_->doubleClicked, uiSurveySelect::survDirAcceptCB );
 }
 
 

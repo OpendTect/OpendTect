@@ -17,6 +17,12 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "iopar.h"
 
+const SurveyDiskLocation& SurveyDiskLocation::currentSurvey()
+{
+    static SurveyDiskLocation empty;
+    return empty;
+}
+
 
 SurveyDiskLocation::SurveyDiskLocation( const char* dirnm, const char* bp )
     : dirname_(dirnm)
@@ -33,20 +39,31 @@ SurveyDiskLocation::SurveyDiskLocation( const File::Path& fp )
 
 bool SurveyDiskLocation::operator ==( const SurveyDiskLocation& oth ) const
 {
-    const bool iscur = isCurrentSurvey();
-    if ( iscur != oth.isCurrentSurvey() )
-	return false;
-    if ( iscur )
-	return true;
+    const bool isempty = isEmpty();
+    const bool othisempty = oth.isEmpty();
+    if ( isempty || othisempty )
+	return isempty == othisempty;
 
-    return basepath_ == oth.basepath_ && dirname_ == oth.dirname_;
+    return basePath() == oth.basePath() && dirName() == oth.dirName();
+}
+
+
+BufferString SurveyDiskLocation::basePath() const
+{
+    return basepath_.isEmpty() ? SI().basePath() : basepath_;
+}
+
+
+BufferString SurveyDiskLocation::dirName() const
+{
+    return dirname_.isEmpty() ? SI().dirName() : dirname_;
 }
 
 
 void SurveyDiskLocation::set( const char* fullpath )
 {
     if ( !fullpath || !*fullpath )
-	setCurrentSurvey();
+	setEmpty();
     else
 	set( File::Path(fullpath) );
 }
@@ -61,16 +78,7 @@ void SurveyDiskLocation::set( const File::Path& fp )
 
 bool SurveyDiskLocation::isCurrentSurvey() const
 {
-    if ( basepath_.isEmpty() && dirname_.isEmpty() )
-	return true;
-
-    SurveyDiskLocation cursdl;
-    cursdl.setCurrentSurvey();
-
-    if ( !basepath_.isEmpty() && basepath_ != cursdl.basepath_ )
-	return false;
-
-    return dirname_ == cursdl.dirname_;
+    return isEmpty() || *this == currentSurvey();
 }
 
 
@@ -86,12 +94,16 @@ void SurveyDiskLocation::setEmpty()
     basepath_.setEmpty();
 }
 
-void SurveyDiskLocation::setCurrentSurvey( bool hard )
+
+void SurveyDiskLocation::setToCurrentSurvey( bool hard )
 {
-    if ( hard )
-	set( File::Path(SI().getBasePath(),SI().getDirName()) );
-    else
+    if ( !hard )
 	setEmpty();
+    else
+    {
+	basepath_ = currentSurvey().basePath();
+	dirname_ = currentSurvey().dirName();
+    }
 }
 
 
@@ -99,12 +111,10 @@ void SurveyDiskLocation::ensureHardPath()
 {
     if ( hasSoftPath() )
     {
-	SurveyDiskLocation sdl;
-	sdl.setCurrentSurvey();
 	if ( basepath_.isEmpty() )
-	    basepath_ = sdl.basepath_;
+	    basepath_ = currentSurvey().basePath();
 	if ( dirname_.isEmpty() )
-	    dirname_ = sdl.dirname_;
+	    dirname_ = currentSurvey().dirName();
     }
 }
 
@@ -113,11 +123,9 @@ void SurveyDiskLocation::softenPath()
 {
     if ( !basepath_.isEmpty() || !dirname_.isEmpty() )
     {
-	SurveyDiskLocation sdl;
-	sdl.setCurrentSurvey();
-	if ( basepath_ == sdl.basepath_ )
+	if ( basepath_ == currentSurvey().basePath() )
 	    basepath_.setEmpty();
-	if ( dirname_ == sdl.dirname_ )
+	if ( dirname_ == currentSurvey().dirName() )
 	    dirname_.setEmpty();
     }
 }
@@ -125,17 +133,7 @@ void SurveyDiskLocation::softenPath()
 
 BufferString SurveyDiskLocation::fullPath() const
 {
-    if ( hasSoftPath() )
-    {
-	SurveyDiskLocation sdl( *this );
-	sdl.ensureHardPath();
-	if ( sdl.hasSoftPath() ) // Avoid infinite recursion
-	    return BufferString::empty();
-
-	return sdl.fullPath();
-    }
-
-    return File::Path( basepath_, dirname_ ).fullPath();
+    return File::Path( basePath(), dirName() ).fullPath();
 }
 
 
@@ -143,10 +141,8 @@ BufferString SurveyDiskLocation::fullPathFor( const char* fnm ) const
 {
     if ( !fnm || !*fnm )
 	return fullPath();
-    else if ( hasSoftPath() )
-	return File::Path( fullPath(), fnm ).fullPath();
 
-    return File::Path( basepath_, dirname_, fnm ).fullPath();
+    return File::Path( basePath(), dirName(), fnm ).fullPath();
 }
 
 

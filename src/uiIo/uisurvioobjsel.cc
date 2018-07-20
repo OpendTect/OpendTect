@@ -153,7 +153,7 @@ void uiSurvIOObjSelGroup::selSurvFromSelection()
     const DBKey& firstdbky = seldbkys_.first();
     const SurveyDiskLocation& sdl = firstdbky.surveyDiskLocation();
     if ( sdl != surveyDiskLocation() )
-	survsel_->setSurveyDirName( sdl.dirname_ );
+	survsel_->setSurveyDirName( sdl.dirName() );
 }
 
 

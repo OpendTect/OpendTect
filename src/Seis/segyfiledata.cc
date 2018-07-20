@@ -190,11 +190,9 @@ bool SEGY::FileDataSet::usePar( const IOPar& par )
 	File::Path filepath( filenm );
 	if ( !filepath.isAbsolute() )
 	{
-	    File::Path absolutepath( GetBaseDataDir() );
-	    absolutepath.add( SI().getDirName() );
-	    absolutepath.add( filenm );
-	    if ( File::exists( absolutepath.fullPath().str() ) )
-		filenm = absolutepath.fullPath().str();
+	    const BufferString absfnm = SI().diskLocation().fullPathFor(filenm);
+	    if ( File::exists( absfnm ) )
+		filenm = absfnm;
 	}
 
 	od_int64 filesz;
@@ -231,10 +229,6 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
     par.set( sKeyNrStanzas, nrstanzas_ );
     par.set( sKeyNrUsable, nrusable_ );
     Seis::putInPar( geom_, par );
-
-    File::Path survdirname( GetBaseDataDir() );
-    survdirname.add( SI().getDirName() );
-    survdirname.makeCanonical();
 
     for ( int ifile=0; ifile<nrfiles; ifile++ )
     {

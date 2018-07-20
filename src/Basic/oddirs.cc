@@ -123,7 +123,7 @@ mExternC(Basic) const char* GetDataDir()
     if ( !basedir || !*basedir )
 	return 0;
 
-    BufferString survnm = SI().getDirName();
+    BufferString survnm = SI().dirName();
     if ( survnm.isEmpty() )
 	survnm = "_no_current_survey_";
 

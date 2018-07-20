@@ -248,11 +248,11 @@ public:
     static const char*	sSetupFileName()		{ return ".survey"; }
     static const char*	sBasicSurveyName()		{ return "BasicSurvey";}
 
-    mImplSimpleMonitoredGetSet(inline,getDirName,setDirName,
-				BufferString,diskloc_.dirname_,cSetupChange());
-    mImplSimpleMonitoredGetSet(inline,getBasePath,setBasePath,
-				BufferString,diskloc_.basepath_,cSetupChange());
+    BufferString	dirName() const	{ return diskLocation().dirName(); }
+    BufferString	basePath() const { return diskLocation().basePath(); }
     BufferString	getFullDirPath() const;
+    mImplSimpleMonitoredGetSet(inline,diskLocation,setDiskLocation,
+				SurveyDiskLocation,diskloc_,cSetupChange());
     static BufferString	dirNameForName(const char*);
 
     Pol2D3D		survDataType() const;
@@ -302,7 +302,7 @@ public:
     mDeprecated IOPar&		getPars() const
 				{ return const_cast<IOPar&>(defpars_); }
     mDeprecated BufferString	getDataDirName() const
-				{ return getBasePath();}
+				{ return basePath();}
 
     mDeprecated void		setRange( const TrcKeyZSampling& cs, bool work )
 				{ work ? setWorkRange(cs) : setRange(cs); }

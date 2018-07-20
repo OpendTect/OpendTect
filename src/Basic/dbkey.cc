@@ -357,7 +357,7 @@ FullDBKey& FullDBKey::operator =( const DBKey& dbky )
 
 	DBKey::operator =( dbky );
 	if ( !survloc_.isCurrentSurvey() )
-	    survloc_.setCurrentSurvey();
+	    survloc_.setToCurrentSurvey();
     }
     return *this;
 }

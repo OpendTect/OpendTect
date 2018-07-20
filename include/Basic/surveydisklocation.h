@@ -37,8 +37,10 @@ public:
     bool		operator !=( const SurveyDiskLocation& oth ) const
 			{ return !(*this == oth); }
 
-    BufferString	basepath_;	//!< The 'data root'
-    BufferString	dirname_;	//!< The subdirectory name
+    BufferString	basePath() const;
+    void		setBasePath( const char* bp )	{ basepath_ = bp; }
+    BufferString	dirName() const;
+    void		setDirName( const char* dn )	{ dirname_ = dn; }
 
     void		set(const char* fullpath);
     void		set(const File::Path&);
@@ -47,7 +49,7 @@ public:
     BufferString	fullPathFor(const char* fnm) const;
 
     bool		isCurrentSurvey() const;
-    void		setCurrentSurvey(bool hard=true);
+    void		setToCurrentSurvey(bool hard=true);
 
     bool		isEmpty() const;    //!< current survey, soft path
     void		setEmpty();	    //!< current survey, soft path
@@ -55,5 +57,12 @@ public:
 			{ return basepath_.isEmpty() || dirname_.isEmpty(); }
     void		ensureHardPath();
     void		softenPath();
+
+    static const SurveyDiskLocation&	currentSurvey();
+
+protected:
+
+    BufferString	basepath_;	//!< The 'data root'
+    BufferString	dirname_;	//!< The subdirectory name
 
 };

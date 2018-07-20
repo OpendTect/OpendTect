@@ -37,7 +37,7 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurveyManager* uisurv )
     hghtfld_ = new uiGenInput( this, tr("Border height"), FloatInpSpec(500) );
     hghtfld_->attach( alignedBelow, lsfld_ );
 
-    File::Path deffp( GetBaseDataDir(), si_->getDirName() );
+    File::Path deffp( SurveyDiskLocation::currentSurvey().fullPath() );
     deffp.add( "survbounds" ).setExtension( "kml" );
     uiFileSel::Setup fssu( OD::HtmlContent, deffp.fullPath() );
     fssu.setForWrite().setFormat( kmlFileuiString(), "kml" );

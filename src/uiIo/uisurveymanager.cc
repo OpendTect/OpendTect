@@ -127,7 +127,7 @@ bool acceptOK()
 				survdirtocopy, targetpathfld_->fileName() );
     if ( newsi )
     {
-	survdirname_.set( newsi->getDirName() );
+	survdirname_.set( newsi->dirName() );
 	delete newsi;
 	return true;
     }
@@ -658,7 +658,7 @@ void uiSurveyManager::putToScreen()
     zinfo += " - "; mAdd2ZString( si.zRange(false).step );
     survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
-    File::Path fp( si.getBasePath(), si.getDirName() );
+    File::Path fp( si.basePath(), si.dirName() );
     fp.makeCanonical();
     locinfo.add( fp.fullPath() );
 

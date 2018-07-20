@@ -50,7 +50,7 @@ int main( int argc, char ** argv )
 
     if ( !createmode )
     {
-	survdir = normargs.size() > 0 ? normargs.get( 0 ) : SI().getDirName();
+	survdir = normargs.size() > 0 ? normargs.get( 0 ) : SI().dirName();
 	fullsurvpath = File::Path( dataroot, survdir ).fullPath();
 	if ( !File::exists(fullsurvpath) )
 	    mErrRet( BufferString( "Passed survey directory does not exist:\n",

@@ -144,7 +144,7 @@ uiRetVal DBMan::setDataSource( const char* dr, const char* sd, bool frcrefresh )
     mLock2Write();
     survdir_.set( newdirnm );
     rv = doReRead();
-    SetBaseDataDir( SI().getBasePath() );
+    SetBaseDataDir( SI().basePath() );
     mUnlockAllAccess();
     if ( !rv.isOK() )
 	return rv; // disaster ...

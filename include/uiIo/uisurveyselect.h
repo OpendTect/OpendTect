@@ -19,18 +19,27 @@ class uiSeparator;
 namespace File { class Monitor; }
 
 
+/*!\brief selects a survey, possibly in another data root.
+
+ The 'align' parameter in the constructor determines whether the 'data root'
+ field and the 'survey directory' fields will be aligned, or just
+ ensureBelow-ed, with a separator between them.
+ */
+
 mExpClass(uiIo) uiSurveySelect : public uiGroup
 { mODTextTranslationClass(uiSurveySelect);
 public:
 
-			uiSurveySelect(uiParent*,bool align=true,
-				const char* survnm=0,const char* dataroot=0);
+			uiSurveySelect(uiParent*,bool align=true);
+			uiSurveySelect(uiParent*,const SurveyDiskLocation&,
+					bool align=true);
 			~uiSurveySelect();
 
     bool		validSelection() const;
     SurveyDiskLocation	surveyDiskLocation() const;
     void		setSurveyDiskLocation(const SurveyDiskLocation&);
     void		setSurveyDirName(const char*);
+    void		addExclude(const SurveyDiskLocation&);
     BufferString	getDirName() const;
     BufferString	getFullDirPath() const;
 
@@ -42,6 +51,8 @@ protected:
 
     BufferString	dataroot_;
     File::Monitor*	filemonitor_;
+    BufferString	defsurvdirnm_;
+    ObjectSet<SurveyDiskLocation> excludes_;
 
     uiDataRootSel*	datarootfld_;
     uiGroup*		maingrp_;
@@ -52,6 +63,8 @@ protected:
     void		updateList();
     void		startFileMonitoring();
     void		stopFileMonitoring();
+
+    void		initGrp(CallBacker*);
     void		dataRootChgCB(CallBacker*);
     void		survDirChgCB(CallBacker*);
     void		survParFileChg(CallBacker*);

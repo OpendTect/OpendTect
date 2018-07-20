@@ -222,8 +222,8 @@ bool uiUserCreateSurvey::acceptOK()
 
     const BufferString survnm = survName();
     survinfo_->setName( survnm );
-    survinfo_->setDirName( SurveyInfo::dirNameForName(survnm) );
-    survinfo_->setBasePath( dataroot_ );
+    SurveyDiskLocation sdl( SurveyInfo::dirNameForName(survnm), dataroot_ );
+    survinfo_->setDiskLocation( sdl );
     survinfo_->setSurvDataType( pol2D3D() );
     survinfo_->setZUnit( isTime(), isInFeet() );
     survinfo_->setSipName( sipName() );
@@ -285,5 +285,5 @@ BufferString uiUserCreateSurvey::dirName() const
     if ( !survinfo_ )
 	return BufferString::empty();
     else
-	return survinfo_->getDirName();
+	return survinfo_->dirName();
 }

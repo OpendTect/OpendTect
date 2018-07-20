@@ -155,7 +155,7 @@ bool uiSurvey::zipDirectory( uiParent* par, const char* sdn,
 {
     BufferString survdirnm( sdn );
     if ( survdirnm.isEmpty() )
-	survdirnm = SI().getDirName();
+	survdirnm = SI().dirName();
     File::Path survfp( GetBaseDataDir(), survdirnm );
     BufferString inpdir( survfp.fullPath() );
     while ( File::isDirectory(inpdir) && File::isLink(inpdir) )
@@ -267,7 +267,8 @@ SurveyInfo* uiSurvey::copySurvey( uiParent* uiparent, const char* survnm,
     if ( uirv.isOK() )
     {
 	survinfo->setName( survnm );
-	survinfo->setDirName( SurveyInfo::dirNameForName(survnm) );
+	const SurveyDiskLocation sdl( SurveyInfo::dirNameForName(survnm) );
+	survinfo->setDiskLocation( sdl );
 	survinfo->write( todir );
     }
     else
