@@ -7,6 +7,11 @@
 set( QTDIR "" CACHE PATH "QT Location" )
 option ( OD_NO_QT "Turn off all QT" NO )
 
+if ( NOT DEFINED QTDIR )
+    message( "QTDIR is not defined" )
+    return()
+endif()
+
 ##Create launcher for linguist
 set( LINGUIST_LAUNCHER "CMakeModules/templates/linguist.csh.in" )
 if ( EXISTS ${LINGUIST_LAUNCHER} )
