@@ -39,24 +39,19 @@ SurveyDiskLocation::SurveyDiskLocation( const File::Path& fp )
 
 bool SurveyDiskLocation::operator ==( const SurveyDiskLocation& oth ) const
 {
-    const bool isempty = isEmpty();
-    const bool othisempty = oth.isEmpty();
-    if ( isempty || othisempty )
-	return isempty == othisempty;
-
     return basePath() == oth.basePath() && dirName() == oth.dirName();
 }
 
 
 BufferString SurveyDiskLocation::basePath() const
 {
-    return basepath_.isEmpty() ? SI().basePath() : basepath_;
+    return basepath_.isEmpty() ? SI().diskLocation().basepath_ : basepath_;
 }
 
 
 BufferString SurveyDiskLocation::dirName() const
 {
-    return dirname_.isEmpty() ? SI().dirName() : dirname_;
+    return dirname_.isEmpty() ? SI().diskLocation().dirname_ : dirname_;
 }
 
 
