@@ -104,6 +104,7 @@ SurveyDiskLocation uiSurveySelect::surveyDiskLocation() const
 void uiSurveySelect::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
 {
     datarootfld_->setDir( sdl.basePath() );
+    defsurvdirnm_ = sdl.dirName();
     updateList();
     setSurveyDirName( sdl.dirName() );
 }

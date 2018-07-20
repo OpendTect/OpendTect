@@ -164,10 +164,9 @@ void uiSurvIOObjSelGroup::selSurvFromSelection()
     if ( seldbkys_.isEmpty() )
 	return;
 
-    const DBKey& firstdbky = seldbkys_.first();
-    const SurveyDiskLocation& sdl = firstdbky.surveyDiskLocation();
-    if ( sdl != surveyDiskLocation() )
-	survsel_->setSurveyDirName( sdl.dirName() );
+    mDynamicCastGet( const FullDBKey*, fdbky, &seldbkys_.first() );
+    if ( fdbky && fdbky->surveyDiskLocation() != surveyDiskLocation() )
+	survsel_->setSurveyDiskLocation( fdbky->surveyDiskLocation() );
 }
 
 
@@ -199,7 +198,8 @@ void uiSurvIOObjSelGroup::setSelection()
 
 const IOObj* uiSurvIOObjSelGroup::ioObj( int idx ) const
 {
-    return ioobjs_.validIdx(idx) ? ioobjs_[idx] : 0;
+    const int ioobjidx = chosenidxs_.validIdx(idx) ? chosenidxs_[idx] : -1;
+    return ioobjs_.validIdx(ioobjidx) ? ioobjs_[ioobjidx] : 0;
 }
 
 
