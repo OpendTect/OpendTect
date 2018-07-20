@@ -96,6 +96,12 @@ Well::InfoCollector::~InfoCollector()
 }
 
 
+void Well::InfoCollector::setSurvey( const SurveyDiskLocation& sdl )
+{
+    survloc_ = sdl;
+}
+
+
 void Well::InfoCollector::getAllMarkerNames( BufferStringSet& nms ) const
 {
     nms.setEmpty();
@@ -110,6 +116,15 @@ void Well::InfoCollector::getAllMarkerNames( BufferStringSet& nms ) const
 }
 
 
+void Well::InfoCollector::getAllLogNames( BufferStringSet& nms ) const
+{
+    nms.setEmpty();
+    for ( auto lognms : logs_ )
+	for ( auto lognm : *lognms )
+	    nms.addIfNew( *lognm );
+}
+
+
 int Well::InfoCollector::nextStep()
 {
     if ( !direntries_ )
@@ -117,7 +132,10 @@ int Well::InfoCollector::nextStep()
 	direntries_ = new DBDirEntryList( mIOObjContext(Well), survloc_ );
 	totalnr_ = direntries_->size();
 	if ( totalnr_ < 1 )
+	{
 	    curmsg_ = tr("No wells");
+	    return Finished();
+	}
     }
 
     if ( curidx_ >= totalnr_ )

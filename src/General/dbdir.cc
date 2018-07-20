@@ -633,7 +633,7 @@ void DBDirEntryList::fill( const char* nmfilt )
     else
     {
 	File::Path fp( survloc_.fullPath() );
-	fp.add( IOObjContext::getDataDirName(ctxt_.stdseltype_) );
+	fp.add( IOObjContext::getDataDirName(ctxt_.stdseltype_,true) );
 	datadirnm = fp.fullPath();
 	dbdir = new DBDir( datadirnm );
     }

@@ -30,6 +30,9 @@ public:
 						bool selmulti=false);
 			~uiSurvIOObjSelGroup();
 
+    SurveyDiskLocation	surveyDiskLocation() const;
+    void		setSurvey(const SurveyDiskLocation&);
+
     void		setSelected(const DBKey&);
     void		setSelected(const DBKeySet&);
 
@@ -41,9 +44,9 @@ public:
     BufferString	mainFileName(int idx=0) const;
 
     const ObjectSet<IOObj>& objsInSurvey() const { return ioobjs_; }
-    SurveyDiskLocation	surveyDiskLocation() const;
 
     Notifier<uiSurvIOObjSelGroup>	dClicked;
+    Notifier<uiSurvIOObjSelGroup>	survChange;
     Notifier<uiSurvIOObjSelGroup>	selChange;
 
 protected:

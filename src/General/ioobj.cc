@@ -459,8 +459,14 @@ IOSubDir* IOSubDir::get( ascistream& strm, const char* dirnm )
 
 const char* IOSubDir::fullUserExpr( bool ) const
 {
-    mDeclStaticString( ret );
-    ret = File::Path(dirnm_,name()).fullPath();
+    File::Path fp( dirnm_ );
+    const BufferString fnm( fp.fileName() );
+    const BufferString mynm( name() );
+    if ( fnm == mynm )
+	return dirnm_;
+
+    static BufferString ret;
+    ret = fp.add( mynm ).fullPath();
     return ret.buf();
 }
 

@@ -153,6 +153,7 @@ public:
     od_int64		nrDone() const		{ return curidx_; }
     od_int64		totalNr() const		{ return totalnr_; }
 
+    const SurveyDiskLocation&	survey() const	{ return survloc_; }
     const DBKeySet&		ids() const	{ return ids_; }
     const ObjectSet<Info>&	infos() const	{ return infos_; }
 				//!< Same size as ids()
@@ -163,6 +164,7 @@ public:
     const Interval<float>	getTracksTVDRange() const {return trackstvdrg_;}
 
     void			getAllMarkerNames(BufferStringSet&) const;
+    void			getAllLogNames(BufferStringSet&) const;
 
 protected:
 

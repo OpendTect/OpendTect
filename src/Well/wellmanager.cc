@@ -147,7 +147,8 @@ RefManType Well::Manager::doFetch( const ObjID& id, const LoadReqs& lr,
 }
 
 
-bool Well::Manager::readReqData( ObjID id, Data& wd, const LoadReqs& lreq,
+bool Well::Manager::readReqData( const ObjID& id, Data& wd,
+				  const LoadReqs& lreq,
 				  uiRetVal& uirv ) const
 {
     Reader rdr( id, wd );

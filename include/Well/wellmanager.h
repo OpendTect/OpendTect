@@ -121,7 +121,7 @@ protected:
     virtual Saveable*	getSaver(const SharedObject&) const;
 
     template<class T> T	doFetch(const ObjID&,const LoadReqs&,uiRetVal&) const;
-    bool		readReqData(ObjID,Data&,const LoadReqs&,
+    bool		readReqData(const ObjID&,Data&,const LoadReqs&,
 				    uiRetVal&) const;
     Data*		gtData(IdxType) const;
 

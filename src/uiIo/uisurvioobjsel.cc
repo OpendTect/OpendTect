@@ -26,6 +26,7 @@ uiSurvIOObjSelGroup::uiSurvIOObjSelGroup( uiParent* p, const IOObjContext& ctxt,
     , ctxt_(*new IOObjContext(ctxt))
     , ismultisel_(selmulti)
     , dClicked(this)
+    , survChange(this)
     , selChange(this)
 {
     survsel_ = new uiSurveySelect( this );
@@ -74,6 +75,19 @@ void uiSurvIOObjSelGroup::selChgCB( CallBacker* )
 void uiSurvIOObjSelGroup::survSelCB( CallBacker* )
 {
     updGrp( false );
+    survChange.trigger();
+}
+
+
+void uiSurvIOObjSelGroup::setSurvey( const SurveyDiskLocation& sdl )
+{
+    if ( sdl == surveyDiskLocation() )
+	return;
+
+    seldbkys_.setEmpty();
+    survsel_->setSurveyDiskLocation( sdl );
+    if ( finalised() )
+	updGrp( false );
 }
 
 
@@ -166,7 +180,8 @@ void uiSurvIOObjSelGroup::setSelection()
     const SurveyDiskLocation sdl = surveyDiskLocation();
     for ( const auto dbky : seldbkys_ )
     {
-	if ( dbky->surveyDiskLocation() != sdl )
+	mDynamicCastGet( FullDBKey*, fdbky, dbky )
+	if ( fdbky && fdbky->surveyDiskLocation() != sdl )
 	    continue;
 
 	for ( int idx=0; idx<ioobjs_.size(); idx++ )
