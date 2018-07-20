@@ -383,7 +383,7 @@ uiMenu* uiODMenuMgr::add2D3DSingMultAsciiSubMenu( uiMenu* mnu,
 	ascmnu = addAsciiSubMenu( mnu, nm, icnm );
 	uiMenu* mnu2d = addSubMenu( ascmnu, uiStrings::s2D(), "2d" );
 	addAction( mnu2d, singstr, singic, id2dsing );
-	addAction( mnu2d, multstr, multic, id3dsing );
+	addAction( mnu2d, multstr, multic, id2dmult );
 	uiMenu* mnu3d = addSubMenu( ascmnu, uiStrings::s3D(), "3d" );
 	addAction( mnu3d, singstr, singic, id3dsing );
 	addAction( mnu3d, multstr, multic, id3dmult );
