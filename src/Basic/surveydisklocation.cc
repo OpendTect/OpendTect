@@ -129,6 +129,9 @@ BufferString SurveyDiskLocation::fullPath() const
     {
 	SurveyDiskLocation sdl( *this );
 	sdl.ensureHardPath();
+	if ( sdl.hasSoftPath() ) // Avoid infinite recursion
+	    return BufferString::empty();
+
 	return sdl.fullPath();
     }
 
