@@ -22,7 +22,7 @@ endmacro(ADD_TO_LIST_IF_NEW)
 
 #Try to find Qt5
 list ( APPEND CMAKE_PREFIX_PATH ${QTDIR} )
-find_package( Qt5Core QUIET )
+find_package( Qt5Core QUIET PATHS ${QTDIR} NO_DEFAULT_PATH )
 
 #Setup Qt5 Language tools
 if ( Qt5Core_FOUND )
