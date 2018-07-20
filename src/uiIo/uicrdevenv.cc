@@ -186,18 +186,18 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	    .isconsoleuiprog( true );
     OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
-    cl.execute( execpars );
+    const bool res = cl.execute( execpars );
 #else
     fp.add( "od_cr_dev_env" );
     BufferString cmd( "'", fp.fullPath() );
     cmd += "' '"; cmd += swdir;
     cmd += "' '"; cmd += workdirnm; cmd += "'";
-    system( cmd );
+    const bool res = system(cmd) == 0;
 #endif
 
     BufferString cmakefile =
 			File::Path(workdirnm).add("CMakeLists.txt").fullPath();
-    if ( !File::exists(cmakefile) )
+    if ( !res || !File::exists(cmakefile) )
 	mErrRet(tr("Creation seems to have failed"))
     else
 	uiMSG().message( tr("Creation seems to have succeeded.") );
