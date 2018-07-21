@@ -58,6 +58,7 @@ public:
 
     inline void		setEmpty()		{ strs_.setEmpty(); }
     virtual void	erase()			{ setEmpty(); }
+    bool		remove(const char*);
     void		removeSingle( idx_type i ) { strs_.removeSingle(i); }
     void		removeRange( idx_type i1, idx_type i2 )
 						{ strs_.removeRange(i1,i2); }

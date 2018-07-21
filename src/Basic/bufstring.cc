@@ -712,6 +712,17 @@ bool BufferStringSet::isSubsetOf( const BufferStringSet& bss ) const
 }
 
 
+bool BufferStringSet::remove( const char* itm )
+{
+    const idx_type idx = indexOf( itm );
+    if ( idx < 0 )
+	return false;
+
+    removeSingle( idx );
+    return true;
+}
+
+
 BufferStringSet& BufferStringSet::add( const char* s )
 {
     strs_.add( new BufferString(s) );
