@@ -30,6 +30,9 @@ public:
 
     void		setSelected(const DBKey&);
     void		setSelected(const DBKeySet&);
+    void		addExclude(const SurveyDiskLocation&);
+    void		excludeCurrentSurvey()
+			{ addExclude(SurveyDiskLocation::currentSurvey()); }
 
     int			nrSelected() const;
     const IOObj*	ioObj(int idx=0) const;

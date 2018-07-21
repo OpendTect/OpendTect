@@ -1060,6 +1060,7 @@ void uiAttribDescSetEd::importSetCB( CallBacker* )
 
     PtrMan<IOObjContext> ctxt = DescSet::getIOObjContext(true,is2D());
     uiSurvIOObjSelDlg objsel( this, *ctxt );
+    objsel.excludeCurrentSurvey();
     objsel.setHelpKey( mODHelpKey(mAttribDescSetEdimportSetHelpID) );
     if ( !objsel.go() )
 	return;

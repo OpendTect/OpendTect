@@ -32,6 +32,9 @@ public:
 
     SurveyDiskLocation	surveyDiskLocation() const;
     void		setSurvey(const SurveyDiskLocation&);
+    void		addExclude(const SurveyDiskLocation&);
+    void		excludeCurrentSurvey()
+			{ addExclude(SurveyDiskLocation::currentSurvey()); }
 
     void		setSelected(const DBKey&);
     void		setSelected(const DBKeySet&);

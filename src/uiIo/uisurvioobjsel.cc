@@ -108,6 +108,12 @@ void uiSurvIOObjSelGroup::setSelected( const DBKeySet& dbkys )
 }
 
 
+void uiSurvIOObjSelGroup::addExclude( const SurveyDiskLocation& sdl )
+{
+    survsel_->addExclude( sdl );
+}
+
+
 SurveyDiskLocation uiSurvIOObjSelGroup::surveyDiskLocation() const
 {
     return survsel_->surveyDiskLocation();
@@ -234,7 +240,7 @@ bool uiSurvIOObjSelGroup::evaluateInput()
 
 uiSurvIOObjSelDlg::uiSurvIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
 				      bool selmulti )
-    : uiDialog(p,Setup(tr("Get %1 from any survey")
+    : uiDialog(p,Setup(tr("Get %1 from another survey")
 			.arg(ctxt.objectTypeName()),
 			mNoDlgTitle,mODHelpKey(mSelObjFromOtherSurveyHelpID)))
 {
@@ -258,6 +264,12 @@ void uiSurvIOObjSelDlg::setSelected( const DBKeySet& dbkys )
 int uiSurvIOObjSelDlg::nrSelected() const
 {
     return selgrp_->nrSelected();
+}
+
+
+void uiSurvIOObjSelDlg::addExclude( const SurveyDiskLocation& sdl )
+{
+    selgrp_->addExclude( sdl );
 }
 
 

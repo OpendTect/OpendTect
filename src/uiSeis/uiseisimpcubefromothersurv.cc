@@ -90,6 +90,7 @@ void uiSeisImpCubeFromOtherSurveyDlg::interpSelDone( CallBacker* )
 void uiSeisImpCubeFromOtherSurveyDlg::cubeSel( CallBacker* )
 {
     uiSurvIOObjSelDlg objsel( this, uiSeisSel::ioContext( Seis::Vol, true ) );
+    objsel.excludeCurrentSurvey();
     if ( objsel.go() )
     {
 	if ( import_ )
