@@ -30,6 +30,7 @@
 #include "dbkey.h"
 #include "sorting.h"
 #include "envvars.h"
+#include "keystrs.h"
 #include "binidvalue.h"
 #include "surveydisklocation.h"
 
@@ -88,10 +89,13 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
 
 Well::InfoCollector::~InfoCollector()
 {
+    delete direntries_;
+
     deepErase( infos_ );
     deepErase( markers_ );
-    deepErase( logs_ );
-    delete direntries_;
+    deepErase( lognames_ );
+    deepErase( loguoms_ );
+
     delete &survloc_;
 }
 
@@ -119,7 +123,7 @@ void Well::InfoCollector::getAllMarkerNames( BufferStringSet& nms ) const
 void Well::InfoCollector::getAllLogNames( BufferStringSet& nms ) const
 {
     nms.setEmpty();
-    for ( auto lognms : logs_ )
+    for ( auto lognms : lognames_ )
 	for ( auto lognm : *lognms )
 	    nms.addIfNew( *lognm );
 }
@@ -176,9 +180,25 @@ int Well::InfoCollector::nextStep()
 
 	if ( dologs_ )
 	{
-	    BufferStringSet* lognms = new BufferStringSet;
-	    MGR().getLogNames( wky, *lognms );
-	    logs_ += lognms;
+	    ObjectSet<IOPar> iops;
+	    MGR().getLogInfo( wky, iops );
+
+	    auto* lognms = new BufferStringSet;
+	    auto* loguomset = new ObjectSet<const UnitOfMeasure>;
+	    loguomset->setNullAllowed( true );
+	    for ( auto iop : iops )
+	    {
+		const char* unstr = iop->find( sKey::Unit() );
+		const char* nmstr = iop->find( sKey::Name() );
+		if ( nmstr && *nmstr )
+		{
+		    lognms->add( nmstr );
+		    *loguomset += UnitOfMeasure::getGuessed( unstr );;
+		}
+	    }
+	    loguoms_ += loguomset;
+	    lognames_ += lognms;
+	    deepErase( iops );
 	}
     }
 

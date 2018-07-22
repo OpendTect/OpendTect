@@ -26,6 +26,7 @@ class DataPointSet;
 class IOObj;
 class DBDir;
 class DBDirEntryList;
+class UnitOfMeasure;
 template <class T> class Array2DImpl;
 
 
@@ -159,7 +160,10 @@ public:
 				//!< Same size as ids()
     const ObjectSet<MarkerSet>&	markers() const	{ return markers_; }
 				//!< If selected, same size as ids()
-    const ObjectSet<BufferStringSet>& logs() const { return logs_; }
+    const ObjectSet<BufferStringSet>& logs() const { return lognames_; }
+				//!< If selected, same size as ids()
+    const ObjectSet< ObjectSet<const UnitOfMeasure> >& logUnits() const
+				{ return loguoms_; }
 				//!< If selected, same size as ids()
     const Interval<float>	getTracksTVDRange() const {return trackstvdrg_;}
 
@@ -172,7 +176,8 @@ protected:
     DBKeySet			ids_;
     ObjectSet<Info>		infos_;
     ObjectSet<MarkerSet>	markers_;
-    ObjectSet<BufferStringSet>	logs_;
+    ObjectSet<BufferStringSet>	lognames_;
+    ObjectSet< ObjectSet<const UnitOfMeasure> > loguoms_;
     DBDirEntryList*		direntries_;
     int				totalnr_;
     int				curidx_;
