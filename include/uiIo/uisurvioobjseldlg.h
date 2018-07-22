@@ -28,6 +28,7 @@ public:
 			uiSurvIOObjSelDlg(uiParent*,const IOObjContext&,
 						bool selmulti=false);
 
+    void		setSurvey(const SurveyDiskLocation&);
     void		setSelected(const DBKey&);
     void		setSelected(const DBKeySet&);
     void		addExclude(const SurveyDiskLocation&);

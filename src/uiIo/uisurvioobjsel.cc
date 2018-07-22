@@ -249,6 +249,12 @@ uiSurvIOObjSelDlg::uiSurvIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
 }
 
 
+void uiSurvIOObjSelDlg::setSurvey( const SurveyDiskLocation& sdl )
+{
+    selgrp_->setSurvey( sdl );
+}
+
+
 void uiSurvIOObjSelDlg::setSelected( const DBKey& dbky )
 {
     selgrp_->setSelected( dbky );
