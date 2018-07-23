@@ -48,9 +48,7 @@ RefManType Pick::SetManager::doFetch( const ObjID& id, uiRetVal& uirv,
 	    uirv.add( uiStrings::phrCannotFindDBEntry(id) );
 	else
 	{
-	    uiString errmsg;
-	    ps = SetLoader::getSingleSet( *ioobj, errmsg, cat );
-	    uirv = errmsg;
+	    ps = SetLoader::getSingleSet( *ioobj, uirv, cat );
 	    return ps;
 	}
     }
@@ -64,7 +62,7 @@ RefManType Pick::SetManager::doFetch( const ObjID& id, uiRetVal& uirv,
 	return RefManType( gtSet(id) );		// now loaded
     }
 
-    uirv = loader.errMsgs();
+    uirv = loader.result();
     return RefManType( 0 );
 }
 

@@ -48,8 +48,8 @@ void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
     {
 	uiColorInput::Setup csu( Color::White(), su.wtransparency_ ?
 		uiColorInput::Setup::InSelector : uiColorInput::Setup::None );
-	csu.lbltxt( typefld_ ? uiStrings::sColor() : tr("Marker color") )
-	   .withdesc(false);
+	csu.lbltxt( typefld_ ? uiString::empty() : tr("Marker color") )
+	   .withdesc(true);
 	colorfld_ = new uiColorInput( this,  csu );
 	colorfld_->colorChanged.notify( mCB(this,uiMarkerStyle,changeCB) );
 	if ( typefld_ )

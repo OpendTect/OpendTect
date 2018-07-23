@@ -43,18 +43,18 @@ public:
     bool		allOK() const
 			{ return available_.size() == toload_.size(); }
 
-    const uiStringSet&	errMsgs() const		{ return errmsgs_; }
+    const uiRetVal&	result() const	{ return uirv_; }
     const DBKeySet& requested() const	{ return toload_; }
     const DBKeySet& available() const	{ return available_; }
 
-    static Pick::Set*	getSingleSet(const IOObj&,uiString&,const char* cat=0);
+    static Pick::Set*	getSingleSet(const IOObj&,uiRetVal&,const char* cat=0);
 
 protected:
 
     DBKeySet		toload_;
     BufferString	category_;
     mutable DBKeySet	available_;
-    mutable uiStringSet	errmsgs_;
+    mutable uiRetVal	uirv_;
     friend class	SetLoaderExec;
 
 };

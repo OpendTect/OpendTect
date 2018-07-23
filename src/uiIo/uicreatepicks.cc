@@ -131,9 +131,9 @@ bool uiNewPickSetDlg::acceptOK()
     defsize_ = set_->dispSize();
 
     SilentTaskRunnerProvider trprov;
-    uiString errmsg = Pick::SetMGR().store( *set_, trprov );
-    if ( !errmsg.isEmpty() )
-	mErrRet( errmsg )
+    uiRetVal uirv = Pick::SetMGR().store( *set_, trprov );
+    if ( !uirv.isOK() )
+	mErrRet( uirv )
 
     return true;
 }

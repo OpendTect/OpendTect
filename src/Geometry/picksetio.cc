@@ -127,15 +127,12 @@ uiRetVal Pick::SetSaver::doStore( const IOObj& ioobj,
     if ( !ps )
 	return uiRetVal::OK();
 
-    uiString errmsg;
     RefMan<Set> copiedset = new Set( *ps );
-    if ( !PickSetTranslator::store(*copiedset,&ioobj,errmsg) )
-	return uiRetVal( errmsg );
-
-    if ( storeIsSave(ioobj) )
+    uirv = PickSetTranslator::store( *copiedset, ioobj );
+    if ( uirv.isOK() && storeIsSave(ioobj) )
 	ps.getNonConstPtr()->setName( ioobj.name() );
 
-    return uiRetVal::OK();
+    return uirv;
 }
 
 
@@ -151,11 +148,12 @@ Pick::SetLoader::SetLoader( const DBKeySet& kys )
 }
 
 
-Pick::Set* Pick::SetLoader::getSingleSet( const IOObj& ioobj, uiString& errmsg,
+Pick::Set* Pick::SetLoader::getSingleSet( const IOObj& ioobj, uiRetVal& uirv,
 					  const char* cat )
 {
     Pick::Set* ps = new Pick::Set( 0, cat );
-    if ( !PickSetTranslator::retrieve(*ps,&ioobj,errmsg) )
+    uirv = PickSetTranslator::retrieve( *ps, ioobj );
+    if ( !uirv.isOK() )
 	unRefAndZeroPtr( ps );
     return ps;
 }
@@ -174,7 +172,7 @@ SetLoaderExec( const Pick::SetLoader& ldr )
     , curidx_(-1)
 {
     loader_.available_.setEmpty();
-    loader_.errmsgs_.setEmpty();
+    loader_.uirv_.setEmpty();
 }
 
 virtual od_int64 nrDone() const
@@ -228,11 +226,10 @@ int Pick::SetLoaderExec::nextStep()
 	return MoreToDo();
     }
 
-    uiString errmsg;
-    Pick::Set* ps = SetLoader::getSingleSet( *ioobj, errmsg, loader_.category_);
+    uiRetVal uirv;
+    Pick::Set* ps = SetLoader::getSingleSet( *ioobj, uirv, loader_.category_);
     if ( !ps )
-	loader_.errmsgs_.add( toUiString("[%1]: %2").arg(ioobj->name())
-						    .arg(errmsg) );
+	loader_.uirv_.add( uirv );
     else
     {
 	if ( psmgr.isLoaded(id) ) // check, someone may have beat me to it

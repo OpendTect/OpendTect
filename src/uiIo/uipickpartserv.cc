@@ -281,16 +281,9 @@ bool uiPickPartServer::doLoadSets( DBKeySet& psids )
     taskrunner.execute( *ldrexec );
     delete ldrexec;
     psids = psloader.available();
-    const int nrerrmsg = psloader.errMsgs().size();
-    if ( !psloader.allOK() && nrerrmsg>0 )
-    {
-	const int nrps = psloader.requested().size();
-	uiMSG().errorWithDetails( psloader.errMsgs(),
-		tr("%1 occurred while loading %2")
-			.arg( uiStrings::sProblem(nrerrmsg) )
-			.arg( uiStrings::sPointSet(nrps) ) );
-	return false;
-    }
+    const uiRetVal uirv = psloader.result();
+    if ( !uirv.isOK() )
+	{ uiMSG().error( uirv ); return false; }
 
     return true;
 }

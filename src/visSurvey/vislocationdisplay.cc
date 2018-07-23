@@ -380,10 +380,10 @@ void LocationDisplay::handleMouseUp( const EventInfo& evinfo,
 	    Coord3 newpos, normal;
 	    if ( getPickSurface(evinfo,newpos,normal) )
 	    {
-		const Sphere dir = normal.isDefined()
+		const Sphere dir = normal.isDefined() && hasDirection()
 		    ? cartesian2Spherical(
 			    Coord3(normal.y_,-normal.x_,normal.z_), true)
-		    : Sphere( 1, 0, 0 );
+		    : Sphere::nullSphere();
 
 		LocID locid = addPick( newpos, dir );
 		if ( locid.isValid() )

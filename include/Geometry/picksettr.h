@@ -37,17 +37,17 @@ mExpClass(Geometry) PickSetTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(PickSet)
 
-    static bool		retrieve(Pick::Set&,const IOObj*,uiString&);
-    static bool		store(const Pick::Set&,const IOObj*,uiString&);
+    static uiRetVal	retrieve(Pick::Set&,const IOObj&);
+    static uiRetVal	store(const Pick::Set&,const IOObj&);
 
     static bool		isPolygon(const IOObj&);
     static BufferString	getCategory(const IOObj&,Pick::Set* ps=0);
 
 protected:
 
-    virtual uiString	read(Pick::Set&,Conn&)				= 0;
+    virtual uiRetVal	read(Pick::Set&,const IOObj&)		= 0;
 			//!< returns err msg or null on success
-    virtual uiString	write(const Pick::Set&,Conn&)			= 0;
+    virtual uiRetVal	write(const Pick::Set&,const IOObj&)	= 0;
 			//!< returns err msg or null on success
 };
 
@@ -61,7 +61,8 @@ public:
     const char*		defExtension() const;
 
 protected:
-    uiString		read(Pick::Set&,Conn&);
-    uiString		write(const Pick::Set&,Conn&);
+
+    uiRetVal		read(Pick::Set&,const IOObj&);
+    uiRetVal		write(const Pick::Set&,const IOObj&);
 
 };

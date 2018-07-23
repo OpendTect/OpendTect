@@ -88,39 +88,28 @@ static bool getIsPolygon( const IOObj& ioobj, bool& ispoly )
 }
 
 
-bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
-				  uiString& errmsg )
+uiRetVal PickSetTranslator::retrieve( Pick::Set& ps, const IOObj& ioobj )
 {
-    if ( !ioobj )
-	{ errmsg = uiStrings::phrCannotFindObjInDB(); return false; }
-
     mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
-		 ioobj->createTranslator());
+		 ioobj.createTranslator());
     if ( !tr )
-    {
-	errmsg = uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
-	return false;
-    }
-
-    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
-    if ( !conn )
-	{ errmsg = ioobj->phrCannotOpenObj(); return false; }
+	return uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
 
     ChangeNotifyBlocker cnb( ps );
 
-    errmsg = tr->read( ps, *conn );
-    if ( !errmsg.isEmpty() )
-	return false;
+    uiRetVal uirv = tr->read( ps, ioobj );
+    if ( uirv.isOK() )
+    {
+	if ( FixedString(ps.category()).isEmpty() )
+	    ps.setCategory( getCategory(ioobj,&ps) );
 
-    if ( FixedString(ps.category()).isEmpty() )
-	ps.setCategory( getCategory(*ioobj,&ps) );
+	bool ispoly = false;
+	if ( getIsPolygon(ioobj,ispoly) )
+	    ps.setIsPolygon( ispoly );
 
-    bool ispoly = false;
-    if ( getIsPolygon(*ioobj,ispoly) )
-	ps.setIsPolygon( ispoly );
-
-    ps.setName( ioobj->name() );
-    return true;
+	ps.setName( ioobj.name() );
+    }
+    return uirv;
 }
 
 
@@ -144,48 +133,36 @@ BufferString PickSetTranslator::getCategory( const IOObj& ioobj, Pick::Set* ps )
 }
 
 
-bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
-			       uiString& errmsg )
+uiRetVal PickSetTranslator::store( const Pick::Set& ps, const IOObj& ioobj )
 {
     ConstRefMan<Pick::Set> psrefman( &ps ); // keep it alive
-    if ( !ioobj )
-	{ errmsg = uiStrings::phrCannotFindObjInDB(); return false; }
-
     mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
-		 ioobj->createTranslator());
+		 ioobj.createTranslator());
     if ( !tr )
+	return uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
+
+    uiRetVal uirv = tr->write( ps, ioobj );
+    if ( uirv.isOK() )
     {
-	errmsg = uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
-	return false;
+	// Now make sure it gets a standard entry in the omf
+	bool needcommit = false;
+	const FixedString ioobjpstype = ioobj.pars().find(sKey::Type());
+	if ( ioobjpstype != ps.type() )
+	{
+	    ioobj.pars().set( sKey::Type(), ps.type() );
+	    needcommit = true;
+	}
+	const FixedString ioobjpscat = ioobj.pars().find( sKey::Category() );
+	if ( ioobjpscat != ps.category() )
+	{
+	    ioobj.pars().set( sKey::Category(), ps.category() );
+	    needcommit = true;
+	}
+
+	if ( needcommit )
+	    DBM().setEntry( ioobj );
     }
-
-    PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
-    if ( !conn )
-	{ errmsg = ioobj->phrCannotOpenObj(); return false; }
-
-    errmsg = tr->write( ps, *conn );
-    if ( !errmsg.isEmpty() )
-	{ conn->rollback(); return false; }
-
-    // Now that we have the set, make sure it gets a standard entry in the omf
-    bool needcommit = false;
-    const FixedString ioobjpstype = ioobj->pars().find(sKey::Type());
-    if ( ioobjpstype != ps.type() )
-    {
-	ioobj->pars().set( sKey::Type(), ps.type() );
-	needcommit = true;
-    }
-    const FixedString ioobjpscat = ioobj->pars().find( sKey::Category() );
-    if ( ioobjpscat != ps.category() )
-    {
-	ioobj->pars().set( sKey::Category(), ps.category() );
-	needcommit = true;
-    }
-
-    if ( needcommit )
-	DBM().setEntry( *ioobj );
-
-    return true;
+    return uirv;
 }
 
 
@@ -205,9 +182,11 @@ class dgbPickSetTranslatorBackEnd
 {
 public:
 
+			dgbPickSetTranslatorBackEnd( const char* fnm )
+			    : filenm_(fnm)		{}
     virtual		~dgbPickSetTranslatorBackEnd()	{}
-    virtual uiString	read(Pick::Set&)		= 0;
-    virtual uiString	write(const Pick::Set&)		= 0;
+    virtual uiRetVal	read(Pick::Set&)		= 0;
+    virtual uiRetVal	write(const Pick::Set&)		= 0;
 
 void fillPar( const Pick::Set& ps, IOPar& iop ) const
 {
@@ -216,19 +195,20 @@ void fillPar( const Pick::Set& ps, IOPar& iop ) const
 	     UnitOfMeasure::surveyDefZStorageUnit()->name() );
 }
 
+    const BufferString	filenm_;
+
 };
 
 
 class dgbPickSetTranslatorStreamBackEnd : public dgbPickSetTranslatorBackEnd
 {
 public:
-			dgbPickSetTranslatorStreamBackEnd( od_stream& strm )
-			    : strm_(strm)		{}
 
-    virtual uiString	read(Pick::Set&);
-    virtual uiString	write(const Pick::Set&);
+			dgbPickSetTranslatorStreamBackEnd( const char* fnm )
+			    : dgbPickSetTranslatorBackEnd(fnm)	    {}
 
-    od_stream&		strm_;
+    virtual uiRetVal	read(Pick::Set&);
+    virtual uiRetVal	write(const Pick::Set&);
 
 };
 
@@ -238,14 +218,13 @@ class dgbPickSetTranslatorHDF5BackEnd : public dgbPickSetTranslatorBackEnd
 public:
 
 			dgbPickSetTranslatorHDF5BackEnd( const char* fnm )
-			    : filenm_(fnm)		{}
+			    : dgbPickSetTranslatorBackEnd(fnm)	{}
 			~dgbPickSetTranslatorHDF5BackEnd()
 			{ delete rdr_; delete wrr_; }
 
-    virtual uiString	read(Pick::Set&);
-    virtual uiString	write(const Pick::Set&);
+    virtual uiRetVal	read(Pick::Set&);
+    virtual uiRetVal	write(const Pick::Set&);
 
-    const BufferString	filenm_;
     HDF5::DataSetKey	dsky_;
     HDF5::Reader*	rdr_		= 0;
     HDF5::Writer*	wrr_		= 0;
@@ -268,56 +247,38 @@ public:
 };
 
 
-uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
+uiRetVal dgbPickSetTranslator::read( Pick::Set& ps, const IOObj& ioobj )
 {
-    if ( !conn.forRead() || !conn.isStream() )
-	return uiStrings::phrCannotOpenInpFile();
-
-    od_istream& strm = ((StreamConn&)conn).iStream();
-    const BufferString fnm( strm.fileName() );
+    const BufferString fnm( ioobj.mainFileName() );
     bool usehdf5 = HDF5::isHDF5File( fnm );
 
-    dgbPickSetTranslatorBackEnd* be;
+    PtrMan<dgbPickSetTranslatorBackEnd> be;
     if ( !usehdf5 )
-	be = new dgbPickSetTranslatorStreamBackEnd( strm );
+	be = new dgbPickSetTranslatorStreamBackEnd( fnm );
     else
-    {
-	conn.close();
 	be = new dgbPickSetTranslatorHDF5BackEnd( fnm );
-    }
 
-    uiString ret = be->read( ps );
-    delete be;
-    return ret;
+    return be->read( ps );
 }
 
 
-uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
+uiRetVal dgbPickSetTranslator::write( const Pick::Set& ps, const IOObj& ioobj )
 {
-    if ( !conn.forWrite() || !conn.isStream() )
-	return uiStrings::phrCannotOpenOutpFile();
-
-    od_ostream& strm = ((StreamConn&)conn).oStream();
-
-    dgbPickSetTranslatorBackEnd* be;
+    PtrMan<dgbPickSetTranslatorBackEnd> be;
+    const BufferString fnm( ioobj.mainFileName() );
     if ( !wantHDF5() )
-	be = new dgbPickSetTranslatorStreamBackEnd( strm );
+	be = new dgbPickSetTranslatorStreamBackEnd( fnm );
     else
-    {
-	const BufferString fnm( strm.fileName() );
-	conn.close();
 	be = new dgbPickSetTranslatorHDF5BackEnd( fnm );
-    }
 
-    uiString ret = be->write( ps );
-    delete be;
-    return ret;
+    return be->write( ps );
 }
 
 
-uiString dgbPickSetTranslatorStreamBackEnd::read( Pick::Set& ps )
+uiRetVal dgbPickSetTranslatorStreamBackEnd::read( Pick::Set& ps )
 {
-    ascistream astrm( static_cast<od_istream&>(strm_) );
+    od_istream strm( filenm_ );
+    ascistream astrm( strm );
     if ( !astrm.isOK() )
 	return uiStrings::phrCannotOpenInpFile();
     else if ( !astrm.isOfFileType(mTranslGroupName(PickSet)) )
@@ -327,6 +288,7 @@ uiString dgbPickSetTranslatorStreamBackEnd::read( Pick::Set& ps )
     if ( atEndOfSection(astrm) )
 	return uiStrings::sNoValidData();
 
+    uiRetVal uirv;
     if ( astrm.hasKeyword("Ref") )
     {
 	Pick::Set::Disp disp;
@@ -384,13 +346,16 @@ uiString dgbPickSetTranslatorStreamBackEnd::read( Pick::Set& ps )
 	}
     }
 
-    return ps.size() ? uiString::empty() : uiStrings::sNoValidData();
+    if ( ps.isEmpty() )
+	uirv = uiStrings::sNoValidData();
+    return uirv;
 }
 
 
-uiString dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
+uiRetVal dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
 {
-    ascostream astrm( static_cast<od_ostream&>(strm_) );
+    od_ostream strm( filenm_ );
+    ascostream astrm( strm );
     astrm.putHeader( mTranslGroupName(PickSet) );
     if ( !astrm.isOK() )
 	return uiStrings::phrCannotOpenOutpFile();
@@ -398,7 +363,6 @@ uiString dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
     IOPar par; fillPar( ps, par );
     par.putTo( astrm );
 
-    od_ostream& strm = astrm.stream();
     Pick::SetIter psiter( ps );
     while ( psiter.next() )
     {
@@ -408,8 +372,11 @@ uiString dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
     }
 
     astrm.newParagraph();
-    return astrm.isOK() ? uiString::empty()
-			: uiStrings::phrCannotWrite( uiStrings::sPickSet() );
+    uiRetVal uirv;
+    if ( !astrm.isOK() )
+	uirv = uiStrings::phrCannotWrite( uiStrings::sPickSet() );
+
+    return uirv;
 }
 
 
@@ -557,7 +524,7 @@ void dgbPickSetTranslatorHDF5BackEnd::setGeomIDs( Pick::Set& ps,
 }
 
 
-uiString dgbPickSetTranslatorHDF5BackEnd::read( Pick::Set& ps )
+uiRetVal dgbPickSetTranslatorHDF5BackEnd::read( Pick::Set& ps )
 {
     rdr_ = HDF5::mkReader();
     if ( !rdr_ )
@@ -675,7 +642,7 @@ bool dgbPickSetTranslatorHDF5BackEnd::putGeomIDs( const Pick::Set& ps,
 }
 
 
-uiString dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
+uiRetVal dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
 {
     wrr_ = HDF5::mkWriter();
     if ( !wrr_ )
