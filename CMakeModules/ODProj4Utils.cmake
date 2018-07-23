@@ -21,6 +21,7 @@ macro( OD_ADD_PROJ4 )
     option ( BUILD_GEOD "Build GEOD module" OFF )
     option ( BUILD_GIE "Build GIE module" OFF )
     option ( BUILD_NAD2BIN "Build NAD2BIN module" OFF )
+    option ( PROJ_TESTS "Build Proj tests" OFF )
 
     add_subdirectory( ${CMAKE_SOURCE_DIR}/external/proj4 
 		  ${CMAKE_BINARY_DIR}/external/proj4 )
