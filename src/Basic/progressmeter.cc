@@ -36,7 +36,7 @@ void ProgressRecorder::reset()
     totalnr_ = -1;
     isstarted_ = isfinished_ = false;
     message_.setEmpty(); nrdonetext_.setEmpty();
-    // if ( forwardto_ ) forwardto_->reset();
+    // if ( forwardto_ && forwardto_ != this ) forwardto_->reset();
 }
 
 
@@ -45,12 +45,14 @@ void ProgressRecorder::reset()
 #define mImplProgressRecorderStartStopSetFn(nm,memb) \
 void ProgressRecorder::nm() \
     { mSetLock(); memb = true; \
-      if ( forwardto_ && !skipprog_ ) forwardto_->nm(); }
+      if ( forwardto_ && !skipprog_ && forwardto_ != this ) \
+	forwardto_->nm(); }
 mImplProgressRecorderStartStopSetFn(setStarted,isstarted_)
 mImplProgressRecorderStartStopSetFn(setFinished,isfinished_)
 #define mImplProgressRecorderSetFn(nm,typ,arg,memb) \
 void ProgressRecorder::nm( typ arg ) \
-    { mSetLock(); memb = arg; if ( forwardto_ ) forwardto_->nm( arg ); }
+    { mSetLock(); memb = arg; \
+      if ( forwardto_ && forwardto_ != this ) forwardto_->nm( arg ); }
 mImplProgressRecorderSetFn(setName,const char*,newnm,name_)
 mImplProgressRecorderSetFn(setTotalNr,od_int64,tnr,totalnr_)
 mImplProgressRecorderSetFn(setNrDone,od_int64,nr,nrdone_)
