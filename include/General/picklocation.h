@@ -51,8 +51,7 @@ public:
 			Location(double x,double y,double z=0);
 			Location(const Coord&,float z=0);
 			Location(const Coord3&);
-			Location(const Coord3& pos,const Coord3& dir);
-			Location(const Coord3& pos,const Sphere& dir);
+			Location(const Coord3&,const Sphere& direction);
 			Location(const Location&);
 			~Location();
 

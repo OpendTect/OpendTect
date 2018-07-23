@@ -57,19 +57,12 @@ Pick::Location::Location( const Coord3& c )
 }
 
 
-Pick::Location::Location( const Coord3& c, const Coord3& d )
-    : pos_(c)
-    , mInitPtrs
-{
-    dir_ = new Sphere( d );
-}
-
-
 Pick::Location::Location( const Coord3& c, const Sphere& d )
     : pos_(c)
     , mInitPtrs
 {
-    dir_ = new Sphere( d );
+    if ( !d.isNull() )
+	dir_ = new Sphere( d );
 }
 
 Pick::Location::Location( const Location& oth )

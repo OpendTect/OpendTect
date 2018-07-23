@@ -551,7 +551,7 @@ public:
 			Sphere(float r=0,float t=0,float p=0)
 			    : radius_(r),theta_(t),phi_(p)		{}
 
-			Sphere(const Coord3& crd)
+    explicit		Sphere(const Coord3& crd)
 			    : radius_((float) crd.x_),theta_((float) crd.y_)
 			    , phi_((float) crd.z_)		{}
     inline bool		operator ==(const Sphere&) const;

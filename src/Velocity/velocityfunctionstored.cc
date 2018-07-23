@@ -132,9 +132,8 @@ bool StoredFunctionSource::store( const DBKey& velid )
 	const BinID bid = veldata_.getBinID(arrpos);
 
 	const Coord3 pos( SI().transform(bid), vals[0] );
-	const Coord3 dir( vals[1], mUdf(float), mUdf(float) );
-	::Pick::Location pickloc( pos, dir );
-	ps->add( pickloc );
+	const Sphere dir( vals[1], mUdf(float), mUdf(float) );
+	ps->add( ::Pick::Location(pos,dir) );
     }
 
     IOPar psiop( ps->pars() );

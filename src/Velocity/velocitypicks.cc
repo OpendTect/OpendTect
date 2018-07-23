@@ -413,12 +413,12 @@ bool Picks::store( const IOObj* passedioobj )
 	    picks_.getPos(arrpos,bid);
 	    const Pick& pick = picks_.getRef( arrpos, 0 );
 	    const Coord3 pos( SI().transform(bid), pick.depth_ );
-	    const Coord3 dir( pick.vel_, pick.offset_, mUdf(float) );
+	    const Sphere dir( pick.vel_, pick.offset_, mUdf(float) );
 	    ::Pick::Location pickloc( pos, dir );
 
 	    const int idx = emids.indexOf(pick.emobjid_);
 	    if ( idx!=-1 )
-		pickloc.setText( BufferString("",idx) );
+		pickloc.setText( ::toString(idx) );
 
 	    ps->add( pickloc );
 	} while ( picks_.next(arrpos,false) );
