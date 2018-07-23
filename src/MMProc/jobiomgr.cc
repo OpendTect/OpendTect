@@ -453,7 +453,7 @@ static File::Path getConvertedFilePath( const HostData& hd, const File::Path& fp
     BufferString proc( getTempBaseNm() );
     proc += "_";
     proc += MMJob_getTempFileNr()-1;
-    newfp.add( SI().getDirName() ).add( "Proc" )
+    newfp.add( SI().dirName() ).add( "Proc" )
 	 .add( proc ).add( fp.fileName() );
     return newfp;
 }
@@ -485,7 +485,7 @@ bool JobIOMgr::mkIOParFile( const File::Path& basefp,
 						  : path.fullPath() );
 	if ( remdata.nrLevels() )
 	{
-	    remotetmpdir.add( SI().getDirName() ).add( sSeismicSubDir() )
+	    remotetmpdir.add( SI().dirName() ).add( sSeismicSubDir() )
 			.add( path.fileName() );
 	}
 
