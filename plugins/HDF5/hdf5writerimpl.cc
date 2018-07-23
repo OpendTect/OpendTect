@@ -111,23 +111,32 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
     nrdims_ = info.nrDims();
     TypeSet<hsize_t> dims, chunkdims;
     int maxdim = 0;
+    int maxchunkdim = 0;
     const bool mustchunk = createeditable_;
     bool havelargerdimthanchunk = false;
+    ArrayNDInfo::DimIdxType largestdim = 0;
     for ( ArrayNDInfo::DimIdxType idim=0; idim<nrdims_; idim++ )
     {
 	const auto dimsz = info.getSize( idim );
 	if ( dimsz > maxdim )
-	    maxdim = dimsz;
+	    { largestdim = idim; maxdim = dimsz; }
 	dims += dimsz;
-	const bool dimgtchunksz = dimsz > chunksz_;
-	hsize_t chunkdim = dimgtchunksz ? dimsz : chunksz_;
-	havelargerdimthanchunk |= dimgtchunksz;
-	if ( mustchunk && idim == nrdims_-1 && !havelargerdimthanchunk )
+	if ( dimsz > chunksz_ )
+	    havelargerdimthanchunk = true;
+    }
+
+    for ( ArrayNDInfo::DimIdxType idim=0; idim<nrdims_; idim++ )
+    {
+	const hsize_t dimsz = dims[idim];
+	hsize_t chunkdim = dimsz < chunksz_ ? dimsz : chunksz_;
+	if ( mustchunk && !havelargerdimthanchunk && idim == largestdim )
 	    chunkdim = getChunkSz4TwoChunks( chunkdim );
+	if ( maxchunkdim < chunkdim )
+	    maxchunkdim = chunkdim;
 	chunkdims += chunkdim;
     }
 
-    const bool wantchunk = maxdim > chunksz_;
+    const bool wantchunk = maxdim > maxchunkdim;
     const bool canzip = szip_encoding_status>0
 		     && maxdim >= szip_pixels_per_block;
 
