@@ -34,6 +34,7 @@ public:
     void		addExclude(const SurveyDiskLocation&);
     void		excludeCurrentSurvey()
 			{ addExclude(SurveyDiskLocation::currentSurvey()); }
+    void		setSurveySelectable(bool);
 
     int			nrSelected() const;
     const IOObj*	ioObj(int idx=0) const;

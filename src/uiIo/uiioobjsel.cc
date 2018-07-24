@@ -559,13 +559,13 @@ void uiIOObjSel::doCommit( bool noerr ) const
 	if ( !ctio.ctxt_.forread_ && !ctio.ioobj_ )
 	{
 	    uiMSG().error( uiStrings::phrCannotCreateDBEntryFor(
-			    toUiString(workctio_.ctxt_.objectTypeName())) );
+			    workctio_.ctxt_.uiObjectTypeName()) );
 	    return;
 	}
 	uiString txt(inctio_.ctxt_.forread_
 			 ? uiStrings::phrSelect(toUiString("%1"))
 			 : uiStrings::phrEnter(tr("a valid name for the %1" )));
-	uiMSG().error( txt.arg( workctio_.ctxt_.objectTypeName() ) );
+	uiMSG().error( txt.arg( workctio_.ctxt_.uiObjectTypeName() ) );
     }
 }
 

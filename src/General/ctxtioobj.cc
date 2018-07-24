@@ -314,10 +314,23 @@ FixedString IOObjContext::objectTypeName() const
 }
 
 
+uiString IOObjContext::uiObjectTypeName() const
+{
+    return translatorTypeName();
+}
+
+
 FixedString IOObjContext::translatorGroupName() const
 {
     fillTrGroup();
     return trgroup_->groupName();
+}
+
+
+uiString IOObjContext::translatorTypeName() const
+{
+    fillTrGroup();
+    return trgroup_->typeName();
 }
 
 

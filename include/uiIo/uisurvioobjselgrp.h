@@ -30,17 +30,18 @@ public:
 						bool selmulti=false);
 			~uiSurvIOObjSelGroup();
 
-    SurveyDiskLocation	surveyDiskLocation() const;
     void		setSurvey(const SurveyDiskLocation&);
     void		addExclude(const SurveyDiskLocation&);
     void		excludeCurrentSurvey()
 			{ addExclude(SurveyDiskLocation::currentSurvey()); }
+    void		setSurveySelectable(bool);
 
     void		setSelected(const DBKey&);
     void		setSelected(const DBKeySet&);
 
     bool		evaluateInput();
 
+    SurveyDiskLocation	surveyDiskLocation() const;
     int			nrSelected() const	{ return chosenidxs_.size(); }
     const IOObj*	ioObj(int idx=0) const;
     FullDBKey		key(int idx=0) const;

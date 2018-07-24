@@ -8,11 +8,15 @@ ________________________________________________________________________
 
 -*/
 
+#include "uisurvioobjsel.h"
 #include "uisurvioobjseldlg.h"
 #include "uisurvioobjselgrp.h"
 
 #include "uisurveyselect.h"
 #include "uilistbox.h"
+#include "uicombobox.h"
+#include "uilabel.h"
+#include "uibutton.h"
 #include "dbdir.h"
 #include "ioobj.h"
 #include "ioobjctxt.h"
@@ -20,9 +24,42 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
+static void getIOObList( ObjectSet<IOObj>& objs, const SurveyDiskLocation& sdl,
+			 const IOObjContext& ctxt, BufferStringSet& nms )
+{
+    deepErase( objs );
+    nms.setEmpty();
+
+    const BufferString datadirnm( sdl.fullPathFor(
+			    ctxt.getDataDirName(ctxt.stdseltype_,true) ) );
+    ConstRefMan<DBDir> dbdir = new DBDir( datadirnm );
+    DBDirIter iter( *dbdir );
+    ObjectSet<IOObj> unsortedobjs;
+    while ( iter.next() )
+    {
+	const IOObj& ioobj = iter.ioObj();
+	if ( ctxt.validIOObj(ioobj) )
+	{
+	    IOObj* toadd = ioobj.clone();
+	    toadd->setAbsDirectory( datadirnm );
+	    unsortedobjs += toadd;
+	    nms.add( toadd->name() );
+	}
+    }
+    if ( nms.isEmpty() )
+	return;
+
+    BufferStringSet::size_type* idxs = nms.getSortIndexes();
+    nms.useIndexes( idxs );
+    for ( int idx=0; idx<unsortedobjs.size(); idx++ )
+	objs += unsortedobjs[ idxs[idx] ];
+    delete [] idxs;
+}
+
+
 uiSurvIOObjSelGroup::uiSurvIOObjSelGroup( uiParent* p, const IOObjContext& ctxt,
 					  bool selmulti )
-    : uiGroup(p,"Survey IOObj Selector")
+    : uiGroup(p,"Survey IOObj Sel Group")
     , ctxt_(*new IOObjContext(ctxt))
     , ismultisel_(selmulti)
     , dClicked(this)
@@ -33,22 +70,20 @@ uiSurvIOObjSelGroup::uiSurvIOObjSelGroup( uiParent* p, const IOObjContext& ctxt,
 
     uiListBox::Setup lbsu( ismultisel_ ? OD::ChooseAtLeastOne
 				       : OD::ChooseOnlyOne,
-			   toUiString(ctxt.objectTypeName()) );
+			   ctxt.uiObjectTypeName() );
     objfld_ = new uiListBox( this, lbsu );
     objfld_->setHSzPol( uiObject::WideVar );
     objfld_->setStretch( 2, 2 );
     objfld_->attach( alignedBelow, survsel_ );
-    mAttachCB( objfld_->selectionChanged, uiSurvIOObjSelGroup::selChgCB );
 
     mAttachCB( postFinalise(), uiSurvIOObjSelGroup::initGrp );
-    if ( !ismultisel_ )
-	mAttachCB( objfld_->doubleClicked, uiSurvIOObjSelGroup::dClickCB );
 }
 
 
 uiSurvIOObjSelGroup::~uiSurvIOObjSelGroup()
 {
     deepErase( ioobjs_ );
+    delete &ctxt_;
 }
 
 
@@ -56,7 +91,10 @@ void uiSurvIOObjSelGroup::initGrp( CallBacker* )
 {
     updGrp( true );
 
+    mAttachCB( objfld_->selectionChanged, uiSurvIOObjSelGroup::selChgCB );
     mAttachCB( survsel_->survDirChg, uiSurvIOObjSelGroup::survSelCB );
+    if ( !ismultisel_ )
+	mAttachCB( objfld_->doubleClicked, uiSurvIOObjSelGroup::dClickCB );
 }
 
 
@@ -120,6 +158,12 @@ SurveyDiskLocation uiSurvIOObjSelGroup::surveyDiskLocation() const
 }
 
 
+void uiSurvIOObjSelGroup::setSurveySelectable( bool yn )
+{
+    survsel_->setSensitive( yn );
+}
+
+
 void uiSurvIOObjSelGroup::updGrp( bool withsurvsel )
 {
     if ( withsurvsel )
@@ -131,36 +175,10 @@ void uiSurvIOObjSelGroup::updGrp( bool withsurvsel )
 
 void uiSurvIOObjSelGroup::updateObjs()
 {
-    deepErase( ioobjs_ );
+    BufferStringSet nms;
+    getIOObList( ioobjs_, surveyDiskLocation(), ctxt_, nms );
     objfld_->setEmpty();
-
-    const BufferString datadirnm( surveyDiskLocation().fullPathFor(
-			    ctxt_.getDataDirName(ctxt_.stdseltype_,true) ) );
-    ConstRefMan<DBDir> dbdir = new DBDir( datadirnm );
-    BufferStringSet objnms;
-    DBDirIter iter( *dbdir );
-    ObjectSet<IOObj> objs;
-    while ( iter.next() )
-    {
-	const IOObj& ioobj = iter.ioObj();
-	if ( ctxt_.validIOObj(ioobj) )
-	{
-	    IOObj* toadd = ioobj.clone();
-	    toadd->setAbsDirectory( datadirnm );
-	    objs += toadd;
-	    objnms.add( toadd->name() );
-	}
-    }
-    if ( objnms.isEmpty() )
-	return;
-
-    BufferStringSet::size_type* idxs = objnms.getSortIndexes();
-    objnms.useIndexes( idxs );
-    for ( int idx=0; idx<objs.size(); idx++ )
-	ioobjs_ += objs[ idxs[idx] ];
-    delete [] idxs;
-
-    objfld_->addItems( objnms );
+    objfld_->addItems( nms );
     objfld_->setCurrentItem( 0 );
 }
 
@@ -240,8 +258,7 @@ bool uiSurvIOObjSelGroup::evaluateInput()
 
 uiSurvIOObjSelDlg::uiSurvIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
 				      bool selmulti )
-    : uiDialog(p,Setup(tr("Get %1 from another survey")
-			.arg(ctxt.objectTypeName()),
+    : uiDialog(p,Setup(uiStrings::phrSelect(ctxt.uiObjectTypeName()),
 			mNoDlgTitle,mODHelpKey(mSelObjFromOtherSurveyHelpID)))
 {
     selgrp_ = new uiSurvIOObjSelGroup( this, ctxt, selmulti );
@@ -285,6 +302,12 @@ SurveyDiskLocation uiSurvIOObjSelDlg::surveyDiskLocation() const
 }
 
 
+void uiSurvIOObjSelDlg::setSurveySelectable( bool yn )
+{
+    selgrp_->setSurveySelectable( yn );
+}
+
+
 const IOObj* uiSurvIOObjSelDlg::ioObj( int idx ) const
 {
     return selgrp_->ioObj( idx );
@@ -312,4 +335,179 @@ const ObjectSet<IOObj>& uiSurvIOObjSelDlg::objsInSurvey() const
 bool uiSurvIOObjSelDlg::acceptOK()
 {
     return selgrp_->evaluateInput();
+}
+
+
+uiSurvIOObjSel::uiSurvIOObjSel( uiParent* p, const IOObjContext& ctxt,
+				const uiString& lbltxt, bool surveyfixed )
+    : uiGroup(p,"Survey IOObj Selector")
+    , ctxt_(*new IOObjContext(ctxt))
+    , selChange(this)
+    , survChange(this)
+{
+    objfld_ = new uiComboBox( this, "Objects" );
+
+    if ( !lbltxt.isEmpty() )
+	lbl_ = new uiLabel( this, lbltxt, objfld_ );
+
+    if ( !surveyfixed )
+    {
+	survselbut_ = uiButton::getStd( this, OD::Select,
+		mCB(this,uiSurvIOObjSel,selSurvCB), true, uiString::empty() );
+	survselbut_->attach( rightOf, objfld_ );
+    }
+
+    setHAlignObj( objfld_ );
+    mAttachCB( postFinalise(), uiSurvIOObjSel::initGrp );
+}
+
+
+uiSurvIOObjSel::~uiSurvIOObjSel()
+{
+    deepErase( ioobjs_ );
+    delete &ctxt_;
+}
+
+
+void uiSurvIOObjSel::initGrp( CallBacker* )
+{
+    updateObjs();
+    updateUi();
+
+    mAttachCB( objfld_->selectionChanged, uiSurvIOObjSel::selChgCB );
+}
+
+
+void uiSurvIOObjSel::selChgCB( CallBacker* )
+{
+    selChange.trigger();
+}
+
+
+void uiSurvIOObjSel::selSurvCB( CallBacker* )
+{
+    uiDialog dlg( this, uiDialog::Setup(
+				uiStrings::phrSelect(ctxt_.uiObjectTypeName()),
+				mNoDlgTitle,mTODOHelpKey) );
+    uiSurveySelect* survsel = new uiSurveySelect( &dlg );
+    for ( auto sdl : excludes_ )
+	survsel->addExclude( sdl );
+    survsel->setSurveyDiskLocation( survloc_ );
+
+    if ( dlg.go() )
+	setSurvey( survsel->surveyDiskLocation() );
+}
+
+
+void uiSurvIOObjSel::setSurvey( const SurveyDiskLocation& sdl )
+{
+    if ( sdl == survloc_ )
+	return;
+
+    survloc_ = sdl;
+    updateObjs();
+    if ( finalised() )
+    {
+	updateUi();
+	survChange.trigger();
+    }
+}
+
+
+void uiSurvIOObjSel::setSelected( const FullDBKey& fdbky )
+{
+    const SurveyDiskLocation newsdl = fdbky.surveyDiskLocation();
+    if ( survloc_ == newsdl )
+	setSelected( DBKey(fdbky) );
+    else
+    {
+	survloc_ = newsdl;
+	updateObjs();
+	updateUi( &fdbky );
+    }
+}
+
+
+void uiSurvIOObjSel::setSelected( DBKey dbky )
+{
+    if ( !dbky.isValid() || dbky == key() )
+	return;
+
+    for ( int idx=0; idx<ioobjs_.size(); idx++ )
+    {
+	if ( ioobjs_[idx]->key() == dbky )
+	{
+	    objfld_->setCurrentItem( idx );
+	    selChange.trigger();
+	    break;
+	}
+    }
+}
+
+
+void uiSurvIOObjSel::addExclude( const SurveyDiskLocation& sdl )
+{
+    excludes_ += sdl;
+}
+
+
+void uiSurvIOObjSel::setSurveySelectable( bool yn )
+{
+    if ( survselbut_ )
+	survselbut_->setSensitive( yn );
+}
+
+
+void uiSurvIOObjSel::setLblText( const uiString& newlbltxt )
+{
+    if ( lbl_ )
+	lbl_->setText( newlbltxt );
+}
+
+
+void uiSurvIOObjSel::updateObjs()
+{
+    getIOObList( ioobjs_, surveyDiskLocation(), ctxt_, ioobjnames_ );
+}
+
+
+void uiSurvIOObjSel::updateUi( const DBKey* dbky )
+{
+    objfld_->setEmpty();
+    objfld_->addItems( ioobjnames_ );
+    if ( ioobjnames_.isEmpty() )
+	return;
+
+    int selidx = 0;
+    if ( dbky )
+    {
+	for ( int idx=0; idx<ioobjs_.size(); idx++ )
+	    if ( ioobjs_[idx]->key() == *dbky )
+		{ selidx = idx; break; }
+    }
+    objfld_->setCurrentItem( selidx );
+}
+
+
+const IOObj* uiSurvIOObjSel::ioObj() const
+{
+    const int ioobjidx = objfld_->currentItem();
+    return ioobjs_.validIdx(ioobjidx) ? ioobjs_[ioobjidx] : 0;
+}
+
+
+FullDBKey uiSurvIOObjSel::key() const
+{
+    FullDBKey ret( survloc_ );
+    const IOObj* ioobj = ioObj();
+    if ( ioobj )
+	ret.setKey( ioobj->key() );
+    return ret;
+}
+
+
+BufferString uiSurvIOObjSel::mainFileName() const
+{
+    const IOObj* ioobj = ioObj();
+    return BufferString( ioobj ? ioobj->mainFileName() : "" );
 }
