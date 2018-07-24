@@ -118,9 +118,9 @@ public:
 						bool subdirnmonly=false);
 
     FixedString		objectTypeName() const;
-    uiString		uiObjectTypeName() const;
+    uiString		uiObjectTypeName(int n=1) const;
     FixedString		translatorGroupName() const;
-    uiString		translatorTypeName() const;
+    uiString		translatorTypeName(int n=1) const;
     inline bool		hasStdSelDirID() const { return stdseltype_ != None; }
     DBDirID		getSelDirID() const;
     IOStream*		crDefaultWriteObj(const Translator&,

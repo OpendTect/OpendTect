@@ -259,9 +259,6 @@ bool DBMan::isPresent( const char* objnm, const char* trgrpnm ) const
 static BufferString getDBKeyStr( const DBKey& dbky )
 {
     BufferString ret( "ID=<" );
-    mDynamicCastGet( const FullDBKey*, fdbky, &dbky )
-    if ( fdbky )
-	ret.add( fdbky->surveyDiskLocation().fullPath() ).add( "|" );
     ret.add( dbky ).add( ">" );
     return ret;
 }

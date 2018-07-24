@@ -314,9 +314,9 @@ FixedString IOObjContext::objectTypeName() const
 }
 
 
-uiString IOObjContext::uiObjectTypeName() const
+uiString IOObjContext::uiObjectTypeName( int n ) const
 {
-    return translatorTypeName();
+    return translatorTypeName( n );
 }
 
 
@@ -327,10 +327,10 @@ FixedString IOObjContext::translatorGroupName() const
 }
 
 
-uiString IOObjContext::translatorTypeName() const
+uiString IOObjContext::translatorTypeName( int n ) const
 {
     fillTrGroup();
-    return trgroup_->typeName();
+    return trgroup_->typeName( n );
 }
 
 

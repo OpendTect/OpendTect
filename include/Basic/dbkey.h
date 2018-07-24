@@ -67,6 +67,7 @@ public:
     static DBKey	getFromI64(od_int64);
 
     virtual bool	isInvalid() const	{ return groupnr_ < 0; }
+    bool		isUsable() const;
     virtual bool	isInCurrentSurvey() const { return true; }
 
 			// aliases
@@ -84,7 +85,6 @@ public:
     BufferString	auxKey() const;
     void		setAuxKey(const char*);
 
-    mDeprecated		DBKey(const char*);
     mDeprecated static	DBKey udf()		{ return getInvalid(); }
     mDeprecated bool	isEmpty() const		{ return isInvalid(); }
     mDeprecated bool	isUdf() const		{ return isInvalid(); }
@@ -151,6 +151,7 @@ public:
     DBKeySet&		removeSingle(idx_type);
     DBKeySet&		removeRange(idx_type,idx_type);
     DBKeySet&		remove(const DBKey&);
+    DBKeySet&		removeUnusable(); // i.e. that do not lead to an IOObj
 
     void		swap( idx_type i1, idx_type i2 )
 						{ dbkys_.swap( i1, i2 ); }
@@ -183,3 +184,4 @@ mGlobal(Basic) inline uiString toUiString( const DBKey& ky )
 
 mGlobal(Basic) BufferString	nameOf(const DBKey&);
 mGlobal(Basic) IOObj*		getIOObj(const DBKey&);
+mGlobal(Basic) void		delIOObj(IOObj*);

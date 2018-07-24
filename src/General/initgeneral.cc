@@ -25,9 +25,11 @@ ________________________________________________________________________
 
 typedef BufferString (*nameOfFn)(const DBKey&);
 typedef IOObj* (*getIOObjFn)(const DBKey&);
-mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,getIOObjFn);
+typedef void (*delIOObjFn)(IOObj*);
+mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,getIOObjFn,delIOObjFn);
 mGlobal(General) BufferString DBMan_nameOf(const DBKey&);
 mGlobal(General) IOObj* DBMan_getIOObj(const DBKey&);
+static void Just_Del_IOObj( IOObj* ioobj ) { delete ioobj; }
 
 
 mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc)
@@ -45,7 +47,7 @@ mDefModInitFn(General)
 
 GeneralModuleIniter::GeneralModuleIniter()
 {
-    setDBMan_DBKey_Fns( DBMan_nameOf, DBMan_getIOObj );
+    setDBMan_DBKey_Fns( DBMan_nameOf, DBMan_getIOObj, Just_Del_IOObj );
 
     ElasticPropSelectionTranslatorGroup::initClass();
     MathFormulaTranslatorGroup::initClass();

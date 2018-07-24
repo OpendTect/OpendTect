@@ -39,10 +39,7 @@ RefManType ProbeManager::doFetch( const ObjID& id, uiRetVal& uirv ) const
 
     PtrMan<IOObj> ioobj = DBM().get( id );
     if ( !ioobj )
-    {
-	pErrMsg( "Required ID not in IOM. Probably not OK" );
 	return RefManType( 0 );
-    }
 
     uiString errmsg;
     Probe* newprobe = ProbeTranslator::retrieve( ioobj, errmsg );

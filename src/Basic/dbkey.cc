@@ -10,20 +10,24 @@
 #include "compoundkey.h"
 #include "filepath.h"
 
-static BufferString noNameOfFn( const DBKey& ) { return BufferString(); }
-static IOObj* noGetIOObjFn( const DBKey& ) { return 0; }
+static BufferString noNameOfFn( const DBKey& )	{ return BufferString(); }
+static IOObj* noGetIOObjFn( const DBKey& )	{ return 0; }
+static void noDelIOObjFn( IOObj* )		{}
 
 typedef BufferString (*nameOfFn)(const DBKey&);
 typedef IOObj* (*getIOObjFn)(const DBKey&);
+typedef void (*delIOObjFn)(IOObj*);
 
 static nameOfFn nameoffn_ = noNameOfFn;
 static getIOObjFn getioobjfn_ = noGetIOObjFn;
+static delIOObjFn delioobjfn_ = noDelIOObjFn;
 
-mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,getIOObjFn);
-void setDBMan_DBKey_Fns( nameOfFn nfn, getIOObjFn ifn )
+mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,getIOObjFn,delIOObjFn);
+void setDBMan_DBKey_Fns( nameOfFn nfn, getIOObjFn ifn, delIOObjFn dfn )
 {
     nameoffn_ = nfn;
     getioobjfn_ = ifn;
+    delioobjfn_ = dfn;
 }
 
 BufferString nameOf( const DBKey& dbky )
@@ -34,6 +38,11 @@ BufferString nameOf( const DBKey& dbky )
 IOObj* getIOObj( const DBKey& dbky )
 {
     return (*getioobjfn_)( dbky );
+}
+
+void delIOObj( IOObj* ioobj )
+{
+    (*delioobjfn_)( ioobj );
 }
 
 
@@ -116,13 +125,6 @@ DBKey* DBKey::getFromString( const char* str )
 }
 
 
-DBKey::DBKey( const char* str )
-    : auxkey_(0)
-{
-    fromString( str );
-}
-
-
 DBKey::~DBKey()
 {
     delete auxkey_;
@@ -160,6 +162,16 @@ const SurveyDiskLocation& DBKey::surveyDiskLocation() const
 {
     static SurveyDiskLocation emptysdl_( 0, 0 );
     return emptysdl_;
+}
+
+
+bool DBKey::isUsable() const
+{
+    IOObj* ioobj = getIOObj( *this );
+    if ( !ioobj )
+	return false;
+    delIOObj( ioobj );
+    return true;
 }
 
 
@@ -328,12 +340,20 @@ DBKeySet& DBKeySet::remove( const DBKey& dbky )
 }
 
 
+DBKeySet& DBKeySet::removeUnusable()
+{
+    for ( int idx=size()-1; idx>=0; idx-- )
+	if ( !get(idx).isUsable() )
+	    removeSingle( idx );
+    return *this;
+}
+
+
 void DBKeySet::addTo( BufferStringSet& bss ) const
 {
     for ( int idx=0; idx<size(); idx++ )
 	bss.add( ((*this)[idx]).toString() );
 }
-
 
 
 FullDBKey& FullDBKey::operator =( const FullDBKey& oth )

@@ -90,10 +90,7 @@ void init()
 	const DBKey objid = loader_.tobeLodedKeys()[idx];
 	PtrMan<IOObj> ioobj = DBM().get( objid );
 	if ( !ioobj )
-	{
-	    pErrMsg( "Required ID not in IOM. Probably not OK" );
-	    continue;
-	}
+	    { pErrMsg( "Required ID not in DBM. Probably not OK" ); continue; }
 
 	BufferString typenm = ioobj->pars().find( sKey::Type() );
 	if ( typenm.isEmpty() )

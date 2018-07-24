@@ -21,8 +21,8 @@ mExpClass(Basic) FullDBKey : public DBKey
 public:
 
 			FullDBKey()				{}
-    explicit		FullDBKey( const DBKey& dbky )
-				: DBKey(dbky)			{}
+			FullDBKey( const DBKey& oth )		{ *this = oth; }
+			FullDBKey( const FullDBKey& oth )	{ *this = oth; }
     explicit		FullDBKey( const SurveyDiskLocation& sdl )
 				: survloc_(sdl)			{}
 			FullDBKey( const DBKey& dbky,

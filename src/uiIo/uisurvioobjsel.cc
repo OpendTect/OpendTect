@@ -70,12 +70,13 @@ uiSurvIOObjSelGroup::uiSurvIOObjSelGroup( uiParent* p, const IOObjContext& ctxt,
 
     uiListBox::Setup lbsu( ismultisel_ ? OD::ChooseAtLeastOne
 				       : OD::ChooseOnlyOne,
-			   ctxt.uiObjectTypeName() );
+			   ctxt.uiObjectTypeName(ismultisel_ ? mPlural : 1) );
     objfld_ = new uiListBox( this, lbsu );
     objfld_->setHSzPol( uiObject::WideVar );
     objfld_->setStretch( 2, 2 );
     objfld_->attach( alignedBelow, survsel_ );
 
+    setHAlignObj( objfld_ );
     mAttachCB( postFinalise(), uiSurvIOObjSelGroup::initGrp );
 }
 
@@ -445,6 +446,16 @@ void uiSurvIOObjSel::setSelected( DBKey dbky )
 }
 
 
+void uiSurvIOObjSel::setSelected( const char* nm, bool mostsimilar )
+{
+    int selidx = ioobjnames_.indexOf( nm );
+    if ( selidx < 0 && mostsimilar )
+	selidx = ioobjnames_.nearestMatch( nm );
+    if ( selidx >= 0 )
+	setSelected( ioobjs_[selidx]->key() );
+}
+
+
 void uiSurvIOObjSel::addExclude( const SurveyDiskLocation& sdl )
 {
     excludes_ += sdl;
@@ -503,6 +514,13 @@ FullDBKey uiSurvIOObjSel::key() const
     if ( ioobj )
 	ret.setKey( ioobj->key() );
     return ret;
+}
+
+
+BufferString uiSurvIOObjSel::ioObjName() const
+{
+    const IOObj* ioobj = ioObj();
+    return BufferString( ioobj ? ioobj->name() : "" );
 }
 
 

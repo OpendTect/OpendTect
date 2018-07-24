@@ -221,10 +221,7 @@ int Pick::SetLoaderExec::nextStep()
 
     PtrMan<IOObj> ioobj = DBM().get( id );
     if ( !ioobj )
-    {
-	pErrMsg( "Required ID not in IOM. Probably not OK" );
 	return MoreToDo();
-    }
 
     uiRetVal uirv;
     Pick::Set* ps = SetLoader::getSingleSet( *ioobj, uirv, loader_.category_);

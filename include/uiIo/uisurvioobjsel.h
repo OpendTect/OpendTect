@@ -23,7 +23,8 @@ class uiComboBox;
 class uiLabel;
 
 
-/*\brief selector for objects in (possibly) other surveys. */
+/*\brief selector for objects in (possibly) other surveys.
+  Can also be used for compact IOObj selector in tables. */
 
 mExpClass(uiIo) uiSurvIOObjSel : public uiGroup
 {
@@ -40,6 +41,7 @@ public:
 
     void		setSelected(const FullDBKey&);	//!< may change surv
     void		setSelected(DBKey);		//!< stays in surv
+    void		setSelected(const char* nm,bool mostsimilar=true);
     void		setSurveySelectable(bool);
 			//!< only possible if you did not specify surveyfixed
     void		setLblText(const uiString&);
@@ -48,6 +50,7 @@ public:
     SurveyDiskLocation	surveyDiskLocation() const  { return survloc_; }
     const IOObj*	ioObj() const;
     FullDBKey		key() const;
+    BufferString	ioObjName() const;
     BufferString	mainFileName() const;
 
     const ObjectSet<IOObj>& objsInSurvey() const { return ioobjs_; }
