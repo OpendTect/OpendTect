@@ -189,7 +189,8 @@ public:
 				     bool both_2d_3d_in_context=false,
 				     bool both_pre_post_in_context=false);
 	/*!< returns names such as "2D Data", "Cube", "Prestack Data", ... */
-    static uiWord sRangeTemplate( bool withstep )
+    static uiWord sSeisGeomTypeName(bool is2d,bool isps);
+    static inline uiWord sRangeTemplate( bool withstep )
     { return withstep ? toUiString("%1 - %2 [%3]") : toUiString("%1 - %2"); }
 
     static uiWord sMemSizeString(od_int64);

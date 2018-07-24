@@ -498,6 +498,15 @@ uiWord uiStrings::sSeisObjName( bool is2d, bool is3d, bool isprestack,
 }
 
 
+uiWord uiStrings::sSeisGeomTypeName( bool is2d, bool isps )
+{
+    if ( is2d )
+	return isps ? tr("Line 2D Pre-Stack") : s2DLine();
+    else
+	return isps ? tr("3D Volume") : tr("Pre-Stack Volume");
+}
+
+
 uiWord uiStrings::sMemSizeString( od_int64 memsz )
 {
     NrBytesToStringCreator cr;

@@ -107,10 +107,10 @@ mDefineEnumUtils(SeisEnum,GeomType,"Geometry type")
 template<>
 void EnumDefImpl<SeisEnum::GeomType>::init()
 {
-    uistrings_ += uiStrings::s2DLine();
-    uistrings_ += mEnumTr("Line 2D Pre-Stack",0);
-    uistrings_ += mEnumTr("3D Volume",0);
-    uistrings_ += mEnumTr("Pre-Stack Volume",0);
+    uistrings_ += uiStrings::sSeisGeomTypeName( true, false );
+    uistrings_ += uiStrings::sSeisGeomTypeName( true, true );
+    uistrings_ += uiStrings::sSeisGeomTypeName( false, false );
+    uistrings_ += uiStrings::sSeisGeomTypeName( false, true );
 }
 
 mDefineEnumUtils(SeisEnum,WaveType,"Wave type")
