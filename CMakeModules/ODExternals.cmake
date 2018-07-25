@@ -69,6 +69,33 @@ endif()
 
 macro( DEFINE_GIT_EXTERNAL DIR URL BRANCH )
 
+    if ( EXISTS ${CMAKE_SOURCE_DIR}/external/${DIR} )
+	# Check URL and Branch of the old checkout
+	execute_process(
+	    COMMAND ${GIT_EXEC} remote get-url origin 
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/${DIR}
+		OUTPUT_VARIABLE OLDURL
+		RESULT_VARIABLE RESULT
+		OUTPUT_STRIP_TRAILING_WHITESPACE )
+	if ( NOT "${OLDURL}" STREQUAL "${URL}" )
+	    message("URL No Match")
+	    message("URL: ${URL}end")
+	    message("OLDURL: ${OLDURL}end")
+	    file ( REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/external/${DIR} ) 
+	else()
+	    execute_process(
+		COMMAND ${GIT_EXEC} symbolic-ref --short HEAD 
+		    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/${DIR}
+		    OUTPUT_VARIABLE OLDBRANCH
+		    RESULT_VARIABLE RESULT
+		    OUTPUT_STRIP_TRAILING_WHITESPACE )
+	    if ( NOT ${OLDBRANCH} STREQUAL ${BRANCH} )
+		message( "Branch: ${OLDBRANCH}" )
+		file ( REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/external/${DIR} ) 
+	    endif()
+	endif() 
+    endif()
+
     if ( NOT EXISTS ${CMAKE_SOURCE_DIR}/external/${DIR} )
 	execute_process(
 	    COMMAND ${GIT_EXEC} clone ${URL} --branch ${BRANCH} --depth 1 ${DIR}
