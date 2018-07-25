@@ -58,6 +58,9 @@ public:
     void		ensureHardPath();
     void		softenPath();
 
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
     static const SurveyDiskLocation&	currentSurvey();
 
 protected:

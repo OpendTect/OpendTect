@@ -126,6 +126,22 @@ void SurveyDiskLocation::softenPath()
 }
 
 
+void SurveyDiskLocation::fillPar( IOPar& iop ) const
+{
+    iop.set( sKey::Survey(), fullPath() );
+}
+
+
+bool SurveyDiskLocation::usePar( const IOPar& iop )
+{
+    BufferString pth;
+    if ( !iop.get( sKey::Survey(), pth ) )
+	return false;
+    set( pth );
+    return true;
+}
+
+
 BufferString SurveyDiskLocation::fullPath() const
 {
     return File::Path( basePath(), dirName() ).fullPath();
