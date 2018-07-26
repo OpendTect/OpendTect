@@ -26,7 +26,7 @@ mExpClass(uiIo) uiSurvIOObjSelDlg : public uiDialog
 public:
 
 			uiSurvIOObjSelDlg(uiParent*,const IOObjContext&,
-						bool selmulti=false);
+					bool selmulti=false,bool fixsurv=false);
 
     void		setSurvey(const SurveyDiskLocation&);
     void		setSelected(const DBKey&);
@@ -38,7 +38,8 @@ public:
 
     int			nrSelected() const;
     const IOObj*	ioObj(int idx=0) const;
-    FullDBKey		key(int idx=0) const;
+    DBKey		key(int idx=0) const;
+    FullDBKey		fullKey(int idx=0) const;
     BufferString	mainFileName(int idx=0) const;
     const ObjectSet<IOObj>& objsInSurvey() const;
     SurveyDiskLocation	surveyDiskLocation() const;
@@ -49,6 +50,9 @@ public:
 protected:
 
     uiSurvIOObjSelGroup* selgrp_;
+
+    void		initWin(CallBacker*);
+    void		survChgCB(CallBacker*);
 
     bool		acceptOK();
 

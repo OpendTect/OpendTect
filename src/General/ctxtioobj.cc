@@ -389,6 +389,12 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 }
 
 
+int IOObjContext::nrMatches() const
+{
+    return DBDirEntryList(*this).size();
+}
+
+
 
 IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 					    const DBKey& ky ) const

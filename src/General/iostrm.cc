@@ -259,7 +259,7 @@ Conn* IOStream::getConn( bool forread ) const
 
     StreamConn*	ret = new StreamConn( fnm, forread );
     if ( ret )
-	ret->setLinkedTo( key() );
+	ret->setLinkedTo( fullKey() );
 
     return ret;
 }

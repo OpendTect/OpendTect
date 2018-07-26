@@ -123,7 +123,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
     if ( !conn_ )
 	{ errmsg_ = tr("Cannot open CBVS file"); return false; }
 
-    PtrMan<IOObj> ioobj = DBM().get( conn_->linkedTo() );
+    PtrMan<IOObj> ioobj = getIOObj( conn_->linkedTo() );
     mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
     if ( ioobj && !iostrm )
 	{ errmsg_ = tr("Object manager provides wrong type"); return false; }

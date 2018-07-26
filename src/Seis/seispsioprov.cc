@@ -333,7 +333,7 @@ static const char* sKeyOffsNr = "Default trace nr";
 
 bool SeisPSCubeSeisTrcTranslator::initRead_()
 {
-    PtrMan<IOObj> ioobj = DBM().get( conn_->linkedTo() );
+    PtrMan<IOObj> ioobj = getIOObj( conn_->linkedTo() );
     if ( ioobj )
     {
 	mDynamicCastGet(const IOX*,iox,ioobj.ptr())

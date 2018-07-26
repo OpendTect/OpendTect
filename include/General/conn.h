@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 
 #include "generalmod.h"
-#include "dbkey.h"
+#include "fulldbkey.h"
 class IOObj;
 class StreamConn;
 
@@ -62,7 +62,7 @@ protected:
 
 			Conn()			{}
 
-    DBKey		ioobjid_;
+    FullDBKey		ioobjid_;
 
     virtual Conn*	gtConn() const	{ return const_cast<Conn*>(this); }
 

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uisurvioobjsel.h"
 #include "uisurvioobjselgrp.h"
 #include "seistype.h"
+class uiSurvSeisSelGroupCompEntry;
 
 
 mExpClass(uiSeis) uiSurvSeisSel : public uiSurvIOObjSel
@@ -20,7 +21,6 @@ mExpClass(uiSeis) uiSurvSeisSel : public uiSurvIOObjSel
 public:
 
     typedef Seis::GeomType   GeomType;
-    typedef Seis::DataType   DataType;
 
     mExpClass(uiSeis) Setup
     {
@@ -62,5 +62,40 @@ protected:
     void		compSelCB(CallBacker*);
 
     void		updateComps();
+
+};
+
+
+mExpClass(uiSeis) uiSurvSeisSelGroup : public uiSurvIOObjSelGroup
+{
+public:
+
+    typedef Seis::GeomType		GeomType;
+    typedef uiSurvSeisSel::Setup	Setup;
+
+			uiSurvSeisSelGroup(uiParent*,const Setup&,
+				       bool selmulti=false,bool fixsurv=false);
+			~uiSurvSeisSelGroup();
+
+    void		setSelected(const DBKey&,int compnr);
+
+    virtual bool	evaluateInput();
+
+    // Available after evaluateInput():
+    int			nrComps(int iselected=0) const;
+    bool		isSelectedComp(int icomp,int iselected=0) const;
+    const char*		compName(int icomp,int iselected=0) const;
+
+protected:
+
+    Setup		setup_;
+    uiListBox*		compfld_;
+    mutable ObjectSet<uiSurvSeisSelGroupCompEntry>  compentries_;
+    int			prevselidx_		= -1;
+
+    void		initSeisGrp(CallBacker*);
+    void		seisSelChgCB(CallBacker*);
+
+    uiSurvSeisSelGroupCompEntry& getCompEntry(int) const;
 
 };

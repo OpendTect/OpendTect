@@ -305,6 +305,10 @@ IOObj* DBMan::get( const DBKey& dbky ) const
     if ( dirid.isInvalid() )
 	return 0;
 
+    mDynamicCastGet( const FullDBKey*, fdbky, &dbky );
+    if ( fdbky && !fdbky->isInCurrentSurvey() )
+	return ::getIOObj( *fdbky );
+
     ConstRefMan<DBDir> dbdir = fetchDir( dirid );
     if ( !dbdir )
 	return 0;

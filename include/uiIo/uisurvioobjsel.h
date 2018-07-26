@@ -32,7 +32,7 @@ public:
 			uiSurvIOObjSel(uiParent*,const IOObjContext&,
 				       const uiString& lbltxt=uiString::empty(),
 				       bool surveyfixed=false);
-			~uiSurvIOObjSel();
+    virtual		~uiSurvIOObjSel();
 
     void		setSurvey(const SurveyDiskLocation&);
     void		addExclude(const SurveyDiskLocation&);
@@ -49,7 +49,8 @@ public:
 
     SurveyDiskLocation	surveyDiskLocation() const  { return survloc_; }
     const IOObj*	ioObj() const;
-    FullDBKey		key() const;
+    DBKey		key() const;
+    FullDBKey		fullKey() const;
     BufferString	ioObjName() const;
     BufferString	mainFileName() const;
 

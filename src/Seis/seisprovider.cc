@@ -44,7 +44,7 @@ Seis::Provider::~Provider()
 
 BufferString Seis::Provider::name() const
 {
-    return DBM().nameOf( dbky_ );
+    return nameOf( dbky_ );
 }
 
 
@@ -182,7 +182,7 @@ uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 }
 
 
-DBKey Seis::Provider::dbKey( const IOPar& iop )
+FullDBKey Seis::Provider::dbKey( const IOPar& iop )
 {
     const char* res = iop.find( sKey::ID() );
     BufferString tmp;
@@ -203,7 +203,7 @@ DBKey Seis::Provider::dbKey( const IOPar& iop )
     }
 
     if ( res && *res )
-	return DBKey::getFromStr( res );
+	return FullDBKey::getFromStr( res );
 
     return DBKey::getInvalid();
 }

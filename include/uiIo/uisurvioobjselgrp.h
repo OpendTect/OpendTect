@@ -21,14 +21,16 @@ class IOObjContext;
 class uiSurveySelect;
 class uiListBox;
 
+/* allows selection of IOObj in any survey. */
 
 mExpClass(uiIo) uiSurvIOObjSelGroup : public uiGroup
 {
 public:
 
 			uiSurvIOObjSelGroup(uiParent*,const IOObjContext&,
-						bool selmulti=false);
-			~uiSurvIOObjSelGroup();
+					    bool selmulti=false,
+					    bool fixsurv=false);
+    virtual		~uiSurvIOObjSelGroup();
 
     void		setSurvey(const SurveyDiskLocation&);
     void		addExclude(const SurveyDiskLocation&);
@@ -36,17 +38,22 @@ public:
 			{ addExclude(SurveyDiskLocation::currentSurvey()); }
     void		setSurveySelectable(bool);
 
+    int			indexOf(const DBKey&);
+
     void		setSelected(const DBKey&);
     void		setSelected(const DBKeySet&);
 
-    bool		evaluateInput();
+    virtual bool	evaluateInput();
 
+    // Available after evaluateInput():
     SurveyDiskLocation	surveyDiskLocation() const;
     int			nrSelected() const	{ return chosenidxs_.size(); }
-    const IOObj*	ioObj(int idx=0) const;
-    FullDBKey		key(int idx=0) const;
-    BufferString	mainFileName(int idx=0) const;
+    const IOObj*	ioObj(int iselected=0) const;
+    DBKey		key(int iselected=0) const;
+    FullDBKey		fullKey(int iselected=0) const;
+    BufferString	mainFileName(int iselected=0) const;
 
+    const IOObjContext&	ioobjContext()		 { return ctxt_; }
     const ObjectSet<IOObj>& objsInSurvey() const { return ioobjs_; }
 
     Notifier<uiSurvIOObjSelGroup>	dClicked;
@@ -60,6 +67,7 @@ protected:
     TypeSet<int>	chosenidxs_;
     DBKeySet		seldbkys_;
     const bool		ismultisel_;
+    SurveyDiskLocation	survloc_; //!< only used when survey fixed
 
     uiSurveySelect*	survsel_;
     uiListBox*		objfld_;

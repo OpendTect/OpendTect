@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "databuf.h"
 #include "datachar.h"
-#include "dbkey.h"
+#include "fulldbkey.h"
 #include "seistype.h"
 #include "survgeom.h"
 #include "threadlock.h"
@@ -67,7 +67,7 @@ public:
     static Provider*	create(Seis::GeomType);
     static Provider*	create(const DBKey&,uiRetVal* uirv=0);
     static Provider*	create(const IOPar&,uiRetVal* uirv=0);
-    static DBKey	dbKey(const IOPar&);
+    static FullDBKey	dbKey(const IOPar&);
     virtual		~Provider();
 
     uiRetVal		setInput(const DBKey&);
@@ -77,7 +77,7 @@ public:
     bool		isPS() const	{ return Seis::isPS(geomType()); }
     BufferString	name() const;
     Pos::GeomID		firstGeomID() const	{ return curGeomID(); }
-    DBKey		dbKey() const		{ return dbky_; }
+    const DBKey&	dbKey() const		{ return dbky_; }
     ZSampling		getZRange() const	{ return doGetZRange(); }
     uiRetVal		getComponentInfo(BufferStringSet&,DataType* dt=0) const;
     int			nrOffsets() const; //!< at a representative location
@@ -130,7 +130,7 @@ protected:
 			Provider();
 
     mutable Threads::Lock lock_;
-    DBKey		dbky_;
+    FullDBKey		dbky_;
     SelData*		seldata_;
     float		zstep_;
     TypeSet<int>	selcomps_;

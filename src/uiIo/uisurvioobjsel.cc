@@ -58,15 +58,17 @@ static void getIOObList( ObjectSet<IOObj>& objs, const SurveyDiskLocation& sdl,
 
 
 uiSurvIOObjSelGroup::uiSurvIOObjSelGroup( uiParent* p, const IOObjContext& ctxt,
-					  bool selmulti )
+					  bool selmulti, bool fixsurv )
     : uiGroup(p,"Survey IOObj Sel Group")
     , ctxt_(*new IOObjContext(ctxt))
+    , survsel_(0)
     , ismultisel_(selmulti)
     , dClicked(this)
     , survChange(this)
     , selChange(this)
 {
-    survsel_ = new uiSurveySelect( this );
+    if ( !fixsurv )
+	survsel_ = new uiSurveySelect( this );
 
     uiListBox::Setup lbsu( ismultisel_ ? OD::ChooseAtLeastOne
 				       : OD::ChooseOnlyOne,
@@ -74,7 +76,8 @@ uiSurvIOObjSelGroup::uiSurvIOObjSelGroup( uiParent* p, const IOObjContext& ctxt,
     objfld_ = new uiListBox( this, lbsu );
     objfld_->setHSzPol( uiObject::WideVar );
     objfld_->setStretch( 2, 2 );
-    objfld_->attach( alignedBelow, survsel_ );
+    if ( survsel_ )
+	objfld_->attach( alignedBelow, survsel_ );
 
     setHAlignObj( objfld_ );
     mAttachCB( postFinalise(), uiSurvIOObjSelGroup::initGrp );
@@ -93,9 +96,10 @@ void uiSurvIOObjSelGroup::initGrp( CallBacker* )
     updGrp( true );
 
     mAttachCB( objfld_->selectionChanged, uiSurvIOObjSelGroup::selChgCB );
-    mAttachCB( survsel_->survDirChg, uiSurvIOObjSelGroup::survSelCB );
     if ( !ismultisel_ )
 	mAttachCB( objfld_->doubleClicked, uiSurvIOObjSelGroup::dClickCB );
+    if ( survsel_ )
+	mAttachCB( survsel_->survDirChg, uiSurvIOObjSelGroup::survSelCB );
 }
 
 
@@ -123,10 +127,27 @@ void uiSurvIOObjSelGroup::setSurvey( const SurveyDiskLocation& sdl )
     if ( sdl == surveyDiskLocation() )
 	return;
 
+    survloc_ = sdl;
     seldbkys_.setEmpty();
-    survsel_->setSurveyDiskLocation( sdl );
+    if ( survsel_ )
+	survsel_->setSurveyDiskLocation( sdl );
+
     if ( finalised() )
 	updGrp( false );
+}
+
+
+int uiSurvIOObjSelGroup::indexOf( const DBKey& dbky )
+{
+    mDynamicCastGet( const FullDBKey*, fdbky, &dbky )
+    for ( int idx=0; idx<ioobjs_.size(); idx++ )
+    {
+	const IOObj& ioobj = *ioobjs_[idx];
+	if ( (fdbky && ioobj.fullKey() == *fdbky)
+	  || (!fdbky && ioobj.key() == dbky) )
+	    return idx;
+    }
+    return -1;
 }
 
 
@@ -149,19 +170,21 @@ void uiSurvIOObjSelGroup::setSelected( const DBKeySet& dbkys )
 
 void uiSurvIOObjSelGroup::addExclude( const SurveyDiskLocation& sdl )
 {
-    survsel_->addExclude( sdl );
+    if ( survsel_ )
+	survsel_->addExclude( sdl );
 }
 
 
 SurveyDiskLocation uiSurvIOObjSelGroup::surveyDiskLocation() const
 {
-    return survsel_->surveyDiskLocation();
+    return survsel_ ? survsel_->surveyDiskLocation() : survloc_;
 }
 
 
 void uiSurvIOObjSelGroup::setSurveySelectable( bool yn )
 {
-    survsel_->setSensitive( yn );
+    if ( survsel_ )
+	survsel_->setSensitive( yn );
 }
 
 
@@ -186,7 +209,7 @@ void uiSurvIOObjSelGroup::updateObjs()
 
 void uiSurvIOObjSelGroup::selSurvFromSelection()
 {
-    if ( seldbkys_.isEmpty() )
+    if ( !survsel_ || seldbkys_.isEmpty() )
 	return;
 
     mDynamicCastGet( const FullDBKey*, fdbky, &seldbkys_.first() );
@@ -228,18 +251,23 @@ const IOObj* uiSurvIOObjSelGroup::ioObj( int idx ) const
 }
 
 
-FullDBKey uiSurvIOObjSelGroup::key( int idx ) const
+DBKey uiSurvIOObjSelGroup::key( int idx ) const
 {
-    FullDBKey ret( surveyDiskLocation() );
-    if ( !chosenidxs_.validIdx(idx) )
-	return ret;
+    if ( chosenidxs_.validIdx(idx) )
+    {
+	const int ioobjidx = chosenidxs_[idx];
+	if ( !ioobjs_.validIdx(ioobjidx) )
+	    { pErrMsg("Bad idx"); }
+	else
+	    return ioobjs_[ioobjidx]->key();
+    }
+    return DBKey();
+}
 
-    const int ioobjidx = chosenidxs_[idx];
-    if ( !ioobjs_.validIdx(ioobjidx) )
-	{ pErrMsg("Bad idx"); return ret; }
 
-    ret.setKey( ioobjs_[ioobjidx]->key() );
-    return ret;
+FullDBKey uiSurvIOObjSelGroup::fullKey( int idx ) const
+{
+    return FullDBKey( surveyDiskLocation(), key(idx) );
 }
 
 
@@ -258,12 +286,28 @@ bool uiSurvIOObjSelGroup::evaluateInput()
 
 
 uiSurvIOObjSelDlg::uiSurvIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
-				      bool selmulti )
-    : uiDialog(p,Setup(uiStrings::phrSelect(ctxt.uiObjectTypeName()),
+				      bool selmulti, bool fixsurv )
+    : uiDialog(p,Setup(uiString::empty(),
 			mNoDlgTitle,mODHelpKey(mSelObjFromOtherSurveyHelpID)))
 {
-    selgrp_ = new uiSurvIOObjSelGroup( this, ctxt, selmulti );
+    selgrp_ = new uiSurvIOObjSelGroup( this, ctxt, selmulti, fixsurv );
+    mAttachCB( postFinalise(), uiSurvIOObjSelDlg::initWin );
+}
+
+
+void uiSurvIOObjSelDlg::initWin( CallBacker* )
+{
+    survChgCB( 0 );
     mAttachCB( selgrp_->dClicked, uiSurvIOObjSelDlg::accept );
+    mAttachCB( selgrp_->survChange, uiSurvIOObjSelDlg::survChgCB );
+}
+
+
+void uiSurvIOObjSelDlg::survChgCB( CallBacker* )
+{
+    setCaption( uiStrings::phrSelect( toUiString("%1 @ '%2'")
+		.arg( selgrp_->ioobjContext().uiObjectTypeName() )
+		.arg( surveyDiskLocation().surveyName() ) ) );
 }
 
 
@@ -315,7 +359,13 @@ const IOObj* uiSurvIOObjSelDlg::ioObj( int idx ) const
 }
 
 
-FullDBKey uiSurvIOObjSelDlg::key( int idx ) const
+FullDBKey uiSurvIOObjSelDlg::fullKey( int idx ) const
+{
+    return selgrp_->fullKey( idx );
+}
+
+
+DBKey uiSurvIOObjSelDlg::key( int idx ) const
 {
     return selgrp_->key( idx );
 }
@@ -507,13 +557,18 @@ const IOObj* uiSurvIOObjSel::ioObj() const
 }
 
 
-FullDBKey uiSurvIOObjSel::key() const
+DBKey uiSurvIOObjSel::key() const
 {
-    FullDBKey ret( survloc_ );
     const IOObj* ioobj = ioObj();
     if ( ioobj )
-	ret.setKey( ioobj->key() );
-    return ret;
+	return ioobj->key();
+    return DBKey();
+}
+
+
+FullDBKey uiSurvIOObjSel::fullKey() const
+{
+    return FullDBKey( survloc_, key() );
 }
 
 

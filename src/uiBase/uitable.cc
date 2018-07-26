@@ -56,11 +56,11 @@ class CellObject
 			CellObject( QWidget* qw, uiObject* obj,
 				    const RowCol& rc )
 			    : qwidget_(qw)
-			    , object_(obj)
+			    , uiobj_(obj)
 			    , rowcol_(rc)    {}
 			~CellObject();
 
-    uiObject*		object_;
+    uiObject*		uiobj_;
     QWidget*		qwidget_;
     RowCol		rowcol_;
 };
@@ -68,12 +68,12 @@ class CellObject
 
 CellObject::~CellObject()
 {
-    mDynamicCastGet(uiGroupObj*,grpobj,object_);
+    mDynamicCastGet(uiGroupObj*,grpobj,uiobj_);
 
     if ( grpobj && grpobj->group() )
 	delete grpobj->group();
     else
-	delete object_;
+	delete uiobj_;
 }
 
 
@@ -95,6 +95,8 @@ public:
     uiObject*		getCellObject(const RowCol&) const;
     void		setCellObject(const RowCol&,uiObject*);
     RowCol		getCell(uiObject*);
+
+    virtual void	finalise();
 
     int			maxNrOfSelections() const;
     uiTable::SelectionBehavior getSelBehavior() const;
@@ -408,7 +410,7 @@ uiObject* uiTableBody::getCellObject( const RowCol& rc ) const
     {
 	if ( cellobjects_[idx]->qwidget_ == qw )
 	{
-	    obj = cellobjects_[idx]->object_;
+	    obj = cellobjects_[idx]->uiobj_;
 	    break;
 	}
     }
@@ -421,7 +423,7 @@ RowCol uiTableBody::getCell( uiObject* obj )
 {
     for ( int idx=0; idx<cellobjects_.size(); idx++ )
     {
-	if ( cellobjects_[idx]->object_ == obj )
+	if ( cellobjects_[idx]->uiobj_ == obj )
 	    return cellobjects_[idx]->rowcol_;
     }
 
@@ -450,6 +452,14 @@ void uiTableBody::clearCellObject( const RowCol& rc )
 	cellobjects_ -= co;
 	delete co;
     }
+}
+
+
+void uiTableBody::finalise()
+{
+    uiObjectBody::finalise();
+    for ( auto obj : cellobjects_ )
+	obj->uiobj_->finalise();
 }
 
 

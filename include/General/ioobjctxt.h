@@ -131,5 +131,8 @@ public:
     void		fixTranslator( const char* trusrnm )
 			{ deftransl_ = toselect_.allowtransls_ = trusrnm; }
 
+    int			nrMatches() const;
+    inline bool		haveMatches() const { return nrMatches() > 0; }
+
     mDeprecated DBDirID	getSelKey() const   { return getSelDirID(); }
 };
