@@ -15,6 +15,8 @@ ________________________________________________________________________
 
 namespace H5 { class H5File; }
 
+#define mDefHDF5FileExt "h5"
+
 
 namespace HDF5
 {
@@ -163,7 +165,7 @@ public:
     uiString		sCantSetScope(const DataSetKey&) const;
     static uiString	sDataSetNotFound(const DataSetKey&);
     static uiString	sCannotReadDataSet(const DataSetKey&);
-    static const char*	sFileExtension()	{ return "h5"; }
+    static const char*	sFileExtension()	{ return mDefHDF5FileExt; }
 
     static bool		isEnabled(const char* fortype=0);
     static bool		isEnvBlocked(const char* fortype=0);

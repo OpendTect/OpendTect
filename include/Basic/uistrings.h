@@ -153,6 +153,7 @@ public:
     static uiPhrase phrSuccessfullyExported(const uiWord&);
     static uiPhrase phrTODONotImpl(const char* clssname);
     static uiPhrase phrThreeDots(const uiWord& string,bool immediate=false);
+    static uiPhrase phrWrite(const uiWord&);
     static uiPhrase phrWriting(const uiWord&);
     static uiPhrase phrWritten(const uiWord&);
     static uiPhrase phrXcoordinate(const uiWord&);

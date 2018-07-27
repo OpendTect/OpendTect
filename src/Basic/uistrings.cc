@@ -345,6 +345,9 @@ uiPhrase uiStrings::phrThreeDots( const uiWord& string, bool immediate )
 uiPhrase uiStrings::phrTODONotImpl( const char* clssnm )
 { return toUiString( "[%1] TODO: Not Implemented" ).arg( clssnm ); }
 
+uiPhrase uiStrings::phrWrite( const uiWord& string )
+{ return tr("Write %1").arg( string ); }
+
 uiPhrase uiStrings::phrWriting( const uiWord& string )
 { return tr("Writing %1").arg( string ); }
 
