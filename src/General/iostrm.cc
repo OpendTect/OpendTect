@@ -15,6 +15,7 @@
 #include "filepath.h"
 #include "transl.h"
 #include "staticstring.h"
+#include "surveydisklocation.h"
 #include "envvars.h"
 #include "oddirs.h"
 
@@ -99,15 +100,15 @@ void IOStream::setAbsDirectory( const char* dirnm )
 
 bool IOStream::isInCurrentSurvey() const
 {
-    return fs_.survsubdir_.isEmpty() ? true : fullKey().isInCurrentSurvey();
+    return fs_.survsubdir_.isEmpty() ? true : key().isInCurrentSurvey();
 }
 
 
-FullDBKey IOStream::fullKey() const
+DBKey IOStream::key() const
 {
-    FullDBKey fdbky( key() );
+    DBKey dbky( key_ );
     if ( fs_.survsubdir_.isEmpty() )
-	return fdbky;
+	return dbky;
 
     File::Path fp( fs_.absFileName() );
     while ( true )
@@ -121,13 +122,14 @@ FullDBKey IOStream::fullKey() const
 	{
 	    const BufferString survdirnm( fp.fileName() );
 	    fp.setFileName( 0 );
-	    const SurveyDiskLocation sdl( fp.fullPath(), survdirnm );
-	    fdbky.setSurveyDiskLocation( sdl );
+	    const SurveyDiskLocation sdl( survdirnm, fp.fullPath() );
+	    if ( !sdl.isCurrentSurvey() )
+		dbky.setSurveyDiskLocation( sdl );
 	    break;
 	}
     }
 
-    return fdbky;
+    return dbky;
 }
 
 
@@ -265,7 +267,7 @@ Conn* IOStream::getConn( bool forread ) const
 
     StreamConn*	ret = new StreamConn( fnm, forread );
     if ( ret )
-	ret->setLinkedTo( fullKey() );
+	ret->setLinkedTo( key() );
 
     return ret;
 }

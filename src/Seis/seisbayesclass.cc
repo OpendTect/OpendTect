@@ -173,9 +173,7 @@ void SeisBayesClass::preScalePDFs()
 Seis::Provider* SeisBayesClass::getProvider(
 			const char* idstr, bool isdim, int idx )
 {
-    FullDBKey fdbky;
-    fdbky.getFromStr( idstr );
-    PtrMan<IOObj> ioobj = getIOObj( fdbky );
+    PtrMan<IOObj> ioobj = getIOObj( DBKey::getFromStr(idstr) );
     if ( !ioobj )
     {
 	const ProbDenFunc& pdf0 = *inppdfs_[0];
@@ -189,7 +187,7 @@ Seis::Provider* SeisBayesClass::getProvider(
     }
 
     uiRetVal uirv;
-    Seis::Provider* prov = Seis::Provider::create( fdbky, &uirv );
+    Seis::Provider* prov = Seis::Provider::create( *ioobj, &uirv );
     if ( !uirv.isOK() )
     {
 	msg_ = toUiString( ioobj->name() ).addMoreInfo( uirv );

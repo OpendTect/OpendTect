@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 class DBDir;
 class IOObjSelConstraints;
-class FullDBKey;
 
 
 /*!\brief manages the 'Meta-'data store for the IOObj's.

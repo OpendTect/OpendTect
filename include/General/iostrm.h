@@ -31,7 +31,7 @@ public:
 
     virtual void	copyFrom(const IOObj&);
     virtual const char*	fullUserExpr(bool forread=true) const;
-    virtual FullDBKey	fullKey() const;
+    virtual DBKey	key() const;
     virtual bool	isInCurrentSurvey() const;
     virtual BufferString mainFileName() const;
     virtual const char*	connType() const;

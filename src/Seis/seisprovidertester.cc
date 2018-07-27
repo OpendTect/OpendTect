@@ -78,7 +78,7 @@ uiRetVal Seis::ProviderTester::setSurveyName( const char* survname )
 
 uiRetVal Seis::ProviderTester::setInput( const char* dbkystr )
 {
-    dbky_ = FullDBKey::getFromStr( dbkystr );
+    dbky_ = DBKey::getFromStr( dbkystr );
     trc_.erase();
 
     uiRetVal uirv;

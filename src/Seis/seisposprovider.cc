@@ -128,10 +128,10 @@ bool Pos::SeisProvider3D::includes( const BinID& bid, float z ) const
 
 void Pos::SeisProvider3D::usePar( const IOPar& iop )
 {
-    FullDBKey fdbky( id_ ); ZSampling zsamp( zsamp_ );
-    iop.get( mGetSP3DKey(sKey::ID()), fdbky );
+    DBKey dbky( id_ ); ZSampling zsamp( zsamp_ );
+    iop.get( mGetSP3DKey(sKey::ID()), dbky );
     const bool havezsamp = iop.get( mGetSP3DKey(sKey::ZRange()), zsamp );
-    setSeisID( fdbky );
+    setSeisID( dbky );
     if ( havezsamp )
 	zsamp_ = zsamp;
 }

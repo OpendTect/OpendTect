@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class IOObj;
+class SurveyInfo;
 class SurveyDiskLocation;
 
 
@@ -30,7 +31,7 @@ class SurveyDiskLocation;
 
   To identify the storage of objects, every object somewhere in a data store
   accessible for opendTect, you need its DBKey. If you need to handle objects in
-  multiple surveys, you need the 'FullDBKey'.
+  multiple surveys, you need to do stuff with the SurveyDiskLocation.
 
   Previously, the key was a string-based class called MultiID. The DBKey
   replaces it with the safer and more compact IDWithGroup.
@@ -44,17 +45,11 @@ public:
     typedef GroupID	DirID;
     typedef GroupNrType	DirNrType;
 
-			DBKey()
-			    : auxkey_(0)	{}
-			DBKey( const DBKey& oth )
-			    : auxkey_(0)	{ *this = oth; }
+			DBKey()				{}
+			DBKey( const DBKey& oth )	{ *this = oth; }
 			DBKey( DirID dirid, ObjID oid=ObjID::getInvalid() )
-			    : IDWithGroup<int,int>(dirid,oid)
-			    , auxkey_(0)	{}
-    virtual		~DBKey();
-
-    virtual DBKey*	clone() const		{ return new DBKey(*this); }
-    static DBKey*	getFromString(const char*);
+			    : IDWithGroup<int,int>(dirid,oid)	{}
+			~DBKey();
 
     DBKey&		operator =(const DBKey&);
     bool		operator ==(const DBKey&) const;
@@ -68,16 +63,24 @@ public:
 
     virtual bool	isInvalid() const	{ return groupnr_ < 0; }
     bool		isUsable() const;
-    virtual bool	isInCurrentSurvey() const { return true; }
+    virtual bool	isInCurrentSurvey() const;
 
 			// aliases
     inline bool		hasValidDirID() const	{ return hasValidGroupID(); }
     inline DirID	dirID() const		{ return groupID(); }
     inline void		setDirID( DirID id )	{ setGroupID( id ); }
 
-    virtual BufferString toString() const;
-    virtual void	fromString(const char*);
-    virtual const SurveyDiskLocation& surveyDiskLocation() const;
+    BufferString	toString() const;
+    void		fromString(const char*);
+
+    bool		hasSurveyLocation() const { return survloc_; }
+    const SurveyDiskLocation& surveyDiskLocation() const;
+    const SurveyInfo&	surveyInfo() const;
+    BufferString	surveyName() const;
+
+    void		setSurveyDiskLocation(const SurveyDiskLocation&);
+    void		clearSurveyDiskLocation();
+    DBKey		getLocal() const;
 
     uiString		toUiString() const;
 
@@ -93,10 +96,10 @@ public:
 protected:
 
 			DBKey( DirNrType dnr, ObjNrType onr=-1 )
-			    : IDWithGroup<int,int>(dnr,onr)
-			    , auxkey_(0)	{}
+			    : IDWithGroup<int,int>(dnr,onr)	{}
 
-    BufferString*	auxkey_;
+    BufferString*	auxkey_			= 0;
+    SurveyDiskLocation*	survloc_		= 0;
 
     static void		doGetfromString(DBKey&,const char*);
 
@@ -104,7 +107,7 @@ protected:
 
 
 
-/*!\brief Set of DBKey's. Preserves FullDBKey's */
+/*!\brief Set of DBKey's */
 
 mExpClass(Basic) DBKeySet : public OD::Set
 { mIsContainer( DBKeySet, ObjectSet<DBKey>, dbkys_ )
@@ -112,14 +115,14 @@ public:
 
     inline		DBKeySet()		{}
     inline		DBKeySet( const DBKeySet& oth )
-				    { deepAppendClone( dbkys_, oth.dbkys_ ); }
+				    { deepAppend( dbkys_, oth.dbkys_ ); }
     explicit		DBKeySet( const DBKey& dbky )
 						{ add( dbky ); }
 			~DBKeySet()		{ deepErase(dbkys_); }
     virtual DBKeySet*	clone() const		{ return new DBKeySet(*this); }
 
     inline DBKeySet&	operator =( const DBKeySet& oth )
-			{ deepCopyClone( dbkys_, oth.dbkys_ ); return *this; }
+			{ deepCopy( dbkys_, oth.dbkys_ ); return *this; }
     bool		operator ==(const DBKeySet&) const;
 
     inline size_type	size() const		{ return dbkys_.size(); }
@@ -139,7 +142,7 @@ public:
     const DBKey&	last() const		{ return *dbkys_.last(); }
 
     DBKeySet&		add( DBKey* ky )	{ dbkys_.add(ky); return *this;}
-    DBKeySet&		add( const DBKey& ky )	{ return add( ky.clone() ); }
+    DBKeySet&		add( const DBKey& ky )	{ return add(new DBKey(ky)); }
     bool		addIfNew(const DBKey&);
     void		append(const DBKeySet&,bool allowduplicates=true);
     void		insert(idx_type,const DBKey&);

@@ -100,15 +100,16 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
     const char* res = iop.find( mGetTableKey("ID") );
     if ( res && *res )
     {
-	PtrMan<DBKey> dbky = DBKey::getFromString( res );
-	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( *dbky );
+	const DBKey dbky( DBKey::getFromStr(res) );
+	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( dbky );
 	if ( ps )
 	{
 	    Pick::SetIter psiter( *ps );
+	    const SurveyInfo& si = dbky.surveyInfo();
 	    while ( psiter.next() )
 	    {
 		const Coord3 crd3 = psiter.get().pos();
-		bvs.add( SI().transform(crd3.getXY()), (float)crd3.z_ );
+		bvs.add( si.transform(crd3.getXY()), (float)crd3.z_ );
 	    }
 	}
     }

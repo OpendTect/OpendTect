@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "posprovider.h"
 #include "posinfo.h"
-#include "fulldbkey.h"
+#include "dbkey.h"
 #include "keystrs.h"
 
 
@@ -66,7 +66,7 @@ public:
 
 protected:
 
-    FullDBKey		id_;
+    DBKey		id_;
     PosInfo::CubeData	cubedata_;
     ZSampling		zsamp_;
     PosInfo::CubeDataPos curpos_;

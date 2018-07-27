@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "databuf.h"
 #include "datachar.h"
-#include "fulldbkey.h"
+#include "dbkey.h"
 #include "seistype.h"
 #include "survgeom.h"
 #include "threadlock.h"
@@ -68,7 +68,7 @@ public:
     static Provider*	create(const DBKey&,uiRetVal* uirv=0);
     static Provider*	create(const IOObj&,uiRetVal* uirv=0);
     static Provider*	create(const IOPar&,uiRetVal* uirv=0);
-    static FullDBKey	dbKey(const IOPar&);
+    static DBKey	dbKey(const IOPar&);
     virtual		~Provider();
 
     uiRetVal		setInput(const DBKey&);
@@ -131,7 +131,7 @@ protected:
 			Provider();
 
     mutable Threads::Lock lock_;
-    FullDBKey		dbky_;
+    DBKey		dbky_;
     SelData*		seldata_;
     float		zstep_;
     TypeSet<int>	selcomps_;

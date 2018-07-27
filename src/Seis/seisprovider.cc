@@ -69,7 +69,7 @@ Seis::Provider* Seis::Provider::create( Seis::GeomType gt )
 
 Seis::Provider* Seis::Provider::create( const IOObj& ioobj, uiRetVal* uirv )
 {
-    return create( ioobj.fullKey() );
+    return create( ioobj.key() );
 }
 
 
@@ -97,11 +97,11 @@ Seis::Provider* Seis::Provider::create( const DBKey& dbky, uiRetVal* uirv )
 
 Seis::Provider* Seis::Provider::create( const IOPar& iop, uiRetVal* uirv )
 {
-    PtrMan<DBKey> dbky = DBKey::getFromString( iop.find(sKey::ID()) );
-    if ( dbky->isInvalid() )
+    const DBKey dbky = DBKey::getFromStr( iop.find(sKey::ID()) );
+    if ( dbky.isInvalid() )
 	return 0;
 
-    Provider* ret = create( *dbky, uirv );
+    Provider* ret = create( dbky, uirv );
     if ( ret )
 	ret->usePar( iop );
 
@@ -188,7 +188,7 @@ uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 }
 
 
-FullDBKey Seis::Provider::dbKey( const IOPar& iop )
+DBKey Seis::Provider::dbKey( const IOPar& iop )
 {
     const char* res = iop.find( sKey::ID() );
     BufferString tmp;
@@ -209,7 +209,7 @@ FullDBKey Seis::Provider::dbKey( const IOPar& iop )
     }
 
     if ( res && *res )
-	return FullDBKey::getFromStr( res );
+	return DBKey::getFromStr( res );
 
     return DBKey::getInvalid();
 }

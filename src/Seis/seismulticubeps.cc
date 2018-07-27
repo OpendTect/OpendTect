@@ -90,7 +90,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 #   define mErrCont(s) { errmsg_ = s; continue; }
     while ( !atEndOfSection(astrm.next()) )
     {
-	const FullDBKey dbky( FullDBKey::getFromStr(astrm.keyWord()) );
+	const DBKey dbky( DBKey::getFromStr(astrm.keyWord()) );
 	FileMultiString fms( astrm.value() );
 	const int fmssz = fms.size();
 	const float offs = fms.getFValue( 0 );

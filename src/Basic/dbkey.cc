@@ -5,9 +5,10 @@
 -*/
 
 
-#include "fulldbkey.h"
+#include "dbkey.h"
 #include "bufstringset.h"
 #include "compoundkey.h"
+#include "surveydisklocation.h"
 
 static BufferString noNameOfFn( const DBKey& )	{ return BufferString(); }
 static IOObj* noGetIOObjFn( const DBKey& )	{ return 0; }
@@ -75,7 +76,7 @@ bool isValidGroupedIDString( const char* str )
 
 
 void getGroupedIDNumbers( const char* str, od_int64& gnr, od_int64& onr,
-			  BufferString* trailer )
+			  BufferString* auxpart, BufferString* survpart )
 {
     gnr = onr = -1;
     BufferString inpstr( str );
@@ -84,13 +85,19 @@ void getGroupedIDNumbers( const char* str, od_int64& gnr, od_int64& onr,
 
     char* ptrbq = inpstr.find( '`' );
     if ( ptrbq )
+    {
 	*ptrbq = '\0';
+	if ( survpart )
+	    survpart->set( ptrbq + 1 );
+    }
 
-    char* ptrtrailer = inpstr.find( '|' );
-    if ( ptrtrailer )
-	{ *ptrtrailer = '\0'; ptrtrailer++; }
-    if ( trailer )
-	trailer->set( ptrtrailer );
+    char* ptrpipe = inpstr.find( '|' );
+    if ( ptrpipe )
+    {
+	*ptrpipe = '\0';
+	if ( auxpart )
+	    auxpart->set( ptrpipe + 1 );
+    }
 
     if ( !isValidGroupedIDString( inpstr.str() ) )
 	return;
@@ -111,22 +118,10 @@ void getGroupedIDNumbers( const char* str, od_int64& gnr, od_int64& onr,
 }
 
 
-DBKey* DBKey::getFromString( const char* str )
-{
-    FullDBKey* fdbky = new FullDBKey;
-    fdbky->fromString( str );
-    if ( !fdbky->isInCurrentSurvey() )
-	return fdbky;
-
-    DBKey* dbky = new DBKey( *fdbky );
-    delete fdbky;
-    return dbky;
-}
-
-
 DBKey::~DBKey()
 {
     delete auxkey_;
+    delete survloc_;
 }
 
 
@@ -136,6 +131,11 @@ DBKey& DBKey::operator =( const DBKey& oth )
     {
 	IDWithGroup<int,int>::operator =( oth );
 	setAuxKey( oth.auxkey_ ? oth.auxkey_->str() : 0 );
+	delete survloc_;
+	if ( oth.survloc_ )
+	    survloc_ = new SurveyDiskLocation( *oth.survloc_ );
+	else
+	    survloc_ = 0;
     }
     return *this;
 }
@@ -144,6 +144,15 @@ DBKey& DBKey::operator =( const DBKey& oth )
 bool DBKey::operator ==( const DBKey& oth ) const
 {
     if ( !IDWithGroup<int,int>::operator ==(oth) )
+	return false;
+
+    const bool iscursuv = isInCurrentSurvey();
+    const bool othiscursurv = oth.isInCurrentSurvey();
+    if ( iscursuv && othiscursurv )
+	{ /*OK*/ }
+    else if ( iscursuv || othiscursurv )
+	return false;
+    else if ( *survloc_ != *oth.survloc_ )
 	return false;
 
     const bool haveauxkey = auxkey_;
@@ -159,8 +168,14 @@ bool DBKey::operator ==( const DBKey& oth ) const
 
 const SurveyDiskLocation& DBKey::surveyDiskLocation() const
 {
-    static SurveyDiskLocation emptysdl_( 0, 0 );
-    return emptysdl_;
+    static const SurveyDiskLocation emptysdl_( 0, 0 );
+    return survloc_ ? *survloc_ : emptysdl_;
+}
+
+
+const SurveyInfo& DBKey::surveyInfo() const
+{
+    return surveyDiskLocation().surveyInfo();
 }
 
 
@@ -171,6 +186,12 @@ bool DBKey::isUsable() const
 	return false;
     delIOObj( ioobj );
     return true;
+}
+
+
+bool DBKey::isInCurrentSurvey() const
+{
+    return !survloc_ || survloc_->isCurrentSurvey();
 }
 
 
@@ -190,17 +211,28 @@ BufferString DBKey::toString() const
     if ( auxkey_ )
 	ret.add( "|" ).add( *auxkey_ );
 
+    if ( survloc_ )
+	ret.add( "`" ).add( survloc_->fullPath() );
+
     return ret;
 }
 
 
 void DBKey::fromString( const char* str )
 {
-    od_int64 gnr, onr; BufferString aux;
-    getGroupedIDNumbers( str, gnr, onr, &aux );
+    od_int64 gnr, onr; BufferString aux, surv;
+    getGroupedIDNumbers( str, gnr, onr, &aux, &surv );
     groupnr_ = (GroupNrType)gnr;
     objnr_ = (ObjNrType)onr;
     setAuxKey( aux );
+
+    SurveyDiskLocation sdl;
+    sdl.set( surv );
+    delete survloc_;
+    if ( sdl.isCurrentSurvey() )
+	survloc_ = 0;
+    else
+	survloc_ = new SurveyDiskLocation( sdl );
 }
 
 
@@ -223,6 +255,36 @@ void DBKey::setAuxKey( const char* str )
     }
 }
 
+
+void DBKey::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
+{
+    delete survloc_;
+    if ( sdl.isCurrentSurvey() )
+	survloc_ = 0;
+    else
+	survloc_ = new SurveyDiskLocation( sdl );
+}
+
+
+void DBKey::clearSurveyDiskLocation()
+{
+    delete survloc_;
+    survloc_ = 0;
+}
+
+
+DBKey DBKey::getLocal() const
+{
+    DBKey ret(*this);
+    ret.clearSurveyDiskLocation();
+    return ret;
+}
+
+
+BufferString DBKey::surveyName() const
+{
+    return surveyDiskLocation().surveyName();
+}
 
 
 DBKey DBKey::getFromStr( const char* str )
@@ -287,7 +349,7 @@ bool DBKeySet::addIfNew( const DBKey& dbky )
 void DBKeySet::append( const DBKeySet& oth, bool allowduplicates )
 {
     if ( allowduplicates )
-	deepAppendClone( dbkys_, oth.dbkys_ );
+	deepAppend( dbkys_, oth.dbkys_ );
     else
     {
 	for ( auto dbky : oth )
@@ -298,7 +360,7 @@ void DBKeySet::append( const DBKeySet& oth, bool allowduplicates )
 
 void DBKeySet::insert( idx_type idx, const DBKey& dbky )
 {
-    dbkys_.insertAt( dbky.clone(), idx );
+    dbkys_.insertAt( new DBKey(dbky), idx );
 }
 
 
@@ -351,97 +413,5 @@ DBKeySet& DBKeySet::removeUnusable()
 void DBKeySet::addTo( BufferStringSet& bss ) const
 {
     for ( int idx=0; idx<size(); idx++ )
-	bss.add( ((*this)[idx]).toString() );
-}
-
-
-FullDBKey& FullDBKey::operator =( const FullDBKey& oth )
-{
-    if ( this != &oth )
-    {
-	DBKey::operator =( oth );
-	survloc_ = oth.survloc_;
-    }
-    return *this;
-}
-
-
-FullDBKey& FullDBKey::operator =( const DBKey& dbky )
-{
-    if ( this != &dbky )
-    {
-	mDynamicCastGet( const FullDBKey*, fdbky, &dbky )
-	if ( fdbky )
-	    return operator =( *fdbky );
-
-	DBKey::operator =( dbky );
-	if ( !survloc_.isCurrentSurvey() )
-	    survloc_.setToCurrentSurvey();
-    }
-    return *this;
-}
-
-
-bool FullDBKey::operator ==( const FullDBKey& oth ) const
-{
-    return survloc_ == oth.survloc_
-	&& DBKey::operator ==( oth );
-}
-
-
-bool FullDBKey::operator !=( const FullDBKey& oth ) const
-{
-    return !(*this == oth);
-}
-
-
-bool FullDBKey::operator ==( const DBKey& dbky ) const
-{
-    mDynamicCastGet( const FullDBKey*, fdbky, &dbky )
-    if ( fdbky )
-	return operator ==( *fdbky );
-
-    return survloc_ == SurveyDiskLocation()
-	&& DBKey::operator ==( dbky );
-}
-
-
-bool FullDBKey::operator !=( const DBKey& dbky ) const
-{
-    return !(*this == dbky);
-}
-
-
-FullDBKey FullDBKey::getFromStr( const char* str )
-{
-    FullDBKey ret;
-    ret.fromString( str );
-    return ret;
-}
-
-
-BufferString FullDBKey::toString() const
-{
-    BufferString ret = DBKey::toString();
-    ret.add( "`" ).add( survloc_.fullPath() );
-    return ret;
-}
-
-
-void FullDBKey::fromString( const char* str )
-{
-    DBKey::fromString( str );
-
-    FixedString inpstr( str );
-    const char* ptrbq = inpstr.find( '`' );
-    if ( !ptrbq || !*(ptrbq+1) )
-	survloc_.setEmpty();
-    else
-	survloc_.set( ptrbq+1 );
-}
-
-
-BufferString FullDBKey::surveyName() const
-{
-    return survloc_.surveyName();
+	bss.add( get(idx).toString() );
 }

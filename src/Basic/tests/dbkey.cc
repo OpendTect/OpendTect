@@ -6,7 +6,8 @@
 
 
 #include "testprog.h"
-#include "fulldbkey.h"
+#include "dbkey.h"
+#include "surveydisklocation.h"
 
 static bool checkCharacteristics( const char* strrep,
 	      bool strvalid, bool kyvalid, bool isdir, bool hasaux )
@@ -107,26 +108,24 @@ static bool testToFromString()
 }
 
 #include "filepath.h"
-static bool testFullDBKey()
+static bool testSurvDBKey()
 {
     File::Path sstr( "100010.5`/tmp/surveys/Apenoot" );
-    DBKey* ldbky = DBKey::getFromString( "100010.5" );
-    DBKey* sdbky = DBKey::getFromString( sstr.fullPath() );
+    DBKey ldbky = DBKey::getFromStr( "100010.5" );
+    DBKey sdbky = DBKey::getFromStr( sstr.fullPath() );
 
-    mRunStandardTest( ldbky->isInCurrentSurvey(), "DBKey in current survey" );
-    mRunStandardTest( !sdbky->isInCurrentSurvey(),
-			"FullDBKey not in current survey" );
+    mRunStandardTest( ldbky.isInCurrentSurvey(), "DBKey in-survey" );
+    mRunStandardTest( !sdbky.isInCurrentSurvey(), "DBKey off-survey" );
 
-    FullDBKey& fdbky( *(FullDBKey*)sdbky );
-    const BufferString survdir( fdbky.surveyDiskLocation().fullPath() );
-    File::Path fp("/tmp/surveys/Apenoot");
+    const BufferString survdir( sdbky.surveyDiskLocation().fullPath() );
+    File::Path fp( "/tmp/surveys/Apenoot" );
     BufferString str = fp.fullPath();
     mRunStandardTestWithError( survdir == fp.fullPath(),
 	    "Correct survdir", BufferString("parsed: '",survdir,"'") );
-    const BufferString fdbkystr( fdbky.toString() );
+    const BufferString dbkystr( sdbky.toString() );
 
-    mRunStandardTestWithError( fdbkystr == sstr.fullPath(),
-	    "Correct toString", BufferString("got: '",fdbkystr,"'") );
+    mRunStandardTestWithError( dbkystr == sstr.fullPath(),
+	    "Correct toString", BufferString("got: '",dbkystr,"'") );
 
     return true;
 }
@@ -139,7 +138,7 @@ int mTestMainFnName( int argc, char** argv )
 
     if ( !testToFromString() )
 	return 1;
-    else if ( !testFullDBKey() )
+    else if ( !testSurvDBKey() )
 	return 1;
 
     return 0;

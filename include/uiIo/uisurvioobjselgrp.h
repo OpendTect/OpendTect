@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uigroup.h"
-#include "fulldbkey.h"
 
 class IOObjContext;
 class uiSurveySelect;
@@ -34,8 +33,7 @@ public:
 
     void		setSurvey(const SurveyDiskLocation&);
     void		addExclude(const SurveyDiskLocation&);
-    void		excludeCurrentSurvey()
-			{ addExclude(SurveyDiskLocation::currentSurvey()); }
+    void		excludeCurrentSurvey();
     void		setSurveySelectable(bool);
 
     int			indexOf(const DBKey&);
@@ -50,7 +48,6 @@ public:
     int			nrSelected() const	{ return chosenidxs_.size(); }
     const IOObj*	ioObj(int iselected=0) const;
     DBKey		key(int iselected=0) const;
-    FullDBKey		fullKey(int iselected=0) const;
     BufferString	mainFileName(int iselected=0) const;
 
     const IOObjContext&	ioobjContext()		 { return ctxt_; }

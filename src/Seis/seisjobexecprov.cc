@@ -62,8 +62,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
     seisoutkey_ = outputKey( iopar_ );
 
     FixedString res = iopar_.find( seisoutkey_ );
-    PtrMan<DBKey> dbky = DBKey::getFromString( res );
-    IOObj* outioobj = DBM().get( *dbky );
+    IOObj* outioobj = getIOObj( DBKey::getFromStr(res) );
     if ( !outioobj )
 	errmsg_ = tr("Cannot find specified output seismic ID");
     else

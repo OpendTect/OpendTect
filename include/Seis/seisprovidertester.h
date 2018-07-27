@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "ptrman.h"
 #include "seistrc.h"
-#include "fulldbkey.h"
 
 class SeisTrcBuf;
 class TrcKeyZSampling;
@@ -76,7 +75,7 @@ protected:
 				      const uiRetVal&,
 				      bool addnewline=true);
 
-    FullDBKey			dbky_;
+    DBKey			dbky_;
     SeisTrc			trc_; //!< Current trace.
     PtrMan<Provider>		prov_;
 };

@@ -102,7 +102,7 @@ typedef IDWithGroup<od_int16,int> GroupedID;
 		// example: 124.8|the_trailer
 mGlobal(Basic) bool isValidGroupedIDString(const char*);
 mGlobal(Basic) void getGroupedIDNumbers(const char*,od_int64&,od_int64&,
-					BufferString* trailer=0);
+			    BufferString* auxpart=0,BufferString* survpart=0);
 
 
 template <class GroupNrT,class ObjNrT> inline

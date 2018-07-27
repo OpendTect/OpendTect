@@ -20,7 +20,6 @@
 #include "strmprov.h"
 #include "transl.h"
 #include "surveydisklocation.h"
-#include "fulldbkey.h"
 
 
 #define mIsBad() (readtime_ < 0)
@@ -582,7 +581,6 @@ DBDirIter::ObjID DBDirIter::objID() const
 DBDirEntryList::DBDirEntryList( const IOObjContext& ct, bool dofill )
     : ctxt_(*new IOObjContext(ct))
     , survloc_(*new SurveyDiskLocation)
-    , retfdbky_(*new FullDBKey)
 {
     if ( dofill )
 	fill( 0 );
@@ -593,7 +591,6 @@ DBDirEntryList::DBDirEntryList( const IOObjContext& ct,
 				const SurveyDiskLocation& survloc, bool dofill )
     : ctxt_(*new IOObjContext(ct))
     , survloc_(*new SurveyDiskLocation(survloc))
-    , retfdbky_(*new FullDBKey)
 {
     if ( dofill )
 	fill( 0 );
@@ -604,7 +601,6 @@ DBDirEntryList::DBDirEntryList( const TranslatorGroup& tr,
 				const char* allowedtransls )
     : ctxt_(*new IOObjContext(&tr))
     , survloc_(*new SurveyDiskLocation)
-    , retfdbky_(*new FullDBKey)
 {
     ctxt_.toselect_.allowtransls_ = allowedtransls;
     fill( 0 );
@@ -616,7 +612,6 @@ DBDirEntryList::~DBDirEntryList()
     deepErase( entries_ );
     delete &ctxt_;
     delete &survloc_;
-    delete &retfdbky_;
 }
 
 
@@ -664,19 +659,16 @@ void DBDirEntryList::fill( const char* nmfilt )
 }
 
 
-const DBKey& DBDirEntryList::key( IdxType idx ) const
+DBKey DBDirEntryList::key( IdxType idx ) const
 {
-    if ( !entries_.validIdx(idx) )
-	retdbky_ = DBKey::getInvalid();
-    else if ( survloc_.isCurrentSurvey() )
-	retdbky_ = entries_[idx]->key();
-    else
+    DBKey ret;
+    if ( entries_.validIdx(idx) )
     {
-	retfdbky_ = entries_[idx]->key();
-	retfdbky_.setSurveyDiskLocation( survloc_ );
-	return retfdbky_;
+	ret = entries_[idx]->key();
+	if ( !survloc_.isCurrentSurvey() )
+	    ret.setSurveyDiskLocation( survloc_ );
     }
-    return retdbky_;
+    return ret;
 }
 
 

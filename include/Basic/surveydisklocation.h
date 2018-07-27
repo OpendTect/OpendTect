@@ -22,8 +22,7 @@ namespace File { class Path; }
   itself. Thus, if you have to work accross surveys, this has to be the ID
   of a survey. To make things like 'relocate' easier, the path is split in a
   base path (usualy the 'Data Root') and the survey directory name. If any
-  of the two is empty, it will be taken from surrent survey. The
-  SurveyDiskLocation then has a 'soft path'.
+  of the two is empty, it will be taken from surrent survey.
 
  */
 
@@ -54,16 +53,12 @@ public:
 
     bool		isEmpty() const;    //!< current survey, soft path
     void		setEmpty();	    //!< current survey, soft path
-    inline bool		hasSoftPath() const
-			{ return basepath_.isEmpty() || dirname_.isEmpty(); }
-    void		ensureHardPath();
-    void		softenPath();
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
     static const SurveyDiskLocation&	currentSurvey();
-    const SurveyInfo&	survInfo() const;
+    const SurveyInfo&	surveyInfo() const;
 
 protected:
 

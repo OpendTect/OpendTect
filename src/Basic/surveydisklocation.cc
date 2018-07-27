@@ -102,30 +102,6 @@ void SurveyDiskLocation::setToCurrentSurvey( bool hard )
 }
 
 
-void SurveyDiskLocation::ensureHardPath()
-{
-    if ( hasSoftPath() )
-    {
-	if ( basepath_.isEmpty() )
-	    basepath_ = currentSurvey().basePath();
-	if ( dirname_.isEmpty() )
-	    dirname_ = currentSurvey().dirName();
-    }
-}
-
-
-void SurveyDiskLocation::softenPath()
-{
-    if ( !basepath_.isEmpty() || !dirname_.isEmpty() )
-    {
-	if ( basepath_ == currentSurvey().basePath() )
-	    basepath_.setEmpty();
-	if ( dirname_ == currentSurvey().dirName() )
-	    dirname_.setEmpty();
-    }
-}
-
-
 void SurveyDiskLocation::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Survey(), fullPath() );
@@ -159,14 +135,14 @@ BufferString SurveyDiskLocation::fullPathFor( const char* fnm ) const
 
 BufferString SurveyDiskLocation::surveyName() const
 {
-    BufferString ret( survInfo().getName() );
+    BufferString ret( surveyInfo().getName() );
     if ( ret.isEmpty() )
 	ret = dirname_;
     return ret;
 }
 
 
-const SurveyInfo& SurveyDiskLocation::survInfo() const
+const SurveyInfo& SurveyDiskLocation::surveyInfo() const
 {
     if ( isCurrentSurvey() )
 	return SI();

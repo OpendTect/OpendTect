@@ -75,7 +75,7 @@ SeisEventSnapper3D::SeisEventSnapper3D( const IOObj& ioobj, BinIDValueSet& bvs,
     : SeisEventSnapper(gate)
     , positions_(bvs)
 {
-    mscprov_ = new Seis::MSCProvider( ioobj.fullKey() );
+    mscprov_ = new Seis::MSCProvider( ioobj.key() );
     const Interval<float> zrg = bvs.valRange( 0 );
     mscprov_->setSelData( new Seis::TableSelData(bvs,&gate) );
     totalnr_ = mCast( int, bvs.totalSize() );

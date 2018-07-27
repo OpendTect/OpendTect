@@ -11,7 +11,6 @@
 #include "file.h"
 #include "filepath.h"
 #include "timefun.h"
-#include "fulldbkey.h"
 #include "genc.h"
 #include "survinfo.h"
 #include "survgeom.h"
@@ -298,17 +297,14 @@ ConstRefMan<DBDir> DBMan::fetchDir( IOObjContext::StdSelType seltyp ) const
 
 IOObj* DBMan::get( const DBKey& dbky ) const
 {
+    if ( !dbky.isInCurrentSurvey() )
+	return ::getIOObj( dbky );
+
     if ( isBad() )
 	return 0;
-
     const DirID dirid = dbky.dirID();
     if ( dirid.isInvalid() )
 	return 0;
-
-    mDynamicCastGet( const FullDBKey*, fdbky, &dbky );
-    if ( fdbky && !fdbky->isInCurrentSurvey() )
-	return ::getIOObj( *fdbky );
-
     ConstRefMan<DBDir> dbdir = fetchDir( dirid );
     if ( !dbdir )
 	return 0;
@@ -322,21 +318,20 @@ IOObj* DBMan_getIOObj( const DBKey& dbky )
     if ( !dbky.isValid() )
 	return 0;
     const SurveyDiskLocation& survloc = dbky.surveyDiskLocation();
-    mDynamicCastGet( const FullDBKey*, fdbky, &dbky )
-    if ( !fdbky || survloc.isCurrentSurvey() )
+    if ( survloc.isCurrentSurvey() )
 	return DBM().get( dbky );
 
     ConstRefMan<DBDir> survrootdbdir = new DBDir( survloc.fullPath() );
     IOObj* ret = 0;
     if ( !survrootdbdir->isBad() )
     {
-	const DBKey::ObjID dirid = DBKey::ObjID( fdbky->groupID().getI() );
+	const DBKey::ObjID dirid = DBKey::ObjID( dbky.groupID().getI() );
 	const IOObj* iosubdir = survrootdbdir->getEntry( dirid );
 	if ( iosubdir )
 	{
 	    const BufferString datadirnm( iosubdir->fullUserExpr(true) );
 	    ConstRefMan<DBDir> objdbdir = new DBDir( datadirnm );
-	    const IOObj* ioobj = objdbdir->getEntry( fdbky->objID() );
+	    const IOObj* ioobj = objdbdir->getEntry( dbky.objID() );
 	    if ( ioobj )
 	    {
 		ret = ioobj->clone();
@@ -464,8 +459,7 @@ IOObj* DBMan::getFromPar( const IOPar& iop, const char* bky,
 	}
     }
 
-    PtrMan<DBKey> dbky = DBKey::getFromString( res );
-    IOObj* ioobj = DBMan_getIOObj( *dbky );
+    IOObj* ioobj = DBMan_getIOObj( DBKey::getFromStr(res) );
     if ( !ioobj )
 	errmsg = tr("Value for %1 is invalid.").arg( iopkey );
 

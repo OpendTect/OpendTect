@@ -175,7 +175,7 @@ public:
     IdxType		indexOf(const char*) const;
 
     const IOObj&	ioobj( IdxType idx ) const { return *entries_[idx]; }
-    const DBKey&	key(IdxType) const;
+    DBKey		key(IdxType) const;
     BufferString	name(IdxType) const;
     BufferString	dispName(IdxType) const;
     BufferString	iconName(IdxType) const;
@@ -186,8 +186,6 @@ protected:
     IOObjContext&	ctxt_;
     SurveyDiskLocation&	survloc_;
     BufferString	name_;
-    mutable DBKey	retdbky_;
-    FullDBKey&		retfdbky_;
 
     void		sort();
 

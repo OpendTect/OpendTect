@@ -241,33 +241,14 @@ uiRetVal SurveyInfo::setSurveyLocation( const SurveyDiskLocation& reqloc,
 					bool forcerefresh )
 {
     uiRetVal ret;
-    SurveyDiskLocation newloc( reqloc );
-    newloc.ensureHardPath();
-    SurveyDiskLocation oldloc( SI().diskloc_ );
-
-    bool useoldbp = false, useolddirnm = false;
-    if ( !oldloc.isEmpty() )
-    {
-	useoldbp = newloc.basePath() == oldloc.basePath();
-	useolddirnm = newloc.dirName() == oldloc.dirName();
-    }
-
-    if ( !forcerefresh && useoldbp && useolddirnm )
+    if ( !forcerefresh && reqloc == SI().diskloc_ )
 	return ret;
-
-    if ( useoldbp )
-	newloc.setBasePath( oldloc.basePath() );
-    if ( useolddirnm )
-	newloc.setDirName( oldloc.dirName() );
-
-    if ( !File::isDirectory(newloc.basePath()) )
-	mErrRetDoesntExist(newloc.basePath())
-
-    File::Path fp( newloc.basePath(), newloc.dirName() );
+    if ( !File::isDirectory(reqloc.basePath()) )
+	mErrRetDoesntExist(reqloc.basePath())
+    File::Path fp( reqloc.basePath(), reqloc.dirName() );
     const BufferString survdir = fp.fullPath();
     if ( !File::isDirectory(survdir) )
 	mErrRetDoesntExist(survdir)
-
     fp.add( ".omf" );
     const BufferString omffnm = fp.fullPath();
     if ( !File::exists(omffnm) )

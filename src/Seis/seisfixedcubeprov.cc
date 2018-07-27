@@ -131,7 +131,7 @@ bool SeisFixedCubeProvider::isEmpty() const
 bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 {
     trcdist_ = SI().crlDistance();
-    const SeisIOObjInfo si( ioobj_->fullKey() );
+    const SeisIOObjInfo si( ioobj_->key() );
     if ( !si.is2D() )
 	return true;
 

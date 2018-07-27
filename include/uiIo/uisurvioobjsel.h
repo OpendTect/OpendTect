@@ -15,7 +15,8 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uigroup.h"
-#include "fulldbkey.h"
+#include "dbkey.h"
+#include "surveydisklocation.h"
 
 class IOObjContext;
 class uiButton;
@@ -39,8 +40,7 @@ public:
     void		excludeCurrentSurvey()
 			{ addExclude(SurveyDiskLocation::currentSurvey()); }
 
-    void		setSelected(const FullDBKey&);	//!< may change surv
-    void		setSelected(DBKey);		//!< stays in surv
+    void		setSelected(const DBKey&);
     void		setSelected(const char* nm,bool mostsimilar=true);
     void		setSurveySelectable(bool);
 			//!< only possible if you did not specify surveyfixed
@@ -50,7 +50,6 @@ public:
     SurveyDiskLocation	surveyDiskLocation() const  { return survloc_; }
     const IOObj*	ioObj() const;
     DBKey		key() const;
-    FullDBKey		fullKey() const;
     BufferString	ioObjName() const;
     BufferString	mainFileName() const;
 
