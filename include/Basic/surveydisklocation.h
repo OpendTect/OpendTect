@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 
+class SurveyInfo;
 namespace File { class Path; }
 
 
@@ -62,6 +63,7 @@ public:
     bool		usePar(const IOPar&);
 
     static const SurveyDiskLocation&	currentSurvey();
+    const SurveyInfo&	survInfo() const;
 
 protected:
 

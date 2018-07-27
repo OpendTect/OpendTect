@@ -136,7 +136,7 @@ public:
     void		getCreationData(IOPar&) const;
 			//!< std creation entries and some SIP stuff
 
-    RefMan<Survey::Geometry3D>		get3DGeometry(bool work) const;
+    RefMan<Survey::Geometry3D>	get3DGeometry(bool work) const;
     RefMan<Coords::CoordSystem>	getCoordSystem();
     ConstRefMan<Coords::CoordSystem> getCoordSystem() const;
 

@@ -159,15 +159,31 @@ BufferString SurveyDiskLocation::fullPathFor( const char* fnm ) const
 
 BufferString SurveyDiskLocation::surveyName() const
 {
-    const BufferString survdir( fullPath() );
-    File::Path fp( survdir );
-    fp.add( ".survey" );
-    od_istream strm( fp.fullPath() );
-    ascistream astrm( strm );
-    IOPar iop( astrm );
-    BufferString ret( dirname_ );
-    iop.get( sKey::Name(), ret );
+    BufferString ret( survInfo().getName() );
     if ( ret.isEmpty() )
-	ret = File::Path(survdir).fileName();
+	ret = dirname_;
     return ret;
+}
+
+
+const SurveyInfo& SurveyDiskLocation::survInfo() const
+{
+    if ( isCurrentSurvey() )
+	return SI();
+
+    static ObjectSet<SurveyInfo> infos_;
+    static Threads::Lock infolock;
+
+    Threads::Locker locker( infolock );
+    for ( int idx=0; idx<infos_.size(); idx++ )
+	if ( infos_[idx]->diskLocation() == *this )
+	    return *infos_[idx];
+
+    uiRetVal uirv;
+    SurveyInfo* newinfo = SurveyInfo::read( fullPath(), uirv );
+    if ( !newinfo )
+	{ static const SurveyInfo emptisi; return emptisi; }
+
+    infos_ += newinfo;
+    return *newinfo;
 }
