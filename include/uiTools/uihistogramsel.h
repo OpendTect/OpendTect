@@ -37,7 +37,7 @@ public:
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID,
 					      int version);
     void			setData(const Array2D<float>*);
-    void			setData(const float*,od_int64 sz);
+    void			setData(const float*,int sz);
     void			setMarkValue(float,bool forx);
 
     const Interval<float>&	getDataRange() const	{ return datarg_; }

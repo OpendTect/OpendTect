@@ -92,7 +92,7 @@ void uiHistogramSel::setData( const Array2D<float>* data )
 }
 
 
-void uiHistogramSel::setData( const float* array, od_int64 sz )
+void uiHistogramSel::setData( const float* array, int sz )
 {
     histogramdisp_->setData( array, sz );
     const bool nodata = histogramdisp_->xVals().isEmpty();
