@@ -97,6 +97,12 @@ void IOStream::setAbsDirectory( const char* dirnm )
 }
 
 
+bool IOStream::isInCurrentSurvey() const
+{
+    return fs_.survsubdir_.isEmpty() ? true : fullKey().isInCurrentSurvey();
+}
+
+
 FullDBKey IOStream::fullKey() const
 {
     FullDBKey fdbky( key() );

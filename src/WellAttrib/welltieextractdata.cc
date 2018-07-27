@@ -39,7 +39,7 @@ SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 	, radius_(1)
 {
     uiRetVal uirv;
-    prov_ = Seis::Provider::create( ioobj.key(), &uirv );
+    prov_ = Seis::Provider::create( ioobj, &uirv );
     if ( !prov_ )
 	errmsg_ = uirv;
 }

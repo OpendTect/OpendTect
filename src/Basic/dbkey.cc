@@ -8,7 +8,6 @@
 #include "fulldbkey.h"
 #include "bufstringset.h"
 #include "compoundkey.h"
-#include "filepath.h"
 
 static BufferString noNameOfFn( const DBKey& )	{ return BufferString(); }
 static IOObj* noGetIOObjFn( const DBKey& )	{ return 0; }
@@ -413,6 +412,14 @@ bool FullDBKey::operator !=( const DBKey& dbky ) const
 }
 
 
+FullDBKey FullDBKey::getFromStr( const char* str )
+{
+    FullDBKey ret;
+    ret.fromString( str );
+    return ret;
+}
+
+
 BufferString FullDBKey::toString() const
 {
     BufferString ret = DBKey::toString();
@@ -427,11 +434,10 @@ void FullDBKey::fromString( const char* str )
 
     FixedString inpstr( str );
     const char* ptrbq = inpstr.find( '`' );
-    if ( ptrbq )
-    {
-	const File::Path fp( ptrbq + 1 );
-	survloc_.set( fp );
-    }
+    if ( !ptrbq || !*(ptrbq+1) )
+	survloc_.setEmpty();
+    else
+	survloc_.set( ptrbq+1 );
 }
 
 

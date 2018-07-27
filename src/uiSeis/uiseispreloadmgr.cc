@@ -634,7 +634,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     sort( gidxs );
     SeisTrcBuf seisbuf( true );
     uiRetVal uirv;
-    PtrMan<Seis::Provider> prov = Seis::Provider::create( ioobj->key(), &uirv );
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( *ioobj, &uirv );
     if ( !prov )
 	mErrRet( uirv );
 

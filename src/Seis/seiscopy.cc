@@ -262,7 +262,7 @@ Seis2DCopier::~Seis2DCopier()
 bool Seis2DCopier::initNextLine()
 {
     uiRetVal uirv;
-    delete prov_; prov_ = Seis::Provider::create( inioobj_.key(), &uirv);
+    delete prov_; prov_ = Seis::Provider::create( inioobj_, &uirv );
     if ( !prov_ )
 	{ msg_ = uirv; return false; }
 

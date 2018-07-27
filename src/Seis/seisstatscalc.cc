@@ -63,7 +63,7 @@ SeisStatsCalc::SeisStatsCalc( const IOObj& ioobj, const Stats::CalcSetup& scs,
     , seisprov_(0)
 {
     uiRetVal uirv;
-    seisprov_ = Seis::Provider::create( ioobj.key(), &uirv );
+    seisprov_ = Seis::Provider::create( ioobj, &uirv );
     if ( !seisprov_ )
 	msg_ = uirv;
 

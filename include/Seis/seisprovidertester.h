@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "ptrman.h"
 #include "seistrc.h"
+#include "fulldbkey.h"
 
 class SeisTrcBuf;
 class TrcKeyZSampling;
@@ -49,7 +50,7 @@ public:
 
     bool			testGetNext();
     bool			testSubselection(SelData*,const char* txt,
-	    					 bool outsidedatarg=false);
+						 bool outsidedatarg=false);
 				/*!< Will subselect and checks no. of traces
 				read by iterating through the subselection,
 				after which the subselection will be
@@ -75,7 +76,7 @@ protected:
 				      const uiRetVal&,
 				      bool addnewline=true);
 
-    DBKey			dbky_;
+    FullDBKey			dbky_;
     SeisTrc			trc_; //!< Current trace.
     PtrMan<Provider>		prov_;
 };

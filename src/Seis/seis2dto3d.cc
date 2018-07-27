@@ -543,7 +543,7 @@ bool Seis2DTo3D::writeOutput()
     {
 	delete prov_;
 	uiRetVal uirv;
-	prov_ = Seis::Provider::create( outioobj_->key(), &uirv );
+	prov_ = Seis::Provider::create( *outioobj_, &uirv );
 	if ( !prov_ )
 	    mErrRet( uirv );
     }

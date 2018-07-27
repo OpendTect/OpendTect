@@ -162,7 +162,7 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 			     TaskRunnerProvider& trprov )
 {
     uiRetVal uirv;
-    Seis::Provider* prov = Seis::Provider::create( ioobj.key(), &uirv );
+    Seis::Provider* prov = Seis::Provider::create( ioobj, &uirv );
     if ( !prov )
 	mErrRet( uirv );
 

@@ -332,7 +332,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
 	setComponents( *components );
 
     uiRetVal uirv;
-    Seis::Provider* prov = Seis::Provider::create( ioobj.key(), &uirv );
+    Seis::Provider* prov = Seis::Provider::create( ioobj, &uirv );
     if ( prov ) prov->setSelData( new Seis::RangeSelData(tkzs_) );
     if ( prov && uirv.isOK() )
 	setTrcsSamplingFromProv( *prov );
@@ -664,7 +664,7 @@ bool Seis::ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop,
     PosInfo::CubeDataIterator trcsiterator3d( cubedata );
 
     uiRetVal uirv;
-    PtrMan<Seis::Provider> prov = Seis::Provider::create( ioobj_->key(), &uirv);
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( *ioobj_, &uirv );
     if ( prov ) prov->setSelData( new Seis::RangeSelData(tks) );
     if ( !prov || !uirv.isOK() )
 	{ msg_ = uirv; return false; }
@@ -828,7 +828,7 @@ bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
     const TrcKeySampling& tks = tkzs_.hsamp_;
 
     uiRetVal uirv;
-    PtrMan<Seis::Provider> prov = Seis::Provider::create( ioobj_->key(), &uirv);
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( *ioobj_, &uirv );
     if ( prov ) prov->setSelData( new Seis::RangeSelData(tks) );
     if ( !prov || !uirv.isOK() )
 	{ msg_ = uirv; return false; }
@@ -996,7 +996,7 @@ bool Seis::SequentialFSLoader::init()
 
     uiRetVal uirv;
     delete prov_;
-    prov_ = Seis::Provider::create( ioobj_->key(), &uirv );
+    prov_ = Seis::Provider::create( *ioobj_, &uirv );
     if ( !prov_ || !uirv.isOK() )
     {
 	deleteAndZeroPtr( prov_ );
@@ -1173,7 +1173,7 @@ Seis::SequentialPSLoader::SequentialPSLoader( const IOObj& ioobj,
     , nrdone_(0)
 {
     uiRetVal uirv;
-    prov_ = Seis::Provider::create( ioobj.key(), &uirv );
+    prov_ = Seis::Provider::create( ioobj, &uirv );
     if ( !prov_ )
 	msg_ = uirv;
 

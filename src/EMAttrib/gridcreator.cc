@@ -84,7 +84,7 @@ Seis2DLineCreator::Seis2DLineCreator( const IOObj& input,
     , totalnr_(cs.hsamp_.totalNr())
 {
     uiRetVal uirv;
-    prov_ = Seis::Provider::create( input.key(), &uirv );
+    prov_ = Seis::Provider::create( input, &uirv );
     if ( prov_ )
 	prov_->setSelData( new Seis::RangeSelData(cs) );
     else

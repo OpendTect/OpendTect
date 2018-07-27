@@ -54,11 +54,11 @@ Seis::ObjectSummary::~ObjectSummary()
 Seis::ObjectSummary& Seis::ObjectSummary::operator =(
 						const Seis::ObjectSummary& oth )
 {
-    if ( &oth == this ) return *this;
-
-    const_cast<SeisIOObjInfo&>( ioobjinfo_ ) = oth.ioobjinfo_;
-    init( oth.geomid_ );
-
+    if ( &oth != this )
+    {
+	const_cast<SeisIOObjInfo&>( ioobjinfo_ ) = oth.ioobjinfo_;
+	init( oth.geomid_ );
+    }
     return *this;
 }
 
@@ -66,7 +66,8 @@ Seis::ObjectSummary& Seis::ObjectSummary::operator =(
 void Seis::ObjectSummary::init( Pos::GeomID geomid )
 {
     bad_ = !ioobjinfo_.isOK();
-    if ( bad_ ) return;
+    if ( bad_ )
+	return;
 
     geomtype_ = ioobjinfo_.geomType();
     if (  (is2D() && !Survey::GM().is2D(geomid)) ||
@@ -83,7 +84,7 @@ void Seis::ObjectSummary::init( Pos::GeomID geomid )
 
     uiRetVal uirv;
     PtrMan<Seis::Provider> prov =
-		   Seis::Provider::create( ioobjinfo_.ioObj()->key(), &uirv );
+	       Seis::Provider::create( *ioobjinfo_.ioObj(), &uirv );
     if ( !prov || !uirv.isEmpty() )
 	{ pErrMsg("uirv"); bad_ = true; return; }
 
@@ -200,7 +201,8 @@ SeisIOObjInfo& SeisIOObjInfo::operator =( const SeisIOObjInfo& sii )
 void SeisIOObjInfo::setType()
 {
     bad_ = !ioobj_;
-    if ( bad_ ) return;
+    if ( bad_ )
+	return;
 
     const BufferString trgrpnm( ioobj_->group() );
     bool isps = false;
@@ -380,7 +382,8 @@ od_int64 SeisIOObjInfo::getFileSize( const char* filenm, int& nrfiles )
 	    while ( true )
 	    {
 		BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
-		if ( !File::exists(fullnm) ) break;
+		if ( !File::exists(fullnm) )
+		    break;
 
 		totalsz += File::getKbSize( fullnm );
 		nrfiles++;
@@ -516,10 +519,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 	return 4;
 
     if ( isPS() )
-    {
-	pErrMsg("TODO: no BPS for PS");
-	return false;
-    }
+	{ pErrMsg("TODO: no BPS for PS"); return false; }
 
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator() );
@@ -556,14 +556,10 @@ void SeisIOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 {
     if ( !isOK() )
 	return;
-
     if ( isPS() )
-    {
-	SPSIOPF().getGeomIDs( *ioobj_, geomids );
+	{ SPSIOPF().getGeomIDs( *ioobj_, geomids ); return; }
+    if ( !is2D() )
 	return;
-    }
-
-    if ( !is2D() ) return;
 
     PtrMan<Seis2DDataSet> dset = new Seis2DDataSet( *ioobj_ );
     dset->getGeomIDs( geomids );
@@ -590,14 +586,10 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 {
     if ( !isOK() )
 	return;
-
     if ( isPS() )
-    {
-	SPSIOPF().getLineNames( *ioobj_, bss );
-	return;
-    }
-
-   if ( !isOK() || !is2D() || isPS() ) return;
+	{ SPSIOPF().getLineNames( *ioobj_, bss ); return; }
+   if ( !isOK() || !is2D() || isPS() )
+       return;
 
     PtrMan<Seis2DDataSet> dset
 	= new Seis2DDataSet( *ioobj_ );
@@ -636,24 +628,14 @@ bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
 }
 
 
-
-static BufferStringSet& getTypes()
-{
-    mDefineStaticLocalObject( BufferStringSet, types, );
-    return types;
-}
-
-static DBKeySet& getIDs()
-{
-    mDefineStaticLocalObject( DBKeySet, ids, );
-    return ids;
-}
+static BufferStringSet defaulttypes_;
+static DBKeySet defaultids_;
 
 
 void SeisIOObjInfo::initDefault( const char* typ )
 {
-    BufferStringSet& typs = getTypes();
-    if ( typs.isPresent(typ) ) return;
+    if ( defaulttypes_.isPresent(typ) )
+	return;
 
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
     ctxt.toselect_.require_.set( sKey::Type(), typ );
@@ -665,30 +647,27 @@ void SeisIOObjInfo::initDefault( const char* typ )
     if ( !ioobj || nrpresent > 1 )
 	return;
 
-    typs.add( typ );
-    getIDs() += ioobj->key();
+    defaulttypes_.add( typ );
+    defaultids_ += ioobj->key();
 }
 
 
 DBKey SeisIOObjInfo::getDefault( const char* typ )
 {
-    const int typidx = getTypes().indexOf( typ );
-    return typidx < 0 ? DBKey::getInvalid() : getIDs()[typidx];
+    const int typidx = defaulttypes_.indexOf( typ );
+    return typidx < 0 ? DBKey::getInvalid() : defaultids_[typidx];
 }
 
 
 void SeisIOObjInfo::setDefault( const DBKey& id, const char* typ )
 {
-    BufferStringSet& typs = getTypes();
-    DBKeySet& ids = getIDs();
-
-    const int typidx = typs.indexOf( typ );
+    const int typidx = defaulttypes_.indexOf( typ );
     if ( typidx > -1 )
-	ids[typidx] = id;
+	defaultids_[typidx] = id;
     else
     {
-	typs.add( typ );
-	ids += id;
+	defaulttypes_.add( typ );
+	defaultids_ += id;
     }
 }
 

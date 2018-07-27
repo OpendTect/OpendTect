@@ -171,10 +171,11 @@ void SeisBayesClass::preScalePDFs()
 
 
 Seis::Provider* SeisBayesClass::getProvider(
-			const char* id, bool isdim, int idx )
+			const char* idstr, bool isdim, int idx )
 {
-    const DBKey dbkey = DBKey::getFromStr( id );
-    PtrMan<IOObj> ioobj = DBM().get( dbkey );
+    FullDBKey fdbky;
+    fdbky.getFromStr( idstr );
+    PtrMan<IOObj> ioobj = getIOObj( fdbky );
     if ( !ioobj )
     {
 	const ProbDenFunc& pdf0 = *inppdfs_[0];
@@ -182,13 +183,13 @@ Seis::Provider* SeisBayesClass::getProvider(
 	    msg_ = tr("Cannot find input cube for %1" ).arg(pdf0.dimName(idx));
 	else
 	    msg_ = tr("Cannot find a priori scaling cube for %1"
-		      "\nID found is %2").arg( pdf0.name() ).arg( id );
+		      "\nID found is %2").arg( pdf0.name() ).arg( idstr );
 
 	return 0;
     }
 
     uiRetVal uirv;
-    Seis::Provider* prov = Seis::Provider::create( dbkey, &uirv );
+    Seis::Provider* prov = Seis::Provider::create( fdbky, &uirv );
     if ( !uirv.isOK() )
     {
 	msg_ = toUiString( ioobj->name() ).addMoreInfo( uirv );

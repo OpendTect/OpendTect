@@ -355,15 +355,6 @@ bool IOObj::isSurveyDefault( const DBKey& ky )
 }
 
 
-bool IOObj::isInCurrentSurvey() const
-{
-    File::Path cursurvfp( DBM().survDir() ); cursurvfp.makeCanonical();
-    File::Path orgfp( mainFileName() ); orgfp.makeCanonical();
-    return orgfp.isSubDirOf(cursurvfp);
-}
-
-
-
 #define mQuotedName toUiString(name()).quote(true)
 
 uiString IOObj::phrCannotOpenObj() const

@@ -31,7 +31,7 @@ Seis2DLineEventSnapper::Seis2DLineEventSnapper( const EM::Horizon2D& orghor,
     Seis::RangeSelData* seldata = new Seis::RangeSelData( true );
     seldata->setGeomID( su.geomid_ );
     uiRetVal uirv;
-    seisprov_ = Seis::Provider::create( su.ioobj_->key(), &uirv );
+    seisprov_ = Seis::Provider::create( *su.ioobj_, &uirv );
     if ( seisprov_ )
 	seisprov_->setSelData( seldata );
     else

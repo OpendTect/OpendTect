@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "posprovider.h"
 #include "posinfo.h"
-#include "dbkey.h"
+#include "fulldbkey.h"
 #include "keystrs.h"
 
 
@@ -38,7 +38,7 @@ public:
     virtual Provider*	clone() const	{ return new SeisProvider3D(*this); }
 
     uiRetVal		setSeisID(const DBKey&);
-    DBKey		seisID() const		{ return id_; }
+    const DBKey&	seisID() const		{ return id_; }
 
     virtual void	reset();
 
@@ -66,7 +66,7 @@ public:
 
 protected:
 
-    DBKey		id_;
+    FullDBKey		id_;
     PosInfo::CubeData	cubedata_;
     ZSampling		zsamp_;
     PosInfo::CubeDataPos curpos_;

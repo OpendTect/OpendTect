@@ -40,6 +40,7 @@ public:
 
     virtual DBKey*	clone() const	{ return new FullDBKey(*this); }
 
+    static FullDBKey	getFromStr(const char*);
     virtual BufferString toString() const;
     virtual void	fromString(const char*);
 

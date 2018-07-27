@@ -231,7 +231,7 @@ void uiSeisSelDlg::getComponentNames( BufferStringSet& compnms ) const
     const IOObj* ioobj = ioObj();
     if ( !ioobj ) return;
     uiRetVal uirv;
-    PtrMan<Seis::Provider> prov = Seis::Provider::create(ioobj->key(),&uirv);
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( *ioobj, &uirv );
     if ( prov )
 	prov->getComponentInfo( compnms );
 }

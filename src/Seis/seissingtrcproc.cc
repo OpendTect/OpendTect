@@ -124,7 +124,7 @@ void SeisSingleTraceProc::setInput( const IOObj& in, const IOObj& out,
 bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 {
     uiRetVal uirv;
-    Seis::Provider* prov = Seis::Provider::create( ioobj.key(), &uirv );
+    Seis::Provider* prov = Seis::Provider::create( ioobj, &uirv );
     if ( !prov )
 	{ curmsg_ = uirv; delete prov; return false; }
 

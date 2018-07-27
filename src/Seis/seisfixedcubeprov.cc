@@ -131,7 +131,7 @@ bool SeisFixedCubeProvider::isEmpty() const
 bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 {
     trcdist_ = SI().crlDistance();
-    const SeisIOObjInfo si( ioobj_->key() );
+    const SeisIOObjInfo si( ioobj_->fullKey() );
     if ( !si.is2D() )
 	return true;
 
@@ -173,7 +173,8 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     if ( !ioobj_ )
 	mErrRet( uiStrings::phrCannotFindDBEntry( uiStrings::sInput() ) );
 
-    if ( Seis::PLDM().isPresent(ioobj_->key(),geomid) )
+    if ( ioobj_->isInCurrentSurvey()
+	&& Seis::PLDM().isPresent(ioobj_->key(),geomid) )
     {
 	RegularSeisDataPack* dp =
 		Seis::PLDM().getAndCast<RegularSeisDataPack>( ioobj_->key(),
@@ -186,7 +187,7 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     }
 
     uiRetVal uirv;
-    Seis::Provider* prov = Seis::Provider::create( ioobj_->key(), &uirv );
+    Seis::Provider* prov = Seis::Provider::create( *ioobj_, &uirv );
     if ( !prov )
 	mErrRet( uirv );
 

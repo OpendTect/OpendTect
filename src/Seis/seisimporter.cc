@@ -387,7 +387,7 @@ SeisStdImporterReader::SeisStdImporterReader( const IOObj& ioobj,
     , scaler_(0)
 {
     uiRetVal uirv;
-    prov_ = Seis::Provider::create( ioobj.key(), &uirv );
+    prov_ = Seis::Provider::create( ioobj, &uirv );
     if ( !prov_ )
 	errmsg_ = uirv;
 }

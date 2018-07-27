@@ -37,7 +37,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
     , seldata_(*new Seis::TableSelData)
 {
     uiRetVal uirv;
-    prov_ = Seis::Provider::create( inobj.key(), &uirv );
+    prov_ = Seis::Provider::create( inobj, &uirv );
     if ( !prov_ ) errmsg_ = uirv;
 
     wrr_ = new SeisTrcWriter( &outobj );

@@ -66,6 +66,7 @@ public:
 
     static Provider*	create(Seis::GeomType);
     static Provider*	create(const DBKey&,uiRetVal* uirv=0);
+    static Provider*	create(const IOObj&,uiRetVal* uirv=0);
     static Provider*	create(const IOPar&,uiRetVal* uirv=0);
     static FullDBKey	dbKey(const IOPar&);
     virtual		~Provider();

@@ -736,7 +736,7 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
     , nrdone_( 0 )
 {
     uiRetVal uirv;
-    provider_ = Seis::Provider::create( input.key(), &uirv );
+    provider_ = Seis::Provider::create( input, &uirv );
     if ( !provider_ )
 	{ msg_ = uirv; return; }
 

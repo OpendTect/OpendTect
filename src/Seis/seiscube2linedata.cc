@@ -32,7 +32,7 @@ Seis2DFrom3DExtractor::Seis2DFrom3DExtractor(
     , curtrcidx_(-1)
 {
     uiRetVal uirv;
-    prov_ = Seis::Provider::create( cubein.key(), &uirv );
+    prov_ = Seis::Provider::create( cubein, &uirv );
     if ( !prov_ )
 	{ msg_ = uirv; return; }
 

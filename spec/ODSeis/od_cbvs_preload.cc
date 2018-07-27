@@ -70,7 +70,7 @@ int main( int argc, char** argv )
     {
 	SeisTrcBuf sbuf( true );
 	uiRetVal uirv;
-	Seis::Provider* prov = Seis::Provider::create( ioobj->key(), &uirv );
+	Seis::Provider* prov = Seis::Provider::create( *ioobj, &uirv );
 	if ( !prov )
 	{
 	    std::cerr << uirv.getText().buf() << std::endl;

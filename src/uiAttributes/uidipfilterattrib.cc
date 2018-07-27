@@ -132,7 +132,7 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
     if ( !ioobj )
 	return;
 
-    PtrMan<Seis::Provider> prov = Seis::Provider::create( ioobj->key() );
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( *ioobj );
     if ( !prov )
 	return;
 

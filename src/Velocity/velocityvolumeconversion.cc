@@ -43,7 +43,7 @@ VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
     , sequentialwriter_(0)
 {
     uiRetVal uirv;
-    provider_ = Seis::Provider::create( input_->key(), &uirv );
+    provider_ = Seis::Provider::create( *input_, &uirv );
     if ( !provider_ )
 	{ errmsg_ = uirv; return; }
 
@@ -118,7 +118,7 @@ bool VolumeConverter::doPrepare( int nrthreads )
     if ( !provider_ )
     {
 	uiRetVal uirv;
-	provider_ = Seis::Provider::create( input_->key(), &uirv );
+	provider_ = Seis::Provider::create( *input_, &uirv );
 	if ( !provider_ )
 	    { errmsg_ = uirv; return false; }
 

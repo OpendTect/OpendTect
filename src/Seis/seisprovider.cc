@@ -67,6 +67,12 @@ Seis::Provider* Seis::Provider::create( Seis::GeomType gt )
 }
 
 
+Seis::Provider* Seis::Provider::create( const IOObj& ioobj, uiRetVal* uirv )
+{
+    return create( ioobj.fullKey() );
+}
+
+
 Seis::Provider* Seis::Provider::create( const DBKey& dbky, uiRetVal* uirv )
 {
     SeisIOObjInfo objinf( dbky );

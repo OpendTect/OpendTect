@@ -190,7 +190,7 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
     if ( res && *res )
     {
 	IOObj* ioob = DBM().get( DBKey::getFromStr(res) );
-	if ( ioob && (!ioobj_ || ioobj_->key() != ioob->key()) )
+	if ( ioob && (!ioobj_ || ioobj_->fullKey() != ioob->fullKey()) )
 	    setIOObj( ioob );
 	delete ioob;
     }

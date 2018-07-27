@@ -68,6 +68,8 @@ public:
     virtual DBKey		key() const	{ return key_; }
     virtual FullDBKey		fullKey() const	{ return FullDBKey(key()); }
     virtual ObjID		objID() const	{ return key_.objID(); }
+    virtual bool		isInCurrentSurvey() const
+				{ return fullKey().isInCurrentSurvey(); }
 
     virtual			~IOObj();
     virtual bool		isBad() const			= 0;
@@ -121,7 +123,6 @@ public:
 				{ return isTmpObjNr(objID().getI());}
     bool			isProcTmp() const;
     bool			isUserSelectable(bool forread=true) const;
-    bool			isInCurrentSurvey() const;
 
     inline bool			isInvalid() const   { return key().isInvalid();}
     static const IOObj&		getInvalid();

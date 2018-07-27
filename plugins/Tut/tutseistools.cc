@@ -87,7 +87,7 @@ od_int64 Tut::SeisTools::totalNr() const
 bool Tut::SeisTools::createProvider()
 {
     uiRetVal uirv;
-    prov_ = Seis::Provider::create( inioobj_->key(), &uirv );
+    prov_ = Seis::Provider::create( *inioobj_, &uirv );
     if ( !prov_ )
 	{ errmsg_ = uirv; return false; }
 

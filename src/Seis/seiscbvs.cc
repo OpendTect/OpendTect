@@ -240,11 +240,10 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	cs.zsamp_.stop = outsd_.start + (outnrsamples_-1) * outsd_.step;
 
 	if ( !rdmgr_->pruneReaders( cs ) )
-	    if (!rdmgr_->pruneReaders(cs))
-	    {
+	{
 	    errmsg_ = tr("Input contains no relevant data");
 	    return false;
-	    }
+	}
     }
 
     delete [] compsel_;

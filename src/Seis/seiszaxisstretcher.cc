@@ -62,7 +62,7 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
 	ztransform_->ref();
 
     uiRetVal uirv;
-    seisprovider_ = Seis::Provider::create( in.key(), &uirv );
+    seisprovider_ = Seis::Provider::create( in, &uirv );
     if ( !seisprovider_ )
 	{ errmsg_ = uirv; return; }
 

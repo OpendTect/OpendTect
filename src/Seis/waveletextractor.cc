@@ -46,7 +46,7 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
 
     initWavelet( ioobj );
     uiRetVal uirv;
-    seisprov_ = Seis::Provider::create( ioobj.key(), &uirv );
+    seisprov_ = Seis::Provider::create( ioobj, &uirv );
     if ( !seisprov_ )
 	msg_ = uirv;
 }
@@ -125,7 +125,7 @@ bool WaveletExtractor::getNextLine()
 
     deleteAndZeroPtr( seisprov_ );
     uiRetVal uirv;
-    seisprov_ = Seis::Provider::create( iobj_.key(), &uirv );
+    seisprov_ = Seis::Provider::create( iobj_, &uirv );
     if ( !seisprov_ )
 	{ msg_ = uirv; return false; }
 
