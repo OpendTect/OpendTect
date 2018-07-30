@@ -25,6 +25,7 @@
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seisprovider.h"
+#include "seisrawtrcsseq.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrcprop.h"

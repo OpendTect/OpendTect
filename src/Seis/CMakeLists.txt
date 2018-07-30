@@ -72,6 +72,7 @@ set(OD_MODULE_SOURCES
 	seispsioprov.cc
 	seispsmerge.cc
 	seisrandlineto2d.cc
+	seisrawtrcsseq.cc
 	seisread.cc
 	seisresampler.cc
 	seisstatscalc.cc
