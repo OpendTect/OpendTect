@@ -5,8 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set( QTDIR "" CACHE PATH "QT Location" )
-option ( OD_NO_QT "Turn off all QT" NO )
+if ( NOT DEFINED OpendTect_DIR )
+    set( QTDIR "" CACHE PATH "QT Location" )
+    option ( OD_NO_QT "Turn off all QT" NO )
+endif()
 
 if ( OD_NO_QT STREQUAL "OFF" AND NOT ${QTDIR} STREQUAL "" )
 	#Try to find Qt5
