@@ -33,7 +33,7 @@ macro( DEFINE_SVN_EXTERNAL DIR URL EXTBASEDIR REVISION )
 	if ( ${RESULT} EQUAL 0 )
 	     message( STATUS "svn checkout success for: ${URL} revision ${REVISION}" )
 	else()
-	     message( FATAL_ERROR "svn checkout failed:\n${OUTPUT}" )
+	     message( FATAL_ERROR "svn checkout failed for dir ${DIR} in directory ${EXTBASEDIR}:\n${OUTPUT}" )
 	endif()
     else()
 	execute_process(
@@ -58,13 +58,20 @@ if ( Git_FOUND )
     set ( GIT_EXEC ${GIT_EXECUTABLE} )
 else()
     set ( GIT_EXEC "git" ) # In user-defined path
+    execute_process(
+	COMMAND ${GIT_EXEC} --version
+		RESULT_VARIABLE RESULT
+		OUTPUT_VARIABLE GIT_VERSION_STRING
+		OUTPUT_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE )
+    if ( NOT ${RESULT} EQUAL 0 )
+	message ( FATAL_ERROR "git not found: Install it and re-configure." )
+    endif()
 endif()
-execute_process(
-    COMMAND ${GIT_EXEC} --version
-	    RESULT_VARIABLE RESULT OUTPUT_QUIET
-)
-if ( NOT ${RESULT} EQUAL 0 )
-    message ( FATAL_ERROR "git not found: Install it and re-configure." )
+
+if ( ${GIT_VERSION_STRING} LESS "2.2" )
+  set( GET_GIT_URL ${GIT_EXEC} ls-remote --get-url )
+else()
+  set( GET_GIT_URL ${GIT_EXEC} remote get-url origin )
 endif()
 
 macro( DEFINE_GIT_EXTERNAL DIR URL BRANCH )
@@ -72,10 +79,10 @@ macro( DEFINE_GIT_EXTERNAL DIR URL BRANCH )
     if ( EXISTS ${CMAKE_SOURCE_DIR}/external/${DIR} )
 	# Check URL and Branch of the old checkout
 	execute_process(
-	    COMMAND ${GIT_EXEC} remote get-url origin 
+	    COMMAND ${GET_GIT_URL}
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/${DIR}
-		OUTPUT_VARIABLE OLDURL
 		RESULT_VARIABLE RESULT
+		OUTPUT_VARIABLE OLDURL
 		OUTPUT_STRIP_TRAILING_WHITESPACE )
 	if ( NOT "${OLDURL}" STREQUAL "${URL}" )
 	    message( STATUS "Removing external/${DIR} having URL ${OLDURL}" )
