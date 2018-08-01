@@ -5,7 +5,7 @@
 #_______________________________________________________________________________
 
 if ( UNIX AND QT_LUPDATE_EXECUTABLE AND (EXISTS ${QT_LUPDATE_EXECUTABLE} ) )
-    add_custom_target( update_translations
+    add_custom_target( update_translations EXCLUDE_FROM_ALL
 		COMMAND ${OpendTect_DIR}/dtect/update_translations.sh
 			${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
 			${OD_SUBSYSTEM}
