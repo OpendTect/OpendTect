@@ -180,7 +180,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     listfld_ = new uiListBox( topgrp_, su, "Objects" );
 
     filtfld_ = new uiLineEdit( listfld_, StringInpSpec("*"), "Filter" );
-    filtfld_->setHSzPol( uiObject::Small );
+    filtfld_->setHSzPol( uiObject::SmallVar );
     filtfld_->setToolTip( uiStrings::sFilter() );
     mAttachCB( filtfld_->editingFinished, uiIOObjSelGrp::orderChgCB );
     mAttachCB( filtfld_->returnPressed, uiIOObjSelGrp::orderChgCB );
@@ -196,7 +196,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     int defidx = 0;
     Settings::common().get( sKeySortingDef, defidx );
     sortfld_->setCurrentItem( defidx );
-    sortfld_->setHSzPol( uiObject::Small );
+    sortfld_->setHSzPol( uiObject::SmallVar );
     mAttachCB( sortfld_->selectionChanged, uiIOObjSelGrp::sortChgCB );
 
     uiToolButton* refreshbut = new uiToolButton( listfld_,
@@ -207,7 +207,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 
     listfld_->setName( "Objects list" );
     listfld_->box()->setPrefHeightInChar( 8 );
-    listfld_->setHSzPol( uiObject::Wide );
+    listfld_->setHSzPol( uiObject::WideVar );
     if ( isMultiChoice() )
     {
 	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_, mObjTypeName );

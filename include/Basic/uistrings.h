@@ -72,6 +72,7 @@ public:
     static uiPhrase phrCannotRemove(const char*);
     static uiPhrase phrCannotSave(const uiWord&);
     static uiPhrase phrCannotSave(const char*);
+    static uiPhrase phrCannotStart(const char*);
     static uiPhrase phrCannotStart(const uiWord&);
     static uiPhrase phrCannotUnZip(const uiWord&);
     static uiPhrase phrCannotWrite(const uiWord&);

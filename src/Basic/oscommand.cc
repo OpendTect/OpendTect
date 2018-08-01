@@ -763,6 +763,10 @@ int OS::CommandLauncher::catchError()
 
     if ( !errmsg_.isEmpty() )
     {
+	BufferString argstr( machcmd_.command() );
+	if ( machcmd_.hasHostName() )
+	    argstr.add( " @ " ).add( machcmd_.hostName() );
+	errmsg_.arg( argstr );
 	return 1;
     }
     return process_->exitCode();

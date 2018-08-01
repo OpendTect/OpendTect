@@ -161,7 +161,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     sgsu.withwriteopts( setup_.withwriteopts_ );
     sgsu.withinserters( setup_.withinserters_ );
     selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu );
-    selgrp_->getListField()->setHSzPol( uiObject::WideVar );
+    selgrp_->getListField()->setHSzPol( uiObject::MedVar );
     statusBar()->setTxtAlign( 0, OD::Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
 

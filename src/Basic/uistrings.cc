@@ -112,6 +112,8 @@ uiPhrase uiStrings::phrCannotSave( const char* fnm )
 
 uiPhrase uiStrings::phrCannotStart( const uiWord& string )
 { return tr("Cannot start %1").arg( string ); }
+uiPhrase uiStrings::phrCannotStart( const char* fnm )
+{ return phrCannotStart( toUiString(fnm).quote(true) ); }
 
 uiPhrase uiStrings::phrCannotUnZip( const uiWord& string )
 { return tr("Cannot unzip %1").arg( string ); }
