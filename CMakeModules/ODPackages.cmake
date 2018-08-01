@@ -36,6 +36,7 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DBUILD_USERDOC=${BUILD_USERDOC}
 	    -DUSERDOC_PROJECT=${USERDOC_PROJECT}
 	    -DMATLAB_DIR=${MATLAB_DIR}
+	    -DQT_VERSION_MAJOR=${QT_VERSION_MAJOR}
 	    -P ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
 	    COMMENT "Creating packages" ) 
 endmacro()

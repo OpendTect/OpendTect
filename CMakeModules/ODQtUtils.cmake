@@ -41,6 +41,7 @@ macro(OD_SETUP_QT)
 	    find_package( Qt5 REQUIRED ${OD_USEQT} )
 	    string(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+.*" "\\1" QT_VERSION_MAJOR
 		   "${Qt5Core_VERSION_STRING}")
+	    set(QT_VERSION_MAJOR ${QT_VERSION_MAJOR} PARENT_SCOPE)
 
 	    if( QT_MOC_HEADERS )
 		set ( OD_MODULE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_MODULE_NAME} )
