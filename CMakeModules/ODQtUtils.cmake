@@ -39,6 +39,8 @@ macro(OD_SETUP_QT)
 
 	if ( Qt5Core_FOUND )
 	    find_package( Qt5 REQUIRED ${OD_USEQT} )
+	    string(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+.*" "\\1" QT_VERSION_MAJOR
+		   "${Qt5Core_VERSION_STRING}")
 
 	    if( QT_MOC_HEADERS )
 		set ( OD_MODULE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_MODULE_NAME} )
@@ -62,7 +64,41 @@ macro(OD_SETUP_QT)
 		    get_target_property(QT_LIBRARY Qt5::${QTMOD} LOCATION )
 		    get_filename_component( QT_LIBRARY_DIR ${QT_LIBRARY} PATH )
 		endif()
+
+		if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
+		    if( UNIX OR APPLE )
+			if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+			    set( FILENM "libQt${QT_VERSION_MAJOR}${QTMOD}.so.${QT_VERSION_MAJOR}" )
+			elseif( APPLE )
+			    set( FILENM "${QTMOD}.${QT_VERSION_MAJOR}.dylib" )
+			endif()
+			OD_INSTALL_LIBRARY( ${QTDIR}/lib/${FILENM} ${CMAKE_BUILD_TYPE} )
+		    elseif( WIN32 )
+			OD_INSTALL_LIBRARY( ${QTDIR}/bin/Qt${QT_VERSION_MAJOR}${QTMOD}.dll ${CMAKE_BUILD_TYPE} )
+			install( PROGRAMS ${QLIB}
+				 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
+				 CONFIGURATIONS ${CMAKE_BUILD_TYPE} )
+		    endif()
+		endif()
 	    endforeach()
+	    #Installing Qt5DBus and Qt5XcbQpa libs on Linux64 platform and required Qt plugins on all platforms
+	    if ( UNIX )
+		if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+		    set( LIBNMS DBus XcbQpa )
+		    foreach( LIBNM ${LIBNMS} )
+			set( FILENM "libQt${QT_VERSION_MAJOR}${LIBNM}.so.${QT_VERSION_MAJOR}" )
+			OD_INSTALL_LIBRARY( ${QTDIR}/lib/${FILENM} ${CMAKE_BUILD_TYPE} )
+		    endforeach()
+		endif()
+		install( DIRECTORY ${QTDIR}/plugins/xcbglintegrations
+			 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
+			 CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+			 USE_SOURCE_PERMISSIONS )
+	    endif()
+	    install( DIRECTORY ${QTDIR}/plugins/platforms
+		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
+		     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+		     USE_SOURCE_PERMISSIONS )
 
 	    list ( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${QT_LIBRARY_DIR} )
 
