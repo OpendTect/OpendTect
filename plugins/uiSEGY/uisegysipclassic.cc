@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "fileview.h"
 #include "filepath.h"
 #include "od_ostream.h"
+#include "uistrings.h"
 
 
 class uiSEGYClassicSIPMgrDlg : public uiDialog
@@ -81,11 +82,11 @@ void uiSEGYClassicSurvInfoProvider::showReport(
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {
-	fnm.set( File::Path::getTempName() );
+	fnm.set( File::Path::getTempFullPath("segy_survinfo","txt") );
 	strm.open( fnm );
     }
     if ( !strm.isOK() )
-	{ mShowErr( tr("Cannot open temporary file:\n%1").arg(fnm) ); return; }
+	{ mShowErr( uiStrings::phrCannotCreateTempFile() ); return; }
 
     IOPar iop;
     scanner.getReport( iop );

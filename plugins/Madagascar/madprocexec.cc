@@ -169,7 +169,7 @@ bool ODMad::ProcExec::init()
 
 #ifdef __win__
     #define mAddNewExec \
-        BufferString fname = File::Path::getTempName( "par" ); \
+        BufferString fname = File::Path::getTempFullPath( "madproc", "par" ); \
 	pars_.write( fname, sKey::Pars() ); \
 	ret += File::Path(rsfroot).add("bin").add("sfdd").fullPath(); \
 	ret += " form=ascii_float | \""; \
@@ -177,7 +177,7 @@ bool ODMad::ProcExec::init()
 	ret += "\" "; ret += fname
 #else
     #define mAddNewExec \
-	BufferString fname = File::Path::getTempName( "par" ); \
+	BufferString fname = File::Path::getTempFullPath( "madproc", "par" ); \
 	pars_.write( fname, sKey::Pars() ); \
 	ret += GetExecScript( false ); ret += " "; \
 	ret += "od_madexec"; ret += " "; ret += fname

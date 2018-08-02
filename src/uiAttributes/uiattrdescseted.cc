@@ -1267,7 +1267,7 @@ void uiAttribDescSetEd::exportToGraphVizDotCB( CallBacker* )
 	dotpath = dlg.fileName();
     }
 
-    const BufferString fnm = File::Path::getTempName( "dot" );
+    const BufferString fnm = File::Path::getTempFullPath( "attrs", "dot" );
     attrset_.exportToDot( name(), fnm );
 
     File::Path outputfp( fnm );

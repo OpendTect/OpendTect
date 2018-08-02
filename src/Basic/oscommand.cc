@@ -523,7 +523,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	monitorfnm_ = pars.monitorfnm_;
 	if ( monitorfnm_.isEmpty() )
 	{
-	    monitorfnm_ = File::Path::getTempName("txt");
+	    monitorfnm_ = File::Path::getTempFullPath( "mon", "txt" );
 	    redirectoutput_ = true;
 	}
 

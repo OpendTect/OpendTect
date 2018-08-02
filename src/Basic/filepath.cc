@@ -333,7 +333,14 @@ BufferString File::Path::getTimeStampFileName( const char* ext )
     datestr.replace( ", ", "-" );
     datestr.replace( ':', '.' );
     datestr.replace( ' ', '_' );
-    tsfnm.add( datestr ).add( ext );
+    tsfnm.add( datestr );
+    if ( ext && *ext )
+    {
+	if ( *ext == '.' )
+	    ext++;
+	if ( *ext )
+	    tsfnm.add( '.' ).add( ext );
+    }
 
     return tsfnm;
 }
@@ -418,21 +425,22 @@ BufferString File::Path::getTempDir()
 }
 
 
-BufferString File::Path::getTempName( const char* ext )
+BufferString File::Path::getTempFileName( const char* typ, const char* ext )
 {
-    Path fp( getTempDir() );
-
-    mDefineStaticLocalObject( int, counter, = 0 );
-    BufferString fname( "od_", GetPID() );
-    fname.add( '_' ).add( counter++ )
-	 .add( '_' ).add( Time::getFileTimeInSeconds() );
-			/*windows does not support file name with ":" */
-
+    static Threads::Atomic<int> counter = 0;
+    BufferString fname( "od" );
+    if ( typ )
+	fname.add( '_' ).add( typ );
+    fname.add( '_' ).add( GetPID() ).add( '_' ).add( counter++ );
     if ( ext && *ext )
 	{ fname.add( "." ).add( ext ); }
+    return fname;
+}
 
-    fp.add( fname );
-    return fp.fullPath();
+
+BufferString File::Path::getTempFullPath( const char* typ, const char* ext )
+{
+    return Path( getTempDir(), getTempFileName(typ,ext) ).fullPath();
 }
 
 

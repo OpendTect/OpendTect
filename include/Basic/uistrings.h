@@ -49,6 +49,7 @@ public:
     static uiPhrase phrCannotCalculate(const uiWord&);
     static uiPhrase phrCannotCopy(const uiWord&);
     static uiPhrase phrCannotCreate(const uiWord&);
+    static uiPhrase phrCannotCreateTempFile();
     static uiPhrase phrCannotCreateDBEntryFor(const uiWord&);
     static uiPhrase phrCannotCreateDirectory(const char*);
     static uiPhrase phrCannotCreateHor();

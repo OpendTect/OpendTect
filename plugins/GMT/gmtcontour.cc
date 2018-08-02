@@ -131,7 +131,8 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 
     File::Path fp( fnm );
     fp.setExtension( "cpt" );
-    BufferString cptfnm( dofill ? fp.fullPath() : fp.getTempName("cpt") );
+    BufferString cptfnm( dofill ? fp.fullPath()
+				: fp.getTempFullPath("gmtcontour","cpt") );
 
     strm << "Creating color pallette file ...  ";
     if ( !makeCPT(cptfnm.buf()) )

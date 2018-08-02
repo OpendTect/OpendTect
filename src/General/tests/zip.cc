@@ -59,7 +59,7 @@ int mTestMainFnName( int argc, char** argv )
     File::Path tozip( basedir );
     tozip.add( "F3_Test_Survey" );
     uiString err;
-    File::Path zipfilename( File::Path::getTempName("zip") );
+    File::Path zipfilename( File::Path::getTempFullPath("zip_test","zip") );
     File::Path outputdir( zipfilename.pathOnly() );
     outputdir.add( "F3_Test_Survey" );
 

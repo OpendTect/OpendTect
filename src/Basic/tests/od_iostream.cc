@@ -18,7 +18,8 @@
 #include <string.h>
 
 
-static const BufferString tmpfnm( File::Path::getTempName("txt") );
+static const BufferString tmpfnm(
+		    File::Path::getTempFullPath("iostrm_test","txt") );
 
 
 #define mRetFail(s) { od_cout() << "Failed " << s << od_endl; }

@@ -144,7 +144,7 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm, od_ostream& strm )
     comm += minlong; comm += "/";
     comm += minlong + 6; comm += "/0/80 -Ju";
     comm += zone; comm += "/1:1 -I -F -C 1> \"";
-    BufferString tmpfilenm = File::Path::getTempName("dat");
+    BufferString tmpfilenm = File::Path::getTempFullPath("gmtcoast","dat");
     comm += tmpfilenm; comm += "\"";
 
     od_ostream procstrm = makeOStream( comm, strm );

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "nrbytes2string.h"
 #include "odsysmem.h"
+#include "file.h"
 
 #define mJoinStr toUiString("%1 %2")
 
@@ -56,6 +57,10 @@ uiPhrase uiStrings::phrCannotCreateDirectory( const char* dirnm )
 
 uiPhrase uiStrings::phrCannotCreateHor()
 { return phrCannotCreate( sHorizon() ); }
+
+uiPhrase uiStrings::phrCannotCreateTempFile()
+{ return phrCannotCreate(
+	    tr("temporary file at %1").arg(File::getTempPath()) ); }
 
 uiPhrase uiStrings::phrCannotEdit( const uiWord& string )
 { return tr("Cannot edit %1").arg( string ); }

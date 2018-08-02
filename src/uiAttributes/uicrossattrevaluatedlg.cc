@@ -223,7 +223,8 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 	for ( int idx=0; idx<srcspecids_.size(); idx++ )
 	    newpar.set( IOPar::compKey(sKey::Output(),idx), srcspecids_[idx] );
 
-	newpar.write( File::Path::getTempName("par"), sKey::Attributes() );
+	newpar.write( File::Path::getTempFullPath("eval_attrs","par"),
+		      sKey::Attributes() );
     }
 
     calccb.trigger();

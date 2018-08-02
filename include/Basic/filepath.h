@@ -89,10 +89,13 @@ public:
 			//!< nr < 0 returns last dir, including prefix
     BufferString	fileFrom(int) const;
 
-    static BufferString	getTempDir();
-    static BufferString	getTempName(const char* ext=0);
     static BufferString	mkCleanPath(const char* path,Style fmt);
-    static BufferString getTimeStampFileName(const char*ext=0);
+    static BufferString	getTempDir();
+    static BufferString	getTempFileName(const char* typ,const char* ext);
+    static BufferString	getTempFullPath(const char* typ,const char* ext);
+    static BufferString getTimeStampFileName(const char* ext);
+    mDeprecated static BufferString getTempName( const char* ext=0 )
+			{ return getTempFullPath(0,ext); }
 
     const char*		dirSep() const;
     static const char*	dirSep(Style);
