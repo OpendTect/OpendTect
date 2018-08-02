@@ -171,6 +171,7 @@ if(WIN32)
     endif()
 
     set ( CMAKE_CXX_FLAGS  "/wd4389 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed mismatch
+    set ( CMAKE_CXX_FLAGS  "/wd4458 ${CMAKE_CXX_FLAGS}" ) # warnings for Microsoft's GDI+ headers
     set ( CMAKE_CXX_FLAGS  "/wd4018 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed compare
     set ( CMAKE_CXX_FLAGS  "/wd4505 ${CMAKE_CXX_FLAGS}" ) # unreferenced local function removed
     set ( CMAKE_CXX_FLAGS  "/wd4121 ${CMAKE_CXX_FLAGS}" ) # Alignmnent of variables
