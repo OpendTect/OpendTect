@@ -5,7 +5,10 @@
 #_______________________________________________________________________________
 
 macro( OD_ADD_OSG )
-    set(OSG_DIR "" CACHE PATH "OSG Location" )
+    if( NOT DEFINED OSG_DIR OR OSG_DIR STREQUAL "" )
+	set(OSG_DIR "" CACHE PATH "OSG Location" )
+	message( FATAL_ERROR "OSG_DIR is not defined" )
+    endif()
     list(APPEND CMAKE_MODULE_PATH
 	${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
 
@@ -21,6 +24,9 @@ macro( OD_ADD_OSG )
 
     #RESTORE DEBUG POSTFIX
     set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
+    if ( (NOT DEFINED OSG_FOUND) )
+       message( FATAL_ERROR "Cannot find/use the OSG installation" )
+    endif()
 
 endmacro()
 
@@ -57,11 +63,7 @@ macro(OD_SETUP_OSG)
 
     if ( (NOT DEFINED OSG_FOUND) )
 	OD_ADD_OSG()
-	if ( (NOT DEFINED OSG_FOUND) )
-	    MESSAGE( FATAL_ERROR "OSG_DIR not set" )
-	endif()
     endif()
-
 
     if(OD_USEOSG)
 	list(APPEND OD_MODULE_INCLUDESYSPATH

@@ -4,14 +4,10 @@
 # 	Jan 2012	K. Tingdahl
 #_______________________________________________________________________________
 
-if ( NOT DEFINED OpendTect_DIR )
+if ( NOT DEFINED QTDIR OR QTDIR STREQUAL "" )
     set( QTDIR "" CACHE PATH "QT Location" )
     option ( OD_NO_QT "Turn off all QT" NO )
-endif()
-
-if ( NOT DEFINED QTDIR OR QTDIR STREQUAL "" )
-    message( "QTDIR is not defined" )
-    return()
+    message( FATAL_ERROR "QTDIR is not defined" )
 endif()
 
 ##Create launcher for linguist
