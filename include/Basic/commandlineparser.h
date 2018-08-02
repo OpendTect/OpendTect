@@ -94,15 +94,8 @@ public:
     const OD::String&		getExecutable() const;
     const OD::String&		getExecutableName() const;
 
-    static void			createKey(const char* key,BufferString& res)
-				{ res = "--"; res += key; }
-    static void			addKey(const char* key,BufferString& cmd,
-				       const char* valstr=0);
-				//!<adds a space before but not after
-    static void			addFilePath(const char*,BufferString& cmd);
-				/*!<adds "\ and \" to protect for spaces
-				    in FilePaths */
-
+    static BufferString		createKey( const char* key )
+				{ return BufferString("--",key); }
 
 private:
 

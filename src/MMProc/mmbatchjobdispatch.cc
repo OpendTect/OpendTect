@@ -118,12 +118,9 @@ bool Batch::MMJobDispatcher::launch()
     if ( !writeParFile() )
 	return false;
 
-    const BufferString mmprog =
-	File::Path(GetExecPlfDir(),progdefs_[pdidx]->mmprognm_).fullPath();
-    BufferString cmd( "\"", mmprog, "\" " ); cmd.add( jobspec_.clargs_ );
-    BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\"' );
-    cmd.add( " " ).add( qtdparfnm );
-    OS::MachineCommand mc( cmd );
+    OS::MachineCommand mc( progdefs_[pdidx]->mmprognm_ );
+    mc.addArgs( jobspec_.clargs_ );
+    mc.addArg( parfnm_ );
     OS::CommandLauncher cl( mc );
     OS::CommandExecPars ep( jobspec_.execpars_ );
     ep.needmonitor( false ).launchtype( OS::RunInBG )

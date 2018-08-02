@@ -159,26 +159,69 @@ int OS::CommandExecPars::getMachinePriority( float priority, bool iswin )
 }
 
 
-
-OS::MachineCommand::MachineCommand( const char* comm )
-    : remexec_(defremexec_)
+OS::MachineCommand& OS::MachineCommand::addArg( const char* str )
 {
-    setFromSingleStringRep( comm, false );
+    if ( str && *str )
+	args_.add( str );
+    return *this;
 }
 
 
-OS::MachineCommand::MachineCommand( const char* comm, const char* hostnm )
-    : hname_(hostnm)
-    , remexec_(defremexec_)
+OS::MachineCommand& OS::MachineCommand::addArgs( const BufferStringSet& toadd )
 {
-    setFromSingleStringRep( comm, true );
+    args_.append( toadd );
+    return *this;
+}
+
+
+OS::MachineCommand& OS::MachineCommand::addKeyedArg( const char* ky,
+						 const char* str )
+{
+    addArg( CommandLineParser::createKey(ky) );
+    addArg( str );
+    return *this;
+}
+
+
+static char* parseNextWord( char* ptr, BufferString& arg )
+{
+    arg.setEmpty();
+    if ( !ptr || !*ptr )
+	return ptr;
+    mSkipBlanks( ptr );
+    if ( !*ptr )
+	return ptr;
+
+    const bool issqtd = *ptr == '\'';
+    const bool isdqtd = *ptr == '"';
+    if ( issqtd || isdqtd )
+	ptr++;
+
+    for ( ; *ptr; ptr++ )
+    {
+	const bool isescaped = *ptr == '\\';
+	if ( isescaped || *ptr == '\'' || *ptr == '"' )
+	{
+	    ptr++;
+	    if ( !*ptr )
+		break;
+	}
+
+	if ( *ptr == ' ' && !isescaped )
+	    break;
+
+	arg.add( *ptr );
+    }
+    return ptr;
 }
 
 
 bool OS::MachineCommand::setFromSingleStringRep( const char* inp,
 						 bool ignorehostname )
 {
-    comm_.setEmpty();
+    BufferString& pnm = const_cast<BufferString&>( prognm_ );
+    pnm.setEmpty();
+    args_.setEmpty();
     if ( !ignorehostname )
 	hname_.setEmpty();
 
@@ -190,37 +233,56 @@ bool OS::MachineCommand::setFromSingleStringRep( const char* inp,
     char* ptr = inpcomm.getCStr();
     if ( *ptr == '@' )
 	ptr++;
-    mSkipBlanks( ptr );
-    comm_ = ptr;
+
+    ptr = parseNextWord( ptr, pnm );
 
     BufferString hnm;
-    const char* realcmd = extractHostName( comm_, hnm );
+    const char* realcmd = extractHostName( pnm, hnm );
     if ( !ignorehostname )
 	hname_ = hnm;
     mSkipBlanks( realcmd );
     if ( *realcmd == '@' ) realcmd++;
     BufferString tmp( realcmd );
-    comm_ = tmp;
+    pnm = tmp;
 
-    return !isBad();
+    if ( isBad() )
+	return false;
+
+    BufferString arg;
+    while ( ptr && *ptr )
+    {
+	ptr = parseNextWord( ptr, arg );
+	if ( !arg.isEmpty() )
+	    args_.add( arg );
+    }
+    return true;
 }
 
 
-
-const char* OS::MachineCommand::getSingleStringRep() const
+BufferString OS::MachineCommand::getSingleStringRep( bool noremote ) const
 {
     mDeclStaticString( ret );
     ret.setEmpty();
 
-    if ( !hname_.isEmpty() )
+    if ( !noremote && !hname_.isEmpty() )
     {
 #ifdef __win__
 	ret.add( "\\\\" ).add( hname_ );
+	File::Path fp( prognm_ );
+	if ( !fp.isAbsolute() )
+	    ret.add( "\\" );
 #else
 	ret.add( hname_ ).add( ":" );
 #endif
     }
-    ret.add( comm_ );
+    ret.add( prognm_ );
+
+    for ( auto arg : args_ )
+    {
+	BufferString str( *arg );
+	str.replace( " ", "\\ " );
+	ret.add( str );
+    }
 
     return ret.buf();
 }
@@ -275,16 +337,16 @@ const char* OS::MachineCommand::extractHostName( const char* str,
 }
 
 
+static BufferString getUsableCmd( const char* fnm )
+{
+    BufferString ret( fnm );
+
 #ifdef __win__
 
-static const char* getCmd( const char* fnm )
-{
     BufferString execnm( fnm );
-
     char* ptr = execnm.find( ':' );
-
     if ( !ptr )
-	return fnm;
+	return ret;
 
     char* args=0;
 
@@ -305,12 +367,12 @@ static const char* getCmd( const char* fnm )
 	}
     }
     else
-	return fnm;
+	return ret;
 
     if ( execnm.contains(".exe") || execnm.contains(".EXE")
        || execnm.contains(".bat") || execnm.contains(".BAT")
        || execnm.contains(".com") || execnm.contains(".COM") )
-	return fnm;
+	return ret;
 
     const char* interp = 0;
 
@@ -330,14 +392,14 @@ static const char* getCmd( const char* fnm )
 
 	od_istream strm( execnm );
 	if ( !strm.isOK() )
-	    return fnm;
+	    return ret;
 
 	char buf[41];
 	strm.getC( buf, 40 );
 	BufferString line( buf );
 
 	if ( !line.contains("#!") && !line.contains("# !") )
-	    return fnm;
+	    return ret;
 
 	if ( line.contains("csh") )
 	    interp = "tcsh.exe";
@@ -348,11 +410,9 @@ static const char* getCmd( const char* fnm )
     }
 
     if ( !interp )
-	return fnm;
+	return ret;
 
-    mDeclStaticString( fullexec );
-
-    fullexec = "\"";
+    ret = "\"";
     File::Path interpfp;
 
     const char* cygdir = WinUtils::getCygDir();
@@ -368,44 +428,54 @@ static const char* getCmd( const char* fnm )
 	interpfp.add("bin").add("win").add("sys").add(interp);
     }
 
-    fullexec.add( interpfp.fullPath() ).add( "\" '" )
+    ret.add( interpfp.fullPath() ).add( "\" '" )
 	.add( File::Path(execnm).fullPath(File::Path::Unix) ).add( "'" );
     if ( args && *args )
-	fullexec.add( " " ).add( args );
+	ret.add( " " ).add( args );
 
-    return fullexec.buf();
+#endif
+
+    return ret;
 }
 
-#endif
 
 
-#ifdef __win__
-# define mFullCommandStr getCmd( comm_ )
-#else
-# define mFullCommandStr comm_.buf()
-#endif
-
-BufferString OS::MachineCommand::getLocalCommand() const
+static void addQuotesIfHasSpace( BufferString& word )
 {
+    if ( word.find(' ') && word.firstChar() != '"' )
+	word.quote( '"' );
+}
+
+void OS::CommandLauncher::addQuotesIfNeeded( BufferString& word )
+{
+    return addQuotesIfHasSpace( word );
+}
+
+
+BufferString OS::MachineCommand::getExecCommand() const
+{
+    BufferString prognm = getUsableCmd( prognm_ );
+    addQuotesIfHasSpace( prognm );
+
     BufferString ret;
-
     const BufferString localhostnm( GetLocalHostName() );
-    if ( !remexec_.isEmpty() && !hname_.isEmpty() && hname_ != localhostnm )
+    if ( remexec_.isEmpty() || hname_.isEmpty() || hname_ == localhostnm )
+	ret.set( prognm );
+    else
     {
-	if ( remexec_ == odRemExecCmd() ) //New mode
+	if ( remexec_ != odRemExecCmd() )
+	    // Unix to Unix only (ssh/rsh)
+	    ret.set( remexec_ ).addSpace().add( hname_ );
+	else
 	{
-	    ret.set( remexec_ ).addSpace();
-	    BufferString key;
-	    CommandLineParser::createKey( sKeyRemoteHost(), key );
-	    ret.add( key ).addSpace().add( hname_ ).addSpace();
-	    CommandLineParser::createKey(sKeyRemoteCmd(), key );
-	    ret.add( key ).addSpace();
+	    ret.set( remexec_ )
+	        .addSpace()
+	        .add( CommandLineParser::createKey(sKeyRemoteHost()) )
+	        .addSpace().add( hname_ ).addSpace()
+	        .add( CommandLineParser::createKey(sKeyRemoteCmd()) );
 	}
-	else // Unix to Unix only (ssh/rsh)
-	    ret.set( remexec_ ).addSpace().add( hname_ ).addSpace();
+	ret.addSpace().add( prognm );
     }
-
-    ret.add( mFullCommandStr );
 
     return ret;
 }
@@ -413,7 +483,7 @@ BufferString OS::MachineCommand::getLocalCommand() const
 
 // OS::CommandLauncher
 
-OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc)
+OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc )
     : odprogressviewer_(File::Path(GetExecPlfDir(),sODProgressViewerProgName)
 			    .fullPath())
     , process_( 0 )
@@ -424,8 +494,9 @@ OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc)
     , stdoutputbuf_( 0 )
     , stdinputbuf_( 0 )
     , pid_( 0 )
+    , machcmd_(mc)
 {
-    set( mc );
+    reset();
 }
 
 
@@ -493,15 +564,13 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     if ( machcmd_.isBad() )
 	{ errmsg_ = toUiString("Command is invalid"); return false; }
 
-    BufferString localcmd = machcmd_.getLocalCommand();
-    if ( localcmd.isEmpty() )
+    MachineCommand mcmd( machcmd_ );
+    BufferString toexec = machcmd_.getExecCommand();
+    if ( toexec.isEmpty() )
 	{ errmsg_ = toUiString("Empty command to execute"); return false; }
 
     if ( !mIsZero(pars.prioritylevel_,1e-2f) )
-    {
-	CommandLineParser::addKey( CommandExecPars::sKeyPriority(), localcmd,
-			   BufferString(toString(pars.prioritylevel_) ).str() );
-    }
+	mcmd.addKeyedArg( CommandExecPars::sKeyPriority(), pars.prioritylevel_);
 
     bool ret = false;
     if ( pars.isconsoleuiprog_ )
@@ -512,9 +581,9 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 		    "od_exec_consoleui.scr" ).fullPath();
 	addQuotesIfNeeded( str );
 	str.add( " " );
-	localcmd.insertAt( 0, str );
+	toexec.insertAt( 0, str );
 #endif
-	return doExecute( localcmd, pars.launchtype_==Wait4Finish, true,
+	return doExecute( toexec, pars.launchtype_==Wait4Finish, true,
 			  pars.createstreams_ );
     }
 
@@ -531,7 +600,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    return false;
     }
 
-    ret = doExecute( localcmd, pars.launchtype_==Wait4Finish, false,
+    ret = doExecute( toexec, pars.launchtype_==Wait4Finish, false,
 		     pars.createstreams_ );
     if ( !ret )
 	return false;
@@ -554,21 +623,6 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 }
 
 
-void OS::CommandLauncher::addQuotesIfNeeded( BufferString& cmd )
-{
-    if ( !cmd.find(' ' ) )
-	return;
-
-    if ( cmd[0]=='"' )
-	return;
-
-    const char* quote = "\"";
-
-    cmd.insertAt( 0, quote );
-    cmd.add( quote );
-}
-
-
 void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
 {
     bool needsshell = cmd.find('|') || cmd.find('<') || cmd.find( '>' );
@@ -582,38 +636,38 @@ void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
 	if ( cmd.find( "\"" ) )
 	    { pFreeFnErrMsg("Commands with quote-signs not supported"); }
 
-	const BufferString comm = cmd;
+	const BufferString realcmd = cmd;
 #ifdef __win__
 	cmd = "cmd /c \"";
 #else
 	cmd = "sh -c \"";
 #endif
-	cmd.add( comm );
+	cmd.add( realcmd );
 	cmd.add( "\"" );
     }
 }
 
 
-bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
+bool OS::CommandLauncher::doExecute( const char* inpcmd, bool wt4finish,
 				     bool inconsole, bool createstreams )
 {
-    if ( *comm == '@' )
-	comm++;
-    if ( !*comm )
+    if ( *inpcmd == '@' )
+	inpcmd++;
+    if ( !*inpcmd )
 	{ errmsg_ = tr("Command is empty"); return false; }
 
     if ( process_ )
     {
-	errmsg_ = tr("Process is already running ('%1')").arg( comm );
+	errmsg_ = tr("Process is already running ('%1')").arg( inpcmd );
 	return false;
     }
 
-    BufferString cmd = comm;
+    BufferString cmd = inpcmd;
 #ifndef __win__
     addShellIfNeeded( cmd );
 #endif
 
-    DBG::message( BufferString( "About to execute:\n", cmd ) );
+    DBG::message( BufferString("About to execute:\n",cmd) );
 
 #ifndef OD_NO_QT
     process_ = wt4finish || createstreams ? new QProcess : 0;
@@ -637,11 +691,20 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 
     if ( process_ )
     {
-	process_->start( cmd.buf(), QIODevice::ReadWrite );
+	QStringList qstrlist;
+	machcmd_.args().fill( qstrlist );
+	process_->start( cmd.str(), qstrlist, QIODevice::ReadWrite );
     }
     else
     {
-	const bool res = startDetached( cmd, inconsole );
+	BufferString cmdline( cmd );
+	for ( auto str : machcmd_.args() )
+	{
+	    BufferString arg( *str );
+	    addQuotesIfNeeded( arg );
+	    cmdline.addSpace().add( arg );
+	}
+	const bool res = startDetached( cmdline, inconsole );
 	return res;
     }
 
@@ -763,7 +826,7 @@ int OS::CommandLauncher::catchError()
 
     if ( !errmsg_.isEmpty() )
     {
-	BufferString argstr( machcmd_.command() );
+	BufferString argstr( machcmd_.program() );
 	if ( machcmd_.hasHostName() )
 	    argstr.add( " @ " ).add( machcmd_.hostName() );
 	errmsg_.arg( argstr );
@@ -780,14 +843,15 @@ int OS::CommandLauncher::catchError()
 static bool doExecOSCmd( const char* cmd, OS::LaunchType ltyp, bool isbatchprog,
 			 BufferString* stdoutput, BufferString* stderror )
 {
-    const OS::MachineCommand mc( cmd );
+    OS::MachineCommand mc( "" );
+    mc.setFromSingleStringRep( cmd );
     OS::CommandLauncher cl( mc );
     OS::CommandExecPars cp( isbatchprog );
     cp.launchtype( ltyp ).createstreams( stdoutput || stderror );
+
     const bool ret = cl.execute( cp );
     if ( stdoutput )
 	cl.getStdOutput()->getAll( *stdoutput );
-
     if ( stderror )
 	cl.getStdError()->getAll( *stderror );
 
@@ -799,10 +863,7 @@ bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp, BufferString* out,
 		      BufferString* err )
 {
     if ( ltyp!=Wait4Finish )
-    {
-	out = 0;
-	err = 0;
-    }
+	{ out = 0; err = 0; }
 
     return doExecOSCmd( cmd, ltyp, false, out, err );
 }
@@ -810,11 +871,6 @@ bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp, BufferString* out,
 
 bool ExecODProgram( const char* prognm, const char* args, OS::LaunchType ltyp )
 {
-    BufferString cmd = prognm;
-    OS::CommandLauncher::addQuotesIfNeeded( cmd );
-
-    if ( args )
-	cmd.addSpace().add( args );
-
-    return doExecOSCmd( cmd, ltyp, true, 0, 0 );
+    BufferString fullcmd( prognm, " ", args );
+    return doExecOSCmd( fullcmd, ltyp, true, 0, 0 );
 }

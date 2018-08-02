@@ -48,9 +48,8 @@ static bool testCmds()
 
 static bool testAllPipes()
 {
-    BufferString cmd( GetFullExecutablePath() );
-    cmd.add( " --testpipes" );
-    const OS::MachineCommand mc( cmd );
+    OS::MachineCommand mc( GetFullExecutablePath() );
+    mc.addFlag( "testpipes" );
     OS::CommandLauncher cl( mc );
     OS::CommandExecPars cp( false );
     cp.launchtype( OS::RunInBG ).createstreams( true );
@@ -116,7 +115,7 @@ static bool runCommandWithLongOutput()
     //inserted.
     //
     const File::Path scriptname( GetSoftwareDir(0),"testscripts",
-	    		       "count_to_1000.csh");
+			       "count_to_1000.csh");
     BufferString output;
     OS::ExecCommand(scriptname.fullPath(), OS::Wait4Finish, &output );
 

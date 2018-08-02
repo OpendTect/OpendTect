@@ -49,51 +49,6 @@ ________________________________________________________________________
 
 #define mLogMsg(s) if ( logstrm_ ) *logstrm_ << s << od_endl;
 
-CommandString::CommandString( const HostData& hostdata, const char* init )
-    : hstdata_(hostdata)
-    , cmd_(init)
-{}
-
-
-CommandString& CommandString::operator=( const char* str )
-{
-    cmd_ = str;
-    return *this;
-}
-
-
-void CommandString::add( const char* txt )
-{ cmd_.addSpace().add( txt ); }
-
-void CommandString::addFlag( const char* f, const char* v )
-{
-    if ( !v || !*v ) return;
-
-    BufferString flag;
-    CommandLineParser::createKey( f, flag );
-    add( flag.str() );
-    add( v );
-}
-
-
-void CommandString::addFlag( const char* f, int v )
-{
-    BufferString flag;
-    CommandLineParser::createKey( f, flag );
-    flag.addSpace().add( v );
-    add( flag.str() );
-}
-
-
-void CommandString::addFilePath( const File::Path& fp )
-{
-    const File::Path::Style stl( hstdata_.pathStyle() );
-    cmd_.add( stl == File::Path::Unix ? " '" : " \"" )
-	.add( fp.fullPath(stl) )
-	.add( stl == File::Path::Unix ? "'" : "\"" );
-}
-
-
 
 /*!\brief Connects job to host.
  *
@@ -414,10 +369,9 @@ bool JobIOMgr::startProg( const char* progname,
     mkCommand( mc, machine, progname, basefp, ioparfp, ji, rshcomm );
 
     iohdlr_.addJobDesc( machine, ji.descnr_ );
-    const BufferString cmd( mc.getLocalCommand() );
     if ( mDebugOn || logstrm_ )
     {
-	const BufferString msg( "Executing: ", cmd );
+	const BufferString msg( "Executing: ", mc.getExecCommand() );
 	if ( mDebugOn ) DBG::message(msg);
 	mLogMsg(msg)
     }
@@ -426,7 +380,8 @@ bool JobIOMgr::startProg( const char* progname,
     if ( !cl.execute(execpars_) )
     {
 	iohdlr_.removeJobDesc( machine.getHostName(), ji.descnr_ );
-	mErrRet( BufferString("Failed to submit command '", cmd, "'") )
+	mErrRet( BufferString("Failed to submit command '",
+			    mc.getExecCommand(), "'") )
     }
 
     return true;
@@ -575,6 +530,9 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 			  const File::Path& iopfp, const JobInfo& ji,
 			  const char* rshcomm )
 {
+    mc.setProgram( progname );
+    mc.setHostIsWindows( machine.isWindows() );
+
     const BufferString remhostaddress =
 		       System::hostAddress( machine.getHostName() );
     const HostData& localhost = machine.localHost();
@@ -590,21 +548,11 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 	mc.setHostName( machine.getHostName() );
     }
 
-    CommandString argstr( machine );
-    BufferString cmd;
-    if ( unixtounix )
-	cmd.set( JobIOMgr::mkRexecCmd( progname, machine, localhost ) );
-    else
-	cmd.set( progname );
-
-    argstr.addFlag( OS::MachineCommand::sKeyMasterHost(),
-		 System::localAddress() );
-    argstr.addFlag( OS::MachineCommand::sKeyMasterPort(), iohdlr_.port() );
-    argstr.addFlag( OS::MachineCommand::sKeyJobID(), ji.descnr_ );
-    argstr.addFilePath( iopfp );
-    cmd.addSpace().add( argstr.string() );
-
-    mc.setCommand( cmd.str() );
+    mc.addKeyedArg( OS::MachineCommand::sKeyMasterHost(),
+		    System::localAddress() );
+    mc.addKeyedArg( OS::MachineCommand::sKeyMasterPort(), iohdlr_.port() );
+    mc.addKeyedArg( OS::MachineCommand::sKeyJobID(), ji.descnr_ );
+    mc.addArg( iopfp.fullPath(machine.pathStyle()) );
 }
 
 

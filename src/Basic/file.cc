@@ -1024,23 +1024,19 @@ bool File::launchViewer( const char* fnm, const ViewPars& vp )
     if ( !exists(fnm) )
 	return false;
 
-    BufferString cmd;
-    CommandLineParser::addFilePath(
-		Path(GetExecPlfDir(),"od_FileBrowser").fullPath(), cmd );
-    CommandLineParser::addKey( ViewPars::sKeyFile(), cmd );
-    CommandLineParser::addFilePath( fnm, cmd );
-    CommandLineParser::addKey( ViewPars::sKeyMaxLines(), cmd,
-			       BufferString(::toString(vp.maxnrlines_) ).str());
-    CommandLineParser::addKey( ViewPars::sKeyStyle(), cmd,
-			       ViewStyleDef().getKeyForIndex(vp.style_) );
+    OS::MachineCommand mc( "od_FileBrowser" );
+    mc.addKeyedArg( ViewPars::sKeyFile(), fnm );
+    mc.addKeyedArg( ViewPars::sKeyMaxLines(), vp.maxnrlines_ );
+    mc.addKeyedArg( ViewPars::sKeyStyle(), toString(vp.style_) );
     if ( vp.editable_ )
-	CommandLineParser::addKey( ViewPars::sKeyEdit(), cmd );
+	mc.addFlag( ViewPars::sKeyEdit() );
 
 #ifdef __mac__
-    CommandLineParser::addKey( OS::MachineCommand::sKeyFG(), cmd );
+    mc.addFlag( OS::MachineCommand::sKeyFG() );
 #endif
 
-    OS::CommandLauncher cl = OS::MachineCommand( cmd );
-    OS::CommandExecPars pars; pars.launchtype_ = OS::RunInBG;
+    OS::CommandLauncher cl( mc );
+    OS::CommandExecPars pars;
+    pars.launchtype_ = OS::RunInBG;
     return cl.execute( pars );
 }

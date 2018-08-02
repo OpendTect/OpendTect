@@ -328,7 +328,7 @@ bool uiBatchProgLaunch::acceptOK()
 	firstinp = 1;
     }
 
-    BufferString args;
+    OS::MachineCommand mc( prognm );
     for ( int iinp=firstinp; iinp<inplst.size(); iinp++ )
     {
 	uiGroup* curinp = inplst[iinp];
@@ -336,10 +336,7 @@ bool uiBatchProgLaunch::acceptOK()
 	mDynamicCastGet(uiGenInput*,inp,curinp)
 	BufferString val;
 	if ( finp )
-	{
 	    val = finp->fileName();
-	    val.quote( '"' );
-	}
 	else if ( inp )
 	{
 	    val = inp->text();
@@ -347,7 +344,7 @@ bool uiBatchProgLaunch::acceptOK()
 		val.quote( '\'' );
 	}
 
-	args.add( " " ).add( val );
+	mc.addArg( val );
     }
 
     OS::CommandExecPars execpars( true );
@@ -359,10 +356,10 @@ bool uiBatchProgLaunch::acceptOK()
 	 pil_[selidx]->uitype_==BatchProgInfo::NoUI )
 	execpars.prioritylevel_ = 0;
 
-    OS::MachineCommand mc( BufferString(prognm," ",args) );
     OS::CommandLauncher cl( mc );
     if ( !cl.execute( execpars ) )
-	uiMSG().error(tr("Cannot execute command:\n%1").arg(mc.command()));
+	uiMSG().error(tr("Cannot execute command:\n%1")
+			.arg(mc.getExecCommand()));
 
     return false;
 }

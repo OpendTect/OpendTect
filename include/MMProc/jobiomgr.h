@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "callback.h"
 #include "oscommand.h"
 
-class CommandString;
 class HostData;
 class JobInfo;
 class JobIOHandler;

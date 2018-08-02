@@ -36,7 +36,7 @@ public:
     static ProcType	procTypeFor(const char*);
 
     BufferString	prognm_;
-    BufferString	clargs_;
+    BufferStringSet	clargs_;
     IOPar		pars_;
     OS::CommandExecPars	execpars_;	//!< just a hint for some dispatchers
 

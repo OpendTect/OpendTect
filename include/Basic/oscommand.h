@@ -11,9 +11,9 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "bufstring.h"
-#include "uistring.h"
+#include "bufstringset.h"
 #include "od_iosfwd.h"
+#include "uistring.h"
 
 mFDQtclass(QProcess);
 class qstreambuf;
@@ -78,39 +78,42 @@ mExpClass(Basic) MachineCommand
 {
 public:
 
-			MachineCommand(const char* comm=0);
-			/*!<Sets from single string. Assumes that arguments are
-			   space separated, and command with spaces in them are
-			   properly escaped.
-			   */
-			MachineCommand(const char* comm,const char* hnm);
+			MachineCommand( const char* prognm=0 )
+			    : prognm_(prognm)		{}
+			MachineCommand( const char* prognm,
+					const BufferStringSet& arguments )
+			    : prognm_(prognm)
+			    , args_(arguments)		{}
 
-    inline const char*	command() const			{ return comm_; }
-    inline void		setCommand( const char* cm )	{ comm_ = cm; }
-    inline const char*	hostName() const		{ return hname_; }
-    inline void		setHostName( const char* hnm )	{ hname_ = hnm; }
-    inline const char*	remExec() const			{ return remexec_; }
-    inline void		setRemExec( const char* sh )	{ remexec_ = sh; }
+    const char*		program() const			{ return prognm_; }
+    void		setProgram( const char* pn )	{ prognm_.set( pn ); }
+    const BufferStringSet& args() const			{ return args_; }
 
-    inline bool		isBad() const		{ return comm_.isEmpty(); }
+    MachineCommand&	addArg(const char*);
+    MachineCommand&	addArgs(const BufferStringSet&);
+    MachineCommand&	addFlag( const char* flg )
+			{ return addKeyedArg(flg,0); }
+    MachineCommand&	addKeyedArg(const char* ky,const char* valstr);
 
-    bool		setFromSingleStringRep(const char*,
-						bool ignorehostname=false);
-			/*!<\returns !isBad().
-			   Assumes that arguments are space separated,
-			   and command with spaces in them are properly
-			   escaped. */
+			// convenience:
+    template <class T>
+    MachineCommand&	addArg( const T& t )	{ return addArg(::toString(t));}
+    template <class T>
+    MachineCommand&	addKeyedArg( const char* ky, const T& t )
+			{ return addKeyedArg(ky,::toString(t));}
 
-    const char*		getSingleStringRep() const;
+    bool		hostIsWindows() const		{ return hostiswin_; }
+    void		setHostIsWindows( bool yn )	{ hostiswin_ = yn; }
+    const char*		hostName() const		{ return hname_; }
+    void		setHostName( const char* hnm )	{ hname_ = hnm; }
+    const char*		remExec() const			{ return remexec_; }
+    void		setRemExec( const char* sh )	{ remexec_ = sh; }
 
+    bool		isBad() const		{ return prognm_.isEmpty(); }
     bool		hasHostName() const	{ return !hname_.isEmpty(); }
 
     static const char*	defaultRemExec()	{ return defremexec_; }
     static void		setDefaultRemExec( const char* s ) { defremexec_ = s; }
-
-    static const char*	extractHostName(const char*,BufferString&);
-			//!< returns remaining part
-    BufferString	getLocalCommand() const;
 
     static const char*	odRemExecCmd()		{ return "od_remexec"; }
     static const char*	sKeyRemoteHost()	{ return "machine"; }
@@ -123,11 +126,23 @@ public:
 
 protected:
 
-    BufferString	comm_;
+    BufferString	prognm_;
+    BufferStringSet	args_;
+    bool		hostiswin_		= __iswin__;
     BufferString	hname_;
-    BufferString	remexec_;
+    BufferString	remexec_		= defremexec_;
 
     static BufferString	defremexec_;
+
+public:
+
+    bool		setFromSingleStringRep(const char*,
+						bool ignorehostname=false);
+    BufferString	getSingleStringRep(bool noremote=false) const;
+    BufferString	getExecCommand() const;
+
+    static const char*	extractHostName(const char*,BufferString&);
+			//!< returns remaining part
 
 };
 
@@ -179,13 +194,14 @@ protected:
     qstreambuf*		stdoutputbuf_;
     qstreambuf*		stderrorbuf_;
     qstreambuf*		stdinputbuf_;
-public: //Extra utilities, not for general use
+public:
+
     static void		addShellIfNeeded(BufferString& cmd);
 			/*!<Analyses the cmd and looks for pipes or redirects.
 			    If these are found, the cmd is converted to a
 			    shell command. */
-    static void		addQuotesIfNeeded(BufferString& cmd);
-			/*!<Checks for spaces in command, and surrounds command
+    static void		addQuotesIfNeeded(BufferString& word);
+			/*!<Checks for spaces in word, and surrounds word
 			    with quotes them if not already done. */
     static void		manageQProcess(QProcess*);
 			/*!<Add a QProcess and it will be deleted one day. */

@@ -171,29 +171,22 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if ( uiMSG().askGoOn(docmsg) )
 	showProgrDoc();
 
-    File::Path fp( swdir, "bin" );
 #ifdef __win__
-    BufferString cmd;
-    fp.add( "od_cr_dev_env.bat" );
-    cmd += fp.fullPath();
-    cmd += " "; cmd += swdir;
     char shortpath[1024];
-    GetShortPathName(workdirnm.buf(),shortpath,1024);
-    cmd += " "; cmd += shortpath;
+    GetShortPathName( workdirnm.str(), shortpath, 1024 );
+    workdirnm = shortpath;
+#endif
 
     OS::CommandExecPars execpars( false );
     execpars.launchtype( OS::Wait4Finish )
 	    .isconsoleuiprog( true );
-    OS::MachineCommand mc( cmd );
+    const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat" : "od_cr_dev_env";
+    File::Path fp( swdir, "bin", scriptfnm );
+    OS::MachineCommand mc( fp.fullPath() );
+    mc.addArg( swdir );
+    mc.addArg( workdirnm );
     OS::CommandLauncher cl( mc );
     const bool res = cl.execute( execpars );
-#else
-    fp.add( "od_cr_dev_env" );
-    BufferString cmd( "'", fp.fullPath() );
-    cmd += "' '"; cmd += swdir;
-    cmd += "' '"; cmd += workdirnm; cmd += "'";
-    const bool res = system(cmd) == 0;
-#endif
 
     BufferString cmakefile =
 			File::Path(workdirnm).add("CMakeLists.txt").fullPath();

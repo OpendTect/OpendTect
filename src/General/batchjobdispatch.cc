@@ -55,7 +55,7 @@ void Batch::JobSpec::usePar( const IOPar& iop )
     execpars_.removeFromPar( pars_ );
 
     prognm_ = iop.find( sKeyProgramName );
-    clargs_ = iop.find( sKeyClArgs );
+    iop.get( sKeyClArgs, clargs_ );
     execpars_.usePar( iop );
 }
 
