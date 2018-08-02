@@ -192,23 +192,26 @@ static char* parseNextWord( char* ptr, BufferString& arg )
     if ( !*ptr )
 	return ptr;
 
-    const bool issqtd = *ptr == '\'';
-    const bool isdqtd = *ptr == '"';
-    if ( issqtd || isdqtd )
+    bool inquotes = *ptr == '"';
+    if ( inquotes )
 	ptr++;
 
     for ( ; *ptr; ptr++ )
     {
+	if ( *ptr == '"' )
+	    { inquotes = !inquotes; continue; }
+
 	const bool isescaped = *ptr == '\\';
-	if ( isescaped || *ptr == '\'' || *ptr == '"' )
+	if ( isescaped )
 	{
 	    ptr++;
 	    if ( !*ptr )
 		break;
+	    if ( *ptr == '\\' )
+		arg.add( *ptr );
 	}
-
-	if ( *ptr == ' ' && !isescaped )
-	    break;
+	if ( *ptr == ' ' && !isescaped && !inquotes )
+	    { ptr++; break; }
 
 	arg.add( *ptr );
     }
@@ -439,23 +442,22 @@ static BufferString getUsableCmd( const char* fnm )
 }
 
 
-
-static void addQuotesIfHasSpace( BufferString& word )
+void OS::CommandLauncher::addQuotesIfNeeded( BufferString& word )
 {
     if ( word.find(' ') && word.firstChar() != '"' )
 	word.quote( '"' );
 }
 
-void OS::CommandLauncher::addQuotesIfNeeded( BufferString& word )
+
+static void escapeSpaces( BufferString& word )
 {
-    return addQuotesIfHasSpace( word );
+    word.replace( " ", "\\ " );
 }
 
 
 BufferString OS::MachineCommand::getExecCommand() const
 {
     BufferString prognm = getUsableCmd( prognm_ );
-    addQuotesIfHasSpace( prognm );
 
     BufferString ret;
     const BufferString localhostnm( GetLocalHostName() );
@@ -630,21 +632,22 @@ void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
     if ( !needsshell )
 	needsshell = cmd.startsWith( "echo ", CaseInsensitive );
 #endif
+    if ( !needsshell )
+	return;
 
-    if ( needsshell )
-    {
-	if ( cmd.find( "\"" ) )
-	    { pFreeFnErrMsg("Commands with quote-signs not supported"); }
-
-	const BufferString realcmd = cmd;
+    const bool cmdneedsquotes = cmd.firstChar() != '"';
+    BufferString orgcmd = cmd;
+    escapeSpaces( orgcmd );
 #ifdef __win__
-	cmd = "cmd /c \"";
+    cmd.set( "cmd /c " );
 #else
-	cmd = "sh -c \"";
+    cmd.set( "/bin/sh -c " );
 #endif
-	cmd.add( realcmd );
-	cmd.add( "\"" );
-    }
+    if ( cmdneedsquotes )
+	cmd.add( '"' );
+    cmd.add( orgcmd );
+    if ( cmdneedsquotes )
+	cmd.add( '"' );
 }
 
 
@@ -663,9 +666,7 @@ bool OS::CommandLauncher::doExecute( const char* inpcmd, bool wt4finish,
     }
 
     BufferString cmd = inpcmd;
-#ifndef __win__
     addShellIfNeeded( cmd );
-#endif
 
     DBG::message( BufferString("About to execute:\n",cmd) );
 
@@ -865,12 +866,16 @@ bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp, BufferString* out,
     if ( ltyp!=Wait4Finish )
 	{ out = 0; err = 0; }
 
-    return doExecOSCmd( cmd, ltyp, false, out, err );
+    BufferString esccmd( cmd );
+    escapeSpaces( esccmd );
+    return doExecOSCmd( esccmd, ltyp, false, out, err );
 }
 
 
 bool ExecODProgram( const char* prognm, const char* args, OS::LaunchType ltyp )
 {
-    BufferString fullcmd( prognm, " ", args );
+    BufferString esccmd( prognm );
+    escapeSpaces( esccmd );
+    BufferString fullcmd( esccmd, " ", args );
     return doExecOSCmd( fullcmd, ltyp, true, 0, 0 );
 }
