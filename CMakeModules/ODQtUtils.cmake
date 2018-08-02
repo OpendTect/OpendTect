@@ -5,9 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-if ( NOT DEFINED OpendTect_DIR )
+if ( NOT DEFINED QTDIR OR QTDIR STREQUAL "" )
     set( QTDIR "" CACHE PATH "QT Location" )
     option ( OD_NO_QT "Turn off all QT" NO )
+    message( FATAL_ERROR "QTDIR is not defined" )
 endif()
 
 if ( OD_NO_QT STREQUAL "OFF" AND NOT ${QTDIR} STREQUAL "" )
