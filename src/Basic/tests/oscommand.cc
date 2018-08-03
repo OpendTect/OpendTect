@@ -99,11 +99,11 @@ static bool runCommandWithSpace()
     scriptname.setExtension( "cmd" );
 #else
     scriptname.setExtension( "sh" );
-#endif
 
     mRunStandardTest( OS::ExecCommand(scriptname.fullPath()),
 			"Command with space" );
 
+#endif
     return true;
 }
 
