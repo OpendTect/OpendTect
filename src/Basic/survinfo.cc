@@ -1045,10 +1045,11 @@ bool SurveyInfo::isRightHandSystem() const
 bool SurveyInfo::write( const char* basedir ) const
 {
     mLock4Read();
-    if ( !basedir )
-	basedir = diskloc_.basePath();
+    BufferString basedirstr( basedir );
+    if ( basedirstr.isEmpty() )
+	basedirstr = diskloc_.basePath();
 
-    File::Path fp( basedir, diskloc_.dirName(), sSetupFileName() );
+    File::Path fp( basedirstr, diskloc_.dirName(), sSetupFileName() );
     const BufferString dotsurvfnm( fp.fullPath() );
     SafeFileIO sfio( dotsurvfnm, false );
     if ( !sfio.open(false) )
@@ -1106,7 +1107,7 @@ bool SurveyInfo::write( const char* basedir ) const
 	return false;
     }
 
-    fp.set( basedir ).add( diskloc_.dirName() );
+    fp.set( basedirstr ).add( diskloc_.dirName() );
     const BufferString savedir( fp.fullPath() );
     saveDefaultPars( savedir );
     saveComments( savedir );
