@@ -664,7 +664,7 @@ void CBVSReadMgr::dumpInfo( od_ostream& strm, bool inclcompinfo ) const
     strm << info().geom_.start.crl() << " - " << info().geom_.stop.crl()
 	 << " (step " << info().geom_.step.crl() << ").\n";
     strm << "\nZ range: " << info().sd_.start << " - "
-	 << info().sd_.atIndex(info().nrsamples_)
+	 << info().sd_.atIndex(info().nrsamples_-1)
 	 << " step: " << info().sd_.step;
     if ( SI().zIsTime() )
 	 strm << " (s)\n";
