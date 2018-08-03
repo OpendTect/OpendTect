@@ -637,7 +637,6 @@ void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
 
     const bool cmdneedsquotes = cmd.firstChar() != '"';
     BufferString orgcmd = cmd;
-    escapeSpaces( orgcmd );
 #ifdef __win__
     cmd.set( "cmd /c " );
 #else
