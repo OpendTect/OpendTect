@@ -143,11 +143,17 @@ mExternC(Basic) const char* GetProcFileName( const char* fname )
 }
 
 
-mExternC(Basic) const char* GetScriptsDir( const char* subdir )
+mExternC(Basic) const char* GetCmdDriverScript( const char* scrnm )
 {
     mDeclStaticString( ret );
     const char* envval = GetEnvVar( "DTECT_SCRIPTS_DIR" );
-    ret = envval && *envval ? envval : GetProcFileName( subdir );
+    if ( !envval || !*envval )
+	return GetProcFileName( scrnm );
+
+    File::Path fp( envval );
+    if ( scrnm && *scrnm )
+	fp.add( scrnm );
+    ret = fp.fullPath();
     return ret.buf();
 }
 
@@ -365,6 +371,28 @@ mExternC(Basic) const char* GetScriptDir()
 #else
     res = File::Path( GetSoftwareDir(0),"bin" ).fullPath();
 #endif
+    return res.buf();
+}
+
+
+mExternC(Basic) const char* GetShellScript( const char* nm )
+{
+    mDeclStaticString( res );
+    if ( !nm || !*nm )
+	return GetScriptDir();
+
+    res = File::Path(GetScriptDir(),nm).fullPath();
+    return res.buf();
+}
+
+
+mExternC(Basic) const char* GetPythonScript( const char* nm )
+{
+    mDeclStaticString( res );
+    File::Path fp( GetScriptDir(), "odpy" );
+    if ( nm && *nm )
+	fp.add( nm );
+    res = fp.fullPath();
     return res.buf();
 }
 

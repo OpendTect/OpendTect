@@ -581,7 +581,7 @@ void CrashDumper::sendDump( const char* filename )
 	"process_dumpfile.sh";
 #endif
 
-    const File::Path script( GetScriptDir(), processscript );
+    const File::Path script( GetShellScript(processscript) );
     const File::Path symboldir( GetExecPlfDir(), "symbols" );
 
 #ifdef __win__

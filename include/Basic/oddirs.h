@@ -104,11 +104,14 @@ mGlobal(Basic) const char* GetExecPlfDir(void);
 */
 
 mGlobal(Basic) const char* GetScriptDir(void);
-/*!< Platform dependent script directory
-  Returns full path to bin dir:
-  GetSoftwareDir()/bin on Windows and Linux,
-  and GetSoftwareDir()/Contents/MacOS on Mac.
-*/
+/*!< Returns full path to directory with scripts (def=GetSoftwareDir()/bin). */
+
+mGlobal(Basic) const char* GetShellScript(const char*);
+/*!< Returns full path to script, pass null to get the directory */
+
+mGlobal(Basic) const char* GetPythonScript(const char*);
+/*!< Returns full path to script, pass null to get the directory
+  (def=GetScriptDir()/odpy). */
 
 mGlobal(Basic) const char* GetLibPlfDir(void);
 /*!< Platform dependent library directory
@@ -116,10 +119,6 @@ mGlobal(Basic) const char* GetLibPlfDir(void);
  GetSoftwareDir()/bin/GetPlfSubDir()/GetBinSubDir() on Windows and Linux,
  and GetSoftwareDir()/Contents/Frameworks on Mac.
  */
-
-mGlobal(Basic) inline mDeprecated const char* GetBinPlfDir(void)
-{ return GetExecPlfDir(); }
-//!<Old don't use
 
 mGlobal(Basic) const char* GetDocFileDir(const char* filedir);
 /*!< Location of Documentation */
@@ -180,7 +179,8 @@ mGlobal(Basic) const char* GetSettingsFileName(const char*);
 /*!< Returns GetSettingsDir()/filenm */
 
 
-mGlobal(Basic) const char* GetScriptsDir(const char*);
+mGlobal(Basic) const char* GetCmdDriverScript(const char*);
+/* pass null to get the default CmdDriver script directory */
 
 
 } // extern "C"

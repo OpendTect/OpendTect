@@ -560,7 +560,7 @@ BufferString JobIOMgr::mkRexecCmd( const char* prognm,
 				   const HostData& machine,
 				   const HostData& localhost )
 {
-    File::Path execfp( GetScriptDir(), "exec_prog" );
+    File::Path execfp( GetShellScript("exec_prog") );
     execfp = machine.convPath( HostData::Appl, execfp, &localhost );
 
     BufferString res( execfp.fullPath( machine.pathStyle() ).str() );

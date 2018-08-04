@@ -481,7 +481,7 @@ void uiCmdDriverDlg::afterSurveyChg()
 
 void uiCmdDriverDlg::setDefaultSelDirs()
 {
-    BufferString dir = defaultscriptsdir_.isEmpty() ? GetScriptsDir(0)
+    BufferString dir = defaultscriptsdir_.isEmpty() ? GetCmdDriverScript(0)
 						    : defaultscriptsdir_.buf();
     inpfld_->setup().initialselectiondir( dir );
     outfld_->setup().initialselectiondir( dir );
