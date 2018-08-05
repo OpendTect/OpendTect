@@ -6,9 +6,11 @@
 # IOPar tools
 #
 
+import odpy.common
+
 def read_line( fp, bin ):
   if bin:
-    words = fp.readline().decode('utf8').split(":")
+    words = fp.readline().decode("utf8").split(":")
   else:
     words = fp.readline().split(":")
   return [x.strip() for x in words]
