@@ -203,7 +203,7 @@ void WaveletManager::setScalingInfo( const ObjID& id, const ObjID* orgid,
     else
     {
 	FileMultiString fms;
-	fms.add( orgid );
+	fms.add( *orgid );
 	if ( horid )
 	    fms.add( *horid );
 	if ( seisid )

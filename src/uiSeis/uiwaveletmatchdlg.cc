@@ -121,7 +121,8 @@ void uiWaveletMatchDlg::filterSzCB( CallBacker* )
 }
 
 
-static void solveAxb( int sz, float* a, float* b, float* x, uiParent* p, uiString s )
+static void solveAxb( int sz, float* a, float* b, float* x, uiParent* p,
+			uiString s )
 {
     Array2DImpl<float> A( sz, sz );
     A.setAll( 0 );
