@@ -73,6 +73,7 @@ public:
     virtual			~IOObj();
     virtual bool		isBad() const			= 0;
     virtual void		copyFrom(const IOObj&);
+    bool			isEqualTo(const IOObj&) const;
     virtual bool		hasConnType( const char* s ) const
 				{ return connType() == s; }
 
@@ -146,6 +147,7 @@ protected:
 			IOObj(const IOObj&);
     static IOObj*	get(ascistream&,const char*,DirID,bool rejoldtmp=true);
     bool		put(ascostream&) const;
+    virtual bool	isEqTo(const IOObj&) const	= 0;
     virtual bool	getFrom(ascistream&)		= 0;
     virtual bool	putTo(ascostream&) const	= 0;
 
@@ -170,5 +172,4 @@ public:
 };
 
 mGlobal(General) bool equalIOObj(const DBKey&,const DBKey&);
-mGlobal(General) bool areEqual(const IOObj*,const IOObj*);
 mGlobal(General) bool fullImplRemove(const IOObj&);

@@ -1,6 +1,4 @@
-#ifndef iosubdir_h
-#define iosubdir_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -42,8 +40,6 @@ public:
 
     bool	getFrom(ascistream&)	{ return true; }
     bool	putTo(ascostream&) const;
+    bool	isEqTo(const IOObj&) const;
 
 };
-
-
-#endif

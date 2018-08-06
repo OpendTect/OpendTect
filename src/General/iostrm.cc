@@ -145,6 +145,18 @@ bool IOStream::isBad() const
 }
 
 
+bool IOStream::isEqTo( const IOObj& othioobj ) const
+{
+    mDynamicCastGet( const IOStream*, oth, &othioobj )
+    if ( !oth )
+	return false;
+
+    return fs_ == oth->fs_
+	&& extension_ == oth->extension_
+	&& specfname_ == oth->specfname_;
+}
+
+
 void IOStream::copyFrom( const IOObj& obj )
 {
     IOObj::copyFrom( obj );

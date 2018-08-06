@@ -45,6 +45,11 @@ protected:
 
     virtual bool	getFrom(ascistream&)		{ return false; }
     virtual bool	putTo(ascostream&) const	{ return false; }
+    virtual bool	isEqTo( const IOObj& othioobj ) const
+			{
+			    mDynamicCastGet(const InvalidIOObj*,oth,&othioobj)
+			    return oth;
+			}
 
 };
 
@@ -125,6 +130,18 @@ void IOObj::copyClassData( const IOObj& obj )
     setTranslator( obj.translator() );
     setDirName( obj.dirName() );
     pars_ = obj.pars_;
+}
+
+
+bool IOObj::isEqualTo( const IOObj& oth ) const
+{
+    if ( key() != oth.key()
+      || group() != oth.group()
+      || translator() != oth.translator()
+      || pars() != oth.pars() )
+	return false;
+
+    return isEqTo( oth );
 }
 
 
@@ -387,15 +404,6 @@ uiString IOObj::phrCannotWriteToDB() const
 }
 
 
-bool areEqual( const IOObj* o1, const IOObj* o2 )
-{
-    if ( !o1 && !o2 ) return true;
-    if ( !o1 || !o2 ) return false;
-
-    return equalIOObj(o1->key(),o2->key());
-}
-
-
 static void mkStd( DBKey& ky )
 {
     if ( ky.isInvalid() )
@@ -468,6 +476,18 @@ bool IOSubDir::putTo( ascostream& stream ) const
     const BufferString str( "@", objID().getI() );
     stream.put( str, name() );
     return true;
+}
+
+
+bool IOSubDir::isEqTo( const IOObj& othioobj ) const
+{
+    mDynamicCastGet( const IOSubDir*, oth, &othioobj )
+    if ( !oth )
+	return false;
+
+    const BufferString mydirnm( fullUserExpr(true) );
+    const BufferString othdirnm( oth->fullUserExpr(true) );
+    return mydirnm == othdirnm;
 }
 
 
@@ -560,6 +580,16 @@ Conn* IOX::getConn( bool forread ) const
 IOObj* IOX::getIOObj() const
 {
     return ownkey_.isInvalid() ? 0 : DBM().get( ownkey_ );
+}
+
+
+bool IOX::isEqTo( const IOObj& othioobj ) const
+{
+    mDynamicCastGet( const IOX*, oth, &othioobj )
+    if ( !oth )
+	return false;
+
+    return true;
 }
 
 

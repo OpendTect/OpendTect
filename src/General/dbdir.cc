@@ -114,16 +114,59 @@ void DBDir::copyClassData( const DBDir& oth )
 }
 
 
+
 Monitorable::ChangeType DBDir::compareClassData( const DBDir& oth ) const
 {
-    if ( objs_.size() != oth.objs_.size() )
+    if ( readtime_ != oth.readtime_ || dirid_ != oth.dirid_ )
 	return cEntireObjectChange();
 
-    for ( int idx=0; idx<objs_.size(); idx++ )
-	if ( objs_[idx]->key() != oth.objs_[idx]->key() )
-	    return cEntireObjectChange();
+    const int mysz = objs_.size();
+    const int othsz = oth.objs_.size();
+    const int nrdiff = othsz - mysz;
+    if ( std::abs(nrdiff) > 1 )
+	return cEntireObjectChange();
 
-    return cNoChange();
+    ObjectSet<IOObj> myobjs( objs_ );
+    ObjectSet<IOObj> othobjs( oth.objs_ );
+    int chgdidx = -1;
+    if ( nrdiff == 1 )
+    {
+	chgdidx = mysz;
+	othobjs.removeSingle( mysz );
+    }
+    else if ( nrdiff == -1 )
+    {
+	for ( int idx=0; idx<mysz; idx++ )
+	{
+	    const IOObj& myobj = *myobjs[idx];
+	    const IOObj& othobj = *othobjs[idx];
+	    if ( myobj.key().objID() != othobj.key().objID() )
+		{ chgdidx = idx; break; }
+	}
+	if ( chgdidx < 0 )
+	    chgdidx = othsz;
+	myobjs.removeSingle( chgdidx );
+    }
+
+    for ( int idx=0; idx<myobjs.size(); idx++ )
+    {
+	const IOObj& ioobj = *myobjs[idx];
+	const IOObj& othioobj = *othobjs[idx];
+	if ( !ioobj.isEqualTo(othioobj) )
+	{
+	    if ( chgdidx >= 0 )
+		return cEntireObjectChange();
+	    chgdidx = idx;
+	}
+    }
+
+    if ( chgdidx < 0 )
+	return cNoChange();
+
+    if ( nrdiff == 0 )
+	return cEntryChanged();
+
+    return nrdiff > 0 ? cEntryAdded() : cEntryRemoved();
 }
 
 

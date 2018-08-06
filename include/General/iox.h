@@ -46,6 +46,7 @@ protected:
 
     bool		getFrom(ascistream&);
     bool		putTo(ascostream&) const;
+    bool		isEqTo(const IOObj&) const;
 
     static int		prodid; //!< for factory implementation
 };

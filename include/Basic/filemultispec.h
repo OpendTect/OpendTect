@@ -33,6 +33,11 @@ public:
 
 			MultiSpec(const char* fnm=0);
 			MultiSpec(const IOPar&);
+    bool		operator ==( const MultiSpec& oth ) const
+			{ return fnames_ == oth.fnames_
+			      && nrs_ == oth.nrs_
+			      && zeropad_ == oth.zeropad_
+			      && survsubdir_ == oth.survsubdir_; }
 
     BufferStringSet	fnames_;
     StepInterval<int>	nrs_;

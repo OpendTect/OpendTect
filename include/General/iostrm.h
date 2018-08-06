@@ -68,6 +68,7 @@ protected:
 
     virtual bool	getFrom(ascistream&);
     virtual bool	putTo(ascostream&) const;
+    virtual bool	isEqTo(const IOObj&) const;
 
     File::MultiSpec	fs_;
     mutable int		curfidx_;
