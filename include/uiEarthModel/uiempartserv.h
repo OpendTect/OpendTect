@@ -96,8 +96,7 @@ public:
     void		selectHorizons(ObjectSet<EM::Object>&,bool is2d,
 					uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
-    void		selectFaults(ObjectSet<EM::Object>&,bool is2d,
-					uiParent* p=0);
+    void		selectFaults(ObjectSet<EM::Object>&,uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
     void		selectFaultStickSets(ObjectSet<EM::Object>&,
 					uiParent* p=0);
@@ -181,8 +180,6 @@ public:
 
 protected:
 
-    void		selectSurfaces(ObjectSet<EM::Object>&,
-				       const char* type,uiParent*);
     bool		loadAuxData(const DBKey&,const TypeSet<int>&,
 				    bool removeold=true);
     bool		changeAuxData(const DBKey&,const char* nm,

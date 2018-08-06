@@ -127,7 +127,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     if ( mnuid==mAddMnuID )
     {
 	ObjectSet<EM::Object> objs;
-	applMgr()->EMServer()->selectFaults( objs, false );
+	applMgr()->EMServer()->selectFaults( objs );
 	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{

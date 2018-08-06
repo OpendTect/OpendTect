@@ -14,11 +14,13 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uipossubsel.h"
 #include "uimsg.h"
+#include "uitaskrunnerprovider.h"
 
 #include "ioobjctxt.h"
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
+#include "emmanager.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "od_helpids.h"
@@ -50,7 +52,63 @@ bool uiMultiSurfaceReadDlg::acceptOK()
 }
 
 
+void uiMultiSurfaceReadDlg::selectHorizons( uiParent* prnt,
+			ObjectSet<EM::Object>& objs, bool is2d )
+{
+    selectSurfaces( prnt, objs, is2d ? EMHorizon2DTranslatorGroup::sGroupName()
+				  : EMHorizon3DTranslatorGroup::sGroupName() );
+}
+
+
+void uiMultiSurfaceReadDlg::selectFaults( uiParent* prnt,
+					ObjectSet<EM::Object>& objs )
+{
+    selectSurfaces( prnt, objs, EMFault3DTranslatorGroup::sGroupName() );
+}
+
+
+void uiMultiSurfaceReadDlg::selectFaultStickSets( uiParent* prnt,
+					ObjectSet<EM::Object>& objs )
+{
+    selectSurfaces( prnt, objs, EMFaultStickSetTranslatorGroup::sGroupName() );
+}
+
+
+void uiMultiSurfaceReadDlg::selectSurfaces( uiParent* prnt,
+			    ObjectSet<EM::Object>& objs, const char* typ )
+{
+    uiMultiSurfaceReadDlg dlg( prnt, typ );
+    DBKeySet surfaceids;
+    if ( !objs.isEmpty() )
+    {
+	for ( int idx=0; idx<objs.size(); idx++ )
+	{
+	    EM::Object* emobj = objs[idx];
+	    if ( emobj && emobj->dbKey().isValid() )
+		surfaceids.add( emobj->dbKey() );
+	}
+	dlg.iogrp()->setSurfaceIds( surfaceids );
+    }
+    if ( !dlg.go() )
+	return;
+
+    surfaceids.setEmpty();
+    dlg.iogrp()->getSurfaceIds( surfaceids );
+
+    EM::SurfaceIOData sd;
+    EM::SurfaceIODataSelection sel( sd );
+    dlg.iogrp()->getSurfaceSelection( sel );
+
+    uiTaskRunnerProvider trprov( prnt );
+    const RefObjectSet<EM::Object> emobjs =
+		    EM::MGR().loadObjects( surfaceids, trprov, &sel );
+    if ( !emobjs.isEmpty() )
+	objs.append( emobjs );
+}
+
+
 // ***** uiMultiSurfaceRead *****
+
 uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ )
     : uiIOSurface(p,true,typ)
     , singleSurfaceSelected(this)

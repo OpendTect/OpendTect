@@ -49,10 +49,19 @@ public:
 
     uiMultiSurfaceRead*	iogrp()		{ return surfacefld_; }
 
+			// returned sets are reffed and must be unreffed
+    static void		selectHorizons(uiParent*,ObjectSet<EM::Object>&,
+					bool is2d=false);
+    static void		selectFaults(uiParent*,ObjectSet<EM::Object>&);
+    static void		selectFaultStickSets(uiParent*,ObjectSet<EM::Object>&);
+
 protected:
 
     void		statusMsg(CallBacker*);
     bool		acceptOK();
 
     uiMultiSurfaceRead*	surfacefld_;
+
+    static void		selectSurfaces(uiParent*,ObjectSet<EM::Object>&,
+				       const char* typ);
 };

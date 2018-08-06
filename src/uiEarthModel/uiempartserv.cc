@@ -561,26 +561,26 @@ bool uiEMPartServer::askUserToSave( const DBKey& emid,
     return ret == 0;
 }
 
+#define mParent(prnt) prnt ? prnt : parent()
 
 void uiEMPartServer::selectHorizons( ObjectSet<EM::Object>& objs, bool is2d,
 				     uiParent* prnt )
 {
-    selectSurfaces( objs, is2d ? EMHorizon2DTranslatorGroup::sGroupName()
-			  : EMHorizon3DTranslatorGroup::sGroupName(), prnt );
+    uiMultiSurfaceReadDlg::selectHorizons( mParent(prnt), objs, is2d );
 }
 
 
-void uiEMPartServer::selectFaults( ObjectSet<EM::Object>& objs, bool is2d,
-				     uiParent* prnt )
+void uiEMPartServer::selectFaults( ObjectSet<EM::Object>& objs, uiParent* prnt )
 {
-    if ( !is2d )
-	selectSurfaces( objs, EMFault3DTranslatorGroup::sGroupName(), prnt );
+    uiMultiSurfaceReadDlg::selectFaults( mParent(prnt), objs );
 }
 
 
 void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::Object>& objs,
 					   uiParent* prnt )
-{  selectSurfaces( objs, EMFaultStickSetTranslatorGroup::sGroupName(), prnt ); }
+{
+    uiMultiSurfaceReadDlg::selectFaultStickSets( mParent(prnt), objs );
+}
 
 
 void uiEMPartServer::selectBodies( ObjectSet<EM::Object>& objs,
@@ -607,40 +607,6 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::Object>& objs,
 
     objs = emobjs;
     deepRef( objs );
-}
-
-
-void uiEMPartServer::selectSurfaces( ObjectSet<EM::Object>& objs,
-				     const char* typ, uiParent* prnt )
-{
-    uiParent* useparent = prnt ? prnt : parent();
-    uiMultiSurfaceReadDlg dlg( useparent, typ );
-    DBKeySet surfaceids;
-    if ( !objs.isEmpty() )
-    {
-	for ( int idx=0; idx<objs.size(); idx++ )
-	{
-	    EM::Object* emobj = objs[idx];
-	    if ( emobj && emobj->dbKey().isValid() )
-		surfaceids.add( emobj->dbKey() );
-	}
-	dlg.iogrp()->setSurfaceIds( surfaceids );
-    }
-    if ( !dlg.go() )
-	return;
-
-    surfaceids.setEmpty();
-    dlg.iogrp()->getSurfaceIds( surfaceids );
-
-    EM::SurfaceIOData sd;
-    EM::SurfaceIODataSelection sel( sd );
-    dlg.iogrp()->getSurfaceSelection( sel );
-
-    uiTaskRunnerProvider trprov( parent() );
-    const RefObjectSet<EM::Object> emobjs =
-		    emmgr_.loadObjects( surfaceids, trprov, &sel );
-    if ( !emobjs.isEmpty() )
-	objs.append( emobjs );
 }
 
 

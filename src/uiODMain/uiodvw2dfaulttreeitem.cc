@@ -75,7 +75,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
 	ObjectSet<EM::Object> objs;
-	applMgr()->EMServer()->selectFaults( objs, false );
+	applMgr()->EMServer()->selectFaults( objs );
 	DBKeySet emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
