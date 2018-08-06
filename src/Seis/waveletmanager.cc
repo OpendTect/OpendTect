@@ -212,4 +212,5 @@ void WaveletManager::setScalingInfo( const ObjID& id, const ObjID* orgid,
 	    fms.add( lvlnm );
 	iop.set( sKeyScaled, fms );
     }
+    setIOObjPars( id, iop );
 }

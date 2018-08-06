@@ -62,6 +62,7 @@ public:
     void		getAllLoaded(DBKeySet&) const;
     ObjID		getIDByName(const char*) const;
     IOPar		getIOObjPars(const ObjID&) const;
+    void		setIOObjPars(const ObjID&,const IOPar&) const;
     BufferString	nameOf(const ObjID&) const;
 
 			// Use MonitorLock when iterating

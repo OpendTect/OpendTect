@@ -344,6 +344,26 @@ IOPar SaveableManager::getIOObjPars( const ObjID& id ) const
 }
 
 
+void SaveableManager::setIOObjPars( const ObjID& id, const IOPar& iop ) const
+{
+    if ( id.isInvalid() )
+	return;
+
+    mLock4Read();
+    const IdxType idx = gtIdx( id );
+    if ( idx >= 0 )
+	const_cast<Saveable*>(savers_[idx])->setIOObjPars(iop);
+    mUnlockAllAccess();
+
+    PtrMan<IOObj> ioobj = getIOObj( id );
+    if ( !ioobj )
+	return;
+
+    ioobj->pars() = iop;
+    DBM().setEntry( *ioobj );
+}
+
+
 IOObj* SaveableManager::getIOObj( const ObjID& id ) const
 {
     return DBM().get( id );

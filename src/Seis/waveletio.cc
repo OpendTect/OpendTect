@@ -99,7 +99,7 @@ bool WaveletLoader::addToMGR( Wavelet* wvlt, const DBKey& ky )
     if ( mgr.isLoaded(ioobj_->key()) )
 	{ wvlt->unRef(); return false; }
 
-    mgr.addNew( *wvlt, ky, 0, true );
+    mgr.addNew( *wvlt, ky, &ioobj_->pars(), true );
     return true;
 }
 

@@ -139,7 +139,11 @@ RefManType Well::Manager::doFetch( const ObjID& id, const LoadReqs& lr,
 	if ( id.isInCurrentSurvey() )
 	{
 	    curloadstate_.getObject() = lreq;
-	    add( *wd, id, mAccessLocker(), 0, true );
+	    PtrMan<IOObj> ioobj = getIOObj( id );
+	    if ( ioobj )
+		add( *wd, ioobj->key(), mAccessLocker(), &ioobj->pars(), true );
+	    else
+		add( *wd, id, mAccessLocker(), 0, true );
 	}
     }
 

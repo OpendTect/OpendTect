@@ -254,12 +254,16 @@ bool EM::ObjectManager::objectExists( const Object* obj ) const
 void EM::ObjectManager::addObject( Object* obj )
 {
     if ( !obj )
-    { pErrMsg("No object provided!"); return; }
+	{ pErrMsg("No object provided!"); return; }
 
     if ( isPresent(*obj) )
-    { pErrMsg("Adding object twice"); return; }
+	{ pErrMsg("Adding object twice"); return; }
 
-    addNew( *obj, obj->dbKey(), 0, true );
+    PtrMan<IOObj> ioobj = getIOObj( obj->dbKey() );
+    if ( ioobj )
+	addNew( *obj, ioobj->key(), &ioobj->pars(), true );
+    else
+	addNew( *obj, obj->dbKey(), 0, true );
     addRemove.trigger();
 }
 
