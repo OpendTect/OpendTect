@@ -32,7 +32,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 {
     inp_ = new uiComboBox( this, toString(su.seltxt_) );
     inp_->setReadOnly( false );
-    inp_->setHSzPol( uiObject::Wide );
+    inp_->setHSzPol( su.szpol_ );
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
     setHAlignObj( inp_ );
     inp_->setSensitive( su.optionsselectable_ );

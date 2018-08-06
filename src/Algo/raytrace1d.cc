@@ -64,7 +64,8 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
     RayTracer1D* raytracer = factory().create( type );
     if ( !raytracer )
     {
-	errm = tr("Raytracer not found. Perhaps all plugins are not loaded");
+	errm = tr("Raytracer not found."
+		  "\nPlease check wether all required plugins were loaded");
 	return 0;
     }
 
