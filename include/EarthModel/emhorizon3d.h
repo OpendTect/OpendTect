@@ -88,6 +88,8 @@ mExpClass(EarthModel) Horizon3D : public Horizon
 public:
 				mDeclMonitorableAssignment(Horizon3D);
 
+    virtual bool		is2D() const		{ return false; }
+
     virtual float		getZ(const TrcKey&) const;
 				//!< Fast: reads from the first section
     virtual bool		setZ(const TrcKey&,float z,bool addtohist,
