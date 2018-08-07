@@ -80,19 +80,6 @@ uiComboBox::uiComboBox( uiParent* parnt, const char* nm )
 }
 
 
-uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
-			const char* nm )
-    : uiObject( parnt, nm, mkbody(parnt,nm) )
-    , selectionChanged( this )
-    , editTextChanged( this )
-    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
-    , curwidth_(0)
-    , enumdef_(0)
-{
-    addItems( uids.getUiStringSet() );
-}
-
-
 uiComboBox::uiComboBox( uiParent* parnt, const uiStringSet& strings,
 		       const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
@@ -106,20 +93,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const uiStringSet& strings,
 }
 
 
-uiComboBox::uiComboBox( uiParent* parnt, const char** uids, const char* nm )
-    : uiObject( parnt, nm, mkbody(parnt,nm) )
-    , selectionChanged( this )
-    , editTextChanged( this )
-    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
-    , curwidth_(0)
-    , enumdef_(0)
-{
-    BufferStringSet bset = uids;
-    addItems( bset.getUiStringSet() );
-}
-
-
-uiComboBox::uiComboBox( uiParent* parnt, const uiString* strings,
+uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& itms,
 			const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this )
@@ -128,13 +102,11 @@ uiComboBox::uiComboBox( uiParent* parnt, const uiString* strings,
     , curwidth_(0)
     , enumdef_(0)
 {
-    for ( int idx=0; !strings[idx].isEmpty(); idx++ )
-	addItem( strings[idx] );
+    addItems( itms );
 }
 
 
-uiComboBox::uiComboBox( uiParent* parnt, const EnumDef& enums,
-			const char* nm )
+uiComboBox::uiComboBox( uiParent* parnt, const EnumDef& enums, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this )
     , editTextChanged( this )
@@ -603,46 +575,36 @@ uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const uiString& txt,
 }
 
 
-uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const BufferStringSet& strs,
-				      const uiString& txt, const char* nm )
-	: uiGroup(p,"Labeled combobox")
+template <class DEF>
+void uiLabeledComboBox::init( const DEF& itms, const uiString& txt,
+			      const char* nm )
 {
     mGetBoxNm();
-    BufferStringSet strset = strs;
-    cb_ = new uiComboBox( this, strset.getUiStringSet(), boxnm );
+    cb_ = new uiComboBox( this, itms, boxnm );
     labl_ = new uiLabel( this, txt, cb_ );
     setHAlignObj( cb_ );
 }
 
 
-uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char** strs,
-				      const uiString& txt, const char* nm )
-	: uiGroup(p,"Labeled combobox")
-{
-    mGetBoxNm();
-    cb_ = new uiComboBox( this, strs, boxnm );
-    labl_ = new uiLabel( this, txt, cb_ );
-    setHAlignObj( cb_ );
-}
-
-
-uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const uiStringSet& strs,
+uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const BufferStringSet& itms,
 				     const uiString& txt, const char* nm )
     : uiGroup(p,"Labeled combobox")
 {
-    mGetBoxNm();
-    cb_ = new uiComboBox( this, strs, boxnm );
-    labl_ = new uiLabel( this, txt, cb_ );
-    setHAlignObj( cb_ );
+    init( itms, txt, nm );
 }
 
 
-uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const EnumDef& strs,
+uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const uiStringSet& itms,
 				     const uiString& txt, const char* nm )
     : uiGroup(p,"Labeled combobox")
 {
-    mGetBoxNm();
-    cb_ = new uiComboBox( this, strs, boxnm );
-    labl_ = new uiLabel( this, txt, cb_ );
-    setHAlignObj( cb_ );
+    init( itms, txt, nm );
+}
+
+
+uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const EnumDef& enumdef,
+				     const uiString& txt, const char* nm )
+    : uiGroup(p,"Labeled combobox")
+{
+    init( enumdef, txt, nm );
 }

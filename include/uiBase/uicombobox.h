@@ -34,12 +34,10 @@ public:
 			uiComboBox(uiParent*,const char* nm);
 			uiComboBox(uiParent*,const uiStringSet&,
 				   const char* nm);
-			uiComboBox(uiParent*,const char**,const char* nm);
-			uiComboBox(uiParent*,const uiString*,const char* nm);
-			/*!<Similar to const char** Adds strings until an empty
-			    string is found. */
+			uiComboBox(uiParent*,const BufferStringSet&,
+				   const char* nm);
 			uiComboBox(uiParent*,const EnumDef&,const char* nm);
-			/*!<EnumDef is assumed to remain in mem*/
+			    /*!<EnumDef is assumed to remain in mem*/
     virtual		~uiComboBox();
 
     virtual void	setReadOnly(bool yn=true);
@@ -104,8 +102,7 @@ protected:
     virtual bool	notifyValueChanged_( const CallBack& cb )
 			    { selectionChanged.notify(cb); return true; }
     void		translateText();
-    mDeprecated		uiComboBox(uiParent*,const BufferStringSet&,
-				   const char* nm);
+
 private:
 
     int			oldnritems_;
@@ -143,7 +140,7 @@ mExpClass(uiBase) uiLabeledComboBox : public uiGroup
 public:
 		uiLabeledComboBox(uiParent*,const uiString& lbl,
 				  const char* nm=0);
-		uiLabeledComboBox(uiParent*,const char**,
+		uiLabeledComboBox(uiParent*,const BufferStringSet&,
 				  const uiString& lbl,const char* nm=0);
 		uiLabeledComboBox(uiParent*,const uiStringSet&,
 				  const uiString& lbl,const char* nm=0);
@@ -158,7 +155,8 @@ protected:
 
     uiComboBox*	cb_;
     uiLabel*	labl_;
-    mDeprecated uiLabeledComboBox(uiParent*,const BufferStringSet&,
-				  const uiString& lbl,const char* nm=0);
+
+    template <class DEF>
+    void	init(const DEF&,const uiString&,const char*);
 
 };
