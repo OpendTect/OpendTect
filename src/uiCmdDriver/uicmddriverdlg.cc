@@ -89,8 +89,6 @@ bool uiCmdInteractDlg::rejectOK()
 //=========================================================================
 
 
-const char* optstrs[] = { "Run", "Record", 0 };
-
 uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			    const char* defscriptsdir, const char* deflogdir )
         : uiDialog( 0, Setup( controllerUiTitle(),
@@ -107,8 +105,9 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
     setCtrlStyle( CloseOnly );
     setCancelText( uiStrings::sHide() );
 
-    cmdoptionfld_ = new uiLabeledComboBox( this, optstrs,
-						      tr("Select script to") );
+    uiStringSet opts;
+    opts.add( uiStrings::sRun() ).add( tr("Record") );
+    cmdoptionfld_ = new uiLabeledComboBox( this, opts, tr("Select script to") );
     cmdoptionfld_->box()->selectionChanged.notify(
 					  mCB(this,uiCmdDriverDlg,selChgCB) );
 

@@ -47,7 +47,8 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
     : uiDlgGroup(p->tabParent(),uiStrings::sScaling())
     , plotter_(p->plotter())
 {
-    const char* axnms[] = { "X", "Y", "Y2", 0 };
+    uiStringSet axnms;
+    axnms.add( uiStrings::sX() ).add( uiStrings::sY() ).add( uiStrings::sY2() );
     uiLabeledComboBox* axlcb = new uiLabeledComboBox( this, axnms,
 							  uiStrings::sAxis() );
     axselfld_ = axlcb->box();

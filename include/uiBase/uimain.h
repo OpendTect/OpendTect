@@ -96,6 +96,10 @@ private:
 			uiMain(mQtclass(QApplication*));
     void		init(mQtclass(QApplication*),int& argc,char **argv);
 
+public:
+
+    void		setAppName(const char*);
+
 };
 
 

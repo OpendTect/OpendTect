@@ -26,6 +26,11 @@ public:
 			~uiStratAmpCalc();
 
 protected:
+
+    bool		usesingle_;
+    bool		isoverwrite_;
+    TypeSet<int>	ampstats_;
+
     void		inpSel(CallBacker*);
     void		horSel(CallBacker*);
     void		choiceSel(CallBacker*);
@@ -50,7 +55,6 @@ protected:
     uiIOObjSel*		horfld2_;
     uiPosSubSel*	rangefld_;
     uiLabeledComboBox*	ampoptionfld_;
-    bool		usesingle_;
-    bool		isoverwrite_;
     uiBatchJobDispatcherSel*	batchfld_;
+
 };

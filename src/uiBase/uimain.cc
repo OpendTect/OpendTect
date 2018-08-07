@@ -242,6 +242,7 @@ uiMain*	uiMain::themain_ = 0;
 KeyboardEventHandler* uiMain::keyhandler_ = 0;
 KeyboardEventFilter* uiMain::keyfilter_ = 0;
 QtTabletEventFilter* uiMain::tabletfilter_ = 0;
+static BufferString app_name_( "OpendTect" );
 
 
 static void initQApplication()
@@ -251,7 +252,7 @@ static void initQApplication()
 
     ApplicationData::setOrganizationName( "dGB");
     ApplicationData::setOrganizationDomain( "opendtect.org" );
-    ApplicationData::setApplicationName( "OpendTect" );
+    ApplicationData::setApplicationName( app_name_.str() );
 
 #ifdef __mac__
     ApplicationData::swapCommandAndCTRL( true );
@@ -390,6 +391,12 @@ uiMain::~uiMain()
     delete keyfilter_;
     delete tabletfilter_;
     delete app_;
+}
+
+
+void uiMain::setAppName( const char* appnm )
+{
+    app_name_ = appnm;
 }
 
 

@@ -497,8 +497,8 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
 	    return attrdp;
 
 	attrdpid =
-	    RegularSeisDataPack::createDataPackForZSlice(
-		&data->bivSet(), probepos,ztransform->toZDomainInfo(),userrefs);
+	    RegularSeisDataPack::createDataPackForZSlice( &data->bivSet(),
+			    probepos, ztransform->toZDomainInfo(), &userrefs );
 	return getDPM().get( attrdpid );
     }
 

@@ -273,6 +273,7 @@ public:
     static uiWord sClass()		{ return tr("Class"); }
     static uiWord sClassification()	{ return tr("Classification"); }
     static uiWord sClear()		{ return tr("Clear"); }
+    static uiWord sClip()		{ return tr("Clip","verb"); }
     static uiWord sClose()		{ return tr("Close"); }
     static uiWord sCode(int n=1)	{ return tr("Code",0,n); }
     static uiWord sCoefficient()	{ return tr("Coefficient"); }
@@ -654,6 +655,7 @@ public:
 						     : tr("RMS"); }
     static uiWord sRockPhy()		{ return tr("Rock Physics"); }
     static uiWord sRow(int n=1)		{ return tr("Row",0,n); }
+    static uiWord sRun()		{ return tr("Run"); }
     static uiWord sSample(int n=1)	{ return tr("Sample",0,n); }
     static uiWord sSampleIntrvl(int n=1){ return tr("Sample Interval",0,1); }
     static uiWord sSave()		{ return tr("Save"); }

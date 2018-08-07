@@ -28,8 +28,9 @@ public:
 
     typedef ObjectSet<BufferString>	SetType;
 
-			BufferStringSet(size_type n=0,const char* s=0);
-			BufferStringSet(const char* arr[],size_type len=-1);
+			BufferStringSet()	{}
+    explicit		BufferStringSet(size_type n,const char* s=0);
+    explicit		BufferStringSet(const char* arr[],size_type len=-1);
     BufferStringSet*	clone() const
 			{ return new BufferStringSet(*this); }
     virtual		~BufferStringSet()	{}

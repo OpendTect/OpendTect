@@ -216,7 +216,9 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     uiGroup* actiongrp = new uiGroup( this, "Action" );
     actiongrp->attach( hCentered );
     actiongrp->attach( ensureBelow, displaygrp );
-    const char* acts[] = { "Remove Spikes", "FFT Filter", "Smooth", "Clip", 0 };
+    uiStringSet acts;
+    acts.add( tr("Remove Spikes") ).add( tr("FFT Filter") )
+	.add( uiStrings::sSmooth() ).add( uiStrings::sClip() );
     uiLabeledComboBox* llc =
 		new uiLabeledComboBox( actiongrp, acts, uiStrings::sAction() );
     actionfld_ = llc->box();
@@ -242,9 +244,11 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     thresholdfld_->box()->setValue( 3 );
     thresholdfld_->box()->setNrDecimals( 2 );
 
-    const char* spk[] = {"Undefined values","Interpolated values","Specify",0};
+    uiStringSet repls;
+    repls.add( tr("Undefined values") ).add( tr("Interpolated values") )
+	 .add( uiStrings::sSpecify() );
     replacespikefld_ =
-	new uiLabeledComboBox( actiongrp, spk, tr("Replace spikes by") );
+	new uiLabeledComboBox( actiongrp, repls, tr("Replace spikes by") );
     replacespikefld_->box()->selectionChanged.notify(
 			mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
     replacespikefld_->attach( alignedBelow, spbgt );

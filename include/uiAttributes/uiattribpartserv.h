@@ -132,7 +132,7 @@ public:
 					    const TypeSet<BinID>* subpath=0 );
     static DataPack::ID createDataPackFor2D(const Attrib::Data2DHolder& input,
 					    const ZDomain::Def& zdef,
-					    const BufferStringSet& compnames=0);
+					    const BufferStringSet* compnames=0);
 
     DescID		getDefaultAttribID(bool is2d) const;
     DescID		getStoredID(const DBKey&,bool is2d,

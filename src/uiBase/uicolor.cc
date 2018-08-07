@@ -172,8 +172,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& setup, const char* nm )
     if ( setup.withdesc_ )
     {
 	BufferStringSet coldescs; Color::getDescriptions( coldescs );
-	descfld_ = new uiComboBox( this, coldescs.getUiStringSet(),
-				    "Color description" );
+	descfld_ = new uiComboBox( this, coldescs, "Color description" );
 	descfld_->setHSzPol( uiObject::Medium );
 	Color::getDescriptionCenters( desccolors_ );
 	for ( int idx=0; idx<desccolors_.size(); idx++ )

@@ -1019,16 +1019,17 @@ class RegularSeisDataPackCreatorFor2D : public ParallelTask
 public:
 RegularSeisDataPackCreatorFor2D( const Attrib::Data2DHolder& input,
 				 const ZDomain::Def& zdef,
-				 const BufferStringSet& compnames,
+				 const BufferStringSet* compnames,
 				 DataPack::ID& outputid )
     : input_(input)
     , sampling_(input.getTrcKeyZSampling())
     , zdef_(zdef)
-    , compnames_(compnames)
     , refnrs_(sampling_.hsamp_.nrTrcs(),mUdf(float))
     , outputid_(outputid)
     , outputdp_(0)
 {
+    if ( compnames )
+	compnames_ = *compnames;
 }
 
 od_int64 nrIterations() const		{ return input_.trcinfoset_.size(); }
@@ -1112,7 +1113,7 @@ protected:
     const Attrib::Data2DHolder&		input_;
     const TrcKeyZSampling		sampling_;
     const ZDomain::Def&			zdef_;
-    const BufferStringSet&		compnames_;
+    BufferStringSet			compnames_;
     RegularSeisDataPack*		outputdp_;
     DataPack::ID&			outputid_;
     TypeSet<float>			refnrs_;
@@ -1156,14 +1157,14 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 	userrefs.add( targetspecs_[idx].userRef() );
 
     return createDataPackFor2D( *data2d,
-	    ZDomain::Def::get(targetspecs_.first().zDomainKey()), userrefs );
+	    ZDomain::Def::get(targetspecs_.first().zDomainKey()), &userrefs );
 }
 
 
 DataPack::ID uiAttribPartServer::createDataPackFor2D(
 					const Attrib::Data2DHolder& input,
 					const ZDomain::Def& zdef,
-					const BufferStringSet& compnms )
+					const BufferStringSet* compnms )
 {
     DataPack::ID id;
     RegularSeisDataPackCreatorFor2D datapackcreator( input, zdef, compnms, id );

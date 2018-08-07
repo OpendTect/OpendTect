@@ -16,6 +16,7 @@
 #include "emsurfacetr.h"
 #include "stratamp.h"
 #include "survinfo.h"
+#include "stattype.h"
 
 #include "uiattrsel.h"
 #include "uibatchjobdispatchersel.h"
@@ -27,9 +28,6 @@
 #include "uistrings.h"
 #include "od_helpids.h"
 
-
-static const char* statstrs[] =
-	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent", 0 };
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     : uiDialog( p, Setup(tr("Stratal Amplitude"),mNoDlgTitle,
@@ -73,7 +71,15 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     rangefld_= new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     rangefld_->attach( alignedBelow, tophorshiftfld_ );
 
-    ampoptionfld_ = new uiLabeledComboBox( this, statstrs,
+
+#define mAddTyp(typ) \
+	add( (int)Stats::typ )
+    ampstats_.mAddTyp(Min).mAddTyp(Max).mAddTyp(Average)
+	     .mAddTyp(Median).mAddTyp(RMS).mAddTyp(Sum).mAddTyp(MostFreq);
+    uiStringSet disptyps;
+    for ( int idx=0; idx<ampstats_.size(); idx++ )
+	disptyps.add( toUiString( (Stats::Type)ampstats_[idx] ) );
+    ampoptionfld_ = new uiLabeledComboBox( this, disptyps,
 					   tr("Amplitude Option") );
     ampoptionfld_->attach( alignedBelow, rangefld_ );
 
@@ -231,7 +237,8 @@ bool uiStratAmpCalc::fillPar()
 
     const bool addtotop = usesingle_ || selfld_->getBoolValue();
     iop.setYN( StratAmpCalc::sKeyAddToTopYN(), addtotop );
-    iop.set( StratAmpCalc::sKeyAmplitudeOption(), ampoptionfld_->box()->text());
+    Stats::Type stattyp = (Stats::Type)ampoptionfld_->box()->currentItem();
+    iop.set( StratAmpCalc::sKeyAmplitudeOption(), Stats::toString(stattyp) );
     iop.setYN( StratAmpCalc::sKeyOutputFoldYN(), foldfld_->getBoolValue() );
     iop.set( StratAmpCalc::sKeyTopShift(),
 	     tophorshiftfld_->getFValue() / SI().zDomain().userFactor() );

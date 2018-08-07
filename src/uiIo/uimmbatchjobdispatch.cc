@@ -203,7 +203,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     sliderlbl->attach( rightOf, priofld_ );
 
     jrppolselfld_ = new uiComboBox( jrppolgrp, "JobRun policy" );
-    jrppolselfld_->addItem( tr("Run") );
+    jrppolselfld_->addItem( uiStrings::sRun() );
     jrppolselfld_->addItem( uiStrings::sPause() );
     jrppolselfld_->addItem( uiStrings::sSchedule() );
     jrppolselfld_->setCurrentItem( ((int)0) );

@@ -207,7 +207,7 @@ void uiSEGYReadStartInfo::mkBasicInfoFlds()
     mGetParChgCB( parchgcb );
 
     const char* revstrs[] = { "0", "1", "2", 0 };
-    revfld_ = new uiComboBox( 0, revstrs, "Revision" );
+    revfld_ = new uiComboBox( 0, BufferStringSet(revstrs), "Revision" );
     revfld_->selectionChanged.notify( revchgcb );
     mAdd2Tbl( revfld_, mRevRow, mUseCol );
 

@@ -61,11 +61,12 @@ uiDateSel::uiDateSel( uiParent* p, const uiString& label, const DateInfo* di )
     : uiGroup( p )
     , label_( !label.isEmpty() ? new uiLabel( this, label ) : 0 )
 {
-    dayfld_ = new uiComboBox( this, DateInfo::sAllDaysInMonth(), 0 );
+    dayfld_ = new uiComboBox( this,
+		    BufferStringSet(DateInfo::sAllDaysInMonth()), 0 );
     dayfld_->setHSzPol( uiObject::SmallVar );
     if ( label_ ) label_->attach( leftOf, dayfld_ );
 
-    monthfld_ = new uiComboBox( this, DateInfo::sFullMonths(), 0 );
+    monthfld_ = new uiComboBox( this, DateInfo::MonthDef(), 0 );
     monthfld_->setHSzPol( uiObject::SmallVar );
     monthfld_->attach( rightOf, dayfld_ );
 

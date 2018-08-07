@@ -50,7 +50,11 @@ uiKeyboardInteractionSettingsGroup::uiKeyboardInteractionSettingsGroup(
 	const uiKeyDesc* kd = scl.keyDescs()[idx];
 	const uiString& nm = toUiString(scl.names().get( idx ));
 
-	lcbox = new uiLabeledComboBox( scgrp, sSupportedStates, nm );
+	uiStringSet states;
+	states.add( toUiString("----") )
+	      .add( tr("Shift","on keyboard") )
+	      .add( tr("Control","on keyboard") );
+	lcbox = new uiLabeledComboBox( scgrp, states, nm );
 	uiComboBox* statebox = lcbox->box();
 	statebox->setCurrentItem( kd->stateStr() );
 	stateboxes_ += statebox;
@@ -58,8 +62,9 @@ uiKeyboardInteractionSettingsGroup::uiKeyboardInteractionSettingsGroup(
 	    lcbox->attach( alignedBelow, prevlcbox );
 	prevlcbox = lcbox;
 
-	uiComboBox* kybox = new uiComboBox( scgrp, uiKeyDesc::sKeyKeyStrs(),
-					  BufferString("Keys",idx).buf() );
+	uiComboBox* kybox = new uiComboBox( scgrp,
+				BufferStringSet(uiKeyDesc::sKeyKeyStrs()),
+				BufferString("Key ",idx) );
 	kybox->setCurrentItem( kd->keyStr() );
 	keyboxes_ += kybox;
 	kybox->attach( rightOf, lcbox );
@@ -100,22 +105,19 @@ void uiKeyboardInteractionSettingsGroup::doCommit( uiRetVal& uirv )
     scl.keyDescs().erase();
     for ( int idx=0; idx<stateboxes_.size(); idx++ )
     {
-	uiComboBox* statecb = stateboxes_[idx];
-	uiComboBox* keycb = keyboxes_[idx];
 	uiKeyDesc* newkd = 0;
-	if ( eikdboxes_[idx] )
-	{
-	    uiExtraIntKeyDesc* uieikd = new uiExtraIntKeyDesc( statecb->text(),
-				keycb->text(),
-				eikdboxes_[idx]->box()->getIntValue() );
-	    uieikd->setIntLabel( eikdboxes_[idx]->label()->text() );
-	    newkd = uieikd;
-	}
+	const int stateidx = stateboxes_[idx]->currentItem();
+	const char* statetxt = sSupportedStates[stateidx];
+	const char* keytxt = keyboxes_[idx]->text();
+	uiLabeledSpinBox* eikdlsb = eikdboxes_[idx];
+	if ( !eikdlsb )
+	    newkd = new uiKeyDesc( statetxt, keytxt );
 	else
 	{
-	    const BufferString statestr = statecb->text();
-	    const BufferString keystr = keycb->text();
-	    newkd = new uiKeyDesc( statestr, keystr );
+	    uiExtraIntKeyDesc* uieikd = new uiExtraIntKeyDesc( statetxt, keytxt,
+						eikdlsb->box()->getIntValue() );
+	    uieikd->setIntLabel( eikdlsb->label()->text() );
+	    newkd = uieikd;
 	}
 
 	changed_ = changed_ || !newkd->isEqualTo( *oldscl.keyDescs()[idx] );

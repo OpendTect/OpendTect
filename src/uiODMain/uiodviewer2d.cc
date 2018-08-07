@@ -647,7 +647,7 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 	return DataPack::cNoID();
 
     return RegularSeisDataPack::createDataPackForZSlice(
-	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), userrefs );
+	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), &userrefs );
 }
 
 
