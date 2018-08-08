@@ -627,11 +627,10 @@ uiRetVal DescSet::handleOldMathExpression( IOPar& descpar,
 
     for ( int idx=0; idx<formula->nrUniqueVarNames(); idx++ )
     {
-	BufferString varnm ( formula->uniqueVarName(idx) );
+	const BufferString varnm ( formula->uniqueVarName(idx) );
 
-	if ( varnm == BufferString("DZ") || varnm == BufferString("Inl" )
-	  || varnm == BufferString("Crl") || varnm == BufferString("XCoord" )
-	  || varnm == BufferString("YCoord") || varnm == BufferString("Z" ) )
+	if ( varnm == "DZ" || varnm == "Inl" || varnm == "Crl"
+	  || varnm == "XCoord" || varnm == "YCoord" || varnm == "Z" )
 	{
 	    BufferString alternativenm ( varnm, "Input" );
 	    defstring.replace( varnm.buf(), alternativenm.buf() );

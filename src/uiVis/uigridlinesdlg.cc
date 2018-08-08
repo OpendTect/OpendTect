@@ -48,11 +48,11 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     uiString label = tr("Show %1 Grid");
     TrcKeyZSampling cs( pdd->getTrcKeyZSampling(true,true) );
     if ( cs.nrInl()>1 )
-    { mCreateGridFld( inl, uiStrings::sInline() ) }
+	{ mCreateGridFld( inl, uiStrings::sInline() ) }
     if ( cs.nrCrl()>1 )
-    { mCreateGridFld( crl, uiStrings::sCrossline() ) }
+	{ mCreateGridFld( crl, uiStrings::sCrossline() ) }
     if ( cs.nrZ()>1 )
-    { mCreateGridFld( z, toUiString("Z") ); }
+	{ mCreateGridFld( z, uiStrings::sZ() ); }
 
     if ( inlfld_ && crlfld_ )
 	crlfld_->attach( leftAlignedBelow, inlspacingfld_ );

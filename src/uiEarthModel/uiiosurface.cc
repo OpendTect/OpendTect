@@ -34,7 +34,6 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
 #include "dbdir.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "randcolor.h"
 #include "survinfo.h"
@@ -481,7 +480,7 @@ uiString uiHorizonParSel::getSummary() const
     uiStringSet ss;
     for ( int idx=0; idx<selids_.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = DBM().get( selids_[idx] );
+	PtrMan<IOObj> ioobj = getIOObj( selids_[idx] );
 	if ( !ioobj ) continue;
 
 	ss.add( toUiString(ioobj->name()) );
@@ -641,7 +640,8 @@ public:
 	table_ = new uiTable( this, uiTable::Setup().rowgrow(true).
 		rowdesc(fltnm).defrowlbl("").selmode(uiTable::Multi).
 		rightclickdisabled(true), "Fault Boundary Table");
-	const char* collbls[] = { "Name", "Boundary Type", 0 };
+	uiStringSet collbls;
+	collbls.add( uiStrings::sName() ).add( tr("Boundary Type") );
 	table_->setColumnLabels( collbls );
 	table_->setTableReadOnly( true );
 	table_->setPrefHeight( 150 );
@@ -660,7 +660,7 @@ public:
 
 	for ( int idx=0; idx<fltpar_.selfaultids_.size(); idx++ )
 	{
-	    PtrMan<IOObj> ioobj = DBM().get( fltpar_.selfaultids_[idx] );
+	    PtrMan<IOObj> ioobj = getIOObj( fltpar_.selfaultids_[idx] );
 	    if ( ioobj )
 		addObjEntry( idx, *ioobj, fltpar_.optids_[idx] );
 	}
@@ -679,7 +679,7 @@ public:
 	for ( int idx=0; idx<nrsel; idx++ )
 	{
 	    const DBKey& mid = dlg.chosenID( idx );
-	    PtrMan<IOObj> ioobj = DBM().get( mid );
+	    PtrMan<IOObj> ioobj = getIOObj( mid );
 	    if ( !ioobj || fltpar_.selfaultnms_.isPresent(ioobj->name()) )
 		continue;
 
@@ -806,7 +806,7 @@ void uiFaultParSel::setSelectedFaults( const DBKeySet& ids,
     optids_.erase();
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = DBM().get( ids[idx] );
+	PtrMan<IOObj> ioobj = getIOObj( ids[idx] );
 	if ( !ioobj ) continue;
 
 	selfaultnms_.add( ioobj->name() );

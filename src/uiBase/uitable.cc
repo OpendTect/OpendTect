@@ -1229,13 +1229,6 @@ void uiTable::setColumnToolTip( int col, const uiString& tt )
 }
 
 
-void uiTable::setColumnLabels( const char** labels )
-{
-    BufferStringSet lbls( labels );
-    setColumnLabels( lbls.getUiStringSet() );
-}
-
-
 void uiTable::setColumnLabels( const BufferStringSet& labels )
 {
     body_->setColumnCount( labels.size() );

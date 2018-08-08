@@ -17,6 +17,7 @@
 #include "flatposdata.h"
 #include "survinfo.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "trckeyzsampling.h"
 #include "bufstringset.h"
 #include "strmprov.h"
@@ -555,7 +556,7 @@ void SeisTrcBufDataPack::getAuxInfo( int itrc, int isamp, IOPar& iop ) const
     float z = trc->info().samplePos(isamp);
     if ( SI().zIsTime() ) z *= 1000;
     int z100 = mNINT32(z*100); z = mCast( float, z100 / 100 );
-    iop.set( "Z", z );
+    iop.set( sKey::Z(), z );
 }
 
 

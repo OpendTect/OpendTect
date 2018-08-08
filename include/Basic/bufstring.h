@@ -168,6 +168,12 @@ public:
 };
 
 
+mGlobal(Basic) inline BufferString toString( const QString& qs )
+{
+    return BufferString(qs);
+}
+
+
 //Not implemented on purpose as it leads unwanted conversions to
 //BufferStrings on the fly
 inline bool operator==(const char*,const BufferString&) = delete;

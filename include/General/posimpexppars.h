@@ -21,7 +21,7 @@ ________________________________________________________________________
    On import (i.e. `inward'), the 'scale' is applied before the 'offset', hence
    offset must be in units of the scaled values. On export, the offset
    is subtracted first (of course).
- 
+
  */
 
 #define mPIEP PosImpExpPars::SVY()
@@ -83,7 +83,7 @@ protected:
 
 public:
 
-    			PosImpExpPars()			{ clear(); }
+			PosImpExpPars()			{ clear(); }
     void		clear()
 			{
 			    binidscale_ = 1;	binidoffs_ = BinID(0,0);
@@ -104,7 +104,7 @@ public:
     static const char*	sKeyBinID()		{ return "BinID"; }
     static const char*	sKeyTrcNr();		//!< sKey::TraceNr()
     static const char*	sKeyCoord()		{ return "Coord"; }
-    static const char*	sKeyZ()			{ return "Z"; }
+    static const char*	sKeyZ();		//!< sKey::Z()
 
     static const char*	fullKey(const char*,bool true_is_scale_else_offs);
 

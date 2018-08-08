@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "randcolor.h"
 #include "stratlevel.h"
 #include "survinfo.h"
@@ -45,11 +46,11 @@ ________________________________________________________________________
 
 static const int cNrEmptyRows = 5;
 
-static const char* sKeyName()		{ return "Name"; }
-static const char* sKeyMD()		{ return "MD"; }
-static const char* sKeyTVD()		{ return "TVD"; }
-static const char* sKeyTVDSS()		{ return "TVDSS"; }
-static const char* sKeyColor()		{ return "Color"; }
+static const char* sKeyName()		{ return sKey::Name(); }
+static const char* sKeyMD()		{ return sKey::MD(); }
+static const char* sKeyTVD()		{ return sKey::TVD(); }
+static const char* sKeyTVDSS()		{ return sKey::TVDSS(); }
+static const char* sKeyColor()		{ return sKey::Color(); }
 static const char* sKeyRegMarker()	{ return "Regional marker"; }
 static const int cNameCol  = 0;
 static const int cDepthCol = 1;
@@ -92,9 +93,15 @@ static uiTable* createMarkerTable( uiParent* p, int nrrows, bool editable )
 					    .rowgrow(editable).defrowlbl("")
 					    .selmode(uiTable::Multi),
 			  "Well Marker Table" );
-    BufferStringSet colnms;
-    getColumnLabels( colnms, 0, editable );
-    ret->setColumnLabels( colnms.getUiStringSet() );
+    uiStringSet lbls;
+    lbls.add( uiStrings::sName() )
+	.add( uiStrings::sMD().withSurvZUnit() )
+	.add( uiStrings::sTVD().withSurvZUnit() )
+	.add( uiStrings::sTVDSS().withSurvZUnit() )
+	.add( uiStrings::sColor() );
+    if ( editable )
+	lbls.add( uiStrings::sRegionalMarker() );
+    ret->setColumnLabels( lbls );
     ret->setColumnResizeMode( uiTable::ResizeToContents );
     ret->setColumnStretchable( cLevelCol, true );
     ret->setNrRows( nrrows );

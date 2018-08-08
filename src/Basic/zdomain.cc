@@ -18,8 +18,8 @@ ________________________________________________________________________
 
 
 const char* ZDomain::sKey()		{ return "ZDomain"; }
-const char* ZDomain::sKeyTime()		{ return "TWT"; }
-const char* ZDomain::sKeyDepth()	{ return "Depth"; }
+const char* ZDomain::sKeyTime()		{ return sKey::TWT(); }
+const char* ZDomain::sKeyDepth()	{ return sKey::Depth(); }
 
 ObjectSet<ZDomain::Def>& DEFS()
 {

@@ -314,11 +314,11 @@ const char* Gather::dimName( bool dim0 ) const
 
 void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 {
-    par.set( "X", coord_.x_ );
-    par.set( "Y", coord_.y_ );
+    par.set( sKey::X(), coord_.x_ );
+    par.set( sKey::Y(), coord_.y_ );
     float z = (float) posData().position( false, idim1 );
     if ( zit_ ) z *= 1000;
-    par.set( "Z", z );
+    par.set( sKey::Z(), z );
     par.set( sKey::Offset(), getOffset(idim0) );
     if ( azimuths_.validIdx(idim0) )
 	par.set( sKey::Azimuth(), getAzimuth(idim0) );

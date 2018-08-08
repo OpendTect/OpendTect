@@ -75,17 +75,17 @@ void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
     }
 
     Coord3 crd( Coord3::udf() );
-    valstr = pars.find( "X" );
+    valstr = pars.find( sKey::X() );
     if ( valstr.isEmpty() )
 	valstr = pars.find( "X-coordinate" );
     if ( !valstr.isEmpty() )
 	crd.x_ = toDouble( valstr );
-    valstr = pars.find( "Y" );
+    valstr = pars.find( sKey::Y() );
     if ( valstr.isEmpty() )
 	valstr = pars.find( "Y-coordinate" );
     if ( !valstr.isEmpty() )
 	crd.y_ = toDouble( valstr );
-    valstr = pars.find( "Z" );
+    valstr = pars.find( sKey::Z() );
     if ( valstr.isEmpty() )
 	valstr = pars.find( "Z-Coord" );
     if ( !valstr.isEmpty() )

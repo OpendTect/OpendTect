@@ -582,8 +582,6 @@ void uiStratLevelDlg::getLvlInfo( BufferString& lvlnm, Color& col ) const
 
 
 
-static const char* unitcollbls[] = { "[Name]", "[Color]",
-				     "Start(my)", "Stop(my)", 0 };
 static const int cNrEmptyRows = 2;
 
 static const int cNameCol  = 0;
@@ -611,7 +609,12 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
 						.rowgrow(true)
 						.defrowlbl("")
 						.selmode(uiTable::Multi));
-    table_->setColumnLabels( unitcollbls );
+    uiStringSet collbls;
+    collbls.add( uiStrings::sName() )
+	   .add( uiStrings::sColor() )
+	   .add( uiStrings::sStart().withUnit("my") )
+	   .add( uiStrings::sStop().withUnit("my") );
+    table_->setColumnLabels( collbls );
     table_->setColumnReadOnly( cColorCol, true );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setNrRows( cNrEmptyRows );

@@ -81,6 +81,8 @@ namespace sKey
     inline FixedString Level()		{ return "Level"; }
     inline FixedString Line()		{ return "Line"; }
     inline FixedString LineStyle()	{ return "Line Style"; }
+    inline FixedString MD()		{ return "MD"; }
+    inline FixedString Marker()		{ return "Marker"; }
     inline FixedString MarkerStyle()	{ return "Marker Style"; }
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }
@@ -141,6 +143,9 @@ namespace sKey
     inline FixedString TotalNr()	{ return "Total Nr"; }
     inline FixedString TraceNr()	{ return "Trace number"; }
     inline FixedString TraceKey()	{ return "Trace key"; }
+    inline FixedString TVD()		{ return "TVD"; }
+    inline FixedString TVDSS()		{ return "TVDSS"; }
+    inline FixedString TWT()		{ return "TWT"; }
     inline FixedString Type()		{ return "Type"; }
     inline FixedString TwoD()		{ return "2D"; }
     inline FixedString Thickness()	{ return "Thickness"; }
@@ -155,13 +160,17 @@ namespace sKey
     inline FixedString WaveletID()	{ return "Wavelet ID"; }
     inline FixedString Weight()		{ return "Weight"; }
     inline FixedString Well()		{ return "Well"; }
+    inline FixedString X()		{ return "X"; }
     inline FixedString XCoord()		{ return "X-Coord"; }
     inline FixedString XOffset()	{ return "X Offset"; }
     inline FixedString XRange()		{ return "X range"; }
+    inline FixedString Y()		{ return "Y"; }
+    inline FixedString Y2()		{ return "Y2"; }
     inline FixedString YCoord()		{ return "Y-Coord"; }
     inline FixedString YOffset()	{ return "Y Offset"; }
     inline FixedString YRange()		{ return "Y range"; }
     inline FixedString Yes()		{ return "Yes"; }
+    inline FixedString Z()		{ return "Z"; }
     inline FixedString ZCoord()		{ return "Z-Coord"; }
     inline FixedString ZRange()		{ return "Z range"; }
     inline FixedString ZSlice()		{ return "Z-slice"; }

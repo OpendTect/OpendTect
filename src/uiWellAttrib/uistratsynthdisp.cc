@@ -223,7 +223,7 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
     modelidx = toInt(valstr)-1;
     uiString modelnrstr = tr("Model Number").addMoreInfo(toUiString(modelidx));
     msg.appendPhrase( modelnrstr );
-    valstr = pars.find( "Z" );
+    valstr = pars.find( sKey::Z() );
     if ( !valstr ) valstr = pars.find( "Z-Coord" );
     float zval = mUdf(float);
     if ( valstr )
@@ -1807,7 +1807,7 @@ void uiStratSynthDisp::setDefaultAppearance( FlatView::Appearance& app )
     app.annot_.x1_.showAll( true );
     app.annot_.x2_.showAll( true );
     app.annot_.x1_.annotinint_ = true;
-    app.annot_.x2_.name_ = toUiString("TWT");
+    app.annot_.x2_.name_ = uiStrings::sTWT();
     app.ddpars_.show( true, true );
     app.ddpars_.wva_.allowuserchangedata_ = false;
     app.ddpars_.vd_.allowuserchangedata_ = false;

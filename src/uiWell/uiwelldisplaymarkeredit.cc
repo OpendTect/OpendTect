@@ -37,8 +37,7 @@ uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
 					mNoDlgTitle,mNoHelpKey))
     , marker_(mrk)
 {
-    namefld_ = new uiGenInput( this, uiStrings::sName(),
-                               StringInpSpec("Marker") );
+    namefld_ = new uiGenInput( this, uiStrings::sName() );
 
     uiColorInput::Setup csu( mrk.color() );
     csu.lbltxt( uiStrings::sColor() ).withdesc(false);

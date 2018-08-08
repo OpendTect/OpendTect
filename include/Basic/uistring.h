@@ -314,6 +314,9 @@ uiString toUiString( const std::pair<T1,T2>& pair )
     return toUiString( "%1/%2" ).arg( pair.first ).arg( pair.second );
 }
 
+mGlobal(Basic) uiString toUiString(const mQtclass(QString)&);
+
+
 inline uiString& uiString::appendPhraseSameLine( const uiString& str )
 { return appendPhrase( str, CloseLine, OnSameLine ); }
 inline uiString& uiString::appendAfterList( const uiString& str )

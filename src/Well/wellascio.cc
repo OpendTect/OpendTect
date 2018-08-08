@@ -14,6 +14,7 @@
 #include "mathfunc.h"
 #include "od_ostream.h"
 #include "sorting.h"
+#include "keystrs.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
@@ -313,7 +314,7 @@ static Table::TargetInfo* gtDepthTI( bool withuns )
 	ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     }
 
-    ti->form(0).setName( "MD" );
+    ti->form(0).setName( sKey::MD() );
     ti->add( new Table::TargetInfo::Form( uiStrings::sTVDSS(),
 							FloatInpSpec() ) );
     return ti;
@@ -414,7 +415,7 @@ void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
 
     ti = new Table::TargetInfo( uiStrings::sTime(), FloatInpSpec(),
 					Table::Required, PropertyRef::Time );
-    ti->form(0).setName( "TWT" );
+    ti->form(0).setName( sKey::TWT() );
     ti->add( new Table::TargetInfo::Form( uiStrings::sOneWayTT(),
 							    FloatInpSpec() ) );
     ti->selection_.unit_ = UoMR().get( "Milliseconds" );
@@ -590,7 +591,7 @@ Table::FormatDesc* Well::BulkD2TModelAscIO::getDesc()
 
     ti = new Table::TargetInfo( uiStrings::sTime(), FloatInpSpec(),
 					  Table::Required, PropertyRef::Time );
-    ti->form(0).setName( "TWT" );
+    ti->form(0).setName( sKey::TWT() );
     ti->add( new Table::TargetInfo::Form( uiStrings::sOneWayTT(),
 							    FloatInpSpec() ) );
     ti->selection_.unit_ = UoMR().get( "Milliseconds" );

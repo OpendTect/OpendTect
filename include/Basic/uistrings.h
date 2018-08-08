@@ -634,6 +634,7 @@ public:
     static uiWord sRed()		{ return tr("Red"); }
     static uiWord sRedo()		{ return tr("Redo"); }
     static uiWord sRegion(int n=1)	{ return tr("Region",0,n); }
+    static uiWord sRegionalMarker()	{ return tr("Regional Marker"); }
     static uiWord sRelative()		{ return tr("Relative"); }
     static uiWord sReload()		{ return tr("Reload"); }
     static uiWord sRemove()		{ return tr("Remove"); }
@@ -782,6 +783,7 @@ public:
     static uiWord sTransparent()	{ return tr("Transparent"); }
     static uiWord sTriangle()		{ return tr("Triangle"); }
     static uiWord sTriangulation()	{ return tr("Triangulation"); }
+    static uiWord sTVD()		{ return tr("TVD", "True Vert Dpth"); }
     static uiWord sTVDRelSRD()		{ return tr("TVD rel SRD",
 						    "TVD relative to SRD");}
     static uiWord sTVDRelKB()		{ return tr("TVD rel KB",

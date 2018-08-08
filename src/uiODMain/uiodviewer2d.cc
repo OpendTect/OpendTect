@@ -957,13 +957,13 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
     Coord3 mousepos( Coord3::udf() );
     mCBCapsuleUnpack(IOPar,pars,cb);
 
-    FixedString valstr = pars.find( "X" );
+    FixedString valstr = pars.find( sKey::X() );
     if ( valstr.isEmpty() ) valstr = pars.find( "X-coordinate" );
     if ( !valstr.isEmpty() ) mousepos.x_ = valstr.toDouble();
-    valstr = pars.find( "Y" );
+    valstr = pars.find( sKey::Y() );
     if ( valstr.isEmpty() ) valstr = pars.find( "Y-coordinate" );
     if ( !valstr.isEmpty() ) mousepos.y_ = valstr.toDouble();
-    valstr = pars.find( "Z" );
+    valstr = pars.find( sKey::Z() );
     if ( valstr.isEmpty() ) valstr = pars.find( "Z-Coord" );
     if ( !valstr.isEmpty() )
     {

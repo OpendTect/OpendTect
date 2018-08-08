@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ioobjctxt.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "randcolor.h"
@@ -53,7 +54,6 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
-static const char* trackcollbls[] = { "X", "Y", "Z", "MD", 0 };
 static const int nremptyrows = 5;
 static const int cXCol = 0;
 static const int cYCol = 1;
@@ -106,7 +106,12 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 					      .defrowlbl("")
 					      .removeselallowed(false),
 			"Well Track Table" );
-    tbl_->setColumnLabels( trackcollbls );
+    uiStringSet collbls;
+    collbls.add( uiStrings::sX() )
+	   .add( uiStrings::sY() )
+	   .add( uiStrings::sZ() )
+	   .add( uiStrings::sMD() );
+    tbl_->setColumnLabels( collbls );
     tbl_->setNrRows( nremptyrows );
     tbl_->setPrefWidth( 500 );
     tbl_->setPrefHeight( 400 );
@@ -368,10 +373,10 @@ void trckFmtChg( CallBacker* )
     for ( int idx=0; idx<fd.bodyinfos_.size(); idx++ )
     {
 	const Table::TargetInfo& ti = *fd.bodyinfos_[idx];
-	if ( ti.name() == "Z" && ti.selection_.isInFile(0) )
+	if ( ti.name() == sKey::Z() && ti.selection_.isInFile(0) )
 	    havez = true;
 
-	if ( ti.name() == "MD" && ti.selection_.isInFile(0) )
+	if ( ti.name() == sKey::MD() && ti.selection_.isInFile(0) )
 	    havemd = true;
     }
 
@@ -717,11 +722,11 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     const bool zinfeet = zinftfld_ ? zinftfld_->isChecked() : false;
     const BufferString depthunit = getDistUnitString( zinfeet, true );
 
-    strm << trackcollbls[0] << toString(SI().xyUnitString()) << od_tab;
-    strm << trackcollbls[1] << toString(SI().xyUnitString()) << od_tab;
-    strm << trackcollbls[2] << depthunit << od_tab;
-    strm << "TVD" << depthunit << od_tab;
-    strm << trackcollbls[3] << depthunit << od_newline;
+    strm << sKey::X() << toString(SI().xyUnitString()) << od_tab;
+    strm << sKey::Y() << toString(SI().xyUnitString()) << od_tab;
+    strm << sKey::Z() << depthunit << od_tab;
+    strm << sKey::TVD() << depthunit << od_tab;
+    strm << sKey::MD() << depthunit << od_newline;
 
     const float kbdepth = -1.f * track_.getKbElev();
     Well::TrackIter iter( track_ );
@@ -740,12 +745,12 @@ void uiWellTrackDlg::exportCB( CallBacker* )
 // ==================================================================
 
 
-static const char* sKeyMD()		{ return "MD"; }
-static const char* sKeyTVD()		{ return "TVD"; }
+static const char* sKeyMD()		{ return sKey::MD(); }
+static const char* sKeyTVD()		{ return sKey::TVD(); }
 static const char* sKeyTVDGL()		{ return "TVDGL"; }
 static const char* sKeyTVDSD()		{ return "TVDSD"; }
-static const char* sKeyTVDSS()		{ return "TVDSS"; }
-static const char* sKeyTWT()		{ return "TWT"; }
+static const char* sKeyTVDSS()		{ return sKey::TVDSS(); }
+static const char* sKeyTWT()		{ return sKey::TWT(); }
 static const char* sKeyOWT()		{ return "OWT"; }
 static const char* sKeyVint()		{ return "Vint"; }
 static const int cMDCol = 0;
@@ -1729,8 +1734,6 @@ const Color& uiNewWellDlg::getWellColor()
 
 //============================================================================
 
-static const char* collbls[] = { "Well name","Log name",
-				 "Unit of measure", 0 };
 uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, ObjectSet<Well::LogSet> wls,
 				  const BufferStringSet wellnms,
 				  const BufferStringSet lognms )
@@ -1753,6 +1756,10 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
     uominfotbl_->setPrefWidth( 520 );
     uominfotbl_->setPrefHeight( 400 );
     uominfotbl_->setTableReadOnly( true );
+    uiStringSet collbls;
+    collbls.add( tr("Well name") )
+	   .add( tr("Log name") )
+	   .add( tr("Unit of measure") );
     uominfotbl_->setColumnLabels( collbls );
     uominfotbl_->setColumnResizeMode( uiTable::ResizeToContents );
     const int nrwls = wls.size();

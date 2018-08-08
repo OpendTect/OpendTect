@@ -25,6 +25,7 @@ ________________________________________________________________________
 
 #include "dbman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "mathformula.h"
 #include "mathspecvars.h"
 #include "ptrman.h"
@@ -62,14 +63,14 @@ static Math::SpecVarSet& getSpecVars()
     mDefineStaticLocalObject( Math::SpecVarSet, svs, );
     svs.setEmpty();
 
-    svs.add( "MD", "Depth Along Hole", true, PropertyRef::Dist );
-    svs.add( "TVD", "Z coordinate", true, PropertyRef::Dist );
-    svs.add( "TVDSS", "TVD below SS", true, PropertyRef::Dist );
+    svs.add( sKey::MD(), "Depth Along Hole", true, PropertyRef::Dist );
+    svs.add( sKey::TVD(), "Z coordinate", true, PropertyRef::Dist );
+    svs.add( sKey::TVDSS(), "TVD below SS", true, PropertyRef::Dist );
     svs.add( "TVDSD", "TVD below SD", true, PropertyRef::Dist );
     svs.add( "DZ", "Delta Z", true, PropertyRef::Dist );
     if ( SI().zIsTime() )
     {
-	svs.add( "TWT", "Two-way traveltime", true, PropertyRef::Time );
+	svs.add( sKey::TWT(), "Two-way traveltime", true, PropertyRef::Time );
 	svs.add( "VINT", "Interval velocity", true, PropertyRef::Vel );
     }
     return svs;

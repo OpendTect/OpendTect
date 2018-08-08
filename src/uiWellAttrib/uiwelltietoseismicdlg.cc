@@ -489,7 +489,7 @@ void uiTieWin::matchHorMrks( CallBacker* )
                                              mNoHelpKey) );
     uiGenInput* matchinpfld = new uiGenInput( &matchdlg, tr("Match same"),
 				BoolInpSpec(true,uiStrings::sName(),
-                                            tr("Regional marker")) );
+                                            uiStrings::sRegionalMarker()) );
     matchdlg.go();
     TypeSet<HorizonMgr::PosCouple> pcs;
     server_.horizonMgr().matchHorWithMarkers( pcs, matchinpfld->getBoolValue());

@@ -170,8 +170,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 				.maxcolwdt(4.f*uiObject::baseFldSize()),
 			  "Reference attributes table" );
 
-    const char* collbls[] = { "Reference attributes", 0 };
-    table_->setColumnLabels( collbls );
+    table_->setColumnLabel( 0, tr("Reference attribute") );
     table_->setNrRows( cInitNrRows );
     table_->setStretch( 2, 0 );
     table_->setToolTip(tr("Right-click to add, insert or remove an attribute"));

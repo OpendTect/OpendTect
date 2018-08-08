@@ -16,6 +16,7 @@
 const char* PosImpExpPars::sKeyOffset()		{ return sKey::Offset(); }
 const char* PosImpExpPars::sKeyScale()		{ return sKey::Scale(); }
 const char* PosImpExpPars::sKeyTrcNr()		{ return sKey::TraceNr(); }
+const char* PosImpExpPars::sKeyZ()		{ return sKey::Z(); }
 
 
 const PosImpExpPars& PosImpExpPars::SVY()

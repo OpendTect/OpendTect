@@ -126,8 +126,8 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
     uiStringSet collbls;
     collbls.add( uiStrings::sTraceNumber() );
     collbls.add( uiStrings::sSPNumber() );
-    collbls.add( toUiString("X") );
-    collbls.add( toUiString("Y") );
+    collbls.add( uiStrings::sX() );
+    collbls.add( uiStrings::sY() );
     table_->setColumnLabels( collbls );
     if ( readonly )
 	table_->setTableReadOnly( true );

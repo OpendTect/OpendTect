@@ -248,7 +248,6 @@ public:
     const char*		columnLabel( const RowCol& rc ) const
 			    { return columnLabel(rc.col()); }
     void		setColumnLabel(int,const uiString&); //also sets tooltip
-    void		setColumnLabels(const char**);
     void		setColumnLabels(const uiStringSet&);
     void		setColumnLabel( const RowCol& rc, const uiString& lbl )
 			    { setColumnLabel( rc.col(), lbl ); }

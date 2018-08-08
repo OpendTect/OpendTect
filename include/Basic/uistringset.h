@@ -33,6 +33,7 @@ public:
 			uiStringSet( const uiStringSet& oth )	{ *this = oth; }
 			uiStringSet(const uiString[]);
 				/*!< end array with empty string */
+			uiStringSet(const mQtclass(QStringList)&);
 			~uiStringSet();
     uiStringSet&	operator =(const uiStringSet&);
 

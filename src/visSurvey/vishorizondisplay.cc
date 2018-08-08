@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "posvecdataset.h"
 #include "callback.h"
+#include "keystrs.h"
 
 #include "visevent.h"
 #include "vismarkerset.h"
@@ -1063,7 +1064,8 @@ void HorizonDisplay::createDisplayDataPacks(
     TypeSet<DataPack::ID> dpids;
     const char* catnm = "Horizon Data";
     BufferStringSet dimnames;
-    dimnames.add("X").add("Y").add("In-line").add("Cross-line");
+    dimnames.add(sKey::X()).add(sKey::Y())
+	    .add(sKey::Inline()).add(sKey::Crossline());
 
     for ( int idx=0; idx<nrversions; idx++ )
     {

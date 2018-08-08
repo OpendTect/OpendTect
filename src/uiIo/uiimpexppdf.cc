@@ -154,8 +154,8 @@ Sampled1DProbDenFunc* get1DPDF()
 {
     mRewindStream(tr("Cannot open input file to import 1D PDF data"))
 
-    BufferString varnm("X");
-    SamplingData<float> sd(0,1);
+    BufferString varnm( "X" );
+    SamplingData<float> sd( 0.f, 1.f );
     int nr = -1;
     bool cols_are_0 = true;
     ascistream astrm( strm_, false );
@@ -206,8 +206,8 @@ Sampled2DProbDenFunc* get2DPDF()
 {
     mRewindStream(tr("Cannot open input file to import 2D PDF data"))
 
-    BufferString dim0nm("X"), dim1nm("Y");
-    SamplingData<float> sd0(0,1), sd1(0,1);
+    BufferString dim0nm( "X" ), dim1nm( "Y" );
+    SamplingData<float> sd0( 0.f, 1.f ), sd1( 0.f, 1.f );
     int nr0=-1, nr1=-1;
     bool cols_are_0 = true;
     ascistream astrm( strm_, false );

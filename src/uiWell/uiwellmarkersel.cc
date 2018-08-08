@@ -175,7 +175,7 @@ void uiWellMarkerSel::usePar( const IOPar& iop )
 {
     if ( !botfld_ )
     {
-	const char* res = iop.find( "Marker" );
+	const char* res = iop.find( sKey::Marker() );
 	if ( res && *res )
 	    setInput( res, true );
     }
@@ -194,7 +194,7 @@ void uiWellMarkerSel::usePar( const IOPar& iop )
 void uiWellMarkerSel::fillPar( IOPar& iop ) const
 {
     if ( !botfld_ )
-	iop.set( "Marker", getText(true) );
+	iop.set( sKey::Marker(), getText(true) );
     else
     {
 	iop.set( Well::ExtractParams::sKeyTopMrk(), getText(true) );

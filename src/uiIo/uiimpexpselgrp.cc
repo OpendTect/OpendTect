@@ -409,12 +409,12 @@ ObjectSet<SelectionGrp> SelGrpImporter::getSelections()
 
     if ( par.hasKey(sKeyNrSelGrps) )
 	par.get( sKeyNrSelGrps, nrselgrps );
-    if ( par.hasKey(IOPar::compKey(sKey::Attribute(),"X")) )
-	par.get( IOPar::compKey(sKey::Attribute(),"X"), xname_ );
-    if ( par.hasKey(IOPar::compKey(sKey::Attribute(),"Y")) )
-	par.get( IOPar::compKey(sKey::Attribute(),"Y"), yname_ );
-    if ( par.hasKey(IOPar::compKey(sKey::Attribute(),"Y2")) )
-	par.get( IOPar::compKey(sKey::Attribute(),"Y2"), y2name_ );
+    if ( par.hasKey(IOPar::compKey(sKey::Attribute(),sKey::X())) )
+	par.get( IOPar::compKey(sKey::Attribute(),sKey::X()), xname_ );
+    if ( par.hasKey(IOPar::compKey(sKey::Attribute(),sKey::Y())) )
+	par.get( IOPar::compKey(sKey::Attribute(),sKey::Y()), yname_ );
+    if ( par.hasKey(IOPar::compKey(sKey::Attribute(),sKey::Y2())) )
+	par.get( IOPar::compKey(sKey::Attribute(),sKey::Y2()), y2name_ );
 
     for ( int selidx=0; selidx < nrselgrps; selidx++ )
     {
@@ -460,10 +460,10 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
 	{ errmsg_ = tr("No selections found"); return false; }
 
     IOPar selectionpar;
-    selectionpar.set( IOPar::compKey(sKey::Attribute(),"X"), xname );
-    selectionpar.set( IOPar::compKey(sKey::Attribute(),"Y"), yname );
+    selectionpar.set( IOPar::compKey(sKey::Attribute(),sKey::X()), xname );
+    selectionpar.set( IOPar::compKey(sKey::Attribute(),sKey::Y()), yname );
     if ( y2name )
-	selectionpar.set( IOPar::compKey(sKey::Attribute(),"Y2"), y2name );
+	selectionpar.set( IOPar::compKey(sKey::Attribute(),sKey::Y2()), y2name);
     selectionpar.set( sKeyNrSelGrps, selgrps.size() );
 
     for ( int selidx=0; selidx<selgrps.size(); selidx++ )

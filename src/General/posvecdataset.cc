@@ -129,7 +129,7 @@ void PosVecDataSet::setEmpty()
     deepErase(coldefs_);
     data_.setEmpty();
     data_.setNrVals( 1 );
-    coldefs_ += new DataColDef( "Z" );
+    coldefs_ += new DataColDef( sKey::Z() );
 }
 
 
@@ -416,7 +416,7 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 	    {
 		DataColDef* cd = new DataColDef( "" );
 		cd->getFrom( astrm.keyWord() );
-		if ( cd->name_ != "Z" )
+		if ( cd->name_ != sKey::Z() )
 		    add( cd );
 		else
 		{
@@ -434,7 +434,7 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
     const int nrvals = nrCols();
     if ( nrvals < 1 )
     {
-	add( new DataColDef("Z") );
+	add( new DataColDef(sKey::Z()) );
 	data().setNrVals(1);
 	return true;
     }
@@ -501,7 +501,7 @@ bool PosVecDataSet::getFrom( const char* fnm, uiString& errmsg )
 	    {
 		DataColDef* cd = new DataColDef( "" );
 		cd->getFrom( astrm.keyWord() );
-		if ( cd->name_ != "Z" )
+		if ( cd->name_ != sKey::Z() )
 		    add( cd );
 		else
 		{
@@ -519,7 +519,7 @@ bool PosVecDataSet::getFrom( const char* fnm, uiString& errmsg )
     const int nrvals = nrCols();
     if ( nrvals < 1 )
     {
-	add( new DataColDef("Z") );
+	add( new DataColDef(sKey::Z()) );
 	data().setNrVals(1);
 	return true;
     }

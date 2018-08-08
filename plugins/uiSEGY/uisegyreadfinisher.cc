@@ -247,8 +247,11 @@ void uiSEGYReadFinisher::crVSPFields( bool istime )
     const float startz = fs_.readopts_.timeshift_;
     const float endz = startz + fs_.readopts_.sampleintv_ * (fs_.pars_.ns_-1);
     inptxt.arg( startz ).arg( endz );
-    const char* doms[] = { "TWT", "TVDSS", "MD", 0 };
-    inpdomfld_ = new uiGenInput( this, inptxt, StringListInpSpec(doms) );
+    uiStringSet domstrs;
+    domstrs.add( uiStrings::sTWT() )
+	   .add( uiStrings::sTVDSS() )
+	   .add( uiStrings::sMD() );
+    inpdomfld_ = new uiGenInput( this, inptxt, StringListInpSpec(domstrs) );
     if ( !istime )
 	inpdomfld_->setValue( 1 );
     inpdomfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,inpDomChg) );

@@ -38,7 +38,6 @@ uiStepDialog* uiSurfaceLimitedFiller::createInstance( uiParent* p, Step* step,
 }
 
 
-static const char* collbls[] = { "Name", "Side", "Color", 0 };
 static const int cNameCol = 0;
 static const int cSideCol = 1;
 static const int cColorCol = 2;
@@ -60,6 +59,10 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     table_ = new uiTable( this, uiTable::Setup(4).rowgrow(true).fillrow(true)
 	    .rightclickdisabled(true).selmode(uiTable::Single),
 	    "Surface Limits Table" );
+    uiStringSet collbls;
+    collbls.add( uiStrings::sName() )
+	   .add( tr("Side") )
+	   .add( uiStrings::sColor() );
     table_->setColumnLabels( collbls );
     table_->setLeftMargin( 0 );
     table_->setSelectionBehavior( uiTable::SelectRows );

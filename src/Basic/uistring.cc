@@ -997,6 +997,14 @@ int uiString::size() const
 }
 
 
+uiString toUiString( const QString& qs )
+{
+    uiString ret;
+    ret.setFrom( qs );
+    return ret;
+}
+
+
 //-- uiStringSet
 
 
@@ -1009,6 +1017,13 @@ uiStringSet::uiStringSet( const uiString strs[] )
 	    break;
 	add( str );
     }
+}
+
+
+uiStringSet::uiStringSet( const QStringList& qsl )
+{
+    for ( auto qstr : qsl )
+	add( toUiString(qstr) );
 }
 
 
