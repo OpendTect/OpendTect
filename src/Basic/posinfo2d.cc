@@ -64,9 +64,9 @@ int PosInfo::Line2DData::getSegmentIndexClosestToPoint( const Coord& pt ) const
     {
 	const Coord& start = posns_[bendpoints_[idx-1]].coord_;
 	const Coord& stop = posns_[bendpoints_[idx]].coord_;
-	const double seglength = start.distTo<double>( stop );
-	const double distsum = start.distTo<double>( pt ) +
-			       pt.distTo<double>( stop );
+	const double seglength = start.distTo( stop );
+	const double distsum = start.distTo( pt ) +
+			       pt.distTo( stop );
 	const double absdiff = Math::Abs( seglength - distsum );
 	if ( absdiff < mindiff )
 	{
