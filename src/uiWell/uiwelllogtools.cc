@@ -230,7 +230,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     gatefld_ = spbgt->box();
     gatelbl_ = spbgt->label();
 
-    const uiString txt = tr("Threshold ( Grubbs number )");
+    const uiString txt = tr("Threshold (Grubbs number)");
     thresholdfld_ = new uiLabeledSpinBox( actiongrp, txt );
     thresholdfld_->attach( rightOf, spbgt );
     thresholdfld_->box()->setInterval( 1.0, 20.0, 0.1 );
@@ -238,14 +238,14 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     thresholdfld_->box()->setNrDecimals( 2 );
 
     const char* spk[] = {"Undefined values","Interpolated values","Specify",0};
-    replacespikefld_ = new uiLabeledComboBox(actiongrp,spk,
-					     tr("Replace spikes by"));
+    replacespikefld_ =
+	new uiLabeledComboBox( actiongrp, spk, tr("Replace spikes by") );
     replacespikefld_->box()->selectionChanged.notify(
-				mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
+			mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
     replacespikefld_->attach( alignedBelow, spbgt );
 
     replacespikevalfld_ = new uiGenInput( actiongrp, uiStrings::sEmptyString(),
-							       FloatInpSpec() );
+					  FloatInpSpec() );
     replacespikevalfld_->attach( rightOf, replacespikefld_ );
     replacespikevalfld_->setValue( 0 );
 
@@ -563,7 +563,7 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
 				     toUiString("'%1'").arg(toUiString(
 				     log.name())),uiStrings::sLog().toLower()));
     setCaption( dlgcaption );
-    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true); 
+    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true);
     table_ = new uiTable( this, ts, "Well log table" );
     table_->setSelectionMode( uiTable::Multi );
     table_->setSelectionBehavior( uiTable::SelectRows );
@@ -571,11 +571,11 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     table_->rowDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->selectionDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->rowInserted.notify( mCB(this,uiWellLogEditor,rowInsertCB) );
-    BufferString mdlbl( "MD" );
+    BufferString mdlbl( "MD " );
     mdlbl.add( getDistUnitString(SI().depthsInFeet(), true) );
     BufferString loglbl( log_.name() );
     if ( log_.unitMeasLabel() && *log_.unitMeasLabel() )
-	loglbl.add( "(" ).add( log_.unitMeasLabel() ).add( ")" );
+	loglbl.add( " (" ).add( log_.unitMeasLabel() ).add( ")" );
 
     BufferStringSet colnms; colnms.add(mdlbl).add(loglbl);
     table_->setColumnLabels( colnms );
@@ -593,12 +593,11 @@ void uiWellLogEditor::fillTable()
 {
     NotifyStopper ns( table_->valueChanged );
     const int sz = log_.size();
-    const UnitOfMeasure* depthunit = UnitOfMeasure::surveyDefDepthUnit();
-
+    const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const float val = depthunit->getUserValueFromSI( log_.dah(idx) );
-	table_->setValue( RowCol(idx,0), val );
+	const float md = uom ? uom->userValue( log_.dah(idx) ) : log_.dah(idx);
+	table_->setValue( RowCol(idx,0), md );
 	table_->setValue( RowCol(idx,1), log_.value(idx) );
     }
 }
@@ -619,8 +618,8 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 	return;
     const bool mdchanged = rc.col() == 0;
     const float newval = table_->getfValue( rc );
-    const float oldval = mdchanged ? log_.dah( rc.row() ) : 
-							log_.value( rc.row() );
+    const float oldval = mdchanged ? log_.dah( rc.row() )
+				   : log_.value( rc.row() );
     if ( mIsEqual(oldval,newval,mDefEpsF) )
 	return;
 
@@ -629,7 +628,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 	float prevmdval = 0.f;
 	float nextmdval = 0.f;
 	bool ismdok = false;
-	
+
 	if ( rc.row() != 0 )
 	{
 	    prevmdval = log_.dah( rc.row()-1 );
@@ -640,9 +639,9 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 				 "previous MD value. Please Change."));
 		return;
 	    }
-		
+
 	}
-	
+
 	if ( rc.row() < log_.size()-1 )
 	{
 	    nextmdval = log_.dah( rc.row()+1 );
@@ -654,7 +653,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 		return;
 	    }
 	}
-	
+
 	if ( ismdok )
 	    log_.dahArr()[rc.row()] = newval;
     }
@@ -685,13 +684,13 @@ void uiWellLogEditor::rowInsertCB( CallBacker* )
     int rownr = table_->currentRow();
     float prevmdval = 0.f;
     float nextmdval = 0.f;
-	
+
     if ( rownr != 0 )
 	prevmdval = log_.dah( rownr-1 );
-	
+
     if ( rownr < log_.size()-1 )
 	nextmdval = log_.dah( rownr );
-    
+
     log_.insertAtDah( (prevmdval+nextmdval)/2, 0.f );
     valueChanged.trigger();
 }
