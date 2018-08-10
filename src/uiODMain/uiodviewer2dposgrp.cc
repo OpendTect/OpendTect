@@ -397,7 +397,7 @@ void uiODViewer2DPosGrp::rdmLineDlgClosed( CallBacker* )
 }
 
 
-void uiODViewer2DPosGrp::inpSel( CallBacker* )
+void uiODViewer2DPosGrp::inpSel( CallBacker* cb )
 {
     if ( postypefld_ )
     {
@@ -405,7 +405,10 @@ void uiODViewer2DPosGrp::inpSel( CallBacker* )
 	Viewer2DPosDataSel::parseEnum( txtofinp, posdatasel_->postype_ );
     }
 
-    updateFlds();
+    updatePosFlds();
+    if ( cb == inp3dfld_ )
+	updateTrcKeySampFld();
+
     inpSelected.trigger();
 }
 
