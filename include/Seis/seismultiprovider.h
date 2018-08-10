@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "survgeom2d.h"
 #include "trckeyzsampling.h"
-#include "uistring.h"
+#include "uistrings.h"
 #include "enums.h"
 
 class SeisTrc;
@@ -46,11 +46,9 @@ public:
 				  RequireAtLeastOne, RequireAll };
 				mDeclareEnumUtils(Policy);
     enum ZPolicy		{ Minimum, Maximum };
-				//!< Trcs with that z-range
 				mDeclareEnumUtils(ZPolicy)
 
-				virtual ~MultiProvider();
-
+    virtual			~MultiProvider();
     virtual bool		is2D() const			= 0;
 
     int				size() const	{ return provs_.size(); }
@@ -61,8 +59,7 @@ public:
     void			setSelData(SelData*); //!< Becomes mine.
     void			selectComponent(int iprov,int icomp);
     void			selectComponents(const TypeSet<int>&);
-				//!< List of component indices to be
-				//!< selected. Same for all providers.
+				    //!< same comps for all providers
     void			forceFPData(bool yn=true);
     void			setReadMode(ReadMode);
 
@@ -74,34 +71,23 @@ public:
     uiRetVal			fillPar(IOPar&) const;
     uiRetVal			usePar(const IOPar&);
 
-    uiRetVal			getNext(SeisTrc&,bool dostack=false);
-				/*< \param dostack, if false, first
-				available trace in the list of providers is
-				returned.*/
+    uiRetVal			getNext(SeisTrc&,bool dostack_else_first=false);
     uiRetVal			getNext(ObjectSet<SeisTrc>&);
-    uiRetVal			getGather(SeisTrcBuf&,bool dostack=false)
-				{ /* TODO */ return uiRetVal(); }
-				/*< \param dostack, if false, first
-				available trace in the list of providers is
-				returned.*/
+    uiRetVal			getGather(SeisTrcBuf&,
+					  bool dostack_else_first=false)
+				    { return mTODONotImplPhrase(); }
     uiRetVal			get(const TrcKey&,ObjectSet<SeisTrc>&)const;
-				/*< Fills the traces with data from each
-				 provider at the specified TrcKey.*/
     uiRetVal			getGathers(const TrcKey&,
 					   ObjectSet<SeisTrcBuf>&) const
-				{ /* TODO */ return uiRetVal(); }
-				/*< Fills the SeisTrcBuf with gather from
-				  each provider at the specified TrcKey.*/
+				    { return mTODONotImplPhrase(); }
     uiRetVal			reset() const;
-				//!< done automatically when needed
+				    //!< done automatically when needed
     const SelData*		selData() const		{ return seldata_; }
 
 protected:
 
 				MultiProvider(Policy,ZPolicy,
-					      float specialvalue=0.0f);
-				//!< \param specialvalue used as default
-				//!< value in SeisTrc.
+					      float def_sample_value=0.0f);
 
     void			addInput(Seis::GeomType);
     bool			handleSetupChanges(uiRetVal&) const;
@@ -150,6 +136,7 @@ public:
 mExpClass(Seis) MultiProvider3D : public MultiProvider
 { mODTextTranslationClass(Seis::MultiProvider3D);
 public:
+
 				MultiProvider3D(Policy,ZPolicy);
 				~MultiProvider3D()	{}
 
@@ -166,6 +153,7 @@ protected:
     void			doGet(const TrcKey&,ObjectSet<SeisTrc>&,
 				      uiRetVal&) const;
     bool			doMoveToNext() const;
+
 };
 
 
@@ -176,6 +164,7 @@ protected:
 mExpClass(Seis) MultiProvider2D : public MultiProvider
 { mODTextTranslationClass(Seis::MultiProvider2D);
 public:
+
 				MultiProvider2D(Policy,ZPolicy);
 				~MultiProvider2D()	{}
 
@@ -209,6 +198,7 @@ protected:
 
     mutable int			curlidx_;
     mutable TypeSet<Pos::GeomID>geomids_;
+
 };
 
 }

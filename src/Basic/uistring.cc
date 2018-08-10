@@ -1008,18 +1008,6 @@ uiString toUiString( const QString& qs )
 //-- uiStringSet
 
 
-uiStringSet::uiStringSet( const uiString strs[] )
-{
-    for ( idx_type idx=0; ; idx++ )
-    {
-	const uiString& str = strs[idx];
-	if ( str.isEmpty() )
-	    break;
-	add( str );
-    }
-}
-
-
 uiStringSet::uiStringSet( const QStringList& qsl )
 {
     for ( auto qstr : qsl )

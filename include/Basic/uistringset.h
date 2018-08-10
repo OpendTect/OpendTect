@@ -30,9 +30,12 @@ public:
 
 			uiStringSet()				{}
 			uiStringSet( const uiString& s )	{ set(s); }
+			uiStringSet( const uiString& s1, const uiString& s2 )
+						{ set(s1).add(s2); }
+			uiStringSet( const uiString& s1, const uiString& s2,
+				     const uiString& s3 )
+						{ set(s1).add(s2).add(s3); }
 			uiStringSet( const uiStringSet& oth )	{ *this = oth; }
-			uiStringSet(const uiString[]);
-				/*!< end array with empty string */
 			uiStringSet(const mQtclass(QStringList)&);
 			~uiStringSet();
     uiStringSet&	operator =(const uiStringSet&);
@@ -100,6 +103,8 @@ public:
 			uiRetVal()		{}
 			uiRetVal(const uiPhrase&);
 			uiRetVal(const uiPhraseSet&);
+			uiRetVal( const uiPhrase& s1, const uiPhrase& s2 )
+						{ set(s1).add(s2); }
 			uiRetVal(const uiRetVal&);
     static uiRetVal	OK()			{ return ok_; }
     static uiRetVal	Empty()			{ return ok_; }

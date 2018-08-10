@@ -193,10 +193,12 @@ bool testToLower()
 
 bool testOptionStrings()
 {
-    uiString strings[] = { toUiString( "One" ), toUiString( "Two" ),
-			    toUiString( "Three" ), toUiString( "Four" ),
-			    uiString() };
-    uiStringSet options( strings );
+    uiStringSet options;
+    options.add( toUiString( "One" ) )
+	   .add( toUiString( "Two" ) )
+	   .add( toUiString( "Three" ) )
+	   .add( toUiString( "Four" ) )
+	   .add( uiString() );
 
     mRunStandardTest(
 	    toString(options.createOptionString(true,-1,false)) ==
