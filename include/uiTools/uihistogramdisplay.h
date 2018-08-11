@@ -32,11 +32,12 @@ public:
 
     void			setEmpty();
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID,
-	    				      int version);
+					      int version);
     void			setData(const float*,od_int64 sz);
     void			setData(const Array2D<float>*);
     void			setData(const Array3D<float>*);
-    void			setData(const DataPointSet&);
+    void			setData(const DataPointSet&,int dpsidx);
+    void			setData(const TypeSet<float>&);
 
     void			useDrawRange(bool yn);
     const Interval<float>&	getDrawRange() const	{ return mydrawrg_; }

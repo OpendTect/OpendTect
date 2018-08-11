@@ -87,7 +87,8 @@ bool uiHistogramDisplay::setDataPackID(
     if ( dmid == DataPackMgr::SeisID() )
     {
 	mDynamicCastGet(const VolumeDataPack*,voldp,dp.ptr());
-	if ( !voldp || voldp->isEmpty() ) return false;
+	if ( !voldp || voldp->isEmpty() )
+	    return false;
 
 	const Array3D<float>* arr3d = &voldp->data( version );
 	dpversionnm = voldp->name();
@@ -117,7 +118,7 @@ bool uiHistogramDisplay::setDataPackID(
 	    return false;
 
 	dpversionnm = dpset->name();
-	setData( *dpset );
+	setData( *dpset, 2 ); // magic 2 ... not easy to find
     }
     else
 	return false;
@@ -139,19 +140,17 @@ bool uiHistogramDisplay::setDataPackID(
 }
 
 
-void uiHistogramDisplay::setData( const DataPointSet& dpset )
+void uiHistogramDisplay::setData( const DataPointSet& dpset, int dpsidx )
 {
-    TypeSet<float> valarr;
+    TypeSet<float> vals;
     for ( int idx=0; idx<dpset.size(); idx++ )
     {
-	const float val = dpset.value( 2, idx );
-	if ( mIsUdf(val) )
-	    continue;
-
-	valarr += val;
+	const float val = dpset.value( dpsidx, idx );
+	if ( !mIsUdf(val) )
+	    vals += val;
     }
 
-    setData( valarr.arr(), valarr.size() );
+    setData( vals );
 }
 
 
@@ -165,19 +164,17 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 
     const int sz2d0 = array->getSize( 0 );
     const int sz2d1 = array->getSize( 1 );
-    TypeSet<float> valarr;
+    TypeSet<float> vals;
     for ( int idx0=0; idx0<sz2d0; idx0++ )
     {
 	for ( int idx1=0; idx1<sz2d1; idx1++ )
 	{
 	    const float val = array->get( idx0, idx1 );
-	    if ( mIsUdf(val) )
-		continue;
-
-	    valarr += val;
+	    if ( !mIsUdf(val) )
+		vals += val;
 	}
     }
-    rc_.setValues( valarr.arr(), valarr.size() );
+    rc_.setValues( vals.arr(), vals.size() );
     updateAndDraw();
 }
 
@@ -193,19 +190,24 @@ void uiHistogramDisplay::setData( const Array3D<float>* array )
     const int sz0 = array->getSize( 0 );
     const int sz1 = array->getSize( 1 );
     const int sz2 = array->getSize( 2 );
-    TypeSet<float> valarr;
+    TypeSet<float> vals;
     for ( int idx0=0; idx0<sz0; idx0++ )
 	for ( int idx1=0; idx1<sz1; idx1++ )
 	    for ( int idx2=0; idx2<sz2; idx2++ )
 	    {
 		const float val = array->get( idx0, idx1, idx2 );
-		if ( mIsUdf(val) ) continue;
-
-		valarr += val;
+		if ( !mIsUdf(val) )
+		    vals += val;
 	    }
 
-    rc_.setValues( valarr.arr(), valarr.size() );
+    rc_.setValues( vals.arr(), vals.size() );
     updateAndDraw();
+}
+
+
+void uiHistogramDisplay::setData( const TypeSet<float>& vals )
+{
+    setData( vals.arr(), (od_int64)vals.size() );
 }
 
 
@@ -295,7 +297,7 @@ void uiHistogramDisplay::useDrawRange( bool yn )
     usemydrawrg_ = yn;
     if ( usemydrawrg_ && !mIsUdf(mydrawrg_.start) && !mIsUdf(mydrawrg_.stop) )
     {
-	setData( originaldata_.arr(), originaldata_.size() );
+	setData( originaldata_ );
 	drawRangeChanged.trigger();
     }
 }
@@ -310,7 +312,7 @@ void uiHistogramDisplay::setDrawRange( const Interval<float>& ni )
     mydrawrg_ = ni;
     if ( usemydrawrg_ )
     {
-	setData( originaldata_.arr(), originaldata_.size() );
+	setData( originaldata_ );
 	drawRangeChanged.trigger();
     }
 }
