@@ -44,9 +44,10 @@ public:
 				uiStatsDisplay(uiParent*,const Setup&);
 
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID,
-	    				      int version);
-    void			setData(const float*,int sz);
+					      int version);
+    void			setData(const TypeSet<float>&);
     void			setData(const Array2D<float>*);
+    void			setData(const float*,od_int64);
     void			setData(const DataDistribution<float>&,
 				    od_int64 count=mUdf(od_int64),
 				    Interval<float> rg=Interval<float>::udf());

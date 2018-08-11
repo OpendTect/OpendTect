@@ -212,7 +212,13 @@ bool uiStatsDisplay::setDataPackID(
 }
 
 
-void uiStatsDisplay::setData( const float* array, int sz )
+void uiStatsDisplay::setData( const TypeSet<float>& vals )
+{
+    setData( vals.arr(), (od_int64)vals.size() );
+}
+
+
+void uiStatsDisplay::setData( const float* array, od_int64 sz )
 {
     if ( !histgramdisp_ )
 	return;
