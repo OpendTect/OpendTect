@@ -39,6 +39,9 @@ public:
     typedef T			object_type;
 
     inline			ObjectSet();
+    inline explicit		ObjectSet(T*);
+    inline explicit		ObjectSet(T*,T*);
+    inline explicit		ObjectSet(T*,T*,T*);
     inline			ObjectSet(const ObjectSet&);
     inline virtual		~ObjectSet()		{}
     inline ObjectSet&		operator=(const ObjectSet&);
@@ -305,6 +308,24 @@ inline bool equalContents( const ObjectSet<T>& os1, const ObjectSet<T>& os2 )
 template <class T> inline
 ObjectSet<T>::ObjectSet() : allow0_(false)
 {}
+
+template <class T> inline
+ObjectSet<T>::ObjectSet( T* t ) : allow0_(!t)
+{
+    add( t );
+}
+
+template <class T> inline
+ObjectSet<T>::ObjectSet( T* t0, T* t1 ) : allow0_(!t0 || !t1)
+{
+    add( t0 ).add( t1 );
+}
+
+template <class T> inline
+ObjectSet<T>::ObjectSet( T* t0, T* t1, T* t2 ) : allow0_(!t0 || !t1 || !t2)
+{
+    add( t0 ).add( t1 ).add( t2 );
+}
 
 template <class T> inline
 ObjectSet<T>::ObjectSet( const ObjectSet<T>& t )
