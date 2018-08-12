@@ -41,6 +41,7 @@ uiWellMarkerSel::Setup::Setup( bool issingle, const uiString& txt )
     , withudf_(true)
     , unordered_(false)
     , middef_(false)
+    , mediumsz_(false)
 {
     if ( seltxt_ == uiStrings::sNone() )
 	seltxt_ = uiString::empty();
@@ -70,6 +71,8 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	topfld_ = lcb->box();
     }
     topfld_->selectionChanged.notify( mrkselcb );
+    if ( setup_.mediumsz_ )
+	topfld_->setHSzPol( uiObject::MedVar );
 
     if ( !setup_.single_ )
     {
@@ -79,8 +82,8 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	else
 	    botfld_->attach( rightOf, topfld_ );
 	botfld_->selectionChanged.notify( mrkselcb );
-	botfld_->setHSzPol( uiObject::Medium );
-	topfld_->setHSzPol( uiObject::Medium );
+	botfld_->setHSzPol( uiObject::MedVar );
+	topfld_->setHSzPol( uiObject::MedVar );
 	topfld_->setToolTip( tr("Top of the zone") );
 	botfld_->setToolTip( tr("Bottom of the zone") );
     }

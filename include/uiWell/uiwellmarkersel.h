@@ -43,6 +43,7 @@ public:
 	mDefSetupMemb(bool,unordered);	//!< [false] true if your markers are
 					//!< not ordered top to bottom
 	mDefSetupMemb(bool,middef);	//!< [false] set center markers(s) def
+	mDefSetupMemb(bool,mediumsz);	//!< [false] if single, use medium sz
 	mDefSetupMemb(uiString,seltxt);
     };
 
