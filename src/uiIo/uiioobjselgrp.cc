@@ -155,7 +155,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
 void uiIOObjSelGrp::init( const uiString& seltxt )
 {
-    iconnms_.setNullAllowed( true );
     ctio_.ctxt_.fillTrGroup();
     nmfld_ = 0; wrtrselfld_ = 0;
     manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;
@@ -216,7 +215,6 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     }
 
     topgrp_->setHAlignObj( listfld_ );
-
     fullUpdate( -1 );
     if ( ctio_.ioobj_ )
 	listfld_->setCurrentItem( ctio_.ioobj_->name() );
@@ -375,6 +373,9 @@ void uiIOObjSelGrp::getChosen( BufferStringSet& nms ) const
 
 void uiIOObjSelGrp::setCurrent( int curidx )
 {
+    if ( curidx < 0 )
+	return;
+
     if ( curidx >= ioobjnms_.size() )
 	curidx = ioobjnms_.size() - 1;
 
@@ -383,11 +384,9 @@ void uiIOObjSelGrp::setCurrent( int curidx )
 }
 
 
-void uiIOObjSelGrp::setCurrent( const DBKey& mid )
+void uiIOObjSelGrp::setCurrent( const DBKey& dbky )
 {
-    const int idx = ioobjids_.indexOf( mid );
-    if ( idx >= 0 )
-	setCurrent( idx );
+    setCurrent( ioobjids_.indexOf( dbky ) );
 }
 
 
@@ -550,11 +549,8 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
     if ( !isMultiChoice() )
     {
 	const char* res = iop.find( sKey::ID() );
-	if ( !res || !*res ) return;
-
-	const int selidx = ioobjids_.indexOf( DBKey::getFromStr(res) );
-	if ( selidx >= 0 )
-	    setCurrent( selidx );
+	if ( res && *res )
+	    setCurrent( ioobjids_.indexOf( DBKey::getFromStr(res) ) );
     }
     else
     {
@@ -579,11 +575,7 @@ void uiIOObjSelGrp::fullUpdate( const DBKey& ky )
     fullUpdate( selidx );
     // Maybe a new one has been added
     if ( selidx < 0 )
-    {
-	selidx = ioobjids_.indexOf( ky );
-	if ( selidx >= 0 )
-	    setCurrent( selidx );
-    }
+	setCurrent( ioobjids_.indexOf(ky) );
 }
 
 
@@ -604,43 +596,42 @@ void uiIOObjSelGrp::addModifTime( const IOObj& ioobj )
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
-    mDefineStaticLocalObject( const bool, icsel_,
-			      = Settings::common().isTrue("Ui.Icons.ObjSel") );
+    const bool showicons = !Settings::common().isFalse( "Ui.Icons.ObjSel" );
     ioobjnms_.setEmpty(); dispnms_.setEmpty(); iconnms_.setEmpty();
     ioobjids_.setEmpty(); modiftimes_.setEmpty();
 
     const bool needtimes = needTimes();
     DBDirEntryList entrylist( ctio_.ctxt_, false );
     entrylist.fill( filtfld_->text() );
+    DBKey selid;
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
 	const IOObj& ioobj = entrylist.ioobj( idx );
 	const DBKey objid( ioobj.key() );
 
-	if ( curidx < 0 )
+	bool issel = idx == curidx;
+	if ( curidx == -1 )
 	{
-	    const bool issel = ctio_.ioobj_ && ctio_.ioobj_->key() == objid;
-	    if ( issel )
-		curidx = idx;
-	    else if ( !ctio_.ioobj_ && ctio_.ctxt_.forread_ )
-	    {
-		if ( IOObj::isSurveyDefault(objid) )
-		    curidx = idx;
-	    }
+	    if ( !ctio_.ioobj_ )
+		issel = IOObj::isSurveyDefault( objid );
+	    else
+		issel = ctio_.ioobj_->key() == objid;
 	}
+	if ( issel )
+	    selid = objid;
 
 	ioobjids_.add( objid );
 	ioobjnms_.add( ioobj.name() );
 	dispnms_.add( entrylist.dispName(idx) );
 	if ( needtimes )
 	    addModifTime( ioobj );
-
-	if ( icsel_ )
+	if ( showicons )
 	    iconnms_.add( entrylist.iconName(idx) );
     }
 
     fillListBox();
-    setCurrent( curidx );
+    if ( selid.isValid() )
+	setCurrent( selid );
     selChg( 0 );
 }
 
@@ -650,15 +641,17 @@ void uiIOObjSelGrp::fillListBox()
     NotifyStopper ns1( listfld_->selectionChanged );
     NotifyStopper ns2( listfld_->itemChosen );
 
+    const BufferString prevsel( listfld_->getText() );
     listfld_->setEmpty();
+
     const int sorting = sortfld_->currentItem();
     const int sz = ioobjids_.size();
     if ( sz > 1 && sorting > 0 )
     {
 	if ( sorting == 1 )
 	{
-	    ioobjids_.reverse(); ioobjnms_.reverse();
-	    dispnms_.reverse(); modiftimes_.reverse();
+	    ioobjids_.reverse(); modiftimes_.reverse();
+	    ioobjnms_.reverse(); dispnms_.reverse(); iconnms_.reverse();
 	}
 	else if ( modiftimes_.size() != sz )
 	    { pErrMsg("Huh"); }
@@ -679,17 +672,38 @@ void uiIOObjSelGrp::fillListBox()
 	    ioobjnms_.useIndexes( idxs );
 	    dispnms_.useIndexes( idxs );
 	    modiftimes_.useIndexes( idxs );
+	    iconnms_.useIndexes( idxs );
 	    delete [] idxs;
 	}
     }
-    listfld_->addItems( dispnms_.getUiStringSet() );
-    for ( int idx=0; idx<iconnms_.size(); idx++ )
+    listfld_->addItems( dispnms_ );
+
+    const int nricons = iconnms_.size();
+    if ( nricons > 0 )
     {
-	BufferString icnm = iconnms_[idx];
-	if ( icnm.isEmpty() )
-	    icnm = "empty";
-	listfld_->setIcon( idx, icnm );
+	bool wantdisplay = nricons < 20;
+	if ( !wantdisplay )
+	{
+	    BufferString previcnm( iconnms_.first() );
+	    for ( int idx=1; idx<nricons; idx++ )
+	    {
+		const BufferString& icnm = iconnms_.get( idx );
+		if ( previcnm != icnm )
+		    { wantdisplay = true; break; }
+	    }
+	}
+	if ( wantdisplay )
+	{
+	    for ( int idx=0; idx<iconnms_.size(); idx++ )
+	    {
+		const BufferString& icnm = iconnms_.get( idx );
+		listfld_->setIcon( idx, icnm.isEmpty() ? "empty" : icnm.str() );
+	    }
+	}
     }
+
+    if ( listfld_->isPresent(prevsel) )
+	listfld_->setCurrentItem( prevsel );
 
     selectionChanged.trigger();
 }
@@ -844,7 +858,7 @@ void uiIOObjSelGrp::refreshCB( CallBacker* )
 
 void uiIOObjSelGrp::orderChgCB( CallBacker* )
 {
-    fullUpdate( 0 );
+    fullUpdate( -2 );
 }
 
 
@@ -899,7 +913,7 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
     const int cursel = currentItem();
     DBKeySet chosendbkys;
     getChosen( chosendbkys );
-    fullUpdate( 0 );
+    fullUpdate( -2 );
     setChosen( chosendbkys );
     setCurrent( cursel );
 }

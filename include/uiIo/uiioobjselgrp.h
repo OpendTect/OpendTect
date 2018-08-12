@@ -142,10 +142,10 @@ protected:
     DBKeySet		ioobjids_;
     BufferStringSet	ioobjnms_;
     BufferStringSet	dispnms_;
+    BufferStringSet	iconnms_;
     TypeSet<od_int64>	modiftimes_;
     BufferString	surveydefaultsubsel_;
     bool		asked2overwrite_;
-    ObjectSet<const char> iconnms_;
 
     uiListBox*		listfld_;
     uiGenInput*		nmfld_;
