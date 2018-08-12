@@ -883,12 +883,14 @@ void uiGenInput::doFinalise( CallBacker* )
 	cbox_->activated.notify( mCB(this,uiGenInput,checkBoxSel) );
 	setChecked( checked_ );
     }
-    else if ( !titletext_.isEmpty() )
+    else if ( !iconid_.isEmpty() || !titletext_.isEmpty() )
     {
 	labl_ = new uiLabel( this, titletext_ );
 	labl_->attach( leftTo, lastElem );
 	labl_->setAlignment( OD::Alignment::Right );
 	labl_->makeRequired( isrequired_ );
+	if ( !iconid_.isEmpty() )
+	    labl_->setIcon( iconid_ );
     }
 
     for( int i=1; i<inputs_.size(); i++ )
@@ -1232,7 +1234,16 @@ void uiGenInput::setTitleText( const uiString& txt )
 	labl_->makeRequired( isrequired_ );
     }
 
-    if ( cbox_ ) cbox_->setText( txt );
+    if ( cbox_ )
+	cbox_->setText( txt );
+}
+
+
+void uiGenInput::setIcon( const char* iconid )
+{
+    iconid_.set( iconid );
+    if ( labl_ )
+	labl_->setIcon( iconid );
 }
 
 

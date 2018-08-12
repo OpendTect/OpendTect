@@ -210,6 +210,7 @@ Returns true, if changes are accepted.
     void		setElemSzPol( uiObject::SzPolicy p )	{ elemszpol_=p;}
     uiObject::SzPolicy	elemSzPol() const		{ return elemszpol_; }
     void		setToolTip(const uiString&,int ielem=0);
+    void		setIcon(const char* icon_id);
 
     virtual const uiString&	titleText();
     virtual void		setTitleText(const uiString&);
@@ -239,6 +240,7 @@ protected:
     bool		finalised_;
 
     uiString		selText_;
+    BufferString	iconid_;
     bool		withchk_;
     bool		isrequired_;
 
