@@ -223,6 +223,14 @@ macro( copy_thirdpartylibs )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMDATADIR}/imageformats
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMDATADIR}/platforms
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
+    if ( UNIX )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMDATADIR}/xcbglintegrations
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/xcbglintegrations )
+    endif()
 endmacro( copy_thirdpartylibs )
 
 macro( PREPARE_WIN_THIRDPARTY_DEBUGLIST DEBUGFILELIST)
