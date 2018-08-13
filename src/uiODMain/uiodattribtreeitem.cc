@@ -183,9 +183,6 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu )
 	return;
 
     const Probe* parentprobe = attrprlayer->getProbe();
-    if ( !parentprobe )
-	{ pErrMsg( "Parent probe not set" ); return; }
-
     Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
     mDynamicCastGet(const Line2DProbe*,line2dprobe,parentprobe);
     if ( line2dprobe )
@@ -469,8 +466,17 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
 	return attrdp;
 
     const Probe* parentprobe = attrprlayer->getProbe();
-    if ( !parentprobe )
-	{ pErrMsg( "Parent probe not set" ); return attrdp; }
+    if ( !parentprobe ) //TODO: Bring all display items under the probe system
+    {
+	const int visid = displayID();
+	const int attrib = attribNr();
+	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+	visserv->setSelSpec( visid, attrib, attrselspec );
+	if ( !visserv->calcManipulatedAttribs(visid) )
+	    visserv->calculateAttrib( visid, attrib, false );
+
+	return 0;
+    }
 
     const TrcKeyZSampling probepos = parentprobe->position();
     ZAxisTransform* ztransform = visserv_->getZAxisTransform( sceneID() );
