@@ -266,9 +266,8 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     datainfo_ = dataname_;
     par.get( dgbSurfDataWriter::sKeyShift(), shift_ );
     BufferString unstr;
-    par.get( sKey::Unit(), unstr );
-    if ( !unstr.isEmpty() )
-	dataunit_ = UoMR().get( unstr );
+    if ( par.get(sKey::Unit(),unstr) )
+	dataunit_ = unstr.isEmpty() ? 0 : UoMR().get( unstr );
 
     BufferString dc;
     if ( par.get(dgbSurfDataWriter::sKeyIntDataChar(),dc) )
