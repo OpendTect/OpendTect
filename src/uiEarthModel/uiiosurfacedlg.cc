@@ -116,12 +116,14 @@ uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon3D& surf )
     , surface_(surf)
 {
     attrnmfld_ = new uiGenInput( this, uiStrings::sAttribute() );
-    attrnmfld_->setText( surface_.auxdata.auxDataName(0) );
+    attrnmfld_->setText( surface_.auxdata.firstUsableAuxDataName() );
 }
 
 
 const char* uiStoreAuxData::auxdataName() const
-{ return attrnmfld_->text(); }
+{
+    return attrnmfld_->text();
+}
 
 
 bool uiStoreAuxData::acceptOK()
@@ -138,10 +140,7 @@ bool uiStoreAuxData::acceptOK()
 	dooverwrite_ = true;
     }
 
-    if ( attrnm != surface_.auxdata.auxDataName(0) )
-	const_cast<EM::Horizon3D&>(surface_).
-	    auxdata.setAuxDataName( 0, attrnm.buf() );
-
+    const_cast<EM::Horizon3D&>(surface_).auxdata.setAuxDataName( 0, attrnm );
     return true;
 }
 

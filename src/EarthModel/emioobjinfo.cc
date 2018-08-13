@@ -153,7 +153,9 @@ bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
 	    return false;
 
 	const SurfaceIOData& newsd = str->selections().sd;
-	attrnames.add( newsd.valnames, false );
+	for ( auto nmbs : newsd.valnames )
+	    if ( !nmbs->isEmpty() )
+		attrnames.addIfNew( nmbs->str() );
     }
 
     return true;

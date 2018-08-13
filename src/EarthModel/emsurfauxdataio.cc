@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "file.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
 
 
 namespace EM
@@ -53,6 +54,8 @@ dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
     IOPar par( "Surface Data" );
     par.set( sKeyAttrName(), surf.auxdata.auxDataName(dataidx_) );
     par.set( sKeyShift(), surf.auxdata.auxDataShift(dataidx_) );
+    if ( surf.auxdata.unit(dataidx_) )
+	par.set( sKey::Unit(), surf.auxdata.unit(dataidx_)->name() );
 
     if ( binary_ )
     {
@@ -259,10 +262,12 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     if ( !par.get(dgbSurfDataWriter::sKeyAttrName(),dataname_) )
 	return;
 
-    if ( !par.get(dgbSurfDataWriter::sKeyAttrName(),datainfo_) )
-	return;
-
+    datainfo_ = dataname_;
     par.get( dgbSurfDataWriter::sKeyShift(), shift_ );
+    BufferString unstr;
+    par.get( sKey::Unit(), unstr );
+    if ( !unstr.isEmpty() )
+	dataunit_ = UoMR().get( unstr );
 
     BufferString dc;
     if ( par.get(dgbSurfDataWriter::sKeyIntDataChar(),dc) )
@@ -305,19 +310,26 @@ dgbSurfDataReader::~dgbSurfDataReader()
 
 const char* dgbSurfDataReader::dataName() const
 {
-    return dataname_[0] ? dataname_.buf() : 0;
+    return dataname_.isEmpty() ? 0 : dataname_.str();
 }
 
 
 float dgbSurfDataReader::shift() const
-{ return shift_; }
+{
+    return shift_;
+}
 
 
 const char* dgbSurfDataReader::dataInfo() const
 {
-    return datainfo_[0] ? datainfo_.buf() : 0;
+    return datainfo_.isEmpty() ? 0 : datainfo_.str();
 }
 
+
+const UnitOfMeasure* dgbSurfDataReader::dataUnit() const
+{
+    return dataunit_;
+}
 
 
 void dgbSurfDataReader::setSurface( Horizon3D& surf )
@@ -325,6 +337,7 @@ void dgbSurfDataReader::setSurface( Horizon3D& surf )
     surf_ = &surf;
     dataidx_ = surf_->auxdata.addAuxData( dataname_.buf() );
     surf_->auxdata.setAuxDataShift( dataidx_, shift_ );
+    surf_->auxdata.setUnit( dataidx_, dataunit_ );
 }
 
 uiString dgbSurfDataReader::sHorizonData()

@@ -161,7 +161,7 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
     bool res = sp.fn;
 
 #define mImplLoopStart \
-    if ( gap > 100 ) break; \
+    if ( gap > 20 ) break; \
     StreamProvider loopsp( EM::dgbSurfDataWriter::createHovName( \
                                                       basefnm.buf(),nr).buf() )
 

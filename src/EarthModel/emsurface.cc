@@ -65,7 +65,7 @@ void SurfaceIOData::use( const Surface& surf )
     if ( horizon )
     {
 	for ( int idx=0; idx<horizon->auxdata.nrAuxData(); idx++ )
-	    valnames += new BufferString( horizon->auxdata.auxDataName(idx) );
+	    valnames.add( horizon->auxdata.auxDataName(idx) );
     }
 
     linenames.setEmpty();

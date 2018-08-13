@@ -874,23 +874,7 @@ bool uiEMPartServer::storeAuxData( const DBKey& id,
     mDynamicCastGet(EM::Horizon3D*,hor3d,object);
     if ( !hor3d )
 	return false;
-
-    const ObjectSet<BinIDValueSet>& datastor = hor3d->auxdata.getData();
-    if ( datastor.isEmpty() )
-	return false;
-
-    bool hasdata = false;
-    for ( int idx=0; idx<datastor.size(); idx++ )
-    {
-	const BinIDValueSet* bvs = datastor[idx];
-	if ( bvs && !bvs->isEmpty() )
-	{
-	    hasdata = true;
-	    break;
-	}
-    }
-
-    if ( !hasdata )
+    if ( hor3d->auxdata.getData().isEmpty() )
 	return false;
 
     uiTaskRunner exdlg( parent() );
@@ -967,8 +951,10 @@ bool uiEMPartServer::getAuxData( const DBKey& oid, int auxdataidx,
 {
     EM::Object* object = emmgr_.getObject( oid );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    if ( !hor3d )
+	return false;
     const char* nm = hor3d->auxdata.auxDataName( auxdataidx );
-    if ( !hor3d || !nm )
+    if ( !nm )
 	return false;
 
     shift = hor3d->auxdata.auxDataShift( auxdataidx );
@@ -1010,9 +996,9 @@ bool uiEMPartServer::getAllAuxData( const DBKey& oid,
     BufferStringSet nms;
     for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
     {
-	if ( hor3d->auxdata.auxDataName(idx) )
+	const char* nm = hor3d->auxdata.auxDataName( idx );
+	if ( nm )
 	{
-	    const char* nm = hor3d->auxdata.auxDataName( idx );
 	    *shifts += hor3d->auxdata.auxDataShift( idx );
 	    nms.add( nm );
 	    data.dataSet().add( new DataColDef(nm) );

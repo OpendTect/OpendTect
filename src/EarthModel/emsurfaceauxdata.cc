@@ -33,12 +33,11 @@ namespace EM
 {
 
 SurfaceAuxData::SurfaceAuxData( Horizon3D& horizon )
-    : horizon_( horizon )
-    , changed_( 0 )
+    : horizon_(horizon)
+    , changed_(false)
+    , auxdata_(*new BinIDValueSet(0,false))
 {
-    auxdatanames_.setNullAllowed( true );
-    auxdatainfo_.setNullAllowed( true );
-    auxdata_.setNullAllowed( true );
+    units_.setNullAllowed( true );
 }
 
 
@@ -50,181 +49,238 @@ SurfaceAuxData::~SurfaceAuxData()
 
 void SurfaceAuxData::removeAll()
 {
+    usable_.setEmpty();
     auxdatanames_.setEmpty();
     auxdatainfo_.setEmpty();
-    auxdatashift_.erase();
-    auxdatatypes_.erase();
-
-    deepErase( auxdata_ );
+    auxdatashift_.setEmpty();
+    auxdatatypes_.setEmpty();
+    units_.setEmpty();
+    auxdata_.setEmpty();
     changed_ = true;
 }
 
 
-int SurfaceAuxData::nrAuxData() const
-{ return auxdatanames_.size(); }
-
-
-const char* SurfaceAuxData::auxDataName( int dataidx ) const
+int SurfaceAuxData::nrUsableAuxData() const
 {
-    if ( nrAuxData() && auxdatanames_[dataidx] )
-	return auxdatanames_[dataidx]->buf();
+    int ret = 0;
+    for ( bool usabl : usable_  )
+	if ( usabl )
+	    ret++;
+    return ret;
+}
 
+
+bool SurfaceAuxData::isUsable( AuxID auxid ) const
+{
+    return usable_.validIdx(auxid) && usable_[auxid];
+}
+
+
+const char* SurfaceAuxData::auxDataName( AuxID auxid ) const
+{
+    return isUsable(auxid) ? auxdatanames_.get(auxid).str() : 0;;
+}
+
+
+const char* SurfaceAuxData::firstUsableAuxDataName() const
+{
+    for ( AuxID idx=0; idx<usable_.size(); idx++ )
+	if ( usable_[idx] )
+	    return auxDataName( idx );
     return 0;
 }
 
 
-void SurfaceAuxData::setAuxDataType( int dataidx, AuxDataType type )
+void SurfaceAuxData::getUsableAuxDataNames( BufferStringSet& nms ) const
 {
-    if ( auxdatatypes_.validIdx(dataidx) )
-	auxdatatypes_[dataidx] = type;
+    for ( AuxID idx=0; idx<usable_.size(); idx++ )
+	if ( usable_[idx] )
+	    nms.add( auxDataName(idx) );
 }
 
 
-SurfaceAuxData::AuxDataType SurfaceAuxData::getAuxDataType( int dataidx ) const
-{ return auxdatatypes_.validIdx(dataidx) ? auxdatatypes_[dataidx] : NoType; }
-
-
-float SurfaceAuxData::auxDataShift( int dataidx ) const
-{ return auxdatashift_[dataidx]; }
-
-
-void SurfaceAuxData::setAuxDataName( int dataidx, const char* name )
+void SurfaceAuxData::setAuxDataName( AuxID auxid, const char* name )
 {
-    if ( auxdatanames_[dataidx] )
-	auxdatanames_.get( dataidx ).set( name );
+    if ( isUsable(auxid) )
+	auxdatanames_.get( auxid ).set( name );
 }
 
 
-void SurfaceAuxData::setAuxDataShift( int dataidx, float shift )
+SurfaceAuxData::AuxDataType SurfaceAuxData::getAuxDataType( AuxID auxid ) const
 {
-    if ( auxdatanames_[dataidx] )
-	auxdatashift_[dataidx] = shift;
+    return isUsable(auxid) ? auxdatatypes_[auxid] : NoType;
+}
+
+
+void SurfaceAuxData::setAuxDataType( AuxID auxid, AuxDataType type )
+{
+    if ( isUsable(auxid) )
+	auxdatatypes_[auxid] = type;
+}
+
+
+float SurfaceAuxData::auxDataShift( AuxID auxid ) const
+{
+    return isUsable(auxid) ? auxdatashift_[auxid] : 0.f;
+}
+
+
+void SurfaceAuxData::setAuxDataShift( AuxID auxid, float shift )
+{
+    if ( isUsable(auxid) )
+	auxdatashift_[auxid] = shift;
+}
+
+
+const UnitOfMeasure* SurfaceAuxData::unit( AuxID auxid ) const
+{
+    return isUsable(auxid) ? units_[auxid] : 0;
+}
+
+
+void SurfaceAuxData::setUnit( AuxID auxid, const UnitOfMeasure* uom )
+{
+    if ( isUsable(auxid) )
+	units_.replace( auxid, uom );
 }
 
 
 bool SurfaceAuxData::hasAuxDataName( const char* nm ) const
-{ return auxdatanames_.isPresent( nm ); }
-
-
-int SurfaceAuxData::auxDataIndex( const char* nm ) const
-{ return auxdatanames_.indexOf( nm ); }
-
-
-int SurfaceAuxData::addAuxData( const char* name )
 {
+    return auxDataIndex( nm ) >= 0;
+}
+
+
+SurfaceAuxData::AuxID SurfaceAuxData::auxDataIndex( const char* nm ) const
+{
+    AuxID id = auxdatanames_.indexOf( nm );
+    if ( id >= 0 && !usable_[id] )
+	id = -1;
+    return id;
+}
+
+
+SurfaceAuxData::AuxID SurfaceAuxData::addAuxData( const char* name )
+{
+    usable_ += true;
     auxdatanames_.add( name );
     auxdatashift_ += 0.0;
     auxdatatypes_ += NoType;
+    units_ += 0;
 
-    for ( int idx=0; idx<auxdata_.size(); idx++ )
-    {
-	if ( auxdata_[idx] )
-	    auxdata_[idx]->setNrVals( nrAuxData() );
-    }
+    auxdata_.setNrVals( nrUsableAuxData() );
 
     changed_ = true;
-    return auxdatanames_.size()-1;
+    return usable_.size() - 1;
 }
 
 
-void SurfaceAuxData::removeAuxData( int dataidx )
+int SurfaceAuxData::getColIdx( AuxID auxid ) const
 {
-    auxdatanames_.set( dataidx, 0 );
-    auxdatashift_[dataidx] = 0.0;
-    auxdatatypes_[dataidx] = NoType;
-
-    for ( int idx=0; idx<auxdata_.size(); idx++ )
+    int nrusable = 0;
+    for ( int idx=0; idx<usable_.size(); idx++ )
     {
-	if ( auxdata_[idx] )
-	    auxdata_[idx]->removeVal( dataidx );
+	if ( usable_[idx] )
+	{
+	    if ( idx == auxid )
+		return nrusable;
+	    nrusable++;
+	}
     }
+    return -1;
+}
+
+
+void SurfaceAuxData::removeAuxData( AuxID auxid )
+{
+    if ( !usable_.validIdx(auxid) )
+	return;
+
+    auxdata_.removeVal( getColIdx(auxid) );
+    usable_[auxid] = false;
+    auxdatanames_.get(auxid).setEmpty();
 
     changed_ = true;
 }
 
 
-float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
+float SurfaceAuxData::getAuxDataVal( AuxID auxid, const PosID& posid ) const
 {
-    if ( !auxdatanames_.validIdx(dataidx) )
-	return mUdf(float);
-
-    if ( auxdata_.isEmpty() || !auxdata_[0] )
+    if ( !isUsable(auxid) )
 	return mUdf(float);
 
     const BinID geomrc( posid.getRowCol() );
-    const BinIDValueSet::SPos pos = auxdata_[0]->find( geomrc );
-    if ( !pos.isValid() )
+    const BinIDValueSet::SPos spos = auxdata_.find( geomrc );
+    if ( !spos.isValid() )
 	return mUdf(float);
 
-    return auxdata_[0]->getVals( pos )[dataidx];
+    return auxdata_.getVals( spos )[ getColIdx(auxid) ];
 }
 
 
-float SurfaceAuxData::getAuxDataVal( int dataidx, const TrcKey& tk ) const
+float SurfaceAuxData::getAuxDataVal( AuxID auxid, const TrcKey& tk ) const
 {
-    if ( !auxdatanames_.validIdx(dataidx) ||
-	 !auxdata_.validIdx(0) || !auxdata_[0] )
+    if ( !isUsable(auxid) )
 	return mUdf(float);
 
-    const BinIDValueSet::SPos pos = auxdata_[0]->find( tk.binID() );
-    if ( !pos.isValid() )
+    const BinIDValueSet::SPos spos = auxdata_.find( tk.binID() );
+    if ( !spos.isValid() )
 	return mUdf(float);
 
-    return auxdata_[0]->getVals( pos )[dataidx];
+    return auxdata_.getVals( spos )[ getColIdx(auxid) ];
 }
 
 
-void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
+void SurfaceAuxData::setAuxDataVal( AuxID auxid, const PosID& posid, float val,
 				    bool onlynewpos )
 {
     const TrcKey tk = posid.getBinID();
-    if ( !auxdatanames_.validIdx(dataidx) ||
-	tk.isUdf() ||
-	horizon_.isNodeLocked(tk) )
+    if ( !isUsable(auxid) || tk.isUdf() || horizon_.isNodeLocked(tk) )
 	return;
-
-    if ( auxdata_.isEmpty() )
-	auxdata_ += 0;
-
-    if ( !auxdata_[0] )
-	auxdata_.replace( 0, new BinIDValueSet( nrAuxData(), false ) );
-
     const BinID geomrc( posid.getRowCol() );
     if ( geomrc.isUdf() )
 	return;
 
-    const BinIDValueSet::SPos pos = auxdata_[0]->find( geomrc );
+    const BinIDValueSet::SPos pos = auxdata_.find( geomrc );
+    const int colidx = getColIdx( auxid );
     if ( !pos.isValid() )
     {
-	mAllocVarLenArr( float, vals, auxdata_[0]->nrVals() );
-	for ( int idx=0; idx<auxdata_[0]->nrVals(); idx++ )
+	mAllocVarLenArr( float, vals, auxdata_.nrVals() );
+	for ( int idx=0; idx<auxdata_.nrVals(); idx++ )
 	    vals[idx] = mUdf(float);
 
-	vals[dataidx] = val;
-	auxdata_[0]->add( geomrc, vals );
+	vals[colidx] = val;
+	auxdata_.add( geomrc, vals );
+	changed_ = true;
     }
     else if ( !onlynewpos )
-	auxdata_[0]->getVals( pos )[dataidx] = val;
+    {
+	auxdata_.getVals( pos )[ colidx ] = val;
+	changed_ = true;
+    }
 
-    changed_ = true;
 }
 
 
-void SurfaceAuxData::setAuxDataVal( int dataidx, const TrcKey& tk, float val )
+void SurfaceAuxData::setAuxDataVal( AuxID auxid, const TrcKey& tk, float val )
 {
-    if ( auxdata_.isEmpty() || !auxdatanames_.validIdx(dataidx) )
+    if ( !isUsable(auxid) || tk.isUdf() || horizon_.isNodeLocked(tk) )
 	return;
 
-    const BinIDValueSet::SPos pos = auxdata_[0]->find( tk.binID() );
+    const BinIDValueSet::SPos pos = auxdata_.find( tk.binID() );
     if ( pos.isValid() )
-	auxdata_[0]->getVals( pos )[dataidx] = val;
+    {
+	auxdata_.getVals( pos )[ getColIdx(auxid) ] = val;
+	changed_ = true;
+    }
 
-    changed_ = true;
 }
 
 
-bool SurfaceAuxData::isChanged(int idx) const
-{ return changed_; }
+bool SurfaceAuxData::isChanged( AuxID ) const
+{
+    return changed_;
+}
 
 
 void SurfaceAuxData::resetChangedFlag()
@@ -292,7 +348,7 @@ BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
 	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read));
     if ( !conn ) return 0;
 
-    const int maxnrfiles = 100000; // just a big number to make this loop end
+    const int maxnrfiles = 100000; // just to be sure
     for ( int idx=0; idx<maxnrfiles; idx++ )
     {
 	BufferString fnm =
@@ -305,8 +361,16 @@ BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
 }
 
 
-Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
+Executor* SurfaceAuxData::auxDataSaver( AuxID auxid, bool overwrite )
 {
+    if ( !isUsable(auxid) )
+    {
+	const char* msg = "Attempt to use removed attribute";
+	pErrMsg( msg );
+	horizon_.setErrMsg( uiStrings::phrInternalErr(msg) );
+	return 0;
+    }
+
     PtrMan<IOObj> ioobj = DBM().get( horizon_.dbKey() );
     if ( !ioobj )
     {
@@ -320,7 +384,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     {
 	PtrMan<Executor> exec = transl->writer( *ioobj, false );
 	if ( exec )
-	    return transl->getAuxdataWriter( horizon_, dataidx, overwrite );
+	    return transl->getAuxdataWriter( horizon_, auxid, overwrite );
     }
 
     horizon_.setErrMsg(
@@ -346,7 +410,8 @@ BufferString
     BufferString fnm; int gap = 0;
     for ( int idx=0; ; idx++ )
     {
-	if ( gap > 100 ) return "";
+	if ( gap > 20 )
+	    return "";
 
 	fnm = EM::dgbSurfDataWriter::createHovName(basefnm,idx);
 	if ( File::isEmpty(fnm.buf()) )
@@ -382,7 +447,7 @@ bool SurfaceAuxData::removeFile( const char* attrnm ) const
 }
 
 
-Array2D<float>* SurfaceAuxData::createArray2D( int dataidx ) const
+Array2D<float>* SurfaceAuxData::createArray2D( AuxID auxid ) const
 {
     if ( horizon_.geometry().geometryElement()->isEmpty() )
 	return 0;
@@ -398,7 +463,7 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx ) const
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
 	    posid = PosID::getFromRowCol( row, col );
-	    const float val = getAuxDataVal( dataidx, posid );
+	    const float val = getAuxDataVal( auxid, posid );
 	    arr->set( rowrg.getIndex(row), colrg.getIndex(col), val );
 	}
     }
@@ -407,7 +472,7 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx ) const
 }
 
 
-void SurfaceAuxData::init( int dataidx, bool onlynewpos, float val )
+void SurfaceAuxData::init( AuxID auxid, bool onlynewpos, float val )
 {
     const Geometry::RowColSurface* rcgeom =
 	horizon_.geometry().geometryElement();
@@ -422,20 +487,19 @@ void SurfaceAuxData::init( int dataidx, bool onlynewpos, float val )
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
 	    posid = PosID::getFromRowCol( row, col );
-	    if ( dataidx<0 )
+	    if ( auxid<0 )
 	    {
-		for ( int aidx=0; aidx<nrAuxData(); aidx++ )
+		for ( AuxID aidx=0; aidx<nrAuxData(); aidx++ )
 		    setAuxDataVal( aidx, posid, val, onlynewpos );
 	    }
 	    else
-		setAuxDataVal( dataidx, posid, val, onlynewpos );
+		setAuxDataVal( auxid, posid, val, onlynewpos );
 	}
     }
 }
 
 
-void SurfaceAuxData::setArray2D( int dataidx,
-				 const Array2D<float>& arr2d )
+void SurfaceAuxData::setArray2D( AuxID auxid, const Array2D<float>& arr2d )
 {
     const Geometry::RowColSurface* rcgeom =
 	horizon_.geometry().geometryElement();
@@ -452,16 +516,19 @@ void SurfaceAuxData::setArray2D( int dataidx,
 	    posid = PosID::getFromRowCol( row, col );
 	    const float val = arr2d.get( rowrg.getIndex(row),
 					 colrg.getIndex(col) );
-	    setAuxDataVal( dataidx, posid, val );
+	    setAuxDataVal( auxid, posid, val );
 	}
     }
 }
 
 
 bool SurfaceAuxData::usePar( const IOPar& par )
-{ return true; }
+{
+    return true;
+}
 
 void SurfaceAuxData::fillPar( IOPar& par ) const
-{}
+{
+}
 
 }; //namespace

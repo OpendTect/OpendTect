@@ -454,11 +454,11 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 void uiODEarthModelSurfaceTreeItem::addAuxDataItems()
 {
     mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::MGR().getObject(emid_))
-    if ( !hor3d ) return;
+    if ( !hor3d )
+	return;
 
     BufferStringSet attrnms;
-    for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
-	attrnms.add( hor3d->auxdata.auxDataName(idx) );
+    hor3d->auxdata.getUsableAuxDataNames( attrnms );
 
     applMgr()->EMServer()->loadAuxData( emid_, attrnms, true );
 
@@ -469,7 +469,8 @@ void uiODEarthModelSurfaceTreeItem::addAuxDataItems()
 	applMgr()->EMServer()->getAuxData( emid_, idx, *dps, shift );
 	uiODDataTreeItem* itm = addAttribItem();
 	mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,dataitm,itm);
-	if ( !dataitm ) continue;
+	if ( !dataitm )
+	    continue;
 
 	dataitm->setDataPointSet( *dps );
 	dataitm->setChecked( false, true );

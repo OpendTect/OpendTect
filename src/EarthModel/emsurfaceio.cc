@@ -388,12 +388,13 @@ void dgbSurfaceReader::createAuxDataReader()
     int gap = 0;
     for ( int idx=0; ; idx++ )
     {
-	if ( gap > 50 ) break;
+	if ( gap > 20 )
+	    break;
 
 	BufferString hovfnm(
 		dgbSurfDataWriter::createHovName(conn_->fileName(),idx) );
 	if ( File::isEmpty(hovfnm.buf()) )
-	{ gap++; continue; }
+	    { gap++; continue; }
 
 	dgbSurfDataReader* dreader = new dgbSurfDataReader( hovfnm.buf() );
 	if ( dreader->dataName() )

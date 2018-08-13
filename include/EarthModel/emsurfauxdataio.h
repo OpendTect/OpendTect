@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "od_iosfwd.h"
 class TrcKeySampling;
+class UnitOfMeasure;
 template <class T> class DataInterpreter;
 
 
@@ -23,9 +24,7 @@ namespace EM
 
 class Horizon3D;
 
-/*!
-\brief Writes auxdata to file.
-*/
+/*!\brief Writes auxdata to file. */
 
 mExpClass(EarthModel) dgbSurfDataWriter : public Executor
 { mODTextTranslationClass(dgbSurfDataWriter);
@@ -88,9 +87,7 @@ protected:
 };
 
 
-/*!
-\brief Reads auxdata from file.
-*/
+/*!\brief Reads auxdata from file. */
 
 mExpClass(EarthModel) dgbSurfDataReader : public Executor
 { mODTextTranslationClass(dgbSurfDataReader);
@@ -101,6 +98,7 @@ public:
     const char*			dataName() const;
     float			shift() const;
     const char*			dataInfo() const;
+    const UnitOfMeasure*	dataUnit() const;
 
     void			setSurface(EM::Horizon3D&);
 
@@ -120,6 +118,7 @@ protected:
     BufferString		dataname_;
     BufferString		datainfo_;
     int				dataidx_;
+    const UnitOfMeasure*	dataunit_;
     float			shift_;
     EM::Horizon3D*		surf_;
 

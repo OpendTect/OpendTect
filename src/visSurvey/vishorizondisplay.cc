@@ -1453,28 +1453,31 @@ void HorizonDisplay::updateAuxData()
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
     if ( !hor3d ) return;
 
-    const ObjectSet<BinIDValueSet>& auxdata =
-	hor3d->auxdata.getData();
-    if ( auxdata.isEmpty() ) return;
+    const BinIDValueSet& auxdata = hor3d->auxdata.getData();
+    if ( auxdata.isEmpty() )
+	return;
 
     float auxvals[3];
     auxvals[0] = mUdf(float);
     auxvals[1] = 0;
-    for ( int idx=0; idx<auxdata[0]->nrVals(); idx++ )
+    for ( int idx=0; idx<auxdata.nrVals(); idx++ )
     {
 	const char* auxdatanm = hor3d->auxdata.auxDataName( idx );
+	if ( !auxdatanm )
+	    continue;
 	const int cidx = getChannelIndex( auxdatanm );
-	if ( cidx==-1 ) continue;
+	if ( cidx==-1 )
+	    continue;
 
 	RefMan<DataPointSet> dps = new DataPointSet( false, true );
 	dps->dataSet().add( new DataColDef(sKeySectionID()) );
 	dps->dataSet().add( new DataColDef(auxdatanm) );
 
 	BinIDValueSet::SPos pos;
-	while ( auxdata[0]->next(pos) )
+	while ( auxdata.next(pos) )
 	{
-	    auxvals[2] = auxdata[0]->getVal( pos, idx );
-	    dps->bivSet().add( auxdata[0]->getIdxPair(pos), auxvals );
+	    auxvals[2] = auxdata.getVal( pos, idx );
+	    dps->bivSet().add( auxdata.getIdxPair(pos), auxvals );
 	}
 
 	dps->dataChanged();
