@@ -85,6 +85,9 @@ int IsochronMaker::nextStep()
     for ( int idx=0; idx<sBlockSize; idx++ )
     {
 	const EM::PosID posid = iter_->next();
+	if ( posid.isInvalid() )
+	    return finishWork();
+
 	nrdone_++;
 	const Coord3 pos1( hor1_.getPos( posid ) );
 	const float z1 = (float) pos1.z_;
