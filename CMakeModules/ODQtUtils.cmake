@@ -11,12 +11,6 @@ if ( NOT DEFINED QTDIR OR QTDIR STREQUAL "" )
     message( FATAL_ERROR "QTDIR is not defined" )
 endif()
 
-if ( OD_NO_QT STREQUAL "OFF" AND NOT ${QTDIR} STREQUAL "" )
-	#Try to find Qt5
-	list ( APPEND CMAKE_PREFIX_PATH ${QTDIR} )
-	find_package( Qt5Core QUIET PATHS ${QTDIR} NO_DEFAULT_PATH )
-endif()
-
 ##Create launcher for linguist
 set( LINGUIST_LAUNCHER "CMakeModules/templates/linguist.csh.in" )
 if ( EXISTS ${LINGUIST_LAUNCHER} )
@@ -30,19 +24,30 @@ macro(ADD_TO_LIST_IF_NEW LISTNAME ITEMNAME)
     endif()
 endmacro(ADD_TO_LIST_IF_NEW)
 
+#Try to find Qt5
+list ( APPEND CMAKE_PREFIX_PATH ${QTDIR} )
+find_package( Qt5Core QUIET PATHS ${QTDIR} NO_DEFAULT_PATH )
+
+#Setup Qt5 Language tools
+if ( Qt5Core_FOUND )
+    find_package( Qt5 QUIET COMPONENTS LinguistTools )
+    get_target_property( QT_LRELEASE_EXECUTABLE Qt5::lrelease
+			 IMPORTED_LOCATION )
+    get_target_property( QT_LUPDATE_EXECUTABLE Qt5::lupdate
+			 IMPORTED_LOCATION )
+endif( Qt5Core_FOUND )
+
 macro(OD_SETUP_QT)
     if ( OD_NO_QT )
 	add_definitions( -DOD_NO_QT )
     else()
-	if ( (NOT DEFINED QTDIR) OR QTDIR STREQUAL "" )
-	    MESSAGE( FATAL_ERROR "QTDIR not set")
-	endif()
-
+	#Setup Qt5
 	if ( Qt5Core_FOUND )
 	    find_package( Qt5 REQUIRED ${OD_USEQT} )
 	    string(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+.*" "\\1" QT_VERSION_MAJOR
 		   "${Qt5Core_VERSION_STRING}")
 	    set(QT_VERSION_MAJOR ${QT_VERSION_MAJOR} PARENT_SCOPE)
+message( "QT_VERSION_MAJOR ${QT_VERSION_MAJOR}")
 
 	    if( QT_MOC_HEADERS )
 		set ( OD_MODULE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_MODULE_NAME} )
@@ -113,31 +118,34 @@ macro(OD_SETUP_QT)
 	    endif( WIN32 )
 	else() # Use Qt4
 
-	    set( ENV{QTDIR} ${QTDIR} )
-	    set ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
-	    find_package(Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
+	    if ( QTDIR )
+	        set( ENV{QTDIR} ${QTDIR} )
+		set ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
+		list( APPEND OD_MODULE_INCLUDESYSPATH ${QTDIR}/include )
+	    endif()
+
+	    find_package( Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
 
 	    include(${QT_USE_FILE})
 
 	    STRING( FIND "${OD_USEQT}" "Core" USE_QT_CORE )
 	    if( NOT "${USE_QT_CORE}" EQUAL -1 )
 	    list( APPEND OD_MODULE_INCLUDESYSPATH
-		    ${QT_QTCORE_INCLUDE_DIR} ${QTDIR}/include )
+		    ${QT_QTCORE_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTCORE_LIBRARY}" )
 	    endif()
 
 	    STRING( FIND "${OD_USEQT}" "Network" USE_QT_NETWORK )
 	    if( NOT "${USE_QT_NETWORK}" EQUAL -1 )
 	    list( APPEND OD_MODULE_INCLUDESYSPATH
-		${QT_QTNETWORK_INCLUDE_DIR} ${QTDIR}/include )
+		${QT_QTNETWORK_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTNETWORK_LIBRARY}" )
 	    endif()
 
 	    STRING( FIND "${OD_USEQT}" "Sql" USE_QT_SQL )
 	    if( NOT "${USE_QT_SQL}" EQUAL -1 )
 	    list(APPEND OD_MODULE_INCLUDESYSPATH
-		${QT_QTSQL_INCLUDE_DIR}
-		${QTDIR}/include )
+		${QT_QTSQL_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTSQL_LIBRARY}")
 	    endif()
 
@@ -145,21 +153,21 @@ macro(OD_SETUP_QT)
 	    if( NOT "${USE_QT_GUI}" EQUAL -1 )
 	    list(APPEND OD_MODULE_INCLUDESYSPATH
 		${QT_QTCORE_INCLUDE_DIR}
-		${QT_QTGUI_INCLUDE_DIR} ${QTDIR}/include )
+		${QT_QTGUI_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTGUI_LIBRARY}")
 	    endif()
 
 	    STRING( FIND "${OD_USEQT}" "OpenGL" USE_QT_OPENGL )
 	    if( NOT "${USE_QT_OPENGL}" EQUAL -1 )
 	    list(APPEND OD_MODULE_INCLUDESYSPATH
-		${QT_QTOPENGL_INCLUDE_DIR} ${QTDIR}/include )
+		${QT_QTOPENGL_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTOPENGL_LIBRARY}")
 	    endif()
 
 	    STRING( FIND "${OD_USEQT}" "Xml" USE_QT_XML )
 	    if( NOT "${USE_QT_XML}" EQUAL -1 )
 	    list(APPEND OD_MODULE_INCLUDESYSPATH
-		${QT_QTXML_INCLUDE_DIR} ${QTDIR}/include )
+		${QT_QTXML_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTXML_LIBRARY}")
 	    endif()
 
@@ -222,13 +230,13 @@ macro ( SETUP_QT_TRANSLATION POSTFIX )
 	else()
 	    set ( COMPILE_TRANSLATIONS_EXTENSION sh )
 	endif()
-	add_custom_target( Compile_Translations_${POSTFIX} ALL
+	add_custom_target( Compile_Translations_${POSTFIX} EXCLUDE_FROM_ALL
 	    ${OpendTect_DIR}/dtect/compile_translations.${COMPILE_TRANSLATIONS_EXTENSION}
 	    ${QT_LRELEASE_EXECUTABLE} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
 	    VERBATIM
 	COMMENT "Compiling translations" )
     
-	install(DIRECTORY ${CMAKE_BINARY_DIR}/data/localizations/ DESTINATION ${MISC_INSTALL_PREFIX}/data/localizations
+	install(DIRECTORY data/localizations/ DESTINATION ${MISC_INSTALL_PREFIX}/data/localizations
           FILES_MATCHING PATTERN "*.qm")
 	
     endif()
