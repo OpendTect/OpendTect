@@ -136,7 +136,6 @@ uiODDataTreeItem* uiODDisplayTreeItem::createAttribItem(
 uiODDataTreeItem* uiODDisplayTreeItem::addAttribItem()
 {
     uiODDataTreeItem* newitem = createAttribItem(0);
-    visserv_->addAttrib( displayid_ );
     addChild( newitem, false );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
