@@ -546,11 +546,11 @@ void uiODAttribTreeItem::updateDisplay()
     if ( attrprlayer->dataPackID().isInvalid() )
     {
 	ConstRefMan<DataPack> attrdp = calculateAttribute();
-	if ( !attrdp )
-	    return;
-
-	NotifyStopper ns( attrprlayer->objectChanged(), this );
-	attrprlayer->setDataPackID( attrdp->id() );
+	if ( attrdp )
+	{
+	    NotifyStopper ns( attrprlayer->objectChanged(), this );
+	    attrprlayer->setDataPackID( attrdp->id() );
+	}
     }
 
     visserv_->setSelSpec( displayID(), attribNr(), attrprlayer->selSpec() );
