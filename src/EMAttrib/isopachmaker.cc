@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "posvecdataset.h"
 #include "ptrman.h"
+#include "unitofmeasure.h"
 
 static const int sBlockSize = 1000;
 
@@ -70,6 +71,9 @@ IsochronMaker::~IsochronMaker()
 
 int IsochronMaker::nextStep()
 {
+    if ( dataidx_ < 0 )
+	return finishWork();
+
     mAllocVarLenArr( float, vals, dps_ ? dps_->bivSet().nrVals() : 0 );
     int startsourceidx = mUdf(int);
     if ( dps_ )
@@ -94,8 +98,7 @@ int IsochronMaker::nextStep()
 	const float z2 = (float) hor2_.getPos( posid ).z_;
 	if ( mIsUdf(z1) || mIsUdf(z2) )
 	{
-	    if ( dataidx_ != -1 )
-		hor1_.auxdata.setAuxDataVal( dataidx_, posid, mUdf(float) );
+	    hor1_.auxdata.setAuxDataVal( dataidx_, posid, mUdf(float) );
 	    continue;
 	}
 
@@ -103,8 +106,7 @@ int IsochronMaker::nextStep()
 	if ( inmsec_ )
 	    th *= 1000;
 
-	if ( dataidx_ != -1 )
-	    hor1_.auxdata.setAuxDataVal( dataidx_, posid, th );
+	hor1_.auxdata.setAuxDataVal( dataidx_, posid, th );
 
 	if ( dps_ && !mIsUdf(startsourceidx) )
 	{
@@ -134,6 +136,13 @@ int IsochronMaker::finishWork()
 	}
     }
 
+    if ( dataidx_ >= 0 )
+    {
+	const UnitOfMeasure* uom = UoMR().get( inmsec_
+				    ? UnitOfMeasure::sKeyMilliSeconds()
+				    : UnitOfMeasure::sKeySeconds() );
+	hor1_.auxdata.setUnit( dataidx_, uom );
+    }
     return Finished();
 }
 
