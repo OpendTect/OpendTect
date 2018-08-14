@@ -224,11 +224,11 @@ macro( copy_thirdpartylibs )
 		     ${COPYFROMDATADIR}/imageformats
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMDATADIR}/platforms
+		     ${COPYFROMLIBDIR}/platforms
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
     if ( UNIX )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMDATADIR}/xcbglintegrations
+			 ${COPYFROMLIBDIR}/xcbglintegrations
 			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/xcbglintegrations )
     endif()
 endmacro( copy_thirdpartylibs )
