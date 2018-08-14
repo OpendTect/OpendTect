@@ -266,7 +266,12 @@ static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
 {
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet("Cannot open input file")
+    {
+	errmsg.set( "Cannot open Cross-Plot Data file: " ).add( fnm );
+	strm.addErrMsgTo( errmsg );
+	return strm;
+    }
+
     BufferString firstword; strm >> firstword;
     strm.setReadPosition( 0 );
     tabstyle = firstword != "dTect" && firstword != "dGB-GDI";
@@ -274,8 +279,9 @@ static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
     {
 	ascistream astrm( strm );
 	if ( !astrm.isOfFileType(mPosVecDataSetFileType) )
-	    mErrRet("Invalid input file")
+	    errmsg.set( "Invalid Cross-Plot Data file: " ).add( fnm );
     }
+
     return strm;
 }
 
