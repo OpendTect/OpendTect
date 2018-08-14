@@ -74,15 +74,17 @@ public:
 			// Following will need to actually find the level
     int			indexOf(const Level&,int startsearchat=0) const;
 			//!< may return -1 for not found
-    float		depthOf(const Level&) const;
-			//!< will return 0 if lvl not found
+    float		depthOf(const Level&,float notfoundval=0.f) const;
 
 			// Following will give the position of the level
-			// ... even if not present
+			// ... even if not present.
+			// the difference with above functions is that
+			// levels can be present 'implicitly'
     int			positionOf(const Level&) const;
 			//!< may return size() (below last layer)
 			//!< only returns -1 if sequence is empty
-    float		depthPositionOf(const Level&) const;
+    float		depthPositionOf(const Level&,
+					float notfoundval=0.f) const;
 
 protected:
 

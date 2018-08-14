@@ -448,9 +448,10 @@ int Strat::LayerSequence::indexOf( const Strat::Level& lvl, int startat ) const
 	const Strat::LeavedUnitRef* un
 		= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
 	if ( un->levelID() == lvl.id() )
-	{ lvlunit = un; break; }
+	    { lvlunit = un; break; }
     }
-    if ( !lvlunit ) return -1;
+    if ( !lvlunit )
+	return -1;
 
     for ( int ilay=startat; ilay<size(); ilay++ )
     {
@@ -462,11 +463,12 @@ int Strat::LayerSequence::indexOf( const Strat::Level& lvl, int startat ) const
 }
 
 
-float Strat::LayerSequence::depthOf( const Strat::Level& lvl ) const
+float Strat::LayerSequence::depthOf( const Strat::Level& lvl,
+				     float notfoundval ) const
 {
     const int sz = size();
     if ( sz < 1 )
-	return 0;
+	return notfoundval;
     const int idx = indexOf( lvl, 0 );
     return idx < 0 ? layers_[sz-1]->zBot() : layers_[idx]->zTop();
 }
@@ -476,7 +478,7 @@ int Strat::LayerSequence::positionOf( const Strat::Level& lvl ) const
 {
     const RefTree& rt = refTree();
     Strat::UnitRefIter it( rt, Strat::UnitRefIter::LeavedNodes );
-    ObjectSet<const Strat::UnitRef> unlist; BoolTypeSet isabove;
+    ObjectSet<const Strat::UnitRef> unlist;
     bool foundlvl = false;
     while ( it.next() )
 	// gather all units below level into unlist
@@ -505,14 +507,15 @@ int Strat::LayerSequence::positionOf( const Strat::Level& lvl ) const
 }
 
 
-float Strat::LayerSequence::depthPositionOf( const Strat::Level& lvl ) const
+float Strat::LayerSequence::depthPositionOf( const Strat::Level& lvl,
+						float notfoundval ) const
 {
     const int sz = size();
     if ( sz < 1 )
-	return 0;
+	return notfoundval;
     const int idx = positionOf( lvl );
     if ( idx < 0 )
-	return 0;
+	return notfoundval;
     return idx >= sz ? layers_[sz-1]->zBot() : layers_[idx]->zTop();
 }
 
