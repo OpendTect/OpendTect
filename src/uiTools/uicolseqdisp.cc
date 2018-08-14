@@ -104,11 +104,14 @@ uiColSeqDisp::uiColSeqDisp( uiParent* p, OD::Orientation orient,
     setDragMode( uiGraphicsView::NoDrag );
 
     setDrawArr( true );
-    setStretch( 1, 0 );
     scene().useBackgroundPattern( true );
 
-    setViewHeight( orient == OD::Vertical ? 160 : 25 );
-    setViewWidth( orient == OD::Vertical ? 30 : 80 );
+    const int tbsz = toolButtonSize();
+    const int displen = 120;
+    const bool ishor = orient == OD::Horizontal;
+    setViewWidth( ishor ? displen : tbsz );
+    setViewHeight( ishor ? tbsz : displen );
+    setStretch( ishor ? 1 : 0, ishor ? 0 : 1 );
 
     mAttachCB( postFinalise(), uiColSeqDisp::initCB );
 }
@@ -175,6 +178,8 @@ void uiColSeqDisp::setOrientation( OD::Orientation orient )
     if ( orientation_ != orient )
     {
 	orientation_ = orient;
+	const bool ishor = orient == OD::Horizontal;
+	setStretch( ishor ? 1 : 0, ishor ? 0 : 1 );
 	reDraw();
     }
 }

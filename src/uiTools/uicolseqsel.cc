@@ -307,6 +307,7 @@ uiColSeqUseModeCompactSel( uiParent* p )
     const int sz = uiObject::toolButtonSize();
     setMinimumWidth( sz ); setMinimumHeight( sz );
     setMaximumWidth( sz ); setMaximumHeight( sz );
+    setStretch( 0, 0 );
     mAttachCB( postFinalise(), uiColSeqUseModeCompactSel::initCB );
 }
 
@@ -473,6 +474,7 @@ uiColSeqUseModeSel::uiColSeqUseModeSel( uiParent* p, bool compact,
     {
 	compactsel_ = new uiColSeqUseModeCompactSel( this );
 	mAttachCB( compactsel_->modeChange, uiColSeqUseModeSel::modeChgCB );
+	setStretch( 0, 0 );
     }
     else
     {
@@ -485,7 +487,6 @@ uiColSeqUseModeSel::uiColSeqUseModeSel( uiParent* p, bool compact,
 	mAttachCB( cyclicbox_->activated, uiColSeqUseModeSel::modeChgCB );
 	setHAlignObj( flippedbox_ );
     }
-
 }
 
 

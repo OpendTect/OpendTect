@@ -282,6 +282,14 @@ uiManipMapper( uiColTabSelTool& seltool )
     setNoBackGround();
     disableScrollZoom();
 
+    const int tbsz = toolButtonSize();
+    const int displen = 120;
+    const OD::Orientation orient = seltool.orientation();
+    const bool ishor = orient == OD::Horizontal;
+    setViewWidth( ishor ? displen : tbsz );
+    setViewHeight( ishor ? tbsz : displen );
+    setStretch( ishor ? 1 : 0, ishor ? 0 : 1 );
+
     mAttachCB( postFinalise(), uiManipMapper::initCB );
 }
 
@@ -791,21 +799,29 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
     if ( isGroup() )
     {
 	uiObject* lastobj = disp_;
-	const ConstraintType ct = orient == OD::Horizontal
-				? rightOf : ensureBelow;
+	const ConstraintType attprev = orient == OD::Horizontal
+				    ? rightOf : ensureBelow;
+	const ConstraintType attborder = orient == OD::Horizontal
+				    ? topBorder : leftBorder;
 	if ( txtscalefld_ )
 	{
 	    txtscalefld_->doInternalLayout( disp_ );
+	    txtscalefld_->attach( attborder );
 	    lastobj = txtscalefld_->maxfld_;
 	}
 	if ( usemodesel_ )
 	{
-	    usemodesel_->attach( ct, lastobj );
+	    usemodesel_->attach( attprev, lastobj );
+	    usemodesel_->attach( attborder );
 	    lastobj = usemodesel_->attachObj();
 	}
-	manip_->attach( ct, lastobj );
+	manip_->attach( attprev, lastobj );
+	manip_->attach( attborder );
 	if ( histeqbut_ )
+	{
+	    histeqbut_->attach( attborder );
 	    histeqbut_->attach( rightOf, manip_ );
+	}
     }
 
     mAttachCB( mapper_->setup().objectChanged(),
@@ -936,6 +952,8 @@ uiColTabSel::uiColTabSel( uiParent* p, OD::Orientation orient,
 
     lbl_ = new uiLabel( this, lbltxt );
     lbl_->attach( leftOf, disp_ );
+
+    setHAlignObj( disp_ );
 }
 
 
