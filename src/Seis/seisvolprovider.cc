@@ -25,10 +25,9 @@ ________________________________________________________________________
 
 od_int64 Seis::Provider3D::getTotalNrInInput() const
 {
-    PosInfo::CubeData cd;
-    getGeometryInfo( cd );
-    if ( !cd.isEmpty() )
-	return cd.totalSize();
+    ensureCubeDataFilled();
+    if ( !cubedata_.isEmpty() )
+	return cubedata_.totalSize();
 
     const od_int64 nrinls = SI().inlRange(false).nrSteps() + 1;
     const od_int64 nrcrls = SI().inlRange(false).nrSteps() + 1;
@@ -438,21 +437,34 @@ bool Seis::VolProvider::getRanges( TrcKeyZSampling& tkzs ) const
 }
 
 
-void Seis::VolProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
+void Seis::VolProvider::getGeometryInfo( CubeData& cd ) const
 {
+    ensureCubeDataFilled();
+    cd = cubedata_;
+}
+
+
+void Seis::VolProvider::ensureCubeDataFilled() const
+{
+    if ( cubedatafilled_ )
+	return;
+
     bool cdobtained = true;
     if ( fetcher_.dp_ )
-	fetcher_.dp_->getTrcPositions( cd );
+	fetcher_.dp_->getTrcPositions( cubedata_ );
     else
     {
 	if ( !fetcher_.trl_ )
-	    cd.setEmpty();
+	    cubedata_.setEmpty();
 	else if ( fetcher_.isMultiConn() ||
-		 !fetcher_.trl_->getGeometryInfo(cd) )
+		 !fetcher_.trl_->getGeometryInfo(cubedata_) )
 	    cdobtained = false;
     }
+
     if ( !cdobtained )
-	cd.fillBySI( false );
+	cubedata_.fillBySI( false );
+
+    cubedatafilled_ = true;
 }
 
 
@@ -482,8 +494,12 @@ void Seis::VolProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
 
 void Seis::VolProvider::doReset( uiRetVal& uirv ) const
 {
-    fetcher_.reset();
-    uirv = fetcher_.uirv_;
+    Seis::Provider3D::doReset( uirv );
+    if ( uirv.isOK() )
+    {
+	fetcher_.reset();
+	uirv = fetcher_.uirv_;
+    }
 }
 
 

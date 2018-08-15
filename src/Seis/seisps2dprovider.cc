@@ -307,7 +307,7 @@ int Seis::PS2DProvider::gtNrOffsets() const
     if ( !rdr )
 	return 1;
 
-    const PosInfo::Line2DData& ld = rdr->posData();
+    const Line2DData& ld = rdr->posData();
     if ( ld.size() < 1 )
 	return 1;
 
@@ -347,8 +347,7 @@ BufferString Seis::PS2DProvider::lineName( int iln ) const
 }
 
 
-void Seis::PS2DProvider::getGeometryInfo( int lidx,
-					  PosInfo::Line2DData& ld ) const
+void Seis::PS2DProvider::getGeometryInfo( int lidx, Line2DData& ld ) const
 {
     fetcher_.gtGeometryInfo( lidx, ld );
 }

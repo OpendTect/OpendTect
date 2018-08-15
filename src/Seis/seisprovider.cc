@@ -521,12 +521,6 @@ void Seis::Provider::ensureRightZSampling( SeisTrc& trc ) const
 }
 
 
-bool Seis::Provider::doGetIsPresent( const TrcKey& tk ) const
-{
-    return Survey::GM().getGeometry(curGeomID())->includes( tk );
-}
-
-
 void Seis::Provider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
 {
     SeisTrcBuf tbuf( true );
@@ -634,6 +628,13 @@ void Seis::Provider::doUsePar( const IOPar& iop, uiRetVal& uirv )
 }
 
 
+void Seis::Provider3D::doReset( uiRetVal& uirv ) const
+{
+    cubedata_.setEmpty();
+    cubedatafilled_ = false;
+}
+
+
 ZSampling Seis::Provider3D::doGetZRange() const
 {
     TrcKeyZSampling tkzs;
@@ -642,9 +643,23 @@ ZSampling Seis::Provider3D::doGetZRange() const
 }
 
 
+bool Seis::Provider3D::doGetIsPresent( const TrcKey& tk ) const
+{
+    if ( !cubedatafilled_ )
+	getGeometryInfo( cubedata_ );
+    return cubedata_.includes( tk.binID() );
+}
+
+
 ZSampling Seis::Provider2D::doGetZRange() const
 {
     StepInterval<int> trcrg; ZSampling zsamp;
     getRanges( curLineIdx(), trcrg, zsamp );
     return zsamp;
+}
+
+
+bool Seis::Provider2D::doGetIsPresent( const TrcKey& tk ) const
+{
+    return Survey::GM().getGeometry(curGeomID())->includes( tk );
 }

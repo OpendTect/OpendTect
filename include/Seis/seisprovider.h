@@ -15,13 +15,14 @@ ________________________________________________________________________
 #include "survgeom.h"
 #include "threadlock.h"
 #include "trckeyzsampling.h"
+#include "posinfo.h"
 
 class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class SeisTrcTranslator;
 class TraceData;
-namespace PosInfo { class CubeData; class Line2DData; }
+namespace PosInfo { class Line2DData; }
 
 
 namespace Seis
@@ -158,7 +159,7 @@ protected:
 				//!< def impl: { sKey::Data(), UnknownData }
     virtual Pos::GeomID doGetCurGeomID() const				= 0;
     virtual ZSampling	doGetZRange() const				= 0;
-    virtual bool	doGetIsPresent(const TrcKey&) const;
+    virtual bool	doGetIsPresent(const TrcKey&) const		= 0;
 
 			    // define at least either SeisTrc or SeisTrcBuf fns
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
@@ -189,12 +190,18 @@ mExpClass(Seis) Provider3D : public Provider
 { mODTextTranslationClass(Seis::Provider3D);
 public:
 
+    typedef PosInfo::CubeData	CubeData;
+
     virtual bool	getRanges(TrcKeyZSampling&) const		= 0;
-    virtual void	getGeometryInfo(PosInfo::CubeData&) const	= 0;
+    virtual void	getGeometryInfo(CubeData&) const	= 0;
 
 protected:
 
-			Provider3D()					{}
+			Provider3D()			{}
+
+    mutable CubeData	cubedata_;
+    mutable bool	cubedatafilled_;
+    virtual void	ensureCubeDataFilled() const	= 0;
 
     virtual od_int64	getTotalNrInInput() const;
     virtual void	doFillPar( IOPar& iop, uiRetVal& uirv ) const
@@ -204,6 +211,8 @@ protected:
     virtual Pos::GeomID doGetCurGeomID() const
 			{ return Survey::GM().default3DSurvID(); }
     virtual ZSampling	doGetZRange() const;
+    virtual void	doReset(uiRetVal&) const;
+    virtual bool	doGetIsPresent(const TrcKey&) const;
 
     virtual SeisTrcTranslator*	getCurrentTranslator() const	{ return 0; }
 
@@ -218,6 +227,7 @@ mExpClass(Seis) Provider2D : public Provider
 { mODTextTranslationClass(Seis::Provider2D);
 public:
 
+    typedef PosInfo::Line2DData	Line2DData;
 
     virtual int		nrLines() const					= 0;
     virtual Pos::GeomID	geomID(int) const				= 0;
@@ -225,7 +235,7 @@ public:
     virtual int		lineNr(Pos::GeomID) const			= 0;
     virtual int		curLineIdx() const				= 0;
     virtual bool	getRanges(int,StepInterval<int>&,ZSampling&) const = 0;
-    virtual void	getGeometryInfo(int,PosInfo::Line2DData&) const	= 0;
+    virtual void	getGeometryInfo(int,Line2DData&) const		= 0;
 
 protected:
 
@@ -239,6 +249,7 @@ protected:
     virtual Pos::GeomID doGetCurGeomID() const
 			{ return geomID( curLineIdx() ); }
     virtual ZSampling	doGetZRange() const;
+    virtual bool	doGetIsPresent(const TrcKey&) const;
 
     virtual SeisTrcTranslator*	getCurrentTranslator() const	{ return 0; }
 

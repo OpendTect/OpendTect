@@ -319,16 +319,26 @@ bool Seis::PS3DProvider::getRanges( TrcKeyZSampling& cs ) const
 
 void Seis::PS3DProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
 {
+    ensureCubeDataFilled();
+    cd = cubedata_;
+}
+
+
+void Seis::PS3DProvider::ensureCubeDataFilled() const
+{
+    if ( cubedatafilled_ )
+	return;
+
     if ( fetcher_.cditer_ )
-	cd = fetcher_.cditer_->cd_;
+	cubedata_ = fetcher_.cditer_->cd_;
     else
     {
-	cd.setEmpty();
+	cubedata_.setEmpty();
 	PtrMan<SeisPS3DReader> rdr = mkReader();
 	if ( rdr )
-	    cd = rdr->posData();
+	    cubedata_ = rdr->posData();
 	else
-	    cd.setEmpty();
+	    cubedata_.setEmpty();
     }
 }
 

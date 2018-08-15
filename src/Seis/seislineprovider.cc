@@ -23,7 +23,7 @@ ________________________________________________________________________
 od_int64 Seis::Provider2D::getTotalNrInInput() const
 {
     const int nrlines = nrLines();
-    PosInfo::Line2DData ld;
+    Line2DData ld;
     od_int64 ret = 0;
     for ( int iln=0; iln<nrlines; iln++ )
     {
@@ -270,8 +270,7 @@ BufferString Seis::LineProvider::lineName( int iln ) const
 }
 
 
-void Seis::LineProvider::getGeometryInfo( int iln,
-					  PosInfo::Line2DData& ld ) const
+void Seis::LineProvider::getGeometryInfo( int iln, Line2DData& ld ) const
 {
     return fetcher_.gtGeometryInfo( iln, ld );
 }

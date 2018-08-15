@@ -39,6 +39,7 @@ protected:
     friend class	PS3DFetcher;
     PS3DFetcher&	fetcher_;
 
+    virtual void	ensureCubeDataFilled() const;
     virtual void	doFillPar(IOPar&,uiRetVal&) const;
     virtual void	doUsePar(const IOPar&,uiRetVal&);
     virtual void	doReset(uiRetVal&) const;
