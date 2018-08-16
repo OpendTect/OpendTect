@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "strmprov.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
 #include "varlenarray.h"
 
 namespace EM
@@ -449,26 +450,64 @@ bool SurfaceAuxData::removeFile( const char* attrnm ) const
 
 Array2D<float>* SurfaceAuxData::createArray2D( AuxID auxid ) const
 {
-    if ( horizon_.geometry().geometryElement()->isEmpty() )
+    const auto& horgeom = horizon_.geometry();
+    if ( horgeom.geometryElement()->isEmpty() )
 	return 0;
 
-    const StepInterval<int> rowrg = horizon_.geometry().rowRange();
-    const StepInterval<int> colrg = horizon_.geometry().colRange( -1 );
-
-    PosID posid;
+    const StepInterval<int> rowrg = horgeom.rowRange();
+    const StepInterval<int> colrg = horgeom.colRange( -1 );
     Array2DImpl<float>* arr =
 	new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+
+    for ( int irow=rowrg.start; irow<=rowrg.stop; irow+=rowrg.step )
     {
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	for ( int icol=colrg.start; icol<=colrg.stop; icol+=colrg.step )
 	{
-	    posid = PosID::getFromRowCol( row, col );
+	    const PosID posid = PosID::getFromRowCol( irow, icol );
 	    const float val = getAuxDataVal( auxid, posid );
-	    arr->set( rowrg.getIndex(row), colrg.getIndex(col), val );
+	    arr->set( rowrg.getIndex(irow), colrg.getIndex(icol), val );
 	}
     }
 
     return arr;
+}
+
+
+Interval<float> SurfaceAuxData::valRange( AuxID auxid, bool tosi ) const
+{
+    Interval<float> valrg( mUdf(float), mUdf(float) );
+    const auto& horgeom = horizon_.geometry();
+    if ( horgeom.geometryElement()->isEmpty() )
+	return valrg;
+
+    const StepInterval<int> rowrg = horgeom.rowRange();
+    const StepInterval<int> colrg = horgeom.colRange( -1 );
+    for ( int irow=rowrg.start; irow<=rowrg.stop; irow+=rowrg.step )
+    {
+	for ( int icol=colrg.start; icol<=colrg.stop; icol+=colrg.step )
+	{
+	    const PosID posid = PosID::getFromRowCol( irow, icol );
+	    const float val = getAuxDataVal( auxid, posid );
+	    if ( mIsUdf(val) )
+		continue;
+	    if ( mIsUdf(valrg.start) )
+		valrg.start = valrg.stop = val;
+	    else
+		valrg.include( val, false );
+	}
+    }
+
+    if ( tosi )
+    {
+	const auto* uom = unit( auxid );
+	if ( uom )
+	{
+	    valrg.start = uom->getSIValue( valrg.start );
+	    valrg.stop = uom->getSIValue( valrg.stop );
+	}
+    }
+
+    return valrg;
 }
 
 
