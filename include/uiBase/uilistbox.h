@@ -147,7 +147,6 @@ public:
     void		addItem( const OD::String& s, bool m=false, int id=-1 )
 				{ addItem( toUiString(s), m, id ); }
 
-    void		addItems(const char**);
     void		addItems(const BufferStringSet&);
     void		addItems(const uiStringSet&);
 

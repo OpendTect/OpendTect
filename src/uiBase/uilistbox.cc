@@ -805,18 +805,6 @@ void uiListBox::addItem( const uiString& text, const Color& col, int id )
 }
 
 
-void uiListBox::addItems( const char** textList )
-{
-    int curidx = currentItem();
-    const char** pt_cur = textList;
-    while ( *pt_cur )
-	addItem( toUiString(*pt_cur++) );
-    if ( choicemode_ != OD::ChooseNone && curidx < 0 )
-	curidx = 0;
-    setCurrentItem( curidx );
-}
-
-
 void uiListBox::addItems( const BufferStringSet& strs )
 {
     int curidx = currentItem();
