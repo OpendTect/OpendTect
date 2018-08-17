@@ -711,10 +711,10 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 
     if ( !currentwvasynthetic_ || currentwvasynthetic_->isPS() )
     {
-	uiMSG().error(uiStrings::phrSelect(tr("a post-stack synthetic in wiggle"
+	uiMSG().error(tr(" Select a post-stack synthetic in wiggle"
 			" view. The scaling tool compares the amplitudes of the"
 		        " synthetic data at the selected Stratigraphic Level"
-		        " to real amplitudes along a horizon")));
+		        " to real amplitudes along a horizon"));
 	return false;
     }
 
@@ -729,14 +729,14 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	return false;
     }
 
-    uiStringSet sellvlnms;
+    BufferStringSet sellvlnms;
     const StratSynthLevelSet* sellvls = curSS().getLevels();
     for ( int ilvl=0; ilvl<sellvls->size(); ilvl++ )
-	sellvlnms.add( toUiString(sellvls->getStratLevel(ilvl)->name()) );
+	sellvlnms.add( sellvls->getStratLevel(ilvl)->name() );
 
     uiDialog::Setup su( uiStrings::phrSelect(tr("Stratigraphic Level")),
-			tr("The scaling tool compares the amplitudes there to "
-			   "real amplitudes along a horizon"), mTODOHelpKey );
+	    tr("The scaling tool compares the amplitudes at a Stratigraphic "
+		"level to real amplitudes along a horizon"), mTODOHelpKey );
     const BufferString sellvlnm =
 	uiStratLayModEditTools::getSelLevelFromDlg( this, su, sellvlnms,
 						    flattenlvl_.name() );

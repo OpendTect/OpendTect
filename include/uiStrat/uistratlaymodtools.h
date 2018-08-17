@@ -101,7 +101,7 @@ public:
 
     static const char*		getSelLevelFromDlg(uiParent*,
 						   const uiDialog::Setup&,
-						   const uiStringSet&,
+						   const BufferStringSet&,
 						   const char* sellvl=0);
     int				selPropIdx() const;	//!< May return -1
     Strat::Level::ID		flattenSelLevelID() const;

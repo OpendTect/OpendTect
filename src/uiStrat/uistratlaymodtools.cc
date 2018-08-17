@@ -264,22 +264,22 @@ void uiStratLayModEditTools::showFlatCB( CallBacker* )
 
 const char* uiStratLayModEditTools::getSelLevelFromDlg(
 	uiParent* parent, const uiDialog::Setup& dlgsu,
-	const uiStringSet& alllvlnms, const char* sellevlnm )
+	const BufferStringSet& alllvlnms, const char* sellevlnm )
 {
     uiDialog dlg( parent, dlgsu );
 
-    const uiListBox::Setup setup( OD::ChooseOnlyOne, tr("Selected Markers"),
+    const uiListBox::Setup lbsu( OD::ChooseOnlyOne, tr("Selected Marker"),
 				  uiListBox::AboveMid );
-    uiLabeledComboBox* lcb =
-	new uiLabeledComboBox( &dlg, alllvlnms, tr("Selected Markers") );
+    uiListBox* lb = new uiListBox( &dlg, lbsu );
+    lb->addItems( alllvlnms );
     if ( sellevlnm )
-	lcb->box()->setText( sellevlnm );
+	lb->setCurrentItem( sellevlnm );
 
     if ( !dlg.go() )
 	return 0;
 
     mDeclStaticString( ret );
-    ret.set( lcb->box()->text() );
+    ret.set( lb->getText() );
     return ret.str();
 }
 
@@ -288,9 +288,7 @@ void uiStratLayModEditTools::flattenMenuCB( CallBacker* )
 {
     uiDialog::Setup su( uiStrings::phrSelect(tr("Marker for Flattening")),
 			mNoDlgTitle, mTODOHelpKey );
-    flatlvlnm_ =
-	getSelLevelFromDlg( parent(), su, choosenlvlnms_.getUiStringSet(),
-			    flatlvlnm_.buf() );
+    flatlvlnm_ = getSelLevelFromDlg( parent(), su, choosenlvlnms_, flatlvlnm_ );
     if ( flatlvlnm_.isEmpty() )
 	return;
 
