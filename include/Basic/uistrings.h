@@ -446,6 +446,7 @@ public:
     static uiWord sInlineNumber(int num=1) { return tr("Inline Number",0,num); }
     static uiWord sInlineRange()	{ return tr("Inline Range"); }
     static uiWord sInputASCIIFile()	{ return tr("Input ASCII File"); }
+    static uiWord sIsochron()		{ return tr("Isochron"); }
     static uiWord sParsMissing()	{ return tr("Parameters missing"); }
     static uiWord sInput()		{ return tr("Input"); }
     static uiWord sInputFile()		{ return tr("Input File"); }

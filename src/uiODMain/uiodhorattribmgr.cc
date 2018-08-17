@@ -82,7 +82,7 @@ void uiODHorAttribMgr::updateMenu( CallBacker* )
 	mnu->insertAction( new uiAction(m3Dots(tr("Stratal Amplitude")),
 		    mCB(this,uiODHorAttribMgr,makeStratAmp), "stratalampl" ));
 
-    mnu->insertAction( new uiAction(m3Dots(tr("Isochron")),
+    mnu->insertAction( new uiAction(m3Dots(uiStrings::sIsochron()),
 		mCB(this,uiODHorAttribMgr,doIsochronThruMenu), "isochron") );
 }
 
