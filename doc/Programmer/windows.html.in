@@ -31,7 +31,7 @@
 								<tr><td valign="top">
 <center>
 <h1>OpendTect development on MS Windows</h1>
-  <a href=#vs12>Visual Studio 2013(12)</a>
+  <a href=#vs12>Visual Studio 2017</a>
  | <a href=#cmake>CMake</a>
 | <a href=#tutplugin>Building the Tutorial plugin</a>
 | <a href=#ownplugin>Building your own plugin</a>
@@ -41,9 +41,9 @@
 <br>
 
 
-<a name="vs12"><h3 id="heading3">Visual Studio 2013</h3></a>
+<a name="vs12"><h3 id="heading3">Visual Studio 2017</h3></a>
 
-<p id="text">OpendTect @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@ is built with Visual Studio 2013 (version 12), and it also supports Visual Studio 2013 express edition. The express edition can be downloaded from <a href="https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx">Microsoft's official web site </a></p>
+<p id="text">OpendTect @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@ is built with Visual Studio 2017, and it also supports Visual Studio 2017 Community Edition. The Community Edition can be downloaded from <a href="https://visualstudio.microsoft.com/downloads/">Microsoft's official web site </a></p>
 
 <a name="cmake"><h3 id="heading3">CMake</h3></a>
 <p id="text">CMake is a cross-platform tool that takes care of generating system-dependent project files. It can be downloaded from <a href="http://www.cmake.org/cmake/resources/software.html">CMake's web site</a>.</p>
@@ -57,7 +57,7 @@ To get the whole process going we will first build the Tutorial plugin. This wil
 <li>Install developers package from the installation manager. 
 <li>start OpendTect and then from Utilities-Tools-Create Devel Environment launch the create work environment tool. There specify a folder (WORK) to copy the plugin building material into. That can be any folder with names like "C:\WORK" or "D:\Tools\ODWork" but <b><i>Do Not Put It In The OpendTect Installation Folder</i></b>. After creation, this will be where you do your work, so choose a stable, backed-up directory there.
 <li>Now start CMake (desktop item or its Windows start menu). Select the WORK directory you just created, and put it in both the "source" and "output". Then press the 'Configure' button.
-<li>Configure will probably fail due to missing OpendTect-DIR. This can be specified, choose the OpendTect installation directory there (e.g C:\Program files\OpendTect\4.4.0). Now press configure again.
+<li>Configure will probably fail due to missing OpendTect-DIR. This can be specified, choose the OpendTect installation directory there (e.g C:\Program files\OpendTect\@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@.0). Now press configure again.
 <li>Some virus scanners like AVG will ring the alarm bells, and this can make the whole process fail. This is because CMake tries to link a program to test the system setup. To get this right, I had to disable my virus scanner (AVG).
 <li>When you get 'Configuring done' you may still have a few red lines in the variables box. Don't worry: things should be ready and you can press the 'Generate' button. You can close CMake and switch your anti-virus back on.
 </ul>
@@ -67,7 +67,7 @@ Then, to build the plugins: simply right-click on 'Tut' and 'uiTut' and do 'Buil
 
 <h3 id="heading3">Debugging the Tutorial plugin </h3>
 <p id="text">Open the plugin solution in Visual Studio, and right-click on the solution item, and open the solution properties window. Here you can specify the debug source file location, so in your case add the location of the OpendTect source files which are installed by the installation manager, i.e. C:\Program Files\OpendTect\@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@.@OpendTect_VERSION_DETAIL@ Now select the "od_main" project which is a launcher project to launch od_main debug executable that comes with the developers package. Right click on this project and set to "Set as startup project". When you press F5 for debugging this project will be started. Ignore if you see any Visual studio warnings. The OpendTect main program, od_main.exe will be launched.</p>
-<p id="text">From Utilities-Plugins OpendTect try to load your plugin by browsing to the WORK(D:\WORK)\bin\win64\debug folder. To debug something, just set a break point in the code. So when the control comes to the break-point it will stop there and you can debug your code. You can also browse into OpendTect source files if you have specified the OpendTect source file location is the solution properties as mentioned above</p>
+<p id="text">From Utilities-Plugins OpendTect try to load your plugin by browsing to the WORK(D:\WORK)\bin\win64\Debug folder. To debug something, just set a break point in the code. So when the control comes to the break-point it will stop there and you can debug your code. You can also browse into OpendTect source files if you have specified the OpendTect source file location is the solution properties as mentioned above</p>
 
 <a name="ownplugin"><h3 id="heading3">Building your own plugin</h3></a>
 <p id="text">If you want to create your own plugin, you have to create a folder with the name of your plugin inside your plugin development environment and add the source files and CMakeLists.txt to this folder as done in the tutorial plugins.
@@ -96,7 +96,7 @@ Procedure:</p>
 <p id="text">To build OpendTect from source you need to pull the source code from <a href="https://github.com/OpendTect/OpendTect">https://github.com/OpendTect/OpendTect</a>. Then build the solution with CMake. In this case launch CMake and browse to your OpendTect source folder and start configuring and generating from CMake. CMake will prompt for Qt and OpenSceneGraph directory location, select them from CMake itself and continue. Once the projects and solution are generated you can start building OpendTect.</p>  
 
 <h3 id="heading3">Qt</h3>
-<p id="text">A Qt installation is only necessary when you want to build a plugin which is directly dependent on Qt or you want to build OpendTect from scratch. Download Windows Qt package from the <a href="http://qt-project.org/">Qt website</a>. </p>
+<p id="text">A Qt installation is only necessary when you want to build a plugin which is directly dependent on Qt or you want to build OpendTect from scratch. Download Windows Qt package from the <a href="https://www.qt.io/developers/">Qt website</a>. </p>
 
 
 <h3 id="heading3">OpenSceneGraph</h3>
@@ -111,7 +111,10 @@ Procedure:</p>
 <center>
   <a href="index.html">Index</a>
 | <a href="overview.html">Overview</a>
+| <a href="rules.html">Rules</a>
 | <a href="plugins.html">Plugins</a>
+| <a href="attributes.html">Attributes</a>
+| <a href="unix.html">UNIX</a>
 | <a href="http://opendtect.org">opendtect.org</a>
 </center>
 </p>

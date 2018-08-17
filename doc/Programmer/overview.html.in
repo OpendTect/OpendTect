@@ -140,7 +140,7 @@ It all comes together in the <code>uiODMain</code> module. Being the top level m
 <br><br>
 <a name="starting"><h2 id="heading2">Starting the programming</h2></a>
 
-<h3 id="heading3">Precondictions</h3>
+<h3 id="heading3">Preconditions</h3>
 <p id="text">
 Before you start, get a good development environment by using the 'Utilities-Create Devel. Env.' menu. When that's finished, you must run CMake. Then you should be able to start developing right away.
 </p>
@@ -157,6 +157,7 @@ Along the way, you'll have to do some digging in the include directory or the cl
   <a href="index.html">Index</a>
 | <a href="rules.html">Rules</a>
 | <a href="plugins.html">Plugins</a>
+| <a href="attributes.html">Attributes</a>
 | <a href="unix.html">UNIX</a>
 | <a href="windows.html">MS Windows</a>
 | <a href="http://opendtect.org">opendtect.org</a>

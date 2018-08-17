@@ -730,6 +730,8 @@ Users cannot update a packages without also updating the packages that these are
 <center>
   <a href="index.html">Index</a>
 | <a href="overview.html">Overview</a>
+| <a href="rules.html">Rules</a>
+| <a href="attributes.html">Attributes</a>
 | <a href="unix.html">UNIX</a>
 | <a href="windows.html">MS Windows</a>
 | <a href="http://www.opendtect.org">opendtect.org</a>
