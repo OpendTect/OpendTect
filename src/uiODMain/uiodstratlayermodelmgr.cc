@@ -148,12 +148,14 @@ bool uiStratLayerModelManager::haveExistingDlg()
 }
 
 
-void uiStratLayerModelManager::launchLayerModel( const char* modnm, int opt )
+void uiStratLayerModelManager::launchLayerModel( const char* modnm, int opt,
+						 uiParent* par )
 {
     if ( haveExistingDlg() || Strat::RT().isEmpty() )
 	return;
 
-    dlg_ = new uiStratLayerModel( ODMainWin(), modnm, opt );
+    uiParent* usepar = par ? par : ODMainWin();
+    dlg_ = new uiStratLayerModel( usepar, modnm, opt );
     if ( !dlg_->moddisp_ )
 	{ delete dlg_; dlg_ = 0; }
     else
@@ -192,12 +194,13 @@ void uiStratLayerModelManager::initClass()
 }
 
 
-void uiStratLayerModelManager::doLayerModel( const char* modnm, int opt )
+void uiStratLayerModelManager::doLayerModel( const char* modnm, int opt,
+					     uiParent* par )
 {
     if ( Strat::RT().isEmpty() )
 	StratTreeWin().popUp();
     else
-	uislm_manager().launchLayerModel( modnm, opt );
+	uislm_manager().launchLayerModel( modnm, opt, par );
 }
 
 void uiStratLayerModelManager::doBasicLayerModel()

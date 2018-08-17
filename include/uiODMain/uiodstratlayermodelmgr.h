@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "uistring.h"
 
+class uiParent;
 class uiStratLayerModelManager;
 class uiStratLayerModel;
 
@@ -27,7 +28,8 @@ public:
 
     bool		haveExistingDlg();
     uiStratLayerModel*	getDlg();
-    void		launchLayerModel(const char* modnm,int opt);
+    void		launchLayerModel(const char* modnm,int opt,
+					 uiParent* p=0);
 
     void		addToTreeWin();
 
@@ -36,7 +38,7 @@ public:
 
     static void		initClass();
     static void		doBasicLayerModel();
-    static void		doLayerModel(const char* modnm,int opt);
+    static void		doLayerModel(const char* modnm,int opt,uiParent* p=0);
 
 protected:
 
