@@ -189,7 +189,7 @@ void WebsiteHelp::provideHelp( const char* arg ) const
     if ( argstr == sKeyAttribMatrix() )
 	url = "https://www.dgbes.com/index.php/software/attributes-table";
     else if ( argstr == sKeySupport() )
-	url = "https://opendtect.org/index.php/support";
+	url = "https://dgbes.com/index.php/support";
 
     if ( url.isEmpty() )
 	uiMSG().error( tr("Cannot open website page") );
