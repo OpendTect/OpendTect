@@ -646,14 +646,16 @@ uiWellLogEditor::~uiWellLogEditor()
 void uiWellLogEditor::fillTable()
 {
     NotifyStopper ns( table_->valueChanged );
-    const UnitOfMeasure* depthunit = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
     Well::LogIter iter( log_ );
     int idx = -1;
     while ( iter.next() )
     {
 	idx++;
-	const float val = depthunit->getUserValueFromSI( iter.dah() );
-	table_->setValue( RowCol(idx,0), val );
+	float md = iter.dah();
+	if ( uom )
+	    md = uom->userValue( md );
+	table_->setValue( RowCol(idx,0), md );
 	table_->setValue( RowCol(idx,1), iter.value() );
     }
 }
