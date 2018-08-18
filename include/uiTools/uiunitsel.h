@@ -66,8 +66,9 @@ public:
 				    uiString::empty());
 					//!< For survey Z unit
 
-    void			setUnit(const UnitOfMeasure* uom=0);
+    void			setUnit(const UnitOfMeasure*);
     void			setUnit(const char*);
+    void			setNoUnit() { setUnit( ((UnitOfMeasure*)0) ); }
     const UnitOfMeasure*	getUnit() const;
     const char*			getUnitName() const;
 

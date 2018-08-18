@@ -32,9 +32,10 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uipossubsel.h"
 #include "uiselsimple.h"
 #include "uitaskrunner.h"
-#include "uipossubsel.h"
+#include "uiunitsel.h"
 #include "od_helpids.h"
 
 
@@ -109,14 +110,29 @@ void uiReadSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
 }
 
 
-uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon3D& surf )
+uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon3D& surf,
+				AuxID auxid )
     : uiDialog(p,uiDialog::Setup( uiStrings::sOutputSelection(),
 				 tr("Specify attribute name"),
 				 mODHelpKey(mStoreAuxDataHelpID) ))
     , surface_(surf)
+    , auxid_(auxid)
 {
+    const Interval<float> valrg = surface_.auxdata.valRange( auxid_ );
+    const BufferString attrnm( surface_.auxdata.auxDataName(auxid) );
+    setTitleText( tr("Save '%1' (values %2 - %3)")
+		    .arg( attrnm ).arg( valrg.start ).arg( valrg.stop ) );
+
     attrnmfld_ = new uiGenInput( this, uiStrings::sAttribute() );
-    attrnmfld_->setText( surface_.auxdata.firstUsableAuxDataName() );
+    attrnmfld_->setText( attrnm );
+
+    uiUnitSel::Setup ussu( PropertyRef::Other, uiStrings::sUnit() );
+    ussu.selproptype( true ).mode( uiUnitSel::Setup::Full )
+	.nodefsave( true ).withnone( true );
+    unitfld_ = new uiUnitSel( this, ussu );
+    const UnitOfMeasure* uom = surface_.auxdata.unit( auxid_ );
+    unitfld_->setUnit( uom );
+    unitfld_->attach( alignedBelow, attrnmfld_ );
 }
 
 
@@ -126,10 +142,16 @@ const char* uiStoreAuxData::auxdataName() const
 }
 
 
+const UnitOfMeasure* uiStoreAuxData::unit() const
+{
+    return unitfld_->getUnit();
+}
+
+
 bool uiStoreAuxData::acceptOK()
 {
     dooverwrite_ = false;
-    BufferString attrnm = attrnmfld_->text();
+    BufferString attrnm = auxdataName();
     const bool ispres = checkIfAlreadyPresent( attrnm.buf() );
     if ( ispres )
     {
@@ -140,7 +162,9 @@ bool uiStoreAuxData::acceptOK()
 	dooverwrite_ = true;
     }
 
-    const_cast<EM::Horizon3D&>(surface_).auxdata.setAuxDataName( 0, attrnm );
+    EM::Horizon3D& hor = const_cast<EM::Horizon3D&>( surface_ );
+    hor.auxdata.setAuxDataName( auxid_, attrnm );
+    hor.auxdata.setUnit( auxid_, unit() );
     return true;
 }
 

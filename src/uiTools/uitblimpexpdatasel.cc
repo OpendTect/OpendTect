@@ -98,10 +98,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	unitfld_ = new uiUnitSel( this, uiUnitSel::Setup(proptyp,
 							 uiStrings::sUnit()) );
 	unitfld_->attach( rightTo, rightmostfld_ );
-	if ( tinf_.selection_.unit_ )
-	    unitfld_->setUnit( tinf_.selection_.unit_->name() );
-	else
-	    unitfld_->setUnit();
+	unitfld_->setUnit( tinf_.selection_.unit_ );
     }
 
     if ( tinf_.selection_.coordsys_
