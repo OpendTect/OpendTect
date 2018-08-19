@@ -903,7 +903,7 @@ void uiStratLayerModel::setElasticProps()
 	if ( !errmsg.isEmpty() )
 	{
 	    errmsg = tr("%1\nPlease define a new value.").arg(errmsg);
-	    uiMSG().message(errmsg);
+	    uiMSG().error( errmsg );
 	}
 	if ( !selElasticProps( *elpropsel_ ) )
 	    return;

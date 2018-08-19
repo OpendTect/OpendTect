@@ -80,7 +80,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     if ( scene && scene->getZAxisTransform() )
     {
-	uiMSG().message( tr("Cannot add Bodies to this scene") );
+	uiMSG().error( tr("Cannot add Bodies to this scene") );
 	return false;
     }
 

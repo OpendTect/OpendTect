@@ -96,7 +96,7 @@ void uiBouncyMgr::doWork( CallBacker *cb )
 
     if ( !scene )
     {
-	uiMSG().message( "Cannot start game because there is no scene!" );
+	uiMSG().error( "Cannot start game because there is no scene!" );
 	return;
     }
 

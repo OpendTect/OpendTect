@@ -164,7 +164,7 @@ bool uiSEGYFileSelector::acceptOK()
     BufferString vntnm( vintagefld_->text() );
     if ( vntnm.isEmpty() )
     {
-	uiMSG().message( tr("Please specify name for this new vintage") );
+	uiMSG().error( tr("Please specify name for this new vintage") );
 	return false;
     }
 
@@ -173,8 +173,8 @@ bool uiSEGYFileSelector::acceptOK()
 	const SEGY::Vintage::Info* vntinfo = vntinfos_[idx];
 	if ( vntinfo->vintagenm_.isEqual(vntnm) )
 	{
-	    uiMSG().message( tr("The selected vinatge name is assigned to "
-				"one of the vintage in the table."
+	    uiMSG().error( tr("The selected vintage name is already assigned "
+			      "to one of the vintage in the table."
 			      "Please enter/choose different vintage name." ) );
 	    return false;
 	}

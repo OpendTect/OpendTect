@@ -282,7 +282,7 @@ void uiHorizonSetupGroup::undoCB( CallBacker* )
     uiString errmsg;
     engine().undo( errmsg );
     if ( !errmsg.isEmpty() )
-	uiMSG().message( errmsg );
+	uiMSG().error( errmsg );
 
     updateButtonSensitivity();
 }
@@ -294,7 +294,7 @@ void uiHorizonSetupGroup::redoCB( CallBacker* )
     uiString errmsg;
     engine().redo( errmsg );
     if ( !errmsg.isEmpty() )
-	uiMSG().message( errmsg );
+	uiMSG().error( errmsg );
 
     updateButtonSensitivity();
 }

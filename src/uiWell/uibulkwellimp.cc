@@ -200,10 +200,7 @@ bool uiBulkTrackImport::acceptOK()
 
     readFile( strm );
     if ( wells_.isEmpty() )
-    {
-	uiMSG().message( tr("No valid lines found") );
-	return true;
-    }
+	{ uiMSG().message( tr("No valid lines found") ); return true; }
 
     uiRetVal uirv = addD2T();
     if ( !uirv.isError() )
@@ -352,10 +349,7 @@ bool uiBulkLogImport::acceptOK()
     }
 
     if ( uirv.isEmpty() )
-    {
-	uiMSG().message( tr("All logs imported succesfully") );
-	return true;
-    }
+	{ uiMSG().message( tr("All logs imported succesfully") ); return true; }
 
     uiMSG().errorWithDetails( uirv,
 		uiStrings::phrCannotImport(tr("all LAS files (See details)")) );

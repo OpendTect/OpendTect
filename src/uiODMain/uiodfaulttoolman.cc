@@ -201,7 +201,7 @@ public:
     bool unDo()
     {
 	if ( saved_ )
-	    uiMSG().message( tr("Will not undo saving the output file!") );
+	    uiMSG().error( tr("Cannot undo saving the output file") );
 	return true;
     }
 
@@ -1097,7 +1097,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     usw.readyNow();
 
     if ( newnrselected )
-	uiMSG().message(tr("Output object could not incorporate %1"
+	uiMSG().error(tr("Output object could not incorporate %1"
 			   " of the selected sticks.").arg(newnrselected));
 }
 

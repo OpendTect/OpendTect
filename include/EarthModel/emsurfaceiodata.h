@@ -60,9 +60,11 @@ mExpClass(EarthModel) SurfaceIODataSelection
 public:
 
 				SurfaceIODataSelection()
-				    : sd(* new SurfaceIOData)		{}
+				    : sd(*new SurfaceIOData)		{}
 				SurfaceIODataSelection( const SurfaceIOData& s )
-				    : sd(s)		{}
+				    : sd(s), sdmine_(false)		{}
+				~SurfaceIODataSelection()
+				{ if ( sdmine_ ) delete &sd; }
 
     const SurfaceIOData&	sd;
 
@@ -74,6 +76,11 @@ public:
     TypeSet<StepInterval<int> >	seltrcranges;
 
     void			setDefault(); // selects all
+
+protected:
+
+    bool			sdmine_		= true;
+
 };
 
 } // namespace EM

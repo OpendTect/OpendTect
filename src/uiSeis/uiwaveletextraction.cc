@@ -197,7 +197,7 @@ void uiWaveletExtraction::lineSelCB( CallBacker* )
 	{
 	    if ( datastep_ != zrg.step )
 	    {
-		uiMSG().message( tr("Selected lines having different sample"
+		uiMSG().error( tr("Selected lines having different sample"
 				    " intervals\n Please change selection") );
 		return;
 	    }
@@ -208,7 +208,7 @@ void uiWaveletExtraction::lineSelCB( CallBacker* )
 
     if ( !geomids.isEmpty() && commonzrg.nrSteps() == 0 )
     {
-	uiMSG().message( tr("No common Z Range in selected lines.\n"
+	uiMSG().error( tr("No common Z Range in selected lines.\n"
 			    "Please change selection") );
 	return;
     }
@@ -284,7 +284,7 @@ bool uiWaveletExtraction::checkWaveletSize()
 	const int range = 1 + mNINT32( (zrg.stop - zrg.start) / datastep_ );
 	if ( range < wvltsize_ )
 	{
-	    uiMSG().message( tr("Selection window size should be more"
+	    uiMSG().error( tr("Selection window size should be more"
 				" than Wavelet Size") );
 	    return false;
 	}
@@ -304,7 +304,7 @@ bool uiWaveletExtraction::check2DFlds()
 
     if ( linesel2dfld_ && !zextraction_->getBoolValue() )
     {
-	uiMSG().message( tr("Extraction of wavelet on/between 2D-horizon(s)"
+	uiMSG().error( tr("Extraction of wavelet on/between 2D-horizon(s)"
 			    " is not implemented") );
 	return false;
     }

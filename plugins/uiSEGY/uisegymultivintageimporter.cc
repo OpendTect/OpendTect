@@ -92,7 +92,7 @@ bool uiSEGYMultiVintageImporter::selectVintage()
 					 imptype, vntinfos_ );
 	if ( fsdlg_->isEmpty() )
 	{
-	    uiMSG().message( tr("No files found."
+	    uiMSG().error( tr("No files found."
 			"\nAll the files at this location have already "
 			"been added to a vintage in bulk import table.") );
 	    delete fsdlg_;

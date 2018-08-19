@@ -81,7 +81,7 @@ bool uiODVolumeParentTreeItem::canAddVolumeToScene()
 
 	if ( vd && !vd->usesShading() )
 	{
-	    uiMSG().message(
+	    uiMSG().error(
 		tr( "Can only display one fixed-function volume per scene.\n"
 		    "If available, enabling OpenGL shading for volumes\n"
 		    "in the 'Look and Feel' settings may help." ) );

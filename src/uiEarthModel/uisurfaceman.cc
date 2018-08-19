@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 #include "embodytr.h"
 #include "emfaultauxdata.h"
+#include "emhorizon3d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
@@ -134,6 +135,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     , man2dbut_(0)
     , surfdatarenamebut_(0)
     , surfdataremovebut_(0)
+    , surfdatainfobut_(0)
     , copybut_(0)
     , mergehorbut_(0)
     , applybodybut_(0)
@@ -179,6 +181,9 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	surfdatarenamebut_ = butgrp->addButton( uiManipButGrp::Rename,
 					tr("Rename selected Horizon Data"),
 					mCB(this,uiSurfaceMan,renameAttribCB) );
+	surfdatainfobut_ = butgrp->addButton( "info",
+					tr("Information for Horizon Data"),
+					mCB(this,uiSurfaceMan,infoAttribCB) );
 	butgrp->attach( rightTo, attribfld_->box() );
 
 	new uiPushButton( extrabutgrp_, uiStrings::sStratigraphy(),
@@ -266,7 +271,6 @@ void uiSurfaceMan::setToolButtonProperties()
 	mSetButToolTip(surfdatarenamebut_,"Rename '",attribfld_->getText(),
 		       "'", sRenameSelData())
     }
-
     if ( surfdataremovebut_ )
     {
 	surfdataremovebut_->setSensitive( hasattribs );
@@ -275,6 +279,8 @@ void uiSurfaceMan::setToolButtonProperties()
 	mSetButToolTip(surfdataremovebut_,"Remove ",attrnms.getDispString(2),
 		       "", sRemoveSelData())
     }
+    if ( surfdatainfobut_ )
+	surfdatainfobut_->setSensitive( hasattribs );
 
     if ( copybut_ )
     {
@@ -411,7 +417,9 @@ void uiSurfaceMan::setRelations( CallBacker* )
 
 void uiSurfaceMan::removeAttribCB( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    const BufferString attribnm = attribfld_->getText();
+    if ( !curioobj_ || attribnm.isEmpty() )
+	return;
 
     const bool isflt =
 	curioobj_->group()==EMFault3DTranslatorGroup::sGroupName();
@@ -452,12 +460,14 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 
 void uiSurfaceMan::renameAttribCB( CallBacker* )
 {
-    if ( !curioobj_ ) return;
-
     const BufferString attribnm = attribfld_->getText();
+    if ( !curioobj_ || attribnm.isEmpty() )
+	return;
+
     const uiString titl = tr("Rename '%1'").arg(attribnm);
     uiGenInputDlg dlg( this, titl, tr("New name"), new StringInpSpec(attribnm));
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     const char* newnm = dlg.text();
     if ( attribfld_->isPresent(newnm) )
@@ -519,6 +529,65 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 	File::remove( tmpfnm );
 
     selChg( this );
+}
+
+
+void uiSurfaceMan::infoAttribCB( CallBacker* )
+{
+    const BufferString attribnm = attribfld_->getText();
+    if ( !curioobj_ || attribnm.isEmpty() )
+	return;
+
+    uiTaskRunnerProvider trprov( this );
+    EM::SurfaceIODataSelection surfiosel;
+    auto& hsamp = surfiosel.rg;
+    const BinID centerbid( hsamp.center().binID() );
+    hsamp.start_ = centerbid; hsamp.stop_ = centerbid;
+    hsamp.expand( 1, 1 );
+    ConstRefMan<EM::Object> emobj = EM::MGR().fetch( curioobj_->key(), trprov,
+	    &surfiosel );
+    if ( !emobj )
+	return;
+    mDynamicCastGet( const EM::Horizon3D*, h3d, emobj.ptr() );
+    if ( !h3d )
+	{ pErrMsg("Huh"); return; }
+
+    if ( !h3d->auxdata.hasAuxDataName( attribnm ) )
+    {
+	PtrMan<Executor> loader = h3d->auxdata.auxDataLoader( attribnm );
+	if ( !loader )
+	    { pErrMsg("No loader"); return; }
+
+	if ( !trprov.execute(*loader) )
+	    return;
+    }
+
+    const auto& ad = h3d->auxdata;
+
+    const EM::SurfaceAuxData::AuxID auxid = ad.auxDataIndex( attribnm );
+    if ( auxid < 0 )
+	{ pErrMsg("AuxID not present"); return; }
+
+    const Interval<float> valrg = ad.valRange( auxid );
+    uiPhraseSet report;
+    report.add( tr("Horizon attribute").addMoreInfo( attribnm ) );
+    if ( !mIsUdf(valrg.start) )
+    {
+	uiString toadd( tr("Value Range").addMoreInfo(
+	    uiStrings::sRangeTemplate(false)
+		    .arg(valrg.start).arg(valrg.stop) ) );
+	if ( ad.unit(auxid) )
+	    toadd.withUnit( ad.unitSymbol(auxid) );
+	report.add( toadd );
+    }
+
+    const BufferString fnm = ad.fileName( auxid );
+    if ( fnm.isEmpty() )
+	{ pErrMsg("No file name"); return; }
+    report.add( uiStrings::sFileName().addMoreInfo( fnm ) );
+
+    uiMSG().info( report );
+    raise();
 }
 
 

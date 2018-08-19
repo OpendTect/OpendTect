@@ -1245,7 +1245,7 @@ void uiAttribPartServer::importAttrSetFromFile()
 
 void uiAttribPartServer::importAttrSetFromOtherSurvey()
 {
-    uiMSG().message( tr("Not implemented yet") );
+    uiMSG().error( mTODONotImplPhrase() );
 }
 
 

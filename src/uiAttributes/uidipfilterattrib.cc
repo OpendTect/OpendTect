@@ -111,7 +111,7 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
     PtrMan<uiLinePosSelDlg> dlg = 0;
     if ( is2d_ )
     {
-	uiMSG().message( tr("No support for 2D yet") );
+	uiMSG().error( mTODONotImplPhrase() );
 	return;
     }
     else

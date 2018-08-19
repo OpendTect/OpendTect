@@ -306,7 +306,7 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
     wcd.coord_.y_ = tbl_->getDValue( RowCol(irow,2) );
     if ( mIsUdf(wcd.coord_.x_) || mIsUdf(wcd.coord_.y_) )
     {
-	uiMSG().message(tr("No full coordinate for %1"
+	uiMSG().error(tr("No full coordinate for %1"
 			   "\nWell not created").arg(wellnm));
 	return false;
     }

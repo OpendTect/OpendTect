@@ -288,12 +288,12 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 	}
     }
 
-    if ( count > 0 ) return;
-    uiMSG().message( tr("No crossings found") );
+    if ( count < 1 )
+	uiMSG().error( tr("No crossings found") );
 }
 
 
 void uiHorizonRelationsDlg::makeWatertightCB( CallBacker* )
 {
-    uiMSG().message( tr("Not implemented yet") );
+    uiMSG().message( mTODONotImplPhrase() );
 }

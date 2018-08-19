@@ -191,6 +191,9 @@ public:
     uiString&		withNumber(od_int64); // simple add number like "well 1"
     uiString&		addMoreInfo(const uiString&,bool newline=false);
 			//!< will deliver ": the string with more info"
+    uiString&		addMoreInfo(const char*);
+    template <class T>
+    uiString&		addMoreInfo(const T&);
 
     inline uiString&	appendIncorrect(const uiString&,char sep=' ');
     inline uiString&	appendIncorrect(const char*,char sep=' ');
@@ -329,10 +332,15 @@ inline uiString& uiString::postFixWord( const uiString& str )
 { return constructWordWith( str, true ); }
 inline uiString& uiString::withUnit( const char* str )
 { return withUnit( toUiString(str) ); }
-inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )
-{ return appendPhrase( str, MoreInfo, newline? OnNewLine : OnSameLine ); }
 inline uiString& uiString::withNumber( od_int64 nr )
 { return postFixWord( toUiString(nr) ); }
+inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )
+{ return appendPhrase( str, MoreInfo, newline? OnNewLine : OnSameLine ); }
+inline uiString& uiString::addMoreInfo( const char* str )
+{ return appendPhrase( toUiString(str), MoreInfo, OnSameLine ); }
+template <class T>
+inline uiString& uiString::addMoreInfo( const T& t )
+{ return appendPhrase( toUiString(t), MoreInfo, OnSameLine ); }
 
 
 // Use when string should be revisited later

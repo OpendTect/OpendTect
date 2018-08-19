@@ -131,7 +131,8 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 
     uiTaskRunnerProvider trprov( this );
     hpl.load( seldbkys, is2d, trprov );
-    uiMSG().message( hpl.errorMsg() );
+    if ( !hpl.errorMsg().isEmpty() )
+	uiMSG().error( hpl.errorMsg() );
     listfld_->setEmpty();
     listfld_->addItems( hpl.getPreloadedNames().getUiStringSet() );
     listfld_->setCurrentItem( 0 );
@@ -213,7 +214,7 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
     ascistream astrm( strm, true );
     IOPar fulliop( astrm );
     if ( fulliop.isEmpty() )
-	{ uiMSG().message( tr("No valid objects found") ); return; }
+	{ uiMSG().error( tr("No valid objects found") ); return; }
 
     PtrMan<IOPar> par = fulliop.subselect( "Hor" );
     DBKeySet seldbkys;
@@ -246,7 +247,8 @@ void uiHorizonPreLoadDlg::loadSavedHorizon( const DBKeySet& saveddbkys )
     uiTaskRunnerProvider trprov( this );
     EM::HorizonPreLoader& hpl = EM::HPreL();
     hpl.load( saveddbkys, is2d, trprov );
-    uiMSG().message( hpl.errorMsg() );
+    if ( hpl.errorMsg().isEmpty() )
+	uiMSG().error( hpl.errorMsg() );
     listfld_->setEmpty();
     BufferStringSet hornms = hpl.getPreloadedNames();
     if ( !hornms.isEmpty() )
@@ -267,7 +269,7 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {
-	uiMSG().message(tr("Cannot open output file:\n%1").arg(fnm));
+	uiMSG().error(tr("Cannot open output file:\n%1").arg(fnm));
 	return;
     }
 
@@ -288,7 +290,7 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     ascostream astrm( strm );
     if ( !astrm.putHeader("Pre-loads") )
     {
-	uiMSG().message(tr("Cannot write to output file:\n%1").arg(fnm));
+	uiMSG().error(tr("Cannot write to output file:\n%1").arg(fnm));
 	return;
     }
 

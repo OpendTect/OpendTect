@@ -641,12 +641,13 @@ void uiODApplMgrDispatcher::processPreStack( bool is2d )
 #ifdef __debug__
 	mPreStackBatchdlg(batchprocps2ddlg_)
 #else
-	uiMSG().message( tr("Coming soon") );
+	uiMSG().error( uiStrings::phrInternalErr(
+		    "2D PS Batch Processing: not release-tested yet") );
 	return;
 #endif
     }
     else
-    { mPreStackBatchdlg(batchprocps3ddlg_) }
+	{ mPreStackBatchdlg(batchprocps3ddlg_) }
 }
 
 

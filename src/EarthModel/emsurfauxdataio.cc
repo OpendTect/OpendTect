@@ -338,6 +338,8 @@ void dgbSurfDataReader::setSurface( Horizon3D& surf )
     dataidx_ = surf_->auxdata.addAuxData( dataname_.buf() );
     surf_->auxdata.setAuxDataShift( dataidx_, shift_ );
     surf_->auxdata.setUnit( dataidx_, dataunit_ );
+    if ( stream_ )
+	surf_->auxdata.setFileName( dataidx_, stream_->fileName() );
 }
 
 uiString dgbSurfDataReader::sHorizonData()

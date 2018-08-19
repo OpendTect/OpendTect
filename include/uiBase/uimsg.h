@@ -33,7 +33,7 @@ mExpClass(uiBase) uiMsg	: public CallBacker
 { mODTextTranslationClass(uiMsg)
 public:
 
-    // Messages
+    // Messages / info
     bool	message(const uiString&,
 			const uiString& part2=uiString::empty(),
 			const uiString& part3=uiString::empty(),
@@ -41,6 +41,11 @@ public:
 		/*!<If withdontshowgain is true, the user will be prompted
 		    to not see this again. Return true if the user
 		    does not want to see it again. */
+    void	info(const uiStringSet&);
+    void	about(const uiString&);
+    void	aboutOpendTect(const uiString&);
+
+    // Warning
     bool	warning(const uiString&,
 			const uiString& part2=uiString::empty(),
 			const uiString& part3=uiString::empty(),
@@ -50,6 +55,8 @@ public:
 		    does not want to see it again. */
     void	warning(const uiRetVal&);
     void	handleWarnings(const uiRetVal&); //!< does nothing if isOK()
+
+    // Error
     bool	error(const uiString&,
 		      const uiString& part2=uiString::empty(),
 		      const uiString& part3=uiString::empty(),
@@ -112,9 +119,6 @@ public:
 		//!< After that, caption will be reset to default
 
     uiMainWin*	setMainWin(uiMainWin*);	//!< return old
-
-    void	about(const uiString&);
-    void	aboutOpendTect(const uiString&);
 
     enum Icon	{ NoIcon, Information, Warning, Critical, Question };
     int		showMessageBox(Icon icon,QWidget* parent,

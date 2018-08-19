@@ -53,6 +53,7 @@ void SurfaceAuxData::removeAll()
     usable_.setEmpty();
     auxdatanames_.setEmpty();
     auxdatainfo_.setEmpty();
+    auxdatafilenames_.setEmpty();
     auxdatashift_.setEmpty();
     auxdatatypes_.setEmpty();
     units_.setEmpty();
@@ -80,15 +81,6 @@ bool SurfaceAuxData::isUsable( AuxID auxid ) const
 const char* SurfaceAuxData::auxDataName( AuxID auxid ) const
 {
     return isUsable(auxid) ? auxdatanames_.get(auxid).str() : 0;;
-}
-
-
-const char* SurfaceAuxData::firstUsableAuxDataName() const
-{
-    for ( AuxID idx=0; idx<usable_.size(); idx++ )
-	if ( usable_[idx] )
-	    return auxDataName( idx );
-    return 0;
 }
 
 
@@ -120,6 +112,20 @@ void SurfaceAuxData::setAuxDataType( AuxID auxid, AuxDataType type )
 }
 
 
+const char* SurfaceAuxData::fileName( AuxID auxid ) const
+{
+    return auxdatafilenames_.validIdx(auxid)
+	 ? auxdatafilenames_.get(auxid).str() : 0;
+}
+
+
+void SurfaceAuxData::setFileName( AuxID auxid, const char* fnm )
+{
+    if ( isUsable(auxid) )
+	auxdatafilenames_.get(auxid) = fnm;
+}
+
+
 float SurfaceAuxData::auxDataShift( AuxID auxid ) const
 {
     return isUsable(auxid) ? auxdatashift_[auxid] : 0.f;
@@ -136,6 +142,13 @@ void SurfaceAuxData::setAuxDataShift( AuxID auxid, float shift )
 const UnitOfMeasure* SurfaceAuxData::unit( AuxID auxid ) const
 {
     return isUsable(auxid) ? units_[auxid] : 0;
+}
+
+
+BufferString SurfaceAuxData::unitSymbol( AuxID auxid ) const
+{
+    const UnitOfMeasure* uom = isUsable(auxid) ? units_[auxid] : 0;
+    return BufferString( uom ? uom->symbol() : "" );
 }
 
 
@@ -167,6 +180,7 @@ SurfaceAuxData::AuxID SurfaceAuxData::addAuxData( const char* name )
     auxdatanames_.add( name );
     auxdatashift_ += 0.0;
     auxdatatypes_ += NoType;
+    auxdatafilenames_.add( "" );
     units_ += 0;
 
     auxdata_.setNrVals( nrUsableAuxData() );

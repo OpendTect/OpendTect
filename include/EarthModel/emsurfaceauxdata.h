@@ -48,10 +48,10 @@ public:
     bool		isUsable(AuxID) const;
     int			nrAuxData() const	{ return usable_.size(); }
     int			nrUsableAuxData() const;
+    const char*		fileName(AuxID) const;
 
     bool		hasAuxDataName(const char*) const;
     const char*		auxDataName(AuxID) const;
-    const char*		firstUsableAuxDataName() const;
     void		getUsableAuxDataNames(BufferStringSet&) const;
     AuxID		auxDataIndex(const char*) const;
     AuxID		addAuxData(const char* name);
@@ -74,6 +74,7 @@ public:
 
     void		setUnit(AuxID,const UnitOfMeasure*);
     const UnitOfMeasure* unit(AuxID) const;
+    BufferString	unitSymbol(AuxID) const;
 
     bool		isChanged(AuxID) const;
     void		resetChangedFlag();
@@ -106,6 +107,7 @@ protected:
     BoolTypeSet		usable_;
     BufferStringSet	auxdatanames_;
     BufferStringSet	auxdatainfo_;
+    BufferStringSet	auxdatafilenames_;
     TypeSet<float>	auxdatashift_;
     TypeSet<AuxDataType> auxdatatypes_;
     ObjectSet<const UnitOfMeasure> units_;
@@ -113,6 +115,10 @@ protected:
     bool		changed_;
 
     int			getColIdx(AuxID) const;
+
+public:
+
+    void		setFileName(AuxID,const char*);
 
 };
 

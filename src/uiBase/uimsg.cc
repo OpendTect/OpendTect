@@ -326,6 +326,11 @@ bool uiMsg::message( const uiString& part1, const uiString& part2,
 }
 
 
+void uiMsg::info( const uiStringSet& strs )
+{
+    message( strs.cat() );
+}
+
 bool uiMsg::warning( const uiString& part1, const uiString& part2,
 		     const uiString& part3, bool withdontshowagain )
 {

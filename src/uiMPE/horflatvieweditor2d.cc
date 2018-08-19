@@ -440,7 +440,7 @@ void HorizonFlatViewEditor2D::undo()
 	    uiString undoerrmsg;
 	    engine().undo( undoerrmsg );
 	    if ( !undoerrmsg.isEmpty() )
-		uiMSG().message( undoerrmsg );
+		uiMSG().error( undoerrmsg );
 	    horpainter_->paint();
 	    changed = true;
 	}
@@ -472,7 +472,7 @@ void HorizonFlatViewEditor2D::redo()
 	    uiString redoerrmsg;
 	    engine().redo( redoerrmsg );
 	    if ( !redoerrmsg.isEmpty() )
-		uiMSG().message( redoerrmsg );
+		uiMSG().error( redoerrmsg );
 	    horpainter_->paint();
 	    changed = true;
 	}

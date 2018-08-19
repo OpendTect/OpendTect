@@ -326,18 +326,17 @@ void uiBatchHostsDlg::moveDownCB( CallBacker* )
 
 void uiBatchHostsDlg::testHostsCB( CallBacker* )
 {
-    BufferStringSet msgs;
+    uiStringSet msgs;
     for ( int idx=0; idx<hostdatalist_.size(); idx++ )
     {
 	const char* hostname = hostdatalist_[idx]->getHostName();
 	BufferString msg;
 	System::lookupHost( hostname, &msg );
-	msgs.add( msg );
+	msgs.add( mToUiStringTodo(msg) );
     }
 
-    const BufferString endmsg = msgs.cat();
-    if ( !endmsg.isEmpty() )
-	uiMSG().message( toUiString(endmsg) );
+    if ( !msgs.isEmpty() )
+	uiMSG().info( msgs );
 }
 
 

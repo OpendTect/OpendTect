@@ -72,13 +72,13 @@ bool uiGMTInfoDlg::acceptOK()
     const BufferString path = gmtpath_->text();
     if ( path.isEmpty() )
     {
-	uiMSG().message( uiStrings::phrEnter(tr("GMT Path")) );
+	uiMSG().error( uiStrings::phrEnter(tr("GMT Path")) );
 	return false;
     }
 
     if ( !File::exists( path ) )
     {
-	uiMSG().message( tr("Directory not existed") );
+	uiMSG().error( tr("Directory does not exist") );
 	return false;
     }
 
@@ -86,8 +86,7 @@ bool uiGMTInfoDlg::acceptOK()
     if ( !envwrite )
 	return false;
 
-    uiMSG().message( tr("This option will work after restart OpendTect") );
-
+    uiMSG().message( tr("This option will work after you restart OpendTect") );
     return true;
 }
 

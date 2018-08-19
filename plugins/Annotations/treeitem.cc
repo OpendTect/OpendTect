@@ -223,7 +223,7 @@ bool AnnotTreeItem::showSubMenu()
 		    applMgr()->visServer()->getObject(sceneID()));
     if ( scene && scene->getZAxisTransform() )
     {
-	uiMSG().message( "Cannot add Annotations to this scene (yet)" );
+	uiMSG().error( "Cannot add Annotations to this scene (yet)" );
 	return false;
     }
 

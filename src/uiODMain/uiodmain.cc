@@ -805,10 +805,7 @@ bool uiODMain::closeOK()
     bool askedanything = false;
     if ( !askStore(askedanything,
 		   uiStrings::phrClose(toUiString(programname_) ) ) )
-    {
-	uiMSG().message(tr("Closing cancelled"));
 	return false;
-    }
 
     if ( failed_ )
 	return true;

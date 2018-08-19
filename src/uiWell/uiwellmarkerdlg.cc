@@ -682,7 +682,7 @@ void uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 
     if ( !mset.size() )
     {
-	uiMSG().message( tr("No markers available") );
+	uiMSG().error( tr("No markers available") );
 	return;
     }
 
@@ -693,7 +693,7 @@ void uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
     TypeSet<int> selitems;
     dlg.getSelIDs( selitems );
     if ( !selitems.size() )
-	{ uiMSG().message( tr("No markers selected.") ); return; }
+	{ uiMSG().error( tr("No markers selected") ); return; }
 
     MonitorLock ml( mset );
     Strat::LevelSet& lvls = Strat::eLVLS();
@@ -739,7 +739,7 @@ void uiMarkerDlg::exportCB( CallBacker* )
 
     if ( mset.isEmpty() )
     {
-	uiMSG().message( tr("No data available to export") );
+	uiMSG().error( tr("No data available to export") );
 	return;
     }
 

@@ -233,10 +233,8 @@ void uiDataPointSetCrossPlotWin::setDensityPlot( CallBacker* cb )
 					       : tr("Show density plot") );
     disptb_.setIcon( densityplottbid_,ison ? "xplot" : "densityplot" );
     eachfld_->setSensitive( !ison );
-    if ( ison && plotter_.isY2Shown() )
-	uiMSG().message( tr("Y2 cannot be displayed in density plot") );
 
-    ison ?  eachfld_->setValue( 100 ) : eachfld_->setValue( plotter_.plotperc_);
+    ison ? eachfld_->setValue( 100 ) : eachfld_->setValue( plotter_.plotperc_);
     eachfld_->setSensitive( !ison );
     plotter_.setDensityPlot( ison, disptb_.isOn(showy2tbid_) );
 
@@ -662,8 +660,9 @@ void uiDataPointSetCrossPlotWin::setMultiColorCB( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::changeColCB( CallBacker* )
 {
-    const bool ison = maniptb_.isOn( multicolcodtbid_ );
-    if ( ison )
+    if ( !maniptb_.isOn(multicolcodtbid_) )
+	uiMSG().error( tr("Cannot change color in this mode.") );
+    else
     {
 	uiSelColorDlg seldlg( this, uidps_.groupNames(), plotter_.y1grpColors(),
 			      plotter_.y2grpColors(), plotter_.isY2Shown() );
@@ -674,6 +673,4 @@ void uiDataPointSetCrossPlotWin::changeColCB( CallBacker* )
 	plotter_.drawContent( false );
 	plotter_.reDrawSelections();
     }
-    else
-	uiMSG().message( tr("Cannot change color in this mode.") );
 }

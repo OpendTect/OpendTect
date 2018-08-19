@@ -44,6 +44,7 @@ protected:
     uiToolButton*	man2dbut_;
     uiToolButton*	surfdatarenamebut_;
     uiToolButton*	surfdataremovebut_;
+    uiToolButton*	surfdatainfobut_;
     uiToolButton*	copybut_;
     uiToolButton*	mergehorbut_;
     uiToolButton*	applybodybut_;
@@ -65,6 +66,7 @@ protected:
 
     void		removeAttribCB(CallBacker*);
     void		renameAttribCB(CallBacker*);
+    void		infoAttribCB(CallBacker*);
 
     virtual void	ownSelChg();
     virtual bool	gtItemInfo(const IOObj&,uiPhraseSet&) const;

@@ -410,7 +410,7 @@ void uiDataPointSet::calcIdxs()
     const int dpssz = dps_->size();
     if ( dpssz<0 )
     {
-	uiMSG().message( tr("DataPointSet too large, choose a subselection") );
+	uiMSG().error( tr("DataPointSet too large, choose a subselection") );
 	return;
     }
 

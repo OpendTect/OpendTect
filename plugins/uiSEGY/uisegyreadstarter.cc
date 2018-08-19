@@ -547,9 +547,8 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 
 void uiSEGYReadStarter::showFileAlreadySelMsg()
 {
-    uiMSG().message( tr("The selected file is already assigned to vintage."
-			"\nPlease select another file as new for "
-			"example vintage."));
+    uiMSG().error( tr("The selected file is already assigned to a vintage."
+		"\nPlease select another example file for the new vintage."));
 
 }
 

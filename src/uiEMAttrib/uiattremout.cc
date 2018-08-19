@@ -80,7 +80,7 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
     {
 	if ( nlaid_.isInvalid() )
 	{
-	    uiMSG().message(tr("NN needs to be stored before it can be used") );
+	    uiMSG().error(tr("NN needs to be stored before it can be used") );
 	    return 0;
 	}
 

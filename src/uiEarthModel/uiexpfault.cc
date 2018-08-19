@@ -246,8 +246,7 @@ bool uiExportFault::writeAscii()
 	zatf = transfld_->getSelection();
 	if ( !zatf )
 	{
-	    uiMSG().message(tr("Transform of selected option is "
-							"not implemented"));
+	    uiMSG().error( uiStrings::phrInternalErr("Transform not impl") );
 	    return false;
 	}
     }

@@ -300,11 +300,8 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
     if ( !dataselfld_->commit() ) return;
 
     uiString msg;
-    if ( !EM::Horizon2DAscIO::isFormatOK(fd_, msg) )
-    {
-	uiMSG().message( msg );
-	return;
-    }
+    if ( !EM::Horizon2DAscIO::isFormatOK(fd_,msg) )
+	{ uiMSG().error( msg ); return; }
 
     if ( scanner_ )
     {
@@ -347,7 +344,7 @@ bool uiImportHorizon2D::doImport()
     {
 	uiString msg = tr("No valid positions found\nPlease re-examine "
 			  "input files and format definition");
-	uiMSG().message( msg );
+	uiMSG().error( msg );
 	return false;
     }
 

@@ -221,9 +221,9 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 	PosInfo::Line2DPos l2dpos;
 	if ( !line2d.getPos( crd.getXY(), l2dpos, SI().crlDistance() ) )
 	{
-	    uiString msg = tr("Please pick trace on line: %1")
+	    uiString msg = tr("Please pick a trace on line: %1")
 					.arg(geom2d->getName());
-	    uiMSG().message( msg );
+	    uiMSG().error( msg );
 	    return;
 	}
 

@@ -84,10 +84,7 @@ bool uiViewer3DPreProcTab::apply()
 	}
 
 	if ( !vwr->updateDisplay() )
-	{
-	    uiMSG().message( tr("Preprocessing failed!") );
-	    return false;
-	}
+	    { uiMSG().error( tr("Preprocessing failed") ); return false; }
     }
 
     return true;

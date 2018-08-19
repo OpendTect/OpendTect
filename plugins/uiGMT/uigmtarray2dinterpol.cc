@@ -96,13 +96,13 @@ bool uiGMTSurfaceGrid::acceptOK()
 {
     if ( !tensionfld_ )
     {
-	uiMSG().message( tr("No GMT installation found") );
+	uiMSG().error( tr("No GMT installation found") );
 	return false;
     }
 
     if ( tensionfld_->getFValue()<=0 || tensionfld_->getFValue()>=1 )
     {
-	uiMSG().message( tr("Tension value should be in between 0 and 1") );
+	uiMSG().error( tr("Tension value should be in between 0 and 1") );
 	tensionfld_->setValue( 0.25 );
 	return false;
     }
@@ -189,13 +189,13 @@ bool uiGMTNearNeighborGrid::acceptOK()
 {
     if ( !radiusfld_ )
     {
-	uiMSG().message( tr("No GMT installation found") );
+	uiMSG().error( tr("No GMT installation found") );
 	return false;
     }
 
     if ( radiusfld_->getFValue() <= 0 )
     {
-	uiMSG().message( toUiString("%1 <= 0")
+	uiMSG().error( toUiString("%1 <= 0")
 			 .arg( uiStrings::sSearchRadius() ) );
 	radiusfld_->setValue(mMAX(SI().inlDistance(), SI().crlDistance()) );
 	return false;

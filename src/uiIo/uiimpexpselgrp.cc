@@ -951,8 +951,8 @@ bool uiReadSelGrp::adjustSelectionGrps()
     }
 
     if ( selimportfailed )
-	uiMSG().message(tr("Some selectionareas could not be imported \nas "
-			   "they fall outside the value ranges of the plot"));
+	uiMSG().warning(tr("Some selection areas could not be imported,\nas "
+			   "they are outside the value ranges of the plot"));
 
     return true;
 }

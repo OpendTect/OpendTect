@@ -390,7 +390,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     {
 	if ( nlaid_.isInvalid() )
 	{
-	    uiMSG().message(tr("NN needs to be stored before creating volume"));
+	    uiMSG().error(tr("NN needs to be stored before creating volume"));
 	    return 0;
 	}
 	addNLA( nlamodel_id );

@@ -701,7 +701,7 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     updNow();
     if ( !track_.size() )
     {
-	uiMSG().message( tr("No data available to export") );
+	uiMSG().error( tr("No data available to export") );
 	return;
     }
 
@@ -1804,7 +1804,7 @@ bool uiWellLogUOMDlg::setUoMValues()
     const int logssz = logs_.size();
     if ( !logssz || logssz!=uominfotbl_->nrRows() )
     {
-	uiMSG().message( tr("No logs found.") );
+	uiMSG().error( tr("No logs found.") );
 	return false;
     }
 
@@ -1858,7 +1858,7 @@ bool uiSetD2TFromOtherWell::acceptOK()
     ConstRefMan<Well::Data> wd = Well::MGR().fetch( dbky );
     if ( !wd || !wd->haveD2TModel() )
     {
-	uiMSG().message( tr("Can not read input model.") );
+	uiMSG().error( tr("Cannot read input model") );
 	return false;
     }
 

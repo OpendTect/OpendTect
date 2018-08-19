@@ -128,7 +128,8 @@ bool uiODAnnotTreeItem::showSubMenu()
 		    applMgr()->visServer()->getObject(sceneID()));
     if ( scene && scene->getZAxisTransform() )
     {
-	uiMSG().message( tr("Cannot add Annotations to this scene (yet)") );
+	//TODO
+	uiMSG().error( tr("Cannot add Annotations to this scene") );
 	return false;
     }
 
