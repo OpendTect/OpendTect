@@ -153,7 +153,6 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     , automksynth_(true)
     , nrmodels_(0)
     , moddisp_(0)
-    , modeldlg_(0)
     , newModels(this)
     , waveletChanged(this)
     , saveRequired(this)
@@ -283,9 +282,6 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &lmp_;
     delete descctio_.ioobj_; delete &descctio_;
     delete elpropsel_;
-    if ( modeldlg_ )
-	modeldlg_->close();
-    delete modeldlg_;
     StratTreeWin().changeLayerModelNumber( false );
     UnitOfMeasure::saveCurrentDefaults();
 }
@@ -580,20 +576,31 @@ bool uiStratLayerModel::saveGenDesc() const
 }
 
 
+bool uiStratLayerModel::loadGenDesc( const DBKey& dbky )
+{
+    descctio_.setObj( dbky );
+    return descctio_.ioobj_ ? doLoadGenDesc() : false;
+}
+
+
 bool uiStratLayerModel::openGenDesc()
 {
     if ( !saveGenDescIfNecessary() )
 	return false;
 
     descctio_.ctxt_.forread_ = true;
-    modeldlg_ = new uiIOObjSelDlg( this, descctio_ );
-
-
-    if ( !modeldlg_->go() || !modeldlg_->ioObj() )
+    uiIOObjSelDlg seldlg( this, descctio_ );
+    if ( !seldlg.go() || !seldlg.ioObj() )
 	return false;
 
-    descctio_.setObj( modeldlg_->ioObj()->clone() );
+    descctio_.setObj( seldlg.ioObj()->clone() );
 
+    return doLoadGenDesc();
+}
+
+
+bool uiStratLayerModel::doLoadGenDesc()
+{
     const BufferString fnm( descctio_.ioobj_->mainFileName() );
     od_istream strm( fnm );
     if ( !strm.isOK() )

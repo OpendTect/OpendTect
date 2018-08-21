@@ -68,6 +68,7 @@ public:
     const ObjectSet<const TimeDepthModel>& d2TModels() const;
     const Wavelet*			wavelet() const;
     DBKey				genDescID() const;
+    bool				loadGenDesc(const DBKey&);
 
     Notifier<uiStratLayerModel>	newModels;
     Notifier<uiStratLayerModel>	waveletChanged;
@@ -119,6 +120,7 @@ protected:
     bool			saveGenDesc() const;
     bool			saveGenDescIfNecessary(
 					bool allowcancel=true) const;
+    bool			doLoadGenDesc();
     void			doGenModels(bool forceupdsynth,
 					    bool overridedispeach=false);
     void			calcAndSetDisplayEach(bool overridepar);
