@@ -515,6 +515,7 @@ public:
     static uiWord sMinimum()		{ return tr("Minimum"); }
     static uiWord sMode()		{ return tr("Mode"); }
     static uiWord sModel(int n=1)	{ return tr("Model",0,n); }
+    static uiWord sModelNumber()	{ return tr("Model Number"); }
     static uiWord sModify()		{ return tr("Modify"); }
     static uiWord sMouse()		{ return tr("Mouse"); }
     static uiWord sMove()		{ return tr("Move"); }

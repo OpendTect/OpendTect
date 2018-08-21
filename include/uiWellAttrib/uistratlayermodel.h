@@ -140,7 +140,8 @@ protected:
     void			synthDispParsChangedCB(CallBacker*);
     void			lmDispParsChangedCB(CallBacker*);
     void			selPropChgCB(CallBacker*);
-    void			infoChanged(CallBacker*);
+    void			synthInfoChangedCB(CallBacker*);
+    void			modInfoChangedCB(CallBacker*);
     void			selElasticPropsCB(CallBacker*);
 
     void			initWin(CallBacker*);

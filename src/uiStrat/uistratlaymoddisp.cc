@@ -482,55 +482,53 @@ int uiStratLayerModelDisp::getClickedModelNr() const
 
 void uiStratLayerModelDisp::mouseMoved( CallBacker* )
 {
-    IOPar statusbarmsg;
-    const int selseq = getClickedModelNr();
-    statusbarmsg.set( "Model Number", toString(selseq) );
+    const int seqidx = getClickedModelNr();
+    if ( seqidx<0 || seqidx>=layerModel().size() )
+	return;
+
     const MouseEvent& mev = vwr_.rgbCanvas().getMouseEventHandler().event();
     float depth = vwr_.getWorld2Ui().toWorldY( mev.pos().y_ );
     if ( !Math::IsNormalNumber(depth) )
     {
-	mDefineStaticLocalObject( bool, havewarned, = false );
+	static bool havewarned = false;
 	if ( !havewarned )
 	    { havewarned = true; pErrMsg("Invalid number from axis handler"); }
-	depth = 0;
+	depth = 0.f;
     }
 
-    BufferString depthstr( mNINT32(depth) );
-    depthstr.add( SI().depthsInFeet() ? "(ft)" : "(m)" );
-    statusbarmsg.set( "Depth", depthstr );
+    uiString sbmsg = uiStrings::sModelNumber().addMoreInfo( seqidx+1 );
+    sbmsg.postFixWord( uiStrings::sDepth().addMoreInfo(mNINT32(depth))
+			.withSurvDepthUnit() );
+
     if ( SI().depthsInFeet() )
 	depth *= mFromFeetFactorF;
 
-    if ( selseq >0 && selseq<=layerModel().size() )
+    const auto& seq = layerModel().sequence( seqidx );
+    const int disppropidx = tools_.selPropIdx();
+    for ( int ilay=0; ilay<seq.size(); ilay++ )
     {
-	const Strat::LayerSequence& seq = layerModel().sequence( selseq-1 );
-	for ( int ilay=0; ilay<seq.size(); ilay++ )
+	const auto& lay = *seq.layers().get( ilay );
+	float z0 = lay.zTop(); float z1 = lay.zBot();
+	if ( flattened_ && !lvldpths_.validIdx(seqidx) )
 	{
-	    const Strat::Layer& lay = *seq.layers()[ilay];
-	    float z0 = lay.zTop();
-	    float z1 = lay.zBot();
-	    if ( flattened_ && !lvldpths_.validIdx(selseq-1) )
-	    {
-		const float lvldpth = lvldpths_[0][selseq-1];
-		z0 -= lvldpth;
-		z1 -= lvldpth;
-	    }
+	    const float lvldpth = lvldpths_[0][seqidx];
+	    z0 -= lvldpth; z1 -= lvldpth;
+	}
 
-	    const int disppropidx = tools_.selPropIdx();
-	    if ( depth >= z0 && depth<= z1 && disppropidx>=0 )
+	if ( depth >= z0 && depth<= z1 )
+	{
+	    sbmsg.postFixWord( uiStrings::sLayer().addMoreInfo(lay.name()) );
+	    if ( disppropidx>=0 )
 	    {
-		const PropertyRef* pr = seq.propertyRefs()[disppropidx];
+		const PropertyRef* pr = seq.propertyRefs().get( disppropidx );
 		const float val = getLayerPropValue(lay,pr,disppropidx);
-		statusbarmsg.set( pr->name(), val );
-		statusbarmsg.set( "Layer", lay.name() );
-		statusbarmsg.set( "Lithology", lay.lithology().name() );
-		if ( !lay.content().isUnspecified() )
-		    statusbarmsg.set( "Content", lay.content().name() );
-		break;
+		sbmsg.postFixWord( toUiString(pr->name()).addMoreInfo(val) );
 	    }
+	    break;
 	}
     }
-    infoChanged.trigger( statusbarmsg, this );
+
+    infoChanged.trigger( &sbmsg, this );
 }
 
 

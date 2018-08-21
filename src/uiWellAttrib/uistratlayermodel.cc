@@ -259,12 +259,12 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     synthdisp_->layerPropSelNeeded.notify(
 			    mCB(this,uiStratLayerModel,selElasticPropsCB) );
     synthdisp_->control()->infoChanged.notify(
-	    mCB(this,uiStratLayerModel,infoChanged) );
+		    mCB(this,uiStratLayerModel,synthInfoChangedCB) );
     moddisp_->genNewModelNeeded.notify( mCB(this,uiStratLayerModel,genModels) );
     moddisp_->rangeChanged.notify(
 			    mCB(this,uiStratLayerModel,modDispRangeChanged));
     moddisp_->infoChanged.notify(
-			    mCB(this,uiStratLayerModel,infoChanged));
+			    mCB(this,uiStratLayerModel,modInfoChangedCB));
     moddisp_->sequenceSelected.notify( mCB(this,uiStratLayerModel,seqSel) );
     moddisp_->modelEdited.notify( mCB(this,uiStratLayerModel,modEd) );
     moddisp_->dispPropChanged.notify(
@@ -1063,26 +1063,22 @@ void uiStratLayerModel::syntheticsChangedCB( CallBacker* )
 }
 
 
-void uiStratLayerModel::infoChanged( CallBacker* cb )
+void uiStratLayerModel::synthInfoChangedCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller(IOPar,pars,caller,cb);
-    mDynamicCastGet(uiStratLayerModelDisp*,moddisp,caller);
-    if ( !moddisp )
-    {
-	uiString msg;
-	synthdisp_->makeInfoMsg( msg, pars );
-	statusBar()->message( msg );
-    }
+    mCBCapsuleUnpack( IOPar, iop, cb );
+    uiString todisp;
+    synthdisp_->makeInfoMsg( todisp, iop );
+    statusBar()->message( todisp );
+}
+
+
+void uiStratLayerModel::modInfoChangedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( const uiString*, dispmsg, cb );
+    if ( !dispmsg )
+	{ pErrMsg("Huh"); }
     else
-    {
-	uiString msg;
-	for ( int idx=0; idx<pars.size(); idx++ )
-	{
-	    msg.appendPlainText( "%1 : %2 ;" ).arg(pars.getKey(idx))
-					     .arg(pars.getValue(idx));
-	}
-	statusBar()->message( msg );
-    }
+	statusBar()->message( *dispmsg );
 }
 
 

@@ -73,7 +73,7 @@ public:
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
 
     void		setFlattened(bool flattened,bool trigger=true);
-    void		setDispMrkrs(const BufferStringSet,
+    void		setDispMrkrs(const BufferStringSet&,
 				const uiStratLayerModelDisp::LVLZValsSet&);
     void		setSelectedTrace(int);
     void		setDispEach(int);

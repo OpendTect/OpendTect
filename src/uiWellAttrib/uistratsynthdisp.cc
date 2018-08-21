@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "stratsynthlevel.h"
 #include "stratsynthlevelset.h"
 #include "stratlith.h"
+#include "stratunitref.h"
 #include "syntheticdataimpl.h"
 #include "flatviewzoommgr.h"
 #include "flatposdata.h"
@@ -217,95 +218,78 @@ uiStratSynthDisp::~uiStratSynthDisp()
 void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 {
     FixedString valstr = pars.find( sKey::TraceNr() );
-    int modelidx = 0;
     if ( valstr.isEmpty() )
 	return;
-    modelidx = toInt(valstr)-1;
-    uiString modelnrstr = tr("Model Number").addMoreInfo(toUiString(modelidx));
-    msg.appendPhrase( modelnrstr );
-    valstr = pars.find( sKey::Z() );
-    if ( !valstr ) valstr = pars.find( "Z-Coord" );
-    float zval = mUdf(float);
-    if ( valstr )
-    {
-	zval = toFloat( valstr );
-	uiString depthstr = uiStrings::sDepth().addMoreInfo(
-		    toUiString((int)zval) ).withSurvZUnit();
-	msg.appendPhrase( depthstr, uiString::Space, uiString::OnSameLine );
-    }
 
-    if ( mIsUdf(zval) || layerModel().size()<=modelidx || modelidx<0 )
+    const int modelidx = toInt( valstr );
+    const int seqidx = modelidx - 1;
+    if ( seqidx<0 || seqidx>=layerModel().size() )
 	return;
 
-    msg.addSpace();
-    int nrinfos = 0;
-#define mAddSep() if ( nrinfos++ ) msg.appendPhrase(uiString::empty(), \
-		sepalreadyadded ? uiString::MoreInfo : uiString::NoSep, \
-		uiString::OnNewLine);
+    msg.postFixWord( uiStrings::sModelNumber().addMoreInfo( modelidx ) );
+
+    valstr = pars.find( sKey::Z() );
+    if ( !valstr )
+	valstr = pars.find( "Z-Coord" );
+    const float zval = valstr && *valstr ? toFloat(valstr) : mUdf(float);
+    if ( mIsUdf(zval) )
+      return;
+    uiString zstr = uiStrings::sZ().addMoreInfo(mNINT32(zval)).withSurvZUnit();
+    msg.postFixWord( zstr );
 
     FixedString vdstr = pars.find( "Variable density data" );
     FixedString wvastr = pars.find( "Wiggle/VA data" );
     FixedString vdvalstr = pars.find( "VD Value" );
     FixedString wvavalstr = pars.find( "WVA Value" );
-    const bool issame = vdstr && wvastr && vdstr==wvastr;
-    bool sepalreadyadded(false);
-    if ( vdvalstr )
+    const bool vdsameaswva = vdstr == wvastr;
+    if ( !vdvalstr.isEmpty() )
     {
-	mAddSep();
-	sepalreadyadded = true;
-	if ( issame )
-	    { if ( vdstr.isEmpty() ) vdstr = wvastr; }
+	if ( vdsameaswva && vdstr.isEmpty() )
+	    vdstr = wvastr;
+	if ( vdstr.isEmpty() )
+	    vdstr = "VD";
+	const float val = vdvalstr.toFloat();
+	uiString toadd = toUiString( vdstr );
+	if ( mIsUdf(val) )
+	    toadd.addMoreInfo( uiStrings::sUndef() );
 	else
-	    { if ( vdstr.isEmpty() ) vdstr = "VD Val"; }
-	float val = !vdvalstr.isEmpty() ? vdvalstr.toFloat() : mUdf(float);
-	msg.appendPhrase( tr("Val = %1 (%2)")
-			.arg( mIsUdf(val) ? uiStrings::sUndef()
-					  : toUiString(vdvalstr))
-			.arg(toUiString(vdstr)),
-			uiString::NoSep, uiString::OnSameLine);
+	    toadd.addMoreInfo( val );
+	msg.postFixWord( toadd );
     }
-    if ( wvavalstr && !issame )
+
+    if ( !wvavalstr.isEmpty() && !vdsameaswva )
     {
-	mAddSep();
-	sepalreadyadded = true;
-	float val = !wvavalstr.isEmpty() ? wvavalstr.toFloat() : mUdf(float);
-	msg.appendPhrase(tr("Val = %1").arg(mIsUdf(val) ? uiStrings::sUndef() :
-			    toUiString(wvavalstr)), uiString::NoSep,
-			    uiString::OnSameLine );
-	if ( wvastr.isEmpty() ) wvastr = "WVA Val";
-	msg.appendPhrase(toUiString("(%1)").arg(wvastr), uiString::NoSep,
-					    uiString::OnSameLine);
+	if ( wvastr.isEmpty() )
+	    wvastr = "WVA";
+	const float val = wvavalstr.toFloat();
+	uiString toadd = toUiString( wvastr );
+	if ( mIsUdf(val) )
+	    toadd.addMoreInfo( uiStrings::sUndef() );
+	else
+	    toadd.addMoreInfo( val );
+	msg.postFixWord( toadd );
     }
 
     float val;
-    if ( pars.get(sKey::Offset(),val) )
+    if ( pars.get(sKey::Offset(),val) && !mIsUdf(val) )
     {
 	if ( SI().xyInFeet() )
 	    val *= mToFeetFactorF;
-
-	mAddSep();
-	sepalreadyadded = true;
-	msg.appendPhrase(tr("Offs=%1").arg(val).withSurvXYUnit(),
-			uiString::NoSep, uiString::OnSameLine);
+	uiString toadd = uiStrings::sOffset().addMoreInfo(val).withSurvXYUnit();
+	msg.postFixWord( toadd );
     }
 
-    if ( d2tmodels_ && d2tmodels_->validIdx(modelidx) )
+    if ( d2tmodels_ && d2tmodels_->validIdx(seqidx) )
     {
-	zval /= SI().showZ2UserFactor();
-	const float depth = (*d2tmodels_)[modelidx]->getDepth( zval );
-	const Strat::LayerSequence& curseq = layerModel().sequence( modelidx );
+	const float realzval = zval / SI().showZ2UserFactor();
+	const float depth = d2tmodels_->get(seqidx)->getDepth( realzval );
+	const Strat::LayerSequence& curseq = layerModel().sequence( seqidx );
 	for ( int lidx=0; lidx<curseq.size(); lidx++ )
 	{
-	    const Strat::Layer* layer = curseq.layers()[lidx];
-	    if ( layer->zTop()<=depth && layer->zBot()>depth )
+	    const auto& lay = *curseq.layers().get( lidx );
+	    if ( lay.zTop()<=depth && lay.zBot()>depth )
 	    {
-		msg.appendPhrase( tr("Layer : %1;\n\t Lithology : %2")
-		    .arg( layer->name() ).arg( layer->lithology().name()),
-		    uiString::Tab, uiString::AfterEmptyLine);
-		if ( !layer->content().isUnspecified() )
-		    msg.appendPhrase( tr("Content : %1")
-			.arg( layer->content().name()), uiString::Tab,
-			uiString::AfterEmptyLine );
+		msg.postFixWord( uiStrings::sLayer().addMoreInfo(lay.name()) );
 		break;
 	    }
 	}
@@ -451,7 +435,7 @@ void uiStratSynthDisp::setFlattened( bool flattened, bool trigger )
 }
 
 
-void uiStratSynthDisp::setDispMrkrs( const BufferStringSet lvlnmset,
+void uiStratSynthDisp::setDispMrkrs( const BufferStringSet& lvlnmset,
 			    const uiStratLayerModelDisp::LVLZValsSet& zvalset )
 {
     curSS().setLevels( lvlnmset, zvalset );

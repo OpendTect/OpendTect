@@ -188,6 +188,7 @@ public:
     uiString&		withUnit(const uiString&);
     uiString&		withSurvZUnit();
     uiString&		withSurvXYUnit();
+    uiString&		withSurvDepthUnit();
     uiString&		withNumber(od_int64); // simple add number like "well 1"
     uiString&		addMoreInfo(const uiString&,bool newline=false);
 			//!< will deliver ": the string with more info"

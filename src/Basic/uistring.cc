@@ -796,6 +796,12 @@ uiString& uiString::withSurvXYUnit()
 }
 
 
+uiString& uiString::withSurvDepthUnit()
+{
+    return withUnit( SI().depthsInFeet() ? "ft" : "m" );
+}
+
+
 bool uiString::translate( const QTranslator& qtr , QString& res ) const
 {
 #ifndef OD_NO_QT
