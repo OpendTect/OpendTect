@@ -284,7 +284,7 @@ BufferString OS::MachineCommand::getSingleStringRep( bool noremote ) const
     {
 	BufferString str( *arg );
 	str.replace( " ", "\\ " );
-	ret.add( str );
+	ret.addSpace().add( str );
     }
 
     return ret.buf();
@@ -340,11 +340,11 @@ const char* OS::MachineCommand::extractHostName( const char* str,
 }
 
 
-static BufferString getUsableCmd( const char* fnm )
+#ifdef __win__
+
+static BufferString getUsableWinCmd( const char* fnm )
 {
     BufferString ret( fnm );
-
-#ifdef __win__
 
     BufferString execnm( fnm );
     char* ptr = execnm.find( ':' );
@@ -436,9 +436,44 @@ static BufferString getUsableCmd( const char* fnm )
     if ( args && *args )
 	ret.add( " " ).add( args );
 
+    return ret;
+}
+
 #endif
 
+
+static BufferString getUsableUnixCmd( const char* fnm )
+{
+    BufferString ret( fnm );
+    if ( File::Path(fnm).isAbsolute() && File::exists(fnm) )
+	return ret;
+
+    ret = GetShellScript( fnm );
+    if ( File::exists(ret) )
+	return ret;
+
+    ret = GetPythonScript( fnm );
+    if ( File::exists(ret) )
+	return ret;
+
+    File::Path execfp( GetExecPlfDir(), fnm );
+    if ( File::exists(execfp.fullPath()) )
+    {
+	ret = mGetExecScript();
+	ret.addSpace().add( fnm );
+    }
+
     return ret;
+}
+
+
+static BufferString getUsableCmd( const char* fnm )
+{
+#ifdef __win__
+    return getUsableWinCmd( fnm );
+#else
+    return getUsableUnixCmd( fnm );
+#endif
 }
 
 
@@ -486,8 +521,7 @@ BufferString OS::MachineCommand::getExecCommand() const
 // OS::CommandLauncher
 
 OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc )
-    : odprogressviewer_(File::Path(GetExecPlfDir(),sODProgressViewerProgName)
-			    .fullPath())
+    : odprogressviewer_(sODProgressViewerProgName)
     , process_( 0 )
     , stderror_( 0 )
     , stdoutput_( 0 )
@@ -611,12 +645,14 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     {
 	const BufferString monitfnmnoquotes = monitorfnm_;
 	monitorfnm_.quote( '\"' );
-	progvwrcmd_.set( "\"" ).add( odprogressviewer_ )
-		   .add( "\" --inpfile " ).add( monitorfnm_ )
-		   .add( " --pid " ).add( processID() );
+	MachineCommand progvwrcmd( odprogressviewer_ );
+	progvwrcmd.addKeyedArg( "inpfile", monitorfnm_ );
+	progvwrcmd.addKeyedArg( "pid", processID() );
 
-	redirectoutput_ = false;
-	if ( !ExecODProgram(progvwrcmd_) )
+	OS::CommandLauncher progvwrcl( progvwrcmd );
+	OS::CommandExecPars cp;
+	cp.launchtype( RunInBG );
+	if ( !progvwrcl.execute(cp) )
 	    ErrMsg("Cannot launch progress viewer");
 			// sad ... but the process has been launched
     }
