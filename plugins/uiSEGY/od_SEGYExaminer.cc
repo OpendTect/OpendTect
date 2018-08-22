@@ -13,49 +13,28 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "prog.h"
 #include "moddepmgr.h"
+#include "commandlineparser.h"
 
 #ifdef __win__
 #include "file.h"
 #endif
 
 
-int main( int argc_in, char ** argv_in )
+int main( int argc, char ** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
-    SetProgramArgs( argc_in, argv_in );
+    SetProgramArgs( argc, argv );
+    CommandLineParser clp;
+    if ( !clp.hasKey("fg") )
+	ForkProcess();
+
     OD::ModDeps().ensureLoaded( "uiSeis" );
 
-    char** argv = GetArgV();
-    int& argc = GetArgC();
-    bool dofork = true;
-    uiSEGYExamine::Setup su;
-    int argidx = 1;
-    while ( argc > argidx
-	 && *argv[argidx] == '-' && *(argv[argidx]+1) == '-' )
+    BufferStringSet normargs;
+    clp.getNormalArguments( normargs );
+    if ( normargs.size() != 1 )
     {
-	const FixedString arg( argv[argidx]+2 );
-#define mArgIs(s) arg == s
-	if ( mArgIs("ns") )
-	    { argidx++; su.fp_.ns_ = toInt( argv[argidx] ); }
-	else if ( mArgIs("fmt") )
-	    { argidx++; su.fp_.fmt_ = toInt( argv[argidx] ); }
-	else if ( mArgIs("nrtrcs") )
-	    { argidx++; su.nrtrcs_ = toInt( argv[argidx] ); }
-	else if ( mArgIs("filenrs") )
-	    { argidx++; su.fs_.getMultiFromString( argv[argidx] ); }
-	else if ( mArgIs("swapbytes") )
-	    { argidx++; su.fp_.byteswap_ = toInt( argv[argidx] ); }
-	else if ( mArgIs("fg") )
-	    dofork = false;
-	else
-	    { od_cout() << "Ignoring option: " << argv[argidx] << od_endl; }
-
-	argidx++;
-    }
-
-    if ( argc <= argidx )
-    {
-	od_cout() << "Usage: " << argv[0]
+	od_cout() << "Usage: " << clp.getExecutableName()
 		  << "\n\t[--ns #samples]""\n\t[--nrtrcs #traces]"
 		     "\n\t[--fmt segy_format_number]"
 		     "\n\t[--filenrs start`stop`step[`nrzeropad]]"
@@ -65,27 +44,45 @@ int main( int argc_in, char ** argv_in )
 	return ExitProgram( 1 );
     }
 
-#ifdef __debug__
-    od_cout() << argv[0] << " started with args:";
-    for ( int idx=1; idx<argc; idx++ )
-	od_cout() << ' ' << argv[idx];
-    od_cout() << od_endl;
-#endif
+    const char* key_ns = "ns";
+    const char* key_fmt = "fmt";
+    const char* key_nrtrcs = "nrtrcs";
+    const char* key_filenrs = "filenrs";
+    const char* key_swapbytes = "swapbytes";
 
-    if ( dofork )
-	ForkProcess();
+    uiSEGYExamine::Setup su;
+    clp.setKeyHasValue( key_ns );
+    clp.setKeyHasValue( key_fmt );
+    clp.setKeyHasValue( key_nrtrcs );
+    clp.setKeyHasValue( key_filenrs );
+    clp.setKeyHasValue( key_swapbytes );
 
-    BufferString fnm( argv[argidx] );
+#define mHaveArg(ky) clp.hasKey( key_##ky )
+    if ( mHaveArg(ns) )
+	clp.getVal( key_ns, su.fp_.ns_ );
+    else if ( mHaveArg(fmt) )
+	clp.getVal( key_fmt, su.fp_.fmt_ );
+    else if ( mHaveArg(nrtrcs) )
+	clp.getVal( key_nrtrcs, su.nrtrcs_ );
+    else if ( mHaveArg(swapbytes) )
+	clp.getVal( key_swapbytes, su.fp_.byteswap_ );
+    else if ( mHaveArg(filenrs) )
+    {
+	BufferString nrstr;
+	clp.getVal( key_filenrs, nrstr );
+	su.fs_.getMultiFromString( nrstr );
+    }
+
+    BufferString fnm( normargs.get(0) );
     fnm.replace( "+x+", "*" );
     su.fs_.setFileName( fnm );
-
-    uiMain app( argc, argv );
 
 #ifdef __win__
     if ( File::isLink( su.fs_.fileName(0) ) )
 	su.fs_.setFileName( File::linkEnd( su.fs_.fileName(0) ) );
 #endif
 
+    uiMain app;
     uiSEGYExamine* sgyex = new uiSEGYExamine( 0, su );
     app.setTopLevel( sgyex );
     sgyex->show();

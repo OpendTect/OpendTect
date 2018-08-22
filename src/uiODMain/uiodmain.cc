@@ -41,6 +41,7 @@ ________________________________________________________________________
 #include "autosaver.h"
 #include "genc.h"
 #include "coltabsequence.h"
+#include "commandlineparser.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
 #include "dbman.h"
@@ -166,13 +167,13 @@ void ODMainProgramRestarter()
 }
 
 
-int ODMain( int argc, char** argv )
+int ODMain()
 {
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
     OD::ModDeps().ensureLoaded( "uiBase" );
     uiDialog::setTitlePos( -1 );
 
-    PtrMan<uiMain> main = new uiMain( argc, argv );
+    PtrMan<uiMain> main = new uiMain;
     PtrMan<uiODMain> odmain = new uiODMain( *main );
     manODMainWin( odmain );
     checkScreenRes();

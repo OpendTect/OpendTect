@@ -4,16 +4,16 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        K. Tindgahl
- Date:          September 2013
+ Author:        Kris / Bert
+ Date:          September 2013 / August 2018
 ________________________________________________________________________
 
 -*/
 
 #include "uibasemod.h"
-
 #include "gendefs.h"
 
-#ifdef __mac__
-mGlobal(uiBase) void uiInitMac();
-#endif
+namespace OD
+{
+    mGlobal(uiBase) void uiInitProcessStatus(); // does nothing except on Mac
+}

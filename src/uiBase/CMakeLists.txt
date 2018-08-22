@@ -71,6 +71,7 @@ set(OD_MODULE_SOURCES
 	uiobjbody.cc
 	uiobjectstack.cc
 	uipixmap.cc
+	uiplfspecific.cc
 	uiprogressbar.cc
 	uirgbarray.cc
 	uirubberband.cc
@@ -91,13 +92,6 @@ set(OD_MODULE_SOURCES
 	uivirtualkeyboard.cc
 )
 
-if ( APPLE )
-    list ( APPEND OD_MODULE_SOURCES uimacinit.cc )
-endif()
-
-if ( WIN32 )
-    list ( APPEND OD_MODULE_SOURCES uiprintscreen.cc )
-endif()
 
 set(OD_MODULE_GUI_PROGS od_DispMsg.cc  )
 OD_ADD_SOURCE_FILES( uimainicon.xpm )

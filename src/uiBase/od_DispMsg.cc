@@ -24,21 +24,22 @@ int main( int argc, char** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
-    CommandLineParser parser;
+    uiMain app;
 
-    if ( parser.nrArgs()<1 )
+    auto& clp = app.commandLineParser();
+    if ( clp.nrArgs()<1 )
 	return ExitProgram( 1 );
 
     int typ = 0; //Default is info
-    if ( parser.hasKey( "warn" ) )
+    if ( clp.hasKey( "warn" ) )
 	typ = 1;
-    else if ( parser.hasKey( "err" ) )
+    else if ( clp.hasKey( "err" ) )
 	typ = 2;
-    else if ( parser.hasKey( "ask" ))
+    else if ( clp.hasKey( "ask" ))
 	typ = 3;
 
     BufferStringSet normalargs;
-    parser.getNormalArguments( normalargs );
+    clp.getNormalArguments( normalargs );
 
     uiString msg = uiString::empty();
     for ( int idx=0; idx<normalargs.size(); idx++ )
@@ -50,11 +51,15 @@ int main( int argc, char** argv )
 	    msg.appendPlainText( " " );
     }
     if ( msg.isEmpty() )
-	msg = typ == 1 ? od_static_tr("main", "Be careful!")
-	    : (typ ==2 ? od_static_tr("main", "Problem found!")
-		       : od_static_tr("main", "Your answer:"));
+    {
+	if ( typ != 3 )
+	{
+	    od_cout() << clp.getExecutableName() << ": No message";
+	    ExitProgram( 0 );
+	}
+	msg = od_static_tr("main","Your answer").addMoreInfo(uiString::empty());
+    }
 
-    uiMain app( argc, argv );
     if ( typ == 0 )
 	uiMSG().message( msg );
     else if ( typ == 1 )

@@ -17,7 +17,7 @@ int main( int argc, char** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
-    uiMain app( argc, argv );
+    uiMain app;
 
     uiBatchHostsDlg* dlg = new uiBatchHostsDlg( 0 );
     dlg->showAlwaysOnTop();

@@ -16,12 +16,11 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include "uiaction.h"
 #include "uitreeview.h"
-#ifdef __mac__
-# include "uimacinit.h"
-#endif
+#include "uiprocessinit.h"
 
 #include "applicationdata.h"
 #include "bufstringset.h"
+#include "commandlineparser.h"
 #include "debug.h"
 #include "envvars.h"
 #include "file.h"
@@ -359,15 +358,13 @@ static void qtMessageOutput( QtMsgType type, const char* msg )
 }
 
 
-uiMain::uiMain( int& argc, char **argv )
-    : mainobj_(0)
+uiMain::uiMain()
+    : clp_(new CommandLineParser)
 {
-#ifdef __mac__
-    uiInitMac();
-#endif
+    OD::uiInitProcessStatus();
 
     initQApplication();
-    init( 0, argc, argv );
+    init( 0 );
 
     if ( setAppIcon(app_) )
 	qdesktop_ = app_->desktop();
@@ -375,9 +372,12 @@ uiMain::uiMain( int& argc, char **argv )
 
 
 uiMain::uiMain( QApplication* qapp )
-    : mainobj_(0)
+    : clp_(new CommandLineParser)
 {
+    OD::uiInitProcessStatus();
+
     initQApplication();
+    init( qapp );
     app_ = qapp;
     if ( setAppIcon(app_) )
 	qdesktop_ = app_->desktop();
@@ -391,6 +391,7 @@ uiMain::~uiMain()
     delete keyfilter_;
     delete tabletfilter_;
     delete app_;
+    delete clp_;
 }
 
 
@@ -406,7 +407,7 @@ void uiMain::cleanQtOSEnv()
 }
 
 
-void uiMain::init( QApplication* qap, int& argc, char **argv )
+void uiMain::init( QApplication* qap )
 {
     if ( app_ )
 	{ pErrMsg("You already have a uiMain object!"); return; }
@@ -416,7 +417,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "Constructing QApplication ..." );
 
-    app_ = qap ? qap : new QApplication( argc, argv );
+    app_ = qap ? qap : new QApplication( GetArgC(), GetArgV() );
 
     KeyboardEventHandler& kbeh = keyboardEventHandler();
     keyfilter_ = new KeyboardEventFilter( kbeh );

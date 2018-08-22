@@ -37,8 +37,9 @@ int main( int argc, char ** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
+    uiMain app;
 
-    CommandLineParser clp;
+    auto& clp = app.commandLineParser();
     clp.setKeyHasValue( "dataroot" );
     BufferStringSet normargs;
     BufferString dataroot, survdir, fullsurvpath;
@@ -62,7 +63,6 @@ int main( int argc, char ** argv )
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllUI() );
     PIM().loadSurveyRelatedTools();
 
-    uiMain app( GetArgC(), GetArgV() );
     uiDialog* toplevel = 0;
     if ( createmode )
 	toplevel = new uiUserCreateSurvey( 0, dataroot );

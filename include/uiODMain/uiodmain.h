@@ -105,7 +105,7 @@ protected:
 
 private:
 
-    mGlobal(uiODMain) friend int		ODMain(int,char**);
+    mGlobal(uiODMain) friend int ODMain();
 
     bool		ensureGoodDataDir();
     bool		ensureGoodSurveySetup();

@@ -34,7 +34,7 @@ mGlobal(uiSysAdm) int ODSysAdmMain(int,char**); // keep compiler happy
 int ODSysAdmMain( int argc, char** argv )
 {
     PIM().loadAuto( false );
-    uiMain app( argc, argv );
+    uiMain app;
     uiODSysAdm& odsa = ODSysAdmMainWin(); // Has to be done here - constructs
     PIM().loadAuto( true );
 

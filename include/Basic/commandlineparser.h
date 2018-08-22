@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "debug.h" // easier for test programs, declares od_init_test_program
 
-/*!Parser that takes the argc and argv and makes them parsable. An argument
+/*! takes the argc and argv and makes them queryable. An argument
    starting with -- is considered a key, as well as arguments starting with "-",
    if not imedialtely followed by a number. Hence -create is a key, -9 or -.3
    are not.
@@ -43,75 +43,87 @@ ________________________________________________________________________
         return false;
 
 \endcode
+
+  Note: if there is an environment variable executablename_ARGS then that will
+  overrule any provided args.
+
  */
 
 
 mExpClass(Basic) CommandLineParser
 {
 public:
-				CommandLineParser(const char*);
-				CommandLineParser(int argc,char** argv);
-				CommandLineParser();
-				/*!<Actual command line is used, i.e. the one
-				    set by SetProgramArgs */
 
-    void			setKeyHasValue(const char* key,int nrvals=1);
+			CommandLineParser();
+				/*!< uses the args set by SetProgramArgs */
+
+    void		setKeyHasValue(const char* key,int nrvals=1);
 				/*!<Tell the parser that the nrvals arguments
 				    after key are values. nrvals<1 denotes a
 				    variable number of values, running up to
-				    the next key. This function is only needed
-				    if you will use getNormalArguments. */
-    void			getNormalArguments(BufferStringSet&) const;
+				    the next key. */
+    void		getNormalArguments(BufferStringSet&) const;
 				/*!<Gets all arguments that are not keys or
 				    key-values. */
 
-    bool			hasKey(const char*) const;
-    bool			getVal(const char* key,BufferString&,
+    bool		hasKey(const char*) const;
+    bool		getVal(const char* key,BufferString&,
 				       bool acceptnone=false,int valnr=1) const;
-    template <class T> bool	getVal(const char* key,T&,
-				       bool acceptnone=false,int valnr=1) const;
+    template <class T>
+    bool		getVal(const char* key,T&,bool acceptnone=false,
+			       int valnr=1) const;
 				/*!<Will parse argument valnr following key.
 				    If acceptnone is true, it will only give
 				    error if key is found, but no value can be
 				    parsed. */
 
-    bool			isPresent(const char*) const;
+    bool		isPresent(const char*) const;
 				//!<Is string present as an argument.
 
-    int				nrArgs() const		{ return argv_.size(); }
+    int			nrArgs() const		{ return argv_.size(); }
 				/*!<\returns the lump sum (keys, values, and
 				    everything else, but program name */
 
-    bool			isKey(int) const;
+    bool		isKey(int) const;
 				//!<Does the arg start with - or  --
-    bool			isKeyValue(int idx) const;
+    bool		isKeyValue(int idx) const;
 				/*!<True if not a key, and previous is a key
 				    that has been set using setKeyHasValue. */
 
-    const OD::String&		getArg(int idx) const	{ return *argv_[idx]; }
-    const OD::String&		lastArg() const;
+    const OD::String&	getArg(int idx) const	{ return *argv_[idx]; }
+    const OD::String&	lastArg() const;
 
-    const OD::String&		getExecutable() const;
-    const OD::String&		getExecutableName() const;
+    const OD::String&	getExecutable() const;
+    const OD::String&	getExecutableName() const;
 
-    static BufferString		createKey( const char* key )
+    static BufferString	createKey( const char* key )
 				{ return BufferString("--",key); }
+
+    int			getArgc() const	    { return argv_.size()+1; }
+    char**		getArgv() const;
 
 private:
 
-    int				indexOf(const char*) const;
-    void			init(int,char**);
-    void			init(const char*);
+    int			indexOf(const char*) const;
+    void		init(int,char**);
+    void		init(const char*);
 
-    BufferString		progname_;
-    BufferString		executable_;
-    BufferStringSet		argv_;
+    BufferString	progname_;
+    BufferString	executable_;
+    BufferStringSet	argv_;
 
-    BufferStringSet		keyswithvalue_;
-    TypeSet<int>		nrvalues_;
+    BufferStringSet	keyswithvalue_;
+    TypeSet<int>	nrvalues_;
+
+public:
+
+    explicit		CommandLineParser(const char* fullcommand);
+			CommandLineParser(int argc,char** argv);
+    void		overruleArgs(const BufferStringSet&,int start_at_arg=0);
+    void		overruleArgsIfEnvVarSet(const char* envvarnm);
+
 };
 
-//Implementation
 
 template <class T> inline
 bool CommandLineParser::getVal( const char* key, T& val,

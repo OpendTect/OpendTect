@@ -16,11 +16,15 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 static const char* sKeyPfx = "SEGY.Usable Range";
-SEGY::HdrEntryConstraints hdrentryconstraints_;
-const SEGY::HdrEntryConstraints& SEGY::HdrEntryConstraints::get()
-{ return hdrentryconstraints_; }
 SEGY::HdrEntryConstraints& SEGY::HdrEntryConstraints::get4Edit()
-{ return hdrentryconstraints_; }
+{
+    static HdrEntryConstraints theinst_;
+    return theinst_;
+}
+const SEGY::HdrEntryConstraints& SEGY::HdrEntryConstraints::get()
+{
+    return get4Edit();
+}
 
 
 

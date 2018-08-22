@@ -25,10 +25,11 @@ int main( int argc, char** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
+    uiMain app;
 
     OD::ModDeps().ensureLoaded( "uiTools" );
 
-    CommandLineParser clp( argc, argv );
+    auto& clp = app.commandLineParser();
     BufferStringSet args;
     clp.getNormalArguments( args );
 
@@ -55,7 +56,6 @@ int main( int argc, char** argv )
 
     const BufferString title = args.size() > 1 ? args.get(1).buf() : fnm.buf();
 
-    uiMain app( argc, argv );
     uiMainWin* mw = new uiMainWin( 0, toUiString(title.buf()) );
     uiPixmap pm( fnm );
     uiGraphicsView* view = new uiGraphicsView( mw, "Graphics Viewer" );

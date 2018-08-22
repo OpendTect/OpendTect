@@ -28,7 +28,7 @@ int main( int argc, char ** argv )
 
     OD::ModDeps().ensureLoaded( "uiSeis" );
 
-    uiMain app( argc, argv );
+    uiMain app;
     uiSeisMMProc* smmp = new uiSeisMMProc( 0, jobpars );
     app.setTopLevel( smmp );
     smmp->show();

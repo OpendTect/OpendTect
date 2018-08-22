@@ -19,17 +19,22 @@ mFDQtclass(QDesktopWidget)
 mFDQtclass(QWidget)
 mFDQtclass(QtTabletEventFilter)
 
-class uiMainWin;
-class uiFont;
 class BufferStringSet;
+class CommandLineParser;
 class KeyboardEventHandler;
 class KeyboardEventFilter;
+class uiMainWin;
+class uiFont;
 
 
 mExpClass(uiBase) uiMain : public CallBacker
 {
 public:
-			uiMain(int& argc,char** argv);
+
+			uiMain();
+
+    static CommandLineParser& CLP()		{ return *theMain().clp_; }
+    CommandLineParser&	commandLineParser()	{ return *clp_; }
 
 public:
 
@@ -79,7 +84,8 @@ public:
 protected:
 
     static uiMain*	themain_;
-    uiMainWin*		mainobj_;
+    uiMainWin*		mainobj_		= 0;
+    CommandLineParser*	clp_;
 
     static mQtclass(QApplication*)  app_;
     static const uiFont*  font_;
@@ -94,7 +100,7 @@ protected:
 
 private:
 			uiMain(mQtclass(QApplication*));
-    void		init(mQtclass(QApplication*),int& argc,char **argv);
+    void		init(mQtclass(QApplication*));
 
 public:
 

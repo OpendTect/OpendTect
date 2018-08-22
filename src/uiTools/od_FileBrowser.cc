@@ -47,7 +47,8 @@ int main( int argc, char** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
-    CommandLineParser clp;
+    uiMain app;
+    auto& clp = app.commandLineParser();
     const int nrargs = clp.nrArgs();
     if ( nrargs < 1 )
 	mErrRet()
@@ -103,8 +104,6 @@ int main( int argc, char** argv )
 	ForkProcess();
 
     OD::ModDeps().ensureLoaded( "uiTools" );
-
-    uiMain app( argc, argv );
 
     uiTextFileDlg::Setup fdsetup( toUiString(fnm) );
     fdsetup.allowopen( vp.editable_ ).allowsave( true );

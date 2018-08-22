@@ -17,12 +17,12 @@ int main( int argc, char** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
-    CommandLineParser cl( argc, argv );
-    const int nrargs = cl.nrArgs();
+    CommandLineParser clp( argc, argv );
+    const int nrargs = clp.nrArgs();
     const bool useargs = nrargs >= 1;
     if ( useargs )
     {
-	const char* reldir = cl.getArg( 0 );
+	const char* reldir = clp.getArg( 0 );
 	ODInst::startInstManagementWithRelDir( reldir );
     }
     else

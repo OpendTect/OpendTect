@@ -28,7 +28,7 @@ int main( int argc, char ** argv )
 
     OD::ModDeps().ensureLoaded( "uiPreStackProcessing" );
 
-    uiMain app( argc, argv );
+    uiMain app;
     uiPreStackMMProc* pmmp = new uiPreStackMMProc( 0, jobpars );
     app.setTopLevel( pmmp );
     pmmp->show();

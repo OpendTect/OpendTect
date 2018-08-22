@@ -39,8 +39,12 @@
 #include "odplugin.h"
 
 static const char* segyiconid_ = "segy";
-static const bool segyclassictoplevel_
-			= GetEnvVarYN( "OD_SEGY_CLASSIC_TOPLEVEL" );
+
+static bool wantClassicTopLevel()
+{
+    static const bool yn = GetEnvVarYN( "OD_SEGY_CLASSIC_TOPLEVEL" );
+    return yn;
+}
 
 
 mDefODPluginInfo(uiSEGY)
@@ -91,7 +95,7 @@ public:
 mDefODPluginSurvRelToolsLoadFn(uiSEGY)
 {
     uiSurveyInfoEditor::addInfoProvider( new uiSEGYSurvInfoProvider() );
-    if ( segyclassictoplevel_ )
+    if ( wantClassicTopLevel() )
 	uiSurveyInfoEditor::addInfoProvider(
 			    new uiSEGYClassicSurvInfoProvider() );
 }
@@ -152,10 +156,10 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 	new uiAction(m3Dots(tr("Re-sort Scanned SEG-Y")),
 			    muiSEGYMgrCB(reSortCB), "shuffle_data") );
 
-    uiString classicmnutitle = segyclassictoplevel_ ? tr("SEG-Y [Classic]")
+    uiString classicmnutitle = wantClassicTopLevel() ? tr("SEG-Y [Classic]")
 						   : tr("Classic tool");
     uiMenu* impclassmnu = new uiMenu( appl_, classicmnutitle, "launch" );
-    (segyclassictoplevel_ ? impseismnu : impsgymnu)->addMenu( impclassmnu );
+    (wantClassicTopLevel() ? impseismnu : impsgymnu)->addMenu( impclassmnu );
     impclassmnu->insertAction( new uiAction( uiStrings::sImport(),
 		   muiSEGYMgrCB(impClassicCB), "import") );
     impclassmnu->insertAction( new uiAction( uiStrings::sLink(),

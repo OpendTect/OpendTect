@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "fixedstring.h"
 #include "msgh.h"
 #include "odver.h"
+#include "commandlineparser.h"
 #include <iostream>
 
 #ifdef __mac__
@@ -22,7 +23,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #endif
 
-extern int ODMain(int,char**);
+extern int ODMain();
 extern Export_Basic int gLogFilesRedirectCode;
 
 
@@ -47,7 +48,7 @@ int main( int argc, char** argv )
 	std::cerr << msg << std::endl;
 #if !defined(__win__) || defined(__msvc__)
 	gLogFilesRedirectCode = 1;
-	// Only od_main should make log files, not batch progs.
+	// Only od_main should make log files, other progs should not.
 	// Didn't fancy putting anything about this in header files
 	// Hence the global 'hidden' variable
 	UsrMsg( msg );
@@ -66,6 +67,6 @@ int main( int argc, char** argv )
     }
 #endif
 
-    ret = ODMain( argc, argv );
+    ret = ODMain();
     return ExitProgram( ret );
 }

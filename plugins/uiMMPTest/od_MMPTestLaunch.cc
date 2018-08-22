@@ -27,7 +27,7 @@ int main( int argc, char ** argv )
 
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
 
-    uiMain app( argc, argv );
+    uiMain app;
     uiMMPTestProc* testmmp = new uiMMPTestProc( 0, jobpars );
     app.setTopLevel( testmmp );
     testmmp->show();

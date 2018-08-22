@@ -9,13 +9,14 @@
 
 #include "filepath.h"
 #include "varlenarray.h"
+#include "envvars.h"
 
 #include "genc.h"
 
 
-CommandLineParser::CommandLineParser( const char* str )
+CommandLineParser::CommandLineParser( const char* fullcommand )
 {
-    init( str );
+    init( fullcommand );
 }
 
 
@@ -151,7 +152,7 @@ void CommandLineParser::init( int argc, char** argv )
 {
     argv_.erase();
 
-    if ( argc )
+    if ( argc > 0 )
     {
 	executable_ = argv[0];
 	progname_ = File::Path( executable_ ).fileName();
@@ -160,17 +161,24 @@ void CommandLineParser::init( int argc, char** argv )
     {
 	executable_.setEmpty();
 	progname_.setEmpty();
+	return;
     }
 
     for ( int idx=1; idx<argc; idx++ )
 	argv_.add( argv[idx] );
+
+    File::Path fp( executable_ );
+    BufferString envvarnm( fp.fileName() );
+    envvarnm.replace( ' ', '_' );
+    envvarnm.add( "_ARGS" );
+    overruleArgsIfEnvVarSet( envvarnm );
 }
 
 
-void CommandLineParser::init( const char* thecomm )
+void CommandLineParser::init( const char* fullcommand )
 {
     BufferStringSet args;
-    const BufferString comm( thecomm );
+    const BufferString comm( fullcommand );
     BufferString tmp;
 
     char inquotes = 0; //0 - not in quotes, otherwise "'" or """ )
@@ -226,6 +234,36 @@ void CommandLineParser::init( const char* thecomm )
 }
 
 
+void CommandLineParser::overruleArgs( const BufferStringSet& newargs,
+				      int startat )
+{
+    const BufferStringSet oldargs( argv_ );
+    argv_.setEmpty();
+
+    for ( int iarg=0; iarg<startat; iarg++ )
+    {
+	if ( iarg < oldargs.size() )
+	    argv_.add( oldargs.get(iarg) );
+	else
+	    break;
+    }
+
+    argv_.append( newargs );
+}
+
+
+void CommandLineParser::overruleArgsIfEnvVarSet( const char* envvarnm )
+{
+    BufferString envvarval( GetEnvVar(envvarnm) );
+    if ( envvarval.isEmpty() )
+	return;
+
+    envvarval.insertAt( 0, "X " );
+    CommandLineParser clp( envvarval );
+    overruleArgs( clp.argv_ );
+}
+
+
 void CommandLineParser::getNormalArguments( BufferStringSet& res ) const
 {
     res.erase();
@@ -234,6 +272,19 @@ void CommandLineParser::getNormalArguments( BufferStringSet& res ) const
 	if ( !isKey(idx) && !isKeyValue(idx) )
 	    res.add( getArg( idx ).str() );
     }
+}
+
+
+char** CommandLineParser::getArgv() const
+{
+    const int argc = getArgc();
+    const char** ret = new const char* [argc+1];
+    ret[0] = executable_.str();
+    for ( int iarg=1; iarg<argc; iarg++ )
+	ret[iarg] = argv_.get( iarg-1 ).str();
+    ret[argc] = 0;
+
+    return (char**)ret;
 }
 
 

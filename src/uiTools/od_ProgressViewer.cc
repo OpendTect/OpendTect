@@ -368,26 +368,27 @@ int main( int argc, char** argv )
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "uiBase" );
+    uiMain app;
 
-    CommandLineParser cl( argc, argv );
+    auto& clp = app.commandLineParser();
     if ( argc < 2 )
-	mErrRet(printBatchUsage( cl.getExecutableName() ))
+	mErrRet(printBatchUsage( clp.getExecutableName() ))
 
-    cl.setKeyHasValue( uiProgressViewer::sKeyInputFile() );
-    cl.setKeyHasValue( uiProgressViewer::sKeyPID() );
-    cl.setKeyHasValue( uiProgressViewer::sKeyDelay() );
+    clp.setKeyHasValue( uiProgressViewer::sKeyInputFile() );
+    clp.setKeyHasValue( uiProgressViewer::sKeyPID() );
+    clp.setKeyHasValue( uiProgressViewer::sKeyDelay() );
 
     BufferString inpfile;
-    cl.getVal( uiProgressViewer::sKeyInputFile(), inpfile );
+    clp.getVal( uiProgressViewer::sKeyInputFile(), inpfile );
     int pid = mUdf(int);
-    cl.getVal( uiProgressViewer::sKeyPID(), pid );
+    clp.getVal( uiProgressViewer::sKeyPID(), pid );
     int delay = cDefDelay;
-    cl.getVal( uiProgressViewer::sKeyDelay(), delay );
+    clp.getVal( uiProgressViewer::sKeyDelay(), delay );
 
     if ( inpfile.isEmpty() )
     {
 	BufferStringSet normalargs;
-	cl.getNormalArguments( normalargs );
+	clp.getNormalArguments( normalargs );
 	if ( !normalargs.isEmpty() )
 	{
 	    const File::Path fp( normalargs.get(0) );
@@ -404,7 +405,6 @@ int main( int argc, char** argv )
 	}
     }
 
-    uiMain app( argc, argv );
     uiProgressViewer* pv = new uiProgressViewer( 0, inpfile, pid, delay );
     app.setTopLevel( pv );
     pv->show();

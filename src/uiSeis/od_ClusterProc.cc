@@ -70,7 +70,7 @@ int main( int argc, char ** argv )
 
     if ( dosubmit )
     {
-	uiMain app( argc, argv );
+	uiMain app;
 	uiClusterProc* cp = new uiClusterProc( 0, iop );
 
 	app.setTopLevel( cp );
