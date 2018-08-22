@@ -86,6 +86,7 @@ const char* localAddress()
     if ( retstr && *retstr )
 	return retstr;
 
+    // Fallback implementation for some new OS/hardware
     mDeclStaticString( str );
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     for ( int idx=0; idx<addresses.size(); idx++ )
