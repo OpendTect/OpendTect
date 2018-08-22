@@ -16,6 +16,9 @@ bool testSystemInfo()
     //Dummy test in a sense, as we cannot check the result
     mRunStandardTest( System::macAddressHash(),
 		     "macAddressHash" );
+    const BufferString localaddress = System::localAddress();
+    mRunStandardTest( !localaddress.isEmpty(),
+		     "Local address" );
 
     return true;
 }
