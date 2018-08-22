@@ -68,11 +68,13 @@ public:
     void		setThickness(float v);
     void		setValue(int,float);
     void		setValue(int,const Math::Formula&,
-				 const PropertyRefSelection&,float xpos=0.5f);
+				 const PropertyRefSelection&,float xpos=0.5f,
+							     float relz=0.5f);
     void		setValue(int,const IOPar&,const PropertyRefSelection&);
     void		setValue(int,LayerValue*); //!< becomes mine
     void		setContent( const Content& c )	{ content_ = &c; }
     void		setXPos(float); // only affects Math lay vals
+    void		setRelZ(float); // only affects Math lay vals
 
     ID			id() const;	//!< unitRef().fullCode()
     Color		dispColor(bool lith_else_upnode) const;
@@ -101,6 +103,7 @@ public:
 
     BufferString	dumpStr() const;
     virtual void	setXPos(float)			{}
+    virtual void	setRelZ(float)			{}
 
 };
 
@@ -134,7 +137,7 @@ public:
 			FormulaLayerValue(const Math::Formula&,
 					  const Strat::Layer&,
 					  const PropertyRefSelection&,
-					  float xpos);
+					  float xpos,float relz);
 			FormulaLayerValue(const IOPar&,const Strat::Layer&,
 					  const PropertyRefSelection&);
 			~FormulaLayerValue();
@@ -144,18 +147,21 @@ public:
     uiString		errMsg() const		{ return errmsg_; }
     void		fillPar(IOPar&) const;
     virtual void	setXPos(float);
+    virtual void	setRelZ(float);
 
     virtual float	value() const;
 
 protected:
 
 				FormulaLayerValue(const Math::Formula&,
-				      const Strat::Layer&,float,bool c=false);
+				      const Strat::Layer&,float,float,
+				      bool c=false);
 
     const Math::Formula&	form_;
     const Layer&		lay_;
     const bool			myform_;
     float			xpos_;
+    float			relz_;
 
     TypeSet<int>		inpidxs_;
     mutable TypeSet<float>	inpvals_;

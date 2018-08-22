@@ -17,6 +17,7 @@
 #include "elasticpropsel.h"
 
 static const char* sKeyXPos = "XPos";
+static const char* sKeyRelZ = "RelZ";
 
 
 //------ LayerValue ------
@@ -38,12 +39,14 @@ BufferString Strat::LayerValue::dumpStr() const
 
 
 Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
-	const Strat::Layer& lay, const PropertyRefSelection& prs, float xpos )
+	const Strat::Layer& lay, const PropertyRefSelection& prs,
+	float xpos, float relz )
     : form_(form)
     , lay_(lay)
     , myform_(false)
 {
     setXPos( xpos );
+    setRelZ( relz );
     useForm( prs );
 }
 
@@ -53,31 +56,51 @@ Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
     : form_(*new Math::Formula(false,MathProperty::getSpecVars()))
     , myform_(true)
     , lay_(lay)
-    , xpos_(0.f)
+    , xpos_(0.5f)
+    , relz_(0.5f)
 {
     const_cast<Math::Formula&>(form_).usePar( iop );
 
     const char* res = iop.find( sKeyXPos );
     if ( res )
 	setXPos( toFloat(res) );
+    res = iop.find( sKeyRelZ );
+    if ( res )
+	setRelZ( toFloat(res) );
 
     useForm( prs );
 }
 
 
 Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
-			    const Strat::Layer& lay, float xpos, bool cpform )
+			    const Strat::Layer& lay, float xpos, float relz,
+			    bool cpform )
     : form_(cpform ? *new Math::Formula(form) : form)
     , myform_(cpform)
     , lay_(lay)
 {
     setXPos( xpos );
+    setRelZ( relz );
 }
+
 
 void Strat::FormulaLayerValue::setXPos( float xpos )
 {
-    if ( xpos < 0.f ) xpos = 0.f; if ( xpos > 1.f ) xpos = 1.f;
+    if ( xpos < 0.f )
+	xpos = 0.f;
+    if ( xpos > 1.f )
+	xpos = 1.f;
     xpos_ = xpos;
+}
+
+
+void Strat::FormulaLayerValue::setRelZ( float relz )
+{
+    if ( relz < 0.f )
+	relz = 0.f;
+    if ( relz > 1.f )
+	relz = 1.f;
+    relz_ = relz;
 }
 
 
@@ -122,7 +145,7 @@ Strat::FormulaLayerValue* Strat::FormulaLayerValue::clone(
 					const Layer* lay ) const
 {
     FormulaLayerValue* ret = new FormulaLayerValue( form_, lay ? *lay : lay_,
-						    xpos_, myform_ );
+						    xpos_, relz_, myform_ );
     ret->inpidxs_ = inpidxs_;
     ret->inpvals_ = inpvals_;
     ret->errmsg_ = errmsg_;
@@ -141,12 +164,17 @@ float Strat::FormulaLayerValue::value() const
 	const int inpidx = inpidxs_[iinp];
 	if ( inpidx >= 0 )
 	    inpvals_[iinp] = lay_.value( inpidx );
-	else
+	else if ( form_.isSpec(iinp) )
 	{
-	    if ( form_.isSpec(iinp) )
-		inpvals_[iinp] = form_.specIdx(iinp)<2 ? lay_.depth() : xpos_;
-	    // consts are already filled
+	    const int specidx = form_.specIdx( iinp );
+	    if ( specidx < 2 )
+		inpvals_[iinp] = lay_.depth();
+	    else if ( specidx > 3 )
+		inpvals_[iinp] = xpos_;
+	    else
+		inpvals_[iinp] = relz_;
 	}
+	// consts are already filled
     }
 
     return form_.getValue( inpvals_.arr() );
@@ -157,6 +185,7 @@ void Strat::FormulaLayerValue::fillPar( IOPar& iop ) const
 {
     form_.fillPar( iop );
     iop.set( sKeyXPos, xpos_ );
+    iop.set( sKeyRelZ, relz_ );
 }
 
 
@@ -284,11 +313,12 @@ void Strat::Layer::setValue( int ival, float val )
 
 
 void Strat::Layer::setValue( int ival, const Math::Formula& form,
-			     const PropertyRefSelection& prs, float xpos )
+			     const PropertyRefSelection& prs,
+			     float xpos, float relz )
 {
     mEnsureEnoughVals();
 
-    setLV( ival, new FormulaLayerValue(form,*this,prs,xpos) );
+    setLV( ival, new FormulaLayerValue(form,*this,prs,xpos,relz) );
 }
 
 
@@ -334,6 +364,18 @@ void Strat::Layer::setXPos( float xpos )
 	Strat::LayerValue* lv = vals_[ival];
 	if ( lv )
 	    lv->setXPos( xpos );
+    }
+}
+
+
+void Strat::Layer::setRelZ( float relz )
+{
+    const int nrvals = vals_.size();
+    for ( int ival=0; ival<nrvals; ival++ )
+    {
+	Strat::LayerValue* lv = vals_[ival];
+	if ( lv )
+	    lv->setRelZ( relz );
     }
 }
 

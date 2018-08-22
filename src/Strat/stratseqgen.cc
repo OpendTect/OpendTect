@@ -577,7 +577,7 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 	else
 	{
 	    mDynamicCastGet(const MathProperty&,mprop,prop)
-	    newlay->setValue( ipr, mprop.getForm(), prs, eo.relpos_ );
+	    newlay->setValue( ipr, mprop.getForm(), prs, eo.relpos_, eo.relz_ );
 	}
     }
 
