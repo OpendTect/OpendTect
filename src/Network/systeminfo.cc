@@ -81,7 +81,25 @@ const char* localHostName()
 
 
 const char* localAddress()
-{ return hostAddress( localHostName() ); }
+{
+    const char* retstr = hostAddress( localHostName() );
+    if ( retstr && *retstr )
+	return retstr;
+
+    mDeclStaticString( str );
+    QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
+    for ( int idx=0; idx<addresses.size(); idx++ )
+    {
+	if ( !addresses[idx].isLoopback() &&
+	      addresses[idx].protocol() == QAbstractSocket::IPv4Protocol )
+	{
+	    str = addresses[idx].toString();
+	    break;
+	}
+    }
+
+    return str.buf();
+}
 
 
 const char* hostName( const char* ip )
@@ -109,6 +127,7 @@ const char* hostAddress( const char* hostname )
     for ( int idx=0; idx<addresses.size(); idx++ )
     {
 	if ( addresses[idx] == QHostAddress::LocalHost ||
+	     addresses[idx].isLoopback() ||
 	     addresses[idx].toString().contains(':') ) continue;
 	str = addresses[idx].toString();
     }
