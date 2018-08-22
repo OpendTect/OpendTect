@@ -79,10 +79,10 @@ public:
     void		displayFRText(bool yn,bool isbrine);
 
     float		getLayerPropValue(const Strat::Layer&,
-					  const PropertyRef*,int) const;
+					  const PropertyRef&,int) const;
     bool		setPropDispPars(const LMPropSpecificDispPars&);
     bool		getCurPropDispPars(LMPropSpecificDispPars&) const;
-    int			getFlattenLevelIdx() const;
+    int			selLevelIdx() const;
     const LVLZValsSet&	getLevelDepths()	{ return lvldpths_; }
     void		clearDispPars()		{ lmdisppars_.erase(); }
 
@@ -110,6 +110,7 @@ protected:
     uiGraphicsScene&	scene() const;
     virtual void	drawSelectedSequence()		= 0;
 
+    int			getCurPropIdx() const;
     int			getClickedModelNr() const;
     void		mouseMoved(CallBacker*);
     void		updateTextPosCB(CallBacker*);

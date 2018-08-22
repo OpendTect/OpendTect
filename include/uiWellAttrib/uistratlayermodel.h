@@ -95,7 +95,7 @@ public:
 
 protected:
 
-    uiLayerSequenceGenDesc*	seqdisp_;
+    uiLayerSequenceGenDesc*	descdisp_;
     uiStratLayerModelDisp*	moddisp_;
     uiStratSynthDisp*		synthdisp_;
     uiStratGenDescTools*	gentools_;

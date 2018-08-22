@@ -165,12 +165,12 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     descctio_.ctxt_.toselect_.require_.set( sKey::Type(), edtyp );
 
     uiGroup* gengrp = new uiGroup( this, "Gen group" );
-    seqdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_ );
-    if ( !seqdisp_ )
-	seqdisp_ = new uiBasicLayerSequenceGenDesc( gengrp, desc_ );
+    descdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_);
+    if ( !descdisp_ )
+	descdisp_ = new uiBasicLayerSequenceGenDesc( gengrp, desc_ );
 
     uiGroup* topgrp; uiGroup* botgrp; uiGroup* rightgrp=0;
-    if ( seqdisp_->separateDisplay() )
+    if ( descdisp_->separateDisplay() )
     {
 	rightgrp = new uiGroup( this, "Right group" );
 	topgrp = new uiGroup( rightgrp, "Top group" );
@@ -187,7 +187,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     gentools_ = new uiStratGenDescTools( gengrp );
 
     synthdisp_ = new uiStratSynthDisp( topgrp, *this, lmp_ );
-    moddisp_ = seqdisp_->getLayModDisp( *modtools_, lmp_, opt );
+    moddisp_ = descdisp_->getLayModDisp( *modtools_, lmp_, opt );
     if ( !moddisp_ )
     {
 	new uiLabel( this, tr("Start cancelled") );
@@ -214,7 +214,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     }
 
     modtools_->attach( ensureBelow, moddisp_ );
-    gentools_->attach( ensureBelow, seqdisp_->outerObj() );
+    gentools_->attach( ensureBelow, descdisp_->outerObj() );
 
     uiToolBar* helptb =
 	new uiToolBar( this, tr("Help toolbar"), uiToolBar::Right );
@@ -223,7 +223,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     helptb->addButton( htbsu );
 
     uiParent* horsplitattachhrp = 0;
-    if ( !seqdisp_->separateDisplay() )
+    if ( !descdisp_->separateDisplay() )
     {
 	modtools_->attach( rightOf, gentools_ );
 	horsplitattachhrp = this;
@@ -305,7 +305,7 @@ void uiStratLayerModel::setWinTitle()
 
 BufferString uiStratLayerModel::levelName() const
 {
-    return modtools_->getFlattenLvlNm();
+    return modtools_->selLevelName();
 }
 
 
@@ -395,15 +395,16 @@ void uiStratLayerModel::lmViewChangedCB( CallBacker* )
 void uiStratLayerModel::flattenChg( CallBacker* cb )
 {
     moddisp_->setFlattened( modtools_->showFlattened() );
-    synthdisp_->setFlattenLvl( modtools_->getFlattenStratLevel() );
+    synthdisp_->setFlattenLvl( modtools_->selLevel() );
     synthdisp_->setFlattened( modtools_->showFlattened() );
 }
 
 
 void uiStratLayerModel::levelChg( CallBacker* cb )
 {
-    synthdisp_->setDispMrkrs( modtools_->getSelLvlNmSet(),
-						moddisp_->getLevelDepths() );
+    synthdisp_->setDispMrkrs( modtools_->getLevelNames(),
+			      moddisp_->getLevelDepths() );
+    synthdisp_->setFlattenLvl( modtools_->selLevel() );
     modtools_->setFlatTBSensitive( moddisp_->canBeFlattened() );
 }
 
@@ -467,8 +468,9 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
     uiStratSynthCrossplot dlg( this, layerModel(),synthdisp_->getSynthetics());
     if ( !dlg.errMsg().isEmpty() )
 	{ uiMSG().error( dlg.errMsg() ); return; }
-    BufferString lvlnm = modtools_->getFlattenLvlNm();
-    if ( !lvlnm.isEmpty() ) dlg.setRefLevel( lvlnm );
+    BufferString lvlnm = modtools_->selLevelName();
+    if ( !lvlnm.isEmpty() )
+	dlg.setRefLevel( lvlnm );
     dlg.go();
 }
 
@@ -489,7 +491,7 @@ void uiStratLayerModel::modDispRangeChanged( CallBacker* )
 
 void uiStratLayerModel::manPropsCB( CallBacker* )
 {
-    seqdisp_->selProps();
+    descdisp_->selProps();
 }
 
 
@@ -510,8 +512,8 @@ bool uiStratLayerModel::selElasticProps( ElasticPropSelection& elsel )
 	if ( dlg.propSaved() )
 	{
 	    desc_.setElasticPropSel( dlg.storedKey() );
-	    seqdisp_->setNeedSave( true );
-	    seqdisp_->setEditDesc();
+	    descdisp_->setNeedSave( true );
+	    descdisp_->setEditDesc();
 	}
 
 	elsel.fillPar( desc_.getWorkBenchParams() );
@@ -523,7 +525,7 @@ bool uiStratLayerModel::selElasticProps( ElasticPropSelection& elsel )
 
 bool uiStratLayerModel::saveGenDescIfNecessary( bool allowcncl ) const
 {
-    if ( !seqdisp_->needSave() )
+    if ( !descdisp_->needSave() )
 	return true;
 
     while ( true )
@@ -568,7 +570,7 @@ bool uiStratLayerModel::saveGenDesc() const
     else
     {
 	rv = true;
-	seqdisp_->setNeedSave( false );
+	descdisp_->setNeedSave( false );
 	const_cast<uiStratLayerModel*>(this)->setWinTitle();
     }
 
@@ -624,17 +626,17 @@ bool uiStratLayerModel::doLoadGenDesc()
     usw.setMessage( uiStrings::sUpdatingDisplay() );
     moddisp_->clearDispPars();
     moddisp_->retrievePars();
-    seqdisp_->setNeedSave( false );
+    descdisp_->setNeedSave( false );
     lmp_.setEmpty();
 
-    seqdisp_->setEditDesc();
-    seqdisp_->descHasChanged();
+    descdisp_->setEditDesc();
+    descdisp_->descHasChanged();
 
     synthdisp_->resetRelativeViewRect();
     synthdisp_->setForceUpdate( true );
     BufferString edtyp;
     descctio_.ctxt_.toselect_.require_.get( sKey::Type(), edtyp );
-    if ( seqdisp_->separateDisplay() )
+    if ( descdisp_->separateDisplay() )
     {
 	needtoretrievefrpars_ = true;
 	doGenModels( true, false );
@@ -784,7 +786,7 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     const bool isgo = cb==gentools_;
     BufferString edtyp;
     descctio_.ctxt_.toselect_.require_.get( sKey::Type(), edtyp );
-    doGenModels( isgo, isgo && seqdisp_->separateDisplay() );
+    doGenModels( isgo, isgo && descdisp_->separateDisplay() );
 }
 
 void uiStratLayerModel::doGenModels( bool forceupdsynth, bool overridedispeach )
@@ -795,8 +797,8 @@ void uiStratLayerModel::doGenModels( bool forceupdsynth, bool overridedispeach )
 
     uiUserShowWait usw( this, tr("Generating Models") );
 
-    seqdisp_->prepareDesc();
-    seqdisp_->setFromEditDesc();
+    descdisp_->prepareDesc();
+    descdisp_->setFromEditDesc();
     Strat::LayerModel* newmodl = new Strat::LayerModel;
     newmodl->propertyRefs() = desc_.propSelection();
     newmodl->setElasticPropSel( lmp_.getCurrent().elasticPropSel() );
@@ -855,7 +857,7 @@ void uiStratLayerModel::handleNewModel()
     //Finally the synthetics
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
     synthdisp_->setFlattened( modtools_->showFlattened(), false );
-    synthdisp_->setDispMrkrs( modtools_->getSelLvlNmSet(),
+    synthdisp_->setDispMrkrs( modtools_->getLevelNames(),
 			      moddisp_->getLevelDepths() );
     nrmodels_ = layerModel().size();
 
@@ -870,10 +872,8 @@ void uiStratLayerModel::setModelProps()
     BufferStringSet nms;
     const Strat::LayerModel& lm = lmp_.getCurrent();
     for ( int idx=1; idx<lm.propertyRefs().size(); idx++ )
-	nms.add( lm.propertyRefs()[idx]->name() );
+	nms.add( lm.propertyRefs()[idx]->name() ); // idx==0 is thickness
     modtools_->setProps( nms );
-    nms.erase(); Strat::LVLS().getNames( nms );
-    modtools_->setLevelNames( nms );
     nms.erase();
     const Strat::ContentSet& conts = lm.refTree().contents();
     for ( int idx=0; idx<conts.size(); idx++ )
@@ -945,8 +945,8 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
 	useSyntheticsPars( desc_.getWorkBenchParams() );
     }
     synthdisp_->showFRResults();
-    synthdisp_->setDispMrkrs( modtools_->getSelLvlNmSet(),
-						moddisp_->getLevelDepths() );
+    synthdisp_->setDispMrkrs( modtools_->getLevelNames(),
+			      moddisp_->getLevelDepths() );
     moddisp_->modelChanged();
     displayFRText( true, isbrine );
     synthdisp_->setForceUpdate( false );
@@ -1059,7 +1059,7 @@ void uiStratLayerModel::helpCB( CallBacker* )
 void uiStratLayerModel::syntheticsChangedCB( CallBacker* )
 {
     synthdisp_->fillPar( desc_.getWorkBenchParams() );
-    seqdisp_->setNeedSave( true );
+    descdisp_->setNeedSave( true );
 }
 
 
@@ -1084,5 +1084,6 @@ void uiStratLayerModel::modInfoChangedCB( CallBacker* cb )
 
 void uiStratLayerModel::selPropChgCB( CallBacker* )
 {
-    seqdisp_->setDispProp( modtools_->selPropIdx() );
+    const int listidx = modtools_->selPropIdx();
+    descdisp_->setDispProp( listidx<0 ? -1 : listidx+1 );
 }

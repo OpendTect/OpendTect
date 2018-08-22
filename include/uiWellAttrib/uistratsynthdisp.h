@@ -45,6 +45,7 @@ namespace PreStackView { class uiSyntheticViewer2DMainWin; }
 mExpClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
 { mODTextTranslationClass(uiStratSynthDisp);
 public:
+
     typedef TypeSet<float> LVLZVals;
     typedef TypeSet< LVLZVals > LVLZValsSet;
 

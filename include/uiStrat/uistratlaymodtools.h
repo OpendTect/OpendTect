@@ -21,7 +21,7 @@ class uiComboBox;
 class uiLabel;
 class uiSpinBox;
 class uiToolButton;
-class uiMultiStratLevelSel;
+class PropertyRefSelection;
 
 
 mExpClass(uiStrat) uiStratGenDescTools : public uiGroup
@@ -66,12 +66,19 @@ public:
 
 		uiStratLayModEditTools(uiParent*);
 
+    void	setAllowNoPropDisp( bool yn=true )	{ allownoprop_ = yn; }
     void	setProps(const BufferStringSet&);
-    void	setLevelNames(const BufferStringSet&);
     void	setContentNames(const BufferStringSet&);
+    const BufferStringSet& getLevelNames() const	{ return lvlnms_; }
 
-    const char*	selProp() const;		//!< May return null
-    const char*	selContent() const;		//!< May return null
+    Strat::Level selLevel() const;
+    Strat::Level::ID selLevelID() const;
+    int		selLevelIdx() const;
+    BufferString selLevelName() const;
+    Color	selLevelColor() const;
+    int		selPropIdx() const;			//!< May return -1
+    const char*	selProp() const;			//!< May return null
+    const char*	selContent() const;			//!< May return null
     int		dispEach() const;
     bool	dispZoomed() const;
     bool	dispLith() const;
@@ -90,6 +97,12 @@ public:
 
     void	setNoDispEachFld();
 
+    uiToolButton*		lithButton()		{ return lithtb_; }
+    uiToolButton*		zoomButton()		{ return zoomtb_; }
+
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
+
     Notifier<uiStratLayModEditTools>	selPropChg;
     Notifier<uiStratLayModEditTools>	selLevelChg;
     Notifier<uiStratLayModEditTools>	selContentChg;
@@ -99,63 +112,42 @@ public:
     Notifier<uiStratLayModEditTools>	flattenChg;
     Notifier<uiStratLayModEditTools>	mkSynthChg;
 
-    static const char*		getSelLevelFromDlg(uiParent*,
-						   const uiDialog::Setup&,
-						   const BufferStringSet&,
-						   const char* sellvl=0);
-    int				selPropIdx() const;	//!< May return -1
-    Strat::Level::ID		flattenSelLevelID() const;
-    Strat::Level		getFlattenStratLevel() const;
-    TypeSet<Strat::Level>	getAllSelStratLevels() const;
-    Color			selLevelColor() const;	//!< May return NoColor
-
-
-    uiToolButton*		lithButton()		{ return lithtb_; }
-    uiToolButton*		zoomButton()		{ return zoomtb_; }
-
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
-
-    bool			allownoprop_;
-    const BufferStringSet	getSelLvlNmSet() { return choosenlvlnms_; }
-    const BufferString		getFlattenLvlNm() { return flatlvlnm_; }
-
 protected:
 
-    static const char*		sKeyDisplayedProp();
-    static const char*		sKeyDecimation();
-    static const char*		sKeySelectedLevel();
-    static const char*		sKeySelectedContent();
-    static const char*		sKeyZoomToggle();
-    static const char*		sKeyDispLith();
-    static const char*		sKeyShowFlattened();
+    uiComboBox*		propfld_;
+    uiComboBox*		lvlfld_;
+    uiComboBox*		contfld_;
+    uiSpinBox*		eachfld_;
+    uiLabel*		eachlbl_;
+    uiToolButton*	zoomtb_;
+    uiToolButton*	lithtb_;
+    uiToolButton*	flattenedtb_;
+    uiToolButton*	mksynthtb_;
 
-    uiComboBox*			propfld_;
-    uiComboBox*			contfld_;
-    uiSpinBox*			eachfld_;
-    uiLabel*			eachlbl_;
-    uiToolButton*		zoomtb_;
-    uiToolButton*		lithtb_;
-    uiToolButton*		flattenedtb_;
-    uiToolButton*		mksynthtb_;
-    uiMultiStratLevelSel*	lvlfld_;
+    bool		allownoprop_;
+    BufferStringSet	lvlnms_;
 
+    static const char*	sKeyDisplayedProp();
+    static const char*	sKeyDecimation();
+    static const char*	sKeySelectedLevel();
+    static const char*	sKeySelectedContent();
+    static const char*	sKeyZoomToggle();
+    static const char*	sKeyDispLith();
+    static const char*	sKeyShowFlattened();
+
+    void	initGrp(CallBacker*);
+    void	showFlatCB(CallBacker*);
     void	selPropCB( CallBacker* )	{ selPropChg.trigger(); }
+    void	selLvlCB( CallBacker* )		{ selLevelChg.trigger(); }
     void	selContentCB( CallBacker* )	{ selContentChg.trigger(); }
     void	dispEachCB( CallBacker* )	{ dispEachChg.trigger(); }
     void	dispZoomedCB( CallBacker* )	{ dispZoomedChg.trigger(); }
     void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
-    void	showFlatCB( CallBacker* );
     void	mkSynthCB( CallBacker* )	{ mkSynthChg.trigger(); }
-    void	flattenMenuCB( CallBacker* );
-
-    BufferStringSet		choosenlvlnms_;
-    BufferString		flatlvlnm_;
 
 };
 
 
-class PropertyRefSelection;
 
 mExpClass(uiStrat) uiStratLayModFRPropSelector : public uiDialog
 { mODTextTranslationClass(uiStratLayModFRPropSelector)
@@ -211,22 +203,4 @@ protected:
     uiComboBox*		porosityfld_;
     mutable uiString	errmsg_;
 
-};
-
-
-mExpClass(uiStrat) uiMultiStratLevelSel : public uiCompoundParSel
-{ mODTextTranslationClass(uiMultiStratLevelSel);
-public:
-					uiMultiStratLevelSel(uiParent*,
-						uiStratLayModEditTools&);
-    void				setLevelNames(const BufferStringSet&);
-    BufferStringSet			getSelLevelNames() const
-					{ return sellevelnames_; }
-protected:
-    uiStratLayModEditTools&		modtools_;
-    BufferStringSet			alllevelnames_;
-    BufferStringSet			sellevelnames_;
-
-    virtual uiString			getSummary() const;
-    void				doSelLevelDlg(CallBacker*);
 };

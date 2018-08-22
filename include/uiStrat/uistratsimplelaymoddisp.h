@@ -77,7 +77,6 @@ protected:
     void		getBounds();
     void		handleClick(bool dble);
     void		handleRightClick(int);
-    void		drawLevels(); // deprecated
     virtual void	drawSelectedSequence();
     void		updZoomBox();
     void		updateDataPack();

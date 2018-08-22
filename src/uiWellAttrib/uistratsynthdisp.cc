@@ -18,9 +18,11 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewslicepos.h"
+#include "uigeninput.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uilabel.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
 #include "uipsviewer2dmainwin.h"
@@ -695,10 +697,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 
     if ( !currentwvasynthetic_ || currentwvasynthetic_->isPS() )
     {
-	uiMSG().error(tr(" Select a post-stack synthetic in wiggle"
-			" view. The scaling tool compares the amplitudes of the"
-		        " synthetic data at the selected Stratigraphic Level"
-		        " to real amplitudes along a horizon"));
+	uiMSG().error( tr("Select a post-stack synthetic in wiggle view") );
 	return false;
     }
 
@@ -718,32 +717,41 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     for ( int ilvl=0; ilvl<sellvls->size(); ilvl++ )
 	sellvlnms.add( sellvls->getStratLevel(ilvl)->name() );
 
-    uiDialog::Setup su( uiStrings::phrSelect(tr("Stratigraphic Level")),
+    uiDialog::Setup dlgsu( tr("Scaling Setup"),
 	    tr("The scaling tool compares the amplitudes at a Stratigraphic "
 		"level to real amplitudes along a horizon"), mTODOHelpKey );
-    const BufferString sellvlnm =
-	uiStratLayModEditTools::getSelLevelFromDlg( this, su, sellvlnms,
-						    flattenlvl_.name() );
+    uiListBox::Setup lbsu( OD::ChooseOnlyOne, uiStrings::sLevel(),
+			    uiListBox::LeftMid );
+
+    uiDialog dlg( this, dlgsu );
+    uiListBox* lvlbox = new uiListBox( &dlg, lbsu );
+    lvlbox->addItems( sellvlnms );
+    lvlbox->setCurrentItem( flattenlvl_.name() );
     bool is2d = SI().has2D();
+    uiGenInput* use2dfld = 0;
     if ( is2d && SI().has3D() )
     {
-	int res = uiMSG().question(tr("Type of seismic data to use"),
-				  uiStrings::s2D(), uiStrings::s3D(),
-				  uiStrings::sCancel(), tr("Specify geometry"));
-	if ( res < 0 ) return false;
-	is2d = res == 1;
+	use2dfld = new uiGenInput( &dlg, tr("Type of seismic data to use"),
+			BoolInpSpec(false,uiStrings::s2D(), uiStrings::s3D()) );
+	use2dfld->attach( alignedBelow, lvlbox );
     }
+    if ( !dlg.go() )
+	return false;
+
+    const BufferString sellvlnm = lvlbox->getText();
+    if ( use2dfld )
+	is2d = use2dfld->getBoolValue();
 
     bool rv = false;
     PtrMan<SeisTrcBuf> scaletbuf = tbuf.clone();
     const Strat::Level sellvl = Strat::LVLS().getByName( sellvlnm );
     curSS().setLevelTimesInTrcs( sellvl, *scaletbuf,
 				 currentwvasynthetic_->zerooffsd2tmodels_);
-    uiSynthToRealScale dlg( this, is2d, *scaletbuf, wvltfld_->key(true),
-			    sellvlnm );
-    if ( dlg.go() )
+    uiSynthToRealScale srdlg( this, is2d, *scaletbuf, wvltfld_->key(true),
+				sellvlnm );
+    if ( srdlg.go() )
     {
-	const DBKey wvltid( dlg.selWvltID() );
+	const DBKey wvltid( srdlg.selWvltID() );
 	if ( wvltid.isInvalid() )
 	    pErrMsg( "Huh" );
 	else

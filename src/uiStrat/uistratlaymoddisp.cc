@@ -143,25 +143,30 @@ void uiStratLayerModelDisp::selectSequence( int selidx )
 void uiStratLayerModelDisp::setFlattened( bool yn, bool trigger )
 {
     flattened_ = yn;
-    if ( !trigger ) return;
+    if ( !trigger )
+	return;
 
     modelUpdate();
 }
 
 
-int uiStratLayerModelDisp::getFlattenLevelIdx() const
+int uiStratLayerModelDisp::selLevelIdx() const
 {
-    return tools_.getSelLvlNmSet().indexOf( tools_.getFlattenLvlNm() );
+    return tools_.selLevelIdx();
 }
 
 
 bool uiStratLayerModelDisp::canBeFlattened() const
 {
-    if ( getFlattenLevelIdx()<0 )
+    const int lvlidx = selLevelIdx();
+    if ( lvlidx < 0 )
 	return false;
-    const TypeSet<float>& flatzlvls = lvldpths_[getFlattenLevelIdx()];
-    for ( int idx=0; idx<flatzlvls.size(); idx++ )
-	if ( !mIsUdf(flatzlvls[idx]) ) return true;
+
+    const TypeSet<float>& selzlvls = lvldpths_[lvlidx];
+    for ( int idx=0; idx<selzlvls.size(); idx++ )
+	if ( !mIsUdf(selzlvls[idx]) )
+	    return true;
+
     return false;
 }
 
@@ -176,10 +181,10 @@ bool uiStratLayerModelDisp::haveAnyZoom() const
 
 
 float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
-						const PropertyRef* pr,
+						const PropertyRef& pr,
 						int propidx ) const
 {
-    const UnitOfMeasure* uom = UoMR().getDefault( pr->name(), pr->stdType());
+    const UnitOfMeasure* uom = UoMR().getDefault( pr.name(), pr.stdType() );
     const float sival = propidx < lay.nrValues() ? lay.value( propidx )
 						 : mUdf(float);
     return uom ? uom->getUserValueFromSI( sival ) : sival;
@@ -466,6 +471,13 @@ bool uiStratLayerModelDisp::setPropDispPars(const LMPropSpecificDispPars& pars)
 }
 
 
+int uiStratLayerModelDisp::getCurPropIdx() const
+{
+    const int pidx = tools_.selPropIdx();
+    return pidx < 0 ? -1 : pidx+1;
+}
+
+
 int uiStratLayerModelDisp::getClickedModelNr() const
 {
     MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
@@ -504,7 +516,7 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
 	depth *= mFromFeetFactorF;
 
     const auto& seq = layerModel().sequence( seqidx );
-    const int disppropidx = tools_.selPropIdx();
+    const int pridx = getCurPropIdx();
     for ( int ilay=0; ilay<seq.size(); ilay++ )
     {
 	const auto& lay = *seq.layers().get( ilay );
@@ -518,11 +530,11 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
 	if ( depth >= z0 && depth<= z1 )
 	{
 	    sbmsg.postFixWord( uiStrings::sLayer().addMoreInfo(lay.name()) );
-	    if ( disppropidx>=0 )
+	    if ( pridx >= 0 )
 	    {
-		const PropertyRef* pr = seq.propertyRefs().get( disppropidx );
-		const float val = getLayerPropValue(lay,pr,disppropidx);
-		sbmsg.postFixWord( toUiString(pr->name()).addMoreInfo(val) );
+		const PropertyRef& pr = *seq.propertyRefs().get( pridx );
+		const float val = getLayerPropValue( lay, pr, pridx );
+		sbmsg.postFixWord( toUiString(pr.name()).addMoreInfo(val) );
 	    }
 	    break;
 	}
@@ -851,10 +863,9 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
     for ( int iseq=0; iseq<nrseqs; iseq++ ) \
     { \
 	if ( chckdisp && !isDisplayedModel(iseq) ) continue; \
-	const int flattenlvlidx = tools_.getSelLvlNmSet().indexOf( \
-						tools_.getFlattenLvlNm() ); \
+	const int flattenlvlidx = tools_.selLevelIdx(); \
 	float lvldpth = 0; \
-	if ( flattenlvlidx >0 ) \
+	if ( flattenlvlidx>0 ) \
 	    lvldpth = lvldpths_[flattenlvlidx][iseq]; \
 	if ( flattened_ && mIsUdf(lvldpth) ) continue; \
 	int layzlvl = 0; \
@@ -868,11 +879,9 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
 	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth; \
 	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth; \
 	    const float val = \
-	    getLayerPropValue(lay,seq.propertyRefs()[dispprop_],dispprop_); \
+	    getLayerPropValue(lay,*seq.propertyRefs().get(dispprop_),dispprop_); \
 
-#define mEndLayLoop() \
-         } \
-     } \
+#define mEndLayLoop() } }
 
 
 void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
@@ -899,59 +908,66 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
     if ( layerModel().isEmpty() )
 	return;
 
-    const int sz = tools_.getSelLvlNmSet().size();
-    TypeSet<Strat::Level> lvlset = tools_.getAllSelStratLevels();
+    const int sz = tools_.getLevelNames().size();
     int auxdataidx = 0;
-
-    const int flattenlvlidx = tools_.getSelLvlNmSet().indexOf(
-						    tools_.getFlattenLvlNm() );
-    for( int idx=0; idx<sz; idx++ )
+    const int sellvlidx = tools_.selLevelIdx();
+    for( int ilvl=0; ilvl<sz; ilvl++ )
     {
-	Color lvlcol = lvlset.get(idx).color();
-	for ( int iseq=0; iseq<lvldpths_[idx].size(); iseq++ )
+	const Strat::Level lvl = Strat::LVLS().getByIdx( ilvl );
+	const Color lvlcol = lvl.color();
+	const auto& zvals = lvldpths_[ilvl];
+	for ( int iseq=0; iseq<zvals.size(); iseq++ )
 	{
 	    if ( !isDisplayedModel(iseq) )
 		break;
-	    float zlvl = lvldpths_[idx][iseq];
+	    float zlvl = zvals[iseq];
 	    if ( mIsUdf(zlvl) )
 		continue;
-	    if ( flattened_ )
-		zlvl -= lvldpths_[flattenlvlidx][iseq];
+	    if ( flattened_ && sellvlidx >= 0 )
+		zlvl -= lvldpths_[sellvlidx][iseq];
 
 	    mGetDispZ(zlvl);
 	    const double ypos = mCast( double, zlvl );
 	    const double xpos1 = mCast( double, iseq+1 );
 	    const double xpos2 = mCast( double, iseq +1+dispeach_ );
 	    FlatView::AuxData* levelad = 0;
-	    if ( !levelads_.validIdx(auxdataidx) )
+	    if ( levelads_.validIdx(auxdataidx) )
+		levelad = levelads_[auxdataidx];
+	    else
 	    {
 		levelad = vwr_.createAuxData( 0 );
 		levelad->zvalue_ = uiFlatViewer::auxDataZVal() + 1;
 		vwr_.addAuxData( levelad );
 		levelads_ += levelad;
 	    }
-	    else
-		levelad = levelads_[auxdataidx];
 	    levelad->poly_.erase();
 	    levelad->enabled_ = true;
-	    if ( tools_.getFlattenLvlNm() == lvlset.get(idx).name() )
-		levelad->zvalue_ = 5;
-	    else
-		levelad->zvalue_ = 3;
-	    levelad->linestyle_ = OD::LineStyle(OD::LineStyle::Solid,2,lvlcol);
+	    levelad->linestyle_ = OD::LineStyle(OD::LineStyle::Dot,2,lvlcol);
 	    levelad->poly_ += FlatView::Point( xpos1, ypos );
 	    levelad->poly_ += FlatView::Point( xpos2, ypos );
+
+	    if ( ilvl != sellvlidx )
+		levelad->zvalue_ = 3;
+	    else
+	    {
+		levelad->zvalue_ = 5;
+		levelad->linestyle_.type_ = OD::LineStyle::Solid;
+		levelad->linestyle_.width_ *= 2;
+	    }
+
 	    auxdataidx++;
 	}
     }
 
-    while ( auxdataidx < levelads_.size() )
-	    levelads_[auxdataidx++]->enabled_ = false;
+    /* Why??
+    for ( auto ad : levelads_ )
+	ad->enabled_ = false;
+	*/
 }
 
 void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 {
-    dispprop_ = tools_.selPropIdx();
+    dispprop_ = getCurPropIdx();
     dispeach_ = tools_.dispEach();
     showzoomed_ = tools_.dispZoomed();
     uselithcols_ = tools_.dispLith();
@@ -962,10 +978,12 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	{ vrg_.start -= 1; vrg_.stop += 1; }
     const float vwdth = vrg_.width();
     int auxdataidx = 0;
-    const int idx = tools_.getSelLvlNmSet().indexOf( tools_.getFlattenLvlNm() );
-    if ( flattened_ && idx<0 ) return;
-    mStartLayLoop( false,)
-    {
+    const int lvlidx = tools_.selLevelIdx();
+    if ( flattened_ && lvlidx<0 )
+	return;
+
+    mStartLayLoop( false, )
+
 	if ( !isDisplayedModel(iseq) )
 	    continue;
 	const Color laycol = lay.dispColor( uselithcols_ );
@@ -1027,9 +1045,10 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 
     mEndLayLoop()
 
-    while ( auxdataidx < layerads_.size() )
-	layerads_[auxdataidx++]->enabled_ = false;
-    }
+    /* Why??
+    for ( auto ad : layerads_ )
+	ad->enabled_ = false;
+	*/
 }
 
 
@@ -1066,25 +1085,21 @@ void uiStratSimpleLayerModelDisp::reSetView()
 
 void uiStratSimpleLayerModelDisp::getBounds()
 {
+    dispprop_ = getCurPropIdx();
     lvldpths_.erase();
-    dispprop_ = tools_.selPropIdx();
-    const TypeSet<Strat::Level> lvlset = tools_.getAllSelStratLevels();
-    int sz = lvlset.size();
-    if ( sz == 0 )
-	sz++;
-
+    const BufferStringSet& lvlnms = tools_.getLevelNames();
+    const int sz = lvlnms.size();
     lvldpths_.setSize( sz );
+
     for( int idx=0; idx<sz; idx++ )
     {
-	Strat::Level lvl = tools_.getFlattenStratLevel();
-	if ( sz > 1)
-	    lvl = lvlset.get(idx);
-
+	const Strat::Level lvl = Strat::LVLS().getByIdx( idx );
+	auto& dpths = lvldpths_[idx];
 	for ( int iseq=0; iseq<layerModel().size(); iseq++ )
 	{
 	    const Strat::LayerSequence& seq = layerModel().sequence( iseq );
 	    if ( lvl.id().isInvalid() || seq.isEmpty() )
-		{ lvldpths_[idx] += mUdf(float); continue; }
+		{ dpths += mUdf(float); continue; }
 
 	    const int posidx = seq.positionOf( lvl );
 	    float zlvl = mUdf(float);
@@ -1092,7 +1107,7 @@ void uiStratSimpleLayerModelDisp::getBounds()
 		zlvl = seq.layers()[seq.size()-1]->zBot();
 	    else if ( posidx >= 0 )
 		zlvl = seq.layers()[posidx]->zTop();
-	    lvldpths_[idx] += zlvl;
+	    dpths += zlvl;
 	}
     }
 
@@ -1106,11 +1121,8 @@ void uiStratSimpleLayerModelDisp::getBounds()
 	mChckBnds(vrg.start,>,val);
 	mChckBnds(vrg.stop,<,val);
     mEndLayLoop()
-    if ( mIsUdf(zrg.start) )
-	zrg_ = Interval<float>( 0, 1 );
-    else
-	zrg_ = zrg;
-    vrg_ = mIsUdf(vrg.start) ? Interval<float>(0,1) : vrg;
+    zrg_ = mIsUdf(zrg.start) ? Interval<float>(0.f,1.f) : zrg;
+    vrg_ = mIsUdf(vrg.start) ? Interval<float>(0.f,1.f) : vrg;
 
     if ( mIsUdf(zoomwr_.left()) )
     {
@@ -1174,13 +1186,10 @@ void uiStratSimpleLayerModelDisp::doDraw()
 }
 
 
-void uiStratSimpleLayerModelDisp::drawLevels()
-{
-}
-
-
 void uiStratSimpleLayerModelDisp::doLevelChg()
-{ reDrawAll(); }
+{
+    reDrawAll();
+}
 
 
 void uiStratSimpleLayerModelDisp::drawSelectedSequence()
