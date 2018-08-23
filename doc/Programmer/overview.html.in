@@ -90,7 +90,7 @@ Isolation like this is present for a variety of subjects, from threads, sockets,
 <p id="text">
 OpendTect is based on a couple of external packages, which are mostly open source. These include:</p>
 <ul id="bullets">
-<li>Qt from <a href="http://www.digia.com">Digia</a>
+<li>Qt from <a href="https://www.qt.io">The Qt Company</a>
 <li>OpenSceneGraph from <a href="http://openscenegraph.org">OpenSceneGraph.org</a>
 <li>GNU tools (gmake, gcc) from <a href="http://www.fsf.org">FSF</a>
 <li>CMake from <a href="http://cmake.org">CMake.org</a>
