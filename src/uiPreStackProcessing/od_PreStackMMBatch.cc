@@ -21,14 +21,14 @@ int main( int argc, char ** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
+    uiMain app;
+
+    OD::ModDeps().ensureLoaded( "uiPreStackProcessing" );
 
     IOPar jobpars;
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
 	return ExitProgram( 1 );
 
-    OD::ModDeps().ensureLoaded( "uiPreStackProcessing" );
-
-    uiMain app;
     uiPreStackMMProc* pmmp = new uiPreStackMMProc( 0, jobpars );
     app.setTopLevel( pmmp );
     pmmp->show();

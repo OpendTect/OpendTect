@@ -335,6 +335,7 @@ public:
     static uiWord sDescription()	{ return tr("Description"); }
     static uiWord sDesktop()		{ return tr("Desktop"); }
     static uiWord sDestination()	{ return tr("Destination"); }
+    static uiWord sdGB()		{ return tr("dGB Earth Sciences"); }
     static uiWord sDifference()		{ return tr("Difference"); }
     static uiWord sDimension()		{ return tr("Dimension"); }
     static uiWord sDip()		{ return tr("Dip"); }

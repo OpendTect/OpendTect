@@ -51,7 +51,7 @@ mExternC PluginInfo* GetuiMFCPluginInfo()
 {
     static PluginInfo retpi = {
         "MFC Classes for UI -- Demo",
-        "dGB Earth Science -India- (Ranojay)",
+        "dGB Earth Sciences",
         "1.0",
         "Shows simple MFC Dialog Class built in.\nDeveloper Studio" };
     return &retpi;

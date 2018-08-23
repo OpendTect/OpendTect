@@ -275,16 +275,32 @@ void CommandLineParser::getNormalArguments( BufferStringSet& res ) const
 }
 
 
+
+static char* getArgvStr( const BufferString& inp )
+{
+    const int sz = inp.size();
+    char* ret = new char [sz+1];
+    const char* inpptr = inp.buf();
+    char* outptr = ret;
+    while ( *inpptr )
+    {
+	*outptr = *inpptr;
+	outptr++; inpptr++;
+    }
+    *outptr = '\0';
+    return ret;
+}
+
+
 char** CommandLineParser::getArgv() const
 {
     const int argc = getArgc();
-    const char** ret = new const char* [argc+1];
-    ret[0] = executable_.str();
+    char** ret = new char* [argc+1];
+    ret[0] = getArgvStr( executable_ );
     for ( int iarg=1; iarg<argc; iarg++ )
-	ret[iarg] = argv_.get( iarg-1 ).str();
+	ret[iarg] = getArgvStr( argv_.get(iarg-1) );
     ret[argc] = 0;
-
-    return (char**)ret;
+    return ret;
 }
 
 

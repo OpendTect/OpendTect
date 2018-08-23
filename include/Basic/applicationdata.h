@@ -15,6 +15,7 @@ Wrapper class around QCoreApplication
 #include "basicmod.h"
 #include "callback.h"
 #include "thread.h"
+class uiString;
 
 mFDQtclass(QCoreApplication);
 class QEventLoopReceiver;
@@ -45,9 +46,10 @@ public:
 			//!<On Mac, is Ctrl and Command buttons swapped?
     static void		swapCommandAndCTRL(bool);
 
-    static void		setOrganizationName(const char*);
+    static void		setOrganizationName(const uiString&);
     static void		setOrganizationDomain(const char*);
-    static void		setApplicationName(const char*);
+    static void		setApplicationName(const uiString&);
+
 protected:
 
     mQtclass(QCoreApplication)* application_;

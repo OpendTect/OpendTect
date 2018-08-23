@@ -20,14 +20,14 @@ int main( int argc, char ** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
+    uiMain app;
+
+    OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
 
     IOPar jobpars;
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
 	return ExitProgram( 1 );
 
-    OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
-
-    uiMain app;
     uiMMPTestProc* testmmp = new uiMMPTestProc( 0, jobpars );
     app.setTopLevel( testmmp );
     testmmp->show();

@@ -40,12 +40,23 @@
 # include <signal.h>
 #endif
 
+
+static BufferString		initialdir_;
+static int			argc_ = -1;
+static char**			argv_ = 0;
+int& GetArgC()			{ return argc_; }
+char** GetArgV()		{ return argv_; }
+bool AreProgramArgsSet()	{ return argc_ != -1; }
+mGlobal(Basic) void SetArgcAndArgv( int argc, char** argv )
+				{ argc_ = argc; argv_ = argv; }
+
 static OD::RunCtxt runctxt_ = OD::UnknownCtxt;
 namespace OD
 {
     RunCtxt GetRunContext()		{ return runctxt_; }
     void SetRunContext( RunCtxt rm )	{ runctxt_ = rm; }
 }
+
 
 //Implemented in src/Basic/qpaths.cc
 void setQtPaths();
@@ -642,23 +653,6 @@ mExtern(Basic) bool WriteEnvVar( const char* env, const char* val )
 
 mExternC(Basic) const char* GetVCSVersion(void)
 { return mVCS_VERSION; }
-
-
-static int argc_ = -1;
-static BufferString initialdir_;
-static char** argv_ = 0;
-
-
-mExtern(Basic) char** GetArgV(void)
-{ return argv_; }
-
-
-mExtern(Basic) int& GetArgC(void)
-{ return argc_; }
-
-
-mExtern(Basic) bool AreProgramArgsSet(void)
-{ return GetArgC()!=-1; }
 
 
 #ifndef __win__

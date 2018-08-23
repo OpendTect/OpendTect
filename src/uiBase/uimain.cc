@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "thread.h"
 #include "texttranslation.h"
+#include "uistrings.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -53,6 +54,7 @@ static Color normaltooltipforegroundcolor_;
 void uiMain::setXpmIconData( const char** buf )	{ xpm_icon_data = buf; }
 const char* uiMain::iconFileName()		{ return icon_filename; }
 namespace OD { mGlobal(Basic) void loadLocalization(); }
+mGlobal(Basic) void SetArgcAndArgv(int,char**);
 
 
 class KeyboardEventFilter : public QObject
@@ -241,17 +243,28 @@ uiMain*	uiMain::themain_ = 0;
 KeyboardEventHandler* uiMain::keyhandler_ = 0;
 KeyboardEventFilter* uiMain::keyfilter_ = 0;
 QtTabletEventFilter* uiMain::tabletfilter_ = 0;
-static BufferString app_name_( "OpendTect" );
+static const uiString dontchange( toUiString("-") );
 
 
-static void initQApplication()
+static void initQApplication( uiString appnm, uiString orgnm )
 {
     uiMain::cleanQtOSEnv();
     QApplication::setDesktopSettingsAware( true );
 
-    ApplicationData::setOrganizationName( "dGB");
+    if ( orgnm != dontchange )
+    {
+	if ( orgnm.isEmpty() )
+	    orgnm = uiStrings::sdGB();
+	ApplicationData::setOrganizationName( orgnm );
+    }
+    if ( appnm != dontchange )
+    {
+	if ( appnm.isEmpty() )
+	    appnm = uiStrings::sOpendTect();
+	ApplicationData::setApplicationName( appnm );
+    }
+
     ApplicationData::setOrganizationDomain( "opendtect.org" );
-    ApplicationData::setApplicationName( app_name_.str() );
 
 #ifdef __mac__
     ApplicationData::swapCommandAndCTRL( true );
@@ -358,16 +371,13 @@ static void qtMessageOutput( QtMsgType type, const char* msg )
 }
 
 
-uiMain::uiMain()
+uiMain::uiMain( const uiString& appnm, const uiString& orgnm )
     : clp_(new CommandLineParser)
 {
     OD::uiInitProcessStatus();
+    initQApplication( appnm, orgnm );
 
-    initQApplication();
     init( 0 );
-
-    if ( setAppIcon(app_) )
-	qdesktop_ = app_->desktop();
 }
 
 
@@ -375,12 +385,9 @@ uiMain::uiMain( QApplication* qapp )
     : clp_(new CommandLineParser)
 {
     OD::uiInitProcessStatus();
+    initQApplication( dontchange, dontchange );
 
-    initQApplication();
     init( qapp );
-    app_ = qapp;
-    if ( setAppIcon(app_) )
-	qdesktop_ = app_->desktop();
 }
 
 
@@ -395,12 +402,6 @@ uiMain::~uiMain()
 }
 
 
-void uiMain::setAppName( const char* appnm )
-{
-    app_name_ = appnm;
-}
-
-
 void uiMain::cleanQtOSEnv()
 {
     UnsetOSEnvVar( "QT_PLUGIN_PATH" ); //!Avoids loading incompatible plugins
@@ -411,13 +412,18 @@ void uiMain::init( QApplication* qap )
 {
     if ( app_ )
 	{ pErrMsg("You already have a uiMain object!"); return; }
-
     themain_ = this;
 
-    if ( DBG::isOn(DBG_UI) && !qap )
-	DBG::message( "Constructing QApplication ..." );
+    if ( qap )
+	app_ = qap;
+    else
+    {
+	if ( DBG::isOn(DBG_UI) )
+	    DBG::message( "Constructing QApplication ..." );
 
-    app_ = qap ? qap : new QApplication( GetArgC(), GetArgV() );
+	SetArgcAndArgv( clp_->getArgc(), clp_->getArgv() );
+	app_ = new QApplication( GetArgC(), GetArgV() );
+    }
 
     KeyboardEventHandler& kbeh = keyboardEventHandler();
     keyfilter_ = new KeyboardEventFilter( kbeh );
@@ -453,6 +459,9 @@ void uiMain::init( QApplication* qap )
 
     OD::loadLocalization();
     mAttachCB( TrMgr().languageChange, uiMain::languageChangeCB );
+
+    if ( setAppIcon(app_) )
+	qdesktop_ = app_->desktop();
 }
 
 

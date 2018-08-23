@@ -167,14 +167,13 @@ void ODMainProgramRestarter()
 }
 
 
-int ODMain()
+int ODMain( uiMain& app )
 {
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
     OD::ModDeps().ensureLoaded( "uiBase" );
     uiDialog::setTitlePos( -1 );
 
-    PtrMan<uiMain> main = new uiMain;
-    PtrMan<uiODMain> odmain = new uiODMain( *main );
+    PtrMan<uiODMain> odmain = new uiODMain( app );
     manODMainWin( odmain );
     checkScreenRes();
 

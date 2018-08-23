@@ -367,8 +367,8 @@ int main( int argc, char** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
-    OD::ModDeps().ensureLoaded( "uiBase" );
     uiMain app;
+    OD::ModDeps().ensureLoaded( "uiBase" );
 
     auto& clp = app.commandLineParser();
     if ( argc < 2 )

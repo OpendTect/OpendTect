@@ -24,9 +24,11 @@ int main( int argc, char ** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
-    CommandLineParser clp;
-    if ( !clp.hasKey("fg") )
+    if ( !CommandLineParser().hasKey("fg") )
 	ForkProcess();
+
+    uiMain app;
+    CommandLineParser& clp = app.commandLineParser();
 
     OD::ModDeps().ensureLoaded( "uiSeis" );
 
@@ -82,7 +84,6 @@ int main( int argc, char ** argv )
 	su.fs_.setFileName( File::linkEnd( su.fs_.fileName(0) ) );
 #endif
 
-    uiMain app;
     uiSEGYExamine* sgyex = new uiSEGYExamine( 0, su );
     app.setTopLevel( sgyex );
     sgyex->show();

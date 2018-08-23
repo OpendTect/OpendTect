@@ -100,7 +100,7 @@ public:
 				{ return BufferString("--",key); }
 
     int			getArgc() const	    { return argv_.size()+1; }
-    char**		getArgv() const;
+    char**		getArgv() const;    //!< allocates everything with new
 
 private:
 

@@ -21,14 +21,14 @@ int main( int argc, char ** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
+    uiMain app;
+
+    OD::ModDeps().ensureLoaded( "uiSeis" );
 
     IOPar jobpars;
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
 	return ExitProgram( 1 );
 
-    OD::ModDeps().ensureLoaded( "uiSeis" );
-
-    uiMain app;
     uiSeisMMProc* smmp = new uiSeisMMProc( 0, jobpars );
     app.setTopLevel( smmp );
     smmp->show();
@@ -37,4 +37,3 @@ int main( int argc, char ** argv )
     delete smmp;
     return ExitProgram( ret );
 }
-

@@ -88,8 +88,8 @@ void reDraw()
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
-
     uiMain app;
+
     uiDialog* dlg = new uiDialog( 0, uiDialog::Setup(uiStrings::sInformation(),
 			mNoDlgTitle,mNoHelpKey) );
     uiCanvasDrawTester* tstr = new uiCanvasDrawTester( dlg );

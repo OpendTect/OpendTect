@@ -48,6 +48,7 @@ int main( int argc, char** argv )
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
     uiMain app;
+
     auto& clp = app.commandLineParser();
     const int nrargs = clp.nrArgs();
     if ( nrargs < 1 )

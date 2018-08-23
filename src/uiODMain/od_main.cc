@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "msgh.h"
 #include "odver.h"
 #include "commandlineparser.h"
+#include "uimain.h"
 #include <iostream>
 
 #ifdef __mac__
@@ -23,19 +24,20 @@ ________________________________________________________________________
 #include "oddirs.h"
 #endif
 
-extern int ODMain();
+extern int ODMain(uiMain&);
 extern Export_Basic int gLogFilesRedirectCode;
 
 
 int main( int argc, char** argv )
 {
     OD::SetRunContext( OD::NormalCtxt );
-
-    const FixedString argv1( argc < 2 ? "" : argv[1] );
-    if ( argv1 == "-v" || argv1 == "--version" )
-	{ std::cerr << GetFullODVersion() << std::endl; ExitProgram( 0 ); }
-
     SetProgramArgs( argc, argv, false );
+    uiMain app;
+
+    auto& clp = app.commandLineParser();
+    const int nrargs = clp.nrArgs();
+    if ( nrargs == 1 && (clp.getArg(0)=="-v" || clp.getArg(0)=="--version") )
+	{ std::cerr << GetFullODVersion() << std::endl; ExitProgram( 0 ); }
 
     int ret = 0;
     if ( !GetEnvVarYN("OD_I_AM_AN_OPENDTECT_DEVELOPER") )
@@ -61,12 +63,13 @@ int main( int argc, char** argv )
     if ( File::exists(datfile.buf()) )
     {
 	BufferString valstr = GetEnvVar( "LM_LICENSE_FILE" );
-	if ( !valstr.isEmpty() ) valstr += ":";
+	if ( !valstr.isEmpty() )
+	    valstr += ":";
 	valstr += datfile;
 	SetEnvVar( "LM_LICENSE_FILE", valstr.buf() );
     }
 #endif
 
-    ret = ODMain();
+    ret = ODMain( app );
     return ExitProgram( ret );
 }

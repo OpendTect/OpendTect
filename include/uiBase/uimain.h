@@ -31,10 +31,12 @@ mExpClass(uiBase) uiMain : public CallBacker
 {
 public:
 
-			uiMain();
+			uiMain(const uiString& appname=uiString::empty(),
+				const uiString& orgnm=uiString::empty());
+			    //!< defaults are uiStrings sOpendTect(), sdGB()
 
-    static CommandLineParser& CLP()		{ return *theMain().clp_; }
     CommandLineParser&	commandLineParser()	{ return *clp_; }
+    static CommandLineParser& CLP()		{ return *theMain().clp_; }
 
 public:
 
@@ -87,24 +89,21 @@ protected:
     uiMainWin*		mainobj_		= 0;
     CommandLineParser*	clp_;
 
-    static mQtclass(QApplication*)  app_;
-    static const uiFont*  font_;
+    static mQtclass(QApplication*)		app_;
+    static const uiFont*			font_;
 
-    static mQtclass(QtTabletEventFilter*)  tabletfilter_;
+    static mQtclass(QtTabletEventFilter*) tabletfilter_;
     static KeyboardEventHandler*	keyhandler_;
     static KeyboardEventFilter*		keyfilter_;
-    mQtclass(QDesktopWidget*)		qdesktop_;
+    mQtclass(QDesktopWidget*)		qdesktop_		= 0;
 
     void		languageChangeCB(CallBacker*);
     static void		updateAllToolTips();
 
 private:
+
 			uiMain(mQtclass(QApplication*));
     void		init(mQtclass(QApplication*));
-
-public:
-
-    void		setAppName(const char*);
 
 };
 

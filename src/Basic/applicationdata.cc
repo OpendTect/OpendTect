@@ -11,6 +11,7 @@
 #include "debug.h"
 #include "genc.h"
 #include "ptrman.h"
+#include "uistring.h"
 
 #ifndef OD_NO_QT
 #include <QCoreApplication>
@@ -54,16 +55,26 @@ void ApplicationData::swapCommandAndCTRL( bool yn )
 }
 
 
-void ApplicationData::setOrganizationName( const char* nm )
-{ QCoreApplication::setOrganizationName( nm ); }
+void ApplicationData::setOrganizationName( const uiString& nm )
+{
+    QString qstr;
+    nm.fillQString( qstr );
+    QCoreApplication::setOrganizationName( qstr );
+}
 
 
 void ApplicationData::setOrganizationDomain( const char* domain )
-{ QCoreApplication::setOrganizationDomain( domain ); }
+{
+    QCoreApplication::setOrganizationDomain( QString(domain) );
+}
 
 
-void ApplicationData::setApplicationName( const char* nm )
-{ QCoreApplication::setApplicationName( nm ); }
+void ApplicationData::setApplicationName( const uiString& nm )
+{
+    QString qstr;
+    nm.fillQString( qstr );
+    QCoreApplication::setApplicationName( qstr );
+}
 
 
 #else //No QT
