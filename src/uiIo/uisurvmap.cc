@@ -30,7 +30,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
 {
     for ( int idx=0; idx<4; idx++ )
     {
-        uiMarkerItem* markeritem = new uiMarkerItem( MarkerStyle2D::Square );
+	uiMarkerItem* markeritem = new uiMarkerItem( MarkerStyle2D::Square );
 	graphitem_.addChild( markeritem );
 	vertices_ += markeritem;
     }
@@ -43,7 +43,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     const mDeclAlignment( postxtalign, HCenter, VCenter );
     for ( int idx=0; idx<4; idx++ )
     {
-        uiTextItem* textitem = new uiTextItem();
+	uiTextItem* textitem = new uiTextItem();
 	textitem->setTextColor( Color::Black() );
 	textitem->setAlignment( postxtalign );
 	textitem->setFont( FontList().get(FontData::Graphics2DSmall) );
@@ -110,8 +110,8 @@ void uiSurveyBoxObject::update()
     for ( int idx=0; idx<labels_.size(); idx++ )
     {
 	const int oppidx = idx < 2 ? idx + 2 : idx - 2;
-	const bool bot = mapcnr[idx].y > mapcnr[oppidx].y;
-        BinID bid = si.transform( mapcnr[idx] );
+	const bool bot = mapcnr[idx].y < mapcnr[oppidx].y;
+	BinID bid = si.transform( mapcnr[idx] );
 	Alignment al( Alignment::HCenter,
 		      bot ? Alignment::Top : Alignment::Bottom );
 	labels_[idx]->setPos( mapcnr[idx] );
