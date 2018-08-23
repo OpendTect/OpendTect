@@ -309,8 +309,10 @@ void uiSEGYReadFinisher::coordsFromChg( CallBacker* )
 void uiSEGYReadFinisher::doScanChg( CallBacker* )
 {
     const bool copy = docopyfld_ ? docopyfld_->getBoolValue() : true;
-    outimpfld_->display( copy );
-    transffld_->display( copy );
+    if ( outimpfld_ )
+	outimpfld_->display( copy );
+    if ( transffld_ )
+	transffld_->display( copy );
     if ( outscanfld_ )
 	outscanfld_->display( !copy );
 
@@ -535,8 +537,13 @@ bool uiSEGYReadFinisher::doBatch( bool doimp )
     fs_.fillPar( jobpars );
 
     IOPar outpars;
-    transffld_->fillPar( outpars );
-    outFld(doimp)->fillPar( outpars );
+    if ( transffld_ )
+	transffld_->fillPar( outpars );
+
+    uiSeisSel* seisselfld = outFld(doimp);
+    if ( seisselfld )
+	seisselfld->fillPar( outpars );
+
     jobpars.mergeComp( outpars, sKey::Output() );
 
     return batchfld_->start();
