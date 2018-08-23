@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #ifdef __win__
 
+#include <minmax.h>
 #include <stdio.h>
 #include <Windows.h>
 #include <gdiplus.h>
