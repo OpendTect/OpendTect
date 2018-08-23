@@ -105,8 +105,10 @@ public:
     void		adaptFreqRangesToDataSize(bool,bool);
     void		taperChged(CallBacker*);
 
-    TaperData&		leftTaperData() { return leftd_; }
-    TaperData&		rightTaperData() { return rightd_; }
+    TaperData&		leftTaperData()		{ return leftd_; }
+    TaperData&		rightTaperData()	{ return rightd_; }
+
+    int			dataSize() const	{ return datasz_; }
 
     Notifier<uiFuncTaperDisp> taperChanged;
 

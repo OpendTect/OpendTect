@@ -148,7 +148,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
     s.leftrg_ = Interval<float> ( 0, mCast(float,s.datasz_/6) );
-    s.rightrg_ = Interval<float> ( mCast(float,s.datasz_-1),
+    s.rightrg_ = Interval<float> ( mCast(float,s.datasz_*5/6),
 				   mCast(float,s.datasz_) );
     s.is2sided_ = true;
     mSetToZDomWithUnit( s.xaxcaption_, istime );

@@ -226,7 +226,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     , hasmax_(s.hasmax_)
     , isminactive_(s.hasmin_)
     , allfreqssetable_(s.allfreqssetable_)
-    , datasz_((int)(0.5/(SI().zStep())))
+    , datasz_(d->dataSize())
 {
     mCheckLimitRanges();
     setSlopeFromFreq();
@@ -235,13 +235,13 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     varinpfld_ = new uiGenInput( this, uiString::empty(), FloatInpSpec() );
     varinpfld_->setTitleText ( tapertxt );
     varinpfld_->setValue( td1_.paramval_ );
-    varinpfld_->valuechanged.notify(mCB( this, uiFreqTaperGrp, slopeChanged ));
-    varinpfld_->valuechanged.notify( mCB(this, uiFreqTaperGrp, taperChged) );
+    varinpfld_->valuechanged.notify( mCB(this,uiFreqTaperGrp,slopeChanged) );
+    varinpfld_->valuechanged.notify( mCB(this,uiFreqTaperGrp,taperChged) );
     varinpfld_->setElemSzPol( uiObject::Small );
 
     inffreqfld_ = new uiGenInput( this, tr("Start/Stop frequency(Hz)"),
 				    FloatInpSpec().setName("Min frequency") );
-    inffreqfld_->valuechanged.notify( mCB( this, uiFreqTaperGrp, freqChanged));
+    inffreqfld_->valuechanged.notify( mCB(this,uiFreqTaperGrp,freqChanged) );
     inffreqfld_->attach( rightOf, varinpfld_ );
     inffreqfld_->setElemSzPol( uiObject::Small );
 
@@ -253,11 +253,11 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     sliderfld_->setInterval( hasmin_ ? mMinRg : mMaxRg );
     sliderfld_->attach( rightOf, inffreqfld_ );
     sliderfld_->valueChanged.notify(
-				mCB( this, uiFreqTaperGrp, sliderChanged ) );
+				mCB(this,uiFreqTaperGrp,sliderChanged) );
 
     supfreqfld_ = new uiGenInput( this, uiString::empty(),
 				    FloatInpSpec().setName("Max frequency") );
-    supfreqfld_->valuechanged.notify( mCB( this, uiFreqTaperGrp, freqChanged));
+    supfreqfld_->valuechanged.notify( mCB(this,uiFreqTaperGrp,freqChanged) );
 
     supfreqfld_->attach( rightOf, sliderfld_ );
     supfreqfld_->setElemSzPol( uiObject::Small );
@@ -272,7 +272,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     }
 
     setPercentsFromFreq();
-    postFinalise().notify( mCB( this, uiFreqTaperGrp, putToScreen ) );
+    postFinalise().notify( mCB(this,uiFreqTaperGrp,putToScreen) );
 }
 
 
@@ -281,10 +281,16 @@ void uiFreqTaperGrp::freqChanged( CallBacker* )
     TaperData& td = mGetData();
     TaperData& drawerdata = mGetDrawerData();
     Interval<float> newrg( inffreqfld_->getFValue(), supfreqfld_->getFValue());
+    if ( newrg.start > newrg.stop )
+	newrg.start = newrg.stop-1;
+    if ( newrg.stop < newrg.start )
+	newrg.stop = newrg.start+1;
+    newrg.limitTo( Interval<float>(0.05f,datasz_) );
 
     td.rg_ = newrg;
     td.refrg_ = newrg;
 
+    NotifyStopper ns( sliderfld_->valueChanged );
     sliderfld_->setInterval( isminactive_ ? mMinRg : mMaxRg );
 
     drawerdata.rg_ = newrg;
@@ -368,8 +374,11 @@ void uiFreqTaperGrp::putToScreen( CallBacker* )
     sliderfld_->setValue( isminactive_ ? freq1 : freq2 );
 
     float slope = td.slope_;
-    setTo1Decimal( slope );
-    setToNearestInt( slope );
+    if ( !mIsUdf(slope) )
+    {
+	setTo1Decimal( slope );
+	setToNearestInt( slope );
+    }
     varinpfld_->setValue( slope );
 
     if ( !allfreqssetable_ )
@@ -395,6 +404,8 @@ void uiFreqTaperGrp::setPercentsFromFreq()
 void uiFreqTaperGrp::setFreqFromSlope( float slope )
 {
     mStopFreqNotifiers()
+    if ( slope==0 )
+	slope = 0.05f;
     const float slopeindecade = (float)(slope/mDec2Oct);
     const float slopeinhertz = Math::PowerOf( 10, 1.f/slopeindecade );
     TaperData& td = mGetData();
@@ -411,7 +422,13 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
 void uiFreqTaperGrp::setSlopeFromFreq()
 {
     TaperData& d = mGetData();
-    const float slope = fabs( 1.f/Math::Log10( d.rg_.stop / d.rg_.start ) );
+    if ( d.rg_.width() == 0 )
+    {
+	d.slope_ = mUdf(float);
+	return;
+    }
+
+    const float slope = fabs( 1.f/Math::Log10(d.rg_.stop/d.rg_.start) );
     d.slope_ = (float) ( slope*mDec2Oct );
 }
 
