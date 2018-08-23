@@ -110,7 +110,7 @@ void uiSurveyBoxObject::update()
     for ( int idx=0; idx<labels_.size(); idx++ )
     {
 	const int oppidx = idx < 2 ? idx + 2 : idx - 2;
-	const bool bot = mapcnr[idx].y_ > mapcnr[oppidx].y_;
+	const bool bot = mapcnr[idx].y_ < mapcnr[oppidx].y_;
         BinID bid = si.transform( mapcnr[idx] );
 	OD::Alignment al( OD::Alignment::HCenter,
 		      bot ? OD::Alignment::Top : OD::Alignment::Bottom );
