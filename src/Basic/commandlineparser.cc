@@ -168,10 +168,19 @@ void CommandLineParser::init( int argc, char** argv )
 	argv_.add( argv[idx] );
 
     File::Path fp( executable_ );
-    BufferString envvarnm( fp.fileName() );
-    envvarnm.replace( ' ', '_' );
-    envvarnm.add( "_ARGS" );
+    BufferString envvarbase( fp.fileName() );
+    envvarbase.replace( ' ', '_' );
+    BufferString envvarnm( envvarbase, "_ARGS" );
     overruleArgsIfEnvVarSet( envvarnm );
+
+    envvarnm.set( envvarbase ).add( "_EXTRA_ARGS" );
+    BufferString envvarval = GetEnvVar( envvarnm );
+    if ( !envvarval.isEmpty() )
+    {
+	envvarval.insertAt( 0, "X " );
+	CommandLineParser clp( envvarval );
+	argv_.append( clp.argv_ );
+    }
 }
 
 

@@ -45,7 +45,8 @@ ________________________________________________________________________
 \endcode
 
   Note: if there is an environment variable executablename_ARGS then that will
-  overrule any provided args.
+  overrule any provided args. Further, executablename_EXTRA_ARGS will keep
+  the args but adds the specified string to the command line.
 
  */
 
