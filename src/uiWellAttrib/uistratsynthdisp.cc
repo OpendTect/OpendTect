@@ -586,33 +586,37 @@ void uiStratSynthDisp::updateTextPosCB( CallBacker* )
 void uiStratSynthDisp::drawLevel()
 {
     vwr_->removeAuxDatas( levelaux_ );
-    const float offset =
-	prestackgrp_->isSensitive() ? mCast(float, offsetposfld_->getValue())
-				    : 0.0f;
-    ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( currentwvasynthetic_ ? currentwvasynthetic_
-					 : currentvdsynthetic_,
-		    curd2tmodels, offset );
-    TypeSet<float> fltlvltimevals;
-    const bool canshowflatten =
-	dispflattened_ && !flattenlvl_.isUndef() && !curd2tmodels.isEmpty();
-    if ( canshowflatten )
-	curSS().getLevelTimes( flattenlvl_, curd2tmodels, fltlvltimevals );
-    const StratSynthLevelSet* lvls = curSS().getLevels();
-    for( int lvlidx=0; lvlidx<lvls->size(); lvlidx++ )
-    {
-	const StratSynthLevel* lvl = curSS().getLevel( lvlidx );
-	if ( !lvl ) return;
-	BufferString checkstr = lvl->getName();
-	const Strat::Level stratlvl = Strat::LVLS().getByName( lvl->getName()) ;
 
-	if ( !curd2tmodels.isEmpty() )
+    const float offset = prestackgrp_->isSensitive()
+		       ? (float)offsetposfld_->getValue() : 0.0f;
+    const auto& cursynth = currentwvasynthetic_ ? currentwvasynthetic_
+						: currentvdsynthetic_;
+    ObjectSet<const TimeDepthModel> curd2tmodels;
+    getCurD2TModel( cursynth, curd2tmodels, offset );
+
+    if ( !curd2tmodels.isEmpty() )
+    {
+	const bool canshowflatten = dispflattened_ && !flattenlvl_.isUndef();
+	TypeSet<float> fltlvltimevals;
+	if ( canshowflatten )
+	    curSS().getLevelTimes( flattenlvl_, curd2tmodels, fltlvltimevals );
+
+	const StratSynthLevelSet* lvls = curSS().getLevels();
+	for( int lvlidx=0; lvlidx<lvls->size(); lvlidx++ )
 	{
+	    const StratSynthLevel* lvl = curSS().getLevel( lvlidx );
+	    if ( !lvl )
+		continue;
+	    const Strat::Level stratlvl
+				= Strat::LVLS().getByName( lvl->getName()) ;
+	    if ( stratlvl.isUndef() )
+		continue;
 	    TypeSet<float> strattimevals;
 	    curSS().getLevelTimes( stratlvl, curd2tmodels, strattimevals );
 	    if ( strattimevals.isEmpty() )
 		continue;
 
+	    const bool issellvl = stratlvl.id() == flattenlvl_.id();
 	    FlatView::AuxData* auxd = vwr_->createAuxData("Level markers");
 	    auxd->linestyle_.type_ = OD::LineStyle::None;
 	    for ( int imdl=0; imdl<strattimevals.size(); imdl++ )
@@ -621,8 +625,13 @@ void uiStratSynthDisp::drawLevel()
 		if ( canshowflatten )
 		    tval -= fltlvltimevals[imdl];
 
-		auxd->markerstyles_ += OD::MarkerStyle2D(
-			OD::MarkerStyle2D::Target,   cMarkerSize, lvl->col_ );
+		int mrkrsz = cMarkerSize;
+		auto mrkrstyletype = OD::MarkerStyle2D::Target;
+		if ( issellvl )
+		    mrkrsz *= 2;
+
+		auxd->markerstyles_ +=
+			OD::MarkerStyle2D( mrkrstyletype, mrkrsz, lvl->col_ );
 		auxd->poly_ += FlatView::Point( (imdl*dispeach_)+1, tval );
 		auxd->zvalue_ = 3;
 	    }
@@ -1135,7 +1144,8 @@ void uiStratSynthDisp::setPreStackMapper()
 	newmapsu->setNotFixed();
 	newmapsu->setNoClipping();
 	vwr.appearance().ddpars_.vd_.mapper_->setup() = *newmapsu;
-	vwr.appearance().ddpars_.vd_.colseqname_ = ColTab::Sequence::sDefaultName();
+	vwr.appearance().ddpars_.vd_.colseqname_
+				= ColTab::Sequence::sDefaultName();
 	*newmapsu = vwr.appearance().ddpars_.wva_.mapper_->setup();
 	newmapsu->setNoClipping();
 	vwr.appearance().ddpars_.wva_.mapper_->setup() = *newmapsu;

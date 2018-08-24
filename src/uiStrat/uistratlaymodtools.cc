@@ -234,6 +234,11 @@ void uiStratLayModEditTools::initGrp( CallBacker* )
 	flattenedtb_->setSensitive( false );
 
     setFldNms( lvlfld_, lvlnms_, false, false, 0 );
+    for ( int idx=0; idx<lvlnms_.size(); idx++ )
+    {
+	const auto lvlid = Strat::LVLS().getIDByName( lvlnms_.get(idx) );
+	lvlfld_->setColorIcon( idx, Strat::LVLS().levelColor( lvlid ) );
+    }
 
 #define mSLMETCB( fn ) mCB(this,uiStratLayModEditTools,fn)
     propfld_->selectionChanged.notify( mSLMETCB(selPropCB) );
