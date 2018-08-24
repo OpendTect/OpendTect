@@ -197,7 +197,7 @@ void uiComboBox::setIcon( int index, const char* iconnm )
 }
 
 
-void uiComboBox::setColorIcon( int index, Color col )
+void uiComboBox::setColorIcon( int index, const Color& col )
 {
     if ( index<0 || index>=body_->count() )
 	return;

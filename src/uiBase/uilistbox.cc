@@ -915,6 +915,20 @@ void uiListBox::setIcon( int index, const char* iconnm )
 }
 
 
+void uiListBox::setColorIcon( int index, const Color& col )
+{
+    if ( index<0 || index>=lb_->body().count() )
+	return;
+
+    if ( col == Color::NoColor() )
+	lb_->body().item(index)->setIcon( QIcon() );
+    else
+    {
+	const auto maxsz = uiObject::toolButtonSize();
+	setPixmap( index, uiPixmap(maxsz,maxsz,col) );
+    }
+}
+
 
 void uiListBox::setColor( int index, const Color& col )
 {

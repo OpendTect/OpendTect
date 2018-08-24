@@ -731,7 +731,7 @@ uiSurfaceStratDlg( uiParent* p,  const DBKeySet& ids )
     tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3),
 			"Stratigraphy Table" );
     uiStringSet lbls; lbls.add( uiStrings::sName() ).add( uiStrings::sColor() )
-			  .add( uiStrings::sMarker() );
+			  .add( uiStrings::sLevel() );
     tbl_->setColumnLabels( lbls );
     tbl_->setTableReadOnly( true );
     tbl_->setRowResizeMode( uiTable::Interactive );
@@ -740,8 +740,8 @@ uiSurfaceStratDlg( uiParent* p,  const DBKeySet& ids )
     tbl_->setPrefWidth( 400 );
 
     uiToolButton* sb = new uiToolButton( this, "man_strat",
-				      tr("Edit Stratigraphy to define Markers"),
-				      mCB(this,uiSurfaceStratDlg,doStrat) );
+		      tr("Edit Stratigraphy to define Stratigraphic Levels"),
+		      mCB(this,uiSurfaceStratDlg,doStrat) );
     sb->attach( rightOf, tbl_ );
 
     IOPar par;

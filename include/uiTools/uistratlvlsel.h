@@ -28,8 +28,7 @@ public:
     typedef Strat::Level::ID	LevelID;
 
 			uiStratLevelSel(uiParent*,bool withudf,
-					const uiString& lbltxt=sTiedToTxt());
-					//!< pass null for no label
+				    const uiString& lbltxt=sTiedToTxt());
 			~uiStratLevelSel();
 
     Strat::Level	selected() const;
@@ -47,7 +46,10 @@ public:
 protected:
 
     uiComboBox*		fld_;
-    bool		haveudf_;
+    const bool		haveudf_;
+
+    void		addItem(const char*,const Color&);
+    void		fill();
 
     void		selCB(CallBacker*);
     void		extChgCB(CallBacker*);

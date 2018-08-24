@@ -20,6 +20,7 @@ ________________________________________________________________________
 class uiComboBox;
 class uiLabel;
 class uiSpinBox;
+class uiStratLevelSel;
 class uiToolButton;
 class PropertyRefSelection;
 
@@ -115,7 +116,7 @@ public:
 protected:
 
     uiComboBox*		propfld_;
-    uiComboBox*		lvlfld_;
+    uiStratLevelSel*	lvlfld_;
     uiComboBox*		contfld_;
     uiSpinBox*		eachfld_;
     uiLabel*		eachlbl_;

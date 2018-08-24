@@ -161,6 +161,7 @@ public:
     void		setPixmap(int,const uiPixmap&);
     void		setIcon(int,const char* icon_identifier);
     void		setColor(int,const Color&);
+    void		setColorIcon(int,const Color&);
 
     Color		getColor(int) const;
 
