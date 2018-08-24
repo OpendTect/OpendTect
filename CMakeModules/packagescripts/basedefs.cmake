@@ -31,6 +31,10 @@ set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackVie
 if( NOT MATLAB_DIR STREQUAL "" )
     set( PLUGINS ${PLUGINS} MATLABLink uiMATLABLink )
 endif()
+if( NOT HDF5_ROOT STREQUAL "" )
+    set( PLUGINS ${PLUGINS} HDF5 uiHDF5 )
+endif()
+
 #Only for windows base package
 set( WINEXECLIST od_start_dtect od_main_console od_runinst )
 

@@ -34,6 +34,7 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DBUILD_USERDOC=${BUILD_USERDOC}
 	    -DUSERDOC_PROJECT=${USERDOC_PROJECT}
 	    -DMATLAB_DIR=${MATLAB_DIR}
+	    -DHDF5_ROOT=${HDF5_ROOT}
 	    -P ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
 	    COMMENT "Creating packages" ) 
 endmacro()
