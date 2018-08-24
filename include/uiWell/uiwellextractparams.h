@@ -48,15 +48,17 @@ public:
 
     virtual void	clear();
 
-    void		setMarkers(const BufferStringSet&);
+    void		fillWithAllMarkers();
     void		setMarkers(const Well::MarkerSet&);
+    void		setMarkers(const BufferStringSet&,
+				   const TypeSet<Color>&);
 
     void		setTopMarker(const char* mrk,float shift)
 			{ params_->setTopMarker(mrk,shift); putToScreen(); }
     void		setBotMarker(const char* mrk,float shift)
 			{ params_->setBotMarker(mrk,shift); putToScreen(); }
     void		setRangeSel(const Well::ZRangeSelector&);
-			
+
     void		setRange(Interval<float> rg, bool istime);
 
     Well::ZRangeSelector& zRangeSel() { return *params_; }
@@ -94,7 +96,7 @@ public:
 				    , withsampling_(false)
 				    , withextractintime_(SI().zIsTime())
 				    {}
-	
+
 	mDefSetupMemb(bool,withzrgselparams)
 	mDefSetupMemb(bool,withzstep)
 	mDefSetupMemb(bool,withsampling)

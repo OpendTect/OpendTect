@@ -359,18 +359,26 @@ void Well::Manager::getLogInfo( const ObjID& id, ObjectSet<IOPar>& iops ) const
 }
 
 
-void Well::Manager::getAllMarkerNames( BufferStringSet& nms ) const
+void Well::Manager::getAllMarkerInfos( BufferStringSet& nms,
+					TypeSet<Color>& colors ) const
 {
     const DBDirEntryList del( mIOObjContext(Well) );
+    const LoadReqs reqs( Mrkrs );
+    Well::MarkerSet result;
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	RefMan<Data> wd = new Well::Data;
-	Reader rdr( del.ioobj(idx), *wd );
-	BufferStringSet newnms;
-	if ( rdr.getMarkers() )
-	    wd->markers().getNames( newnms );
-	nms.add( newnms, false );
+	ConstRefMan<Data> wd = fetch( del.ioobj(idx).key(), reqs );
+	if ( !wd )
+	    continue;
+
+	if ( result.isEmpty() )
+	    result = wd->markers();
+	else
+	    result.append( wd->markers() );
     }
+
+    result.getNames( nms );
+    result.getColors( colors );
 }
 
 

@@ -99,7 +99,8 @@ public:
 
     void		getLogNames(const ObjID&,BufferStringSet&) const;
     void		getLogInfo(const ObjID&,ObjectSet<IOPar>&) const;
-    void		getAllMarkerNames(BufferStringSet&) const;
+    void		getAllMarkerInfos(BufferStringSet& nms,
+					  TypeSet<Color>&) const;
     ConstRefMan<Log>	getLog(const ObjID&,const char* lognm) const;
     Coord		getMapLocation(const ObjID&) const;
 

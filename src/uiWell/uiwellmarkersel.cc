@@ -92,33 +92,58 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 }
 
 
-void uiWellMarkerSel::setMarkers( const Well::MarkerSet& wms )
+void uiWellMarkerSel::fillWithAll()
 {
-    BufferStringSet nms;
-    wms.getNames( nms );
-    setMarkers( nms );
+    BufferStringSet nms; TypeSet<Color> colors;
+    Well::MGR().getAllMarkerInfos( nms, colors );
+    setMarkers( nms, colors );
 }
 
 
-void uiWellMarkerSel::setMarkers( const BufferStringSet& inpnms )
+void uiWellMarkerSel::setMarkers( const Well::MarkerSet& wms )
 {
-    BufferStringSet nms;
+    BufferStringSet nms; TypeSet<Color> colors;
+    wms.getNames( nms ); wms.getColors( colors );
+    setMarkers( nms, colors );
+}
+
+
+void uiWellMarkerSel::setEmpty()
+{
+    setMarkers( BufferStringSet(), TypeSet<Color>() );
+}
+
+
+void uiWellMarkerSel::setMarkers( const BufferStringSet& inpnms,
+				  const TypeSet<Color>& inpcolors )
+{
+    BufferStringSet nms; TypeSet<Color> colors;
     if ( setup_.withudf_ )
+    {
 	nms.add( setup_.single_ ? sKeyUdfLvl() : sKeyDataStart() );
+	colors.add( Color::NoColor() );
+    }
     nms.add( inpnms, true );
+    colors.append( inpcolors );
+    while ( colors.size() < nms.size() )
+	colors += Color::NoColor();
     if ( !setup_.single_ && setup_.withudf_ )
+    {
 	nms.add( sKeyDataEnd() );
+	colors.add( Color::NoColor() );
+    }
+
     if ( nms.isEmpty() )
 	{ topfld_->setEmpty(); if ( botfld_ ) botfld_->setEmpty(); return; }
 
     const int mid = nms.size() / 2;
-    setMarkers( *topfld_, nms );
+    setMarkers( *topfld_, nms, colors );
     if ( setup_.middef_ )
 	topfld_->setCurrentItem( mid );
 
     if ( botfld_ )
     {
-	setMarkers( *botfld_, nms );
+	setMarkers( *botfld_, nms, colors );
 	int defitm = setup_.middef_ ? mid+1 : botfld_->size() - 1;
 	if ( defitm >= botfld_->size() )
 	    defitm = botfld_->size() - 1;
@@ -128,12 +153,15 @@ void uiWellMarkerSel::setMarkers( const BufferStringSet& inpnms )
 }
 
 
-void uiWellMarkerSel::setMarkers( uiComboBox& cb, const BufferStringSet& nms )
+void uiWellMarkerSel::setMarkers( uiComboBox& cb, const BufferStringSet& nms,
+				  const TypeSet<Color>& colors )
 {
     BufferString cur( cb.text() );
     NotifyStopper ns( cb.selectionChanged );
     cb.setEmpty();
-    cb.addItems( nms.getUiStringSet() );
+    cb.addItems( nms );
+    for ( int idx=0; idx<cb.size(); idx++ )
+	cb.setColorIcon( idx, colors[idx] );
     if ( cur.isEmpty() )
 	cb.setCurrentItem( 0 );
     else
@@ -261,9 +289,11 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
 		new uiLabel( mrkrgrp, uiStrings::sMarker(mPlural) );
 
     markersselgrp_ = new uiListBox( mrkrgrp, "Markers", su.markerschoicemode_ );
-    Well::MGR().getAllMarkerNames( markernms_ );
-    markernms_.sort();
-    markersselgrp_->addItems( markernms_.getUiStringSet() );
+    TypeSet<Color> colors;
+    Well::MGR().getAllMarkerInfos( markernms_, colors );
+    markersselgrp_->addItems( markernms_ );
+    for ( int idx=0; idx<markernms_.size(); idx++ )
+	markersselgrp_->setColorIcon( idx, colors[idx] );
     filtfld_ = new uiGenInput( markersselgrp_, uiStrings::sFilter(), "*" );
     filtfld_->updateRequested.notify(
 				mCB(this,uiWellMarkersDlg,fltrMarkerNamesCB) );
@@ -322,7 +352,7 @@ void uiWellMarkersDlg::fltrMarkerNamesCB( CallBacker* )
     BufferString filtstr = filtfld_->text();
     if ( filtstr.isEmpty() || filtstr == "*" )
     {
-	markersselgrp_->addItems( markernms_.getUiStringSet() );
+	markersselgrp_->addItems( markernms_ );
 	return;
     }
 
@@ -341,5 +371,5 @@ void uiWellMarkersDlg::fltrMarkerNamesCB( CallBacker* )
     if ( filtmrkrnms.isEmpty() )
 	return;
 
-    markersselgrp_->addItems( filtmrkrnms.getUiStringSet() );
+    markersselgrp_->addItems( filtmrkrnms );
 }

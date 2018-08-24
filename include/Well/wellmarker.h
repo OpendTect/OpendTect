@@ -137,8 +137,7 @@ public:
     bool		insertNew(const Well::Marker&);
     void		addSameWell(const MarkerSet&);
     void		mergeOtherWell(const MarkerSet&);
-    void		append(const MarkerSet& ms)
-							{ mergeOtherWell(ms); }
+    void		append(const MarkerSet& ms)	{ mergeOtherWell(ms); }
     idx_type		getIdxAbove(ZType,const Well::Track* trck=0) const;
 			//!< is trck provided, compares TVDs
 

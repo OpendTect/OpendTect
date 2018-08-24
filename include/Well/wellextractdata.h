@@ -167,7 +167,8 @@ public:
 				//!< If selected, same size as ids()
     const Interval<float>	getTracksTVDRange() const {return trackstvdrg_;}
 
-    void			getAllMarkerNames(BufferStringSet&) const;
+    void			getAllMarkerInfos(BufferStringSet&,
+						  TypeSet<Color>&) const;
     void			getAllLogNames(BufferStringSet&) const;
 
 protected:

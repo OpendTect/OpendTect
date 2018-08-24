@@ -106,7 +106,8 @@ void Well::InfoCollector::setSurvey( const SurveyDiskLocation& sdl )
 }
 
 
-void Well::InfoCollector::getAllMarkerNames( BufferStringSet& nms ) const
+void Well::InfoCollector::getAllMarkerInfos( BufferStringSet& nms,
+					     TypeSet<Color>& colors ) const
 {
     nms.setEmpty();
     if ( markers_.isEmpty() )
@@ -117,6 +118,7 @@ void Well::InfoCollector::getAllMarkerNames( BufferStringSet& nms ) const
 	wms.append( *markers_.get(idx) );
 
     wms.getNames( nms );
+    wms.getColors( colors );
 }
 
 

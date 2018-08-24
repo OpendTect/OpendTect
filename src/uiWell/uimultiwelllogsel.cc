@@ -178,16 +178,17 @@ void uiMultiWellLogSel::update()
 void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 {
     logsfld_->setEmpty();
-    DBKeySet mids;
-    getSelWellIDs( mids );
-    if ( mids.isEmpty() )
+    DBKeySet dbkys;
+    getSelWellIDs( dbkys );
+    if ( dbkys.isEmpty() )
 	return;
 
     BufferStringSet availablelognms;
     BufferStringSet availablemrkrs;
-    for ( int midx=0; midx<mids.size(); midx++ )
+    TypeSet<Color> mrkcolors;
+    for ( int midx=0; midx<dbkys.size(); midx++ )
     {
-	const DBKey dbky = mids[midx];
+	const DBKey dbky = dbkys[midx];
 	ConstRefMan<Well::Data> wd = Well::MGR().fetch( dbky,
 				    Well::LoadReqs(Well::Trck,Well::Logs) );
 	if ( !wd )
@@ -196,12 +197,14 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 	BufferStringSet lognms;
 	wd->logs().getNames( lognms );
 
-	BufferStringSet mrkrnms;
+	BufferStringSet mrkrnms; TypeSet<Color> colors;
 	wd->markers().getNames( mrkrnms );
+	wd->markers().getColors( colors );
 	if ( midx == 0 )
 	{
 	    availablelognms = lognms;
 	    availablemrkrs = mrkrnms;
+	    mrkcolors = colors;
 	}
 	else
 	{
@@ -213,30 +216,33 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 
 	    for ( int mrkidx=availablemrkrs.size()-1; mrkidx>=0; mrkidx-- )
 	    {
-		if (!mrkrnms.isPresent(availablemrkrs.get(mrkidx)) )
+		if ( !mrkrnms.isPresent(availablemrkrs.get(mrkidx)) )
+		{
 		    availablemrkrs.removeSingle( mrkidx );
+		    mrkcolors.removeSingle( mrkidx );
+		}
 	    }
 	}
     }
 
     logsfld_->addItems( availablelognms.getUiStringSet() );
     if ( wellextractparamsfld_ )
-	wellextractparamsfld_->setMarkers( availablemrkrs );
+	wellextractparamsfld_->setMarkers( availablemrkrs, mrkcolors );
 }
 
 
-void uiMultiWellLogSel::getSelWellIDs( DBKeySet& mids ) const
+void uiMultiWellLogSel::getSelWellIDs( DBKeySet& dbkys ) const
 {
     if ( singlewid_ && !wellobjs_.isEmpty() )
     {
-	mids.add( wellobjs_[0]->key() );
+	dbkys.add( wellobjs_[0]->key() );
     }
     else if ( wellsfld_ )
     {
 	for ( int idx=0; idx<wellsfld_->size(); idx++ )
 	{
 	    if ( wellsfld_->isChosen(idx) )
-		mids.add( wellobjs_[idx]->key() );
+		dbkys.add( wellobjs_[idx]->key() );
 	}
     }
 }
@@ -244,20 +250,20 @@ void uiMultiWellLogSel::getSelWellIDs( DBKeySet& mids ) const
 
 void uiMultiWellLogSel::getSelWellIDs( BufferStringSet& wids ) const
 {
-    DBKeySet mids;
-    getSelWellIDs( mids );
-    for ( int idx=0; idx<mids.size(); idx++ )
-	wids.add( mids[idx].toString() );
+    DBKeySet dbkys;
+    getSelWellIDs( dbkys );
+    for ( int idx=0; idx<dbkys.size(); idx++ )
+	wids.add( dbkys[idx].toString() );
 }
 
 
 void uiMultiWellLogSel::setSelWellIDs( const BufferStringSet& idstrs )
 {
-    DBKeySet mids;
+    DBKeySet dbkys;
     for ( int idx=0; idx<idstrs.size(); idx++ )
-	mids += DBKey::getFromStr( idstrs.get(idx) );
+	dbkys += DBKey::getFromStr( idstrs.get(idx) );
 
-    setSelWellIDs( mids );
+    setSelWellIDs( dbkys );
 }
 
 
@@ -297,10 +303,10 @@ void uiMultiWellLogSel::readWellChoiceDone( CallBacker* )
 {
     if ( !wellschoiceio_ ) return;
 
-    DBKeySet mids;
+    DBKeySet dbkys;
     for ( int idx=0; idx<wellschoiceio_->chosenKeys().size(); idx++ )
-	mids += DBKey::getFromStr( wellschoiceio_->chosenKeys().get(idx) );
-    setSelWellIDs( mids );
+	dbkys += DBKey::getFromStr( wellschoiceio_->chosenKeys().get(idx) );
+    setSelWellIDs( dbkys );
 }
 
 

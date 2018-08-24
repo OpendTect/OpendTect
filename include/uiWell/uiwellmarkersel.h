@@ -49,8 +49,11 @@ public:
 
 			uiWellMarkerSel(uiParent*,const Setup&);
 
+    void		fillWithAll();
     void		setMarkers(const Well::MarkerSet&);
-    void		setMarkers(const BufferStringSet&);
+    void		setMarkers(const BufferStringSet&,
+				   const TypeSet<Color>&);
+    void		setEmpty();
 
     void		setInput(const Well::Marker&,bool top=true);
     void		setInput(const char*,bool top=true);
@@ -78,7 +81,8 @@ protected:
     uiComboBox*		topfld_;
     uiComboBox*		botfld_;
 
-    void		setMarkers(uiComboBox&,const BufferStringSet&);
+    void		setMarkers(uiComboBox&,const BufferStringSet&,
+				   const TypeSet<Color>&);
     void		mrkSel(CallBacker*);
 
 };

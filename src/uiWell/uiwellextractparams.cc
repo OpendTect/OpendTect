@@ -151,10 +151,11 @@ void uiWellZRangeSelector::setRangeSel( const Well::ZRangeSelector& sel )
 }
 
 
-void uiWellZRangeSelector::setMarkers( const BufferStringSet& mrkrs )
+void uiWellZRangeSelector::setMarkers( const BufferStringSet& mrkrs,
+				       const TypeSet<Color>& colors )
 {
     mDefWMS;
-    wms->setMarkers( mrkrs );
+    wms->setMarkers( mrkrs, colors );
 }
 
 
@@ -162,6 +163,13 @@ void uiWellZRangeSelector::setMarkers( const Well::MarkerSet& mrkrs )
 {
     mDefWMS;
     wms->setMarkers( mrkrs );
+}
+
+
+void uiWellZRangeSelector::fillWithAllMarkers()
+{
+    mDefWMS;
+    wms->fillWithAll();
 }
 
 
