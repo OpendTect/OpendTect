@@ -30,9 +30,11 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf,
 	fld_->setStretch( 2, 2 );
     }
     fill();
+    fld_->setHSzPol( uiObject::MedVar );
     fld_->selectionChanged.notify( mCB(this,uiStratLevelSel,selCB) );
 
     mAttachCB( Strat::eLVLS().objectChanged(), uiStratLevelSel::extChgCB );
+    setStretch( 1, 0 );
     setHAlignObj( fld_ );
 }
 
@@ -85,6 +87,12 @@ void uiStratLevelSel::setID( Strat::Level::ID lvlid )
 void uiStratLevelSel::setName( const char* nm )
 {
     setID( Strat::LVLS().getIDByName(nm) );
+}
+
+
+void uiStratLevelSel::setToolTip( const uiString& tt )
+{
+    fld_->setToolTip( tt );
 }
 
 

@@ -38,6 +38,7 @@ public:
 
     void		setName(const char*);
     void		setID(LevelID);
+    void		setToolTip(const uiString&);
 
     Notifier<uiStratLevelSel> selChange;
 

@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uispinbox.h"
+#include "uistratlvlsel.h"
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 
@@ -179,7 +180,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     propfld_ = new uiComboBox( leftgrp, "Display property" );
     propfld_->setToolTip( tr("Displayed property") );
 
-    lvlfld_ = new uiComboBox( leftgrp, "Level" );
+    lvlfld_ = new uiStratLevelSel( leftgrp, false, uiString::empty() );
     lvlfld_->setToolTip( tr("Selected level") );
     lvlfld_->attach( rightOf, propfld_ );
 
@@ -233,16 +234,9 @@ void uiStratLayModEditTools::initGrp( CallBacker* )
     if ( lvlnms_.isEmpty() )
 	flattenedtb_->setSensitive( false );
 
-    setFldNms( lvlfld_, lvlnms_, false, false, 0 );
-    for ( int idx=0; idx<lvlnms_.size(); idx++ )
-    {
-	const auto lvlid = Strat::LVLS().getIDByName( lvlnms_.get(idx) );
-	lvlfld_->setColorIcon( idx, Strat::LVLS().levelColor( lvlid ) );
-    }
-
 #define mSLMETCB( fn ) mCB(this,uiStratLayModEditTools,fn)
     propfld_->selectionChanged.notify( mSLMETCB(selPropCB) );
-    lvlfld_->selectionChanged.notify( mSLMETCB(selLvlCB) );
+    lvlfld_->selChange.notify( mSLMETCB(selLvlCB) );
     contfld_->selectionChanged.notify( mSLMETCB(selContentCB) );
     if ( eachfld_ )
 	eachfld_->valueChanging.notify( mSLMETCB(dispEachCB) );
@@ -297,19 +291,19 @@ int uiStratLayModEditTools::selPropIdx() const
 
 Strat::Level uiStratLayModEditTools::selLevel() const
 {
-    return Strat::LVLS().getByName( lvlfld_->text() );
+    return lvlfld_->selected();
 }
 
 
 Strat::Level::ID uiStratLayModEditTools::selLevelID() const
 {
-    return Strat::LVLS().getIDByName( lvlfld_->text() );
+    return lvlfld_->getID();
 }
 
 
 int uiStratLayModEditTools::selLevelIdx() const
 {
-    return Strat::LVLS().indexOf( lvlfld_->text() );
+    return Strat::LVLS().indexOf( lvlfld_->getID() );
 }
 
 
@@ -369,7 +363,7 @@ void uiStratLayModEditTools::setSelProp( const char* sel )
 
 void uiStratLayModEditTools::setSelLevel( const char* sel )
 {
-    lvlfld_->setText( sel );
+    lvlfld_->setName( sel );
 }
 
 
@@ -463,8 +457,10 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
     NotifyStopper stopsynthchg( mkSynthChg );
 
     mSetCombo( propfld_, sKeyDisplayedProp );
-    mSetCombo( lvlfld_, sKeySelectedLevel );
     mSetCombo( contfld_, sKeySelectedContent );
+    const char* res = par.find( sKeySelectedLevel() );
+    if ( res && *res )
+	lvlfld_->setName( res );
 
     int decimation;
     if ( par.get( sKeyDecimation(), decimation ) )
