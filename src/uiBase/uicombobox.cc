@@ -197,6 +197,21 @@ void uiComboBox::setIcon( int index, const char* iconnm )
 }
 
 
+void uiComboBox::setColorIcon( int index, Color col )
+{
+    if ( index<0 || index>=body_->count() )
+	return;
+
+    if ( col == Color::NoColor() )
+	body_->setItemIcon( index, QIcon() );
+    else
+    {
+	const auto maxsz = toolButtonSize();
+	setPixmap( index, uiPixmap(maxsz,maxsz,col) );
+    }
+}
+
+
 void uiComboBox::setEmpty()
 {
     mBlockCmdRec;

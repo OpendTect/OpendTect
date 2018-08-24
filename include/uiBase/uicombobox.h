@@ -82,6 +82,7 @@ public:
     void		setItemText(int,const uiString&);
     void		setPixmap(int index,const uiPixmap&);
     void		setIcon(int index,const char* icon_identifier);
+    void		setColorIcon(int index,Color);
 
     void		setItemID(int index,int id);
     int			currentItemID() const;
