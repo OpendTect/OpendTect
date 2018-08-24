@@ -210,9 +210,9 @@ if( WIN32 )
 	set( QJPEG ${QTDIR}/plugins/imageformats/qjpeg.dll )
     endif()
     if( ${OD_PLFSUBDIR} STREQUAL "win32" )
-	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 12.0/VC/redist/x86/Microsoft.VC120.CRT" )
+	set( MSVCPATH "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC/14.14.26405/x86/Microsoft.VC141.CRT" )
     elseif( ${OD_PLFSUBDIR} STREQUAL "win64" )
-	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 12.0/VC/redist/x64/Microsoft.VC120.CRT" )
+	set( MSVCPATH "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC/14.14.26405/x64/Microsoft.VC141.CRT" )
     endif()
     install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
@@ -258,6 +258,9 @@ endif()
 
 install( PROGRAMS ${SCRIPTS} DESTINATION ${MISC_INSTALL_PREFIX}/bin )
 install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mksethdir DESTINATION ${MISC_INSTALL_PREFIX}/bin )
+if( UNIX )
+    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/init_dtect_GL DESTINATION ${MISC_INSTALL_PREFIX}/bin )
+endif()
 install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION ${MISC_INSTALL_PREFIX}/bin )
 
 #Installing unix syatem libraries
