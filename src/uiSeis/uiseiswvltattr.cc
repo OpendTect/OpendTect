@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiSeisWvltSliderDlg::uiSeisWvltSliderDlg( uiParent* p, Wavelet& wvlt )
     : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
 				 uiString::emptyString(),
-                                 mODHelpKey(mSeisWvltSliderDlgHelpID) ))
+				 mODHelpKey(mSeisWvltSliderDlgHelpID) ))
     , wvlt_(&wvlt)
     , orgwvlt_(new Wavelet(wvlt))
     , sliderfld_(0)
@@ -142,7 +142,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
     s.leftrg_ = Interval<float> ( 0, mCast(float,s.datasz_/6) );
-    s.rightrg_ = Interval<float> ( mCast(float,s.datasz_-1),
+    s.rightrg_ = Interval<float> ( mCast(float,s.datasz_*5/6),
 				   mCast(float,s.datasz_) );
     s.is2sided_ = true;
     s.xaxcaption_ = istime ? tr("Frequency (Hz)")
@@ -157,8 +157,8 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
 
     typefld_ = new uiGenInput( this, tr("Taper"),
 		    BoolInpSpec(true, istime ? uiStrings::sTime()
-                                             : uiStrings::sDepth(),
-                                               tr("Frequency")));
+					     : uiStrings::sDepth(),
+					       tr("Frequency")));
     typefld_->valuechanged.notify( mCB(this,uiSeisWvltTaperDlg,typeChoice) );
     typefld_->attach( centeredAbove, timedrawer_ );
 
@@ -265,7 +265,7 @@ void uiSeisWvltTaperDlg::setFreqData()
 //Wavelet display property dialog
 uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet& w )
 	    : uiDialog(p,Setup(toUiString(w.name()),uiString::emptyString(),
-                               mODHelpKey(mWaveletDispPropDlgHelpID) )
+			       mODHelpKey(mWaveletDispPropDlgHelpID) )
 			 .modal(false))
 {
     setCtrlStyle( CloseOnly );
