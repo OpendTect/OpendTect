@@ -168,7 +168,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     BufferStringSet compnms;
     prov->getComponentInfo( compnms );
     compfld_->box()->setEmpty();
-    compfld_->box()->addItems( compnms.getUiStringSet() );
+    compfld_->box()->addItems( compnms );
     compfld_->display( compnms.size()>1 );
 }
 

@@ -198,7 +198,7 @@ void uiWellImportSEGYVSP::wllSel( CallBacker* )
     BufferStringSet nms; Well::MGR().getLogNames( wellfld_->key(), nms );
     BufferString curlognm = lognmfld_->text();
     lognmfld_->setEmpty();
-    lognmfld_->addItems( nms.getUiStringSet() );
+    lognmfld_->addItems( nms );
     if ( curlognm.isEmpty() )
 	curlognm = "VSP";
     lognmfld_->setText( curlognm );

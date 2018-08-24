@@ -149,7 +149,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 
     uiListBox::Setup su( OD::ChooseOnlyOne, defaultsets );
     defattrlist_ = new uiListBox( this, su );
-    defattrlist_->addItems( attribnames_.getUiStringSet() );
+    defattrlist_->addItems( attribnames_ );
     defattrlist_->attach( alignedBelow, autoloadfld_ );
 
     lbl_ = new uiLabel( this, tr("Survey-defined sets") );

@@ -88,7 +88,7 @@ int uiEditObjectList::currentItem() const
 
 void uiEditObjectList::setItems( const BufferStringSet& itms, int newcur )
 {
-    setItems( itms.getUiStringSet() );
+    setItems( itms );
 }
 
 
@@ -222,7 +222,7 @@ void uiBuildListFromList::setAvailable( const uiStringSet& avnms )
 void uiBuildListFromList::setAvailable( const BufferStringSet& avnms )
 {
     avfld_->setEmpty();
-    avfld_->addItems( avnms.getUiStringSet() );
+    avfld_->addItems( avnms );
 }
 
 

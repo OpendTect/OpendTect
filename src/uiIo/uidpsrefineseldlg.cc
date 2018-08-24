@@ -113,8 +113,7 @@ void uiDPSRefineSelDlg::updateDisplay()
 
     for ( int idx=0; idx<nrvars; idx++ )
     {
-	uiComboBox* varsel = new uiComboBox( 0, colnms_.getUiStringSet(),
-								"Variable");
+	uiComboBox* varsel = new uiComboBox( 0, colnms_, "Variable");
 	if ( !dcolids_.isEmpty() && dcolids_.validIdx(idx) )
 	   varsel->setCurrentItem( cColIds(dcolids_[idx]) );
 	vartable_->setRowLabel( idx, toUiString(mathobj_->uniqueVarName(idx)) );

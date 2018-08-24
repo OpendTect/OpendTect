@@ -364,7 +364,7 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
 		    dlgtit, mNoHelpKey ) );
     BufferStringSet bfset( infolvltrs );
     uiListBox saveloclist( &savedlg, "Save strat list" );
-    saveloclist.addItems( bfset.getUiStringSet() );
+    saveloclist.addItems( bfset );
     savedlg.go();
     if ( savedlg.uiResult() == 1 )
     {

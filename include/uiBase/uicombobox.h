@@ -103,7 +103,6 @@ protected:
     virtual bool	notifyValueChanged_( const CallBack& cb )
 			    { selectionChanged.notify(cb); return true; }
     void		translateText();
-
 private:
 
     int			oldnritems_;

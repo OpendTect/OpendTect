@@ -30,7 +30,7 @@ uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
     setTitleText( instructions );
 
     compfld_ = new uiListBox( this, "", OD::ChooseAtLeastOne );
-    compfld_->addItems( complist.getUiStringSet() );
+    compfld_->addItems( complist );
     compfld_->doubleClicked.notify( mCB(this,uiMultCompDlg,accept) );
 }
 
@@ -83,7 +83,7 @@ void uiMultCompSel::prepareDlg()
     if ( dlg_ )
     {
 	dlg_->outlistfld_->setEmpty();
-	dlg_->outlistfld_->addItems( compnms_.getUiStringSet() );
+	dlg_->outlistfld_->addItems( compnms_ );
     }
     else
 	dlg_ = new MCompDlg( this, compnms_ );
@@ -129,7 +129,7 @@ uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available components"),
 			 uiListBox::AboveMid );
     outlistfld_ = new uiListBox( this, su );
-    outlistfld_->addItems( names.getUiStringSet() );
+    outlistfld_->addItems( names );
     outlistfld_->attach( ensureBelow, useallfld_ );
 }
 

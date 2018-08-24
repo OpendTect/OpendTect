@@ -823,7 +823,7 @@ void uiODFaultToolMan::publishOutputItems()
     BufferString curtext = outputnamecombo_->text();
     outputnamecombo_->setEmpty();
     outputnamecombo_->addItem( uiString::empty() );
-    outputnamecombo_->addItems( getOutputItems().getUiStringSet() );
+    outputnamecombo_->addItems( getOutputItems() );
     outputnamecombo_->editTextChanged.enable();
 
     setOutputName( curtext );

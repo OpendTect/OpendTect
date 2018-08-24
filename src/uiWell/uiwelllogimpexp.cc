@@ -68,10 +68,12 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
 		    FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
 
-    BufferStringSet colnms;
-    colnms.add( "Curve" ).add( "Unit" ).add( "Description" );
+    uiStringSet colnms;
+    colnms.add( uiStrings::sCurve() );
+    colnms.add( uiStrings::sUnit() );
+    colnms.add( uiStrings::sDescription() );
     logstable_ = new uiTable( this, uiTable::Setup(3,3), "Logs in file" );
-    logstable_->setColumnLabels( colnms.getUiStringSet() );
+    logstable_->setColumnLabels( colnms );
     logstable_->setSelectionMode( uiTable::Multi );
     logstable_->setSelectionBehavior( uiTable::SelectRows );
     logstable_->attach( ensureBelow, udffld_ );

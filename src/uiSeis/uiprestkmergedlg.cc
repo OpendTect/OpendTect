@@ -189,7 +189,7 @@ void uiPreStackMergeDlg::fillListBox()
 	allvolsnames_.add( entrylist.dispName(idx) );
     }
 
-    volsbox_->addItems( allvolsnames_.getUiStringSet() );
+    volsbox_->addItems( allvolsnames_ );
     stackSel(0);
 }
 

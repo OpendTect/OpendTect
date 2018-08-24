@@ -321,7 +321,7 @@ void uiSynthGenDlg::putToScreen()
 	if ( psnms.isPresent(genparams.inpsynthnm_) ||
 	     genparams.inpsynthnm_.isEmpty() )
 	{
-	    psselfld_->box()->addItems( psnms.getUiStringSet() );
+	    psselfld_->box()->addItems( psnms );
 	    psselfld_->box()->setCurrentItem( genparams.inpsynthnm_ );
 	    psselfld_->box()->setSensitive( true );
 	}

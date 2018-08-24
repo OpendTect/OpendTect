@@ -112,7 +112,7 @@ void uiMathExpressionVariable::updateInpNms( bool sub )
 	nms = sub ? nonspecsubinputs_ : nonspecinputs_;
     else if ( !sub )
 	specvars_.getNames( nms );
-    inpfld->addItems( nms.getUiStringSet() );
+    inpfld->addItems( nms );
     inpfld->setCurrentItem( curseltxt );
     if ( sub )
 	inpfld->display( !nms.isEmpty() && !isconst_ && isactive_ );

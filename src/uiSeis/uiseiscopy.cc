@@ -88,7 +88,7 @@ void uiSeisCopyCube::inpSel( CallBacker* cb )
 	BufferStringSet cnms; oinf.getComponentNames( cnms );
 	compfld_->box()->setEmpty();
 	compfld_->box()->addItem( uiStrings::sAll().embedFinalState() );
-	compfld_->box()->addItems( cnms.getUiStringSet() );
+	compfld_->box()->addItems( cnms );
     }
     compfld_->display( ismc_ );
 }

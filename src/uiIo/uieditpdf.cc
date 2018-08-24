@@ -713,8 +713,8 @@ void uiEditGaussianProbDenFunc::tabChg( CallBacker* )
 	NotifyStopper stopper1( var1fld_->selectionChanged );
 	NotifyStopper stopper2( var2fld_->selectionChanged );
 	var1fld_->setEmpty(); var2fld_->setEmpty();
-	var1fld_->addItems( varnms.getUiStringSet() );
-	var2fld_->addItems( varnms.getUiStringSet() );
+	var1fld_->addItems( varnms );
+	var2fld_->addItems( varnms );
     }
 
     corrSel( 0 );

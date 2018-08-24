@@ -333,7 +333,7 @@ bool uiSGSelGrp::fillListBox()
 	return false;
 
     listfld_->setEmpty();
-    listfld_->addItems( selgrpsetnms.getUiStringSet() );
+    listfld_->addItems( selgrpsetnms );
 
     return true;
 }
@@ -702,12 +702,12 @@ void uiReadSelGrp::selectedCB( CallBacker* )
     if ( !y2name_.isEmpty() )
 	nms.add( y2name_ );
     xselfld_->setEmpty();
-    xselfld_->addItems( nms.getUiStringSet() );
+    xselfld_->addItems( nms );
     mSetMatchingItem( xselfld_, 0 );
     xselfld_->display( true );
 
     yselfld_->setEmpty();
-    yselfld_->addItems( nms.getUiStringSet() );
+    yselfld_->addItems( nms );
     mSetMatchingItem( yselfld_, 1 );
     yselfld_->display( true );
     ychkfld_->display( false );
@@ -718,7 +718,7 @@ void uiReadSelGrp::selectedCB( CallBacker* )
     {
 	ychkfld_->display( true );
 	y2selfld_->setEmpty();
-	y2selfld_->addItems( nms.getUiStringSet() );
+	y2selfld_->addItems( nms );
 	mSetMatchingItem( y2selfld_, 2 );
 	y2selfld_->display( true );
 	y2selfld_->setSensitive( false );

@@ -114,8 +114,7 @@ void uiDPSAddColumnDlg::updateDisplay()
     vartable_->setNrRows( nrvars );
     for ( int idx=0; idx<nrvars; idx++ )
     {
-	uiComboBox* varsel = new uiComboBox( 0, colnames_.getUiStringSet(),
-								"Variable");
+	uiComboBox* varsel = new uiComboBox( 0, colnames_, "Variable");
 	vartable_->setRowLabel( idx,
 				    toUiString(mathobj_->uniqueVarName(idx)) );
 	vartable_->setCellObject( RowCol(idx,0), varsel );

@@ -59,7 +59,7 @@ void uiSEGYImpParsDlg::fillList()
     for ( int idx=0; idx<parset_.size(); idx++ )
 	nms.add( parset_[idx]->name() );
     nms.sort();
-    listfld_->addItems( nms.getUiStringSet() );
+    listfld_->addItems( nms );
 }
 
 

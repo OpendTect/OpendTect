@@ -80,6 +80,19 @@ uiComboBox::uiComboBox( uiParent* parnt, const char* nm )
 }
 
 
+uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
+			const char* nm )
+    : uiObject( parnt, nm, mkbody(parnt,nm) )
+    , selectionChanged( this )
+    , editTextChanged( this )
+    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
+    , curwidth_(0)
+    , enumdef_(0)
+{
+    addItems( uids );
+}
+
+
 uiComboBox::uiComboBox( uiParent* parnt, const uiStringSet& strings,
 		       const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
@@ -90,19 +103,6 @@ uiComboBox::uiComboBox( uiParent* parnt, const uiStringSet& strings,
     , enumdef_(0)
 {
     addItems( strings );
-}
-
-
-uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& itms,
-			const char* nm )
-    : uiObject( parnt, nm, mkbody(parnt,nm) )
-    , selectionChanged( this )
-    , editTextChanged( this )
-    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
-    , curwidth_(0)
-    , enumdef_(0)
-{
-    addItems( itms );
 }
 
 

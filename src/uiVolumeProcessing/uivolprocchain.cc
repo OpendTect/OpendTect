@@ -102,7 +102,7 @@ void uiStepDialog::initInputTable( int nr )
     for ( int idx=0; idx<nr; idx++ )
     {
 	uiComboBox* cb = new uiComboBox( 0, "Steps" );
-	cb->addItems( stepnames.getUiStringSet() );
+	cb->addItems( stepnames );
 	multiinpfld_->setCellObject( RowCol(idx,0), cb );
     }
 }

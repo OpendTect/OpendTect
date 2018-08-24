@@ -589,7 +589,7 @@ uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
     fsslistfld_ = new uiListBox( this, "", OD::ChooseAtLeastOne );
     fsslistfld_->setNrLines( validmids_.size()+1 );
     fsslistfld_->setFieldWidth( 20 );
-    fsslistfld_->addItems( validfss_.getUiStringSet() );
+    fsslistfld_->addItems( validfss_ );
 }
 
 void getSelected( BufferStringSet& nms, DBKeySet& mids )
@@ -697,7 +697,7 @@ public:
 
 	uiLabeledComboBox* actopts = new uiLabeledComboBox( 0,
 		uiString::empty(), "Boundary Type" );
-	actopts->box()->addItems( fltpar_.optnms_.getUiStringSet() );
+	actopts->box()->addItems( fltpar_.optnms_ );
 	actopts->box()->selectionChanged.notify( mCB(this,uiFaultOptSel,optCB));
 	const int cursel = getUpdateOptIdx( optidx, fltpar_.is2d_, true );
 	actopts->box()->setCurrentItem( cursel );

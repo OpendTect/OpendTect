@@ -72,7 +72,7 @@ void selItems( CallBacker* )
     uiDialog dlg( parent(), su );
     uiListBox* lb = new uiListBox( &dlg, mFromUiStringTodo(nm_) );
     lb->setMultiChoice( true );
-    lb->addItems( nms_.getUiStringSet() );
+    lb->addItems( nms_ );
     for ( int idx=0; idx<selidxs_.size(); idx++ )
 	lb->setChosen( selidxs_[idx], true );
     if ( dlg.go() )

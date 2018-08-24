@@ -626,7 +626,7 @@ void uiSurfaceMan::fillAttribList()
 	}
     }
 
-    attribfld_->addItems( availableattrnms.getUiStringSet() );
+    attribfld_->addItems( availableattrnms );
     attribfld_->chooseAll( false );
 }
 
@@ -852,7 +852,7 @@ uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
     linelist_ = new uiListBox( topgrp, su );
     BufferStringSet linenames;
     info.getLineNames( linenames );
-    linelist_->addItems( linenames.getUiStringSet() );
+    linelist_->addItems( linenames );
     linelist_->selectionChanged.notify( mCB(this,uiSurface2DMan,lineSel) );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom" );

@@ -282,6 +282,41 @@ void OD::FillPattern::getOptNames( int typ, BufferStringSet& res )
 }
 
 
+void OD::FillPattern::getTypeNamesForDisp( uiStringSet& res )
+{
+    res.add( tr("No Fill") );
+    res.add( tr("Dots") );
+    res.add( uiStrings::sLine(mPlural) );
+}
+
+
+void OD::FillPattern::getOptNamesForDisp( int typ, uiStringSet& res )
+{
+    res.setEmpty();
+    if ( typ == cDotsFillPatternType )
+    {
+	res.add( tr("Uniform color") );
+	res.add( tr("Extremely dense") );
+	res.add( tr("Very dense") );
+	res.add( tr("Somewhat dense") );
+	res.add( tr("Half dense") );
+	res.add( tr("Somewhat sparse") );
+	res.add( tr("Very sparse") );
+	res.add( tr("Extremely sparse") );
+    }
+    else if ( typ == cLinesFillPatternType )
+    {
+	res.add( tr("Horizontal lines") );
+	res.add( tr("Vertical lines") );
+	res.add( tr("Crossing horizontal and vertical lines") );
+	res.add( tr("Backward diagonal lines") );
+	res.add( tr("Forward diagonal lines") );
+	res.add( tr("Crossing diagonal lines") );
+    }
+    // else none
+}
+
+
 
 OD::ArrowHeadStyle::ArrowHeadStyle( int sz, Type t, HandedNess h )
     : sz_(sz), type_(t), handedness_(h)

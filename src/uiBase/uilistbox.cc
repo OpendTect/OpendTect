@@ -1004,7 +1004,7 @@ void uiListBox::sortNmItems( bool asc )
     }
     int* sortidxs = nms.getSortIndexes(true,asc);
     nms.useIndexes( sortidxs );
-    setEmpty(); addItems( nms.getUiStringSet() );
+    setEmpty(); addItems( nms );
 
     for ( int idx=0; idx<sz; idx++ )
     {

@@ -60,7 +60,7 @@ void uiElasticPropSelGrp::uiSelInpGrp::fillList()
 {
     BufferString seltxt = inpfld_->text();
     inpfld_->setEmpty();
-    inpfld_->addItems( propnms_.getUiStringSet() );
+    inpfld_->addItems( propnms_ );
     inpfld_->addItem( uiStrings::sConstant(true) );
     inpfld_->setCurrentItem( seltxt );
 }
@@ -140,7 +140,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
     const CallBack selcompcb( mCB(this,uiElasticPropSelGrp,selComputeFldChgCB));
     selmathfld_ = new uiLabeledComboBox( this, tr("Compute from") );
     selmathfld_->box()->addItem( tr("Defined quantity") );
-    selmathfld_->box()->addItems( predeftitles.getUiStringSet() );
+    selmathfld_->box()->addItems( predeftitles );
     selmathfld_->box()->addItem( uiStrings::sFormula() );
     selmathfld_->box()->selectionChanged.notify(selcompcb);
 
@@ -149,7 +149,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
 
     singleinpfld_ = new uiLabeledComboBox( this, uiStrings::sUse() );
     singleinpfld_->attach( alignedBelow, selmathfld_ );
-    singleinpfld_->box()->addItems( propnms_.getUiStringSet() );
+    singleinpfld_->box()->addItems( propnms_ );
 
     for ( int idx=0; idx<propnms_.size(); idx++ )
     {

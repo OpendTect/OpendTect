@@ -270,8 +270,7 @@ void uiSeisSampleEditor::createMenuAndToolBar()
 
     if ( compnms_.size() > 1 )
     {
-	selcompnmfld_ = new uiComboBox( toolbar_, compnms_.getUiStringSet(),
-							    "Component name" );
+	selcompnmfld_ = new uiComboBox( toolbar_, compnms_, "Component name" );
 	toolbar_->addObject( selcompnmfld_, 5 );
 	selcompnmfld_->setCurrentItem( compnr_ );
 	selcompnmfld_->selectionChanged.notify(

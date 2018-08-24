@@ -466,8 +466,8 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
     selgatherfld_ = new uiListBox( this, "Selected gathers",
 				   OD::ChooseAtLeastOne );
 
-    allgatherfld_->addItems( gnms.getUiStringSet() );
-    selgatherfld_->addItems( selgnms.getUiStringSet() );
+    allgatherfld_->addItems( gnms );
+    selgatherfld_->addItems( selgnms );
 
     uiLabel* sellbl = new uiLabel( this, uiStrings::sSelect() );
     CallBack cb = mCB(this,uiViewer2DSelDataDlg,selButPush);

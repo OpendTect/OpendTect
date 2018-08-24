@@ -221,7 +221,7 @@ void uiWellSelGrp::fillListBox()
 	allwellsnames_.add( entrylist.name(idx) );
     }
 
-    wellsbox_->addItems( allwellsnames_.getUiStringSet() );
+    wellsbox_->addItems( allwellsnames_ );
 }
 
 

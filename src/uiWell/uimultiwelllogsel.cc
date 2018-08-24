@@ -225,7 +225,7 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 	}
     }
 
-    logsfld_->addItems( availablelognms.getUiStringSet() );
+    logsfld_->addItems( availablelognms );
     if ( wellextractparamsfld_ )
 	wellextractparamsfld_->setMarkers( availablemrkrs, mrkcolors );
 }

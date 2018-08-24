@@ -126,7 +126,7 @@ void uiResortSEGYDlg::inpSel( CallBacker* cb )
 
     BufferStringSet lnms;
     uioi.getLineNames( lnms );
-    linenmfld_->addItems( lnms.getUiStringSet() );
+    linenmfld_->addItems( lnms );
 }
 
 

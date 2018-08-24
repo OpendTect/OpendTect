@@ -137,7 +137,7 @@ void uiWellSinglePropSel::updateLogInfo()
 	selidx = matchnms.nearestMatch( selpropnm ) + 1;
     }
 
-    lognmfld_->setEmpty(); lognmfld_->addItems( nms.getUiStringSet() );
+    lognmfld_->setEmpty(); lognmfld_->addItems( nms );
     BufferString selunstr;
     if ( selidx >= 0 )
     {

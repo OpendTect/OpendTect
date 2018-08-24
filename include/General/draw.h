@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "color.h"
 #include "geometry.h"
 #include "uistring.h"
+#include "uistringset.h"
+
 
 namespace OD
 {
@@ -145,7 +147,7 @@ public:
 
 
 mExpClass(General) FillPattern
-{
+{ mODTextTranslationClass(FillPattern)
 public:
 
 			FillPattern( int typ=0, int opt=0 )
@@ -155,6 +157,9 @@ public:
 
     static void	getTypeNames(BufferStringSet&);
     static void	getOptNames(int,BufferStringSet&);
+
+    static void getTypeNamesForDisp(uiStringSet&);
+    static void getOptNamesForDisp(int,uiStringSet&);
 
     int		type_;
     int		opt_;

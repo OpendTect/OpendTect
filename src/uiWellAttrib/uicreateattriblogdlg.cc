@@ -65,7 +65,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 	welllistfld_ = new uiListBox( this, "Wells", OD::ChooseAtLeastOne );
 	welllistfld_->attach( ensureBelow, sep1 );
 	welllistfld_->attach( alignedBelow, attribfld_ );
-	welllistfld_->addItems( wellnames.getUiStringSet() );
+	welllistfld_->addItems( wellnames );
     }
 
     if ( singlewell )

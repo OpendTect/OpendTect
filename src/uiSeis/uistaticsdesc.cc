@@ -78,7 +78,7 @@ void uiStaticsDesc::updateFlds( CallBacker* )
 	horattribfld_->display( true );
 
 	horattribfld_->box()->setEmpty();
-	horattribfld_->box()->addItems( attrnms.getUiStringSet() );
+	horattribfld_->box()->addItems( attrnms );
     }
 }
 

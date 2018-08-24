@@ -113,7 +113,7 @@ void uiSeis2DFileMan::fillLineBox()
     SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
     objinfo_->getLineNames( linenames, opts2d );
     lb->setEmpty();
-    lb->addItems( linenames.getUiStringSet() );
+    lb->addItems( linenames );
     lb->setCurrentItem( curitm );
 }
 
@@ -243,10 +243,9 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     uiGroup* geomgrp = new uiGroup( this );
     BufferStringSet lnms; objinf_.getLineNames( lnms );
     uiLabeledComboBox* lcb1 =
-	new uiLabeledComboBox( geomgrp, lnms.getUiStringSet(),
-							tr("First line") );
-    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( geomgrp,
-				lnms.getUiStringSet(), uiStrings::sAdd() );
+	new uiLabeledComboBox( geomgrp, lnms, tr("First line") );
+    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( geomgrp, lnms,
+							    uiStrings::sAdd() );
     lcb2->attach( alignedBelow, lcb1 );
     ln1fld_ = lcb1->box(); ln2fld_ = lcb2->box();
     ln1fld_->setCurrentItem( sellns.get(0) );
@@ -320,7 +319,7 @@ void fillData2MergeCB( CallBacker* )
     }
 
     data2mergefld_->setEmpty();
-    data2mergefld_->addItems( commondataset.getUiStringSet() );
+    data2mergefld_->addItems( commondataset );
 }
 
 

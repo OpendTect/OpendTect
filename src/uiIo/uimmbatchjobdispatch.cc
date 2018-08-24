@@ -504,7 +504,7 @@ void uiMMBatchJobDispatcher::updateCurMachs()
     usedmachfld_->setEmpty();
     if ( newsz > 0 )
     {
-	usedmachfld_->addItems( machs.getUiStringSet() );
+	usedmachfld_->addItems( machs );
 	if ( curit >= usedmachfld_->size() )
 	    curit = usedmachfld_->size() - 1;
 	usedmachfld_->setCurrentItem(curit);

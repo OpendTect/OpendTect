@@ -147,7 +147,7 @@ void uiIOSelect::setEntries( const BufferStringSet& keys,
 {
     entries_ = keys;
     inp_->setEmpty();
-    inp_->addItems( names.getUiStringSet() );
+    inp_->addItems( names );
 }
 
 

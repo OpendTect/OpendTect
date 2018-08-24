@@ -405,7 +405,7 @@ void uiStatsDisplayWin::setData( const float* medvals, int medsz, int dispidx )
 
 
 void uiStatsDisplayWin::addDataNames( const BufferStringSet& nms )
-{ if ( statnmcb_ ) statnmcb_->addItems( nms.getUiStringSet() ); }
+{ if ( statnmcb_ ) statnmcb_->addItems( nms ); }
 
 
 void uiStatsDisplayWin::setDataName( const char* nm, int idx )

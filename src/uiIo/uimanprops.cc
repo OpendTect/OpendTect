@@ -504,7 +504,7 @@ void uiSelectPropRefsGrp::fillList()
 	return;
 
     dispnms.sort();
-    propfld_->addItems( dispnms.getUiStringSet() );
+    propfld_->addItems( dispnms );
 
     int firstsel = -1;
     for ( int idx=0; idx<dispnms.size(); idx++ )

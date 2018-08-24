@@ -75,8 +75,7 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
     for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
 	colnms.add( dps.colName(colidx) );
 
-    selfld_ = new uiLabeledComboBox(this, colnms.getUiStringSet(),
-						tr("Attribute to display"));
+    selfld_ = new uiLabeledComboBox(this, colnms, tr("Attribute to display"));
     selfld_->attach( alignedBelow, typefld_ );
     if ( prevdispprop && !prevdispprop->showSelected() )
     {
@@ -733,7 +732,7 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
 	uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 		      uiStrings::phrSelect(uiStrings::sGroup().toLower()) );
 	grpfld_ = lcb->box();
-	grpfld_->addItems( grpnames.getUiStringSet() );
+	grpfld_->addItems( grpnames );
 	grpfld_->attach( alignedBelow, zinpfld_ );
     }
 }

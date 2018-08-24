@@ -382,7 +382,7 @@ uiGroup* uiAttrSelDlg::createSelectionFields()
 
 #define mCreateEntriesFld(fld,nm,memb) \
     fld = new uiListBox( fldgrp, nm ); \
-    fld->addItems( attrinf_->memb.getUiStringSet() ); \
+    fld->addItems( attrinf_->memb ); \
     fld->setHSzPol( uiObject::Wide ); \
     fld->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) ); \
     entriesflds_ += fld
@@ -475,7 +475,7 @@ void uiAttrSelDlg::filtChgCB( CallBacker* c )
     if ( nms.isEmpty() )
 	return;
 
-    outfld->addItems( nms.getUiStringSet() );
+    outfld->addItems( nms );
     outfld->setCurrentItem( 0 );
     cubeSelCB( c );
 }

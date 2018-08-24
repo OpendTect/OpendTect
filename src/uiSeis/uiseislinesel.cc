@@ -498,7 +498,7 @@ void uiSeis2DLineNameSel::fillWithAll()
     TypeSet<Pos::GeomID> geomids;
     SeisIOObjInfo::getLinesWithData( lnms, geomids );
     lnms.sort();
-    fld_->addItems( lnms.getUiStringSet() );
+    fld_->addItems( lnms );
     if ( fld_->size() )
 	fld_->setCurrentItem( 0 );
 }
@@ -512,7 +512,7 @@ void uiSeis2DLineNameSel::addLineNames( const DBKey& ky )
     BufferStringSet lnms; oi.getLineNames( lnms );
     lnms.sort();
     nameChanged.disable();
-    fld_->addItems( lnms.getUiStringSet() );
+    fld_->addItems( lnms );
     nameChanged.enable();
 }
 
@@ -625,7 +625,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 {
     uiListBox::Setup su( cm, tr("Select Lines") );
     lnmsfld_ = new uiListBox( this, su );
-    lnmsfld_->addItems( lnms.getUiStringSet() );
+    lnmsfld_->addItems( lnms );
     lnmsfld_->selectionChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,lineSel) );
 

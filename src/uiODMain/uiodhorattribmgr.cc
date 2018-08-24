@@ -151,7 +151,7 @@ uiSelContourAttribDlg( uiParent* p, const DBKey& id )
 				 : uiString::empty();
     uiListBox::Setup su( OD::ChooseOnlyOne, lbl, uiListBox::AboveMid );
     attrlb_ = new uiListBox( this, su );
-    attrlb_->addItems( attrnms.getUiStringSet() );
+    attrlb_->addItems( attrnms );
 }
 
 int nrAttribs() const

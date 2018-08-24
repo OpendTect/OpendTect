@@ -316,7 +316,7 @@ uiDataPackReplacerDlg( uiParent* p,
 
 	uiLabeledComboBox* lastinpfld = inpflds_.last();
 	uiString lbl = tr("Input for '%1'").arg( storedkey.storedref_ );
-	inpflds_ += new uiLabeledComboBox( this, dpnms.getUiStringSet(), lbl );
+	inpflds_ += new uiLabeledComboBox( this, dpnms, lbl );
 	if ( lastinpfld )
 	    inpflds_.last()->attach( alignedBelow, lastinpfld );
     }

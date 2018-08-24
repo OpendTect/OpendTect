@@ -498,7 +498,7 @@ void updateGatherNames()
     BufferStringSet gathernms;
     getGatherNames( gathernms );
     datasetcb_->setEmpty();
-    datasetcb_->addItems( gathernms.getUiStringSet() );
+    datasetcb_->addItems( gathernms );
 }
 
 

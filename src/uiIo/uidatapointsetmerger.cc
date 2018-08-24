@@ -299,8 +299,7 @@ void uiDataPointSetMerger::setTable()
 	BufferString colnm( mdps_->colName(rowidx) );
 	uiString celltxt = tr("Couple '%1' to").arg(colnm);
 	tbl_->setRowLabel( rowidx, celltxt );
-	uiComboBox* cb = new uiComboBox( 0, colnames.getUiStringSet(),
-								"Attributes" );
+	uiComboBox* cb = new uiComboBox( 0, colnames, "Attributes" );
 	cb->selectionChanged.notify(
 		mCB(this,uiDataPointSetMerger,attribChangedCB) );
 	const int nearmatchidx = colnames.nearestMatch( colnm );

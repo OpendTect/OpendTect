@@ -38,8 +38,7 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
     y3coltabfld_->setSeqName( plotter_.y3CtSeq().name() );
     y3coltabfld_->setRange( plotter_.y3Mapper().getRange() );
     uiLabeledComboBox* y3lblcbx =
-	new uiLabeledComboBox( this, colnames.getUiStringSet(),
-					    tr("Overlay Y1 Attribute"), "" );
+	new uiLabeledComboBox( this, colnames, tr("Overlay Y1 Attribute"), "" );
     y3lblcbx->attach( alignedBelow, y3coltabfld_ );
     y3propselfld_ = y3lblcbx->box();
     if ( !mIsUdf(plotter_.y3Colid()) )
@@ -62,8 +61,8 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 	y4coltabfld_->setSeqName( plotter_.y4CtSeq().name() );
 	y4coltabfld_->attach( alignedBelow, y3lblcbx );
 	y4lblcbx =
-	    new uiLabeledComboBox( this, colnames.getUiStringSet(),
-                                   tr("Overlay Y2 Attribute"), "");
+	    new uiLabeledComboBox( this, colnames, tr("Overlay Y2 Attribute"),
+									    "");
 	y4lblcbx->attach( alignedBelow, y4coltabfld_ );
 	y4propselfld_ = y4lblcbx->box();
 	y4coltabfld_->setRange( plotter_.y4Mapper().getRange() );

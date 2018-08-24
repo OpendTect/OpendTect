@@ -164,7 +164,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
 	attribfld_->setSensitive( false );
     else
     {
-	attribfld_->addItems( sd_.valnames.getUiStringSet() );
+	attribfld_->addItems( sd_.valnames );
 	attribfld_->setSensitive( true );
     }
 

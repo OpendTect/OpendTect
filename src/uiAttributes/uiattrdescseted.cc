@@ -551,7 +551,7 @@ void uiAttribDescSetEd::newList( int newcur )
     // Fix for continuous call during re-build of list
     updating_fields_ = true;
     attrlistfld_->setEmpty();
-    attrlistfld_->addItems( userattrnames_.getUiStringSet() );
+    attrlistfld_->addItems( userattrnames_ );
     updating_fields_ = false;
     if ( newcur < 0 )
 	newcur = 0;

@@ -222,7 +222,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 
     uiListBox::Setup msu( OD::ChooseZeroOrMore, tr("Display markers") );
     displaymarkersfld_ = new uiListBox( this, msu );
-    displaymarkersfld_->addItems( allmarkernms.getUiStringSet() );
+    displaymarkersfld_->addItems( allmarkernms );
     if ( !setup_.onlyfor2ddisplay_ )
 	displaymarkersfld_->attach( alignedBelow, nmcolfld_ );
     else
@@ -281,7 +281,7 @@ void uiWellMarkersDispProperties::setAllMarkerNames(
 					const BufferStringSet& allmarkernms )
 {
     displaymarkersfld_->setEmpty();
-    displaymarkersfld_->addItems( allmarkernms.getUiStringSet() );
+    displaymarkersfld_->addItems( allmarkernms );
     setSelNames();
 }
 
@@ -716,9 +716,9 @@ void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
     lognames.sort();
     logsfld_->box()->setEmpty();
     logsfld_->box()->addItem(uiStrings::sNone());
-    logsfld_->box()->addItems( lognames.getUiStringSet() );
+    logsfld_->box()->addItems( lognames );
     filllogsfld_->box()->setEmpty();
-    filllogsfld_->box()->addItems( lognames.getUiStringSet() );
+    filllogsfld_->box()->addItems( lognames );
     if ( lognames.isPresent(curlognm) )
     {
 	logsfld_->box()->setText( curlognm );
