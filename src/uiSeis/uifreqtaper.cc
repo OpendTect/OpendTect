@@ -35,8 +35,8 @@ ________________________________________________________________________
 
 uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     : uiDialog( p, uiDialog::Setup(tr("Frequency taper"),
-		             tr("Select taper parameters at cut-off frequency"),
-                                    mODHelpKey(mFreqTaperDlgHelpID) ))
+			     tr("Select taper parameters at cut-off frequency"),
+				    mODHelpKey(mFreqTaperDlgHelpID) ))
     , tkzs_(new TrcKeyZSampling())
     , posdlg_(0)
     , funcvals_(0)
@@ -46,7 +46,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
 
     CallBack cbview = mCB(this,uiFreqTaperDlg,previewPushed);
     previewfld_ = new uiPushButton( this, tr("Preview spectrum"),
-                                    cbview, false );
+				    cbview, false );
 
     uiFuncTaperDisp::Setup su;
     su.leftrg_ = s.minfreqrg_;
@@ -404,7 +404,7 @@ void uiFreqTaperGrp::setPercentsFromFreq()
 void uiFreqTaperGrp::setFreqFromSlope( float slope )
 {
     mStopFreqNotifiers()
-    if ( slope==0 )
+    if ( mIsZero(slope,mDefEps) )
 	slope = 0.05f;
     const float slopeindecade = (float)(slope/mDec2Oct);
     const float slopeinhertz = Math::PowerOf( 10, 1.f/slopeindecade );
@@ -422,7 +422,7 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
 void uiFreqTaperGrp::setSlopeFromFreq()
 {
     TaperData& d = mGetData();
-    if ( d.rg_.width() == 0 )
+    if ( mIsZero(d.rg_.width(),0) )
     {
 	d.slope_ = mUdf(float);
 	return;
