@@ -653,6 +653,7 @@ bool uiStratLayerModel::doLoadGenDesc()
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
     if ( mfvc ) mfvc->reInitZooms();
     synthdisp_->setSavedViewRect();
+    synthdisp_->setFlattenLvl( modtools_->selLevel() );
     setWinTitle();
     raise();
     return true;

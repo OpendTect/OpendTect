@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uistratsynthdisp.h"
 #include "uistratlaymodtools.h"
+#include "uistratlvlsel.h"
 #include "uisynthgendlg.h"
 #include "uistratsynthexport.h"
 #include "uiwaveletsel.h"
@@ -721,42 +722,35 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	return false;
     }
 
-    BufferStringSet sellvlnms;
-    const StratSynthLevelSet* sellvls = curSS().getLevels();
-    for ( int ilvl=0; ilvl<sellvls->size(); ilvl++ )
-	sellvlnms.add( sellvls->getStratLevel(ilvl)->name() );
-
-    uiDialog::Setup dlgsu( tr("Scaling Setup"),
-	    tr("The scaling tool compares the amplitudes at a Stratigraphic "
-		"level to real amplitudes along a horizon"), mTODOHelpKey );
+    const bool needknow2d3d = SI().has2D() && SI().has3D();
     uiListBox::Setup lbsu( OD::ChooseOnlyOne, uiStrings::sLevel(),
 			    uiListBox::LeftMid );
-
-    uiDialog dlg( this, dlgsu );
-    uiListBox* lvlbox = new uiListBox( &dlg, lbsu );
-    lvlbox->addItems( sellvlnms );
-    lvlbox->setCurrentItem( flattenlvl_.name() );
-    bool is2d = SI().has2D();
+    uiStratLevelSelDlg dlg( this, uiStrings::sLevel() );
+    dlg.setID( flattenlvl_.id() );
+    if ( !needknow2d3d )
+	dlg.setTitleText( tr("Please select the stratigraphic level"
+	    "\nalong which you want to compare real and synthetic amplitudes"));
     uiGenInput* use2dfld = 0;
-    if ( is2d && SI().has3D() )
+    if ( needknow2d3d )
     {
 	use2dfld = new uiGenInput( &dlg, tr("Type of seismic data to use"),
 			BoolInpSpec(false,uiStrings::s2D(), uiStrings::s3D()) );
-	use2dfld->attach( alignedBelow, lvlbox );
+	use2dfld->attach( alignedBelow, dlg.box() );
     }
     if ( !dlg.go() )
 	return false;
 
-    const BufferString sellvlnm = lvlbox->getText();
+    const BufferString sellvlnm = dlg.getLevelName();
+    bool use2d = SI().has2D();
     if ( use2dfld )
-	is2d = use2dfld->getBoolValue();
+	use2d = use2dfld->getBoolValue();
 
     bool rv = false;
     PtrMan<SeisTrcBuf> scaletbuf = tbuf.clone();
     const Strat::Level sellvl = Strat::LVLS().getByName( sellvlnm );
     curSS().setLevelTimesInTrcs( sellvl, *scaletbuf,
 				 currentwvasynthetic_->zerooffsd2tmodels_);
-    uiSynthToRealScale srdlg( this, is2d, *scaletbuf, wvltfld_->key(true),
+    uiSynthToRealScale srdlg( this, use2d, *scaletbuf, wvltfld_->key(true),
 				sellvlnm );
     if ( srdlg.go() )
     {

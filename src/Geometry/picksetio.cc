@@ -219,7 +219,7 @@ int Pick::SetLoaderExec::nextStep()
 	return MoreToDo();
     }
 
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = getIOObj( id );
     if ( !ioobj )
 	return MoreToDo();
 
