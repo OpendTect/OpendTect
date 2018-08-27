@@ -176,7 +176,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Marker")
 						.rowgrow(true)
-						.defrowlbl("")
+						.defrowlbl(true)
 						.selmode(uiTable::Multi),
 			  "Well Marker Table" );
     BufferStringSet header;
@@ -435,8 +435,6 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	table_->setText( RowCol(irow,cNameCol), "" );
 	table_->setColor( RowCol(irow,cColorCol), mrk.color() );
     }
-
-    table_->resizeHeaderToContents( false );
 
     if ( !oldmrkrs_ )
     {

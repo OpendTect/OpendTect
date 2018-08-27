@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 #include "uistrings.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
@@ -87,7 +88,7 @@ uiString getDlgTitle( const MultiID& wllky )
 #define mAddSetBut(fld,cb) \
     if ( writable_ ) \
     { \
-	setbut = new uiPushButton( actbutgrp, uiStrings::sSet(), \
+	setbut = new uiPushButton( actgrp, uiStrings::sSet(), \
 				mCB(this,uiWellTrackDlg,cb), true ); \
 	setbut->attach( rightOf, fld ); \
     }
@@ -103,59 +104,69 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 {
     tbl_ = new uiTable( this, uiTable::Setup().rowdesc("Point")
 					      .rowgrow(true)
-					      .defrowlbl("")
+					      .insertrowallowed(true)
+					      .removerowallowed(true)
+					      .defrowlbl(true)
 					      .removeselallowed(false),
-		        "Well Track Table" );
+			"Well Track Table" );
     tbl_->setColumnLabels( trackcollbls );
     tbl_->setNrRows( nremptyrows );
     tbl_->setPrefWidth( 500 );
     tbl_->setPrefHeight( 400 );
     tbl_->setTableReadOnly( !writable_ );
 
+    uwifld_ = new uiGenInput( this, tr("UWI"), StringInpSpec() );
+    uwifld_->setText( wd_.info().uwid );
+    uwifld_->attach( leftAlignedBelow, tbl_ );
+    if ( !writable_ ) uwifld_->setReadOnly( true );
+
     zinftfld_ = new uiCheckBox( this, tr("Z in Feet") );
     zinftfld_->setChecked( SI().depthsInFeet() );
-    zinftfld_->activated.notify( mCB( this,uiWellTrackDlg,fillTable ) );
-    zinftfld_->activated.notify( mCB( this,uiWellTrackDlg,fillSetFields ) );
+    zinftfld_->activated.notify( mCB(this,uiWellTrackDlg,fillTable) );
+    zinftfld_->activated.notify( mCB(this,uiWellTrackDlg,fillSetFields) );
     zinftfld_->attach( rightAlignedBelow, tbl_ );
 
-    uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
+    uiSeparator* sep = new uiSeparator( this, "Sep" );
+    sep->attach( stretchedBelow, uwifld_ );
 
-    uiPushButton* updbut = !writable_ ? 0
-		: new uiPushButton( actbutgrp, tr("Update display"),
-				   mCB(this,uiWellTrackDlg,updNow), true );
+    uiGroup* actgrp = new uiGroup( this, "Action grp" );
+    actgrp->attach( ensureBelow, sep );
+
     uiPushButton* setbut = 0;
-    wellheadxfld_ = new uiGenInput( actbutgrp, tr("X-Coordinate of well head"),
+    wellheadxfld_ = new uiGenInput( actgrp, tr("X-Coordinate of well head"),
 				    DoubleInpSpec(mUdf(double)) );
     mAddSetBut( wellheadxfld_, updateXpos )
-    actbutgrp->attach( ensureBelow, zinftfld_ );
-    if ( updbut )
-	wellheadxfld_->attach( ensureBelow, updbut );
+    if ( !writable_ ) wellheadxfld_->setReadOnly( true );
 
-    if ( !writable_ ) wellheadxfld_-> setReadOnly( true );
-
-    wellheadyfld_ = new uiGenInput( actbutgrp, tr("Y-Coordinate of well head"),
+    wellheadyfld_ = new uiGenInput( actgrp, tr("Y-Coordinate of well head"),
 				    DoubleInpSpec(mUdf(double)) );
     wellheadyfld_->attach( alignedBelow, wellheadxfld_ );
     mAddSetBut( wellheadyfld_, updateYpos )
-    if ( !writable_ ) wellheadyfld_-> setReadOnly( true );
+    if ( !writable_ ) wellheadyfld_->setReadOnly( true );
 
-    kbelevfld_ = new uiGenInput(actbutgrp, Well::Info::sKBElev(),
+    kbelevfld_ = new uiGenInput(actgrp, Well::Info::sKBElev(),
 				 FloatInpSpec(mUdf(float)));
     mAddSetBut( kbelevfld_, updateKbElev )
     kbelevfld_->attach( alignedBelow, wellheadyfld_ );
-    if ( !writable_ ) kbelevfld_-> setReadOnly( true );
+    if ( !writable_ ) kbelevfld_->setReadOnly( true );
 
-    uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
-					   OD::Horizontal );
     uiButton* readbut = !writable_ ? 0
-		: new uiPushButton( iobutgrp, uiStrings::sImport(),
+		: new uiPushButton( this, uiStrings::sImport(),
 				    mCB(this,uiWellTrackDlg,readNew), false );
-    uiButton* expbut = new uiPushButton( iobutgrp, uiStrings::sExport(),
+    if ( readbut )
+	readbut->attach( leftAlignedBelow, actgrp );
+    uiButton* expbut = new uiPushButton( this, uiStrings::sExport(),
 					 mCB(this,uiWellTrackDlg,exportCB),
 					 false );
     if ( readbut )
 	expbut->attach( rightOf, readbut );
-    iobutgrp->attach( leftAlignedBelow, actbutgrp );
+    else
+	expbut->attach( leftAlignedBelow, actgrp );
+    uiPushButton* updbut = !writable_ ? 0
+		: new uiPushButton( this, tr("Update display"),
+				   mCB(this,uiWellTrackDlg,updNow), true );
+    updbut->attach( rightTo, expbut );
+    updbut->attach( rightBorder );
 
     if ( !track_.isEmpty() )
 	origpos_ = track_.pos(0);
@@ -206,7 +217,8 @@ bool uiWellTrackDlg::fillTable( CallBacker* )
     if ( newsz < 8 ) newsz = 8;
     tbl_->setNrRows( newsz );
     tbl_->clearTable();
-    if ( !sz ) return false;
+    if ( sz < 1 )
+	return false;
 
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -310,22 +322,38 @@ class uiWellTrackReadDlg : public uiDialog
 { mODTextTranslationClass(uiWellTrackReadDlg);
 public:
 
-uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
-	: uiDialog(p,uiDialog::Setup(tr("Import New Well Track"),mNoDlgTitle,
-                                     mODHelpKey(mWellTrackReadDlgHelpID)))
-	, track_(track)
-	, fd_(fd)
+uiWellTrackReadDlg( uiParent* p, Well::Data& wd )
+    : uiDialog(p,uiDialog::Setup(tr("Import New Well Track"),mNoDlgTitle,
+				 mODHelpKey(mWellTrackReadDlgHelpID)))
+    , wd_(wd)
+    , track_(wd.track())
+    , fd_(*Well::TrackAscIO::getDesc())
+    , dirfd_(*Well::DirectionalAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
+
+    uiStringSet options;
+    options.add( tr("Well Track file (XYZ)") )
+	   .add( tr("Directional Well") );
+    tracksrcfld_ = new uiGenInput( this, tr("Input type"),
+				StringListInpSpec(options) );
+    tracksrcfld_->valuechanged.notify( mCB(this,uiWellTrackReadDlg,trckSrcSel));
+
     wtinfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
 		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
 		   uiFileInput::Setup().withexamine(true) );
+    wtinfld_->attach( alignedBelow, tracksrcfld_ );
     wtinfld_->valuechanged.notify( mCB(this,uiWellTrackReadDlg,inputChgd) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-				      mODHelpKey(mWellImportAscDataSelHelpID) );
+				mODHelpKey(mWellImportAscDataSelHelpID) );
     dataselfld_->attach( alignedBelow, wtinfld_ );
     dataselfld_->descChanged.notify( mCB(this,uiWellTrackReadDlg,trckFmtChg) );
+
+    dirselfld_ = new uiTableImpDataSel( this, dirfd_,
+				mODHelpKey(mWellImportAscDataSelHelpID) );
+    dirselfld_->attach( alignedBelow, wtinfld_ );
+    dirselfld_->display( false );
 
     const uiString zunit = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
     uiString kblbl = tr( "%1 %2" )
@@ -341,6 +369,21 @@ uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
     tdfld_->setWithCheck();
     tdfld_->setChecked( false );
     tdfld_->attach( alignedBelow, kbelevfld_ );
+}
+
+
+~uiWellTrackReadDlg()
+{
+    delete &fd_;
+    delete &dirfd_;
+}
+
+
+void trckSrcSel( CallBacker* )
+{
+    const bool isdir = tracksrcfld_->getIntValue() == 1;
+    dataselfld_->display( !isdir );
+    dirselfld_->display( isdir );
 }
 
 
@@ -409,51 +452,77 @@ float getTD() const
     return mUdf(float);
 }
 
+#define mErrRet(s) { if ( (s).isSet() ) uiMSG().error(s); return false; }
 
 bool acceptOK( CallBacker* )
 {
     track_.setEmpty();
-    fnm_ = wtinfld_->fileName();
-    if ( File::isEmpty(fnm_.buf()) )
-	{ uiMSG().error( uiStrings::sInvInpFile() ); return false; }
+    const BufferString fnm = wtinfld_->fileName();
+    if ( File::isEmpty(fnm.buf()) )
+	mErrRet( uiStrings::sInvInpFile() );
 
-    if ( !dataselfld_->commit() )
+    const bool isdir = tracksrcfld_->getIntValue() == 1;
+    if ( !isdir && !dataselfld_->commit() )
 	return false;
+    if ( isdir && !dirselfld_->commit() )
+	return false;
+
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	mErrRet( uiStrings::sCantOpenInpFile() );
+
+    const float kbelev = getKbElev();
+    const float td = getTD();
+    if ( !isdir )
+    {
+	Well::TrackAscIO wellascio( fd_, strm );
+	if ( !wellascio.getData(wd_,kbelev,td) )
+	{
+	    uiString msg = tr( "The track file cannot be loaded:\n%1" )
+				.arg( wellascio.errMsg() );
+	    mErrRet( msg );
+	}
+
+	if ( wellascio.warnMsg().isSet() )
+	{
+	    uiString msg =
+		    tr( "The track file loading issued a warning:\n%1" )
+		    .arg( wellascio.warnMsg() );
+	    uiMSG().warning( msg );
+	}
+    }
+    else if ( isdir )
+    {
+	Well::DirectionalAscIO dirascio( dirfd_, strm );
+	if ( !dirascio.getData(wd_,kbelev) )
+	{
+	    uiString msg = tr( "The track file cannot be loaded:\n%1" )
+				.arg( dirascio.errMsg() );
+	    mErrRet( msg );
+	}
+    }
 
     return true;
 }
 
+    uiGenInput*		tracksrcfld_;
     uiFileInput*	wtinfld_;
     uiGenInput*		kbelevfld_;
     uiGenInput*		tdfld_;
-    BufferString	fnm_;
-    Well::Track&        track_;
+    Well::Data&		wd_;
+    Well::Track&	track_;
     Table::FormatDesc&	fd_;
     uiTableImpDataSel*	dataselfld_;
+    Table::FormatDesc&	dirfd_;
+    uiTableImpDataSel*	dirselfld_;
+
 };
 
 
 void uiWellTrackDlg::readNew( CallBacker* )
 {
-    uiWellTrackReadDlg dlg( this, fd_, track_ );
+    uiWellTrackReadDlg dlg( this, wd_ );
     if ( !dlg.go() ) return;
-
-    if ( dlg.fnm_.isEmpty() )
-    {
-	uiMSG().error( tr("Please select a file") );
-	return;
-    }
-
-    od_istream strm( dlg.fnm_ );
-    if ( !strm.isOK() )
-    { uiMSG().error( uiStrings::sCantOpenInpFile() ); return; }
-
-    Well::TrackAscIO wellascio(fd_, strm );
-    if ( !wellascio.getData(wd_,dlg.getKbElev(),dlg.getTD()) )
-    {
-	uiMSG().error( uiStrings::phrCannotRead( toUiString(dlg.fnm_) ) );
-	return;
-    }
 
     tbl_->clearTable();
     if ( !fillTable() )
@@ -521,6 +590,7 @@ bool uiWellTrackDlg::updNow( CallBacker* )
     if ( needfill && !fillTable() )
 	return false;
 
+    wd_.info().uwid = uwifld_->text();
     return true;
 }
 
@@ -649,7 +719,7 @@ bool uiWellTrackDlg::acceptOK( CallBacker* )
     if ( !writable_ )
 	return true;
 
-    if ( !updNow( 0 ) )
+    if ( !updNow(0) )
 	return false;
 
     const int nrpts = track_.size();
@@ -670,7 +740,7 @@ bool uiWellTrackDlg::acceptOK( CallBacker* )
     if ( dahchg )
     {
 	uiString msg = tr("You have changed at least one MD value.\nMarkers%1"
-			  " are based on the old MD values.\n. "
+			  " are based on the old MD values.\n"
 			  "They may therefore become invalid.\n\nContinue?");
 	if ( SI().zIsTime() )
 	    msg.arg(tr(", logs, T/D and checkshot models"));
@@ -756,7 +826,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     tbl_ = new uiTable( this, uiTable::Setup()
 				.rowdesc(cksh_ ? "Measure point" : "Control Pt")
 				.rowgrow(true)
-				.defrowlbl("")
+				.defrowlbl(true)
 				.selmode(uiTable::Single)
 				.removeselallowed(false),
 				(mTDName(cksh)).getFullString().buf() );
@@ -819,7 +889,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	new uiPushButton( iobutgrp, uiStrings::sImport(),
 	    mCB(this,uiD2TModelDlg,readNew), false );
     new uiPushButton( iobutgrp, uiStrings::sExport(),
-        mCB(this,uiD2TModelDlg,expData), false );
+	mCB(this,uiD2TModelDlg,expData), false );
     if ( replvelfld_ )
 	iobutgrp->attach( ensureBelow, replvelfld_ );
     else
@@ -1054,7 +1124,6 @@ void uiD2TModelDlg::dtpointRemovedCB( CallBacker* )
 }
 
 
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
 bool uiD2TModelDlg::updateDtpointDepth( int row )
 {
     NotifyStopper ns( tbl_->valueChanged );

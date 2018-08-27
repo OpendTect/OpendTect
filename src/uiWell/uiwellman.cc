@@ -414,7 +414,8 @@ void uiWellMan::edWellTrack( CallBacker* )
 
     RefMan<Well::Data> wd = new Well::Data;
     PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
-    if ( !wrdr->getTrack() &&
+    const bool found = wrdr->getInfo() && wrdr->getTrack();
+    if ( !found &&
 	 !uiMSG().askGoOn(tr("No track found. Continue editing?")) )
 	return;
 
@@ -533,7 +534,7 @@ void uiWellMan::logTools( CallBacker* )
 #define mDeleteLogs(idx) \
     if ( !curwds_.validIdx( idx ) ) return;\
     while ( curwds_[idx]->logs().size() ) \
-        delete curwds_[idx]->logs().remove(0);
+	delete curwds_[idx]->logs().remove(0);
 
 void uiWellMan::importLogs( CallBacker* )
 {
@@ -799,72 +800,71 @@ void uiWellMan::mkFileInfo()
 
     if ( currdr.getTrack() && currdr.getInfo() )
     {
+	const Well::Info& info = curwd->info();
+	const Well::Track& track = curwd->track();
 
-    const Well::Info& info = curwd->info();
-    const Well::Track& track = curwd->track();
+	FixedString colonstr( ": " );
+	const BufferString posstr( info.surfacecoord.toPrettyString(2), " ",
+		    SI().transform(info.surfacecoord).toString() );
+	mAddWellInfo(Well::Info::sCoord(),posstr)
 
-    FixedString colonstr( ": " );
-    const BufferString posstr( info.surfacecoord.toPrettyString(2), " ",
-		SI().transform(info.surfacecoord).toString() );
-    mAddWellInfo(Well::Info::sCoord(),posstr)
-
-    if ( !track.isEmpty() )
-    {
-	const float rdelev = track.getKbElev();
-	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
+	if ( !track.isEmpty() )
 	{
-	    txt.add(Well::Info::sKeyKBElev()).add(colonstr);
-	    txt.add( zun ? zun->userValue(rdelev) : rdelev, 2 );
-	    if ( zun ) txt.add( zun->symbol() );
-	    txt.addNewLine();
+	    const float rdelev = track.getKbElev();
+	    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+	    if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
+	    {
+		txt.add(Well::Info::sKeyKBElev()).add(colonstr);
+		txt.add( zun ? zun->userValue(rdelev) : rdelev, 2 );
+		if ( zun ) txt.add( zun->symbol() );
+		txt.addNewLine();
+	    }
+
+	    const float td = track.dahRange().stop;
+	    if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
+	    {
+		txt.add(Well::Info::sKeyTD()).add( colonstr );
+		txt.add( zun ? zun->userValue(td) : td, 2 );
+		if ( zun ) txt.add( zun->symbol() );
+		txt.addNewLine();
+	    }
+
+	    const double srd = SI().seismicReferenceDatum();
+	    if ( !mIsZero(srd,1e-4) )
+	    {
+		txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
+		txt.add( zun ? zun->userValue(srd) : srd, 2 );
+		if ( zun ) txt.add( zun->symbol() );
+		txt.addNewLine();
+	    }
+
+	    const float replvel = info.replvel;
+	    if ( !mIsUdf(replvel) )
+	    {
+		 txt.add(Well::Info::sKeyReplVel()).add(colonstr);
+		 txt.add( zun ? zun->userValue(replvel) : replvel );
+		 txt.add( UnitOfMeasure::surveyDefVelUnitAnnot(true,false)
+			  .getFullString() );
+		 txt.addNewLine();
+	    }
+
+	    const float groundelev = info.groundelev;
+	    if ( !mIsUdf(groundelev) )
+	    {
+		txt.add(Well::Info::sKeyGroundElev()).add(colonstr);
+		txt.add( zun ? zun->userValue(groundelev) : groundelev, 2 );
+		if ( zun ) txt.add( zun->symbol() );
+		txt.addNewLine();
+	    }
 	}
 
-	const float td = track.dahRange().stop;
-	if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
-	{
-	    txt.add(Well::Info::sKeyTD()).add( colonstr );
-	    txt.add( zun ? zun->userValue(td) : td, 2 );
-	    if ( zun ) txt.add( zun->symbol() );
-	    txt.addNewLine();
-	}
+	mAddWellInfo(Well::Info::sUwid(),info.uwid)
+	mAddWellInfo(Well::Info::sOper(),info.oper)
+	mAddWellInfo(Well::Info::sState(),info.state)
+	mAddWellInfo(Well::Info::sCounty(),info.county)
 
-	const double srd = SI().seismicReferenceDatum();
-	if ( !mIsZero(srd,1e-4) )
-	{
-	    txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
-	    txt.add( zun ? zun->userValue(srd) : srd, 2 );
-	    if ( zun ) txt.add( zun->symbol() );
-	    txt.addNewLine();
-	}
-
-	const float replvel = info.replvel;
-	if ( !mIsUdf(replvel) )
-	{
-	     txt.add(Well::Info::sKeyReplVel()).add(colonstr);
-	     txt.add( zun ? zun->userValue(replvel) : replvel );
-	     txt.add( UnitOfMeasure::surveyDefVelUnitAnnot(true,false)
-		      .getFullString() );
-	     txt.addNewLine();
-	}
-
-	const float groundelev = info.groundelev;
-	if ( !mIsUdf(groundelev) )
-	{
-	    txt.add(Well::Info::sKeyGroundElev()).add(colonstr);
-	    txt.add( zun ? zun->userValue(groundelev) : groundelev, 2 );
-	    if ( zun ) txt.add( zun->symbol() );
-	    txt.addNewLine();
-	}
-    }
-
-    mAddWellInfo(Well::Info::sUwid(),info.uwid)
-    mAddWellInfo(Well::Info::sOper(),info.oper)
-    mAddWellInfo(Well::Info::sState(),info.state)
-    mAddWellInfo(Well::Info::sCounty(),info.county)
-
-    if ( txt.isEmpty() )
-	txt.set( "<No specific info available>\n" );
+	if ( txt.isEmpty() )
+	    txt.set( "<No specific info available>\n" );
 
     } // if ( currdr.getInfo() )
 
