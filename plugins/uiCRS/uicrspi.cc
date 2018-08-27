@@ -25,7 +25,7 @@ mDefODPluginInfo(uiCRS)
 	mODPluginCreator, mODPluginVersion,
 	"Provides support for Coordinate Reference Systems "
 		    "using the PROJ.4 services" ) );
-    retpi.useronoffselectable_ = true;
+    retpi.useronoffselectable_ = false;
     retpi.url_ = "proj4.org";
     mSetPackageDisplayName( retpi,
 			    Coords::uiProjectionBasedSystem::pkgDispNm() );
