@@ -335,7 +335,8 @@ void uiWellLogToolWin::okPushedCB( CallBacker* )
     {
 	const bool res = uiMSG().askOverwrite( tr("Are you sure you want "
 		"to overwrite the original logs?") );
-	if ( !res ) return;
+	if ( !res )
+	    return;
     }
 
     for ( int idx=0; idx<logdatas_.size(); idx++ )
@@ -346,9 +347,9 @@ void uiWellLogToolWin::okPushedCB( CallBacker* )
 	{
 	    Well::Log* outplog = ld.outplogs_.removeSingle( idl );
 	    BufferString newnm( outplog->name() );
-	    newnm += savefld_->text();
+	    newnm += extfld_->text();
 	    outplog->setName( newnm );
-	    if ( !overwrite && ls.isPresent( outplog->name() ) )
+	    if ( !overwrite && ls.isPresent(outplog->name()) )
 	    {
 		uiMSG().error(
 		    tr("One or more logs with this name already exists."
