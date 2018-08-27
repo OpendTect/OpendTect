@@ -1293,26 +1293,25 @@ double uiTable::getDValue( const RowCol& rc ) const
 { return getValueImpl<double>( rc ); }
 
 
-template <class T> void uiTable::setValueImpl( const RowCol& rc, T val )
+template <class T> void uiTable::setValueImpl( const RowCol& rc, T val,
+					       int nrdec )
 {
-    if ( mIsUdf(val) )
-	setText( rc, "" );
-    else
-    {
-	BufferString txt( Conv::to<const char*>(val) );
-	setText( rc, txt.buf() );
-    }
+    BufferString valstr;
+    if ( !mIsUdf(val) )
+	valstr = nrdec<0 ? toString(val) : getFPStringWithDecimals(val,nrdec);
+
+    setText( rc, valstr );
 }
 
 
-void uiTable::setValue( const RowCol& rc, int i )
-{ setValueImpl( rc, i ); }
-void uiTable::setValue( const RowCol& rc, od_int64 i )
-{ setValueImpl( rc, i ); }
-void uiTable::setValue( const RowCol& rc, float f )
-{ setValueImpl( rc, f ); }
-void uiTable::setValue( const RowCol& rc, double d )
-{ setValueImpl( rc, d ); }
+void uiTable::setValue( const RowCol& rc, int val )
+{ setValueImpl( rc, val, -1 ); }
+void uiTable::setValue( const RowCol& rc, od_int64 val )
+{ setValueImpl( rc, val, -1 ); }
+void uiTable::setValue( const RowCol& rc, float val, int nrdec )
+{ setValueImpl( rc, val, nrdec ); }
+void uiTable::setValue( const RowCol& rc, double val, int nrdec )
+{ setValueImpl( rc, val, nrdec ); }
 
 
 void uiTable::setSelectionMode( SelectionMode m )

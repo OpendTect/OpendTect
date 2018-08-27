@@ -303,8 +303,8 @@ public:
     float		getFValue(const RowCol&) const;
     void		setValue(const RowCol&,int);
     void		setValue(const RowCol&,od_int64);
-    void		setValue(const RowCol&,float);
-    void		setValue(const RowCol&,double);
+    void		setValue(const RowCol&,float,int nrdec=-1);
+    void		setValue(const RowCol&,double,int nrdec=-1);
 
     void		setSelectionMode(SelectionMode);
     void		setSelectionBehavior(SelectionBehavior);
@@ -368,7 +368,7 @@ protected:
     static uiString	sBefore()	{ return tr("before"); }
 
     template <class T>
-    void		setValueImpl(const RowCol&,T);
+    void		setValueImpl(const RowCol&,T,int nrdec);
     template <class T>
     T			getValueImpl(const RowCol&) const;
 
