@@ -82,9 +82,9 @@ int passedSince( int timestamp )
 }
 
 
-const char* defDateTimeFmt()	{ return "ddd dd MMM yyyy, hh:mm:ss"; }
+const char* defDateTimeFmt()	{ return "ddd dd MMM yyyy, hh:mm:ss, t"; }
 const char* defDateFmt()	{ return "ddd dd MMM yyyy"; }
-const char* defTimeFmt()	{ return "hh:mm:ss"; }
+const char* defTimeFmt()	{ return "hh:mm:ss, t"; }
 
 const char* getDateTimeString( const char* fmt, bool local )
 {
