@@ -75,6 +75,15 @@ int Well::LogSet::indexOf( const char* nm ) const
 }
 
 
+bool Well::LogSet::isPresent( const char* nm ) const
+{
+    for ( int idx=0; idx<logs_.size(); idx++ )
+	if ( logs_[idx]->name() == nm )
+	    return true;
+    return false;
+}
+
+
 Well::Log* Well::LogSet::remove( int logidx )
 {
     Log* log = logs_[logidx]; logs_ -= log;
