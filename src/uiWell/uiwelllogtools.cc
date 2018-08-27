@@ -230,7 +230,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     gatefld_ = spbgt->box();
     gatelbl_ = spbgt->label();
 
-    const uiString txt = tr("Threshold ( Grubbs number )");
+    const uiString txt = tr("Threshold (Grubbs number)");
     thresholdfld_ = new uiLabeledSpinBox( actiongrp, txt );
     thresholdfld_->attach( rightOf, spbgt );
     thresholdfld_->box()->setInterval( 1.0, 20.0, 0.1 );
@@ -238,19 +238,29 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     thresholdfld_->box()->setNrDecimals( 2 );
 
     const char* spk[] = {"Undefined values","Interpolated values","Specify",0};
-    replacespikefld_ = new uiLabeledComboBox(actiongrp,spk,
-					     tr("Replace spikes by"));
+    replacespikefld_ =
+	new uiLabeledComboBox( actiongrp, spk, tr("Replace spikes by") );
     replacespikefld_->box()->selectionChanged.notify(
-				mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
+			mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
     replacespikefld_->attach( alignedBelow, spbgt );
 
     replacespikevalfld_ = new uiGenInput( actiongrp, uiStrings::sEmptyString(),
-							       FloatInpSpec() );
+					  FloatInpSpec() );
     replacespikevalfld_->attach( rightOf, replacespikefld_ );
     replacespikevalfld_->setValue( 0 );
 
+    uiGroup* savegrp = new uiGroup( this, "Save options" );
+    savegrp->attach( alignedBelow, actiongrp );
+    savefld_ = new uiGenInput( savegrp, tr("On OK"),
+	BoolInpSpec(true,tr("Save logs as new"),tr("Overwrite original logs")));
+    savefld_->valuechanged.notify( mCB(this,uiWellLogToolWin,saveCB) );
+
+    extfld_ = new uiGenInput( savegrp, tr("Log name extension") );
+    extfld_->setText( "_edited" );
+    extfld_->attach( alignedBelow, savefld_ );
+
     uiSeparator* horSepar = new uiSeparator( this );
-    horSepar->attach( stretchedBelow, actiongrp );
+    horSepar->attach( stretchedBelow, savegrp );
 
     okbut_ = uiButton::getStd( this, OD::Ok,
 				mCB(this,uiWellLogToolWin,acceptOK), true );
@@ -258,26 +268,13 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     okbut_->attach( ensureBelow, horSepar );
     okbut_->setSensitive( false );
 
-    uiLabel* savelbl = new uiLabel( this, tr("On OK save logs:") );
-    savelbl->attach( rightOf, okbut_ );
-    savefld_ = new uiGenInput( this, tr("with extension") );
-    savefld_->setElemSzPol( uiObject::Small );
-    savefld_->setText( "_edited" );
-    savefld_->attach( rightOf, savelbl );
-    savefld_->setStretch( 0, 0 );
-
-    overwritefld_ = new uiCheckBox( this, uiStrings::sOverwrite() );
-    overwritefld_->attach( rightOf, savefld_ );
-    overwritefld_->activated.notify( mCB(this,uiWellLogToolWin,overWriteCB) );
-    overwritefld_->setStretch( 0, 0 );
-
     uiButton* cancelbut = uiButton::getStd( this, OD::Cancel,
 				mCB(this,uiWellLogToolWin,rejectOK), true );
     cancelbut->attach( rightBorder, 20 );
     cancelbut->attach( ensureBelow, horSepar );
-    cancelbut->attach( ensureRightOf, overwritefld_ );
 
     actionSelCB(0);
+    saveCB(0);
     displayLogs();
 }
 
@@ -288,9 +285,9 @@ uiWellLogToolWin::~uiWellLogToolWin()
 }
 
 
-void  uiWellLogToolWin::overWriteCB(CallBacker*)
+void uiWellLogToolWin::saveCB( CallBacker* )
 {
-    savefld_->setSensitive( !overwritefld_->isChecked() );
+    extfld_->display( savefld_->getBoolValue() );
 }
 
 
@@ -324,30 +321,31 @@ void uiWellLogToolWin::handleSpikeSelCB( CallBacker* )
 
 bool uiWellLogToolWin::acceptOK( CallBacker* )
 {
+    const bool overwrite = !savefld_->getBoolValue();
+    if ( overwrite )
+    {
+	const bool res = uiMSG().askOverwrite( tr("Are you sure you want "
+		"to overwrite the original logs?") );
+	if ( !res )
+	    return false;
+    }
+
     for ( int idx=0; idx<logdatas_.size(); idx++ )
     {
 	LogData& ld = *logdatas_[idx];
 	Well::LogSet& ls = ld.logs_;
-	bool overwrite = overwritefld_->isChecked();
 	for ( int idl=ld.outplogs_.size()-1; idl>=0; idl-- )
 	{
 	    Well::Log* outplog = ld.outplogs_.removeSingle( idl );
-	    if ( overwrite )
+	    BufferString newnm( outplog->name() );
+	    newnm += extfld_->text();
+	    outplog->setName( newnm );
+	    if ( !overwrite && ls.isPresent(outplog->name()) )
 	    {
-		const int logidx = ls.indexOf( outplog->name() );
-		if ( ls.validIdx( logidx ) )
-		    delete ls.remove( logidx );
-	    }
-	    else
-	    {
-		BufferString newnm( outplog->name() );
-		newnm += savefld_->text();
-		outplog->setName( newnm );
-		if ( ls.getLog( outplog->name() ) )
-		{
-		    mErrRet(tr("One or more logs with this name already exists."
+		uiMSG().error(
+		    tr("One or more logs with this name already exists."
 		    "\nPlease select a different extension for the new logs"));
-		}
+		return false;
 	    }
 	    ls.add( outplog );
 	    needsave_ = true;
@@ -571,11 +569,11 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     table_->rowDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->selectionDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->rowInserted.notify( mCB(this,uiWellLogEditor,rowInsertCB) );
-    BufferString mdlbl( "MD" );
+    BufferString mdlbl( "MD " );
     mdlbl.add( getDistUnitString(SI().depthsInFeet(), true) );
     BufferString loglbl( log_.name() );
     if ( log_.unitMeasLabel() && *log_.unitMeasLabel() )
-	loglbl.add( "(" ).add( log_.unitMeasLabel() ).add( ")" );
+	loglbl.add( " (" ).add( log_.unitMeasLabel() ).add( ")" );
 
     BufferStringSet colnms; colnms.add(mdlbl).add(loglbl);
     table_->setColumnLabels( colnms );
@@ -593,12 +591,11 @@ void uiWellLogEditor::fillTable()
 {
     NotifyStopper ns( table_->valueChanged );
     const int sz = log_.size();
-    const UnitOfMeasure* depthunit = UnitOfMeasure::surveyDefDepthUnit();
-
+    const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const float val = depthunit->userValue( log_.dah(idx) );
-	table_->setValue( RowCol(idx,0), val );
+	const float md = uom ? uom->userValue( log_.dah(idx) ) : log_.dah(idx);
+	table_->setValue( RowCol(idx,0), md );
 	table_->setValue( RowCol(idx,1), log_.value(idx) );
     }
 }
@@ -619,8 +616,8 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 	return;
     const bool mdchanged = rc.col() == 0;
     const float newval = table_->getfValue( rc );
-    const float oldval = mdchanged ? log_.dah( rc.row() ) :
-							log_.value( rc.row() );
+    const float oldval = mdchanged ? log_.dah( rc.row() )
+				   : log_.value( rc.row() );
     if ( mIsEqual(oldval,newval,mDefEpsF) )
 	return;
 

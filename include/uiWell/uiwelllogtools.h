@@ -79,8 +79,8 @@ public:
 protected:
 
     uiComboBox*			actionfld_;
-    uiCheckBox*			overwritefld_;
     uiGenInput*			savefld_;
+    uiGenInput*			extfld_;
     uiSpinBox*			gatefld_;
     uiLabel*			gatelbl_;
     uiLabeledSpinBox*		thresholdfld_;
@@ -98,9 +98,9 @@ protected:
 
     void			displayLogs();
 
+    void			saveCB(CallBacker*);
     void			actionSelCB(CallBacker*);
     void			handleSpikeSelCB(CallBacker*);
-    void			overWriteCB(CallBacker*);
     void			applyPushedCB(CallBacker*);
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
