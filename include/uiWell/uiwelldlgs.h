@@ -56,6 +56,7 @@ protected:
 
     Table::FormatDesc&	fd_;
     uiTable*		tbl_;
+    uiGenInput*		uwifld_;
     uiCheckBox*		zinftfld_;
     uiGenInput*		wellheadxfld_;
     uiGenInput*		wellheadyfld_;
