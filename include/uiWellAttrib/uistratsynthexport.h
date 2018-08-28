@@ -12,7 +12,7 @@
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
-class StratSynth;
+
 class SyntheticData;
 class StratSynthLevel;
 class uiGroup;
@@ -25,15 +25,18 @@ class uiStratSynthOutSel;
 
 namespace Geometry { class RandomLine; }
 namespace PosInfo { class Line2DData; }
+namespace StratSynth { class DataMgr; class Level; }
+
 
 mExpClass(uiWellAttrib) uiStratSynthExport : public uiDialog
 { mODTextTranslationClass(uiStratSynthExport)
 public:
+
     enum GeomSel	{ StraightLine, Polygon, RandomLine, Existing };
 
-			uiStratSynthExport(uiParent*,const StratSynth&);
+			uiStratSynthExport(uiParent*,
+					   const StratSynth::DataMgr&);
 			~uiStratSynthExport();
-
 
 protected:
 
@@ -53,17 +56,16 @@ protected:
     uiGenInput*		prefxfld_;
     uiGenInput*		postfxfld_;
 
-    const StratSynth&	ss_;
+    const StratSynth::DataMgr&	ssdm_;
     ObjectSet<const SyntheticData> postsds_;
     ObjectSet<const SyntheticData> presds_;
-    ObjectSet<StratSynthLevel> sslvls_;
+    BufferStringSet	sellvls_;
 
-    BufferString	getWinTitle(const StratSynth&) const;
     GeomSel		selType() const;
     void		addPrePostFix(BufferString&) const;
     void		fillGeomGroup();
     void		getExpObjs();
-    void		removeNonSelected();
+    void		getSelections();
     bool		createHor2Ds();
     Pos::GeomID		getGeometry(PosInfo::Line2DData&);
     void		create2DGeometry(const TypeSet<Coord>&,

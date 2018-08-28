@@ -11,9 +11,9 @@ set(OD_MODULE_SOURCES
 		createlogcube.cc
 		initwellattrib.cc
 		stratseisevent.cc
-		stratsynth.cc
+		stratsynthdatamgr.cc
 		stratsynthexp.cc
-		stratsynthlevelset.cc
+		stratsynthlevel.cc
 		wellhorpos.cc
 		welllogattrib.cc
 		welltiecshot.cc

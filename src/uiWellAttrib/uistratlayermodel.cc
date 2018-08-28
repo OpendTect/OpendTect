@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "strattransl.h"
 #include "stratlaymodgen.h"
 #include "stratreftree.h"
-#include "stratsynth.h"
+#include "stratsynthdatamgr.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "waveletmanager.h"
@@ -309,27 +309,27 @@ BufferString uiStratLayerModel::levelName() const
 }
 
 
-StratSynth& uiStratLayerModel::currentStratSynth()
+StratSynth::DataMgr& uiStratLayerModel::currentStratSynthDM()
 {
-    return synthdisp_->curSS();
+    return synthdisp_->curDM();
 }
 
 
-const StratSynth& uiStratLayerModel::currentStratSynth() const
+const StratSynth::DataMgr& uiStratLayerModel::currentStratSynthDM() const
 {
-    return const_cast<const uiStratSynthDisp*>(synthdisp_)->curSS();
+    return const_cast<const uiStratSynthDisp*>(synthdisp_)->curDM();
 }
 
 
-const StratSynth& uiStratLayerModel::normalStratSynth() const
+const StratSynth::DataMgr& uiStratLayerModel::normalStratSynthDM() const
 {
-    return synthdisp_->normalSS();
+    return synthdisp_->normalDM();
 }
 
 
-const StratSynth& uiStratLayerModel::editStratSynth() const
+const StratSynth::DataMgr& uiStratLayerModel::editStratSynthDM() const
 {
-    return synthdisp_->editSS();
+    return synthdisp_->editDM();
 }
 
 
@@ -395,16 +395,15 @@ void uiStratLayerModel::lmViewChangedCB( CallBacker* )
 void uiStratLayerModel::flattenChg( CallBacker* cb )
 {
     moddisp_->setFlattened( modtools_->showFlattened() );
-    synthdisp_->setFlattenLvl( modtools_->selLevel() );
+    synthdisp_->setSelectedLevel( modtools_->selLevelID() );
     synthdisp_->setFlattened( modtools_->showFlattened() );
 }
 
 
 void uiStratLayerModel::levelChg( CallBacker* cb )
 {
-    synthdisp_->setDispMrkrs( modtools_->getLevelNames(),
-			      moddisp_->getLevelDepths() );
-    synthdisp_->setFlattenLvl( modtools_->selLevel() );
+    synthdisp_->setSelectedLevel( modtools_->selLevelID() );
+    synthdisp_->updateMarkers();
     modtools_->setFlatTBSensitive( moddisp_->canBeFlattened() );
 }
 
@@ -653,7 +652,7 @@ bool uiStratLayerModel::doLoadGenDesc()
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
     if ( mfvc ) mfvc->reInitZooms();
     synthdisp_->setSavedViewRect();
-    synthdisp_->setFlattenLvl( modtools_->selLevel() );
+    synthdisp_->setSelectedLevel( modtools_->selLevelID() );
     setWinTitle();
     raise();
     return true;
@@ -682,7 +681,7 @@ void uiStratLayerModel::lmDispParsChangedCB( CallBacker* )
 	return;
     BufferString lmpropsdnm( lmpropdp.propnm_.buf() );
     if ( isEditUsed() )
-	lmpropsdnm += StratSynth::sKeyFRNameSuffix();
+	lmpropsdnm += StratSynth::DataMgr::sKeyFRNameSuffix();
     const BufferString propnm( "[", lmpropsdnm.buf(), "]" );
     RefMan<SyntheticData> sd = synthdisp_->getSyntheticData( propnm );
     if ( !sd ) return;
@@ -723,7 +722,7 @@ void uiStratLayerModel::synthDispParsChangedCB( CallBacker* )
 	return;
 
     if ( isEditUsed() )
-	sdnm.remove( StratSynth::sKeyFRNameSuffix() );
+	sdnm.remove( StratSynth::DataMgr::sKeyFRNameSuffix() );
 
     LMPropSpecificDispPars vddisppars( sdnm );
     vddisppars.mappersetup_ = vdsd->dispPars().vdmapsetup_;
@@ -858,8 +857,7 @@ void uiStratLayerModel::handleNewModel()
     //Finally the synthetics
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
     synthdisp_->setFlattened( modtools_->showFlattened(), false );
-    synthdisp_->setDispMrkrs( modtools_->getLevelNames(),
-			      moddisp_->getLevelDepths() );
+    synthdisp_->updateMarkers();
     nrmodels_ = layerModel().size();
 
     newModels.trigger();
@@ -946,8 +944,7 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
 	useSyntheticsPars( desc_.getWorkBenchParams() );
     }
     synthdisp_->showFRResults();
-    synthdisp_->setDispMrkrs( modtools_->getLevelNames(),
-			      moddisp_->getLevelDepths() );
+    synthdisp_->updateMarkers();
     moddisp_->modelChanged();
     displayFRText( true, isbrine );
     synthdisp_->setForceUpdate( false );

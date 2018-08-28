@@ -16,7 +16,6 @@ ________________________________________________________________________
 class CtxtIOObj;
 class Wavelet;
 class SeisTrcBuf;
-class StratSynth;
 class PropertyRef;
 class SyntheticData;
 class TimeDepthModel;
@@ -30,13 +29,14 @@ class uiLayerSequenceGenDesc;
 class uiStratGenDescTools;
 class uiStratLayModEditTools;
 class uiStratLayerModelLMProvider;
+class uiStratLayerModelManager;
 namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
+namespace StratSynth { class DataMgr; }
 
 
 mExpClass(uiWellAttrib) uiStratLayerModel : public uiMainWin
 { mODTextTranslationClass(uiStratLayerModel);
 public:
-    friend class		uiStratLayerModelManager;
 
 				uiStratLayerModel(uiParent*,
 					const char* disptype=0,int opt=0);
@@ -59,10 +59,10 @@ public:
     const Strat::LayerModel&            layerModel() const;
     Strat::LayerModel&                  layerModel();
     BufferString			levelName() const;
-    const StratSynth&			currentStratSynth() const;
-    StratSynth&				currentStratSynth();
-    const StratSynth&			normalStratSynth() const;
-    const StratSynth&			editStratSynth() const;
+    const StratSynth::DataMgr&		currentStratSynthDM() const;
+    StratSynth::DataMgr&		currentStratSynthDM();
+    const StratSynth::DataMgr&		normalStratSynthDM() const;
+    const StratSynth::DataMgr&		editStratSynthDM() const;
     bool				isEditUsed() const;
     const PropertyRefSelection&		modelProperties() const;
     const ObjectSet<const TimeDepthModel>& d2TModels() const;
@@ -161,4 +161,7 @@ protected:
     void			xPlotReq(CallBacker*);
     void			nrModelsChangedCB(CallBacker*);
     void			helpCB(CallBacker*);
+
+    friend class		uiStratLayerModelManager;
+
 };

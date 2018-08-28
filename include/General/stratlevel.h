@@ -39,6 +39,7 @@ public:
     mDefIntegerIDType(int,ID);
 
 			Level(const char* nm,const Color&,ID =ID::getInvalid());
+			mDeclInstanceCreatedNotifierAccess(Level);
 
 			mDeclMonitorableAssignment(Level);
     bool		isDifferentFrom(const Level&) const;
@@ -50,7 +51,7 @@ public:
 
     static const Level&	undef();
     bool		isUndef() const;
-    mDeclInstanceCreatedNotifierAccess(Level);
+    static Level&	dummy();
 
     static ChangeType	cColChange()	{ return 2; }
     static ChangeType	cParsChange()	{ return 3; }

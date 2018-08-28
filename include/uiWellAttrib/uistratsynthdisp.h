@@ -14,13 +14,12 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiflatviewslicepos.h"
 #include "uistring.h"
-#include "stratsynthlevelset.h"
+#include "stratlevel.h"
 #include "uistratsimplelaymoddisp.h"
 #include "uitaskrunnerprovider.h"
 
 class TimeDepthModel;
 class SeisTrcBuf;
-class StratSynth;
 class SyntheticData;
 class PropertyRef;
 class PropertyRefSelection;
@@ -38,6 +37,7 @@ class uiToolButton;
 class uiToolButtonSetup;
 class uiWaveletIOObjSel;
 namespace Strat { class LayerModel; class LayerModelProvider; }
+namespace StratSynth { class DataMgr; }
 namespace FlatView { class AuxData; }
 namespace PreStackView { class uiSyntheticViewer2DMainWin; }
 
@@ -46,36 +46,35 @@ mExpClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
 { mODTextTranslationClass(uiStratSynthDisp);
 public:
 
-    typedef TypeSet<float> LVLZVals;
-    typedef TypeSet< LVLZVals > LVLZValsSet;
+    typedef ObjectSet<const TimeDepthModel>	T2DModelSet;
+    typedef Strat::Level::ID			LevelID;
+    typedef StratSynth::DataMgr			DataMgr;
 
 			uiStratSynthDisp(uiParent*,uiStratLayerModel&,
 					 const Strat::LayerModelProvider&);
 			~uiStratSynthDisp();
 
     const Strat::LayerModel& layerModel() const;
-    const char*		levelName(const int idx=0) const;
     DBKey		waveletID() const;
     const Wavelet*	getWavelet() const;
-    inline const StratSynth& curSS() const
-			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
-    inline StratSynth&	curSS()
-			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
-    inline const StratSynth& altSS() const
-			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
-    const StratSynth&	normalSS() const	{ return *stratsynth_; }
-    const StratSynth&	editSS() const		{ return *edstratsynth_; }
+    inline const DataMgr& curDM() const
+			{ return *(!useed_ ? datamgr_ : eddatamgr_); }
+    inline DataMgr&	curDM()
+			{ return *(!useed_ ? datamgr_ : eddatamgr_); }
+    inline const DataMgr& altDM() const
+			{ return *(useed_ ? datamgr_ : eddatamgr_); }
+    const DataMgr&	normalDM() const	{ return *datamgr_; }
+    const DataMgr&	editDM() const		{ return *eddatamgr_; }
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
     RefMan<SyntheticData>	getCurrentSyntheticData(bool wva=true) const;
     RefMan<SyntheticData>	getSyntheticData(const char* nm);
     const PropertyRefSelection&	modelPropertyRefs() const;
 
-    const ObjectSet<const TimeDepthModel>* d2TModels() const;
+    const T2DModelSet*	d2TModels() const;
 
     void		setFlattened(bool flattened,bool trigger=true);
-    void		setDispMrkrs(const BufferStringSet&,
-				const uiStratLayerModelDisp::LVLZValsSet&);
+    void		updateMarkers();
     void		setSelectedTrace(int);
     void		setDispEach(int);
     void		setZDataRange(const Interval<double>&,bool indpt);
@@ -103,7 +102,7 @@ public:
     void		cleanSynthetics();
     float		centralTrcShift() const;
     void		setCurrentSynthetic(bool wva);
-    void		setSnapLevelSensitive(bool);
+    void		setSelectedLevel( LevelID lvlid ) { sellvlid_ = lvlid; }
     bool		prepareElasticModel();
 
     uiMultiFlatViewControl* control()	{ return control_; }
@@ -125,16 +124,14 @@ public:
     void		setRelativeViewRect(const uiWorldRect& relwr);
     const uiWorldRect&	getRelativeViewRect() const	{ return relzoomwr_; }
     void		setSavedViewRect();
-    void		setFlattenLvl(const Strat::Level& lvl)
-			{ flattenlvl_ = lvl; }
-    const Strat::Level& getFlattenLvl() { return flattenlvl_; }
+    LevelID		selectedLevelID()	    { return sellvlid_; }
     uiGroup*		getDisplayClone(uiParent*) const;
 
 protected:
 
     int					longestaimdl_;
-    StratSynth*				stratsynth_;
-    StratSynth*				edstratsynth_;
+    DataMgr*				datamgr_;
+    DataMgr*				eddatamgr_;
     const Strat::LayerModelProvider&	lmp_;
     uiWorldRect				relzoomwr_;
     mutable uiWorldRect			savedzoomwr_;
@@ -145,8 +142,9 @@ protected:
     bool				autoupdate_;
     bool				forceupdate_;
     bool				useed_;
+    LevelID				sellvlid_;
 
-    const ObjectSet<const TimeDepthModel>* d2tmodels_;
+    const T2DModelSet*			d2tmodels_;
     RefMan<SyntheticData>		currentwvasynthetic_;
     RefMan<SyntheticData>		currentvdsynthetic_;
 
@@ -166,7 +164,6 @@ protected:
     uiToolButton*			prestackbut_;
     uiComboBox*				wvadatalist_;
     uiComboBox*				vddatalist_;
-    uiComboBox*				levelsnapselfld_;
     uiSynthGenDlg*			synthgendlg_;
     uiSynthSlicePos*			offsetposfld_;
 
@@ -175,12 +172,11 @@ protected:
     void		showInfoMsg(bool foralt);
     void		handleFlattenChange();
     void		setCurrentWavelet();
-    void		fillPar(IOPar&,const StratSynth*) const;
+    void		fillPar(IOPar&,const DataMgr&) const;
     void		doModelChange(CallBacker*);
     const SeisTrcBuf&	curTrcBuf() const;
-    void		getCurD2TModel(ConstRefMan<SyntheticData>,
-				    ObjectSet<const TimeDepthModel>&,
-				    float offset = 0.0f) const;
+    void		getCurD2TModels(ConstRefMan<SyntheticData>,
+				    T2DModelSet&,float offset = 0.0f) const;
     void		reSampleTraces(ConstRefMan<SyntheticData>,
 				       SeisTrcBuf&) const;
     void		updateFields();
@@ -188,10 +184,10 @@ protected:
     void		updateSyntheticList(bool wva);
     void		copySyntheticDispPars();
     void		setDefaultAppearance(FlatView::Appearance&);
-    inline StratSynth&	altSS()
-			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
+    inline DataMgr&	altDM()
+			{ return *(useed_ ? datamgr_ : eddatamgr_); }
 
-    void		drawLevel();
+    void		drawLevels();
     void		displayPreStackSynthetic(ConstRefMan<SyntheticData>);
     void		displayPostStackSynthetic(ConstRefMan<SyntheticData>,
 						  bool wva=true);
@@ -219,7 +215,6 @@ protected:
     void		syntheticChanged(CallBacker*);
     void		selPreStackDataCB(CallBacker*);
     void		preStackWinClosedCB(CallBacker*);
-    Strat::Level	flattenlvl_;
 };
 
 

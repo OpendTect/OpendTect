@@ -29,14 +29,14 @@ namespace Strat
 
 const Level& Level::undef()
 {
-    mDefineStaticLocalObject( PtrMan<Level>, udflvl, = 0 );
-    if ( !udflvl )
-    {
-	Level* newlvl = new Level( sUndefName, Color::Black() );
-	udflvl.setIfNull(newlvl,true);
-    }
+    static Level ret( sUndefName, Color::Black() );
+    return ret;
+}
 
-    return *udflvl;
+Level& Level::dummy()
+{
+    static Level ret( "", Color::Black(), ID(-2) );
+    return ret;
 }
 
 

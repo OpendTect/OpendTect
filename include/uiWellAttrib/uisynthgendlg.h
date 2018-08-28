@@ -13,9 +13,6 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uistring.h"
-
-class StratSynth;
-
 class uiComboBox;
 class uiGenInput;
 class uiFlatViewer;
@@ -23,11 +20,14 @@ class uiListBox;
 class uiLabeledComboBox;
 class uiPushButton;
 class uiSynthSeisGrp;
+namespace StratSynth { class DataMgr; }
+
 
 mExpClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
 { mODTextTranslationClass(uiSynthGenDlg);
 public:
-				uiSynthGenDlg(uiParent*,StratSynth&);
+
+				uiSynthGenDlg(uiParent*,StratSynth::DataMgr&);
 
     bool			getFromScreen();
     void			putToScreen();
@@ -45,14 +45,14 @@ protected:
 
     uiComboBox*			typefld_;
     uiLabeledComboBox*		psselfld_;
-    uiGenInput*  		angleinpfld_;
-    uiGenInput*  		namefld_;
+    uiGenInput*			angleinpfld_;
+    uiGenInput*			namefld_;
     uiPushButton*		gennewbut_;
     uiPushButton*		applybut_;
     uiPushButton*		revertbut_;
     uiPushButton*		savebut_;
     uiListBox*			synthnmlb_;
-    StratSynth&			stratsynth_;
+    StratSynth::DataMgr&	datamgr_;
     uiSynthSeisGrp*		synthseis_;
     EnumDef			synthtypedefs_;
 

@@ -11,16 +11,15 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
-#include "ailayer.h"
 #include "elasticpropsel.h"
 #include "raysynthgenerator.h"
 #include "syntheticdata.h"
-#include "synthseis.h"
-#include "valseriesevent.h"
+// #include "synthseis.h"
+#include "stratsynthlevel.h"
 #include "uistring.h"
-#include "stratsynthlevelset.h"
 
 namespace PreStack {  class PreStackSyntheticData; }
+class BufferStringSet;
 class GatherSetDataPack;
 class RaySynthGenerator;
 class SeisTrcBuf;
@@ -28,89 +27,84 @@ class TaskRunnerProvider;
 class Wavelet;
 class TrcKeyZSampling;
 class RayTracer1D;
-class StratSynthLevel;
 class PostStackSyntheticData;
 
 namespace Strat
+{ class LayerModel; class LayerModelProvider; class LayerSequence; }
+
+
+namespace StratSynth
 {
-    class LayerModel; class LayerModelProvider; class LayerSequence;
-    class Level;
-}
 
-typedef SyntheticData::RayModel SynthRayModel;
-typedef ObjectSet<SynthRayModel> RayModelSet;
-
-
-mExpClass(WellAttrib) StratSynth
-{ mODTextTranslationClass(StratSynth);
+mExpClass(WellAttrib) DataMgr
+{ mODTextTranslationClass(StratSynth::DataMgr);
 public:
-    typedef TypeSet<float> LVLZVals;
-    typedef TypeSet< LVLZVals > LVLZValsSet;
-				StratSynth(const Strat::LayerModelProvider&,
-					   bool useed);
-				~StratSynth();
+
+    typedef int					SynthID;
+    typedef Level::ID				LevelID;
+    typedef Level::ZValueSet			ZValueSet;
+    typedef ObjectSet<const TimeDepthModel>	T2DModelSet;
+
+				DataMgr(const Strat::LayerModelProvider&,
+					bool useed);
+				~DataMgr();
 
     int			nrSynthetics() const;
-    RefMan<SyntheticData>	addSynthetic();
-    RefMan<SyntheticData>	addSynthetic(const SynthGenParams&);
+    RefMan<SyntheticData> addSynthetic();
+    RefMan<SyntheticData> addSynthetic(const SynthGenParams&);
     bool		removeSynthetic(const char*);
     bool		disableSynthetic(const char*);
-    RefMan<SyntheticData>	replaceSynthetic(int id);
-    RefMan<SyntheticData>	addDefaultSynthetic();
+    RefMan<SyntheticData> replaceSynthetic(int id);
+    RefMan<SyntheticData> addDefaultSynthetic();
+
     int			syntheticIdx(const char* nm) const;
     int			syntheticIdx(const PropertyRef&) const;
-    RefMan<SyntheticData>	getSynthetic(const char* nm);
-    inline ConstRefMan<SyntheticData> getSynthetic( const char* nm ) const
-			{ const int idx = syntheticIdx( nm );
-			  return synthetics_.validIdx(idx) ? synthetics_[idx]
-							   : 0; }
+
     void		getSyntheticNames(BufferStringSet&,
 					  SynthGenParams::SynthType) const;
-    void		getSyntheticNames(BufferStringSet&,bool wantpres) const;
-    RefMan<SyntheticData>	getSynthetic(int id);
+    void		getSyntheticNames(BufferStringSet&,
+					  bool wantprestack) const;
+
+    RefMan<SyntheticData>	getSynthetic(SynthID);
+    RefMan<SyntheticData>	getSynthetic(const char* nm);
+    ConstRefMan<SyntheticData>	getSynthetic(const char* nm) const;
     RefMan<SyntheticData>	getSynthetic(const PropertyRef&);
-    inline ConstRefMan<SyntheticData> getSynthetic(const PropertyRef& prf) const
-			{ const int idx = syntheticIdx( prf );
-			  return synthetics_.validIdx(idx) ? synthetics_[idx]
-							   : 0; }
+    ConstRefMan<SyntheticData>	getSynthetic(const PropertyRef&) const;
     RefMan<SyntheticData>	getSyntheticByIdx(int idx);
     ConstRefMan<SyntheticData>	getSyntheticByIdx(int idx) const;
+
     void		clearSynthetics();
     void		generateOtherQuantities();
     bool		createElasticModels();
-    void		clearElasticModels()
-					{ aimodels_.erase(); }
+    void		clearElasticModels()	{ aimodels_.erase(); }
     bool		hasElasticModels() const
-					{ return !aimodels_.isEmpty(); }
+						{ return !aimodels_.isEmpty(); }
 
     const ObjectSet<SyntheticData>& synthetics() const
-					{ return synthetics_; }
+						{ return synthetics_; }
 
     void		setWavelet(const Wavelet*);
-    const Wavelet*	wavelet() const { return wvlt_; }
-    SynthGenParams&	genParams()	{ return genparams_; }
+    const Wavelet*	wavelet() const		{ return wvlt_; }
+    SynthGenParams&	genParams()		{ return genparams_; }
     const SynthGenParams& genParams() const
 			{ return genparams_; }
 
-    void		setLevels(const StratSynthLevelSet&);
-    void		setLevels(const BufferStringSet&,const LVLZValsSet&);
-    const StratSynthLevel* getLevel(const int idx) const
-				{ return stratlevelset_->getStratLevel(idx); }
-    const StratSynthLevelSet* getLevels() const { return stratlevelset_; }
+    static void		getTimes(const T2DModelSet&,const ZValueSet& depths,
+				    ZValueSet& times);
+				//!< 'depths' and 'times' can be the same set
 
-    void		getLevelDepths(const Strat::Level&,
-					TypeSet<float>&) const;
-    void		getLevelTimes(const Strat::Level&,
-				const ObjectSet<const TimeDepthModel>&,
-				TypeSet<float>&) const;
-    void		setLevelTimesInTrcs(const Strat::Level&,SeisTrcBuf&,
-				const ObjectSet<const TimeDepthModel>&,
-				int dispeach=-1) const;
-    bool		setLevelTimes(const Strat::Level&,const char* sdnm);
-
+			    // make sure updateLevelInfo() is done before using
+			    // one of the functions following it:
+    void		updateLevelInfo() const;
+    const LevelSet&	levels() const		{ return lvls_; }
+    void		getLevelDepths(LevelID,ZValueSet&) const;
+    void		getLevelTimes(LevelID,const T2DModelSet&,
+				      ZValueSet&) const;
+    bool		setLevelTimesInTrcs(LevelID,const char* synthname);
+    void		setLevelTimesInTrcs(LevelID,SeisTrcBuf&,
+				const T2DModelSet&,int step=-1) const;
     void		flattenTraces(SeisTrcBuf&) const;
-    void		trimTraces(SeisTrcBuf&,
-				   const ObjectSet<const TimeDepthModel>&,
+    void		trimTraces(SeisTrcBuf&,const T2DModelSet&,
 				   float zskip) const;
     void		decimateTraces(SeisTrcBuf&,int fac) const;
 
@@ -124,8 +118,8 @@ public:
 protected:
 
     const Strat::LayerModelProvider&	lmp_;
-    const bool				useed_;
-    StratSynthLevelSet*			stratlevelset_;
+    const bool				isedited_;
+    mutable LevelSet			lvls_;
     SynthGenParams			genparams_;
     PropertyRefSelection		props_;
     RefObjectSet<SyntheticData>		synthetics_;
@@ -165,6 +159,10 @@ protected:
 						const IOPar& raypar) const;
 
 public:
+
     static uiString	sErrRetMsg() { return uiStrings::phrCannotCreate(tr
 				       ("synthetics %1 : %2\n")); }
+
 };
+
+} // namespace StratSynth

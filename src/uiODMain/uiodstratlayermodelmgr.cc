@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "strattransl.h"
 #include "stratlaymodgen.h"
 #include "stratreftree.h"
-#include "stratsynth.h"
+#include "stratsynthdatamgr.h"
 #include "uichecklist.h"
 #include "uilistbox.h"
 #include "uimsg.h"

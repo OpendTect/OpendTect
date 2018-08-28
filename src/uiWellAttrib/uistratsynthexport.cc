@@ -35,7 +35,7 @@ _______________________________________________________________________
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
-#include "stratsynth.h"
+#include "stratsynthdatamgr.h"
 #include "stratsynthexp.h"
 #include "stratsynthlevel.h"
 #include "stratlevel.h"
@@ -70,18 +70,39 @@ void selItems( CallBacker* )
     uiDialog::Setup su( uiStrings::phrSelect(nm_), mNoDlgTitle,
                         mODHelpKey(mStartSynthOutSelHelpID) );
     uiDialog dlg( parent(), su );
-    uiListBox* lb = new uiListBox( &dlg, mFromUiStringTodo(nm_) );
+    uiListBox* lb = new uiListBox( &dlg, toString(nm_) );
     lb->setMultiChoice( true );
     lb->addItems( nms_ );
+
+    if ( itmsarelevels_ )
+    {
+	const auto& lvls = Strat::LVLS();
+	MonitorLock ml( lvls );
+	for ( int idx=0; idx<nms_.size(); idx++ )
+	{
+	    const Strat::Level::ID id = lvls.getIDByIdx( idx );
+	    lb->setColorIcon( idx, Strat::LVLS().levelColor(id) );
+	}
+    }
+
     for ( int idx=0; idx<selidxs_.size(); idx++ )
 	lb->setChosen( selidxs_[idx], true );
+
     if ( dlg.go() )
     {
 	selidxs_.erase();
+	selnms_.setEmpty();
 	for ( int idx=0; idx<lb->size(); idx++ )
-	    if ( lb->isChosen(idx) ) selidxs_ += idx;
+	{
+	    if ( lb->isChosen(idx) )
+	    {
+		selidxs_ += idx;
+		selnms_.add( lb->itemText(idx) );
+	    }
+	}
     }
 }
+
 
 virtual uiString getSummary() const
 {
@@ -116,7 +137,9 @@ virtual uiString getSummary() const
 
     const uiString	    nm_;
     const BufferStringSet   nms_;
+    BufferStringSet	    selnms_;
     TypeSet<int>	    selidxs_;
+    bool		    itmsarelevels_	= false;
 
     uiListBox*		    listfld_;
 
@@ -124,11 +147,12 @@ virtual uiString getSummary() const
 
 
 
-uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
+uiStratSynthExport::uiStratSynthExport( uiParent* p,
+				        const StratSynth::DataMgr& ssdm )
     : uiDialog(p,uiDialog::Setup(tr("Save synthetic seismics and horizons"),
 				 mNoDlgTitle,
                                  mODHelpKey(mStratSynthExportHelpID) ) )
-    , ss_(ss)
+    , ssdm_(ssdm)
     , randlinesel_(0)
 {
     crnewfld_ = new uiGenInput( this, tr("2D Line"),
@@ -157,18 +181,20 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
 
     uiGroup* selgrp = new uiGroup( this, "Export sel group" );
     selgrp->attach( ensureBelow, sep );
-    getExpObjs();
 
     BufferStringSet nms; addNames( postsds_, nms );
     poststcksel_ = new uiStratSynthOutSel( selgrp, tr("Post-stack line data")
 									,nms );
-    nms.erase(); addNames( sslvls_, nms );
+    nms.erase(); addNames( ssdm_.levels().levels(), nms );
     horsel_ = new uiStratSynthOutSel( selgrp, uiStrings::s2DHorizon(mPlural)
 							    .toLower(), nms );
     horsel_->attach( alignedBelow, poststcksel_ );
+    horsel_->itmsarelevels_ = true;
+
     nms.erase(); addNames( presds_, nms );
     prestcksel_ = new uiStratSynthOutSel( selgrp, tr("PreStack Data"), nms );
     prestcksel_->attach( alignedBelow, horsel_ );
+
     selgrp->setHAlignObj( poststcksel_ );
     selgrp->attach( alignedBelow, geomgrp_ );
 
@@ -192,13 +218,6 @@ uiStratSynthExport::~uiStratSynthExport()
 {
     deepUnRef( postsds_ );
     deepUnRef( presds_ );
-}
-
-
-BufferString uiStratSynthExport::getWinTitle( const StratSynth& ss ) const
-{
-    BufferString ret( "" );
-    return ret;
 }
 
 
@@ -244,35 +263,18 @@ void uiStratSynthExport::fillGeomGroup()
 
 void uiStratSynthExport::getExpObjs()
 {
-    if ( !ss_.nrSynthetics() )
+    if ( ssdm_.nrSynthetics() < 1 )
 	return;
 
-    deepUnRef( postsds_ ); deepUnRef( presds_ ); sslvls_.erase();
-    for ( int idx=0; idx<ss_.nrSynthetics(); idx++ )
+    deepUnRef( postsds_ ); deepUnRef( presds_ );
+    for ( int idx=0; idx<ssdm_.nrSynthetics(); idx++ )
     {
-	ConstRefMan<SyntheticData> sd = ss_.getSyntheticByIdx( idx );
+	ConstRefMan<SyntheticData> sd = ssdm_.getSyntheticByIdx( idx );
 	(sd->isPS() ? presds_ : postsds_) += sd;
     }
 
     deepRef( postsds_ );
     deepRef( presds_ );
-
-    if ( postsds_.isEmpty() )
-	return;
-
-    ConstRefMan<SyntheticData> sd = postsds_[0];
-    const ObjectSet<const TimeDepthModel>& d2t = sd->zerooffsd2tmodels_;
-    const Strat::LevelSet& lvls = Strat::LVLS();
-    MonitorLock ml( lvls );
-    for ( int idx=0; idx<lvls.size(); idx++ )
-    {
-	const Strat::Level lvl = lvls.getByIdx( idx );
-	StratSynthLevel* ssl = new StratSynthLevel( lvl.name(), lvl.color() );
-	ss_.getLevelDepths( lvl, ssl->zvals_ );
-	for ( int trcidx=0; trcidx<ssl->zvals_.size(); trcidx++ )
-	    ssl->zvals_[trcidx] = d2t[trcidx]->getTime( ssl->zvals_[trcidx] );
-	sslvls_ += ssl;
-    }
 }
 
 
@@ -465,20 +467,28 @@ bool uiStratSynthExport::createHor2Ds()
 
     const Survey::Geometry2D* geom2d = Survey::GM().getGeometry(geomid)->as2D();
     StepInterval<Pos::TraceID> trcnrrg = geom2d->data().trcNrRange();
-    for ( int horidx=0; horidx<sslvls_.size(); horidx++ )
+    ssdm_.updateLevelInfo();
+    for ( int horidx=0; horidx<sellvls_.size(); horidx++ )
     {
-	const StratSynthLevel* stratlvl = sslvls_[horidx];
-	BufferString hornm( stratlvl->name() );
+	const Strat::Level stratlvl
+		= Strat::LVLS().getByName( sellvls_.get(horidx) );
+	if ( stratlvl.id().isInvalid() )
+	    continue;
+
+	BufferString hornm( stratlvl.name() );
 	addPrePostFix( hornm );
 	EM::Object* emobj = mgr.createObject(EM::Horizon2D::typeStr(),hornm);
 	mDynamicCastGet(EM::Horizon2D*,horizon2d,emobj);
-	if ( !horizon2d ) continue;
+	if ( !horizon2d )
+	    continue;
+
 	horizon2d->geometry().addLine( geomid );
-	for ( int trcidx=0; trcidx<stratlvl->zvals_.size(); trcidx++ )
+	StratSynth::DataMgr::ZValueSet zvals;
+	ssdm_.getLevelDepths( stratlvl.id(), zvals );
+	for ( int trcidx=0; trcidx<zvals.size(); trcidx++ )
 	{
 	    const int trcnr = trcnrrg.atIndex( trcidx );
-	    horizon2d->setZPos( geomid, trcnr,
-			       stratlvl->zvals_[trcidx], false );
+	    horizon2d->setZPos( geomid, trcnr, zvals[trcidx], false );
 	}
 
 	PtrMan<Executor> saver = horizon2d->saver();
@@ -490,7 +500,7 @@ bool uiStratSynthExport::createHor2Ds()
     return false;
 }
 
-void uiStratSynthExport::removeNonSelected()
+void uiStratSynthExport::getSelections()
 {
     TypeSet<int> selids;
 
@@ -519,24 +529,17 @@ void uiStratSynthExport::removeNonSelected()
 	deepUnRef( presds_ );
 
     if ( horsel_->isChecked() )
-    {
-	selids = horsel_->selidxs_;
-	for ( int idx=sslvls_.size()-1; idx>=0; idx-- )
-	{
-	    if ( !selids.isPresent(idx) )
-		sslvls_.removeSingle( idx );
-	}
-    }
+	sellvls_ = horsel_->selnms_;
     else
-	sslvls_.erase();
+	sellvls_.erase();
 }
 
 
 bool uiStratSynthExport::acceptOK()
 {
-    removeNonSelected();
+    getSelections();
 
-    if ( presds_.isEmpty() && postsds_.isEmpty() && sslvls_.isEmpty() )
+    if ( presds_.isEmpty() && postsds_.isEmpty() && sellvls_.isEmpty() )
     {
 	getExpObjs();
 	mErrRet( tr("Nothing selected for export"), false );
