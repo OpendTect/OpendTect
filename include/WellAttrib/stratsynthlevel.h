@@ -25,12 +25,8 @@ public:
     typedef Strat::Level::ID	ID;
     typedef TypeSet<float>	ZValueSet;
 
-			Level( ID id, const TypeSet<float>* dpts=0 )
-			    : id_(id)
-			{
-			    if ( dpts )
-				zvals_ = *dpts;
-			}
+			Level( ID lvlid )
+			    : id_(lvlid)	{}
 
     int			size() const		{ return zvals_.size(); }
     ID			id() const		{ return id_; }
@@ -38,7 +34,7 @@ public:
     Color		color() const;
 
     const ID		id_;
-    ZValueSet		zvals_; //!< one for each synthetic
+    ZValueSet		zvals_; //!< one for each model/synthetic
 
     static const Level&	undef();
     static Level&	dummy();

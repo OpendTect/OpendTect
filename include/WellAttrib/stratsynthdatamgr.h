@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "elasticpropsel.h"
 #include "raysynthgenerator.h"
 #include "syntheticdata.h"
-// #include "synthseis.h"
 #include "stratsynthlevel.h"
 #include "uistring.h"
 
