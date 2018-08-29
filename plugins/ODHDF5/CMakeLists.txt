@@ -19,7 +19,7 @@ if ( HDF5_FOUND )
       hdf5accessimpl.cc
       hdf5readerimpl.cc
       hdf5writerimpl.cc
-      hdf5pi.cc
+      odhdf5pi.cc
   )
 
   set ( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} ${OD_ATTRIB_EXECS} ${OD_VOLUME_EXECS}

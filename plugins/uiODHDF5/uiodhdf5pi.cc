@@ -45,7 +45,7 @@ void uiHDF5PIMgr::settDlgLaunchCB( CallBacker* cb )
 }
 
 
-mDefODPluginInfo(uiHDF5)
+mDefODPluginInfo(uiODHDF5)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"HDF5 Support", "HDF5 File Access",
@@ -59,7 +59,7 @@ mDefODPluginInfo(uiHDF5)
 }
 
 
-mDefODInitPlugin(uiHDF5)
+mDefODInitPlugin(uiODHDF5)
 {
     mDefineStaticLocalObject( uiHDF5PIMgr*, mgr, = 0 );
     if ( mgr )

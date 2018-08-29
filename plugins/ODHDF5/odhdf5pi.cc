@@ -12,8 +12,8 @@ ________________________________________________________________________
 #include "hdf5accessimpl.h"
 
 
-mDefODPluginEarlyLoad(HDF5)
-mDefODPluginInfo(HDF5)
+mDefODPluginEarlyLoad(ODHDF5)
+mDefODPluginInfo(ODHDF5)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,
 	( "HDF5 Support (Base)", "HDF5 File Access",
@@ -23,7 +23,7 @@ mDefODPluginInfo(HDF5)
 }
 
 
-mDefODInitPlugin(HDF5)
+mDefODInitPlugin(ODHDF5)
 {
     HDF5::AccessProviderImpl::initHDF5();
     return 0;

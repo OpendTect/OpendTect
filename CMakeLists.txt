@@ -74,7 +74,7 @@ set( OD_PLUGINS
 	ExpAttribs
 	GLCM
 	GMT
-	HDF5
+	ODHDF5
 	Hello
 	Madagascar
 	MadagascarAttribs
@@ -88,7 +88,7 @@ set( OD_PLUGINS
 	uiGLCM
 	uiGMT
 	uiGoogleIO
-	uiHDF5
+	uiODHDF5
 	uiHello
 	uiImpGPR
 	uiMadagascar

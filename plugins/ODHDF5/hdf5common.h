@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "hdf5mod.h"
+#include "odhdf5mod.h"
 #include "hdf5access.h"
 
 namespace HDF5

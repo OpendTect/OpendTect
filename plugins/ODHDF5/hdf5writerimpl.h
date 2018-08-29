@@ -17,7 +17,7 @@ ________________________________________________________________________
 namespace HDF5
 {
 
-mExpClass(HDF5) WriterImpl : public Writer
+mExpClass(ODHDF5) WriterImpl : public Writer
 			   , public AccessImpl
 { mODTextTranslationClass(HDF5::Writer)
 public:

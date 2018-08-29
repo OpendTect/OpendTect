@@ -10,13 +10,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uihdf5mod.h"
+#include "uiodhdf5mod.h"
 #include "uisettings.h"
 
 class uiGenInput;
 
 
-mExpClass(uiHDF5) uiHDF5Settings : public uiSettingsSubGroup
+mExpClass(uiODHDF5) uiHDF5Settings : public uiSettingsSubGroup
 { mODTextTranslationClass(uiHDF5Settings);
 public:
 

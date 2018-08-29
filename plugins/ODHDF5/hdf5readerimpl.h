@@ -17,7 +17,7 @@ ________________________________________________________________________
 namespace HDF5
 {
 
-mExpClass(HDF5) ReaderImpl : public Reader
+mExpClass(ODHDF5) ReaderImpl : public Reader
 			   , public AccessImpl
 {
 public:

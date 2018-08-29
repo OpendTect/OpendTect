@@ -21,7 +21,7 @@ class WriterImpl;
 
 //!brief Mixin for common stuff
 
-mExpClass(HDF5) AccessImpl
+mExpClass(ODHDF5) AccessImpl
 {
 public:
 
@@ -74,7 +74,7 @@ private:
 };
 
 
-mExpClass(HDF5) AccessProviderImpl : public AccessProvider
+mExpClass(ODHDF5) AccessProviderImpl : public AccessProvider
 {
 public:
 

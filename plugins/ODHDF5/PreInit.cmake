@@ -7,5 +7,5 @@
 include( ODHDF5Utils )
 
 if ( HDF5_FOUND )
-  set( OD_PLUGINS ${OD_PLUGINS} HDF5 )
+    set( OD_PLUGINS ${OD_PLUGINS} ODHDF5 )
 endif()
