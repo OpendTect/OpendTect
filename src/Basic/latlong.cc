@@ -9,12 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "latlong.h"
-#include "survinfo.h"
-#include "separstr.h"
+
 #include "coordsystem.h"
+#include "separstr.h"
+#include "survinfo.h"
+
 #include <math.h>
+#include <string.h>
 
 
+// LatLong
 bool LatLong::operator==( const LatLong& ll ) const
 {
     return mIsEqual(ll.lat_,lat_,mDefEps) &&
@@ -28,7 +32,7 @@ Coord LatLong::transform( const LatLong& ll, bool towgs84,
     if ( !coordsys )
 	coordsys = SI().getCoordSystem();
 
-    return coordsys->fromGeographic( ll, towgs84 );
+    return coordsys ? coordsys->fromGeographic( ll, towgs84 ) : Coord::udf();
 }
 
 
@@ -38,7 +42,7 @@ LatLong LatLong::transform( const Coord& c, bool towgs84,
     if ( !coordsys )
 	coordsys = SI().getCoordSystem();
 
-    return coordsys->toGeographic( c, towgs84 );
+    return coordsys ? coordsys->toGeographic( c, towgs84 ) : LatLong::udf();
 }
 
 
@@ -87,4 +91,56 @@ void LatLong::setDMS( bool lat, int d, int m, float s )
     const double one60th = 1. / 60.;
     const double one3600th = one60th * one60th;
     v = d + one60th * m + one3600th * s;
+}
+
+
+bool LatLong::setFromString( const char* str, bool lat )
+{
+// Supports strings formatted as dddmmssssh or ggg.gggggh
+// h is not mandatory
+    BufferString llstr = str;
+    if ( llstr.isEmpty() )
+	return false;
+
+    char& lastchar = llstr[llstr.size()-1];
+    const bool hasSW = lastchar=='S' || lastchar=='W';
+    if ( lastchar=='N' || lastchar=='E' || hasSW )
+	lastchar = '\0';
+
+    const char* nrstr = llstr.find( '.' );
+    if ( nrstr )
+    {
+	double& val = lat ? lat_ : lng_;
+	val = toDouble( llstr );
+	if ( hasSW && val>0 )
+	    val *= -1;
+    }
+    else
+    {
+	const int len = llstr.size();
+
+	// parse seconds
+	BufferString buf;
+	strncpy(buf.getCStr(),llstr.buf()+(len-4),4);
+	buf[4] = '\0';
+	const int secs = toInt( buf );
+
+	// parse minutes
+	buf.setEmpty();
+	strncpy(buf.getCStr(),llstr.buf()+(len-6),2);
+	buf[2] = '\0';
+	const int mins = toInt( buf );
+
+	// parse degrees
+	buf.setEmpty();
+	strncpy(buf.getCStr(),llstr.buf(),len-6);
+	buf[len-6] = '\0';
+	int degs = toInt( buf );
+	if ( hasSW && degs>0 )
+	    degs *= -1;
+
+	setDMS( lat, degs, mins, secs );
+    }
+
+    return true;
 }

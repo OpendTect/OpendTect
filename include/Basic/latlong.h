@@ -50,6 +50,8 @@ public:
     void		getDMS(bool lat,int&,int&,float&) const;
     void		setDMS(bool lat,int,int,float);
 
+    bool		setFromString(const char*,bool lat);
+
     double		lat_;
     double		lng_;
 };
