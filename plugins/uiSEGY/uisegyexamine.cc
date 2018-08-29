@@ -288,14 +288,11 @@ int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, uiString& emsg )
 
 bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 {
-    BufferString cmd( "od_SEGYExaminer --nrtrcs " );
-    cmd += su.nrtrcs_;
-    if ( su.fp_.ns_ > 0 )
-	{ cmd += " --ns "; cmd += su.fp_.ns_; }
-    if ( su.fp_.fmt_ > 0 )
-	{ cmd += " --fmt "; cmd += su.fp_.fmt_; }
-    if ( su.fp_.byteswap_ )
-	{ cmd += " --swapbytes "; cmd += su.fp_.byteswap_; }
+    OS::MachineCommand cmd( "od_SEGYExaminer" );
+    cmd.addKeyedArg( "nrtrcs", su.nrtrcs_ );
+    if ( su.fp_.ns_ > 0 ) cmd.addKeyedArg( "ns", su.fp_.ns_ );
+    if ( su.fp_.fmt_ > 0 ) cmd.addKeyedArg( "fmt", su.fp_.fmt_ );
+    if ( su.fp_.byteswap_ ) cmd.addKeyedArg( "swapbytes", su.fp_.byteswap_ );
     if ( su.fs_.isMulti() )
     {
 	FileMultiString fms;
@@ -304,12 +301,15 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 	fms += su.fs_.nrs_.step;
 	if ( su.fs_.zeropad_ > 1 )
 	    fms += su.fs_.zeropad_;
-	cmd += " --filenrs '"; cmd += fms; cmd += "'";
+	cmd.addKeyedArg( "filenrs", fms );
     }
 
     BufferString fnm( su.fs_.fileName() );
     fnm.replace( "*", "+x+" );
-    return ExecODProgram( cmd, fnm );
+    cmd.addArg( fnm );
+    OS::CommandExecPars execpars; execpars.launchtype( OS::RunInBG );
+    OS::CommandLauncher cl( cmd );
+    return cl.execute( execpars );
 }
 
 

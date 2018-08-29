@@ -906,11 +906,3 @@ bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp, BufferString* out,
     return doExecOSCmd( esccmd, ltyp, false, out, err );
 }
 
-
-bool ExecODProgram( const char* prognm, const char* args, OS::LaunchType ltyp )
-{
-    BufferString esccmd( prognm );
-    escapeSpaces( esccmd );
-    BufferString fullcmd( esccmd, " ", args );
-    return doExecOSCmd( fullcmd, ltyp, true, 0, 0 );
-}

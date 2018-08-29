@@ -391,15 +391,18 @@ void uiSurveyManager::editButPushed( CallBacker* )
 void uiSurveyManager::launchEditor( bool forcreate )
 {
     const char* prognm = "od_Edit_Survey";
-    BufferString cmd( prognm );
-    OS::CommandLauncher::addQuotesIfNeeded( cmd );
-
+    OS::MachineCommand cmd( prognm );
     BufferString dirnmincmd( dataroot_ );
     OS::CommandLauncher::addQuotesIfNeeded( dirnmincmd );
-    cmd.add( " --dataroot " ).add( dirnmincmd ).add( " " );
-    cmd.add( forcreate ? "--create" : getDirName() );
+    cmd.addKeyedArg( "dataroot", dirnmincmd );
+    if ( forcreate )
+	cmd.addFlag( "create" );
+    else
+	cmd.addArg( getDirName() );
 
-    const bool res = OS::ExecCommand( cmd, OS::RunInBG, 0, 0 );
+    OS::CommandLauncher cl( prognm );
+    OS::CommandExecPars execpars; execpars.launchtype( OS::RunInBG );
+    const bool res = cl.execute( execpars );
     if ( !res )
 	uiMSG().error( tr("Could not launch '%1'.\nIt should be located in:"
 			"\n%2\n\nPlease check your installation.")

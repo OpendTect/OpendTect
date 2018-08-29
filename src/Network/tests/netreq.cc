@@ -267,12 +267,15 @@ int mTestMainFnName(int argc, char** argv)
 
     BufferString echoapp = "test_netreqechoserver";
     clParser().getVal( "serverapp", echoapp );
+    OS::MachineCommand echocmd( echoapp );
+    echocmd.addKeyedArg( "port", runner->port_ );
+    echocmd.addFlag( "quiet" );
 
-    BufferString args( "--port ", runner->port_ );
-    args.add( " --quiet " );
+    OS::CommandExecPars execpars; execpars.launchtype( OS::RunInBG );
+    OS::CommandLauncher cl( echocmd );
 
     if ( !clParser().hasKey("noechoapp")
-      && !ExecODProgram( echoapp, args.buf() ))
+      && !cl.execute(execpars))
     {
 	od_ostream::logStream() << "Cannot start " << echoapp << "\n";
 	return 1;

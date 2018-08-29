@@ -50,10 +50,10 @@ public:
 
     bool		noeventloop_;
     int			port_;
+    int			timeout_;
     const char*		prefix_;
     bool		exitonfinish_;
-    BufferString	serverapp_;
-    BufferString	serverarg_;
+    OS::MachineCommand	servercmd_;
 };
 
 
@@ -64,9 +64,11 @@ bool TestRunner::testNetSocket( bool closeserver )
 
     if ( !connection.connectToHost("localhost",port_,true) )
     {
-	if ( !ExecODProgram(serverapp_,serverarg_) )
+	OS::CommandLauncher cl( servercmd_ );
+	OS::CommandExecPars execpars; execpars.launchtype( OS::RunInBG );
+	if ( !cl.execute(execpars) )
 	{
-	    od_ostream::logStream() << "Cannot start " << serverapp_;
+	    od_ostream::logStream() << "Cannot start " << servercmd_.program();
 	    return false;
 	}
 
@@ -164,16 +166,24 @@ int mTestMainFnName(int argc, char** argv)
     ApplicationData app;
 
     PtrMan<TestRunner> runner = new TestRunner;
-    runner->serverapp_ = "test_echoserver";
-    runner->serverarg_ = "--timeout 600 --port 1025 --quiet";
-    runner->port_ = 1025;
     runner->prefix_ = "[ No event loop ]\t";
     runner->exitonfinish_ = false;
     runner->noeventloop_ = true;
 
-    clParser().getVal( "serverapp", runner->serverapp_, true );
-    clParser().getVal( "serverarg", runner->serverarg_, true );
+    BufferString serverapp = "test_echoserver";
+    clParser().getVal( "serverapp", serverapp, true );
+    runner->servercmd_.setProgram( serverapp );
+
+    runner->port_ = 1025;
+    clParser().getVal( "timeout", runner->timeout_, true );
+    runner->servercmd_.addKeyedArg( "timeout", runner->timeout_ );
+
+    runner->timeout_ = 600;
     clParser().getVal( "port", runner->port_, true );
+    runner->servercmd_.addKeyedArg( "port", runner->port_ );
+
+    if ( clParser().hasKey("quiet") )
+	runner->servercmd_.addFlag( "quiet" );
 
     od_int64 totalmem, freemem;
     OD::getSystemMemory( totalmem, freemem );
