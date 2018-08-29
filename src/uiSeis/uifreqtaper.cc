@@ -319,7 +319,7 @@ void uiFreqTaperGrp::freqChanged( CallBacker* )
 	newrg.start = newrg.stop-1;
     if ( newrg.stop < newrg.start )
 	newrg.stop = newrg.start+1;
-    newrg.limitTo( Interval<float>(0.05f,datasz_) );
+    newrg.limitTo( Interval<float>(0.05f,(float)datasz_) );
 
     td.rg_ = newrg;
     td.refrg_ = newrg;
