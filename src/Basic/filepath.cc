@@ -530,11 +530,7 @@ void File::Path::addPart( const char* fnm )
 	}
     }
 
-    //TODO Launching OpendTect is taking too much time on windows platform.
-    // Hence added a temporary fix. Need to find solution.
-    static bool supportwinlinks = GetEnvVarYN( "OD_ALLOW_WINDOWS_LINKS" );
-    if ( supportwinlinks )
-	conv2TrueDirIfLink();
+    conv2TrueDirIfLink();
 }
 
 
@@ -561,8 +557,12 @@ void File::Path::compress( int startlvl )
 void File::Path::conv2TrueDirIfLink()
 {
 #ifdef __win__
-    if ( isURI() )
+    //TODO Launching OpendTect is taking too much time on windows platform.
+    // Hence added a temporary fix. Need to find solution.
+    static bool supportwinlinks = GetEnvVarYN( "OD_ALLOW_WINDOWS_LINKS" );
+    if ( !supportwinlinks || isURI() )
 	return;
+
     BufferString dirnm = dirUpTo( -1 );
     if ( File::exists(dirnm) )
 	return;
