@@ -155,11 +155,13 @@ void uiWellDispPropDlg::addPanel()
 						props.markers(), allmarkernms );
 	ts_->addTab( mrkrspanelgrp,
 		     toUiString( mrkrs->mrkprops().subjectName()) );
+	ts_->showCloseButton( mrkrspanelgrp, false, true );
 
 	uiGroup* addpaneltabgrp = new uiGroup( ts_->tabGroup(),
 					       OD::String::empty() );
 	ts_->addTab( addpaneltabgrp );
 	ts_->setTabIcon( ts_->size()-1, "plus" );
+	ts_->showCloseButton( addpaneltabgrp, false, true );
     }
     else
     {
@@ -200,6 +202,7 @@ void uiWellDispPropDlg::addLogPanel( uiTabStack* logtab )
 					     OD::String::empty() );
 	logtab->addTab( addlogtabgrp );
 	logtab->setTabIcon( addlogtabgrp, "plus" );
+	logtab->showCloseButton( addlogtabgrp, false, true );
 	return;
     }
 
