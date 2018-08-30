@@ -88,7 +88,7 @@ int uiEditObjectList::currentItem() const
 
 void uiEditObjectList::setItems( const BufferStringSet& itms, int newcur )
 {
-    setItems( itms );
+    setItems( itms.getUiStringSet() );
 }
 
 
