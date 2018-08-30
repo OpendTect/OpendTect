@@ -27,7 +27,8 @@ mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {mODTextTranslationClass(uiWellDispPropDlg)
 public:
 				uiWellDispPropDlg(uiParent*,Well::Data*,
-						  bool is2ddisplay=false);
+						  bool is2ddisplay=false,
+						  bool multipanel=false);
 				~uiWellDispPropDlg();
 
     Notifier<uiWellDispPropDlg>	applyAllReq;
@@ -45,6 +46,7 @@ protected:
     uiTabStack*			ts_;
     ObjectSet<uiWellDispProperties> propflds_;
     bool			is2ddisplay_;
+    bool			multipanel_;
 
     virtual void		getFromScreen();
     virtual void		putToScreen();
@@ -58,6 +60,16 @@ protected:
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
     void			tabSel(CallBacker*);
+    void			logTabSelChgngeCB(CallBacker*);
+
+    void			createMultiPanelUI();
+    void			createSinglePanelUI();
+
+    void			addPanel();
+    void			addLogPanel(uiTabStack*);
+
+private:
+    uiGroup*			createLogPropertiesGrp(uiTabStack*);
 };
 
 
