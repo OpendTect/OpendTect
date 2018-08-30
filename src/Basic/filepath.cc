@@ -480,6 +480,12 @@ void FilePath::compress( int startlvl )
 void FilePath::trueDirIfLink()
 {
 #ifdef __win__
+    //TODO Launching OpendTect is taking too much time on windows platform.
+    // Hence added a temporary fix. Need to find solution.
+    static bool supportwinlinks = GetEnvVarYN( "OD_ALLOW_WINDOWS_LINKS" );
+    if ( !supportwinlinks )
+	return;
+
     BufferString dirnm = dirUpTo( -1 );
     if ( File::exists(dirnm) )
 	return;
