@@ -13,48 +13,42 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "iopar.h"
 #include "enums.h"
+#include "dbkey.h"
 
 
 mExpClass(Seis) SynthGenParams
 {
 public:
+
 			SynthGenParams();
+    bool		operator==(const SynthGenParams&) const;
+			mImplSimpleIneqOper(SynthGenParams);
 
     enum SynthType	{ PreStack, ZeroOffset, StratProp, AngleStack,
 			  AVOGradient };
-    			mDeclareEnumUtils(SynthType);
+			mDeclareEnumUtils(SynthType);
 
     SynthType		synthtype_;
+    IOPar		raypars_;
+    DBKey		wvltid_;
     BufferString	name_;
     BufferString	inpsynthnm_;
-    IOPar		raypars_;
-    BufferString	wvltnm_;
     Interval<float>	anglerg_;
 
     static const char*	sKeyInvalidInputPS()	{ return "Invalid Input"; }
-    
+
     bool		hasOffsets() const;
-    bool		isPreStack() const 	{ return synthtype_==PreStack; }
-    bool		isPSBased() const
-    			{ return synthtype_==AngleStack ||
-			    	 synthtype_==AVOGradient; }
-    void		createName(BufferString&) const;
-    			//!<Create name from wvlt and raypars
+    bool		isPreStack() const	{ return synthtype_==PreStack; }
+    bool		isPSBased() const	{ return synthtype_>StratProp; }
+    BufferString	createName() const;	//!< from wvlt and raypars
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
     void		setDefaultValues();
+    BufferString	waveletName() const;
+    void		setWaveletName(const char*);
 
-bool operator==( const SynthGenParams& gp ) const
-{
-    bool hassameanglerg = true;
-    bool hassameinput = true;
-    if ( gp.isPSBased() )
-    {
-	hassameanglerg = anglerg_==gp.anglerg_;
-	hassameinput = inpsynthnm_==gp.inpsynthnm_;
-    }
+protected:
 
-    return isPreStack()==gp.isPreStack() && wvltnm_==gp.wvltnm_ &&
-           raypars_==gp.raypars_ && hassameanglerg && hassameinput; }
+    BufferString	fallbackwvltnm_; //!< if wvlt not stored in DB
 
 };

@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "synthseis.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
-#include "stratsynthgenparams.h"
+#include "synthgenparams.h"
 #include "statruncalc.h"
 #include "ioobjctxt.h"
 #include "ioobj.h"
@@ -484,12 +484,10 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     TypeSet<ElasticModel> aimodels;
     aimodels += aimodel_;
     SynthGenParams sgp;
-    sgp.wvltnm_ = wvlt.name();
+    sgp.setWaveletName( wvlt.name() );
     PtrMan<RaySynthGenerator> gen = 0;
     if ( data_.sd_ )
-    {
 	gen = new RaySynthGenerator( data_.sd_, true );
-    }
     else
 	gen = new RaySynthGenerator( &aimodels, sgp );
 

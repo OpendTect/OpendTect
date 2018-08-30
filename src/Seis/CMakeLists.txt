@@ -86,7 +86,7 @@ set(OD_MODULE_SOURCES
 	seisvolprovider.cc
 	seiswrite.cc
 	seiszaxisstretcher.cc
-	stratsynthgenparams.cc
+	synthgenparams.cc
 	syntheticdata.cc
 	synthseis.cc
 	timedepthconv.cc

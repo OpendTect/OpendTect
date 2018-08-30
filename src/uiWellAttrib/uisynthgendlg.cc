@@ -172,18 +172,14 @@ void uiSynthGenDlg::angleInpChanged( CallBacker* )
 	return;
     }
 
-    BufferString nm;
-    datamgr_.genParams().createName( nm );
-    namefld_->setText( nm );
+    namefld_->setText( datamgr_.genParams().createName() );
 }
 
 
 void uiSynthGenDlg::parsChanged( CallBacker* )
 {
     if ( !getFromScreen() ) return;
-    BufferString nm;
-    datamgr_.genParams().createName( nm );
-    namefld_->setText( nm );
+    namefld_->setText( datamgr_.genParams().createName() );
 }
 
 
@@ -296,9 +292,7 @@ void uiSynthGenDlg::typeChg( CallBacker* )
 	 SynthGenParams::SynthTypeDef().parse( curkey );
     datamgr_.genParams().setDefaultValues();
     putToScreen();
-    BufferString nm;
-    datamgr_.genParams().createName( nm );
-    namefld_->setText( nm );
+    namefld_->setText( datamgr_.genParams().createName() );
 }
 
 
@@ -307,7 +301,7 @@ void uiSynthGenDlg::putToScreen()
     NotifyStopper parschgstopper( synthseis_->parsChanged );
     NotifyStopper angparschgstopper( angleinpfld_->valuechanged );
     const SynthGenParams& genparams = datamgr_.genParams();
-    synthseis_->setWavelet( genparams.wvltnm_ );
+    synthseis_->setWavelet( genparams.wvltid_ );
     namefld_->setText( genparams.name_ );
 
     const int curitem = synthtypedefs_.indexOf(genparams.synthtype_);
@@ -380,7 +374,7 @@ bool uiSynthGenDlg::getFromScreen()
     }
 
     synthseis_->fillPar( genparams.raypars_ );
-    genparams.wvltnm_ = synthseis_->getWaveletName();
+    genparams.wvltid_ = synthseis_->waveletID();
     genparams.name_ = namefld_->text();
 
     return true;
@@ -389,10 +383,8 @@ bool uiSynthGenDlg::getFromScreen()
 
 void uiSynthGenDlg::updateWaveletName()
 {
-    synthseis_->setWavelet( datamgr_.genParams().wvltnm_ );
-    BufferString nm;
-    datamgr_.genParams().createName( nm );
-    namefld_->setText( nm );
+    synthseis_->setWavelet( datamgr_.genParams().wvltid_ );
+    namefld_->setText( datamgr_.genParams().createName() );
 }
 
 

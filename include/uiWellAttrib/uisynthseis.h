@@ -31,8 +31,9 @@ public:
 
     void			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
-    void			setWavelet(const char* wvltnm);
-    const char*			getWaveletName() const;
+    void			setWavelet(const DBKey&);
+    DBKey			waveletID() const;
+    BufferString		waveletName() const;
     void			updateDisplayForPSBased();
     void			setRayTracerType(const char*);
     void			updateFieldDisplay();

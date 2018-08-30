@@ -16,7 +16,7 @@
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
-#include "stratsynthgenparams.h"
+#include "synthgenparams.h"
 #include "syntheticdataimpl.h"
 
 #define mErrRet(msg, retval) { errmsg_ = msg; return retval; }

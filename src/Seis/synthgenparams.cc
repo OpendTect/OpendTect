@@ -9,14 +9,17 @@ ________________________________________________________________________
 -*/
 
 
-#include "stratsynthgenparams.h"
+#include "synthgenparams.h"
 
+#include "dbman.h"
+#include "ioobj.h"
 #include "raytrace1d.h"
 #include "raytracerrunner.h"
 #include "synthseis.h"
 
 static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
 static const char* sKeySynthType()		{ return "Synthetic Type"; }
+static const char* sKeyWaveLetID()		{ return "Wavelet.ID"; }
 static const char* sKeyWaveLetName()		{ return "Wavelet Name"; }
 static const char* sKeyRayPar()			{ return "Ray Parameter"; }
 static const char* sKeyInput()			{ return "Input Synthetic"; }
@@ -54,6 +57,20 @@ SynthGenParams::SynthGenParams()
     setDefaultValues();
 }
 
+
+bool SynthGenParams::operator==( const SynthGenParams& oth ) const
+{
+    if ( synthtype_ != oth.synthtype_
+	    || raypars_ != oth.raypars_
+	    || wvltid_ != oth.wvltid_ )
+	return false;
+
+    return !isPSBased()
+	|| (anglerg_ == oth.anglerg_ && inpsynthnm_ == oth.inpsynthnm_);
+}
+
+
+
 void SynthGenParams::setDefaultValues()
 {
     anglerg_ = sDefaultAngleRange;
@@ -88,6 +105,21 @@ bool SynthGenParams::hasOffsets() const
 }
 
 
+BufferString SynthGenParams::waveletName() const
+{
+    BufferString dbnm = nameOf( wvltid_ );
+    return dbnm.isEmpty() ? fallbackwvltnm_ : dbnm;
+}
+
+
+void SynthGenParams::setWaveletName( const char* nm )
+{
+    fallbackwvltnm_ = nm;
+    PtrMan<IOObj> ioobj = DBM().getByName( IOObjContext::Seis, nm, "Wavelet" );
+    wvltid_ = ioobj ? ioobj->key() : DBKey();
+}
+
+
 void SynthGenParams::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), name_ );
@@ -98,7 +130,8 @@ void SynthGenParams::fillPar( IOPar& par ) const
 	par.set( sKeyInput(), inpsynthnm_ );
 	par.set( sKeyAngleRange(), anglerg_ );
     }
-    par.set( sKeyWaveLetName(), wvltnm_ );
+    par.set( sKeyWaveLetID(), wvltid_ );
+    par.set( sKeyWaveLetName(), waveletName() ); // bw compat
     IOPar raypar;
     raypar.mergeComp( raypars_, sKeyRayPar() );
     par.merge( raypar );
@@ -108,9 +141,16 @@ void SynthGenParams::fillPar( IOPar& par ) const
 void SynthGenParams::usePar( const IOPar& par )
 {
     par.get( sKey::Name(), name_ );
-    par.get( sKeyWaveLetName(), wvltnm_ );
+    if ( !par.get(sKeyWaveLetID(),wvltid_) )
+    {
+	BufferString wvltnm;
+	if ( par.get(sKeyWaveLetName(),wvltnm) )
+	    setWaveletName( wvltnm );
+    }
+
     PtrMan<IOPar> raypar = par.subselect( sKeyRayPar() );
     raypars_ = *raypar;
+
     if ( par.hasKey( sKeyIsPreStack()) )
     {
 	bool isps = false;
@@ -136,32 +176,36 @@ void SynthGenParams::usePar( const IOPar& par )
 }
 
 
-void SynthGenParams::createName( BufferString& nm ) const
+BufferString SynthGenParams::createName() const
 {
+    BufferString ret;
+
     if ( synthtype_==SynthGenParams::AngleStack ||
 	 synthtype_==SynthGenParams::AVOGradient )
     {
-	nm = SynthGenParams::toString( synthtype_ );
-	nm += " ["; nm += anglerg_.start; nm += ",";
-	nm += anglerg_.stop; nm += "] degrees";
-	return;
+	ret = SynthGenParams::toString( synthtype_ );
+	ret.add( " [" )
+	   .add( anglerg_.start ).add( "," ).add( anglerg_.stop )
+	   .add( "] degrees" );
+	return ret;
     }
-    nm = wvltnm_;
+
+    ret = waveletName();
     TypeSet<float> offset;
     raypars_.get( RayTracer1D::sKeyOffset(), offset );
     const int offsz = offset.size();
     if ( offsz )
     {
-	nm += " ";
-	nm += "Offset ";
-	nm += ::toString( offset[0] );
+	ret.add( " Offset " ).add( ::toString(offset[0]) );
 	if ( offsz > 1 )
 	{
-	    nm += "-"; nm += offset[offsz-1];
+	    ret.add( "-" ).add( offset[offsz-1] );
 	    bool nmocorrected = true;
-	    if ( raypars_.getYN(Seis::SynthGenBase::sKeyNMO(),nmocorrected) &&
-		 !nmocorrected )
-		nm += " uncorrected";
+	    if ( raypars_.getYN(Seis::SynthGenBase::sKeyNMO(),nmocorrected)
+	      && !nmocorrected )
+		ret.add( " uncorrected" );
 	}
     }
+
+    return ret;
 }

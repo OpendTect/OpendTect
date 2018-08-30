@@ -78,7 +78,7 @@ void StratSynth::DataMgr::setWavelet( const Wavelet* wvlt )
 	wvlt_->unRef();
     wvlt_ = wvlt;
     wvlt_->ref();
-    genparams_.wvltnm_ = wvlt_->name();
+    genparams_.setWaveletName( wvlt_->name() );
 }
 
 
@@ -202,7 +202,7 @@ RefMan<SyntheticData> StratSynth::DataMgr::replaceSynthetic( int id )
 RefMan<SyntheticData> StratSynth::DataMgr::addDefaultSynthetic()
 {
     genparams_.synthtype_ = SynthGenParams::ZeroOffset;
-    genparams_.createName( genparams_.name_ );
+    genparams_.name_ = genparams_.createName();
     RefMan<SyntheticData> sd = addSynthetic();
     return sd;
 }
@@ -734,12 +734,9 @@ bool StratSynth::DataMgr::runSynthGen( RaySynthGenerator& synthgen,
     synthgen.setName( capt.buf() );
     const IOPar& raypars = synthgenpar.raypars_;
     synthgen.usePar( raypars );
-    bool needsetwvlt = synthgenpar.wvltnm_.isEmpty();
+    bool needsetwvlt = synthgenpar.wvltid_.isInvalid();
     if ( !needsetwvlt )
-    {
-	const DBKey ky = WaveletMGR().getIDByName( synthgenpar.wvltnm_ );
-	synthgen.setWavelet( WaveletMGR().fetch(ky) );
-    }
+	synthgen.setWavelet( WaveletMGR().fetch(synthgenpar.wvltid_) );
 
     synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
     return trprov_->execute( synthgen );

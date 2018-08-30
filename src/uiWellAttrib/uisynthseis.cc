@@ -120,15 +120,21 @@ void uiSynthSeisGrp::setRayTracerType( const char* type )
 }
 
 
-const char* uiSynthSeisGrp::getWaveletName() const
+DBKey uiSynthSeisGrp::waveletID() const
+{
+    return wvltfld_->key();
+}
+
+
+BufferString uiSynthSeisGrp::waveletName() const
 {
     return wvltfld_->getInput();
 }
 
 
-void uiSynthSeisGrp::setWavelet( const char* wvltnm )
+void uiSynthSeisGrp::setWavelet( const DBKey& id )
 {
-    wvltfld_->setInputText( wvltnm );
+    wvltfld_->setInput( id );
 }
 
 #define mIsZeroOffset( offsets ) \

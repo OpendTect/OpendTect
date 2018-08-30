@@ -625,7 +625,7 @@ void uiStratSynthDisp::setCurrentWavelet()
 
     if ( wvasd )
     {
-	wvasd->setWavelet( wvltfld_->getInput() );
+	wvasd->setWavelet( wvltfld_->key() );
 	currentwvasynthetic_ = wvasd;
 	if ( synthgendlg_ )
 	    synthgendlg_->updateWaveletName();
@@ -643,7 +643,7 @@ void uiStratSynthDisp::setCurrentWavelet()
     mDynamicCastGet(const StratPropSyntheticData*,prsd,vdsd.ptr());
     if ( vdsd && !prsd )
     {
-	vdsd->setWavelet( wvltfld_->getInput() );
+	vdsd->setWavelet( wvltfld_->key() );
 	currentvdsynthetic_ = vdsd;
 	if ( vdsynthnm != wvasynthnm )
 	{
@@ -1621,7 +1621,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	    if ( !synthpar ) continue;
 	    SynthGenParams genparams;
 	    genparams.usePar( *synthpar );
-	    wvltfld_->setInputText( genparams.wvltnm_ );
+	    wvltfld_->setInput( genparams.wvltid_ );
 	    curDM().setWavelet( wvltfld_->getWavelet() );
 	    RefMan<SyntheticData> sd = curDM().addSynthetic( genparams );
 	    if ( !sd )

@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "syntheticdataimpl.h"
 
 #include "datapackbase.h"
-#include "stratsynthgenparams.h"
+#include "synthgenparams.h"
 #include "velocitycalc.h"
 
 #include "array1dinterpol.h"
@@ -157,7 +157,7 @@ void SyntheticData::fillGenParams( SynthGenParams& sgp ) const
 {
     sgp.inpsynthnm_.setEmpty();
     sgp.raypars_ = raypars_;
-    sgp.wvltnm_ = wvltnm_;
+    sgp.wvltid_ = wvltid_;
     sgp.name_ = name();
     sgp.synthtype_ = synthType();
 }
@@ -166,7 +166,7 @@ void SyntheticData::fillGenParams( SynthGenParams& sgp ) const
 void SyntheticData::useGenParams( const SynthGenParams& sgp )
 {
     raypars_ = sgp.raypars_;
-    wvltnm_ = sgp.wvltnm_;
+    wvltid_ = sgp.wvltid_;
     setName( sgp.name_ );
 }
 

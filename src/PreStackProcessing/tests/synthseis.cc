@@ -195,7 +195,7 @@ bool BatchProgram::go( od_ostream& strm )
 	const float scal = wav->get( wav->centerSample() );
 	SynthGenParams sgp;
 	sgp.raypars_ = *raypar;
-	sgp.wvltnm_ = wav->name();
+	sgp.setWaveletName( wav->name() );
 	RaySynthGenerator synthgen( &models, sgp );
 	synthgen.setWavelet( wav );
 	synthgen.enableFourierDomain( true );

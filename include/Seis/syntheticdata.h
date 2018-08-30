@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "flatview.h"
 #include "datapack.h"
-#include "stratsynthgenparams.h"
+#include "synthgenparams.h"
 #include "reflectivitymodel.h"
 
 class RayTracer1D;
@@ -93,9 +93,9 @@ public:
     virtual void		fillGenParams(SynthGenParams&) const;
     void			useDispPar(const IOPar&);
     void			fillDispPar(IOPar&) const;
-    const char*			waveletName() const { return wvltnm_; }
-    void			setWavelet( const char* wvltnm )
-					{ wvltnm_ = wvltnm; }
+    DBKey			waveletID() const { return wvltid_; }
+    BufferString		waveletName() const { return nameOf(wvltid_); }
+    void			setWavelet( const DBKey& id ) { wvltid_ = id; }
     SynthFVSpecificDispPars&	dispPars()	{ return disppars_; }
     const SynthFVSpecificDispPars& dispPars() const
 							{ return disppars_; }
@@ -111,7 +111,7 @@ protected:
 				SyntheticData(const SynthGenParams&,DataPack&);
 				~SyntheticData();
 
-    BufferString		wvltnm_;
+    DBKey			wvltid_;
     IOPar			raypars_;
     SynthFVSpecificDispPars	disppars_;
 
