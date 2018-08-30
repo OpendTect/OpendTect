@@ -7,6 +7,7 @@
 
 #include "filepath.h"
 
+#include "envvars.h"
 #include "file.h"
 #include "genc.h"
 #include "msgh.h"
@@ -528,7 +529,12 @@ void File::Path::addPart( const char* fnm )
 		postfix_ = postfixptr;
 	}
     }
-    conv2TrueDirIfLink();
+
+    //TODO Launching OpendTect is taking too much time on windows platform.
+    // Hence added a temporary fix. Need to find solution.
+    static bool supportwinlinks = GetEnvVarYN( "OD_ALLOW_WINDOWS_LINKS" );
+    if ( supportwinlinks )
+	conv2TrueDirIfLink();
 }
 
 
