@@ -32,7 +32,7 @@ if( NOT MATLAB_DIR STREQUAL "" )
     set( PLUGINS ${PLUGINS} MATLABLink uiMATLABLink )
 endif()
 if( NOT HDF5_ROOT STREQUAL "" )
-    set( PLUGINS ${PLUGINS} HDF5 uiHDF5 )
+    set( PLUGINS ${PLUGINS} ODHDF5 uiODHDF5 )
 endif()
 
 #Only for windows base package
