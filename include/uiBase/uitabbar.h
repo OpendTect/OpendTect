@@ -40,8 +40,9 @@ public:
     uiString		textOfTab(int idx) const;
     void		setTabIcon(int idx,const char*);
     void		setTabsClosable(bool closable);
+    void		showCloseButton(int idx,bool yn,bool shrink=false);
     int			insertTab(uiTab* tab, int index);
-    
+
     int			size() const;
 
     Notifier<uiTabBar>  selected;

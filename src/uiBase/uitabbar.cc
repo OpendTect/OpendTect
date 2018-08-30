@@ -57,7 +57,11 @@ uiTabBar::uiTabBar( uiParent* parnt, const char* nm, const CallBack* cb )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selected( this )
     , tabToBeClosed(this)
-{ if( cb ) selected.notify(*cb); }
+{
+    if( cb ) selected.notify(*cb);
+    setStretch( 2, 1 );
+    body_->setExpanding( false );
+}
 
 
 uiTabBar::~uiTabBar()
@@ -75,19 +79,26 @@ uiTabBarBody& uiTabBar::mkbody( uiParent* parnt, const char* nm )
 int uiTabBar::addTab( uiTab* tab )
 {
     mBlockCmdRec;
-    if ( !tab ) return -1;
+    if ( !tab )
+	return -1;
+
     tabs_ += tab;
     tab->group().display( tabs_.size()==1 );
-    return body_->insertTab( tabs_.size(), toQString(tab->getCaption()) );
+    const int tabidx =
+	body_->insertTab( tabs_.size(), toQString(tab->getCaption()) );
+    return tabidx;
 }
 
 
 int uiTabBar::insertTab( uiTab* tab, int index )
 {
     mBlockCmdRec;
-    if ( !tab ) return -1;
+    if ( !tab )
+	return -1;
+
     tabs_.insertAt( tab, index );
-    return body_->insertTab( index, toQString(tab->getCaption()) );
+    const int tabidx = body_->insertTab( index, toQString(tab->getCaption()) );
+    return tabidx;
 }
 
 
@@ -99,7 +110,6 @@ void uiTabBar::removeTab( uiTab* tab )
 
     tab->group().display( false );
     tabs_ -= tab;
-
     body_->removeTab( idx );
     delete tab;
 }
@@ -143,6 +153,21 @@ void uiTabBar::setTabIcon( int idx, const char* icnnm )
 void uiTabBar::setTabsClosable( bool closable )
 {
     body_->setTabsClosable( closable );
+}
+
+
+void uiTabBar::showCloseButton( int idx, bool yn, bool shrink )
+{
+    QWidget* qwidget = body_->tabButton( idx, QTabBar::RightSide );
+    if ( !qwidget )
+	return;
+
+    if ( yn )
+	qwidget->show();
+    else if ( shrink )
+	qwidget->resize( 0, 0 );
+    else
+	qwidget->hide();
 }
 
 

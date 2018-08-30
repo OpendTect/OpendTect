@@ -39,9 +39,9 @@ NotifierAccess& uiTabStack::selChange()
 { return tabbar_->selected; }
 
 
-void uiTabStack::tabSel( CallBacker* cb )
+void uiTabStack::tabSel( CallBacker* )
 {
-    int id = tabbar_->currentTabId();
+    const int id = tabbar_->currentTabId();
     uiGroup* selgrp = page( id );
     ObjectSet<uiTab>& tabs = tabbar_->tabs_;
 
@@ -58,8 +58,7 @@ void uiTabStack::addTab( uiGroup* grp, const uiString& txt )
 {
     if ( !grp ) return;
 
-    const uiString tabcaption = !txt.isEmpty() ? txt
-						: toUiString(grp->name());
+    const uiString tabcaption = !txt.isEmpty() ? txt : toUiString(grp->name());
     uiTab* tab = new uiTab( *grp, tabcaption );
     tabbar_->addTab( tab );
 
@@ -72,8 +71,7 @@ int uiTabStack::insertTab( uiGroup* grp, int index, const uiString& txt )
 {
     if ( !grp ) return -1;
 
-    const uiString tabcaption = !txt.isEmpty() ? txt
-						: toUiString(grp->name());
+    const uiString tabcaption = !txt.isEmpty() ? txt : toUiString(grp->name());
     uiTab* tab = new uiTab( *grp, tabcaption );
     if ( !hAlignObj() )
 	setHAlignObj( grp );
@@ -88,15 +86,15 @@ void uiTabStack::removeTab( uiGroup* grp )
 
 void uiTabStack::setTabEnabled( uiGroup* grp, bool yn )
 {
-    int id = indexOf( grp );
-    tabbar_->setTabEnabled( id, yn );
+    const int idx = indexOf( grp );
+    tabbar_->setTabEnabled( idx, yn );
 }
 
 
 bool uiTabStack::isTabEnabled( uiGroup* grp ) const
 {
-    int id = indexOf( grp );
-    return tabbar_->isTabEnabled( id );
+    const int idx = indexOf( grp );
+    return tabbar_->isTabEnabled( idx );
 }
 
 
@@ -143,6 +141,13 @@ void uiTabStack::setTabIcon( int idx, const char* icnnm )
 void uiTabStack::setTabsClosable( bool closable )
 {
     tabbar_->setTabsClosable( closable );
+}
+
+
+void uiTabStack::showCloseButton( uiGroup* grp, bool yn, bool shrink )
+{
+    const int idx = indexOf( grp );
+    tabbar_->showCloseButton( idx, yn, shrink );
 }
 
 
