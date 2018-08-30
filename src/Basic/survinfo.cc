@@ -9,7 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "survinfo.h"
+
 #include "ascstream.h"
+#include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
@@ -1463,4 +1465,32 @@ void SurveyInfo::getCreationData( IOPar& iop ) const
 void SurveyInfo::setFreshSetupData( const IOPar& iop ) const
 {
     iop.write( mFreshFileName(), sKeyFreshFileType );
+}
+
+
+void Survey::getDirectoryNames( BufferStringSet& list, bool addfullpath,
+				const char* dataroot, const char* excludenm )
+{
+    BufferString basedir( dataroot );
+    if ( basedir.isEmpty() )
+	basedir = GetBaseDataDir();
+
+    const DirList dl( basedir, File::DirsInDir );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const BufferString& dirnm = dl.get( idx );
+	if ( excludenm && dirnm == excludenm )
+	    continue;
+
+	const File::Path fp( basedir, dirnm, SurveyInfo::sSetupFileName() );
+	if ( File::isReadable(fp.fullPath()) )
+	{
+	    if ( addfullpath )
+		list.add( dl.fullPath(idx) );
+	    else
+		list.add( dirnm );
+	}
+    }
+
+    list.sort();
 }

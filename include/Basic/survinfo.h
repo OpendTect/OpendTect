@@ -326,3 +326,10 @@ public:
 
 mGlobal(Basic) const SurveyInfo& SI();
 mDeprecated mGlobal(Basic) SurveyInfo& eSI();
+
+namespace Survey {
+
+mGlobal(Basic) void getDirectoryNames(BufferStringSet&,bool fullpath,
+			       const char* dataroot=0,const char* excludenm=0);
+
+} // namespace Survey
