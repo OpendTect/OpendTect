@@ -10,39 +10,39 @@ _______________________________________________________________________
 
 #include "uistratsynthexport.h"
 
-#include "ui2dgeomman.h"
-#include "uiseissel.h"
+#include "uigeninput.h"
+#include "uiimpexp2dgeom.h"
+#include "uilabel.h"
+#include "uilistbox.h"
+#include "uimsg.h"
 #include "uipicksetsel.h"
 #include "uiseislinesel.h"
+#include "uiseissel.h"
 #include "uiselsimple.h"
-#include "uigeninput.h"
-#include "uilistbox.h"
-#include "uilabel.h"
 #include "uiseparator.h"
-#include "uimsg.h"
 #include "uitaskrunner.h"
 
-#include "ioobjctxt.h"
-#include "emmanager.h"
-#include "emhorizon2d.h"
 #include "dbman.h"
+#include "emhorizon2d.h"
+#include "emmanager.h"
+#include "ioobjctxt.h"
+#include "od_helpids.h"
 #include "picksetmanager.h"
+#include "posinfo2dsurv.h"
 #include "prestackgather.h"
 #include "prestacksyntheticdata.h"
-#include "randomlinetr.h"
 #include "randomlinegeom.h"
+#include "randomlinetr.h"
 #include "seisbufadapters.h"
-#include "survinfo.h"
-#include "survgeom2d.h"
-#include "posinfo2dsurv.h"
+#include "stratlevel.h"
 #include "stratsynthdatamgr.h"
 #include "stratsynthexp.h"
 #include "stratsynthlevel.h"
-#include "stratlevel.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
 #include "syntheticdataimpl.h"
 #include "velocitycalc.h"
 #include "zdomain.h"
-#include "od_helpids.h"
 
 
 #define mErrRet( msg, rettyp ) \
@@ -68,7 +68,7 @@ uiStratSynthOutSel( uiParent* p, const uiString& seltxt,
 void selItems( CallBacker* )
 {
     uiDialog::Setup su( uiStrings::phrSelect(nm_), mNoDlgTitle,
-                        mODHelpKey(mStartSynthOutSelHelpID) );
+			mODHelpKey(mStartSynthOutSelHelpID) );
     uiDialog dlg( parent(), su );
     uiListBox* lb = new uiListBox( &dlg, toString(nm_) );
     lb->setMultiChoice( true );
@@ -148,10 +148,10 @@ virtual uiString getSummary() const
 
 
 uiStratSynthExport::uiStratSynthExport( uiParent* p,
-				        const StratSynth::DataMgr& ssdm )
+					const StratSynth::DataMgr& ssdm )
     : uiDialog(p,uiDialog::Setup(tr("Save synthetic seismics and horizons"),
 				 mNoDlgTitle,
-                                 mODHelpKey(mStratSynthExportHelpID) ) )
+				 mODHelpKey(mStratSynthExportHelpID) ) )
     , ssdm_(ssdm)
     , randlinesel_(0)
 {
