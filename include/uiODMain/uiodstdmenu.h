@@ -87,6 +87,8 @@ ________________________________________________________________________
 #define mImpFaultBulkMnuItm	(mFileImpMnu + 112)
 #define mImpFaultSSAscii3DBulkMnuItm	(mFileImpMnu + 113)
 #define mImpFaultSSAscii2DBulkMnuItm	(mFileImpMnu + 114)
+#define mImpGeom2DAsciiMnuItm	(mFileImpMnu + 115)
+#define mImpGeom2DSEGP1MnuItm	(mFileImpMnu + 116)
 
 #define mExpSeisSimple3DMnuItm	(mFileExpMnu + 15)
 #define mExpSeisSimple2DMnuItm	(mFileExpMnu + 16)

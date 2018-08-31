@@ -120,6 +120,7 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , exppdfdlg_(0)
     , impvelfunc_(0)
     , exp2dgeomdlg_(0)
+    , imp2dgeomdlg_(0)
     , batchprocps2ddlg_(0)
     , batchprocps3ddlg_(0)
 {}
@@ -143,19 +144,20 @@ void uiODApplMgrDispatcher::survChg( bool before )
 
 void uiODApplMgrDispatcher::deleteDlgs()
 {
-	delete convposdlg_; convposdlg_ = 0;
-	delete mandpsdlg_; mandpsdlg_ = 0;
-	delete man2dgeomdlg_; man2dgeomdlg_ = 0;
-	delete manpdfdlg_; manpdfdlg_ = 0;
-	delete mansessiondlg_; mansessiondlg_ = 0;
-	delete impcrossplotdlg_; impcrossplotdlg_ = 0;
-	delete impmutedlg_; impmutedlg_ = 0;
-	delete imppdfdlg_; imppdfdlg_ = 0;
-	delete exppdfdlg_; exppdfdlg_ = 0;
-	delete impvelfunc_; impvelfunc_ = 0;
-	delete exp2dgeomdlg_; exp2dgeomdlg_ = 0;
-	delete batchprocps2ddlg_; batchprocps2ddlg_ = 0;
-	delete batchprocps3ddlg_; batchprocps3ddlg_ = 0;
+    deleteAndZeroPtr( convposdlg_ );
+    deleteAndZeroPtr( mandpsdlg_ );
+    deleteAndZeroPtr( man2dgeomdlg_ );
+    deleteAndZeroPtr( manpdfdlg_ );
+    deleteAndZeroPtr( mansessiondlg_ );
+    deleteAndZeroPtr( impcrossplotdlg_ );
+    deleteAndZeroPtr( impmutedlg_ );
+    deleteAndZeroPtr( imppdfdlg_ );
+    deleteAndZeroPtr( exppdfdlg_ );
+    deleteAndZeroPtr( impvelfunc_ );
+    deleteAndZeroPtr( exp2dgeomdlg_ );
+    deleteAndZeroPtr( imp2dgeomdlg_ );
+    deleteAndZeroPtr( batchprocps2ddlg_ );
+    deleteAndZeroPtr( batchprocps3ddlg_ );
 }
 
 
@@ -306,7 +308,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	}
     break;
     mCase(MDef):
-        if ( at == uiODApplMgr::Imp )
+	if ( at == uiODApplMgr::Imp )
 	{
 	    if ( !impmutedlg_ )
 		impmutedlg_ = new PreStack::uiImportMute( par_ );
@@ -320,7 +322,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	}
     break;
     mCase(Vel):
-        if ( at == uiODApplMgr::Imp)
+	if ( at == uiODApplMgr::Imp)
 	{
 	    if ( !impvelfunc_ )
 		impvelfunc_ = new Vel::uiImportVelFunc( par_ );
@@ -332,7 +334,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	StratTWin().popUp();
     break;
     mCase(PDF):
-        if ( at == uiODApplMgr::Imp )
+	if ( at == uiODApplMgr::Imp )
 	{
 	    if ( !imppdfdlg_ )
 		imppdfdlg_ = new uiImpRokDocPDF( par_ );
@@ -367,9 +369,16 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 
 	    exp2dgeomdlg_->show();
 	}
+	else if ( at == uiODApplMgr::Imp )
+	{
+	    if ( !imp2dgeomdlg_ )
+		imp2dgeomdlg_ = new uiImp2DGeom( par_ );
+
+	    imp2dgeomdlg_->show();
+	}
     break;
     mCase(PVDS):
-        if ( at == uiODApplMgr::Imp )
+	if ( at == uiODApplMgr::Imp )
 	{
 	    if ( !impcrossplotdlg_ )
 		impcrossplotdlg_ = new uiImpPVDS( par_ );
@@ -526,7 +535,7 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 
     uiGetChoice dlg( par_, options,
 			tr("Select policy for auto-update"), true,
-                       mODHelpKey(mODApplMgrDispatchersetAutoUpdatePolHelpID));
+		       mODHelpKey(mODApplMgrDispatchersetAutoUpdatePolHelpID));
 
     const int idx = options.indexOf( alloptions.get((int)curait) );
     dlg.setDefaultChoice( idx < 0 ? 0 : idx );
@@ -595,10 +604,10 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
 
 
 void uiODApplMgrDispatcher::setupBatchHosts()
-{ 
+{
 #ifndef __win__
-    uiBatchHostsDlg dlg( par_ ); 
-    dlg.go(); 
+    uiBatchHostsDlg dlg( par_ );
+    dlg.go();
 #else
     executeWinProg( "od_BatchHosts.exe", "",GetExecPlfDir() );
 #endif

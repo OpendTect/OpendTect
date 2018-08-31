@@ -12,19 +12,196 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiimpexp2dgeom.h"
 
+#include "ui2dgeomman.h"
 #include "uifileinput.h"
+#include "uigeninput.h"
+#include "uigeom2dsel.h"
 #include "uiioobjselgrp.h"
 #include "uimsg.h"
+#include "uitblimpexpdatasel.h"
 
+#include "geom2dascio.h"
 #include "od_iostream.h"
 #include "posinfo2d.h"
 #include "survgeometrytransl.h"
 #include "survgeom2d.h"
+#include "tabledef.h"
 
 
-// TODO: Add uiImp2DGeom here
+// uiImp2DGeom
+uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
+    : uiDialog(p,uiDialog::Setup(tr("Import New Line Geometry"),
+				 mNoDlgTitle,
+				 mODHelpKey(mGeom2DImpDlgHelpID)).modal(false))
+    , singlemultifld_(0)
+    , linefld_(0)
+    , linenm_(lnm)
+    , geomfd_(0)
+{
+    const FixedString linenm( lnm );
+    const bool lineknown = !linenm.isEmpty();
+    if ( lineknown )
+    {
+	uiString title = tr("Set new geometry for %1").arg( linenm );
+	setTitleText( title );
+    }
+
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+
+    geomfd_ = Geom2dAscIO::getDesc( linenm.isEmpty() );
+    fnmfld_ = new uiFileInput( this, tr("Input Geometry File"),
+				   uiFileInput::Setup().withexamine(true) );
+    uiObject* attachobj = fnmfld_->attachObj();
+    if ( !lineknown )
+    {
+	singlemultifld_ = new uiGenInput( this, tr("File contains geometry for"),
+		    BoolInpSpec(true,tr("Single line"),tr("Multiple lines")) );
+	singlemultifld_->attach( alignedBelow, fnmfld_ );
+	mAttachCB( singlemultifld_->valuechanged, uiImp2DGeom::singmultCB );
+	attachobj = singlemultifld_->attachObj();
+
+	linefld_ = new uiGeom2DSel( this, false );
+    }
+
+    dataselfld_ = new uiTableImpDataSel( this, *geomfd_, mNoHelpKey );
+    dataselfld_->attach( alignedBelow, attachobj );
+
+    if ( linefld_ )
+	linefld_->attach( alignedBelow, dataselfld_ );
+}
 
 
+uiImp2DGeom::~uiImp2DGeom()
+{
+    detachAllNotifiers();
+    delete geomfd_;
+}
+
+
+void uiImp2DGeom::singmultCB( CallBacker* )
+{
+    const bool singleline = singlemultifld_->getBoolValue();
+    linefld_->display( singleline );
+    Geom2dAscIO::fillDesc( *geomfd_, !singleline );
+}
+
+
+bool uiImp2DGeom::acceptOK( CallBacker* )
+{
+    if ( File::isEmpty(fnmfld_->fileName()) )
+    { uiMSG().error(uiStrings::sInvInpFile()); return false; }
+
+    if ( !linenm_.isEmpty() )
+	return false;
+
+    if ( singlemultifld_->getBoolValue() )
+    {
+	const IOObj* ioobj = linefld_->ioobj();
+	if ( !ioobj )
+	    return false;
+
+	const BufferString linenm = ioobj->name();
+	const Pos::GeomID geomid = Geom2DImpHandler::getGeomID( linenm );
+	if ( geomid == mUdfGeomID )
+	    return false;
+
+	RefMan<Survey::Geometry2D> geom2d;
+	mDynamicCast(Survey::Geometry2D*,geom2d,
+		     Survey::GMAdmin().getGeometry(geomid))
+	if ( !fillGeom(*geom2d) )
+	    return false;
+
+	uiString errmsg;
+	if ( !Survey::GMAdmin().write(*geom2d,errmsg) )
+	{
+	    uiMSG().error( errmsg );
+	    return false;
+	}
+
+	uiMSG().message( tr("Line %1 successfully imported.").arg(linenm) );
+    }
+    else
+    {
+	ObjectSet<Survey::Geometry2D> geoms;
+	if ( !fillGeom(geoms) )
+	    return false;
+
+	BufferStringSet linenms;
+	for ( int idx=0; idx<geoms.size(); idx++ )
+	    linenms.add( geoms[idx]->getName() );
+
+	TypeSet<Pos::GeomID> geomids;
+	if ( !Geom2DImpHandler::getGeomIDs(linenms,geomids) )
+	    return false;
+
+	uiStringSet errors;
+	for ( int idx=0; idx<geoms.size(); idx++ )
+	{
+	    uiString errmsg;
+	    if ( !Survey::GMAdmin().write(*geoms[idx],errmsg) )
+		errors.add( errmsg );
+	}
+
+	if ( !errors.isEmpty() )
+	{
+	    uiMSG().errorWithDetails( errors, tr("Error during import:") );
+	    return false;
+	}
+
+	uiMSG().message( tr("Lines successfully imported.") );
+    }
+
+    return false;
+}
+
+
+od_istream* uiImp2DGeom::getStrm() const
+{
+     BufferString filenm( fnmfld_->fileName() );
+    if ( filenm.isEmpty() )
+	return 0;
+
+    od_istream* strm = new od_istream( filenm );
+    if ( !strm->isOK() )
+    {
+	uiMSG().error( uiStrings::sCantOpenInpFile() );
+	delete strm;
+	return 0;
+    }
+
+    return strm;
+}
+
+
+bool uiImp2DGeom::fillGeom( ObjectSet<Survey::Geometry2D>& geoms )
+{
+    PtrMan<od_istream> strm = getStrm();
+    Geom2dAscIO geomascio( dataselfld_->desc(), *strm );
+    if ( !geomascio.getData(geoms) )
+    {
+	uiMSG().error( geomascio.errMsg() );
+	return false;
+    }
+
+    return true;
+}
+
+
+bool uiImp2DGeom::fillGeom( Survey::Geometry2D& geom )
+{
+    PtrMan<od_istream> strm = getStrm();
+    Geom2dAscIO geomascio( dataselfld_->desc(), *strm );
+    if ( !geomascio.getData(geom) )
+    {
+	uiMSG().error( geomascio.errMsg() );
+	return false;
+    }
+
+    return true;
+}
+
+
+// uiExp2DGeom
 uiExp2DGeom::uiExp2DGeom( uiParent* p )
     : uiDialog(p,Setup(uiStrings::phrExport( tr("2D Geometry")),mNoDlgTitle,
 		       mODHelpKey(mExp2DGeomHelpID)).modal(false))

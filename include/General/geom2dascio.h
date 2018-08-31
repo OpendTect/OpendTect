@@ -25,17 +25,22 @@ namespace Table { class FormatDesc; }
 */
 
 mExpClass(General) Geom2dAscIO : public Table::AscIO
-{
+{ mODTextTranslationClass(Geom2dAscIO)
 public:
 				Geom2dAscIO(const Table::FormatDesc&,
 					    od_istream&);
-    static Table::FormatDesc*	getDesc();
+
+    static Table::FormatDesc*	getDesc(bool withline=false);
+    static void			fillDesc(Table::FormatDesc&,bool withline);
     bool			getData(PosInfo::Line2DData&);
-    bool			getData(Survey::Geometry2D&);
+    bool			getData(Survey::Geometry2D&) const;
+    bool			getData(ObjectSet<Survey::Geometry2D>&) const;
 
 protected:
 
     od_istream&			strm_;
+    bool			readLine(int startidx,Coord&,int&,int&,
+					 bool,bool) const;
 };
 
 #endif

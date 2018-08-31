@@ -10,15 +10,18 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "latlong.h"
-#include "survinfo.h"
-#include "separstr.h"
+
 #include "coordsystem.h"
+#include "separstr.h"
+#include "survinfo.h"
+
 #include <math.h>
+#include <string.h>
+
 
 const double cAvgEarthRadius = 6367450;
 
-
-
+// LatLong
 bool LatLong::operator==( const LatLong& ll ) const
 {
     return mIsEqual(ll.lat_,lat_,mDefEps) &&
@@ -94,9 +97,62 @@ void LatLong::setDMS( bool lat, int d, int m, float s )
 }
 
 
+bool LatLong::setFromString( const char* str, bool lat )
+{
+// Supports strings formatted as dddmmssssh or ggg.gggggh
+// h is not mandatory
+    BufferString llstr = str;
+    if ( llstr.isEmpty() )
+	return false;
+
+    char& lastchar = llstr[llstr.size()-1];
+    const bool hasSW = lastchar=='S' || lastchar=='W';
+    if ( lastchar=='N' || lastchar=='E' || hasSW )
+	lastchar = '\0';
+
+    const char* nrstr = llstr.find( '.' );
+    if ( nrstr )
+    {
+	double& val = lat ? lat_ : lng_;
+	val = toDouble( llstr );
+	if ( hasSW && val>0 )
+	    val *= -1;
+    }
+    else
+    {
+	const int len = llstr.size();
+
+	// parse seconds
+	BufferString buf;
+	strncpy(buf.getCStr(),llstr.buf()+(len-4),4);
+	buf[4] = '\0';
+	const int secs = toInt( buf );
+
+	// parse minutes
+	buf.setEmpty();
+	strncpy(buf.getCStr(),llstr.buf()+(len-6),2);
+	buf[2] = '\0';
+	const int mins = toInt( buf );
+
+	// parse degrees
+	buf.setEmpty();
+	strncpy(buf.getCStr(),llstr.buf(),len-6);
+	buf[len-6] = '\0';
+	int degs = toInt( buf );
+	if ( hasSW && degs>0 )
+	    degs *= -1;
+
+	setDMS( lat, degs, mins, secs );
+    }
+
+    return true;
+}
+
+
+// LatLong2Coord
 LatLong2Coord::LatLong2Coord()
-    : lngdist_(mUdf(float))
-    , latdist_(cAvgEarthRadius*mDeg2RadD)
+    : latdist_(cAvgEarthRadius*mDeg2RadD)
+    , lngdist_(mUdf(float))
     , scalefac_(-1)
 {
 }

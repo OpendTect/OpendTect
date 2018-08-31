@@ -39,9 +39,9 @@ protected:
 seismic import routines that eventually use a SeisTrcWriter.
 While importing 2D seismic data you just need to call:
 
-	Geomi2DImpHandler::getGeomID(linename);
+	Geom2DImpHandler::getGeomID(linename);
 
-to get the GeomID of the line being imported. Geomi2DImpHandler will take care
+to get the GeomID of the line being imported. Geom2DImpHandler will take care
 of creating new lines in the database or overwriting them.
 */
 

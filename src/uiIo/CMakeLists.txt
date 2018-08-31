@@ -33,6 +33,7 @@ set( OD_MODULE_SOURCES
 	uidpsselgrpdlg.cc
 	uidpsselectednessdlg.cc
 	uieditpdf.cc
+	uigeom2dsel.cc
 	uigraphicslegend.cc
 	uiimppickset.cc
 	uiimpexpselgrp.cc

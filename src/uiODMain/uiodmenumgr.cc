@@ -266,15 +266,16 @@ void uiODMenuMgr::fillImportMenu()
     uiMenu* impcpd = new uiMenu( &appl_, tr("Cross-plot Data") );
     uiMenu* impvelfn = new uiMenu( &appl_, tr("Velocity Functions") );
     uiMenu* imppdf = new uiMenu( &appl_, tr("Probability Density Functions") );
+    uiMenu* impgeom2d = new uiMenu( &appl_, tr("Navigation Data") );
 
     impmnu_->insertItem( impattr );
-    mInsertItem( impmnu_, m3Dots(
-			  uiStrings::sColorTable() ), mImpColTabMnuItm );
+    mInsertItem( impmnu_, m3Dots(uiStrings::sColorTable()), mImpColTabMnuItm );
     impmnu_->insertItem( impcpd );
     impmnu_->insertItem( impfault );
     impmnu_->insertItem( impfaultstick );
     impmnu_->insertItem( imphor );
     impmnu_->insertItem( impmute );
+    impmnu_->insertItem( impgeom2d );
     impmnu_->insertItem( imppick );
     impmnu_->insertItem( imppdf );
     impmnu_->insertItem( impseis );
@@ -387,6 +388,9 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impwellbulk, m3Dots(tr("Depth/Time Model")),
 		 mImpBulkWellD2TItm );
     impwell->insertItem( impwellbulk );
+
+    mInsertItem( impgeom2d, ascii, mImpGeom2DAsciiMnuItm );
+    mInsertItem( impgeom2d, m3Dots(tr("SEG P1")), mImpGeom2DSEGP1MnuItm );
 
 // Fill impmenus_
     impmnus_.erase();
@@ -1349,6 +1353,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
+    case mImpGeom2DAsciiMnuItm:		mDoOp(Imp,Geom,0); break;
+    case mImpGeom2DSEGP1MnuItm:		mDoOp(Imp,Geom,1); break;
     case mExpGeom2DMnuItm:		mDoOp(Exp,Geom,0); break;
     case mExpSurveySetupItm:		applMgr().exportSurveySetup(); break;
     case mManColTabMnuItm:		mDoOp(Man,ColTab,0); break;

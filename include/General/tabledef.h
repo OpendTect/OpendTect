@@ -36,7 +36,7 @@ namespace Table
  In more complex situations, data can be present or offered in various ways.
  For example, an interval can be specified as start/stop or start/width. This
  would lead to the definition of multiple 'Form' objects.
- 
+
  */
 
 mExpClass(General) TargetInfo : public NamedObject
@@ -77,7 +77,7 @@ public:
 			      return *this; }
 
 	Form*		duplicate( const char* nm ) const
-	    		{
+			{
 			    Form* ret = new Form( nm, *specs_[0] );
 			    for ( int idx=1; idx<specs_.size(); idx++ )
 				ret->specs_ += specs_[idx]->clone();
@@ -88,18 +88,18 @@ public:
     };
 
 
-    			TargetInfo( const char* nm, ReqSpec rs=Optional )
+			TargetInfo( const char* nm, ReqSpec rs=Optional )
 					//!< Single string
 			    : NamedObject(nm), req_(rs)
-    			    , proptype_(PropertyRef::Other)
+			    , proptype_(PropertyRef::Other)
 				{ add( nm ); }
-    			TargetInfo( const char* nm, DataInpSpec* spec,
+			TargetInfo( const char* nm, DataInpSpec* spec,
 				  ReqSpec rs=Optional,
 				  PropertyRef::StdType p=PropertyRef::Other )
 			    : NamedObject(nm), req_(rs), proptype_(p)
 				{ add( nm, spec ); }
-    			TargetInfo( const char* nm, const DataInpSpec& spec,
-				  ReqSpec rs=Optional, 
+			TargetInfo( const char* nm, const DataInpSpec& spec,
+				  ReqSpec rs=Optional,
 				  PropertyRef::StdType p=PropertyRef::Other )
 			    : NamedObject(nm), req_(rs), proptype_(p)
 				{ add( nm, spec ); }
@@ -139,11 +139,11 @@ public:
 	//!\brief holds the 'value' of a certain selection
 	struct Elem
 	{
-	    			Elem()
+				Elem()
 				    : pos_(0,-1)		{}
-	    			Elem( const RowCol& rc, const char* kw=0 )
+				Elem( const RowCol& rc, const char* kw=0 )
 				    : pos_(rc), keyword_(kw)	{}
-	    			Elem( const char* s )
+				Elem( const char* s )
 				    : pos_(0,-1), val_(s) 	{}
 
 	    bool		isInFile() const
@@ -169,7 +169,7 @@ public:
 	ConstRefMan<Coords::CoordSystem>	coordsys_;
 
 			Selection()
-			    	: form_(0), unit_(0), coordsys_(0)	{}
+				: form_(0), unit_(0), coordsys_(0)	{}
 
 	bool		havePos( int ielem ) const
 			    { return ielem < elems_.size()
@@ -184,7 +184,7 @@ public:
 			    { return ielem >= elems_.size() ? 0
 				   : elems_[ielem].val_.buf(); }
 	bool		isFilled() const
-	    		{ return elems_.size() > 0 && !elems_[0].isEmpty(); }
+			{ return elems_.size() > 0 && !elems_[0].isEmpty(); }
     };
 
     mutable Selection	selection_;
@@ -192,15 +192,17 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    static TargetInfo*	mkHorPosition( bool isreq )
-    				{ return mkPos(true,isreq); }
-    			//!< form(0)=(X,Y), form(1)=inl/crl
+    static TargetInfo*	mkHorPosition(bool isreq,bool wic=true,bool wll=false,
+				      bool wcrs=true);
+			//!< form(0)=(X,Y), form(1)=inl/crl, form(1/2)=long/lat
     static TargetInfo*	mkZPosition( bool isreq, bool withunits=true )
-    				{ return mkPos(false,isreq,withunits); }
+				{ return mkZPos(isreq,withunits); }
     static TargetInfo*	mkDepthPosition( bool isreq, bool withunits=true )
-    				{ return mkPos(false,isreq,withunits,1); }
+				{ return mkZPos(isreq,withunits,1); }
     static TargetInfo*	mkTimePosition( bool isreq, bool withunits=true )
-    				{ return mkPos(false,isreq,withunits,-1); }
+				{ return mkZPos(isreq,withunits,-1); }
+    bool		needsConversion() const;
+    Coord		convert(const Coord&) const;
 
 protected:
 
@@ -208,7 +210,7 @@ protected:
     PropertyRef::StdType proptype_;
     ObjectSet<Form>	forms_;
 
-    static TargetInfo*	mkPos(bool,bool,bool wu=false,int zopt=0);
+    static TargetInfo*	mkZPos(bool,bool wu=false,int zopt=0);
 
 };
 
@@ -218,7 +220,7 @@ protected:
 mExpClass(General) FormatDesc : public NamedObject
 {
 public:
-    			FormatDesc( const char* nm )
+			FormatDesc( const char* nm )
 			    : NamedObject(nm)
 			    , nrhdrlines_(0)
 			    , eohtokencol_(-1)		{}
@@ -234,12 +236,12 @@ public:
     BufferString	eobtoken_;	//!< end-of-body: no more data
 
     bool		needEOHToken() const
-    			{ return nrhdrlines_ < 0 && !eohtoken_.isEmpty(); }
+			{ return nrhdrlines_ < 0 && !eohtoken_.isEmpty(); }
     int			nrHdrLines() const
 			{ return needEOHToken() ? mUdf(int)
 			       : nrhdrlines_ > 0 ? nrhdrlines_ : 0; }
     bool		haveEOBToken() const
-    			{ return !eobtoken_.isEmpty(); }
+			{ return !eobtoken_.isEmpty(); }
 
     bool		isGood() const;
     bool		bodyUsesCol(int) const;

@@ -356,7 +356,7 @@ bool commit()
     uiComboBox*				formfld_;
     uiComboBox*				specfld_;
     uiUnitSel*				unitfld_;
-    Coords::uiCoordSystemSel*	crsfld_;
+    Coords::uiCoordSystemSel*		crsfld_;
     ObjectSet< ObjectSet<uiSpinBox> >	colboxes_;
     ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;

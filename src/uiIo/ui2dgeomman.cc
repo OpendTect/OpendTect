@@ -13,24 +13,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui2dgeomman.h"
 
 #include "bufstringset.h"
-#include "geom2dascio.h"
 #include "ioman.h"
-#include "od_istream.h"
 #include "posinfo2dsurv.h"
 #include "survgeom2d.h"
 #include "survgeometrytransl.h"
 #include "survinfo.h"
 
 #include "uibutton.h"
-#include "uifileinput.h"
 #include "uigeninput.h"
+#include "uiimpexp2dgeom.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitable.h"
-#include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
 
 static IOObjContext mkCtxt()
@@ -53,6 +50,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 	     uiStrings::sGeometry())),
 	     mCB(this,ui2DGeomManageDlg,manLineGeom) );
 }
+
 
 ui2DGeomManageDlg::~ui2DGeomManageDlg()
 {
@@ -111,10 +109,8 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
 
     if ( !readonly )
     {
-	readnewbut_ = new uiPushButton( this, mJoinUiStrs(sImport(),
-			phrJoinStrings(uiStrings::sNew(),
-			uiStrings::sGeometry())),
-			mCB(this,uiManageLineGeomDlg,impLineGeom), true );
+	readnewbut_ = new uiPushButton( this, tr("Set new Geometry"),
+			mCB(this,uiManageLineGeomDlg,impLineGeom), false );
 	readnewbut_->attach( centeredBelow, rgfld_ );
     }
 
@@ -122,64 +118,20 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
 }
 
 
-//---------- Import New Geomtery ----------------
-
-class uiGeom2DImpDlg : public uiDialog
-{ mODTextTranslationClass(uiGeom2DImpDlg)
-public:
-
-uiGeom2DImpDlg( uiParent* p, const char* linenm )
-    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sImport(),
-				 phrJoinStrings(uiStrings::sNew(),
-				 uiStrings::phrJoinStrings(uiStrings::sLine(),
-				 uiStrings::sGeometry()))),
-				 toUiString(linenm),
-				 mODHelpKey(mGeom2DImpDlgHelpID)))
-{
-    setOkText( uiStrings::sImport() );
-    Table::FormatDesc* geomfd = Geom2dAscIO::getDesc();
-    geom2dinfld_ = new uiFileInput( this, mJoinUiStrs(s2D(), phrJoinStrings(
-				   uiStrings::sGeometry(), uiStrings::sFile())),
-				   uiFileInput::Setup().withexamine(true) );
-    dataselfld_ = new uiTableImpDataSel( this, *geomfd, mNoHelpKey );
-    dataselfld_->attach( alignedBelow, geom2dinfld_ );
-}
-
-bool acceptOK( CallBacker* )
-{
-    if ( File::isEmpty(geom2dinfld_->fileName()) )
-    { uiMSG().error(uiStrings::sInvInpFile()); return false; }
-    return true;
-}
-
-    uiFileInput*	geom2dinfld_;
-    uiTableImpDataSel*	dataselfld_;
-};
-
-
 void impLineGeom( CallBacker* )
 {
     if ( readonly_ )
 	return;
 
-    uiGeom2DImpDlg dlg( this, linenm_ );
+    uiImp2DGeom dlg( this, linenm_ );
     if ( !dlg.go() ) return;
 
-    BufferString filenm( dlg.geom2dinfld_->fileName() );
-    if ( !filenm.isEmpty() )
-    {
-	od_istream strm( filenm );
-	if ( !strm.isOK() )
-	{ uiMSG().error(uiStrings::sCantOpenInpFile()); return; }
+    RefMan<Survey::Geometry2D> geom = new Survey::Geometry2D( linenm_ );
+    if ( !dlg.fillGeom(*geom) )
+	return;
 
-	RefMan<Survey::Geometry2D> geom = new Survey::Geometry2D( linenm_ );
-	Geom2dAscIO geomascio( dlg.dataselfld_->desc(), strm );
-	if ( !geomascio.getData(*geom) )
-	    uiMSG().error(uiStrings::phrCannotRead( toUiString(filenm)) );
-
-	table_->clearTable();
-	fillTable( *geom );
-    }
+    table_->clearTable();
+    fillTable( *geom );
 }
 
 
@@ -213,8 +165,8 @@ bool acceptOK( CallBacker* )
     geom2d->setEmpty();
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
-	geom2d->add( table_->getdValue(RowCol(idx,2)),
-		     table_->getdValue(RowCol(idx,3)),
+	geom2d->add( table_->getDValue(RowCol(idx,2)),
+		     table_->getDValue(RowCol(idx,3)),
 		     table_->getIntValue(RowCol(idx,0)),
 		     table_->getIntValue(RowCol(idx,1)) );
     }
