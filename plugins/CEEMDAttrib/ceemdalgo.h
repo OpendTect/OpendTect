@@ -203,7 +203,7 @@ public:
 
     bool		doDecompMethod(int nrsamples , float refstep,
 			   Array2DImpl<float>* output, int outputattrib,
-			   int startfreq, int endfreq, int stepoutfreq,
+			   float startfreq, float endfreq, float stepoutfreq,
 			   int startcomp, int endcomp);
 
     Setup		setup_;
@@ -276,18 +276,18 @@ protected:
 			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
 							& realizations,
 			Array2DImpl<float>* output, int outputattrib,
-			int startfreq, int endfreq, int stepoutfreq,
+			float startfreq, float endfreq, float stepoutfreq,
 			int startcomp, int outputcomp, float average) const;
     bool		useGridding(
 			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
 								& realizations,
-			Array2DImpl<float>* output, int startfreq, int endfreq,
-			int stepoutfreq) const;
+			Array2DImpl<float>* output, float startfreq,
+			float endfreq, float stepoutfreq) const;
     bool		usePolynomial(
 			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
 								& realizations,
-			Array2DImpl<float>* output, int startfreq, int endfreq,
-			int stepoutfreq) const;
+			Array2DImpl<float>* output, float startfreq,
+			float endfreq, float stepoutfreq) const;
     bool		sortSpectrum(
 			float* unsortedfrequencies,float* unsortedamplitudes,
 			MyPointBasedMathFunction& sortedampspectrum,
