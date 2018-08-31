@@ -39,7 +39,6 @@ Table::FormatDesc* Well::TrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
     Table::TargetInfo* xyti = Table::TargetInfo::mkHorPosition( true );
-    xyti->selection_.coordsys_ = SI().getCoordSystem();
     fd->bodyinfos_ += xyti;
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( false );
     zti->setName( "Z (TVDSS)" );
@@ -487,8 +486,8 @@ Well::BulkTrackAscIO::BulkTrackAscIO( const Table::FormatDesc& fd,
 Table::FormatDesc* Well::BulkTrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkWellTrack" );
-    fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sWellName(),
-							    Table::Required );
+    fd->bodyinfos_ +=
+	new Table::TargetInfo( uiStrings::sWellName(), Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( true );
     zti->setName( "Z (TVDSS)" );

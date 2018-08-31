@@ -117,6 +117,7 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , exppdfdlg_(0)
     , impvelfunc_(0)
     , exp2dgeomdlg_(0)
+    , imp2dgeomdlg_(0)
     , batchprocps2ddlg_(0)
     , batchprocps3ddlg_(0)
 {}
@@ -152,6 +153,7 @@ void uiODApplMgrDispatcher::deleteDlgs()
     deleteAndZeroPtr( exppdfdlg_ );
     deleteAndZeroPtr( impvelfunc_ );
     deleteAndZeroPtr( exp2dgeomdlg_ );
+    deleteAndZeroPtr( imp2dgeomdlg_ );
     deleteAndZeroPtr( batchprocps2ddlg_ );
     deleteAndZeroPtr( batchprocps3ddlg_ );
 }
@@ -391,7 +393,14 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(Geom2D):
 	switch ( at )
 	{
-	mCase(Imp): break;
+	mCase(Imp):
+	{
+	    if ( !imp2dgeomdlg_ )
+		imp2dgeomdlg_ = new uiImp2DGeom( par_ );
+
+	    imp2dgeomdlg_->show();
+	}
+	break;
 	mCase(Exp):
 	{
 	    if ( !exp2dgeomdlg_ )

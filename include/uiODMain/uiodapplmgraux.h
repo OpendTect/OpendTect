@@ -20,6 +20,7 @@ class uiDataPointSet;
 class uiDataPointSetMan;
 class uiDialog;
 class uiExp2DGeom;
+class uiImp2DGeom;
 class uiImpPVDS;
 class uiImpRokDocPDF;
 class uiExpRokDocPDF;
@@ -90,7 +91,8 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     uiSessionMan*	mansessiondlg_;
     uiRandomLineMan*	manrldlg_;
     uiImpPVDS*		impcrossplotdlg_;
-    uiExp2DGeom*		exp2dgeomdlg_;
+    uiExp2DGeom*	exp2dgeomdlg_;
+    uiImp2DGeom*	imp2dgeomdlg_;
     uiImpRokDocPDF*	imppdfdlg_;
     uiExpRokDocPDF*	exppdfdlg_;
     PreStack::uiImportMute*	impmutedlg_;

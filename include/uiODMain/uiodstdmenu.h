@@ -80,6 +80,7 @@ ________________________________________________________________________
 #define mImpAttrAsciiMnuItm		(mFileImpMnu + 130)
 #define mImpAttrOthSurvMnuItm		(mFileImpMnu + 131)
 #define mImpColTabMnuItm		(mFileImpMnu + 200)
+#define mImpGeom2DAsciiMnuItm		(mFileImpMnu + 210)
 
 #define mExpSeisSimpleMnu		(mFileExpMnu + 10)
 #define mExpSeisSimple2DMnuItm		(mExpSeisSimpleMnu + 0)

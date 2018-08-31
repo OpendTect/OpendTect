@@ -11,27 +11,28 @@ ________________________________________________________________________
 #include "uiseisrandto2dline.h"
 
 #include "ioobjctxt.h"
+#include "od_helpids.h"
+#include "posinfo2d.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
+#include "seisioobjinfo.h"
 #include "seisrandlineto2d.h"
 #include "seistrctr.h"
-#include "seisioobjinfo.h"
-#include "survinfo.h"
 #include "survgeom2d.h"
-#include "posinfo2d.h"
+#include "survinfo.h"
+
 #include "uigeninput.h"
-#include "ui2dgeomman.h"
+#include "uiimpexp2dgeom.h"
 #include "uimsg.h"
-#include "uiseissel.h"
 #include "uiseislinesel.h"
+#include "uiseissel.h"
 #include "uitaskrunner.h"
-#include "od_helpids.h"
 
 
 uiSeisRandTo2DBase::uiSeisRandTo2DBase( uiParent* p, bool rdlsel )
     : uiGroup(p,"Base group")
-    , rdlfld_(0)
     , change(this)
+    , rdlfld_(0)
 {
     if ( rdlsel )
     {
@@ -98,7 +99,7 @@ uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
 					      const Geometry::RandomLine* rln )
     : uiDialog(p,uiDialog::Setup(tr("Save as 2D line"),
 				 uiString::empty(),
-                                 mODHelpKey(mSeisRandTo2DLineDlgHelpID) ))
+				 mODHelpKey(mSeisRandTo2DLineDlgHelpID) ))
     , rdlgeom_(rln)
 {
     basegrp_ = new uiSeisRandTo2DBase( this, !rln );

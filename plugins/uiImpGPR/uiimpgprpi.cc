@@ -4,29 +4,28 @@
  * DATE     : Oct 2003
 -*/
 
+#include "uiimpgprmod.h"
 
-#include "ui2dgeomman.h"
-#include "uiodmain.h"
-#include "uiodmenumgr.h"
 #include "uidialog.h"
-#include "uigeninput.h"
 #include "uifilesel.h"
+#include "uigeninput.h"
+#include "uiimpexp2dgeom.h"
 #include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uiodmain.h"
+#include "uiodmenumgr.h"
 #include "uiseissel.h"
 #include "uitaskrunner.h"
 
 #include "dztimporter.h"
+#include "filepath.h"
+#include "odplugin.h"
+#include "od_helpids.h"
+#include "od_istream.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-#include "od_istream.h"
-#include "filepath.h"
-#include "odplugin.h"
-
-#include "uiimpgprmod.h"
-#include "od_helpids.h"
 
 
 static const char* menunm = "GPR: DZT ...";
@@ -86,7 +85,7 @@ public:
 
 uiDZTImporter( uiParent* p )
     : uiDialog(p,Setup(uiStrings::phrImport(tr("GPR-DZT Seismics")),mNoDlgTitle,
-                        mODHelpKey(mDZTImporterHelpID) ))
+			mODHelpKey(mDZTImporterHelpID) ))
     , inpfld_(0)
 {
     setOkText( uiStrings::sImport() );

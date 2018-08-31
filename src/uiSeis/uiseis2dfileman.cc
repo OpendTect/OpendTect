@@ -14,9 +14,11 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "timefun.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "linesetposinfo.h"
+#include "od_helpids.h"
+#include "posinfo2dsurv.h"
 #include "seis2ddata.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
@@ -24,35 +26,33 @@ ________________________________________________________________________
 #include "seiscube2linedata.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-#include "posinfo2dsurv.h"
+#include "timefun.h"
 #include "zdomain.h"
-#include "linesetposinfo.h"
 
-#include "ui2dgeomman.h"
-#include "uitoolbutton.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uiimpexp2dgeom.h"
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
-#include "uicombobox.h"
-#include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseis2dfrom3d.h"
 #include "uiseisioobjinfo.h"
 #include "uiseissampleeditor.h"
 #include "uiseissel.h"
-#include "uisplitter.h"
 #include "uiseparator.h"
-#include "uitextedit.h"
+#include "uisplitter.h"
 #include "uitaskrunner.h"
-#include "od_helpids.h"
+#include "uitextedit.h"
+#include "uitoolbutton.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
 
 uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( tr("2D Seismic Lines")),
-                                 mNoDlgTitle,
+				 mNoDlgTitle,
 				 mODHelpKey(mSeis2DManHelpID) ))
     , issidomain(ZDomain::isSI( ioobj.pars() ))
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
@@ -76,7 +76,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 			uiStrings::sLine(mPlural)),mCB(this,uiSeis2DFileMan,
 			mergeLines) );
     linegrp_->addButton( "browseseis", tr("Browse/Edit this line"),
-		        mCB(this,uiSeis2DFileMan,browsePush) );
+			mCB(this,uiSeis2DFileMan,browsePush) );
     if ( SI().has3D() )
 	linegrp_->addButton( "extr3dinto2d", tr("Extract from 3D cube"),
 			mCB(this,uiSeis2DFileMan,extrFrom3D) );
@@ -212,7 +212,7 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	const char* linenm = sellines.get(idx);
-        dataset_->remove( Survey::GM().getGeomID(linenm) );
+	dataset_->remove( Survey::GM().getGeomID(linenm) );
 	linefld_->removeItem( linenm );
     }
 

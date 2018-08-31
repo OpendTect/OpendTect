@@ -469,7 +469,8 @@ void uiODMenuMgr::setSurveySubMenus()
 			     mExpFltSSAsciiMnuItm, mExpBulkFltSSAsciiMnuItm );
     addAction( manmnu_, mnunm, iconnm, mManFltSSMnuItm );
 
-    impmnus_ += 0;
+    mnunm = tr("Navigation Data / 2D Geometry"); iconnm = "tree-geom2d";
+    addAsciiActionSubMenu( impmnu_, mnunm, iconnm, mImpGeom2DAsciiMnuItm );
     if ( !have2d )
 	expmnus_ += 0;
     else
@@ -1292,6 +1293,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
+    case mImpGeom2DAsciiMnuItm:		mDoOp(Imp,Geom2D,0); break;
     case mExpGeom2DAsciiMnuItm:		mDoOp(Exp,Geom2D,0); break;
     case mManColTabMnuItm:		mDoOp(Man,ColTab,0); break;
     case mManSeis3DMnuItm:		mDoOp(Man,Seis,0); break;

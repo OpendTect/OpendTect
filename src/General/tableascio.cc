@@ -269,43 +269,80 @@ void TargetInfo::usePar( const IOPar& iopar )
 
 
 Table::TargetInfo*
-	TargetInfo::mkPos( bool ishor, bool isreq, bool wu, int zopt )
+	TargetInfo::mkHorPosition( bool isreq, bool wic, bool wll, bool wcrs )
 {
-    Table::TargetInfo* ti;
     const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
-    if ( ishor )
+    Table::TargetInfo* ti =
+	new TargetInfo( uiString::empty(), DoubleInpSpec(), reqspec );
+    ti->form(0).dispnm_ = toUiString("X/Y");
+    ti->form(0).add( DoubleInpSpec() );
+    if ( wcrs )
+	ti->selection_.coordsys_ = SI().getCoordSystem();
+
+    if ( wic )
     {
-	ti = new TargetInfo( uiStrings::sPosition(), DoubleInpSpec(), reqspec );
-	ti->form(0).setName( "X Y" );
-	ti->form(0).add( DoubleInpSpec() );
 	Table::TargetInfo::Form* form = new Table::TargetInfo::Form(
-	    toUiString("%1 %2").arg(uiStrings::sInl()).arg(uiStrings::sCrl()),
-								IntInpSpec() );
+	    toUiString("%1/%2").arg(uiStrings::sInl()).arg(uiStrings::sCrl()),
+	    IntInpSpec() );
 	form->add( IntInpSpec() );
 	ti->add( form );
     }
-    else
+
+    if ( wll )
     {
-	ti = new TargetInfo( uiStrings::sZ(), FloatInpSpec(), reqspec );
-	if ( wu )
+	Table::TargetInfo::Form* form = new Table::TargetInfo::Form(
+	    toUiString("Long/Lat"), StringInpSpec() );
+	form->add( StringInpSpec() );
+	ti->add( form );
+    }
+
+    return ti;
+}
+
+
+bool TargetInfo::needsConversion() const
+{
+    ConstRefMan<Coords::CoordSystem> inpcrs = selection_.coordsys_;
+    ConstRefMan<Coords::CoordSystem> outcrs = SI().getCoordSystem();
+    return inpcrs && outcrs && !(*inpcrs == *outcrs);
+}
+
+
+Coord TargetInfo::convert( const Coord& crd ) const
+{
+    if ( !needsConversion() )
+	return Coord::udf();
+
+    ConstRefMan<Coords::CoordSystem> inpcrs = selection_.coordsys_;
+    ConstRefMan<Coords::CoordSystem> outcrs = SI().getCoordSystem();
+    return outcrs->convertFrom( crd, *inpcrs );
+}
+
+
+Table::TargetInfo* TargetInfo::mkZPos( bool isreq, bool wu, int zopt )
+{
+    const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
+    Table::TargetInfo* ti =
+	new TargetInfo( uiStrings::sZ(), FloatInpSpec(), reqspec );
+    if ( wu )
+    {
+	if ( zopt == 0 )
 	{
-	    if ( zopt == 0 )
-	    {
-		ti->setPropertyType( PropertyRef::surveyZType() );
-		ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
-	    }
-	    else if ( zopt < 0 )
-	    {
-		ti->setPropertyType( PropertyRef::Time );
-		ti->selection_.unit_ = UoMR().get( "Milliseconds" );
-	    }
-	    else
-	    {
-		ti->setPropertyType( PropertyRef::Dist );
-		ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
-	    }
+	    ti->setPropertyType( PropertyRef::surveyZType() );
+	    ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
+	}
+	else if ( zopt < 0 )
+	{
+	    ti->setPropertyType( PropertyRef::Time );
+	    ti->selection_.unit_ = UoMR().get( "Milliseconds" );
+	}
+	else
+	{
+	    ti->setPropertyType( PropertyRef::Dist );
+	    ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
 	}
     }
+
     return ti;
 }
 
@@ -678,7 +715,7 @@ bool Table::AscIO::getHdrVals( od_istream& strm ) const
 				= tarinf.form( tarinf.selection_.form_ );
 	    for ( int ielem=0; ielem<selform.specs_.size(); ielem++ )
 		addVal( tarinf.selection_.getVal(ielem),
-		        tarinf.selection_.unit_ );
+			tarinf.selection_.unit_ );
 	}
     }
     else

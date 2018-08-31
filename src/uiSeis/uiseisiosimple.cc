@@ -6,36 +6,38 @@
 
 
 #include "uiseisiosimple.h"
-#include "ui2dgeomman.h"
-#include "uiseissubsel.h"
-#include "uiseislinesel.h"
-#include "uiseissel.h"
-#include "uimultcomputils.h"
+
+#include "uibutton.h"
 #include "uifilesel.h"
 #include "uigeninput.h"
+#include "uiimpexp2dgeom.h"
 #include "uiioobjsel.h"
-#include "uitaskrunner.h"
-#include "uiseparator.h"
-#include "uiscaler.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uibutton.h"
-#include "seisioobjinfo.h"
-#include "seistrctr.h"
-#include "seispsioprov.h"
-#include "seisselection.h"
-#include "seisresampler.h"
-#include "survgeom2d.h"
-#include "ioobjctxt.h"
-#include "trckeyzsampling.h"
-#include "ioobj.h"
-#include "iopar.h"
-#include "survinfo.h"
-#include "oddirs.h"
+#include "uimultcomputils.h"
+#include "uiscaler.h"
+#include "uiseislinesel.h"
+#include "uiseissel.h"
+#include "uiseissubsel.h"
+#include "uiseparator.h"
+#include "uitaskrunner.h"
+
 #include "file.h"
 #include "filepath.h"
+#include "ioobj.h"
+#include "ioobjctxt.h"
+#include "iopar.h"
 #include "keystrs.h"
+#include "oddirs.h"
 #include "od_helpids.h"
+#include "seisioobjinfo.h"
+#include "seispsioprov.h"
+#include "seisresampler.h"
+#include "seisselection.h"
+#include "seistrctr.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
 
 
 static bool survChanged()
@@ -163,7 +165,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	if ( !is2d )
 	{
 	    inldeffld_ = new uiGenInput( this,
-                                         tr("Inline definition: start, step"),
+					 tr("Inline definition: start, step"),
 				IntInpSpec(data().inldef_.start)
 						.setName("Inl def start"),
 				IntInpSpec(data().inldef_.step)
@@ -216,7 +218,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    haveazimbut_->attach( rightOf, haveoffsbut_ );
 	    haveazimbut_->setChecked( data().haveazim_ );
 	    pspposlbl_ = new uiLabel( this, tr("Position includes"),
-                                      haveoffsbut_ );
+				      haveoffsbut_ );
 	    const float stopoffs =
 			data().offsdef_.atIndex(data().nroffsperpos_-1);
 	    offsdeffld_ = new uiGenInput( this,

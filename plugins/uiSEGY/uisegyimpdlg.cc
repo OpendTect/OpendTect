@@ -10,36 +10,36 @@ ________________________________________________________________________
 
 #include "uisegyimpdlg.h"
 
-#include "ui2dgeomman.h"
+#include "uibatchjobdispatchersel.h"
+#include "uifilesel.h"
+#include "uimsg.h"
+#include "uiimpexp2dgeom.h"
 #include "uisegydef.h"
-#include "uiseistransf.h"
+#include "uiseisioobjinfo.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
-#include "uiseisioobjinfo.h"
+#include "uiseistransf.h"
 #include "uiseparator.h"
-#include "uifilesel.h"
-#include "uibatchjobdispatchersel.h"
-#include "uitoolbutton.h"
-#include "uimsg.h"
 #include "uitaskrunner.h"
+#include "uitoolbutton.h"
+
+#include "file.h"
+#include "filepath.h"
+#include "dbman.h"
+#include "dirlist.h"
+#include "ioobjctxt.h"
+#include "iostrm.h"
+#include "keystrs.h"
+#include "od_helpids.h"
+#include "posinfo2dsurv.h"
+#include "segybatchio.h"
 #include "segyhdr.h"
-#include "seisioobjinfo.h"
 #include "seisimporter.h"
+#include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seiswrite.h"
 #include "survgeom2d.h"
-#include "posinfo2dsurv.h"
-#include "ioobjctxt.h"
-#include "filepath.h"
-#include "file.h"
-#include "dirlist.h"
-#include "dbman.h"
-#include "iostrm.h"
 #include "zdomain.h"
-#include "segybatchio.h"
-#include "keystrs.h"
-#include "od_helpids.h"
-
 
 
 uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
@@ -124,7 +124,7 @@ public:
 uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
 	: uiDialog(p,uiDialog::Setup(tr("2D SEG-Y multi-import"),
 				     tr("Specify file details"),
-                                     mODHelpKey(mSEGYImpSimilarDlgHelpID) ))
+				     mODHelpKey(mSEGYImpSimilarDlgHelpID) ))
 	, inioobj_(iio)
 	, outioobj_(oio)
 	, impdlg_(p)
@@ -209,7 +209,7 @@ bool doImp( const File::Path& fp )
 
     BufferString fullmaskfnm( maskfp.fullPath() );
     int lnmoffs = mCast( int, firstOcc( fullmaskfnm.buf(), '*' ) -
-	                                   fullmaskfnm.buf() );
+					   fullmaskfnm.buf() );
     const int orglen = fullmaskfnm.size();
     bool nofails = true;
 

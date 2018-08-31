@@ -14,23 +14,20 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "dbman.h"
 #include "file.h"
-#include "geom2dascio.h"
 #include "od_helpids.h"
-#include "od_istream.h"
 #include "posinfo2dsurv.h"
 #include "survgeom2d.h"
 #include "survgeometrytransl.h"
 
 #include "uibutton.h"
-#include "uifilesel.h"
 #include "uigeninput.h"
+#include "uiimpexp2dgeom.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitable.h"
-#include "uitblimpexpdatasel.h"
 
 static IOObjContext mkCtxt()
 {
@@ -52,46 +49,16 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 				mCB(this,ui2DGeomManageDlg,manLineGeom) );
 }
 
+
 ui2DGeomManageDlg::~ui2DGeomManageDlg()
 {
 }
 
 
-//---------- Import New Geometry ----------------
-
-class uiGeom2DImpDlg : public uiDialog
-{ mODTextTranslationClass(uiGeom2DImpDlg);
-public:
-
-uiGeom2DImpDlg( uiParent* p, const char* linenm )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(tr("New Line Geometry")),
-				 toUiString(linenm),
-				 mODHelpKey(mGeom2DImpDlgHelpID)))
-{
-    setOkText( uiStrings::sImport() );
-    Table::FormatDesc* geomfd = Geom2DAscIO::getDesc();
-    geom2dinfld_ = new uiFileSel( this, tr("2D Geometry File"),
-				   uiFileSel::Setup().withexamine(true) );
-    dataselfld_ = new uiTableImpDataSel( this, *geomfd, mNoHelpKey );
-    dataselfld_->attach( alignedBelow, geom2dinfld_ );
-}
-
-bool acceptOK()
-{
-    if ( File::isEmpty(geom2dinfld_->fileName()) )
-    { uiMSG().error(uiStrings::sInvInpFile()); return false; }
-    return true;
-}
-
-    uiFileSel*	geom2dinfld_;
-    uiTableImpDataSel*	dataselfld_;
-};
-
-
 //-----------Manage Line Geometry-----------------
 
 class uiManageLineGeomDlg : public uiDialog
-{ mODTextTranslationClass(uiManageLineGeomDlg);
+{ mODTextTranslationClass(uiManageLineGeomDlg)
 public:
 
 uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
@@ -140,9 +107,8 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
 
     if ( !readonly )
     {
-	readnewbut_ = new uiPushButton( this, uiStrings::phrImport(
-			tr(" New Geometry")),
-			mCB(this,uiManageLineGeomDlg,impLineGeom), true );
+	readnewbut_ = new uiPushButton( this, tr("Set new Geometry"),
+			mCB(this,uiManageLineGeomDlg,impLineGeom), false );
 	readnewbut_->attach( centeredBelow, rgfld_ );
     }
 
@@ -155,24 +121,15 @@ void impLineGeom( CallBacker* )
     if ( readonly_ )
 	return;
 
-    uiGeom2DImpDlg dlg( this, linenm_ );
+    uiImp2DGeom dlg( this, linenm_ );
     if ( !dlg.go() ) return;
 
-    BufferString filenm( dlg.geom2dinfld_->fileName() );
-    if ( !filenm.isEmpty() )
-    {
-	od_istream strm( filenm );
-	if ( !strm.isOK() )
-	    { uiMSG().error(uiStrings::phrCannotOpenInpFile()); return; }
+    RefMan<Survey::Geometry2D> geom = new Survey::Geometry2D( linenm_ );
+    if ( !dlg.fillGeom(*geom) )
+	return;
 
-	RefMan<Survey::Geometry2D> geom = new Survey::Geometry2D( linenm_ );
-	Geom2DAscIO geomascio( dlg.dataselfld_->desc(), strm );
-	if ( !geomascio.getData(*geom) )
-	    uiMSG().error(uiStrings::phrCannotRead( toUiString(filenm)) );
-
-	table_->clearTable();
-	fillTable( *geom );
-    }
+    table_->clearTable();
+    fillTable( *geom );
 }
 
 
@@ -230,6 +187,7 @@ bool acceptOK()
     uiGenInput*		rgfld_;
     uiPushButton*	readnewbut_;
 };
+
 
 //-----------------------------------------------------
 
@@ -323,106 +281,4 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 
     if ( !msgs.isEmpty() )
 	uiMSG().errorWithDetails(msgs);
-}
-
-
-//Geom2DImpHandler
-
-Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm, bool ovwok )
-{
-    Pos::GeomID geomid = Survey::GM().getGeomID( nm );
-    if ( mIsUdfGeomID(geomid) )
-	return createNewGeom( nm );
-
-    if ( ovwok || confirmOverwrite(nm) )
-	setGeomEmpty( geomid );
-
-    return geomid;
-}
-
-
-bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
-				     TypeSet<Pos::GeomID>& geomids, bool ovwok )
-{
-    geomids.erase();
-    BufferString existingidxs;
-    for ( int idx=0; idx<nms.size(); idx++ )
-    {
-	Pos::GeomID geomid = Survey::GM().getGeomID( nms.get(idx) );
-	if ( !mIsUdfGeomID(geomid) )
-	    existingidxs += idx;
-	else
-	{
-	    geomid = createNewGeom( nms.get(idx) );
-	    if ( mIsUdfGeomID(geomid) )
-		return false;
-	}
-
-	geomids += geomid;
-    }
-
-    if ( !existingidxs.isEmpty() )
-    {
-	BufferStringSet existinglnms;
-	for ( int idx=0; idx<existingidxs.size(); idx++ )
-	    existinglnms.add( nms.get(existingidxs[idx]) );
-
-	if ( ovwok || confirmOverwrite(existinglnms) )
-	{
-	    for ( int idx=0; idx<existingidxs.size(); idx++ )
-		setGeomEmpty( geomids[existingidxs[idx]] );
-	}
-    }
-
-    return true;
-}
-
-
-void Geom2DImpHandler::setGeomEmpty( Pos::GeomID geomid )
-{
-    mDynamicCastGet( Survey::Geometry2D*, geom2d,
-		     Survey::GMAdmin().getGeometry(geomid) );
-    if ( !geom2d )
-	return;
-
-    geom2d->dataAdmin().setEmpty();
-    geom2d->touch();
-}
-
-
-Pos::GeomID Geom2DImpHandler::createNewGeom( const char* nm )
-{
-    PosInfo::Line2DData* l2d = new PosInfo::Line2DData( nm );
-    Survey::Geometry2D* newgeom = new Survey::Geometry2D( l2d );
-    uiString msg;
-    Pos::GeomID geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
-    if ( mIsUdfGeomID(geomid) )
-	uiMSG().error( msg );
-
-    return geomid;
-}
-
-
-bool Geom2DImpHandler::confirmOverwrite( const BufferStringSet& lnms )
-{
-    if ( lnms.size() == 1 )
-	return confirmOverwrite( lnms.get(0) );
-
-    uiString msg =
-	tr("The 2D Lines %1 already exist. If you overwrite "
-	   "their geometry, all the associated data will be "
-	   "affected. Do you still want to overwrite?")
-	.arg(lnms.getDispString(5));
-
-    return uiMSG().askOverwrite( msg );
-}
-
-
-bool Geom2DImpHandler::confirmOverwrite( const char* lnm )
-{
-    uiString msg = tr("The 2D Line '%1' already exists. If you overwrite "
-		      "its geometry, all the associated data will be "
-		      "affected. Do you still want to overwrite?")
-		      .arg(lnm);
-    return uiMSG().askOverwrite( msg );
 }

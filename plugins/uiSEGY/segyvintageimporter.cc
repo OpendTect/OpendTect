@@ -18,7 +18,9 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "seiswrite.h"
 #include "survgeom.h"
-#include "ui2dgeomman.h"
+
+#include "uiimpexp2dgeom.h"
+
 
 SEGY::Vintage::Importer::Importer( const SEGY::Vintage::Info& vntinfo,
 				   const OD::String& trnalnm,

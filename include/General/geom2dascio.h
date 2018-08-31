@@ -22,14 +22,18 @@ namespace Table { class FormatDesc; }
 */
 
 mExpClass(General) Geom2DAscIO : public Table::AscIO
-{
+{ mODTextTranslationClass(Geom2DAscIO)
 public:
 				Geom2DAscIO(const Table::FormatDesc&,
 					    od_istream&);
-    static Table::FormatDesc*	getDesc();
-    bool			getData(Survey::Geometry2D&);
+    static Table::FormatDesc*	getDesc(bool withline);
+    static void			fillDesc(Table::FormatDesc&,bool withline);
+    bool			getData(Survey::Geometry2D&) const;
+    bool			getData(ObjectSet<Survey::Geometry2D>&) const;
 
 protected:
 
     od_istream&			strm_;
+    bool			readLine(int startidx,Coord&,int&,int&,
+					 bool,bool) const;
 };
