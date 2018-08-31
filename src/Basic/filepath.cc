@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "winutils.h"
 #include "fixedstring.h"
 #include "oddirs.h"
+#include "envvars.h"
 #include <time.h>
 #include <string.h>
 
