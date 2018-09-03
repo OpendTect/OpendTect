@@ -24,8 +24,6 @@ int main( int argc, char ** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
-    if ( !CommandLineParser().hasKey("fg") )
-	ForkProcess();
 
     uiMain app;
     CommandLineParser& clp = app.commandLineParser();

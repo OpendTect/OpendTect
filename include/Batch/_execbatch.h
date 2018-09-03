@@ -101,8 +101,6 @@ int Execute_batch( int* pargc, char** argv )
     BP().init();
     if ( !BP().stillok_ )
 	return 1;
-    if ( BP().inbg_ )
-	ForkProcess();
 
     BatchProgram& bp = BP();
     bool allok = bp.initOutput();
@@ -116,7 +114,7 @@ int Execute_batch( int* pargc, char** argv )
 	setBatchPriority( *pargc, argv, pid );
 #endif
 	logstrm << "Starting program: " << argv[0] << " " << bp.name()
-	    	<< od_endl;
+		<< od_endl;
 	logstrm << "Processing on: " << HostData::localHostName() << od_endl;
 	logstrm << "Process ID: " << pid << od_endl;
 	allok = bp.go( logstrm );

@@ -94,16 +94,6 @@ int main( int argc, char** argv )
     if ( clp.getVal(File::ViewPars::sKeyStyle(),stl) )
 	File::ViewStyleDef().parse( stl.str(), vp.style_ );
 
-    bool dofork = true;
-    if ( clp.hasKey(OS::MachineCommand::sKeyFG()) )
-	dofork = false;
-#ifdef __mac__
-    dofork = false;
-#endif
-
-    if ( dofork )
-	ForkProcess();
-
     OD::ModDeps().ensureLoaded( "uiTools" );
 
     uiTextFileDlg::Setup fdsetup( toUiString(fnm) );

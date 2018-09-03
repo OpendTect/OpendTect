@@ -41,9 +41,6 @@ int main( int argc, char** argv )
 	return ExitProgram( 0 );
     }
 
-    if ( clp.hasKey("bg") )
-	ForkProcess();
-
     BufferString& fnm = args.get( 0 );
 #ifdef __win__
     fnm = File::linkEnd( fnm );
