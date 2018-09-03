@@ -771,7 +771,6 @@ bool DecompInput::usePolynomial(
 
 
 	for ( float f=startfreq*convfac; f<=endfreq*convfac; f+=stepout )
-	//for ( int f=startfreq; f<endfreq; f+=stepoutfreq )
 	{
 	    int yidx = mNINT32(f/stepout);
 	    if ( yidx == 0 )
