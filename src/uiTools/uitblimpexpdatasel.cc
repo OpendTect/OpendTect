@@ -341,7 +341,12 @@ bool commit()
 
     tinf_.selection_.unit_ = unitfld_ ? unitfld_->getUnit() : 0;
     if ( crsfld_ )
-	tinf_.selection_.coordsys_ = crsfld_->getCoordSystem();
+    {
+	if ( crsfld_->isDisplayed() )
+	    tinf_.selection_.coordsys_ = crsfld_->getCoordSystem();
+	else
+	    tinf_.selection_.coordsys_ = SI().getCoordSystem();
+    }
 
     return true;
 }

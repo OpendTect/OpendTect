@@ -268,8 +268,8 @@ void TargetInfo::usePar( const IOPar& iopar )
 }
 
 
-Table::TargetInfo*
-	TargetInfo::mkHorPosition( bool isreq, bool wic, bool wll, bool wcrs )
+Table::TargetInfo* TargetInfo::mkHorPosition( bool isreq, bool wic, bool wll,
+							bool wcrs )
 {
     const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
     Table::TargetInfo* ti =
@@ -858,6 +858,42 @@ double Table::AscIO::getDValue( int ifld, double udf ) const
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
     return unit ? unit->internalValue( val ) : val;
+}
+
+
+Coord Table::AscIO::getPos( int xfld, int yfld, double udf ) const
+{
+    Coord curpos;
+
+    curpos.x_ = getDValue(xfld);
+    curpos.y_ = getDValue(yfld);
+
+    if ( !curpos.isUdf() )
+    {
+	ConstRefMan<Coords::CoordSystem> inpcrs =
+				fd_.bodyinfos_[0]->selection_.coordsys_;
+	ConstRefMan<Coords::CoordSystem> outcrs = SI().getCoordSystem();
+
+	if ( inpcrs && outcrs && !(*inpcrs == *outcrs) )
+	    curpos.setFrom( outcrs->convertFrom(curpos,*inpcrs) );
+    }
+
+    return curpos;
+}
+
+
+Coord3 Table::AscIO::getPos3D( int xfld, int yfld, int zfld, double udf ) const
+{
+    return Coord3d( getPos(xfld,yfld,udf), getDValue(zfld) );
+}
+
+
+BinID Table::AscIO::getBinID( int xfld, int yfld, double udf ) const
+{
+    BinID bid;
+    bid.inl() = getIntValue(xfld);
+    bid.crl() = getIntValue(yfld);
+    return bid;
 }
 
 

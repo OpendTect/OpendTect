@@ -372,8 +372,10 @@ Coord Coords::Proj4Projection::transformTo( const Coords::Projection& target,
 	return Coord::udf();
 
     Coord ret( ll.lng_ * mDeg2RadD, ll.lat_ * mDeg2RadD );
-    if ( pj_transform(srcproj4,targetproj4->proj_,1,1,&ret.x_,&ret.y_,NULL) )
+    if ( pj_transform(srcproj4,targetproj4->proj_,1,1,&ret.x_,&ret.y_,NULL) ||
+	ret.x_ == HUGE_VAL || ret.y_ == HUGE_VAL )
 	return Coord::udf();
+
 
     return ret;
 }
@@ -390,7 +392,8 @@ LatLong Coords::Proj4Projection::transformTo( const Coords::Projection& target,
     if ( !targetproj4ll )
 	return LatLong::udf();
 
-    if ( pj_transform(proj_,targetproj4ll,1,1,&pos.x_,&pos.y_,NULL) )
+    if ( pj_transform(proj_,targetproj4ll,1,1,&pos.x_,&pos.y_,NULL) ||
+				pos.x_ == HUGE_VAL || pos.y_ == HUGE_VAL )
 	return LatLong::udf();
 
     return LatLong( pos.y_ * mRad2DegD, pos.x_ * mRad2DegD );

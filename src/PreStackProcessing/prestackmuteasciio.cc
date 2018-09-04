@@ -43,7 +43,7 @@ void MuteAscIO::updateDesc( Table::FormatDesc& fd, bool haveposinfo )
 void MuteAscIO::createDescBody( Table::FormatDesc& fd, bool haveposinfo )
 {
     if ( haveposinfo )
-	fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+	fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
 
     fd.bodyinfos_ += new Table::TargetInfo( uiStrings::sOffset(),
 					    FloatInpSpec(), Table::Required );
@@ -78,14 +78,7 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 	if ( ret < 0 ) return false;
 	if ( ret == 0) break;
 
-	BinID binid;
-	if ( isxy )
-	    binid = SI().transform( Coord(getDValue(0),getDValue(1)) );
-	else
-	{
-   	    binid.inl() = getIntValue(0);
-   	    binid.crl() = getIntValue(1);
-	}
+	BinID binid( getBinID(0,1) );
 
 	const PointBasedMathFunction::ExtrapolType et = extrapol
 	    ? PointBasedMathFunction::EndVal

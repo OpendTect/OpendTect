@@ -994,7 +994,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 }
 
 #define mAddPopupMnu( mnu, txt, itm ) \
-    mnu->insertAction( new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)), itm );
+    mnu->insertAction(new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)),itm);
 
 void uiODMenuMgr::fillManTB()
 {

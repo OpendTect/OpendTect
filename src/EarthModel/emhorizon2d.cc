@@ -735,10 +735,8 @@ void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 {
     fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sLineName(),
 							Table::Required );
-    Table::TargetInfo* ti = new Table::TargetInfo( uiStrings::sPosition(),
-							    DoubleInpSpec(),
-					    Table::Optional );
-    ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
+    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( true, false,
+									true );
     fd->bodyinfos_ += ti;
     Table::TargetInfo* trcspti = new Table::TargetInfo( uiString::empty(),
 							    Table::Required );
@@ -786,8 +784,7 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
     if ( ret <= 0 ) return ret;
 
     lnm = text( 0 );
-    crd.x_ = getDValue( 1 );
-    crd.y_ = getDValue( 2 );
+    crd = getPos( 0, 1 );
     trcnr = getIntValue( 3 );
     const int nrhors = vals_.size() - 4;
     for ( int idx=0; idx<nrhors; idx++ )

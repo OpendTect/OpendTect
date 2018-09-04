@@ -219,7 +219,7 @@ Table::FormatDesc* EventAscIO::getDesc()
 
 void EventAscIO::createDescBody( Table::FormatDesc* fd )
 {
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
     fd->bodyinfos_ += new Table::TargetInfo( tr("Event ID (optional)"),
 					     IntInpSpec(), Table::Optional );
     fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sOffset(),
@@ -246,23 +246,21 @@ bool EventAscIO::isXY() const
 int EventAscIO::getNextLine( BinID& bid, int& horid,
 			     float& offset, float& zval )
 {
+    isxy_ = isXY();
+
     if ( !finishedreadingheader_ )
     {
 	if ( !getHdrVals(strm_) )
 	    return -1;
 
 	udfval_ = getFValue( 0 );
-	isxy_ = isXY();
 	finishedreadingheader_ = true;
     }
 
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 )
 	return ret;
-
-    Coord pos( getDValue(0,udfval_), getDValue(1,udfval_) );
-    bid = isxy_ ? SI().transform( pos )
-		: BinID( mNINT32(pos.x_), mNINT32(pos.y_) );
+    bid = getBinID( 0, 1 );
     horid = getIntValue( 2, mUdf(od_int16) );
     offset = getFValue( 3, udfval_ );
     zval = getFValue( 4, udfval_ );

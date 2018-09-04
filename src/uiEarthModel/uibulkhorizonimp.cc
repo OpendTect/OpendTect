@@ -48,7 +48,7 @@ static Table::FormatDesc* getDesc()
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sHorizonName(),
 							    Table::Required );
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     return fd;
 }
@@ -74,9 +74,8 @@ bool getData( BufferString& hornm, Coord3& crd )
     if ( ret <= 0 ) return false;
 
     hornm = text( 0 );
-    crd.x_ = getDValue( 1, udfval_ );
-    crd.y_ = getDValue( 2, udfval_ );
-    crd.z_ = getFValue( 3, udfval_ );
+
+    crd = getPos3D( 1, 2, 3, udfval_ );
     return true;
 }
 

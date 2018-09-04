@@ -54,7 +54,7 @@ static Table::FormatDesc* getDesc( bool isfss, bool is2d )
     BufferString dispnm = isfss ? "FaultStickSet name" : "Fault name";
     fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sFaultName(),
 							    Table::Required );
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sStickIndex(),
 					    IntInpSpec(), Table::Optional );
@@ -88,18 +88,7 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
     if ( ret <= 0 ) return false;
 
     fltnm = text( 0 );
-    if ( isXY() )
-    {
-	crd.x_ = getDValue( 1, udfval_ );
-	crd.y_ = getDValue( 2, udfval_ );
-	crd.z_ = getFValue( 3, udfval_ );
-    }
-    else
-    {
-	BinID bid( (int)getDValue(1,udfval_), (int)getDValue(2,udfval_) );
-	crd = Coord3( SI().transform(bid), getFValue(3,udfval_) );
-    }
-
+    crd = getPos3D( 1, 2, 3, udfval_ );
     stickidx = getIntValue( 4 );
     nodeidx = getIntValue( 5 );
     if ( is2d_ )

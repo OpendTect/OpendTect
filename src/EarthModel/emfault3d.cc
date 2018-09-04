@@ -344,7 +344,7 @@ Table::FormatDesc* FaultAscIO::getDesc( bool is2d )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Fault" );
 
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sStickIndex(),
 						IntInpSpec(), Table::Optional );
@@ -378,22 +378,22 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 
     ObjectSet<FaultStick> sticks;
     const bool isxy = isXY();
-
     while ( true )
     {
 	const int ret = getNextBodyVals( strm );
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	crd.x_ = getDValue( 0 );
-	crd.y_ = getDValue( 1 );
-	if ( !isxy && !mIsUdf(crd.x_) && !mIsUdf(crd.y_) )
+	if ( isxy )
+	    crd = getPos3D( 0, 1, 2 );
+	else
 	{
-	    Coord wc( SI().transform(BinID(mNINT32(crd.x_),mNINT32(crd.y_))) );
-	    crd.x_ = wc.x_; crd.y_ = wc.y_;
+	    crd.setXY( SI().transform(getBinID(0,1)) );
+	    crd.z_ = getDValue(2);
 	}
-	crd.z_ = getDValue( 2 );
-	if ( !crd.isDefined() ) continue;
+
+	if ( !crd.isDefined() )
+	    continue;
 
 	const int stickidx = getIntValue( 3 );
 
@@ -403,9 +403,6 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 
 	if ( sticks.isEmpty() && !mIsUdf(stickidx) )
 	    hasstickidx = true;
-
-	if ( !crd.isDefined() )
-	    continue;
 
 	if ( hasstickidx )
 	{

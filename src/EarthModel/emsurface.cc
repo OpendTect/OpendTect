@@ -183,12 +183,14 @@ void SurfaceIODataSelection::setDefault()
 
 Surface::Surface( const char* nm )
     : Object(nm)
+    , shift_(0)
 {
 }
 
 
 Surface::Surface( const Surface& oth )
     : Object(oth.name())
+    , shift_(0)
 {
     *this = oth;
 }

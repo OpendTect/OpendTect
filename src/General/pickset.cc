@@ -1055,7 +1055,7 @@ Table::FormatDesc* PickSetAscIO::getDesc( bool iszreq )
 
 void PickSetAscIO::createDescBody( Table::FormatDesc* fd, bool iszreq )
 {
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
     if ( iszreq )
 	fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
 }
@@ -1087,15 +1087,13 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	if ( ret < 0 ) mErrRet(errmsg_)
 	if ( ret == 0 ) break;
 
-	const double xread = getDValue( 0 );
-	const double yread = getDValue( 1 );
-	if ( mIsUdf(xread) || mIsUdf(yread) ) continue;
-
-	Coord pos( xread, yread );
+	Coord pos( getPos(0, 1) );
+	if ( pos.isUdf() )
+	    continue;
 	mPIEPAdj(Coord,pos,true);
 	if ( !isXY() || !SI().isReasonable(pos) )
 	{
-	    BinID bid( mNINT32(xread), mNINT32(yread) );
+	    BinID bid( mNINT32(pos.x_), mNINT32(pos.y_) );
 	    mPIEPAdj(BinID,bid,true);
 	    SI().snap( bid );
 	    pos = SI().transform( bid );

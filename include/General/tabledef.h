@@ -222,7 +222,6 @@ protected:
     ReqSpec		req_;
     PropertyRef::StdType proptype_;
     ObjectSet<Form>	forms_;
-
     static TargetInfo*	mkZPos(bool,bool wu=false,int zopt=0);
 
 };

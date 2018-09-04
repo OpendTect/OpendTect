@@ -129,16 +129,7 @@ bool getLine()
     atend_ = false;
 
     wcd_.nm_ = text( 0 );
-    if ( isXY() )
-    {
-	wcd_.coord_.x_ = getDValue( 1 );
-	wcd_.coord_.y_ = getDValue( 2 );
-    }
-    else
-    {
-	const BinID bid( getIntValue(1), getIntValue(2) );
-	wcd_.coord_ = SI().transform( bid );
-    }
+    wcd_.coord_ = getPos( 1, 2 );
 
     if ( wcd_.nm_.isEmpty()
       || mIsUdf(wcd_.coord_.x_) || mIsUdf(wcd_.coord_.y_)
@@ -177,7 +168,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
 
     fd_.bodyinfos_ += new Table::TargetInfo( uiStrings::sWellName(),
 							    Table::Required );
-    fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
     Table::TargetInfo* ti = Table::TargetInfo::mkDepthPosition( false );
     ti->setName( Well::Info::sKeyKBElev() );
     fd_.bodyinfos_ += ti;

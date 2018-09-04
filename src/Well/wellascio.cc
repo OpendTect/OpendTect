@@ -38,8 +38,7 @@ static bool convToDah( const Well::Track& trck, float& val,
 Table::FormatDesc* Well::TrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
-    Table::TargetInfo* xyti = Table::TargetInfo::mkHorPosition( true );
-    fd->bodyinfos_ += xyti;
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( false );
     zti->setName( "Z (TVDSS)" );
     fd->bodyinfos_ += zti;
@@ -59,10 +58,6 @@ bool Well::TrackAscIO::readTrackData( TypeSet<Coord3>& pos,
 	return false;
 
     const bool isxy = fd_.bodyinfos_[0]->selection_.form_ == 0;
-    ConstRefMan<Coords::CoordSystem> inpcrs =
-				fd_.bodyinfos_[0]->selection_.coordsys_;
-    ConstRefMan<Coords::CoordSystem> outcrs = SI().getCoordSystem();
-    const bool needsconv = isxy && inpcrs && outcrs && !(*inpcrs == *outcrs);
     const uiString nozpts = tr("At least one point had neither Z nor MD");
     bool nozptsfound = false;
 
@@ -72,22 +67,9 @@ bool Well::TrackAscIO::readTrackData( TypeSet<Coord3>& pos,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	Coord3 curpos;
-	curpos.x_ = getDValue(0);
-	curpos.y_ = getDValue(1);
-	if ( needsconv )
-	    curpos.setXY( outcrs->convertFrom(curpos.getXY(),*inpcrs) );
-
-	if ( !isxy && !mIsUdf(curpos.x_) && !mIsUdf(curpos.y_) )
-	{
-	    Coord wc( SI().transform(
-			BinID( mNINT32(curpos.x_), mNINT32(curpos.y_) ) ) );
-	    curpos.x_ = wc.x_; curpos.y_ = wc.y_;
-	}
-	if ( mIsUdf(curpos.x_) || mIsUdf(curpos.y_) )
+	Coord3 curpos( getPos3D(0,1,2) );
+	if ( curpos.getXY().isUdf() )
 	    continue;
-
-	curpos.z_ = getDValue(2);
 	const double dah = getDValue(3);
 	if ( mIsUdf(curpos.z_) && mIsUdf(dah) )
 	{
@@ -488,7 +470,7 @@ Table::FormatDesc* Well::BulkTrackAscIO::getDesc()
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkWellTrack" );
     fd->bodyinfos_ +=
 	new Table::TargetInfo( uiStrings::sWellName(), Table::Required );
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( true );
     zti->setName( "Z (TVDSS)" );
     fd->bodyinfos_ += zti;
@@ -509,10 +491,8 @@ bool Well::BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float& md,
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
-    wellnm = text( 0 );
-    crd.x_ = getDValue( 1 );
-    crd.y_ = getDValue( 2 );
-    crd.z_ = getDValue( 3 );
+    wellnm = text( 0 ); // how are they determining the if its xy or inl/crl
+    crd = getPos3D( 1, 2, 3 );
     md = getFValue( 4 );
     uwi = text( 5 );
     return true;
