@@ -199,18 +199,17 @@ bool doTrace( int itrc )
 				      : 0;
 	char* dststartptr = storarr ? storarr +(offset+startidx0_)*bytespersamp_
 				    : 0;
-#ifdef __debug__
-	const float* storstartptr = storptr;
-	const float* storstopptr  = storptr + arr.info().getTotalSz();
-#endif
 	if ( storarr && samedatachar_ && !needresampling_ &&
 	     !compscaler && !trcscaler )
 	{
 	    const unsigned char* srcptr = databuf_.getData( itrc, idcin,
-							   trczidx0_ );
+							    trczidx0_ );
 #ifdef __debug__
-	    float* dststartfloatptr = (float*)dststartptr;
-	    mCheckPtr(dststartfloatptr,nrzsamples_)
+	    const char* storstartptr = storarr;
+	    const char* storstopptr  = storarr +
+				       arr.info().getTotalSz() * bytespersamp_;
+
+	    mCheckPtr(dststartptr,nrbytes_)
 #endif
 	    OD::sysMemCopy( dststartptr, srcptr, nrbytes_ );
 	}
@@ -221,6 +220,10 @@ bool doTrace( int itrc )
 	    int trczidx = trczidx0_;
 	    float zval = zsamp_.start;
 	    float* destptr = storptr ? (float*)dststartptr : 0;
+#ifdef __debug__
+	    const float* storstartptr = storptr;
+	    const float* storstopptr  = storptr + arr.info().getTotalSz();
+#endif
 	    for ( int zidx=0; zidx<nrzsamples_; zidx++ )
 	    {
 		float rawval = needresampling_
@@ -245,27 +248,20 @@ bool doTrace( int itrc )
 	    }
 	}
 
-	if ( needsudfpaddingattop_ )
+	if ( storptr )
 	{
-	    if ( storptr )
+#ifdef __debug__
+	    const float* storstartptr = storptr;
+	    const float* storstopptr  = storptr + arr.info().getTotalSz();
+#endif
+	    if ( needsudfpaddingattop_ )
 	    {
 #ifdef __debug__
 		mCheckPtr(storptr+offset,startidx0_)
 #endif
 		OD::sysMemValueSet( storptr + offset, mUdf(float), startidx0_ );
 	    }
-	    else
-	    {
-		for ( int validx=0; validx<startidx0_; validx++ )
-		{
-		    if ( stor ) stor->setValue( offset + validx, mUdf(float) );
-		    else arr.set( idx0, idx1, validx, mUdf(float) );
-		}
-	    }
-	}
-	if ( needsudfpaddingatbottom_ )
-	{
-	    if ( storptr )
+	    if ( needsudfpaddingatbottom_ )
 	    {
 #ifdef __debug__
 		mCheckPtr(storptr+offset+stopidx0_+1,nrpadtail_)
@@ -273,13 +269,33 @@ bool doTrace( int itrc )
 		OD::sysMemValueSet( storptr + offset + stopidx0_ + 1,
 				    mUdf(float), nrpadtail_ );
 	    }
+	    continue;
+	}
+
+	if ( needsudfpaddingattop_ )
+	{
+	    if ( stor )
+	    {
+		for ( int validx=0; validx<startidx0_; validx++ )
+		    stor->setValue( offset + validx, mUdf(float) );
+	    }
+	    else
+	    {
+		for ( int validx=0; validx<startidx0_; validx++ )
+		    arr.set( idx0, idx1, validx, mUdf(float) );
+	    }
+	}
+	if ( needsudfpaddingatbottom_ )
+	{
+	    if ( stor )
+	    {
+		for ( int validx=stopidx0_+1; validx<dpnrzsamples_; validx++ )
+		    stor->setValue( offset + validx, mUdf(float) );
+	    }
 	    else
 	    {
 		for ( int validx=stopidx0_+1; validx<dpnrzsamples_; validx++ )
-		{
-		    if ( stor ) stor->setValue( offset + validx, mUdf(float) );
-		    else arr.set( idx0, idx1, validx, mUdf(float) );
-		}
+		    arr.set( idx0, idx1, validx, mUdf(float) );
 	    }
 	}
     }
