@@ -266,7 +266,7 @@ void uiODMenuMgr::fillImportMenu()
     uiMenu* impcpd = new uiMenu( &appl_, tr("Cross-plot Data") );
     uiMenu* impvelfn = new uiMenu( &appl_, tr("Velocity Functions") );
     uiMenu* imppdf = new uiMenu( &appl_, tr("Probability Density Functions") );
-    uiMenu* impgeom2d = new uiMenu( &appl_, tr("Navigation Data") );
+    uiMenu* impgeom2d = new uiMenu( &appl_,tr("Navigation Data / 2D Geometry"));
 
     impmnu_->insertItem( impattr );
     mInsertItem( impmnu_, m3Dots(uiStrings::sColorTable()), mImpColTabMnuItm );
