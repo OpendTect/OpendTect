@@ -14,20 +14,20 @@
 static bool test2DRegresson( const float* xvals, const float* yvals, int sz )
 {
 #   define mDoCompare( val, target, eps ) \
-	mRunStandardTestWithError( mIsEqual(val,target,eps), \
-			#val " value", "outside range" )
+        mRunStandardTestWithError( mIsEqual(val,target,eps), \
+                        #val " value", "outside range" )
     LinStats2D ls2d;
     ls2d.use( xvals, yvals, sz );
     if ( !quiet )
-	od_cout() << "a0=" << ls2d.lp.a0 << " ax=" << ls2d.lp.ax << od_endl;
-    mDoCompare( ls2d.lp.a0, 9.3f, 0.3f );
-    mDoCompare( ls2d.lp.ax, 8.5f, 0.7f );
+	od_cout() << "a0=" << ls2d.lp.a0_ << " ax=" << ls2d.lp.ax_ << od_endl;
+    mDoCompare( ls2d.lp.a0_, 9.3f, 0.3f );
+    mDoCompare( ls2d.lp.ax_, 8.5f, 0.7f );
 
     ls2d.use( yvals, xvals, sz );
     if ( !quiet )
-	od_cout() << "a0=" << ls2d.lp.a0 << " ax=" << ls2d.lp.ax << od_endl;
-    const float ax = 1.0f / ls2d.lp.ax;
-    const float a0 = -ls2d.lp.a0 / ls2d.lp.ax;
+	od_cout() << "a0=" << ls2d.lp.a0_ << " ax=" << ls2d.lp.ax_ << od_endl;
+    const float ax = 1.0f / ls2d.lp.ax_;
+    const float a0 = -ls2d.lp.a0_ / ls2d.lp.ax_;
     if ( !quiet )
 	od_cout() << "inv a0=" << a0 << " ax=" << ax << od_endl;
     mDoCompare( a0, 9.3f, 0.3f );
@@ -44,9 +44,9 @@ static bool testPlaneFit( const TypeSet<Coord3>& coords )
     fitter.compute( coords, plane );
     if ( !quiet )
 	od_cout() << "Plane: " << plane.A_ << "*X + "
-		  << plane.B_ << "*Y + "
-		  << plane.C_ << "*Z + "
-		  << plane.D_ << od_endl;
+	          << plane.B_ << "*Y + "
+	          << plane.C_ << "*Z + "
+	          << plane.D_ << od_endl;
     return true;
 }
 

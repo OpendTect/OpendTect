@@ -249,13 +249,13 @@ void uiDataPointSetCrossPlotter::getRandRowids()
 	const bool highperc = plotperc_ > 50;
 	rowidxs->ArrayND<char>::setAll( highperc ? '1' : '0' );
 	const float nrrowneeded = mCast( float, highperc ?
-	                           dps_.nrActive() - totalrows : totalrows );
+				   dps_.nrActive() - totalrows : totalrows );
 	while ( rowcount < nrrowneeded )
 	{
 	    int randrow = randgen.getIndex( dps_.size() );
 	    if ( ((!highperc && rowidxs->get(randrow) == '0') ||
-	          (highperc && rowidxs->get(randrow) == '1')) &&
-	         !dps_.isInactive(randrow) )
+		  (highperc && rowidxs->get(randrow) == '1')) &&
+		 !dps_.isInactive(randrow) )
 		rowidxs->set( randrow, highperc ? '0' : '1' );
 	    else
 		continue;
@@ -585,9 +585,9 @@ void uiDataPointSetCrossPlotter::mouseMoveCB( CallBacker* )
 
 	if ( !mIsZero(base,1e-6) )
 	{
-	    linepar.ax = perpendicular/base;
-	    linepar.a0 = yah.getVal(startpos_.y_) -
-			( linepar.ax * xah.getVal(startpos_.x_) );
+	    linepar.ax_ = perpendicular/base;
+	    linepar.a0_ = yah.getVal(startpos_.y_) -
+			( linepar.ax_ * xah.getVal(startpos_.x_) );
 	}
 
 	BufferString& linestr = drawy2_ ? userdefy2str_ : userdefy1str_;
@@ -596,13 +596,13 @@ void uiDataPointSetCrossPlotter::mouseMoveCB( CallBacker* )
 
 	if ( !mIsZero(base,1e-6) )
 	{
-	    if ( linepar.ax )
+	    if ( linepar.ax_ )
 	    {
-		linestr += linepar.ax;
+		linestr += linepar.ax_;
 		linestr += "*x";
-		if ( linepar.a0 > 0 ) linestr += "+";
+		if ( linepar.a0_ > 0 ) linestr += "+";
 	    }
-	    linestr += linepar.a0;
+	    linestr += linepar.a0_;
 	}
 
 	TypeSet<uiWorldPoint> linepts;
@@ -1436,7 +1436,7 @@ bool uiDataPointSetCrossPlotter::checkSelArea( const SelectionArea& area ) const
 
     return y_.axis_->range().includes(rg.start,true) &&
 	   y_.axis_->range().includes(rg.stop,true) &&
-           y2_.axis_->range().includes(altrg.start,true) &&
+	   y2_.axis_->range().includes(altrg.start,true) &&
 	   y2_.axis_->range().includes(altrg.stop,true);
 }
 

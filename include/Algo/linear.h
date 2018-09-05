@@ -25,19 +25,19 @@ template <class T>
 mClass(Algo) LineParameters : public MathFunction<T,T>
 {
 public:
-		LineParameters( T i0=0, T i1=0 )
-		: a0(i0), ax(i1)		{}
+		LineParameters( T a0=0, T ax=0 )
+		: a0_(a0), ax_(ax)		{}
 
     inline T	getValue( T x ) const
-			{ return a0 + ax * x; }
+			{ return a0_ + ax_ * x; }
     inline T	getXValue( T y ) const
-			{ return ax ? (y - a0) / ax : 0; }
+			{ return ax_ ? (y - a0_) / ax_ : 0; }
     inline T	getProjectedX( T x, T y ) const
-			{ return (x + ax * (y - a0)) / (1 + ax * ax); }
+			{ return (x + ax_ * (y - a0_)) / (1 + ax_ * ax_); }
     inline T	getValue( const T* x ) const
 			{ return getValue(*x); }
 
-    T		a0, ax;
+    T		a0_, ax_;
 };
 
 typedef LineParameters<float> LinePars;
@@ -51,15 +51,15 @@ template <class T>
 mClass(Algo) PlaneParameters : public MathXYFunction<T,T>
 {
 public:
-		PlaneParameters( T i0=0, T i1=0, T i2=0 )
-		: a0(i0), ax(i1), ay(i2)	{}
+		PlaneParameters( T a0=0, T ax=0, T ay=0 )
+		: a0_(a0), ax_(ax), ay_(ay)	{}
 
     inline T	getValue( T x, T y ) const
-		{ return a0 + ax * x + ay * y; }
+		{ return a0_ + ax_ * x + ay_ * y; }
     inline T	getValue( const T* x ) const
 			{ return getValue(x[0],x[1]); }
 
-    T		a0, ax, ay;
+    T		a0_, ax_, ay_;
 
 };
 

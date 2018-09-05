@@ -288,10 +288,10 @@ float PropCalc::getVal( const PropCalc::Setup& su,
     ls2d.use( axisvals.arr(), vals.arr(), vals.size() );
     switch ( su.lsqtype_ )
     {
-    case A0:		return ls2d.lp.a0;
-    case Coeff:		return ls2d.lp.ax;
-    case StdDevA0:	return ls2d.sd.a0;
-    case StdDevCoeff:	return ls2d.sd.ax;
+    case A0:		return ls2d.lp.a0_;
+    case Coeff:		return ls2d.lp.ax_;
+    case StdDevA0:	return ls2d.sd.a0_;
+    case StdDevCoeff:	return ls2d.sd.ax_;
     default:		return ls2d.corrcoeff;
     }
 }

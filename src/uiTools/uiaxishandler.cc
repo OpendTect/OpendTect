@@ -815,7 +815,7 @@ void uiAxisHandler::annotAtEnd( const uiString& txt )
 					     : width_ - pix2edge - 5;
 	ypix = pixBefore() + 5;
 	al.set( setup_.side_==uiRect::Left ? OD::Alignment::Left :
-	        OD::Alignment::Right, OD::Alignment::VCenter );
+		OD::Alignment::Right, OD::Alignment::VCenter );
     }
 
     if ( !endannotitm_ )
@@ -851,9 +851,9 @@ void setLine( uiLineItem& lineitm, const LinePars& lp,
     }
 
     uiPoint from(xpixrg.start,ypixrg.start), to(xpixrg.stop,ypixrg.stop);
-    if ( lp.ax == 0 )
+    if ( lp.ax_ == 0 )
     {
-	const int ypix = yah.getPix( lp.a0 );
+	const int ypix = yah.getPix( lp.a0_ );
 	if ( !ypixrg.includes( ypix,true ) ) return;
 	from.x_ = xpixrg.start; to.x_ = xpixrg.stop;
 	from.y_ = to.y_ = ypix;

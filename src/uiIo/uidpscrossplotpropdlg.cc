@@ -221,10 +221,10 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
 void initFlds( CallBacker* )
 {
     const LinStats2D& ls = plotter_.linStats();
-    a0fld_->setValue( ls.lp.a0 );
-    a1fld_->setValue( ls.lp.ax );
-    d0fld_->setValue( ls.sd.a0 );
-    d1fld_->setValue( ls.sd.ax );
+    a0fld_->setValue( ls.lp.a0_ );
+    a1fld_->setValue( ls.lp.ax_ );
+    d0fld_->setValue( ls.sd.a0_ );
+    d1fld_->setValue( ls.sd.ax_ );
     ccfld_->setValue( ls.corrcoeff );
     ccdispbut_->setChecked( plotter_.setup().showcc_ );
     shwregrlnbut_->setChecked( plotter_.setup().showregrline_ );
@@ -852,7 +852,7 @@ void cellSzChanged( CallBacker* )
     }
 
     wcellszfld_->setValue( mNINT32( (float)plotter_.arrArea()
-                          .width()/cellsz) );
+			  .width()/cellsz) );
     hcellszfld_->setValue(
 			mNINT32( (float) plotter_.arrArea().height()/cellsz) );
 }
