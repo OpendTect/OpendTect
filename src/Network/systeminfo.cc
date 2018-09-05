@@ -86,6 +86,7 @@ const char* localAddress()
     if ( retstr && *retstr )
 	return retstr;
 
+#if QT_VERSION >= 0x050000
     // Fallback implementation for some new OS/hardware
     mDeclStaticString( str );
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
@@ -98,7 +99,7 @@ const char* localAddress()
 	    break;
 	}
     }
-
+#endif
     return str.buf();
 }
 
@@ -258,7 +259,7 @@ void getFreeMBOnDiskMsg( int mb, uiString& str )
     bytes <<= 20;
     NrBytesToStringCreator converter( bytes );
     str = od_static_tr( "getFreeMBOnDiskMsg",
-    			"Free space on disk: %1")
+			"Free space on disk: %1")
 	.arg( converter.getString( bytes ) );
 }
 
