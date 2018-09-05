@@ -294,8 +294,19 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
     if ( !getRanges(cs) )
 	return false;
 
+    PosInfo::CubeData cd;
+    SeisTrcReader rdr( ioobj_ );
+    if ( rdr.prepareWork(Seis::Prod) && rdr.seisTranslator() &&
+	 rdr.get3DGeometryInfo(cd) )
+    {
+	spinf.expectednrtrcs = cd.totalSize();
+    }
+    else
+    {
+	spinf.expectednrtrcs = mCast( int, cs.hsamp_.totalNr() );
+    }
+
     spinf.expectednrsamps = cs.zsamp_.nrSteps() + 1;
-    spinf.expectednrtrcs = mCast( int, cs.hsamp_.totalNr() );
     getBPS( spinf.maxbytespsamp, -1 );
     return true;
 }
