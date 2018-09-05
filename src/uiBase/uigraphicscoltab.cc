@@ -115,6 +115,10 @@ void uiColTabItem::setPixmap()
     uiPixmap pm( setup_.sz_.hNrPics(), setup_.sz_.vNrPics() );
     pm.fill( ctseq_, setup_.hor_ );
     ctseqitm_->setPixmap( pm );
+
+    uiRect boundrec = ctseqitm_->boundingRect();
+    ctseqitm_->setPos( 0.f, 0.f );
+    borderitm_->setRect( -1, -1, boundrec.width()+1, boundrec.height()+1 );
 }
 
 
