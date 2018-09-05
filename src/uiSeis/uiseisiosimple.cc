@@ -164,7 +164,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	if ( !is2d )
 	{
 	    inldeffld_ = new uiGenInput( this,
-                                         tr("Inline definition: start, step"),
+					 tr("Inline definition: start, step"),
 				IntInpSpec(data().inldef_.start)
 						.setName("Inl def start"),
 				IntInpSpec(data().inldef_.step)
@@ -217,7 +217,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    haveazimbut_->attach( rightOf, haveoffsbut_ );
 	    haveazimbut_->setChecked( data().haveazim_ );
 	    pspposlbl_ = new uiLabel( this, tr("Position includes"),
-                                      haveoffsbut_ );
+				      haveoffsbut_ );
 	    const float stopoffs =
 			data().offsdef_.atIndex(data().nroffsperpos_-1);
 	    offsdeffld_ = new uiGenInput( this,
@@ -259,9 +259,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	if ( is2d )
 	{
 	    lnmfld_ = new uiSeis2DLineNameSel( this, false );
-	    lnmfld_->fillWithAll();
 	    lnmfld_->attach( alignedBelow, seisfld_ );
-	    seisfld_->selectionDone.notify( mCB(this,uiSeisIOSimple,lsSel) );
 	}
     }
     else
@@ -284,7 +282,7 @@ void uiSeisIOSimple::mkIsAscFld()
 {
     isascfld_ = new uiGenInput( this, tr("File type"),
 				BoolInpSpec(true,uiStrings::sASCII(),
-                                            tr("Binary")) );
+					    tr("Binary")) );
     isascfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,isascSel) );
     isascfld_->setValue( data().isasc_ );
 }
