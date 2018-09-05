@@ -310,7 +310,7 @@ void uiODFaultTreeItem::prepareForShutdown()
 void uiODFaultTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() || istb )
+    if ( !menu || menu->menuID()!=displayID() )
 	return;
 
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,
@@ -318,27 +318,32 @@ void uiODFaultTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( !fd )
 	return;
 
-    mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_,
-		  faultdisplay_->canDisplayIntersections(),
-		  faultdisplay_->areIntersectionsDisplayed() );
-    mAddMenuItem( &displaymnuitem_, &displayintersecthorizonmnuitem_,
-		  faultdisplay_->canDisplayHorizonIntersections(),
-		  faultdisplay_->areHorizonIntersectionsDisplayed() );
-    mAddMenuItem( &displaymnuitem_, &displayplanemnuitem_, true,
-		  faultdisplay_->arePanelsDisplayed() );
-    mAddMenuItem( &displaymnuitem_, &displaystickmnuitem_, true,
-		  faultdisplay_->areSticksDisplayed() );
-    mAddMenuItem( menu, &displaymnuitem_, true, true );
+    if ( !istb )
+    {
+	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_,
+		      faultdisplay_->canDisplayIntersections(),
+		      faultdisplay_->areIntersectionsDisplayed() );
+	mAddMenuItem( &displaymnuitem_, &displayintersecthorizonmnuitem_,
+		      faultdisplay_->canDisplayHorizonIntersections(),
+		      faultdisplay_->areHorizonIntersectionsDisplayed() );
+	mAddMenuItem( &displaymnuitem_, &displayplanemnuitem_, true,
+		      faultdisplay_->arePanelsDisplayed() );
+	mAddMenuItem( &displaymnuitem_, &displaystickmnuitem_, true,
+		      faultdisplay_->areSticksDisplayed() );
+	mAddMenuItem( menu, &displaymnuitem_, true, true );
 
-    mAddMenuItem( &displaymnuitem_, &singlecolmnuitem_,
-		  faultdisplay_->canShowTexture(),
-		  !faultdisplay_->showsTexture() );
+	mAddMenuItem( &displaymnuitem_, &singlecolmnuitem_,
+		      faultdisplay_->canShowTexture(),
+		      !faultdisplay_->showsTexture() );
+    }
 
+    const MultiID mid = EM::EMM().getMultiID( emid_ );
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
-			    applMgr()->EMServer()->isFullyLoaded(emid_);
+			    applMgr()->EMServer()->isFullyLoaded(emid_) &&
+			    EM::canOverwrite(mid);
 
-    mAddMenuItem( menu, &savemnuitem_, enablesave, false );
-    mAddMenuItem( menu, &saveasmnuitem_, true, false );
+    mAddMenuOrTBItem( istb, menu, menu, &savemnuitem_, enablesave, false );
+    mAddMenuOrTBItem( istb, 0, menu, &saveasmnuitem_, true, false );
 }
 
 
