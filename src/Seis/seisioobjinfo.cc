@@ -281,8 +281,22 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
     if ( !getRanges(cs) )
 	return false;
 
+    uiRetVal uirv;
+    PtrMan<Seis::Provider> prov = ioobj_
+				? Seis::Provider::create( *ioobj_, &uirv ) : 0;
+    mDynamicCastGet(Seis::Provider3D*,prov3d,prov.ptr())
+    if ( uirv.isOK() && prov3d )
+    {
+	PosInfo::CubeData cd;
+	prov3d->getGeometryInfo( cd );
+	spinf.expectednrtrcs = cd.totalSize();
+    }
+    else
+    {
+	spinf.expectednrtrcs = mCast( int, cs.hsamp_.totalNr() );
+    }
+
     spinf.expectednrsamps = cs.zsamp_.nrSteps() + 1;
-    spinf.expectednrtrcs = mCast( int, cs.hsamp_.totalNr() );
     getBPS( spinf.maxbytespsamp, -1 );
     return true;
 }
@@ -930,9 +944,23 @@ void SeisIOObjInfo::getCommonUserInfo( uiPhraseSet& inf ) const
 	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
 		mAddICRangeLine( uiStrings::sCrosslineRange(), crl );
 
-	    const float area = SI().getArea( cs.hsamp_.inlRange(),
-					     cs.hsamp_.crlRange() );
-	    inf.addKeyValue( uiStrings::sArea(), getAreaString(area,true,0) );
+	    SpaceInfo spcinfo;
+	    double area;
+	    if ( getDefSpaceInfo(spcinfo) )
+	    {
+		area = mCast(double,cs.hsamp_.lineDistance()) *
+		       cs.hsamp_.trcDistance() * spcinfo.expectednrtrcs;
+		if ( SI().xyInFeet() )
+		    area *= mFromFeetFactorD;
+	    }
+	    else
+	    {
+		area = SI().getArea( cs.hsamp_.inlRange(),
+				     cs.hsamp_.crlRange() );
+	    }
+
+	    inf.addKeyValue( uiStrings::sArea(),
+			     getAreaString(mCast(float,area),true,0) );
 
 	    StepInterval<float> dispzrg( cs.zsamp_ );
 	    dispzrg.scale( (float)zddef.userFactor() );
