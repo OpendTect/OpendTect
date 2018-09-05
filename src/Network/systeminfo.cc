@@ -86,9 +86,10 @@ const char* localAddress()
     if ( retstr && *retstr )
 	return retstr;
 
+#ifndef OD_NO_QT
+    mDeclStaticString( str );
 #if QT_VERSION >= 0x050000
     // Fallback implementation for some new OS/hardware
-    mDeclStaticString( str );
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     for ( int idx=0; idx<addresses.size(); idx++ )
     {
@@ -101,6 +102,9 @@ const char* localAddress()
     }
 #endif
     return str.buf();
+#else
+    return 0;
+#endif
 }
 
 
@@ -123,6 +127,7 @@ const char* hostAddress( const char* hostname )
 {
 #ifndef OD_NO_QT
     mDeclStaticString( str );
+#if QT_VERSION >= 0x050000
     str.setEmpty();
     QHostInfo qhi = QHostInfo::fromName( hostname );
     QList<QHostAddress> addresses = qhi.addresses();
@@ -133,7 +138,7 @@ const char* hostAddress( const char* hostname )
 	     addresses[idx].toString().contains(':') ) continue;
 	str = addresses[idx].toString();
     }
-
+#endif
     return str.buf();
 #else
     return 0;
