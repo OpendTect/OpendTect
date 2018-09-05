@@ -372,7 +372,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	else if ( at == uiODApplMgr::Imp )
 	{
 	    if ( !imp2dgeomdlg_ )
+	    {
 		imp2dgeomdlg_ = new uiImp2DGeom( par_ );
+		imp2dgeomdlg_->setModal( false );
+	    }
 
 	    imp2dgeomdlg_->show();
 	}

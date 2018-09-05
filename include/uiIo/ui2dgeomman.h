@@ -14,14 +14,18 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uiobjfileman.h"
 
+class uiGenInput;
+class uiPushButton;
+class uiTable;
+namespace Survey { class Geometry2D; }
+
 /*!
-\brief Manage window for 2D Line geometries
+\brief General manage window for 2D Line geometries
 */
 
 mExpClass(uiIo) ui2DGeomManageDlg : public uiObjFileMan
-{ mODTextTranslationClass(ui2DGeomManageDlg);
+{ mODTextTranslationClass(ui2DGeomManageDlg)
 public:
-
 			ui2DGeomManageDlg(uiParent*);
 			~ui2DGeomManageDlg();
 
@@ -32,6 +36,34 @@ protected:
     void		ownSelChg();
     void		mkFileInfo();
 };
+
+
+
+/*!
+\brief Manage window for a single 2D Line geometry
+*/
+
+mExpClass(uiIo) uiManageLineGeomDlg : public uiDialog
+{ mODTextTranslationClass(uiManageLineGeomDlg)
+public:
+			uiManageLineGeomDlg(uiParent*,Pos::GeomID,
+					    bool readonly);
+			~uiManageLineGeomDlg();
+
+protected:
+
+    void		impGeomCB(CallBacker*);
+    void		setTrcSPNrCB(CallBacker*);
+    void		fillTable(const Survey::Geometry2D&);
+    bool		acceptOK(CallBacker*);
+
+    uiTable*		table_;
+    uiGenInput*		rgfld_;
+
+    Pos::GeomID		geomid_;
+    bool		readonly_;
+};
+
 
 
 /*!
@@ -46,7 +78,7 @@ of creating new lines in the database or overwriting them.
 */
 
 mExpClass(uiIo) Geom2DImpHandler
-{ mODTextTranslationClass(Geom2DImpHandler);
+{ mODTextTranslationClass(Geom2DImpHandler)
 public:
 
     static Pos::GeomID	getGeomID(const char* nm,bool overwrpreok=false);

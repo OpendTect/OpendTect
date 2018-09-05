@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
     : uiDialog(p,uiDialog::Setup(tr("Import New Line Geometry"),
 				 mNoDlgTitle,
-				 mODHelpKey(mGeom2DImpDlgHelpID)).modal(false))
+				 mODHelpKey(mGeom2DImpDlgHelpID)))
     , singlemultifld_(0)
     , linefld_(0)
     , linenm_(lnm)
