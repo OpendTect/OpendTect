@@ -40,6 +40,13 @@ uiGeom2DSel::uiGeom2DSel( uiParent* p, bool forread, const uiString& seltxt )
 }
 
 
+uiGeom2DSel::uiGeom2DSel( uiParent* p, bool forread,
+			  const uiIOObjSel::Setup& su )
+    : uiIOObjSel(p,getContext(forread),su)
+{
+}
+
+
 uiGeom2DSel::~uiGeom2DSel()
 {
 }

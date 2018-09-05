@@ -20,6 +20,8 @@ mExpClass(uiIo) uiGeom2DSel : public uiIOObjSel
 public:
 			uiGeom2DSel(uiParent*,bool forread,
 				const uiString& seltxt=uiString::emptyString());
+			uiGeom2DSel(uiParent*,bool forread,
+				    const uiIOObjSel::Setup&);
 			~uiGeom2DSel();
 
 protected:
