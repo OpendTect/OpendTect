@@ -14,12 +14,15 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "dbman.h"
 #include "file.h"
+#include "linear.h"
 #include "od_helpids.h"
 #include "posinfo2dsurv.h"
 #include "survgeom2d.h"
 #include "survgeometrytransl.h"
+#include "survinfo.h"
 
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uigeninput.h"
 #include "uiimpexp2dgeom.h"
 #include "uiioobjmanip.h"
@@ -29,12 +32,13 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitable.h"
 
+
+
 static IOObjContext mkCtxt()
 {
     IOObjContext ret( mIOObjContext(SurvGeom2D) );
     return ret;
 }
-
 
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage( tr("2D Geometry")),
@@ -42,10 +46,11 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 			       .nrstatusflds(1).modal(false),mkCtxt())
 {
     createDefaultUI( false, false );
-    selgrp_->getManipGroup()->addButton( "delete", tr("Delete this line"),
-		     mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
+    selgrp_->getManipGroup()->addButton( "delete",
+				tr("Delete this Line"),
+				mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
     selgrp_->getManipGroup()->addButton( "browse2dgeom",
-						    tr("Manage Line Geometry"),
+				tr("Manage Line Geometry"),
 				mCB(this,ui2DGeomManageDlg,manLineGeom) );
 }
 
@@ -53,143 +58,6 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 ui2DGeomManageDlg::~ui2DGeomManageDlg()
 {
 }
-
-
-//-----------Manage Line Geometry-----------------
-
-class uiManageLineGeomDlg : public uiDialog
-{ mODTextTranslationClass(uiManageLineGeomDlg)
-public:
-
-uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
-    : uiDialog(p,uiDialog::Setup( tr("Manage Line Geometry"),mNoDlgTitle,
-				  mODHelpKey(mManageLineGeomDlgHelpID)))
-    , linenm_(linenm),readonly_(readonly)
-{
-    if ( readonly )
-    {
-	setCtrlStyle( CloseOnly );
-	setCaption( tr("Browse Line Geometry") );
-    }
-
-    uiString lbl;
-    lbl = toUiString("%1: %2").arg(uiStrings::sLineName())
-						.arg(toUiString(linenm));
-    uiLabel* titllbl = new uiLabel( this, lbl );
-    titllbl->attach( hCentered );
-
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-		    Survey::GM().getGeometry(linenm) )
-    if ( !geom2d )
-    {
-	uiMSG().error(tr("Cannot find geometry for %1").arg(linenm));
-	return;
-    }
-
-    const TypeSet<PosInfo::Line2DPos>& positions = geom2d->data().positions();
-    table_ = new uiTable( this, uiTable::Setup(positions.size(),3), "2DGeom" );
-    table_->attach( ensureBelow, titllbl );
-    table_->setPrefWidth( 400 );
-    uiStringSet collbls;
-    collbls.add( uiStrings::sTraceNumber() );
-    collbls.add( uiStrings::sSPNumber() );
-    collbls.add( uiStrings::sX() );
-    collbls.add( uiStrings::sY() );
-    table_->setColumnLabels( collbls );
-    if ( readonly )
-	table_->setTableReadOnly( true );
-
-    FloatInpIntervalSpec spec( true );
-    rgfld_ = new uiGenInput( this, uiStrings::sZRange(), spec );
-    rgfld_->attach( leftAlignedBelow, table_ );
-    rgfld_->setValue( geom2d->data().zRange() );
-    rgfld_->setReadOnly( readonly );
-
-    if ( !readonly )
-    {
-	readnewbut_ = new uiPushButton( this, tr("Set new Geometry"),
-			mCB(this,uiManageLineGeomDlg,impLineGeom), false );
-	readnewbut_->attach( centeredBelow, rgfld_ );
-    }
-
-    fillTable( *geom2d );
-}
-
-
-void impLineGeom( CallBacker* )
-{
-    if ( readonly_ )
-	return;
-
-    uiImp2DGeom dlg( this, linenm_ );
-    if ( !dlg.go() ) return;
-
-    RefMan<Survey::Geometry2D> geom = new Survey::Geometry2D( linenm_ );
-    if ( !dlg.fillGeom(*geom) )
-	return;
-
-    table_->clearTable();
-    fillTable( *geom );
-}
-
-
-void fillTable( const Survey::Geometry2D& geom2d )
-{
-    const TypeSet<PosInfo::Line2DPos>& positions = geom2d.data().positions();
-    const TypeSet<int>& spnrs = geom2d.spnrs();
-    table_->setNrRows( positions.size() );
-    for ( int idx=0; idx<positions.size(); idx++ )
-    {
-	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
-	table_->setValue( RowCol(idx,1), spnrs.validIdx(idx) ? spnrs[idx] : -1);
-	table_->setValue( RowCol(idx,2), positions[idx].coord_.x_ );
-	table_->setValue( RowCol(idx,3), positions[idx].coord_.y_ );
-    }
-}
-
-
-bool acceptOK()
-{
-    if (!uiMSG().askGoOn(tr("Do you really want to change the geometry?\n"
-			    "This will affect all associated data.")))
-	return false;
-
-    Pos::GeomID geomid = Survey::GM().getGeomID( linenm_ );
-    mDynamicCastGet(Survey::Geometry2D*,geom2d,
-		    Survey::GMAdmin().getGeometry(geomid) )
-    if ( !geom2d )
-	return true;
-
-    geom2d->setEmpty();
-    for ( int idx=0; idx<table_->nrRows(); idx++ )
-    {
-	geom2d->add( table_->getDValue(RowCol(idx,2)),
-		     table_->getDValue(RowCol(idx,3)),
-		     table_->getIntValue(RowCol(idx,0)),
-		     table_->getIntValue(RowCol(idx,1)) );
-    }
-
-    geom2d->dataAdmin().setZRange( rgfld_->getFStepInterval() );
-    geom2d->touch();
-
-    uiString errmsg;
-    if ( !Survey::GMAdmin().write(*geom2d,errmsg) )
-    {
-	uiMSG().error( errmsg );
-	return false;
-    }
-    return true;
-}
-
-    const char*		linenm_;
-    bool		readonly_;
-    uiTable*		table_;
-    uiGenInput*		rgfld_;
-    uiPushButton*	readnewbut_;
-};
-
-
-//-----------------------------------------------------
 
 
 void ui2DGeomManageDlg::manLineGeom( CallBacker* )
@@ -209,7 +77,7 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 	return;
     }
 
-    uiManageLineGeomDlg dlg( this, linenm,
+    uiManageLineGeomDlg dlg( this, geom2d->getID(),
 			     !transl->isUserSelectable(false) );
     dlg.go();
 }
@@ -282,3 +150,253 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     if ( !msgs.isEmpty() )
 	uiMSG().errorWithDetails(msgs);
 }
+
+
+
+// uiTrc2SPDlg
+class uiTrc2SPDlg : public uiDialog
+{ mODTextTranslationClass(uiTrc2SPDlg)
+public:
+uiTrc2SPDlg( uiParent* p )
+	: uiDialog(p,Setup(tr("Set Trace Number vs SP Number Relationship" ),
+			   mNoDlgTitle,mTODOHelpKey))
+{
+    dirfld_ = new uiGenInput( this, tr("Calculate"),
+	BoolInpSpec(true,uiStrings::sSPNumber(),uiStrings::sTraceNumber()) );
+    dirfld_->valuechanged.notify( mCB(this,uiTrc2SPDlg,dirChg) );
+
+    uiString splbl = toUiString( "%1 =" ).arg( uiStrings::sSPNumber() );
+    spincrfld_ = new uiGenInput( this, splbl, FloatInpSpec(1) );
+    spincrfld_->attach( alignedBelow, dirfld_ );
+    spstartfld_ = new uiGenInput( this, toUiString("x TrcNr +"),
+				  FloatInpSpec(0) );
+    spstartfld_->attach( rightTo, spincrfld_ );
+
+    uiString trclbl = toUiString( "%1 =" ).arg( uiStrings::sTraceNumber() );
+    trcincrfld_ = new uiGenInput( this, trclbl, FloatInpSpec(1) );
+    trcincrfld_->attach( alignedBelow, dirfld_ );
+    trcstartfld_ = new uiGenInput( this, toUiString("x SP +"),
+				   FloatInpSpec(0) );
+    trcstartfld_->attach( rightTo, trcincrfld_ );
+
+    dirChg( 0 );
+}
+
+
+
+bool calcSP() const
+{
+    return dirfld_->getBoolValue();
+}
+
+
+LinePars getRelationship() const
+{
+    return calcSP()
+	? LinePars( spstartfld_->getFValue(), spincrfld_->getFValue() )
+	: LinePars( trcstartfld_->getFValue(), trcincrfld_->getFValue() );
+}
+
+
+protected:
+void dirChg( CallBacker* )
+{
+    const bool calcsp = calcSP();
+    spincrfld_->display( calcsp );
+    spstartfld_->display( calcsp );
+    trcincrfld_->display( !calcsp );
+    trcstartfld_->display( !calcsp );
+}
+
+
+bool acceptOK()
+{
+    bool isudf = false;
+    if ( calcSP() )
+	isudf = spstartfld_->isUndef() || spincrfld_->isUndef();
+    else
+	isudf = trcstartfld_->isUndef() || trcincrfld_->isUndef();
+
+    if ( isudf )
+    {
+	uiMSG().error( tr("Please enter valid relationship.") );
+	return false;
+    }
+
+    return true;
+}
+
+    uiGenInput*		dirfld_;
+    uiGenInput*		trcstartfld_;
+    uiGenInput*		trcincrfld_;
+    uiGenInput*		spstartfld_;
+    uiGenInput*		spincrfld_;
+};
+
+
+
+// uiManageLineGeomDlg
+uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p, Pos::GeomID geomid,
+					  bool readonly )
+    : uiDialog(p,uiDialog::Setup(tr("Edit Line Geometry"),mNoDlgTitle,
+				  mODHelpKey(mManageLineGeomDlgHelpID)))
+    , geomid_(geomid)
+    , readonly_(readonly)
+{
+    if ( readonly )
+    {
+	setCtrlStyle( CloseOnly );
+	setCaption( tr("Browse Line Geometry") );
+    }
+
+    const BufferString linenm = Survey::GM().getName( geomid_ );
+    uiString lbl = tr("%1 : %2").arg(uiStrings::sLineName()).arg(linenm);
+
+    uiLabel* titllbl = new uiLabel( this, lbl );
+    titllbl->attach( hCentered );
+
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+		    Survey::GM().getGeometry(geomid_));
+    if ( !geom2d )
+    {
+	uiMSG().error(tr("Cannot find geometry for %1").arg(linenm));
+	return;
+    }
+
+    const TypeSet<PosInfo::Line2DPos>& positions = geom2d->data().positions();
+    table_ = new uiTable( this, uiTable::Setup(positions.size(),3), "2DGeom" );
+    table_->attach( ensureBelow, titllbl );
+    table_->setPrefWidth( 400 );
+    uiStringSet collbls;
+    collbls.add( uiStrings::sTraceNumber() ).add( uiStrings::sSPNumber() )
+	   .add( uiStrings::sX() ).add( uiStrings::sY() );
+    table_->setColumnLabels( collbls );
+    if ( readonly )
+	table_->setTableReadOnly( true );
+
+    FloatInpIntervalSpec spec( true );
+    uiString zlbl = uiStrings::sZRange();
+    zlbl.withSurvZUnit();
+    rgfld_ = new uiGenInput( this, zlbl, spec );
+    rgfld_->attach( leftAlignedBelow, table_ );
+    StepInterval<float> zrg = geom2d->data().zRange();
+    zrg.scale( mCast(float,SI().zDomain().userFactor()) );
+    rgfld_->setValue( zrg );
+    rgfld_->setReadOnly( readonly );
+
+    if ( !readonly )
+    {
+	uiButtonGroup* grp =
+		new uiButtonGroup( this, "buttons", OD::Horizontal );
+	new uiPushButton( grp, tr("Set new Geometry"),
+			  mCB(this,uiManageLineGeomDlg,impGeomCB), false );
+	new uiPushButton( grp, tr("Set Trace/SP Number"),
+			  mCB(this,uiManageLineGeomDlg,setTrcSPNrCB), false );
+	grp->attach( centeredBelow, table_ );
+	grp->attach( ensureBelow, rgfld_ );
+    }
+
+    fillTable( *geom2d );
+}
+
+
+uiManageLineGeomDlg::~uiManageLineGeomDlg()
+{}
+
+
+void uiManageLineGeomDlg::impGeomCB( CallBacker* )
+{
+    if ( readonly_ )
+	return;
+
+    const BufferString linenm = Survey::GM().getName( geomid_ );
+    uiImp2DGeom dlg( this, linenm );
+    if ( !dlg.go() ) return;
+
+    RefMan<Survey::Geometry2D> geom = new Survey::Geometry2D( linenm );
+    if ( !dlg.fillGeom(*geom) )
+	return;
+
+    table_->clearTable();
+    fillTable( *geom );
+}
+
+
+void uiManageLineGeomDlg::setTrcSPNrCB( CallBacker* )
+{
+    if ( readonly_ )
+	return;
+
+    uiTrc2SPDlg dlg( this );
+    if ( !dlg.go() )
+	return;
+
+    const bool calcsp = dlg.calcSP();
+    const LinePars lp = dlg.getRelationship();
+    const int fromidx = calcsp ? 0 : 1;
+    const int toidx = calcsp ? 1 : 0;
+    for ( int idx=0; idx<table_->nrRows(); idx++ )
+    {
+	const float var = table_->getFValue( RowCol(idx,fromidx) );
+	const float val = lp.getValue( var );
+	table_->setValue( RowCol(idx,toidx), val );
+    }
+}
+
+
+void uiManageLineGeomDlg::fillTable( const Survey::Geometry2D& geom2d )
+{
+    const TypeSet<PosInfo::Line2DPos>& positions = geom2d.data().positions();
+    const TypeSet<int>& spnrs = geom2d.spnrs();
+    table_->setNrRows( positions.size() );
+    for ( int idx=0; idx<positions.size(); idx++ )
+    {
+	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
+	table_->setValue( RowCol(idx,1), spnrs.validIdx(idx) ? spnrs[idx] : -1);
+	table_->setValue( RowCol(idx,2), positions[idx].coord_.x_ );
+	table_->setValue( RowCol(idx,3), positions[idx].coord_.y_ );
+    }
+}
+
+
+bool uiManageLineGeomDlg::acceptOK()
+{
+    if (!uiMSG().askGoOn(tr("Do you really want to change the geometry?\n"
+			    "This will affect all associated data.")))
+	return false;
+
+    mDynamicCastGet(Survey::Geometry2D*,geom2d,
+		    Survey::GMAdmin().getGeometry(geomid_) )
+    if ( !geom2d )
+	return true;
+
+    geom2d->setEmpty();
+    for ( int idx=0; idx<table_->nrRows(); idx++ )
+    {
+	geom2d->add( table_->getDValue(RowCol(idx,2)),
+		     table_->getDValue(RowCol(idx,3)),
+		     table_->getIntValue(RowCol(idx,0)),
+		     table_->getIntValue(RowCol(idx,1)) );
+    }
+
+    StepInterval<float> newzrg = rgfld_->getFStepInterval();
+    if ( newzrg.isUdf() )
+    {
+	uiMSG().error( tr("Please set valid Z range") );
+	return false;
+    }
+
+    newzrg.scale( 1.f/mCast(float,SI().zDomain().userFactor()) );
+    geom2d->dataAdmin().setZRange( newzrg );
+    geom2d->touch();
+
+    uiString errmsg;
+    if ( !Survey::GMAdmin().write(*geom2d,errmsg) )
+    {
+	uiMSG().error( errmsg );
+	return false;
+    }
+
+    return true;
+}
+
