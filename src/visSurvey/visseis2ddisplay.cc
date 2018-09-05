@@ -801,7 +801,9 @@ TrcKeyZSampling Seis2DDisplay::getTrcKeyZSampling( bool displayspace,
 
 
 SurveyObject::AttribFormat Seis2DDisplay::getAttributeFormat( int ) const
-{ return SurveyObject::OtherFormat; }
+{
+    return SurveyObject::Cube;
+}
 
 
 void Seis2DDisplay::addCache()
