@@ -126,7 +126,7 @@ bool LatLong::setFromString( const char* str, bool lat )
 	BufferString buf;
 	strncpy(buf.getCStr(),llstr.buf()+(len-4),4);
 	buf[4] = '\0';
-	const int secs = toInt( buf );
+	const float secs = toFloat(buf) / 100.f;
 
 	// parse minutes
 	buf.setEmpty();
