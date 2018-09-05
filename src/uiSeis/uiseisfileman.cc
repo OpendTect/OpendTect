@@ -285,9 +285,21 @@ void uiSeisFileMan::mkFileInfo()
 		{ txt.add(sKey::Inline()) mAddRangeTxt(inl()); }
 	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
 		{ txt.addNewLine().add(sKey::Crossline()) mAddRangeTxt(crl()); }
-	    float area = SI().getArea( cs.hsamp_.inlRange(),
+	    SeisIOObjInfo::SpaceInfo spcinfo;
+	    double area;
+	    if ( oinf.getDefSpaceInfo(spcinfo) )
+	    {
+		area = mCast(double,cs.hsamp_.lineDistance()) *
+			 cs.hsamp_.trcDistance() * spcinfo.expectednrtrcs;
+		if ( SI().xyInFeet() )
+		    area *= mFromFeetFactorD;
+	    }
+	    else
+	    {
+		area = SI().getArea( cs.hsamp_.inlRange(),
 				       cs.hsamp_.crlRange() );
-	    txt.add("\nArea: ").add( getAreaString( area, true, 0 ) );
+	    }
+	    txt.add("\nArea: ").add( getAreaString(mCast(float,area),true,0) );
 
 	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
 		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zsamp_.start)
