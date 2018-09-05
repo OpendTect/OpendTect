@@ -32,7 +32,7 @@ uiHistogramSel::uiHistogramSel( uiParent* p, int id, bool fixdrawrg )
     , rangeChanged(this)
 {
     uiHistogramDisplay::Setup hsu;
-    hsu.border( uiBorder(20,20,20,40) );
+    hsu.border( uiBorder(20,20,20,20) );
     hsu.fixdrawrg(fixdrawrg);
     histogramdisp_ = new uiHistogramDisplay( this, hsu, true );
     histogramdisp_->getMouseEventHandler().buttonPressed.notify(
