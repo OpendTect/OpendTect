@@ -260,9 +260,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	if ( is2d )
 	{
 	    lnmfld_ = new uiSeis2DLineNameSel( this, false );
-	    lnmfld_->fillWithAll();
 	    lnmfld_->attach( alignedBelow, seisfld_ );
-	    seisfld_->selectionDone.notify( mCB(this,uiSeisIOSimple,lsSel) );
 	}
     }
     else
@@ -355,16 +353,6 @@ void uiSeisIOSimple::inpSeisSel( CallBacker* )
 	multcompfld_->setSensitive( compnms.size()>1 );
     }
 }
-
-
-void uiSeisIOSimple::lsSel( CallBacker* )
-{
-    if ( !lnmfld_ ) return;
-    const IOObj* ioobj = seisfld_->ioobj( true );
-    if ( ioobj )
-	lnmfld_->setDataSet( ioobj->key() );
-}
-
 
 
 void uiSeisIOSimple::isascSel( CallBacker* )

@@ -7,19 +7,20 @@
 
 #include "uiseismod.h"
 #include "uidialog.h"
+#include "dbkey.h"
 #include "samplingdata.h"
 #include "seisiosimple.h"
-#include "dbkey.h"
+
 class IOObjContext;
+class uiCheckBox;
+class uiFileSel;
+class uiGenInput;
 class uiLabel;
 class uiScaler;
 class uiSeisSel;
-class uiCheckBox;
-class uiGenInput;
-class uiFileSel;
-class uiSeparator;
 class uiSeisSubSel;
 class uiSeis2DLineNameSel;
+class uiSeparator;
 
 
 mExpClass(uiSeis) uiSeisIOSimple : public uiDialog
@@ -63,7 +64,6 @@ protected:
 
     void		isascSel(CallBacker*);
     void		inpSeisSel(CallBacker*);
-    void		lsSel(CallBacker*);
     void		haveposSel(CallBacker*);
     void		havenrSel(CallBacker*);
     void		havesdSel(CallBacker*);
