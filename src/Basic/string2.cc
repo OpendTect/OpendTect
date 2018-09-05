@@ -8,11 +8,11 @@
 
 #include "string2.h"
 
+#include "coord.h"
 #include "keystrs.h"
 #include "nrbytes2string.h"
 #include "odcomplex.h"
 #include "staticstring.h"
-#include "survinfo.h"
 #include "undefval.h"
 
 #ifndef OD_NO_QT
@@ -32,8 +32,8 @@
 # define sDirSep        "/"
 #endif
 
-#define mToSqMileFactor	0.3861 // km^2 to mile^2
-
+#define mToSqMileFactorD	3.86102158542e-7 /* m^2 to mile^2
+				copied from data/UnitsOfMeasure */
 
 const char* getYesNoString( bool yn )
 {
@@ -417,51 +417,59 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
 }
 
 
-const char* getAreaString( float m2, bool parensonunit, char* str )
+const char* getAreaString( float m2, bool xyinfeet, int precision,
+			   bool parensonunit, char* str )
 {
-    BufferString val;
-
-    const float km2 = m2* float(1e-6);
-
-    const char* unit = "";
-
-    if ( km2>0.01 )
+    FixedString unit;
+    double val = m2;
+    if ( m2 > 10. )
     {
-	if ( SI().xyInFeet() )
+	if ( xyinfeet )
 	{
-	    val = km2*mToSqMileFactor;
-	    unit = "sq mi";
+	    val *= mToSqMileFactorD;
+	    unit =  "sq mi";
 	}
 	else
 	{
-	    val = km2;
+	    val *= 1e-6;
 	    unit = "sq km";
 	}
     }
     else
     {
-	if ( SI().xyInFeet() )
+	if ( xyinfeet )
 	{
-	    val = m2*mToFeetFactorF*mToFeetFactorF;
-	    unit = "sq ft";
+	    val *= (mToFeetFactorD * mToFeetFactorD);
+	    unit =  "sq ft";
 	}
 	else
 	{
-	    val = m2;
 	    unit = "sq m";
 	}
     }
 
-    val += " ";
+    BufferString valstr;
+    if ( mIsUdf(precision) || val < 0.1 )
+	valstr.addLim( val, 6 );
+    else
+    {
+	const int valintr = mCast(int,val);
+	const BufferString valintstr( valintr );
+	valstr.addLim( val, valintstr.size()+3 );
+    }
+
+    valstr.add( " " );
     if ( parensonunit )
-	val += "(";
-    val += unit;
+	valstr.add( "(" );
+    valstr.add( unit );
     if ( parensonunit )
-	val += ")";
+	valstr.add( ")" );
 
     mDeclStaticString( retstr );
-    retstr = val;
-    return retstr;
+    char* ret = str ? str : retstr.getCStr();
+    strcpy( ret, valstr.buf() );
+
+    return ret;
 }
 
 

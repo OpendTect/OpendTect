@@ -35,6 +35,7 @@ API: Gamma Ray`API`1
 Volt: Electrical Potential`V`1
 mVolt: Electrical Potential`mV`0.001
 OhmMeter: Resistivity`ohmm`1
+Siemens/meter: Conductivity`S/m`1
 Pascal.Kg/m3: Pressure-Weight`Pa.Kg/m3`1
 Pascal.g/cm3: Pressure-Weight`Pa.g/cm3`1e3
 GigaPascal.Kg/m3: Pressure-Weight`GPa.Kg/m3`1e9
@@ -52,7 +53,7 @@ Bar: Pressure`bar`1e5
 Psi: Pressure`psi`6894.7573
 Square meter: Area`m2`1
 Square kilometer: Area`km2`1e-6
-Square mile: Area`mi2`3.8610215855e-7
+Square mile: Area`mi2`3.86102158542e-7
 Acre: Area`ac`2.4710538147e-4
 Liter: Volume`L`1000
 Cubic meters: Volume`m3`1

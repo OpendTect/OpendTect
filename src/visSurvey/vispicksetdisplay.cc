@@ -625,7 +625,9 @@ void PickSetDisplay::getPickingMessage( uiString& str ) const
 
     if ( hasarea )
     {
-	areastring = tr("Area= %1").arg(getAreaString( area, false, 0 ));
+	areastring = tr("%1: %2")
+                .arg(uiStrings::sArea())
+                .arg(getAreaString(area,SI().xyInFeet(),2,false));
     }
 
     str = tr("Picking (Nr picks= %1").arg(set_->size());

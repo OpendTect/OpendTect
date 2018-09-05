@@ -612,7 +612,7 @@ void uiSurveyManager::putToScreen()
     BufferString zinfo( "Z range" );
     BufferString bininfo( "Inl/Crl bin size" );
     BufferString crsinfo( "CRS: " );
-    BufferString areainfo( "Area" );
+    BufferString areainfo( "Area: " );
     BufferString survtypeinfo( "Survey type: " );
     BufferString orientinfo( "In-line Orientation: " );
 
@@ -628,10 +628,9 @@ void uiSurveyManager::putToScreen()
 
     bininfo.add( " (" ).add( toString(si.xyUnitString()) )
 	    .add( "/line): " );
-    areainfo.add( " (sq " ).add( si.xyInFeet() ? "mi" : "km" ).add( "): ");
 
     if ( si.getCoordSystem() )
-	    crsinfo.add( mFromUiStringTodo(si.getCoordSystem()->summary()) );
+	crsinfo.add( mFromUiStringTodo(si.getCoordSystem()->summary()) );
 
     if ( si.sampling(false).hsamp_.totalNr() > 0 )
     {
@@ -646,11 +645,8 @@ void uiSurveyManager::putToScreen()
 
 	bininfo.add( getFPStringWithDecimals(inldist,2) ).add( "/" );
 	bininfo.add( getFPStringWithDecimals(crldist,2) );
-	float area = (float)( si.getArea(false) * 1e-6 ); //in km2
-	if ( si.xyInFeet() )
-	    area /= 2.590; // square miles
 
-	areainfo.add( toString(area) );
+	areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),2,true) );
     }
 
     #define mAdd2ZString(nr) zinfo += istime ? mNINT32(1000*nr) : nr;

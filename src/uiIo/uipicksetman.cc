@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "picksetmanager.h"
 #include "picksettr.h"
 #include "keystrs.h"
+#include "survinfo.h"
 #include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
@@ -112,9 +113,9 @@ bool uiPickSetMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 	{
 	    const float area = ps->getXYArea();
 	    if ( !mIsUdf(area) )
-		szstr.postFixWord( toUiString(" %1=%2")
+		szstr.postFixWord( toUiString(" %1: %2")
 			.arg( uiStrings::sArea().toLower() )
-			.arg( area ) );
+			.arg( getAreaString(area,SI().xyInFeet(),2,true) ) );
 	}
     }
 

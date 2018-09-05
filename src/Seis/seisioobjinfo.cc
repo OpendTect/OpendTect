@@ -951,7 +951,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiPhraseSet& inf ) const
 		area = mCast(double,cs.hsamp_.lineDistance()) *
 		       cs.hsamp_.trcDistance() * spcinfo.expectednrtrcs;
 		if ( SI().xyInFeet() )
-		    area *= mFromFeetFactorD;
+		    area *= (mFromFeetFactorD * mFromFeetFactorD);
 	    }
 	    else
 	    {
@@ -960,7 +960,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiPhraseSet& inf ) const
 	    }
 
 	    inf.addKeyValue( uiStrings::sArea(),
-			     getAreaString(mCast(float,area),true,0) );
+		     getAreaString(mCast(float,area),SI().xyInFeet(),2,true) );
 
 	    StepInterval<float> dispzrg( cs.zsamp_ );
 	    dispzrg.scale( (float)zddef.userFactor() );

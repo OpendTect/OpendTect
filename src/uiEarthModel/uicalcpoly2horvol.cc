@@ -85,7 +85,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 	    areafld = new uiGenInput( grp, tr("==> Area") );
 	    areafld->attach( alignedBelow, calcbut );
 	    areafld->setReadOnly( true );
-	    areafld->setText( getAreaString( area, true, 0 ) );
+	    areafld->setText( getAreaString(area,SI().xyInFeet(),2,true) );
 	}
     }
 
