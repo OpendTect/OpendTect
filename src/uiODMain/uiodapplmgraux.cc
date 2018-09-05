@@ -396,7 +396,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	mCase(Imp):
 	{
 	    if ( !imp2dgeomdlg_ )
+	    {
 		imp2dgeomdlg_ = new uiImp2DGeom( par_ );
+		imp2dgeomdlg_->setModal( false );
+	    }
 
 	    imp2dgeomdlg_->show();
 	}
@@ -623,7 +626,7 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 	uioptions.add( toUiString(options.get(idx)) );
     uiGetChoice dlg( par_, uioptions,
 			tr("Select policy for auto-update"), true,
-                       mODHelpKey(mODApplMgrDispatchersetAutoUpdatePolHelpID));
+		       mODHelpKey(mODApplMgrDispatchersetAutoUpdatePolHelpID));
 
     const int idx = options.indexOf( alloptions.get((int)curait) );
     dlg.setDefaultChoice( idx < 0 ? 0 : idx );
