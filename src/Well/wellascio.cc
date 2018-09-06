@@ -57,7 +57,6 @@ bool Well::TrackAscIO::readTrackData( TypeSet<Coord3>& pos,
     if ( !getHdrVals(strm_) )
 	return false;
 
-    const bool isxy = fd_.bodyinfos_[0]->selection_.form_ == 0;
     const uiString nozpts = tr("At least one point had neither Z nor MD");
     bool nozptsfound = false;
 

@@ -74,7 +74,6 @@ bool FunctionAscIO::isXY() const
 
 int FunctionAscIO::nextStep()
 {
-    const bool isxy = isXY();
     float farr[3];
 
     const od_stream::Pos oldpos = strm_.position();
