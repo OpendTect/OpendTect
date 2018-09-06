@@ -1189,8 +1189,6 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	{ uiMSG().error( tr("Cannot open file: %1").arg(fnm) ); return false; }
 
     SEGY::ScanInfo& si = scaninfos_->add( fnm );
-    bool valcheck = coordsysselfld_->isDisplayed();
-    Coords::CoordSystem* crs = coordsysselfld_->getCoordSystem();
     if ( coordsysselfld_->isDisplayed() )
 	loaddef_.setUserCoordSys( coordsysselfld_->getCoordSystem() );
     SEGY::BasicFileInfo& bfi = si.basicInfo();
