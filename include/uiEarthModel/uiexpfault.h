@@ -13,6 +13,9 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "dbkey.h"
+#include "uicoordsystem.h"
+#include "emobject.h"
+
 class CtxtIOObj;
 class uiCheckBox;
 class uiCheckList;
@@ -33,26 +36,32 @@ public:
 							bool issingle=true);
 			~uiExportFault();
 
+
 protected:
 
-    uiIOObjSelGrp*	bulkinfld_;
-    uiIOObjSel*		singleinfld_;
-    uiGenInput*		coordfld_;
-    uiUnitSel*		zunitsel_;
-    uiCheckList*	stickidsfld_;
-    uiCheckBox*		linenmfld_;
-    uiFileSel*		outfld_;
-    uiGenInput*		zfld_;
-    uiT2DConvSel*	transfld_;
+    uiIOObjSelGrp*		bulkinfld_;
+    uiIOObjSel*			singleinfld_;
+    uiGenInput*			coordfld_;
+    uiUnitSel*			zunitsel_;
+    uiCheckList*		stickidsfld_;
+    uiCheckBox*			linenmfld_;
+    uiFileSel*			outfld_;
+    uiGenInput*			zfld_;
+    uiT2DConvSel*		transfld_;
+    Coords::uiCoordSystemSel*	coordsysselfld_;
 
-    CtxtIOObj&		ctio_;
-    bool		getInputDBKeys(DBKeySet&);
+    CtxtIOObj&			ctio_;
+    bool			getInputDBKeys(DBKeySet&);
 
-    void		addZChg(CallBacker*);
-    FixedString		getZDomain() const;
+    void			addZChg(CallBacker*);
+    void			exportCoordSysChgCB(CallBacker*);
 
-    virtual bool	acceptOK();
-    bool		writeAscii();
-    bool		issingle_;
-    uiString		dispstr_;
+    FixedString			getZDomain() const;
+
+    virtual bool		acceptOK();
+    bool			writeAscii();
+    bool			issingle_;
+    uiString			dispstr_;
+
+    Coord3 getCoord( EM::Object* emobj, int stickidx, int knotidx );
 };

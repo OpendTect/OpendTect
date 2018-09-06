@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "dataclipper.h"
 #include "posinfodetector.h"
 #include "sortedlist.h"
-#include "survinfo.h"
 #include "executor.h"
+#include "coordsystem.h"
 
 #include "uitaskrunner.h"
 
@@ -182,6 +182,7 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 
 SEGY::LoadDef::LoadDef( bool is2d )
     : BasicFileInfo(is2d),hdrdef_(0)
+    , coordsys_(SI().getCoordSystem())
 {
     reInit( is2d, true );
 }
@@ -255,8 +256,14 @@ void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
     offscalc.setOffset( ti, thdr );
     if ( icvsxytype_ == FileReadOpts::ICOnly )
 	ti.coord_= SI().transform( ti.binID() );
-    else if ( !is2d_ && icvsxytype_ == FileReadOpts::XYOnly )
+    else if (!is2d_ && icvsxytype_ == FileReadOpts::XYOnly)
+    {
+	if ( SI().getCoordSystem().ptr() )
+	    ti.coord_ = SI().getCoordSystem()->convertFrom( ti.coord_,
+								   *coordsys_ );
+
 	ti.setBinID( SI().transform(ti.coord_) );
+    }
 }
 
 
@@ -302,6 +309,8 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
 void SEGY::LoadDef::getFilePars( SEGY::FilePars& fpars ) const
 {
     BasicFileInfo::getFilePars( fpars );
+    if ( coordsys_ )
+	fpars.setCoordSys( coordsys_.getNonConstPtr() );
     if ( usezsamplinginfile_ )
 	fpars.ns_ = 0;
     if ( useformatinfile_ )
@@ -334,7 +343,6 @@ void SEGY::LoadDef::usePar( const IOPar& iop )
     iop.get( FilePars::sKeyRevision(), revision_ );
     if ( iop.isTrue(FilePars::sKeyForceRev0()) )
 	revision_ = 0;
-
     FileReadOpts readopts( Seis::Vol ); getFileReadOpts( readopts );
     readopts.usePar( iop );
     *hdrdef_ = readopts.thdef_;
@@ -346,6 +354,7 @@ void SEGY::LoadDef::usePar( const IOPar& iop )
     trcnrdef_ = readopts.trcnrdef_;
     psoffssrc_ = readopts.psdef_;
     psoffsdef_ = readopts.offsdef_;
+    coordsys_.getNonConstPtr()->usePar(iop);
 }
 
 
@@ -504,7 +513,7 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& indef,
 		    DataClipSampler& clipsampler, TaskRunner* fullscanrunner )
 {
     reInit();
-    const LoadDef def( indef.getPrepared(strm) );
+    LoadDef def( indef.getPrepared(strm) );
 
     startpos_ = strm.position();
     nrtrcs_ = def.nrTracesIn( strm, startpos_ );
@@ -567,7 +576,6 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
 {
     SeisTrcInfo ti;
     def.getTrcInfo( thdr, ti, offscalc );
-
     const bool isfirst = nrinfile == idxfirstlive_;
     keydata_.add( thdr, def.hdrsswapped_, isfirst );
     pidetector_->add( ti.coord_, ti.binID(), ti.trcNr(), ti.offset_ );

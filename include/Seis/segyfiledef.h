@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "coord.h"
 #include "samplingdata.h"
 #include "filemultispec.h"
+#include "coordsystem.h"
+#include "survinfo.h"
 class IOObj;
 class Scaler;
 class SeisTrcInfo;
@@ -52,7 +54,9 @@ public:
 			    : ns_(0)
 			    , fmt_(forread?0:1)
 			    , byteswap_(0)
-			    , forread_(forread)		{}
+			    , forread_(forread)
+			    , coordsys_(SI().getCoordSystem())
+			{ }
 
     int			ns_;
     int			fmt_;
@@ -75,16 +79,21 @@ public:
     static const char*	sKeyNumberFormat();
     static const char*	sKeyByteSwap();
 
+
     void		setForRead(bool);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     void		getReport(IOPar&,bool isrev0) const;
 
+    void		setCoordSys(const Coords::CoordSystem* crs)
+							    { coordsys_ = crs; }
+    ConstRefMan<Coords::CoordSystem> getCoordSys() const { return coordsys_; }
+
 protected:
 
     bool		forread_;
-
+    ConstRefMan<Coords::CoordSystem> coordsys_;
 };
 
 

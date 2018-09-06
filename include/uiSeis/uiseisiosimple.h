@@ -11,6 +11,8 @@
 #include "samplingdata.h"
 #include "seisiosimple.h"
 
+#include "uicoordsystem.h"
+
 class IOObjContext;
 class uiCheckBox;
 class uiFileSel;
@@ -31,36 +33,38 @@ public:
 
 protected:
 
-    uiFileSel*		fnmfld_;
-    uiGenInput*		isascfld_;
-    uiGenInput*		is2dfld_;
-    uiGenInput*		havesdfld_;
-    uiGenInput*		sdfld_;
-    uiGenInput*		haveposfld_;
-    uiGenInput*		havenrfld_;
-    uiGenInput*		haverefnrfld_;
-    uiGenInput*		isxyfld_;
-    uiGenInput*		inldeffld_;
-    uiGenInput*		crldeffld_;
-    uiGenInput*		nrdeffld_;
-    uiGenInput*		startposfld_;
-    uiGenInput*		startnrfld_;
-    uiGenInput*		stepposfld_;
-    uiGenInput*		stepnrfld_;
-    uiGenInput*		offsdeffld_;
-    uiGenInput*		remnullfld_;
-    uiGenInput*		multcompfld_;
-    uiLabel*		pspposlbl_;
-    uiCheckBox*		haveoffsbut_;
-    uiCheckBox*		haveazimbut_;
-    uiScaler*		scalefld_;
-    uiSeisSel*		seisfld_;
-    uiSeisSubSel*	subselfld_;
-    uiSeis2DLineNameSel* lnmfld_;
+    uiFileSel*			fnmfld_;
+    uiGenInput*			isascfld_;
+    uiGenInput*			is2dfld_;
+    uiGenInput*			havesdfld_;
+    uiGenInput*			sdfld_;
+    uiGenInput*			haveposfld_;
+    uiGenInput*			havenrfld_;
+    uiGenInput*			haverefnrfld_;
+    uiGenInput*			isxyfld_;
+    uiGenInput*			inldeffld_;
+    uiGenInput*			crldeffld_;
+    uiGenInput*			nrdeffld_;
+    uiGenInput*			startposfld_;
+    uiGenInput*			startnrfld_;
+    uiGenInput*			stepposfld_;
+    uiGenInput*			stepnrfld_;
+    uiGenInput*			offsdeffld_;
+    uiGenInput*			remnullfld_;
+    uiGenInput*			multcompfld_;
+    uiLabel*			pspposlbl_;
+    uiCheckBox*			haveoffsbut_;
+    uiCheckBox*			haveazimbut_;
+    uiScaler*			scalefld_;
+    uiSeisSel*			seisfld_;
+    uiSeisSubSel*		subselfld_;
+    uiSeis2DLineNameSel*	lnmfld_;
+    Coords::uiCoordSystemSel*	coordsysselfld_;
 
-    IOObjContext&	ctxt_;
-    Seis::GeomType	geom_;
-    bool		isimp_;
+
+    IOObjContext&		ctxt_;
+    Seis::GeomType		geom_;
+    bool			isimp_;
 
     void		isascSel(CallBacker*);
     void		inpSeisSel(CallBacker*);
@@ -69,6 +73,7 @@ protected:
     void		havesdSel(CallBacker*);
     void		haveoffsSel(CallBacker*);
     void		initFlds(CallBacker*);
+    void		xyToInlSelCB(CallBacker*);
     bool		acceptOK();
 
     static SeisIOSimple::Data&	data2d();

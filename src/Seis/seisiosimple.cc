@@ -47,6 +47,7 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
 	, geom_(gt)
 	, geomid_(mUdfGeomID)
 	, compidx_(0)
+	, coordsys_(0)
 {
     clear(true);
     isasc_ = havepos_ = true;
@@ -62,6 +63,7 @@ SeisIOSimple::Data::Data( const SeisIOSimple::Data& d )
 	: scaler_(0)
 	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
+	, coordsys_(0)
 {
     *this = d;
 }
@@ -87,6 +89,7 @@ SeisIOSimple::Data& SeisIOSimple::Data::operator=( const SeisIOSimple::Data& d )
     geomid_ = d.geomid_;
     subselpars_ = d.subselpars_;
     compidx_ = d.compidx_;
+    coordsys_ = d.coordsys_;
 
     return *this;
 }
@@ -141,6 +144,7 @@ void SeisIOSimple::Data::clear( bool survchg )
     steppos_.y_ = fabs( nextpos.y_ - startpos_.y_ );
     offsdef_.start = 0; offsdef_.step = SI().crlDistance();
     compidx_ = 0;
+    coordsys_ = 0;
 }
 
 
@@ -500,6 +504,8 @@ int SeisIOSimple::writeExpTrc()
 	{
 	    Coord coord = trc_.info().coord_;
 	    mPIEPAdj(Coord,coord,false);
+	    coord = data_.getCoordSys()->convertFrom(
+						coord,*SI().getCoordSystem() );
 	    binstrm.add( coord.x_ ).add( coord.y_ );
 	}
 	else

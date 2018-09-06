@@ -95,6 +95,12 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
 	coordfld_->attach( alignedBelow, singleinfld_ );
     else
 	coordfld_->attach( alignedBelow, bulkinfld_ );
+    mAttachCB( coordfld_->valuechanged, uiExportFault::exportCoordSysChgCB );
+
+
+    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+    coordsysselfld_->attach( alignedBelow, coordfld_);
+    coordsysselfld_->display(false);
 
     uiStringSet zmodes;
     zmodes.add(uiStrings::sYes());
@@ -104,7 +110,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     zfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sZ() ),
 			    StringListInpSpec(zmodes) );
     zfld_->valuechanged.notify( mCB(this,uiExportFault,addZChg ) );
-    zfld_->attach( alignedBelow, coordfld_ );
+    zfld_->attach( alignedBelow, coordsysselfld_ );
 
     uiT2DConvSel::Setup stup( 0, false );
     stup.ist2d( SI().zIsTime() );
@@ -138,6 +144,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
 	outfld_->attach( alignedBelow, linenmfld_ );
     else
 	outfld_->attach( alignedBelow, stickidsfld_ );
+    exportCoordSysChgCB(0);
 }
 
 
@@ -169,13 +176,16 @@ static int nrKnots( EM::Object* emobj, int stickidx )
 }
 
 
-static Coord3 getCoord( EM::Object* emobj, int stickidx,
+Coord3 uiExportFault::getCoord( EM::Object* emobj, int stickidx,
 			int knotidx )
 {
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
+    if ( !fss )
+	return Coord3::udf();
     const int sticknr = fss->rowRange().atIndex(stickidx);
     const int knotnr = fss->colRange(sticknr).atIndex(knotidx);
-    return fss->getKnot( RowCol(sticknr,knotnr) );
+    Coord3 crd = fss->getKnot( RowCol(sticknr,knotnr) );
+    return crd;
 }
 
 
@@ -200,6 +210,15 @@ void uiExportFault::addZChg( CallBacker* )
     }
 
     zunitsel_->display( displayunit );
+}
+
+
+void uiExportFault::exportCoordSysChgCB(CallBacker*)
+{
+    const bool shoulddisplay = SI().getCoordSystem() &&
+				SI().getCoordSystem()->isProjection() &&
+						    coordfld_->getBoolValue();
+    coordsysselfld_->display(shoulddisplay);
 }
 
 
@@ -323,6 +342,9 @@ bool uiExportFault::writeAscii()
 		Coord3 crd = getCoord( emobj, stickidx, knotidx );
 		if ( !crd.isDefined() )
 		    continue;
+		if ( coordsysselfld_->isDisplayed() )
+		    crd.setXY( coordsysselfld_->getCoordSystem()->convertFrom(
+					   crd.getXY(),*SI().getCoordSystem()));
 		if ( !issingle_ )
 		    ostrm << objnm << "\t";
 		const BinID bid = SI().transform( crd.getXY() );

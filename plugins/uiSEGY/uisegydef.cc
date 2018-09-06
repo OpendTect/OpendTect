@@ -394,6 +394,8 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
     if ( iop ) usePar( *iop );
     grp->setHAlignObj( fmtfld_ );
     setHAlignObj( grp );
+
+    coordsys_ = SI().getCoordSystem();
 }
 
 
@@ -417,6 +419,7 @@ FilePars uiSEGYFilePars::getPars() const
 	fp.ns_ = nrsamplesfld_->getIntValue();
     fp.fmt_ = FilePars::fmtOf( fmtfld_->text(), forread_ );
     fp.byteswap_ = byteswapfld_ ? byteswapfld_->getIntValue() : 0;
+    fp.setCoordSys( coordsys_ );
     return fp;
 }
 
@@ -446,6 +449,9 @@ void uiSEGYFilePars::setPars( const FilePars& fp )
 
     fmtfld_->setText( FilePars::nameOfFmt(fp.fmt_,forread_) );
     if ( byteswapfld_ ) byteswapfld_->setValue( fp.byteswap_ );
+
+
+    coordsys_ = fp.getCoordSys();
 }
 
 

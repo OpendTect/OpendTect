@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uidialog.h"
 #include "dbkey.h"
+#include "uicoordsystem.h"
 
 class uiCheckBox;
 class uiColorInput;
@@ -38,29 +39,31 @@ public:
 
 protected:
 
-    uiIOObjSel*		objfld_;
-    uiIOObjSel*		horinputfld_;
-    uiColorInput*	colorfld_;
-    uiCheckBox*		polyfld_;
-    uiLabeledComboBox*	zfld_;
-    uiLabeledComboBox*  horinpfld_;
-    uiGenInput*		constzfld_;
-    uiTableImpDataSel*  dataselfld_;
-    uiFileSel*		filefld_;
+    uiIOObjSel*			objfld_;
+    uiIOObjSel*			horinputfld_;
+    uiColorInput*		colorfld_;
+    uiCheckBox*			polyfld_;
+    uiLabeledComboBox*		zfld_;
+    uiLabeledComboBox*		horinpfld_;
+    uiGenInput*			constzfld_;
+    uiTableImpDataSel*		dataselfld_;
+    uiFileSel*			filefld_;
+    Coords::uiCoordSystemSel*	coordsysselfld_;
 
-    uiPickPartServer*	serv_;
 
-    virtual bool	acceptOK();
-    void		inputChgd(CallBacker*);
-    void		formatSel(CallBacker*);
-    bool		checkInpFlds();
-    bool		doImport();
-    bool		doExport();
+    uiPickPartServer*		serv_;
 
-    bool		import_;
-    Table::FormatDesc&  fd_;
+    virtual bool		acceptOK();
+    void			inputChgd(CallBacker*);
+    void			formatSel(CallBacker*);
+    bool			checkInpFlds();
+    bool			doImport();
+    bool			doExport();
 
-    DBKey		storedid_;
+    bool			import_;
+    Table::FormatDesc&		fd_;
+
+    DBKey			storedid_;
 private:
-    static uiString	sPicksetPolygon() { return tr("Pickset/Polygon"); }
+    static uiString	    sPicksetPolygon() { return tr("Pickset/Polygon"); }
 };

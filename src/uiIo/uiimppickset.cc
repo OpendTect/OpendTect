@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "tabledef.h"
 #include "od_iostream.h"
 #include "od_helpids.h"
+#include "picklocation.h"
 
 #include <math.h>
 
@@ -136,7 +137,11 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	polyfld_->attach( rightTo, colorfld_ );
     }
     else
+    {
 	filefld_->attach( alignedBelow, objfld_ );
+	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+	coordsysselfld_->attach(alignedBelow, filefld_);
+    }
 }
 
 
@@ -217,7 +222,7 @@ bool uiImpExpPickSet::doExport()
 	return false;
 
     uiRetVal uirv;
-    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( ioobj->key(), uirv );
+    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( ioobj->key(), uirv );
     if ( !ps )
 	mErrRet(uirv)
 
@@ -231,7 +236,7 @@ bool uiImpExpPickSet::doExport()
     Pick::SetIter psiter( *ps );
     while ( psiter.next() )
     {
-	psiter.get().toString( buf, true );
+	psiter.get().toString( buf, true, coordsysselfld_->getCoordSystem() );
 	strm << buf << od_newline;
     }
 

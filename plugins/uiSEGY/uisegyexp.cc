@@ -204,8 +204,11 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     transffld_ = new uiSeisTransfer( this, tsu );
     transffld_->attach( alignedBelow, seissel_ );
 
+    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+    coordsysselfld_->attach( alignedBelow, transffld_ );
+
     fpfld_ = new uiSEGYFilePars( this, false, 0, false );
-    fpfld_->attach( alignedBelow, transffld_ );
+    fpfld_->attach( alignedBelow, coordsysselfld_ );
 
     txtheadfld_ = new uiSEGYExpTxtHeader( this );
     txtheadfld_->attach( alignedBelow, fpfld_ );
@@ -406,7 +409,13 @@ bool uiSEGYExp::acceptOK()
 	mErrRet( uiStrings::phrSelect(uiStrings::sOutputFile().toLower()) )
 
     PtrMan<IOObj> outioobj = sfs.getIOObj( true );
+
+    SEGY::FilePars filepars = fpfld_->getPars();
+    filepars.setCoordSys( coordsysselfld_->getCoordSystem() );
+    fpfld_->setPars( filepars );
+
     fpfld_->fillPar( outioobj->pars() );
+
     const bool is2d = Seis::is2D( geom_ );
     outioobj->pars().setYN( sKey::IsPS(), Seis::isPS(geom_) );
 
@@ -503,6 +512,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
 	    if ( segytr )
 	    {
+		segytr->setCoordSys( coordsysselfld_->getCoordSystem() );
 		SEGY::TxtHeader* th = new SEGY::TxtHeader;
 		th->setText( hdrtxt_ );
 		segytr->setTxtHeader( th );

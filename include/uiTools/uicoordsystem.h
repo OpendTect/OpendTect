@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "uicompoundparsel.h"
 #include "uidlggroup.h"
+#include "survinfo.h"
 
 class SurveyInfo;
 class uiGenInput;
@@ -95,9 +96,11 @@ protected:
 mExpClass(uiTools) uiCoordSystemSel : public uiCompoundParSel
 { mODTextTranslationClass(uiCoordSystemSel)
 public:
-			uiCoordSystemSel(uiParent*,const uiString& seltxt,
-					bool orthogonalonly,bool projectiononly,
-					const CoordSystem*);
+			uiCoordSystemSel(uiParent*,
+				bool orthogonalonly=true,
+				bool projectiononly=true,
+				const CoordSystem* crs=SI().getCoordSystem(),
+				const uiString& seltxt=uiStrings::sCoordSys());
 
     RefMan<CoordSystem> getCoordSystem()	{ return coordsystem_; }
 

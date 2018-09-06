@@ -442,9 +442,9 @@ bool uiCoordSystemDlg::ensureGeographicTransformOK( uiParent* p,
 }
 
 
-uiCoordSystemSel::uiCoordSystemSel( uiParent* p, const uiString& seltxt,
-				bool orthogonalonly, bool projectiononly,
-				const CoordSystem* coordsys )
+uiCoordSystemSel::uiCoordSystemSel( uiParent* p, bool orthogonalonly,
+			    bool projectiononly, const CoordSystem* coordsys,
+			    const uiString& seltxt )
     : uiCompoundParSel(p,seltxt)
     , orthogonalonly_(orthogonalonly), projectiononly_(projectiononly)
     , dlg_(0)

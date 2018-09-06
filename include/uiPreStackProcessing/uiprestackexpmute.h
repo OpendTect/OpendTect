@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiprestackprocessingmod.h"
 #include "uidialog.h"
+#include "uicoordsystem.h"
 
 class CtxtIOObj;
 class uiFileSel;
@@ -29,14 +30,15 @@ public:
 
 protected:
 
-    uiIOObjSel*		infld_;
-    uiGenInput*		coordfld_;
-    uiFileSel*		outfld_;
+    uiIOObjSel*			infld_;
+    uiGenInput*			coordfld_;
+    uiFileSel*			outfld_;
+    Coords::uiCoordSystemSel*	coordsysselfld_;
 
-    CtxtIOObj&		ctio_;
+    CtxtIOObj&			ctio_;
 
-    virtual bool	acceptOK();
-    bool		writeAscii();
+    virtual bool		acceptOK();
+    bool			writeAscii();
 };
 
 } //namespace PreStack

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "picklabel.h"
 #include "coord.h"
+#include "coordsystem.h"
 class TrcKey;
 class Sphere;
 
@@ -108,7 +109,8 @@ public:
 			//!< make sure it's compatible with the keying system
 
     bool		fromString(const char*);
-    void		toString(BufferString&,bool forexport=false) const;
+    void		toString(BufferString&,bool forexport=false,
+					const Coords::CoordSystem* crs=0) const;
 
     static const Location& udf();
     static Location&	dummy();
@@ -125,7 +127,6 @@ protected:
     void		setTK(const TrcKey*);
     void		setD(const Sphere*);
     bool		fndKeyTxt(const char*,BufferString*) const;
-
 };
 
 

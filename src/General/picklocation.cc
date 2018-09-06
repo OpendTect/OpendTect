@@ -27,7 +27,7 @@ namespace Pick
 #define mInitPtrs \
       dir_(0) \
     , trckey_(0) \
-    , text_(0)
+    , text_(0) \
 
 
 Pick::Location::Location()
@@ -447,8 +447,8 @@ bool Pick::Location::fromString( const char* inp )
     return true;
 }
 
-
-void Pick::Location::toString( BufferString& str, bool forexport ) const
+void Pick::Location::toString( BufferString& str, bool forexport,
+				    const Coords::CoordSystem* expcrs ) const
 {
     str.setEmpty();
 
@@ -461,6 +461,7 @@ void Pick::Location::toString( BufferString& str, bool forexport ) const
 	txt.replace( newlinechar, pipechar );
 	str.set( "\"" ).add( txt ).add( "\"\t" );
     }
+
 
     Coord3 usepos( pos_ );
     if ( forexport )
@@ -475,6 +476,10 @@ void Pick::Location::toString( BufferString& str, bool forexport ) const
 	    mPIEPAdj(Z,zval,false);
 	    usepos.z_ = zval;
 	}
+
+	if ( expcrs )
+	    usepos.setXY( expcrs->convertFrom(usepos.getXY(),
+						    *SI().getCoordSystem()) );
 
 	usepos.z_ = usepos.z_ * SI().showZ2UserFactor();
     }

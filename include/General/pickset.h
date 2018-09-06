@@ -203,14 +203,13 @@ mExpClass(General) SetIter : public MonitorableIter4Read<Set::IdxType>
 {
 public:
 
-			SetIter(const Set&,bool start_at_end=false);
-			SetIter(const SetIter&);
-    const Set&		pickSet() const;
-
-    Set::LocID		ID() const;
-    const Location&	get() const;
-    Coord		getPos() const;
-    double		getZ() const;
+				    SetIter(const Set&,bool start_at_end=false);
+				    SetIter(const SetIter&);
+    const Set&			    pickSet() const;
+    Set::LocID			    ID() const;
+    const Location&		    get() const;
+    Coord			    getPos() const;
+    double			    getZ() const;
 
 };
 
@@ -236,7 +235,6 @@ public:
     Location&		get() const;
     void		removeCurrent();
     void		insert(const Pick::Location&);
-
 };
 
 

@@ -17,6 +17,8 @@ Translators for SEGY files traces.
 #include "tracedata.h"
 #include "strmdata.h"
 #include "uistring.h"
+#include "coordsystem.h"
+
 
 class BendPoints2Coords;
 namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
@@ -66,6 +68,8 @@ public:
 
     static const char*	sKeyHdrEBCDIC()
 			{ return "SEGY.Text Header EBCDIC"; }
+    void		setCoordSys(Coords::CoordSystem* crs)
+						    { coordsys_.set( crs ); }
 
 protected:
 
@@ -117,6 +121,7 @@ protected:
     BendPoints2Coords*	bp2c_;
     int			estnrtrcs_;
     bool		othdomain_;
+    RefMan<Coords::CoordSystem>     coordsys_;
 
 private:
 

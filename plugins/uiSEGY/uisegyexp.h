@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "iopar.h"
 #include "uistring.h"
+#include "uicoordsystem.h"
 
 class IOObj;
 class uiBatchJobDispatcherSel;
@@ -48,6 +49,8 @@ protected:
     uiCheckBox*		morebox_;
     uiCheckBox*		manipbox_;
     uiBatchJobDispatcherSel* batchfld_;
+    Coords::uiCoordSystemSel* coordsysselfld_;
+
 
     void		inpSel(CallBacker*);
     void		batchChg(CallBacker*);

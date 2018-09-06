@@ -154,6 +154,11 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 	zdombox_->attach( rightOf, typlbl );
     mAttachCB( zdombox_->activated, uiSEGYReadStarter::zDomChgCB );
 
+    coordsysselfld_ = new Coords::uiCoordSystemSel( topgrp_ );
+    coordsysselfld_->attach( rightOf, zdombox_ );
+    mAttachCB( coordsysselfld_->butPush, uiSEGYReadStarter::coordSysChangedCB );
+    coordsysselfld_->display( false );
+
     uiSeparator* sep = new uiSeparator( this, "Top sep" );
     sep->attach( stretchedBelow, topgrp_ );
 
@@ -298,6 +303,7 @@ void uiSEGYReadStarter::createTools()
 			    mCB(this,uiSEGYReadStarter,coordscaleChg) );
     coordscalefld_->attach( alignedBelow, lowest );
     lowest = coordscalefld_;
+
     toolgrp->attach( rightOf, infofld_ );
 }
 
@@ -501,6 +507,10 @@ void uiSEGYReadStarter::setToolStates()
     if ( coordscalefld_ )
 	coordscalefld_->display( loaddef_.needXY() );
 
+    const bool shoulddisplay = SI().getCoordSystem() &&
+		SI().getCoordSystem()->isProjection() && usexybut_->isChecked();
+    coordsysselfld_->display( shoulddisplay );
+
     if ( editbut_ )
 	editbut_->setSensitive( nrfiles==1 &&
 				File::exists(filespec_.fileName(0)) );
@@ -604,6 +614,14 @@ void uiSEGYReadStarter::zDomChgCB( CallBacker* )
 {
     infofld_->setZIsTime( fileIsInTime() );
 }
+
+
+void uiSEGYReadStarter::coordSysChangedCB( CallBacker* )
+{
+    if ( !(*coordsysselfld_->getCoordSystem() == *SI().getCoordSystem()) )
+	inpChg(0);
+}
+
 
 
 void uiSEGYReadStarter::inpChg( CallBacker* )
@@ -756,6 +774,9 @@ void uiSEGYReadStarter::usePar( const IOPar& iop )
     if ( typfld_ )
 	typfld_->usePar( iop );
 
+    if ( coordsysselfld_->isDisplayed() )
+	coordsysselfld_->getCoordSystem()->usePar( iop );
+
     int nrtrcs = examineNrTraces();
     iop.get( uiSEGYExamine::Setup::sKeyNrTrcs, nrtrcs );
     examinenrtrcsfld_->setValue( nrtrcs );
@@ -785,9 +806,12 @@ void uiSEGYReadStarter::fillPar( IOPar& iop ) const
     const FullSpec fullspec = fullSpec();
     fullspec.fillPar( iop );
 
+    if ( SI().getCoordSystem().ptr() && SI().getCoordSystem()->isProjection() )
+	coordsysselfld_->getCoordSystem()->fillPar( iop );
+
+
     iop.set( FilePars::sKeyRevision(), loaddef_.revision_ );
     impType().fillPar( iop );
-
     iop.set( uiSEGYExamine::Setup::sKeyNrTrcs, examineNrTraces() );
     iop.set( sKeyClipRatio, ratioClip() );
     iop.setYN( sKeyIncludeZeros, incZeros() );
@@ -1165,6 +1189,10 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	{ uiMSG().error( tr("Cannot open file: %1").arg(fnm) ); return false; }
 
     SEGY::ScanInfo& si = scaninfos_->add( fnm );
+    bool valcheck = coordsysselfld_->isDisplayed();
+    Coords::CoordSystem* crs = coordsysselfld_->getCoordSystem();
+    if ( coordsysselfld_->isDisplayed() )
+	loaddef_.setUserCoordSys( coordsysselfld_->getCoordSystem() );
     SEGY::BasicFileInfo& bfi = si.basicInfo();
     bool zinft = false;
     uiString errmsg = bfi.getFrom( strm, zinft,

@@ -43,9 +43,12 @@ uiExportMute::uiExportMute( uiParent* p )
 			        BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     coordfld_->attach( alignedBelow, infld_ );
 
+    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+    coordsysselfld_->attach(rightOf, coordfld_);
+
     uiFileSel::Setup fssu; fssu.setForWrite();
     outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(), fssu );
-    outfld_->attach( alignedBelow, coordfld_ );
+    outfld_->attach( alignedBelow, coordsysselfld_ );
 }
 
 
@@ -89,7 +92,9 @@ bool uiExportMute::writeAscii()
 		strm << binid.inl() << '\t' << binid.crl();
 	    else
 	    {
-		const Coord coord = SI().transform( binid );
+		Coord coord = SI().transform( binid );
+		coord = coordsysselfld_->getCoordSystem()->convertFrom(
+						coord,*SI().getCoordSystem());
 		// ostreams print doubles awfully
 		str.setEmpty();
 		str += coord.x_; str += "\t"; str += coord.y_;

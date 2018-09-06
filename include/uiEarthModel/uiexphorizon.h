@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "fixedstring.h"
 #include "uiioobjselgrp.h"
 #include "zaxistransform.h"
+#include "uicoordsystem.h"
+
 class uiFileSel;
 class uiGenInput;
 class uiSurfaceRead;
@@ -32,33 +34,36 @@ public:
 			~uiExportHorizon();
 
 
+
 protected:
 
-    uiSurfaceRead*	    infld_;
-    uiFileSel*		    outfld_;
-    uiGenInput*		    headerfld_;
-    uiGenInput*		    typfld_;
-    uiGenInput*		    zfld_;
-    uiButton*		    settingsbutt_;
-    uiUnitSel*		    unitsel_;
-    uiGenInput*		    udffld_;
-    uiT2DConvSel*	    transfld_;
-    uiIOObjSelGrp*	    bulkinfld_;
+    uiSurfaceRead*		infld_;
+    uiFileSel*			outfld_;
+    uiGenInput*			headerfld_;
+    uiGenInput*			typfld_;
+    uiGenInput*			zfld_;
+    uiButton*			settingsbutt_;
+    uiUnitSel*			unitsel_;
+    uiGenInput*			udffld_;
+    uiT2DConvSel*		transfld_;
+    uiIOObjSelGrp*		bulkinfld_;
+    Coords::uiCoordSystemSel*	coordsysselfld_;
 
-    BufferString	    gfname_;
-    BufferString	    gfcomment_;
 
-    virtual bool	    acceptOK();
-    void		    typChg(CallBacker*);
-    void		    addZChg(CallBacker*);
-    void		    attrSel(CallBacker*);
-    void		    settingsCB(CallBacker*);
-    void		    inpSel(CallBacker*);
-    void		    writeHeader(od_ostream&);
-    bool		    writeAscii();
-    bool		    getInputDBKeys(DBKeySet&);
+    BufferString		gfname_;
+    BufferString		gfcomment_;
 
-    bool		    isbulk_;
+    virtual bool		acceptOK();
+    void			typChg(CallBacker*);
+    void			addZChg(CallBacker*);
+    void			attrSel(CallBacker*);
+    void			settingsCB(CallBacker*);
+    void			inpSel(CallBacker*);
+    void			writeHeader(od_ostream&);
+    bool			writeAscii();
+    bool			getInputDBKeys(DBKeySet&);
 
-    FixedString		    getZDomain() const;
+    bool			isbulk_;
+
+    FixedString			getZDomain() const;
 };

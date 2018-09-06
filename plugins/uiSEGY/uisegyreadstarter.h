@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "segyfiledef.h"
 #include "segyuiscandata.h"
 #include "uisegyimptype.h"
+#include "uicoordsystem.h"
 
 class Timer;
 class TaskRunner;
@@ -124,6 +125,7 @@ protected:
     Timer*		timer_;
     uiComboBox*		vintagefld_;
     IOPar		defaultpar_;
+    Coords::uiCoordSystemSel* coordsysselfld_;
 
     BufferString	userfilename_;
     BufferString	lastparname_;
@@ -191,6 +193,7 @@ protected:
     void		classicSurvSetupEnd(CallBacker*);
     bool		acceptOK();
     void		vntRefreshCB(CallBacker*);
+    void		coordSysChangedCB(CallBacker*);
     bool		getVintageParameters();
 
     bool		commit(bool permissive=false);

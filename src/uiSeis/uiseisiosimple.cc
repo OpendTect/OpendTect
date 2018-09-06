@@ -79,6 +79,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	, isxyfld_(0)
 	, lnmfld_(0)
 	, isascfld_(0)
+	, coordsysselfld_(0)
 	, haveoffsbut_(0)
 	, haveazimbut_(0)
 	, pspposlbl_(0)
@@ -135,7 +136,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	haverefnrfld_ = new uiGenInput( this, txt, BoolInpSpec(false) );
 	haverefnrfld_->setValue( data().haverefnr_ );
 	haverefnrfld_->attach( alignedBelow, havenrfld_ );
-	havenrfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havenrSel) );
+	haverefnrfld_->valuechanged.notify(
+					   mCB(this,uiSeisIOSimple,havenrSel) );
 	attachobj = haverefnrfld_->attachObj();
     }
     else
@@ -144,8 +146,17 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 		? tr("Position in file is") : tr("Position in file will be"),
 		BoolInpSpec(true,tr("X Y"),tr("Inl Crl")) );
 	isxyfld_->setValue( data().isxy_ );
+	isxyfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,xyToInlSelCB) );
 	isxyfld_->attach( alignedBelow, attachobj );
 	attachobj = isxyfld_->attachObj();
+    }
+
+    if ( !isimp_ )
+    {
+	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+	coordsysselfld_->attach(alignedBelow, attachobj);
+	coordsysselfld_->display(false);
+	attachobj = coordsysselfld_->attachObj();
     }
 
     if ( !isimp_ && isps )
@@ -395,10 +406,16 @@ void uiSeisIOSimple::havenrSel( CallBacker* cb )
 
     const bool havepos = haveposfld_->getBoolValue();
     const bool havenr = havenrfld_->getBoolValue();
+
     if ( nrdeffld_ )
 	nrdeffld_->display( havepos && !havenr );
     if ( haverefnrfld_ )
 	haverefnrfld_->display( havepos && havenr );
+    const bool shoulddisplay = SI().getCoordSystem() &&
+		SI().getCoordSystem()->isProjection() && havenr;
+    if ( !isimp_ )
+	coordsysselfld_->display(shoulddisplay);
+
 }
 
 
@@ -412,6 +429,13 @@ void uiSeisIOSimple::haveoffsSel( CallBacker* cb )
     pspposlbl_->display( havepos );
     if ( offsdeffld_ )
 	offsdeffld_->display( !havepos || !haveoffs );
+}
+
+
+void uiSeisIOSimple::xyToInlSelCB( CallBacker* )
+{
+    if ( !isimp_ )
+	coordsysselfld_->display(isxyfld_->getBoolValue());
 }
 
 
@@ -469,6 +493,8 @@ bool uiSeisIOSimple::acceptOK()
 
     data().havepos_ = haveposfld_->getBoolValue();
     data().havenr_ = data().haverefnr_ = false;
+    if ( coordsysselfld_ && isxyfld_->getBoolValue() )
+	data().setCoordSys( coordsysselfld_->getCoordSystem() );
     if ( data().havepos_ )
     {
 	data().isxy_ = is2D() || isxyfld_->getBoolValue();

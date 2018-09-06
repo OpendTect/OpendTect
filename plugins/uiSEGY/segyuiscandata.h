@@ -16,11 +16,14 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "datachar.h"
 #include "namedobj.h"
+#include "survinfo.h"
+#include "refcount.h"
 
 class SeisTrcInfo;
 class DataClipSampler;
 class uiParent;
 class TaskRunner;
+namespace Coords  { class CoordSystem; }
 namespace PosInfo { class Detector; }
 
 
@@ -87,38 +90,47 @@ public:
 			~LoadDef();
 			LoadDef( const LoadDef& oth )
 			    : BasicFileInfo(oth.is2d_),hdrdef_(0)
-			{ *this = oth; }
+			{
+			    coordsys_ = SI().getCoordSystem();
+			}
 
-    LoadDef&		operator =(const LoadDef&);
-    void		reInit(bool is2d,bool alsohdef);
+    LoadDef&			operator =(const LoadDef&);
+    void			reInit(bool is2d,bool alsohdef);
 
-    float		coordscale_;
-    FileReadOpts::ICvsXYType icvsxytype_;
-    bool		havetrcnrs_;
-    SamplingData<int>	trcnrdef_;
-    FileReadOpts::PSDefType psoffssrc_;
-    SamplingData<float>	psoffsdef_;
-    bool		usezsamplinginfile_;
-    bool		useformatinfile_;
+    float			coordscale_;
+    FileReadOpts::ICvsXYType	icvsxytype_;
+    bool			havetrcnrs_;
+    SamplingData<int>		trcnrdef_;
+    FileReadOpts::PSDefType	psoffssrc_;
+    SamplingData<float>		psoffsdef_;
+    bool			usezsamplinginfile_;
+    bool			useformatinfile_;
 
-    TrcHeaderDef*	hdrdef_;
+    TrcHeaderDef*		hdrdef_;
 
-    LoadDef		getPrepared(od_istream&) const;
-    bool		getData(od_istream&,char*,float* vals=0) const;
-    TrcHeader*		getTrace(od_istream&,char*,float*) const;
-    bool		skipData(od_istream&) const;
-    void		getTrcInfo(TrcHeader&,SeisTrcInfo&,
+    LoadDef			getPrepared(od_istream&) const;
+    bool			getData(od_istream&,char*,float* vals=0) const;
+    TrcHeader*			getTrace(od_istream&,char*,float*) const;
+    bool			skipData(od_istream&) const;
+    void			getTrcInfo(TrcHeader&,SeisTrcInfo&,
 				   const OffsetCalculator&) const;
 
-    virtual void	getFilePars(FilePars&) const;
-    void		getFileReadOpts(FileReadOpts&) const;
-    void		usePar(const IOPar&);
+    virtual void		getFilePars(FilePars&) const;
+    void			getFileReadOpts(FileReadOpts&) const;
+    void			usePar(const IOPar&);
 
-    bool		needXY() const;
+    void			setUserCoordSys(Coords::CoordSystem* crs)
+				{ coordsys_ = crs; }
+    ConstRefMan<Coords::CoordSystem>	getUserCoordSys()
+				{ return coordsys_; }
+
+    bool			needXY() const;
 
 protected:
 
     virtual const TrcHeaderDef& getHDef() const	{ return *hdrdef_; }
+
+    ConstRefMan<Coords::CoordSystem> coordsys_;
 
 };
 
@@ -171,7 +183,6 @@ public:
     const ScanRangeInfo&	ranges() const		{ return rgs_; }
     const PosInfo::Detector&	piDetector() const	{ return *pidetector_; }
     const BasicFileInfo&	basicInfo() const	{ return basicinfo_; }
-
 protected:
 
     BufferString	filenm_;
@@ -252,4 +263,4 @@ protected:
 };
 
 
-} // namespace SEGY
+}; // namespace SEGY
