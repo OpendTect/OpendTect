@@ -292,14 +292,15 @@ void uiSeisFileMan::mkFileInfo()
 		area = mCast(double,cs.hsamp_.lineDistance()) *
 			 cs.hsamp_.trcDistance() * spcinfo.expectednrtrcs;
 		if ( SI().xyInFeet() )
-		    area *= mFromFeetFactorD;
+		    area *= (mFromFeetFactorD * mFromFeetFactorD);
 	    }
 	    else
 	    {
 		area = SI().getArea( cs.hsamp_.inlRange(),
-				       cs.hsamp_.crlRange() );
+				     cs.hsamp_.crlRange() );
 	    }
-	    txt.add("\nArea: ").add( getAreaString(mCast(float,area),true,0) );
+	    txt.add("\nArea: ")
+	       .add( getAreaString(mCast(float,area),SI().xyInFeet(),2,true) );
 
 	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
 		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zsamp_.start)
