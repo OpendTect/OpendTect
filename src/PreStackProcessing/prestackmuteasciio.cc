@@ -70,8 +70,6 @@ bool MuteAscIO::isXY() const
 bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 			   PointBasedMathFunction::InterpolType iptype )
 {
-    const bool isxy = isXY();
-
     while ( true )
     {
 	const int ret = getNextBodyVals( strm_ );
