@@ -104,8 +104,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( tinf_.selection_.coordsys_
 	    && tinf_.selection_.coordsys_->isProjection() )
     {
-	crsfld_ = new Coords::uiCoordSystemSel(this, uiStrings::sCoordSys(),
-					true, true, tinf_.selection_.coordsys_);
+	crsfld_ = new Coords::uiCoordSystemSel( this );
 	crsfld_->attach( stretchedBelow, rightmostfld_ );
     }
 

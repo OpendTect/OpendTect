@@ -283,8 +283,6 @@ static bool isInsideSurvey( const BinID& bid, float zval )
 
 int HorizonScanner::nextStep()
 {
-    if ( fileidx_ == 1 )
-	int i = 0;
     if ( fileidx_ >= filenames_.size() )
     {
 	for ( int idx=0; idx<sections_.size(); idx++ )
