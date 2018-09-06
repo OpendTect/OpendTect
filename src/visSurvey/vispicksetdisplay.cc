@@ -733,8 +733,8 @@ void PickSetDisplay::getPickingMessage( BufferString& str ) const
 
     if ( hasarea )
     {
-	areastring = "Area=";
-	areastring += getAreaString( area, false, 0 );
+	areastring.set( "Area: " )
+		  .add( getAreaString(area,SI().xyInFeet(),2,false) );
     }
 
     str = "Picking (Nr picks="; str += set_ ? set_->size() : 0;

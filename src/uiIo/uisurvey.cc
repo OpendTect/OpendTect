@@ -1177,18 +1177,19 @@ void uiSurvey::putToScreen()
     BufferString zinfo( "Z range" );
     BufferString bininfo( "Inl/Crl bin size" );
     BufferString crsinfo( "CRS: " );
-    BufferString areainfo( "Area" );
+    BufferString areainfo( "Area: " );
     BufferString survtypeinfo( "Survey type: " );
     BufferString orientinfo( "In-line Orientation: " );
 
     if ( !cursurvinfo_ )
     {
 	notesfld_->setText( "" );
-	zinfo.add( ":" ); bininfo.add( ":" ); areainfo.add( ":" );
+	zinfo.add( ":" ); bininfo.add( ":" );
     }
     else
     {
 	const SurveyInfo& si = *cursurvinfo_;
+	areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),2,true) );
 	notesfld_->setText( si.comment() );
 
 	zinfo.add( "(" )
@@ -1200,7 +1201,6 @@ void uiSurvey::putToScreen()
 	    crsinfo.add( si.getCoordSystem()->summary() );
 
 	bininfo.add( " (" ).add( si.getXYUnitString(false) ).add( "/line): " );
-	areainfo.add( " (sq " ).add( si.xyInFeet() ? "mi" : "km" ).add( "): ");
 
 	if ( si.sampling(false).hsamp_.totalNr() > 0 )
 	{
@@ -1215,11 +1215,6 @@ void uiSurvey::putToScreen()
 
 	    bininfo.add( toString(inldist,2) ).add( "/" );
 	    bininfo.add( toString(crldist,2) );
-	    float area = (float) ( si.getArea(false) * 1e-6 ); //in km2
-	    if ( si.xyInFeet() )
-		area /= 2.590; // square miles
-
-	    areainfo.add( toString(area,2) );
 	}
 
 	#define mAdd2ZString(nr) zinfo += istime ? mNINT32(1000*nr) : nr;

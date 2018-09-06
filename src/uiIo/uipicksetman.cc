@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "picksettr.h"
 #include "pickset.h"
 #include "keystrs.h"
+#include "survinfo.h"
 #include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
@@ -120,7 +121,10 @@ void uiPickSetMan::mkFileInfo()
 	    {
 		const float area = ps.getXYArea();
 		if ( !mIsUdf(area) )
-		    txt.add( ", area=" ).add( area );
+		{
+		    txt.add( ", area: " )
+		       .add( getAreaString(area,SI().xyInFeet(),2,true) );
+		}
 	    }
 
 	    if ( havetype )
