@@ -40,7 +40,7 @@ void CEEMD::initClass()
 
     desc->addInput( InputSpec("Input Data",true) );
     desc->addOutputDataType( Seis::UnknowData );
-    desc->setNrOutputs( Seis::UnknowData, 1 );
+    desc->setNrOutputs( Seis::UnknowData, 1  );
     desc->setLocality( Desc::SingleTrace );
 
     EnumParam* otype = new EnumParam( attriboutputStr() );
@@ -69,11 +69,11 @@ void CEEMD::initClass()
     maxsift->setDefaultValue( 10 );
     desc->addParam( maxsift );
 
-    IntParam* outputfreq = new IntParam( outputfreqStr() );
+    FloatParam* outputfreq = new FloatParam( outputfreqStr() );
     outputfreq->setDefaultValue( 5 );
     desc->addParam( outputfreq );
 
-    IntParam* stepoutfreq = new IntParam( stepoutfreqStr() );
+    FloatParam* stepoutfreq = new FloatParam( stepoutfreqStr() );
     stepoutfreq->setDefaultValue( 5 );
     desc->addParam( stepoutfreq );
 
@@ -102,6 +102,9 @@ void CEEMD::initClass()
     maxnoiseloop->setDefaultValue( 50 );
     maxnoiseloop->setRequired(false);
     desc->addParam( maxnoiseloop );
+
+
+    desc->setLocality( Desc::SingleTrace );
 
     mAttrEndInitClass
 }
@@ -142,7 +145,7 @@ void CEEMD::updateDesc( Desc& desc )
     if ( desc.getValParam(attriboutputStr())->getIntValue()
 	    == mDecompOutputFreq )
     {
-	int stepoutfreq =  desc.getValParam(stepoutfreqStr())->getIntValue();
+	float stepoutfreq =  desc.getValParam(stepoutfreqStr())->getFValue();
 
 	const float nyqfreq = 0.5f / mCast(float,SI().zStep());
 	const int nrattribs = (int)( nyqfreq / stepoutfreq );
@@ -171,8 +174,8 @@ CEEMD::CEEMD( Desc& desc )
     mGetInt( maxnrimf_, maxnrimfStr() );
     mGetInt( maxsift_, maxsiftStr() );
     mGetBool( usetfpanel_, usetfpanelStr() );
-    mGetInt( outputfreq_, outputfreqStr() );
-    mGetInt( stepoutfreq_, stepoutfreqStr() );
+    mGetFloat( outputfreq_, outputfreqStr() );
+    mGetFloat( stepoutfreq_, stepoutfreqStr() );
     if ( usetfpanel_ )
 	    stepoutfreq_ = 1;
 
@@ -223,11 +226,11 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& relpos,
     int first = 0;
     int last = 0;
     getFirstAndLastOutEnabled(first, last);
-    int startfreq = usetfpanel_ ? 0 : (first+1)*stepoutfreq_;
-    int endfreq = usetfpanel_ ? nyquist : (last+1)*stepoutfreq_;
+    float startfreq = usetfpanel_ ? 0 : (first+1)*stepoutfreq_;
+    float endfreq = usetfpanel_ ? nyquist : (last+1)*stepoutfreq_;
     int startcomp = first;
     int endcomp = last;
-    int stepoutfreq = usetfpanel_ ? 1 : stepoutfreq_;
+    float stepoutfreq = usetfpanel_ ? 1 : stepoutfreq_;
     Array2DImpl<float>* decompoutput =
 		new Array2DImpl<float>( inpsz, outputinterest_.size() );
 
@@ -263,9 +266,9 @@ void CEEMD::getCompNames( BufferStringSet& nms ) const
 	const float fnyq = 0.5f / refstep_;
 	const char* basestr = "frequency = ";
 	BufferString suffixstr = zIsTime() ? " Hz" : " cycles/mm";
-	int stepoutfreq = usetfpanel_ ? 1 : stepoutfreq_;
-	//0 Frequency is not allowed, so starting frequency should be stepout
-	for ( int freq=stepoutfreq; freq<fnyq; freq+=stepoutfreq )
+	float stepoutfreq = usetfpanel_ ? 1 : stepoutfreq_;
+	float startfreq = usetfpanel_ ? 0 : outputfreq_;
+	for ( float freq=stepoutfreq; freq<fnyq; freq+=stepoutfreq )
 	{
 	    BufferString tmpstr = basestr; tmpstr += freq; tmpstr += suffixstr;
 	    nms.add( tmpstr.buf() );

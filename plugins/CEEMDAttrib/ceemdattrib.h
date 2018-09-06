@@ -61,8 +61,8 @@ protected:
     void		getFirstAndLastOutEnabled(int& first, int& last) const;
     int			maxnrimf_; // Maximum number of intrinsic Mode Functions
     int			maxsift_; // Maximum number of sifting iterations
-    int			outputfreq_; // Output frequency
-    int			stepoutfreq_; // Step output frequency
+    float		outputfreq_; // Output frequency
+    float		stepoutfreq_; // Step output frequency
     int			outputcomp_; // Output frequency
     float		stopsift_; // stop sifting if st.dev res.-imf < value
     float		stopimf_; // stop decomp. when st.dev imf < value

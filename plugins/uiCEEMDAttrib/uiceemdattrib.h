@@ -52,6 +52,7 @@ protected:
     void		setPrevSel();
     void		getPrevSel();
     void		viewPanelCB(CallBacker*);
+    void		inputSelCB(CallBacker*);
     DescID		createCEEMDDesc(DescSet*) const;
     Desc*		createNewDesc(DescSet*,DescID,const char*,
 				      int inpidx,BufferString) const;

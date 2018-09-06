@@ -17,6 +17,7 @@
 #include "sorting.h"
 #include "odmemory.h"
 #include "gridder2d.h"
+#include "survinfo.h"
 
 using namespace std;
 
@@ -376,8 +377,10 @@ void DecompInput::stackCeemdComponents(
 
     for ( int idx=0; idx<size_; idx++)
     {
+	if ( !currentrealizations.size() )
+	    continue;
 	const float val = (*currentrealizations[0])[0]->values_[idx];
-	if ( !currentrealizations.size() || mIsUdf(val) )
+	if ( mIsUdf(val) )
 	    continue;
 	currentstackedcomponents[0]->values_[idx] = val / stackcount;
     }
@@ -386,6 +389,8 @@ void DecompInput::stackCeemdComponents(
     {
 	for ( int idx=0; idx<size_; idx++)
 	{
+	    if ( !currentrealizations.size() )
+		continue;
 	    const float val = (*currentrealizations[nrnoise])[0]->values_[idx];
 	    if ( mIsUdf(val) )
 		continue;
@@ -658,8 +663,8 @@ bool DecompInput::calcFrequencies(
 
 bool DecompInput::useGridding(
 	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations,
-	Array2DImpl<float>* output, int startfreq, int endfreq,
-	int stepoutfreq ) const
+	Array2DImpl<float>* output, float startfreq, float endfreq,
+	float stepoutfreq ) const
 {
     int fsize = realizations[0]->size();
     double step = mCast(double, stepoutfreq);
@@ -696,11 +701,11 @@ bool DecompInput::useGridding(
 	grdr.setPoints( pts );
 	grdr.setValues( zvals );
 
-	for ( int f=startfreq; f<endfreq; f+=stepoutfreq )
+	for ( float f=startfreq; f<endfreq; f+=stepoutfreq )
 	{
 	    if ( f >= output->info().getSize(1) ) break;
-	    double dff = mCast(double, f);
-	    double dtt = mCast(double, idt);
+	    double dff = f;
+	    double dtt = idt;
 	    float val;
 	    if ( f < minf || f > maxf ) val = 0;
 	    else
@@ -708,27 +713,28 @@ bool DecompInput::useGridding(
 		val = grdr.getValue( Coord(dff,dtt) );
 		if ( mIsUdf(val) ) val = 0;
 	    }
-	    output->set( idt, mCast(int,f/stepoutfreq), val );
+	    output->set( idt, mNINT32(f/stepoutfreq), val );
 	}
 	pts.erase();
 	zvals.erase();
     }
     // copy boundary points to keep number of samples = size_
 
-    for ( int f=startfreq; f<endfreq; f+=stepoutfreq )
+    for ( float f=startfreq; f<endfreq; f+=stepoutfreq )
     {
-	float valzero = output->get( 1, f/stepoutfreq ) ;
-	output->set( 0, f/stepoutfreq, valzero );
-	float vallast = output->get( size_-2, f/stepoutfreq ) ;
-	output->set( size_-1, f/stepoutfreq, vallast );
+	int yidx = mNINT32(f/stepoutfreq);
+	float valzero = output->get( 1, yidx ) ;
+	output->set( 0, yidx, valzero );
+	float vallast = output->get( size_-2, yidx ) ;
+	output->set( size_-1, yidx, vallast );
     }
     return true;
 }
 
 bool DecompInput::usePolynomial(
 	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations,
-	Array2DImpl<float>* output, int startfreq, int endfreq,
-	int stepoutfreq ) const
+	Array2DImpl<float>* output, float startfreq, float endfreq,
+	float stepoutfreq ) const
 {
     int fsize = realizations[0]->size();
     float* unsortedamplitudes = new float[fsize+2];
@@ -736,6 +742,10 @@ bool DecompInput::usePolynomial(
     MyPointBasedMathFunction sortedampspectrum(
 	    PointBasedMathFunction::Poly,
 	    PointBasedMathFunction::ExtraPolGradient);
+    const int convfac = SI().zIsTime() ? 1 : 1000;
+
+    const float stepout = stepoutfreq*convfac;
+
 
     for ( int idt=0; idt<size_; idt++ )
     {
@@ -744,6 +754,7 @@ bool DecompInput::usePolynomial(
 	for ( int f=0; f<fsize; f++ )
 	{
 	    unsortedfrequencies[f] = (*realizations[2])[f]->values_[idt];
+	    float val = (*realizations[3])[f]->values_[idt];
 	    unsortedamplitudes[f] = (*realizations[3])[f]->values_[idt];
 	    maxf = max ( maxf, unsortedfrequencies[f] );
 	    minf = min ( minf, unsortedfrequencies[f] );
@@ -757,35 +768,39 @@ bool DecompInput::usePolynomial(
 	sortSpectrum( unsortedfrequencies, unsortedamplitudes,
 	    sortedampspectrum, fsize+2 );
 
-	for ( int f=startfreq; f<=endfreq; f+=stepoutfreq )
-	//for ( int f=startfreq; f<endfreq; f+=stepoutfreq )
+
+
+	for ( float f=startfreq*convfac; f<=endfreq*convfac; f+=stepout )
 	{
-	    if ( f/stepoutfreq == 0 )
+	    int yidx = mNINT32(f/stepout);
+	    if ( yidx == 0 )
 		continue;
 
-	    if ( f/stepoutfreq > output->info().getSize(1) ) break;
+	    if ( yidx > output->info().getSize(1) ) break;
 	    float val;
-	    if ( f < minf || f > maxf ) val = 0;
+	    if ( f < (minf*convfac) || f > (maxf*convfac) ) val = 0;
 	    else
 	    {
-		val = sortedampspectrum.myGetValue(mCast(float,f)) ;
+		val = sortedampspectrum.getValue(f/convfac) ;
 		if ( mIsUdf(val) || ( val<0 ) )
 		    val = 0;
 	    }
 
-	    output->set( idt, f/stepoutfreq-1, val );
+	    output->set( idt, yidx-1, val );
 	}
     }
     // copy boundary points to keep number of samples = size_
-    for ( int f=startfreq; f<endfreq; f+=stepoutfreq )
+    for ( float f=startfreq*convfac; f<endfreq*convfac; f+=stepoutfreq*convfac )
     {
-	if ( f/stepoutfreq == 0 )
+	int yidx = mNINT32(f/(stepoutfreq*convfac));
+	if ( yidx == 0 )
 	    continue;
 
-	float valzero = output->get( 1, f/stepoutfreq-1 ) ;
-	output->set( 0, f/stepoutfreq-1, valzero );
-	float vallast = output->get( size_-2, f/stepoutfreq-1 ) ;
-	output->set( size_-1, f/stepoutfreq-1, vallast );
+	float valzero = output->get( 1, yidx-1 ) ;
+	output->set( 0, yidx-1, valzero );
+	float vallast = output->get( size_-2, yidx-1 ) ;
+	output->set( size_-1, yidx-1, vallast );
+	int io = 0;
     }
 
     delete unsortedfrequencies;
@@ -821,7 +836,7 @@ bool DecompInput::sortSpectrum(
 bool DecompInput::outputAttribute(
 	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations,
 	Array2DImpl<float>* output, int outputattrib,
-	int startfreq, int endfreq, int stepoutfreq,
+	float startfreq, float endfreq, float stepoutfreq,
 	int startcomp, int endcomp, float average ) const
 {
 
@@ -909,6 +924,7 @@ bool DecompInput::calcAmplitudes(
 	    {
 		float realval = (*realcomponents[0])[comp]->values_[idx];
 		float imagval = -imagcomponents[comp]->values_[idx];
+
 		amplitudecomp->values_[idx] =
 			sqrt (realval*realval + imagval*imagval);
 	    }
@@ -921,7 +937,7 @@ bool DecompInput::calcAmplitudes(
 bool DecompInput::doDecompMethod(
 	    int nrsamples, float refstep,
 	    Array2DImpl<float>* output, int outputattrib,
-	    int startfreq, int endfreq, int stepoutfreq,
+	    float startfreq, float endfreq, float stepoutfreq,
 	    int startcomp, int endcomp )
 {
     DecompInput* imf = new DecompInput( setup_, nrsamples );
@@ -993,9 +1009,9 @@ bool DecompInput::doDecompMethod(
 	realizations += stackedcomponents;
 	EEMDrealizations.erase();
     }
-
     else if ( setup_.method_ == mDecompModeCEEMD )
     {
+
 	ManagedObjectSet<ManagedObjectSet<IMFComponent> > noisedecompositions;
 	ManagedObjectSet<ManagedObjectSet<IMFComponent> > currentrealizations;
 	ManagedObjectSet<IMFComponent> currentstackedcomponents;

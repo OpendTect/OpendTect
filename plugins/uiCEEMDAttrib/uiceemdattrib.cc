@@ -52,6 +52,8 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
 	, panelview_( new uiCEEMDPanel(p) )
 {
     inpfld_ = createInpFld( is2d );
+    inpfld_->selectionDone.notify( mCB(this,uiCEEMDAttrib,inputSelCB) );
+
     setHAlignObj( inpfld_ );
 
     methodfld_ = new uiGenInput( this, "Method",
@@ -74,7 +76,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     stopsiftfld_->setElemSzPol(uiObject::Small);
     stopsiftfld_->attach( rightOf, maxsiftfld_ );
 
-    BufferString tfstr = "&Display Time/Frequency panel";
+    uiString tfstr = tr("Display Time/Frequency panel");
     CallBack cbtfpanel = mCB(this, uiCEEMDAttrib, panelTFPush);
     tfpanelbut_ = new uiPushButton( this, tfstr, cbtfpanel, true );
     tfpanelbut_->attach( alignedBelow, maxsiftfld_ );
@@ -120,8 +122,11 @@ bool uiCEEMDAttrib::getParameters( Desc& desc )
     mSetFloat( CEEMD::stopsiftStr(), stopsift );
     mSetInt( CEEMD::maxnrimfStr(), maximffld_->getIntValue() );
     mSetInt( CEEMD::maxsiftStr(), maxsiftfld_->getIntValue() );
-    mSetInt( CEEMD::outputfreqStr(), outputfreqfld_->box()->getIntValue() );
-    mSetInt( CEEMD::stepoutfreqStr(), stepoutfreqfld_->box()->getIntValue() );
+    const float freqscale = zIsTime() ? 1.f : 1000.f;
+    mSetFloat( CEEMD::outputfreqStr(),
+				outputfreqfld_->box()->getFValue()/freqscale );
+    mSetFloat( CEEMD::stepoutfreqStr(),
+			       stepoutfreqfld_->box()->getFValue()/freqscale );
     mSetInt( CEEMD::outputcompStr(), outputcompfld_->getIntValue() );
     BufferStringSet strs1( attriboutputStr );
     const char* attriboutput = attriboutputfld_->text();
@@ -129,6 +134,23 @@ bool uiCEEMDAttrib::getParameters( Desc& desc )
     mSetBool( CEEMD::usetfpanelStr(), false );
 
     return true;
+}
+
+
+void uiCEEMDAttrib::inputSelCB( CallBacker* )
+{
+    if ( !*inpfld_->getInput() ) return;
+
+    TrcKeyZSampling cs;
+    if ( !inpfld_->getRanges(cs) )
+	cs.init(true);
+    float nyqfreq = 0.5f/SI().zStep();
+    const float freqscale = zIsTime() ? 1.f : 1000.f;
+    const float scalednyqfreq = nyqfreq * freqscale;
+    stepoutfreqfld_->box()->setInterval( (float)0.5, scalednyqfreq/2 );
+    stepoutfreqfld_->box()->setStep( (float)0.5, true );
+    outputfreqfld_->box()->setMinValue( stepoutfreqfld_->box()->getFValue() );
+    outputfreqfld_->box()->setMaxValue( scalednyqfreq );
 }
 
 
@@ -154,10 +176,11 @@ bool uiCEEMDAttrib::setParameters( const Desc& desc )
 	       maximffld_->setValue(maximf) );
     mIfGetInt( CEEMD::maxsiftStr(), maxsift,
 	       maxsiftfld_->setValue(maxsift) );
-    mIfGetInt( CEEMD::outputfreqStr(), outputfreq,
-	       outputfreqfld_->box()->setValue(outputfreq) );
-    mIfGetInt( CEEMD::stepoutfreqStr(), stepoutfreq,
-	       stepoutfreqfld_->box()->setValue(stepoutfreq) );
+    const float freqscale = zIsTime() ? 1.f : 1000.f;
+    mIfGetFloat( CEEMD::outputfreqStr(), outputfreq,
+	       outputfreqfld_->box()->setValue(outputfreq*freqscale) );
+    mIfGetFloat( CEEMD::stepoutfreqStr(), stepoutfreq,
+	       stepoutfreqfld_->box()->setValue(stepoutfreq*freqscale) );
     mIfGetEnum( CEEMD::attriboutputStr(), attriboutput,
 		attriboutputfld_->setText(attriboutputStr[attriboutput]) )
     mIfGetInt( CEEMD::outputcompStr(), outputcomp,
@@ -172,6 +195,7 @@ bool uiCEEMDAttrib::setParameters( const Desc& desc )
 bool uiCEEMDAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld_, desc, 0 );
+    inputSelCB(0);
     return true;
 }
 
@@ -292,7 +316,11 @@ void uiCEEMDAttrib::viewPanelCB( CallBacker* )
     DescID ceemdid = createCEEMDDesc( dset );
 
     const TrcKeyZSampling tzs = positiondlg_->getTrcKeyZSampling();
-    panelview_->compAndDispAttrib( dset, ceemdid, tzs, tzs.hsamp_.getGeomID() );
+    LineKey lk;
+    if ( dset->is2D() )
+	lk = LineKey( positiondlg_->getLineKey() );
+    panelview_->compAndDispAttrib(
+	    dset,ceemdid,tzs,Survey::GM().getGeomID(lk.lineName().buf()));
 }
 
 
@@ -368,14 +396,16 @@ void uiCEEMDAttrib::fillInCEEMDDescParams( Desc* newdesc ) const
     mSetParam(Int,maxsift,CEEMD::maxsiftStr(), maxsiftfld_->getIntValue())
     mSetParam(Float,stopsift,CEEMD::stopsiftStr(),stopsiftfld_->getfValue())
     mSetParam(Int,maximf,CEEMD::maxnrimfStr(), maximffld_->getIntValue())
-    mSetParam(Int,outputfreq,CEEMD::outputfreqStr(),
-	outputfreqfld_->box()->getIntValue())
-    mSetParam(Int,stepoutfreq,CEEMD::stepoutfreqStr(),
-	stepoutfreqfld_->box()->getIntValue())
+    mSetParam(Float,outputfreq,CEEMD::outputfreqStr(),
+	zIsTime() ? 1.f : 0.001f)
+    mSetParam(Float,stepoutfreq,CEEMD::stepoutfreqStr(),
+	zIsTime() ? 1.f : 0.001f)
     mSetParam(Enum,output,CEEMD::attriboutputStr(), 0 )
     mSetParam(Int,outputcomp,CEEMD::outputcompStr(),
 	outputcompfld_->getIntValue())
-    mSetParam(Bool,usetfpanel,CEEMD::usetfpanelStr(), true)
+     float dfreq = newdesc->getValParam(CEEMD::stepoutfreqStr())->getFValue(0);
+    mSetParam(Bool,usetfpanel,CEEMD::usetfpanelStr(), false);
+    //Cant find good reason why it has to be truw always
 
 
     }
