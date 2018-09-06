@@ -32,8 +32,8 @@ static const char* rcsID mUsedVar = "$Id$";
 # define sDirSep        "/"
 #endif
 
-#define mToSqMileFactor	0.3861 // km^2 to mile^2
-
+#define mToSqMileFactorD	3.86102158542e-7 /* m^2 to mile^2
+				copied from data/UnitsOfMeasure */
 
 
 static const char* getStringFromInt( od_int32 val, char* str )
@@ -769,49 +769,66 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
 
 const char* getAreaString( float m2, bool parensonunit, char* str )
 {
-    BufferString val;
+    const BufferString areastr( getAreaString(m2,SI().xyInFeet(),
+					      mUdf(int),parensonunit) );
 
-    const float km2 = m2* float(1e-6);
+    mDeclStaticString( retstr );
+    char* ret = str ? str : retstr.getCStr();
+    strcpy( ret, areastr.buf() );
 
+    return ret;
+}
+
+
+const char* getAreaString( float m2, bool xyinfeet, int precision,
+			   bool parensonunit, char* str )
+{
     FixedString unit;
-
-    if ( km2>0.01 )
+    double val = m2;
+    if ( m2 > 10. )
     {
-	if ( SI().xyInFeet() )
+	if ( xyinfeet )
 	{
-	    val = km2*mToSqMileFactor;
+	    val *= mToSqMileFactorD;
 	    unit =  "sq mi";
 	}
 	else
 	{
-	    val = km2;
+	    val *= 1e-6;
 	    unit = "sq km";
 	}
     }
     else
     {
-	if ( SI().xyInFeet() )
+	if ( xyinfeet )
 	{
-	    val = m2*mToFeetFactorF*mToFeetFactorF;
+	    val *= (mToFeetFactorD * mToFeetFactorD);
 	    unit =  "sq ft";
 	}
 	else
 	{
-	    val = m2;
 	    unit = "sq m";
 	}
     }
 
-    val += " ";
+    BufferString valstr;
+    if ( mIsUdf(precision) || val < 0.1 )
+	valstr.setLim( val, 6 );
+    else
+    {
+	valstr.set( val, precision );
+    }
+
+    valstr.add( " " );
     if ( parensonunit )
-	val += "(";
-    val += unit;
+	valstr.add( "(" );
+    valstr.add( unit );
     if ( parensonunit )
-	val += ")";
+	valstr.add( ")" );
 
     mDeclStaticString( retstr );
     char* ret = str ? str : retstr.getCStr();
-    strcpy( ret, val.buf() );
+    strcpy( ret, valstr.buf() );
 
     return ret;
 }

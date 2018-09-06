@@ -87,7 +87,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 	    areafld = new uiGenInput( grp, tr("==> Area") );
 	    areafld->attach( alignedBelow, calcbut );
 	    areafld->setReadOnly( true );
-	    areafld->setText( getAreaString( area, true, 0 ) );
+	    areafld->setText( getAreaString(area,SI().xyInFeet(),2,true) );
 	}
     }
 
@@ -201,9 +201,9 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
 	, hor_(h)
 {
     if ( hor_.nrSections() < 1 )
-    { 
-	new uiLabel( this, uiStrings::phrInvalid(uiStrings::sHorizon(1))); 
-	return; 
+    {
+	new uiLabel( this, uiStrings::phrInvalid(uiStrings::sHorizon(1)));
+	return;
     }
 
     IOObjContext ctxt( mIOObjContext(PickSet) );

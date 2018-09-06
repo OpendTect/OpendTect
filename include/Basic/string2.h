@@ -161,6 +161,8 @@ mGlobal(Basic) int getIndexInStringArrCI(const char*,const BufferStringSet set,
 
 mGlobal(Basic) const char* getAreaString(float m2,bool parensonunit,
 					 char* str=0);
+mGlobal(Basic) const char* getAreaString(float m2,bool xyinfeet,int precision,
+					 bool parensonunit,char* str=0);
 	/*!<Returns a string with an area and its unit, depending on survey and
 	    area size, unit is ft^2, m^2, km^2 or mile^2. */
 
