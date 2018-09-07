@@ -217,6 +217,9 @@ public:
     float		angleXInl() const;
 			/*!< It's the angle between the X-axis (East) and
 			     an Inline */
+    float		angleXCrl() const;
+			/*!< It's the angle between the X-axis (East) and
+			     a Crossline */
     void		setXYInFeet( bool yn=true ) { xyinfeet_ = yn; }
     void		setDepthInFeet( bool yn=true ) { depthsinfeet_ = yn; }
     void		setZUnit(bool istime,bool infeet=false);

@@ -1248,6 +1248,16 @@ float SurveyInfo::angleXInl() const
 }
 
 
+float SurveyInfo::angleXCrl() const
+{
+    Coord xy1 = transform( BinID(inlRange(false).start, crlRange(false).start));
+    Coord xy2 = transform( BinID(inlRange(false).stop, crlRange(false).start) );
+    const double xdiff = xy2.x - xy1.x;
+    const double ydiff = xy2.y - xy1.y;
+    return mCast(float, Math::Atan2( ydiff, xdiff ) );
+}
+
+
 bool SurveyInfo::isInside( const BinID& bid, bool work ) const
 {
     const Interval<int> inlrg( inlRange(work) );
