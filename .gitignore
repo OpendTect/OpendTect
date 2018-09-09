@@ -90,6 +90,8 @@ CTestCustom.cmake
 *.sln
 *.sdf
 *.opensdf
+*.db
+.vs/*
 
 
 #Temporary files
