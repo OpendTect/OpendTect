@@ -754,7 +754,6 @@ bool DecompInput::usePolynomial(
 	for ( int f=0; f<fsize; f++ )
 	{
 	    unsortedfrequencies[f] = (*realizations[2])[f]->values_[idt];
-	    float val = (*realizations[3])[f]->values_[idt];
 	    unsortedamplitudes[f] = (*realizations[3])[f]->values_[idt];
 	    maxf = max ( maxf, unsortedfrequencies[f] );
 	    minf = min ( minf, unsortedfrequencies[f] );
@@ -800,7 +799,6 @@ bool DecompInput::usePolynomial(
 	output->set( 0, yidx-1, valzero );
 	float vallast = output->get( size_-2, yidx-1 ) ;
 	output->set( size_-1, yidx-1, vallast );
-	int io = 0;
     }
 
     delete unsortedfrequencies;

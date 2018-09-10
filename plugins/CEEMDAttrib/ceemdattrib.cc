@@ -266,9 +266,9 @@ void CEEMD::getCompNames( BufferStringSet& nms ) const
 	const float fnyq = 0.5f / refstep_;
 	const char* basestr = "frequency = ";
 	BufferString suffixstr = zIsTime() ? " Hz" : " cycles/mm";
-	float stepoutfreq = usetfpanel_ ? 1 : stepoutfreq_;
 	float startfreq = usetfpanel_ ? 0 : outputfreq_;
-	for ( float freq=stepoutfreq; freq<fnyq; freq+=stepoutfreq )
+	float stepoutfreq = usetfpanel_ ? 1 : stepoutfreq_;
+	for ( float freq=startfreq; freq<fnyq; freq+=stepoutfreq )
 	{
 	    BufferString tmpstr = basestr; tmpstr += freq; tmpstr += suffixstr;
 	    nms.add( tmpstr.buf() );
