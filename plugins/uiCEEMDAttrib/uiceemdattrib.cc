@@ -403,7 +403,6 @@ void uiCEEMDAttrib::fillInCEEMDDescParams( Desc* newdesc ) const
     mSetParam(Enum,output,CEEMD::attriboutputStr(), 0 )
     mSetParam(Int,outputcomp,CEEMD::outputcompStr(),
 	outputcompfld_->getIntValue())
-     float dfreq = newdesc->getValParam(CEEMD::stepoutfreqStr())->getFValue(0);
     mSetParam(Bool,usetfpanel,CEEMD::usetfpanelStr(), false);
     //Cant find good reason why it has to be truw always
 
