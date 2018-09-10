@@ -145,8 +145,9 @@ void uiSEGYMgr::updateMenu( CallBacker* )
     uiMenu* impsgymnu = new uiMenu( appl_, sSEGYString(true), segyiconid_ );
     impseismnu->insertItem( impsgymnu );
     uiMenu* expseismnu = mnumgr_.getMnu( false, uiODApplMgr::Seis );
-    uiMenu* expsgymnu = new uiMenu( appl_, sSEGYString(true), segyiconid_ );
-    expseismnu->insertItem( expsgymnu );
+    uiMenu* expsgymnu = expseismnu->addMenu(
+			new uiMenu( appl_, sSEGYString(true), segyiconid_ ),
+			expseismnu->actions()[0]->getMenu() );
 
     if ( have2d )
     {

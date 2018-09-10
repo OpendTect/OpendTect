@@ -26,6 +26,7 @@ class uiSeisFileMan;
 class uiSeisImportCBVS;
 class uiSeisIOSimple;
 class uiSeisImpCBVSFromOtherSurveyDlg;
+class uiSeisExpCubePositionsDlg;
 class uiSeisPreStackMan;
 class uiSeisWvltMan;
 
@@ -69,6 +70,7 @@ public:
     void		importWavelets();
     void		exportWavelets();
     void		manageWavelets();
+    void		exportCubePos(const MultiID* =0);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

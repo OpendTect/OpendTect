@@ -108,6 +108,7 @@ namespace sKey
     inline FixedString Sampling()	{ return "Sampling"; }
     inline FixedString Scale()		{ return "Scale"; }
     inline FixedString SeisID()		{ return "SeisID"; }
+    inline FixedString SeisCubePositions() { return "Seismic Cube Positions"; }
     inline FixedString Selection()	{ return "Selection"; }
     inline FixedString SelectionStatus(){ return "Selection status"; }
     inline FixedString Series()		{ return "Series"; }
