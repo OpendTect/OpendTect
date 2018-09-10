@@ -49,6 +49,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseisimportcbvs.h"
 #include "uiseiscbvsimpfromothersurv.h"
+#include "uiseisexpcubepositions.h"
 #include "uiseisfileman.h"
 #include "uiseisioobjinfo.h"
 #include "uiseisiosimple.h"
@@ -88,14 +89,16 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     , expps3dseisdlg_(0)
     , impps2dseisdlg_(0)
     , expps2dseisdlg_(0)
+    , expcubeposdlg_(0)
 {
     SeisIOObjInfo::initDefault( sKey::Steering() );
-    IOM().surveyChanged.notify( mCB(this,uiSeisPartServer,survChangedCB) );
+    mAttachCB( IOM().surveyChanged, uiSeisPartServer::survChangedCB );
 }
 
 
 uiSeisPartServer::~uiSeisPartServer()
 {
+    detachAllNotifiers();
     delete man2dseisdlg_;
     delete man3dseisdlg_;
     delete man2dprestkdlg_;
@@ -111,29 +114,30 @@ uiSeisPartServer::~uiSeisPartServer()
     delete expps3dseisdlg_;
     delete impps2dseisdlg_;
     delete expps2dseisdlg_;
+    delete expcubeposdlg_;
 }
 
 
 void uiSeisPartServer::survChangedCB( CallBacker* )
 {
-    delete man2dseisdlg_; man2dseisdlg_ = 0;
-    delete man3dseisdlg_; man3dseisdlg_ = 0;
-    delete man2dprestkdlg_; man2dprestkdlg_ = 0;
-    delete man3dprestkdlg_; man3dprestkdlg_ = 0;
-    delete manwvltdlg_; manwvltdlg_ = 0;
-
+    deleteAndZeroPtr( man2dseisdlg_ );
+    deleteAndZeroPtr( man3dseisdlg_ );
+    deleteAndZeroPtr( man2dprestkdlg_ );
+    deleteAndZeroPtr( man3dprestkdlg_ );
+    deleteAndZeroPtr( manwvltdlg_ );
     Seis::PLDM().removeAll();
 
-    delete impcbvsdlg_; impcbvsdlg_ = 0;
-    delete impcbvsothsurvdlg_; impcbvsothsurvdlg_ = 0;
-    delete imp3dseisdlg_; imp3dseisdlg_ = 0;
-    delete exp3dseisdlg_; exp3dseisdlg_ = 0;
-    delete imp2dseisdlg_; imp2dseisdlg_ = 0;
-    delete exp2dseisdlg_; exp2dseisdlg_ = 0;
-    delete impps3dseisdlg_; impps3dseisdlg_ = 0;
-    delete expps3dseisdlg_; expps3dseisdlg_ = 0;
-    delete impps2dseisdlg_; impps2dseisdlg_ = 0;
-    delete expps2dseisdlg_; expps2dseisdlg_ = 0;
+    deleteAndZeroPtr( impcbvsdlg_ );
+    deleteAndZeroPtr( impcbvsothsurvdlg_ );
+    deleteAndZeroPtr( imp3dseisdlg_ );
+    deleteAndZeroPtr( exp3dseisdlg_ );
+    deleteAndZeroPtr( imp2dseisdlg_ );
+    deleteAndZeroPtr( exp2dseisdlg_ );
+    deleteAndZeroPtr( impps3dseisdlg_ );
+    deleteAndZeroPtr( expps3dseisdlg_ );
+    deleteAndZeroPtr( impps2dseisdlg_ );
+    deleteAndZeroPtr( expps2dseisdlg_ );
+    deleteAndZeroPtr( expcubeposdlg_ );
 }
 
 #define mPopupSimpIODlg(dlgobj,is2d,isps) { \
@@ -172,11 +176,16 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 	    }
 	case 9:
 	    {
-		if ( !impcbvsothsurvdlg_ )
-		    impcbvsothsurvdlg_ =
+		if ( forread )
+		{
+		    if ( !impcbvsothsurvdlg_ )
+			impcbvsothsurvdlg_ =
 				new uiSeisImpCBVSFromOtherSurveyDlg( parent() );
 
-		impcbvsothsurvdlg_->show();
+		    impcbvsothsurvdlg_->show();
+		}
+		else
+		    exportCubePos();
 		break;
 	    }
 	case 5:
@@ -370,6 +379,18 @@ void uiSeisPartServer::manageWavelets()
     delete manwvltdlg_;
     manwvltdlg_ = new uiSeisWvltMan( parent() );
     manwvltdlg_->go();
+}
+
+
+void uiSeisPartServer::exportCubePos( const MultiID* key )
+{
+    if ( !expcubeposdlg_ )
+	expcubeposdlg_ = new uiSeisExpCubePositionsDlg( parent() );
+
+    if ( key )
+	expcubeposdlg_->setInput( *key );
+
+    expcubeposdlg_->show();
 }
 
 

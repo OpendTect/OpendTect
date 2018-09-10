@@ -198,12 +198,14 @@ public:
     static uiString sAzimuth()		{ return tr("Azimuth"); }
     static uiString sAttribute(int num=1) { return tr("Attribute",0,num); }
     static uiString sAttributes()	{ return sAttribute(mPlural); }
-    static uiString sAttributeSet(int num=1){ return tr("Attribute Set",0,num); }
+    static uiString sAttributeSet(int num=1)
+					{ return tr("Attribute Set",0,num); }
     static uiString sAverage()		{ return tr("Average"); }
     static uiString sBatch()		{ return tr("Batch"); }
     static uiString sBatchProgram();
     static uiString sBatchProgramFailedStart();
     static uiString sBelow()		{ return tr("Below"); }
+    static uiString sBinary()		{ return tr("Binary"); }
     static uiString sBlue()		{ return tr("Blue"); }
     static uiString sBody(int num=1)	{ return tr("Body", 0, num); }
     static uiString sBottom()		{ return tr("Bottom"); }
@@ -510,6 +512,7 @@ public:
     static uiString sWest(bool abb)	{ return abb ? tr("W"):tr("West"); }
     static uiString sWidth()		{ return tr("Width"); }
     static uiString sWiggle()		{ return tr("Wiggle"); }
+    static uiString sWindow()		{ return tr("Window"); }
     static uiString sWrite()		{ return tr("Write"); }
     static uiString sWriting()		{ return tr("Writing"); }
     static uiString sX()		{ return tr("X"); }

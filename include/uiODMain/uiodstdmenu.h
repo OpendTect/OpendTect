@@ -94,6 +94,7 @@ ________________________________________________________________________
 #define mExpSeisSimple2DMnuItm	(mFileExpMnu + 16)
 #define mExpSeisSimplePS3DMnuItm (mFileExpMnu + 17)
 #define mExpSeisSimplePS2DMnuItm (mFileExpMnu + 18)
+#define mExpSeisCubePositionsMnuItm	(mFileExpMnu + 19)
 
 #define mExpHorAscii3DMnuItm	(mFileExpMnu + 30)
 #define mExpHorAscii2DMnuItm	(mFileExpMnu + 31)

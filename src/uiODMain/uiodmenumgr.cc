@@ -460,6 +460,11 @@ void uiODMenuMgr::fillExportMenu()
 		   , "prestackdataset" );
     }
     expseis->insertItem( expseissimple );
+    if ( !only2d )
+    {
+	mInsertItem( expseis, m3Dots(tr("Cube Positions")),
+		     mExpSeisCubePositionsMnuItm );
+    }
 
     const uiString sascii = m3Dots(uiStrings::sASCII());
 
@@ -1316,6 +1321,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpSeisSimple2DMnuItm:	mDoOp(Exp,Seis,6); break;
     case mExpSeisSimplePS3DMnuItm:	mDoOp(Exp,Seis,7); break;
     case mExpSeisSimplePS2DMnuItm:	mDoOp(Exp,Seis,8); break;
+    case mExpSeisCubePositionsMnuItm:	mDoOp(Exp,Seis,9); break;
     case mImpHorAsciiMnuItm:		mDoOp(Imp,Hor,0); break;
     case mImpHorAsciiAttribMnuItm:	mDoOp(Imp,Hor,1); break;
     case mImpHor2DAsciiMnuItm:		mDoOp(Imp,Hor,2); break;

@@ -30,6 +30,7 @@ set(OD_MODULE_SOURCES
 	uiseisbrowser.cc
 	uiseiscbvsimpfromothersurv.cc
 	uiseiscopy.cc
+	uiseisexpcubepositions.cc
 	uiseisfileman.cc
 	uiseisfmtscale.cc
 	uiseisimportcbvs.cc
