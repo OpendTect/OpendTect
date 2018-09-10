@@ -26,6 +26,7 @@ set(OD_MODULE_SOURCES
 	uiseissampleeditor.cc
 	uiseisimpcubefromothersurv.cc
 	uiseiscopy.cc
+	uiseisexpcubepositions.cc
 	uiseisfileman.cc
 	uiseisfmtscale.cc
 	uiseisimportodcube.cc

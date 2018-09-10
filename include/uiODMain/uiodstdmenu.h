@@ -87,6 +87,7 @@ ________________________________________________________________________
 #define mExpSeisSimplePS2DMnuItm	(mExpSeisSimpleMnu + 1)
 #define mExpSeisSimple3DMnuItm		(mExpSeisSimpleMnu + 2)
 #define mExpSeisSimplePS3DMnuItm	(mExpSeisSimpleMnu + 3)
+#define mExpSeisCubePositionsMnuItm	(mExpSeisSimpleMnu + 9)
 #define mExpHorAsciiMnu			(mFileExpMnu + 20)
 #define mExpHor2DAsciiMnuItm		(mExpHorAsciiMnu + 0)
 #define mExpBulkHor2DAsciiMnuItm	(mExpHorAsciiMnu + 1)

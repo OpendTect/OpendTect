@@ -23,6 +23,7 @@ class uiFlatViewWin;
 class uiSeisFileMan;
 class uiSeisImportODCube;
 class uiSeisImpCubeFromOtherSurveyDlg;
+class uiSeisExpCubePositionsDlg;
 class uiSeisIOSimple;
 class uiSeisPreStackMan;
 class uiSeisWvltMan;
@@ -65,6 +66,7 @@ public:
     void		importWavelets();
     void		exportWavelets();
     void		manageWavelets();
+    void		exportCubePos(const DBKey* =0);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -91,6 +93,7 @@ protected:
     uiSeisIOSimple*	expps2dseisdlg_;
     uiSeisImportODCube*	impodcubedlg_;
     uiSeisImpCubeFromOtherSurveyDlg* impcubeothsurvdlg_;
+    uiSeisExpCubePositionsDlg*	expcubeposdlg_;
 
 private:
 

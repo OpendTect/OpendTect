@@ -635,6 +635,8 @@ void uiODMenuMgr::createSeisSubMenus()
 		   mImpSeisODCubeMnuItm );
 	addAction( odimpmnu, tr("From Other Survey"), "impfromothsurv",
 		   mImpSeisODCubeOtherSurvMnuItm );
+	addAction( expseis, tr("Cube Positions"), iconnm,
+		   mExpSeisCubePositionsMnuItm );
     }
 }
 
@@ -1256,6 +1258,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpSeisSimple2DMnuItm:	mDoOp(Exp,Seis,6); break;
     case mExpSeisSimplePS3DMnuItm:	mDoOp(Exp,Seis,7); break;
     case mExpSeisSimplePS2DMnuItm:	mDoOp(Exp,Seis,8); break;
+    case mExpSeisCubePositionsMnuItm:	mDoOp(Exp,Seis,9); break;
     case mImpHor3DAsciiMnuItm:		mDoOp(Imp,Hor,0); break;
     case mImpHor3DAsciiAttribMnuItm:	mDoOp(Imp,Hor,1); break;
     case mImpHor2DAsciiMnuItm:		mDoOp(Imp,Hor,2); break;
