@@ -110,8 +110,8 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
 
     nrdims_ = info.nrDims();
     TypeSet<hsize_t> dims, chunkdims;
-    int maxdim = 0;
-    int maxchunkdim = 0;
+    hsize_t maxdim = 0;
+    hsize_t maxchunkdim = 0;
     const bool mustchunk = createeditable_;
     bool havelargerdimthanchunk = false;
     ArrayNDInfo::DimIdxType largestdim = 0;
