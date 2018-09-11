@@ -488,7 +488,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 				bool doimp, const char* inplnm )
 {
     const int nrlines = fs_.spec_.nrFiles();
-    bool overwr_warn = true; bool overwr = !Seis::isPS( fs_.geomType() );
+    bool overwr_warn = true; bool overwr = false;
     TypeSet<Pos::GeomID> geomids;
     for ( int iln=0; iln<nrlines; iln++ )
     {
@@ -557,7 +557,7 @@ bool uiSEGYReadFinisher::doBatch2D( bool doimp, const char* inplnm )
 	    : (isps ? SEGY::IO::sKeyIndexPS() : SEGY::IO::sKeyIndex3DVol()) );
     fs_.fillPar( jobpars );
 
-    bool overwr_warn = true; bool overwr = !Seis::isPS( fs_.geomType() );
+    bool overwr_warn = true; bool overwr = false;
     for ( int iln=0; iln<nrlines; iln++ )
     {
 	BufferString lnm( inplnm );

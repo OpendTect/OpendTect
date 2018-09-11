@@ -483,7 +483,6 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Line name") );
     fld_ = lcb->box();
     fld_->setReadOnly( forread_ );
-    if ( !forread_ ) fld_->addItem( uiStrings::sEmptyString() );
     setHAlignObj( lcb );
     if ( !forread_ )
 	fillWithAll();
@@ -494,9 +493,14 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
 
 void uiSeis2DLineNameSel::fillWithAll()
 {
+    fld_->setEmpty();
+    if ( !forread_ )
+	fld_->addItem( uiStrings::sEmptyString() );
+
     BufferStringSet lnms;
     TypeSet<Pos::GeomID> geomids;
-    SeisIOObjInfo::getLinesWithData( lnms, geomids );
+    Survey::GMAdmin().updateGeometries( 0 );
+    Survey::GM().getList( lnms, geomids, true );
     lnms.sort();
     fld_->addItems( lnms );
     if ( fld_->size() )
