@@ -108,11 +108,14 @@ static void checkGMTAvailability()
 	return; //One is enough to get going
     }
 
-#if defined __mac__
+#ifdef __mac__
     return;	// Never supported GMT4 on MAC
-#elif defined __lux__
+#else
+
+#ifdef __lux__
     const BufferString comm4( sKeyUnixGMT4Wrapper(), " --version" );
-#elif defined __win__
+#endif
+#ifdef __win__
     const BufferString comm4( sKeyWindowsGMT4TestExec() );
 #endif
 
@@ -121,6 +124,7 @@ static void checkGMTAvailability()
 				0, &versiontxt );
     if ( hasgmt4_ )
 	extractVersionString( versiontxt );
+#endif
 }
 
 };
