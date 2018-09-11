@@ -87,6 +87,7 @@ list ( APPEND OD_MODULE_SOURCES
 	saveable.cc
 	stratlevel.cc
 	survgeometrytransl.cc
+	surveywalker.cc
 	tableascio.cc
 	tableconv.cc
 	transl.cc
