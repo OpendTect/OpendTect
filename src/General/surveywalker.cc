@@ -103,8 +103,8 @@ bool Survey::Walker::goImpl( od_ostream* strm, bool first, bool last, int delay)
 
 int Survey::Walker::nextStep()
 {
-    nrdone_++;
-    uiRetVal uirv = DBM().setDataSource( allfullpaths_.get(nrdone_) );
+    uiRetVal uirv = DBM().setDataSource(
+		allfullpaths_.get(mCast(BufferString::idx_type,nrdone_++)) );
     if ( !uirv.isOK() )
     {
 	errmsgs_.add( uirv );
