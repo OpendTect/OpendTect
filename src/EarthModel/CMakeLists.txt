@@ -25,6 +25,7 @@ set(OD_MODULE_SOURCES
 		emfaultstickset.cc
 		emfaultsticksetflatvieweditor.cc
 		emfaultstickpainter.cc
+		emfaultset3d.cc
 		emfsstofault3d.cc
 		emundo.cc
 		emhorizon2d.cc

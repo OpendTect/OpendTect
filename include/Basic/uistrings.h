@@ -297,6 +297,7 @@ public:
     static uiString sFault(int num=1);
     static uiString sFaultData()	{ return tr("Fault Data"); }
     static uiString sFaultStickSet(int num=1);
+    static uiString sFaultSet(int num=1){ return tr("FaultSet",0,num); }
     static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
