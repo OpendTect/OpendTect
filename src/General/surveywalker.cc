@@ -88,7 +88,7 @@ void Survey::Walker::addSurveys( const char* dataroot )
 
 bool Survey::Walker::goImpl( od_ostream* strm, bool first, bool last, int delay)
 {
-    nrdone_ = -1;
+    nrdone_ = 0;
     init();
     if ( !errmsgs_.isOK() )
 	return false;
