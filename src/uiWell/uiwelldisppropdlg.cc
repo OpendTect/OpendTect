@@ -51,6 +51,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd,
     if ( multipanel_ )
     {
 	ts_->setTabsClosable( true );
+	mAttachCB( ts_->tabToBeClosed, uiWellDispPropDlg::tabRemovedCB );
 	createMultiPanelUI();
     }
     else
@@ -133,98 +134,168 @@ uiWellDispPropDlg::~uiWellDispPropDlg()
 }
 
 
+//uiPanelTab
+uiPanelTab::uiPanelTab( uiParent* grp, Well::Data& welldata,
+			const char* panelnm, const bool is2ddisplay)
+    : uiGroup(grp,panelnm)
+    , welldata_(welldata)
+    , is2ddisp_(is2ddisplay)
+{
+    init( this );
+}
+
+
+void uiPanelTab::init( uiGroup* grp )
+{
+    logts_ = new uiTabStack( grp, "Log properties" );
+    logts_->setTabsClosable( true );
+    addLogPanel();
+    lognmChg( 0 );
+    mAttachCB( logts_->selChange(), uiPanelTab::logTabSelChgngeCB );
+}
+
+
+uiGroup* uiPanelTab::createLogPropertiesGrp()
+{
+    Well::DisplayProperties& props =
+				welldata_.displayProperties( is2ddisp_ );
+    uiGroup* logtabgrp = logts_->tabGroup();
+    uiWellLogDispProperties* wlp = new uiWellLogDispProperties( logtabgrp,
+    uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color") )
+	.onlyfor2ddisplay(is2ddisp_), props.log(true), &(welldata_.logs()) );
+    logpropflds_ += wlp;
+    wlp->setName( "Log properties" );
+    mAttachCB( wlp->propChanged, uiPanelTab::lognmChg );
+    return wlp;
+}
+
+
+void uiPanelTab::addLogPanel()
+{
+    uiGroup* logtabgrp = createLogPropertiesGrp();
+    if ( !logts_->size() )
+    {
+	logts_->addTab( logtabgrp );
+
+	uiGroup* addlogtabgrp = new uiGroup( logts_->tabGroup(),
+					     OD::String::empty() );
+	logts_->addTab( addlogtabgrp );
+	logts_->setTabIcon( addlogtabgrp, "plus" );
+	logts_->showCloseButton( addlogtabgrp, false, true );
+	return;
+    }
+
+    const int curtabid = logts_->currentPageId();
+    const int tabid = logts_->insertTab( logtabgrp, curtabid,
+					 tr("Log properties") );
+    logts_->setCurrentPage( tabid );
+}
+
+
+void uiPanelTab::logTabSelChgngeCB( CallBacker* cb )
+{
+    const int logtabsz = logts_->size();
+    const int curtabid = logts_->currentPageId();
+    if ( curtabid == logtabsz-1 )
+	addLogPanel();
+
+    lognmChg( 0 );
+}
+
+
+void uiPanelTab::lognmChg( CallBacker* )
+{
+    uiGroup* curloggrp = logts_->currentPage();
+    const int curlogtab = logts_->indexOf( curloggrp );
+    uiWellLogDispProperties* curlogdisp = logpropflds_.get( curlogtab );
+    if ( !curlogdisp )
+	return;
+
+    logts_->setTabText( curlogtab, curlogdisp->logName() );
+}
+//uiPanelTab
+
+
 void uiWellDispPropDlg::addPanel()
 {
     BufferString paneltxt( "Panel", ts_->size() ? ts_->size()-1 : 1 );
-    uiGroup* paneltabgrp = new uiGroup( ts_->tabGroup(), paneltxt );
-    paneltabgrp->setPrefWidthInChar( 100 );
+    uiPanelTab* paneltabgrp = new uiPanelTab( ts_->tabGroup(), *wd_,
+					      paneltxt, is2ddisplay_);
     if ( !ts_->size() )
     {
 	ts_->addTab( paneltabgrp );
 
-	BufferStringSet allmarkernms;
-	wd_->markers().getNames( allmarkernms );
-	uiGroup* mrkrspanelgrp = new uiGroup( ts_->tabGroup(),
-					      "Marker properties" );
-	Well::DisplayProperties& props = wd_->displayProperties( is2ddisplay_ );
-	uiWellDispProperties::Setup mrkrsetup =
-	    uiWellDispProperties::Setup( tr("Marker size"), tr("Marker color") )
-				  .onlyfor2ddisplay(true);
-	uiWellMarkersDispProperties* mrkrs =
-	    new uiWellMarkersDispProperties( mrkrspanelgrp, mrkrsetup,
-						props.markers(), allmarkernms );
-	ts_->addTab( mrkrspanelgrp,
-		     toUiString( mrkrs->mrkprops().subjectName()) );
-	ts_->showCloseButton( mrkrspanelgrp, false, true );
+	addMarkersPanel();
 
 	uiGroup* addpaneltabgrp = new uiGroup( ts_->tabGroup(),
 					       OD::String::empty() );
 	ts_->addTab( addpaneltabgrp );
 	ts_->setTabIcon( ts_->size()-1, "plus" );
 	ts_->showCloseButton( addpaneltabgrp, false, true );
-    }
-    else
-    {
-	const int curtabid = ts_->currentPageId();
-	const int tabid = ts_->insertTab( paneltabgrp, curtabid-1,
-				    tr(paneltxt.buf()) );
-	ts_->setCurrentPage( tabid );
+	return;
     }
 
-    uiTabStack* logtab = new uiTabStack( ts_->currentPage(),
-					 "Well display logs tab stack" );
-    logtab->setTabsClosable( true );
-    addLogPanel( logtab );
-    mAttachCB( logtab->selChange(), uiWellDispPropDlg::logTabSelChgngeCB );
+    const int curtabid = ts_->currentPageId();
+    const int tabid = ts_->insertTab( paneltabgrp, curtabid-1,
+				      tr(paneltxt.buf()) );
+    ts_->setCurrentPage( tabid );
 }
 
 
-uiGroup* uiWellDispPropDlg::createLogPropertiesGrp( uiTabStack* logtab )
+void uiWellDispPropDlg::tabRemovedCB( CallBacker* cb )
 {
+    updatePanelNames();
+}
+
+
+void uiWellDispPropDlg::showTabCloseButtons()
+{
+    return;
+    //TODO show close tab button if ts_ size is more than 3
+/*
+    const bool showclosebut = ts_->size() > 3;
+    for ( int pidx=0; pidx<ts_->size(); pidx++ )
+    {
+	uiGroup* panelgrp = ts_->page( pidx );
+	ts_->showCloseButton( panelgrp, showclosebut, false );
+    }
+*/
+}
+
+
+void uiWellDispPropDlg::updatePanelNames()
+{
+    int paneltabsz = ts_->size();
+    for ( int pidx=0; pidx<paneltabsz; pidx++ )
+    {
+	BufferString panelstr( "Panel" );
+	if ( pidx == paneltabsz-1 || pidx == paneltabsz-2 )
+	    continue;
+
+	uiGroup* panelgrp = ts_->page( pidx );
+	panelstr.add( pidx+1 );
+	panelgrp->setName( panelstr );
+	ts_->setTabText( pidx, panelstr );
+    }
+}
+
+
+void uiWellDispPropDlg::addMarkersPanel()
+{
+    BufferStringSet allmarkernms;
+    wd_->markers().getNames( allmarkernms );
+    uiGroup* mrkrspanelgrp = new uiGroup( ts_->tabGroup(),
+					  "Marker properties" );
     Well::DisplayProperties& props = wd_->displayProperties( is2ddisplay_ );
-    uiGroup* logtabgrp = new uiGroup( logtab->tabGroup(),"Log properties" );
-    uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( logtabgrp,
-    uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color") )
-	.onlyfor2ddisplay(is2ddisplay_), props.log(true), &(wd_->logs()) );
-    mAttachCB( wlp1->propChanged, uiWellDispPropDlg::propChg );
-    return logtabgrp;
-}
-
-
-void uiWellDispPropDlg::addLogPanel( uiTabStack* logtab )
-{
-    uiGroup* logtabgrp = createLogPropertiesGrp( logtab );
-    if ( !logtab->size() )
-    {
-	logtab->addTab( logtabgrp );
-
-	uiGroup* addlogtabgrp = new uiGroup( logtab->tabGroup(),
-					     OD::String::empty() );
-	logtab->addTab( addlogtabgrp );
-	logtab->setTabIcon( addlogtabgrp, "plus" );
-	logtab->showCloseButton( addlogtabgrp, false, true );
-	return;
-    }
-
-    logtabgrp->setPrefWidthInChar( 100 );
-    const int curtabid = logtab->currentPageId();
-    const int tabid = logtab->insertTab( logtabgrp, curtabid,
-				   tr("Log properties") );
-    logtab->setCurrentPage( tabid );
-}
-
-
-void uiWellDispPropDlg::logTabSelChgngeCB( CallBacker* cb )
-{
-    mDynamicCastGet( uiTabBar*, tabbar, cb );
-    mDynamicCastGet( uiTabStack*, logtab, tabbar->parent() );
-    if ( !logtab )
-	return;
-
-    const int logtabsz = logtab->size();
-    const int curtabid = logtab->currentPageId();
-    if ( curtabid == logtabsz-1 )
-	addLogPanel( logtab );
+    uiWellDispProperties::Setup mrkrsetup =
+	uiWellDispProperties::Setup( tr("Marker size"), tr("Marker color") )
+			      .onlyfor2ddisplay(true);
+    uiWellMarkersDispProperties* mrkrs =
+	new uiWellMarkersDispProperties( mrkrspanelgrp, mrkrsetup,
+					    props.markers(), allmarkernms );
+    ts_->addTab( mrkrspanelgrp,
+		 toUiString( mrkrs->mrkprops().subjectName()) );
+    ts_->showCloseButton( mrkrspanelgrp, false, true );
 }
 
 

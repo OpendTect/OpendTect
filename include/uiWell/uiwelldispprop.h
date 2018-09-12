@@ -156,6 +156,7 @@ public:
 
     void		resetProps(Well::LogDispProps&);
     void		setLogSet(const Well::LogSet*);
+    const char*		logName() const;
 
 protected:
 

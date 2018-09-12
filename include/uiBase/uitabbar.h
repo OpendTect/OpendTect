@@ -42,6 +42,7 @@ public:
     void		setTabsClosable(bool closable);
     void		showCloseButton(int idx,bool yn,bool shrink=false);
     int			insertTab(uiTab* tab, int index);
+    void		setTabText(int idx, const QString& text);
 
     int			size() const;
 

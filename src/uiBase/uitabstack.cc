@@ -21,6 +21,7 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     : uiGroup( parnt, nm, mnge )
     , tabbar_( 0 )
     , tabgrp_( 0 )
+    , tabToBeClosed(this)
 {
     // Don't change the order of these constuctions!
     tabgrp_ = new uiGroup( this, nm );
@@ -77,6 +78,12 @@ int uiTabStack::insertTab( uiGroup* grp, int index, const uiString& txt )
 	setHAlignObj( grp );
 
     return tabbar_->insertTab( tab, index );
+}
+
+
+void uiTabStack::setTabText( int idx, const char* nm )
+{
+    tabbar_->setTabText( idx, nm );
 }
 
 
@@ -156,6 +163,7 @@ void uiTabStack::tabCloseCB( CallBacker* cb )
     mCBCapsuleUnpack(int,tabid,cb);
     uiGroup* tabgrp = tabbar_->page( tabid );
     removeTab( tabgrp );
+    tabToBeClosed.trigger( tabid );
 }
 
 

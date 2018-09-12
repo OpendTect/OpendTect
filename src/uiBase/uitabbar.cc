@@ -115,6 +115,12 @@ void uiTabBar::removeTab( uiTab* tab )
 }
 
 
+void uiTabBar::setTabText( int idx, const QString& text )
+{
+    body_->setTabText( idx, text );
+}
+
+
 void uiTabBar::removeTab( uiGroup* grp )
 {
     for ( int idx=0; idx<tabs_.size(); idx++ )

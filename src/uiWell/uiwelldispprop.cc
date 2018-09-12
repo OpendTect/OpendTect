@@ -676,6 +676,10 @@ void uiWellLogDispProperties::setWellLogSel()
     isFilledSel(0);
 }
 
+const char* uiWellLogDispProperties::logName() const
+{
+    return logsfld_->box()->text();
+}
 
 void uiWellLogDispProperties::setTubeSel()
 {

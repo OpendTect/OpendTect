@@ -12,12 +12,34 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uidialog.h"
+#include "uigroup.h"
 
 class uiTabStack;
 class uiWellDispProperties;
 class uiLabeledComboBox;
+class uiPanelTab;
+class uiWellLogDispProperties;
 
 namespace Well { class Data; };
+
+
+class uiPanelTab : public uiGroup
+{mODTextTranslationClass(uiPanelTab)
+public:
+		uiPanelTab(uiParent*,Well::Data& welldata,
+			   const char* panelnm,const bool is2ddisp);
+
+    uiTabStack*		logts_;
+    Well::Data&		welldata_;
+    const bool		is2ddisp_;
+    ObjectSet<uiWellLogDispProperties> logpropflds_;
+
+    void		logTabSelChgngeCB(CallBacker*);
+    void		lognmChg(CallBacker*);
+    uiGroup*		createLogPropertiesGrp();
+    void		addLogPanel();
+    void		init(uiGroup*);
+};
 
 /*!
 \brief Well display properties dialog box.
@@ -61,15 +83,15 @@ protected:
     void			welldataDelNotify(CallBacker*);
     void			tabSel(CallBacker*);
     void			logTabSelChgngeCB(CallBacker*);
+    void			tabRemovedCB(CallBacker*);
 
     void			createMultiPanelUI();
     void			createSinglePanelUI();
 
     void			addPanel();
-    void			addLogPanel(uiTabStack*);
-
-private:
-    uiGroup*			createLogPropertiesGrp(uiTabStack*);
+    void			addMarkersPanel();
+    void			updatePanelNames();
+    void			showTabCloseButtons();
 };
 
 
@@ -87,7 +109,7 @@ public:
 
 protected:
 
-    ObjectSet<Well::Data> 	wds_;
+    ObjectSet<Well::Data>	wds_;
     uiLabeledComboBox*		wellselfld_;
 
     void			resetProps(int logidx);
