@@ -607,6 +607,8 @@ void uiStratLayerModel::setElasticProps()
 
 bool uiStratLayerModel::checkUnscaledWavelets()
 {
+    //const auto helpky = mStratLayerModelcheckUnscaledWaveletHelpID;
+
     DBKeySet unscaledids;
     for ( auto gp : synthdatamgr_->genParams() )
 	if ( !gp.isStratProp() && !WaveletMGR().isScaled(gp.wvltid_) )
@@ -622,6 +624,7 @@ bool uiStratLayerModel::checkUnscaledWavelets()
 	msg.append( toUiString("\n\nTODO pop up the scaling dialog instead") );
 	if ( !uiMSG().askGoOn(msg) )
 	    return false;
+
     }
     return true;
 }
