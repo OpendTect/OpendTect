@@ -332,7 +332,7 @@ WeakPtr<DataPack> DataPackMgr::observeDP( PackID dpid ) const
 }
 
 
-bool DataPackMgr::isPresent( PackID id ) const
+bool DataPackMgr::isPresent( PackID packid ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
@@ -340,7 +340,7 @@ bool DataPackMgr::isPresent( PackID id ) const
     {
         ConstRefMan<DataPack> pack = packs_[idx];
         pack.setNoDelete(true);
-        if ( pack && pack->id() == id )
+        if ( pack && pack->id() == packid )
 	    return true;
     }
     return false;
