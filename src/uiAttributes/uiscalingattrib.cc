@@ -431,7 +431,7 @@ void createSelFields( DataType type )
     }
     else if ( type==uiSelectPositionDlg::DataPack2D )
     {
-        RefMan<FlatDataPack> fdp = DPM(mgrid).getAndCast<FlatDataPack>( dpid );
+        auto fdp = DPM(mgrid).get<FlatDataPack>( dpid );
 	Interval<int> trcrglimits( 0, fdp->size(true) );
 	nrtrcinpspec.setLimits( trcrglimits );
 	nrtrcfld_->setValue( fdp->size(true) );
@@ -443,9 +443,7 @@ void createSelFields( DataType type )
 	TrcKeyZSampling cs;
 	if ( type==uiSelectPositionDlg::DataPack3D )
 	{
-            RefMan<RegularSeisDataPack> cdp =
-	    DPM(mgrid).getAndCast<RegularSeisDataPack>(dpid);
-
+            auto cdp = DPM(mgrid).get<RegularSeisDataPack>(dpid);
 	    cs = cdp->sampling();
 	}
 	else if ( type==uiSelectPositionDlg::Stored3D )
@@ -563,8 +561,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	    cs = subseldlg.subVol();
 	else
 	{
-            RefMan<FlatDataPack> fdp =
-		DPM(dpfid.mgrID()).getAndCast<FlatDataPack>( dpfid.packID() );
+            auto fdp = DPM(dpfid.mgrID()).get<FlatDataPack>( dpfid.packID() );
 
 	    if ( !fdp )
 		{ pErrMsg( "No FlatDataPack found" ); return; }

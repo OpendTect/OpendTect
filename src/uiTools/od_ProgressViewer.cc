@@ -283,7 +283,7 @@ void uiProgressViewer::getNewPID( CallBacker* )
 
 bool uiProgressViewer::canTerminate()
 {
-    return uiMSG().askGoOn( tr("Do you want to terminate the process?") );
+    return gUiMsg().askGoOn( tr("Do you want to terminate the process?") );
 }
 
 

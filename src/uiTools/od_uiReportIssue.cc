@@ -31,7 +31,7 @@ int main( int argc, char ** argv )
 
     if ( !dlg->reporter().parseCommandLine() )
     {
-	uiMSG().error( dlg->reporter().errMsg() );
+	gUiMsg().error( dlg->reporter().errMsg() );
 	return ExitProgram( 1 );
     }
 

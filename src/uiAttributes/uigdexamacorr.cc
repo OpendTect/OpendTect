@@ -63,7 +63,7 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
 			    aem->createDataPackOutput( errmsg, 0  );
     if ( !proc )
     {
-	uiMSG().error( errmsg );
+	gUiMsg(parent_).error( errmsg );
 	return false;
     }
 
@@ -134,8 +134,9 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
     const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
 						d2dh, SI().zDomain(), &cnames );
     ConstRefMan<RegularSeisDataPack> regsdp =
-		DPM(DataPackMgr::SeisID()).get( outputid );
-    if ( !regsdp ) return;
+		DPM(DataPackMgr::SeisID()).get<RegularSeisDataPack>( outputid );
+    if ( !regsdp )
+	return;
 
     FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
     fdp = new RegularFlatDataPack( *regsdp, 0 );
@@ -200,9 +201,10 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
     if ( setUpViewWin( isqc ) )
 	isqc ? qcwin_->show() : examwin_->show();
     else
-	uiMSG().error( tr("The window start and stop should be different;\n"
-			   "Please correct the window parameters before"
-			   " restarting the computation") );
+	gUiMsg(parent_).error(
+		tr("The window start and stop should be different.\n"
+		   "Please correct the window parameters before"
+		   " restarting the computation") );
 }
 
 

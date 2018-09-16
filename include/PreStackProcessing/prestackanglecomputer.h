@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "ailayer.h"
+#include "elasticmodel.h"
 #include "enums.h"
 #include "flatposdata.h"
 #include "iopar.h"
@@ -79,7 +79,7 @@ protected:
 
     virtual const ElasticModel&	curElasticModel() const = 0;
     virtual const RayTracer1D*	curRayTracer() const = 0;
-    
+
     IOPar			iopar_;
     FlatPosData			outputsampling_;
     RayTracer1D*		raytracer_;
@@ -97,7 +97,7 @@ protected:
 */
 
 mExpClass(PreStackProcessing) VelocityBasedAngleComputer : public AngleComputer
-{ 
+{
 public:
 				VelocityBasedAngleComputer();
 				~VelocityBasedAngleComputer();
@@ -108,7 +108,7 @@ public:
     RefMan<Gather>		computeAngles();
 
 protected:
-		
+
     const ElasticModel&		curElasticModel() const	{ return elasticmodel_;}
     const RayTracer1D*		curRayTracer() const	{ return raytracer_; }
 
@@ -139,7 +139,7 @@ public:
 	const RayTracer1D*	rayTracer() const { return rt_; }
 	const ElasticModel&	elasticModel() const;
 	const TrcKey&		trcKey() const	{ return trckey_; }
-	bool 			operator ==( const ModelTool& a ) const
+	bool			operator ==( const ModelTool& a ) const
 				{ return a.trcKey() == trckey_; }
     protected:
 	ElasticModel*		em_;
@@ -152,7 +152,7 @@ public:
     void			setElasticModel(const TrcKey&,bool doblock,
 						bool pvelonly,ElasticModel&);
     void			setRayTracer(const RayTracer1D*,
-	    				     const TrcKey&);
+					     const TrcKey&);
 
     bool			isOK() const
 				{ return curElasticModel().size(); }

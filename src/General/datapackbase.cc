@@ -248,12 +248,14 @@ float FlatDataPack::gtNrKBytes() const
 void FlatDataPack::doDumpInfo( IOPar& iop ) const
 {
     DataPack::doDumpInfo( iop );
+
     iop.set( sKey::Type(), "Flat" );
     const int sz0 = size(true); const int sz1 = size(false);
     for ( int idim=0; idim<2; idim++ )
     {
 	const bool isdim0 = idim == 0;
-	FileMultiString fms( dimName( isdim0 ) ); fms += size( isdim0 );
+	FileMultiString fms( dimName( isdim0 ) );
+	fms += size( isdim0 );
 	iop.set( IOPar::compKey("Dimension",idim), fms );
     }
 
@@ -263,7 +265,8 @@ void FlatDataPack::doDumpInfo( IOPar& iop ) const
     iop.set( "Positions.Dim1", pd.range(false).start, pd.range(false).stop,
 			       pd.range(false).step );
     iop.setYN( "Positions.Irregular", pd.isIrregular() );
-    if ( sz0 < 1 || sz1 < 1 ) return;
+    if ( sz0 < 1 || sz1 < 1 )
+	return;
 
     Coord3 c( getCoord(0,0) );
     iop.set( "Coord(0,0)", c );
@@ -707,6 +710,7 @@ float VolumeDataPack::gtNrKBytes() const
 void VolumeDataPack::doDumpInfo( IOPar& iop ) const
 {
     DataPack::doDumpInfo( iop );
+
     Scaler::putToPar( iop, scaler_ );
     DataCharacteristics( desc_ ).putUserType( iop );
 }

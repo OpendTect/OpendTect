@@ -156,7 +156,7 @@ bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
     DescSet updset( is2d );
     uiRetVal uirv = updset.usePar( iopar );
     if ( !uirv.isOK() )
-	{ uiMSG().error( uirv ); return false; }
+	{ uimsg().error( uirv ); return false; }
 
     DescSet& attrset = curDescSet4Edit( is2d );
     attrset = updset;
@@ -449,7 +449,8 @@ bool uiAttribPartServer::setSaved( bool is2d ) const
 }
 
 
-const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() // static
+const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet( uiParent* p )
+						    // static
 {
     const DescSet& ds2d = DescSet::global( true );
     if ( !SI().has3D() )
@@ -464,7 +465,7 @@ const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() // static
 	return nr2d > 0 ? &ds2d : &ds3d;
 
     const int res =
-	uiMSG().ask2D3D( tr("Which attributes do you want to use?"), true );
+	gUiMsg(p).ask2D3D( tr("Which attributes do you want to use?"), true );
     if ( res == -1 )
 	return 0;
     return res == 1 ? &ds2d : &ds3d;
@@ -480,7 +481,7 @@ void uiAttribPartServer::saveSet( bool is2d )
     {
 	uiRetVal uirv = attrset.store( dlg.ioObj()->key() );
 	if ( !uirv.isOK() )
-	    uiMSG().error( uirv );
+	    uimsg().error( uirv );
     }
 }
 
@@ -580,15 +581,15 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 	return create2DOutput( tkzs, geomid, taskrunner );
     }
 
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstRefMan<RegularSeisDataPack> cache =
-				(RegularSeisDataPack*) dpm.get( cacheid ).ptr();
-    RefMan<RegularSeisDataPack> newpack = createOutput( tkzs, cache.ptr() );
+    auto& dpm = DPM(DataPackMgr::SeisID());
+    auto cache = dpm.get<RegularSeisDataPack>( cacheid ).ptr();
+    auto newpack = createOutput( tkzs, cache );
     if ( !newpack )
 	return DataPack::cNoID();
-    newpack.setNoDelete( true );
 
-    dpm.add( newpack.ptr() );
+    newpack.setNoDelete( true );
+    dpm.add( newpack );
+
     return newpack->id();
 }
 
@@ -602,7 +603,7 @@ const Attrib::Desc* uiAttribPartServer::getTargetDesc() const
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return 0; }
+#define mErrRet(s) { uimsg().error(s); return 0; }
 
 
 RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
@@ -624,7 +625,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	{
 	    const DBKey dbky( targetdesc->getStoredID() );
 	    preloadeddatapack =
-			Seis::PLDM().getAndCast<RegularSeisDataPack>( dbky );
+			Seis::PLDM().get<RegularSeisDataPack>( dbky );
 	}
 
 	BufferString defstr;
@@ -674,7 +675,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	uiString errmsg;
 	processor = aem->getTableOutExecutor( *posvals, errmsg, firstcolidx );
 	if ( !processor )
-	    { uiMSG().error(errmsg); return 0; }
+	    { uimsg().error(errmsg); return 0; }
 
 	if ( !TaskRunner::execute( &taskrunner, *processor ) )
 	    return 0;
@@ -713,7 +714,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	uiString errmsg;
 	processor = aem->createDataPackOutput( errmsg, cache );
 	if ( !processor )
-	    { uiMSG().error(errmsg); return 0; }
+	    { uimsg().error(errmsg); return 0; }
 
 	processor->showDataAvailabilityErrors( !aem->hasCache() );
 
@@ -744,7 +745,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	    {
 		uiUserShowWait usw( parent(), processor->message() );
 		if ( !processor->execute() )
-		    { uiMSG().error( processor->message() ); return 0; }
+		    { uimsg().error( processor->message() ); return 0; }
 	    }
 	}
 
@@ -754,7 +755,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 
     if ( output && !success )
     {
-	if ( !uiMSG().askGoOn(tr("Attribute loading/calculation aborted.\n"
+	if ( !uimsg().askGoOn(tr("Attribute loading/calculation aborted.\n"
 	    "Do you want to use the partially loaded/computed data?"), true ) )
 	{
 	    output = 0;
@@ -774,8 +775,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
     if ( targetdesc && targetdesc->isStored() )
     {
 	const DBKey dbky( targetdesc->getStoredID() );
-	RefMan<RegularSeisDataPack> sdp =
-		Seis::PLDM().getAndCast<RegularSeisDataPack>(dbky);
+	auto sdp = Seis::PLDM().get<RegularSeisDataPack>(dbky);
 	if ( sdp )
 	{
 	    const TrcKeyZSampling& seistkzs = sdp->sampling();
@@ -824,7 +824,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
     PtrMan<Attrib::Processor> processor =
 			aem->getTableOutExecutor( posvals, errmsg, firstcol );
     if ( !processor )
-	{ uiMSG().error(errmsg); return false; }
+	{ uimsg().error(errmsg); return false; }
 
     uiTaskRunner taskrunner( parent() );
     if ( !TaskRunner::execute( &taskrunner, *processor ) )
@@ -874,8 +874,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     if ( targetdesc )
     {
 	const DBKey dbky( targetdesc->getStoredID() );
-	RefMan<RegularSeisDataPack> sdp =
-	    Seis::PLDM().getAndCast<RegularSeisDataPack>(dbky);
+	auto sdp = Seis::PLDM().get<RegularSeisDataPack>( dbky );
 
 	if ( sdp )
 	{
@@ -992,7 +991,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 	aem->createTrcSelOutput( errmsg, bidset, output, mUdf(float), 0,
 				 &trueknotspos, &snappedpos );
     if ( !processor )
-	{ uiMSG().error(errmsg); return false; }
+	{ uimsg().error(errmsg); return false; }
 
     bool showprogress = true;
     Settings::common().getYN( SettingsAccess::sKeyShowRdlProgress(),
@@ -1008,7 +1007,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 
     uiUserShowWait usw( parent(), processor->message() );
     if ( !processor->execute() )
-	{ uiMSG().error( processor->message() ); return false; }
+	{ uimsg().error( processor->message() ); return false; }
 
     return true;
 }
@@ -1131,8 +1130,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     if ( targetdesc )
     {
 	const DBKey dbky( targetdesc->getStoredID() );
-	RefMan<RegularSeisDataPack> sdp =
-	    Seis::PLDM().getAndCast<RegularSeisDataPack>(dbky,geomid);
+	auto sdp = Seis::PLDM().get<RegularSeisDataPack>(dbky,geomid);
 
 	if ( sdp )
 	    return sdp->id();
@@ -1147,7 +1145,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     PtrMan<Attrib::Processor> processor
 	    = aem->createScreenOutput2D( errmsg, *data2d );
     if ( !processor )
-	{ uiMSG().error(errmsg); return DataPack::cNoID(); }
+	{ uimsg().error(errmsg); return DataPack::cNoID(); }
 
     if ( !TaskRunner::execute( &taskrunner, *processor ) )
 	return DataPack::cNoID();
@@ -1190,7 +1188,7 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 	DataPointSet& dps = *dpss[idx];
 	Executor* tabextr = aem.getTableExtractor( dps, ads, err );
 	if ( !tabextr )
-	    { uiMSG().error(err); return 0; }
+	    { uimsg().error(err); return 0; }
 
 	if ( TaskRunner::execute( &taskrunner, *tabextr ) )
 	    somesuccess = true;
@@ -1203,7 +1201,7 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
     if ( somefail )
     {
 	return somesuccess &&
-	     uiMSG().askGoOn(
+	     uimsg().askGoOn(
 	      tr("Some data extraction failed.\n\nDo you want to continue and "
 		  "use the (partially) extracted data?"), true);
     }
@@ -1245,7 +1243,7 @@ void uiAttribPartServer::importAttrSetFromFile()
 
 void uiAttribPartServer::importAttrSetFromOtherSurvey()
 {
-    uiMSG().error( mTODONotImplPhrase() );
+    uimsg().error( mTODONotImplPhrase() );
 }
 
 
@@ -1785,7 +1783,7 @@ IOObj* uiAttribPartServer::getIOObj( const SelSpec& ass ) const
 
 
 #undef mErrRet
-#define mErrRet(msg) { uiMSG().error(msg); return; }
+#define mErrRet(msg) { uimsg().error(msg); return; }
 
 void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
 {
@@ -1939,7 +1937,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d )
 {
     const uiRetVal uirv = curDescSet4Edit(is2d).usePar( iopar );
     if ( !uirv.isOK() )
-	uiMSG().error( uirv );
+	uimsg().error( uirv );
     else
     {
 	set2DEvent( is2d );

@@ -7,10 +7,10 @@
 
 #include "prestackanglecomputer.h"
 
-#include "ailayer.h"
 #include "arrayndimpl.h"
 #include "arrayndinfo.h"
 #include "arrayndalgo.h"
+#include "elasticmodel.h"
 #include "fourier.h"
 #include "fftfilter.h"
 #include "mathfunc.h"

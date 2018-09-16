@@ -60,7 +60,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     setCtrlStyle( CloseOnly );
     Survey::GMAdmin().updateGeometries( 0 );
 
-    objinfo_ = new uiSeisIOObjInfo( ioobj );
+    objinfo_ = new uiSeisIOObjInfo( this, ioobj );
     dataset_ = new Seis2DDataSet( ioobj );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
@@ -399,7 +399,7 @@ void uiSeis2DFileMan::redoAllLists()
 {
     const DBKey lsid( objinfo_->ioObj()->key() );
     delete objinfo_;
-    objinfo_ = new uiSeisIOObjInfo( lsid );
+    objinfo_ = new uiSeisIOObjInfo( this, lsid );
     if ( objinfo_->isOK() )
     {
 	delete dataset_;

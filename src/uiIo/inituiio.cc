@@ -57,14 +57,14 @@ bool uiMMBatchJobDispatcherLauncher::go( uiParent* p )
 	if ( hdl.isEmpty() )
 	    return uiBatchJobDispatcherLauncher::go( p );
 
-	uiMSG().error( tr("Cannot find configuration for localhost") );
+	gUiMsg(p).error( tr("Cannot find configuration for localhost") );
 	return false;
     }
 
     const File::Path localbasedatadir( GetBaseDataDir() );
     if ( localbasedatadir != localhost->getDataRoot() )
     {
-	uiMSG().error( tr("Current Data Root: '%1'\ndoes not match path in "
+	gUiMsg(p).error( tr("Current Data Root: '%1'\ndoes not match path in "
 			  "batch processing configuration file:\n'%2'")
 			  .arg( localbasedatadir.fullPath() )
 			  .arg( localhost->getDataRoot().fullPath() ) );

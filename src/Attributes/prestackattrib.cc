@@ -396,14 +396,10 @@ bool PSAttrib::getGatherData( const BinID& bid,
 {
     if ( gatherset_.size() )
     {
-	const GatherSetDataPack* anglegsdp = 0;
+	ConstRefMan<GatherSetDataPack> anglegsdp;
 	if ( anglegsdpid_.isValid() )
-	{
-	    ConstRefMan<DataPack> angledp =
-		DPM( DataPackMgr::SeisID() ).get( anglegsdpid_ );
-	    mDynamicCast( const GatherSetDataPack*,anglegsdp,
-			  angledp.ptr() );
-	}
+	    anglegsdp = DPM( DataPackMgr::SeisID() )
+			    .get<GatherSetDataPack>( anglegsdpid_ );
 
 	ConstRefMan<Gather> curgather = 0;
 	ConstRefMan<Gather> curanglegather = 0;
@@ -518,7 +514,7 @@ RefMan<Gather> PSAttrib::getPreProcessed( const BinID& relpos )
 	return 0;
     }
 
-    return DPM(DataPackMgr::FlatID()).get(preprocessor_->getOutput());
+    return DPM(DataPackMgr::FlatID()).get<Gather>(preprocessor_->getOutput());
 }
 
 
@@ -559,8 +555,7 @@ void PSAttrib::prepPriorToBoundsCalc()
     {
 	const DataPack::FullID fid = DataPack::FullID::getFromString(
 							    fullidstr.str()+1 );
-	RefMan<GatherSetDataPack> psgdtp =
-	    DPM( fid ).getAndCast<GatherSetDataPack>( fid.packID() );
+	auto psgdtp = DPM( fid ).get<GatherSetDataPack>( fid.packID() );
 
 	isondisc =  !psgdtp;
 	if ( isondisc )

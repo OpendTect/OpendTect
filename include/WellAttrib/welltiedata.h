@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class SeisTrc;
-class SyntheticData;
+namespace SynthSeis { class DataSet; }
 class TaskRunner;
 
 namespace Well { class Data; class Log; class LogSet; }
@@ -142,7 +142,7 @@ public :
     PickData			pickdata_;
     DispParams			dispparams_;
     TaskRunner*			trunner_;
-    RefMan<SyntheticData>	sd_;
+    RefMan<SynthSeis::DataSet>	sd_;
 
     mStruct(WellAttrib) CorrelData
     {

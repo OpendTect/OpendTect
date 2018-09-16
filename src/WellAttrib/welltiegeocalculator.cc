@@ -221,7 +221,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     else
     {
 	TimeDepthModel verticaldtmod;
-	if ( !verticaldtmod.setModel(sdahs.arr(),svals.arr(),sz) )
+	if ( !verticaldtmod.setModel(sdahs.arr(),svals.arr(),sz).isOK() )
 	    return;
 
 	outvals += replvel;

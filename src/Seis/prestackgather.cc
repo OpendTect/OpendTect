@@ -394,6 +394,19 @@ void Gather::detectOuterMutes( int* res, int taperlen ) const
 }
 
 
+void Gather::doDumpInfo( IOPar& iop ) const
+{
+    FlatDataPack::doDumpInfo( iop );
+
+    iop.set( "TrcKey", trckey_ );
+    iop.set( "Z range", zrg_ );
+    iop.setYN( "Offset is angle", offsetisangle_ );
+    iop.setYN( "Is correlation", iscorr_ );
+    iop.setYN( "Z is time", zit_ );
+}
+
+
+
 
 GatherSetDataPack::GatherSetDataPack( const char* categry,
 				      const ObjectSet<Gather>& gathers )
@@ -473,6 +486,27 @@ float GatherSetDataPack::gtNrKBytes() const
 	totalnrkbytes += gathers_[idx]->nrKBytes();
 
     return totalnrkbytes;
+}
+
+
+void GatherSetDataPack::doDumpInfo( IOPar& iop ) const
+{
+    DataPack::doDumpInfo( iop );
+
+    const auto sz = gathers_.size();
+    iop.set( "Number of gathers", sz );
+    if ( sz < 1 )
+	return;
+
+    const auto& gath0 = *gathers_.first();
+    IOPar subiop; gath0.dumpInfo( subiop );
+    iop.mergeComp( subiop, sz > 1 ? "First gather" : "Gather" );
+    if ( sz > 1 )
+    {
+	const auto& gathN = *gathers_.last();
+	subiop.setEmpty(); gathN.dumpInfo( subiop );
+	iop.mergeComp( subiop, "Last gather" );
+    }
 }
 
 

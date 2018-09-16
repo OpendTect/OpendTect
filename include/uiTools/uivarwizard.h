@@ -43,6 +43,9 @@ public:
 
     virtual void	raiseCurrent()		= 0;
 
+    uiParent*		parent()		{ return parent_; }
+    const uiParent*	parent() const		{ return parent_; }
+
 protected:
 
     uiParent*		parent_;

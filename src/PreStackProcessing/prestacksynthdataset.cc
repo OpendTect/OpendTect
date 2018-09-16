@@ -8,50 +8,48 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestacksyntheticdata.h"
+#include "prestacksynthdataset.h"
 
 #include "prestackgather.h"
 #include "seisbufadapters.h"
-#include "synthseis.h"
+#include "synthseisgenerator.h"
 
-namespace PreStack
-{
 
-PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
-					      GatherSetDataPack& dp)
-    : SyntheticData(sgp,dp)
+SynthSeis::PreStackDataSet::PreStackDataSet( const GenParams& gp,
+					     GatherSetDataPack& dp )
+    : DataSet(gp,dp)
     , angledp_(0)
 {
-    useGenParams( sgp );
-    DataPackMgr::ID pmid = DataPackMgr::SeisID();
-    DPM( pmid ).add( &dp );
-    datapackid_ = DataPack::FullID( pmid, dp.id());
-    ObjectSet<Gather>& gathers = dp.getGathers();
+    auto& gathers = dp.getGathers();
     for ( int idx=0; idx<gathers.size(); idx++ )
-    {
 	gathers[idx]->setName( name() );
-    }
 }
 
 
-PreStackSyntheticData::~PreStackSyntheticData()
-{}
+SynthSeis::PreStackDataSet::~PreStackDataSet()
+{
+}
 
 
-GatherSetDataPack& PreStackSyntheticData::preStackPack()
+DataPackMgr::ID	SynthSeis::PreStackDataSet::dpMgrID() const
+{
+    return DataPackMgr::SeisID();
+}
+
+
+GatherSetDataPack& SynthSeis::PreStackDataSet::preStackPack()
 {
     return static_cast<GatherSetDataPack&>( *datapack_ );
 }
 
 
-const GatherSetDataPack& PreStackSyntheticData::preStackPack() const
+const GatherSetDataPack& SynthSeis::PreStackDataSet::preStackPack() const
 {
     return static_cast<const GatherSetDataPack&>( *datapack_ );
 }
 
 
-void PreStackSyntheticData::convertAngleDataToDegrees(
-					Gather* ag ) const
+void SynthSeis::PreStackDataSet::convertAngleDataToDegrees( Gather* ag ) const
 {
     Array2D<float>& agdata = ag->data();
     const int dim0sz = agdata.getSize(0);
@@ -69,19 +67,17 @@ void PreStackSyntheticData::convertAngleDataToDegrees(
 }
 
 
-void PreStackSyntheticData::setAngleData(
-	const ObjectSet<Gather>& ags )
+void SynthSeis::PreStackDataSet::setAngleData( const GatherSet& ags )
 {
     BufferString angledpnm( name().buf(), " (Angle Gather)" );
     angledp_ = new GatherSetDataPack( angledpnm, ags );
-    DPM( DataPackMgr::SeisID() ).add( angledp_ );
 }
 
 
-float PreStackSyntheticData::offsetRangeStep() const
+float SynthSeis::PreStackDataSet::offsetRangeStep() const
 {
     float offsetstep = mUdf(float);
-    const ObjectSet<Gather>& gathers = preStackPack().getGathers();
+    const auto& gathers = preStackPack().getGathers();
     if ( !gathers.isEmpty() )
     {
 	const Gather& gather = *gathers[0];
@@ -92,10 +88,10 @@ float PreStackSyntheticData::offsetRangeStep() const
 }
 
 
-const Interval<float> PreStackSyntheticData::offsetRange() const
+const Interval<float> SynthSeis::PreStackDataSet::offsetRange() const
 {
     Interval<float> offrg( 0, 0 );
-    const ObjectSet<Gather>& gathers = preStackPack().getGathers();
+    const auto& gathers = preStackPack().getGathers();
     if ( !gathers.isEmpty() )
     {
 	const Gather& gather = *gathers[0];
@@ -105,23 +101,28 @@ const Interval<float> PreStackSyntheticData::offsetRange() const
 }
 
 
-bool PreStackSyntheticData::hasOffset() const
-{ return offsetRange().width() > 0; }
+bool SynthSeis::PreStackDataSet::hasOffset() const
+{
+    return offsetRange().width() > 0;
+}
 
 
-bool PreStackSyntheticData::isNMOCorrected() const
+bool SynthSeis::PreStackDataSet::isNMOCorrected() const
 {
     bool isnmo = true;
-    raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), isnmo );
+    raypars_.getYN( SynthSeis::GenBase::sKeyNMO(), isnmo );
     return isnmo;
 }
 
 
-const SeisTrc* PreStackSyntheticData::getTrace( int seqnr, int* offset ) const
-{ return preStackPack().getTrace( seqnr, offset ? *offset : 0 ); }
+const SeisTrc* SynthSeis::PreStackDataSet::getTrace(
+			int seqnr, int offset ) const
+{
+    return preStackPack().getTrace( seqnr, offset );
+}
 
 
-SeisTrcBuf* PreStackSyntheticData::getTrcBuf( float offset,
+SeisTrcBuf* SynthSeis::PreStackDataSet::getTrcBuf( float offset,
 					const Interval<float>* stackrg ) const
 {
     SeisTrcBuf* tbuf = new SeisTrcBuf( true );
@@ -129,5 +130,3 @@ SeisTrcBuf* PreStackSyntheticData::getTrcBuf( float offset,
     preStackPack().fill( *tbuf, offrg );
     return tbuf;
 }
-
-}; //namespace

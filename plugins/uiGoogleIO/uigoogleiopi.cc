@@ -175,9 +175,9 @@ void uiGoogleIOMgr::exportPolygon( CallBacker* cb )
     if ( !psd || !psd->getSet() ) return;
     const Pick::Set& ps = *psd->getSet();
     if ( ps.connection() == Pick::Set::Disp::None )
-	{ uiMSG().error(tr("Can only export Polygons")); return; }
+	{ gUiMsg().error(tr("Can only export Polygons")); return; }
     if ( ps.size() < 3 )
-	{ uiMSG().error(tr("Polygon needs at least 3 points")); return; }
+	{ gUiMsg().error(tr("Polygon needs at least 3 points")); return; }
 
     if ( !SI().getCoordSystem()->geographicTransformOK() )
 	return;
@@ -194,7 +194,7 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
 		    appl_.applMgr().visServer()->getObject(displayid))
     if ( !rtd ) return;
     if ( rtd->nrNodes() < 2 )
-	{ uiMSG().error(tr("Need at least 2 points")); return; }
+	{ gUiMsg().error(tr("Need at least 2 points")); return; }
 
     TypeSet<BinID> knots;
     rtd->getAllNodePos( knots );

@@ -703,9 +703,9 @@ Interval<float> PlaneDataDisplay::getDataTraceRange() const
 
 TrcKeyZSampling PlaneDataDisplay::getDataPackSampling( int attrib ) const
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     const DataPack::ID dpid = getDataPackID( attrib );
-    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     return regsdp ? regsdp->sampling() : getTrcKeyZSampling( attrib );
 }
 
@@ -831,9 +831,8 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 				      TaskRunner* tskr )
 {
-    DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
-    ConstRefMan<RegularSeisDataPack> regsdp =
-	dpm.getAndCast<RegularSeisDataPack>( dpid );
+    auto& dpm = DPM( DataPackMgr::SeisID() );
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
 
     if ( !regsdp || regsdp->isEmpty() )
     {
@@ -892,9 +891,9 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 
 void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* tskr )
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp ) return;
 
     updateTexOriginAndScale( attrib, regsdp->sampling() );
@@ -958,7 +957,7 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* tskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
-    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
@@ -1033,7 +1032,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 

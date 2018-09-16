@@ -68,7 +68,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     {
 	DataPack::FullID fid = DataPack::FullID::getFromString(
 							storstr.buf()+1 );
-	if ( !DPM(fid).haveID( fid ) )
+	if ( !DPM(fid).isPresent( fid ) )
 	    desc.setErrMsg( uiStrings::phrCannotFind(tr("data in memory")) );
 	return;
     }
@@ -119,7 +119,7 @@ StorageProvider::StorageProvider( Desc& desc )
     {
 	DataPack::FullID fid = DataPack::FullID::getFromString(
 							storstr.buf()+1 );
-	isondisc_ = !DPM(fid).haveID( fid );
+	isondisc_ = !DPM(fid).isPresent( fid );
     }
 }
 
@@ -142,7 +142,7 @@ bool StorageProvider::checkInpAndParsAtStart()
     {
 	storedvolume_.zsamp_.start = 0;	//cover up for synthetics
 	DataPack::FullID fid( getDPID() );
-	RefMan<SeisTrcBufDataPack> stbdtp = DPM(fid).get(fid.packID());
+	auto stbdtp = DPM(fid).get<SeisTrcBufDataPack>(fid.packID());
 	if ( !stbdtp || stbdtp->trcBuf().isEmpty() )
 	    return false;
 
@@ -708,7 +708,7 @@ DataPack::FullID StorageProvider::getDPID() const
 SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
 {
     DataPack::FullID fid( getDPID() );
-    RefMan<SeisTrcBufDataPack> stbdtp = DPM( fid ).get( fid.packID() );
+    auto stbdtp = DPM( fid ).get<SeisTrcBufDataPack>( fid.packID() );
 
     if ( !stbdtp )
 	return 0;

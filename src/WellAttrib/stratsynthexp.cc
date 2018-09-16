@@ -20,17 +20,17 @@ ________________________________________________________________________
 #include "seispsioprov.h"
 #include "seis2dlineio.h"
 #include "stratsynthexp.h"
-#include "syntheticdataimpl.h"
+#include "synthseisdataset.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
 #include "survgeom.h"
 #include "separstr.h"
 #include "transl.h"
 
-#include "prestacksyntheticdata.h"
+#include "prestacksynthdataset.h"
 
 StratSynthExporter::StratSynthExporter(
-	const ObjectSet<const SyntheticData>& sds, Pos::GeomID geomid,
+	const ObjectSet<const SynthSeis::DataSet>& sds, Pos::GeomID geomid,
 	PosInfo::Line2DData* newgeom, const SeparString& prepostfix )
     : Executor( "Exporting syntheic data" )
     , sds_(sds)
@@ -44,9 +44,9 @@ StratSynthExporter::StratSynthExporter(
     , writer_(0)
 {
     int synthmodelsz = 0;
-    ConstRefMan<SyntheticData> sd = sds_[0];
-    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr());
-    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd.ptr());
+    ConstRefMan<SynthSeis::DataSet> sd = sds_[0];
+    mDynamicCastGet(const SynthSeis::PreStackDataSet*,presd,sd.ptr());
+    mDynamicCastGet(const SynthSeis::PostStackDataSet*,postsd,sd.ptr());
     if ( presd )
 	synthmodelsz = presd->preStackPack().getGathers().size();
     else
@@ -141,10 +141,10 @@ uiString StratSynthExporter::message() const
 
 int StratSynthExporter::writePostStackTrace()
 {
-    ConstRefMan<SyntheticData> sd = sds_[cursdidx_];
-    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd.ptr());
+    ConstRefMan<SynthSeis::DataSet> sd = sds_[cursdidx_];
+    mDynamicCastGet(const SynthSeis::PostStackDataSet*,postsd,sd.ptr());
     if ( !postsd )
-	mErrRetPErr( "Wrong type (not PostStackSyntheticData)" )
+	mErrRetPErr( "Wrong type (not PostStack)" )
 
     const SeisTrcBuf& seisbuf = postsd->postStackPack().trcBuf();
     const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();
@@ -176,10 +176,10 @@ int StratSynthExporter::writePostStackTrace()
 
 int StratSynthExporter::writePreStackTraces()
 {
-    ConstRefMan<SyntheticData> sd = sds_[cursdidx_];
-    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr());
+    ConstRefMan<SynthSeis::DataSet> sd = sds_[cursdidx_];
+    mDynamicCastGet(const SynthSeis::PreStackDataSet*,presd,sd.ptr());
     if ( !presd )
-	mErrRetPErr( "Wrong type (not PreStackSyntheticData)" )
+	mErrRetPErr( "Wrong type (not PreStack)" )
     const GatherSetDataPack& gsdp = presd->preStackPack();
     const ObjectSet<Gather>& gathers = gsdp.getGathers();
     const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();

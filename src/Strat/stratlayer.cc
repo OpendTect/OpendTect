@@ -667,6 +667,15 @@ bool Strat::LayerModel::isValid() const
 }
 
 
+int Strat::LayerModel::nrLayers() const
+{
+    int ret = 0;
+    for ( int iseq=0; iseq<seqs_.size(); iseq++ )
+	ret += seqs_[iseq]->size();
+    return ret;
+}
+
+
 Interval<float> Strat::LayerModel::zRange() const
 {
     if ( isEmpty() )
@@ -905,4 +914,114 @@ bool Strat::LayerModel::write( od_ostream& strm, int modnr,
 void Strat::LayerModel::setElasticPropSel( const ElasticPropSelection& elp )
 {
     elasticpropsel_ = elp;
+}
+
+
+//------ LayerModelSuite ------
+
+Strat::LayerModelSuite::LayerModelSuite()
+    : curChanged(this)
+    , editingChanged(this)
+{
+    addModel( "", uiString::empty() );
+}
+
+
+void Strat::LayerModelSuite::setEmpty()
+{
+    baseModel().setEmpty();
+    clearEditedData();
+}
+
+
+void Strat::LayerModelSuite::setBaseModel( LayerModel* newmod )
+{
+    baseModel().setEmpty();
+    if ( newmod )
+	mdls_.replace( 0, newmod );
+    clearEditedData();
+}
+
+
+void Strat::LayerModelSuite::setCurIdx( idx_type idx )
+{
+    if ( mdls_.validIdx(idx) && idx != curidx_ )
+    {
+	curidx_ = idx;
+	curChanged.trigger();
+    }
+}
+
+
+void Strat::LayerModelSuite::setDesc( int imdl, const char* dsc,
+				      const uiString& uidsc )
+{
+    if ( mdls_.validIdx(imdl) )
+    {
+	descs_.get( imdl ) = dsc;
+	uidescs_.get( imdl ) = uidsc;
+    }
+}
+
+
+void Strat::LayerModelSuite::addModel( const char* dsc, const uiString& uidsc )
+{
+    mdls_ += new LayerModel;
+    descs_.add( dsc );
+    uidescs_.add( uidsc );
+}
+
+
+void Strat::LayerModelSuite::removeModel( idx_type idx )
+{
+    if ( idx < 1 )
+	{ pErrMsg("attempt to remove base model"); return; }
+
+    const bool haded = hasEditedData();
+
+    mdls_.removeSingle( idx );
+    descs_.removeSingle( idx );
+    uidescs_.removeSingle( idx );
+
+    const bool removediscur = idx == curidx_;
+    if ( removediscur )
+	curidx_--;
+
+    if ( hasEditedData() != haded )
+	editingChanged.trigger( haded );
+
+    if ( removediscur )
+	curChanged.trigger();
+}
+
+
+bool Strat::LayerModelSuite::hasEditedData() const
+{
+    return size() > 1 && !mdls_.get(1)->isEmpty();
+}
+
+
+void Strat::LayerModelSuite::clearEditedData()
+{
+    if ( !hasEditedData() )
+	return;
+
+    for ( int imdl=1; imdl<size(); imdl++ )
+	mdls_.get( imdl )->setEmpty();
+
+    editingChanged.trigger( true );
+}
+
+
+void Strat::LayerModelSuite::prepareEditing()
+{
+    if ( size() < 2 )
+	return;
+
+    const bool haded = hasEditedData();
+
+    for ( int imdl=1; imdl<size(); imdl++ )
+	*mdls_.get( imdl ) = baseModel();
+
+    editingChanged.trigger( haded );
 }

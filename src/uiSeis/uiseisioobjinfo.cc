@@ -15,11 +15,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-static void dispInf( const uiPhraseSet& inf )
-{
-    uiMSG().message( inf.cat(uiString::CloseLine,uiString::AfterEmptyLine) );
-}
-
 #define mChk(ret) if ( !isOK() ) return ret
 
 bool uiSeisIOObjInfo::provideUserInfo() const
@@ -30,7 +25,7 @@ bool uiSeisIOObjInfo::provideUserInfo() const
 
     uiPhraseSet inf;
     getUserInfo( inf );
-    dispInf( inf );
+    gUiMsg(parent_).info( inf );
 
     return true;
 }
@@ -72,7 +67,7 @@ bool uiSeisIOObjInfo::provideLineInfo( const TypeSet<Pos::GeomID>* sel ) const
 		.arg(zunitstr).arg(zrg.start).arg(zrg.stop).arg(zrg.step) );
     }
 
-    dispInf( inf );
+    gUiMsg(parent_).info( inf );
     return true;
 }
 
@@ -94,8 +89,9 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si,
 	BufferString fsysname = System::getFileSystemName( ioObj()->dirName() );
 	if ( fsysname == "FAT32" )
 	{
-	    uiMSG().error( tr("Target directory has a FAT32 File System.\n"
-			      "Files larger than 4GB are not supported") );
+	    gUiMsg(parent_).error(
+		    tr("Target directory has a FAT32 File System."
+		       "\nFiles larger than 4GB are not supported") );
 	    return false;
 	}
     }
@@ -104,8 +100,8 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si,
     if ( avszmb == 0 )
     {
 	if ( !doerrs ) return false;
-	if ( !uiMSG().askContinue( tr("The output disk seems to be full.\n\n"
-				      "Do you want to continue?") ) )
+	if ( !gUiMsg(parent_).askContinue( tr("The output disk is full.\n\n"
+					      "Do you want to continue?") ) )
 	    return false;
     }
     else if ( szmb > avszmb )
@@ -121,7 +117,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si,
 
 	msg.arg(explanationmsg);
 
-	if ( !uiMSG().askContinue( msg ) )
+	if ( !gUiMsg(parent_).askContinue( msg ) )
 	    return false;
     }
     return true;

@@ -1091,12 +1091,12 @@ void uiODContourTreeItem::saveAreasAsCB(CallBacker*)
 		   << areas[idx] << od_newline;
 
 	if ( !stream.isBad() )
-	    uiMSG().message( tr("Area table saved as:\n%1.").arg(fnm) );
+	    mTIUiMsg().message( tr("Area table saved as:\n%1.").arg(fnm) );
 	else
 	{
 	    uiString errmsg = uiStrings::phrCannotSave(tr("file %1").arg(fnm));
 	    stream.addErrMsgTo( errmsg );
-	    uiMSG().error( errmsg );
+	    mTIUiMsg().error( errmsg );
 	}
     }
 }

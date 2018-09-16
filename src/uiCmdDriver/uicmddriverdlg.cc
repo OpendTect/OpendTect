@@ -289,8 +289,9 @@ static bool passSurveyCheck( uiFileSel& fld, bool& surveycheck )
 	    od_static_tr( "passSurveyCheck" ,
 			  "%1 - path is referring to previous survey!" )
 			.arg( fld.labelText() );
-	res = uiMSG().question(msg, uiStrings::sContinue(), uiStrings::sReset(),
-				  uiStrings::sCancel(), uiStrings::sWarning() );
+	res = gUiMsg(&fld).question( msg, uiStrings::sContinue(),
+			uiStrings::sReset(), uiStrings::sCancel(),
+			uiStrings::sWarning() );
 	surveycheck = res<0;
 
 	if ( !res )

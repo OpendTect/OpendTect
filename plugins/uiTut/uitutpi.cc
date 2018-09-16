@@ -139,7 +139,7 @@ void uiTutMgr::doWells( CallBacker* )
     PtrMan<IOObj> ioobj = DBM().get( wellid );
     if ( !ioobj )
     {
-	uiMSG().error( tr("Cannot find well in database.\n"
+	gUiMsg(appl_).error( tr("Cannot find well in database.\n"
 		          "Perhaps it's not stored yet?") );
 	return;
     }
@@ -189,8 +189,8 @@ mDefODInitPlugin(uiTut)
     uiTutorialAttrib::initClass();
     TutHelpProvider::initClass();
     VolProc::uiTutOpCalculator::initClass();
-   
-    ODMainWin()->sceneMgr().treeItemFactorySet()->addFactory( 
+
+    ODMainWin()->sceneMgr().treeItemFactorySet()->addFactory(
 	new uiODTutorialParentTreeItemfactory, 9750, OD::Both2DAnd3D );
 
     return 0;

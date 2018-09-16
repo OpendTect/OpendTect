@@ -147,7 +147,7 @@ bool uiDataTreeItem::selectSetup()
     {
 	if ( !chain->areSamplesIndependent() )
 	{
-	    if ( !uiMSG().askGoOn(tr("The output of this setup is not "
+	    if ( !mTIUiMsg().askGoOn(tr("The output of this setup is not "
 			"sample-independent, and the output may not be "
 			"the same as when computing the entire volume")) )
 		return false;

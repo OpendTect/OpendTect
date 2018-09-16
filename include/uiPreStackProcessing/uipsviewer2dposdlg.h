@@ -57,10 +57,10 @@ public:
 						    const BufferStringSet&,
 						    bool issynthetic=false);
 
-    const TrcKeyZSampling&		cubeSampling();
+    const TrcKeyZSampling&	cubeSampling();
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
     void			setStep(int);
-    int			step() const;
+    int				step() const;
 
     void			enableZDisplay(bool);
     void			getSelGatherInfos(TypeSet<GatherInfo>&);
@@ -105,7 +105,7 @@ public:
     void			setSelGatherInfos(const TypeSet<GatherInfo>& gi)
 				{ sliceselfld_->setSelGatherInfos(gi); }
 
-    Notifier<uiViewer2DPosDlg> okpushed_;
+    Notifier<uiViewer2DPosDlg>	okpushed_;
 
 protected:
 
@@ -118,7 +118,7 @@ protected:
 mExpClass(uiPreStackProcessing) uiViewer2DSelDataDlg : public uiDialog
 { mODTextTranslationClass(uiViewer2DSelDataDlg);
 public:
-			    uiViewer2DSelDataDlg(uiParent*,
+				uiViewer2DSelDataDlg(uiParent*,
 				    const BufferStringSet&,BufferStringSet&);
 protected:
 

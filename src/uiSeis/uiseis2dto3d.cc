@@ -99,7 +99,7 @@ bool uiSeis2DTo3D::fillSeisPar()
     possubsel_->fillPar( sampling );
     IOPar subsel;
     subsel.mergeComp( sampling, sKey::Subsel() );
-    uiSeisIOObjInfo ioobjinfo( *outfld_->ioobj() );
+    uiSeisIOObjInfo ioobjinfo( this, *outfld_->ioobj() );
     TrcKeyZSampling cs = possubsel_->envelope();
     SeisIOObjInfo::SpaceInfo spi( cs.nrZ(), (int)cs.hsamp_.totalNr() );
     subsel.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );

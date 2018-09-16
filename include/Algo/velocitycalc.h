@@ -11,125 +11,12 @@ ________________________________________________________________________
 -*/
 
 
-#include "algomod.h"
-#include "samplingdata.h"
+#include "timedepthmodel.h"
 #include "veldesc.h"
 #include "keystrs.h"
 #include "factory.h"
-#include "uistring.h"
 
-template <class T> class ValueSeries;
-
-/*!
-\brief Converts between time, depth and velocity given a model. The velocity
-model can be either RMO-velocities in time, or interval velocity in either
-depth or time.
-*/
-
-mExpClass(Algo) TimeDepthModel
-{ mODTextTranslationClass(TimeDepthModel)
-public:
-			TimeDepthModel();
-			TimeDepthModel(const TimeDepthModel&);
-    virtual		~TimeDepthModel();
-
-    TimeDepthModel&	operator=(const TimeDepthModel&);
-    virtual bool	isOK() const;
-    const uiString	errMsg() const;
-    int			size() const		{ return sz_; }
-
-    bool		setModel(const double* dpths,const double* times,
-				 int sz);
-
-    float		getDepth(float time) const;
-    float		getTime(float depth) const;
-    float		getVelocity(float depth) const;
-    float		getFirstTime() const;
-    float		getLastTime() const;
-
-    static float	getDepth(const double* dpths,const double* times,int sz,
-				 float time);
-    static float	getTime(const double* dpths,const double* times,int sz,
-				float depth);
-    static float	getVelocity(const double* dpths,const double* times,
-				    int sz,float depth);
-
-			// use only if you're sure about what you're doing
-    double		getDepth(int idx) const;
-    double		getTime(int idx) const;
-
-protected:
-
-    static double	convertTo(const double* dpths,const double* times,
-				  int sz,double z,bool targetistime);
-
-    int			sz_;
-
-    double*		times_;
-    double*		depths_;
-
-    uiString		errmsg_;
-};
-
-
-/*!
-\brief Converts between time and depth given a model.
-*/
-
-mExpClass(Algo) TimeDepthConverter : public TimeDepthModel
-{ mODTextTranslationClass(TimeDepthConverter)
-public:
-			TimeDepthConverter();
-
-    bool		isOK() const;
-    static bool		isVelocityDescUseable(const VelocityDesc&,
-					      bool velintime,
-					      uiString* errmsg = 0);
-
-    bool		setVelocityModel(const ValueSeries<float>& vels,int sz,
-					 const SamplingData<double>& sd,
-					 const VelocityDesc&,bool istime);
-
-    bool		calcDepths(ValueSeries<float>&,int sz,
-				   const SamplingData<double>& timesamp) const;
-    bool		calcTimes(ValueSeries<float>&,int sz,
-				   const SamplingData<double>& depthsamp) const;
-
-    static bool		calcDepths(const ValueSeries<float>& vels,int velsz,
-				   const SamplingData<double>&,double* depths);
-			/*!<\param vels Velocity as Vint in time */
-
-    static bool		calcDepths(const ValueSeries<float>& vels,int velsz,
-				   const ValueSeries<double>& times,
-				   double* depths);
-			 /*!<\param vels Velocity as Vint in time */
-
-    static bool		calcTimes(const ValueSeries<float>& vels,int velsz,
-				  const ValueSeries<double>& depth,
-				  double* times);
-			 /*!<\param vels Velocity as Vint in depth*/
-
-    static bool		calcTimes(const ValueSeries<float>& vels,int velsz,
-				  const SamplingData<double>&,double* times);
-			 /*!<\param vels Velocity as Vint in depth*/
-protected:
-
-    void		calcZ(const double*,int inpsz,
-			      ValueSeries<float>&,int outpsz,
-			      const SamplingData<double>&,bool istime) const;
-
-    float		firstvel_;
-    float		lastvel_;
-
-    bool		regularinput_;
-    int			sz_;
-    SamplingData<double> sd_;
-};
-
-
-/*!
-\brief Base class for computing a moveout curve.
-*/
+/*!\brief Base class for computing a moveout curve. */
 
 mExpClass(Algo) MoveoutComputer
 { mODTextTranslationClass(MoveoutComputer)
@@ -152,9 +39,7 @@ public:
 };
 
 
-/*!
-\brief Computes moveout in depth from RMO at a certain reference offset.
-*/
+/*!\brief Computes moveout in depth from RMO at a certain reference offset. */
 
 mExpClass(Algo) RMOComputer : public MoveoutComputer
 { mODTextTranslationClass(RMOComputer)
@@ -177,10 +62,8 @@ public:
 };
 
 
-/*!
-\brief Computes moveout with anisotropy, according to the equation
-by Alkhalifah and Tsvankin 1995.
-*/
+/*!\brief Computes moveout with anisotropy, according to the equation
+by Alkhalifah and Tsvankin 1995. */
 
 mExpClass(Algo) NormalMoveout : public MoveoutComputer
 { mODTextTranslationClass(NormalMoveout)
@@ -209,9 +92,7 @@ public:
 mGlobal(Algo) bool computeDix(const float* Vrms, double t0, float v0,
 			const double* t, int nrlayers, float* Vint);
 
-/*!
-\brief Rms velocity to interval velocity conversion.
-*/
+/*!\brief Rms velocity to interval velocity conversion. */
 
 mExpClass(Algo) Vrms2Vint
 { mODTextTranslationClass(Vrms2Vint)
@@ -224,9 +105,7 @@ public:
 };
 
 
-/*!
-\brief Rms velocity to interval velocity conversion using the Dix formula.
-*/
+/*!\brief Rms velocity to interval velocity conversion using the Dix formula */
 
 mExpClass(Algo) DixConversion : public Vrms2Vint
 { mODTextTranslationClass(DixConversion)
@@ -243,8 +122,8 @@ public:
 
 
 
-/*!Converts a series of Vrms to Vint. Vrms may contain undefined values, as
-   long as at least one is defined. */
+/*!\brief Converts a series of Vrms to Vint. Vrms may contain undefined values,
+  as long as at least one is defined. */
 
 mGlobal(Algo) bool computeDix(const float* Vrms,const SamplingData<double>& sd,
 			int nrvels,float* Vint);
@@ -262,7 +141,7 @@ mGlobal(Algo) bool computeDix(const float* Vrms, double t0, float v0,
 mGlobal(Algo) bool computeVrms(const float* Vint,const SamplingData<double>& sd,
 			 int nrvels, float* Vrms);
 
-/*!Converts a number of layers with Vint to rms velocities.
+/*!\brief Converts a number of layers with Vint to rms velocities.
    Note that the times in t refers to the bottom of each layer, and t0
    has the start time of the top layer. */
 
@@ -270,7 +149,7 @@ mGlobal(Algo) bool computeVrms(const float* Vint,double t0,const double* t,
 			 int nrlayers, float* Vrms);
 
 
-/*!Given an irregularly sampled Vrms, create a regularly sampled one. The
+/*!\brief Given an irregularly sampled Vrms, create a regularly sampled one. The
    function assumes constant interval velocity before and after the input
    interval.*/
 
@@ -280,19 +159,19 @@ mGlobal(Algo) bool sampleVrms(const float* Vin,double t0_in,float v0_in,
 			float* Vout, int nr_out);
 
 
-//!Converts a number of layers with Vint to average velocities.
+//!\brief Converts a number of layers with Vint to average velocities.
 
 mGlobal(Algo) bool computeVavg(const float* Vint,const double* t,int nrvels,
 			       float* Vavg);
 
 
-//!Converts a number of layers with Vavg to Vint velocities.
+//!\brief Converts a number of layers with Vavg to Vint velocities.
 
 mGlobal(Algo) bool computeVint(const float* Vavg,const double* t,int nrvels,
 			       float* Vint);
 
 
-/*!Given an irregularly sampled Vint, create a regularly sampled one. The
+/*!\brief Given an irregularly sampled Vint, create a regularly sampled one. The
    function assumes constant interval velocity before and after the input
    interval.*/
 
@@ -301,7 +180,7 @@ mGlobal(Algo) bool sampleVint(const float* Vint,const double* t_in,int nr_in,
 			int nr_out);
 
 
-/*!Given an irregularly sampled Vavg, create a regularly sampled one. The
+/*!\brief Given an irregularly sampled Vavg, create a regularly sampled one. The
    function assumes constant average velocity before and after the input
    interval.*/
 
@@ -310,54 +189,58 @@ mGlobal(Algo) bool sampleVavg(const float* Vavg,const double* t_in,int nr_in,
 			int nr_out);
 
 
-/*!Given a residual moveout at a reference offset, comput the residual moveout
-   at other offsets */
+/*!\brief Given a residual moveout at a reference offset, comput the residual
+  moveout at other offsets */
 
 mGlobal(Algo) void computeResidualMoveouts(float z0,float rmo,float refoffset,
 				      int nroffsets,bool outputdepth,
 				      const float* offsets,float* output);
 
 
-/*!Given an irregularly sampled depth or time array, create a regularly sampled
-  one. The function assumes initial depth and time are 0.
-  if zarr is time, tord_in is corresponding depth and other way round */
+/*!\brief Given an irregularly sampled depth or time array, create a regularly
+  sampled one. The function assumes initial depth and time are 0.
+  If zarr is time, tord_in is corresponding depth and other way round */
 
 mGlobal(Algo) void resampleZ(const double* zarr,const double* tord_in,int nr_in,
 			const SamplingData<double>& sd_out,int nr_out,
 			double* zsampled);
 
 
-/*!Given an irregularly sampled effective Thomsen parameter array, create a
-  regularly sampled one. The function assumes constant value of the parameter
-  before and after the input interval.*/
+/*!\brief Given an irregularly sampled effective Thomsen parameter array,
+  create a regularly sampled one. The function assumes constant value of the
+  parameter before and after the input interval.*/
+
 mGlobal(Algo) void sampleEffectiveThomsenPars(const float* vinarr,
 	const double* t_in,int nr_in,const SamplingData<double>& sd_out,
 	int nr_out,float* voutarr);
 
 
-/*!Given an irregularly sampled interval Thomsen parameter array, create a
-  regularly sampled one. The function assumes constant value of the parameter
+/*!\brief Given an irregularly sampled interval Thomsen parameter array, create
+  a regularly sampled one. The function assumes constant value of the parameter
   before and after the input interval.*/
+
 mGlobal(Algo) void sampleIntvThomsenPars(const float* inarr,const double* t_in,
 				int nr_in,const SamplingData<double>& sd_out,
 				int nr_out,float* outarr);
 
 
-/* Utility function for Depth and effective Thomsen parameters resampling*/
+/*\brief resamples depth and effective Thomsen parameters */
 mGlobal(Algo) void resampleContinuousData(const double* in,const double* t_in,
 				int nr_in,const SamplingData<double>& sd_out,
 				int nr_out,double* outarr);
 
 
-/*!Compute depth values for the times in timesampling, using v0 and dv. v0 is
-   the interval velocity at depth v0depth. v0depth is also the depth at t=0. */
+/*!\brief Compute depth values for the times in timesampling, using v0 and dv.
+  v0 is the interval velocity at depth v0depth. v0depth is also the depth at
+  t=0. */
 
 mGlobal(Algo) bool computeLinearT2D( double v0, double dv, double v0depth,
 				     const SamplingData<float>& timesampling,
 				     int sz, float* res );
 
-/*!Compute time values for the depths in depthsampling, using v0 and dv. v0 is
-   the interval velocity at depth v0depth. v0depth is also the depth at t=0. */
+/*!\brief Compute time values for the depths in depthsampling, using v0 and dv.
+  v0 is the interval velocity at depth v0depth. v0depth is also the depth at
+  t=0. */
 
 mGlobal(Algo) bool computeLinearD2T( double v0, double dv, double v0depth,
 		      const SamplingData<float>& depthsampling,
@@ -371,4 +254,3 @@ mGlobal(Algo) bool convertToVintIfNeeded(const float* inpvel,
 
 mGlobal(Algo) SamplingData<double> getDoubleSamplingData(
 					const SamplingData<float>&);
-

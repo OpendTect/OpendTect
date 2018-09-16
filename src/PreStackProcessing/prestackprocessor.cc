@@ -69,8 +69,7 @@ bool Processor::wantsInput( const BinID& bid ) const
 
 void Processor::setInput( const BinID& relbid, DataPack::ID id )
 {
-    RefMan<Gather> input =
-	DPM(DataPackMgr::FlatID()).getAndCast<Gather>(id);
+    auto input = DPM(DataPackMgr::FlatID()).get<Gather>( id );
 
     const BinID inputstepout = getInputStepout();
     const int offset = getRelBidOffset( relbid, inputstepout );

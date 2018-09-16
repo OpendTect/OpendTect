@@ -5,12 +5,12 @@
 -*/
 
 
-#include "synthseis.h"
+#include "synthseisgenerator.h"
 
-#include "ailayer.h"
 #include "batchprog.h"
 #include "testprog.h"
 #include "commandlineparser.h"
+#include "elasticmodel.h"
 #include "factory.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -43,27 +43,27 @@ else \
 
 
 void initTest( bool onespike, bool onemodel, float start_depth,
-	       TypeSet<ElasticModel>& models )
+	       ElasticModelSet& models )
 {
     AILayer layer1 = AILayer( start_depth, 2000.f, 2500.f );
     AILayer layer2 = AILayer( 520.f, 2600.f, 2300.f );
     AILayer layer3 = AILayer( 385.f, 3500.f, 2200.f );
     AILayer layer4 = AILayer( 350.f, 4000.f, 2800.f );
 
-    models += ElasticModel();
-    models[0] += layer1;
-    models[0] += layer3;
+    models += new ElasticModel();
+    *models[0] += layer1;
+    *models[0] += layer3;
     if ( !onespike )
-	models[0] += layer4;
+	*models[0] += layer4;
 
     if ( onemodel ) return;
 
-    models += ElasticModel();
-    models[1] += layer1;
-    models[1] += layer2;
+    models += new ElasticModel();
+    *models[1] += layer1;
+    *models[1] += layer2;
     if ( onespike ) return;
-    models[1] += layer3;
-    models[1] += layer4;
+    *models[1] += layer3;
+    *models[1] += layer4;
 }
 
 
@@ -122,11 +122,10 @@ bool testTracesAmplitudes( od_ostream& strm,
     int nr = -1;
     for ( int ipos=0; ipos<nrpos; ipos++ )
     {
-	SyntheticData::RayModel& raymodel =
-						synthgen.result( ipos );
+	SynthSeis::RayModel& raymodel = synthgen.result( ipos );
 	ObjectSet<SeisTrc> gather;
 	raymodel.getTraces( gather, false );
-	RefMan<ReflectivityModelSet> refmodels = raymodel.getRefs( false );
+	RefMan<ReflectivityModelSet> refmodels = raymodel.reflModels( false );
 	for ( int ioff=0; ioff<refmodels->size(); ioff++ )
 	{
 	    const SeisTrc& trout = *gather[ioff];
@@ -153,7 +152,7 @@ bool BatchProgram::go( od_ostream& strm )
     VrmsRayTracer1D::initClass();
 
     // Inputs
-    TypeSet<ElasticModel> models;
+    ElasticModelSet models;
     const bool singlespike = false;
     const int nrmodels = 2; // model1: 2 spikes, model2: 3 spikes
     const float start_depth = 48.f;
@@ -193,10 +192,10 @@ bool BatchProgram::go( od_ostream& strm )
 	    return false;
 
 	const float scal = wav->get( wav->centerSample() );
-	SynthGenParams sgp;
+	SynthSeis::GenParams sgp;
 	sgp.raypars_ = *raypar;
 	sgp.setWaveletName( wav->name() );
-	RaySynthGenerator synthgen( &models, sgp );
+	RaySynthGenerator synthgen( sgp, models );
 	synthgen.setWavelet( wav );
 	synthgen.enableFourierDomain( true );
 	synthgen.usePar( *raypar );
@@ -206,7 +205,7 @@ bool BatchProgram::go( od_ostream& strm )
 				  synthgen) )
 	    return false;
 
-	SyntheticData::RayModel& rm = synthgen.result( nrmodels-1 );
+	SynthSeis::RayModel& rm = synthgen.result( nrmodels-1 );
 	SeisTrc stack = *rm.stackedTrc();
 	if ( !testTraceSize(strm,stack) ||
 	     !testTracesAmplitudes(strm,synthgen,scal) )

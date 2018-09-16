@@ -293,7 +293,7 @@ bool uiBatchJobDispatcherLauncher::go( uiParent* p )
     {
 	uiRetVal uirv( tr("Cannot start program %1").arg(jobspec_.prognm_) );
 	uirv.add( dispatcher().errMsg() );
-	uiMSG().error( uirv );
+	gUiMsg(p).error( uirv );
 	return false;
     }
 
@@ -355,16 +355,16 @@ bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p )
 	const HostData* localhost = hdl_.find( HostData::localHostName() );
 	if ( !localhost )
 	{
-	    uiMSG().error( tr("Cannot find configuration for localhost") );
+	    gUiMsg(p).error( tr("Cannot find configuration for localhost") );
 	    return false;
 	}
 
 	const File::Path localbasedatadir( GetBaseDataDir() );
 	if ( localbasedatadir != localhost->getDataRoot() )
 	{
-	    uiMSG().error( tr("Current Data Root: '%1'\ndoes not match path in"
-			      " batch processing configuration file:\n'%2'\n"
-			      "Cannot continue")
+	    gUiMsg(p).error( tr("Current Data Root: '%1'\ndoes not match path "
+			    "in batch processing configuration file:\n'%2'\n"
+			    "Cannot continue")
 			    .arg( localbasedatadir.fullPath() )
 			    .arg( localhost->getDataRoot().fullPath() ) );
 	    return false;

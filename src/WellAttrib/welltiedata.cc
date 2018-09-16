@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
-#include "syntheticdata.h"
+#include "synthseisdataset.h"
 
 #include "createlogcube.h"
 #include "emhorizon2d.h"

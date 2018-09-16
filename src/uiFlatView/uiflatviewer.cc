@@ -270,7 +270,7 @@ void uiFlatViewer::setViewToBoundingBox()
 }
 
 
-void uiFlatViewer::handleChange( unsigned int dct )
+void uiFlatViewer::doHandleChange( unsigned int dct )
 {
     if ( Math::AreBitsSet( dct, Auxdata ) )
 	updateauxdata_ = true;
@@ -344,7 +344,7 @@ void uiFlatViewer::setAnnotChoice( int sel )
 }
 
 
-void uiFlatViewer::reGenerate( FlatView::AuxData& ad )
+void uiFlatViewer::reGenerate( AuxData& ad )
 {
     mDynamicCastGet( FlatView::uiAuxDataDisplay*, uiad, &ad );
     if ( !uiad )
@@ -357,23 +357,19 @@ void uiFlatViewer::reGenerate( FlatView::AuxData& ad )
 }
 
 
-FlatView::AuxData* uiFlatViewer::createAuxData(const char* nm) const
+FlatView::AuxData* uiFlatViewer::doCreateAuxData( const char* nm ) const
 { return new FlatView::uiAuxDataDisplay(toUiString(nm)); }
 
 
-FlatView::AuxData* uiFlatViewer::getAuxData(int idx)
-{ return auxdata_[idx]; }
+FlatView::AuxData* uiFlatViewer::gtAuxData( int idx ) const
+{ return const_cast<FlatView::uiAuxDataDisplay*>( auxdata_[idx] ); }
 
 
-const FlatView::AuxData* uiFlatViewer::getAuxData(int idx) const
-{ return auxdata_[idx]; }
-
-
-int uiFlatViewer::nrAuxData() const
+int uiFlatViewer::gtNrAuxData() const
 { return auxdata_.size(); }
 
 
-void uiFlatViewer::addAuxData( FlatView::AuxData* a )
+void uiFlatViewer::doAddAuxData( AuxData* a )
 {
     mDynamicCastGet( FlatView::uiAuxDataDisplay*, uiad, a );
     if ( !uiad )
@@ -391,15 +387,15 @@ void uiFlatViewer::addAuxData( FlatView::AuxData* a )
 }
 
 
-FlatView::AuxData* uiFlatViewer::removeAuxData( FlatView::AuxData* a )
+FlatView::AuxData* uiFlatViewer::doRemoveAuxData( AuxData* a )
 {
     return removeAuxData( auxdata_.indexOf( (FlatView::uiAuxDataDisplay*) a ) );
 }
 
 
-FlatView::AuxData* uiFlatViewer::removeAuxData( int idx )
+FlatView::AuxData* uiFlatViewer::doRemoveAuxDataByIdx( int idx )
 {
-    if ( idx==-1 )
+    if ( idx < 0 )
 	return 0;
 
     worldgroup_->remove( auxdata_[idx]->getDisplay(), true );

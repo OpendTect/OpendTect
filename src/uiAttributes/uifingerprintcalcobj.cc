@@ -39,7 +39,7 @@ static const int cNrRandPicks = 100;
 #define mErrRet(msg) \
 {\
     uiString em = toUiString("%1 \n %2").arg(emTxt()).arg(msg);	\
-    uiMSG().error( em );\
+    gUiMsg().error( em );\
     return;\
 }\
 
@@ -81,7 +81,8 @@ void calcFingParsObject::create2DRandPicks( const DBKey& dsetid,
 						      BinIDValueSet* rangesset )
 {
     PtrMan<IOObj> ioobj = DBM().get( dsetid );
-    if ( !ioobj ) mErrRet( tr("2D Dataset ID is not OK") );
+    if ( !ioobj )
+	mErrRet( tr("2D Dataset ID is not OK") );
     PtrMan<Seis2DDataSet> dset = new Seis2DDataSet( *ioobj );
     const int nrlines = dset->nrLines();
     if ( !nrlines )
@@ -123,7 +124,7 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
 	uiRetVal uirv;
 	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, uirv );
 	if ( !ps )
-	    { uiMSG().error( uirv ); return 0; }
+	    { gUiMsg(parent_).error( uirv ); return 0; }
 
 	retset = new BinIDValueSet( 1, false );
 	Pick::SetIter psiter( *ps );
@@ -193,7 +194,7 @@ bool calcFingParsObject::computeValsAndRanges()
     PtrMan<Processor> proc = aem->createLocationOutput( errmsg, posset_ );
     if ( !proc )
     {
-	uiMSG().error( errmsg );
+	gUiMsg(parent_).error( errmsg );
 	return false;
     }
 

@@ -39,7 +39,7 @@ public:
 			    , compact_(false)
 			    , optional_(false)
 			    , keepmytxt_(false)
-			    , szpol_(uiObject::Wide)
+			    , szpol_(uiObject::Medium)
 			    , optionsselectable_(true)		{}
 
 	mDefSetupMemb(uiString,seltxt)

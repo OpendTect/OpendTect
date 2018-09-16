@@ -162,7 +162,7 @@ bool HorizonAdjuster::snapToEvent() const
 
 int HorizonAdjuster::nextStep()
 {
-    ConstRefMan<VolumeDataPack> vdp = dpm_.get( datapackid_ );
+    auto vdp = dpm_.get<VolumeDataPack>( datapackid_ );
     if ( !vdp || vdp->isEmpty() )
 	return ErrorOccurred();
 
@@ -216,7 +216,7 @@ int HorizonAdjuster::nextStep()
 bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 			     float& targetz ) const
 {
-    ConstRefMan<VolumeDataPack> vdp = dpm_.get( datapackid_ );
+    auto vdp = dpm_.get<VolumeDataPack>( datapackid_ );
     if ( !vdp || vdp->isEmpty() )
 	return false;
 

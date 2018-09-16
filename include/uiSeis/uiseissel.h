@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "ctxtioobj.h"
 
-class uiSeisIOObjInfo;
 class uiLabeledComboBox;
 class uiListBox;
 class uiCheckBox;

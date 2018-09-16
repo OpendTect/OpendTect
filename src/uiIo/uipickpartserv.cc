@@ -156,7 +156,7 @@ bool uiPickPartServer::storePickSets( int polyopt, const char* cat )
     if ( !errmsgs.isEmpty() )
     {
 	errmsgs.insert( 0, tr("Could not save (all) changes.") );
-	uiMSG().errorWithDetails( errmsgs );
+	uimsg().errorWithDetails( errmsgs );
 	return false;
     }
 
@@ -169,7 +169,7 @@ bool uiPickPartServer::storePickSet( const Pick::Set& ps )
     Pick::SetManager::ObjID setid = Pick::SetMGR().getID( ps );
     if ( setid.isInvalid() )
     {
-	uiMSG().error( tr("Internal: Request to store an unmanaged PointSet") );
+	uimsg().error( tr("Internal: Request to store an unmanaged PointSet") );
 	return false;
     }
     else if ( !Pick::SetMGR().canSave(setid) )
@@ -178,7 +178,7 @@ bool uiPickPartServer::storePickSet( const Pick::Set& ps )
     SilentTaskRunnerProvider trprov;
     uiRetVal uirv = Pick::SetMGR().save( setid, trprov );
     if ( uirv.isError() )
-	{ uiMSG().error( uirv ); return false; }
+	{ uimsg().error( uirv ); return false; }
 
     return true;
 }
@@ -192,7 +192,7 @@ bool uiPickPartServer::storePickSetAs( const Pick::Set& ps )
     Pick::SetManager::ObjID setid = Pick::SetMGR().getID( ps );
     if ( setid.isInvalid() )
     {
-	uiMSG().error(tr("Internal: Request to Save-As an unmanaged PointSet"));
+	uimsg().error(tr("Internal: Request to Save-As an unmanaged PointSet"));
 	return false;
     }
 
@@ -220,7 +220,7 @@ bool uiPickPartServer::doSaveAs( const DBKey& setid, const Pick::Set* ps )
     SilentTaskRunnerProvider trprov;
     uiString errmsg = Pick::SetMGR().saveAs( setid, dlg.ioObj()->key(), trprov);
     if ( !errmsg.isEmpty() )
-	{ uiMSG().error( errmsg ); return false; }
+	{ uimsg().error( errmsg ); return false; }
 
     return true;
 }
@@ -283,7 +283,7 @@ bool uiPickPartServer::doLoadSets( DBKeySet& psids )
     psids = psloader.available();
     const uiRetVal uirv = psloader.result();
     if ( !uirv.isOK() )
-	{ uiMSG().error( uirv ); return false; }
+	{ uimsg().error( uirv ); return false; }
 
     return true;
 }
@@ -315,7 +315,7 @@ RefMan<Pick::Set> uiPickPartServer::createRandom2DSet()
     Survey::GM().getList( linenames, geomids, true );
     if ( linenames.isEmpty() )
     {
-	uiMSG().warning( tr("No 2D lines are available in this survey") );
+	uimsg().warning( tr("No 2D lines are available in this survey") );
 	return 0;
     }
 

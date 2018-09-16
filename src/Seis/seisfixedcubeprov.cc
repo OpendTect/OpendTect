@@ -176,9 +176,7 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     if ( ioobj_->isInCurrentSurvey()
 	&& Seis::PLDM().isPresent(ioobj_->key(),geomid) )
     {
-	RegularSeisDataPack* dp =
-		Seis::PLDM().getAndCast<RegularSeisDataPack>( ioobj_->key(),
-								geomid );
+	auto dp = Seis::PLDM().get<RegularSeisDataPack>( ioobj_->key(), geomid);
 	if ( dp )
 	{
 	    if ( dp->sampling().includes(cs) )

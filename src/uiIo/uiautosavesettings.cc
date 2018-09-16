@@ -92,10 +92,7 @@ void uiAutoSaverSettingsGroup::doCommit( uiRetVal& )
     if ( wasautoask != isautoask )
     {
 	changed_ = true;
-	if ( isautoask )
-	    Settings::common().setYN( sKeyAutoAskRestore, true );
-	else
-	    Settings::common().removeWithKey( sKeyAutoAskRestore );
+	Settings::common().setYN( sKeyAutoAskRestore, isautoask );
     }
 
     if ( wasactive_ != isactive )

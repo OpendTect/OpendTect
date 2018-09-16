@@ -550,7 +550,7 @@ void HorizonFlatViewEditor3D::undo()
 	    uiString undoerrmsg;
 	    engine().undo( undoerrmsg );
 	    if ( !undoerrmsg.isEmpty() )
-		uiMSG().error( undoerrmsg );
+		gUiMsg().error( undoerrmsg );
 	    horpainter_->paint();
 	    changed = true;
 	}
@@ -582,7 +582,7 @@ void HorizonFlatViewEditor3D::redo()
 	    uiString redoerrmsg;
 	    engine().redo( redoerrmsg );
 	    if ( !redoerrmsg.isEmpty() )
-		uiMSG().error( redoerrmsg );
+		gUiMsg().error( redoerrmsg );
 	    horpainter_->paint();
 	    changed = true;
 	}
@@ -656,7 +656,7 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 		MPE::engine().pickingOnSameData( curss, *wvaselspec_, wvamsg );
 	if ( !vdres && !wvares )
 	{
-	    const bool res = uiMSG().askContinue( vdmsg );
+	    const bool res = gUiMsg().askContinue( vdmsg );
 	    if ( !res )
 		return false;
 

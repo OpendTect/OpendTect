@@ -47,7 +47,7 @@ public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
 
     const TypeSet<int>& getLithologies() const	{ return lithids_; }
-    static bool		checkWrongChar(char*);
+    static bool		checkWrongChar(uiParent*,char*);
 
 protected:
 

@@ -24,9 +24,9 @@ class Horizon;
 class Fault;
 
 
-/*!\brief Mixin to provide general services to Earth Model data packs. */
+/*!\brief base class for Earth Model data packs. */
 
-mExpClass(EarthModel) DataPackCommon :	public ::FlatDataPack
+mExpClass(EarthModel) DataPackCommon : public ::FlatDataPack
 {
 public:
 			DataPackCommon(const Object&,Array2D<float>*);
@@ -67,7 +67,6 @@ public:
 
     const char*		dimName(bool) const;
 
-protected:
 };
 
 
@@ -91,7 +90,6 @@ public:
     void		getAltDim0Keys(BufferStringSet&) const;
     double		getAltDim0Value(int,int) const;
 
-protected:
 };
 
 } // namespace EM

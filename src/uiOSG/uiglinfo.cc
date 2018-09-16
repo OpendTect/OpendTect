@@ -166,8 +166,8 @@ void uiGLInfo::showMessage( uiString msg, bool warn,
     const uiString& es = uiString::empty();
     const bool askdontshowagain = dontshowagainkey && !onlyonce;
     const bool showagain = warn ?
-		    !uiMSG().warning( msg, es, es, askdontshowagain ) :
-		    !uiMSG().message( msg, es, es, askdontshowagain );
+		    !gUiMsg().warning( msg, es, es, askdontshowagain ) :
+		    !gUiMsg().message( msg, es, es, askdontshowagain );
 
     if ( dontshowagainkey )
     {

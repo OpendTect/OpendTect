@@ -67,11 +67,11 @@ int PointSetDisplay::getPointSize() const
 
 bool PointSetDisplay::setDataPack( DataPack::ID dpsid )
 {
-    RefMan<DataPack> pack = DPM( DataPackMgr::PointID() ).get( dpsid );
-    if ( !pack ) return false;
+    auto pack = DPM( DataPackMgr::PointID() ).get<DataPointSet>( dpsid );
+    if ( !pack )
+	return false;
 
-    mDynamicCastGet(DataPointSet*,data,pack.ptr())
-    data_ = data;
+    data_ = pack;
     return true;
 }
 
@@ -169,7 +169,7 @@ Executor* PointSetDisplay::getUpdater()
     if ( !pointset_ ) return 0;
 
     PointSetDisplayUpdater* ret = new PointSetDisplayUpdater( *pointset_,
-	    						*data_, *dpsdispprop_ );
+							*data_, *dpsdispprop_ );
     return ret;
 }
 

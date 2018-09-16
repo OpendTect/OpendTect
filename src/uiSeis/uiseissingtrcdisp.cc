@@ -70,7 +70,7 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
     setPack( true, curid_, false );
     addRefZ( 0 );
 
-    handleChange( mCast(unsigned int,All) );
+    handleChange( All );
     setViewToBoundingBox();
 }
 
@@ -109,7 +109,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 	    addRefZ( refz );
     }
 
-    handleChange( mCast(unsigned int,All) );
+    handleChange( All );
     setViewToBoundingBox();
 }
 

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "q_uiimpl.h"
 
 #include "bufstringset.h"
+#include "filepath.h"
 #include "mousecursor.h"
 #include "oddirs.h"
 #include "perthreadrepos.h"
@@ -37,25 +38,28 @@ ________________________________________________________________________
 #include <QMessageBox>
 #include <QPushButton>
 
-#include "odlogo128x128.xpm"
-static const char** sODLogo = od_logo_128x128;
 #define sError() uiStrings::sError()
 #define sWarning() uiStrings::sWarning()
 
 mUseQtnamespace
 
-uiMsg* uiMsg::theinst_ = 0;
-uiMsg& uiMSG()
+uiMsg& gUiMsg( const uiParent* p )
 {
-    if ( !uiMsg::theinst_ )
-	uiMsg::theinst_ = new uiMsg;
-    return *uiMsg::theinst_;
+    static uiMsg* theinst_ = 0;
+
+    if ( !theinst_ )
+	theinst_ = new uiMsg;
+
+    theinst_->setMainWin( p ? const_cast<uiParent*>(p)->mainwin() : 0 );
+
+    return *theinst_;
 }
 
 
 uiUserShowWait::uiUserShowWait( const uiParent* p, const uiString& msg,
 				int fldidx )
     : mcc_(0)
+    , parent_(p)
     , fldidx_(fldidx)
 {
     uiMainWin* mw = 0;
@@ -97,11 +101,30 @@ bool uiUSWTaskRunner::execute( Task& t )
 }
 
 
+void uiUSWTaskRunner::emitErrorMessage( const uiString& msg, bool wrn ) const
+{
+    if ( wrn )
+	gUiMsg(usw_.parent()).warning( msg );
+    else
+	gUiMsg(usw_.parent()).error( msg );
+}
+
+
 TaskRunner& uiUSWTaskRunnerProvider::runner() const
 {
     if ( !runner_ )
 	runner_ = new uiUSWTaskRunner( parent_, msg_, sbfld_ );
     return *runner_;
+}
+
+
+void uiUSWTaskRunnerProvider::emitErrorMessage( const uiString& msg,
+					        bool wrn ) const
+{
+    if ( wrn )
+	gUiMsg(parent_).warning( msg );
+    else
+	gUiMsg(parent_).error( msg );
 }
 
 
@@ -577,7 +600,8 @@ void uiMsg::aboutOpendTect( const uiString& text )
 					       oktxt, uiString::empty(),
 					       uiString::empty(),
 					       wintitle, 0 );
-    uiPixmap pm( sODLogo );
+    File::Path fp( GetSoftwareDir(true), "data", "od.png" );
+    uiPixmap pm( fp.fullPath() );
     if ( pm.qpixmap() )
 	mb->setIconPixmap( *pm.qpixmap() );
 

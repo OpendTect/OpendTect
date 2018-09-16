@@ -268,14 +268,6 @@ DataPackMgr::~DataPackMgr()
 }
 
 
-bool DataPackMgr::haveID( DataPack::ID dpid ) const
-{
-    RefMan<DataPack> pack = get( dpid );
-    pack.setNoDelete( true );
-    return pack;
-}
-
-
 float DataPackMgr::nrKBytes() const
 {
     float res = 0;
@@ -284,15 +276,13 @@ float DataPackMgr::nrKBytes() const
         ConstRefMan<DataPack> pack = packs_[idx];
         pack.setNoDelete(true);
 	if ( pack )
-	{
 	    res += pack->nrKBytes();
-	}
     }
     return res;
 }
 
 
-RefMan<DataPack> DataPackMgr::get( DataPack::ID dpid ) const
+RefMan<DataPack> DataPackMgr::getDP( PackID dpid )
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
@@ -301,7 +291,6 @@ RefMan<DataPack> DataPackMgr::get( DataPack::ID dpid ) const
         RefMan<DataPack> pack = packs_[idx];
         if ( pack && pack->id() == dpid )
             return pack;
-
 
         pack.setNoDelete( true );
     }
@@ -310,7 +299,25 @@ RefMan<DataPack> DataPackMgr::get( DataPack::ID dpid ) const
 }
 
 
-WeakPtr<DataPack> DataPackMgr::observe( DataPack::ID dpid ) const
+
+ConstRefMan<DataPack> DataPackMgr::getDP( PackID dpid ) const
+{
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
+
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+        ConstRefMan<DataPack> pack = packs_[idx];
+        if ( pack && pack->id() == dpid )
+            return pack;
+
+        pack.setNoDelete( true );
+    }
+
+    return 0;
+}
+
+
+WeakPtr<DataPack> DataPackMgr::observeDP( PackID dpid ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
     for ( int idx=0; idx<packs_.size(); idx++ )
@@ -318,17 +325,29 @@ WeakPtr<DataPack> DataPackMgr::observe( DataPack::ID dpid ) const
         RefMan<DataPack> pack = packs_[idx];
         pack.setNoDelete(true);
         if ( pack && pack->id() == dpid )
-        {
             return pack;
-        }
     }
 
     return 0;
 }
 
 
+bool DataPackMgr::isPresent( PackID id ) const
+{
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
-void DataPackMgr::getPackIDs( TypeSet<DataPack::ID>& ids ) const
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+        ConstRefMan<DataPack> pack = packs_[idx];
+        pack.setNoDelete(true);
+        if ( pack && pack->id() == id )
+	    return true;
+    }
+    return false;
+}
+
+
+void DataPackMgr::getPackIDs( TypeSet<PackID>& ids ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
@@ -337,9 +356,7 @@ void DataPackMgr::getPackIDs( TypeSet<DataPack::ID>& ids ) const
         ConstRefMan<DataPack> pack = packs_[idx];
         pack.setNoDelete(true);
         if ( pack )
-	{
 	    ids += pack->id();
-	}
     }
 }
 
@@ -368,9 +385,13 @@ void DataPackMgr::dumpInfo( od_ostream& strm ) const
 }
 
 
-void DataPackMgr::doAdd( DataPack* dp )
+bool DataPackMgr::doAdd( const DataPack* constdp )
 {
-    if ( !dp ) return;
+    DataPack* dp = const_cast<DataPack*>( constdp );
+    if ( !dp )
+	{ pErrMsg("null datapack to add"); return false; }
+    else if ( isPresent(dp->id()) )
+	return false;
 
     RefMan<DataPack> keeper = dp;
     keeper.setNoDelete( true );
@@ -382,12 +403,14 @@ void DataPackMgr::doAdd( DataPack* dp )
 		 BufferString(" '",dp->name(),"'")) );
 
     newPack.trigger( dp );
+    return true;
 }
 
 
 DataPack* DataPackMgr::addAndObtain( DataPack* dp )
 {
-    if ( !dp ) return 0;
+    if ( !dp )
+	return 0;
 
     dp->ref();
     dp->setManager( this );
@@ -410,48 +433,45 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
     return dp;
 }
 
-DataPack* DataPackMgr::obtain( DataPack::ID dpid )
+
+DataPack* DataPackMgr::obtain( PackID dpid )
 {
-    RefMan<DataPack> pack = get( dpid );
-    if ( pack ) pack->ref();
+    auto pack = getDP( dpid );
+    if ( pack )
+	pack->ref();
     return pack.ptr();
 }
 
 
-const DataPack* DataPackMgr::obtain( DataPack::ID dpid ) const
+const DataPack* DataPackMgr::obtain( PackID dpid ) const
 {
-    ConstRefMan<DataPack> pack = get( dpid );
-    if ( pack ) pack->ref();
+    auto pack = getDP( dpid );
+    if ( pack )
+	pack->ref();
     return pack.ptr();
 }
 
 
-bool DataPackMgr::ref( DataPack::ID dpid )
+bool DataPackMgr::ref( PackID dpid )
 {
-    RefMan<DataPack> pack = get( dpid );
+    auto pack = getDP( dpid );
     if ( pack )
-    {
-        pack->ref();
-        return true;
-    }
+	{ pack->ref(); return true; }
     return false;
 }
 
 
-bool DataPackMgr::unRef( DataPack::ID dpid )
+bool DataPackMgr::unRef( PackID dpid )
 {
-    RefMan<DataPack> pack = get( dpid );
+    auto pack = getDP( dpid );
     if ( pack )
-    {
-        pack->unRef();
-        return true;
-    }
+	{ pack->unRef(); return true; }
 
     return false;
 }
 
 
-void DataPackMgr::release( DataPack::ID dpid )
+void DataPackMgr::release( PackID dpid )
 {
     unRef( dpid );
 }
@@ -462,19 +482,9 @@ void DataPackMgr::releaseAll( bool notif )
 }
 
 
-#define mDefDPMDataPackFn(ret,fn) \
-ret DataPackMgr::fn##Of( DataPack::ID dpid ) const \
-{ \
-    const int idx = indexOf( dpid ); if ( idx < 0 ) return 0; \
-    const DataPack* pack = (const DataPack*) refPtr( packs_[idx].get().ptr() );\
-    ret res = pack ? (ret) pack->fn() : (ret) 0; \
-    unRefNoDeletePtr( pack ); \
-    return res; \
-}
-
-const char* DataPackMgr::nameOf( const DataPack::ID dpid ) const
+const char* DataPackMgr::nameOf( PackID dpid ) const
 {
-    RefMan<DataPack> pack = get( dpid );
+    auto pack = getDP( dpid );
     if ( !pack )
         return 0;
 
@@ -483,9 +493,9 @@ const char* DataPackMgr::nameOf( const DataPack::ID dpid ) const
 }
 
 
-const char* DataPackMgr::categoryOf( const DataPack::ID dpid ) const
+const char* DataPackMgr::categoryOf( PackID dpid ) const
 {
-    RefMan<DataPack> pack = get( dpid );
+    auto pack = getDP( dpid );
     if ( !pack )
         return 0;
 
@@ -494,9 +504,9 @@ const char* DataPackMgr::categoryOf( const DataPack::ID dpid ) const
 }
 
 
-float DataPackMgr::nrKBytesOf( const DataPack::ID dpid ) const
+float DataPackMgr::nrKBytesOf( PackID dpid ) const
 {
-    RefMan<DataPack> pack = get( dpid );
+    auto pack = getDP( dpid );
     if ( !pack )
         return 0;
 
@@ -505,9 +515,9 @@ float DataPackMgr::nrKBytesOf( const DataPack::ID dpid ) const
 }
 
 
-void DataPackMgr::dumpInfoFor( DataPack::ID dpid, IOPar& iop ) const
+void DataPackMgr::dumpInfoFor( PackID dpid, IOPar& iop ) const
 {
-    RefMan<DataPack> pack = get( dpid );
+    auto pack = getDP( dpid );
     pack.setNoDelete( true );
     if ( pack ) pack->dumpInfo( iop );
 }

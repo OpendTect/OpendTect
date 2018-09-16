@@ -85,7 +85,7 @@ FlatViewer::~FlatViewer()
 }
 
 
-void FlatViewer::handleChange( unsigned int dt)
+void FlatViewer::doHandleChange( unsigned int dt)
 {
     switch ( dt )
     {
@@ -296,10 +296,7 @@ void FlatViewer::replaceChannels( TextureChannels* nt )
 
 Interval<float> FlatViewer::getDataRange( bool wva ) const
 {
-    const ColTab::Mapper& mapper
-	= wva ? *appearance().ddpars_.wva_.mapper_
-	      : *appearance().ddpars_.vd_.mapper_;
-    return mapper.getRange();
+    return mapper(wva)->getRange();
 }
 
 

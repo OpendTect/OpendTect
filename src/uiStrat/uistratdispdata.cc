@@ -266,10 +266,10 @@ void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
     BufferString lvlnm; Color lvlcol;
     const Strat::Level::ID id = ur.levelID();
     const Strat::LevelSet& lvls = Strat::LVLS();
-    lvlcol = lvls.isPresent( id ) ? lvls.levelColor( id ) : Color::Black();
-    lvlnm = lvls.isPresent( id ) ? lvls.levelName( id ) : "";
+    lvlcol = lvls.isPresent( id ) ? lvls.colorOf( id ) : Color::Black();
+    lvlnm = lvls.isPresent( id ) ? lvls.nameOf( id ) : "";
 
-    StratDispData::Level* lvl = new StratDispData::Level( lvlnm, ur.fullCode() );
+    auto* lvl = new StratDispData::Level( lvlnm, ur.fullCode() );
     lvl->zpos_ = ur.timeRange().start;
     lvl->color_ = lvlcol;
     data_.getCol( levelcolidx_ )->levels_ += lvl;

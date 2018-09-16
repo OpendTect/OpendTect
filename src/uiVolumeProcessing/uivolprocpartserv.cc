@@ -63,7 +63,7 @@ void uiVolProcPartServer::doVolProc( bool is2d, const DBKey* mid,
 	    if ( !errmsg.isEmpty() )
 		fullmsg.appendPhrase( errmsg );
 
-	    uiMSG().error( fullmsg );
+	    uimsg().error( fullmsg );
 	    vprocchain->unRef();
 	    vprocchain = new VolProc::Chain;
 	    vprocchain->ref();

@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "ailayer.h"
+#include "seismod.h"
 #include "factory.h"
 #include "iopar.h"
 #include "odcomplex.h"
@@ -26,22 +26,25 @@ class SeisTrc;
 template <class T> class Array1D;
 namespace Fourier { class CC; };
 
-namespace Seis
+namespace SynthSeis
 {
+
+class RayModel;
 
 /*!\brief base class for synthetic trace generators. */
 
-
-mExpClass(Seis) SynthGenBase
-{ mODTextTranslationClass(SynthGenBase);
+mExpClass(Seis) GenBase
+{ mODTextTranslationClass(SynthSeis::GenBase);
 public:
+
+    typedef RefMan<ReflectivityModelSet>    RflMdlSetRef;
 
     virtual void	setWavelet(const Wavelet*);
 			/* auto computed + will be overruled if too small */
     virtual bool	setOutSampling(const StepInterval<float>&);
 			/* depends on the wavelet size too */
-    bool		getOutSamplingFromModel(
-					const RefMan<ReflectivityModelSet>&,
+    bool		getOutSamplingFromModels(
+					const RflMdlSetRef&,
 					StepInterval<float>&,bool usenmo=false);
 
     void		setMuteLength(float n)	{ mutelength_ = n; }
@@ -71,8 +74,8 @@ public:
     static const char*	sKeyStretchLimit(){ return "Stretch limit"; }
 
 protected:
-			SynthGenBase();
-    virtual		~SynthGenBase();
+			GenBase();
+    virtual		~GenBase();
 
     bool		isfourier_;
     bool		applynmo_;
@@ -92,22 +95,23 @@ protected:
 
 /*!\brief generates synthetic traces. It performs the basic
    convolution with a reflectivity series and a wavelet.
-   The MultiTraceSynthGenerator is a Parallel runner of the SynthGenerator.
+   The MultiTraceGenerator is a Parallel runner of the Generator.
 
    If you have AI layers and directly want some synthetics out of them,
-   then you should use the RayTraceSynthGenerator.
+   then you should use the RayTraceGenerator.
 */
 
 
-mExpClass(Seis) SynthGenerator : public SynthGenBase
-{ mODTextTranslationClass(SynthGenerator);
+mExpClass(Seis) Generator : public GenBase
+{ mODTextTranslationClass(SynthSeis::Generator);
 public:
-    mDefineFactoryInClass( SynthGenerator, factory );
 
-    static SynthGenerator* create(bool advanced);
+    mDefineFactoryInClass( Generator, factory );
 
-			SynthGenerator();
-			~SynthGenerator();
+    static Generator*	create(bool advanced);
+
+			Generator();
+			~Generator();
 
     virtual void	setWavelet(const Wavelet*);
     virtual bool	setOutSampling(const StepInterval<float>&);
@@ -143,11 +147,11 @@ protected:
 
     virtual bool	computeReflectivities();
 
-    const ReflectivityModel*	refmodel_;
+    const ReflectivityModel*	reflmodel_;
     int				convolvesize_;
     SeisTrc&			outtrc_;
 
-    ReflectivityModel		sampledrefmodel_;
+    ReflectivityModel		sampledreflmodel_;
     TypeSet<float_complex>	freqreflectivities_;
     TypeSet<float_complex>	freqwavelet_;
 
@@ -156,37 +160,39 @@ protected:
 };
 
 
-mExpClass(Seis) MultiTraceSynthGenerator : public ParallelTask,
-					   public SynthGenBase
-{ mODTextTranslationClass(MultiTraceSynthGenerator);
+mExpClass(Seis) MultiTraceGenerator : public ParallelTask,
+				      public GenBase
+{ mODTextTranslationClass(SynthSeis::MultiTraceGenerator);
 public:
-				MultiTraceSynthGenerator();
-				~MultiTraceSynthGenerator();
 
-    void			setModels(RefMan<ReflectivityModelSet>&);
+			MultiTraceGenerator();
+			~MultiTraceGenerator();
 
-    void			getResult(ObjectSet<SeisTrc>&);
-    void			getSampledRMs(RefMan<ReflectivityModelSet>&);
+    void		setModels(RflMdlSetRef&);
 
-    uiString			message() const {
+    void		getResult(ObjectSet<SeisTrc>&);
+    void		getSampledRMs(RflMdlSetRef&);
+
+    uiString		message() const {
 				    return m3Dots(tr("Generating synthetics"));
 						  }
 
-    od_int64                    totalNr() const	{ return totalnr_; }
+    od_int64		totalNr() const	{ return totalnr_; }
 
 protected:
 
-    od_int64	nrIterations() const;
-    bool                        doPrepare(int);
+    od_int64		nrIterations() const;
+    bool		doPrepare(int);
     virtual bool	doWork(od_int64,od_int64,int);
 
-    RefMan<ReflectivityModelSet>	models_;
-    RefMan<ReflectivityModelSet>	sampledrefmodels_;
-    ObjectSet<SynthGenerator>	synthgens_;
-    ObjectSet<SeisTrc>		trcs_;
-    TypeSet<int>		trcidxs_;
-    od_int64			totalnr_;
-    Threads::Lock		lock_;
+    RflMdlSetRef	models_;
+    RflMdlSetRef	sampledreflmodels_;
+    ObjectSet<Generator> generators_;
+    ObjectSet<SeisTrc>	trcs_;
+    TypeSet<int>	trcidxs_;
+    od_int64		totalnr_;
+    Threads::Lock	lock_;
+
 };
 
-} // namespace Seis
+} // namespace SynthSeis

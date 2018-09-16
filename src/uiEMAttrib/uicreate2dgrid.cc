@@ -526,7 +526,7 @@ void uiCreate2DGrid::finaliseCB( CallBacker* )
 
 void uiCreate2DGrid::inpSelCB( CallBacker* )
 {
-    uiSeisIOObjInfo info( infld_->key(true) );
+    uiSeisIOObjInfo info( this, infld_->key(true) );
     if ( info.getRanges(tkzs_) )
     {
 	bboxfld_->setInputLimit( tkzs_ );

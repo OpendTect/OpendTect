@@ -39,7 +39,6 @@ int ODSysAdmMain( int argc, char** argv )
     PIM().loadAuto( true );
 
     app.setTopLevel( &odsa );
-    uiMSG().setMainWin( &odsa );
     odsa.show();
     return app.exec();
 }

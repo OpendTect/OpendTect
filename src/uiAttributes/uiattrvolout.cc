@@ -373,7 +373,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    { uiMSG().error( errmsg ); return false; }
     }
 
-    uiSeisIOObjInfo ioobjinfo( *outioobj );
+    uiSeisIOObjInfo ioobjinfo( this, *outioobj );
     SeisIOObjInfo::SpaceInfo spi( transffld_->spaceInfo() );
     subselpar_.setEmpty();
     transffld_->selfld->fillPar( subselpar_ );

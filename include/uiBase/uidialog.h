@@ -103,17 +103,17 @@ public:
 			uiDialog(uiParent*,const Setup&);
     const Setup&	setup() const;
 
-    int			go();
-    int			goMinimized();
+    bool		go();	//!< '!dlg.go()' means the dialog is cancelled
+    bool		goMinimized();
 
-    void		reject( CallBacker* cb =0);
-    void		accept( CallBacker* cb =0);
-    void		done(int ret=0);
-			//!< 0=Cancel, 1=OK, other=user defined
+    void		reject(CallBacker* cb=0);
+    void		accept(CallBacker* cb=0);
+    enum DoneResult	{ Rejected=0, Accepted=1 };
+    void		done(DoneResult);
 
-    void		setHSpacing( int );
-    void		setVSpacing( int );
-    void		setBorder( int );
+    void		setHSpacing(int);
+    void		setVSpacing(int);
+    void		setBorder(int);
 
     void		setModal(bool yn);
     bool		isModal() const;
@@ -133,8 +133,8 @@ public:
 			//! Save button enabled when set to non-empty
     void		enableSaveButton(
 			    const uiString& txt=uiStrings::sSaveAsDefault());
-			//! 0: cancel; 1: OK
     int			uiResult() const;
+				//!< -1 running, otherwise (int)DoneResult
 
     void		setButtonSensitive(Button,bool);
     void		setSaveButtonChecked(bool);
@@ -150,22 +150,24 @@ public:
 
     void		showMinMaxButtons();
     void		showAlwaysOnTop();
-    static int		titlePos();
-    static void		setTitlePos(int pos);
-			// pos: -1 = left, 0 = center, 1 = right
+    enum TitlePos	{ LeftSide, CenterWin, RightSide };
+    static TitlePos	titlePos();
+    static void		setTitlePos(TitlePos);
 
     Notifier<uiDialog>	applyPushed;
 
+    void		applyOKCB( CallBacker* cb )	{ applyOK(); }
     void		acceptOKCB( CallBacker* cb )	{ acceptOK(); }
     void		rejectOKCB( CallBacker* cb )	{ rejectOK(); }
 
 protected:
 
-    virtual bool	rejectOK();		//!< confirm reject
-    virtual bool	acceptOK();		//!< confirm accept
-    virtual bool        doneOK(int)	     { return true; } //!< confirm exit
+    virtual bool	applyOK()		{ return true; }
+    virtual bool	rejectOK()		{ return true; }
+    virtual bool	acceptOK()		{ return true; }
 
     bool		cancelpushed_;
     CtrlStyle		ctrlstyle_;
-    static int		titlepos_;
+    static TitlePos	titlepos_;
+
 };

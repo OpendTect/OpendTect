@@ -7,9 +7,9 @@
 
 #include "prestackanglemutecomputer.h"
 
-#include "ailayer.h"
 #include "dbman.h"
 #include "dbkey.h"
+#include "elasticmodel.h"
 #include "prestackgather.h"
 #include "prestackmute.h"
 #include "prestackmutedef.h"
@@ -91,9 +91,9 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
     for ( od_int64 pidx=start; pidx<=stop && shouldContinue(); pidx++ )
     {
 	curbid = hrg.atIndex( pidx );
-	ElasticModel layers;
+	auto* layers = new ElasticModel;
 	SamplingData<float> sd;
-	if ( !getLayers( curbid, layers, sd ) )
+	if ( !getLayers( curbid, *layers, sd ) )
 	    continue;
 
 	rtrunner->addModel( layers, true );
@@ -103,7 +103,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
 	PointBasedMathFunction* mutefunc = new PointBasedMathFunction();
 
-	const int nrlayers = layers.size();
+	const int nrlayers = layers->size();
 	TypeSet<float> offsets;
 	params().raypar_.get( RayTracer1D::sKeyOffset(), offsets );
 	float zpos = 0;
@@ -128,11 +128,11 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	    for ( int idx=0; idx<(int)lastvalidmutelayer+1 ; idx++ )
 	    {
 		if ( idx < lastvalidmutelayer+1 )
-		    zdpt += layers[idx].thickness_;
+		    zdpt += layers->get(idx).thickness_;
 	    }
 	    float lastdepth = 0;
 	    for ( int idx=0; idx<nrlayers; idx++ )
-		lastdepth += layers[idx].thickness_;
+		lastdepth += layers->get(idx).thickness_;
 
 	    float thk = lastdepth - zdpt;
 	    const float lastzpos = sd.start + sd.step*(nrlayers-1);

@@ -331,7 +331,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     PtrMan<uiSeisIOObjInfo> ioobjinfo;
     if ( !isps )
     {
-	ioobjinfo = new uiSeisIOObjInfo( outioobj );
+	ioobjinfo = new uiSeisIOObjInfo( this, outioobj );
 	if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo(),true) )
 	    return false;
     }
@@ -389,7 +389,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     imp.erase(); wrr.erase(); // closes output cube
 
     uiStringSet warns;
-    uiSEGY::displayWarnings( warns, false, imp ? imp->nrSkipped() : 0 );
+    uiSEGY::displayWarnings( this, warns, false, imp ? imp->nrSkipped() : 0 );
     if ( rv && !is2d && ioobjinfo )
 	rv = ioobjinfo->provideUserInfo();
 

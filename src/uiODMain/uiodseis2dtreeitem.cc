@@ -523,10 +523,10 @@ bool uiOD2DLineTreeItem::init()
     if ( newdisplay && (geom2d->data().positions().size() > 300000000 ||
 			geom2d->data().zRange().nrSteps() > 299999999) )
     {
-       uiString msg = tr("Either trace size or z size is beyond max display "
+	uiString msg = tr("Either trace size or z size is beyond max display "
 			 "size of 3 X 10 e8. You can right click the line name "
 			 "to change position range to view part of the data.");
-       uiMSG().warning( msg );
+	mTIUiMsg().warning( msg );
     }
 
     s2d->setGeometry( geom2d->data() );

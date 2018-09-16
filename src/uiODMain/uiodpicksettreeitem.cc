@@ -466,7 +466,7 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
     uiString warnstr = tr("'%1' has changed since the last save."
 			    "\n\nDo you want to save it?").arg( set_.name() );
-    const int retval = uiMSG().askSave( warnstr, withcancel );
+    const int retval = mTIUiMsg().askSave( warnstr, withcancel );
     if ( retval == 0 )
 	return true;
     else if ( retval == -1 )
@@ -798,7 +798,7 @@ bool uiODPolygonTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
     uiString warnstr = tr("'%1' has changed since the last save."
 			    "\n\nDo you want to save it?").arg( set_.name() );
-    const int retval = uiMSG().askSave( warnstr, withcancel );
+    const int retval = mTIUiMsg().askSave( warnstr, withcancel );
     if ( retval == 0 )
 	return true;
     else if ( retval == -1 )

@@ -560,7 +560,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 
 	    uiString bs;
 	    if ( !RandomLineSetTranslator::store(lset,ioobj,bs) )
-		uiMSG().error( bs );
+		mTIUiMsg().error( bs );
 	    else
 	    {
 		const BufferString rdlname = ioobj->name();

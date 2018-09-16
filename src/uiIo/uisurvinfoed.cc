@@ -556,7 +556,7 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 	uiString msg = tr("Cannot rename %1 to %2"
 			  "\nbecause target directory exists")
 		     .arg(fnmin).arg(fnmout);
-	uiMSG().error( msg );
+	gUiMsg().error( msg );
 	return false;
     }
     File::rename( fnmin, fnmout );
@@ -565,7 +565,7 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 	uiString msg = tr("Rename %1 to %2 failed\n"
 			  "See startup window for details")
 		     .arg(fnmin).arg(fnmout);
-	uiMSG().error( msg );
+	gUiMsg().error( msg );
 	return false;
     }
 

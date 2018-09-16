@@ -28,12 +28,12 @@ mExpClass(uiStrat) uiExtLayerSequenceGenDesc : public uiGraphicsView
 { mODTextTranslationClass(uiExtLayerSequenceGenDesc)
 public:
 
-    				uiExtLayerSequenceGenDesc(uiParent*,
-					    Strat::LayerSequenceGenDesc&);
+				uiExtLayerSequenceGenDesc(uiParent*,
+					    LayerSequenceGenDesc&);
 
     virtual uiObject*			outerObj()	{ return this; }
     virtual uiStratLayerModelDisp*	getLayModDisp(uiStratLayModEditTools&,
-					    Strat::LayerModelProvider&,int);
+					    Strat::LayerModelSuite&,int);
     virtual void	prepareDesc()	{ getTopDepthFromScreen(); }
     virtual void	setEditDesc();
     virtual void	setFromEditDesc();
@@ -41,7 +41,7 @@ public:
 
 protected:
 
-    Strat::LayerSequenceGenDesc&	editdesc_;
+    LayerSequenceGenDesc& editdesc_;
     uiGenInput*		topdepthfld_;
     uiRectItem*		outeritm_;
     uiTextItem*		emptyitm_;
@@ -76,4 +76,4 @@ protected: \
     virtual bool	laygenRemoveReq(); \
 public: \
     virtual void	descHasChanged()
-    
+

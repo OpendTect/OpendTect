@@ -86,9 +86,9 @@ set(OD_MODULE_SOURCES
 	seisvolprovider.cc
 	seiswrite.cc
 	seiszaxisstretcher.cc
-	synthgenparams.cc
-	syntheticdata.cc
-	synthseis.cc
+	synthseisdataset.cc
+	synthseisgenerator.cc
+	synthseisgenparams.cc
 	timedepthconv.cc
 	wavelet.cc
 	waveletio.cc

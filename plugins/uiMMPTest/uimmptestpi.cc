@@ -52,7 +52,7 @@ void uiMMPTestMgr::mnuCB( CallBacker* )
     HostDataList hdlist( false );
     if ( hdlist.size() < 2 )
     {
-	const bool setupnow = uiMSG().askGoOn(
+	const bool setupnow = gUiMsg().askGoOn(
 		tr("No remote machines set up for Batch prcessing"),
 		tr("Setup now"), uiStrings::sClose() );
 	if ( !setupnow )

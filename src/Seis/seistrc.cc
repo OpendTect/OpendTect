@@ -124,14 +124,27 @@ float SeisTrc::getValue( float t, int icomp ) const
 }
 
 
+void SeisTrc::setAll( float v, int compnr )
+{
+    const auto sz = size();
+    for ( int icomp=0; icomp<nrComponents(); icomp++ )
+	if ( compnr == icomp || compnr < 0 )
+	    for ( int isamp=0; isamp<sz; isamp++ )
+		set( isamp, v, icomp );
+}
+
+
 SampleGate SeisTrc::sampleGate( const Interval<float>& tg, bool check ) const
 {
     SampleGate sg( info_.sampleGate(tg) );
-    if ( !check ) return sg;
+    if ( !check )
+	return sg;
 
     const int maxsz = size() - 1;
-    if ( sg.start > maxsz ) sg.start = maxsz;
-    if ( sg.stop > maxsz ) sg.stop = maxsz;
+    if ( sg.start > maxsz )
+	sg.start = maxsz;
+    if ( sg.stop > maxsz )
+	sg.stop = maxsz;
     return sg;
 }
 
@@ -267,11 +280,15 @@ void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
 
 
 float SeisTrcValueSeries::value( od_int64 idx ) const
-{ return trc_.get((int) idx,icomp_); }
+{
+    return trc_.get((int) idx,icomp_);
+}
 
 
 void SeisTrcValueSeries::setValue( od_int64 idx,float v )
-{ trc_.set((int) idx,v,icomp_); }
+{
+    trc_.set((int) idx,v,icomp_);
+}
 
 
 float* SeisTrcValueSeries::arr()

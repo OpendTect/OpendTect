@@ -74,6 +74,16 @@ TaskRunner& uiTaskRunnerProvider::runner() const
 }
 
 
+void uiTaskRunnerProvider::emitErrorMessage( const uiString& msg,
+					     bool wrn ) const
+{
+    if ( wrn )
+	gUiMsg(parent_).warning( msg );
+    else
+	gUiMsg(parent_).error( msg );
+}
+
+
 uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     : uiDialog( getTRParent(prnt),
                 uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
@@ -148,6 +158,15 @@ void uiTaskRunner::onFinalise( CallBacker* )
     Threads::Locker lckr( uitaskrunnerthreadlock_ );
     BufferString nm( "Task: ", task_ ? task_->name() : "<none>" );
     thread_ = new Threads::Thread( mCB(this,uiTaskRunner,doWork), nm );
+}
+
+
+void uiTaskRunner::emitErrorMessage( const uiString& msg, bool wrn ) const
+{
+    if ( wrn )
+	uiMSG().warning( msg );
+    else
+	uiMSG().error( msg );
 }
 
 
@@ -298,7 +317,7 @@ void uiTaskRunner::timerTick( CallBacker* )
 		uiMSG().error( errdetails_ );
 	}
 
-	done( state<0 ? 0 : 1 );
+	done( state<0 ? uiDialog::Rejected : uiDialog::Accepted );
 	return;
     }
 

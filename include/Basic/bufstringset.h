@@ -113,6 +113,8 @@ public:
     const BufferString*	operator[]( idx_type idx ) const { return strs_[idx]; }
     const SetType&	getStringSet() const		 { return strs_; }
     SetType&		getStringSet()			 { return strs_; }
+    uiStringSet		getUiStringSet() const;
+
     void		setNullAllowed( bool yn=true )
 				{ strs_.setNullAllowed( yn ); }
     BufferStringSet&	operator +=( BufferString* bs )	{ return add(bs); }
@@ -120,8 +122,6 @@ public:
 				{ strs_.replace(idx,bs); return *this; }
     void		insertAt( BufferString* bs, idx_type idx )
 				{ strs_.insertAt(bs,idx); }
-				    //generate non translated uiStrings's set
-    uiStringSet		getUiStringSet() const;
 
     // remainder of OD::Set interface
 

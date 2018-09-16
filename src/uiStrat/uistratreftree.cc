@@ -280,7 +280,7 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 	    anychange_ = true;
 	}
 	else
-	    uiMSG().error( tr("Cannot add unit") );
+	    gUiMsg().error( tr("Cannot add unit") );
     }
 }
 

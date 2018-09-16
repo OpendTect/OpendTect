@@ -72,7 +72,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
 				mCB(this,uiStratGenDescTools,propEdCB) );
     proptb->attach( rightOf, savetb_ );
 
-    uiGroup* rightgrp = new uiGroup( this, "Right group" );
+    auto* rightgrp = new uiGroup( this, "Right group" );
     const CallBack gocb( mCB(this,uiStratGenDescTools,genCB) );
     nrmodlsfld_ = new uiSpinBox( rightgrp );
     nrmodlsfld_->setInterval( Interval<int>(1,mUdf(int)) );
@@ -137,28 +137,34 @@ static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone,
 			bool wall, int def )
 {
     const BufferString selnm( cb->text() );
+    NotifyStopper ns( cb->selectionChanged );
+
     cb->setEmpty();
     if ( wnone )
 	cb->addItem( toUiString("---") );
-    if ( nms.isEmpty() )
-	return;
 
-    cb->addItems( nms );
-    if ( wall )
-	cb->addItem( uiStrings::sAll() );
-
-    if ( wnone )
-	def++;
-    if ( !selnm.isEmpty() )
+    if ( !nms.isEmpty() )
     {
-	def = cb->indexOf( selnm );
-	if ( def < 0 )
-	    def = 0;
+	cb->addItems( nms );
+	if ( wall )
+	    cb->addItem( uiStrings::sAll() );
+
+	if ( wnone )
+	    def++;
+	if ( !selnm.isEmpty() )
+	{
+	    def = cb->indexOf( selnm );
+	    if ( def < 0 )
+		def = 0;
+	}
+	if ( def >= cb->size() )
+	    def = cb->size() - 1;
+	if ( def >= 0 )
+	    cb->setCurrentItem( def );
     }
-    if ( def >= cb->size() )
-	def = cb->size() - 1;
-    if ( def >= 0 )
-	cb->setCurrentItem( def );
+
+    if ( selnm != cb->text() )
+	cb->selectionChanged.trigger( cb );
 }
 
 
@@ -170,64 +176,72 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     , dispEachChg(this)
     , dispZoomedChg(this)
     , dispLithChg(this)
-    , flattenChg(this)
-    , mkSynthChg(this)
-    , allownoprop_(false)
+    , showFlatChg(this)
 {
     Strat::LVLS().getNames( lvlnms_ );
 
-    uiGroup* leftgrp = new uiGroup( this, "Left group" );
-    propfld_ = new uiComboBox( leftgrp, "Display property" );
+    leftgrp_ = new uiGroup( this, "Left group" );
+    propfld_ = new uiComboBox( leftgrp_, "Display property" );
     propfld_->setToolTip( tr("Displayed property") );
 
-    lvlfld_ = new uiStratLevelSel( leftgrp, false, uiString::empty() );
+    lvlfld_ = new uiStratLevelSel( leftgrp_, false, uiString::empty() );
     lvlfld_->setToolTip( tr("Selected level") );
     lvlfld_->attach( rightOf, propfld_ );
 
-    contfld_ = new uiComboBox( leftgrp, "Content" );
+    contfld_ = new uiComboBox( leftgrp_, "Content" );
     contfld_->setToolTip( tr("Marked content") );
     contfld_->attach( rightOf, lvlfld_ );
     contfld_->setHSzPol( uiObject::Small );
 
-    eachlbl_ = new uiLabel( leftgrp, uiStrings::sEach().toLower() );
-    eachlbl_->attach( rightOf, contfld_ );
-    eachfld_ = new uiSpinBox( leftgrp, 0, "DispEach" );
-    eachfld_->setInterval( 1, 1000 );
-    eachfld_->attach( rightOf, eachlbl_ );
+    rightgrp_ = new uiGroup( this, "Right group" );
 
-    uiGroup* rightgrp = new uiGroup( this, "Right group" );
-    mksynthtb_ = new uiToolButton( rightgrp, "autogensynth",
-			tr("Automatically create synthetics when on"),
-			mCB(this,uiStratLayModEditTools,mkSynthCB) );
-    mksynthtb_->setToggleButton( true );
-    mksynthtb_->setOn( true );
-
-    flattenedtb_ = new uiToolButton( rightgrp, "flattenseis",
+    flattenedtb_ = new uiToolButton( rightgrp_, "flattenseis",
 			tr("Show flattened when on"),
-			mCB(this,uiStratLayModEditTools,showFlatCB) );
+			mCB(this,uiStratLayModEditTools,showFlatChgCB) );
     flattenedtb_->setToggleButton( true );
     flattenedtb_->setOn( false );
 
-    lithtb_ = new uiToolButton( rightgrp, "lithologies",
-			tr("Show lithology colors when on"),
-			mCB(this,uiStratLayModEditTools,dispLithCB) );
-    lithtb_->setToggleButton( true );
-    lithtb_->setOn( true );
-    lithtb_->attach( leftOf, flattenedtb_ );
-
-    zoomtb_ = new uiToolButton( rightgrp, "toggzooming",
+    zoomtb_ = new uiToolButton( rightgrp_, "toggzooming",
 			tr("Do not zoom into models when on"),
-			mCB(this,uiStratLayModEditTools,dispZoomedCB) );
+			mCB(this,uiStratLayModEditTools,dispZoomedChgCB) );
     zoomtb_->setToggleButton( true );
     zoomtb_->setOn( false );
-    zoomtb_->attach( leftOf, lithtb_ );
+    zoomtb_->attach( leftOf, flattenedtb_ );
 
-    rightgrp->attach( rightTo, leftgrp );
-    rightgrp->attach( rightBorder );
+    rightgrp_->attach( rightTo, leftgrp_ );
+    rightgrp_->attach( rightBorder );
 
     postFinalise().notify( mCB(this,uiStratLayModEditTools,initGrp) );
 }
 
+void uiStratLayModEditTools::addEachFld()
+{
+    eachfld_ = new uiSpinBox( leftgrp_, 0, "DispEach" );
+    eachfld_->setInterval( 1, 1000 );
+    eachfld_->setPrefix( uiStrings::sEach().toLower()
+			 .postFixWord(toUiString(" ")) );
+    eachfld_->attach( rightOf, contfld_ );
+}
+
+
+void uiStratLayModEditTools::addLithFld()
+{
+    lithtb_ = new uiToolButton( rightgrp_, "lithologies",
+			tr("Show lithology colors when on"),
+			mCB(this,uiStratLayModEditTools,dispLithChgCB) );
+    lithtb_->setToggleButton( true );
+    lithtb_->setOn( true );
+    lithtb_->attach( leftOf, zoomtb_ );
+}
+
+
+#define mPropNotif propfld_->selectionChanged
+#define mLvlNotif lvlfld_->selChange
+#define mContNotif contfld_->selectionChanged
+#define mEachNotif eachfld_->valueChanged
+#define mZoomNotif zoomtb_->activated
+#define mFlatNotif flattenedtb_->activated
+#define mLithNotif lithtb_->activated
 
 void uiStratLayModEditTools::initGrp( CallBacker* )
 {
@@ -235,33 +249,17 @@ void uiStratLayModEditTools::initGrp( CallBacker* )
 	flattenedtb_->setSensitive( false );
 
 #define mSLMETCB( fn ) mCB(this,uiStratLayModEditTools,fn)
-    propfld_->selectionChanged.notify( mSLMETCB(selPropCB) );
-    lvlfld_->selChange.notify( mSLMETCB(selLvlCB) );
-    contfld_->selectionChanged.notify( mSLMETCB(selContentCB) );
+    mPropNotif.notify( mSLMETCB(selPropChgCB) );
+    mLvlNotif.notify( mSLMETCB(selLevelChgCB) );
+    mContNotif.notify( mSLMETCB(selContentChgCB) );
     if ( eachfld_ )
-	eachfld_->valueChanging.notify( mSLMETCB(dispEachCB) );
-}
-
-
-void uiStratLayModEditTools::showFlatCB( CallBacker* )
-{
-    if ( lvlnms_.isEmpty() )
-	{ pErrMsg("No levels shld be insensitive" ); return; }
-
-    flattenChg.trigger();
-}
-
-
-void uiStratLayModEditTools::setNoDispEachFld()
-{
-    eachlbl_->display( false ); eachfld_->display( false );
-    eachfld_ = 0;
+	mEachNotif.notify( mSLMETCB(dispEachChgCB) );
 }
 
 
 void uiStratLayModEditTools::setProps( const BufferStringSet& nms )
 {
-    setFldNms( propfld_, nms, allownoprop_, false, 0 );
+    setFldNms( propfld_, nms, false, false, 0 );
 }
 
 
@@ -285,7 +283,7 @@ int uiStratLayModEditTools::selPropIdx() const
     if ( selidx < 0 )
 	return -1;
 
-    return allownoprop_ ? selidx-1 : selidx;
+    return selidx;
 }
 
 
@@ -309,13 +307,13 @@ int uiStratLayModEditTools::selLevelIdx() const
 
 BufferString uiStratLayModEditTools::selLevelName() const
 {
-    return Strat::LVLS().levelName( selLevelID() );
+    return Strat::LVLS().nameOf( selLevelID() );
 }
 
 
 Color uiStratLayModEditTools::selLevelColor() const
 {
-    return Strat::LVLS().levelColor( selLevelID() );
+    return Strat::LVLS().colorOf( selLevelID() );
 }
 
 
@@ -339,7 +337,7 @@ bool uiStratLayModEditTools::dispZoomed() const
 
 bool uiStratLayModEditTools::dispLith() const
 {
-    return lithtb_->isOn();
+    return lithtb_ && lithtb_->isOn();
 }
 
 
@@ -349,46 +347,61 @@ bool uiStratLayModEditTools::showFlattened() const
 }
 
 
-bool uiStratLayModEditTools::mkSynthetics() const
-{
-    return mksynthtb_->isOn();
-}
+#define mPrepNotif(notifier) \
+    PtrMan<NotifyStopper> ns = donotif ? 0 : new NotifyStopper( notifier );
 
-
-void uiStratLayModEditTools::setSelProp( const char* sel )
+void uiStratLayModEditTools::setSelProp( const char* sel, bool donotif )
 {
+    mPrepNotif( mPropNotif );
     propfld_->setText( sel );
 }
 
 
-void uiStratLayModEditTools::setSelLevel( const char* sel )
+void uiStratLayModEditTools::setSelLevel( const char* sel, bool donotif )
 {
+    mPrepNotif( mLvlNotif )
     lvlfld_->setName( sel );
 }
 
 
-void uiStratLayModEditTools::setSelContent( const char* sel )
+void uiStratLayModEditTools::setSelContent( const char* sel, bool donotif )
 {
+    mPrepNotif( mContNotif )
     contfld_->setText( sel );
 }
 
 
-void uiStratLayModEditTools::setDispEach( int nr )
+void uiStratLayModEditTools::setDispEach( int nr, bool donotif )
 {
     if ( eachfld_ )
+    {
+	mPrepNotif( mEachNotif )
 	eachfld_->setValue( nr );
+    }
 }
 
 
-void uiStratLayModEditTools::setDispZoomed( bool yn )
+void uiStratLayModEditTools::setDispZoomed( bool yn, bool donotif )
 {
+    mPrepNotif( mZoomNotif )
     zoomtb_->setOn( !yn );
 }
 
 
-void uiStratLayModEditTools::setDispLith( bool yn )
+void uiStratLayModEditTools::setDispLith( bool yn, bool donotif )
 {
-    lithtb_->setOn( yn );
+    if ( lithtb_ )
+    {
+	mPrepNotif( mLithNotif )
+	lithtb_->setOn( yn );
+    }
+}
+
+
+void uiStratLayModEditTools::setShowFlattened( bool yn, bool donotif )
+{
+    mPrepNotif( mFlatNotif )
+    flattenedtb_->setOn( yn );
 }
 
 
@@ -397,21 +410,6 @@ void uiStratLayModEditTools::setFlatTBSensitive( bool yn )
     flattenedtb_->setSensitive( yn );
 }
 
-
-void uiStratLayModEditTools::setShowFlattened( bool yn )
-{
-    flattenedtb_->setOn( yn );
-}
-
-
-void uiStratLayModEditTools::setMkSynthetics( bool yn )
-{
-    mksynthtb_->setOn( yn );
-}
-
-#define mGetProp( func, key ) \
-if ( func ) \
-par.set( key, func )
 
 void uiStratLayModEditTools::fillPar( IOPar& par ) const
 {
@@ -434,30 +432,18 @@ void uiStratLayModEditTools::fillPar( IOPar& par ) const
     } \
 }
 
-#define mSetYN( func, key, cb ) \
+#define mSetYN( func, key ) \
 { \
     bool yn; \
     if ( par.getYN( key(), yn ) ) \
-    { \
-	func( yn ); \
-	cb( 0 ); \
-    } \
+	func( yn, true ); \
 }
 
 
 bool uiStratLayModEditTools::usePar( const IOPar& par )
 {
-    NotifyStopper stopselprop( selPropChg );
-    NotifyStopper stoplvlchg( selLevelChg );
-    NotifyStopper stopcontchg( selContentChg );
-    NotifyStopper stopeachchg( dispEachChg );
-    NotifyStopper stopzoomchg( dispZoomedChg );
-    NotifyStopper stoplithchg( dispLithChg );
-    NotifyStopper stopflatchg( flattenChg );
-    NotifyStopper stopsynthchg( mkSynthChg );
-
-    mSetCombo( propfld_, sKeyDisplayedProp );
-    mSetCombo( contfld_, sKeySelectedContent );
+    setSelProp( par.find(sKeyDisplayedProp()), true );
+    setSelContent( par.find(sKeySelectedContent()), true );
     const char* res = par.find( sKeySelectedLevel() );
     if ( res && *res )
 	lvlfld_->setName( res );
@@ -465,13 +451,13 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
     int decimation;
     if ( par.get( sKeyDecimation(), decimation ) )
     {
-	setDispEach( decimation );
-	dispEachCB( 0 );
+	if ( decimation > dispEach() )
+	    setDispEach( decimation, true );
     }
 
-    mSetYN( setDispZoomed, sKeyZoomToggle, dispZoomedCB );
-    mSetYN( setDispLith, sKeyDispLith, dispLithCB );
-    mSetYN( setShowFlattened, sKeyShowFlattened, showFlatCB );
+    mSetYN( setDispZoomed, sKeyZoomToggle );
+    mSetYN( setDispLith, sKeyDispLith );
+    mSetYN( setShowFlattened, sKeyShowFlattened );
 
     return true;
 }

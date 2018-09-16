@@ -38,9 +38,12 @@ public:
 
     void		setMessage(const uiString&);
     void		readyNow();
+    const uiParent*	parent() const			{ return parent_; }
+    uiStatusBar*	statusBar()			{ return sb_; }
 
 protected:
 
+    const uiParent*	parent_;
     uiStatusBar*	sb_;
     MouseCursorChanger*	mcc_;
     const int		fldidx_;
@@ -60,6 +63,7 @@ public:
 			    : usw_(p,msg,statusbarfld)		{}
 
     virtual bool	execute(Task&);
+    virtual void	emitErrorMessage(const uiString&,bool) const;
 
 protected:
 
@@ -82,6 +86,7 @@ public:
 			    : parent_(p), msg_(s), sbfld_(sbfld)	{}
 
     virtual TaskRunner&	runner() const;
+    virtual void	emitErrorMessage(const uiString&,bool) const;
 
 protected:
 

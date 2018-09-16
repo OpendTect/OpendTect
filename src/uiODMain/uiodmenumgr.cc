@@ -1390,6 +1390,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mDumpDataPacksMnuItm: {
 	uiFileSelector::Setup fssu( "/tmp/dpacks.txt" );
 	fssu.setForWrite().setFormat( File::Format::textFiles() );
+	fssu.confirmoverwrite( false );
 	uiFileSelector uifs( &appl_, fssu );
 	uifs.caption() = tr("Data pack dump");
 	if ( uifs.go() )
@@ -1459,7 +1460,7 @@ int uiODMenuMgr::ask2D3D( const uiString& txt, int res2d, int res3d,
 	res = res2d;
     else
     {
-	const int msg = uiMSG().ask2D3D( txt, true );
+	const int msg = gUiMsg().ask2D3D( txt, true );
 	res = msg == -1 ? rescncl : ( msg == 1 ? res2d : res3d );
     }
 

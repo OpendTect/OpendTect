@@ -94,12 +94,15 @@ void uiODHorAttribMgr::makeStratAmp( CallBacker* )
 }
 
 
+
+#define mUiMsg() gUiMsg()
+
 void uiODHorAttribMgr::doIsochron( CallBacker* )
 {
     const int displayid = isochronmnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl_->applMgr().visServer();
     if ( !visserv->canAddAttrib(displayid) )
-	{ uiMSG().error(tr("Cannot add extra attribute layers")); return; }
+	{ mUiMsg().error(tr("Cannot add extra attribute layers")); return; }
 
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
     if ( !hd )
@@ -179,7 +182,7 @@ void uiODHorAttribMgr::doContours( CallBacker* cb )
     EM::Object* emobj = EM::MGR().getObject( hd->getObjectID() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor )
-	{ uiMSG().error(tr("Internal: cannot find horizon")); return; }
+	{ mUiMsg().error(tr("Internal: cannot find horizon")); return; }
 
     uiSelContourAttribDlg dlg( appl_, emobj->id() );
     if ( dlg.nrAttribs()>1 && !dlg.go() )
@@ -198,7 +201,7 @@ void uiODHorAttribMgr::doContours( CallBacker* cb )
     }
 
     if ( !visserv->canAddAttrib(displayid) )
-	{ uiMSG().error(tr("Cannot add extra attribute layers")); return; }
+	{ mUiMsg().error(tr("Cannot add extra attribute layers")); return; }
 
     const int attrib = visserv->addAttrib( displayid );
     Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSelID(),
@@ -238,7 +241,8 @@ void uiODHorAttribMgr::calcHorVol( CallBacker* )
 
     EM::Object* emobj = EM::MGR().getObject( hd->getObjectID() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    if ( !hor ) { uiMSG().error(tr("Internal: cannot find horizon")); return; }
+    if ( !hor )
+	{ mUiMsg().error(tr("Internal: cannot find horizon")); return; }
     uiCalcHorPolyVol dlg( appl_, *hor );
     dlg.go();
 }

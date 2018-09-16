@@ -32,10 +32,9 @@ DPSMerger::DPSMerger( const DPSMergerProp& prop )
     , rowdone_(-1)
     , prop_(prop)
 {
-    mdps_ = DPM( DataPackMgr::PointID() )
-		.getAndCast<DataPointSet>( prop.masterDPID() );
-    sdps_ = DPM( DataPackMgr::PointID() )
-		.getAndCast<DataPointSet>( prop.slaveDPID() );
+    auto& dpm = DPM( DataPackMgr::PointID() );
+    mdps_ = dpm.get<DataPointSet>( prop.masterDPID() );
+    sdps_ = dpm.get<DataPointSet>( prop.slaveDPID() );
     newdps_ = new DataPointSet( *mdps_ );
 }
 

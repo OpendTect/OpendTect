@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellcommon.h"
-#include "ailayer.h"
+#include "elasticmodel.h"
 #include "bufstringset.h"
 #include "ranges.h"
 #include "uistring.h"

@@ -250,7 +250,7 @@ bool uiODWellTreeItem::init()
 	if ( uirv.isError() )
 	{
 	    visserv_->removeObject( wd, sceneID() );
-	    uiMSG().error( uirv );
+	    mTIUiMsg().error( uirv );
 	    return false;
 	}
     }
@@ -426,7 +426,7 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
     {
 	uiString warnstr = tr("This well has changed since the last save.\n\n"
 			      "Do you want to save it?");
-	int retval = uiMSG().askSave( warnstr, withcancel );
+	int retval = mTIUiMsg().askSave( warnstr, withcancel );
 	if ( !retval ) return true;
 	else if ( retval == -1 ) return false;
 	else

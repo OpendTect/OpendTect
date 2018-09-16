@@ -1148,9 +1148,9 @@ void FaultDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
 
-    DataPack::ID dpid = getDataPackID( attrib );
-    DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
-    ConstRefMan<DataPointSet> dps = dpman.getAndCast<DataPointSet>( dpid );
+    const auto dpid = getDataPackID( attrib );
+    auto& dpman = DPM( DataPackMgr::SurfID() );
+    auto dps = dpman.get<DataPointSet>( dpid );
     if ( dps )
 	data  = *dps;
 }
@@ -1936,7 +1936,7 @@ bool FaultDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 	return false;
 
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
-    ConstRefMan<DataPack> datapack = dpman.get( dpid );
+    auto datapack = dpman.getDP( dpid );
     if ( !datapack )
 	return false;
 

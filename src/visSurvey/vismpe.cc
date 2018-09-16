@@ -766,19 +766,14 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     if ( attrib != 0 || dpid == DataPack::cNoID() ) return false;
 
     DataPackMgr& dpman = DPM( DataPackMgr::SeisID() );
-    ConstRefMan<RegularSeisDataPack> cdp =
-	dpman.getAndCast<RegularSeisDataPack>( dpid );
+    auto dp = dpman.get<RegularSeisDataPack>( dpid );
 
-    const bool res = setDataVolume( attrib, cdp, tskr );
+    const bool res = setDataVolume( attrib, dp, tskr );
     if ( !res )
-    {
 	return false;
-    }
 
-    if ( volumecache_ != cdp )
-    {
-	volumecache_ = cdp;
-    }
+    if ( volumecache_ != dp )
+	volumecache_ = dp;
 
     return true;
 }
@@ -836,8 +831,8 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
 
 bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tskr )
 {
-    ConstRefMan<RegularSeisDataPack> regsdp =
-	DPM(DataPackMgr::SeisID()).get( engine_.getAttribCacheID(as_[0]) );
+    auto regsdp = DPM(DataPackMgr::SeisID())
+	    .get<RegularSeisDataPack>( engine_.getAttribCacheID(as_[0]) );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 

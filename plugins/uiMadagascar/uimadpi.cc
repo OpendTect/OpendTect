@@ -114,7 +114,7 @@ void uiMadagascarLinkMgr::doMain( CallBacker* )
     uiString errmsg;
     if ( !checkEnvVars(errmsg) )
     {
-	uiMSG().error( errmsg );
+	gUiMsg().error( errmsg );
 	return;
     }
 
@@ -165,7 +165,7 @@ mDefODInitPlugin(uiMadagascar)
 
 #ifdef MAD_UIMSG_IF_FAIL
     if ( ODMad::PI().errMsg().isSet() )
-	uiMSG().error( ODMad::PI().errMsg() );
+	gUiMsg().error( ODMad::PI().errMsg() );
 #endif
 
     return 0;

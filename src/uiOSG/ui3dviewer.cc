@@ -526,7 +526,7 @@ void ui3DViewerBody::glInfoCB( CallBacker* )
 	{
 	    uiString msg = tr("Invalid OpenGL installation. "
 			      "Please check your graphics drivers");
-	    uiMSG().error( msg );
+	    gUiMsg().error( msg );
 	    isbadglwarned_ = true;
 	}
 
@@ -554,7 +554,7 @@ void ui3DViewerBody::glInfoCB( CallBacker* )
 		     "visualization. OpendTect will not be able to make full "
 		     "use of your installation. Please update your system" );
 
-	    if ( uiMSG().warning( msg, uiString::empty(),
+	    if ( gUiMsg().warning( msg, uiString::empty(),
 				 uiString::empty(), true ) )
 	    {
 		Settings::common().setYN( settingskey, false );

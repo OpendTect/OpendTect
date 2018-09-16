@@ -60,14 +60,15 @@ int main( int argc, char** argv )
 	msg = od_static_tr("main","Your answer").addMoreInfo(uiString::empty());
     }
 
+    uiMsg& uimsg = gUiMsg();
     if ( typ == 0 )
-	uiMSG().message( msg );
+	uimsg.message( msg );
     else if ( typ == 1 )
-	uiMSG().warning( msg );
+	uimsg.warning( msg );
     else if ( typ == 2 )
-	uiMSG().error( msg );
+	uimsg.error( msg );
     else if ( typ == 3 )
-	od_cout() << getYesNoString( uiMSG().askGoOn(msg) ) << od_endl;
+	od_cout() << getYesNoString( uimsg.askGoOn(msg) ) << od_endl;
 
     return ExitProgram( 0 );
 }

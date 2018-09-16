@@ -17,12 +17,12 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "uicompoundparsel.h"
 
+class PropertyRefSelection;
 class uiComboBox;
 class uiLabel;
 class uiSpinBox;
 class uiStratLevelSel;
 class uiToolButton;
-class PropertyRefSelection;
 
 
 mExpClass(uiStrat) uiStratGenDescTools : public uiGroup
@@ -47,7 +47,7 @@ public:
 
 protected:
 
-    static const char*		sKeyNrModels();
+    static const char*	sKeyNrModels();
 
     uiSpinBox*	nrmodlsfld_;
     uiToolButton* savetb_;
@@ -67,65 +67,69 @@ public:
 
 		uiStratLayModEditTools(uiParent*);
 
-    void	setAllowNoPropDisp( bool yn=true )	{ allownoprop_ = yn; }
     void	setProps(const BufferStringSet&);
     void	setContentNames(const BufferStringSet&);
-    const BufferStringSet& getLevelNames() const	{ return lvlnms_; }
+    const BufferStringSet& levelNames() const	{ return lvlnms_; }
 
     Strat::Level selLevel() const;
     Strat::Level::ID selLevelID() const;
     int		selLevelIdx() const;
     BufferString selLevelName() const;
     Color	selLevelColor() const;
+
     int		selPropIdx() const;			//!< May return -1
     const char*	selProp() const;			//!< May return null
+
     const char*	selContent() const;			//!< May return null
+
     int		dispEach() const;
     bool	dispZoomed() const;
     bool	dispLith() const;
     bool	showFlattened() const;
-    bool	mkSynthetics() const;
 
-    void	setSelProp(const char*);
-    void	setSelLevel(const char*);
-    void	setSelContent(const char*);
-    void	setDispEach(int);
-    void	setDispZoomed(bool);
-    void	setDispLith(bool);
-    void	setShowFlattened(bool);
-    void	setMkSynthetics(bool);
+    void	setSelProp(const char*,bool notif=true);
+    void	setSelLevel(const char*,bool notif=true);
+    void	setSelContent(const char*,bool notif=true);
+    void	setDispEach(int,bool notif=true);
+    void	setDispZoomed(bool,bool notif=true);
+    void	setDispLith(bool,bool notif=true);
+    void	setShowFlattened(bool,bool notif=true);
     void	setFlatTBSensitive(bool);
 
-    void	setNoDispEachFld();
+    void	addEachFld();
+    void	addLithFld();
 
-    uiToolButton*		lithButton()		{ return lithtb_; }
-    uiToolButton*		zoomButton()		{ return zoomtb_; }
+    uiToolButton* lithButton()		{ return lithtb_; }
+    uiToolButton* zoomButton()		{ return zoomtb_; }
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&);
 
-    Notifier<uiStratLayModEditTools>	selPropChg;
-    Notifier<uiStratLayModEditTools>	selLevelChg;
-    Notifier<uiStratLayModEditTools>	selContentChg;
-    Notifier<uiStratLayModEditTools>	dispEachChg;
-    Notifier<uiStratLayModEditTools>	dispZoomedChg;
-    Notifier<uiStratLayModEditTools>	dispLithChg;
-    Notifier<uiStratLayModEditTools>	flattenChg;
-    Notifier<uiStratLayModEditTools>	mkSynthChg;
+#define mDefSLMETNotif(nm) \
+    Notifier<uiStratLayModEditTools>		nm; \
+    void	nm##CB(CallBacker*)		{ nm.trigger(); }
+
+    mDefSLMETNotif(	selPropChg )
+    mDefSLMETNotif(	selLevelChg )
+    mDefSLMETNotif(	selContentChg )
+    mDefSLMETNotif(	dispEachChg )
+    mDefSLMETNotif(	dispZoomedChg )
+    mDefSLMETNotif(	dispLithChg )
+    mDefSLMETNotif(	showFlatChg )
 
 protected:
 
+    uiGroup*		leftgrp_;
+    uiGroup*		rightgrp_;
     uiComboBox*		propfld_;
     uiStratLevelSel*	lvlfld_;
     uiComboBox*		contfld_;
-    uiSpinBox*		eachfld_;
-    uiLabel*		eachlbl_;
     uiToolButton*	zoomtb_;
-    uiToolButton*	lithtb_;
     uiToolButton*	flattenedtb_;
-    uiToolButton*	mksynthtb_;
 
-    bool		allownoprop_;
+    uiToolButton*	lithtb_			= 0;
+    uiSpinBox*		eachfld_		= 0;
+
     BufferStringSet	lvlnms_;
 
     static const char*	sKeyDisplayedProp();
@@ -137,14 +141,6 @@ protected:
     static const char*	sKeyShowFlattened();
 
     void	initGrp(CallBacker*);
-    void	showFlatCB(CallBacker*);
-    void	selPropCB( CallBacker* )	{ selPropChg.trigger(); }
-    void	selLvlCB( CallBacker* )		{ selLevelChg.trigger(); }
-    void	selContentCB( CallBacker* )	{ selContentChg.trigger(); }
-    void	dispEachCB( CallBacker* )	{ dispEachChg.trigger(); }
-    void	dispZoomedCB( CallBacker* )	{ dispZoomedChg.trigger(); }
-    void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
-    void	mkSynthCB( CallBacker* )	{ mkSynthChg.trigger(); }
 
 };
 

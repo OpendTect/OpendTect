@@ -50,6 +50,8 @@ public:
 				FullID()		{}
 				FullID( MgrID mgrid, PackID packid )
 				    : GroupedID(mgrid,packid) {}
+	bool			isValid() const { return groupID().isValid()
+						      && objID().isValid(); }
 	static FullID		getFromString(const char*);
 	static FullID		getInvalid();
 	static bool		isInDBKey(const DBKey&);
@@ -64,20 +66,17 @@ public:
     typedef FullID::PackID	ID;
     typedef FullID::MgrID	MgrID;
 
-				DataPack(const char* categry);
-    				mDeclInstanceCreatedNotifierAccess(DataPack);
-    				mDeclAbstractMonitorableAssignment(DataPack);
-				//TODO int -> bool
-    int				isOK() const		{ return 1; }
+				mDeclInstanceCreatedNotifierAccess(DataPack);
+				mDeclAbstractMonitorableAssignment(DataPack);
+
+    bool			isEmpty() const		{ return gtIsEmpty(); }
 
     ID				id() const		{ return id_; }
     FullID			fullID( MgrID mgrid ) const
 						{ return FullID(mgrid,id()); }
     const char*			category() const	{ return gtCategory(); }
     float			nrKBytes() const	{ return gtNrKBytes(); }
-				//TODO bool -> void
-    bool			dumpInfo( IOPar& iop ) const
-    				{ doDumpInfo(iop); return true; }
+    void			dumpInfo( IOPar& p ) const { doDumpInfo(p); }
 
     static const char*		sKeyCategory();
     static ID			cNoID()			{ return ID(); }
@@ -89,15 +88,17 @@ public:
 
     int				nrArrays() const	{ return gtNrArrays(); }
     const ArrayND<float>*	arrayData( int iarr ) const
-    				{ return gtArrayData(iarr); }
+				{ return gtArrayData(iarr); }
 
 protected:
 
+				DataPack(const char* categry);
     virtual			~DataPack();
 
     virtual const char*		gtCategory() const	{ return category_; }
+    virtual bool		gtIsEmpty() const	= 0;
     virtual float		gtNrKBytes() const	= 0;
-    virtual void		doDumpInfo(IOPar&) const;
+    virtual void		doDumpInfo(IOPar&) const = 0;
     virtual int			gtNrArrays() const	{ return 0; }
     virtual const ArrayND<float>* gtArrayData(int) const { return 0; }
 
@@ -149,7 +150,9 @@ protected:
     char*		buf_;
     od_int64		sz_;
 
+    virtual bool	gtIsEmpty() const	{ return sz_ < 1; }
     virtual float	gtNrKBytes() const	{ return sz_*sKb2MbFac(); }
+    virtual void	doDumpInfo( IOPar& p ) const { DataPack::doDumpInfo(p);}
 
 };
 
@@ -178,33 +181,41 @@ public:
 			// a manager. In general, leave it to DPM() - see below.
 
     typedef DataPack::FullID::MgrID	ID;
+    typedef DataPack::ID		PackID;
+
     inline static ID	getID( const DataPack::FullID& fid )
 						{ return fid.groupID(); }
 
-    bool		haveID(DataPack::ID) const;
-    inline bool		haveID( const DataPack::FullID& fid ) const
-			{ return id() == fid.groupID()
-			      && haveID( fid.objID() ); }
+    bool		isPresent(PackID) const;
+    inline bool		isPresent( const DataPack::FullID& f ) const
+			{ return f.groupID() == id() && isPresent(f.objID()); }
+
+    // add() functions check isPresent(). If so, the pack is NOT added.
+    template <class T>
+    inline bool		add( T& p )		{ return doAdd(&p); }
+    template <class T>
+    inline bool		add( const T& p )	{ return doAdd(&p); }
+    template <class T>
+    inline bool		add( T* p )		{ return doAdd(p); }
+    template <class T>
+    inline bool		add( const T* p )	{ return doAdd(p); }
+    template <class T>
+    inline bool		add( RefMan<T>& p )	{ return add( (T*)p.ptr() ); }
+    template <class T>
+    inline bool		add( ConstRefMan<T>& p ) { return add( (T*)p.ptr() ); }
 
     template <class T>
-    inline T*		add(T* p)		{ doAdd(p); return p; }
+    inline RefMan<T>	get(PackID);
     template <class T>
-    inline T*		add(RefMan<T>& p)	{ doAdd(p.ptr()); return p; }
-    RefMan<DataPack>	get(DataPack::ID) const;
+    inline ConstRefMan<T> get(PackID) const;
 
     template <class T>
-    inline RefMan<T>	getAndCast(DataPack::ID) const;
+    inline WeakPtr<T>	observe(PackID) const;
 			//!<Dynamic casts to T and returns results
 
-    WeakPtr<DataPack>	observe(DataPack::ID) const;
-
-    template <class T>
-    inline WeakPtr<T>	observeAndCast(DataPack::ID) const;
-			//!<Dynamic casts to T and returns results
-
-    bool		ref(DataPack::ID dpid);
+    bool		ref(PackID);
 			//Convenience. Will ref if it is found
-    bool		unRef(DataPack::ID dpid);
+    bool		unRef(PackID);
 			//Convenience. Will ref if it is found
 
     Notifier<DataPackMgr> newPack;		//!< Passed CallBacker* = Pack
@@ -218,28 +229,28 @@ public:
     static ID		SurfID();	//!< Surface (triangulated) data: 5
 
 			// Convenience to get info without any obtain()
-    const char*		nameOf(DataPack::ID) const;
+    const char*		nameOf(PackID) const;
     static const char*	nameOf(const DataPack::FullID&);
-    const char*		categoryOf(DataPack::ID) const;
+    const char*		categoryOf(PackID) const;
     static const char*	categoryOf(const DataPack::FullID&);
-    virtual float	nrKBytesOf(DataPack::ID) const;
-    virtual void	dumpInfoFor(DataPack::ID,IOPar&) const;
+    virtual float	nrKBytesOf(PackID) const;
+    virtual void	dumpInfoFor(PackID,IOPar&) const;
 
     ID			id() const		{ return id_; }
     void		dumpInfo(od_ostream&) const;
     float		nrKBytes() const;
 
-    void		getPackIDs(TypeSet<DataPack::ID>&) const;
+    void		getPackIDs(TypeSet<PackID>&) const;
 
 protected:
 
-    void					doAdd(DataPack*);
+    bool				doAdd(const DataPack*);
 
-    ID						id_;
-    mutable WeakPtrSet<DataPack>		packs_;
+    ID					id_;
+    mutable WeakPtrSet<DataPack>	packs_;
 
-    static Threads::Lock			mgrlistlock_;
-    static ManagedObjectSet<DataPackMgr>	mgrs_;
+    static Threads::Lock		mgrlistlock_;
+    static ManagedObjectSet<DataPackMgr> mgrs_;
 
 public:
 
@@ -254,17 +265,21 @@ public:
     static DataPackMgr*	gtDPM(ID,bool);
     static void		dumpDPMs(od_ostream&);
 
-    mDeprecated DataPack*		addAndObtain(DataPack*);
-					/*!< The pack becomes mines. Pack is
-					    obtained during the lock, i.e.
-					    threadsafe. */
+    RefMan<DataPack>	getDP(PackID);
+    ConstRefMan<DataPack> getDP(PackID) const;
+    WeakPtr<DataPack>	observeDP(PackID) const;
 
-    mDeprecated DataPack*		obtain( DataPack::ID dpid );
-    mDeprecated const DataPack*		obtain( DataPack::ID dpid ) const;
-    mDeprecated void			release(DataPack::ID);
-    mDeprecated void			release( const DataPack* dp )
+    mDeprecated DataPack* addAndObtain(DataPack*);
+    mDeprecated DataPack* obtain(PackID);
+    mDeprecated const DataPack* obtain(PackID) const;
+    mDeprecated void	release(PackID);
+    mDeprecated void	release( const DataPack* dp )
 					{ if ( dp ) unRef( dp->id() ); }
-    mDeprecated void			releaseAll(bool donotify);
+    mDeprecated void	releaseAll(bool donotify);
+    mDeprecated bool	haveID( PackID pid ) const { return isPresent(pid); }
+    mDeprecated bool	haveID( const DataPack::FullID& fid ) const
+			{ return isPresent( fid ); }
+
 };
 
 
@@ -352,39 +367,33 @@ mGlobal(Basic) DataPackMgr& DPM(DataPackMgr::ID);
 mGlobal(Basic) DataPackMgr& DPM(const DataPack::FullID&);
 		//!< will return empty dummy mgr if mgr ID not found
 
-#define mObtainDataPack( var, type, mgrid, newid ) \
-{ \
-    unRefAndZeroPtr( var ); \
-    \
-    RefMan<DataPack> __dp = DPM( mgrid ).get( newid ); \
-    mDynamicCastGet( type, __dummy, __dp.ptr() ); \
-    var = (type) refPtr( __dummy ); \
-}
-
-
-#define mObtainDataPackToLocalVar( var, type, mgrid, newid ) \
-type var = 0; \
-mObtainDataPack( var, type, mgrid, newid ); \
-
 //Implementations
 
 template <class T> inline
-RefMan<T> DataPackMgr::getAndCast( DataPack::ID dpid ) const
+RefMan<T> DataPackMgr::get( PackID dpid )
 {
-    RefMan<DataPack> pack = get( dpid );
+    auto pack = getDP( dpid );
     mDynamicCastGet( T*, casted, pack.ptr() );
     return RefMan<T>( casted );
 }
 
+template <class T> inline
+ConstRefMan<T> DataPackMgr::get( PackID dpid ) const
+{
+    auto pack = getDP( dpid );
+    mDynamicCastGet( const T*, casted, pack.ptr() );
+    return ConstRefMan<T>( casted );
+}
+
 
 template <class T> inline
-WeakPtr<T> DataPackMgr::observeAndCast( DataPack::ID dpid ) const
+WeakPtr<T> DataPackMgr::observe( PackID dpid ) const
 {
-    RefMan<DataPack> pack = get( dpid );
+    auto pack = getDP( dpid );
     pack.setNoDelete( true );
 
-    mDynamicCastGet( T*, casted, pack.ptr() );
-    return WeakPtr<T>( casted );
+    mDynamicCastGet( const T*, casted, pack.ptr() );
+    return WeakPtr<T>( const_cast<T*>(casted) );
 }
 
 

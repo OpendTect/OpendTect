@@ -120,7 +120,7 @@ void uiResortSEGYDlg::inpSel( CallBacker* cb )
     const IOObj* ioobj = ps2dfld_->ioobj();
     if ( !ioobj )
 	return;
-    uiSeisIOObjInfo uioi( *ioobj );
+    uiSeisIOObjInfo uioi( this, *ioobj );
     if ( !uioi.isOK() )
 	return;
 

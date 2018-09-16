@@ -79,18 +79,17 @@ bool uiCrDevEnv::isOK( const char* datadir )
 }
 
 
+#define mUiMsg() gUiMsg(appl)
+#define mErrRetRv(s,rv) { mUiMsg().error(s); return rv; }
 #undef mErrRet
-#define mErrRet(s) { uiMSG().error(s); return; }
+#define mErrRet(s) mErrRetRv(s,)
 
 void uiCrDevEnv::crDevEnv( uiParent* appl )
 {
     BufferString swdir = GetSoftwareDir(0);
     if ( !isOK(swdir) )
-    {
-	uiMSG().error(tr("No source code found. Please download\n"
-			 "and install development package first"));
-	return;
-    }
+	mErrRet( tr("No source code found. Please download\n"
+                         "and install development package first") )
 
     File::Path oldworkdir( GetEnvVar("WORK") );
     const bool oldok = isOK( oldworkdir.fullPath() );
@@ -106,7 +105,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 		     .arg(oldworkdir.fullPath())
 		     .arg(oldok ? uiStrings::sYes() : uiStrings::sNo() );
 
-	if ( uiMSG().askGoOn(msg) )
+	if ( mUiMsg().askGoOn(msg) )
 	{
 	    File::remove( workdirnm );
 	    workdirnm = oldworkdir.fullPath();
@@ -153,7 +152,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	    .arg(isdir ? uiStrings::sDirectory().toLower()
 		       : uiStrings::sDirectory().toLower());
 
-	if ( !uiMSG().askRemove(msg) )
+	if ( !mUiMsg().askRemove(msg) )
 	    return;
 
 	File::remove( workdirnm );
@@ -168,7 +167,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
       "- for upto a few minutes.\n\n"
       "Meanwhile, do you want to take a look at the developers documentation?");
 
-    if ( uiMSG().askGoOn(docmsg) )
+    if ( mUiMsg().askGoOn(docmsg) )
 	showProgrDoc();
 
 #ifdef __win__
@@ -193,13 +192,13 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if ( !res || !File::exists(cmakefile) )
 	mErrRet(tr("Creation seems to have failed"))
     else
-	uiMSG().message( tr("Creation seems to have succeeded.") );
+	mUiMsg().message( tr("Creation seems to have succeeded.") );
 }
 
 
 
 #undef mErrRet
-#define mErrRet(msg) { uiMSG().error( msg ); return false; }
+#define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiCrDevEnv::acceptOK()
 {

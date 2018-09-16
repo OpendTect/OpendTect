@@ -233,7 +233,7 @@ bool uiSeisImportODCube::acceptOK()
 	 return !ret;
     }
 
-    uiSeisIOObjInfo ioobjinfo( *outioobj_ );
+    uiSeisIOObjInfo ioobjinfo( this, *outioobj_ );
     if ( !ioobjinfo.checkSpaceLeft(transffld_->spaceInfo(),true) )
 	{ rmTmpIOObj(); return false; }
 

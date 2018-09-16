@@ -82,7 +82,7 @@ void uiODApplMgrAttrVisHandler::createVol( bool is2d, bool multiattrib )
 
 void uiODApplMgrAttrVisHandler::doXPlot()
 {
-    const Attrib::DescSet* ads = am_.attrserv_->getUserPrefDescSet();
+    const Attrib::DescSet* ads = am_.attrserv_->getUserPrefDescSet(par_);
     if ( ads )
 	am_.wellattrserv_->doXPlot( ads->is2D() );
 }
@@ -90,7 +90,7 @@ void uiODApplMgrAttrVisHandler::doXPlot()
 
 void uiODApplMgrAttrVisHandler::crossPlot()
 {
-    const Attrib::DescSet* ads = am_.attrserv_->getUserPrefDescSet();
+    const Attrib::DescSet* ads = am_.attrserv_->getUserPrefDescSet(par_);
     if ( !ads ) return;
 
     am_.attrserv_->set2DEvent( ads->is2D() );

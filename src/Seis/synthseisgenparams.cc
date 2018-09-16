@@ -9,13 +9,15 @@ ________________________________________________________________________
 -*/
 
 
-#include "synthgenparams.h"
+#include "synthseisgenparams.h"
 
 #include "dbman.h"
 #include "ioobj.h"
 #include "raytrace1d.h"
 #include "raytracerrunner.h"
-#include "synthseis.h"
+#include "synthseisgenerator.h"
+#include "waveletio.h"
+#include "ctxtioobj.h"
 
 static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
 static const char* sKeySynthType()		{ return "Synthetic Type"; }
@@ -30,49 +32,57 @@ static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
 #define sDefaultOffsetRange StepInterval<float>( 0.f, 6000.f, 100.f )
 
 
-mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
+mDefineNameSpaceEnumUtils(SynthSeis,SyntheticType,"Synthetic Type")
 {
-    "Pre Stack",
     "Zero Offset Stack",
-    "Strat Property",
+    "Pre Stack",
+    "Rock Property",
     "Angle Stack",
     "AVO Gradient",
     0
 };
 
 template<>
-void EnumDefImpl<SynthGenParams::SynthType>::init()
+void EnumDefImpl<SynthSeis::SyntheticType>::init()
 {
-    uistrings_ += uiStrings::sPreStack();
     uistrings_ += mEnumTr("Zero Offset Stack",0);
-    uistrings_ += mEnumTr("Startigraphic Property",0);
-    uistrings_ += mEnumTr("Angle Mute",0);
+    uistrings_ += uiStrings::sPreStack();
+    uistrings_ += mEnumTr("Rock Property",0);
+    uistrings_ += mEnumTr("Angle Stack",0);
     uistrings_ += mEnumTr("AVO Gradient",0);
 }
 
 
-SynthGenParams::SynthGenParams()
+SynthSeis::GenParams::GenParams()
+    : type_(ZeroOffset)
 {
-    synthtype_ = ZeroOffset;	//init to avoid nasty crash in generateSD!
     setDefaultValues();
 }
 
 
-bool SynthGenParams::operator==( const SynthGenParams& oth ) const
+bool SynthSeis::GenParams::operator==( const GenParams& oth ) const
 {
-    if ( synthtype_ != oth.synthtype_
-	    || raypars_ != oth.raypars_
-	    || wvltid_ != oth.wvltid_ )
+    if ( type_ != oth.type_
+      || raypars_ != oth.raypars_
+      || wvltid_ != oth.wvltid_ )
 	return false;
 
-    return !isPSBased()
+    return !isPSPostProc()
 	|| (anglerg_ == oth.anglerg_ && inpsynthnm_ == oth.inpsynthnm_);
 }
 
 
 
-void SynthGenParams::setDefaultValues()
+void SynthSeis::GenParams::setDefaultValues()
 {
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Wavelet );
+    ctio->fillDefault();
+    if ( ctio->ioobj_ )
+    {
+	wvltid_ = ctio->ioobj_->key();
+	ctio->setObj( 0 );
+    }
+
     anglerg_ = sDefaultAngleRange;
     raypars_.setEmpty();
     FixedString defrayparstr = sKeyAdvancedRayTracer();
@@ -84,7 +94,7 @@ void SynthGenParams::setDefaultValues()
 	raypars_.set( sKey::Type(), facnm );
     }
 
-    if ( synthtype_==ZeroOffset )
+    if ( type_ == ZeroOffset )
 	RayTracer1D::setIOParsToZeroOffset( raypars_ );
     else
     {
@@ -94,10 +104,12 @@ void SynthGenParams::setDefaultValues()
 	    offsets += offsetrg.atIndex( idx );
 	raypars_.set( RayTracer1D::sKeyOffset(), offsets );
     }
+
+    name_ = createName();
 }
 
 
-bool SynthGenParams::hasOffsets() const
+bool SynthSeis::GenParams::hasOffsets() const
 {
     TypeSet<float> offsets;
     raypars_.get( RayTracer1D::sKeyOffset(), offsets );
@@ -105,14 +117,14 @@ bool SynthGenParams::hasOffsets() const
 }
 
 
-BufferString SynthGenParams::waveletName() const
+BufferString SynthSeis::GenParams::waveletName() const
 {
     BufferString dbnm = nameOf( wvltid_ );
     return dbnm.isEmpty() ? fallbackwvltnm_ : dbnm;
 }
 
 
-void SynthGenParams::setWaveletName( const char* nm )
+void SynthSeis::GenParams::setWaveletName( const char* nm )
 {
     fallbackwvltnm_ = nm;
     PtrMan<IOObj> ioobj = DBM().getByName( IOObjContext::Seis, nm, "Wavelet" );
@@ -120,12 +132,11 @@ void SynthGenParams::setWaveletName( const char* nm )
 }
 
 
-void SynthGenParams::fillPar( IOPar& par ) const
+void SynthSeis::GenParams::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), name_ );
-    par.set( sKeySynthType(), SynthGenParams::toString(synthtype_) );
-    if ( synthtype_ == SynthGenParams::AngleStack ||
-	 synthtype_ == SynthGenParams::AVOGradient )
+    par.set( sKeySynthType(), toString(type_) );
+    if ( type_ == AngleStack || type_ == AVOGradient )
     {
 	par.set( sKeyInput(), inpsynthnm_ );
 	par.set( sKeyAngleRange(), anglerg_ );
@@ -138,7 +149,7 @@ void SynthGenParams::fillPar( IOPar& par ) const
 }
 
 
-void SynthGenParams::usePar( const IOPar& par )
+void SynthSeis::GenParams::usePar( const IOPar& par )
 {
     par.get( sKey::Name(), name_ );
     if ( !par.get(sKeyWaveLetID(),wvltid_) )
@@ -156,18 +167,17 @@ void SynthGenParams::usePar( const IOPar& par )
 	bool isps = false;
 	par.getYN( sKeyIsPreStack(), isps );
 	if ( !isps && hasOffsets() )
-	    synthtype_ = SynthGenParams::AngleStack;
+	    type_ = AngleStack;
 	else if ( !isps )
-	    synthtype_ = SynthGenParams::ZeroOffset;
+	    type_ = ZeroOffset;
 	else
-	    synthtype_ = SynthGenParams::PreStack;
+	    type_ = PreStack;
     }
     else
     {
 	BufferString typestr;
-	SynthTypeDef().parse( par, sKeySynthType(), synthtype_ );
-	if ( synthtype_ == SynthGenParams::AngleStack ||
-	     synthtype_ == SynthGenParams::AVOGradient )
+	SyntheticTypeDef().parse( par, sKeySynthType(), type_ );
+	if ( isPSPostProc(type_) )
 	{
 	    par.get( sKeyInput(), inpsynthnm_ );
 	    par.get( sKeyAngleRange(), anglerg_ );
@@ -176,34 +186,34 @@ void SynthGenParams::usePar( const IOPar& par )
 }
 
 
-BufferString SynthGenParams::createName() const
+BufferString SynthSeis::GenParams::createName() const
 {
     BufferString ret;
 
-    if ( synthtype_==SynthGenParams::AngleStack ||
-	 synthtype_==SynthGenParams::AVOGradient )
+    if ( isPSPostProc(type_) )
     {
-	ret = SynthGenParams::toString( synthtype_ );
+	ret = toString( type_ );
 	ret.add( " [" )
 	   .add( anglerg_.start ).add( "," ).add( anglerg_.stop )
 	   .add( "] degrees" );
 	return ret;
     }
 
-    ret = waveletName();
+    ret.set( "[" ).add( waveletName() ).add( "]" );
     TypeSet<float> offset;
     raypars_.get( RayTracer1D::sKeyOffset(), offset );
     const int offsz = offset.size();
-    if ( offsz )
+    const float offs0 = offsz < 1 ? 0.f : offset.first();
+    if ( !mIsZero(offs0,0.001f) )
     {
-	ret.add( " Offset " ).add( ::toString(offset[0]) );
+	ret.add( " O=" ).add( offs0 );
 	if ( offsz > 1 )
 	{
-	    ret.add( "-" ).add( offset[offsz-1] );
+	    ret.add( "-" ).add( offset.last() );
 	    bool nmocorrected = true;
-	    if ( raypars_.getYN(Seis::SynthGenBase::sKeyNMO(),nmocorrected)
+	    if ( raypars_.getYN(SynthSeis::GenBase::sKeyNMO(),nmocorrected)
 	      && !nmocorrected )
-		ret.add( " uncorrected" );
+		ret.add( " [no NMO]" );
 	}
     }
 

@@ -414,7 +414,7 @@ void uiODSceneMgr::setSceneProperties()
     get3DViewers( vwrs );
     if ( vwrs.isEmpty() )
     {
-	uiMSG().error( tr("No scenes available") );
+	gUiMsg().error( tr("No scenes available") );
 	return;
     }
 
@@ -572,7 +572,7 @@ void uiODSceneMgr::setStereoType( int type )
 	bool dontwarn = Settings::common().isFalse( sKeyWarnQuadStereo );
 	if ( !dontwarn )
 	{
-	    const bool wantgoon = uiMSG().askGoOn(
+	    const bool wantgoon = gUiMsg().askGoOn(
 		tr("Please note that Quad buffered stereo viewing requires "
 		    "suitable, well set up hardware."
 		    "\nWe do not have such hardware, so we can only hope the "
@@ -596,7 +596,7 @@ void uiODSceneMgr::setStereoType( int type )
 	ui3DViewer& vwr3d_ = *getSceneByIdx(ids)->vwr3d_;
 	if ( !vwr3d_.setStereoType(stereotype) )
 	{
-	    uiMSG().error( tr("No support for this type of stereo rendering") );
+	    gUiMsg().error( tr("No support for this type of stereo rendering"));
 	    return;
 	}
 	if ( type )

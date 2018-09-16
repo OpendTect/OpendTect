@@ -449,13 +449,13 @@ void uiODDisplayTreeItem::deleteObject()
 
     if ( visserv_->isLocked(displayid_) )
     {
-	uiMSG().error( tr("Treeitem is locked, can not delete") );
+	mTIUiMsg().error( tr("Treeitem is locked, can not delete") );
 	return;
     }
 
     if ( ioobj->implReadOnly() )
     {
-	uiMSG().error( tr("Data is read-only, can not delete") );
+	mTIUiMsg().error( tr("Data is read-only, can not delete") );
 	return;
     }
 

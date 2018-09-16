@@ -124,7 +124,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 			  "Multi-Job/Machine execution") )
 
     const DBKey outid = DBKey::getFromStr( idres );
-    outioobjinfo_ = new uiSeisIOObjInfo( outid );
+    outioobjinfo_ = new uiSeisIOObjInfo( this, outid );
     if ( !outioobjinfo_->isOK() )
 	mRetInvJobSpec(tr("Cannot find output cube (%1) in object management.")
 		     .arg(idres));

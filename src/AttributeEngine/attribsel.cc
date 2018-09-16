@@ -232,8 +232,7 @@ const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid,
 	return 0;
 
     const DBKey dbky = desc->getStoredID();
-    RefMan<VolumeDataPack> vdp =
-	Seis::PLDM().getAndCast<VolumeDataPack>( dbky, geomid );
+    auto vdp = Seis::PLDM().get<VolumeDataPack>( dbky, geomid );
 
     return vdp ? &vdp->getDataDesc() : 0;
 }

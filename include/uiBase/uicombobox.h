@@ -66,6 +66,7 @@ public:
     void		setCurrentItem( const FixedString& fs )
 						{ setCurrentItem( fs.str() ); }
     virtual void	addItem(const uiString&);
+    void		addItem( const char* s ) { addItem(toUiString(s)); }
     void		addItem(const uiString&,int id);
     void		addItems(const uiStringSet&);
     void		addItems(const BufferStringSet&);

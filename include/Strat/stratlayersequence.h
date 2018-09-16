@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "stratmod.h"
-#include "ailayer.h"
 #include "stratlayer.h"
 #include "propertyref.h"
 

@@ -75,8 +75,8 @@ void SEGY::FullSpec::usePar( const IOPar& iop )
 }
 
 
-bool uiSEGY::displayWarnings( const uiStringSet& inpwarns, bool withstop,
-			      int nrskipped )
+bool uiSEGY::displayWarnings( uiParent* p, const uiStringSet& inpwarns,
+			      bool withstop, int nrskipped )
 {
     uiStringSet warns( inpwarns );
     if ( nrskipped > 0 )
@@ -112,12 +112,12 @@ bool uiSEGY::displayWarnings( const uiStringSet& inpwarns, bool withstop,
     bool suppresscurwarns = false;
     bool res = true;
     if ( !withstop )
-	suppresscurwarns = uiMSG().warning( msg, uiString::empty(),
+	suppresscurwarns = gUiMsg(p).warning( msg, uiString::empty(),
 					    uiString::empty(), true );
     else
     {
 	msg.appendPhrase( od_static_tr("displayWarnings","Continue?") );
-	res = uiMSG().askGoOn( msg, true, &suppresscurwarns );
+	res = gUiMsg(p).askGoOn( msg, true, &suppresscurwarns );
     }
 
     if ( suppresscurwarns )
@@ -134,7 +134,7 @@ bool uiSEGY::displayWarnings( const uiStringSet& inpwarns, bool withstop,
 void uiSEGY::displayReport( uiParent* p, const IOPar& rep, const char* fnm )
 {
     if ( fnm && *fnm && !rep.write(fnm,IOPar::sKeyDumpPretty()) )
-	uiMSG().warning( uiStrings::phrCannotWrite(
+	gUiMsg(p).warning( uiStrings::phrCannotWrite(
 	  od_static_tr("displayReport",("report to specified file"))) );
 
     uiDialog* dlg = new uiDialog( p,

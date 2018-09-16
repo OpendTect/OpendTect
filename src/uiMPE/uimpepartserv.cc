@@ -128,7 +128,7 @@ int uiMPEPartServer::addTracker( const DBKey& emid )
     const int res = MPE::engine().addTracker( emobj );
     if ( res == -1 )
     {
-	uiMSG().error(
+	uimsg().error(
 		uiStrings::phrCannotCreate( tr("tracker for this object")) );
 	return -1;
     }
@@ -628,7 +628,7 @@ bool uiMPEPartServer::saveSetup( const DBKey& emid )
 	uiString errmsg( tr("Unable to save tracking setup file \n"
 			    " %1 .\nPlease check whether the file is writable")
 			    .arg(setupfilenm) );
-	uiMSG().error( errmsg );
+	uimsg().error( errmsg );
 	return false;
     }
 

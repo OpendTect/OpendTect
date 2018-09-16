@@ -307,7 +307,7 @@ void closeEvent( QCloseEvent* ev )
     BufferString bfstr = windowTitle();
     uiString msg( od_static_tr("closeEvent","Do you want to close %1 ?").
 		  arg(toUiString(bfstr)) );
-    if ( sNoCloseMessage || uiMSG().askGoOn(msg) )
+    if ( sNoCloseMessage || gUiMsg().askGoOn(msg) )
     {
 	ev->accept();
 	QMdiSubWindow::closeEvent( ev );

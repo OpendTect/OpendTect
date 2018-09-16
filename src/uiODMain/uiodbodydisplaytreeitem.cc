@@ -80,7 +80,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     if ( scene && scene->getZAxisTransform() )
     {
-	uiMSG().error( tr("Cannot add Bodies to this scene") );
+	mTIUiMsg().error( tr("Cannot add Bodies to this scene") );
 	return false;
     }
 
@@ -161,7 +161,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	uiString msg = tr("The geobody '%1' is made in OpendTect V%2, "
 			  "do you want to convert it to current version?")
 		     .arg(ioobj->name()).arg(astream.version());
-	if ( !uiMSG().askGoOn(msg) )
+	if ( !mTIUiMsg().askGoOn(msg) )
 	    continue;
 
 	uiImplicitBodyValueSwitchDlg dlg( getUiParent(), ioobj );

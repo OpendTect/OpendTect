@@ -1082,8 +1082,7 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 	return false;
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    RefMan<RegularSeisDataPack> regsdp =
-        dpm.getAndCast<RegularSeisDataPack>(dpid);
+    auto regsdp = dpm.get<RegularSeisDataPack>(dpid);
 
     const bool res = setDataVolume( attrib, regsdp, tskr );
     if ( !res )

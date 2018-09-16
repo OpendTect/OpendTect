@@ -433,19 +433,11 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    TypeSet<DataPack::ID> ids;
 	    DPM(dmid).getPackIDs( ids );
-	    const int nrpacks = ids.size();
-	    for ( int idx=0; idx<nrpacks; idx++ )
+	    for ( int idx=0; idx<ids.size(); idx++ )
 	    {
-		RefMan<DataPack> pack = DPM(dmid).get( ids[idx] );
-		if ( !pack )
-		    continue;
-
-		const FixedString tmpnm = pack->name().buf();
-		if ( tmpnm == as->userRef() )
-		{
-		    dpid = pack->id();
-		    break;
-		}
+		auto pack = DPM(dmid).getDP( ids[idx] );
+		if ( !pack && pack->name() == as->userRef() )
+		    { dpid = pack->id(); break; }
 	    }
 	}
 	if ( mnuid==statisticsitem_.id )

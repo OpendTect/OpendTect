@@ -53,7 +53,7 @@ void start( CallBacker* )
 void atEnd( CallBacker* )
 {
     sr_->fillPar( sip_->imppars_ );
-    done( sr_->state() != uiSEGYRead::cCancelled() ? 1 : 0 );
+    done( sr_->state() != uiSEGYRead::cCancelled() ? Accepted : Rejected );
 }
 
     uiSEGYRead*				sr_;
@@ -70,10 +70,8 @@ uiDialog* uiSEGYClassicSurvInfoProvider::dialog( uiParent* p, TDInfo )
     return new uiSEGYClassicSIPMgrDlg( this, p, su );
 }
 
-#define mShowErr(s) \
-    uiMainWin* mw = uiMSG().setMainWin( uiMain::theMain().topLevel() ); \
-    uiMSG().error(s); \
-    uiMSG().setMainWin(mw);
+
+#define mShowErr(s) gUiMsg().error(s); \
 
 void uiSEGYClassicSurvInfoProvider::showReport(
 				    const SEGY::Scanner& scanner ) const

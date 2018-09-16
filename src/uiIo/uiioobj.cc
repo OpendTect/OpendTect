@@ -48,7 +48,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 
 	    if ( isoutside )
 	    {
-		const int resp = uiMSG().question( mess, tr("Delete file"),
+		const int resp = gUiMsg().question( mess, tr("Delete file"),
 						   tr("Delete link"),
 						   uiStrings::sCancel(),
 						   tr("Delete data") );
@@ -57,7 +57,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 
 		dorm = resp;
 	    }
-	    else if ( doconfirm && !uiMSG().askGoOn(mess,uiStrings::sDelete(),
+	    else if ( doconfirm && !gUiMsg().askGoOn(mess,uiStrings::sDelete(),
 							 uiStrings::sCancel()) )
 	    {
 		if ( mustrm )
@@ -74,7 +74,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	{
 	    uiString mess = tr("Cannot delete data file(s).\n"
 			       "Remove entry from list anyway?");
-	    if ( !uiMSG().askRemove(mess) )
+	    if ( !gUiMsg().askRemove(mess) )
 		return false;
 	}
     }
@@ -120,7 +120,7 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
     if ( warnifexist )
     {
 	uiString msg = tr("Overwrite existing '%1'?").arg(nm);
-	if ( !uiMSG().askOverwrite(msg) )
+	if ( !gUiMsg().askOverwrite(msg) )
 	    return false;
     }
 

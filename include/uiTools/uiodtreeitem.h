@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class uiMenu;
+#define mTIUiMsg() gUiMsg(getUiParent())
 
 
 mExpClass(uiTools) uiODTreeItem : public uiTreeItem

@@ -43,7 +43,7 @@ bool uiSurvey::userIsOKWithPossibleTypeChange( bool is2d )
 	      .arg( is2d ? uiStrings::s3D() : uiStrings::s2D() )
 	      .arg( is2d ? uiStrings::s2D() : uiStrings::s3D() );
 
-    return uiMSG().askContinue( warnmsg );
+    return gUiMsg().askContinue( warnmsg );
 }
 
 
@@ -55,7 +55,7 @@ bool uiSurvey::unzipFile( uiParent* par, const char* inpfnm,
     zinfo.getAllFnms( fnms );
     if ( fnms.isEmpty() )
     {
-	uiMSG().error( uiStrings::phrInvalid(od_static_tr("uiSurvey_unzipFile",
+	gUiMsg().error( uiStrings::phrInvalid(od_static_tr("uiSurvey_unzipFile",
 							      "Zip Archive")) );
 	return false;
     }
@@ -64,7 +64,7 @@ bool uiSurvey::unzipFile( uiParent* par, const char* inpfnm,
     const bool isvalidsurvey = fnms.indexOf( omf ) > -1;
     if ( !isvalidsurvey )
     {
-	uiMSG().error( od_static_tr("uiSurvey_unzipFile",
+	gUiMsg().error( od_static_tr("uiSurvey_unzipFile",
 			    "This archive does not contain any valid survey") );
 	return false;
     }
@@ -72,19 +72,19 @@ bool uiSurvey::unzipFile( uiParent* par, const char* inpfnm,
 	destdir = GetBaseDataDir();
     if ( !File::exists(destdir) )
     {
-	uiMSG().error( od_static_tr("uiSurvey_unzipFile","%1\ndoes not exist")
+	gUiMsg().error( od_static_tr("uiSurvey_unzipFile","%1\ndoes not exist")
 					       .arg(toUiString(destdir)) );
 	return false;
     }
     if ( !File::isDirectory(destdir) )
     {
-	uiMSG().error( od_static_tr("uiSurvey_unzipFile",
+	gUiMsg().error( od_static_tr("uiSurvey_unzipFile",
 		      "%1\nis not a directory").arg(toUiString(destdir)) );
 	return false;
     }
     if ( !File::isWritable(destdir) )
     {
-	uiMSG().error( od_static_tr("uiSurvey_unzipFile",
+	gUiMsg().error( od_static_tr("uiSurvey_unzipFile",
 				    "%1 \nis not writable")
 			            .arg(toUiString(destdir)) );
 	return false;
@@ -97,7 +97,7 @@ bool uiSurvey::unzipFile( uiParent* par, const char* inpfnm,
 				 "%1 survey already exists.\nOverwrite the",
 				 " existing survey?").arg(toUiString(
 				 surveypath.fullPath())));
-	if ( !uiMSG().askOverwrite(errmsg) )
+	if ( !gUiMsg().askOverwrite(errmsg) )
 	    return false;
     }
 
@@ -121,7 +121,7 @@ bool uiSurvey::unzipFile( uiParent* par, const char* inpfnm,
 	uiStringSet detailedmsg;
 	detailedmsg += uiStrings::phrCannotUnZip( uiStrings::sSurvey() );
 	detailedmsg += emsg;
-	uiMSG().errorWithDetails( detailedmsg );
+	gUiMsg().errorWithDetails( detailedmsg );
 	return false;
     }
 
@@ -141,7 +141,7 @@ bool uiSurvey::zipDirectory( uiParent* par, const char* sdn,
 	inpdir = File::linkEnd(inpdir);
     if ( !File::isDirectory(inpdir) )
     {
-	uiMSG().error(od_static_tr("zipDirectory","%1\ndoes not exist")
+	gUiMsg().error(od_static_tr("zipDirectory","%1\ndoes not exist")
 		      .arg(toUiString(inpdir)) );
 	return false;
     }
@@ -152,7 +152,7 @@ bool uiSurvey::zipDirectory( uiParent* par, const char* sdn,
 	const File::Path fp( zipfnm );
 	if ( !File::isWritable(fp.pathOnly()) )
 	{
-	    uiMSG().error(od_static_tr("zipDirectory",
+	    gUiMsg().error(od_static_tr("zipDirectory",
 			  "%1 is not writable").arg(toUiString(fp.pathOnly())));
 	    return false;
 	}
@@ -176,7 +176,7 @@ bool uiSurvey::zipDirectory( uiParent* par, const char* sdn,
 	uiStringSet detailedmsg;
 	detailedmsg += uiStrings::phrCannotZip( uiStrings::sSurvey() );
 	detailedmsg += emsg;
-	uiMSG().errorWithDetails( detailedmsg );
+	gUiMsg().errorWithDetails( detailedmsg );
 	return false;
     }
 
@@ -190,7 +190,7 @@ SurveyInfo* uiSurvey::copySurvey( uiParent* uiparent, const char* survnm,
 {
     if ( !File::isDirectory(targetpath) )
     {
-	uiMSG().error( od_static_tr("uiSurvey_finishSurveyCopy",
+	gUiMsg().error( od_static_tr("uiSurvey_finishSurveyCopy",
 		"Invalid target directory for copy:\n%1").arg( targetpath ) );
 	return 0;
     }
@@ -202,7 +202,7 @@ SurveyInfo* uiSurvey::copySurvey( uiParent* uiparent, const char* survnm,
     const BufferString todir = File::Path(targetpath,newsurvdirnm).fullPath();
     if ( File::exists(todir) )
     {
-	uiMSG().error( alreadyexiststr.arg( todir ) );
+	gUiMsg().error( alreadyexiststr.arg( todir ) );
         return 0;
     }
     const BufferString linktodir = File::Path(dataroot,newsurvdirnm).fullPath();
@@ -212,7 +212,7 @@ SurveyInfo* uiSurvey::copySurvey( uiParent* uiparent, const char* survnm,
 	    File::remove( linktodir );
 	if ( File::exists(linktodir) )
 	{
-	    uiMSG().error( alreadyexiststr.arg( linktodir ) );
+	    gUiMsg().error( alreadyexiststr.arg( linktodir ) );
 	    return 0;
 	}
     }
@@ -232,7 +232,7 @@ SurveyInfo* uiSurvey::copySurvey( uiParent* uiparent, const char* survnm,
     {
 	if ( !File::createLink(todir,linktodir) )
 	{
-	    uiMSG().error( od_static_tr("uiSurvey_finishSurveyCopy",
+	    gUiMsg().error( od_static_tr("uiSurvey_finishSurveyCopy",
 		"Copy was successful, but could not create a link from:"
 		    "\n\n%1\n\nto:\n\n%2\n\n"
 		"The new survey will therefore not appear in the list.")
@@ -253,7 +253,7 @@ SurveyInfo* uiSurvey::copySurvey( uiParent* uiparent, const char* survnm,
     else
     {
 	delete survinfo; survinfo = 0;
-        uiMSG().error( od_static_tr("uiSurvey_finishSurveyCopy",
+        gUiMsg().error( od_static_tr("uiSurvey_finishSurveyCopy",
 	    "The copied survey's information cannot be read."
 	    "\nThis is probably related to file access permission problems.") );
     }

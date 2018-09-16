@@ -29,7 +29,7 @@ ________________________________________________________________________
 static const float cMaxSampledBinVal = 100.0f;
 
 
-static bool writePDF( const ProbDenFunc& pdf, const IOObj& ioobj )
+static bool writePDF( uiParent* p, const ProbDenFunc& pdf, const IOObj& ioobj )
 {
     uiString emsg;
     if ( ProbDenFuncTranslator::write(pdf,ioobj,&emsg) )
@@ -38,7 +38,7 @@ static bool writePDF( const ProbDenFunc& pdf, const IOObj& ioobj )
     uiString msg = emsg;
     if ( msg.isEmpty() )
 	msg = uiStrings::phrCannotWrite(od_static_tr("writePDF","PDF to disk"));
-    uiMSG().error( msg );
+    gUiMsg(p).error( msg );
     return false;
 }
 
@@ -430,7 +430,7 @@ bool uiProbDenFuncGenSampled::acceptOK()
     if ( !pdf )
 	return false;
 
-    return writePDF( *pdf, *outfld_->ioobj() );
+    return writePDF( this, *pdf, *outfld_->ioobj() );
 }
 
 
@@ -482,5 +482,5 @@ bool uiProbDenFuncGenGaussian::acceptOK()
 	return false;
 
     ioobjky_ = pdfioobj->key();
-    return writePDF( *pdf_, *pdfioobj );
+    return writePDF( this, *pdf_, *pdfioobj );
 }

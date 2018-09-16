@@ -35,6 +35,9 @@ public:
 
     static bool		execute(TaskRunner*,Task&);	//!< runner may be null
 
+    virtual void	emitErrorMessage(const uiString&,
+			    bool iswarn=false) const	= 0;
+
 protected:
 
 			TaskRunner(const TaskRunner&)	= delete;
@@ -61,13 +64,18 @@ public:
 
     virtual		~TaskRunnerProvider()	{ retire(); }
 
-    virtual TaskRunner&	runner() const		= 0;
     bool		execute( Task& t ) const { return runner().execute(t); }
 
     virtual void	retire() const
 			{ if ( ismine_ ) delete runner_; runner_ = 0; }
 
-    static bool		execute(const TaskRunnerProvider*,Task&); //!< may be null
+    static bool		execute(const TaskRunnerProvider*,Task&);
+				//!< may be null
+
+    virtual TaskRunner&	runner() const					= 0;
+    virtual void	emitErrorMessage( const uiString& msg,
+					  bool wrn=false ) const
+			{ runner().emitErrorMessage(msg,wrn); }
 
 protected:
 
@@ -84,6 +92,9 @@ mExpClass(Basic) SilentTaskRunner : public TaskRunner
 public:
 
     virtual bool	execute(Task&);
+    virtual void	emitErrorMessage(const uiString&,
+					 bool iswarn=false) const;
+				// puts message in log file
 
 };
 
@@ -124,6 +135,7 @@ public:
 			    }
 			    return *runner_;
 			}
+
 };
 
 
@@ -137,6 +149,7 @@ public:
 			    : strm_(strm)	{}
 
     virtual bool	execute(Task&);
+    virtual void	emitErrorMessage(const uiString&,bool wrn=false) const;
 
 protected:
 

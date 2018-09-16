@@ -458,13 +458,20 @@ void SeisTrcBufArray2D::getAuxInfo( Seis::GeomType gt, int itrc,
 }
 
 
+SeisTrcBufDataPack::SeisTrcBufDataPack( const char* cat )
+    : FlatDataPack( cat )
+    , gt_(Seis::Line)
+    , posfld_(SeisTrcInfo::TrcNr)
+{
+    arr2d_ = new SeisTrcBufArray2D( 0, true, 0 );
+}
+
+
 SeisTrcBufDataPack::SeisTrcBufDataPack( SeisTrcBuf* tbuf,
 					Seis::GeomType gt,
 					SeisTrcInfo::Fld fld,
 					const char* cat, int icomp )
     : FlatDataPack( cat )
-    , gt_(gt)
-    , posfld_(fld)
 {
     setBuffer( tbuf, gt, fld, icomp, true );
 }
@@ -475,8 +482,6 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBuf& tbuf,
 					SeisTrcInfo::Fld fld,
 					const char* cat, int icomp )
     : FlatDataPack( cat )
-    , gt_(gt)
-    , posfld_(fld)
 {
     setBuffer( const_cast<SeisTrcBuf*>(&tbuf), gt, fld, icomp, false );
 }
@@ -485,8 +490,8 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBuf& tbuf,
 SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
     : FlatDataPack( b.category(), 0 )
 {
-    const bool bufisours =
-		b.arr2d_ && ((SeisTrcBufArray2D*)b.arr2d_)->bufIsMine();
+    const bool bufisours = b.arr2d_
+			&& ((SeisTrcBufArray2D*)b.arr2d_)->bufIsMine();
     SeisTrcBuf* buf = const_cast<SeisTrcBuf*>( &b.trcBuf() );
     if ( buf && bufisours )
 	buf = buf->clone();
@@ -498,18 +503,18 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
 void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 				    SeisTrcInfo::Fld fld, int icomp, bool mine )
 {
-    delete arr2d_; arr2d_ = 0;
     posfld_ = fld;
     gt_ = gt;
-    const int tbufsz = tbuf ? tbuf->size() : 0;
-    FlatPosData& pd = posData();
 
+    delete arr2d_;
     arr2d_ = new SeisTrcBufArray2D( tbuf, mine, icomp );
 
     if ( tbuf )
     {
 	SeisTrcInfo::getAxisCandidates( gt_, flds_ );
 	double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
+	FlatPosData& pd = posData();
+	const int tbufsz = tbuf ? tbuf->size() : 0;
 	pd.setX1Pos( hdrvals, tbufsz, ofv );
 	SeisPacketInfo pinf; tbuf->fill( pinf );
 	StepInterval<double> zrg; assign( zrg, pinf.zrg );
@@ -601,6 +606,15 @@ const char* SeisTrcBufDataPack::dimName( bool dim0 ) const
     else
 	ret.set( toString( SI().zDomain().userName() ) );
     return ret.buf();
+}
+
+
+void SeisTrcBufDataPack::doDumpInfo( IOPar& iop ) const
+{
+    FlatDataPack::doDumpInfo( iop );
+
+    Seis::putInPar( gt_, iop );
+    iop.set( "Selected Data", SeisTrcInfo::toString(posfld_) );
 }
 
 

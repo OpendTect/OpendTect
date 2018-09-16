@@ -255,14 +255,10 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 	for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
 	{
 	    uiFlatViewer& vwr = viewwin()->viewer(ivwr);
+	    vwr.setMapper( iswiggle, attriblayer->mapper() );
 	    if ( !iswiggle )
-	    {
 		vwr.appearance().ddpars_.vd_.colseqname_
 			    = attriblayer->sequence().name();
-		vwr.appearance().ddpars_.vd_.mapper_ = &attriblayer->mapper();
-	    }
-	    else
-		vwr.appearance().ddpars_.wva_.mapper_ = &attriblayer->mapper();
 	    vwr.handleChange( FlatView::Viewer::DisplayPars );
 	}
     }
@@ -590,9 +586,10 @@ DataPack::ID uiODViewer2D::createDataPack(const Attrib::SelSpec& selspec)
 
 DataPack::ID uiODViewer2D::createFlatDataPack( DataPack::ID dpid, int comp )
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstRefMan<VolumeDataPack> seisdp = dpm.get( dpid );
-    if ( !seisdp || !(comp<seisdp->nrComponents()) ) return dpid;
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    auto seisdp = dpm.get<VolumeDataPack>( dpid );
+    if ( !seisdp || !(comp<seisdp->nrComponents()) )
+	return dpid;
 
     const FixedString zdomainkey( seisdp->zDomain().key() );
     const bool alreadytransformed =
@@ -632,22 +629,22 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
 
-    RefMan<DataPointSet> data =
-	DPM(DataPackMgr::PointID()).add(new DataPointSet(false,true));
+    RefMan<DataPointSet> dps = new DataPointSet( false, true );
+    DPM(DataPackMgr::PointID()).add( dps );
 
     ZAxisTransformPointGenerator generator( *datatransform_.ptr() );
     generator.setInput( tkzs, SilentTaskRunnerProvider() );
-    generator.setOutputDPS( *data );
+    generator.setOutputDPS( *dps );
     generator.execute();
 
-    const int firstcol = data->nrCols();
+    const int firstcol = dps->nrCols();
     BufferStringSet userrefs; userrefs.add( selspec.userRef() );
-    data->dataSet().add( new DataColDef(userrefs.get(0)) );
-    if ( !attrserv->createOutput(*data,firstcol) )
+    dps->dataSet().add( new DataColDef(userrefs.get(0)) );
+    if ( !attrserv->createOutput(*dps,firstcol) )
 	return DataPack::cNoID();
 
     return RegularSeisDataPack::createDataPackForZSlice(
-	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), &userrefs );
+	    &dps->bivSet(), tkzs, datatransform_->toZDomainInfo(), &userrefs );
 }
 
 

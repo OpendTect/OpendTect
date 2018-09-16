@@ -144,6 +144,8 @@ protected:
     TypeSet<float>		azimuths_;
     StepInterval<float>		zrg_;
 
+    virtual void		doDumpInfo(IOPar&) const;
+
 public:
 
     bool			setFromTrcBuf(SeisTrcBuf&,int comp,
@@ -156,11 +158,15 @@ public:
 mExpClass(Seis) GatherSetDataPack : public DataPack
 {
 public:
-				GatherSetDataPack(const char* ctgery,
-						  const ObjectSet<Gather>&);
+
+    typedef ObjectSet<Gather>	GatherSet;
+
 				GatherSetDataPack( const char* cat )
 				    : DataPack(cat)	{}
+				GatherSetDataPack(const char* cat,
+						  const GatherSet&);
 				mDeclMonitorableAssignment(GatherSetDataPack);
+    bool			isEmpty() const { return gathers_.isEmpty(); }
 
     void			fill(Array2D<float>&,int offsetidx) const;
     void			fill(SeisTrcBuf&,int offsetidx) const;
@@ -171,11 +177,11 @@ public:
     const SeisTrc*		getTrace(const BinID&,int offsetidx) const;
 
     const Gather*		getGather(const BinID&) const;
-    const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }
-    ObjectSet<Gather>&		getGathers()		{ return gathers_; }
+    const GatherSet&		getGathers() const	{ return gathers_; }
+    GatherSet&			getGathers()		{ return gathers_; }
     void			addGather(Gather*);
-    void			setGathers( RefObjectSet<Gather>& gathers )
-				{ gathers_ = gathers;}
+    void			setGathers( const GatherSet& gathers )
+				{ gathers_ = gathers; }
 
 protected:
 
@@ -185,6 +191,8 @@ protected:
 
     RefObjectSet<Gather>	gathers_;
 
+    virtual bool		gtIsEmpty() const { return gathers_.isEmpty(); }
     virtual float		gtNrKBytes() const;
+    virtual void		doDumpInfo(IOPar&) const;
 
 };

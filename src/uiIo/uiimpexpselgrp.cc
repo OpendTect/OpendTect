@@ -126,7 +126,7 @@ bool createBaseDir()
 	{
 	    const uiString msg =
 		uiStrings::phrCannotCreateDirectory( basefp_.fullPath() );
-	    uiMSG().error( msg );
+	    gUiMsg().error( msg );
 	    return false;
 	}
     }
@@ -141,7 +141,7 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
 
     SafeFileIO sfio( File::Path(basefp_,sKeyIdxFileName()).fullPath(), true );
     if ( !sfio.open(false) )
-	{ uiMSG().error( uiStrings::phrCannotWrite(filtypstr) ); return false; }
+	{ gUiMsg().error( uiStrings::phrCannotWrite(filtypstr) ); return false;}
 
     ascostream astrm( sfio.ostrm() );
     astrm.putHeader( "Selection Group Set Names" );
@@ -156,7 +156,7 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
 	sfio.closeFail();
 	uiString errmsg( uiStrings::phrErrDuringWrite(filtypstr) );
 	sfio.ostrm().addErrMsgTo( errmsg );
-	uiMSG().error( errmsg );
+	gUiMsg().error( errmsg );
 	return false;
     }
 

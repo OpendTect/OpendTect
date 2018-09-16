@@ -381,7 +381,7 @@ bool uiODEarthModelSurfaceTreeItem::isHorReady( const DBKey& emid )
 	    "%1'%2' has to be saved.\n\nDo you want to save it?")
 	    .arg(emobj->getTypeStr()).arg(emobj->name());
 
-	const int ret = uiMSG().askSave( msg, false );
+	const int ret = mTIUiMsg().askSave( msg, false );
 	if ( ret!=1 )
 	    return false;
 
@@ -426,7 +426,7 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     if ( !hastracker && ems->isGeometryChanged(emid_)
 		     && ems->nrAttributes(emid_)>0 )
     {
-	const bool res = uiMSG().askSave(
+	const bool res = mTIUiMsg().askSave(
 		tr("Geometry has been changed. Saved 'Horizon Data' is\n"
 		   "not valid anymore and will be removed now.\n"
 		   "Continue saving?") );
@@ -610,7 +610,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( !as || as->id() != Attrib::SelSpec::cOtherAttribID() )
 	{
-	   uiMSG().error(tr("This algorithm can only be applied on "
+	    mTIUiMsg().error(tr("This algorithm can only be applied on "
 			    "'Horizon Data'.\nPlease save attribute first"));
 	    return;
 	}

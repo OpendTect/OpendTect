@@ -405,8 +405,6 @@ int uiTextFileDlg::doMsg( const char* msg, bool iserr )
 {
     int ret = 0;
 
-    uiMsgMainWinSetter setter( this );
-
     if ( iserr )
 	uiMSG().error( toUiString(msg) );
     else
@@ -419,8 +417,6 @@ int uiTextFileDlg::doMsg( const char* msg, bool iserr )
 int uiTextFileDlg::doMsg( const uiString& msg, bool iserr )
 {
     int ret = 0;
-
-    uiMsgMainWinSetter setter( this );
 
     if ( iserr )
 	uiMSG().error( msg );

@@ -149,7 +149,7 @@ void uiODTreeItem::removeAllItems( bool showmsg )
     {
 	const uiString msg = tr("All %1 items will be removed from tree.\n"
 				"Do you want to continue?").arg(name());
-	if ( !uiMSG().askRemove(msg) )
+	if ( !gUiMsg().askRemove(msg) )
 	    return;
     }
 

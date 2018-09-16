@@ -131,14 +131,7 @@ TrcKeyZSampling Seis::VolFetcher::getDefaultCS() const
 
 void Seis::VolFetcher::findDataPack()
 {
-    RefMan<DataPack> dp = Seis::PLDM().get( prov().dbky_ );
-    if ( !dp )
-	return;
-    mDynamicCastGet(RegularSeisDataPack*,rdp,dp.ptr());
-    if ( !rdp || rdp->isEmpty() )
-	return;
-
-    dp_ = rdp;
+    dp_ = Seis::PLDM().get<RegularSeisDataPack>( prov().dbky_ );
 }
 
 

@@ -27,8 +27,9 @@ mExpClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
 public:
 
 			uiStratSimpleLayerModelDisp(uiStratLayModEditTools&,
-					    const Strat::LayerModelProvider&);
+					    const Strat::LayerModelSuite&);
 			~uiStratSimpleLayerModelDisp();
+    virtual bool	isPerModelDisplay() const	{ return true; }
 
     virtual void	modelChanged();
     virtual void	reSetView();
@@ -52,7 +53,7 @@ protected:
     ObjectSet<FlatView::AuxData> levelads_;
     FlatView::AuxData*	selseqad_;
 
-    RefMan<FlatDataPack> emptydp_;
+    RefMan<FlatDataPack> fvdp_;
     uiWorldRect		zoomwr_;
     int			dispprop_;
     int			dispeach_;

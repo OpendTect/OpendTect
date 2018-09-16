@@ -87,11 +87,10 @@ public:
 mExpClass(General) LevelSet : public SharedObject
 {
 public:
-    mDefIntegerIDType(int,LVLID);
 
     typedef Level::ID			ID;
     typedef ObjectSet<Level>::size_type	size_type;
-    typedef size_type			IdxType;
+    typedef size_type			idx_type;
 
 
 			LevelSet(int idstartidsat=0);
@@ -104,13 +103,13 @@ public:
     bool		isPresent(ID) const;
     bool		isPresent(const char*) const;
     ID			getIDByName(const char*) const;
-    ID			getIDByIdx(IdxType) const;
-    IdxType		indexOf(ID) const;
-    IdxType		indexOf(const char*) const;
+    ID			getIDByIdx(idx_type) const;
+    idx_type		indexOf(ID) const;
+    idx_type		indexOf(const char*) const;
     void		getNames(BufferStringSet&) const;
-    BufferString	levelName(ID) const;
-    Color		levelColor(ID) const;
-    IOPar		levelPars(ID) const;
+    BufferString	nameOf(ID) const;
+    Color		colorOf(ID) const;
+    IOPar		parsOf(ID) const;
 
     Level		get(ID) const;
     Level		getByIdx(int) const;
@@ -159,6 +158,7 @@ public:
 
 mGlobal(General) const LevelSet& LVLS();
 inline LevelSet& eLVLS()	{ return const_cast<LevelSet&>(LVLS()); }
+inline BufferString nameOf( const Level::ID& id ) { return LVLS().nameOf(id); }
 
 // From here: do not use, you will not need it.
 // Needless to say that if you push, make sure you pop (so afterwards the real

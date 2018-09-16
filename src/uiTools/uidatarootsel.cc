@@ -246,7 +246,7 @@ bool uiDataRootSel::setRootDirOnly( const char* dirnm )
 {
     uiRetVal uirv = DBMan::isValidDataRoot( dirnm );
     if ( !uirv.isOK() )
-	{ uiMSG().error( uirv ); return false; }
+	{ gUiMsg().error( uirv ); return false; }
 
     SetBaseDataDir( dirnm );
     addDirNameToSettingsIfNew( dirnm, true );

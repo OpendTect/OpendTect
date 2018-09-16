@@ -63,6 +63,7 @@ mExpClass(Seis) SeisTrcBufDataPack : public FlatDataPack
 {
 public:
 
+			SeisTrcBufDataPack(const char* cat);
 			SeisTrcBufDataPack(SeisTrcBuf*,Seis::GeomType,
 					   SeisTrcInfo::Fld,const char* categry,
 					   int compnr=0);
@@ -100,5 +101,8 @@ protected:
     Seis::GeomType		gt_;
     SeisTrcInfo::Fld		posfld_;
     TypeSet<SeisTrcInfo::Fld>	flds_;
+
+    virtual void	doDumpInfo(IOPar&) const;
+    virtual bool	gtIsEmpty() const   { return trcBuf().isEmpty(); }
 
 };

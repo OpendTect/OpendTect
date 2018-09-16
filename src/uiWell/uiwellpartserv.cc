@@ -181,7 +181,7 @@ void uiWellPartServer::importMarkers()
 
     dlg.getMarkerSet( wd->markers() );
     SilentTaskRunnerProvider trprov;
-    uiMSG().handleErrors( Well::MGR().save(mid,trprov) );
+    uimsg().handleErrors( Well::MGR().save(mid,trprov) );
 }
 
 
@@ -377,7 +377,7 @@ void uiWellPartServer::launchRockPhysics()
     uiWellRockPhysLauncher dlg( parent() );
     const int sz = dlg.multiwellsel_->nrWells();
     if ( sz == 0 )
-	uiMSG().error( uiStrings::phrCreate(tr("one or more wells first")) );
+	uimsg().error( uiStrings::phrCreate(tr("one or more wells first")) );
     else if ( sz > 1 )
 	dlg.go();
     else
@@ -491,7 +491,7 @@ static void makeTimeDepthModel( bool addwellhead, double z0, double srddepth,
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRet(s) { uimsg().error(s); return false; }
 
 
 bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,

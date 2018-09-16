@@ -88,7 +88,7 @@ void uiImp2DGeom::singmultCB( CallBacker* )
 bool uiImp2DGeom::acceptOK()
 {
     if ( File::isEmpty(fnmfld_->fileName()) )
-    { uiMSG().error(uiStrings::sInvInpFile()); return false; }
+	{ uiMSG().error(uiStrings::sInvInpFile()); return false; }
 
     if ( !linenm_.isEmpty() )
 	return false;
@@ -344,7 +344,7 @@ Pos::GeomID Geom2DImpHandler::createNewGeom( const char* nm )
     uiString msg;
     Pos::GeomID geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
     if ( mIsUdfGeomID(geomid) )
-	uiMSG().error( msg );
+	gUiMsg().error( msg );
 
     return geomid;
 }
@@ -361,7 +361,7 @@ bool Geom2DImpHandler::confirmOverwrite( const BufferStringSet& lnms )
 	   "affected. Do you still want to overwrite?")
 	.arg(lnms.getDispString(5));
 
-    return uiMSG().askOverwrite( msg );
+    return gUiMsg().askOverwrite( msg );
 }
 
 
@@ -371,5 +371,5 @@ bool Geom2DImpHandler::confirmOverwrite( const char* lnm )
 		      "its geometry, all the associated data will be "
 		      "affected. Do you still want to overwrite?")
 		      .arg(lnm);
-    return uiMSG().askOverwrite( msg );
+    return gUiMsg().askOverwrite( msg );
 }

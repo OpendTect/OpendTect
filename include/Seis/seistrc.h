@@ -64,8 +64,8 @@ public:
 
     bool		isNull(int icomp=-1) const;
     bool		hasUndef(int icomp=-1) const;
-    inline void		zero( int icomp=-1 )
-			{ data_.zero( icomp ); }
+    inline void		zero( int icomp=-1 )	    { data_.zero( icomp ); }
+    void		setAll(float,int icomp=-1);
     void		setNrComponents(int,OD::DataRepType dt=OD::AutoDataRep);
     void		addComponent( int ns=0,
 				      const DataCharacteristics& dc

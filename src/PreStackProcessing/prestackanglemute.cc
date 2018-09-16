@@ -7,10 +7,10 @@
 
 #include "prestackanglemute.h"
 
-#include "ailayer.h"
 #include "arrayndslice.h"
 #include "flatposdata.h"
 #include "dbman.h"
+#include "elasticmodel.h"
 #include "ioobj.h"
 #include "math.h"
 #include "muter.h"
@@ -303,11 +303,11 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	const auto zdim = Gather::zDim();
 
 	int nrlayers = input->data().getSize( zdim );
-	ElasticModel layers; SamplingData<float> sd;
-	if ( !getLayers( bid, layers, sd, nrlayers ) )
+	auto* layers = new ElasticModel; SamplingData<float> sd;
+	if ( !getLayers( bid, *layers, sd, nrlayers ) )
 	    continue;
 
-	const int nrblockedlayers = layers.size();
+	const int nrblockedlayers = layers->size();
 	TypeSet<float> offsets;
 	const int nroffsets = input->size( input->offsetDim()==0 );
 	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
@@ -341,13 +341,16 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		    float mtime = 0;
 		    for ( int il=0; il<=muteintlayer; il++ )
 		    {
-			mtime += layers[il].thickness_/layers[il].vel_;
+			const auto& lyr = layers->get( il );
+			mtime += lyr.thickness_ / lyr.vel_;
 			if ( il==muteintlayer )
 			{
 			    const float diff = mutelayer-muteintlayer;
 			    if ( diff>0 )
-				mtime += diff*
-				    layers[il+1].thickness_/layers[il+1].vel_;
+			    {
+				const auto& nextlyr = layers->get( il+1 );
+				mtime += diff * nextlyr.thickness_/nextlyr.vel_;
+			    }
 			}
 		    }
 		    mutelayer = sd.getfIndex( mtime );
@@ -358,7 +361,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		    for ( int il=0; il<muteintlayer+2; il++ )
 		    {
 			if ( il >= nrblockedlayers ) break;
-			float thk = layers[il].thickness_;
+			float thk = layers->get(il).thickness_;
 			if ( il == muteintlayer+1 )
 			    thk *= ( mutelayer - muteintlayer);
 

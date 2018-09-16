@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "namedobj.h"
 class uiParent;
+class uiMsg;
 class uiApplPartServer;
 
 
@@ -27,9 +28,9 @@ public:
 
     virtual uiParent*	parent() const					= 0;
     virtual bool	eventOccurred(const uiApplPartServer*,int evid)	= 0;
-    			//!< The evid will be specific for each partserver
+			//!< The evid will be specific for each partserver
     virtual void*	getObject(const uiApplPartServer*,int)		= 0;
-    			//!< The actual type is a protocol with the partserver
+			//!< The actual type is a protocol with the partserver
 };
 
 
@@ -40,14 +41,14 @@ interesting in an application environment. In such situations, the server may
 need feed-back from the application, which can be requested through the
 eventOccurred interface. The idea is that the application then - knowing
 which of its part servers is calling - proceeds with the right action.
- 
+
 */
 
 mExpClass(uiTools) uiApplPartServer : public CallBacker
 {
 public:
 
-    			uiApplPartServer( uiApplService& a );
+			uiApplPartServer(uiApplService&);
     virtual const char*	name() const		= 0;
 
     uiApplService&	appserv();
@@ -56,6 +57,7 @@ public:
 protected:
 
     uiParent*		parent() const;
+    uiMsg&		uimsg() const;
 
     bool		sendEvent( int evid ) const;
     void*		getObject( int objid ) const;

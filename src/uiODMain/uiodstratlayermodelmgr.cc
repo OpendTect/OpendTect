@@ -140,7 +140,8 @@ bool uiStratLayerModelManager::haveExistingDlg()
 {
     if ( dlg_ )
     {
-	uiMSG().error(tr("Please exit your other layer modeling window first"));
+	gUiMsg().error(
+		tr("Please exit your other layer modeling window first"));
 	dlg_->raise();
 	return true;
     }

@@ -97,8 +97,10 @@ public:
 			     attributes with multiple outputs
 			     are created and added */
 
-    Desc&		operator[]( int idx )	{ return *desc(idx); }
-    const Desc&		operator[]( int idx ) const { return *desc(idx); }
+    Desc&		get( int idx )		{ return *desc(idx); }
+    const Desc&		get( int idx ) const	{ return *desc(idx); }
+    Desc&		operator[]( int idx )	{ return get(idx); }
+    const Desc&		operator[]( int idx ) const { return get(idx); }
     int			nrDescs(bool inclstored=false,
 				bool inclhidden=false) const;
 

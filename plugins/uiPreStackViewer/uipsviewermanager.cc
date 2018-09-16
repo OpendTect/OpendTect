@@ -287,7 +287,7 @@ int uiViewer3DMgr::getSceneID( int mnid )
 }
 
 
-#define mErrReturn(msg) { uiMSG().error(msg); return false; }
+#define mErrReturn(msg) { gUiMsg().error(msg); return false; }
 
 bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 				 int sceneid, int mnuidx )
@@ -421,7 +421,7 @@ uiViewer3DPositionDlg*
 }
 
 
-#define mErrRes(msg) { uiMSG().error(msg); return 0; }
+#define mErrRes(msg) { gUiMsg().error(msg); return 0; }
 
 uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
 						DataPack::ID dpid )
@@ -438,8 +438,9 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
     vwr.appearance().ddpars_.show( false, true );
     vwr.appearance().ddpars_.wva_.overlap_ = 1;
 
-    ConstRefMan<FlatDataPack> fdp = DPM(DataPackMgr::FlatID()).get(dpid);
-    if ( !fdp ) return 0;
+    auto fdp = DPM(DataPackMgr::FlatID()).get<FlatDataPack>(dpid);
+    if ( !fdp )
+	return 0;
 
     vwr.setPack( false, dpid, true );
     int pw = 400 + 5 * fdp->data().getSize( 0 );
@@ -524,11 +525,11 @@ void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
 	    {
 		uiString msg = uiStrings::phrCannotFind(toUiString("%1")
 				    .arg(selgnms[idx]->buf()));
-		uiMSG().error( msg );
+		gUiMsg().error( msg );
 	    }
 	}
 	if ( selids.isEmpty() )
-	    { uiMSG().error(tr("No data found")); return; }
+	    { gUiMsg().error(tr("No data found")); return; }
 
 	win->setIDs( selids );
     }

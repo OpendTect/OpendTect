@@ -83,7 +83,7 @@ bool uiODPSEventsParentTreeItem::loadPSEvent( DBKey& key,
     if ( key.isInvalid() || eventname.isEmpty() )
     {
 	uiString errmsg = tr("Failed to load prestack event");
-	uiMSG().error( errmsg );
+	mTIUiMsg().error( errmsg );
 	return false;
     }
 

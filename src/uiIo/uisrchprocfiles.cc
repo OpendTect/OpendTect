@@ -73,9 +73,6 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     if ( key.isEmpty() )
 	return;
 
-    uiMsgMainWinSetter msgwinsetter( this );
-	// Otherwise the error box pulls up OD main win. No idea why.
-
     toStatusBar( tr("Scanning Directory") );
     const BufferString msk( maskfld->text() );
     const BufferString dirnm( dirfld->text() );

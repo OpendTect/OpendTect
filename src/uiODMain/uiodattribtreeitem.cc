@@ -306,8 +306,8 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid )
 						attrserv->getTargetSelSpecs();
 		if ( selspecs.size() )
 		{
-		    uiMSG().warning( tr("This object cannot yet display more "
-				      "than the first component selected") );
+		    mTIUiMsg().warning( tr("This object cannot yet display "
+				"more than the first component selected") );
 		    myas = selspecs[0];
 		    dousemulticomp = false;
 		}
@@ -488,24 +488,24 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
     DataPack::ID attrdpid;
     if ( zprobe && ztransform && !attrselspec.isZTransformed() )
     {
-	RefMan<DataPointSet> data =
-	    DPM(DataPackMgr::PointID()).add(new DataPointSet(false,true));
+	RefMan<DataPointSet> dps = new DataPointSet( false, true );
+	DPM(DataPackMgr::PointID()).add( dps );
 
 	ZAxisTransformPointGenerator generator( *ztransform );
 	generator.setInput( probepos, SilentTaskRunnerProvider() );
-	generator.setOutputDPS( *data );
+	generator.setOutputDPS( *dps );
 	generator.execute();
 
-	const int firstcol = data->nrCols();
+	const int firstcol = dps->nrCols();
 	BufferStringSet userrefs; userrefs.add( attrselspec.userRef() );
-	data->dataSet().add( new DataColDef(userrefs.get(0)) );
-	if ( !attrserv->createOutput(*data,firstcol) )
+	dps->dataSet().add( new DataColDef(userrefs.get(0)) );
+	if ( !attrserv->createOutput(*dps,firstcol) )
 	    return attrdp;
 
 	attrdpid =
-	    RegularSeisDataPack::createDataPackForZSlice( &data->bivSet(),
+	    RegularSeisDataPack::createDataPackForZSlice( &dps->bivSet(),
 			    probepos, ztransform->toZDomainInfo(), &userrefs );
-	return getDPM().get( attrdpid );
+	return getDPM().getDP( attrdpid );
     }
 
 
@@ -515,7 +515,7 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
     else
 	attrdpid = attrserv->createOutput( probepos, DataPack::cNoID() );
 
-    attrdp = getDPM().get( attrdpid );
+    attrdp = getDPM().getDP( attrdpid );
     if ( !attrdp )
 	return attrdp;
 

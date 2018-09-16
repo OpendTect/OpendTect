@@ -247,11 +247,11 @@ bool uiImpExpPickSet::doExport()
 
 bool uiImpExpPickSet::acceptOK()
 {
-    uiMsgMainWinSetter mws( this );
-
-    if ( !checkInpFlds() ) return false;
-    bool ret = import_ ? doImport() : doExport();
-    if ( !ret ) return false;
+    if ( !checkInpFlds() )
+	return false;
+    const bool ret = import_ ? doImport() : doExport();
+    if ( !ret )
+	return false;
 
     uiString msg = tr("Success.\n\nDo you want to %2 more PointSets?")
 		 .arg(import_ ? uiStrings::sImport() : uiStrings::sExport());

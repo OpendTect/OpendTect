@@ -805,10 +805,11 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 {
     if ( ginfo.isstored_ )
     {
-	RefMan<Gather> gather =
-	    DPM(DataPackMgr::FlatID()).add( new Gather );
+	RefMan<Gather> gather = new Gather;
+	DPM(DataPackMgr::FlatID()).add( gather );
 	mDynamicCastGet(const uiStoredViewer2DMainWin*,storedpsmw,this);
-	if ( !storedpsmw ) return;
+	if ( !storedpsmw )
+	    return;
 	BufferString linename = storedpsmw->lineName();
 	TrcKey tk( ginfo.bid_ );
 	if ( is2D() )
@@ -1047,11 +1048,12 @@ void uiStoredViewer2DMainWin::posSlcChgCB( CallBacker* )
 RefMan<Gather>
 uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
 {
-    if ( !hasangledata_ || !angleparams_ ) return 0;
-    RefMan<Gather> gather =
-	DPM( DataPackMgr::FlatID() ).getAndCast<Gather>( gatherid );
+    if ( !hasangledata_ || !angleparams_ )
+	return 0;
+    auto gather = DPM( DataPackMgr::FlatID() ).get<Gather>( gatherid );
+    if ( !gather )
+	return 0;
 
-    if ( !gather ) return 0;
     PreStack::VelocityBasedAngleComputer velangcomp;
     velangcomp.setDBKey( angleparams_->velvolmid_ );
     velangcomp.setRayTracer( angleparams_->raypar_ );
@@ -1202,8 +1204,8 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 
     Interval<float> zrg( mUdf(float), 0 );
     uiGatherDisplay* gd = new uiGatherDisplay( 0 );
-    RefMan<Gather> gather =
-	DPM(DataPackMgr::FlatID()).add( new Gather );
+    RefMan<Gather> gather = new Gather;
+    DPM(DataPackMgr::FlatID()).add( gather );
     TrcKey tk( gatherinfo.bid_ );
     if ( is2D() )
 	tk.setGeomID( Survey::GM().getGeomID(linename_) );
@@ -1376,9 +1378,9 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
     if ( !ginfo.isselected_ ) return;
 
     uiGatherDisplay* gd = new uiGatherDisplay( 0 );
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    ConstRefMan<Gather> vdgather = dpm.get( ginfo.vddpid_ );
-    ConstRefMan<Gather> wvagather = dpm.get( ginfo.wvadpid_ );
+    const DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    auto vdgather = dpm.get<Gather>( ginfo.vddpid_ );
+    auto wvagather = dpm.get<Gather>( ginfo.wvadpid_ );
 
     if ( !vdgather && !wvagather  )
     {

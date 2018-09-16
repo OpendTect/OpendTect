@@ -249,9 +249,6 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     if ( !firstioobj )
 	return;
 
-    mDynamicCastGet(uiMainWin*,mw,subj_.obj_->mainwin())
-    uiMsgMainWinSetter mws( mw );
-
     PtrMan<Translator> trans = firstioobj->createTranslator();
     bool chgd = false;
     if ( isreloc )

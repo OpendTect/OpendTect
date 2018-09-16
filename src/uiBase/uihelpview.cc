@@ -154,7 +154,7 @@ void DevDocHelp::provideHelp( const char* arg ) const
     BufferString url = getUrl();
 
     if ( url.isEmpty() )
-	uiMSG().error(tr("Cannot open developer's documentation"));
+	gUiMsg(0).error(tr("Cannot open developer's documentation"));
     else
 	uiDesktopServices::openUrl( url );
 }
@@ -190,7 +190,7 @@ void WebsiteHelp::provideHelp( const char* arg ) const
 	url = "https://dgbes.com/index.php/support";
 
     if ( url.isEmpty() )
-	uiMSG().error( tr("Cannot open website page") );
+	gUiMsg().error( tr("Cannot open website page") );
     else
 	uiDesktopServices::openUrl( url );
 }

@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiapplserv.h"
+#include "uimsg.h"
 
 
 uiApplService::uiApplService( const char* nm )
@@ -20,20 +21,35 @@ uiApplPartServer::uiApplPartServer( uiApplService& a )
 
 
 uiApplService& uiApplPartServer::appserv()
-{ return uias_; }
+{
+    return uias_;
+}
 
 
 const uiApplService& uiApplPartServer::appserv() const
-{ return uias_; }
+{
+    return uias_;
+}
 
 
 uiParent* uiApplPartServer::parent() const
-{ return uias_.parent(); }
+{
+    return uias_.parent();
+}
+
+uiMsg& uiApplPartServer::uimsg() const
+{
+    return gUiMsg( parent() );
+}
 
 
 bool uiApplPartServer::sendEvent( int evid ) const
-{ return const_cast<uiApplService&>(appserv()).eventOccurred(this,evid); }
+{
+    return const_cast<uiApplService&>(appserv()).eventOccurred(this,evid);
+}
 
 
 void* uiApplPartServer::getObject( int objid ) const
-{ return const_cast<uiApplService&>(appserv()).getObject(this,objid); }
+{
+    return const_cast<uiApplService&>(appserv()).getObject(this,objid);
+}

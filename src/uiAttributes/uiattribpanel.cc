@@ -58,7 +58,7 @@ FlatDataPack* uiAttribPanel::computeAttrib()
 		     : aem->createDataPackOutput( errmsg, 0  );
     if ( !proc )
     {
-	uiMSG().error( errmsg );
+	gUiMsg(parent_).error( errmsg );
 	return 0;
     }
 
@@ -99,15 +99,12 @@ EngineMan* uiAttribPanel::createEngineMan()
 
 RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
 {
-    if ( d2dh.dataset_.isEmpty() ) return 0;
-    TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
-    sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid_;
+    if ( d2dh.dataset_.isEmpty() )
+	return 0;
 
     const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
 							d2dh, SI().zDomain() );
-    RefMan<DataPack> regsdp = DPM(DataPackMgr::SeisID()).get( outputid );
-
-    return RefMan<FlatDataPack>( (FlatDataPack*) regsdp.ptr() );
+    return DPM(DataPackMgr::SeisID()).get<FlatDataPack>( outputid );
 }
 
 

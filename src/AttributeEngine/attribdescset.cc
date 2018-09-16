@@ -1223,7 +1223,7 @@ DescID DescSet::createStoredDesc( const DBKey& dbkey, int selout,
     if ( DataPack::FullID::isInDBKey(dbkey) )
     {
 	DataPack::FullID fid = DataPack::FullID::getFromDBKey( dbkey );
-	if ( !DPM(fid).haveID( fid ) )
+	if ( !DPM(fid).isPresent( fid ) )
 	    return DescID();
 
 	objnm = DataPackMgr::nameOf( fid );

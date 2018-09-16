@@ -8,18 +8,34 @@ ________________________________________________________________________
 
 -*/
 
-#include "ailayer.h"
+#include "elasticmodel.h"
 #include "arrayndimpl.h"
 #include "math2.h"
 #include "mathfunc.h"
 #include "ranges.h"
 
 
-#define mIsValidThickness(val) \
-( !mIsUdf(val) && validThicknessRange().includes(val,false) )
-#define mIsValidDen(val) ( validDensityRange().includes(val,false) )
-#define mIsValidVel(val) ( validVelocityRange().includes(val,false) )
-#define mIsValidImp(val) ( validImpRange().includes(val,false) )
+#define mIsValidTh(val)		mIsValidThickness( val )
+#define mIsValidDen(val)	mIsValidDensity( val )
+#define mIsValidVel(val)	mIsValidVelocity( val )
+#define mIsValidImp(val)	mIsValidImpedance( val )
+
+
+template <class MDL>
+static float calcLayerDepth( const MDL& mdl, int layidx )
+{
+    if ( layidx > mdl.size() )
+	layidx = mdl.size();
+
+    float depth = 0.f;
+    for ( int idx=0; idx<layidx; idx++ )
+	depth += mdl.get(idx).thickness_;
+
+    if ( layidx >= 0 && layidx < mdl.size() )
+	depth += 0.5f * mdl.get(layidx).thickness_;
+
+    return depth;
+}
 
 
 AILayer::AILayer( float thkness, float ai, float den, bool needcompthkness )
@@ -46,7 +62,7 @@ float AILayer::getAI() const
 
 bool AILayer::isOK( bool dodencheck ) const
 {
-    if ( !mIsValidThickness(thickness_) )
+    if ( !mIsValidTh(thickness_) )
 	return false;
 
     if ( !mIsValidVel(vel_) )
@@ -56,12 +72,16 @@ bool AILayer::isOK( bool dodencheck ) const
 }
 
 
-bool AILayer::isValidVel() const
-{ return mIsValidVel(vel_); }
+bool AILayer::hasValidVel() const
+{
+    return mIsValidVel(vel_);
+}
 
 
-bool AILayer::isValidDen() const
-{ return mIsValidDen(den_); }
+bool AILayer::hasValidDen() const
+{
+    return mIsValidDen(den_);
+}
 
 
 bool AILayer::fillDenWithVp( bool onlyinvalid )
@@ -74,22 +94,17 @@ bool AILayer::fillDenWithVp( bool onlyinvalid )
 }
 
 
-
-float getLayerDepth( const AIModel& mod, int layer )
+float AIModel::getLayerDepth( int layidx ) const
 {
-    float depth = 0;
-    for ( int idx=0; idx<layer+1; idx++ )
-	depth += mod[idx].thickness_;
-
-    return depth;
+    return calcLayerDepth( *this, layidx );
 }
 
 
-// ElasticLayer
 ElasticLayer::ElasticLayer( float thkness, float pvel, float svel, float den )
     : AILayer(thkness,pvel,den)
     , svel_(svel)
-{}
+{
+}
 
 
 ElasticLayer::ElasticLayer( const AILayer& ailayer )
@@ -114,7 +129,7 @@ float ElasticLayer::getSI() const
 
 bool ElasticLayer::isOK( bool dodencheck, bool dosvelcheck ) const
 {
-    if ( !mIsValidThickness(thickness_) )
+    if ( !mIsValidTh(thickness_) )
 	return false;
 
     if ( !mIsValidVel(vel_) )
@@ -128,8 +143,10 @@ bool ElasticLayer::isOK( bool dodencheck, bool dosvelcheck ) const
 }
 
 
-bool ElasticLayer::isValidVs() const
-{ return mIsValidVel(svel_); }
+bool ElasticLayer::hasValidVs() const
+{
+    return mIsValidVel(svel_);
+}
 
 
 bool ElasticLayer::fillVsWithVp( bool onlyinvalid )
@@ -171,7 +188,7 @@ void ElasticModel::checkAndClean( int& firsterroridx, bool dodencheck,
 	if ( !lay.isOK(false,false) )
 	    mRmLay(idx)
 
-	if ( dodencheck && !lay.isValidDen() )
+	if ( dodencheck && !lay.hasValidDen() )
 	{
 	    if ( !lay.fillDenWithVp(onlyinvalid) )
 	    {
@@ -180,7 +197,7 @@ void ElasticModel::checkAndClean( int& firsterroridx, bool dodencheck,
 	    }
 	}
 
-	if ( dosvelcheck && !lay.isValidVs() )
+	if ( dosvelcheck && !lay.hasValidVs() )
 	{
 	    if ( !lay.fillVsWithVp(onlyinvalid) )
 		mRmLay(idx)
@@ -246,7 +263,7 @@ void ElasticModel::upscale( float maxthickness )
 	ElasticLayer curlayer = orgmodl[lidx];
 	float thickness = curlayer.thickness_;
 	const float pvel = curlayer.vel_;
-	if ( !mIsValidThickness(thickness) || !mIsValidVel(pvel) )
+	if ( !mIsValidTh(thickness) || !mIsValidVel(pvel) )
 	    continue;
 
 	if ( thickness > maxthickness-cMinLayerThickness() )
@@ -372,7 +389,7 @@ bool ElasticModel::getUpscaledByThicknessAvg( ElasticLayer& outlay ) const
 	const float layinden = curlayer.den_;
 	const float layinsvel = curlayer.svel_;
 
-	if ( !mIsValidThickness(ldz) || !mIsValidVel(layinvelp) )
+	if ( !mIsValidTh(ldz) || !mIsValidVel(layinvelp) )
 	    continue;
 
 	totthickness += ldz;
@@ -401,14 +418,14 @@ bool ElasticModel::getUpscaledByThicknessAvg( ElasticLayer& outlay ) const
 
     outlay.thickness_ = totthickness;
     outlay.vel_ = velfinal;
-    if ( !mIsValidThickness(denthickness) || denthickness < mDefEpsF )
+    if ( !mIsValidTh(denthickness) || denthickness < mDefEpsF )
 	outlay.den_ = mUdf(float);
     else
     {
 	const float denfinal = den / denthickness;
 	outlay.den_ = mIsValidDen(denfinal) ? denfinal : mUdf(float);
     }
-    if ( !mIsValidThickness(svelthickness) || svelthickness < mDefEpsF )
+    if ( !mIsValidTh(svelthickness) || svelthickness < mDefEpsF )
 	outlay.svel_ = mUdf(float);
     else
     {
@@ -511,7 +528,7 @@ void ElasticModel::setMaxThickness( float maxthickness )
     for ( int lidx=0; lidx<initialsz; lidx++ )
     {
 	const float thickness = orgmodl[lidx].thickness_;
-	if ( !mIsValidThickness(thickness) )
+	if ( !mIsValidTh(thickness) )
 	    continue;
 
 	ElasticLayer newlayer = orgmodl[lidx];
@@ -933,56 +950,52 @@ bool ElasticModel::doBlocking( float relthreshold, bool pvelonly,
 }
 
 
-float ElasticModel::getLayerDepth( int ilayer ) const
+float ElasticModel::getLayerDepth( int layidx ) const
 {
-    float depth = 0;
-    if ( ilayer >= size() )
-	ilayer = size();
-
-    for ( int idx=0; idx<ilayer; idx++ )
-	depth += (*this)[idx].thickness_;
-
-    if ( ilayer < size() )
-	depth += (*this)[ilayer].thickness_ / 2.f;
-
-    return depth;
+    return calcLayerDepth( *this, layidx );
 }
 
 
-bool ElasticModel::getTimeSampling( const TypeSet<ElasticModel>& models,
-				    Interval<float>& timerg, bool usevs )
+Interval<float> ElasticModel::getTimeRange( bool usevs ) const
 {
-    if ( models.isEmpty() )
-	return false;
-
-    timerg.set( mUdf(float), -mUdf(float) );
-    for ( int imod=0; imod<models.size(); imod++ )
-    {
-	if ( !models.validIdx(imod) )
-	    continue;
-
-	const ElasticModel& model = models[imod];
-	Interval<float> tsampling;
-	model.getTimeSampling( tsampling, usevs );
-	timerg.include( tsampling, false );
-    }
-
-    return !timerg.isUdf();
-}
-
-
-void ElasticModel::getTimeSampling( Interval<float>& timerg, bool usevs ) const
-{
-    timerg.set( 0.f, 0.f );
+    Interval<float> ret( 0.f, 0.f );
     for ( int ilay=0; ilay<size(); ilay++ )
     {
-	const ElasticLayer& layer = (*this)[ilay];
+	const auto& layer = get( ilay );
 	if ( !layer.isOK(false,usevs) )
 	    continue;
 
 	const float vel = usevs ? layer.svel_ : layer.vel_;
-	timerg.stop += layer.thickness_ / vel;
+	ret.stop += layer.thickness_ / vel;
     }
 
-    timerg.stop *= 2.f;
+    ret.stop *= 2.f; // TWT needed
+    return ret;
+}
+
+
+void ElasticModelSet::setSize( size_type nrmdls )
+{
+    const int oldsz = size();
+    if ( nrmdls == oldsz )
+	return;
+
+    if ( nrmdls <= 0 )
+	setEmpty();
+    else if ( nrmdls < oldsz )
+	removeRange( nrmdls, oldsz );
+    else // nrmdls > oldsz
+    {
+	while ( size() < nrmdls )
+	    add( new ElasticModel );
+    }
+}
+
+
+Interval<float> ElasticModelSet::getTimeRange( bool usevs ) const
+{
+    Interval<float> ret( 0.f, 0.f );
+    for ( auto mdl : *this )
+	ret.include( mdl->getTimeRange(usevs), false );
+    return ret;
 }

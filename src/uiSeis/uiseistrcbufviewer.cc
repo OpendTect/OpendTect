@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "uiseistrcbufviewer.h"
 
 
-uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p, 
+uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p,
 					const uiFlatViewMainWin::Setup& setup )
-    : uiFlatViewMainWin( p, setup )      
+    : uiFlatViewMainWin( p, setup )
     , dp_(0)
 {
     viewer().setInitialSize( uiSize(420,600) );
@@ -102,5 +102,5 @@ void uiSeisTrcBufViewer::selectDispTypes( bool wva, bool vd )
 
 void uiSeisTrcBufViewer::handleBufChange()
 {
-    viewer().handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+    viewer().handleChange( FlatView::Viewer::All );
 }

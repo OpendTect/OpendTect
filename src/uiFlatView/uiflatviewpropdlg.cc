@@ -172,8 +172,7 @@ void uiFlatViewDataDispPropTab::setDataNames()
     dispfld_->addItem( uiStrings::sNone() );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {
-	ConstRefMan<DataPack> dp =
-		dpm_.get( vwr_.availablePacks()[idx]);
+	auto dp = dpm_.getDP( vwr_.availablePacks()[idx]);
 	if ( dp )
 	{
 	    dispfld_->addItem( toUiString(dp->name()) );
@@ -242,7 +241,7 @@ void uiFlatViewDataDispPropTab::doSetData( bool wva )
     const BufferString datanm( dispfld_->text() );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {
-	ConstRefMan<DataPack> dp = dpm_.get(vwr_.availablePacks()[idx]);
+	auto dp = dpm_.getDP( vwr_.availablePacks()[idx] );
 	if ( dp && dp->name() == datanm )
 	    vwr_.usePack( wva, dp->id(), false );
     }

@@ -11,9 +11,9 @@ ________________________________________________________________________
 
 #include "raytracerrunner.h"
 
-RayTracerRunner::RayTracerRunner( const TypeSet<ElasticModel>& aims,
+RayTracerRunner::RayTracerRunner( const ElasticModelSet& elmdls,
 				  const IOPar& raypars )
-    : aimodels_(aims)
+    : elasticmodels_(elmdls)
     , raypar_(raypars)
 {
 }
@@ -35,15 +35,17 @@ od_int64 RayTracerRunner::nrIterations() const
 
 
 void RayTracerRunner::setOffsets( TypeSet<float> offsets )
-{ raypar_.set( RayTracer1D::sKeyOffset(), offsets ); }
+{
+    raypar_.set( RayTracer1D::sKeyOffset(), offsets );
+}
 
 
-void RayTracerRunner::addModel( const ElasticModel& aim, bool dosingle )
+void RayTracerRunner::addModel( ElasticModel* aim, bool dosingle )
 {
     if ( dosingle )
-	aimodels_.erase();
+	elasticmodels_.erase();
 
-    aimodels_ += aim;
+    elasticmodels_ += aim;
 }
 
 #define mErrRet(msg) { errmsg_ = msg; return false; }
@@ -52,7 +54,7 @@ bool RayTracerRunner::prepareRayTracers()
 {
     deepErase( raytracers_ );
 
-    if ( aimodels_.isEmpty() )
+    if ( elasticmodels_.isEmpty() )
 	mErrRet( toUiString("No AI model set") );
 
     if ( RayTracer1D::factory().isEmpty() )
@@ -60,7 +62,7 @@ bool RayTracerRunner::prepareRayTracers()
 
     totalnr_ = 0;
     uiString errmsg;
-    for ( int idx=0; idx<aimodels_.size(); idx++ )
+    for ( int idx=0; idx<elasticmodels_.size(); idx++ )
     {
 	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, errmsg );
 	if ( !rt1d )
@@ -71,7 +73,7 @@ bool RayTracerRunner::prepareRayTracers()
 
 	rt1d->usePar( raypar_ );
 
-	if ( !rt1d->setModel(aimodels_[idx]) )
+	if ( !rt1d->setModel(*elasticmodels_[idx]) )
 	{
 	    errmsg = tr("Wrong input for raytracing on model %1").arg( idx+1 );
 	    errmsg.appendPhrase( rt1d->errMsg() );
@@ -132,7 +134,7 @@ bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int thread )
     const int stopmdlidx = modelIdx( stop, startlayer );
     for ( int idx=startmdlidx; idx<=stopmdlidx; idx++ )
     {
-	const ElasticModel& aim = aimodels_[idx];
+	const ElasticModel& aim = *elasticmodels_[idx];
 	if ( aim.isEmpty() )
 	    continue;
 

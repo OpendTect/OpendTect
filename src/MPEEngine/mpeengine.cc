@@ -299,8 +299,7 @@ bool Engine::prepareForTrackInVolume( uiString& errmsg )
     if ( validator_ && !validator_->checkPreloadedData(key) )
 	return false;
 
-    RefMan<RegularSeisDataPack> rsdp =
-	Seis::PLDM().getAndCast<RegularSeisDataPack>(key);
+    auto rsdp = Seis::PLDM().get<RegularSeisDataPack>( key );
     setAttribData( as, rsdp->id() );
     setActiveVolume( rsdp->sampling() );
     return true;
@@ -690,16 +689,16 @@ DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 {
     const DataPack::ID dpid = getAttribCacheID( as );
-    return dpm_.haveID( dpid );
+    return dpm_.isPresent( dpid );
 }
 
 
 bool Engine::setAttribData( const Attrib::SelSpec& as,
 			    DataPack::ID cacheid )
 {
-    ConstRefMan<SeisFlatDataPack> regfdp =
-		DPM(DataPackMgr::FlatID()).get( cacheid );
-    if ( regfdp ) cacheid = regfdp->getSourceDataPack().id();
+    auto regfdp = DPM(DataPackMgr::FlatID()).get<SeisFlatDataPack>( cacheid );
+    if ( regfdp )
+	cacheid = regfdp->getSourceDataPack().id();
 
     const int idx = getCacheIndexOf(as);
     if ( attribcachedatapackids_.validIdx(idx) )
@@ -712,7 +711,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	}
 	else
 	{
-	    ConstRefMan<VolumeDataPack> newdata= dpm_.get(cacheid);
+	    auto newdata= dpm_.get<VolumeDataPack>(cacheid);
 	    if ( newdata )
 	    {
 		dpm_.unRef( attribcachedatapackids_[idx] );
@@ -723,7 +722,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     }
     else if ( cacheid != DataPack::cNoID() )
     {
-	ConstRefMan<VolumeDataPack> newdata = dpm_.get( cacheid );
+	auto newdata = dpm_.get<VolumeDataPack>( cacheid );
 	if ( newdata )
 	{
 	    attribcachespecs_ += as.is2D() ?
@@ -742,11 +741,9 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 			    const TrcKeyZSampling& cs )
 {
-    ConstRefMan<VolumeDataPack> cache = dpm_.get( getAttribCacheID(as) );
-    if ( !cache ) return false;
-
-    mDynamicCastGet(const RegularSeisDataPack*,rsdp,cache.ptr());
-    if ( !rsdp ) return false;
+    auto rsdp = dpm_.get<RegularSeisDataPack>( getAttribCacheID(as) );
+    if ( !rsdp )
+	return false;
 
     TrcKeyZSampling cachedcs = rsdp->sampling();
     const float zrgeps = 0.01f * SI().zStep();
@@ -852,8 +849,9 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
 
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     const DataPack::ID pldpid = getAttribCacheID( specs[0] );
-    ConstRefMan<VolumeDataPack> vdp = dpm.get( pldpid );
-    if ( !vdp ) return DataPack::cNoID();
+    auto vdp = dpm.get<VolumeDataPack>( pldpid );
+    if ( !vdp )
+	return DataPack::cNoID();
 
     const int globidx = vdp->getNearestGlobalIdx( tk );
     if ( globidx < 0 ) return DataPack::cNoID();

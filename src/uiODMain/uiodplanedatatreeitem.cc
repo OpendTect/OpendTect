@@ -490,7 +490,7 @@ bool uiODInlineParentTreeItem::canShowSubMenu() const
     if ( !SI().crlRange(true).width() ||
 	  SI().zRange(true).width() < SI().zStep() * 0.5 )
     {
-	uiMSG().warning( tr("Flat survey, disabled inline display") );
+	mTIUiMsg().warning( tr("Flat survey, disabled inline display") );
 	return false;
     }
 

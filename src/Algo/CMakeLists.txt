@@ -15,7 +15,6 @@ set( OD_NIGHTLY_TEST_PROGS
 )
 
 set( OD_MODULE_SOURCES
-	ailayer.cc
 	array1dinterpol.cc
 	array2dinterpol.cc
 	arrayndalgo.cc
@@ -31,6 +30,7 @@ set( OD_MODULE_SOURCES
 	dataclipper.cc
 	delaunay.cc
 	delaunay3d.cc
+	elasticmodel.cc
 	extremefinder.cc
 	dippca.cc
 	dragcontroller.cc
@@ -61,6 +61,7 @@ set( OD_MODULE_SOURCES
 	staticsdesc.cc
 	stats.cc
 	reflectivitysampler.cc
+	timedepthmodel.cc
 	timeser.cc
 	transform.cc
 	trigonometry.cc

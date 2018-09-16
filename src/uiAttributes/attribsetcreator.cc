@@ -232,7 +232,7 @@ bool AttributeSetCreator::create()
     const int nrdescs = attrset ? attrset->size() : 0;
     if ( nrdescs < 1 )
     {
-	uiMSG().error(tr("The attributes cannot be converted"));
+	gUiMsg(prnt).error(tr("The attributes cannot be converted"));
 	return false;
     }
 
@@ -347,21 +347,21 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
     BufferString attribname;
     if ( !Desc::getAttribName(defstr,attribname) )
     {
-	uiMSG().error(uiStrings::phrCannotFindAttrName());
+	gUiMsg(prnt).error(uiStrings::phrCannotFindAttrName());
 	return 0;
     }
 
     RefMan<Desc> desc = PF().createDescCopy( attribname );
     if ( !desc )
     {
-	uiMSG().error( DescSet::sFactoryEntryNotFound(attribname) );
+	gUiMsg(prnt).error( DescSet::sFactoryEntryNotFound(attribname) );
 	return 0;
     }
 
     if ( !desc->isStored() && !desc->parseDefStr(defstr) )
     {
 	uiString err = tr("Cannot parse: %1").arg(defstr);
-	uiMSG().error( err );
+	gUiMsg(prnt).error( err );
 	return 0;
     }
 

@@ -450,7 +450,7 @@ bool RayTracer1D::getTDM( const Array1D<float>& twt,
 	times += time;
     }
 
-    return d2tm.setModel( depths.arr(), times.arr(), times.size() );
+    return d2tm.setModel( depths.arr(), times.arr(), times.size() ).isOK();
 }
 
 

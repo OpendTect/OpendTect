@@ -1,0 +1,392 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Satyaki Maitra
+ Date:		Dec 2014
+________________________________________________________________________
+
+-*/
+
+#include "uisynthgenparams.h"
+
+#include "uibutton.h"
+#include "uicombobox.h"
+#include "uidialog.h"
+#include "uigeninput.h"
+#include "uimsg.h"
+#include "uiseparator.h"
+#include "uisplitter.h"
+#include "uispinbox.h"
+#include "uiwaveletsel.h"
+
+#include "stratsynthdatamgr.h"
+
+#include "od_helpids.h"
+
+
+class uiSynthCorrAdvancedDlg;
+
+class uiSynthCorrectionsGrp : public uiGroup
+{ mODTextTranslationClass(uiSynthCorrectionsGrp);
+public:
+
+				uiSynthCorrectionsGrp(uiParent*);
+				~uiSynthCorrectionsGrp();
+
+    bool			wantNMOCorr() const;
+    void			setValues(bool,float mutelen,float stretchlim);
+
+    float			mutelen_;
+    float			stretchmutelim_;
+
+protected:
+
+    uiGenInput*			nmofld_;
+    uiButton*			advbut_;
+
+    void			advancedPush(CallBacker*);
+    void			nmoChgCB(CallBacker*);
+
+};
+
+
+
+#define mTypFldNotif typefld_->selectionChanged
+#define mNameFldNotif namefld_->valuechanging
+
+
+uiSynthGenParams::uiSynthGenParams( uiParent* p, const DataMgr& mgr )
+    : uiGroup(p)
+    , mgr_(mgr)
+    , nameChanged(this)
+{
+    auto* typlcb = new uiLabeledComboBox( this, tr("Synthetic type") );
+    typefld_ = typlcb->box();
+
+    wvltfld_ = new uiWaveletIOObjSel( this );
+    wvltfld_->attach( alignedBelow, typlcb );
+
+    uiGroup* parsgrp = createGroups();
+    parsgrp->attach( alignedBelow, wvltfld_ );
+
+    auto* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, parsgrp );
+
+    namefld_ = new uiGenInput( this, uiStrings::sName() );
+    namefld_->setElemSzPol( uiObject::WideVar );
+    namefld_->attach( alignedBelow, wvltfld_ );
+    namefld_->attach( ensureBelow, sep );
+
+    setHAlignObj( wvltfld_ );
+    postFinalise().notify( mCB(this,uiSynthGenParams,initWin) );
+}
+
+
+uiGroup* uiSynthGenParams::createGroups()
+{
+    uiGroup* parsgrp = new uiGroup( this, "Pars group" );
+
+    zeroofssgrp_ = new uiGroup( parsgrp, "Zerooffs group" );
+    dointernalmultiplesfld_ = new uiGenInput( zeroofssgrp_,
+			tr("Compute internal multiples"), BoolInpSpec(false) );
+    auto* lsb = new uiLabeledSpinBox( zeroofssgrp_,
+			tr("Surface reflection coefficient") );
+    surfreflcoeffld_ = lsb->box();
+    const StepInterval<double> rcintv(  -1, 1, 0.1 );
+    surfreflcoeffld_->setInterval( rcintv );
+    surfreflcoeffld_->setValue( rcintv.stop );
+    surfreflcoeffld_->setNrDecimals( 1 );
+    lsb->attach( alignedBelow, dointernalmultiplesfld_ );
+    zeroofssgrp_->setHAlignObj( dointernalmultiplesfld_ );
+
+    prestackgrp_ = new uiGroup( parsgrp, "Prestack group" );
+    uiRayTracer1D::Setup rtsu;
+    rtsu.dooffsets( true ).convertedwaves( true ).showzerooffsetfld( false );
+    rtsel_ = new uiRayTracerSel( prestackgrp_, rtsu );
+    uisynthcorrgrp_ = new uiSynthCorrectionsGrp( prestackgrp_ );
+    uisynthcorrgrp_->attach( alignedBelow, rtsel_ );
+    prestackgrp_->setHAlignObj( uisynthcorrgrp_ );
+
+    pspostprocgrp_ = new uiGroup( parsgrp, "PS Post proc group" );
+    auto* lcb = new uiLabeledComboBox( pspostprocgrp_, tr("Input Prestack") );
+    psinpfld_ = lcb->box();
+    FloatInpIntervalSpec angspec( false );
+    angspec.setLimits( Interval<float>(0,90) );
+    angspec.setDefaultValue( Interval<float>(0,30) );
+    angleinpfld_ = new uiGenInput( pspostprocgrp_,
+		tr("Angle Range").withUnit(uiStrings::sDeg()), angspec );
+    angleinpfld_->attach( alignedBelow, lcb );
+    pspostprocgrp_->setHAlignObj( angleinpfld_ );
+
+    parsgrp->setHAlignObj( zeroofssgrp_ );
+    return parsgrp;
+}
+
+
+uiSynthGenParams::~uiSynthGenParams()
+{
+    detachAllNotifiers();
+}
+
+
+void uiSynthGenParams::initWin( CallBacker* )
+{
+    fillTypeFld();
+    updUi();
+    mAttachCB( mTypFldNotif, uiSynthGenParams::typeChgCB );
+    mAttachCB( mNameFldNotif, uiSynthGenParams::nameChgCB );
+}
+
+
+void uiSynthGenParams::typeChgCB( CallBacker* )
+{
+    updUi();
+}
+
+
+void uiSynthGenParams::nameChgCB( CallBacker* )
+{
+    nameChanged.trigger();
+}
+
+
+BufferString uiSynthGenParams::getName() const
+{
+    BufferString ret( namefld_->text() );
+    ret.trimBlanks();
+    return ret;
+}
+
+
+uiSynthGenParams::SynthType uiSynthGenParams::typeFromFld() const
+{
+    const int selidx = typefld_->currentItem();
+    return (SynthType)(selidx < 2 ? selidx : selidx+1);
+}
+
+
+void uiSynthGenParams::typeToFld( SynthType typ )
+{
+    int selidx = (int)typ;
+    if ( selidx > 1 )
+	selidx++;
+    typefld_->setCurrentItem( selidx );
+}
+
+
+void uiSynthGenParams::fillTypeFld()
+{
+    uiStringSet typs;
+    typs.add( toUiString(SynthSeis::ZeroOffset) )
+	.add( toUiString(SynthSeis::PreStack) );
+    if ( mgr_.haveOfType(SynthSeis::PreStack) )
+	typs.add( toUiString(SynthSeis::AngleStack) )
+	    .add( toUiString(SynthSeis::AVOGradient) );
+
+    const auto seltyp = typeFromFld();
+    NotifyStopper ns( mTypFldNotif );
+    typefld_->setEmpty();
+    typefld_->addItems( typs );
+    typeToFld( seltyp );
+}
+
+
+void uiSynthGenParams::updUi()
+{
+    const auto type = typeFromFld();
+
+    const bool ispspostproc = GenParams::isPSPostProc( type );
+    zeroofssgrp_->display( GenParams::isZeroOffset(type) );
+    prestackgrp_->display( GenParams::isPS(type) );
+    pspostprocgrp_->display( ispspostproc );
+
+    if ( ispspostproc )
+    {
+	const BufferString seltxt( psinpfld_->text() );
+	psinpfld_->setEmpty();
+	BufferStringSet nms;
+	mgr_.getNames( nms, DataMgr::OnlyPS );
+	psinpfld_->addItems( nms );
+	psinpfld_->setCurrentItem( seltxt );
+    }
+}
+
+
+void uiSynthGenParams::setByName( const char* nm )
+{
+    const auto id = mgr_.find( nm );
+    set( mgr_.getGenParams(id) );
+}
+
+
+void uiSynthGenParams::set( const GenParams& gp )
+{
+    NotifyStopper nstyp( mTypFldNotif );
+    NotifyStopper nsnm( mNameFldNotif );
+
+    typeToFld( gp.type_ );
+    wvltfld_->setInput( gp.wvltid_ );
+    namefld_->setText( gp.name_ );
+
+    const IOPar& iop = gp.raypars_;
+    if ( gp.isZeroOffset() )
+    {
+	bool dointernalmultiples = false; float surfreflcoeff =1;
+	iop.getYN( SynthSeis::GenBase::sKeyInternal(), dointernalmultiples );
+	iop.get( SynthSeis::GenBase::sKeySurfRefl(), surfreflcoeff );
+	dointernalmultiplesfld_->setValue( dointernalmultiples );
+	surfreflcoeffld_->setValue( surfreflcoeff );
+    }
+    else if ( gp.isPS() )
+    {
+	rtsel_->usePar( iop );
+	bool donmo = true;
+	iop.getYN( SynthSeis::GenBase::sKeyNMO(), donmo );
+
+	float mutelen = SynthSeis::GenBase::cStdMuteLength();
+	iop.get( SynthSeis::GenBase::sKeyMuteLength(), mutelen );
+	if ( !mIsUdf(mutelen) )
+	   mutelen = mutelen *ZDomain::Time().userFactor();
+
+	float stretchlimit = SynthSeis::GenBase::cStdStretchLimit();
+	iop.get( SynthSeis::GenBase::sKeyStretchLimit(), stretchlimit );
+	uisynthcorrgrp_->setValues( donmo, mutelen, stretchlimit );
+    }
+    else if ( gp.isPSPostProc() )
+    {
+	psinpfld_->setText( gp.inpsynthnm_ );
+	angleinpfld_->setValue( gp.anglerg_ );
+    }
+
+    fillTypeFld();
+    updUi();
+}
+
+
+void uiSynthGenParams::get( GenParams& gp ) const
+{
+    gp.type_ = typeFromFld();
+    gp.name_ = getName();
+    gp.wvltid_ = wvltfld_->key( true );
+
+    IOPar& iop = gp.raypars_;
+    if ( gp.isZeroOffset() )
+    {
+	RayTracer1D::setIOParsToZeroOffset( iop );
+	const bool dointernal = dointernalmultiplesfld_->getBoolValue();
+	const float coeff = surfreflcoeffld_->getFValue();
+	iop.setYN( SynthSeis::GenBase::sKeyInternal(), dointernal );
+	iop.set( SynthSeis::GenBase::sKeySurfRefl(), coeff );
+    }
+    else if ( gp.isPS() )
+    {
+	rtsel_->fillPar( iop );
+	bool donmo = uisynthcorrgrp_->wantNMOCorr();
+	iop.setYN( SynthSeis::GenBase::sKeyNMO(), donmo );
+	iop.set( SynthSeis::GenBase::sKeyMuteLength(),
+		   uisynthcorrgrp_->mutelen_ );
+	iop.set( SynthSeis::GenBase::sKeyStretchLimit(),
+		   uisynthcorrgrp_->stretchmutelim_ );
+    }
+    else if ( gp.isPSPostProc() )
+    {
+	gp.inpsynthnm_.set( psinpfld_->text() );
+	gp.anglerg_ = angleinpfld_->getFInterval();
+    }
+}
+
+
+class uiSynthCorrAdvancedDlg : public uiDialog
+{ mODTextTranslationClass(uiSynthCorrAdvancedDlg);
+public:
+
+uiSynthCorrAdvancedDlg( uiParent* p, float& ml, float& sml )
+    : uiDialog( p, uiDialog::Setup(tr("Synthetic Corrections advanced options"),
+	tr("Advanced options"), mODHelpKey(mSynthCorrAdvancedDlgHelpID)))
+    , mutelen_(ml)
+    , smlimit_(sml)
+{
+    auto* lsb = new uiLabeledSpinBox( this,
+				      tr("Stretch mute limit").withUnit("%") );
+    smlimitfipctld_ = lsb->box();
+    smlimitfipctld_->setInterval( 1, 500, 1 );
+    const float smlimitpct = 100.f * smlimit_;
+    smlimitfipctld_->setValue( mNINT32(smlimitpct) );
+
+    const float mutelenms = 1000.f * mutelen_;
+    mutemsfld_ = new uiGenInput( this, tr("Mute taper-length").withUnit("ms"),
+				  FloatInpSpec(mutelenms) );
+    mutemsfld_->attach( alignedBelow, lsb );
+}
+
+bool acceptOK()
+{
+    const float mlms = mutemsfld_->getFValue();
+    if ( mIsUdf(mlms) || mlms < 0 )
+	{ uiMSG().error( tr("Invalid mute length") ); return false; }
+
+    mutelen_ = mlms * 0.001f;
+    smlimit_ = smlimitfipctld_->getFValue() * 0.01f;
+    return true;
+}
+
+    float&		mutelen_;
+    float&		smlimit_;
+
+    uiGenInput*		mutemsfld_;
+    uiSpinBox*		smlimitfipctld_;
+
+};
+
+
+
+uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
+    : uiGroup( p, "Synth corrections parameters" )
+    , mutelen_(0.02f)
+    , stretchmutelim_(0.2f)
+{
+    nmofld_ = new uiGenInput( this, tr("Apply NMO corrections"),
+			      BoolInpSpec(true) );
+    mAttachCB( nmofld_->valuechanged, uiSynthCorrectionsGrp::nmoChgCB);
+    nmofld_->setValue( true );
+
+    CallBack cbadv = mCB(this,uiSynthCorrectionsGrp,advancedPush);
+    advbut_ = new uiPushButton( this, uiStrings::sAdvanced(), cbadv, false );
+    advbut_->attach( rightOf, nmofld_ );
+
+    setHAlignObj( nmofld_ );
+}
+
+
+uiSynthCorrectionsGrp::~uiSynthCorrectionsGrp()
+{
+    detachAllNotifiers();
+}
+
+
+void uiSynthCorrectionsGrp::nmoChgCB( CallBacker* )
+{
+    advbut_->display( wantNMOCorr() );
+}
+
+
+bool uiSynthCorrectionsGrp::wantNMOCorr() const
+{
+    return nmofld_->getBoolValue();
+}
+
+
+void uiSynthCorrectionsGrp::advancedPush( CallBacker* )
+{
+    uiSynthCorrAdvancedDlg dlg( this, mutelen_, stretchmutelim_ );
+    dlg.go();
+}
+
+
+void uiSynthCorrectionsGrp::setValues( bool donmo, float mlen, float slim )
+{
+    nmofld_->setValue( donmo );
+    mutelen_ = mlen;
+    stretchmutelim_ = slim;
+}

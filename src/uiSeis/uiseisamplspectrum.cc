@@ -21,8 +21,7 @@ void uiSeisAmplSpectrum::setDataPackID(
 
     if ( dmid == DataPackMgr::SeisID() )
     {
-	ConstRefMan<DataPack> datapack = DPM(dmid).get( dpid );
-	mDynamicCastGet(const VolumeDataPack*,vdp,datapack.ptr());
+	auto vdp = DPM(dmid).get<VolumeDataPack>( dpid );
 	if ( vdp )
 	{
 	    setup_.nyqvistspspace_ = vdp->getZRange().step;

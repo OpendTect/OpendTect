@@ -129,7 +129,7 @@ bool uiODAnnotTreeItem::showSubMenu()
     if ( scene && scene->getZAxisTransform() )
     {
 	//TODO
-	uiMSG().error( tr("Cannot add Annotations to this scene") );
+	mTIUiMsg().error( tr("Cannot add Annotations to this scene") );
 	return false;
     }
 
@@ -161,7 +161,7 @@ bool uiODAnnotTreeItem::showSubMenu()
 		continue;
 
 	    const bool exists = Pick::SetMGR().nameExists( txt );
-	    if ( exists && !uiMSG().askOverwrite(
+	    if ( exists && !mTIUiMsg().askOverwrite(
 		 tr("An object with that name already "
 		    "exists.\nDo you wish to overwrite it?")))
 		continue;
@@ -200,7 +200,7 @@ Pick::Set* uiODAnnotTreeItem::makeNewSet( const char* nm ) const
     SilentTaskRunnerProvider trprov;
     uiString errmsg = Pick::SetMGR().store( *ps, trprov );
     if ( !errmsg.isEmpty() )
-	{ uiMSG().error( errmsg ); return 0; }
+	{ mTIUiMsg().error( errmsg ); return 0; }
 
     ps.setNoDelete( true );
     return ps;
@@ -221,7 +221,7 @@ Pick::Set* uiODAnnotTreeItem::readExistingSet() const
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( dlg.ioObj()->key(),
 							uirv );
     if ( uirv.isError() )
-	{ uiMSG().error( uirv ); return 0; }
+	{ mTIUiMsg().error( uirv ); return 0; }
 
     ps->ref(); // need to ref now because RefMan will go out of scope
     return ps;
@@ -334,7 +334,7 @@ void uiODAnnotSubItem::store() const
     uiString errmsg =
 		Pick::SetMGR().store( set_, getSetID(), trprov, &ioobjpars );
     if ( !errmsg.isEmpty() )
-	uiMSG().error( errmsg );
+	mTIUiMsg().error( errmsg );
 }
 
 
@@ -352,7 +352,7 @@ void uiODAnnotSubItem::storeAs() const
     uiString errmsg =
 	    Pick::SetMGR().saveAs( getSetID(), dlg.ioObj()->key(), trprov );
     if ( !errmsg.isEmpty() )
-	uiMSG().error( errmsg );
+	mTIUiMsg().error( errmsg );
 }
 
 

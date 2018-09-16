@@ -223,7 +223,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     }
 
     const bool haveoutput = (bool)outfld_;
-    if ( !uiSEGY::displayWarnings(scanner_->warnings(),haveoutput) )
+    if ( !uiSEGY::displayWarnings(this,scanner_->warnings(),haveoutput) )
     {
 	if ( haveoutput )
 	    DBM().removeEntry( outfld_->key(true) );

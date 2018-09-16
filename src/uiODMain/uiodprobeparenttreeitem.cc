@@ -231,7 +231,7 @@ bool uiODSceneProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
       && !attriblayer->haveSavedDispPars() )
     {
 	/* TODO add 'never show this message again' facility */
-	uiMSG().message( tr("No saved color settings found for the selected"
+	mTIUiMsg().message( tr("No saved color settings found for the selected"
 	      " cube. Default settings will be loaded. For changing "
 	    "these settings, click on \"Save Color Settings\" option in tree."),
 	    uiString::empty(), uiString::empty(), true );

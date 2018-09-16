@@ -650,17 +650,15 @@ void uiVisDataPointSetDisplayMgr::updateColorsOnly( DispID id )
 
 void uiVisDataPointSetDisplayMgr::clearDisplays()
 {
-    DataPackMgr& dpm = DPM( DataPackMgr::PointID() );
+    const auto& dpm = DPM( DataPackMgr::PointID() );
     TypeSet<DataPack::ID> packids;
     dpm.getPackIDs( packids );
 
     for ( int dpidx=0; dpidx<packids.size(); dpidx++ )
     {
-	ConstRefMan<DataPack> datapack = dpm.get( packids[dpidx] );
-	mDynamicCastGet(const DataPointSet*,dps,datapack.ptr());
-	if ( !dps ) continue;
-	DispID id = getDisplayID( *dps );
-	removeDisplay( id );
+	auto dps = dpm.get<DataPointSet>( packids[dpidx] );
+	if ( dps )
+	    removeDisplay( getDisplayID(*dps) );
     }
 }
 

@@ -27,13 +27,15 @@ class TextureRectangle;
 mExpClass(visBase) FlatViewer : public FlatView::Viewer, public VisualObjectImpl
 {
 public:
+
+    typedef FlatView::AuxData	AuxData;
+
     static FlatViewer*		create()
 				mCreateDataObj(FlatViewer);
 
     Notifier<FlatViewer>	dataChanged;
     Notifier<FlatViewer>	dispParsChanged;
-    void			handleChange(unsigned int);
-    void			 setPosition(const Coord3& c00,
+    void			setPosition(const Coord3& c00,
 					   const Coord3& c01,
 						const Coord3& c10,
 					   const Coord3& c11);
@@ -50,14 +52,6 @@ public:
     int				getResolution() const	{ return resolution_; }
     uiWord			getResolutionName(int) const;
 
-    FlatView::AuxData*		createAuxData(const char* nm) const { return 0;}
-
-    int				nrAuxData() const { return 0; }
-    FlatView::AuxData*		getAuxData(int idx) { return 0; }
-    const FlatView::AuxData*	getAuxData(int idx) const { return 0; }
-    void			addAuxData(FlatView::AuxData* a) {}
-    FlatView::AuxData*		removeAuxData(FlatView::AuxData* a) { return a;}
-    FlatView::AuxData*		removeAuxData(int idx) { return 0; }
     void			setDisplayTransformation(const mVisTrans*);
     virtual void		setPixelDensity(float);
 
@@ -76,6 +70,14 @@ protected:
 
     int				resolution_;
     Coord3			c00_, c01_, c10_, c11_;
+
+    virtual void	doHandleChange(unsigned int);
+    virtual AuxData*	doCreateAuxData(const char*) const { return 0;}
+    virtual int		gtNrAuxData() const		{ return 0; }
+    virtual AuxData*	gtAuxData(int idx) const	{ return 0; }
+    virtual void	doAddAuxData(AuxData*)		{}
+    virtual AuxData*	doRemoveAuxData( AuxData* a )	{ return a;}
+    virtual AuxData*	doRemoveAuxDataByIdx(int)	{ return 0; }
 
 };
 

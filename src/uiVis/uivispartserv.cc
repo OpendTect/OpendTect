@@ -335,7 +335,7 @@ bool uiVisPartServer::clickablesInScene( const char* trackertype,
 	}
     }
 
-    uiMSG().warning(tr("The scene does not yet contain any object "
+    uimsg().warning(tr("The scene does not yet contain any object "
 		       "on which seeds\nfor a '%1' can be picked.")
 		  .arg(trackertype));
     return false;
@@ -1715,7 +1715,7 @@ void uiVisPartServer::removeSelection()
 			  "remove selected part of %1?")
 		     .arg(getObjectName( selobjectid ));
 
-	if ( uiMSG().askContinue(msg) )
+	if ( uimsg().askContinue(msg) )
 	{
 	    uiTaskRunner taskrunner( appserv().parent() );
 	    so->removeSelections( &taskrunner );
@@ -2261,7 +2261,7 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
     const DataPackMgr::ID dpmid = getDataPackMgrID( visid );
     if ( dpmid.isInvalid() )
     {
-	uiMSG().error( tr("Cannot display histograms for this type of data") );
+	uimsg().error( tr("Cannot display histograms for this type of data") );
 	return;
     }
 

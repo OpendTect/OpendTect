@@ -79,8 +79,9 @@ bool uiHistogramDisplay::setDataPackID(
 	DataPack::ID dpid, DataPackMgr::ID dmid, int version )
 {
     rc_.setEmpty();
-    ConstRefMan<DataPack> dp = DPM(dmid).get( dpid );
-    if ( !dp ) return false;
+    auto dp = DPM(dmid).getDP( dpid );
+    if ( !dp )
+	return false;
 
     BufferString dpversionnm;
 
@@ -256,7 +257,7 @@ void uiHistogramDisplay::updateAndDraw()
 void uiHistogramDisplay::updateHistogram()
 {
     if ( !rc_.execute() )
-	{ uiMSG().error( rc_.errMsg() ); return; }
+	{ gUiMsg().error( rc_.errMsg() ); return; }
 
     const int nrpts = rc_.count();
     nrclasses_ = getNrIntervals( nrpts );

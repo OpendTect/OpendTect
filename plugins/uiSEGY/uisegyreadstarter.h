@@ -94,7 +94,6 @@ public:
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
-    static void		showFileAlreadySelMsg();
 
 protected:
 

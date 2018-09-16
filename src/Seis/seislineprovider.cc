@@ -102,14 +102,7 @@ void Seis::LineFetcher::reset()
 
 void Seis::LineFetcher::findDataPack()
 {
-    RefMan<DataPack> dp = Seis::PLDM().get( prov().dbky_, curGeomID() );
-    if ( !dp ) return;
-
-    mDynamicCastGet(RegularSeisDataPack*,rdp,dp.ptr());
-    if ( !rdp || rdp->isEmpty() )
-	return;
-
-    dp_ = rdp;
+    dp_ = Seis::PLDM().get<RegularSeisDataPack>( prov().dbky_, curGeomID() );
 }
 
 

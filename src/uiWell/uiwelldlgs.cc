@@ -1949,8 +1949,8 @@ bool uiSetD2TFromOtherWell::acceptOK()
     TypeSet<double> inputtimes( mdlsz, 0. );
     for ( int idx=0; idx<mdlsz; idx++ )
     {
-	inputdepths[idx] = dtmodel.getDepth( idx );
-	inputtimes[idx] = dtmodel.getTime( idx );
+	inputdepths[idx] = dtmodel.getDepthByIdx( idx );
+	inputtimes[idx] = dtmodel.getTimeByIdx( idx );
     }
 
     uiStringSet errmsgs;

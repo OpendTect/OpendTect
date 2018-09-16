@@ -172,7 +172,7 @@ void AttribProbeLayer::usePar4ColTab( const IOPar& par )
 void AttribProbeLayer::handleDataPackChange()
 {
     DataPackMgr& dpm = DPM( getDataPackManagerID() );
-    attrdp_ = dpm.get( attribdpid_ );
+    attrdp_ = dpm.getDP( attribdpid_ );
     selcomp_ = 0;
 
     const ArrayND<float>* arr = 0;

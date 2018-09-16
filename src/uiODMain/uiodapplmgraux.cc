@@ -561,6 +561,8 @@ void uiODApplMgrDispatcher::posDlgClose( CallBacker* )
 }
 
 
+#define mUiMsg() gUiMsg()
+
 void uiODApplMgrDispatcher::openXPlot()
 {
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
@@ -578,9 +580,9 @@ void uiODApplMgrDispatcher::openXPlot()
     MouseCursorManager::restoreOverride();
 
     if ( !rv )
-	{ uiMSG().error( errmsg ); return; }
+	{ mUiMsg().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-    { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
+    { mUiMsg().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
 
     RefMan<DataPointSet> newdps = new DataPointSet( pvds, false );
     newdps->setName( seldlg.ioObj()->name() );
@@ -604,7 +606,7 @@ void uiODApplMgrDispatcher::startInstMgr()
 		      "OpendTect processes before proceeding for"
 		      " installation/update");
 #endif
-    uiMSG().message( msg );
+    mUiMsg().message( msg );
     ODInst::startInstManagement();
 }
 
@@ -653,7 +655,7 @@ void uiODApplMgrDispatcher::processPreStack( bool is2d )
 #ifdef __debug__
 	mPreStackBatchdlg(batchprocps2ddlg_)
 #else
-	uiMSG().error( uiStrings::phrInternalErr(
+	mUiMsg().error( uiStrings::phrInternalErr(
 		    "2D PS Batch Processing: not release-tested yet") );
 	return;
 #endif

@@ -85,7 +85,7 @@ void uiWellAttribPartServer::wellManCreatedCB( CallBacker* cb )
 
 void uiWellAttribPartServer::xplotCB( CallBacker* )
 {
-    const Attrib::DescSet* ads = uiAttribPartServer::getUserPrefDescSet();
+    const auto* ads = uiAttribPartServer::getUserPrefDescSet( parent() );
     if ( ads )
 	doXPlot( ads->is2D() );
 }
@@ -232,7 +232,7 @@ bool uiWellAttribPartServer::createD2TModel( const DBKey& wid )
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRet(s) { uimsg().error(s); return false; }
 
 bool uiWellAttribPartServer::showAmplSpectrum( const DBKey& mid,
 					       const char* lognm )

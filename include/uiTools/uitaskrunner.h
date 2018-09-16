@@ -29,7 +29,9 @@ public:
 			uiTaskRunner(uiParent*,bool dispmsgonerr=true);
 			~uiTaskRunner();
 
-    bool		execute(Task& t);
+    virtual bool	execute(Task& t);
+    virtual void	emitErrorMessage(const uiString&,bool) const;
+
     uiString		lastMsg() const			{ return prevmessage_; }
     uiRetVal		errorWithDetails() const	{ return errdetails_; }
     int			getState() const		{ return state_; }

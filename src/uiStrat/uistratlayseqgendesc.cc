@@ -118,7 +118,7 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
 }
 
 #define mErrRet( msg ) \
-{ uiMSG().error( msg ); return false; }
+{ gUiMsg(getUiParent()).error( msg ); return false; }
 
 
 bool uiLayerSequenceGenDesc::isValidSelection(
@@ -191,9 +191,9 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
 
 
 uiStratLayerModelDisp* uiExtLayerSequenceGenDesc::getLayModDisp(
-	    uiStratLayModEditTools& lmt, Strat::LayerModelProvider& lmp, int )
+	    uiStratLayModEditTools& lmt, Strat::LayerModelSuite& lms, int )
 {
-    return new uiStratSimpleLayerModelDisp( lmt, lmp );
+    return new uiStratSimpleLayerModelDisp( lmt, lms );
 }
 
 
@@ -436,7 +436,8 @@ void uiBasicLayerSequenceGenDesc::doDraw()
     float totth = 0;
     for ( int idx=0; idx<disps_.size(); idx++ )
 	totth += disps_[idx]->gen_->dispThickness();
-    if ( mIsZero(totth,mDefEps) ) return;
+    if ( mIsZero(totth,mDefEps) )
+	return;
 
     float curz = 0;
     for ( int idx=0; idx<disps_.size(); idx++ )

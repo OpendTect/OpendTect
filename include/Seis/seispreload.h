@@ -29,6 +29,7 @@ namespace Seis
 mExpClass(Seis) PreLoader
 { mODTextTranslationClass(PreLoader);
 public:
+
 			PreLoader(const DBKey&,
 				Pos::GeomID=Survey::GM().default3DSurvID(),
 				TaskRunner* =0);
@@ -82,13 +83,14 @@ protected:
 mExpClass(Seis) PreLoadDataEntry
 {
 public:
-			PreLoadDataEntry(const DBKey&,Pos::GeomID,int dpid);
+			PreLoadDataEntry(const DBKey&,Pos::GeomID,
+					 DataPack::ID);
 
     bool		equals(const DBKey&,Pos::GeomID) const;
 
     DBKey		dbkey_;
     Pos::GeomID		geomid_;
-    int			dpid_;
+    DataPack::ID	dpid_;
     bool		is2d_;
     BufferString	name_;
 };
@@ -97,18 +99,23 @@ public:
 mExpClass(Seis) PreLoadDataManager
 {
 public:
+
+    typedef DataPack::ID	PackID;
+
     void			add(const DBKey&,DataPack*);
     void			add(const DBKey&,Pos::GeomID,DataPack*);
     void			remove(const DBKey&,Pos::GeomID =-1);
-    void			remove(int dpid);
+    void			remove(PackID);
     void			removeAll();
 
-    RefMan<DataPack>		get(const DBKey&,Pos::GeomID =-1);
-    RefMan<DataPack>		get(int dpid);
-    ConstRefMan<DataPack>	get(const DBKey&,Pos::GeomID =-1) const;
-    ConstRefMan<DataPack>	get(int dpid) const;
     template<class T>
-    inline RefMan<T>		getAndCast(const DBKey&,Pos::GeomID =-1);
+    inline RefMan<T>		get(const DBKey&,Pos::GeomID =-1);
+    template<class T>
+    inline RefMan<T>		get(PackID);
+    template<class T>
+    inline ConstRefMan<T>	get(const DBKey&,Pos::GeomID =-1) const;
+    template<class T>
+    inline ConstRefMan<T>	get(PackID) const;
 
     void			getInfo(const DBKey&,Pos::GeomID,
 					BufferString&) const;
@@ -124,19 +131,53 @@ protected:
     ManagedObjectSet<PreLoadDataEntry>	entries_;
 
 public:
-					PreLoadDataManager();
-					~PreLoadDataManager();
+
+				PreLoadDataManager();
+				~PreLoadDataManager();
+
+    RefMan<DataPack>		getDP(const DBKey&,Pos::GeomID =-1);
+    inline RefMan<DataPack>	getDP( DataPack::ID dpid )
+				{ return dpmgr_.getDP( dpid ); }
+    ConstRefMan<DataPack>	getDP(const DBKey&,Pos::GeomID =-1) const;
+    inline ConstRefMan<DataPack> getDP( DataPack::ID dpid ) const
+				{ return dpmgr_.getDP( dpid ); }
+
 };
 
 mGlobal(Seis) PreLoadDataManager& PLDM();
 
 
-template <class T> inline
-RefMan<T> PreLoadDataManager::getAndCast( const DBKey& dbky, Pos::GeomID gid )
+template <class T> inline RefMan<T>
+PreLoadDataManager::get( const DBKey& dbky, Pos::GeomID gid )
 {
-    RefMan<DataPack> dp = get( dbky, gid );
+    auto dp = getDP( dbky, gid );
     mDynamicCastGet( T*, casted, dp.ptr() );
     return RefMan<T>( casted );
 }
+
+template <class T> inline ConstRefMan<T>
+PreLoadDataManager::get( const DBKey& dbky, Pos::GeomID gid ) const
+{
+    auto dp = getDP( dbky, gid );
+    mDynamicCastGet( const T*, casted, dp.ptr() );
+    return ConstRefMan<T>( casted );
+}
+
+template <class T> inline RefMan<T>
+PreLoadDataManager::get( DataPack::ID dpid )
+{
+    auto dp = getDP( dpid );
+    mDynamicCastGet( T*, casted, dp.ptr() );
+    return RefMan<T>( casted );
+}
+
+template <class T> inline ConstRefMan<T>
+PreLoadDataManager::get( DataPack::ID dpid ) const
+{
+    auto dp = getDP( dpid );
+    mDynamicCastGet( const T*, casted, dp.ptr() );
+    return ConstRefMan<T>( casted );
+}
+
 
 } // namespace Seis

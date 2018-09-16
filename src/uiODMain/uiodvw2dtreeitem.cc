@@ -299,7 +299,8 @@ void uiODVw2DTreeItem::removeAllChildren()
 {
     const uiString msg = tr("All %1 items will be removed from the tree."
 			    "\n\nDo you want to continue?").arg(name());
-    if ( !uiMSG().askRemove(msg) ) return;
+    if ( !mTIUiMsg().askRemove(msg) )
+	return;
 
     for ( int idx=children_.size()-1; idx>=0; idx-- )
 	removeChild( children_[idx] );

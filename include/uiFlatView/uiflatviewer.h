@@ -32,6 +32,9 @@ mExpClass(uiFlatView) uiFlatViewer : public uiGroup
 				   , public FlatView::Viewer
 { mODTextTranslationClass(uiFlatViewer)
 public:
+
+    typedef FlatView::AuxData	AuxData;
+
 			uiFlatViewer(uiParent*);
 			~uiFlatViewer();
 
@@ -73,18 +76,11 @@ public:
     bool		updatesBitmapsOnResize() const
 			{ return updatebitmapsonresize_; }
 
-    void		handleChange(unsigned int);
     void		setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
 
-    FlatView::AuxData*		createAuxData(const char* nm) const;
-    int				nrAuxData() const;
-    FlatView::AuxData*		getAuxData(int idx);
-    const FlatView::AuxData*	getAuxData(int idx) const;
-    void			addAuxData(FlatView::AuxData* a);
-    FlatView::AuxData*		removeAuxData(FlatView::AuxData* a);
-    FlatView::AuxData*		removeAuxData(int idx);
-    void			reGenerate(FlatView::AuxData&);
+    void		reGenerate(AuxData&);
 
+    uiFlatViewControl*	control() { return control_; }
 
     Notifier<uiFlatViewer>	viewChanged; //!< setView called
     Notifier<uiFlatViewer>	dataChanged; //!< new DataPack set
@@ -93,8 +89,6 @@ public:
     Notifier<uiFlatViewer>	annotChanged; //!< Annotation changed
     Notifier<uiFlatViewer>	dispPropChanged;
 					//!< Triggered with property dlg change
-
-    uiFlatViewControl*		control() { return control_; }
 
 			//restrain the data ranges between the selected ranges
     void		setUseSelDataRanges(bool yn) { useseldataranges_ = yn; }
@@ -122,6 +116,14 @@ protected:
     Threads::Atomic<bool>	updateannot_;
     Threads::Atomic<bool>	updatebitmap_;
     Threads::Atomic<bool>	updateauxdata_;
+
+    virtual void		doHandleChange(unsigned int);
+    virtual AuxData*		doCreateAuxData(const char*) const;
+    virtual int			gtNrAuxData() const;
+    virtual AuxData*		gtAuxData(int) const;
+    virtual void		doAddAuxData(AuxData*);
+    virtual AuxData*		doRemoveAuxData(AuxData*);
+    virtual AuxData*		doRemoveAuxDataByIdx(int);
 
     void			updateCB(CallBacker*);
     void			updateAnnotCB(CallBacker*);

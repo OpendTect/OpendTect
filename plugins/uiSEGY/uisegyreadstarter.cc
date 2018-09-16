@@ -555,13 +555,6 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 }
 
 
-void uiSEGYReadStarter::showFileAlreadySelMsg()
-{
-    uiMSG().error( tr("The selected file is already assigned to a vintage."
-		"\nPlease select another example file for the new vintage."));
-
-}
-
 void uiSEGYReadStarter::firstSel( CallBacker* )
 {
     if ( timer_ )
@@ -581,7 +574,7 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
 	}
 
 	if ( !uifs.go() )
-	    done();
+	    done( Rejected );
 	else
 	    inpfld_->setFileName( uifs.fileName() );
     }
@@ -684,7 +677,7 @@ void uiSEGYReadStarter::runClassic( bool imp )
 	else
 	{
 	    survinfook_ = true;
-	    done( 1 );
+	    done( Accepted );
 	}
     }
     else

@@ -144,8 +144,6 @@ public:
     void		addItem(const uiString&,const Color&,int id=-1);
     void		addItem( const char* str, bool marked=false, int id=-1 )
 				{ addItem( toUiString(str), marked, id ); }
-    void		addItem( const OD::String& s, bool m=false, int id=-1 )
-				{ addItem( toUiString(s), m, id ); }
 
     void		addItems(const BufferStringSet&);
     void		addItems(const uiStringSet&);
@@ -172,8 +170,12 @@ public:
     int			indexOf(const uiString&) const;	//!< First match
     const char*		itemText(int) const;
     uiString		textOfItem(int) const;
-    void		setItemText(int,const uiString&);
     void		getItems(BufferStringSet&) const;
+    void		setItemText(int,const uiString&);
+    void		setItemText( int idx, const char* str )
+			{ setItemText( idx, toUiString(str) ); }
+    void		setItemText( int idx, const OD::String& str )
+			{ setItemText( idx, toUiString(str) ); }
 
     int			currentItem() const;
     const char*		getText() const  { return itemText(currentItem()); }

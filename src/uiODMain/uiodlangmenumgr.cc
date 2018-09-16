@@ -87,7 +87,7 @@ void uiODLangMenuMgr::languageSelectedCB( CallBacker* cb )
 
     uiRetVal uirv = TrMgr().setLanguage( trmgridx );
     if ( !uirv.isOK() )
-	uiMSG().error( uirv );
+	gUiMsg().error( uirv );
 
     TrMgr().storeToUserSettings();
 }

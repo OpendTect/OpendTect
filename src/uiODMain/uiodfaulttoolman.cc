@@ -201,7 +201,7 @@ public:
     bool unDo()
     {
 	if ( saved_ )
-	    uiMSG().error( tr("Cannot undo saving the output file") );
+	    gUiMsg().error( tr("Cannot undo saving the output file") );
 	return true;
     }
 
@@ -952,6 +952,8 @@ void uiODFaultToolMan::outputSelectedCB( CallBacker* )
 }
 
 
+#define mUiMsg() gUiMsg()
+
 void uiODFaultToolMan::stickRemovalCB( CallBacker* )
 {
     if ( curemid_.isInvalid() )
@@ -964,7 +966,7 @@ void uiODFaultToolMan::stickRemovalCB( CallBacker* )
 
     if ( !srcfault->geometry().nrSelectedSticks() )
     {
-	uiMSG().error( tr("No selected fault stick(s) to remove") );
+	mUiMsg().error( tr("No selected fault stick(s) to remove") );
 	return;
     }
 
@@ -990,7 +992,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     const int oldnrselected = srcfault->geometry().nrSelectedSticks();
     if ( !oldnrselected )
     {
-	uiMSG().error( tr("No selected fault stick(s) to transfer") );
+	mUiMsg().error( tr("No selected fault stick(s) to transfer") );
 	return;
     }
 
@@ -1005,7 +1007,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	return;
 
     if ( flashcolor_==Color(255,0,0) &&
-	 !uiMSG().question(tr("Ignore output name warning?")) )
+	 !mUiMsg().question(tr("Ignore output name warning?")) )
 	return;
 
     uiUserShowWait usw( 0, uiStrings::sReadingData() );
@@ -1084,7 +1086,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	PtrMan<Executor> executor = destfault->saver();
 	saved = executor->execute();
 	if ( !saved )
-	    uiMSG().error( tr("Cannot save output object") );
+	    mUiMsg().error( tr("Cannot save output object") );
     }
 
     usw.setMessage( uiStrings::sUpdatingDisplay() );
@@ -1097,7 +1099,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     usw.readyNow();
 
     if ( newnrselected )
-	uiMSG().error(tr("Output object could not incorporate %1"
+	mUiMsg().error(tr("Output object could not incorporate %1"
 			   " of the selected sticks.").arg(newnrselected));
 }
 
@@ -1418,7 +1420,7 @@ void uiODFaultToolMan::undoCB( CallBacker* )
     uiUserShowWait usw( 0, uiStrings::sUpdatingDisplay() );
     EM::MGR().burstAlertToAll( true );
     if ( !EM::MGR().undo(curemobj->id()).unDo( 1, true  ) )
-	uiMSG().error(tr("Cannot undo everything."));
+	mUiMsg().error(tr("Cannot undo everything."));
     EM::MGR().burstAlertToAll( false );
     updateToolbarCB( 0 );
     uiMain::keyboardEventHandler().setHandled( true );
@@ -1436,7 +1438,7 @@ void uiODFaultToolMan::redoCB( CallBacker* )
     uiUserShowWait usw( 0, uiStrings::sUpdatingDisplay() );
     EM::MGR().burstAlertToAll( true );
     if ( !EM::MGR().undo(curemobj->id()).reDo( 1, true  ) )
-	uiMSG().error(tr("Cannot redo everything."));
+	mUiMsg().error(tr("Cannot redo everything."));
     EM::MGR().burstAlertToAll( false );
     updateToolbarCB( 0 );
     uiMain::keyboardEventHandler().setHandled( true );

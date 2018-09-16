@@ -219,7 +219,7 @@ void uiAutoSave2RealObjDlg::doRestore( IOObj& ioobj, const char* newnm )
     {
 	BufferString msg( "Object ", ioobj.name() );
 	msg.add( "is not IOStream; conntype=" ).add( ioobj.connType() );
-	uiMSG().error( uiStrings::phrInternalErr(msg) );
+	gUiMsg().error( uiStrings::phrInternalErr(msg) );
 	return;
     }
 
@@ -228,7 +228,7 @@ void uiAutoSave2RealObjDlg::doRestore( IOObj& ioobj, const char* newnm )
 	uiString msg( tr("Failed to commit the restore process."
 	"\nYou may want to check your storage (write permissions, disk full)."
 	"\nIf retry fails, %1" ).arg( uiStrings::phrPlsContactSupport(false)));
-	if ( !uiMSG().askGoOn(msg,tr("Retry restore"),tr("Cancel restore")) )
+	if ( !gUiMsg().askGoOn(msg,tr("Retry restore"),tr("Cancel restore")) )
 	    break;
     }
 }

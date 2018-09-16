@@ -24,11 +24,11 @@ set( OD_MODULE_SOURCES
 	uistratlayermodel.cc
 	uistratseisevent.cc
 	uistratsynthcrossplot.cc
+	uistratsynthdatamgr.cc
 	uistratsynthdisp.cc
 	uistratsynthexport.cc
+	uisynthgenparams.cc
 	uisynthtorealscale.cc
-	uisynthgendlg.cc
-	uisynthseis.cc
 	inituiwellattrib.cc
 )
 

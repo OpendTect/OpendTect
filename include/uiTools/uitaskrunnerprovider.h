@@ -25,6 +25,8 @@ public:
 
     virtual TaskRunner&	runner() const;
 
+    virtual void	emitErrorMessage(const uiString&,bool wrn=false) const;
+
 protected:
 
     uiParent*		parent_;

@@ -15,10 +15,10 @@ ________________________________________________________________________
 #include "arrayndalgo.h"
 #include "envvars.h"
 #include "raytrace1d.h"
-#include "synthseis.h"
+#include "synthseisgenerator.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
-#include "synthgenparams.h"
+#include "welltietoseismic.h"
 #include "statruncalc.h"
 #include "ioobjctxt.h"
 #include "ioobj.h"
@@ -149,11 +149,12 @@ bool DataPlayer::extractSeismics()
 bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
 {
     errmsg_.setEmpty();
+    static const bool usefourierdom = !GetEnvVarYN("DTECT_CONVOLVE_USE_TIME");
 
-    Seis::SynthGenerator gen;
-    gen.setModel( refmodel_ );
+    SynthSeis::Generator gen;
+    gen.setModel( reflmodel_ );
     gen.setWavelet( &wvlt );
-    gen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
+    gen.enableFourierDomain( usefourierdom );
     gen.setOutSampling( data_.getTraceRange() );
 
     if ( !gen.doWork() )
@@ -343,15 +344,15 @@ bool DataPlayer::extractReflectivity()
 
     const float step = data_.seistrc_.info().sampling_.step;
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
-    const int totnrspikes = refmodel_.size();
+    const int totnrspikes = reflmodel_.size();
     if ( totnrspikes < nrsamps )
 	mErrRet( tr("Reflectivity series too short") )
 
     int firstspike = 0;
     int lastspike = 0;
-    while ( lastspike<refmodel_.size() )
+    while ( lastspike<reflmodel_.size() )
     {
-	const ReflectivitySpike spike = refmodel_[lastspike];
+	const ReflectivitySpike spike = reflmodel_[lastspike];
 	const float spiketwt = spike.correctedtime_;
 	if ( mIsEqual(spiketwt,zrg_.stop,1e-5f) )
 	    break;
@@ -362,23 +363,23 @@ bool DataPlayer::extractReflectivity()
 	lastspike++;
     }
 
-    if ( lastspike==refmodel_.size() )
+    if ( lastspike==reflmodel_.size() )
 	lastspike--;
 
     uiString msg;
-    if ( refmodel_[firstspike].correctedtime_ - zrg_.start < -1e-5f )
+    if ( reflmodel_[firstspike].correctedtime_ - zrg_.start < -1e-5f )
     {
 	msg = tr("The wavelet estimation window must start "
 		  "above the first spike at %1 ms")
-			.arg( toString(refmodel_[firstspike].correctedtime_) );
+			.arg( toString(reflmodel_[firstspike].correctedtime_) );
 	mErrRet( msg )
     }
 
-    if ( refmodel_[lastspike].correctedtime_ - zrg_.stop > 1e-5f )
+    if ( reflmodel_[lastspike].correctedtime_ - zrg_.stop > 1e-5f )
     {
 	msg = tr("The wavelet estimation window must stop "
 		  "before the last spike at %1 ms")
-			.arg( toString(refmodel_[lastspike].correctedtime_) );
+			.arg( toString(reflmodel_[lastspike].correctedtime_) );
 	mErrRet( msg )
     }
 
@@ -396,7 +397,7 @@ bool DataPlayer::extractReflectivity()
     int nrspikefound = 0;
     for ( int idsp=firstspike; idsp<=lastspike; idsp++ )
     {
-	const ReflectivitySpike spike = refmodel_[idsp];
+	const ReflectivitySpike spike = reflmodel_[idsp];
 	const float twtspike = spike.correctedtime_;
 	if ( !mIsEqual(twtspike,zrg_.atIndex(nrspikefound,step),1e-5f) )
 	{
@@ -454,7 +455,7 @@ bool DataPlayer::setAIModel()
 	gc.son2Vel( *pcvellog );
     }
 
-    aimodel_.erase();
+    elasticmodel_.erase();
     Well::ElasticModelComputer emodelcomputer( *data_.wd_ );
     emodelcomputer.setVelLog( *pcvellog );
     emodelcomputer.setDenLog( *pcdenlog );
@@ -469,7 +470,7 @@ bool DataPlayer::setAIModel()
 	warnmsg_ = uiString( emodelcomputer.warnMsg() )
 						    .appendPhrase(doeditmsg);
 
-    aimodel_ = emodelcomputer.elasticModel();
+    elasticmodel_ = emodelcomputer.elasticModel();
 
     return true;
 }
@@ -480,20 +481,19 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     errmsg_.setEmpty();
     uiString msg;
 
-    refmodel_.erase();
-    TypeSet<ElasticModel> aimodels;
-    aimodels += aimodel_;
-    SynthGenParams sgp;
+    reflmodel_.erase();
+    ElasticModelSet elmodels;
+    elmodels += new ElasticModel( elasticmodel_ );
+    SynthSeis::GenParams sgp;
     sgp.setWaveletName( wvlt.name() );
     PtrMan<RaySynthGenerator> gen = 0;
     if ( data_.sd_ )
-	gen = new RaySynthGenerator( data_.sd_, true );
+	gen = new RaySynthGenerator( sgp, data_.sd_->rayModels() );
     else
-	gen = new RaySynthGenerator( &aimodels, sgp );
+	gen = new RaySynthGenerator( sgp, elmodels );
 
-    gen->usePar( gen->getSyntheticData()->getRayPar() );
+    gen->usePar( gen->dataSet()->rayPars() );
     gen->setWavelet( &wvlt );
-
 
     TaskRunner* taskrunner = data_.trunner_;
     if ( !TaskRunner::execute(taskrunner,*gen) )
@@ -505,17 +505,16 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     gen->setOutSampling( data_.getTraceRange() );
     gen->enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
 
-    if ( !gen->getSyntheticData() )
+    if ( !gen->dataSet() )
 	return false;
 
-    data_.sd_ = gen->getSyntheticData();
-    RefMan<ReflectivityModelSet> refmodels =
-				gen->getSyntheticData()->getRefModels(0,false);
-    if ( refmodels->isEmpty() )
+    data_.sd_ = gen->dataSet();
+    auto reflmodels = data_.sd_->reflModels( 0, false );
+    if ( reflmodels->isEmpty() )
 	mErrRet( tr("Cannot retrieve the reflectivities after ray-tracing") )
 
-    refmodel_ = const_cast<ReflectivityModel&>(*refmodels->get( 0 ));
-    data_.synthtrc_ = *gen->getSyntheticData()->getTrace( 0 );
+    reflmodel_ = const_cast<ReflectivityModel&>(*reflmodels->get( 0 ));
+    data_.synthtrc_ = *data_.sd_->getTrace( 0 );
     data_.setTraceRange( data_.synthtrc_.zRange() );
     //requested range was too small
 
@@ -527,14 +526,14 @@ bool DataPlayer::copyDataToLogSet()
 {
     errmsg_.setEmpty();
 
-    if ( aimodel_.isEmpty() )
+    if ( elasticmodel_.isEmpty() )
 	mErrRet( toUiString("Internal: No data found") )
 
     data_.logset_.setEmpty();
     const StepInterval<float> dahrg = data_.getDahRange();
 
     TypeSet<float> dahlog, son, den, ai;
-    for ( int idx=0; idx<aimodel_.size(); idx++ )
+    for ( int idx=0; idx<elasticmodel_.size(); idx++ )
     {
 	const float twt = data_.getModelRange().atIndex(idx);
 	const float dah = data_.wd_->d2TModel().getDah(twt,data_.wd_->track());
@@ -542,7 +541,7 @@ bool DataPlayer::copyDataToLogSet()
 	    continue;
 
 	dahlog += dah;
-	const AILayer& layer = aimodel_[idx];
+	const AILayer& layer = elasticmodel_[idx];
 	son += layer.vel_;
 	den += layer.den_;
 	ai += layer.getAI();
@@ -553,9 +552,9 @@ bool DataPlayer::copyDataToLogSet()
     createLog( data_.sKeyAI(), dahlog.arr(), ai.arr(), ai.size() );
 
     TypeSet<float> dahref, refs;
-    for ( int idx=0; idx<refmodel_.size(); idx++ )
+    for ( int idx=0; idx<reflmodel_.size(); idx++ )
     {
-	const ReflectivitySpike spike = refmodel_[idx];
+	const ReflectivitySpike spike = reflmodel_[idx];
 	if ( !spike.isDefined() )
 	    continue;
 

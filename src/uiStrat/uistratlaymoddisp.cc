@@ -48,23 +48,24 @@ ________________________________________________________________________
 
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
-					  const Strat::LayerModelProvider& lmp)
+					  const Strat::LayerModelSuite& lms )
     : uiGroup(t.parent(),"LayerModel display")
     , tools_(t)
-    , lmp_(lmp)
+    , lms_(lms)
     , zrg_(0,1)
     , selseqidx_(-1)
-    , vwr_(* new uiFlatViewer(this))
+    , vwr_(*new uiFlatViewer(this))
     , flattened_(false)
-    , frtxtitm_(0)
+    , modtypetxtitm_(0)
     , sequenceSelected(this)
     , genNewModelNeeded(this)
     , rangeChanged(this)
     , modelEdited(this)
+    , viewChanged(this)
     , infoChanged(this)
     , dispPropChanged(this)
 {
-    vwr_.setInitialSize( uiSize(600,250) );
+    vwr_.setInitialSize( initialSize() );
     vwr_.setStretch( 2, 2 );
     vwr_.disableStatusBarUpdate();
     vwr_.setZDomain( ZDomain::Depth() );
@@ -87,24 +88,31 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     app.annot_.x2_.showgridlines_ = true;
     app.annot_.allowuserchangereversedaxis_ = false;
 
-    vwr_.rgbCanvas().getMouseEventHandler().buttonReleased.notify(
-			mCB(this,uiStratLayerModelDisp,usrClicked) );
-    vwr_.rgbCanvas().getMouseEventHandler().doubleClick.notify(
-			mCB(this,uiStratLayerModelDisp,doubleClicked) );
-    vwr_.rgbCanvas().getMouseEventHandler().movement.notify(
-			mCB(this,uiStratLayerModelDisp,mouseMoved) );
-    mAttachCB( vwr_.rgbCanvas().reSize, uiStratLayerModelDisp::updateTextPosCB);
-#   define mSetCB(notifnm) tools_.notifnm.notify( \
-	mCB(this,uiStratLayerModelDisp,notifnm##CB)  )
-
-    mSetCB( selPropChg ); mSetCB( dispLithChg ); mSetCB( selContentChg );
-    mSetCB( selLevelChg ); mSetCB( dispEachChg ); mSetCB( dispZoomedChg );
 }
 
 
 uiStratLayerModelDisp::~uiStratLayerModelDisp()
 {
     detachAllNotifiers();
+}
+
+
+void uiStratLayerModelDisp::initGrp( CallBacker* )
+{
+    vwr_.rgbCanvas().getMouseEventHandler().buttonReleased.notify(
+			mCB(this,uiStratLayerModelDisp,usrClicked) );
+    vwr_.rgbCanvas().getMouseEventHandler().doubleClick.notify(
+			mCB(this,uiStratLayerModelDisp,doubleClicked) );
+    vwr_.rgbCanvas().getMouseEventHandler().movement.notify(
+			mCB(this,uiStratLayerModelDisp,mouseMoved) );
+    mAttachCB( vwr_.rgbCanvas().reSize, uiStratLayerModelDisp::canvasResizeCB);
+#   define mSetCB(notifnm) tools_.notifnm.notify( \
+	mCB(this,uiStratLayerModelDisp,notifnm##CB)  )
+
+    mSetCB( selPropChg ); mSetCB( dispLithChg ); mSetCB( selContentChg );
+    mSetCB( selLevelChg ); mSetCB( dispEachChg ); mSetCB( dispZoomedChg );
+
+    mAttachCB( lms_.curChanged, uiStratLayerModelDisp::curModEdChgCB );
 }
 
 
@@ -116,15 +124,15 @@ uiGraphicsScene& uiStratLayerModelDisp::scene() const
 
 const Strat::LayerModel& uiStratLayerModelDisp::layerModel() const
 {
-    return lmp_.getCurrent();
+    return lms_.getCurrent();
 }
 
 
-uiGroup* uiStratLayerModelDisp::getDisplayClone( uiParent* p )	const
+uiFlatViewer* uiStratLayerModelDisp::getViewerClone( uiParent* p )	const
 {
     uiFlatViewer* vwr = new uiFlatViewer( p );
     vwr->rgbCanvas().disableImageSave();
-    vwr->setInitialSize( uiSize(800,300) );
+    vwr->setInitialSize( initialSize() );
     vwr->setStretch( 2, 2 );
     vwr->appearance() = vwr_.appearance();
     vwr->setPack( true, vwr_.packID(true), false );
@@ -191,36 +199,34 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 }
 
 
-void uiStratLayerModelDisp::displayFRText( bool yn, bool isbrine )
+void uiStratLayerModelDisp::curModEdChgCB( CallBacker* )
 {
-    if ( !frtxtitm_ )
+    const bool ised = lms_.curIsEdited();
+    if ( !modtypetxtitm_ )
     {
 	const uiPoint pos( mNINT32( scene().nrPixX()/2 ),
 			   mNINT32( scene().nrPixY()-10 ) );
-	frtxtitm_ = scene().addItem( new uiTextItem(pos,uiString::empty(),
+	modtypetxtitm_ = scene().addItem( new uiTextItem(pos,uiString::empty(),
 						mAlignment(HCenter,VCenter)) );
-	frtxtitm_->setPenColor( Color::Black() );
-	frtxtitm_->setZValue( 999999 );
-	frtxtitm_->setMovable( true );
+	modtypetxtitm_->setPenColor( Color::Black() );
+	modtypetxtitm_->setZValue( 999999 );
+	modtypetxtitm_->setMovable( true );
     }
 
-    frtxtitm_->setVisible( yn );
-    if ( yn )
-    {
-	frtxtitm_->setText( isbrine ? tr("Brine filled")
-				    : tr("Hydrocarbon filled") );
-    }
+    modtypetxtitm_->setVisible( ised );
+    if ( ised )
+	modtypetxtitm_->setText( lms_.uiDesc(lms_.curIdx()) );
 }
 
 
-void uiStratLayerModelDisp::updateTextPosCB( CallBacker* )
+void uiStratLayerModelDisp::canvasResizeCB( CallBacker* )
 {
-    if ( !frtxtitm_ )
-	return;
-
-    const uiPoint pos( mNINT32( scene().nrPixX()/2 ),
-		       mNINT32( scene().nrPixY()-10 ) );
-    frtxtitm_->setPos( pos );
+    if ( modtypetxtitm_ )
+    {
+	const uiPoint pos( mNINT32( scene().nrPixX()/2 ),
+			   mNINT32( scene().nrPixY()-10 ) );
+	modtypetxtitm_->setPos( pos );
+    }
 }
 
 
@@ -441,10 +447,9 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 }
 
 
-bool uiStratLayerModelDisp::getCurPropDispPars(
-	LMPropSpecificDispPars& pars ) const
+bool uiStratLayerModelDisp::getCurPropDispPars( LMPropDispPars& pars ) const
 {
-    LMPropSpecificDispPars disppars;
+    LMPropDispPars disppars;
     disppars.propnm_ = tools_.selProp();
     const int curpropidx = lmdisppars_.indexOf( disppars );
     if ( curpropidx<0 )
@@ -454,14 +459,14 @@ bool uiStratLayerModelDisp::getCurPropDispPars(
 }
 
 
-bool uiStratLayerModelDisp::setPropDispPars(const LMPropSpecificDispPars& pars)
+bool uiStratLayerModelDisp::setPropDispPars( const LMPropDispPars& pars )
 {
     BufferStringSet propnms;
     for ( int idx=0; idx<layerModel().propertyRefs().size(); idx++ )
 	propnms.add( layerModel().propertyRefs()[idx]->name() );
-
     if ( !propnms.isPresent(pars.propnm_) )
 	return false;
+
     const int propidx = lmdisppars_.indexOf( pars );
     if ( propidx<0 )
 	lmdisppars_ += pars;
@@ -559,23 +564,21 @@ void uiStratLayerModelDisp::doubleClicked( CallBacker* )
 
 //=========================================================================>>
 
-class LayerModelDataPack : public FlatDataPack
+class uiSSLMFlatViewDataPack : public FlatDataPack
 {
 public:
 
-LayerModelDataPack()
-    : FlatDataPack( "Layer Model", new Array2DImpl<float>(0,0) )
+uiSSLMFlatViewDataPack()
+    : FlatDataPack( "Empty uiSSLM", new Array2DImpl<float>(0,0) )
 {}
-
-
 const char* dimName( bool dim0 ) const
 { return dim0 ? "Model Nr" : "Depth"; }
 
 };
 
 uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
-		uiStratLayModEditTools& t, const Strat::LayerModelProvider& l )
-    : uiStratLayerModelDisp(t,l)
+		uiStratLayModEditTools& t, const Strat::LayerModelSuite& lms )
+    : uiStratLayerModelDisp(t,lms)
     , emptyitm_(0)
     , zoomboxitm_(0)
     , dispprop_(1)
@@ -595,10 +598,10 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , allcontents_(false)
 {
     vwr_.appearance().ddpars_.show( false, false );
-    emptydp_ = new LayerModelDataPack();
-    DPM( DataPackMgr::FlatID() ).add( emptydp_ );
-    vwr_.setPack( true, emptydp_->id() );
-    vwr_.setPack( false, emptydp_->id() );
+    fvdp_ = new uiSSLMFlatViewDataPack;
+    DPM( DataPackMgr::FlatID() ).add( fvdp_ );
+    vwr_.setPack( true, fvdp_->id() );
+    vwr_.setPack( false, fvdp_->id() );
 }
 
 
@@ -804,7 +807,7 @@ void uiStratSimpleLayerModelDisp::reDrawLevels()
     else
 	getBounds();
     updateLevelAuxData();
-    vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+    vwr_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -812,7 +815,7 @@ void uiStratSimpleLayerModelDisp::reDrawSeq()
 {
     getBounds();
     updateLayerAuxData();
-    vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+    vwr_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -896,7 +899,7 @@ void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
 	vwr_.addAuxData( selseqad_ );
     }
 
-    StepInterval<double> yrg = emptydp_->posData().range( false );
+    StepInterval<double> yrg = fvdp_->posData().range( false );
     selseqad_->poly_.erase();
     selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1), yrg.start);
     selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1), yrg.stop );
@@ -908,7 +911,7 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
     if ( layerModel().isEmpty() )
 	return;
 
-    const int sz = tools_.getLevelNames().size();
+    const int sz = tools_.levelNames().size();
     int auxdataidx = 0;
     const int sellvlidx = tools_.selLevelIdx();
     for( int ilvl=0; ilvl<sz; ilvl++ )
@@ -1061,11 +1064,11 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
     mGetDispZrg(zrg_,dispzrg);
     StepInterval<double> zrg( dispzrg.start, dispzrg.stop,
 			      dispzrg.width()/5.0f );
-    emptydp_->posData().setRange(
+    fvdp_->posData().setRange(
 	    true, StepInterval<double>(1, nrseqs<2 ? 1 : nrseqs,1) );
-    emptydp_->posData().setRange( false, zrg );
-    emptydp_->setName( !haveprop ? "No property selected"
-				 : lm.propertyRefs()[dispprop_]->name().buf() );
+    fvdp_->posData().setRange( false, zrg );
+    fvdp_->setName( !haveprop ? "---"
+			      : lm.propertyRefs()[dispprop_]->name().buf() );
     vwr_.setViewToBoundingBox();
 }
 
@@ -1087,7 +1090,7 @@ void uiStratSimpleLayerModelDisp::getBounds()
 {
     dispprop_ = getCurPropIdx();
     lvldpths_.erase();
-    const BufferStringSet& lvlnms = tools_.getLevelNames();
+    const BufferStringSet& lvlnms = tools_.levelNames();
     const int sz = lvlnms.size();
     lvldpths_.setSize( sz );
 
@@ -1182,7 +1185,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     updateLayerAuxData();
     updateLevelAuxData();
     updateSelSeqAuxData();
-    vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+    vwr_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -1195,5 +1198,5 @@ void uiStratSimpleLayerModelDisp::doLevelChg()
 void uiStratSimpleLayerModelDisp::drawSelectedSequence()
 {
     updateSelSeqAuxData();
-    vwr_.handleChange( mCast(unsigned int, FlatView::Viewer::Auxdata) );
+    vwr_.handleChange( FlatView::Viewer::Auxdata );
 }

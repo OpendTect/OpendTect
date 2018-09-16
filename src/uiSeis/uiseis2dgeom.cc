@@ -56,9 +56,10 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 }
 
 
-static void getLineNames( const IOObj& ioobj, BufferStringSet& lnms )
+static void getLineNames( uiParent* p, const IOObj& ioobj,
+			  BufferStringSet& lnms )
 {
-    uiSeisIOObjInfo oinf( ioobj );
+    uiSeisIOObjInfo oinf( p, ioobj );
     oinf.getLineNames( lnms );
 }
 
@@ -70,7 +71,7 @@ void uiSeisDump2DGeom::seisSel( CallBacker* )
 	return;
 
     BufferStringSet lnms;
-    getLineNames( *lsioobj, lnms );
+    getLineNames( this, *lsioobj, lnms );
     lnmsfld_->newSpec( StringListInpSpec(lnms), 0 );
 }
 
@@ -102,7 +103,7 @@ bool uiSeisDump2DGeom::acceptOK()
     if ( lnmsfld_->isChecked() )
 	lnms.add( lnmsfld_->text() );
     else
-	getLineNames( *lsioobj, lnms );
+	getLineNames( this, *lsioobj, lnms );
 
     for ( int idx=0; idx<lnms.size(); idx++ )
     {

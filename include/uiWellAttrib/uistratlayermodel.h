@@ -13,30 +13,39 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uimainwin.h"
 #include "uistring.h"
+#include "stratlevel.h"
 class CtxtIOObj;
 class Wavelet;
 class SeisTrcBuf;
 class PropertyRef;
-class SyntheticData;
 class TimeDepthModel;
+class TimeDepthModelSet;
 class PropertyRefSelection;
 class ElasticPropSelection;
 class uiToolBar;
-class uiIOObjSelDlg;
 class uiStratSynthDisp;
 class uiStratLayerModelDisp;
 class uiLayerSequenceGenDesc;
 class uiStratGenDescTools;
 class uiStratLayModEditTools;
-class uiStratLayerModelLMProvider;
+class uiStratLayerModelLMSet;
 class uiStratLayerModelManager;
-namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
+namespace Strat
+{
+    class LayerModel; class LayerModelSuite;
+    class LayerSequenceGenDesc;
+}
 namespace StratSynth { class DataMgr; }
 
 
 mExpClass(uiWellAttrib) uiStratLayerModel : public uiMainWin
 { mODTextTranslationClass(uiStratLayerModel);
 public:
+
+    typedef Strat::LayerSequenceGenDesc	LayerSequenceGenDesc;
+    typedef Strat::LayerModel		LayerModel;
+    typedef Strat::LayerModelSuite	LayerModelSuite;
+    typedef StratSynth::DataMgr		SynthDataMgr;
 
 				uiStratLayerModel(uiParent*,
 					const char* disptype=0,int opt=0);
@@ -49,49 +58,27 @@ public:
     mDeclInstanceCreatedNotifierAccess(uiStratLayerModel);
     uiToolBar*			analysisToolBar()	   { return analtb_; }
 
-    void				setNrModels(int);
-    int					nrModels() const;
-    const Strat::LayerSequenceGenDesc&	genDesc() const	   { return desc_; }
-    const Strat::LayerModel&		layerModelOriginal() const;
-    Strat::LayerModel&			layerModelOriginal();
-    const Strat::LayerModel&		layerModelEdited() const;
-    Strat::LayerModel&			layerModelEdited();
-    const Strat::LayerModel&            layerModel() const;
-    Strat::LayerModel&                  layerModel();
-    BufferString			levelName() const;
-    const StratSynth::DataMgr&		currentStratSynthDM() const;
-    StratSynth::DataMgr&		currentStratSynthDM();
-    const StratSynth::DataMgr&		normalStratSynthDM() const;
-    const StratSynth::DataMgr&		editStratSynthDM() const;
-    bool				isEditUsed() const;
-    const PropertyRefSelection&		modelProperties() const;
-    const ObjectSet<const TimeDepthModel>& d2TModels() const;
-    const Wavelet*			wavelet() const;
-    DBKey				genDescID() const;
-    bool				loadGenDesc(const DBKey&);
+    const LayerSequenceGenDesc&	genDesc() const		{ return desc_; }
+    LayerModelSuite&		layerModelSuite()	{ return lms_; }
+    const LayerModelSuite&	layerModelSuite() const	{ return lms_; }
+    LayerModel&			layerModel();
+    const LayerModel&		layerModel() const;
+    const TimeDepthModelSet&	d2TModels() const;
+    const SynthDataMgr&		synthDataMgr() const { return *synthdatamgr_; }
+    Strat::Level::ID		curLevelID() const;
+    DBKey			genDescID() const;
+    bool			loadGenDesc(const DBKey&);
+    void			setNrToGen(int);
+    int				nrToGen() const;
 
-    Notifier<uiStratLayerModel>	newModels;
-    Notifier<uiStratLayerModel>	waveletChanged;
-    Notifier<uiStratLayerModel> saveRequired;   // CallBacker: CBCapsule<IOPar>
-    Notifier<uiStratLayerModel> retrieveRequired;// CallBacker: CBCapsule<IOPar>
+    Notifier<uiStratLayerModel>			newModel;
+    CNotifier<uiStratLayerModel,IOPar*>		beforeSave;
+    CNotifier<uiStratLayerModel,const IOPar*>	afterRetrieve;
 
-    bool			checkUnscaledWavelet();
+    uiStratLayerModelDisp*      layModDisp() const	{ return moddisp_; }
+    uiStratSynthDisp*		synthDisp() const	{ return synthdisp_; }
 
-    static void			doBasicLayerModel();
-
-    void			displayFRText(bool yn,bool isbrine=true);
-    uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
-    void			displayFRResult(bool usefr,bool parschanged,
-						bool isbrine);
-    void			prepareFluidRepl();
-    void			resetFluidRepl();
-
-    //Utility
-    //SyntheticData*		getCurrentSyntheticData() const;
-
-    void			setSynthView(const uiWorldRect& wr);
-    const uiWorldRect&		curSynthView() const;
-    uiStratSynthDisp*		getSynthDisp() const	{ return synthdisp_; }
+    bool			checkUnscaledWavelets();
 
 protected:
 
@@ -101,66 +88,51 @@ protected:
     uiStratGenDescTools*	gentools_;
     uiStratLayModEditTools*	modtools_;
     uiToolBar*			analtb_;
-    uiIOObjSelDlg*		modeldlg_;
-    Strat::LayerSequenceGenDesc& desc_;
-    uiStratLayerModelLMProvider& lmp_;
-    CtxtIOObj&			descctio_;
+
+    LayerSequenceGenDesc&	desc_;
+    LayerModelSuite&		lms_;
+    SynthDataMgr*		synthdatamgr_;
     ElasticPropSelection*	elpropsel_;
+
+    CtxtIOObj&			descctio_;
     bool			needtoretrievefrpars_;
-    bool			automksynth_;
     int				nrmodels_;
 
-
+    void			initWin(CallBacker*);
     void			setWinTitle();
-    void			handleNewModel();
+    void			handleNewModel(LayerModel* mdl=0);
+
     void			setModelProps();
     void			setElasticProps();
-    bool			selElasticProps(ElasticPropSelection&);
     bool			openGenDesc();
     bool			saveGenDesc() const;
     bool			saveGenDescIfNecessary(
 					bool allowcancel=true) const;
     bool			doLoadGenDesc();
-    void			doGenModels(bool forceupdsynth,
-					    bool overridedispeach=false);
-    void			calcAndSetDisplayEach(bool overridepar);
+    bool			doGenModels();
+    bool			selectElasticProps(ElasticPropSelection&);
+    void			updateDispEach(const LayerModel&);
     bool			closeOK();
 
-    void			fillDisplayPars(IOPar&) const;
+    void			useDisplayPars(const IOPar&);
     void			fillWorkBenchPars(IOPar&) const;
+    void			useSyntheticsPars(const IOPar&);
     void			fillSyntheticsPars(IOPar&) const;
-    bool			useDisplayPars(const IOPar&);
-    bool			useSyntheticsPars(const IOPar&);
+    void			fillDisplayPars(IOPar&) const;
 
-
+    void			snapshotCB(CallBacker*);
+    void			xPlotReq(CallBacker*);
+    void			helpCB(CallBacker*);
+    void			selPropChgCB(CallBacker*);
     void			openGenDescCB(CallBacker*) { openGenDesc(); }
     void			saveGenDescCB(CallBacker*) { saveGenDesc(); }
     void			manPropsCB(CallBacker*);
-    void			snapshotCB(CallBacker*);
-    void			synthDispParsChangedCB(CallBacker*);
-    void			lmDispParsChangedCB(CallBacker*);
-    void			selPropChgCB(CallBacker*);
+    void			genModelsCB(CallBacker*);
+    void			selectElasticPropsCB(CallBacker*);
     void			synthInfoChangedCB(CallBacker*);
     void			modInfoChangedCB(CallBacker*);
-    void			selElasticPropsCB(CallBacker*);
-
-    void			initWin(CallBacker*);
-    void			dispEachChg(CallBacker*);
-    void			mkSynthChg(CallBacker*);
-    void			levelChg(CallBacker*);
-    void			flattenChg(CallBacker*);
-    void			lmViewChangedCB(CallBacker*);
-    void			seqSel(CallBacker*);
-    void			modEd(CallBacker*);
-    void			modDispRangeChanged(CallBacker*);
-    void			syntheticsChangedCB(CallBacker*);
-    void			viewChgedCB(CallBacker*);
-    void			wvltChg(CallBacker*);
-    void			modSelChg(CallBacker*);
-    void			genModels(CallBacker*);
-    void			xPlotReq(CallBacker*);
-    void			nrModelsChangedCB(CallBacker*);
-    void			helpCB(CallBacker*);
+    void			seqSelCB(CallBacker*);
+    void			modEdCB(CallBacker*);
 
     friend class		uiStratLayerModelManager;
 

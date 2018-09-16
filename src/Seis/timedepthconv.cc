@@ -199,8 +199,9 @@ public:
 		    , nrdone_( 0 )
 		    , seisdatapack_(0)
 		{
-		    mDynamicCast( const RegularSeisDataPack*,
-		  seisdatapack_,Seis::PLDM().get(provider.dbKey()).ptr() );
+		    seisdatapack_ = Seis::PLDM().get<RegularSeisDataPack>(
+						    provider.dbKey() );
+		    seisdp_ = seisdatapack_.ptr();
 		}
 protected:
 
@@ -224,7 +225,7 @@ protected:
 
 	const BinID& curbid = trk.position();
 	const int nrz = arr_.getSize( 2 );
-	if ( !seisdatapack_ )
+	if ( !seisdp_ )
 	{
 	    SeisTrc velocitytrc;
 	    const uiRetVal uirv = provider_.getNext( velocitytrc );
@@ -245,13 +246,13 @@ protected:
 	}
 	else
 	{
-	    const int globidx = seisdatapack_->getGlobalIdx( curbid );
+	    const int globidx = seisdp_->getGlobalIdx( curbid );
 	    const OffsetValueSeries<float>& dptrcvs =
-		seisdatapack_->getTrcStorage( 0, globidx );
+		seisdp_->getTrcStorage( 0, globidx );
 
-	    const SamplingData<float> sd = seisdatapack_->sampling().zsamp_;
+	    const SamplingData<float> sd = seisdp_->sampling().zsamp_;
 	    tdc_.setVelocityModel( dptrcvs,
-				   seisdatapack_->sampling().zsamp_.nrSteps()+1,
+				   seisdp_->sampling().zsamp_.nrSteps()+1,
 				   sd, veldesc_, velintime_ );
 	}
 
@@ -271,7 +272,8 @@ protected:
     VelocityDesc		veldesc_;
     bool			velintime_;
     bool			voiintime_;
-    const RegularSeisDataPack*	seisdatapack_;
+    ConstRefMan<RegularSeisDataPack> seisdatapack_;
+    const RegularSeisDataPack*	seisdp_;
 
     int				nrdone_;
 
@@ -791,7 +793,7 @@ int VelocityModelScanner::nextStep()
     const SamplingData<double> sd = veltrace.info().sampling_;
 
     TimeDepthConverter tdconverter;
-    if ( !tdconverter.setVelocityModel( trcvs, sz, sd, vd_, zistime_ ) )
+    if ( !tdconverter.setVelocityModel(trcvs,sz,sd,vd_,zistime_).isOK() )
 	return MoreToDo();
 
     ArrayValueSeries<float, float> resvs( sz );

@@ -11,29 +11,33 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "seisioobjinfo.h"
+class uiParent;
 
 
 mExpClass(uiSeis) uiSeisIOObjInfo : public SeisIOObjInfo
 { mODTextTranslationClass(uiSeisIOObjInfo);
 public:
 
-			uiSeisIOObjInfo( const IOObj* ioobj )
-			    : SeisIOObjInfo(ioobj)		{}
-			uiSeisIOObjInfo( const IOObj& ioobj )
-			    : SeisIOObjInfo(ioobj)		{}
-			uiSeisIOObjInfo( const DBKey& dbky )
-			    : SeisIOObjInfo(dbky)		{}
-			uiSeisIOObjInfo( const char* ioobjnm, Seis::GeomType gt)
-			    : SeisIOObjInfo(ioobjnm,gt)		{}
-			uiSeisIOObjInfo( const SeisIOObjInfo& sii )
-			    : SeisIOObjInfo(sii)		{}
-			uiSeisIOObjInfo( const uiSeisIOObjInfo& oth )
-			    : SeisIOObjInfo(oth)		{}
+		uiSeisIOObjInfo( const uiParent* p, const IOObj* ioobj )
+		    : parent_(p), SeisIOObjInfo(ioobj)		{}
+		uiSeisIOObjInfo( const uiParent* p, const IOObj& ioobj )
+		    : parent_(p), SeisIOObjInfo(ioobj)		{}
+		uiSeisIOObjInfo( const uiParent* p, const DBKey& dbky )
+		    : parent_(p), SeisIOObjInfo(dbky)		{}
+		uiSeisIOObjInfo( const uiParent* p, const char* ioobjnm,
+				 Seis::GeomType gt)
+		    : parent_(p), SeisIOObjInfo(ioobjnm,gt)		{}
+		uiSeisIOObjInfo( const uiParent* p, const SeisIOObjInfo& sii )
+		    : parent_(p), SeisIOObjInfo(sii)		{}
+		uiSeisIOObjInfo( const uiParent* p, const uiSeisIOObjInfo& oth )
+		    : parent_(p), SeisIOObjInfo(oth)		{}
 
-    bool		provideUserInfo() const;
-    bool		provideLineInfo(const TypeSet<Pos::GeomID>* ts=0) const;
+    bool	provideUserInfo() const;
+    bool	provideLineInfo(const TypeSet<Pos::GeomID>* ts=0) const;
 
-    bool		checkSpaceLeft(const SeisIOObjInfo::SpaceInfo&,
-					bool error_feedback=true) const;
+    bool	checkSpaceLeft(const SeisIOObjInfo::SpaceInfo&,
+				bool error_feedback=true) const;
+
+    const uiParent* parent_;
 
 };

@@ -11,156 +11,180 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
+#include "elasticmodel.h"
 #include "elasticpropsel.h"
 #include "raysynthgenerator.h"
-#include "syntheticdata.h"
+#include "synthseisdataset.h"
 #include "stratsynthlevel.h"
 #include "uistring.h"
 
-namespace PreStack {  class PreStackSyntheticData; }
-class BufferStringSet;
 class GatherSetDataPack;
 class RaySynthGenerator;
+class RayTracer1D;
 class SeisTrcBuf;
 class TaskRunnerProvider;
-class Wavelet;
+class TimeDepthModelSet;
 class TrcKeyZSampling;
-class RayTracer1D;
-class PostStackSyntheticData;
-
-namespace Strat
-{ class LayerModel; class LayerModelProvider; class LayerSequence; }
+class Wavelet;
+namespace Strat { class LayerModel; class LayerModelSuite; }
+namespace SynthSeis { class PreStackDataSet; class PostStackDataSet; }
 
 
 namespace StratSynth
 {
 
-mExpClass(WellAttrib) DataMgr
+class PropertyDataSetsCreator;
+
+
+/*!\brief manages the synthetics for a set of Layer Models.
+
+ The 'key' to adding synthetics is the SynthSeis::GenParams object. Adding
+ a synthetic means adding one of those. Actually generating the seismics will
+ require a call of 'ensureGenerated()' for that DataSet ID. This makes sure
+ that the DataSet for the current layer model is available.
+
+ Note that this class manages the DataSet's for the multiple LayerModel's in
+ a LayerModelSuite. The LayerModelSuite has the notion of a 'current'
+ LayerModel, which is why you can but do not have to specify the LayerModel
+ index for all DataSet-related operations - see mCurLMIdx.
+
+  */
+
+mExpClass(WellAttrib) DataMgr : public CallBacker
 { mODTextTranslationClass(StratSynth::DataMgr);
 public:
 
-    typedef int					SynthID;
-    typedef Level::ID				LevelID;
-    typedef Level::ZValueSet			ZValueSet;
-    typedef ObjectSet<const TimeDepthModel>	T2DModelSet;
+    typedef SynthSeis::DataSet		DataSet;
+    typedef SynthSeis::SyntheticType	SynthType;
+    typedef DataSet::MgrID		SynthID;
+    typedef TypeSet<SynthID>		SynthIDSet;
+    typedef Strat::LayerModel		LayerModel;
+    typedef Strat::LayerModelSuite	LayerModelSuite;
+    typedef Level::ID			LevelID;
+    typedef Level::ZValueSet		ZValueSet;
+    typedef SynthSeis::GenParams	GenParams;
+    typedef ObjectSet<DataSet>		DataSetSet;
+    typedef TypeSet<GenParams>		GenParamSet;
+    typedef TaskRunnerProvider		TRProv;
+    typedef SynthIDSet::size_type	size_type;
+    typedef SynthIDSet::idx_type	idx_type;
+    typedef idx_type			lms_idx_type;
 
-				DataMgr(const Strat::LayerModelProvider&,
-					bool useed);
-				~DataMgr();
+#   define mCurLMIdx	lms_idx_type lmsidx=-1
+#   define mAllLMIdxs	lms_idx_type lmsidx=-1
 
-    int			nrSynthetics() const;
-    RefMan<SyntheticData> addSynthetic();
-    RefMan<SyntheticData> addSynthetic(const SynthGenParams&);
-    bool		removeSynthetic(const char*);
-    bool		disableSynthetic(const char*);
-    RefMan<SyntheticData> replaceSynthetic(int id);
-    RefMan<SyntheticData> addDefaultSynthetic();
+			DataMgr(const LayerModelSuite&);
+			~DataMgr();
+    bool		haveEdited() const;
 
-    int			syntheticIdx(const char* nm) const;
-    int			syntheticIdx(const PropertyRef&) const;
+    void		setEmpty()		{ clearData(true); }
+    void		modelChange()		{ clearData(false); }
 
-    void		getSyntheticNames(BufferStringSet&,
-					  SynthGenParams::SynthType) const;
-    void		getSyntheticNames(BufferStringSet&,
-					  bool wantprestack) const;
+    void		setCalcEach(size_type);
+    size_type		calcEach() const	{ return calceach_; }
+    size_type		nrSequences(mCurLMIdx) const; //!< all available
+    size_type		nrTraces(mCurLMIdx) const;    //!< actual calculated
 
-    RefMan<SyntheticData>	getSynthetic(SynthID);
-    RefMan<SyntheticData>	getSynthetic(const char* nm);
-    ConstRefMan<SyntheticData>	getSynthetic(const char* nm) const;
-    RefMan<SyntheticData>	getSynthetic(const PropertyRef&);
-    ConstRefMan<SyntheticData>	getSynthetic(const PropertyRef&) const;
-    RefMan<SyntheticData>	getSyntheticByIdx(int idx);
-    ConstRefMan<SyntheticData>	getSyntheticByIdx(int idx) const;
+    size_type		nrSynthetics() const	{ return ids_.size(); }
+    SynthID		addSynthetic(const GenParams&);
+    SynthID		setSynthetic(SynthID,const GenParams&);
+    void		removeSynthetic(SynthID);
 
-    void		clearSynthetics();
-    void		generateOtherQuantities();
-    bool		createElasticModels();
-    void		clearElasticModels()	{ aimodels_.erase(); }
-    bool		hasElasticModels() const
-						{ return !aimodels_.isEmpty(); }
+    bool		ensureGenerated(SynthID,const TRProv&,mCurLMIdx) const;
+    bool		ensureAllGenerated(const TRProv&,mAllLMIdxs) const;
 
-    const ObjectSet<SyntheticData>& synthetics() const
-						{ return synthetics_; }
+				// convenience: shortcuts into GenParams
+    void		setWavelet(SynthID,const DBKey&);
+				//!< renames dataset, returns like setSynthetic
+    DBKey		waveletID(SynthID) const;
 
-    void		setWavelet(const Wavelet*);
-    const Wavelet*	wavelet() const		{ return wvlt_; }
-    SynthGenParams&	genParams()		{ return genparams_; }
-    const SynthGenParams& genParams() const
-			{ return genparams_; }
+    SynthID		getIDByIdx(idx_type) const;
+    SynthID		find(const char* nm) const;
+    SynthID		find(const PropertyRef&,mCurLMIdx) const;
+    SynthID		first(bool prestack,bool require_generated=false,
+				mCurLMIdx) const;
+    bool		isPS(SynthID) const;
+    bool		isStratProp(SynthID) const;
 
-    static void		getTimes(const T2DModelSet&,const ZValueSet& depths,
-				    ZValueSet& times);
-				//!< 'depths' and 'times' can be the same set
+    enum SubSelType	{ NoSubSel, NoPS, OnlyPS, NoProps, OnlyProps };
+    void		getNames(BufferStringSet&,SubSelType t=NoSubSel,
+				 bool omitempty=false,mCurLMIdx) const;
+    void		getIDs(SynthIDSet&,SubSelType t=NoSubSel,
+			       bool omitempty=false,mCurLMIdx) const;
+    bool		haveOfType(SynthType) const;
 
-			    // make sure updateLevelInfo() is done before using
-			    // one of the functions following it:
-    void		updateLevelInfo() const;
-    const LevelSet&	levels() const		{ return lvls_; }
-    void		getLevelDepths(LevelID,ZValueSet&) const;
-    void		getLevelTimes(LevelID,const T2DModelSet&,
-				      ZValueSet&) const;
-    bool		setLevelTimesInTrcs(LevelID,const char* synthname);
-    void		setLevelTimesInTrcs(LevelID,SeisTrcBuf&,
-				const T2DModelSet&,int step=-1) const;
-    void		flattenTraces(SeisTrcBuf&) const;
-    void		trimTraces(SeisTrcBuf&,const T2DModelSet&,
-				   float zskip) const;
-    void		decimateTraces(SeisTrcBuf&,int fac) const;
+    const GenParams&	getGenParams(SynthID) const;
+    BufferString	nameOf(SynthID) const;
+    lms_idx_type	lmsIndexOf(const DataSet*) const;
+    idx_type		indexOf(const DataSet*,mCurLMIdx) const;
+    bool		hasValidDataSet(SynthID,mCurLMIdx) const;
+    DataSet*		getDataSet(SynthID,mCurLMIdx);
+    const DataSet*	getDataSet(SynthID,mCurLMIdx) const;
+    DataSet*		getDataSetByIdx(idx_type,mCurLMIdx);
+    const DataSet*	getDataSetByIdx(idx_type,mCurLMIdx) const;
 
-    void		setRunnerProvider(const TaskRunnerProvider&);
-    uiString		errMsg() const;
-    uiString		infoMsg() const;
-    void		clearInfoMsg()	{ infomsg_.setEmpty(); }
+    const GenParamSet&	genParams() const	{ return genparams_; }
+    const LayerModelSuite& layerModelSuite() const { return lms_; }
+    const LayerModel&	layerModel(mCurLMIdx) const;
+    const ElasticModelSet& elasticModels(mCurLMIdx) const;
+    const TimeDepthModelSet& d2TModels(mCurLMIdx) const;
+    const LevelSet&	levels(mCurLMIdx) const;
+    const DataSetSet&	synthetics(mCurLMIdx) const { return gtDSS(lmsidx); }
 
-    static const char*	sKeyFRNameSuffix()	{ return " after FR"; }
+    void		getLevelDepths(LevelID,ZValueSet&,mCurLMIdx) const;
+    void		setPackLevelTimes(SynthID,LevelID) const;
+
+    BufferString	getFinalDataSetName(const char* gpnm,
+					    bool isprop=false) const;
+
+    mutable CNotifier<DataMgr,SynthID>	entryChanged;
 
 protected:
 
-    const Strat::LayerModelProvider&	lmp_;
-    const bool				isedited_;
-    mutable LevelSet			lvls_;
-    SynthGenParams			genparams_;
-    PropertyRefSelection		props_;
-    RefObjectSet<SyntheticData>		synthetics_;
-    TypeSet<ElasticModel>		aimodels_;
-    int					lastsyntheticid_;
-    bool				swaveinfomsgshown_;
-    const Wavelet*			wvlt_;
+    const LayerModelSuite&	lms_;
+    size_type			calceach_		= 1;
 
-    uiString				errmsg_;
-    uiString				infomsg_;
-    const TaskRunnerProvider*		trprov_;
+    SynthIDSet			ids_;
+    GenParamSet			genparams_;
+    ObjectSet<DataSetSet>	lmdatasets_;
+    ObjectSet<ElasticModelSet>	elasticmodelsets_;
+    ObjectSet<LevelSet>		levelsets_;
 
-    const Strat::LayerModel&	layMod() const;
-    bool		fillElasticModel(const Strat::LayerModel&,
-					 ElasticModel&,int seqidx);
-    bool		adjustElasticModel(const Strat::LayerModel&,
-					   TypeSet<ElasticModel>&,bool chksvel);
-    void		generateOtherQuantities(
-				const PostStackSyntheticData& sd,
-				const Strat::LayerModel&);
-    RefMan<SyntheticData>	generateSD();
-    RefMan<SyntheticData>	generateSD( const SynthGenParams&);
-    bool		runSynthGen(RaySynthGenerator&, const SynthGenParams&);
-    void		createAngleData(PreStack::PreStackSyntheticData&,
-					const ObjectSet<RayTracer1D>&);
-    RefMan<SyntheticData>	createAngleStack(const SyntheticData& sd,
-					 const TrcKeyZSampling&,
-					 const SynthGenParams&);
-    RefMan<SyntheticData>	createAVOGradient(const SyntheticData& sd,
-					 const TrcKeyZSampling&,
-					 const SynthGenParams&);
-    RefMan<SyntheticData>	createSynthData(const SyntheticData& sd,
-					 const TrcKeyZSampling&,
-					 const SynthGenParams&,bool);
+    void		clearData(bool);
+    void		ensureLevels(lms_idx_type) const;
+    bool		ensureElasticModels(const TRProv&,lms_idx_type) const;
+    void		ensurePropertyDataSets(const TRProv&,
+						lms_idx_type) const;
+    bool		generate(SynthID,const TRProv&,lms_idx_type) const;
+    DataSet*		generateDataSet(const GenParams&,const TRProv&,
+					lms_idx_type) const;
+    DataSet*		genRaySynthDataSet(const GenParams&,
+					   const TRProv&,lms_idx_type) const;
+    DataSet*		genPSPostProcDataSet(const GenParams&,const DataSet&,
+				const TrcKeyZSampling&,const TRProv&) const;
 
-    const GatherSetDataPack*	getRelevantAngleData(
-						const IOPar& raypar) const;
+    size_type		nrLayerModels() const;
+    idx_type		curLayerModelIdx() const;
+    void		addLayModelSets();
+    void		addStratPropSynths();
+    lms_idx_type	gtActualLMIdx(lms_idx_type) const;
+    DataSetSet&		gtDSS(lms_idx_type);
+    const DataSetSet&	gtDSS(lms_idx_type) const;
+    idx_type		iSeq(idx_type itrc) const;
+    idx_type		iTrc(idx_type iseq) const;
+    SynthID		addEntry(SynthID,const GenParams&);
+    idx_type		gtIdx(SynthID) const;
+    DataSet*		gtDS(SynthID,lms_idx_type) const;
+    DataSet*		gtDSByIdx(idx_type,lms_idx_type) const;
+    DataSet*		gtDSByName(const char*,lms_idx_type) const;
+    idx_type		gtGenIdx(SynthID,const TRProv&) const;
+    void		gtIdxs(TypeSet<idx_type>&,SubSelType,bool,
+				lms_idx_type) const;
+    void		lmsEdChgCB(CallBacker*);
+    bool		haveDS(idx_type,lms_idx_type) const;
 
-public:
-
-    static uiString	sErrRetMsg() { return uiStrings::phrCannotCreate(tr
-				       ("synthetics %1 : %2\n")); }
+    friend class	PropertyDataSetsCreator;
+    void		setDataSet(const GenParams&,DataSet*,lms_idx_type);
 
 };
 

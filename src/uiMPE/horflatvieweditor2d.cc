@@ -440,7 +440,7 @@ void HorizonFlatViewEditor2D::undo()
 	    uiString undoerrmsg;
 	    engine().undo( undoerrmsg );
 	    if ( !undoerrmsg.isEmpty() )
-		uiMSG().error( undoerrmsg );
+		gUiMsg().error( undoerrmsg );
 	    horpainter_->paint();
 	    changed = true;
 	}
@@ -472,7 +472,7 @@ void HorizonFlatViewEditor2D::redo()
 	    uiString redoerrmsg;
 	    engine().redo( redoerrmsg );
 	    if ( !redoerrmsg.isEmpty() )
-		uiMSG().error( redoerrmsg );
+		gUiMsg().error( redoerrmsg );
 	    horpainter_->paint();
 	    changed = true;
 	}
@@ -599,7 +599,7 @@ bool HorizonFlatViewEditor2D::selectSeedData(
     const bool wvavisible = editor->viewer().isVisible(true);
 
     if ( vdvisible && wvavisible )
-	pickinvd = uiMSG().question( tr("Which one is your seed data?"),
+	pickinvd = gUiMsg().question( tr("Which one is your seed data?"),
 				     uiStrings::sVD(), uiStrings::sWVA() );
     else if ( vdvisible )
 	pickinvd = true;
@@ -607,7 +607,7 @@ bool HorizonFlatViewEditor2D::selectSeedData(
 	pickinvd = false;
     else
     {
-	uiMSG().error( tr("No data to choose from") );
+	gUiMsg().error( tr("No data to choose from") );
 	return false;
     }
 
@@ -651,7 +651,7 @@ bool HorizonFlatViewEditor2D::checkSanity( EMTracker& tracker,
 		MPE::engine().pickingOnSameData( curss, *wvaselspec_, wvamsg );
 	if ( !vdres && !wvares )
     {
-	    const bool res = uiMSG().askContinue( vdmsg );
+	    const bool res = gUiMsg().askContinue( vdmsg );
 	    if ( !res )
 		return false;
 

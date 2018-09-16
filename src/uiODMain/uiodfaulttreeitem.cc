@@ -78,7 +78,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
     if ( hastransform )
     {
-	uiMSG().error( tr("Cannot add Faults to this scene type") );
+	mTIUiMsg().error( tr("Cannot add Faults to this scene type") );
 	return false;
     }
 
@@ -428,7 +428,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     if ( scene && scene->getZAxisTransform() )
     {
-	uiMSG().error( tr("Cannot add FaultStickSets to this scene type") );
+	mTIUiMsg().error( tr("Cannot add FaultStickSets to this scene type") );
 	return false;
     }
 

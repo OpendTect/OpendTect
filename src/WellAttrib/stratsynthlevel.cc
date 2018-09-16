@@ -31,13 +31,13 @@ Level& Level::dummy()
 
 BufferString StratSynth::Level::name() const
 {
-    return Strat::LVLS().levelName( id_ );
+    return Strat::LVLS().nameOf( id_ );
 }
 
 
 Color StratSynth::Level::color() const
 {
-    return Strat::LVLS().levelColor( id_ );
+    return Strat::LVLS().colorOf( id_ );
 }
 
 

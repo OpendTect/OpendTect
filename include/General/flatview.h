@@ -162,7 +162,6 @@ public:
 			{ return color_.isVisible()
 			      && ( ( x1dir && x1_.showgridlines_)
 				|| (!x1dir && x2_.showgridlines_)); }
-    //bool		haveAux() const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -335,12 +334,16 @@ mExpClass(General) Viewer
 {
 public:
 
+    typedef ::DataPack::ID  PackID;
+
 			Viewer();
     virtual		~Viewer();
 
     virtual Appearance&	appearance();
     const Appearance&	appearance() const
 			{ return const_cast<Viewer*>(this)->appearance(); }
+    DataDispPars&	dispPars()	    { return appearance().ddpars_; }
+    const DataDispPars&	dispPars() const    { return appearance().ddpars_; }
 
     ZAxisTransform*	getZAxisTransform() const
 			{ return datatransform_; }
@@ -350,15 +353,15 @@ public:
     void		setZDomain(const ZDomain::Def&);
     const ZDomain::Info& zDomain() const;
 
-    void		addPack(::DataPack::ID);
+    void		addPack(PackID);
 			/*!< Adds to list and obtains the DataPack, but does not
 			 use for WVA or VD. DataPack gets released in the
 			 destructor of this class. */
-    void		usePack(bool wva,::DataPack::ID,bool usedefs=true );
+    void		usePack(bool wva,PackID,bool usedefs=true );
 			//!< Does not add new packs, just selects from added
-    void		removePack(::DataPack::ID);
+    void		removePack(PackID);
 			//!< Releases DataPack after removing from the list.
-    void		setPack( bool wva, ::DataPack::ID id, bool usedefs=true)
+    void		setPack( bool wva, PackID id, bool usedefs=true)
 			{ addPack( id ); usePack( wva, id, usedefs ); }
     void		clearAllPacks();
 
@@ -368,9 +371,14 @@ public:
 			  if the specified display has no datapack. */
     bool		hasPack(bool wva) const
 			{ return packID(wva)!=DataPack::cNoID(); }
-    DataPack::ID	packID(bool wva) const;
+    PackID		packID(bool wva) const;
+    const TypeSet<PackID>& availablePacks() const { return ids_; }
+    bool		isAvailable( PackID id ) const
+			{ return ids_.isPresent(id); }
 
-    const TypeSet< ::DataPack::ID>&	availablePacks() const	{ return ids_; }
+    void		setMapper(bool wva,ColTab::Mapper&);
+    RefMan<ColTab::Mapper> mapper(bool wva);
+    ConstRefMan<ColTab::Mapper> mapper(bool wva) const;
 
     virtual bool	isVertical() const		{ return true; }
     bool		isVisible(bool wva) const;
@@ -382,9 +390,10 @@ public:
 
     enum DataChangeType	{ All=0xFFFFFFFF, BitmapData=0x0001, DisplayPars=0x0002,
 			  Annot=0x0004, Auxdata=0x0008 };
-    virtual void	handleChange(unsigned int datachangetype)	= 0;
-			/*!<\param datachangetype can be any combination of
-				   DataChangeType. */
+    virtual void	handleChange( DataChangeType typ )
+			{ doHandleChange( (unsigned int)typ ); }
+    virtual void	handleChange( unsigned int dc ) // use bitwise or
+			{ doHandleChange( dc ); }
 
 			//!Does not store any data, just how data is displayed
     virtual void	fillAppearancePar( IOPar& iop ) const
@@ -406,51 +415,48 @@ public:
     StepInterval<double> getDataPackRange(bool forx1) const;
     virtual Interval<float> getDataRange(bool wva) const;
 
-    virtual AuxData*		createAuxData(const char* nm) const	= 0;
+    AuxData*		createAuxData( const char* nm ) const
+			{ return doCreateAuxData( nm ); }
+    int			nrAuxData() const	    { return gtNrAuxData(); }
+    AuxData*		getAuxData( int idx )	    { return gtAuxData( idx ); }
+    const AuxData*	getAuxData( int idx ) const { return gtAuxData( idx ); }
+    void		addAuxData( AuxData* a )    { doAddAuxData( a ); }
+    AuxData*		removeAuxData( AuxData* a )
+			{ return doRemoveAuxData( a ); }
+    AuxData*		removeAuxData( int idx )
+			{ return doRemoveAuxDataByIdx( idx ); }
 
-    virtual int			nrAuxData() const			= 0;
-    virtual AuxData*		getAuxData(int idx)			= 0;
-    virtual const AuxData*	getAuxData(int idx) const		= 0;
-    virtual void		addAuxData(AuxData* a)			= 0;
-    virtual AuxData*		removeAuxData(AuxData* a)		= 0;
-    virtual AuxData*		removeAuxData(int idx)			= 0;
-    void			removeAuxDatas(ObjectSet<AuxData>&);
-    void			removeAllAuxData();
-    virtual void		setAnnotChoice(int selannot)		{}
-    virtual int			getAnnotChoice(BufferStringSet&) const
-				{ return -1; }
-    void			enableStatusBarUpdate()
-				{ needstatusbarupd_ = true; }
-    void			disableStatusBarUpdate()
-				{ needstatusbarupd_ = false; }
-    bool			needStatusBarUpdate() const
-				{ return needstatusbarupd_; }
-    void			setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
+    void		removeAuxDatas(ObjectSet<AuxData>&);
+    void		removeAllAuxData();
+    virtual void	setAnnotChoice(int selannot)		{}
+    virtual int		getAnnotChoice(BufferStringSet&) const { return -1; }
+    void		enableStatusBarUpdate()  { needstatusbarupd_ = true; }
+    void		disableStatusBarUpdate() { needstatusbarupd_ = false; }
+    bool		needStatusBarUpdate() const { return needstatusbarupd_;}
+    void		setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
 
     const TypeSet<Pos::GeomID>&	getAllSeisGeomids() const { return geom2dids_; }
 
-    mDeprecated const FlatDataPack* obtainPack(bool wva,
-					bool checkother=false) const;
-    /*!< Obtains DataPack before returning the pointer. Has
-     to be released after it is used. For convenience use
-     ConstRefMan which releases the DataPack in its
-     destructor.
-     \param checkother if true, the datapack of other
-     display (i.e. variable density or wiggles) is returned
-     if the specified display has no datapack. */
-
 protected:
 
-    TypeSet< ::DataPack::ID>	ids_;
-    Appearance*			defapp_;
-    DataPackMgr&		dpm_;
-    ZAxisTransform*		datatransform_;
-    ZDomain::Info*		zdinfo_;
-    FlatView_CB_Rcvr*		cbrcvr_;
-    mutable Threads::Lock	lock_;
-    bool			needstatusbarupd_;
+    TypeSet<PackID>	ids_;
+    Appearance*		defapp_;
+    DataPackMgr&	dpm_;
+    ZAxisTransform*	datatransform_;
+    ZDomain::Info*	zdinfo_;
+    FlatView_CB_Rcvr*	cbrcvr_;
+    mutable Threads::Lock lock_;
+    bool		needstatusbarupd_;
 
-    void			addAuxInfo(bool,const Point&,IOPar&) const;
+    void		addAuxInfo(bool,const Point&,IOPar&) const;
+
+    virtual void	doHandleChange(unsigned int)		= 0;
+    virtual AuxData*	doCreateAuxData(const char* nm) const	= 0;
+    virtual int		gtNrAuxData() const			= 0;
+    virtual AuxData*	gtAuxData(int) const			= 0;
+    virtual void	doAddAuxData(AuxData*)			= 0;
+    virtual AuxData*	doRemoveAuxData(AuxData*)		= 0;
+    virtual AuxData*	doRemoveAuxDataByIdx(int)		= 0;
 
 private:
 
@@ -458,6 +464,11 @@ private:
     WeakPtr<FlatDataPack>	vdpack_;
 
     TypeSet<Pos::GeomID>	geom2dids_;
+
+public:
+
+    mDeprecated const FlatDataPack* obtainPack(bool wva,
+					bool checkother=false) const;
 
 };
 

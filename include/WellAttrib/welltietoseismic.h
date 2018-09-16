@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
-#include "ailayer.h"
+#include "elasticmodel.h"
 #include "bufstringset.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
@@ -63,8 +63,8 @@ protected:
     bool		extractWvf(bool issynt);
     bool		extractReflectivity();
 
-    ElasticModel	aimodel_;
-    ReflectivityModel	refmodel_;
+    ElasticModel	elasticmodel_;
+    ReflectivityModel	reflmodel_;
     Data&		data_;
     const DBKey&	seisid_;
     const BufferString& linenm_;

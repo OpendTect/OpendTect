@@ -22,11 +22,13 @@ class MouseCursorChanger;
 mFDQtclass(QWidget)
 
 
+#define uiMSG() gUiMsg( this )
+
 class uiMsg;
-mGlobal(uiBase) uiMsg& uiMSG();
+mGlobal(uiBase) uiMsg& gUiMsg(const uiParent* p=0);
 
 /*!\brief pops up messages that must be clicked away by user.
-  Usually, you use the global uiMSG() instance. */
+  Usually, you use the global uiMsg instance through uiMSG. */
 
 
 mExpClass(uiBase) uiMsg	: public CallBacker
@@ -144,7 +146,6 @@ protected:
 
     mQtclass(QWidget*)	popParnt();
 
-    static uiMsg*	theinst_;
     Threads::Lock	lock_;
     Threads::Lock	msgdisplock_;
 
@@ -157,26 +158,7 @@ private:
     uiMainWin*		uimainwin_;
 
 
-    mGlobal(uiBase) friend uiMsg&	uiMSG();
+    mGlobal(uiBase) friend uiMsg&	gUiMsg(const uiParent*);
     friend class			uiMain;
 
-};
-
-
-//!Sets the uiMSG's main window temporary during the scope of the object
-mExpClass(uiBase) uiMsgMainWinSetter
-{
-public:
-			uiMsgMainWinSetter( uiMainWin* np )
-			    : isset_( np )
-			    , oldparent_( 0 )
-			{
-			    if ( np ) oldparent_ = ::uiMSG().setMainWin( np );
-			}
-
-			~uiMsgMainWinSetter()
-			{ if ( isset_ ) ::uiMSG().setMainWin( oldparent_ ); }
-protected:
-    uiMainWin*		oldparent_;
-    bool		isset_;
 };

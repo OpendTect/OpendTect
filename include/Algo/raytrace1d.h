@@ -10,7 +10,7 @@ ________________________________________________________________________
 */
 
 #include "algomod.h"
-#include "ailayer.h"
+#include "elasticmodel.h"
 #include "factory.h"
 #include "odcomplex.h"
 #include "reflectivitymodel.h"

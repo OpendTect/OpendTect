@@ -240,7 +240,7 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
 {
     if ( dbky.isInvalid() || !userref )
     {
-	uiMSG().error( tr("No valid steering input selected") );
+	gUiMsg(parent_).error( tr("No valid steering input selected") );
 	return;
     }
 
@@ -435,7 +435,7 @@ void uiStoredAttribReplacer::handleOneGoInputRepl()
 	Desc* ad = attrset_->getDesc( storedids_[0].firstid_ );
 	if ( !ad )
 	{
-	    uiMSG().error( tr("Cannot replace stored entries") );
+	    gUiMsg(&dlg).error( tr("Cannot replace stored entries") );
 	    return;
 	}
     }

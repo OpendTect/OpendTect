@@ -387,7 +387,7 @@ void uiMPEMan::startTracking()
 {
     uiString errmsg;
     if ( !MPE::engine().startTracking(errmsg) && !errmsg.isEmpty() )
-	uiMSG().error( errmsg );
+	gUiMsg(parent_).error( errmsg );
 }
 
 
@@ -395,7 +395,7 @@ void uiMPEMan::startRetrack()
 {
     uiString errmsg;
     if ( !MPE::engine().startRetrack(errmsg) && !errmsg.isEmpty() )
-	uiMSG().error( errmsg );
+	gUiMsg(parent_).error( errmsg );
 }
 
 
@@ -547,12 +547,14 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !clickcatcher_->info().isLegalClick() )
     {
 	if ( tracker->is2D() && !clickcatcher_->info().getObjLineName() )
-	    uiMSG().error( tr("2D tracking cannot handle picks on 3D lines.") );
+	    gUiMsg(parent_).error(
+		    tr("2D tracking cannot handle picks on 3D lines.") );
 	else if ( !tracker->is2D() && clickcatcher_->info().getObjLineName() )
-	    uiMSG().error( tr("3D tracking cannot handle picks on 2D lines.") );
+	    gUiMsg(parent_).error(
+		    tr("3D tracking cannot handle picks on 2D lines.") );
 	else if ( clickcatcher_->info().getObjCS().nrZ()==1 &&
 		  !clickcatcher_->info().getObjCS().isEmpty() )
-	    uiMSG().error( emobj->getUserTypeStr(),
+	    gUiMsg(parent_).error( emobj->getUserTypeStr(),
 			   tr("Tracking cannot handle picks on time slices.") );
 	mSeedClickReturn();
     }
@@ -579,7 +581,7 @@ void uiMPEMan::seedClick( CallBacker* )
 			*trackedatsel, *clickedas, msg );
 	    if ( !isdatasame )
 	    {
-		const bool res = uiMSG().askContinue( msg );
+		const bool res = gUiMsg(parent_).askContinue( msg );
 		if ( res )
 		{
 		    const DataPack::ID dpid
@@ -642,7 +644,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	if ( !h2dsp || !h2dsp->canAddSeed(*clickedas) )
 	{
-	    uiMSG().error( tr("Cannot add seeds") );
+	    gUiMsg(parent_).error( tr("Cannot add seeds") );
 	    mSeedClickReturn();
 	}
 

@@ -317,12 +317,12 @@ bool Strat::LevelSet::isPresent( const char* nm ) const
 Strat::LevelSet::ID Strat::LevelSet::getIDByName( const char* nm ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdxOf( nm, ID::getInvalid() );
+    const idx_type idx = gtIdxOf( nm, ID::getInvalid() );
     return idx < 0 ? ID::getInvalid() : lvls_[idx]->id();
 }
 
 
-Strat::LevelSet::ID Strat::LevelSet::getIDByIdx( IdxType idx ) const
+Strat::LevelSet::ID Strat::LevelSet::getIDByIdx( idx_type idx ) const
 {
     if ( idx < 0 )
 	return ID::getInvalid();
@@ -331,21 +331,21 @@ Strat::LevelSet::ID Strat::LevelSet::getIDByIdx( IdxType idx ) const
 }
 
 
-Strat::LevelSet::IdxType Strat::LevelSet::indexOf( ID id ) const
+Strat::LevelSet::idx_type Strat::LevelSet::indexOf( ID id ) const
 {
     mLock4Read();
     return gtIdxOf( 0, id );
 }
 
 
-Strat::LevelSet::IdxType Strat::LevelSet::indexOf( const char* nm ) const
+Strat::LevelSet::idx_type Strat::LevelSet::indexOf( const char* nm ) const
 {
     mLock4Read();
     return gtIdxOf( nm, ID::getInvalid() );
 }
 
 
-Strat::LevelSet::IdxType Strat::LevelSet::gtIdxOf( const char* nm,
+Strat::LevelSet::idx_type Strat::LevelSet::gtIdxOf( const char* nm,
 						   Level::ID id ) const
 {
     const bool useid = id.isValid();
@@ -364,26 +364,26 @@ Strat::LevelSet::IdxType Strat::LevelSet::gtIdxOf( const char* nm,
 }
 
 
-BufferString Strat::LevelSet::levelName( ID id ) const
+BufferString Strat::LevelSet::nameOf( ID id ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdxOf( 0, id );
+    const idx_type idx = gtIdxOf( 0, id );
     return idx < 0 ? BufferString::empty() : lvls_[idx]->getName();
 }
 
 
-Color Strat::LevelSet::levelColor( ID id ) const
+Color Strat::LevelSet::colorOf( ID id ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdxOf( 0, id );
+    const idx_type idx = gtIdxOf( 0, id );
     return idx < 0 ? Color() : lvls_[idx]->color();
 }
 
 
-IOPar Strat::LevelSet::levelPars( ID id ) const
+IOPar Strat::LevelSet::parsOf( ID id ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdxOf( 0, id );
+    const idx_type idx = gtIdxOf( 0, id );
     return idx < 0 ? IOPar() : lvls_[idx]->pars();
 }
 
@@ -403,7 +403,7 @@ Strat::Level Strat::LevelSet::getByName( const char* nm ) const
 
 
 
-Strat::Level Strat::LevelSet::getByIdx( IdxType idx ) const
+Strat::Level Strat::LevelSet::getByIdx( idx_type idx ) const
 {
     mLock4Read();
     return gtLvl( idx );
@@ -435,7 +435,7 @@ void Strat::LevelSet::getNames( BufferStringSet& nms ) const
 Strat::LevelSet::ID Strat::LevelSet::doSet( const Strat::Level& lvl,
 					    bool* isnew )
 {
-    const IdxType idx = gtIdxOf( lvl.name().buf(), ID::getInvalid() );
+    const idx_type idx = gtIdxOf( lvl.name().buf(), ID::getInvalid() );
     Level* chglvl;
     if ( idx < 0 )
     {

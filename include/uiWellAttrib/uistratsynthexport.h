@@ -12,8 +12,8 @@
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
+#include "stratsynthdatamgr.h"
 
-class SyntheticData;
 class StratSynthLevel;
 class uiGroup;
 class uiGenInput;
@@ -25,24 +25,29 @@ class uiStratSynthOutSel;
 
 namespace Geometry { class RandomLine; }
 namespace PosInfo { class Line2DData; }
-namespace StratSynth { class DataMgr; class Level; }
+namespace StratSynth { class DataMgr; }
 
 
 mExpClass(uiWellAttrib) uiStratSynthExport : public uiDialog
 { mODTextTranslationClass(uiStratSynthExport)
 public:
 
+    typedef StratSynth::DataMgr		DataMgr;
+
     enum GeomSel	{ StraightLine, Polygon, RandomLine, Existing };
 
-			uiStratSynthExport(uiParent*,
-					   const StratSynth::DataMgr&);
+			uiStratSynthExport(uiParent*,const DataMgr&);
 			~uiStratSynthExport();
 
 protected:
 
+    typedef DataMgr::SynthID		SynthID;
+    typedef DataMgr::SynthIDSet		SynthIDSet;
+    typedef PosInfo::Line2DData		Line2DData;
+
     uiGenInput*		crnewfld_;
     uiSeisSel*		linesetsel_;
-    uiGenInput*	newlinenmfld_;
+    uiGenInput*		newlinenmfld_;
     uiSeis2DLineNameSel* existlinenmsel_;
     uiGroup*		geomgrp_;
     uiGenInput*		geomsel_;
@@ -56,20 +61,18 @@ protected:
     uiGenInput*		prefxfld_;
     uiGenInput*		postfxfld_;
 
-    const StratSynth::DataMgr&	ssdm_;
-    ObjectSet<const SyntheticData> postsds_;
-    ObjectSet<const SyntheticData> presds_;
+    const DataMgr&	datamgr_;
+    SynthIDSet		selids_;
     BufferStringSet	sellvls_;
 
     GeomSel		selType() const;
     void		addPrePostFix(BufferString&) const;
     void		fillGeomGroup();
-    void		getExpObjs();
     void		getSelections();
     bool		createHor2Ds();
-    Pos::GeomID		getGeometry(PosInfo::Line2DData&);
+    Pos::GeomID		getGeometry(Line2DData&);
     void		create2DGeometry(const TypeSet<Coord>&,
-					 PosInfo::Line2DData&);
+					 Line2DData&);
 
     void		crNewChg(CallBacker*);
     void		geomSel(CallBacker*);

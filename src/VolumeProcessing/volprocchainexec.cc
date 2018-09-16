@@ -585,13 +585,14 @@ bool VolProc::ChainExecutor::Epoch::doPrepare()
 		    currentstep->validInputSlotID(0) ?
 		    currentstep->getInput( currentstep->getInputSlotID(0) ) : 0;
 
-	RefMan<RegularSeisDataPack> outcube = outfrominp
-	    ? const_cast<RegularSeisDataPack*>( outfrominp )
-	    : DPM( DataPackMgr::SeisID() ).add(
-		    new RegularSeisDataPack(
-			VolumeDataPack::categoryStr(true,csamp.hsamp_.is2D())));
-	if ( !outfrominp )
+	RefMan<RegularSeisDataPack> outcube;
+	if ( outfrominp )
+	    outcube = const_cast<RegularSeisDataPack*>( outfrominp );
+	else
 	{
+	    outcube = new RegularSeisDataPack(
+			VolumeDataPack::categoryStr(true,csamp.hsamp_.is2D()) );
+	    DPM( DataPackMgr::SeisID() ).add( outcube );
 	    outcube->setName( "New VolProc DP" );
 	    outcube->setSampling( csamp );
 	    if ( posdata.totalSizeInside( csamp.hsamp_ ) > 0 )

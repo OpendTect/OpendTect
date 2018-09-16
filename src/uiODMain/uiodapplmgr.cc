@@ -211,7 +211,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 		"Please open this survey first in OpendTect 4.6 to update "
 		"its database before using it in newer versions of OpendTect.")
 		.arg(DBM().surveyName()) );
-	if ( uiMSG().askGoOn(msg,tr("Select another survey"),
+	if ( gUiMsg().askGoOn(msg,tr("Select another survey"),
 			     uiStrings::phrExitOD() ) )
 	    return false;
 
@@ -228,7 +228,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 	    "this 2D data in older versions of OpendTect.")
 	    .arg(DBM().surveyName()) );
 
-	const int res = uiMSG().question( msg, tr("Convert now"),
+	const int res = gUiMsg().question( msg, tr("Convert now"),
 					  tr("Select another survey"),
 					  uiStrings::phrExitOD() );
 	if ( res < 0 )
@@ -236,7 +236,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 
 	if ( !res )
 	{
-	    uiMSG().message( tr("Please note that you can copy the survey "
+	    gUiMsg().message( tr("Please note that you can copy the survey "
 				"using 'Copy Survey' tool in the "
 				"'Survey Setup and Selection' window.") );
 
@@ -247,7 +247,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
     uiString errmsg;
     if ( !Survey::GMAdmin().fetchFrom2DGeom(errmsg) )
     {
-	uiMSG().error( errmsg );
+	gUiMsg().error( errmsg );
 	return false;
     }
 
@@ -255,7 +255,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
     OD_Convert_2DLineSets_To_2DDataSets( errmsg, &taskrnr );
     if ( !errmsg.isEmpty() )
     {
-	uiMSG().error( errmsg );
+	gUiMsg().error( errmsg );
 	return false;
     }
 
@@ -278,7 +278,7 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 		"those geo-bodies in OpendTect 4.6.0, but only in patch p or "
 		"later.").arg(DBM().surveyName()) );
 
-    const int res = uiMSG().question( msg, tr("Convert now"),
+    const int res = gUiMsg().question( msg, tr("Convert now"),
 					   tr("Do it later"),
 					   uiStrings::phrExitOD() );
     if ( res < 0 )
@@ -286,16 +286,16 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 
     if ( !res )
     {
-	uiMSG().message( tr("Please note that you will not be able to use "
+	gUiMsg().message( tr("Please note that you will not be able to use "
 			    "any of the old geo-bodies in this survey.") );
 	return false;
     }
 
     uiString errmsg;
     if ( !OD_Convert_Body_To_OD5(errmsg) )
-	{ uiMSG().error( errmsg ); return false; }
+	{ gUiMsg().error( errmsg ); return false; }
 
-    uiMSG().message( tr("All the geo-bodies have been converted.") );
+    gUiMsg().message( tr("All the geo-bodies have been converted.") );
     return true;
 }
 
@@ -323,7 +323,7 @@ void uiODApplMgr::handleSIPImport()
     if ( askq.isEmpty() )
 	return;
 
-    if ( uiMSG().askGoOn(askq) )
+    if ( gUiMsg().askGoOn(askq) )
 	sip->startImport( ODMainWin(), iop );
 }
 
@@ -506,7 +506,7 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 
     if ( !uitrans->isOK() )
     {
-	uiMSG().error(tr("No suitable transforms found"));
+	gUiMsg().error(tr("No suitable transforms found"));
 	return;
     }
 
@@ -616,7 +616,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
     const Attrib::SelSpecList* as = visserv_->getSelSpecs( visid, attrib );
     if ( !as )
     {
-	uiMSG().error( tr("Cannot calculate attribute on this object") );
+	gUiMsg().error( tr("Cannot calculate attribute on this object") );
 	return false;
     }
 
@@ -628,7 +628,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 	if ( !myas[idx].isUsable() )
 	{
-	    uiMSG().error( tr("Cannot find selected attribute") );
+	    gUiMsg().error( tr("Cannot find selected attribute") );
 	    return false;
 	}
     }
@@ -653,7 +653,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    uiString errstr(tr("Selected attribute '%1'\nis not present"
 				       " in the set and cannot be created")
 				  .arg(myas[0].userRef()));
-		    uiMSG().error( errstr );
+		    gUiMsg().error( errstr );
 		    return false;
 		}
 
@@ -663,7 +663,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 		if ( !dp && !calc->errmsg_.isEmpty() )
 		{
-		    uiMSG().error( calc->errmsg_ );
+		    gUiMsg().error( calc->errmsg_ );
 		    return false;
 		}
 
@@ -840,7 +840,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
     if ( !as )
     {
-	uiMSG().error( tr("Cannot calculate attribute on this object") );
+	gUiMsg().error( tr("Cannot calculate attribute on this object") );
 	return false;
     }
     else if ( as->id() == as->cNoAttribID()
@@ -855,11 +855,11 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	const int auxdatanr = emserv_->loadAuxData( surfid, myas.userRef() );
 	if ( auxdatanr>=0 )
 	{
-	    RefMan<DataPointSet> data =
-		dpm.add( new DataPointSet(false,true) );
+	    RefMan<DataPointSet> dps = new DataPointSet( false, true );
+	    dpm.add( dps );
 	    TypeSet<float> shifts( 1, 0 );
-	    emserv_->getAuxData( surfid, auxdatanr, *data, shifts[0] );
-	    setRandomPosData( visid, attrib, *data );
+	    emserv_->getAuxData( surfid, auxdatanr, *dps, shifts[0] );
+	    setRandomPosData( visid, attrib, *dps );
 	    mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
 			    visserv_->getObject(visid) )
 	    vishor->setAttribShift( attrib, shifts );
@@ -873,28 +873,28 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	return auxdatanr>=0;
     }
 
-    RefMan<DataPointSet> data =
-		dpm.add( new DataPointSet(false,true) );
-    visserv_->getRandomPos( visid, *data );
-    const int firstcol = data->nrCols();
-    data->dataSet().add( new DataColDef(myas.userRef()) );
+    RefMan<DataPointSet> dps = new DataPointSet( false, true );
+    dpm.add( dps );
+    visserv_->getRandomPos( visid, *dps );
+    const int firstcol = dps->nrCols();
+    dps->dataSet().add( new DataColDef(myas.userRef()) );
     attrserv_->setTargetSelSpec( myas );
-    if ( !attrserv_->createOutput(*data,firstcol) )
+    if ( !attrserv_->createOutput(*dps,firstcol) )
 	return false;
 
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv_->getObject(visid))
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,visserv_->getObject(visid))
     if ( fd )
     {
-	const DataPack::ID id = fd->addDataPack( *data );
+	const DataPack::ID id = fd->addDataPack( *dps );
 	fd->setDataPackID( attrib, id, 0 );
-	fd->setRandomPosData( attrib, data.ptr(), 0 );
+	fd->setRandomPosData( attrib, dps.ptr(), 0 );
 	if ( visServer()->getSelAttribNr() == attrib )
 	    fd->useTexture( true, true ); // tree only, not at restore session
     }
     else
     {
-	setRandomPosData( visid, attrib, *data );
+	setRandomPosData( visid, attrib, *dps );
 	if ( hd )
 	{
 	    TypeSet<float> shifts( 1,
@@ -937,7 +937,7 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
     }
     else
     {
-	uiMSG().error( tr("Cannot evaluate attributes on this object") );
+	gUiMsg().error( tr("Cannot evaluate attributes on this object") );
 	return false;
     }
 
@@ -1574,7 +1574,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     {
 	bool saved = attrserv_->setSaved(nlaserv_->is2DEvent());
 	uiString msg = tr("Current attribute set is not saved.\nSave now?");
-	if ( !saved && uiMSG().askSave( msg ) )
+	if ( !saved && gUiMsg().askSave( msg ) )
 	    attrserv_->saveSet(nlaserv_->is2DEvent());
     }
     else if ( evid == uiNLAPartServer::evReadFinished() )
@@ -1600,7 +1600,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    inpnms = mdl->design().inputs;
 	attrserv_->getPossibleOutputs( nlaserv_->is2DEvent(), inpnms );
 	if ( inpnms.isEmpty() )
-	    { uiMSG().error( tr("No usable input") ); return false; }
+	    { gUiMsg().error( tr("No usable input") ); return false; }
 	nlaserv_->inputNames() = inpnms;
     }
     else if ( evid == uiNLAPartServer::evGetStoredInput() )
@@ -1625,7 +1625,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    nlaserv_->getDataPointSets( dpss );
 	    if ( dpss.isEmpty() )
 	    {
-		  uiMSG().error(tr("No matching well data found"));
+		  gUiMsg().error(tr("No matching well data found"));
 		  return false;
 	    }
 	    bool allempty = true;
@@ -1633,7 +1633,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 		{ if ( !dpss[idx]->isEmpty() ) { allempty = false; break; } }
 	    if ( allempty )
 	    {
-		    uiMSG().error(tr("No valid data locations found"));
+		    gUiMsg().error(tr("No valid data locations found"));
 		    return false;
 	    }
 	    if ( !attrserv_->extractData(dpss) )
@@ -1653,7 +1653,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( res == uiNLAPartServer::sKeyUsrCancel() )
 	    return true;
 	else if ( !res.isEmpty() )
-	    uiMSG().warning( res );
+	    gUiMsg().warning( res );
 
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
 	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D() );
@@ -1695,7 +1695,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	attrserv_->getDirectShowAttrSpec( as );
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
-	    uiMSG().error( uiStrings::phrSelect(tr("an attribute"
+	    gUiMsg().error( uiStrings::phrSelect(tr("an attribute"
 			      " element in the tree")) );
 	    return false;
 	}
@@ -1727,13 +1727,13 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttribID() );
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
-	    uiMSG().error( uiStrings::phrSelect(tr("an attribute"
+	    gUiMsg().error( uiStrings::phrSelect(tr("an attribute"
 			      " element in the tree")) );
 	    return false;
 	}
 	if ( !calcMultipleAttribs(as) )
 	{
-	    uiMSG().error( tr("Cannot evaluate this attribute") );
+	    gUiMsg().error( tr("Cannot evaluate this attribute") );
 	    return false;
 	}
 

@@ -1550,22 +1550,23 @@ public:
 				     const uiDialog::Setup&);
 			~uiDialogBody();
 
-    int			exec( bool showminimized );
+    bool		exec(bool showminimized);
 
     void		reject( CallBacker* s )
 			{
 			    mHandle.cancelpushed_ = s == cnclbut_;
 			    if ( mHandle.rejectOK() )
-				_done(0);
-			    else
-				uiSetResult( -1 );
+				_done( 0 );
 			}
-			//!< to be called by a 'cancel' button
     void		accept( CallBacker* s )
-			    { if ( mHandle.acceptOK() ) _done(1); }
-			//!< to be called by a 'ok' button
-    void		done( int i )
-			    { if ( mHandle.doneOK(i) ) _done(i); }
+			{
+			    if ( mHandle.acceptOK() )
+				_done( 1 );
+			}
+    void		done( int res )
+			{
+			    _done( res );
+			}
 
     void		uiSetResult( int v )	{ result_ = v; }
     int			uiResult()		{ return result_; }
@@ -1656,7 +1657,7 @@ uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
     , okbut_(0), cnclbut_(0), applybut_(0)
     , savebutcb_(0),  savebuttb_(0)
     , helpbut_(0), creditsbut_(0)
-    , titlelbl_(0), result_(0)
+    , titlelbl_(0), result_(-1)
     , initchildrendone_(false)
 {
     setContentsMargins( 10, 2, 10, 2 );
@@ -1673,9 +1674,9 @@ uiDialogBody::~uiDialogBody()
 }
 
 
-int uiDialogBody::exec( bool showminimized )
+bool uiDialogBody::exec( bool showminimized )
 {
-    uiSetResult( 0 );
+    uiSetResult( -1 );
 
     if ( setup_.fixedsize_ )
 	setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed) );
@@ -1718,7 +1719,10 @@ void uiDialogBody::setCancelText( const uiString& txt )
 
 
 void uiDialogBody::setApplyText( const uiString& txt )
-{ if ( applybut_ ) applybut_->setText( txt ); }
+{
+    if ( applybut_ )
+	applybut_->setText( txt );
+}
 
 
 bool uiDialogBody::hasSaveButton() const
@@ -1730,9 +1734,9 @@ bool uiDialogBody::saveButtonChecked() const
 
 
 /*! Hides the box, which also exits the event loop in case of a modal box.  */
-void uiDialogBody::_done( int v )
+void uiDialogBody::_done( int res )
 {
-    uiSetResult( v );
+    uiSetResult( res );
     close();
 }
 
@@ -2079,7 +2083,8 @@ void uiDialogBody::provideHelp( CallBacker* )
 void uiDialogBody::applyCB( CallBacker* cb )
 {
     mDynamicCastGet(uiDialog&,dlg,handle_);
-    dlg.applyPushed.trigger( cb );
+    if ( dlg.applyOK() )
+	dlg.applyPushed.trigger( cb );
 }
 
 
@@ -2163,36 +2168,29 @@ void uiDialog::showAlwaysOnTop()
 }
 
 
-int uiDialog::go()
+bool uiDialog::go()
 {
     addToOrderedWinList( this );
     return mBody->exec( false );
 }
 
 
-int uiDialog::goMinimized()
+bool uiDialog::goMinimized()
 {
     addToOrderedWinList( this );
     return mBody->exec( true );
 }
 
 
-bool uiDialog::acceptOK()
+void uiDialog::done( DoneResult dr )
 {
-    return true;
-}
-
-
-bool uiDialog::rejectOK()
-{
-    return true;
+    mBody->done( dr == Rejected ? 0 : 1 );
 }
 
 
 const uiDialog::Setup& uiDialog::setup() const	{ return mBody->getSetup(); }
 void uiDialog::reject( CallBacker* cb)		{ mBody->reject( cb ); }
 void uiDialog::accept( CallBacker*cb)		{ mBody->accept( cb ); }
-void uiDialog::done( int i )			{ mBody->done( i ); }
 void uiDialog::setHSpacing( int s )		{ mBody->setHSpacing(s); }
 void uiDialog::setVSpacing( int s )		{ mBody->setVSpacing(s); }
 void uiDialog::setBorder( int b )		{ mBody->setBorder(b); }
@@ -2221,6 +2219,6 @@ bool uiDialog::saveButtonChecked() const
 bool uiDialog::hasSaveButton() const
     { return mBody->hasSaveButton(); }
 
-int uiDialog::titlepos_ = 0; // default is centered.
-int uiDialog::titlePos()			{ return titlepos_; }
-void uiDialog::setTitlePos( int p )		{ titlepos_ = p; }
+uiDialog::TitlePos uiDialog::titlepos_		= CenterWin;
+uiDialog::TitlePos uiDialog::titlePos()		{ return titlepos_; }
+void uiDialog::setTitlePos( TitlePos p )	{ titlepos_ = p; }

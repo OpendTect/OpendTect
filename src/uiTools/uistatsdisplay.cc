@@ -116,7 +116,7 @@ bool uiStatsDisplay::setDataPackID(
 						.require(Stats::RMS)) );
 
 	DataPackMgr& dpman = DPM( dmid );
-	ConstRefMan<DataPack> datapack = dpman.get( dpid );
+	ConstRefMan<DataPack> datapack = dpman.getDP( dpid );
 	if ( !datapack ) return false;
 
 	TypeSet<float> valarr;

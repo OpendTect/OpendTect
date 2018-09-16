@@ -100,7 +100,7 @@ void PropCalc::setGather( DataPack::ID id )
 {
     removeGather();
 
-    gather_ = DPM(DataPackMgr::FlatID()).getAndCast<Gather>( id );
+    gather_ = DPM(DataPackMgr::FlatID()).get<Gather>( id );
 
     if ( gather_ )
     {
@@ -119,7 +119,7 @@ void PropCalc::setGather( DataPack::ID id )
 
 void PropCalc::setAngleData( DataPack::ID id )
 {
-    angledata_ = DPM(DataPackMgr::FlatID()).getAndCast<Gather>( id );
+    angledata_ = DPM(DataPackMgr::FlatID()).get<Gather>( id );
 }
 
 

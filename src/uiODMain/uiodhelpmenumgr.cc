@@ -90,7 +90,7 @@ void uiODHelpMenuMgr::handle( int id )
 	} break;
 	case mAboutMnuItm:
 	{
-	    uiMSG().aboutOpendTect( getAboutString() );
+	    gUiMsg().aboutOpendTect( getAboutString() );
 	} break;
 	case mAdminDocMnuItm:
 	{
@@ -144,7 +144,7 @@ void uiODHelpMenuMgr::showShortKeys()
     cmd.add( imgpath ).addSpace().add( "'" ).add( title ).add( "'" );
     const bool res = OS::ExecCommand( cmd.buf(), OS::RunInBG );
     if ( !res )
-	uiMSG().error( tr("Could not launch ShortKeys table") );
+	gUiMsg().error( tr("Could not launch ShortKeys table") );
 }
 
 

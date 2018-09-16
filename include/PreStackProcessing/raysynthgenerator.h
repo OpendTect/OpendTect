@@ -11,58 +11,62 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
-#include "syntheticdata.h"
-#include "synthseis.h"
+#include "synthseisdataset.h"
+#include "synthseisgenerator.h"
 
+class DataPack;
+class ElasticModelSet;
+class RayTracerRunner;
 class SeisTrc;
 class SeisTrcBuf;
-class RayTracerRunner;
 class TimeDepthModel;
-class DataPack;
 
 
 /*!\brief base class for synthetic trace generators. */
 
 mExpClass(PreStackProcessing) RaySynthGenerator : public ParallelTask
-						, public Seis::SynthGenBase
+						, public SynthSeis::GenBase
 { mODTextTranslationClass(RaySynthGenerator);
 public:
 
-			RaySynthGenerator(const TypeSet<ElasticModel>*,
-					  const SynthGenParams&);
-			RaySynthGenerator(RefMan<SyntheticData>,
-					  bool overwrite);
+    typedef SynthSeis::DataSet		DataSet;
+    typedef SynthSeis::RayModel		RayModel;
+    typedef SynthSeis::GenParams	GenParams;
+    typedef ObjectSet<RayModel>		RayModelSet;
+
+			RaySynthGenerator(const GenParams&,
+					  const ElasticModelSet&);
+			RaySynthGenerator(const GenParams&,
+					  const RayModelSet&);
 			~RaySynthGenerator();
 
     void		reset();
+    void		setNrStep( int stp )	{ nrstep_ = stp; }
 
     //input
     void		fillPar(IOPar& raypars) const;
     bool		usePar(const IOPar& raypars);
     void		forceReflTimes(const StepInterval<float>&);
 
-    //available after initialization
-    void		getAllRefls(RefMan<ReflectivityModelSet>&);
-
     uiString		message() const
 			{ return errmsg_.isEmpty() ? message_ : errmsg_; }
 
-
     //available after execution
-    SyntheticData::RayModel&		result(int id)
-			{ return *(*synthdata_->raymodels_)[id]; }
-    const SyntheticData::RayModel&	result(int id) const
-			{ return *(*synthdata_->raymodels_)[id]; }
+    RayModel&		result( int idx )
+			{ return *dataset_->rayMdls()[idx]; }
+    const RayModel&	result( int idx ) const
+			{ return *dataset_->rayModels()[idx]; }
 
     const ObjectSet<RayTracer1D>& rayTracers() const;
-    const TypeSet<ElasticModel>& elasticModels() const	{ return *aimodels_; }
+    const ElasticModelSet& elasticModels() const { return *elasticmodels_; }
     void		getTraces(ObjectSet<SeisTrcBuf>&);
     void		getStackedTraces(SeisTrcBuf&);
-    RefMan<SyntheticData>	getSyntheticData() const { return synthdata_; }
+    DataSet*		dataSet()		{ return dataset_; }
+    const DataSet*	dataSet() const		{ return dataset_; }
     bool		updateDataPack();
 
 protected:
-    RayTracerRunner*		rtr_;
+
     od_int64			nrIterations() const;
     od_int64			nrDone() const;
     uiString			nrDoneText() const;
@@ -71,15 +75,21 @@ protected:
     bool			doWork(od_int64,od_int64,int);
     bool			doFinish(bool);
 
+    RayTracerRunner*		rtr_;
     bool			ownraymodels_;
     uiString			message_;
-    const TypeSet<ElasticModel>* aimodels_;
+    const ElasticModelSet*	elasticmodels_;
     TypeSet<float>		offsets_;
     IOPar			raysetup_;
+    int				nrstep_		     = 1;
 
     StepInterval<float>		forcedrefltimes_;
     bool			forcerefltimes_;
     bool			raytracingdone_;
-    bool			overwrite_;
-    RefMan<SyntheticData>	synthdata_;
+    DataSet*			dataset_;
+
+private:
+
+    void			createDataSet(const GenParams&);
+
 };

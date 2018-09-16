@@ -309,7 +309,7 @@ bool SeisStorageRefParam::isOK() const
     {
 	DataPack::FullID fid = DataPack::FullID::getFromString(
 							storstr.buf()+1 );
-	return DPM(fid).haveID( fid );
+	return DPM(fid).isPresent( fid );
     }
 
     const DBKey storid = DBKey::getFromStr( storstr );

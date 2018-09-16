@@ -122,7 +122,7 @@ static void checkScreenRes()
     if ( !anyacceptable )
     {
 	if ( !setts.isFalse(sKeyShowLowRes) )
-	    dontshowagain = uiMSG().error( od_static_tr("checkScreenRes",
+	    dontshowagain = gUiMsg().error( od_static_tr("checkScreenRes",
 		"Your vertical screen resolution is lower than %1 pixels."
 		"\nYou can probably not use OpendTect properly.")
 		    .arg( cScreenLowRes ), es, es, true );
@@ -130,7 +130,7 @@ static void checkScreenRes()
     else if ( !anyok )
     {
 	if ( !setts.isFalse(sKeyShowSubRes) )
-	    dontshowagain = uiMSG().warning( od_static_tr("checkScreenRes",
+	    dontshowagain = gUiMsg().warning( od_static_tr("checkScreenRes",
 	    "Your vertical screen resolution is lower than %1 pixels."
 	    "\nOpendTect may be unusable without using small screen fonts."
 	    "\n\nYou can set font sizes in the 'General Settings' window,"
@@ -140,7 +140,7 @@ static void checkScreenRes()
     else if ( anysubstd )
     {
 	if ( !setts.isFalse(sKeyShowSubRes) )
-	    dontshowagain = uiMSG().warning( od_static_tr("checkScreenRes",
+	    dontshowagain = gUiMsg().warning( od_static_tr("checkScreenRes",
 	    "One of your screens has a vertical screen resolution < %1 "
 	    "pixels.\nOpendTect may only be usable by making the screen "
 	    "fonts smaller."
@@ -171,7 +171,7 @@ int ODMain( uiMain& app )
 {
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
     OD::ModDeps().ensureLoaded( "uiBase" );
-    uiDialog::setTitlePos( -1 );
+    uiDialog::setTitlePos( uiDialog::LeftSide );
 
     PtrMan<uiODMain> odmain = new uiODMain( app );
     manODMainWin( odmain );

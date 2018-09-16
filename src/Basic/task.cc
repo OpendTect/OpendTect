@@ -15,6 +15,7 @@
 #include "ptrman.h"
 #include "timefun.h"
 #include "uistrings.h"
+#include "od_ostream.h"
 
 #include <limits.h>
 
@@ -601,6 +602,12 @@ bool SilentTaskRunner::execute( Task& t )
 }
 
 
+void SilentTaskRunner::emitErrorMessage( const uiString& msg, bool wrn ) const
+{
+    ErrMsg( msg );
+}
+
+
 bool LoggedTaskRunner::execute( Task& tsk )
 {
     mDynamicCastGet( Executor*, exec, &tsk )
@@ -615,6 +622,12 @@ bool LoggedTaskRunner::execute( Task& tsk )
     }
 
     return execres_;
+}
+
+
+void LoggedTaskRunner::emitErrorMessage( const uiString& msg, bool wrn ) const
+{
+    strm_ << "\n" << toString(msg) << od_endl;
 }
 
 

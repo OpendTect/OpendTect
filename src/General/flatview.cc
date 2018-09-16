@@ -577,6 +577,32 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 }
 
 
+void FlatView::Viewer::setMapper( bool wva, ColTab::Mapper& mpr )
+{
+    auto& ddpars = appearance().ddpars_;
+    if ( wva )
+	ddpars.wva_.mapper_ = &mpr;
+    else
+	ddpars.vd_.mapper_ = &mpr;
+}
+
+
+RefMan<ColTab::Mapper> FlatView::Viewer::mapper( bool wva )
+{
+    return const_cast<Viewer*>(this)->mapper( wva );
+}
+
+
+ConstRefMan<ColTab::Mapper> FlatView::Viewer::mapper( bool wva ) const
+{
+    auto& ddpars = appearance().ddpars_;
+    if ( wva )
+	return ddpars.wva_.mapper_;
+    else
+	return ddpars.vd_.mapper_;
+}
+
+
 Coord3 FlatView::Viewer::getCoord( const Point& wp ) const
 {
     ConstRefMan<FlatDataPack> fdp = getPack( false, true );
@@ -645,7 +671,20 @@ FlatView::Appearance& FlatView::Viewer::appearance()
 
 void FlatView::Viewer::addPack( DataPack::ID id )
 {
-    if ( ids_.isPresent(id) ) return;
+    if ( !id.isValid() || ids_.isPresent(id) )
+	return;
+
+#ifdef __debug__
+    RefMan<FlatDataPack> rm = dpm_.get<FlatDataPack>( id );
+    if ( !rm )
+    {
+	if ( !dpm_.isPresent(id) )
+	    { pErrMsg("DataPack not added to Flat DPM"); return; }
+	else
+	    { pErrMsg("DataPack added to Flat DPM is not Flat"); return; }
+    }
+#endif
+
     ids_ += id;
     dpm_.ref( id );
 }
@@ -712,20 +751,19 @@ void FlatView::Viewer::removePack( DataPack::ID id )
 void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 {
     DataPack::ID curid = packID( wva );
-    if ( id == curid ) return;
+    if ( id == curid )
+	return;
 
     if ( id == DataPack::cNoID() )
 	(wva ? wvapack_ : vdpack_) = 0;
     else if ( !ids_.isPresent(id) )
-    {
-	pErrMsg("Requested usePack, but ID not added");
-	return;
-    }
+	{ pErrMsg("Requested usePack, but ID not added"); return; }
     else
-	(wva ? wvapack_ : vdpack_) = dpm_.observeAndCast<FlatDataPack>( id );
+	(wva ? wvapack_ : vdpack_) = dpm_.observe<FlatDataPack>( id );
 
     ConstRefMan<FlatDataPack> fdp = getPack( wva );
-    if ( !fdp ) return;
+    if ( !fdp )
+	return;
 
     if ( usedefs )
 	useStoredDefaults( fdp->category() );

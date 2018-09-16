@@ -40,7 +40,7 @@ VolumeDataPackZAxisTransformer::~VolumeDataPackZAxisTransformer()
 od_int64 VolumeDataPackZAxisTransformer::nrIterations() const
 {
     if ( !inputdp_ ) return -1;
-    ConstRefMan<VolumeDataPack> voldp = dpm_.get( inputdp_->id() );
+    auto voldp = dpm_.get<VolumeDataPack>( inputdp_->id() );
     return voldp ? voldp->nrTrcs() : -1;
 }
 
@@ -49,7 +49,7 @@ bool VolumeDataPackZAxisTransformer::doPrepare( int nrthreads )
 {
     if ( !inputdp_ || !outputdp_ )
 	return false;
-    ConstRefMan<VolumeDataPack> voldp = dpm_.get( inputdp_->id() );
+    auto voldp = dpm_.get<VolumeDataPack>( inputdp_->id() );
     if ( voldp->isEmpty() )
 	return false;
 
@@ -66,7 +66,7 @@ bool VolumeDataPackZAxisTransformer::doPrepare( int nrthreads )
 bool VolumeDataPackZAxisTransformer::doWork(
 				od_int64 start, od_int64 stop, int threadid )
 {
-    ConstRefMan<VolumeDataPack> voldp = dpm_.get( inputdp_->id() );
+    auto voldp = dpm_.get<VolumeDataPack>( inputdp_->id() );
     if ( !voldp )
 	return false;
     outputdp_ = voldp->getSimilar();

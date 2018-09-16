@@ -115,7 +115,7 @@ bool uiLanguageSel::setODLocale( const char* nm, bool mkpermanent )
 {
     const uiRetVal uirv = TrMgr().setLanguageByLocaleKey( nm );
     if ( uirv.isError() )
-	uiMSG().error( uirv );
+	gUiMsg().error( uirv );
     else
 	TrMgr().storeToUserSettings();
     return uirv.isOK();

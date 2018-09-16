@@ -95,13 +95,7 @@ void Seis::PS2DFetcher::reset()
 
 void Seis::PS2DFetcher::findDataPack()
 {
-    RefMan<DataPack> dp = Seis::PLDM().get( prov().dbky_, curGeomID() );
-    if ( !dp ) return;
-
-    mDynamicCastGet(GatherSetDataPack*,gatherdp,dp.ptr());
-    if ( !gatherdp ) return;
-
-    dp_ = gatherdp;
+    dp_ = Seis::PLDM().get<GatherSetDataPack>( prov().dbky_, curGeomID() );
 }
 
 

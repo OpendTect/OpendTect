@@ -317,9 +317,8 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( nrfound && procman->process() )
 	{
-	    RefMan<Gather> gather =
-	DPM(DataPackMgr::FlatID()).getAndCast<Gather>(
-						procman->getOutput());
+	    auto gather = DPM(DataPackMgr::FlatID())
+			    .get<Gather>( procman->getOutput());
 
 	    if ( gather )
 	    {

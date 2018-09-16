@@ -381,6 +381,9 @@ void uiSEGYRead::getBasicOpts()
 }
 
 
+
+#define mUiMsg() gUiMsg(parent_)
+
 void uiSEGYRead::basicOptsGot()
 {
     mHandleVWCancel(defdlg_,cCancelled());
@@ -395,7 +398,7 @@ void uiSEGYRead::basicOptsGot()
 	rev_ = Rev0;
 	if ( emsg.isEmpty() )
 	    emsg.set( "Error trying to read traces from file." );
-	uiMSG().error( emsg );
+	mUiMsg().error( emsg );
 	// Can't figure out (quickly) how to go on. Wizard will stop
 	// better than previously, when it crashed ...
 	return;
@@ -452,7 +455,7 @@ void uiSEGYRead::setupScan()
     delete scanner_; scanner_ = 0;
     uiSEGYReadDlg::Setup su( geom_ ); su.rev( rev_ ).modal(false);
     if ( setup_.purpose_ == SurvSetup && Seis::is2D(geom_) )
-	uiMSG().warning(
+	mUiMsg().warning(
 	tr("Scanning a 2D file can provide valuable info on your survey.\n"
 	   "But to actually set up your survey, you need to use\n"
 	   "'Set for 2D only'\nIn the survey setup window.\n") );

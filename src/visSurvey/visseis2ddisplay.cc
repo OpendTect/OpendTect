@@ -369,9 +369,7 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 				   TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    RefMan<RegularSeisDataPack> regsdp =
-	dpm.getAndCast<RegularSeisDataPack>( dpid );
-
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
     {
 	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, taskr );
@@ -429,10 +427,11 @@ void Seis2DDisplay::updateTexOriginAndScale( int attrib,
 
 void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    RefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
-    if ( !regsdp ) return;
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
+    if ( !regsdp )
+	return;
 
     updateTexOriginAndScale( attrib, regsdp->sampling() );
 
@@ -443,7 +442,7 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
     int sz0=mUdf(int), sz1=mUdf(int);
     for ( int idx=0; idx<nrversions; idx++ )
     {
-	Array3D<float>& array = regsdp->data( idx );
+	const auto& array = regsdp->data( idx );
 
 	if ( !idx )
 	{
@@ -451,7 +450,8 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	    sz1 = 1 + (array.getSize(2)-1) * (resolution_+1);
 	}
 
-	ValueSeries<float>* vsptr = !resolution_ ? array.valueSeries() : 0;
+	const ValueSeries<float>* vsptr
+		= !resolution_ ? array.valueSeries() : 0;
 	bool ownsvsptr = false;
 
 	if ( !vsptr )
@@ -471,8 +471,9 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 	if ( ownsvsptr )
 	{
+	    auto* myvsptr = const_cast< ValueSeries<float>* >( vsptr );
 	    if ( resolution_ == 0 )
-		array.getAll( *vsptr );
+		array.getAll( *myvsptr );
 	    else
 	    {
 		Array2DSlice<float> slice2d( array );
@@ -482,7 +483,7 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 		slice2d.init();
 
 		Array2DReSampler<float,float> resampler(
-				slice2d, *vsptr, sz0, sz1, true );
+				slice2d, *myvsptr, sz0, sz1, true );
 		resampler.setInterpolate( true );
 		TaskRunner::execute( taskr, resampler );
 	    }
@@ -499,9 +500,9 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
-    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
@@ -890,7 +891,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 

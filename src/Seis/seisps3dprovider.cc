@@ -94,13 +94,7 @@ void Seis::PS3DFetcher::reset()
 
 void Seis::PS3DFetcher::findDataPack()
 {
-    RefMan<DataPack> dp = Seis::PLDM().get( prov().dbky_ );
-    if ( !dp ) return;
-
-    mDynamicCastGet(GatherSetDataPack*,gatherdp,dp.ptr());
-    if ( !gatherdp ) return;
-
-    dp_ = gatherdp;
+    dp_ = Seis::PLDM().get<GatherSetDataPack>( prov().dbky_ );
 }
 
 

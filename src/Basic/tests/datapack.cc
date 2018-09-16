@@ -62,30 +62,30 @@ bool testDataPack()
 
     DataPack::ID id = dpc->id();
 
-    WeakPtr<DataPack> wptr = dpm.observe( id );
+    WeakPtr<DataPack> wptr = dpm.observeDP( id );
     mRunStandardTest( !deleted && dpc->nrRefs()==0,
                      "Nr users after observe");
 
-    WeakPtr<DataPackClass2> dpc2obs = dpm.observeAndCast<DataPackClass2>( id );
+    WeakPtr<DataPackClass2> dpc2obs = dpm.observe<DataPackClass2>( id );
     mRunStandardTest( !deleted && dpc->nrRefs()==0,
-                     "Nr users after observeAndCast of wrong class");
+                     "Nr users after observe of wrong class");
 
 
-    WeakPtr<DataPackClass> dpcobs = dpm.observeAndCast<DataPackClass>( id );
+    WeakPtr<DataPackClass> dpcobs = dpm.observe<DataPackClass>( id );
     mRunStandardTest( !deleted && dpc->nrRefs()==0,
-                     "Nr users after observeAndCast of correct class");
+                     "Nr users after observe of correct class");
 
 
-    RefMan<DataPack> dp = dpm.get( id );
+    auto dp = dpm.getDP( id );
 
     mRunStandardTest( !deleted && dpc->nrRefs()==1,
                       "Nr users after get");
 
-    RefMan<DataPackClass> dpcman = dpm.getAndCast<DataPackClass>(id);
-    RefMan<DataPackClass2> fdp = dpm.getAndCast<DataPackClass2>(id);
+    RefMan<DataPackClass> dpcman = dpm.get<DataPackClass>(id);
+    RefMan<DataPackClass2> fdp = dpm.get<DataPackClass2>(id);
 
     mRunStandardTest( !deleted && dpc->nrRefs()==2,
-                      "Nr users after getAndCast");
+                      "Nr users after get");
 
 
     dp = 0;

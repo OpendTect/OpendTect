@@ -261,7 +261,7 @@ DBKey uiSeisPartServer::getDefault2DDataID() const
 
     uiString msg = uiStrings::phrCannotFind(tr("valid default 2D data.\n"
 					       "Do you want to set it now?") );
-    const bool tomanage = uiMSG().askGoOn( msg );
+    const bool tomanage = uimsg().askGoOn( msg );
     if ( !tomanage )
 	return DBKey::getInvalid();
 
@@ -307,7 +307,7 @@ DBKey uiSeisPartServer::getDefaultDataID( bool is2d ) const
 
     uiString msg = uiStrings::phrCannotFind( tr("valid default volume."
 						"Do you want to set it now?") );
-    const bool tomanage = uiMSG().askGoOn( msg );
+    const bool tomanage = uimsg().askGoOn( msg );
     if ( !tomanage )
 	return DBKey::getInvalid();
 

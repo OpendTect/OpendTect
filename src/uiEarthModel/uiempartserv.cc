@@ -551,7 +551,7 @@ bool uiEMPartServer::askUserToSave( const DBKey& emid,
 
     uiString msg = uiStrings::phrIsNotSavedSaveNow( toUiString(emobj->name()) );
 
-    const int ret = uiMSG().askSave( msg, withcancel );
+    const int ret = uimsg().askSave( msg, withcancel );
     if ( ret == 1 )
     {
 	const bool saveas = !ioobj || !isFullyLoaded(emid);
@@ -715,14 +715,14 @@ bool uiEMPartServer::storeFaultAuxData( const DBKey& id,
 	uiString msg = tr("The name '%1' already exists, "
 	                  "do you really want to overwrite it?")
                      .arg(auxdatanm);
-	if ( !uiMSG().askGoOn( msg ) )
+	if ( !uimsg().askGoOn( msg ) )
 	    return false;
     }
 
     const int sdidx = auxdata->setData( auxdatanm.buf(), &data, OD::UsePtr );
     if ( !auxdata->storeData(sdidx,false) )
     {
-	uiMSG().error( auxdata->errMsg() );
+	uimsg().error( auxdata->errMsg() );
 	return false;
     }
 
@@ -859,7 +859,7 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 
     if ( !ret.isOK() )
     {
-	uiMSG().error( ret );
+	uimsg().error( ret );
 	return false;
     }
 
@@ -896,7 +896,7 @@ bool uiEMPartServer::storeAuxData( const DBKey& id,
     PtrMan<Executor> saver = hor3d->auxdata.auxDataSaver(dataidx,overwrite);
     if ( !saver )
     {
-	uiMSG().error( tr("Cannot save attribute") );
+	uimsg().error( tr("Cannot save attribute") );
 	return false;
     }
 
@@ -908,12 +908,12 @@ int uiEMPartServer::setAuxData( const DBKey& id, DataPointSet& data,
 				const char* attribnm, int idx, float shift )
 {
     if ( !data.size() )
-    { uiMSG().error(tr("No data calculated")); return -1; }
+    { uimsg().error(tr("No data calculated")); return -1; }
 
     EM::Object* object = emmgr_.getObject( id );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d )
-    { uiMSG().error(tr("No horizon loaded")); return -1; }
+    { uimsg().error(tr("No horizon loaded")); return -1; }
 
     BufferString auxnm = attribnm;
     if ( auxnm.isEmpty() )
@@ -1101,8 +1101,8 @@ bool uiEMPartServer::computeVariogramAuxData( const DBKey& oid,
 			      varsettings.getFold(), errmsg, msgiserror );
     if ( !hvc.isOK() )
     {
-	msgiserror ? uiMSG().error( errmsg )
-		   : uiMSG().warning( errmsg );
+	msgiserror ? uimsg().error( errmsg )
+		   : uimsg().warning( errmsg );
 	return false;
     }
 
@@ -1199,7 +1199,7 @@ bool uiEMPartServer::changeAuxData( const DBKey& oid,
     mDynamicCastGet(const Array2DInterpol*,interp,changer.ptr())
     const uiString infomsg = interp ? interp->infoMsg() : uiString::empty();
     if ( !infomsg.isEmpty() )
-	uiMSG().message( infomsg );
+	uimsg().message( infomsg );
 
     return true;
 }
@@ -1261,7 +1261,7 @@ bool uiEMPartServer::loadSurface( const DBKey& dbky,
 	const BufferString nm = ioobj	? (const OD::String&)ioobj->name()
 					: (const OD::String&)dbky.toString();
 	uiString msg = uiStrings::phrCannotLoad( nm );
-	uiMSG().error( msg );
+	uimsg().error( msg );
 	return false;
     }
 

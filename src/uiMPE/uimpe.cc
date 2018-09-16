@@ -41,7 +41,7 @@ bool uiTrackSettingsValidator::checkActiveTracker() const
 {
     if ( !MPE::engine().getActiveTracker() )
     {
-	uiMSG().error( tr("Please select a horizon in the tree") );
+	gUiMsg().error( tr("Please select a horizon in the tree") );
 	return false;
     }
 
@@ -58,7 +58,7 @@ bool uiTrackSettingsValidator::checkStoredData( Attrib::SelSpec& as,
     key = desc ? DBKey(desc->getStoredID(false)) : DBKey::getInvalid();
     if ( key.isInvalid() )
     {
-	uiMSG().error(
+	gUiMsg().error(
 		tr("Volume tracking can only be done on stored volumes.") );
 	return false;
     }
@@ -66,7 +66,7 @@ bool uiTrackSettingsValidator::checkStoredData( Attrib::SelSpec& as,
     PtrMan<IOObj> ioobj = DBM().get( key );
     if ( !ioobj )
     {
-	uiMSG().error( tr("Cannot find picked data in database") );
+	gUiMsg().error( tr("Cannot find picked data in database") );
 	return false;
     }
 
@@ -116,7 +116,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const DBKey& key ) const
 	spl.setTaskRunner( uitr );
 	if ( !spl.load(tkzs) )
 	{
-	    const bool res = uiMSG().askGoOn(
+	    const bool res = gUiMsg().askGoOn(
 		tr("Data has not been pre-loaded.\n"
 		   "Do you want to pre-load with more options?") );
 	    if ( res )
@@ -141,7 +141,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const DBKey& key ) const
 	{
 	    const uiString emsg = spl.errMsg();
 	    if ( !emsg.isEmpty() )
-		uiMSG().error( emsg );
+		gUiMsg().error( emsg );
 	    return false;
 	}
     }

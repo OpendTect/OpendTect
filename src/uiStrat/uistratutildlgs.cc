@@ -130,22 +130,22 @@ void uiStratUnitEditDlg::getFromScreen()
 }
 
 
-bool uiStratUnitEditDlg::checkWrongChar(char* buf)
+bool uiStratUnitEditDlg::checkWrongChar( uiParent* p, char* buf )
 {
-    uiString strnm;
+    uiString errmsg;
     char* ptr = buf;
     while ( *ptr )
     {
 	if ( iswspace(*ptr) || (*ptr) == '.' )
 	    *ptr = '_';
 	if ( (*ptr) == '>' || (*ptr) == '<')
-	    strnm = tr("Name contains strange characters !");
+	    errmsg = tr("Name contains characters that may cause problems");
 	ptr++;
     }
-    if ( !strnm.isEmpty() )
+    if ( !errmsg.isEmpty() )
     {
-	strnm = tr("%1 \n Continue anyway ?").arg(strnm);
-	if ( !uiMSG().askContinue( strnm ) )
+	errmsg = tr("%1\nContinue anyway?").arg( errmsg );
+	if ( !gUiMsg(p).askContinue( errmsg ) )
 	   return false;
     }
     return true;
@@ -160,7 +160,7 @@ bool uiStratUnitEditDlg::acceptOK()
 	{mErrRet(uiStrings::phrSpecify(tr("a valid unit name")), return false)}
     else
     {
-	if(!checkWrongChar( unnm.getCStr())) return false;
+	if(!checkWrongChar( this, unnm.getCStr())) return false;
     }
 
     const char* oldcode = unit_.code();
@@ -314,7 +314,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
     BufferString nm( nmfld_->text() );
     if ( nm.isEmpty() ) return;
 
-    if(!uiStratUnitEditDlg::checkWrongChar(nm.getCStr())) return;
+    if(!uiStratUnitEditDlg::checkWrongChar(this,nm.getCStr())) return;
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
     if ( selfld_->isPresent( nm ) || lithos.isPresent( nm.buf() ) )
@@ -735,7 +735,7 @@ bool uiStratUnitDivideDlg::acceptOK()
 	    errmsg = tr("Empty unit name. ");
 	else
 	{
-	    if(!uiStratUnitEditDlg::checkWrongChar(code.getCStr()))
+	    if(!uiStratUnitEditDlg::checkWrongChar(this,code.getCStr()))
 		return false;
 	    units[idx]->setCode( code.buf() );
 	}

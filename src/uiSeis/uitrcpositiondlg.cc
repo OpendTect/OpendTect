@@ -38,7 +38,7 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     , possldr_( 0 )
     , posvalfld_( 0 )
 {
-    fdp_ = DPM( dpfid.mgrID() ).getAndCast<FlatDataPack>( dpfid.packID() );
+    fdp_ = DPM( dpfid.mgrID() ).get<FlatDataPack>( dpfid.packID() );
     if ( !fdp_ )
 	{ pErrMsg( "No flatdatapack, Cannot construct the class" ); return; }
 
@@ -103,7 +103,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
     if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::SeisID() )
 	{ pErrMsg( "Only Flat & Cube DataPacks supported" ); return; }
 
-    RefMan<DataPack> dp = DPM( dpmid ).get( dpfid.packID() );
+    RefMan<DataPack> dp = DPM( dpmid ).getDP( dpfid.packID() );
     if ( dpmid == DataPackMgr::FlatID() )
     {
 	fdpposfld_ = new uiFlatDPPosSel( this, dpfid );

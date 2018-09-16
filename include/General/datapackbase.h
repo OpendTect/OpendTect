@@ -50,6 +50,8 @@ protected:
 				PointDataPack(const char*);
 				~PointDataPack();
 
+    virtual bool		gtIsEmpty() const	{ return size() < 1; }
+
 };
 
 /*!\brief DataPack for flat data.
@@ -107,6 +109,8 @@ protected:
     Array2D<float>*		arr2d_;
     FlatPosData&		posdata_;
 
+    virtual bool		gtIsEmpty() const
+				{ return size(true)<1 && size(false)<1; }
     virtual float		gtNrKBytes() const;
     virtual void		doDumpInfo(IOPar&) const;
     virtual int			gtNrArrays() const	 { return 1; }
@@ -197,8 +201,6 @@ public:
 
     int				nrComponents() const
 				{ return arrays_.size(); }
-    bool			isEmpty() const
-				{ return arrays_.isEmpty(); }
     bool			validComp( int comp ) const
 				{ return arrays_.validIdx( comp ); }
     void			setComponentName(const char*,int comp=0);
@@ -241,6 +243,7 @@ protected:
     BinDataDesc				desc_;
     const Scaler*			scaler_;
 
+    virtual bool		gtIsEmpty() const { return arrays_.isEmpty(); }
     virtual int			gtNrArrays() const { return arrays_.size(); }
     virtual const ArrayND<float>* gtArrayData( int iarr ) const
 				{ return arrays_.validIdx(iarr)

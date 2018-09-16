@@ -7,7 +7,7 @@
 
 #include "welld2tmodel.h"
 
-#include "ailayer.h"
+#include "elasticmodel.h"
 #include "idxable.h"
 #include "iopar.h"
 #include "mathfunc.h"

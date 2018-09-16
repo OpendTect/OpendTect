@@ -32,7 +32,7 @@ set(OD_MODULE_SOURCES
 	prestackprocessortransl.cc
 	prestackprop.cc
 	prestackstacker.cc
-	prestacksyntheticdata.cc
+	prestacksynthdataset.cc
 	prestacktrimstatics.cc
 	raysynthgenerator.cc
 	semblancealgo.cc
