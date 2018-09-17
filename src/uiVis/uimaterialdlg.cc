@@ -35,10 +35,14 @@ ________________________________________________________________________
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     : uiTabStackDlg(p,uiDialog::Setup(uiStrings::sDisplayProperties(),
 				      mNoDlgTitle,
-                                      mODHelpKey(mPropertiesDlgHelpID) ))
+				      mODHelpKey(mPropertiesDlgHelpID) ))
     , survobj_(so)
     , visobj_(dynamic_cast<visBase::VisualObject*>(so))
 {
+    mDynamicCastGet(visSurvey::FaultDisplay*,fd,so);
+    if ( fd )
+	addGroup( new uiFaultDisplayOptGrp(tabstack_->tabGroup(),fd) );
+
     if ( survobj_->allowMaterialEdit() && visobj_->getMaterial() )
     {
 	addGroup(  new uiMaterialGrp( tabstack_->tabGroup(),
@@ -63,20 +67,13 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     if ( plg )
 	addGroup( new uiVisPolygonSurfBezierDlg(tabstack_->tabGroup(),plg) );
 
-    if ( GetEnvVarYN("USE_FAULT_RETRIANGULATION") )
-    {
-	mDynamicCastGet(visSurvey::FaultDisplay*,flt,so);
-	if ( flt )
-	    addGroup( new uiFaultDisplayOptGrp(tabstack_->tabGroup(),flt) );
-    }
-
     setCancelText( uiString::empty() );
 }
 
 
 //uiMarkerStyleGrp
 uiMarkerStyleGrp::uiMarkerStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
-    : uiDlgGroup(p,tr("Marker style"))
+    : uiDlgGroup(p,tr("Node style"))
     , survobj_( so )
 
 {
