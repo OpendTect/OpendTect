@@ -1,6 +1,19 @@
 OpendTect V6.2.x : Release info
 
 ----
+v6.2.6: September 18, 2018
+* Fix for FaultStickSets picking on Random Line in 2D viewer
+* Fix for crash while browsing seismic volume with sparse traces
+* Better handling of parentheses in Mathematics attribute
+* Fix for exporting incorrect trace range of Multi 2D SEG-Y
+  Lines(of same dataset)
+* Fix for not showing variations in the displayed data with respect
+  to modified values in Histogram
+* Fix for depth values getting multiplied by 3.28 when loading las files
+  in a depth(feet) survey
+* Added possibility to auto assign colors to markers while importing
+* Fix for crash while Importing VSP data
+
 v6.2.5: July 10, 2018
 * Possibility of Linking 2D SEG-Y Data
 * Fix for unwanted removal of locked Horizon patch during Horizon Editing
