@@ -11,10 +11,12 @@ ___________________________________________________________________
 
 
 #include "uitreeitem.h"
+#include "uicolseqdisp.h"
 #include "uipixmap.h"
 #include "uitreeview.h"
-#include "uicolseqdisp.h"
+#include "uiusershowwait.h"
 #include "coltabsequence.h"
+#include "uistrings.h"
 
 
 #define mEnabSelChg(yn) \
@@ -496,6 +498,7 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 	    item = new uiTreeViewItem( lv, setup );
 	if ( !item ) return false;
 
+	uiUserShowWait usw( 0, uiStrings::sUpdatingDisplay() );
 	newitem->setTreeViewItem( item );
 	if ( !newitem->init() )
 	{
@@ -503,9 +506,11 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 	    mEnabSelChg( true );
 	    return true;
 	}
+	usw.readyNow();
 
 	const bool itmisopen = item->isOpen();
-	if ( !below ) newitem->moveItemToTop();
+	if ( !below )
+	    newitem->moveItemToTop();
 	item->setOpen( itmisopen );
 
 	if ( uitreeviewitem_ && !uitreeviewitem_->isOpen() )

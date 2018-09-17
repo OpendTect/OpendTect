@@ -665,9 +665,9 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	DataColDef* dtcd = new DataColDef( targetdesc->userRef() );
 	ManagedObjectSet<DataColDef> dtcoldefset;
 	dtcoldefset += dtcd;
-	uiTaskRunner taskrunner( parent() );
+	uiTaskRunnerProvider trprov( parent() );
 	RefMan<DataPointSet> posvals = new DataPointSet( rgprov3d.is2D() );
-	if ( !posvals->extractPositions(rgprov3d,dtcoldefset,0,&taskrunner) )
+	if ( !posvals->extractPositions(rgprov3d,dtcoldefset,trprov) )
 	    return 0;
 
 	const int firstcolidx = 0;
@@ -677,7 +677,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	if ( !processor )
 	    { uimsg().error(errmsg); return 0; }
 
-	if ( !TaskRunner::execute( &taskrunner, *processor ) )
+	if ( !trprov.execute(*processor) )
 	    return 0;
 
 	TypeSet<float> vals;
@@ -737,10 +737,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	if ( aem->getNrOutputsToBeProcessed(*processor) != 0 )
 	{
 	    if ( !hideprogress )
-	    {
-		uiTaskRunner taskrunner( parent() );
-		success = TaskRunner::execute( &taskrunner, *processor );
-	    }
+		success = uiTaskRunner(parent()).execute( *processor );
 	    else
 	    {
 		uiUserShowWait usw( parent(), processor->message() );
@@ -825,9 +822,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 			aem->getTableOutExecutor( posvals, errmsg, firstcol );
     if ( !processor )
 	{ uimsg().error(errmsg); return false; }
-
-    uiTaskRunner taskrunner( parent() );
-    if ( !TaskRunner::execute( &taskrunner, *processor ) )
+    else if ( !uiTaskRunner(parent()).execute(*processor) )
 	return false;
 
     posvals.setName( targetspecs_[0].userRef() );
@@ -853,7 +848,7 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 
     bool res = true;
     uiTaskRunner taskrunner( parent() );
-    res = TaskRunner::execute( &taskrunner, execgrp );
+    res = uiTaskRunner(parent()).execute( execgrp );
 
     deepErase( aems );
     return res;
@@ -1147,7 +1142,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     if ( !processor )
 	{ uimsg().error(errmsg); return DataPack::cNoID(); }
 
-    if ( !TaskRunner::execute( &taskrunner, *processor ) )
+    if ( !taskrunner.execute(*processor) )
 	return DataPack::cNoID();
 
     BufferStringSet userrefs;
@@ -1190,7 +1185,7 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 	if ( !tabextr )
 	    { uimsg().error(err); return 0; }
 
-	if ( TaskRunner::execute( &taskrunner, *tabextr ) )
+	if ( taskrunner.execute(*tabextr) )
 	    somesuccess = true;
 	else
 	    somefail = true;

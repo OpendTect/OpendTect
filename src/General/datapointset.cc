@@ -254,8 +254,8 @@ int nextStep()
 
 bool DataPointSet::extractPositions( ::Pos::Provider& prov,
 			    const ObjectSet<DataColDef>& dcds,
-			    const ::Pos::Filter* filt,
-			    TaskRunner* tskr )
+			    const TaskRunnerProvider& trprov,
+			    const ::Pos::Filter* filt )
 {
     for ( int idx=0; idx<dcds.size(); idx++ )
 	data_.add( new DataColDef(*dcds[idx]) );
@@ -263,7 +263,7 @@ bool DataPointSet::extractPositions( ::Pos::Provider& prov,
     const int nrcols = dcds.size();
 
     DPSPointExtractor extracttor( *this, prov, filt, nrcols );
-    if ( !TaskRunner::execute(tskr,extracttor) )
+    if ( !trprov.execute(extracttor) )
 	return false;
 
     calcIdxs();

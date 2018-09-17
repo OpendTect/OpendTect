@@ -81,10 +81,15 @@ void uiNewPickSetDlg::attachStdFlds( bool mineabove, uiGroup* grp )
 
 RefMan<Pick::Set> uiNewPickSetDlg::getEmptyPickSet() const
 {
-    const BufferString nm( nmfld_->text() );
-    bool isreplace = Pick::SetMGR().nameExists( nm );
     RefMan<Pick::Set> ret;
-    if ( !isreplace )
+    const BufferString nm( nmfld_->text() );
+    if ( nm.isEmpty() )
+    {
+	uiMSG().error( uiStrings::phrEnterValidName() );
+	return ret;
+    }
+
+    if ( !Pick::SetMGR().nameExists(nm) )
 	ret = new Pick::Set( nm );
     else
     {
@@ -94,6 +99,7 @@ RefMan<Pick::Set> uiNewPickSetDlg::getEmptyPickSet() const
 	{
 	    msg.appendPhrase( tr("You are currently using it") );
 	    msg.appendPhrase( tr("Please enter a different name") );
+	    uiMSG().error( msg );
 	    return ret;
 	}
 	msg.appendPhrase( tr("Do you want to overwrite the existing data?")  );
@@ -185,35 +191,31 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
 	return false;
 
     RefMan<DataPointSet> dps = new DataPointSet( prov->is2D() );
-    if ( !dps->extractPositions(*prov,ObjectSet<DataColDef>(),filt,
-				 &trprov.runner()) )
+    if ( !dps->extractPositions(*prov,ObjectSet<DataColDef>(),trprov,filt) )
 	return false;
     usw.readyNow();
 
     const int dpssize = dps->size();
-    int size = maxnrpickfld_->getIntValue();
-    if ( dpssize < size )
-	size = dpssize;
+    if ( dpssize < 1 )
+	mErrRet(tr("No matching locations found"))
 
-    if ( size>50000 )
+    int sztouse = maxnrpickfld_->getIntValue();
+    if ( mIsUdf(sztouse) || sztouse < 1 )
+	sztouse = dpssize;
+    const bool usemaxnrpicks = dpssize > sztouse;
+
+    if ( sztouse>50000 )
     {
 	uiString msg = tr("PointSet would contain %1 "
 			  "points which might consume unexpected time & memory."
 			  "\n\nDo you want to continue?")
-		     .arg(dpssize);
+		     .arg(sztouse);
 	if ( !uiMSG().askGoOn(msg) )
 	    return false;
     }
 
-    if ( dps->isEmpty() )
-	mErrRet(tr("No matching locations found"))
-
-    const bool usemaxnrpicks = dpssize > size;
-    if ( !usemaxnrpicks )
-	size = dpssize;
-
     Pos::SurvID survid = dps->bivSet().survID();
-    for ( DataPointSet::RowID idx=0; idx<size; idx++ )
+    for ( DataPointSet::RowID idx=0; idx<sztouse; idx++ )
     {
 	const int posidx = usemaxnrpicks ? Stats::randGen().getIndex( dpssize )
 					 : idx;

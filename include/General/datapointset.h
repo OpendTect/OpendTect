@@ -20,7 +20,7 @@ class BinIDValueSet;
 class PosVecDataSet;
 class UnitOfMeasure;
 class BufferStringSet;
-class TaskRunner;
+class TaskRunnerProvider;
 class TrcKeyZSampling;
 
 namespace Pos { class Filter; class Provider; }
@@ -224,8 +224,8 @@ public:
 			DataPointSet(bool is2d,bool minimal=false);
     bool		extractPositions(::Pos::Provider&,
 				     const ObjectSet<DataColDef>&,
-				     const ::Pos::Filter* f=0,
-				     TaskRunner* tskr=0);
+				     const TaskRunnerProvider&,
+				     const ::Pos::Filter* f=0);
     void		addCol(const char* nm,const char* ref=0,
 				const UnitOfMeasure* un=0);
 			//!< or use dataSet() to add columns

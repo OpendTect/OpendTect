@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
+#include "uiusershowwait.h"
 #include "uitoolbar.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
@@ -277,6 +278,7 @@ void uiODViewer2D::emitPrRequest( Presentation::RequestType req )
 	prinfo->fillPar( objprinfopar );
 
     const ViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(), viewerObjID());
+    uiUserShowWait usw( &appl_, uiStrings::sUpdatingDisplay() );
     OD::PrMan().handleRequest( vwrid, req, objprinfopar );
 }
 

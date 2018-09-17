@@ -325,7 +325,7 @@ bool uiAttribCrossPlot::acceptOK()
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     dps = new DataPointSet( prov->is2D() );
-    if ( !dps->extractPositions(*prov,dcds,filt,&trprov.runner()) )
+    if ( !dps->extractPositions(*prov,dcds,trprov,filt) )
 	return false;
 
     MouseCursorManager::restoreOverride();
