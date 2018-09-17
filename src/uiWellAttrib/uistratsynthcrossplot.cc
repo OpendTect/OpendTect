@@ -63,8 +63,6 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p, const DataMgr& dm )
 	return;
     }
 
-    mgr_.ensureAllGenerated( uiTaskRunnerProvider(this) );
-
     TypeSet<DataPack::FullID> dpids, psdpids;
     for ( int idx=0; idx<mgr_.nrSynthetics(); idx++ )
     {

@@ -25,9 +25,9 @@ mExpClass(uiTools) uiRayTracer1D : public uiGroup
 { mODTextTranslationClass(uiRayTracer1D);
 public:
 
-    mExpClass(uiTools) Setup 		
+    mExpClass(uiTools) Setup
     {
-	public:	
+	public:
 			Setup()
 			    : convertedwaves_(false)
 			    , doreflectivity_(true)
@@ -45,28 +45,26 @@ public:
 
     mDefineFactory2ParamInClass(uiRayTracer1D,uiParent*,const Setup&,factory);
 
-    virtual bool 	usePar(const IOPar&);
-    virtual void  	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
 
-    void		displayOffsetFlds(bool yn); 
-    bool		isOffsetFldsDisplayed() const;
-    void		setOffsetRange(StepInterval<float>);
+    void		setOffsetRange(const StepInterval<float>&);
     bool		doOffsets() const	{ return offsetfld_; }
     bool		hasZeroOffsetFld() const{ return iszerooffsetfld_; }
     bool		isZeroOffset() const;
+
     Notifier<uiRayTracer1D>	offsetChanged;
 
 protected:
 			uiRayTracer1D(uiParent*,const Setup&);
 
-    bool 		doreflectivity_;
+    bool		doreflectivity_;
 
     uiGenInput*		downwavefld_;
     uiGenInput*		upwavefld_;
-
-    uiGenInput* 	offsetfld_;
-    uiGenInput* 	offsetstepfld_;
+    uiGenInput*	offsetfld_;
     uiCheckBox*		iszerooffsetfld_;
+
     uiGenInput*		lastfld_;
 
     void		zeroOffsetChecked(CallBacker*);
@@ -90,7 +88,7 @@ public:
 mExpClass(uiTools) uiRayTracerSel : public uiGroup
 { mODTextTranslationClass(uiRayTracerSel);
 public:
-    			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
+			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
 
     void                usePar(const IOPar&);
     void                fillPar(IOPar&) const;

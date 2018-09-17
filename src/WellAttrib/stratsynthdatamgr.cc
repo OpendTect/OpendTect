@@ -207,6 +207,9 @@ size_type StratSynth::DataMgr::nrSequences( lms_idx_type lmsidx ) const
 
 static size_type getNrTraces( size_type nrseq, size_type calceach )
 {
+    if ( nrseq < 1 )
+	return 0;
+
     const size_type ret = nrseq / calceach;
     return ret < 1 ? 1 : ret;
 }
@@ -640,22 +643,6 @@ idx_type StratSynth::DataMgr::gtGenIdx( SynthID id, const TRProv& trprov ) const
 }
 
 
-bool StratSynth::DataMgr::ensureAllGenerated( const TRProv& trprov,
-					      lms_idx_type lmsidx ) const
-{
-    for ( lms_idx_type ilm=0; ilm<nrLayerModels(); ilm++ )
-    {
-	if ( lmsidx >= 0 && ilm != lmsidx )
-	    continue;
-
-	for ( auto id : ids_ )
-	    if ( !ensureGenerated(id,trprov,ilm) )
-		return false;
-    }
-    return true;
-}
-
-
 #define mGetGenIdx(idx) \
     const int idx = gtGenIdx( id, trprov ); \
     if ( idx < 0 ) \
@@ -664,6 +651,9 @@ bool StratSynth::DataMgr::ensureAllGenerated( const TRProv& trprov,
 bool StratSynth::DataMgr::ensureGenerated( SynthID id, const TRProv& trprov,
 					   lms_idx_type lmsidx ) const
 {
+    if ( nrTraces(lmsidx) < 1 )
+	return true;
+
     mGetGenIdx(idx);
     return haveDS(idx,lmsidx) ? true : generate( id, trprov, lmsidx );
 }
@@ -1392,15 +1382,21 @@ StratSynth::DataMgr::generateDataSet( const GenParams& gp, const TRProv& trprov,
 	const SynthID inpid = find( inpdsnm );
 	if ( !inpid.isValid() )
 	    mErrRetInternal( BufferString("input '",inpdsnm,"' not present") )
-	auto* inpsd = gtDS( inpid, lmsidx );
-	if ( !inpsd->isPS() )
+
+	if ( !ensureGenerated(inpid,trprov,lmsidx) )
+	    mErrRet( tr("Cannot generate '%1'").arg(inpdsnm) )
+
+	auto* inpds = gtDS( inpid, lmsidx );
+	if ( !inpds )
+	    { pErrMsg("Huh"); }
+	if ( !inpds || !inpds->isPS() )
 	    mErrRetInternal( BufferString("input '",inpdsnm,"' is not PS") )
 
 	TrcKeyZSampling cs( false );
 	cs.hsamp_.survid_ = TrcKey::stdSynthSurvID();
-	for ( int idx=0; idx<inpsd->size(); idx++ )
+	for ( int idx=0; idx<inpds->size(); idx++ )
 	{
-	    const SeisTrc& trc = *inpsd->getTrace( idx );
+	    const SeisTrc& trc = *inpds->getTrace( idx );
 	    if ( idx == 0 )
 		cs.zsamp_ = trc.zRange();
 	    else
@@ -1410,7 +1406,7 @@ StratSynth::DataMgr::generateDataSet( const GenParams& gp, const TRProv& trprov,
 	    }
 	}
 
-	retsd = genPSPostProcDataSet( gp, *inpsd, cs, trprov );
+	retsd = genPSPostProcDataSet( gp, *inpds, cs, trprov );
     }
 
     if ( retsd )

@@ -46,6 +46,7 @@ public:
 protected:
 
     const DataMgr&		mgr_;
+    TypeSet<SynthType>		synthtypes_;
 
     uiGroup*			zeroofssgrp_;
     uiGroup*			prestackgrp_;

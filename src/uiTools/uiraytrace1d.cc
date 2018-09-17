@@ -14,7 +14,7 @@
 #include "uiseparator.h"
 #include "uistrings.h"
 
-static const StepInterval<float> sDefaultOffsetRange( 0.f, 6000.f, 100.f );
+static const float cDefaultOffsetStep = 100.f;
 
 mImplClassFactory( uiRayTracer1D, factory );
 
@@ -32,8 +32,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	raytracerselfld_ = new uiLabeledComboBox( this, tr("Ray-Tracer") );
 	raytracerselfld_->box()->setHSzPol( uiObject::Wide );
 	raytracerselfld_->box()->selectionChanged.notify(
-				mCB( this, uiRayTracerSel, selRayTraceCB) );
-
+				mCB(this,uiRayTracerSel,selRayTraceCB) );
     }
 
     for ( int idx=0; idx<fackys.size(); idx++ )
@@ -141,49 +140,49 @@ bool uiRayTracerSel::setCurrent( int selidx )
 }
 
 
-uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
+template <class T>
+static StepInterval<float> getDispStepIntv( const StepInterval<T>& rg )
+{
+    return StepInterval<float>( mNINT32(rg.start), mNINT32(rg.stop),
+			        (float)rg.step );
+}
+
+
+uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& setup )
     : uiGroup( p )
-    , doreflectivity_(s.doreflectivity_)
+    , doreflectivity_(setup.doreflectivity_)
     , downwavefld_( 0 )
     , upwavefld_( 0 )
     , offsetfld_( 0 )
-    , offsetstepfld_( 0 )
     , iszerooffsetfld_( 0 )
     , lastfld_( 0 )
     , offsetChanged( this )
 {
-    if ( s.dooffsets_ )
+    if ( setup.dooffsets_ )
     {
-	uiString olb = uiStrings::sOffsetRange().withSurvXYUnit();
-	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
-	offsetfld_->setValue(
-			Interval<float>(s.offsetrg_.start,s.offsetrg_.stop));
+	const uiString olb = uiStrings::sOffsetRange().withSurvXYUnit();
+	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec(true) );
+	offsetfld_->setValue( getDispStepIntv(setup.offsetrg_) );
 	offsetfld_->setElemSzPol( uiObject::Small );
 	offsetfld_->valuechanged.notify(
 		mCB(this,uiRayTracer1D,offsetChangedCB) );
 
-	offsetstepfld_ = new uiGenInput( this, uiStrings::sStep() );
-	offsetstepfld_->attach( rightOf, offsetfld_ );
-	offsetstepfld_->setElemSzPol( uiObject::Small );
-	offsetstepfld_->setValue( s.offsetrg_.step );
-	if ( s.showzerooffsetfld_ )
+	if ( setup.showzerooffsetfld_ )
 	{
 	    iszerooffsetfld_ =
 		new uiCheckBox( this, tr("Zero Offset"),
 				mCB(this,uiRayTracer1D,zeroOffsetChecked) );
-	    iszerooffsetfld_->attach( rightTo, offsetstepfld_ );
+	    iszerooffsetfld_->attach( rightTo, offsetfld_ );
 	}
-
-
-
 	lastfld_ = offsetfld_;
     }
 
-    if ( s.convertedwaves_ )
+    if ( setup.convertedwaves_ )
     {
 	BoolInpSpec inpspec( true, tr("P","wave type"), tr("S","wave type") );
 	downwavefld_ = new uiGenInput( this, tr("Downward wave-type"), inpspec);
-	downwavefld_->attach( alignedBelow, lastfld_ );
+	if ( lastfld_ )
+	    downwavefld_->attach( alignedBelow, lastfld_ );
 	lastfld_ = downwavefld_;
 
 	upwavefld_ = new uiGenInput( this, tr("Upward wave-type"), inpspec );
@@ -194,7 +193,8 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     IOPar par; RayTracer1D::Setup defaultsetup; defaultsetup.fillPar( par );
     usePar( par );
 
-    if ( lastfld_ ) setHAlignObj( lastfld_ );
+    if ( lastfld_ )
+	setHAlignObj( lastfld_ );
 }
 
 
@@ -206,28 +206,20 @@ void uiRayTracer1D::offsetChangedCB( CallBacker* )
 
 bool uiRayTracer1D::isZeroOffset() const
 {
-    if ( iszerooffsetfld_ )
-	return iszerooffsetfld_->isChecked();
-    return !isOffsetFldsDisplayed();
+    return iszerooffsetfld_ ? iszerooffsetfld_->isChecked() : false;
 }
 
 
 void uiRayTracer1D::zeroOffsetChecked( CallBacker* )
 {
-    displayOffsetFlds( !iszerooffsetfld_->isChecked() );
-    if ( downwavefld_ ) downwavefld_->display( !isZeroOffset() );
-    if ( upwavefld_ ) upwavefld_->display( !isZeroOffset() );
+    const bool iszeroffs = isZeroOffset();
+    if ( offsetfld_ )
+	offsetfld_->display( !iszeroffs );
+    if ( downwavefld_ )
+	downwavefld_->display( !iszeroffs );
+    if ( upwavefld_ )
+	upwavefld_->display( !iszeroffs );
     offsetChanged.trigger();
-}
-
-#define mIsZeroOffset( offsets ) \
-    (offsets.isEmpty() || (offsets.size()==1 && mIsZero(offsets[0],mDefEps)))
-bool isZeroOffset( TypeSet<float> offsets )
-{
-    if ( offsets.isEmpty() )
-	return true;
-    const bool iszero = mIsZero(offsets[0],mDefEps);
-    return offsets.size()==1 && iszero;
 }
 
 
@@ -243,26 +235,30 @@ bool uiRayTracer1D::usePar( const IOPar& par )
     }
 
     TypeSet<float> offsets; par.get( RayTracer1D::sKeyOffset(), offsets );
-    const bool isps = !mIsZeroOffset(offsets);
-    displayOffsetFlds( isps );
-    if ( isps )
+    bool iszerooffs = par.isTrue( sKey::IsPS() );
+    if ( !iszerooffs )
     {
-	const float convfactor = SI().xyInFeet() ? mToFeetFactorF : 1;
-	Interval<float> offsetrg( offsets[0], offsets[offsets.size()-1] );
-	if ( SI().xyInFeet() )
-	    offsetrg.scale( mToFeetFactorF );
+	// support legacy where sKey::IsPS() is not set
+	const auto nroffs = offsets.size();
+	iszerooffs = nroffs < 1 || (nroffs==1 && mIsZero(offsets[0],0.001f));
+    }
+    if ( iszerooffsetfld_ )
+	iszerooffsetfld_->setChecked( iszerooffs );
 
-	if ( offsetfld_ && offsetstepfld_  )
+    if ( offsetfld_ )
+    {
+	if ( iszerooffs && !iszerooffsetfld_ )
+	    offsetfld_->setValue( Interval<int>(0,0) );
+	else
 	{
-	    offsetfld_->setValue( offsetrg );
 	    const float step = offsets.size() > 1 ? offsets[1]-offsets[0]
-						  : sDefaultOffsetRange.step;
-	    offsetstepfld_->setValue( step * convfactor );
+						  : cDefaultOffsetStep;
+	    StepInterval<float> offsetrg( offsets[0], offsets.last(), step );
+	    if ( SI().xyInFeet() )
+		offsetrg.scale( mToFeetFactorF );
+	    offsetfld_->setValue( getDispStepIntv(offsetrg) );
 	}
     }
-
-    if ( iszerooffsetfld_ )
-	iszerooffsetfld_->setChecked( !isps );
 
     return true;
 }
@@ -279,18 +275,20 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
     }
     tmpsetup.fillPar( par );
 
+    const bool iszeroofss = isZeroOffset();
+    par.setYN( sKey::IsPS(), iszeroofss );
     StepInterval<float> offsetrg;
-    if ( !isZeroOffset() )
+    if ( !iszeroofss )
     {
-	offsetrg.start = mCast( float, offsetfld_->getIInterval().start );
-	offsetrg.stop = mCast( float, offsetfld_->getIInterval().stop );
-	offsetrg.step = offsetstepfld_->getFValue();
+	offsetrg = offsetfld_->getFStepInterval();
 	if ( SI().xyInFeet() )
 	    offsetrg.scale( mFromFeetFactorF );
-
+	offsetrg = getDispStepIntv( offsetrg );
     }
+
     TypeSet<float> offsets;
-    for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
+    const int nroffs = offsetrg.nrSteps() + 1;
+    for ( int idx=0; idx<nroffs; idx++ )
 	offsets += offsetrg.atIndex( idx );
 
     par.set( RayTracer1D::sKeyOffset(), offsets );
@@ -298,36 +296,16 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 }
 
 
-void uiRayTracer1D::setOffsetRange( StepInterval<float> rg )
+void uiRayTracer1D::setOffsetRange( const StepInterval<float>& rg )
 {
-    offsetfld_->setValue( rg );
-    offsetstepfld_->setValue( rg.step );
+    offsetfld_->setValue( getDispStepIntv(rg) );
 }
-
-
-
-bool uiRayTracer1D::isOffsetFldsDisplayed() const
-{
-    return offsetfld_ && offsetstepfld_ &&
-	   offsetfld_->attachObj()->isDisplayed() &&
-	   offsetstepfld_->attachObj()->isDisplayed();
-}
-
-
-void uiRayTracer1D::displayOffsetFlds( bool yn )
-{
-    if ( !offsetfld_ ) return;
-
-    offsetfld_->display( yn );
-    offsetstepfld_->display( yn );
-    offsetChanged.trigger();
-}
-
 
 
 uiVrmsRayTracer1D::uiVrmsRayTracer1D(uiParent* p,const uiRayTracer1D::Setup& s)
     : uiRayTracer1D( p, s )
-{}
+{
+}
 
 
 void uiVrmsRayTracer1D::initClass()

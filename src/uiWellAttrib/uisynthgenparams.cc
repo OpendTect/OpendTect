@@ -107,6 +107,7 @@ uiGroup* uiSynthGenParams::createGroups()
     uisynthcorrgrp_ = new uiSynthCorrectionsGrp( prestackgrp_ );
     uisynthcorrgrp_->attach( alignedBelow, rtsel_ );
     prestackgrp_->setHAlignObj( uisynthcorrgrp_ );
+    prestackgrp_->attach( alignedWith, zeroofssgrp_ );
 
     pspostprocgrp_ = new uiGroup( parsgrp, "PS Post proc group" );
     auto* lcb = new uiLabeledComboBox( pspostprocgrp_, tr("Input Prestack") );
@@ -117,6 +118,7 @@ uiGroup* uiSynthGenParams::createGroups()
     angleinpfld_ = new uiGenInput( pspostprocgrp_,
 		tr("Angle Range").withUnit(uiStrings::sDeg()), angspec );
     angleinpfld_->attach( alignedBelow, lcb );
+    pspostprocgrp_->attach( alignedWith, zeroofssgrp_ );
     pspostprocgrp_->setHAlignObj( angleinpfld_ );
 
     parsgrp->setHAlignObj( zeroofssgrp_ );
@@ -161,34 +163,41 @@ BufferString uiSynthGenParams::getName() const
 
 uiSynthGenParams::SynthType uiSynthGenParams::typeFromFld() const
 {
-    const int selidx = typefld_->currentItem();
-    return (SynthType)(selidx < 2 ? selidx : selidx+1);
+    int selidx = typefld_->currentItem();
+    if ( selidx < 0 )
+	selidx = 0;
+    return synthtypes_[selidx];
 }
 
 
 void uiSynthGenParams::typeToFld( SynthType typ )
 {
-    int selidx = (int)typ;
-    if ( selidx > 1 )
-	selidx++;
-    typefld_->setCurrentItem( selidx );
+    int newselidx = synthtypes_.indexOf( typ );
+    if ( newselidx < 0 )
+	newselidx = 0;
+    typefld_->setCurrentItem( newselidx );
 }
 
 
 void uiSynthGenParams::fillTypeFld()
 {
-    uiStringSet typs;
-    typs.add( toUiString(SynthSeis::ZeroOffset) )
-	.add( toUiString(SynthSeis::PreStack) );
+    synthtypes_.setEmpty();
+    synthtypes_.add( SynthSeis::ZeroOffset );
+    synthtypes_.add( SynthSeis::PreStack );
     if ( mgr_.haveOfType(SynthSeis::PreStack) )
-	typs.add( toUiString(SynthSeis::AngleStack) )
-	    .add( toUiString(SynthSeis::AVOGradient) );
+    {
+	synthtypes_.add( SynthSeis::AngleStack );
+	synthtypes_.add( SynthSeis::AVOGradient );
+    }
 
-    const auto seltyp = typeFromFld();
+    const auto curseltyp = typeFromFld();
+
     NotifyStopper ns( mTypFldNotif );
     typefld_->setEmpty();
-    typefld_->addItems( typs );
-    typeToFld( seltyp );
+    for ( auto typ : synthtypes_ )
+	typefld_->addItem( SynthSeis::toUiString(typ) );
+
+    typeToFld( curseltyp );
 }
 
 
@@ -271,6 +280,7 @@ void uiSynthGenParams::get( GenParams& gp ) const
     gp.wvltid_ = wvltfld_->key( true );
 
     IOPar& iop = gp.raypars_;
+    iop.setEmpty();
     if ( gp.isZeroOffset() )
     {
 	RayTracer1D::setIOParsToZeroOffset( iop );

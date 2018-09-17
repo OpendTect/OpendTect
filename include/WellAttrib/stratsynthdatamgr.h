@@ -85,13 +85,12 @@ public:
     size_type		nrSequences(mCurLMIdx) const; //!< all available
     size_type		nrTraces(mCurLMIdx) const;    //!< actual calculated
 
+    bool		ensureGenerated(SynthID,const TRProv&,mCurLMIdx) const;
+
     size_type		nrSynthetics() const	{ return ids_.size(); }
     SynthID		addSynthetic(const GenParams&);
     SynthID		setSynthetic(SynthID,const GenParams&);
     void		removeSynthetic(SynthID);
-
-    bool		ensureGenerated(SynthID,const TRProv&,mCurLMIdx) const;
-    bool		ensureAllGenerated(const TRProv&,mAllLMIdxs) const;
 
 				// convenience: shortcuts into GenParams
     void		setWavelet(SynthID,const DBKey&);

@@ -23,11 +23,6 @@ uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p, TDInfo tdinf )
     return ret;
 }
 
-#define mShowErr(s) \
-    uiMainWin* mw = uiMSG().setMainWin( uiMain::theMain().topLevel() ); \
-    uiMSG().error(s); \
-    uiMSG().setMainWin(mw);
-
 
 bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
 				      Coord crd[3] )

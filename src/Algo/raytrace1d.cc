@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "arrayndslice.h"
 #include "iopar.h"
 #include "sorting.h"
+#include "uistrings.h"
 #include "velocitycalc.h"
 #include "zoeppritzcoeff.h"
 
@@ -64,9 +65,16 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
     RayTracer1D* raytracer = factory().create( type );
     if ( !raytracer )
     {
-	errm = tr("Raytracer not found."
-		  "\nPlease check wether all required plugins were loaded");
-	return 0;
+	BufferString errmsg( "Raytracer '", type,
+		    "' not found, reverting to default Raytracer" );
+	ErrMsg( errmsg );
+
+	raytracer = factory().createAny();
+	if ( !raytracer )
+	{
+	    errm = uiStrings::phrInternalErr( "Cannot find any Ray Tracer" );
+	    return 0;
+	}
     }
 
     if ( !raytracer->usePar(par) )

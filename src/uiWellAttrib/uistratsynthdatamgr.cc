@@ -138,7 +138,7 @@ const SynthSeis::GenParams& uiStratSynthDataMgr::curGenPars() const
 bool uiStratSynthDataMgr::applyOK()
 {
     commitEntry( selfld_->currentItem() );
-    return true;
+    return mgr_.nrTraces() > 0;
 }
 
 
@@ -165,11 +165,15 @@ void uiStratSynthDataMgr::commitEntry( int idx )
 
 void uiStratSynthDataMgr::selChgCB( CallBacker* )
 {
+    const auto newselidx = selfld_->currentItem();
+    if ( newselidx == prevselidx_ )
+	return;
+
     commitEntry( prevselidx_ );
     selfld_->setItemText( prevselidx_, gpfld_->getName() );
 
+    prevselidx_ = newselidx;
     gpfld_->set( curGenPars() );
-    prevselidx_ = selfld_->currentItem();
 }
 
 
@@ -206,8 +210,7 @@ void uiStratSynthDataMgr::addAsNewCB( CallBacker* )
     prevselidx_ = selfld_->size() - 1;
     selfld_->setCurrentItem( prevselidx_ );
 
-    updAddNewBut();
-    updRmBut();
+    updUi();
 }
 
 

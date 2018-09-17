@@ -416,15 +416,6 @@ bool acceptOK()
 };
 
 
-#undef mErrRet
-#define mErrRet(s) \
-{ \
-    uiMainWin* mw = uiMSG().setMainWin( parent()->mainwin() ); \
-    uiMSG().error(s); \
-    uiMSG().setMainWin(mw); \
-    return false; \
-}
-
 bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 {
     const Strat::LayerModel& lm = layerModel();
@@ -432,18 +423,7 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 	mErrRet( tr("Please generate at least one layer sequence") )
 
     uiStratLayerModelDispIO dlg( this, lm, dumppars_, foradd );
-    if ( !dlg.go() )
-	return false;
-
-    const int nrdisplaymodels = dlg.getNrDisplayModels();
-    if ( !mIsUdf(nrdisplaymodels) && nrdisplaymodels > 0 )
-    {
-	const int nrmodels = lm.size();
-	if ( nrdisplaymodels <= nrmodels )
-	    tools_.setDispEach( nrmodels/nrdisplaymodels );
-    }
-
-    return true;
+    return dlg.go();
 }
 
 

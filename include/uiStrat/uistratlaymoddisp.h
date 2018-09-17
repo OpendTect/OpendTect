@@ -115,6 +115,8 @@ protected:
 
     int			getCurPropIdx() const;
     int			getClickedModelNr() const;
+    bool		doLayerModelIO(bool);
+
     void		initGrp(CallBacker*);
     void		mouseMoved(CallBacker*);
     void		curModEdChgCB(CallBacker*);
@@ -127,7 +129,6 @@ protected:
     virtual void	selLevelChgCB(CallBacker*)	= 0;
     virtual void	dispEachChgCB(CallBacker*)	= 0;
     virtual void	dispZoomedChgCB(CallBacker*)	= 0;
-    bool		doLayerModelIO(bool);
     virtual void	doLevelChg()			= 0;
     virtual void	handleClick(bool dble)		= 0;
 				//!< returns whether layermodel has changed
