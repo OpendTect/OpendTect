@@ -955,7 +955,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		    newannot.txt_ =
 			tr( "CRL %1" ).arg( idxvwrtkzs.hsamp_.crlRange().start);
 		    intersecbid = BinID( tkzs.hsamp_.inlRange().start,
-			    		 mNINT32(newannot.pos_) );
+					 mNINT32(newannot.pos_) );
 		    x1auxannot += newannot;
 		}
 		else
@@ -977,7 +977,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 			tr( "INL %1" ).arg( idxvwrtkzs.hsamp_.inlRange().start);
 		    x1auxannot += newannot;
 		    intersecbid = BinID( mNINT32(newannot.pos_),
-			    		 tkzs.hsamp_.crlRange().start );
+					 tkzs.hsamp_.crlRange().start );
 		}
 		else
 		{
@@ -1287,6 +1287,14 @@ void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid, int sceneid )
 	return;
 
     appl_.sceneMgr().addEMItem( emid, sceneid );
+}
+
+
+void uiODViewer2DMgr::getFaultVwr2DIDs( EM::ObjectID emid,
+					TypeSet<int>& vw2dobjids) const
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->getFaultVwr2DIDs( emid, vw2dobjids );
 }
 
 

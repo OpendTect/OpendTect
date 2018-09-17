@@ -177,7 +177,7 @@ public:
     void			addNewTempFault(EM::ObjectID emid);
     void			setupNewTempFault(EM::ObjectID emid);
 
-    //FaultStickeSet
+    //FaultStickSet
     void			getFaultSSVwr2DIDs(EM::ObjectID emid,
 						   TypeSet<int>& vw2dids) const;
     void			removeFaultSS(EM::ObjectID emid);
@@ -187,7 +187,7 @@ public:
     void			addNewTempFaultSS(EM::ObjectID emid);
     void			setupNewTempFaultSS(EM::ObjectID emid);
 
-    //FaultStickeSet2D
+    //FaultStickSet2D
     void			removeFaultSS2D(EM::ObjectID emid);
     void			getLoadedFaultSS2Ds(
 					TypeSet<EM::ObjectID>&) const;
