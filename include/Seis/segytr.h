@@ -20,6 +20,7 @@ Translators for SEGY files traces.
 #include "tracedata.h"
 #include "strmdata.h"
 #include "uistring.h"
+#include "coordsystem.h"
 
 class LinScaler;
 class BendPoints2Coords;
@@ -67,6 +68,9 @@ public:
     virtual bool	implManagesObjects( const IOObj* ) const
 						{ return true; }
     void		cleanUp();
+
+    void		setCoordSys(Coords::CoordSystem* crs)
+						    { coordsys_.set( crs ); }
 
 protected:
 
@@ -124,6 +128,7 @@ protected:
     BendPoints2Coords*	bp2c_;
     int			estnrtrcs_;
     bool		othdomain_;
+    RefMan<Coords::CoordSystem>     coordsys_;
 
 private:
 

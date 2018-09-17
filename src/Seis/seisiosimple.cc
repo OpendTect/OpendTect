@@ -49,6 +49,7 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
 	, linekey_(*new LineKey)
 	, geom_(gt)
 	, compidx_(0)
+	, coordsys_(0)
 {
     clear(true);
     isasc_ = havepos_ = true;
@@ -65,6 +66,7 @@ SeisIOSimple::Data::Data( const SeisIOSimple::Data& d )
 	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
 	, linekey_(*new LineKey)
+	, coordsys_(0)
 {
     *this = d;
 }
@@ -90,6 +92,7 @@ SeisIOSimple::Data& SeisIOSimple::Data::operator=( const SeisIOSimple::Data& d )
     linekey_ = d.linekey_;
     subselpars_ = d.subselpars_;
     compidx_ = d.compidx_;
+    coordsys_ = d.coordsys_;
 
     return *this;
 }
@@ -101,6 +104,7 @@ SeisIOSimple::Data::~Data()
     delete resampler_;
     delete &linekey_;
     delete &subselpars_;
+    coordsys_ = 0;
 }
 
 
@@ -499,6 +503,8 @@ int SeisIOSimple::writeExpTrc()
 	{
 	    Coord coord = trc_.info().coord;
 	    mPIEPAdj(Coord,coord,false);
+	    coord = data_.getCoordSys()->convertFrom(
+					      coord,*SI().getCoordSystem() );
 	    binstrm.add( coord.x ).add( coord.y );
 	}
 	else

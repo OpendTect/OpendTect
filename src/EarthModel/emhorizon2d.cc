@@ -808,9 +808,7 @@ void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 				     const BufferStringSet& hornms )
 {
     fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
-    Table::TargetInfo* ti = new Table::TargetInfo( "Position", DoubleInpSpec(),
-					    Table::Optional );
-    ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
+    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += ti;
     Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Optional );
     trcspti->form(0).setName( "Trace Nr" );
@@ -857,8 +855,7 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& nr,
     if ( ret <= 0 ) return ret;
 
     lnm = text( 0 );
-    crd.x = getDValue( 1 );
-    crd.y = getDValue( 2 );
+    crd = getPos( 0, 1 );
     nr = getIntValue( 3 );
     const int nrhors = vals_.size() - 4;
     for ( int idx=0; idx<nrhors; idx++ )

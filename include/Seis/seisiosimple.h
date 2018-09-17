@@ -15,6 +15,8 @@
 #include "seistype.h"
 #include "od_iosfwd.h"
 #include "uistring.h"
+#include "coordsystem.h"
+
 class Scaler;
 class SeisTrc;
 class LineKey;
@@ -82,6 +84,12 @@ public:
 			//!< passed obj will be cloned
 	void		setResampler(SeisResampler*);
 			//!< passed obj will become mine
+	ConstRefMan<Coords::CoordSystem> const getCoordSys()
+							{ return coordsys_; }
+	void			   setCoordSys(const Coords::CoordSystem*crs)
+				    { coordsys_ = crs; }
+    protected:
+	ConstRefMan<Coords::CoordSystem> coordsys_;
     };
 
 			SeisIOSimple(const Data&,bool imp);

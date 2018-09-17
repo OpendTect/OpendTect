@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "coord.h"
 #include "trckey.h"
 #include "trigonometry.h"
+#include "coordsystem.h"
 
 
 namespace Pick
@@ -105,7 +106,8 @@ public:
 			//!< make sure it's compatible with the keying system
 
     bool		fromString(const char*);
-    void		toString(BufferString&,bool forexport=false) const;
+    void		toString(BufferString&,bool forexport=false,
+				      const Coords::CoordSystem* crs=0) const;
 
 			// renamed to 'Keyed' in post-6.0
     /* mDeprecated */ void setText(const char* key,const char* txt);

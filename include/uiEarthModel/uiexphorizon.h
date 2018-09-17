@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "fixedstring.h"
 #include "uiioobjselgrp.h"
+#include "uicoordsystem.h"
 
 class uiFileInput;
 class uiGenInput;
@@ -45,6 +46,7 @@ protected:
     uiGenInput*		udffld_;
     uiT2DConvSel*	transfld_;
     uiIOObjSelGrp*	bulkinfld_;
+    Coords::uiCoordSystemSel* coordsysselfld_;
 
     BufferString	gfname_;
     BufferString	gfcomment_;

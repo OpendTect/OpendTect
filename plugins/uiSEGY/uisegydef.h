@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uisegyread.h"
 #include "segyfiledef.h"
 #include "uistring.h"
+#include "coordsystem.h"
 
 class IOObj;
 namespace SEGY { class TrcHeaderDef; }
@@ -139,6 +140,7 @@ protected:
     uiGenInput*		nrsamplesfld_;
     uiGenInput*		fmtfld_;
     uiGenInput*		byteswapfld_;
+    ConstRefMan<Coords::CoordSystem> coordsys_;
 
     void		readParsPush(CallBacker*);
     void		writeParsPush(CallBacker*);

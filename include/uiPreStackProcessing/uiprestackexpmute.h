@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uiprestackprocessingmod.h"
 #include "uidialog.h"
+#include "uicoordsystem.h"
 
 class CtxtIOObj;
 class uiFileInput;
@@ -35,6 +36,7 @@ protected:
     uiIOObjSel*		infld_;
     uiGenInput*		coordfld_;
     uiFileInput*	outfld_;
+    Coords::uiCoordSystemSel*	    coordsysselfld_;
 
     CtxtIOObj&		ctio_;
 

@@ -17,11 +17,14 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "datachar.h"
 #include "namedobj.h"
+#include "survinfo.h"
+#include "refcount.h"
 
 class SeisTrcInfo;
 class DataClipSampler;
 class uiParent;
 class TaskRunner;
+namespace Coords  { class CoordSystem; }
 namespace PosInfo { class Detector; }
 
 
@@ -111,12 +114,16 @@ public:
     virtual void	getFilePars(FilePars&) const;
     void		getFileReadOpts(FileReadOpts&) const;
     void		usePar(const IOPar&);
-
+    void		setUserCoordSys(Coords::CoordSystem* crs)
+			{ coordsys_ = crs; }
+    ConstRefMan<Coords::CoordSystem>	   getUserCoordSys()
+			      { return coordsys_; }
     bool		needXY() const;
 
 protected:
 
     virtual const TrcHeaderDef& getHDef() const	{ return *hdrdef_; }
+    ConstRefMan<Coords::CoordSystem> coordsys_;
 
 };
 

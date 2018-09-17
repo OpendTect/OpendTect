@@ -404,7 +404,8 @@ bool Pick::Location::fromString( const char* s )
 }
 
 
-void Pick::Location::toString( BufferString& str, bool forexport ) const
+void Pick::Location::toString( BufferString& str, bool forexport,
+				   const Coords::CoordSystem* expcrs ) const
 {
     str.setEmpty();
     if ( text_ && *text_ )
@@ -423,6 +424,13 @@ void Pick::Location::toString( BufferString& str, bool forexport ) const
 	    float zval = (float)usepos.z;
 	    mPIEPAdj(Z,zval,false);
 	    usepos.z = zval;
+	}
+
+	if ( expcrs )
+	{
+	  Coord crd = expcrs->convertFrom(usepos.coord(),
+						  *SI().getCoordSystem());
+	  usepos.setXY( crd.x, crd.y );
 	}
 
 	usepos.z = usepos.z * SI().showZ2UserFactor();

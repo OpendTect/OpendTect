@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sortedlist.h"
 #include "survinfo.h"
 #include "executor.h"
+#include "coordsystem.h"
 
 #include "uitaskrunner.h"
 
@@ -180,6 +181,7 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 
 SEGY::LoadDef::LoadDef()
     : hdrdef_(0)
+    , coordsys_(SI().getCoordSystem() )
 {
     reInit(true);
 }
@@ -254,7 +256,12 @@ void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
     if ( icvsxytype_ == FileReadOpts::ICOnly )
 	ti.coord = SI().transform( ti.binid );
     else if ( icvsxytype_ == FileReadOpts::XYOnly )
+    {
+	if ( SI().getCoordSystem().ptr() )
+	  ti.coord = SI().getCoordSystem()->convertFrom( ti.coord,
+								 *coordsys_ );
 	ti.binid = SI().transform( ti.coord );
+    }
 }
 
 
@@ -300,6 +307,8 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
 void SEGY::LoadDef::getFilePars( SEGY::FilePars& fpars ) const
 {
     BasicFileInfo::getFilePars( fpars );
+    if ( coordsys_ )
+      fpars.setCoordSys( coordsys_ );
     if ( usezsamplinginfile_ )
 	fpars.ns_ = 0;
     if ( useformatinfile_ )
@@ -344,6 +353,7 @@ void SEGY::LoadDef::usePar( const IOPar& iop )
     trcnrdef_ = readopts.trcnrdef_;
     psoffssrc_ = readopts.psdef_;
     psoffsdef_ = readopts.offsdef_;
+    coordsys_.release()->usePar( iop );
 }
 
 

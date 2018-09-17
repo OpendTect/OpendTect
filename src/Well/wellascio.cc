@@ -61,10 +61,7 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 	return false;
 
     const bool isxy = fd_.bodyinfos_[0]->selection_.form_ == 0;
-    ConstRefMan<Coords::CoordSystem> inpcrs =
-				fd_.bodyinfos_[0]->selection_.coordsys_;
-    ConstRefMan<Coords::CoordSystem> outcrs = SI().getCoordSystem();
-    const bool needsconv = isxy && inpcrs && outcrs && !(*inpcrs == *outcrs);
+
     const uiString nozpts = tr("At least one point had neither Z nor MD");
     bool nozptsfound = false;
 
@@ -74,22 +71,10 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	Coord3 curpos;
-	curpos.x = getDValue(0);
-	curpos.y = getDValue(1);
-	if ( needsconv )
-	    curpos.coord() = outcrs->convertFrom( curpos.coord(), *inpcrs );
-
-	if ( !isxy && !mIsUdf(curpos.x) && !mIsUdf(curpos.y) )
-	{
-	    Coord wc( SI().transform(
-			BinID( mNINT32(curpos.x), mNINT32(curpos.y) ) ) );
-	    curpos.x = wc.x; curpos.y = wc.y;
-	}
-	if ( mIsUdf(curpos.x) || mIsUdf(curpos.y) )
+	Coord3 curpos( getPos3D(0,1,2) );
+	if ( curpos.coord().isUdf() )
 	    continue;
 
-	curpos.z = getDValue(2);
 	const double dah = getDValue(3);
 	if ( mIsUdf(curpos.z) && mIsUdf(dah) )
 	{
@@ -505,9 +490,7 @@ bool BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float& md,
     if ( ret <= 0 ) return false;
 
     wellnm = text( 0 );
-    crd.x = getDValue( 1 );
-    crd.y = getDValue( 2 );
-    crd.z = getDValue( 3 );
+    crd = getPos3D( 1, 2, 3 );
     md = getFValue( 4 );
     uwi = text( 5 );
     return true;

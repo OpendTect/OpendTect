@@ -860,6 +860,42 @@ double Table::AscIO::getDValue( int ifld, double udf ) const
 }
 
 
+Coord Table::AscIO::getPos( int xfld, int yfld, double udf ) const
+{
+    Coord curpos;
+
+    curpos.x = getDValue(xfld);
+    curpos.y = getDValue(yfld);
+
+    if ( !curpos.isUdf() )
+    {
+ ConstRefMan<Coords::CoordSystem> inpcrs =
+			 fd_.bodyinfos_[0]->selection_.coordsys_;
+ ConstRefMan<Coords::CoordSystem> outcrs = SI().getCoordSystem();
+
+      if ( inpcrs && outcrs && !(*inpcrs == *outcrs) )
+	  curpos.setFrom( outcrs->convertFrom(curpos,*inpcrs) );
+    }
+
+    return curpos;
+}
+
+
+Coord3 Table::AscIO::getPos3D( int xfld, int yfld, int zfld, double udf ) const
+{
+    return Coord3( getPos(xfld,yfld,udf), getDValue(zfld) );
+}
+
+
+BinID Table::AscIO::getBinID( int xfld, int yfld, double udf ) const
+{
+    BinID bid;
+    bid.inl() = getIntValue(xfld);
+    bid.crl() = getIntValue(yfld);
+    return bid;
+}
+
+
 int Table::AscIO::formOf( bool hdr, int iinf ) const
 {
     const ObjectSet<TargetInfo>& tis = hdr ? fd_.headerinfos_ : fd_.bodyinfos_;

@@ -71,22 +71,13 @@ bool MuteAscIO::isXY() const
 bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 			   PointBasedMathFunction::InterpolType iptype )
 {
-    const bool isxy = isXY();
-
     while ( true )
     {
 	const int ret = getNextBodyVals( strm_ );
 	if ( ret < 0 ) return false;
 	if ( ret == 0) break;
 
-	BinID binid;
-	if ( isxy )
-	    binid = SI().transform( Coord(getDValue(0),getDValue(1)) );
-	else
-	{
-   	    binid.inl() = getIntValue(0);
-   	    binid.crl() = getIntValue(1);
-	}
+	BinID binid( getBinID(0,1) );
 
 	const PointBasedMathFunction::ExtrapolType et = extrapol
 	    ? PointBasedMathFunction::EndVal

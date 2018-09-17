@@ -399,14 +399,17 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	crd.x = getDValue( 0 ); crd.y = getDValue( 1 );
-	if ( !isxy && !mIsUdf(crd.x) && !mIsUdf(crd.y) )
+	if ( isxy )
+	crd = getPos3D( 0, 1, 2 );
+	else
 	{
-	    Coord wc( SI().transform(BinID(mNINT32(crd.x),mNINT32(crd.y))) );
-	    crd.x = wc.x; crd.y = wc.y;
+	    Coord xycrd = SI().transform( getBinID(0,1) );
+	    crd.setXY( crd.x, crd.y );
+	    crd.z = getDValue( 2 );
 	}
-	crd.z = getDValue( 2 );
-	if ( !crd.isDefined() ) continue;
+
+      if ( !crd.isDefined() )
+	  continue;
 
 	const int stickidx = getIntValue( 3 );
 

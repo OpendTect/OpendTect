@@ -106,8 +106,8 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( tinf_.selection_.coordsys_
 	    && tinf_.selection_.coordsys_->isProjection() )
     {
-	crsfld_ = new Coords::uiCoordSystemSel(this, tr("Coordinate System"),
-					true, true, tinf_.selection_.coordsys_);
+	crsfld_ = new Coords::uiCoordSystemSel(this, true, true,
+						tinf_.selection_.coordsys_);
 	crsfld_->attach( stretchedBelow, rightmostfld_ );
     }
 
@@ -343,7 +343,12 @@ bool commit()
 
     tinf_.selection_.unit_ = unitfld_ ? unitfld_->getUnit() : 0;
     if ( crsfld_ )
-	tinf_.selection_.coordsys_ = crsfld_->getCoordSystem();
+    {
+      if ( crsfld_->isDisplayed() )
+	  tinf_.selection_.coordsys_ = crsfld_->getCoordSystem();
+      else
+	  tinf_.selection_.coordsys_ = SI().getCoordSystem();
+    }
 
     return true;
 }

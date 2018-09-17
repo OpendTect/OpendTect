@@ -95,20 +95,9 @@ int FunctionAscIO::nextStep()
 	output_->setNrVals( hasanisotropy ? 2 : 3, false );
     }
 
-    BinID binid;
-    if ( isxy )
-    {
-	 const Coord crd( getDValue(0), getDValue(1) );
-	 if ( crd == Coord::udf() )
-	     return MoreToDo();
-	binid = SI().transform( crd );
-    }
-    else
-    {
-	binid.inl() = getIntValue(0); binid.crl() = getIntValue(1);
-	if ( binid == BinID::udf() )
-	    return MoreToDo();
-    }
+    BinID binid( getBinID(0, 1) );
+    if ( binid == BinID::udf() )
+	return MoreToDo();
 
     farr[0] = getFValue(2);
     farr[1] = getFValue(3);

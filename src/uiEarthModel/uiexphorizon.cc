@@ -48,9 +48,34 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdio.h> // for sprintf
 
 
-static const char* zmodes[] = { sKey::Yes(), sKey::No(), "Transformed", 0 };
-static const char* exptyps[] = { "X/Y", "Inl/Crl", "IESX (3d_ci7m)", 0 };
-static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
+static uiStringSet zmodes()
+{
+    uiStringSet zmodes;
+    zmodes.add( uiStrings::sYes() );
+    zmodes.add( uiStrings::sNo() );
+    zmodes.add( uiStrings::sTransform() );
+    return zmodes;
+}
+
+static uiStringSet exptyps()
+{
+    uiStringSet exptyps;
+    exptyps.add( toUiString("%1/%2").arg(uiStrings::sX())
+						    .arg(uiStrings::sY()) );
+    exptyps.add( toUiString("%1/%2").arg(uiStrings::sInline())
+						.arg(uiStrings::sCrossline()) );
+    exptyps.add( toUiString("IESX (3d_ci7m)") );
+    return exptyps;
+}
+
+static uiStringSet hdrtyps()
+{
+    uiStringSet hdrtyps;
+    hdrtyps.add(uiStrings::sNo());
+    hdrtyps.add( od_static_tr("hdrtyps", "Single Line") );
+    hdrtyps.add( od_static_tr("hdrtyps", "Multi Line") );
+    return hdrtyps;
+}
 
 
 #define mHdr1GFLineLen 102
@@ -61,13 +86,33 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 mExpClass(uiEarthModel) write3DHorASCII : public Executor
 { mODTextTranslationClass(write3DHorASCII)
 public:
-			    write3DHorASCII(od_ostream&,const EM::Horizon3D*,
-			    const ZAxisTransform* zatf,const UnitOfMeasure*,
-			    const bool doxy,const bool addzpos,
-			    const bool dogf,const bool issingle,
-			    const int nrattrib,const int sectionidx,
-			    const int sidx,BufferString udfstr,
-			    BufferString dispstr);
+	struct Setup
+	{
+	    Setup()
+		: doxy_(true)
+		, addzpos_(true)
+		, dogf_(false)
+		, issingle_(true)
+		, nrattrib_(1)
+	    {
+		udfstr_ = mUdf(float);
+	    }
+
+	  mDefSetupMemb(bool,doxy)
+	  mDefSetupMemb(bool,addzpos)
+	  mDefSetupMemb(bool,dogf)
+	  mDefSetupMemb(bool,issingle)
+	  mDefSetupMemb(int,nrattrib)
+	  mDefSetupMemb(BufferString,udfstr)
+      };
+
+			      write3DHorASCII(od_ostream&,const int sectionidx,
+					const int sidx,
+				      const EM::Horizon3D*,
+				      const ZAxisTransform* zatf,
+				      const UnitOfMeasure*,
+				    const Coords::CoordSystem*,
+				    const Setup&);
     int			    nextStep();
     const char*		    message() const	   { return msg_; }
     const char*		    nrDoneText() const;
@@ -76,44 +121,33 @@ public:
 
 protected:
     od_ostream&		    stream_;
-    const bool		    doxy_;
-    const bool		    addzpos_;
-    const bool		    dogf_;
-    const int		    nrattrib_;
     const int		    sidx_;
     int			    maxsize_;
-    BufferString	    udfstr_;
     const EM::Horizon3D*    hor_;
-    const bool		    issingle_;
     EM::EMObjectIterator*   it_;
     const ZAxisTransform*   zatf_;
     const UnitOfMeasure*    unit_;
     BufferString	    msg_;
     int			    counter_;
+    ConstRefMan<Coords::CoordSystem>  coordsys_;
+    const Setup			setup_;
 
 
 };
 
 
-
-write3DHorASCII::write3DHorASCII(od_ostream& stream,const EM::Horizon3D* hor,
-      const ZAxisTransform* zatf, const UnitOfMeasure* unit, const bool doxy,
-      const bool addzpos, const bool dogf, const bool issingle,
-      const int nrattrib, const int sectionidx,const int sidx,
-      BufferString udfstr, BufferString str )
-      : Executor( str )
-      , stream_(stream)
-      , doxy_(doxy)
-      , dogf_(dogf)
-      , addzpos_(addzpos)
-      , nrattrib_(nrattrib)
-      , udfstr_(udfstr)
-      , hor_(hor)
-      , issingle_(issingle)
-      , zatf_(zatf)
-      , unit_(unit)
-      , sidx_(sidx)
-      , counter_(0)
+write3DHorASCII::write3DHorASCII( od_ostream& stream, const int sectionidx,
+    const int sidx, const EM::Horizon3D* hor, const ZAxisTransform* zatf,
+    const UnitOfMeasure* unit, const Coords::CoordSystem* crs, const Setup& su )
+    : Executor(hor->name())
+    , stream_(stream)
+    , setup_(su)
+    , hor_(hor)
+    , zatf_(zatf)
+    , unit_(unit)
+    , counter_(0)
+    , coordsys_(crs)
+    , sidx_(sidx)
 {
     const EM::SectionID sectionid = hor->sectionID( sectionidx );
     it_ = hor->createIterator( sectionid );
@@ -162,7 +196,7 @@ int write3DHorASCII::nextStep()
     if ( posid.objectID()==-1 || counter_ > maxsize_ )
       return Executor::Finished();
 
-    if ( !issingle_ )
+    if ( !setup_.issingle_ )
       stream_ << hor_->name().quote('\"') << od_tab;
 
     Coord3 crd = hor_->getPos( posid );
@@ -179,16 +213,16 @@ int write3DHorASCII::nextStep()
     if ( !mIsUdf(crd.z) && unit_ )
       crd.z = unit_->userValue( crd.z );
 
-    if ( dogf_ )
+    if ( setup_.dogf_ )
     {
-      const float auxvalue = nrattrib_ > 0
+      const float auxvalue = setup_.nrattrib_ > 0
 	  ? hor_->auxdata.getAuxDataVal(0,posid) : mUdf(float);
       writeGF( stream_, bid, (float) crd.z, auxvalue,
 		  crd.coord(), sidx_ );
       Executor::MoreToDo();
     }
 
-    if ( !doxy_ )
+    if ( !setup_.doxy_ )
     {
       stream_ << bid.inl() << od_tab << bid.crl();
     }
@@ -200,10 +234,10 @@ int write3DHorASCII::nextStep()
       stream_ << str;
     }
 
-    if ( addzpos_ )
+    if ( setup_.addzpos_ )
     {
       if ( mIsUdf(crd.z) )
-	  stream_ << od_tab << udfstr_;
+	  stream_ << od_tab << setup_.udfstr_;
       else
       {
 	  str = od_tab; str += crd.z;
@@ -211,11 +245,11 @@ int write3DHorASCII::nextStep()
       }
     }
 
-    for ( int idx=0; idx<nrattrib_; idx++ )
+    for ( int idx=0; idx<setup_.nrattrib_; idx++ )
     {
       const float auxvalue = hor_->auxdata.getAuxDataVal( idx, posid );
       if ( mIsUdf(auxvalue) )
-	  stream_ << od_tab << udfstr_;
+	  stream_ << od_tab << setup_.udfstr_;
 	else
 	{
 	    str = od_tab; str += auxvalue;
@@ -225,7 +259,7 @@ int write3DHorASCII::nextStep()
 
     stream_ << od_newline;
 
-    if ( dogf_ ) stream_ << "EOD";
+    if ( setup_.dogf_ ) stream_ << "EOD";
     counter_++;
     stream_.flush();
     if ( stream_.isBad() )
@@ -263,7 +297,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 				      uiStrings::sHorizon(mPlural), stup );
 
     typfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sType() ),
-			      StringListInpSpec(exptyps) );
+			      StringListInpSpec(exptyps()) );
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
     if ( !isbulk )
 	typfld_->attach( alignedBelow, infld_ );
@@ -276,7 +310,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     settingsbutt_->attach( rightOf, typfld_ );
 
     zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),
-			    StringListInpSpec(zmodes) );
+			    StringListInpSpec(zmodes()) );
     zfld_->valuechanged.notify( mCB(this,uiExportHorizon,addZChg ) );
     zfld_->attach( alignedBelow, typfld_ );
 
@@ -290,7 +324,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     unitsel_->attach( alignedBelow, transfld_ );
 
     headerfld_ = new uiGenInput( this, tr("Header"),
-                                 StringListInpSpec(hdrtyps) );
+				 StringListInpSpec(hdrtyps()) );
     headerfld_->attach( alignedBelow, unitsel_ );
 
     udffld_ = new uiGenInput( this, tr("Undefined value"),
@@ -536,9 +570,18 @@ bool uiExportHorizon::writeAscii()
 		writeHeader( stream );
 	    }
 
-	    write3DHorASCII* executor = new write3DHorASCII(stream, hor,
-	   zatf.ptr(), unit, doxy, addzpos, dogf, !isbulk_, nrattribs,
-		sectionidx, sidx, udfstr, dispstr);
+	    write3DHorASCII::Setup su;
+	    su.addzpos( addzpos ).doxy( doxy ).dogf( dogf ).issingle( !isbulk_ )
+				      .nrattrib( nrattribs ).udfstr( udfstr );
+
+	    const Coords::CoordSystem* crs(0);
+	    if ( !coordsysselfld_->isDisplayed() )
+		crs = SI().getCoordSystem().ptr();
+	    else
+		crs = coordsysselfld_->getCoordSystem();
+
+	    write3DHorASCII* executor = new write3DHorASCII(stream, sectionidx,
+			    sidx, hor, zatf.ptr(), unit, crs, su);
 	    exphorgrp.add(executor);
 	    if ( !TaskRunner::execute( &taskrunner, exphorgrp ) ) return false;
 
@@ -601,6 +644,10 @@ bool uiExportHorizon::getInputMIDs( TypeSet<MultiID>& midset )
 
 void uiExportHorizon::typChg( CallBacker* cb )
 {
+    const bool shoulddisplay = SI().getCoordSystem() &&
+       SI().getCoordSystem()->isProjection() && (typfld_->getIntValue() == 0);
+    coordsysselfld_->display( shoulddisplay );
+
     attrSel( cb );
     addZChg( cb );
 

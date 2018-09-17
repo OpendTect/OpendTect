@@ -1738,8 +1738,7 @@ int Horizon3DAscIO::getNextLine( Coord& pos, TypeSet<float>& data )
     if ( ret <= 0 || nrattribs < 1 )
 	return ret;
 
-    pos.x = getDValue( 0, udfval_ );
-    pos.y = getDValue( 1, udfval_ );
+    pos = getPos( 0, 1, udfval_ );
     for ( int idx=0; idx<nrattribs; idx++ )
 	data += getFValue( idx+2, udfval_ );
 

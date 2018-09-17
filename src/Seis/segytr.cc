@@ -39,6 +39,8 @@ static const char* rcsID mUsedVar = "$Id$";
     (othdomain_ && SI().zIsTime()) || (!othdomain_ && !SI().zIsTime())
 #define mZStepFac ( mInDepth ? 0.001 : 1.e-6 )
 
+#define mIsCoordSysSame (*filepars_.getCoordSys() == *SI().getCoordSystem())
+
 static const int cSEGYWarnBadFmt = 1;
 static const int cSEGYWarnPos = 2;
 static const int cSEGYWarnZeroSampIntv = 3;
@@ -74,6 +76,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, prevoffs_(0)
 	, othdomain_(false)
 	, bp2c_(0)
+	, coordsys_(0)
 {
     if ( maxnrconsecutivebadtrcs < 0 )
     {
@@ -428,18 +431,23 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 
 void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
 {
+    SeisTrcInfo infotouse = trc.info();
+
+    if ( !mIsCoordSysSame )
+	infotouse.coord = filepars_.getCoordSys()->convertFrom(
+				  infotouse.coord, *SI().getCoordSystem() );
     if ( SI().xyInFeet() )
     {
-	SeisTrcInfo info = trc.info();
-	info.offset *= mToFeetFactorF;
-	trchead_.use( info );
+	infotouse = trc.info();
+	infotouse.offset *= mToFeetFactorF;
+	trchead_.use( infotouse );
     }
     else
     {
-	trchead_.use( trc.info() );
+	trchead_.use( infotouse );
     }
 
-    SamplingData<float> sdtoput( useinpsd_ ? trc.info().sampling : outsd_ );
+    SamplingData<float> sdtoput( useinpsd_ ? infotouse.sampling : outsd_ );
     const int nstoput = useinpsd_ ? trc.size() : outnrsamples_;
     if ( othdomain_ )
 	sdtoput.step *= SI().zIsTime() ? 0.001f : 1000;
@@ -675,8 +683,12 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     bool goodpos = true;
     int nrbadtrcs = 0;
-    if ( fileopts_.icdef_ == SEGY::FileReadOpts::XYOnly )
+    if ( !is_2d && fileopts_.icdef_ == SEGY::FileReadOpts::XYOnly )
     {
+
+      if ( !mIsCoordSysSame )
+	  ti.coord = SI().getCoordSystem()->convertFrom( ti.coord,
+						  *filepars_.getCoordSys() );
 	if ( read_mode == Seis::Scan )
 	    goodpos = !mBadCoord(ti);
 	else if ( read_mode == Seis::Prod )

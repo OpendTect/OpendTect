@@ -131,16 +131,7 @@ bool getLine()
     atend_ = false;
 
     wcd_.nm_ = text( 0 );
-    if ( isXY() )
-    {
-	wcd_.coord_.x = getDValue( 1 );
-	wcd_.coord_.y = getDValue( 2 );
-    }
-    else
-    {
-	const BinID bid( getIntValue(1), getIntValue(2) );
-	wcd_.coord_ = SI().transform( bid );
-    }
+    wcd_.coord_ = getPos( 1, 2 );
 
     if ( wcd_.nm_.isEmpty()
       || mIsUdf(wcd_.coord_.x) || mIsUdf(wcd_.coord_.y)

@@ -149,12 +149,7 @@ bool getLine()
 
     if ( fd_.bodyinfos_[0]->selection_.isInFile(0)
       && fd_.bodyinfos_[0]->selection_.isInFile(1))
-    {
-	coord_.x = getDValue( 0 ); coord_.y = getDValue( 1 );
-	if ( formOf(false,0) == 1 && coord_.isDefined() )
-	    coord_ = SI().transform(
-				BinID(mNINT32(coord_.x),mNINT32(coord_.y)) );
-    }
+	coord_ = getPos( 0 , 1 );
     else
     {
 	double finl = inlgen_.start + Stats::randGen().get() * inlgen_.step;

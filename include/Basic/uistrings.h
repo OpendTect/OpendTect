@@ -253,6 +253,7 @@ public:
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sContour(int num=1)	{ return tr("Contour",0,num); }
     static uiString sCoordinate(int num=1) { return tr("Coordinate",0,num); }
+    static uiString sCoordSys()		{ return tr("Coordinate System"); }
     static uiString sCopy();
     static uiString sCreateGroup()	{ return tr("Create Group"); }
     static uiString sCoefficient()	{ return tr("Coefficient"); }
@@ -487,6 +488,7 @@ public:
     static uiString sTraceNumber()	{ return tr("Trace number"); }
     static uiString sTrack();
     static uiString sTracking()		{ return tr("Tracking"); }
+    static uiString sTransform()	{ return tr("Transform"); }
     static uiString sTransparency()     { return tr("Transparency"); }
     static uiString sType()             { return tr("Type"); }
     static uiString sUndefVal()		{ return tr("Undefined Value"); }

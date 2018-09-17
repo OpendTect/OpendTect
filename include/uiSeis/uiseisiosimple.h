@@ -12,6 +12,8 @@
 #include "samplingdata.h"
 #include "seisiosimple.h"
 #include "multiid.h"
+#include "uicoordsystem.h"
+
 class IOObjContext;
 class uiLabel;
 class uiScaler;
@@ -58,6 +60,7 @@ protected:
     uiSeisSel*		seisfld_;
     uiSeisSubSel*	subselfld_;
     uiSeis2DLineNameSel* lnmfld_;
+    Coords::uiCoordSystemSel*	     coordsysselfld_;
 
     IOObjContext&	ctxt_;
     Seis::GeomType	geom_;
@@ -72,6 +75,7 @@ protected:
     void		haveoffsSel(CallBacker*);
     void		initFlds(CallBacker*);
     bool		acceptOK(CallBacker*);
+    void		positionInFileSelChg(CallBacker*);
 
     static SeisIOSimple::Data&	data2d();
     static SeisIOSimple::Data&	data3d();

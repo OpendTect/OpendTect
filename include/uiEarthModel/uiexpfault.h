@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "multiid.h"
+#include "uicoordsystem.h"
+#include "emobject.h"
 
 class CtxtIOObj;
 class uiCheckBox;
@@ -48,11 +50,13 @@ protected:
     uiUnitSel*		zunitsel_;
     uiGenInput*		zfld_;
     uiT2DConvSel*	transfld_;
+    Coords::uiCoordSystemSel* coordsysselfld_;
 
     CtxtIOObj&		ctio_;
     bool		getInputMIDs(TypeSet<MultiID>&);
 
     void		addZChg(CallBacker*);
+    void		exportCoordSysChgCB(CallBacker*);
     FixedString		getZDomain() const;
 
     virtual bool	acceptOK(CallBacker*);

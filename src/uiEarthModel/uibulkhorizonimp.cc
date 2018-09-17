@@ -74,9 +74,7 @@ bool getData( BufferString& hornm, Coord3& crd )
     if ( ret <= 0 ) return false;
 
     hornm = text( 0 );
-    crd.x = getDValue( 1, udfval_ );
-    crd.y = getDValue( 2, udfval_ );
-    crd.z = getFValue( 3, udfval_ );
+    crd = getPos3D( 1, 2, 3, udfval_ );
     return true;
 }
 

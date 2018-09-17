@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 #include "multiid.h"
+#include "uicoordsystem.h"
 
 class uiCheckBox;
 class uiColorInput;
@@ -49,7 +50,7 @@ protected:
     uiGenInput*		constzfld_;
     uiTableImpDataSel*  dataselfld_;
     uiFileInput*	filefld_;
-
+    Coords::uiCoordSystemSel* coordsysselfld_;
     uiPickPartServer*	serv_;
 
     virtual bool	acceptOK(CallBacker*);

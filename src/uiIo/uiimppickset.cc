@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "tabledef.h"
 #include "od_helpids.h"
+#include "picklocation.h"
 
 #include <math.h>
 
@@ -136,7 +137,11 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	polyfld_->attach( rightTo, colorfld_ );
     }
     else
+    {
 	filefld_->attach( alignedBelow, objfld_ );
+	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+      coordsysselfld_->attach(alignedBelow, filefld_);
+    }
 }
 
 
@@ -257,7 +262,7 @@ bool uiImpExpPickSet::doExport()
     BufferString buf;
     for ( int locidx=0; locidx<ps.size(); locidx++ )
     {
-	ps[locidx].toString( buf, true );
+	ps[locidx].toString( buf, true, coordsysselfld_->getCoordSystem() );
 	*sdo.ostrm << buf.buf() << '\n';
     }
 

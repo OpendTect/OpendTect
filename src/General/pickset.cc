@@ -806,15 +806,13 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	if ( ret < 0 ) mErrRet(errmsg_)
 	if ( ret == 0 ) break;
 
-	const double xread = getDValue( 0 );
-	const double yread = getDValue( 1 );
-	if ( mIsUdf(xread) || mIsUdf(yread) ) continue;
-
-	Coord pos( xread, yread );
+	Coord pos( getPos(0, 1) );
+	if ( pos.isUdf() )
+	    continue;
 	mPIEPAdj(Coord,pos,true);
 	if ( !isXY() || !SI().isReasonable(pos) )
 	{
-	    BinID bid( mNINT32(xread), mNINT32(yread) );
+	    BinID bid( mNINT32(pos.x), mNINT32(pos.y) );
 	    mPIEPAdj(BinID,bid,true);
 	    SI().snap( bid );
 	    pos = SI().transform( bid );

@@ -84,17 +84,7 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
     if ( ret <= 0 ) return false;
 
     fltnm = text( 0 );
-    if ( isXY() )
-    {
-	crd.x = getDValue( 1, udfval_ );
-	crd.y = getDValue( 2, udfval_ );
-	crd.z = getFValue( 3, udfval_ );
-    }
-    else
-    {
-	BinID bid( (int)getDValue(1,udfval_), (int)getDValue(2,udfval_) );
-	crd = Coord3( SI().transform(bid), getFValue(3,udfval_) );
-    }
+    crd = getPos3D( 1, 2, 3, udfval_ );
 
     stickidx = getIntValue( 4 );
     nodeidx = getIntValue( 5 );

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "segyfiledef.h"
 #include "segyuiscandata.h"
 #include "uisegyimptype.h"
+#include "uicoordsystem.h"
 
 class Timer;
 class TaskRunner;
@@ -93,6 +94,7 @@ protected:
     uiCheckBox*		keepzsampbox_;
     uiLabel*		nrfileslbl_;
     Timer*		timer_;
+    Coords::uiCoordSystemSel* coordsysselfld_;
 
     BufferString	userfilename_;
     BufferString	lastparname_;
@@ -154,6 +156,7 @@ protected:
     void		updateAmplDisplay(CallBacker*);
     void		initClassic(CallBacker*);
     bool		acceptOK(CallBacker*);
+    void		coordSysChangedCB(CallBacker*);
 
     bool		commit(bool permissive=false);
 

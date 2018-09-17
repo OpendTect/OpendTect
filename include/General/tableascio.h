@@ -87,6 +87,14 @@ protected:
     double			getDValue(int,double udf=mUdf(double)) const;
 				// For more, use Conv:: stuff
 
+    Coord			 getPos(int xfld,int yfld,
+					    double udf=mUdf(double)) const;
+				//Return CRS converted Coord
+    Coord3			 getPos3D(int xfld,int yfld, int zfld,
+					    double udf=mUdf(double)) const;
+    BinID			 getBinID(int xfld,int yfld,
+						double udf=mUdf(double)) const;
+
     int				formOf(bool hdr,int iinf) const;
     int				columnOf(bool hdr,int iinf,int ielem) const;
 

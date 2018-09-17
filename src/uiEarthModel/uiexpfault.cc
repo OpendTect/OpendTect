@@ -88,6 +88,12 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     else
 	coordfld_->attach( alignedBelow, bulkinfld_ );
 
+    mAttachCB( coordfld_->valuechanged, uiExportFault::exportCoordSysChgCB );
+
+    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+    coordsysselfld_->attach( alignedBelow, coordfld_);
+    coordsysselfld_->display(false);
+
     uiStringSet zmodes;
     zmodes.add(uiStrings::sYes());
     zmodes.add(uiStrings::sNo());
@@ -96,7 +102,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),
 			    StringListInpSpec(zmodes) );
     zfld_->valuechanged.notify( mCB(this,uiExportFault,addZChg ) );
-    zfld_->attach( alignedBelow, coordfld_ );
+    zfld_->attach( alignedBelow, coordsysselfld_ );
 
     uiT2DConvSel::Setup stup( 0, false );
     stup.ist2d( SI().zIsTime() );
@@ -130,6 +136,8 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
 	outfld_->attach( alignedBelow, linenmfld_ );
     else
 	outfld_->attach( alignedBelow, stickidsfld_ );
+
+    exportCoordSysChgCB(0);
 
     dispstr_ = EMFaultStickSetTranslatorGroup::sGroupName() == typ
 				? uiStrings::sFaultStickSet(mGetObjNr)
@@ -253,10 +261,16 @@ bool uiExportFault::writeAscii()
 		const int nrknots = nrKnots( emobj, sectionid, stickidx );
 		for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 		{
-		    const Coord3 crd = getCoord( emobj, sectionid,
+		    Coord3 crd = getCoord( emobj, sectionid,
 						stickidx, knotidx );
 		    if ( !crd.isDefined() )
 			continue;
+		    if ( coordsysselfld_->isDisplayed() )
+		    {
+			Coord crd2d = coordsysselfld_->getCoordSystem()->
+				convertFrom(crd.coord(),*SI().getCoordSystem());
+			crd.setXY( crd2d.x, crd2d.y);
+		    }
 		    const TrcKey tk( bbox.hsamp_.toTrcKey(crd) );
 		    const BinID& bid = tk.position();
 		    if ( first )
@@ -380,6 +394,15 @@ void uiExportFault::addZChg( CallBacker* )
     }
 
     zunitsel_->display( displayunit );
+}
+
+
+void uiExportFault::exportCoordSysChgCB( CallBacker* )
+{
+    const bool shoulddisplay = SI().getCoordSystem() &&
+			      SI().getCoordSystem()->isProjection() &&
+						  coordfld_->getBoolValue();
+    coordsysselfld_->display(shoulddisplay);
 }
 
 
