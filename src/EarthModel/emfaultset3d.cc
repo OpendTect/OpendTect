@@ -55,21 +55,21 @@ FaultID FaultSet3D::addFault( RefMan<Fault3D> flt )
 }
 
 
-bool FaultSet3D::addFault( RefMan<Fault3D> flt, FaultID id )
+bool FaultSet3D::addFault( RefMan<Fault3D> flt, FaultID fid )
 {
-    if ( ids_.isPresent(id) )
+    if ( ids_.isPresent(fid) )
 	return false;
 
     flt->ref();
     faults_.add( flt.ptr() );
-    ids_.add( id );
+    ids_.add( fid );
     return true;
 }
 
 
-bool FaultSet3D::removeFault( FaultID id )
+bool FaultSet3D::removeFault( FaultID fid )
 {
-    const int idx = indexOf( id );
+    const int idx = indexOf( fid );
     if ( !ids_.validIdx(idx) )
 	return false;
 
@@ -79,21 +79,21 @@ bool FaultSet3D::removeFault( FaultID id )
 }
 
 
-RefMan<Fault3D> FaultSet3D::getFault3D( FaultID id )
+RefMan<Fault3D> FaultSet3D::getFault3D( FaultID fid )
 {
-    const int idx = indexOf( id );
+    const int idx = indexOf( fid );
     return ids_.validIdx(idx) ? faults_[idx] : 0;
 }
 
 
-ConstRefMan<Fault3D> FaultSet3D::getFault3D( FaultID id ) const
+ConstRefMan<Fault3D> FaultSet3D::getFault3D( FaultID fid ) const
 {
-    const int idx = indexOf( id );
+    const int idx = indexOf( fid );
     return ids_.validIdx(idx) ? faults_[idx] : 0;
 }
 
 
-int FaultSet3D::indexOf( FaultID id ) const
-{ return ids_.indexOf( id ); }
+int FaultSet3D::indexOf( FaultID fid ) const
+{ return ids_.indexOf( fid ); }
 
 } // namespace EM
