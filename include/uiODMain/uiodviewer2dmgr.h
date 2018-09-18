@@ -94,6 +94,8 @@ public:
     void			addFaults(const TypeSet<EM::ObjectID>&);
     void			addNewTempFault(EM::ObjectID mid);
     void			getLoadedFaults( TypeSet<EM::ObjectID>&) const;
+    void			getFaultVwr2DIDs(EM::ObjectID emid,
+	    					 TypeSet<int>&) const;
 
     //FaultStickSet
     void			getFaultSSVwr2DIDs( EM::ObjectID emid,
