@@ -281,6 +281,7 @@ void uiStratSynthDisp::initGrp( CallBacker* )
     mAttachCB( vwr_->rgbCanvas().reSize, uiStratSynthDisp::canvasResizeCB );
     mAttachCB( edtools_.selLevelChg, uiStratSynthDisp::lvlChgCB );
     mAttachCB( edtools_.showFlatChg, uiStratSynthDisp::flatChgCB );
+    mAttachCB( edtools_.dispEachChg, uiStratSynthDisp::dispEachChgCB );
     mAttachCB( datamgr_.layerModelSuite().curChanged,
 	       uiStratSynthDisp::curModEdChgCB );
 
@@ -397,7 +398,7 @@ void uiStratSynthDisp::drawLevels()
 	mGetFlattenVars();
 	const int dispeach = dispEach();
 	const auto& lvls = datamgr_.levels();
-	TypeSet<float> sellvldepths;
+	ZValueSet sellvldepths;
 	if ( showflattened )
 	    datamgr_.getLevelDepths( sellvlid, sellvldepths );
 
@@ -407,7 +408,7 @@ void uiStratSynthDisp::drawLevels()
 	    const auto stratlvl = Strat::LVLS().getByName( lvl.name() ) ;
 	    if ( stratlvl.isUndef() )
 		continue;
-	    TypeSet<float> depths;
+	    ZValueSet depths;
 	    datamgr_.getLevelDepths( stratlvl.id(), depths );
 	    if ( depths.isEmpty() )
 		continue;
@@ -527,6 +528,13 @@ void uiStratSynthDisp::lvlChgCB( CallBacker* )
 
 void uiStratSynthDisp::flatChgCB( CallBacker* )
 {
+    reDisp();
+}
+
+
+void uiStratSynthDisp::dispEachChgCB( CallBacker* )
+{
+    datamgr_.setCalcEach( edtools_.dispEach() );
     reDisp();
 }
 

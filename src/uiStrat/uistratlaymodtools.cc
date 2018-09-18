@@ -257,6 +257,17 @@ void uiStratLayModEditTools::initGrp( CallBacker* )
 }
 
 
+void uiStratLayModEditTools::dispEachChgCB( CallBacker* )
+{
+        // fix for spinbox possibly giving 2 notifications
+    const int newdispeach = dispEach();
+    if ( newdispeach == prevdispeach_ )
+	return;
+    prevdispeach_ = newdispeach;
+    dispEachChg.trigger();
+}
+
+
 void uiStratLayModEditTools::setProps( const BufferStringSet& nms )
 {
     setFldNms( propfld_, nms, false, false, 0 );
@@ -377,6 +388,7 @@ void uiStratLayModEditTools::setDispEach( int nr, bool donotif )
     {
 	mPrepNotif( mEachNotif )
 	eachfld_->setValue( nr );
+	prevdispeach_ = nr;
     }
 }
 

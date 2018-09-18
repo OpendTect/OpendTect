@@ -112,10 +112,12 @@ public:
     mDefSLMETNotif(	selPropChg )
     mDefSLMETNotif(	selLevelChg )
     mDefSLMETNotif(	selContentChg )
-    mDefSLMETNotif(	dispEachChg )
     mDefSLMETNotif(	dispZoomedChg )
     mDefSLMETNotif(	dispLithChg )
     mDefSLMETNotif(	showFlatChg )
+
+    Notifier<uiStratLayModEditTools>	dispEachChg;
+    void				dispEachChgCB(CallBacker*);
 
 protected:
 
@@ -129,6 +131,7 @@ protected:
 
     uiToolButton*	lithtb_			= 0;
     uiSpinBox*		eachfld_		= 0;
+    int			prevdispeach_		= -1;
 
     BufferStringSet	lvlnms_;
 

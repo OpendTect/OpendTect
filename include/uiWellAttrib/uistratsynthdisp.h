@@ -33,6 +33,7 @@ public:
     typedef StratSynth::DataMgr			DataMgr;
     typedef Strat::LayerModel			LayerModel;
     typedef uiStratLayModEditTools		uiEdTools;
+    typedef DataMgr::ZValueSet			ZValueSet;
 
 			uiStratSynthDisp(uiParent*,DataMgr&,uiEdTools&,uiSize);
 			~uiStratSynthDisp();
@@ -91,6 +92,7 @@ protected:
     void		viewChgCB(CallBacker*);
     void		lvlChgCB(CallBacker*);
     void		flatChgCB(CallBacker*);
+    void		dispEachChgCB(CallBacker*);
     void		curModEdChgCB(CallBacker*);
     void		canvasResizeCB(CallBacker*);
     void		applyReqCB(CallBacker*);

@@ -226,6 +226,7 @@ void StratSynth::DataMgr::setCalcEach( size_type newce )
     if ( newce == calceach_ )
 	return;
 
+    calceach_ = newce;
     clearData( false );
 }
 
