@@ -225,6 +225,8 @@ BufferString StratSynth::DataMgr::getFinalDataSetName( const char* gpnm,
 						       bool isprop ) const
 {
     BufferString ret( gpnm );
+    if ( isprop )
+	ret.embed( '[', ']' );
     const BufferString lmdesc( lms_.desc(lms_.curIdx()) );
     if ( !lmdesc.isEmpty() )
 	ret.add( " (" ).add( lmdesc ).add( ")" );

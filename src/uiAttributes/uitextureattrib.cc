@@ -333,8 +333,8 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
 	return false;
     }
 
-    uiTaskRunner dlg( const_cast<uiTextureAttrib*>(this) );
-    return TaskRunner::execute( &dlg, *proc );
+    uiTaskRunner dlg( this );
+    return dlg.execute( *proc );
 }
 
 

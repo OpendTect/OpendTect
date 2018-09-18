@@ -401,8 +401,8 @@ bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
 	return false;
     }
 
-    uiTaskRunner dlg( const_cast<uiGLCM_attrib*>(this) );
-    return TaskRunner::execute( &dlg, *proc );
+    uiTaskRunner dlg( this );
+    return dlg.execute( *proc );
 }
 
 

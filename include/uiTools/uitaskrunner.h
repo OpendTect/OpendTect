@@ -26,7 +26,7 @@ mExpClass(uiTools) uiTaskRunner : public uiDialog
 { mODTextTranslationClass(uiTaskRunner);
 public:
 
-			uiTaskRunner(uiParent*,bool dispmsgonerr=true);
+			uiTaskRunner(const uiParent*,bool dispmsgonerr=true);
 			~uiTaskRunner();
 
     virtual bool	execute(Task& t);

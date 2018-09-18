@@ -53,22 +53,33 @@ ________________________________________________________________________
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p, const DataMgr& dm )
     : uiDialog(p,Setup(tr("Synthetics/Properties Cross-Plotting"),
 			mNoDlgTitle, mODHelpKey(mStratSynthCrossplotHelpID) ))
-    , mgr_(dm)
+    , synthmgr_(dm)
     , lm_(dm.layerModel())
 {
-    if ( lm_.isEmpty() || mgr_.nrSynthetics() < 1 )
+    if ( synthmgr_.layerModel().isEmpty() || synthmgr_.nrSynthetics() < 1 )
     {
 	new uiLabel( this, tr("No input.\n"
 		     "Please generate geology/geophysics first") );
 	return;
     }
 
+	// It's a pity we cannot do work without generating all datasets because
+	// we need the generated DataPack IDs for the Attribute Set editor ...
+
     TypeSet<DataPack::FullID> dpids, psdpids;
-    for ( int idx=0; idx<mgr_.nrSynthetics(); idx++ )
+    uiTaskRunnerProvider trprov( this );
+    for ( int idx=0; idx<synthmgr_.nrSynthetics(); idx++ )
     {
-	const SynthSeis::DataSet* sd = mgr_.getDataSetByIdx( idx );
+	const auto synthid = synthmgr_.getIDByIdx( idx );
+	synthmgr_.ensureGenerated( synthid, trprov );
+	const SynthSeis::DataSet* sd = synthmgr_.getDataSetByIdx( idx );
 	if ( sd && !sd->isEmpty() )
-	    (sd->isPS() ? psdpids : dpids).add( sd->dataPackID() );
+	{
+	    const auto dpid = sd->dataPackID();
+	    if ( !DPM(dpid).isPresent(dpid) )
+		DPM(dpid).add( sd->dataPack() );
+	    (sd->isPS() ? psdpids : dpids).add( dpid );
+	}
     }
 
     uiAttribDescSetBuild::Setup bsu( true );
@@ -150,9 +161,9 @@ DataPointSet* uiStratSynthCrossplot::getData( const DescSet& seisattrs,
 	mDPSAdd( seqattrs.attr(iattr).name(), toString(iattr) );
 
 	    // create DPS rows using first poststack dataset
-    for ( int isynth=0; isynth<mgr_.nrSynthetics(); isynth++ )
+    for ( int isynth=0; isynth<synthmgr_.nrSynthetics(); isynth++ )
     {
-	const auto& sd = *mgr_.getDataSetByIdx( isynth );
+	const auto& sd = *synthmgr_.getDataSetByIdx( isynth );
 	if ( sd.isPS() )
 	    continue;
 
@@ -168,7 +179,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const DescSet& seisattrs,
 	{
 	    SeisTrc& trc = const_cast<SeisTrc&>( *tbuf.get( imod ) );
 	    if ( !d2tmodels[imod] )
-		mpErrRet( "DataPack does not have a TD model" )
+		mpErrRet( "DataSet has a missing TD model" )
 
 	    float dpth = lm_.sequence(imod).depthPositionOf( lvl );
 	    trc.info().pick_ = d2tmodels[imod]->getTime( dpth );
@@ -333,8 +344,8 @@ bool uiStratSynthCrossplot::extractModelNr( DataPointSet& dps ) const
 void uiStratSynthCrossplot::preparePreStackDescs()
 {
     TypeSet<DataPack::FullID> dpids;
-    for ( int idx=0; idx<mgr_.nrSynthetics(); idx++ )
-	dpids += mgr_.getDataSetByIdx(idx)->dataPackID();
+    for ( int idx=0; idx<synthmgr_.nrSynthetics(); idx++ )
+	dpids += synthmgr_.getDataSetByIdx(idx)->dataPackID();
 
     DescSet* ds = const_cast<DescSet*>( &seisattrfld_->descSet() );
     for ( int dscidx=0; dscidx<ds->size(); dscidx++ )
@@ -361,7 +372,7 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 			    = DataPack::FullID::getFromDBKey( inppsky );
 	    const int inpdsidx = dpids.indexOf( inputdpid );
 	    mDynamicCastGet(const SynthSeis::PreStackDataSet*,pssd,
-			    mgr_.getDataSetByIdx(inpdsidx) )
+			    synthmgr_.getDataSetByIdx(inpdsidx) )
 	    if ( !pssd )
 		continue;
 

@@ -93,6 +93,7 @@ void uiAttrDescEd::setDesc( Attrib::Desc* desc )
 	desc_ = desc;
 	if ( desc_ )
 	{
+	    setDescSet( desc_->descSet() );
 	    setParameters( *desc );
 	    setInput( *desc );
 	    setOutput( *desc );

@@ -133,7 +133,10 @@ const char* uiAttributeFactory::attrNameOf( const uiString& attrnm ) const
 	return entries_.validIdx(idx) ? entries_[idx]->memb : notvalidval; \
     }
 
-mDefInfoFn( const char*, getAttribName, attrnm_, 0 )
+// Bert: changed 'attrnm_' to 'attrnm_.str()' because the compiler created
+// a new BufferString and returned the const char* of that temporary object.
+// compiler bug?
+mDefInfoFn( const char*, getAttribName, attrnm_.str(), 0 )
 mDefInfoFn( const uiString&, getDisplayName, dispnm_, uiString::empty() )
 mDefInfoFn( const uiString&, getGroupName, grpnm_, uiString::empty() )
 mDefInfoFn( int, domainType, domtyp_, 0 )

@@ -47,9 +47,10 @@ protected:
     typedef Attrib::DescSet	DescSet;
     typedef Strat::Level	Level;
     typedef Strat::LaySeqAttribSet LaySeqAttribSet;
+    typedef Strat::LayerModel	LayerModel;
 
-    const DataMgr&		mgr_;
-    const Strat::LayerModel&	lm_;
+    const DataMgr&		synthmgr_;
+    const LayerModel&		lm_;
     ObjectSet<ExtrGateSet>	extrgates_;
 
     uiAttribDescSetBuild*	seisattrfld_		= 0;

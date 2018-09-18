@@ -103,10 +103,12 @@ void uiAttribDescSetBuild::fillAvailable()
     {
 	const uiAttrDescEd::DomainType domtyp
 		= (uiAttrDescEd::DomainType)uiAF().domainType(idx);
+
 	if ( !attrsetup_.showdepthonlyattrs_ && domtyp == uiAttrDescEd::Depth )
 	    continue;
 	if ( !attrsetup_.showtimeonlyattrs_ && domtyp == uiAttrDescEd::Time )
 	    continue;
+
 	const uiAttrDescEd::DimensionType dimtyp
 		= (uiAttrDescEd::DimensionType)uiAF().dimensionType(idx);
 	if ( attrsetup_.is2d_ && dimtyp == uiAttrDescEd::Only3D )
@@ -115,10 +117,12 @@ void uiAttribDescSetBuild::fillAvailable()
 	    continue;
 	if ( attrsetup_.issynth_ && !uiAF().isSyntheticSupported(idx) )
 	    continue;
+
 	const char* attrnm = uiAF().getAttribName( idx );
 	const Attrib::Desc* desc = Attrib::PF().getDesc( attrnm );
 	if ( !desc )
 	    { pErrMsg("attrib in uiAF() but not in PF()"); continue; }
+
 	if ( attrsetup_.singletraceonly_ && !desc->isSingleTrace() )
 	    continue;
 	if ( !attrsetup_.showps_ && desc->isPS() )

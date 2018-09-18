@@ -21,7 +21,7 @@ mExpClass(uiTools) uiTaskRunnerProvider : public TaskRunnerProvider
 {
 public:
 
-			uiTaskRunnerProvider(uiParent*);
+			uiTaskRunnerProvider(const uiParent*);
 
     virtual TaskRunner&	runner() const;
 

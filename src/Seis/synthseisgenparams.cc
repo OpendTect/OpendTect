@@ -199,22 +199,21 @@ BufferString SynthSeis::GenParams::createName() const
 	return ret;
     }
 
-    ret.set( "[" ).add( waveletName() ).add( "]" );
+    ret.set( "#" ).add( waveletName() );
     TypeSet<float> offset;
     raypars_.get( RayTracer1D::sKeyOffset(), offset );
     const int offsz = offset.size();
     const float offs0 = offsz < 1 ? 0.f : offset.first();
-    if ( !mIsZero(offs0,0.001f) )
+    const bool onlyoffs0 = offsz < 1 || (offsz==1 && mIsZero(offs0,0.001f));
+    if ( !onlyoffs0 )
     {
 	ret.add( " O=" ).add( offs0 );
 	if ( offsz > 1 )
-	{
 	    ret.add( "-" ).add( offset.last() );
-	    bool nmocorrected = true;
-	    if ( raypars_.getYN(SynthSeis::GenBase::sKeyNMO(),nmocorrected)
-	      && !nmocorrected )
-		ret.add( " [no NMO]" );
-	}
+	bool nmocorrected = true;
+	if ( raypars_.getYN(SynthSeis::GenBase::sKeyNMO(),nmocorrected)
+	  && !nmocorrected )
+	    ret.add( " [no NMO]" );
     }
 
     return ret;
