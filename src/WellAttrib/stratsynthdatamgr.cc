@@ -43,6 +43,9 @@ typedef StratSynth::DataMgr::size_type size_type;
 typedef StratSynth::DataMgr::idx_type idx_type;
 typedef StratSynth::DataMgr::lms_idx_type lms_idx_type;
 typedef StratSynth::DataMgr::SynthID SynthID;
+static const char* sKeySynthetics =     "Synthetics";
+static const char* sKeyNrSynthetics =   "Nr of Synthetics";
+static const char* sKeySyntheticNr =    "Synthetics Nr";
 
 
 idx_type StratSynth::DataMgr::gtActualLMIdx( lms_idx_type lmsidx ) const
@@ -75,6 +78,46 @@ StratSynth::DataMgr::~DataMgr()
     detachAllNotifiers();
     setEmpty();
     deepErase( lmdatasets_ );
+}
+
+
+void StratSynth::DataMgr::clearData( bool full )
+{
+    deepErase( elasticmodelsets_ );
+    deepErase( levelsets_ );
+    for ( auto idx=0; idx<lmdatasets_.size(); idx++ )
+    {
+	auto* dss = lmdatasets_.get( idx );
+	if ( dss )
+	    deepUnRef( *dss );
+    }
+    deepErase( lmdatasets_ );
+
+    const SynthIDSet idstonotif( ids_ );
+    if ( full )
+    {
+	ids_.erase();
+	genparams_.erase();
+    }
+
+    for ( int idx=0; idx<nrLayerModels(); idx++ )
+	addLayModelSets();
+
+    if ( !full )
+    {
+	for ( int idx=genparams_.size()-1; idx>=0; idx-- )
+	{
+	    if ( genparams_[idx].type_ == SynthSeis::StratProp )
+	    {
+		ids_.removeSingle( idx );
+		genparams_.removeSingle( idx );
+	    }
+	}
+	addStratPropSynths();
+    }
+
+    for ( auto id : idstonotif )
+	entryChanged.trigger( id );
 }
 
 
@@ -234,43 +277,50 @@ BufferString StratSynth::DataMgr::getFinalDataSetName( const char* gpnm,
 }
 
 
-void StratSynth::DataMgr::clearData( bool full )
+void StratSynth::DataMgr::fillPar( IOPar& iop ) const
 {
-    deepErase( elasticmodelsets_ );
-    deepErase( levelsets_ );
-    for ( auto idx=0; idx<lmdatasets_.size(); idx++ )
+    IOPar synthpar;
+    synthpar.set( sKeyNrSynthetics, genparams_.size() );
+
+    int gpnr = 0;
+    for ( int igp=0; igp<genparams_.size(); igp++ )
     {
-	auto* dss = lmdatasets_.get( idx );
-	if ( dss )
-	    deepUnRef( *dss );
-    }
-    deepErase( lmdatasets_ );
+	const auto& gp = genparams_.get( igp );
+	if ( gp.isStratProp() )
+	    continue;
 
-    const SynthIDSet idstonotif( ids_ );
-    if ( full )
+	IOPar subpar;
+	genparams_.get(igp).fillPar( subpar );
+	synthpar.mergeComp( subpar, IOPar::compKey(sKeySyntheticNr,gpnr) );
+	gpnr++;
+    }
+    iop.mergeComp( synthpar, sKeySynthetics );
+}
+
+
+void StratSynth::DataMgr::usePar( const IOPar& iop )
+{
+    PtrMan<IOPar> synthpar = iop.subselect( sKeySynthetics );
+    if ( !synthpar || synthpar->isEmpty() )
+	return;
+    int nrsynth = 0;
+    synthpar->get( sKeyNrSynthetics, nrsynth );
+    if ( nrsynth < 0 )
+	return;
+
+    setEmpty();
+
+    for ( int igp=0; igp<nrsynth; igp++ )
     {
-	ids_.erase();
-	genparams_.erase();
+	PtrMan<IOPar> subpar = synthpar->subselect(
+				    IOPar::compKey(sKeySyntheticNr,igp) );
+	if ( !subpar || subpar->isEmpty() )
+	    continue;
+
+	GenParams gp;
+	gp.usePar( *subpar );
+	addSynthetic( gp );
     }
-
-    for ( int idx=0; idx<nrLayerModels(); idx++ )
-	addLayModelSets();
-
-    if ( !full )
-    {
-	for ( int idx=genparams_.size()-1; idx>=0; idx-- )
-	{
-	    if ( genparams_[idx].type_ == SynthSeis::StratProp )
-	    {
-		ids_.removeSingle( idx );
-		genparams_.removeSingle( idx );
-	    }
-	}
-	addStratPropSynths();
-    }
-
-    for ( auto id : idstonotif )
-	entryChanged.trigger( id );
 }
 
 

@@ -523,7 +523,6 @@ bool uiStratLayerModel::doGenModels()
 }
 
 
-
 void uiStratLayerModel::handleNewModel( LayerModel* newmodl )
 {
     if ( !newmodl )
@@ -538,8 +537,8 @@ void uiStratLayerModel::handleNewModel( LayerModel* newmodl )
     setModelProps();
     setElasticProps();
     auto& wbpars = desc_.getWorkBenchParams();
-    useSyntheticsPars( wbpars );
-    useDisplayPars( wbpars );
+    synthdatamgr_->usePar( wbpars );
+    modtools_->usePar( wbpars );
     afterRetrieve.trigger( &wbpars );
 
     //Then the model display and synthetics
@@ -630,42 +629,20 @@ bool uiStratLayerModel::checkUnscaledWavelets()
 }
 
 
-bool uiStratLayerModel::closeOK()
-{
-    return saveGenDescIfNecessary();
-}
-
-
-void uiStratLayerModel::useDisplayPars( const IOPar& par )
-{
-    modtools_->usePar( par );
-}
-
-
-void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
-{
-    modtools_->fillPar( par );
-}
-
-
 void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
 {
     par.setEmpty();
     const_cast<uiStratLayerModel*>(this)->beforeSave.trigger( &par );
+    synthdatamgr_->fillPar( par );
     gentools_->fillPar( par );
     if ( elpropsel_ )
 	elpropsel_->fillPar( par );
     moddisp_->savePars();
-    fillDisplayPars( par );
-    fillSyntheticsPars( par );
+    modtools_->fillPar( par );
 }
 
 
-void uiStratLayerModel::useSyntheticsPars( const IOPar& par )
+bool uiStratLayerModel::closeOK()
 {
-}
-
-
-void uiStratLayerModel::fillSyntheticsPars( IOPar& par ) const
-{
+    return saveGenDescIfNecessary();
 }

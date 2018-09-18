@@ -136,15 +136,22 @@ public:
     BufferString	getFinalDataSetName(const char* gpnm,
 					    bool isprop=false) const;
 
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+
     mutable CNotifier<DataMgr,SynthID>	entryChanged;
 
 protected:
 
+				// input
     const LayerModelSuite&	lms_;
     size_type			calceach_		= 1;
 
+				// data
     SynthIDSet			ids_;
     GenParamSet			genparams_;
+
+				// generated / 'caches'
     ObjectSet<DataSetSet>	lmdatasets_;
     ObjectSet<ElasticModelSet>	elasticmodelsets_;
     ObjectSet<LevelSet>		levelsets_;

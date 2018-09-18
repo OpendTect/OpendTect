@@ -31,14 +31,14 @@ public:
 						GatherSetDataPack&);
 				~PreStackDataSet();
 
-    bool			isPS() const	  { return true; }
+    virtual bool		isPS() const	  { return true; }
     bool			isNMOCorrected() const;
-    bool			hasOffset() const;
+    virtual OffsetDef		offsetDef() const;
     const Interval<float>	offsetRange() const;
     float			offsetRangeStep() const;
 
     void			setAngleData(const GatherSet&);
-    const SeisTrc*		getTrace(int seqnr,int offset) const;
+    const SeisTrc*		getTrc(int seqnr,int offset) const;
     SeisTrcBuf*			getTrcBuf(float startoffset,
 					  const Interval<float>* of=0) const;
 
@@ -51,9 +51,9 @@ protected:
     RefMan<GatherSetDataPack>	angledp_;
     void			convertAngleDataToDegrees(Gather*) const;
 
-    virtual const SeisTrc*	gtTrace(int seqnr) const
-				{ return getTrace(seqnr,0); }
     virtual DataPackMgr::ID	dpMgrID() const;
+    virtual const SeisTrc*	gtTrc( int seqnr, float offs ) const
+				{ return getTrc( seqnr, offs ); }
 
 };
 

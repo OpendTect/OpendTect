@@ -29,6 +29,8 @@ mExpClass(Seis) SeisTrcBuf
 { mODTextTranslationClass(SeisTrcBuf);
 public:
 
+    typedef TypeSet<float>	ZValueSet;
+
 			SeisTrcBuf( bool ownr )
 				: owner_(ownr)	{}
 			SeisTrcBuf( const SeisTrcBuf& b )
@@ -39,6 +41,7 @@ public:
 
     void		copyInto(SeisTrcBuf&) const;
     void		stealTracesFrom(SeisTrcBuf&);
+    void		addTrcsFrom(ObjectSet<SeisTrc>&);
     virtual SeisTrcBuf*	clone() const		{ return new SeisTrcBuf(*this);}
 
     void		deepErase();
@@ -54,7 +57,11 @@ public:
 			{ return trcs_.replace(idx,t); }
     inline void		add( SeisTrc* t )	{ trcs_ += t; }
     void		add(SeisTrcBuf&);	//!<shallow copy if not owner
-    void		addTrcsFrom(ObjectSet<SeisTrc>&);
+
+    ZGate		zRange() const;
+    ZGate		getZGate4Shifts(const ZValueSet&,bool upward) const;
+    void		getShifted(ZGate,const ZValueSet&,bool upward,
+				    float udfval,SeisTrcBuf&) const;
 
     int			find(const BinID&,bool is2d=false) const;
     int			find(const SeisTrc*,bool is2d=false) const;

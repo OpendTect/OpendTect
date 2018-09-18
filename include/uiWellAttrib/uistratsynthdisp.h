@@ -75,6 +75,7 @@ protected:
     void		updFlds();
     void		reDisp();
     void		doDisp(bool wva);
+    void		updateViewer(bool wva);
     void		drawLevels();
 
     int			dispEach() const;
@@ -94,5 +95,7 @@ protected:
     void		canvasResizeCB(CallBacker*);
     void		applyReqCB(CallBacker*);
     void		dataMgrClosedCB(CallBacker*)	{ uidatamgr_ = 0; }
+
+    friend class	uiStratSynthDispDSSel;
 
 };

@@ -49,6 +49,14 @@ const GatherSetDataPack& SynthSeis::PreStackDataSet::preStackPack() const
 }
 
 
+SynthSeis::DataSet::OffsetDef SynthSeis::PreStackDataSet::offsetDef() const
+{
+    OffsetDef ret = offsetRange();
+    ret.step = offsetRangeStep();
+    return ret;
+}
+
+
 void SynthSeis::PreStackDataSet::convertAngleDataToDegrees( Gather* ag ) const
 {
     Array2D<float>& agdata = ag->data();
@@ -101,22 +109,15 @@ const Interval<float> SynthSeis::PreStackDataSet::offsetRange() const
 }
 
 
-bool SynthSeis::PreStackDataSet::hasOffset() const
-{
-    return offsetRange().width() > 0;
-}
-
-
 bool SynthSeis::PreStackDataSet::isNMOCorrected() const
 {
     bool isnmo = true;
-    raypars_.getYN( SynthSeis::GenBase::sKeyNMO(), isnmo );
+    rayPars().getYN( SynthSeis::GenBase::sKeyNMO(), isnmo );
     return isnmo;
 }
 
 
-const SeisTrc* SynthSeis::PreStackDataSet::getTrace(
-			int seqnr, int offset ) const
+const SeisTrc* SynthSeis::PreStackDataSet::getTrc( int seqnr, int offset ) const
 {
     return preStackPack().getTrace( seqnr, offset );
 }

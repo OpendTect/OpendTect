@@ -88,32 +88,40 @@ public:
     typedef ConstRefMan<ReflectivityModelSet>	ConstRflMdlSetRef;
     typedef TimeDepthModelSet			D2TModelSet;
     typedef ObjectSet<RayModel>			RayModelSet;
+    typedef TypeSet<float>			ZValueSet;
+    typedef StepInterval<float>			OffsetDef;
     typedef TimeDepthModelSet::size_type	size_type;
     typedef TimeDepthModelSet::idx_type		idx_type;
 
     MgrID		id() const		{ return id_; }
-    virtual SynthType	synthType() const	{ return genpars_.type_; }
+    SynthType		synthType() const	{ return genpars_.type_; }
     virtual bool	isPS() const		{ return true; }
-    virtual bool	hasOffset() const	{ return false; }
+    bool		hasOffset() const;
+    virtual OffsetDef	offsetDef() const	{ return OffsetDef(0.f,0.f); }
 
     const GenParams&	genParams() const	{ return genpars_; }
-    DataPack&		dataPack()		{ return *datapack_; }
-    const DataPack&	dataPack() const	{ return *datapack_; }
+    const IOPar&	rayPars() const		{ return genpars_.raypars_; }
     DispPars&		dispPars()		{ return disppars_; }
     const DispPars&	dispPars() const	{ return disppars_; }
 
     bool		isEmpty() const		{ return size() < 1; }
     size_type		size() const;
-    const SeisTrc*	getTrace(idx_type) const;
+    const SeisTrc*	getTrace(idx_type,float offs=0.f) const;
     ZSampling		zRange() const;
 
     float		getTime(float dpt,int seqnr) const;
     float		getDepth(float time,int seqnr) const;
     const D2TModelSet&	d2TModels() const	{ return finald2tmodels_; }
     ConstRflMdlSetRef	reflModels(int modelid,bool sampled) const;
-    const IOPar&	rayPars() const		{ return raypars_; }
     const RayModelSet&	rayModels() const	{ return raymodels_; }
+
+    DataPackMgr::ID	dataPackMgrID() const	{ return dpMgrID(); }
     DataPack::FullID	dataPackID() const;
+    DataPack&		dataPack()		{ return *datapack_; }
+    const DataPack&	dataPack() const	{ return *datapack_; }
+    ConstRefMan<DataPack> getTrcDPAtOffset(float offs=0.f) const;
+    ConstRefMan<DataPack> getFlattenedTrcDP(const ZValueSet&,bool istime,
+					    float offs=0.f) const;
 
     void		useDispPars(const IOPar&);
     void		fillDispPars(IOPar&) const;
@@ -130,7 +138,6 @@ protected:
 
     MgrID		id_;
     const GenParams	genpars_;
-    IOPar		raypars_;
     DispPars		disppars_;
 
     D2TModelSet		finald2tmodels_;
@@ -140,8 +147,9 @@ protected:
     bool		validIdx( idx_type idx ) const
 			{ return finald2tmodels_.validIdx( idx ); }
 
-    virtual const SeisTrc*	gtTrace(idx_type) const		= 0;
-    virtual DataPackMgr::ID	dpMgrID() const			= 0;
+    virtual const DataPack*	gtTrcBufDP(float) const;
+    virtual DataPackMgr::ID	dpMgrID() const				= 0;
+    virtual const SeisTrc*	gtTrc(idx_type,float) const		= 0;
 
 public:
 
@@ -183,8 +191,9 @@ public:
 
 protected:
 
-    virtual const SeisTrc*	gtTrace(idx_type) const;
     virtual DataPackMgr::ID	dpMgrID() const;
+    virtual const SeisTrc*	gtTrc(idx_type,float) const;
+    virtual const DataPack*	gtTrcBufDP(float) const;
 
 };
 

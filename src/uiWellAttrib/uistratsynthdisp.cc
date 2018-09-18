@@ -104,10 +104,12 @@ public:
 
     typedef EntryList::idx_type	idx_type;
 
-uiStratSynthDispDSSel( uiParent* p, const DataMgr& mgr, bool wva )
+uiStratSynthDispDSSel( uiParent* p, uiStratSynthDisp& synthdisp,
+			const DataMgr& mgr, bool wva )
     : uiGroup( p, wva ? "wva ds sel" : "vd ds sel" )
     , mgr_(mgr)
     , wva_(wva)
+    , synthdisp_(synthdisp)
     , selChange(this)
 {
     sel_ = new uiComboBox( this, wva_ ? "wva ds sel" : "vd ds sel" );
@@ -120,12 +122,6 @@ uiStratSynthDispDSSel( uiParent* p, const DataMgr& mgr, bool wva )
 void selChgCB( CallBacker* )
 {
     selChange.trigger();
-}
-
-void setContext( uiFlatViewer* vwr, uiStratSynthDispDSSel* oth )
-{
-    vwr_ = vwr;
-    other_ = oth;
 }
 
 bool update() // returns whether curID() is new
@@ -189,50 +185,13 @@ void set( SynthID newid )
     if ( curidx != newidx )
     {
 	sel_->setCurrentItem( newidx );
-	updateViewer();
+	synthdisp_.updateViewer( wva_ );
     }
 }
 
-void updateViewer()
+DataPack::ID packID() const
 {
-    auto curid = curID();
-    const SynthSeis::DataSet* ds = 0;
-    if ( curid.isValid() )
-    {
-	uiTaskRunnerProvider trprov( this );
-	mgr_.ensureGenerated( curid, trprov );
-	ds = mgr_.getDataSet( curid );
-    }
-
-    // TODO: for flattening and PS we need to create new datapacks
-
-    auto newfullpackid = ds ? ds->dataPackID() : DataPack::FullID();
-    auto newpackid = newfullpackid.objID();
-    if ( newpackid.isValid() && newfullpackid.mgrID() != DataPackMgr::FlatID() )
-	{ pErrMsg("TODO: support Pre-stack"); newpackid = PackID(); }
-    if ( packid_ == newpackid )
-	return;
-
-    const bool hadpack = packid_.isValid();
-    if ( !newpackid.isValid() )
-	vwr_->usePack( wva_, newpackid, !hadpack );
-    else
-    {
-	auto& dpm = DPM( DataPackMgr::FlatID() );
-	if ( !dpm.isPresent(newpackid) )
-	    dpm.add( ds->dataPack() );
-	if ( !vwr_->isAvailable(newpackid) )
-	    vwr_->addPack( newpackid );
-	vwr_->usePack( wva_, newpackid, !hadpack );
-    }
-
-    // This object maintains the list of available packs, so keep it tidy
-    if ( hadpack && packid_ != other_->packid_ )
-	vwr_->removePack( packid_ );
-
-    packid_ = newpackid;
-    vwr_->setMapper( wva_, *curMapper() );
-    vwr_->setVisible( wva_, true );
+    return datapack_ ? datapack_->id() : DataPack::ID();
 }
 
     Notifier<uiStratSynthDispDSSel> selChange;
@@ -241,11 +200,8 @@ void updateViewer()
     EntryList		entries_;
     uiComboBox*		sel_;
     const bool		wva_;
-
-    PackID		packid_;
-
-    uiFlatViewer*	vwr_;
-    const uiStratSynthDispDSSel* other_	= 0;
+    ConstRefMan<DataPack> datapack_;
+    uiStratSynthDisp&	synthdisp_;
 
 };
 
@@ -276,10 +232,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, DataMgr& datamgr,
     wvltfld_ = new uiWaveletIOObjSel( topgrp, wvsu );
     wvltfld_->attach( rightOf, edbut );
 
-    wvaselfld_ = new uiStratSynthDispDSSel( topgrp, datamgr_, true );
+    wvaselfld_ = new uiStratSynthDispDSSel( topgrp, *this, datamgr_, true );
     wvaselfld_->attach( rightOf, wvltfld_ );
 
-    vdselfld_ = new uiStratSynthDispDSSel( topgrp, datamgr_, false );
+    vdselfld_ = new uiStratSynthDispDSSel( topgrp, *this, datamgr_, false );
     vdselfld_->attach( rightTo, wvaselfld_ );
 
     auto* expbut = new uiToolButton( topgrp, "export",
@@ -300,9 +256,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, DataMgr& datamgr,
 	.withflip( false ).withsnapshot( false );
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->setViewerType( vwr_, true );
-
-    wvaselfld_->setContext( vwr_, vdselfld_ );
-    vdselfld_->setContext( vwr_, wvaselfld_ );
 
     mAttachCB( postFinalise(), uiStratSynthDisp::initGrp );
 }
@@ -366,18 +319,71 @@ void uiStratSynthDisp::updFlds()
 
 void uiStratSynthDisp::reDisp()
 {
-    doDisp( true );
-    doDisp( false );
+    updateViewer( true );
+    updateViewer( false );
     vwr_->setViewToBoundingBox();
     vwr_->handleChange( FlatView::Viewer::BitmapData );
     drawLevels();
 }
 
 
-void uiStratSynthDisp::doDisp( bool wva )
+#define mGetFlattenVars() \
+    const auto sellvlid = edtools_.selLevelID(); \
+    const bool showflattened = sellvlid.isValid() && edtools_.showFlattened()
+
+
+void uiStratSynthDisp::updateViewer( bool wva )
 {
     auto& selfld = *(wva ? wvaselfld_ : vdselfld_);
-    selfld.updateViewer();
+    auto curid = selfld.curID();
+    const SynthSeis::DataSet* ds = 0;
+    if ( curid.isValid() )
+    {
+	uiTaskRunnerProvider trprov( this );
+	datamgr_.ensureGenerated( curid, trprov );
+	ds = datamgr_.getDataSet( curid );
+    }
+
+    const float offs = 0.f; // TODO if PS, get from some kind of selector
+    ConstRefMan<DataPack> pack2use;
+    if ( ds )
+    {
+	mGetFlattenVars();
+	if ( !showflattened )
+	    pack2use = ds->getTrcDPAtOffset( offs );
+	else
+	{
+	    DataMgr::ZValueSet zvals;
+	    datamgr_.getLevelDepths( sellvlid, zvals );
+	    pack2use = ds->getFlattenedTrcDP( zvals, false, offs );
+	}
+    }
+
+    const DataPack::ID newpackid = pack2use ? pack2use->id() : DataPack::ID();
+    if ( selfld.packID() == newpackid )
+	return;
+
+    const bool hadpack = selfld.packID().isValid();
+    if ( !newpackid.isValid() )
+	vwr_->usePack( wva, newpackid, !hadpack );
+    else
+    {
+	auto& dpm = DPM( DataPackMgr::FlatID() );
+	if ( !dpm.isPresent(newpackid) )
+	    dpm.add( pack2use );
+	if ( !vwr_->isAvailable(newpackid) )
+	    vwr_->addPack( newpackid );
+	vwr_->usePack( wva, newpackid, !hadpack );
+    }
+
+    // This object maintains the list of available packs, so keep it tidy
+    auto& othselfld = *(!wva ? wvaselfld_ : vdselfld_);
+    if ( hadpack && selfld.packID() != othselfld.packID() )
+	vwr_->removePack( selfld.packID() );
+
+    selfld.datapack_ = pack2use;
+    vwr_->setMapper( wva, *selfld.curMapper() );
+    vwr_->setVisible( wva, true );
 }
 
 
@@ -388,9 +394,12 @@ void uiStratSynthDisp::drawLevels()
     const auto& d2tmdls = datamgr_.d2TModels();
     if ( !d2tmdls.isEmpty() )
     {
-	const auto sellvlid = edtools_.selLevelID();
+	mGetFlattenVars();
 	const int dispeach = dispEach();
 	const auto& lvls = datamgr_.levels();
+	TypeSet<float> sellvldepths;
+	if ( showflattened )
+	    datamgr_.getLevelDepths( sellvlid, sellvldepths );
 
 	for( int lvlidx=0; lvlidx<lvls.size(); lvlidx++ )
 	{
@@ -402,13 +411,16 @@ void uiStratSynthDisp::drawLevels()
 	    datamgr_.getLevelDepths( stratlvl.id(), depths );
 	    if ( depths.isEmpty() )
 		continue;
+	    else if ( showflattened )
+		for ( int idpth=0; idpth<depths.size(); idpth++ )
+		    depths[idpth] -= sellvldepths[idpth];
 
 	    const bool issellvl = stratlvl.id() == sellvlid;
 	    FlatView::AuxData* auxd = vwr_->createAuxData( stratlvl.name() );
 	    auxd->linestyle_.type_ = OD::LineStyle::None;
 	    for ( int itrc=0; itrc<depths.size(); itrc++ )
 	    {
-		float depth = depths[itrc];
+		const float depth = depths[itrc];
 		if ( mIsUdf(depth) )
 		    continue;
 		const float time = d2tmdls[itrc]->getTime( depth );
@@ -552,14 +564,14 @@ void uiStratSynthDisp::expSynthCB( CallBacker* )
 
 void uiStratSynthDisp::wvaSelCB( CallBacker* )
 {
-    doDisp( true );
+    updateViewer( true );
     vwr_->handleChange( FlatView::Viewer::BitmapData );
 }
 
 
 void uiStratSynthDisp::vdSelCB( CallBacker* )
 {
-    doDisp( false );
+    updateViewer( false );
     vwr_->handleChange( FlatView::Viewer::BitmapData );
 }
 

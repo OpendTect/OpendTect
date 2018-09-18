@@ -114,11 +114,7 @@ protected:
     void			updateDispEach(const LayerModel&);
     bool			closeOK();
 
-    void			useDisplayPars(const IOPar&);
     void			fillWorkBenchPars(IOPar&) const;
-    void			useSyntheticsPars(const IOPar&);
-    void			fillSyntheticsPars(IOPar&) const;
-    void			fillDisplayPars(IOPar&) const;
 
     void			snapshotCB(CallBacker*);
     void			xPlotReq(CallBacker*);

@@ -98,7 +98,6 @@ void SynthSeis::DispPars::usePar( const IOPar& par )
 }
 
 
-
 SynthSeis::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
     : zerooffsett2dmodel_(0)
     , reflmodels_(new ReflectivityModelSet)
@@ -244,9 +243,15 @@ SynthSeis::DataSet::size_type SynthSeis::DataSet::size() const
 }
 
 
-const SeisTrc* SynthSeis::DataSet::getTrace( idx_type idx ) const
+const SeisTrc* SynthSeis::DataSet::getTrace( idx_type idx, float offs ) const
 {
-    return validIdx(idx) ? gtTrace( idx ) : 0;
+    return validIdx(idx) ? gtTrc( idx, offs ) : 0;
+}
+
+
+bool SynthSeis::DataSet::hasOffset() const
+{
+    return offsetDef().nrSteps() > 0;
 }
 
 
@@ -343,9 +348,78 @@ ConstRefMan<ReflectivityModelSet> SynthSeis::DataSet::reflModels( int modelid,
 
 DataPack::FullID SynthSeis::DataSet::dataPackID() const
 {
-    return DataPack::FullID( dpMgrID(), dataPack().id() );
+    return DataPack::FullID( dpMgrID(), datapack_->id() );
 }
 
+
+const DataPack* SynthSeis::DataSet::gtTrcBufDP( float offs ) const
+{
+    auto* retdp = new SeisTrcBufDataPack( "Stacked Synthetics" );
+    auto* dptrcbuf = new SeisTrcBuf( true );
+    const auto nrtrcsc = size();
+
+    for ( int itrc=0; itrc<nrtrcsc; itrc++ )
+    {
+	const auto* trc = getTrace( itrc, offs );
+	if ( trc )
+	    dptrcbuf->add( new SeisTrc(*trc) );
+	else
+	{
+	    pErrMsg("null trc");
+	    dptrcbuf->add( new SeisTrc(zRange().nrSteps()+1) );
+	}
+    }
+
+    retdp->setBuffer( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr, 0, true );
+    return retdp;
+}
+
+
+ConstRefMan<DataPack> SynthSeis::DataSet::getTrcDPAtOffset( float offs ) const
+{
+    return ConstRefMan<DataPack>( gtTrcBufDP(offs) );
+}
+
+
+ConstRefMan<DataPack> SynthSeis::DataSet::getFlattenedTrcDP(
+	const ZValueSet& zvals, bool istime, float offs ) const
+{
+    if ( zvals.isEmpty() )
+	return datapack_;
+    if ( zvals.size() != size() )
+	{ pErrMsg("wrong size"); return datapack_; }
+
+    const ZValueSet* tvals = &zvals;
+    PtrMan<ZValueSet> tconvsdeleter;
+    if ( !istime )
+    {
+	const auto nrtrcs = zvals.size();
+	ZValueSet* tconvs = new ZValueSet( nrtrcs, 0.f );
+	for ( int idx=0; idx<nrtrcs; idx++ )
+	    tconvs->get(idx) = getTime( zvals.get(idx), idx );
+	tvals = tconvs;
+	tconvsdeleter = tconvs;
+    }
+
+    ConstRefMan<DataPack> inpdp = gtTrcBufDP( offs );
+    if ( !inpdp )
+	return datapack_;
+    mDynamicCastGet( const SeisTrcBufDataPack*, tbdp, inpdp.ptr() );
+    if ( !tbdp )
+	{ pErrMsg("Bad DP type"); return datapack_; }
+
+    const auto& tbuf = tbdp->trcBuf();
+    ZGate zrg = tbuf.getZGate4Shifts( *tvals, true );
+    if ( mIsUdf(zrg.start) )
+	return datapack_;
+
+    auto* retdp = new SeisTrcBufDataPack( "Flattened Synthetics" );
+    auto* dptrcbuf = new SeisTrcBuf( true );
+    tbuf.getShifted( zrg, *tvals, true, mUdf(float), *dptrcbuf );
+    retdp->setBuffer( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr, 0, true );
+
+    return ConstRefMan<DataPack>( retdp );
+}
 
 
 SynthSeis::PostStackDataSet::PostStackDataSet( const GenParams& gp, DPType& dp )
@@ -365,7 +439,7 @@ DataPackMgr::ID	SynthSeis::PostStackDataSet::dpMgrID() const
 }
 
 
-const SeisTrc* SynthSeis::PostStackDataSet::gtTrace( idx_type idx ) const
+const SeisTrc* SynthSeis::PostStackDataSet::gtTrc( idx_type idx, float ) const
 {
     return postStackPack().trcBuf().get( idx );
 }
@@ -374,6 +448,12 @@ const SeisTrc* SynthSeis::PostStackDataSet::gtTrace( idx_type idx ) const
 SeisTrcBufDataPack& SynthSeis::PostStackDataSet::postStackPack()
 {
     return static_cast<SeisTrcBufDataPack&>( *datapack_ );
+}
+
+
+const DataPack* SynthSeis::PostStackDataSet::gtTrcBufDP( float ) const
+{
+    return datapack_;
 }
 
 
