@@ -34,8 +34,8 @@ public:
     virtual bool		isPS() const	  { return true; }
     bool			isNMOCorrected() const;
     virtual OffsetDef		offsetDef() const;
-    const Interval<float>	offsetRange() const;
-    float			offsetRangeStep() const;
+    Interval<float>		offsetRange() const;
+    float			offsetStep() const;
 
     void			setAngleData(const GatherSet&);
     const SeisTrc*		getTrc(int seqnr,int offset) const;

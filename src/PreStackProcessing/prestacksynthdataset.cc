@@ -51,9 +51,7 @@ const GatherSetDataPack& SynthSeis::PreStackDataSet::preStackPack() const
 
 SynthSeis::DataSet::OffsetDef SynthSeis::PreStackDataSet::offsetDef() const
 {
-    OffsetDef ret = offsetRange();
-    ret.step = offsetRangeStep();
-    return ret;
+    return OffsetDef( offsetRange(), offsetStep() );
 }
 
 
@@ -82,7 +80,7 @@ void SynthSeis::PreStackDataSet::setAngleData( const GatherSet& ags )
 }
 
 
-float SynthSeis::PreStackDataSet::offsetRangeStep() const
+float SynthSeis::PreStackDataSet::offsetStep() const
 {
     float offsetstep = mUdf(float);
     const auto& gathers = preStackPack().getGathers();
@@ -96,7 +94,7 @@ float SynthSeis::PreStackDataSet::offsetRangeStep() const
 }
 
 
-const Interval<float> SynthSeis::PreStackDataSet::offsetRange() const
+Interval<float> SynthSeis::PreStackDataSet::offsetRange() const
 {
     Interval<float> offrg( 0, 0 );
     const auto& gathers = preStackPack().getGathers();
