@@ -66,19 +66,11 @@ protected:
 
     void		doDraw();
     void		eraseAll();
-    void		selPropChgCB(CallBacker*);
-    void		selContentChgCB(CallBacker*);
-    void		selLevelChgCB(CallBacker*);
-    void		dispLithChgCB(CallBacker*);
-    void		dispEachChgCB(CallBacker*);
-    void		dispZoomedChgCB(CallBacker*);
     void		reDrawAll();
     void		reDrawSeq();
     void		reDrawLevels();
     void		getBounds();
-    void		handleClick(bool dble);
     void		handleRightClick(int);
-    virtual void	drawSelectedSequence();
     void		updZoomBox();
     void		updateDataPack();
     void		updateLayerAuxData();
@@ -89,7 +81,17 @@ protected:
     bool		isDisplayedModel(int) const;
     void		removeLayers(Strat::LayerSequence&,int,bool);
     void		forceRedispAll(bool modeledited=false);
-    void		doLevelChg();
     int			totalNrLayersToDisplay() const;
+
+    virtual void	fullRedisp()		{ reDrawAll(); }
+    virtual void	drawSelectedSequence();
+    virtual void	doLevelChg();
+    virtual void	handleClick(bool dble);
+    virtual void	selPropChg();
+    virtual void	selContentChg();
+    virtual void	selLevelChg();
+    virtual void	dispLithChg();
+    virtual void	dispEachChg();
+    virtual void	dispZoomedChg();
 
 };

@@ -1347,7 +1347,12 @@ StratSynth::DataMgr::genPSPostProcDataSet( const GenParams& gp,
     const bool isanglestack = gp.type_ == SynthSeis::AngleStack;
     mDynamicCastGet( const SynthSeis::PreStackDataSet&, psds, inpds );
     const GatherSetDataPack& gatherdp = psds.preStackPack();
-    DataPack::FullID dpfid( DataPackMgr::SeisID(), gatherdp.id() );
+    const auto dpmgrid = DataPackMgr::SeisID();
+    auto& dpmgr = DPM( dpmgrid );
+    if ( !dpmgr.isPresent(gatherdp.id()) )
+	dpmgr.add( gatherdp );
+
+    DataPack::FullID dpfid( dpmgrid, gatherdp.id() );
     const BufferString dpidstring( "#", dpfid.toString() );
     Attrib::Desc* psdesc =
 	Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName());

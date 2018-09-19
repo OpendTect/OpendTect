@@ -48,8 +48,10 @@ mStruct(uiStrat) LMPropDispPars
 mExpClass(uiStrat) uiStratLayerModelDisp : public uiGroup
 { mODTextTranslationClass(uiStratLayerModelDisp);
 public:
-    typedef TypeSet<float> LVLZVals;
-    typedef TypeSet< LVLZVals > LVLZValsSet;
+
+    typedef TypeSet<float>		LVLZVals;
+    typedef TypeSet< LVLZVals >		LVLZValsSet;
+    typedef Strat::LayerModelSuite	LayerModelSuite;
 
 			uiStratLayerModelDisp(uiStratLayModEditTools&,
 					    const Strat::LayerModelSuite&);
@@ -99,7 +101,7 @@ public:
 protected:
 
     uiFlatViewer&	vwr_;
-    const Strat::LayerModelSuite& lms_;
+    const LayerModelSuite& lms_;
     uiStratLayModEditTools& tools_;
     uiTextItem*		modtypetxtitm_;
     int			selseqidx_;
@@ -111,26 +113,33 @@ protected:
 
     bool		haveAnyZoom() const;
     uiGraphicsScene&	scene() const;
-    virtual void	drawSelectedSequence()		= 0;
 
     int			getCurPropIdx() const;
     int			getClickedModelNr() const;
     bool		doLayerModelIO(bool);
 
     void		initGrp(CallBacker*);
-    void		mouseMoved(CallBacker*);
+    void		vwResizeCB(CallBacker*);
+    void		mouseMovedCB(CallBacker*);
+    void		doubleClickedCB(CallBacker*);
+    void		usrClickedCB(CallBacker*);
     void		curModEdChgCB(CallBacker*);
-    void		canvasResizeCB(CallBacker*);
-    void		doubleClicked(CallBacker*);
-    void		usrClicked(CallBacker*);
-    virtual void	selPropChgCB(CallBacker*)	= 0;
-    virtual void	dispLithChgCB(CallBacker*)	= 0;
-    virtual void	selContentChgCB(CallBacker*)	= 0;
-    virtual void	selLevelChgCB(CallBacker*)	= 0;
-    virtual void	dispEachChgCB(CallBacker*)	= 0;
-    virtual void	dispZoomedChgCB(CallBacker*)	= 0;
+    void		selPropChgCB(CallBacker*)	{ selPropChg(); }
+    void		dispLithChgCB(CallBacker*)	{ dispLithChg(); }
+    void		selContentChgCB(CallBacker*)	{ selContentChg(); }
+    void		selLevelChgCB(CallBacker*)	{ selLevelChg(); }
+    void		dispEachChgCB(CallBacker*)	{ dispEachChg(); }
+    void		dispZoomedChgCB(CallBacker*)	{ dispZoomedChg(); }
+
+    virtual void	fullRedisp()			= 0;
+    virtual void	drawSelectedSequence()		= 0;
+    virtual void	selPropChg()			= 0;
+    virtual void	dispLithChg()			{}
+    virtual void	selContentChg()			= 0;
+    virtual void	selLevelChg()			= 0;
+    virtual void	dispEachChg()			{}
+    virtual void	dispZoomedChg()			= 0;
     virtual void	doLevelChg()			= 0;
     virtual void	handleClick(bool dble)		= 0;
-				//!< returns whether layermodel has changed
 
 };

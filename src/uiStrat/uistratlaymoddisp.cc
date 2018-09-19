@@ -51,7 +51,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 					  const Strat::LayerModelSuite& lms )
     : uiGroup(t.parent(),"LayerModel display")
     , tools_(t)
-    , lms_(lms)
+    , lms_(lms )
     , zrg_(0,1)
     , selseqidx_(-1)
     , vwr_(*new uiFlatViewer(this))
@@ -88,6 +88,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     app.annot_.x2_.showgridlines_ = true;
     app.annot_.allowuserchangereversedaxis_ = false;
 
+    mAttachCB( postFinalise(), uiStratLayerModelDisp::initGrp );
 }
 
 
@@ -99,20 +100,20 @@ uiStratLayerModelDisp::~uiStratLayerModelDisp()
 
 void uiStratLayerModelDisp::initGrp( CallBacker* )
 {
-    vwr_.rgbCanvas().getMouseEventHandler().buttonReleased.notify(
-			mCB(this,uiStratLayerModelDisp,usrClicked) );
-    vwr_.rgbCanvas().getMouseEventHandler().doubleClick.notify(
-			mCB(this,uiStratLayerModelDisp,doubleClicked) );
-    vwr_.rgbCanvas().getMouseEventHandler().movement.notify(
-			mCB(this,uiStratLayerModelDisp,mouseMoved) );
-    mAttachCB( vwr_.rgbCanvas().reSize, uiStratLayerModelDisp::canvasResizeCB);
+    mAttachCB( vwr_.rgbCanvas().reSize, uiStratLayerModelDisp::vwResizeCB );
+    mAttachCB( lms_.curChanged, uiStratLayerModelDisp::curModEdChgCB );
+
+#   define mSetMouseCB(notifnm,cbnm) \
+	mAttachCB( vwr_.rgbCanvas().getMouseEventHandler().notifnm, \
+		   uiStratLayerModelDisp::cbnm )
+    mSetMouseCB( buttonReleased, usrClickedCB );
+    mSetMouseCB( doubleClick, doubleClickedCB );
+    mSetMouseCB( movement, mouseMovedCB );
+
 #   define mSetCB(notifnm) tools_.notifnm.notify( \
 	mCB(this,uiStratLayerModelDisp,notifnm##CB)  )
-
     mSetCB( selPropChg ); mSetCB( dispLithChg ); mSetCB( selContentChg );
     mSetCB( selLevelChg ); mSetCB( dispEachChg ); mSetCB( dispZoomedChg );
-
-    mAttachCB( lms_.curChanged, uiStratLayerModelDisp::curModEdChgCB );
 }
 
 
@@ -201,6 +202,8 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 
 void uiStratLayerModelDisp::curModEdChgCB( CallBacker* )
 {
+    fullRedisp();
+
     const bool ised = lms_.curIsEdited();
     if ( !modtypetxtitm_ )
     {
@@ -219,7 +222,7 @@ void uiStratLayerModelDisp::curModEdChgCB( CallBacker* )
 }
 
 
-void uiStratLayerModelDisp::canvasResizeCB( CallBacker* )
+void uiStratLayerModelDisp::vwResizeCB( CallBacker* )
 {
     if ( modtypetxtitm_ )
     {
@@ -466,18 +469,19 @@ int uiStratLayerModelDisp::getCurPropIdx() const
 int uiStratLayerModelDisp::getClickedModelNr() const
 {
     MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
-    if ( layerModel().isEmpty() || !mevh.hasEvent() || mevh.isHandled() )
+    if ( layerModel().isEmpty() || !mevh.hasEvent() )
 	return -1;
+
     const MouseEvent& mev = mevh.event();
-    const float xsel = vwr_.getWorld2Ui().toWorldX( mev.pos().x_ );
-    int selidx = (int)(ceil( xsel )) - 1;
-    if ( selidx < 0 || selidx > layerModel().size() )
-	selidx = -1;
-    return selidx;
+    const float fseqidx = vwr_.getWorld2Ui().toWorldX( mev.pos().x_ ) - 1.0f;
+    int seqidx = (int)fseqidx; // not mNINT32
+    if ( fseqidx < 0 || seqidx > layerModel().size() )
+	seqidx = -1; // use fseqidx: (int) will round upward for neg nmbrs
+    return seqidx;
 }
 
 
-void uiStratLayerModelDisp::mouseMoved( CallBacker* )
+void uiStratLayerModelDisp::mouseMovedCB( CallBacker* )
 {
     const int seqidx = getClickedModelNr();
     if ( seqidx<0 || seqidx>=layerModel().size() )
@@ -529,13 +533,13 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
 }
 
 
-void uiStratLayerModelDisp::usrClicked( CallBacker* )
+void uiStratLayerModelDisp::usrClickedCB( CallBacker* )
 {
     handleClick( false );
 }
 
 
-void uiStratLayerModelDisp::doubleClicked( CallBacker* )
+void uiStratLayerModelDisp::doubleClickedCB( CallBacker* )
 {
     handleClick( true );
 }
@@ -587,6 +591,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 
 uiStratSimpleLayerModelDisp::~uiStratSimpleLayerModelDisp()
 {
+    detachAllNotifiers();
     eraseAll();
     delete &lvlitms_;
     delete &logblcklineitms_;
@@ -611,51 +616,56 @@ void uiStratSimpleLayerModelDisp::eraseAll()
 
 
 
-void uiStratSimpleLayerModelDisp::selPropChgCB( CallBacker* )
+void uiStratSimpleLayerModelDisp::selPropChg()
 { reDrawSeq(); }
 
 
-void uiStratSimpleLayerModelDisp::dispLithChgCB( CallBacker* )
+void uiStratSimpleLayerModelDisp::dispLithChg()
 { reDrawSeq(); }
 
 
-void uiStratSimpleLayerModelDisp::selContentChgCB( CallBacker* )
+void uiStratSimpleLayerModelDisp::selContentChg()
 { reDrawSeq(); }
 
 
-void uiStratSimpleLayerModelDisp::selLevelChgCB( CallBacker* )
+void uiStratSimpleLayerModelDisp::selLevelChg()
 { reDrawLevels(); }
 
 
-void uiStratSimpleLayerModelDisp::dispEachChgCB( CallBacker* )
+void uiStratSimpleLayerModelDisp::dispEachChg()
 { reDrawAll(); }
 
 
 void uiStratSimpleLayerModelDisp::handleClick( bool dbl )
 {
-    const int selidx = getClickedModelNr()-1;
-    if ( selidx < 0 ) return;
+    const int seqidx = getClickedModelNr();
+    if ( seqidx < 0 )
+	return;
 
     MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
     const bool isright = OD::rightMouseButton( mevh.event().buttonState() );
-    if ( dbl || isright )
-	handleRightClick(selidx);
+    if ( dbl )
+    {
+	// edit the current lay mod
+    }
+    else if ( isright )
+	handleRightClick( seqidx );
     else
     {
-	selectSequence( selidx );
+	selectSequence( seqidx );
 	sequenceSelected.trigger();
 	mevh.setHandled( true );
     }
 }
 
 
-void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
+void uiStratSimpleLayerModelDisp::handleRightClick( int seqidx )
 {
-    if ( selidx < 0 || selidx >= layerModel().size() )
+    if ( seqidx < 0 || seqidx >= layerModel().size() )
 	return;
 
     Strat::LayerSequence& ls = const_cast<Strat::LayerSequence&>(
-					layerModel().sequence( selidx ) );
+					layerModel().sequence( seqidx ) );
     ObjectSet<Strat::Layer>& lays = ls.layers();
     MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
     float zsel = vwr_.getWorld2Ui().toWorldY( mevh.event().pos().y_ );
@@ -663,7 +673,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     mevh.setHandled( true );
     if ( flattened_ )
     {
-	const float lvlz = lvldpths_[0][selidx];
+	const float lvlz = lvldpths_[0][seqidx];
 	if ( mIsUdf(lvlz) )
 	    return;
 	zsel += lvlz;
@@ -683,7 +693,8 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     mnu.insertAction( new uiAction(m3Dots(uiStrings::phrAdd(tr(
                                           "dumped wells from file")))), 5 );
     const int mnuid = mnu.exec();
-    if ( mnuid < 0 ) return;
+    if ( mnuid < 0 )
+	return;
 
     Strat::Layer& lay = *ls.layers()[layidx];
     if ( mnuid == 1 )
@@ -696,12 +707,11 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 	doLayModIO( mnuid == 5 );
     else if ( mnuid == 3 )
     {
-	const_cast<Strat::LayerModel&>(layerModel()).removeSequence( selidx );
+	const_cast<Strat::LayerModel&>(layerModel()).removeSequence( seqidx );
 	forceRedispAll( true );
     }
     else
     {
-
 	uiDialog dlg( this, uiDialog::Setup( uiStrings::phrRemove(
 				  uiStrings::sLayer().toLower()),
 		                  uiStrings::phrRemove(toUiString("'%1'")
@@ -766,7 +776,7 @@ void uiStratSimpleLayerModelDisp::forceRedispAll( bool modeledited )
 }
 
 
-void uiStratSimpleLayerModelDisp::dispZoomedChgCB( CallBacker* )
+void uiStratSimpleLayerModelDisp::dispZoomedChg()
 {
     mDynamicCastGet(uiMultiFlatViewControl*,stdctrl,vwr_.control())
     if ( stdctrl )
@@ -881,8 +891,8 @@ void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
 
     StepInterval<double> yrg = fvdp_->posData().range( false );
     selseqad_->poly_.erase();
-    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1), yrg.start);
-    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1), yrg.stop );
+    selseqad_->poly_ += FlatView::Point( selseqidx_+1, yrg.start);
+    selseqad_->poly_ += FlatView::Point( selseqidx_+1, yrg.stop );
 }
 
 
