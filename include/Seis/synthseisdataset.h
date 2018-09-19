@@ -132,7 +132,7 @@ public:
 protected:
 
 			DataSet(const GenParams&,DataPack&);
-			DataSet(const DataSet&);
+			DataSet(const DataSet&)		= delete;
 			~DataSet();
     DataSet&		operator =(const DataSet&)	= delete;
 
