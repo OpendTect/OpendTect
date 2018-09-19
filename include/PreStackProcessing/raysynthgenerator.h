@@ -58,7 +58,7 @@ public:
 			{ return *dataset_->rayModels()[idx]; }
 
     const ObjectSet<RayTracer1D>& rayTracers() const;
-    const ElasticModelSet& elasticModels() const { return *elasticmodels_; }
+    const ElasticModelSet& elasticModels() const;
     void		getTraces(ObjectSet<SeisTrcBuf>&);
     void		getStackedTraces(SeisTrcBuf&);
     DataSet*		dataSet()		{ return dataset_; }
@@ -78,10 +78,10 @@ protected:
     RayTracerRunner*		rtr_;
     bool			ownraymodels_;
     uiString			message_;
-    const ElasticModelSet*	elasticmodels_;
+    const ElasticModelSet*	elasticmodels_	    = 0;
     TypeSet<float>		offsets_;
     IOPar			raysetup_;
-    int				nrstep_		     = 1;
+    int				nrstep_		    = 1;
 
     StepInterval<float>		forcedrefltimes_;
     bool			forcerefltimes_;

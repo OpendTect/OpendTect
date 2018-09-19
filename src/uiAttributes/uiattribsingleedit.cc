@@ -18,7 +18,8 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
-uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
+uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew,
+		const TypeSet<DataPack::FullID>* dpids )
     : uiDialog(p,Setup(isnew ? tr("Add attribute") : tr("Edit attribute"),
 		    tr("Define attribute parameters"),
                     mODHelpKey(mSingleAttribEdHelpID) ))
@@ -27,6 +28,8 @@ uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
     , anychg_(false)
 {
     desced_ = uiAF().create( this, desc_.attribName(), desc_.is2D() );
+    if ( dpids )
+	desced_->setDataPackInp( *dpids );
     desced_->setDesc( &desc_ );
 
     namefld_ = new uiGenInput( this, uiStrings::sName(), desc_.userRef() );
@@ -36,13 +39,6 @@ uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
 
 uiSingleAttribEd::~uiSingleAttribEd()
 {
-}
-
-
-void uiSingleAttribEd::setDataPackSelection(
-			const TypeSet<DataPack::FullID>& ids )
-{
-    desced_->setDataPackInp( ids );
 }
 
 

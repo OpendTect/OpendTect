@@ -75,6 +75,13 @@ RaySynthGenerator::~RaySynthGenerator()
 }
 
 
+const ElasticModelSet& RaySynthGenerator::elasticModels() const
+{
+    static ElasticModelSet emptyelms;
+    return elasticmodels_ ? *elasticmodels_ : emptyelms;
+}
+
+
 od_int64 RaySynthGenerator::nrIterations() const
 {
     return elasticmodels_ ? elasticmodels_->size()
@@ -96,7 +103,7 @@ bool RaySynthGenerator::doPrepare( int )
 
     if ( !raytracingdone_ || dataset_->rayModels().isEmpty() )
     {
-	rtr_ = new RayTracerRunner( *elasticmodels_, raysetup_ );
+	rtr_ = new RayTracerRunner( elasticModels(), raysetup_ );
 	message_ = tr("Raytracing");
 	if ( !rtr_->execute() )
 	    mErrRet( rtr_->errMsg(), false );

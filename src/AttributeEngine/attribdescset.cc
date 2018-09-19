@@ -51,10 +51,18 @@ static DescSet*	dummy2d_	= new DescSet( true );
 static DescSet*	dummy3d_	= new DescSet( false );
 static uiRetVal autoloadresult_;
 
-const DescSet&	DescSet::global2D()	{ return *global2d_.last(); }
-const DescSet&	DescSet::global3D()	{ return *global3d_.last(); }
-DescSet&	DescSet::global2D4Edit() { return *global2d_.last(); }
-DescSet&	DescSet::global3D4Edit() { return *global3d_.last(); }
+inline static DescSet& gtGDesc( bool is2d )
+{
+    auto& descs = is2d ? global2d_ : global3d_;
+    if ( descs.isEmpty() )
+	DescSet::initGlobalSets();
+    return *descs.last();
+}
+
+const DescSet&	DescSet::global2D()	{ return gtGDesc(true); }
+const DescSet&	DescSet::global3D()	{ return gtGDesc(false); }
+DescSet&	DescSet::global2D4Edit(){ return gtGDesc(true); }
+DescSet&	DescSet::global3D4Edit(){ return gtGDesc(false); }
 const DescSet&	DescSet::empty2D()	{ return *empty2d_; }
 const DescSet&	DescSet::empty3D()	{ return *empty3d_; }
 DescSet&	DescSet::dummy2D()	{ return *dummy2d_; }
@@ -62,31 +70,29 @@ DescSet&	DescSet::dummy3D()	{ return *dummy3d_; }
 const uiRetVal&	DescSet::autoLoadResult() { return autoloadresult_; }
 
 
-mClass(Attrib) DescSet_Standard_Manager : public CallBacker
+mClass(Attrib) Global_DescSet_Manager : public CallBacker
 {
 public:
-DescSet_Standard_Manager()
+Global_DescSet_Manager()
 {
     DBM().afterSurveyChange.notify(
-	    mCB(this,DescSet_Standard_Manager,survChgCB) );
+	    mCB(this,Global_DescSet_Manager,survChgCB) );
 }
 
 void survChgCB( CallBacker* )
 {
+    deepErase( global2d_ ); deepErase( global3d_ );
     dummy2d_->setEmpty(); dummy3d_->setEmpty();
-    DescSet::initGlobalSets();
 }
 
 };
 
-PtrMan<DescSet_Standard_Manager> standard_manager;
+PtrMan<Global_DescSet_Manager> standard_manager;
 
-void Make_DescSet_Standard_Manager()
+void Make_Global_DescSet_Manager()
 {
-    standard_manager = new DescSet_Standard_Manager;
+    standard_manager = new Global_DescSet_Manager;
 }
-
-
 
 
 uiString DescSet::sFactoryEntryNotFound( const char* attrnm )
@@ -960,8 +966,14 @@ DescSet* DescSet::popGlobal( bool is2d )
 
 void DescSet::initGlobalSets()
 {
+    static Threads::Lock lock_;
+    Threads::Locker locker( lock_ );
+
+    if ( !global2d_.isEmpty() )
+	return; // another thread has beat us to it
+
     autoloadresult_.setEmpty();
-    deepErase( global2d_ ); deepErase( global3d_ );
+
     DescSet* g2d = new DescSet( true ); DescSet* g3d = new DescSet( false );
     global2d_ += g2d; global3d_ += g3d;
 

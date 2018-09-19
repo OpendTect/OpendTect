@@ -70,7 +70,10 @@ void uiAttrSelData::init()
     nlamodel_ = 0;
     zdomaininfo_ = 0;
     setUndef();
-    mAttachCB( attrset_->aboutToBeDeleted, uiAttrSelData::descSetDel );
+    if ( !attrset_ )
+	{ pErrMsg("Global Attrsets not created"); }
+    else
+	mAttachCB( attrset_->aboutToBeDeleted, uiAttrSelData::descSetDel );
 }
 
 

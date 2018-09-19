@@ -13,6 +13,11 @@ ________________________________________________________________________
 #include "attribdescsettr.h"
 #include "attribprobelayer.h"
 
+namespace Attrib
+{
+    extern void Make_Global_DescSet_Manager();
+}
+
 
 mDefModInitFn(AttributeEngine)
 {
@@ -20,7 +25,9 @@ mDefModInitFn(AttributeEngine)
 
     AttribDescSetTranslatorGroup::initClass();
     dgbAttribDescSetTranslator::initClass();
-    
+
     Attrib::StorageProvider::initClass();
     AttribProbeLayer::initClass();
+
+    Attrib::Make_Global_DescSet_Manager();
 }

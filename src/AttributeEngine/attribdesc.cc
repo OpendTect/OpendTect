@@ -647,8 +647,8 @@ DBKey Desc::getStoredID( bool recursive ) const
     {
 	for ( int idx=0; idx<nrInputs(); idx++ )
 	{
-	    const Desc& desc = *getInput( idx );
-	    dbky = desc.getStoredID( true );
+	    const Desc* desc = getInput( idx );
+	    dbky = desc ? desc->getStoredID(true) : DBKey();
 	    if ( dbky.isValid() )
 		break;
 	}

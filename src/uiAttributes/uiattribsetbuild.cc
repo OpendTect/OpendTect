@@ -175,36 +175,27 @@ void uiAttribDescSetBuild::editReq( bool isadd )
     }
 
     Attrib::Desc& desc = *descset_.getDesc( did );
-    uiSingleAttribEd dlg( this, desc, isadd );
-    bool success = false;
-    if ( desc.isPS() )
+    const auto& dpsel = desc.isPS() ? psdpfids_ : dpfids_;
+    uiSingleAttribEd dlg( this, desc, isadd, &dpsel );
+    bool success = dlg.go();
+    if ( success && desc.isPS() )
     {
-	dlg.setDataPackSelection( psdpfids_ );
-	success = dlg.go();
-	if ( success )
+	for ( int idx=descset_.size()-1; idx>=0; idx-- )
 	{
-	    for ( int idx=descset_.size()-1; idx>=0; idx-- )
+	    Attrib::Desc* tmpdesc = descset_.desc(idx);
+	    if ( tmpdesc->isStoredInMem() )
 	    {
-		Attrib::Desc* tmpdesc = descset_.desc(idx);
-		if ( tmpdesc->isStoredInMem() )
-		{
-		    const char* idval;
-		    mGetStringFromDesc( (*tmpdesc), idval,
-					Attrib::StorageProvider::keyStr() )
-		    const StringPair strpair( idval );
-		    BufferString bstring = strpair.first();
-		    const DataPack::FullID fid
-			= DataPack::FullID::getFromString( bstring.buf()+1 );
-		    if ( psdpfids_.isPresent(fid) )
-			descset_.removeDesc( tmpdesc->id() );
-		}
+		const char* idval;
+		mGetStringFromDesc( (*tmpdesc), idval,
+				    Attrib::StorageProvider::keyStr() )
+		const StringPair strpair( idval );
+		BufferString bstring = strpair.first();
+		const DataPack::FullID fid
+		    = DataPack::FullID::getFromString( bstring.buf()+1 );
+		if ( psdpfids_.isPresent(fid) )
+		    descset_.removeDesc( tmpdesc->id() );
 	    }
 	}
-    }
-    else
-    {
-	dlg.setDataPackSelection( dpfids_ );
-	success = dlg.go();
     }
 
     if ( success )

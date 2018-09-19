@@ -19,16 +19,15 @@ class uiAttrDescEd;
 class uiGenInput;
 
 
-/*! \brief Dialog for creating volume output */
+/*! \brief edits a single Attrib::Desc */
 
 mExpClass(uiAttributes) uiSingleAttribEd : public uiDialog
 { mODTextTranslationClass(uiSingleAttribEd);
 public:
 
-			uiSingleAttribEd(uiParent*,Attrib::Desc&,bool isnew);
+			uiSingleAttribEd(uiParent*,Attrib::Desc&,bool isnew,
+				     const TypeSet<DataPack::FullID>* dpids=0);
 			~uiSingleAttribEd();
-
-    void		setDataPackSelection(const TypeSet<DataPack::FullID>&);
 
     bool		anyChange() const	{ return anychg_; }
     bool		nameChanged() const	{ return nmchgd_; }

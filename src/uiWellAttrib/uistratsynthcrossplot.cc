@@ -76,8 +76,7 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p, const DataMgr& dm )
 	if ( sd && !sd->isEmpty() )
 	{
 	    const auto dpid = sd->dataPackID();
-	    if ( !DPM(dpid).isPresent(dpid) )
-		DPM(dpid).add( sd->dataPack() );
+	    DPM(dpid).add( sd->dataPack() );
 	    (sd->isPS() ? psdpids : dpids).add( dpid );
 	}
     }

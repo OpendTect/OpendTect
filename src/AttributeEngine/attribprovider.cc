@@ -255,7 +255,8 @@ Provider::Provider( Desc& nd )
 Provider::~Provider()
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
-	if ( inputs_[idx] ) inputs_[idx]->unRef();
+	if ( inputs_[idx] )
+	    inputs_[idx]->unRef();
 
     inputs_.erase();
     allexistingprov_.erase();
@@ -407,10 +408,12 @@ void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
     TrcKeyZSampling inputcs;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs_[idx] ) continue;
+	if ( !inputs_[idx] )
+	    continue;
 	for ( int idy=0; idy<outputinterest_.size(); idy++ )
 	{
-	    if ( outputinterest_[idy]<1 || !inputs_[idx] ) continue;
+	    if ( outputinterest_[idy]<1 || !inputs_[idx] )
+		continue;
 
 	    bool isstored = inputs_[idx]->desc_.isStored();
 	    computeDesInputCube( idx, idy, inputcs, !isstored );
@@ -437,17 +440,20 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 	return false;
 
     TrcKeyZSampling tmpres = res;
-    if ( inputs_.size()==0 )
+    if ( inputs_.isEmpty() )
     {
-	if ( !is2D() ) res.init(true);
+	if ( !is2D() )
+	    res.init( true );
 	if ( !possiblevolume_ )
 	    possiblevolume_ = new TrcKeyZSampling;
 
-	if ( is2D() ) *possiblevolume_ = res;
+	if ( is2D() )
+	    *possiblevolume_ = res;
 	return true;
     }
 
-    if ( !desiredvolume_ ) return false;
+    if ( !desiredvolume_ )
+	return false;
 
     TypeSet<int> outputs;
     if ( output != -1 )
@@ -477,7 +483,8 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 
 	    for ( int idy=0; idy<inputoutput.size(); idy++ )
 	    {
-		if ( !inputs_[inp] ) continue;
+		if ( !inputs_[inp] )
+		    continue;
 
 		computeDesInputCube(inp, out, inputcs, true);
 		if ( !inputs_[inp]->getPossibleVolume( idy, inputcs ) )
@@ -534,7 +541,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 
     BinID pos = startpos;
 
-    if ( inputs_.size() < 1 )
+    if ( inputs_.isEmpty() )
     {
 	pos = BinID(-1,-1);
 	if ( seldata_ && seldata_->type() == Seis::Table )
@@ -574,17 +581,20 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	needmove = docheck;
 	for ( int idx=0; idx<inputs_.size(); idx++ )
 	{
-	    if ( !inputs_[idx] ) continue;
+	    if ( !inputs_[idx] )
+		continue;
 
 	    currentbid_ = inputs_[idx]->getCurrentPosition();
 	    trcinfobid_ = inputs_[idx]->getTrcInfoBid();
-	    if ( !docheck && currentbid_ == pos ) continue;
+	    if ( !docheck && currentbid_ == pos )
+		continue;
 	    if ( !docheck && trcinfobid_ != BinID(-1,-1) && trcinfobid_ == pos )
 		continue;
 
 	    needmove = true;
 	    const int res = inputs_[idx]->moveToNextTrace(pos, firstcheck);
-	    if ( res!=1 ) return res;
+	    if ( res!=1 )
+		return res;
 
 	    bool needmscprov = true;
 	    if ( !inputs_[idx]->getMSCProvider( needmscprov ) && needmscprov )
@@ -671,7 +681,8 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
     {
 	for ( int idx=0; idx<inputs_.size(); idx++ )
 	{
-	    if ( !inputs_[idx] ) continue;
+	    if ( !inputs_[idx] )
+		continue;
 	    if ( !inputs_[idx]->setCurrentPosition( currentbid_ ) )
 		return -1;
 	}
@@ -829,7 +840,8 @@ void Provider::updateCurrentInfo()
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs_[idx] ) continue;
+	if ( !inputs_[idx] )
+	    continue;
 	inputs_[idx]->updateCurrentInfo();
 	if ( currentbid_ != inputs_[idx]->getCurrentPosition() )
 	    currentbid_ = inputs_[idx]->getCurrentPosition();
@@ -994,16 +1006,20 @@ BinID Provider::getStepoutStep() const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs_[idx] || !inputs_[idx]->needStoredInput() ) continue;
+	if ( !inputs_[idx] || !inputs_[idx]->needStoredInput() )
+	    continue;
 	BinID bid = inputs_[idx]->getStepoutStep();
-	if ( bid.inl()!=0 && bid.crl()!=0 ) return bid;
+	if ( bid.inl()!=0 && bid.crl()!=0 )
+	    return bid;
     }
 
     for ( int idx=0; idx<parents_.size(); idx++ )
     {
-	if ( !parents_[idx] ) continue;
+	if ( !parents_[idx] )
+	    continue;
 	BinID bid = parents_[idx]->getStepoutStep();
-	if ( bid.inl()!=0 && bid.crl()!=0 ) return bid;
+	if ( bid.inl()!=0 && bid.crl()!=0 )
+	    return bid;
     }
 
     return BinID( SI().inlStep(), SI().crlStep() );
@@ -1029,7 +1045,8 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 				      loczinterval.width()+1 );
     if ( !outdata || !getInputData(relpos, idi) )
     {
-	if ( outdata ) linebuffer_->removeDataHolder( currentbid_+relpos );
+	if ( outdata )
+	    linebuffer_->removeDataHolder( currentbid_+relpos );
 	return 0;
     }
 
@@ -1043,7 +1060,6 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	{
 	    if ( outdata->series(idx) )
 		outdata->replace( idx, 0 );
-
 	    continue;
 	}
 
@@ -1115,9 +1131,11 @@ Seis::MSCProvider* Provider::getMSCProvider( bool& needmscprov ) const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs_[idx] ) continue;
+	if ( !inputs_[idx] )
+	    continue;
 	Seis::MSCProvider* res = inputs_[idx]->getMSCProvider( needmscprov );
-	if ( res ) return res;
+	if ( res )
+	    return res;
     }
 
     return 0;
@@ -1260,7 +1278,8 @@ void Provider::updateStorageReqs( bool all )
     if ( !all )
     {
 	for ( int idx=0; idx<inputs_.size(); idx++ )
-	    if ( inputs_[idx] ) inputs_[idx]->updateStorageReqs( all );
+	    if ( inputs_[idx] )
+		inputs_[idx]->updateStorageReqs( all );
     }
 }
 
@@ -1339,11 +1358,13 @@ void Provider::updateInputReqs( int inp )
     TrcKeyZSampling inputcs;
     for ( int out=0; out<outputinterest_.size(); out++ )
     {
-	if ( !outputinterest_[out] || !inputs_[inp] ) continue;
+	if ( !outputinterest_[out] || !inputs_[inp] )
+	    continue;
 
 	BinID stepout(0,0);
 	const BinID* req = reqStepout(inp,out);
-	if ( req ) stepout = *req;
+	if ( req )
+	    stepout = *req;
 	const BinID* des = desStepout(inp,out);
 	if ( des )
 	{
@@ -1451,10 +1472,8 @@ void Provider::setCurLineName( const char* linename )
 {
     geomid_ = Survey::GM().getGeomID( linename );
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
-	if ( !inputs_[idx] ) continue;
-	inputs_[idx]->setCurLineName( linename );
-    }
+	if ( inputs_[idx] )
+	    inputs_[idx]->setCurLineName( linename );
 }
 
 
@@ -1490,10 +1509,8 @@ void Provider::setGeomID( Pos::GeomID geomid )
 {
     geomid_ = geomid;
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
 	if ( inputs_[idx] )
 	    inputs_[idx]->setGeomID( geomid );
-    }
 }
 
 
@@ -1501,10 +1518,8 @@ void Provider::setSelData( const Seis::SelData* seldata )
 {
     seldata_ = seldata;
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
 	if ( inputs_[idx] )
 	    inputs_[idx]->setSelData(seldata_);
-    }
 }
 
 
@@ -1544,16 +1559,14 @@ float Provider::lineDist() const
 float Provider::trcDist() const
 {
     return is2D() && useInterTrcDist() ?
-     getDistBetwTrcs(false, Survey::GM().getName(geomid_)) : SI().crlDistance();
+    getDistBetwTrcs(false, Survey::GM().getName(geomid_)) : SI().crlDistance();
 }
 
 uiString Provider::errMsg() const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
 	if ( inputs_[idx] && !inputs_[idx]->errMsg().isEmpty() )
 	    return inputs_[idx]->errMsg();
-    }
 
     return errmsg_;
 }
@@ -1563,10 +1576,8 @@ void Provider::setUsedMultTimes()
 {
     isusedmulttimes_ = true;
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
 	if ( inputs_[idx] )
 	    inputs_[idx]->setUsedMultTimes();
-    }
 }
 
 
@@ -1574,10 +1585,8 @@ void Provider::setNeedInterpol( bool yn )
 {
     needinterp_ = yn;
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
 	if ( inputs_[idx] )
 	    inputs_[idx]->setNeedInterpol( yn );
-    }
 }
 
 
@@ -1589,10 +1598,8 @@ void Provider::resetDesiredVolume()
 	desiredvolume_ = 0;
     }
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
 	if ( inputs_[idx] )
 	    inputs_[idx]->resetDesiredVolume();
-    }
 }
 
 
@@ -1666,21 +1673,24 @@ void Provider::setOutputValue( const DataHolder& output, int outputidx,
 void Provider::prepareForComputeData()
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
-	if ( inputs_[idx] ) inputs_[idx]->prepareForComputeData();
+	if ( inputs_[idx] )
+	    inputs_[idx]->prepareForComputeData();
 }
 
 
 void Provider::prepPriorToBoundsCalc()
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
-	if ( inputs_[idx] ) inputs_[idx]->prepPriorToBoundsCalc();
+	if ( inputs_[idx] )
+	    inputs_[idx]->prepPriorToBoundsCalc();
 }
 
 
 bool Provider::prepPriorToOutputSetup()
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
-	if ( inputs_[idx] ) inputs_[idx]->prepPriorToOutputSetup();
+	if ( inputs_[idx] )
+	    inputs_[idx]->prepPriorToOutputSetup();
 
     return false;
 }
@@ -1706,7 +1716,8 @@ float Provider::getDistBetwTrcs( bool ismax, const char* linenm ) const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs_[idx] ) continue;
+	if ( !inputs_[idx] )
+	    continue;
 	const float distval = inputs_[idx]->getDistBetwTrcs( ismax, linenm );
 	if ( !mIsUdf(distval) )
 	    return distval;
@@ -1731,13 +1742,8 @@ bool Provider::needStoredInput() const
 {
     bool needinput = false;
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
 	if ( inputs_[idx] && inputs_[idx]->needStoredInput() )
-	{
-	    needinput = true;
-	    break;
-	}
-    }
+	    { needinput = true; break; }
 
     return needinput;
 }
@@ -1747,10 +1753,8 @@ void Provider::setRdmPaths( const TypeSet<BinID>& truepath,
 			    const TypeSet<BinID>& snappedpath )
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
 	if ( inputs_[idx] )
 	    inputs_[idx]->setRdmPaths( truepath, snappedpath );
-    }
 }
 
 
@@ -1764,14 +1768,9 @@ float Provider::getExtraZFromSampInterval( int z0, int nrsamples ) const
 {
     int intvidx = -1;
     for ( int idx=0; idx<localcomputezintervals_.size(); idx++ )
-    {
 	 if ( localcomputezintervals_[idx].includes( z0,true ) &&
 	      localcomputezintervals_[idx].includes( z0+nrsamples-1,true ) )
-	 {
-	     intvidx = idx;
-	     break;
-	 }
-    }
+	     { intvidx = idx; break; }
 
     return ( intvidx>=0 && exactz_.size()>intvidx )
 		? getExtraZFromSampPos( exactz_[intvidx] ) : 0;
@@ -1781,17 +1780,15 @@ float Provider::getExtraZFromSampInterval( int z0, int nrsamples ) const
 void Provider::stdPrepSteering( const BinID& so )
 {
     for( int idx=0; idx<inputs_.size(); idx++ )
-    {
 	if ( inputs_[idx] && inputs_[idx]->getDesc().isSteering() )
 	    inputs_[idx]->prepSteeringForStepout( so );
-    }
 }
 
 
 float Provider::zFactor() const
 {
-    return (float) ( zIsTime() ?  ZDomain::Time()
-			       : ZDomain::Depth() ).userFactor();
+    return (float)(zIsTime() ? ZDomain::Time()
+			     : ZDomain::Depth() ).userFactor();
 }
 
 
@@ -1824,10 +1821,8 @@ void Provider::setDataUnavailableFlag( bool yn )
 bool Provider::getDataUnavailableFlag() const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
 	if ( inputs_[idx] && inputs_[idx]->getDataUnavailableFlag() )
 	    return true;
-    }
 
     return dataunavailableflag_;
 }
