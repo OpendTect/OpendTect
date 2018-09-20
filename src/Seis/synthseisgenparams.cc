@@ -160,7 +160,8 @@ void SynthSeis::GenParams::usePar( const IOPar& par )
     }
 
     PtrMan<IOPar> raypar = par.subselect( sKeyRayPar() );
-    raypars_ = *raypar;
+    if ( raypar )
+	raypars_ = *raypar;
 
     if ( par.hasKey( sKeyIsPreStack()) )
     {

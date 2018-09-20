@@ -209,6 +209,7 @@ void uiStratSynthDataMgr::addAsNewCB( CallBacker* )
     selfld_->addItem( gp.name_ );
     prevselidx_ = selfld_->size() - 1;
     selfld_->setCurrentItem( prevselidx_ );
+    ns.enableNotification();
 
     updUi();
 }

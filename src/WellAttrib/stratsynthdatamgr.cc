@@ -281,9 +281,8 @@ BufferString StratSynth::DataMgr::getFinalDataSetName( const char* gpnm,
 void StratSynth::DataMgr::fillPar( IOPar& iop ) const
 {
     IOPar synthpar;
-    synthpar.set( sKeyNrSynthetics, genparams_.size() );
 
-    int gpnr = 0;
+    int nrgp = 0;
     for ( int igp=0; igp<genparams_.size(); igp++ )
     {
 	const auto& gp = genparams_.get( igp );
@@ -292,9 +291,10 @@ void StratSynth::DataMgr::fillPar( IOPar& iop ) const
 
 	IOPar subpar;
 	genparams_.get(igp).fillPar( subpar );
-	synthpar.mergeComp( subpar, IOPar::compKey(sKeySyntheticNr,gpnr) );
-	gpnr++;
+	synthpar.mergeComp( subpar, IOPar::compKey(sKeySyntheticNr,nrgp) );
+	nrgp++;
     }
+    synthpar.set( sKeyNrSynthetics, nrgp );
     iop.mergeComp( synthpar, sKeySynthetics );
 }
 

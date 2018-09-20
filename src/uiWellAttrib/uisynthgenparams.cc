@@ -324,7 +324,7 @@ uiSynthCorrAdvancedDlg( uiParent* p, float& ml, float& sml )
     const float smlimitpct = 100.f * smlimit_;
     smlimitfipctld_->setValue( mNINT32(smlimitpct) );
 
-    const float mutelenms = 1000.f * mutelen_;
+    const float mutelenms = mIsUdf(mutelen_) ? mutelen_ : 1000.f * mutelen_;
     mutemsfld_ = new uiGenInput( this, tr("Mute taper-length").withUnit("ms"),
 				  FloatInpSpec(mutelenms) );
     mutemsfld_->attach( alignedBelow, lsb );
