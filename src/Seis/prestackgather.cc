@@ -524,7 +524,7 @@ void GatherSetDataPack::fill( Array2D<float>& inp, int offsetidx ) const
 void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
 {
     for ( int idx=0; idx<gathers_.size(); idx++ )
-	inp.add( gtTrace(idx,offsetidx) );
+	inp.add( crTrace(idx,offsetidx) );
 }
 
 
@@ -563,7 +563,7 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, Interval<float> stackrg ) const
 }
 
 
-void GatherSetDataPack::fillGatherBuf( SeisTrcBuf& seisbuf,const BinID& bid)
+void GatherSetDataPack::fillGatherBuf( SeisTrcBuf& seisbuf, const BinID& bid )
 {
     const Gather* gather = 0; int gatheridx = -1;
     for ( int idx=0; idx<gathers_.size(); idx++ )
@@ -572,35 +572,28 @@ void GatherSetDataPack::fillGatherBuf( SeisTrcBuf& seisbuf,const BinID& bid)
     if ( !gather ) return;
 
     for ( int offsetidx=0; offsetidx<gather->nrOffsets(); offsetidx++ )
-	seisbuf.add( getTrace(gatheridx,offsetidx) );
+	seisbuf.add( crTrace(gatheridx,offsetidx) );
 }
 
 
-const SeisTrc* GatherSetDataPack::getTrace(
-		const BinID& bid, int offsetidx ) const
+SeisTrc* GatherSetDataPack::createTrace( const BinID& bid, int offsetidx ) const
 {
     int gatheridx = -1;
     for ( int idx=0; idx<gathers_.size(); idx++ )
 	if ( gathers_[idx]->getBinID() == bid )
 	    { gatheridx = idx; break; }
 
-    return gtTrace( gatheridx, offsetidx );
+    return crTrace( gatheridx, offsetidx );
 }
 
 
-const SeisTrc* GatherSetDataPack::getTrace(int gatheridx,int offsetidx) const
+SeisTrc* GatherSetDataPack::createTrace(int gatheridx,int offsetidx) const
 {
-    return gtTrace( gatheridx, offsetidx );
+    return crTrace( gatheridx, offsetidx );
 }
 
 
-SeisTrc* GatherSetDataPack::getTrace( int gatheridx, int offsetidx )
-{
-    return gtTrace( gatheridx, offsetidx );
-}
-
-
-SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
+SeisTrc* GatherSetDataPack::crTrace( int gatheridx, int offsetidx ) const
 {
     if ( !gathers_.validIdx(gatheridx) ||
 	    offsetidx>=gathers_[gatheridx]->nrOffsets() )

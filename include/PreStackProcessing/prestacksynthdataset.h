@@ -33,11 +33,13 @@ public:
 
     virtual bool		isPS() const	  { return true; }
     bool			isNMOCorrected() const;
+    int				nrOffsets() const;
     virtual OffsetDef		offsetDef() const;
     Interval<float>		offsetRange() const;
     float			offsetStep() const;
 
     void			setAngleData(const GatherSet&);
+    SeisTrc*			createTrc(int seqnr,int ioffs) const;
     const SeisTrc*		getTrc(int seqnr,int offset) const;
     SeisTrcBuf*			getTrcBuf(float startoffset,
 					  const Interval<float>* of=0) const;
@@ -48,12 +50,19 @@ public:
 
 protected:
 
+    typedef ObjectSet<SeisTrc>	TrcSet;
+
     RefMan<GatherSetDataPack>	angledp_;
+    mutable ObjectSet<TrcSet>	trccache_;
+
+    void			ensureCacheReady() const;
+    const SeisTrc*		getCachedTrc(int seqnr,int offsnr) const;
+    const SeisTrc*		addTrcToCache(int seqnr,int offsnr) const;
+
     void			convertAngleDataToDegrees(Gather*) const;
 
     virtual DataPackMgr::ID	dpMgrID() const;
-    virtual const SeisTrc*	gtTrc( int seqnr, float offs ) const
-				{ return getTrc( seqnr, offs ); }
+    virtual const SeisTrc*	gtTrc(int,float) const;
 
 };
 

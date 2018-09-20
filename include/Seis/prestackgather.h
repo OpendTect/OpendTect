@@ -172,9 +172,8 @@ public:
     void			fill(SeisTrcBuf&,int offsetidx) const;
     void			fill(SeisTrcBuf&,Interval<float> stackrg) const;
     void			fillGatherBuf(SeisTrcBuf&,const BinID&);
-    SeisTrc*			getTrace(int gatheridx,int offsetidx);
-    const SeisTrc*		getTrace(int gatheridx,int offsetidx) const;
-    const SeisTrc*		getTrace(const BinID&,int offsetidx) const;
+    SeisTrc*			createTrace(int gatheridx,int offsetidx) const;
+    SeisTrc*			createTrace(const BinID&,int offsetidx) const;
 
     const Gather*		getGather(const BinID&) const;
     const GatherSet&		getGathers() const	{ return gathers_; }
@@ -187,12 +186,19 @@ protected:
 
 				~GatherSetDataPack();
 
-    SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;
+    SeisTrc*			crTrace(int gatheridx,int offsetidx) const;
 
     RefObjectSet<Gather>	gathers_;
 
     virtual bool		gtIsEmpty() const { return gathers_.isEmpty(); }
     virtual float		gtNrKBytes() const;
     virtual void		doDumpInfo(IOPar&) const;
+
+public:
+
+    mDeprecated SeisTrc*	getTrace( int gid, int oi ) const
+				{ return createTrace( gid, oi ); }
+    mDeprecated SeisTrc*	getTrace( const BinID& bid, int oi ) const
+				{ return createTrace( bid, oi ); }
 
 };

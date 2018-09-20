@@ -198,11 +198,12 @@ int StratSynthExporter::writePreStackTraces()
     for ( int offsidx=0; offsidx<gather->size(true); offsidx++ )
     {
 	const float offset = gather->getOffset( offsidx );
-	SeisTrc trc( *gsdp.getTrace(posdone_,offsidx) );
-	trc.info().trckey_ = TrcKey( geomid_, linepos.nr_ );
-	trc.info().coord_ = linepos.coord_;
-	trc.info().offset_ = offset;
-	if ( !writer_->put(trc) )
+	PtrMan<SeisTrc> trc = gsdp.createTrace( posdone_, offsidx );
+	auto& ti = trc->info();
+	ti.trckey_ = TrcKey( geomid_, linepos.nr_ );
+	ti.coord_ = linepos.coord_;
+	ti.offset_ = offset;
+	if ( !writer_->put(*trc) )
 	{
 	    errmsg_ = writer_->errMsg();
 	    return ErrorOccurred();

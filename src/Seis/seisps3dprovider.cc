@@ -184,24 +184,25 @@ void Seis::PS3DFetcher::getAt( const BinID& bid, SeisTrcBuf& tbuf )
 }
 
 
-void Seis::PS3DFetcher::getSingleAt( const BinID& bid, SeisTrc& trc )
+void Seis::PS3DFetcher::getSingleAt( const BinID& bid, SeisTrc& rettrc )
 {
     if ( !prepGetAt(bid) )
 	return;
 
     uirv_.setEmpty();
     const int offsetidx = prov().haveSelComps() ? prov().selcomps_[0] : 0;
-    const SeisTrc* seistrc = 0;
+    SeisTrc* foundtrc = 0;
     if ( dp_ )
-	seistrc = dp_->getTrace( bid, offsetidx );
-    else if ( !seistrc )
+	foundtrc = dp_->createTrace( bid, offsetidx );
+    else if ( !foundtrc )
     {
-	seistrc = rdr_->getTrace( nextbid_, offsetidx );
-	if ( !seistrc )
+	foundtrc = rdr_->getTrace( nextbid_, offsetidx );
+	if ( !foundtrc )
 	    { uirv_.set( rdr_->errMsg() ); return; }
     }
 
-    trc = *seistrc;
+    rettrc = *foundtrc;
+    delete foundtrc;
     moveNextBinID();
 }
 

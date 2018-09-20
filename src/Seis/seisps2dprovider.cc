@@ -70,7 +70,7 @@ const PS2DProvider& prov() const
     void		getNext(SeisTrcBuf&);
     void		getNextSingle(SeisTrc&);
 
-    SeisPS2DReader*		rdr_;
+    SeisPS2DReader*	rdr_;
     RefMan<GatherSetDataPack>	dp_;
     PosInfo::Line2DDataIterator* lditer_;
     bool		atend_;
@@ -203,9 +203,14 @@ void Seis::PS2DFetcher::getSingleAt( const TrcKey& tk, SeisTrc& trc )
     const int offsetidx = prov().haveSelComps() ? prov().selcomps_[0] : 0;
     if ( dp_ )
     {
-	const SeisTrc* seistrc = dp_->getTrace( tk.binID(), offsetidx );
-	if ( seistrc )
-	    { trc = *seistrc; return; }
+	SeisTrc* dptrc = dp_->createTrace( tk.binID(), offsetidx );
+	if ( dptrc )
+	{
+	    trc = *dptrc;
+	    delete dptrc;
+	    return;
+	}
+	// if dp_ cannot deliver, let's try our luck reading the trace ...
     }
 
     SeisTrc* rdtrc = rdr_->getTrace( nexttrcky_, offsetidx );
@@ -214,6 +219,7 @@ void Seis::PS2DFetcher::getSingleAt( const TrcKey& tk, SeisTrc& trc )
     else
     {
 	trc = *rdtrc;
+	delete rdtrc;
 	moveNextTrcKey();
     }
 }
