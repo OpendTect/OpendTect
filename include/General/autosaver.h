@@ -27,8 +27,6 @@ mExpClass(General) AutoSaveObj : public CallBacker
 { mODTextTranslationClass(AutoSaveObj)
 public:
 
-    typedef Monitorable::DirtyCountType DirtyCountType;
-
 			AutoSaveObj(const Saveable&,AutoSaver&);
 			~AutoSaveObj();
 

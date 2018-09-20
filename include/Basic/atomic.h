@@ -10,9 +10,7 @@ ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
-#include "commondefs.h"
-#include "plftypes.h"
+#include "gendefs.h"
 #include "odversion.h"
 
 #ifdef __win__
@@ -21,7 +19,8 @@ ________________________________________________________________________
 
 # include <atomic>
 
-namespace Threads {
+namespace Threads
+{
 
 template <class T>
 mClass(Basic) Atomic : public std::atomic<T>
@@ -276,4 +275,7 @@ AtomicPointer<T>& AtomicPointer<T>::operator=(const AtomicPointer<T>& ptr)
     return operator=((T*)ptr);
 }
 
-} //namespace
+} //namespace Threads
+
+
+typedef Threads::Atomic<DirtyCountType>     DirtyCounter;

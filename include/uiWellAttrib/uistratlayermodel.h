@@ -83,16 +83,17 @@ public:
 protected:
 
     uiLayerSequenceGenDesc*	descdisp_;
-    uiStratLayerModelDisp*	moddisp_;
+    uiStratLayerModelDisp*	moddisp_	= 0;
     uiStratSynthDisp*		synthdisp_;
     uiStratGenDescTools*	gentools_;
     uiStratLayModEditTools*	modtools_;
-    uiToolBar*			analtb_;
+    uiToolBar*			analtb_		= 0;
 
     LayerSequenceGenDesc&	desc_;
     LayerModelSuite&		lms_;
-    SynthDataMgr*		synthdatamgr_;
-    ElasticPropSelection*	elpropsel_;
+    SynthDataMgr*		synthdatamgr_	= 0;
+    ElasticPropSelection*	elpropsel_	= 0;
+    mutable DirtyCountType	synthdatamgrdc_	= -1;
 
     CtxtIOObj&			descctio_;
     bool			needtoretrievefrpars_;

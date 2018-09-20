@@ -76,11 +76,8 @@ const char* uiStratLayerModel::sKeyModeler2Use()
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     : uiMainWin(p,uiString::empty(),1,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
-    , elpropsel_(0)
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
-    , analtb_(0)
     , lms_(*new Strat::LayerModelSuite)
-    , moddisp_(0)
     , newModel(this)
     , beforeSave(this)
     , afterRetrieve(this)
@@ -113,6 +110,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     gentools_ = new uiStratGenDescTools( gengrp );
 
     synthdatamgr_ = new SynthDataMgr( lms_ );
+    synthdatamgrdc_ = synthdatamgr_->dirtyCount();
     moddisp_ = descdisp_->getLayModDisp( *modtools_, lms_, opt );
     if ( !moddisp_ )
     {
@@ -342,12 +340,13 @@ int uiStratLayerModel::nrToGen() const
 
 bool uiStratLayerModel::saveGenDescIfNecessary( bool allowcncl ) const
 {
-    if ( !descdisp_->needSave() )
+    const bool datamgrchgd = synthdatamgr_->dirtyCount() != synthdatamgrdc_;
+    if ( !descdisp_->needSave() && !datamgrchgd )
 	return true;
 
     while ( true )
     {
-	const int res = uiMSG().askSave(tr("Generation description not saved.\n"
+	const int res = uiMSG().askSave(tr("Unsaved generation parameters.\n"
 					 "Save now?") );
 	if ( !allowcncl && res < 0 )
 	{
@@ -388,6 +387,7 @@ bool uiStratLayerModel::saveGenDesc() const
     {
 	rv = true;
 	descdisp_->setNeedSave( false );
+	synthdatamgrdc_ = synthdatamgr_->dirtyCount();
 	const_cast<uiStratLayerModel*>(this)->setWinTitle();
     }
 
@@ -448,6 +448,8 @@ bool uiStratLayerModel::doLoadGenDesc()
 	if ( mfvc )
 	    mfvc->reInitZooms();
     }
+
+    synthdatamgrdc_ = synthdatamgr_->dirtyCount();
 
     setWinTitle();
     raise();
@@ -539,6 +541,7 @@ void uiStratLayerModel::handleNewModel( LayerModel* newmodl )
     setElasticProps();
     auto& wbpars = desc_.getWorkBenchParams();
     synthdatamgr_->usePar( wbpars );
+    synthdatamgrdc_ = synthdatamgr_->dirtyCount();
     modtools_->usePar( wbpars );
     afterRetrieve.trigger( &wbpars );
 
@@ -610,7 +613,7 @@ bool uiStratLayerModel::checkUnscaledWavelets()
     //const auto helpky = mStratLayerModelcheckUnscaledWaveletHelpID;
 
     DBKeySet unscaledids;
-    for ( auto gp : synthdatamgr_->genParams() )
+    for ( const auto& gp : synthdatamgr_->genParams() )
 	if ( !gp.isStratProp() && !WaveletMGR().isScaled(gp.wvltid_) )
 	    unscaledids.add( gp.wvltid_ );
     if ( !unscaledids.isEmpty() )

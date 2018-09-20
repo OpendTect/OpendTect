@@ -81,7 +81,6 @@ public:
 
     typedef int					ChangeType;
     typedef od_int64				IDType;
-    typedef od_int64				DirtyCountType;
     typedef CNotifier<Monitorable,ChangeData>	ChangeDataNotifier;
 
 			Monitorable(const Monitorable&);
@@ -185,8 +184,6 @@ protected:
     inline T		getMemberSimple(const T&) const;
     template <class TMember,class TSetTo>
     inline void		setMemberSimple(TMember&,TSetTo,ChangeType,IDType);
-
-    typedef Threads::Atomic<DirtyCountType>	DirtyCounter;
 
 private:
 

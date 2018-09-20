@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
+#include "atomic.h"
 #include "elasticmodel.h"
 #include "elasticpropsel.h"
 #include "raysynthgenerator.h"
@@ -139,7 +140,12 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    mutable CNotifier<DataMgr,SynthID>	entryChanged;
+    mutable CNotifier<DataMgr,SynthID>	    entryChanged;
+
+    DirtyCountType	dirtyCount() const  { return dirtycount_; }
+    void		touch() const	    { dirtycount_++; }
+    void		kick()
+			{ dirtycount_++; entryChanged.trigger(SynthID()); }
 
 protected:
 
@@ -150,6 +156,7 @@ protected:
 				// data
     SynthIDSet			ids_;
     GenParamSet			genparams_;
+    mutable DirtyCounter	dirtycount_;
 
 				// generated / 'caches'
     ObjectSet<DataSetSet>	lmdatasets_;

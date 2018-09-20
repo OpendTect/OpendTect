@@ -42,8 +42,8 @@ public:
 
 protected:
 
-    uiGenInput*			nmofld_;
-    uiButton*			advbut_;
+    uiCheckBox*			nmobox_;
+    uiButton*			nmoparsbut_;
 
     void			advancedPush(CallBacker*);
     void			nmoChgCB(CallBacker*);
@@ -356,16 +356,16 @@ uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
     , mutelen_(0.02f)
     , stretchmutelim_(0.2f)
 {
-    nmofld_ = new uiGenInput( this, tr("Apply NMO corrections"),
-			      BoolInpSpec(true) );
-    mAttachCB( nmofld_->valuechanged, uiSynthCorrectionsGrp::nmoChgCB);
-    nmofld_->setValue( true );
+    nmobox_ = new uiCheckBox( this, tr("Apply NMO corrections") );
+    mAttachCB( nmobox_->activated, uiSynthCorrectionsGrp::nmoChgCB );
 
-    CallBack cbadv = mCB(this,uiSynthCorrectionsGrp,advancedPush);
-    advbut_ = new uiPushButton( this, uiStrings::sAdvanced(), cbadv, false );
-    advbut_->attach( rightOf, nmofld_ );
+    CallBack parscb = mCB(this,uiSynthCorrectionsGrp,advancedPush);
+    nmoparsbut_ = new uiPushButton( this, uiStrings::sParameter(mPlural),
+				    parscb, false );
+    nmoparsbut_->setIcon( "settings" );
+    nmoparsbut_->attach( rightOf, nmobox_ );
 
-    setHAlignObj( nmofld_ );
+    setHAlignObj( nmobox_ );
 }
 
 
@@ -377,13 +377,13 @@ uiSynthCorrectionsGrp::~uiSynthCorrectionsGrp()
 
 void uiSynthCorrectionsGrp::nmoChgCB( CallBacker* )
 {
-    advbut_->display( wantNMOCorr() );
+    nmoparsbut_->display( wantNMOCorr() );
 }
 
 
 bool uiSynthCorrectionsGrp::wantNMOCorr() const
 {
-    return nmofld_->getBoolValue();
+    return nmobox_->isChecked();
 }
 
 
@@ -396,7 +396,7 @@ void uiSynthCorrectionsGrp::advancedPush( CallBacker* )
 
 void uiSynthCorrectionsGrp::setValues( bool donmo, float mlen, float slim )
 {
-    nmofld_->setValue( donmo );
+    nmobox_->setChecked( donmo );
     mutelen_ = mlen;
     stretchmutelim_ = slim;
 }

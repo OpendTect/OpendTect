@@ -364,7 +364,7 @@ void Well::Data::touch() const
 }
 
 
-Well::Data::DirtyCountType Well::Data::dirtyCount() const
+DirtyCountType Well::Data::dirtyCount() const
 {
     DirtyCountType ret = 0;
     mDoAllSubObjs( ret +=, .dirtyCount() );

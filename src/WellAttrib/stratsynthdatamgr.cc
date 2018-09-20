@@ -116,6 +116,7 @@ void StratSynth::DataMgr::clearData( bool full )
 	addStratPropSynths();
     }
 
+    dirtycount_++;
     for ( auto id : idstonotif )
 	entryChanged.trigger( id );
 }
@@ -359,6 +360,7 @@ SynthID StratSynth::DataMgr::addEntry( SynthID id, const GenParams& gp )
     for ( int ilm=0; ilm<lms_.size(); ilm++ )
 	*lmdatasets_.get(ilm) += 0;
 
+    dirtycount_++;
     entryChanged.trigger( id );
     return id;
 }
@@ -369,10 +371,12 @@ void StratSynth::DataMgr::setDataSet( const GenParams& gp, DataSet* ds,
 {
     SynthID oldid = find( gp.name_ );
     lmsidx = gtActualLMIdx( lmsidx );
+    bool ischgd = true;
     if ( oldid.isValid() )
     {
 	ds->setID( oldid );
 	const auto idx = ids_.indexOf( oldid );
+	ischgd = genparams_[idx] != gp;
 	genparams_[idx] = gp;
 	auto* oldds = lmdatasets_.get(lmsidx)->replace( idx, ds );
 	if ( oldds )
@@ -387,7 +391,11 @@ void StratSynth::DataMgr::setDataSet( const GenParams& gp, DataSet* ds,
 	    *lmdatasets_.get(ilm) += ilm == lmsidx ? ds : 0;
     }
 
-    entryChanged.trigger( ds->id() );
+    if ( ischgd )
+    {
+	dirtycount_++;
+	entryChanged.trigger( ds->id() );
+    }
 }
 
 
@@ -404,6 +412,7 @@ void StratSynth::DataMgr::removeSynthetic( SynthID id )
 	    if ( ds )
 		ds->unRef();
 	}
+	dirtycount_++;
 	entryChanged.trigger( id );
     }
 }
@@ -421,9 +430,9 @@ SynthID StratSynth::DataMgr::setSynthetic( SynthID id, const GenParams& gp )
 	    addEntry( id, gp );
 	else
 	{
-	    const bool datasetsvalid = gp == genparams_[idx];
+	    const bool samegenpars = gp == genparams_[idx];
 	    genparams_[idx] = gp;
-	    if ( datasetsvalid )
+	    if ( samegenpars )
 		ischgd = false;
 	    else
 	    {
@@ -438,7 +447,10 @@ SynthID StratSynth::DataMgr::setSynthetic( SynthID id, const GenParams& gp )
     }
 
     if ( ischgd )
+    {
+	dirtycount_++;
 	entryChanged.trigger( id );
+    }
 
     return id;
 }
@@ -719,17 +731,12 @@ bool StratSynth::DataMgr::generate( SynthID id, const TRProv& trprov,
     auto& dss = const_cast<DataMgr*>(this)->gtDSS( lmsidx );
 
     DataSet* oldds = dss.get( idx );
-    const bool hadds = oldds;
     if ( oldds )
 	unRefAndZeroPtr( oldds );
     dss.replace( idx, 0 );
 
     if ( !ensureElasticModels(trprov,lmsidx) )
-    {
-	if ( hadds )
-	    entryChanged.trigger( id );
 	return false;
-    }
 
     DataSet* newds = generateDataSet( genparams_[idx], trprov, lmsidx );
     dss.replace( idx, newds );
@@ -740,8 +747,6 @@ bool StratSynth::DataMgr::generate( SynthID id, const TRProv& trprov,
 	ensureLevels( lmsidx );
     }
 
-    if ( newds || hadds )
-	entryChanged.trigger( id );
     return true;
 }
 
