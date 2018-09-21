@@ -19,7 +19,6 @@ class DBKey;
 class SeisTrc;
 class TaskRunnerProvider;
 class Wavelet;
-class uiString;
 
 
 namespace Seis

@@ -7,12 +7,9 @@
 
 #include "seisconvolve.h"
 
-#include "arrayndimpl.h"
 #include "genericnumer.h"
 #include "seisbuf.h"
-#include "seisinfo.h"
 #include "seistrc.h"
-#include "wavelet.h"
 #include "waveletattrib.h"
 #include "waveletmanager.h"
 #include "uistrings.h"
@@ -117,7 +114,7 @@ bool Seis::reWavelet( const SeisTrcBuf::TrcSet& bufin, const DBKey& refobjid,
 
     TrcConvolver filterapplier( bufin, *filter, bufout );
     const bool success = trprov.execute( filterapplier );
-    if ( success && msg )
+    if ( !success && msg )
 	msg->set( filterapplier.message() );
 
     return success;
