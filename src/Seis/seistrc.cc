@@ -67,8 +67,8 @@ const float* SeisTrc::arr( int icomp ) const
 bool SeisTrc::copytoArray( Array1D<float>& seistrcarr, int icomp ) const
 {
     const int trcsz = size();
-    const Array1DInfoImpl info( trcsz );
-    if ( seistrcarr.getSize(0) != trcsz && !seistrcarr.setInfo(info) )
+    const Array1DInfoImpl trcinfo( trcsz );
+    if ( seistrcarr.getSize(0) != trcsz && !seistrcarr.setInfo(trcinfo) )
 	return false;
 
     if ( arr(icomp) )
