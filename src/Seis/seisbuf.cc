@@ -31,6 +31,25 @@ void SeisTrcBuf::deepErase()
 }
 
 
+int SeisTrcBuf::maxTrcSize() const
+{
+    return SeisTrcBuf::maxTrcSize( trcs_ );
+}
+
+int SeisTrcBuf::maxTrcSize( const TrcSet& tset )
+{
+    int sz = -1;
+    for ( auto trc : tset )
+    {
+	const int trcsz = trc->size();
+	if ( trcsz > sz )
+	    sz = trcsz;
+    }
+
+    return sz;
+}
+
+
 void SeisTrcBuf::insert( SeisTrc* t, int insidx )
 {
     for ( int idx=insidx; idx<trcs_.size(); idx++ )
@@ -45,6 +64,38 @@ void SeisTrcBuf::copyInto( SeisTrcBuf& buf ) const
     {
 	const SeisTrc* trc = trcs_[idx];
 	buf.add( buf.owner_ ? new SeisTrc(*trc) : const_cast<SeisTrc*>(trc) );
+    }
+}
+
+
+void SeisTrcBuf::ensureCompatible( const TrcSet& ref )
+{
+    if ( &ref == &trcs_ )
+	return;
+
+    const int refsz = ref.size();
+    if ( size() != refsz )
+    {
+	erase(); setIsOwner( true );
+	for ( auto trc : ref )
+	    add( new SeisTrc( *trc ) );
+	return;
+    }
+
+    for ( int idx=0; idx<refsz; idx++ )
+    {
+	const SeisTrc& trcin = *ref.get( idx );
+	SeisTrc& trcout = *get( idx );
+	if ( trcout.size() != trcin.size() )
+	    trcout.reSize( trcin.size(), false );
+	if ( trcout.nrComponents() != trcin.nrComponents() )
+	    trcout.setNrComponents( trcin.nrComponents() );
+	const DataCharacteristics dc =
+			    trcin.data().getInterpreter()->dataChar();
+	if ( trcout.data().getInterpreter()->dataChar() != dc )
+	    trcout.data().convertTo( dc );
+
+	trcout.info() = trcin.info();
     }
 }
 
@@ -184,10 +235,10 @@ void SeisTrcBuf::getShifted( ZGate zrg, const ZValueSet& zvals,
 }
 
 
-void SeisTrcBuf::addTrcsFrom( ObjectSet<SeisTrc>& trcs )
+void SeisTrcBuf::addTrcsFrom( TrcSet& trcs )
 {
-    for ( int idx=0; idx<trcs.size(); idx++ )
-	add( owner_ && trcs[idx] ? new SeisTrc(*trcs[idx]) : trcs[idx] );
+    for ( auto trc : trcs )
+	add( owner_ && trc ? new SeisTrc(*trc) : trc );
 }
 
 
@@ -449,6 +500,13 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
     strm.flush();
 
     return strm.isOK();
+}
+
+
+void SeisTrcBuf::ensureCompatible( const TrcSet& trcsin, TrcSet& trcsout )
+{
+    SeisTrcBuf bufout( trcsout );
+    bufout.ensureCompatible( trcsin );
 }
 
 

@@ -80,6 +80,11 @@ public:
 				     bool forcefloats=false);
 			//!< icomp -1 (default) is all components
 
+    float*		arr(int icomp);
+    const float*	arr(int icomp) const;
+    bool		copytoArray(Array1D<float>&,int icomp) const;
+    void		copyFromArray(const Array1D<float>&,int icomp);
+
     const ValueSeriesInterpolator<float>& interpolator() const;
     void		setInterpolator(ValueSeriesInterpolator<float>*);
 			//!< becomes mine

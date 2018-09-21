@@ -48,7 +48,8 @@ public:
 
     void		copyInto(SeisTrcBuf&) const;
     void		stealTracesFrom(SeisTrcBuf&);
-    void		addTrcsFrom(ObjectSet<SeisTrc>&);
+    void		addTrcsFrom(TrcSet&);
+    void		ensureCompatible(const TrcSet&);
     virtual SeisTrcBuf*	clone() const		{ return new SeisTrcBuf(*this);}
 
     void		deepErase();
@@ -59,6 +60,7 @@ public:
     inline bool		isEmpty() const		{ return trcs_.isEmpty(); }
     inline bool		validIdx( od_int64 idx ) const
 			{ return trcs_.validIdx(idx); }
+    int			maxTrcSize() const;
     void		insert(SeisTrc*,int atidx=0);
     inline SeisTrc*	replace( int idx, SeisTrc* t )
 			{ return trcs_.replace(idx,t); }
@@ -119,6 +121,9 @@ public:
 			// usually not a good idea to peek into the impl
     TrcSet&		trcSet()	{ return trcs_; }
     const TrcSet&	trcSet() const	{ return trcs_; }
+
+    static void		ensureCompatible(const TrcSet&,TrcSet&);
+    static int		maxTrcSize(const TrcSet&);
 
 };
 

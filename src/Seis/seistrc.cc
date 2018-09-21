@@ -46,6 +46,63 @@ bool SeisTrc::reSize( int sz, bool copydata )
 }
 
 
+float* SeisTrc::arr( int icomp )
+{
+    float val;
+    const DataCharacteristics dc( val );
+    const TraceDataInterpreter* tdi = data_.getInterpreter( icomp );
+    if ( !tdi ) return 0;
+
+    if ( tdi->dataChar() !=dc )
+	return 0;
+
+    return (float*) data_.getComponent( icomp )->data();
+}
+
+
+const float* SeisTrc::arr( int icomp ) const
+{ return const_cast<SeisTrc*>( this )->arr(icomp); }
+
+
+bool SeisTrc::copytoArray( Array1D<float>& seistrcarr, int icomp ) const
+{
+    const int trcsz = size();
+    const Array1DInfoImpl info( trcsz );
+    if ( seistrcarr.getSize(0) != trcsz && !seistrcarr.setInfo(info) )
+	return false;
+
+    if ( arr(icomp) )
+    {
+	const void* srcptr = data_.getComponent(icomp)->data();
+	OD::memCopy( seistrcarr.arr(), srcptr, trcsz*sizeof(float) );
+	return true;
+    }
+
+    for ( int idx=0; idx<trcsz; idx++ )
+	seistrcarr.set( idx, get(idx,icomp) );
+
+    return true;
+}
+
+
+void SeisTrc::copyFromArray( const Array1D<float>& seistrcarr, int icomp )
+{
+    const int trcsz = size();
+    if ( trcsz != seistrcarr.getSize(0) )
+	return;
+
+    if ( arr(icomp) )
+    {
+	void* destptr = data_.getComponent(icomp)->data();
+	OD::memCopy( destptr, seistrcarr.arr(), trcsz*sizeof(float) );
+	return;
+    }
+
+    for ( int idx=0; idx<trcsz; idx++ )
+	set( idx, icomp, seistrcarr.get( idx ) );
+}
+
+
 const ValueSeriesInterpolator<float>& SeisTrc::interpolator() const
 {
     if ( !intpol_ )
@@ -293,35 +350,13 @@ void SeisTrcValueSeries::setValue( od_int64 idx,float v )
 
 float* SeisTrcValueSeries::arr()
 {
-    float val;
-    DataCharacteristics dc(val);
-    const TraceDataInterpreter* tdi = trc_.data().getInterpreter( icomp_ );
-    if ( !tdi ) return 0;
-
-    if ( tdi->dataChar()!=dc )
-	return 0;
-
-    return (float*) trc_.data().getComponent( icomp_ )->data();
+    return trc_.arr( icomp_ );
 }
 
 
 bool SeisTrcValueSeries::copytoArray( Array1D<float>& seistrcarr )
 {
-    const int trcsz = trc_.size();
-    if ( seistrcarr.getSize(0) != trcsz )
-	return false;
-
-    if ( arr() )
-    {
-	void* srcptr = trc_.data().getComponent(icomp_)->data();
-	OD::memCopy( seistrcarr.arr(), srcptr, trcsz*sizeof(float) );
-	return true;
-    }
-
-    for ( int idx=0; idx<trcsz; idx++ )
-	seistrcarr.set( idx, trc_.get(idx,icomp_) );
-
-    return true;
+    return trc_.copytoArray( seistrcarr, icomp_ );
 }
 
 
