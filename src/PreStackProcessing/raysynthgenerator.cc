@@ -95,7 +95,7 @@ const ObjectSet<RayTracer1D>& RaySynthGenerator::rayTracers() const
 
 bool RaySynthGenerator::doPrepare( int )
 {
-    if ( elasticmodels_ && elasticmodels_->isEmpty() )
+    if ( elasticModels().isEmpty() )
 	mErrRet(tr("No Elastic Model available"), false);
 
     if ( offsets_.isEmpty() )
@@ -129,7 +129,7 @@ bool RaySynthGenerator::doPrepare( int )
     const bool zerooffset = offsets_.size() == 1 &&
 			    Seis::equalOffset(offsets_[0],0);
     StepInterval<float> cursampling( outputsampling_ );
-    RflMdlSetRef allmdls = new ReflectivityModelSet;
+    RefMan<ReflectivityModelSet> allmdls = new ReflectivityModelSet;
     const auto& raymdls = dataset_->rayMdls();
     if ( raymdls.isEmpty() || raymdls.first()->reflModels()->isEmpty() )
 	mErrRet( tr("No models given to make synthetics"), false );
@@ -140,7 +140,7 @@ bool RaySynthGenerator::doPrepare( int )
     if ( !isInputOK() )
 	return mErrOccRet;
 
-    if ( !getOutSamplingFromModels(allmdls,cursampling,applynmo_||zerooffset)
+    if ( !getOutSamplingFromModels(*allmdls,cursampling,applynmo_||zerooffset)
 	    && elasticmodels_ )
 	cursampling.include( elasticmodels_->getTimeRange(), false );
 
@@ -159,16 +159,18 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 	return false;
 
     IOPar par; fillPar( par );
+    const auto nrsamples = outputsampling_.nrSteps() + 1;
     for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	if ( !shouldContinue() )
 	    return false;
 
-	auto& rm = *dataset_->rayMdls().get( idx );
-	deepErase( rm.outtrcs_ );
+	auto& raymod = *dataset_->rayMdls().get( idx );
+	auto& outtrcs = raymod.outtrcs_;
+	deepErase( outtrcs );
 
 	SynthSeis::MultiTraceGenerator multitracegen;
-	multitracegen.setModels( rm.reflmodels_ );
+	multitracegen.setModels( *raymod.reflmodels_ );
 	multitracegen.setOutSampling( outputsampling_ );
 	multitracegen.usePar( par );
 	if ( wavelet_ )
@@ -177,19 +179,23 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 	if ( !multitracegen.execute() )
 	    mErrRet( multitracegen.errMsg(), false )
 
-	multitracegen.getResult( rm.outtrcs_ );
-	multitracegen.getSampledRMs( rm.sampledreflmodels_ );
-	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
+	multitracegen.getResult( outtrcs );
+	raymod.sampledreflmodels_ = multitracegen.getSampledRMs();
+	for ( int ioffs=0; ioffs<offsets_.size(); ioffs++ )
 	{
-	    if ( !rm.outtrcs_.validIdx( idoff ) )
+	    SeisTrc* outtrc = 0;
+	    if ( ioffs < outtrcs.size() )
+		outtrc = outtrcs[ioffs];
+	    else
 	    {
-		rm.outtrcs_ += new SeisTrc( outputsampling_.nrSteps() + 1 );
-		rm.outtrcs_[idoff]->info().sampling_ = outputsampling_;
-		for ( int idz=0; idz<rm.outtrcs_[idoff]->size(); idz++ )
-		    rm.outtrcs_[idoff]->set( idz, mUdf(float), 0 );
+		pErrMsg( "Got no out trc. Probably not OK?" );
+		outtrc = new SeisTrc( nrsamples );
+		outtrcs += outtrc;
+		outtrc->info().sampling_ = outputsampling_;
+		outtrc->setAll( mUdf(float), 0 );
 	    }
-	    rm.outtrcs_[idoff]->info().offset_ = offsets_[idoff];
-	    rm.outtrcs_[idoff]->info().trckey_ = TrcKey::getSynth( idx + 1 );
+	    outtrc->info().offset_ = offsets_[ioffs];
+	    outtrc->info().trckey_ = TrcKey::getSynth( idx + 1 );
 	}
     }
 
@@ -215,12 +221,14 @@ bool RaySynthGenerator::updateDataPack()
     while ( tbufs.size() )
     {
 	PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
-	RefMan<Gather> gather = new Gather();
+	auto* gather = new Gather();
 	if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
-	    continue;
-
-	gather->ref();
-	gatherset += gather;
+	    { pErrMsg("Cannot set gather from trcbuf?"); }
+	else
+	{
+	    gather->ref();
+	    gatherset += gather;
+	}
     }
 
     mDynamicCastGet( GatherSetDataPack*, prestkdp, &dp );
@@ -240,22 +248,24 @@ bool RaySynthGenerator::doFinish( bool success )
 }
 
 
+#define mDoingRayTracing() (!raytracingdone_ && rtr_)
+
 od_int64 RaySynthGenerator::totalNr() const
 {
-    return !raytracingdone_ && rtr_ ? rtr_->totalNr() : nrIterations();
+    return mDoingRayTracing() ? rtr_->totalNr() : nrIterations();
 }
 
 
 od_int64 RaySynthGenerator::nrDone() const
 {
-    return !raytracingdone_ && rtr_ ? rtr_->nrDone() : ParallelTask::nrDone();
+    return mDoingRayTracing() ? rtr_->nrDone() : ParallelTask::nrDone();
 }
 
 
 
 uiString RaySynthGenerator::nrDoneText() const
 {
-    return !raytracingdone_ && rtr_ ? tr("Layers done") : tr("Models done");
+    return mDoingRayTracing() ? tr("Layers done") : tr("Models done");
 }
 
 
@@ -278,13 +288,13 @@ void RaySynthGenerator::fillPar( IOPar& par ) const
 }
 
 
-void RaySynthGenerator::forceReflTimes( const StepInterval<float>& si)
+void RaySynthGenerator::forceReflTimes( const StepInterval<float>& si )
 {
     forcedrefltimes_ = si; forcerefltimes_ = true;
 }
 
 
-static void setTrcInfo( SeisTrc* trc, int imdl, int nrstep )
+static void setTrcInfo2Synth( SeisTrc* trc, int imdl, int nrstep )
 {
     trc->info().trckey_ = TrcKey::getSynth( imdl*nrstep + 1 );
     trc->info().coord_ = Coord::udf();
@@ -296,15 +306,16 @@ void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& tbufs )
     if ( dataset_->rayModels().isEmpty() )
 	return;
 
-    for ( int imdl=0; imdl<dataset_->rayModels().size(); imdl++ )
+    auto& raymdls = dataset_->rayMdls();
+    for ( int imdl=0; imdl<raymdls.size(); imdl++ )
     {
 	SeisTrcBuf* tbuf = new SeisTrcBuf( true );
 	ObjectSet<SeisTrc> trcs;
-	dataset_->rayMdls()[imdl]->getTraces( trcs, true );
+	raymdls[imdl]->getTraces( trcs, true );
 	for ( int idx=0; idx<trcs.size(); idx++ )
 	{
 	    SeisTrc* trc = trcs[idx];
-	    setTrcInfo( trc, imdl, nrstep_ );
+	    setTrcInfo2Synth( trc, imdl, nrstep_ );
 	    tbuf->add( trc );
 	}
 	tbufs += tbuf;
@@ -314,16 +325,17 @@ void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& tbufs )
 
 void RaySynthGenerator::getStackedTraces( SeisTrcBuf& tbuf )
 {
-    if ( dataset_->rayModels().isEmpty() )
-	return;
+    const auto& raymdls = dataset_->rayModels();
+    if ( raymdls.isEmpty() )
+	{ pErrMsg("Empty ray models"); return; }
 
     tbuf.erase();
-    for ( int imdl=0; imdl<dataset_->rayModels().size(); imdl++ )
+    for ( int imdl=0; imdl<raymdls.size(); imdl++ )
     {
-	auto* trc = dataset_->rayModels().get(imdl)->stackedTrc();
+	auto* trc = raymdls.get(imdl)->stackedTrc();
 	if ( !trc )
 	    trc = new SeisTrc( outputsampling_.nrSteps()+1 );
-	setTrcInfo( trc, imdl, nrstep_ );
+	setTrcInfo2Synth( trc, imdl, nrstep_ );
 	tbuf.add( trc );
     }
 }

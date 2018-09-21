@@ -115,22 +115,22 @@ bool SynthSeis::GenBase::isInputOK()
 
 
 bool SynthSeis::GenBase::getOutSamplingFromModels(
-				const RflMdlSetRef& models,
+				const ObjectSet<ReflectivityModel>& models,
 				StepInterval<float>& sampling, bool usenmo )
 {
     const float outputsr = mIsUdf(outputsampling_.step) ? wavelet_->sampleRate()
 							: outputsampling_.step;
     sampling.set( mUdf(float), -mUdf(float), outputsr );
-    for ( int imod=0; imod<models->size(); imod++ )
+    for ( int imod=0; imod<models.size(); imod++ )
     {
-	const ReflectivityModel& model = *models->get( imod );
+	const auto& model = *models.get( imod );
 	for ( int idz=0; idz<model.size(); idz++ )
 	{
-	    const ReflectivitySpike& spike = model[idz];
+	    const auto& spike = model[idz];
 	    if ( !spike.isDefined() )
 		continue;
 
-	    const float twt = spike.time( usenmo );
+	    const auto twt = spike.time( usenmo );
 	    sampling.include( twt, false );
 	    if ( usenmo )
 		break;
@@ -140,11 +140,11 @@ bool SynthSeis::GenBase::getOutSamplingFromModels(
 
 	for ( int idz=model.size()-1; idz>=0; idz-- )
 	{
-	    const ReflectivitySpike& spike = model[idz];
+	    const auto& spike = model[idz];
 	    if ( !spike.isDefined() )
 		continue;
 
-	    const float twt = spike.time( usenmo );
+	    const auto twt = spike.time( usenmo );
 	    sampling.include( twt, false );
 	    break;
 	}
@@ -288,12 +288,11 @@ int SynthSeis::Generator::setConvolveSize()
 	if ( !isInputOK() )
 	    return mErrOccRet;
 
-	RefMan<ReflectivityModelSet> modls = new ReflectivityModelSet;
-	modls->add( reflmodel_ );
+	ObjectSet<ReflectivityModel> modls;
+	modls.add( const_cast<ReflectivityModel*>(reflmodel_) );
 	if ( !getOutSamplingFromModels(modls,cursampling) )
 	    mErrRet(uiStrings::phrCannotCalculate(tr("trace size from model")),
 								mErrOccRet)
-
 	cursampling.start = outputsampling_.start;
     }
     else
@@ -578,10 +577,18 @@ SynthSeis::MultiTraceGenerator::MultiTraceGenerator()
     : totalnr_( -1 )
     , sampledreflmodels_(new ReflectivityModelSet)
 {
+    trcs_.setNullAllowed();
+    sampledreflmodels_->setNullAllowed();
 }
 
 
 SynthSeis::MultiTraceGenerator::~MultiTraceGenerator()
+{
+    cleanUp();
+}
+
+
+void SynthSeis::MultiTraceGenerator::cleanUp()
 {
     deepErase( generators_ );
     deepErase( trcs_ );
@@ -590,25 +597,36 @@ SynthSeis::MultiTraceGenerator::~MultiTraceGenerator()
 
 bool SynthSeis::MultiTraceGenerator::doPrepare( int nrthreads )
 {
+    cleanUp();
+    sampledreflmodels_->erase();
+
     for ( int idx=0; idx<nrthreads; idx++ )
 	generators_ += Generator::create( true );
+
+    for ( int idx=0; idx<models_->size(); idx++ )
+    {
+	trcs_ += 0;
+	*sampledreflmodels_ += 0;
+    }
 
     return true;
 }
 
 
 void SynthSeis::MultiTraceGenerator::setModels(
-				RefMan<ReflectivityModelSet>& refmodels )
+				const ReflectivityModelSet& refmodels )
 {
     totalnr_ = 0;
-    models_ = refmodels;
-    for ( int idx=0; idx<refmodels->size(); idx++ )
-	totalnr_ += refmodels[idx].size();
+    models_ = &refmodels;
+    for ( int idx=0; idx<refmodels.size(); idx++ )
+	totalnr_ += refmodels[idx]->size();
 }
 
 
 od_int64 SynthSeis::MultiTraceGenerator::nrIterations() const
-{ return models_->size(); }
+{
+    return models_->size();
+}
 
 
 bool SynthSeis::MultiTraceGenerator::doWork( od_int64 start, od_int64 stop,
@@ -626,13 +644,10 @@ bool SynthSeis::MultiTraceGenerator::doWork( od_int64 start, od_int64 stop,
 	if ( !generator.doWork() )
 	    mErrRet( generator.errMsg(), false );
 
-	Threads::Locker lckr( lock_ );
-	trcs_ += new SeisTrc( generator.result() );
+	trcs_.replace( idx, new SeisTrc(generator.result()) );
 	ReflectivityModel* sampledrefmodel = new ReflectivityModel();
 	generator.getSampledRM( *sampledrefmodel );
-	sampledreflmodels_->add( sampledrefmodel );
-	trcidxs_ += idx;
-	lckr.unlockNow();
+	sampledreflmodels_->replace( idx, sampledrefmodel );
 
 	addToNrDone( mCast(int,generator.currentProgress()) );
     }
@@ -640,29 +655,8 @@ bool SynthSeis::MultiTraceGenerator::doWork( od_int64 start, od_int64 stop,
 }
 
 
-void SynthSeis::MultiTraceGenerator::getResult( ObjectSet<SeisTrc>& trcs )
+void SynthSeis::MultiTraceGenerator::getResult( ObjectSet<SeisTrc>& trcs ) const
 {
-    TypeSet<int> sortidxs;
-    for ( int idtrc=0; idtrc<trcs_.size(); idtrc++ )
-	sortidxs += idtrc;
-    sort_coupled( trcidxs_.arr(), sortidxs.arr(), trcidxs_.size() );
-    for ( int idtrc=0; idtrc<trcs_.size(); idtrc++ )
-	trcs += trcs_[ sortidxs[idtrc] ];
-
-    trcs_.erase();
-}
-
-
-void SynthSeis::MultiTraceGenerator::getSampledRMs(
-				RefMan<ReflectivityModelSet>& sampledrms )
-{
-    TypeSet<int> sortidxs;
-    for ( int idtrc=0; idtrc<sampledreflmodels_->size(); idtrc++ )
-	sortidxs += idtrc;
-    sort_coupled( trcidxs_.arr(), sortidxs.arr(), trcidxs_.size() );
-    for ( int irm=0; irm<sampledreflmodels_->size(); irm++ )
-    {
-	const ReflectivityModel* model = sampledreflmodels_->get(sortidxs[irm]);
-	sampledrms->add( model );
-    }
+    trcs = trcs_;
+    const_cast<MultiTraceGenerator*>(this)->trcs_.erase();
 }

@@ -37,14 +37,12 @@ mExpClass(Seis) GenBase
 { mODTextTranslationClass(SynthSeis::GenBase);
 public:
 
-    typedef RefMan<ReflectivityModelSet>    RflMdlSetRef;
-
     virtual void	setWavelet(const Wavelet*);
 			/* auto computed + will be overruled if too small */
     virtual bool	setOutSampling(const StepInterval<float>&);
 			/* depends on the wavelet size too */
     bool		getOutSamplingFromModels(
-					const RflMdlSetRef&,
+					const ObjectSet<ReflectivityModel>&,
 					StepInterval<float>&,bool usenmo=false);
 
     void		setMuteLength(float n)	{ mutelength_ = n; }
@@ -165,33 +163,38 @@ mExpClass(Seis) MultiTraceGenerator : public ParallelTask,
 { mODTextTranslationClass(SynthSeis::MultiTraceGenerator);
 public:
 
+    typedef RefMan<ReflectivityModelSet>	RflMdlSetRef;
+    typedef ConstRefMan<ReflectivityModelSet>	ConstRflMdlSetRef;
+
 			MultiTraceGenerator();
 			~MultiTraceGenerator();
 
-    void		setModels(RflMdlSetRef&);
+    void		setModels(const ReflectivityModelSet&);
 
-    void		getResult(ObjectSet<SeisTrc>&);
-    void		getSampledRMs(RflMdlSetRef&);
+    void		getResult(ObjectSet<SeisTrc>&) const;
+			//!< once only. traces become yours
+    RflMdlSetRef	getSampledRMs() const	{ return sampledreflmodels_; }
+			//!< ref counted set of man objs, can be done many times
 
-    uiString		message() const {
-				    return m3Dots(tr("Generating synthetics"));
-						  }
-
+    uiString		message() const { return tr("Generating synthetics"); }
     od_int64		totalNr() const	{ return totalnr_; }
 
 protected:
 
-    od_int64		nrIterations() const;
-    bool		doPrepare(int);
+    virtual od_int64	nrIterations() const;
+    virtual bool	doPrepare(int);
     virtual bool	doWork(od_int64,od_int64,int);
 
-    RflMdlSetRef	models_;
-    RflMdlSetRef	sampledreflmodels_;
-    ObjectSet<Generator> generators_;
+    void		cleanUp();
+
+			// input
+    ConstRflMdlSetRef	models_;
+			// output
     ObjectSet<SeisTrc>	trcs_;
-    TypeSet<int>	trcidxs_;
+    RflMdlSetRef	sampledreflmodels_;
+
+    ObjectSet<Generator> generators_;
     od_int64		totalnr_;
-    Threads::Lock	lock_;
 
 };
 

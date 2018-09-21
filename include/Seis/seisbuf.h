@@ -26,10 +26,11 @@ buffer in which the traces are somehow related.
 */
 
 mExpClass(Seis) SeisTrcBuf
-{ mODTextTranslationClass(SeisTrcBuf);
+{ mIsContainer( SeisTrcBuf, ObjectSet<SeisTrc>, trcs_ )
 public:
 
     typedef TypeSet<float>	ZValueSet;
+    typedef ObjectSet<SeisTrc>	TrcSet;
 
 			SeisTrcBuf( bool ownr )
 				: owner_(ownr)	{}
@@ -103,12 +104,19 @@ public:
 
 protected:
 
-    ObjectSet<SeisTrc>	trcs_;
     bool		owner_;
 
     int			probableIdx(const BinID&,bool is2d) const;
 
+public:
+
+			// usually not a good idea to peek into the impl
+    TrcSet&		trcSet()	{ return trcs_; }
+    const TrcSet&	trcSet() const	{ return trcs_; }
+
 };
+
+mDefContainerSwapFunction( Seis, SeisTrcBuf )
 
 
 mExpClass(Seis) SeisBufReader : public Executor

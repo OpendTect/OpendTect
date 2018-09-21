@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "odcomplex.h"
 #include "sets.h"
-#include "objectset.h"
+#include "manobjectset.h"
 #include "typeset.h"
 
 
@@ -50,9 +50,9 @@ typedef TypeSet<ReflectivitySpike> ReflectivityModel;
 
 
 
-mExpClass(Algo) ReflectivityModelSet :
-				public ObjectSet<const ReflectivityModel>
-			      , public RefCount::Referenced
+mExpClass(Algo) ReflectivityModelSet
+			: public ManagedObjectSet<ReflectivityModel>
+			, public RefCount::Referenced
 {
 };
 
