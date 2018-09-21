@@ -42,6 +42,7 @@ public:
     const DataMgr&	dataMgr() const		{ return datamgr_; }
 
     void		modelChanged();
+    void		setSelectedSequence(int);
 
     uiFlatViewer*	viewer()	{ return vwr_; }
     uiMultiFlatViewControl* control()	{ return control_; }
@@ -61,6 +62,7 @@ protected:
     DataMgr&		datamgr_;
     uiEdTools&		edtools_;
     uiSize		initialsz_;
+    int			selseq_;
 
     uiMultiFlatViewControl* control_;
     ObjectSet<FlatView::AuxData> levelaux_;

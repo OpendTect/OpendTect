@@ -130,6 +130,7 @@ protected:
     void			modInfoChangedCB(CallBacker*);
     void			seqSelCB(CallBacker*);
     void			modEdCB(CallBacker*);
+    void			modelsAddedCB(CallBacker*);
 
     friend class		uiStratLayerModelManager;
 

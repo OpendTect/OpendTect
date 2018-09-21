@@ -34,6 +34,8 @@ public:
     int		nrModels() const;
     void	setNrModels(int);
     void	enableSave(bool);
+    void	setGenWarning( const uiString& msg )
+		    { genaskcontinuemsg_ = msg; } // cleared if user continues
 
     Notifier<uiStratGenDescTools>	openReq;
     Notifier<uiStratGenDescTools>	saveReq;
@@ -48,6 +50,7 @@ public:
 protected:
 
     static const char*	sKeyNrModels();
+    uiString	genaskcontinuemsg_;
 
     uiSpinBox*	nrmodlsfld_;
     uiToolButton* savetb_;
@@ -55,7 +58,7 @@ protected:
     void	openCB(CallBacker*)	{ openReq.trigger(); }
     void	saveCB(CallBacker*)	{ saveReq.trigger(); }
     void	propEdCB(CallBacker*)	{ propEdReq.trigger(); }
-    void	genCB(CallBacker*)	{ genReq.trigger(); }
+    void	genCB(CallBacker*);
     void	nrModelsChangedCB(CallBacker*)	{ nrModelsChanged.trigger(); }
 
 };

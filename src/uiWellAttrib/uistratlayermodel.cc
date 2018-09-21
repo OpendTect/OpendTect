@@ -219,6 +219,7 @@ void uiStratLayerModel::initWin( CallBacker* cb )
 			    mCB(this,uiStratLayerModel,modInfoChangedCB));
     moddisp_->sequenceSelected.notify( mCB(this,uiStratLayerModel,seqSelCB) );
     moddisp_->modelEdited.notify( mCB(this,uiStratLayerModel,modEdCB) );
+    moddisp_->modelsAdded.notify( mCB(this,uiStratLayerModel,modelsAddedCB) );
 }
 
 
@@ -473,12 +474,20 @@ DBKey uiStratLayerModel::genDescID() const
 
 void uiStratLayerModel::seqSelCB( CallBacker* )
 {
+    synthdisp_->setSelectedSequence( moddisp_->selectedSequence() );
 }
 
 
 void uiStratLayerModel::modEdCB( CallBacker* )
 {
     handleNewModel();
+}
+
+
+void uiStratLayerModel::modelsAddedCB( CallBacker* )
+{
+    gentools_->setGenWarning(
+	    tr("You have added models from file.\nThis will overwrite all") );
 }
 
 

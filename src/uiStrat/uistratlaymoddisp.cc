@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiflatviewer.h"
 #include "uimultiflatviewcontrol.h"
+#include "uiusershowwait.h"
 #include "envvars.h"
 #include "flatposdata.h"
 #include "stratlevel.h"
@@ -64,6 +65,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , viewChanged(this)
     , infoChanged(this)
     , dispPropChanged(this)
+    , modelsAdded(this)
 {
     vwr_.setInitialSize( initialSize() );
     vwr_.setStretch( 2, 2 );
@@ -249,48 +251,45 @@ static const char* sKeyPreserveMath()	{ return "Preserve Math formulas"; }
 uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 			 bool doread )
     : uiDialog( p, Setup(doread ? tr("Read dumped models") : tr("Dump models"),
-    mNoDlgTitle, mODHelpKey(mStratLayerModelDispIOHelpID)))
+	    mNoDlgTitle, mODHelpKey(mStratLayerModelDispIOHelpID)))
     , doreplacefld_(0)
     , eachfld_(0)
-    , nrdisplayfld_(0)
     , presmathfld_(0)
     , lm_(lm)
     , pars_(pars)
-    , doread_(doread)
+    , forread_(doread)
 {
-    mDefineStaticLocalObject( BufferString, fixeddumpfnm,
-			      = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" ) );
-    if ( !fixeddumpfnm.isEmpty() )
-	fnm_ = BufferString( fixeddumpfnm );
+    const BufferString fixeddumpfnm = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" );
+    fnm_ = fixeddumpfnm;
 
-    uiFileSel::Setup su( fnm_ );
-    su.setForWrite( !doread );
-    filefld_ = new uiFileSel( this, uiStrings::sFileName(), su );
+    if ( !forread_ && !fixeddumpfnm.isEmpty() )
+	setTitleText( tr("Dumping to %1").arg( fnm_ ) );
+    else
+    {
+	uiFileSel::Setup su( fnm_ );
+	su.setForWrite( !forread_ );
+	filefld_ = new uiFileSel( this, uiStrings::sFileName(), su );
+    }
 
-    if ( doread )
+    if ( forread_ )
     {
 	const Interval<int> valrg( 1, 1000 );
 	IntInpSpec val( 1, valrg );
 	eachfld_ = new uiGenInput( this, tr("Use Each"), val );
-	eachfld_->attach( alignedBelow, filefld_ );
+	if ( filefld_ )
+	    eachfld_->attach( alignedBelow, filefld_ );
 
 	doreplacefld_ = new uiGenInput( this,
 					tr("Clear existing model before add"),
 					BoolInpSpec(true) );
 	doreplacefld_->attach( alignedBelow, eachfld_ );
-
-	val = 10;
-	val.setLimits( valrg );
-	nrdisplayfld_ = new uiGenInput( this, tr("Display Nr Models"), val );
-	nrdisplayfld_->setWithCheck();
-	nrdisplayfld_->setChecked( true );
-	nrdisplayfld_->attach( alignedBelow, doreplacefld_ );
     }
     else
     {
 	presmathfld_ = new uiGenInput( this, tr("Preserve Math Formulas"),
 				       BoolInpSpec(true) );
-	presmathfld_->attach( alignedBelow, filefld_ );
+	if ( filefld_ )
+	    presmathfld_->attach( alignedBelow, filefld_ );
     }
 
     usePar();
@@ -299,11 +298,14 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 
 bool usePar()
 {
-    BufferString fnm;
-    if ( pars_.get(sKey::FileName(),fnm) )
-	filefld_->setFileName( fnm );
+    if ( filefld_ )
+    {
+	BufferString fnm;
+	if ( pars_.get(sKey::FileName(),fnm) )
+	    filefld_->setFileName( fnm );
+    }
 
-    if ( doread_ )
+    if ( forread_ )
     {
 	int each;
 	if ( pars_.get(sKeyUseEach(),each) )
@@ -312,13 +314,6 @@ bool usePar()
 	bool doreplace = true;
 	if ( pars_.getYN(sKeyDoClear(),doreplace) )
 	    doreplacefld_->setValue( doreplace );
-
-	int nrmodels;
-	if ( pars_.get(sKeyNrDisplay(),nrmodels) )
-	{
-	    nrdisplayfld_->setValue( nrmodels );
-	    nrdisplayfld_->setChecked( true );
-	}
     }
     else
     {
@@ -333,17 +328,14 @@ bool usePar()
 
 void fillPar()
 {
-    pars_.set( sKey::FileName(), filefld_->fileName() );
-    if ( doread_ )
+    if ( filefld_ )
+	pars_.set( sKey::FileName(), filefld_->fileName() );
+    if ( !forread_ )
+	pars_.setYN( sKeyPreserveMath(), presmathfld_->getBoolValue() );
+    else
     {
 	pars_.set( sKeyUseEach(), eachfld_->getIntValue() );
 	pars_.setYN( sKeyDoClear(), doreplacefld_->getBoolValue() );
-	if ( nrdisplayfld_->isChecked() )
-	    pars_.set( sKeyNrDisplay(), nrdisplayfld_->getIntValue() );
-    }
-    else
-    {
-	pars_.setYN( sKeyPreserveMath(), presmathfld_->getBoolValue() );
     }
 }
 
@@ -360,19 +352,14 @@ int getNrDisplayModels()
 
 bool acceptOK()
 {
-    if ( fnm_.isEmpty() )
-    {
-	if ( !filefld_->fileName() )
-	    mErrRet(tr("Please provide a file name"))
-
+    if ( filefld_ )
 	fnm_ = filefld_->fileName();
-    }
+    if ( fnm_.isEmpty() )
+	mErrRet(tr("Please provide a file name"))
 
-    if ( doread_ && !File::exists(fnm_) )
-	mErrRet(tr("Input file does not exist"))
-
-    if ( doread_ )
+    if ( forread_ )
     {
+	uiUserShowWait usw( this, uiStrings::sReadingData() );
 	od_istream strm( fnm_ );
 	if ( !strm.isOK() )
 	    mErrRet(tr("Cannot open:\n%1\nfor read").arg(fnm_))
@@ -384,11 +371,15 @@ bool acceptOK()
 
 	const int each = eachfld_->getIntValue();
 	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
-	if ( doreplacefld_->getBoolValue() )
+	const bool replace = doreplacefld_->getBoolValue();
+	if ( replace )
 	    lm.setEmpty();
 
 	for ( int iseq=0; iseq<newlm.size(); iseq+=each )
 	    lm.addSequence( newlm.sequence(iseq) );
+
+	if ( !replace && !newlm.isEmpty() )
+	    haveaddedmodels_ = true;
     }
     else
     {
@@ -396,6 +387,7 @@ bool acceptOK()
 	if ( !strm.isOK() )
 	    mErrRet(tr("Cannot open:\n%1\nfor write").arg(fnm_))
 
+	uiUserShowWait usw( this, uiStrings::sWriting() );
 	if ( !lm_.write(strm,0,presmathfld_->getBoolValue()) )
 	    mErrRet(uiStrings::phrErrDuringWrite())
     }
@@ -405,16 +397,17 @@ bool acceptOK()
     return true;
 }
 
-    uiFileSel*			filefld_;
+    uiFileSel*			filefld_		= 0;
     uiGenInput*			doreplacefld_;
     uiGenInput*			eachfld_;
-    uiGenInput*			nrdisplayfld_;
     uiGenInput*			presmathfld_;
 
     const Strat::LayerModel&	lm_;
     BufferString		fnm_;
+    BufferString		fixeddumpfnm_;
     IOPar&			pars_;
-    bool			doread_;
+    const bool			forread_;
+    bool			haveaddedmodels_	= false;
 
 };
 
@@ -426,7 +419,11 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 	mErrRet( tr("Please generate at least one layer sequence") )
 
     uiStratLayerModelDispIO dlg( this, lm, dumppars_, foradd );
-    return dlg.go();
+    const bool ret = dlg.go();
+    if ( ret && dlg.haveaddedmodels_ )
+	modelsAdded.trigger();
+
+    return ret;
 }
 
 

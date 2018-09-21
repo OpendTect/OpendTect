@@ -303,6 +303,7 @@ void uiStratSynthDisp::addViewerToControl( uiFlatViewer& vwr )
 void uiStratSynthDisp::modelChanged()
 {
     datamgr_.modelChange();
+    selseq_ = -1;
     updFlds();
     reDisp();
 }
@@ -385,6 +386,13 @@ void uiStratSynthDisp::updateViewer( bool wva )
     selfld.datapack_ = pack2use;
     vwr_->setMapper( wva, *selfld.curMapper() );
     vwr_->setVisible( wva, true );
+}
+
+
+void uiStratSynthDisp::setSelectedSequence( int seqnr )
+{
+    selseq_ = seqnr;
+    // TODO take action
 }
 
 

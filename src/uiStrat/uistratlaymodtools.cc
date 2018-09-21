@@ -111,6 +111,18 @@ int uiStratGenDescTools::getNrModelsFromPar( const IOPar& par ) const
 }
 
 
+void uiStratGenDescTools::genCB( CallBacker* )
+{
+    if ( !genaskcontinuemsg_.isEmpty() )
+    {
+	if ( !uiMSG().askContinue(genaskcontinuemsg_) )
+	    return;
+	genaskcontinuemsg_.setEmpty();
+    }
+    genReq.trigger();
+}
+
+
 void uiStratGenDescTools::enableSave( bool yn )
 {
     savetb_->setSensitive( yn );

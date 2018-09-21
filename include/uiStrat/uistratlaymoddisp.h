@@ -94,6 +94,7 @@ public:
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
     Notifier<uiStratLayerModelDisp> rangeChanged;
     Notifier<uiStratLayerModelDisp> modelEdited;
+    Notifier<uiStratLayerModelDisp> modelsAdded;
     Notifier<uiStratLayerModelDisp> viewChanged;
     CNotifier<uiStratLayerModelDisp,const uiString*> infoChanged;
     Notifier<uiStratLayerModelDisp> dispPropChanged;
