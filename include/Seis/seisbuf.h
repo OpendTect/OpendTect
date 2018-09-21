@@ -33,10 +33,16 @@ public:
     typedef ObjectSet<SeisTrc>	TrcSet;
 
 			SeisTrcBuf( bool ownr )
-				: owner_(ownr)	{}
-			SeisTrcBuf( const SeisTrcBuf& b )
-				: owner_(b.owner_) { b.copyInto( *this ); }
+				: owner_(ownr)		{}
+			SeisTrcBuf( const SeisTrcBuf& oth )
+				: owner_(oth.owner_)	{ oth.copyInto(*this); }
+			SeisTrcBuf( const TrcSet& ts )
+				: owner_(false)		{ trcs_ = ts; }
+
+			    // shallow copy, do not set yourself to be owner!
+
     virtual		~SeisTrcBuf()		{ if ( owner_ ) deepErase(); }
+
     inline void		setIsOwner( bool yn )	{ owner_ = yn; }
     inline bool		isOwner() const		{ return owner_; }
 
