@@ -387,6 +387,7 @@ bool uiStratLayerModel::saveGenDesc() const
     {
 	rv = true;
 	descdisp_->setNeedSave( false );
+	descdisp_->setDescID( genDescID() );
 	synthdatamgrdc_ = synthdatamgr_->dirtyCount();
 	const_cast<uiStratLayerModel*>(this)->setWinTitle();
     }
@@ -436,6 +437,7 @@ bool uiStratLayerModel::doLoadGenDesc()
     usw.setMessage( uiStrings::sUpdatingDisplay() );
     gentools_->usePar( desc_.getWorkBenchParams() );
     descdisp_->setNeedSave( false );
+    descdisp_->setDescID( genDescID() );
     descdisp_->setEditDesc();
     descdisp_->descHasChanged();
 

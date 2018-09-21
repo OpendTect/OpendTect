@@ -14,8 +14,10 @@ ________________________________________________________________________
 #include "uimanprops.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
+#include "uigraphicsview.h"
 #include "uistratselunits.h"
 #include "uidialog.h"
+#include "uilineedit.h"
 #include "uimenu.h"
 #include "uigeninput.h"
 #include "uicombobox.h"
@@ -160,7 +162,7 @@ bool uiLayerSequenceGenDesc::selProps()
 
 uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
 					Strat::LayerSequenceGenDesc& dsc )
-    : uiGraphicsView(p,"LayerSequence Gen Desc editor")
+    : uiGroup(p,"LayerSequence Gen Desc editor")
     , uiLayerSequenceGenDesc(dsc)
     , border_(10)
     , outeritm_(0)
@@ -168,25 +170,30 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     , editdesc_(*new Strat::LayerSequenceGenDesc(dsc))
     , zinft_(SI().depthsInFeet())
 {
-    setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAsNeeded );
-    border_.setTop( border_.top() + 25 );
-    border_.setRight( border_.right() + 10 );
-    setPrefWidth( 180 );
-    setPrefHeight( 500 );
-    reSize.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
-    reDrawNeeded.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
-
-    getNavigationMouseEventHandler().wheelMove.notify(
-			    mCB(this,uiExtLayerSequenceGenDesc,wheelMoveCB) );
-    getMouseEventHandler().buttonReleased.notify(
-			    mCB(this,uiExtLayerSequenceGenDesc,singClckCB) );
-    getMouseEventHandler().doubleClick.notify(
-			    mCB(this,uiExtLayerSequenceGenDesc,dblClckCB) );
+    nmfld_ = new uiLineEdit( this, StringInpSpec(), sKey::Name() );
+    nmfld_->setHSzPol( uiObject::Small );
+    nmfld_->setSensitive( false );
 
     const uiString lbltxt = uiStrings::sTop().withSurvXYUnit();
-    topdepthfld_ = new uiGenInput( parent(), lbltxt, FloatInpSpec(0) );
+    topdepthfld_ = new uiGenInput( this, lbltxt, FloatInpSpec(0) );
     topdepthfld_->setElemSzPol( uiObject::Small );
-    topdepthfld_->attach( rightBorder );
+    topdepthfld_->attach( rightOf, nmfld_ );
+
+    gv_ = new uiGraphicsView( this, "LaySeq GenDesc Viewer" );
+    gv_->setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAsNeeded );
+    gv_->setPrefWidth( 200 );
+    gv_->setPrefHeight( 500 );
+
+    gv_->reSize.notify( mCB(this,uiExtLayerSequenceGenDesc,reDrawCB) );
+    gv_->reDrawNeeded.notify( mCB(this,uiExtLayerSequenceGenDesc,reDrawCB) );
+
+    gv_->getNavigationMouseEventHandler().wheelMove.notify(
+			    mCB(this,uiExtLayerSequenceGenDesc,wheelMoveCB) );
+    gv_->getMouseEventHandler().buttonReleased.notify(
+			    mCB(this,uiExtLayerSequenceGenDesc,singClckCB) );
+    gv_->getMouseEventHandler().doubleClick.notify(
+			    mCB(this,uiExtLayerSequenceGenDesc,dblClckCB) );
+    gv_->attach( ensureBelow, nmfld_ );
 }
 
 
@@ -194,6 +201,13 @@ uiStratLayerModelDisp* uiExtLayerSequenceGenDesc::getLayModDisp(
 	    uiStratLayModEditTools& lmt, Strat::LayerModelSuite& lms, int )
 {
     return new uiStratSimpleLayerModelDisp( lmt, lms );
+}
+
+
+void uiExtLayerSequenceGenDesc::setDescID( const DBKey& dbky )
+{
+    descid_ = dbky;
+    putTopInfo();
 }
 
 
@@ -227,10 +241,16 @@ bool uiExtLayerSequenceGenDesc::selProps()
 }
 
 
-void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
+uiGraphicsScene& uiExtLayerSequenceGenDesc::scene()
 {
-    const uiRect scenerect = getSceneRect();
-    uiRect& wr = const_cast<uiRect&>( workrect_ );
+    return gv_->scene();
+}
+
+
+void uiExtLayerSequenceGenDesc::reDrawCB( CallBacker* )
+{
+    const uiRect scenerect = gv_->getSceneRect();
+    uiRect& wr = workrect_;
     wr.setLeft( border_.left() );
     wr.setRight( (int)(scenerect.width() - border_.right() + .5) );
     wr.setTop( border_.top() );
@@ -244,7 +264,7 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
     }
     outeritm_->setRect( workrect_.left(), workrect_.top(),
 			workrect_.width(), workrect_.height() );
-    putTopDepthToScreen();
+    putTopInfo();
 
     if ( editdesc_.isEmpty() )
     {
@@ -264,28 +284,39 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 }
 
 
-void uiExtLayerSequenceGenDesc::putTopDepthToScreen()
+void uiExtLayerSequenceGenDesc::putTopInfo()
 {
     float topz = editdesc_.startDepth();
     if ( zinft_ ) topz *= mToFeetFactorF;
     topdepthfld_->setValue( topz );
+
+    BufferString descnm( nameOf(descid_) );
+    if ( descnm.isEmpty() )
+	descnm.set( "<new>" );
+    nmfld_->setText( descnm );
+    nmfld_->setToolTip( toUiString(descnm) );
 }
 
 
-void uiExtLayerSequenceGenDesc::getTopDepthFromScreen()
+void uiExtLayerSequenceGenDesc::setDescStartDepth()
 {
     float topz = topdepthfld_->getFValue();
-    if ( zinft_ ) topz *= mFromFeetFactorF;
+    if ( mIsUdf(topz) )
+	return;
+
+    if ( zinft_ )
+	topz *= mFromFeetFactorF;
+
     editdesc_.setStartDepth( topz );
 }
 
 
 void uiExtLayerSequenceGenDesc::wheelMoveCB( CallBacker* cb )
 {
-    MouseEventHandler& mevh = getNavigationMouseEventHandler();
+    MouseEventHandler& mevh = gv_->getNavigationMouseEventHandler();
     if ( !mevh.hasEvent() || mevh.isHandled() )
 	return;
-    uiRect scenerect = getSceneRect();
+    uiRect scenerect = gv_->getSceneRect();
     const uiSize scnrectsz = scenerect.size();
     const MouseEvent& mev = mevh.event();
     uiPoint prevmousescnpos = mev.pos();
@@ -298,19 +329,19 @@ void uiExtLayerSequenceGenDesc::wheelMoveCB( CallBacker* cb )
 	scenerect += dsize;
     else
 	scenerect -= dsize;
-    setSceneRect( scenerect );
+    gv_->setSceneRect( scenerect );
     const int newmousescnposy =
 	scenerect.top()+(mNINT32(relscnposy*scenerect.height()));
     const int translate = newmousescnposy - prevmousescnpos.y_;
     const int newcentery = scenerect.centre().y_ + translate;
-    reDraw( 0 );
-    centreOn( uiPoint(scenerect.centre().x_,newcentery) );
+    reDrawCB( 0 );
+    gv_->centreOn( uiPoint(scenerect.centre().x_,newcentery) );
 }
 
 
 void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 {
-    MouseEventHandler& mevh = getMouseEventHandler();
+    MouseEventHandler& mevh = gv_->getMouseEventHandler();
     if ( !mevh.hasEvent() || mevh.isHandled() )
 	return;
 
@@ -331,7 +362,7 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
     int mnuid = dbl ? 0 : (isempty ? 1 : -1);
     if ( !isempty && !dbl )
     {
-	uiMenu mnu( parent(), uiStrings::sAction() );
+	uiMenu mnu( this, uiStrings::sAction() );
 	mnu.insertAction( new uiAction(
 			m3Dots(uiStrings::sEdit())), 0 );
 	mnu.insertAction( new uiAction(m3Dots(uiStrings::phrAdd(
@@ -355,7 +386,7 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 	ischgd = laygenRemoveReq();
 
     if ( ischgd )
-	{ needsave_ = true; reDraw(0); }
+	{ needsave_ = true; reDrawCB(0); }
 
     mevh.setHandled( true );
 }
@@ -377,10 +408,10 @@ uiBasicLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
 	Property& pr = newgen->properties().get(0);
 	mDynamicCastGet(ValueProperty*,vpr,&pr)
 	vpr->val_ = lg.dispThickness();
-    }
+     }
 
     nm_ = scene_.addItem( new uiTextItem( toUiString(gen_->name()),
-			  mAlignment(HCenter,VCenter) ) );
+					   mAlignment(HCenter,VCenter) ) );
     nm_->setPenColor( Color::Black() );
     lithcol_ = scene_.addItem( new uiCircleItem );
     const Color lithcolor( gen_->unit().dispColor( true ) );
@@ -432,7 +463,8 @@ void uiBasicLayerSequenceGenDesc::insertDispUnit(
 
 void uiBasicLayerSequenceGenDesc::doDraw()
 {
-    if ( disps_.isEmpty() ) return;
+    if ( disps_.isEmpty() )
+	return;
     float totth = 0;
     for ( int idx=0; idx<disps_.size(); idx++ )
 	totth += disps_[idx]->gen_->dispThickness();
@@ -539,9 +571,9 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 
 void uiBasicLayerSequenceGenDesc::descHasChanged()
 {
-    putTopDepthToScreen();
+    putTopInfo();
     rebuildDispUnits();
-    reDraw(0);
+    reDrawCB(0);
 }
 
 

@@ -12,9 +12,13 @@ ________________________________________________________________________
 
 #include "uistratmod.h"
 #include "uistratlayseqgendesc.h"
-#include "uigraphicsview.h"
+#include "uigroup.h"
 #include "property.h"
+#include "dbkey.h"
 class uiGenInput;
+class uiGraphicsView;
+class uiGraphicsScene;
+class uiLineEdit;
 class uiRectItem;
 class uiTextItem;
 namespace Strat { class LayerSequenceGenDesc; }
@@ -23,18 +27,19 @@ namespace Strat { class LayerSequenceGenDesc; }
 /*!\brief Base class for external LayerSequenceGenDesc editors, i.e.
   editors that are not also Layer Model displayers. */
 
-mExpClass(uiStrat) uiExtLayerSequenceGenDesc : public uiGraphicsView
-				 , public uiLayerSequenceGenDesc
+mExpClass(uiStrat) uiExtLayerSequenceGenDesc : public uiGroup
+					     , public uiLayerSequenceGenDesc
 { mODTextTranslationClass(uiExtLayerSequenceGenDesc)
 public:
 
 				uiExtLayerSequenceGenDesc(uiParent*,
 					    LayerSequenceGenDesc&);
 
-    virtual uiObject*			outerObj()	{ return this; }
-    virtual uiStratLayerModelDisp*	getLayModDisp(uiStratLayModEditTools&,
+    virtual uiStratLayerModelDisp* getLayModDisp(uiStratLayModEditTools&,
 					    Strat::LayerModelSuite&,int);
-    virtual void	prepareDesc()	{ getTopDepthFromScreen(); }
+    virtual uiObject*	outerObj()	{ return &asUiObject(); }
+    virtual void	prepareDesc()	{ setDescStartDepth(); }
+    virtual void	setDescID(const DBKey&);
     virtual void	setEditDesc();
     virtual void	setFromEditDesc();
     virtual bool	selProps();
@@ -42,16 +47,21 @@ public:
 protected:
 
     LayerSequenceGenDesc& editdesc_;
+    uiGraphicsView*	gv_;
     uiGenInput*		topdepthfld_;
+    uiLineEdit*		nmfld_;
     uiRectItem*		outeritm_;
     uiTextItem*		emptyitm_;
     uiBorder		border_;	//!< can be set
-    const uiRect	workrect_;	//!< will be filled
+    uiRect		workrect_;	//!< will be filled
     bool		zinft_;		//!< From SI()
+    DBKey		descid_;
 
-    void		getTopDepthFromScreen();
-    void		putTopDepthToScreen();
-    void		reDraw(CallBacker*);
+    uiGraphicsScene&	scene();
+    void		setDescStartDepth();
+    void		putTopInfo();
+
+    void		reDrawCB(CallBacker*);
     void		wheelMoveCB(CallBacker*);
     void		singClckCB( CallBacker* cb )	{ hndlClick(cb,false); }
     void		dblClckCB( CallBacker* cb )	{ hndlClick(cb,true); }
