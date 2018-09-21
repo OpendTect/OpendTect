@@ -12,8 +12,10 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "gendefs.h"
 #include "odcomplex.h"
+#include "ptrman.h"
 
 class ArrayNDWindow;
+class TaskRunnerProvider;
 class Wavelet;
 template <class T> class Array1DImpl;
 template <class T> class Array1D;
@@ -53,3 +55,10 @@ protected:
     float		sr_;
     void		getWaveletArrForPhase(Array1DImpl<float>&) const;
 };
+
+
+			//!<\param filtersz: 0=auto
+mGlobal(Seis) ConstRefMan<Wavelet> getMatchFilter(const Wavelet& ref,
+						  const Wavelet& target,
+						  TaskRunnerProvider&,
+						  const int* filtersz =0);

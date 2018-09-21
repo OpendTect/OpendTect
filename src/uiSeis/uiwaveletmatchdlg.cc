@@ -11,9 +11,7 @@ ________________________________________________________________________
 
 #include "uiwaveletmatchdlg.h"
 
-#include "arrayndimpl.h"
 #include "genericnumer.h"
-#include "linsolv.h"
 #include "wavelet.h"
 #include "waveletattrib.h"
 
@@ -121,28 +119,6 @@ void uiWaveletMatchDlg::filterSzCB( CallBacker* )
 }
 
 
-static void solveAxb( int sz, float* a, float* b, float* x, uiParent* p,
-			uiString s )
-{
-    Array2DImpl<float> A( sz, sz );
-    A.setAll( 0 );
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	for ( int idy=0; idy<sz; idy++ )
-	{
-	    const int vecidx = Math::Abs(idy-idx) + sz/2;
-	    if ( vecidx<sz )
-		A.set( idx, idy, a[vecidx] );
-	}
-    }
-
-    LinSolver<float> ls( A );
-    uiUSWTaskRunnerProvider trprov( p, s );
-    if ( ls.init(trprov) )
-	ls.apply( b, x );
-}
-
-
 bool uiWaveletMatchDlg::calcFilter()
 {
     ConstRefMan<Wavelet> refwvlt = wvlt0fld_->getWavelet();
@@ -151,42 +127,30 @@ bool uiWaveletMatchDlg::calcFilter()
 	return false;
 
     const int filtersz = filterszfld_->getIntValue();
-    const int filtersz2 = mCast(int,filtersz/2);
-    mAllocVarLenArr(float,autoref,filtersz);
-    mAllocVarLenArr(float,crossref,filtersz);
+    uiUSWTaskRunnerProvider trprov( this, tr("Calculating filter") );
+    ConstRefMan<Wavelet> outwvlt = getMatchFilter( *refwvlt, *tarwvlt, trprov,
+						   &filtersz );
+    if ( !outwvlt )
+	return false;
 
-    TypeSet<float> refsamps; refwvlt->getSamples( refsamps );
-    const float* wref = refsamps.arr();
-    const int refsz = refsamps.size();
-    float* autorefptr = mVarLenArr( autoref );
-    genericCrossCorrelation( refsz, 0, wref,
-			     refsz, 0, wref,
-			     filtersz, -filtersz2, autorefptr );
+    outputwvlt_ = *outwvlt;
+
+    TypeSet<float> samps; outputwvlt_.getSamples( samps );
+    float* psamps = samps.arr();
+    wvltoutdisp_->setVals( outputwvlt_.samplePositions(),
+			   psamps, outputwvlt_.size() );
 
     TypeSet<float> tarsamps; tarwvlt->getSamples( tarsamps );
     const float* wtar = tarsamps.arr();
     const int tarsz = tarsamps.size();
-    float* crossrefptr = mVarLenArr( crossref );
-    genericCrossCorrelation( refsz, 0, wref,
-			     tarsz, 0, wtar,
-			     filtersz, -filtersz2, crossrefptr );
-
-//  Solve Ax=b
-    outputwvlt_.reSize( filtersz );
-    outputwvlt_.setCenterSample( filtersz2 );
-    TypeSet<float> samps; outputwvlt_.getSamples( samps );
-    float* psamps = samps.arr();
-    solveAxb( filtersz, autoref, crossref, psamps, this, tr("Calulating filter") );
-    outputwvlt_.setSamples( samps );
-
-    Interval<float> intv( -(float)filtersz2, (float)filtersz2 );
-    wvltoutdisp_->setVals( intv, psamps, filtersz );
-
     wvltqcdisp_->setVals( tarwvlt->samplePositions(), wtar, tarsz );
+
 //  QC: Convolve result with reference wavelet
     mAllocVarLenArr(float,wqc,tarsz)
     float* wqcptr = mVarLenArr( wqc );
-    GenericConvolve( refsz,0,wref, filtersz,-filtersz/2,psamps,
+    TypeSet<float> refsamps; refwvlt->getSamples( refsamps );
+    const int refsz = refsamps.size();
+    GenericConvolve( refsz,0,refsamps.arr(), filtersz,-filtersz/2,psamps,
 		     tarsz,0,wqcptr );
     wvltqcdisp_->setY2Vals( tarwvlt->samplePositions(), wqc, tarsz );
 

@@ -14,7 +14,9 @@ ________________________________________________________________________
 #include "arrayndalgo.h"
 #include "fftfilter.h"
 #include "fourier.h"
+#include "genericnumer.h"
 #include "hilberttransform.h"
+#include "linsolv.h"
 #include "phase.h"
 #include "wavelet.h"
 #include "windowfunction.h"
@@ -277,4 +279,143 @@ void WaveletAttrib::applyFreqWindow( const ArrayNDWindow& window, int padfac,
 
     for ( int idx=0; idx<wvltsz_; idx++ )
 	timedata.set( idx, ctimearr.get( idx + padshift ).real() );
+}
+
+
+
+static void solveAxb( int sz, float* a, float* b, float* x,
+		      TaskRunnerProvider& trprov )
+{
+    Array2DImpl<float> A( sz, sz );
+    A.setAll( 0 );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	for ( int idy=0; idy<sz; idy++ )
+	{
+	     const int vecidx = Math::Abs(idy-idx) + sz/2;
+	     if ( vecidx<sz )
+		 A.set( idx, idy, a[vecidx] );
+	}
+    }
+
+    LinSolver<float> ls( A );
+    if ( ls.init(trprov) )
+	ls.apply( b, x );
+}
+
+
+ConstRefMan<Wavelet> getMatchFilter( const Wavelet& refwvltin,
+				     const Wavelet& tarwvltin,
+				     TaskRunnerProvider& trprov,
+				     const int* filterszin )
+{
+    ConstRefMan<Wavelet> refwvltinref( &refwvltin );
+    ConstRefMan<Wavelet> tarwvltinref( &tarwvltin );
+    if ( !refwvltinref || !tarwvltinref )
+	return 0;
+
+    RefMan<Wavelet> refwvlt = new Wavelet( *refwvltinref.ptr() );
+    RefMan<Wavelet> tarwvlt = new Wavelet( *tarwvltinref.ptr() );
+    if ( !refwvlt || !tarwvlt )
+	return 0;
+    refwvltinref = 0; tarwvltinref = 0;
+
+    const Wavelet::ZType refwvltsr = refwvlt->samplePositions().step;
+    const Wavelet::ZType tarwvltsr = tarwvlt->samplePositions().step;
+    if ( !mIsEqual(refwvltsr,tarwvltsr,1e-6f) )
+    {
+	if ( refwvltsr > tarwvltsr )
+	{
+	    refwvlt->ensureSymmetricalSamples();
+	    refwvlt->reSample( tarwvltsr );
+	    refwvlt->trimPaddedZeros();
+	}
+	else if ( tarwvltsr > refwvltsr )
+	{
+	    tarwvlt->ensureSymmetricalSamples();
+	    tarwvlt->reSample( refwvltsr );
+	    tarwvlt->trimPaddedZeros();
+	}
+    }
+
+    StepInterval<Wavelet::ZType> posrg( refwvlt->samplePositions() );
+    posrg.include( tarwvlt->samplePositions() );
+    const Wavelet::size_type nrsamps =
+				mCast(Wavelet::size_type,posrg.nrSteps()+1);
+    const int wvltsz = mCast(int,nrsamps);
+    RefMan<Wavelet> outwvlt = new Wavelet( "Match filter" );
+    if ( !outwvlt )
+	return 0;
+
+    outwvlt->reSize( nrsamps );
+    if ( posrg.includes(0.f,true) )
+	outwvlt->setCenterSample( posrg.nearestIndex(0.f) );
+    else
+	outwvlt->setCenterSample( mCast(int,posrg.nrSteps()+1) );
+
+    if ( !refwvlt->samplePositions().isEqual(posrg,1e-6f) )
+    {
+	TypeSet<float> samps; refwvlt->getSamples( samps );
+	TypeSet<float> sampsout( wvltsz, 0.f );
+	const int shift = posrg.nearestIndex(refwvlt->samplePositions().start);
+	const float* sampsarr = samps.arr();
+	float* sampsoutarr = sampsout.arr() + shift;
+	OD::memCopy( sampsoutarr, sampsarr, samps.size()*sizeof(float) );
+	refwvlt->setSamples( sampsout );
+	refwvlt->setCenterSample( outwvlt->centerSample() );
+    }
+    if ( !tarwvlt->samplePositions().isEqual(posrg,1e-6f) )
+    {
+	TypeSet<float> samps; tarwvlt->getSamples( samps );
+	TypeSet<float> sampsout( wvltsz, 0.f );
+	const int shift = posrg.nearestIndex(tarwvlt->samplePositions().start);
+	const float* sampsarr = samps.arr();
+	float* sampsoutarr = sampsout.arr() + shift;
+	OD::memCopy( sampsoutarr, sampsarr, samps.size()*sizeof(float) );
+	tarwvlt->setSamples( sampsout );
+	tarwvlt->setCenterSample( outwvlt->centerSample() );
+    }
+
+/*    WaveletAttrib refattrib( *refwvlt ), tarattr( *tarwvlt );
+    Array1DImpl<float_complex> refspectrum( wvltsz ), tarspectrum( wvltsz ),
+			       filterspectrum( wvltsz );
+    refattrib.transform( refspectrum );
+    tarattr.transform( tarspectrum );
+    for ( int idx=0; idx<wvltsz; idx++ )
+    {
+	filterspectrum.set( idx, std::abs(refspectrum.get(idx)) -
+				 std::abs(tarspectrum.get(idx)) );
+    }
+
+    Array1DImpl<float_complex> outwvltarr( wvltsz );
+    doFFT( false, filterspectrum, outwvltarr, wvltsz );
+    for ( Wavelet::IdxType idx=0; idx<nrsamps; idx++ )
+	outwvlt->set( idx, outwvltarr.get(mCast(int,idx)).real() );*/
+
+    const int filtersz = filterszin ? *filterszin : wvltsz;
+    const int filtersz2 = mCast(int,filtersz/2);
+    mAllocVarLenArr(float,autoref,filtersz);
+    mAllocVarLenArr(float,crossref,filtersz);
+
+    TypeSet<float> refsamps; refwvlt->getSamples( refsamps );
+    const float* wref = refsamps.arr();
+    const int refsz = refsamps.size();
+    float* autorefptr = mVarLenArr( autoref );
+    genericCrossCorrelation( refsz, 0, wref, refsz, 0, wref,
+			     filtersz, -filtersz2, autorefptr );
+
+    TypeSet<float> tarsamps; tarwvlt->getSamples( tarsamps );
+    const float* wtar = tarsamps.arr();
+    const int tarsz = tarsamps.size();
+    float* crossrefptr = mVarLenArr( crossref );
+    genericCrossCorrelation( refsz, 0, wref, tarsz, 0, wtar,
+			     filtersz, -filtersz2, crossrefptr );
+
+    //  Solve Ax=b
+    TypeSet<float> samps; outwvlt->getSamples( samps );
+    float* psamps = samps.arr();
+    solveAxb( filtersz, autoref, crossref, psamps, trprov );
+    outwvlt->setSamples( samps );
+
+    return ConstRefMan<Wavelet>( outwvlt );
 }
