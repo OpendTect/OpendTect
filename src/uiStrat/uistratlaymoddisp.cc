@@ -281,7 +281,7 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 
 	doreplacefld_ = new uiGenInput( this,
 					tr("Clear existing model before add"),
-					BoolInpSpec(true) );
+					BoolInpSpec(false) );
 	doreplacefld_->attach( alignedBelow, eachfld_ );
     }
     else
