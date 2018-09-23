@@ -181,12 +181,9 @@ void set( SynthID newid )
     int newidx = entries_.find( newid );
     if ( newidx < 0 )
 	newidx = 0;
-    const int curidx = sel_->currentItem();
-    if ( curidx != newidx )
-    {
-	sel_->setCurrentItem( newidx );
-	synthdisp_.updateViewer( wva_ );
-    }
+    synthdisp_.setViewerData( wva_ );
+    NotifyStopper ns( sel_->selectionChanged );
+    sel_->setCurrentItem( newidx );
 }
 
 DataPack::ID packID() const
@@ -306,6 +303,7 @@ void uiStratSynthDisp::modelChanged()
     selseq_ = -1;
     updFlds();
     reDisp();
+    initialboundingbox_ = vwr_->boundingBox();
 }
 
 
@@ -321,9 +319,9 @@ void uiStratSynthDisp::updFlds()
 
 void uiStratSynthDisp::reDisp()
 {
-    updateViewer( true );
-    updateViewer( false );
-    vwr_->setViewToBoundingBox();
+    vwr_->setView( initialboundingbox_ );
+    setViewerData( true );
+    setViewerData( false );
     vwr_->handleChange( FlatView::Viewer::BitmapData );
     drawLevels();
 }
@@ -334,8 +332,10 @@ void uiStratSynthDisp::reDisp()
     const bool showflattened = sellvlid.isValid() && edtools_.showFlattened()
 
 
-void uiStratSynthDisp::updateViewer( bool wva )
+void uiStratSynthDisp::setViewerData( bool wva )
 {
+    const uiWorldRect curview = vwr_->curView();
+
     auto& selfld = *(wva ? wvaselfld_ : vdselfld_);
     auto curid = selfld.curID();
     const SynthSeis::DataSet* ds = 0;
@@ -386,6 +386,7 @@ void uiStratSynthDisp::updateViewer( bool wva )
     selfld.datapack_ = pack2use;
     vwr_->setMapper( wva, *selfld.curMapper() );
     vwr_->setVisible( wva, true );
+    vwr_->setView( curview );
 }
 
 
@@ -561,10 +562,11 @@ void uiStratSynthDisp::dataMgrCB( CallBacker* )
 
 void uiStratSynthDisp::applyReqCB( CallBacker* )
 {
-    updFlds();
     if ( uidatamgr_ )
+    {
 	wvaselfld_->set( uidatamgr_->curID() );
-    reDisp();
+	setViewerData( true );
+    }
 }
 
 
@@ -580,14 +582,14 @@ void uiStratSynthDisp::expSynthCB( CallBacker* )
 
 void uiStratSynthDisp::wvaSelCB( CallBacker* )
 {
-    updateViewer( true );
+    setViewerData( true );
     vwr_->handleChange( FlatView::Viewer::BitmapData );
 }
 
 
 void uiStratSynthDisp::vdSelCB( CallBacker* )
 {
-    updateViewer( false );
+    setViewerData( false );
     vwr_->handleChange( FlatView::Viewer::BitmapData );
 }
 

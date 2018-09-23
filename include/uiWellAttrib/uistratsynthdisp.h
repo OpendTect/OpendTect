@@ -63,6 +63,7 @@ protected:
     uiEdTools&		edtools_;
     uiSize		initialsz_;
     int			selseq_;
+    uiWorldRect		initialboundingbox_;
 
     uiMultiFlatViewControl* control_;
     ObjectSet<FlatView::AuxData> levelaux_;
@@ -78,7 +79,7 @@ protected:
     void		updFlds();
     void		reDisp();
     void		doDisp(bool wva);
-    void		updateViewer(bool wva);
+    void		setViewerData(bool wva);
     void		drawLevels();
 
     int			dispEach() const;
