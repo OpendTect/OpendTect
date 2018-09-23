@@ -317,11 +317,12 @@ void uiStratSynthDisp::updFlds()
 }
 
 
-void uiStratSynthDisp::reDisp()
+void uiStratSynthDisp::reDisp( bool preserveview )
 {
-    vwr_->setView( initialboundingbox_ );
-    setViewerData( true );
-    setViewerData( false );
+    if ( preserveview )
+	vwr_->setView( initialboundingbox_ );
+    setViewerData( true, preserveview );
+    setViewerData( false, preserveview );
     vwr_->handleChange( FlatView::Viewer::BitmapData );
     drawLevels();
 }
@@ -332,7 +333,7 @@ void uiStratSynthDisp::reDisp()
     const bool showflattened = sellvlid.isValid() && edtools_.showFlattened()
 
 
-void uiStratSynthDisp::setViewerData( bool wva )
+void uiStratSynthDisp::setViewerData( bool wva, bool preserveview )
 {
     const uiWorldRect curview = vwr_->curView();
 
@@ -386,7 +387,10 @@ void uiStratSynthDisp::setViewerData( bool wva )
     selfld.datapack_ = pack2use;
     vwr_->setMapper( wva, *selfld.curMapper() );
     vwr_->setVisible( wva, true );
-    vwr_->setView( curview );
+    if ( preserveview )
+	vwr_->setView( curview );
+    else
+	vwr_->setViewToBoundingBox();
 }
 
 
@@ -537,7 +541,7 @@ void uiStratSynthDisp::lvlChgCB( CallBacker* )
 
 void uiStratSynthDisp::flatChgCB( CallBacker* )
 {
-    reDisp();
+    reDisp( false );
 }
 
 

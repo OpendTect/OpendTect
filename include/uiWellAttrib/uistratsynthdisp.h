@@ -77,9 +77,8 @@ protected:
 
     void		setDefaultAppearance(Appearance&);
     void		updFlds();
-    void		reDisp();
-    void		doDisp(bool wva);
-    void		setViewerData(bool wva);
+    void		reDisp(bool preserveview=true);
+    void		setViewerData(bool wva,bool preserveview=true);
     void		drawLevels();
 
     int			dispEach() const;
