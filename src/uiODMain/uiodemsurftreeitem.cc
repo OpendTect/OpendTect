@@ -408,7 +408,7 @@ bool uiODEarthModelSurfaceTreeItem::isHorReady( const EM::ObjectID& emid )
 
 void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
 {
-    uiEMPartServer* ems = applMgr()->EMServer();
+    uiEMPartServer* ems = ODMainWin()->applMgr().EMServer();
     if ( !ems->isChanged( emid_ ) )
 	return;
 
