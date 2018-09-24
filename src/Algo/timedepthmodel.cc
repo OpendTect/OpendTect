@@ -152,7 +152,7 @@ float TimeDepthModel::getVelocity( const double* dpths, const double* times,
 	return mUdf(float);
 
     int idx1;
-    IdxAble::findFPPos( dpths, sz, (float)depth, -1, idx1 );
+    IdxAble::findFPPos( dpths, sz, mCast(float,depth), -1, idx1 );
     if ( idx1 < 1 )
 	idx1 = 1;
     else if ( idx1 > sz-1 )
