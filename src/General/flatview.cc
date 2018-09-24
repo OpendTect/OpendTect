@@ -589,7 +589,8 @@ void FlatView::Viewer::setMapper( bool wva, ColTab::Mapper& mpr )
 
 RefMan<ColTab::Mapper> FlatView::Viewer::mapper( bool wva )
 {
-    return const_cast<Viewer*>(this)->mapper( wva );
+    return const_cast<ColTab::Mapper*>(
+	    (const_cast<const Viewer*>(this)->mapper( wva )).ptr() );
 }
 
 
