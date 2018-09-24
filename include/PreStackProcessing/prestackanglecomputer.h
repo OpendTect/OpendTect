@@ -55,7 +55,8 @@ public:
     void			setMovingAverageSmoother(float length,
 				        BufferString win=HanningWindow::sName(),
 					float param=0.95);
-    void			setFFTSmoother(float freqf3,float freqf4);
+    void			setFFTSmoother(float freqf3=10.f,
+					       float freqf4=15.f);
     void			setSmoothingPars(const IOPar&);
 
     static const char*		sKeySmoothType();

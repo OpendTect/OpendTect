@@ -112,9 +112,9 @@ uiGroup* uiSynthGenParams::createGroups()
     pspostprocgrp_ = new uiGroup( parsgrp, "PS Post proc group" );
     auto* lcb = new uiLabeledComboBox( pspostprocgrp_, tr("Input Prestack") );
     psinpfld_ = lcb->box();
-    FloatInpIntervalSpec angspec( false );
-    angspec.setLimits( Interval<float>(0,90) );
-    angspec.setDefaultValue( Interval<float>(0,30) );
+    IntInpIntervalSpec angspec( false );
+    angspec.setLimits( Interval<int>(0,90) );
+    angspec.setDefaultValue( Interval<int>(0,30) );
     angleinpfld_ = new uiGenInput( pspostprocgrp_,
 		tr("Angle Range").withUnit(uiStrings::sDeg()), angspec );
     angleinpfld_->attach( alignedBelow, lcb );
@@ -302,7 +302,7 @@ void uiSynthGenParams::get( GenParams& gp ) const
     else if ( gp.isPSPostProc() )
     {
 	gp.inpsynthnm_.set( psinpfld_->text() );
-	gp.anglerg_ = angleinpfld_->getFInterval();
+	gp.anglerg_ = angleinpfld_->getIInterval();
     }
 }
 

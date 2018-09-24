@@ -96,23 +96,33 @@ void PropCalc::removeGather()
 }
 
 
+void PropCalc::setGather( const Gather& gather )
+{
+    removeGather();
+    gather_ = &gather;
+    gatherChanged();
+}
+
+
 void PropCalc::setGather( DataPack::ID id )
 {
     removeGather();
-
     gather_ = DPM(DataPackMgr::FlatID()).get<Gather>( id );
-
     if ( gather_ )
-    {
-	const int nroffsets = gather_->size( !gather_->offsetDim() );
-	mTryAlloc( innermutes_, int[nroffsets*2] );
-	if ( innermutes_ )
-	{
-	    outermutes_ = innermutes_ + nroffsets;
+	gatherChanged();
+}
 
-	    gather_->detectOuterMutes( outermutes_, 0 );
-	    gather_->detectInnerMutes( innermutes_, 0 );
-	}
+
+void PropCalc::gatherChanged()
+{
+    const int nroffsets = gather_->size( !gather_->offsetDim() );
+    mTryAlloc( innermutes_, int[nroffsets*2] );
+    if ( innermutes_ )
+    {
+	outermutes_ = innermutes_ + nroffsets;
+
+	gather_->detectOuterMutes( outermutes_, 0 );
+	gather_->detectInnerMutes( innermutes_, 0 );
     }
 }
 
@@ -120,6 +130,12 @@ void PropCalc::setGather( DataPack::ID id )
 void PropCalc::setAngleData( DataPack::ID id )
 {
     angledata_ = DPM(DataPackMgr::FlatID()).get<Gather>( id );
+}
+
+
+void PropCalc::setAngleData( const Gather& gather )
+{
+    angledata_ = &gather;
 }
 
 
@@ -142,15 +158,14 @@ float PropCalc::getVal( float z ) const
     Interval<float> axisvalrg( setup_.offsrg_ );
     if ( useangle )
     {
-	axisvalrg.start = mIsUdf(setup_.anglerg_.start)
-	    ? mUdf(float) : Math::toRadians( (float) setup_.anglerg_.start );
-	axisvalrg.stop = mIsUdf(setup_.anglerg_.stop)
-	    ? mUdf(float) : Math::toRadians( (float) setup_.anglerg_.stop );
+	axisvalrg.start = setup_.anglerg_.start < 0
+	    ? 0.f : Math::toRadians( (float)setup_.anglerg_.start );
+	axisvalrg.stop = setup_.anglerg_.stop < 0
+	    ? mUdf(float) : Math::toRadians( (float)setup_.anglerg_.stop );
     }
 
     const float eps = 1e-3;
-    if ( !mIsUdf(axisvalrg.start) )
-	axisvalrg.start -= eps;
+    axisvalrg.start -= eps;
     if ( !mIsUdf(axisvalrg.stop) )
 	axisvalrg.stop += eps;
     axisvalrg.sort();

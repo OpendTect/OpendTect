@@ -28,8 +28,8 @@ static const char* sKeyInput()			{ return "Input Synthetic"; }
 static const char* sKeyAngleRange()		{ return "Angle Range"; }
 static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
 
-#define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
-#define sDefaultOffsetRange StepInterval<float>( 0.f, 6000.f, 100.f )
+#define cDefaultAngleRange Interval<int>( 0, 30 )
+#define cDefaultOffsetRange StepInterval<float>( 0.f, 6000.f, 100.f )
 
 
 mDefineNameSpaceEnumUtils(SynthSeis,SyntheticType,"Synthetic Type")
@@ -83,7 +83,7 @@ void SynthSeis::GenParams::setDefaultValues()
 	ctio->setObj( 0 );
     }
 
-    anglerg_ = sDefaultAngleRange;
+    anglerg_ = cDefaultAngleRange;
     raypars_.setEmpty();
     FixedString defrayparstr = sKeyAdvancedRayTracer();
     const BufferStringSet& fackys = RayTracer1D::factory().getKeys();
@@ -98,7 +98,7 @@ void SynthSeis::GenParams::setDefaultValues()
 	RayTracer1D::setIOParsToZeroOffset( raypars_ );
     else
     {
-	const StepInterval<float> offsetrg = sDefaultOffsetRange;
+	const StepInterval<float> offsetrg = cDefaultOffsetRange;
 	TypeSet<float> offsets;
 	for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
 	    offsets += offsetrg.atIndex( idx );
@@ -195,8 +195,8 @@ BufferString SynthSeis::GenParams::createName() const
     {
 	ret = toString( type_ );
 	ret.add( " [" )
-	   .add( anglerg_.start ).add( "," ).add( anglerg_.stop )
-	   .add( "] degrees" );
+	   .add( anglerg_.start ).add( "-" ).add( anglerg_.stop )
+	   .add( "]" );
 	return ret;
     }
 

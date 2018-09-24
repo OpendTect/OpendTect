@@ -102,6 +102,8 @@ SynthSeis::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
     : zerooffsett2dmodel_(0)
     , reflmodels_(new ReflectivityModelSet)
     , sampledreflmodels_(new ReflectivityModelSet)
+    , raytracerdata_(0) // TODO
+    //, raytracerdata_(new RayTracerData(rt1d))
 {
     for ( int idx=0; idx<nroffsets; idx++ )
     {
@@ -126,9 +128,14 @@ SynthSeis::RayModel::RayModel( const RayModel& oth )
     : zerooffsett2dmodel_(0)
     , reflmodels_(oth.reflmodels_)
     , sampledreflmodels_(oth.sampledreflmodels_)
+    , raytracerdata_(0)
 {
     if ( oth.zerooffsett2dmodel_ )
 	zerooffsett2dmodel_ = new TimeDepthModel( *oth.zerooffsett2dmodel_ );
+    /* TODO
+    if ( oth.raytracerdata_ )
+	raytracerdata_ = new RayTracerData( *oth.raytracerdata_ );
+	*/
     for ( auto t2dmdl : oth.t2dmodels_ )
 	t2dmodels_ += new TimeDepthModel( *t2dmdl );
     for ( auto trc : oth.outtrcs_ )
@@ -141,6 +148,7 @@ SynthSeis::RayModel::~RayModel()
     deepErase( outtrcs_ );
     deepErase( t2dmodels_ );
     delete zerooffsett2dmodel_;
+    // delete raytracerdata_; TODO
 }
 
 

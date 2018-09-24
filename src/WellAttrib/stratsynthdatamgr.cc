@@ -1352,71 +1352,61 @@ StratSynth::DataMgr::genPSPostProcDataSet( const GenParams& gp,
     const bool isanglestack = gp.type_ == SynthSeis::AngleStack;
     mDynamicCastGet( const SynthSeis::PreStackDataSet&, psds, inpds );
     const GatherSetDataPack& gatherdp = psds.preStackPack();
-    const auto dpmgrid = DataPackMgr::SeisID();
-    auto& dpmgr = DPM( dpmgrid );
-    if ( !dpmgr.isPresent(gatherdp.id()) )
-	dpmgr.add( gatherdp );
+    if ( gatherdp.isEmpty() )
+	return 0;
 
-    DataPack::FullID dpfid( dpmgrid, gatherdp.id() );
-    const BufferString dpidstring( "#", dpfid.toString() );
-    Attrib::Desc* psdesc =
-	Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName());
-
-    mSetString( Attrib::StorageProvider::keyStr(), dpidstring.buf() );
+    PreStack::PropCalc::Setup calcsetup;
     if ( isanglestack )
     {
-	mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::Stats);
-	mSetEnum(Attrib::PSAttrib::stattypeStr(), Stats::Average );
+	calcsetup.calctype_ = PreStack::PropCalc::Stats;
+	calcsetup.stattype_ = Stats::Average;
     }
     else
     {
-	mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::LLSQ);
-	mSetEnum(Attrib::PSAttrib::offsaxisStr(),PreStack::PropCalc::Sinsq);
-	mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::Coeff );
+	calcsetup.calctype_ = PreStack::PropCalc::LLSQ;
+	calcsetup.offsaxis_ = PreStack::PropCalc::Sinsq;
+	calcsetup.lsqtype_ = PreStack::PropCalc::Coeff;
     }
-    mSetBool(Attrib::PSAttrib::useangleStr(), true );
-    mSetFloat(Attrib::PSAttrib::offStartStr(), gp.anglerg_.start );
-    mSetFloat(Attrib::PSAttrib::offStopStr(), gp.anglerg_.stop );
-    mSetFloat(Attrib::PSAttrib::gathertypeStr(), Attrib::PSAttrib::Ang );
-    mSetFloat(Attrib::PSAttrib::xaxisunitStr(), Attrib::PSAttrib::Deg );
-    mSetFloat(Attrib::PSAttrib::angleDPIDStr(), psds.angleData().id().getI() );
+    calcsetup.anglerg_ = gp.anglerg_;
 
-    psdesc->setUserRef( gp.name_ );
-    psdesc->updateParams();
-    PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false );
-    Attrib::DescID attribid = descset->addDesc( psdesc );
-    PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
-    Attrib::SelSpecList attribspecs;
-    Attrib::SelSpec sp( 0, attribid );
-    sp.set( *psdesc );
-    attribspecs += sp;
-    aem->setAttribSet( descset );
-    aem->setAttribSpecs( attribspecs );
-    aem->setTrcKeyZSampling( cs );
-    BinIDValueSet bidvals( 0, false );
-    const ObjectSet<Gather>& gathers = gatherdp.getGathers();
-    for ( int idx=0; idx<gathers.size(); idx++ )
-	bidvals.add( gathers[idx]->getBinID() );
-    SeisTrcBuf* dptrcbufs = new SeisTrcBuf( true );
-    Interval<float> zrg( cs.zsamp_ );
-    uiString errmsg;
-    PtrMan<Attrib::Processor> proc =
-	aem->createTrcSelOutput( errmsg, bidvals, *dptrcbufs, 0, &zrg );
-    if ( !proc || !proc->getProvider() )
-	mErrRet( errmsg )
+    //TODO
+    return 0;
 
-    auto* procprov = proc->getProvider();
-    procprov->setDesiredVolume( cs );
-    procprov->setPossibleVolume( cs );
-    mDynamicCastGet( Attrib::PSAttrib*, psattr, procprov );
-    if ( !psattr )
-	mErrRet( proc->message() )
-    if ( !trprov.execute(*proc) )
-	mErrRet( proc->message() )
+    /*
+    PreStack::ModelBasedAngleComputer anglecomputer;
+    anglecomputer.setRayTracer( gp.raypars_ );
+    anglecomputer.setFFTSmoother();
+    const auto& gatherset = gatherdp.getGathers();
+
+    const auto& gatherposdata = gatherset.first()->posData();
+    anglecomputer.setPosData( gatherposdata );
+    StepInterval<float> zrg;
+    zrg.assign( gatherposdata.range(false) );
+    const auto nrsamples = zrg.nrSteps() + 1;
+
+    PreStack::PropCalc pspropcalc( calcsetup );
+    auto* tbuf = new SeisTrcBuf( true );
+    for ( int igath=0; igath<gatherset.size(); igath++ )
+    {
+	anglecomputer.setTrcKey( amplgather->getTrcKey() );
+	RefMan<Gather> anglegather = anglecomputer.computeAngles();
+	if ( anglegather )
+	{
+	    pspropcalc.setGather( *amplgather );
+	    pspropcalc.setAngleData( *anglegather );
+	    auto* trc = new SeisTrc( nrsamples );
+	    auto& ti = trc->info();
+	    ti.sampling_.start = zrg.start;
+	    ti.sampling_.step = zrg.step;
+	    ti.trckey_ = amplgather->getTrcKey();
+	    for ( int isamp=0; isamp<nrsamples; isamp++ )
+		trc->set( isamp, pspropcalc.getVal(isamp), 0 );
+	    tbuf->add( trc );
+	}
+    }
 
     SeisTrcBufDataPack* angledp =
-	new SeisTrcBufDataPack( dptrcbufs, Seis::Line, SeisTrcInfo::TrcNr,
-				gp.name_ );
+	new SeisTrcBufDataPack( tbuf, Seis::Line, SeisTrcInfo::TrcNr, gp.name_);
     DataSet* retds = 0;
     if ( isanglestack )
 	retds = new SynthSeis::AngleStackDataSet( gp, *angledp );
@@ -1425,6 +1415,7 @@ StratSynth::DataMgr::genPSPostProcDataSet( const GenParams& gp,
     retds->ref();
 
     return retds;
+    */
 }
 
 

@@ -42,7 +42,7 @@ public:
     DBKey		wvltid_;
     IOPar		raypars_;
     BufferString	inpsynthnm_;	    //!< for PSPostProc only
-    Interval<float>	anglerg_;	    //!< for PSPostProc only
+    Interval<int>	anglerg_;	    //!< for PSPostProc only, in degrees
 
     static const char*	sKeyInvalidInputPS()	{ return "Invalid Input"; }
 

@@ -42,8 +42,8 @@ public:
 			Setup()
 			    : pdown_( true )
 			    , pup_( true )
-			    , doreflectivity_(true) {}
-	virtual ~Setup()	{}
+			    , doreflectivity_(true)	{}
+	virtual ~Setup()				{}
 
 	mDefSetupMemb(bool,pdown);
 	mDefSetupMemb(bool,pup);
@@ -53,21 +53,21 @@ public:
 	virtual bool	usePar(const IOPar&);
     };
 
-    virtual RayTracer1D::Setup&	setup()		= 0;
-    virtual const RayTracer1D::Setup& setup() const	= 0;
+    virtual Setup&	setup()				= 0;
+    inline const Setup&	setup() const
+			{ return const_cast<RayTracer1D*>(this)->setup(); }
     virtual bool	hasSameParams(const RayTracer1D&) const;
 
     bool		setModel(const ElasticModel&);
-    const ElasticModel&	getModel() const	{ return model_; }
-			// model top depth must be TWT = 0ms
-			/*!<Note, if either p-wave or s-wave are undef,
-			  will fill them with Castagna
-			  to compute zoeppritz coeffs <!*/
+    const ElasticModel&	getModel() const		{ return model_; }
+			    //!< model top depth must be TWT = 0ms
+			    /*!<Note, if either p-wave or s-wave are undef,
+			      will fill them with Castagna
+			      to compute zoeppritz coeffs */
 
     void		setOffsets(const TypeSet<float>& offsets);
     void		getOffsets(TypeSet<float>& offsets) const;
     bool		isPSWithoutZeroOffset() const;
-			// If PreStack & Offset Range do not have zero offset
 
     uiString		errMsg() const { return errmsg_; }
 
@@ -116,9 +116,7 @@ protected:
 };
 
 
-/*!
-\brief Ray tracer in 1D based on Vrms.
-*/
+/*!\brief Ray tracer in 1D based on Vrms. */
 
 mExpClass(Algo) VrmsRayTracer1D : public RayTracer1D
 { mODTextTranslationClass(VrmsRayTracer1D);
@@ -128,13 +126,13 @@ public:
 				  "VrmsRayTracer",
 				  tr("Simple RayTracer") );
 
-    RayTracer1D::Setup&		setup()	{ return setup_; }
-    const RayTracer1D::Setup&	setup() const	{ return setup_; }
+    virtual Setup&	setup()		{ return setup_; }
 
 protected:
-    bool			doWork(od_int64,od_int64,int);
 
-    bool			compute(int,int,float);
+    virtual bool	doWork(od_int64,od_int64,int);
+    virtual bool	compute(int,int,float);
 
-    RayTracer1D::Setup		setup_;
+    Setup		setup_;
+
 };

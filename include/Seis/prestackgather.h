@@ -35,6 +35,7 @@ public:
 				mDeclMonitorableAssignment(Gather);
 
     bool			is3D() const	{ return !trckey_.is2D(); }
+    void			getFlatPosData(FlatPosData&) const;
 
     bool			readFrom(const DBKey&,const TrcKey&,
 					 int component=0,

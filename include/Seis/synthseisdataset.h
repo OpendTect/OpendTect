@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class PropertyRef;
 class RayTracer1D;
+class RayTracerData;
 class SeisTrc;
 class SeisTrcBufDataPack;
 namespace ColTab { class MapperSetup; }
@@ -53,8 +54,7 @@ public:
     typedef RefMan<ReflectivityModelSet>	RflMdlSetRef;
     typedef ConstRefMan<ReflectivityModelSet>	ConstRflMdlSetRef;
 
-			RayModel(const RayTracer1D& rt1d,
-				 int nroffsets);
+			RayModel(const RayTracer1D&,int nroffsets);
 			RayModel(const RayModel&);
 			~RayModel();
 
@@ -69,6 +69,7 @@ public:
     ObjectSet<SeisTrc>	outtrcs_;
     ObjectSet<TimeDepthModel> t2dmodels_;
     TimeDepthModel*	zerooffsett2dmodel_;
+    RayTracerData*	raytracerdata_;
     RflMdlSetRef	reflmodels_;
     RflMdlSetRef	sampledreflmodels_;
 

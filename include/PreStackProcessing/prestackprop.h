@@ -35,8 +35,7 @@ public:
 			mDeclareEnumUtils(CalcType)
     enum AxisType	{ Norm, Log, Exp, Sqr, Sqrt, Abs, Sinsq };
 			mDeclareEnumUtils(AxisType)
-    enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff,
-		          CorrCoeff };
+    enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff, CorrCoeff };
 			mDeclareEnumUtils(LSQType)
 
     mExpClass(PreStackProcessing) Setup
@@ -74,10 +73,12 @@ public:
 
     bool		hasAngleData() const		{ return angledata_; }
     void		setGather(DataPack::ID);
+    void		setGather(const Gather&);
     void		setAngleData(DataPack::ID);
-			/*!< Only used if AngleA0 or AngleCoeff. If not set,
-			     offset values from traces will be assumed to
-			     contain angles. */
+    void		setAngleData(const Gather&);
+			    /*!< Only used if AngleA0 or AngleCoeff. If not set,
+				 offset values from traces will be assumed to
+				 contain angles. */
     float		getVal(int sampnr) const;
     float		getVal(float z) const;
 
@@ -86,14 +87,15 @@ public:
 
 protected:
 
-    void		removeGather();
-
-    RefMan<Gather>	gather_;
+    Setup		setup_;
+    ConstRefMan<Gather>	gather_;
+    ConstRefMan<Gather>	angledata_;
     int*		innermutes_;
     int*		outermutes_;
-    RefMan<Gather>	angledata_;
 
-    Setup		setup_;
+    void		removeGather();
+    void		gatherChanged();
+
 };
 
 } // namespace PreStack
