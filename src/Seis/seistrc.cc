@@ -99,7 +99,7 @@ void SeisTrc::copyFromArray( const Array1D<float>& seistrcarr, int icomp )
     }
 
     for ( int idx=0; idx<trcsz; idx++ )
-	set( idx, icomp, seistrcarr.get( idx ) );
+	set( idx, seistrcarr.get( idx ), icomp );
 }
 
 
