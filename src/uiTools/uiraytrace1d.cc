@@ -143,8 +143,9 @@ bool uiRayTracerSel::setCurrent( int selidx )
 template <class T>
 static StepInterval<float> getDispStepIntv( const StepInterval<T>& rg )
 {
-    return StepInterval<float>( mNINT32(rg.start), mNINT32(rg.stop),
-			        (float)rg.step );
+    return StepInterval<float>( mCast(float,mNINT32(rg.start)),
+				mCast(float,mNINT32(rg.stop)),
+			        mCast(float,rg.step) );
 }
 
 
