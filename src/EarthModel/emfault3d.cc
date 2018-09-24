@@ -400,11 +400,11 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( ret == 0 ) break;
 
 	if ( isxy )
-	crd = getPos3D( 0, 1, 2 );
+	    crd = getPos3D( 0, 1, 2 );
 	else
 	{
 	    Coord xycrd = SI().transform( getBinID(0,1) );
-	    crd.setXY( crd.x, crd.y );
+	    crd.setXY( xycrd.x, xycrd.y );
 	    crd.z = getDValue( 2 );
 	}
 

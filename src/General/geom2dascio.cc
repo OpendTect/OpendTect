@@ -29,7 +29,7 @@ void Geom2dAscIO::fillDesc( Table::FormatDesc& fd, bool withline )
     fd.bodyinfos_ += new Table::TargetInfo( "Trace Nr", IntInpSpec() );
     fd.bodyinfos_ += new Table::TargetInfo( "SP Nr", IntInpSpec() );
     fd.bodyinfos_ +=
-	Table::TargetInfo::mkHorPosition( true, false, true );
+	Table::TargetInfo::mkHorPosition( true );
 }
 
 
