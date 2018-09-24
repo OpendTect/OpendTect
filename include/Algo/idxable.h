@@ -129,7 +129,7 @@ bool findFPPos( const T1& posarr, T3 sz, T2 pos, T3 beforefirst, T3& idx,
     while ( idx2 - idx1 > 1 )
     {
 	idx = (idx2 + idx1) / 2;
-	T2 diff = posarr[idx] - pos;
+	T2 diff = mCast(T2,posarr[idx]) - pos;
 	if ( mIsZero(diff,eps) )		return true;
 	else if ( diff > 0  )		idx2 = idx;
 	else				idx1 = idx;
