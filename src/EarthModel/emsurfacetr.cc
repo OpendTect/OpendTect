@@ -609,6 +609,9 @@ int nextStep()
     if ( curidx_ >= nrfaults )
        return Finished();
 
+    if ( !File::isDirectory(basedir_) && !File::createDir(basedir_) )
+	return ErrorOccurred();
+
     BufferString fltnm( fltset_.name() );
     if ( nrfaults > 999 && curidx_ < 999 ) fltnm.add( "0" );
     if ( nrfaults > 99 && curidx_ < 99 ) fltnm.add( "0" );
@@ -617,7 +620,7 @@ int nextStep()
     fltnm.add( id );
 
     FilePath fp( basedir_, toString(id) );
-    fp.setExtension( "*.flt" );
+    fp.setExtension( "flt" );
     ConstRefMan<EM::Fault3D> flt = fltset_.getFault3D( id );
     EM::dgbSurfaceWriter wrr( fp.fullPath(), mTranslGroupName(EMFault3D),
 			      *flt, EMSurfaceTranslator::getBinarySetting() );
