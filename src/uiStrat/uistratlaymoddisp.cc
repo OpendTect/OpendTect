@@ -426,7 +426,10 @@ bool acceptOK()
 	    lm.addSequence( newlm.sequence(iseq) );
 
 	if ( !replace && !newlm.isEmpty() )
+	{
 	    haveaddedmodels_ = true;
+	    lm.prepareUse();
+	}
     }
     else
     {
