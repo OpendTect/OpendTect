@@ -58,7 +58,6 @@ public:
     void		setNeedSave( bool yn )		{ needsave_ = yn; }
     virtual void	setDescID(const DBKey&)		{}
     virtual bool	selProps();
-    virtual void	setDispProp(int propidx)	{}
 
 protected:
 

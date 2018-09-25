@@ -202,8 +202,6 @@ void uiStratLayerModel::initWin( CallBacker* cb )
 
     const CallBack genmodscb( mCB(this,uiStratLayerModel,genModelsCB) );
 
-    modtools_->selPropChg.notify( mCB(this,uiStratLayerModel,selPropChgCB) );
-
     gentools_->openReq.notify( mCB(this,uiStratLayerModel,openGenDescCB) );
     gentools_->saveReq.notify( mCB(this,uiStratLayerModel,saveGenDescCB) );
     gentools_->propEdReq.notify( mCB(this,uiStratLayerModel,manPropsCB) );
@@ -242,12 +240,6 @@ void uiStratLayerModel::snapshotCB( CallBacker* )
 {
     uiSaveWinImageDlg snapshotdlg( this );
     snapshotdlg.go();
-}
-
-
-void uiStratLayerModel::selPropChgCB( CallBacker* )
-{
-    descdisp_->setDispProp( modtools_->selPropIdx() );
 }
 
 
@@ -442,9 +434,6 @@ bool uiStratLayerModel::doLoadGenDesc()
     descdisp_->setEditDesc();
     descdisp_->descHasChanged();
 
-    moddisp_->clearDispPars();
-    moddisp_->retrievePars();
-
     if ( doGenModels() )
     {
 	mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
@@ -488,6 +477,7 @@ void uiStratLayerModel::modelsAddedCB( CallBacker* )
 {
     gentools_->setGenWarning(
 	    tr("You have added models from file.\nThis will overwrite all") );
+    handleNewModel();
 }
 
 
@@ -527,12 +517,7 @@ bool uiStratLayerModel::doGenModels()
 	{ delete newmodl; return false; }
 
     // transaction succeeded, we move to the new model - period.
-
     handleNewModel( newmodl );
-    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
-    if ( mfvc )
-	mfvc->reInitZooms();
-
     return true;
 }
 
@@ -543,6 +528,7 @@ void uiStratLayerModel::handleNewModel( LayerModel* newmodl )
 	lms_.clearEditedData();
     else
     {
+	newmodl->prepareUse();
 	updateDispEach( *newmodl );
 	lms_.setBaseModel( newmodl );
     }
@@ -557,8 +543,12 @@ void uiStratLayerModel::handleNewModel( LayerModel* newmodl )
     afterRetrieve.trigger( &wbpars );
 
     //Then the model display and synthetics
-    moddisp_->modelUpdate();
+    moddisp_->modelChanged();
     synthdisp_->modelChanged();
+
+    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
+    if ( mfvc )
+	mfvc->reInitZooms();
 
     newModel.trigger();
 }
@@ -652,7 +642,6 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
     gentools_->fillPar( par );
     if ( elpropsel_ )
 	elpropsel_->fillPar( par );
-    moddisp_->savePars();
     modtools_->fillPar( par );
 }
 

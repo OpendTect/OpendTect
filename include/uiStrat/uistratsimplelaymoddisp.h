@@ -13,13 +13,10 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "uistratlaymoddisp.h"
 #include "stratlevel.h"
-class uiLineItem;
 class uiTextItem;
-class uiRectItem;
 class uiFlatViewer;
 class uiGraphicsScene;
-class uiGraphicsItemSet;
-namespace Strat { class LayerSequence; class Content; }
+namespace Strat { class Content; }
 
 
 mExpClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
@@ -27,71 +24,45 @@ mExpClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
 public:
 
 			uiStratSimpleLayerModelDisp(uiStratLayModEditTools&,
-					    const Strat::LayerModelSuite&);
+						    const LayerModelSuite&);
 			~uiStratSimpleLayerModelDisp();
     virtual bool	isPerModelDisplay() const	{ return true; }
 
     virtual void	modelChanged();
-    virtual void	reSetView();
-    virtual uiWorldRect	zoomBox() const			{ return zoomwr_; }
-    virtual void	setZoomBox(const uiWorldRect&);
-    virtual float	getDisplayZSkip() const;
-
-    bool&		fillLayerBoxes()		{ return fillmdls_; }
-    bool&		useLithColors()			{ return uselithcols_; }
 
 protected:
 
+    typedef FlatView::AuxData	AuxData;
+    typedef ObjectSet<AuxData>	AuxDataSet;
+
     uiTextItem*		emptyitm_;
-    uiRectItem*		zoomboxitm_;
-    uiGraphicsItemSet&	logblcklineitms_;
-    uiGraphicsItemSet&	logblckrectitms_;
-    uiGraphicsItemSet&	lvlitms_;
-    uiGraphicsItemSet&	contitms_;
-    uiLineItem*		selseqitm_;
-    ObjectSet<FlatView::AuxData> layerads_;
-    ObjectSet<FlatView::AuxData> levelads_;
-    FlatView::AuxData*	selseqad_;
+    AuxDataSet		layerads_;
+    AuxDataSet		levelads_;
+    AuxData*		selseqad_;
 
     RefMan<FlatDataPack> fvdp_;
-    uiWorldRect		zoomwr_;
-    int			dispprop_;
-    int			dispeach_;
-    bool		fillmdls_;
-    bool		uselithcols_;
-    bool		showzoomed_;
-    const Strat::Content* selectedcontent_;
-    bool		allcontents_;
-    Interval<float>	vrg_;
+    Interval<float>	zrg_;
+    Interval<float>	curproprg_;
 
-    void		doDraw();
-    void		eraseAll();
     void		reDrawAll();
-    void		reDrawSeq();
+    void		reDrawSeqs();
     void		reDrawLevels();
-    void		getBounds();
-    void		handleRightClick(int);
-    void		updZoomBox();
     void		updateDataPack();
+    void		handleRightClick(int);
     void		updateLayerAuxData();
     void		updateLevelAuxData();
     void		updateSelSeqAuxData();
-    int			getXPix(int,float) const;
     void		doLayModIO(bool);
-    bool		isDisplayedModel(int) const;
-    void		removeLayers(Strat::LayerSequence&,int,bool);
+    void		removeLayers(LayerSequence&,int,bool);
+    void		clearObsoleteAuxDatas(AuxDataSet&,int);
     void		forceRedispAll(bool modeledited=false);
-    int			totalNrLayersToDisplay() const;
 
-    virtual void	fullRedisp()		{ reDrawAll(); }
     virtual void	drawSelectedSequence();
-    virtual void	doLevelChg();
-    virtual void	handleClick(bool dble);
     virtual void	selPropChg();
+    virtual void	handleClick(bool dble);
     virtual void	selContentChg();
     virtual void	selLevelChg();
     virtual void	dispLithChg();
     virtual void	dispEachChg();
-    virtual void	dispZoomedChg();
 
 };

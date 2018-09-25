@@ -120,7 +120,6 @@ protected:
     void			snapshotCB(CallBacker*);
     void			xPlotReq(CallBacker*);
     void			helpCB(CallBacker*);
-    void			selPropChgCB(CallBacker*);
     void			openGenDescCB(CallBacker*) { openGenDesc(); }
     void			saveGenDescCB(CallBacker*) { saveGenDesc(); }
     void			manPropsCB(CallBacker*);

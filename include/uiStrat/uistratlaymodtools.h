@@ -80,11 +80,8 @@ public:
     BufferString selLevelName() const;
     Color	selLevelColor() const;
 
-    int		selPropIdx() const;			//!< May return -1
     const char*	selProp() const;			//!< May return null
-
     const char*	selContent() const;			//!< May return null
-
     int		dispEach() const;
     bool	dispZoomed() const;
     bool	dispLith() const;
@@ -146,7 +143,10 @@ protected:
     static const char*	sKeyDispLith();
     static const char*	sKeyShowFlattened();
 
-    void	initGrp(CallBacker*);
+    void		initGrp(CallBacker*);
+    int			selPropIdx() const;
+
+    friend class	uiStratLayerModelDisp;
 
 };
 

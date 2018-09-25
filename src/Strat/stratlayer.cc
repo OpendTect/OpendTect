@@ -480,6 +480,32 @@ Interval<float> Strat::LayerSequence::zRange() const
 }
 
 
+Interval<float> Strat::LayerSequence::propRange( int propnr ) const
+{
+    if ( propnr < 0 )
+	return zRange();
+
+    Interval<float> rg( mUdf(float), mUdf(float) );
+    const auto nrlays = layers_.size();
+    if ( nrlays < 1 || propnr >= propertyRefs().size() )
+	return rg;
+
+    for ( auto ilay=0; ilay<nrlays; ilay++ )
+    {
+	const auto layval = layers_.get(ilay)->value( propnr );
+	if ( mIsUdf(layval) )
+	    continue;
+
+	if ( mIsUdf(rg.start) )
+	    rg.start = rg.stop = layval;
+	else
+	    rg.include( layval );
+    }
+
+    return rg;
+}
+
+
 int Strat::LayerSequence::indexOf( const Strat::Level& lvl, int startat ) const
 {
     const RefTree& rt = refTree();
@@ -679,9 +705,9 @@ int Strat::LayerModel::nrLayers() const
 Interval<float> Strat::LayerModel::zRange() const
 {
     if ( isEmpty() )
-	return Interval<float>( 0, 0 );
+	return Interval<float>( 0.f, 0.f );
 
-    Interval<float> ret( seqs_[0]->zRange() );
+    Interval<float> ret( seqs_.first()->zRange() );
     for ( int iseq=1; iseq<seqs_.size(); iseq++ )
 	ret.include( seqs_[iseq]->zRange(), false );
     return ret;

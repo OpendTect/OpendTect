@@ -292,21 +292,15 @@ void uiStratLayModEditTools::setContentNames( const BufferStringSet& nms )
 }
 
 
-const char* uiStratLayModEditTools::selProp() const
+int uiStratLayModEditTools::selPropIdx() const
 {
-    return propfld_->isEmpty() ? 0 : propfld_->text();
+    return propfld_->isEmpty() ? -1 : propfld_->currentItem();
 }
 
 
-int uiStratLayModEditTools::selPropIdx() const
+const char* uiStratLayModEditTools::selProp() const
 {
-    if ( propfld_->isEmpty() )
-	return -1;
-    const int selidx = propfld_->currentItem();
-    if ( selidx < 0 )
-	return -1;
-
-    return selidx;
+    return propfld_->isEmpty() ? 0 : propfld_->text();
 }
 
 
