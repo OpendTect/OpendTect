@@ -82,7 +82,11 @@ StratSynth::DataMgr::DataMgr( const DataMgr& oth )
 	addLayModelSets();
 
     for ( int idx=0; idx<oth.genparams_.size(); idx++ )
-	addSynthetic( oth.genparams_[idx] );
+    {
+	const auto& gp = oth.genparams_[idx];
+	if ( !gp.isStratProp() )
+	    addSynthetic( oth.genparams_[idx] );
+    }
     addStratPropSynths();
 
     if ( ids_.size() != oth.ids_.size() )
@@ -102,14 +106,19 @@ StratSynth::DataMgr::~DataMgr()
 }
 
 
-RefMan<StratSynth::DataMgr> StratSynth::DataMgr::getProdMgr() const
+RefMan<StratSynth::DataMgr> StratSynth::DataMgr::getProdMgr()
 {
     if ( calceach_ < 2 )
-	return const_cast<DataMgr*>( this );
+	return this;
 
     auto* ret = new DataMgr( *this );
     ret->setCalcEach( 1 );
     return ret;
+}
+
+ConstRefMan<StratSynth::DataMgr> StratSynth::DataMgr::getProdMgr() const
+{
+    return const_cast<DataMgr*>(this)->getProdMgr();
 }
 
 

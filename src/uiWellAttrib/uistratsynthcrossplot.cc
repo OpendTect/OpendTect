@@ -53,10 +53,10 @@ ________________________________________________________________________
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p, const DataMgr& dm )
     : uiDialog(p,Setup(tr("Synthetics/Properties Cross-Plotting"),
 			mNoDlgTitle, mODHelpKey(mStratSynthCrossplotHelpID) ))
-    , synthmgr_(dm)
+    , synthmgr_(dm.getProdMgr())
     , lm_(dm.layerModel())
 {
-    if ( synthmgr_.layerModel().isEmpty() || synthmgr_.nrSynthetics() < 1 )
+    if ( synthmgr_->layerModel().isEmpty() || synthmgr_->nrSynthetics() < 1 )
     {
 	new uiLabel( this, tr("No input.\n"
 		     "Please generate geology/geophysics first") );
@@ -68,11 +68,11 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p, const DataMgr& dm )
 
     TypeSet<DataPack::FullID> dpids, psdpids;
     uiTaskRunnerProvider trprov( this );
-    for ( int idx=0; idx<synthmgr_.nrSynthetics(); idx++ )
+    for ( int idx=0; idx<synthmgr_->nrSynthetics(); idx++ )
     {
-	const auto synthid = synthmgr_.getIDByIdx( idx );
-	synthmgr_.ensureGenerated( synthid, trprov );
-	const SynthSeis::DataSet* sd = synthmgr_.getDataSetByIdx( idx );
+	const auto synthid = synthmgr_->getIDByIdx( idx );
+	synthmgr_->ensureGenerated( synthid, trprov );
+	const SynthSeis::DataSet* sd = synthmgr_->getDataSetByIdx( idx );
 	if ( sd && !sd->isEmpty() )
 	{
 	    const auto dpid = sd->dataPackID();
@@ -160,9 +160,9 @@ DataPointSet* uiStratSynthCrossplot::getData( const DescSet& seisattrs,
 	mDPSAdd( seqattrs.attr(iattr).name(), toString(iattr) );
 
 	    // create DPS rows using first poststack dataset
-    for ( int isynth=0; isynth<synthmgr_.nrSynthetics(); isynth++ )
+    for ( int isynth=0; isynth<synthmgr_->nrSynthetics(); isynth++ )
     {
-	const auto& sd = *synthmgr_.getDataSetByIdx( isynth );
+	const auto& sd = *synthmgr_->getDataSetByIdx( isynth );
 	if ( sd.isPS() )
 	    continue;
 
@@ -343,8 +343,8 @@ bool uiStratSynthCrossplot::extractModelNr( DataPointSet& dps ) const
 void uiStratSynthCrossplot::preparePreStackDescs()
 {
     TypeSet<DataPack::FullID> dpids;
-    for ( int idx=0; idx<synthmgr_.nrSynthetics(); idx++ )
-	dpids += synthmgr_.getDataSetByIdx(idx)->dataPackID();
+    for ( int idx=0; idx<synthmgr_->nrSynthetics(); idx++ )
+	dpids += synthmgr_->getDataSetByIdx(idx)->dataPackID();
 
     DescSet* ds = const_cast<DescSet*>( &seisattrfld_->descSet() );
     for ( int dscidx=0; dscidx<ds->size(); dscidx++ )
@@ -371,7 +371,7 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 			    = DataPack::FullID::getFromDBKey( inppsky );
 	    const int inpdsidx = dpids.indexOf( inputdpid );
 	    mDynamicCastGet(const SynthSeis::PreStackDataSet*,pssd,
-			    synthmgr_.getDataSetByIdx(inpdsidx) )
+			    synthmgr_->getDataSetByIdx(inpdsidx) )
 	    if ( !pssd )
 		continue;
 

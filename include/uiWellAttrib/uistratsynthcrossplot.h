@@ -49,7 +49,7 @@ protected:
     typedef Strat::LaySeqAttribSet LaySeqAttribSet;
     typedef Strat::LayerModel	LayerModel;
 
-    const DataMgr&		synthmgr_;
+    ConstRefMan<DataMgr>	synthmgr_;
     const LayerModel&		lm_;
     ObjectSet<ExtrGateSet>	extrgates_;
 

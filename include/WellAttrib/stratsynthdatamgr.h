@@ -84,7 +84,8 @@ public:
 
     void		setCalcEach(size_type);
     size_type		calcEach() const	{ return calceach_; }
-    RefMan<DataMgr>	getProdMgr() const;	//!< may return this
+    RefMan<DataMgr>	getProdMgr();		//!< may return this
+    ConstRefMan<DataMgr> getProdMgr() const;	//!< may return this
 
     size_type		nrSequences(mCurLMIdx) const; //!< all available
     size_type		nrTraces(mCurLMIdx) const;    //!< actual calculated
