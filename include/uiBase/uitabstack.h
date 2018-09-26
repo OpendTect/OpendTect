@@ -64,6 +64,7 @@ public:
 
     NotifierAccess&	selChange();
     CNotifier<uiTabStack,int>  tabToBeClosed;
+    Notifier<uiTabStack>	tabClosed;
 
 protected:
 

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uidialog.h"
-#include "uigroup.h"
+#include "uitabstack.h"
 
 class uiTabStack;
 class uiWellDispProperties;
@@ -23,22 +23,25 @@ class uiWellLogDispProperties;
 namespace Well { class Data; };
 
 
-class uiPanelTab : public uiGroup
+class uiPanelTab : public uiTabStack
 {mODTextTranslationClass(uiPanelTab)
 public:
 		uiPanelTab(uiParent*,Well::Data& welldata,
 			   const char* panelnm,const bool is2ddisp);
+		~uiPanelTab();
 
-    uiTabStack*		logts_;
     Well::Data&		welldata_;
     const bool		is2ddisp_;
-    ObjectSet<uiWellLogDispProperties> logpropflds_;
 
     void		logTabSelChgngeCB(CallBacker*);
     void		lognmChg(CallBacker*);
+    void		logTabClosedCB(CallBacker*);
+    void		logTabToBeClosedCB(CallBacker*);
+
     uiGroup*		createLogPropertiesGrp();
     void		addLogPanel();
-    void		init(uiGroup*);
+    void		init();
+    void		showLogTabCloseButton();
 };
 
 /*!
@@ -91,7 +94,7 @@ protected:
     void			addPanel();
     void			addMarkersPanel();
     void			updatePanelNames();
-    void			showTabCloseButtons();
+    void			showPanelTabCloseButton();
 };
 
 

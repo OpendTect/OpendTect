@@ -22,6 +22,7 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     , tabbar_( 0 )
     , tabgrp_( 0 )
     , tabToBeClosed(this)
+    , tabClosed(this)
 {
     // Don't change the order of these constuctions!
     tabgrp_ = new uiGroup( this, nm );
@@ -162,8 +163,10 @@ void uiTabStack::tabCloseCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,tabid,cb);
     uiGroup* tabgrp = tabbar_->page( tabid );
-    removeTab( tabgrp );
     tabToBeClosed.trigger( tabid );
+    removeTab( tabgrp );
+    tabClosed.trigger();
+
 }
 
 
