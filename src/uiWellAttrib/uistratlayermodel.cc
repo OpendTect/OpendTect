@@ -186,7 +186,6 @@ uiStratLayerModel::~uiStratLayerModel()
     descctio_.setObj(0); delete &descctio_;
     StratTreeWin().changeLayerModelNumber( false );
     UnitOfMeasure::saveCurrentDefaults();
-    delete synthdatamgr_;
 }
 
 

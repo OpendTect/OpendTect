@@ -73,6 +73,27 @@ StratSynth::DataMgr::DataMgr( const LayerModelSuite& lms )
 }
 
 
+StratSynth::DataMgr::DataMgr( const DataMgr& oth )
+    : lms_(oth.lms_)
+    , calceach_(oth.calceach_)
+    , entryChanged(this)
+{
+    for ( int idx=0; idx<nrLayerModels(); idx++ )
+	addLayModelSets();
+
+    for ( int idx=0; idx<oth.genparams_.size(); idx++ )
+	addSynthetic( oth.genparams_[idx] );
+    addStratPropSynths();
+
+    if ( ids_.size() != oth.ids_.size() )
+	{ pErrMsg("Huh"); }
+    for ( int idx=0; idx<oth.ids_.size(); idx++ )
+	ids_[idx] = oth.ids_[idx];
+
+    mAttachCB( lms_.editingChanged, DataMgr::lmsEdChgCB );
+}
+
+
 StratSynth::DataMgr::~DataMgr()
 {
     detachAllNotifiers();

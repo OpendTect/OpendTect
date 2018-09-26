@@ -63,9 +63,12 @@ public:
     float		getValue(float,int icomp) const;
 
     bool		isNull(int icomp=-1) const;
-    bool		hasUndef(int icomp=-1) const;
     inline void		zero( int icomp=-1 )	    { data_.zero( icomp ); }
     void		setAll(float,int icomp=-1);
+    bool		hasUndefs(int icomp=-1) const;
+    void		ensureNoUndefs(float withval=mUdf(float));
+			//!< default is inter- and extrapolate
+
     void		setNrComponents(int,OD::DataRepType dt=OD::AutoDataRep);
     void		addComponent( int ns=0,
 				      const DataCharacteristics& dc

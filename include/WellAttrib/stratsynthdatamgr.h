@@ -51,7 +51,8 @@ class PropertyDataSetsCreator;
 
   */
 
-mExpClass(WellAttrib) DataMgr : public CallBacker
+mExpClass(WellAttrib) DataMgr	: public RefCount::Referenced
+				, public CallBacker
 { mODTextTranslationClass(StratSynth::DataMgr);
 public:
 
@@ -75,7 +76,7 @@ public:
 #   define mAllLMIdxs	lms_idx_type lmsidx=-1
 
 			DataMgr(const LayerModelSuite&);
-			~DataMgr();
+			DataMgr(const DataMgr&);
     bool		haveEdited() const;
 
     void		setEmpty()		{ clearData(true); }
@@ -149,6 +150,8 @@ public:
 
 protected:
 
+			~DataMgr();
+
 				// input
     const LayerModelSuite&	lms_;
     size_type			calceach_		= 1;
@@ -198,6 +201,10 @@ protected:
 
     friend class	PropertyDataSetsCreator;
     void		setDataSet(const GenParams&,DataSet*,lms_idx_type);
+
+private:
+
+    DataMgr&		operator =(const DataMgr&)  = delete;
 
 };
 

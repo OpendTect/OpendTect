@@ -425,7 +425,7 @@ bool acceptOK()
 	for ( int iseq=0; iseq<newlm.size(); iseq+=each )
 	    lm.addSequence( newlm.sequence(iseq) );
 
-	if ( !replace && !newlm.isEmpty() )
+	if ( !newlm.isEmpty() )
 	{
 	    haveaddedmodels_ = true;
 	    lm.prepareUse();

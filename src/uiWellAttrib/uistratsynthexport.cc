@@ -10,6 +10,7 @@ _______________________________________________________________________
 
 #include "uistratsynthexport.h"
 
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uiimpexp2dgeom.h"
 #include "uilabel.h"
@@ -187,6 +188,11 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p,
 
     poststcksel_ = new uiStratSynthOutSel( selgrp, tr("Post-stack line data"),
 					   postnms );
+
+    repludfsfld_ = new uiCheckBox( selgrp, tr("Fill undefs") );
+    repludfsfld_->setChecked( true );
+    repludfsfld_->attach( rightOf, poststcksel_ );
+
     BufferStringSet nms; Strat::LVLS().getNames( nms );
     horsel_ = new uiStratSynthOutSel( selgrp, uiStrings::s2DHorizon(mPlural)
 							    .toLower(), nms );
@@ -199,17 +205,24 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p,
     selgrp->setHAlignObj( poststcksel_ );
     selgrp->attach( alignedBelow, geomgrp_ );
 
-    uiLabel* lbl = new uiLabel( this, tr("Output object names will "
-					 "be generated.\nYou can specify "
-					 "an optional prefix and postfix "
-					 "for each:") );
-    lbl->attach( ensureBelow, selgrp );
-    lbl->setAlignment( OD::Alignment::Left );
-    prefxfld_ = new uiGenInput( this, uiStrings::sPrefix() );
-    prefxfld_->attach( alignedBelow, selgrp );
-    prefxfld_->attach( ensureBelow, lbl );
-    postfxfld_ = new uiGenInput( this, uiStrings::sPostfix() );
+    sep = new uiSeparator( this, "Hsep 3" );
+    sep->attach( stretchedBelow, selgrp );
+
+    auto* fixgrp = new uiGroup( this, "Pre/Postfix group" );
+    auto* lbl1 = new uiLabel( fixgrp,
+		tr("Output object names will be generated.") );
+    auto* lbl2 = new uiLabel( fixgrp,
+		tr("You can specify an optional prefix and postfix for each:"));
+    lbl2->attach( centeredBelow, lbl1 );
+    auto* fixfldgrp = new uiGroup( fixgrp, "Pre/Postfix fields group" );
+    prefxfld_ = new uiGenInput( fixfldgrp, uiStrings::sPrefix() );
+    prefxfld_->setElemSzPol( uiObject::Small );
+    postfxfld_ = new uiGenInput( fixfldgrp, uiStrings::sPostfix() );
+    postfxfld_->setElemSzPol( uiObject::Small );
     postfxfld_->attach( rightOf, prefxfld_ );
+    fixfldgrp->attach( centeredBelow, lbl2 );
+    fixgrp->attach( centeredBelow, selgrp );
+    fixgrp->attach( ensureBelow, sep );
 
     postFinalise().notify( mCB(this,uiStratSynthExport,crNewChg) );
 }
@@ -241,13 +254,13 @@ void uiStratSynthExport::fillGeomGroup()
     coord0fld_ = new uiGenInput( geomgrp_, tr("Coordinates: from"),
 					DoubleInpSpec(), DoubleInpSpec() );
     coord0fld_->attach( alignedBelow, geomsel_ );
-    coord0fld_->setValue( startcoord.x_, 0 );
-    coord0fld_->setValue( startcoord.y_, 1 );
+    coord0fld_->setValue( mNINT64(startcoord.x_), 0 );
+    coord0fld_->setValue( mNINT64(startcoord.y_), 1 );
     coord1fld_ = new uiGenInput( geomgrp_, tr("to"),
 					DoubleInpSpec(), DoubleInpSpec() );
     coord1fld_->attach( alignedBelow, coord0fld_ );
-    coord1fld_->setValue( stopcoord.x_, 0 );
-    coord1fld_->setValue( stopcoord.y_, 1 );
+    coord1fld_->setValue( mNINT64(stopcoord.x_), 0 );
+    coord1fld_->setValue( mNINT64(stopcoord.y_), 1 );
 
     picksetsel_ = new uiPickSetIOObjSel( geomgrp_, true,
 					 uiPickSetIOObjSel::PolygonOnly );
@@ -402,24 +415,7 @@ Pos::GeomID uiStratSynthExport::getGeometry( Line2DData& linegeom )
 }
 
 
-void uiStratSynthExport::addPrePostFix( BufferString& oldnm ) const
-{
-    BufferString newnm;
-
-    BufferString pfx( prefxfld_->text() );
-    if ( !pfx.isEmpty() )
-	newnm.add( pfx ).add( "_" );
-
-    newnm += oldnm.buf();
-    pfx = postfxfld_->text();
-    if ( !pfx.isEmpty() )
-	newnm.add( "_" ).add( pfx );
-
-    oldnm = newnm;
-}
-
-
-bool uiStratSynthExport::createHor2Ds()
+bool uiStratSynthExport::createHor2Ds( const char* prefix, const char* postfix )
 {
     EM::ObjectManager& mgr = EM::Hor2DMan();
     const bool createnew = crnewfld_->getBoolValue();
@@ -443,7 +439,13 @@ bool uiStratSynthExport::createHor2Ds()
 	    continue;
 
 	BufferString hornm( stratlvl.name() );
-	addPrePostFix( hornm );
+	if ( prefix && *prefix )
+	    hornm.set( prefix ).add( "_" ).add( stratlvl.name() );
+	else
+	    hornm.set( stratlvl.name() );
+	if ( postfix && *postfix )
+	    hornm.add( "_" ).add( postfix );
+
 	EM::Object* emobj = mgr.createObject(EM::Horizon2D::typeStr(),hornm);
 	mDynamicCastGet(EM::Horizon2D*,horizon2d,emobj);
 	if ( !horizon2d )
@@ -497,16 +499,19 @@ bool uiStratSynthExport::acceptOK()
     if ( selids_.isEmpty() && sellvls_.isEmpty() )
 	{ mErrRet( tr("Nothing selected for export"), false ); }
 
-    const bool useexisting = selType()==Existing;
+    const bool useexisting = selType() == Existing;
     bool havepoststack = false;
     for ( auto id : selids_ )
 	if ( !datamgr_.isPS(id) )
 	    { havepoststack = true; break; }
 
     if ( !useexisting && !havepoststack )
-	{ mErrRet(tr("No post stack selected. Since a new geometry will be "
-		   "created you need to select atleast one post stack data to "
-		   "create a 2D line geometry."), false); }
+    {
+	uiString msg = tr("No post stack data selected");
+	msg.appendPhrase( tr("Since a new geometry will be created you need "
+			     "to select at least one post stack dataset") );
+	mErrRet( msg, false );
+    }
 
     BufferString linenm =
 	crnewfld_->getBoolValue() ? newlinenmfld_->text()
@@ -523,9 +528,11 @@ bool uiStratSynthExport::acceptOK()
 	uiMSG().warning(tr("The geometry of the line could not accomodate \n"
 			   "all the traces from the synthetics. Some of the \n"
 			   "end traces will be clipped"));
-    SeparString prepostfix;
-    prepostfix.add( prefxfld_->text() );
-    prepostfix.add( postfxfld_->text() );
+
+    StratSynthExporter::Setup expsu( newgeomid );
+    expsu.prefix_ = prefxfld_->text(); expsu.prefix_.trimBlanks();
+    expsu.postfix_ = postfxfld_->text(); expsu.postfix_.trimBlanks();
+    expsu.replaceudfs_ = repludfsfld_->isChecked();
 
     ObjectSet<const SynthSeis::DataSet> sds;
     uiTaskRunnerProvider trprov( this );
@@ -537,15 +544,17 @@ bool uiStratSynthExport::acceptOK()
     }
     if ( !sds.isEmpty() )
     {
-	StratSynthExporter synthexp( sds, newgeomid, linegeom, prepostfix );
+	StratSynthExporter synthexp( expsu, sds, *linegeom );
 	uiTaskRunner taskrunner( this );
 	if ( !taskrunner.execute(synthexp) )
 	    return false;
     }
 
-    createHor2Ds();
+    createHor2Ds( expsu.prefix_, expsu.postfix_ );
+
     if ( !SI().has2D() )
 	uiMSG().warning(tr("You need to change survey type to 'Both 2D and 3D'"
-			   " in survey setup to display the 2D line"));
+		   " in survey setup to be able to work with the 2D line"));
+
     return true;
 }

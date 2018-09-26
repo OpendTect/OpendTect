@@ -91,7 +91,7 @@ protected:
 
     LayerSequenceGenDesc&	desc_;
     LayerModelSuite&		lms_;
-    SynthDataMgr*		synthdatamgr_	= 0;
+    RefMan<SynthDataMgr>	synthdatamgr_;
     ElasticPropSelection*	elpropsel_	= 0;
     mutable DirtyCountType	synthdatamgrdc_	= -1;
 

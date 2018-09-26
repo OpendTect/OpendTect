@@ -15,6 +15,7 @@
 #include "stratsynthdatamgr.h"
 
 class StratSynthLevel;
+class uiCheckBox;
 class uiGroup;
 class uiGenInput;
 class uiSeisSel;
@@ -60,16 +61,16 @@ protected:
     uiStratSynthOutSel*	prestcksel_;
     uiGenInput*		prefxfld_;
     uiGenInput*		postfxfld_;
+    uiCheckBox*		repludfsfld_;
 
     const DataMgr&	datamgr_;
     SynthIDSet		selids_;
     BufferStringSet	sellvls_;
 
     GeomSel		selType() const;
-    void		addPrePostFix(BufferString&) const;
     void		fillGeomGroup();
     void		getSelections();
-    bool		createHor2Ds();
+    bool		createHor2Ds(const char*,const char*);
     Pos::GeomID		getGeometry(Line2DData&);
     void		create2DGeometry(const TypeSet<Coord>&,
 					 Line2DData&);

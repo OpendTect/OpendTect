@@ -26,13 +26,26 @@ mExpClass(WellAttrib) StratSynthExporter : public Executor
 { mODTextTranslationClass(StratSynthExporter);
 public:
 
-    typedef SynthSeis::DataSet	DataSet;
+    mExpClass(WellAttrib) Setup
+    {
+    public:
 
-			StratSynthExporter(
-				    const ObjectSet<const DataSet>& sds,
-				    Pos::GeomID geomid,
-				    PosInfo::Line2DData* newgeom,
-				    const SeparString&);
+			    Setup( Pos::GeomID geomid )
+				: geomid_(geomid)	{}
+
+	const Pos::GeomID   geomid_;
+	BufferString	    prefix_;
+	BufferString	    postfix_;
+	bool		    replaceudfs_		= false;
+
+    };
+
+    typedef SynthSeis::DataSet		DataSet;
+    typedef ObjectSet<const DataSet>	DataSetSet;
+    typedef PosInfo::Line2DData		Line2DData;
+
+			StratSynthExporter(const Setup&,const DataSetSet&,
+					    const Line2DData&);
 			~StratSynthExporter();
 
     od_int64		nrDone() const;
@@ -45,16 +58,16 @@ protected:
     int			writePostStackTrace();
     int			writePreStackTraces();
     bool		prepareWriter();
+    void		prepTrc4Write(SeisTrc&) const;
 
-    bool		isps_;
-    const ObjectSet<const DataSet>& sds_;
-    Pos::GeomID		geomid_;
-    PosInfo::Line2DData* linegeom_;
+    const Setup		setup_;
+    const DataSetSet&	sds_;
+    const Line2DData&	linegeom_;
     SeisTrcWriter*	writer_;
     BufferString	prefixstr_;
     BufferString	postfixstr_;
     uiString		errmsg_;
-    int			cursdidx_;
+    int			cursdsidx_;
     int			posdone_;
     int			postobedone_;
 
