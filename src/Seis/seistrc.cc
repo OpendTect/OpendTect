@@ -200,7 +200,7 @@ void SeisTrc::ensureNoUndefs( float replval )
 	{
 	    if ( !findFirstDefined(*this,cursamp) )
 	    {
-		setAll( icomp, interpolate ? 0.f : replval );
+		setAll( interpolate ? 0.f : replval, icomp );
 		continue; // only udfs, next component
 	    }
 

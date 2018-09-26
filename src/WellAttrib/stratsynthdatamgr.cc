@@ -102,6 +102,17 @@ StratSynth::DataMgr::~DataMgr()
 }
 
 
+RefMan<StratSynth::DataMgr> StratSynth::DataMgr::getProdMgr() const
+{
+    if ( calceach_ < 2 )
+	return const_cast<DataMgr*>( this );
+
+    auto* ret = new DataMgr( *this );
+    ret->setCalcEach( 1 );
+    return ret;
+}
+
+
 void StratSynth::DataMgr::clearData( bool full )
 {
     deepErase( elasticmodelsets_ );
