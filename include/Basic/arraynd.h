@@ -154,6 +154,8 @@ mClass(Basic) Array1D : public ArrayND<T>
 public:
 				mTypeDefArrNDTypes;
 
+    virtual inline bool		isOK() const	{ return ArrayND<T>::isOK(); }
+
     virtual void		set(IdxType,T)				= 0;
     virtual T			get(IdxType) const			= 0;
     void			setND( NDPos pos, T v )
