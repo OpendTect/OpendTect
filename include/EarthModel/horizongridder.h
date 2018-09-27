@@ -34,6 +34,7 @@ public:
     uiString		infoMsg() const	{ return infomsg_; }
 
     void		setFaultIds(const DBKeySet&);
+    void		getFaultIds(DBKeySet&) const;
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,const TaskRunnerProvider&);

@@ -34,13 +34,22 @@ HorizonGridder::~HorizonGridder()
 
 
 void HorizonGridder::setFaultIds( const DBKeySet& mids )
-{ faultids_ = mids; }
+{
+    faultids_ = mids;
+}
+
+
+void HorizonGridder::getFaultIds( DBKeySet& mids ) const
+{
+    mids = faultids_;
+}
 
 
 void HorizonGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
     hs_ = hs;
 }
+
 
 bool HorizonGridder::init( const TaskRunnerProvider& trprov )
 {
