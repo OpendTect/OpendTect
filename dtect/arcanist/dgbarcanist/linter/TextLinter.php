@@ -18,7 +18,6 @@ final class TextLinter extends ArcanistLinter {
   const LINT_NO_COMMIT			= 7;
   const LINT_SPACE_ALIGNMENT		= 8;
   const LINT_FORBIDDEN_WORD		= 9;
-  const LINT_LOCAL_STATIC		= 10;
   const LINT_TR_IN_MACRO		= 11;
   const LINT_NEWLINES_BEFORE_EOF	= 12;
 
@@ -64,7 +63,6 @@ final class TextLinter extends ArcanistLinter {
       self::LINT_NO_COMMIT		=> pht('Explicit %s', '@no'.'commit'),
       self::LINT_SPACE_ALIGNMENT	=> pht('Spaces used instead of tabs'),
       self::LINT_FORBIDDEN_WORD 	=> pht('Forbidden words'),
-      self::LINT_LOCAL_STATIC 		=> pht('Local static variable'),
       self::LINT_TR_IN_MACRO 		=> pht('tr() statement in macro'),
       self::LINT_NEWLINES_BEFORE_EOF 	=> pht('Empty lines at end of file'),
     );
@@ -95,11 +93,6 @@ final class TextLinter extends ArcanistLinter {
 	return;
       }
 
-      $this->lintStaticLocalVar($path);
-
-      if ($this->didStopAllLinters()) {
-	return;
-      }
     }
 
     $this->lintCharset($path);
@@ -165,36 +158,6 @@ final class TextLinter extends ArcanistLinter {
 	    $this->stopAllLinters();
 	  }
 	}
-      }
-    }
-  }
-
-  private function lintStaticLocalVar($path) {
-    $data = $this->getData($path);
-
-    $matches = null;
-    $preg = preg_match_all(
-      '/\)\s*{[^}]*\s+static\s+/',
-      $data,
-      $matches,
-      PREG_OFFSET_CAPTURE);
-
-    if (!$preg) {
-      return;
-    }
-
-    foreach ($matches[0] as $match) {
-      list($string, $offset) = $match;
-      $offset = strpos( $data, 'static', $offset );
-      $this->raiseLintAtOffset(
-        $offset,
-        self::LINT_LOCAL_STATIC,
-        'Seems to contain local static variable, which is not allowed. '.
-	'Use mDefineStaticLocalObject macro instead.'
-        );
-
-      if ( $this->isMessageEnabled(self::LINT_LOCAL_STATIC)) {
-	$this->stopAllLinters();
       }
     }
   }
