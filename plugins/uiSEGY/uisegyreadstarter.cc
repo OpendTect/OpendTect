@@ -508,7 +508,8 @@ void uiSEGYReadStarter::setToolStates()
 	coordscalefld_->display( loaddef_.needXY() );
 
     const bool shoulddisplay = SI().getCoordSystem() &&
-		SI().getCoordSystem()->isProjection() && usexybut_->isChecked();
+		SI().getCoordSystem()->isProjection() &&
+		usexybut_ && usexybut_->isChecked();
     coordsysselfld_->display( shoulddisplay );
 
     if ( editbut_ )
