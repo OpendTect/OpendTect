@@ -443,7 +443,9 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 				    const MultiID& input )
     : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
-					mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
+				 mNoDlgTitle,
+				 mODHelpKey(mSeisPreLoad2D3DDataHelpID))
+	      .nrstatusflds(1))
     , scaler_(new LinScaler(0,1))
 {
     setCaption( geom==Vol ? tr("Pre-load 3D Data") : tr("Pre-load 2D Data") );
