@@ -567,6 +567,7 @@ int nextStep()
     mDynamicCastGet( EM::Fault3D*, newflt, EM::EMM().getObject(oid) );
     EM::dgbSurfaceReader rdr( fp.fullPath(), fltnm,
 			      mTranslGroupName(EMFault3D) );
+    rdr.setOutput( *newflt );
     if ( !rdr.execute() )
     {
 	curidx_++;
