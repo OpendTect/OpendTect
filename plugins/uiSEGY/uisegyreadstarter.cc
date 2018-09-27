@@ -434,7 +434,8 @@ void uiSEGYReadStarter::setToolStates()
 	coordscalefld_->display( loaddef_.needXY() );
 
     const bool shoulddisplay = SI().getCoordSystem() &&
-	      SI().getCoordSystem()->isProjection() && usexybut_->isChecked();
+		SI().getCoordSystem()->isProjection() &&
+		usexybut_ && usexybut_->isChecked();
     coordsysselfld_->display( shoulddisplay );
 
     editbut_->setSensitive( nrfiles==1 && File::exists(filespec_.fileName(0)) );
