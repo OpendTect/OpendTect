@@ -1077,6 +1077,17 @@ int uiODSceneMgr::addWellItem( const MultiID& mid, int sceneid )
 }
 
 
+int uiODSceneMgr::addDisplayTreeItem( uiODDisplayTreeItem* itm, int sceneid )
+{
+    mGetOrAskForScene
+
+    if ( !scene ) return -1;
+
+    scene->itemmanager_->addChild( itm, false );
+    return itm->displayID();
+}
+
+
 void uiODSceneMgr::getLoadedPickSetIDs( TypeSet<MultiID>& picks, bool poly,
 					int sceneid ) const
 {

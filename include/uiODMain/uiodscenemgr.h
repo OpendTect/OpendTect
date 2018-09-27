@@ -27,6 +27,7 @@ class uiDockWin;
 class uiFlatViewWin;
 class uiMdiArea;
 class uiMdiAreaWindow;
+class uiODDisplayTreeItem;
 class uiODTreeTop;
 class ui3DViewer;
 class uiTreeFactorySet;
@@ -157,6 +158,8 @@ public:
 					      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
 					      int sceneid=-1);
+    int				addDisplayTreeItem(uiODDisplayTreeItem*,
+						   int sceneid=-1);
 
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);
