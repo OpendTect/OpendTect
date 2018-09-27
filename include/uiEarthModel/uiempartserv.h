@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "uiapplserv.h"
 #include "uistring.h"
-#include "uibulk2dhorizonimp.h"
 
 
 class BinIDValueSet;
@@ -28,6 +27,7 @@ class SurfaceInfo;
 class ZAxisTransform;
 class uiBulkFaultImport;
 class uiBulkHorizonImport;
+class uiBulk2DHorizonImport;
 class uiCreateHorizon;
 class uiExportFault;
 class uiExportHorizon;
@@ -193,6 +193,7 @@ protected:
     uiImportHorizon*	imphorattrdlg_;
     uiImportHorizon*	imphorgeomdlg_;
     uiBulkHorizonImport* impbulkhordlg_;
+    uiBulk2DHorizonImport* impbulkhor2ddlg_;
     uiImportFault3D*	impfltdlg_;
     uiBulkFaultImport*	impbulkfltdlg_;
     uiImportFault3D*	impfltstickdlg_;
@@ -203,7 +204,6 @@ protected:
     uiExportFault*	expfltstickdlg_;
     uiCreateHorizon*	crhordlg_;
     uiBulkFaultImport*	impbulkfssdlg_;
-    uiBulk2DHorizonImport* impbulk2dhordlg_;
 
     TrcKeySampling	selectedrg_;
     bool		disponcreation_;

@@ -55,6 +55,7 @@ ________________________________________________________________________
 #include "uiarray2dinterpol.h"
 #include "uibulkfaultimp.h"
 #include "uibulkhorizonimp.h"
+#include "uibulk2dhorizonimp.h"
 #include "uichangesurfacedlg.h"
 #include "uicreatehorizon.h"
 #include "uidlggroup.h"
@@ -112,7 +113,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , manfssdlg_(0)
     , manbodydlg_(0)
     , impbulkfssdlg_(0)
-    , impbulk2dhordlg_(0)
+    , impbulkhor2ddlg_(0)
     , expbulkhordlg_(0)
 {
     DBM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
@@ -130,7 +131,7 @@ uiEMPartServer::~uiEMPartServer()
     delete manbodydlg_;
     delete crhordlg_;
     delete impbulkfssdlg_;
-    delete impbulk2dhordlg_;
+    delete impbulkhor2ddlg_;
     delete expbulkhordlg_;
 }
 
@@ -151,7 +152,7 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     deleteAndZeroPtr ( manbodydlg_ );
     deleteAndZeroPtr ( crhordlg_ );
     deleteAndZeroPtr ( impbulkfssdlg_ );
-    deleteAndZeroPtr ( impbulk2dhordlg_ );
+    deleteAndZeroPtr ( impbulkhor2ddlg_ );
     deleteAndZeroPtr ( expbulkhordlg_ );
     deepErase( variodlgs_ );
 }
@@ -239,12 +240,12 @@ bool uiEMPartServer::import3DHorGeom( bool bulk )
 
 bool uiEMPartServer::importBulk2DHorizon()
 {
-    if ( !impbulk2dhordlg_ )
-	impbulk2dhordlg_ = new uiBulk2DHorizonImport( parent(), true );
+    if ( !impbulkhor2ddlg_ )
+	impbulkhor2ddlg_ = new uiBulk2DHorizonImport( parent(), true );
     else
-	impbulk2dhordlg_->raise();
+	impbulkhor2ddlg_->raise();
 
-    return impbulk2dhordlg_->go();
+    return impbulkhor2ddlg_->go();
 }
 
 
