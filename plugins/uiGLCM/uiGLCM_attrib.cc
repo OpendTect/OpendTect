@@ -102,7 +102,7 @@ uiWord sDispName()
 mInitAttribUINoSynth( uiGLCM_attrib, GLCM_attrib, sDispName(), sBasicGrp() )
 
 uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
-    : uiAttrDescEd( p, is2d, mNoHelpKey )
+    : uiAttrDescEd( p, is2d, mODHelpKey(mTextureDirectionalHelpID) )
 {
     inpfld_ = createInpFld( is2d );
 
