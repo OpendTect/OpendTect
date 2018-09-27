@@ -12,79 +12,88 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
-#include "uistring.h"
-#include "trckeysampling.h"
 #include "dbkey.h"
+#include "stratlevel.h"
+#include "trckeysampling.h"
+#include "uistring.h"
 
 class SeisTrc;
 class SeisTrcBuf;
 class TaskRunnerProvider;
-class uiSeisSel;
-class uiIOObjSel;
-class uiWaveletIOObjSel;
-class uiPickSetIOObjSel;
+class uiComboBox;
 class uiLabel;
 class uiGenInput;
+class uiSeisSel;
+class uiSeisSubSel;
+class uiStratLevelHorSel;
 class uiStratSeisEvent;
 class uiSynthToRealScaleStatsDisp;
-template <class T> class ODPolygon;
+class uiWaveletIOObjSel;
 namespace EM { class Horizon; class ObjectIterator; }
 namespace Strat { class SeisEvent; }
+namespace Seis { class SelData; }
+namespace StratSynth { class DataMgr; }
 
 
-/*!\brief To determine scaling of synthetics using real data.
-
-  Note: the input trc buf *must* have ref times in the trc.info().pick's.
-
- */
+/*!\brief To determine scaling of synthetics using real data. */
 
 mExpClass(uiWellAttrib) uiSynthToRealScale : public uiDialog
 { mODTextTranslationClass(uiSynthToRealScale);
 public:
 
-			uiSynthToRealScale(uiParent*,bool is2d,
-					   const SeisTrcBuf&,
-					   const DBKey& wvltid,
-					   const char* reflvlnm);
+    typedef StratSynth::DataMgr	DataMgr;
+    typedef Strat::SeisEvent	SeisEvent;
+    typedef Strat::Level::ID	LevelID;
+
+			uiSynthToRealScale(uiParent*,const DataMgr&,
+					   const DBKey& wvltid,bool use2dseis,
+					   const LevelID& deflvl);
 			~uiSynthToRealScale();
 
     const DBKey&	inpWvltID() const	{ return inpwvltid_; }
-    const DBKey&	selWvltID() const	{ return outwvltid_; }
+    const DBKey&	scaledWvltID() const	{ return outwvltid_; }
 
 protected:
 
-    bool		is2d_;
-    const SeisTrcBuf&	synth_;
-    DBKey		inpwvltid_;
+    ConstRefMan<DataMgr> datamgr_;
+    const DBKey		inpwvltid_;
+    const bool		use2dseis_;
     DBKey		outwvltid_;
-
-    ODPolygon<float>*	polygon_;
-    TrcKeySampling		polyhs_;
+    Seis::SelData*	seldata_;
+    TrcKeySampling	polyhs_;
     EM::Horizon*	horizon_;
     EM::ObjectIterator* horiter_;
-    Strat::SeisEvent&	seisev_;
+    SeisEvent&		seisev_;
+    BufferStringSet	synthnms_;
 
     uiSeisSel*		seisfld_;
-    uiIOObjSel*		horfld_;
+    uiSeisSubSel*	seissubselfld_;
+    uiComboBox*		synthfld_		= 0;
+    uiStratLevelHorSel*	lvlhorfld_;
     uiWaveletIOObjSel*	wvltfld_;
-    uiPickSetIOObjSel*	polyfld_;
     uiStratSeisEvent*	evfld_;
     uiGenInput*		finalscalefld_;
     uiLabel*		valislbl_;
-    uiSynthToRealScaleStatsDisp*	synthstatsfld_;
-    uiSynthToRealScaleStatsDisp*	realstatsfld_;
+    uiSynthToRealScaleStatsDisp* synthstatsfld_;
+    uiSynthToRealScaleStatsDisp* realstatsfld_;
 
     void		initWin(CallBacker*);
-    void		setScaleFld(CallBacker*);
-    void		goPush( CallBacker* )
+    void		statsUsrValChgCB(CallBacker*);
+    void		seisSelCB(CallBacker*);
+    void		synthSelCB(CallBacker*);
+    void		levelSelCB(CallBacker*);
+    void		subselChgCB(CallBacker*);
+    void		goPushCB( CallBacker* )
 			{ updSynthStats(); updRealStats(); }
     bool		acceptOK();
 
     bool		getEvent();
     bool		getHorData(TaskRunnerProvider&);
+    const SeisTrcBuf&	synthTrcBuf() const;
     float		getTrcValue(const SeisTrc&,float) const;
     void		updSynthStats();
     void		updRealStats();
+    void		setScaleFld();
 
     friend class	uiSynthToRealScaleRealStatCollector;
 

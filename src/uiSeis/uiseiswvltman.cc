@@ -154,15 +154,11 @@ void uiSeisWvltMan::mrgPush( CallBacker* )
 
 void uiSeisWvltMan::extractPush( CallBacker* )
 {
-    bool is2d = SI().has2D();
-    if ( is2d && SI().has3D() )
-    {
-	int res = uiMSG().ask2D3D( tr("Use 2D or 3D data?"), true );
-	if ( res == -1 )
-	    return;
-	else
-	    is2d = res == 1;
-    }
+    const int res = uiMSG().ask2D3D( tr("Use 2D or 3D data?"), true );
+    if ( res == -1 )
+	return;
+
+    const bool is2d = res == 1;
 
     if ( extrdlg_ && extrdlg_->is2D() != is2d )
 	{ delete extrdlg_; extrdlg_ = 0; }

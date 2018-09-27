@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "synthseisgenparams.h"
 
+class uiButton;
 class uiComboBox;
 class uiGenInput;
 class uiRayTracerSel;
@@ -55,6 +56,7 @@ protected:
     uiComboBox*			typefld_;
     uiGenInput*			namefld_;
     uiWaveletIOObjSel*		wvltfld_;
+    uiButton*			wvltscalebut_;
     uiGenInput*			dointernalmultiplesfld_;
     uiSpinBox*			surfreflcoeffld_;
     uiRayTracerSel*		rtsel_;
@@ -65,11 +67,14 @@ protected:
     uiGroup*			createGroups();
     void			fillTypeFld();
     void			updUi();
+    void			updWvltScaleFldDisp();
     SynthType			typeFromFld() const;
     void			typeToFld(SynthType);
 
     void			initWin(CallBacker*);
     void			typeChgCB(CallBacker*);
     void			nameChgCB(CallBacker*);
+    void			waveletSelCB(CallBacker*);
+    void			scaleWvltCB(CallBacker*);
 
 };

@@ -11,32 +11,34 @@
 #include "emhorizon2d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
-#include "emsurfacetr.h"
 #include "survinfo.h"
-#include "polygon.h"
 #include "position.h"
 #include "seistrc.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
-#include "seisbuf.h"
+#include "seisbufadapters.h"
 #include "seisprovider.h"
 #include "seisselectionimpl.h"
+#include "stratlayermodel.h"
 #include "stratlevel.h"
+#include "stratsynthdatamgr.h"
 #include "statparallelcalc.h"
 #include "picksettr.h"
 #include "waveletmanager.h"
 #include "dbman.h"
 
-#include "uislider.h"
-#include "uistratseisevent.h"
-#include "uiseissel.h"
+#include "uistratsynthseltools.h"
 #include "uipicksetsel.h"
-#include "uiwaveletsel.h"
+#include "uiseissel.h"
+#include "uiseissubsel.h"
 #include "uiseparator.h"
+#include "uislider.h"
+#include "uiwaveletsel.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uihistogramdisplay.h"
 #include "uiaxishandler.h"
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uilabel.h"
@@ -110,58 +112,66 @@ void sliderChgCB( CallBacker* )
 };
 
 
-uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
-					const SeisTrcBuf& tb,
-					const DBKey& wid, const char* lvlnm )
+uiSynthToRealScale::uiSynthToRealScale( uiParent* p, const DataMgr& dmgr,
+		    const DBKey& wid, bool use2d, const LevelID& lvlid )
     : uiDialog(p,Setup(tr("Scale synthetics"),
 		       tr("Determine scaling for synthetics"),
 			mODHelpKey(mSynthToRealScaleHelpID) ))
-    , seisev_(*new Strat::SeisEvent)
-    , is2d_(is2d)
-    , synth_(tb)
+    , seisev_(*new SeisEvent)
+    , use2dseis_(use2d)
+    , datamgr_(dmgr.getProdMgr())
     , inpwvltid_(wid)
     , seisfld_(0)
     , horizon_(0)
     , horiter_(0)
-    , polygon_(0)
+    , seldata_(0)
 {
+    datamgr_->getNames( synthnms_, DataMgr::OnlyZO );
+
 #define mNoDealRet(cond,msg) \
     if ( cond ) \
 	{ new uiLabel( this, msg ); return; }
     mNoDealRet( Strat::LVLS().isEmpty(), tr("No Stratigraphic Levels defined") )
-    mNoDealRet( tb.isEmpty(), tr("Generate models first") )
+    mNoDealRet( datamgr_->layerModel().isEmpty(), tr("Generate models first") )
+    mNoDealRet( synthnms_.isEmpty(), tr("No Zero Offset Synthetics") )
     mNoDealRet( inpwvltid_.isInvalid(), uiStrings::phrCreate(
 							tr("a Wavelet first")) )
-    mNoDealRet( !lvlnm || !*lvlnm || (*lvlnm == '-' && *(lvlnm+1) == '-'),
-				   uiStrings::phrSelect(tr("Stratigraphic Level"
-				   "\nbefore starting this tool")) )
 
-    uiString wintitle = tr("Determine scaling for synthetics using '%1'")
-				    .arg(toUiString(DBM().nameOf(inpwvltid_)));
-    setTitleText( wintitle );
+    setTitleText( tr("Determine scaling for '%1'").arg(nameOf(inpwvltid_)) );
 
-    uiSeisSel::Setup sssu( is2d_, false );
-    seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(sssu.geom_,true),
-			      sssu );
+    uiSeisSel::Setup uisssu( use2dseis_, false );
+    seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(uisssu.geom_,true),
+			      uisssu );
 
-    const IOObjContext horctxt( is2d_ ? mIOObjContext(EMHorizon2D)
-				      : mIOObjContext(EMHorizon3D) );
-    uiIOObjSel::Setup horsu( tr("Horizon for '%1'").arg(lvlnm));
-    horfld_ = new uiIOObjSel( this, horctxt, horsu );
-    horfld_->attach( alignedBelow, seisfld_ );
+    uiLabeledComboBox* synthlcb = 0;
+    if ( synthnms_.size() > 1 )
+    {
+	synthlcb = new uiLabeledComboBox( this, tr("Synthetics") );
+	synthfld_ = synthlcb->box();
+	synthfld_->addItems( synthnms_ );
+	synthfld_->setCurrentItem( 0 );
+	synthlcb->attach( alignedBelow, seisfld_ );
+    }
 
-    uiIOObjSel::Setup polysu( tr("Within Polygon") ); polysu.optional( true );
-    polyfld_ = new uiPickSetIOObjSel( this, polysu, true,
-				      uiPickSetIOObjSel::PolygonOnly );
-    polyfld_->attach( alignedBelow, horfld_ );
+    lvlhorfld_ = new uiStratLevelHorSel( this, lvlid );
+    lvlhorfld_->set2D( use2dseis_ );
+    if ( synthlcb )
+	lvlhorfld_->attach( alignedBelow, synthlcb );
+    else
+	lvlhorfld_->attach( alignedBelow, seisfld_ );
+
+    Seis::SelSetup sssu( uisssu.geom_ );
+    sssu.onlyrange( false ).multiline( true ).withoutz( true );
+    seissubselfld_ = uiSeisSubSel::get( this, sssu );
+    seissubselfld_->attach( alignedBelow, lvlhorfld_ );
 
     uiStratSeisEvent::Setup ssesu( true );
-    ssesu.fixedlevelid( Strat::LVLS().getIDByName(lvlnm) );
+    ssesu.sellevel( false ).levelid( lvlid );
     evfld_ = new uiStratSeisEvent( this, ssesu );
-    evfld_->attach( alignedBelow, polyfld_ );
+    evfld_->attach( alignedBelow, seissubselfld_ );
 
     uiPushButton* gobut = new uiPushButton( this, tr("Extract amplitudes"),
-				mCB(this,uiSynthToRealScale,goPush), true );
+				mCB(this,uiSynthToRealScale,goPushCB), true );
     gobut->attach( alignedBelow, evfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "separator" );
@@ -178,14 +188,11 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     realstatsfld_ = new uiSynthToRealScaleStatsDisp( statsgrp, "Real Seismics",
 						     false );
     realstatsfld_->attach( rightOf, synthstatsfld_ );
-    const CallBack setsclcb( mCB(this,uiSynthToRealScale,setScaleFld) );
-    synthstatsfld_->usrValChanged.notify( setsclcb );
     statsgrp->attach( centeredBelow, valislbl_ );
-    realstatsfld_->usrValChanged.notify( setsclcb );
     statsgrp->setHAlignObj( realstatsfld_ );
 
     finalscalefld_ = new uiGenInput( this, uiString::empty(),
-                                     FloatInpSpec() );
+				     FloatInpSpec() );
     finalscalefld_->attach( centeredBelow, statsgrp );
     new uiLabel( this, tr("Scaling factor"), finalscalefld_ );
 
@@ -199,10 +206,12 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 
 uiSynthToRealScale::~uiSynthToRealScale()
 {
+    detachAllNotifiers();
+
     delete horiter_;
     if ( horizon_ )
 	horizon_->unRef();
-    delete polygon_;
+    delete seldata_;
     delete &seisev_;
 }
 
@@ -210,13 +219,23 @@ uiSynthToRealScale::~uiSynthToRealScale()
 void uiSynthToRealScale::initWin( CallBacker* )
 {
     updSynthStats();
+
+    const CallBack valchgcb( mCB(this,uiSynthToRealScale,statsUsrValChgCB) );
+    synthstatsfld_->usrValChanged.notify( valchgcb );
+    realstatsfld_->usrValChanged.notify( valchgcb );
+    mAttachCB( lvlhorfld_->levelSel, uiSynthToRealScale::levelSelCB );
+    mAttachCB( seisfld_->selectionDone, uiSynthToRealScale::seisSelCB );
+    if ( synthfld_ )
+	mAttachCB( synthfld_->selectionChanged, uiSynthToRealScale::synthSelCB);
 }
 
-#define mSetFldValue( fld, val ) \
-     if ( !mIsUdf(val) ) \
-	fld->setValue( (float)val ); \
 
-void uiSynthToRealScale::setScaleFld( CallBacker* )
+#define mSetFldValue( fld, val ) \
+	 if ( !mIsUdf(val) ) \
+	    fld->setValue( (float)val ); \
+
+
+void uiSynthToRealScale::setScaleFld()
 {
     const float synthval = synthstatsfld_->usrval_;
     const float realval = realstatsfld_->usrval_;
@@ -227,6 +246,40 @@ void uiSynthToRealScale::setScaleFld( CallBacker* )
 
     mSetFldValue( synthstatsfld_, synthval );
     mSetFldValue( realstatsfld_, realval );
+}
+
+
+void uiSynthToRealScale::statsUsrValChgCB( CallBacker* )
+{
+    setScaleFld();
+}
+
+
+void uiSynthToRealScale::levelSelCB( CallBacker* )
+{
+    evfld_->setLevel( lvlhorfld_->levelID() );
+    updSynthStats();
+}
+
+
+void uiSynthToRealScale::seisSelCB( CallBacker* )
+{
+    seissubselfld_->setInput( seisfld_->key(true) );
+}
+
+
+void uiSynthToRealScale::synthSelCB( CallBacker* )
+{
+    updSynthStats();
+}
+
+
+void uiSynthToRealScale::subselChgCB( CallBacker* )
+{
+    IOPar iop;
+    seissubselfld_->fillPar( iop );
+    delete seldata_;
+    seldata_ = Seis::SelData::get( iop );
 }
 
 
@@ -244,26 +297,17 @@ bool uiSynthToRealScale::getEvent()
 
 bool uiSynthToRealScale::getHorData( TaskRunnerProvider& trprov )
 {
-    delete polygon_; polygon_ = 0;
     if ( horizon_ )
 	{ horizon_->unRef(); horizon_ = 0; }
 
-    if ( polyfld_->isChecked() )
-    {
-	if ( !polyfld_->ioobj() )
-	    return false;
-	polygon_ = polyfld_->getSelectionPolygon();
-	if ( !polygon_ )
-	    mErrRetBool( tr("Selection Polygon is empty") )
-    }
-
-    const IOObj* ioobj = horfld_->ioobj();
-    if ( !ioobj )
+    const DBKey horid = lvlhorfld_->horID();
+    if ( !horid.isValid() )
 	return false;
-    EM::Object* emobj = EM::MGR().loadIfNotFullyLoaded( ioobj->key(),
-							  trprov );
+    EM::Object* emobj = EM::MGR().loadIfNotFullyLoaded( horid, trprov );
     mDynamicCastGet(EM::Horizon*,hor,emobj);
-    if ( !hor ) return false;
+    if ( !hor )
+	return false;
+
     horizon_ = hor;
     horizon_->ref();
     horiter_ = horizon_->createIterator();
@@ -296,15 +340,32 @@ float uiSynthToRealScale::getTrcValue( const SeisTrc& trc, float reftm ) const
 }
 
 
+const SeisTrcBuf& uiSynthToRealScale::synthTrcBuf() const
+{
+    const auto selidx = synthfld_ ? synthfld_->currentItem() : 0;
+    const auto synthid = datamgr_->find( synthnms_.get(selidx) );
+    datamgr_->ensureGenerated( synthid, uiTaskRunnerProvider(this) );
+    const auto* sds = datamgr_->getDataSet( synthid );
+    static SeisTrcBuf emptytb( false );
+    if ( !sds )
+	return emptytb;
+    mDynamicCastGet( const SeisTrcBufDataPack*, tbufdp, &sds->dataPack() )
+    if ( !tbufdp )
+	{ pErrMsg("Huh"); return emptytb; }
+    return tbufdp->trcBuf();
+}
+
+
 void uiSynthToRealScale::updSynthStats()
 {
     if ( !getEvent() )
 	return;
 
     TypeSet<float> vals;
-    for ( int idx=0; idx<synth_.size(); idx++ )
+    const auto& synthtbuf = synthTrcBuf();
+    for ( int idx=0; idx<synthtbuf.size(); idx++ )
     {
-	const SeisTrc& trc = *synth_.get( idx );
+	const SeisTrc& trc = *synthtbuf.get( idx );
 	const float reftm = seisev_.snappedTime( trc );
 	if ( !mIsUdf(reftm) )
 	    vals += getTrcValue( trc, reftm );
@@ -328,19 +389,12 @@ uiSynthToRealScaleRealStatCollector(
     , msg_(uiStrings::sCollectingData())
     , nrdone_(0)
     , totalnr_(-1)
-    , seldata_(0)
+    , seldata_(d.seldata_)
 {
-    if ( dlg_.polygon_ )
-	seldata_ = new Seis::PolySelData( *dlg_.polygon_ );
     if ( seldata_ )
-	totalnr_ = seldata_->expectedNrTraces( dlg_.is2d_ );
+	totalnr_ = seldata_->expectedNrTraces( dlg_.use2dseis_ );
     else
 	totalnr_ = dlg_.horiter_->approximateSize();
-}
-
-~uiSynthToRealScaleRealStatCollector()
-{
-    delete seldata_;
 }
 
 uiString message() const	{ return msg_; }
@@ -416,7 +470,7 @@ int getTrc2D()
 
 int nextStep()
 {
-    const int res = dlg_.is2d_ ? getTrc2D() : getTrc3D();
+    const int res = dlg_.use2dseis_ ? getTrc2D() : getTrc3D();
     if ( res <= 0 )
 	return res;
     nrdone_++;
@@ -431,7 +485,7 @@ int nextStep()
 
     uiSynthToRealScale&	dlg_;
     Seis::Provider&	prov_;
-    Seis::SelData*	seldata_;
+    const Seis::SelData* seldata_;
     SeisTrc		trc_;
     uiString		msg_;
     od_int64		nrdone_;
@@ -447,15 +501,21 @@ void uiSynthToRealScale::updRealStats()
 {
     if ( !getEvent() )
 	return;
-
+    const auto* seisioobj = seisfld_->ioobj();
+    if ( !seisioobj )
+	return;
     uiTaskRunnerProvider trprov( this );
     if ( !getHorData(trprov) )
 	return;
 
-    if ( is2d_ )
+    if ( use2dseis_ )
     {
-	EM::IOObjInfo eminfo( horfld_->ioobj() );
-	SeisIOObjInfo seisinfo( seisfld_->ioobj() );
+	const auto horid = lvlhorfld_->horID();
+	if ( !horid.isValid() )
+	    return;
+
+	EM::IOObjInfo eminfo( horid );
+	SeisIOObjInfo seisinfo( seisioobj );
 	BufferStringSet seislnms, horlnms;
 	seisinfo.getLineNames( seislnms );
 	eminfo.getLineNames( horlnms );
@@ -474,8 +534,8 @@ void uiSynthToRealScale::updRealStats()
     }
 
     uiRetVal uirv;
-    PtrMan<Seis::Provider> prov = Seis::Provider::create(
-					seisfld_->ioobj()->key(), &uirv );
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( seisioobj->key(),
+							  &uirv );
     if ( !prov )
 	mErrRet( uirv );
 
@@ -487,7 +547,7 @@ void uiSynthToRealScale::updRealStats()
     histfld.setData( coll.vals_.arr(), coll.vals_.size() );
     histfld.putN();
     mSetFldValue( realstatsfld_, histfld.getStatCalc().average() );
-    setScaleFld( 0 );
+    setScaleFld();
 }
 
 
@@ -510,9 +570,9 @@ bool uiSynthToRealScale::acceptOK()
     if ( !wvltfld_->store(*wvlt) )
 	return false;
 
-    outwvltid_ = wvltfld_->key(true);
-    const DBKey horid( horfld_->key(true) );
-    const DBKey seisid( seisfld_->key(true) );
+    outwvltid_ = wvltfld_->key( true );
+    const auto horid = lvlhorfld_->horID();
+    const auto seisid = seisfld_->key( true );
     WaveletMGR().setScalingInfo( outwvltid_, &inpwvltid_, &horid, &seisid,
 				 evfld_->levelName() );
     return true;

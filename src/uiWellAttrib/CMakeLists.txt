@@ -22,7 +22,7 @@ set( OD_MODULE_SOURCES
 	uiwelltiewavelet.cc
 	uiwellto2dlinedlg.cc
 	uistratlayermodel.cc
-	uistratseisevent.cc
+	uistratsynthseltools.cc
 	uistratsynthcrossplot.cc
 	uistratsynthdatamgr.cc
 	uistratsynthdisp.cc

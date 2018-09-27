@@ -346,17 +346,17 @@ uiPosProvSel::~uiPosProvSel()
 
 uiString uiPosProvSel::getSummary() const
 {
-    BufferString ret;
+    uiString ret;
     if ( !prov_ )
-	ret = "-";
+	ret = toUiString( "-" );
     else
     {
-	ret = prov_->type(); ret[1] = '\0'; ret += ": ";
-	uiString val;
-	prov_->getSummary( val );
-	ret += mFromUiStringTodo(val);
+	const char typabbr[] = { *prov_->type(), '\0' };
+	uiString summary;
+	prov_->getSummary( summary );
+	ret = toUiString( "%1: %2" ).arg( typabbr ).arg( summary );
     }
-    return toUiString( ret );
+    return ret;
 }
 
 

@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 #include "separstr.h"
 #include "task.h"
+#include "survinfo.h"
 
 #include "uibody.h"
 #include "uiicon.h"
@@ -535,6 +536,11 @@ bool uiMsg::askOverwrite( const uiString& text )
 
 int uiMsg::ask2D3D( const uiString& text, bool wcancel )
 {
+    if ( !SI().has2D() )
+	return 0;
+    if ( !SI().has3D() )
+	return 1;
+
     mPrepCursor();
 
     mCapt( uiStrings::sSpecify() );

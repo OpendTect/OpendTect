@@ -110,7 +110,8 @@ public:
     bool		isPS(SynthID) const;
     bool		isStratProp(SynthID) const;
 
-    enum SubSelType	{ NoSubSel, NoPS, OnlyPS, NoProps, OnlyProps };
+    enum SubSelType	{ NoSubSel, OnlyZO, NoZO,
+			  NoPS, OnlyPS, NoProps, OnlyProps };
     void		getNames(BufferStringSet&,SubSelType t=NoSubSel,
 				 bool omitempty=false,mCurLMIdx) const;
     void		getIDs(SynthIDSet&,SubSelType t=NoSubSel,

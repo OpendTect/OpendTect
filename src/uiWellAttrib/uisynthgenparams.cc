@@ -18,9 +18,12 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uisplitter.h"
 #include "uispinbox.h"
+#include "uisynthtorealscale.h"
+#include "uitoolbutton.h"
 #include "uiwaveletsel.h"
 
 #include "stratsynthdatamgr.h"
+#include "waveletmanager.h"
 
 #include "od_helpids.h"
 
@@ -54,6 +57,7 @@ protected:
 
 #define mTypFldNotif typefld_->selectionChanged
 #define mNameFldNotif namefld_->valuechanging
+#define mWvltFldFldNotif wvltfld_->selectionDone
 
 
 uiSynthGenParams::uiSynthGenParams( uiParent* p, const DataMgr& mgr )
@@ -66,6 +70,10 @@ uiSynthGenParams::uiSynthGenParams( uiParent* p, const DataMgr& mgr )
 
     wvltfld_ = new uiWaveletIOObjSel( this );
     wvltfld_->attach( alignedBelow, typlcb );
+    wvltscalebut_ = new uiToolButton( this, "wavelet_scale",
+				      tr("Scale this Wavelet"),
+				      mCB(this,uiSynthGenParams,scaleWvltCB) );
+    wvltscalebut_->attach( rightOf, wvltfld_ );
 
     uiGroup* parsgrp = createGroups();
     parsgrp->attach( alignedBelow, wvltfld_ );
@@ -138,6 +146,7 @@ void uiSynthGenParams::initWin( CallBacker* )
     updUi();
     mAttachCB( mTypFldNotif, uiSynthGenParams::typeChgCB );
     mAttachCB( mNameFldNotif, uiSynthGenParams::nameChgCB );
+    mAttachCB( mWvltFldFldNotif, uiSynthGenParams::waveletSelCB );
 }
 
 
@@ -150,6 +159,29 @@ void uiSynthGenParams::typeChgCB( CallBacker* )
 void uiSynthGenParams::nameChgCB( CallBacker* )
 {
     nameChanged.trigger();
+}
+
+
+void uiSynthGenParams::waveletSelCB( CallBacker* )
+{
+    updWvltScaleFldDisp();
+}
+
+
+void uiSynthGenParams::scaleWvltCB( CallBacker* )
+{
+    const auto wvltid = wvltfld_->key( true );
+    if ( !wvltid.isValid() )
+	return;
+    const auto res = uiMSG().ask2D3D( tr("Use 2D or 3D data?"), true );
+    if ( res < 0 )
+	return;
+    uiSynthToRealScale dlg( this, mgr_, wvltid, res==1, Strat::Level::ID() );
+    if ( !dlg.go() )
+	return;
+
+    wvltfld_->setInput( dlg.scaledWvltID() );
+    updWvltScaleFldDisp();
 }
 
 
@@ -219,6 +251,15 @@ void uiSynthGenParams::updUi()
 	psinpfld_->addItems( nms );
 	psinpfld_->setCurrentItem( seltxt );
     }
+
+    updWvltScaleFldDisp();
+}
+
+
+void uiSynthGenParams::updWvltScaleFldDisp()
+{
+    const auto wvltid = wvltfld_->key( true );
+    wvltscalebut_->display( wvltid.isValid() && WaveletMGR().isScaled(wvltid) );
 }
 
 

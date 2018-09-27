@@ -10,8 +10,8 @@ ________________________________________________________________________
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
+#include "uistratsynthseltools.h"
 #include "uistratlayseqattrsetbuild.h"
-#include "uistratseisevent.h"
 #include "uiattribsetbuild.h"
 #include "uidatapointset.h"
 #include "uiseparator.h"

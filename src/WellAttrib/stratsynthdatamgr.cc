@@ -621,6 +621,8 @@ void StratSynth::DataMgr::gtIdxs( TypeSet<idx_type>& idxs, SubSelType ss,
 #	define mHandleCase(typ,val) case typ: doadd = val; break
 	switch ( ss )
 	{
+	    mHandleCase( NoZO,		!gp.isZeroOffset() );
+	    mHandleCase( OnlyZO,	gp.isZeroOffset() );
 	    mHandleCase( NoPS,		!gp.isPS() );
 	    mHandleCase( OnlyPS,	gp.isPS() );
 	    mHandleCase( NoProps,	!gp.isStratProp() );
