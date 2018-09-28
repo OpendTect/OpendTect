@@ -567,8 +567,8 @@ int nextStep()
     if ( nrfaults > 9 && curidx_ < 9 ) fltnm.add( "0" );
     fltnm.add( id );
 
-    EM::ObjectID oid = EM::EMM().createObject( EM::Fault3D::typeStr(), fltnm );
-    mDynamicCastGet( EM::Fault3D*, newflt, EM::EMM().getObject(oid) );
+    mDynamicCastGet( EM::Fault3D*, newflt,
+		     EM::EMM().createTempObject(EM::Fault3D::typeStr()) );
     EM::dgbSurfaceReader rdr( fp.fullPath(), fltnm,
 			      mTranslGroupName(EMFault3D) );
     rdr.setOutput( *newflt );
