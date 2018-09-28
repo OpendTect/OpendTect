@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "datainpspec.h"
 #include "mouseevent.h"
 #include "uibody.h"
+#include "uiicon.h"
 #include "uiobjbody.h"
 #include "uivirtualkeyboard.h"
 
@@ -63,6 +64,13 @@ void uiLineEditBody::contextMenuEvent( QContextMenuEvent* ev )
 	handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() );
     else
 	QLineEdit::contextMenuEvent( ev );
+}
+
+
+void uiLineEdit::setIcon( const char* icid )
+{
+    uiIcon icon( icid );
+    body_->addAction( icon.qicon(), QLineEdit::LeadingPosition );
 }
 
 

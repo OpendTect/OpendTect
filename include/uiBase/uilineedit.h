@@ -104,6 +104,7 @@ public:
 
     void		setToolTip( const uiString& tt )
 			{ uiObject::setToolTip(tt); }
+    void		setIcon(const char* icid);
 
 protected:
 

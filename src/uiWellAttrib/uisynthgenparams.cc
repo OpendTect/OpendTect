@@ -259,7 +259,8 @@ void uiSynthGenParams::updUi()
 void uiSynthGenParams::updWvltScaleFldDisp()
 {
     const auto wvltid = wvltfld_->key( true );
-    wvltscalebut_->display( wvltid.isValid() && WaveletMGR().isScaled(wvltid) );
+    wvltscalebut_->setSensitive(
+			wvltid.isValid() && !WaveletMGR().isScaled(wvltid) );
 }
 
 

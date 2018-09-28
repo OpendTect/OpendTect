@@ -228,6 +228,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, DataMgr& datamgr,
     wvltfld_->setHSzPol( uiObject::Medium );
     wvltfld_->attach( rightOf, edbut );
     wvltfld_->setReadOnly();
+    wvltfld_->setIcon( "wavelet" );
 
     wvaselfld_ = new uiStratSynthDispDSSel( topgrp, *this, datamgr_, true );
     wvaselfld_->attach( rightOf, wvltfld_ );
