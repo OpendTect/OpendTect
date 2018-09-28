@@ -16,12 +16,12 @@ ________________________________________________________________________
 #include "stratsynthdatamgr.h"
 
 class uiFlatViewer;
+class uiLineEdit;
 class uiMultiFlatViewControl;
 class uiStratLayModEditTools;
 class uiStratSynthDispDSSel;
 class uiStratSynthDataMgr;
 class uiTextItem;
-class uiWaveletIOObjSel;
 namespace FlatView { class AuxData; class Appearance; }
 
 
@@ -69,7 +69,7 @@ protected:
     ObjectSet<FlatView::AuxData> levelaux_;
 
     uiFlatViewer*	vwr_;
-    uiWaveletIOObjSel*	wvltfld_;
+    uiLineEdit*		wvltfld_;
     uiTextItem*		modtypetxtitm_		= 0;
     uiStratSynthDispDSSel* wvaselfld_;
     uiStratSynthDispDSSel* vdselfld_;
@@ -77,6 +77,7 @@ protected:
 
     void		setDefaultAppearance(Appearance&);
     void		updFlds();
+    void		updWvltFld();
     void		reDisp(bool preserveview=true);
     void		setViewerData(bool wva,bool preserveview=true);
     void		drawLevels();
@@ -90,7 +91,6 @@ protected:
     void		expSynthCB(CallBacker*);
     void		wvaSelCB(CallBacker*);
     void		vdSelCB(CallBacker*);
-    void		wvltChgCB(CallBacker*);
     void		viewChgCB(CallBacker*);
     void		lvlChgCB(CallBacker*);
     void		flatChgCB(CallBacker*);

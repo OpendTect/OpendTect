@@ -17,6 +17,7 @@
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seisbufadapters.h"
+#include "seiseventsnapper.h"
 #include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "stratlayermodel.h"
@@ -224,6 +225,7 @@ void uiSynthToRealScale::initWin( CallBacker* )
     synthstatsfld_->usrValChanged.notify( valchgcb );
     realstatsfld_->usrValChanged.notify( valchgcb );
     mAttachCB( lvlhorfld_->levelSel, uiSynthToRealScale::levelSelCB );
+    mAttachCB( evfld_->anyChange, uiSynthToRealScale::evChgCB );
     mAttachCB( seisfld_->selectionDone, uiSynthToRealScale::seisSelCB );
     if ( synthfld_ )
 	mAttachCB( synthfld_->selectionChanged, uiSynthToRealScale::synthSelCB);
@@ -269,6 +271,12 @@ void uiSynthToRealScale::seisSelCB( CallBacker* )
 
 
 void uiSynthToRealScale::synthSelCB( CallBacker* )
+{
+    updSynthStats();
+}
+
+
+void uiSynthToRealScale::evChgCB( CallBacker* )
 {
     updSynthStats();
 }
@@ -323,6 +331,15 @@ float uiSynthToRealScale::getTrcValue( const SeisTrc& trc, float reftm ) const
     const int nrtms = extrwin.nrSteps() + 1;
     const bool calcrms = nrtms > 1;
     float sumsq = 0;
+
+    if ( evfld_->snapToEvent() )
+    {
+	const float snappedreftm = SeisEventSnapper::findNearestEvent(
+		trc, reftm, extrwin, evfld_->event().evType() );
+	if ( !mIsUdf(snappedreftm) )
+	    reftm = snappedreftm;
+    }
+
     for ( int itm=0; itm<nrtms; itm++ )
     {
 	float extrtm = reftm + extrwin.atIndex( itm );
@@ -340,10 +357,15 @@ float uiSynthToRealScale::getTrcValue( const SeisTrc& trc, float reftm ) const
 }
 
 
-const SeisTrcBuf& uiSynthToRealScale::synthTrcBuf() const
+uiSynthToRealScale::SynthID uiSynthToRealScale::synthID() const
 {
     const auto selidx = synthfld_ ? synthfld_->currentItem() : 0;
-    const auto synthid = datamgr_->find( synthnms_.get(selidx) );
+    return datamgr_->find( synthnms_.get(selidx) );
+}
+
+
+const SeisTrcBuf& uiSynthToRealScale::synthTrcBuf( SynthID synthid ) const
+{
     datamgr_->ensureGenerated( synthid, uiTaskRunnerProvider(this) );
     const auto* sds = datamgr_->getDataSet( synthid );
     static SeisTrcBuf emptytb( false );
@@ -358,17 +380,26 @@ const SeisTrcBuf& uiSynthToRealScale::synthTrcBuf() const
 
 void uiSynthToRealScale::updSynthStats()
 {
-    if ( !getEvent() )
+    const auto synthid = synthID();
+    if ( !getEvent() || !synthid.isValid() )
 	return;
 
     TypeSet<float> vals;
-    const auto& synthtbuf = synthTrcBuf();
-    for ( int idx=0; idx<synthtbuf.size(); idx++ )
+    const auto& synthtbuf = synthTrcBuf( synthid );
+    const auto& lvl = datamgr_->levels().get( lvlhorfld_->levelID() );
+    const auto& t2dmdls = datamgr_->d2TModels();
+    const auto sz = synthtbuf.size();
+    if ( lvl.size() != sz || t2dmdls.size() != sz )
+	{ pErrMsg("Huh"); }
+    for ( int iseq=0; iseq<sz; iseq++ )
     {
-	const SeisTrc& trc = *synthtbuf.get( idx );
-	const float reftm = seisev_.snappedTime( trc );
-	if ( !mIsUdf(reftm) )
-	    vals += getTrcValue( trc, reftm );
+	const float zref = lvl.zvals_.get( iseq );
+	if ( !mIsUdf(zref) )
+	{
+	    const auto& t2d = *t2dmdls.get( iseq );
+	    const float tref = t2d.getTime( zref );
+	    vals += getTrcValue( *synthtbuf.get(iseq), tref );
+	}
     }
 
     uiHistogramDisplay& histfld = *synthstatsfld_->dispfld_;

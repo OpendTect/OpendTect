@@ -97,6 +97,7 @@ public:
     void		putToScreen();
     LevelID		levelID() const;
     BufferString	levelName() const;
+    bool		snapToEvent() const;
     bool		doAllLayers() const;
     bool		hasExtrWin() const;
     bool		hasStep() const;
@@ -107,24 +108,28 @@ public:
 
     const StepInterval<float> getFullExtrWin() const;
 
+    Notifier<uiStratSeisEvent>	anyChange;
+
 protected:
 
     SeisEvent		ev_;
     Setup		setup_;
+    EnumDefImpl<VSEvent::Type>	evtype_;
 
     uiStratLevelSel*	levelfld_;
     uiGenInput*		evfld_;
-    EnumDefImpl<VSEvent::Type>	evtype_;
     uiGenInput*		snapoffsfld_;
     uiGenInput*		extrwinfld_;
-    uiCheckBox*		usestepfld_;
     uiGenInput*		extrstepfld_;
-    uiLabel*		nosteplbl_;
     uiGenInput*		uptolvlfld_;
+    uiCheckBox*		usestepfld_;
+    uiLabel*		nosteplbl_;
 
+    void		initGrp(CallBacker*);
     void		evSnapCheck(CallBacker*);
     void		extrWinCB(CallBacker*);
     void		stopAtCB(CallBacker*);
     void		stepSelCB(CallBacker*);
+    void		anyChgCB( CallBacker* )	    { anyChange.trigger(); }
 
 };

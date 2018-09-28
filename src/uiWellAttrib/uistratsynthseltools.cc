@@ -128,6 +128,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p, const Setup& su )
     , levelfld_(0)
     , uptolvlfld_(0)
     , evtype_( VSEvent::TypeDef() )
+    , anyChange(this)
 {
     if ( setup_.sellevel_ )
 	levelfld_ = new uiStratLevelSel( this, false, tr("Reference level") );
@@ -137,9 +138,9 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p, const Setup& su )
     evfld_ = new uiGenInput( this, tr("Snap synthetics to event"),
 				StringListInpSpec(evtype_) );
     evfld_->setWithCheck( true );
-    evfld_->checked.notify( mCB(this,uiStratSeisEvent,evSnapCheck) );
     evfld_->setValue( 1 );
-    if ( levelfld_ ) evfld_->attach( alignedBelow, levelfld_ );
+    if ( levelfld_ )
+	evfld_->attach( alignedBelow, levelfld_ );
     evfld_->setElemSzPol( uiObject::Medium );
     setHAlignObj( evfld_ );
     snapoffsfld_ = new uiGenInput( this, tr("Offset (ms)"), FloatInpSpec(0) );
@@ -158,13 +159,10 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p, const Setup& su )
 	if( setup_.allowlayerbased_ )
 	{
 	    extrwinfld_->setWithCheck();
-	    extrwinfld_->checked.notify( mCB(this,uiStratSeisEvent,extrWinCB) );
 	    extrwinfld_->setChecked( true );
 
 	    usestepfld_ = new uiCheckBox( this, uiString::empty() );
 	    usestepfld_->setChecked();
-	    usestepfld_->activated.notify(
-					 mCB(this,uiStratSeisEvent,stepSelCB) );
 	    usestepfld_->attach( rightOf, extrwinfld_ );
 
 	    nosteplbl_ = new uiLabel( this, tr("Layer-based") );
@@ -180,24 +178,49 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p, const Setup& su )
 	else
 	    extrstepfld_->attach( rightOf,  extrwinfld_ );
 
-	if ( !setup_.allowlayerbased_ )
-	    return;
-
-	BufferStringSet lvlnms; Strat::LVLS().getNames( lvlnms );
-	if ( !lvlnms.isEmpty() )
+	if ( setup_.allowlayerbased_ )
 	{
-	    uptolvlfld_ = new uiGenInput( this, tr("Stop at"),
-					  StringListInpSpec(lvlnms) );
-	    uptolvlfld_->setText( lvlnms.get(lvlnms.size()-1).buf() );
-	    uptolvlfld_->setWithCheck( true );
-	    uptolvlfld_->setChecked( false );
-	    uptolvlfld_->checked.notify( mCB(this,uiStratSeisEvent,stopAtCB) );
-	    uptolvlfld_->attach( alignedBelow, extrwinfld_ );
+	    BufferStringSet lvlnms; Strat::LVLS().getNames( lvlnms );
+	    if ( !lvlnms.isEmpty() )
+	    {
+		uptolvlfld_ = new uiGenInput( this, tr("Stop at"),
+					      StringListInpSpec(lvlnms) );
+		uptolvlfld_->setText( lvlnms.get(lvlnms.size()-1).buf() );
+		uptolvlfld_->setWithCheck( true );
+		uptolvlfld_->setChecked( false );
+		uptolvlfld_->attach( alignedBelow, extrwinfld_ );
+	    }
 	}
     }
+
+    postFinalise().notify( mCB(this,uiStratSeisEvent,initGrp) );
 }
 
 
+void uiStratSeisEvent::initGrp( CallBacker* )
+{
+    evfld_->checked.notify( mCB(this,uiStratSeisEvent,evSnapCheck) );
+    if ( extrwinfld_ )
+	extrwinfld_->checked.notify( mCB(this,uiStratSeisEvent,extrWinCB) );
+    if ( usestepfld_ )
+	usestepfld_->activated.notify( mCB(this,uiStratSeisEvent,stepSelCB) );
+    if ( uptolvlfld_ )
+	uptolvlfld_->checked.notify( mCB(this,uiStratSeisEvent,stopAtCB) );
+
+#define mSetAnyChg( fld, notif ) \
+    if ( fld ) fld->notif.notify( anychgcb )
+    const CallBack anychgcb( mCB(this,uiStratSeisEvent,anyChgCB) );
+    mSetAnyChg( levelfld_, selChange );
+    mSetAnyChg( evfld_, valuechanged );
+    mSetAnyChg( evfld_, checked );
+    mSetAnyChg( snapoffsfld_, valuechanged );
+    mSetAnyChg( extrwinfld_, valuechanged );
+    mSetAnyChg( extrwinfld_, checked );
+    mSetAnyChg( extrstepfld_, valuechanged );
+    mSetAnyChg( uptolvlfld_, valuechanged );
+    mSetAnyChg( uptolvlfld_, checked );
+    mSetAnyChg( usestepfld_, activated );
+}
 
 
 void uiStratSeisEvent::setLevel( const char* lvlnm )
@@ -224,6 +247,12 @@ Strat::Level::ID uiStratSeisEvent::levelID() const
 BufferString uiStratSeisEvent::levelName() const
 {
     return Strat::LVLS().nameOf( levelID() );
+}
+
+
+bool uiStratSeisEvent::snapToEvent() const
+{
+    return evfld_->isChecked();
 }
 
 

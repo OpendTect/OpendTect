@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uilineedit.h"
 #include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
 #include "uipsviewer2dmainwin.h"
@@ -223,11 +224,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, DataMgr& datamgr,
 			mCB(this,uiStratSynthDisp,dataMgrCB) );
     edbut->attach( rightOf, elmbut );
 
-    uiWaveletIOObjSel::Setup wvsu;
-    wvsu.withextract( false ).withman( false ).compact( true );
-    wvsu.szpol( uiObject::Medium );
-    wvltfld_ = new uiWaveletIOObjSel( topgrp, wvsu );
+    wvltfld_ = new uiLineEdit( topgrp, "Wavelet Name" );
+    wvltfld_->setHSzPol( uiObject::Medium );
     wvltfld_->attach( rightOf, edbut );
+    wvltfld_->setReadOnly();
 
     wvaselfld_ = new uiStratSynthDispDSSel( topgrp, *this, datamgr_, true );
     wvaselfld_->attach( rightOf, wvltfld_ );
@@ -266,14 +266,12 @@ uiStratSynthDisp::~uiStratSynthDisp()
 
 #define mWvaNotif wvaselfld_->selChange
 #define mVDNotif vdselfld_->selChange
-#define mWvltNotif wvltfld_->selectionDone
 #define mViewChgNotif vwr_->viewChanged
 
 void uiStratSynthDisp::initGrp( CallBacker* )
 {
     mAttachCB( mWvaNotif, uiStratSynthDisp::wvaSelCB );
     mAttachCB( mVDNotif, uiStratSynthDisp::vdSelCB );
-    mAttachCB( mWvltNotif, uiStratSynthDisp::wvltChgCB );
     mAttachCB( mViewChgNotif, uiStratSynthDisp::viewChgCB );
     mAttachCB( vwr_->rgbCanvas().reSize, uiStratSynthDisp::canvasResizeCB );
     mAttachCB( edtools_.selLevelChg, uiStratSynthDisp::lvlChgCB );
@@ -281,9 +279,6 @@ void uiStratSynthDisp::initGrp( CallBacker* )
     mAttachCB( edtools_.dispEachChg, uiStratSynthDisp::dispEachChgCB );
     mAttachCB( datamgr_.layerModelSuite().curChanged,
 	       uiStratSynthDisp::curModEdChgCB );
-
-    //TODO
-    wvltfld_->setSensitive( false );
 }
 
 
@@ -311,9 +306,17 @@ void uiStratSynthDisp::updFlds()
 {
     wvaselfld_->update();
     vdselfld_->update();
+    updWvltFld();
+}
 
-    NotifyStopper ns( mWvltNotif );
-    wvltfld_->setInput( datamgr_.waveletID(wvaselfld_->curID()) );
+
+void uiStratSynthDisp::updWvltFld()
+{
+    const auto wvltid = datamgr_.waveletID(wvaselfld_->curID()) ;
+    if ( wvltid.isValid() )
+	wvltfld_->setText( nameOf(wvltid) );
+    else
+	wvltfld_->setText( "" );
 }
 
 
@@ -518,15 +521,6 @@ bool uiStratSynthDisp::dispFlattened() const
 }
 
 
-void uiStratSynthDisp::wvltChgCB( CallBacker* )
-{
-    const DBKey wvltid = wvltfld_->key( true );
-    const auto synthid = wvaselfld_->curID();
-    if ( wvltid.isValid() && synthid.isValid() )
-	datamgr_.setWavelet( synthid, wvltid );
-}
-
-
 void uiStratSynthDisp::viewChgCB( CallBacker* )
 {
     viewChanged.trigger();
@@ -569,6 +563,7 @@ void uiStratSynthDisp::applyReqCB( CallBacker* )
     if ( uidatamgr_ )
     {
 	wvaselfld_->set( uidatamgr_->curID() );
+	updWvltFld();
 	setViewerData( true );
     }
 }

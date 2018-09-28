@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "dbkey.h"
-#include "stratlevel.h"
+#include "stratsynthdatamgr.h"
 #include "trckeysampling.h"
 #include "uistring.h"
 
@@ -32,7 +32,6 @@ class uiWaveletIOObjSel;
 namespace EM { class Horizon; class ObjectIterator; }
 namespace Strat { class SeisEvent; }
 namespace Seis { class SelData; }
-namespace StratSynth { class DataMgr; }
 
 
 /*!\brief To determine scaling of synthetics using real data. */
@@ -44,6 +43,7 @@ public:
     typedef StratSynth::DataMgr	DataMgr;
     typedef Strat::SeisEvent	SeisEvent;
     typedef Strat::Level::ID	LevelID;
+    typedef DataMgr::SynthID	SynthID;
 
 			uiSynthToRealScale(uiParent*,const DataMgr&,
 					   const DBKey& wvltid,bool use2dseis,
@@ -81,15 +81,17 @@ protected:
     void		statsUsrValChgCB(CallBacker*);
     void		seisSelCB(CallBacker*);
     void		synthSelCB(CallBacker*);
+    void		evChgCB(CallBacker*);
     void		levelSelCB(CallBacker*);
     void		subselChgCB(CallBacker*);
     void		goPushCB( CallBacker* )
 			{ updSynthStats(); updRealStats(); }
     bool		acceptOK();
 
+    SynthID		synthID() const;
     bool		getEvent();
     bool		getHorData(TaskRunnerProvider&);
-    const SeisTrcBuf&	synthTrcBuf() const;
+    const SeisTrcBuf&	synthTrcBuf(SynthID) const;
     float		getTrcValue(const SeisTrc&,float) const;
     void		updSynthStats();
     void		updRealStats();

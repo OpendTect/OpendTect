@@ -27,38 +27,39 @@ SeisEventSnapper::SeisEventSnapper( const Interval<float>& gate	)
 }
 
 
-float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
+float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz,
+		const Interval<float>& searchgate, EvType evtyp )
 {
     SeisTrcValueSeries valseries( trc, 0 );
     ValueSeriesEvFinder<float,float> evfinder( valseries, trc.size(),
 					       trc.info().sampling_ );
-    if ( eventtype_ == VSEvent::GateMax || eventtype_ == VSEvent::GateMin )
+    if ( evtyp == VSEvent::GateMax || evtyp == VSEvent::GateMin )
     {
-	Interval<float> gate( searchgate_ );
+	Interval<float> gate( searchgate );
 	gate.shift( tarz );
-	return evfinder.find( eventtype_, gate ).pos;
+	return evfinder.find( evtyp, gate ).pos;
     }
 
-    if ( searchgate_.stop<0 )
+    if ( searchgate.stop<0 )
     {
-	Interval<float> gate( tarz+searchgate_.stop, tarz+searchgate_.start );
-	return evfinder.find( eventtype_, gate ).pos;
+	Interval<float> gate( tarz+searchgate.stop, tarz+searchgate.start );
+	return evfinder.find( evtyp, gate ).pos;
     }
 
-    if ( searchgate_.start>0 )
+    if ( searchgate.start>0 )
     {
-	Interval<float> gate( tarz+searchgate_.start, tarz+searchgate_.stop );
-	return evfinder.find( eventtype_, gate ).pos;
+	Interval<float> gate( tarz+searchgate.start, tarz+searchgate.stop );
+	return evfinder.find( evtyp, gate ).pos;
     }
 
-    Interval<float> gateabove( tarz, tarz+searchgate_.start );
-    Interval<float> gatebelow( tarz, tarz+searchgate_.stop );
-    const float eventposabove = evfinder.find( eventtype_, gateabove ).pos;
-    const float eventposbelow = evfinder.find( eventtype_, gatebelow ).pos;
+    Interval<float> gateabove( tarz, tarz+searchgate.start );
+    Interval<float> gatebelow( tarz, tarz+searchgate.stop );
+    const float eventposabove = evfinder.find( evtyp, gateabove ).pos;
+    const float eventposbelow = evfinder.find( evtyp, gatebelow ).pos;
     if ( mIsUdf(eventposabove) && mIsUdf(eventposbelow) )
     {
-	Interval<float> gate( tarz+searchgate_.start, tarz+searchgate_.stop );
-	return evfinder.find( eventtype_, gate ).pos;
+	Interval<float> gate( tarz+searchgate.start, tarz+searchgate.stop );
+	return evfinder.find( evtyp, gate ).pos;
     }
     else if ( mIsUdf(eventposabove) )
 	return eventposbelow;
@@ -67,6 +68,12 @@ float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
    const float diffabove = tarz - eventposabove;
    const float diffbelow = eventposbelow - tarz;
    return diffabove < diffbelow ? eventposabove : eventposbelow;
+}
+
+
+float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
+{
+    return findNearestEvent( trc, tarz, searchgate_, eventtype_ );
 }
 
 
