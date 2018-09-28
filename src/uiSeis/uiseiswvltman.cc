@@ -278,7 +278,7 @@ bool uiSeisWvltMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 	    msg = tr("Outside OpendTect");
 	else
 	{
-	    msg = tr("'%1' scaled to '%2' (along '%3' at '%4')")
+	    msg = tr("'%1' scaled to '%2' (along '%3' [%4])")
 	       .arg(DBM().nameOf(orgid)).arg(DBM().nameOf(seisid))
 	       .arg(DBM().nameOf(horid)).arg(lvlnm);
 	}

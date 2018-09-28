@@ -651,7 +651,7 @@ uiString& uiString::appendPhrase( const uiString& txt,
     RefMan<uiStringData> tmpptr = data_;
     Threads::Locker contentlocker( tmpptr->contentlock_ );
 
-    if ( isEmpty() || txt.isEmpty() )
+    if ( isEmpty() )
 	{ septyp = NoSep; apptyp = OnSameLine; }
 
     const char* tplstr = 0;

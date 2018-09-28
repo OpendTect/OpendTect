@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistatusbar.h"
 #include "uilistbox.h"
+#include "uicombobox.h"
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 #include "settings.h"
@@ -278,6 +279,8 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
 void uiIOObjSel::init()
 {
     const IOObjContext& ctxt = workctio_.ctxt_;
+    inp_->setEditable( !ctxt.forread_ );
+
     ctxt.fillTrGroup();
     wrtrselfld_ = 0; usesharedbut_ = 0;
     if ( ctxt.forread_ && setup_.withinserters_ )

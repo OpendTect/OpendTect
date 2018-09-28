@@ -268,6 +268,9 @@ void uiStratLayerModel::modInfoChangedCB( CallBacker* cb )
 
 void uiStratLayerModel::xPlotReq( CallBacker* )
 {
+    if ( !checkUnscaledWavelets() )
+	return;
+
     uiStratSynthCrossplot dlg( this, *synthdatamgr_ );
     dlg.setRefLevel( curLevelID() );
     dlg.go();
@@ -610,24 +613,42 @@ void uiStratLayerModel::setElasticProps()
 
 bool uiStratLayerModel::checkUnscaledWavelets()
 {
-    //const auto helpky = mStratLayerModelcheckUnscaledWaveletHelpID;
-
     DBKeySet unscaledids;
     for ( const auto& gp : synthdatamgr_->genParams() )
 	if ( !gp.isStratProp() && !WaveletMGR().isScaled(gp.wvltid_) )
-	    unscaledids.add( gp.wvltid_ );
+	    unscaledids.addIfNew( gp.wvltid_ );
+
     if ( !unscaledids.isEmpty() )
     {
 	uiString msg;
 	if ( unscaledids.size() < 2 )
-	    msg.set( tr("Wavelet '%1' is not scaled. Continue?").arg(
+	    msg.set( tr("Wavelet '%1' is not marked as 'scaled'").arg(
 			    nameOf(unscaledids.first()) ) );
 	else
-	    msg.set( tr("Not all the wavelets seem to be scaled. Continue?") );
-	msg.append( toUiString("\n\nTODO pop up the scaling dialog instead") );
-	if ( !uiMSG().askGoOn(msg) )
-	    return false;
+	    msg.set( tr("Some used wavelets are not marked as 'scaled'") );
+	msg.appendPhrase(
+	    tr("Synthetics are usually not compatible with real seismic data "
+		"without aproperly scaled wavelet"),
+			uiString::CloseLine, uiString::AfterEmptyLine );
+	msg.appendPhrase(
+	    tr("Wavelets can be scaled in the Synthetics Definition Editor"),
+			uiString::CloseLine, uiString::AfterEmptyLine );
+	msg.appendPhrase( tr("The button left of the wavelet name")
+			    .parenthesize(), uiString::NoSep );
+	msg.appendPhrase( uiString::empty(),
+			uiString::CloseLine, uiString::AfterEmptyLine );
 
+	const int res = uiMSG().askGoOnAfter( msg, uiStrings::sCancel(),
+			tr("Ignore this time"), tr("Mark already scaled") );
+
+	if ( res < 1 )
+	{
+	    if ( res < 0 )
+		return false;
+	    const DBKey extscdbky; // undef -> external scaling
+	    for ( auto id : unscaledids )
+		WaveletMGR().setScalingInfo( *id, &extscdbky );
+	}
     }
     return true;
 }

@@ -605,6 +605,6 @@ bool uiSynthToRealScale::acceptOK()
     const auto horid = lvlhorfld_->horID();
     const auto seisid = seisfld_->key( true );
     WaveletMGR().setScalingInfo( outwvltid_, &inpwvltid_, &horid, &seisid,
-				 evfld_->levelName() );
+				 nameOf(lvlhorfld_->levelID()) );
     return true;
 }

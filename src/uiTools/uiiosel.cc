@@ -31,7 +31,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	, lbl_(0)
 {
     inp_ = new uiComboBox( this, toString(su.seltxt_) );
-    inp_->setReadOnly( false );
+    inp_->setEditable( true );
     inp_->setHSzPol( su.szpol_ );
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
     setHAlignObj( inp_ );
