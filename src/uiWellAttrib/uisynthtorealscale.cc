@@ -116,7 +116,7 @@ void sliderChgCB( CallBacker* )
 uiSynthToRealScale::uiSynthToRealScale( uiParent* p, const DataMgr& dmgr,
 		    const DBKey& wid, bool use2d, const LevelID& lvlid )
     : uiDialog(p,Setup(tr("Scale synthetics"),
-		       tr("Determine scaling for synthetics"),
+		       tr("Determine scaling for '%1'").arg( nameOf(wid) ),
 			mODHelpKey(mSynthToRealScaleHelpID) ))
     , seisev_(*new SeisEvent)
     , use2dseis_(use2d)
@@ -137,8 +137,6 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, const DataMgr& dmgr,
     mNoDealRet( synthnms_.isEmpty(), tr("No Zero Offset Synthetics") )
     mNoDealRet( inpwvltid_.isInvalid(), uiStrings::phrCreate(
 							tr("a Wavelet first")) )
-
-    setTitleText( tr("Determine scaling for '%1'").arg(nameOf(inpwvltid_)) );
 
     uiSeisSel::Setup uisssu( use2dseis_, false );
     seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(uisssu.geom_,true),

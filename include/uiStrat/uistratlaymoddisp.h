@@ -52,7 +52,7 @@ public:
 			~uiStratLayerModelDisp();
     virtual bool	isPerModelDisplay() const	{ return false; }
 
-    virtual void	modelChanged()			= 0;
+    virtual void	handleModelChange()		= 0;
     uiWorldRect		zoomBox() const;
     void		setZoomBox(const uiWorldRect&);
     void		clearZoom();
@@ -73,8 +73,8 @@ public:
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
-    Notifier<uiStratLayerModelDisp> modelEdited;
-    Notifier<uiStratLayerModelDisp> modelsAdded;
+    Notifier<uiStratLayerModelDisp> modelChanged;
+    Notifier<uiStratLayerModelDisp> sequencesAdded; // precedes modelChanged
     CNotifier<uiStratLayerModelDisp,const uiString*> infoChanged;
 
 protected:

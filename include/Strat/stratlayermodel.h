@@ -42,7 +42,7 @@ public:
     virtual			~LayerModel();
     LayerModel&			operator =(const LayerModel&);
 
-    bool			isEmpty() const	{ return seqs_.isEmpty(); }
+    bool			isEmpty() const;
     bool			isValid() const;
     int				size() const	{ return seqs_.size(); }
     LayerSequence&		sequence( int idx )	  { return *seqs_[idx];}
@@ -53,7 +53,7 @@ public:
     void			setEmpty();
     LayerSequence&		addSequence();
     LayerSequence&		addSequence(const LayerSequence&);
-				//!< Does a match of props
+					//!< will not preserve Math!
     void			removeSequence(int);
 
     PropertyRefSelection&	propertyRefs()		{ return proprefs_; }
@@ -65,7 +65,7 @@ public:
 
     const RefTree&		refTree() const;
 
-    bool			read(od_istream&);
+    bool			read(od_istream&,bool loadinto,int addeach=1);
     bool			write(od_ostream&,int modnr=0,
 					bool mathpreserve=false) const;
 

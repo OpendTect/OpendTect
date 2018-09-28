@@ -78,7 +78,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
     , lms_(*new Strat::LayerModelSuite)
-    , newModel(this)
+    , modelChange(this)
     , beforeSave(this)
     , afterRetrieve(this)
 {
@@ -215,8 +215,8 @@ void uiStratLayerModel::initWin( CallBacker* cb )
     moddisp_->infoChanged.notify(
 			    mCB(this,uiStratLayerModel,modInfoChangedCB));
     moddisp_->sequenceSelected.notify( mCB(this,uiStratLayerModel,seqSelCB) );
-    moddisp_->modelEdited.notify( mCB(this,uiStratLayerModel,modEdCB) );
-    moddisp_->modelsAdded.notify( mCB(this,uiStratLayerModel,modelsAddedCB) );
+    moddisp_->modelChanged.notify( mCB(this,uiStratLayerModel,modChgCB) );
+    moddisp_->sequencesAdded.notify( mCB(this,uiStratLayerModel,seqsAddedCB) );
 }
 
 
@@ -469,17 +469,18 @@ void uiStratLayerModel::seqSelCB( CallBacker* )
 }
 
 
-void uiStratLayerModel::modEdCB( CallBacker* )
+void uiStratLayerModel::modChgCB( CallBacker* )
 {
     handleNewModel();
+    modelChange.trigger();
 }
 
 
-void uiStratLayerModel::modelsAddedCB( CallBacker* )
+void uiStratLayerModel::seqsAddedCB( CallBacker* )
 {
     gentools_->setGenWarning(
 	    tr("You have added models from file.\nThis will overwrite all") );
-    handleNewModel();
+    // NOT handleNewModel(), modelChanged will be triggered next
 }
 
 
@@ -545,14 +546,14 @@ void uiStratLayerModel::handleNewModel( LayerModel* newmodl )
     afterRetrieve.trigger( &wbpars );
 
     //Then the model display and synthetics
-    moddisp_->modelChanged();
-    synthdisp_->modelChanged();
+    moddisp_->handleModelChange();
+    synthdisp_->handleModelChange();
 
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
     if ( mfvc )
 	mfvc->reInitZooms();
 
-    newModel.trigger();
+    modelChange.trigger();
 }
 
 

@@ -293,7 +293,7 @@ void uiStratSynthDisp::addViewerToControl( uiFlatViewer& vwr )
 }
 
 
-void uiStratSynthDisp::modelChanged()
+void uiStratSynthDisp::handleModelChange()
 {
     datamgr_.modelChange();
     selseq_ = -1;

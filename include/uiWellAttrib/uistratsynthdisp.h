@@ -41,7 +41,7 @@ public:
     DataMgr&		dataMgr()		{ return datamgr_; }
     const DataMgr&	dataMgr() const		{ return datamgr_; }
 
-    void		modelChanged();
+    void		handleModelChange();
     void		setSelectedSequence(int);
 
     uiFlatViewer*	viewer()	{ return vwr_; }

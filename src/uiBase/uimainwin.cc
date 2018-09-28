@@ -1932,15 +1932,17 @@ uiObject* uiDialogBody::createChildren()
 	titlelbl_ = new uiLabel( centralwidget_, setup_.dlgtitle_ );
 	titlelbl_->setHSzPol( uiObject::WideVar );
 	uiObject* obj = setup_.separator_
-			    ? (uiObject*) new uiSeparator(centralwidget_)
-			    : (uiObject*) titlelbl_;
+			    ? (uiObject*)new uiSeparator(centralwidget_)
+			    : (uiObject*)titlelbl_;
 
 	if ( obj != titlelbl_ )
 	{
-	    if ( uiDialog::titlePos() == 0 )
+	    if ( uiDialog::titlePos() == uiDialog::CenterWin )
 		titlelbl_->attach( centeredAbove, obj );
-	    else if ( uiDialog::titlePos() > 0 )
+	    else if ( uiDialog::titlePos() == uiDialog::RightSide )
 		titlelbl_->attach( rightBorder );
+	    else if ( uiDialog::titlePos() == uiDialog::LeftSide )
+		titlelbl_->attach( leftBorder );
 	    obj->attach( stretchedBelow, titlelbl_, -2 );
 	}
 	if ( setup_.mainwidgcentered_ )
@@ -2219,6 +2221,6 @@ bool uiDialog::saveButtonChecked() const
 bool uiDialog::hasSaveButton() const
     { return mBody->hasSaveButton(); }
 
-uiDialog::TitlePos uiDialog::titlepos_		= CenterWin;
+uiDialog::TitlePos uiDialog::titlepos_		= LeftSide;
 uiDialog::TitlePos uiDialog::titlePos()		{ return titlepos_; }
 void uiDialog::setTitlePos( TitlePos p )	{ titlepos_ = p; }

@@ -693,6 +693,15 @@ bool Strat::LayerModel::isValid() const
 }
 
 
+bool Strat::LayerModel::isEmpty() const
+{
+    for ( int iseq=0; iseq<seqs_.size(); iseq++ )
+	if ( !seqs_.get(iseq)->isEmpty() )
+	    return false;
+    return true;
+}
+
+
 int Strat::LayerModel::nrLayers() const
 {
     int ret = 0;
@@ -750,6 +759,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 	newls->layers() += newlay;
     }
 
+    newls->prepareUse();
     seqs_ += newls;
     return *newls;
 }
@@ -775,9 +785,11 @@ const Strat::RefTree& Strat::LayerModel::refTree() const
 }
 
 
-bool Strat::LayerModel::read( od_istream& strm )
+bool Strat::LayerModel::read( od_istream& strm, bool loadinto, int addeach )
 {
-    deepErase( seqs_ );
+    if ( !loadinto )
+	deepErase( seqs_ );
+
     BufferString word;
     strm.getWord( word, false );
     if ( word[0] != '#' || word[1] != 'M' )
@@ -816,9 +828,20 @@ bool Strat::LayerModel::read( od_istream& strm )
     if ( !strm.isOK() )
 	{ ErrMsg("No sequences found"); return false; }
 
-    proprefs_ = newprops;
-    const RefTree& rt = RT();
+    TypeSet<int> propidxs;
+    if ( loadinto )
+    {
+	for ( int iprop=0; iprop<newprops.size(); iprop++ )
+	    propidxs += proprefs_.indexOf( newprops[iprop] );
+    }
+    else
+    {
+	proprefs_ = newprops;
+	for ( int iprop=0; iprop<proprefs_.size(); iprop++ )
+	    propidxs += iprop;
+    }
 
+    const RefTree& rt = RT();
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {
 	strm.skipUntil( 'S' ); // skip "#S.."
@@ -857,7 +880,12 @@ bool Strat::LayerModel::read( od_istream& strm )
 	    if ( !mathpreserve )
 	    {
 		for ( int iprop=1; iprop<nrprops; iprop++ )
-		    { strm >> val; newlay->setValue( iprop, val ); }
+		{
+		    strm >> val;
+		    const auto propidx = propidxs[iprop];
+		    if ( propidx >= 0 )
+			newlay->setValue( propidx, val );
+		}
 		strm.skipLine();
 	    }
 	    else
@@ -866,12 +894,15 @@ bool Strat::LayerModel::read( od_istream& strm )
 		for ( int iprop=1; iprop<nrprops; iprop++ )
 		{
 		    strm >> txt;
+		    const auto propidx = propidxs[iprop];
+		    if ( propidx < 0 )
+			continue;
 		    if ( txt.isNumber() )
-			newlay->setValue( iprop, toFloat(txt) );
+			newlay->setValue( propidx, toFloat(txt) );
 		    else
 		    {
 			IOPar iop; iop.getFrom( txt );
-			newlay->setValue( iprop, iop, proprefs_ );
+			newlay->setValue( propidx, iop, proprefs_ );
 		    }
 		}
 	    }
@@ -879,9 +910,13 @@ bool Strat::LayerModel::read( od_istream& strm )
 	}
 	if ( !seq )
 	    break;
-
-	seq->prepareUse();
-	seqs_ += seq;
+	else if ( iseq % addeach )
+	    delete seq;
+	else
+	{
+	    seq->prepareUse();
+	    seqs_ += seq;
+	}
     }
     return true;
 }

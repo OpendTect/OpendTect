@@ -71,7 +71,7 @@ public:
     void			setNrToGen(int);
     int				nrToGen() const;
 
-    Notifier<uiStratLayerModel>			newModel;
+    Notifier<uiStratLayerModel>			modelChange;
     CNotifier<uiStratLayerModel,IOPar*>		beforeSave;
     CNotifier<uiStratLayerModel,const IOPar*>	afterRetrieve;
 
@@ -126,10 +126,10 @@ protected:
     void			genModelsCB(CallBacker*);
     void			selectElasticPropsCB(CallBacker*);
     void			synthInfoChangedCB(CallBacker*);
-    void			modInfoChangedCB(CallBacker*);
+    void			modChgCB(CallBacker*);
+    void			seqsAddedCB(CallBacker*);
     void			seqSelCB(CallBacker*);
-    void			modEdCB(CallBacker*);
-    void			modelsAddedCB(CallBacker*);
+    void			modInfoChangedCB(CallBacker*);
 
     friend class		uiStratLayerModelManager;
 

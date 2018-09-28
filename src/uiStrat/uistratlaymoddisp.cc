@@ -64,9 +64,9 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , modtypetxtitm_(0)
     , sequenceSelected(this)
     , genNewModelNeeded(this)
-    , modelEdited(this)
     , infoChanged(this)
-    , modelsAdded(this)
+    , modelChanged(this)
+    , sequencesAdded(this)
 {
     vwr_.setInitialSize( initialSize() );
     vwr_.setStretch( 2, 2 );
@@ -165,7 +165,7 @@ void uiStratLayerModelDisp::dispZoomedChg()
 
 void uiStratLayerModelDisp::showFlatChg()
 {
-    modelChanged();
+    handleModelChange();
     clearZoom();
 }
 
@@ -251,7 +251,7 @@ float uiStratLayerModelDisp::getLayerPropValue( const Layer& lay,
 
 void uiStratLayerModelDisp::curModEdChgCB( CallBacker* )
 {
-    modelChanged();
+    handleModelChange();
 
     const bool ised = lms_.curIsEdited();
     if ( !modtypetxtitm_ )
@@ -411,25 +411,19 @@ bool acceptOK()
 	if ( !strm.isOK() )
 	    mErrRet(tr("Cannot open:\n%1\nfor read").arg(fnm_))
 
-	Strat::LayerModel newlm;
-	if ( !newlm.read(strm) )
-	    mErrRet(tr("Cannot read layer model from file.\nDetails may be "
-		       "in the log file ('Utilities-Show log file')"))
-
-	const int each = eachfld_->getIntValue();
 	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
 	const bool replace = doreplacefld_->getBoolValue();
 	if ( replace )
-	    lm.setEmpty();
+	    { lm.setEmpty(); changedmodel_ = true; }
 
-	for ( int iseq=0; iseq<newlm.size(); iseq+=each )
-	    lm.addSequence( newlm.sequence(iseq) );
+	const auto szbefore = lm.size();
+	const int each = eachfld_->getIntValue();
+	if ( !lm.read(strm,true,each) )
+	    mErrRet(tr("Cannot read layer model from file.\nDetails may be "
+		       "in the log file ('Utilities-Show log file')"))
 
-	if ( !newlm.isEmpty() )
-	{
-	    haveaddedmodels_ = true;
-	    lm.prepareUse();
-	}
+	changedmodel_ |= szbefore != lm.size();
+	addedmodels_ = !replace && szbefore<lm.size();
     }
     else
     {
@@ -457,7 +451,8 @@ bool acceptOK()
     BufferString		fixeddumpfnm_;
     IOPar&			pars_;
     const bool			forread_;
-    bool			haveaddedmodels_	= false;
+    bool			changedmodel_		= false;
+    bool			addedmodels_		= false;
 
 };
 
@@ -470,8 +465,10 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 
     uiStratLayerModelDispIO dlg( this, lm, dumppars_, foradd );
     const bool ret = dlg.go();
-    if ( ret && dlg.haveaddedmodels_ )
-	modelsAdded.trigger();
+    if ( ret && dlg.addedmodels_ )
+	sequencesAdded.trigger();
+    if ( dlg.changedmodel_ )
+	modelChanged.trigger();
 
     return ret;
 }
@@ -1074,13 +1071,13 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 }
 
 
-void uiStratSimpleLayerModelDisp::modelChanged()
+void uiStratSimpleLayerModelDisp::handleModelChange()
 {
     forceRedispAll( false );
 }
 
 
-void uiStratSimpleLayerModelDisp::forceRedispAll( bool modeledited )
+void uiStratSimpleLayerModelDisp::forceRedispAll( bool triggermodchg )
 {
     zrg_ = getModelRange( -1 );
     curproprg_ = getModelRange( curPropIdx() );
@@ -1090,8 +1087,8 @@ void uiStratSimpleLayerModelDisp::forceRedispAll( bool modeledited )
 
     reDrawAll();
 
-    if ( modeledited )
-	modelEdited.trigger();
+    if ( triggermodchg )
+	modelChanged.trigger();
 }
 
 

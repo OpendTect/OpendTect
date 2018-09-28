@@ -26,9 +26,9 @@ public:
 			uiStratSimpleLayerModelDisp(uiStratLayModEditTools&,
 						    const LayerModelSuite&);
 			~uiStratSimpleLayerModelDisp();
-    virtual bool	isPerModelDisplay() const	{ return true; }
 
-    virtual void	modelChanged();
+    virtual bool	isPerModelDisplay() const	{ return true; }
+    virtual void	handleModelChange();
 
 protected:
 
