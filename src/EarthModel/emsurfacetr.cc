@@ -535,6 +535,10 @@ dGBFaultSet3DReader( const IOObj& ioobj, EM::FaultSet3D& fltset )
     , dl_(ioobj.fullUserExpr(),DirList::FilesOnly,"*.flt")
 {
     fltset_.setName( ioobj.name() );
+    fltset_.setMultiID( ioobj.key() );
+    IOPar disppars;
+    EM::EMM().readDisplayPars( ioobj.key(), disppars );
+    fltset_.useDisplayPar( disppars );
 }
 
 od_int64 nrDone() const
