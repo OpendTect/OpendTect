@@ -418,7 +418,7 @@ macro( create_develpackages )
 		     ${COPYFROMDATADIR}/dtect
 		     ${COPYTODATADIR}/dtect )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMLIBDIR}/platforms
+		     ${COPYFROMLIBDIR}/../Debug/platforms
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Debug/platforms )
     foreach( SPECFILE ${SPECFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
