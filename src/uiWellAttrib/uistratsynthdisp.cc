@@ -45,6 +45,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "propertyref.h"
 #include "prestackgather.h"
+#include "prestacksynthdataset.h"
 #include "survinfo.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
@@ -274,8 +275,10 @@ void uiStratSynthDisp::createViewer( uiGroup* vwrgrp )
     uiSlider::Setup slsu;
     slsu.isvertical( true ).sldrsize( slsz );
     offsslider_ = new uiSlider( psgrp_, slsu, "Offset Slider" );
-    offsslider_->slider()->setVSzPol( uiObject::WideVar );
+    offsslider_->setStretch( 0, 2 );
     offsslider_->attach( ensureBelow, psvwbut );
+    offsslider_->slider()->setVSzPol( uiObject::WideVar );
+    offsslider_->slider()->setPrefWidth( uiObject::toolButtonSize() );
     psgrp_->attach( rightBorder );
     psgrp_->setStretch( 0, 2 );
 }
@@ -309,7 +312,7 @@ void uiStratSynthDisp::initGrp( CallBacker* )
 }
 
 
-bool uiStratSynthDisp::curIsPS()
+bool uiStratSynthDisp::curIsPS() const
 {
     return datamgr_.isPS( wvaselfld_->curID() );
 }
@@ -383,7 +386,7 @@ void uiStratSynthDisp::setViewerData( bool wva, bool preserveview )
 	ds = datamgr_.getDataSet( curid );
     }
 
-    const float offs = 0.f; // TODO if PS, get from some kind of selector
+    const float offs = curoffs_;
     ConstRefMan<DataPack> pack2use;
     if ( ds )
     {
@@ -500,8 +503,39 @@ void uiStratSynthDisp::drawLevels()
 void uiStratSynthDisp::setPSVwrData()
 {
     if ( !psvwrwin_ )
+	return;
+
+    const auto* sds = datamgr_.getDataSet( wvaselfld_->curID() );
+    mDynamicCastGet( const SynthSeis::PreStackDataSet*, psds, sds )
+    if ( !psds )
 	{ pErrMsg("Huh"); return; }
-    //TODO
+
+    psvwrwin_->removeGathers();
+
+    const auto& gathers = psds->preStackPack().getGathers();
+    const auto& anglegathers = psds->angleData().getGathers();
+    TypeSet<PreStackView::GatherInfo> gatherinfos;
+
+    auto& dpm = DPM( DataPackMgr::FlatID() );
+    for ( int idx=0; idx<gathers.size(); idx++ )
+    {
+	const auto& gather = *gathers[idx];
+	const auto& anglegather= *anglegathers[idx];
+	gatherinfos += PreStackView::GatherInfo();
+	auto& newgi = gatherinfos.last();
+
+	newgi.isstored_ = false;
+        newgi.gathernm_ = psds->name();
+        newgi.bid_ = BinID( 0, idx+1 );
+        newgi.isselected_ = true;
+
+	dpm.add( gather );
+        newgi.wvadpid_ = gather.id();
+	dpm.add( anglegather );
+        newgi.vddpid_ = anglegather.id();
+    }
+
+    psvwrwin_->setGathers( gatherinfos );
 }
 
 
@@ -511,7 +545,22 @@ void uiStratSynthDisp::handlePSViewDisp()
     psgrp_->display( isps );
     if ( psvwrwin_ )
 	psvwrwin_->display( isps );
+    if ( !isps )
+	return;
 
+    const auto synthid = wvaselfld_->curID();
+    auto* sds = datamgr_.getDataSet( synthid );
+    if ( !sds || !sds->isPS() )
+	{ pErrMsg("Huh"); return; }
+
+    const auto offsdef = sds->offsetDef();
+    offsslider_->setInterval( offsdef );
+    const auto idx = offsdef.nearestIndex( curoffs_ );
+    curoffs_ = offsdef.atIndex( idx );
+    offsslider_->setValue( curoffs_ );
+    offsSliderChgCB( 0 );
+
+    setPSVwrData();
 }
 
 
@@ -633,6 +682,10 @@ void uiStratSynthDisp::expSynthCB( CallBacker* )
 
 void uiStratSynthDisp::offsSliderChgCB( CallBacker* )
 {
+    curoffs_ = offsslider_->getFValue();
+    setViewerData( true, true );
+    offsslider_->setToolTip( toUiString("%1: %2")
+			     .arg( uiStrings::sOffset() ).arg( curoffs_ ) );
 }
 
 
@@ -643,9 +696,9 @@ void uiStratSynthDisp::viewPSCB( CallBacker* )
 
     psvwrwin_ = new uiPSViewer2DWin( this, tr("PreStack Synthetics") );
     psvwrwin_->seldatacalled_.notify(
-	    mCB(this,uiStratSynthDisp,setPSVwrDataCB) );
+			    mCB(this,uiStratSynthDisp,setPSVwrDataCB) );
     psvwrwin_->windowClosed.notify(
-	    mCB(this,uiStratSynthDisp,psVwrWinClosedCB) );
+			    mCB(this,uiStratSynthDisp,psVwrWinClosedCB) );
     setPSVwrData();
     psvwrwin_->show();
 }

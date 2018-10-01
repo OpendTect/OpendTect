@@ -117,31 +117,30 @@ void uiObjectItemViewWin::makeSliders()
     dummylbl->setStretch( 0, 2 );
     dummylbl->attach( ensureRightOf, infobar_ );
 
-    uiSlider::Setup su;
-    su.sldrsize_ = 250;
-    su.withedit_ = false;
+    uiSlider::Setup slsu;
+    slsu.isvertical( true ).sldrsize( 250 ).isinverted( true );
     StepInterval<float> sintv( 1, mSldUnits, 1 );
-    su.isvertical_ = true;
-    versliderfld_ = new uiSlider( this, su, "Vertical Scale" );
+    versliderfld_ = new uiSlider( this, slsu, "Vertical Scale" );
     versliderfld_->setInterval( sintv );
-    versliderfld_->setInverted( true );
     versliderfld_->sliderReleased.notify(
 				mCB(this,uiObjectItemViewWin,reSizeSld) );
-    versliderfld_->attach( centeredBelow, dummylbl );
-    versliderfld_->setStretch( 0, 0 );
+    versliderfld_->attach( alignedBelow, dummylbl );
+    versliderfld_->slider()->setVSzPol( uiObject::WideVar );
+    versliderfld_->slider()->setPrefWidth( uiObject::toolButtonSize() );
+    versliderfld_->setStretch( 0, 1 );
 
     fittoscreenbut_ = new uiToolButton( this, "exttofullsurv",
 					tr("Fit to screen"),
                                         mCB(this,uiObjectItemViewWin,
                                         fitToScreen));
-    fittoscreenbut_->attach( centeredBelow, versliderfld_ );
+    fittoscreenbut_->attach( alignedBelow, versliderfld_ );
 
-    su.isvertical_ = false;
-    horsliderfld_ = new uiSlider( this, su, "Horizontal Scale" );
+    slsu.isvertical( false ).isinverted( false );
+    horsliderfld_ = new uiSlider( this, slsu, "Horizontal Scale" );
     horsliderfld_->setInterval( sintv );
     horsliderfld_->sliderReleased.notify(
 				    mCB(this,uiObjectItemViewWin,reSizeSld));
-    horsliderfld_->setStretch( 0, 0 );
+    horsliderfld_->setStretch( 1, 0 );
     horsliderfld_->attach( leftOf, fittoscreenbut_ );
     horsliderfld_->attach( ensureBelow, mainviewer_ );
 

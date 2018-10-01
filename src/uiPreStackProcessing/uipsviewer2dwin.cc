@@ -1416,9 +1416,7 @@ void uiSyntViewer2DWin::removeGathers()
 void uiSyntViewer2DWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
 					const GatherInfo& ginfo )
 {
-    TrcKeyZSampling cs;
-    const int modelnr = (ginfo.bid_.crl() - cs.hsamp_.stop_.crl())
-			/ cs.hsamp_.step_.crl();
+    const int modelnr = ginfo.bid_.crl();
     info->setData( modelnr, ginfo.gathernm_ );
 }
 

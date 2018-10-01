@@ -19,6 +19,36 @@ QListView, QMenu
     selection-color: black;
 }
 
+QSlider::handle
+{
+    background: rgb( 100, 100, 240 );
+    width: 16px;
+}
+
+QSlider::groove:horizontal
+{
+    margin-top: 12px;
+    margin-bottom: 12px;
+    height: 10px;
+}
+
+QSlider::groove:vertical
+{
+    margin-left: 12px;
+    margin-right: 12px;
+    width: 10px;
+}
+
+QSlider::sub-page
+{
+    background: rgb( 150, 150, 150 );
+}
+
+QSlider::add-page
+{
+    background: rgb( 200, 215, 200 );
+}
+
 QSplitter::handle, QMainWindow::separator
 {
     background: rgb( 200, 215, 200 );

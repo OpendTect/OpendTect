@@ -68,6 +68,7 @@ protected:
     uiSize		initialsz_;
     int			selseq_;
     uiWorldRect		initialboundingbox_;
+    float		curoffs_		= 0.f;
 
     uiMultiFlatViewControl* control_;
     ObjectSet<FlatView::AuxData> levelaux_;
@@ -89,7 +90,7 @@ protected:
     void		reDisp(bool preserveview=true);
     void		setViewerData(bool wva,bool preserveview=true);
     void		drawLevels();
-    bool		curIsPS();
+    bool		curIsPS() const;
     void		setPSVwrData();
     void		handlePSViewDisp();
 

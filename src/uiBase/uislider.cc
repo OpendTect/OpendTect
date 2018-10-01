@@ -69,6 +69,7 @@ uiSliderBody& uiSliderObj::mkbody( uiParent* p, const char* nm )
     return *body_;
 }
 
+
 //------------------------------------------------------------------------------
 
 uiSlider::uiSlider( uiParent* p, const Setup& setup, const char* nm )
@@ -97,9 +98,12 @@ void uiSlider::init( const uiSlider::Setup& setup, const char* nm )
     const bool isvert = setup.isvertical_;
     slider_->body().setOrientation( isvert ? Qt::Vertical : Qt::Horizontal );
     slider_->body().setStretch( isvert ? 0 : 1, isvert ? 1 : 0 );
+    slider_->body().setTickPosition( isvert ? QSlider::TicksLeft
+					    : QSlider::TicksBelow );
 
     int nrdec = setup.nrdec_;
-    if ( nrdec < 0 ) nrdec = 0;
+    if ( nrdec < 0 )
+	nrdec = 0;
     double factor = pow( 10., -nrdec );
     scaler_ = new LinScaler( 0, factor );
 
@@ -119,15 +123,18 @@ void uiSlider::init( const uiSlider::Setup& setup, const char* nm )
     if ( setup.isvertical_ )
     {
 	slider_->setPrefHeight( setup.sldrsize_ );
-	slider_->setPrefWidth( 10 );
-	if ( lbl_ ) slider_->attach( centeredBelow, lbl_ );
-	if ( editfld_ ) editfld_->attach( centeredBelow, slider_ );
+	if ( lbl_ )
+	    slider_->attach( centeredBelow, lbl_ );
+	if ( editfld_ )
+	    editfld_->attach( centeredBelow, slider_ );
     }
     else
     {
 	slider_->setPrefWidth( setup.sldrsize_ );
-	if ( lbl_ ) slider_->attach( rightOf, lbl_ );
-	if ( editfld_ ) editfld_->attach( rightOf, slider_ );
+	if ( lbl_ )
+	    slider_->attach( rightOf, lbl_ );
+	if ( editfld_ )
+	    editfld_->attach( rightOf, slider_ );
     }
 
     setInverted( setup.isinverted_ );
