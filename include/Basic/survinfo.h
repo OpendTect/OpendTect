@@ -58,6 +58,9 @@ mExpClass(Basic) SurveyInfo : public NamedMonitorable
 
 public:
 
+    typedef Survey::Geometry3D	Geometry3D;
+    typedef Coords::CoordSystem	CoordSystem;
+
     bool		has2D() const;
     bool		has3D() const;
 
@@ -136,9 +139,10 @@ public:
     void		getCreationData(IOPar&) const;
 			//!< std creation entries and some SIP stuff
 
-    RefMan<Survey::Geometry3D>	get3DGeometry(bool work) const;
-    RefMan<Coords::CoordSystem>	getCoordSystem();
-    ConstRefMan<Coords::CoordSystem> getCoordSystem() const;
+    RefMan<Geometry3D>	get3DGeometry(bool work);
+    ConstRefMan<Geometry3D> get3DGeometry(bool work) const;
+    RefMan<CoordSystem>	getCoordSystem();
+    ConstRefMan<CoordSystem> getCoordSystem() const;
 
     typedef OD::Pol2D3D	Pol2D3D;
 			mDeclareEnumUtils(Pol2D3D);
@@ -179,8 +183,8 @@ protected:
     IOPar		defpars_;
     RefMan<Coords::CoordSystem> coordsystem_;
 
-    Survey::Geometry3D*	s3dgeom_;
-    Survey::Geometry3D*	work_s3dgeom_;
+    Geometry3D*		s3dgeom_;
+    Geometry3D*		work_s3dgeom_;
 
     Pos::IdxPair2Coord	b2c_;
 
@@ -206,6 +210,9 @@ private:
     friend class	uiSurveyInfoEditor;
 
     Pos::IdxPair2Coord	rdb2c_;
+
+    mutable Threads::Lock make3dgeomlock_;
+    Geometry3D&		gt3DGeom(bool work=false) const;
 
 				// For DBMan only
     static uiRetVal	setSurveyLocation(const SurveyDiskLocation&,bool);

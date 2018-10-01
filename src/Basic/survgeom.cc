@@ -129,7 +129,8 @@ void Survey::GeometryManager::ensureSIPresent() const
 
     if ( !has3d )
     {
-	RefMan<Geometry3D> survicsys = SI().get3DGeometry( false );
+	ConstRefMan<Geometry3D> survicsysrefman = SI().get3DGeometry( false );
+	auto* survicsys = const_cast<Geometry3D*>( survicsysrefman.ptr() );
 	survicsys->setID( cSIGeomID );
 	const_cast<GeometryManager*>(this)->addGeometry( *survicsys );
     }

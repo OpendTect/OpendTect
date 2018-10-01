@@ -342,6 +342,7 @@ bool SurveyInfo::wrapUpRead()
     if ( strm.isOK() )
 	strm.getAll( comments_ );
 
+    update3DGeometry();
     return true;
 }
 
@@ -583,13 +584,13 @@ int SurveyInfo::crlStep() const
 
 float SurveyInfo::inlDistance() const
 {
-    return get3DGeometry(false)->inlDistance();
+    return gt3DGeom().inlDistance();
 }
 
 
 float SurveyInfo::crlDistance() const
 {
-    return get3DGeometry(false)->crlDistance();
+    return gt3DGeom().crlDistance();
 }
 
 
@@ -625,7 +626,7 @@ float SurveyInfo::zStep() const
 
 Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
 {
-    return get3DGeometry(false)->oneStepTranslation( planenormal );
+    return gt3DGeom().oneStepTranslation( planenormal );
 }
 
 
@@ -919,13 +920,13 @@ float SurveyInfo::zScale() const
 
 Coord SurveyInfo::transform( const BinID& b ) const
 {
-    return get3DGeometry(false)->transform( b );
+    return gt3DGeom().transform( b );
 }
 
 
 BinID SurveyInfo::transform( const Coord& c ) const
 {
-    return get3DGeometry(false)->transform( c );
+    return gt3DGeom().transform( c );
 }
 
 
@@ -1007,15 +1008,13 @@ void SurveyInfo::gen3Pts()
 
 void SurveyInfo::snap( BinID& binid, const BinID& rounding ) const
 {
-    RefMan<Survey::Geometry3D> geom = get3DGeometry( false );
-    geom->snap( binid, rounding );
+    gt3DGeom().snap( binid, rounding );
 }
 
 
 void SurveyInfo::snapStep( BinID& step, const BinID& rounding ) const
 {
-    RefMan<Survey::Geometry3D> geom = get3DGeometry( true );
-    geom->snapStep( step, rounding );
+    gt3DGeom().snapStep( step, rounding );
 }
 
 
@@ -1023,8 +1022,7 @@ void SurveyInfo::snapStep( BinID& step, const BinID& rounding ) const
 
 void SurveyInfo::snapZ( float& z, int dir ) const
 {
-    RefMan<Survey::Geometry3D> geom = get3DGeometry( true );
-    geom->snapZ( z, dir );
+    gt3DGeom().snapZ( z, dir );
 }
 
 
@@ -1040,7 +1038,7 @@ static void putTr( const Pos::IdxPair2Coord::DirTransform& trans,
 
 bool SurveyInfo::isRightHandSystem() const
 {
-    return get3DGeometry(false)->isRightHandSystem();
+    return gt3DGeom().isRightHandSystem();
 }
 
 
@@ -1248,19 +1246,33 @@ void SurveyInfo::update3DGeometry()
 }
 
 
-RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
+RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work )
 {
-    mLock4Read();
-    const Survey::Geometry3D* sgeom = work ? work_s3dgeom_ : s3dgeom_;
+    return &gt3DGeom( work );
+}
+
+
+ConstRefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
+{
+    return &gt3DGeom( work );
+}
+
+
+Survey::Geometry3D& SurveyInfo::gt3DGeom( bool work ) const
+{
+    // We are going to forfeit the read locking here
+    // The locking/unlocking is simply too big of a performance hit
+    // In practice, this means we can only be hurt in a very, very unlucky spot
+
+    const Geometry3D* sgeom = work ? work_s3dgeom_ : s3dgeom_;
 
     if ( !sgeom )
     {
-	if ( !mLock2Write() )
-	    sgeom = work ? work_s3dgeom_ : s3dgeom_;
+	Threads::Locker locker( make3dgeomlock_ );
+	sgeom = work ? work_s3dgeom_ : s3dgeom_;
 	if ( !sgeom )
 	{
-	    RefMan<Survey::Geometry3D> newsgeom
-			    = new Survey::Geometry3D( name(), zdef_ );
+	    auto* newsgeom = new Geometry3D( name(), zdef_ );
 	    if ( work )
 		newsgeom->setID( Survey::GM().default3DSurvID() );
 	    newsgeom->setGeomData( b2c_, mSampling(work), mZScale() );
@@ -1270,12 +1282,12 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
 	    else
 		self.s3dgeom_ = newsgeom;
 
+	    newsgeom->ref();
 	    sgeom = newsgeom;
-	    newsgeom.release();
 	}
     }
 
-    return RefMan<Survey::Geometry3D>( const_cast<Survey::Geometry3D*>(sgeom) );
+    return *const_cast<Geometry3D*>( sgeom );
 }
 
 
