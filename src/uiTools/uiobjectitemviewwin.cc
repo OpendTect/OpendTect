@@ -29,8 +29,8 @@ ________________________________________________________________________
 #define mMaxObjectSize 30 //18 x object size
 #define mScrollBarSize mainviewer_->scrollBarSize(false).width()-2
 
-uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
-    : uiMainWin(p,toUiString(su.wintitle_))
+uiObjectItemViewWin::uiObjectItemViewWin( uiParent* p, const Setup& su )
+    : uiMainWin(p,su.wintitle_)
     , startwidth_(su.startwidth_)
     , startheight_(su.startheight_)
     , infoheight_(su.infoheight_)

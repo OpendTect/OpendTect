@@ -44,12 +44,12 @@ public:
 };
 
 
-mExpClass(uiPreStackProcessing) uiViewer2DMainWin : public uiObjectItemViewWin
-						  , public uiFlatViewWin
-{ mODTextTranslationClass(uiViewer2DMainWin);
+mExpClass(uiPreStackProcessing) uiViewer2DWin : public uiObjectItemViewWin
+					      , public uiFlatViewWin
+{ mODTextTranslationClass(uiViewer2DWin);
 public:
-			uiViewer2DMainWin(uiParent*,const char* title);
-			~uiViewer2DMainWin();
+
+			~uiViewer2DWin();
 
     virtual void	start()		{ show(); }
     virtual void        setWinTitle(const uiString& t)
@@ -67,11 +67,13 @@ public:
     void		setAppearance(const FlatView::Appearance&,
 				       int appidx=0);
 
-    Notifier<uiViewer2DMainWin> seldatacalled_;
+    Notifier<uiViewer2DWin> seldatacalled_;
     const TypeSet<GatherInfo>&	gatherInfos() const	{ return gatherinfos_; }
     TypeSet<GatherInfo>&	gatherInfos()		{ return gatherinfos_; }
 
 protected:
+
+			uiViewer2DWin(uiParent*,const uiString&);
 
     TypeSet<GatherInfo>	gatherinfos_;
     TypeSet<int>	dpids_;
@@ -124,11 +126,10 @@ protected:
 };
 
 
-mExpClass(uiPreStackProcessing) uiStoredViewer2DMainWin
-					: public uiViewer2DMainWin
+mExpClass(uiPreStackProcessing) uiStoredViewer2DWin : public uiViewer2DWin
 {
 public:
-			uiStoredViewer2DMainWin(uiParent*,const char* title,
+			uiStoredViewer2DWin(uiParent*,const uiString& title,
 						bool is2d=false);
 
     void		init(const DBKey&,const BinID& bid,bool isinl,
@@ -168,24 +169,27 @@ protected:
 };
 
 
-mExpClass(uiPreStackProcessing) uiSyntheticViewer2DMainWin
-					: public uiViewer2DMainWin
+mExpClass(uiPreStackProcessing) uiSyntViewer2DWin : public uiViewer2DWin
 {
 public:
-			uiSyntheticViewer2DMainWin(uiParent*,const char* title);
-			~uiSyntheticViewer2DMainWin();
+
+			uiSyntViewer2DWin(uiParent*,const uiString& title);
+			~uiSyntViewer2DWin();
     void		setGathers(const TypeSet<PreStackView::GatherInfo>&);
     void		setGathers(const TypeSet<PreStackView::GatherInfo>&,
 				   bool getstaruppositions);
     void		removeGathers();
     void		getGatherNames(BufferStringSet& nms) const;
     void		setGatherNames(const BufferStringSet& nms);
+
 protected:
+
     void		posDlgChgCB(CallBacker*);
 
     void		setGatherInfo(uiGatherDisplayInfoHeader* info,
 				      const GatherInfo&);
     void		setGather(const GatherInfo&);
+
 };
 
 

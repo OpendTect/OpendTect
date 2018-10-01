@@ -23,7 +23,7 @@ namespace visSurvey { class PreStackDisplay; }
 namespace PreStackView
 {
 
-class uiStoredViewer2DMainWin;
+class uiStoredViewer2DWin;
 class uiViewer3DPositionDlg;
 class uiViewer3DSettingDlg;
 
@@ -55,7 +55,7 @@ public:
 
 protected:
 
-    uiStoredViewer2DMainWin*	createMultiGather2DViewer(
+    uiStoredViewer2DWin* createMultiGather2DViewer(
 					const visSurvey::PreStackDisplay&);
     uiFlatViewMainWin*	create2DViewer(const uiString&,DataPack::ID);
 

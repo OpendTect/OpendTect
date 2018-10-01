@@ -25,7 +25,8 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
-#include "uipsviewer2dmainwin.h"
+#include "uipsviewer2dwin.h"
+#include "uislider.h"
 #include "uispinbox.h"
 #include "uitaskrunnerprovider.h"
 #include "uitoolbar.h"
@@ -108,7 +109,7 @@ public:
 uiStratSynthDispDSSel( uiParent* p, uiStratSynthDisp& synthdisp,
 			const DataMgr& mgr, bool wva )
     : uiGroup( p, wva ? "wva ds sel" : "vd ds sel" )
-    , mgr_(mgr)
+    , datamgr_(mgr)
     , wva_(wva)
     , synthdisp_(synthdisp)
     , selChange(this)
@@ -133,7 +134,7 @@ bool update() // returns whether curID() is new
 
     entries_.setEmpty();
     TypeSet<SynthID> ids;
-    mgr_.getIDs( ids, wva_ ? DataMgr::NoProps : DataMgr::NoSubSel );
+    datamgr_.getIDs( ids, wva_ ? DataMgr::NoProps : DataMgr::NoPS );
     entries_.add( SynthID() );
     for ( auto id : ids )
     {
@@ -143,20 +144,21 @@ bool update() // returns whether curID() is new
 	else
 	    entries_ += preventries.removeAndTake( previdx, false );
     }
+    preventries.setEmpty();
 
     const bool havesamesel = ids.isPresent( previd );
     NotifyStopper ns( sel_->selectionChanged );
     sel_->setEmpty();
     for ( auto entry : entries_ )
     {
-	if ( entry->id_.isValid() )
-	    sel_->addItem( mgr_.nameOf(entry->id_) );
-	else
+	if ( !entry->id_.isValid() )
 	    sel_->addItem( "---" );
+	else
+	    sel_->addItem( datamgr_.nameOf(entry->id_) );
     }
 
     if ( havesamesel )
-	sel_->setCurrentItem( mgr_.nameOf(previd) );
+	sel_->setCurrentItem( datamgr_.nameOf(previd) );
     else
 	sel_->setCurrentItem( entries_.size() > 1 ? 1 : 0 );
 
@@ -194,7 +196,7 @@ DataPack::ID packID() const
 
     Notifier<uiStratSynthDispDSSel> selChange;
 
-    const DataMgr&	mgr_;
+    const DataMgr&	datamgr_;
     EntryList		entries_;
     uiComboBox*		sel_;
     const bool		wva_;
@@ -242,11 +244,20 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, DataMgr& datamgr,
     expbut->attach( rightBorder );
     vdselfld_->attach( leftOf, expbut );
 
-    vwr_ = new uiFlatViewer( this );
+    uiGroup* vwrgrp = new uiGroup( this, "Viewer area group" );
+    createViewer( vwrgrp );
+    vwrgrp->attach( stretchedBelow, topgrp );
+
+    mAttachCB( postFinalise(), uiStratSynthDisp::initGrp );
+}
+
+
+void uiStratSynthDisp::createViewer( uiGroup* vwrgrp )
+{
+    vwr_ = new uiFlatViewer( vwrgrp );
     vwr_->rgbCanvas().disableImageSave();
     vwr_->setInitialSize( initialsz_ );
     vwr_->setStretch( 2, 2 );
-    vwr_->attach( stretchedBelow, topgrp );
     setDefaultAppearance( vwr_->appearance() );
 
     uiFlatViewStdControl::Setup fvsu( this );
@@ -255,7 +266,18 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, DataMgr& datamgr,
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->setViewerType( vwr_, true );
 
-    mAttachCB( postFinalise(), uiStratSynthDisp::initGrp );
+    psgrp_ = new uiGroup( vwrgrp, "Pre-Stack controls group" );
+    auto* psvwbut = new uiToolButton( psgrp_, "nonmocorr64",
+                                tr("View PreStack Offset Display Panel"),
+                                mCB(this,uiStratSynthDisp,viewPSCB) );
+    const auto slsz = initialsz_.height() - uiObject::toolButtonSize();
+    uiSlider::Setup slsu;
+    slsu.isvertical( true ).sldrsize( slsz );
+    offsslider_ = new uiSlider( psgrp_, slsu, "Offset Slider" );
+    offsslider_->slider()->setVSzPol( uiObject::WideVar );
+    offsslider_->attach( ensureBelow, psvwbut );
+    psgrp_->attach( rightBorder );
+    psgrp_->setStretch( 0, 2 );
 }
 
 
@@ -268,11 +290,13 @@ uiStratSynthDisp::~uiStratSynthDisp()
 #define mWvaNotif wvaselfld_->selChange
 #define mVDNotif vdselfld_->selChange
 #define mViewChgNotif vwr_->viewChanged
+#define mOffsSliderChgNotif offsslider_->valueChanged
 
 void uiStratSynthDisp::initGrp( CallBacker* )
 {
     mAttachCB( mWvaNotif, uiStratSynthDisp::wvaSelCB );
     mAttachCB( mVDNotif, uiStratSynthDisp::vdSelCB );
+    mAttachCB( mOffsSliderChgNotif, uiStratSynthDisp::offsSliderChgCB );
     mAttachCB( mViewChgNotif, uiStratSynthDisp::viewChgCB );
     mAttachCB( vwr_->rgbCanvas().reSize, uiStratSynthDisp::canvasResizeCB );
     mAttachCB( edtools_.selLevelChg, uiStratSynthDisp::lvlChgCB );
@@ -280,6 +304,14 @@ void uiStratSynthDisp::initGrp( CallBacker* )
     mAttachCB( edtools_.dispEachChg, uiStratSynthDisp::dispEachChgCB );
     mAttachCB( datamgr_.layerModelSuite().curChanged,
 	       uiStratSynthDisp::curModEdChgCB );
+
+    psgrp_->display( curIsPS() );
+}
+
+
+bool uiStratSynthDisp::curIsPS()
+{
+    return datamgr_.isPS( wvaselfld_->curID() );
 }
 
 
@@ -465,6 +497,24 @@ void uiStratSynthDisp::drawLevels()
 }
 
 
+void uiStratSynthDisp::setPSVwrData()
+{
+    if ( !psvwrwin_ )
+	{ pErrMsg("Huh"); return; }
+    //TODO
+}
+
+
+void uiStratSynthDisp::handlePSViewDisp()
+{
+    const bool isps = curIsPS();
+    psgrp_->display( isps );
+    if ( psvwrwin_ )
+	psvwrwin_->display( isps );
+
+}
+
+
 void uiStratSynthDisp::elPropEdCB( CallBacker* )
 {
     elasticPropsSelReq.trigger();
@@ -565,6 +615,7 @@ void uiStratSynthDisp::applyReqCB( CallBacker* )
     {
 	wvaselfld_->set( uidatamgr_->curID() );
 	updWvltFld();
+	handlePSViewDisp();
 	setViewerData( true );
     }
 }
@@ -580,10 +631,43 @@ void uiStratSynthDisp::expSynthCB( CallBacker* )
 }
 
 
+void uiStratSynthDisp::offsSliderChgCB( CallBacker* )
+{
+}
+
+
+void uiStratSynthDisp::viewPSCB( CallBacker* )
+{
+    if ( psvwrwin_ )
+	{ psvwrwin_->raise(); return; }
+
+    psvwrwin_ = new uiPSViewer2DWin( this, tr("PreStack Synthetics") );
+    psvwrwin_->seldatacalled_.notify(
+	    mCB(this,uiStratSynthDisp,setPSVwrDataCB) );
+    psvwrwin_->windowClosed.notify(
+	    mCB(this,uiStratSynthDisp,psVwrWinClosedCB) );
+    setPSVwrData();
+    psvwrwin_->show();
+}
+
+
+void uiStratSynthDisp::psVwrWinClosedCB( CallBacker* )
+{
+    psvwrwin_ = 0;
+}
+
+
+void uiStratSynthDisp::setPSVwrDataCB( CallBacker* )
+{
+    setPSVwrData();
+}
+
+
 void uiStratSynthDisp::wvaSelCB( CallBacker* )
 {
     setViewerData( true );
     vwr_->handleChange( FlatView::Viewer::BitmapData );
+    handlePSViewDisp();
 }
 
 

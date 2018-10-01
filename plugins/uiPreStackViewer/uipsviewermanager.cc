@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "uipsviewerposdlg.h"
 #include "uipsviewer2dposdlg.h"
 #include "uipsviewersettingdlg.h"
-#include "uipsviewer2dmainwin.h"
+#include "uipsviewer2dwin.h"
 #include "uiseispartserv.h"
 #include "ui3dviewer.h"
 #include "uivispartserv.h"
@@ -454,7 +454,7 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
 }
 
 
-uiStoredViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer(
+uiStoredViewer2DWin* uiViewer3DMgr::createMultiGather2DViewer(
 				    const visSurvey::PreStackDisplay& psv )
 {
     const DBKey mid = psv.getDBKey();
@@ -463,15 +463,9 @@ uiStoredViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer(
        return 0;
 
     const bool is2d = !psv.is3DSeis();
-    BufferString title = "Gathers from [";
-    if ( is2d )
-	title += psv.lineName();
-    else
-	title += ioobj->name();
-    title += "]";
-
-    uiStoredViewer2DMainWin* viewwin =
-	new uiStoredViewer2DMainWin( ODMainWin(), title, is2d );
+    const uiString title( tr("Gathers from '%1'")
+			  .arg( is2d ? psv.lineName() : ioobj->name() ) );
+    auto* viewwin = new uiStoredViewer2DWin( ODMainWin(), title, is2d );
     viewwin->show();
     const StepInterval<int>& trcrg = psv.getTraceRange( psv.getBinID() );
     viewwin->init( mid, is2d ? BinID(0,psv.traceNr()) : psv.getBinID(),
@@ -487,7 +481,7 @@ uiStoredViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer(
 
 void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
 {
-    mDynamicCastGet( uiStoredViewer2DMainWin*, win, cb )
+    mDynamicCastGet( uiStoredViewer2DWin*, win, cb )
     if ( !win )
 	{ pErrMsg( "Can not find viewer" ); return; }
 

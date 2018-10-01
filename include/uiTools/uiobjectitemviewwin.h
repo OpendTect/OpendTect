@@ -39,7 +39,7 @@ public:
     {
     public:
 
-			Setup(const char* title)
+			Setup(const uiString& title)
 			    : wintitle_(title)
 			    , startwidth_(400)
 			    , startheight_(600)
@@ -47,7 +47,7 @@ public:
 			    , layoutpos_(0,0)
 			    {}
 
-	 mDefSetupMemb(BufferString,wintitle)
+	 mDefSetupMemb(uiString,wintitle)
 	 mDefSetupMemb(int,startwidth)
 	 mDefSetupMemb(int,startheight)
 	 mDefSetupMemb(int,infoheight)

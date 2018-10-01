@@ -24,7 +24,7 @@ set(OD_MODULE_SOURCES
 	uiprestacktrimstatics.cc 
 	uipsviewer2d.cc 
 	uipsviewer2dinfo.cc 
-	uipsviewer2dmainwin.cc 
+	uipsviewer2dwin.cc 
 	uipsviewer2dposdlg.cc 
 	uisemblancealgo.cc
 )

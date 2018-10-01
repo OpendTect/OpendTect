@@ -18,11 +18,14 @@ ________________________________________________________________________
 class uiFlatViewer;
 class uiLineEdit;
 class uiMultiFlatViewControl;
+class uiSlider;
 class uiStratLayModEditTools;
 class uiStratSynthDispDSSel;
 class uiStratSynthDataMgr;
+class uiPSViewer2DWin;
 class uiTextItem;
 namespace FlatView { class AuxData; class Appearance; }
+namespace PreStackView { class uiSyntViewer2DWin; }
 
 
 mExpClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
@@ -34,6 +37,7 @@ public:
     typedef Strat::LayerModel			LayerModel;
     typedef uiStratLayModEditTools		uiEdTools;
     typedef DataMgr::ZValueSet			ZValueSet;
+    typedef PreStackView::uiSyntViewer2DWin	uiPSViewer2DWin;
 
 			uiStratSynthDisp(uiParent*,DataMgr&,uiEdTools&,uiSize);
 			~uiStratSynthDisp();
@@ -74,13 +78,20 @@ protected:
     uiStratSynthDispDSSel* wvaselfld_;
     uiStratSynthDispDSSel* vdselfld_;
     uiStratSynthDataMgr* uidatamgr_		= 0;
+    uiGroup*		psgrp_;
+    uiSlider*		offsslider_;
+    uiPSViewer2DWin*	psvwrwin_		= 0;
 
+    void		createViewer(uiGroup*);
     void		setDefaultAppearance(Appearance&);
     void		updFlds();
     void		updWvltFld();
     void		reDisp(bool preserveview=true);
     void		setViewerData(bool wva,bool preserveview=true);
     void		drawLevels();
+    bool		curIsPS();
+    void		setPSVwrData();
+    void		handlePSViewDisp();
 
     int			dispEach() const;
     bool		dispFlattened() const;
@@ -91,6 +102,11 @@ protected:
     void		expSynthCB(CallBacker*);
     void		wvaSelCB(CallBacker*);
     void		vdSelCB(CallBacker*);
+    void		offsSliderChgCB(CallBacker*);
+    void		viewPSCB(CallBacker*);
+    void		setPSVwrDataCB(CallBacker*);
+    void		psVwrWinClosedCB(CallBacker*);
+
     void		viewChgCB(CallBacker*);
     void		lvlChgCB(CallBacker*);
     void		flatChgCB(CallBacker*);
