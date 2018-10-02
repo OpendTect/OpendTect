@@ -97,8 +97,8 @@ bool uiSurvInfoProvider::runDialog( uiParent* p, TDInfo ztyp, SurveyInfo& si,
     if ( !havez )
 	cs.zsamp_ = si.zRange(false);
 
-    si.setRange( cs );
-    si.setWorkRange( cs );
+    si.setRanges( cs );
+    si.setWorkRanges( cs );
     BinID bid[2];
     bid[0].inl() = cs.hsamp_.start_.inl();
     bid[0].crl() = cs.hsamp_.start_.crl();
@@ -753,8 +753,8 @@ bool uiSurveyInfoEditor::setInlCrlRange()
 	mErrRetTabGrp(rangegrp_,
 			uiStrings::phrSpecify(tr("in-line/cross-line ranges")))
 
-    si_.setRange( cs );
-    si_.setWorkRange( cs );
+    si_.setRanges( cs );
+    si_.setWorkRanges( cs );
     return true;
 }
 
@@ -791,8 +791,8 @@ bool uiSurveyInfoEditor::setZRange()
     if ( cs.zsamp_.nrSteps() == 0 )
 	mErrRetTabGrp( rangegrp_, uiStrings::phrSpecify(tr("a valid Z range")))
 
-    si_.setRange( cs );
-    si_.setWorkRange( cs );
+    si_.setRanges( cs );
+    si_.setWorkRanges( cs );
     return true;
 }
 
@@ -817,7 +817,7 @@ bool uiSurveyInfoEditor::setCoords()
     c[1] = xy2fld_->getCoord();
     c[2] = xy1fld_->getCoord();
 
-    const uiString errmsg = si_.set3PtsUiMsg( c, b, xline );
+    const uiString errmsg = si_.set3Pts( c, b, xline );
     if ( !errmsg.isEmpty() )
 	mErrRetTabGrp( crdgrp_, errmsg )
     else if ( overrulefld_->isChecked() )

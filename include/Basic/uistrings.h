@@ -370,6 +370,7 @@ public:
     static uiWord sEvent(int n=1)	{ return tr("Event",0,n); }
     static uiWord sExamine()		{ return tr("Examine"); }
     static uiWord sExit()		{ return tr("Exit"); }
+    static uiWord sExponential()	{ return tr("Exponential"); }
     static uiWord sExport()		{ return tr("Export"); }
     static uiWord sExported()		{ return tr("Exported"); }
     static uiWord sExpectation()	{ return tr("Expectation"); }
@@ -492,6 +493,7 @@ public:
     static uiWord sLock()		{ return tr("Lock"); }
     static uiWord sLocked()		{ return tr("Locked"); }
     static uiWord sLog(int n=1)		{ return tr("Log",0,n); }
+    static uiWord sLogarithmic()	{ return tr("Logarithmic"); }
     static uiWord sLogName()		{ return tr("Log Name"); }
     static uiWord sLogFile()		{ return tr("Log File"); }
     static uiWord sLogs()		{ return sLog( 10 ); }

@@ -31,40 +31,38 @@ ________________________________________________________________________
 #include "survgeom3d.h"
 
 
-static const char* sKeySI = "Survey Info";
-static const char* sKeyXTransf = "Coord-X-BinID";
-static const char* sKeyYTransf = "Coord-Y-BinID";
-static const char* sSurvFile = ".survey";
-static const char* sDefsFile = ".defs";
-static const char* sCommentsFile = ".comments";
-static const char* sFreshFile = ".fresh";
-static const char* sCreationFile = ".creation";
-static const char* sKeySurvDefs = "Survey defaults";
-static const char* sKeyFreshFileType = "Survey Creation Info";
-static const char* sKeyLatLongAnchor = "Lat/Long anchor";
-static const char* sKeySetPointPrefix = "Set Point";
-const char* SurveyInfo::sKeyInlRange()	    { return "In-line range"; }
-const char* SurveyInfo::sKeyCrlRange()	    { return "Cross-line range"; }
-const char* SurveyInfo::sKeyXRange()	    { return "X range"; }
-const char* SurveyInfo::sKeyYRange()	    { return "Y range"; }
-const char* SurveyInfo::sKeyZRange()	    { return "Z range"; }
-const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
-const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
-const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
+static const char* sKeySI =		"Survey Info";
+static const char* sKeyXTransf =	"Coord-X-BinID";
+static const char* sKeyYTransf =	"Coord-Y-BinID";
+static const char* sSurvFile =		".survey";
+static const char* sDefsFile =		".defs";
+static const char* sCommentsFile =	".comments";
+static const char* sFreshFile =		".fresh";
+static const char* sCreationFile =	".creation";
+static const char* sKeySurvDefs =	"Survey defaults";
+static const char* sKeyFreshFileType =	"Survey Creation Info";
+static const char* sKeyLatLongAnchor =	"Lat/Long anchor";
+static const char* sKeySetPointPrefix =	"Set Point";
+const char* SurveyInfo::sKeyInlRange()	{ return "In-line range"; }
+const char* SurveyInfo::sKeyCrlRange()	{ return "Cross-line range"; }
+const char* SurveyInfo::sKeyXRange()	{ return "X range"; }
+const char* SurveyInfo::sKeyYRange()	{ return "Y range"; }
+const char* SurveyInfo::sKeyZRange()	{ return "Z range"; }
+const char* SurveyInfo::sKeyDpthInFt()	{ return "Show depth in feet"; }
+const char* SurveyInfo::sKeyXYInFt()	{ return "XY in feet"; }
+const char* SurveyInfo::sKeySurvDataType() { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum()
-					    {return "Seismic Reference Datum";}
+					{ return "Seismic Reference Datum"; }
 
-const uiString SurveyInfo::sInlRange()	    { return tr("In-line range"); }
-const uiString SurveyInfo::sCrlRange()	    { return tr("Cross-line range"); }
-const uiString SurveyInfo::sXRange()	    { return tr("X range"); }
-const uiString SurveyInfo::sYRange()	    { return tr("Y range"); }
-const uiString SurveyInfo::sZRange()	    { return tr("Z range"); }
-const uiString SurveyInfo::sDpthInFt()
-					   { return tr("Show depth in feet"); }
-const uiString SurveyInfo::sXYInFt()	    { return tr("XY in feet"); }
-const uiString SurveyInfo::sSurvDataType()  { return tr("Survey Data Type"); }
-const uiString SurveyInfo::sSeismicRefDatum()
-					{return tr("Seismic Reference Datum");}
+uiString SurveyInfo::sInlRange()	{ return tr("In-line range"); }
+uiString SurveyInfo::sCrlRange()	{ return tr("Cross-line range"); }
+uiString SurveyInfo::sXRange()		{ return tr("X range"); }
+uiString SurveyInfo::sYRange()		{ return tr("Y range"); }
+uiString SurveyInfo::sZRange()		{ return tr("Z range"); }
+uiString SurveyInfo::sDpthInFt()	{ return tr("Show depth in feet"); }
+uiString SurveyInfo::sXYInFt()		{ return tr("XY in feet"); }
+uiString SurveyInfo::sSurvDataType()	{ return tr("Survey Data Type"); }
+uiString SurveyInfo::sSeismicRefDatum()	{ return tr("Seismic Reference Datum");}
 
 mDefineEnumUtils(SurveyInfo,Pol2D3D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
@@ -643,7 +641,7 @@ void SurveyInfo::setSipName( const uiString& str )
 }
 
 
-void SurveyInfo::setRange( const TrcKeyZSampling& cs )
+void SurveyInfo::setRanges( const TrcKeyZSampling& cs )
 {
     fullcs_ = cs;
     fullcs_.hsamp_.survid_ = workcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
@@ -657,7 +655,7 @@ void SurveyInfo::setRange( const TrcKeyZSampling& cs )
 }
 
 
-void SurveyInfo::setWorkRange( const TrcKeyZSampling& cs ) const
+void SurveyInfo::setWorkRanges( const TrcKeyZSampling& cs ) const
 {
     mLock4Read();
     if ( workcs_ == cs )
@@ -949,30 +947,8 @@ void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
 }
 
 
-const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
-				 int xline )
-{
-    if ( b[1].inl() == b[0].inl() )
-        return "Need two different in-lines";
-    if ( b[0].crl() == xline )
-        return "No Cross-line range present";
-
-    if ( !b2c_.set3Pts( c[0], c[1], c[2], b[0], b[1], xline ) )
-	return "Cannot construct a valid transformation matrix from this input."
-	       "\nPlease check whether the data is on a single straight line.";
-
-    set3binids_[0] = b[0];
-    set3binids_[1] = b[1];
-    set3binids_[2] = BinID( b[0].inl(), xline );
-    set3coords_[0] = c[0];
-    set3coords_[1] = c[1];
-    set3coords_[2] = c[2];
-    return 0;
-}
-
-
-const uiString SurveyInfo::set3PtsUiMsg( const Coord c[3], const BinID b[2],
-				 int xline )
+uiString SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
+			      Index_Type xline )
 {
     if ( b[1].inl() == b[0].inl() )
         return tr("Need two different in-lines");

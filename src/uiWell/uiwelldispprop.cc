@@ -376,7 +376,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     clipratefld_->setElemSzPol( uiObject::Small );
     clipratefld_->attach( alignedBelow, cliprangefld_ );
 
-    logarithmfld_ = new uiCheckBox( this, tr("Logarithmic") );
+    logarithmfld_ = new uiCheckBox( this, uiStrings::sLogarithmic() );
     logarithmfld_->attach( rightOf, rangefld_ );
 
     revertlogfld_ = new uiCheckBox( this, uiStrings::sFlip() );

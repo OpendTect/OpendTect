@@ -101,10 +101,9 @@ void CBVSReadMgr::close()
 }
 
 
-const uiString CBVSReadMgr::errMsg_() const
+uiString CBVSReadMgr::gtErrMsg() const
 {
-    return readers_.size() ? readers_[curnr_]->errMsg() :
-			     uiString::empty();
+    return readers_.size() ? readers_[curnr_]->errMsg() : uiString::empty();
 }
 
 

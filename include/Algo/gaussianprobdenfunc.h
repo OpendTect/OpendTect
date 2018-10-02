@@ -24,7 +24,7 @@ inline float cMaxGaussianCC()		{ return 0.99999f; }
 inline const char* sGaussianCCRangeErrMsg()
 { return "Correlation coefficients should be in range <-1,1>.\n"
 	 "Maximum correlation is 0.99999."; }
-inline const uiString sUiGaussianCCRangeErrMsg()
+inline uiString sUiGaussianCCRangeErrMsg()
 {
     return od_static_tr("sUiGaussianCCRangeErrMsg",
 		        "Correlation coefficients should be in range <-1,1>.\n"

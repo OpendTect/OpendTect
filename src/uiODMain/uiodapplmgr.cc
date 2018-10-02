@@ -581,7 +581,7 @@ void uiODApplMgr::setWorkingArea()
 
     TrcKeyZSampling tkzs;
     dlg.getSampling( tkzs );
-    const_cast<SurveyInfo&>(SI()).setWorkRange( tkzs );
+    SI().setWorkRanges( tkzs );
     sceneMgr().viewAll(0);
 }
 

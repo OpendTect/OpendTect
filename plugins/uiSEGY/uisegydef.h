@@ -146,7 +146,8 @@ protected:
     void		writeParsPush(CallBacker*);
 
 public:
-    static const uiString sRetSavedGrp() { return tr("Retrieve Saved Group"); }
+
+    static uiString	sRetSavedGrp() { return tr("Retrieve Saved Group"); }
 
 };
 

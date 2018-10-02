@@ -214,12 +214,13 @@ void CBVSWriteMgr::ensureConsistent()
 }
 
 
-const uiString CBVSWriteMgr::errMsg_() const
+uiString CBVSWriteMgr::gtErrMsg() const
 {
     for ( int idx=0; idx<writers_.size(); idx++ )
     {
 	const uiString s = writers_[idx]->errMsg();
-	if ( !s.isEmpty() ) return s;
+	if ( !s.isEmpty() )
+	    return s;
     }
     return uiString::empty();
 }

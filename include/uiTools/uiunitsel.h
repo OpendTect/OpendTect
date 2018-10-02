@@ -43,14 +43,13 @@ public:
 	enum Mode		{ SymbolsOnly, NamesOnly, Full };
 
 				Setup( PropertyRef::StdType st,
-				       const uiString labeltxt=
-				       uiString::empty() )
+				       const uiString& lbltx=uiString::empty() )
 				    : ptype_(st)
-				    , lbltxt_(labeltxt)
+				    , lbltxt_(lbltx)
 				    , mode_(Full)
 				    , selproptype_(false)
 				    , nodefsave_(false)
-				    , withnone_(false)	{}
+				    , withnone_(false)		{}
 
 	mDefSetupMemb(PropertyRef::StdType,ptype)
 	mDefSetupMemb(uiString,lbltxt)

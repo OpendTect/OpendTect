@@ -74,7 +74,7 @@ protected:
     CBVSIO::CoordPol	coordpol_;
     bool		forcetrailers_;
 
-    const uiString	errMsg_() const;
+    uiString		gtErrMsg() const;
 
     od_ostream*		mkStrm();
     void		cleanup();

@@ -44,7 +44,7 @@ public:
 
     Notifier<uiStratLevelSel> selChange;
 
-    static const uiString sTiedToTxt();
+    static uiString	sTiedToTxt();
 
     uiComboBox*		box()			{ return fld_; }
 

@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 
 static const char* sNoLevelTxt			= "---";
-const uiString uiStratLevelSel::sTiedToTxt()	{ return tr("Tied to Level"); }
+uiString uiStratLevelSel::sTiedToTxt()		{ return tr("Tied to Level"); }
 
 
 uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf,

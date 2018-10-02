@@ -22,9 +22,7 @@ class uiTextItem;
 namespace FlatView
 {
 
-/*!
-\brief Auxiliary data display of flatviewers.
-*/
+/*!\brief Auxiliary data display of flatviewers. */
 
 mExpClass(uiFlatView) uiAuxDataDisplay : public AuxData, public CallBacker
 {
@@ -33,14 +31,15 @@ public:
 
     AuxData*			clone() const;
     void			setViewer( uiFlatViewer* fv ) { viewer_ = fv; }
-    void			touch() 	{ updateCB(0); }
+    void			touch()	{ updateCB(0); }
 
     uiGraphicsItemGroup*	getDisplay();
     void			removeDisplay();
 
 protected:
-    				friend class ::uiFlatViewer;
-				uiAuxDataDisplay(const uiString nm);
+
+				friend class ::uiFlatViewer;
+				uiAuxDataDisplay(const uiString&);
 				uiAuxDataDisplay(const uiAuxDataDisplay&);
 
     void			removeItems();

@@ -129,8 +129,7 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
 }
 
 
-const uiString dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf,
-								    Conn& conn )
+uiString dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
 	return uiStrings::phrInternalErr("bad connection");
@@ -151,7 +150,7 @@ const uiString dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf,
 }
 
 
-const uiString dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
+uiString dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
 						Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )

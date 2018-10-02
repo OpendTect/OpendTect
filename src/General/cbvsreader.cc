@@ -183,7 +183,7 @@ void CBVSReader::getText( int nrchar, BufferString& txt )
 #undef mErrRet
 #define mErrRet { strm.setReadPosition( 0, od_stream::Abs ); return msg; }
 
-const uiString CBVSReader::check( od_istream& strm )
+uiString CBVSReader::check( od_istream& strm )
 {
     if ( strm.isBad() ) return uiStrings::phrInput(tr("stream cannot be used"));
 

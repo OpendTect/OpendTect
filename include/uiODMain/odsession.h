@@ -89,34 +89,28 @@ mExpClass(uiODMain) ODSessionTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(ODSession)
 
-    virtual const char*	read(ODSession&,Conn&)		= 0;
-			//!< returns err msg or null on success
-    virtual const char*	write(const ODSession&,Conn&)	= 0;
-			//!< returns err msg or null on success
-    virtual const char*	warningMsg() const	{ return ""; }
-    virtual const uiString warningUiMsg() const	{ return uiString::empty(); }
+    virtual uiString	read(ODSession&,Conn&)		= 0;
+    virtual uiString	write(const ODSession&,Conn&)	= 0;
+    virtual uiString	warningMsg() const	{ return uiString::empty(); }
 
     static bool		retrieve(ODSession&,const IOObj*,uiString&);
-			//!< BufferString has errmsg, if any
-			//!< If true returned, errmsg contains warnings
+			    //!< If true returned, uiString contains warnings
     static bool		store(const ODSession&,const IOObj*,uiString&);
-			//!< BufferString has errmsg, if any
-			//!< If true returned, errmsg contains warnings
+			    //!< If true returned, uiString contains warnings
 };
 
 
 mExpClass(uiODMain) dgbODSessionTranslator : public ODSessionTranslator
 {				  isTranslator(dgb,ODSession)
+    mODTextTranslationClass(dgbODSessionTranslator)
 public:
 			mDefEmptyTranslatorConstructor(dgb,ODSession)
 
-    const char*		read(ODSession&,Conn&);
-			//!< returns err msg or null on success
-    const char*		write( const ODSession&,Conn&);
-			//!< returns err msg or null on success
-    const char*		warningMsg() const	{ return warningmsg; }
+    uiString		read(ODSession&,Conn&);
+    uiString		write(const ODSession&,Conn&);
+    uiString		warningMsg() const	{ return warningmsg_; }
 
-    BufferString	warningmsg;
+    uiString		warningmsg_;
 
 };
 

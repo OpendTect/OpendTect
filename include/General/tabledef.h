@@ -60,11 +60,11 @@ public:
 
     struct Form : NamedObject
     {
-			Form( const uiString dispnm, DataInpSpec* spec )
+			Form( const uiString& dispnm, DataInpSpec* spec )
 			    : NamedObject(dispnm.toString())
 			    , dispnm_(dispnm)
 				{ add( spec ); }
-			Form( const uiString dispnm, const DataInpSpec& spec )
+			Form( const uiString& dispnm, const DataInpSpec& spec )
 			    : NamedObject(dispnm.toString())
 			    , dispnm_(dispnm)
 				{ add( spec.clone() ); }
@@ -77,7 +77,7 @@ public:
 			    { specs_ += spec ? spec : new StringInpSpec;
 			      return *this; }
 
-	Form*		duplicate( const uiString nm ) const
+	Form*		duplicate( const uiString& nm ) const
 			{
 			    Form* ret = new Form( nm, *specs_[0] );
 			    for ( int idx=1; idx<specs_.size(); idx++ )
@@ -91,14 +91,14 @@ public:
     };
 
 
-			TargetInfo( const uiString nm, ReqSpec rs=Optional )
+			TargetInfo( const uiString& nm, ReqSpec rs=Optional )
 					//!< Single string
 			    : NamedObject(nm.toString())
 			    , req_(rs)
 			    , dispnm_(nm)
 			    , proptype_(PropertyRef::Other)
 				{ add( nm ); }
-			TargetInfo( const uiString nm, DataInpSpec* spec,
+			TargetInfo( const uiString& nm, DataInpSpec* spec,
 				  ReqSpec rs=Optional,
 				  PropertyRef::StdType p=PropertyRef::Other )
 			    : NamedObject(nm.toString())
@@ -106,7 +106,7 @@ public:
 			    , proptype_(p)
 			    , dispnm_(nm)
 				{ add( nm, spec ); }
-			TargetInfo( const uiString nm, const DataInpSpec& spec,
+			TargetInfo( const uiString& nm, const DataInpSpec& spec,
 				  ReqSpec rs=Optional,
 				  PropertyRef::StdType p=PropertyRef::Other )
 			    : NamedObject(nm.toString())
@@ -117,9 +117,9 @@ public:
 
 			~TargetInfo()		{ deepErase( forms_ ); }
 
-    TargetInfo&		add( const uiString nm, DataInpSpec* spec=0 )
+    TargetInfo&		add( const uiString& nm, DataInpSpec* spec=0 )
 			    { forms_ += new Form( nm, spec ); return *this; }
-    TargetInfo&		add( const uiString nm, const DataInpSpec& spec )
+    TargetInfo&		add( const uiString& nm, const DataInpSpec& spec )
 			    { forms_ += new Form( nm, spec ); return *this; }
     TargetInfo&		add( Form* frm )
 			    { forms_ += frm; return *this; }
@@ -157,7 +157,7 @@ public:
 				Elem( const RowCol& rc, const char* kw=0 )
 				    : pos_(rc), keyword_(kw)	{}
 				Elem( const char* s )
-				    : pos_(0,-1), val_(s) 	{}
+				    : pos_(0,-1), val_(s)	{}
 
 	    bool		isInFile() const
 				    { return pos_.col() >= 0; }

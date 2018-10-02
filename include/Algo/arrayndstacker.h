@@ -147,7 +147,7 @@ od_int64 nrIterations() const
     return totalnr_;
 }
 
-const uiString errMsg() const
+uiString errMsg() const
 {
     return msg_;
 }

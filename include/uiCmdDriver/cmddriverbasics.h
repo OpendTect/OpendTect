@@ -171,7 +171,7 @@ mGlobal(uiCmdDriver) BufferString windowTitle(const uiMainWin* applwin,
 					      int aliasnr=0);
 mGlobal(uiCmdDriver) bool isCmdDriverWindow(const uiMainWin*);
 mGlobal(uiCmdDriver) const char* controllerTitle();
-mGlobal(uiCmdDriver) const uiString controllerUiTitle();
+mGlobal(uiCmdDriver) uiString controllerUiTitle();
 
 
 mExpClass(uiCmdDriver) WindowStack

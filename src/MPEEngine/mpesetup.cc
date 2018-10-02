@@ -132,7 +132,7 @@ bool MPESetupTranslator::store( const MPESetup& setup, const IOObj* ioobj,
 }
 
 
-const uiString dgbMPESetupTranslator::read( MPESetup& setup, Conn& conn )
+uiString dgbMPESetupTranslator::read( MPESetup& setup, Conn& conn )
 {
     warningmsg = uiString::empty();
     if ( !conn.forRead() || !conn.isStream() )
@@ -151,7 +151,7 @@ const uiString dgbMPESetupTranslator::read( MPESetup& setup, Conn& conn )
 }
 
 
-const uiString dgbMPESetupTranslator::write( const MPESetup& setup, Conn& conn )
+uiString dgbMPESetupTranslator::write( const MPESetup& setup, Conn& conn )
 {
     warningmsg = uiString::empty();
     if ( !conn.forWrite() || !conn.isStream() )

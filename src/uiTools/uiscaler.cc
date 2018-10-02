@@ -13,51 +13,47 @@ ________________________________________________________________________
 
 #include "uigeninput.h"
 #include "uibutton.h"
+#include "uicombobox.h"
 
-
-static const char* scalestrs[] =
-	{ sLinScaler, sLogScaler, sExpScaler, 0 };
 
 
 uiScaler::uiScaler( uiParent* p, const uiString& txt, bool linonly )
 	: uiGroup(p,"Scale selector")
-	, basefld(0)
-	, typefld(0)
 {
-    uiString lbl = txt;
-
-
-    if ( lbl.isEmpty() ) lbl = linonly ? tr("Scale values: ")
-				       : tr("Scale values");
+    uiString lbltxt = txt;
+    if ( txt.isEmpty() )
+	lbltxt = tr("Scale values");
 
     if ( !linonly )
     {
-	StringListInpSpec spec(scalestrs);
-	typefld = new uiGenInput( this, uiString::empty(), spec );
-	typefld->valuechanged.notify( mCB(this,uiScaler,typeSel) );
+	uiStringSet typs( uiStrings::sLinear(), uiStrings::sLogarithmic(),
+			  uiStrings::sExponential() );
+	typefld_ = new uiComboBox( this, "Scaling Type" );
+	typefld_->addItems( typs );
+	typefld_->selectionChanged.notify( mCB(this,uiScaler,typeSel) );
     }
 
-    ynfld = new uiCheckBox( this, lbl );
-    ynfld->activated.notify( mCB(this,uiScaler,typeSel) );
+    ynfld_ = new uiCheckBox( this, lbltxt );
+    ynfld_->activated.notify( mCB(this,uiScaler,typeSel) );
 
     DoubleInpSpec dis;
-    linearfld = new uiGenInput( this, tr("Shift/Factor"),
+    linearfld_ = new uiGenInput( this, tr("Shift/Factor"),
 				DoubleInpSpec().setName("Shift"),
 				DoubleInpSpec().setName("Factor") );
 
-    if ( !typefld )
-	ynfld->attach( leftOf, linearfld );
+    if ( !typefld_ )
+	ynfld_->attach( leftOf, linearfld_ );
     else
     {
-	ynfld->attach( leftOf, typefld );
-	linearfld->attach( alignedBelow, typefld );
-	basefld = new uiGenInput( this, uiStrings::sBase(true),
+	ynfld_->attach( leftOf, typefld_ );
+	linearfld_->attach( alignedBelow, typefld_ );
+	basefld_ = new uiGenInput( this, uiStrings::sBase(true),
 		BoolInpSpec(true,toUiString("10"),toUiString("e")));
-	basefld->attach( alignedBelow, typefld );
+	basefld_->attach( alignedBelow, typefld_ );
     }
 
     preFinalise().notify( mCB(this,uiScaler,doFinalise) );
-    setHAlignObj( linearfld );
+    setHAlignObj( linearfld_ );
 }
 
 
@@ -69,35 +65,37 @@ void uiScaler::doFinalise( CallBacker* )
 
 void uiScaler::setUnscaled()
 {
-    if ( typefld ) typefld->setValue( 0 );
-    linearfld->setValue( 0, 0 );
-    linearfld->setValue( 1, 1 );
-    ynfld->setChecked( false );
+    if ( typefld_ )
+	typefld_->setCurrentItem( 0 );
+    linearfld_->setValue( 0, 0 );
+    linearfld_->setValue( 1, 1 );
+    ynfld_->setChecked( false );
     typeSel(0);
 }
 
 
 Scaler* uiScaler::getScaler() const
 {
-    if ( !ynfld->isChecked() ) return 0;
+    if ( !ynfld_->isChecked() )
+	return 0;
 
-    int typ = typefld ? typefld->getIntValue() : 0;
+    int typ = typefld_ ? typefld_->currentItem() : 0;
     Scaler* scaler = 0;
     switch ( typ )
     {
     case 0: {
-	double c = linearfld->isUndef(0) ? 0 : linearfld->getDValue(0);
-	double f = linearfld->isUndef(1) ? 1 : linearfld->getDValue(1);
+	double c = linearfld_->isUndef(0) ? 0 : linearfld_->getDValue(0);
+	double f = linearfld_->isUndef(1) ? 1 : linearfld_->getDValue(1);
 	if ( mIsUdf(c) ) c = 0;
 	if ( mIsUdf(f) ) f = 1;
 	scaler = new LinScaler( c, f );
-	} break;
+    } break;
     case 1: {
-	scaler = new LogScaler( basefld->getBoolValue() );
-	} break;
+	scaler = new LogScaler( basefld_->getBoolValue() );
+    } break;
     case 2: {
-	scaler = new ExpScaler( basefld->getBoolValue() );
-	} break;
+	scaler = new ExpScaler( basefld_->getBoolValue() );
+    } break;
     }
 
     if ( scaler->isEmpty() )
@@ -108,35 +106,36 @@ Scaler* uiScaler::getScaler() const
 
 void uiScaler::setInput( const Scaler& sc )
 {
-    ynfld->setChecked( !sc.isEmpty() );
+    ynfld_->setChecked( !sc.isEmpty() );
 
     const FixedString typ = sc.type();
     int typnr = 0;
     if ( typ == sLinScaler )
     {
 	const LinScaler& lsc = (const LinScaler&)sc;
-	linearfld->setValue( lsc.constant_, 0 );
-	linearfld->setValue( lsc.factor_, 1 );
+	linearfld_->setValue( lsc.constant_, 0 );
+	linearfld_->setValue( lsc.factor_, 1 );
     }
     else
     {
-	if ( !typefld ) return;
+	if ( !typefld_ )
+	    return;
 
 	if ( typ == sLogScaler )
 	{
 	    typnr = 1;
-	    basefld->setValue( ((const LogScaler&)sc).ten_ );
+	    basefld_->setValue( ((const LogScaler&)sc).ten_ );
 	}
 	else if ( typ == sExpScaler )
 	{
 	    typnr = 2;
-	    basefld->setValue( ((const ExpScaler&)sc).ten_ );
+	    basefld_->setValue( ((const ExpScaler&)sc).ten_ );
 	}
 	else return;
     }
 
-    if ( typefld )
-	typefld->setValue( typnr );
+    if ( typefld_ )
+	typefld_->setCurrentItem( typnr );
 
     typeSel(0);
 }
@@ -144,18 +143,20 @@ void uiScaler::setInput( const Scaler& sc )
 
 void uiScaler::typeSel( CallBacker* )
 {
-    int typ = typefld ? typefld->getIntValue() : 0;
-    if ( !ynfld->isChecked() ) typ = -1;
+    auto typ = typefld_ ? typefld_->currentItem() : 0;
+    if ( !ynfld_->isChecked() )
+	typ = -1;
 
-    if ( typefld )
+    if ( typefld_ )
     {
-	typefld->setSensitive( ynfld->isChecked() );
-	linearfld->display( typ == 0 );
+	typefld_->setSensitive( ynfld_->isChecked() );
+	linearfld_->display( typ == 0 );
     }
     else
-	linearfld->setSensitive( typ == 0 );
+	linearfld_->setSensitive( typ == 0 );
 
-    if ( basefld ) basefld->display( typ > 0 );
+    if ( basefld_ )
+	basefld_->display( typ > 0 );
 }
 
 

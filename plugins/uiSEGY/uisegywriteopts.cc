@@ -55,8 +55,8 @@ uiSEGYDirectPS3DOpts::uiSEGYDirectPS3DOpts( uiParent* p )
 {
     parsfld_ = new uiSEGYFilePars( this, false, 0, false );
 
-    nrinlpfilefld_ = new uiGenInput( this, 
-				  SEGYDirectSeisPS3DTranslator::sNrInlPerFile(),
+    nrinlpfilefld_ = new uiGenInput( this,
+				  tr("Number of inlines per file"),
 				  IntInpSpec(100,1) );
     nrinlpfilefld_->attach( alignedBelow, parsfld_ );
 

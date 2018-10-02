@@ -1441,7 +1441,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	hs.start_.inl() = fms.getIValue(0); hs.stop_.inl() = fms.getIValue(1);
 	hs.start_.crl() = fms.getIValue(2); hs.stop_.crl() = fms.getIValue(3);
 	zrg.start = fms.getFValue( 4 ); zrg.stop = fms.getFValue( 5 );
-	const_cast<SurveyInfo&>(SI()).setWorkRange( cs );
+	SI().setWorkRanges( cs );
     }
     else
 	return false;

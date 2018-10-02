@@ -60,6 +60,7 @@ public:
 
     typedef Survey::Geometry3D	Geometry3D;
     typedef Coords::CoordSystem	CoordSystem;
+    typedef Pos::IdxPair2Coord	IdxPair2Coord;
 
     bool		has2D() const;
     bool		has3D() const;
@@ -135,7 +136,7 @@ public:
     void		removeKeyFromDefaultPars(const char* ky,
 						 bool save2storage) const;
     void		putZDomain(IOPar&) const;
-    void		setWorkRange(const TrcKeyZSampling&) const;
+    void		setWorkRanges(const TrcKeyZSampling&) const;
     void		getCreationData(IOPar&) const;
 			//!< std creation entries and some SIP stuff
 
@@ -177,42 +178,39 @@ protected:
     SurveyDiskLocation	diskloc_;
     ZDomain::Def&	zdef_;
     bool		depthsinfeet_;
-    TrcKeyZSampling&	fullcs_;
-    TrcKeyZSampling&	workcs_;
     float		seisrefdatum_;
     IOPar		defpars_;
-    RefMan<Coords::CoordSystem> coordsystem_;
+    BufferString	comments_;
 
+    TrcKeyZSampling&	fullcs_;
+    TrcKeyZSampling&	workcs_;
     Geometry3D*		s3dgeom_;
     Geometry3D*		work_s3dgeom_;
+    RefMan<CoordSystem>	coordsystem_;
 
-    Pos::IdxPair2Coord	b2c_;
-
+    IdxPair2Coord	b2c_;
     BinID		set3binids_[3];
     Coord		set3coords_[3];
-
     Pol2D3D		pol2d3d_;
     bool		pol2d3dknown_;
-
-    BufferString	comments_;
     uiString		sipnm_;
 
     bool		wrapUpRead();
-
     TrcKeyZSampling&	gtSampling( bool work ) const
 			{ return work ? workcs_ : fullcs_; }
 
 private:
 
-    // ugly, but hard to avoid:
+			// ugly, but hard to avoid:
     friend class	DBMan;
     friend class	uiSurveyManager;
     friend class	uiSurveyInfoEditor;
 
-    Pos::IdxPair2Coord	rdb2c_;
+    IdxPair2Coord	rdb2c_;
 
     mutable Threads::Lock make3dgeomlock_;
     Geometry3D&		gt3DGeom(bool work=false) const;
+    void		gen3Pts();
 
 				// For DBMan only
     static uiRetVal	setSurveyLocation(const SurveyDiskLocation&,bool);
@@ -228,9 +226,8 @@ public:
 
     Pos::IdxPair2Coord	binID2Coord() const;
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
-
-    mDeprecated bool	isClockWise() const { return isRightHandSystem(); }
     void		setZUnit(bool istime,bool infeet=false);
+    void		update3DGeometry();
 
     static const char*	sKeyInlRange();
     static const char*	sKeyCrlRange();
@@ -242,15 +239,15 @@ public:
     static const char*	sKeySurvDataType();
     static const char*  sKeySeismicRefDatum();
 
-    static const uiString   sInlRange();
-    static const uiString   sCrlRange();
-    static const uiString   sXRange();
-    static const uiString   sYRange();
-    static const uiString   sZRange();
-    static const uiString   sXYInFt();
-    static const uiString   sDpthInFt(); //!< Not used by SI, just a UI default
-    static const uiString   sSurvDataType();
-    static const uiString   sSeismicRefDatum();
+    static uiString	sInlRange();
+    static uiString	sCrlRange();
+    static uiString	sXRange();
+    static uiString	sYRange();
+    static uiString	sZRange();
+    static uiString	sXYInFt();
+    static uiString	sDpthInFt(); //!< Not used by SI, just a UI default
+    static uiString	sSurvDataType();
+    static uiString	sSeismicRefDatum();
 
     static const char*	sSetupFileName()		{ return ".survey"; }
     static const char*	sBasicSurveyName()		{ return "BasicSurvey";}
@@ -276,15 +273,11 @@ public:
     void		saveComments(const char* basedir=0) const;
 			//!< Write to .comments file
     static SurveyInfo*	read(const char*,uiRetVal&);
-    void		setRange(const TrcKeyZSampling&);
-    const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
-    const uiString	set3PtsUiMsg(const Coord c[3],const BinID b[2],int);
-    void		gen3Pts();
+    uiString		set3Pts(const Coord c[3],const BinID b[2],Index_Type);
+    void		setRanges(const TrcKeyZSampling&);
     bool		setCoordSystem(Coords::CoordSystem*);
     void		readSavedCoordSystem() const;
 			//!< Useful after loading plugins.
-
-    void		update3DGeometry();
 
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
@@ -300,8 +293,6 @@ public:
     mImplSimpleMonitoredGetSet(inline,comments,setComments,
 				BufferString,comments_,cCommentChange());
 
-    mDeprecated IOPar&		defaultPars()
-				{ return defpars_; }
     mDeprecated const IOPar&	pars() const
 				{ return defpars_; }
     mDeprecated void		savePars(const char* basedir = 0) const
@@ -312,7 +303,7 @@ public:
 				{ return basePath();}
 
     mDeprecated void		setRange( const TrcKeyZSampling& cs, bool work )
-				{ work ? setWorkRange(cs) : setRange(cs); }
+				{ work ? setWorkRanges(cs) : setRanges(cs); }
     mDeprecated const char*	getZUnitString( bool wp=true ) const
 				{ return fileZUnitString( wp ); }
     mDeprecated const char*	getXYUnitString( bool wp=true ) const

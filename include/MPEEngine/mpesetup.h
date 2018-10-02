@@ -24,8 +24,8 @@ namespace MPE {
 mExpClass(MPEEngine) Setup
 {
 public:
-    				Setup();
-    				~Setup();
+				Setup();
+				~Setup();
 
     bool			usePar(const IOPar&);
     void			fillPar(IOPar& par) const;
@@ -62,40 +62,37 @@ public:
 mExpClass(MPEEngine) MPESetupTranslator : public Translator
 { mODTextTranslationClass(MPESetupTranslator)
 public:
-    			mDefEmptyTranslatorBaseConstructor(MPESetup)
+			mDefEmptyTranslatorBaseConstructor(MPESetup)
 
-    virtual const uiString read(MPESetup&,Conn&)		= 0;
-    			//!< returns err msg or null on success
-    virtual const uiString write(const MPESetup&,Conn&)	= 0;
-    			//!< returns err msg or null on success
-    virtual const uiString warningMsg() const	
-					{ return uiString::empty(); }
+    virtual uiString	read(MPESetup&,Conn&)		= 0;
+			//!< returns err msg or null on success
+    virtual uiString	write(const MPESetup&,Conn&)	= 0;
+			//!< returns err msg or null on success
+    virtual uiString	warningMsg() const	{ return uiString::empty(); }
 
     static bool		retrieve(MPESetup&,const IOObj*,BufferString&);
-    			//!< BufferString has errmsg, if any
-    			//!< If true returned, errmsg contains warnings
+			//!< BufferString has errmsg, if any
+			//!< If true returned, errmsg contains warnings
     static bool		retrieve(MPESetup&,const IOObj*,uiString&);
     static bool		store(const MPESetup&,const IOObj*,BufferString&);
-    			//!< BufferString has errmsg, if any
-    			//!< If true returned, errmsg contains warnings
+			//!< BufferString has errmsg, if any
+			//!< If true returned, errmsg contains warnings
 };
-    
+
 
 /*!
 \brief MPESetupTranslator for dgbMPESetup.
 */
 
 mExpClass(MPEEngine) dgbMPESetupTranslator : public MPESetupTranslator
-{ mODTextTranslationClass(dgbMPESetupTranslator)			
+{ mODTextTranslationClass(dgbMPESetupTranslator)
   isTranslator(dgb,MPESetup)
 public:
-    			mDefEmptyTranslatorConstructor(dgb,MPESetup)
+			mDefEmptyTranslatorConstructor(dgb,MPESetup)
 
-    const uiString	read(MPESetup&,Conn&);
-    			//!< returns err msg or null on success
-    const uiString	write( const MPESetup&,Conn&);
-    			//!< returns err msg or null on success
-    const uiString	warningMsg() const	{ return warningmsg; }
+    uiString		read(MPESetup&,Conn&);
+    uiString		write( const MPESetup&,Conn&);
+    uiString		warningMsg() const	{ return warningmsg; }
 
     uiString	warningmsg;
 

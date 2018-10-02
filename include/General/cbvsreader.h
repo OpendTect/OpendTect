@@ -67,7 +67,7 @@ public:
 			//!< and end sample to read. offs is an offset
 			//!< in the buffers.
 
-    static const uiString check(od_istream&);
+    static uiString	check(od_istream&);
 			//!< Determines whether a file is a CBVS file
 			//!< returns an error message, or null if OK.
 

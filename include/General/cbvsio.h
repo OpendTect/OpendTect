@@ -30,7 +30,7 @@ mExpClass(General) CBVSIO
 public:
 
 			CBVSIO()
-			: errmsg_(toUiString("")), 
+			: errmsg_(toUiString("")),
 			  strmclosed_(false), nrxlines_(1),
 			  nrcomps_(0), cnrbytes_(0)	{}
     virtual		~CBVSIO();
@@ -38,10 +38,10 @@ public:
     bool		failed() const	    { return !errmsg_.isEmpty(); }
     const uiString	errMsg() const	    { return errmsg_; }
 
-    virtual void	close() 			= 0;
+    virtual void	close()			= 0;
     int			nrComponents() const		{ return nrcomps_; }
     const BinID&	binID() const			{ return curbinid_; }
-    void		setErrMsg( const uiString s )	{ errmsg_ = s; }
+    void		setErrMsg( const uiString& s )	{ errmsg_ = s; }
 
     static const int	integersize;
     static const int	version;
@@ -78,10 +78,10 @@ public:
 			, basefname_(basefname)	{}
     virtual		~CBVSIOMgr();
 
-    inline bool		failed() const		{ return !errMsg().isEmpty(); }
-    inline const uiString   errMsg() const 	{ return errmsg_;}
+    inline bool		failed() const		{ return !errmsg_.isEmpty(); }
+    inline uiString	errMsg() const		{ return errmsg_;}
 
-    virtual void	close() 		= 0;
+    virtual void	close()		= 0;
 
     virtual int		nrComponents() const	= 0;
     virtual const BinID& binID() const		= 0;
@@ -91,9 +91,9 @@ public:
 
     static BufferString	baseFileName(const char*);
     static BufferString	getFileName(const char*,int);
-    			//!< returns aux file name for negative nr
+			//!< returns aux file name for negative nr
     static int		getFileNr(const char*);
-    			//!< returns 0 or number behind '^'
+			//!< returns 0 or number behind '^'
 
 protected:
 
@@ -102,7 +102,7 @@ protected:
     BufferStringSet	fnames_;
     int			curnr_;
 
-    virtual const uiString errMsg_() const		= 0;
+    virtual uiString	gtErrMsg() const				= 0;
 
     mClass(General) AuxInlInf
     {

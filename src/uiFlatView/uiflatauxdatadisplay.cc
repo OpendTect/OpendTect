@@ -38,7 +38,7 @@ uiAuxDataDisplay::~uiAuxDataDisplay()
     , viewer_( 0 )
 
 
-uiAuxDataDisplay::uiAuxDataDisplay( const uiString nm )
+uiAuxDataDisplay::uiAuxDataDisplay( const uiString& nm )
     mImplConstructor( mFromUiStringTodo(nm) )
 {}
 

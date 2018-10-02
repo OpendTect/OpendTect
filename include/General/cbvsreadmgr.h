@@ -90,7 +90,7 @@ protected:
     bool		addReader(od_istream*,const TrcKeyZSampling*,bool,bool);
     bool		addReader(const char*,const TrcKeyZSampling*,bool,bool);
     int			nextRdrNr(int) const;
-    const uiString	errMsg_() const;
+    uiString		gtErrMsg() const;
 
 private:
 

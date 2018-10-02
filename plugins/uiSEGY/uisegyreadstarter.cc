@@ -1052,13 +1052,13 @@ void uiSEGYReadStarter::updateSurvMap()
 	if ( !stbarmsg )
 	{
 	    cs.zsamp_ = loaddef_.getZRange();
-	    survinfo_->setRange( cs );
+	    survinfo_->setRanges( cs );
 	    BinID bid[2];
 	    bid[0].inl() = cs.hsamp_.start_.inl();
 	    bid[0].crl() = cs.hsamp_.start_.crl();
 	    bid[1].inl() = cs.hsamp_.stop_.inl();
 	    bid[1].crl() = cs.hsamp_.stop_.crl();
-	    stbarmsg = survinfo_->set3PtsUiMsg(crd, bid, cs.hsamp_.stop_.crl());
+	    stbarmsg = survinfo_->set3Pts(crd, bid, cs.hsamp_.stop_.crl());
 	}
 	if ( !stbarmsg.isEmpty() )
 	    survinfo_->setName( "<Inadequate data>" );

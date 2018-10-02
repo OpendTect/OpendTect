@@ -141,7 +141,7 @@ public:
     SatisfyLevel	satisfyLevel() const; //!< Mainly checks inputs
     static bool		isError( SatisfyLevel lvl )	{ return lvl>Warning; }
     const uiString	errMsg() const;
-    void		setErrMsg( const uiString msg )	{ errmsg_ = msg; }
+    void		setErrMsg( const uiString& msg ) { errmsg_ = msg; }
 
     bool		isIdenticalTo(const Desc&,bool cmpoutput=true) const;
     bool		isIdentifiedBy(const char*) const;
