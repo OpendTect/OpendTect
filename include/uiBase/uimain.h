@@ -49,6 +49,7 @@ public:
     void		setFont(const uiFont&,bool passtochildren);
     const uiFont*	font();
     Color		windowColor() const;
+    static void		setIcon(const char* icid);
 
     int			nrScreens() const;
     uiSize		getScreenSize(int screennr,bool availablesz) const;

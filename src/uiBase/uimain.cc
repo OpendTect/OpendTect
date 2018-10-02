@@ -11,11 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimain.h"
 
+#include "uiaction.h"
 #include "uifont.h"
+#include "uiicon.h"
 #include "uimainwin.h"
 #include "uimsg.h"
 #include "uiobjbody.h"
-#include "uiaction.h"
 #include "uitreeview.h"
 
 #include "applicationdata.h"
@@ -497,6 +498,14 @@ Color uiMain::windowColor() const
     const QColor& qcol =
 	 QApplication::palette().color( QPalette::Window );
     return Color( qcol.red(), qcol.green(), qcol.blue() );
+}
+
+
+void uiMain::setIcon( const char* iconnm )
+{
+    uiIcon icon( iconnm );
+    if ( app_ )
+	app_->setWindowIcon( icon.qicon() );
 }
 
 
