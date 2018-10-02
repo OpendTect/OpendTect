@@ -37,11 +37,11 @@ HorizonGridder::~HorizonGridder()
 void HorizonGridder::setFaultIds( const TypeSet<MultiID>& mids )
 { faultids_ = mids; }
 
+void HorizonGridder::getFaultIds( TypeSet<MultiID>& mids ) const
+{ mids = faultids_; }
 
 void HorizonGridder::setTrcKeySampling( const TrcKeySampling& hs )
-{
-    hs_ = hs;
-}
+{ hs_ = hs; }
 
 bool HorizonGridder::init( TaskRunner* taskrunner )
 {
@@ -339,7 +339,7 @@ uiRetVal HorizonGridder::executeGridding(
 uiRetVal HorizonGridder::executeGridding(
 	HorizonGridder* interpolator, EM::Horizon3D* hor3d,
 	const EM::SectionID& sid,
-	const BinID& gridstep, 
+	const BinID& gridstep,
 	const Interval<int>* polyinlrg,
 	const Interval<int>* polycrlrg,
 	TaskRunner* taskrunner)

@@ -38,6 +38,7 @@ public:
     uiString		infoMsg() const	{ return infomsg_; }
 
     void		setFaultIds(const TypeSet<MultiID>&);
+    void		getFaultIds(TypeSet<MultiID>&) const;
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
@@ -57,15 +58,15 @@ public:
 				const Interval<int>* polycrlrg,
 				TaskRunner* tr = 0);
 
-    
+
 protected:
 
 			HorizonGridder();
 
     FaultTrcDataProvider* fltdataprov_;
 
-    uiString	        infomsg_;
-    TrcKeySampling		hs_;
+    uiString		infomsg_;
+    TrcKeySampling	hs_;
     TypeSet<MultiID>	faultids_;
 
     bool		init(TaskRunner*);
@@ -96,7 +97,7 @@ protected:
 
     bool		initFromArray(TaskRunner*);
     void		setFrom(od_int64 target, const od_int64* sources,
-	                        const float* weights, int nrsrc);
+				const float* weights, int nrsrc);
 };
 
 
@@ -119,7 +120,7 @@ protected:
 
     bool		initFromArray(TaskRunner*);
     void		setFrom(od_int64 target, const od_int64* sources,
-	                        const float* weights, int nrsrc);
+				const float* weights, int nrsrc);
 };
 
 
