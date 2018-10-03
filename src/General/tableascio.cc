@@ -274,7 +274,7 @@ Table::TargetInfo*
 {
     const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
     Table::TargetInfo* ti =
-	new TargetInfo( "", DoubleInpSpec(), reqspec );
+	new TargetInfo( "Position", DoubleInpSpec(), reqspec );
     ti->form(0).setName( "X/Y" );
     ti->form(0).add( DoubleInpSpec() );
     if ( wcrs )

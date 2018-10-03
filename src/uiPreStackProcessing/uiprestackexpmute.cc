@@ -43,19 +43,30 @@ uiExportMute::uiExportMute( uiParent* p )
     coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
 			        BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     coordfld_->attach( alignedBelow, infld_ );
+    coordfld_->valuechanged.notify( mCB(this,uiExportMute,coordTypChngCB) );
 
     coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-    coordsysselfld_->attach( rightOf, coordfld_ );
+    coordsysselfld_->attach( alignedBelow, coordfld_ );
 
     outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
 			       uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, coordsysselfld_ );
+
+    coordTypChngCB(0);
 }
 
 
 uiExportMute::~uiExportMute()
 {
     delete ctio_.ioobj_; delete &ctio_;
+}
+
+
+void uiExportMute::coordTypChngCB( CallBacker* )
+{
+    const bool shoulddisplay = SI().getCoordSystem() &&
+       SI().getCoordSystem()->isProjection() && (coordfld_->getBoolValue() );
+    coordsysselfld_->display( shoulddisplay );
 }
 
 

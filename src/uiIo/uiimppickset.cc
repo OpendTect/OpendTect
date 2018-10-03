@@ -140,7 +140,10 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     {
 	filefld_->attach( alignedBelow, objfld_ );
 	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-      coordsysselfld_->attach(alignedBelow, filefld_);
+	coordsysselfld_->attach(alignedBelow, filefld_);
+	const bool shoulddisplay = SI().getCoordSystem() &&
+				    SI().getCoordSystem()->isProjection();
+	coordsysselfld_->display( shoulddisplay );
     }
 }
 

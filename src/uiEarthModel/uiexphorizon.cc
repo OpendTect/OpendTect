@@ -314,11 +314,15 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     zfld_->valuechanged.notify( mCB(this,uiExportHorizon,addZChg ) );
     zfld_->attach( alignedBelow, typfld_ );
 
+    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+    coordsysselfld_->attach( alignedBelow, zfld_ );
+    coordsysselfld_->display( false );
+
     uiT2DConvSel::Setup su( 0, false );
     su.ist2d( SI().zIsTime() );
     transfld_ = new uiT2DConvSel( this, su );
     transfld_->display( false );
-    transfld_->attach( alignedBelow, zfld_ );
+    transfld_->attach( alignedBelow, coordsysselfld_ );
 
     unitsel_ = new uiUnitSel( this, "Z Unit" );
     unitsel_->attach( alignedBelow, transfld_ );

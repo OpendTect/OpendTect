@@ -203,6 +203,9 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
     coordsysselfld_ = new Coords::uiCoordSystemSel( this );
     coordsysselfld_->attach( alignedBelow, transffld_ );
+    const bool shoulddisplay = SI().getCoordSystem() &&
+				    SI().getCoordSystem()->isProjection();
+    coordsysselfld_->display( shoulddisplay );
 
     fpfld_ = new uiSEGYFilePars( this, false,0, false );
     fpfld_->attach( alignedBelow, coordsysselfld_ );

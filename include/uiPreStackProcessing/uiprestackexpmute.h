@@ -41,6 +41,7 @@ protected:
     CtxtIOObj&		ctio_;
 
     virtual bool	acceptOK(CallBacker*);
+    void		coordTypChngCB(CallBacker*);
     bool		writeAscii();    
 };
 
