@@ -25,8 +25,9 @@ class uiPosSubSel;
 mClass(uiSeis) uiBatchTime2DepthSetup : public uiDialog
 { mODTextTranslationClass(uiBatchTime2DepthSetup);
 public:
-				uiBatchTime2DepthSetup(uiParent*);
-
+				uiBatchTime2DepthSetup(uiParent*,
+						       bool is2d=false);
+				~uiBatchTime2DepthSetup();
 protected:
 
     bool			fillPar();

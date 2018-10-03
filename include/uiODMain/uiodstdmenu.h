@@ -156,7 +156,7 @@ ________________________________________________________________________
 
 /* 'Processing' menu */
 
-#define mUseHorMnu		(mProcMnu + 30)
+#define mUseHorMnu		(mProcMnu + 40)
 
 
 #define mSeisOutMnuItm		(mProcMnu + 20)
@@ -170,6 +170,8 @@ ________________________________________________________________________
 #define m3DFrom2DInterPolMnuItm (mProcMnu + 28)
 #define mVolProc2DMnuItm	(mProcMnu + 29)
 #define mVolProc3DMnuItm	(mProcMnu + 30)
+#define mT2DConv2DMnuItm	(mProcMnu + 31)
+#define mT2DConv3DMnuItm	(mProcMnu + 32)
 #define mCreateSurf2DMnuItm	(mUseHorMnu + 1)
 #define mCompBetweenHor2DMnuItm	(mUseHorMnu + 2)
 #define mCompAlongHor2DMnuItm	(mUseHorMnu + 3)

@@ -474,7 +474,10 @@ void uiODApplMgr::editAttribSet( bool is2d )
 { attrserv_->editSet( is2d ); }
 
 void uiODApplMgr::processTime2Depth( CallBacker* )
-{ seisserv_->processTime2Depth(); }
+{ seisserv_->processTime2Depth( false ); }
+
+void uiODApplMgr::processTime2Depth( bool is2d )
+{ seisserv_->processTime2Depth( is2d ); }
 
 void uiODApplMgr::processVelConv( CallBacker* )
 { seisserv_->processVelConv(); }
@@ -498,7 +501,7 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 {
     uiDialog::Setup setup(tr("Velocity model"),
 		tr("Select velocity model to base scene on"),
-                mODHelpKey(mODApplMgraddTimeDepthSceneHelpID) );
+		mODHelpKey(mODApplMgraddTimeDepthSceneHelpID) );
 
     uiSingleGroupDlg dlg( &appl_, setup );
 
@@ -848,7 +851,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	const MultiID surfmid = visserv_->getMultiID(visid);
 	const EM::ObjectID emid = emserv_->getObjectID(surfmid);
 	const int auxdatanr = emserv_->loadAuxData( emid, myas.userRef() );
-        if ( auxdatanr>=0 )
+	if ( auxdatanr>=0 )
 	{
 	    DataPackRef<DataPointSet> data =
 		dpm.addAndObtain( new DataPointSet(false,true) );
@@ -1428,7 +1431,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 #define mGetSelTracker( tracker ) \
     const int selobjvisid = visserv_->getSelObjectId(); \
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,\
-	                        visserv_->getObject(selobjvisid));\
+				visserv_->getObject(selobjvisid));\
     const EM::ObjectID emid = emod ? emod->getObjectID() : -1; \
     const int trackerid = mpeserv_->getTrackerID(emid); \
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
@@ -1564,8 +1567,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     else if ( evid == uiNLAPartServer::evPrepareRead() )
     {
 	bool saved = attrserv_->setSaved(nlaserv_->is2DEvent());
-        uiString msg = tr("Current attribute set is not saved.\nSave now?");
-        if ( !saved && uiMSG().askSave( msg ) )
+	uiString msg = tr("Current attribute set is not saved.\nSave now?");
+	if ( !saved && uiMSG().askSave( msg ) )
 	    attrserv_->saveSet(nlaserv_->is2DEvent());
     }
     else if ( evid == uiNLAPartServer::evReadFinished() )
@@ -1592,7 +1595,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	BufferStringSet linekeys;
 	nlaserv_->getNeededStoredInputs( linekeys );
 	for ( int idx=0; idx<linekeys.size(); idx++ )
-            attrserv_->addToDescSet( linekeys.get(idx), nlaserv_->is2DEvent() );
+	    attrserv_->addToDescSet( linekeys.get(idx), nlaserv_->is2DEvent() );
     }
     else if ( evid == uiNLAPartServer::evGetData() )
     {
@@ -1611,17 +1614,17 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    nlaserv_->getDataPointSets( dpss );
 	    if ( dpss.isEmpty() )
 	    {
-                  uiMSG().error(tr("No matching well data found"));
-                  return false;
-            }
+		uiMSG().error(tr("No matching well data found"));
+		return false;
+	    }
 	    bool allempty = true;
 	    for ( int idx=0; idx<dpss.size(); idx++ )
 		{ if ( !dpss[idx]->isEmpty() ) { allempty = false; break; } }
 	    if ( allempty )
 	    {
-                    uiMSG().error(tr("No valid data locations found"));
-                    return false;
-            }
+		uiMSG().error(tr("No valid data locations found"));
+		return false;
+	    }
 	    if ( !attrserv_->extractData(dpss) )
 		{ deepErase(dpss); return true; }
 	    IOPar& iop = nlaserv_->storePars();
@@ -1683,7 +1686,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
 	    uiMSG().error( tr("Please select an attribute"
-                              " element in the tree") );
+			      " element in the tree") );
 	    return false;
 	}
 
@@ -1717,7 +1720,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
 	    uiMSG().error( tr("Please select an attribute"
-                              " element in the tree") );
+			      " element in the tree") );
 	    return false;
 	}
 	if ( !calcMultipleAttribs( as ) )

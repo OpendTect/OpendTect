@@ -61,7 +61,7 @@ public:
     void		getStoredGathersList(bool for3d,BufferStringSet&) const;
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
 
-    void		processTime2Depth() const;
+    void		processTime2Depth(bool is2d=false) const;
     void		processVelConv() const;
     void		createMultiCubeDataStore() const;
 

@@ -114,6 +114,7 @@ public:
     void			createHorOutput(int,bool);
     void			startBatchJob();
     void			processTime2Depth(CallBacker* =0);
+    void			processTime2Depth(bool is2d);
     void			processPreStack(bool is2d);
     void			createMultiCubeDS(CallBacker* =0);
     void			createMultiAttribVol(CallBacker*);

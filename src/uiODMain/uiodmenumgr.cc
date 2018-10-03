@@ -655,14 +655,13 @@ void uiODMenuMgr::fillProcMenu()
     add2D3DMenuItem( *csoitm_, "empty", tr("Prestack Processing"),
 		     mPSProc2DMnuItm, mPSProc3DMnuItm );
 
+// Velocity
+    uiMenu* velitm = new uiMenu( tr("Velocity") );
+    csoitm_->insertItem( velitm );
+    add2D3DMenuItem( *velitm, "empty", tr("Time - Depth Conversion"),
+		     mT2DConv2DMnuItm, mT2DConv3DMnuItm );
     if ( SI().has3D() )
     {
-// Velocity
-	uiMenu* velitm = new uiMenu( tr("Velocity") );
-	csoitm_->insertItem( velitm );
-	velitm->insertItem(
-	    new uiAction(m3Dots(tr("Time - Depth Conversion")),
-			 mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
 	velitm->insertItem(
 	    new uiAction(m3Dots(tr("Velocity Conversion")),
 			 mCB(&applMgr(),uiODApplMgr,processVelConv)) );
@@ -1410,6 +1409,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mPSProc3DMnuItm:	applMgr().processPreStack(false); break;
     case mVolProc2DMnuItm:	applMgr().createVolProcOutput(true); break;
     case mVolProc3DMnuItm:	applMgr().createVolProcOutput(false); break;
+    case mT2DConv2DMnuItm:	applMgr().processTime2Depth(true); break;
+    case mT2DConv3DMnuItm:	applMgr().processTime2Depth(false); break;
     case mCreateSurf2DMnuItm:	applMgr().createHorOutput(0,true); break;
     case mCreateSurf3DMnuItm:	applMgr().createHorOutput(0,false); break;
     case mCompAlongHor2DMnuItm:	applMgr().createHorOutput(1,true); break;

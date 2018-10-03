@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
+#include "hiddenparam.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -69,6 +70,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
+static HiddenParam<uiSeisPartServer,uiBatchTime2DepthSetup*> t2ddlgs2d(0);
+static HiddenParam<uiSeisPartServer,uiBatchTime2DepthSetup*> t2ddlgs3d(0);
+
 static int seis2dloadaction = 0;
 static const char* sKeyPreLoad()	{ return "PreLoad"; }
 
@@ -93,6 +97,9 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 {
     SeisIOObjInfo::initDefault( sKey::Steering() );
     mAttachCB( IOM().surveyChanged, uiSeisPartServer::survChangedCB );
+
+    t2ddlgs2d.setParam( this, 0 );
+    t2ddlgs3d.setParam( this, 0 );
 }
 
 
@@ -115,6 +122,9 @@ uiSeisPartServer::~uiSeisPartServer()
     delete impps2dseisdlg_;
     delete expps2dseisdlg_;
     delete expcubeposdlg_;
+
+    t2ddlgs2d.removeAndDeleteParam( this );
+    t2ddlgs3d.removeAndDeleteParam( this );
 }
 
 
@@ -138,7 +148,11 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     deleteAndZeroPtr( impps2dseisdlg_ );
     deleteAndZeroPtr( expps2dseisdlg_ );
     deleteAndZeroPtr( expcubeposdlg_ );
+
+    t2ddlgs2d.deleteAndZeroPtrParam( this );
+    t2ddlgs3d.deleteAndZeroPtrParam( this );
 }
+
 
 #define mPopupSimpIODlg(dlgobj,is2d,isps) { \
     if ( !dlgobj ) \
@@ -494,10 +508,23 @@ void uiSeisPartServer::storeRlnAs2DLine( const Geometry::RandomLine& rln ) const
 }
 
 
-void uiSeisPartServer::processTime2Depth() const
+void uiSeisPartServer::processTime2Depth( bool is2d ) const
 {
-    uiBatchTime2DepthSetup dlg( parent() );
-    dlg.go();
+    uiBatchTime2DepthSetup* dlg = is2d ? t2ddlgs2d.getParam( this )
+				       : t2ddlgs3d.getParam( this );
+    if ( !dlg )
+    {
+	dlg = new uiBatchTime2DepthSetup( parent(), is2d );
+	dlg->setModal( false );
+
+	uiSeisPartServer* myself = const_cast<uiSeisPartServer*>(this);
+	if ( is2d )
+	    t2ddlgs2d.setParam( myself, dlg );
+	else
+	    t2ddlgs3d.setParam( myself, dlg );
+    }
+
+    dlg->show();
 }
 
 
