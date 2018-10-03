@@ -229,6 +229,8 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.emserv_->manageFaultStickSets();
 	    else if ( opt == 2 )
 		am_.emserv_->manage3DFaults();
+	    else if ( opt == 3 )
+		am_.emserv_->manageFaultSets();
 	    break;
 	}
     break;

@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "hiddenparam.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -90,6 +91,7 @@ static const char* sKeyPreLoad()		{ return "PreLoad"; }
 int uiEMPartServer::evDisplayHorizon()		{ return 0; }
 int uiEMPartServer::evRemoveTreeObject()	{ return 1; }
 
+static HiddenParam<uiEMPartServer,uiSurfaceMan*> manfaultsetdlg_(0);
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -116,6 +118,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , impbulkfssdlg_(0)
     , impbulk2dhordlg_(0)
 {
+    manfaultsetdlg_.setParam( this, 0 );
     IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
 
@@ -123,6 +126,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
 uiEMPartServer::~uiEMPartServer()
 {
     em_.setEmpty();
+    manfaultsetdlg_.removeParam( this );
     deepErase( variodlgs_ );
     delete man3dhordlg_;
     delete man2dhordlg_;
@@ -156,6 +160,8 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     delete impbulkfssdlg_; impbulkfssdlg_ = 0;
     delete impbulk2dhordlg_; impbulk2dhordlg_ = 0;
     deepErase( variodlgs_ );
+    uiSurfaceMan* manfaultsetdlg = manfaultsetdlg_.getParam( this );
+    delete manfaultsetdlg; manfaultsetdlg_.setParam( this, 0 );
 }
 
 
@@ -204,6 +210,14 @@ void uiEMPartServer::manage3DFaults()
 void uiEMPartServer::manageFaultStickSets()
 {
     mManSurfaceDlg(manfssdlg_,StickSet);
+}
+
+
+void uiEMPartServer::manageFaultSets()
+{
+    uiSurfaceMan* manfaultsetdlg = manfaultsetdlg_.getParam( this );
+    mManSurfaceDlg(manfaultsetdlg,FltSet);
+    manfaultsetdlg_.setParam( this, manfaultsetdlg );
 }
 
 

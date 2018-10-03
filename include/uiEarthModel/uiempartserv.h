@@ -133,6 +133,7 @@ public:
     void		manage3DHorizons();
     void		manageFaultStickSets();
     void		manage3DFaults();
+    void		manageFaultSets();
     void		manageBodies();
     bool		loadSurface(const MultiID&,
 				    const EM::SurfaceIODataSelection* s=0);

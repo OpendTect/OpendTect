@@ -536,6 +536,10 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_, m3Dots(
 		       uiStrings::sFaultStickSet(mPlural)),mManFaultStickMnuItm,
 			"man_fltss" );
+    if ( SI().has3D() )
+	mInsertPixmapItem( manmnu_, m3Dots(uiStrings::sFaultSet(mPlural)),
+			   mManFaultSetMnuItm, "man_fltset" );
+
     mInsertPixmapItem( manmnu_, m3Dots(tr("Geometry 2D")),
 		       mManGeomItm, "man2dgeom" );
     if ( SI().survDataType() == SurveyInfo::No2D )
@@ -1099,9 +1103,14 @@ void uiODMenuMgr::fillManTB()
 		   tr("3D Horizons"),
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
 
-    mAddPopUp( tr("Fault Menu"),uiStrings::sFault(mPlural),
-	       uiStrings::sFaultStickSet(mPlural),
-	       mManFaultMnuItm, mManFaultStickMnuItm, fltid );
+    uiMenu* fltpopmnu = new uiMenu( &appl_, tr("Faults Menu") );
+    mAddPopupMnu( fltpopmnu, uiStrings::sFault(mPlural), mManFaultMnuItm )
+    mAddPopupMnu( fltpopmnu, uiStrings::sFaultStickSet(mPlural),
+		  mManFaultStickMnuItm )
+    if ( SI().has3D() )
+	mAddPopupMnu( fltpopmnu, uiStrings::sFaultSet(mPlural),
+		      mManFaultSetMnuItm )
+    mantb_->setButtonMenu( fltid, fltpopmnu, uiToolButton::InstantPopup );
 }
 
 
@@ -1372,6 +1381,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManHor2DMnuItm:		mDoOp(Man,Hor,1); break;
     case mManFaultStickMnuItm:		mDoOp(Man,Flt,1); break;
     case mManFaultMnuItm:		mDoOp(Man,Flt,2); break;
+    case mManFaultSetMnuItm:		mDoOp(Man,Flt,3); break;
     case mManBodyMnuItm:		mDoOp(Man,Body,0); break;
     case mManPropsMnuItm:		mDoOp(Man,Props,0); break;
     case mManWellMnuItm:		mDoOp(Man,Wll,0); break;

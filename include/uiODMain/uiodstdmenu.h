@@ -124,6 +124,7 @@ ________________________________________________________________________
 #define mManHor2DMnuItm		(mFileManMnu + 21)
 #define mManFaultMnuItm		(mFileManMnu + 30)
 #define mManFaultStickMnuItm	(mFileManMnu + 31)
+#define mManFaultSetMnuItm	(mFileManMnu + 32)
 #define mManWellMnuItm		(mFileManMnu + 40)
 #define mManPickMnuItm		(mFileManMnu + 50)
 #define mManRanLMnuItm		(mFileManMnu + 55)

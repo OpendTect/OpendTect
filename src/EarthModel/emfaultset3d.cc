@@ -49,7 +49,7 @@ FaultID FaultSet3D::addFault( RefMan<Fault3D> flt )
 {
     flt->ref();
     faults_.add( flt.ptr() );
-    FaultID newid = curidnr_++;
+    FaultID newid = ++curidnr_;
     ids_.add( newid );
     return newid;
 }

@@ -26,7 +26,7 @@ mExpClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
 { mODTextTranslationClass(uiSurfaceMan);
 public:
 
-    enum Type		{ Hor2D, Hor3D, AnyHor, StickSet, Flt3D, Body };
+    enum Type		{ Hor2D, Hor3D, AnyHor, StickSet, Flt3D, Body, FltSet };
 			mDeclareEnumUtils(Type);
 
 			uiSurfaceMan(uiParent*,Type);
@@ -73,6 +73,7 @@ protected:
     od_int64		getFileSize(const char*,int&) const;
     void		setToolButtonProperties();
     void		ownSelChg();
+    void		manFltSetCB(CallBacker*);
 
 private:
     uiString		sRenameSelData();
