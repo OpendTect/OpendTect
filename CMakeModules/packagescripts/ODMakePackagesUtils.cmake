@@ -17,14 +17,11 @@ macro ( create_package PACKAGE_NAME )
 			     ${COPYTODATADIR}/. )
 	endif()
 
-	if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
-	    copy_unix_systemlibs()
+	if( NOT MATLAB_DIR STREQUAL "" )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/MATLAB )
 	endif()
-    if( NOT MATLAB_DIR STREQUAL "" )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/MATLAB )
-   endif()
 
 	copy_thirdpartylibs()
 	if ( WIN32 )
@@ -35,6 +32,13 @@ macro ( create_package PACKAGE_NAME )
 			    ${COPYTOLIBDIR} )
 	endif()
 	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
+    endif()
+
+    if ( SYSTEMLIBS )
+        if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+            copy_unix_systemlibs()
+            unset( SYSTEMLIBS )
+        endif()
     endif()
 
     message( "Copying ${OD_PLFSUBDIR} libraries" )
