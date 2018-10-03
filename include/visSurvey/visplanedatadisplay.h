@@ -96,9 +96,8 @@ public:
     TrcKeyZSampling		getDataPackSampling(int attrib=0) const;
     Interval<float>		getDataTraceRange() const;
     void			getRandomPos(DataPointSet&,TaskRunner* =0)const;
-    void			setRandomPosData(int attrib,
-						 const DataPointSet*,
-						 TaskRunner*);
+    void			setRandomPosData(int,const DataPointSet*,
+						 const TaskRunnerProvider&);
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
 
     bool			setDataPackID(int attrib,DataPack::ID,
@@ -172,10 +171,10 @@ public:
 protected:
 				~PlaneDataDisplay();
 
-    void			setRandomPosDataNoCache(int attrib,
-							const BinIDValueSet*,
-							TaskRunner*);
-    void			updateChannels(int attrib,TaskRunner*);
+    void			setRandomPosDataNoCache(int,
+						const BinIDValueSet*,
+						const TaskRunnerProvider&);
+    void			updateChannels(int,const TaskRunnerProvider&);
     void			createTransformedDataPack(int attrib,
 							  TaskRunner* =0);
     void			updateMainSwitch();

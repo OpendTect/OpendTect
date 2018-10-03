@@ -379,6 +379,7 @@ public:
     void		setMapper(bool wva,ColTab::Mapper&);
     RefMan<ColTab::Mapper> mapper(bool wva);
     ConstRefMan<ColTab::Mapper> mapper(bool wva) const;
+    void		setMapperDistribFromDataPack(bool wva);
 
     virtual bool	isVertical() const		{ return true; }
     bool		isVisible(bool wva) const;

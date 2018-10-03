@@ -62,7 +62,7 @@ public:
 
     void			setColTabMapper(int ch,const ColTab::Mapper&);
     const ColTab::Mapper&	getColTabMapper(int channel) const;
-    void			reMapData(int channel,TaskRunner*);
+    void			reMapData(int,const TaskRunnerProvider&);
 
     void			setSize(int channel,int sz0,int sz1,int sz2);
     int				getSize(int channel,unsigned char dim) const;
@@ -86,9 +86,10 @@ public:
 
     bool			setUnMappedVSData(int channel,int version,
 				    const ValueSeries<float>*,OD::PtrPolicy,
-				    TaskRunner*);
+				    const TaskRunnerProvider&);
     bool			setUnMappedData(int channel,int version,
-				    const float*,OD::PtrPolicy,TaskRunner*);
+				    const float*,OD::PtrPolicy,
+				    const TaskRunnerProvider&);
     bool			setMappedData(int channel,int version,
 					      unsigned char*,OD::PtrPolicy);
     void			unfreezeOldData(int channel);

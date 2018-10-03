@@ -70,7 +70,8 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     const RegularSeisDataPack* rsdp = vd_->getCacheVolume( attrib );
     if ( rsdp && rsdp->nrArrays() > 0 )
     {
-	RangeLimitedDataDistributionExtracter<float> extr( *rsdp->arrayData(0));
+	RangeLimitedDataDistributionExtracter<float> extr( *rsdp->arrayData(0),
+				SilentTaskRunnerProvider() );
 	statsdisplay_->funcDisp()->setDistribution( *extr.getDistribution() );
     }
     statsdisplay_->attach( leftAlignedBelow, aboveisovaluefld_ );

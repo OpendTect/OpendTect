@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class DataPointSet;
 class BinIDValueSet;
+class TaskRunnerProvider;
 namespace osg {  class Node; }
 namespace osgGeo { class LayeredTexture; }
 
@@ -47,7 +48,7 @@ public:
 
     void			setColTabMapper(int channel,
 					    const ColTab::Mapper& mapper,
-					    TaskRunner* tskr);
+					    const TaskRunnerProvider&);
     const ColTab::Mapper&	getColTabMapper(int ch) const;
     void			setTransparency(int ch, unsigned char yn);
     unsigned char		getTransparency(int ch) const;

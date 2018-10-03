@@ -400,12 +400,13 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
     updateRanges( false, true );
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
+	SilentTaskRunnerProvider trprov;
 	if ( rposcache_[idx] )
-	    setRandomPosDataNoCache( idx, rposcache_[idx], 0 );
+	    setRandomPosDataNoCache( idx, rposcache_[idx], trprov );
 	else
 	    createTransformedDataPack( idx, 0 );
 
-	updateChannels( idx, 0 );
+	updateChannels( idx, trprov );
     }
 }
 
@@ -600,7 +601,7 @@ void PlaneDataDisplay::setResolution( int res, TaskRunner* tskr )
     resolution_ = res;
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	updateChannels( idx, tskr );
+	updateChannels( idx, ExistingTaskRunnerProvider(tskr) );
 }
 
 
@@ -634,8 +635,9 @@ void PlaneDataDisplay::removeCache( int attrib )
     DPM(DataPackMgr::SeisID()).unRef( transfdatapackids_[attrib] );
     transfdatapackids_.removeSingle( attrib );
 
+    const SilentTaskRunnerProvider trprov;
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	updateChannels( idx, 0 );
+	updateChannels( idx, trprov );
 }
 
 
@@ -660,7 +662,8 @@ void PlaneDataDisplay::emptyCache( int attrib )
     transfdatapackids_[attrib] = DataPack::cNoID();
 
     channels_->setNrVersions( attrib, 1 );
-    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
+    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr,
+				SilentTaskRunnerProvider() );
 }
 
 
@@ -725,12 +728,12 @@ void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* tskr ) const
 
 
 void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data,
-					 TaskRunner* tskr )
+					 const TaskRunnerProvider& trprov )
 {
     if ( attrib>=nrAttribs() )
 	return;
 
-    setRandomPosDataNoCache( attrib, &data->bivSet(), tskr );
+    setRandomPosDataNoCache( attrib, &data->bivSet(), trprov );
 
     if ( rposcache_[attrib] )
 	delete rposcache_[attrib];
@@ -836,7 +839,8 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
     if ( !regsdp || regsdp->isEmpty() )
     {
-	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
+	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr,
+				    SilentTaskRunnerProvider() );
 	return false;
     }
 
@@ -845,7 +849,7 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     dpm.ref( dpid );
 
     createTransformedDataPack( attrib, tskr );
-    updateChannels( attrib, tskr );
+    updateChannels( attrib, ExistingTaskRunnerProvider(tskr) );
     datachanged_.trigger();
     return true;
 }
@@ -871,7 +875,7 @@ DataPack::ID PlaneDataDisplay::getDisplayedDataPackID( int attrib ) const
 
 
 void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
-			const BinIDValueSet* bivset, TaskRunner* tskr )
+		const BinIDValueSet* bivset, const TaskRunnerProvider& trprov )
 {
     if ( !bivset || !datatransform_ )
 	return;
@@ -885,11 +889,12 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
     transfdatapackids_[attrib] = dpid;
     dpm.ref( dpid );
 
-    updateChannels( attrib, tskr );
+    updateChannels( attrib, trprov );
 }
 
 
-void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* tskr )
+void PlaneDataDisplay::updateChannels( int attrib,
+					const TaskRunnerProvider& trprov )
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
@@ -943,7 +948,8 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* tskr )
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, 0 );
+	channels_->setUnMappedData( attrib, idx, arr, cp,
+				    SilentTaskRunnerProvider() );
     }
 
     if ( !getUpdateStageNr() )

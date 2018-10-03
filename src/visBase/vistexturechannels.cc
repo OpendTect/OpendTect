@@ -60,7 +60,7 @@ public:
 
     void			setColTabMapper(const ColTab::Mapper&);
     const ColTab::Mapper&	getColTabMapper() const	{ return *mapper_; }
-    bool			reMapData(TaskRunner* tr=0);
+    bool			reMapData(const TaskRunnerProvider&);
 
     void			setNrVersions(int);
     int				nrVersions() const;
@@ -69,15 +69,16 @@ public:
     void			removeImages();
 
     bool			setUnMappedData(int version,
-					        const ValSeriesType*,
-						OD::PtrPolicy,TaskRunner*);
+				    const ValSeriesType*,
+				    OD::PtrPolicy,const TaskRunnerProvider&);
     bool			setMappedData(int version,MappedValueType*,
 					      OD::PtrPolicy);
-    void			mapperChgCB(CallBacker*)    { reMapData(); }
+    void			mapperChgCB(CallBacker*)
+				{ reMapData(SilentTaskRunnerProvider()); }
 
     void			clipData(int version,TaskRunner*);
 				//!<If version==-1, all versions will be clipped
-    bool			mapData(int version,TaskRunner*);
+    bool			mapData(int version,const TaskRunnerProvider&);
     int				getCurrentVersion() const;
     void			setCurrentVersion( int );
 
@@ -178,17 +179,17 @@ od_int64 ChannelInfo::nrElements( bool percomponent ) const
 void ChannelInfo::setColTabMapper( const ColTab::Mapper& mpr )
 {
     if ( replaceMonitoredRef(mapper_,mpr,this) )
-	reMapData();
+	reMapData(SilentTaskRunnerProvider());
 }
 
 
-bool ChannelInfo::reMapData( TaskRunner* tskr )
+bool ChannelInfo::reMapData( const TaskRunnerProvider& trprov )
 {
     delete ctidxtbl_; ctidxtbl_ = 0;
 
     for ( int idx=nrVersions()-1; idx>=0; idx-- )
     {
-	if ( !mapData( idx, tskr ) )
+	if ( !mapData( idx, trprov ) )
 	    return false;
     }
 
@@ -284,7 +285,7 @@ void ChannelInfo::setOsgIDs( const TypeSet<int>& osgids )
 
 
 bool ChannelInfo::setUnMappedData( int version, const ValSeriesType* data,
-			 OD::PtrPolicy policy, TaskRunner* tskr )
+		 OD::PtrPolicy policy, const TaskRunnerProvider& trprov )
 {
     if ( version<0 || version>=nrVersions() )
     {
@@ -326,11 +327,11 @@ bool ChannelInfo::setUnMappedData( int version, const ValSeriesType* data,
 	ownsunmappeddata_[version] = true;
     }
 
-    return mapData( version, tskr );
+    return mapData( version, trprov );
 }
 
 
-bool ChannelInfo::mapData( int version, TaskRunner* tskr )
+bool ChannelInfo::mapData( int version, const TaskRunnerProvider& trprov )
 {
     if ( version<0 || version>=unmappeddata_.size() )
 	return true;
@@ -739,12 +740,13 @@ void TextureChannels::setColTabMapper( int channelidx,
 }
 
 
-void TextureChannels::reMapData( int channelidx, TaskRunner* tskr )
+void TextureChannels::reMapData( int channelidx,
+				 const TaskRunnerProvider& trprov )
 {
     if ( !channelinfo_.validIdx(channelidx) )
 	{ pErrMsg(sChannelIdxBad); return; }
 
-    channelinfo_[channelidx]->reMapData( tskr );
+    channelinfo_[channelidx]->reMapData( trprov );
 }
 
 
@@ -844,7 +846,7 @@ bool TextureChannels::isCurrentDataPremapped( int channelidx ) const
 
 bool TextureChannels::setUnMappedVSData( int channelidx, int version,
 			    const ValueSeries<float>* data, OD::PtrPolicy cp,
-			    TaskRunner* tskr )
+			    const TaskRunnerProvider& trprov )
 {
     if ( !channelinfo_.validIdx(channelidx) )
     {
@@ -853,12 +855,13 @@ bool TextureChannels::setUnMappedVSData( int channelidx, int version,
 	return false;
     }
 
-    return channelinfo_[channelidx]->setUnMappedData( version, data, cp, tskr );
+    return channelinfo_[channelidx]->setUnMappedData( version, data, cp,
+						      trprov );
 }
 
 
 bool TextureChannels::setUnMappedData( int channelidx, int version,
-	const float* data, OD::PtrPolicy cp, TaskRunner* tskr )
+	const float* data, OD::PtrPolicy cp, const TaskRunnerProvider& trprov )
 {
     if ( !channelinfo_.validIdx(channelidx) )
     {
@@ -886,7 +889,7 @@ bool TextureChannels::setUnMappedData( int channelidx, int version,
 	    const_cast<float*>(useddata), cp==OD::TakeOverPtr )
 	: 0;
 
-    return chinf.setUnMappedData( version, vs, OD::TakeOverPtr, tskr );
+    return chinf.setUnMappedData( version, vs, OD::TakeOverPtr, trprov );
 }
 
 
@@ -894,12 +897,14 @@ bool TextureChannels::setMappedData( int channelidx, int version,
 				     unsigned char* data,
 				     OD::PtrPolicy cp )
 {
-    setUnMappedData( channelidx, version, 0, OD::UsePtr, 0 );
+    setUnMappedData( channelidx, version, 0, OD::UsePtr,
+		     SilentTaskRunnerProvider() );
 
     if ( !channelinfo_.validIdx(channelidx) )
     {
 	pErrMsg(sChannelIdxBad);
-	if ( cp==OD::TakeOverPtr ) delete [] data;
+	if ( cp==OD::TakeOverPtr )
+	    delete [] data;
 	return false;
     }
 
@@ -927,7 +932,7 @@ bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
 	for ( int channelidx=0; channelidx<nrChannels(); channelidx++ )
 	{
 	    if ( oldnrtexturebands != nrTextureBands() )
-		reMapData( channelidx, 0 );
+		reMapData( channelidx, SilentTaskRunnerProvider() );
 
 	    update( channelidx );
 	}

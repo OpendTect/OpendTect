@@ -142,7 +142,8 @@ void FlatViewer::doHandleChange( unsigned int dt)
 		    }
 
 		    channels_->setSize( 0, 1, rowsz, colsz );
-		    channels_->setUnMappedData( 0, 0, arr, cp, 0 );
+		    channels_->setUnMappedData( 0, 0, arr, cp,
+					        SilentTaskRunnerProvider() );
 
 		    appearance().ddpars_.vd_.colseqname_ =
 			channel2rgba_->getSequence(0).name();
@@ -159,7 +160,7 @@ void FlatViewer::doHandleChange( unsigned int dt)
 		if ( &channels_->getColTabMapper(0) != vd.mapper_.ptr() )
 		{
 		    channels_->setColTabMapper( 0, *vd.mapper_ );
-		    channels_->reMapData( 0, 0 );
+		    channels_->reMapData( 0, SilentTaskRunnerProvider() );
 		}
 
 		const ColTab::Sequence& sequence

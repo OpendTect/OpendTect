@@ -629,7 +629,8 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     auto randsdp = dpm.get<RandomSeisDataPack>(dpid);
     if ( !randsdp || randsdp->isEmpty() )
     {
-	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
+	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr,
+				    SilentTaskRunnerProvider() );
 	channels_->turnOn( false );
 	return false;
     }
@@ -818,7 +819,8 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, 0 );
+	channels_->setUnMappedData( attrib, idx, arr, cp,
+				    SilentTaskRunnerProvider() );
     }
 
     channels_->turnOn( true );
@@ -1558,7 +1560,8 @@ void RandomTrackDisplay::emptyCache( int attrib )
     transfdatapacks_.replace( attrib, 0 );
 
     channels_->setNrVersions( attrib, 1 );
-    channels_->setUnMappedData( attrib, 0, 0, OD::CopyPtr, 0 );
+    channels_->setUnMappedData( attrib, 0, 0, OD::CopyPtr,
+				SilentTaskRunnerProvider() );
 }
 
 

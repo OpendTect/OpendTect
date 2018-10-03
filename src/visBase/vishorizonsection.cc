@@ -667,8 +667,8 @@ const ColTab::Sequence& HorizonSection::getColTabSequence( int channel ) const
 
 
 void HorizonSection::setColTabMapper( int channel,
-    const ColTab::Mapper& mapper, TaskRunner* tskr )
-{ hortexturehandler_->setColTabMapper( channel, mapper, tskr ); }
+    const ColTab::Mapper& mapper, const TaskRunnerProvider& trprov )
+{ hortexturehandler_->setColTabMapper( channel, mapper, trprov ); }
 
 
 const ColTab::Mapper& HorizonSection::getColTabMapper( int ch ) const
@@ -692,7 +692,7 @@ const BinIDValueSet* HorizonSection::getCache( int channel ) const
 
 
 void HorizonSection::setTextureData( int channel, const DataPointSet* dpset,
-    int sid, TaskRunner* tskr )
+    int sid, const TaskRunnerProvider& trprov )
 {  hortexturehandler_->setTextureData( channel, sid,  dpset ); }
 
 

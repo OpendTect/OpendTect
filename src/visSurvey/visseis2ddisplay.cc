@@ -372,7 +372,8 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
     {
-	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, taskr );
+	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr,
+				      ExistingTaskRunnerProvider(taskr) );
 	channels_->turnOn( false );
 	return false;
     }
@@ -491,7 +492,8 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
 	channels_->setUnMappedVSData( attrib, idx, vsptr,
-			ownsvsptr ? OD::TakeOverPtr : OD::UsePtr, taskr );
+			ownsvsptr ? OD::TakeOverPtr : OD::UsePtr,
+			ExistingTaskRunnerProvider(taskr) );
     }
 
     channels_->turnOn( true );
@@ -834,7 +836,8 @@ void Seis2DDisplay::emptyCache( int attrib )
     transformedpacks_.replace( attrib, 0 );
 
     channels_->setNrVersions( attrib, 1 );
-    channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, 0 );
+    channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr,
+				  SilentTaskRunnerProvider() );
 }
 
 
@@ -1130,7 +1133,8 @@ void Seis2DDisplay::updateRanges( bool updatetrc, bool updatez )
 void Seis2DDisplay::clearTexture( int attribnr )
 {
     channels_->setNrVersions( attribnr, 1 );
-    channels_->setUnMappedVSData( attribnr, 0, 0, OD::UsePtr, 0 );
+    channels_->setUnMappedVSData( attribnr, 0, 0, OD::UsePtr,
+				  SilentTaskRunnerProvider() );
     channels_->turnOn( false );
 
     Attrib::SelSpec as;

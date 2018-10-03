@@ -871,8 +871,8 @@ void uiVisPartServer::setRandomPosData( int id, int attrib,
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
 
-    uiTaskRunner taskrunner( appserv().parent() );
-    so->setRandomPosData( attrib, dtps, &taskrunner );
+    uiTaskRunnerProvider trprov( appserv().parent() );
+    so->setRandomPosData( attrib, dtps, trprov );
 }
 
 

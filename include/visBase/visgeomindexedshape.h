@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 namespace Geometry { class IndexedGeometry; }
 class DataPointSet;
+class TaskRunnerProvider;
 
 namespace visBase
 {
@@ -64,6 +65,8 @@ public:
 					TaskRunner*) const;
     void			setAttribData(const DataPointSet&,
 					TaskRunner*);
+    void			setAttribData(const DataPointSet&,
+					const TaskRunnerProvider&);
 
     void			setMaterial(Material*);
     void			updateMaterialFrom(const Material*);

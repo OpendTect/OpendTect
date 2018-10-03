@@ -430,6 +430,9 @@ void uiStratSynthDisp::setViewerData( bool wva, bool preserveview )
 	vwr_->setView( curview );
     else
 	vwr_->setViewToBoundingBox();
+
+    if ( !wva )
+	vwr_->setMapperDistribFromDataPack( false );
 }
 
 
@@ -740,6 +743,7 @@ uiFlatViewer* uiStratSynthDisp::getViewerClone( uiParent* p ) const
     vwr->appearance() = vwr_->appearance();
     vwr->setPack( true, vwr_->packID(true), false );
     vwr->setPack( false, vwr_->packID(false), false );
+    vwr->setMapperDistribFromDataPack( false );
     return vwr;
 }
 

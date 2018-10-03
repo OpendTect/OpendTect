@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "survinfo.h"
 #include "coltabseqmgr.h"
+#include "datadistributionextracter.h"
 #include "keystrs.h"
 
 namespace FlatView
@@ -833,7 +834,8 @@ StepInterval<double> FlatView::Viewer::getDataPackRange( bool forx1 ) const
 {
     const bool wva = appearance().ddpars_.wva_.show_;
     ConstRefMan<FlatDataPack> dp = getPack( wva, true );
-    if ( !dp ) return StepInterval<double>(mUdf(double),mUdf(double),1);
+    if ( !dp )
+	return StepInterval<double>(mUdf(double),mUdf(double),1);
     return dp->posData().range( forx1 );
 }
 
@@ -844,6 +846,20 @@ Interval<float> FlatView::Viewer::getDataRange( bool iswva ) const
 	return appearance().ddpars_.wva_.mapper_->getRange();
     else
 	return appearance().ddpars_.vd_.mapper_->getRange();
+}
+
+
+void FlatView::Viewer::setMapperDistribFromDataPack( bool iswva )
+{
+    ConstRefMan<FlatDataPack> fdp = getPack( iswva );
+    if ( !fdp )
+	return;
+
+    auto ddpars = appearance().ddpars_;
+    auto& mapper = *(iswva ? ddpars.wva_.mapper_ : ddpars.vd_.mapper_);
+    RangeLimitedDataDistributionExtracter<float> extr( fdp->data(),
+                                                SilentTaskRunnerProvider() );
+    mapper.distribution() = *extr.getDistribution();
 }
 
 

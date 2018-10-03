@@ -115,7 +115,7 @@ void MPEDisplay::setColTabMapper( int attrib, const ColTab::Mapper& mpr,
 	return;
 
     channels_->setColTabMapper( attrib, mpr );
-    channels_->reMapData( attrib, 0 );
+    channels_->reMapData( attrib, SilentTaskRunnerProvider() );
 }
 
 
@@ -244,7 +244,8 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     // empty the cache first
     volumecache_ = 0;
 
-    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
+    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr,
+				SilentTaskRunnerProvider() );
 
     const char* usrref = as.userRef();
     BufferStringSet* attrnms = new BufferStringSet();
@@ -817,7 +818,7 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
     DPM(DataPackMgr::SeisID()).unRef( cacheid_ );
     cacheid_ = attrib_dpid;
 
-    bool retval = updateFromCacheID( attrib, tskr );
+    bool retval = updateFromCacheID( attrib, ExistingTaskRunnerProvider(tskr) );
     if ( !retval )
 	channels_->turnOn( false );
 
@@ -829,7 +830,8 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
 }
 
 
-bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tskr )
+bool MPEDisplay::updateFromCacheID( int attrib,
+				    const TaskRunnerProvider& trprov )
 {
     auto regsdp = DPM(DataPackMgr::SeisID())
 	    .get<RegularSeisDataPack>( engine_.getAttribCacheID(as_[0]) );
@@ -894,8 +896,8 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tskr )
 	    slices_[idx]->setVolumeDataSize( sz0, sz1, sz2 );
     }
 
-    channels_->setUnMappedData( attrib, 0, arr, cp, tskr );
-    channels_->reMapData( 0, 0 );
+    channels_->setUnMappedData( attrib, 0, arr, cp, trprov );
+    channels_->reMapData( 0, trprov );
 
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 

@@ -32,6 +32,7 @@ class RegularSeisDataPack;
 class SeisTrcBuf;
 class ZAxisTransform;
 class TaskRunner;
+class TaskRunnerProvider;
 namespace ColTab  { class Sequence; }
 namespace visBase
 {
@@ -302,9 +303,8 @@ public:
     virtual void		getRandomPos(DataPointSet&,TaskRunner*) const {}
     virtual void		getRandomPosCache(int attrib,
 						  DataPointSet&) const	{}
-    virtual void		setRandomPosData( int attrib,
-						  const DataPointSet*,
-						  TaskRunner*)          {}
+    virtual void		setRandomPosData(int attrib,const DataPointSet*,
+					 const TaskRunnerProvider&)	{}
     virtual void		readAuxData()				{}
 
     virtual void		setScene(Scene* scn);

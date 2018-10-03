@@ -110,17 +110,17 @@ public:
     typedef RefMan<DistribType>		DistribRef;
 
 		RangeLimitedDataDistributionExtracter( const ArrNDType& arr,
-						      TaskRunner* tskr=0 )
-			    : extracter_(arr)		{ init(tskr); }
+				const TaskRunnerProvider& trprov )
+		    : extracter_(arr)		{ init(trprov); }
 		RangeLimitedDataDistributionExtracter( const vT* a, od_int64 sz,
-							TaskRunner* tskr=0 )
-			    : extracter_(a,sz)		{ init(tskr); }
+				const TaskRunnerProvider& trprov )
+		    : extracter_(a,sz)		{ init(trprov); }
 		RangeLimitedDataDistributionExtracter( const ValueSeries<vT>& v,
-					   od_int64 sz, TaskRunner* tskr=0 )
-			    : extracter_(v,sz)		{ init(tskr); }
+				od_int64 sz, const TaskRunnerProvider& trprov )
+		    : extracter_(v,sz)		{ init(trprov); }
 		RangeLimitedDataDistributionExtracter( const TypeSet<vT>& ts,
-						       TaskRunner* tskr=0 )
-			    : extracter_(ts)		{ init(tskr); }
+				const TaskRunnerProvider& trprov )
+		    : extracter_(ts)		{ init(trprov); }
     virtual	~RangeLimitedDataDistributionExtracter()	{}
 
     DistribRef	getDistribution()		{ return distrib_; }
@@ -130,7 +130,7 @@ protected:
     DataDistributionExtracter<vT> extracter_;
     DistribRef		distrib_;
 
-    void			init(TaskRunner*);
+    void			init(const TaskRunnerProvider&);
     bool			deSpike();
 
 };
@@ -298,12 +298,13 @@ bool DataDistributionExtracter<vT>::doWork( od_int64 start, od_int64 stop, int )
 
 
 template <class vT> inline
-void RangeLimitedDataDistributionExtracter<vT>::init( TaskRunner* tskr )
+void RangeLimitedDataDistributionExtracter<vT>::init(
+		const TaskRunnerProvider& trprov )
 {
     const int targetnrbins = extracter_.getDefNrBins();
     extracter_.setNrBins( 32 * targetnrbins );
     extracter_.setBounds( extracter_.getDataRange() );
-    if ( !TaskRunner::execute(tskr,extracter_) )
+    if ( !trprov.execute(extracter_) )
 	{ distrib_ = new DistribType; return; }
 
     RefMan<DistribType> finedistr = extracter_.getDistribution();

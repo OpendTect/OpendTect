@@ -80,7 +80,7 @@ void setDataPack( const FlatDataPack* fdp, bool wva )
 	if ( dataarr->totalSize() > 0 )
 	{
 	    RangeLimitedDataDistributionExtracter<float> extracter(
-							*fdp->arrayData(0) );
+			*fdp->arrayData(0), SilentTaskRunnerProvider() );
 	    mapper.distribution() = *extracter.getDistribution();
 	}
     }

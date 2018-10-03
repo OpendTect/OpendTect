@@ -209,7 +209,8 @@ void MultiTextureSurveyObject::clearTextures()
 	setSelSpec( idx, Attrib::SelSpec() );
 
 	for ( int idy=nrTextures(idx)-1; idy>=0; idy-- )
-	    channels_->setUnMappedData( idx, idy, 0, OD::UsePtr, 0 );
+	    channels_->setUnMappedData( idx, idy, 0, OD::UsePtr,
+		    SilentTaskRunnerProvider() );
     }
 }
 
@@ -382,7 +383,7 @@ void MultiTextureSurveyObject::setColTabMapper( int attrib,
     if ( &old != &mapper )
     {
 	channels_->setColTabMapper( attrib, mapper );
-	channels_->reMapData( attrib, 0 );
+	channels_->reMapData( attrib, SilentTaskRunnerProvider() );
     }
 }
 

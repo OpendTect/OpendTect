@@ -148,8 +148,8 @@ bool SeisStatsCollector::finish() const
     DeSpiker<float,int> despiker( 10 );
     despiker.deSpike( self.vals_, nrvalscollected_ );
 
-    RangeLimitedDataDistributionExtracter<float> extr( vals_, nrvalscollected_);
-    // DataDistributionExtracter<float> extr( vals_, nrvalscollected_);
+    RangeLimitedDataDistributionExtracter<float> extr( vals_, nrvalscollected_,
+			    SilentTaskRunnerProvider() );
     self.distrib_ = extr.getDistribution();
 
     return true;

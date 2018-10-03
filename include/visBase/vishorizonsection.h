@@ -72,7 +72,7 @@ public:
     const ColTab::Sequence&	getColTabSequence(int channel) const;
     void			setColTabMapper(int channel,
 						const ColTab::Mapper&,
-						TaskRunner*);
+						const TaskRunnerProvider&);
     const ColTab::Mapper&	getColTabMapper(int channel) const;
 
     void			setTransparency(int ch,unsigned char yn);
@@ -82,7 +82,7 @@ public:
 						double zoff /*untransformed*/,
 						int sid,TaskRunner*) const;
     void			setTextureData(int channel,const DataPointSet*,
-					       int sid,TaskRunner*);
+					   int sid,const TaskRunnerProvider&);
     const BinIDValueSet*	getCache(int channel) const;
     void			inValidateCache(int channel);
 

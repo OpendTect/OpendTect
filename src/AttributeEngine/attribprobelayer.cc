@@ -179,16 +179,14 @@ void AttribProbeLayer::handleDataPackChange()
     if ( attrdp_ && selcomp_ < attrdp_->nrArrays() )
 	arr = attrdp_->arrayData( selcomp_<1 ? 0 : selcomp_ );
 
-    bool havedistrib = false;
-    if ( arr )
-    {
-	RangeLimitedDataDistributionExtracter<float> extr( *arr );
-	mapper_->distribution() = *extr.getDistribution();
-	havedistrib = true;
-    }
-
-    if ( !havedistrib )
+    if ( !arr )
 	mapper_->distribution().setEmpty();
+    else
+    {
+	RangeLimitedDataDistributionExtracter<float> extr( *arr,
+						SilentTaskRunnerProvider() );
+	mapper_->distribution() = *extr.getDistribution();
+    }
 }
 
 

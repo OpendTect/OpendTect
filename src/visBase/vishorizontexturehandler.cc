@@ -88,12 +88,12 @@ HorizonTextureHandler::getColTabSequence( int channel ) const
 
 
 void HorizonTextureHandler::setColTabMapper( int channel,
-    const ColTab::Mapper& mapper, TaskRunner* tskr )
+    const ColTab::Mapper& mapper, const TaskRunnerProvider& trprov )
 {
     if ( channel>=0 )
     {
 	channels_->setColTabMapper( channel, mapper );
-	channels_->reMapData( channel, tskr );
+	channels_->reMapData( channel, trprov );
     }
 }
 
@@ -318,7 +318,7 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 
     for ( int idx=0; idx<nrversions; idx++ )
 	channels_->setUnMappedData( channel, idx, versiondata[idx],
-	OD::TakeOverPtr, 0 );
+	OD::TakeOverPtr, SilentTaskRunnerProvider() );
 }
 
 

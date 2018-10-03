@@ -709,7 +709,7 @@ bool HorizonDisplay::addAttrib()
 		*coltabsequences_[curchannel] );
 
 	sections_[idx]->setColTabMapper( curchannel,
-		*coltabmappers_[curchannel], 0 );
+		*coltabmappers_[curchannel], SilentTaskRunnerProvider() );
     }
 
     return true;
@@ -934,7 +934,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     ZValSetter setter( bivs, zcol, zaxistransform_ );
     setter.execute();
 
-    setRandomPosData( channel, positions, 0 );
+    setRandomPosData( channel, positions, SilentTaskRunnerProvider() );
 }
 
 
@@ -995,7 +995,7 @@ bool HorizonDisplay::usesColor() const
 
 
 void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
-				       TaskRunner* tskr )
+				       const TaskRunnerProvider& trprov )
 {
     if ( channel<0 || channel>=nrAttribs() || sections_.isEmpty() )
        return;
@@ -1008,7 +1008,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     }
 
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setTextureData( channel, data, sids_[idx], tskr );
+	sections_[idx]->setTextureData( channel, data, sids_[idx], trprov );
 
     coltabmappers_[channel] = &sections_[0]->getColTabMapper( channel );
 
@@ -1017,7 +1017,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     {
 	DPSValueSeries dpsvs( *data, data->nrCols()-1 );
 	RangeLimitedDataDistributionExtracter<float> extr( dpsvs, data->size(),
-							    tskr );
+							    trprov );
 	const_cast<DataDistribution<float>&>(
 	    coltabmappers_[channel]->distribution()) = *extr.getDistribution();
     }
@@ -1219,7 +1219,8 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tskr )
 
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	{
-	    surf->setColTabMapper( idx, *coltabmappers_[idx], 0 );
+	    surf->setColTabMapper( idx, *coltabmappers_[idx],
+				    SilentTaskRunnerProvider() );
 	    surf->setColTabSequence( idx, *coltabsequences_[idx] );
 	    surf->getChannels2RGBA()->setEnabled( idx, enabled_[idx] );
 	}
@@ -1481,7 +1482,7 @@ void HorizonDisplay::updateAuxData()
 	}
 
 	dps->dataChanged();
-	setRandomPosData( cidx, dps, 0 );
+	setRandomPosData( cidx, dps, SilentTaskRunnerProvider() );
 	selectTexture( cidx, 0 );
     }
 }
@@ -1574,7 +1575,8 @@ void HorizonDisplay::setColTabMapper( int channel, const ColTab::Mapper& mpr,
 	coltabmappers_[channel] = &mpr;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setColTabMapper( channel, mpr, tskr );
+	sections_[idx]->setColTabMapper( channel, mpr,
+					 ExistingTaskRunnerProvider(tskr) );
 }
 
 

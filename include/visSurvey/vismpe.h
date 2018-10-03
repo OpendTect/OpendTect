@@ -215,7 +215,7 @@ protected:
     void		sliceMoving(CallBacker*);
 
     // texture channel-related methods
-    bool		updateFromCacheID(int attrib, TaskRunner* tskr);
+    bool		updateFromCacheID(int attrib,const TaskRunnerProvider&);
 
     MPE::Engine&		engine_;
     visBase::BoxDragger*	boxdragger_;

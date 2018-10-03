@@ -19,7 +19,8 @@ static bool testDistribMaking()
     for ( int idx=0; idx<cNrDataPts; idx++ )
 	data += (float)idx;
 
-    RangeLimitedDataDistributionExtracter<float> extr( data );
+    RangeLimitedDataDistributionExtracter<float> extr( data,
+						SilentTaskRunnerProvider() );
     RefMan<DataDistribution<float> > distr = extr.getDistribution();
     const float expectedtotal = (float)cNrDataPts;
     const float distrtotal = distr->sumOfValues();

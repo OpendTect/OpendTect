@@ -85,8 +85,8 @@ public:
     bool			hasSingleColorFallback() const	{ return true; }
 
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
-    void			setRandomPosData( int attrib,
-					const DataPointSet*, TaskRunner*);
+    void			setRandomPosData(int,const DataPointSet*,
+						 const TaskRunnerProvider&);
 
     void			setOnlyAtSectionsDisplay(bool yn);
     bool			displayedOnlyAtSections() const;

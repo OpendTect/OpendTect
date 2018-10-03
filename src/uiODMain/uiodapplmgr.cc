@@ -888,7 +888,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     {
 	const DataPack::ID id = fd->addDataPack( *dps );
 	fd->setDataPackID( attrib, id, 0 );
-	fd->setRandomPosData( attrib, dps.ptr(), 0 );
+	fd->setRandomPosData( attrib, dps.ptr(), SilentTaskRunnerProvider() );
 	if ( visServer()->getSelAttribNr() == attrib )
 	    fd->useTexture( true, true ); // tree only, not at restore session
     }

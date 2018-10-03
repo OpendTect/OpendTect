@@ -497,7 +497,7 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 		vals[zcol] = vals[0];
 	}
 
-	setRandomPosData( attrib, data, 0 );
+	setRandomPosData( attrib, data, SilentTaskRunnerProvider() );
     }
 
     if ( !attribwasdepth )
@@ -1157,18 +1157,18 @@ void FaultDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
 
 
 void FaultDisplay::setRandomPosData( int attrib, const DataPointSet* dpset,
-				     TaskRunner* )
+				     const TaskRunnerProvider& trprov )
 {
     const DataColDef texturej(Geometry::ExplFaultStickSurface::sKeyTextureJ());
     const int columnj =
 	dpset->dataSet().findColDef(texturej,PosVecDataSet::NameExact);
 
-    setRandomPosDataInternal( attrib, dpset, columnj+1, 0 );
+    setRandomPosDataInternal( attrib, dpset, columnj+1, trprov );
 }
 
 
 void FaultDisplay::setRandomPosDataInternal( int attrib,
-    const DataPointSet* dpset, int column, TaskRunner* taskr )
+    const DataPointSet* dpset, int column, const TaskRunnerProvider& trprov )
 {
     if ( attrib>=nrAttribs() || !dpset || dpset->nrCols()<3 ||
 	 !explicitpanels_ )
@@ -1211,7 +1211,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     channels_->setSize( attrib, 1, texturedata->getSize(0),
 			texturedata->getSize(1) );
     channels_->setUnMappedData( attrib, 0, texturedata->getData(),
-				OD::UsePtr, taskr );
+				OD::UsePtr, trprov );
     validtexture_ = true;
     updateSingleColor();
 }
@@ -1238,7 +1238,7 @@ void FaultDisplay::showSelectedSurfaceData()
 
 	channels_->setSize( lastattridx, 1, data->getSize(0), data->getSize(1));
 	channels_->setUnMappedData( lastattridx--, 0, data->getData(),
-				    OD::UsePtr, 0 );
+				    OD::UsePtr, SilentTaskRunnerProvider() );
 	if ( lastattridx<0 )
 	    break;
     }

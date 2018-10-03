@@ -75,7 +75,7 @@ public:
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			getRandomPosCache(int,DataPointSet&) const;
     void			setRandomPosData(int,const DataPointSet*,
-						 TaskRunner*);
+						 const TaskRunnerProvider&);
 
     bool			hasColor() const		{ return true; }
     bool			usesColor() const;
@@ -193,10 +193,9 @@ protected:
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj);
-    void			setRandomPosDataInternal(int attrib,
-							 const DataPointSet*,
-							 int column,
-							 TaskRunner*);
+    void			setRandomPosDataInternal(int,
+						 const DataPointSet*,int column,
+						 const TaskRunnerProvider&);
     void			updatePanelDisplay();
     void			updateStickDisplay();
     void			updateIntersectionDisplay();

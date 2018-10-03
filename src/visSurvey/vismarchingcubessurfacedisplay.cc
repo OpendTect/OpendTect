@@ -347,7 +347,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	vals[valcol] = maxz-minz;
     }
 
-    setRandomPosData( attrib, data, 0 );
+    setRandomPosData( attrib, data, SilentTaskRunnerProvider() );
 
     if ( attribselchange )
     {
@@ -370,7 +370,7 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 	vals[valcol] = vals[0];
     }
 
-    setRandomPosData( attrib, data, 0 );
+    setRandomPosData( attrib, data, SilentTaskRunnerProvider() );
 
     if ( attribselchange )
     {
@@ -408,7 +408,7 @@ void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
 
 
 void MarchingCubesDisplay::setRandomPosData( int attrib,
-				 const DataPointSet* dps, TaskRunner* runner )
+		 const DataPointSet* dps, const TaskRunnerProvider& trprov )
 {
     if ( attrib<0 )
 	return;
@@ -416,7 +416,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     RefMan<DataPointSet> ndps = dps ? new DataPointSet( *dps ) : 0;
     if ( !attrib && dps && displaysurface_ )
     {
-	displaysurface_->getShape()->setAttribData( *ndps, runner );
+	displaysurface_->getShape()->setAttribData( *ndps, trprov );
 	materialChangeCB( 0 );
     }
 

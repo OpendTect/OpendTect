@@ -386,6 +386,14 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,
 }
 
 
+void GeomIndexedShape::setAttribData( const DataPointSet& set,
+				      const TaskRunnerProvider& )
+{
+    TaskRunner* tskr = 0;
+    setAttribData( set, tskr );
+}
+
+
 void GeomIndexedShape::setAttribData( const DataPointSet& set, TaskRunner* )
 {
     const DataColDef coordindex( sKeyCoordIndex() );
@@ -432,7 +440,7 @@ void GeomIndexedShape::mapAttributeToColorTableMaterial()
     if ( colorhandler_.mapper_->distribution().isEmpty() )
     {
 	RangeLimitedDataDistributionExtracter<float> extr(
-					colorhandler_.attributecache_ );
+		colorhandler_.attributecache_, SilentTaskRunnerProvider() );
 	colorhandler_.mapper_.getNonConstPtr()->distribution()
 	    = *extr.getDistribution();
     }

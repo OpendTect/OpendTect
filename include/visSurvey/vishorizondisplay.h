@@ -125,7 +125,7 @@ public:
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			getRandomPosCache(int,DataPointSet&) const;
     void			setRandomPosData( int,const DataPointSet*,
-						 TaskRunner*);
+						 const TaskRunnerProvider&);
 
     void			setLineStyle(const OD::LineStyle&);
 				/*!<If ls is solid, a 3d shape will be used,
