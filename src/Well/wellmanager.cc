@@ -156,20 +156,31 @@ bool Well::Manager::readReqData( const ObjID& id, Data& wd,
 				  uiRetVal& uirv ) const
 {
     Reader rdr( id, wd );
-#   define mRetIfFail(typ,oper) \
-    if ( lreq.includes(typ) && !oper ) \
-	{ uirv = rdr.errMsg(); return false; }
-    mRetIfFail( Inf, rdr.getInfo() )
-    mRetIfFail( Trck, rdr.getTrack() )
+#   define mRetIfFail(typ,subobj,oper) \
+    { \
+	ChangeNotifyBlocker nb( wd.subobj() ) ; \
+	if ( lreq.includes(typ) && !oper ) \
+	    { uirv = rdr.errMsg(); return false; } \
+    }
+    mRetIfFail( Inf, info, rdr.getInfo() )
+    mRetIfFail( Trck, track, rdr.getTrack() )
 
-#   define mJustTry(typ,oper) \
-    if ( lreq.includes(typ) ) oper;
-    mJustTry( D2T, rdr.getD2T() )
-    mJustTry( Mrkrs, rdr.getMarkers() )
-    mJustTry( Logs, rdr.getLogs() )
-    mJustTry( CSMdl, rdr.getCSMdl() )
+#   define mJustTry(typ,subobj,oper) \
+    { \
+	ChangeNotifyBlocker nb( wd.subobj() ) ; \
+	if ( lreq.includes(typ) ) \
+	    oper; \
+    }
+    mJustTry( D2T, d2TModel, rdr.getD2T() )
+    mJustTry( Mrkrs, markers, rdr.getMarkers() )
+    mJustTry( Logs, logs, rdr.getLogs() )
+    mJustTry( CSMdl, checkShotModel, rdr.getCSMdl() )
     if ( lreq.includes(DispProps2D) || lreq.includes(DispProps3D) )
+    {
+	ChangeNotifyBlocker nb2d( wd.displayProperties(true) );
+	ChangeNotifyBlocker nb3d( wd.displayProperties(false) );
 	rdr.getDispProps();
+    }
     return true;
 }
 
