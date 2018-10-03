@@ -855,7 +855,7 @@ void FlatView::Viewer::setMapperDistribFromDataPack( bool iswva )
     if ( !fdp )
 	return;
 
-    auto ddpars = appearance().ddpars_;
+    auto& ddpars = appearance().ddpars_;
     auto& mapper = *(iswva ? ddpars.wva_.mapper_ : ddpars.vd_.mapper_);
     RangeLimitedDataDistributionExtracter<float> extr( fdp->data(),
                                                 SilentTaskRunnerProvider() );
