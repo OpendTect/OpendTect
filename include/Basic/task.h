@@ -147,7 +147,8 @@ mExpClass(Basic) TaskGroup : public TaskGroupController
 {
 public:
 			TaskGroup();
-			~TaskGroup() { deepErase( tasks_ ); }
+    virtual		~TaskGroup() { deepErase( tasks_ ); }
+
     void		addTask( Task* );
 			//Becomes mine
 
