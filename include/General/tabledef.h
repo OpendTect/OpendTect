@@ -135,7 +135,7 @@ public:
     int			formNr( const char* formnm ) const
 			{
 			    for ( int idx=0; idx<forms_.size(); idx++ )
-				if ( forms_[idx]->name() == formnm )
+				if ( forms_[idx]->hasName(formnm) )
 				    return idx;
 			    return -1;
 			}

@@ -55,7 +55,7 @@ Settings& Settings::fetch( const char* key )
     const char* settkey = mGetKey( key );
     ObjectSet<Settings>& settlist = getSetts();
     for ( int idx=0; idx<settlist.size(); idx++ )
-	if ( settlist[idx]->name() == settkey )
+	if ( settlist[idx]->hasName(settkey) )
 	    return *settlist[idx];
 
     Settings* newsett = doFetch( key, GetSoftwareUser(), GetSettingsDir(),
@@ -115,7 +115,7 @@ static void handleLegacyPar( Settings& setts, const char* key,
 bool Settings::doRead( bool ext )
 {
     const bool empty_initially = File::isEmpty(fname_);
-    const bool iscommon = name() == sKeyCommon;
+    const bool iscommon = hasName( sKeyCommon );
 
     SafeFileIO sfio( fname_, false );
     if ( empty_initially || !sfio.open(true) )

@@ -356,7 +356,7 @@ Strat::LevelSet::idx_type Strat::LevelSet::gtIdxOf( const char* nm,
     for ( int ilvl=0; ilvl<lvls_.size(); ilvl++ )
     {
 	const Level& lvl = *lvls_[ilvl];
-	if ( (useid && lvl.id() == id) || (usenm && lvl.name() == nm) )
+	if ( (useid && lvl.id() == id) || (usenm && lvl.hasName(nm)) )
 	    return ilvl;
     }
 

@@ -98,7 +98,7 @@ static int getWellIdx( ObjectSet<Well::Data>& wells, const char* nm )
 {
     for ( int idx=0; idx<wells.size(); idx++ )
     {
-	if ( wells[idx]->info().name() == nm )
+	if ( wells[idx]->info().hasName(nm) )
 	    return idx;
     }
 

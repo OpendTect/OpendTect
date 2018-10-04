@@ -119,7 +119,7 @@ bool uiRayTracerSel::setCurrentType( const char* typestr )
 
     for ( int grpidx=0; grpidx<grps_.size(); grpidx++ )
     {
-	if ( grps_[grpidx]->name() == typestr )
+	if ( grps_[grpidx]->hasName(typestr) )
 	{
 	    raytracerselfld_->box()->setCurrentItem( grpidx );
 	    return true;

@@ -137,12 +137,12 @@ void SurveyObject::set3DSurvGeom( const Survey::Geometry3D* sg )
 
 const char* SurveyObject::get3DSurvGeomName() const
 {
-    return s3dgeom_ ? s3dgeom_->getName() : survname_.str();
+    return s3dgeom_ ? s3dgeom_->name() : survname_.str();
 }
 
 
 Pos::GeomID SurveyObject::getGeomID() const
-{ return s3dgeom_ ? s3dgeom_->getID() : mUdfGeomID; }
+{ return s3dgeom_ ? s3dgeom_->id() : mUdfGeomID; }
 
 void SurveyObject::annotateNextUpdateStage( bool yn )
 {
@@ -159,7 +159,7 @@ void SurveyObject::fillPar( IOPar& par ) const
     par.set( sKey::Type(), factoryKeyword() );
 
     if ( s3dgeom_ )
-	par.set( sKeySurvey(), s3dgeom_->getName() );
+	par.set( sKeySurvey(), s3dgeom_->name() );
 
     par.setYN( sKeyLocked(), locked_ );
     const int nrattribs = nrAttribs();

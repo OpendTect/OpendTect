@@ -135,7 +135,7 @@ const GMTWellSymbol* GMTWellSymbolRepository::get( const char* nm ) const
 {
     for ( int idx=0; idx<symbols_.size(); idx++ )
     {
-	if ( symbols_[idx]->name() == nm )
+	if ( symbols_[idx]->hasName(nm) )
 	    return symbols_[idx];
     }
 

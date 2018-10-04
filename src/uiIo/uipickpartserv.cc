@@ -361,7 +361,7 @@ void uiPickPartServer::mkRandLocs2D( CallBacker* cb )
 	    for ( int ipos=0; ipos<posns.size(); ipos++ )
 	    {
 		coords2d_ += posns[ipos].coord_;
-		geomids2d_ += geom->getID();
+		geomids2d_ += geom->id();
 	    }
 	}
     }

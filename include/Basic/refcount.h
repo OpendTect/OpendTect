@@ -21,8 +21,7 @@ template <class T> class ConstRefMan;
 
 
 
-/*!
-\ingroup Basic
+/*!\ingroup Basic
 \page refcount Reference Counting
    Reference counter is an integer that tracks how many references have been
    made to a class. When a reference-counted object is created, the reference
@@ -326,27 +325,25 @@ private:
 };
 
 
+//! Reference class pointer. Works for null pointers.
+inline void refPtr( const RefCount::Referenced* ptr )
+{
+    if ( ptr )
+	ptr->ref();
+}
+
 /*! Un-reference class pointer. Works for null pointers. */
 inline void unRefPtr( const RefCount::Referenced* ptr )
 {
-    if ( !ptr ) return;
-    ptr->unRef();
+    if ( ptr )
+	ptr->unRef();
 }
 
 /*! Un-reference class pointer without delete. Works for null pointers. */
 inline void unRefNoDeletePtr( const RefCount::Referenced* ptr )
 {
-    if ( !ptr ) return;
-    ptr->unRefNoDelete();
-}
-
-//! Reference class pointer. Works for null pointers.
-inline const RefCount::Referenced* refPtr( const RefCount::Referenced* ptr )
-{
     if ( ptr )
-	ptr->ref();
-
-    return ptr;
+	ptr->unRefNoDelete();
 }
 
 //!Un-reference class pointer, and set it to zero. Works for null-pointers.
@@ -376,11 +373,11 @@ mDefineRefUnrefObjectSetFn( deepRef, refPtr, )
 //Implementations and legacy stuff below
 
 template <class T>
-WeakPtr<T>& WeakPtr<T>::operator=(const WeakPtr<T>& p)
+WeakPtr<T>& WeakPtr<T>::operator=( const WeakPtr<T>& wp )
 {
-    RefMan<T> ptr = p.get();
-    ptr.setNoDelete(true);
-    set(ptr.ptr());
+    RefMan<T> ptr = wp.get();
+    ptr.setNoDelete( true );
+    set( ptr.ptr() );
     return *this;
 }
 
@@ -392,7 +389,7 @@ RefMan<T> WeakPtr<T>::get() const
     if ( ptr_ && ptr_->tryRef() )
     {
 	//reffed once through tryRef
-	res = (T*) ptr_;
+	res = (T*)ptr_;
 
 	//unref the ref from tryRef
 	ptr_->unRef();
@@ -403,14 +400,14 @@ RefMan<T> WeakPtr<T>::get() const
 
 
 template <class T> inline
-bool WeakPtrSet<T>::operator+=(RefMan<T>& n)
+bool WeakPtrSet<T>::operator+=( RefMan<T>& toadd )
 {
-    T* ptr = n.ptr();
-    return WeakPtrSet<T>::operator+=( WeakPtr<T>( ptr ) );
+    T* ptr = toadd.ptr();
+    return WeakPtrSet<T>::operator+=( WeakPtr<T>(ptr) );
 }
 
 template <class T> inline
-bool WeakPtrSet<T>::operator+=(const WeakPtr<T>& n)
+bool WeakPtrSet<T>::operator+=( const WeakPtr<T>& toadd )
 {
     lock_.lock();
 
@@ -424,7 +421,7 @@ bool WeakPtrSet<T>::operator+=(const WeakPtr<T>& n)
             continue;
         }
 
-        if ( ptrs_[idx]==n )
+        if ( ptrs_[idx]==toadd )
         {
             if ( cleanup ) blockcleanup_ = 0;
             lock_.unLock();
@@ -432,9 +429,10 @@ bool WeakPtrSet<T>::operator+=(const WeakPtr<T>& n)
         }
     }
 
-    if ( cleanup ) blockcleanup_ = 0;
+    if ( cleanup )
+	blockcleanup_ = 0;
 
-    ptrs_ += n;
+    ptrs_ += toadd;
     lock_.unLock();
 
     return true;

@@ -79,7 +79,7 @@ bool SeismicExtractor::collectTracesAroundPath()
 	if ( !geom )
 	    mErrRet( tr("2D Line Geometry not found") );
 
-	tkzs_->hsamp_.init( geom->getID() );
+	tkzs_->hsamp_.init( geom->id() );
 	const Coord pos = SI().transform( bidset_[0] );
 	const TrcKey trckey = geom->nearestTrace( pos );
 	tkzs_->hsamp_.setCrlRange( Interval<int>(trckey.trcNr(),

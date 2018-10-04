@@ -158,7 +158,7 @@ const char* uiSelFonts::resultFor( const char* str )
 {
     for ( int idx=0; idx<sels_.size(); idx++ )
     {
-	if ( sels_[idx]->label()->name() == str )
+	if ( sels_[idx]->label()->hasName(str) )
 	    return sels_[idx]->box()->text();
     }
 

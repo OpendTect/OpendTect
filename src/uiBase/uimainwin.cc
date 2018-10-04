@@ -605,7 +605,7 @@ void uiMainWinBody::toggleToolbar( CallBacker* cb )
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
 	uiToolBar& tb = *toolbars_[idx];
-	if ( tb.name() == toString(action->text()) )
+	if ( tb.hasName( toString(action->text()) ) )
 	    tb.display( tb.isHidden() );
     }
 }
@@ -641,7 +641,7 @@ void uiMainWinBody::addToolBar( uiToolBar* tb )
 uiToolBar* uiMainWinBody::findToolBar( const char* nm )
 {
     for ( int idx=0; idx<toolbars_.size(); idx++ )
-	if ( toolbars_[idx]->name() == nm )
+	if ( toolbars_[idx]->hasName(nm) )
 	    return toolbars_[idx];
 
     return 0;

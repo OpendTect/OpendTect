@@ -41,7 +41,7 @@ Strat::LaySeqAttrib* Strat::LaySeqAttribSet::gtAttr( const char* nm ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( attr(idx).name() == nm )
+	if ( attr(idx).hasName(nm) )
 	    return const_cast<Strat::LaySeqAttrib*>( (*this)[idx] );
     }
     return 0;
@@ -87,7 +87,7 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 	if ( !res || !*res ) break;
 
 	const PropertyRef* pr = PROPS().find( res );
-	if ( !pr && Strat::Layer::thicknessRef().name() == res )
+	if ( !pr && Strat::Layer::thicknessRef().hasName(res) )
 	    pr = &Strat::Layer::thicknessRef();
 	if ( !pr )
 	    continue;
@@ -161,7 +161,7 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
     for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )
     {
 	if ( lm.propertyRefs()[idx] &&
-		lm.propertyRefs()[idx]->name() == attr_.prop_.name() )
+		lm.propertyRefs()[idx]->hasName(attr_.prop_.name()) )
 	    { validx_ = idx; break; }
     }
     if ( validx_ < 0 )

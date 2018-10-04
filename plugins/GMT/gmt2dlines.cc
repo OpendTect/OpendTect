@@ -97,7 +97,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	const PosInfo::Line2DData& geom = geom2d->data();
 	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 
-	procstrm << "> " << geom2d->getName() << "\n";
+	procstrm << "> " << geom2d->name() << "\n";
 
 	for ( int tdx=0; tdx<posns.size(); tdx++ )
 	{
@@ -150,7 +150,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	    pos -= Coord( distfactor*dx, distfactor*dy );
 	    procstrm << pos.x_ << " " << pos.y_ << " " << sz << " " ;
 	    procstrm << rotangle << " " << 4;
-	    procstrm << " " << al.buf() << geom2d->getName() << "\n";
+	    procstrm << " " << al.buf() << geom2d->name() << "\n";
 	}
 
 	bool poststop = false;
@@ -168,7 +168,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	    al = fabs(angle) > 90 ? "ML " : "MR ";
 	    procstrm << pos.x_ << " " << pos.y_ << " " << sz << " " ;
 	    procstrm << rotangle << " " << 4;
-	    procstrm << " " << al.buf() << geom2d->getName() << "\n";
+	    procstrm << " " << al.buf() << geom2d->name() << "\n";
 	}
 
 	bool postnrs = true;

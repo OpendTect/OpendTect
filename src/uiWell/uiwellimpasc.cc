@@ -186,7 +186,7 @@ void uiWellImportAsc::trckFmtChg( CallBacker* )
 	if ( ti.name().startsWith("Z") && ti.selection_.isInFile(0) )
 	    havez = true;
 
-	if ( ti.name() == sKey::MD() && ti.selection_.isInFile(0) )
+	if ( ti.hasName(sKey::MD()) && ti.selection_.isInFile(0) )
 	    havemd = true;
     }
 

@@ -104,7 +104,7 @@ Pick::SetGroup::IdxType Pick::SetGroup::gtIdxByName( const char* nm ) const
     for ( IdxType idx=0; idx<sets_.size(); idx++ )
     {
 	const Set& l = *sets_[idx];
-	if ( l.name() == nm )
+	if ( l.hasName(nm) )
 	    return idx;
     }
     return -1;
@@ -325,7 +325,7 @@ bool Pick::SetGroup::isPresent( const char* nm ) const
 {
     mLock4Read();
     for ( IdxType idx=0; idx<sets_.size(); idx++ )
-	if ( sets_[idx]->name() == nm )
+	if ( sets_[idx]->hasName(nm) )
 	    return true;
     return false;
 }

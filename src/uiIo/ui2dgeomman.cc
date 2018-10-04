@@ -77,7 +77,7 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 	return;
     }
 
-    uiManageLineGeomDlg dlg( this, geom2d->getID(),
+    uiManageLineGeomDlg dlg( this, geom2d->id(),
 			     !transl->isUserSelectable(false) );
     dlg.go();
 }

@@ -413,10 +413,10 @@ void trckFmtChg( CallBacker* )
     for ( int idx=0; idx<fd.bodyinfos_.size(); idx++ )
     {
 	const Table::TargetInfo& ti = *fd.bodyinfos_[idx];
-	if ( ti.name() == sKey::Z() && ti.selection_.isInFile(0) )
+	if ( ti.hasName(sKey::Z()) && ti.selection_.isInFile(0) )
 	    havez = true;
 
-	if ( ti.name() == sKey::MD() && ti.selection_.isInFile(0) )
+	if ( ti.hasName(sKey::MD()) && ti.selection_.isInFile(0) )
 	    havemd = true;
     }
 

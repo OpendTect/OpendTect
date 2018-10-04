@@ -370,7 +370,7 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
     const bool have2wells = !wellnm1_.isEmpty() && !wellnm2_.isEmpty()
 			 && wellnm1_ != wellnm2_;
     const bool have2logs = l1 && l2 && l1 != l2;
-    const bool samelognm = have2logs && l1->name() == l2->name();
+    const bool samelognm = have2logs && l1->hasName( l2->name() );
 
     uiString capt;
     if ( have2wells && have2logs && !samelognm )

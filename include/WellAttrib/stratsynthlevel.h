@@ -18,7 +18,7 @@ namespace StratSynth
 {
 
 
-mExpClass(WellAttrib) Level
+mExpClass(WellAttrib) Level : public ObjectWithName
 {
 public:
 
@@ -30,7 +30,7 @@ public:
 
     int			size() const		{ return zvals_.size(); }
     ID			id() const		{ return id_; }
-    BufferString	name() const;
+    const name_type&	name() const;
     Color		color() const;
 
     const ID		id_;

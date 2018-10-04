@@ -122,7 +122,7 @@ Well::LogSet::idx_type Well::LogSet::gtIdxByName( const char* nm ) const
     for ( idx_type idx=0; idx<logs_.size(); idx++ )
     {
 	const Log& l = *logs_[idx];
-	if ( l.name() == nm )
+	if ( l.hasName(nm) )
 	    return idx;
     }
     return -1;
@@ -359,7 +359,7 @@ bool Well::LogSet::isPresent( const char* nm ) const
 {
     mLock4Read();
     for ( idx_type idx=0; idx<logs_.size(); idx++ )
-	if ( logs_[idx]->name() == nm )
+	if ( logs_[idx]->hasName(nm) )
 	    return true;
     return false;
 }

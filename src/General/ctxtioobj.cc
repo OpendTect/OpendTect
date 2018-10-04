@@ -539,7 +539,7 @@ int CtxtIOObj::fillObj( bool mktmp, int translidxfornew )
     if ( !ioobj_ && emptynm )
 	return 0;
 
-    if ( ioobj_ && (ctxt_.name() == ioobj_->name() || emptynm) )
+    if ( ioobj_ && (ctxt_.hasName(ioobj_->name()) || emptynm) )
 	return 1;
 
     DBM().getEntry( *this, mktmp, translidxfornew );

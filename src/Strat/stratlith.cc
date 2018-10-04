@@ -44,7 +44,7 @@ const Strat::Content& Strat::Content::unspecified()
 int Strat::ContentSet::getIndexOf( const char* nm ) const
 {
     for ( int idx=0; idx<size(); idx++ )
-	if ( (*this)[idx]->name() == nm )
+	if ( get(idx)->hasName(nm) )
 	    return idx;
     return -1;
 }
@@ -144,7 +144,7 @@ int Strat::LithologySet::idxOf( const char* nm, Lithology::ID id ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Lithology& lith = *lths_[idx];
-	if ( (havenm && lith.name() == nm) || (!havenm && lith.id() == id) )
+	if ( (havenm && lith.hasName(nm) ) || (!havenm && lith.id() == id) )
 	    return idx;
     }
     return -1;

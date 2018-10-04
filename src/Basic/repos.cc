@@ -161,7 +161,7 @@ int Repos::IOParSet::find( const char* nm ) const
 {
     int ret = -1;
     for ( int idx=0; idx<size(); idx++ )
-	if ( ((*this)[idx])->name() == nm )
+	if ( ((*this)[idx])->hasName(nm) )
 	    { ret = idx; break; }
     return ret;
 }

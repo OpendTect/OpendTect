@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "stratsynthlevel.h"
+#include "staticstring.h"
 
 namespace StratSynth
 {
@@ -29,9 +30,11 @@ Level& Level::dummy()
 
 
 
-BufferString StratSynth::Level::name() const
+const OD::String& StratSynth::Level::name() const
 {
-    return Strat::LVLS().nameOf( id_ );
+    mDeclStaticString( ret );
+    ret = Strat::LVLS().nameOf( id_ );
+    return ret;
 }
 
 
@@ -75,7 +78,7 @@ int StratSynth::LevelSet::indexOf( ID id ) const
 int StratSynth::LevelSet::indexOf( const char* nm ) const
 {
     for ( int idx=0; idx<lvls_.size(); idx++ )
-	if ( lvls_[idx]->name() == nm )
+	if ( lvls_[idx]->hasName(nm) )
 	    return idx;
     return -1;
 }

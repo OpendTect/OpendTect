@@ -1287,7 +1287,7 @@ float Well::LogSampler::getLogVal( const char* lnm, int idz ) const
     int logidx = 0;
     for ( logidx=0; logidx<logset_.size(); logidx++ )
     {
-	if ( logset_[logidx]->name() == lnm )
+	if ( logset_[logidx]->hasName(lnm) )
 	    { found = true; break; }
     }
     return found ? getLogVal( logidx, idz ) :  mUdf(float);

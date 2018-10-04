@@ -1544,10 +1544,10 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	{
 	    const DataPack::ID& id = vwr.availablePacks()[idx];
 	    FixedString datanm( DPM(DataPackMgr::FlatID()).nameOf(id) );
-	    if ( vddatapack && vddatapack->name() == datanm &&
+	    if ( vddatapack && vddatapack->hasName(datanm) &&
 		 app_.ddpars_.vd_.show_ )
 		vwr.usePack( false, id, false );
-	    if ( wvadatapack && wvadatapack->name() == datanm &&
+	    if ( wvadatapack && wvadatapack->hasName(datanm) &&
 		 app_.ddpars_.wva_.show_ )
 		vwr.usePack( true, id, false );
 	}

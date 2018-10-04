@@ -54,7 +54,7 @@ Property* Property::get( const IOPar& iop )
     if ( !nm || !*nm ) return 0;
 
     const PropertyRef* ref = PROPS().find( nm );
-    if ( !ref && PropertyRef::thickness().name() == nm )
+    if ( !ref && PropertyRef::thickness().hasName(nm) )
 	ref = &PropertyRef::thickness();
     if ( !ref ) return 0;
 
@@ -552,7 +552,7 @@ int PropertySet::indexOf( const char* nm, bool matchaliases ) const
     for ( int idx=0; idx<props_.size(); idx++ )
     {
 	const Property& p = *props_[idx];
-	if ( p.ref().name() == nm )
+	if ( p.ref().hasName(nm) )
 	    return idx;
     }
     if ( matchaliases )

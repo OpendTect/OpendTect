@@ -176,7 +176,7 @@ void uiFlatViewDataDispPropTab::setDataNames()
 	if ( dp )
 	{
 	    dispfld_->addItem( toUiString(dp->name()) );
-	    if ( dp->name() == dataName() )
+	    if ( dp->hasName(dataName()) )
 		dispfld_->setCurrentItem( dispfld_->size() - 1 );
 	}
     }
@@ -242,7 +242,7 @@ void uiFlatViewDataDispPropTab::doSetData( bool wva )
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {
 	auto dp = dpm_.getDP( vwr_.availablePacks()[idx] );
-	if ( dp && dp->name() == datanm )
+	if ( dp && dp->hasName(datanm) )
 	    vwr_.usePack( wva, dp->id(), false );
     }
 }

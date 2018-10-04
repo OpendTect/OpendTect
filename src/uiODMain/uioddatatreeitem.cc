@@ -436,7 +436,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	    for ( int idx=0; idx<ids.size(); idx++ )
 	    {
 		auto pack = DPM(dmid).getDP( ids[idx] );
-		if ( !pack && pack->name() == as->userRef() )
+		if ( !pack && pack->hasName(as->userRef()) )
 		    { dpid = pack->id(); break; }
 	    }
 	}

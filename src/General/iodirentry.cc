@@ -139,7 +139,7 @@ IODirEntryList::IdxType IODirEntryList::indexOf( const char* nm ) const
     for ( IdxType idx=0; idx<size(); idx++ )
     {
 	const IOObj& entry = *entries_[idx];
-	if ( entry.name() == nm )
+	if ( entry.hasName(nm) )
 	    return idx;
     }
     return -1;

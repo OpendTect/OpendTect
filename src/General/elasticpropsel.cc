@@ -408,11 +408,11 @@ bool ElasticPropGuess::guessQuantity( const PropertyRef& pref,
     {
 	if ( tp == ElasticFormula::SVel )
 	{
-	    if ( pref.aliases().isPresent( "SVel" ) ||
-		 pref.name() == "Swave velocity" )
+	    if ( pref.aliases().isPresent( "SVel" )
+	      || pref.hasName("Swave velocity") )
 		fm.variables().add( pref.name() );
-	    else if ( pref.aliases().isPresent( "DTS" ) ||
-		      pref.name() == "Shear Sonic" )
+	    else if ( pref.aliases().isPresent( "DTS" )
+		   || pref.hasName("Shear Sonic") )
 	    {
 		TypeSet<ElasticFormula> efs; ElFR().getByType( tp, efs );
 		if ( !efs.isEmpty() )

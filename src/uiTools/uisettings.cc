@@ -111,7 +111,7 @@ int uiAdvSettings::getChgdSettIdx( const char* nm ) const
 {
     for ( int idx=0; idx<chgdsetts_.size(); idx++ )
     {
-	if ( chgdsetts_[idx]->name() == nm )
+	if ( chgdsetts_[idx]->hasName(nm) )
 	    return idx;
     }
     return -1;

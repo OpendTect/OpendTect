@@ -142,7 +142,7 @@ void uiPosFilterSet::usePar( const IOPar& iop )
 
 	for ( int igrp=0; igrp<grps_.size(); igrp++ )
 	{
-	    if ( grps_[igrp]->name() == typ )
+	    if ( grps_[igrp]->hasName(typ) )
 	    {
 		grps_[igrp]->usePar( *subiop );
 		issel_[igrp] = true;

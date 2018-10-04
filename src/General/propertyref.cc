@@ -440,7 +440,7 @@ int PropertyRefSet::indexOf( const char* nm ) const
 	for ( int idx=0; idx<size(); idx++ )
 	{
 	    const PropertyRef& pr = *(*this)[idx];
-	    if ( pr.name() == nm )
+	    if ( pr.hasName(nm) )
 		return idx;
 	}
 	for ( int idx=0; idx<size(); idx++ )
@@ -610,7 +610,7 @@ int PropertyRefSelection::indexOf( const char* nm ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const PropertyRef& pr = *((*this)[idx]);
-	if ( pr.name() == nm )
+	if ( pr.hasName(nm) )
 	    return idx;
     }
     return -1;

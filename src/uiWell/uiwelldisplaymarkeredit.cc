@@ -178,7 +178,7 @@ void uiDispEditMarkerDlg::addMoveMarker( int iset, float dah, const char* nm )
 
     for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
     {
-	if ( tmplist_[idx]->name() == nm )
+	if ( tmplist_[idx]->hasName(nm) )
 	    delete tmplist_.removeSingle( idx );
     }
 }
@@ -294,7 +294,7 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
     BufferString mrknm = mrklist_->getText();
     for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
     {
-	if ( tmplist_[idx]->name() == mrknm )
+	if ( tmplist_[idx]->hasName(mrknm) )
 	{
 	    delete tmplist_.removeSingle( idx );
 	    fillMarkerList(0);
@@ -412,7 +412,7 @@ Well::Marker* uiDispEditMarkerDlg::getMarkerFromTmpList( const char* mrknm )
 {
     for ( int idx=0; idx<tmplist_.size(); idx++ )
     {
-	if ( tmplist_[idx]->name() == mrknm )
+	if ( tmplist_[idx]->hasName(mrknm) )
 	    return tmplist_[idx];
     }
     return 0;

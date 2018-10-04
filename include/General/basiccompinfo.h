@@ -38,7 +38,7 @@ public:
 
     bool		operator==( const BasicComponentInfo& ci ) const
 			{
-			    return name() == ci.name()
+			    return hasName( ci.name() )
 				&& datatype_ == ci.datatype_
 				&& datachar_ == ci.datachar_;
 			}

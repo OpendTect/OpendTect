@@ -307,7 +307,7 @@ SaveableManager::ObjID SaveableManager::getIDByName( const char* nm ) const
     {
 	const Saveable& saver = *savers_[idx];
 	const SharedObject* obj = saver.object();
-	if ( obj && obj->name() == nm )
+	if ( obj && obj->hasName(nm) )
 	    return saver.key();
     }
 
@@ -563,7 +563,7 @@ SaveableManager::IdxType SaveableManager::gtIdx( const char* nm ) const
     for ( IdxType idx=0; idx<savers_.size(); idx++ )
     {
 	const SharedObject* obj = savers_[idx]->object();
-	if ( obj && obj->name() == nm )
+	if ( obj && obj->hasName(nm) )
 	    return idx;
     }
     return -1;

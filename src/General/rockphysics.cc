@@ -260,7 +260,7 @@ int RockPhysics::FormulaSet::getIndexOf( const char* nm ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Formula& fm = *(*this)[idx];
-	if ( fm.name() == nm )
+	if ( fm.hasName(nm) )
 	    return idx;
     }
     return -1;
