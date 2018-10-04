@@ -58,7 +58,7 @@ public:
     static const Geometry& default3D();
 
     inline ID		id() const			{ return id_; }
-    void		setID( ID id )			{ id_ = id; }
+    void		setID( ID gid )			{ id_ = gid; }
 
     virtual Coord	toCoord(Pos::LineID,Pos::TraceID) const		= 0;
     inline Coord	toCoord( const BinID& b ) const
