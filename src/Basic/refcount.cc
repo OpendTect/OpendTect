@@ -385,28 +385,6 @@ void WeakPtrBase::set( Referenced* p )
 }
 
 
-void unRefPtr( const RefCount::Referenced* ptr )
-{
-    if ( !ptr ) return;
-    ptr->unRef();
-}
-
-
-void unRefNoDeletePtr( const RefCount::Referenced* ptr )
-{
-    if ( !ptr ) return;
-    ptr->unRefNoDelete();
-}
-
-
-const RefCount::Referenced* refPtr( const RefCount::Referenced* ptr )
-{
-    if ( ptr )
-	ptr->ref();
-
-    return ptr;
-}
-
 
 void RefCount::WeakPtrSetBase::blockCleanup()
 {

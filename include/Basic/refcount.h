@@ -327,14 +327,27 @@ private:
 
 
 /*! Un-reference class pointer. Works for null pointers. */
-mGlobal(Basic) void unRefPtr( const RefCount::Referenced* ptr );
+inline void unRefPtr( const RefCount::Referenced* ptr )
+{
+    if ( !ptr ) return;
+    ptr->unRef();
+}
 
 /*! Un-reference class pointer without delete. Works for null pointers. */
-mGlobal(Basic) void unRefNoDeletePtr( const RefCount::Referenced* ptr );
+inline void unRefNoDeletePtr( const RefCount::Referenced* ptr )
+{
+    if ( !ptr ) return;
+    ptr->unRefNoDelete();
+}
 
 //! Reference class pointer. Works for null pointers.
-mGlobal(Basic) const RefCount::Referenced*
-refPtr( const RefCount::Referenced* ptr );
+inline const RefCount::Referenced* refPtr( const RefCount::Referenced* ptr )
+{
+    if ( ptr )
+	ptr->ref();
+
+    return ptr;
+}
 
 //!Un-reference class pointer, and set it to zero. Works for null-pointers.
 template <class T> inline

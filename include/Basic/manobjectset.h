@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "objectset.h"
+#include "refcount.h"
 
 //!Helper class to RefObjectSet and ManagedObjectSet
 template <class T>
