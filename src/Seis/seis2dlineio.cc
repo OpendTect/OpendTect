@@ -427,10 +427,10 @@ bool Seis2DLineMerger::nextGetter()
     nrdone_ = 0;
     totnr_ = l2dd.positions().size();
     if ( totnr_ < 0 )
-	mErrRet( tr("No data in %1").arg(geom2d->getName()) )
+	mErrRet( tr("No data in %1").arg(geom2d->name()) )
     const int dslineidx = ds_->indexOf( lid );
     if ( dslineidx<0 )
-	mErrRet( tr("Cannot find line in %1 dataset" ).arg(geom2d->getName()) )
+	mErrRet( tr("Cannot find line in %1 dataset" ).arg(geom2d->name()) )
     uiRetVal uirv;
     getter_ = ds_->traceGetter( lid, 0, uirv );
     if ( !getter_ )

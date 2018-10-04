@@ -350,7 +350,7 @@ PreLoadDataEntry::PreLoadDataEntry( const DBKey& dbky, Pos::GeomID geomid,
     if ( is2d_ )
     {
 	name_.add( " - " );
-	name_.add( geom->getName() );
+	name_.add( geom->name() );
     }
 }
 
