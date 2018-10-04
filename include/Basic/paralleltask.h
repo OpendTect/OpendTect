@@ -66,7 +66,9 @@ mExpClass(Basic) ParallelTask : public ReportingTask
 public:
     virtual		~ParallelTask();
 
-    bool		execute() { return executeParallel(true); }
+    void		doParallel(bool yn)	{ parallel_ = yn; }
+
+    bool		execute() { return executeParallel(parallel_); }
 			/*!<Runs the process the desired number of times. \note
 			    that the function has static threads (normally the
 			    same number as there are processors on the machine),
@@ -140,6 +142,7 @@ private:
 
     od_int64				totalnrcache_;
     od_int64				nrdonebigchunksz_;
+    bool				parallel_ = true;
 
 };
 
