@@ -66,7 +66,7 @@ TrcKey Survey::Geometry::getTrace( const Coord& crd, float maxdist ) const
 
 bool Survey::Geometry::includes( const TrcKey& tk ) const
 {
-    return tk.geomID() == getID()
+    return tk.geomID() == id()
 	&& includes( tk.lineNr(), tk.trcNr() );
 }
 
@@ -87,9 +87,8 @@ bool Survey::Geometry::exists( const TrcKey& tk )
 
 Pos::SurvID Survey::Geometry::getSurvID() const
 {
-    return is2D()
-	? Survey::GeometryManager::get2DSurvID()
-	: (Pos::SurvID) getID();
+    return is2D() ? Survey::GeometryManager::get2DSurvID()
+		  : (Pos::SurvID)id();
 }
 
 
@@ -141,7 +140,7 @@ TrcKey::SurvID Survey::GeometryManager::default3DSurvID() const
 {
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( !geometries_[idx]->is2D() )
-	    return geometries_[idx]->getID();
+	    return geometries_[idx]->id();
 
     return cSIGeomID;
 }
@@ -190,9 +189,8 @@ const Survey::Geometry* Survey::GeometryManager::getGeometry(
 const Survey::Geometry* Survey::GeometryManager::getGeometry(
 						const char* nm ) const
 {
-    const FixedString namestr( nm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
-	if ( namestr == geometries_[idx]->getName() )
+	if ( geometries_[idx]->hasName(nm) )
 	    return geometries_[idx];
 
     return 0;
@@ -202,11 +200,11 @@ const Survey::Geometry* Survey::GeometryManager::getGeometry(
 Survey::Geometry::ID Survey::GeometryManager::getGeomID(
 						const char* lnnm ) const
 {
-    const FixedString reqln( lnnm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
-	if ( geometries_[idx]->is2D() && reqln==geometries_[idx]->getName() )
-	    return geometries_[idx]->getID();
+	const auto& geom = *geometries_[idx];
+	if ( geom.is2D() && geom.hasName(lnnm) )
+	    return geom.id();
     }
 
     return mUdfGeomID;
@@ -229,7 +227,7 @@ Survey::Geometry::ID Survey::GeometryManager::getGeomID( const char* lsnm,
 const char* Survey::GeometryManager::getName( Geometry::ID geomid ) const
 {
     mGetConstGeom(geom,geomid);
-    return geom ? geom->getName() : 0;
+    return geom ? geom->name().str() : 0;
 }
 
 
@@ -376,7 +374,7 @@ bool Survey::GeometryManager::write( Geometry& geom, uiString& errmsg )
 	    return false;
 	}
 
-	if ( indexOf(geom.getID()) < 0 )
+	if ( indexOf(geom.id()) < 0 )
 	    addGeometry( geom );
 	geom.unRef();
 
@@ -394,14 +392,14 @@ Survey::Geometry::ID Survey::GeometryManager::addNewEntry( Geometry* geom,
 	return cUndefGeomID();
     if ( !geom->is2D() )
 	return default3DSurvID();
-    Geometry::ID geomid = getGeomID( geom->getName() );
+    Geometry::ID geomid = getGeomID( geom->name() );
     if ( geomid!=cUndefGeomID() )
 	return geomid;
     PtrMan<GeometryWriter> geomwriter =
 	GeometryWriter::factory().create( sKey::TwoD() );
 
     Threads::Locker locker( lock_ );
-    geomid = geomwriter->createNewGeomID( geom->getName() );
+    geomid = geomwriter->createNewGeomID( geom->name() );
     if ( !write(*geom,errmsg) )
 	return cUndefGeomID();
     return geomid;
@@ -429,7 +427,7 @@ bool Survey::GeometryManager::removeGeometry( Geometry::ID geomid )
 int Survey::GeometryManager::indexOf( Geometry::ID geomid ) const
 {
     for ( int idx=0; idx<geometries_.size(); idx++ )
-	if ( geometries_[idx]->getID() == geomid )
+	if ( geometries_[idx]->id() == geomid )
 	    return idx;
 
     return -1;
@@ -465,10 +463,11 @@ bool Survey::GeometryManager::getList( BufferStringSet& names,
     geomids.erase();
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
-	if ( geometries_[idx]->is2D() == is2d )
+	const auto& geom = *geometries_[idx];
+	if ( geom.is2D() == is2d )
 	{
-	    names.add( geometries_[idx]->getName() );
-	    geomids += geometries_[idx]->getID();
+	    names.add( geom.name() );
+	    geomids += geom.id();
 	}
     }
 
@@ -484,24 +483,24 @@ Survey::Geometry::ID Survey::GeometryManager::findRelated( const Geometry& ref,
     for ( int idx=0; identicalidx<0 && idx<geometries_.size(); idx++ )
     {
 	Geometry::RelationType rt = geometries_[idx]->compare( ref, usezrg );
-	switch(rt)
+	switch( rt )
 	{
-	    case Geometry::Identical : identicalidx = idx; break;
-	    case Geometry::SuperSet : supersetidx = idx; break;
-	    case Geometry::SubSet : subsetidx = idx; break;
-	    case Geometry::Related : relatedidx = idx; break;
+	    case Geometry::Identical:	identicalidx = idx; break;
+	    case Geometry::SuperSet:	supersetidx = idx;  break;
+	    case Geometry::SubSet:	subsetidx = idx;    break;
+	    case Geometry::Related:	relatedidx = idx;   break;
 	    default: break;
 	}
     }
 
     if ( identicalidx >= 0 )
-    { reltype = Geometry::Identical; return geometries_[identicalidx]->getID();}
+    { reltype = Geometry::Identical; return geometries_[identicalidx]->id();}
     if ( supersetidx >= 0 )
-    { reltype = Geometry::SuperSet; return geometries_[supersetidx]->getID(); }
+    { reltype = Geometry::SuperSet; return geometries_[supersetidx]->id(); }
     if ( subsetidx >= 0 )
-    { reltype = Geometry::SubSet; return geometries_[subsetidx]->getID(); }
+    { reltype = Geometry::SubSet; return geometries_[subsetidx]->id(); }
     if ( relatedidx >= 0 )
-    { reltype = Geometry::Related; return geometries_[relatedidx]->getID(); }
+    { reltype = Geometry::Related; return geometries_[relatedidx]->id(); }
 
     reltype = Geometry::UnRelated; return mUdfGeomID;
 }
@@ -583,7 +582,7 @@ const Survey::Geometry3D* Survey::Geometry::as3D() const
 Survey::Geometry3D::Geometry3D()
     : zdomain_( ZDomain::SI() )
 {
-    sampling_.hsamp_.survid_ = getID();
+    sampling_.hsamp_.survid_ = id();
 }
 
 
@@ -591,7 +590,7 @@ Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
     : name_( nm )
     , zdomain_( zd )
 {
-    sampling_.hsamp_.survid_ = getID();
+    sampling_.hsamp_.survid_ = id();
 }
 
 

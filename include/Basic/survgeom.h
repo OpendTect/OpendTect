@@ -41,10 +41,11 @@ will end up in the lineNr() of the TrcKey.
 */
 
 mExpClass(Basic) Geometry : public RefCount::Referenced
+			  , public ObjectWithName
 {
 public:
 
-    typedef Pos::GeomID		ID;
+    typedef Pos::GeomID	ID;
 
     enum RelationType	{ UnRelated=0, Related, SubSet, SuperSet, Identical };
 			/*!< 'Related' means the two geometries have the same
@@ -56,9 +57,8 @@ public:
     Pos::SurvID		getSurvID() const;
     static const Geometry& default3D();
 
-    ID			getID() const			{ return id_; }
+    inline ID		id() const			{ return id_; }
     void		setID( ID id )			{ id_ = id; }
-    virtual const char*	getName() const			= 0;
 
     virtual Coord	toCoord(Pos::LineID,Pos::TraceID) const		= 0;
     inline Coord	toCoord( const BinID& b ) const
@@ -75,27 +75,32 @@ public:
     virtual TrcKey	getTrace(const Coord&,float maxdist) const;
     virtual TrcKey	nearestTrace(const Coord&,float* distance=0) const = 0;
 
-    TrcKeyZSampling&		sampling()		{ return sampling_; }
-    const TrcKeyZSampling&	sampling() const	{ return sampling_; }
+    TrcKeyZSampling&	sampling()		{ return sampling_; }
+    const TrcKeyZSampling& sampling() const	{ return sampling_; }
 
-    virtual float		averageTrcDist() const			= 0;
+    virtual float	averageTrcDist() const			= 0;
 
-    //Convenience functions for the most commone geometries
-    virtual Geometry2D*		as2D()			{ return 0; }
-    const Geometry2D*		as2D() const;
+    // Convenience functions
+    virtual Geometry2D*	as2D()			{ return 0; }
+    const Geometry2D*	as2D() const;
 
-    virtual Geometry3D*		as3D()			{ return 0; }
-    const Geometry3D*		as3D() const;
+    virtual Geometry3D*	as3D()			{ return 0; }
+    const Geometry3D*	as3D() const;
 
 protected:
-				~Geometry();
-				Geometry();
+			~Geometry();
+			Geometry();
 
-    TrcKeyZSampling		sampling_;
+    TrcKeyZSampling	sampling_;
 
 private:
 
-    ID				id_;
+    ID			id_;
+
+public:
+
+    mDeprecated ID	getID() const		{ return id(); }
+    mDeprecated const char* getName() const	{ return name().str(); }
 
 };
 
@@ -106,10 +111,12 @@ mExpClass(Basic) GeometryManager
 { mODTextTranslationClass(GeometryManager)
 public:
 
+    typedef Geometry::ID	ID;
+
 				GeometryManager();
 				~GeometryManager();
 
-    const Geometry*		getGeometry(Geometry::ID) const;
+    const Geometry*		getGeometry(ID) const;
     const Geometry*		getGeometry(const char*) const;
     const Geometry*		getGeometry(const DBKey&) const;
 
@@ -117,23 +124,23 @@ public:
 
     int				nrGeometries() const;
 
-    Geometry::ID		getGeomID(const char* linenm) const;
-    const char*			getName(Geometry::ID) const;
-    bool			is2D(Geometry::ID) const;
+    ID				getGeomID(const char* linenm) const;
+    const char*			getName(ID) const;
+    bool			is2D(ID) const;
 
     Coord			toCoord(const TrcKey&) const;
 
-    TrcKey			traceKey(Geometry::ID,Pos::LineID,
+    TrcKey			traceKey(ID,Pos::LineID,
 					 Pos::TraceID) const;
 				//!<For 3D
-    TrcKey			traceKey(Geometry::ID,Pos::TraceID) const;
+    TrcKey			traceKey(ID,Pos::TraceID) const;
 				//!<For 2D
 
     bool			fillGeometries(TaskRunner*);
     bool			getList(BufferStringSet& names,
-					TypeSet<Geometry::ID>& ids,
+					TypeSet<ID>& ids,
 					bool is2d) const;
-    Geometry::ID		findRelated(const Geometry&,
+    ID				findRelated(const Geometry&,
 					    Geometry::RelationType&,
 					    bool usezrg) const;
 				//!<Returns cUndefGeomID() if none found
@@ -141,14 +148,14 @@ public:
     static TrcKey::SurvID	get2DSurvID()	{ return surv2did_; }
     TrcKey::SurvID		default3DSurvID() const;
     TrcKey::SurvID		synthSurvID() const;
-    static Geometry::ID		cUndefGeomID()	{ return mUdf(Geometry::ID); }
+    static ID			cUndefGeomID()	{ return mUdf(ID); }
 
 protected:
 
     void			ensureSIPresent() const;
     void			addGeometry(Geometry&);
 
-    int				indexOf(Geometry::ID) const;
+    int				indexOf(ID) const;
     bool			hasDuplicateLineNames();
 
     Threads::Lock		lock_;
@@ -162,13 +169,13 @@ public:
     /*! Admin functions:
       Use the following functions only when you know what you are doing. */
 
-    Geometry*			getGeometry(Geometry::ID);
+    Geometry*			getGeometry(ID);
     bool			write(Geometry&,uiString&);
-    Geometry::ID		addNewEntry(Geometry*,uiString&);
+    ID		addNewEntry(Geometry*,uiString&);
 				/*! Returns new GeomID. */
-    bool			removeGeometry(Geometry::ID);
+    bool			removeGeometry(ID);
 
-    Geometry::ID		getGeomID(const char* lsm,
+    ID		getGeomID(const char* lsm,
 					  const char* linenm) const;
 				/*!< Use only if you are converting
 				    od4 geometries to od5 geometries */
@@ -191,10 +198,9 @@ public:
     virtual		~GeometryReader()		{}
 			mDefineFactoryInClass(GeometryReader,factory)
 
-    virtual bool	read(ObjectSet<Geometry>&,TaskRunner*) const
-							{ return true; }
-    virtual bool	updateGeometries(ObjectSet<Geometry>&,TaskRunner*) const
-							{ return true; }
+    virtual bool	read(ObjectSet<Geometry>&,TaskRunner*) const	= 0;
+    virtual bool	updateGeometries(ObjectSet<Geometry>&,
+					 TaskRunner*) const		= 0;
 };
 
 
@@ -203,14 +209,15 @@ mExpClass(Basic) GeometryWriter
 {
 public:
 
+    typedef Geometry::ID GeometryID;
+
     virtual		~GeometryWriter()		{}
 			mDefineFactoryInClass(GeometryWriter,factory)
 
-    virtual bool	write(Geometry&,uiString&,
-			      const char* crfromstr=0) const { return true; }
-    virtual IOObj*	createEntry(const char*) const	{ return 0; }
-    virtual Geometry::ID createNewGeomID(const char*) const { return 0; }
-    virtual bool	removeEntry(const char*) const	{ return 0; }
+    virtual bool	write(const Geometry&,uiString&,
+			      const char* crfromstr=0) const	= 0;
+    virtual IOObj*	createEntry(const char*) const		= 0;
+    virtual GeometryID	createNewGeomID(const char*) const	= 0;
 
 };
 

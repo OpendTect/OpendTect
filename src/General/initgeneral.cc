@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "dbman.h"
 #include "elasticpropseltransl.h"
-#include "geometryio.h"
+#include "survgeometryio.h"
 #include "ioobjselectiontransl.h"
 #include "mathformulatransl.h"
 #include "mathproperty.h"

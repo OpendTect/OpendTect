@@ -5,7 +5,7 @@
 -*/
 
 
-#include "geometryio.h"
+#include "survgeometryio.h"
 
 #include "bendpointfinder.h"
 #include "ioobjctxt.h"
@@ -58,7 +58,7 @@ public:
 	const int geomidx = indexOf( geomid );
 	if ( updateonly_ && geomidx!=-1 )
 	{
-	    mDynamicCastGet(Geometry2D*,geom2d,geometries_[geomidx])
+	    auto* geom2d = geometries_[geomidx]->as2D();
 	    if ( geom2d && geom2d->data().isEmpty() )
 		doupdate = true;
 	    else
@@ -85,7 +85,7 @@ public:
 		geometries_ += geom;
 	}
 
-	mDynamicCastGet(Geometry2D*,geom2d,geom)
+	auto* geom2d = geom ? geom->as2D() : 0;
 	if ( geom2d )
 	    calcBendPoints( geom2d->dataAdmin() );
 
@@ -107,7 +107,7 @@ protected:
     int indexOf( Geometry::ID geomid ) const
     {
 	for ( int idx=0; idx<geometries_.size(); idx++ )
-	    if ( geometries_[idx]->getID() == geomid )
+	    if ( geometries_[idx]->id() == geomid )
 		return idx;
 	return -1;
     }
@@ -121,18 +121,17 @@ protected:
 
 
 void GeometryWriter2D::initClass()
-{ GeometryWriter::factory().addCreator( create2DWriter, sKey::TwoD() ); }
+{ GeometryWriter::factory().addCreator( createNew, sKey::TwoD() ); }
 
 
-bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
+bool GeometryWriter2D::write( const Geometry& geom, uiString& errmsg,
 			      const char* createfromstr ) const
 {
-    RefMan< Geometry2D > geom2d;
-    mDynamicCast( Geometry2D*, geom2d, &geom );
+    const auto* geom2d = geom.as2D();
     if ( !geom2d )
-	return false;
+	return true;
 
-    PtrMan<IOObj> ioobj = createEntry( geom2d->data().lineName().buf() );
+    PtrMan<IOObj> ioobj = createEntry( geom2d->data().lineName() );
     if ( !ioobj || !ioobj->key().hasValidObjID() )
 	return false;
 
@@ -170,7 +169,7 @@ IOObj* GeometryWriter2D::createEntry( const char* name ) const
 
 void GeometryWriter3D::initClass()
 {
-    GeometryWriter::factory().addCreator( create3DWriter, sKey::ThreeD() );
+    GeometryWriter::factory().addCreator( createNew, sKey::ThreeD() );
 }
 
 
@@ -202,13 +201,13 @@ bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
 
 void GeometryReader2D::initClass()
 {
-    GeometryReader::factory().addCreator( create2DReader, sKey::TwoD() );
+    GeometryReader::factory().addCreator( createNew, sKey::TwoD() );
 }
 
 
 void GeometryReader3D::initClass()
 {
-    GeometryReader::factory().addCreator( create3DReader, sKey::ThreeD() );
+    GeometryReader::factory().addCreator( createNew, sKey::ThreeD() );
 }
 
 } // namespace Survey

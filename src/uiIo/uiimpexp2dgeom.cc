@@ -19,11 +19,11 @@ ________________________________________________________________________
 #include "uitblimpexpdatasel.h"
 
 #include "file.h"
-#include "geom2dascio.h"
 #include "od_iostream.h"
 #include "posinfo2d.h"
-#include "survgeometrytransl.h"
 #include "survgeom2d.h"
+#include "survgeom2dascio.h"
+#include "survgeometrytransl.h"
 #include "tabledef.h"
 
 

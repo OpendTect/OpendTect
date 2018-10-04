@@ -4,7 +4,7 @@
  * DATE     : September 2010
 -*/
 
-#include "geom2dascio.h"
+#include "survgeom2dascio.h"
 
 #include "coordsystem.h"
 #include "latlong.h"
@@ -133,7 +133,7 @@ bool Geom2DAscIO::getData( ObjectSet<Survey::Geometry2D>& geoms ) const
 	if ( linenm.isEmpty() )
 	    continue;
 
-	if ( !geom || linenm != geom->getName() )
+	if ( !geom || linenm != geom->name() )
 	{
 	    geom = new Survey::Geometry2D( linenm );
 	    geom->ref();

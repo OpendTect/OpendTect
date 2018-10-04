@@ -358,7 +358,7 @@ Pos::GeomID uiStratSynthExport::getGeometry( Line2DData& linegeom )
 		mErrRet(uiStrings::phrCannotFind(
 			    tr("the geometry of specified line")), mUdfGeomID )
 	    linegeom = geom2d->data();
-	    return geom->getID();
+	    return geom->id();
 	}
 	case StraightLine:
 	{

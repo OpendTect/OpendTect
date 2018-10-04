@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mSetSampling \
 const StepInterval<Pos::TraceID> trcrg = data_.trcNrRange(); \
 sampling_.zsamp_ = data_.zRange(); \
-sampling_.hsamp_.start_.lineNr() = sampling_.hsamp_.stop_.lineNr() = getID(); \
+sampling_.hsamp_.start_.lineNr() = sampling_.hsamp_.stop_.lineNr() = id(); \
 sampling_.hsamp_.start_.trcNr() = trcrg.start; \
 sampling_.hsamp_.stop_.trcNr() = trcrg.stop; \
 sampling_.hsamp_.step_.trcNr() = trcrg.step
@@ -121,9 +121,9 @@ bool Survey::Geometry2D::getPosByCoord( const Coord& crd, int& trcnr,
 */
 
 
-const char* Survey::Geometry2D::getName() const
+const OD::String& Survey::Geometry2D::name() const
 {
-    return data_.lineName().buf();
+    return data_.lineName();
 }
 
 
@@ -140,7 +140,7 @@ TrcKey Survey::Geometry2D::nearestTrace( const Coord& crd, float* dist ) const
     if ( !data_.getPos(crd,pos,dist) )
 	return TrcKey::udf();
 
-    return Survey::GM().traceKey( getID(), pos.nr_ );
+    return Survey::GM().traceKey( id(), pos.nr_ );
 }
 
 

@@ -36,7 +36,7 @@ public:
 			Geometry3D(const char* nm,const ZDomain::Def& zd );
 
     virtual bool	is2D() const		{ return false; }
-    virtual const char*	getName() const		{ return name_.buf(); }
+    virtual const name_type& name() const	{ return name_; }
     virtual void	setName( const char* nm ) { name_ = nm; }
 
     const ZDomain::Def&	zDomain() const		{ return zdomain_; }

@@ -29,11 +29,14 @@ public:
 mExpClass(General) SurvGeom2DTranslator : public Translator
 {
 public:
+
+    typedef Survey::Geometry	Geometry;
+
 				mDefEmptyTranslatorBaseConstructor(SurvGeom2D);
 
-    virtual Survey::Geometry*	readGeometry(const IOObj&,uiString&) const = 0;
-    virtual bool		writeGeometry(IOObj&,Survey::Geometry&,
-					      uiString&) const		   = 0;
+    virtual Geometry*	readGeometry(const IOObj&,uiString&) const = 0;
+    virtual bool	writeGeometry(IOObj&,const Geometry&,
+				      uiString&) const		   = 0;
 
     static Pos::GeomID	getGeomID(const IOObj&);
     static IOObj*	getIOObj(Pos::GeomID);
@@ -50,7 +53,8 @@ public:
 			    : SurvGeom2DTranslator(s1,s2)	{}
 
     const char*		defExtension() const	{ return "geom"; }
-    Survey::Geometry*	readGeometry(const IOObj&,uiString&) const;
-    bool		writeGeometry(IOObj&,Survey::Geometry&,uiString&) const;
+    Geometry*		readGeometry(const IOObj&,uiString&) const;
+    bool		writeGeometry(IOObj&,const Geometry&,
+					uiString&) const;
 
 };

@@ -17,7 +17,26 @@ ________________________________________________________________________
 
 /*!\brief object with a name. */
 
-mExpClass(Basic) NamedObject
+mExpClass(Basic) ObjectWithName
+{
+public:
+
+    typedef OD::String		name_type;
+
+    virtual const name_type&	name() const		= 0;
+
+    inline bool			hasName( const char* nm ) const
+				{ return name() == nm; }
+    inline bool			hasName( const name_type& nm ) const
+				{ return name() == nm; }
+
+    void			putNameInPar(IOPar&) const;
+
+};
+
+/*!\brief object with a name. */
+
+mExpClass(Basic) NamedObject : public ObjectWithName
 {
 public:
 
@@ -30,12 +49,11 @@ public:
     bool		operator ==( const NamedObject& oth ) const
 			{ return name_ == oth.getName(); }
 
-    virtual const OD::String& name() const		{ return name_; }
+    virtual const name_type& name() const		{ return name_; }
     virtual BufferString getName() const		{ return name_; }
     virtual void	setName( const char* nm )	{ name_ = nm; }
 
     bool		getNameFromPar(const IOPar&);
-    void		putNameInPar(IOPar&) const;
 
 protected:
 
@@ -72,8 +90,8 @@ protected:
 };
 
 
-mGlobal(Basic) inline bool operator >( const NamedObject& obj1,
-				       const NamedObject& obj2 )
+mGlobal(Basic) inline bool operator >( const ObjectWithName& obj1,
+				       const ObjectWithName& obj2 )
 {
-    return obj1.getName() > obj2.getName();
+    return obj1.name() > obj2.name();
 }

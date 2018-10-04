@@ -339,7 +339,7 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
 
 
 bool SEGYDirectSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
-						    Survey::Geometry& geom,
+						    const Geometry& geom,
 						    uiString& errmsg ) const
 {
     pErrMsg("This function should not be called");

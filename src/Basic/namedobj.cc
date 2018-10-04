@@ -13,6 +13,12 @@
 mDefineInstanceCreatedNotifierAccess(NamedMonitorable);
 
 
+void ObjectWithName::putNameInPar( IOPar& iop ) const
+{
+    iop.set( sKey::Name(), name() );
+}
+
+
 NamedObject& NamedObject::operator =( const NamedObject& oth )
 {
     if ( this != &oth )
@@ -28,12 +34,6 @@ bool NamedObject::getNameFromPar( const IOPar& iop )
 	return false;
     setName( myname );
     return true;
-}
-
-
-void NamedObject::putNameInPar( IOPar& iop ) const
-{
-    iop.set( sKey::Name(), getName() );
 }
 
 

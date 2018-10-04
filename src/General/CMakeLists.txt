@@ -43,8 +43,6 @@ list ( APPEND OD_MODULE_SOURCES
 	flatview.cc
 	fontdata.cc
 	geojson.cc
-	geom2dascio.cc
-	geometryio.cc
 	googlexmlwriter.cc
 	grid2d.cc
 	hdf5access.cc
@@ -86,6 +84,8 @@ list ( APPEND OD_MODULE_SOURCES
 	rockphysics.cc
 	saveable.cc
 	stratlevel.cc
+	survgeom2dascio.cc
+	survgeometryio.cc
 	survgeometrytransl.cc
 	surveywalker.cc
 	tableascio.cc

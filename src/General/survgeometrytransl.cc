@@ -99,7 +99,7 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
     if ( !data->read(strm,false) )
 	{ delete data; return 0; }
 
-    const Survey::Geometry::ID geomid = ioobj.key().objID().getI();
+    const Geometry::ID geomid = ioobj.key().objID().getI();
     data->setLineName( ioobj.name() );
     Survey::Geometry2D* geom = new Survey::Geometry2D( data );
     geom->setID( geomid );
@@ -123,14 +123,14 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 
 
 bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
-					     Survey::Geometry& geom,
+					     const Geometry& geom,
 					     uiString& errmsg ) const
 {
-    RefMan<Survey::Geometry2D> geom2d = geom.as2D();
+    const Survey::Geometry2D* geom2d = geom.as2D();
     if ( !geom2d )
-	return false;
+	return true;
 
-    geom2d->setID( ioobj.key().objID().getI() );
+    const_cast<Survey::Geometry2D*>(geom2d)->setID( ioobj.key().objID().getI());
 
     od_ostream strm( ioobj.mainFileName() );
     ascostream astream( strm );
@@ -143,10 +143,7 @@ bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
     const bool res = !strm.isOK() ? false
 		   : geom2d->data().write( strm, false, true );
     if ( !res )
-    {
-	errmsg = strm.errMsg();
-	return false;
-    }
+	{ errmsg = strm.errMsg(); return false; }
 
     for ( int idx=0; idx<geom2d->spnrs().size(); idx++ )
 	strm.addBin( geom2d->spnrs()[idx] );

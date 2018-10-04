@@ -441,7 +441,7 @@ bool Pick::Location::fromString( const char* inp )
 	geom = &Survey::Geometry::default3D();
     if ( !trckey_ )
 	trckey_ = new TrcKey;
-    trckey_->setGeomID( geom->getID() );
+    trckey_->setGeomID( geom->id() );
     trckey_->setFrom( pos_.getXY() );
 
     return true;

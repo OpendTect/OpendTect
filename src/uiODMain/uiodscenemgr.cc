@@ -1295,7 +1295,7 @@ int uiODSceneMgr::add2DLineItem( const DBKey& mid , int sceneid )
     const Survey::Geometry* geom = Survey::GM().getGeometry( mid );
     if ( !geom ) return -1;
 
-    const Pos::GeomID geomid = geom->getID();
+    const Pos::GeomID geomid = geom->id();
     Line2DProbe* line2dprobe = new Line2DProbe( geomid );
     SilentTaskRunnerProvider trprov;
     if ( !ProbeMGR().store(*line2dprobe,trprov).isOK() )

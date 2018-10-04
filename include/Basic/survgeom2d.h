@@ -31,7 +31,7 @@ public:
 				//!<Line2DData becomes mine
 
     virtual bool		is2D() const		{ return true; }
-    virtual const char*		getName() const;
+    virtual const name_type&	name() const;
 
     void			add(const Coord&,int trcnr,int spnr=-1);
     void			add(double x,double y,int trcnr,int spnr=-1);
@@ -71,6 +71,7 @@ private:
     mutable float		trcdist_;
     mutable float		linelength_;
     mutable Threads::Lock	lock_;
+
 };
 
 } // namespace Survey

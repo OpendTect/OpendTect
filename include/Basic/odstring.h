@@ -79,6 +79,8 @@ public:
     double		toDouble() const;
     bool		toBool() const;
 
+    bool		operator >(const String&) const;
+    bool		operator <(const String&) const;
     bool		operator >(const char*) const;
     bool		operator <(const char*) const;
     template <class T>
@@ -100,21 +102,23 @@ protected:
 
 
 inline bool String::operator==( const String& s ) const
-{ return isEqual( s.str() ); }
+{ return isEqual( s.gtStr() ); }
 inline bool String::operator!=( const String& s ) const
-{ return !isEqual( s.str() ); }
-
+{ return !isEqual( s.gtStr() ); }
 inline bool String::operator==( const char* s ) const
 { return isEqual( s ); }
 inline bool String::operator!=( const char* s ) const
 { return !isEqual( s ); }
 
+inline bool String::operator >( const String& oth ) const
+{ return *this > gtStr(); }
+inline bool String::operator <( const String& oth ) const
+{ return *this < gtStr(); }
+
 template <class T> inline bool String::operator==( const T& t ) const
 { return isEqual( toString(t) ); }
-
 template <class T> inline bool String::operator >( const T& t ) const
 { return *this > ( toString( t ) ); }
-
 template <class T> inline bool String::operator <( const T& t ) const
 { return *this < ( toString( t ) ); }
 

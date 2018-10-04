@@ -104,7 +104,7 @@ int Seis2DFrom3DExtractor::handleTrace()
 
     const PosInfo::Line2DPos& curpos =
 		curgeom2d_->data().positions()[curtrcidx_++];
-    TrcKey curtrckey( curgeom2d_->getID(), curpos.nr_ );
+    TrcKey curtrckey( curgeom2d_->id(), curpos.nr_ );
     trc.info().trckey_ = curtrckey;
     trc.info().coord_ = curpos.coord_;
     if ( !wrr_.put(trc) )
