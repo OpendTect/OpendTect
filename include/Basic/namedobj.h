@@ -23,6 +23,8 @@ public:
 
     typedef OD::String		name_type;
 
+    virtual			~ObjectWithName()			{}
+
     virtual const name_type&	name() const		= 0;
 
     inline bool			hasName( const char* nm ) const
