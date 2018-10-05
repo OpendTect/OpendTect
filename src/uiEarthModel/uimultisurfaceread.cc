@@ -41,14 +41,27 @@ uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg(uiParent* p, const char* type)
 
 void uiMultiSurfaceReadDlg::statusMsg( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const char* ,msg,cb);
+    mCBCapsuleUnpack(const char*,msg,cb);
     toStatusBar( toUiString(msg) );
 }
 
 
 bool uiMultiSurfaceReadDlg::acceptOK()
 {
-    return surfacefld_->objselGrp()->nrChosen() > 0;
+    const int nrchosen = surfacefld_->objselGrp()->nrChosen();
+    if ( nrchosen==1 )
+    {
+	EM::SurfaceIOData sd;
+	const EM::IOObjInfo info( surfacefld_->objselGrp()->chosenID() );
+	uiString errmsg;
+	if ( !info.getSurfaceData(sd,errmsg) )
+	{
+	    uiMSG().error( errmsg );
+	    return false;
+	}
+    }
+
+    return nrchosen > 0;
 }
 
 
@@ -180,7 +193,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
     if ( processInput() )
     {
 	EM::SurfaceIOData sd;
-	if ( getSurfaceIOData(ioobjselgrp_->chosenID(0),sd,cb) )
+	if ( getSurfaceIOData(ioobjselgrp_->chosenID(0),sd,false) )
 	    fillFields( sd );
     }
 }
@@ -222,7 +235,7 @@ void uiMultiSurfaceRead::getSurfaceIds( DBKeySet& dbkys ) const
 	    uiMSG().error( errormsgstr );
 	else
 	    uiMSG().error(
-		    tr("The following selections will not be loaded:\n\n%1")
+		    tr("The following surfaces will not be loaded:\n\n%1")
 		    .arg(errormsgstr.cat()) );
     }
 
