@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "settings.h"
 #include "uistrings.h"
+#include <string.h>
 
 
 uiFileInput::Setup::Setup( const char* filenm )
@@ -194,6 +195,31 @@ void uiFileInput::fnmEntered( CallBacker* )
 }
 
 
+BufferString getExtFromFilter( const char* fltr )
+{
+    BufferString filter( fltr );
+    char* extptr = filter.find( "*." );
+    if ( !extptr )
+	return "";
+
+    extptr+=2;
+    if ( !extptr || extptr[0]=='*' )
+	return "";
+
+    const int len = strlen( extptr );
+    for ( int idx=0; idx<len; idx++ )
+    {
+	if ( extptr[idx]==')' || extptr[idx]==' ' )
+	{
+	    extptr[idx] = '\0';
+	    return extptr;
+	}
+    }
+
+    return "";
+}
+
+
 void uiFileInput::doSelect( CallBacker* )
 {
     BufferString fname = fileName();
@@ -250,7 +276,11 @@ void uiFileInput::doSelect( CallBacker* )
 	    FilePath fp( newfname );
 	    const FixedString ext = fp.extension();
 	    if ( ext.isEmpty() )
-		fp.setExtension( defaultext_ );
+	    {
+		BufferString selext = getExtFromFilter( selfltr_ );
+		fp.setExtension( selext.isEmpty() ? defaultext_ : selext );
+	    }
+
 	    newfname = fp.fullPath();
 	}
 

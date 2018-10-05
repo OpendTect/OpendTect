@@ -196,7 +196,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     heightfld_->attach( rightTo, widthfld_ );
 
     const char* units[] = { "cm", "inches", 0 };
-    unitfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+    unitfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 						    StringListInpSpec(units) );
     unitfld_->setElemSzPol( uiObject::Small );
     unitfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,unitChg) );
@@ -510,6 +510,7 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
 	}
 
 	fileinputfld_->setSelectedFilter( imageformatdescs[idx] );
+	fileinputfld_->setDefaultExtension( imageformats[idx] );
 	break;
     }
 
