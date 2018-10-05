@@ -102,7 +102,7 @@ bool uiSeisExpCubePositionsDlg::doExport( const PosInfo::CubeData& cd,
     if ( File::exists(filenm) )
     {
 	if ( !File::isWritable(filenm) || !File::remove(filenm) )
-	    mErrRet( uiStrings::phrCannotRemove( filenm ) )
+	    mErrRet( uiStrings::phrCannotRemove(toUiString(filenm)) )
     }
 
     od_ostream strm( filenm );
