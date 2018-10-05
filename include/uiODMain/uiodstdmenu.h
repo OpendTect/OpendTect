@@ -163,6 +163,8 @@ ________________________________________________________________________
 #define mPSProc3DMnuItm			(mProcMnu + 301)
 #define mVolProc2DMnuItm		(mProcMnu + 400)
 #define mVolProc3DMnuItm		(mProcMnu + 401)
+#define mT2DConv2DMnuItm		(mProcMnu + 410)
+#define mT2DConv3DMnuItm		(mProcMnu + 411)
 #define mStartBatchJobMnuItm		(mProcMnu + 500)
 
 

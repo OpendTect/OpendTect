@@ -87,6 +87,8 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     , impps2dseisdlg_(0)
     , expps2dseisdlg_(0)
     , expcubeposdlg_(0)
+    , t2ddlg2d_(0)
+    , t2ddlg3d_(0)
 {
     SeisIOObjInfo::initDefault( sKey::Steering() );
     mAttachCB( DBM().surveyChanged, uiSeisPartServer::survChangedCB );
@@ -112,6 +114,8 @@ uiSeisPartServer::~uiSeisPartServer()
     delete impps2dseisdlg_;
     delete expps2dseisdlg_;
     delete expcubeposdlg_;
+    delete t2ddlg2d_;
+    delete t2ddlg3d_;
 }
 
 
@@ -135,6 +139,8 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     deleteAndZeroPtr( impps2dseisdlg_ );
     deleteAndZeroPtr( expps2dseisdlg_ );
     deleteAndZeroPtr( expcubeposdlg_ );
+    deleteAndZeroPtr( t2ddlg2d_ );
+    deleteAndZeroPtr( t2ddlg3d_ );
 }
 
 #define mPopupSimpIODlg(dlgobj,is2d,isps) { \
@@ -472,10 +478,16 @@ void uiSeisPartServer::storeRlnAs2DLine( const Geometry::RandomLine& rln ) const
 }
 
 
-void uiSeisPartServer::processTime2Depth() const
+void uiSeisPartServer::processTime2Depth( bool is2d )
 {
-    uiBatchTime2DepthSetup dlg( parent() );
-    dlg.go();
+    uiBatchTime2DepthSetup*& dlg = is2d ? t2ddlg2d_ : t2ddlg3d_;
+    if ( !dlg )
+    {
+	dlg = new uiBatchTime2DepthSetup( parent(), is2d );
+	dlg->setModal( false );
+    }
+
+    dlg->show();
 }
 
 

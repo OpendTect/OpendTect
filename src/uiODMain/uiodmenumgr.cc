@@ -694,15 +694,13 @@ void uiODMenuMgr::fillProcMenu()
 	addAction( psmnu, tr("Create MultiCube DataStore"), "multicubeps",
 			    mCB(&applMgr(),uiODApplMgr,createMultiCubeDS) );
 
+    uiMenu* velmnu = addSubMenu( csomnu_, uiStrings::sVelocity(),
+				 "velocity_cube" );
+    add2D3DActions( velmnu, tr("Time - Depth Conversion"), "time2depth",
+		    mT2DConv2DMnuItm, mT2DConv3DMnuItm );
     if ( have3d )
-    {
-	uiMenu* velmnu = addSubMenu( csomnu_, uiStrings::sVelocity(),
-				     "velocity_cube" );
-	addAction( velmnu, tr("Time - Depth Conversion"), "time2depth",
-			 mCB(&applMgr(),uiODApplMgr,processTime2Depth) );
 	addAction( velmnu, tr("Velocity Conversion"), "velconv",
 			 mCB(&applMgr(),uiODApplMgr,processVelConv) );
-    }
 
     add2D3DActions( csomnu_, tr("Volume Builder"), "volproc",
 		     mVolProc2DMnuItm, mVolProc3DMnuItm );
@@ -1336,6 +1334,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mPSProc3DMnuItm:	applMgr().processPreStack(false); break;
     case mVolProc2DMnuItm:	applMgr().createVolProcOutput(true); break;
     case mVolProc3DMnuItm:	applMgr().createVolProcOutput(false); break;
+    case mT2DConv2DMnuItm:	applMgr().processTime2Depth( true ); break;
+    case mT2DConv3DMnuItm:	applMgr().processTime2Depth( false ); break;
     case mCreateSurf2DMnuItm:	applMgr().createHorOutput(0,true); break;
     case mCreateSurf3DMnuItm:	applMgr().createHorOutput(0,false); break;
     case mCompAlongHor2DMnuItm:	applMgr().createHorOutput(1,true); break;

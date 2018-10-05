@@ -475,8 +475,8 @@ void uiODApplMgr::editAttribSet()
 void uiODApplMgr::editAttribSet( bool is2d )
 { attrserv_->editSet( is2d ); }
 
-void uiODApplMgr::processTime2Depth( CallBacker* )
-{ seisserv_->processTime2Depth(); }
+void uiODApplMgr::processTime2Depth( bool is2d )
+{ seisserv_->processTime2Depth( is2d ); }
 
 void uiODApplMgr::processVelConv( CallBacker* )
 { seisserv_->processVelConv(); }

@@ -1036,8 +1036,8 @@ void SeisIOObjInfo::getPostStackUserInfo( uiPhraseSet& inf ) const
     if ( compnms.size() > 1 )
     {
 	for ( int idx=0; idx<compnms.size(); idx++ )
-	    inf.addKeyValue( toUiString("%1[%2]")
-		 .arg(uiStrings::sComponent()).arg(idx), compnms.get(idx) );
+	    inf.addKeyValue( toUiString("%1 %2")
+		 .arg(uiStrings::sComponent()).arg(idx+1), compnms.get(idx) );
     }
 }
 

@@ -19,6 +19,7 @@ class BufferStringSet;
 class TrcKeyZSampling;
 class IOPar;
 class SeisTrcBuf;
+class uiBatchTime2DepthSetup;
 class uiFlatViewWin;
 class uiSeisFileMan;
 class uiSeisImportODCube;
@@ -57,7 +58,7 @@ public:
     void		getStoredGathersList(bool for3d,BufferStringSet&) const;
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
 
-    void		processTime2Depth() const;
+    void		processTime2Depth(bool is2d);
     void		processVelConv() const;
     void		createMultiCubeDataStore() const;
 
@@ -92,8 +93,10 @@ protected:
     uiSeisIOSimple*	impps2dseisdlg_;
     uiSeisIOSimple*	expps2dseisdlg_;
     uiSeisImportODCube*	impodcubedlg_;
-    uiSeisImpCubeFromOtherSurveyDlg* impcubeothsurvdlg_;
-    uiSeisExpCubePositionsDlg*	expcubeposdlg_;
+    uiSeisImpCubeFromOtherSurveyDlg* 	impcubeothsurvdlg_;
+    uiSeisExpCubePositionsDlg*		expcubeposdlg_;
+    uiBatchTime2DepthSetup*		t2ddlg2d_;
+    uiBatchTime2DepthSetup*		t2ddlg3d_;
 
 private:
 
