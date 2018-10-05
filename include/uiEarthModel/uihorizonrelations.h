@@ -31,11 +31,12 @@ protected:
     uiPushButton*	waterbut_;
 
     BufferStringSet	hornames_;
-    DBKeySet	horids_;
+    DBKeySet		horids_;
     bool		is2d_;
 
     void		fillRelationField(const BufferStringSet&);
 
+    void		clearCB(CallBacker*);
     void		readHorizonCB(CallBacker*);
     void		checkCrossingsCB(CallBacker*);
     void		makeWatertightCB(CallBacker*);

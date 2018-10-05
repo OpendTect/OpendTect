@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "ioobjctxt.h"
 #include "horizonmodifier.h"
+#include "horizonrelation.h"
 #include "horizonsorter.h"
 #include "dbman.h"
 #include "ioobj.h"
@@ -49,10 +50,15 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     relationfld_ = new uiListBox( this, su );
     relationfld_->setHSzPol( uiObject::Wide );
 
+    uiPushButton* clearbut =
+	new uiPushButton( relationfld_, tr("Clear Order"), true );
+    clearbut->activated.notify( mCB(this,uiHorizonRelationsDlg,clearCB) );
+    clearbut->attach( rightTo, relationfld_->box() );
+
     uiPushButton* orderbut =
 		new uiPushButton( relationfld_, tr("Read Horizons"), false );
     orderbut->activated.notify( mCB(this,uiHorizonRelationsDlg,readHorizonCB) );
-    orderbut->attach( rightTo, relationfld_->box() );
+    orderbut->attach( alignedBelow, clearbut );
 
     crossbut_ = new uiPushButton( relationfld_, tr("Check crossings"), false );
     crossbut_->activated.notify(
@@ -65,8 +71,24 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     waterbut_->attach( alignedBelow, crossbut_ );
     waterbut_->display( false );
 
+    EM::RelationTree::getSorted( is2d, hornames_ );
+    EM::RelationTree::getSorted( is2d, horids_ );
     fillRelationField( hornames_ );
     setCtrlStyle( CloseOnly );
+}
+
+
+void uiHorizonRelationsDlg::clearCB( CallBacker* )
+{
+    if ( !uiMSG().askGoOn(tr("Remove all exising horizon relations?")) )
+	return;
+
+    if ( !EM::RelationTree::clear(is2d_,true) )
+	return;
+
+    hornames_.erase();
+    horids_.erase();
+    fillRelationField( hornames_ );
 }
 
 

@@ -25,6 +25,7 @@ ___________________________________________________________________
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uihor2dfrom3ddlg.h"
+#include "uihorizonrelations.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
@@ -56,9 +57,11 @@ ___________________________________________________________________
 #define mSectIdx	5
 #define mFullIdx	6
 #define mSectFullIdx	7
+#define mSortIdx	8
 
 #define mTrackIdx	100
 #define mConstIdx	10
+
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODSceneTreeItem(uiStrings::s3DHorizon())
@@ -121,6 +124,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
     if ( children_.size() )
     {
+	mnu.insertAction( new uiAction(m3Dots(tr("Sort"))), mSortIdx );
 	mnu.insertSeparator();
 	uiMenu* displaymnu =
 		new uiMenu( getUiParent(), tr("Display All") );
@@ -160,6 +164,12 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	deepUnRef( objs );
 
 	setSectionDisplayRestoreForAllHors( false );
+    }
+    else if ( mnuid == mSortIdx )
+    {
+	uiHorizonRelationsDlg dlg( getUiParent(), false );
+	dlg.go();
+	sort();
     }
     else if ( mnuid == trackitem_.id )
     {
@@ -760,6 +770,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
     {
+	mnu.insertAction( new uiAction(m3Dots(tr("Sort"))), mSortIdx );
 	mnu.insertSeparator();
 	mnu.insertAction( new uiAction(tr("Display All Only at Sections")), 3 );
 	mnu.insertAction( new uiAction(tr("Show All in Full")), 4 );
@@ -809,6 +820,12 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 		itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	    }
 	}
+    }
+    else if ( mnuid == mSortIdx )
+    {
+	uiHorizonRelationsDlg dlg( getUiParent(), true );
+	dlg.go();
+	sort();
     }
     else
 	handleStandardItems( mnuid );

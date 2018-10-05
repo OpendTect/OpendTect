@@ -20,8 +20,10 @@ class FileMultiString;
 namespace EM
 {
 
-/*!\brief A Relation tree where a parent-child relationship means a top-bottom
-	    relationship for the horizons.  */
+/*!
+\brief A Relation tree where a parent-child relationship means a top-bottom
+relationship for the horizons.
+*/
 
 mExpClass(EarthModel) RelationTree
 {
@@ -65,12 +67,15 @@ public:
     bool			getSorted(const DBKeySet& unsortedids,
 					  DBKeySet& sortedids ) const;
 
+    static bool			clear(bool is2d,bool dowrite=true);
     static bool			sortHorizons(bool is2d,
 				     const DBKeySet& unsortedids,
 				     DBKeySet& sortedids);
 				/*!< Much faster if you only need RelationTree
 				     for sorting and unsortedids is a small
 				     subset of all horizons in the survey. */
+    static bool			getSorted(bool is2d,DBKeySet&);
+    static bool			getSorted(bool is2d,BufferStringSet&);
     static bool			update(bool id2d,const DBKeySet& sortedids);
 
     bool			read()			{ return read(true); }

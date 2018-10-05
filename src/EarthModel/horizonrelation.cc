@@ -41,13 +41,13 @@ bool RelationTree::Node::hasChild( const RelationTree::Node* descendant ) const
 
     for ( int idx=0; idx<nodes.size(); idx++ )
     {
-	 for ( int idy=0; idy<nodes[idx]->children_.size(); idy++ )
-	 {
-	     if ( nodes[idx]->children_[idy] == descendant )
-		 return true;
+	for ( int idy=0; idy<nodes[idx]->children_.size(); idy++ )
+	{
+	    if ( nodes[idx]->children_[idy] == descendant )
+		return true;
 
-	     nodes.addIfNew( nodes[idx]->children_[idy] );
-	 }
+	    nodes.addIfNew( nodes[idx]->children_[idy] );
+	}
     }
 
     return false;
@@ -96,7 +96,9 @@ RelationTree::RelationTree( bool is2d, bool doread )
 
 
 RelationTree::~RelationTree()
-{ deepErase( nodes_ ); }
+{
+    deepErase( nodes_ );
+}
 
 
 int RelationTree::findNode( const DBKey& id ) const
@@ -352,6 +354,15 @@ bool RelationTree::getSorted( const DBKeySet& unsortedids,
 }
 
 
+// static functions
+bool RelationTree::clear( bool is2d, bool dowrite )
+{
+    RelationTree reltree( is2d );
+    deepErase( reltree.nodes_ );
+    return dowrite ? reltree.write() : reltree.nodes_.isEmpty();
+}
+
+
 bool RelationTree::sortHorizons( bool is2d, const DBKeySet& unsortedids,
 				 DBKeySet& sortedids )
 {
@@ -368,6 +379,31 @@ bool RelationTree::update( bool is2d, const DBKeySet& ids )
 	reltree.addRelation( ids[idx-1], ids[idx], false );
 
     return reltree.write();
+}
+
+
+bool RelationTree::getSorted( bool is2d, DBKeySet& ids )
+{
+    RelationTree reltree( is2d, false );
+    reltree.read( false );
+    DBKeySet allids;
+    for ( int idx=0; idx<reltree.nodes_.size(); idx++ )
+	allids += reltree.nodes_[idx]->id_;
+
+    return sortHorizons( is2d, allids, ids );
+}
+
+
+bool RelationTree::getSorted( bool is2d, BufferStringSet& nms )
+{
+    DBKeySet ids;
+    if ( !getSorted(is2d,ids) )
+	return false;
+
+    for ( int idx=0; idx<ids.size(); idx++ )
+	nms.add( DBM().nameOf(ids[idx]) );
+
+    return nms.size();
 }
 
 } // namespace EM
