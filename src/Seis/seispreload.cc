@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "ioman.h"
 #include "keystrs.h"
+#include "mousecursor.h"
 #include "perthreadrepos.h"
 #include "seiscbvs.h"
 #include "seiscbvsps.h"
@@ -133,7 +134,9 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
     mPrepIOObj();
     const uiString caption = tr("Pre-loading %1").arg( ioobj->uiName() );
 
+    MouseCursorChanger mcc( MouseCursor::Wait );
     TaskGroup taskgrp;
+    taskgrp.showCumulativeCount( true );
     ObjectSet<SequentialReader> rdrs;
     TypeSet<Pos::GeomID> loadedgeomids;
     for ( int idx=0; idx<tkzss.size(); idx++ )
@@ -152,6 +155,7 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 	rdrs.add( rdr );
     }
 
+    mcc.restore();
     TaskRunner::execute( &trunnr, taskgrp );
 
     for ( int idx=0; idx<rdrs.size(); idx++ )

@@ -8,13 +8,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "paralleltask.h"
 
-#include "threadwork.h"
-#include "thread.h"
-#include "varlenarray.h"
+#include "hiddenparam.h"
 #include "progressmeter.h"
 #include "ptrman.h"
-#include "uistrings.h"
+#include "threadwork.h"
+#include "thread.h"
 #include "timefun.h"
+#include "varlenarray.h"
+#include "uistrings.h"
 
 #include <limits.h>
 
@@ -136,10 +137,25 @@ uiString Task::uiNrDoneText() const
 }
 
 
+static HiddenParam<TaskGroup,char> cumulativecount_(false);
+
 TaskGroup::TaskGroup()
     : curtask_(-1)
     , lock_(true)
 {
+    cumulativecount_.setParam( this, false );
+}
+
+
+void TaskGroup::cleanUp()
+{
+    cumulativecount_.removeParam( this );
+}
+
+
+void TaskGroup::showCumulativeCount( bool yn )
+{
+    cumulativecount_.setParam( this, yn );
 }
 
 
@@ -172,14 +188,26 @@ void TaskGroup::getTasks( TaskGroup& oth )
 od_int64 TaskGroup::nrDone() const
 {
     Threads::Locker locker( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDone() : 0;
+    if ( !cumulativecount_.getParam(this) )
+	return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDone() : 0;
+
+    od_int64 res = 0;
+    for ( int idx=0; idx<tasks_.size(); idx++ )
+	res += tasks_[idx]->nrDone();
+    return res;
 }
 
 
 od_int64 TaskGroup::totalNr() const
 {
     Threads::Locker locker( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->totalNr() : 0;
+    if ( !cumulativecount_.getParam(this) )
+	return tasks_.validIdx(curtask_) ? tasks_[curtask_]->totalNr() : 0;
+
+    od_int64 res = 0;
+    for ( int idx=0; idx<tasks_.size(); idx++ )
+	res += tasks_[idx]->totalNr();
+    return res;
 }
 
 
@@ -512,14 +540,14 @@ int ParallelTask::maxNrThreads() const
 {
     const od_int64 res = nrIterations();
     if ( res>INT_MAX )
-        return INT_MAX;
+	return INT_MAX;
 
     return (int) res;
 }
 
 
 od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
-				            int idx ) const
+					    int idx ) const
 {
     if ( nrthreads==1 ) return totalnr;
 

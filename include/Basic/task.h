@@ -36,13 +36,13 @@ public:
 
     virtual od_int64	nrDone() const			{ return -1; }
 			/*!<\note nrDone is only used for displaying progress
-			          and will be compared to totalNr to show
+				  and will be compared to totalNr to show
 				  user how large part of the task that is
 				  finished. */
 
     virtual od_int64	totalNr() const			{ return -1; }
 			/*!\note totalNr is only used for displaying
-			         progress. */
+				 progress. */
 
     virtual uiString	uiMessage() const; //!< will be message() again in 7.x
     virtual uiString	uiNrDoneText() const; //!< will be nrDoneText() in 7.x
@@ -83,11 +83,12 @@ mExpClass(Basic) TaskGroup : public Task
 {
 public:
 			TaskGroup();
-			~TaskGroup() { deepErase( tasks_ ); }
+			~TaskGroup() { deepErase( tasks_ ); cleanUp(); }
     void		addTask( Task* );
 			//Becomes mine
 
     void		setParallel(bool);
+    void		showCumulativeCount(bool yn);
     void		setEmpty();
     void		getTasks(TaskGroup&);
 
@@ -111,6 +112,8 @@ protected:
 
     mutable Threads::Lock lock_;
 
+private:
+    void		cleanUp();
 };
 
 

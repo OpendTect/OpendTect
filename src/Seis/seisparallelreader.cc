@@ -487,7 +487,7 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
 	pErrMsg("The bidval-code is not used. Run through step by step, make "
 		"sure everything is OK and remove this warning.");
 	const int nrvals = 1+components_.size();
-        if ( bidvals_->nrVals()!=nrvals )
+	if ( bidvals_->nrVals()!=nrvals )
 	{
 	    if ( !bidvals_->setNrVals( nrvals, true ) )
 	    {
@@ -882,6 +882,8 @@ Seis::SequentialReader::SequentialReader( const IOObj& ioobj,
     , samedatachar_(false)
     , needresampling_(true)
     , seissummary_(0)
+    , nrdone_(0)
+    , totalnr_(0)
 {
     compscalers_.allowNull( true );
     const SeisIOObjInfo info( ioobj );
@@ -924,6 +926,8 @@ Seis::SequentialReader::SequentialReader( const IOObj& ioobj,
 			   Survey::GM().getName(tkzs_.hsamp_.getGeomID()) );
 	if ( !linenm.isEmpty() )
 	    msg_.append( tr("|%1" ).arg( linenm.str() ) );
+
+	totalnr_ = tkzs_.nrTrcs();
     }
 
     queueid_ = Threads::WorkManager::twm().addQueue(
