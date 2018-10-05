@@ -117,7 +117,7 @@ bool uiODEarthModelSurfaceTreeItem::init()
 	MPE::engine().refTracker( emid_ );
 
     EM::IOObjInfo eminfo( EM::EMM().getMultiID(emid_) );
-    timelastmodified_ = eminfo.timeLastModified();
+    timelastmodified_ = eminfo.timeLastModified( true );
     initNotify();
     return true;
 }
@@ -245,8 +245,8 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuOrTBItem( istb, 0, menu, &trackmenuitem_, enab, false );
 
     const EM::IOObjInfo eminfo( mid );
-    const BufferString curtime = eminfo.timeLastModified();
-    const bool isnewer = Time::isEarlier( timelastmodified_, curtime );
+    const BufferString curtime = eminfo.timeLastModified( true );
+    const bool isnewer = Time::isEarlier( timelastmodified_, curtime, 0 );
     const bool allowreload = !hastracker && isnewer;
     mAddMenuOrTBItem( istb, 0, menu, &reloadmnuitem_, allowreload, false );
 
@@ -422,8 +422,8 @@ void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
     const uiString obj = toUiString("%1 \"%2\"")
 	.arg( ems->getType( emid_ ) ).arg(ems->getUiName(emid_));
     NotSavedPrompter::NSP().addObject(	obj,
-		mCB( this, uiODEarthModelSurfaceTreeItem, saveCB ),
-	        savewithname, 0 );
+		mCB(this,uiODEarthModelSurfaceTreeItem,saveCB),
+		savewithname, 0 );
 
     Threads::WorkManager::twm().addWork(
 	    Threads::Work( *new uiTreeItemRemover( parent_, this ), true ), 0,

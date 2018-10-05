@@ -221,11 +221,15 @@ uiString IOObjInfo::getMessage() const
 
 
 const char* IOObjInfo::timeLastModified() const
+{ return timeLastModified( false ); }
+
+
+const char* IOObjInfo::timeLastModified( bool iso ) const
 {
     if ( !ioobj_ ) return 0;
 
     const char* fnm = ioobj_->fullUserExpr();
-    return File::timeLastModified( fnm );
+    return File::timeLastModified( fnm, iso ? 0 : Time::defDateTimeFmt() );
 }
 
 
