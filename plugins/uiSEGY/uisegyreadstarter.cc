@@ -111,9 +111,9 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
     coordsysselfld_ = new Coords::uiCoordSystemSel( topgrp_ );
     if ( typfld_ )
-	coordsysselfld_->attach( rightOf, typfld_ );
+	coordsysselfld_->attach( alignedBelow, typfld_ );
     else
-	coordsysselfld_->attach( rightOf, editbut_ );
+	coordsysselfld_->attach( alignedBelow, inpfld_ );
 
     mAttachCB( coordsysselfld_->butPush, uiSEGYReadStarter::coordSysChangedCB );
     coordsysselfld_->display( false );

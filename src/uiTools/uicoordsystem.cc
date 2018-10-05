@@ -218,7 +218,7 @@ uiCoordSystemSel::uiCoordSystemSel( uiParent* p, bool orthogonalonly,
     if ( coordsys )
 	coordsystem_ = coordsys->clone();
 
-    txtfld_->setElemSzPol( uiObject::Wide );
+    txtfld_->setElemSzPol( uiObject::WideMax );
     butPush.notify( mCB(this,uiCoordSystemSel,selCB) );
 }
 
