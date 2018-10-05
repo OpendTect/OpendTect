@@ -225,8 +225,8 @@ void uiSeis2DLineChoose::writeChoiceReq( CallBacker* )
 // uiSeis2DLineSel
 uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
     : uiCompoundParSel(p,multisel
-	? uiStrings::phrSelect(uiStrings::s2DLine(mPlural).toLower())
-	: uiStrings::phrSelect(uiStrings::s2DLine().toLower()))
+	? uiStrings::phrSelect(uiStrings::s2DLine(mPlural))
+	: uiStrings::phrSelect(uiStrings::s2DLine()))
     , ismultisel_(multisel)
     , selectionChanged(this)
 {
