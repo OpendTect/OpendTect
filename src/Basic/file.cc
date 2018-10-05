@@ -777,7 +777,10 @@ const char* timeCreated( const char* fnm, const char* fmt )
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
-    ret = qfi.created().toString( fmt );
+    if ( !fmt || !*fmt )
+	ret = qfi.created().toString( Qt::ISODate );
+    else
+	ret = qfi.created().toString( fmt );
 #else
     pFreeFnErrMsg(not_implemented_str);
     ret = "<unknown>";
@@ -791,7 +794,10 @@ const char* timeLastModified( const char* fnm, const char* fmt )
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
-    ret = qfi.lastModified().toString( fmt );
+    if ( !fmt || !*fmt )
+	ret = qfi.lastModified().toString( Qt::ISODate );
+    else
+	ret = qfi.lastModified().toString( fmt );
 #else
     pFreeFnErrMsg(not_implemented_str);
     ret = "<unknown>";

@@ -82,9 +82,10 @@ int passedSince( int timestamp )
 }
 
 
-const char* defDateTimeFmt()	{ return "ddd dd MMM yyyy, hh:mm:ss, t"; }
+const char* defDateTimeFmt()	{ return "ddd dd MMM yyyy, hh:mm:ss"; }
+const char* defDateTimeTzFmt()	{ return "ddd dd MMM yyyy, hh:mm:ss, t"; }
 const char* defDateFmt()	{ return "ddd dd MMM yyyy"; }
-const char* defTimeFmt()	{ return "hh:mm:ss, t"; }
+const char* defTimeFmt()	{ return "hh:mm:ss"; }
 
 const char* getDateTimeString( const char* fmt, bool local )
 {
@@ -93,23 +94,52 @@ const char* getDateTimeString( const char* fmt, bool local )
 #ifndef OD_NO_QT
     QDateTime qdt = QDateTime::currentDateTime();
     if ( !local ) qdt = qdt.toUTC();
-    ret = qdt.toString( fmt );
+    if ( !fmt || !*fmt )
+	ret = qdt.toString( Qt::ISODate );
+    else
+	ret = qdt.toString( fmt );
 #endif
     return ret.buf();
 }
 
 const char* getDateString( const char* fmt, bool local )
-{ return getDateTimeString( fmt, local ); }
+{
+    if ( fmt && *fmt )
+	return getDateTimeString( fmt, local );
+
+    mDeclStaticString( ret );
+    QDate date = QDateTime::currentDateTime().date();
+    ret = date.toString( Qt::ISODate );
+    return ret;
+}
+
 
 const char* getTimeString( const char* fmt, bool local )
-{ return getDateTimeString( fmt, local ); }
+{
+    if ( fmt && *fmt )
+	return getDateTimeString( fmt, local );
+
+    mDeclStaticString( ret );
+    QTime time = QDateTime::currentDateTime().time();
+    ret = time.toString( Qt::ISODate );
+    return ret;
+}
+
 
 bool isEarlier(const char* first, const char* second, const char* fmt )
 {
 #ifndef OD_NO_QT
-    QString fmtstr( fmt );
-    QDateTime qdt1 = QDateTime::fromString( first, fmtstr );
-    QDateTime qdt2 = QDateTime::fromString( second, fmtstr );
+    QDateTime qdt1, qdt2;
+    if ( !fmt || !*fmt )
+    {
+	qdt1 = QDateTime::fromString( first, Qt::ISODate );
+	qdt2 = QDateTime::fromString( second, Qt::ISODate );
+    }
+    else
+    {
+	qdt1 = QDateTime::fromString( first, fmt );
+	qdt2 = QDateTime::fromString( second, fmt );
+    }
     return qdt1 < qdt2;
 #else
     return false;

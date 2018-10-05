@@ -43,6 +43,7 @@ namespace Time
 
 
     mGlobal(Basic) const char*	defDateTimeFmt();
+    mGlobal(Basic) const char*	defDateTimeTzFmt();	//!< With time zone
     mGlobal(Basic) const char*	defDateFmt();
     mGlobal(Basic) const char*	defTimeFmt();
 
@@ -54,7 +55,7 @@ namespace Time
 					      bool local=true);
 
     mGlobal(Basic) bool isEarlier(const char* first, const char* second,
-	    		   const char* fmt=defDateTimeFmt());
+			   const char* fmt=defDateTimeFmt());
 			/*! returns true if the first DateTime string is
 			  earlier than the second */
 
