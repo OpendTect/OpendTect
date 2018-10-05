@@ -121,12 +121,6 @@ void uiStratLevelHorSel::horSelCB( CallBacker* )
 uiStratSeisEvent::uiStratSeisEvent( uiParent* p, const Setup& su )
     : uiGroup(p,"Strat Seis Event Specification Group")
     , setup_(su)
-    , extrwinfld_(0)
-    , usestepfld_(0)
-    , extrstepfld_(0)
-    , nosteplbl_(0)
-    , levelfld_(0)
-    , uptolvlfld_(0)
     , evtype_( VSEvent::TypeDef() )
     , anyChange(this)
 {
@@ -156,27 +150,22 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p, const Setup& su )
 				  FloatInpIntervalSpec(Interval<float>(0,0)) );
 	extrwinfld_->attach( alignedBelow, evfld_ );
 
-	if( setup_.allowlayerbased_ )
+	if ( setup_.allowlayerbased_ )
 	{
 	    extrwinfld_->setWithCheck();
 	    extrwinfld_->setChecked( true );
-
-	    usestepfld_ = new uiCheckBox( this, uiString::empty() );
-	    usestepfld_->setChecked();
-	    usestepfld_->attach( rightOf, extrwinfld_ );
-
-	    nosteplbl_ = new uiLabel( this, tr("Layer-based") );
-	    nosteplbl_->display( false );
-	    nosteplbl_->attach( rightOf, usestepfld_ );
+	    layerbasedfld_ = new uiCheckBox( this, tr("Layer-based") );
+	    layerbasedfld_->attach( rightOf, extrwinfld_ );
+	    layerbasedfld_->setChecked( true );
 	}
 
 	extrstepfld_ = new uiGenInput( this, uiStrings::sStep(),
 				       FloatInpSpec(defstep) );
 	extrstepfld_->setElemSzPol( uiObject::Small );
-	if ( usestepfld_ )
-	    extrstepfld_->attach( rightOf, usestepfld_ );
+	if ( layerbasedfld_ )
+	    extrstepfld_->attach( rightOf, layerbasedfld_ );
 	else
-	    extrstepfld_->attach( rightOf,  extrwinfld_ );
+	    extrstepfld_->attach( rightOf, extrwinfld_ );
 
 	if ( setup_.allowlayerbased_ )
 	{
@@ -185,7 +174,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p, const Setup& su )
 	    {
 		uptolvlfld_ = new uiGenInput( this, tr("Stop at"),
 					      StringListInpSpec(lvlnms) );
-		uptolvlfld_->setText( lvlnms.get(lvlnms.size()-1).buf() );
+		uptolvlfld_->setText( lvlnms.get(lvlnms.size()-1) );
 		uptolvlfld_->setWithCheck( true );
 		uptolvlfld_->setChecked( false );
 		uptolvlfld_->attach( alignedBelow, extrwinfld_ );
@@ -199,17 +188,18 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p, const Setup& su )
 
 void uiStratSeisEvent::initGrp( CallBacker* )
 {
-    evfld_->checked.notify( mCB(this,uiStratSeisEvent,evSnapCheck) );
+#   define muiSSECB(fn) mCB(this,uiStratSeisEvent,fn)
+    evfld_->checked.notify( muiSSECB(evSnapCheck) );
     if ( extrwinfld_ )
-	extrwinfld_->checked.notify( mCB(this,uiStratSeisEvent,extrWinCB) );
-    if ( usestepfld_ )
-	usestepfld_->activated.notify( mCB(this,uiStratSeisEvent,stepSelCB) );
+	extrwinfld_->checked.notify( muiSSECB(extrWinCB) );
+    if ( layerbasedfld_ )
+	layerbasedfld_->activated.notify( muiSSECB(layBasedCB) );
     if ( uptolvlfld_ )
-	uptolvlfld_->checked.notify( mCB(this,uiStratSeisEvent,stopAtCB) );
+	uptolvlfld_->checked.notify( muiSSECB(stopAtCB) );
 
 #define mSetAnyChg( fld, notif ) \
     if ( fld ) fld->notif.notify( anychgcb )
-    const CallBack anychgcb( mCB(this,uiStratSeisEvent,anyChgCB) );
+    const CallBack anychgcb( muiSSECB(anyChgCB) );
     mSetAnyChg( levelfld_, selChange );
     mSetAnyChg( evfld_, valuechanged );
     mSetAnyChg( evfld_, checked );
@@ -219,7 +209,9 @@ void uiStratSeisEvent::initGrp( CallBacker* )
     mSetAnyChg( extrstepfld_, valuechanged );
     mSetAnyChg( uptolvlfld_, valuechanged );
     mSetAnyChg( uptolvlfld_, checked );
-    mSetAnyChg( usestepfld_, activated );
+    mSetAnyChg( layerbasedfld_, activated );
+
+    layBasedCB( 0 );
 }
 
 
@@ -264,34 +256,35 @@ void uiStratSeisEvent::evSnapCheck( CallBacker* )
 
 void uiStratSeisEvent::extrWinCB( CallBacker* )
 {
-    if ( !extrwinfld_->isChecked() )
+    if ( uptolvlfld_ && !extrwinfld_->isChecked() )
 	uptolvlfld_->setChecked( true );
 }
 
 
 void uiStratSeisEvent::stopAtCB( CallBacker* )
 {
-    extrwinfld_->setChecked( !uptolvlfld_->isChecked() );
+    if ( uptolvlfld_ )
+	extrwinfld_->setChecked( !uptolvlfld_->isChecked() );
 }
 
 
 bool uiStratSeisEvent::hasExtrWin() const
 {
-    return extrwinfld_->isCheckable() && extrwinfld_->isChecked();
+    return extrwinfld_ && extrwinfld_->isCheckable()
+		       && extrwinfld_->isChecked();
 }
 
 
 bool uiStratSeisEvent::hasStep() const
 {
-    return usestepfld_->isChecked();
+    return !layerbasedfld_ || !layerbasedfld_->isChecked();
 }
 
 
-void uiStratSeisEvent::stepSelCB( CallBacker* )
+void uiStratSeisEvent::layBasedCB( CallBacker* )
 {
-    const bool usestep = usestepfld_->isChecked();
-    extrstepfld_->display( usestep );
-    nosteplbl_->display( !usestep );
+    if ( extrstepfld_ )
+	extrstepfld_->display( hasStep() );
 }
 
 
@@ -315,7 +308,7 @@ bool uiStratSeisEvent::getFromScreen()
 	ev_.setExtrWin( win );
 
 	float extrstep = mUdf(float);
-	if ( !doAllLayers() )
+	if ( hasStep() )
 	{
 	    const float stepms = extrstepfld_->getFValue();
 	    if ( mIsUdf(stepms) )
@@ -347,8 +340,7 @@ void uiStratSeisEvent::putToScreen()
     {
 	extrwinfld_->setValue( ev_.extrWin() );
 	extrstepfld_->setChecked( !mIsUdf(ev_.extrStep()) );
-	if ( !doAllLayers() )
-	    extrstepfld_->setValue( ev_.extrStep() );
+	extrstepfld_->setValue( ev_.extrStep() );
 
 	if ( uptolvlfld_ )
 	{
@@ -358,12 +350,6 @@ void uiStratSeisEvent::putToScreen()
 		uptolvlfld_->setText( nameOf(ev_.downToLevelID()) );
 	}
     }
-}
-
-
-bool uiStratSeisEvent::doAllLayers() const
-{
-    return usestepfld_ && !usestepfld_->isChecked();
 }
 
 

@@ -201,7 +201,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const DescSet& seisattrs,
 		maxtwt = d2tmodels[imod]->getTime( maxdepth );
 	    }
 
-	    if ( evfld_->doAllLayers() )
+	    if ( evfld_->layerBased() )
 	    {
 		Interval<float> depthrg( dpth, mUdf(float) );
 		depthrg.stop = extrwin.isUdf() ? maxdepth

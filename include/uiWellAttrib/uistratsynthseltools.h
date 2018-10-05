@@ -17,7 +17,6 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiGenInput;
 class uiIOObjSel;
-class uiLabel;
 class uiStratLevelSel;
 
 /*!\brief selector for Strat::Level and a horizon to go with it.
@@ -98,9 +97,9 @@ public:
     LevelID		levelID() const;
     BufferString	levelName() const;
     bool		snapToEvent() const;
-    bool		doAllLayers() const;
     bool		hasExtrWin() const;
     bool		hasStep() const;
+    bool		layerBased() const	{ return !hasStep(); }
 
 			    // step may be undefined
     SeisEvent&		event()		{ return ev_; }
@@ -116,20 +115,19 @@ protected:
     Setup		setup_;
     EnumDefImpl<VSEvent::Type>	evtype_;
 
-    uiStratLevelSel*	levelfld_;
     uiGenInput*		evfld_;
     uiGenInput*		snapoffsfld_;
-    uiGenInput*		extrwinfld_;
-    uiGenInput*		extrstepfld_;
-    uiGenInput*		uptolvlfld_;
-    uiCheckBox*		usestepfld_;
-    uiLabel*		nosteplbl_;
+    uiStratLevelSel*	levelfld_		= 0;
+    uiGenInput*		extrwinfld_		= 0;
+    uiGenInput*		extrstepfld_		= 0;
+    uiGenInput*		uptolvlfld_		= 0;
+    uiCheckBox*		layerbasedfld_		= 0;
 
     void		initGrp(CallBacker*);
     void		evSnapCheck(CallBacker*);
     void		extrWinCB(CallBacker*);
     void		stopAtCB(CallBacker*);
-    void		stepSelCB(CallBacker*);
+    void		layBasedCB(CallBacker*);
     void		anyChgCB( CallBacker* )	    { anyChange.trigger(); }
 
 };
