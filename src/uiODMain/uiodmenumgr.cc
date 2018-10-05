@@ -390,7 +390,9 @@ void uiODMenuMgr::fillImportMenu()
     impwell->insertItem( impwellbulk );
 
     mInsertItem( impgeom2d, ascii, mImpGeom2DAsciiMnuItm );
+#ifdef __debug__
     mInsertItem( impgeom2d, m3Dots(tr("SEG P1")), mImpGeom2DSEGP1MnuItm );
+#endif
 
 // Fill impmenus_
     impmnus_.erase();
