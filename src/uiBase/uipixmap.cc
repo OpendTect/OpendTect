@@ -157,19 +157,20 @@ bool uiPixmap::isPresent( const char* icnm )
     return OD::IconFile::isPresent( icnm );
 }
 
-static int sPDFfmtIdx = 5;
-static int sPSfmtIdx = 6;
-static int sEPSfmtIdx = 7;
+static int sPDFfmtIdx = 6;
+static int sPSfmtIdx = 7;
+static int sEPSfmtIdx = 8;
 
 static const char* sImageFormats[] =
-{ "jpg", "png", "tiff", "bmp", "xpm", "pdf", "ps", "eps", 0 };
+{ "jpg", "png", "tiff", "webp", "bmp", "xpm", "pdf", "ps", "eps", 0 };
 
 static const char* sImageFormatDescs[] =
 {
     "JPEG (*.jpg *.jpeg)",
     "PNG (*.png)",
-    "TIFF (*.tiff)",
-    "Bitmap (*.bmp)",
+    "TIFF (*.tif *.tiff)",
+    "WebP (*.webp)",
+    "Windows Bitmap (*.bmp)",
     "XPM (*.xpm)",
     "Portable Doc Format (*.pdf)",
     "Postscript (*.ps)",

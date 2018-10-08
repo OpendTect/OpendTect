@@ -36,18 +36,20 @@ static const char* sKeySnapshot = "snapshot";
 
 BufferString uiSaveImageDlg::dirname_;
 
-static int sPDFfmtIdx = 4;
-static int sPSfmtIdx = 5;
-static int sEPSfmtIdx = 6;
+static int sPDFfmtIdx = 6;
+static int sPSfmtIdx = 7;
+static int sEPSfmtIdx = 8;
 
 static const char* imageformats[] =
-{ "jpg", "png", "bmp", "xpm", "pdf", "ps", "eps", 0 };
+{ "jpg", "png", "tiff", "webp", "bmp", "xpm", "pdf", "ps", "eps", 0 };
 
 static const char* imageformatdescs[] =
 {
     "JPEG (*.jpg *.jpeg)",
     "PNG (*.png)",
-    "Bitmap (*.bmp)",
+    "TIFF (*.tif *.tiff)",
+    "WebP (*.webp)",
+    "Windows Bitmap (*.bmp)",
     "XPM (*.xpm)",
     "Portable Doc Format (*.pdf)",
     "Postscript (*.ps)",

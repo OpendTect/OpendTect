@@ -29,13 +29,15 @@ static const char* rcsID mUsedVar = "$Id$";
 BufferString uiWindowGrabDlg::dirname_ = "";
 
 static const char* imageformats[] =
-{ "jpg", "png", "bmp", "ppm", "xpm", 0 };
+{ "jpg", "png", "tiff", "webp", "bmp", "ppm", "xpm", 0 };
 
 static const char* filters[] =
 {
     "JPEG (*.jpg *.jpeg)",
     "PNG (*.png)",
-    "Bitmap (*.bmp)",
+    "TIFF (*.tif *.tiff)",
+    "WebP (*.webp)",
+    "Windows Bitmap (*.bmp)",
     "PPM (*.ppm)",
     "XPM (*.xpm)",
     0
@@ -49,7 +51,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 				  (desktop ? tr("Specify image file") :
 					   tr("Specify window and image file")),
 		 desktop ? mODHelpKey(mWindowGrabDlgDesktopHelpID) :
-                           mODHelpKey(mWindowGrabDlgWindowHelpID) ) )
+			   mODHelpKey(mWindowGrabDlgWindowHelpID) ) )
     , windowfld_(0)
 {
     getTopLevelWindows( windowlist_ );
