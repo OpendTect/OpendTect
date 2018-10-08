@@ -516,26 +516,15 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 
     flatviewer_->setPosition( c00, c01, c10, c11 );
 
+    Interval<float> xlim( mCast(float, SI().inlRange(true).start),
+			  mCast(float, SI().inlRange(true).stop) );
+    Interval<float> ylim( mCast(float, SI().crlRange(true).start),
+			  mCast(float, SI().crlRange(true).stop) );
+
+    bool isinline = true;
     if ( section_ )
     {
-	bool isinline = section_->getOrientation()==OD::InlineSlice;
-	planedragger_->setDim( isinline ? 1 : 0 );
-
-	const float xwidth = isinline
-		? (float) fabs(stoppos.x_-startpos.x_)
-		: s3dgeom_->inlDistance();
-	const float ywidth = isinline
-		?  s3dgeom_->crlDistance()
-		: (float) fabs(stoppos.y_-startpos.y_);
-
-	planedragger_->setSize( Coord3(xwidth,ywidth,zrg_.width(true)) );
-
-	planedragger_->setCenter( (c01+c10)/2 );
-
-        Interval<float> xlim( mCast(float, SI().inlRange(true).start),
-			      mCast(float, SI().inlRange(true).stop) );
-        Interval<float> ylim( mCast(float, SI().crlRange(true).start),
-			      mCast(float, SI().crlRange(true).stop) );
+	isinline = section_->getOrientation()==OD::InlineSlice;
 	if ( isinline )
 	{
 	    xlim.set( mCast(float,startpos.x_), mCast(float,stoppos.x_) );
@@ -546,9 +535,34 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 	    ylim.set( mCast(float,startpos.y_), mCast(float,stoppos.y_) );
 	    ylim.sort();
 	}
-
-	planedragger_->setSpaceLimits( xlim, ylim, SI().zRange(true) );
     }
+    else if ( seis2d_ )
+    {
+	const Coord startpt = seis2d_->getGeometry().positions().first().coord_;
+	const Coord stoppt = seis2d_->getGeometry().positions().last().coord_;
+	const BinID startbid = SI().transform( startpt );
+	const BinID stopbid = SI().transform( stoppt );
+	const BinID diff = stopbid - startbid;
+	isinline = Math::Abs(diff.inl()) < Math::Abs(diff.crl());
+
+	xlim.start = mCast(float, mMIN(startbid.inl(),stopbid.inl()));
+	xlim.stop = mCast(float, mMAX(startbid.inl(),stopbid.inl()));
+	ylim.start = mCast(float, mMIN(startbid.crl(),stopbid.crl()));
+	ylim.stop = mCast(float, mMAX(startbid.crl(),stopbid.crl()));
+    }
+    else
+	return;
+
+    planedragger_->setDim( isinline ? 1 : 0 );
+
+    const float xwidth =
+	isinline ? (float) fabs(stoppos.x_-startpos.x_) : SI().inlDistance();
+    const float ywidth =
+	isinline ?  SI().crlDistance() : (float) fabs(stoppos.y_-startpos.y_);
+
+    planedragger_->setSize( Coord3(xwidth,ywidth,zrg_.width(true)) );
+    planedragger_->setCenter( (c01+c10)/2 );
+    planedragger_->setSpaceLimits( xlim, ylim, SI().zRange(true) );
 }
 
 
@@ -598,8 +612,8 @@ void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
     if ( section_->id() > id() )
     {
 	pErrMsg("The display restore order is wrong. The section id has to be \
-		  lower than Prestack id so that it can be restored earlier \
-		  than Prestack display in the sessions." );
+		  lower than PreStack id so that it can be restored earlier \
+		  than PreStack display in the sessions." );
 	return;
     }
 
@@ -663,11 +677,9 @@ bool PreStackDisplay::is3DSeis() const
 
 void PreStackDisplay::setTraceNr( int trcnr )
 {
-    if ( trckey_.trcNr()==trcnr )
-	return;
-
-    trckey_.setTrcNr( trcnr );
-    if ( seis2d_ )
+    if ( !seis2d_ )
+	trckey_.setTrcNr( trcnr );
+    else
     {
 	RefMan<Gather> gather = new Gather;
 	if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,trckey_))
@@ -709,15 +721,6 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 {
     if ( !s2d ) return false;
 
-    if ( planedragger_ )
-    {
-	removeChild( planedragger_->osgNode() );
-	mDetachCB( planedragger_->motion, PreStackDisplay::draggerMotion );
-	mDetachCB( planedragger_->finished, PreStackDisplay::finishedCB );
-	planedragger_->unRef();
-	planedragger_ = 0;
-    }
-
     if ( seis2d_ )
     {
 	mDetachCB( seis2d_->getMovementNotifier(),
@@ -732,8 +735,8 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
     if ( seis2d_->id() > id() )
     {
 	pErrMsg("The display restore order is wrong. The Seis2d display id \
-		has to be lower than Prestack id so that it can be restored \
-		earlier than Prestack display in the sessions." );
+		has to be lower than PreStack id so that it can be restored \
+		earlier than PreStack display in the sessions." );
 	return false;
     }
 
@@ -750,6 +753,7 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 	    seis2d_->getCoord(trckey_.trcNr()) );
 
     mAttachCB( seis2d_->getMovementNotifier(), PreStackDisplay::seis2DMovedCB );
+    planedragger_->showDraggerBorder( false );
 
     return updateData();
 }
@@ -775,6 +779,9 @@ const Coord PreStackDisplay::getBaseDirection() const
 
 const char* PreStackDisplay::lineName() const
 {
+    if ( !seis2d_ )
+	return 0;
+
     return seis2d_ ? seis2d_->name().str() : 0;
 }
 
@@ -809,50 +816,86 @@ void PreStackDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>&
 
 void PreStackDisplay::draggerMotion( CallBacker* )
 {
-    if ( !section_ )
-	return;
+    Coord draggerbidf = planedragger_->center().getXY();
 
-    const int newinl = SI().inlRange( true ).snap( planedragger_->center().x_ );
-    const int newcrl = SI().crlRange( true ).snap( planedragger_->center().y_ );
-
-    const OD::SliceType orientation = section_->getOrientation();
     bool showplane = false;
-    if ( orientation==OD::InlineSlice && newcrl!=trckey_.trcNr() )
-        showplane = true;
-    else if ( orientation==OD::CrosslineSlice && newinl!=trckey_.lineNr() )
-	showplane = true;
+    if ( section_ )
+    {
+	const OD::SliceType orientation = section_->getOrientation();
+	const int newinl = SI().inlRange( true ).snap( draggerbidf.x_ );
+	const int newcrl = SI().crlRange( true ).snap( draggerbidf.y_ );
+	if ( orientation==OD::InlineSlice && newcrl!=trckey_.trcNr() )
+	    showplane = true;
+	else if ( orientation==OD::CrosslineSlice && newinl!=trckey_.lineNr() )
+	    showplane = true;
+
+	draggerpos_ = BinID( newinl, newcrl );
+    }
+    else if ( seis2d_ )
+    {
+	const int dimtoadjust = planedragger_->getDim() ? 0 : 1;
+	draggerbidf[dimtoadjust] = seis2dpos_[dimtoadjust];
+	const Coord draggercrd = SI().binID2Coord().transform( draggerbidf );
+	const int nearesttrcnr =
+		seis2d_->getNearestTraceNr( Coord3(draggercrd,0.) );
+	if ( nearesttrcnr != trckey_.trcNr() )
+	    showplane = true;
+
+	const Coord trcpos = seis2d_->getCoord( nearesttrcnr );
+	const Coord newdraggerbidf =
+			SI().binID2Coord().transformBackNoSnap( trcpos );
+
+	const Coord direction = posside_ ? basedirection_ : -basedirection_;
+	const float offsetscale = Coord(basedirection_.x_*SI().inlDistance(),
+			    basedirection_.y_*SI().crlDistance()).abs<float>();
+
+	seis2dpos_ = newdraggerbidf;
+	seis2dstoppos_ = autowidth_
+	    ? seis2dpos_ + direction*offsetrange_.width()*factor_ / offsetscale
+	    : seis2dpos_ + direction*width_ / offsetscale;
+
+	const Coord3 c01( seis2dpos_, zrg_.stop );
+	const Coord3 c10( seis2dstoppos_, zrg_.start );
+
+	planedragger_->setCenter( (c01+c10)/2 );
+	trckey_.setTrcNr( nearesttrcnr );
+    }
 
     planedragger_->showPlane( showplane );
-    planedragger_->showDraggerBorder( !showplane );
+    planedragger_->showDraggerBorder( !showplane && section_ );
 
-    draggerpos_ = BinID(newinl, newcrl);
     draggermoving.trigger();
 }
 
 
 void PreStackDisplay::finishedCB( CallBacker* )
 {
-    if ( !section_ )
-	return;
+    Coord draggerbidf = planedragger_->center().getXY();
+    if ( section_ )
+    {
+	int newinl = SI().inlRange( true ).snap( draggerbidf.x_ );
+	int newcrl = SI().crlRange( true ).snap( draggerbidf.y_ );
+	if ( section_->getOrientation() == OD::InlineSlice )
+	    newinl = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.inl();
+	else if ( section_->getOrientation() == OD::CrosslineSlice )
+	    newcrl = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.crl();
 
-    BinID newpos;
-    if ( section_->getOrientation() == OD::InlineSlice )
-    {
-	newpos.inl() = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.inl();
-	newpos.crl() = SI().crlRange(true).snap( planedragger_->center().y_ );
+	setPosition( BinID(newinl,newcrl) );
     }
-    else if ( section_->getOrientation() == OD::CrosslineSlice )
+    else if ( seis2d_ )
     {
-	newpos.inl() = SI().inlRange(true).snap( planedragger_->center().x_ );
-	newpos.crl() = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.crl();
+	const int dimtoadjust = planedragger_->getDim() ? 0 : 1;
+	draggerbidf[dimtoadjust] = seis2dpos_[dimtoadjust];
+	const Coord draggercrd = SI().binID2Coord().transform( draggerbidf );
+	const int nearesttrcnr =
+		seis2d_->getNearestTraceNr( Coord3(draggercrd,0.) );
+	setTraceNr( nearesttrcnr );
     }
     else
 	return;
 
-    setPosition(newpos);
-
     planedragger_->showPlane( false );
-    planedragger_->showDraggerBorder( true );
+    planedragger_->showDraggerBorder( section_ );
 }
 
 
