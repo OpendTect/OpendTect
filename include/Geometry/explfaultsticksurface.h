@@ -115,7 +115,7 @@ protected:
     void		shiftStick(int stickidx,int nrunits);
     void		updateStickShifting();
     bool		reTriangulateSurface();
-    bool		setProjTexturePositions(DataPointSet& dpset);
+    bool		setProjTexturePositions(DataPointSet& dpset,int id=-1);
 
     void		addTriangle(IndexedGeometry*,int a,int b,int c);
 
@@ -140,6 +140,11 @@ protected:
     RowCol					texturesize_;
     bool					texturepot_;
     BinIDValue					texturesampling_;
+
+public:
+
+    bool		getTexturePositions(DataPointSet&,int id,
+					    TaskRunner*);
 };
 
 };
