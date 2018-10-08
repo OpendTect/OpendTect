@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
+#include "hiddenparam.h"
 #include "mpeengine.h"
 #include "randomlinegeom.h"
 #include "survinfo.h"
@@ -26,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uihor2dfrom3ddlg.h"
+#include "uihorizonrelations.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
@@ -56,6 +58,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mSectIdx	5
 #define mFullIdx	6
 #define mSectFullIdx	7
+#define mSortIdx	8
 
 #define mTrackIdx	100
 #define mConstIdx	10
@@ -123,6 +126,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
     if ( children_.size() )
     {
+	mnu.insertItem( new uiAction(m3Dots(tr("Sort"))), mSortIdx );
 	mnu.insertSeparator();
 	uiMenu* displaymnu =
 		new uiMenu( getUiParent(), tr("Display All") );
@@ -162,6 +166,12 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	deepUnRef( objs );
 
 	setSectionDisplayRestoreForAllHors( false );
+    }
+    else if ( mnuid == mSortIdx )
+    {
+	uiHorizonRelationsDlg dlg( getUiParent(), false );
+	dlg.go();
+	sort();
     }
     else if ( mnuid == trackitem_.id )
     {
@@ -284,6 +294,8 @@ uiTreeItem*
 
 
 // uiODHorizonTreeItem
+static HiddenParam<uiODHorizonTreeItem,MenuItem*> addinlitm(0);
+static HiddenParam<uiODHorizonTreeItem,MenuItem*> addcrlitm(0);
 
 uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid, bool rgba,
 					  bool atsect )
@@ -301,6 +313,13 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool atsect,
 {
     initMenuItems();
     displayid_ = visid;
+}
+
+
+uiODHorizonTreeItem::~uiODHorizonTreeItem()
+{
+    addinlitm.removeAndDeleteParam( this );
+    addcrlitm.removeAndDeleteParam( this );
 }
 
 
@@ -322,6 +341,11 @@ void uiODHorizonTreeItem::initMenuItems()
     delchildrenmnuitem_.text = tr("Delete Selected Children");
     lockmnuitem_.text = uiStrings::sLock();
     unlockmnuitem_.text = uiStrings::sUnlock();
+
+    MenuItem* inlitm = new MenuItem( tr("Add In-line"), 10003 );
+    MenuItem* crlitm = new MenuItem( tr("Add Cross-line"), 10002 );
+    addinlitm.setParam( this, inlitm );
+    addcrlitm.setParam( this, crlitm );
 }
 
 
@@ -515,6 +539,24 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &lockmnuitem_ );
 	mResetMenuItem( &unlockmnuitem_ );
     }
+
+    MenuItem* inlitem = addinlitm.getParam( this );
+    MenuItem* crlitem = addcrlitm.getParam( this );
+    if ( uimenu->getMenuType() != uiMenuHandler::fromScene() )
+    {
+	mResetMenuItem( inlitem );
+	mResetMenuItem( crlitem );
+    }
+    else
+    {
+	const Coord3 pickedpos = uimenu->getPickedPos();
+	const TrcKey tk( SI().transform(pickedpos) );
+	inlitem->text = tr("Add In-line %1").arg( tk.lineNr() );
+	crlitem->text = tr("Add Cross-line %1").arg( tk.trcNr() );
+
+	mAddMenuItem( menu, inlitem, true, false );
+	mAddMenuItem( menu, crlitem, true, false );
+    }
 }
 
 
@@ -678,6 +720,16 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	hor3d->lockAll();
     else if ( mnuid==unlockmnuitem_.id )
 	hor3d->unlockAll();
+    else if ( mnuid==addinlitm.getParam(this)->id ||
+	      mnuid==addcrlitm.getParam(this)->id )
+    {
+	const Coord3 pickedpos = uimenu->getPickedPos();
+	const TrcKey tk( SI().transform(pickedpos) );
+	const bool isinl = mnuid == addinlitm.getParam(this)->id;
+	ODMainWin()->sceneMgr().addInlCrlItem(
+		isinl ? OD::InlineSlice : OD::CrosslineSlice,
+		isinl ? tk.inl() : tk.crl(), sceneID() );
+    }
     else
 	handled = false;
 
@@ -714,6 +766,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
     {
+	mnu.insertItem( new uiAction(m3Dots(tr("Sort"))), mSortIdx );
 	mnu.insertSeparator();
 	mnu.insertItem( new uiAction(tr("Display All Only at Sections")), 3 );
 	mnu.insertItem( new uiAction(tr("Show All in Full")), 4 );
@@ -766,6 +819,12 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 		itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	    }
 	}
+    }
+    else if ( mnuid == mSortIdx )
+    {
+	uiHorizonRelationsDlg dlg( getUiParent(), true );
+	dlg.go();
+	sort();
     }
     else
 	handleStandardItems( mnuid );

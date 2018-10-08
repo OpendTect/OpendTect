@@ -38,6 +38,7 @@ protected:
 
     void		fillRelationField(const BufferStringSet&);
 
+    void		clearCB(CallBacker*);
     void		readHorizonCB(CallBacker*);
     void		checkCrossingsCB(CallBacker*);
     void		makeWatertightCB(CallBacker*);

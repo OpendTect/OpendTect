@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "ctxtioobj.h"
 #include "horizonmodifier.h"
+#include "horizonrelation.h"
 #include "horizonsorter.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -42,7 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     : uiDialog(p,Setup(tr("Horizon relations"),mNoDlgTitle,
-                       mODHelpKey(mHorizonRelationsDlgHelpID) ))
+		       mODHelpKey(mHorizonRelationsDlgHelpID) ))
     , is2d_( is2d )
 {
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Order (top to bottom)"),
@@ -50,10 +51,15 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     relationfld_ = new uiListBox( this, su );
     relationfld_->setHSzPol( uiObject::Wide );
 
+    uiPushButton* clearbut =
+	new uiPushButton( relationfld_, tr("Clear Order"), true );
+    clearbut->activated.notify( mCB(this,uiHorizonRelationsDlg,clearCB) );
+    clearbut->attach( rightTo, relationfld_->box() );
+
     uiPushButton* orderbut =
 		new uiPushButton( relationfld_, tr("Read Horizons"), false );
     orderbut->activated.notify( mCB(this,uiHorizonRelationsDlg,readHorizonCB) );
-    orderbut->attach( rightTo, relationfld_->box() );
+    orderbut->attach( alignedBelow, clearbut );
 
     crossbut_ = new uiPushButton( relationfld_, tr("Check crossings"), false );
     crossbut_->activated.notify(
@@ -66,8 +72,24 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     waterbut_->attach( alignedBelow, crossbut_ );
     waterbut_->display( false );
 
+    EM::RelationTree::getSorted( is2d, hornames_ );
+    EM::RelationTree::getSorted( is2d, horids_ );
     fillRelationField( hornames_ );
     setCtrlStyle( CloseOnly );
+}
+
+
+void uiHorizonRelationsDlg::clearCB( CallBacker* )
+{
+    if ( !uiMSG().askGoOn(tr("Remove all exising horizon relations?")) )
+	return;
+
+    if ( !EM::RelationTree::clear(is2d_,true) )
+	return;
+
+    hornames_.erase();
+    horids_.erase();
+    fillRelationField( hornames_ );
 }
 
 
@@ -107,7 +129,7 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 		  bool is2d, int nrcross )
     : uiDialog(p,Setup(tr("Horizon relations (Solve crossings)"),
 		       uiString::emptyString(),
-                        mODHelpKey(HorizonModifyDlgHelpID) ))
+			mODHelpKey(HorizonModifyDlgHelpID) ))
     , mid1_(mid1)
     , mid2_(mid2)
     , is2d_(is2d)
@@ -118,10 +140,10 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     hornms.add( EM::EMM().objectName(mid2) );
 
     uiString msg = tr("'%1' crosses '%2' at %3 positions").arg(hornms.get(0))
-                 .arg(hornms.get(1)).arg( nrcross );
+		 .arg(hornms.get(1)).arg( nrcross );
     uiLabel* lbl = new uiLabel( this, msg );
 
-    horizonfld_ = new uiGenInput( this, 
+    horizonfld_ = new uiGenInput( this,
 				  uiStrings::phrModify(uiStrings::sHorizon(1)),
 				  StringListInpSpec(hornms) );
     horizonfld_->valuechanged.notify( mCB(this,HorizonModifyDlg,horSel) );
@@ -136,7 +158,7 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 			       uiStrings::phrJoinStrings(tr("Modified"),
 			       uiStrings::sHorizon(1))),
 			       BoolInpSpec(true,tr("As new"),
-                               uiStrings::sOverwrite()) );
+			       uiStrings::sOverwrite()) );
     savefld_->valuechanged.notify( mCB(this,HorizonModifyDlg,saveCB) );
     savefld_->attach( alignedBelow, modefld_ );
     savefld_->setSensitive( EM::canOverwrite(mid1) );
@@ -269,7 +291,7 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 {
     MouseCursorChanger chgr( MouseCursor::Wait );
 
-    HorizonSorter sorter( horids_,is2d_ );
+    HorizonSorter sorter( horids_, is2d_ );
     sorter.setName( "Check crossings" );
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, sorter ) ) return;
@@ -280,8 +302,8 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
     {
 	for ( int idy=idx+1; idy<horids_.size(); idy++ )
 	{
-	    const int nrcrossings = sorter.getNrCrossings( horids_[idx],
-							   horids_[idy] );
+	    const int nrcrossings =
+		sorter.getNrCrossings( horids_[idx], horids_[idy] );
 	    if ( nrcrossings == 0 ) continue;
 
 	    TypeSet<MultiID> sortedids;
@@ -296,7 +318,9 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 	}
     }
 
-    if ( count > 0 ) return;
+    if ( count > 0 )
+	return;
+
     uiMSG().message( tr("No crossings found") );
 }
 

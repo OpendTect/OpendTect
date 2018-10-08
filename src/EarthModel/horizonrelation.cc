@@ -356,6 +356,15 @@ bool RelationTree::getSorted( const TypeSet<MultiID>& unsortedids,
 }
 
 
+// static functions
+bool RelationTree::clear( bool is2d, bool dowrite )
+{
+    RelationTree reltree( is2d );
+    deepErase( reltree.nodes_ );
+    return dowrite ? reltree.write() : reltree.nodes_.isEmpty();
+}
+
+
 bool RelationTree::sortHorizons( bool is2d, const TypeSet<MultiID>& unsortedids,
 				 TypeSet<MultiID>& sortedids )
 {
@@ -372,6 +381,31 @@ bool RelationTree::update( bool is2d, const TypeSet<MultiID>& ids )
 	reltree.addRelation( ids[idx-1], ids[idx], false );
 
     return reltree.write();
+}
+
+
+bool RelationTree::getSorted( bool is2d, TypeSet<MultiID>& mids )
+{
+    RelationTree reltree( is2d, false );
+    reltree.read( false );
+    TypeSet<MultiID> allmids;
+    for ( int idx=0; idx<reltree.nodes_.size(); idx++ )
+	allmids += reltree.nodes_[idx]->id_;
+
+    return sortHorizons( is2d, allmids, mids );
+}
+
+
+bool RelationTree::getSorted( bool is2d, BufferStringSet& nms )
+{
+    TypeSet<MultiID> mids;
+    if ( !getSorted(is2d,mids) )
+	return false;
+
+    for ( int idx=0; idx<mids.size(); idx++ )
+	nms.add( IOM().nameOf(mids[idx]) );
+
+    return nms.size();
 }
 
 } // namespace EM

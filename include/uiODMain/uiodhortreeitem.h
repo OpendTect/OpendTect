@@ -62,12 +62,13 @@ public:
 					    bool atsect,bool dummy);
 			uiODHorizonTreeItem(const EM::ObjectID&,
 					    bool rgba,bool atsect);
+			~uiODHorizonTreeItem();
 
 protected:
     bool		init();
     void		initMenuItems();
     void		initNotify();
-    uiString	createDisplayName() const;
+    uiString		createDisplayName() const;
     void		dispChangeCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODHorizonParentTreeItem).name(); }
