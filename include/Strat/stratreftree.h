@@ -66,7 +66,7 @@ protected:
     LithologySet	liths_;
     ContentSet		contents_;
     LeafUnitRef&	udfleaf_;
-    bool		beingdeleted_;
+    bool		beingdeleted_ = false;
 
     void		levelSetChgCB(CallBacker*);
     void		reportChange(UnitRef&,bool isrem=false);
