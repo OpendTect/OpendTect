@@ -33,16 +33,20 @@ class ExplFaultStickTexturePositionExtracter : public ParallelTask
 {
 public:
 ExplFaultStickTexturePositionExtracter( ExplFaultStickSurface& efss,
-					DataPointSet& dpset )
+					DataPointSet& dpset,
+					int id=-1 )
     : explsurf_( efss )
     , dpset_( dpset )
     , sz_( efss.getTextureSize() )
+    , id_(id)
 {
     const DataColDef texture_i( explsurf_.sKeyTextureI() );
     const DataColDef texture_j( explsurf_.sKeyTextureJ() );
+    const DataColDef iddef( sKey::ID() );
 
     i_column_ = dpset_.dataSet().findColDef(texture_i,PosVecDataSet::NameExact);
     j_column_ = dpset_.dataSet().findColDef(texture_j,PosVecDataSet::NameExact);
+    id_column_ = dpset_.dataSet().findColDef(iddef,PosVecDataSet::NameExact);
 }
 
 
@@ -100,6 +104,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
 					          mCast( float, knotpos );
 	    datarow.data_[j_column_-dpset_.nrFixedCols()] =
 						  mCast( float, stickpos );
+	    if ( id_ >= 0 )
+		datarow.data_[id_column_-dpset_.nrFixedCols()] =
+						  mCast( float, id_ );
 	    dpsetlock_.lock();
 	    dpset_.addRow( datarow );
 	    dpsetlock_.unLock();
@@ -305,6 +312,8 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 	    const Coord3 p2 = explsurf_.coordlist_->get( v2 );
 	    const Coord3 intsectptxy = p1+(p2-p1)*factor12;
 	    pos = iszero ? p0 : p0+(intsectptxy- p0)/fchkpt0;
+	    if ( !Math::IsNormalNumber(pos.x) || !Math::IsNormalNumber(pos.y) )
+		return false;
 
 	    return true;
 	}
@@ -317,8 +326,10 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
     ExplFaultStickSurface&	explsurf_;
     DataPointSet&		dpset_;
     RowCol			sz_;
+    int				id_;
     int				i_column_;
     int				j_column_;
+    int				id_column_;
 };
 
 
@@ -581,8 +592,9 @@ void ExplFaultStickSurface::updateTextureCoords()
 	if ( !stick )
 	    continue;
 	Geometry::PrimitiveSet* idxps = stick->getCoordsPrimitiveSet();
+	TypeSet<int>& texknotcoords = *textureknotcoords_[stickidx];
 
-	for ( int idx=0; idx<idxps->size(); idx++ )
+	for ( int idx=0; idx<idxps->size() && idx<texknotcoords.size(); idx++ )
 	{
 	    const int ci = idxps->get(idx);
 	    if ( ci == -1 )
@@ -591,8 +603,7 @@ void ExplFaultStickSurface::updateTextureCoords()
 	    const float rowcoord =
 		(texturecolcoords_[stickidx] + 0.5f)/texturesize_.col();
 
-	    const float knotpos =
-		((*textureknotcoords_[stickidx])[idx]+0.5f)/texturesize_.row();
+	    const float knotpos = (texknotcoords[idx]+0.5f)/texturesize_.row();
 
 	    texturecoordlist_->set( ci, Coord3(knotpos,rowcoord,0) );
 	}
@@ -1130,6 +1141,10 @@ const RowCol& ExplFaultStickSurface::getTextureSize() const
 
 bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
        TaskRunner* tr )
+{ return getTexturePositions( dpset, -1, tr ); }
+
+bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
+						 int id, TaskRunner* tr )
 {
     const DataColDef texture_i( sKeyTextureI() );
     if ( dpset.dataSet().findColDef(texture_i,PosVecDataSet::NameExact)==-1 )
@@ -1138,23 +1153,31 @@ bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
 	dpset.dataSet().add( new DataColDef(sKeyTextureJ()) );
     }
 
+    if ( id >= 0 )
+    {
+	const DataColDef iddef( sKey::ID() );
+	if ( dpset.dataSet().findColDef(iddef,PosVecDataSet::NameExact)==-1 )
+	    dpset.dataSet().add( new DataColDef(iddef) );
+    }
+
     if ( trialg_==ExplFaultStickSurface::None )
     {
 	if ( !updateTextureSize() )
 	    return false;
 
 	PtrMan<ExplFaultStickTexturePositionExtracter> extractor =
-	    new ExplFaultStickTexturePositionExtracter( *this, dpset );
+	    new ExplFaultStickTexturePositionExtracter( *this, dpset, id );
 	return TaskRunner::execute( tr, *extractor );
     }
     else
     {
-	return setProjTexturePositions( dpset );
+	return setProjTexturePositions( dpset, id );
     }
 }
 
 
-bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
+bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps,
+						     int id )
 {
     //Refine needed for pos calculation
 
@@ -1212,8 +1235,11 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
     const int nrcs = dps.nrCols();
     const DataColDef ti( sKeyTextureI() );
     const DataColDef tj( sKeyTextureJ() );
+    const DataColDef iddef( sKey::ID() );
     const int ic = dps.dataSet().findColDef(ti,PosVecDataSet::NameExact)-nrfc;
     const int jc = dps.dataSet().findColDef(tj,PosVecDataSet::NameExact)-nrfc;
+    const int idc =
+	    dps.dataSet().findColDef(iddef,PosVecDataSet::NameExact)-nrfc;
 
     for ( int row=0; row<texturesize_.row(); row++ )
     {
@@ -1258,6 +1284,8 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 	    datarow.data_.setSize( nrcs, mUdf(float) );
 	    datarow.data_[ic] =  mCast( float, row );
 	    datarow.data_[jc] =  mCast( float, col );
+	    datarow.data_[idc] =  mCast( float, id );
+
 	    dps.addRow( datarow );
 	}
     }
