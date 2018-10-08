@@ -105,6 +105,12 @@ Pick::Set* uiCreatePicks::getPickSet() const
 bool uiCreatePicks::acceptOK( CallBacker* )
 {
     name_.set( nmfld_->text() ).trimBlanks();
+    if ( name_.isEmpty() )
+    {
+	uiMSG().error( tr("Please provide a name.") );
+	return false;
+    }
+
     if ( iszvalreq_ && !calcZValAccToSurvDepth() )
 	return false;
 
