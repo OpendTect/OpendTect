@@ -229,45 +229,46 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 	const int rp1 = rgeomidxps->indexOf(v1);
 	const int rp2 = rgeomidxps->indexOf(v2);
 
+	#define mGetPos(knots,i) (i >= knots.size() ? knots.last() : knots[i])
+
 	Coord texture0, texture1, texture2;
 
 	if ( lp0!=-1 && lp1!=-1 && rp2!=-1 )
 	{
-	    texture0 = Coord( lpos, lknots[lp0] );
-	    texture1 = Coord( lpos, lknots[lp1] );
-	    texture2 = Coord( rpos, rknots[rp2] );
+	    texture0 = Coord( lpos, mGetPos(lknots,lp0) );
+	    texture1 = Coord( lpos, mGetPos(lknots,lp1) );
+	    texture2 = Coord( rpos, mGetPos(rknots,rp2) );
 	}
 	else if ( lp0!=-1 && lp2!=-1 && rp1!=-1 )
 	{
-	    texture0 = Coord( lpos, lknots[lp0] );
-	    texture1 = Coord( rpos, rknots[rp1] );
-	    texture2 = Coord( lpos, lknots[lp2] );
+	    texture0 = Coord( lpos, mGetPos(lknots,lp0) );
+	    texture1 = Coord( rpos, mGetPos(rknots,rp1) );
+	    texture2 = Coord( lpos, mGetPos(lknots,lp2) );
 	}
 	else if ( lp1!=-1 && lp2!=-1 && rp0!=-1 )
 	{
-	    texture0 = Coord( rpos, rknots[rp0] );
-	    texture1 = Coord( lpos, lknots[lp1] );
-	    texture2 = Coord( lpos, lknots[lp2] );
+	    texture0 = Coord( rpos, mGetPos(rknots,rp0) );
+	    texture1 = Coord( lpos, mGetPos(lknots,lp1) );
+	    texture2 = Coord( lpos, mGetPos(lknots,lp2) );
 	}
 	else if ( rp0!=-1 && rp1!=-1 && lp2!=-1 )
 	{
-	    texture0 = Coord( rpos, rknots[rp0] );
-	    texture1 = Coord( rpos, rknots[rp1] );
-	    texture2 = Coord( lpos, lknots[lp2] );
+	    texture0 = Coord( rpos, mGetPos(rknots,rp0) );
+	    texture1 = Coord( rpos, mGetPos(rknots,rp1) );
+	    texture2 = Coord( lpos, mGetPos(lknots,lp2) );
 	}
 	else if ( rp0!=-1 && rp2!=-1 && lp1!=-1 )
 	{
-	    texture0 = Coord( rpos, rknots[rp0] );
-	    texture1 = Coord( lpos, lknots[lp1] );
-	    texture2 = Coord( rpos, rknots[rp2] );
+	    texture0 = Coord( rpos, mGetPos(rknots,rp0) );
+	    texture1 = Coord( lpos, mGetPos(lknots,lp1) );
+	    texture2 = Coord( rpos, mGetPos(rknots,rp2) );
 	}
 	else if ( rp1!=-1 && rp2!=-1 && lp0!=-1 )
 	{
-	    texture0 = Coord( lpos, lknots[lp0] );
-	    texture1 = Coord( rpos, rknots[rp1] );
-	    texture2 = Coord( rpos, rknots[rp2] );
+	    texture0 = Coord( lpos, mGetPos(lknots,lp0) );
+	    texture1 = Coord( rpos, mGetPos(rknots,rp1) );
+	    texture2 = Coord( rpos, mGetPos(rknots,rp2) );
 	}
-
 
 	bool intriangle = pointInTriangle2D( checkpos, texture0, texture1,
 					     texture2, 1e-5 );
@@ -303,7 +304,7 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 	    const Coord d1 = checkpos-texture0;
 	    const Coord d2 = texture1-texture2;
 	    const double denm = d1.x_*d2.y_-d1.y_*d2.x_;
-	    const bool iszero = mIsZero( denm, 1e-8 );
+	    bool iszero = mIsZero( denm, 1e-8 );
 	    const double fchkpt0 = iszero ? 0 : (d0.x_*d2.y_-d0.y_*d2.x_)/denm;
 	    const double factor12 = iszero ? 0 : (d1.x_*d0.y_-d1.y_*d0.x_)/denm;
 
@@ -311,6 +312,7 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 	    const Coord3 p1 = explsurf_.coordlist_->get( v1 );
 	    const Coord3 p2 = explsurf_.coordlist_->get( v2 );
 	    const Coord3 intsectptxy = p1+(p2-p1)*factor12;
+	    iszero = mIsZero( fchkpt0, 1e-8 );
 	    pos = iszero ? p0 : p0+(intsectptxy- p0)/fchkpt0;
 	    if ( !Math::IsNormalNumber(pos.x_) || !Math::IsNormalNumber(pos.y_))
 		return false;
