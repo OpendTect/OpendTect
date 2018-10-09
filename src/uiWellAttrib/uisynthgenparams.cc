@@ -323,8 +323,7 @@ void uiSynthGenParams::get( GenParams& gp ) const
     if ( gp.isZeroOffset() )
     {
 	RayTracer1D::setIOParsToZeroOffset( iop );
-	iop.setYN( SynthSeis::GenBase::sKeyFourier(),
-	           SynthSeis::GenBase::sStdFFTConvolve() );
+	iop.setYN( SynthSeis::GenBase::sKeyFourier(), true );
 	const bool dointernal = dointernalmultiplesfld_->getBoolValue();
 	iop.setYN( SynthSeis::GenBase::sKeyInternal(), dointernal );
 	if ( dointernal )
@@ -336,8 +335,7 @@ void uiSynthGenParams::get( GenParams& gp ) const
     else if ( gp.isPS() )
     {
 	rtsel_->fillPar( iop );
-	iop.setYN( SynthSeis::GenBase::sKeyFourier(),
-		   SynthSeis::GenBase::sStdFFTConvolve() );
+	iop.setYN( SynthSeis::GenBase::sKeyFourier(), true );
 	const bool donmo = uisynthcorrgrp_->wantNMOCorr();
 	iop.setYN( SynthSeis::GenBase::sKeyNMO(), donmo );
 	if ( donmo )
