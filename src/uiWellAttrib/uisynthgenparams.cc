@@ -283,7 +283,7 @@ void uiSynthGenParams::set( const GenParams& gp )
     const IOPar& iop = gp.raypars_;
     if ( gp.isZeroOffset() )
     {
-	bool dointernalmultiples = false; float surfreflcoeff =1;
+	bool dointernalmultiples = false; float surfreflcoeff = 1.f;
 	iop.getYN( SynthSeis::GenBase::sKeyInternal(), dointernalmultiples );
 	iop.get( SynthSeis::GenBase::sKeySurfRefl(), surfreflcoeff );
 	dointernalmultiplesfld_->setValue( dointernalmultiples );
@@ -295,13 +295,10 @@ void uiSynthGenParams::set( const GenParams& gp )
 	bool donmo = true;
 	iop.getYN( SynthSeis::GenBase::sKeyNMO(), donmo );
 
-	float mutelen = SynthSeis::GenBase::cStdMuteLength();
-	iop.get( SynthSeis::GenBase::sKeyMuteLength(), mutelen );
-	if ( !mIsUdf(mutelen) )
-	   mutelen = mutelen *ZDomain::Time().userFactor();
-
 	float stretchlimit = SynthSeis::GenBase::cStdStretchLimit();
 	iop.get( SynthSeis::GenBase::sKeyStretchLimit(), stretchlimit );
+	float mutelen = SynthSeis::GenBase::cStdMuteLength();
+	iop.get( SynthSeis::GenBase::sKeyMuteLength(), mutelen );
 	uisynthcorrgrp_->setValues( donmo, mutelen, stretchlimit );
     }
     else if ( gp.isPSPostProc() )
@@ -326,20 +323,30 @@ void uiSynthGenParams::get( GenParams& gp ) const
     if ( gp.isZeroOffset() )
     {
 	RayTracer1D::setIOParsToZeroOffset( iop );
+	iop.setYN( SynthSeis::GenBase::sKeyFourier(),
+	           SynthSeis::GenBase::sStdFFTConvolve() );
 	const bool dointernal = dointernalmultiplesfld_->getBoolValue();
-	const float coeff = surfreflcoeffld_->getFValue();
 	iop.setYN( SynthSeis::GenBase::sKeyInternal(), dointernal );
-	iop.set( SynthSeis::GenBase::sKeySurfRefl(), coeff );
+	if ( dointernal )
+	{
+	    iop.set( SynthSeis::GenBase::sKeySurfRefl(),
+		     surfreflcoeffld_->getFValue() );
+	}
     }
     else if ( gp.isPS() )
     {
 	rtsel_->fillPar( iop );
-	bool donmo = uisynthcorrgrp_->wantNMOCorr();
+	iop.setYN( SynthSeis::GenBase::sKeyFourier(),
+		   SynthSeis::GenBase::sStdFFTConvolve() );
+	const bool donmo = uisynthcorrgrp_->wantNMOCorr();
 	iop.setYN( SynthSeis::GenBase::sKeyNMO(), donmo );
-	iop.set( SynthSeis::GenBase::sKeyMuteLength(),
-		   uisynthcorrgrp_->mutelen_ );
-	iop.set( SynthSeis::GenBase::sKeyStretchLimit(),
-		   uisynthcorrgrp_->stretchmutelim_ );
+	if ( donmo )
+	{
+	    iop.set( SynthSeis::GenBase::sKeyStretchLimit(),
+		       uisynthcorrgrp_->stretchmutelim_ );
+	    iop.set( SynthSeis::GenBase::sKeyMuteLength(),
+		       uisynthcorrgrp_->mutelen_ );
+	}
     }
     else if ( gp.isPSPostProc() )
     {
@@ -353,11 +360,11 @@ class uiSynthCorrAdvancedDlg : public uiDialog
 { mODTextTranslationClass(uiSynthCorrAdvancedDlg);
 public:
 
-uiSynthCorrAdvancedDlg( uiParent* p, float& ml, float& sml )
+uiSynthCorrAdvancedDlg( uiParent* p, float& sml, float& ml )
     : uiDialog( p, uiDialog::Setup(tr("Synthetic Corrections advanced options"),
 	tr("Advanced options"), mODHelpKey(mSynthCorrAdvancedDlgHelpID)))
-    , mutelen_(ml)
     , smlimit_(sml)
+    , mutelen_(ml)
 {
     auto* lsb = new uiLabeledSpinBox( this,
 				      tr("Stretch mute limit").withUnit("%") );
@@ -395,8 +402,8 @@ bool acceptOK()
 
 uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
     : uiGroup( p, "Synth corrections parameters" )
-    , mutelen_(0.02f)
-    , stretchmutelim_(0.2f)
+    , stretchmutelim_(SynthSeis::GenBase::cStdStretchLimit())
+    , mutelen_(SynthSeis::GenBase::cStdMuteLength())
 {
     nmobox_ = new uiCheckBox( this, tr("Apply NMO corrections") );
     mAttachCB( nmobox_->activated, uiSynthCorrectionsGrp::nmoChgCB );
@@ -431,7 +438,7 @@ bool uiSynthCorrectionsGrp::wantNMOCorr() const
 
 void uiSynthCorrectionsGrp::advancedPush( CallBacker* )
 {
-    uiSynthCorrAdvancedDlg dlg( this, mutelen_, stretchmutelim_ );
+    uiSynthCorrAdvancedDlg dlg( this, stretchmutelim_, mutelen_ );
     dlg.go();
 }
 
@@ -439,6 +446,6 @@ void uiSynthCorrectionsGrp::advancedPush( CallBacker* )
 void uiSynthCorrectionsGrp::setValues( bool donmo, float mlen, float slim )
 {
     nmobox_->setChecked( donmo );
-    mutelen_ = mlen;
     stretchmutelim_ = slim;
+    mutelen_ = mlen;
 }
