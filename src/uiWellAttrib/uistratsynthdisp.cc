@@ -386,10 +386,13 @@ void uiStratSynthDisp::setViewerData( bool wva, bool preserveview )
 	ds = datamgr_.getDataSet( curid );
     }
 
-    const float offs = curoffs_;
     ConstRefMan<DataPack> pack2use;
     if ( ds )
     {
+	const bool hascuroffset = ds->offsetDef().includes(curoffs_,false);
+	curoffs_ = hascuroffset ? ds->offsetDef().snap( curoffs_ )
+				: ds->offsetDef().start;
+	const float offs = curoffs_;
 	mGetFlattenVars();
 	if ( !showflattened )
 	    pack2use = ds->getTrcDPAtOffset( offs );
