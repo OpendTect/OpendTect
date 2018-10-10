@@ -257,9 +257,8 @@ void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
 	ti.coord = SI().transform( ti.binid );
     else if ( icvsxytype_ == FileReadOpts::XYOnly )
     {
-	if ( SI().getCoordSystem().ptr() )
-	  ti.coord = SI().getCoordSystem()->convertFrom( ti.coord,
-								 *coordsys_ );
+	if ( SI().getCoordSystem().ptr() && coordsys_.ptr() )
+	    ti.coord = SI().getCoordSystem()->convertFrom(ti.coord,*coordsys_);
 	ti.binid = SI().transform( ti.coord );
     }
 }
