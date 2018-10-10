@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 
+static int defNrModels() { return 100; }
 
 const char* uiStratGenDescTools::sKeyNrModels()
 { return "Nr models"; }
@@ -76,7 +77,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     const CallBack gocb( mCB(this,uiStratGenDescTools,genCB) );
     nrmodlsfld_ = new uiSpinBox( rightgrp );
     nrmodlsfld_->setInterval( Interval<int>(1,mUdf(int)) );
-    nrmodlsfld_->setValue( 25 );
+    nrmodlsfld_->setValue( defNrModels() );
     nrmodlsfld_->setFocusChangeTrigger( false );
     nrmodlsfld_->setStretch( 0, 0 );
     nrmodlsfld_->setToolTip( tr("Number of models to generate") );
