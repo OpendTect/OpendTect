@@ -20,6 +20,7 @@ mExpClass(uiIo) uiSetDataDir : public uiDialog
 { mODTextTranslationClass(uiSetDataDir);
 public:
 			uiSetDataDir(uiParent*);
+			~uiSetDataDir();
 
     const char*		selectedDir() const	{ return seldir_; }
     static bool		setRootDataDir(uiParent*,const char*);
@@ -29,6 +30,13 @@ protected:
     BufferString	seldir_;
     const BufferString	curdatadir_;
     uiFileInput*	basedirfld_;
+
+    void		updateListFld();
+    void		rootSelCB(CallBacker*);
+    void		rootMoveUpCB(CallBacker*);
+    void		rootMoveDownCB(CallBacker*);
+    void		rootRemoveCB(CallBacker*);
+    bool		writeSettings();
 
     bool		acceptOK(CallBacker*);
 

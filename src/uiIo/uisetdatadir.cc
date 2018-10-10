@@ -11,29 +11,35 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisetdatadir.h"
 
-#include "uifileinput.h"
-#include "uifiledlg.h"
-#include "uitaskrunner.h"
-#include "uiselsimple.h"
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uidesktopservices.h"
-#include "uisurveyzip.h"
+#include "uifiledlg.h"
+#include "uifileinput.h"
+#include "uilistbox.h"
 #include "uimsg.h"
+#include "uiselsimple.h"
+#include "uisurveyzip.h"
+#include "uitoolbutton.h"
+
+#include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "dirlist.h"
-#include "oddirs.h"
+#include "hiddenparam.h"
 #include "ioman.h"
+#include "oddirs.h"
 #include "odinst.h"
+#include "od_helpids.h"
 #include "settings.h"
 #include "ziputils.h"
-#include "od_helpids.h"
 
 #ifdef __win__
 # include "winutils.h"
 #endif
 
+static HiddenParam<uiSetDataDir,uiListBox*> drlistfld(0);
+static HiddenParam<uiSetDataDir,BufferStringSet*> drlist(0);
 
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
@@ -48,6 +54,21 @@ static const char* doSetRootDataDir( const char* inpdatadir )
 
     Settings::common().set( "Default DATA directory", datadir );
     return Settings::common().write() ? 0 : "Cannot write user settings file";
+}
+
+
+static const char* getPrefix()
+{ return __iswin__ ? "Windows" : "Unix"; }
+
+static void getRecentDataRoots( BufferStringSet& dirs )
+{
+    Settings& setts = Settings::fetch( "dataroot" );
+    PtrMan<IOPar> dr = setts.subselect( getPrefix() );
+    if ( !dr )
+	return;
+
+    for ( int idx=0; idx<dr->size(); idx++ )
+	dirs.add( dr->getValue(idx) );
 }
 
 
@@ -101,10 +122,105 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     }
     setTitleText( titletxt );
 
-    const uiString basetxt = tr("OpendTect Data Root Directory");
+    const uiString basetxt = tr("OpendTect Data Root");
     basedirfld_ = new uiFileInput( this, basetxt,
 			      uiFileInput::Setup(uiFileDialog::Gen,basedirnm)
 			      .directories(true) );
+
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Recent Data Roots") );
+    uiListBox* lb = new uiListBox( this, su );
+    drlistfld.setParam( this, lb );
+    lb->attach( leftAlignedBelow, basedirfld_ );
+
+    BufferStringSet* dirs = new BufferStringSet;
+    drlist.setParam( this, dirs );
+    getRecentDataRoots( *dirs );
+    updateListFld();
+
+    uiButtonGroup* sortgrp = new uiButtonGroup( this, "", OD::Vertical );
+    new uiToolButton( sortgrp, uiToolButton::UpArrow,uiStrings::sMoveUp(),
+		      mCB(this,uiSetDataDir,rootMoveUpCB) );
+    new uiToolButton( sortgrp, uiToolButton::DownArrow, uiStrings::sMoveDown(),
+		      mCB(this,uiSetDataDir,rootMoveDownCB) );
+    new uiToolButton( sortgrp, "remove", uiStrings::sRemove(),
+		      mCB(this,uiSetDataDir,rootRemoveCB) );
+    sortgrp->attach( rightOf, lb );
+
+    lb->setCurrentItem( curdatadir_ );
+    lb->selectionChanged.notify( mCB(this,uiSetDataDir,rootSelCB) );
+}
+
+
+uiSetDataDir::~uiSetDataDir()
+{
+    drlistfld.removeParam( this );
+    drlist.removeParam( this );
+}
+
+
+void uiSetDataDir::updateListFld()
+{
+    uiListBox* lb = drlistfld.getParam( this );
+    const BufferString curtext = lb->getText();
+    lb->setEmpty();
+    BufferStringSet* dirs = drlist.getParam( this );
+    for ( int idx=0; idx<dirs->size(); idx++ )
+	lb->addItem( toUiString(dirs->get(idx)) );
+
+    lb->setCurrentItem( curtext );
+}
+
+
+void uiSetDataDir::rootSelCB( CallBacker* )
+{
+    uiListBox* lb = drlistfld.getParam( this );
+    const BufferString newdr = lb->getText();
+    if ( File::isDirectory(newdr) && File::exists(newdr) )
+	basedirfld_->setFileName( newdr );
+}
+
+
+void uiSetDataDir::rootMoveUpCB( CallBacker* )
+{
+    uiListBox* lb = drlistfld.getParam( this );
+    const int curitm = lb->currentItem();
+    BufferStringSet* dirs = drlist.getParam( this );
+    dirs->swap( curitm, curitm-1 );
+    updateListFld();
+}
+
+
+void uiSetDataDir::rootMoveDownCB( CallBacker* )
+{
+    uiListBox* lb = drlistfld.getParam( this );
+    const int curitm = lb->currentItem();
+    BufferStringSet* dirs = drlist.getParam( this );
+    dirs->swap( curitm, curitm+1 );
+    updateListFld();
+}
+
+
+void uiSetDataDir::rootRemoveCB( CallBacker* )
+{
+    uiListBox* lb = drlistfld.getParam( this );
+    const int curitm = lb->currentItem();
+    BufferStringSet* dirs = drlist.getParam( this );
+    delete dirs->removeSingle( curitm );
+    updateListFld();
+}
+
+
+static void addDataRootIfNew( BufferStringSet& dataroots, const char* newdr )
+{
+    for ( int idx=0; idx<dataroots.size(); idx++ )
+    {
+	const BufferString cpath = File::getCanonicalPath( dataroots.get(idx) );
+	const BufferString newcpath = File::getCanonicalPath( newdr );
+	if ( cpath==newcpath )
+	    return;
+    }
+
+    dataroots.insertAt( new BufferString(newdr), 0 );
 }
 
 
@@ -117,7 +233,10 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	mErrRet( tr("Please enter a valid (existing) location") )
 
     if ( seldir_ == curdatadir_ && IOMan::isValidDataRoot(seldir_) )
+    {
+	writeSettings();
 	return true;
+    }
 
     FilePath fpdd( seldir_ ); FilePath fps( GetSoftwareDir(0) );
     const int nrslvls = fps.nrLevels();
@@ -134,7 +253,23 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	}
     }
 
+    writeSettings();
     return true;
+}
+
+
+bool uiSetDataDir::writeSettings()
+{
+    BufferStringSet* dataroots = drlist.getParam( this );
+    addDataRootIfNew( *dataroots, seldir_ );
+
+    const char* prefix = getPrefix();
+    Settings& setts = Settings::fetch( "dataroot" );
+    setts.removeSubSelection( prefix );
+    for ( int idx=0; idx<dataroots->size(); idx++ )
+	setts.set( IOPar::compKey(prefix,idx), dataroots->get(idx) );
+
+    return setts.write( false );
 }
 
 
@@ -284,14 +419,14 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
 	return;
 
     if ( (havedemosurv && uigc.choice() == 2) ||
-         (!havedemosurv && uigc.choice() == 1))
+	 (!havedemosurv && uigc.choice() == 1))
     {
-        uiFileDialog dlg( par, true, "", "*.zip", tr("Select zip file") );
-        dlg.setDirectory( datadir );
-        if ( !dlg.go() )
-            return;
+	uiFileDialog dlg( par, true, "", "*.zip", tr("Select zip file") );
+	dlg.setDirectory( datadir );
+	if ( !dlg.go() )
+	    return;
 
-        zipfilenm = dlg.fileName();
+	zipfilenm = dlg.fileName();
     }
 
     (void)uiSurvey_UnzipFile( par, zipfilenm, datadir );
