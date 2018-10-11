@@ -26,7 +26,7 @@ public:
 			// one says 'Finish', the other 'Go'.
 
 			uiVarWizardDlg(uiParent*,const uiDialog::Setup&,IOPar&,
-					Position);
+					Position,bool revbuttons=true);
 			~uiVarWizardDlg();
 
 protected:
