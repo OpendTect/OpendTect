@@ -51,7 +51,8 @@ namespace Seis
     mGlobal(Seis) IOObjContext*	getIOObjContext(Seis::GeomType,bool forread);
 
     enum DataType		{ Ampl, Dip, Frequency, Phase, AVOGradient,
-				  Azimuth, Classification, UnknownData };
+				  Azimuth, Classification, IncidenceAngle,
+				  UnknownData };
     mGlobal(Seis) bool		isAngle(DataType);
     mGlobal(Seis) const char*	nameOf(DataType);
     mGlobal(Seis) DataType	dataTypeOf(const char*);

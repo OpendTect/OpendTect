@@ -436,6 +436,7 @@ public:
     static uiWord sImported()		{ return tr("Imported"); }
     static uiWord sImporting()		{ return tr("Importing"); }
     static uiWord sImpSuccess()		{ return tr("Import successful"); }
+    static uiWord sIncidenceAngle()	{ return tr("Incidence Angle"); }
     static uiWord sInclination()	{ return tr("Inclination"); }
     static uiWord sInfo()		{ return tr("Info"); }
     static uiWord sInformation()	{ return tr("Information"); }

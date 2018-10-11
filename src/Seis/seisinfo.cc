@@ -139,6 +139,7 @@ mDefineEnumUtils(SeisEnum,DataType,"Data type")
 	"AVO Gradient",
 	"Azimuth",
 	"Classification",
+	"Incidence Angle",
 	"Other",
 	0
 };
@@ -152,6 +153,7 @@ void EnumDefImpl<SeisEnum::DataType>::init()
     uistrings_ += mEnumTr("AVO Gradient",0);
     uistrings_ += uiStrings::sAzimuth();
     uistrings_ += uiStrings::sClassification();
+    uistrings_ += uiStrings::sIncidenceAngle();
     uistrings_ += uiStrings::sOther();
 }
 
@@ -188,7 +190,7 @@ const BufferStringSet& Seis::dataTypeNames()
 { return SeisEnum::DataTypeDef().keys(); }
 
 bool Seis::isAngle( DataType dt )
-{ return dt == Phase || dt == Azimuth; }
+{ return dt == Dip || dt == Phase || dt == Azimuth || dt == IncidenceAngle; }
 
 void Seis::putInPar( GeomType gt, IOPar& iop )
 {
