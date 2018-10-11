@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "coord.h"
 #include "samplingdata.h"
 #include "datachar.h"
+#include "coordsystem.h"
 class SeisTrcInfo;
 class od_ostream;
 
@@ -45,6 +46,7 @@ public:
     void	clear()			{ clearText(); setLineStarts(); }
 
     void	setUserInfo(const char*);
+    void	setSurveySetupInfo(Coords::CoordSystem*);
     void	setPosInfo(const TrcHeaderDef&);
     void	setStartPos(float);
 

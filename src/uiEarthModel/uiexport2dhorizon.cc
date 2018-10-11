@@ -38,8 +38,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+#include "uicoordsystem.h"
+
 #include <stdio.h>
 
+
+HiddenParam<uiExport2DHorizon,Coords::uiCoordSystemSel*> coordsysselfld_(0);
 
 static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
@@ -96,10 +101,17 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     optsfld_->setChecked( 0, true )
 	     .setChecked( 1, !SI().zIsTime() && SI().depthsInFeet() );
 
+    Coords::uiCoordSystemSel* coordsysselfld =
+					new Coords::uiCoordSystemSel( this );
+    coordsysselfld->attach( alignedBelow, optsfld_);
+
+    coordsysselfld_.setParam( this, coordsysselfld );
+
     outfld_ = new uiFileInput( this,
 		  uiStrings::phrOutput(uiStrings::phrASCII(uiStrings::sFile())),
 		  uiFileInput::Setup().forread(false) );
-    outfld_->attach( alignedBelow, optsfld_ );
+    outfld_->attach( alignedBelow, coordsysselfld );
+
     if ( !isbulk )
 	horChg( 0 );
 }
@@ -107,6 +119,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 
 uiExport2DHorizon::~uiExport2DHorizon()
 {
+    coordsysselfld_.removeParam( this );
 }
 
 
@@ -222,6 +235,14 @@ bool uiExport2DHorizon::doExport()
 		    continue;
 
 		survgeom2d->getPosByTrcNr( trcnr, crd, spnr );
+		Coords::CoordSystem* coordsys =
+			coordsysselfld_.getParam(this)->getCoordSystem();
+		if ( coordsys )
+		{
+		    Coord crd2d = coordsys->convertFrom( crd,
+					    *SI().getCoordSystem() );
+		    crd.setXY( crd2d.x, crd2d.y );
+		}
 		BufferString controlstr = !isbulk_ ? "%15s" : "%15s\t%15s";
 
 		if ( zudf )

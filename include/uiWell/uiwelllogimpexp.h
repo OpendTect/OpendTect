@@ -63,6 +63,7 @@ public:
 			uiExportLogs(uiParent*,
 				const ObjectSet<Well::Data>&,
 				const BufferStringSet&);
+			~uiExportLogs();
 
 protected:
 

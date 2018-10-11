@@ -869,12 +869,19 @@ Coord Table::AscIO::getPos( int xfld, int yfld, double udf ) const
 
     if ( !curpos.isUdf() )
     {
- ConstRefMan<Coords::CoordSystem> inpcrs =
-			 fd_.bodyinfos_[0]->selection_.coordsys_;
- ConstRefMan<Coords::CoordSystem> outcrs = SI().getCoordSystem();
+	ConstRefMan<Coords::CoordSystem> outcrs = SI().getCoordSystem();
 
-      if ( inpcrs && outcrs && !(*inpcrs == *outcrs) )
-	  curpos.setFrom( outcrs->convertFrom(curpos,*inpcrs) );
+	for ( int idx=0; idx<fd_.bodyinfos_.size(); idx++ )
+	{
+	    ConstRefMan<Coords::CoordSystem> inpcrs =
+				fd_.bodyinfos_[idx]->selection_.coordsys_;
+	    if ( !inpcrs ) continue;
+
+	    if ( inpcrs && outcrs && !(*inpcrs == *outcrs) )
+		curpos.setFrom( outcrs->convertFrom(curpos,*inpcrs) );
+
+	    break;
+	}
     }
 
     return curpos;

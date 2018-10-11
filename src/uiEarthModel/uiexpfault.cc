@@ -267,7 +267,7 @@ bool uiExportFault::writeAscii()
 			continue;
 		    if ( coordsysselfld_->isDisplayed() )
 		    {
-			Coord crd2d = coordsysselfld_->getCoordSystem()->
+			const Coord crd2d = coordsysselfld_->getCoordSystem()->
 				convertFrom(crd.coord(),*SI().getCoordSystem());
 			crd.setXY( crd2d.x, crd2d.y);
 		    }
@@ -308,6 +308,12 @@ bool uiExportFault::writeAscii()
 					    stickidx, knotidx );
 		if ( !crd.isDefined() )
 		    continue;
+		if ( coordsysselfld_->isDisplayed() )
+		{
+		    Coord crd2d = coordsysselfld_->getCoordSystem()->
+				convertFrom(crd.coord(),*SI().getCoordSystem());
+		    crd.setXY( crd2d.x, crd2d.y);
+		}
 		if ( !issingle_ )
 		    ostrm << "\""<< objnm <<"\"" << "\t";
 

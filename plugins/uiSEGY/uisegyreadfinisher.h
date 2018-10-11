@@ -27,6 +27,7 @@ class uiSeis2DLineNameSel;
 class SeisImporter;
 class SeisStdImporterReader;
 class SeisTrcWriter;
+class Coords::CoordSystem;
 namespace SEGY { class FileIndexer; }
 
 
@@ -43,6 +44,7 @@ public:
     FullSpec&		fullSpec()		{ return fs_; }
 
     void		setAsDefaultObj(); //!< call only after successful go()
+    void		setCoordSystem(Coords::CoordSystem*);
 
 protected:
 

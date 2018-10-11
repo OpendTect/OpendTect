@@ -116,7 +116,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	coordsysselfld_->attach( alignedBelow, inpfld_ );
 
     mAttachCB( coordsysselfld_->butPush, uiSEGYReadStarter::coordSysChangedCB );
-    coordsysselfld_->display( false );
+    coordsysselfld_->display( impType().is2D() );
 
     uiSeparator* sep = new uiSeparator( this, "Top sep" );
     sep->attach( stretchedBelow, topgrp_ );
@@ -436,7 +436,7 @@ void uiSEGYReadStarter::setToolStates()
     const bool shoulddisplay = SI().getCoordSystem() &&
 		SI().getCoordSystem()->isProjection() &&
 		usexybut_ && usexybut_->isChecked();
-    coordsysselfld_->display( shoulddisplay );
+    coordsysselfld_->display( shoulddisplay || impType().is2D() );
 
     editbut_->setSensitive( nrfiles==1 && File::exists(filespec_.fileName(0)) );
 }
@@ -1117,6 +1117,7 @@ bool uiSEGYReadStarter::acceptOK( CallBacker* )
 
     const FullSpec fullspec = fullSpec();
     uiSEGYReadFinisher dlg( this, fullspec, userfilename_ );
+    dlg.setCoordSystem( coordsysselfld_->getCoordSystem() );
     dlg.go();
 
     return false;

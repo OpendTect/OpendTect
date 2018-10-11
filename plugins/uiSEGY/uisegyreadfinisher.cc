@@ -53,6 +53,9 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "welltransl.h"
 #include "wellwriter.h"
 
+#include "coordsystem.h"
+#include "hiddenparam.h"
+HiddenParam<uiSEGYReadFinisher,Coords::CoordSystem*> coordsys_(0);
 #define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
 
 uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs )
@@ -394,10 +397,22 @@ void uiSEGYReadFinisher::updateInIOObjPars( IOObj& inioobj,
 }
 
 
+void uiSEGYReadFinisher::setCoordSystem( Coords::CoordSystem* crs )
+{
+    coordsys_.setParam( this, crs );
+}
+
 SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
 			    SeisTrcWriter& wrr, Pos::GeomID geomid )
 {
     SeisStdImporterReader* rdr = new SeisStdImporterReader( ioobj, "SEG-Y" );
+    SeisTrcTranslator* transl =
+	      const_cast<SeisTrcTranslator*>(rdr->reader().seisTranslator());
+    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
+    Coords::CoordSystem* crs = coordsys_.getParam( this );
+    if ( segytr && crs )
+	segytr->setCoordSys( crs );
+
     rdr->removeNull( transffld_->removeNull() );
     rdr->setResampler( transffld_->getResampler() );
     rdr->setScaler( transffld_->getScaler() );

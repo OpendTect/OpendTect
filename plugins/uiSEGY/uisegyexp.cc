@@ -512,21 +512,21 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	SeisIOObjInfo oinf( rdr.ioObj() );
 	rdr.setComponent( seissel_->compNr() );
 
-	if ( !autogentxthead_ && !hdrtxt_.isEmpty() )
+	const SeisTrcWriter& wrr = sstp->writer();
+	SeisTrcTranslator* transl =
+			const_cast<SeisTrcTranslator*>(wrr.seisTranslator());
+	mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
+	if ( segytr )
+	    segytr->setCoordSys( coordsysselfld_->getCoordSystem() );
+
+	if ( !autogentxthead_ && !hdrtxt_.isEmpty() && segytr )
 	{
-	    const SeisTrcWriter& wrr = sstp->writer();
-	    SeisTrcTranslator* transl =
-		    const_cast<SeisTrcTranslator*>(wrr.seisTranslator());
-	    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
-	    if ( segytr )
-	    {
-		segytr->setCoordSys( coordsysselfld_->getCoordSystem() );
-		SEGY::TxtHeader* th = new SEGY::TxtHeader;
-		th->setText( hdrtxt_ );
-		segytr->setTxtHeader( th );
-	    }
+	    SEGY::TxtHeader* th = new SEGY::TxtHeader;
+	    th->setText( hdrtxt_ );
+	    segytr->setTxtHeader( th );
 	}
     }
+
 
     bool rv = false;
     if ( linenm && *linenm )

@@ -39,7 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
     (othdomain_ && SI().zIsTime()) || (!othdomain_ && !SI().zIsTime())
 #define mZStepFac ( mInDepth ? 0.001 : 1.e-6 )
 
-#define mIsCoordSysSame (*filepars_.getCoordSys() == *SI().getCoordSystem())
+#define mIsCoordSysSame (*coordsys_ == *SI().getCoordSystem())
 
 static const int cSEGYWarnBadFmt = 1;
 static const int cSEGYWarnPos = 2;
@@ -400,6 +400,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     if ( !txthead_ )
     {
 	txthead_ = new SEGY::TxtHeader( trchead_.isrev0_ ? 0 : 1);
+	txthead_->setSurveySetupInfo( coordsys_ );
 	txthead_->setUserInfo( pinfo_.usrinfo );
 	fileopts_.thdef_.linename = curlinekey_;
 	fileopts_.thdef_.pinfo = &pinfo_;
@@ -434,7 +435,7 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
     SeisTrcInfo infotouse = trc.info();
 
     if ( !mIsCoordSysSame )
-	infotouse.coord = filepars_.getCoordSys()->convertFrom(
+	infotouse.coord = coordsys_->convertFrom(
 				  infotouse.coord, *SI().getCoordSystem() );
     if ( SI().xyInFeet() )
     {
@@ -685,10 +686,9 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     int nrbadtrcs = 0;
     if ( !is_2d && fileopts_.icdef_ == SEGY::FileReadOpts::XYOnly )
     {
-
-      if ( !mIsCoordSysSame )
-	  ti.coord = SI().getCoordSystem()->convertFrom( ti.coord,
-						  *filepars_.getCoordSys() );
+	if ( coordsys_ && !mIsCoordSysSame )
+	    ti.coord = SI().getCoordSystem()->convertFrom( ti.coord,
+								*coordsys_ );
 	if ( read_mode == Seis::Scan )
 	    goodpos = !mBadCoord(ti);
 	else if ( read_mode == Seis::Prod )

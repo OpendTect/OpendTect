@@ -213,6 +213,13 @@ int write3DHorASCII::nextStep()
     if ( !mIsUdf(crd.z) && unit_ )
       crd.z = unit_->userValue( crd.z );
 
+    if ( coordsys_ != SI().getCoordSystem() )
+    {
+	const Coord crdxy = coordsys_->convertFrom( crd.coord(),
+					    *SI().getCoordSystem() );
+	crd.setXY( crdxy.x, crdxy.y );
+    }
+
     if ( setup_.dogf_ )
     {
       const float auxvalue = setup_.nrattrib_ > 0

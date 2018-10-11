@@ -90,7 +90,11 @@ SEGY::TxtHeader::TxtHeader( int rev )
     : revision_(rev)
 {
     clear();
+}
 
+
+void SEGY::TxtHeader::setSurveySetupInfo( Coords::CoordSystem* crs )
+{
     BufferString str;
     const char* res = Settings::common().find( "Company" );
     if ( !res ) res = "OpendTect";
@@ -100,6 +104,8 @@ SEGY::TxtHeader::TxtHeader( int rev )
     putAt( 2, 6, 75, BufferString("Survey: '", SI().name(),"'") );
     BinID bid = SI().sampling(false).hsamp_.start_;
     Coord coord = SI().transform( bid );
+    if ( crs )
+	coord = crs->convertFrom( coord, *SI().getCoordSystem() );
     coord.x = fabs(coord.x); coord.y = fabs(coord.y);
     if ( !mIsEqual(bid.inl(),coord.x,mDefEps)
       || !mIsEqual(bid.crl(),coord.x,mDefEps)
@@ -119,6 +125,13 @@ SEGY::TxtHeader::TxtHeader( int rev )
 	coord = SI().transform( bid );
 	str.set( bid.toString() ).add( " = " ).add( coord.toPrettyString() );
 	putAt( 16, 6, 75, str );
+
+	if ( crs )
+	{
+	    str = crs->summary();
+	    putAt( 17, 6, 75, str );
+	}
+
     }
 
     if ( !SI().zIsTime() )

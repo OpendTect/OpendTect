@@ -37,6 +37,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "ioman.h"
 
+#include "hiddenparam.h"
+#include "uicoordsystem.h"
+
 
 static const float defundefval = -999.25;
 #ifdef __win__
@@ -290,6 +293,8 @@ uiString uiExportLogs::getDlgTitle( const ObjectSet<Well::Data>& wds,
     return tr( "For %1 export %2" ).arg( wllstxt ).arg( logstxt );
 }
 
+HiddenParam<uiExportLogs,Coords::uiCoordSystemSel*> coordsysselfld_(0);
+
 
 uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 			  const BufferStringSet& logsel )
@@ -311,8 +316,14 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld_->attach( alignedBelow, zrangefld_ );
 
+    Coords::uiCoordSystemSel* coordsysselfld = new Coords::uiCoordSystemSel(
+									this );
+    coordsysselfld->attach( alignedBelow, typefld_ );
+
+    coordsysselfld_.setParam( this, coordsysselfld );
+
     zunitgrp_ = new uiButtonGroup( this, "Z-unit buttons", OD::Horizontal );
-    zunitgrp_->attach( alignedBelow, typefld_ );
+    zunitgrp_->attach( alignedBelow, coordsysselfld );
     uiLabel* zlbl = new uiLabel( this,
 				 uiStrings::phrOutput( uiStrings::sZUnit() ));
     zlbl->attach( leftOf, zunitgrp_ );
@@ -352,6 +363,11 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 }
 
 
+uiExportLogs::~uiExportLogs()
+{
+    coordsysselfld_.removeParam( this );
+}
+
 void uiExportLogs::setDefaultRange( bool zinft )
 {
     StepInterval<float> dahintv;
@@ -386,6 +402,7 @@ void uiExportLogs::typeSel( CallBacker* )
 {
     zunitgrp_->setSensitive( 2, typefld_->getIntValue() );
     zunitgrp_->setSensitive( 3, typefld_->getIntValue() );
+    coordsysselfld_.getParam(this)->display( typefld_->getIntValue() == 1 );
 }
 
 bool uiExportLogs::acceptOK( CallBacker* )
@@ -507,8 +524,11 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    }
 	    else
 	    {
-		strm << pos.x << od_tab; // keep sep from next line
-		strm << pos.y;
+		const Coord convcoord = coordsysselfld_.getParam(this)->
+				    getCoordSystem()->convertFrom( pos.coord(),
+						    *SI().getCoordSystem() );
+		strm << convcoord.x << od_tab; // keep sep from next line
+		strm << convcoord.y;
 	    }
 
 	    float z = (float) pos.z;
