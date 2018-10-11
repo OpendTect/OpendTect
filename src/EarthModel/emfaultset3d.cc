@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "emsurfacetr.h"
 #include "emmanager.h"
+#include "ioman.h"
 #include "randcolor.h"
 
 namespace EM {
@@ -31,6 +32,18 @@ FaultSet3D::FaultSet3D( EMManager& man )
 
 FaultSet3D::~FaultSet3D()
 {}
+
+
+Executor* FaultSet3D::loader()
+{
+    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    if ( !ioobj )
+	return 0;
+
+    PtrMan<EMFaultSet3DTranslator> transl =
+                        (EMFaultSet3DTranslator*)ioobj->createTranslator();
+    return transl ? transl->reader( *this, *ioobj ) : 0;
+}
 
 
 const IOObjContext& FaultSet3D::getIOObjContext() const

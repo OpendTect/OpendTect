@@ -92,6 +92,7 @@ int uiEMPartServer::evDisplayHorizon()		{ return 0; }
 int uiEMPartServer::evRemoveTreeObject()	{ return 1; }
 
 static HiddenParam<uiEMPartServer,uiSurfaceMan*> manfaultsetdlg_(0);
+static HiddenParam<uiEMPartServer,uiExportFault*> expfaultsetdlg_(0);
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -119,6 +120,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , impbulk2dhordlg_(0)
 {
     manfaultsetdlg_.setParam( this, 0 );
+    expfaultsetdlg_.setParam( this, 0 );
     IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
 
@@ -127,6 +129,7 @@ uiEMPartServer::~uiEMPartServer()
 {
     em_.setEmpty();
     manfaultsetdlg_.removeParam( this );
+    expfaultsetdlg_.removeParam( this );
     deepErase( variodlgs_ );
     delete man3dhordlg_;
     delete man2dhordlg_;
@@ -160,8 +163,8 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     delete impbulkfssdlg_; impbulkfssdlg_ = 0;
     delete impbulk2dhordlg_; impbulk2dhordlg_ = 0;
     deepErase( variodlgs_ );
-    uiSurfaceMan* manfaultsetdlg = manfaultsetdlg_.getParam( this );
-    delete manfaultsetdlg; manfaultsetdlg_.setParam( this, 0 );
+    manfaultsetdlg_.deleteAndZeroPtrParam( this );
+    expfaultsetdlg_.deleteAndZeroPtrParam( this );
 }
 
 
@@ -391,19 +394,28 @@ void uiEMPartServer::importBulk2DFaultStickset()
 }
 
 
-bool uiEMPartServer::exportFault( bool bulk )
+bool uiEMPartServer::exportFault( bool single )
 {
     expfltdlg_ = new uiExportFault( parent(),
-			    EMFault3DTranslatorGroup::sGroupName(), bulk);
+			    EMFault3DTranslatorGroup::sGroupName(), single );
     return expfltdlg_->go();
 }
 
 
-bool uiEMPartServer::exportFaultStickSet( bool bulk )
+bool uiEMPartServer::exportFaultStickSet( bool single )
 {
     expfltstickdlg_ = new uiExportFault( parent(),
-		    EMFaultStickSetTranslatorGroup::sGroupName(), bulk );
+		    EMFaultStickSetTranslatorGroup::sGroupName(), single );
     return expfltstickdlg_->go();
+}
+
+
+bool uiEMPartServer::exportFaultSet()
+{
+    uiExportFault* expfaultsetdlg = new uiExportFault( parent(),
+                    EMFaultSet3DTranslatorGroup::sGroupName(), true );
+    expfaultsetdlg_.setParam( this, expfaultsetdlg );
+    return expfaultsetdlg->go();
 }
 
 

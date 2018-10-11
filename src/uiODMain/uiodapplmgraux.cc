@@ -229,8 +229,6 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.emserv_->manageFaultStickSets();
 	    else if ( opt == 2 )
 		am_.emserv_->manage3DFaults();
-	    else if ( opt == 3 )
-		am_.emserv_->manageFaultSets();
 	    break;
 	}
     break;
@@ -254,6 +252,20 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		break;
 	}
     break;
+    mCase(FltSet):
+	switch( at )
+	{
+	mCase(Imp):
+	    break;
+	mCase(Exp):
+	    am_.emserv_->exportFaultSet();
+	    break;
+	mCase(Man):
+	    am_.emserv_->manageFaultSets();
+	    break;
+	}
+    break;
+
     mCase(Wll):
 	switch ( at )
 	{

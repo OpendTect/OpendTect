@@ -93,7 +93,8 @@ public:
 
     enum ObjType		{ Seis, Hor, Flt, Fltss, Wll, Attr, NLA, Pick,
 				  Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom,
-				  Body, Props, ColTab, RanL, NrObjTypes };
+				  Body, Props, ColTab, RanL, NrObjTypes,
+				  FltSet };
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
 				//!< Not all combinations are available ...!

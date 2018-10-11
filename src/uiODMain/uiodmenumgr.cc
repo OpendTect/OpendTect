@@ -422,6 +422,7 @@ void uiODMenuMgr::fillExportMenu()
     uiMenu* exphor = new uiMenu( &appl_, uiStrings::sHorizon(mPlural) );
     uiMenu* expflt = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
     uiMenu* expfltss = new uiMenu( &appl_, uiStrings::sFaultStickSet(mPlural) );
+    uiMenu* expfltset = new uiMenu( &appl_, uiStrings::sFaultSet(mPlural) );
     uiMenu* expgeom2d = new uiMenu( &appl_, tr("Geometry 2D") );
     uiMenu* exppick = new uiMenu( &appl_, tr("PointSets/Polygons") );
     uiMenu* expwvlt = new uiMenu( &appl_, tr("Wavelets") );
@@ -431,6 +432,7 @@ void uiODMenuMgr::fillExportMenu()
 
     expmnu_->insertItem( expflt );
     expmnu_->insertItem( expfltss );
+    expmnu_->insertItem( expfltset );
     expmnu_->insertItem( expgeom2d );
     expmnu_->insertItem( exphor );
     expmnu_->insertItem( expmute );
@@ -496,6 +498,7 @@ void uiODMenuMgr::fillExportMenu()
     mInsertItem( expfltssasc, m3Dots(tr("Bulk FaultStickSets")),
 	mExpBulkFltSSAsciiMnuItm );
     expfltss->insertItem( expfltssasc );
+    mInsertItem( expfltset, m3Dots(uiStrings::sASCII()), mExpFltSetAsciiMnuItm);
     mInsertPixmapItem( expgeom2d, sascii, mExpGeom2DMnuItm, ascic );
     mInsertPixmapItem( exppick, sascii, mExpPickAsciiMnuItm, ascic );
     mInsertPixmapItem( expwvlt, sascii, mExpWvltAsciiMnuItm, ascic );
@@ -1345,6 +1348,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpBulkFltAsciiMnuItm:	mDoOp(Exp,Flt,1); break;
     case mExpFltSSAsciiMnuItm:		mDoOp(Exp,Fltss,0); break;
     case mExpBulkFltSSAsciiMnuItm:	mDoOp(Exp,Fltss,1); break;
+    case mExpFltSetAsciiMnuItm:		mDoOp(Exp,FltSet,0); break;
     case mImpWellAsciiTrackMnuItm:	mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm:	mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm:	mDoOp(Imp,Wll,2); break;
@@ -1382,7 +1386,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManHor2DMnuItm:		mDoOp(Man,Hor,1); break;
     case mManFaultStickMnuItm:		mDoOp(Man,Flt,1); break;
     case mManFaultMnuItm:		mDoOp(Man,Flt,2); break;
-    case mManFaultSetMnuItm:		mDoOp(Man,Flt,3); break;
+    case mManFaultSetMnuItm:		mDoOp(Man,FltSet,0); break;
     case mManBodyMnuItm:		mDoOp(Man,Body,0); break;
     case mManPropsMnuItm:		mDoOp(Man,Props,0); break;
     case mManWellMnuItm:		mDoOp(Man,Wll,0); break;

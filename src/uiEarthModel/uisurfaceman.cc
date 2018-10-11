@@ -925,10 +925,7 @@ uiFltSetMan( uiParent* p, const IOObj& ioobj )
 	const FilePath fp( dl_.fullPath(idx) );
 	const int id = toInt( fp.baseName(), mUdf(int) );
 	BufferString fltnm( ioobj_.name() );
-	if ( nrfaults > 999 && id <= 999 ) fltnm.add( "0" );
-	if ( nrfaults > 99 && id <= 99 ) fltnm.add( "0" );
-	if ( nrfaults > 9 && id <= 9 ) fltnm.add( "0" );
-	fltnm.add( id );
+	fltnm.add( "_" ).add( id );
 	fltnms.add( fltnm );
     }
 

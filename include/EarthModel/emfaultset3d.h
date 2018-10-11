@@ -43,6 +43,8 @@ public:
     int				nrSections() const	{ return 1; }
     SectionID			sectionID(int) const	{ return 0; }
 
+    Executor*			loader();
+
 protected:
 
     const IOObjContext&		getIOObjContext() const;

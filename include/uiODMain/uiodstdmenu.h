@@ -104,6 +104,7 @@ ________________________________________________________________________
 #define mExpFltSSAsciiMnuItm	(mFileExpMnu + 51)
 #define mExpBulkFltAsciiMnuItm (mFileExpMnu + 52)
 #define mExpBulkFltSSAsciiMnuItm (mFileExpMnu + 53)
+#define mExpFltSetAsciiMnuItm	(mFileExpMnu + 54)
 #define mExpPickMnuItm		(mFileExpMnu + 60)
 #define mExpPickAsciiMnuItm	(mFileExpMnu + 61)
 #define mExpWvltMnuItm		(mFileExpMnu + 70)

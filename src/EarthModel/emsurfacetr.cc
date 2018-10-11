@@ -562,10 +562,7 @@ int nextStep()
     }
 
     BufferString fltnm( fltset_.name() );
-    if ( nrfaults > 999 && curidx_ < 999 ) fltnm.add( "0" );
-    if ( nrfaults > 99 && curidx_ < 99 ) fltnm.add( "0" );
-    if ( nrfaults > 9 && curidx_ < 9 ) fltnm.add( "0" );
-    fltnm.add( id );
+    fltnm.add( "_" ).add( id );
 
     mDynamicCastGet( EM::Fault3D*, newflt,
 		     EM::EMM().createTempObject(EM::Fault3D::typeStr()) );
@@ -578,6 +575,7 @@ int nextStep()
 	return MoreToDo();
     }
 
+    newflt->setName( fltnm );
     fltset_.addFault( newflt, id );
     curidx_++;
     return MoreToDo();
@@ -617,13 +615,7 @@ int nextStep()
     if ( !File::isDirectory(basedir_) && !File::createDir(basedir_) )
 	return ErrorOccurred();
 
-    BufferString fltnm( fltset_.name() );
-    if ( nrfaults > 999 && curidx_ < 999 ) fltnm.add( "0" );
-    if ( nrfaults > 99 && curidx_ < 99 ) fltnm.add( "0" );
-    if ( nrfaults > 9 && curidx_ < 9 ) fltnm.add( "0" );
     const EM::FaultID id = fltset_.getFaultID( curidx_ );
-    fltnm.add( id );
-
     FilePath fp( basedir_, toString(id) );
     fp.setExtension( "flt" );
     ConstRefMan<EM::Fault3D> flt = fltset_.getFault3D( id );
