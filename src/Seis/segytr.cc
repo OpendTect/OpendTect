@@ -400,7 +400,9 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     if ( !txthead_ )
     {
 	txthead_ = new SEGY::TxtHeader( trchead_.isrev0_ ? 0 : 1);
-	txthead_->setSurveySetupInfo( coordsys_ );
+	if ( coordsys_ )
+	    txthead_->setSurveySetupInfo( coordsys_ );
+
 	txthead_->setUserInfo( pinfo_.usrinfo );
 	fileopts_.thdef_.linename = curlinekey_;
 	fileopts_.thdef_.pinfo = &pinfo_;
@@ -434,7 +436,7 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
 {
     SeisTrcInfo infotouse = trc.info();
 
-    if ( !mIsCoordSysSame )
+    if ( coordsys_ && !mIsCoordSysSame )
 	infotouse.coord = coordsys_->convertFrom(
 				  infotouse.coord, *SI().getCoordSystem() );
     if ( SI().xyInFeet() )
