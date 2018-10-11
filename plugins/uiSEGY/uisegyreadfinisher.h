@@ -27,7 +27,7 @@ class uiSeis2DLineNameSel;
 class SeisImporter;
 class SeisStdImporterReader;
 class SeisTrcWriter;
-class Coords::CoordSystem;
+namespace Coords { class CoordSystem; }
 namespace SEGY { class FileIndexer; }
 
 
