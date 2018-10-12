@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 
-static int defNrModels() { return 25; }
+static int defNrModels() { return 100; }
 
 const char* uiStratGenDescTools::sKeyNrModels()
 { return "Nr models"; }
@@ -471,8 +471,8 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 				const uiStratLayModFRPropSelector::Setup& set )
 	: uiDialog(p,uiDialog::Setup(tr("Property Selector"),
 				     tr("There are multiple properties "
-				        "referenced with the same type. \n"
-				        "Please specify which one to use as: "),
+					"referenced with the same type. \n"
+					"Please specify which one to use as: "),
 		     mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
 	, vsfld_(0)
 	, porosityfld_(0)
