@@ -97,6 +97,11 @@ bool uiExportMute::writeAscii()
     const bool isxy = coordfld_->getBoolValue();
 
     BufferString str;
+    const Coords::CoordSystem* outcrs = coordsysselfld_->getCoordSystem();
+    const Coords::CoordSystem* syscrs = SI().getCoordSystem();
+    Coord convcoord;
+    Coord coord;
+    const bool needsconversion = !(*outcrs == *syscrs);
     for ( int pos=0; pos<mutedef.size(); pos++ )
     {
 	const BinID binid = mutedef.getPos( pos );
@@ -107,8 +112,9 @@ bool uiExportMute::writeAscii()
 		*sdo.ostrm << binid.inl() << '\t' << binid.crl();
 	    else
 	    {
-		const Coord coord = SI().transform( binid );
-		const Coord convcoord = coordsysselfld_->getCoordSystem()->
+		coord = SI().transform( binid );
+		if ( needsconversion )
+		    convcoord = coordsysselfld_->getCoordSystem()->
 				    convertFrom( coord,*SI().getCoordSystem() );
 		// ostreams print doubles awfully
 		str.setEmpty();

@@ -439,6 +439,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 	transffld_->fillPar( outpars );
 	fpfld_->fillPar( outpars );
 	fsfld_->fillPar( outpars );
+	coordsysselfld_->getCoordSystem()->fillPar( outpars );
 // TODO: Support header text
 	js.pars_.mergeComp( outpars, sKey::Output() );
 	batchfld_->start();

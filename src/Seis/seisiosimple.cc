@@ -360,9 +360,10 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	if ( data_.isxy_ )
 	{
 	    binstrm.get( coord.x ).get( coord.y );
-	    const Coord convcoord = SI().getCoordSystem()->convertFrom( coord,
-							*data_.getCoordSys() );
-	    bid = SI().transform( convcoord );
+	    if ( !(*SI().getCoordSystem() == *data_.getCoordSys()) )
+		coord = SI().getCoordSystem()->convertFrom(
+						coord, *data_.getCoordSys() );
+	    bid = SI().transform( coord );
 	}
 	else
 	{
@@ -505,10 +506,11 @@ int SeisIOSimple::writeExpTrc()
 	{
 	    Coord coord = trc_.info().coord;
 	    mPIEPAdj(Coord,coord,false);
-	    const Coord convcoord = data_.getCoordSys()->convertFrom(
+	    if ( !(*SI().getCoordSystem() == *data_.getCoordSys()) )
+		coord = data_.getCoordSys()->convertFrom(
 					      coord,*SI().getCoordSystem() );
 
-	    binstrm.add( convcoord.x ).add( convcoord.y );
+	    binstrm.add( coord.x ).add( coord.y );
 	}
 	else
 	{

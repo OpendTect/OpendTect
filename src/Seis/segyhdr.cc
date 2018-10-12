@@ -104,7 +104,7 @@ void SEGY::TxtHeader::setSurveySetupInfo( Coords::CoordSystem* crs )
     putAt( 2, 6, 75, BufferString("Survey: '", SI().name(),"'") );
     BinID bid = SI().sampling(false).hsamp_.start_;
     Coord coord = SI().transform( bid );
-    if ( crs )
+    if ( crs && !(*crs == *SI().getCoordSystem()) )
 	coord = crs->convertFrom( coord, *SI().getCoordSystem() );
     coord.x = fabs(coord.x); coord.y = fabs(coord.y);
     if ( !mIsEqual(bid.inl(),coord.x,mDefEps)

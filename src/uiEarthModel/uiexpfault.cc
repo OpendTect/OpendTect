@@ -242,6 +242,9 @@ bool uiExportFault::writeAscii()
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickidsfld_->isChecked( 0 );
     const bool inclknotidx = stickidsfld_->isChecked( 1 );
+    const bool iscoordflddisp = coordsysselfld_->isDisplayed();
+    const Coords::CoordSystem* outcrs = coordsysselfld_->getCoordSystem();
+    const Coords::CoordSystem* syscrs = SI().getCoordSystem();
 
     for ( int idx=0; idx<midset.size(); idx++ )
     {
@@ -284,12 +287,7 @@ bool uiExportFault::writeAscii()
 						    stickidx, knotidx );
 			if ( !crd.isDefined() )
 			    continue;
-			if ( coordsysselfld_->isDisplayed() )
-			{
-			    Coord crd2d = coordsysselfld_->getCoordSystem()->
-				convertFrom(crd.coord(),*SI().getCoordSystem());
-			    crd.setXY( crd2d.x, crd2d.y);
-			}
+
 			const TrcKey tk( bbox.hsamp_.toTrcKey(crd) );
 			const BinID& bid = tk.position();
 			if ( first )
@@ -329,13 +327,6 @@ bool uiExportFault::writeAscii()
 		    if ( !crd.isDefined() )
 			continue;
 
-		    if ( coordsysselfld_->isDisplayed() )
-		    {
-			Coord crd2d = coordsysselfld_->getCoordSystem()->
-				convertFrom(crd.coord(),*SI().getCoordSystem());
-			crd.setXY( crd2d.x, crd2d.y);
-		    }
-
 		    if ( !issingle_ || nrobjs > 1 )
 			ostrm << "\""<< objnm <<"\"" << "\t";
 
@@ -353,6 +344,12 @@ bool uiExportFault::writeAscii()
 		    {
 			// ostreams print doubles awfully
 			str.setEmpty();
+			if ( iscoordflddisp && !(*outcrs == *syscrs) )
+			{
+			    const Coord crd2d = outcrs->convertFrom(
+							crd.coord(), *syscrs );
+			    crd.setXY( crd2d.x, crd2d.y);
+			}
 			str += crd.x; str += "\t"; str += crd.y;
 			ostrm << str;
 		    }

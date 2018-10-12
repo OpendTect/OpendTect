@@ -237,7 +237,7 @@ bool uiExport2DHorizon::doExport()
 		survgeom2d->getPosByTrcNr( trcnr, crd, spnr );
 		Coords::CoordSystem* coordsys =
 			coordsysselfld_.getParam(this)->getCoordSystem();
-		if ( coordsys )
+		if ( coordsys && !(*coordsys == *SI().getCoordSystem()) )
 		{
 		    Coord crd2d = coordsys->convertFrom( crd,
 					    *SI().getCoordSystem() );

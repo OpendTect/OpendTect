@@ -140,7 +140,9 @@ Coord CoordSystem::convert( const Coord& in, const CoordSystem& from,
 
 Coord CoordSystem::convertFrom( const Coord& in,
 				   const CoordSystem& from ) const
-{ return convert( in, from, *this ); }
+{
+    return convert( in, from, *this );
+}
 
 
 bool CoordSystem::usePar( const IOPar& par )

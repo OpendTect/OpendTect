@@ -503,6 +503,11 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
     const UnitOfMeasure* outunit =
 	outinft ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
 
+    const Coords::CoordSystem* outcrs = coordsysselfld_.getParam(this)->
+				    getCoordSystem();
+    const Coords::CoordSystem* syscrs = SI().getCoordSystem();
+    const bool needsconversion = !(*outcrs == *syscrs);
+
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	const float md = intv.atIndex( idx );
@@ -524,9 +529,9 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    }
 	    else
 	    {
-		const Coord convcoord = coordsysselfld_.getParam(this)->
-				    getCoordSystem()->convertFrom( pos.coord(),
-						    *SI().getCoordSystem() );
+		Coord convcoord;
+		if ( needsconversion )
+		    convcoord = outcrs->convertFrom( pos.coord(), *syscrs );
 		strm << convcoord.x << od_tab; // keep sep from next line
 		strm << convcoord.y;
 	    }

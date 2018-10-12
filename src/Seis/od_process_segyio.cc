@@ -28,6 +28,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 
+#include "seistrc.h"
+#include "segytr.h"
+#include "seiswrite.h"
+#include "seisread.h"
+
 static void splitIOPars( const IOPar& base, ObjectSet<IOPar>& pars, bool is2d )
 {
     if ( !is2d ) // Splitting only needed for multi 2D line I/O
@@ -82,9 +87,20 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
     outpar->removeWithKey( sKey::ID() );
 	// important! otherwise reader will try to read output ID ...
 
+    RefMan<Coords::CoordSystem> crs = Coords::CoordSystem::createSystem(
+								    *outpar );
+
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
 				"SEG-Y importer", &iop,
 				toUiString("Importing traces") );
+
+    const SeisTrcReader* rdr = stp->reader();
+    SeisTrcTranslator* transl =
+		    const_cast<SeisTrcTranslator*>(rdr->seisTranslator());
+    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
+    if ( segytr )
+	segytr->setCoordSys( crs );
+
     stp->setProcPars( *outpar, is2d );
     return stp->go( strm );
 }
@@ -118,9 +134,18 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
 
     SEGY::FilePars fp; fp.usePar( *outpar );
     fp.fillPar( outioobj->pars() );
+
+    RefMan<Coords::CoordSystem> crs = Coords::CoordSystem::createSystem(
+								    *outpar );
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
 			    "SEG-Y exporter", outpar,
 			    mToUiStringTodo("Exporting traces"), compnr );
+    const SeisTrcWriter& wrr = stp->writer();
+    SeisTrcTranslator* transl =
+		    const_cast<SeisTrcTranslator*>(wrr.seisTranslator());
+    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
+    if ( segytr )
+	segytr->setCoordSys( crs );
     stp->setProcPars( *outpar, is2d );
     return stp->go( strm );
 }

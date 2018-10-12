@@ -545,6 +545,8 @@ bool uiSEGYReadFinisher::doBatch( bool doimp )
     fs_.fillPar( jobpars );
 
     IOPar outpars;
+    if ( coordsys_.getParam(this) )
+	coordsys_.getParam(this)->fillPar( outpars );
     if ( transffld_ )
 	transffld_->fillPar( outpars );
 
@@ -595,6 +597,8 @@ bool uiSEGYReadFinisher::doBatch2D( bool doimp, const char* inplnm )
     }
 
     IOPar outpars;
+    if ( coordsys_.getParam(this) )
+	coordsys_.getParam(this)->fillPar( outpars );
     outFld(doimp)->fillPar( outpars );
     jobpars.mergeComp( outpars, sKey::Output() );
 

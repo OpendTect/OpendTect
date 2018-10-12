@@ -311,10 +311,11 @@ bool TargetInfo::needsConversion() const
 Coord TargetInfo::convert( const Coord& crd ) const
 {
     if ( !needsConversion() )
-	return Coord::udf();
+	return crd;
 
     ConstRefMan<Coords::CoordSystem> inpcrs = selection_.coordsys_;
     ConstRefMan<Coords::CoordSystem> outcrs = SI().getCoordSystem();
+
     return outcrs->convertFrom( crd, *inpcrs );
 }
 
