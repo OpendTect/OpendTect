@@ -424,7 +424,7 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 }
 
 
-void uiMainWinBody::getPosForScreenMiddle( int& x, int& y )
+void uiMainWinBody::getPosForScreenMiddle( int& xpos, int& ypos )
 {
     QDesktopWidget qdw;
     const int screenwidth = qdw.screen()->width();
@@ -432,8 +432,8 @@ void uiMainWinBody::getPosForScreenMiddle( int& x, int& y )
     const int mywidth = QMainWindow::width();
     const int myheight = QMainWindow::height();
 
-    x = (screenwidth - mywidth)/2;
-    y = (screenheight - myheight)/2;
+    xpos = (screenwidth - mywidth)/2;
+    ypos = (screenheight - myheight)/2;
 }
 
 
@@ -446,12 +446,12 @@ static QWidget* getParentWidget( QWidget* qw )
 }
 
 
-void uiMainWinBody::getPosForParentMiddle( int& x, int& y )
+void uiMainWinBody::getPosForParentMiddle( int& xpos, int& ypos )
 {
     QWidget* parentwidget = getParentWidget( parentWidget() );
     if ( !parentwidget )
     {
-	getPosForScreenMiddle( x, y );
+	getPosForScreenMiddle( xpos, ypos );
 	return;
     }
 
@@ -460,14 +460,14 @@ void uiMainWinBody::getPosForParentMiddle( int& x, int& y )
     const int mywidth = frameGeometry().width();
     const int myheight = frameGeometry().height();
     const QPoint parentcenter = parentwidget->frameGeometry().center();
-    x = parentcenter.x() - mywidth/2;
-    y = parentcenter.y() - myheight/2;
-    if ( x<screenrect.left() ) x = screenrect.left();
-    if ( y<screenrect.top() ) y = screenrect.top();
-    if ( x+mywidth > screenrect.right() )
-	x = screenrect.right() - mywidth;
-    if ( y+myheight > screenrect.bottom() )
-	y = screenrect.bottom() - myheight;
+    xpos = parentcenter.x() - mywidth/2;
+    ypos = parentcenter.y() - myheight/2;
+    if ( xpos<screenrect.left() ) xpos = screenrect.left();
+    if ( ypos<screenrect.top() ) ypos = screenrect.top();
+    if ( xpos+mywidth > screenrect.right() )
+	xpos = screenrect.right() - mywidth;
+    if ( ypos+myheight > screenrect.bottom() )
+	ypos = screenrect.bottom() - myheight;
 }
 
 
