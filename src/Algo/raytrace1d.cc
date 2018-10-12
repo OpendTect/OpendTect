@@ -104,11 +104,15 @@ void RayTracerData::init( const ElasticModel& layers )
 	return;
 
     const bool zinfeet = SI().zInFeet();
-    for ( int idx=0; idx<nrlayers; idx++ )
+    double depth = nrlayers > 0 ? layers[0].thickness_ : 0.;
+    if ( zinfeet ) depth *= mToFeetFactorD;
+    if ( nrlayers > 0 ) depths[0] = depth;
+    for ( int idx=1; idx<nrlayers; idx++ )
     {
 	double thickness = layers[idx].thickness_;
 	if ( zinfeet ) thickness *= mToFeetFactorD;
-	depths[idx] = idx ? depths[idx-1] + thickness : thickness;
+	depth += thickness;
+	depths[idx] = mCast(float,depth);
     }
 
     const int nroffs = nrOffset();
