@@ -293,7 +293,7 @@ uiString uiExportLogs::getDlgTitle( const ObjectSet<Well::Data>& wds,
     return tr( "For %1 export %2" ).arg( wllstxt ).arg( logstxt );
 }
 
-HiddenParam<uiExportLogs,Coords::uiCoordSystemSel*> coordsysselfld_(0);
+static HiddenParam<uiExportLogs,Coords::uiCoordSystemSel*> coordsysselfld_(0);
 
 
 uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,

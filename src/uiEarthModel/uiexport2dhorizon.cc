@@ -44,7 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdio.h>
 
 
-HiddenParam<uiExport2DHorizon,Coords::uiCoordSystemSel*> coordsysselfld_(0);
+static HiddenParam<uiExport2DHorizon,Coords::uiCoordSystemSel*> coordsysselfld_(0);
 
 static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 

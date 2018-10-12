@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-HiddenParam<uiToolBar,uiString*> dispnm_(0);
+static HiddenParam<uiToolBar,uiString*> dispnm_(0);
 
 
 ObjectSet<uiToolBar>& uiToolBar::toolBars()

@@ -43,7 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "hiddenparam.h"
 
-HiddenParam<uiExportFault,FixedString*> typ_(0);
+static HiddenParam<uiExportFault,FixedString*> typ_(0);
 
 #define mGetObjNr \
     issingle ? 1 : mPlural \

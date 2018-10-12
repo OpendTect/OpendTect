@@ -66,7 +66,7 @@ static const char* sKeySeismics()	{ return "Seismics"; }
 static const char* sKeyDecimation()	{ return "Decimation"; }
 
 
-HiddenParam<uiStratSynthDisp,uiTextItem*> stratsynthfrtxtitmmgr_(0);
+static HiddenParam<uiStratSynthDisp,uiTextItem*> stratsynthfrtxtitmmgr_(0);
 
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
