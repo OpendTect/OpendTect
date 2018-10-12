@@ -166,6 +166,7 @@ int ODMain( int argc, char** argv )
     if ( dodlg && pimdata.size() )
     {
 	uiPluginSel dlg( odmain );
+	dlg.setPopupArea( uiMainWin::Auto );
 	if ( dlg.nrPlugins() && !dlg.go() )
 	    return 1;
     }
@@ -430,7 +431,7 @@ public:
 
 uiODMainAutoSessionDlg( uiODMain* p )
     : uiDialog(p,uiDialog::Setup(tr("Auto-load session"),mNoDlgTitle,
-                                 mODHelpKey(mODMainAutoSessionDlgHelpID) ))
+				 mODHelpKey(mODMainAutoSessionDlgHelpID) ))
 {
     bool douse = false; MultiID id;
     ODSession::getStartupData( douse, id );
@@ -439,7 +440,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
 	  BoolInpSpec(douse,uiStrings::sEnabled(),uiStrings::sDisabled() ));
     usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_ = new uiGenInput( this, tr("Use one for this survey"),
-			        BoolInpSpec(!id.isEmpty()) );
+				BoolInpSpec(!id.isEmpty()) );
     doselfld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_->attach( alignedBelow, usefld_ );
 
@@ -580,7 +581,7 @@ void uiODMain::doRestoreSession()
     {
 	MouseCursorManager::restoreOverride();
 	uiMSG().error( tr("An error occurred while reading session file.\n"
-		          "A new scene will be launched") );
+			  "A new scene will be launched") );
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
