@@ -89,7 +89,7 @@ bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, bool ischeckshot,
 
 
 bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, const Track&, float,
-	                                      bool iscs ) const
+					      bool iscs ) const
 {
     if ( !dtmodel )
 	return false;
@@ -622,7 +622,7 @@ bool Well::odReader::addLog( od_istream& strm ) const
 
     readLogData( *newlog, strm, bintype );
 
-    if ( SI().zInFeet() && version < 4.195 )
+    if ( SI().zInFeet() && version<4.195 )
     {
 	for ( int idx=0; idx<newlog->size(); idx++ )
 	    newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactorF;
@@ -630,15 +630,6 @@ bool Well::odReader::addLog( od_istream& strm ) const
 
     if ( wd_.track().isEmpty() )
 	getTrack();
-
-    const Interval<float> trackdahrg = wd_.track().dahRange();
-    const bool havetrack = !wd_.track().isEmpty();
-    for ( int idx=newlog->size()-1; idx>=0; idx-- )
-    {
-	const float curdah = newlog->dahArr()[idx];
-	if ( !trackdahrg.includes(curdah,false) && havetrack )
-	    newlog->valArr()[idx] = mUdf(float);
-    }
 
     return addToLogSet( newlog );
 }
