@@ -13,13 +13,13 @@ ________________________________________________________________________
 
 #include "elasticmodel.h"
 #include "factory.h"
-#include "reflectivitymodel.h"
 #include "paralleltask.h"
+#include "reflectivitymodel.h"
+#include "timedepthmodel.h"
 
 template <class T> class Array1D;
 template <class T> class Array2D;
 class RayTracer1D;
-class TimeDepthModel;
 
 
 /*!\brief Ray tracer data in 1D. */
