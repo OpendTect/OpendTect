@@ -106,7 +106,7 @@ void RayTracerData::init( const ElasticModel& layers )
     const bool zinfeet = SI().zInFeet();
     double depth = nrlayers > 0 ? layers[0].thickness_ : 0.;
     if ( zinfeet ) depth *= mToFeetFactorD;
-    if ( nrlayers > 0 ) depths[0] = depth;
+    if ( nrlayers > 0 ) depths[0] = mCast(float,depth);
     for ( int idx=1; idx<nrlayers; idx++ )
     {
 	double thickness = layers[idx].thickness_;
