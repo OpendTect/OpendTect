@@ -327,12 +327,12 @@ bool AngleComputer::fillAndInterpolateAngleData( Array2D<float>& angledata )
     const bool zistime = SI().zIsTime();
     if ( !zistime || iscorrected_ )
     {
-	const TimeDepthModel& tdmodel = raytracedata_->getZeroOffsTDModel();
 	for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
 	    depths[layeridx] = raytracedata_->getDepth( layeridx );
 
 	if ( iscorrected_ )
 	{
+	    const TimeDepthModel& tdmodel = raytracedata_->getZeroOffsTDModel();
 	    for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
 		times[layeridx] = tdmodel.getTime( depths[layeridx] );
 	}
