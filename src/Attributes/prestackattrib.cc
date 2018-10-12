@@ -216,7 +216,8 @@ PSAttrib::PSAttrib( Desc& ds )
 	    int anglestart, anglestop;
 	    mGetInt( anglestart, angleStartStr() );
 	    mGetInt( anglestop, angleStopStr() );
-	    setup_.anglerg_.set( anglestart, anglestop );
+	    setup_.anglerg_.set( mCast(float,anglestart),
+				 mCast(float,anglestop) );
 
 	    BufferString raytracerparam;
 	    mGetString( raytracerparam, rayTracerParamStr() );
