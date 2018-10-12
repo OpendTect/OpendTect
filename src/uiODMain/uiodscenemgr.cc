@@ -514,15 +514,16 @@ void uiODSceneMgr::updateStatusBar()
     uiString msg;
     if ( haspos  )
     {
-    const BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
-    const float zfact = mCast(float,visServ().zFactor());
-    float zval = (float) (zfact * xytpos.z);
-    if ( zfact>100 || zval>10 ) zval = mCast( float, mNINT32(zval) );
-    msg = toUiString("%1    (%2, %3, %4)")
-	.arg( bid.toString() )
-	.arg( mNINT32(xytpos.x) )
-	.arg( mNINT32(xytpos.y) )
-	.arg( zval );
+	const BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
+	const float zfact = mCast(float,visServ().zFactor());
+	const float zval = (float) (zfact * xytpos.z);
+	const int nrdec = 1; // get from settings
+	const BufferString zvalstr = toString( zval, nrdec );
+	msg = toUiString("%1    (%2, %3, %4)")
+	    .arg( bid.toString() )
+	    .arg( mNINT32(xytpos.x) )
+	    .arg( mNINT32(xytpos.y) )
+	    .arg( zvalstr );
     }
 
     appl_.statusBar()->message( msg, mPosField );
@@ -530,12 +531,12 @@ void uiODSceneMgr::updateStatusBar()
     const BufferString valstr = visServ().getMousePosVal();
     if ( haspos )
     {
-    msg = valstr.isEmpty()
-	    ? uiString::emptyString()
-	    : tr("Value = %1").arg( valstr );
+	msg = valstr.isEmpty()
+		? uiString::emptyString()
+		: tr("Value = %1").arg( valstr );
     }
     else
-    msg.setEmpty();
+	msg.setEmpty();
 
     appl_.statusBar()->message( msg, mValueField );
 
@@ -545,7 +546,7 @@ void uiODSceneMgr::updateStatusBar()
     if ( msg.isEmpty() )
     {
 	const int selid = visServ().getSelObjectId();
-    msg = mToUiStringTodo(visServ().getInteractionMsg( selid ) );
+	msg = mToUiStringTodo(visServ().getInteractionMsg( selid ) );
     }
     appl_.statusBar()->message( msg, mNameField );
 
@@ -672,7 +673,7 @@ protected:
 uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup(tr("Specify snapshot"),
 		   tr("Select area to take snapshot"),
-                                   mODHelpKey(mSnapshotDlgHelpID) ) )
+				   mODHelpKey(mSnapshotDlgHelpID) ) )
 {
     butgrp_ = new uiButtonGroup( this, "Area type", OD::Vertical );
     butgrp_->setExclusive( true );
@@ -1484,10 +1485,10 @@ void uiODSceneMgr::font3DChanged( CallBacker* )
 
 // uiODSceneMgr::Scene
 uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
-        : lv_(0)
+	: lv_(0)
 	, dw_(0)
 	, mdiwin_(0)
-        , vwr3d_(0)
+	, vwr3d_(0)
 	, itemmanager_(0)
 {
     if ( !mdiarea ) return;
