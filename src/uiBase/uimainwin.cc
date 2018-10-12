@@ -114,7 +114,7 @@ static bool hasChildWindows( uiMainWin& curwin )
 
 
 class uiMainWinBody : public uiParentBody , public QMainWindow
-{ mODTextTranslationClass(uiMainWinBody);
+{ mODTextTranslationClass(uiMainWinBody)
 friend class		uiMainWin;
 public:
 			uiMainWinBody(uiMainWin& handle,uiParent* parnt,
@@ -212,6 +212,8 @@ private:
     Qt::WindowFlags	getFlags(bool hasparent,bool modal) const;
 
     void		popTimTick(CallBacker*);
+    void		getPosForScreenMiddle(int& x,int& y);
+    void		getPosForParentMiddle(int& x,int& y);
     Timer		poptimer_;
     bool		poppedup_;
     uiSize		prefsz_;
@@ -376,6 +378,8 @@ void uiMainWinBody::doShow( bool minimized )
 	handle_.afterpopuptimer_->start( 50, true );
     }
 
+    move( handle_.popuparea_ );
+
     if ( modal_ )
 	eventloop_.exec();
 }
@@ -420,24 +424,76 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 }
 
 
+void uiMainWinBody::getPosForScreenMiddle( int& x, int& y )
+{
+    QDesktopWidget qdw;
+    const int screenwidth = qdw.screen()->width();
+    const int screenheight = qdw.screen()->height();
+    const int mywidth = QMainWindow::width();
+    const int myheight = QMainWindow::height();
+
+    x = (screenwidth - mywidth)/2;
+    y = (screenheight - myheight)/2;
+}
+
+
+static QWidget* getParentWidget( QWidget* qw )
+{
+    while ( qw && !qw->isWindow() )
+	qw = qw->parentWidget();
+
+    return qw;
+}
+
+
+void uiMainWinBody::getPosForParentMiddle( int& x, int& y )
+{
+    QWidget* parentwidget = getParentWidget( parentWidget() );
+    if ( !parentwidget )
+    {
+	getPosForScreenMiddle( x, y );
+	return;
+    }
+
+    QDesktopWidget qdw;
+    const QRect screenrect = qdw.availableGeometry( parentwidget );
+    const int mywidth = frameGeometry().width();
+    const int myheight = frameGeometry().height();
+    const QPoint parentcenter = parentwidget->frameGeometry().center();
+    x = parentcenter.x() - mywidth/2;
+    y = parentcenter.y() - myheight/2;
+    if ( x<screenrect.left() ) x = screenrect.left();
+    if ( y<screenrect.top() ) y = screenrect.top();
+    if ( x+mywidth > screenrect.right() )
+	x = screenrect.right() - mywidth;
+    if ( y+myheight > screenrect.bottom() )
+	y = screenrect.bottom() - myheight;
+}
+
+
 void uiMainWinBody::move( uiMainWin::PopupArea pa )
 {
-    QDesktopWidget wgt;
-    const int xpos = wgt.screen()->width() - QMainWindow::width();
-    const int ypos = wgt.screen()->height() - QMainWindow::height();
-
+    QWidget* parentwidget = getParentWidget( parentWidget() );
+    QDesktopWidget qdw;
+    const QRect screenrect = qdw.availableGeometry( parentwidget );
+    const int mywidth = frameGeometry().width();
+    const int myheight = frameGeometry().height();
+    int xpos = 0, ypos = 0;
     switch( pa )
     {
 	case uiMainWin::TopLeft :
-	    move( 0, 0 ); break;
+	    move( screenrect.left(), screenrect.top() ); break;
 	case uiMainWin::TopRight :
-	    move( xpos, 0 ); break;
+	    move( screenrect.left()-mywidth, screenrect.top() ); break;
 	case uiMainWin::BottomLeft :
-	    move( 0, ypos ); break;
+	    move( screenrect.left(), screenrect.bottom()-myheight ); break;
 	case uiMainWin::BottomRight :
-	    move( xpos, ypos ); break;
+	    move( screenrect.right()-mywidth, screenrect.bottom()-myheight );
+	    break;
 	case uiMainWin::Middle :
-	    move( mNINT32(((float) xpos)/2), mNINT32(((float) ypos) / 2));break;
+	    getPosForParentMiddle( xpos, ypos ); move( xpos, ypos ); break;
+	case uiMainWin::Auto :
+	    getPosForScreenMiddle( xpos, ypos ); move( xpos, ypos ); break;
 	default:
 	    break;
     }
@@ -465,7 +521,6 @@ void uiMainWinBody::reDraw( bool deep )
 void uiMainWinBody::go( bool showminimized )
 {
     doShow( showminimized );
-    move( handle_.popuparea_ );
 }
 
 
@@ -810,7 +865,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     : uiParent(setup.caption_.getFullString(),0)
     , body_(0)
     , parent_(p)
-    , popuparea_(Auto)
+    , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
@@ -837,7 +892,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
     : uiParent(cpt.getFullString(),0)
     , body_(0)
     , parent_(parnt)
-    , popuparea_(Auto)
+    , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
@@ -863,7 +918,7 @@ uiMainWin::uiMainWin( uiString nm, uiParent* parnt )
     : uiParent(nm.getFullString(),0)
     , body_(0)
     , parent_(parnt)
-    , popuparea_(Auto)
+    , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
@@ -1175,7 +1230,7 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 
 	const QMessageBox::StandardButton stdbut =
 					getStandardButton( qmb, buttonnr );
-        if ( stdbut )
+	if ( stdbut )
 	    // TODO: get original text if button text is translation
 	    buttext = qmb->button(stdbut)->text();
 	else
@@ -1270,7 +1325,7 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 	if ( count>1 )
 	{
 	    res = toUiString( "%1 {%2}").arg( beginning )
-		                        .arg( toUiString(count) );
+					.arg( toUiString(count) );
 	    BufferString addendum( "  {", toString(count), "}" );
 	    if ( outputaddendum ) *outputaddendum = addendum;
 	}
@@ -1385,7 +1440,7 @@ void uiMainWin::languageChangeCB( CallBacker* )
 {
     if ( languagechangecount_<TrMgr().changeCount() )
     {
-        translateText();
+	translateText();
 	languagechangecount_ = TrMgr().changeCount();
     }
 }
@@ -1536,10 +1591,10 @@ public:
 			    else
 				uiSetResult( -1 );
 			}
-                        //!< to be called by a 'cancel' button
+			//!< to be called by a 'cancel' button
     void		accept( CallBacker* s )
 			    { if ( mHandle.acceptOK(s) ) _done(1); }
-                        //!< to be called by a 'ok' button
+			//!< to be called by a 'ok' button
     void		done( int i )
 			    { if ( mHandle.doneOK(i) ) _done(i); }
 
@@ -2084,12 +2139,12 @@ void uiDialog::setButtonText( Button but, const uiString& txt )
 {
     switch ( but )
     {
-        case OK		: setOkText( txt ); break;
-        case CANCEL	: setCancelText( txt ); break;
+	case OK		: setOkText( txt ); break;
+	case CANCEL	: setCancelText( txt ); break;
 	case APPLY	: mBody->setApplyText( txt ); break;
-        case HELP	: pErrMsg("set help txt but"); break;
+	case HELP	: pErrMsg("set help txt but"); break;
 	case SAVE	: enableSaveButton( txt ); break;
-        case CREDITS	: pErrMsg("set credits txt but"); break;
+	case CREDITS	: pErrMsg("set credits txt but"); break;
     }
 }
 
