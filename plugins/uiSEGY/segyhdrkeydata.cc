@@ -29,8 +29,8 @@ SEGY::HdrEntryConstraints::HdrEntryConstraints()
     : inlrg_(1,200000000)
     , crlrg_(1,200000000)
     , trcnrrg_(1,200000000)
-    , xrg_(0.1,1.e10)
-    , yrg_(0.1,1.e10)
+    , xrg_(.1,1e10)
+    , yrg_(.1,1e10)
     , offsrg_(0.f,100000.f)
 {
     usePar( Settings::common() );
@@ -266,7 +266,7 @@ void SEGY::HdrEntryKeyData::add( const SEGY::TrcHeader& thdr, bool isswpd,
     mDoAllDSs( addRecord() );
 
     const SEGY::HdrEntryConstraints& constr = SEGY::HdrEntryConstraints::get();
-#   define mRejectFromRange(entry,rg) \
+#   define mRejectFromRange(entry,val,rg) \
 	if ( !constr.rg.includes(val,false) ) \
 	    entry.reject( ihe );
 
@@ -278,11 +278,11 @@ void SEGY::HdrEntryKeyData::add( const SEGY::TrcHeader& thdr, bool isswpd,
 	if ( val == 0 )
 	    refnr_.reject( ihe );
 
-	mRejectFromRange(inl_,inlrg_);
-	mRejectFromRange(crl_,crlrg_);
-	mRejectFromRange(trcnr_,trcnrrg_);
-	mRejectFromRange(x_,xrg_);
-	mRejectFromRange(y_,yrg_);
+	mRejectFromRange(inl_,val,inlrg_);
+	mRejectFromRange(crl_,val,crlrg_);
+	mRejectFromRange(trcnr_,val,trcnrrg_);
+	mRejectFromRange(x_,Math::Abs(val),xrg_);
+	mRejectFromRange(y_,Math::Abs(val),yrg_);
 
 	inl_.add( ihe, val ); crl_.add( ihe, val );
 	trcnr_.add( ihe, val ); refnr_.add( ihe, val );
@@ -290,7 +290,7 @@ void SEGY::HdrEntryKeyData::add( const SEGY::TrcHeader& thdr, bool isswpd,
 
 	if ( val < 0 )
 	    val = -val;
-	mRejectFromRange(offs_,offsrg_);
+	mRejectFromRange(offs_,val,offsrg_);
 	offs_.add( ihe, val );
     }
 }
