@@ -346,7 +346,8 @@ bool AngleComputer::fillAndInterpolateAngleData( Array2D<float>& angledata )
     const StepInterval<double> outputzrg = outputsampling_.range( false );
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
-	const int offset = raytracedata_->getOffset( ofsidx );
+	const float offset = raytracedata_->getOffset( ofsidx );
+	const bool zerooffset = mIsZero(offset,1e-1f);
 	PointBasedMathFunction sinanglevals(
 				    PointBasedMathFunction::Poly,
 				    PointBasedMathFunction::ExtraPolGradient ),
@@ -354,8 +355,8 @@ bool AngleComputer::fillAndInterpolateAngleData( Array2D<float>& angledata )
 				    PointBasedMathFunction::Linear,
 				    PointBasedMathFunction::ExtraPolGradient );
 
-	sinanglevals.add( 0.f, offset ? 1.f : 0.f );
-	anglevals.add( 0.f, offset ? M_PI_2f: 0.f );
+	sinanglevals.add( 0.f, zerooffset ? 0.f : 1.f );
+	anglevals.add( 0.f, zerooffset ? 0.f : M_PI_2f );
 
 	for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
 	{
