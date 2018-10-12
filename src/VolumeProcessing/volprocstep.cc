@@ -102,11 +102,11 @@ protected:
 
 
 
-HiddenParam<VolProc::Step,BinID>  volprocstephstepmgr_(BinID(0,0));
-HiddenParam<VolProc::Step,int>	volprocstepvstepmgr_(0);
-HiddenParam<VolProc::Step,TypeSet<int>*>  volprocstepnrinpcompsmgr_(0);
-HiddenParam<VolProc::Step,int>	volprocstepnroutcompsmgr_(0);
-HiddenParam<VolProc::Step,StepInterval<float>* >  volprocstepzsampmgr_(0);
+static HiddenParam<VolProc::Step,BinID>  volprocstephstepmgr_(BinID(0,0));
+static HiddenParam<VolProc::Step,int>	volprocstepvstepmgr_(0);
+static HiddenParam<VolProc::Step,TypeSet<int>*>  volprocstepnrinpcompsmgr_(0);
+static HiddenParam<VolProc::Step,int>	volprocstepnroutcompsmgr_(0);
+static HiddenParam<VolProc::Step,StepInterval<float>* >  volprocstepzsampmgr_(0);
 
 
 VolProc::Step::Step()

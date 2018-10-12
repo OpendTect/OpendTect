@@ -332,9 +332,9 @@ protected:
 }; // namespace Seis
 
 
-HiddenParam<Seis::ParallelReader,ObjectSet<TrcKeySampling>* >
+static HiddenParam<Seis::ParallelReader,ObjectSet<TrcKeySampling>* >
 						seisparardrtksmgr_(0);
-HiddenParam<Seis::ParallelReader,const PosInfo::CubeData*>
+static HiddenParam<Seis::ParallelReader,const PosInfo::CubeData*>
 						seisparardrcubedatamgr_(0);
 
 Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
@@ -636,7 +636,7 @@ bool Seis::ParallelReader::doFinish( bool success )
 { return success; }
 
 
-HiddenParam<Seis::ParallelReader2D,TypeSet<int>*> seisparardrtrcnrsmgr_(0);
+static HiddenParam<Seis::ParallelReader2D,TypeSet<int>*> seisparardrtrcnrsmgr_(0);
 
 // ParallelReader2D (probably replace by a Sequential reader)
 Seis::ParallelReader2D::ParallelReader2D( const IOObj& ioobj,Pos::GeomID geomid,

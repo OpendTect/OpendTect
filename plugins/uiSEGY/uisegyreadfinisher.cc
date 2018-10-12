@@ -55,7 +55,9 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 #include "coordsystem.h"
 #include "hiddenparam.h"
-HiddenParam<uiSEGYReadFinisher,Coords::CoordSystem*> coordsys_(0);
+
+static HiddenParam<uiSEGYReadFinisher,Coords::CoordSystem*> coordsys_(0);
+
 #define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
 
 uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs )

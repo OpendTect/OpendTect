@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "hiddenparam.h"
 
 
-HiddenParam<VolProc::ChainExecutor,ObjectSet<TrcKeyZSampling>* >
+static HiddenParam<VolProc::ChainExecutor,ObjectSet<TrcKeyZSampling>* >
 					    volprocchainexecstepstkzsmgr_( 0 );
 
 uiString VolProc::ChainExecutor::sGetStepErrMsg()
