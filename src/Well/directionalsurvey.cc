@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "geometry.h"
 #include "math2.h"
+#include "survinfo.h"
 
 
 namespace Well
@@ -58,8 +59,10 @@ static void getDevMinCurv( double md1, double md2,
 	rf = (2./beta) * tan(beta/2.);
 
     const double dmd = (md2-md1) / 2.;
-    delta.x += dmd * (sini1*sina1 + sini2*sina2) * rf;
-    delta.y += dmd * (sini1*cosa1 + sini2*cosa2) * rf;
+    double dx = dmd * (sini1*sina1 + sini2*sina2) * rf;
+    double dy = dmd * (sini1*cosa1 + sini2*cosa2) * rf;
+    delta.x += SI().xyInFeet() ? mToFeetFactorD*dx : dx;
+    delta.y += SI().xyInFeet() ? mToFeetFactorD*dy : dy;
     delta.z += dmd * (cosi1+cosi2) * rf;
 }
 
