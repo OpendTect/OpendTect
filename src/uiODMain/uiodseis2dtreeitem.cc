@@ -46,6 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "posinfo2d.h"
 #include "seisioobjinfo.h"
+#include "seispreload.h"
 #include "seistrctr.h"
 #include "seis2ddata.h"
 #include "survinfo.h"
@@ -880,12 +881,17 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 
     selattrmnuitem_.removeItems();
 
+    const Pos::GeomID geomid = s2d->getGeomID();
     bool docheckparent = false;
     storeditm_.removeItems();
     for ( int idx=0; idx<datasets.size(); idx++ )
     {
-	FixedString nm = datasets.get(idx).buf();
-    MenuItem* item = new MenuItem(mToUiStringTodo(nm));
+	const FixedString nm = datasets.get(idx).buf();
+	MenuItem* item = new MenuItem( toUiString(nm) );
+	const SeisIOObjInfo si( nm, Seis::Line );
+	const MultiID mid = si.ioObj() ? si.ioObj()->key() : MultiID::udf();
+	if ( Seis::PLDM().isPresent(mid,geomid) )
+	    item->iconfnm = "preloaded";
 	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
 	mAddManagedMenuItem( &storeditm_,item,true,docheck);
@@ -894,7 +900,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &selattrmnuitem_, &storeditm_, true, docheckparent );
 
     MenuItem* attrmenu = attrserv->calcAttribMenuItem( as, true, false );
-    attrserv->filter2DMenuItems( *attrmenu, as, s2d->getGeomID(), false, 2 );
+    attrserv->filter2DMenuItems( *attrmenu, as, geomid, false, 2 );
     mAddMenuItem( &selattrmnuitem_, attrmenu, attrmenu->nrItems(),
 		  attrmenu->checked );
 
@@ -932,10 +938,10 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 	    for ( int idx=0; idx<zattribnms.size(); idx++ )
 	    {
 		FixedString nm = zattribnms.get(idx).buf();
-	MenuItem* item = new MenuItem(mToUiStringTodo(nm));
+		MenuItem* item = new MenuItem( toUiString(nm) );
 		const bool docheck = isstored && nm==as.userRef();
 		if ( docheck ) docheckparent=true;
-		mAddManagedMenuItem( &zattritm_,item,true,docheck);
+		mAddManagedMenuItem( &zattritm_, item, true, docheck );
 	    }
 
 	    zattritm_.enabled = true;
