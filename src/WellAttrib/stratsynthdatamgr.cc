@@ -1359,7 +1359,8 @@ StratSynth::DataMgr::genPSPostProcDataSet( const GenParams& gp,
 	return 0;
 
     PreStack::PropCalc::Setup calcsetup;
-    calcsetup.anglerg_.set( gp.anglerg_.start, gp.anglerg_.stop );
+    calcsetup.anglerg_.set( mCast(float,gp.anglerg_.start),
+			    mCast(float,gp.anglerg_.stop) );
     if ( isanglestack )
     {
 	calcsetup.calctype_ = PreStack::PropCalc::Stats;
