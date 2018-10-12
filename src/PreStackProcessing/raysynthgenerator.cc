@@ -11,7 +11,6 @@
 #include "prestackgather.h"
 #include "prestacksynthdataset.h"
 #include "raytracerrunner.h"
-#include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "seistrcprop.h"

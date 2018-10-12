@@ -11,6 +11,8 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
+
+#include "seisbuf.h"
 #include "synthseisdataset.h"
 #include "synthseisgenerator.h"
 
