@@ -45,6 +45,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisurveyselect.h"
 #include "od_helpids.h"
 
+#include "qwidget.h"
+
 
 extern "C" const char* GetBaseDataDir();
 
@@ -193,7 +195,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     xyunitlbl_->attach( rightBorder );
 
     postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
-    sipCB(0);
 }
 
 
@@ -557,6 +558,8 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 
     chgSetMode(0);
     ic1fld_->setReadOnly( true, 0, 0 );
+    
+    sipCB(0);
 }
 
 
