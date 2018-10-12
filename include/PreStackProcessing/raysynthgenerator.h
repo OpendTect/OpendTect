@@ -16,10 +16,10 @@ ________________________________________________________________________
 
 class DataPack;
 class ElasticModelSet;
-class RayTracerRunner;
 class SeisTrc;
 class SeisTrcBuf;
 class TimeDepthModel;
+namespace SynthSeis { class RayModelSet; }
 
 
 /*!\brief base class for synthetic trace generators. */
@@ -31,65 +31,44 @@ public:
 
     typedef SynthSeis::DataSet		DataSet;
     typedef SynthSeis::RayModel		RayModel;
+    typedef SynthSeis::RayModelSet	RayModelSet;
     typedef SynthSeis::GenParams	GenParams;
-    typedef ObjectSet<RayModel>		RayModelSet;
 
-			RaySynthGenerator(const GenParams&,
-					  const ElasticModelSet&);
-			RaySynthGenerator(const GenParams&,
-					  const RayModelSet&);
-			~RaySynthGenerator();
+			RaySynthGenerator(const GenParams&,RayModelSet&);
+			RaySynthGenerator(DataSet&);
+    virtual		~RaySynthGenerator();
 
-    void		reset();
-    void		setNrStep( int stp )	{ nrstep_ = stp; }
+    virtual uiString	message() const final	{ return GenBase::message(); }
+    virtual uiString	nrDoneText() const final;
 
-    //input
-    void		fillPar(IOPar& raypars) const;
-    bool		usePar(const IOPar& raypars);
-    void		forceReflTimes(const StepInterval<float>&);
+    void		setNrStep( int stp )		{ nrstep_ = stp; }
 
-    uiString		message() const
-			{ return errmsg_.isEmpty() ? message_ : errmsg_; }
+    bool		isResultOK() const;
 
-    //available after execution
-    RayModel&		result( int idx )
-			{ return *dataset_->rayMdls()[idx]; }
-    const RayModel&	result( int idx ) const
-			{ return *dataset_->rayModels()[idx]; }
-
-    const ObjectSet<RayTracer1D>& rayTracers() const;
-    const ElasticModelSet& elasticModels() const;
-    void		getTraces(ObjectSet<SeisTrcBuf>&);
-    void		getStackedTraces(SeisTrcBuf&);
-    DataSet*		dataSet()		{ return dataset_; }
-    const DataSet*	dataSet() const		{ return dataset_; }
-    bool		updateDataPack();
+    const DataSet&	dataSet() const		{ return *dataset_; }
+    DataSet&		dataSet()		{ return *dataset_; }
 
 protected:
 
-    od_int64			nrIterations() const;
-    od_int64			nrDone() const;
-    uiString			nrDoneText() const;
-    od_int64			totalNr() const;
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
-    bool			doFinish(bool);
+    virtual od_int64	nrIterations() const final;
 
-    RayTracerRunner*		rtr_;
-    bool			ownraymodels_;
-    uiString			message_;
-    const ElasticModelSet*	elasticmodels_	    = 0;
-    TypeSet<float>		offsets_;
-    IOPar			raysetup_;
-    int				nrstep_		    = 1;
-
-    StepInterval<float>		forcedrefltimes_;
-    bool			forcerefltimes_;
-    bool			raytracingdone_;
-    DataSet*			dataset_;
+    int			nrstep_		    = 1;
+    RefMan<DataSet>	dataset_;
 
 private:
 
-    void			createDataSet(const GenParams&);
+    virtual bool	doPrepare(int) final;
+    virtual bool	doWork(od_int64,od_int64,int) final;
+    virtual bool	doFinish(bool) final;
+
+    void		createDataSet(const GenParams&,RayModelSet&);
+
+    bool		updateDataPack();
+
+    const RayModelSet&	rayModels() const;
+    RayModelSet&	rayMdls()	{ return dataset_->rayMdls();}
+
+    ManagedObjectSet<SeisTrcBuf> trcsset_;
+    ObjectSet<SynthSeis::MultiTraceGenerator> generators_;
 
 };

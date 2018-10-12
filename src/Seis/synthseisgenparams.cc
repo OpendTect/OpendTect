@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "dbman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "raytrace1d.h"
 #include "raytracerrunner.h"
 #include "synthseisgenerator.h"
@@ -85,6 +86,9 @@ void SynthSeis::GenParams::setDefaultValues()
 
     anglerg_ = cDefaultAngleRange;
     raypars_.setEmpty();
+    if ( !isZeroOffset() && !isPS() )
+	return;
+
     FixedString defrayparstr = sKeyAdvancedRayTracer();
     const BufferStringSet& fackys = RayTracer1D::factory().getKeys();
     if ( !fackys.isEmpty() )
@@ -95,7 +99,10 @@ void SynthSeis::GenParams::setDefaultValues()
     }
 
     if ( type_ == ZeroOffset )
+    {
 	RayTracer1D::setIOParsToZeroOffset( raypars_ );
+	raypars_.setYN( SynthSeis::GenBase::sKeyNMO(), false );
+    }
     else
     {
 	const StepInterval<float> offsetrg = cDefaultOffsetRange;
@@ -103,6 +110,7 @@ void SynthSeis::GenParams::setDefaultValues()
 	for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
 	    offsets += offsetrg.atIndex( idx );
 	raypars_.set( RayTracer1D::sKeyOffset(), offsets );
+	raypars_.setYN( SynthSeis::GenBase::sKeyNMO(), true );
     }
 
     name_ = createName();

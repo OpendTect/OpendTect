@@ -54,6 +54,12 @@ mExpClass(Algo) ReflectivityModelSet
 			: public ManagedObjectSet<ReflectivityModel>
 			, public RefCount::Referenced
 {
+public:
+
+    Interval<float>	getTimeRange(bool usenmo=false) const;
+
+    static bool		getTimeRange(const ObjectSet<ReflectivityModel>&,
+				   Interval<float>& sampling,bool usenmo=false);
 };
 
 

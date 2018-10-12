@@ -14,14 +14,16 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "envvars.h"
-#include "raytrace1d.h"
 #include "synthseisgenerator.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
-#include "welltietoseismic.h"
 #include "statruncalc.h"
+#include "synthseisgenerator.h"
 #include "ioobjctxt.h"
 #include "ioobj.h"
+#include "raysynthgenerator.h"
+#include "raytracerrunner.h"
+#include "reflectivitymodel.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "wellelasticmodelcomputer.h"
@@ -32,11 +34,10 @@ ________________________________________________________________________
 #include "welltiedata.h"
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
+#include "welltietoseismic.h"
 #include "welltrack.h"
-#include "raysynthgenerator.h"
-#include "reflectivitymodel.h"
 
-//static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
+
 
 namespace WellTie
 {
@@ -148,19 +149,22 @@ bool DataPlayer::extractSeismics()
 
 bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
 {
+    static const bool usefastfourierdom =
+				!GetEnvVarYN("DTECT_CONVOLVE_USE_TIME");
+
     errmsg_.setEmpty();
-    static const bool usefourierdom = !GetEnvVarYN("DTECT_CONVOLVE_USE_TIME");
+    if ( !data_.sd_ )
+	return false;
 
-    SynthSeis::Generator gen;
-    gen.setModel( reflmodel_ );
+    RaySynthGenerator gen( *data_.sd_.ptr() );
     gen.setWavelet( &wvlt );
-    gen.enableFourierDomain( usefourierdom );
-    gen.setOutSampling( data_.getTraceRange() );
+    IOPar genpar;
+    genpar.setYN( SynthSeis::GenBase::sKeyFourier(), usefastfourierdom );
+    gen.usePar( genpar );
+    if ( !gen.execute() )
+	mErrRet( tr("Cannot update synthetics").addMoreInfo(gen.message()) )
 
-    if ( !gen.doWork() )
-	mErrRet( tr("Cannot update synthetics").addMoreInfo(gen.errMsg()) )
-
-    data_.synthtrc_ = *new SeisTrc( gen.result() );
+    data_.synthtrc_ = *data_.sd_->getTrace( 0 );
 
     return true;
 }
@@ -338,21 +342,26 @@ bool DataPlayer::extractWvf( bool issynt )
 bool DataPlayer::extractReflectivity()
 {
     errmsg_.setEmpty();
+    if ( !data_.sd_ )
+	mErrRet( tr("No synthetic data with reflectivities") )
+
+    ConstRefMan<SynthSeis::RayModel> raymodel = data_.sd_->rayModels().get(0);
+    const ReflectivityModel& reflmodel = *raymodel->reflModels().get(0);
 
     if ( zrg_.isUdf() )
 	mErrRet( tr("Extraction window not set for reflectivity computation") )
 
     const float step = data_.seistrc_.info().sampling_.step;
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
-    const int totnrspikes = reflmodel_.size();
+    const int totnrspikes = reflmodel.size();
     if ( totnrspikes < nrsamps )
 	mErrRet( tr("Reflectivity series too short") )
 
     int firstspike = 0;
     int lastspike = 0;
-    while ( lastspike<reflmodel_.size() )
+    while ( lastspike<reflmodel.size() )
     {
-	const ReflectivitySpike spike = reflmodel_[lastspike];
+	const ReflectivitySpike spike = reflmodel[lastspike];
 	const float spiketwt = spike.correctedtime_;
 	if ( mIsEqual(spiketwt,zrg_.stop,1e-5f) )
 	    break;
@@ -363,23 +372,23 @@ bool DataPlayer::extractReflectivity()
 	lastspike++;
     }
 
-    if ( lastspike==reflmodel_.size() )
+    if ( lastspike==reflmodel.size() )
 	lastspike--;
 
     uiString msg;
-    if ( reflmodel_[firstspike].correctedtime_ - zrg_.start < -1e-5f )
+    if ( reflmodel[firstspike].correctedtime_ - zrg_.start < -1e-5f )
     {
 	msg = tr("The wavelet estimation window must start "
 		  "above the first spike at %1 ms")
-			.arg( toString(reflmodel_[firstspike].correctedtime_) );
+			.arg( toString(reflmodel[firstspike].correctedtime_) );
 	mErrRet( msg )
     }
 
-    if ( reflmodel_[lastspike].correctedtime_ - zrg_.stop > 1e-5f )
+    if ( reflmodel[lastspike].correctedtime_ - zrg_.stop > 1e-5f )
     {
 	msg = tr("The wavelet estimation window must stop "
 		  "before the last spike at %1 ms")
-			.arg( toString(reflmodel_[lastspike].correctedtime_) );
+			.arg( toString(reflmodel[lastspike].correctedtime_) );
 	mErrRet( msg )
     }
 
@@ -397,7 +406,7 @@ bool DataPlayer::extractReflectivity()
     int nrspikefound = 0;
     for ( int idsp=firstspike; idsp<=lastspike; idsp++ )
     {
-	const ReflectivitySpike spike = reflmodel_[idsp];
+	const ReflectivitySpike spike = reflmodel[idsp];
 	const float twtspike = spike.correctedtime_;
 	if ( !mIsEqual(twtspike,zrg_.atIndex(nrspikefound,step),1e-5f) )
 	{
@@ -480,40 +489,55 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 {
     errmsg_.setEmpty();
     uiString msg;
-
-    reflmodel_.erase();
-    ElasticModelSet elmodels;
-    elmodels += new ElasticModel( elasticmodel_ );
-    SynthSeis::GenParams sgp;
-    sgp.setWaveletName( wvlt.name() );
-    PtrMan<RaySynthGenerator> gen = 0;
-    if ( data_.sd_ )
-	gen = new RaySynthGenerator( sgp, data_.sd_->rayModels() );
-    else
-	gen = new RaySynthGenerator( sgp, elmodels );
-
-    gen->usePar( gen->dataSet()->rayPars() );
-    gen->setWavelet( &wvlt );
-
     TaskRunner* taskrunner = data_.trunner_;
-    if ( !TaskRunner::execute(taskrunner,*gen) )
-	mErrRet( uiStrings::phrCannotCreate(
-		tr("synthetic: %1").arg(gen->errMsg())) )
 
-    gen->forceReflTimes( data_.getReflRange() );
+    const bool updatedataset = data_.sd_;
+    PtrMan<RaySynthGenerator> gen = 0;
+    if ( updatedataset )
+    {
+	gen = new RaySynthGenerator( *data_.sd_.ptr() );
+    }
+    else
+    {
+	ElasticModelSet elmodels;
+	elmodels += new ElasticModel( elasticmodel_ );
+	IOPar raypars;
+	RayTracerRunner raytracerunner( elmodels, raypars );
+	if ( !taskrunner->execute(raytracerunner) )
+	    mErrRet( uiStrings::phrCannotCreate(
+			tr("synthetic: %1").arg(raytracerunner.message())) )
+
+	const RefObjectSet<RayTracerData>& runnerres = raytracerunner.results();
+	RefMan<SynthSeis::RayModelSet> raymodels = new SynthSeis::RayModelSet;
+	for ( int imod=0; imod<runnerres.size(); imod++ )
+	{
+	    RefMan<SynthSeis::RayModel> raymodel =
+				new SynthSeis::RayModel(*runnerres.get(imod) );
+	    raymodel->forceReflTimes( data_.getReflRange() );
+	    raymodels->add( raymodel.ptr() );
+	}
+
+	SynthSeis::GenParams sgp;
+	sgp.setWaveletName( wvlt.name() );
+	gen = new RaySynthGenerator( sgp, *raymodels.ptr() );
+    }
+
+    static const bool usefourierdom = !GetEnvVarYN("DTECT_CONVOLVE_USE_TIME");
+
     gen->setWavelet( &wvlt );
     gen->setOutSampling( data_.getTraceRange() );
-    gen->enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
+    IOPar genpar;
+    genpar.setYN( SynthSeis::GenBase::sKeyFourier(), usefourierdom );
+    gen->usePar( genpar );
 
-    if ( !gen->dataSet() )
+    if ( !taskrunner->execute(*gen) )
+	mErrRet( uiStrings::phrCannotCreate(
+		tr("synthetic: %1").arg(gen->message())) )
+
+    if ( !gen->isResultOK() )
 	return false;
 
-    data_.sd_ = gen->dataSet();
-    auto reflmodels = data_.sd_->reflModels( 0, false );
-    if ( reflmodels->isEmpty() )
-	mErrRet( tr("Cannot retrieve the reflectivities after ray-tracing") )
-
-    reflmodel_ = const_cast<ReflectivityModel&>(*reflmodels->get( 0 ));
+    data_.sd_ = &gen->dataSet();
     data_.synthtrc_ = *data_.sd_->getTrace( 0 );
     data_.setTraceRange( data_.synthtrc_.zRange() );
     //requested range was too small
@@ -526,7 +550,7 @@ bool DataPlayer::copyDataToLogSet()
 {
     errmsg_.setEmpty();
 
-    if ( elasticmodel_.isEmpty() )
+    if ( elasticmodel_.isEmpty() || !data_.sd_ )
 	mErrRet( toUiString("Internal: No data found") )
 
     data_.logset_.setEmpty();
@@ -551,10 +575,12 @@ bool DataPlayer::copyDataToLogSet()
     createLog( data_.sKeyDensity(), dahlog.arr(), den.arr(), den.size() );
     createLog( data_.sKeyAI(), dahlog.arr(), ai.arr(), ai.size() );
 
+    ConstRefMan<SynthSeis::RayModel> raymodel = data_.sd_->rayModels().get(0);
+    const ReflectivityModel& reflmodel = *raymodel->reflModels().get(0);
     TypeSet<float> dahref, refs;
-    for ( int idx=0; idx<reflmodel_.size(); idx++ )
+    for ( int idx=0; idx<reflmodel.size(); idx++ )
     {
-	const ReflectivitySpike spike = reflmodel_[idx];
+	const ReflectivitySpike spike = reflmodel[idx];
 	if ( !spike.isDefined() )
 	    continue;
 

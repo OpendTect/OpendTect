@@ -47,10 +47,8 @@ public:
 			    , lsqtype_(A0)
 			    , offsaxis_(Norm)
 			    , valaxis_(Norm)
-			    , offsrg_(0,mUdf(float))
-			    , xscaler_(1.f)
-			    , anglerg_(0,30)
-			    , useangle_(false)
+			    , offsrg_(0.f,mUdf(float))
+			    , anglerg_(Interval<float>::udf()) //Degrees
 			    , aperture_(0)  {}
 
 	mDefSetupMemb(CalcType,calctype)
@@ -60,8 +58,7 @@ public:
 	mDefSetupMemb(AxisType,valaxis)
 	mDefSetupMemb(Interval<float>,offsrg)
 	mDefSetupMemb(float,xscaler)
-	mDefSetupMemb(Interval<int>,anglerg)
-	mDefSetupMemb(bool,useangle)
+	mDefSetupMemb(Interval<float>,anglerg)
 	mDefSetupMemb(int,aperture)
     };
 			PropCalc(const Setup&);
@@ -72,9 +69,7 @@ public:
     const Gather*	getGather() const               { return gather_; }
 
     bool		hasAngleData() const		{ return angledata_; }
-    void		setGather(DataPack::ID);
     void		setGather(const Gather&);
-    void		setAngleData(DataPack::ID);
     void		setAngleData(const Gather&);
 			    /*!< Only used if AngleA0 or AngleCoeff. If not set,
 				 offset values from traces will be assumed to
@@ -82,10 +77,10 @@ public:
     float		getVal(int sampnr) const;
     float		getVal(float z) const;
 
-    static float	getVal(const PropCalc::Setup& su,
-			       TypeSet<float>& vals,TypeSet<float>& offs);
+    static float	getVal(const PropCalc::Setup&,TypeSet<float>& yvals,
+			       TypeSet<float>* xvals);
 
-protected:
+private:
 
     Setup		setup_;
     ConstRefMan<Gather>	gather_;
@@ -93,8 +88,13 @@ protected:
     int*		innermutes_;
     int*		outermutes_;
 
+    Interval<float>	axisvalsrg_;
+    bool		scalexvals_		= false;
+
     void		removeGather();
     void		gatherChanged();
+    void		init();
+    bool		getAngleFromMainGather() const;
 
 };
 

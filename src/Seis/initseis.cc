@@ -67,8 +67,8 @@ mDefModInitFn(Seis)
 
     // The order here is important!
     // The first one is the default unless explicitly changed.
-    BlocksSeisTrcTranslator::initClass();
     CBVSSeisTrcTranslator::initClass();
+    BlocksSeisTrcTranslator::initClass();
     TwoDSeisTrcTranslator::initClass();
     TwoDDataSeisTrcTranslator::initClass();
     CBVSSeisTrc2DTranslator::initClass();

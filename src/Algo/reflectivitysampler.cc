@@ -11,8 +11,56 @@
 #include "fourier.h"
 #include "math2.h"
 #include "odmemory.h"
+#include "reflectivitymodel.h"
 #include "scaler.h"
 #include "varlenarray.h"
+
+
+Interval<float> ReflectivityModelSet::getTimeRange( bool usenmo ) const
+{
+    Interval<float> sampling;
+    getTimeRange( *this, sampling, usenmo );
+    return sampling;
+}
+
+
+bool ReflectivityModelSet::getTimeRange(
+				const ObjectSet<ReflectivityModel>& models,
+					 Interval<float>& sampling, bool usenmo)
+{
+    sampling.set( mUdf(float), -mUdf(float) );
+    for ( auto model : models )
+    {
+	const int nrspikes = model->size();
+	for ( int idz=0; idz<nrspikes; idz++ )
+	{
+	    const auto& spike = (*model)[idz];
+	    if ( !spike.isDefined() )
+		continue;
+
+	    const auto twt = spike.time( usenmo );
+	    sampling.include( twt, false );
+	    if ( usenmo )
+		break;
+	}
+	if ( !usenmo )
+	    continue;
+
+	for ( int idz=nrspikes-1; idz>=0; idz-- )
+	{
+	    const auto& spike = (*model)[idz];
+	    if ( !spike.isDefined() )
+		continue;
+
+	    const auto twt = spike.time( usenmo );
+	    sampling.include( twt, false );
+	    break;
+	}
+    }
+
+    return sampling.isUdf();
+}
+
 
 
 ReflectivitySampler::ReflectivitySampler(const ReflectivityModel& model,

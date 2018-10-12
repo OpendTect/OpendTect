@@ -11,25 +11,68 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
+
 #include "factory.h"
-#include "iopar.h"
-#include "odcomplex.h"
-#include "odmemory.h"
-#include "paralleltask.h"
-#include "reflectivitymodel.h"
-#include "threadlock.h"
-#include "wavelet.h"
+#include "raytrace1d.h"
 #include "uistrings.h"
 
-class RayTracer1D;
 class SeisTrc;
+class SeisTrcBuf;
+class TimeDepthModel;
+class Wavelet;
 template <class T> class Array1D;
+template <class T> class ValueSeries;
 namespace Fourier { class CC; };
 
 namespace SynthSeis
 {
 
-class RayModel;
+mExpClass(Seis) RayModel : public RefCount::Referenced
+{
+public:
+
+			RayModel(const RayTracerData&);
+
+    const RayTracerData& rayTracerOutput() const;
+
+    bool		hasZeroOffsetOnly() const;
+
+    const TimeDepthModel& zeroOffsetD2T() const;
+
+    bool		hasSampledReflectivities() const;
+    ReflectivityModelSet& reflModels(bool sampled=false);
+    const ReflectivityModelSet& reflModels(bool sampled=false) const;
+
+protected:
+
+    virtual		~RayModel();
+
+private:
+
+    ConstRefMan<RayTracerData>	raytracerdata_;
+    ReflectivityModelSet sampledreflmodels_;
+
+    friend class Generator;
+    friend class MultiTraceGenerator;
+
+public:
+			//Do not use casually
+    void		forceReflTimes(const StepInterval<float>&);
+};
+
+
+mExpClass(Seis) RayModelSet : public RefObjectSet<RayModel>
+			    , public RefCount::Referenced
+{
+public:
+    bool		hasZeroOffsetOnly() const;
+    Interval<float>	getTimeRange(bool usenmo=false) const;
+
+private:
+
+    virtual		~RayModelSet()		{}
+};
+
 
 /*!\brief base class for synthetic trace generators. */
 
@@ -38,56 +81,56 @@ mExpClass(Seis) GenBase
 public:
 
     virtual void	setWavelet(const Wavelet*);
+
 			/* auto computed + will be overruled if too small */
-    virtual bool	setOutSampling(const StepInterval<float>&);
-			/* depends on the wavelet size too */
-    bool		getOutSamplingFromModels(
-					const ObjectSet<ReflectivityModel>&,
-					StepInterval<float>&,bool usenmo=false);
-
-    void		setMuteLength(float n)	{ mutelength_ = n; }
-    float		getMuteLength() const	{ return mutelength_; }
-
-    void		setStretchLimit(float n){ stretchlimit_ = n; }
-    float		getStretchLimit() const;
-    void		doSampledReflectivity(bool yn)
-			{ dosampledreflectivities_ = yn; }
-
-    virtual void	enableFourierDomain(bool fourier)
-			{ isfourier_ = fourier; }
-
-    uiString		errMsg() const		{ return errmsg_;}
+    void		setOutSampling(const ZSampling&);
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
-    static float	cStdMuteLength() { return 0.02f; }
-    static float	cStdStretchLimit() { return 0.2f; }
+    static bool		sStdFFTConvolve()	{ return true; }
+    static float	cStdStretchLimit()	{ return 0.2f; }
+    static float	cStdMuteLength()	{ return 0.02f; }
 
     static const char*	sKeyFourier()	{ return "Convolution Domain"; }
     static const char*	sKeyNMO()	{ return "Use NMO"; }
     static const char*  sKeyInternal()  { return "Internal Multiples"; }
     static const char*  sKeySurfRefl()	{ return "Surface Reflection coef"; }
-    static const char*	sKeyMuteLength(){ return "Mute length"; }
     static const char*	sKeyStretchLimit(){ return "Stretch limit"; }
+    static const char*	sKeyMuteLength(){ return "Mute length"; }
 
 protected:
+
 			GenBase();
     virtual		~GenBase();
 
-    bool		isfourier_;
-    bool		applynmo_;
-    float		stretchlimit_;
-    float		mutelength_;
-    ConstRefMan<Wavelet> wavelet_;
-    StepInterval<float>	outputsampling_;
-    bool		dointernalmultiples_;
-    bool		dosampledreflectivities_;
-    float		surfreflcoeff_;
+    virtual uiString	message() const			{ return msg_; }
 
-    uiString		errmsg_;
+
+    bool		setSamplingFromModels(
+					const ObjectSet<ReflectivityModel>&);
+    void		addWaveletLength(ZSampling&);
+
+    ConstRefMan<Wavelet> wavelet_;
+    bool		isfourier_		= sStdFFTConvolve();
+    bool		applynmo_		= false;
+    bool		dointernalmultiples_	= false;
+    float		surfreflcoeff_		= 1.f;
+    float		stretchlimit_		= cStdStretchLimit();
+    float		mutelength_		= cStdMuteLength();
+
+    ZSampling		outputsampling_;
+    ZSampling		worksampling_;
+    bool		dosampledreflectivities_	= false;
+
+    mutable uiString	msg_;
 
     bool		isInputOK();
+
+private:
+
+    static const char*	sKeyWorkRange()		{ return "Convolve ZSampling"; }
+
 };
 
 
@@ -101,59 +144,68 @@ protected:
 
 
 mExpClass(Seis) Generator : public GenBase
+			  , public SequentialTask
 { mODTextTranslationClass(SynthSeis::Generator);
 public:
 
     mDefineFactoryInClass( Generator, factory );
 
-    static Generator*	create(bool advanced);
-
-			Generator();
-			~Generator();
+    virtual		~Generator();
 
     virtual void	setWavelet(const Wavelet*);
-    virtual bool	setOutSampling(const StepInterval<float>&);
-    bool		setModel(const ReflectivityModel&);
+    bool		init();
 
-    bool		doWork();
-    od_int64            currentProgress() const { return progress_; }
+			/*<! can be changed after init */
+    bool		setModel(RayModel&,int offsetidx);
+    void		setOutput( SeisTrc& trc )	{ trc_ = &trc; }
 
-    const SeisTrc&	result() const		{ return outtrc_; }
-    SeisTrc&		result()		{ return outtrc_; }
+    bool		isOK() const;
 
-			/*<! available after execution */
-    const TypeSet<float_complex>& freqReflectivities() const
-			{ return freqreflectivities_; }
-    void		getSampledRM(ReflectivityModel&) const;
+    virtual uiString	message() const final	{ return GenBase::message(); }
+    virtual uiString	nrDoneText() const final;
 
+    virtual od_int64	nrDone() const final		{ return nrdone_; }
+    virtual od_int64	totalNr() const final;
 
 protected:
 
-    int			nextStep();
-    int			setConvolveSize();
-    int			genFreqWavelet();
+			Generator();
 
-    bool		computeTrace(SeisTrc&);
-    bool		doNMOStretch(const ValueSeries<float>&, int insz,
-				     ValueSeries<float>& out,int outsz) const;
-    bool		doFFTConvolve(ValueSeries<float>&,int sz);
-    bool		doTimeConvolve(ValueSeries<float>&,int sz);
+    virtual int		nextStep() final;
+    bool		setConvolveSize();
+    virtual int		computeReflectivities();	//Step 1
+    int			computeTrace();			//Step 2
+
+    bool		genFreqWavelet();
     void		getWaveletTrace(Array1D<float>&,float z,float scal,
 					SamplingData<float>&) const;
+    bool		doFFTConvolve(ValueSeries<float>&,int sz);
+    bool		doTimeConvolve(ValueSeries<float>&,int sz);
+    bool		doNMOStretch(const ValueSeries<float>&, int insz,
+				     ValueSeries<float>& out,int outsz) const;
     void		sortOutput(float_complex*,ValueSeries<float>&,
 				   int sz) const;
 
-    virtual bool	computeReflectivities();
 
-    const ReflectivityModel*	reflmodel_;
-    int				convolvesize_;
-    SeisTrc&			outtrc_;
+    RefMan<RayModel>	model_;
+    SeisTrc*		trc_		= 0;
+    int			offsetidx_	= -1;
+    int			convolvesize_	= 0;
 
-    ReflectivityModel		sampledreflmodel_;
-    TypeSet<float_complex>	freqreflectivities_;
+    PtrMan<Fourier::CC>		fft_;
     TypeSet<float_complex>	freqwavelet_;
+    TypeSet<float_complex>	freqreflectivities_;
+    PtrMan<ValueSeries<float> > tmpvals_;
 
-    od_int64                    progress_;
+    od_int64		nrdone_;
+
+private:
+
+    static Generator*	create(bool advanced);
+
+    bool		copyInit(const Generator&);
+
+    friend class MultiTraceGenerator;
 
 };
 
@@ -163,35 +215,27 @@ mExpClass(Seis) MultiTraceGenerator : public ParallelTask,
 { mODTextTranslationClass(SynthSeis::MultiTraceGenerator);
 public:
 
-    typedef RefMan<ReflectivityModelSet>	RflMdlSetRef;
-    typedef ConstRefMan<ReflectivityModelSet>	ConstRflMdlSetRef;
-
 			MultiTraceGenerator();
-			~MultiTraceGenerator();
+    virtual		~MultiTraceGenerator();
 
-    void		setModels(const ReflectivityModelSet&);
+    void		set(RayModel&,SeisTrcBuf&,const TrcKey* =0);
 
-    void		getResult(ObjectSet<SeisTrc>&) const;
-			//!< once only. traces become yours
-    RflMdlSetRef	getSampledRMs() const	{ return sampledreflmodels_; }
-			//!< ref counted set of man objs, can be done many times
-
-    uiString		message() const { return tr("Generating synthetics"); }
-    od_int64		totalNr() const	{ return totalnr_; }
+    virtual uiString	message() const		{ return GenBase::message(); }
+    virtual uiString	nrDoneText() const	{ return Task::sTracesDone(); }
 
 protected:
 
-    virtual od_int64	nrIterations() const;
-    virtual bool	doPrepare(int);
-    virtual bool	doWork(od_int64,od_int64,int);
+    virtual od_int64	nrIterations() const final;
 
-    void		cleanUp();
+private:
 
-			// input
-    ConstRflMdlSetRef	models_;
-			// output
-    ObjectSet<SeisTrc>	trcs_;
-    RflMdlSetRef	sampledreflmodels_;
+    virtual bool	doPrepare(int) final;
+    virtual bool	doWork(od_int64,od_int64,int) final;
+    virtual bool	doFinish(bool) final;
+
+    RefMan<RayModel>	model_;
+    SeisTrcBuf*		trcs_	= 0;
+    TrcKey		tk_;
 
     ObjectSet<Generator> generators_;
     od_int64		totalnr_;

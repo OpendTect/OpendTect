@@ -13,10 +13,10 @@ ________________________________________________________________________
 
 #include "attributesmod.h"
 #include "attribprovider.h"
-#include "prestackprop.h"
 #include "dbkey.h"
 #include "datapack.h"
 #include "prestackgather.h"
+#include "prestackprop.h"
 
 class Gather;
 class SeisPSReader;
@@ -75,11 +75,6 @@ public:
     static const char*	xaxisunitStr()		{ return "xaxisunit"; }
     static const char*	angleDPIDStr()		{ return "angleid"; }
 
-    enum GatherType	{ Off, Ang };
-			mDeclareEnumUtils(GatherType)
-    enum XaxisUnit	{ Deg, Rad };
-			mDeclareEnumUtils(XaxisUnit)
-
     const PreStack::PropCalc::Setup&	setup() const	{ return setup_; }
     const DBKey&			psID() const	{ return psid_; }
     const DBKey&			preProcID() const { return preprocid_; }
@@ -104,7 +99,6 @@ protected:
 				    int t0,int nrsamples,int threadid) const;
     void		prepPriorToBoundsCalc();
     void		setSmootheningPar();
-    float		getXscaler(bool isoffset, bool isindegrees) const;
 
     RefMan<Gather>	getPreProcessed(const BinID& relbid);
     bool			getGatherData(const BinID& bid,
@@ -118,7 +112,7 @@ protected:
     PreStack::ProcessManager*	preprocessor_;
     PreStack::PropCalc*		propcalc_;
     PreStack::PropCalc::Setup	setup_;
-    PreStack::AngleComputer*    anglecomp_;
+    RefMan<PreStack::AngleComputer>    anglecomp_;
     DataPack::ID		anglegsdpid_;
 
     DBKey			preprocid_;

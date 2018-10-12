@@ -11,44 +11,49 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "elasticmodel.h"
-#include "iopar.h"
-#include "task.h"
-#include "ranges.h"
-#include "raytrace1d.h"
 
-mExpClass(General) RayTracerRunner : public ParallelTask
-{ mODTextTranslationClass(RayTracerRunner);
+#include "iopar.h"
+#include "manobjectset.h"
+#include "task.h"
+
+class ElasticModelSet;
+class RayTracer1D;
+class RayTracerData;
+
+
+
+mExpClass(General) RayTracerRunner : public TaskGroup
+{ mODTextTranslationClass(RayTracerRunner)
 public:
+
+    typedef RefObjectSet<RayTracerData>		RayTracerDataSet;
+
 				RayTracerRunner(const ElasticModelSet&,
 						const IOPar& raypar);
 				RayTracerRunner(const IOPar& raypar);
-				~RayTracerRunner();
+    virtual			~RayTracerRunner();
 
-    uiString			errMsg() const	{ return errmsg_; }
+    void			setOffsets(const TypeSet<float>&);
+    void			setModel(const ElasticModelSet&);
+    void			setParallel(bool yn)	{ parallel_ = yn; }
 
-    //before exectution only
-    void			setOffsets(TypeSet<float> offsets);
-    void			addModel(ElasticModel*,bool dosingle);
+    virtual bool		execute() final;
 
-    //available after excution
-    ObjectSet<RayTracer1D>&	rayTracers()	{ return raytracers_; }
-    od_int64			nrDone() const;
-    bool			executeParallel(bool);
+    uiString			errMsg() const		{ return errmsg_; }
 
-protected:
+    const RayTracerDataSet&	results() const		{ return results_; }
+
+private:
+
+    bool			doPrepare();
+    bool			doFinish(bool);
 
     IOPar			raypar_;
-
-    bool			doWork(od_int64,od_int64,int);
-    od_int64                    nrIterations() const;
-    int				modelIdx(od_int64,bool&) const;
-    bool                        prepareRayTracers();
-
+    bool			parallel_ = true;
     uiString			errmsg_;
 
-    ElasticModelSet		elasticmodels_;
+    const ElasticModelSet*	elasticmodels_;
     ObjectSet<RayTracer1D>	raytracers_;
-    od_int64			totalnr_;
+    RayTracerDataSet		results_;
 
 };

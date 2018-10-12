@@ -11,11 +11,10 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
+
 #include "atomic.h"
-#include "elasticmodel.h"
 #include "elasticpropsel.h"
 #include "raysynthgenerator.h"
-#include "synthseisdataset.h"
 #include "stratsynthlevel.h"
 #include "uistring.h"
 
@@ -178,8 +177,8 @@ protected:
     bool		generate(SynthID,const TRProv&,lms_idx_type) const;
     DataSet*		generateDataSet(const GenParams&,const TRProv&,
 					lms_idx_type) const;
-    DataSet*		genRaySynthDataSet(const GenParams&,
-					   const TRProv&,lms_idx_type) const;
+    DataSet*		genRaySynthDataSet(const GenParams&,const TRProv&,
+					   lms_idx_type) const;
     DataSet*		genPSPostProcDataSet(const GenParams&,const DataSet&,
 				const TrcKeyZSampling&,const TRProv&) const;
 

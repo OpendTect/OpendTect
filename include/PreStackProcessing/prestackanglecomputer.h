@@ -23,7 +23,7 @@ ________________________________________________________________________
 template <class T> class Array2D;
 class FFTFilter;
 class Gather;
-class RayTracer1D;
+class RayTracerData;
 class VelocityDesc;
 
 namespace Vel { class FunctionSource; }
@@ -35,21 +35,24 @@ namespace PreStack
 \brief Computes angles for Gather.
 */
 
-mExpClass(PreStackProcessing) AngleComputer :  public RefCount::Referenced
-{
+mExpClass(PreStackProcessing) AngleComputer : public RefCount::Referenced
+{ mODTextTranslationClass(AngleComputer)
 public:
-				AngleComputer();
 
     enum smoothingType		{ None, MovingAverage, FFTFilter };
 				mDeclareEnumUtils(smoothingType)
 
-    virtual RefMan<Gather>	computeAngles() = 0;
-    virtual bool		isOK() const = 0;
-    void			setTrcKey( const TrcKey& tk )
-				{ trckey_ = tk; }
+    virtual bool		isOK() const;
+    virtual RefMan<Gather>	computeAngles();
+
+    virtual bool		needsTrcKey() const			= 0;
+    virtual void		setTrcKey(const TrcKey&)		{}
 
     void			setOutputSampling(const FlatPosData&);
-    void			setRayTracer(const IOPar& raypar);
+    void			outputDegrees( bool yn )
+						    { outputindegrees_ = yn; }
+    void			gatherIsNMOCorrected(bool yn);
+    void			setRayTracerPars(const IOPar&);
     void			setNoSmoother();
 			    /*!<\param length Filter length in survey Z unit*/
     void			setMovingAverageSmoother(float length,
@@ -67,28 +70,34 @@ public:
     static const char*		sKeyFreqF4();
 
 protected:
-                                ~AngleComputer();
+				AngleComputer();
+    virtual			~AngleComputer();
 
-    bool			fillandInterpArray(Array2D<float>& angledata);
-    RefMan<Gather>		computeAngleData();
-    void			averageSmooth(Array2D<float>& angledata);
-    void			fftSmooth(Array2D<float>& angledata);
-    void			fftTimeSmooth(::FFTFilter& fftfilter,
-					      Array2D<float>& angledata);
-    void			fftDepthSmooth(::FFTFilter& fftfilter,
-					       Array2D<float>& angledata);
+    int				nrLayers() const;
 
-    virtual const ElasticModel&	curElasticModel() const = 0;
-    virtual const RayTracer1D*	curRayTracer() const = 0;
+    bool			fillAndInterpolateAngleData(Array2D<float>&);
+    void			averageSmooth(Array2D<float>&);
+    void			fftSmooth(Array2D<float>&);
+    void			fftTimeSmooth(::FFTFilter&,Array2D<float>&);
+    void			fftDepthSmooth(::FFTFilter&,Array2D<float>&);
+    void			convertToDegrees(Array2D<float>&);
 
     IOPar			iopar_;
+    IOPar			raypar_;
     FlatPosData			outputsampling_;
-    RayTracer1D*		raytracer_;
-    ElasticModel		elasticmodel_;
-    float			thresholdparam_;
-    float			maxthickness_;
-    bool			needsraytracing_;
-    TrcKey			trckey_;
+    bool			iscorrected_	= true;
+    ElasticModel*		elasticmodel_	= 0;
+    float			thresholdparam_ = 0.01f;
+    float			maxthickness_	= 25.f;
+
+    ConstRefMan<RayTracerData>	raytracedata_;
+
+private:
+
+    bool			needsRaytracing() const;
+    bool			doRaytracing(uiString& msg);
+
+    bool			outputindegrees_ = false;
 };
 
 
@@ -98,22 +107,23 @@ protected:
 */
 
 mExpClass(PreStackProcessing) VelocityBasedAngleComputer : public AngleComputer
-{
+{ mODTextTranslationClass(VelocityBasedAngleComputer)
 public:
 				VelocityBasedAngleComputer();
-				~VelocityBasedAngleComputer();
+
+    virtual bool		needsTrcKey() const final	{ return true; }
+    virtual void		setTrcKey(const TrcKey&) final;
 
     bool			setDBKey(const DBKey&);
-    bool			isOK() const { return velsource_; }
+    virtual bool		isOK() const final;
 
-    RefMan<Gather>		computeAngles();
+    virtual RefMan<Gather>	computeAngles() final;
 
 protected:
+				~VelocityBasedAngleComputer();
 
-    const ElasticModel&		curElasticModel() const	{ return elasticmodel_;}
-    const RayTracer1D*		curRayTracer() const	{ return raytracer_; }
-
-    Vel::FunctionSource*	velsource_;
+    Vel::FunctionSource*	velsource_	= 0;
+    TrcKey			tk_;
 };
 
 
@@ -123,49 +133,20 @@ protected:
 */
 
 mExpClass(PreStackProcessing) ModelBasedAngleComputer : public AngleComputer
-{
+{ mODTextTranslationClass(ModelBasedAngleComputer)
 public:
-    class ModelTool
-    {
-    public:
-				ModelTool(const ElasticModel& em,
-						 const TrcKey& tk )
-				    : rt_(0), em_(new ElasticModel(em))
-				    , trckey_(tk) {}
-				ModelTool(const RayTracer1D* rt,
-						 const TrcKey& tk )
-				    : rt_(rt), em_(0), trckey_(tk) {}
-				~ModelTool()	{ delete em_; }
-
-	const RayTracer1D*	rayTracer() const { return rt_; }
-	const ElasticModel&	elasticModel() const;
-	const TrcKey&		trcKey() const	{ return trckey_; }
-	bool			operator ==( const ModelTool& a ) const
-				{ return a.trcKey() == trckey_; }
-    protected:
-	ElasticModel*		em_;
-	const RayTracer1D*	rt_;
-	TrcKey			trckey_;
-    };
 
 				ModelBasedAngleComputer();
 
-    void			setElasticModel(const TrcKey&,bool doblock,
-						bool pvelonly,ElasticModel&);
-    void			setRayTracer(const RayTracer1D*,
-					     const TrcKey&);
+    virtual bool		needsTrcKey() const final { return false; }
 
-    bool			isOK() const
-				{ return curElasticModel().size(); }
-
-    RefMan<Gather>		computeAngles();
+    void			setElasticModel(const ElasticModel&,
+						bool doblock,bool pvelonly);
+    void			setRayTraceData(const RayTracerData&);
 
 protected:
 
-    const ElasticModel&		curElasticModel() const;
-    const RayTracer1D*		curRayTracer() const;
-
-    ObjectSet<ModelTool>	tools_;
+    virtual			~ModelBasedAngleComputer()	{}
 };
 
 } // namespace PreStack

@@ -355,7 +355,7 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 
 	mDynamicCastGet(Attrib::EnumParam*,gathertypeparam,
 			desc.getValParam(Attrib::PSAttrib::gathertypeStr()))
-	if ( gathertypeparam->getIntValue()==(int)(Attrib::PSAttrib::Ang) )
+	if ( gathertypeparam->getIntValue()==1 )
 	{
 	    mDynamicCastGet(Attrib::BoolParam*,useangleparam,
 			    desc.getValParam(Attrib::PSAttrib::useangleStr()))

@@ -27,31 +27,6 @@
 #include "dbman.h"
 #include "ioobj.h"
 
-mDefineEnumUtils(Attrib::PSAttrib,GatherType,"Gather type")
-{
-    "Offset",
-    "Angle",
-    0
-};
-template<>
-void EnumDefImpl<Attrib::PSAttrib::GatherType>::init()
-{
-    uistrings_ += uiStrings::sOffset();
-    uistrings_ += uiStrings::sAngle();
-}
-
-mDefineEnumUtils(Attrib::PSAttrib,XaxisUnit,"X-Axis unit")
-{
-    "in Degrees",
-    "in Radians",
-    0
-};
-template<>
-void EnumDefImpl<Attrib::PSAttrib::XaxisUnit>::init()
-{
-    uistrings_ += uiStrings::sDegree(mPlural);
-    uistrings_ += uiStrings::sRadian(mPlural);
-}
 
 namespace Attrib
 {
@@ -78,8 +53,8 @@ void PSAttrib::initClass()
     mDefEnumPar(lsqtype,PreStack::PropCalc::LSQType,0);
     mDefEnumPar(valaxis,PreStack::PropCalc::AxisType,0);
     mDefEnumPar(offsaxis,PreStack::PropCalc::AxisType,0);
-    mDefEnumPar(gathertype,PSAttrib::GatherType,0);
-    mDefEnumPar(xaxisunit,PSAttrib::XaxisUnit,0);
+    mDefEnumPar(gathertype,Gather::Type,0);
+    mDefEnumPar(xaxisunit,Gather::Unit,0);
 
     IntParam* ipar = new IntParam( componentStr(), 0 , false );
     ipar->setLimits( Interval<int>(0,mUdf(int)) );
@@ -177,7 +152,6 @@ PSAttrib::PSAttrib( Desc& ds )
     , component_(0)
     , preprocessor_(0)
     , propcalc_(0)
-    , anglecomp_(0)
 {
     if ( !isOK() ) return;
 
@@ -221,22 +195,20 @@ PSAttrib::PSAttrib( Desc& ds )
 
     mGetSetupEnumPar(valaxis,PreStack::PropCalc::AxisType);
 
-    bool useangle = setup_.useangle_;
+    bool useangle = !setup_.anglerg_.isUdf();
     mGetBool( useangle, useangleStr() );
-    setup_.useangle_ = useangle;
     mGetInt( anglegsdpid_.getI(), angleDPIDStr() );
-    if ( setup_.useangle_ && anglegsdpid_.isInvalid() )
+    if ( useangle && anglegsdpid_.isInvalid() )
     {
 	BufferString velocityidstr;
 	mGetString( velocityidstr, velocityIDStr() );
 	velocityid_.fromString( velocityidstr );
 	if ( velocityid_.isValid() )
 	{
-	    PreStack::VelocityBasedAngleComputer* velangcomp =
+	    RefMan<PreStack::VelocityBasedAngleComputer> velangcomp =
 		new PreStack::VelocityBasedAngleComputer;
 	    velangcomp->setDBKey( velocityid_ );
 	    anglecomp_ = velangcomp;
-	    anglecomp_->ref();
 	}
 
 	if ( anglecomp_ )
@@ -244,13 +216,14 @@ PSAttrib::PSAttrib( Desc& ds )
 	    int anglestart, anglestop;
 	    mGetInt( anglestart, angleStartStr() );
 	    mGetInt( anglestop, angleStopStr() );
-	    setup_.anglerg_ = Interval<int>( anglestart, anglestop );
+	    setup_.anglerg_.set( anglestart, anglestop );
 
 	    BufferString raytracerparam;
 	    mGetString( raytracerparam, rayTracerParamStr() );
 	    IOPar raypar;
 	    raypar.getParsFrom( raytracerparam );
-	    anglecomp_->setRayTracer( raypar );
+	    anglecomp_->setRayTracerPars( raypar );
+
 	    setSmootheningPar();
 	}
     }
@@ -265,26 +238,11 @@ PSAttrib::PSAttrib( Desc& ds )
 	mGetEnum( gathertype, gathertypeStr() );
 	int xaxisunit = 0;
 	mGetEnum( xaxisunit, xaxisunitStr() );
-	setup_.xscaler_ = getXscaler( gathertype == PSAttrib::Off,
-				      xaxisunit == PSAttrib::Deg );
-	if ( gathertype == (int)(PSAttrib::Ang) && anglegsdpid_.isValid() )
+	if ( gathertype == 1 && anglegsdpid_.isValid() )
 	{
-	    if ( xaxisunit == (int)(PSAttrib::Rad) )
-	    {
-		setup_.anglerg_.start = mIsUdf(setup_.offsrg_.start)
-		    ? mUdf(int)
-		    : mNINT32(Math::toDegrees(setup_.offsrg_.start));
-		setup_.anglerg_.stop = mIsUdf(setup_.offsrg_.stop)
-		    ? mUdf(int)
-		    : mNINT32(Math::toDegrees(setup_.offsrg_.stop));
-	    }
-	    else
-	    {
-		setup_.anglerg_.start = mIsUdf(setup_.offsrg_.start)
-		    ? mUdf(int) : mNINT32( setup_.offsrg_.start );
-		setup_.anglerg_.stop = mIsUdf(setup_.offsrg_.stop)
-		    ? mUdf(int) : mNINT32( setup_.offsrg_.stop );
-	    }
+	    setup_.anglerg_ = setup_.offsrg_;
+	    if ( xaxisunit == 1 )
+		setup_.anglerg_.scale( mRad2DegF );
 	}
     }
 
@@ -293,13 +251,12 @@ PSAttrib::PSAttrib( Desc& ds )
 
 PSAttrib::~PSAttrib()
 {
+    anglecomp_ = 0;
     delete propcalc_;
     delete preprocessor_;
 
     delete psrdr_;
     delete psioobj_;
-    if ( anglecomp_ )
-	anglecomp_->unRef();
 }
 
 
@@ -344,17 +301,8 @@ void PSAttrib::setAngleData( DataPack::ID angledpid )
 
 void PSAttrib::setAngleComp( PreStack::AngleComputer* ac )
 {
-    if ( anglecomp_ ) anglecomp_->unRef();
-    if ( !ac ) return;
     anglecomp_ = ac;
-    anglecomp_->ref();
     setSmootheningPar();
-}
-
-
-float PSAttrib::getXscaler( bool isoffset, bool isindegrees ) const
-{
-    return isoffset || !isindegrees ? 1.f : mDeg2RadF;
 }
 
 
@@ -378,13 +326,14 @@ bool PSAttrib::getAngleInputData()
 
     const FlatPosData& fp = gather->posData();
     anglecomp_->setOutputSampling( fp );
-    anglecomp_->setTrcKey( TrcKey(gather->getBinID()) );
+    if ( anglecomp_->needsTrcKey() )
+	anglecomp_->setTrcKey( TrcKey(gather->getBinID()) );
+
     RefMan<Gather> angledata = anglecomp_->computeAngles();
     if ( !angledata )
 	return false;
 
-    DPM(DataPackMgr::FlatID()).add( angledata );
-    propcalc_->setAngleData( angledata->id() );
+    propcalc_->setAngleData( *angledata.ptr() );
 
     return true;
 }
@@ -534,11 +483,17 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	curgather = getPreProcessed( relpos );
     }
 
-    propcalc_->setGather( curgather->id() );
+    int gathertype = 0;
+    mGetEnum( gathertype, gathertypeStr() );
+    int xaxisunit = 0;
+    mGetEnum( xaxisunit, xaxisunitStr() );
+    curgather->setIsOffsetAngle( gathertype == 1,
+				 xaxisunit == 0 ? Gather::Deg : Gather::Rad );
+    propcalc_->setGather( *curgather.ptr() );
     if ( !propcalc_->hasAngleData() && anglecomp_ && !getAngleInputData() )
 	return false;
     else if ( curanglegather )
-	propcalc_->setAngleData( curanglegather->id() );
+	propcalc_->setAngleData( *curanglegather.ptr() );
 
     return true;
 }
@@ -585,7 +540,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 	    mErrRet( tr("PS Reader: %1").arg(emsg) );
     }
 
-    mTryAlloc( propcalc_, PreStack::PropCalc( setup_ ) );
+    propcalc_ = new PreStack::PropCalc( setup_ );
     Provider::prepPriorToBoundsCalc();
 }
 

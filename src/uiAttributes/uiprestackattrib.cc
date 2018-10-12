@@ -49,7 +49,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     prestackinpfld_ = new uiPreStackSel( this, is2d );
 
     gathertypefld_ = new uiGenInput( this, tr("Gather type"),
-			     StringListInpSpec(PSAttrib::GatherTypeDef()) );
+			     StringListInpSpec(Gather::TypeDef()) );
     gathertypefld_->attach( alignedBelow, prestackinpfld_ );
     gathertypefld_->valuechanged.notify(
 				 mCB(this,uiPreStackAttrib,gatherTypSel) );
@@ -93,7 +93,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     xrglbl_->attach( rightOf, xrgfld_ );
 
     xunitfld_ = new uiGenInput( this, uiString::empty(),
-				StringListInpSpec(PSAttrib::XaxisUnitDef()) );
+				StringListInpSpec(Gather::UnitDef()) );
     xunitfld_->attach( rightOf, gathertypefld_ );
     xunitfld_->valuechanged.notify( mCB(this,uiPreStackAttrib,gatherUnitSel) );
 
@@ -214,11 +214,12 @@ bool uiPreStackAttrib::setParameters( const Desc& desc )
     }
 
     valaxtypefld_->setValue( (int)aps->setup().valaxis_ );
-    useanglefld_->setChecked( aps->setup().useangle_ );
-    if ( aps->setup().useangle_ && !setAngleParameters(desc) )
+    const bool useangle = !aps->setup().anglerg_.isUdf();
+    useanglefld_->setChecked( useangle );
+    if ( useangle && !setAngleParameters(desc) )
 	return false;
 
-    if ( !aps->setup().useangle_ )
+    if ( !useangle )
     {
 	mIfGetEnum(PSAttrib::gathertypeStr(),gtp,gathertypefld_->setValue(gtp));
 	mIfGetEnum(PSAttrib::xaxisunitStr(),xut,xunitfld_->setValue(xut));

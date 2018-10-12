@@ -28,10 +28,10 @@ namespace PreStack
 
 uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     : uiDialog( p, uiDialog::Setup(tr("Angle Mute Computer"),
-				    mNoDlgTitle, 
+				    mNoDlgTitle,
                                     mODHelpKey(mAngleMuteComputerHelpID) ) )
     , outctio_( *mMkCtxtIOObj(MuteDef) )
-    , processor_(new AngleMuteComputer) 
+    , processor_(new AngleMuteComputer)
 {
     anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(), true );
 
@@ -73,12 +73,12 @@ bool uiAngleMuteComputer::acceptOK()
 	subsel_->getSampling( hrg );
 
     processor_->params().tks_ = hrg;
-    processor_->params().outputmutemid_ = mutedeffld_->key(true); 
+    processor_->params().outputmutemid_ = mutedeffld_->key(true);
 
     uiTaskRunner taskrunner(this);
-    if ( !TaskRunner::execute( &taskrunner, *processor_ ) )
+    if ( !taskrunner.execute(*processor_) )
     {
-	uiMSG().error( processor_->errMsg() );
+	uiMSG().error( processor_->message() );
 	return false;
     }
     return true;

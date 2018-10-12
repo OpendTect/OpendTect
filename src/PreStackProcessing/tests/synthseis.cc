@@ -67,17 +67,27 @@ void initTest( bool onespike, bool onemodel, float start_depth,
 }
 
 
-bool testSynthGeneration( od_ostream& strm, bool success,
-			  RaySynthGenerator& synthgen )
+bool testRayTracerRunner( od_ostream& strm, bool success,
+			  const RayTracerRunner& rtrunner )
 {
-    BufferString testname( "test Synthetic generation" );
-    mTest( testname, success, synthgen.errMsg().getOriginalString() )
+    const BufferString testname( "test RayTracerRunner" );
+    mTest( testname, success, rtrunner.errMsg().toString() )
 
     return true;
 }
 
 
-bool testTraceSize( od_ostream& strm, SeisTrc& trc )
+bool testSynthGeneration( od_ostream& strm, bool success,
+			  const RaySynthGenerator& synthgen )
+{
+    const BufferString testname( "test Synthetic generation" );
+    mTest( testname, success, synthgen.message().toString() )
+
+    return true;
+}
+
+
+bool testTraceSize( od_ostream& strm, const SeisTrc& trc )
 {
     BufferString testname( "test Trace size" );
     const StepInterval<float> zrg1( 0.028f, 0.688f, cStep );
@@ -94,8 +104,8 @@ bool testTraceSize( od_ostream& strm, SeisTrc& trc )
 }
 
 
-bool testSpike( od_ostream& strm, const SeisTrc& trc,
-		const ReflectivitySpike& spike,	float scal, int nr )
+bool testSpike( od_ostream& strm, const ReflectivitySpike& spike,
+		const SeisTrc& trc, float scal, int nr )
 {
     BufferString testname( "test Spike ", nr, " is defined" );
     mTest( testname, spike.isDefined(), "Spike is not defined" )
@@ -114,26 +124,24 @@ bool testSpike( od_ostream& strm, const SeisTrc& trc,
 
 
 bool testTracesAmplitudes( od_ostream& strm,
-			   RaySynthGenerator& synthgen, float scal )
+			   const SynthSeis::RayModelSet& raymodels,
+			   const SynthSeis::DataSet& ds, float scal )
 {
     BufferString testname( "test Traces amplitudes" );
     bool success = true;
-    const int nrpos = synthgen.elasticModels().size();
-    int nr = -1;
-    for ( int ipos=0; ipos<nrpos; ipos++ )
+    int nr = 0;
+    for ( int imod=0; imod<raymodels.size(); imod++ )
     {
-	SynthSeis::RayModel& raymodel = synthgen.result( ipos );
-	ObjectSet<SeisTrc> gather;
-	raymodel.getTraces( gather, false );
-	RefMan<ReflectivityModelSet> refmodels = raymodel.reflModels( false );
-	for ( int ioff=0; ioff<refmodels->size(); ioff++ )
+	const SynthSeis::RayModel& raymodel = *raymodels.get( imod );
+	const ReflectivityModelSet& reflmodels = raymodel.reflModels();
+	for ( int ioff=0; ioff<reflmodels.size(); ioff++ )
 	{
-	    const SeisTrc& trout = *gather[ioff];
-	    const ReflectivityModel& refmodel = *refmodels->get(ioff);
-	    for ( int idz=0; idz<refmodel.size(); idz++ )
+	    const float offset = raymodel.rayTracerOutput().getOffset( ioff );
+	    const ReflectivityModel& reflmodel = *reflmodels.get( ioff );
+	    const SeisTrc& trout = *ds.getTrace( imod, offset );
+	    for ( int idz=0; idz<reflmodel.size(); idz++, nr++ )
 	    {
-		nr++;
-		if ( !testSpike(strm,trout,refmodel[idz],scal,nr) )
+		if ( !testSpike(strm,reflmodel[idz],trout,scal,nr) )
 		    success = false;
 	    }
 	}
@@ -185,32 +193,54 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     // Run
+    PtrMan<TaskRunner> taskr = new SilentTaskRunner;
+    IOPar genpar;
+    genpar.setYN( SynthSeis::GenBase::sKeyFourier(), true );
     for ( int iwav=0; iwav<wvlts.size(); iwav++ )
     {
 	const Wavelet* wav = wvlts[iwav];
 	if ( !wav )
 	    return false;
 
-	const float scal = wav->get( wav->centerSample() );
+	PtrMan<RayTracerRunner> raytracerunner =
+				new RayTracerRunner( models, *raypar );
+	if ( !testRayTracerRunner(strm,taskr->execute(*raytracerunner),
+				  *raytracerunner) )
+	    return false;
+
+	const RefObjectSet<RayTracerData>& runnerres =raytracerunner->results();
+	RefMan<SynthSeis::RayModelSet> raymodels = new SynthSeis::RayModelSet;
+	for ( int imod=0; imod<runnerres.size(); imod++ )
+	{
+	    RefMan<SynthSeis::RayModel> raymodel =
+				new SynthSeis::RayModel(*runnerres.get(imod) );
+	    raymodels->add( raymodel.ptr() );
+	}
+
+	raytracerunner = 0;
+
 	SynthSeis::GenParams sgp;
-	sgp.raypars_ = *raypar;
 	sgp.setWaveletName( wav->name() );
-	RaySynthGenerator synthgen( sgp, models );
-	synthgen.setWavelet( wav );
-	synthgen.enableFourierDomain( true );
-	synthgen.usePar( *raypar );
-
-	TaskRunner* taskr = new SilentTaskRunner;
-	if ( !testSynthGeneration(strm,TaskRunner::execute(taskr,synthgen),
-				  synthgen) )
+	PtrMan<RaySynthGenerator> synthgen =
+				new RaySynthGenerator( sgp, *raymodels.ptr() );
+	synthgen->setWavelet( wav );
+	synthgen->usePar( genpar );
+	if ( !testSynthGeneration(strm,taskr->execute(*synthgen) &&
+				  synthgen->isResultOK(),*synthgen) )
 	    return false;
 
-	SynthSeis::RayModel& rm = synthgen.result( nrmodels-1 );
-	SeisTrc stack = *rm.stackedTrc();
-	if ( !testTraceSize(strm,stack) ||
-	     !testTracesAmplitudes(strm,synthgen,scal) )
+	ConstRefMan<SynthSeis::DataSet> ds = &synthgen->dataSet();
+	synthgen = 0;
+
+	const float scal = wav->get( wav->centerSample() );
+	if ( !testTraceSize(strm,*ds->getTrace(0)) ||
+	     !testTracesAmplitudes(strm,*raymodels,*ds,scal) )
 	    return false;
+
+	raymodels = 0;
     }
 
+    taskr = 0;
+
     return true;
-};
+}

@@ -283,8 +283,8 @@ void ColTab::Mapper::setNotifs()
 
 ColTab::Mapper::~Mapper()
 {
-    sendDelNotif();
     detachAllNotifiers();
+    sendDelNotif();
 }
 
 

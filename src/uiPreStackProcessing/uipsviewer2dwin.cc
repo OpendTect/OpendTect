@@ -1049,14 +1049,15 @@ RefMan<Gather> uiStoredViewer2DWin::getAngleData( DataPack::ID gatherid )
     if ( !gather )
 	return 0;
 
-    PreStack::VelocityBasedAngleComputer velangcomp;
-    velangcomp.setDBKey( angleparams_->velvolmid_ );
-    velangcomp.setRayTracer( angleparams_->raypar_ );
-    velangcomp.setSmoothingPars( angleparams_->smoothingpar_ );
+    RefMan<PreStack::VelocityBasedAngleComputer> velangcomp =
+			    new PreStack::VelocityBasedAngleComputer;
+    velangcomp->setDBKey( angleparams_->velvolmid_ );
+    velangcomp->setRayTracerPars( angleparams_->raypar_ );
+    velangcomp->setSmoothingPars( angleparams_->smoothingpar_ );
     const FlatPosData& fp = gather->posData();
-    velangcomp.setOutputSampling( fp );
-    velangcomp.setTrcKey( TrcKey(gather->getBinID()) );
-    RefMan<Gather> angledata = velangcomp.computeAngles();
+    velangcomp->setOutputSampling( fp );
+    velangcomp->setTrcKey( TrcKey(gather->getBinID()) );
+    RefMan<Gather> angledata = velangcomp->computeAngles();
     if ( !angledata ) return 0;
     BufferString angledpnm( gather->name(), " Incidence Angle" );
     angledata->setName( angledpnm );

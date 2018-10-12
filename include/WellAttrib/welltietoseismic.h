@@ -64,7 +64,6 @@ protected:
     bool		extractReflectivity();
 
     ElasticModel	elasticmodel_;
-    ReflectivityModel	reflmodel_;
     Data&		data_;
     const DBKey&	seisid_;
     const BufferString& linenm_;

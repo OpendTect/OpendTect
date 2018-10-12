@@ -170,9 +170,9 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
 }
 
 
-float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
-					 int ioff, bool tail, int startlayer,
-					 bool belowcutoff ) const
+float AngleMuteBase::getOffsetMuteLayer( const RayTracerData& rtdata,
+					 int nrlayers, int ioff, bool tail,
+					 int startlayer, bool belowcutoff) const
 {
     float mutelayer = mUdf(float);
     const float cutoffsin = (float) sin( params_->mutecutoff_ * M_PI / 180 );
@@ -182,7 +182,7 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 	int previdx = -1;
 	for ( int il=startlayer; il<nrlayers; il++ )
 	{
-	    const float sini = rt.getSinAngle(il,ioff);
+	    const float sini = rtdata.getSinAngle(il,ioff);
 	    if ( mIsUdf(sini) || (mIsZero(sini,1e-8) && il<nrlayers/2) )
 		continue; //Ordered down, get rid of edge 0.
 
@@ -210,7 +210,7 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 	int previdx = -1;
 	for ( int il=nrlayers-1; il>=startlayer; il-- )
 	{
-	    const float sini = rt.getSinAngle(il,ioff);
+	    const float sini = rtdata.getSinAngle(il,ioff);
 	    if ( mIsUdf(sini) )
 		continue;
 
@@ -245,15 +245,11 @@ AngleMute::AngleMute()
 
 AngleMute::~AngleMute()
 {
-    deepErase( muters_ );
 }
 
 
 bool AngleMute::doPrepare( int nrthreads )
 {
-    deepErase( rtrunners_ );
-    deepErase( muters_ );
-
     if ( !setVelocityFunction() )
 	return false;
 
@@ -291,6 +287,17 @@ void AngleMute::fillPar( IOPar& par ) const
 
 bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 {
+    if ( !rtrunners_.validIdx(thread) || !muters_.validIdx(thread) )
+	return false;
+
+    RayTracerRunner& rtrunner = *rtrunners_[thread];
+    rtrunner.setParallel( raytraceparallel_ );
+    ElasticModelSet models; const int modelidx = 0;
+    models += new ElasticModel;
+    auto& layers = *models.get( modelidx );
+    rtrunner.setModel( models );
+
+    Muter& muterexec = *muters_[thread];
     for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	Gather* output = outputs_[idx];
@@ -303,20 +310,20 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	const auto zdim = Gather::zDim();
 
 	int nrlayers = input->data().getSize( zdim );
-	auto* layers = new ElasticModel; SamplingData<float> sd;
-	if ( !getLayers( bid, *layers, sd, nrlayers ) )
+	SamplingData<float> sd;
+	layers.setEmpty();
+	if ( !getLayers(bid,layers,sd,nrlayers) )
 	    continue;
 
-	const int nrblockedlayers = layers->size();
+	const int nrblockedlayers = layers.size();
 	TypeSet<float> offsets;
 	const int nroffsets = input->size( input->offsetDim()==0 );
 	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
 	    offsets += input->getOffset( ioffset );
 
-	rtrunners_[thread]->setOffsets( offsets );
-	rtrunners_[thread]->addModel( layers, true );
-	if ( !rtrunners_[thread]->executeParallel(raytraceparallel_) )
-	    { errmsg_ = rtrunners_[thread]->errMsg(); continue; }
+	rtrunner.setOffsets( offsets );
+	if ( !rtrunner.execute() )
+	    { msg_ = rtrunner.errMsg(); continue; }
 
 	Array1DSlice<float> trace( output->data() );
 	trace.setDimMap( 0, zdim );
@@ -327,9 +334,11 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	    if ( !trace.init() )
 		continue;
 
+	    ConstRefMan<RayTracerData> raytracedata =
+					    rtrunner.results()[modelidx];
 	    float mutelayer =
-		    getOffsetMuteLayer( *rtrunners_[thread]->rayTracers()[0],
-	    nrblockedlayers, ioffs, params().tail_ );
+		    getOffsetMuteLayer( *raytracedata.ptr(), nrblockedlayers,
+					ioffs, params().tail_ );
 	    if ( mIsUdf( mutelayer ) )
 		continue;
 
@@ -341,14 +350,14 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		    float mtime = 0;
 		    for ( int il=0; il<=muteintlayer; il++ )
 		    {
-			const auto& lyr = layers->get( il );
+			const auto& lyr = layers.get( il );
 			mtime += lyr.thickness_ / lyr.vel_;
 			if ( il==muteintlayer )
 			{
 			    const float diff = mutelayer-muteintlayer;
 			    if ( diff>0 )
 			    {
-				const auto& nextlyr = layers->get( il+1 );
+				const auto& nextlyr = layers.get( il+1 );
 				mtime += diff * nextlyr.thickness_/nextlyr.vel_;
 			    }
 			}
@@ -361,7 +370,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		    for ( int il=0; il<muteintlayer+2; il++ )
 		    {
 			if ( il >= nrblockedlayers ) break;
-			float thk = layers->get(il).thickness_;
+			float thk = layers.get(il).thickness_;
 			if ( il == muteintlayer+1 )
 			    thk *= ( mutelayer - muteintlayer);
 
@@ -370,11 +379,19 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		    mutelayer = sd.getfIndex( depth );
 		}
 	    }
-	    muters_[thread]->mute( trace, nrlayers, mutelayer );
+	    muterexec.mute( trace, nrlayers, mutelayer );
 	}
     }
 
     return true;
+}
+
+
+bool AngleMute::doFinish( bool success )
+{
+    deepErase( rtrunners_ );
+    deepErase( muters_ );
+    return success;
 }
 
 

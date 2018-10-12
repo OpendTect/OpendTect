@@ -21,6 +21,8 @@ class GatherSetDataPack;
 namespace SynthSeis
 {
 
+class RayModelSet;
+
 mExpClass(PreStackProcessing) PreStackDataSet : public DataSet
 {
 public:
@@ -28,7 +30,8 @@ public:
     typedef ObjectSet<Gather>	GatherSet;
 
 				PreStackDataSet(const GenParams&,
-						GatherSetDataPack&);
+						GatherSetDataPack&,
+						RayModelSet&);
 				~PreStackDataSet();
 
     virtual bool		isPS() const	  { return true; }

@@ -10,10 +10,9 @@
 
 #include "idxable.h"
 #include "flatposdata.h"
+#include "linear.h"
 #include "prestackgather.h"
 #include "statruncalc.h"
-#include "linear.h"
-#include "math2.h"
 #include "uistrings.h"
 
 mDefineEnumUtils(PreStack::PropCalc,CalcType,"Calculation type")
@@ -72,6 +71,8 @@ void EnumDefImpl<PreStack::PropCalc::LSQType>::init()
     uistrings_ += mEnumTr("Correlation Coefficient",0);
 }
 
+
+
 namespace PreStack
 {
 PropCalc::PropCalc( const Setup& s )
@@ -80,7 +81,8 @@ PropCalc::PropCalc( const Setup& s )
     , innermutes_( 0 )
     , outermutes_( 0 )
     , angledata_( 0 )
-{}
+{
+}
 
 
 PropCalc::~PropCalc()
@@ -104,15 +106,6 @@ void PropCalc::setGather( const Gather& gather )
 }
 
 
-void PropCalc::setGather( DataPack::ID id )
-{
-    removeGather();
-    gather_ = DPM(DataPackMgr::FlatID()).get<Gather>( id );
-    if ( gather_ )
-	gatherChanged();
-}
-
-
 void PropCalc::gatherChanged()
 {
     const int nroffsets = gather_->size( !gather_->offsetDim() );
@@ -124,18 +117,80 @@ void PropCalc::gatherChanged()
 	gather_->detectOuterMutes( outermutes_, 0 );
 	gather_->detectInnerMutes( innermutes_, 0 );
     }
-}
 
-
-void PropCalc::setAngleData( DataPack::ID id )
-{
-    angledata_ = DPM(DataPackMgr::FlatID()).get<Gather>( id );
+    init();
 }
 
 
 void PropCalc::setAngleData( const Gather& gather )
 {
     angledata_ = &gather;
+    init();
+}
+
+
+bool PropCalc::getAngleFromMainGather() const
+{
+    return !angledata_ && gather_ && gather_->isOffsetAngle();
+}
+
+
+void PropCalc::init()
+{
+    const bool dostack = setup_.calctype_ == Stats;
+    const bool dolsq   = setup_.calctype_ == LLSQ;
+    const bool useangle = !setup_.anglerg_.isUdf();
+    if ( dolsq && useangle )
+	setup_.offsaxis_ = Sinsq;
+
+    axisvalsrg_ = useangle ? setup_.anglerg_ : setup_.offsrg_;
+    axisvalsrg_.sort();
+    if ( axisvalsrg_.start < 0.f )
+	axisvalsrg_.start = 0.f;
+    if ( axisvalsrg_.stop < 0.f )
+	axisvalsrg_.start = mUdf(float);
+
+    float eps;
+    if ( useangle )
+    {
+	if ( !angledata_ && gather_ && !gather_->isOffsetAngle() )
+	    return;
+
+	const bool anglesourceisgather = getAngleFromMainGather();
+#ifdef __debug__
+	if ( !anglesourceisgather && !angledata_ )
+	    { pErrMsg("Wrongly set"); DBG::forceCrash(false); }
+#endif
+	const Gather::Unit angleunit = anglesourceisgather
+				     ? gather_->getXAxisUnit()
+				     : angledata_->ampUnit();
+	eps = 1e-2f;
+	if ( dostack )
+	{
+	    scalexvals_ = false;
+	    if ( angleunit == Gather::Rad )
+	    {
+		axisvalsrg_.scale( mDeg2RadF );
+		eps *= mDeg2RadF;
+	    }
+	}
+	else
+	{
+	    axisvalsrg_.scale( mDeg2RadF );
+	    eps *= mDeg2RadF;
+	    scalexvals_ = angleunit == Gather::Deg;
+	}
+    }
+    else
+    {
+	scalexvals_ = false;
+	eps = 1e-1f;
+    }
+
+    if ( axisvalsrg_.start > eps )
+	axisvalsrg_.start -= eps;
+    if ( !mIsUdf(axisvalsrg_.stop) )
+	axisvalsrg_.stop += eps;
 }
 
 
@@ -154,22 +209,7 @@ float PropCalc::getVal( float z ) const
     if ( !gather_ )
 	return mUdf(float);
 
-    const bool useangle = setup_.useangle_ && angledata_;
-    Interval<float> axisvalrg( setup_.offsrg_ );
-    if ( useangle )
-    {
-	axisvalrg.start = setup_.anglerg_.start < 0
-	    ? 0.f : Math::toRadians( (float)setup_.anglerg_.start );
-	axisvalrg.stop = setup_.anglerg_.stop < 0
-	    ? mUdf(float) : Math::toRadians( (float)setup_.anglerg_.stop );
-    }
-
-    const float eps = 1e-3;
-    axisvalrg.start -= eps;
-    if ( !mIsUdf(axisvalrg.stop) )
-	axisvalrg.stop += eps;
-    axisvalrg.sort();
-
+    const bool useangle = !setup_.anglerg_.isUdf();
     const int nroffsets = gather_->size( !gather_->offsetDim() );
     const int nrz = gather_->size( !gather_->zDim() );
 
@@ -194,11 +234,8 @@ float PropCalc::getVal( float z ) const
 		continue;
 
 	    float axisval = mUdf(float);
-	    if ( !useangle )
-	    {
+	    if ( !useangle || getAngleFromMainGather() )
 		axisval = gather_->getOffset( itrc );
-		axisval *= setup_.xscaler_;
-	    }
 	    else
 	    {
 		const float* angledata =
@@ -208,10 +245,10 @@ float PropCalc::getVal( float z ) const
 		    IdxAble::interpolateReg( angledata, nrz, cursamp, false );
 	    }
 
-	    if ( useangle && !mIsUdf(axisval) )
-		axisval *= setup_.xscaler_;
+	    if ( scalexvals_ && !mIsUdf(axisval) )
+		axisval *= mDeg2RadF;
 
-	    if ( !axisvalrg.isUdf() && !axisvalrg.includes( axisval, true ) )
+	    if ( !axisvalsrg_.isUdf() && !axisvalsrg_.includes(axisval,true) )
 		continue;
 
 	    const float val =
@@ -222,7 +259,7 @@ float PropCalc::getVal( float z ) const
 	}
     }
 
-    return getVal( setup_, vals, axisvals );
+    return getVal( setup_, vals, &axisvals );
 }
 
 
@@ -235,27 +272,27 @@ static void transformAxis( TypeSet<float>& vals, PropCalc::AxisType at )
 	const float val = vals[idx];
 	switch ( at )
 	{
-	case PropCalc::Sqr:	vals[idx] = val * val;		break;
-	case PropCalc::Log:	vals[idx] = Math::Log( val );	break;
-	case PropCalc::Exp:	vals[idx] = Math::Exp( val );	break;
-	case PropCalc::Sqrt:	vals[idx] = Math::Sqrt( val );	break;
-	case PropCalc::Abs:	vals[idx] = fabs( val );	break;
-	case PropCalc::Sinsq:	vals[idx] = sin( val );
-				vals[idx] *= vals[idx];		break;
-	default:						break;
+	    case PropCalc::Sqr:		vals[idx] = val * val;		break;
+	    case PropCalc::Log:		vals[idx] = Math::Log( val );	break;
+	    case PropCalc::Exp:		vals[idx] = Math::Exp( val );	break;
+	    case PropCalc::Sqrt:	vals[idx] = Math::Sqrt( val );	break;
+	    case PropCalc::Abs:		vals[idx] = fabs( val );	break;
+	    case PropCalc::Sinsq:	vals[idx] = sin( val );
+					vals[idx] *= vals[idx];		break;
+	    default:							break;
 	}
     }
 }
 
 
-float PropCalc::getVal( const PropCalc::Setup& su,
-			      TypeSet<float>& vals, TypeSet<float>& axisvals )
+float PropCalc::getVal( const PropCalc::Setup& su, TypeSet<float>& yvals,
+			TypeSet<float>* xvals )
 {
-    transformAxis( vals, su.valaxis_ );
+    const int nrvals = yvals.size();
+    if ( nrvals==0 )
+	return 0.f;
 
-    if ( su.calctype_ == Stats && !vals.size() )
-	return 0;
-
+    transformAxis( yvals, su.valaxis_ );
     Stats::CalcSetup rcs;
     if ( su.calctype_ == Stats )
 	rcs.require( su.stattype_ );
@@ -263,26 +300,26 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 	rcs.require( Stats::StdDev );
 
     Stats::RunCalc<float> rc( rcs );
-
     if ( su.calctype_ == Stats )
     {
-	rc.addValues( vals.size(), vals.arr() );
+	rc.addValues( nrvals, yvals.arr() );
 	return (float) rc.getValue( su.stattype_ );
     }
+    else if ( !xvals || xvals->size() != nrvals )
+	return mUdf(float);
 
-    rc.addValues( axisvals.size(), axisvals.arr() );
-
-    if ( vals.size()>0 && mIsZero(rc.getValue(Stats::StdDev),1e-3) )
+    rc.addValues( xvals->size(), xvals->arr() );
+    if ( mIsZero(rc.getValue(Stats::StdDev),1e-3) )
     {
 	Stats::CalcSetup rcsvals;
 	rcsvals.require( Stats::StdDev );
 	Stats::RunCalc<float> rcvals( rcsvals );
-	rcvals.addValues( vals.size(), vals.arr() );
+	rcvals.addValues( nrvals, yvals.arr() );
 	if ( mIsZero(rcvals.getValue(Stats::StdDev),1e-9) )
 	{
 	    switch ( su.lsqtype_ )
 	    {
-		case A0:		return vals[0];
+		case A0:		return yvals[0];
 		case Coeff:		return 0;
 		case StdDevA0:		return 0;
 		case StdDevCoeff:	return 0;
@@ -291,23 +328,16 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 	}
     }
 
-    if ( su.useangle_ )
-	transformAxis( axisvals, PropCalc::Sinsq );
-    else
-	transformAxis( axisvals, su.offsaxis_ );
-
-    if ( !axisvals.size() )
-	return 0;
-
+    transformAxis( *xvals, su.offsaxis_ );
     LinStats2D ls2d;
-    ls2d.use( axisvals.arr(), vals.arr(), vals.size() );
+    ls2d.use( xvals->arr(), yvals.arr(), nrvals );
     switch ( su.lsqtype_ )
     {
-    case A0:		return ls2d.lp.a0_;
-    case Coeff:		return ls2d.lp.ax_;
-    case StdDevA0:	return ls2d.sd.a0_;
-    case StdDevCoeff:	return ls2d.sd.ax_;
-    default:		return ls2d.corrcoeff;
+	case A0:		return ls2d.lp.a0_;
+	case Coeff:		return ls2d.lp.ax_;
+	case StdDevA0:		return ls2d.sd.a0_;
+	case StdDevCoeff:	return ls2d.sd.ax_;
+	default:		return ls2d.corrcoeff;
     }
 }
 

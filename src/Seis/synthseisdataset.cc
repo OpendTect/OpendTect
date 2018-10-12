@@ -28,8 +28,8 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
-#include "seistrcprop.h"
 #include "survinfo.h"
+#include "synthseisgenerator.h"
 #include "unitofmeasure.h"
 #include "timeser.h"
 #include "velocitycalc.h"
@@ -98,150 +98,27 @@ void SynthSeis::DispPars::usePar( const IOPar& par )
 }
 
 
-SynthSeis::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
-    : zerooffsett2dmodel_(0)
-    , reflmodels_(new ReflectivityModelSet)
-    , sampledreflmodels_(new ReflectivityModelSet)
-    , raytracerdata_(0) // TODO
-    //, raytracerdata_(new RayTracerData(rt1d))
-{
-    for ( int idx=0; idx<nroffsets; idx++ )
-    {
-	ReflectivityModel* refmodel = new ReflectivityModel();
-	rt1d.getReflectivity( idx, *refmodel );
 
-	TimeDepthModel* t2dm = new TimeDepthModel();
-	rt1d.getTDModel( idx, *t2dm );
-
-	reflmodels_->add( refmodel );
-	t2dmodels_ += t2dm;
-	if ( !idx )
-	{
-	    zerooffsett2dmodel_ = new TimeDepthModel();
-	    rt1d.getZeroOffsTDModel( *zerooffsett2dmodel_ );
-	}
-    }
-}
-
-
-SynthSeis::RayModel::RayModel( const RayModel& oth )
-    : zerooffsett2dmodel_(0)
-    , reflmodels_(oth.reflmodels_)
-    , sampledreflmodels_(oth.sampledreflmodels_)
-    , raytracerdata_(0)
-{
-    if ( oth.zerooffsett2dmodel_ )
-	zerooffsett2dmodel_ = new TimeDepthModel( *oth.zerooffsett2dmodel_ );
-    /* TODO
-    if ( oth.raytracerdata_ )
-	raytracerdata_ = new RayTracerData( *oth.raytracerdata_ );
-	*/
-    for ( auto t2dmdl : oth.t2dmodels_ )
-	t2dmodels_ += new TimeDepthModel( *t2dmdl );
-    for ( auto trc : oth.outtrcs_ )
-	outtrcs_ += new SeisTrc( *trc );
-}
-
-
-SynthSeis::RayModel::~RayModel()
-{
-    deepErase( outtrcs_ );
-    deepErase( t2dmodels_ );
-    delete zerooffsett2dmodel_;
-    // delete raytracerdata_; TODO
-}
-
-
-void SynthSeis::RayModel::forceReflTimes(const StepInterval<float>& si )
-{
-    for ( int idx=0; idx<reflmodels_->size(); idx++ )
-    {
-	ReflectivityModel& refmodel =
-			const_cast<ReflectivityModel&>(*reflmodels_->get(idx));
-	for ( int iref=0; iref<refmodel.size(); iref++ )
-	{
-	    refmodel[iref].time_ = si.atIndex(iref);
-	    refmodel[iref].correctedtime_ = si.atIndex(iref);
-	}
-    }
-}
-
-
-#define mGet( inpset, outpset, steal )\
-{\
-    outpset.copy( inpset );\
-    if ( steal )\
-	inpset.erase();\
-}
-
-void SynthSeis::RayModel::getTraces(
-		    ObjectSet<SeisTrc>& trcs, bool steal )
-{
-    mGet( outtrcs_, trcs, steal );
-}
-
-
-SynthSeis::RayModel::RflMdlSetRef
-SynthSeis::RayModel::reflModels( bool sampled )
-{ return sampled ? sampledreflmodels_ : reflmodels_; }
-SynthSeis::RayModel::ConstRflMdlSetRef
-SynthSeis::RayModel::reflModels( bool sampled ) const
-{ return sampled ? sampledreflmodels_ : reflmodels_; }
-
-
-const TimeDepthModel& SynthSeis::RayModel::zeroOffsetD2T() const
-{
-    return *zerooffsett2dmodel_;
-}
-
-
-void SynthSeis::RayModel::getD2T(
-			ObjectSet<TimeDepthModel>& tdmodels, bool steal )
-{
-    mGet( t2dmodels_, tdmodels, steal );
-}
-
-
-SeisTrc* SynthSeis::RayModel::stackedTrc() const
-{
-    if ( outtrcs_.isEmpty() )
-	return 0;
-
-    SeisTrc* trc = new SeisTrc( *outtrcs_[0] );
-    SeisTrcPropChg stckr( *trc );
-    for ( int idx=1; idx<outtrcs_.size(); idx++ )
-	stckr.stack( *outtrcs_[idx], false, mCast(float,idx) );
-
-    return trc;
-}
-
-
-
-SynthSeis::DataSet::DataSet( const GenParams& gp, DataPack& dp )
+SynthSeis::DataSet::DataSet( const GenParams& gp, DataPack& dp,
+			     RayModelSet* rms )
     : NamedObject(gp.name_)
     , genpars_(gp)
+    , raymodels_(rms)
     , datapack_(&dp)
 {
+    dp.setName( gp.name_ );
 }
 
 
 SynthSeis::DataSet::~DataSet()
 {
     deepErase( finald2tmodels_ );
-    deepErase( raymodels_ );
 }
 
 
 SynthSeis::DataSet::MgrID SynthSeis::DataSet::getNewID()
 {
     return MgrID( curdatasetid_++ );
-}
-
-
-void SynthSeis::DataSet::setName( const char* nm )
-{
-    NamedObject::setName( nm );
-    datapack_->setName( nm );
 }
 
 
@@ -260,17 +137,6 @@ const SeisTrc* SynthSeis::DataSet::getTrace( idx_type idx, float offs ) const
 bool SynthSeis::DataSet::hasOffset() const
 {
     return offsetDef().nrSteps() > 0;
-}
-
-
-void SynthSeis::DataSet::setRayModels( const RayModelSet& rms )
-{
-    if ( &rms == &raymodels_ )
-	return;
-
-    deepErase( raymodels_ );
-    for ( auto rm : rms )
-	raymodels_ += new RayModel( *rm );
 }
 
 
@@ -321,36 +187,22 @@ void SynthSeis::DataSet::useDispPars( const IOPar& par )
 void SynthSeis::DataSet::adjustD2TModelsToSRD( D2TModelSet& d2tmdls )
 {
     const double shft = -SI().seismicReferenceDatum();
-    for ( int idx=0; idx<d2tmdls.size(); idx++ )
-	d2tmdls[idx]->shiftDepths( shft );
+    for ( auto d2tmdl : d2tmdls )
+	d2tmdl->shiftDepths( shft );
 }
 
 
 void SynthSeis::DataSet::updateD2TModels()
 {
     deepErase( finald2tmodels_ );
-    if ( raymodels_.isEmpty() )
-	return;
-
-    for ( int idx=0; idx<raymodels_.size(); idx++ )
+    for ( auto rm : rayModels() )
     {
-	const RayModel& rm = *raymodels_[idx];
 	TimeDepthModel* zeroofsetd2tm = new TimeDepthModel();
-	*zeroofsetd2tm = rm.zeroOffsetD2T();
+	*zeroofsetd2tm = rm->zeroOffsetD2T();
 	finald2tmodels_ += zeroofsetd2tm;
     }
 
     adjustD2TModelsToSRD( finald2tmodels_ );
-}
-
-
-ConstRefMan<ReflectivityModelSet> SynthSeis::DataSet::reflModels( int modelid,
-							  bool sampled ) const
-{
-    if ( !raymodels_.validIdx(modelid) )
-	return 0;
-    return sampled ? raymodels_[modelid]->sampledreflmodels_
-		   : raymodels_[modelid]->reflmodels_;
 }
 
 
@@ -430,8 +282,9 @@ ConstRefMan<DataPack> SynthSeis::DataSet::getFlattenedTrcDP(
 }
 
 
-SynthSeis::PostStackDataSet::PostStackDataSet( const GenParams& gp, DPType& dp )
-    : DataSet(gp,dp)
+SynthSeis::PostStackDataSet::PostStackDataSet( const GenParams& gp, DPType& dp,
+					       RayModelSet* rms )
+    : DataSet(gp,dp,rms)
 {
 }
 
@@ -472,16 +325,16 @@ const SeisTrcBufDataPack& SynthSeis::PostStackDataSet::postStackPack() const
 
 
 SynthSeis::PSBasedPostStackDataSet::PSBasedPostStackDataSet(
-			const GenParams& gp, DPType& dp )
-    : PostStackDataSet(gp,dp)
+					    const GenParams& gp, DPType& dp )
+    : PostStackDataSet(gp,dp,0)
 {
 }
 
 
 SynthSeis::StratPropDataSet::StratPropDataSet( const GenParams& sgp,
-						SeisTrcBufDataPack& dp,
-						const PropertyRef& pr )
-    : PostStackDataSet( sgp, dp )
+					       SeisTrcBufDataPack& dp,
+					       const PropertyRef& pr )
+    : PostStackDataSet(sgp,dp,0)
     , prop_(pr)
 {
 }

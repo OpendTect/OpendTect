@@ -10,15 +10,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "synthseisgenparams.h"
 #include "datapack.h"
 #include "integerid.h"
-#include "reflectivitymodel.h"
+#include "synthseisgenerator.h"
+#include "synthseisgenparams.h"
 #include "timedepthmodel.h"
 
 class PropertyRef;
-class RayTracer1D;
-class RayTracerData;
 class SeisTrc;
 class SeisTrcBufDataPack;
 namespace ColTab { class MapperSetup; }
@@ -46,36 +44,6 @@ public:
 };
 
 
-
-mExpClass(Seis) RayModel
-{
-public:
-
-    typedef RefMan<ReflectivityModelSet>	RflMdlSetRef;
-    typedef ConstRefMan<ReflectivityModelSet>	ConstRflMdlSetRef;
-
-			RayModel(const RayTracer1D&,int nroffsets);
-			RayModel(const RayModel&);
-			~RayModel();
-
-    void		forceReflTimes(const StepInterval<float>&);
-    void		getTraces(ObjectSet<SeisTrc>&,bool steal);
-    void		getD2T(ObjectSet<TimeDepthModel>&,bool steal);
-    const TimeDepthModel& zeroOffsetD2T() const;
-    RflMdlSetRef	reflModels(bool sampled=false);
-    ConstRflMdlSetRef	reflModels(bool sampled=false) const;
-    SeisTrc*		stackedTrc() const;
-
-    ObjectSet<SeisTrc>	outtrcs_;
-    ObjectSet<TimeDepthModel> t2dmodels_;
-    TimeDepthModel*	zerooffsett2dmodel_;
-    RayTracerData*	raytracerdata_;
-    RflMdlSetRef	reflmodels_;
-    RflMdlSetRef	sampledreflmodels_;
-
-};
-
-
 /*! brief the basic synthetic dataset. contains the data cubes */
 
 mExpClass(Seis) DataSet : public ::RefCount::Referenced
@@ -85,10 +53,7 @@ public:
 
     typedef IntegerID<int>			MgrID;
     typedef SynthSeis::SyntheticType		SynthType;
-    typedef RefMan<ReflectivityModelSet>	RflMdlSetRef;
-    typedef ConstRefMan<ReflectivityModelSet>	ConstRflMdlSetRef;
     typedef TimeDepthModelSet			D2TModelSet;
-    typedef ObjectSet<RayModel>			RayModelSet;
     typedef TypeSet<float>			ZValueSet;
     typedef StepInterval<float>			OffsetDef;
     typedef TimeDepthModelSet::size_type	size_type;
@@ -97,6 +62,7 @@ public:
     MgrID		id() const		{ return id_; }
     SynthType		synthType() const	{ return genpars_.type_; }
     virtual bool	isPS() const		{ return true; }
+    virtual bool	hasRayModel() const	{ return raymodels_.ptr(); }
     bool		hasOffset() const;
     virtual OffsetDef	offsetDef() const	{ return OffsetDef(0.f,0.f); }
 
@@ -113,8 +79,7 @@ public:
     float		getTime(float dpt,int seqnr) const;
     float		getDepth(float time,int seqnr) const;
     const D2TModelSet&	d2TModels() const	{ return finald2tmodels_; }
-    ConstRflMdlSetRef	reflModels(int modelid,bool sampled) const;
-    const RayModelSet&	rayModels() const	{ return raymodels_; }
+    const RayModelSet&	rayModels() const	{ return *raymodels_.ptr(); }
 
     DataPackMgr::ID	dataPackMgrID() const	{ return dpMgrID(); }
     DataPack::FullID	dataPackID() const;
@@ -132,7 +97,7 @@ public:
 
 protected:
 
-			DataSet(const GenParams&,DataPack&);
+			DataSet(const GenParams&,DataPack&,RayModelSet*);
 			DataSet(const DataSet&)		= delete;
 			~DataSet();
     DataSet&		operator =(const DataSet&)	= delete;
@@ -141,9 +106,9 @@ protected:
     const GenParams	genpars_;
     DispPars		disppars_;
 
-    D2TModelSet		finald2tmodels_;
-    ObjectSet<RayModel>	raymodels_;
+    RefMan<RayModelSet> raymodels_;
     RefMan<DataPack>	datapack_;
+    D2TModelSet		finald2tmodels_;
 
     bool		validIdx( idx_type idx ) const
 			{ return finald2tmodels_.validIdx( idx ); }
@@ -153,13 +118,11 @@ protected:
     virtual const SeisTrc*	gtTrc(idx_type,float) const		= 0;
 
 public:
-
 			// just don't
-    void		setName(const char*);
+    virtual void	setName(const char*)			{}
 
-			// Use if you are a ray tracer
-    void		setRayModels(const RayModelSet&);
-    RayModelSet&	rayMdls()		{ return raymodels_; }
+			// Use if you are a RaySynthGenerator
+    RayModelSet&	rayMdls()		{ return *raymodels_.ptr(); }
     void		updateD2TModels();
 
 			// For models directly from RayModel
@@ -182,7 +145,7 @@ public:
 
     typedef SeisTrcBufDataPack	DPType;
 
-			PostStackDataSet(const GenParams&,DPType&);
+			PostStackDataSet(const GenParams&,DPType&,RayModelSet*);
 			~PostStackDataSet();
 
     virtual bool	isPS() const		{ return false; }
@@ -238,7 +201,7 @@ mExpClass(Seis) AngleStackDataSet : public PSBasedPostStackDataSet
 {
 public:
 
-			AngleStackDataSet(const GenParams& gp, DPType& dp )
+			AngleStackDataSet( const GenParams& gp, DPType& dp )
 			    : PSBasedPostStackDataSet(gp,dp) {}
 
 };

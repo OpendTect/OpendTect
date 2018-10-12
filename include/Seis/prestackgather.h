@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "datapackbase.h"
 #include "dbkey.h"
+#include "enums.h"
 #include "offsetazimuth.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -23,12 +24,18 @@ class SeisPSReader;
 class SeisTrc;
 class SeisTrcBuf;
 
+
 /*!\brief PreStack gather. */
 
 mExpClass(Seis) Gather : public FlatDataPack
 { mODTextTranslationClass(Gather)
 public:
 				mTypeDefArrNDTypes;
+
+    enum Type			{ Off, Ang };
+				mDeclareEnumUtils(Type)
+    enum Unit			{ Meter, Feet, Deg, Rad, None };
+				mDeclareEnumUtils(Unit)
 
 				Gather();
 				Gather(const FlatPosData&);
@@ -83,11 +90,15 @@ public:
     float			getAzimuth(int) const;
     OffsetAzimuth		getOffsetAzimuth(int) const;
 
-    bool			isOffsetAngle() const	{return offsetisangle_;}
+    Seis::DataType		ampType() const		{ return amptype_; }
+    Unit			ampUnit() const		{ return ampunit_; }
+    void			setAmpType(Seis::DataType,Unit=None);
+    bool			isOffsetAngle() const;
+    void			setIsOffsetAngle(bool yn,Unit=Deg);
+    Unit			getXAxisUnit() const	{ return xaxisunit_;}
     bool			isCorrected() const	{ return iscorr_; }
-    void			setCorrected(bool yn)	{ iscorr_ = yn; }
+    void			setCorrected( bool yn ) { iscorr_ = yn; }
     bool			zIsTime() const		{ return zit_; }
-
 
     const DBKey&		getVelocityID() const	{ return velocityid_; }
     const DBKey&		getStorageID() const    { return storageid_; }
@@ -136,7 +147,10 @@ protected:
     DBKey			velocityid_;
     DBKey			storageid_;
     DBKey			staticsid_;
-    bool			offsetisangle_;
+    Type			type_;
+    Seis::DataType		amptype_;
+    Unit			ampunit_;
+    Unit			xaxisunit_;
     bool			iscorr_;
 
     bool			zit_;

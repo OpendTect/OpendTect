@@ -46,25 +46,26 @@ public:
 
     static const char*		sKeyMuteDefID() { return "Mute Def"; }
 
-    od_int64			nrIterations() const;
-    bool			doPrepare(int);
-    bool			doWork(od_int64 start,od_int64 stop,int);
-    bool			doFinish(bool success);
-
-    uiString			message() const;
-    uiString			errMsg() const		{ return errmsg_; }
+    virtual uiString		message() const final	{ return msg_; }
 
     AngleMuteCompPars&		params();
     const AngleMuteCompPars&	params() const;
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const final;
+    virtual bool		usePar(const IOPar&) final;
 
 protected:
 
-    uiString			errmsg_;
+    virtual od_int64		nrIterations() const final;
+
     MuteDef&			outputmute_;
     Threads::Lock		lock_;
+
+private:
+
+    virtual bool		doPrepare(int) final;
+    virtual bool		doWork(od_int64,od_int64,int) final;
+    virtual bool		doFinish(bool) final;
 };
 
 } // namespace PreStack

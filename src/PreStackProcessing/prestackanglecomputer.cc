@@ -7,7 +7,6 @@
 
 #include "prestackanglecomputer.h"
 
-#include "arrayndimpl.h"
 #include "arrayndinfo.h"
 #include "arrayndalgo.h"
 #include "elasticmodel.h"
@@ -52,18 +51,20 @@ static const float maxtwttime = 100.0f;
 
 
 AngleComputer::AngleComputer()
-    : thresholdparam_(0.01)
-    , needsraytracing_(true)
-    , raytracer_(0)
-    , trckey_(TrcKey::std3DSurvID(),BinID(0,0))
-    , maxthickness_(25.f)
 {
 }
 
 
 AngleComputer::~AngleComputer()
 {
-    delete raytracer_;
+    delete elasticmodel_;
+}
+
+
+int AngleComputer::nrLayers() const
+{
+    return raytracedata_ ? raytracedata_->nrLayers()
+			 : ( elasticmodel_ ? elasticmodel_->size() : 0 );
 }
 
 
@@ -71,10 +72,15 @@ void AngleComputer::setOutputSampling( const FlatPosData& os )
 { outputsampling_  = os; }
 
 
-void AngleComputer::setRayTracer( const IOPar& raypar )
+void AngleComputer::gatherIsNMOCorrected( bool yn )
 {
-    uiString errormsg;
-    raytracer_ = RayTracer1D::createInstance( raypar, errormsg );
+    iscorrected_ = yn;
+}
+
+
+void AngleComputer::setRayTracerPars( const IOPar& raypar )
+{
+    raypar_ = raypar;
 }
 
 
@@ -138,11 +144,18 @@ void AngleComputer::setFFTSmoother( float freqf3, float freqf4 )
 }
 
 
+bool AngleComputer::isOK() const
+{
+    return nrLayers() > 0 &&
+	   raytracedata_ &&
+	   raytracedata_->nrOffset() == outputsampling_.nrPts( true );
+}
+
+
 void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 				   Array2D<float>& angledata )
 {
-    const RayTracer1D* rt = curRayTracer();
-    if ( !rt )
+    if ( !raytracedata_.ptr() )
 	return;
 
     float* arr1doutput = angledata.getData();
@@ -153,10 +166,9 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
     const int zsize = zrange.nrSteps() + 1;
     const int offsetsize = outputsampling_.nrPts( true );
 
-    TimeDepthModel td;
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
-	rt->getTDModel( ofsidx, td );
+	const TimeDepthModel& td = raytracedata_->getTDModel( ofsidx );
 	if ( !td.isOK() )
 	{
 	    arr1doutput = arr1doutput + zsize;
@@ -303,37 +315,38 @@ void AngleComputer::averageSmooth( Array2D<float>& angledata )
 }
 
 
-bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
+bool AngleComputer::fillAndInterpolateAngleData( Array2D<float>& angledata )
 {
-    const RayTracer1D* rt = curRayTracer();
-    if ( !rt ) return false;
+    if ( !raytracedata_.ptr() )
+	return false;
 
-    TypeSet<float> offsets;
-    outputsampling_.getPositions( true, offsets );
-
-    const int offsetsize = outputsampling_.nrPts( true );
-    const int zsize = outputsampling_.nrPts( false );
-    const StepInterval<double> outputzrg = outputsampling_.range( false );
-
-    const ElasticModel& curem = curElasticModel();
-    const int modelsz = curem.size();
-    mAllocVarLenArr( float, depths, modelsz );
-    mAllocVarLenArr( float, times, modelsz );
+    const int nrlayers = raytracedata_->nrLayers();
+    mAllocVarLenArr( float, depths, nrlayers );
+    mAllocVarLenArr( float, times, nrlayers );
     if ( !mIsVarLenArrOK(depths) || !mIsVarLenArrOK(times) ) return false;
-    TimeDepthModel td;
-    rt->getTDModel( 0, td );
-    float depth = 0.f;
-    for ( int layeridx=0; layeridx<modelsz; layeridx++ )
+    const bool zistime = SI().zIsTime();
+    if ( !zistime || iscorrected_ )
     {
-	depth += curem[layeridx].thickness_;
-	depths[layeridx] = depth;
-	times[layeridx] = td.getTime( depth );
+	const TimeDepthModel& tdmodel = raytracedata_->getZeroOffsTDModel();
+	for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
+	    depths[layeridx] = raytracedata_->getDepth( layeridx );
+
+	if ( iscorrected_ )
+	{
+	    for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
+		times[layeridx] = tdmodel.getTime( depths[layeridx] );
+	}
     }
 
-    const bool zistime = SI().zIsTime();
     const bool zinfeet	= SI().zInFeet();
+    TypeSet<float> offsets;
+    outputsampling_.getPositions( true, offsets );
+    const int offsetsize = raytracedata_->nrOffset();
+    const int zsize = outputsampling_.nrPts( false );
+    const StepInterval<double> outputzrg = outputsampling_.range( false );
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
+	const int offset = raytracedata_->getOffset( ofsidx );
 	PointBasedMathFunction sinanglevals(
 				    PointBasedMathFunction::Poly,
 				    PointBasedMathFunction::ExtraPolGradient ),
@@ -341,19 +354,22 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 				    PointBasedMathFunction::Linear,
 				    PointBasedMathFunction::ExtraPolGradient );
 
-	sinanglevals.add( 0.f, offsets[ofsidx] ? 1.f : 0.f );
-	anglevals.add( 0.f, offsets[ofsidx] ? M_PI_2f: 0.f );
+	sinanglevals.add( 0.f, offset ? 1.f : 0.f );
+	anglevals.add( 0.f, offset ? M_PI_2f: 0.f );
 
-	for ( int layeridx=0; layeridx<modelsz; layeridx++ )
+	for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
 	{
-	    float sinangle = rt->getSinAngle( layeridx, ofsidx );
+	    float sinangle = raytracedata_->getSinAngle( layeridx, ofsidx );
 	    if ( mIsUdf(sinangle) )
 		continue;
 
 	    if ( fabs(sinangle) > 1.0f )
 		sinangle = sinangle > 0.f ? 1.0f : -1.0f;
 
-	    const float zval = zistime ? times[layeridx] : depths[layeridx];
+	    const float zval = zistime
+		  ? (iscorrected_ ? times[layeridx]
+				  : raytracedata_->getTime(layeridx,ofsidx))
+		  : depths[layeridx];
 	    sinanglevals.add( zval, sinangle );
 	    anglevals.add( zval, Math::ASin(sinangle) );
 	}
@@ -376,35 +392,81 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 }
 
 
-RefMan<Gather> AngleComputer::computeAngleData()
+void AngleComputer::convertToDegrees( Array2D<float>& angles )
 {
-    RefMan<Gather> gather = new Gather( outputsampling_ );
-    Array2D<float>& angledata = gather->data();
+    ArrayMath::getScaled<float,float,float>( angles, 0, mRad2DegF, 0.f, false,
+					     false );
+}
 
-    if ( needsraytracing_ )
+
+bool AngleComputer::needsRaytracing() const
+{
+    if ( !raytracedata_ )
+	return true;
+
+    TypeSet<float> offsets;
+    outputsampling_.getPositions( true, offsets );
+    const int nroffsets = offsets.size();
+    if ( raytracedata_->nrOffset() != nroffsets )
+	return true;
+
+    for ( int ioff=0; ioff<nroffsets; ioff++ )
     {
-	if ( !raytracer_ )
-	{
-	    IOPar iopar;
-	    iopar.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
-	    uiString errormsg;
-	    raytracer_ = RayTracer1D::createInstance( iopar, errormsg );
-	    if ( !errormsg.isEmpty() )
-		return 0;
-	}
-
-	raytracer_->setup().doreflectivity( false );
-	TypeSet<float> offsets;
-	outputsampling_.getPositions( true, offsets );
-	raytracer_->setOffsets( offsets );
-	if ( !raytracer_->setModel(curElasticModel()) )
-	    return 0;
-
-	if ( !raytracer_->execute() )
-	    return 0;
+	if ( !mIsEqual(offsets[ioff],raytracedata_->getOffset(ioff),1e-1f) )
+	    return true;
     }
 
-    if ( !fillandInterpArray(angledata) )
+    return false;
+}
+
+
+bool AngleComputer::doRaytracing( uiString& msg )
+{
+    if ( !elasticmodel_ || elasticmodel_->size() < 2 )
+    {
+	msg = elasticmodel_ ? tr("Elastic model is too small.")
+		: tr("No elastic model provided for angle computer.");
+	return false;
+    }
+
+    if ( raypar_.isEmpty() )
+    {
+	raypar_.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
+	//TODO: last item of factory?
+    }
+
+    PtrMan<RayTracer1D> raytracer =
+			RayTracer1D::createInstance( raypar_, msg );
+    if ( !raytracer || !msg.isEmpty() )
+	return false; //TODO: raytracer factory message
+
+    raytracer->setup().doreflectivity( false );
+    TypeSet<float> offsets;
+    outputsampling_.getPositions( true, offsets );
+    raytracer->setOffsets( offsets );
+    if ( !raytracer->setModel(*elasticmodel_) || !raytracer->execute() )
+    {
+	msg = raytracer->message();
+	return false;
+    }
+
+    raytracedata_ = raytracer->results();
+    return raytracedata_;
+}
+
+
+RefMan<Gather> AngleComputer::computeAngles()
+{
+    uiString msg;
+    if ( needsRaytracing() && !doRaytracing(msg) )
+	return 0;
+
+    RefMan<Gather> gather = new Gather( outputsampling_ );
+    gather->setAmpType( Seis::IncidenceAngle,
+			outputindegrees_ ? Gather::Deg : Gather::Rad );
+    gather->setCorrected( iscorrected_ );
+    Array2D<float>& angledata = gather->data();
+    if ( !isOK() || !fillAndInterpolateAngleData(angledata) )
 	return 0;
 
     int smtype;
@@ -415,6 +477,9 @@ RefMan<Gather> AngleComputer::computeAngleData()
     else if ( smtype == FFTFilter )
 	fftSmooth( angledata );
 
+    if ( outputindegrees_ )
+	convertToDegrees( angledata );
+
     return gather;
 }
 
@@ -423,13 +488,28 @@ RefMan<Gather> AngleComputer::computeAngleData()
 // VelocityBasedAngleComputer
 VelocityBasedAngleComputer::VelocityBasedAngleComputer()
     : AngleComputer()
-    , velsource_( 0 )
+    , tk_(TrcKey::udf())
 {}
 
 
 VelocityBasedAngleComputer::~VelocityBasedAngleComputer()
 {
     if ( velsource_ ) velsource_->unRef();
+}
+
+
+bool VelocityBasedAngleComputer::isOK() const
+{
+    if ( !AngleComputer::isOK() )
+	return false;
+
+    return velsource_ && !tk_.isUdf();
+}
+
+
+void VelocityBasedAngleComputer::setTrcKey(const TrcKey& tk )
+{
+    tk_ = tk;
 }
 
 
@@ -447,14 +527,14 @@ bool VelocityBasedAngleComputer::setDBKey( const DBKey& dbky )
 
 RefMan<Gather> VelocityBasedAngleComputer::computeAngles()
 {
-    if ( trckey_.is2D() )
+    if ( tk_.is2D() )
 	{ pErrMsg( "Only 3D is supported at this time" ); return 0; }
 
     RefMan<Vel::FunctionSource> source = velsource_;
     if ( !source )
 	return 0;
 
-    ConstRefMan<Vel::Function> func = source->getFunction( trckey_.position() );
+    ConstRefMan<Vel::Function> func = source->getFunction( tk_.position() );
     if ( !func )
 	return 0;
 
@@ -475,22 +555,23 @@ RefMan<Gather> VelocityBasedAngleComputer::computeAngles()
     for( int idx=0; idx<zsize; idx++ )
 	velsrc[idx] = func->getVelocity( zrange.atIndex(idx) );
 
-    if ( !convertToVintIfNeeded(velsrc,veldesc,zrange,vel) ||
-	 !elasticmodel_.createFromVel(zrange,vel) )
+    if ( !convertToVintIfNeeded(velsrc,veldesc,zrange,vel) )
 	return 0;
 
-    elasticmodel_.setMaxThickness( maxthickness_ );
+    if ( !elasticmodel_ )
+	elasticmodel_ = new ElasticModel;
 
-    return computeAngleData();
+    if ( !elasticmodel_->createFromVel(zrange,vel) )
+	return 0;
+
+    elasticmodel_->setMaxThickness( maxthickness_ );
+
+    return AngleComputer::computeAngles();
 }
 
 
 
 // ModelBasedAngleComputer
-const ElasticModel&
-	ModelBasedAngleComputer::ModelTool::elasticModel() const
-{ return rt_ ? rt_->getModel() : *em_; }
-
 
 ModelBasedAngleComputer::ModelBasedAngleComputer()
     : AngleComputer()
@@ -498,61 +579,25 @@ ModelBasedAngleComputer::ModelBasedAngleComputer()
 }
 
 
-void ModelBasedAngleComputer::setElasticModel( const TrcKey& tk,
-					       bool block, bool pvelonly,
-					       ElasticModel& em	)
+void ModelBasedAngleComputer::setElasticModel( const ElasticModel& em,
+					       bool block, bool pvelonly )
 {
+    if ( elasticmodel_ )
+	*elasticmodel_ = em;
+    else
+	elasticmodel_ = new ElasticModel( em );
+
     if ( block )
     {
-	ElasticModel rawem;
-	em.block( thresholdparam_, pvelonly );
-	em.setMaxThickness( maxthickness_ );
+	elasticmodel_->block( thresholdparam_, pvelonly );
+	elasticmodel_->setMaxThickness( maxthickness_ );
     }
-
-    ModelTool* tool = new ModelTool( em, tk );
-    const int toolidx = tools_.indexOf( tool );
-    if ( toolidx<0 )
-	tools_ += tool;
-    else
-	delete tools_.replace( toolidx, tool );
 }
 
 
-void ModelBasedAngleComputer::setRayTracer( const RayTracer1D* rt,
-					    const TrcKey& tk )
+void ModelBasedAngleComputer::setRayTraceData( const RayTracerData& data )
 {
-    ModelTool* tool = new ModelTool( rt, tk );
-    const int toolidx = tools_.indexOf( tool );
-    if ( toolidx<0 )
-	tools_ += tool;
-    else
-	delete tools_.replace( toolidx, tool );
-    needsraytracing_ = false;
-}
-
-
-const ElasticModel& ModelBasedAngleComputer::curElasticModel() const
-{
-    for ( int idx=0; idx<tools_.size(); idx++ )
-	if ( tools_[idx]->trcKey() == trckey_ )
-	    return tools_[idx]->elasticModel();
-    return elasticmodel_;
-}
-
-
-const RayTracer1D* ModelBasedAngleComputer::curRayTracer() const
-{
-    if ( raytracer_ ) return raytracer_;
-    for ( int idx=0; idx<tools_.size(); idx++ )
-	if ( tools_[idx]->trcKey() == trckey_ )
-	    return tools_[idx]->rayTracer();
-    return 0;
-}
-
-
-RefMan<Gather> ModelBasedAngleComputer::computeAngles()
-{
-    return computeAngleData();
+    raytracedata_ = &data;
 }
 
 } // namespace PreStack

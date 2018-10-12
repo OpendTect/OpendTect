@@ -11,33 +11,19 @@ ________________________________________________________________________
 
 #include "stratsynthdatamgr.h"
 
-#include "attribengman.h"
-#include "attribdesc.h"
-#include "attribdescset.h"
-#include "attribparam.h"
-#include "attribprocessor.h"
-#include "attribfactory.h"
-#include "attribstorprovider.h"
-#include "binidvalset.h"
-#include "envvars.h"
-#include "fftfilter.h"
-#include "prestackattrib.h"
 #include "prestackanglecomputer.h"
+#include "prestackgather.h"
+#include "prestackprop.h"
 #include "prestacksynthdataset.h"
 #include "raytracerrunner.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
-#include "statruncalc.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
-#include "stratsynthlevel.h"
 #include "stratlevel.h"
-#include "synthseisdataset.h"
-#include "threadlock.h"
-#include "timeser.h"
-#include "unitofmeasure.h"
 #include "waveletmanager.h"
+
 
 typedef StratSynth::DataMgr::size_type size_type;
 typedef StratSynth::DataMgr::idx_type idx_type;
@@ -1209,24 +1195,22 @@ class PSAngleDataCreator : public ::Executor
 { mODTextTranslationClass(PSAngleDataCreator)
 public:
 
-PSAngleDataCreator( const SynthSeis::PreStackDataSet& pssd,
-		    const ObjectSet<RayTracer1D>& rts )
+PSAngleDataCreator( const SynthSeis::PreStackDataSet& pssd )
     : ::Executor("Angle Gather Creator" )
+    , angledpnm_(pssd.name(), " (Angle Gather)" )
     , gathers_(pssd.preStackPack().getGathers())
-    , rts_(rts)
+    , raymodels_(&pssd.rayModels())
     , nrdone_(0)
-    , pssd_(pssd)
     , anglecomputer_(new PreStack::ModelBasedAngleComputer)
 {
-    anglecomputer_->setFFTSmoother( 10.f, 15.f );
+    anglecomputer_->setFFTSmoother();
 }
 
 ~PSAngleDataCreator()
 {
-    delete anglecomputer_;
 }
 
-od_int64 totalNr() const	{ return rts_.size(); }
+od_int64 totalNr() const	{ return gathers_.size(); }
 od_int64 nrDone() const		{ return nrdone_; }
 uiString message() const	{ return tr("Calculating Angle Gathers"); }
 uiString nrDoneText() const	{ return tr("Models done"); }
@@ -1236,51 +1220,37 @@ ObjectSet<Gather>& angleGathers()
     return anglegathers_;
 }
 
-void convertAngleDataToDegrees( Gather* ag ) const
-{
-    Array2D<float>& agdata = ag->data();
-    const int dim0sz = agdata.getSize(0);
-    const int dim1sz = agdata.getSize(1);
-    for ( int idx=0; idx<dim0sz; idx++ )
-    {
-	for ( int idy=0; idy<dim1sz; idy++ )
-	{
-	    const float radval = agdata.get( idx, idy );
-	    if ( mIsUdf(radval) ) continue;
-	    const float dval =	Math::toDegrees( radval );
-	    agdata.set( idx, idy, dval );
-	}
-    }
-}
 
 int nextStep()
 {
     if ( !gathers_.validIdx(nrdone_) )
 	return Finished();
     const Gather* gather = gathers_[(int)nrdone_];
+    anglecomputer_->outputDegrees( true );
     anglecomputer_->setOutputSampling( gather->posData() );
-    const TrcKey trckey( gather->getBinID() );
-    anglecomputer_->setRayTracer( rts_[(int)nrdone_], trckey );
-    anglecomputer_->setTrcKey( trckey );
+    anglecomputer_->gatherIsNMOCorrected( gather->isCorrected() );
+    ConstRefMan<SynthSeis::RayModel> raymodel =
+				     raymodels_->get(mCast(int,nrdone_));
+    anglecomputer_->setRayTraceData( raymodel->rayTracerOutput() );
     RefMan<Gather> anglegather = anglecomputer_->computeAngles();
-    convertAngleDataToDegrees( anglegather );
+    if ( !anglegather )
+	return ErrorOccurred();
+
     TypeSet<float> azimuths;
     gather->getAzimuths( azimuths );
     anglegather->setAzimuths( azimuths );
-    const BufferString angledpnm( pssd_.name(), "(Angle Gather)" );
-    anglegather->setName( angledpnm );
+    anglegather->setName( angledpnm_ );
     anglegather->setBinID( gather->getBinID() );
     anglegathers_ += anglegather;
-    DPM(DataPackMgr::FlatID()).add( anglegather );
     nrdone_++;
     return MoreToDo();
 }
 
-    const ObjectSet<RayTracer1D>&	rts_;
+    BufferString			angledpnm_;
     const RefObjectSet<Gather>		gathers_;
-    const SynthSeis::PreStackDataSet&	pssd_;
+    ConstRefMan<SynthSeis::RayModelSet> raymodels_;
     RefObjectSet<Gather>		anglegathers_;
-    PreStack::ModelBasedAngleComputer*	anglecomputer_;
+    RefMan<PreStack::ModelBasedAngleComputer>	anglecomputer_;
     od_int64				nrdone_;
 
 };
@@ -1306,7 +1276,7 @@ StratSynth::DataMgr::genRaySynthDataSet( const GenParams& gp,
 					 const TRProv& trprov,
 					 lms_idx_type lmsidx ) const
 {
-    if ( gp.isPSPostProc() )
+    if ( gp.isStratProp() || gp.isPSPostProc() )
 	return 0;
 
     const DataSet* raymdlds = 0;
@@ -1314,76 +1284,60 @@ StratSynth::DataMgr::genRaySynthDataSet( const GenParams& gp,
     for ( int dsidx=0; dsidx<dss.size(); dsidx++ )
     {
 	const auto* ds = dss[dsidx];
-	if ( ds && !ds->isEmpty() && sameRayPars(gp.raypars_,ds->rayPars()) )
+	if ( ds && !ds->isEmpty() && !ds->genParams().isStratProp() &&
+	     !ds->genParams().isPSPostProc() &&
+	     sameRayPars(gp.raypars_,ds->rayPars()) )
 	    { raymdlds = ds; break; }
     }
 
     PtrMan<RaySynthGenerator> rsg;
     if ( raymdlds && !raymdlds->rayModels().isEmpty() )
-	rsg = new RaySynthGenerator( gp, raymdlds->rayModels() );
+    {
+	rsg = new RaySynthGenerator( *const_cast<DataSet*>( raymdlds ) );
+	// what purpose? New wavelet: OK. Otherwise?
+    }
     else
     {
 	const auto& elmdls = *elasticmodelsets_[ curLayerModelIdx() ];
-	rsg = new RaySynthGenerator( gp, elmdls );
-    }
-    rsg->setNrStep( calceach_ );
-
-    if ( !gp.isPSPostProc() )
-    {
-	rsg->setName( BufferString("Generate ",gp.name_) );
-	rsg->usePar( gp.raypars_ );
-	rsg->setWavelet( WaveletMGR().fetch(gp.wvltid_) );
-	rsg->enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
-	if ( !trprov.execute( *rsg ) )
+	RayTracerRunner raytracerunner( elmdls, gp.raypars_ );
+	if ( !trprov.execute(raytracerunner) )
 	    return 0;
+
+	const RefObjectSet<RayTracerData>& runnerres = raytracerunner.results();
+	RefMan<SynthSeis::RayModelSet> raymodels = new SynthSeis::RayModelSet;
+	for ( int imod=0; imod<runnerres.size(); imod++ )
+	{
+	    RefMan<SynthSeis::RayModel> raymodel =
+				new SynthSeis::RayModel(*runnerres.get(imod) );
+	    raymodels->add( raymodel.ptr() );
+	}
+
+	rsg = new RaySynthGenerator( gp, *raymodels.ptr() );
     }
 
-    DataSet* ds = rsg->dataSet();
-    if ( !ds || ds->dataPack().isEmpty() ) // not ds->isEmpty() but its datapack
-	ds = 0;
+    rsg->setNrStep( calceach_ );
+    rsg->setName( BufferString("Generate ",gp.name_) );
+    rsg->setWavelet( WaveletMGR().fetch(gp.wvltid_) );
+    if ( !trprov.execute(*rsg) || !rsg->isResultOK() )
+	return 0;
+
+    DataSet& ds = rsg->dataSet();
+    ds.ref();
+    if ( !gp.isPS() )
+	return &ds;
+
+    mDynamicCastGet( SynthSeis::PreStackDataSet*, psds, &ds )
+    mDynamicCastGet( const SynthSeis::PreStackDataSet*, raymdlpsds, raymdlds )
+    if ( raymdlpsds )
+	psds->setAngleData( raymdlpsds->angleData().getGathers() );
     else
     {
-	ds->ref();
-
-	if ( gp.isPS() )
-	{
-	    mDynamicCastGet( SynthSeis::PreStackDataSet*, psds, ds )
-	    mDynamicCastGet( const SynthSeis::PreStackDataSet*,
-				raymdlpsds, raymdlds )
-	    if ( raymdlpsds )
-		psds->setAngleData( raymdlpsds->angleData().getGathers() );
-	    else
-	    {
-		PSAngleDataCreator angledatacr( *psds, rsg->rayTracers() );
-		if ( trprov.execute(angledatacr) )
-		    psds->setAngleData( angledatacr.angleGathers() );
-	    }
-	}
+	PSAngleDataCreator angledatacr( *psds );
+	if ( trprov.execute(angledatacr) )
+	    psds->setAngleData( angledatacr.angleGathers() );
     }
 
-    return ds;
-}
-
-
-#define mSetBool( str, newval ) \
-{ \
-    mDynamicCastGet(Attrib::BoolParam*,param,psdesc->getValParam(str)) \
-    param->setValue( newval ); \
-}
-#define mSetEnum( str, newval ) \
-{ \
-    mDynamicCastGet(Attrib::EnumParam*,param,psdesc->getValParam(str)) \
-    param->setValue( newval ); \
-}
-#define mSetFloat( str, newval ) \
-{ \
-    Attrib::ValParam* param  = psdesc->getValParam( str ); \
-    param->setValue( newval ); \
-}
-#define mSetString( str, newval ) \
-{ \
-    Attrib::ValParam* param = psdesc->getValParam( str ); \
-    param->setValue( newval ); \
+    return &ds;
 }
 
 
@@ -1398,7 +1352,14 @@ StratSynth::DataMgr::genPSPostProcDataSet( const GenParams& gp,
     if ( gatherdp.isEmpty() )
 	return 0;
 
+    const GatherSetDataPack& angledp = psds.angleData();
+    const auto& gatherset = gatherdp.getGathers();
+    const auto& anglesset = angledp.getGathers();
+    if ( anglesset.size() != gatherset.size() )
+	return 0;
+
     PreStack::PropCalc::Setup calcsetup;
+    calcsetup.anglerg_.set( gp.anglerg_.start, gp.anglerg_.stop );
     if ( isanglestack )
     {
 	calcsetup.calctype_ = PreStack::PropCalc::Stats;
@@ -1407,58 +1368,42 @@ StratSynth::DataMgr::genPSPostProcDataSet( const GenParams& gp,
     else
     {
 	calcsetup.calctype_ = PreStack::PropCalc::LLSQ;
-	calcsetup.offsaxis_ = PreStack::PropCalc::Sinsq;
 	calcsetup.lsqtype_ = PreStack::PropCalc::Coeff;
     }
-    calcsetup.anglerg_ = gp.anglerg_;
-
-    //TODO
-    return 0;
-
-    /*
-    PreStack::ModelBasedAngleComputer anglecomputer;
-    anglecomputer.setRayTracer( gp.raypars_ );
-    anglecomputer.setFFTSmoother();
-    const auto& gatherset = gatherdp.getGathers();
-
-    const auto& gatherposdata = gatherset.first()->posData();
-    anglecomputer.setPosData( gatherposdata );
-    StepInterval<float> zrg;
-    zrg.assign( gatherposdata.range(false) );
-    const auto nrsamples = zrg.nrSteps() + 1;
 
     PreStack::PropCalc pspropcalc( calcsetup );
     auto* tbuf = new SeisTrcBuf( true );
     for ( int igath=0; igath<gatherset.size(); igath++ )
     {
-	anglecomputer.setTrcKey( amplgather->getTrcKey() );
-	RefMan<Gather> anglegather = anglecomputer.computeAngles();
-	if ( anglegather )
-	{
-	    pspropcalc.setGather( *amplgather );
-	    pspropcalc.setAngleData( *anglegather );
-	    auto* trc = new SeisTrc( nrsamples );
-	    auto& ti = trc->info();
-	    ti.sampling_.start = zrg.start;
-	    ti.sampling_.step = zrg.step;
-	    ti.trckey_ = amplgather->getTrcKey();
-	    for ( int isamp=0; isamp<nrsamples; isamp++ )
-		trc->set( isamp, pspropcalc.getVal(isamp), 0 );
-	    tbuf->add( trc );
-	}
+	const auto& amplgather = *gatherset.get(igath);
+	pspropcalc.setGather( amplgather );
+	pspropcalc.setAngleData( *anglesset.get(igath) );
+
+	const StepInterval<double> zrg( amplgather.posData().range(false) );
+	const auto nrsamples = zrg.nrSteps() + 1;
+	auto* trc = new SeisTrc( nrsamples );
+	auto& ti = trc->info();
+	ti.sampling_.start = mCast(float,zrg.start);
+	ti.sampling_.step = mCast(float,zrg.step);
+	ti.trckey_ = amplgather.getTrcKey();
+	for ( int isamp=0; isamp<nrsamples; isamp++ )
+	    trc->set( isamp, pspropcalc.getVal(isamp), 0 );
+	tbuf->add( trc );
     }
 
-    SeisTrcBufDataPack* angledp =
+    /*TODO: add wavelet reshaping: on stack for isanglestack,
+		on a copy of prestack input for AVO Gradient */
+
+    SeisTrcBufDataPack* retbuf =
 	new SeisTrcBufDataPack( tbuf, Seis::Line, SeisTrcInfo::TrcNr, gp.name_);
     DataSet* retds = 0;
     if ( isanglestack )
-	retds = new SynthSeis::AngleStackDataSet( gp, *angledp );
+	retds = new SynthSeis::AngleStackDataSet( gp, *retbuf );
     else
-	retds = new SynthSeis::AVOGradDataSet( gp, *angledp );
+	retds = new SynthSeis::AVOGradDataSet( gp, *retbuf );
     retds->ref();
 
     return retds;
-    */
 }
 
 

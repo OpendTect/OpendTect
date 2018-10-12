@@ -28,6 +28,7 @@ AngleMuteComputer::AngleMuteComputer()
     : outputmute_(*new MuteDef)
 {
     params_ = new AngleMuteCompPars();
+    msg_ = tr("Calculating mute");
 }
 
 
@@ -35,10 +36,6 @@ AngleMuteComputer::~AngleMuteComputer()
 {
     delete &outputmute_;
 }
-
-
-uiString AngleMuteComputer::message() const
-{ return tr("Calculating mute"); }
 
 
 void AngleMuteComputer::fillPar( IOPar& par ) const
@@ -57,53 +54,57 @@ bool AngleMuteComputer::usePar( const IOPar& par )
 
 bool AngleMuteComputer::doPrepare( int nrthreads )
 {
-    errmsg_.setEmpty();
-
-    deepErase( rtrunners_ );
-
     if ( !setVelocityFunction() )
 	return false;
 
     PtrMan<IOObj> muteioobj = DBM().get( params().outputmutemid_ );
     if ( !muteioobj )
     {
-	errmsg_ = tr("Cannot find MuteDef ID in Object Manager");
+	msg_ = tr("Cannot find MuteDef ID in Object Manager");
 	return false;
     }
 
-    MuteDefTranslator::store( outputmute_, muteioobj, errmsg_ );
+    MuteDefTranslator::store( outputmute_, muteioobj, msg_ );
+    if ( !msg_.isEmpty() )
+	return false;
 
     for ( int idx=0; idx<nrthreads; idx++ )
 	rtrunners_ += new RayTracerRunner( params().raypar_ );
 
-    return errmsg_.isEmpty();
+    return true;
 }
 
 
 bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 {
+    if ( !rtrunners_.validIdx(thread) )
+	return false;
+
     const TrcKeySampling& hrg = params().tks_;
     ObjectSet<PointBasedMathFunction> mutefuncs;
     TypeSet<BinID> bids;
 
-    RayTracerRunner* rtrunner = rtrunners_[thread];
+    RayTracerRunner& rtrunner = *rtrunners_[thread];
+    rtrunner.setParallel( false );
+    ElasticModelSet models; const int modelidx = 0;
+    models += new ElasticModel;
+    ElasticModel& layers = *models.get( modelidx );
+    rtrunner.setModel( models );
     BinID curbid;
     for ( od_int64 pidx=start; pidx<=stop && shouldContinue(); pidx++ )
     {
 	curbid = hrg.atIndex( pidx );
-	auto* layers = new ElasticModel;
 	SamplingData<float> sd;
-	if ( !getLayers( curbid, *layers, sd ) )
+	layers.setEmpty();
+	if ( !getLayers(curbid,layers,sd) )
 	    continue;
 
-	rtrunner->addModel( layers, true );
-
-	if ( !rtrunner->executeParallel( false ) )
-	    { errmsg_ = rtrunner->errMsg(); continue; }
+	if ( !rtrunner.execute() )
+	    { msg_ = rtrunner.errMsg(); continue; }
 
 	PointBasedMathFunction* mutefunc = new PointBasedMathFunction();
 
-	const int nrlayers = layers->size();
+	const int nrlayers = layers.size();
 	TypeSet<float> offsets;
 	params().raypar_.get( RayTracer1D::sKeyOffset(), offsets );
 	float zpos = 0;
@@ -111,9 +112,10 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	float lastvalidmutelayer = 0;
 	for ( int ioff=0; ioff<offsets.size(); ioff++ )
 	{
+	    ConstRefMan<RayTracerData> raytracedata =
+				       rtrunner.results().get(modelidx);
 	    const float mutelayer =
-		getOffsetMuteLayer( *rtrunner->rayTracers()[0],
-				    nrlayers, ioff, true );
+		getOffsetMuteLayer( *raytracedata.ptr(), nrlayers, ioff, true );
 	    if ( !mIsUdf( mutelayer ) )
 	    {
 		zpos = offsets[ioff] == 0 ? 0 : sd.start + sd.step*mutelayer;
@@ -128,16 +130,18 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	    for ( int idx=0; idx<(int)lastvalidmutelayer+1 ; idx++ )
 	    {
 		if ( idx < lastvalidmutelayer+1 )
-		    zdpt += layers->get(idx).thickness_;
+		    zdpt += layers.get(idx).thickness_;
 	    }
 	    float lastdepth = 0;
 	    for ( int idx=0; idx<nrlayers; idx++ )
-		lastdepth += layers->get(idx).thickness_;
+		lastdepth += layers.get(idx).thickness_;
 
 	    float thk = lastdepth - zdpt;
 	    const float lastzpos = sd.start + sd.step*(nrlayers-1);
+	    ConstRefMan<RayTracerData> raytracedata =
+					    rtrunner.results().get( modelidx );
 	    const float lastsinangle =
-		rtrunner->rayTracers()[0]->getSinAngle(nrlayers-1,lastioff);
+				raytracedata->getSinAngle(nrlayers-1,lastioff);
 
 	    const float cosangle = Math::Sqrt(1-lastsinangle*lastsinangle);
 	    if ( cosangle > 0 )
@@ -163,6 +167,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
 bool AngleMuteComputer::doFinish( bool sucess )
 {
+    deepErase( rtrunners_ );
     if ( !sucess )
 	return false;
 

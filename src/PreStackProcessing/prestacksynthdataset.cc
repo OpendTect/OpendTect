@@ -17,8 +17,9 @@ ________________________________________________________________________
 
 
 SynthSeis::PreStackDataSet::PreStackDataSet( const GenParams& gp,
-					     GatherSetDataPack& dp )
-    : DataSet(gp,dp)
+					     GatherSetDataPack& dp,
+					     RayModelSet& rms )
+    : DataSet(gp,dp,&rms)
     , angledp_(0)
 {
     trccache_.setNullAllowed( true );

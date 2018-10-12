@@ -23,6 +23,7 @@
 #include "seistrcprop.h"
 #include "survinfo.h"
 #include "survgeom.h"
+#include "uistrings.h"
 #include "unitofmeasure.h"
 #include "keystrs.h"
 
@@ -33,10 +34,49 @@ const char* Gather::sKeyZisTime()		{ return "Z Is Time"; }
 const char* Gather::sKeyPostStackDataID()	{ return "Post Stack Data"; }
 const char* Gather::sKeyStaticsID()		{ return "Statics"; }
 
+
+mDefineEnumUtils(Gather,Type,"Gather type")
+{
+    "Offset",
+    "Angle",
+    0
+};
+template<>
+void EnumDefImpl<Gather::Type>::init()
+{
+    uistrings_ += uiStrings::sOffset();
+    uistrings_ += uiStrings::sAngle();
+}
+
+
+mDefineEnumUtils(Gather,Unit,"unit")
+{
+    "in Meters",
+    "in Feet",
+    "in Degrees",
+    "in Radians",
+    "None",
+    0
+};
+template<>
+void EnumDefImpl<Gather::Unit>::init()
+{
+    uistrings_ += uiStrings::sMeter(false);
+    uistrings_ += uiStrings::sFeet(false);
+    uistrings_ += uiStrings::sDegree(mPlural);
+    uistrings_ += uiStrings::sRadian(mPlural);
+    uistrings_ += uiStrings::sNone();
+}
+
+
+
 Gather::Gather()
     : FlatDataPack( sDataPackCategory(), new Array2DImpl<float>(1,1) )
-    , offsetisangle_( false )
-    , iscorr_( false )
+    , type_(Off)
+    , amptype_(Seis::Ampl)
+    , ampunit_(None)
+    , xaxisunit_( SI().zIsTime() || !SI().xyInFeet() ? Meter : Feet )
+    , iscorr_( true )
     , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
 {
@@ -61,7 +101,10 @@ mImplMonitorableAssignment( Gather, FlatDataPack )
 
 void Gather::copyClassData( const Gather& oth )
 {
-    offsetisangle_ = oth.offsetisangle_;
+    type_ = oth.type_;
+    amptype_ = oth.amptype_;
+    ampunit_ = oth.ampunit_;
+    xaxisunit_ = oth.xaxisunit_;
     iscorr_ = oth.iscorr_;
     trckey_ = oth.trckey_;
     coord_ = oth.coord_;
@@ -76,7 +119,10 @@ void Gather::copyClassData( const Gather& oth )
 Monitorable::ChangeType Gather::compareClassData( const Gather& oth ) const
 {
     mDeliverYesNoMonitorableCompare(
-	offsetisangle_ == oth.offsetisangle_ &&
+	type_ == oth.type_ &&
+	amptype_ == oth.amptype_ &&
+	ampunit_ == oth.ampunit_ &&
+	xaxisunit_ == oth.xaxisunit_ &&
 	iscorr_ == oth.iscorr_ &&
 	trckey_ == oth.trckey_ &&
 	coord_ == oth.coord_ &&
@@ -92,8 +138,11 @@ Monitorable::ChangeType Gather::compareClassData( const Gather& oth ) const
 Gather::Gather( const FlatPosData& fposdata )
     : FlatDataPack( sDataPackCategory(),
         new Array2DImpl<float>(fposdata.nrPts(true),fposdata.nrPts(false)) )
-    , offsetisangle_( false )
-    , iscorr_( false )
+    , type_(Off)
+    , amptype_(Seis::Ampl)
+    , ampunit_(None)
+    , xaxisunit_( SI().zIsTime() || !SI().xyInFeet() ? Meter : Feet )
+    , iscorr_( true )
     , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
 {
@@ -193,10 +242,18 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
     staticsid_.setInvalid();
     ioobj.pars().get( sKeyStaticsID(), staticsid_ );
 
-    offsetisangle_ = false;
-    ioobj.pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
+    bool offsetisangle = false;
+    ioobj.pars().getYN(sKeyIsAngleGather(), offsetisangle );
+    type_ = offsetisangle ? Ang : Off;
+    //Set good defaults, but not from the database (yet)
+    if ( offsetisangle && (xaxisunit_ == Meter || xaxisunit_ == Feet) )
+	xaxisunit_ = Deg;
+    else if ( !offsetisangle && (xaxisunit_ == Deg || xaxisunit_ == Rad) )
+	xaxisunit_ = SI().zIsTime() || !SI().xyInFeet() ? Meter : Feet;
 
-    iscorr_ = false;
+    //TODO: get type_, amptype_, ampunit_, xaxisunit_ from database!
+
+    iscorr_ = true;
     if ( !ioobj.pars().getYN(sKeyIsCorr(), iscorr_ ) )
 	ioobj.pars().getYN( "Is NMO Corrected", iscorr_ );
 
@@ -346,6 +403,30 @@ OffsetAzimuth Gather::getOffsetAzimuth( int idx ) const
 }
 
 
+void Gather::setAmpType( Seis::DataType dtype, Unit unit )
+{
+    amptype_ = dtype;
+    ampunit_ = unit;
+}
+
+
+bool Gather::isOffsetAngle() const
+{
+    return type_ == Ang;
+}
+
+
+void Gather::setIsOffsetAngle( bool yn, Unit angleunit )
+{
+    const bool newtype = (type_ == Off && yn) || (type_ == Ang && !yn);
+    type_ = yn ? Ang : Off;
+    if ( yn )
+	xaxisunit_ = angleunit;
+    else if ( newtype )
+	xaxisunit_ = SI().zIsTime() || !SI().xyInFeet() ? Meter : Feet;
+}
+
+
 bool Gather::getVelocityID(const DBKey& stor, DBKey& vid )
 {
     PtrMan<IOObj> ioobj = DBM().get( stor );
@@ -400,8 +481,10 @@ void Gather::doDumpInfo( IOPar& iop ) const
 
     iop.set( "TrcKey", trckey_ );
     iop.set( "Z range", zrg_ );
-    iop.setYN( "Offset is angle", offsetisangle_ );
-    iop.setYN( "Is correlation", iscorr_ );
+    iop.setYN( "Gather Type", type_ );
+    iop.setYN( "Gather X-unit", xaxisunit_ );
+    iop.setYN( "Gather amplitude type", amptype_ );
+    iop.setYN( "Is NMO corrected", iscorr_ );
     iop.setYN( "Z is time", zit_ );
 }
 
@@ -414,10 +497,7 @@ GatherSetDataPack::GatherSetDataPack( const char* categry,
     , gathers_( gathers )
 {
     for ( int gidx=0; gidx<gathers_.size(); gidx++ )
-    {
-	DPM(DataPackMgr::FlatID()).add( gathers_[gidx] );
 	gathers_[gidx]->ref();
-    }
 }
 
 
@@ -474,7 +554,6 @@ const Gather* GatherSetDataPack::getGather( const BinID& bid ) const
 
 void GatherSetDataPack::addGather( Gather* gather )
 {
-    DPM(DataPackMgr::FlatID()).add( gather );
     gathers_ += gather;
 }
 

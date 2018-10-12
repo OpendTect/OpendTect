@@ -11,58 +11,59 @@ ________________________________________________________________________
 
 #include "raytracerrunner.h"
 
+#include "raytrace1d.h"
+
+
+
 RayTracerRunner::RayTracerRunner( const ElasticModelSet& elmdls,
 				  const IOPar& raypars )
-    : elasticmodels_(elmdls)
+    : TaskGroup()
     , raypar_(raypars)
+    , elasticmodels_(&elmdls)
 {
+    showCumulativeCount( true );
 }
 
 
 RayTracerRunner::RayTracerRunner( const IOPar& raypars )
-    : raypar_(raypars)
-{}
-
-
-RayTracerRunner::~RayTracerRunner()
-{ deepErase( raytracers_ );}
-
-
-od_int64 RayTracerRunner::nrIterations() const
+    : TaskGroup()
+    , raypar_(raypars)
+    , elasticmodels_(0)
 {
-    return totalnr_;
+    showCumulativeCount( true );
 }
 
 
-void RayTracerRunner::setOffsets( TypeSet<float> offsets )
+RayTracerRunner::~RayTracerRunner()
+{}
+
+
+void RayTracerRunner::setOffsets( const TypeSet<float>& offsets )
 {
     raypar_.set( RayTracer1D::sKeyOffset(), offsets );
 }
 
 
-void RayTracerRunner::addModel( ElasticModel* aim, bool dosingle )
+void RayTracerRunner::setModel( const ElasticModelSet& aim )
 {
-    if ( dosingle )
-	elasticmodels_.erase();
-
-    elasticmodels_ += aim;
+    elasticmodels_ = &aim;
 }
+
 
 #define mErrRet(msg) { errmsg_ = msg; return false; }
 
-bool RayTracerRunner::prepareRayTracers()
+bool RayTracerRunner::doPrepare()
 {
-    deepErase( raytracers_ );
-
-    if ( elasticmodels_.isEmpty() )
-	mErrRet( toUiString("No AI model set") );
+    raytracers_.setEmpty();
+    results_.setEmpty();
+    if ( !elasticmodels_ || elasticmodels_->isEmpty() )
+	mErrRet( tr("No AI model set") );
 
     if ( RayTracer1D::factory().isEmpty() )
 	return false;
 
-    totalnr_ = 0;
     uiString errmsg;
-    for ( int idx=0; idx<elasticmodels_.size(); idx++ )
+    for ( int idx=0; idx<elasticmodels_->size(); idx++ )
     {
 	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, errmsg );
 	if ( !rt1d )
@@ -72,18 +73,18 @@ bool RayTracerRunner::prepareRayTracers()
 	}
 
 	rt1d->usePar( raypar_ );
+	rt1d->doParallel( parallel_ );
 
-	if ( !rt1d->setModel(*elasticmodels_[idx]) )
+	if ( !rt1d->setModel(*elasticmodels_->get(idx)) )
 	{
 	    errmsg = tr("Wrong input for raytracing on model %1").arg( idx+1 );
 	    errmsg.appendPhrase( rt1d->errMsg() );
 
-	    deepErase( raytracers_ );
 	    delete rt1d;
 	    mErrRet( errmsg );
 	}
 
-	totalnr_ += rt1d->totalNr();
+	addTask( rt1d );
 	raytracers_ += rt1d;
     }
 
@@ -91,57 +92,26 @@ bool RayTracerRunner::prepareRayTracers()
 }
 
 
-od_int64 RayTracerRunner::nrDone() const
+bool RayTracerRunner::execute()
 {
-    od_int64 nrdone = 0;
-    for ( int modelidx=0; modelidx<raytracers_.size(); modelidx++ )
-	nrdone += raytracers_[modelidx]->nrDone();
-    return nrdone;
+    setEmpty();
+
+    return doPrepare() && doFinish( TaskGroup::execute() );
 }
 
 
-int RayTracerRunner::modelIdx( od_int64 idx, bool& startlayer ) const
+bool RayTracerRunner::doFinish( bool success )
 {
-    od_int64 stopidx = -1;
-    startlayer = false;
-    for ( int modelidx=0; modelidx<raytracers_.size(); modelidx++ )
+    if ( success )
     {
-	if ( idx == (stopidx + 1) )
-	    startlayer = true;
-
-	stopidx += raytracers_[modelidx]->totalNr();
-	if ( stopidx>=idx )
-	    return modelidx;
+	for ( int idx=0; idx<raytracers_.size(); idx++ )
+	{
+	    ConstRefMan<RayTracerData> res = raytracers_[idx]->results();
+	    results_ += const_cast<RayTracerData*>( res.ptr() );
+	}
     }
 
-    return -1;
-}
+    raytracers_.setEmpty();
 
-
-bool RayTracerRunner::executeParallel( bool parallel )
-{
-    if ( !prepareRayTracers() )
-	return false;
-    return ParallelTask::executeParallel( parallel );
-}
-
-
-bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int thread )
-{
-    bool startlayer = false;
-    int startmdlidx = modelIdx( start, startlayer );
-    if ( !startlayer ) startmdlidx++;
-    const int stopmdlidx = modelIdx( stop, startlayer );
-    for ( int idx=startmdlidx; idx<=stopmdlidx; idx++ )
-    {
-	const ElasticModel& aim = *elasticmodels_[idx];
-	if ( aim.isEmpty() )
-	    continue;
-
-	RayTracer1D* rt1d = raytracers_[idx];
-	const bool parallel = maxNrThreads() > 1;
-	if ( !rt1d->executeParallel( parallel ) )
-	    mErrRet( rt1d->errMsg() );
-    }
-    return true;
+    return success;
 }

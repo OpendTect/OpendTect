@@ -21,6 +21,375 @@ ________________________________________________________________________
 #include "velocitycalc.h"
 #include "zoeppritzcoeff.h"
 
+
+
+RayTracerData::RayTracerData( const ElasticModel& layers,
+			      const TypeSet<float>& offsets )
+    : offsets_(offsets)
+    , zerooffstwt_(*new Array1DImpl<float>(0))
+    , twt_(*new Array2DImpl<float>(0,0))
+    , sini_(*new Array2DImpl<float>(0,0))
+{
+    init( layers );
+}
+
+
+RayTracerData::RayTracerData( const RayTracerData& oth )
+    : zerooffstwt_(*new Array1DImpl<float>(0))
+    , twt_(*new Array2DImpl<float>(0,0))
+    , sini_(*new Array2DImpl<float>(0,0))
+{
+    *this = oth;
+}
+
+
+RayTracerData::~RayTracerData()
+{
+    delete &zerooffstwt_;
+    delete &twt_;
+    delete &sini_;
+    delete reflectivity_;
+    delete zerooffsett2dmodel_;
+}
+
+
+RayTracerData& RayTracerData::operator=( const RayTracerData& oth )
+{
+    if ( this == &oth )
+	return *this;
+
+    const_cast<TypeSet<float>& >( depths_ ) = oth.depths_;
+    const_cast<TypeSet<float>& >( offsets_ ) = oth.offsets_;
+    zerooffstwt_ = oth.zerooffstwt_;
+    twt_ = oth.twt_;
+    sini_ = oth.sini_;
+
+    if ( !oth.reflectivity_ )
+	deleteAndZeroPtr( reflectivity_ );
+    else
+    {
+	if ( reflectivity_ )
+	    *reflectivity_ = *oth.reflectivity_;
+	else
+	    reflectivity_ = new Array2DImpl<float_complex>( *oth.reflectivity_);
+    }
+
+    if ( !oth.zerooffsett2dmodel_ )
+	deleteAndZeroPtr( zerooffsett2dmodel_ );
+    else
+    {
+	if ( zerooffsett2dmodel_ )
+	    *zerooffsett2dmodel_ = *oth.zerooffsett2dmodel_;
+	else
+	    zerooffsett2dmodel_ = new TimeDepthModel( *oth.zerooffsett2dmodel_);
+    }
+
+    t2dmodels_.setEmpty();
+    for ( int idx=0; idx<oth.t2dmodels_.size(); idx++ )
+	t2dmodels_.add( new TimeDepthModel(*oth.t2dmodels_.get(idx) ) );
+
+    reflmodels_.setEmpty();
+    for ( int idx=0; idx<oth.reflmodels_.size(); idx++ )
+	reflmodels_.add( new ReflectivityModel(*oth.reflmodels_.get(idx) ) );
+
+    return *this;
+}
+
+
+void RayTracerData::init( const ElasticModel& layers )
+{
+    const int nrlayers = layers.size();
+    TypeSet<float>& depths = const_cast<TypeSet<float>& >( depths_ );
+    if ( !depths.setSize(nrlayers,0.f) )
+	return;
+
+    const bool zinfeet = SI().zInFeet();
+    for ( int idx=0; idx<nrlayers; idx++ )
+    {
+	double thickness = layers[idx].thickness_;
+	if ( zinfeet ) thickness *= mToFeetFactorD;
+	depths[idx] = idx ? depths[idx-1] + thickness : thickness;
+    }
+
+    const int nroffs = nrOffset();
+    const Array1DInfoImpl layersz( nrlayers );
+    const Array2DInfoImpl modelsz( nrlayers, nroffs );
+    if ( (sini_.info() != modelsz && !sini_.setInfo(modelsz) ) ||
+	 (twt_.info() != modelsz && !twt_.setInfo(modelsz) ) ||
+	 (zerooffstwt_.info() != layersz && !zerooffstwt_.setInfo(layersz) ) )
+	return;
+
+    zerooffstwt_.setAll( mUdf(float) );
+    twt_.setAll( mUdf(float) );
+    sini_.setAll( 0.f );
+}
+
+
+bool RayTracerData::isOK() const
+{
+    if ( depths_.isEmpty() || offsets_.isEmpty() )
+	return false;
+
+    const int nrlayers = depths_.size();
+    const int nroffsets = nrOffset();
+
+    const Array2DInfoImpl modelsz( nrlayers, nroffsets );
+    if ( twt_.info() != modelsz || sini_.info() != modelsz ||
+	 !twt_.isOK() || !sini_.isOK() ||
+	 zerooffstwt_.getSize(0) != nrlayers || !zerooffstwt_.isOK() )
+	return false;
+
+    if ( reflectivity_ )
+    {
+	const Array2DInfoImpl reflsz( nrlayers-1, nroffsets );
+	if ( reflectivity_->info() != reflsz || !reflectivity_->isOK() )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool RayTracerData::isFinalised() const
+{
+    if ( !isOK() )
+	return false;
+
+    const int nroffsets = nrOffset();
+    return zerooffsett2dmodel_ && t2dmodels_.size() == nroffsets &&
+	   (hasReflectivity() && reflmodels_.size() == nroffsets);
+}
+
+
+bool RayTracerData::setWithReflectivity( bool yn )
+{
+    const int nrinterfaces = nrLayers()-1;
+    const int nroffs = nrOffset();
+    if ( !yn || nrinterfaces <= 0 || nroffs <= 0 )
+    {
+	deleteAndZeroPtr( reflectivity_ );
+	return true;
+    }
+
+    const Array2DInfoImpl reflsz( nrinterfaces, nroffs );
+    if ( reflectivity_ && !reflectivity_->setInfo(reflsz) )
+    {
+	deleteAndZeroPtr( reflectivity_ );
+	return false;
+    }
+    else
+    {
+	reflectivity_ = new Array2DImpl<float_complex>( reflsz );
+	if ( !reflectivity_ || !reflectivity_->isOK() )
+	    { deleteAndZeroPtr( reflectivity_ ); return false; }
+    }
+
+    reflectivity_->setAll( mUdf( float_complex ) );
+
+    return true;
+}
+
+
+bool RayTracerData::validDepthIdx( int depth ) const
+{
+    return depths_.validIdx( depth );
+}
+
+
+bool RayTracerData::validOffsetIdx( int offset ) const
+{
+    return offsets_.validIdx( offset );
+}
+
+
+bool RayTracerData::hasZeroOffsetOnly() const
+{
+    return nrOffset() == 1 &&  mIsZero(offsets_[0],mDefEpsF);
+}
+
+
+float RayTracerData::getOffset( int offset ) const
+{
+#ifdef __debug__
+    if ( !validOffsetIdx(offset) )
+	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
+#endif
+    return offsets_[offset];
+}
+
+
+float RayTracerData::getDepth( int layer ) const
+{
+#ifdef __debug__
+    if ( !validDepthIdx(layer) )
+	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
+#endif
+    return depths_[layer];
+}
+
+
+float RayTracerData::getTnmo( int layer ) const
+{ return zerooffstwt_.get( layer ); }
+
+float RayTracerData::getTime( int layer,int offset ) const
+{ return twt_.get( layer, offset ); }
+
+float RayTracerData::getSinAngle( int layer, int offset ) const
+{ return sini_.get( layer, offset ); }
+
+
+float_complex RayTracerData::getReflectivity( int layer,int offset ) const
+{
+    return reflectivity_ ? reflectivity_->get( layer, offset )
+			 : mUdf( float_complex );
+}
+
+
+const TimeDepthModel& RayTracerData::getZeroOffsTDModel() const
+{
+    return *zerooffsett2dmodel_;
+}
+
+
+const TimeDepthModel& RayTracerData::getTDModel( int offset ) const
+{
+    return *t2dmodels_.get( offset );;
+}
+
+
+const ReflectivityModel& RayTracerData::getReflectivity( int offset ) const
+{
+    return *reflmodels_.get( offset );
+}
+
+
+bool RayTracerData::finalise()
+{
+    if ( !zerooffsett2dmodel_ )
+	zerooffsett2dmodel_ = new TimeDepthModel;
+
+    if ( !getZeroOffsTDModel(*zerooffsett2dmodel_) )
+	return false;
+
+    const int nroffsets = nrOffset();
+    if ( !t2dmodels_.isEmpty() ) t2dmodels_.setEmpty();
+    for ( int idx=0; idx<nroffsets; idx++ )
+    {
+	TimeDepthModel* td2model = new TimeDepthModel;
+	if ( !getTDModel(idx,*td2model) )
+	    { t2dmodels_.setEmpty(); return false; }
+
+	t2dmodels_.add( td2model );
+    }
+
+    if ( !hasReflectivity() )
+	return true;
+
+    if ( !reflmodels_.isEmpty() ) reflmodels_.setEmpty();
+    for ( int idx=0; idx<nroffsets; idx++ )
+    {
+	ReflectivityModel* refmodel = new ReflectivityModel;
+	if ( !getReflectivity(idx,*refmodel) )
+	    { reflmodels_.setEmpty(); return false; }
+
+	reflmodels_.add( refmodel );
+    }
+
+    return true;
+}
+
+
+bool RayTracerData::getZeroOffsTDModel( TimeDepthModel& d2tm ) const
+{
+    return getTDM( zerooffstwt_, d2tm );
+}
+
+
+bool RayTracerData::getTDModel( int offset, TimeDepthModel& d2tm ) const
+{
+    if ( twt_.isEmpty() || !validOffsetIdx(offset) )
+	return false;
+
+    if ( offset == 0 && hasZeroOffsetOnly() )
+	return getZeroOffsTDModel( d2tm );
+
+    Array1DSlice<float> offstwt( twt_ );
+    offstwt.setDimMap( 0, 0 );
+    offstwt.setPos( 1, offset );
+    if ( !offstwt.init() )
+	return false;
+
+    return getTDM( offstwt, d2tm );
+}
+
+
+bool RayTracerData::getTDM( const Array1D<float>& twt,
+			    TimeDepthModel& d2tm ) const
+{
+    const int layersize = nrLayers();
+
+    TypeSet<double> times, depths;
+    depths += 0.;
+    times += 0.;
+    for ( int lidx=0; lidx<layersize; lidx++ )
+    {
+	double time = twt.get( lidx );
+	if ( mIsUdf(time) ) time = times[times.size()-1];
+	if ( time < times[times.size()-1] )
+	    continue;
+
+	depths += depths_[lidx];
+	times += time;
+    }
+
+    return d2tm.setModel( depths.arr(), times.arr(), times.size() ).isOK();
+}
+
+
+bool RayTracerData::getReflectivity( int offset, ReflectivityModel& model) const
+{
+    if ( !reflectivity_ || !validOffsetIdx(offset) )
+	return false;
+
+    const int nrinterfaces = reflectivity_->getSize(0);
+    if ( model.size() < nrinterfaces && !model.setCapacity(nrinterfaces,false) )
+	return false;
+
+    ReflectivitySpike spike;
+    for ( int iidx=0; iidx<nrinterfaces; iidx++ )
+    {
+	spike.reflectivity_ = getReflectivity( iidx, offset );
+	spike.depth_ = getDepth( iidx );
+	spike.correctedtime_ = getTnmo( iidx );
+	spike.time_ = getTime( iidx, offset );
+	if ( !spike.isDefined() )
+	    continue;
+
+	model += spike;
+    }
+
+    return true;
+}
+
+
+void RayTracerData::setTnmo( int layer, float tnmo )
+{ zerooffstwt_.set( layer, tnmo ); }
+
+void RayTracerData::setTWT( int layer, int offset, float twt )
+{ twt_.set( layer, offset, twt ); }
+
+
+void RayTracerData::setSinAngle( int layer, int offset, float sini )
+{ sini_.set( layer, offset, sini ); }
+
+void RayTracerData::setReflectivity( int layer, int offset, float_complex ref )
+{
+    if ( reflectivity_ )
+	reflectivity_->set( layer, offset, ref );
+}
+
+
+
 mImplClassFactory(RayTracer1D,factory)
 
 
@@ -46,15 +415,12 @@ void RayTracer1D::Setup::fillPar( IOPar& par ) const
 
 
 RayTracer1D::RayTracer1D()
-    : sini_( 0 )
-    , twt_(0)
-    , zerooffstwt_(0)
-    , reflectivity_( 0 )
+    : ParallelTask("RayTracer1D")
 {}
 
 
 RayTracer1D::~RayTracer1D()
-{ delete sini_; delete twt_; delete zerooffstwt_; delete reflectivity_; }
+{}
 
 
 RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
@@ -137,31 +503,16 @@ void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
 }
 
 
-bool RayTracer1D::isPSWithoutZeroOffset() const
-{
-    return offsets_.size()>1 && !mIsZero(offsets_[0],mDefEps);
-}
-
-
 void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
 {
     offsets_ = offsets;
     sort( offsets_ );
     if ( SI().zInFeet() )
     {
-	for ( int idx=0; idx<offsets_.size(); idx++ )
+	const int offsetsz = offsets_.size();
+	for ( int idx=0; idx<offsetsz; idx++ )
 	    offsets_[idx] *= mToFeetFactorF;
     }
-
-    const int offsetsz = offsets_.size();
-    TypeSet<int> offsetidx( offsetsz, 0 );
-    for ( int idx=0; idx<offsetsz; idx++ )
-	offsetidx[idx] = idx;
-
-    sort_coupled( offsets_.arr(), offsetidx.arr(), offsetsz );
-    offsetpermutation_.erase();
-    for ( int idx=0; idx<offsetsz; idx++ )
-	offsetpermutation_ += offsetidx.indexOf( idx );
 }
 
 
@@ -207,63 +558,28 @@ od_int64 RayTracer1D::nrIterations() const
 { return model_.size(); }
 
 
-bool RayTracer1D::doPrepare( int nrthreads )
+bool RayTracer1D::doPrepare( int )
 {
     const int layersize = mCast( int, nrIterations() );
-    depths_.setSize( layersize, 0. );
-    velmax_.setSize( layersize, 0.f );
-    const bool zinfeet = SI().zInFeet();
+    if ( !velmax_.setSize(layersize,0.f) )
+    {
+	errmsg_ = uiStrings::phrCannotAllocateMemory( layersize );
+	return false;
+    }
+
     for ( int idx=0; idx<layersize; idx++ )
-    {
-	double thickness = model_[idx].thickness_;
-	if ( zinfeet ) thickness *= mToFeetFactorD;
-	depths_[idx] = idx ? depths_[idx-1] + thickness : thickness;
 	velmax_[idx] = model_[idx].vel_;
-    }
+    //Initial value only, may change
 
-    const int offsetsz = offsets_.size();
-    if ( !sini_ )
-	sini_ = new Array2DImpl<float>( layersize, offsetsz );
-    else
-	sini_->setSize( layersize, offsetsz );
-    sini_->setAll( 0 );
+    result_ = new RayTracerData( model_, offsets_ );
+    if ( result_ )
+	result_->setWithReflectivity( setup().doreflectivity_ );
 
-    if ( !twt_ )
-	twt_ = new Array2DImpl<float>( layersize, offsetsz );
-    else
-	twt_->setSize( layersize, offsetsz );
-    twt_->setAll( mUdf(float) );
-    if ( isPSWithoutZeroOffset() )
+    if ( !result_ || !result_->isOK() )
     {
-	zerooffstwt_ = new Array1DImpl<float>( layersize );
-	zerooffstwt_->setAll( mUdf(float) );
-    }
-    else
-    {
-	Array1DSlice<float>* zerooffstwtslice = new Array1DSlice<float>( *twt_);
-	zerooffstwtslice->setDimMap( 0, 0 );
-	zerooffstwtslice->setPos( 1, 0 );
-	zerooffstwtslice->init();
-	zerooffstwt_ = zerooffstwtslice;
-    }
-
-    if ( setup().doreflectivity_ )
-    {
-	if ( reflectivity_ && reflectivity_->isEmpty() )
-	    { delete reflectivity_; reflectivity_ = 0; }
-
-	const int dim0sz = layersize-1;
-	if ( dim0sz < 1 || offsetsz < 1 )
-	    { delete reflectivity_; reflectivity_ = 0; }
-	else
-	{
-	    if ( !reflectivity_ )
-		reflectivity_ =new Array2DImpl<float_complex>(dim0sz,offsetsz);
-	    else
-		reflectivity_->setSize( dim0sz, offsetsz );
-
-	    reflectivity_->setAll( mUdf( float_complex ) );
-	}
+	result_ = 0;
+	errmsg_ = uiStrings::phrCannotAllocateMemory();
+	return false;
     }
 
     setZeroOffsetTWT();
@@ -271,9 +587,20 @@ bool RayTracer1D::doPrepare( int nrthreads )
 }
 
 
+bool RayTracer1D::doFinish( bool success )
+{
+    if ( success )
+	return result_->finalise();
+
+    result_ = 0;
+
+    return false;
+}
+
+
 void RayTracer1D::setZeroOffsetTWT()
 {
-    const int layersize = mCast( int, nrIterations() );
+    const int layersize = result_->nrLayers();
     float dnmotime, dvrmssum, unmotime, uvrmssum;
     float prevdnmotime, prevdvrmssum, prevunmotime, prevuvrmssum;
     prevdnmotime = prevdvrmssum = prevunmotime = prevuvrmssum = 0;
@@ -303,7 +630,7 @@ void RayTracer1D::setZeroOffsetTWT()
 	const float vrmssum = dvrmssum + uvrmssum;
 	const float twt = unmotime + dnmotime;
 	velmax_[lidx] = Math::Sqrt( vrmssum / twt );
-	zerooffstwt_->set( lidx, twt );
+	result_->setTnmo( lidx, twt );
     }
 }
 
@@ -312,15 +639,15 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
     const ElasticLayer& ellayer = model_[layer];
     const float downvel = setup().pdown_ ? ellayer.vel_ : ellayer.svel_;
-
     const float sini = downvel * rayparam;
-    sini_->set( layer, offsetidx, sini );
 
-    if ( !reflectivity_ || layer>=model_.size()-1 )
+    result_->setSinAngle( layer, offsetidx, sini );
+
+    if ( !result_->hasReflectivity() || layer>=model_.size()-1 )
 	return true;
 
-    const float off = offsets_[offsetidx];
-    float_complex reflectivity = 0;
+    const float off = result_->getOffset( offsetidx );
+    float_complex reflectivityval = 0;
     const int nrinterfaces = layer+1;
 
     if ( !mIsZero(off,mDefEps) )
@@ -328,7 +655,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	if ( rayparam*model_[layer].vel_ > 1 ||   // critical angle reached
 	     rayparam*model_[layer+1].vel_ > 1 )  // no reflection
 	{
-	    reflectivity_->set( layer, offsetidx, reflectivity );
+	    result_->setReflectivity( layer, offsetidx, reflectivityval );
 	    return true;
 	}
 
@@ -336,25 +663,25 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
         for ( int iidx=0; iidx<nrinterfaces; iidx++ )
 	    coefs[iidx].setInterface( rayparam, model_[iidx], model_[iidx+1] );
 
-	reflectivity = coefs[0].getCoeff( true, layer!=0, setup().pdown_,
+	reflectivityval = coefs[0].getCoeff( true, layer!=0, setup().pdown_,
 				     layer==0 ? setup().pup_ : setup().pdown_ );
 
 	if ( layer == 0 )
 	{
-	    reflectivity_->set( layer, offsetidx, reflectivity );
+	    result_->setReflectivity( layer, offsetidx, reflectivityval );
 	    return true;
 	}
 
 	for ( int iidx=1; iidx<nrinterfaces; iidx++ )
 	{
-	    reflectivity *= coefs[iidx].getCoeff( true, iidx!=layer,
+	    reflectivityval *= coefs[iidx].getCoeff( true, iidx!=layer,
 						 setup().pdown_, iidx==layer ?
 						 setup().pup_ : setup().pdown_);
 	}
 
 	for ( int iidx=nrinterfaces-2; iidx>=0; iidx--)
 	{
-	    reflectivity *= coefs[iidx].getCoeff( false, false, setup().pup_,
+	    reflectivityval *= coefs[iidx].getCoeff( false, false, setup().pup_,
 								setup().pup_);
 	}
     }
@@ -367,122 +694,28 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	const float real =
 	   mIsZero(ai1,mDefEpsF) && mIsZero(ai0,mDefEpsF) ? mUdf(float)
 						          : (ai1-ai0)/(ai1+ai0);
-	reflectivity = float_complex( real, 0 );
+	reflectivityval = float_complex( real, 0 );
     }
 
-    reflectivity_->set( layer, offsetidx, reflectivity );
+    result_->setReflectivity( layer, offsetidx, reflectivityval );
 
     return true;
 }
 
 
-float RayTracer1D::getSinAngle( int layer, int offset ) const
+
+bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int )
 {
-    if ( !offsetpermutation_.validIdx( offset ) )
-	return mUdf(float);
+    const int offsz = result_->nrOffset();
 
-    const int offsetidx = offsetpermutation_[offset];
-
-    if ( !sini_ || layer<0 || layer>=sini_->getSize(0) ||
-	 offsetidx<0 || offsetidx>=sini_->getSize(1) )
-	return mUdf(float);
-
-    return sini_->get( layer, offsetidx );
-}
-
-
-
-bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
-{
-    if ( !reflectivity_ || !offsetpermutation_.validIdx( offset ) )
-	return false;
-
-    const int offsetidx = offsetpermutation_[offset];
-
-    if ( offsetidx<0 || offsetidx>=reflectivity_->getSize(1) )
-	return false;
-
-    const int nrinterfaces = reflectivity_->getSize(0);
-
-    model.erase();
-    model.setCapacity( nrinterfaces, false );
-    ReflectivitySpike spike;
-
-    for ( int iidx=0; iidx<nrinterfaces; iidx++ )
+    for ( int layer=mCast(int,start); layer<=stop; layer++, addToNrDone(1) )
     {
-	spike.reflectivity_ = reflectivity_->get( iidx, offsetidx );
-	spike.depth_ = mCast(float,depths_[iidx]);
-	spike.time_ = twt_->get( iidx, offsetidx );
-	spike.correctedtime_ = zerooffstwt_->get( iidx );
-	if ( !spike.isDefined()	)
-	    continue;
-
-	model += spike;
-    }
-    return true;
-}
-
-
-bool RayTracer1D::getZeroOffsTDModel( TimeDepthModel& d2tm ) const
-{
-    return getTDM( *zerooffstwt_, d2tm );
-}
-
-
-bool RayTracer1D::getTDModel( int offset, TimeDepthModel& d2tm ) const
-{
-    if ( !offsetpermutation_.validIdx( offset ) )
-	return false;
-
-    const int offsetidx = offsetpermutation_[offset];
-
-    if ( !twt_ || offsetidx<0 || offsetidx>=twt_->getSize(1) )
-	return false;
-    Array1DSlice<float> offstwt( *twt_ );
-    offstwt.setDimMap( 0, 0 );
-    offstwt.setPos( 1, offsetidx );
-    if ( !offstwt.init() )
-	return false;
-    return getTDM( offstwt, d2tm );
-}
-
-
-bool RayTracer1D::getTDM( const Array1D<float>& twt,
-			  TimeDepthModel& d2tm ) const
-{
-    const int layersize = mCast( int, nrIterations() );
-
-    TypeSet<double> times, depths;
-    depths += 0.;
-    times += 0.;
-    for ( int lidx=0; lidx<layersize; lidx++ )
-    {
-	double time = twt.get( lidx );
-	if ( mIsUdf(time) ) time = times[times.size()-1];
-	if ( time < times[times.size()-1] )
-	    continue;
-
-	depths += depths_[lidx];
-	times += time;
-    }
-
-    return d2tm.setModel( depths.arr(), times.arr(), times.size() ).isOK();
-}
-
-
-bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
-{
-    const int offsz = offsets_.size();
-
-    for ( int layer=mCast(int,start); layer<=stop; layer++ )
-    {
-	addToNrDone( 1 );
 	const ElasticLayer& ellayer = model_[layer];
-	const double depth = 2. * depths_[layer];
+	const double depth = 2. * result_->getDepth( layer );
 	const float vel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
 	for ( int osidx=0; osidx<offsz; osidx++ )
 	{
-	    const double offset = offsets_[osidx];
+	    const double offset = result_->getOffset( osidx );
 	    const double angle = depth ? atan( offset / depth ) : 0.;
 	    const float rayparam = mCast(float,sin(angle) / vel );
 
@@ -502,14 +735,14 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
-    const float tnmo = zerooffstwt_->get( layer );
+    const float tnmo = result_->getTnmo( layer );
     const float vrms = velmax_[layer];
     const float off = offsets_[offsetidx];
     float twt = tnmo;
     if ( vrms && !mIsUdf(tnmo) )
 	twt = Math::Sqrt(off*off/(vrms*vrms) + tnmo*tnmo);
 
-    twt_->set( layer, offsetidx, twt );
+    result_->setTWT( layer, offsetidx, twt );
 
     return RayTracer1D::compute( layer, offsetidx, rayparam );
 }
