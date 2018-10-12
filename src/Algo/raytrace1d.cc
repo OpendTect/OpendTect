@@ -382,10 +382,11 @@ void RayTracerData::setTWT( int layer, int offset, float twt )
 void RayTracerData::setSinAngle( int layer, int offset, float sini )
 { sini_.set( layer, offset, sini ); }
 
-void RayTracerData::setReflectivity( int layer, int offset, float_complex ref )
+void RayTracerData::setReflectivity( int layer, int offset,
+				     float_complex reflval )
 {
     if ( reflectivity_ )
-	reflectivity_->set( layer, offset, ref );
+	reflectivity_->set( layer, offset, reflval );
 }
 
 
