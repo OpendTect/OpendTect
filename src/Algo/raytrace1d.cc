@@ -467,6 +467,18 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
 }
 
 
+uiString RayTracer1D::message() const
+{
+    return errmsg_.isEmpty() ? tr("Ray Tracing") : errmsg_;
+}
+
+
+uiString RayTracer1D::nrDoneText() const
+{
+    return tr("Offsets handled");
+}
+
+
 bool RayTracer1D::usePar( const IOPar& par )
 {
     TypeSet<float> offsets;

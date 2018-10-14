@@ -145,6 +145,8 @@ public:
 			/*!<Note, offsets will be sorted */
     void		getOffsets(TypeSet<float>& offsets) const;
 
+    virtual uiString	message() const;
+    virtual uiString	nrDoneText() const;
     uiString		errMsg() const { return errmsg_; }
 
 			//Available after execution

@@ -192,10 +192,7 @@ void uiTaskRunner::updateFields()
     const uiString nrdonetext = task_->nrDoneText();
 #ifdef __debug__
     if ( toString(nrdonetext) == "Nr Done" )
-    {
-        pErrMsg("Nr Done is not an acceptable name in a UI. "
-                "Make class implement nrDoneText");
-    }
+	{ pErrMsg("Task executed in UI needs valid nrDoneText"); }
 #endif
     const uiString message = task_->message();
 
