@@ -568,7 +568,7 @@ fullidstr.add( toString(gdp.id()) ); \
 dpidstring.add( fullidstr.buf() ); \
 Attrib::Desc* psdesc = \
     Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName()); \
-mSetString(Attrib::StorageProvider::keyStr(),dpidstring.buf()); 
+mSetString(Attrib::StorageProvider::keyStr(),dpidstring.buf());
 
 
 #define mSetProc() \
@@ -607,7 +607,7 @@ proc->getProvider()->setDesiredVolume( cs ); \
 proc->getProvider()->setPossibleVolume( cs ); \
 mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider()); \
 if ( !psattr ) \
-    mErrRet( proc->uiMessage(), return 0 ) ; 
+    mErrRet( proc->uiMessage(), return 0 ) ;
 
 
 #define mCreateSeisBuf() \
@@ -867,6 +867,7 @@ int nextStep()
 	return Finished();
     const PreStack::Gather* gather = gathers_[(int)nrdone_];
     anglecomputer_->setOutputSampling( gather->posData() );
+    anglecomputer_->setGatherIsNMOCorrected( gather->isCorrected() );
     const TrcKey trckey( gather->getBinID() );
     anglecomputer_->setRayTracer( rts_[(int)nrdone_], trckey );
     anglecomputer_->setTrcKey( trckey );
@@ -978,6 +979,10 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
 		    { delete gather; continue; }
 
+		bool iscorrected = true;
+		synthgenpar.raypars_.getYN( Seis::SynthGenBase::sKeyNMO(),
+					    iscorrected );
+		gather->setCorrected( iscorrected );
 		gatherset += gather;
 	    }
 

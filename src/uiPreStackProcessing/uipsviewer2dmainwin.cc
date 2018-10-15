@@ -1049,6 +1049,7 @@ DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
     velangcomp.setSmoothingPars( angleparams_->smoothingpar_ );
     const FlatPosData& fp = gather->posData();
     velangcomp.setOutputSampling( fp );
+    velangcomp.setGatherIsNMOCorrected( gather->isCorrected() );
     velangcomp.setTrcKey( TrcKey(gather->getBinID()) );
     PreStack::Gather* angledata = velangcomp.computeAngles();
     if ( !angledata ) return -1;

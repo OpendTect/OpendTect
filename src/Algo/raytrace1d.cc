@@ -454,6 +454,18 @@ bool RayTracer1D::getTDM( const Array1D<float>& twt,
 }
 
 
+float RayTracer1D::getDepth( int layer ) const
+{
+    return depths_[layer];
+}
+
+
+float RayTracer1D::getTime( int layer, int offset ) const
+{
+    return sini_->get( layer, offset );
+}
+
+
 bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
     const int offsz = offsets_.size();

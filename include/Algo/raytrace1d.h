@@ -115,6 +115,11 @@ protected:
     Array2DImpl<float>*		twt_;
     Array1D<float>*		zerooffstwt_;
     Array2DImpl<float_complex>* reflectivity_;
+
+public:
+
+    float		getDepth(int layer) const;
+    float		getTime(int layer,int offset) const;
 };
 
 
@@ -126,7 +131,7 @@ mExpClass(Algo) VrmsRayTracer1D : public RayTracer1D
 { mODTextTranslationClass(VrmsRayTracer1D);
 public:
 
-    mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D, 
+    mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D,
 				  "VrmsRayTracer",
 				  tr("Simple RayTracer") );
 

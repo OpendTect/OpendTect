@@ -368,6 +368,7 @@ bool PSAttrib::getAngleInputData()
 
     const FlatPosData& fp = gather->posData();
     anglecomp_->setOutputSampling( fp );
+    anglecomp_->setGatherIsNMOCorrected( gather->isCorrected() );
     anglecomp_->setTrcKey( TrcKey(gather->getBinID()) );
     PreStack::Gather* angledata = anglecomp_->computeAngles();
 
@@ -392,7 +393,7 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 	    ConstDataPackRef<DataPack> angledp =
 		DPM( DataPackMgr::SeisID() ).obtain( anglegsdpid_ );
 	    mDynamicCast( const PreStack::GatherSetDataPack*,anglegsdp,
-		    	  angledp.ptr() );
+			  angledp.ptr() );
 	}
 
 	const PreStack::Gather* curgather = 0;
@@ -417,13 +418,13 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 
 	mDeclareAndTryAlloc( PreStack::Gather*, gather,
 				PreStack::Gather(*curgather ) );
-	
+
 	if ( !gather )
 	    return false;
 
 	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
 	curgatherid = gather->id();
-	
+
 	if ( curanglegather )
 	{
 	    mDeclareAndTryAlloc( PreStack::Gather*, anglegather,
@@ -563,7 +564,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 	    mErrRet( uiStrings::phrCannotFindDBEntry( ::toUiString(psid_)) )
 
 	if ( is2D() )
-	    psrdr_ = SPSIOPF().get2DReader( *psioobj_, 
+	    psrdr_ = SPSIOPF().get2DReader( *psioobj_,
 					    Survey::GM().getName(geomid_) );
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
