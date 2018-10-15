@@ -198,6 +198,7 @@ void SEGY::LoadDef::reInit( bool alsohdef )
     psoffssrc_ = FileReadOpts::InFile;
     psoffsdef_ = SamplingData<float>( 0.f, 1.f );
     usezsamplinginfile_ = useformatinfile_ = false;
+    coordsys_ = SI().getCoordSystem();
     if ( alsohdef )
 	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }
 }
@@ -223,6 +224,7 @@ SEGY::LoadDef& SEGY::LoadDef::operator =( const SEGY::LoadDef& oth )
 	usezsamplinginfile_ = oth.usezsamplinginfile_;
 	useformatinfile_ = oth.useformatinfile_;
 	hdrdef_ = new TrcHeaderDef( *oth.hdrdef_ );
+	coordsys_ = oth.coordsys_;
     }
     return *this;
 }
