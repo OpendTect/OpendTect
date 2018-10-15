@@ -52,14 +52,14 @@ static bool testPlaneFit( const TypeSet<Coord3>& coords )
 }
 
 
-static bool testPolyFits( const float* x, const float* y, int sz )
+static bool testPolyFits( const float* xarr, const float* yarr, int sz )
 {
-    const auto res2 = polyFit( x, y, sz, 2 );
+    const auto res2 = polyFit( xarr, yarr, sz, 2 );
     if ( !quiet )
 	od_cout() << "Poly Fit order 2: " << res2[0]
 		  << " + " << res2[1] << "*X"
 		  << " + " << res2[2] << "*X^2" << od_endl;
-    const auto res3 = polyFit( x, y, sz, 3 );
+    const auto res3 = polyFit( xarr, yarr, sz, 3 );
     if ( !quiet )
 	od_cout() << "Poly Fit order 3: " << res3[0]
 		  << " + " << res3[1] << "*X"
@@ -68,6 +68,24 @@ static bool testPolyFits( const float* x, const float* y, int sz )
     // order 2: 8.89870453 + 11.75393295*X + -3.60866618*X^2
     // order 3: 9.05188751 + 10.3282423*X + -0.35720029*X^2 + -2.07160878*X^3
     mRunStandardTest( res2[1] > 11.7539 && res2[1] < 11.754, "Poly Fit" )
+
+    float x[4] = { -1, 0, 1 ,2 };
+    float y[4] = { -4, 2, 4, 8 };
+    auto ax = polyFit( x, y, 4, 3 );
+    if ( !quiet )
+	od_cout() << "Exact Fit order 3: " << ax[0]
+		  << " + " << ax[1] << "*X"
+		  << " + " << ax[2] << "*X^2"
+		  << " + " << ax[3] << "*X^3" << od_endl;
+
+    ax = polyFit( x, y, 4, 4 );
+    if ( !quiet )
+	od_cout() << "Not enough points order 4: " << ax[0]
+		  << " + " << ax[1] << "*X"
+		  << " + " << ax[2] << "*X^2"
+		  << " + " << ax[3] << "*X^3"
+		  << " + " << ax[4] << "*X^4" << od_endl;
+
     return true;
 }
 

@@ -371,8 +371,7 @@ void uiMainWinBody::doShow( bool minimized )
 	handle_.afterpopuptimer_->start( 50, true );
     }
 
-    if ( modal_ )
-	eventloop_.exec();
+    eventloop_.exec();
 }
 
 

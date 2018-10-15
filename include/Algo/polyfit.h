@@ -22,8 +22,22 @@ ________________________________________________________________________
 
 
 template <class fT>
-TypeSet<fT> polyFit( const fT* x, const fT* y, int nrpts, int order )
+TypeSet<fT> polyFit( const fT* x, const fT* y, int nrpts, int reqorder )
 {
+    int order = reqorder;
+    if ( order > nrpts-1 )
+    {
+	if ( nrpts < 1 )
+	    return TypeSet<fT>( reqorder, 0 );
+	order = nrpts - 1;
+	if ( order < 1 )
+	{
+	    TypeSet<fT> ret( reqorder, 0 );
+	    ret[0] = *y;
+	    return ret;
+	}
+    }
+
     const int nrsigma = 2*order + 1;
     fT sigma[nrsigma];
     for ( int isigma=0; isigma<nrsigma; isigma++ )
@@ -72,8 +86,9 @@ TypeSet<fT> polyFit( const fT* x, const fT* y, int nrpts, int order )
 	}
     }
 
-    const int nrcoeffs = order + 1;
-    TypeSet<fT> coeffs( nrcoeffs, (fT)0 );
+    const auto retnrcoeffs = reqorder + 1;
+    const auto nrcoeffs = order + 1;
+    TypeSet<fT> coeffs( retnrcoeffs, (fT)0 );
     for ( int icoeff=nrcoeffs-1; icoeff!=-1; icoeff-- )
     {
 	coeffs[icoeff] = normmat[icoeff][nrcoeffs];

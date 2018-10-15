@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "datadistributionextracter.h"
 #include "densitycalc.h"
 #include "linear.h"
+#include "polyfit.h"
 #include "statrand.h"
 #include "timer.h"
 
@@ -1047,7 +1048,8 @@ static void updLS( const TypeSet<float>& inpxvals,
 		   LinStats2D& ls )
 {
     const int inpsz = inpxvals.size();
-    if ( inpsz < 2 ) { ls = LinStats2D(); return; }
+    if ( inpsz < 2 )
+	{ ls = LinStats2D(); return; }
 
     int firstxidx = 0, firstyidx = 0;
     if ( axdx.autoscalepars_.doautoscale_ && axdy.autoscalepars_.doautoscale_ )
@@ -1124,6 +1126,11 @@ void uiDataPointSetCrossPlotter::calcStats()
 
     updLS( xvals, yvals, x_, y_, lsy1_ );
     updLS( x2vals, y2vals, x_, y2_, lsy2_ );
+
+    polyfit_.setEmpty();
+    if ( polyfitorder_ > 1 )
+	polyfit_ = polyFit( xvals.arr(), yvals.arr(), xvals.size(),
+			    polyfitorder_ );
 }
 
 
@@ -1852,7 +1859,8 @@ void uiDataPointSetCrossPlotter::drawData(
 void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler& yah,
 					       const Interval<int>& xpixrg )
 {
-    if ( !x_.axis_ || !&yah ) return;
+    if ( !x_.axis_ )
+	return;
 
     const uiAxisHandler& xah = *x_.axis_;
     const LinStats2D& ls = y_.axis_ == &yah ? lsy1_ : lsy2_;

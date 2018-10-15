@@ -109,6 +109,7 @@ public:
     AxisData			x_;
     AxisData			y_;
     AxisData			y2_;
+
     int				getRow(const AxisData&,uiPoint) const;
     void			drawData(const AxisData&,bool y2,
 					 bool rempts = false);
@@ -301,6 +302,8 @@ protected:
     RefMan<ColTab::Mapper>	y4mapper_;
     LinStats2D&			lsy1_;
     LinStats2D&			lsy2_;
+    TypeSet<float>		polyfit_;
+    int				polyfitorder_	= 0;
     Timer&			timer_;
     bool			showy3_;
     bool			showy4_;
