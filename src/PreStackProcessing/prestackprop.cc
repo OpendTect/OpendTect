@@ -241,8 +241,8 @@ float PropCalc::getVal( float z ) const
 		const float* angledata =
 		    angledata_->data().getData() +
 		    angledata_->data().info().getOffset( itrc, 0 );
-		axisval =
-		    IdxAble::interpolateReg( angledata, nrz, cursamp, false );
+		axisval = IdxAble::interpolateReg( angledata, nrz, cursamp,
+						   false, 1e-2f );
 	    }
 
 	    if ( scalexvals_ && !mIsUdf(axisval) )
@@ -252,7 +252,7 @@ float PropCalc::getVal( float z ) const
 		continue;
 
 	    const float val =
-		IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
+		IdxAble::interpolateReg( seisdata, nrz,cursamp, false, 1e-2f );
 	    vals += val;
 	    if ( setup_.calctype_ != Stats )
 		axisvals += axisval;
