@@ -418,10 +418,7 @@ RefMan<CoordSystem> uiCoordSystemDlg::getCoordSystem()
 
 bool uiCoordSystemDlg::acceptOK()
 {
-    if ( !getCoordSystem() )
-	return false;
-
-    return true;
+    return coordsysselfld_->acceptOK();
 }
 
 
