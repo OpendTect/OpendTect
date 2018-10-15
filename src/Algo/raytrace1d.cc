@@ -475,7 +475,7 @@ uiString RayTracer1D::message() const
 
 uiString RayTracer1D::nrDoneText() const
 {
-    return tr("Offsets handled");
+    return tr("Layers handled");
 }
 
 
