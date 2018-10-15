@@ -312,10 +312,9 @@ bool SynthSeis::Generator::isOK() const
 	 trc_->size() != (outputsampling_.nrSteps()+1) )
 	{ pErrMsg("Invalid size"); DBG::forceCrash(true); }
 
-    const int sz = mCast(int,
-	    dynamic_cast<const ArrayValueSeries<float,float>* >(
-						tmpvals_.ptr() )->size());
-    if ( sz != convolvesize_ )
+    const od_int64 sz = dynamic_cast<const ArrayValueSeries<float,float>* >(
+						tmpvals_.ptr() )->size();
+    if ( mCast(int,sz) != convolvesize_ )
 	{ pErrMsg("Invalid size"); DBG::forceCrash(true); }
 #endif
 
