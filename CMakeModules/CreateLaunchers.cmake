@@ -40,7 +40,7 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 if(POLICY CMP0026)
-    cmake_policy(SET CMP0026 OLD)
+    cmake_policy(SET CMP0026 NEW)
 endif()
 
 if(POLICY CMP0053)
