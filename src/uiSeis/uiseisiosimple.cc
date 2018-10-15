@@ -91,6 +91,11 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     const bool is2d = is2D();
     const bool isps = isPS();
 
+    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+    const bool shoulddisplay = SI().getCoordSystem() &&
+			       SI().getCoordSystem()->isProjection();
+    coordsysselfld_->display( shoulddisplay );
+
     uiSeisSel::Setup ssu( geom_ );
     uiSeparator* sep = 0;
     if ( isimp_ )
@@ -110,8 +115,6 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	sep = mkDataManipFlds();
     }
 
-    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-
     if ( isimp_ && is2d )
 	coordsysselfld_->attach( alignedBelow, fnmfld_);
 
@@ -121,9 +124,12 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 			BoolInpSpec(true) );
     haveposfld_->setValue( data().havepos_ );
     haveposfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,haveposSel) );
-    haveposfld_->attach( alignedBelow,
-			 isimp_ && is2d ? coordsysselfld_->attachObj() : isimp_
-			    ? fnmfld_->attachObj() : remnullfld_->attachObj() );
+    if ( isimp_ && is2d )
+	haveposfld_->attach( alignedBelow, coordsysselfld_ );
+    else
+	haveposfld_->attach( alignedBelow,
+		    isimp_ ? fnmfld_->attachObj() : remnullfld_->attachObj() );
+
     if ( sep ) haveposfld_->attach( ensureBelow, sep );
 
     uiObject* attachobj = haveposfld_->attachObj();
@@ -157,14 +163,6 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	coordsysselfld_->display( isxyfld_->getBoolValue() );
 
 	attachobj = coordsysselfld_->attachObj();
-    }
-
-    if ( !isimp_ )
-    {
-      coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-      coordsysselfld_->attach(alignedBelow, attachobj);
-      coordsysselfld_->display(false);
-      attachobj = coordsysselfld_->attachObj();
     }
 
     if ( !isimp_ && isps )
@@ -335,7 +333,14 @@ uiSeparator* uiSeisIOSimple::mkDataManipFlds()
 
     if ( !isimp_ )
     {
-	multcompfld_->attach( alignedBelow, remnullfld_ );
+	if ( is2D() )
+	{
+	    coordsysselfld_->attach( alignedBelow, remnullfld_ );
+	    multcompfld_->attach( alignedBelow, coordsysselfld_ );
+	}
+	else
+	    multcompfld_->attach( alignedBelow, remnullfld_ );
+
 	sep->attach( stretchedBelow, multcompfld_ );
     }
 
@@ -436,10 +441,6 @@ void uiSeisIOSimple::havenrSel( CallBacker* cb )
 	nrdeffld_->display( havepos && !havenr );
     if ( haverefnrfld_ )
 	haverefnrfld_->display( havepos && havenr );
-    const bool shoulddisplay = SI().getCoordSystem() &&
-	      SI().getCoordSystem()->isProjection() && havenr;
-    if ( !isimp_ )
-      coordsysselfld_->display(shoulddisplay);
 }
 
 
