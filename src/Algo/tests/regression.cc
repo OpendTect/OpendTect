@@ -7,6 +7,7 @@
 
 #include "od_iostream.h"
 #include "linear.h"
+#include "polyfit.h"
 #include "trigonometry.h"
 #include "testprog.h"
 
@@ -51,6 +52,26 @@ static bool testPlaneFit( const TypeSet<Coord3>& coords )
 }
 
 
+static bool testPolyFits( const float* x, const float* y, int sz )
+{
+    const auto res2 = polyFit( x, y, sz, 2 );
+    if ( !quiet )
+	od_cout() << "Poly Fit order 2: " << res2[0]
+		  << " + " << res2[1] << "*X"
+		  << " + " << res2[2] << "*X^2" << od_endl;
+    const auto res3 = polyFit( x, y, sz, 3 );
+    if ( !quiet )
+	od_cout() << "Poly Fit order 3: " << res3[0]
+		  << " + " << res3[1] << "*X"
+		  << " + " << res3[2] << "*X^2"
+		  << " + " << res3[3] << "*X^3" << od_endl;
+    // order 2: 8.89870453 + 11.75393295*X + -3.60866618*X^2
+    // order 3: 9.05188751 + 10.3282423*X + -0.35720029*X^2 + -2.07160878*X^3
+    mRunStandardTest( res2[1] > 11.7539 && res2[1] < 11.754, "Poly Fit" )
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -68,6 +89,8 @@ int mTestMainFnName( int argc, char** argv )
     xvals += 0.92f; yvals += 16.f; zvals += 122.f;
 
     if ( !test2DRegresson(xvals.arr(),yvals.arr(),xvals.size()) )
+	return 1;
+    if ( !testPolyFits(xvals.arr(),yvals.arr(),xvals.size()) )
 	return 1;
 
     TypeSet<Coord3> coords;

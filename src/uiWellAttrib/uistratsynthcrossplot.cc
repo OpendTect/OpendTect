@@ -506,7 +506,7 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
 void uiStratSynthCrossplot::setRefLevel( const Strat::Level::ID& lvlid )
 {
     if ( evfld_ )
-	evfld_->setLevel( nameOf(lvlid) );
+	evfld_->setLevel( lvlid );
 }
 
 
