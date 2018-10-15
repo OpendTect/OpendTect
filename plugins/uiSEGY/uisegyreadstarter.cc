@@ -614,10 +614,13 @@ void uiSEGYReadStarter::zDomChgCB( CallBacker* )
 
 void uiSEGYReadStarter::coordSysChangedCB( CallBacker* )
 {
-    if ( !(*coordsysselfld_->getCoordSystem() == *SI().getCoordSystem()) )
-	inpChg(0);
-}
+    if ( *coordsysselfld_->getCoordSystem() == *SI().getCoordSystem()
+	    || userfilename_.isEmpty() )
+	return;
 
+    execNewScan( KeepNone, false );
+    setToolStates();
+}
 
 
 void uiSEGYReadStarter::inpChg( CallBacker* )
