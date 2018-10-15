@@ -23,9 +23,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "velocitycalc.h"
 #include "velocityfunction.h"
 
+#include "hiddenparam.h"
+
 
 namespace PreStack
 {
+
+static HiddenParam<AngleComputer,int> gathercorrectedparammgr_( 0 );
 
 mDefineEnumUtils(AngleComputer,smoothingType,"Smoothing Type")
 {
@@ -53,17 +57,25 @@ AngleComputer::AngleComputer()
     , trckey_(TrcKey::std3DSurvID(),BinID(0,0))
     , maxthickness_(25.f)
 {
+    gathercorrectedparammgr_.setParam( this, 1 );
 }
 
 
 AngleComputer::~AngleComputer()
 {
     delete raytracer_;
+    gathercorrectedparammgr_.removeParam( this );
 }
 
 
 void AngleComputer::setOutputSampling( const FlatPosData& os )
 { outputsampling_  = os; }
+
+
+void AngleComputer::setGatherIsNMOCorrected( bool yn )
+{
+    gathercorrectedparammgr_.setParam( this, yn ? 1 : 0 );
+}
 
 
 void AngleComputer::setRayTracer( const IOPar& raypar )
@@ -303,32 +315,35 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     const RayTracer1D* rt = curRayTracer();
     if ( !rt ) return false;
 
+    const bool iscorrected_ = gathercorrectedparammgr_.getParam( this ) == 1;
+    const int nrlayers = rt->getModel().size();
+    mAllocVarLenArr( float, depths, nrlayers );
+    mAllocVarLenArr( float, times, nrlayers );
+    if ( !mIsVarLenArrOK(depths) || !mIsVarLenArrOK(times) ) return false;
+    const bool zistime = SI().zIsTime();
+    if ( !zistime || iscorrected_ )
+    {
+	for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
+	    depths[layeridx] = rt->getDepth( layeridx );
+
+	if ( iscorrected_ )
+	{
+	    TimeDepthModel tdmodel; rt->getZeroOffsTDModel( tdmodel );
+	    for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
+		times[layeridx] = tdmodel.getTime( depths[layeridx] );
+	}
+    }
+
+    const bool zinfeet	= SI().zInFeet();
     TypeSet<float> offsets;
     outputsampling_.getPositions( true, offsets );
-
     const int offsetsize = outputsampling_.nrPts( true );
     const int zsize = outputsampling_.nrPts( false );
     const StepInterval<double> outputzrg = outputsampling_.range( false );
-
-    const ElasticModel& curem = curElasticModel();
-    const int modelsz = curem.size();
-    mAllocVarLenArr( float, depths, modelsz );
-    mAllocVarLenArr( float, times, modelsz );
-    if ( !mIsVarLenArrOK(depths) || !mIsVarLenArrOK(times) ) return false;
-    TimeDepthModel td;
-    rt->getTDModel( 0, td );
-    float depth = 0.f;
-    for ( int layeridx=0; layeridx<modelsz; layeridx++ )
-    {
-	depth += curem[layeridx].thickness_;
-	depths[layeridx] = depth;
-	times[layeridx] = td.getTime( depth );
-    }
-
-    const bool zistime = SI().zIsTime();
-    const bool zinfeet	= SI().zInFeet();
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
+	const float offset = offsets[ofsidx];
+	const bool zerooffset = mIsZero(offset,1e-1f);
 	PointBasedMathFunction sinanglevals(
 				    PointBasedMathFunction::Poly,
 				    PointBasedMathFunction::ExtraPolGradient ),
@@ -336,10 +351,10 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 				    PointBasedMathFunction::Linear,
 				    PointBasedMathFunction::ExtraPolGradient );
 
-	sinanglevals.add( 0.f, offsets[ofsidx] ? 1.f : 0.f );
-	anglevals.add( 0.f, offsets[ofsidx] ? M_PI_2f: 0.f );
+	sinanglevals.add( 0.f, zerooffset ? 0.f : 1.f );
+	anglevals.add( 0.f, zerooffset ? 0.f : M_PI_2f );
 
-	for ( int layeridx=0; layeridx<modelsz; layeridx++ )
+	for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
 	{
 	    float sinangle = rt->getSinAngle( layeridx, ofsidx );
 	    if ( mIsUdf(sinangle) )
@@ -348,7 +363,10 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	    if ( fabs(sinangle) > 1.0f )
 		sinangle = sinangle > 0.f ? 1.0f : -1.0f;
 
-	    const float zval = zistime ? times[layeridx] : depths[layeridx];
+	    const float zval = zistime
+		  ? (iscorrected_ ? times[layeridx]
+				  : rt->getTime(layeridx,ofsidx))
+		  : depths[layeridx];
 	    sinanglevals.add( zval, sinangle );
 	    anglevals.add( zval, Math::ASin(sinangle) );
 	}
