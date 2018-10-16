@@ -42,7 +42,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "strmprov.h"
 #include "texttranslation.h"
-#include "thread.h"
+#include "threadlock.h"
 #include "timer.h"
 #include "file.h"
 
@@ -72,45 +72,10 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
+ObjectSet<uiMainWin>	uiMainWin::allwins_;
+static Threads::Lock	winlistlock_;
+static uiMainWin*	programmedactivewin_ = 0;
 
-static Threads::Mutex		winlistmutex_;
-static ObjectSet<uiMainWin>	orderedwinlist_;
-static uiMainWin*		programmedactivewin_ = 0;
-
-
-static void addToOrderedWinList( uiMainWin* uimw )
-{
-    winlistmutex_.lock();
-    orderedwinlist_ -= uimw;
-    orderedwinlist_ += uimw;
-    winlistmutex_.unLock();
-}
-
-
-static bool isInOrderedWinList( const uiMainWin* uimw )
-{
-    winlistmutex_.lock();
-    const bool res = orderedwinlist_.isPresent( uimw );
-    winlistmutex_.unLock();
-    return res;
-}
-
-
-static bool hasModalWindows()
-{
-    bool res = false;
-    winlistmutex_.lock();
-    for ( int idx=0; idx<orderedwinlist_.size(); idx++ )
-    {
-	if ( orderedwinlist_[idx]->isModal() )
-	{ res = true; break; }
-    }
-    winlistmutex_.unLock();
-    return res;
-}
-
-
-//=============================================================================
 
 
 class uiMainWinBody : public uiParentBody , public QMainWindow
@@ -133,8 +98,8 @@ public:
 
 public:
 
-    uiStatusBar*	uistatusbar();
-    uiMenuBar*		uimenubar();
+    uiStatusBar*	uistatusbar()			{ return statusbar_; }
+    uiMenuBar*		uimenubar()			{ return menubar_; }
 
     virtual void	polish();
     void		reDraw(bool deep);
@@ -144,6 +109,7 @@ public:
     void		move(uiMainWin::PopupArea);
     void		move(int,int);
 
+    bool		handleAlive() const;
     void		close();
     bool		poppedUp() const		{ return poppedup_; }
     bool		resetPopupTimerIfNotPoppedUp();
@@ -371,7 +337,8 @@ void uiMainWinBody::doShow( bool minimized )
 	handle_.afterpopuptimer_->start( 50, true );
     }
 
-    eventloop_.exec();
+    if ( modal_ )
+	eventloop_.exec();
 }
 
 
@@ -516,66 +483,63 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 }
 
 
+bool uiMainWinBody::handleAlive() const
+{
+    Threads::Locker locker( winlistlock_ );
+    for ( int idx=0; idx<uiMainWin::allwins_.size(); idx++ )
+	if ( uiMainWin::allwins_[idx] == &handle_ )
+	    return true;
+    return false;
+}
+
+
 void uiMainWinBody::closeEvent( QCloseEvent* ce )
 {
-    if ( hasModalWindows() )
-    {
-	ce->ignore();
-	return;
-    }
+    // refuse if we have any modal window on the screen
+    Threads::Locker locker( winlistlock_ );
+    for ( int idx=0; idx<uiMainWin::allwins_.size(); idx++ )
+	if ( uiMainWin::allwins_[idx]->isModal() )
+	    { ce->ignore(); return; }
+    locker.unlockNow();
 
     const int refnr = handle_.beginCmdRecEvent( "Close" );
 
-    if ( handle_.closeOK() )
-    {
-	handle_.windowClosed.trigger( handle_ );
-	ce->accept();
+    if ( !handle_.closeOK() )
+	{ ce->ignore(); return; }
 
-	if ( isInOrderedWinList(&handle_) && modal_ )
-	    eventloop_.exit();
-    }
-    else
-	ce->ignore();
+    handle_.endCmdRecEvent( refnr, "Close" );
+    ce->accept();
+    if ( modal_ )
+	eventloop_.exit();
 
-     handle_.endCmdRecEvent( refnr, "Close" );
+    // this may delete this object, *must* be last statement
+    handle_.windowClosed.trigger( handle_ );
 }
 
 
 void uiMainWinBody::close()
 {
-    if ( !handle_.closeOK() ) return;
-
-    handle_.windowClosed.trigger( handle_ );
-
-    if ( !isInOrderedWinList(&handle_) )
+    if ( !handleAlive() || !handle_.closeOK() )
 	return;
 
     if ( testAttribute(Qt::WA_DeleteOnClose) )
-    {
-	QMainWindow::close();
-	return;
-    }
+	{ QMainWindow::close(); return; }
 
     if ( modal_ )
 	eventloop_.exit();
-
     QMainWindow::hide();
 
     if ( exitapponclose_ )
 	qApp->quit();
+
+    handle_.windowClosed.trigger( handle_ );
 }
-
-
-uiStatusBar* uiMainWinBody::uistatusbar()
-{ return statusbar_; }
-
-uiMenuBar* uiMainWinBody::uimenubar()
-{ return menubar_; }
 
 
 void uiMainWinBody::removeDockWin( uiDockWin* dwin )
 {
-    if ( !dwin ) return;
+    if ( !dwin )
+	return;
 
     removeDockWidget( dwin->getDockWidget() );
     dockwins_ -= dwin;
@@ -585,10 +549,12 @@ void uiMainWinBody::removeDockWin( uiDockWin* dwin )
 void uiMainWinBody::addDockWin( uiDockWin& dwin, uiMainWin::Dock dock )
 {
     Qt::DockWidgetArea dwa = Qt::LeftDockWidgetArea;
-    if ( dock == uiMainWin::Right ) dwa = Qt::RightDockWidgetArea;
-    else if ( dock == uiMainWin::Top ) dwa = Qt::TopDockWidgetArea;
-    else if ( dock == uiMainWin::Bottom ) dwa =
-					     Qt::BottomDockWidgetArea;
+    if ( dock == uiMainWin::Right )
+	dwa = Qt::RightDockWidgetArea;
+    else if ( dock == uiMainWin::Top )
+	dwa = Qt::TopDockWidgetArea;
+    else if ( dock == uiMainWin::Bottom )
+	dwa = Qt::BottomDockWidgetArea;
     addDockWidget( dwa, dwin.getDockWidget() );
     if ( dock == uiMainWin::TornOff )
 	dwin.setFloating( true );
@@ -804,16 +770,13 @@ void uiMainWinBody::managePopupPos()
 
 uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     : uiParent(toString(setup.caption_),0)
-    , body_(0)
     , parent_(p)
-    , popuparea_(Auto)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
     , afterPopup(this)
     , runScriptRequest(this)
     , caption_(setup.caption_)
-    , afterpopuptimer_(0)
     , languagechangecount_( TrMgr().changeCount() )
 {
     const BufferString bodynm( toString(setup.caption_) );
@@ -823,23 +786,21 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     body_->setWindowIconText( setup.caption_.isEmpty()
 		? QString("OpendTect") : toQString(setup.caption_) );
     body_->setAttribute( Qt::WA_DeleteOnClose, setup.deleteonclose_ );
-    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
+
+    finishConstruction();
 }
 
 
 uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
 		      int nrstatusflds, bool withmenubar, bool modal )
     : uiParent(toString(cpt),0)
-    , body_(0)
     , parent_(parnt)
-    , popuparea_(Auto)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
     , afterPopup(this)
     , runScriptRequest(this)
     , caption_(cpt)
-    , afterpopuptimer_(0)
     , languagechangecount_( TrMgr().changeCount() )
 {
     body_ = new uiMainWinBody( *this, parnt, toString(caption_), modal );
@@ -847,28 +808,22 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
     body_->construct( nrstatusflds, withmenubar );
     body_->setWindowIconText( caption_.isEmpty()
 			     ? QString("OpendTect") : toQString(caption_) );
-    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
-
-    mAttachCB( TrMgr().languageChange, uiMainWin::languageChangeCB );
+    finishConstruction();
 }
 
 
-uiMainWin::uiMainWin( uiString nm, uiParent* parnt )
-    : uiParent(toString(nm),0)
-    , body_(0)
+uiMainWin::uiMainWin( const uiString& captn, uiParent* parnt )
+    : uiParent(toString(captn),0)
     , parent_(parnt)
-    , popuparea_(Auto)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
     , afterPopup(this)
     , runScriptRequest(this)
-    , caption_(nm)
-    , afterpopuptimer_(0)
+    , caption_(captn)
 {
-    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
-
-    mAttachCB( TrMgr().languageChange, uiMainWin::languageChangeCB );
+    // no finishConstruction() - this constructor is for subclasses that need
+    // to call it explicitly at end-of-constructor
 }
 
 
@@ -876,20 +831,32 @@ uiMainWin::~uiMainWin()
 {
     detachAllNotifiers();
 
+    Threads::Locker locker( winlistlock_ );
+    const auto idxof = allwins_.indexOf( this );
+    if ( idxof < 0 )
+	{ pErrMsg("Huh"); return; }
+    allwins_.removeSingle( idxof, false );
+    locker.unlockNow();
+
     if ( !body_->deletefrombody_ )
     {
 	body_->deletefromod_ = true;
 	delete body_;
     }
 
-    winlistmutex_.lock();
-    orderedwinlist_ -= this;
-
     if ( programmedactivewin_ == this )
 	programmedactivewin_ = parent() ? parent()->mainwin() : 0;
 
     delete afterpopuptimer_;
-    winlistmutex_.unLock();
+}
+
+
+void uiMainWin::finishConstruction()
+{
+    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
+    mAttachCB( TrMgr().languageChange, uiMainWin::languageChangeCB );
+    Threads::Locker locker( winlistlock_ );
+    allwins_ += this;
 }
 
 
@@ -903,7 +870,6 @@ uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
 
 void uiMainWin::show()
 {
-    addToOrderedWinList( this );
     body_->go();
 }
 
@@ -1218,13 +1184,13 @@ void uiMainWin::getTopLevelWindows( ObjectSet<uiMainWin>& windowlist,
 				    bool visibleonly )
 {
     windowlist.erase();
-    winlistmutex_.lock();
-    for ( int idx=0; idx<orderedwinlist_.size(); idx++ )
+    Threads::Locker locker( winlistlock_ );
+    for ( int idx=0; idx<allwins_.size(); idx++ )
     {
-	if ( !visibleonly || !orderedwinlist_[idx]->isHidden() )
-	    windowlist += orderedwinlist_[idx];
+	auto* win = allwins_[idx];
+	if ( !visibleonly || !win->isHidden() )
+	    windowlist += win;
     }
-    winlistmutex_.unLock();
 }
 
 
@@ -2096,17 +2062,22 @@ void uiDialogBody::applyCB( CallBacker* cb )
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
     : uiMainWin( s.wintitle_, p )
+    , ctrlstyle_(OkAndCancel)
     , cancelpushed_(false)
     , applyPushed(this)
 {
     body_= new uiDialogBody( *this, p, s );
     setBody( body_ );
     body_->construct( s.nrstatusflds_, s.menubar_ );
-    uiGroup* cw = new uiGroup( body_->uiCentralWidg(), "Dialog central widget");
-    cw->setStretch( 2, 2 );
-    mBody->setDlgGrp( cw );
+
+    auto* centralwidget = new uiGroup( body_->uiCentralWidg(),
+				       "uiDialog's Central Widget group" );
+    centralwidget->setStretch( 2, 2 );
+    mBody->setDlgGrp( centralwidget );
+
     setTitleText( s.dlgtitle_ );
-    ctrlstyle_ = OkAndCancel;
+
+    finishConstruction();
 }
 
 
@@ -2171,14 +2142,12 @@ void uiDialog::showAlwaysOnTop()
 
 bool uiDialog::go()
 {
-    addToOrderedWinList( this );
     return mBody->exec( false );
 }
 
 
 bool uiDialog::goMinimized()
 {
-    addToOrderedWinList( this );
     return mBody->exec( true );
 }
 

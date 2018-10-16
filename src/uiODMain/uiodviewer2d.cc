@@ -115,7 +115,8 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, Probe& probe,
 uiODViewer2D::~uiODViewer2D()
 {
     detachAllNotifiers();
-    mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin())
+
+    mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin_)
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
 
@@ -131,15 +132,14 @@ uiODViewer2D::~uiODViewer2D()
 	voiidx_ = -1;
     }
 
-    if ( viewwin() )
+    if ( viewwin_ )
     {
 	removeAvailablePacks();
-	viewwin()->viewer(0).removeAuxData( marker_ );
+	delete viewwin_->viewer(0).removeAuxData( marker_ );
     }
 
     probe_.unRef();
-    delete marker_;
-    delete viewwin();
+    delete viewwin_;
 }
 
 
@@ -157,13 +157,18 @@ Pos::GeomID uiODViewer2D::geomID() const
 
 
 uiParent* uiODViewer2D::viewerParent()
-{ return viewwin_->viewerParent(); }
+{
+    return viewwin_->viewerParent();
+}
 
 
 void uiODViewer2D::setUpAux()
 {
+    if ( !viewwin_ )
+	return;
+
     const bool is2d = !mIsUdfGeomID( geomID() );
-    FlatView::Annotation& vwrannot = viewwin()->viewer().appearance().annot_;
+    FlatView::Annotation& vwrannot = viewwin_->viewer().appearance().annot_;
     if ( !is2d && !probe_.position().isFlat() )
 	vwrannot.x1_.showauxannot_ = vwrannot.x2_.showauxannot_ = false;
     else
@@ -207,7 +212,7 @@ void uiODViewer2D::setUpAux()
 
 void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 {
-    const bool isnew = !viewwin();
+    const bool isnew = !viewwin_;
     if ( isnew )
     {
 	if ( probe_.is2D() )
@@ -253,9 +258,9 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 	}
 
 	setDataPack( createFlatDataPack(attrdpid,0), iswiggle, isnew );
-	for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+	for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
 	{
-	    uiFlatViewer& vwr = viewwin()->viewer(ivwr);
+	    uiFlatViewer& vwr = viewwin_->viewer(ivwr);
 	    vwr.setMapper( iswiggle, attriblayer->mapper() );
 	    if ( !iswiggle )
 		vwr.appearance().ddpars_.vd_.colseqname_
@@ -266,7 +271,7 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 
     setWinTitle();
     if ( isnew )
-	viewwin()->start();
+	viewwin_->start();
 }
 
 
@@ -285,12 +290,13 @@ void uiODViewer2D::emitPrRequest( Presentation::RequestType req )
 
 void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 {
-    if ( packid == DataPack::cNoID() ) return;
+    if ( !viewwin_ || packid == DataPack::cNoID() )
+	return;
 
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+    for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
-	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
+	uiFlatViewer& vwr = viewwin_->viewer(ivwr);
 	const TypeSet<DataPack::ID> ids = vwr.availablePacks();
 	if ( ids.isPresent(packid) )
 	{ vwr.usePack( wva, packid, isnew ); continue; }
@@ -395,7 +401,7 @@ void uiODViewer2D::createViewWin()
 
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
-	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
+	uiFlatViewer& vwr = viewwin_->viewer( ivwr);
 	vwr.setZAxisTransform( datatransform_.ptr() );
 	vwr.appearance().setDarkBG( wantdock );
 	vwr.appearance().setGeoDefaults(probe_.isVertical());
@@ -405,7 +411,7 @@ void uiODViewer2D::createViewWin()
     const float initialx2pospercm =
 	probe_.isVertical() ? dispsetup_.initialx2pospercm_
 			    : dispsetup_.initialx1pospercm_;
-    uiFlatViewer& mainvwr = viewwin()->viewer();
+    uiFlatViewer& mainvwr = viewwin_->viewer();
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
 	    uiFlatViewStdControl::Setup(controlparent).helpkey(
 			mODHelpKey(mODViewer2DHelpID) )
@@ -508,9 +514,12 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 
 void uiODViewer2D::createViewWinEditors()
 {
-    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+    if ( !viewwin_ )
+	return;
+
+    for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
-	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
+	uiFlatViewer& vwr = viewwin_->viewer( ivwr);
 	uiFlatViewAuxDataEditor* adeditor = new uiFlatViewAuxDataEditor( vwr );
 	adeditor->setSelActive( false );
 	auxdataeditors_ += adeditor;
@@ -526,16 +535,19 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     deepErase( auxdataeditors_ );
     removeAvailablePacks();
 
+    viewwin_ = 0;
     viewWinClosed.trigger();
 }
 
 
 void uiODViewer2D::removeAvailablePacks()
 {
-    if ( !viewwin() ) { pErrMsg("No main window"); return; }
+    if ( !viewwin_ )
+	{ pErrMsg("No main window"); return; }
 
-    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
-	viewwin()->viewer(ivwr).clearAllPacks();
+
+    for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
+	viewwin_->viewer(ivwr).clearAllPacks();
 }
 
 
@@ -652,6 +664,9 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 
 bool uiODViewer2D::useStoredDispPars( bool wva )
 {
+    if ( !viewwin_ )
+	return false;
+
     PtrMan<IOObj> ioobj = appl_.applMgr().attrServer()->getIOObj(selSpec(wva));
     if ( !ioobj )
 	return false;
@@ -664,9 +679,9 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
     RefMan<ColTab::MapperSetup> mappersetup = new ColTab::MapperSetup;
     mappersetup->usePar( iop );
 
-    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+    for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
-	uiFlatViewer& vwr = viewwin()->viewer( ivwr );
+	uiFlatViewer& vwr = viewwin_->viewer( ivwr );
 	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
 	(wva ? ddp.wva_.mapper_ : ddp.vd_.mapper_)->setup() = *mappersetup;
 	if ( !wva )
@@ -832,14 +847,15 @@ void uiODViewer2D::setWinTitle()
     }
 
     uiString title = toUiString("%1%2").arg(basetxt_).arg(info);
-    if ( viewwin() )
-	viewwin()->setWinTitle( title );
+    if ( viewwin_ )
+	viewwin_->setWinTitle( title );
 }
 
 //TODO PrIMPL re-implement via Probe
 void uiODViewer2D::usePar( const IOPar& iop )
 {
-    if ( !viewwin() ) return;
+    if ( !viewwin_ )
+	return;
 
     IOPar* vdselspecpar = iop.subselect( sKeyVDSelSpec() );
     if ( vdselspecpar ) vdselspec_.usePar( *vdselspecpar );
@@ -848,15 +864,15 @@ void uiODViewer2D::usePar( const IOPar& iop )
     delete vdselspecpar; delete wvaselspecpar;
     IOPar* tkzspar = iop.subselect( sKeyPos() );
     TrcKeyZSampling tkzs; if ( tkzspar ) tkzs.usePar( *tkzspar );
-    if ( viewwin()->nrViewers() > 0 )
+    if ( viewwin_->nrViewers() > 0 )
     {
-	const uiFlatViewer& vwr = viewwin()->viewer(0);
+	const uiFlatViewer& vwr = viewwin_->viewer(0);
 	const bool iswva = wvaselspec_.id().isValid();
 	ConstRefMan<RegularSeisDataPack> regsdp = vwr.getPack( iswva );
 	//TODO PrIMPL remove later if ( regsdp ) setPos( tkzs );
     }
 
-    datamgr_->usePar( iop, viewwin(), dataEditor() );
+    datamgr_->usePar( iop, viewwin_, dataEditor() );
     rebuildTree();
 }
 
@@ -894,9 +910,12 @@ void uiODViewer2D::rebuildTree()
 
 void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 {
+    if ( !viewwin_ || viewwin_->nrViewers() < 1 )
+	return;
+
     mCBCapsuleUnpackWithCaller(const MouseCursorExchange::Info&,info,
 			       caller,cb);
-    uiFlatViewer& vwr = viewwin()->viewer(0);
+    uiFlatViewer& vwr = viewwin_->viewer( 0 );
     if ( caller==this )
     {
 	if ( marker_ )
@@ -919,7 +938,8 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     ConstRefMan<FlatDataPack> fdp = vwr.getPack( false, true );
     mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
-    if ( !seisfdp && !mapdp ) return;
+    if ( !seisfdp && !mapdp )
+	return;
 
     const TrcKeyValue& trkv = info.trkv_;
     FlatView::Point& pt = marker_->poly_[0];
@@ -957,13 +977,18 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
     mCBCapsuleUnpack(IOPar,pars,cb);
 
     FixedString valstr = pars.find( sKey::X() );
-    if ( valstr.isEmpty() ) valstr = pars.find( "X-coordinate" );
-    if ( !valstr.isEmpty() ) mousepos.x_ = valstr.toDouble();
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "X-coordinate" );
+    if ( !valstr.isEmpty() )
+	mousepos.x_ = valstr.toDouble();
     valstr = pars.find( sKey::Y() );
-    if ( valstr.isEmpty() ) valstr = pars.find( "Y-coordinate" );
-    if ( !valstr.isEmpty() ) mousepos.y_ = valstr.toDouble();
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "Y-coordinate" );
+    if ( !valstr.isEmpty() )
+	mousepos.y_ = valstr.toDouble();
     valstr = pars.find( sKey::Z() );
-    if ( valstr.isEmpty() ) valstr = pars.find( "Z-Coord" );
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "Z-Coord" );
     if ( !valstr.isEmpty() )
     {
 	mousepos.z_ = valstr.toDouble() / zDomain().userFactor();

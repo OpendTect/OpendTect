@@ -45,6 +45,7 @@ ________________________________________________________________________
 #include "flatposdata.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
+#include "objdisposer.h"
 #include "posinfo2d.h"
 #include "probeimpl.h"
 #include "probemanager.h"
@@ -1016,8 +1017,10 @@ void uiODViewer2DMgr::remove2DViewer( ViewerObjID id )
 		   uiODViewer2DMgr::viewObjAdded );
 	mDetachCB( vwr2d->dataMgr()->dataObjToBeRemoved,
 		   uiODViewer2DMgr::viewObjToBeRemoved );
-	delete viewers_.removeSingle( idx );
+	auto* vwr = viewers_.removeSingle( idx );
+	vwr->detachAllNotifiers();
 	setAllIntersectionPositions();
+	OBJDISP()->go( vwr );
 	return;
     }
 }

@@ -164,7 +164,7 @@ public:
     void	removeWith(StaticCallBackFunction);
 		//!<\note lock lock_ before calling
     void	transferTo(CallBackSet& to,const CallBacker* onlyfor=0,
-	    				   const CallBacker* notfor=0);
+					   const CallBacker* notfor=0);
 		//!<\note lock lock_ before calling, also to's lock_
 
     mutable Threads::Lock   lock_;
@@ -208,8 +208,6 @@ public:
     bool		isNotifierAttached(const NotifierAccess*) const;
 			//!<Only for debugging purposes, don't use
     virtual bool	isCapsule() const	{ return false; }
-
-protected:
 
     void		detachAllNotifiers() const;
 			//!<Call from the destructor of your inherited object

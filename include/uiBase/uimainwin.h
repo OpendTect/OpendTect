@@ -32,8 +32,8 @@ class BufferStringSet;
 
 mExpClass(uiBase) uiMainWin : public uiParent
 { mODTextTranslationClass(uiMainWin);
-friend class uiMainWinBody;
 public:
+
     mExpClass(uiBase) Setup
     { mODTextTranslationClass(Setup);
     public:
@@ -128,10 +128,9 @@ public:
     const ObjectSet<uiDockWin>& dockWins() const;
 
     Notifier<uiMainWin>	windowClosed;
-			//!< triggered when window exits
 
 			//! get uiMainWin for mwimpl if it is a uiMainWinBody
-    static uiMainWin*	gtUiWinIfIsBdy(mQtclass(QWidget*) mwimpl);
+    static uiMainWin*	gtUiWinIfIsBdy(mQtclass(QWidget*));
 
     enum PopupArea	{ TopLeft, TopRight, BottomLeft, BottomRight,
 			  Middle, Auto };
@@ -198,9 +197,12 @@ public:
 
 protected:
 
-    virtual bool	closeOK()	{return true;}//!< confirm window close
+    friend class	uiMainWinBody;
 
-			uiMainWin(uiString,uiParent*);
+    virtual bool	closeOK()	{ return true; }
+
+			uiMainWin(const uiString&,uiParent*);
+    void		finishConstruction();
     uiObject*		mainobject();
 
     void		saveSettings();
@@ -213,11 +215,11 @@ protected:
     void		languageChangeCB(CallBacker*);
     void		setForceFinalise(bool);
 
-    uiMainWinBody*	body_;
+    uiMainWinBody*	body_			= 0;
     uiParent*		parent_;
-    Timer*		afterpopuptimer_;
+    Timer*		afterpopuptimer_	= 0;
 
-    PopupArea		popuparea_;
+    PopupArea		popuparea_		= Auto;
 
     void		updateCaption();
     uiString		caption_;
@@ -226,8 +228,13 @@ protected:
 
     BufferString	scripttorun_;
 
+    static ObjectSet<uiMainWin>	allwins_;
+    static bool		haveModalWindows();
+
 public:
+
 			// Not for casual use
     static void		programActiveWindow(uiMainWin*);
     static uiMainWin*	programmedActiveWindow();
+
 };
