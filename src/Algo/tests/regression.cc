@@ -62,7 +62,7 @@ static bool testPolyFits( const float* xarr, const float* yarr, int sz )
 		  << " + " << res2[1] << "*X"
 		  << " + " << res2[2] << "*X^2" << od_endl;
     const auto res3 = polyFit( xarr, yarr, sz, 3 );
-    const bool isok = res2[1] > 11.7539 && res2[1] < 11.754;
+    const bool isok = res3[2] > -0.36 && res3[2] < -0.35;
     if ( !quiet || !isok )
 	od_cout() << "Poly Fit order 3: " << res3[0]
 		  << " + " << res3[1] << "*X"
