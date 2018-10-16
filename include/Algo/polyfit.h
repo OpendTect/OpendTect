@@ -38,40 +38,30 @@ TypeSet<fT> polyFit( const fT* x, const fT* y, int nrpts, int order )
     }
 
     const int nrxpows = 2*order + 1;
-    fT xpows[nrxpows];
+    TypeSet<fT> xpows( nrxpows, (fT)0 );
     for ( int ixpow=0; ixpow<nrxpows; ixpow++ )
-    {
-	xpows[ixpow] = (fT)0;
 	for ( int ipt=0; ipt<nrpts; ipt++ )
 	    xpows[ixpow] += std::pow( x[ipt], ixpow );
-    }
 
-    fT normmat[order+1][order+2];
+    TypeSet< TypeSet<fT> > normmat( order+1, TypeSet<fT>(order+2,(fT)0) );
     for ( int iorder=0; iorder<=order; iorder++ )
 	for ( int jorder=0; jorder<=order; jorder++ )
 	    normmat[iorder][jorder] = xpows[iorder+jorder];
 
-    fT yxpows[ order+1 ];
+    TypeSet<fT> yxpows( order+1, (fT)0 );
     for ( int iorder=0; iorder<=order; iorder++ )
-    {
-	yxpows[iorder] = (fT)0;
 	for ( int ipt=0; ipt<nrpts; ipt++ )
 	    yxpows[iorder] += std::pow( x[ipt], iorder ) * y[ipt];
-    }
 
     for ( int iorder=0; iorder<=order; iorder++ )
 	normmat[iorder][order+1] = yxpows[iorder];
 
     const int nreq = order + 1;
     for ( int ieq=0; ieq<nreq; ieq++ )
-    {
 	for ( int jeq=ieq+1;jeq<nreq;jeq++)
-	{
 	    if ( normmat[ieq][ieq] < normmat[jeq][ieq] )
 		for ( int idx=0; idx<=nreq; idx++ )
 		    std::swap( normmat[ieq][idx], normmat[jeq][idx] );
-	}
-    }
 
     for ( int iorder=0; iorder<order; iorder++ )
     {
