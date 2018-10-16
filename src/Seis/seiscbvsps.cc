@@ -469,7 +469,7 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
 
     errmsg_ = uiString::emptyString();
     trans = CBVSSeisTrcTranslator::make( filenm, false, false, &errmsg_ );
-    return tr_;
+    return tr_ && tr_->commitSelections();
 }
 
 
@@ -637,6 +637,7 @@ void SeisCBVSPS2DReader::init( Pos::GeomID geomid )
     errmsg_ = uiString::emptyString();
     tr_ = CBVSSeisTrcTranslator::make( fnm, false, false, &errmsg_ );
     if ( !tr_ ) return;
+    tr_->commitSelections();
 
     TypeSet<Coord> coords; TypeSet<BinID> binids;
     tr_->readMgr()->getPositions( coords );
