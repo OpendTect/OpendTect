@@ -117,10 +117,13 @@ void Threads::Locker::reLock( Threads::Locker::WaitType wt )
 	    lock_.spinLock().lock();
 	else if ( lock_.isMutex() )
 	    lock_.mutex().lock();
-	else if ( isread_ )
-	    lock_.readWriteLock().readLock();
-	else
-	    lock_.readWriteLock().writeLock();
+	else if ( lock_.isRWLock() )
+	{
+	    if ( isread_ )
+		lock_.readWriteLock().readLock();
+	    else
+		lock_.readWriteLock().writeLock();
+	}
     }
     else
     {
@@ -148,10 +151,13 @@ void Threads::Locker::unlockNow()
 	lock_.spinLock().unLock();
     else if ( lock_.isMutex() )
 	lock_.mutex().unLock();
-    else if ( isread_ )
-	lock_.readWriteLock().readUnLock();
-    else
-	lock_.readWriteLock().writeUnLock();
+    else if ( lock_.isRWLock() )
+    {
+	if ( isread_ )
+	    lock_.readWriteLock().readUnLock();
+	else
+	    lock_.readWriteLock().writeUnLock();
+    }
 
     needunlock_ = false;
 }
@@ -159,7 +165,8 @@ void Threads::Locker::unlockNow()
 
 bool Threads::Locker::convertToWriteLock()
 {
-    if ( isread_ || !lock_.isRWLock() ) return true;
+    if ( isread_ || !lock_.isRWLock() )
+	return true;
 
     const bool isok = lock_.readWriteLock().convReadToWriteLock();
     if ( isok )
@@ -168,11 +175,15 @@ bool Threads::Locker::convertToWriteLock()
 }
 
 bool Threads::lockSimpleSpinWaitLock(volatile int& lock)
-{ return lockSimpleSpinLock( lock, Threads::Locker::WaitIfLocked ); }
+{
+    return lockSimpleSpinLock( lock, Threads::Locker::WaitIfLocked );
+}
 
 
-void Threads::unlockSimpleSpinLock(volatile int& lock)
-{ lock = 0; }
+void Threads::unlockSimpleSpinLock( volatile int& lock )
+{
+    lock = 0;
+}
 
 
 bool Threads::lockSimpleSpinLock( volatile int& lock,
