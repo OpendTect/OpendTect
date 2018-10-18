@@ -307,9 +307,13 @@ bool SynthSeis::Generator::isOK() const
 	return false;
 
 #ifdef __debug__
-    if ( freqwavelet_.size() != convolvesize_ ||
-	 freqreflectivities_.size() != convolvesize_ || !tmpvals_ ||
-	 trc_->size() != (outputsampling_.nrSteps()+1) )
+    if ( isfourier_ )
+    {
+	if ( freqwavelet_.size() != convolvesize_ ||
+	     freqreflectivities_.size() != convolvesize_ )
+	    { pErrMsg("Invalid size"); DBG::forceCrash(true); }
+    }
+    if ( !tmpvals_ || trc_->size() != (outputsampling_.nrSteps()+1) )
 	{ pErrMsg("Invalid size"); DBG::forceCrash(true); }
 
     const od_int64 sz = dynamic_cast<const ArrayValueSeries<float,float>* >(
@@ -550,7 +554,7 @@ bool SynthSeis::Generator::doTimeConvolve( ValueSeries<float>& res, int outsz )
 	trcstacker.addInput( newtrc );
     }
 
-    if ( !trcstacker.execute() )
+    if ( !trcstacker.executeParallel(false) )
 	mErrRet( trcstacker.errMsg(), false )
 
     output.getAll( res );
