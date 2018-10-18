@@ -200,9 +200,8 @@ void PropCalc::init()
 	if ( !angledata_ && gather_ && !gather_->isOffsetAngle() )
 	    return;
 
-	const bool anglesourceisgather = getAngleFromMainGather();
 #ifdef __debug__
-	if ( !anglesourceisgather && !angledata_ )
+	if ( !getAngleFromMainGather() && !angledata_ )
 	    { pErrMsg("Wrongly set"); DBG::forceCrash(false); }
 #endif
 	const bool angleunitisrad = anglevalinradiansmgr_.getParam( this ) == 1;
