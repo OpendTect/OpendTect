@@ -29,7 +29,7 @@ public:
 
 ArrayNDStacker( ArrT& out, fT udfval=mUdf(fT) )
     : out_(out)
-    , totalnr_(out_.totalSize())
+    , totalnr_(out.totalSize())
     , normalize_(true)
     , inparrsmine_(false)
     , udfval_(udfval)
@@ -154,12 +154,12 @@ uiString errMsg() const
 
 protected:
 
-    od_int64		totalnr_;
-    ObjectSet<const ArrT> inps_;
     ArrT&		out_;
-    fT			udfval_;
+    od_int64		totalnr_;
     bool		normalize_;
     bool		inparrsmine_;
+    fT			udfval_;
+    ObjectSet<const ArrT> inps_;
     uiString		msg_;
 
 };
