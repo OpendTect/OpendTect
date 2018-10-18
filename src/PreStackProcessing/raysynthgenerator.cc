@@ -8,6 +8,7 @@
 
 #include "raysynthgenerator.h"
 
+#include "keystrs.h"
 #include "prestackgather.h"
 #include "prestacksynthdataset.h"
 #include "raytracerrunner.h"
@@ -83,7 +84,11 @@ bool RaySynthGenerator::doPrepare( int nrthreads )
     if ( !isInputOK() )
 	return false;
 
-    usePar( dataset_->genParams().raypars_ );
+    IOPar synthpar( dataset_->genParams().raypars_ );
+    if ( wavelet_ )
+	synthpar.removeWithKey( sKey::WaveletID() );
+
+    usePar( synthpar );
     if ( applynmo_ && rayModels().hasZeroOffsetOnly() )
 	applynmo_ = false;
 
@@ -117,7 +122,6 @@ bool RaySynthGenerator::doPrepare( int nrthreads )
 	SynthSeis::MultiTraceGenerator* multitracegen = new
 					SynthSeis::MultiTraceGenerator;
 	multitracegen->usePar( par );
-	multitracegen->setWavelet( wavelet_ );
 	generators_ += multitracegen;
     }
 

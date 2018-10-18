@@ -169,7 +169,10 @@ void SynthSeis::GenParams::usePar( const IOPar& par )
 
     PtrMan<IOPar> raypar = par.subselect( sKeyRayPar() );
     if ( raypar )
+    {
 	raypars_ = *raypar;
+	raypars_.set( sKey::WaveletID(), wvltid_ ); // bw compat
+    }
 
     if ( par.hasKey( sKeyIsPreStack()) )
     {
