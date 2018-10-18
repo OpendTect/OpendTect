@@ -71,7 +71,7 @@ static bool testPolyFits( const float* xarr, const float* yarr, int sz )
 
     mRunStandardTest( isok, "Poly Fit" )
 
-    float x[4] = { -1, 0, 1 ,2 };
+    float x[4] = { -1, 0, 1, 2 };
     float y[4] = { -4, 2, 4, 8 };
     auto ax = polyFit( x, y, 4, 3 );
     if ( !quiet )
