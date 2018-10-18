@@ -109,18 +109,31 @@ bool uiAngleCompGrp::acceptOK()
 	params_.anglerange_ = anglerange;
     }
 
+    if ( !advpardlg_ )
+    {
+	advpardlg_ = new uiAngleCompAdvParsDlg( this, params_, dooffset_,
+						isformute_ );
+	advpardlg_->finalise();
+    }
+    advpardlg_->acceptOK(0);
+
     return true;
 }
 
 
 void uiAngleCompGrp::advPushButCB( CallBacker* )
 {
-    if (!advpardlg_)
-    advpardlg_ = new uiAngleCompAdvParsDlg(this, params_, dooffset_, 
-								    isformute_);
-    advpardlg_->updateFromParams();
+    if ( advpardlg_)
+	advpardlg_->updateFromParams();
+    else
+    {
+	advpardlg_ = new uiAngleCompAdvParsDlg( this, params_, dooffset_,
+						isformute_ );
+    }
+
     advpardlg_->go();
 }
+
 
 
 uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
@@ -176,7 +189,7 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
     smoothwinparamlbl_ = new uiLabel( this, toUiString("%") );
     smoothwinparamlbl_->attach( rightOf, smoothwinparamfld_ );
 
-    smoothwinlengthfld_ = new uiGenInput(this, tr("Window width"), 
+    smoothwinlengthfld_ = new uiGenInput(this, tr("Window width"),
 								FloatInpSpec());
     smoothwinlengthfld_->attach( alignedBelow, smoothwindowfld_ );
     smoothwinlengthlbl_ = new uiLabel( this, SI().getUiZUnitString(false) );
@@ -194,9 +207,36 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
 }
 
 
+void uiAngleCompAdvParsDlg::getRayTracerPars()
+{
+    IOPar& par = params_.raypar_;
+    raytracerfld_->fillPar( par );
+    //Clean-up hard-coded parameters:
+    par.removeWithKey( RayTracer1D::sKeyPWave() );
+    par.removeWithKey( RayTracer1D::sKeyReflectivity() );
+    if ( !isformute_ )
+	par.removeWithKey( RayTracer1D::sKeyOffset() );
+    bool doblock;
+    if ( par.getYN(RayTracer1D::sKeyBlock(),doblock) && !doblock )
+	par.removeWithKey( RayTracer1D::sKeyBlockRatio() );
+}
+
+
+void uiAngleCompAdvParsDlg::setRayTracerPars()
+{
+    IOPar par( params_.raypar_ );
+    //Add few hard-coded parameters:
+    par.setYN( RayTracer1D::sKeyReflectivity(), false );
+    if ( !isformute_ )
+	RayTracer1D::setIOParsToZeroOffset( par );
+
+    raytracerfld_->usePar( par );
+}
+
+
 bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
 {
-    raytracerfld_->fillPar( params_.raypar_ );
+    getRayTracerPars();
     if ( isformute_ )
 	return true;
 
@@ -231,30 +271,35 @@ bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
 
 void uiAngleCompAdvParsDlg::updateFromParams()
 {
-    raytracerfld_->usePar( params_.raypar_ );
+    setRayTracerPars();
     if ( isformute_ )
 	return;
 
     const IOPar& iopar = params_.smoothingpar_;
     int smoothtype = 0;
-    iopar.get( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
+    const bool hastype = iopar.get( PreStack::AngleComputer::sKeySmoothType(),
+				    smoothtype );
     smoothtypefld_->setValue( smoothtype );
-    BufferString windowname;
-    iopar.get( PreStack::AngleComputer::sKeyWinFunc(), windowname );
-    smoothwindowfld_->setText( windowname );
-    float windowparam;
-    iopar.get( PreStack::AngleComputer::sKeyWinParam(), windowparam );
-    smoothwinparamfld_->setValue( mNINT32((1-windowparam)*100) );
-    float windowlength;
-    iopar.get( PreStack::AngleComputer::sKeyWinLen(), windowlength );
-    smoothwinlengthfld_->setValue( windowlength * SI().zDomain().userFactor() );
-
-    float freqf3;
-    iopar.get( PreStack::AngleComputer::sKeyFreqF3(), freqf3 );
-    freqf3fld_->setValue( freqf3 );
-    float freqf4;
-    iopar.get( PreStack::AngleComputer::sKeyFreqF4(), freqf4 );
-    freqf4fld_->setValue( freqf4 );
+    if ( hastype && smoothtype == PreStack::AngleComputer::MovingAverage )
+    {
+	BufferString windowname;
+	if ( iopar.get(PreStack::AngleComputer::sKeyWinFunc(),windowname) )
+	    smoothwindowfld_->setText( windowname );
+	float windowparam, windowlength;
+	if ( iopar.get(PreStack::AngleComputer::sKeyWinParam(),windowparam) )
+	    smoothwinparamfld_->setValue( mNINT32((1-windowparam)*100) );
+	if ( iopar.get(PreStack::AngleComputer::sKeyWinLen(),windowlength) )
+	    smoothwinlengthfld_->setValue( windowlength *
+					   SI().zDomain().userFactor() );
+    }
+    else if ( hastype && smoothtype == PreStack::AngleComputer::FFTFilter )
+    {
+	float freqf3, freqf4;
+	if ( iopar.get(PreStack::AngleComputer::sKeyFreqF3(),freqf3) )
+	    freqf3fld_->setValue( freqf3 );
+	if ( iopar.get(PreStack::AngleComputer::sKeyFreqF4(),freqf4) )
+	    freqf4fld_->setValue( freqf4 );
+    }
 
     smoothTypeSel(0);
 }

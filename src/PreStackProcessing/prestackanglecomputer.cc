@@ -399,7 +399,10 @@ Gather* AngleComputer::computeAngleData()
 	if ( !raytracer_ )
 	{
 	    IOPar iopar;
-	    iopar.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
+	    const int lastitem = RayTracer1D::factory().size()-1;
+	    iopar.set( sKey::Type(), lastitem >= 0
+		    ? RayTracer1D::factory().getNames().get( lastitem ).str()
+		    : VrmsRayTracer1D::sFactoryKeyword() );
 	    uiString errormsg;
 	    raytracer_ = RayTracer1D::createInstance( iopar, errormsg );
 	    if ( !errormsg.isEmpty() )
@@ -518,7 +521,6 @@ void ModelBasedAngleComputer::setElasticModel( const TrcKey& tk,
 {
     if ( block )
     {
-	ElasticModel rawem;
 	em.block( thresholdparam_, pvelonly );
 	em.setMaxThickness( maxthickness_ );
     }
@@ -529,6 +531,8 @@ void ModelBasedAngleComputer::setElasticModel( const TrcKey& tk,
 	tools_ += tool;
     else
 	delete tools_.replace( toolidx, tool );
+    trckey_ = tk;
+    needsraytracing_ = true;
 }
 
 
@@ -541,26 +545,60 @@ void ModelBasedAngleComputer::setRayTracer( const RayTracer1D* rt,
 	tools_ += tool;
     else
 	delete tools_.replace( toolidx, tool );
+    trckey_ = tk;
     needsraytracing_ = false;
+    splitModelIfNeeded();
+}
+
+
+void ModelBasedAngleComputer::splitModelIfNeeded()
+{
+    const RayTracer1D* rt1d = curRayTracer();
+    if ( !rt1d )
+	return;
+
+    const ElasticModel& em = rt1d->getModel();
+    bool dosplit = false;
+    for ( int idx=0; idx<em.size(); idx++ )
+    {
+	if ( em[idx].thickness_ > maxthickness_ )
+	{
+	    dosplit = true;
+	    break;
+	}
+    }
+
+    if ( !dosplit )
+	return;
+
+    ElasticModel newem( em );
+    const TrcKey tk = curModelTool()->trcKey();
+    const int toolidx = tools_.indexOf( curModelTool() );
+    delete tools_.removeSingle( toolidx );
+    setElasticModel( tk, true, true, newem );
+}
+
+
+const ModelBasedAngleComputer::ModelTool*
+				ModelBasedAngleComputer::curModelTool() const
+{
+    for ( int idx=0; idx<tools_.size(); idx++ )
+	if ( tools_[idx]->trcKey() == trckey_ )
+	    return tools_[idx];
+    return 0;
 }
 
 
 const ElasticModel& ModelBasedAngleComputer::curElasticModel() const
 {
-    for ( int idx=0; idx<tools_.size(); idx++ )
-	if ( tools_[idx]->trcKey() == trckey_ )
-	    return tools_[idx]->elasticModel();
-    return elasticmodel_;
+    return curModelTool() ? curModelTool()->elasticModel() : elasticmodel_;
 }
 
 
 const RayTracer1D* ModelBasedAngleComputer::curRayTracer() const
 {
     if ( raytracer_ ) return raytracer_;
-    for ( int idx=0; idx<tools_.size(); idx++ )
-	if ( tools_[idx]->trcKey() == trckey_ )
-	    return tools_[idx]->rayTracer();
-    return 0;
+    return curModelTool() ? curModelTool()->rayTracer() : 0;
 }
 
 

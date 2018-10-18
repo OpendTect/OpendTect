@@ -22,8 +22,8 @@ ________________________________________________________________________
 class SeisPSReader;
 class IOObj;
 
-namespace PreStack { class ProcessManager; class Gather;
-		     class AngleComputer; }
+namespace PreStack { class AngleComputer; class Gather;
+		     class GatherSetDataPack; class ProcessManager; }
 
 
 namespace Attrib
@@ -76,6 +76,12 @@ public:
     static const char*	gathertypeStr()		{ return "gathertype"; }
     static const char*	xaxisunitStr()		{ return "xaxisunit"; }
     static const char*	angleDPIDStr()		{ return "angleid"; }
+    static const char*	angleSmoothType()	{ return "anglesmoothtype"; }
+    static const char*	angleFiltFunction()	{ return "anglefiltfunc"; }
+    static const char*	angleFiltValue()	{ return "anglefiltval"; }
+    static const char*	angleFiltLength()	{ return "anglefiltlen"; }
+    static const char*	angleFFTF3Freq()	{ return "anglefftf3freq"; }
+    static const char*	angleFFTF4Freq()	{ return "anglefftf4freq"; }
 
     enum GatherType	{ Off, Ang };
 			mDeclareEnumUtils(GatherType)
@@ -127,6 +133,11 @@ protected:
     MultiID			velocityid_;
 
     ObjectSet<PreStack::Gather>    gatherset_;
+
+private:
+
+    PreStack::GatherSetDataPack*	getMemoryGatherSetDP() const;
+    void			setGatherIsAngle(PreStack::Gather&);
 };
 
 }; // namespace Attrib

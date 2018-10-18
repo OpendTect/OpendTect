@@ -36,11 +36,13 @@ const char* Gather::sKeyIsCorr()		{ return "Is Corrected"; }
 const char* Gather::sKeyZisTime()		{ return "Z Is Time"; }
 const char* Gather::sKeyPostStackDataID()	{ return "Post Stack Data"; }
 const char* Gather::sKeyStaticsID()		{ return "Statics"; }
+const char* GatherSetDataPack::sDataPackCategory()
+{ return "Pre-Stack Gather Set"; }
 
 Gather::Gather()
     : FlatDataPack( sDataPackCategory(), new Array2DImpl<float>(1,1) )
     , offsetisangle_( false )
-    , iscorr_( false )
+    , iscorr_( true )
     , binid_( -1, -1 )
     , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
@@ -50,16 +52,17 @@ Gather::Gather()
 
 Gather::Gather( const Gather& gather )
     : FlatDataPack( gather )
-    , offsetisangle_( gather.offsetisangle_ )
-    , iscorr_( gather.iscorr_ )
-    , binid_( gather.binid_ )
-    , coord_( gather.coord_ )
-    , zit_( gather.zit_ )
-    , azimuths_( gather.azimuths_ )
     , velocitymid_( gather.velocitymid_ )
     , storagemid_( gather.storagemid_ )
-    , linename_( gather.linename_ )
     , staticsmid_( gather.staticsmid_ )
+    , offsetisangle_( gather.offsetisangle_ )
+    , iscorr_( gather.iscorr_ )
+    , zit_( gather.zit_ )
+    , binid_( gather.binid_ )
+    , coord_( gather.coord_ )
+    , azimuths_( gather.azimuths_ )
+    , zrg_(gather.zrg_)
+    , linename_( gather.linename_ )
 {}
 
 
@@ -67,12 +70,15 @@ Gather::Gather( const FlatPosData& fposdata )
     : FlatDataPack( sDataPackCategory(),
         new Array2DImpl<float>(fposdata.nrPts(true),fposdata.nrPts(false)) )
     , offsetisangle_( false )
-    , iscorr_( false )
+    , iscorr_( true )
     , binid_( -1, -1 )
     , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
 {
     posdata_ = fposdata;
+    const StepInterval<double> zsamp = fposdata.range( false );
+    zrg_.set( mCast(float,zsamp.start), mCast(float,zsamp.stop),
+	      mCast(float,zsamp.step) );
 }
 
 
@@ -168,8 +174,8 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
     offsetisangle_ = false;
     ioobj.pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
 
-    iscorr_ = false;
-    if ( !ioobj.pars().getYN(sKeyIsCorr(), iscorr_ ) )
+    iscorr_ = true;
+    if ( !ioobj.pars().getYN(sKeyIsCorr(),iscorr_) )
 	ioobj.pars().getYN( "Is NMO Corrected", iscorr_ );
 
     binid_ = bid;
@@ -299,6 +305,12 @@ const char* Gather::getSeis2DName() const
 }
 
 
+void Gather::setOffsetIsAngle( bool yn )
+{
+    offsetisangle_ = yn;
+}
+
+
 float Gather::getOffset( int idx ) const
 { return (float) posData().position( true, idx ); }
 
@@ -365,22 +377,16 @@ void Gather::detectOuterMutes( int* res, int taperlen ) const
 
 
 
-GatherSetDataPack::GatherSetDataPack( const char* categry,
+GatherSetDataPack::GatherSetDataPack( const char*,
 				      const ObjectSet<Gather>& gathers )
-    : DataPack( categry )
+    : DataPack( sDataPackCategory() )
     , gathers_( gathers )
 {
-    for ( int gidx=0; gidx<gathers_.size(); gidx++ )
-	DPM(DataPackMgr::FlatID()).addAndObtain( gathers_[gidx] );
 }
 
 
 GatherSetDataPack::~GatherSetDataPack()
 {
-    DataPackMgr* flatdpm = DataPackMgr::gtDPM( DataPackMgr::FlatID(), false );
-    if ( !flatdpm ) return; //FlatDPM already deleted
-    for ( int gidx=0; gidx<gathers_.size(); gidx++ )
-	flatdpm->release( gathers_[gidx] );
 }
 
 
