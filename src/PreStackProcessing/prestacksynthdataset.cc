@@ -180,28 +180,11 @@ const SeisTrc* SynthSeis::PreStackDataSet::addTrcToCache( int seqnr,
 }
 
 
-void SynthSeis::PreStackDataSet::convertAngleDataToDegrees( Gather* ag ) const
-{
-    Array2D<float>& agdata = ag->data();
-    const int dim0sz = agdata.getSize(0);
-    const int dim1sz = agdata.getSize(1);
-    for ( int idx=0; idx<dim0sz; idx++ )
-    {
-	for ( int idy=0; idy<dim1sz; idy++ )
-	{
-	    const float radval = agdata.get( idx, idy );
-	    if ( mIsUdf(radval) ) continue;
-	    const float dval =	Math::toDegrees( radval );
-	    agdata.set( idx, idy, dval );
-	}
-    }
-}
-
-
 void SynthSeis::PreStackDataSet::setAngleData( const GatherSet& ags )
 {
-    BufferString angledpnm( name().buf(), " (Angle Gather)" );
-    angledp_ = new GatherSetDataPack( angledpnm, ags );
+    angledp_ = new GatherSetDataPack( ags );
+    const BufferString angledpnm( name().buf(), " (Angle Gather)" );
+    angledp_->setName( angledpnm );
 }
 
 

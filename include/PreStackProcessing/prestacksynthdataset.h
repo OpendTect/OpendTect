@@ -42,7 +42,6 @@ public:
     float			offsetStep() const;
 
     void			setAngleData(const GatherSet&);
-    SeisTrc*			createTrc(int seqnr,int ioffs) const;
     const SeisTrc*		getTrc(int seqnr,int offset) const;
     SeisTrcBuf*			getTrcBuf(float startoffset,
 					  const Interval<float>* of=0) const;
@@ -60,9 +59,8 @@ protected:
 
     void			ensureCacheReady() const;
     const SeisTrc*		getCachedTrc(int seqnr,int offsnr) const;
+    SeisTrc*			createTrc(int seqnr,int ioffs) const;
     const SeisTrc*		addTrcToCache(int seqnr,int offsnr) const;
-
-    void			convertAngleDataToDegrees(Gather*) const;
 
     virtual DataPackMgr::ID	dpMgrID() const;
     virtual const SeisTrc*	gtTrc(int,float) const;

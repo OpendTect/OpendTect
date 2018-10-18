@@ -1246,7 +1246,7 @@ uiString Seis::SequentialPSLoader::nrDoneText() const
 
 bool Seis::SequentialPSLoader::init()
 {
-    gatherdp_ = new GatherSetDataPack( ioobj_->name() );
+    gatherdp_ = new GatherSetDataPack();
     const StringPair strpair( prov_->name(), Survey::GM().getName(geomid_));
     gatherdp_->setName( strpair.getCompString() );
     return true;

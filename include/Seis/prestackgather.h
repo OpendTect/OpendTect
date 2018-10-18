@@ -142,7 +142,7 @@ public:
 
 protected:
 
-				~Gather();
+	virtual			~Gather();
 
     DBKey			velocityid_;
     DBKey			storageid_;
@@ -176,10 +176,9 @@ public:
 
     typedef ObjectSet<Gather>	GatherSet;
 
-				GatherSetDataPack( const char* cat )
-				    : DataPack(cat)	{}
-				GatherSetDataPack(const char* cat,
-						  const GatherSet&);
+				GatherSetDataPack()
+				    : DataPack(sDataPackCategory())	{}
+				GatherSetDataPack(const GatherSet&);
 				mDeclMonitorableAssignment(GatherSetDataPack);
     bool			isEmpty() const { return gathers_.isEmpty(); }
 
@@ -197,9 +196,11 @@ public:
     void			setGathers( const GatherSet& gathers )
 				{ gathers_ = gathers; }
 
+    static const char*		sDataPackCategory();
+
 protected:
 
-				~GatherSetDataPack();
+	virtual			~GatherSetDataPack();
 
     SeisTrc*			crTrace(int gatheridx,int offsetidx) const;
 

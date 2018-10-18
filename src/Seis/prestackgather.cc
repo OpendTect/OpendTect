@@ -33,6 +33,8 @@ const char* Gather::sKeyIsCorr()		{ return "Is Corrected"; }
 const char* Gather::sKeyZisTime()		{ return "Z Is Time"; }
 const char* Gather::sKeyPostStackDataID()	{ return "Post Stack Data"; }
 const char* Gather::sKeyStaticsID()		{ return "Statics"; }
+const char* GatherSetDataPack::sDataPackCategory()
+{ return "Pre-Stack Gather Set"; }
 
 
 mDefineEnumUtils(Gather,Type,"Gather type")
@@ -101,18 +103,19 @@ mImplMonitorableAssignment( Gather, FlatDataPack )
 
 void Gather::copyClassData( const Gather& oth )
 {
+    velocityid_ = oth.velocityid_;
+    storageid_ = oth.storageid_;
+    staticsid_ = oth.staticsid_;
     type_ = oth.type_;
     amptype_ = oth.amptype_;
     ampunit_ = oth.ampunit_;
     xaxisunit_ = oth.xaxisunit_;
     iscorr_ = oth.iscorr_;
+    zit_ = oth.zit_;
     trckey_ = oth.trckey_;
     coord_ = oth.coord_;
-    zit_ = oth.zit_;
     azimuths_ = oth.azimuths_;
-    velocityid_ = oth.velocityid_;
-    storageid_ = oth.storageid_;
-    staticsid_ = oth.staticsid_;
+    zrg_ = oth.zrg_;
 }
 
 
@@ -147,6 +150,9 @@ Gather::Gather( const FlatPosData& fposdata )
     , zit_( SI().zIsTime() )
 {
     posdata_ = fposdata;
+    const StepInterval<double> zsamp = fposdata.range( false );
+    zrg_.set( mCast(float,zsamp.start), mCast(float,zsamp.stop),
+	      mCast(float,zsamp.step) );
 }
 
 
@@ -491,9 +497,8 @@ void Gather::doDumpInfo( IOPar& iop ) const
 
 
 
-GatherSetDataPack::GatherSetDataPack( const char* categry,
-				      const ObjectSet<Gather>& gathers )
-    : DataPack( categry )
+GatherSetDataPack::GatherSetDataPack( const ObjectSet<Gather>& gathers )
+    : DataPack( sDataPackCategory() )
     , gathers_( gathers )
 {
     for ( int gidx=0; gidx<gathers_.size(); gidx++ )

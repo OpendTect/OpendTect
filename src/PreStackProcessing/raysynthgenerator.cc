@@ -40,12 +40,13 @@ void RaySynthGenerator::createDataSet( const GenParams& gp,
 {
     if ( gp.type_ == SynthSeis::ZeroOffset )
     {
-	auto* dp = new SeisTrcBufDataPack( "PostStack Synthetics" );
+	auto* dp = new SeisTrcBufDataPack(
+			SynthSeis::PostStackDataSet::sDataPackCategory() );
 	dataset_ = new SynthSeis::PostStackDataSet( gp, *dp, &rms );
     }
     else
     {
-	auto* dp = new GatherSetDataPack( "PreStack Synthetics" );
+	auto* dp = new GatherSetDataPack();
 	dataset_ = new SynthSeis::PreStackDataSet( gp, *dp, rms );
     }
 }

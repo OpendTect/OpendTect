@@ -1137,7 +1137,8 @@ bool doFinish( bool success )
 	gp.name_.set( propref.name() );
 	const BufferString dsnm( datamgr_.getFinalDataSetName(gp.name_,true) );
 	auto* dp = new SeisTrcBufDataPack( tbufs_[iprop-1], Seis::Line,
-					   SeisTrcInfo::TrcNr, dsnm );
+			   SeisTrcInfo::TrcNr,
+			   SynthSeis::PostStackDataSet::sDataPackCategory() );
 	auto* ds = new SynthSeis::StratPropDataSet( gp, *dp, propref );
 	ds->setName( dsnm );
 	ds->getD2TFrom( t2dds_ );
@@ -1396,7 +1397,8 @@ StratSynth::DataMgr::genPSPostProcDataSet( const GenParams& gp,
 		on a copy of prestack input for AVO Gradient */
 
     SeisTrcBufDataPack* retbuf =
-	new SeisTrcBufDataPack( tbuf, Seis::Line, SeisTrcInfo::TrcNr, gp.name_);
+	new SeisTrcBufDataPack( tbuf, Seis::Line, SeisTrcInfo::TrcNr,
+			SynthSeis::PostStackDataSet::sDataPackCategory() );
     DataSet* retds = 0;
     if ( isanglestack )
 	retds = new SynthSeis::AngleStackDataSet( gp, *retbuf );

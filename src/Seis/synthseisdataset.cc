@@ -41,6 +41,8 @@ ________________________________________________________________________
 
 static const char* sKeyDispPar()		{ return "Display Parameter"; }
 static Threads::Atomic<int> curdatasetid_( 0 );
+const char* SynthSeis::PostStackDataSet::sDataPackCategory()
+{ return "Post-stack synthetics"; }
 
 
 SynthSeis::DispPars::DispPars()

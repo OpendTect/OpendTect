@@ -153,6 +153,8 @@ public:
     DPType&		postStackPack();
     const DPType&	postStackPack() const;
 
+    static const char*	sDataPackCategory();
+
 protected:
 
     virtual DataPackMgr::ID	dpMgrID() const;
