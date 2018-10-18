@@ -70,7 +70,7 @@ ArrayNDStacker& manageInputs( bool yn )
 }
 
 
-bool doPrepare( int nrthreads )
+bool doPrepare( int )
 {
     if ( inps_.isEmpty() )
 	{ out_.setAll( udfval_ ); return true; }
@@ -107,7 +107,7 @@ bool doPrepare( int nrthreads )
     return true;
 }
 
-bool doWork( od_int64 start, od_int64 stop, int threadidx )
+bool doWork( od_int64 start, od_int64 stop, int )
 {
     if ( totalnr_ < 1 )
 	return true;
@@ -123,7 +123,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	for ( int iarr=0; iarr<inps_.size(); iarr++ )
 	{
 	    const ArrT* inparr = inps_[iarr];
-	    if ( inparr->validPos(ndpos) )
+	    if ( !inparr->validPos(ndpos) )
 	       continue;
 
 	    const fT val = inparr->getND( ndpos );
@@ -132,7 +132,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	}
 
 	if ( count < 1 )
-	    outval = mUdf(fT);
+	    outval = udfval_;
 	else if ( normalize_ )
 	    outval /= count;
 
