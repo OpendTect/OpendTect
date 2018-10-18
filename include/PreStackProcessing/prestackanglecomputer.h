@@ -144,6 +144,7 @@ public:
 	const TrcKey&		trcKey() const	{ return trckey_; }
 	bool			operator ==( const ModelTool& a ) const
 				{ return a.trcKey() == trckey_; }
+
     protected:
 	ElasticModel*		em_;
 	const RayTracer1D*	rt_;
@@ -164,8 +165,10 @@ public:
 
 protected:
 
+    const ModelTool*		curModelTool() const;
     const ElasticModel&		curElasticModel() const;
     const RayTracer1D*		curRayTracer() const;
+    void			splitModelIfNeeded();
 
     ObjectSet<ModelTool>	tools_;
 };

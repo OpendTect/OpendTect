@@ -56,11 +56,14 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
 static const char* sKeySynthType()		{ return "Synthetic Type"; }
 static const char* sKeyWaveLetName()		{ return "Wavelet Name"; }
-static const char* sKeyRayPar()		{ return "Ray Parameter"; }
+static const char* sKeyRayPar()			{ return "Ray Parameter"; }
 static const char* sKeyDispPar()		{ return "Display Parameter"; }
 static const char* sKeyInput()			{ return "Input Synthetic"; }
 static const char* sKeyAngleRange()		{ return "Angle Range"; }
 static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
+const char* PostStackSyntheticData::sDataPackCategory()
+{ return "Post-stack synthetics"; }
+
 #define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
 #define sDefaultOffsetRange StepInterval<float>( 0.f, 6000.f, 100.f )
 
@@ -573,10 +576,8 @@ mSetString(Attrib::StorageProvider::keyStr(),dpidstring.buf());
 
 #define mSetProc() \
 mSetBool(Attrib::PSAttrib::useangleStr(), true ); \
-mSetFloat(Attrib::PSAttrib::offStartStr(), synthgenpar.anglerg_.start ); \
-mSetFloat(Attrib::PSAttrib::offStopStr(), synthgenpar.anglerg_.stop ); \
-mSetFloat(Attrib::PSAttrib::gathertypeStr(), Attrib::PSAttrib::Ang ); \
-mSetFloat(Attrib::PSAttrib::xaxisunitStr(), Attrib::PSAttrib::Deg ); \
+mSetFloat(Attrib::PSAttrib::angleStartStr(), synthgenpar.anglerg_.start ); \
+mSetFloat(Attrib::PSAttrib::angleStopStr(), synthgenpar.anglerg_.stop ); \
 mSetFloat(Attrib::PSAttrib::angleDPIDStr(),\
 	&presd.angleData() ? presd.angleData().id() : -1 ); \
 psdesc->setUserRef( synthgenpar.name_ ); \
@@ -625,7 +626,8 @@ for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
 } \
 SeisTrcBufDataPack* angledp = \
     new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
-			    SeisTrcInfo::TrcNr, synthgenpar.name_ ); \
+			    SeisTrcInfo::TrcNr, \
+			    PostStackSyntheticData::sDataPackCategory() ); \
 
 SyntheticData* StratSynth::createAVOGradient( const SyntheticData& sd,
 					     const TrcKeyZSampling& cs,
@@ -870,7 +872,6 @@ int nextStep()
     anglecomputer_->setGatherIsNMOCorrected( gather->isCorrected() );
     const TrcKey trckey( gather->getBinID() );
     anglecomputer_->setRayTracer( rts_[(int)nrdone_], trckey );
-    anglecomputer_->setTrcKey( trckey );
     PreStack::Gather* anglegather = anglecomputer_->computeAngles();
     convertAngleDataToDegrees( anglegather );
     TypeSet<float> azimuths;
@@ -880,7 +881,6 @@ int nextStep()
     anglegather->setName( angledpnm );
     anglegather->setBinID( gather->getBinID() );
     anglegathers_ += anglegather;
-    DPM(DataPackMgr::FlatID()).addAndObtain( anglegather );
     nrdone_++;
     return MoreToDo();
 }
@@ -987,7 +987,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    }
 
 	    PreStack::GatherSetDataPack* dp =
-		new PreStack::GatherSetDataPack( synthgenpar.name_, gatherset );
+				new PreStack::GatherSetDataPack( 0, gatherset );
 	    sd = new PreStackSyntheticData( synthgenpar, *dp );
 	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
 	    if ( rms )
@@ -1037,8 +1037,8 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	SeisTrcBuf* dptrcbuf = new SeisTrcBuf( true );
 	synthgen->getStackedTraces( *dptrcbuf );
 	SeisTrcBufDataPack* dp =
-	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line,
-				    SeisTrcInfo::TrcNr, synthgenpar.name_ );
+	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
+				  PostStackSyntheticData::sDataPackCategory() );
 	sd = new PostStackSyntheticData( synthgenpar, *dp );
     }
 
@@ -1185,7 +1185,7 @@ bool doPrepare( int nrthreads )
 	SeisTrcBuf* trcbuf = new SeisTrcBuf( sd_.postStackPack().trcBuf() );
 	SeisTrcBufDataPack* seisbuf =
 	    new SeisTrcBufDataPack( trcbuf, Seis::Line, SeisTrcInfo::TrcNr,
-				    props[iprop]->name() );
+				  PostStackSyntheticData::sDataPackCategory() );
 	seisbufdps_ += seisbuf;
     }
 
@@ -1776,19 +1776,13 @@ PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
     datapackid_ = DataPack::FullID( pmid, dp.id());
     ObjectSet<PreStack::Gather>& gathers = dp.getGathers();
     for ( int idx=0; idx<gathers.size(); idx++ )
-    {
-	DPM(DataPackMgr::FlatID()).obtain( gathers[idx]->id() );
 	gathers[idx]->setName( name() );
-    }
 }
 
 
 PreStackSyntheticData::~PreStackSyntheticData()
 {
-    mDynamicCastGet(PreStack::GatherSetDataPack&,gsetdp,datapack_)
-    ObjectSet<PreStack::Gather>& gathers = gsetdp.getGathers();
-    for ( int idx=0; idx<gathers.size(); idx++ )
-	DPM(DataPackMgr::FlatID()).release( gathers[idx] );
+    DPM( DataPackMgr::SeisID() ).release( datapack_.id() );
     if ( angledp_ )
 	DPM( DataPackMgr::SeisID() ).release( angledp_->id() );
 }
@@ -1826,13 +1820,14 @@ void PreStackSyntheticData::convertAngleDataToDegrees(
 
 
 void PreStackSyntheticData::setAngleData(
-	const ObjectSet<PreStack::Gather>& ags )
+					const ObjectSet<PreStack::Gather>& ags )
 {
     if ( angledp_ )
 	DPM( DataPackMgr::SeisID() ).release( angledp_->id() );
 
-    BufferString angledpnm( name().buf(), " (Angle Gather)" );
-    angledp_ = new PreStack::GatherSetDataPack( angledpnm, ags );
+    angledp_ = new PreStack::GatherSetDataPack( 0, ags );
+    const BufferString angledpnm( name().buf(), " (Angle Gather)" );
+    angledp_->setName( angledpnm );
     DPM( DataPackMgr::SeisID() ).addAndObtain( angledp_ );
 }
 

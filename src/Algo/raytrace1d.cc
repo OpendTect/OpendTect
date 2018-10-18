@@ -462,7 +462,7 @@ float RayTracer1D::getDepth( int layer ) const
 
 float RayTracer1D::getTime( int layer, int offset ) const
 {
-    return sini_->get( layer, offset );
+    return twt_->get( layer, offset );
 }
 
 

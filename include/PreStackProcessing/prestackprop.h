@@ -77,7 +77,9 @@ public:
 
     bool		hasAngleData() const		{ return angledata_; }
     void		setGather(DataPack::ID);
+    void		setGather(const PreStack::Gather&);
     void		setAngleData(DataPack::ID);
+    void		setAngleData(const PreStack::Gather&);
 			/*!< Only used if AngleA0 or AngleCoeff. If not set,
 			     offset values from traces will be assumed to
 			     contain angles. */
@@ -97,6 +99,16 @@ protected:
     Gather*		angledata_;
 
     Setup		setup_;
+
+private:
+
+    void		init();
+    bool		getAngleFromMainGather() const;
+    void		handleNewGather();
+
+public:
+
+    void		setAngleValuesInRadians(bool yn);
 };
 
 } // namespace PreStack

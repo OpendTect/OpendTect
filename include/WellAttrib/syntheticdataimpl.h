@@ -20,7 +20,7 @@ class ElasticModel;
 class SeisTrcBufDataPack;
 class PropertyRef;
 
-namespace PreStack { class GatherSetDataPack; class Gather; } 
+namespace PreStack { class GatherSetDataPack; class Gather; }
 
 
 mExpClass(WellAttrib) PostStackSyntheticData : public SyntheticData
@@ -30,7 +30,7 @@ public:
 							SeisTrcBufDataPack&);
 				~PostStackSyntheticData();
 
-    bool			isPS() const 	  { return false; }
+    bool			isPS() const	  { return false; }
     bool			hasOffset() const { return false; }
     bool			isAngleStack() const { return false; }
     SynthGenParams::SynthType	synthType() const
@@ -38,8 +38,10 @@ public:
 
     const SeisTrc*		getTrace(int seqnr) const;
 
-    SeisTrcBufDataPack& 	postStackPack();
-    const SeisTrcBufDataPack& 	postStackPack() const;
+    SeisTrcBufDataPack& postStackPack();
+    const SeisTrcBufDataPack&	postStackPack() const;
+
+    static const char*		sDataPackCategory();
 
 };
 
@@ -54,7 +56,7 @@ public:
     void			useGenParams(const SynthGenParams&);
     void			fillGenParams(SynthGenParams&) const;
 protected:
-    BufferString 		inpsynthnm_;
+    BufferString		inpsynthnm_;
     Interval<float>		anglerg_;
 };
 
@@ -68,8 +70,8 @@ public:
 				    SeisTrcBufDataPack& sbufdp )
 				    : PSBasedPostStackSyntheticData(sgp,sbufdp)
 				{}
-    bool			isAVOGradient() const 	{ return true; }
-    bool			isAngleStack() const 	{ return false; }
+    bool			isAVOGradient() const	{ return true; }
+    bool			isAngleStack() const	{ return false; }
     SynthGenParams::SynthType	synthType() const
 				{ return SynthGenParams::AVOGradient; }
 protected:
@@ -85,8 +87,8 @@ public:
 				    SeisTrcBufDataPack& sbufdp )
 				    : PSBasedPostStackSyntheticData(sgp,sbufdp)
 				{}
-    bool			isAVOGradient() const 	{ return false; }
-    bool			isAngleStack() const 	{ return true; }
+    bool			isAVOGradient() const	{ return false; }
+    bool			isAngleStack() const	{ return true; }
     SynthGenParams::SynthType	synthType() const
 				{ return SynthGenParams::AngleStack; }
 protected:
@@ -100,18 +102,18 @@ public:
 						PreStack::GatherSetDataPack&);
 				~PreStackSyntheticData();
 
-    bool				isPS() const 	  { return true; }
+    bool				isPS() const	  { return true; }
     bool				isNMOCorrected() const;
     bool				hasOffset() const;
-    const Interval<float>		offsetRange() const; 
+    const Interval<float>		offsetRange() const;
     float				offsetRangeStep() const;
     SynthGenParams::SynthType		synthType() const
 					{ return SynthGenParams::PreStack; }
 
     void				setAngleData(
-	    				    const ObjectSet<PreStack::Gather>&);
+					    const ObjectSet<PreStack::Gather>&);
     const SeisTrc*			getTrace(int seqnr) const
-    					{ return getTrace(seqnr,0); }
+					{ return getTrace(seqnr,0); }
     const SeisTrc*			getTrace(int seqnr,int* offset) const;
     SeisTrcBuf*				getTrcBuf(float startoffset,
 					    const Interval<float>* of=0) const;
@@ -124,7 +126,7 @@ protected:
 
     PreStack::GatherSetDataPack*	angledp_;
     void				convertAngleDataToDegrees(
-	    					PreStack::Gather*) const;
+						PreStack::Gather*) const;
 };
 
 
@@ -140,7 +142,7 @@ public:
 				{ return SynthGenParams::StratProp; }
 
 protected:
-    const PropertyRef& 		prop_;
+    const PropertyRef&		prop_;
 };
 
 
