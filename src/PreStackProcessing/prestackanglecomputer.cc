@@ -432,14 +432,16 @@ bool AngleComputer::doRaytracing( uiString& msg )
 
     if ( raypar_.isEmpty() )
     {
-	raypar_.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
-	//TODO: last item of factory?
+	const int lastitem = RayTracer1D::factory().size()-1;
+	raypar_.set( sKey::Type(), lastitem >= 0
+		    ? RayTracer1D::factory().getKeys().get( lastitem ).str()
+		    : VrmsRayTracer1D::sFactoryKeyword() );
     }
 
     PtrMan<RayTracer1D> raytracer =
 			RayTracer1D::createInstance( raypar_, msg );
     if ( !raytracer || !msg.isEmpty() )
-	return false; //TODO: raytracer factory message
+	return false;
 
     raytracer->setup().doreflectivity( false );
     TypeSet<float> offsets;
@@ -583,10 +585,13 @@ ModelBasedAngleComputer::ModelBasedAngleComputer()
 void ModelBasedAngleComputer::setElasticModel( const ElasticModel& em,
 					       bool block, bool pvelonly )
 {
-    if ( elasticmodel_ )
-	*elasticmodel_ = em;
-    else
-	elasticmodel_ = new ElasticModel( em );
+    if ( !elasticmodel_ || (elasticmodel_ && &em != elasticmodel_) )
+    {
+	if ( elasticmodel_ )
+	    *elasticmodel_ = em;
+	else
+	    elasticmodel_ = new ElasticModel( em );
+    }
 
     if ( block )
     {
@@ -599,6 +604,58 @@ void ModelBasedAngleComputer::setElasticModel( const ElasticModel& em,
 void ModelBasedAngleComputer::setRayTraceData( const RayTracerData& data )
 {
     raytracedata_ = &data;
+    splitModelIfNeeded();
+}
+
+
+void ModelBasedAngleComputer::splitModelIfNeeded()
+{
+    if ( !raytracedata_ )
+	return;
+
+    bool dosplit = false;
+    for ( int idx=0; idx<raytracedata_->nrLayers(); idx++ )
+    {
+	const float thickness = idx==0 ? raytracedata_->getDepth( idx )
+			      : raytracedata_->getDepth( idx ) -
+			        raytracedata_->getDepth( idx - 1 );
+	if ( thickness > maxthickness_ )
+	{
+	    dosplit = true;
+	    break;
+	}
+    }
+
+    if ( !dosplit )
+	return;
+
+    if ( elasticmodel_ )
+	elasticmodel_->setEmpty();
+    else
+	elasticmodel_ = new ElasticModel;
+
+    elasticmodel_->add( AILayer( raytracedata_->getDepth(0),
+				 2.f * raytracedata_->getDepth(0) /
+				 raytracedata_->getTnmo( 0 ), mUdf(float) ) );
+
+    for ( int idx=1; idx<raytracedata_->nrLayers(); idx++ )
+    {
+	const double curdepth = raytracedata_->getDepth( idx );
+	const double prevdepth = raytracedata_->getDepth( idx - 1 );
+	const double curtwt = raytracedata_->getTnmo( idx );
+	const double prevtwt = raytracedata_->getTnmo( idx - 1 );
+	const double thickness = raytracedata_->getDepth( idx ) -
+			        raytracedata_->getDepth( idx - 1 );
+	const double pvel = 2. * ( curdepth - prevdepth ) /
+				 ( curtwt - prevtwt );
+	elasticmodel_->add( AILayer( mCast(float,thickness),
+				     mCast(float,pvel), mUdf(float) ) );
+    }
+
+    elasticmodel_->mergeSameLayers();
+    setElasticModel( *elasticmodel_, true, true );
+
+    raytracedata_ = 0;
 }
 
 } // namespace PreStack
