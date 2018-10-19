@@ -125,14 +125,10 @@ bool uiPreStackAttrib::setAngleParameters( const Desc& desc )
 		  params_.velvolmid_=DBKey::getFromStr(idstr) )
 
     Interval<int> anglerange, normalanglevalrange( 0, 90 );
-    mIfGetInt( PSAttrib::angleStartStr(), start,
-		anglerange.start=start )
-    mIfGetInt( PSAttrib::angleStopStr(), stop,
-		anglerange.stop=stop )
+    mIfGetInt( PSAttrib::angleStartStr(), start, anglerange.start=start )
+    mIfGetInt( PSAttrib::angleStopStr(), stop, anglerange.stop=stop )
     if ( normalanglevalrange.includes(anglerange,false) )
 	params_.anglerange_ = anglerange;
-
-    anglecompgrp_->updateFromParams();
 
     BufferString raytracerparam;
     mIfGetString( PSAttrib::rayTracerParamStr(), param,
@@ -141,47 +137,45 @@ bool uiPreStackAttrib::setAngleParameters( const Desc& desc )
 
     IOPar& smpar = params_.smoothingpar_;
     int smoothtype = 0;
-    mIfGetEnum( PreStack::AngleComputer::sKeySmoothType(), smtype,
-		smoothtype=smtype )
+    mIfGetEnum( Attrib::PSAttrib::angleSmoothType(), smtype, smoothtype=smtype )
     smpar.set( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
 
     if ( smoothtype == PreStack::AngleComputer::MovingAverage )
     {
 	float windowlength = mUdf(float);
-	mIfGetFloat( PreStack::AngleComputer::sKeyWinLen(), winlen,
+	mIfGetFloat( Attrib::PSAttrib::angleFiltLength(), winlen,
 		     windowlength=winlen )
 	if ( !mIsUdf(windowlength) )
 	    smpar.set( PreStack::AngleComputer::sKeyWinLen(), windowlength );
 
 	BufferString windowfunction;
-	mIfGetString( PreStack::AngleComputer::sKeyWinFunc(), winfunc,
+	mIfGetString( Attrib::PSAttrib::angleFiltFunction(), winfunc,
 		      windowfunction=winfunc )
 	smpar.set( PreStack::AngleComputer::sKeyWinFunc(), windowfunction );
 
 	if ( windowfunction == CosTaperWindow::sName() )
 	{
 	    float windowparam = mUdf(float);
-	    mIfGetFloat( PreStack::AngleComputer::sKeyWinParam(), winpar,
+	    mIfGetFloat( Attrib::PSAttrib::angleFiltValue(), winpar,
 			 windowparam=winpar )
 	    if ( !mIsUdf(windowparam) && windowparam >=0 && windowparam <= 1 )
-		smpar.set( PreStack::AngleComputer::sKeyWinParam(),
-			   windowparam );
+		smpar.set( PreStack::AngleComputer::sKeyWinParam(),windowparam);
 	}
     }
     else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
     {
 	float f3freq = mUdf(float);
-	mIfGetFloat( PreStack::AngleComputer::sKeyFreqF3(), freq,
-		    f3freq=freq  )
+	mIfGetFloat( Attrib::PSAttrib::angleFFTF3Freq(), freq, f3freq=freq  )
 	if ( !mIsUdf(f3freq) )
 	    smpar.set( PreStack::AngleComputer::sKeyFreqF3(), f3freq );
 
 	float f4freq = mUdf(float);
-	mIfGetFloat( PreStack::AngleComputer::sKeyFreqF4(), freq,
-		    f4freq=freq )
+	mIfGetFloat( Attrib::PSAttrib::angleFFTF4Freq(), freq, f4freq=freq )
 	if ( !mIsUdf(f4freq) )
 	    smpar.set( PreStack::AngleComputer::sKeyFreqF4(), f4freq );
     }
+
+    anglecompgrp_->updateFromParams();
 
     return true;
 
@@ -221,14 +215,13 @@ bool uiPreStackAttrib::setParameters( const Desc& desc )
 
     if ( !useangle )
     {
-	mIfGetEnum(PSAttrib::gathertypeStr(),gtp,gathertypefld_->setValue(gtp));
 	mIfGetEnum(PSAttrib::xaxisunitStr(),xut,xunitfld_->setValue(xut));
-	Interval<float> offsrg( aps->setup().offsrg_ );
-	if ( SI().xyInFeet() && !offsrg.isUdf() &&
-	     gathertypefld_->getIntValue() == 0 )
-	    offsrg.scale( mToFeetFactorF );
-
-	xrgfld_->setValue( offsrg );
+	const bool isoffset = gathertypefld_->getIntValue() == 0;
+	Interval<float> xrg = isoffset ? aps->setup().offsrg_
+			    : aps->setup().anglerg_;
+	if ( isoffset && SI().xyInFeet() && !xrg.isUdf() )
+	    xrg.scale( mToFeetFactorF );
+	xrgfld_->setValue( xrg );
     }
 
     doPreProcSel(0);
@@ -255,32 +248,32 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
     int smoothtype;
     const IOPar& smpar = params_.smoothingpar_;
     smpar.get( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
-    mSetEnum( PreStack::AngleComputer::sKeySmoothType(), smoothtype )
+    mSetEnum( Attrib::PSAttrib::angleSmoothType(), smoothtype )
 
     if ( smoothtype == PreStack::AngleComputer::MovingAverage )
     {
 	float winlength;
 	smpar.get( PreStack::AngleComputer::sKeyWinLen(), winlength );
-	mSetFloat( PreStack::AngleComputer::sKeyWinLen(), winlength )
+	mSetFloat( Attrib::PSAttrib::angleFiltLength(), winlength )
 	BufferString winfunc;
 	smpar.get( PreStack::AngleComputer::sKeyWinFunc(), winfunc );
-	mSetString( PreStack::AngleComputer::sKeyWinFunc(), winfunc )
+	mSetString( Attrib::PSAttrib::angleFiltFunction(), winfunc )
 	if ( winfunc == CosTaperWindow::sName() )
 	{
 	    float winparam;
 	    smpar.get( PreStack::AngleComputer::sKeyWinParam(), winparam );
 	    if ( winparam>=0 && winparam <= 1 )
-		mSetFloat( PreStack::AngleComputer::sKeyWinParam(), winparam )
+		mSetFloat( Attrib::PSAttrib::angleFiltValue(), winparam )
 	}
     }
     else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
     {
 	float f3freq;
 	smpar.get( PreStack::AngleComputer::sKeyFreqF3(), f3freq );
-	mSetFloat( PreStack::AngleComputer::sKeyFreqF3(), f3freq );
+	mSetFloat( Attrib::PSAttrib::angleFFTF3Freq(), f3freq );
 	float f4freq;
 	smpar.get( PreStack::AngleComputer::sKeyFreqF4(), f4freq );
-	mSetFloat( PreStack::AngleComputer::sKeyFreqF4(), f4freq );
+	mSetFloat( Attrib::PSAttrib::angleFFTF4Freq(), f4freq );
     }
 
     return true;
@@ -417,7 +410,8 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
 	    xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
 	if ( isoffset || !iscomputeangle )
 	    xaxistypefld_->setValue( PreStack::PropCalc::Norm );
-	xrgfld_->setEmpty();
+	if ( finalised() )
+	    xrgfld_->setEmpty();
     }
 
     xaxistypefld_->setSensitive( isoffset && !iscomputeangle );

@@ -75,6 +75,8 @@ protected :
     bool		isSmoothTypeFFTFilter();
     void		smoothTypeSel(CallBacker*);
     void		smoothWindowSel(CallBacker*);
+    void		getRayTracerPars();
+    void		setRayTracerPars();
     void		finaliseCB(CallBacker*);
 
     uiRayTracerSel*	raytracerfld_;
@@ -87,6 +89,8 @@ protected :
 
     bool		isformute_;
     PreStack::AngleCompParams&	params_;
+
+    friend class uiAngleCompGrp;
 };
 
 

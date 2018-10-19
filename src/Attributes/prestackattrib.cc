@@ -73,22 +73,16 @@ void PSAttrib::initClass()
     desc->addParam( new IntParam( angleStopStr(), mUdf(int), false ) );
     desc->addParam( new IntParam(angleDPIDStr(),-1,true) );
 
-    EnumParam* smoothtype = new EnumParam(
-				PreStack::AngleComputer::sKeySmoothType() );
+    EnumParam* smoothtype = new EnumParam(angleSmoothType() );
     smoothtype->setEnums( PreStack::AngleComputer::smoothingTypeDef() );
     smoothtype->setDefaultValue( PreStack::AngleComputer::FFTFilter );
     desc->addParam( smoothtype );
 
-    desc->addParam( new StringParam( PreStack::AngleComputer::sKeyWinFunc(), "",
-				     false ) );
-    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinParam(),
-				    mUdf(float), false ) );
-    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinLen(),
-				    mUdf(float), false ) );
-    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF3(),
-				    mUdf(float), false ) );
-    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF4(),
-				    mUdf(float), false ) );
+    desc->addParam( new StringParam( angleFiltFunction(), "", false ) );
+    desc->addParam( new FloatParam( angleFiltValue(), mUdf(float), false ) );
+    desc->addParam( new FloatParam( angleFiltLength(), mUdf(float), false ) );
+    desc->addParam( new FloatParam( angleFFTF3Freq(), mUdf(float), false ) );
+    desc->addParam( new FloatParam( angleFFTF4Freq(), mUdf(float), false ) );
     desc->addParam( new BoolParam( useangleStr(), true, false ) );
     desc->addParam( new StringParam( rayTracerParamStr(), "", false ) );
 
@@ -125,23 +119,16 @@ void PSAttrib::updateDesc( Desc& desc )
     desc.setParamEnabled( angleStartStr(), useangle );
     desc.setParamEnabled( angleStopStr(), useangle );
     desc.setParamEnabled( rayTracerParamStr(), useangle );
-    desc.setParamEnabled( PreStack::AngleComputer::sKeySmoothType(), useangle );
+    desc.setParamEnabled( angleSmoothType(), useangle );
 
-    const int smoothtype = desc.getValParam(
-		     PreStack::AngleComputer::sKeySmoothType())->getIntValue();
+    const int smoothtype = desc.getValParam( angleSmoothType() )->getIntValue();
     const bool fftfilter = smoothtype == PreStack::AngleComputer::FFTFilter;
     const bool movingavg = smoothtype == PreStack::AngleComputer::MovingAverage;
-    desc.setParamEnabled( PreStack::AngleComputer::sKeyFreqF3(),
-			  useangle && fftfilter );
-    desc.setParamEnabled( PreStack::AngleComputer::sKeyFreqF4(),
-			  useangle && fftfilter );
-    desc.setParamEnabled( PreStack::AngleComputer::sKeyWinFunc(),
-			  useangle && movingavg );
-    desc.setParamEnabled( PreStack::AngleComputer::sKeyWinParam(),
-			  useangle && movingavg );
-    desc.setParamEnabled( PreStack::AngleComputer::sKeyWinLen(),
-			  useangle && movingavg );
-
+    desc.setParamEnabled( angleFFTF3Freq(), useangle && fftfilter );
+    desc.setParamEnabled( angleFFTF4Freq(), useangle && fftfilter );
+    desc.setParamEnabled( angleFiltFunction(), useangle && movingavg );
+    desc.setParamEnabled( angleFiltValue(), useangle && movingavg );
+    desc.setParamEnabled( angleFiltLength(), useangle && movingavg );
 }
 
 
@@ -195,58 +182,48 @@ PSAttrib::PSAttrib( Desc& ds )
 
     mGetSetupEnumPar(valaxis,PreStack::PropCalc::AxisType);
 
-    bool useangle = !setup_.anglerg_.isUdf();
-    mGetBool( useangle, useangleStr() );
+    BufferString velocityidstr;
+    mGetString( velocityidstr, velocityIDStr() );
+    velocityid_.fromString( velocityidstr );
     mGetInt( anglegsdpid_.getI(), angleDPIDStr() );
-    if ( useangle && anglegsdpid_.isInvalid() )
+    const bool useangle = anglegsdpid_.isValid() || velocityid_.isValid();
+    if ( useangle )
     {
-	BufferString velocityidstr;
-	mGetString( velocityidstr, velocityIDStr() );
-	velocityid_.fromString( velocityidstr );
-	if ( velocityid_.isValid() )
-	{
-	    RefMan<PreStack::VelocityBasedAngleComputer> velangcomp =
-		new PreStack::VelocityBasedAngleComputer;
-	    velangcomp->setDBKey( velocityid_ );
-	    anglecomp_ = velangcomp;
-	}
+	int anglestart, anglestop;
+	mGetInt( anglestart, angleStartStr() );
+	mGetInt( anglestop, angleStopStr() );
+	setup_.anglerg_.set( mCast(float,anglestart),
+			     mCast(float,anglestop) );
+	if ( anglegsdpid_.isValid() )
+	    return;
 
-	if ( anglecomp_ )
-	{
-	    int anglestart, anglestop;
-	    mGetInt( anglestart, angleStartStr() );
-	    mGetInt( anglestop, angleStopStr() );
-	    setup_.anglerg_.set( mCast(float,anglestart),
-				 mCast(float,anglestop) );
-
-	    BufferString raytracerparam;
-	    mGetString( raytracerparam, rayTracerParamStr() );
-	    IOPar raypar;
-	    raypar.getParsFrom( raytracerparam );
-	    anglecomp_->setRayTracerPars( raypar );
-
-	    setSmootheningPar();
-	}
+	RefMan<PreStack::VelocityBasedAngleComputer> velangcomp =
+				new PreStack::VelocityBasedAngleComputer;
+	velangcomp->setDBKey( velocityid_ );
+	anglecomp_ = velangcomp;
+	BufferString raytracerparam;
+	mGetString( raytracerparam, rayTracerParamStr() );
+	IOPar raypar;
+	raypar.getParsFrom( raytracerparam );
+	anglecomp_->setRayTracerPars( raypar );
+	setSmootheningPar();
     }
     else
     {
 	float offstart, offstop;
 	mGetFloat( offstart, offStartStr() );
 	mGetFloat( offstop, offStopStr() );
-	setup_.offsrg_ = Interval<float>( offstart, offstop );
-
 	int gathertype = 0;
 	mGetEnum( gathertype, gathertypeStr() );
-	int xaxisunit = 0;
-	mGetEnum( xaxisunit, xaxisunitStr() );
-	if ( gathertype == 1 && anglegsdpid_.isValid() )
+	if ( gathertype == Gather::Off )
 	{
-	    setup_.anglerg_ = setup_.offsrg_;
-	    if ( xaxisunit == 1 )
-		setup_.anglerg_.scale( mRad2DegF );
+	    setup_.offsrg_.set( offstart, offstop );
+	    return;
 	}
-    }
 
+	if ( mIsUdf(offstop) ) offstop = 90.f;
+	setup_.anglerg_ = setup_.offsrg_;
+    }
 }
 
 
@@ -264,7 +241,7 @@ PSAttrib::~PSAttrib()
 void PSAttrib::setSmootheningPar()
 {
     int smoothtype = 0;
-    mGetEnum( smoothtype , PreStack::AngleComputer::sKeySmoothType() );
+    mGetEnum( smoothtype , angleSmoothType() );
     if ( smoothtype == PreStack::AngleComputer::None )
     {
 	anglecomp_->setNoSmoother();
@@ -273,9 +250,9 @@ void PSAttrib::setSmootheningPar()
     {
 	BufferString smwindow;
 	float windowparam, windowlength;
-	mGetString( smwindow, PreStack::AngleComputer::sKeyWinFunc() );
-	mGetFloat( windowparam, PreStack::AngleComputer::sKeyWinParam() );
-	mGetFloat( windowlength, PreStack::AngleComputer::sKeyWinLen() );
+	mGetString( smwindow, angleFiltFunction() );
+	mGetFloat( windowparam, angleFiltValue() );
+	mGetFloat( windowlength, angleFiltLength() );
 
 	if ( smwindow == CosTaperWindow::sName() )
 	    anglecomp_->setMovingAverageSmoother( windowlength, smwindow,
@@ -286,8 +263,8 @@ void PSAttrib::setSmootheningPar()
     else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
     {
 	float f3freq, f4freq;
-	mGetFloat( f3freq, PreStack::AngleComputer::sKeyFreqF3() );
-	mGetFloat( f4freq, PreStack::AngleComputer::sKeyFreqF4() );
+	mGetFloat( f3freq, angleFFTF3Freq() );
+	mGetFloat( f4freq, angleFFTF4Freq() );
 
 	anglecomp_->setFFTSmoother( f3freq, f4freq );
     }
@@ -488,7 +465,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
     mGetEnum( gathertype, gathertypeStr() );
     int xaxisunit = 0;
     mGetEnum( xaxisunit, xaxisunitStr() );
-    curgather->setIsOffsetAngle( gathertype == 1,
+    curgather->setIsOffsetAngle( gathertype == Gather::Ang,
 				 xaxisunit == 0 ? Gather::Deg : Gather::Rad );
     propcalc_->setGather( *curgather.ptr() );
     if ( !propcalc_->hasAngleData() && anglecomp_ && !getAngleInputData() )

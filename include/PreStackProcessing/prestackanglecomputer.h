@@ -147,6 +147,10 @@ public:
 protected:
 
     virtual			~ModelBasedAngleComputer()	{}
+
+private:
+
+    void			splitModelIfNeeded();
 };
 
 } // namespace PreStack
