@@ -1387,7 +1387,7 @@ StratSynth::DataMgr::genPSPostProcDataSet( const GenParams& gp,
 	auto& ti = trc->info();
 	ti.sampling_.start = mCast(float,zrg.start);
 	ti.sampling_.step = mCast(float,zrg.step);
-	ti.trckey_ = amplgather.getTrcKey();
+	ti.trckey_ = TrcKey::getSynth( igath+1 );
 	for ( int isamp=0; isamp<nrsamples; isamp++ )
 	    trc->set( isamp, pspropcalc.getVal(isamp), 0 );
 	tbuf->add( trc );
@@ -1396,14 +1396,14 @@ StratSynth::DataMgr::genPSPostProcDataSet( const GenParams& gp,
     /*TODO: add wavelet reshaping: on stack for isanglestack,
 		on a copy of prestack input for AVO Gradient */
 
-    SeisTrcBufDataPack* retbuf =
+    SeisTrcBufDataPack* retdp =
 	new SeisTrcBufDataPack( tbuf, Seis::Line, SeisTrcInfo::TrcNr,
 			SynthSeis::PostStackDataSet::sDataPackCategory() );
     DataSet* retds = 0;
     if ( isanglestack )
-	retds = new SynthSeis::AngleStackDataSet( gp, *retbuf );
+	retds = new SynthSeis::AngleStackDataSet( gp, *retdp );
     else
-	retds = new SynthSeis::AVOGradDataSet( gp, *retbuf );
+	retds = new SynthSeis::AVOGradDataSet( gp, *retdp );
     retds->ref();
 
     return retds;
