@@ -668,8 +668,8 @@ void uiStratSynthDisp::applyReqCB( CallBacker* )
 {
     if ( uidatamgr_ )
     {
+	updFlds();
 	wvaselfld_->set( uidatamgr_->curID() );
-	updWvltFld();
 	handlePSViewDisp();
 	setViewerData( true );
     }
