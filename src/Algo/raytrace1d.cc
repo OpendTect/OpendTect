@@ -432,12 +432,12 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
 {
     BufferString type;
     par.get( sKey::Type(), type );
-    if ( type.isEmpty() )
+    if ( type.isEmpty() || factory().indexOf(type) < 0 )
     {
 	const int nravail = factory().size();
 	if ( nravail < 1 )
 	{
-	    errm = uiStrings::phrInternalErr( "Cannot find any Ray Tracer" );
+	    errm = uiStrings::phrInternalErr( "No Ray Tracers in factory" );
 	    return 0;
 	}
 
@@ -451,7 +451,7 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
 	raytracer = factory().createAny();
 	if ( !raytracer )
 	{
-	    errm = uiStrings::phrInternalErr( "Ray Tracer not produced" );
+	    errm = uiStrings::phrInternalErr("factory produces no Ray Tracer");
 	    return 0;
 	}
     }
