@@ -765,7 +765,6 @@ BufferStringSet SeisTrcTranslator::stdAuxExtensions()
     extnms.add( sParFileExtension() );
     extnms.add( sStatsFileExtension() );
     extnms.add( sProcFileExtension() );
-    extnms.add( sImportInfoFileExtension() );
     return extnms;
 }
 

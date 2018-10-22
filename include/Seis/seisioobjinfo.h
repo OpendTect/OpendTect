@@ -134,8 +134,6 @@ public:
     bool		getPars(IOPar&) const;
     bool		haveStats() const;
     bool		getStats(IOPar&) const;
-    bool		haveImportInfo() const;
-    bool		getImportInfo(BufferString&) const;
     bool		getDisplayPars( IOPar& iop ) const
 			{ return getPars(iop); }
     void		saveDisplayPars(const IOPar&);
