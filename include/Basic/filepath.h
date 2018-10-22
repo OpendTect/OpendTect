@@ -36,8 +36,6 @@ mExpClass(Basic) Path
 {
 public:
 
-    enum Style		{ Local, Unix, Windows };
-
 			Path(const char* fullinp=0);
 			Path(const char* p1,const char* p2,const char* p3=0,
 				 const char* p4=0,const char* p5=0);
@@ -71,7 +69,7 @@ public:
     bool		makeRelativeTo(const Path&);
     bool		makeCanonical(); // i.e. follow links, expand '..'
 
-    BufferString	fullPath(Style s=Local,bool cleanup=true) const;
+    BufferString	fullPath() const	{ return fullPath( Local ); }
     const char*		prefix() const		{ return prefix_; }
     const char*		postfix() const		{ return postfix_; }
     const char*		domain() const		{ return domain_; }
@@ -89,7 +87,6 @@ public:
 			//!< nr < 0 returns last dir, including prefix
     BufferString	fileFrom(int) const;
 
-    static BufferString	mkCleanPath(const char* path,Style fmt);
     static BufferString	getTempDir();
     static BufferString	getTempFileName(const char* typ,const char* ext);
     static BufferString	getTempFullPath(const char* typ,const char* ext);
@@ -98,7 +95,6 @@ public:
 			{ return getTempFullPath(0,ext); }
 
     const char*		dirSep() const;
-    static const char*	dirSep(Style);
     static const char*	sPrefSep;
     static const char*	uriProtocolSeparator()		{ return "://"; }
 
@@ -114,6 +110,15 @@ protected:
     void		addPart(const char*);
     void		compress(int sl=0);
     void		conv2TrueDirIfLink();
+
+public:
+
+			// Use if you understand it
+    enum Style		{ Local, Unix, Windows };
+    static BufferString	mkCleanPath(const char* path,Style fmt);
+    static const char*	dirSep(Style);
+    BufferString	fullPath(Style,bool cleanup=true) const;
+
 };
 
 } // namespace File;
@@ -122,12 +127,11 @@ protected:
 mGlobal(Basic) inline const char* sSeismicSubDir()	{ return "Seismics"; }
 mGlobal(Basic) inline const char* sWellSubDir()		{ return "WellInfo"; }
 mGlobal(Basic) inline const char* sSurfaceSubDir()	{ return "Surfaces"; }
+
 mGlobal(Basic) inline const char* sParFileExtension()	{ return "par"; }
 mGlobal(Basic) inline const char* sInfoFileExtension()	{ return "info"; }
 mGlobal(Basic) inline const char* sProcFileExtension()	{ return "proc"; }
 mGlobal(Basic) inline const char* sStatsFileExtension()	{ return "stats"; }
-mGlobal(Basic) inline const char* sImportInfoFileExtension()
-							{ return "import"; }
 
 
 mDeprecated typedef File::Path FilePath;

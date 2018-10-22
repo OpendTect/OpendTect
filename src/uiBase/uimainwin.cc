@@ -398,7 +398,7 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
 	case uiMainWin::BottomRight :
 	    move( xpos, ypos ); break;
 	case uiMainWin::Middle :
-	    move( mNINT32(((float) xpos)/2), mNINT32(((float) ypos) / 2));break;
+	    move( mNINT32(xpos*.5f), mNINT32(ypos*.5f) ); break;
 	default:
 	    break;
     }

@@ -89,7 +89,7 @@ void SynthSeis::GenParams::setDefaultValues()
     if ( !isZeroOffset() && !isPS() )
 	return;
 
-    FixedString defrayparstr = sKeyAdvancedRayTracer();
+    BufferString defrayparstr = sKeyAdvancedRayTracer();
     const BufferStringSet& fackys = RayTracer1D::factory().getKeys();
     if ( !fackys.isEmpty() )
     {
