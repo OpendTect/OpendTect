@@ -140,7 +140,11 @@ void SynthGenParams::usePar( const IOPar& par )
     par.get( sKey::Name(), name_ );
     par.get( sKeyWaveLetName(), wvltnm_ );
     PtrMan<IOPar> raypar = par.subselect( sKeyRayPar() );
-    raypars_ = *raypar;
+    if ( raypar )
+	raypars_ = *raypar;
+    else
+	raypars_.setEmpty();
+
     if ( par.hasKey( sKeyIsPreStack()) )
     {
 	bool isps = false;
@@ -1056,6 +1060,8 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     if ( !rms )
     {
 	rms = synthgen->rayModels();
+	if ( !rms )
+	    { pErrMsg("No ray models"); return sd; }
 	synthrmmgr_.addRayModelSet( rms, sd );
     }
 

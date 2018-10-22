@@ -59,10 +59,12 @@ RayTracer1D::~RayTracer1D()
 
 RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
 {
-    BufferString type;
-    par.get( sKey::Type(), type );
+    BufferString typekey;
+    par.get( sKey::Type(), typekey );
 
-    RayTracer1D* raytracer = factory().create( type );
+    RayTracer1D* raytracer = factory().create( typekey );
+    if ( !raytracer && !factory().isEmpty() )
+	raytracer = factory().create( factory().getNames().get(0) );
     if ( !raytracer )
     {
 	errm = tr("Raytracer not found. Perhaps all plugins are not loaded");
