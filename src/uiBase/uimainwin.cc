@@ -474,6 +474,9 @@ void uiMainWinBody::getPosForParentMiddle( int& xpos, int& ypos )
 void uiMainWinBody::move( uiMainWin::PopupArea pa )
 {
     QWidget* parentwidget = getParentWidget( parentWidget() );
+    if ( !parentwidget )
+	return;
+
     QDesktopWidget qdw;
     const QRect screenrect = qdw.availableGeometry( parentwidget );
     const int mywidth = frameGeometry().width();
