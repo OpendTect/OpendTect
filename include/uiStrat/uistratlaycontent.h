@@ -22,11 +22,14 @@ mExpClass(uiStrat) uiStratLayerContent : public uiGroup
 { mODTextTranslationClass(uiStratLayerContent)
 public:
 
-  			uiStratLayerContent(uiParent*,bool isfinal,
-					    const Strat::RefTree&);
+    typedef Strat::Content	Content;
+    typedef Strat::RefTree	RefTree;
 
-    void		set(const Strat::Content&);
-    const Strat::Content& get() const;
+			uiStratLayerContent(uiParent*,bool isfinal,
+					    const RefTree&);
+
+    void		set(const Content&);
+    const Content& get() const;
 
     int			selectedIndex() const;
     void		setSelectedIndex(int);
@@ -37,7 +40,7 @@ public:
 protected:
 
     uiComboBox*		fld_;
-    const Strat::RefTree& rt_;
+    const RefTree&	rt_;
 
     void		contSel(CallBacker*);
 

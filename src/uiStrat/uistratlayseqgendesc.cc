@@ -40,7 +40,7 @@ mImplClassFactory( uiLayerSequenceGenDesc, factory )
 
 
 uiStratLayerContent::uiStratLayerContent( uiParent* p, bool isfinal,
-				  const Strat::RefTree& srt )
+				  const RefTree& srt )
     : uiGroup(p,"Layer content")
     , rt_(srt)
     , contentSelected(this)
@@ -56,7 +56,7 @@ uiStratLayerContent::uiStratLayerContent( uiParent* p, bool isfinal,
 }
 
 
-void uiStratLayerContent::set( const Strat::Content& c )
+void uiStratLayerContent::set( const Content& c )
 {
     if ( c.isUnspecified() )
 	fld_->setCurrentItem( 0 );
@@ -94,7 +94,7 @@ const Strat::Content& uiStratLayerContent::get() const
 {
     const int selidx = fld_->currentItem();
     if ( selidx < 1 || selidx > rt_.contents().size() )
-	return Strat::Content::unspecified();
+	return Content::unspecified();
 
     return *rt_.contents()[selidx-1];
 }
