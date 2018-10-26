@@ -610,7 +610,10 @@ int nextStep()
 {
     const int nrfaults = fltset_.nrFaults();
     if ( curidx_ >= nrfaults )
-       return Finished();
+    {
+	fltset_.saveDisplayPars();
+	return Finished();
+    }
 
     if ( !File::isDirectory(basedir_) && !File::createDir(basedir_) )
 	return ErrorOccurred();
