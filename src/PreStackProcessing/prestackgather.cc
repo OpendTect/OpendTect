@@ -502,4 +502,17 @@ SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
     return &rettrc;
 }
 
+
+StepInterval<float> GatherSetDataPack::zRange() const
+{
+    if ( gathers_.isEmpty() )
+	return StepInterval<float>::udf();
+
+    StepInterval<float> zrg = gathers_[0]->zRange();
+    for ( int idx=1; idx<gathers_.size(); idx++ )
+	zrg.include( gathers_[idx]->zRange(), false );
+
+    return zrg;
+}
+
 } // namespace PreStack

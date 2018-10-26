@@ -168,6 +168,8 @@ public:
     const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }
     ObjectSet<Gather>&		getGathers()		{ return gathers_; }
 
+    StepInterval<float>		zRange() const;
+
     static const char*		sDataPackCategory();
 
 protected:
