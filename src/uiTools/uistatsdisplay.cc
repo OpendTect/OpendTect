@@ -186,15 +186,17 @@ bool uiStatsDisplay::setDataPackID(
 		rc.setValues( valarr.arr(), valarr.size() );
 	    }
 	}
-	else if ( dmid == DataPackMgr::SurfID() )
+	else if ( dmid == DataPackMgr::SurfID() ||
+		  dmid == DataPackMgr::PointID())
 	{
 	    mDynamicCastGet(const DataPointSet*,dpset,datapack.ptr())
 	    if ( !dpset )
 		return false;
 
+	    const int colid = dpset->nrCols() - 1;
 	    valarr.setCapacity( dpset->size(), false );
 	    for ( int idx=0; idx<dpset->size(); idx++ )
-		valarr += dpset->value( 2, idx );
+		valarr += dpset->value( colid, idx );
 
 	    rc.setValues( valarr.arr(), valarr.size() );
 	}
