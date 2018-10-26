@@ -112,14 +112,14 @@ bool uiHistogramDisplay::setDataPackID(
 	else
 	    return false;
     }
-    else if ( dmid == DataPackMgr::SurfID() )
+    else if ( dmid == DataPackMgr::SurfID() || dmid == DataPackMgr::PointID() )
     {
 	mDynamicCastGet(const DataPointSet*,dpset,dp.ptr())
 	if ( !dpset )
 	    return false;
 
 	dpversionnm = dpset->name();
-	setData( *dpset, 2 ); // magic 2 ... not easy to find
+	setData( *dpset, dpset->nrCols()-1 );
     }
     else
 	return false;
