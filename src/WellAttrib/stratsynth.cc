@@ -140,7 +140,11 @@ void SynthGenParams::usePar( const IOPar& par )
     par.get( sKey::Name(), name_ );
     par.get( sKeyWaveLetName(), wvltnm_ );
     PtrMan<IOPar> raypar = par.subselect( sKeyRayPar() );
-    raypars_ = *raypar;
+    if ( raypar )
+	raypars_ = *raypar;
+    else
+	raypars_.setEmpty();
+
     if ( par.hasKey( sKeyIsPreStack()) )
     {
 	bool isps = false;
@@ -1005,31 +1009,23 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    BufferString inputsdnm( synthgenpar.inpsynthnm_ );
 	    if ( useed_ )
 		inputsdnm += sKeyFRNameSuffix();
-	    sd = getSynthetic( inputsdnm );
-	    if ( !sd )
+	    const SyntheticData* presd = getSynthetic( inputsdnm );
+	    if ( !presd )
+		mErrRet( tr(" input prestack synthetic data not found."),
+			 return 0 )
+
+	    mDynamicCastGet(const PreStack::GatherSetDataPack*,presgdp,
+			    &presd->getPack())
+	    if ( !presgdp )
 		mErrRet( tr(" input prestack synthetic data not found."),
 			 return 0 )
 	    CubeSampling cs( false );
-	    for ( int idx=0; idx<sd->zerooffsd2tmodels_.size(); idx++ )
-	    {
-		const SeisTrc* trc = sd->getTrace( idx );
-		const SamplingData<float>& trcsd = trc->info().sampling;
-		if ( !idx )
-		{
-		    cs.zsamp_.start = trcsd.start;
-		    cs.zsamp_.stop = trcsd.atIndex( trc->size()-1 );
-		    cs.zsamp_.step = trcsd.step;
-		    continue;
-		}
-
-		cs.zsamp_.include( trcsd.start, false );
-		cs.zsamp_.include( trcsd.atIndex(trc->size()-1), false );
-	    }
+	    cs.zsamp_ = presgdp->zRange();
 
 	    if ( synthgenpar.synthtype_ == SynthGenParams::AngleStack )
-		sd = createAngleStack( *sd, cs, synthgenpar );
+		sd = createAngleStack( *presd, cs, synthgenpar );
 	    else if ( synthgenpar.synthtype_ == SynthGenParams::AVOGradient )
-		sd = createAVOGradient( *sd, cs, synthgenpar );
+		sd = createAVOGradient( *presd, cs, synthgenpar );
 	}
     }
     else if ( synthgenpar.synthtype_ == SynthGenParams::ZeroOffset )
@@ -1056,6 +1052,8 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     if ( !rms )
     {
 	rms = synthgen->rayModels();
+	if ( !rms )
+	    { pErrMsg("No ray models"); return sd; }
 	synthrmmgr_.addRayModelSet( rms, sd );
     }
 

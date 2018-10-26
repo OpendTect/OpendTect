@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobjtags.h"
 #include "iopar.h"
 #include "ioman.h"
+#include "perthreadrepos.h"
 #include "ptrman.h"
 #include "samplfunc.h"
 #include "seisbuf.h"
@@ -26,6 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "keystrs.h"
+
+static PerThreadObjectRepository<SeisTrc> rettrc_;
 
 namespace PreStack
 {
@@ -482,8 +485,34 @@ SeisTrc* GatherSetDataPack::getTrace( int gatheridx, int offsetidx )
 
 SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
 {
-    SeisTrcBuf tbuf(false); fill( tbuf, offsetidx );
-    return tbuf.size() > gatheridx ? tbuf.get( gatheridx ) : 0;
+    SeisTrc& rettrc = rettrc_.getObject();
+    const PreStack::Gather& gather = *gathers_[gatheridx];
+    const Array2D<float>& data = gather.data();
+    const int nrsamples = data.info().getSize( 1 );
+
+    rettrc.reSize( nrsamples, false );
+    rettrc.info().setBinID( gather.getBinID() );
+    rettrc.info().coord = SI().transform( gather.getBinID() );
+    rettrc.info().nr = gatheridx + 1;
+    const SamplingData<double>& sd = gather.posData().range( false );
+    rettrc.info().sampling.set( (float)sd.start, (float)sd.step );
+    for ( int isamp=0; isamp<nrsamples; isamp++ )
+	rettrc.set( isamp, data.get(offsetidx,isamp), 0 );
+
+    return &rettrc;
+}
+
+
+StepInterval<float> GatherSetDataPack::zRange() const
+{
+    if ( gathers_.isEmpty() )
+	return StepInterval<float>::udf();
+
+    StepInterval<float> zrg = gathers_[0]->zRange();
+    for ( int idx=1; idx<gathers_.size(); idx++ )
+	zrg.include( gathers_[idx]->zRange(), false );
+
+    return zrg;
 }
 
 } // namespace PreStack
