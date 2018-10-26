@@ -196,6 +196,8 @@ public:
     void			setGathers( const GatherSet& gathers )
 				{ gathers_ = gathers; }
 
+    ZSampling			zRange() const;
+
     static const char*		sDataPackCategory();
 
 protected:

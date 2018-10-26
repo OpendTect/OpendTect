@@ -1375,18 +1375,18 @@ StratSynth::DataMgr::genPSPostProcDataSet( const GenParams& gp,
 
     PreStack::PropCalc pspropcalc( calcsetup );
     auto* tbuf = new SeisTrcBuf( true );
+    const ZSampling zrg = gatherdp.zRange();
+    const auto nrsamples = zrg.nrSteps() + 1;
+    const SamplingData<float> tsampling( zrg );
     for ( int igath=0; igath<gatherset.size(); igath++ )
     {
 	const auto& amplgather = *gatherset.get(igath);
 	pspropcalc.setGather( amplgather );
 	pspropcalc.setAngleData( *anglesset.get(igath) );
 
-	const StepInterval<double> zrg( amplgather.posData().range(false) );
-	const auto nrsamples = zrg.nrSteps() + 1;
 	auto* trc = new SeisTrc( nrsamples );
 	auto& ti = trc->info();
-	ti.sampling_.start = mCast(float,zrg.start);
-	ti.sampling_.step = mCast(float,zrg.step);
+	ti.sampling_ = tsampling;
 	ti.trckey_ = TrcKey::getSynth( igath+1 );
 	for ( int isamp=0; isamp<nrsamples; isamp++ )
 	    trc->set( isamp, pspropcalc.getVal(isamp), 0 );

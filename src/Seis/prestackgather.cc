@@ -607,6 +607,9 @@ void GatherSetDataPack::fill( Array2D<float>& inp, int offsetidx ) const
 
 void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
 {
+    if ( !inp.isOwner() )
+	pErrMsg("Memory leak");
+
     for ( int idx=0; idx<gathers_.size(); idx++ )
 	inp.add( crTrace(idx,offsetidx) );
 }
@@ -655,6 +658,9 @@ void GatherSetDataPack::fillGatherBuf( SeisTrcBuf& seisbuf, const BinID& bid )
 	    { gather = gathers_[idx]; gatheridx = idx; break; }
     if ( !gather ) return;
 
+    if ( !seisbuf.isOwner() )
+	pErrMsg("Memory leak");
+
     for ( int offsetidx=0; offsetidx<gather->nrOffsets(); offsetidx++ )
 	seisbuf.add( crTrace(gatheridx,offsetidx) );
 }
@@ -695,4 +701,17 @@ SeisTrc* GatherSetDataPack::crTrace( int gatheridx, int offsetidx ) const
 	trc->set( idz, data.get( offsetidx, idz ), 0 );
 
     return trc;
+}
+
+
+StepInterval<float> GatherSetDataPack::zRange() const
+{
+    if ( gathers_.isEmpty() )
+	return StepInterval<float>::udf();
+
+    StepInterval<float> zrg = gathers_[0]->zRange();
+    for ( int idx=1; idx<gathers_.size(); idx++ )
+	zrg.include( gathers_[idx]->zRange(), false );
+
+    return zrg;
 }
