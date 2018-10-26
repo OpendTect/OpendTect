@@ -168,10 +168,12 @@ public:
 			    //!< Returns whether fully regular.
 
     bool		isValid(const CubeDataPos&) const;
+    bool		isValid(const BinID&) const;
     bool		isValid(od_int64 globidx,const CubeHorSubSel&) const;
     BinID		minStep() const;
     BinID		nearestBinID(const BinID&) const;
     BinID		centerPos() const;  //!< not exact
+
     bool		toNext(CubeDataPos&) const;
     bool		toPrev(CubeDataPos&) const;
     BinID		binID(const CubeDataPos&) const;

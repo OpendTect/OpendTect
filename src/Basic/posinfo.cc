@@ -697,7 +697,13 @@ bool PosInfo::CubeData::isValid( const PosInfo::CubeDataPos& cdp ) const
 bool PosInfo::CubeData::isValid( od_int64 gidx, const CubeHorSubSel& hss ) const
 {
     const BinID bid( hss.atGlobIdx(gidx) );
-    const PosInfo::CubeDataPos cdatapos( cubeDataPos( bid ) );
+    return isValid( bid );
+}
+
+
+bool PosInfo::CubeData::isValid( const BinID& bid ) const
+{
+    const PosInfo::CubeDataPos cdatapos( cubeDataPos(bid) );
     return isValid( cdatapos );
 }
 
