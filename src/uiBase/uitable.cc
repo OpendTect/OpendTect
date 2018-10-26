@@ -112,6 +112,8 @@ public:
     void		setCellObject(const RowCol&,uiObject*);
     RowCol		getCell(uiObject*);
 
+    virtual void	finalise();
+
     int			maxNrOfSelections() const;
     uiTable::SelectionBehavior getSelBehavior() const;
 
@@ -119,6 +121,9 @@ public:
     QTableWidgetItem&	getRCItem(int,bool isrow);
 
 protected:
+
+    virtual void	contextMenuEvent(QContextMenuEvent*);
+    virtual void	mousePressEvent(QMouseEvent*);
     virtual void	mouseReleaseEvent(QMouseEvent*);
     virtual void	keyPressEvent(QKeyEvent*);
 
@@ -161,8 +166,10 @@ uiTableBody::uiTableBody( uiTable& hndl, uiParent* parnt, const char* nm,
     : uiObjBodyImpl<uiTable,QTableWidget>(hndl,parnt,nm)
     , messenger_ (*new i_tableMessenger(this,&hndl))
 {
-    if ( nrows >= 0 ) setNrLines( nrows );
-    if ( ncols >= 0 ) setColumnCount( ncols );
+    if ( nrows >= 0 )
+	setNrLines( nrows );
+    if ( ncols >= 0 )
+	setColumnCount( ncols );
 
 // TODO: Causes tremendous performance delay in Qt 4.4.1;
 //       For now use uiTable::resizeRowsToContents() in stead.
@@ -212,6 +219,34 @@ QTableWidgetItem& uiTableBody::getRCItem( int idx, bool isrow )
 }
 
 
+void uiTableBody::contextMenuEvent( QContextMenuEvent* ev )
+{
+    if ( !ev ) return;
+
+    const QPoint evpos = ev->pos();
+    QTableWidgetItem* itm = itemAt( evpos );
+    handle_.setNotifiedCell( itm ? RowCol(itm->row(),itm->column())
+				 : RowCol(-1,-1) );
+    handle_.popupMenu(0);
+}
+
+
+void uiTableBody::mousePressEvent( QMouseEvent* ev )
+{
+    if ( !ev ) return;
+
+    if ( ev->button() == Qt::RightButton )
+	handle_.buttonstate_ = OD::RightButton;
+    else if ( ev->button() == Qt::LeftButton )
+	handle_.buttonstate_ = OD::LeftButton;
+    else
+	handle_.buttonstate_ = OD::NoButton;
+
+    QTableWidget::mousePressEvent( ev );
+    handle_.buttonstate_ = OD::NoButton;
+}
+
+
 void uiTableBody::mouseReleaseEvent( QMouseEvent* ev )
 {
     if ( !ev ) return;
@@ -223,7 +258,7 @@ void uiTableBody::mouseReleaseEvent( QMouseEvent* ev )
     else
 	handle_.buttonstate_ = OD::NoButton;
 
-    QAbstractItemView::mouseReleaseEvent( ev );
+    QTableWidget::mouseReleaseEvent( ev );
     handle_.buttonstate_ = OD::NoButton;
 }
 
@@ -443,6 +478,14 @@ void uiTableBody::clearCellObject( const RowCol& rc )
 }
 
 
+void uiTableBody::finalise()
+{
+    uiObjectBody::finalise();
+    for ( int idx=0; idx<cellobjects_.size(); idx++ )
+	cellobjects_[idx]->object_->finalise();
+}
+
+
 uiTable::SelectionBehavior uiTableBody::getSelBehavior() const
 {
     return (uiTable::SelectionBehavior) selectionBehavior();
@@ -484,7 +527,6 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , istablereadonly_(false)
     , seliscols_(false)
 {
-    rightClicked.notify( mCB(this,uiTable,popupMenu) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
 
     setStretch( 2, 2 );
@@ -909,6 +951,7 @@ void uiTable::hideRow( int col, bool yn )
     else body_->showRow( col );
 }
 
+
 bool uiTable::isColumnHidden( int col ) const
 { return body_->isColumnHidden(col); }
 
@@ -927,7 +970,6 @@ void uiTable::setTopHeaderHidden( bool yn )
 
 void uiTable::setLeftHeaderHidden( bool yn )
 { body_->verticalHeader()->setVisible( !yn ); }
-
 
 
 void uiTable::resizeHeaderToContents( bool hor )
@@ -1005,6 +1047,7 @@ void uiTable::setColor( const RowCol& rc, const Color& col )
     QTableWidgetItem* itm = body_->getItem( rc );
     if ( itm ) itm->setBackground( qcol );
     body_->setFocus();
+    setCellReadOnly( rc, true );
 }
 
 
@@ -1201,34 +1244,36 @@ float uiTable::getFValue( const RowCol& rc ) const
 }
 
 
-void uiTable::setValue( const RowCol& rc, int i )
+void uiTable::setValue( const RowCol& rc, int val )
 {
-    BufferString txt( Conv::to<const char*>(i) );
+    BufferString txt( Conv::to<const char*>(val) );
     setText( rc, txt.buf() );
 }
 
 
-void uiTable::setValue( const RowCol& rc, float f )
+void uiTable::setValue( const RowCol& rc, float val )
 {
-    if ( mIsUdf(f) )
-	setText( rc, "" );
-    else
-    {
-	BufferString txt( Conv::to<const char*>(f) );
-	setText( rc, txt.buf() );
-    }
+    setValue( rc, val, -1 );
 }
 
 
-void uiTable::setValue( const RowCol& rc, double d )
+void uiTable::setValue( const RowCol& rc, float val, int nrdec )
 {
-    if ( mIsUdf(d) )
-	setText( rc, "" );
-    else
-    {
-	BufferString txt( Conv::to<const char*>(d) );
-	setText( rc, txt.buf() );
-    }
+    setText( rc, mIsUdf(val) ? ""
+			: (nrdec<0 ? toString(val) : toString(val,nrdec)) );
+}
+
+
+void uiTable::setValue( const RowCol& rc, double val )
+{
+    setValue( rc, val, -1 );
+}
+
+
+void uiTable::setValue( const RowCol& rc, double val, int nrdec )
+{
+    setText( rc, mIsUdf(val) ? ""
+			: (nrdec<0 ? toString(val) : toString(val,nrdec)) );
 }
 
 
@@ -1275,8 +1320,8 @@ void uiTable::popupMenu( CallBacker* )
     if ( uiVirtualKeyboard::isVirtualKeyboardActive() )
 	return;
 
-    if ( (!setup_.rowgrow_ && !setup_.colgrow_ && !setup_.enablecopytext_) ||
-	 setup_.rightclickdisabled_ )
+    if ( (!isTableReadOnly() && !setup_.rowgrow_ && !setup_.colgrow_ &&
+	  !setup_.enablecopytext_) || setup_.rightclickdisabled_ )
     {
 	popupVirtualKeyboard( xcursorpos, ycursorpos );
 	return;

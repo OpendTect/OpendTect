@@ -296,7 +296,9 @@ public:
     float		getFValue(const RowCol&) const;
     void		setValue(const RowCol&,int);
     void		setValue(const RowCol&,float);
+    void		setValue(const RowCol&,float,int nrdec);
     void		setValue(const RowCol&,double);
+    void		setValue(const RowCol&,double,int nrdec);
 
     void		setSelectionMode(SelectionMode);
     void		setSelectionBehavior(SelectionBehavior);
