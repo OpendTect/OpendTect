@@ -510,13 +510,18 @@ bool PosInfo::CubeData::isValid( const PosInfo::CubeDataPos& cdp ) const
 }
 
 
+bool PosInfo::CubeData::isValid( const BinID& bid ) const
+{
+    const PosInfo::CubeDataPos cdatapos( cubeDataPos(bid) );
+    return isValid( cdatapos );
+}
+
+
 bool PosInfo::CubeData::isValid( od_int64 globalidx,
 				 const TrcKeySampling& tks ) const
 {
     const BinID bid( tks.atIndex(globalidx) );
-    const PosInfo::CubeDataPos cdatapos( cubeDataPos( bid ) );
-
-    return isValid( cdatapos );
+    return isValid( bid );
 }
 
 
