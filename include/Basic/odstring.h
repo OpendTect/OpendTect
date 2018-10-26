@@ -54,7 +54,7 @@ public:
     virtual char	firstChar() const	{ return gtBuf()[0]; }
     virtual char	lastChar() const	{ return gtBuf()[size()-1]; }
 
-#   define		mODStringDefSens CaseSensitivity c=CaseSensitive
+#   define		mODStringDefSens CaseSensitivity cs=CaseSensitive
     bool		isEqual(const char*,mODStringDefSens) const;
     bool		isStartOf(const char*,mODStringDefSens) const;
     bool		startsWith(const char*,mODStringDefSens) const;
@@ -70,7 +70,7 @@ public:
     const char*		findLast(const char*) const;
 
     unsigned int	count(char) const;
-    unsigned int	getLevenshteinDist(const char*,bool casesens) const;
+    unsigned int	getLevenshteinDist(const char*,mODStringDefSens) const;
 
     bool		isNumber(bool int_only=false) const;
     bool		isYesNo() const;

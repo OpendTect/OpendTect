@@ -540,6 +540,9 @@ const OD::String& StringPair::getCompString() const
 }
 
 
+typedef BufferStringSet::idx_type idx_type;
+
+
 BufferStringSet::BufferStringSet( size_type nelem, const char* s )
 {
     for ( idx_type idx=0; idx<nelem; idx++ )
@@ -547,10 +550,28 @@ BufferStringSet::BufferStringSet( size_type nelem, const char* s )
 }
 
 
-
 BufferStringSet::BufferStringSet( const char* arr[], size_type len )
 {
     add( arr, len );
+}
+
+
+BufferStringSet::BufferStringSet( const char* s )
+{
+    add( s );
+}
+
+
+BufferStringSet::BufferStringSet( const char* s1, const char* s2 )
+{
+    add( s1 ).add( s2 );
+}
+
+
+BufferStringSet::BufferStringSet( const char* s1, const char* s2,
+				  const char* s3 )
+{
+    add( s1 ).add( s2 ).add( s3 );
 }
 
 
@@ -568,8 +589,7 @@ bool BufferStringSet::operator ==( const BufferStringSet& bss ) const
 }
 
 
-BufferStringSet::idx_type BufferStringSet::indexOf( const char* str,
-						     CaseSensitivity cs ) const
+idx_type BufferStringSet::indexOf( const char* str, CaseSensitivity cs ) const
 {
     if ( str )
     {
@@ -585,7 +605,7 @@ BufferStringSet::idx_type BufferStringSet::indexOf( const char* str,
 }
 
 
-BufferStringSet::idx_type BufferStringSet::indexOf( const GlobExpr& ge ) const
+idx_type BufferStringSet::indexOf( const GlobExpr& ge ) const
 {
     const size_type sz = size();
     for ( idx_type idx=0; idx<sz; idx++ )
@@ -628,15 +648,15 @@ BufferString BufferStringSet::getDispString( size_type maxnritems,
 }
 
 
-BufferStringSet::idx_type BufferStringSet::nearestMatch( const char* s,
-					bool caseinsens ) const
+idx_type BufferStringSet::nearestMatch( const char* s,
+					CaseSensitivity cs ) const
 {
     const size_type sz = size();
     if ( sz < 2 )
 	return sz - 1;
-    if ( !s ) s = "";
+    if ( !s )
+	s = "";
 
-    const CaseSensitivity cs = caseinsens ? CaseInsensitive : CaseSensitive;
     TypeSet<idx_type> candidates;
     if ( FixedString(s).size() > 1 )
     {
@@ -660,11 +680,26 @@ BufferStringSet::idx_type BufferStringSet::nearestMatch( const char* s,
     {
 	const idx_type myidx = candidates[idx];
 	const unsigned int curdist
-		= get(myidx).getLevenshteinDist( s, !caseinsens );
+		= get(myidx).getLevenshteinDist( s, cs );
 	if ( idx == 0 || curdist < mindist  )
 	    { mindist = curdist; minidx = myidx; }
     }
     return minidx;
+}
+
+
+TypeSet<idx_type> BufferStringSet::getMatches( const char* inpexpr,
+					     CaseSensitivity cs ) const
+{
+    TypeSet<idx_type> ret;
+    if ( inpexpr && *inpexpr )
+    {
+	const GlobExpr ge( inpexpr, cs );
+	for ( idx_type idx=0; idx<size(); idx++ )
+	    if ( ge.matches(get(idx).str()) )
+		ret += idx;
+    }
+    return ret;
 }
 
 
@@ -821,8 +856,7 @@ void BufferStringSet::sort( bool caseinsens, bool asc )
 }
 
 
-BufferStringSet::idx_type* BufferStringSet::getSortIndexes(
-					bool caseinsens, bool asc ) const
+idx_type* BufferStringSet::getSortIndexes( bool caseinsens, bool asc ) const
 {
     const size_type sz = size();
     if ( sz < 1 )
@@ -871,8 +905,8 @@ bool BufferStringSet::hasUniqueNames( CaseSensitivity sens ) const
 }
 
 
-BufferStringSet::idx_type BufferStringSet::firstDuplicateOf(
-	    idx_type idx2find, CaseSensitivity sens, idx_type startat ) const
+idx_type BufferStringSet::firstDuplicateOf( idx_type idx2find,
+			CaseSensitivity sens, idx_type startat ) const
 {
     const size_type sz = size();
     if ( idx2find < 0 || idx2find >= sz )

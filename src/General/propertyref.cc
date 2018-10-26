@@ -244,7 +244,7 @@ bool PropertyRef::isKnownAs( const char* nm ) const
 	return true;
     for ( int idx=0; idx<aliases_.size(); idx++ )
     {
-	GlobExpr ge( aliases_.get(idx), false );
+	const GlobExpr ge( aliases_.get(idx), CaseInsensitive );
 	if ( ge.matches(nm) )
 	    return true;
     }

@@ -108,7 +108,7 @@ bool OD::String::endsWith( const char* s, CaseSensitivity sens ) const
 bool OD::String::matches( const char* s, CaseSensitivity sens ) const
 {
     mGetMeForEquality();
-    return GlobExpr(s,!mIsInsens()).matches( me );
+    return GlobExpr(s,sens).matches( me );
 }
 
 
@@ -154,7 +154,7 @@ unsigned int OD::String::count( char tocount ) const
 
 
 unsigned int OD::String::getLevenshteinDist( const char* s,
-					     bool casesens ) const
+					     CaseSensitivity cs ) const
 {
     const unsigned int len1 = size();
     const unsigned int len2 = FixedString(s).size();
@@ -170,6 +170,7 @@ unsigned int OD::String::getLevenshteinDist( const char* s,
     for ( unsigned int idx2=0; idx2<=len2; idx2++ )
 	d.set( 0, idx2, idx2 );
 
+    const bool casesens = cs == CaseSensitive;
     for ( unsigned int idx2=1; idx2<=len2; idx2++ )
     {
 	for ( unsigned int idx1=1; idx1<=len1; idx1++ )

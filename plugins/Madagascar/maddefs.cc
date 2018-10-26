@@ -171,7 +171,7 @@ void ODMad::ProgInfo::search( const char* str,
     else
 	{ gestr = "*"; gestr += str; gestr += "*"; }
 
-    const GlobExpr ge( gestr, false );
+    const GlobExpr ge( gestr, CaseInsensitive );
     for ( int ityp=0; ityp<3; ityp++ )
     {
 	for ( int idx=0; idx<defs_.size(); idx++ )

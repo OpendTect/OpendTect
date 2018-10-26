@@ -31,6 +31,9 @@ public:
 			BufferStringSet()	{}
     explicit		BufferStringSet(size_type n,const char* s=0);
     explicit		BufferStringSet(const char* arr[],size_type len=-1);
+    explicit		BufferStringSet(const char*);
+			BufferStringSet(const char*,const char*);
+			BufferStringSet(const char*,const char*,const char*);
     BufferStringSet*	clone() const
 			{ return new BufferStringSet(*this); }
     virtual		~BufferStringSet()	{}
@@ -78,13 +81,15 @@ public:
     void		append( const BufferStringSet& oth )
 			{ strs_.append( oth.strs_ ); }
 
-    idx_type		nearestMatch(const char*,bool caseinsens=true) const;
+#   define		mODBSSDefMatchSens CaseSensitivity cs=CaseInsensitive
+    idx_type		nearestMatch(const char*,mODBSSDefMatchSens) const;
+    TypeSet<idx_type>	getMatches(const char* globexpr,
+				   mODBSSDefMatchSens) const;
     bool		isSubsetOf(const BufferStringSet&) const;
     size_type		maxLength() const;
-    idx_type		firstDuplicateOf(idx_type,
-					 CaseSensitivity s=CaseSensitive,
+    idx_type		firstDuplicateOf(idx_type,mODStringDefSens,
 					 idx_type startat=0) const;
-    bool		hasUniqueNames(CaseSensitivity s=CaseSensitive) const;
+    bool		hasUniqueNames(mODStringDefSens) const;
     BufferString	commonStart() const;
 
     void		sort(bool caseinsens=true,bool asc=true);

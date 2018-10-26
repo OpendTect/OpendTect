@@ -123,6 +123,7 @@ set( OD_MODULE_SOURCES
 	trckeyzsampling.cc
 	uistring.cc
 	uistrings.cc
+	uistringset.cc
 	winutils.cc
 	zdomain.cc
 )

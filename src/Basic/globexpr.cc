@@ -29,7 +29,8 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
 			bool ci )
 {
     errmsg = 0;
-    if ( !t || !*t ) return !*p;
+    if ( !t || !*t )
+	return !*p;
 
     for ( ; *p; p++, t++ )
     {
@@ -150,11 +151,11 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
 			    bool ci )
 {
     /* pass over existing ? and * in pattern */
-    while ( *p == '?' || *p == '*' ) {
-
+    while ( *p == '?' || *p == '*' )
+    {
         /* take one char for each ? */
-        if ( *p == '?' ) {
-
+        if ( *p == '?' )
+	{
             /* if end of text then no match */
             if ( !*t++ ) {
                 return false;
