@@ -317,10 +317,14 @@ IOObj* DBMan_getIOObj( const DBKey& dbky )
 {
     if ( !dbky.isValid() )
 	return 0;
-    const SurveyDiskLocation& survloc = dbky.surveyDiskLocation();
-    if ( survloc.isCurrentSurvey() )
+
+    if ( dbky.isInCurrentSurvey() )
 	return DBM().get( dbky );
 
+    if ( !dbky.hasSurveyLocation() )
+	return 0;
+
+    const SurveyDiskLocation& survloc = dbky.surveyDiskLocation();
     ConstRefMan<DBDir> survrootdbdir = new DBDir( survloc.fullPath() );
     IOObj* ret = 0;
     if ( !survrootdbdir->isBad() )
