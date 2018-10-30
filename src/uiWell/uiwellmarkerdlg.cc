@@ -71,15 +71,15 @@ static void getColumnLabels( BufferStringSet& lbls, uiCheckBox* unfld,
     BufferString curlbl;
 
     curlbl = sKeyMD();
-    curlbl.add( getDistUnitString(zinfeet,true) );
+    curlbl.addSpace().add( getDistUnitString(zinfeet,true) );
     lbls.add( curlbl );
 
     curlbl = sKeyTVD();
-    curlbl.add( getDistUnitString(zinfeet,true) );
+    curlbl.addSpace().add( getDistUnitString(zinfeet,true) );
     lbls.add( curlbl );
 
     curlbl = sKeyTVDSS();
-    curlbl.add( getDistUnitString(zinfeet,true) );
+    curlbl.addSpace().add( getDistUnitString(zinfeet,true) );
     lbls.add( curlbl );
 
     lbls.add( sKeyColor() );
@@ -186,6 +186,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->setColumnStretchable( cLevelCol, true );
     table_->setNrRows( cNrEmptyRows );
     table_->setColumnReadOnly( cColorCol, true );
+    table_->setSelectionBehavior( uiTable::SelectRows );
     table_->doubleClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
     table_->valueChanged.notify( mCB(this,uiMarkerDlg,markerChangedCB) );
     table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
@@ -307,6 +308,8 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
     uiObject* obj = table_->getCellObject( RowCol(row,cLevelCol) );
     if ( obj )
 	obj->setSensitive( true );
+    else
+	markerAddedCB(0);
 }
 
 
@@ -338,7 +341,7 @@ void uiMarkerDlg::unitChangedCB( CallBacker* )
 	    if ( mIsUdf(val) )
 		continue;
 
-	    table_->setValue( rc, val * zfac );
+	    table_->setValue( rc, val*zfac, 2 );
 	}
     }
 }
@@ -415,10 +418,10 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 
 	    levelsel->setID( marker->levelID() );
 	    const float dah = marker->dah();
-	    table_->setValue( RowCol(irow,cDepthCol), dah * zfac );
+	    table_->setValue( RowCol(irow,cDepthCol), dah*zfac, 2 );
 	    const float tvdss = mCast(float,track_.getPos(dah).z);
-	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev) * zfac );
-	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss * zfac );
+	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac, 2 );
+	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, 2 );
 	    table_->setText( RowCol(irow,cNameCol), marker->name() );
 	    table_->setColor( RowCol(irow,cColorCol), marker->color() );
 	    if ( marker->levelID() >= 0 )
@@ -435,6 +438,9 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	table_->setText( RowCol(irow,cNameCol), "" );
 	table_->setColor( RowCol(irow,cColorCol), mrk.color() );
     }
+
+    table_->resizeColumnsToContents();
+    table_->setColumnStretchable( cLevelCol, true );
 
     if ( !oldmrkrs_ )
     {
@@ -648,11 +654,11 @@ class uiMarkersList : public uiDialog
 public:
 
 uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
-	: uiDialog( p,uiDialog::Setup( tr("Markers List"), tr("Select markers"),
-					mNoHelpKey) )
+    : uiDialog(p,uiDialog::Setup(tr("Select Regional Markers"),
+				 mNoDlgTitle,mNoHelpKey))
 {
-    list_ = new uiListBox( this, "Markers" );
-    list_->setMultiChoice( true );
+    list_ = new uiListBox( this, "Markers", OD::ChooseZeroOrMore );
+    list_->setHSzPol( uiObject::Wide );
     for ( int idx=0; idx<mset.size(); idx++ )
 	list_->addItem( toUiString(mset[idx]->name()), mset[idx]->color() );
 }
@@ -915,10 +921,10 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
 	table_->setColor( RowCol(irow,cColorCol), mrkr.color() );
 
 	const float dah = mrkr.dah();
-	table_->setValue( RowCol(irow,cDepthCol), dah * zfac );
+	table_->setValue( RowCol(irow,cDepthCol), dah*zfac, 2 );
 	const float tvdss = (float)trck.getPos(dah).z;
-	table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev) * zfac );
-	table_->setValue( RowCol(irow,cTVDSSCol), tvdss * zfac );
+	table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac, 2 );
+	table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, 2 );
     }
 
 
