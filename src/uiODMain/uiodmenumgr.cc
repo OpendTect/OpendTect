@@ -81,6 +81,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     , preloadmnu_(0)
     , manmnu_(0)
     , plugintb_(0)
+    , faulttoolman_(0)
 {
     impmnus_.setNullAllowed( true ); expmnus_.setNullAllowed( true );
 
@@ -96,8 +97,6 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     viewtb_ = new uiToolBar( &appl_, tr("Graphical Tools"), uiToolBar::Left );
     mantb_ = new uiToolBar( &appl_, uiStrings::phrManage( uiStrings::sData()),
 			    uiToolBar::Right );
-
-    faulttoolman_ = new uiODFaultToolMan( appl_ );
 
     uiVisPartServer* visserv = appl_.applMgr().visServer();
     visserv->createToolBars();
@@ -130,6 +129,13 @@ uiMenu* uiODMenuMgr::getBaseMnu( uiODApplMgr::ActType at )
 	  (at == uiODApplMgr::Exp   ? expmnu_ :
 	  (at == uiODApplMgr::PL    ? preloadmnu_
 				    : manmnu_));
+}
+
+
+void uiODMenuMgr::createFaultToolMan()
+{
+    if ( !faulttoolman_ )
+	faulttoolman_ = new uiODFaultToolMan( appl_ );
 }
 
 

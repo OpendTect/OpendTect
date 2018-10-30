@@ -60,6 +60,7 @@ public:
     uiMenu*	impWellLogsMenu()	{ return implogsmnu_; }
     uiMenu*	impWellMarkersMenu()	{ return impmarkersmnu_; }
     uiMenu*	mmProcMenu()		{ return mmmnu_; }
+    void	createFaultToolMan();
 
     typedef uiODApplMgr::ActType    ActType;
     typedef uiODApplMgr::ObjType    ObjType;
