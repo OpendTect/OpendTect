@@ -71,7 +71,7 @@ Seis::Provider* Seis::Provider::create( Seis::GeomType gt )
 
 Seis::Provider* Seis::Provider::create( const IOObj& ioobj, uiRetVal* uirv )
 {
-    return create( ioobj.key() );
+    return create( ioobj.key(), uirv );
 }
 
 
