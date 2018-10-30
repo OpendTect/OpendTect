@@ -191,6 +191,8 @@ protected:
     void		mkViewIconsMnu();
     void		addIconMnuItems(const DirList&,uiMenu*,
 					BufferStringSet&);
+public:
+    void		createFaultToolMan();
 };
 
 

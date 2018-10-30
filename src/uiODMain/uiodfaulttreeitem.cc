@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
+#include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uistrings.h"
@@ -273,6 +274,8 @@ bool uiODFaultTreeItem::init()
 	faultdisplay_->ref();
 	emid_ = fd->getEMObjectID();
     }
+
+    ODMainWin()->menuMgr().createFaultToolMan();
 
     faultdisplay_->materialChange()->notify(
 	    mCB(this,uiODFaultTreeItem,colorChCB));

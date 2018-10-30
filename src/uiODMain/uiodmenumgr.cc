@@ -69,6 +69,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     , langmnu_(0)
     , plugintb_(0)
     , addtimedepthsceneitm_(0)
+    , faulttoolman_(0)
 {
     surveymnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sSurvey()) );
     analmnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sAnalysis()) );
@@ -82,8 +83,6 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     viewtb_ = new uiToolBar( &appl_, tr("Graphical Tools"), uiToolBar::Left );
     mantb_ = new uiToolBar( &appl_, uiStrings::phrManage(uiStrings::sData()),
 			    uiToolBar::Right );
-
-    faulttoolman_ = new uiODFaultToolMan( appl_ );
 
     uiVisPartServer* visserv = appl_.applMgr().visServer();
     visserv->createToolBars();
@@ -136,6 +135,13 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillManTB();
 
     measuretoolman_ = new MeasureToolMan( appl_ );
+}
+
+
+void uiODMenuMgr::createFaultToolMan()
+{
+    if ( !faulttoolman_ )
+	faulttoolman_ = new uiODFaultToolMan( appl_ );
 }
 
 
