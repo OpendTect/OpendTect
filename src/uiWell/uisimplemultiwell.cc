@@ -67,25 +67,28 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    tbl_ = new uiTable( this, uiTable::Setup(20,7).rowgrow(true)
+    tbl_ = new uiTable( this, uiTable::Setup(10,7).rowgrow(true)
 						  .manualresize(true)
 						  .selmode(uiTable::Multi),
-		        "Data Table" );
+			"Data Table" );
     tbl_->setColumnLabel( 0, mJoinUiStrs(sWell(),sName().toLower()) );
     const uiString xunstr = SI().getUiXYUnitString();
-    tbl_->setColumnLabel( 1, toUiString("[%1%2]").arg(uiStrings::sX())
+    tbl_->setColumnLabel( 1, toUiString("[%1 %2]").arg(uiStrings::sX())
 								.arg(xunstr) );
-    tbl_->setColumnLabel( 2, toUiString("[%1%2]").arg(uiStrings::sY())
+    tbl_->setColumnLabel( 2, toUiString("[%1 %2]").arg(uiStrings::sY())
 								.arg(xunstr) );
     const uiString zun = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
-    tbl_->setColumnLabel( 3, tr("[KB%1]").arg(zun) );
+    tbl_->setColumnLabel( 3, tr("[KB %1]").arg(zun) );
     tbl_->setColumnToolTip( 3, Well::Info::sKBElev() );
-    tbl_->setColumnLabel( 4, tr("[TD%1]").arg(zun) );
+    tbl_->setColumnLabel( 4, tr("[TD %1]").arg(zun) );
     tbl_->setColumnToolTip( 4, Well::Info::sTD() );
-    tbl_->setColumnLabel( 5, tr("[GL%1]").arg(zun) );
+    tbl_->setColumnLabel( 5, tr("[GL %1]").arg(zun) );
     tbl_->setColumnToolTip( 5, Well::Info::sGroundElev() );
     tbl_->setColumnLabel( 6, tr("[UWI]") );
     tbl_->setColumnToolTip( 6, Well::Info::sUwid() );
+    tbl_->setColumnResizeMode( uiTable::ResizeToContents );
+    tbl_->setSelectionBehavior( uiTable::SelectRows );
+    tbl_->setColumnStretchable( 6, true );
 
     uiPushButton* pb = new uiPushButton( this, tr("Read file"),
 	    mCB(this,uiSimpleMultiWellCreate,rdFilePush), false );
@@ -101,7 +104,6 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     }
 
     tbl_->setPrefWidth( 750 );
-    tbl_->setPrefHeight( 500 );
 }
 
 
@@ -131,7 +133,15 @@ bool getLine()
     atend_ = false;
 
     wcd_.nm_ = text( 0 );
-    wcd_.coord_ = getPos( 1, 2 );
+    if ( isXY() )
+	wcd_.coord_ = getPos( 1, 2 );
+    else
+    {
+	LatLong ll;
+	ll.setFromString( text(1), true );
+	ll.setFromString( text(2), false );
+	wcd_.coord_ = LatLong::transform( ll );
+    }
 
     if ( wcd_.nm_.isEmpty()
       || mIsUdf(wcd_.coord_.x) || mIsUdf(wcd_.coord_.y)
@@ -160,7 +170,7 @@ public:
 uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     : uiDialog(&p,uiDialog::Setup(tr("Multi-well creation"),
 				  uiStrings::phrCreate(tr("multiple wells")),
-		            mODHelpKey(mSimpleMultiWellCreateReadDataHelpID)))
+			    mODHelpKey(mSimpleMultiWellCreateReadDataHelpID)))
     , par_(p)
     , fd_("Simple multi-welldata")
 {
@@ -169,7 +179,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
 			       .examstyle(File::Table) );
 
     fd_.bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
-    fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
     Table::TargetInfo* ti = Table::TargetInfo::mkDepthPosition( false );
     ti->setName( Well::Info::sKeyKBElev() );
     fd_.bodyinfos_ += ti;
@@ -223,6 +233,8 @@ void uiSimpleMultiWellCreate::rdFilePush( CallBacker* )
 {
     uiSimpleMultiWellCreateReadData dlg( *this );
     dlg.go();
+
+    tbl_->resizeColumnsToContents();
 }
 
 
@@ -272,7 +284,7 @@ IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 	if ( overwritepol_ == 0 )
 	    overwritepol_ = uiMSG().askGoOn(
 		    tr("Do you want to overwrite existing wells?"),
-                    true) ? 1 : -1;
+		    true) ? 1 : -1;
 	if ( overwritepol_ == -1 )
 	    { delete ioobj; return 0; }
 	ioobj->implRemove();
@@ -359,7 +371,7 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 
     if ( crwellids_.isEmpty() )
     {
-        return !uiMSG().askGoOn( tr("No wells have been imported."
+	return !uiMSG().askGoOn( tr("No wells have been imported."
 			     "\n\nDo you want to make changes to the table?"),
 			     uiStrings::sYes(), tr("No, Quit") );
     }

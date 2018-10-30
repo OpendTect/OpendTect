@@ -92,13 +92,13 @@ uiWellPartServer::~uiWellPartServer()
 
 void uiWellPartServer::survChangedCB( CallBacker* )
 {
-    delete manwelldlg_; manwelldlg_ = 0;
-    delete impsimpledlg_; impsimpledlg_ = 0;
-    delete impbulktrackdlg_; impbulktrackdlg_ = 0;
-    delete impbulklogdlg_; impbulklogdlg_ = 0;
-    delete impbulkmrkrdlg_; impbulkmrkrdlg_ = 0;
-    delete impbulkd2tdlg_; impbulkd2tdlg_ = 0;
-    delete rdmlinedlg_; rdmlinedlg_ = 0;
+    deleteAndZeroPtr( manwelldlg_ );
+    deleteAndZeroPtr( impsimpledlg_ );
+    deleteAndZeroPtr( impbulktrackdlg_ );
+    deleteAndZeroPtr( impbulklogdlg_ );
+    deleteAndZeroPtr( impbulkmrkrdlg_ );
+    deleteAndZeroPtr( impbulkd2tdlg_ );
+    deleteAndZeroPtr( rdmlinedlg_ );
     deepErase( wellpropdlgs_ );
 }
 
@@ -417,23 +417,32 @@ void uiWellPartServer::launchRockPhysics()
 void uiWellPartServer::simpImp( CallBacker* cb )
 {
     if ( !impsimpledlg_ )
+    {
 	impsimpledlg_ = new uiSimpleMultiWellCreate( parent() );
+	impsimpledlg_->windowClosed.notify(
+		mCB(this,uiWellPartServer,simpleImpDlgClosed) );
+    }
 
-    if ( !impsimpledlg_->go() )
+    impsimpledlg_->show();
+}
+
+
+void uiWellPartServer::simpleImpDlgClosed( CallBacker* )
+{
+    if ( !impsimpledlg_ )
 	return;
 
     crwellids_ = impsimpledlg_->createdWellIDs();
-    if ( crwellids_.isEmpty() ) return;
+    if ( crwellids_.isEmpty() )
+	return;
 
     if ( impsimpledlg_->wantDisplay() )
 	sendEvent( evDisplayWell() );
 
-    mDynamicCastGet(uiToolButton*,tb,cb)
-    uiMainWin* mw = tb ? tb->mainwin() : 0;
-    mDynamicCastGet(uiWellMan*,wm,mw)
-    if ( !wm ) return;
+    if ( !manwelldlg_ )
+	return;
 
-    wm->selGroup()->fullUpdate( MultiID(crwellids_.get(0)) );
+    manwelldlg_->selGroup()->fullUpdate( MultiID(crwellids_.get(0)) );
 }
 
 

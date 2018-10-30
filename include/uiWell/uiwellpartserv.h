@@ -87,7 +87,7 @@ public:
     bool			storeWell(const TypeSet<Coord3>&,const char* nm,
 					  MultiID&,bool addwellhead=false);
 
-    static int		        evPreviewRdmLine();
+    static int			evPreviewRdmLine();
     static int			evCleanPreview();
     static int			evDisplayWell();
 
@@ -121,6 +121,7 @@ protected:
 						  const MultiID&);
     void			applyAll(CallBacker*);
     void			simpImp(CallBacker*);
+    void			simpleImpDlgClosed(CallBacker*);
     void			survChangedCB(CallBacker*);
     int				getPropDlgIndex(const MultiID&);
 
