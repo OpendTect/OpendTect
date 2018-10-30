@@ -67,7 +67,7 @@ mExpClass(uiCRS) uiConvertGeographicPos : public uiDialog
 { mODTextTranslationClass(uiConvertGeographicPos);
 
 public:
-                        uiConvertGeographicPos(uiParent*,
+			uiConvertGeographicPos(uiParent*,
 					ConstRefMan<CoordSystem>,
 					const Coord& initialpos);
 
@@ -96,4 +96,4 @@ private:
     void		convFile();
 };
 
-} //Namespace
+} // namespace Coords

@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set( OD_MODULE_DEPS uiIo CRS )
+set( OD_MODULE_DEPS uiODMain CRS )
 set( OD_IS_PLUGIN yes)
 set( OD_MODULE_SOURCES 
 	    uicrssystem.cc
