@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellimpasc.h"
 #include "wellman.h"
 #include "wellmarker.h"
+#include "wellreader.h"
 #include "welltrack.h"
 #include "welltransl.h"
 #include "wellwriter.h"
@@ -49,7 +50,7 @@ using namespace Well;
 // uiBulkTrackImport
 uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: Well Tracks"),
-		                 mNoDlgTitle,
+				 mNoDlgTitle,
 				 mODHelpKey(mBulkTrackImportHelpID) )
 			   .modal(false))
     , fd_(BulkTrackAscIO::getDesc())
@@ -63,7 +64,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
 		      .withexamine(true).examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
-                                       mODHelpKey(mTableImpDataSelwellsHelpID));
+				       mODHelpKey(mTableImpDataSelwellsHelpID));
     dataselfld_->attach( alignedBelow, inpfld_ );
 
     if ( SI().zIsTime() )
@@ -105,11 +106,34 @@ static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
 }
 
 
+static bool getInfo( const char* wellnm, float& kb, Well::Info& info )
+{
+    PtrMan<IOObj> ioobj = findIOObj( wellnm, wellnm );
+    if ( !ioobj ) return false;
+
+    RefMan<Well::Data> wd = new Well::Data;
+    Well::Reader wr( *ioobj, *wd );
+    const bool res = wr.getInfo() && wr.getTrack();
+    if ( !res ) return false;
+
+    kb = wd->track().getKbElev();
+    if ( mIsUdf(kb) )
+	kb = 0;
+
+    IOPar pars;
+    wd->info().fillPar( pars );
+    info.usePar( pars );
+    return true;
+}
+
+
 void uiBulkTrackImport::readFile( od_istream& istrm )
 {
     BulkTrackAscIO aio( *fd_, istrm );
     BufferString wellnm, uwi; Coord3 crd;
     float md = mUdf(float);
+    const bool depthistvd = aio.depthIsTVD();
+    float kb = 0;
     while ( aio.get(wellnm,crd,md,uwi) )
     {
 	if ( wellnm.isEmpty() )
@@ -122,10 +146,16 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	else
 	{
 	    wd = new Well::Data( wellnm );
-	    wd->info().uwid = uwi;
 	    wd->ref();
+	    getInfo( wellnm, kb, wd->info() );
+	    if ( !uwi.isEmpty() )
+		wd->info().uwid = uwi;
+
 	    wells_ += wd;
 	}
+
+	if ( depthistvd )
+	    crd.z -= kb;
 
 	if ( crd.isDefined() )
 	    wd->track().addPoint( crd.coord(), (float) crd.z, md );
@@ -392,7 +422,7 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
 			       .examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
-                                       mODHelpKey(mTableImpDataSelwellsHelpID));
+				       mODHelpKey(mTableImpDataSelwellsHelpID));
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 
@@ -509,7 +539,7 @@ D2TModelData( const char* wellnm )
     : wellnm_(wellnm)	{}
 
     BufferString	wellnm_; // can be UWI as well
-    TypeSet<double>	mds_;
+    TypeSet<double>	tvds_;
     TypeSet<double>	twts_;
 };
 
@@ -527,7 +557,7 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
 			 uiStrings::phrInput(tr("Depth/Time Model file")), fs );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
-        mODHelpKey(mTableImpDataSelwellsHelpID) );
+	mODHelpKey(mTableImpDataSelwellsHelpID) );
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 
@@ -582,7 +612,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 
 	uiString msg;
 	D2TModel* d2t = new D2TModel( d2tdata[idx]->wellnm_.buf() );
-	d2t->ensureValid( *wd, msg, &d2tdata[idx]->mds_, &d2tdata[idx]->twts_ );
+	d2t->ensureValid( *wd, msg, &d2tdata[idx]->tvds_, &d2tdata[idx]->twts_);
 	wd->setD2TModel( d2t );
 
 	const BufferString wellfnm = ioobj->fullUserExpr();
@@ -628,9 +658,9 @@ void uiBulkD2TModelImport::readFile( od_istream& istrm,
 {
     BulkD2TModelAscIO aio( *fd_, istrm );
     BufferString wellnm;
-    float md = mUdf(float);
+    float tvd = mUdf(float);
     float twt = mUdf(float);
-    while ( aio.get(wellnm,md,twt) )
+    while ( aio.get(wellnm,tvd,twt) )
     {
 	if ( wellnm.isEmpty() )
 	    continue;
@@ -644,7 +674,7 @@ void uiBulkD2TModelImport::readFile( od_istream& istrm,
 	}
 
 	D2TModelData* d2t = data[wellidx];
-	d2t->mds_ += mCast(double,md);
+	d2t->tvds_ += mCast(double,tvd);
 	d2t->twts_ += mCast(double,twt);
     }
 }

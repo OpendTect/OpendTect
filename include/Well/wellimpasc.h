@@ -176,6 +176,7 @@ public:
     static Table::FormatDesc*	getDesc();
     bool			get(BufferString& wellnm,Coord3& crd,float& md,
 				    BufferString& uwi) const;
+    bool			depthIsTVD() const;
 
 protected:
 

@@ -37,7 +37,7 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 }
 
 
-#define mDefEpsZ 1e-3
+#define mDefEpsZ 1e-2
 #define mDefEpsT 1e-6
 #define mDefEpsV 1e-3
 
@@ -110,7 +110,7 @@ float Well::D2TModel::getDah( float twt, const Track& track ) const
 {
     const float depth = getDepth( twt, track );
     if ( mIsUdf(depth) )
-        return mUdf(float);
+	return mUdf(float);
 
     return track.getDahForTVD( depth );
 }
@@ -168,7 +168,7 @@ bool Well::D2TModel::getVelocityBoundsForDah( float dh, const Track& track,
     times.stop = t_[idah];
 
     if ( depths.isUdf() )
-        return false;
+	return false;
 
     bool reversedz = times.isRev() || depths.isRev();
     bool sametwt = mIsZero(times.width(),1e-6f) || mIsZero(depths.width(),1e-6);
@@ -660,12 +660,12 @@ void Well::D2TModel::shiftTimesIfNecessary( TypeSet<double>& tvals,
 	return;
 
     msg = tr("Error with the input time-depth model:\n"
-	  "It does not honour TWT(Z=SRD) = 0.");
+	     "It does not honor TWT=0 at SRD.");
     const UnitOfMeasure* uomz = UnitOfMeasure::surveyDefTimeUnit();
     msg.append(
-	tr( "\nOpendTect WILL correct for this error by applying a "
-		  "time shift of: %1%2\n"
-		   "The resulting travel-times will differ from the file"))
+	tr( "\nOpendTect WILL correct for this error by applying\n"
+		"a time shift of: %1%2\n"
+		"The resulting travel-times will differ from the input file."))
 		   .arg( toString(mScaledValue(timeshift,uomz),2) )
 		   .arg(UnitOfMeasure::surveyDefTimeUnitAnnot(true,false) );
 
@@ -780,11 +780,7 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll, uiString& msg,
 	}
     }
 
-    uiString wmsg;
-    const bool isok = getTVDD2TModel( *this, wll, *zvals, *tvals, msg, wmsg );
-    if ( !wmsg.isEmpty() )
-	ErrMsg( wmsg.getFullString() );
-
+    const bool isok = getTVDD2TModel( *this, wll, *zvals, *tvals, msg, msg );
     if ( !externalvals )
 	{ delete zvals; delete tvals; }
 

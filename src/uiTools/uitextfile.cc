@@ -43,6 +43,7 @@ void uiTextFile::init( uiParent* p )
 	tbl_->valueChanged.notify( modifcb );
 	tbl_->setStretch( 2, 2 );
 	tbl_->setPrefHeight( 200 );
+	tbl_->setColumnResizeMode( uiTable::ResizeToContents );
     }
     else if ( !setup_.editable_ || setup_.style_ == File::Bin )
 	txtbr_ = new uiTextBrowser( p, filename_, setup_.maxnrlines_,
@@ -153,6 +154,8 @@ bool uiTextFile::open( const char* fnm )
 	uiTableExpHandler exphndlr( tbl_, setup_.maxnrlines_ );
 	Table::Converter cnvrtr( imphndlr, exphndlr );
 	cnvrtr.execute();
+
+	tbl_->resizeColumnsToContents();
     }
 
 
