@@ -291,7 +291,7 @@ Table::TargetInfo* TargetInfo::mkHorPosition( bool isreq, bool wic, bool wll,
     if ( wll )
     {
 	Table::TargetInfo::Form* form = new Table::TargetInfo::Form(
-	    toUiString("Long/Lat"), StringInpSpec() );
+	    toUiString("Lat/Long"), StringInpSpec() );
 	form->add( StringInpSpec() );
 	ti->add( form );
     }
