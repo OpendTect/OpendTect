@@ -733,15 +733,15 @@ void Well::D2TModel::shiftTimesIfNecessary( TypeSet<double>& tvals,
     if ( mIsZero(timeshift,t_eps) )
 	return;
 
-    msg = tr("The input time-depth model does not honour TWT(Z=SRD) = 0.");
+    msg = tr("The input time-depth model does not honor TWT=0 at SRD.");
     const UnitOfMeasure* uomz = UnitOfMeasure::surveyDefTimeUnit();
     const double usrtshftval = mScaledValue( timeshift, uomz );
     msg.appendPhrase(
-	tr( "OpendTect will correct for this error by applying a "
-		  "time shift of %1").arg( usrtshftval )
+	tr( "OpendTect will correct for this error by applying\n"
+		  "a time shift of %1").arg( usrtshftval )
 		  .withUnit(UnitOfMeasure::surveyDefTimeUnitAnnot(true)) );
     msg.appendPhrase(tr("The resulting travel-times will differ from "
-		    "the file") );
+		    "the input file") );
 
     for ( int idz=0; idz<tvals.size(); idz++ )
 	tvals[idz] += timeshift;
@@ -851,11 +851,7 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll, uiString& msg,
 	}
     }
 
-    uiString wmsg;
-    const bool isok = getTVDD2TModel( *this, wll, *zvals, *tvals, msg, wmsg );
-    if ( !wmsg.isEmpty() )
-	ErrMsg( wmsg );
-
+    const bool isok = getTVDD2TModel( *this, wll, *zvals, *tvals, msg, msg );
     if ( !externalvals )
 	{ delete zvals; delete tvals; }
 

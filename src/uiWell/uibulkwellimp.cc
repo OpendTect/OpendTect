@@ -64,7 +64,7 @@ static DBKey getDBKey( const char* wellnm, const char* welluwi=0 )
 // uiBulkTrackImport
 uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: Well Tracks"),
-		                 mNoDlgTitle,
+				 mNoDlgTitle,
 				 mODHelpKey(mBulkTrackImportHelpID) )
 			   .modal(false))
     , fd_(Well::BulkTrackAscIO::getDesc())
@@ -74,7 +74,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
 		      .withexamine(true).examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
-                                       mODHelpKey(mTableImpDataSelwellsHelpID));
+				       mODHelpKey(mTableImpDataSelwellsHelpID));
     dataselfld_->attach( alignedBelow, inpfld_ );
 
     if ( SI().zIsTime() )
@@ -106,11 +106,35 @@ static int getWellIdx( ObjectSet<Well::Data>& wells, const char* nm )
 }
 
 
+static bool getInfo( const char* wellnm, float& kb, Well::Info& info )
+{
+    DBKey dbky = getDBKey( wellnm, info.UWI() );
+    if ( !dbky.isValid() )
+	return false;
+
+    ConstRefMan<Well::Data> wd =
+	Well::MGR().fetch( dbky, Well::LoadReqs(Well::Inf,Well::Trck) );
+    if ( !wd )
+	return false;
+
+    kb = wd->track().getKbElev();
+    if ( mIsUdf(kb) )
+	kb = 0;
+
+    IOPar pars;
+    wd->info().fillPar( pars );
+    info.usePar( pars );
+    return true;
+}
+
+
 void uiBulkTrackImport::readFile( od_istream& istrm )
 {
     Well::BulkTrackAscIO aio( *fd_, istrm );
     BufferString wellnm, uwi; Coord3 crd;
     float md = mUdf(float);
+    const bool depthistvd = aio.depthIsTVD();
+    float kb = 0;
     while ( aio.get(wellnm,crd,md,uwi) )
     {
 	if ( wellnm.isEmpty() )
@@ -123,13 +147,19 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	else
 	{
 	    wd = new Well::Data( wellnm );
-	    wd->info().setUWI( uwi );
 	    wd->ref();
+	    getInfo( wellnm, kb, wd->info() );
+	    if ( !uwi.isEmpty() )
+		wd->info().setUWI( uwi );
+
 	    wells_ += wd;
 	}
 
+	if ( depthistvd )
+	    crd.z_ -= kb;
+
 	if ( crd.isDefined() )
-	    wd->track().addPoint( crd.getXY(), (float) crd.z_, md );
+	    wd->track().addPoint( crd.getXY(), (float)crd.z_, md );
     }
 }
 
@@ -203,12 +233,12 @@ bool uiBulkTrackImport::acceptOK()
 	{ uiMSG().message( tr("No valid lines found") ); return true; }
 
     uiRetVal uirv = addD2T();
-    if ( !uirv.isError() )
+    if ( uirv.isError() )
 	mErrRet( uirv );
 
     uirv = write();
     if ( !uirv.isOK() )
-	{ uiMSG().error( uirv ); return false; }
+	mErrRet( uirv );
 
     uiMSG().message( tr("All tracks imported succesfully") );
     return true;
@@ -371,7 +401,7 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
 									fssu );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
-                                       mODHelpKey(mTableImpDataSelwellsHelpID));
+				       mODHelpKey(mTableImpDataSelwellsHelpID));
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 
@@ -479,7 +509,7 @@ D2TModelData( const char* wellnm )
     : wellnm_(wellnm)	{}
 
     BufferString	wellnm_; // can be UWI as well
-    TypeSet<double>	mds_;
+    TypeSet<double>	tvds_;
     TypeSet<double>	twts_;
 };
 
@@ -495,7 +525,7 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
 		     uiStrings::phrInput(tr("Depth/Time Model file")), fssu );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
-        mODHelpKey(mTableImpDataSelwellsHelpID) );
+	mODHelpKey(mTableImpDataSelwellsHelpID) );
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 
@@ -547,7 +577,7 @@ bool uiBulkD2TModelImport::acceptOK()
 
 	Well::D2TModel& d2t = wd->d2TModel();
 	uiString msg;
-	d2t.ensureValid( *wd, msg, &d2tdata[idx]->mds_, &d2tdata[idx]->twts_ );
+	d2t.ensureValid( *wd, msg, &d2tdata[idx]->tvds_, &d2tdata[idx]->twts_ );
 	SilentTaskRunnerProvider trprov;
 	uirv.add( Well::MGR().save(dbky,trprov) );
     }
@@ -579,9 +609,9 @@ void uiBulkD2TModelImport::readFile( od_istream& istrm,
 {
     Well::BulkD2TModelAscIO aio( *fd_, istrm );
     BufferString wellnm;
-    float md = mUdf(float);
+    float tvd = mUdf(float);
     float twt = mUdf(float);
-    while ( aio.get(wellnm,md,twt) )
+    while ( aio.get(wellnm,tvd,twt) )
     {
 	if ( wellnm.isEmpty() )
 	    continue;
@@ -595,7 +625,7 @@ void uiBulkD2TModelImport::readFile( od_istream& istrm,
 	}
 
 	D2TModelData* d2t = data[wellidx];
-	d2t->mds_ += mCast(double,md);
+	d2t->tvds_ += mCast(double,tvd);
 	d2t->twts_ += mCast(double,twt);
     }
 }

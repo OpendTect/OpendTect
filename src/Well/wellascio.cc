@@ -452,7 +452,11 @@ bool Well::D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
 	tvals += tval;
     }
 
-    return d2t.ensureValid( wll, errmsg_, &zvals, &tvals );
+    const bool res = d2t.ensureValid( wll, errmsg_, &zvals, &tvals );
+    if ( res && !errmsg_.isEmpty() )
+	warnmsg_ = errmsg_;
+
+    return res;
 }
 
 
@@ -471,16 +475,23 @@ Table::FormatDesc* Well::BulkTrackAscIO::getDesc()
 	new Table::TargetInfo( uiStrings::sWellName(), Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( true );
-    zti->setName( "Z (TVDSS)" );
+    zti->form(0).setName( "Z (TVDSS)" );
+    zti->add( new Table::TargetInfo::Form(uiStrings::sTVD(),FloatInpSpec()) );
     fd->bodyinfos_ += zti;
     Table::TargetInfo* mdti =
 	new Table::TargetInfo( uiStrings::sMD(), FloatInpSpec(),
 					Table::Optional, PropertyRef::Dist );
     mdti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     fd->bodyinfos_ += mdti;
-    fd->bodyinfos_ += new Table::TargetInfo( Well::Info::sUwid(),
-					     Table::Optional );
+    fd->bodyinfos_ +=
+	new Table::TargetInfo( Well::Info::sUwid(), Table::Optional );
     return fd;
+}
+
+
+bool Well::BulkTrackAscIO::depthIsTVD() const
+{
+    return formOf( false, 2 ) == 1;
 }
 
 
@@ -578,15 +589,15 @@ Table::FormatDesc* Well::BulkD2TModelAscIO::getDesc()
 }
 
 
-bool Well::BulkD2TModelAscIO::get( BufferString& wellnm, float& md, float& twt )
+bool Well::BulkD2TModelAscIO::get( BufferString& wellnm, float& zval, float& twt )
 {
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
     wellnm = text( 0 );
-    md = getFValue( 1 );
+    zval = getFValue( 1 );
     twt = getFValue( 2 );
-    if ( mIsUdf(md) || mIsUdf(twt) )
+    if ( mIsUdf(zval) || mIsUdf(twt) )
 	return false;
 
     int wellidx = wells_.indexOf(wellnm);
@@ -604,17 +615,17 @@ bool Well::BulkD2TModelAscIO::get( BufferString& wellnm, float& md, float& twt )
 	wellidx = wells_.size()-1;
     }
 
-    const int dpthopt = formOf( false, 0 );
-    const int tmopt = formOf( false, 1 );
+    const int dpthopt = formOf( false, 1 );
+    const int tmopt = formOf( false, 2 );
 
     if ( dpthopt == 0 )
-	md = mCast(float,wellsdata_[wellidx]->track().getPos(md).z_);
+	zval = mCast(float,wellsdata_[wellidx]->track().getPos(zval).z_);
     if ( dpthopt == 2 )
-	md -= SI().seismicReferenceDatum();
+	zval -= SI().seismicReferenceDatum();
     if ( dpthopt == 3 )
-	md -= wellsdata_[wellidx]->track().getKbElev();
+	zval -= wellsdata_[wellidx]->track().getKbElev();
     if ( dpthopt == 4 )
-	md -= wellsdata_[wellidx]->info().groundElevation();
+	zval -= wellsdata_[wellidx]->info().groundElevation();
     if ( tmopt == 1 )
 	twt *= 2;
 
