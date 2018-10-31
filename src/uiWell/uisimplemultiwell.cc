@@ -73,10 +73,10 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 			"Data Table" );
     tbl_->setColumnLabel( 0, mJoinUiStrs(sWell(),sName().toLower()) );
     const uiString xunstr = SI().getUiXYUnitString();
-    tbl_->setColumnLabel( 1, toUiString("[%1 %2]").arg(uiStrings::sX())
-								.arg(xunstr) );
-    tbl_->setColumnLabel( 2, toUiString("[%1 %2]").arg(uiStrings::sY())
-								.arg(xunstr) );
+    tbl_->setColumnLabel( 1,
+		toUiString("%1 %2").arg(uiStrings::sX()).arg(xunstr) );
+    tbl_->setColumnLabel( 2,
+		toUiString("%1 %2").arg(uiStrings::sY()).arg(xunstr) );
     const uiString zun = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
     tbl_->setColumnLabel( 3, tr("[KB %1]").arg(zun) );
     tbl_->setColumnToolTip( 3, Well::Info::sKBElev() );
