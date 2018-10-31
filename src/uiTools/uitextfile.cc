@@ -154,6 +154,8 @@ bool uiTextFile::open( const char* fnm )
 	uiTableExpHandler exphndlr( tbl_, setup_.maxnrlines_ );
 	Table::Converter cnvrtr( imphndlr, exphndlr );
 	cnvrtr.execute();
+
+	tbl_->resizeColumnsToContents();
     }
 
 
