@@ -449,8 +449,7 @@ uiAction* uiActionContainer::findAction( const char* itmtxt )
     for ( int idx=0; idx<actions_.size(); idx++ )
     {
 	uiAction* itm = actions_[idx];
-
-	if ( toString(itm->text()) == itmtxt )
+	if ( itm->text().toString().startsWith(itmtxt,CaseInsensitive) )
 	    return itm;
     }
 
