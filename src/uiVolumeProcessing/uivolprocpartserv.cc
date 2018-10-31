@@ -25,9 +25,11 @@ ________________________________________________________________________
 uiVolProcPartServer::uiVolProcPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , volprocchain_(0)
-    , volprocchaindlg_(0)
     , volprocchain2d_(0)
+    , volprocchaindlg_(0)
     , volprocchaindlg2d_(0)
+    , volprocdlg_(0)
+    , volprocdlg2d_(0)
 {
 }
 
@@ -35,9 +37,9 @@ uiVolProcPartServer::uiVolProcPartServer( uiApplService& a )
 uiVolProcPartServer::~uiVolProcPartServer()
 {
     if ( volprocchain_ ) volprocchain_->unRef();
-    delete volprocchaindlg_;
     if ( volprocchain2d_ ) volprocchain2d_->unRef();
-    delete volprocchaindlg2d_;
+    delete volprocchaindlg_; delete volprocchaindlg2d_;
+    delete volprocdlg_; delete volprocdlg2d_;
 }
 
 
@@ -79,8 +81,8 @@ void uiVolProcPartServer::doVolProc( bool is2d, const DBKey* mid,
     else
 	vprocdlg->setChain( *vprocchain );
 
-    vprocdlg->raise();
     vprocdlg->show();
+    vprocdlg->raise();
     if ( steptype )
 	vprocdlg->addStep( steptype );
 }
@@ -103,8 +105,17 @@ void uiVolProcPartServer::volprocchainDlgClosed( CallBacker* cb )
 
 void uiVolProcPartServer::createVolProcOutput( bool is2d, const IOObj* sel )
 {
-    VolProc::uiBatchSetup dlg( parent(), is2d, sel );
-    dlg.go();
+    VolProc::uiBatchSetup*& dlg = is2d ? volprocdlg2d_ : volprocdlg_;
+    if ( !dlg )
+    {
+	dlg = new VolProc::uiBatchSetup( parent(), is2d, sel );
+	dlg->setModal( false );
+    }
+    else
+	dlg->setIOObj( sel );
+
+    dlg->show();
+    dlg->raise();
 }
 
 

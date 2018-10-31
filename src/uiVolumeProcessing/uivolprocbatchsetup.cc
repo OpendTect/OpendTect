@@ -32,12 +32,15 @@ namespace VolProc
 {
 
 uiBatchSetup::uiBatchSetup( uiParent* p, bool is2d, const IOObj* initialsetup )
-    : uiDialog( p, uiDialog::Setup(tr("Volume Builder: Create output"),
-				   mNoDlgTitle,
-                                   mODHelpKey(mVolProcBatchSetupHelpID) ) )
-    , chain_( 0 )
-    , is2d_( is2d )
+    : uiDialog(p,uiDialog::Setup(tr("Volume Builder %1: Create output")
+				   .arg(is2d?"2D":"3D"),
+				 mNoDlgTitle,
+				 mODHelpKey(mVolProcBatchSetupHelpID)))
+    , chain_(0)
+    , is2d_(is2d)
 {
+    setCtrlStyle( RunAndClose );
+
     IOObjContext ctxt = is2d ? VolProcessing2DTranslatorGroup::ioContext()
 			     : VolProcessingTranslatorGroup::ioContext();
     ctxt.forread_ = true;
@@ -71,6 +74,15 @@ uiBatchSetup::uiBatchSetup( uiParent* p, bool is2d, const IOObj* initialsetup )
 uiBatchSetup::~uiBatchSetup()
 {
     if ( chain_ ) chain_->unRef();
+}
+
+
+void uiBatchSetup::setIOObj( const IOObj* ioobj )
+{
+    if ( !ioobj )
+	setupsel_->setEmpty();
+    else
+	setupsel_->setInput( *ioobj );
 }
 
 
@@ -195,7 +207,9 @@ bool uiBatchSetup::acceptOK()
     VolProc::ChainOutput vco;
     vco.usePar( batchfld_->jobSpec().pars_ );
     uiTaskRunner taskrunner( this );
-    return taskrunner.execute( vco );
+    taskrunner.execute( vco );
+
+    return false;
 }
 
 } // namespace VolProc

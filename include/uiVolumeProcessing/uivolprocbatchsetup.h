@@ -35,7 +35,9 @@ mExpClass(uiVolumeProcessing) uiBatchSetup : public uiDialog
 public:
                         uiBatchSetup(uiParent*,bool is2d,
 				     const IOObj* setupsel=0);
-                        ~uiBatchSetup();
+			~uiBatchSetup();
+
+    void		setIOObj(const IOObj*);
 
 protected:
 
