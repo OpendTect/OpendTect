@@ -416,7 +416,7 @@ void Well::addMarker( const MarkerParams& mp )
     const int textidx = markernames_->addText();
     Text* txt = markernames_->text( textidx );
     txt->setColor( mp.namecol_ );
-    txt->setJustification( Text::Left );
+    txt->setJustification( Text::BottomLeft );
 
     updateTextNew( txt, toUiString(mp.name_), &markerpos,
 		   mp.font_, mp.nmsizedynamic_ );
@@ -574,7 +574,7 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 
 	    osg::FloatArray* fillLog = logdisplay->getFillLogValues();
 	    if( !fillLog )
-	        continue;
+		continue;
 	    fillLog->push_back( val );
 	    osg::FloatArray* fillLogDepths = logdisplay->getFillLogDepths();
 	    fillLogDepths->push_back(pos.z);
