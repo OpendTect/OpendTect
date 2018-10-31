@@ -392,9 +392,19 @@ void uiWellPartServer::launchRockPhysics()
 void uiWellPartServer::simpImp( CallBacker* cb )
 {
     if ( !impsimpledlg_ )
+    {
 	impsimpledlg_ = new uiSimpleMultiWellCreate( parent() );
+	impsimpledlg_->windowClosed.notify(
+		mCB(this,uiWellPartServer,simpleImpDlgClosed) );
+    }
 
-    if ( !impsimpledlg_->go() )
+    impsimpledlg_->show();
+}
+
+
+void uiWellPartServer::simpleImpDlgClosed( CallBacker* )
+{
+    if ( !impsimpledlg_ )
 	return;
 
     crwellids_ = impsimpledlg_->createdWellIDs();
@@ -404,12 +414,10 @@ void uiWellPartServer::simpImp( CallBacker* cb )
     if ( impsimpledlg_->wantDisplay() )
 	sendEvent( evDisplayWell() );
 
-    mDynamicCastGet(uiToolButton*,tb,cb)
-    uiMainWin* mw = tb ? tb->mainwin() : 0;
-    mDynamicCastGet(uiWellMan*,wm,mw)
-    if ( !wm ) return;
+    if ( !manwelldlg_ )
+	return;
 
-    wm->selGroup()->fullUpdate( crwellids_.get(0) );
+    manwelldlg_->selGroup()->fullUpdate( crwellids_.get(0) );
 }
 
 

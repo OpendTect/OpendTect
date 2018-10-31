@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "dbman.h"
 #include "ioobj.h"
+#include "latlong.h"
 #include "ptrman.h"
 #include "od_istream.h"
 #include "survinfo.h"
@@ -56,10 +57,10 @@ public:
 
 
 uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
-    : uiDialog( p, Setup(tr("Import Simple Wells"),mNoDlgTitle,
-                         mODHelpKey(mSimpleMultiWellCreateHelpID) )
-			.savebutton(true).savetext(tr("Display after import"))
-			.modal(false) )
+    : uiDialog(p,Setup(tr("Import Simple Wells"),mNoDlgTitle,
+		       mODHelpKey(mSimpleMultiWellCreateHelpID) )
+		 .savebutton(true).savetext(tr("Display after import"))
+		 .modal(false))
     , velfld_(0)
     , zinft_(SI().depthsInFeet())
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
@@ -67,14 +68,14 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    tbl_ = new uiTable( this, uiTable::Setup(20,7).rowgrow(true)
+    tbl_ = new uiTable( this, uiTable::Setup(10,7).rowgrow(true)
 						  .manualresize(true)
 						  .selmode(uiTable::Multi),
-		        "Data Table" );
+			"Data Table" );
     tbl_->setColumnLabel( 0, uiStrings::sWellName() );
     const uiString xunstr = SI().xyUnitString();
-    tbl_->setColumnLabel( 1, uiStrings::sX().withUnit(xunstr).optional() );
-    tbl_->setColumnLabel( 2, uiStrings::sY().withUnit(xunstr).optional() );
+    tbl_->setColumnLabel( 1, uiStrings::sX().withUnit(xunstr) );
+    tbl_->setColumnLabel( 2, uiStrings::sY().withUnit(xunstr) );
     const uiString zun = UnitOfMeasure::surveyDefDepthUnitAnnot( true );
     tbl_->setColumnLabel( 3, toUiString("[KB (%1)]").arg(zun) );
     tbl_->setColumnToolTip( 3, Well::Info::sKBElev() );
@@ -84,6 +85,9 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     tbl_->setColumnToolTip( 5, Well::Info::sGroundElev() );
     tbl_->setColumnLabel( 6, toUiString("[UWI]") );
     tbl_->setColumnToolTip( 6, Well::Info::sUwid() );
+    tbl_->setColumnResizeMode( uiTable::ResizeToContents );
+    tbl_->setSelectionBehavior( uiTable::SelectRows );
+    tbl_->setColumnStretchable( 6, true );
 
     uiPushButton* pb = new uiPushButton( this, tr("Read file"),
 	    mCB(this,uiSimpleMultiWellCreate,rdFilePush), false );
@@ -99,7 +103,6 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     }
 
     tbl_->setPrefWidth( 750 );
-    tbl_->setPrefHeight( 500 );
 }
 
 
@@ -129,7 +132,15 @@ bool getLine()
     atend_ = false;
 
     wcd_.nm_ = text( 0 );
-    wcd_.coord_ = getPos( 1, 2 );
+    if ( isXY() )
+	wcd_.coord_ = getPos( 1, 2 );
+    else
+    {
+	LatLong ll;
+	ll.setFromString( text(1), true );
+	ll.setFromString( text(2), false );
+	wcd_.coord_ = LatLong::transform( ll );
+    }
 
     if ( wcd_.nm_.isEmpty()
       || mIsUdf(wcd_.coord_.x_) || mIsUdf(wcd_.coord_.y_)
@@ -152,13 +163,13 @@ bool getLine()
 
 
 class uiSimpleMultiWellCreateReadData : public uiDialog
-{ mODTextTranslationClass(uiSimpleMultiWellCreateReadData);
+{ mODTextTranslationClass(uiSimpleMultiWellCreateReadData)
 public:
 
 uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     : uiDialog(&p,uiDialog::Setup(tr("Multi-well creation"),
 				  uiStrings::phrCreate(tr("multiple wells")),
-		            mODHelpKey(mSimpleMultiWellCreateReadDataHelpID)))
+			    mODHelpKey(mSimpleMultiWellCreateReadDataHelpID)))
     , par_(p)
     , fd_("Simple multi-welldata")
 {
@@ -222,6 +233,8 @@ void uiSimpleMultiWellCreate::rdFilePush( CallBacker* )
 {
     uiSimpleMultiWellCreateReadData dlg( *this );
     dlg.go();
+
+    tbl_->resizeColumnsToContents();
 }
 
 
@@ -273,7 +286,7 @@ IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 	if ( overwritepol_ == 0 )
 	    overwritepol_ = uiMSG().askGoOn(
 		    tr("Do you want to overwrite existing wells?"),
-                    true) ? 1 : -1;
+		    true) ? 1 : -1;
 	if ( overwritepol_ == -1 )
 	    { delete ioobj; return 0; }
 	ioobj->implRemove();
@@ -336,9 +349,11 @@ bool uiSimpleMultiWellCreate::acceptOK()
     if ( zinft_ && SI().zIsTime() && zun_ )
 	vel_ = zun_->internalValue( vel_ );
 
-    if ( vel_ < 1e-5 || mIsUdf(vel_) )
-	{ uiMSG().error(uiStrings::phrEnter(tr("a valid velocity")));
-								return false; }
+    if ( vel_<1e-5 || mIsUdf(vel_) )
+    {
+	uiMSG().error(uiStrings::phrEnter(tr("a valid velocity")));
+	return false;
+    }
 
     for ( int irow=0; ; irow++ )
     {
@@ -359,7 +374,7 @@ bool uiSimpleMultiWellCreate::acceptOK()
 
     if ( crwellids_.isEmpty() )
     {
-        return !uiMSG().askGoOn( tr("No wells have been imported."
+	return !uiMSG().askGoOn( tr("No wells have been imported."
 			     "\n\nDo you want to make changes to the table?"),
 			     uiStrings::sYes(), tr("No, Quit") );
     }

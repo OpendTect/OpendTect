@@ -120,6 +120,7 @@ protected:
     void			saveWellDispProps(const Well::Data*);
     void			applyAll(CallBacker*);
     void			simpImp(CallBacker*);
+    void			simpleImpDlgClosed(CallBacker*);
     void			survChangedCB(CallBacker*);
     int				getPropDlgIndex(const DBKey&);
 
