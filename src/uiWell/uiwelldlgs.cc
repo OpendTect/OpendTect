@@ -108,8 +108,8 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 					      .removeselallowed(false),
 			"Well Track Table" );
     uiStringSet collbls;
-    collbls.add( uiStrings::sX() )
-	   .add( uiStrings::sY() )
+    collbls.add( uiStrings::sX().withSurvXYUnit() )
+	   .add( uiStrings::sY().withSurvXYUnit() )
 	   .add( uiStrings::sZ() )
 	   .add( uiStrings::sMD() );
     tbl_->setColumnLabels( collbls );
@@ -117,6 +117,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     tbl_->setPrefWidth( 500 );
     tbl_->setPrefHeight( 400 );
     tbl_->setTableReadOnly( !writable_ );
+    tbl_->setSelectionBehavior( uiTable::SelectRows );
 
     uwifld_ = new uiGenInput( this, tr("UWI"), StringInpSpec() );
     uwifld_->setText( wd_.info().UWI() );
@@ -147,11 +148,16 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     mAddSetBut( wellheadyfld_, updateYpos )
     if ( !writable_ ) wellheadyfld_->setReadOnly( true );
 
-    kbelevfld_ = new uiGenInput(actgrp, Well::Info::sKBElev(),
+    kbelevfld_ = new uiGenInput( actgrp, Well::Info::sKBElev(),
 				 FloatInpSpec(mUdf(float)));
     mAddSetBut( kbelevfld_, updateKbElev )
     kbelevfld_->attach( alignedBelow, wellheadyfld_ );
     if ( !writable_ ) kbelevfld_->setReadOnly( true );
+
+    glfld_ = new uiGenInput( actgrp, Well::Info::sGroundElev(),
+			     FloatInpSpec(mUdf(float)) );
+    glfld_->attach( alignedBelow, kbelevfld_ );
+    if ( !writable_ ) glfld_->setReadOnly( true );
 
     uiButton* readbut = !writable_ ? 0
 		: uiButton::getStd( this, OD::Import,
@@ -245,6 +251,12 @@ bool uiWellTrackDlg::fillTable()
     tbl_->setCurrentCell( curcell );
     fillSetFields();
 
+    const uiString depthunit =
+	uiStrings::sDistUnitString( zinftfld_->isChecked(), true );
+    tbl_->setColumnLabel( cZCol,
+			tr("%1 (%2)").arg(uiStrings::sTVDSS()).arg(depthunit) );
+    tbl_->setColumnLabel( cMDTrackCol,
+			tr("%1 (%2)").arg(uiStrings::sMD()).arg(depthunit) );
     return true;
 }
 
@@ -256,15 +268,15 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
     NotifyStopper nskbelev( kbelevfld_->updateRequested );
 
     uiString coordlbl = tr("%1 of well head");
-    const uiString coordun( SI().xyUnitString() );
     uiString xcoordlbl = coordlbl.arg( uiStrings::sXcoordinate() );
     uiString ycoordlbl = coordlbl.setArg( 0, uiStrings::sYcoordinate() );
-    const uiString depthunit = uiStrings::sDistUnitString(
-					   zinftfld_->isChecked(), true );
+    const uiString depthunit =
+	uiStrings::sDistUnitString( zinftfld_->isChecked(), true );
 
-    wellheadxfld_->setTitleText( xcoordlbl.withUnit(coordun) );
-    wellheadyfld_->setTitleText( ycoordlbl.withUnit(coordun) );
-    kbelevfld_->setTitleText( Well::Info::sKBElev().withUnit( depthunit ) );
+    wellheadxfld_->setTitleText( xcoordlbl.withSurvXYUnit() );
+    wellheadyfld_->setTitleText( ycoordlbl.withSurvXYUnit() );
+    kbelevfld_->setTitleText( Well::Info::sKBElev().withUnit(depthunit) );
+    glfld_->setTitleText( Well::Info::sGroundElev().withUnit(depthunit) );
 
     if ( !track_.isEmpty() )
 	wd_.info().setSurfaceCoord( track_.firstPos().getXY() );
@@ -276,6 +288,7 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
     wellheadyfld_->setValue( wellhead.y_ );
 
     kbelevfld_->setValue( mConvertVal(track_.getKbElev(),true) );
+    glfld_->setValue( mConvertVal(wd_.info().groundElevation(),true) );
 }
 
 
@@ -545,6 +558,9 @@ void uiWellTrackDlg::updNowCB(CallBacker*)
 
 bool uiWellTrackDlg::updNow()
 {
+    wd_.info().setUWI( uwifld_->text() );
+    wd_.info().setGroundElevation( glfld_->getFValue() );
+
     track_.setEmpty();
     const int nrrows = tbl_->nrRows();
 
@@ -598,7 +614,6 @@ bool uiWellTrackDlg::updNow()
     if ( needfill && !fillTable() )
 	return false;
 
-    wd_.info().setUWI( uwifld_->text() );
     return true;
 }
 
@@ -839,9 +854,11 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 				.rowdesc(cksh_ ? tr("Measure point") :
 							tr("Control Point"))
 				.rowgrow(true)
+				.insertrowallowed(true)
+				.removerowallowed(true)
 				.defrowlbl("")
-				.selmode(uiTable::Single)
-				.removeselallowed(false),
+				.selmode(uiTable::Multi)
+				.removeselallowed(true),
 				toString((mTDName(cksh))) );
 
     timefld_ = new uiCheckBox( this, tr(" Time is TWT") );
@@ -871,6 +888,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	    tr("Interval velocity above this control point (read-only)") );
     tbl_->setPrefWidth( 700 );
     tbl_->setTableReadOnly( !writable_ );
+    tbl_->setSelectionBehavior( uiTable::SelectRows );
 
     timefld_->attach( rightAlignedBelow, tbl_ );
     zinftfld_->attach( leftOf, timefld_ );
@@ -923,28 +941,28 @@ void uiD2TModelDlg::getColLabels( BufferStringSet& lbls ) const
     const BufferString depthunit = getDistUnitString( zinfeet, true );
 
     BufferString curlbl( sKeyMD() );
-    curlbl.add( depthunit );
+    curlbl.addSpace().add( depthunit );
     lbls.add( curlbl );
 
     curlbl.set( sKeyTVD() );
-    curlbl.add( depthunit );
+    curlbl.addSpace().add( depthunit );
     lbls.add( curlbl );
 
     if ( !mIsUdf(getTVDGLCol()) )
     {
 	curlbl.set( sKeyTVDGL() );
-	curlbl.add( depthunit );
+	curlbl.addSpace().add( depthunit );
 	lbls.add( curlbl );
     }
 
     curlbl.set( sKeyTVDSS() );
-    curlbl.add( depthunit );
+    curlbl.addSpace().add( depthunit );
     lbls.add( curlbl );
 
     if ( !mIsUdf(getTVDSDCol()) )
     {
 	curlbl.set( sKeyTVDSD() );
-	curlbl.add( depthunit );
+	curlbl.addSpace().add( depthunit );
 	lbls.add( curlbl );
     }
 
@@ -955,7 +973,7 @@ void uiD2TModelDlg::getColLabels( BufferStringSet& lbls ) const
     lbls.add( curlbl );
 
     curlbl.set( sKeyVint() );
-    curlbl.add( getVelUnitString(zinfeet,true) );
+    curlbl.addSpace().add( getVelUnitString(zinfeet,true) );
     lbls.add( curlbl );
 }
 

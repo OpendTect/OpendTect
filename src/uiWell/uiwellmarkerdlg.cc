@@ -69,15 +69,15 @@ static void getColumnLabels( BufferStringSet& lbls, uiCheckBox* unfld,
     BufferString curlbl;
 
     curlbl = sKeyMD();
-    curlbl.add( getDistUnitString(zinfeet,true) );
+    curlbl.addSpace().add( getDistUnitString(zinfeet,true) );
     lbls.add( curlbl );
 
     curlbl = sKeyTVD();
-    curlbl.add( getDistUnitString(zinfeet,true) );
+    curlbl.addSpace().add( getDistUnitString(zinfeet,true) );
     lbls.add( curlbl );
 
     curlbl = sKeyTVDSS();
-    curlbl.add( getDistUnitString(zinfeet,true) );
+    curlbl.addSpace().add( getDistUnitString(zinfeet,true) );
     lbls.add( curlbl );
 
     lbls.add( sKeyColor() );
@@ -172,8 +172,8 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& wd )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Well Markers"),mNoDlgTitle,
 				     mODHelpKey(mMarkerDlgHelpID)))
 	, track_(wd)
-        , oldmrkrs_(0)
-        , table_(0)
+	, oldmrkrs_(0)
+	, table_(0)
 	, unitfld_(0)
 {
     uiString title( toUiString("%1: %2") );
@@ -181,8 +181,8 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& wd )
     setTitleText( title );
 
     table_ = new uiTable( this, uiTable::Setup().rowdesc(uiStrings::sMarker())
-					        .rowgrow(true)
-					        .defrowlbl("")
+						.rowgrow(true)
+						.defrowlbl("")
 						.selmode(uiTable::Multi),
 			  "Well Marker Table" );
     BufferStringSet header;
@@ -192,6 +192,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& wd )
     table_->setColumnStretchable( cLevelCol, true );
     table_->setNrRows( cNrEmptyRows );
     table_->setColumnReadOnly( cColorCol, true );
+    table_->setSelectionBehavior( uiTable::SelectRows );
     table_->valueChanged.notify( mCB(this,uiMarkerDlg,markerChangedCB) );
     table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
     table_->setPrefWidth( 650 );
@@ -429,10 +430,10 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	    levelsel->setID( marker.levelID() );
 	    const float dah = marker.dah();
 	    table_->setText( RowCol(irow,cNameCol), marker.name() );
-	    table_->setValue( RowCol(irow,cDepthCol), dah * zfac );
+	    table_->setValue( RowCol(irow,cDepthCol), dah*zfac, 2 );
 	    const float tvdss = mCast(float,track_.getPos(dah).z_);
-	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev) * zfac );
-	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss * zfac );
+	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac, 2 );
+	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, 2 );
 	    setColorCell( irow, marker.color() );
 	    if ( marker.levelID().isValid() )
 		updateFromLevel( irow, levelsel );
@@ -441,7 +442,8 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	}
     }
 
-    table_->resizeHeaderToContents( false );
+    table_->resizeColumnsToContents();
+    table_->setColumnStretchable( cLevelCol, true );
 
     if ( !oldmrkrs_ )
     {
@@ -485,7 +487,7 @@ public:
 
 uiReadMarkerFile( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import Markers"),mNoDlgTitle,
-                                 mODHelpKey(mReadMarkerFileHelpID) ))
+				 mODHelpKey(mReadMarkerFileHelpID) ))
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
@@ -493,7 +495,7 @@ uiReadMarkerFile( uiParent* p )
     fnmfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(), fssu );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-                      mODHelpKey(mTableImpDataSelmarkersHelpID) );
+		      mODHelpKey(mTableImpDataSelmarkersHelpID) );
     dataselfld_->attach( alignedBelow, fnmfld_ );
 
     replfld_ = new uiGenInput( this, tr("Existing markers (if any)"),
