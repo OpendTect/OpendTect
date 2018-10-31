@@ -682,9 +682,9 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	    emhorizons_.replace( horidx, hor );
 	}
 
-	const BinID horstep = emhorizons_[horidx]->geometry().loadedStep();
-	BinID previnl( bidv.inl()-horstep.inl(), bidv.crl() );
-	BinID nextinl( bidv.inl()+horstep.inl(), bidv.crl() );
+	const auto horstep = emhorizons_[horidx]->geometry().loadedStep();
+	BinID previnl( bidv.inl()-horstep.row(), bidv.crl() );
+	BinID nextinl( bidv.inl()+horstep.row(), bidv.crl() );
 	if ( !emhorizons_[horidx]->isDefined(
 				EM::PosID::getFromRowCol(previnl)) )
 	    previnl = bidv;
@@ -698,8 +698,8 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	const float inldiff = emhorizons_[horidx]->getZ( nextinl ) -
 			      emhorizons_[horidx]->getZ( previnl );
 
-	BinID prevcrl( bidv.inl(), bidv.crl()-horstep.inl() );
-	BinID nextcrl( bidv.inl(), bidv.crl()+horstep.inl() );
+	BinID prevcrl( bidv.inl(), bidv.crl()-horstep.col() );
+	BinID nextcrl( bidv.inl(), bidv.crl()+horstep.col() );
 	if ( !emhorizons_[horidx]->isDefined(
 				EM::PosID::getFromRowCol(prevcrl)) )
 	    prevcrl = bidv;

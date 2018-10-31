@@ -183,7 +183,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 
 	TrcKeySampling sectrg;
 	sectrg.set( bvs.inlRange(), bvs.crlRange() );
-	sectrg.step_ = step;
+	sectrg.step_ = BinID( step );
 	sectrg.limitTo( hs_ );
 	mDeclareAndTryAlloc( Array2D<float>*, arr,
 		Array2DImpl<float>( sectrg.nrInl(), sectrg.nrCrl() ) );
@@ -553,7 +553,8 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr,
 
     const RowCol startrc( rowrg.start, colrg.start );
     const RowCol stoprc( rowrg.stop, colrg.stop );
-    geometry().geometryElement()->expandWithUdf( startrc, stoprc );
+    geometry().geometryElement()->expandWithUdf( BinID(startrc),
+						 BinID(stoprc) );
 
     int poscount = 0;
     geometry().geometryElement()->blockCallBacks( true, false );
@@ -989,7 +990,7 @@ Array2D<char>*& Horizon3D::getNodeSourceArray( ArrayType arrtype )
 	return children_;
     else if ( arrtype== NodeSource )
 	return nodesource_;
-    
+
     if ( arrtype != LockNode )
 	pErrMsg("Wrong ArrayType requested");
 
@@ -1357,7 +1358,7 @@ TrcKey Horizon3DGeometry::getTrcKey( const PosID& pid ) const
     mDynamicCastGet(const EM::Horizon*, hor, &surface_ );
 
     const RowCol rc = pid.getRowCol();
-    return TrcKey( hor->getSurveyID(), rc );
+    return TrcKey( hor->getSurveyID(), BinID(rc) );
 }
 
 
@@ -1432,7 +1433,8 @@ int Horizon3DGeometry::getConnectedPos( const PosID& posid,
 
 Geometry::BinIDSurface* Horizon3DGeometry::createGeometryElement() const
 {
-    Geometry::BinIDSurface* res = new Geometry::BinIDSurface( loadedstep_ );
+    Geometry::BinIDSurface* res = new Geometry::BinIDSurface(
+					    BinID(loadedstep_) );
     res->checkSupport( checksupport_ );
 
     return res;

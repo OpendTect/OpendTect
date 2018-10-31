@@ -147,7 +147,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
-	const BinID bid = section_.geometry_->getKnotRowCol(idx);
+	const BinID bid = BinID( section_.geometry_->getKnotRowCol(idx) );
 	const StepInterval<int> displayrrg = section_.displayrrg_;
 	const StepInterval<int> displaycrg = section_.displaycrg_;
 	if ( section_.userchangedisplayrg_ &&
@@ -227,8 +227,8 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
     const int nrknots = horsection_->geometry_->nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
     {
-	const BinID bid = horsection_->geometry_->getKnotRowCol( idx );
-	bivs.add( bid );
+	const RowCol rc = horsection_->geometry_->getKnotRowCol( idx );
+	bivs.add( BinID(rc) );
     }
 
     DataPointSetFiller filler( bivs, *horsection_, zaxistransform_,

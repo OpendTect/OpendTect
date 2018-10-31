@@ -199,7 +199,7 @@ int nextStep()
 	    return Finished();
 	}
 
-	const BinID bid = pid.getRowCol();
+	const BinID bid = BinID( pid.getRowCol() );
 	DataPointSet::RowID rid = dps_.findFirst( bid );
 	Coord3 crd = hor_.getPos( pid );
 	if ( rid < 0 )

@@ -14,13 +14,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "posidxpair.h"
 
-// The following should become separate classes with their own specific
-// functions at some point in time ...
-typedef BinID BinIDStep;
-typedef BinID BinIDDelta; // is base class for:
-typedef BinID BinIDAbsDelta;
-typedef BinID BinIDRelDelta;
-
 
 /*! \brief Positioning in a seismic survey: inline/crossline or lineNr/trcNr. */
 
@@ -29,75 +22,59 @@ mExpClass(Basic) BinID : public Pos::IdxPair
 {
 public:
 
+    typedef Pos::IdxPair	IdxPair;
+
     inline			BinID()				{}
-    inline			BinID(IdxType i,IdxType x);
-    inline			BinID(const Pos::IdxPair&);
-				//!< To make BinID from RowCol, should disappear
+    inline			BinID( IdxType i, IdxType c )
+				    : IdxPair(i,c)		{}
+    explicit inline		BinID( const IdxPair& ip )
+				    : IdxPair(ip)		{}
 
-    inline const BinID&		operator+=(const BinIDAbsDelta&);
-    inline const BinID&		operator-=(const BinIDAbsDelta&);
-    inline BinID		operator+(const BinIDAbsDelta&) const;
-    inline BinID		operator-(const BinIDAbsDelta&) const;
-
-				// BinIDRelDelta operator:
-    inline BinIDAbsDelta	operator*(const Pos::Index_Type_Twins&) const;
-				// BinIDAbsDelta operator:
-    inline BinIDRelDelta	operator/(const Pos::Index_Type_Twins&) const;
-
-				// BinID[Abs|Rel]Delta operators:
-    // 'BinID' below should be either BinIDRelDelta or BinIDAbsDelta
-    inline BinID		operator*(int) const;
-    inline BinID		operator/(int) const;
+    inline const BinID&		operator+=(const IdxPair&);
+    inline const BinID&		operator-=(const IdxPair&);
+    inline BinID		operator+(const IdxPair&) const;
+    inline BinID		operator-(const IdxPair&) const;
     inline BinID		operator-() const;
+
+    inline BinID		operator*(const IdxPair&) const;
+    inline BinID		operator/(const IdxPair&) const;
+
+    inline BinID		operator*(IdxType) const;
+    inline BinID		operator/(IdxType) const;
 
     inline static BinID		fromInt64(od_int64);
 
     inline const char*		toString(bool is2d=false) const;
     inline bool			fromString(const char*);
 
+    static BinID		udf()	{ return BinID(IdxPair::udf()); }
+
 };
 
 
-inline BinID::BinID( BinID::IdxType i, BinID::IdxType c )
-    : Pos::IdxPair(i,c)
-{
-}
-
-
-inline BinID::BinID( const Pos::IdxPair& p )
-    : Pos::IdxPair(p)
-{
-}
-
-
-inline const BinID& BinID::operator+=( const BinIDAbsDelta& bid )
+inline const BinID& BinID::operator+=( const IdxPair& bid )
 	{ inl() += bid.inl(); crl() += bid.crl(); return *this; }
-inline const BinID& BinID::operator-=( const BinIDAbsDelta& bid )
+inline const BinID& BinID::operator-=( const IdxPair& bid )
 	{ inl() -= bid.inl(); crl() -= bid.crl(); return *this; }
-inline BinID BinID::operator+( const BinIDAbsDelta& bid ) const
+inline BinID BinID::operator+( const IdxPair& bid ) const
 	{ return BinID( inl()+bid.inl(), crl()+bid.crl() ); }
-inline BinID BinID::operator-( const BinIDAbsDelta& bid ) const
-{ return BinID( inl()-bid.inl(), crl()-bid.crl() ); }
-
+inline BinID BinID::operator-( const IdxPair& bid ) const
+	{ return BinID( inl()-bid.inl(), crl()-bid.crl() ); }
+inline BinID BinID::operator*( const IdxPair& ip ) const
+	{ return BinID( first*ip.first, second*ip.second ); }
+inline BinID BinID::operator/( const IdxPair& ip ) const
+	{ return BinID( first/ip.first, second/ip.second ); }
+inline BinID BinID::operator*( IdxType fac ) const
+	{ return BinID( inl()*fac, crl()*fac ); }
+inline BinID BinID::operator/( IdxType fac ) const
+	{ return BinID( inl()/fac, crl()/fac ); }
 inline BinID BinID::operator-() const
-{ return BinID( -inl(), -crl() ); }
-
-inline BinIDAbsDelta BinID::operator*( const Pos::Index_Type_Twins& ip ) const
-{ return BinID( first*ip.first, second*ip.second ); }
-
-inline BinIDAbsDelta BinID::operator/( const Pos::Index_Type_Twins& ip ) const
-{ return BinID( first/ip.first, second/ip.second ); }
-
-inline BinID BinID::operator*( int factor ) const
-{ return BinID( inl()*factor, crl()*factor ); }
-
-inline BinID BinID::operator/( int denominator ) const
-	{ return BinID( inl()/denominator, crl()/denominator ); }
+	{ return BinID( -inl(), -crl() ); }
 
 
 inline BinID BinID::fromInt64( od_int64 i64 )
 {
-    Pos::IdxPair p( Pos::IdxPair::fromInt64(i64) );
+    IdxPair p( IdxPair::fromInt64(i64) );
     return BinID( p.first, p.second );
 }
 

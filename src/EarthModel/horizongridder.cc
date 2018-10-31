@@ -381,7 +381,7 @@ uiRetVal HorizonGridder::executeGridding(
 	if ( posid.isInvalid() )
 	    break;
 
-	const BinID bid = posid.getRowCol();
+	const BinID bid = BinID(posid.getRowCol());
 	if ( hs.includes(bid) )
 	{
 	    const Coord3 pos = hor3d->getPos( posid );

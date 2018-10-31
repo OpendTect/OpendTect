@@ -195,8 +195,8 @@ int SeisCubeImpFromOtherSurvey::nextStep()
     const Coord curcoord = SI().transform( data_.curbid_ );
     const Pos::IdxPair2Coord& b2c = rdr_ ? rdr_->hGeom().binID2Coord()
 				         : cbvstr_->getTransform();
-    const BinID oldbid = b2c.transformBack( curcoord,
-	olddata_.tkzs_.hsamp_.start_, olddata_.tkzs_.hsamp_.step_ );
+    const BinID oldbid = BinID( b2c.transformBack( curcoord,
+	olddata_.tkzs_.hsamp_.start_, olddata_.tkzs_.hsamp_.step_ ) );
     SeisTrc* outtrc = 0;
     if ( interpol_==Nearest || padfac_<=1 )
     {

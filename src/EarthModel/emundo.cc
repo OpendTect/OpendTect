@@ -219,8 +219,8 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 	return horizon_->setArray2D( tmparr, false, 0, true );
     }
 
-    const RowCol start( targetrowrg.start, targetcolrg.start );
-    const RowCol stop( targetrowrg.stop, targetcolrg.stop );
+    const BinID start( targetrowrg.start, targetcolrg.start );
+    const BinID stop( targetrowrg.stop, targetcolrg.stop );
     horizon_->geometry().geometryElement()->expandWithUdf( start, stop );
 
     return horizon_->setArray2D( arr, false, 0, false );

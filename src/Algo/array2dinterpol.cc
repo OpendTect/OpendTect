@@ -770,7 +770,7 @@ bool Array2DInterpol::trimArray( int step, Array2D<char>& edgesmask )
 mDefParallelCalc5Pars( ArrPolyCropper, od_static_tr("ArrPolyCropper",
 	    "Crop array along polygon"),
 	const ODPolygon<double>*, poly, Array2D<float>&, arr, int, nrrows,
-	int, nrcols, const BinID&, origin )
+	int, nrcols, const RowCol&, origin )
 mDefParallelCalcBody
 (
 	const Array2DInfoImpl info2d( nrrows_, nrcols_ );
@@ -779,8 +779,8 @@ mDefParallelCalcBody
     ,
 	const int iidx = iter[0];
 	const int iidy = iter[1];
-	Geom::Point2D<double> pos( mCast(double,iidx + origin_.inl()),
-				   mCast(double,iidy + origin_.crl()) );
+	Geom::Point2D<double> pos( mCast(double,iidx + origin_.row()),
+				   mCast(double,iidy + origin_.col()) );
 	if ( !poly_->isInside(pos,true,0) )
 	    arr_.set( iidx, iidy, mUdf(float) );
 

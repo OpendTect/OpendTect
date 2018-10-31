@@ -562,14 +562,14 @@ float Survey::Geometry3D::averageTrcDist() const
 
 BinID Survey::Geometry3D::transform( const Coord& c ) const
 {
-    return b2c_.transformBack( c, sampling_.hsamp_.start_,
-				  sampling_.hsamp_.step_ );
+    return BinID( b2c_.transformBack( c, sampling_.hsamp_.start_,
+				      sampling_.hsamp_.step_ ) );
 }
 
 
 Coord Survey::Geometry3D::transform( const BinID& b ) const
 {
-    return b2c_.transform(b);
+    return b2c_.transform( b );
 }
 
 

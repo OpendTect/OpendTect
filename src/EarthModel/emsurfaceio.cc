@@ -1151,8 +1151,8 @@ void dgbSurfaceReader::goToNextRow()
 							: colrange_;
 		inlrg.sort(); crlrg.sort();
 		if ( arr_ )
-		    bidsurf->setArray( RowCol(inlrg.start,crlrg.start),
-			    RowCol(inlrg.step,crlrg.step), arr_, true );
+		    bidsurf->setArray( BinID(inlrg.start,crlrg.start),
+			    BinID(inlrg.step,crlrg.step), arr_, true );
 		arr_ = 0;
 	    }
 

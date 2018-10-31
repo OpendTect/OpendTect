@@ -335,7 +335,7 @@ LateralSmoother::~LateralSmoother()
 
 BinID LateralSmoother::getHorizontalStepout() const
 {
-    return pars_.stepout_;
+    return BinID( pars_.stepout_ );
 }
 
 

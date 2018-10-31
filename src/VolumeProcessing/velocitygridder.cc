@@ -683,7 +683,7 @@ ReportingTask* VelocityGridder::createTask()
 	{
 	    hsamp.init( false );
 	    hsamp.survid_ = survid;
-	    hsamp.include( TrcKey(survid,valset.getIdxPair(pos)) );
+	    hsamp.include( TrcKey(survid,BinID(valset.getIdxPair(pos))) );
 	    tkss += hsamp;
 	}
     }
