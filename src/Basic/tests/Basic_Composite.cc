@@ -48,6 +48,10 @@
 #include "string.cc"
 
 #undef mTestMainFnName
+#define mTestMainFnName test_main_survgeom
+#include "survgeom.cc"
+
+#undef mTestMainFnName
 #define mTestMainFnName test_main_threads
 #include "threads.cc"
 
@@ -67,7 +71,6 @@
 #define mTestMainFnName test_main_various_basic
 #include "various_basic.cc"
 
-
 int testMain( int argc, char** argv )
 {
     mInitCompositeTestProg( Basic );
@@ -80,6 +83,7 @@ int testMain( int argc, char** argv )
     mRunSubTest( refcount );
     mRunSubTest( sets );
     mRunSubTest( string );
+    mRunSubTest( survgeom );
     mRunSubTest( threads );
     mRunSubTest( threadwork );
     mRunSubTest( trckeyzsampling );

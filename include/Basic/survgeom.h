@@ -155,7 +155,6 @@ public:
 
 protected:
 
-    void			ensureSIPresent() const;
     void			addGeometry(Geometry&);
 
     int				indexOf(ID) const;

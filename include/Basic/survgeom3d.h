@@ -69,12 +69,14 @@ public:
     inline pos_idx_type	crl4Idx(idx_type) const;
     inline z_type	z4Idx(int) const;
 
-    virtual Coord	toCoord(int line,int tracenr) const;
-    virtual TrcKey	nearestTrace(const Coord&,float* distance) const;
-    virtual bool	includes(int line,int tracenr) const;
+    BinID	nearestTracePosition(const Coord&,float* distance) const;
 
-    Coord		transform(const BinID&) const;
-    BinID		transform(const Coord&) const;
+    Coord	toCoord(int line,int tracenr) const		override;
+    TrcKey	nearestTrace(const Coord&,float* dist) const	override;
+    bool	includes(int line,int tracenr) const		override;
+
+    Coord	transform(const BinID&) const;
+    BinID	transform(const Coord&) const;
     const Pos::IdxPair2Coord& binID2Coord() const	{ return b2c_; }
 
     float		inlDistance() const;

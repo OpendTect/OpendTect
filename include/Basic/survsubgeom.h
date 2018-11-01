@@ -77,10 +77,10 @@ public:
 
     pos_idx_type	inlStart() const;
     pos_idx_type	crlStart() const;
-    pos_idx_type	inlStep() const;
-    pos_idx_type	crlStep() const;
     pos_idx_type	inlStop() const;
     pos_idx_type	crlStop() const;
+    pos_idx_type	inlStep() const;
+    pos_idx_type	crlStep() const;
     pos_idx_range_type	inlRange() const;
     pos_idx_range_type	crlRange() const;
     pos_idx_range_type	survInlRange() const;

@@ -951,7 +951,6 @@ void TrcKeyZSampling::set2DDef()
 
 void TrcKeyZSampling::init( bool tosi )
 {
-    hsamp_.init( tosi );
     if ( tosi )
 	zsamp_ = SI().zRange(false);
     else
@@ -1022,29 +1021,32 @@ od_int64 TrcKeyZSampling::totalNr() const
 
 
 TrcKeyZSampling::TrcKeyZSampling()
+    : hsamp_(true)
 {
     init( true );
 }
 
 
 TrcKeyZSampling::TrcKeyZSampling( const TrcKeyZSampling& tkzs )
+    : hsamp_(false)
 {
     *this = tkzs;
 }
 
 
 TrcKeyZSampling::TrcKeyZSampling( bool settoSI )
+    : hsamp_(settoSI)
 {
     init( settoSI );
 }
 
 
-int TrcKeyZSampling::lineIdx(int lineid)const
-{return hsamp_.lineIdx(lineid);}
+int TrcKeyZSampling::lineIdx( int lineid ) const
+{ return hsamp_.lineIdx(lineid); }
 
 
 int TrcKeyZSampling::trcIdx( int trcnr ) const
-{return hsamp_.trcIdx(trcnr); }
+{ return hsamp_.trcIdx(trcnr); }
 
 
 int TrcKeyZSampling::zIdx( float z ) const
@@ -1064,11 +1066,10 @@ int TrcKeyZSampling::nrZ() const
 
 
 int TrcKeyZSampling::size( Dir d ) const
-{ return d == Inl
-    ? nrInl()
-    : (d == Crl
-       ? nrCrl()
-       : nrZ());
+{
+    return d == Inl ? nrInl()
+	: (d == Crl ? nrCrl()
+		    : nrZ());
 }
 
 
@@ -1084,19 +1085,19 @@ bool TrcKeyZSampling::operator!=( const TrcKeyZSampling& tkzs ) const
 { return !(tkzs==*this); }
 
 
-TrcKeyZSampling& TrcKeyZSampling::operator=(const TrcKeyZSampling& b)
+TrcKeyZSampling& TrcKeyZSampling::operator=( const TrcKeyZSampling& oth )
 {
-    hsamp_ = b.hsamp_;
-    zsamp_ = b.zsamp_;
+    hsamp_ = oth.hsamp_;
+    zsamp_ = oth.zsamp_;
     return *this;
 }
 
 
-bool TrcKeyZSampling::includes( const TrcKeyZSampling& c ) const
+bool TrcKeyZSampling::includes( const TrcKeyZSampling& oth ) const
 {
-    return hsamp_.includes( c.hsamp_ ) &&
-	   zsamp_.includes( c.zsamp_.start, false ) &&
-	   zsamp_.includes( c.zsamp_.stop, false );
+    return hsamp_.includes( oth.hsamp_ ) &&
+	   zsamp_.includes( oth.zsamp_.start, false ) &&
+	   zsamp_.includes( oth.zsamp_.stop, false );
 }
 
 
@@ -1107,22 +1108,27 @@ void TrcKeyZSampling::include( const BinID& bid, float z )
 }
 
 
-void TrcKeyZSampling::include( const TrcKeyZSampling& c )
+void TrcKeyZSampling::include( const TrcKeyZSampling& oth )
 {
-    TrcKeyZSampling tkzs( c ); tkzs.normalise();
+    TrcKeyZSampling tkzs( oth ); tkzs.normalise();
     normalise();
 
     hsamp_.include( tkzs.hsamp_ );
-    if ( tkzs.zsamp_.start < zsamp_.start ) zsamp_.start = tkzs.zsamp_.start;
-    if ( tkzs.zsamp_.stop > zsamp_.stop ) zsamp_.stop = tkzs.zsamp_.stop;
-    if ( tkzs.zsamp_.step < zsamp_.step ) zsamp_.step = tkzs.zsamp_.step;
+    if ( tkzs.zsamp_.start < zsamp_.start )
+	zsamp_.start = tkzs.zsamp_.start;
+    if ( tkzs.zsamp_.stop > zsamp_.stop )
+	zsamp_.stop = tkzs.zsamp_.stop;
+    if ( tkzs.zsamp_.step < zsamp_.step )
+	zsamp_.step = tkzs.zsamp_.step;
 }
 
 
 bool TrcKeyZSampling::isDefined() const
 {
-    return hsamp_.isDefined() &&
-	!mIsUdf(zsamp_.start) && !mIsUdf(zsamp_.stop) && !mIsUdf(zsamp_.step);
+    return hsamp_.isDefined()
+	&& !mIsUdf(zsamp_.start)
+	&& !mIsUdf(zsamp_.stop)
+	&& !mIsUdf(zsamp_.step);
 }
 
 
@@ -1130,10 +1136,7 @@ void TrcKeyZSampling::limitTo( const TrcKeyZSampling& tkzs, bool ignoresteps )
 {
     hsamp_.limitTo( tkzs.hsamp_, ignoresteps );
     if ( hsamp_.isEmpty() )
-    {
-	init( false );
-	return;
-    }
+	{ init( false ); return; }
 
     if ( ignoresteps )
 	((ZGate&)zsamp_).limitTo( tkzs.zsamp_ );

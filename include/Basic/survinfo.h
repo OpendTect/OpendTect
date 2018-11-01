@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "surveydisklocation.h"
 
 namespace Coords { class CoordSystem; }
-namespace Survey { class Geometry3D; }
+namespace Survey { class Geometry3D; class GeometryManager; }
 
 
 /*!\brief Holds survey general information.
@@ -203,6 +203,7 @@ private:
 
 			// ugly, but hard to avoid:
     friend class	DBMan;
+    friend class	Survey::GeometryManager;;
     friend class	uiSurveyManager;
     friend class	uiSurveyInfoEditor;
 

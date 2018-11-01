@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "task.h"
 
 
-static Pos::GeomID cSIGeomID = -1;
+static Pos::GeomID cSIGeomID = -99;
 static Pos::GeomID cSyntheticSurveyID = -100;
 
 mImplClassFactory(Survey::GeometryReader,factory);
@@ -113,35 +113,9 @@ Survey::GeometryManager::~GeometryManager()
 int Survey::GeometryManager::nrGeometries() const
 { return geometries_.size(); }
 
-void Survey::GeometryManager::ensureSIPresent() const
-{
-    bool has3d = false;
-    for ( int idx=0; idx<geometries_.size(); idx++ )
-    {
-	const bool is2d = geometries_[idx]->is2D();
-	if ( !is2d )
-	{
-	    has3d = true;
-	    break;
-	}
-    }
-
-    if ( !has3d )
-    {
-	ConstRefMan<Geometry3D> survicsysrefman = SI().get3DGeometry( false );
-	auto* survicsys = const_cast<Geometry3D*>( survicsysrefman.ptr() );
-	survicsys->setID( cSIGeomID );
-	const_cast<GeometryManager*>(this)->addGeometry( *survicsys );
-    }
-}
-
 
 TrcKey::SurvID Survey::GeometryManager::default3DSurvID() const
 {
-    for ( int idx=0; idx<geometries_.size(); idx++ )
-	if ( !geometries_[idx]->is2D() )
-	    return geometries_[idx]->id();
-
     return cSIGeomID;
 }
 
@@ -155,15 +129,23 @@ TrcKey::SurvID Survey::GeometryManager::synthSurvID() const
 const Survey::Geometry* Survey::GeometryManager::getGeometry(
 						Geometry::ID geomid ) const
 {
-    const int idx = indexOf( geomid );
-    return idx<0 ? 0 : geometries_[idx];
+    return const_cast<GeometryManager*>( this )->getGeometry( geomid );
 }
 
 
 Survey::Geometry* Survey::GeometryManager::getGeometry( Geometry::ID geomid )
 {
+    if ( geomid == cSIGeomID )
+	return &SI().gt3DGeom();
+    else if ( mIsUdfGeomID(geomid) )
+	return 0;
+
     const int idx = indexOf( geomid );
-    return idx<0 ? 0 : geometries_[idx];
+    if ( idx >= 0 )
+	return geometries_[idx];
+
+    pErrMsg( "Geometry not present" );
+    return 0;
 }
 
 
@@ -189,9 +171,13 @@ const Survey::Geometry* Survey::GeometryManager::getGeometry(
 const Survey::Geometry* Survey::GeometryManager::getGeometry(
 						const char* nm ) const
 {
-    for ( int idx=0; idx<geometries_.size(); idx++ )
-	if ( geometries_[idx]->hasName(nm) )
-	    return geometries_[idx];
+    const auto* sigeom = SI().s3dgeom_;
+    if ( sigeom && sigeom->hasName(nm) )
+	return sigeom;
+
+    for ( const auto* geom : geometries_ )
+	if ( geom->hasName(nm) )
+	    return geom;
 
     return 0;
 }
@@ -200,12 +186,9 @@ const Survey::Geometry* Survey::GeometryManager::getGeometry(
 Survey::Geometry::ID Survey::GeometryManager::getGeomID(
 						const char* lnnm ) const
 {
-    for ( int idx=0; idx<geometries_.size(); idx++ )
-    {
-	const auto& geom = *geometries_[idx];
-	if ( geom.is2D() && geom.hasName(lnnm) )
-	    return geom.id();
-    }
+    for ( const auto* geom : geometries_ )
+	if ( geom->is2D() && geom->hasName(lnnm) )
+	    return geom->id();
 
     return mUdfGeomID;
 }
@@ -426,6 +409,9 @@ bool Survey::GeometryManager::removeGeometry( Geometry::ID geomid )
 
 int Survey::GeometryManager::indexOf( Geometry::ID geomid ) const
 {
+    if ( geomid == mUdfGeomID )
+	return -1;
+
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( geometries_[idx]->id() == geomid )
 	    return idx;
@@ -438,7 +424,6 @@ bool Survey::GeometryManager::fillGeometries( TaskRunner* taskrunner )
 {
     Threads::Locker locker( lock_ );
     deepUnRef( geometries_ );
-    ensureSIPresent();
     hasduplnms_ = hasDuplicateLineNames();
     PtrMan<GeometryReader> geomreader = GeometryReader::factory()
 					.create(sKey::TwoD());
@@ -461,13 +446,12 @@ bool Survey::GeometryManager::getList( BufferStringSet& names,
 {
     names.erase();
     geomids.erase();
-    for ( int idx=0; idx<geometries_.size(); idx++ )
+    for ( const auto* geom : geometries_ )
     {
-	const auto& geom = *geometries_[idx];
-	if ( geom.is2D() == is2d )
+	if ( geom->is2D() == is2d )
 	{
-	    names.add( geom.name() );
-	    geomids += geom.id();
+	    names.add( geom->name() );
+	    geomids += geom->id();
 	}
     }
 
@@ -514,22 +498,29 @@ Coord Survey::Geometry3D::toCoord( int linenr, int tracenr ) const
 
 TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
 {
-    TrcKey tk( getSurvID(), transform(crd) );
+    const auto bid( nearestTracePosition(crd,dist) );
+    return TrcKey( getSurvID(), bid );
+}
+
+
+BinID Survey::Geometry3D::nearestTracePosition( const Coord& crd,
+						float* dist ) const
+{
+    const BinID bid( transform(crd) );
     if ( dist )
     {
-	if ( sampling_.hsamp_.includes(tk.binID()) )
+	if ( sampling_.hsamp_.includes(bid) )
 	{
-	    const Coord projcoord( transform(tk.binID()) );
+	    const Coord projcoord( transform(bid) );
 	    *dist = projcoord.distTo<float>( crd );
 	}
 	else
 	{
-	    TrcKey nearbid( sampling_.hsamp_.getNearest(tk.binID()) );
-	    const Coord nearcoord( transform(nearbid.binID()) );
+	    const Coord nearcoord( transform(sampling_.hsamp_.getNearest(bid)));
 	    *dist = (float)nearcoord.distTo<float>( crd );
 	}
     }
-    return tk;
+    return bid;
 }
 
 

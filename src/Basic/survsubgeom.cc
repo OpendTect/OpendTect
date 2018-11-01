@@ -7,6 +7,8 @@
 
 #include "survsubgeom.h"
 #include "survgeom3d.h"
+#include "survinfo.h"
+
 typedef Survey::SubGeometry3D::pos_idx_type		pos_idx_type;
 typedef Survey::SubGeometry3D::idx_type			idx_type;
 typedef Survey::SubGeometry3D::pos_idx_range_type	pos_idx_range_type;
@@ -97,13 +99,13 @@ BinID Survey::SubGeometry3D::origin() const
 
 pos_idx_type Survey::SubGeometry3D::inlStart() const
 {
-    return survgeom_->inlStart() + step_.row() * offs_.row();
+    return survgeom_->inlStart() + inlStep() * offs_.row();
 }
 
 
 pos_idx_type Survey::SubGeometry3D::crlStart() const
 {
-    return survgeom_->crlStart() + step_.col() * offs_.col();
+    return survgeom_->crlStart() + crlStep() * offs_.col();
 }
 
 
@@ -202,29 +204,29 @@ BinID Survey::SubGeometry3D::binid4Idxs( const RowCol& rc ) const
 
 
 void Survey::SubGeometry3D::setRange( const BinID& start, const BinID& stop,
-			      RowCol substeps )
+				      RowCol step )
 {
     const Survey::SubGeometry3D fullsl( *survgeom_ );
     offs_ = fullsl.idxs4BinID( start );
-    step_ = substeps;
-    const auto stoprc = fullsl.idxs4BinID( stop );
-    sz_ = RowCol( (stoprc.row()-offs_.row())/step_.row() + 1,
-		  (stoprc.col()-offs_.col())/step_.col() + 1 );
+    step_ = step;
+    const auto stoprc = idxs4BinID( stop );
+    sz_ = RowCol( stoprc.row()+1, stoprc.col()+1 );
 }
 
 
 void Survey::SubGeometry3D::setRange( const BinID& start, const BinID& stop,
 				      const BinID& stepbid )
 {
-    const Survey::SubGeometry3D fullsl( *survgeom_ );
-    offs_ = fullsl.idxs4BinID( start );
     step_.row() = stepbid.inl() / survgeom_->inlStep();
     if ( step_.row() < 1 )
 	{ pErrMsg("Bad inl step"); step_.row() = 1; }
     step_.col() = stepbid.crl() / survgeom_->crlStep();
     if ( step_.col() < 1 )
 	{ pErrMsg("Bad crl step"); step_.col() = 1; }
-    const auto stoprc = fullsl.idxs4BinID( stop );
-    sz_ = RowCol( (stoprc.row()-offs_.row())/step_.row() + 1,
-		  (stoprc.col()-offs_.col())/step_.col() + 1 );
+
+    offs_ = RowCol( 0, 0 );
+    const auto stoprc = idxs4BinID( stop );
+    offs_ = idxs4BinID( start );
+
+    sz_ = RowCol( stoprc.row()-offs_.row()+1, stoprc.col()-offs_.col()+1 );
 }
