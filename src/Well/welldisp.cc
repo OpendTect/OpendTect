@@ -79,7 +79,7 @@ Well::DisplayProperties::DisplayProperties( const char* subjname )
     logs_[0]->left_.isrightfill_ = true;
     logs_[0]->right_.isleftfill_ = true;
 
-    Settings& setts = Settings::fetch( "welldisp" );
+    const Settings& setts = Settings::fetch( "welldisp" );
     markers_.selmarkernms_.erase();
     usePar( setts );
 }
@@ -396,7 +396,7 @@ Well::DisplayProperties& Well::DisplayProperties::defaults()
 
     if ( !ret )
     {
-	Settings& setts = Settings::fetch( "welldisp" );
+	const Settings& setts = Settings::fetch( "welldisp" );
 	Well::DisplayProperties* newret = new DisplayProperties;
 	newret->usePar( setts );
 
