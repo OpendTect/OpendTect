@@ -738,6 +738,7 @@ void uiMainWinBody::renewToolbarsMenu()
 	toolbarsmnu_->insertItem( itm );
 	tb.setToolBarMenuAction( itm );
 	itm->setCheckable( true );
+	itm->setChecked( !tb.isHidden() );
     }
 }
 
