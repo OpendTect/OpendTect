@@ -1047,7 +1047,6 @@ void uiTable::setColor( const RowCol& rc, const Color& col )
     QTableWidgetItem* itm = body_->getItem( rc );
     if ( itm ) itm->setBackground( qcol );
     body_->setFocus();
-    setCellReadOnly( rc, true );
 }
 
 
