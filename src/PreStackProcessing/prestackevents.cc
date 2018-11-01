@@ -689,8 +689,8 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	    (emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z -
 	     emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z);
 
-	BinID prevcrl( bidv.inl(), bidv.crl()-horstep.inl() );
-	BinID nextcrl( bidv.inl(), bidv.crl()+horstep.inl() );
+	BinID prevcrl( bidv.inl(), bidv.crl()-horstep.crl() );
+	BinID nextcrl( bidv.inl(), bidv.crl()+horstep.crl() );
 	if ( !emhorizons_[horidx]->isDefined(sid,prevcrl.toInt64() ) )
 	    prevcrl = bidv;
 	if ( !emhorizons_[horidx]->isDefined(sid,nextcrl.toInt64() ) )
