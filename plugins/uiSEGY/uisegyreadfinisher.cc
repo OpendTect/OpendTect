@@ -794,7 +794,7 @@ bool uiSEGYReadFinisher::handleWarnings( bool withstop,
     else
     {
 	if ( imp->nrSkipped() > 0 )
-	    warns += new BufferString("During import, ", imp->nrSkipped(),
+	    warns += new BufferString("[9] During import, ", imp->nrSkipped(),
 				      " traces were rejected" );
 	SeisStdImporterReader& stdrdr
 		= static_cast<SeisStdImporterReader&>( imp->reader() );
