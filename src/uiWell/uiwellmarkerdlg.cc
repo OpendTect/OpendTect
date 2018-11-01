@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "tabledef.h"
 #include "welldata.h"
+#include "welldisp.h"
 #include "wellman.h"
 #include "wellimpasc.h"
 #include "welltrack.h"
@@ -771,6 +772,7 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
     }
 
     getMarkerSet( wd->markers() );
+    wd->markers().getNames( wd->displayProperties().markers_.selmarkernms_ );
     wd->markerschanged.trigger();
 }
 
