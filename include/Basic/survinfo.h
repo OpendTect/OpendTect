@@ -203,7 +203,7 @@ private:
 
 			// ugly, but hard to avoid:
     friend class	DBMan;
-    friend class	Survey::GeometryManager;;
+    friend class	Survey::GeometryManager;
     friend class	uiSurveyManager;
     friend class	uiSurveyInfoEditor;
 

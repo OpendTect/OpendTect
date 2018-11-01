@@ -204,11 +204,11 @@ BinID Survey::SubGeometry3D::binid4Idxs( const RowCol& rc ) const
 
 
 void Survey::SubGeometry3D::setRange( const BinID& start, const BinID& stop,
-				      RowCol step )
+				      RowCol stp )
 {
     const Survey::SubGeometry3D fullsl( *survgeom_ );
     offs_ = fullsl.idxs4BinID( start );
-    step_ = step;
+    step_ = stp;
     const auto stoprc = idxs4BinID( stop );
     sz_ = RowCol( stoprc.row()+1, stoprc.col()+1 );
 }
