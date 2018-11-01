@@ -594,16 +594,20 @@ Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
 }
 
 
-StepInterval<int> Survey::Geometry3D::inlRange() const
-{ return sampling_.hsamp_.inlRange(); }
+int Survey::Geometry3D::inlStart() const
+{ return sampling_.hsamp_.start_.inl(); }
 
 
-StepInterval<int> Survey::Geometry3D::crlRange() const
-{ return sampling_.hsamp_.crlRange(); }
+int Survey::Geometry3D::crlStart() const
+{ return sampling_.hsamp_.start_.crl(); }
 
 
-StepInterval<float> Survey::Geometry3D::zRange() const
-{ return sampling_.zsamp_; }
+int Survey::Geometry3D::inlStop() const
+{ return sampling_.hsamp_.stop_.inl(); }
+
+
+int Survey::Geometry3D::crlStop() const
+{ return sampling_.hsamp_.stop_.crl(); }
 
 
 int Survey::Geometry3D::inlStep() const
@@ -614,8 +618,28 @@ int Survey::Geometry3D::crlStep() const
 { return sampling_.hsamp_.step_.crl(); }
 
 
-float Survey::Geometry3D::zStep() const
+StepInterval<int> Survey::Geometry3D::inlRange() const
+{ return sampling_.hsamp_.inlRange(); }
+
+
+StepInterval<int> Survey::Geometry3D::crlRange() const
+{ return sampling_.hsamp_.crlRange(); }
+
+
+Survey::Geometry3D::z_type Survey::Geometry3D::zStart() const
+{ return sampling_.zsamp_.start; }
+
+
+Survey::Geometry3D::z_type Survey::Geometry3D::zStop() const
+{ return sampling_.zsamp_.stop; }
+
+
+Survey::Geometry3D::z_type Survey::Geometry3D::zStep() const
 { return sampling_.zsamp_.step; }
+
+
+StepInterval<Survey::Geometry3D::z_type> Survey::Geometry3D::zRange() const
+{ return sampling_.zsamp_; }
 
 
 static void doSnap( int& idx, int start, int step, int dir )
@@ -671,19 +695,19 @@ void Survey::Geometry3D::snapStep( BinID& s, const BinID& rounding ) const
 }
 
 
-void Survey::Geometry3D::snapZ( float& z, int dir ) const
+void Survey::Geometry3D::snapZ( z_type& z, int dir ) const
 {
-    const StepInterval<float>& zrg = sampling_.zsamp_;
-    const float eps = 1e-8;
+    const StepInterval<z_type>& zrg = sampling_.zsamp_;
+    const z_type eps = 1e-8;
 
     if ( z < zrg.start + eps )
     { z = zrg.start; return; }
     if ( z > zrg.stop - eps )
     { z = zrg.stop; return; }
 
-    const float relidx = zrg.getfIndex( z );
+    const z_type relidx = zrg.getfIndex( z );
     int targetidx = mNINT32(relidx);
-    const float zdiff = z - zrg.atIndex( targetidx );
+    const z_type zdiff = z - zrg.atIndex( targetidx );
     if ( !mIsZero(zdiff,eps) && dir )
 	targetidx = (int)( dir < 0 ? Math::Floor(relidx) : Math::Ceil(relidx) );
     z = zrg.atIndex( targetidx );;
@@ -718,7 +742,7 @@ void Survey::Geometry3D::getMapInfo( const IOPar& iop )
 
 
 void Survey::Geometry3D::setGeomData( const Pos::IdxPair2Coord& b2c,
-				const TrcKeyZSampling& cs, float zscl )
+				const TrcKeyZSampling& cs, z_type zscl )
 {
     b2c_ = b2c;
     sampling_ = cs;
@@ -791,10 +815,10 @@ Survey::Geometry::RelationType Survey::Geometry3D::compare(
 
     const StepInterval<int> myinlrg = inlRange();
     const StepInterval<int> mycrlrg = crlRange();
-    const StepInterval<float> myzrg = zRange();
+    const StepInterval<z_type> myzrg = zRange();
     const StepInterval<int> othinlrg = oth.inlRange();
     const StepInterval<int> othcrlrg = oth.crlRange();
-    const StepInterval<float> othzrg = oth.zRange();
+    const StepInterval<z_type> othzrg = oth.zRange();
     if ( myinlrg == othinlrg && mycrlrg == othcrlrg &&
 	    (!usezrg || myzrg.isEqual(othzrg,1e-3)) )
 	return Identical;

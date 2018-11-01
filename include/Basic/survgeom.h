@@ -45,7 +45,10 @@ mExpClass(Basic) Geometry : public RefCount::Referenced
 {
 public:
 
-    typedef Pos::GeomID	ID;
+    typedef Pos::GeomID			ID;
+    typedef Pos::IdxPair::IdxType	pos_idx_type;
+    typedef float			z_type;
+
 
     enum RelationType	{ UnRelated=0, Related, SubSet, SuperSet, Identical };
 			/*!< 'Related' means the two geometries have the same

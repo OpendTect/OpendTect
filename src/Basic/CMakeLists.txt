@@ -110,11 +110,11 @@ set( OD_MODULE_SOURCES
 	string2.cc
 	strmoper.cc
 	strmprov.cc
-	sublattice.cc
 	surveydisklocation.cc
 	survgeom.cc
 	survgeom2d.cc
 	survinfo.cc
+	survsubgeom.cc
 	task.cc
 	thread.cc
 	threadwork.cc
