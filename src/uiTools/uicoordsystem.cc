@@ -19,7 +19,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "od_helpids.h"
 
-using namespace Coords;
+namespace Coords
+{
 
 mImplFactory1Param( uiCoordSystem, uiParent*,
 		    uiCoordSystem::factory );
@@ -242,3 +243,4 @@ BufferString uiCoordSystemSel::getSummary() const
     return coordsystem_->summary();
 }
 
+} // namespace Coords
