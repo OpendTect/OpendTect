@@ -74,12 +74,17 @@ macro(OD_SETUP_QT)
 		    if( UNIX OR APPLE )
 			    #No need to install Debug libraries on UNIX and MAC
 			    if ( ${CMAKE_BUILD_TYPE} STREQUAL "Release" )
-			        if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+			        if( APPLE )
+			            set( FILENM "Qt${QTMOD}" )
+				else()
 			            set( FILENM "libQt${QT_VERSION_MAJOR}${QTMOD}.so.${QT_VERSION_MAJOR}" )
-			        elseif( APPLE )
-			            set( FILENM "${QTMOD}.${QT_VERSION_MAJOR}.dylib" )
 			        endif()
-			        OD_INSTALL_LIBRARY( ${QTDIR}/lib/${FILENM} ${CMAKE_BUILD_TYPE} )
+
+				if ( APPLE )
+				    OD_INSTALL_LIBRARY( ${QTDIR}/lib/${FILENM}.framework/${FILENM} ${CMAKE_BUILD_TYPE} )
+				else()
+				    OD_INSTALL_LIBRARY( ${QTDIR}/lib/${FILENM} ${CMAKE_BUILD_TYPE} )
+				endif()
 			    endif()
 		    elseif( WIN32 )
 			#Need to install Debug and Release libraries on Windows
@@ -102,10 +107,12 @@ macro(OD_SETUP_QT)
 			endforeach()
 		    endif()
 		endif()
-		install( DIRECTORY ${QTDIR}/plugins/xcbglintegrations
-			 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
-			 CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-			 USE_SOURCE_PERMISSIONS )
+		if ( NOT APPLE )
+		    install( DIRECTORY ${QTDIR}/plugins/xcbglintegrations
+			     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
+			     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+			     USE_SOURCE_PERMISSIONS )
+	        endif()
 	    endif()
 	    install( DIRECTORY ${QTDIR}/plugins/platforms
 		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
