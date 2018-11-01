@@ -273,6 +273,7 @@ void uiMarkerDlg::markerAddedCB( CallBacker* )
     const Color defgreycol( 128, 128, 128 );
     table_->setCellGroup( RowCol(currentrow,cLevelCol), levelsel );
     table_->setColor( RowCol(currentrow,cColorCol), defgreycol );
+    table_->setCellReadOnly( RowCol(currentrow,cColorCol), true );
     levelsel->setSensitive( true );
 }
 
@@ -440,6 +441,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	table_->setColor( RowCol(irow,cColorCol), mrk.color() );
     }
 
+    table_->setColumnReadOnly( cColorCol, true );
     table_->resizeColumnsToContents();
     table_->setColumnStretchable( cLevelCol, true );
 
