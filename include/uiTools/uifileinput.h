@@ -74,7 +74,9 @@ public:
     void		setExamine( const CallBack& cb )   { excb_ = cb; }
 			//!< Overrules the simple stand-alone file browser
 
-    const char*		fileName() const;
+    const char*		fileName() const; // Full file path
+    const char*		pathOnly() const;
+    const char*		baseName() const; // Filename without path and extension
     void		getFileNames(BufferStringSet&) const;
 
     uiFileDialog::Mode	selectMode() const

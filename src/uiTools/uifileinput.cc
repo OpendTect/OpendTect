@@ -318,6 +318,24 @@ const char* uiFileInput::fileName() const
 }
 
 
+const char* uiFileInput::pathOnly() const
+{
+    mDeclStaticString( path );
+    const FilePath fnmfp( fileName() );
+    path = fnmfp.pathOnly();
+    return path.buf();
+}
+
+
+const char* uiFileInput::baseName() const
+{
+    mDeclStaticString( base );
+    const FilePath fnmfp( fileName() );
+    base = fnmfp.baseName();
+    return base.buf();
+}
+
+
 void uiFileInput::getFileNames( BufferStringSet& list ) const
 {
     BufferString string = text();
