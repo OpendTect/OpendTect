@@ -81,12 +81,18 @@ void uiWellDispPropDlg::createSinglePanelUI()
     propflds_ += wlp1;
     propflds_ += wlp2;
 
-    BufferStringSet allmarkernms;
-    wd_->markers().getNames( allmarkernms );
+    BufferStringSet markernms;
+    wd_->markers().getNames( markernms );
+    TypeSet<Color> markercols;
+    wd_->markers().getColors( markercols );
 
-    propflds_ += new uiWellMarkersDispProperties( tgs[2],
-	uiWellDispProperties::Setup( tr("Marker size"), tr("Marker color") )
-	.onlyfor2ddisplay(is2ddisplay_), props.markers(), allmarkernms );
+    uiWellDispProperties::Setup propsu =
+	uiWellDispProperties::Setup(tr("Marker size"),tr("Marker color"))
+	.onlyfor2ddisplay(is2ddisplay_);
+    uiWellMarkersDispProperties* wellprops = new uiWellMarkersDispProperties(
+	tgs[2], propsu, props.markers(), markernms );
+    wellprops->setAllMarkerNames( markernms, markercols );
+    propflds_ += wellprops;
 
     if ( !is2ddisplay_ )
 	propflds_ += new uiWellTrackDispProperties( tgs[3],
@@ -496,9 +502,11 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 	    trckfld->resetProps( prop.track() );
 	else if ( mrkfld )
 	{
-	    BufferStringSet allmarkernms;
-	    wd_->markers().getNames( allmarkernms );
-	    mrkfld->setAllMarkerNames( allmarkernms );
+	    BufferStringSet markernms;
+	    wd_->markers().getNames( markernms );
+	    TypeSet<Color> markercols;
+	    wd_->markers().getColors( markercols );
+	    mrkfld->setAllMarkerNames( markernms, markercols );
 	    mrkfld->resetProps( prop.markers() );
 	}
     }

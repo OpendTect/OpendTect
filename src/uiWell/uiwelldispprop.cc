@@ -229,32 +229,23 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 	displaymarkersfld_->attach( alignedBelow, shapefld_ );
 
     doPutToScreen();
-    markerFldsChged(0);
+    markerFldsChgd(0);
 
-    cylinderheightfld_->box()->valueChanging.notify(
-		mCB(this,uiWellMarkersDispProperties,propChg) );
-    nmcolfld_->colorChanged.notify(
-		mCB(this,uiWellMarkersDispProperties,propChg) );
-    nmsizefld_->box()->valueChanging.notify(
-		mCB(this,uiWellMarkersDispProperties,propChg) );
-    nmstylefld_->selectionChanged.notify(
-	    mCB(this,uiWellMarkersDispProperties,propChg) );
-    samecolasmarkerfld_->activated.notify(
-		mCB(this,uiWellMarkersDispProperties,propChg) );
-    samecolasmarkerfld_->activated.notify(
-		mCB(this,uiWellMarkersDispProperties,markerFldsChged));
-    singlecolfld_->activated.notify(
-		mCB(this,uiWellMarkersDispProperties,propChg) );
-    nmsizedynamicfld_->activated.notify(
-	mCB(this,uiWellMarkersDispProperties,propChg) );
-    shapefld_->box()->selectionChanged.notify(
-		mCB(this,uiWellMarkersDispProperties,propChg) );
-    shapefld_->box()->selectionChanged.notify(
-		mCB(this,uiWellMarkersDispProperties,markerFldsChged));
-    displaymarkersfld_->itemChosen.notify(
-			mCB(this,uiWellMarkersDispProperties,propChg) );
-    displaymarkersfld_->itemChosen.notify(
-			mCB(this,uiWellMarkersDispProperties,markerFldsChged) );
+    CallBack propcb = mCB(this,uiWellMarkersDispProperties,propChg);
+    CallBack mrkrcb = mCB(this,uiWellMarkersDispProperties,markerFldsChgd);
+
+    cylinderheightfld_->box()->valueChanging.notify( propcb );
+    nmcolfld_->colorChanged.notify( propcb );
+    nmsizefld_->box()->valueChanging.notify( propcb );
+    nmstylefld_->selectionChanged.notify( propcb );
+    samecolasmarkerfld_->activated.notify( propcb );
+    samecolasmarkerfld_->activated.notify( mrkrcb );
+    singlecolfld_->activated.notify( propcb );
+    nmsizedynamicfld_->activated.notify( propcb );
+    shapefld_->box()->selectionChanged.notify( propcb );
+    shapefld_->box()->selectionChanged.notify( mrkrcb );
+    displaymarkersfld_->itemChosen.notify( propcb );
+    displaymarkersfld_->itemChosen.notify( mrkrcb );
 }
 
 
@@ -278,10 +269,13 @@ void uiWellMarkersDispProperties::setSelNames()
 
 
 void uiWellMarkersDispProperties::setAllMarkerNames(
-					const BufferStringSet& allmarkernms )
+				const BufferStringSet& markernms,
+				const TypeSet<Color>& markercols )
 {
     displaymarkersfld_->setEmpty();
-    displaymarkersfld_->addItems( allmarkernms );
+    displaymarkersfld_->addItems( markernms );
+    for ( int idx=0; idx<markercols.size(); idx++ )
+	displaymarkersfld_->setPixmap( idx, markercols[idx] );
     setSelNames();
 }
 
@@ -293,7 +287,7 @@ void uiWellMarkersDispProperties::resetProps( Well::MarkerDispProps& mdp )
 }
 
 
-void uiWellMarkersDispProperties::markerFldsChged( CallBacker* cb )
+void uiWellMarkersDispProperties::markerFldsChgd( CallBacker* cb )
 {
     colfld_->setSensitive( singlecolfld_->isChecked() );
     nmcolfld_->setSensitive( !samecolasmarkerfld_->isChecked() );
@@ -431,8 +425,8 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     logwidthslider_->setStep( 250.0f );
 
     seiscolorfld_ = new uiColorInput( this,
-		                 uiColorInput::Setup(logprops().seisColor())
-			        .lbltxt(tr("Filling color")) );
+				 uiColorInput::Setup(logprops().seisColor())
+				.lbltxt(tr("Filling color")) );
     seiscolorfld_->attach( alignedBelow, lblr_ );
     seiscolorfld_->display(false);
 
@@ -442,8 +436,8 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     lblo_->attach( rightOf, lblr_ );
 
     fillcolorfld_ = new uiColorInput( this,
-		                 uiColorInput::Setup(logprops().seisColor())
-			        .lbltxt(tr("Filling color")) );
+				 uiColorInput::Setup(logprops().seisColor())
+				.lbltxt(tr("Filling color")) );
     fillcolorfld_->attach( alignedBelow, logfilltypefld_ );
     fillcolorfld_->display(false);
 
@@ -498,7 +492,7 @@ void uiWellLogDispProperties::resetProps( Well::LogDispProps& ldp )
 
 
 #define mSetSwapFillIdx( fidx )\
-        if ( logprops().revertLog() )\
+	if ( logprops().revertLog() )\
 	{ if ( fidx == 2 ) fidx = 1; else if ( fidx == 1 ) fidx =2; }
 
 void uiWellLogDispProperties::doPutToScreen()
@@ -806,7 +800,7 @@ void uiWellLogDispProperties::setFieldVals()
 void uiWellLogDispProperties::updateRange( CallBacker* )
 {
     const char* lognm = logsfld_->box()->itemText(
-		        logsfld_->box()->currentItem() );
+			logsfld_->box()->currentItem() );
     const Well::Log* wl = wls_->getLogByName( lognm );
     if ( wl )
     {

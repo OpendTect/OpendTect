@@ -117,14 +117,15 @@ public:
     Well::MarkerDispProps& mrkprops()
 			{ return static_cast<Well::MarkerDispProps&>(*props_); }
 
-    void		setAllMarkerNames(const BufferStringSet&);
+    void		setAllMarkerNames(const BufferStringSet&,
+					  const TypeSet<Color>&);
     void		resetProps(Well::MarkerDispProps&);
 
 protected:
 
     virtual void	doPutToScreen();
     virtual void	doGetFromScreen();
-    void		markerFldsChged(CallBacker*);
+    void		markerFldsChgd(CallBacker*);
     void		setMarkerNmColSel(CallBacker*);
     void		getSelNames();
     void		setSelNames();
