@@ -392,7 +392,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     rv = TaskRunner::execute( &dlg, *imp );
     BufferStringSet warns;
     if ( imp && imp->nrSkipped() > 0 )
-	warns += new BufferString("During import, ", imp->nrSkipped(),
+	warns += new BufferString("[9] During import, ", imp->nrSkipped(),
 				  " traces were rejected" );
     SeisTrcTranslator* transl = rdr->reader().seisTranslator();
     if ( transl && transl->haveWarnings() )
