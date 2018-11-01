@@ -80,9 +80,9 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 	mAttachCB( propflds_[idx]->propChanged, uiWellDispPropDlg::propChg );
 	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
 	{
-	    ts_->addTab( tgs[idx], foundlog ? is2d ? tr("Log 2") 
+	    ts_->addTab( tgs[idx], foundlog ? is2d ? tr("Log 2")
 						   : tr("Right Log")
-					    : is2d ? tr("Log 1") 
+					    : is2d ? tr("Log 1")
 						   : tr("Left Log") );
 	    foundlog = true;
 	}
@@ -97,10 +97,10 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 
     ts_->selChange().notify( mCB(this,uiWellDispPropDlg,tabSel) );
 
+    wd_->ref();
     setWDNotifiers( true );
     mAttachCB( windowClosed, uiWellDispPropDlg::onClose );
 
-    wd_->ref();
     tabSel( 0 );
 }
 
@@ -148,6 +148,8 @@ void uiWellDispPropDlg::setWDNotifiers( bool yn )
 	mAttachCB( mDispNot, uiWellDispPropDlg::wdChg );
     else
 	mDetachCB( mDispNot, uiWellDispPropDlg::wdChg );
+
+    mAttachCB( wd_->markerschanged, uiWellDispPropDlg::markersChgd );
 }
 
 
@@ -162,6 +164,23 @@ void uiWellDispPropDlg::putToScreen()
 {
     for ( int idx=0; idx<propflds_.size(); idx++ )
 	propflds_[idx]->putToScreen();
+}
+
+
+void uiWellDispPropDlg::markersChgd( CallBacker* )
+{
+    BufferStringSet allmarkernms;
+    wd_->markers().getNames( allmarkernms );
+
+    for ( int idx=0; idx<propflds_.size(); idx++ )
+    {
+	mDynamicCastGet(uiWellMarkersDispProperties*,mrkrfld,propflds_[idx])
+	if ( !mrkrfld )
+	    continue;
+
+	mrkrfld->setAllMarkerNames( allmarkernms );
+	return;
+    }
 }
 
 
@@ -208,7 +227,7 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 
 //uiMultiWellDispPropDlg
 uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
-					        ObjectSet<Well::Data>& wds,
+						ObjectSet<Well::Data>& wds,
 						bool is2ddisplay )
 	: uiWellDispPropDlg(p,wds[0],is2ddisplay)
 	, wds_(wds)

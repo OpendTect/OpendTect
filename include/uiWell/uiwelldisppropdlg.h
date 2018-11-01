@@ -40,7 +40,7 @@ public:
 
     bool 			savedefault_;
     void			updateLogs();
- 
+
 protected:
 
     Well::Data*			wd_;
@@ -56,6 +56,7 @@ protected:
     virtual void		applyAllPush(CallBacker*);
     virtual void		onClose(CallBacker*);
     virtual void		propChg(CallBacker*);
+    void			markersChgd(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
