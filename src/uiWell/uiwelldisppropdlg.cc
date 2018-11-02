@@ -62,13 +62,18 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
     propflds_ += wlp1;
     propflds_ += wlp2;
 
-    BufferStringSet allmarkernms;
-    for ( int idx=0; idx<wd_->markers().size(); idx++ )
-	allmarkernms.add( wd_->markers()[idx]->name() );
+    BufferStringSet markernms;
+    wd_->markers().getNames( markernms );
+    TypeSet<Color> markercols;
+    wd_->markers().getColors( markercols );
 
-    propflds_ += new uiWellMarkersDispProperties( tgs[2],
-	uiWellDispProperties::Setup( tr("Marker size"), tr("Marker color") )
-	.onlyfor2ddisplay(is2d), props.markers_, allmarkernms );
+    uiWellDispProperties::Setup propsu =
+	uiWellDispProperties::Setup(tr("Marker size"),tr("Marker color"))
+	.onlyfor2ddisplay(is2d);
+    uiWellMarkersDispProperties* wellprops = new uiWellMarkersDispProperties(
+	tgs[2], propsu, props.markers_, markernms );
+    wellprops->setAllMarkerNames( markernms, markercols );
+    propflds_ += wellprops;
 
     if ( !is2d )
 	propflds_ += new uiWellTrackDispProperties( tgs[3],
@@ -169,8 +174,10 @@ void uiWellDispPropDlg::putToScreen()
 
 void uiWellDispPropDlg::markersChgd( CallBacker* )
 {
-    BufferStringSet allmarkernms;
-    wd_->markers().getNames( allmarkernms );
+    BufferStringSet markernms;
+    wd_->markers().getNames( markernms );
+    TypeSet<Color> markercols;
+    wd_->markers().getColors( markercols );
 
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
@@ -178,7 +185,7 @@ void uiWellDispPropDlg::markersChgd( CallBacker* )
 	if ( !mrkrfld )
 	    continue;
 
-	mrkrfld->setAllMarkerNames( allmarkernms );
+	mrkrfld->setAllMarkerNames( markernms, markercols );
 	return;
     }
 }
@@ -279,11 +286,12 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 	    trckfld->resetProps( prop.track_ );
 	else if ( mrkfld )
 	{
-	    BufferStringSet allmarkernms;
-	    for ( int idy=0; idy<wd_->markers().size(); idy++ )
-		allmarkernms.add( wd_->markers()[idy]->name() );
+	    BufferStringSet markernms;
+	    TypeSet<Color> markercols;
+	    wd_->markers().getNames( markernms );
+	    wd_->markers().getColors( markercols );
 
-	    mrkfld->setAllMarkerNames( allmarkernms );
+	    mrkfld->setAllMarkerNames( markernms, markercols );
 	    mrkfld->resetProps( prop.markers_ );
 	}
     }
