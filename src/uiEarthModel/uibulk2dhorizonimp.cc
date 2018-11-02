@@ -196,9 +196,7 @@ static Table::FormatDesc* getDesc()
     fd->bodyinfos_ += new Table::TargetInfo( "Horizon name",
 							    Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
-    Table::TargetInfo* ti = new Table::TargetInfo( "Position", DoubleInpSpec(),
-					    Table::Optional );
-    ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
+    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( true, false );
     fd->bodyinfos_ += ti;
     Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Required );
     trcspti->form(0).setName( "Trace Nr" );
@@ -233,9 +231,7 @@ bool getData( BufferString& hornm, BufferString& linenm, Coord3& crd,
 
     hornm = text( 0 );
     linenm = text(1);
-    crd.x = getDValue( 2, udfval_ );
-    crd.y = getDValue( 3, udfval_ );
-    crd.z = getFValue( 5, udfval_ );
+    crd = getPos3D( 2, 3, 5, udfval_ );
     trcnr = mCast(int,getDValue(4, udfval_));
     return true;
 }
