@@ -10,16 +10,28 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "ui2dsip.h"
+
+#include "uicoordsystem.h"
 #include "uidialog.h"
+#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uigeom2dsel.h"
 #include "uigroup.h"
+#include "uiimpexp2dgeom.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uigeninput.h"
 #include "uiseparator.h"
-#include "trckeyzsampling.h"
-#include "survinfo.h"
-#include "unitofmeasure.h"
+#include "uitblimpexpdatasel.h"
+
+#include "file.h"
+#include "tabledef.h"
 #include "od_helpids.h"
+#include "posinfo2d.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
+#include "unitofmeasure.h"
+
 
 static const char* dlgtitle =
 "Specify working area values.\n"
@@ -35,7 +47,7 @@ public:
 ui2DDefSurvInfoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Survey setup for 2D only"),
 				 mToUiStringTodo(dlgtitle),
-                                 mODHelpKey(m2DDefSurvInfoDlgHelpID) ))
+				 mODHelpKey(m2DDefSurvInfoDlgHelpID) ))
 {
     FloatInpSpec fis;
     DoubleInpSpec dis;
@@ -139,25 +151,15 @@ uiDialog* ui2DSurvInfoProvider::dialog( uiParent* p )
 }
 
 
-bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
-				      Coord crd[3] )
+static bool getRanges( TrcKeyZSampling& cs, Coord crd[3],
+		       Coord c0, Coord c1, double grdsp )
 {
-    xyft_ = false;
-    if ( !din ) return false;
-    mDynamicCastGet(ui2DDefSurvInfoDlg*,dlg,din)
-    if ( !dlg ) { pErrMsg("Huh?"); return false; }
-    else if ( dlg->uiResult() != 1 ) return false; // cancelled
-
-    Coord c0( dlg->xrgfld_->getdValue(0), dlg->yrgfld_->getdValue(0) );
-    Coord c1( dlg->xrgfld_->getdValue(1), dlg->yrgfld_->getdValue(1) );
-    if ( c0.x > c1.x ) Swap( c0.x, c1.x );
-    if ( c0.y > c1.y ) Swap( c0.y, c1.y );
     const Coord d( c1.x - c0.x, c1.y - c0.y );
-    const double grdsp = dlg->grdspfld_->getdValue();
     const int nrinl = (int)(d.x / grdsp + 1.5);
     const int nrcrl = (int)(d.y / grdsp + 1.5);
     if ( nrinl < 2 && nrcrl < 2 )
-	mErrRet(tr("Coordinate ranges are less than one trace distance"))
+	mErrRet(od_static_tr("ui2dsip_getRanges",
+			"Coordinate ranges are less than one trace distance"))
 
     cs.hsamp_.start_.inl() = cs.hsamp_.start_.crl() = 10000;
     cs.hsamp_.step_.inl() = cs.hsamp_.step_.crl() = 1;
@@ -170,6 +172,26 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     crd[0] = c0;
     crd[1] = cmax;
     crd[2] = Coord( c0.x, cmax.y );
+    return true;
+}
+
+
+bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
+				    Coord crd[3] )
+{
+    xyft_ = false;
+    if ( !din ) return false;
+    mDynamicCastGet(ui2DDefSurvInfoDlg*,dlg,din)
+    if ( !dlg ) { pErrMsg("Huh?"); return false; }
+    else if ( dlg->uiResult() != 1 ) return false; // cancelled
+
+    Coord c0( dlg->xrgfld_->getdValue(0), dlg->yrgfld_->getdValue(0) );
+    Coord c1( dlg->xrgfld_->getdValue(1), dlg->yrgfld_->getdValue(1) );
+    if ( c0.x > c1.x ) Swap( c0.x, c1.x );
+    if ( c0.y > c1.y ) Swap( c0.y, c1.y );
+    const double grdsp = dlg->grdspfld_->getdValue();
+    if ( !getRanges(cs,crd,c0,c1,grdsp) )
+	return false;
 
     const float zfac = SI().showZ2UserFactor();
     cs.zsamp_.start = 0.f;
@@ -179,4 +201,164 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     xyft_ = !dlg->ismfld_->getBoolValue();
 
     return true;
+}
+
+
+// uiNavSurvInfoProvider
+class uiNavReadDlg : public uiImp2DGeom
+{ mODTextTranslationClass(uiNavReadDlg)
+public:
+uiNavReadDlg( uiParent* p )
+    : uiImp2DGeom(p)
+{
+    setModal( true );
+    setOkCancelText( uiStrings::sContinue(), uiStrings::sCancel() );
+
+    singlemultifld_->valuechanged.notify( mCB(this,uiNavReadDlg,singmultCB2) );
+    linefld_->display( false );
+
+    crssel_ = new Coords::uiCoordSystemSel( this );
+    crssel_->attach( alignedBelow, dataselfld_ );
+}
+
+
+void singmultCB2( CallBacker* )
+{
+    linefld_->display( false );
+}
+
+
+bool fillGeom2D( ObjectSet<Survey::Geometry2D>& geoms )
+{
+    const bool singleline = singlemultifld_->getBoolValue();
+    if ( singleline )
+    {
+	Survey::Geometry2D* geom2d =
+		new Survey::Geometry2D( "New Geometry" );
+	geom2d->ref();
+	fillGeom( *geom2d );
+	geoms += geom2d;
+	return true;
+    }
+
+    return fillGeom( geoms );
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    if ( File::isEmpty(fnmfld_->fileName()) )
+    { uiMSG().error(uiStrings::sInvInpFile()); return false; }
+
+    const bool isll = geomfd_->bodyinfos_.last()->selection_.form_ == 1;
+    if ( isll && !crssel_->getCoordSystem()->isProjection() )
+    {
+	uiMSG().error( tr("Please select a Coordinate System "
+			  "when input file has Lat/Long."));
+	return false;
+    }
+
+    return true;
+}
+
+Coords::uiCoordSystemSel*	crssel_;
+
+};
+
+
+uiNavSurvInfoProvider::uiNavSurvInfoProvider()
+{}
+
+
+uiNavSurvInfoProvider::~uiNavSurvInfoProvider()
+{
+    deepUnRef( geoms_ );
+}
+
+
+const char* uiNavSurvInfoProvider::usrText() const
+{ return "Scan Navigation Data"; }
+
+const char* uiNavSurvInfoProvider::iconName() const
+{ return "tree-geom2d"; }
+
+
+uiDialog* uiNavSurvInfoProvider::dialog( uiParent* p )
+{
+    return new uiNavReadDlg( p );
+}
+
+
+bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
+				     Coord crd[3] )
+{
+    mDynamicCastGet(uiNavReadDlg*,navdlg,dlg)
+    if ( !navdlg )
+	return false;
+
+    coordsystem_ = navdlg->crssel_->getCoordSystem();
+
+    deepUnRef( geoms_ );
+    if ( !navdlg->fillGeom2D(geoms_) )
+	return false;
+
+    Interval<double> xrg( mUdf(double), -mUdf(double) );
+    Interval<double> yrg( mUdf(double), -mUdf(double) );
+    for ( int idx=0; idx<geoms_.size(); idx++ )
+    {
+	Survey::Geometry2D* geom2d = geoms_[idx];
+	const TypeSet<PosInfo::Line2DPos> l2dpos = geom2d->data().positions();
+	for ( int idy=0; idy<l2dpos.size(); idy++ )
+	{
+	    xrg.include( l2dpos[idy].coord_.x, false );
+	    yrg.include( l2dpos[idy].coord_.y, false );
+	}
+    }
+
+    Coord c0( xrg.start, yrg.start );
+    Coord c1( xrg.stop, yrg.stop );
+    const double grdsp = 25.;
+    return getRanges(tkzs,crd,c0,c1,grdsp);
+}
+
+
+IOPar* uiNavSurvInfoProvider::getImportPars() const
+{
+    return new IOPar;
+}
+
+
+void uiNavSurvInfoProvider::startImport( uiParent*, const IOPar& )
+{
+    uiStringSet errors;
+    for ( int idx=0; idx<geoms_.size(); idx++ )
+    {
+	geoms_[idx]->dataAdmin().setZRange( SI().zRange(false) );
+	uiString errmsg;
+	if ( !Survey::GMAdmin().write(*geoms_[idx],errmsg) )
+	    errors.add( errmsg );
+    }
+
+    if ( !errors.isEmpty() )
+    {
+	uiMSG().errorWithDetails( errors, tr("Error during import:") );
+	return;
+    }
+
+    uiMSG().message( tr("Geometry successfully imported.") );
+}
+
+
+const char* uiNavSurvInfoProvider::importAskQuestion() const
+{ return "Proceed to import files used to setup survey?"; }
+
+
+IOPar* uiNavSurvInfoProvider::getCoordSystemPars() const
+{
+    if ( !coordsystem_ )
+	return 0;
+
+    IOPar* crspar = new IOPar;
+    coordsystem_->fillPar( *crspar );
+    return crspar;
 }

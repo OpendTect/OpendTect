@@ -149,9 +149,9 @@ bool copySurv()
 {
     if ( File::exists(newdirnm_) )
     {
-        uiMSG().error(tr("A survey '%1' already exists.\n"
+	uiMSG().error(tr("A survey '%1' already exists.\n"
 			 "You will have to remove it first").arg(newdirnm_));
-        return false;
+	return false;
     }
 
     uiTaskRunner taskrunner( this );
@@ -410,6 +410,8 @@ uiSurvey::uiSurvey( uiParent* p )
 
     mDefineStaticLocalObject( int, sipidx2d, mUnusedVar =
 	    uiSurveyInfoEditor::addInfoProvider(new ui2DSurvInfoProvider) );
+    mDefineStaticLocalObject( int, sipidxnav, mUnusedVar =
+	    uiSurveyInfoEditor::addInfoProvider(new uiNavSurvInfoProvider) );
     mDefineStaticLocalObject( int, sipidxcp, mUnusedVar =
 	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) );
     mDefineStaticLocalObject( int, sipidxfile, mUnusedVar =
@@ -941,7 +943,7 @@ void uiSurvey::exportButPushed( CallBacker* )
 						.arg(survnm);
     uiDialog dlg( this,
     uiDialog::Setup(title,mNoDlgTitle,
-                    mODHelpKey(mSurveyCompressButPushedHelpID) ));
+		    mODHelpKey(mSurveyCompressButPushedHelpID) ));
     uiFileInput* fnmfld = new uiFileInput( &dlg,uiStrings::phrSelect(
 		    uiStrings::phrOutput(tr("Destination"))),
 		    uiFileInput::Setup().directories(false).forread(false)

@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uisip.h"
 
+namespace Coords { class CoordSystem; }
+namespace Survey { class Geometry2D; }
 
 mExpClass(uiIo) ui2DSurvInfoProvider : public uiSurvInfoProvider
 { mODTextTranslationClass(ui2DSurvInfoProvider);
@@ -34,5 +36,29 @@ protected:
     bool		xyft_;
 };
 
+
+
+mExpClass(uiIo) uiNavSurvInfoProvider : public uiSurvInfoProvider
+{ mODTextTranslationClass(uiNavSurvInfoProvider);
+public:
+				uiNavSurvInfoProvider();
+    virtual			~uiNavSurvInfoProvider();
+
+    virtual const char*		usrText() const;
+    virtual uiDialog*		dialog(uiParent*);
+    virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
+					Coord crd[3]);
+    virtual const char*		iconName() const;
+
+    virtual IOPar*		getImportPars() const;
+    virtual void		startImport(uiParent*,const IOPar&);
+    virtual const char*		importAskQuestion() const;
+
+    virtual IOPar*		getCoordSystemPars() const;
+
+protected:
+    RefMan<Coords::CoordSystem>		coordsystem_;
+    ObjectSet<Survey::Geometry2D>	geoms_;
+};
 
 #endif
