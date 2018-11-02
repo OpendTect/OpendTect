@@ -40,13 +40,13 @@ mExpClass(uiWell) uiWellDispProperties : public uiGroup
 { mODTextTranslationClass(uiWellDispProperties)
 public:
 
-    mExpClass(uiWell) Setup		     
+    mExpClass(uiWell) Setup
     {
     public:
 	    Setup( const uiString& sztxt=uiString::emptyString(),
 		   const uiString& coltxt=uiString::emptyString() )
 		: mysztxt_(!sztxt.isEmpty() ? sztxt : tr("Line thickness"))
-		, mycoltxt_(!coltxt.isEmpty() ? coltxt : 
+		, mycoltxt_(!coltxt.isEmpty() ? coltxt :
 			     uiStrings::phrJoinStrings(uiStrings::sLine(),
 			     uiStrings::sColor().toLower()) )
 		, onlyfor2ddisplay_(false) {}
@@ -124,6 +124,8 @@ public:
 	{ return static_cast<Well::DisplayProperties::Markers&>(*props_); }
 
     void		setAllMarkerNames(const BufferStringSet&);
+    void		setAllMarkerNames(const BufferStringSet&,
+					  const TypeSet<Color>&);
     void		resetProps(Well::DisplayProperties::Markers&);
 
 protected:
