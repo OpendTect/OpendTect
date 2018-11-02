@@ -221,7 +221,22 @@ macro( copy_thirdpartylibs )
 		endif()
 	    endif()
 	endif()
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR} )
+
+
+	string( FIND ${LIB} "Qt" ISQTLIB )
+	string( FIND ${LIB} "osg" ISOSGLIB )
+	#Checking ISOSGLIB value to avoid OSG library libosgQt.ylib
+	if ( ${QT_VERSION_MAJOR} STREQUAL "${QT_VERSION_MAJOR}" AND APPLE
+	     AND NOT ${ISQTLIB} EQUAL -1  AND ${ISOSGLIB} EQUAL -1 )
+	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
+				 ${COPYTOLIBDIR}/${LIB}.framework/Versions
+				 ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB}
+			     ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR} )
+	endif()
+
     endforeach()
 
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
