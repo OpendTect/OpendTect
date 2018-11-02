@@ -241,15 +241,33 @@ RowCol Survey::SubGeometry3D::idxs4BinID( const BinID& bid ) const
 }
 
 
-BinID Survey::SubGeometry3D::binid4Idxs( idx_type irow, idx_type icol ) const
-{
-    return BinID( inl4Idx(irow), crl4Idx(icol) );
-}
-
-
 BinID Survey::SubGeometry3D::binid4Idxs( const RowCol& rc ) const
 {
     return BinID( inl4Idx(rc.row()), crl4Idx(rc.col()) );
+}
+
+
+Coord Survey::SubGeometry3D::coord4Idxs( const RowCol& rc ) const
+{
+    return coord4BinID( binid4Idxs(rc) );
+}
+
+
+Coord Survey::SubGeometry3D::coord4BinID( const BinID& bid ) const
+{
+    return survgeom_->toCoord( bid.inl(), bid.crl() );
+}
+
+
+RowCol Survey::SubGeometry3D::nearestIdxs( const Coord& crd ) const
+{
+    return idxs4BinID( nearestBinID(crd) );
+}
+
+
+BinID Survey::SubGeometry3D::nearestBinID( const Coord& crd ) const
+{
+    return survgeom_->nearestTracePosition( crd, 0 );
 }
 
 

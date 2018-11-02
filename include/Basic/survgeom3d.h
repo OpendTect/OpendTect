@@ -31,8 +31,6 @@ mExpClass(Basic) Geometry3D : public Survey::Geometry
 {
 public:
 
-    typedef pos_type	idx_type;
-
 			Geometry3D();
 			Geometry3D(const char* nm,const ZDomain::Def& zd );
 
@@ -54,12 +52,10 @@ public:
 
     inline idx_type	idx4Inl(pos_type) const;
     inline idx_type	idx4Crl(pos_type) const;
-    inline idx_type	idx4Z(z_type) const;
     inline pos_type	inl4Idx(idx_type) const;
     inline pos_type	crl4Idx(idx_type) const;
-    inline z_type	z4Idx(int) const;
 
-    BinID	nearestTracePosition(const Coord&,float* distance) const;
+    BinID	nearestTracePosition(const Coord&,float* dist=0) const;
 
     Coord	toCoord(int line,int tracenr) const		override;
     TrcKey	nearestTrace(const Coord&,float* dist) const	override;
@@ -107,17 +103,13 @@ protected:
 
 
 inline Geometry3D::idx_type Geometry3D::idx4Inl( pos_type inl ) const
-{ return sampling_.hsamp_.lineIdx( inl ); }
+{ return inlRange().nearestIndex( inl ); }
 inline Geometry3D::idx_type Geometry3D::idx4Crl( pos_type crl ) const
-{ return sampling_.hsamp_.trcIdx( crl ); }
-inline Geometry3D::idx_type Geometry3D::idx4Z( z_type z ) const
-{ return sampling_.zsamp_.nearestIndex( z ); }
+{ return crlRange().nearestIndex( crl ); }
 inline Geometry3D::pos_type Geometry3D::inl4Idx( idx_type idx ) const
-{ return sampling_.hsamp_.lineID( idx ); }
+{ return inlRange().atIndex( idx ); }
 inline Geometry3D::pos_type Geometry3D::crl4Idx( idx_type idx ) const
-{ return sampling_.hsamp_.traceID( idx ); }
-inline Geometry3D::z_type Geometry3D::z4Idx( idx_type idx ) const
-{ return sampling_.zsamp_.atIndex( idx ); }
+{ return crlRange().atIndex( idx ); }
 
 
 } // namespace Survey

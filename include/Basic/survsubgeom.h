@@ -133,8 +133,11 @@ public:
     pos_type		inl4Idx(idx_type) const;
     pos_type		crl4Idx(idx_type) const;
     RowCol		idxs4BinID(const BinID&) const;
-    BinID		binid4Idxs(idx_type irow,idx_type icol) const;
     BinID		binid4Idxs(const RowCol&) const;
+    Coord		coord4Idxs(const RowCol&) const;
+    Coord		coord4BinID(const BinID&) const;
+    BinID		nearestBinID(const Coord&) const;
+    RowCol		nearestIdxs(const Coord&) const;
 
     pos_type		inlStart() const	{ return inldd_.posStart(); }
     pos_type		crlStart() const	{ return trcdd_.posStart(); }

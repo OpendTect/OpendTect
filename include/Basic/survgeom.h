@@ -47,6 +47,7 @@ public:
 
     typedef Pos::GeomID			ID;
     typedef Pos::IdxPair::IdxType	pos_type;
+    typedef pos_type			idx_type;
     typedef StepInterval<pos_type>	pos_range_type;
     typedef float			z_type;
     typedef StepInterval<z_type>	z_range_type;
@@ -72,6 +73,11 @@ public:
     bool		includes(const TrcKey&) const;
     inline bool		includes( const BinID& b ) const
 			{ return includes( b.lineNr(), b.trcNr() ); }
+
+    inline idx_type	idx4TrcNr(pos_type) const;
+    inline idx_type	idx4Z(z_type) const;
+    inline pos_type	trcNr4Idx(idx_type) const;
+    inline z_type	z4Idx(int) const;
 
     static bool		exists(const TrcKey&);
     static Coord	toCoord(const TrcKey&);
@@ -115,6 +121,16 @@ public:
     mDeprecated const char* getName() const	{ return name().str(); }
 
 };
+
+
+inline Geometry::idx_type Geometry::idx4TrcNr( pos_type trcnr ) const
+{ return trcNrRange().nearestIndex( trcnr ); }
+inline Geometry::idx_type Geometry::idx4Z( z_type z ) const
+{ return zRange().nearestIndex( z ); }
+inline Geometry::pos_type Geometry::trcNr4Idx( idx_type idx ) const
+{ return trcNrRange().atIndex( idx ); }
+inline Geometry::z_type Geometry::z4Idx( idx_type idx ) const
+{ return zRange().atIndex( idx ); }
 
 
 /*!\brief Makes geometries accessible from a geometry ID, or a DBKey.  */
