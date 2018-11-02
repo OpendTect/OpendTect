@@ -207,7 +207,8 @@ DataPack::ID PreStackDisplay::preProcess()
 
 	    const BinID relpos = !is3DSeis()
 		? relbid
-		: relbid * BinID( s3dgeom_->inlStep(), s3dgeom_->crlStep() );
+		: relbid * BinID( s3dgeom_->inlRange().step,
+				  s3dgeom_->crlRange().step );
 	    trckey_.setPosition( trckey_.position() + relpos );
 	    RefMan<Gather> gather = new Gather;
 	    if ( !gather->readFrom(*ioobj_,*reader_,trckey_) )

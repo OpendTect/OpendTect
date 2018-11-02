@@ -264,7 +264,7 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 	return;
 
     const double epsxy = s3dgeom->inlDistance()*0.1f;
-    const double epsz = 0.01*s3dgeom->zStep();
+    const double epsz = 0.01 * s3dgeom->zRange().step;
     const Coord3 eps( epsxy,epsxy,epsz );
     pickmarker_ = false;
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )

@@ -78,7 +78,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     : MultiTextureSurveyObject()
     , dragger_( visBase::DepthTabPlaneDragger::create() )
     , gridlines_( visBase::GridLines::create() )
-    , curicstep_(s3dgeom_->inlStep(),s3dgeom_->crlStep())
+    , curicstep_(s3dgeom_->inlRange().step,s3dgeom_->crlRange().step)
     , datatransform_( 0 )
     , voiidx_(-1)
     , moving_(this)
@@ -345,7 +345,7 @@ float PlaneDataDisplay::maxDist() const
 {
     const float zfactor = scene_ ? scene_->getZScale():s3dgeom_->zScale();
     float maxzdist = zfactor * scene_->getFixedZStretch()
-		     * s3dgeom_->zStep() / 2;
+		     * s3dgeom_->zRange().step / 2;
     return orientation_==OD::ZSlice ? maxzdist : SurveyObject::sDefMaxDist();
 }
 
@@ -794,7 +794,8 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
     res.zsamp_.start = res.zsamp_.stop = (float) c0.z_;
     res.hsamp_.include( BinID(mNINT32(c1.x_),mNINT32(c1.y_)) );
     res.zsamp_.include( (float) c1.z_ );
-    res.hsamp_.step_ = BinID( s3dgeom_->inlStep(), s3dgeom_->crlStep() );
+    res.hsamp_.step_ = BinID( s3dgeom_->inlRange().step,
+			      s3dgeom_->crlRange().step );
     res.zsamp_.step = s3dgeom_->zRange().step;
     res.hsamp_.survid_ = Survey::GM().default3DSurvID();
 

@@ -392,7 +392,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 
 	    for ( int dim=0; dim<3; dim++ )
 	    {
-		const float step = dim==2 ? s3dgeom_->zStep()
+		const float step = dim==2 ? s3dgeom_->zRange().step
 					    : s3dgeom_->inlDistance();
 
 		for ( int dir=-1; dir<=1; dir+=2 )

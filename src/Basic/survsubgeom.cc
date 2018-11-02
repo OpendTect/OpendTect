@@ -9,46 +9,127 @@
 #include "survgeom3d.h"
 #include "survinfo.h"
 
-typedef Survey::SubGeometry3D::pos_idx_type		pos_idx_type;
-typedef Survey::SubGeometry3D::idx_type			idx_type;
-typedef Survey::SubGeometry3D::pos_idx_range_type	pos_idx_range_type;
+typedef Survey::SubGeometryHDimData::pos_type	pos_type;
+typedef Survey::SubGeometryHDimData::idx_type		idx_type;
+typedef Survey::SubGeometryHDimData::size_type		size_type;
+typedef Survey::SubGeometryHDimData::pos_range_type	pos_range_type;
 
 
-Survey::SubGeometry3D::SubGeometry3D()
-    : Survey::SubGeometry3D(*Survey::Geometry::default3D().as3D())
+Survey::SubGeometryHDimData::SubGeometryHDimData( const pos_range_type& rg )
+    : fullposrg_(0)
+{
+    setFullPosRange( rg );
+}
+
+
+void Survey::SubGeometryHDimData::setFullPosRange( const pos_range_type& rg )
+{
+    fullposrg_ = &rg;
+    sz_ = fullposrg_->nrSteps() + 1;
+}
+
+
+bool Survey::SubGeometryHDimData::operator ==(
+					const SubGeometryHDimData& oth ) const
+{
+    return *fullposrg_ == *oth.fullposrg_
+	&& offs_ == oth.offs_
+	&& step_ == oth.step_
+	&& sz_ == oth.sz_;
+}
+
+
+bool Survey::SubGeometryHDimData::hasFullRange() const
+{
+    return posStart() == fullposrg_->start && posStop() == fullposrg_->stop;
+}
+
+
+
+pos_type Survey::SubGeometryHDimData::posStart() const
+{
+    return fullposrg_->start + posStep() * offs_;
+}
+
+
+pos_type Survey::SubGeometryHDimData::posStep() const
+{
+    return fullposrg_->step * step_;
+}
+
+
+pos_type Survey::SubGeometryHDimData::posStop() const
+{
+    return posStart() + posStep() * (sz_-1);
+}
+
+
+pos_range_type Survey::SubGeometryHDimData::posRange() const
+{
+    return pos_range_type( posStart(), posStop(), posStep() );
+}
+
+
+idx_type Survey::SubGeometryHDimData::idx4Pos( pos_type pos ) const
+{
+    return (pos - posStart()) / posStep();
+}
+
+
+pos_type Survey::SubGeometryHDimData::pos4Idx( idx_type idx ) const
+{
+    return posStart() + posStep() * idx;
+}
+
+
+void Survey::SubGeometryHDimData::setPosRange( pos_type start,
+				pos_type stop, pos_type stp )
+{
+    step_ = stp / fullposrg_->step;
+    if ( step_ < 1 )
+	{ pErrMsg("Bad pos step"); step_ = 1; }
+
+    offs_ = 0;
+    const idx_type stopidx = idx4Pos( stop );
+    offs_ = idx4Pos( start );
+
+    sz_ = stopidx - offs_ + 1;
+}
+
+
+
+Survey::SubGeometry::SubGeometry( const Geometry& geom )
+    : trcdd_(geom.trcNrRange())
 {
 }
+
+
+bool Survey::SubGeometry::operator ==( const SubGeometry& oth ) const
+{
+    return trcdd_ == oth.trcdd_;
+}
+
 
 
 Survey::SubGeometry3D::SubGeometry3D( const Geometry3D& g3d )
-    : survgeom_(&g3d)
-    , offs_(0,0)
-    , step_(1,1)
-    , sz_(g3d.inlRange().width()+1,g3d.crlRange().width()+1)
+    : SubGeometry(g3d)
+    , survgeom_(&g3d)
+    , inldd_(g3d.inlRange())
 {
 }
 
 
-Survey::SubGeometry3D::SubGeometry3D( const SubGeometry3D& oth )
+Survey::SubGeometry3D::SubGeometry3D()
+    : SubGeometry3D(*Survey::Geometry::default3D().as3D())
 {
-    survgeom_ = oth.survgeom_;
-    offs_ = oth.offs_;
-    step_ = oth.step_;
-    sz_ = oth.sz_;
 }
 
 
-Survey::SubGeometry3D& Survey::SubGeometry3D::operator =(
-						const SubGeometry3D& oth )
+bool Survey::SubGeometry3D::operator ==( const SubGeometry3D& oth ) const
 {
-    if ( this != &oth )
-    {
-	survgeom_ = oth.survgeom_;
-	offs_ = oth.offs_;
-	step_ = oth.step_;
-	sz_ = oth.sz_;
-    }
-    return *this;
+    return SubGeometry::operator ==(oth)
+	&& survgeom_ == oth.survgeom_
+	&& inldd_ == oth.inldd_;
 }
 
 
@@ -64,30 +145,51 @@ Survey::SubGeometry* Survey::SubGeometry3D::clone() const
 }
 
 
+bool Survey::SubGeometry3D::isEmpty() const
+{
+    return trcdd_.isEmpty() || inldd_.isEmpty();
+}
+
+
 bool Survey::SubGeometry3D::isFull() const
 {
-    return inlRange() == survInlRange() && crlRange() == survCrlRange();
+    return trcdd_.isFull() && inldd_.isFull();
 }
 
 
 bool Survey::SubGeometry3D::hasOffset() const
 {
-    return offs_.row() || offs_.col();
+    return trcdd_.hasOffset() || inldd_.hasOffset();
 }
 
 
 bool Survey::SubGeometry3D::isSubSpaced() const
 {
-    return step_.row()>1 || step_.col()>1;
+    return trcdd_.hasOffset() || inldd_.isSubSpaced();
 }
 
 
-bool Survey::SubGeometry3D::hasFullArea() const
+bool Survey::SubGeometry3D::hasFullRange() const
 {
-    const auto survinlrg = survInlRange();
-    const auto survcrlrg = survCrlRange();
-    return inlStart() == survinlrg.start && crlStart() == survcrlrg.start
-	&& inlStop() == survinlrg.stop   && crlStop() == survcrlrg.stop;
+    return trcdd_.hasFullRange() && inldd_.hasFullRange();
+}
+
+
+RowCol Survey::SubGeometry3D::offset() const
+{
+    return RowCol( inldd_.offset(), trcdd_.offset() );
+}
+
+
+RowCol Survey::SubGeometry3D::step() const
+{
+    return RowCol( inldd_.step(), trcdd_.step() );
+}
+
+
+RowCol Survey::SubGeometry3D::size() const
+{
+    return RowCol( inldd_.size(), trcdd_.size() );
 }
 
 
@@ -97,136 +199,97 @@ BinID Survey::SubGeometry3D::origin() const
 }
 
 
-pos_idx_type Survey::SubGeometry3D::inlStart() const
+size_type Survey::SubGeometry3D::nrRows() const
 {
-    return survgeom_->inlStart() + inlStep() * offs_.row();
+    return inldd_.size();
 }
 
 
-pos_idx_type Survey::SubGeometry3D::crlStart() const
+size_type Survey::SubGeometry3D::nrCols() const
 {
-    return survgeom_->crlStart() + crlStep() * offs_.col();
+    return trcdd_.size();
 }
 
 
-pos_idx_type Survey::SubGeometry3D::inlStep() const
+idx_type Survey::SubGeometry3D::idx4Inl( pos_type pos ) const
 {
-    return survgeom_->inlStep() * step_.row();
+    return inldd_.idx4Pos( pos );
 }
 
 
-pos_idx_type Survey::SubGeometry3D::crlStep() const
+idx_type Survey::SubGeometry3D::idx4Crl( pos_type pos ) const
 {
-    return survgeom_->crlStep() * step_.col();
+    return trcdd_.idx4Pos( pos );
 }
 
 
-pos_idx_type Survey::SubGeometry3D::inlStop() const
+pos_type Survey::SubGeometry3D::inl4Idx( idx_type idx ) const
 {
-    return inlStart() + inlStep() * (sz_.row()-1);
+    return inldd_.pos4Idx( idx );
 }
 
 
-pos_idx_type Survey::SubGeometry3D::crlStop() const
+pos_type Survey::SubGeometry3D::crl4Idx( idx_type idx ) const
 {
-    return crlStart() + crlStep() * (sz_.col()-1);
-}
-
-
-pos_idx_range_type Survey::SubGeometry3D::inlRange() const
-{
-    return pos_idx_range_type( inlStart(), inlStop(), inlStep() );
-}
-
-
-pos_idx_range_type Survey::SubGeometry3D::crlRange() const
-{
-    return pos_idx_range_type( crlStart(), crlStop(), crlStep() );
-}
-
-
-pos_idx_range_type Survey::SubGeometry3D::survInlRange() const
-{
-    return survgeom_->inlRange();
-}
-
-
-pos_idx_range_type Survey::SubGeometry3D::survCrlRange() const
-{
-    return survgeom_->crlRange();
-}
-
-
-idx_type Survey::SubGeometry3D::idx4Inl( pos_idx_type inln ) const
-{
-    return (inln - inlStart()) / inlStep();
-}
-
-
-idx_type Survey::SubGeometry3D::idx4Crl( pos_idx_type crln ) const
-{
-    return (crln - crlStart()) / crlStep();
-}
-
-
-pos_idx_type Survey::SubGeometry3D::inl4Idx( idx_type irow ) const
-{
-    return inlStart() + inlStep() * irow;
-}
-
-
-pos_idx_type Survey::SubGeometry3D::crl4Idx( idx_type icol ) const
-{
-    return crlStart() + crlStep() * icol;
+    return trcdd_.pos4Idx( idx );
 }
 
 
 RowCol Survey::SubGeometry3D::idxs4BinID( const BinID& bid ) const
 {
-    RowCol ret = bid - origin();
-    ret.row() /= inlStep();
-    ret.col() /= crlStep();
-    return ret;
+    return RowCol( idx4Inl(bid.inl()), idx4Crl(bid.crl()) );
 }
 
 
 BinID Survey::SubGeometry3D::binid4Idxs( idx_type irow, idx_type icol ) const
 {
-    return BinID( inlStart() + inlStep() * irow,
-		  crlStart() + crlStep() * icol );
+    return BinID( inl4Idx(irow), crl4Idx(icol) );
 }
 
 
 BinID Survey::SubGeometry3D::binid4Idxs( const RowCol& rc ) const
 {
-    return binid4Idxs( rc.row(), rc.col() );
+    return BinID( inl4Idx(rc.row()), crl4Idx(rc.col()) );
+}
+
+
+pos_range_type Survey::SubGeometry3D::survInlRange() const
+{
+    return survgeom_->inlRange();
+}
+
+
+pos_range_type Survey::SubGeometry3D::survCrlRange() const
+{
+    return survgeom_->crlRange();
+}
+
+
+void Survey::SubGeometry3D::setSurvGeom( const Geometry& geom )
+{
+    mDynamicCastGet( const Geometry3D*, g3d, &geom )
+    if ( !g3d )
+	{ pErrMsg("Bad geom"); }
+    else
+    {
+	survgeom_ = g3d;
+	inldd_.setFullPosRange( g3d->inlRange() );
+	trcdd_.setFullPosRange( g3d->crlRange() );
+    }
 }
 
 
 void Survey::SubGeometry3D::setRange( const BinID& start, const BinID& stop,
-				      RowCol stp )
+				      RowCol steps )
 {
-    const Survey::SubGeometry3D fullsl( *survgeom_ );
-    offs_ = fullsl.idxs4BinID( start );
-    step_ = stp;
-    const auto stoprc = idxs4BinID( stop );
-    sz_ = RowCol( stoprc.row()+1, stoprc.col()+1 );
+    setRange( start, stop, BinID(inldd_.posStep()*steps.row(),
+				 trcdd_.posStep()*steps.col()) );
 }
 
 
 void Survey::SubGeometry3D::setRange( const BinID& start, const BinID& stop,
 				      const BinID& stepbid )
 {
-    step_.row() = stepbid.inl() / survgeom_->inlStep();
-    if ( step_.row() < 1 )
-	{ pErrMsg("Bad inl step"); step_.row() = 1; }
-    step_.col() = stepbid.crl() / survgeom_->crlStep();
-    if ( step_.col() < 1 )
-	{ pErrMsg("Bad crl step"); step_.col() = 1; }
-
-    offs_ = RowCol( 0, 0 );
-    const auto stoprc = idxs4BinID( stop );
-    offs_ = idxs4BinID( start );
-
-    sz_ = RowCol( stoprc.row()-offs_.row()+1, stoprc.col()-offs_.col()+1 );
+    inldd_.setPosRange( start.inl(), stop.inl(), stepbid.inl() );
+    trcdd_.setPosRange( start.crl(), stop.crl(), stepbid.crl() );
 }

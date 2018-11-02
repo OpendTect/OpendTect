@@ -21,7 +21,9 @@ sampling_.zsamp_ = data_.zRange(); \
 sampling_.hsamp_.start_.lineNr() = sampling_.hsamp_.stop_.lineNr() = id(); \
 sampling_.hsamp_.start_.trcNr() = trcrg.start; \
 sampling_.hsamp_.stop_.trcNr() = trcrg.stop; \
-sampling_.hsamp_.step_.trcNr() = trcrg.step
+sampling_.hsamp_.step_.trcNr() = trcrg.step; \
+trcnrrg_ = sampling_.hsamp_.trcRange(); \
+zrg_ = sampling_.zsamp_
 
 Survey::Geometry2D::Geometry2D( const char* lnm )
     : data_(*new PosInfo::Line2DData(lnm))

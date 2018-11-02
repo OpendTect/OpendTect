@@ -46,9 +46,10 @@ mExpClass(Basic) Geometry : public RefCount::Referenced
 public:
 
     typedef Pos::GeomID			ID;
-    typedef Pos::IdxPair::IdxType	pos_idx_type;
+    typedef Pos::IdxPair::IdxType	pos_type;
+    typedef StepInterval<pos_type>	pos_range_type;
     typedef float			z_type;
-
+    typedef StepInterval<z_type>	z_range_type;
 
     enum RelationType	{ UnRelated=0, Related, SubSet, SuperSet, Identical };
 			/*!< 'Related' means the two geometries have the same
@@ -78,8 +79,14 @@ public:
     virtual TrcKey	getTrace(const Coord&,float maxdist) const;
     virtual TrcKey	nearestTrace(const Coord&,float* distance=0) const = 0;
 
+    //TODO get rid of TrcKey[Z]Sampling
     TrcKeyZSampling&	sampling()		{ return sampling_; }
     const TrcKeyZSampling& sampling() const	{ return sampling_; }
+
+    pos_range_type&	trcNrRange()		{ return trcnrrg_; }
+    const pos_range_type& trcNrRange() const	{ return trcnrrg_; }
+    z_range_type&	zRange()		{ return zrg_; }
+    const z_range_type& zRange() const		{ return zrg_; }
 
     virtual float	averageTrcDist() const			= 0;
 
@@ -95,6 +102,8 @@ protected:
 			Geometry();
 
     TrcKeyZSampling	sampling_;
+    pos_range_type	trcnrrg_;
+    z_range_type	zrg_;
 
 private:
 

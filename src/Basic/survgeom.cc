@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "task.h"
 
-
 static Pos::GeomID cSIGeomID = -99;
 static Pos::GeomID cSyntheticSurveyID = -100;
 
@@ -37,7 +36,10 @@ const Survey::GeometryManager& Survey::GM()
 Survey::Geometry::Geometry()
     : id_(mUdfGeomID)
     , sampling_(false)
-{}
+{
+    trcnrrg_ = sampling_.hsamp_.trcRange();
+    zrg_ = sampling_.zsamp_;
+}
 
 
 Survey::Geometry::~Geometry()
@@ -574,6 +576,7 @@ Survey::Geometry3D::Geometry3D()
     : zdomain_( ZDomain::SI() )
 {
     sampling_.hsamp_.survid_ = id();
+    inlrg_ = sampling_.hsamp_.lineRange();
 }
 
 
@@ -582,76 +585,35 @@ Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
     , zdomain_( zd )
 {
     sampling_.hsamp_.survid_ = id();
+    inlrg_ = sampling_.hsamp_.lineRange();
 }
-
-
-int Survey::Geometry3D::inlStart() const
-{ return sampling_.hsamp_.start_.inl(); }
-
-
-int Survey::Geometry3D::crlStart() const
-{ return sampling_.hsamp_.start_.crl(); }
-
-
-int Survey::Geometry3D::inlStop() const
-{ return sampling_.hsamp_.stop_.inl(); }
-
-
-int Survey::Geometry3D::crlStop() const
-{ return sampling_.hsamp_.stop_.crl(); }
-
-
-int Survey::Geometry3D::inlStep() const
-{ return sampling_.hsamp_.step_.inl(); }
-
-
-int Survey::Geometry3D::crlStep() const
-{ return sampling_.hsamp_.step_.crl(); }
-
-
-StepInterval<int> Survey::Geometry3D::inlRange() const
-{ return sampling_.hsamp_.inlRange(); }
-
-
-StepInterval<int> Survey::Geometry3D::crlRange() const
-{ return sampling_.hsamp_.crlRange(); }
-
-
-Survey::Geometry3D::z_type Survey::Geometry3D::zStart() const
-{ return sampling_.zsamp_.start; }
-
-
-Survey::Geometry3D::z_type Survey::Geometry3D::zStop() const
-{ return sampling_.zsamp_.stop; }
-
-
-Survey::Geometry3D::z_type Survey::Geometry3D::zStep() const
-{ return sampling_.zsamp_.step; }
-
-
-StepInterval<Survey::Geometry3D::z_type> Survey::Geometry3D::zRange() const
-{ return sampling_.zsamp_; }
 
 
 static void doSnap( int& idx, int start, int step, int dir )
 {
-    if ( step < 2 ) return;
+    if ( step < 2 )
+	return;
     int rel = idx - start;
     int rest = rel % step;
-    if ( !rest ) return;
+    if ( !rest )
+	return;
 
     idx -= rest;
 
-    if ( !dir ) dir = rest > step / 2 ? 1 : -1;
-    if ( rel > 0 && dir > 0 )	   idx += step;
-    else if ( rel < 0 && dir < 0 ) idx -= step;
+    if ( !dir )
+	dir = rest > step / 2 ? 1 : -1;
+    if ( rel > 0 && dir > 0 )
+	idx += step;
+    else if ( rel < 0 && dir < 0 )
+	idx -= step;
 }
 
 
 void Survey::Geometry3D::snap( BinID& binid, const BinID& rounding ) const
 {
-    const BinID& stp = sampling_.hsamp_.step_;
-    if ( stp.inl() == 1 && stp.crl() == 1 ) return;
+    const BinID stp = sampling_.hsamp_.step_;
+    if ( stp.inl() == 1 && stp.crl() == 1 )
+	return;
     doSnap( binid.inl(), sampling_.hsamp_.start_.inl(), stp.inl(),
 	    rounding.inl() );
     doSnap( binid.crl(), sampling_.hsamp_.start_.crl(), stp.crl(),
@@ -659,27 +621,30 @@ void Survey::Geometry3D::snap( BinID& binid, const BinID& rounding ) const
 }
 
 #define mSnapStep(ic) \
-rest = s.ic % stp.ic; \
-if ( rest ) \
-{ \
-int hstep = stp.ic / 2; \
-bool upw = rounding.ic > 0 || (rounding.ic == 0 && rest > hstep); \
-s.ic -= rest; \
-if ( upw ) s.ic += stp.ic; \
-}
+    rest = s.ic % stp.ic; \
+    if ( rest ) \
+    { \
+	int hstep = stp.ic / 2; \
+	bool upw = rounding.ic > 0 || (rounding.ic == 0 && rest > hstep); \
+	s.ic -= rest; \
+	if ( upw ) s.ic += stp.ic; \
+    }
 
 void Survey::Geometry3D::snapStep( BinID& s, const BinID& rounding ) const
 {
-    const BinID& stp = sampling_.hsamp_.step_;
-    if ( s.inl() < 0 ) s.inl() = -s.inl();
-    if ( s.crl() < 0 ) s.crl() = -s.crl();
-    if ( s.inl() < stp.inl() ) s.inl() = stp.inl();
-    if ( s.crl() < stp.crl() ) s.crl() = stp.crl();
+    const BinID stp = sampling_.hsamp_.step_;
+    if ( s.inl() < 0 )
+	s.inl() = -s.inl();
+    if ( s.crl() < 0 )
+	s.crl() = -s.crl();
+    if ( s.inl() < stp.inl() )
+	s.inl() = stp.inl();
+    if ( s.crl() < stp.crl() )
+	s.crl() = stp.crl();
     if ( s == stp || (stp.inl() == 1 && stp.crl() == 1) )
 	return;
 
     int rest;
-
 
     mSnapStep(inl())
     mSnapStep(crl())
@@ -688,7 +653,7 @@ void Survey::Geometry3D::snapStep( BinID& s, const BinID& rounding ) const
 
 void Survey::Geometry3D::snapZ( z_type& z, int dir ) const
 {
-    const StepInterval<z_type>& zrg = sampling_.zsamp_;
+    const StepInterval<z_type> zrg = sampling_.zsamp_;
     const z_type eps = 1e-8;
 
     if ( z < zrg.start + eps )
@@ -729,6 +694,8 @@ void Survey::Geometry3D::getMapInfo( const IOPar& iop )
     iop.get( sKey::StepCrl(), sampling_.hsamp_.step_.crl() );
     iop.get( sKey::LastInl(), sampling_.hsamp_.stop_.inl() );
     iop.get( sKey::LastCrl(), sampling_.hsamp_.stop_.crl() );
+    trcnrrg_ = sampling_.hsamp_.trcRange();
+    inlrg_ = sampling_.hsamp_.lineRange();
 }
 
 
@@ -738,6 +705,9 @@ void Survey::Geometry3D::setGeomData( const Pos::IdxPair2Coord& b2c,
     b2c_ = b2c;
     sampling_ = cs;
     zscale_ = zscl;
+    trcnrrg_ = sampling_.hsamp_.trcRange();
+    inlrg_ = sampling_.hsamp_.lineRange();
+    zrg_ = sampling_.zsamp_;
 }
 
 
@@ -746,9 +716,7 @@ Coord3 Survey::Geometry3D::oneStepTranslation( const Coord3& planenormal ) const
     Coord3 translation( 0, 0, 0 );
 
     if ( fabs(planenormal.z_) > 0.5 )
-    {
-	translation.z_ = zStep();
-    }
+	translation.z_ = zrg_.step;
     else
     {
 	Coord norm2d = Coord(planenormal.x_,planenormal.y_);

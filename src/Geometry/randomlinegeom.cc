@@ -312,8 +312,10 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 	BinID start = knots[idx-1];
 	BinID stop = knots[idx];
 	if ( start == stop ) continue;
-	const int nrinl = int(abs(stop.inl()-start.inl()) / geom->inlStep() +1);
-	const int nrcrl = int(abs(stop.crl()-start.crl()) / geom->crlStep() +1);
+	const int nrinl = std::abs( (stop.inl()-start.inl())
+				      / geom->inlRange().step + 1);
+	const int nrcrl = std::abs( (stop.crl()-start.crl())
+				      / geom->crlRange().step + 1);
 	bool inlwise = nrinl > nrcrl;
 	int nrlines = inlwise ? nrinl : nrcrl;
 	const char fastdim = inlwise ? 0 : 1;

@@ -308,7 +308,7 @@ bool FaultDisplay::setEMObjectID( const DBKey& emid )
 	explicitpanels_->setTextureSampling(
 		BinIDValue( BinID(s3dgeom_->inlRange().step,
 				  s3dgeom_->crlRange().step),
-				  s3dgeom_->zStep() ) );
+				  s3dgeom_->zRange().step ) );
 
 	mTryAlloc( explicitsticks_,Geometry::ExplFaultStickSurface(0,zscale) );
 	explicitsticks_->setSceneIdx( mSceneIdx );
@@ -317,7 +317,7 @@ bool FaultDisplay::setEMObjectID( const DBKey& emid )
 	explicitsticks_->setTextureSampling(
 		BinIDValue( BinID(s3dgeom_->inlRange().step,
 				  s3dgeom_->crlRange().step),
-				  s3dgeom_->zStep() ) );
+				  s3dgeom_->zRange().step ) );
 
 	mTryAlloc( explicitintersections_, Geometry::ExplPlaneIntersection );
     }

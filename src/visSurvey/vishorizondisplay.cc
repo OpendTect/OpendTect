@@ -1630,7 +1630,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 
 float HorizonDisplay::maxDist() const
 {
-    return s3dgeom_->zStep();
+    return s3dgeom_->zRange().step;
 }
 
 

@@ -31,8 +31,7 @@ mExpClass(Basic) Geometry3D : public Survey::Geometry
 {
 public:
 
-    typedef pos_idx_type		idx_type;
-    typedef StepInterval<pos_idx_type>	pos_idx_range_type;
+    typedef pos_type	idx_type;
 
 			Geometry3D();
 			Geometry3D(const char* nm,const ZDomain::Def& zd );
@@ -48,25 +47,16 @@ public:
 
     virtual RelationType compare(const Geometry&,bool usezrg) const;
 
-    pos_idx_type	inlStart() const;
-    pos_idx_type	crlStart() const;
-    pos_idx_type	inlStop() const;
-    pos_idx_type	crlStop() const;
-    pos_idx_type	inlStep() const;
-    pos_idx_type	crlStep() const;
-    pos_idx_range_type	inlRange() const;
-    pos_idx_range_type	crlRange() const;
+    pos_range_type&	inlRange()		{ return inlrg_; }
+    const pos_range_type& inlRange() const	{ return inlrg_; }
+    pos_range_type&	crlRange()		{ return trcNrRange(); }
+    const pos_range_type& crlRange() const	{ return trcNrRange(); }
 
-    z_type		zStart() const;
-    z_type		zStop() const;
-    z_type		zStep() const;
-    StepInterval<z_type> zRange() const;
-
-    inline idx_type	idx4Inl(pos_idx_type) const;
-    inline idx_type	idx4Crl(pos_idx_type) const;
+    inline idx_type	idx4Inl(pos_type) const;
+    inline idx_type	idx4Crl(pos_type) const;
     inline idx_type	idx4Z(z_type) const;
-    inline pos_idx_type	inl4Idx(idx_type) const;
-    inline pos_idx_type	crl4Idx(idx_type) const;
+    inline pos_type	inl4Idx(idx_type) const;
+    inline pos_type	crl4Idx(idx_type) const;
     inline z_type	z4Idx(int) const;
 
     BinID	nearestTracePosition(const Coord&,float* distance) const;
@@ -111,19 +101,20 @@ protected:
     Pos::IdxPair2Coord	b2c_;
     ZDomain::Def	zdomain_;
     z_type		zscale_;
+    pos_range_type	inlrg_;
 
 };
 
 
-inline Geometry3D::idx_type Geometry3D::idx4Inl( pos_idx_type inl ) const
+inline Geometry3D::idx_type Geometry3D::idx4Inl( pos_type inl ) const
 { return sampling_.hsamp_.lineIdx( inl ); }
-inline Geometry3D::idx_type Geometry3D::idx4Crl( pos_idx_type crl ) const
+inline Geometry3D::idx_type Geometry3D::idx4Crl( pos_type crl ) const
 { return sampling_.hsamp_.trcIdx( crl ); }
 inline Geometry3D::idx_type Geometry3D::idx4Z( z_type z ) const
 { return sampling_.zsamp_.nearestIndex( z ); }
-inline Geometry3D::pos_idx_type Geometry3D::inl4Idx( idx_type idx ) const
+inline Geometry3D::pos_type Geometry3D::inl4Idx( idx_type idx ) const
 { return sampling_.hsamp_.lineID( idx ); }
-inline Geometry3D::pos_idx_type Geometry3D::crl4Idx( idx_type idx ) const
+inline Geometry3D::pos_type Geometry3D::crl4Idx( idx_type idx ) const
 { return sampling_.hsamp_.traceID( idx ); }
 inline Geometry3D::z_type Geometry3D::z4Idx( idx_type idx ) const
 { return sampling_.zsamp_.atIndex( idx ); }
