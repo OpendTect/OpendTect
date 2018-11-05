@@ -15,6 +15,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2d.h"
 
 
+Survey::Geometry2D::Geometry2D()
+    : data_(*new PosInfo::Line2DData)
+    , trcdist_(mUdf(float))
+    , linelength_(mUdf(float))
+{
+    sampling_.set2DDef();
+    sampling_.hsamp_.survid_ = TrcKey::std2DSurvID();
+}
+
+
 #define mSetSampling \
 const StepInterval<Pos::TraceID> trcrg = data_.trcNrRange(); \
 sampling_.zsamp_ = data_.zRange(); \

@@ -6,6 +6,7 @@
 
 
 #include "survsubgeom.h"
+#include "survgeom2d.h"
 #include "survgeom3d.h"
 #include "survinfo.h"
 
@@ -13,6 +14,8 @@ typedef Survey::SubGeometryHDimData::pos_type	pos_type;
 typedef Survey::SubGeometryHDimData::idx_type		idx_type;
 typedef Survey::SubGeometryHDimData::size_type		size_type;
 typedef Survey::SubGeometryHDimData::pos_range_type	pos_range_type;
+
+Survey::Geometry2D* Survey::SubGeometry2D::dummygeom_ = 0;
 
 
 Survey::SubGeometryHDimData::SubGeometryHDimData( const pos_range_type& rg )
@@ -110,10 +113,88 @@ bool Survey::SubGeometry::operator ==( const SubGeometry& oth ) const
 }
 
 
+Survey::SubGeometry2D::SubGeometry2D( Pos::GeomID gid )
+    : SubGeometry(getGeom(gid))
+{
+}
+
+
+Survey::SubGeometry2D::SubGeometry2D( const Geometry2D& g2d )
+    : SubGeometry(g2d)
+    , geom_(&g2d)
+{
+}
+
+
+bool Survey::SubGeometry2D::operator ==( const SubGeometry2D& oth ) const
+{
+    return SubGeometry::operator ==(oth)
+	&& geom_ == oth.geom_;
+}
+
+
+const Survey::Geometry* Survey::SubGeometry2D::surveyGeometry() const
+{
+    return geom_;
+}
+
+
+Survey::SubGeometry2D* Survey::SubGeometry2D::clone() const
+{
+    return new SubGeometry2D( *this );
+}
+
+
+const Survey::Geometry2D& Survey::SubGeometry2D::getGeom( GeomID gid )
+{
+    const Geometry* geom = GM().getGeometry( gid );
+    mDynamicCastGet( const Geometry2D*, g2d, geom )
+    if ( !g2d )
+    {
+	if ( !dummygeom_ )
+	    dummygeom_ = new Geometry2D;
+	g2d = dummygeom_;
+    }
+    return *g2d;
+}
+
+
+bool Survey::SubGeometry2D::isValid() const
+{
+    return geom_ != dummygeom_;
+}
+
+
+void Survey::SubGeometry2D::setRange( trcnr_type start, trcnr_type stop )
+{
+    trcdd_.setPosRange( start, stop, trcdd_.fullPosRange().step );
+}
+
+
+void Survey::SubGeometry2D::setRange( trcnr_type start, trcnr_type stop,
+				      trcnr_type stepnr )
+{
+    trcdd_.setPosRange( start, stop, stepnr );
+}
+
+
+void Survey::SubGeometry2D::setSurvGeom( const Geometry& geom )
+{
+    mDynamicCastGet( const Geometry2D*, g2d, &geom )
+    if ( !g2d )
+	{ pErrMsg("Bad geom"); }
+    else
+    {
+	geom_ = g2d;
+	trcdd_.setFullPosRange( g2d->trcNrRange() );
+    }
+}
+
+
 
 Survey::SubGeometry3D::SubGeometry3D( const Geometry3D& g3d )
     : SubGeometry(g3d)
-    , survgeom_(&g3d)
+    , geom_(&g3d)
     , inldd_(g3d.inlRange())
 {
 }
@@ -128,14 +209,14 @@ Survey::SubGeometry3D::SubGeometry3D()
 bool Survey::SubGeometry3D::operator ==( const SubGeometry3D& oth ) const
 {
     return SubGeometry::operator ==(oth)
-	&& survgeom_ == oth.survgeom_
+	&& geom_ == oth.geom_
 	&& inldd_ == oth.inldd_;
 }
 
 
 const Survey::Geometry* Survey::SubGeometry3D::surveyGeometry() const
 {
-    return survgeom_;
+    return geom_;
 }
 
 
@@ -255,7 +336,7 @@ Coord Survey::SubGeometry3D::coord4Idxs( const RowCol& rc ) const
 
 Coord Survey::SubGeometry3D::coord4BinID( const BinID& bid ) const
 {
-    return survgeom_->toCoord( bid.inl(), bid.crl() );
+    return geom_->toCoord( bid.inl(), bid.crl() );
 }
 
 
@@ -267,19 +348,19 @@ RowCol Survey::SubGeometry3D::nearestIdxs( const Coord& crd ) const
 
 BinID Survey::SubGeometry3D::nearestBinID( const Coord& crd ) const
 {
-    return survgeom_->nearestTracePosition( crd, 0 );
+    return geom_->nearestTracePosition( crd, 0 );
 }
 
 
 pos_range_type Survey::SubGeometry3D::survInlRange() const
 {
-    return survgeom_->inlRange();
+    return geom_->inlRange();
 }
 
 
 pos_range_type Survey::SubGeometry3D::survCrlRange() const
 {
-    return survgeom_->crlRange();
+    return geom_->crlRange();
 }
 
 
@@ -290,7 +371,7 @@ void Survey::SubGeometry3D::setSurvGeom( const Geometry& geom )
 	{ pErrMsg("Bad geom"); }
     else
     {
-	survgeom_ = g3d;
+	geom_ = g3d;
 	inldd_.setFullPosRange( g3d->inlRange() );
 	trcdd_.setFullPosRange( g3d->crlRange() );
     }

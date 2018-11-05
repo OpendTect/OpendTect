@@ -9,14 +9,45 @@
 #include "survsubgeom.h"
 #include "od_istream.h"
 #include "oddirs.h"
+#include "survgeom.h"
+#define private public
+#include "survinfo.h"
 
 
 #include "testprog.h"
 
-#define private public
-#include "survinfo.h"
 
-static bool testSubGeom()
+static bool testSubGeom2D()
+{
+    if ( Survey::GM().nrGeometries() < 1 )
+	return true;
+
+    /*
+    Survey::SubGeometry2D subgeom( Survey::GM().getGeometryByIdx(0)->id() );
+    if ( !subgeom.isValid() )
+	return true;
+
+    const auto rg = subgeom.lineTrcNrRange();
+    const auto step = rg.step * 5;
+    const auto start = rg.start + 3 * step;
+    const auto delta = 14;
+    const auto stop = rg.start + delta * step;
+    subgeom.setRange( start, stop, step );
+
+    mRunStandardTest( subgeom.trcNrStart()==start, "Subgeom2D start" );
+    const auto nrtrcs = (stop-start)/step + 1;
+    mRunStandardTest( subgeom.nrTrcs()==nrtrcs, "Subgeom2D nr rows" );
+
+    const auto trcnr = start + 5*step;
+    const auto arridx = subgeom.idx4TrcNr( trcnr );
+    const auto backtransftrcnr( subgeom.trcNr4Idx(arridx) );
+    mRunStandardTest( backtransftrcnr==trcnr, "Subgeom2D tranforms" );
+    */
+
+    return true;
+}
+
+static bool testSubGeom3D()
 {
     Survey::SubGeometry3D subgeom;
     const auto inlrg = SI().inlRange(false);
@@ -27,16 +58,16 @@ static bool testSubGeom()
     const BinID stop( start+delta );
     subgeom.setRange( start, stop, step );
 
-    mRunStandardTest( subgeom.origin()==start, "Subgeom origin" );
+    mRunStandardTest( subgeom.origin()==start, "Subgeom3D origin" );
     const auto nrrows = (stop.inl()-start.inl())/step.inl() + 1;
-    mRunStandardTest( subgeom.nrRows()==nrrows, "Subgeom nr rows" );
+    mRunStandardTest( subgeom.nrRows()==nrrows, "Subgeom3D nr rows" );
     const auto nrcols = (stop.crl()-start.crl())/step.crl() + 1;
-    mRunStandardTest( subgeom.nrCols()==nrcols, "Subgeom nr cols" );
+    mRunStandardTest( subgeom.nrCols()==nrcols, "Subgeom3D nr cols" );
 
     const BinID bid( inlrg.start + 5*step.inl(), crlrg.start + 7*step.crl() );
     const RowCol arridxs( subgeom.idxs4BinID(bid) );
     const BinID backtransfbid( subgeom.binid4Idxs(arridxs) );
-    mRunStandardTest( backtransfbid==bid, "Subgeom tranforms" );
+    mRunStandardTest( backtransfbid==bid, "Subgeom3D tranforms" );
 
     return true;
 }
@@ -62,7 +93,9 @@ int mTestMainFnName( int argc, char** argv )
     const SurveyDiskLocation survloc( survnm );
     SurveyInfo::setSurveyLocation( survloc, false );
 
-    if ( !testSubGeom() )
+    if ( !testSubGeom3D() )
+	return 1;
+    if ( SI().has2D() && !testSubGeom2D() )
 	return 1;
 
     return 0;

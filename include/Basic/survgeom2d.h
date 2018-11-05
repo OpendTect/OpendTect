@@ -21,6 +21,9 @@ namespace PosInfo { class Line2DData; }
 namespace Survey
 {
 
+class SubGeometry2D;
+
+
 /*!\brief Geometry of a 2D Line. */
 
 mExpClass(Basic) Geometry2D : public Geometry
@@ -59,11 +62,11 @@ public:
     void			setLineLength(float);
     virtual RelationType	compare(const Geometry&,bool usezrg) const;
 
-    Geometry2D*			as2D()			{ return this; }
     static ID			getIDFrom(const DBKey&);
 
-private:
+protected:
 
+				Geometry2D();
 				~Geometry2D();
 
     PosInfo::Line2DData&	data_;
@@ -71,6 +74,11 @@ private:
     mutable float		trcdist_;
     mutable float		linelength_;
     mutable Threads::Lock	lock_;
+
+    virtual Geometry2D*		gtAs2D() const
+				{ return const_cast<Geometry2D*>(this); }
+
+    friend class		SubGeometry2D;
 
 };
 

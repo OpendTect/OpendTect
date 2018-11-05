@@ -97,23 +97,22 @@ public:
     virtual float	averageTrcDist() const			= 0;
 
     // Convenience functions
-    virtual Geometry2D*	as2D()			{ return 0; }
-    const Geometry2D*	as2D() const;
-
-    virtual Geometry3D*	as3D()			{ return 0; }
-    const Geometry3D*	as3D() const;
+    Geometry2D*		as2D()			{ return gtAs2D(); }
+    const Geometry2D*	as2D() const		{ return gtAs2D(); }
+    Geometry3D*		as3D()			{ return gtAs3D(); }
+    const Geometry3D*	as3D() const		{ return gtAs3D(); }
 
 protected:
 			~Geometry();
 			Geometry();
 
+    ID			id_;
     TrcKeyZSampling	sampling_;
     pos_range_type	trcnrrg_;
     z_range_type	zrg_;
 
-private:
-
-    ID			id_;
+    virtual Geometry2D*	gtAs2D() const		{ return 0; }
+    virtual Geometry3D*	gtAs3D() const		{ return 0; }
 
 public:
 
@@ -198,11 +197,11 @@ public:
 
     Geometry*			getGeometry(ID);
     bool			write(Geometry&,uiString&);
-    ID		addNewEntry(Geometry*,uiString&);
+    ID				addNewEntry(Geometry*,uiString&);
 				/*! Returns new GeomID. */
     bool			removeGeometry(ID);
 
-    ID		getGeomID(const char* lsm,
+    ID				getGeomID(const char* lsm,
 					  const char* linenm) const;
 				/*!< Use only if you are converting
 				    od4 geometries to od5 geometries */

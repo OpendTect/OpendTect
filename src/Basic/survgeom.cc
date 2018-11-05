@@ -94,13 +94,6 @@ Pos::SurvID Survey::Geometry::getSurvID() const
 }
 
 
-const Survey::Geometry2D* Survey::Geometry::as2D() const
-{
-    return const_cast<Geometry*>( this )->as2D();
-}
-
-
-
 #define mGetConstGeom(varnm,geomid) \
     ConstRefMan<Geometry> varnm = GM().getGeometry( geomid );
 
@@ -563,12 +556,6 @@ BinID Survey::Geometry3D::transform( const Coord& c ) const
 Coord Survey::Geometry3D::transform( const BinID& b ) const
 {
     return b2c_.transform( b );
-}
-
-
-const Survey::Geometry3D* Survey::Geometry::as3D() const
-{
-    return const_cast<Geometry*>( this )->as3D();
 }
 
 

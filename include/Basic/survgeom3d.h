@@ -99,6 +99,9 @@ protected:
     z_type		zscale_;
     pos_range_type	inlrg_;
 
+    virtual Geometry3D*	gtAs3D() const
+			{ return const_cast<Geometry3D*>(this); }
+
 };
 
 
