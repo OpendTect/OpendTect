@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "file.h"
 #include "filepath.h"
+#include "gmtpar.h"
 #include "math2.h"
 #include "iopar.h"
 #include "oddirs.h"
@@ -52,13 +53,17 @@ uiString GMTArray2DInterpol::message() const
 }
 
 
+#define mInitGMTComm( bufnm, s ) \
+    bufnm = "@"; GMTPar::addWrapperComm( bufnm ); bufnm.add( s )
+
 bool GMTArray2DInterpol::doPrepare( int nrthreads )
 {
     mTryAlloc( nodes_, bool[nrcells_] );
     getNodesToFill( 0, nodes_, SilentTaskRunnerProvider() );
     defundefpath_ =
 	File::Path(GetDataDir(),"Misc","defundefinfo.grd").fullPath();
-    BufferString gmtcmd( "@xyz2grd" );
+    BufferString gmtcmd;
+    mInitGMTComm( gmtcmd, "xyz2grd" );
     gmtcmd.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 )
 			 .add( " -G").add( defundefpath_ ).add( " -I1" );
     sdmask_ = StreamProvider( gmtcmd ).makeOStream();
@@ -113,7 +118,8 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
     BufferString path( path_ );
     path_ = File::Path( GetDataDir() ).add( "Misc" )
 				    .add( "result.grd" ).fullPath();
-    BufferString cmd( "@grdmath " );
+    BufferString cmd;
+    mInitGMTComm( cmd, "grdmath " );
     cmd.add( path ).add( " " ).add( defundefpath_ )
        .add( " OR = " ).add( path_ );
     if ( !OS::ExecCommand(cmd) )
@@ -128,7 +134,8 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 
 bool GMTArray2DInterpol::doFinish( bool success )
 {
-    BufferString cmd = "@grd2xyz ";
+    BufferString cmd;
+    mInitGMTComm( cmd, "grd2xyz " );
     cmd.add( path_ );
 
     sd_ = StreamProvider( cmd ).makeIStream( true, false );
@@ -236,7 +243,7 @@ bool GMTSurfaceGrid::mkCommand( BufferString& cmd )
 
     path_ =
 	File::Path( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
-    cmd = "@surface -I1 ";
+    mInitGMTComm( cmd, "surface -I1 " );
     cmd.add( "-T" ).add( tension_ )
        .add( " -G" ).add( path_ )
        .add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 );
@@ -301,7 +308,7 @@ bool GMTNearNeighborGrid::mkCommand( BufferString& cmd )
 
     path_ =
 	File::Path( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
-    cmd = "@nearneighbor -I1 ";
+    mInitGMTComm( cmd, "nearneighbor -I1 " );
     cmd.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 )
        .add( " -S" ).add( radius_ )
        .add( " -N4/2" )
