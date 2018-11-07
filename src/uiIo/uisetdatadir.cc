@@ -184,6 +184,9 @@ void uiSetDataDir::rootMoveUpCB( CallBacker* )
 {
     uiListBox* lb = drlistfld.getParam( this );
     const int curitm = lb->currentItem();
+    if ( curitm==0 )
+	return;
+
     BufferStringSet* dirs = drlist.getParam( this );
     dirs->swap( curitm, curitm-1 );
     updateListFld();
@@ -195,6 +198,9 @@ void uiSetDataDir::rootMoveDownCB( CallBacker* )
     uiListBox* lb = drlistfld.getParam( this );
     const int curitm = lb->currentItem();
     BufferStringSet* dirs = drlist.getParam( this );
+    if ( curitm == dirs->size()-1 )
+	return;
+
     dirs->swap( curitm, curitm+1 );
     updateListFld();
 }
