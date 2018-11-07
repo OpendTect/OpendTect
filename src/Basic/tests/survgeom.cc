@@ -90,8 +90,8 @@ int mTestMainFnName( int argc, char** argv )
     if ( survnm.isEmpty() )
 	mErrRet( "Last survey file is empty" );
 
-    const SurveyDiskLocation survloc( survnm );
-    SurveyInfo::setSurveyLocation( survloc, false );
+    /*const SurveyDiskLocation survloc( survnm );
+    SurveyInfo::setSurveyLocation( survloc, false );*/
 
     if ( !testSubGeom3D() )
 	return 1;
