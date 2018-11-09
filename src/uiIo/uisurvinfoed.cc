@@ -558,7 +558,7 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 
     chgSetMode(0);
     ic1fld_->setReadOnly( true, 0, 0 );
-    
+
     sipCB(0);
 }
 
@@ -820,6 +820,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     si_.setZUnit( zistime, zinfeet );
     pars.setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
     si_.setXYInFeet( xyinfeet );
+    xyunitlbl_->setText( getCoordString(xyInFeet()) );
 
     float srd = 0.f;
     if ( sip->getSRD(srd) && !mIsUdf(srd) )
