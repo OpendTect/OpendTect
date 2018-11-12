@@ -4,8 +4,7 @@
 # (C) dGB Beheer B.V.
 # OpenTect environment initialisation script 
 #_______________________________________________________________________________
-
-if ( $HDIR != lux ) then
+if ( ${binsubdir} != lux64 ) then
     exit 0
 endif
 
@@ -21,12 +20,38 @@ else if ( -d /usr/X11R6/lib ) then
    set nvglxlibdir=/usr/X11R6/lib
 endif
 
-if ( ${binsubdir} == "lux64" ) then
-    set libglcount=`/sbin/ldconfig -p | grep libGL.so | grep x86-64 | grep -v "libGL.so\." | /usr/bin/wc -l`
-else
-    set libglcount=`/sbin/ldconfig -p | grep libGL.so | grep -v "libGL.so\." | /usr/bin/wc -l`
-endif
+set glliblist=`/sbin/ldconfig -p | grep libGL.so | grep x86-64`
 
+#creating an empty list
+set gllist = ( )
+foreach file ( ${glliblist} )
+    if ( $file =~ *'/'* ) then
+	if ( -e $file && -l $file ) then
+	    #"Getting target file name if file is link"
+	    set glfilenm = `readlink -f $file`
+	else if ( -e $file ) then
+	    set glfilenm=$file
+	endif
+
+	set duplicate=no
+	foreach glfile ( ${gllist} )
+	    if ( $glfile =~ $glfilenm )  then
+		set duplicate=yes
+	    endif
+	end
+
+	if ( $duplicate == no ) then
+	    set gllist = ( $gllist "$glfilenm" )
+	endif
+    endif
+end
+
+@ libglcount = 0
+foreach glfile ( ${gllist} )
+    @ libglcount++
+end
+
+echo "libglcount $libglcount"
 if ( ${libglcount} == "0" ) then
     echo "No OpenGL library found. Cannot start OpendTect."
     exec /bin/false
