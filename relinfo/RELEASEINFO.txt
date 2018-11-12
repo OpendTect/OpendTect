@@ -1,4 +1,4 @@
-Opendtect 6.0 release info
+Opendtect 6.4 release info
 
 Build platforms/distributions:
 
