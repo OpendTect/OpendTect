@@ -33,7 +33,7 @@ void EnumDefImpl<TrcKeyZSampling::Dir>::init()
 
 
 TrcKeySampling::TrcKeySampling()
-    : survid_( mUdf(int) )
+    : survid_( TrcKey::cUndefSurvID() )
 {
     init( true );
 }
@@ -46,6 +46,7 @@ TrcKeySampling::TrcKeySampling( const TrcKeySampling& tks )
 
 
 TrcKeySampling::TrcKeySampling( Pos::GeomID gid )
+    : survid_( TrcKey::cUndefSurvID() )
 {
     init( gid );
 }
@@ -61,7 +62,7 @@ TrcKeySampling::TrcKeySampling( const TrcKey& tk )
 
 
 TrcKeySampling::TrcKeySampling( bool settosi )
-    : survid_( mUdf(int) )
+    : survid_( TrcKey::cUndefSurvID() )
 {
     init( settosi );
 }
@@ -76,8 +77,8 @@ bool TrcKeySampling::init( Pos::GeomID gid )
     if ( !geom )
 	return false;
 
-    (*this) = geom->sampling().hsamp_;
     survid_ = geom->getSurvID();
+    (*this) = geom->sampling().hsamp_;
 
     return true;
 }
@@ -91,7 +92,7 @@ void TrcKeySampling::init( bool tosi )
     }
     else
     {
-	survid_ = mUdf(int);
+	survid_ = TrcKey::cUndefSurvID();
 	start_.lineNr() = start_.trcNr() = stop_.lineNr() =
 		stop_.trcNr() = mUdf(int);
 	step_.lineNr() = step_.trcNr() = 1;
@@ -951,6 +952,7 @@ void TrcKeyZSampling::set2DDef()
 
 void TrcKeyZSampling::init( bool tosi )
 {
+    hsamp_.init( tosi );
     if ( tosi )
 	zsamp_ = SI().zRange(false);
     else

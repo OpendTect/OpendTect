@@ -1249,8 +1249,7 @@ Survey::Geometry3D& SurveyInfo::gt3DGeom( bool work ) const
 	if ( !sgeom )
 	{
 	    auto* newsgeom = new Geometry3D( name(), zdef_ );
-	    if ( work )
-		newsgeom->setID( Survey::GM().default3DSurvID() );
+	    newsgeom->setID( Survey::GM().default3DSurvID() );
 	    newsgeom->setGeomData( b2c_, mSampling(work), mZScale() );
 	    SurveyInfo& self = *const_cast<SurveyInfo*>( this );
 	    if ( work )
