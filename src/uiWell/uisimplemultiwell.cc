@@ -102,7 +102,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 	velfld_->attach( rightBorder );
     }
 
-    tbl_->setPrefWidth( 750 );
+    tbl_->setPrefWidth( 600 );
 }
 
 
