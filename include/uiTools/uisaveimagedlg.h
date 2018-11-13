@@ -25,9 +25,6 @@ class uiLabeledSpinBox;
 mExpClass(uiTools) uiSaveImageDlg : public uiDialog
 { mODTextTranslationClass(uiSaveImageDlg);
 public:
-			uiSaveImageDlg(uiParent*,bool withclipbrd = true,
-				       bool withuseparsfld = true);
-
     Notifier<uiSaveImageDlg>	sizesChanged;
 
     void		sPixels2Inch(const Geom::Size2D<float>&,
@@ -46,6 +43,8 @@ public:
     BufferString	getExtension() const;
 
 protected:
+			uiSaveImageDlg(uiParent*,bool withclipbrd=true,
+				       bool withuseparsfld=true);
 
     void		setDirName(const char*);
 
