@@ -34,26 +34,14 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
     createGeomInpFlds( cliboardselfld_ );
     inpfilefld_->attach( alignedBelow, dpifld_ );
 
-    PtrMan<IOPar> ctiopar;
-    getSettingsPar( ctiopar, BufferString("2D") );
-    if ( ctiopar )
-    {
-	if ( !usePar(*ctiopar) )
-	{
-	    useparsfld_->setValue( false );
-	    setFldVals( 0 );
-	    updateSizes();
-	}
-    }
-    else
-    {
-	useparsfld_->setValue( false );
-	setFldVals( 0 );
-    }
+    setFldVals( 0 );
+    updateSizes();
 
     postFinalise().notify( mCB(this,uiGraphicsSaveImageDlg,setAspectRatio) );
     updateFilter();
     unitChg(0);
+
+    NotifyStopper ns( lockfld_->activated );
     lockfld_->setChecked( true );
     lockfld_->setSensitive( false );
 }
@@ -101,7 +89,7 @@ void uiGraphicsSaveImageDlg::writeToSettings()
 }
 
 
-void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
+void uiGraphicsSaveImageDlg::setFldVals( CallBacker* )
 {
     if ( useparsfld_->getBoolValue() )
     {

@@ -263,19 +263,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     inpfilefld_->attach( alignedBelow, dpifld_ );
 
     sceneSel(0);
-    PtrMan<IOPar> ctiopar;
-    getSettingsPar( ctiopar, BufferString("3D") );
-
-    if ( ctiopar.ptr() )
-    {
-	if ( !usePar(*ctiopar) )
-	    useparsfld_->setValue( false );
-    }
-    else
-    {
-	useparsfld_->setValue( false );
-	setFldVals( 0 );
-    }
+    setFldVals( 0 );
 
     updateFilter();
     setSaveButtonChecked( prevbuttonstate );

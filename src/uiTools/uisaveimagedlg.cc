@@ -139,7 +139,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     if ( withuseparsfld_ )
     {
 	useparsfld_ = new uiGenInput( this, tr("Get size from"),
-		BoolInpSpec(true,uiStrings::sSettings(),tr("Screen")) );
+		BoolInpSpec(false,uiStrings::sSettings(),tr("Screen")) );
 	useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
 	if ( fldabove ) useparsfld_->attach( alignedBelow, fldabove );
     }
@@ -187,9 +187,8 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     lockfld_->activated.notify( mCB(this,uiSaveImageDlg,lockChg) );
     lockfld_->attach( alignedBelow, unitfld_ );
 
-    dpifld_ = new uiLabeledSpinBox( this, tr("Resolution (dpi)"),
-				    (int)screendpi_ );
-    dpifld_->box()->setNrDecimals( 0 );
+    dpifld_ = new uiLabeledSpinBox( this, tr("Resolution (dpi)") );
+    dpifld_->box()->setValue( (int)screendpi_ );
     dpifld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );
     dpifld_->attach( alignedBelow, widthfld_ );
 
