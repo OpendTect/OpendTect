@@ -31,10 +31,10 @@ void EnumDefImpl<TrcKeyZSampling::Dir>::init()
  }
 
 TrcKeySampling::TrcKeySampling()
-    : start( start_ )
+    : survid_( TrcKey::cUndefSurvID() )
+    , start( start_ )
     , stop( stop_ )
     , step( step_ )
-    , survid_( mUdf(int) )
 { init( true ); }
 
 
@@ -48,17 +48,18 @@ TrcKeySampling::TrcKeySampling( const TrcKeySampling& tks )
 
 
 TrcKeySampling::TrcKeySampling( Pos::GeomID gid )
-    : start( start_ )
+    : survid_( TrcKey::cUndefSurvID() )
+    , start( start_ )
     , stop( stop_ )
     , step( step_ )
 { init( gid ); }
 
 
 TrcKeySampling::TrcKeySampling( bool settosi )
-    : start( start_ )
+    : survid_( TrcKey::cUndefSurvID() )
+    , start( start_ )
     , stop( stop_ )
     , step( step_ )
-    , survid_( mUdf(int) )
 { init( settosi ); }
 
 mStopAllowDeprecatedSection
@@ -72,8 +73,8 @@ bool TrcKeySampling::init( Pos::GeomID gid )
     if ( !geom )
 	return false;
 
-    (*this) = geom->sampling().hsamp_;
     survid_ = geom->getSurvID();
+    (*this) = geom->sampling().hsamp_;
 
     return true;
 }
@@ -87,7 +88,7 @@ void TrcKeySampling::init( bool tosi )
     }
     else
     {
-	survid_ = mUdf(int);
+	survid_ = TrcKey::cUndefSurvID();
 	start_.lineNr() = start_.trcNr() = stop_.lineNr() =
 		stop_.trcNr() = mUdf(int);
 	step_.lineNr() = step_.trcNr() = 1;
