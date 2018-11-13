@@ -473,11 +473,11 @@ void doMenu()
 {
     uiMenu* mnu = new uiMenu( parent(), uiStrings::sAction() );
     mnu->insertAction( new uiAction(tr("Re-scale now"),
-		        mCB(this,uiManipMapper,reScaleReqCB)), 0 );
+			mCB(this,uiManipMapper,reScaleReqCB)), 0 );
     mnu->insertAction( new uiAction(m3Dots(tr("Full Edit")),
-		        mCB(this,uiManipMapper,setupDlgReqCB)), 1 );
+			mCB(this,uiManipMapper,setupDlgReqCB)), 1 );
     mnu->insertAction( new uiAction(m3Dots(uiStrings::sSettings()),
-		        mCB(this,uiManipMapper,doSettings)), 1 );
+			mCB(this,uiManipMapper,doSettings)), 2 );
     seltool_.mapperMenuReq.trigger( mnu );
     mnu->exec();
 }
