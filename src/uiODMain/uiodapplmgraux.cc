@@ -622,10 +622,6 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
 
 void uiODApplMgrDispatcher::setupBatchHosts()
 {
-#ifndef __win__
     uiBatchHostsDlg dlg( par_ );
     dlg.go();
-#else
-    executeWinProg( "od_BatchHosts.exe", "",GetExecPlfDir() );
-#endif
 }
