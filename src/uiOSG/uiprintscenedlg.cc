@@ -73,7 +73,7 @@ bool ui3DViewer2Image::create()
     const float renderDPI = dpi_;
     const bool changedpi = scenesDPI != renderDPI;
     if ( changedpi )
-        vwr_.setScenesPixelDensity( renderDPI );
+	vwr_.setScenesPixelDensity( renderDPI );
 
     osgViewer::View* mainview =
 	const_cast<osgViewer::View*>( vwr_.getOsgViewerMainView() );
@@ -91,7 +91,7 @@ bool ui3DViewer2Image::create()
 	mainview,BACKGROUND_TRANSPARENCY );
 
     if ( changedpi )
-        vwr_.setScenesPixelDensity( scenesDPI );
+	vwr_.setScenesPixelDensity( scenesDPI );
 
     const int validresult = validateImages( mainviewimage, hudimage );
 
@@ -264,19 +264,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
     sceneSel(0);
-    PtrMan<IOPar> ctiopar;
-    getSettingsPar( ctiopar, BufferString("3D") );
-
-    if ( ctiopar.ptr() )
-    {
-	if ( !usePar(*ctiopar) )
-	    useparsfld_->setValue( false );
-    }
-    else
-    {
-	useparsfld_->setValue( false );
-	setFldVals( 0 );
-    }
+    setFldVals( 0 );
 
     updateFilter();
     setSaveButtonChecked( prevbuttonstate );
@@ -373,7 +361,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     const bool changedpi = scenesDPI != renderDPI;
 
     if ( changedpi )
-        vwr->setScenesPixelDensity( renderDPI );
+	vwr->setScenesPixelDensity( renderDPI );
 
     osgViewer::View* mainview =
 	const_cast<osgViewer::View*>( vwr->getOsgViewerMainView() );
@@ -391,7 +379,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 	mainview,BACKGROUND_TRANSPARENCY );
 
     if ( changedpi )
-        vwr->setScenesPixelDensity( scenesDPI );
+	vwr->setScenesPixelDensity( scenesDPI );
 
     const int validresult = validateImages( mainviewimage, hudimage );
 
