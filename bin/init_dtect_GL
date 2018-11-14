@@ -51,7 +51,6 @@ foreach glfile ( ${gllist} )
     @ libglcount++
 end
 
-echo "libglcount $libglcount"
 if ( ${libglcount} == "0" ) then
     echo "No OpenGL library found. Cannot start OpendTect."
     exec /bin/false
