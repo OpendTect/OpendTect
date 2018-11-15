@@ -41,7 +41,11 @@ void BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
 		       const Geom::Point2D<int>& offs, bool clear )
 {
     if ( clear )
-	array_.clear( Color::White() );
+    {
+	Color col = Color::White();
+	col.setTransparency( 255 );
+	array_.clear( col );
+    }
 
     if ( vd && app_.ddpars_.vd_.show_ )
 	drawVD( *vd, offs );
