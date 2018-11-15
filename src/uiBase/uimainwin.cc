@@ -475,7 +475,11 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
 {
     QWidget* parentwidget = getParentWidget( parentWidget() );
     if ( !parentwidget )
-	return;
+    {
+	uiMainWin* toplevel = uiMain::theMain().topLevel();
+	if ( toplevel )
+	    parentwidget = toplevel->qWidget();
+    }
 
     QDesktopWidget qdw;
     const QRect screenrect = qdw.availableGeometry( parentwidget );
@@ -497,8 +501,6 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
 	    getPosForParentMiddle( xpos, ypos ); move( xpos, ypos ); break;
 	case uiMainWin::Auto :
 	    getPosForScreenMiddle( xpos, ypos ); move( xpos, ypos ); break;
-	default:
-	    break;
     }
 }
 
@@ -1716,8 +1718,18 @@ int uiDialogBody::exec( bool showminimized )
 	setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed) );
 
     move( handle_.getPopupArea() );
-    go( showminimized );
 
+    QWidget* parentwidget = getParentWidget( parentWidget() );
+    const bool parentisalwaysontop = parentwidget &&
+	parentwidget->windowFlags() & Qt::WindowStaysOnTopHint;
+    if ( parentisalwaysontop )
+    {
+	Qt::WindowFlags flags = windowFlags();
+	flags |= Qt::WindowStaysOnTopHint;
+	setWindowFlags( flags );
+    }
+
+    go( showminimized );
     return uiResult();
 }
 
