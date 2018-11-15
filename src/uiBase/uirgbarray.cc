@@ -95,13 +95,11 @@ bool uiRGBArray::set( int i0, int i1, const Color& c )
     if ( qimg_->width()<=i0 || qimg_->height()<=i1 )
 	return false;
 
+    const QColor qcol( c.r(), c.g(), c.b(), 255-c.t() );
     if ( withalpha_ )
-    {
-	const Color newcol( c.r(), c.g(), c.b(), 255-c.t() );
-	qimg_->setPixel( i0, i1, (QRgb)newcol.rgb() );
-    }
+	qimg_->setPixel( i0, i1, qcol.rgba() );
     else
-	qimg_->setPixel( i0, i1, (QRgb)c.rgb() );
+	qimg_->setPixel( i0, i1, qcol.rgb() );
 
     return true;
 }
@@ -109,10 +107,11 @@ bool uiRGBArray::set( int i0, int i1, const Color& c )
 
 void uiRGBArray::clear( const Color& c )
 {
-    QColor col( (QRgb)c.rgb() );
-    QColormap cmap = QColormap::instance();
-    uint pixel = cmap.pixel( col );
-    qimg_->fill( pixel );
+    const QColor qcol( c.r(), c.g(), c.b(), 255-c.t() );
+    if ( withalpha_ )
+	qimg_->fill( qcol.rgba() );
+    else
+	qimg_->fill( qcol.rgb() );
 }
 
 
