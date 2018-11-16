@@ -46,7 +46,7 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
 {
     fileinpfld = new uiFileInput(this, uiStrings::sFileName());
     fileinpfld->setFilter( isattrset_ ? "AttributeSet files (*.attr)" \
-                                      : "Job specifications (*.par)" );
+				      : "Job specifications (*.par)" );
 
     fileinpfld->setDefaultSelectionDir( isattrset_ ? GetBaseDataDir()
 						   : GetProcFileName(0) );
@@ -58,6 +58,7 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
 				mCB(this,uiGetFileForAttrSet,srchDir), false );
 	but->attach( rightOf, fileinpfld );
     }
+
     infofld = new uiTextEdit( this, "Attribute info", true );
     infofld->attach( ensureBelow, fileinpfld );
     infofld->attach( widthSameAs, fileinpfld );
@@ -98,8 +99,8 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
     const int nrgood = attrset_.nrDescs( false, false );
 
     BufferString txt( nrgood == 1 ? "Attribute: "
-                        : (nrgood ? "Attributes:\n"
-                                  : "No valid attributes present" ) );
+			: (nrgood ? "Attributes:\n"
+				  : "No valid attributes present" ) );
 
     int nrdone = 0;
     const int totalnrdescs = attrset_.size();
@@ -163,26 +164,37 @@ uiImpAttrSet::uiImpAttrSet( uiParent* p )
     : uiDialog(p,Setup(tr("Import Attribute Set"),mNoDlgTitle,
 		       mODHelpKey(mImpAttrSetHelpID)).modal(false))
 {
-    setOkCancelText( uiStrings::sImport(), uiStrings::sCancel() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     if ( sImportDir.isEmpty() )
 	sImportDir = GetDataDir();
 
-    const char* fltr = "Attribute Sets (*.attr)";
-    fileinpfld_ = new uiFileInput( this, uiStrings::phrSelect(
-		      mJoinUiStrs(sInput(),sFile())), uiFileInput::Setup().
-		      defseldir(sImportDir).forread(true).filter(fltr) );
+    const char* fltr = "OpendTect Attribute Sets (*.attr)";
+    fileinpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
+		uiFileInput::Setup().defseldir(sImportDir).forread(true)
+				    .filter(fltr).withexamine(true) );
+    mAttachCB( fileinpfld_->valuechanged, uiImpAttrSet::inpChgd );
 
     IOObjContext ctxt = mIOObjContext(AttribDescSet);
     ctxt.forread_ = false;
-    attrsetfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrOutput(
-							 tr("Attribute Set")) );
+    uiIOObjSel::Setup objsu(uiStrings::phrOutput(uiStrings::sAttributeSet()));
+    objsu.withwriteopts(false);
+    attrsetfld_ = new uiIOObjSel( this, ctxt, objsu );
     attrsetfld_->attach( alignedBelow, fileinpfld_ );
 }
 
 
 uiImpAttrSet::~uiImpAttrSet()
-{}
+{
+    detachAllNotifiers();
+}
+
+
+void uiImpAttrSet::inpChgd( CallBacker* )
+{
+    sImportDir = fileinpfld_->pathOnly();
+    attrsetfld_->setInputText( fileinpfld_->baseName() );
+}
 
 
 bool uiImpAttrSet::acceptOK( CallBacker* )

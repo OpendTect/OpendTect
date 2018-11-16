@@ -21,7 +21,7 @@ class uiFileInput;
 namespace Attrib { class DescSet; }
 
 /*!
-\brief 
+\brief
 */
 
 mExpClass(uiAttributes) uiGetFileForAttrSet : public uiDialog
@@ -59,6 +59,7 @@ public:
 			~uiImpAttrSet();
 
 protected:
+    void		inpChgd(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     uiFileInput*	fileinpfld_;
