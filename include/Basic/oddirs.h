@@ -111,7 +111,7 @@ mGlobal(Basic) const char* GetShellScript(const char*);
 
 mGlobal(Basic) const char* GetPythonScript(const char*);
 /*!< Returns full path to script, pass null to get the directory
-  (def=GetScriptDir()/odpy). */
+  (def=GetScriptDir()/python/odpy). */
 
 mGlobal(Basic) const char* GetLibPlfDir(void);
 /*!< Platform dependent library directory

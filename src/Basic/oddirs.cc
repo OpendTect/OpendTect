@@ -389,7 +389,7 @@ mExternC(Basic) const char* GetShellScript( const char* nm )
 mExternC(Basic) const char* GetPythonScript( const char* nm )
 {
     mDeclStaticString( res );
-    File::Path fp( GetScriptDir(), "odpy" );
+    File::Path fp( GetScriptDir(), "python", "odpy" );
     if ( nm && *nm )
 	fp.add( nm );
     res = fp.fullPath();
