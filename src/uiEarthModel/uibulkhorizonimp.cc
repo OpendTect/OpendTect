@@ -91,15 +91,15 @@ uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
 			    .modal(false))
     , fd_(BulkHorizonAscIO::getDesc())
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    inpfld_ = new uiFileInput( this, 
+    inpfld_ = new uiFileInput( this,
 		      uiStrings::sInputASCIIFile(),
 		      uiFileInput::Setup().withexamine(true)
 		      .examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
-                                    mODHelpKey(mTableImpDataSelwellsHelpID) );
+				mODHelpKey(mTableImpDataSelwellsHelpID) );
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 
