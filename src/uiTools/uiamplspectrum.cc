@@ -73,6 +73,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     valfld_ = new uiGenInput(dispparamgrp_, lbl, FloatInpIntervalSpec());
     valfld_->attach( alignedBelow, rangefld_ );
     valfld_->display( false );
+    valfld_->setNrDecimals( 2 );
 
     normfld_ = new uiCheckBox( dispparamgrp_, uiStrings::sNormalise() );
     normfld_->attach( rightOf, valfld_ );
@@ -235,7 +236,7 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 
     const int freqsz = freqdomainsum_->getSize(0) / 2;
     delete specvals_;
-    specvals_ = new Array1DImpl<float>( fftsz );
+    specvals_ = new Array1DImpl<float>( freqsz );
     maxspecval_ = 0.f;
     for ( int idx=0; idx<freqsz; idx++ )
     {
@@ -267,7 +268,7 @@ void uiAmplSpectrum::putDispData( CallBacker* cb )
 	dbspecvals.set( idx, val );
     }
 
-    float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ );
+    const float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ );
     posrange_.set( 0, maxfreq );
     rangefld_->setValue( posrange_ );
     stepfld_->box()->setInterval( posrange_.start, posrange_.stop,
@@ -293,13 +294,20 @@ void uiAmplSpectrum::dispRangeChgd( CallBacker* )
 {
     StepInterval<float> rg = rangefld_->getFInterval();
     rg.step = stepfld_->box()->getFValue();
-    if ( posrange_.start > rg.start || posrange_.stop < rg.stop
-	    || rg.stop <=0 || rg.start >= rg.stop )
+    if ( mIsZero(rg.step,mDefEpsF) || rg.step<0 )
+	rg.step = ( rg.stop - rg.start )/5;
+
+    const float dstart = rg.start - posrange_.start;
+    const float dstop = rg.stop - posrange_.stop;
+    const bool startok = mIsZero(dstart,1e-5) || dstart > 0;
+    const bool stopok = mIsZero(dstop,1e-5) || dstop < 0;
+    if ( !startok || !stopok || rg.isRev() )
     {
-	rg.start = posrange_.start; rg.stop = posrange_.stop;
-        rg.step = ( rg.stop - rg.start )/5;
+	rg = posrange_;
+	rg.step = ( rg.stop - rg.start )/5;
 	rangefld_->setValue( posrange_ );
     }
+
     disp_->xAxis()->setRange( rg );
     disp_->draw();
 }
@@ -334,23 +342,24 @@ void uiAmplSpectrum::valChgd( CallBacker* )
     if ( !specvals_ ) return;
 
     const Geom::Point2D<int>& pos = disp_->getMouseEventHandler().event().pos();
-    Interval<float> rg( disp_->xAxis()->getVal( pos.x_ ),
-			disp_->yAxis(false)->getVal( pos.y_ ) );
-    const bool disp = disp_->xAxis()->range().includes(rg.start,true) &&
-		      disp_->yAxis(false)->range().includes(rg.stop,true);
+    const float xpos = disp_->xAxis()->getVal( pos.x_ );
+    const float ypos = disp_->yAxis(false)->getVal( pos.y_ );
+    const bool disp = disp_->xAxis()->range().includes(xpos,true) &&
+		      disp_->yAxis(false)->range().includes(ypos,true);
     valfld_->display( disp );
     if ( !disp )
 	return;
 
-    const float ratio = (rg.start-posrange_.start)/posrange_.width();
+    const float ratio = (xpos-posrange_.start)/posrange_.width();
     const float specsize = mCast( float, specvals_->getSize(0) );
     const int specidx = mNINT32( ratio * specsize );
     const TypeSet<float>& specvals = disp_->yVals();
     if ( !specvals.validIdx(specidx) )
 	return;
 
-    rg.stop = specvals[specidx];
-    valfld_->setValue( rg );
+    const float yval = specvals[specidx];
+    valfld_->setValue( xpos, 0 );
+    valfld_->setValue( yval, 1 );
 }
 
 
