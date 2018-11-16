@@ -47,7 +47,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 				 mNoDlgTitle, mODHelpKey(mImpRokDocPDFHelpID))
 			   .modal(false))
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiFileInput( this,
 	    uiStrings::sInputASCIIFile(),
@@ -62,12 +62,12 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 
     uiGroup* grp = new uiGroup( this, "Output PDF sampling" );
     xrgfld_ = new uiGenInput( grp, tr("Output var1 range"),
-                              FloatInpIntervalSpec());
+			      FloatInpIntervalSpec());
     xnrbinfld_ = new uiGenInput( grp, tr("Nr of Bins"), IntInpSpec(10,1) );
     xnrbinfld_->setElemSzPol( uiObject::Small );
     xnrbinfld_->attach( rightOf, xrgfld_ );
     yrgfld_ = new uiGenInput( grp, tr("Output var2 range"),
-                              FloatInpIntervalSpec());
+			      FloatInpIntervalSpec());
     ynrbinfld_ = new uiGenInput( grp, tr("Nr of Bins"), IntInpSpec(10,1) );
     ynrbinfld_->setElemSzPol( uiObject::Small );
     yrgfld_->attach( alignedBelow, xrgfld_ );
@@ -82,7 +82,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     ioobjctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ioobjctxt );
     outputfld_->setLabelText(
-                    uiStrings::phrOutput( uiStrings::sProbDensFunc(true,1)) );
+		    uiStrings::phrOutput( uiStrings::sProbDensFunc(true,1)) );
     outputfld_->attach( alignedBelow, grp );
 
     setDisplayedFields( false, false );
@@ -468,11 +468,11 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 
 uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
 : uiDialog(p,uiDialog::Setup(uiStrings::phrExport(
-           uiStrings::sProbDensFunc(false,1) ),
+	   uiStrings::sProbDensFunc(false,1) ),
 	   mNoDlgTitle, mODHelpKey(mExpRokDocPDFHelpID) )
 				 .modal(false))
 {
-    setOkText( uiStrings::sExport() );
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread_ = true;
@@ -611,6 +611,6 @@ bool uiExpRokDocPDF::acceptOK( CallBacker* )
     { uiMSG().error(exp.errmsg_); return false; }
 
     uiMSG().message( uiStrings::phrSuccessfullyExported(
-                                        uiStrings::sProbDensFunc(false,1) ) );
+					uiStrings::sProbDensFunc(false,1) ) );
     return false;
 }

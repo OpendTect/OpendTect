@@ -38,15 +38,15 @@ namespace Vel
 
 uiImportVelFunc::uiImportVelFunc( uiParent* p )
     : uiDialog( p,uiDialog::Setup(tr("Import Velocity Function"),
-				  mNoDlgTitle, 
+				  mNoDlgTitle,
 				  mODHelpKey(mImportVelFuncHelpID) )
 			    .modal(false))
     , ctio_( *new CtxtIOObj( StoredFunctionSource::ioContext() ) )
     , fd_( *FunctionAscIO::getDesc() )
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(), 
+    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
 			       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
@@ -60,8 +60,8 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, typefld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
-                                        mODHelpKey(mImportVelFuncParsHelpID) );
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
+					mODHelpKey(mImportVelFuncParsHelpID) );
     dataselfld_->attach( alignedBelow, typefld_ );
     dataselfld_->attach( ensureBelow, sep );
 
@@ -128,7 +128,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 	success = TaskRunner::execute( &taskrunner, velascio );
     }
     else
-        success = velascio.execute();
+	success = velascio.execute();
 
 
     if ( !success )

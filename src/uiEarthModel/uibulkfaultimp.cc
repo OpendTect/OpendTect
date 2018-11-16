@@ -147,7 +147,7 @@ uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type, bool is2d )
 
 void uiBulkFaultImport::init()
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiFileInput( this,
 		      uiStrings::sInputASCIIFile(),
