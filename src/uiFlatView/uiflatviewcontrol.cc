@@ -24,12 +24,16 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
     , viewerAdded(this)
     , zoomChanged(this)
     , rubberBandUsed(this)
+    , initdone_(false)
 {
     addViewer( vwr );
     if ( vwr.attachObj()->parent() )
 	mAttachCB( vwr.attachObj()->parent()->postFinalise(),
 			uiFlatViewControl::onFinalise );
     mAttachCB( viewerAdded, uiFlatViewControl::vwrAdded );
+
+    // Hack to set correct zoom level at start-up.
+    mAttachCB( vwr.rgbCanvas().reSize, uiFlatViewControl::initZoom );
 }
 
 
@@ -89,16 +93,23 @@ TypeSet<uiWorldRect> uiFlatViewControl::getBoundingBoxes() const
 }
 
 
+void uiFlatViewControl::initZoom( CallBacker* )
+{
+    if ( initdone_ )
+	return;
+
+    initdone_ = true;
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	setViewToCustomZoomLevel( *vwrs_[idx] );
+}
+
+
 void uiFlatViewControl::onFinalise( CallBacker* )
 {
     const bool canreuse = !zoommgr_.atStart() &&
 			   canReUseZoomSettings(*vwrs_[0]);
     if ( !canreuse )
-    {
 	zoommgr_.init( getBoundingBoxes() );
-	for ( int idx=0; idx<vwrs_.size(); idx++ )
-	    setViewToCustomZoomLevel( *vwrs_[idx] );
-    }
 
     finalPrepare();
 }
@@ -255,18 +266,23 @@ void uiFlatViewControl::propDlgClosed( CallBacker* )
 }
 
 
-void uiFlatViewControl::applyProperties( CallBacker* cb )
+void uiFlatViewControl::applyProperties( CallBacker* )
 {
     if ( !propdlg_ ) return;
 
-    mDynamicCastGet( uiFlatViewer*, vwr, &propdlg_->viewer() );
+    mDynamicCastGet(uiFlatViewer*,vwr,&propdlg_->viewer());
     if ( !vwr ) return;
+
+    const bool updateonresize = vwr->updatesBitmapsOnResize();
+    vwr->updateBitmapsOnResize( true );
 
     const int selannot = propdlg_->selectedAnnot();
     vwr->setAnnotChoice( selannot );
     vwr->handleChange( FlatView::Viewer::Annot |
 	    	       FlatView::Viewer::DisplayPars );
     vwr->dispPropChanged.trigger();
+
+    vwr->updateBitmapsOnResize( updateonresize );
 }
 
 

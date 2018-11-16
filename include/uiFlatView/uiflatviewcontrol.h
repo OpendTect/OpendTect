@@ -84,6 +84,7 @@ protected:
     FlatView::ZoomMgr	zoommgr_;
     bool		haverubber_;
     IOPar		infopars_;
+    bool		initdone_;
 
     uiFlatViewPropDlg*  propdlg_;
 
@@ -111,5 +112,7 @@ protected:
     virtual void	propDlgClosed(CallBacker*);
     virtual void	applyProperties(CallBacker* cb);
     virtual void	saveProperties(FlatView::Viewer&);
+
+    void		initZoom(CallBacker*);
 
 };

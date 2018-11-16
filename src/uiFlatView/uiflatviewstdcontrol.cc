@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "settings.h"
+#include "survinfo.h"
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
@@ -55,12 +56,17 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
     , x2fld_(0)
     , zoomChanged(this)
 {
-    x1fld_ = new uiGenInput( this, tr("Traces per cm"), FloatInpSpec() );
-    x1fld_->setValue( x1pospercm_ );
+    const bool usesi = !SI().xyInFeet();
+    unitfld_ = new uiGenInput( this, uiStrings::sUnit(),
+			BoolInpSpec(usesi,tr("cm"),tr("inches")) );
+    unitfld_->valuechanged.notify( mCB(this,uiFlatViewZoomLevelDlg,unitChgCB) );
+
+    x1fld_ = new uiGenInput( this, uiString::empty(), FloatInpSpec() );
+    x1fld_->attach( alignedBelow, unitfld_ );
+
     if ( isvertical )
     {
-	x2fld_ = new uiGenInput( this, tr("Z Samples per cm"), FloatInpSpec() );
-	x2fld_->setValue( x2pospercm_ );
+	x2fld_ = new uiGenInput( this, uiString::empty(), FloatInpSpec() );
 	x2fld_->attach( alignedBelow, x1fld_ );
     }
 
@@ -70,6 +76,17 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
     CallBack cb( mCB( this, uiFlatViewZoomLevelDlg, applyPushedCB ) );
     applybut_ = uiButton::getStd( this, OD::Apply, cb, true );
     applybut_->attach( rightOf, saveglobalfld_ );
+
+    unitChgCB(0);
+    postFinalise().notify( mCB(this,uiFlatViewZoomLevelDlg,finalizeDoneCB) );
+}
+
+
+void uiFlatViewZoomLevelDlg::finalizeDoneCB(CallBacker*)
+{
+    x1fld_->setNrDecimals( 2 );
+    if ( x2fld_ )
+	x2fld_->setNrDecimals( 2 );
 }
 
 
@@ -81,10 +98,27 @@ void uiFlatViewZoomLevelDlg::applyPushedCB( CallBacker* )
 }
 
 
+void uiFlatViewZoomLevelDlg::unitChgCB( CallBacker* )
+{
+    const bool incm = unitfld_->getBoolValue();
+    const float fact = incm ? 1.f : 2.54f;
+
+    x1fld_->setValue( x1pospercm_*fact );
+    x1fld_->setTitleText( tr("Traces per %1").arg(incm?"cm":"inch") );
+    if ( x2fld_ )
+    {
+	x2fld_->setValue( x2pospercm_*fact );
+	x2fld_->setTitleText( tr("Z Samples per %1").arg(incm?"cm":"inch") );
+    }
+}
+
+
 bool uiFlatViewZoomLevelDlg::acceptOK()
 {
-    x1pospercm_ = x1fld_->getFValue();
-    x2pospercm_ = x2fld_ ? x2fld_->getFValue() : x1pospercm_;
+    const bool incm = unitfld_->getBoolValue();
+    const float fact = incm ? 1.f : 2.54f;
+    x1pospercm_ = x1fld_->getFValue() / fact;
+    x2pospercm_ = x2fld_ ? x2fld_->getFValue()/fact : x1pospercm_;
     if ( saveglobalfld_->isChecked() )
 	uiFlatViewStdControl::setGlobalZoomLevel(
 		x1pospercm_, x2pospercm_, x2fld_ );
@@ -92,6 +126,7 @@ bool uiFlatViewZoomLevelDlg::acceptOK()
 }
 
 
+// uiFlatViewStdControl
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
     : uiFlatViewControl(vwr,setup.parent_,setup.withrubber_)
@@ -505,20 +540,22 @@ float uiFlatViewStdControl::getCurrentPosPerCM( bool forx1 ) const
 void uiFlatViewStdControl::setGlobalZoomLevel(
 		float x1pospercm, float x2pospercm, bool isvertical )
 {
-    Settings::common().set( sKeyVW2DTrcsPerCM(), x1pospercm );
+    IOPar sipars = SI().getDefaultPars();
+    sipars.set( sKeyVW2DTrcsPerCM(), x1pospercm );
     if ( isvertical )
-	Settings::common().set( sKeyVW2DZPerCM(), x2pospercm );
+	sipars.set( sKeyVW2DZPerCM(), x2pospercm );
 
-    mSettWrite();
+    SI().saveDefaultPars();
 }
 
 
 void uiFlatViewStdControl::getGlobalZoomLevel(
 		float& x1pospercm, float& x2pospercm, bool isvertical )
 {
-    Settings::common().get( sKeyVW2DTrcsPerCM(), x1pospercm );
+    const IOPar sipars = SI().getDefaultPars();
+    sipars.get( sKeyVW2DTrcsPerCM(), x1pospercm );
     if ( isvertical )
-	Settings::common().get( sKeyVW2DZPerCM(), x2pospercm );
+	sipars.get( sKeyVW2DZPerCM(), x2pospercm );
     else
 	x2pospercm = x1pospercm;
 }
@@ -544,20 +581,27 @@ void uiFlatViewStdControl::setViewToCustomZoomLevel( uiFlatViewer& vwr )
 	return;
     }
 
-    const uiRect viewrect = vwr.getViewRect( false );
+    updateZoomLevel( x1pospercm, x2pospercm );
+}
+
+
+void uiFlatViewStdControl::updateZoomLevel( float x1pospercm, float x2pospercm )
+{
+    const uiRect viewrect = vwr_.getViewRect( false );
     const int screendpi = uiMain::getDPI();
     const float cmwidth = ((float)viewrect.width()/screendpi) * sInchToCMFac;
     const float cmheight = ((float)viewrect.height()/screendpi) * sInchToCMFac;
-    const double hwdth = vwr.posRange(true).step * cmwidth * x1pospercm / 2;
-    const double hhght = vwr.posRange(false).step * cmheight * x2pospercm / 2;
+    const double hwdth = vwr_.posRange(true).step * cmwidth * x1pospercm / 2;
+    const double hhght = vwr_.posRange(false).step * cmheight * x2pospercm / 2;
 
-    const uiWorldRect bb = vwr.boundingBox();
-    uiWorldPoint wp(!ispoppedup? setup_.initialcentre_:vwr.curView().centre());
+    const bool ispoppedup = vwr_.rgbCanvas().mainwin()->poppedUp();
+    const uiWorldRect bb = vwr_.boundingBox();
+    uiWorldPoint wp(!ispoppedup? setup_.initialcentre_:vwr_.curView().centre());
     if ( wp == uiWorldPoint::udf() ) wp = bb.centre();
 
     const uiWorldRect wr( wp.x_-hwdth, wp.y_-hhght, wp.x_+hwdth, wp.y_+hhght );
-    vwr.setBoundingRect( uiWorld2Ui(viewrect,wr).transform(bb) );
-    vwr.setView( getZoomOrPanRect(wp,wr.size(),wr,bb) );
+    vwr_.setBoundingRect( uiWorld2Ui(viewrect,wr).transform(bb) );
+    vwr_.setView( getZoomOrPanRect(wp,wr.size(),wr,bb) );
     updateZoomManager();
 }
 
@@ -649,8 +693,17 @@ void uiFlatViewStdControl::viewScaleBarCB( CallBacker* )
     const bool doshowscalebar = scalebarbut_->isOn();
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	vwrs_[idx]->appearance().annot_.showscalebar_ = doshowscalebar;
-	vwrs_[idx]->handleChange( FlatView::Viewer::Annot );
+	uiFlatViewer& vwr = *vwrs_[idx];
+	const bool updateonresize = vwr.updatesBitmapsOnResize();
+	vwr.updateBitmapsOnResize( true );
+	const float x1pospercm = getCurrentPosPerCM( true );
+	const float x2pospercm = getCurrentPosPerCM( false );
+
+	vwr.appearance().annot_.showscalebar_ = doshowscalebar;
+	vwr.handleChange( FlatView::Viewer::Annot );
+
+	vwr.updateBitmapsOnResize( updateonresize );
+	updateZoomLevel( x1pospercm, x2pospercm );
     }
 }
 

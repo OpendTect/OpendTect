@@ -26,7 +26,7 @@ class uiToolBar;
 mExpClass(uiFlatView) uiFlatViewZoomLevelDlg : public uiDialog
 { mODTextTranslationClass(uiFlatViewZoomLevelDlg)
 public:
-    			uiFlatViewZoomLevelDlg(uiParent*,float& x1pospercm,
+			uiFlatViewZoomLevelDlg(uiParent*,float& x1pospercm,
 					float& x2pospercm,bool isvertical);
     Notifier<uiFlatViewZoomLevelDlg> zoomChanged;
     void		getPosPerCm(float& x1,float& x2)
@@ -37,14 +37,16 @@ protected:
     float&		x1pospercm_;
     float&		x2pospercm_;
 
+    uiGenInput*		unitfld_;
     uiGenInput*		x1fld_;
     uiGenInput*		x2fld_;
     uiCheckBox*		saveglobalfld_;
 
     uiButton*		applybut_;
 
+    void		finalizeDoneCB(CallBacker*);
+    void		unitChgCB(CallBacker*);
     void		applyPushedCB(CallBacker*);
-
     bool		acceptOK();
 };
 
@@ -76,7 +78,7 @@ public:
 			    , initialx1pospercm_(mUdf(float))
 			    , initialx2pospercm_(mUdf(float))
 			    , initialcentre_(uiWorldPoint::udf())
-                            , tba_(-1)	{}
+			    , tba_(-1)	{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
 	mDefSetupMemb(bool,withcoltabed)
@@ -107,9 +109,9 @@ public:
     float		getCurrentPosPerCM(bool forx1) const;
 
     static void		setGlobalZoomLevel(float x1pospercm, float x2pospercm,
-	    				   bool isvertical);
+					   bool isvertical);
     static void		getGlobalZoomLevel(float& x1pospercm, float& x2pospercm,
-	    				   bool isvertical);
+					   bool isvertical);
     bool		isEditModeOn() const;
     bool		isRubberBandOn() const;
     NotifierAccess*	editPushed();
@@ -145,6 +147,7 @@ protected:
     virtual void	finalPrepare();
     void		clearToolBar();
     void		updatePosButtonStates();
+    void		updateZoomLevel(float x1pospercm,float x2pospercm);
     void		doZoom(bool zoomin,bool onlyvertzoom,uiFlatViewer&);
     void		setViewToCustomZoomLevel(uiFlatViewer&);
     void		setVwrCursor(uiFlatViewer&,const MouseCursor&);
