@@ -99,10 +99,12 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     downbut_ = new uiToolButton( buttons, uiToolButton::DownArrow,
 			uiStrings::sMoveDown(),
 			mCB(this,uiBatchHostsDlg,moveDownCB) );
-    new uiToolButton( buttons, "checkgreen", tr("Test Hosts"),
+    uiToolButton* testbut = new uiToolButton( buttons, "checkgreen",
+			tr("Test Hosts"),
 			mCB(this,uiBatchHostsDlg,testHostsCB) );
     buttons->attach( rightTo, table_ );
     buttons->setChildrenSensitive( writeallowed );
+    testbut->setSensitive( true );
 
     fillTable();
 }
@@ -242,6 +244,8 @@ void uiBatchHostsDlg::fillTable()
 
     const int nrhosts = hostdatalist_.size();
     table_->setNrRows( nrhosts );
+    if ( nrhosts<4 )
+	table_->setPrefHeightInRows( 4 );
 
     for ( int idx=0; idx<nrhosts; idx++ )
     {
