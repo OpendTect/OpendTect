@@ -1697,6 +1697,10 @@ uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
     , initchildrendone_(false)
 {
     setContentsMargins( 10, 2, 10, 2 );
+
+    Qt::WindowFlags flags = windowFlags();
+    flags |= Qt::Dialog;
+    setWindowFlags( flags );
 }
 
 
@@ -1718,17 +1722,6 @@ int uiDialogBody::exec( bool showminimized )
 	setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed) );
 
     move( handle_.getPopupArea() );
-
-    QWidget* parentwidget = getParentWidget( parentWidget() );
-    const bool parentisalwaysontop = parentwidget &&
-	parentwidget->windowFlags() & Qt::WindowStaysOnTopHint;
-    if ( parentisalwaysontop )
-    {
-	Qt::WindowFlags flags = windowFlags();
-	flags |= Qt::WindowStaysOnTopHint;
-	setWindowFlags( flags );
-    }
-
     go( showminimized );
     return uiResult();
 }
@@ -1765,7 +1758,10 @@ void uiDialogBody::setCancelText( const uiString& txt )
 
 
 void uiDialogBody::setApplyText( const uiString& txt )
-{ if ( applybut_ ) applybut_->setText( txt ); }
+{
+    if ( applybut_ )
+	applybut_->setText( txt );
+}
 
 
 bool uiDialogBody::hasSaveButton() const
