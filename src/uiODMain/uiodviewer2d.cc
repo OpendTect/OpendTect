@@ -260,7 +260,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	    else
 		nrtrcs = cs.hsamp_.nrLines();
 	    //nrTrcs() or nrLines() return value 1 means start=stop
-	    if ( nrtrcs < 2 ) 
+	    if ( nrtrcs < 2 )
 	    {
 		uiMSG().error( tr("No data available for current %1 position")
 		    .arg(TrcKeyZSampling::toUiString(tkzs_.defaultDir())) );
@@ -280,7 +280,8 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	treetp_->updSampling( tkzs_, true );
     }
 
-    viewwin()->start();
+    if ( isnew )
+	viewwin()->start();
 }
 
 
@@ -804,8 +805,8 @@ void uiODViewer2D::selectionMode( CallBacker* cb )
     viewstdcontrol_->editToolBar()->setIcon( polyseltbid_, ispolyselect_ ?
 				"polygonselect" : "rectangleselect" );
     viewstdcontrol_->editToolBar()->setToolTip( polyseltbid_,
-                                ispolyselect_ ? tr("Polygon Selection mode")
-                                              : tr("Rectangle Selection mode"));
+				ispolyselect_ ? tr("Polygon Selection mode")
+					      : tr("Rectangle Selection mode"));
     const bool ispolyseltbon =
 	viewstdcontrol_->editToolBar()->isOn( polyseltbid_ );
     if ( ispolyseltbon )
