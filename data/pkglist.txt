@@ -10,7 +10,7 @@ Fluid Contact Finder`dgbccb
 GeoDataSync Accelerate`arkclsgdsa
 GMT Link`gmt_logo
 HDF5 File Access`hdf
-Horizon Cube`dgbhc
+HorizonCube`dgbhc
 Machine Learning`dgbnn
 Madagascar Link`madagascar
 Matching Pursuit`matching_pursuit
