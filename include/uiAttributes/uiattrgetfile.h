@@ -53,6 +53,7 @@ public:
 			~uiImpAttrSet();
 
 protected:
+    void		inpChgd(CallBacker*);
     bool		acceptOK();
 
     uiFileSel*		fileinpfld_;

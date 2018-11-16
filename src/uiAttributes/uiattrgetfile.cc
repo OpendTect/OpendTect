@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "file.h"
+#include "filepath.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -161,30 +162,40 @@ uiAttrSrchProcFiles::~uiAttrSrchProcFiles()
 static BufferString sImportDir;
 
 uiImpAttrSet::uiImpAttrSet( uiParent* p )
-    : uiDialog(p, Setup(tr("Import Attribute Set"), mNoDlgTitle,
-    mODHelpKey(mImpAttrSetHelpID))
-		 .modal(false))
+    : uiDialog(p,Setup(tr("Import Attribute Set"),mNoDlgTitle,
+		       mODHelpKey(mImpAttrSetHelpID)).modal(false))
 {
-    setOkCancelText( uiStrings::sImport(), uiStrings::sCancel() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     if ( sImportDir.isEmpty() )
 	sImportDir = GetDataDir();
 
     uiFileSel::Setup fssu( OD::TextContent );
     fssu.initialselectiondir( sImportDir )
-	.setFormat( tr("Attribute Sets"), "attr" );
+	.setFormat( tr("OpendTect Attribute Sets"), "attr" );
     fileinpfld_ = new uiFileSel( this, uiStrings::phrSelect(
 					    uiStrings::sInputFile()), fssu );
+    mAttachCB( fileinpfld_->newSelection, uiImpAttrSet::inpChgd );
 
     PtrMan<IOObjContext> ctxt = Attrib::DescSet::getIOObjContext( false );
-    attrsetfld_ = new uiIOObjSel( this, *ctxt,
-				  uiStrings::phrOutput( tr("Attribute Set")) );
+    uiIOObjSel::Setup objsu(uiStrings::phrOutput(uiStrings::sAttributeSet()));
+    objsu.withwriteopts(false);
+    attrsetfld_ = new uiIOObjSel( this, *ctxt, objsu );
     attrsetfld_->attach( alignedBelow, fileinpfld_ );
 }
 
 
 uiImpAttrSet::~uiImpAttrSet()
 {
+    detachAllNotifiers();
+}
+
+
+void uiImpAttrSet::inpChgd( CallBacker* )
+{
+    const File::Path fp( fileinpfld_->fileName() );
+    sImportDir = fp.pathOnly();
+    attrsetfld_->setInputText( fp.baseName() );
 }
 
 
