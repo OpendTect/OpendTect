@@ -45,14 +45,10 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 {
     const FilePath bhfp = hostdatalist_.getBatchHostsFilename();
     const BufferString bhfnm = bhfp.fullPath();
-    bool writeallowed = true;
-    if ( File::exists(bhfnm) )
+    const BufferString& datadir = bhfp.pathOnly();
+    bool writeallowed = File::exists(datadir) && File::isWritable( datadir );
+    if ( writeallowed && File::exists(bhfnm) )
 	writeallowed = File::isWritable( bhfnm );
-    else
-    {
-	const BufferString& datadir = bhfp.pathOnly();
-	writeallowed = File::isWritable( datadir );
-    }
 
     if ( writeallowed )
 	setOkText( uiStrings::sSave() );
@@ -67,6 +63,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     uiPushButton* advbut =
 	new uiPushButton( this, tr("Advanced Settings"), false );
     advbut->activated.notify( mCB(this,uiBatchHostsDlg,advbutCB) );
+    advbut->setIcon( "settings" );
     advbut->attach( rightTo, filefld );
     advbut->attach( rightBorder );
 
@@ -105,6 +102,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     new uiToolButton( buttons, "checkgreen", tr("Test Hosts"),
 			mCB(this,uiBatchHostsDlg,testHostsCB) );
     buttons->attach( rightTo, table_ );
+    buttons->setChildrenSensitive( writeallowed );
 
     fillTable();
 }
