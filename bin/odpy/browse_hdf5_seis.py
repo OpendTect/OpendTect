@@ -1,13 +1,10 @@
-import odpy.hdf5
-import h5py
-import os
 import sys
+import os
 import numpy
-import matplotlib.pyplot as pyplot
+import h5py
+import odpy.hdf5 as odhdf5
+import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-
-def usr_msg( s ):
-  print( s )
 
 if len(sys.argv) < 2:
   filenm = "/auto/d55/surveys/F3_Demo_d55/Seismics/4_Dip_steered_median_filter_blocks.hdf5"
@@ -15,13 +12,13 @@ else:
   filenm = sys.argv[1]
 
 h5file = h5py.File( filenm, "r" )
-usr_msg( "\nBrowsing '" + filenm + "'\n\n" )
+print( "\nBrowsing '" + filenm + "'\n\n" )
 
-infods = odpy.hdf5.getInfoDataSet( h5file )
+infods = odhdf5.getInfoDataSet( h5file )
 def gtInfAttr( ky ):
-  return odpy.hdf5.getAttr( infods, ky )
+  return odhdf5.getAttr( infods, ky )
 def gtInfAttrs( ky ):
-  return odpy.hdf5.getAttrs( infods, ky )
+  return odhdf5.getAttrs( infods, ky )
 
 # directly gettable info
 blocksversion = int( gtInfAttr("Blocks.Version") )
@@ -82,14 +79,14 @@ blocks = { "Inline Dim": int(blocksdimattr[0]), "Crossline Dim": int(blocksdimat
            "First.Inl ID": int(blocksinlrgattr[0]), "First.Crl ID": int(blockscrlrgattr[0]),
            "Last.Inl ID": int(blocksinlrgattr[1]), "Last.Crl ID": int(blockscrlrgattr[1]) }
 
-usr_msg( "Data is stored as " + datacharattr + "\n" )
+print( "Data is stored as " + datacharattr + "\n" )
 # TODO: add gap information: The cube has varying cross-line ranges. / The cube is 100% rectangular.
 
 usrinp = "1"
 nrcomps = len( compnms )
 if nrcomps > 1:
   for idx, compnm in enumerate(compnms):
-    usr_msg( "Component " + str(idx+1) + ": '" + compnm + "'" )
+    print( "Component " + str(idx+1) + ": '" + compnm + "'" )
   usrinp = input( "Enter component index: " )
 cidx = int( usrinp ) - 1
 if cidx < 0:
@@ -97,13 +94,13 @@ if cidx < 0:
 if cidx >= nrcomps:
   cidx = nrcomps - 1
 
-usr_msg( "" )
-usr_msg( "In-line range: " + repr(inlrg.start) + "-" + repr(inlrg.stop-inlrg.step) + " (step " + repr(inl_step) + ")" )
-usr_msg( "Cross-line range: " + repr(crlrg.start) + "-" + repr(crlrg.stop-crlrg.step) + " (step " + repr(crl_step) + ")" )
-usr_msg( "" )
-usr_msg( "Z range: " + repr(zrg.start) + "-" + repr(zrg.stop-zrg.step) + " (step " + repr(zrg.step) + ")" )
-usr_msg( "Number of samples: " + repr(len(zsamp)) )
-usr_msg( "" )
+print( "" )
+print( "In-line range: " + repr(inlrg.start) + "-" + repr(inlrg.stop-inlrg.step) + " (step " + repr(inl_step) + ")" )
+print( "Cross-line range: " + repr(crlrg.start) + "-" + repr(crlrg.stop-crlrg.step) + " (step " + repr(crl_step) + ")" )
+print( "" )
+print( "Z range: " + repr(zrg.start) + "-" + repr(zrg.stop-zrg.step) + " (step " + repr(zrg.step) + ")" )
+print( "Number of samples: " + repr(len(zsamp)) )
+print( "" )
 
 cont = "Y"
 while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
@@ -173,20 +170,20 @@ while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
   try:
     slicenb = int(slicenb)
   except ValueError:
-    usr_msg( "Please enter an integer\n" )
+    print( "Please enter an integer\n" )
     continue
   if slicenb % slicestep != 0:
-    usr_msg( slicetxt + " " + slicenb + " is not a multiple of the step: " + repr(slicerg.start) + "-" + repr(slicerg.stop) + " (step " + repr(slicestep) + ")" + "\n")
+    print( slicetxt + " " + slicenb + " is not a multiple of the step: " + repr(slicerg.start) + "-" + repr(slicerg.stop) + " (step " + repr(slicestep) + ")" + "\n")
     continue
   try:
     sliceidx = slicerg.index( slicenb)
   except ValueError:
-    usr_msg( slicetxt + " " + slicenb + "is not in range: " + repr(slicerg.start) + "-" + repr(slicerg.stop) + " (step" + repr(slicestep) + ")" + "\n")
+    print( slicetxt + " " + slicenb + "is not in range: " + repr(slicerg.start) + "-" + repr(slicerg.stop) + " (step" + repr(slicestep) + ")" + "\n")
     continue
 
   datagroup = h5file[ compnms[cidx] ]
   if len(datagroup) < 1:
-    usr_msg( "Empty dataset found" )
+    print( "Empty dataset found" )
     exit( 1 )
 
   datagroupset = list( datagroup.items() )
@@ -219,10 +216,10 @@ while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
         elif crosslinedir:
           sliceout[firstx1:lastx1,:] = subcube[:,dim1idx,:]
       except ValueError:
-        usr_msg( "Target slice: " + str(slicenb) + "; Target 1st idx: " + str(sliceidx) )
-        usr_msg( "dim2str: " + str(dim2str) + "; dim2blocksz: " + str(dim2blocksz) )
-        usr_msg( "idy start: " + str(firstx1) + " idy stop: " + str(lastx1) )
-        usr_msg( "SubCube: "+ subcubenm +  " dim1idx: " + str(dim1idx) )
+        print( "Target slice: " + str(slicenb) + "; Target 1st idx: " + str(sliceidx) )
+        print( "dim2str: " + str(dim2str) + "; dim2blocksz: " + str(dim2blocksz) )
+        print( "idy start: " + str(firstx1) + " idy stop: " + str(lastx1) )
+        print( "SubCube: "+ subcubenm +  " dim1idx: " + str(dim1idx) )
         raise
   elif zdir:
     for dim1str in dim1rg:
@@ -243,9 +240,9 @@ while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
         lastx2 = firstx2 + subcube.shape[secondidx]
         sliceout[firstx1:lastx1,firstx2:lastx2] = subcube[:,:,sliceidx]
 
-  fig,ax = pyplot.subplots(1,1,sharex="col",sharey="row",facecolor="white")
+  fig,ax = plt.subplots(1,1,sharex="col",sharey="row",facecolor="white")
   fig.subplots_adjust(top=0.95,bottom=0.05,left=0.05,right=0.93,hspace=0.02,wspace=0.15)
-  pyplot.get_current_fig_manager().window.setGeometry(1920,0,1920,960)
+  plt.get_current_fig_manager().window.setGeometry(1920,0,1920,960)
   #TODO: Assign amplitude range from data
   im = ax.imshow(numpy.transpose(sliceout),cmap="bwr_r",aspect="auto",interpolation="sinc",vmin=-4500,vmax=4500,extent=[x1axis[0],x1axis[-1],x2axis[-1],x2axis[0]])
   ax.set_title("HDF5 Slice")
@@ -253,13 +250,13 @@ while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
   ax.set_ylabel(ylabel)
   axins = inset_axes(ax,width="1%",height="100%",loc=3,bbox_to_anchor=(1.02,0.,1,1),bbox_transform=ax.transAxes,borderpad=0)
   cbar = ax.figure.colorbar(im,cax=axins)
-  usr_msg( "Close the plot to continue" )
-  pyplot.show()
+  print( "Close the plot to continue" )
+  plt.show()
 
   cont = input( "Continue [Y/N] (Yes)? " )
   if not cont:
     cont = "Yes"
-  usr_msg( "" )
+  print( "" )
 
 #cubeposidx = list( h5file.keys() ).index("Seismic Cube Positions")
 #cubepos = list(h5file.values())[cubeposidx]
