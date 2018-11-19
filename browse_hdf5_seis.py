@@ -3,105 +3,50 @@ import os
 import numpy
 import h5py
 import odpy.hdf5 as odhdf5
+import odpy.ranges as ranges
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 if len(sys.argv) < 2:
-  filenm = "/auto/d55/surveys/F3_Demo_d55/Seismics/4_Dip_steered_median_filter_blocks.hdf5"
-else:
-  filenm = sys.argv[1]
+  print( "No file name specified" )
 
-h5file = h5py.File( filenm, "r" )
+filenm = sys.argv[1]
 print( "\nBrowsing '" + filenm + "'\n\n" )
 
-infods = odhdf5.getInfoDataSet( h5file )
-def gtInfAttr( ky ):
-  return odhdf5.getAttr( infods, ky )
-def gtInfAttrs( ky ):
-  return odhdf5.getAttrs( infods, ky )
+si = odhdf5.getSurveyInfo( filenm )
+attribinfo = odhdf5.getAttribInfo( filenm )
+samplinginfo = attribinfo['range']
+tkzs = ranges.getAxesAsRanges( samplinginfo )
+axes = ranges.getAxesAsArrays( samplinginfo )
+blocksinfo = attribinfo['block']
+blocksrg = blocksinfo['range']
 
-# directly gettable info
-blocksversion = int( gtInfAttr("Blocks.Version") )
-surveynm   = gtInfAttr( "Name.Survey" );
-datasetnm  = gtInfAttr( "Name.Cube" )
-zdomain    = gtInfAttr( "ZDomain" )
-inlstart   = int( gtInfAttr("First In-line") )
-crlstart   = int( gtInfAttr("First Cross-line") )
-inl_step   = int( gtInfAttr("Step In-line") )
-crl_step   = int( gtInfAttr("Step Cross-line") )
-inlstop    = int( gtInfAttr("Last In-line") )
-crlstop    = int( gtInfAttr("Last Cross-line") )
-compnms    = gtInfAttrs( "Components" )
-
-# just get, use/parse later
-datacharattr = gtInfAttr( "Data storage" )
-xrgattr	   = gtInfAttrs( "X range" )
-yrgattr	   = gtInfAttrs( "Y range" )
-zrgattr    = gtInfAttrs( "Z range" )
-coordsxbidattr = gtInfAttrs( "Coord-X-BinID" )
-coordsybidattr = gtInfAttrs( "Coord-Y-BinID" )
-inlinesattr	   = gtInfAttrs( "In-line range" )
-crosslinesattr = gtInfAttrs( "Cross-line range" )
-blocksdimattr  = gtInfAttrs( "Blocks.Max Dimensions" )
-blocksinlrgattr  = gtInfAttrs( "Blocks.Inl ID Range" )
-blockscrlrgattr  = gtInfAttrs( "Blocks.Crl ID Range" )
-
-# Survey transformation (X-Y) to (Inl-Crl)
-# Given an Inl-Crl pair: ic_pos = numpy.array( [inl,crl] ).astype(numpy.float)
-# the following returns the corresponding X,Y location:
-# xy_pos = survtrans_orig + numpy.dot( survtrans_rotmat, ic_pos )
-#
-survtrans_origt  = numpy.array( [coordsxbidattr[0],coordsybidattr[0]] ).astype(numpy.float)
-survtrans_rotmat = numpy.array( [[coordsxbidattr[1],coordsxbidattr[2]],
-                              [coordsybidattr[1],coordsybidattr[2]]] ).astype(numpy.float)
-
-# Positions as ranges or start/stop/step array:
-surv_inlrg = range(int(inlinesattr[0]),int(inlinesattr[1])+inl_step,inl_step)
-surv_crlrg = range(int(crosslinesattr[0]),int(crosslinesattr[1])+crl_step,crl_step)
-surv_xrange = numpy.array( [xrgattr[0],xrgattr[1]] ).astype(numpy.float)
-surv_yrange = numpy.array( [yrgattr[0],yrgattr[1]] ).astype(numpy.float)
-inlrg = range(inlstart,inlstop+inl_step,inl_step)
-crlrg = range(crlstart,crlstop+crl_step,crl_step)
-zrg   = numpy.array( [zrgattr[0],zrgattr[1],zrgattr[2]] ).astype(numpy.float)
-if zdomain == "TWT":
-  zrg = numpy.multiply(zrg,1000).astype("int32")
-zstep = zrg[2]
-zrg = range(zrg[0],zrg[1]+zstep,zstep)
-
-# Positions as iterable arrays:
-surv_inlines    = numpy.linspace( surv_inlrg.start, surv_inlrg.stop, len(surv_inlrg), dtype=numpy.int32 )
-surv_crosslines = numpy.linspace( surv_crlrg.start, surv_crlrg.stop, len(surv_crlrg), dtype=numpy.int32 )
-inlines    = numpy.linspace( inlrg.start, inlrg.stop, len(inlrg), dtype=numpy.int32 )
-crosslines = numpy.linspace( crlrg.start, crlrg.stop, len(crlrg), dtype=numpy.int32 )
-zsamp      = numpy.linspace( zrg.start, zrg.stop, len(zrg), dtype=numpy.int32 )
-
-blocks = { "Inline Dim": int(blocksdimattr[0]), "Crossline Dim": int(blocksdimattr[1]),
-           "First.Inl ID": int(blocksinlrgattr[0]), "First.Crl ID": int(blockscrlrgattr[0]),
-           "Last.Inl ID": int(blocksinlrgattr[1]), "Last.Crl ID": int(blockscrlrgattr[1]) }
-
-print( "Data is stored as " + datacharattr + "\n" )
+print( "Data is stored as " + attribinfo['storage'] + "\n" )
 # TODO: add gap information: The cube has varying cross-line ranges. / The cube is 100% rectangular.
 
 usrinp = "1"
-nrcomps = len( compnms )
-if nrcomps > 1:
-  for idx, compnm in enumerate(compnms):
-    print( "Component " + str(idx+1) + ": '" + compnm + "'" )
-  usrinp = input( "Enter component index: " )
-cidx = int( usrinp ) - 1
-if cidx < 0:
-  cidx = 0
-if cidx >= nrcomps:
-  cidx = nrcomps - 1
+compnms = attribinfo['attributes']
+if isinstance( compnms, list ):
+  nrcomps = len( compnms )
+  if nrcomps > 1:
+    for idx, compnm in enumerate(compnms):
+      print( "Component " + str(idx+1) + ": '" + compnm + "'" )
+      idx = idx+1
+    usrinp = input( "Enter component index: " )
+  cidx = int( usrinp ) - 1
+  if cidx < 0:
+    cidx = 0
+  if cidx >= nrcomps:
+    cidx = nrcomps - 1
+  attribnm = compnms[cidx]
+else:
+  attribnm = compnms
 
-print( "" )
-print( "In-line range: " + repr(inlrg.start) + "-" + repr(inlrg.stop-inlrg.step) + " (step " + repr(inl_step) + ")" )
-print( "Cross-line range: " + repr(crlrg.start) + "-" + repr(crlrg.stop-crlrg.step) + " (step " + repr(crl_step) + ")" )
-print( "" )
-print( "Z range: " + repr(zrg.start) + "-" + repr(zrg.stop-zrg.step) + " (step " + repr(zrg.step) + ")" )
-print( "Number of samples: " + repr(len(zsamp)) )
+ranges.printSampling( samplinginfo )
+print( "Number of Z samples: " + repr(len(axes['zsamp'])) )
 print( "" )
 
+h5file = h5py.File( filenm, "r" )
 cont = "Y"
 while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
   slicesel = -1
@@ -120,42 +65,42 @@ while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
       firstidx = 0
       secondidx = 1
       slicetxt = "Inline"
-      slicevals = inlines
-      slicerg = inlrg
-      x1axis = crosslines
-      x2axis = zsamp
+      slicerg = ranges.getLineObj( tkzs )
+      slicevals = ranges.getLineObj( axes )
+      x1axis = ranges.getTraceObj( axes )
+      x2axis = ranges.getZObj( axes )
       xlabel = "Cross-line"
-      ylabel = zdomain
-      dim1blocksz = blocks.get("Inline Dim")
-      dim2blocksz = blocks.get("Crossline Dim")
-      dim2rg = range( blocks.get("First.Crl ID"), blocks.get("Last.Crl ID")+1 )
+      ylabel = attribinfo['zdomain']
+      dim1blocksz = blocksinfo['size'][0]
+      dim2blocksz = blocksinfo['size'][1]
+      dim2rg = range( ranges.getTraceObj(blocksrg)[0], ranges.getTraceObj(blocksrg)[1]+1 )
     elif crosslinedir:
       firstidx = 1
       secondidx = 0
       slicetxt = "Crossline"
-      slicevals = crosslines
-      slicerg = crlrg
-      x1axis = inlines
-      x2axis = zsamp
+      slicerg = ranges.getTraceObj( tkzs )
+      slicevals = ranges.getTraceObj( axes )
+      x1axis = ranges.getLineObj( axes )
+      x2axis = ranges.getZObj( axes )
       xlabel = "In-line"
-      ylabel = zdomain
-      dim1blocksz = blocks.get("Crossline Dim")
-      dim2blocksz = blocks.get("Inline Dim")
-      dim2rg = range( blocks.get("First.Inl ID"), blocks.get("Last.Inl ID")+1 )
+      ylabel = attribinfo['zdomain']
+      dim1blocksz = blocksinfo['size'][1]
+      dim2blocksz = blocksinfo['size'][0]
+      dim2rg = range( ranges.getLineObj(blocksrg)[0], ranges.getLineObj(blocksrg)[1]+1 )
     elif zdir:
       firstidx = 0
       secondidx = 1
       slicetxt = "Z slice"
-      slicevals = zsamp
-      slicerg = zrg
-      x1axis = inlines
-      x2axis = crosslines
+      slicerg = ranges.getZObj( tkzs )
+      slicevals = ranges.getZObj( axes )
+      x1axis = ranges.getLineObj( axes )
+      x2axis = ranges.getTraceObj( axes )
       xlabel = "In-line"
       ylabel = "Cross-line"
-      dim1blocksz = blocks.get("Inline Dim")
-      dim2blocksz = blocks.get("Crossline Dim")
-      dim1rg = range( blocks.get("First.Inl ID"), blocks.get("Last.Inl ID")+1 )
-      dim2rg = range( blocks.get("First.Crl ID"), blocks.get("Last.Crl ID")+1 )
+      dim1blocksz = blocksinfo['size'][0]
+      dim2blocksz = blocksinfo['size'][1]
+      dim1rg = range( ranges.getLineObj(blocksrg)[0], ranges.getLineObj(blocksrg)[1]+1 )
+      dim2rg = range( ranges.getTraceObj(blocksrg)[0], ranges.getTraceObj(blocksrg)[1]+1 )
     elif slicesel == 0:
       cont="No"
       break
@@ -181,7 +126,7 @@ while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
     print( slicetxt + " " + slicenb + "is not in range: " + repr(slicerg.start) + "-" + repr(slicerg.stop) + " (step" + repr(slicestep) + ")" + "\n")
     continue
 
-  datagroup = h5file[ compnms[cidx] ]
+  datagroup = h5file[ attribnm ]
   if len(datagroup) < 1:
     print( "Empty dataset found" )
     exit( 1 )
@@ -201,10 +146,10 @@ while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
         continue
       dim1shift = 0
       dim2shift = 0
-      if len(subcube.attrs.get("Loc00")) > 0:
-        locorig = hdf5.getAttrs( subcube, "Loc00" );
-        dim1shift = int( locorig[firstidx] )
-        dim2shift = int( locorig[secondidx] )
+      if len(subcube.attrs['Loc00']) > 0:
+        locorig = odhdf5.getIInterval( subcube, "Loc00" )
+        dim1shift = locorig[firstidx]
+        dim2shift = locorig[secondidx]
       dim1idx = sliceidx % dim1blocksz + dim1shift
       if dim1idx >= subcube.shape[firstidx]:
         continue
@@ -230,10 +175,10 @@ while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
           continue
         dim1shift = 0
         dim2shift = 0
-        if len(subcube.attrs.get("Loc00")) > 0:
-          locorig = hdf5.getAttrs( subcubem, "Loc00" );
-          dim1shift = int( locorig[firstidx] )
-          dim2shift = int( locorig[secondidx] )
+        if len(subcube.attrs['Loc00']) > 0:
+          locorig = odhdf5.getIInterval( subcube, "Loc00" )
+          dim1shift = locorig[firstidx]
+          dim2shift = locorig[secondidx]
         firstx1 = dim1str * dim1blocksz + dim1shift
         firstx2 = dim2str * dim2blocksz + dim2shift
         lastx1 = firstx1 + subcube.shape[firstidx]
