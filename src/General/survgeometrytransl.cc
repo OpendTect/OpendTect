@@ -97,7 +97,7 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 
     PosInfo::Line2DData* data = new PosInfo::Line2DData;
     if ( !data->read(strm,false) )
-    { delete data; return 0; }
+	{ delete data; return 0; }
 
     const Survey::Geometry::ID geomid = ioobj.key().ID( 1 );
     data->setLineName( ioobj.name() );
@@ -109,10 +109,18 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 
     if ( version > 1 )
     {
+	const bool spstoredasint = version == 2;
 	for ( int idx=0; idx<data->size(); idx++ )
 	{
 	    int spnr = -1;
-	    strm.getBin( spnr );
+	    if ( spstoredasint )
+		strm.getBin( spnr );
+	    else
+	    {
+		float fsp = mUdf(float);
+		strm.getBin( fsp );
+		spnr = mNINT32( fsp );
+	    }
 	    geom->spnrs()[idx] = spnr;
 	}
     }
