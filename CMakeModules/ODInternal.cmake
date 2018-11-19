@@ -160,6 +160,17 @@ else()
     install ( FILES ${RELINFOFILES} DESTINATION ./relinfo )
 endif()
 
+#Install python module
+if ( APPLE )
+    install ( DIRECTORY "bin/python"
+	      DESTINATION Contents/Resources/bin
+	      PATTERN ".swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
+else()
+    install ( DIRECTORY "bin/python"
+	      DESTINATION "bin"
+	      PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
+endif()
+
 install( FILES CMakeLists.txt DESTINATION ${MISC_INSTALL_PREFIX} )
 
 if( WIN32 )
