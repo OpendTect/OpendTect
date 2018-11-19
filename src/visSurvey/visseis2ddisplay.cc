@@ -1036,7 +1036,8 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
     if ( geometry_.isEmpty() ) return false;
 
     const int nidx = geometry_.nearestIdx( pos, trcdisplayinfo_.rg_ );
-    minsqdist = (float) geometry_.positions()[nidx].coord_.sqDistTo( pos );
+    if ( nidx >= 0 )
+	minsqdist = (float) geometry_.positions()[nidx].coord_.sqDistTo( pos );
     trcidx = nidx;
     return trcidx >= 0;
 }
