@@ -1030,8 +1030,10 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
     if ( geometry_.isEmpty() ) return false;
 
     const int nidx = geometry_.nearestIdx( pos.getXY(), trcdisplayinfo_.rg_ );
-    minsqdist =
-	(float) geometry_.positions()[nidx].coord_.sqDistTo(pos.getXY());
+    if ( nidx >= 0 )
+	minsqdist =
+	    (float) geometry_.positions()[nidx].coord_.sqDistTo(pos.getXY());
+
     trcidx = nidx;
     return trcidx >= 0;
 }
