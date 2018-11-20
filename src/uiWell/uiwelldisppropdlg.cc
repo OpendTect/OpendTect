@@ -13,19 +13,14 @@ ________________________________________________________________________
 #include "uiwelldispprop.h"
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uiseparator.h"
 #include "uitabbar.h"
 #include "uitabstack.h"
-#include "uiseparator.h"
-#include "uistrings.h"
 
-#include "keystrs.h"
 #include "objdisposer.h"
 #include "welldata.h"
 #include "welldisp.h"
 #include "wellmarker.h"
-#include "od_helpids.h"
-
-#define mDispNotif wd_->displayProperties(is2ddisplay_).objectChanged()
 
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd,
@@ -38,111 +33,29 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd,
 		     .savebutton(true)
 		     .savechecked(false)
 		     .modal(false))
-	, wd_(wd)
-	, applyAllReq(this)
 	, savedefault_(false)
-	, is2ddisplay_(is2ddisplay)
-	, multipanel_(multipanel)
 {
     setCtrlStyle( CloseOnly );
-
-    ts_ = new uiTabStack( this, "Well display properties tab stack" );
-
-    if ( multipanel_ )
-    {
-	ts_->setTabsClosable( true );
-	mAttachCB( ts_->tabClosed, uiWellDispPropDlg::tabRemovedCB );
-	createMultiPanelUI();
-    }
-    else
-	createSinglePanelUI();
-
-    ts_->selChange().notify( mCB(this,uiWellDispPropDlg,tabSel) );
-}
-
-
-void uiWellDispPropDlg::createSinglePanelUI()
-{
-    Well::DisplayProperties& props = wd_->displayProperties( is2ddisplay_ );
-    ObjectSet<uiGroup> tgs;
-    tgs += new uiGroup( ts_->tabGroup(),"Left log properties" );
-    tgs += new uiGroup( ts_->tabGroup(),"Right log properties" );
-    tgs += new uiGroup( ts_->tabGroup(), "Marker properties" );
-    if ( !is2ddisplay_ )
-	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
-
-    uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[0],
-	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2ddisplay_), props.log(true), &(wd_->logs()) );
-    uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[1],
-	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2ddisplay_), props.log(false), &(wd_->logs()) );
-
-    propflds_ += wlp1;
-    propflds_ += wlp2;
-
-    BufferStringSet markernms;
-    wd_->markers().getNames( markernms );
-    TypeSet<Color> markercols;
-    wd_->markers().getColors( markercols );
-
-    uiWellDispProperties::Setup propsu =
-	uiWellDispProperties::Setup(tr("Marker size"),tr("Marker color"))
-	.onlyfor2ddisplay(is2ddisplay_);
-    uiWellMarkersDispProperties* wellprops = new uiWellMarkersDispProperties(
-	tgs[2], propsu, props.markers(), markernms );
-    wellprops->setAllMarkerNames( markernms, markercols );
-    propflds_ += wellprops;
-
-    if ( !is2ddisplay_ )
-	propflds_ += new uiWellTrackDispProperties( tgs[3],
-			    uiWellDispProperties::Setup(), props.track() );
-
-    bool foundlog = false;
-    for ( int idx=0; idx<propflds_.size(); idx++ )
-    {
-	mAttachCB( propflds_[idx]->propChanged, uiWellDispPropDlg::propChg );
-	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
-	{
-	    ts_->addTab( tgs[idx], foundlog ? is2ddisplay_ ? tr("Log 2")
-						   : tr("Right Log")
-					    : is2ddisplay_ ? tr("Log 1")
-						   : tr("Left Log") );
-	    foundlog = true;
-	}
-	else
-	    ts_->addTab( tgs[idx], toUiString(
-				      propflds_[idx]->props().subjectName()) );
-    }
-
-    uiPushButton* applbut = new uiPushButton( this, tr("Apply to all wells"),
-			mCB(this,uiWellDispPropDlg,applyAllPush), true );
-    applbut->attach( centeredBelow, ts_ );
-
-    ts_->selChange().notify( mCB(this,uiWellDispPropDlg,tabSel) );
-
-    setWDNotifiers( true );
-    mAttachCB( windowClosed, uiWellDispPropDlg::onClose );
-
-    tabSel( 0 );
-}
-
-
-void uiWellDispPropDlg::createMultiPanelUI()
-{
-    addPanel();
+    welldisppropgrp_ = new uiWellDispPropGrp( this, wd, is2ddisplay,
+					      multipanel );
 }
 
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
 {
-    detachAllNotifiers();
+}
+
+
+bool uiWellDispPropDlg::rejectOK()
+{
+    savedefault_ = saveButtonChecked();
+    return true;
 }
 
 
 //uiPanelTab
 uiPanelTab::uiPanelTab( uiParent* grp, Well::Data& welldata,
-			const char* panelnm, const bool is2ddisplay)
+			const char* panelnm, const bool is2ddisplay )
     : uiTabStack(grp,panelnm)
     , welldata_(welldata)
     , is2ddisp_(is2ddisplay)
@@ -165,7 +78,7 @@ void uiPanelTab::init()
     mAttachCB( tabClosed, uiPanelTab::logTabClosedCB );
     mAttachCB( selChange(), uiPanelTab::logTabSelChgngeCB );
 
-    mDynamicCastGet(uiWellLogDispProperties*,wlpgrp,currentPage())
+    mDynamicCastGet(uiWellLogDispProperties*, wlpgrp, currentPage())
     if ( !wlpgrp )
 	return;
 
@@ -182,8 +95,27 @@ uiGroup* uiPanelTab::createLogPropertiesGrp()
     uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color") )
 	.onlyfor2ddisplay(is2ddisp_), props.log(true), &(welldata_.logs()) );
     wlp->setName( "Log properties" );
-    mAttachCB( wlp->propChanged, uiPanelTab::lognmChg );
+    mAttachCB( wlp->propChanged, uiPanelTab::logpropChg );
     return wlp;
+}
+
+
+void uiPanelTab::logpropChg( CallBacker* )
+{
+    uiGroup* curloggrp = currentPage();
+    mDynamicCastGet(uiWellLogDispProperties*, logdispprop, curloggrp)
+    if ( !logdispprop )
+	return;
+
+    logdispprop->putToScreen();
+
+    const int curlogtabid = indexOf( curloggrp );
+    BufferString curtabnm( curloggrp->name() );
+    if ( curtabnm.isEqual(logdispprop->logName()) )
+	return;
+
+    setTabText( curlogtabid, logdispprop->logName() );
+    curloggrp->setName( logdispprop->logName() );
 }
 
 
@@ -238,29 +170,113 @@ void uiPanelTab::logTabSelChgngeCB( CallBacker* cb )
 	addLogPanel();
 
     uiGroup* grp = currentPage();
-    mDynamicCastGet(uiWellLogDispProperties*,wlpgrp,grp)
+    mDynamicCastGet(uiWellLogDispProperties*, wlpgrp, grp)
     if ( !wlpgrp )
 	return;
-
-    wlpgrp->propChanged.trigger();
 }
 
 
-void uiPanelTab::lognmChg( CallBacker* cb )
+//uiWellDispPropGrp
+uiWellDispPropGrp::uiWellDispPropGrp( uiParent* p, Well::Data* wd,
+				      bool is2ddisplay, bool multipanel )
+	: uiGroup(p,"Display properties")
+	, wd_(wd)
+	, applyAllReq(this)
+	, is2ddisplay_(is2ddisplay)
+	, multipanel_(multipanel)
 {
-    uiGroup* curloggrp = currentPage();
-    const int curlogtabid = indexOf( curloggrp );
-    mDynamicCastGet(uiWellLogDispProperties*,curlogdisp,cb)
-    if ( !curlogdisp )
-	return;
 
-    curloggrp->setName( curlogdisp->logName() );
-    setTabText( curlogtabid, curlogdisp->logName() );
+    ts_ = new uiTabStack( this, "Well display properties tab" );
+
+    if ( multipanel_ )
+    {
+	ts_->setTabsClosable( true );
+	mAttachCB( ts_->tabClosed, uiWellDispPropGrp::tabRemovedCB );
+	createMultiPanelUI();
+    }
+    else
+	createSinglePanelUI();
+
+    ts_->selChange().notify( mCB(this,uiWellDispPropGrp,tabSel) );
 }
-//uiPanelTab
 
 
-void uiWellDispPropDlg::addPanel()
+//TODO Needs to do changes in case of multipanel_=false;
+void uiWellDispPropGrp::createSinglePanelUI()
+{
+    Well::DisplayProperties& props = wd_->displayProperties( is2ddisplay_ );
+    ObjectSet<uiGroup> tgs;
+    tgs += new uiGroup( ts_->tabGroup(),"Left log properties" );
+    tgs += new uiGroup( ts_->tabGroup(),"Right log properties" );
+    tgs += new uiGroup( ts_->tabGroup(), "Marker properties" );
+    if ( !is2ddisplay_ )
+	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
+
+    uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[0],
+	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
+	.onlyfor2ddisplay(is2ddisplay_), props.log(true), &(wd_->logs()) );
+    uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[1],
+	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
+	.onlyfor2ddisplay(is2ddisplay_), props.log(false), &(wd_->logs()) );
+
+    propflds_ += wlp1;
+    propflds_ += wlp2;
+
+    BufferStringSet markernms;
+    wd_->markers().getNames( markernms );
+    TypeSet<Color> markercols;
+    wd_->markers().getColors( markercols );
+
+    uiWellDispProperties::Setup propsu =
+	uiWellDispProperties::Setup(tr("Marker size"),tr("Marker color"))
+	.onlyfor2ddisplay(is2ddisplay_);
+    uiWellMarkersDispProperties* wellprops = new uiWellMarkersDispProperties(
+	tgs[2], propsu, props.markers(), markernms );
+    wellprops->setAllMarkerNames( markernms, markercols );
+    propflds_ += wellprops;
+
+    if ( !is2ddisplay_ )
+	propflds_ += new uiWellTrackDispProperties( tgs[3],
+			    uiWellDispProperties::Setup(), props.track() );
+
+    bool foundlog = false;
+    for ( int idx=0; idx<propflds_.size(); idx++ )
+    {
+	mAttachCB( propflds_[idx]->propChanged, uiWellDispPropGrp::propChg );
+	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
+	{
+	    ts_->addTab( tgs[idx], foundlog ? is2ddisplay_ ? tr("Log 2")
+						   : tr("Right Log")
+					    : is2ddisplay_ ? tr("Log 1")
+						   : tr("Left Log") );
+	    foundlog = true;
+	}
+	else
+	    ts_->addTab( tgs[idx], toUiString(
+				      propflds_[idx]->props().subjectName()) );
+    }
+
+    uiPushButton* applbut = new uiPushButton( this, tr("Apply to all wells"),
+			mCB(this,uiWellDispPropGrp,applyAllPush), true );
+    applbut->attach( centeredBelow, ts_ );
+
+    ts_->selChange().notify( mCB(this,uiWellDispPropGrp,tabSel) );
+    tabSel( 0 );
+}
+
+
+void uiWellDispPropGrp::createMultiPanelUI()
+{
+    addPanel();
+}
+
+
+uiWellDispPropGrp::~uiWellDispPropGrp()
+{
+    detachAllNotifiers();
+}
+
+void uiWellDispPropGrp::addPanel()
 {
     BufferString paneltxt( "Panel", ts_->size() ? ts_->size()-1 : 1 );
     uiPanelTab* paneltabgrp = new uiPanelTab( ts_->tabGroup(), *wd_,
@@ -288,14 +304,14 @@ void uiWellDispPropDlg::addPanel()
 }
 
 
-void uiWellDispPropDlg::tabRemovedCB( CallBacker* cb )
+void uiWellDispPropGrp::tabRemovedCB( CallBacker* cb )
 {
     updatePanelNames();
     showPanelTabCloseButton();
 }
 
 
-void uiWellDispPropDlg::showPanelTabCloseButton()
+void uiWellDispPropGrp::showPanelTabCloseButton()
 {
     const bool showclosebut = ts_->size() > 3;
     uiGroup* panelgrp = ts_->page( 0 );
@@ -303,7 +319,7 @@ void uiWellDispPropDlg::showPanelTabCloseButton()
 }
 
 
-void uiWellDispPropDlg::updatePanelNames()
+void uiWellDispPropGrp::updatePanelNames()
 {
     int paneltabsz = ts_->size();
     for ( int pidx=0; pidx<paneltabsz; pidx++ )
@@ -320,25 +336,44 @@ void uiWellDispPropDlg::updatePanelNames()
 }
 
 
-void uiWellDispPropDlg::addMarkersPanel()
+void uiWellDispPropGrp::addMarkersPanel()
 {
     BufferStringSet allmarkernms;
     wd_->markers().getNames( allmarkernms );
-    uiGroup* mrkrspanelgrp = new uiGroup( ts_->tabGroup(),
-					  "Marker properties" );
     Well::DisplayProperties& props = wd_->displayProperties( is2ddisplay_ );
+    uiGroup* mrkrspanelgrp = ts_->tabGroup();
     uiWellDispProperties::Setup mrkrsetup =
 	uiWellDispProperties::Setup( tr("Marker size"), tr("Marker color") )
 			      .onlyfor2ddisplay(true);
     uiWellMarkersDispProperties* mrkrs =
 	new uiWellMarkersDispProperties( mrkrspanelgrp, mrkrsetup,
 					 props.markers(), allmarkernms );
-    ts_->addTab( mrkrspanelgrp, toUiString( mrkrs->mrkprops().subjectName()) );
+    ts_->addTab( mrkrs, toUiString( mrkrs->mrkprops().subjectName()) );
     ts_->showCloseButton( mrkrspanelgrp, false, true );
+    mAttachCB( mrkrs->propChanged, uiWellDispPropGrp::markerpropChg );
 }
 
 
-void uiWellDispPropDlg::tabSel(CallBacker*)
+void uiWellDispPropGrp::markerpropChg( CallBacker* )
+{
+    //TODO
+    uiGroup* curloggrp = ts_->currentPage();
+    mDynamicCastGet(uiWellMarkersDispProperties*, mrkrdispprop, curloggrp)
+    if ( !mrkrdispprop )
+	return;
+
+    Well::DisplayProperties& prop = wd_->displayProperties( is2ddisplay_ );
+    BufferStringSet markernms;
+    wd_->markers().getNames( markernms );
+    TypeSet<Color> markercols;
+    wd_->markers().getColors( markercols );
+    mrkrdispprop->setAllMarkerNames( markernms, markercols );
+    mrkrdispprop->resetProps( prop.markers() );
+    mrkrdispprop->putToScreen();
+}
+
+
+void uiWellDispPropGrp::tabSel(CallBacker*)
 {
     if ( multipanel_ )
     {
@@ -357,7 +392,7 @@ void uiWellDispPropDlg::tabSel(CallBacker*)
 	    return;
 
 	mDynamicCastGet(
-	    uiWellLogDispProperties*, curwelllogproperty,propflds_[curpageid]);
+	    uiWellLogDispProperties*, curwelllogproperty, propflds_[curpageid]);
 	if ( curwelllogproperty )
 	   propflds_[idx]->curwelllogproperty_ =  curwelllogproperty;
 	else
@@ -366,8 +401,11 @@ void uiWellDispPropDlg::tabSel(CallBacker*)
 }
 
 
-void uiWellDispPropDlg::updateLogs()
+void uiWellDispPropGrp::updateLogs()
 {
+    if ( multipanel_ )
+	return;
+
     const Well::LogSet& wls = wd_->logs();
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
@@ -379,165 +417,103 @@ void uiWellDispPropDlg::updateLogs()
 }
 
 
-void uiWellDispPropDlg::setWDNotifiers( bool yn )
+void uiWellDispPropGrp::getFromScreen()
 {
-    if ( !wd_ ) return;
+    if ( multipanel_ )
+	return;
 
-    if ( yn )
-    {
-	mAttachCB( mDispNotif, uiWellDispPropDlg::wdChg );
-    }
-    else
-    {
-	mDetachCB( mDispNotif, uiWellDispPropDlg::wdChg );
-    }
-}
-
-
-void uiWellDispPropDlg::getFromScreen()
-{
     for ( int idx=0; idx<propflds_.size(); idx++ )
 	propflds_[idx]->getFromScreen();
 }
 
 
-void uiWellDispPropDlg::putToScreen()
+void uiWellDispPropGrp::propChg( CallBacker* )
 {
-    for ( int idx=0; idx<propflds_.size(); idx++ )
-	propflds_[idx]->putToScreen();
+    if ( multipanel_ )
+	return;
+
+    getFromScreen();
 }
 
 
-void uiWellDispPropDlg::wdChg( CallBacker* )
-{
-    NotifyStopper ns( mDispNotif );
-    putToScreen();
-}
-
-
-void uiWellDispPropDlg::propChg( CallBacker* )
+void uiWellDispPropGrp::applyAllPush( CallBacker* )
 {
     if ( multipanel_ )
 	return; //TODO
 
     getFromScreen();
-}
-
-
-void uiWellDispPropDlg::applyAllPush( CallBacker* )
-{
-    getFromScreen();
     applyAllReq.trigger();
 }
 
 
-void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
+void uiWellDispPropGrp::welldataDelNotify( CallBacker* )
 {
-    windowClosed.trigger();
     wd_ = 0;
     OBJDISP()->go( this );
 }
 
 
-void uiWellDispPropDlg::onClose( CallBacker* )
-{
-}
-
-
-bool uiWellDispPropDlg::rejectOK()
-{
-    savedefault_ = saveButtonChecked();
-    return true;
-}
-
-
-//uiMultiWellDispPropDlg
-uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
+//uiMultiWellDispPropGrp
+uiMultiWellDispPropGrp::uiMultiWellDispPropGrp( uiParent* p,
 					       const ObjectSet<Well::Data>& wds,
 					       bool is2ddisplay )
-	: uiWellDispPropDlg(p,const_cast<Well::Data*>(wds[0]),is2ddisplay,true)
+	: uiGroup(p,"Multi Well Group")
 	, wds_(wds)
 	, wellselfld_(0)
 {
-    if ( wds_.size()>1 )
-    {
-	BufferStringSet wellnames;
-	for ( int idx=0; idx< wds_.size(); idx++ )
-	    wellnames.addIfNew( wds_[idx]->name() );
+    BufferStringSet wellnames;
+    for ( auto wd : wds_ )
+	wellnames.addIfNew( wd->name() );
 
-	wellselfld_ = new uiLabeledComboBox( this, uiStrings::sWell() );
-	wellselfld_->box()->addItems( wellnames );
-	mAttachCB( wellselfld_->box()->selectionChanged,
-		   uiMultiWellDispPropDlg::wellSelChg );
-	wellselfld_->attach( hCentered );
-	ts_->attach( ensureBelow, wellselfld_ );
+    wellselfld_ = new uiLabeledComboBox( this, uiStrings::sWell() );
+    wellselfld_->box()->addItems( wellnames );
+    mAttachCB( wellselfld_->box()->selectionChanged,
+	       uiMultiWellDispPropGrp::wellSelChg );
+    wellselfld_->attach( hCentered );
+    uiSeparator* sp = new uiSeparator( this, "" );
+    sp->attach( stretchedBelow, wellselfld_ );
+
+    for ( auto wd : wds )
+    {
+	uiWellDispPropGrp* wdpg =
+	    new uiWellDispPropGrp( this, const_cast<Well::Data*>(wd),
+				   is2ddisplay, true );
+	welldisppropgrps_ += wdpg;
+	wdpg->attach( ensureBelow, sp );
+	wdpg->display( false );
     }
+
+    welldisppropgrps_.get(0)->display( true );
 
     deepRef( wds_ );
 }
 
 
-uiMultiWellDispPropDlg::~uiMultiWellDispPropDlg()
+uiMultiWellDispPropGrp::~uiMultiWellDispPropGrp()
 {
     deepUnRef( wds_ );
 }
 
 
-void uiMultiWellDispPropDlg::resetProps( int logidx )
+int uiMultiWellDispPropGrp::curWellID()
 {
-    bool first = true;
-    Well::DisplayProperties& prop = wd_->displayProperties( is2ddisplay_ );
-    for ( int idx=0; idx<propflds_.size(); idx++ )
+    return wellselfld_->box()->currentItem();
+}
+
+
+uiWellDispPropGrp* uiMultiWellDispPropGrp::curWellDispPropGrp()
+{
+    const auto selidx = curWellID();
+    return welldisppropgrps_.get( selidx );
+}
+
+
+void uiMultiWellDispPropGrp::wellSelChg( CallBacker* )
+{
+    const int selidx = wellselfld_->box()->currentItem();
+    for ( int widx=0; widx<wds_.size(); widx++ )
     {
-	mDynamicCastGet( uiWellTrackDispProperties*,trckfld,propflds_[idx] );
-	mDynamicCastGet( uiWellMarkersDispProperties*,mrkfld,propflds_[idx] );
-	mDynamicCastGet( uiWellLogDispProperties*,logfld,propflds_[idx] );
-	if ( logfld )
-	{
-	    logfld->setLogSet( &wd_->logs() );
-	    logfld->resetProps( prop.log(first,logidx) );
-	    first = false;
-	}
-	else if ( trckfld )
-	    trckfld->resetProps( prop.track() );
-	else if ( mrkfld )
-	{
-	    BufferStringSet markernms;
-	    wd_->markers().getNames( markernms );
-	    TypeSet<Color> markercols;
-	    wd_->markers().getColors( markercols );
-	    mrkfld->setAllMarkerNames( markernms, markercols );
-	    mrkfld->resetProps( prop.markers() );
-	}
+	uiWellDispPropGrp* wdpg = welldisppropgrps_.get( widx );
+	wdpg->display( selidx==widx );
     }
-    putToScreen();
-}
-
-
-void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
-{
-    const int selidx = wellselfld_ ? wellselfld_->box()->currentItem() : 0;
-    wd_ = wds_[selidx];
-    resetProps( 0 );
-}
-
-
-void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
-{
-    Well::Data* curwd = wd_;
-    for ( int idx=0; idx<wds_.size(); idx++ )
-    {
-	wd_ = wds_[idx];
-	if ( yn )
-	    mAttachCB( mDispNotif, uiMultiWellDispPropDlg::wdChg );
-	else
-	    mDetachCB( mDispNotif, uiMultiWellDispPropDlg::wdChg );
-    }
-
-    wd_ = curwd;
-}
-
-
-void uiMultiWellDispPropDlg::onClose( CallBacker* )
-{
 }

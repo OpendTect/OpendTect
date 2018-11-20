@@ -381,7 +381,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     repeatfld_->setInterval( 1, 20, 1 );
     lblr_->attach( alignedBelow, colfld_ );
 
-    logsfld_ = new uiLabeledComboBox( this, tr("Select log") );
+    logsfld_ = new uiLabeledComboBox( this, uiStrings::sLog() );
     logsfld_->box()->setHSzPol( uiObject::Wide );
     logsfld_->attach( alignedAbove, cliprangefld_ );
 
@@ -729,8 +729,9 @@ void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
 void uiWellLogDispProperties::logSel( CallBacker* cb )
 {
     setFieldVals();
-    if ( cb )
-	filllogsfld_->box()->setText( logsfld_->box()->text() );
+    const BufferString logname = logsfld_->box()->text();
+    logprops().setLogName( logname );
+
 }
 
 

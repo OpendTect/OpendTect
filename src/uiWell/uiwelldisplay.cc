@@ -91,6 +91,8 @@ void uiWellDisplay::init( const Setup& s )
 	mAttachCB( wd_->d2TModel().objectChanged(), uiWellDisplay::wdChgCB );
 	mAttachCB( wd_->displayProperties(!use3ddisp_).objectChanged(),
 		   uiWellDisplay::wdChgCB );
+	mAttachCB( wd_->displayProperties(true).log(true).objectChanged(),
+		   uiWellDisplay::wdChgCB );
     }
 
     if ( s.nobackground_ )

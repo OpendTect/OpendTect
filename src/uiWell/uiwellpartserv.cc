@@ -221,12 +221,13 @@ bool uiWellPartServer::editDisplayProperties( const DBKey& mid )
     if ( dlgidx != -1 )
     {
 	uiWellDispPropDlg* dispdlg = wellpropdlgs_[dlgidx];
-	dispdlg->updateLogs();
+	dispdlg->welldisppropgrp_->updateLogs();
 	return dispdlg->go();
     }
 
     uiWellDispPropDlg* uiwellpropdlg = new uiWellDispPropDlg( parent(), wd );
-    uiwellpropdlg->applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
+    uiwellpropdlg->welldisppropgrp_->applyAllReq.notify(
+					mCB(this,uiWellPartServer,applyAll) );
     uiwellpropdlg->windowClosed.notify(
 			mCB(this,uiWellPartServer, wellPropDlgClosed) );
     wellpropdlgs_ += uiwellpropdlg;
@@ -239,10 +240,11 @@ int uiWellPartServer::getPropDlgIndex( const DBKey& mid )
 {
     for ( int idx=0; idx<wellpropdlgs_.size(); idx++ )
     {
-	if ( !wellpropdlgs_[idx]->wellData() )
+	if ( !wellpropdlgs_[idx]->welldisppropgrp_->wellData() )
 	    continue;
 
-	const DBKey dlgid = wellpropdlgs_[idx]->wellData()->dbKey();
+	Well::Data* wd = wellpropdlgs_[idx]->welldisppropgrp_->wellData();
+	const DBKey dlgid = wd->dbKey();
 	if ( dlgid == mid )
 	    return idx;
     }
@@ -263,7 +265,7 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb )
 {
     mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
-    ConstRefMan<Well::Data> edwd = dlg->wellData();
+    ConstRefMan<Well::Data> edwd = dlg->welldisppropgrp_->wellData();
     if ( !edwd ) { pErrMsg("well data has been deleted"); return; }
     const Well::DisplayProperties& edprops = edwd->displayProperties();
 
@@ -297,7 +299,7 @@ void uiWellPartServer::applyAll( CallBacker* cb )
 {
     mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
-    ConstRefMan<Well::Data> edwd = dlg->wellData();
+    ConstRefMan<Well::Data> edwd = dlg->welldisppropgrp_->wellData();
     const Well::DisplayProperties& edprops = edwd->displayProperties();
 
     DBKeySet dbkys; Well::MGR().getAllLoaded( dbkys );

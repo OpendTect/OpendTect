@@ -12,13 +12,15 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uidialog.h"
+#include "uigroup.h"
 #include "uitabstack.h"
 
-class uiTabStack;
-class uiWellDispProperties;
 class uiLabeledComboBox;
+class uiMultiWellDispPropGrp;
 class uiPanelTab;
-class uiWellLogDispProperties;
+class uiTabStack;
+class uiWellDispPropGrp;
+class uiWellDispProperties;
 
 namespace Well { class Data; };
 
@@ -30,18 +32,21 @@ public:
 			   const char* panelnm,const bool is2ddisp);
 		~uiPanelTab();
 
+private:
     Well::Data&		welldata_;
     const bool		is2ddisp_;
 
     void		logTabSelChgngeCB(CallBacker*);
-    void		lognmChg(CallBacker*);
     void		logTabClosedCB(CallBacker*);
     void		logTabToBeClosedCB(CallBacker*);
+    void		logpropChg(CallBacker*);
 
-    uiGroup*		createLogPropertiesGrp();
     void		addLogPanel();
-    void		init();
     void		showLogTabCloseButton();
+
+protected:
+    void		init();
+    uiGroup*		createLogPropertiesGrp();
 };
 
 /*!
@@ -51,42 +56,51 @@ public:
 mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {mODTextTranslationClass(uiWellDispPropDlg)
 public:
-				uiWellDispPropDlg(uiParent*,Well::Data*,
+			uiWellDispPropDlg(uiParent*,Well::Data*,
+					  bool is2ddisplay=false,
+					  bool multipanel=false);
+			~uiWellDispPropDlg();
+
+    bool			rejectOK();
+    uiWellDispPropGrp*	welldisppropgrp_;
+    bool			savedefault_;
+};
+
+
+mExpClass(uiWell) uiWellDispPropGrp : public uiGroup
+{mODTextTranslationClass(uiWellDispPropGrp)
+public:
+				uiWellDispPropGrp(uiParent*,Well::Data*,
 						  bool is2ddisplay=false,
 						  bool multipanel=false);
-				~uiWellDispPropDlg();
+				~uiWellDispPropGrp();
 
-    Notifier<uiWellDispPropDlg>	applyAllReq;
+    Notifier<uiWellDispPropGrp> applyAllReq;
 
-    Well::Data*			wellData()		{ return wd_.ptr(); }
-    const Well::Data*		wellData() const	{ return wd_.ptr(); }
-
-
-    bool 			savedefault_;
+    RefMan<Well::Data>			wellData()
+					{ return wd_.ptr(); }
+    ConstRefMan<Well::Data>	wellData() const
+					{ return wd_.ptr(); }
     void			updateLogs();
- 
+
+    friend class uiMultiWellDispPropGrp;
 protected:
 
     RefMan<Well::Data>		wd_;
-    uiTabStack*			ts_;
     ObjectSet<uiWellDispProperties> propflds_;
     bool			is2ddisplay_;
     bool			multipanel_;
+    uiTabStack*			ts_;
 
-    virtual void		getFromScreen();
-    virtual void		putToScreen();
+    void			getFromScreen();
+    void			putToScreen();
 
-    virtual void		setWDNotifiers(bool yn);
-
-    virtual void		applyAllPush(CallBacker*);
-    virtual void		onClose(CallBacker*);
+    void			applyAllPush(CallBacker*);
     virtual void		propChg(CallBacker*);
-    bool			rejectOK();
-    void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
     void			tabSel(CallBacker*);
-    void			logTabSelChgngeCB(CallBacker*);
     void			tabRemovedCB(CallBacker*);
+    void			markerpropChg(CallBacker*);
 
     void			createMultiPanelUI();
     void			createSinglePanelUI();
@@ -95,6 +109,7 @@ protected:
     void			addMarkersPanel();
     void			updatePanelNames();
     void			showPanelTabCloseButton();
+    void			onClose(CallBacker*);
 };
 
 
@@ -102,21 +117,22 @@ protected:
 \brief Multi Well display properties dialog box.
 */
 
-mExpClass(uiWell) uiMultiWellDispPropDlg : public uiWellDispPropDlg
-{mODTextTranslationClass(uiMultiWellDispPropDlg)
+mExpClass(uiWell) uiMultiWellDispPropGrp : public uiGroup
+{mODTextTranslationClass(uiMultiWellDispPropGrp)
 public:
-				uiMultiWellDispPropDlg(uiParent*,
+				uiMultiWellDispPropGrp(uiParent*,
 						const ObjectSet<Well::Data>&,
 						bool is2ddisplay);
-				~uiMultiWellDispPropDlg();
+				~uiMultiWellDispPropGrp();
+    int				curWellID();
+    uiWellDispPropGrp*		curWellDispPropGrp();
+    void			resetProps(int logidx);
 
 protected:
 
     ObjectSet<Well::Data>	wds_;
     uiLabeledComboBox*		wellselfld_;
+    ObjectSet<uiWellDispPropGrp> welldisppropgrps_;
 
-    void			resetProps(int logidx);
-    virtual void 		wellSelChg(CallBacker*);
-    virtual void		setWDNotifiers(bool yn);
-    void			onClose(CallBacker*);
+    void			wellSelChg(CallBacker*);
 };
