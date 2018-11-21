@@ -20,6 +20,7 @@ set(OD_MODULE_SOURCES
 		emfaultstickset.cc
 		emfaultsticksetflatvieweditor.cc
 		emfaultstickpainter.cc
+		emfaultset3d.cc
 		emfsstofault3d.cc
 		emhorizon2d.cc
 		emhorizon3d.cc

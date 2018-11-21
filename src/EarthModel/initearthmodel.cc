@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "emprobe.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
+#include "emfaultset3d.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emhorizonztransform.h"
@@ -35,6 +36,7 @@ mDefModInitFn(EarthModel)
     mIfNotFirstTime( return );
 
     EMFault3DTranslatorGroup::initClass();
+    EMFaultSet3DTranslatorGroup::initClass();
     EMFaultStickSetTranslatorGroup::initClass();
     EMBodyTranslatorGroup::initClass();
     EMHorizon3DTranslatorGroup::initClass();
@@ -44,6 +46,7 @@ mDefModInitFn(EarthModel)
     dgbEMHorizon3DTranslator::initClass();
     dgbEMHorizon2DTranslator::initClass();
     dgbEMFault3DTranslator::initClass();
+    dgbEMFaultSet3DTranslator::initClass();
     lmkEMFault3DTranslator::initClass();
     dgbEMFaultStickSetTranslator::initClass();
 
@@ -54,6 +57,7 @@ mDefModInitFn(EarthModel)
 
     EM::FaultStickSet::initClass();
     EM::Fault3D::initClass();
+    EM::FaultSet3D::initClass();
     EM::Horizon2D::initClass();
     EM::Horizon3D::initClass();
     EM::HorizonZTransform::initClass();

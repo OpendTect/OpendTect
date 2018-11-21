@@ -10,12 +10,15 @@ ________________________________________________________________________
 
 #include "emsurfacetr.h"
 
+#include "dirlist.h"
 #include "emfaultauxdata.h"
 #include "emioobjinfo.h"
+#include "emmanager.h"
 #include "emsurface.h"
 #include "emsurfaceio.h"
 #include "emsurfauxdataio.h"
 #include "emhorizon3d.h"
+#include "emfaultset3d.h"
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
@@ -93,6 +96,15 @@ uiString EMFault3DTranslatorGroup::sTypeName(int num)
 mDefSimpleTranslatorSelector(EMFault3D)
 
 mDefSimpleTranslatorioContext(EMFault3D,Surf)
+
+
+uiString EMFaultSet3DTranslatorGroup::sTypeName(int num)
+{ return uiStrings::sFaultSet(num); }
+
+mDefSimpleTranslatorSelector(EMFaultSet3D)
+
+mDefSimpleTranslatorioContext(EMFaultSet3D,Surf)
+
 
 uiString EMFaultStickSetTranslatorGroup::sTypeName( int num )
 { return uiStrings::sFaultStickSet( num ); }
@@ -493,3 +505,142 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
 
     return grp;
 }
+
+
+
+class dGBFaultSet3DReader : public Executor
+{ mODTextTranslationClass(dGBFaultSet3DReader)
+public:
+dGBFaultSet3DReader( const IOObj& ioobj, EM::FaultSet3D& fltset )
+    : Executor("Reading FaultSet")
+    , fltset_(fltset)
+    , curidx_(0)
+    , dl_(ioobj.fullUserExpr(),File::FilesInDir,"*.flt")
+{
+    fltset_.setName( ioobj.name() );
+    fltset_.setDBKey( ioobj.key() );
+    IOPar disppars;
+    EM::ObjectManager::readDisplayPars( ioobj.key(), disppars );
+    fltset_.useDisplayPars( disppars );
+}
+
+od_int64 nrDone() const
+{ return curidx_; }
+
+uiString message() const
+{ return uiStrings::phrReading( uiStrings::sFaultSet() ); }
+
+uiString nrDoneText() const
+{ return tr("Surfaces done"); }
+
+od_int64 totalNr() const
+{ return dl_.size(); }
+
+int nextStep()
+{
+    const int nrfaults = dl_.size();
+    if ( curidx_ >= nrfaults )
+       return Finished();
+
+    const File::Path fp( dl_.fullPath(curidx_) );
+    const EM::FaultID id = toInt( fp.baseName(), mUdf(int) );
+    if ( mIsUdf(id) )
+    {
+	curidx_++;
+	return MoreToDo();
+    }
+
+    BufferString fltnm( fltset_.name() );
+    fltnm.add( "_" ).add( id );
+
+    mDynamicCastGet( EM::Fault3D*, newflt,
+		     EM::Flt3DMan().createTempObject(EM::Fault3D::typeStr()) );
+    EM::dgbSurfaceReader rdr( fp.fullPath(), fltnm,
+			      mTranslGroupName(EMFault3D) );
+    rdr.setOutput( *newflt );
+    if ( !rdr.execute() )
+    {
+	curidx_++;
+	return MoreToDo();
+    }
+
+    newflt->setName( fltnm );
+    fltset_.addFault( newflt, id );
+    curidx_++;
+    return MoreToDo();
+}
+
+	EM::FaultSet3D&	fltset_;
+	DirList		dl_;
+	int		curidx_;
+
+};
+
+
+
+class dGBFaultSet3DWriter : public Executor
+{ mODTextTranslationClass(dGBFaultSet3DWriter)
+public:
+dGBFaultSet3DWriter( const IOObj& ioobj, const EM::FaultSet3D& fltset )
+    : Executor("Reading FaultSet")
+    , fltset_(fltset)
+    , curidx_(0)
+    , basedir_(ioobj.fullUserExpr(false))
+{
+}
+
+od_int64 nrDone() const
+{ return curidx_; }
+
+od_int64 totalNr() const
+{ return fltset_.nrFaults(); }
+
+uiString message() const
+{ return uiStrings::phrWriting( uiStrings::sFaultSet() ); }
+
+uiString nrDoneText() const
+{ return tr("Surfaces done"); }
+
+int nextStep()
+{
+    const int nrfaults = fltset_.nrFaults();
+    if ( curidx_ >= nrfaults )
+    {
+	fltset_.saveDisplayPars();
+	return Finished();
+    }
+
+    if ( !File::isDirectory(basedir_) && !File::createDir(basedir_) )
+	return ErrorOccurred();
+
+    const EM::FaultID id = fltset_.getFaultID( curidx_ );
+    File::Path fp( basedir_, toString(id) );
+    fp.setExtension( "flt" );
+    ConstRefMan<EM::Fault3D> flt = fltset_.getFault3D( id );
+    EM::dgbSurfaceWriter wrr( fp.fullPath(), mTranslGroupName(EMFault3D),
+			      *flt, EMSurfaceTranslator::getBinarySetting() );
+    wrr.execute();
+    curidx_++;
+    return MoreToDo();
+}
+
+	const EM::FaultSet3D&   fltset_;
+	BufferString	    basedir_;
+	int		    curidx_;
+
+};
+
+
+Executor* dgbEMFaultSet3DTranslator::reader( EM::FaultSet3D& fltset,
+					     const IOObj& ioobj )
+{
+    return new dGBFaultSet3DReader( ioobj, fltset );
+}
+
+
+Executor* dgbEMFaultSet3DTranslator::writer( const EM::FaultSet3D& fltset,
+					     const IOObj& ioobj )
+{
+    return new dGBFaultSet3DWriter( ioobj, fltset );
+}
+

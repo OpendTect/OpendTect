@@ -383,6 +383,7 @@ public:
     static uiWord sFaultData()		{ return tr("Fault Data"); }
     static uiWord sFaultName(int n=1)	{ return tr("Fault Name",0,n); }
     static uiWord sFaultStickSet(int n=1) { return tr("FaultStickSet",0,n); }
+    static uiString sFaultSet(int num=1){ return tr("FaultSet",0,num); }
     static uiWord sFeet( bool abbr )
     { return abbr ? toUiString("ft") : tr("Feet","not meter"); }
     static uiWord sFFT()		{ return tr("FFT"); }

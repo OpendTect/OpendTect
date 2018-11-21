@@ -23,6 +23,7 @@ namespace EM
     class dgbSurfaceReader;
     class FaultStickSet;
     class Fault3D;
+    class FaultSet3D;
     class Horizon;
     class Horizon2D;
     class Horizon3D;
@@ -33,6 +34,7 @@ typedef EM::Horizon3D		EMHorizon3D;
 typedef EM::Horizon2D		EMHorizon2D;
 typedef EM::Horizon		EMAnyHorizon;
 typedef EM::Fault3D		EMFault3D;
+typedef EM::FaultSet3D		EMFaultSet3D;
 typedef EM::FaultStickSet	EMFaultStickSet;
 
 
@@ -88,6 +90,16 @@ public:
 			mDefEmptyTranslatorGroupConstructor(EMFault3D)
 
     const char*		defExtension() const { return "flt"; }
+};
+
+
+/*!
+\brief TranslatorGroup for EM::FaultSet3D.
+*/
+mExpClass(EarthModel) EMFaultSet3DTranslatorGroup : public TranslatorGroup
+{   isTranslatorGroup(EMFaultSet3D);
+public:
+			mDefEmptyTranslatorGroupConstructor(EMFaultSet3D)
 };
 
 
@@ -275,3 +287,31 @@ protected:
     virtual bool		writeOnlyZ() const		{ return false;}
     virtual bool		hasRangeSelection() const	{ return false;}
 };
+
+
+/*!
+\brief Translator for EM::FaultSet3D.
+*/
+mExpClass(EarthModel) EMFaultSet3DTranslator : public Translator
+{
+public:
+				EMFaultSet3DTranslator(const char* unm,
+						       const char* nm)
+				    : Translator(unm,nm)	{}
+    virtual			~EMFaultSet3DTranslator()		{}
+    virtual Executor*		writer(const EM::FaultSet3D&,const IOObj&) = 0;
+    virtual Executor*		reader(EM::FaultSet3D&,const IOObj&)	= 0;
+};
+
+
+mExpClass(EarthModel) dgbEMFaultSet3DTranslator : public EMFaultSet3DTranslator
+{			       isTranslator(dgb,EMFaultSet3D)
+public:
+				dgbEMFaultSet3DTranslator(const char* unm,
+						       const char* nm)
+				    : EMFaultSet3DTranslator(unm,nm)	{}
+    virtual			~dgbEMFaultSet3DTranslator()		{}
+    virtual Executor*		writer(const EM::FaultSet3D&,const IOObj&);
+    virtual Executor*		reader(EM::FaultSet3D&,const IOObj&);
+};
+

@@ -358,7 +358,7 @@ void EM::ObjectManager::removeSelected( const ObjID& id,
 
 
 bool EM::ObjectManager::readDisplayPars( const ObjID& objid,
-					 IOPar& outpar ) const
+					 IOPar& outpar )
 {
     if( !readParsFromDisplayInfoFile(objid,outpar) )
 	return readParsFromGeometryInfoFile( objid, outpar );
@@ -369,7 +369,7 @@ bool EM::ObjectManager::readDisplayPars( const ObjID& objid,
 
 
 bool EM::ObjectManager::readParsFromDisplayInfoFile( const ObjID& objid,
-					     IOPar& outpar ) const
+					     IOPar& outpar )
 {
     outpar.setEmpty();
 
@@ -390,7 +390,7 @@ bool EM::ObjectManager::readParsFromDisplayInfoFile( const ObjID& objid,
 
 
 bool EM::ObjectManager::readParsFromGeometryInfoFile( const ObjID& objid,
-					      IOPar& outpar ) const
+					      IOPar& outpar )
 {
     outpar.setEmpty();
     IOPar* par = IOObjInfo(objid).getPars();
@@ -420,7 +420,7 @@ bool EM::ObjectManager::readParsFromGeometryInfoFile( const ObjID& objid,
 
 
 bool EM::ObjectManager::writeDisplayPars( const ObjID& objid,
-					  const IOPar& inpar ) const
+					  const IOPar& inpar )
 {
     IOObjInfo ioobjinfo( objid );
     if( !ioobjinfo.isOK() )

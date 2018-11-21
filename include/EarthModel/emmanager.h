@@ -91,8 +91,8 @@ public:
 
     void		removeSelected(const ObjID&,const Selector<Coord3>&,
 				       const TaskRunnerProvider&);
-    bool		readDisplayPars(const ObjID&,IOPar&) const;
-    bool		writeDisplayPars(const ObjID&,const IOPar&) const;
+    static bool		readDisplayPars(const ObjID&,IOPar&);
+    static bool		writeDisplayPars(const ObjID&,const IOPar&);
     bool		getSurfaceData(const ObjID&,SurfaceIOData&,
 				       uiString& errmsg) const;
 
@@ -118,10 +118,8 @@ protected:
     void		levelSetChgCB(CallBacker*);
     static const char*	displayparameterstr();
 
-    bool		readParsFromDisplayInfoFile(const ObjID&,
-						    IOPar&)const;
-    bool		readParsFromGeometryInfoFile(const ObjID&,
-						     IOPar&)const;
+    static bool		readParsFromDisplayInfoFile(const ObjID&,IOPar&);
+    static bool		readParsFromGeometryInfoFile(const ObjID&,IOPar&);
     int			undoIndexOf(const ObjID& id);
 
 public:
