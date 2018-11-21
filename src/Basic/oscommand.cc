@@ -456,14 +456,15 @@ static BufferString getUsableUnixCmd( const char* fnm )
     if ( File::exists(ret) )
 	return ret;
 
-    File::Path execfp( GetExecPlfDir(), fnm );
+    const File::Path execfp( GetExecPlfDir(), fnm );
     if ( File::exists(execfp.fullPath()) )
     {
 	ret = mGetExecScript();
 	ret.addSpace().add( fnm );
+	return ret;
     }
 
-    return ret;
+    return BufferString( fnm );
 }
 
 

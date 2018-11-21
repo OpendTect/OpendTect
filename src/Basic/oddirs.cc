@@ -388,11 +388,29 @@ mExternC(Basic) const char* GetShellScript( const char* nm )
 
 mExternC(Basic) const char* GetPythonScript( const char* nm )
 {
+    BufferStringSet pythondirs;
+    const BufferString fnm( nm );
+    if ( fnm.isEmpty() || !GetEnvVarDirList("PYTHONPATH",pythondirs,true) )
+	return 0;
+
     mDeclStaticString( res );
-    File::Path fp( GetScriptDir(), "python", "odpy" );
-    if ( nm && *nm )
-	fp.add( nm );
-    res = fp.fullPath();
+    res.setEmpty();
+    const BufferStringSet modulenms( "odpy", "dgbpy" );
+    for ( const auto modulenm : modulenms )
+    {
+	for ( const auto pythondir : pythondirs )
+	{
+	    const File::Path pythonfp( *pythondir, *modulenm, fnm );
+	    const BufferString scriptfnm( pythonfp.fullPath() );
+	    if ( File::exists(scriptfnm) && File::isReadable(scriptfnm) &&
+		 File::isFile(scriptfnm) )
+	    {
+		res = scriptfnm;
+		return res.buf();
+	    }
+	}
+    }
+
     return res.buf();
 }
 

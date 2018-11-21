@@ -18,6 +18,7 @@
 #include "filepath.h"
 #include "staticstring.h"
 #include "threadlock.h"
+#include "separstr.h"
 #include "survinfo.h"
 #include "od_iostream.h"
 #include "odmemory.h"
@@ -34,10 +35,12 @@
 # include <sys/timeb.h>
 # include <shlobj.h>
 # include <Psapi.h>
+# define mEnvVarDirSep ';'
 #else
 # include <unistd.h>
 # include <errno.h>
 # include <signal.h>
+# define mEnvVarDirSep ':'
 #endif
 
 
@@ -575,6 +578,35 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
 }
 
 
+mExtern(Basic) bool GetEnvVarDirList( const char* env, BufferStringSet& ret,
+				      bool checkdirs )
+{
+    if ( !env || !*env )
+	return false;
+
+    Threads::Locker lock( getEnvVarLock() );
+    ret.setEmpty();
+    const BufferString allpaths( GetEnvVar(env) );
+    if ( allpaths.isEmpty() )
+	return false;
+
+    const SeparString allpathssep( allpaths, mEnvVarDirSep );
+    for ( int idx=0; idx<allpathssep.size(); idx++ )
+    {
+	const FixedString curpath( allpathssep[idx] );
+	if ( !checkdirs ||
+	     (File::exists(curpath) && File::isDirectory(curpath)) )
+	{
+	    File::Path curfp( curpath );
+	    curfp.makeCanonical();
+	    ret.addIfNew( curfp.fullPath() );
+	}
+    }
+
+    return !ret.isEmpty();
+}
+
+
 mExtern(Basic) bool GetEnvVarYN( const char* env, bool defaultval )
 {
     const char* s = GetEnvVar( env );
@@ -618,6 +650,28 @@ mExtern(Basic) void SetEnvVar( const char* env, const char* val )
 #else
     setenv( env, val, 1 );
 #endif
+}
+
+
+mExtern(Basic) void SetEnvVarDirList( const char* env,
+				      const BufferStringSet& dirs,
+				      bool appendnoerase )
+{
+    if ( !env || !*env || dirs.isEmpty() )
+	return;
+
+    Threads::Locker lock( getEnvVarLock() );
+    BufferStringSet dirsedit;
+    if ( appendnoerase )
+    {
+	BufferStringSet existingdirs;
+	if ( GetEnvVarDirList(env,existingdirs,true) )
+	    dirsedit.add( existingdirs, false );
+    }
+    dirsedit.add( dirs, false );
+
+    const BufferString ret( dirsedit.cat( BufferString(mEnvVarDirSep) ) );
+    SetEnvVar( env, ret );
 }
 
 

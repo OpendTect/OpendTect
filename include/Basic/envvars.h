@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 
+class BufferStringSet;
+
 
 mGlobal(Basic) const char* GetEnvVar(const char*);
 		/*!< getenv or other source. Cannot be called before
@@ -21,6 +23,9 @@ mGlobal(Basic) const char* GetEnvVar(const char*);
 		     \note Will return a pointer to a threadsafe static buffer.
 			   Please copy if you want to keep result after next
 			   call to this function.*/
+mGlobal(Basic) bool GetEnvVarDirList(const char*,BufferStringSet&,
+				     bool checkdirs);
+/*!< Returns a list of directories, possibly filtering out the non-existing */
 mGlobal(Basic) bool GetEnvVarYN(const char*,bool defltval=false);
 /*!< Returns defltval if not set, false if set to 0, "no" or "false",
      otherwise true */
@@ -35,6 +40,8 @@ mGlobal(Basic) const char* GetOSEnvVar(const char*);
 			   call to this function. */
 mGlobal(Basic) void SetEnvVar(const char* env,const char* val);
 		/*!< sets environment variable to a value. */
+mGlobal(Basic) void SetEnvVarDirList(const char* env,const BufferStringSet&,
+				     bool appendnoerase);
 mGlobal(Basic) bool WriteEnvVar(const char* env,const char* val);
 		/*!< Writes environment variable to .od/envvars for user
 		     or data/Envvars for SysAdm */
