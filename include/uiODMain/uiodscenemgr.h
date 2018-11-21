@@ -23,6 +23,7 @@ class uiDockWin;
 class uiTreeView;
 class uiMdiArea;
 class uiMdiAreaWindow;
+class uiODDisplayTreeItem;
 class uiODSceneTreeTop;
 class ui3DViewer;
 class uiTreeFactorySet;
@@ -172,6 +173,8 @@ public:
     int				addInlCrlItem(OD::SliceType,int nr,
 					      int sceneid=-1);
     int				addZSliceItem(float z,int sceneid=-1);
+    int				addDisplayTreeItem(uiODDisplayTreeItem*,
+						   int sceneid=-1);
 
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);

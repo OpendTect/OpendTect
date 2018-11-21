@@ -12,8 +12,10 @@ ________________________________________________________________________
 #include "uisurfaceman.h"
 
 #include "ascstream.h"
+#include "dirlist.h"
 #include "ioobjctxt.h"
 #include "file.h"
+#include "filepath.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "dbkey.h"
@@ -22,24 +24,28 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include "embodytr.h"
+#include "emfault3d.h"
 #include "emfaultauxdata.h"
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
 #include "emsurfaceauxdata.h"
+#include "emsurfaceio.h"
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
 
 #include "uibodyoperatordlg.h"
 #include "uibodyregiondlg.h"
 #include "uicolor.h"
+#include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uihorizonmergedlg.h"
 #include "uihorizonrelations.h"
 #include "uiimpbodycaldlg.h"
 #include "uilistbox.h"
 #include "uiioobjmanip.h"
+#include "uiioobjseldlg.h"
 #include "uiioobjselgrp.h"
 #include "uiiosurfacedlg.h"
 #include "uimsg.h"
@@ -61,6 +67,7 @@ mDefineEnumUtils(uiSurfaceMan,Type,"Surface type")
     EMFaultStickSetTranslatorGroup::sGroupName(),
     EMFault3DTranslatorGroup::sGroupName(),
     EMBodyTranslatorGroup::sGroupName(),
+    EMFaultSet3DTranslatorGroup::sGroupName(),
     0
 };
 
@@ -72,6 +79,7 @@ void EnumDefImpl<uiSurfaceMan::Type>::init()
     uistrings_ += uiStrings::sHorizon();
     uistrings_ += uiStrings::sFaultStickSet();
     uistrings_ += uiStrings::sFault();
+    uistrings_ += uiStrings::sFaultSet();
     uistrings_ += uiStrings::sBody();
 }
 
@@ -91,6 +99,7 @@ static IOObjContext getIOCtxt( uiSurfaceMan::Type typ )
 	mCaseRetCtxt(AnyHor,EMAnyHorizon);
 	mCaseRetCtxt(StickSet,EMFaultStickSet);
 	mCaseRetCtxt(Flt3D,EMFault3D);
+	mCaseRetCtxt(FltSet,EMFaultSet3D);
 	default:
 	mCaseRetCtxt(Body,EMBody);
     }
@@ -107,6 +116,7 @@ static uiString getActStr( uiSurfaceMan::Type typ, const uiString& act )
 	mCaseRetStr(Hor3D, EMHorizon3DTranslatorGroup::sTypeName());
 	mCaseRetStr(StickSet, uiStrings::sFaultStickSet());
 	mCaseRetStr(Flt3D, uiStrings::sFault());
+	mCaseRetStr(FltSet, uiStrings::sFaultSet());
 	mCaseRetStr(Body, od_static_tr("getActStr","Bodies"));
 	default:
 	mCaseRetStr(AnyHor, uiStrings::sHorizon(1));
@@ -133,6 +143,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     , type_(typ)
     , attribfld_(0)
     , man2dbut_(0)
+    , manfltsetbut_(0)
     , surfdatarenamebut_(0)
     , surfdataremovebut_(0)
     , surfdatainfobut_(0)
@@ -213,6 +224,13 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	switchvalbut_ = manipgrp->addButton( "switch_implicit",
 					     tr("Switch inside/outside value"),
 					mCB(this,uiSurfaceMan,switchValCB) );
+    }
+    if ( type_ == FltSet )
+    {
+	manfltsetbut_ = manipgrp->addButton( "man_flt",
+			    uiStrings::phrManage(uiStrings::sFault(mPlural)),
+			    mCB(this,uiSurfaceMan,manFltSetCB) );
+	manfltsetbut_->setSensitive( false );
     }
 
     mTriggerInstanceCreatedNotifier();
@@ -675,6 +693,13 @@ bool uiSurfaceMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 				      : tr("Number of Sticks");
 	addObjInfo( inf, ky, nr );
     }
+    else if ( type_ == FltSet )
+    {
+	DirList dl( curioobj_->fullUserExpr(), File::FilesInDir, "*.flt" );
+	addObjInfo( inf, tr("Number of Fault Surfaces"), dl.size() );
+	if ( manfltsetbut_ )
+	    manfltsetbut_->setSensitive( dl.size() );
+    }
     else if ( type_ == Body )
     {
 	TrcKeyZSampling cs(false);
@@ -703,6 +728,9 @@ bool uiSurfaceMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 
 od_int64 uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
+    if ( type_ == FltSet )
+	return uiObjFileMan::getFileSize( filenm, nrfiles );
+
     if ( File::isEmpty(filenm) ) return -1;
     od_int64 totalsz = File::getKbSize( filenm );
     nrfiles = 1;
@@ -899,5 +927,122 @@ void uiSurfaceMan::man2dCB( CallBacker* )
 {
     EM::IOObjInfo eminfo( curioobj_->key() );
     uiSurface2DMan dlg( this, eminfo );
+    dlg.go();
+}
+
+
+
+class uiFltSetMan : public uiDialog
+{ mODTextTranslationClass(uiFltSetMan)
+public:
+uiFltSetMan( uiParent* p, const IOObj& ioobj )
+    :uiDialog(p,uiDialog::Setup(tr("FaultSet management"),
+        uiStrings::phrManage( uiStrings::sFault(mPlural)),mTODOHelpKey ))
+    , ioobj_(ioobj)
+    , dl_(ioobj.fullUserExpr(),File::FilesInDir,"*.flt")
+{
+    setCtrlStyle( CloseOnly );
+
+    uiGroup* topgrp = new uiGroup( this, "Top" );
+    uiListBox::Setup su( OD::ChooseOnlyOne, uiStrings::sFault(mPlural),
+			 uiListBox::AboveMid );
+    fltlist_ = new uiListBox( topgrp, su );
+    BufferStringSet fltnms;
+    const int nrfaults = dl_.size();
+    for ( int idx=0; idx<nrfaults; idx++ )
+    {
+	const File::Path fp( dl_.fullPath(idx) );
+	const int id = toInt( fp.baseName(), mUdf(int) );
+	BufferString fltnm( ioobj_.name() );
+	fltnm.add( "_" ).add( id );
+	fltnms.add( fltnm );
+    }
+
+    fltlist_->addItems( fltnms );
+    fltlist_->selectionChanged.notify( mCB(this,uiFltSetMan,fltSel) );
+
+    extractbut_ = new uiPushButton( topgrp, tr("Extract as Fault"),
+				mCB(this,uiFltSetMan,extractCB), false );
+    extractbut_->setIcon( "tree-flt" );
+    extractbut_->attach( centeredBelow, fltlist_ );
+
+
+    uiGroup* botgrp = new uiGroup( this, "Bottom" );
+    infofld_ = new uiTextEdit( botgrp, "File Info", true );
+    infofld_->setPrefHeightInChar( 8 );
+    infofld_->setPrefWidthInChar( 50 );
+
+    uiSplitter* splitter = new uiSplitter( this, "Splitter", OD::Horizontal );
+    splitter->addGroup( topgrp );
+    splitter->addGroup( botgrp );
+
+    fltSel( 0 );
+}
+
+void fltSel( CallBacker* )
+{
+    const int curitm = fltlist_->currentItem();
+    if ( curitm < 0 )
+	return;
+
+    const int filesz = File::getKbSize( dl_.fullPath(curitm) );
+    BufferString txt( "Size on disk: " );
+    txt.add( File::getFileSizeString(filesz) );
+
+    infofld_->setText( txt );
+}
+
+
+void extractCB( CallBacker* )
+{
+    const int curitm = fltlist_->currentItem();
+    if ( curitm < 0 )
+	return;
+
+    BufferString fltnm( fltlist_->getText() );
+    CtxtIOObj ctio( mIOObjContext(EMFault3D) );
+    ctio.ctxt_.forread_ = false;
+    uiIOObjSelDlg dlg( this, ctio );
+    dlg.selGrp()->getNameField()->setText( fltnm );
+    dlg.setCaption( tr("Extract as Fault") );
+    if ( !dlg.go() )
+	return;
+
+    const IOObj* ioobj = dlg.ioObj();
+    if ( !ioobj )
+	return;
+
+    fltnm = ioobj->name();
+    EM::Object* obj = EM::Flt3DMan().createObject( EM::Fault3D::typeStr(),
+						   fltnm );
+    mDynamicCastGet( EM::Fault3D*, newflt, obj );
+
+    const File::Path fp( dl_.fullPath(curitm) );
+    EM::dgbSurfaceReader rdr( fp.fullPath(), fltnm,
+			      mTranslGroupName(EMFault3D) );
+    rdr.setOutput( *newflt );
+    if ( !rdr.execute() )
+	return;
+
+    newflt->setDBKey( ioobj->key() );
+    PtrMan<Executor> saver = newflt->saver();
+    saver->execute();
+}
+
+    uiListBox*			fltlist_;
+    uiPushButton*		extractbut_;
+    uiTextEdit*			infofld_;
+    const IOObj&		ioobj_;
+    DirList			dl_;
+
+};
+
+
+void uiSurfaceMan::manFltSetCB( CallBacker* )
+{
+    if ( !curioobj_ )
+	return;
+
+    uiFltSetMan dlg( this, *curioobj_ );
     dlg.go();
 }

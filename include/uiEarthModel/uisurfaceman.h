@@ -24,7 +24,7 @@ mExpClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
 { mODTextTranslationClass(uiSurfaceMan);
 public:
 
-    enum Type		{ Hor2D, Hor3D, AnyHor, StickSet, Flt3D, Body };
+    enum Type		{ Hor2D, Hor3D, AnyHor, StickSet, Flt3D, FltSet, Body };
 			mDeclareEnumUtils(Type);
 
 			uiSurfaceMan(uiParent*,Type);
@@ -42,6 +42,7 @@ protected:
     bool		isCurFault() const;
 
     uiToolButton*	man2dbut_;
+    uiToolButton*	manfltsetbut_;
     uiToolButton*	surfdatarenamebut_;
     uiToolButton*	surfdataremovebut_;
     uiToolButton*	surfdatainfobut_;
@@ -55,6 +56,7 @@ protected:
     void		attribSel(CallBacker*);
     void		copyCB(CallBacker*);
     void		man2dCB(CallBacker*);
+    void		manFltSetCB(CallBacker*);
     void		merge3dCB(CallBacker*);
     void		setRelations(CallBacker*);
     void		stratSel(CallBacker*);

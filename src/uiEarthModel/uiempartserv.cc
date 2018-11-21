@@ -111,6 +111,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , man2dhordlg_(0)
     , ma3dfaultdlg_(0)
     , manfssdlg_(0)
+    , manfaultsetdlg_(0)
     , manbodydlg_(0)
     , impbulkfssdlg_(0)
     , impbulkhor2ddlg_(0)
@@ -128,6 +129,7 @@ uiEMPartServer::~uiEMPartServer()
     delete man2dhordlg_;
     delete ma3dfaultdlg_;
     delete manfssdlg_;
+    delete manfaultsetdlg_;
     delete manbodydlg_;
     delete crhordlg_;
     delete impbulkfssdlg_;
@@ -149,6 +151,7 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     deleteAndZeroPtr ( man2dhordlg_ );
     deleteAndZeroPtr ( ma3dfaultdlg_ );
     deleteAndZeroPtr ( manfssdlg_ );
+    deleteAndZeroPtr ( manfaultsetdlg_ );
     deleteAndZeroPtr ( manbodydlg_ );
     deleteAndZeroPtr ( crhordlg_ );
     deleteAndZeroPtr ( impbulkfssdlg_ );
@@ -191,6 +194,12 @@ void uiEMPartServer::manage3DFaults()
 void uiEMPartServer::manageFaultStickSets()
 {
     mManSurfaceDlg(manfssdlg_,StickSet);
+}
+
+
+void uiEMPartServer::manageFaultSets()
+{
+    mManSurfaceDlg(manfaultsetdlg_,FltSet);
 }
 
 
@@ -391,6 +400,14 @@ bool uiEMPartServer::exportFaultStickSet( bool isbulk )
 	    new uiExportFault( parent(),
 			EMFaultStickSetTranslatorGroup::sGroupName(), isbulk );
     return expfltstickdlg_->go();
+}
+
+
+bool uiEMPartServer::exportFaultSet()
+{
+    expfaultsetdlg_ = new uiExportFault( parent(),
+                    EMFaultSet3DTranslatorGroup::sGroupName(), true );
+    return expfaultsetdlg_->go();
 }
 
 

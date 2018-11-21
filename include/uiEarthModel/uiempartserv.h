@@ -67,6 +67,7 @@ public:
     bool		importBulk2DHorizon();
     bool		exportFault(bool bulk=false);
     bool		exportFaultStickSet(bool bulk=false);
+    bool		exportFaultSet();
     void		createHorWithConstZ(bool is2d);
 
     int			nrAttributes(const DBKey&) const;
@@ -120,6 +121,7 @@ public:
     void		manage3DHorizons();
     void		manageFaultStickSets();
     void		manage3DFaults();
+    void		manageFaultSets();
     void		manageBodies();
     bool		loadSurface(const DBKey&,
 				    const EM::SurfaceIODataSelection* s=0);
@@ -202,6 +204,7 @@ protected:
     uiExportHorizon*	expbulkhordlg_;
     uiExportFault*	expfltdlg_;
     uiExportFault*	expfltstickdlg_;
+    uiExportFault*	expfaultsetdlg_;
     uiCreateHorizon*	crhordlg_;
     uiBulkFaultImport*	impbulkfssdlg_;
 
@@ -215,5 +218,6 @@ protected:
     uiSurfaceMan*	man3dhordlg_;
     uiSurfaceMan*	ma3dfaultdlg_;
     uiSurfaceMan*	manfssdlg_;
+    uiSurfaceMan*	manfaultsetdlg_;
     uiSurfaceMan*	manbodydlg_;
 };

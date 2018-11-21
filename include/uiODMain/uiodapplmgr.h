@@ -91,8 +91,8 @@ public:
 
     // The order of this enum needs to be exactly as in UI, beacuse
     // uiODMenuMgr::getMnu() depends on it!
-    enum ObjType	{ Attr, Body, ColTab, XPlot, Flt, Fltss, Geom2D, Hor,
-			  Props, MDef, NLA, Pick, Poly, PDF, RanL,
+    enum ObjType	{ Attr, Body, ColTab, XPlot, Flt, Fltss, FltSet, Geom2D,
+			  Hor, Props, MDef, NLA, Pick, Poly, PDF, RanL,
 			  Seis, Sess, Strat, Vel, Wvlt, Wll };
     int			nrObjectTypes() const	{ return Wll+1; }
 

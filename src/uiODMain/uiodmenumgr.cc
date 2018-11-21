@@ -475,6 +475,12 @@ void uiODMenuMgr::setSurveySubMenus()
 			     mExpFltSSAsciiMnuItm, mExpBulkFltSSAsciiMnuItm );
     addAction( manmnu_, mnunm, iconnm, mManFltSSMnuItm );
 
+    mnunm = uiStrings::sFaultSet(mPlural); iconnm = "faultplanes";
+    impmnus_ += 0;
+    expmnus_ += 0;
+    addAction( expmnu_, mnunm, iconnm, mExpFltSetAsciiMnuItm );
+    addAction( manmnu_, mnunm, iconnm, mManFaultSetMnuItm );
+
     mnunm = tr("Navigation Data / 2D Geometry"); iconnm = "tree-geom2d";
     addAsciiActionSubMenu( impmnu_, mnunm, iconnm, mImpGeom2DAsciiMnuItm );
     if ( !have2d )
@@ -1033,8 +1039,14 @@ void uiODMenuMgr::fillManTB()
 	mAddPopUp( tr("2D Horizons"), tr("3D Horizons"),
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
 
-    mAddPopUp( uiStrings::sFault(mPlural), uiStrings::sFaultStickSet(mPlural),
-	       mManFltMnuItm, mManFltSSMnuItm, fltid );
+    uiMenu* fltpopmnu = mantb_->addButtonMenu( fltid,
+					       uiToolButton::InstantPopup );
+    mAddPopupMnu( fltpopmnu, uiStrings::sFault(mPlural), mManFltMnuItm );
+    mAddPopupMnu( fltpopmnu, uiStrings::sFaultStickSet(mPlural),
+		  mManFltSSMnuItm );
+    if ( have3d )
+	mAddPopupMnu( fltpopmnu, uiStrings::sFaultSet(mPlural),
+		      mManFaultSetMnuItm );
 }
 
 
@@ -1276,6 +1288,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpBulkFltAsciiMnuItm:	mDoOp(Exp,Flt,1); break;
     case mExpFltSSAsciiMnuItm:		mDoOp(Exp,Fltss,0); break;
     case mExpBulkFltSSAsciiMnuItm:	mDoOp(Exp,Fltss,1); break;
+    case mExpFltSetAsciiMnuItm:		mDoOp(Exp,FltSet,0); break;
     case mImpWellAsciiTrackMnuItm:	mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm:	mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm:	mDoOp(Imp,Wll,2); break;
@@ -1311,6 +1324,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManHor2DMnuItm:		mDoOp(Man,Hor,1); break;
     case mManFltSSMnuItm:		mDoOp(Man,Flt,1); break;
     case mManFltMnuItm:			mDoOp(Man,Flt,2); break;
+    case mManFaultSetMnuItm:		mDoOp(Man,FltSet,0); break;
     case mManBodyMnuItm:		mDoOp(Man,Body,0); break;
     case mManPropsMnuItm:		mDoOp(Man,Props,0); break;
     case mManWellMnuItm:		mDoOp(Man,Wll,0); break;

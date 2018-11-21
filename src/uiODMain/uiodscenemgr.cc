@@ -1366,6 +1366,15 @@ int uiODSceneMgr::addZSliceItem( float z, int sceneid )
 }
 
 
+int uiODSceneMgr::addDisplayTreeItem( uiODDisplayTreeItem* itm, int sceneid )
+{
+    mGetOrAskForScene
+    if ( !scene ) return -1;
+    scene->itemmanager_->addChild( itm, false );
+    return itm->displayID();
+}
+
+
 void uiODSceneMgr::removeTreeItem( int displayid )
 {
     for ( int idx=0; idx<viewers_.size(); idx++ )
