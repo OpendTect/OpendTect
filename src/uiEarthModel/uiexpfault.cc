@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "emfault3d.h"
 #include "emfaultstickset.h"
+#include "emfaultset3d.h"
 #include "lmkemfaulttransl.h"
 #include "emmanager.h"
 #include "executor.h"
@@ -49,36 +50,40 @@ ________________________________________________________________________
 #define mGetObjNr \
     issingle ? 1 : mPlural \
 
-#define mGet( tp, fss, f3d ) \
-    FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
+#define mGet( tp, fss, f3d, fset ) \
+    FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : \
+    (FixedString(tp) == EMFaultSet3DTranslatorGroup::sGroupName() ? fset : f3d )
 
 #define mGetCtio(tp) \
-    mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
+    mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D), \
+	    *mMkCtxtIOObj(EMFaultSet3D) )
 #define mGetTitle(tp) \
     mGet( tp, uiStrings::phrExport( uiStrings::sFaultStickSet() ), \
-	      uiStrings::phrExport( uiStrings::sFault() ) )
+	      uiStrings::phrExport( uiStrings::sFault() ), \
+	      uiStrings::phrExport( uiStrings::sFaultSet() ) )
 
 #define mGetLbl(tp) \
     mGet( tp, uiStrings::phrInput( uiStrings::sFaultStickSet() ), \
-	      uiStrings::phrInput( uiStrings::sFault() ) )
+	      uiStrings::phrInput( uiStrings::sFault() ), \
+	      uiStrings::phrInput( uiStrings::sFaultSet() ) )
 
 #define mGetDispString(typ) \
-    dispstr_ = \
-      EMFaultStickSetTranslatorGroup::sGroupName() == typ \
-	? uiStrings::sFaultStickSet(mGetObjNr) \
-	: uiStrings::sFault(mGetObjNr); \
+    dispstr_ = mGet( typ, uiStrings::sFaultStickSet(mGetObjNr), \
+			  uiStrings::sFault(mGetObjNr), \
+			  uiStrings::sFaultSet(mGetObjNr) )
 
 
 uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
 				 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
-				 mODHelpKey(mExportFaultHelpID)) ))
+				 mODHelpKey(mExportFaultHelpID),mTODOHelpKey) ))
     , ctio_(mGetCtio(typ))
     , linenmfld_(0)
     , issingle_(issingle)
     , singleinfld_(0)
     , bulkinfld_(0)
 {
+    mGetDispString(typ);
     setModal( false );
     setDeleteOnClose( false );
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
@@ -129,7 +134,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     stickidsfld_->setChecked( 0, true ); stickidsfld_->setChecked( 1, true );
     stickidsfld_->attach( alignedBelow, zunitsel_ );
 
-    if ( mGet(typ,true,false) )
+    if ( mGet(typ,true,false,false) )
     {
 	linenmfld_ = new uiCheckBox( this,
 				     tr("Write line name if picked on 2D") );
@@ -287,103 +292,123 @@ bool uiExportFault::writeAscii()
 	EM::Object* emobj = loadedobjs[idx];
 	mDynamicCastGet(EM::Fault3D*,f3d,emobj)
 	mDynamicCastGet(EM::FaultStickSet*,fss,emobj)
-	if ( !f3d && !fss ) return false;
+	mDynamicCastGet(EM::FaultSet3D*,fset,emobj)
+	if ( !f3d && !fss && !fset ) return false;
 
-	const int nrsticks = nrSticks( emobj );
-	BufferString objnm = f3d ? f3d->name() : fss->name();
-	objnm.quote('\"');
-
-	BufferString str;
-
-	TrcKeyZSampling bbox(true);
-	bool first = true;
-	int zatvoi = -1;
-	if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
+	const int nrobjs = fset ? fset->nrFaults() : 1;
+	for ( int oidx=0; oidx<nrobjs; oidx++ )
 	{
+	    EM::Object* fltobj = emobj;
+	    if ( fset )
+	    {
+		EM::FaultID fltid = fset->getFaultID( oidx );
+		fltobj = fset->getFault3D( fltid );
+	    }
+
+	    const int nrsticks = nrSticks( fltobj );
+	    BufferString objnm = f3d ? f3d->name() : fss->name();
+	    objnm.quote('\"');
+
+	    BufferString str;
+
+	    TrcKeyZSampling bbox(true);
+	    bool first = true;
+	    int zatvoi = -1;
+	    if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
+	    {
+		for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
+		{
+		    const int nrknots = nrKnots( fltobj, stickidx );
+		    for ( int knotidx=0; knotidx<nrknots; knotidx++ )
+		    {
+			Coord3 crd = getCoord( fltobj, stickidx, knotidx );
+			if ( !crd.isDefined() )
+			    continue;
+			const BinID bid = SI().transform( crd.getXY() );
+			if ( first )
+			{
+			    first = false;
+			    bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
+			    bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z_;
+			}
+			else
+			{
+			    bbox.hsamp_.include( bid );
+			    bbox.zsamp_.include( (float) crd.z_ );
+			}
+		    }
+		}
+
+		if ( bbox.isDefined() )
+		{
+		    if ( zatvoi == -1 )
+			zatvoi = zatf->addVolumeOfInterest( bbox, false );
+		    else
+			zatf->setVolumeOfInterest( zatvoi, bbox, false );
+		    if ( zatvoi>=0 )
+			zatf->loadDataIfMissing( zatvoi, trprov );
+		}
+	    }
+
 	    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	    {
-		const int nrknots = nrKnots( emobj, stickidx );
+		const int nrknots = nrKnots( fltobj, stickidx );
 		for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 		{
-		    Coord3 crd = getCoord( emobj, stickidx, knotidx );
+		    Coord3 crd = getCoord( fltobj, stickidx, knotidx );
 		    if ( !crd.isDefined() )
 			continue;
+		    if ( coordsysselfld_->isDisplayed() )
+			crd.setXY(
+				coordsysselfld_->getCoordSystem()->convertFrom(
+					crd.getXY(),*SI().getCoordSystem()));
+		    if ( !issingle_ )
+			ostrm << objnm << "\t";
 		    const BinID bid = SI().transform( crd.getXY() );
-		    if ( first )
+		    if ( zatf )
+			crd.z_ =
+			    zatf->transformTrc( TrcKey(bid), (float)crd.z_ );
+		    if ( !doxy )
 		    {
-			first = false;
-			bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
-			bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z_;
+			ostrm << bid.inl() << '\t' << bid.crl();
+
+
+			ostrm << bid.inl() << '\t' << bid.crl();
 		    }
 		    else
 		    {
-			bbox.hsamp_.include( bid );
-			bbox.zsamp_.include( (float) crd.z_ );
+			// ostreams print doubles awfully
+			str.setEmpty();
+			str += crd.x_; str += "\t"; str += crd.y_;
+			ostrm << str;
 		    }
-		}
-	    }
 
-	    if ( bbox.isDefined() )
-	    {
-		if ( zatvoi == -1 )
-		    zatvoi = zatf->addVolumeOfInterest( bbox, false );
-		else
-		    zatf->setVolumeOfInterest( zatvoi, bbox, false );
-		if ( zatvoi>=0 )
-		    zatf->loadDataIfMissing( zatvoi, trprov );
-	    }
-	}
+		    ostrm << '\t' << unit->userValue( crd.z_ );
 
-	for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
-	{
-	    const int nrknots = nrKnots( emobj, stickidx );
-	    for ( int knotidx=0; knotidx<nrknots; knotidx++ )
-	    {
-		Coord3 crd = getCoord( emobj, stickidx, knotidx );
-		if ( !crd.isDefined() )
-		    continue;
-		if ( coordsysselfld_->isDisplayed() )
-		    crd.setXY( coordsysselfld_->getCoordSystem()->convertFrom(
-					   crd.getXY(),*SI().getCoordSystem()));
-		if ( !issingle_ )
-		    ostrm << objnm << "\t";
-		const BinID bid = SI().transform( crd.getXY() );
-		if ( zatf )
-		    crd.z_ = zatf->transformTrc( TrcKey(bid), (float)crd.z_ );
-		if ( !doxy )
-		    ostrm << bid.inl() << '\t' << bid.crl();
-		else
-		{
-		    // ostreams print doubles awfully
-		    str.setEmpty();
-		    str += crd.x_; str += "\t"; str += crd.y_;
-		    ostrm << str;
-		}
+		    if ( inclstickidx )
+			ostrm << '\t' << stickidx;
+		    if ( inclknotidx )
+			ostrm << '\t' << knotidx;
 
-		ostrm << '\t' << unit->userValue( crd.z_ );
-
-		if ( inclstickidx )
-		    ostrm << '\t' << stickidx;
-		if ( inclknotidx )
-		    ostrm << '\t' << knotidx;
-
-		if ( fss )
-		{
-		    const int sticknr = stickNr( emobj, stickidx );
-
-		    bool pickedon2d =
-			fss->geometry().pickedOn2DLine( sticknr );
-		    if ( pickedon2d && linenmfld_->isChecked() )
+		    if ( fss )
 		    {
-			Pos::GeomID geomid =
-					fss->geometry().pickedGeomID( sticknr );
-			const BufferString linenm = nameOf( geomid );
-			if ( !linenm.isEmpty() )
-			    ostrm << '\t' << linenm;
-		    }
-		}
+			const int sticknr = stickNr( fltobj, stickidx );
 
-		ostrm << '\n';
+			bool pickedon2d =
+			    fss->geometry().pickedOn2DLine( sticknr );
+			if ( pickedon2d && linenmfld_->isChecked() )
+			{
+			    Pos::GeomID geomid =
+					fss->geometry().pickedGeomID( sticknr );
+			    const BufferString linenm = nameOf( geomid );
+
+			    if ( !linenm.isEmpty() )
+				ostrm << '\t' << linenm;
+			}
+		    }
+
+		    ostrm << '\n';
+		}
 	    }
 	}
     }

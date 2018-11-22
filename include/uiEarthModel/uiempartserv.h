@@ -65,8 +65,8 @@ public:
     void		import2DFaultStickset();
     void		importBulk2DFaultStickset();
     bool		importBulk2DHorizon();
-    bool		exportFault(bool bulk=false);
-    bool		exportFaultStickSet(bool bulk=false);
+    bool		exportFault(bool single=false);
+    bool		exportFaultStickSet(bool single=false);
     bool		exportFaultSet();
     void		createHorWithConstZ(bool is2d);
 
