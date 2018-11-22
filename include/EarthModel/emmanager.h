@@ -156,6 +156,7 @@ mGlobal(EarthModel) ObjectManager& Hor3DMan();
 mGlobal(EarthModel) ObjectManager& Hor2DMan();
 mGlobal(EarthModel) ObjectManager& FSSMan();
 mGlobal(EarthModel) ObjectManager& Flt3DMan();
+mGlobal(EarthModel) ObjectManager& FltSetMan();
 mGlobal(EarthModel) ObjectManager& BodyMan();
 mGlobal(EarthModel) ObjectManager& getMgr(const ObjectManager::ObjID&);
 mGlobal(EarthModel) ObjectManager& getMgr(const char* trgrp);

@@ -46,6 +46,7 @@ mDefineEMMan(Hor3D,EMHorizon3D)
 mDefineEMMan(Hor2D,EMHorizon2D)
 mDefineEMMan(FSS,EMFaultStickSet)
 mDefineEMMan(Flt3D,EMFault3D)
+mDefineEMMan(FltSet,EMFaultSet3D)
 mDefineEMMan(Body,EMBody)
 
 EM::Manager& EM::MGR()
@@ -510,6 +511,7 @@ EM::ObjectManager& EM::getMgr( const char* trgrp )
     if ( mTranslGroupName(EMHorizon2D)==trgrp ) return Hor2DMan();
     if ( mTranslGroupName(EMFaultStickSet)==trgrp ) return FSSMan();
     if ( mTranslGroupName(EMFault3D)==trgrp ) return Flt3DMan();
+    if ( mTranslGroupName(EMFaultSet3D)==trgrp ) return FltSetMan();
     if ( mTranslGroupName(EMBody)==trgrp ) return BodyMan();
 
     return Hor3DMan();
