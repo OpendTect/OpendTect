@@ -1352,6 +1352,16 @@ float SurveyInfo::angleXInl() const
 }
 
 
+float SurveyInfo::angleXCrl() const
+{
+    Coord xy1 = transform( BinID(inlRange().start, crlRange().start));
+    Coord xy2 = transform( BinID(inlRange().stop, crlRange().start) );
+    const double xdiff = xy2.x_ - xy1.x_;
+    const double ydiff = xy2.y_ - xy1.y_;
+    return (float)Math::Atan2( ydiff, xdiff );
+}
+
+
 RefMan<Coords::CoordSystem> SurveyInfo::getCoordSystem()
 {
     mLock4Read();

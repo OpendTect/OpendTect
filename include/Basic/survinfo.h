@@ -130,6 +130,8 @@ public:
 			/*!< rotating the inline axis to the crossline axis. */
     float		angleXInl() const;
 			/*!< angle between the X-axis (East) and an Inline */
+    float		angleXCrl() const;
+			/*!< angle between the X-axis (East) and a Crossline */
 
     void		checkInlRange(Interval<pos_type>&,mSurvLimArg) const;
     void		checkCrlRange(Interval<pos_type>&,mSurvLimArg) const;
