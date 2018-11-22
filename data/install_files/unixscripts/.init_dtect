@@ -35,10 +35,12 @@ setenv LANG C
 #-----------------------------------------------------
 # PATH variables
 
-if ( $?DEBUG ) then
+if ( -d ${DTECT_APPL}/bin/${binsubdir}/Release ) then
+    set bindir="${DTECT_APPL}/bin/${binsubdir}/Release"
+else if ( -d ${DTECT_APPL}/bin/${binsubdir}/Debug ) then
     set bindir="${DTECT_APPL}/bin/${binsubdir}/Debug"
 else
-    set bindir="${DTECT_APPL}/bin/${binsubdir}/Release"
+    exit 1
 endif
 set binpath="${bindir}:${DTECT_APPL}/bin"
 
