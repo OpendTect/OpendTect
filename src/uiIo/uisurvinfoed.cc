@@ -67,13 +67,13 @@ bool uiSurvInfoProvider::runDialog( uiParent* p, TDInfo ztyp, SurveyInfo& si,
     if ( !getInfo(dlg,cs,crd) )
 	return false;
 
-    PtrMan<IOPar> crspar = sip->getCoordSystemPars();
+    PtrMan<IOPar> crspar = getCoordSystemPars();
     RefMan<Coords::CoordSystem> coordsys =
 		crspar ? Coords::CoordSystem::createSystem( *crspar ) : 0;
     if ( coordsys )
-	si_.setCoordSystem( coordsys );
+	si.setCoordSystem( coordsys );
 
-    const bool xyinfeet = si_.xyInFeet();
+    const bool xyinfeet = si.xyInFeet();
     bool tdinfknown = false;
     uiSurvInfoProvider::TDInfo tdinfo = tdInfo( tdinfknown );
     bool zistime = si.zIsTime();

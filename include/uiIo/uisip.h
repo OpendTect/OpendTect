@@ -75,6 +75,7 @@ public:
     virtual const char*		iconName() const	{ return 0; }
 
     virtual IOPar*		getImportPars() const	{ return 0; }
+    virtual IOPar*		getCoordSystemPars() const  { return 0; }
     virtual void		startImport(uiParent*,const IOPar&) {}
     virtual uiString		importAskQuestion() const
 					{ return uiString::empty(); }
