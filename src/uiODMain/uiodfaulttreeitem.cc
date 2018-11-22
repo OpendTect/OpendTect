@@ -579,6 +579,8 @@ bool uiODFaultStickSetTreeItem::init()
 	emid_ = fd->getEMObjectID();
     }
 
+    ODMainWin()->menuMgr().createFaultToolMan();
+
     faultsticksetdisplay_->materialChange()->notify(
 	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
 
