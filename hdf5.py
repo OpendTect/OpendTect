@@ -1,7 +1,14 @@
+#
+# (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+# AUTHOR   : Arnaud
+# DATE     : November 2018
+#
+# tools for reading hdf5 files created by OpendTect
+#
+
 import collections
 import numpy as np
 import h5py
-import odpy.common
 
 def getInfoDataSet( h5file_or_grp ):
   return h5file_or_grp["++info++"]
@@ -62,10 +69,10 @@ def getAttribInfo( filenm ):
   blocksdim = getIInterval(infods,"Blocks.Max Dimensions")
   blocksinlrg = getIInterval(infods,"Blocks.Inl ID Range")
   blockscrlrg = getIInterval(infods,"Blocks.Crl ID Range")
+  h5file.close()
   if zdomain == "TWT":
     zrg = np.multiply(zrg,1000).astype("int32")
     zrg = [zrg[0],zrg[1],zrg[2]]
-  h5file.close()
   return collections.OrderedDict({
     'name': datasetnm,
     'attributes': compnms,
@@ -117,56 +124,4 @@ def getSurveyInfo( filenm ):
       'Y': yrg
     }),
     'transform': transform
-  })
-
-def getWellInfo( filenm ):
-  h5file = h5py.File( filenm, "r" )
-  infods = getInfoDataSet( h5file )
-  try:
-    type = getText(infods,"Type")
-  except KeyError:
-    print("No type found. Probably wrong type of hdf5 file")
-    return {}
-
-  ex_sz = getIntValue(infods,"Examples.Size") 
-  idx = 0
-  examples = list()
-  while idx < ex_sz:
-    example_sz = getIntValue(infods,"Examples."+str(idx)+".Size")
-    example_id = list()
-    idy = 0
-    while idy < example_sz:
-      example_id.append(getText(infods,"Examples."+str(idx)+".ID."+str(idy)))
-      idy += 1
-    example = {
-      "name": getText(infods,"Examples."+str(idx)+".Log"),
-      "id": example_id,
-      "survey": getText(infods,"Examples."+str(idx)+".Survey")
-    }
-    examples.append( example )
-    idx += 1
-
-  inp_sz = getIntValue(infods,"Input.Size")
-  idx = 0
-  input = list()
-  while idx < inp_sz:
-    inp = collections.OrderedDict({
-      "name": getText(infods,"Input."+str(idx)+".Logs"),
-      "survey": getText(infods,"Input."+str(idx)+".Survey")
-    })
-    input.append( inp )
-    idx += 1
-
-  zstep = getDValue(infods,"Z step") 
-  stepout = getIntValue(infods,"Stepout") 
-  marker = (getText(infods,"Top marker"), getText(infods,"Bottom marker"))
-  isinterpol = getBoolValue(infods,"Edge extrapolation")
-  h5file.close()
-  return collections.OrderedDict({
-    'examples': examples,
-    'input': input,
-    'zstep': zstep,
-    'stepout': stepout,
-    'marker': marker,
-    'interpolated': isinterpol
   })
