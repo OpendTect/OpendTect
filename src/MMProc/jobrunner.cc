@@ -602,6 +602,9 @@ int JobRunner::getLastReceivedTime( JobInfo& ji )
     FilePath logfp = getBaseFilePath( ji, *ji.hostdata_ );
     logfp.setExtension( ".log", false );
 
+    if ( !File::exists(logfp.fullPath()) )
+	return ji.recvtime_ ? ji.recvtime_ : ji.starttime_;
+
     int logfiletime = mCast(int,File::getTimeInMilliSeconds(logfp.fullPath()));
     return logfiletime > ji.recvtime_ ? logfiletime : ji.recvtime_;
 }
@@ -627,12 +630,14 @@ void JobRunner::updateJobInfo()
 	    if ( since_lst_chk > starttimeout_ )
 	    {
 		const int lastrecvdtime = getLastReceivedTime( ji );
-		const int since_lst_recv = lastrecvdtime ?
-					Time::passedSince(lastrecvdtime) : -1;
+		int since_lst_recv = Time::passedSince(lastrecvdtime);
+		if ( since_lst_recv < 0 )
+		    since_lst_recv = 0;	
+		// Negative value means difference in Time Settings on machines
 		const int to = ji.state_ == JobInfo::WrappingUp
 		    ? wrapuptimeout_ : failtimeout_;
 
-		if ( since_lst_recv < 0 || since_lst_recv > to )
+		if ( since_lst_recv > to )
 		{
 		    ji.statusmsg_ = "Timed out.";
 		    failedJob( ji, JobInfo::HostFailed );
