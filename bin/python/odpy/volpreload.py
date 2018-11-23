@@ -25,6 +25,7 @@ def getAxes( sampling, dataarr ):
   lines = ranges.getLineObj( sampling )
   traces = ranges.getTraceObj( sampling )
   zsamp = ranges.getZObj( sampling )
+  x3axis = None
   if flatx1:
     x1axis = traces
     x2axis = zsamp
@@ -39,13 +40,33 @@ def getAxes( sampling, dataarr ):
     x2axis = traces
     x3axis = zsamp
 
-#  print( x1axis, x2axis )
+  x1label = list(sampling.keys())[list(sampling.values()).index(x1axis)]
+  x2label = list(sampling.keys())[list(sampling.values()).index(x2axis)]
+  x3label = None
+  if x3axis != None:
+    x3label = list(sampling.keys())[list(sampling.values()).index(x3axis)]
 
+  return {
+    'range': [ranges.arrayFromRange(x1axis),
+              ranges.arrayFromRange(x2axis),
+              ranges.arrayFromRange(x3axis)],
+    'labels': [x1label,x2label,x3label]
+  }
 
-def preLoad( filenm, attribnm, sampling=None, fillval=None ):
+def preLoad( filenm, attribute=None, sampling=None, fillval=None ):
   attribinfo = odhdf5.getAttribInfo( filenm )
   samplinginfo = attribinfo['range']
   datatkzs = ranges.getAxesAsRanges( samplinginfo )
+  if attribute==None:
+    attribinfo = odhdf5.getAttribInfo( filenm )
+    compnms = attribinfo['attributes']
+    if isinstance( compnms, list ):
+      if len(compnms)<1:
+        return []
+      attribute = compnms[0]
+    else:
+      attribute = compnms
+
   if sampling==None:
     sampling = datatkzs
   if fillval==None:
@@ -60,7 +81,7 @@ def preLoad( filenm, attribnm, sampling=None, fillval=None ):
   nrblocky = blocksrg['Crossline'][1]+1
 
   h5file = h5py.File( filenm, "r" )
-  datagroup = h5file[attribnm]
+  datagroup = h5file[attribute]
   if len(datagroup) < 1:
     print( "Empty dataset found" )
     return []
@@ -105,14 +126,19 @@ def preLoad( filenm, attribnm, sampling=None, fillval=None ):
         continue
       linerg = [ max(blklinerg[0],lines.start), min(blklinerg[1],lines.stop-lines.step) ]
       trcrg  = [ max(blktrcrg[0],traces.start), min(blktrcrg[1],traces.stop-traces.step) ]
-      linergin = [ alllines.index(linerg[0]) % dim1blocksz-dim1shift, alllines.index(linerg[1]) % dim1blocksz+1-dim1shift ]
-      trcrgin = [ alltraces.index(trcrg[0]) % dim2blocksz-dim2shift, alltraces.index(trcrg[1]) % dim2blocksz+1-dim2shift ]
+      linergin = [ alllines.index(linerg[0]) % dim1blocksz-dim1shift,
+                   alllines.index(linerg[1]) % dim1blocksz+1-dim1shift ]
+      trcrgin = [ alltraces.index(trcrg[0]) % dim2blocksz-dim2shift,
+                  alltraces.index(trcrg[1]) % dim2blocksz+1-dim2shift ]
       linergout = [ lines.index(linerg[0]), lines.index(linerg[1])+1 ]
       trcrgout = [traces.index(trcrg[0]), traces.index(trcrg[1])+1 ]
       sliceout[linergout[0]:linergout[1],trcrgout[0]:trcrgout[1],zrgout[0]:zrgout[1]] = subcube[linergin[0]:linergin[1],trcrgin[0]:trcrgin[1],zrgin[0]:zrgin[1]]
+  h5file.close()
 
   axes = getAxes( sampling, sliceout )
   sliceout = np.squeeze(sliceout)
 
-  h5file.close()
-  return sliceout
+  return {
+    'data': sliceout,
+    'axes': axes
+  }
