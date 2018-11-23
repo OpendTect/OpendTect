@@ -1,3 +1,4 @@
+import collections
 import numpy as np
 import h5py
 import odpy.common
@@ -65,25 +66,25 @@ def getAttribInfo( filenm ):
     zrg = np.multiply(zrg,1000).astype("int32")
     zrg = [zrg[0],zrg[1],zrg[2]]
   h5file.close()
-  return {
+  return collections.OrderedDict({
     'name': datasetnm,
     'attributes': compnms,
     'version': blocksversion,
     'zdomain': zdomain,
     'storage': datachar,
-    'range': {
+    'range': collections.OrderedDict({
       'Inline': [inlstart,inlstop,inl_step],
       'Crossline': [crlstart,crlstop,crl_step],
       'Z': zrg
-    },
+    }),
     'block': {
       'size': blocksdim,
-      'range': {
+      'range': collections.OrderedDict({
         'Inline': blocksinlrg,
         'Crossline': blockscrlrg
-      }
+      })
     }
-  }
+  })
 
 # Survey transformation (X-Y) to (Inl-Crl)
 # Given an Inl-Crl pair: ic_pos = [inl,crl]
@@ -92,10 +93,10 @@ def getAttribInfo( filenm ):
 def getTransform( info ):
   coordsxbid = getDStepInterval(info,"Coord-X-BinID")
   coordsybid = getDStepInterval(info,"Coord-Y-BinID")
-  return {
+  return collections.OrderedDict({
     'origin':   [coordsxbid[0],coordsybid[0]],
     'rotation': [[coordsxbid[1],coordsxbid[2]],[coordsybid[1],coordsybid[2]]]
-  }
+  })
 
 def getSurveyInfo( filenm ):
   h5file = h5py.File( filenm, "r" )
@@ -107,16 +108,16 @@ def getSurveyInfo( filenm ):
   yrg = getDInterval(infods,"Y range")
   transform = getTransform( infods )
   h5file.close()
-  return {
+  return collections.OrderedDict({
     'name': surveyname,
-    'range': {
+    'range': collections.OrderedDict({
       'Inline': inlinerg,
       'Crossline': crosslinerg,
       'X': xrg,
       'Y': yrg
-    },
+    }),
     'transform': transform
-  }
+  })
 
 def getWellInfo( filenm ):
   h5file = h5py.File( filenm, "r" )
@@ -149,10 +150,10 @@ def getWellInfo( filenm ):
   idx = 0
   input = list()
   while idx < inp_sz:
-    inp = {
+    inp = collections.OrderedDict({
       "name": getText(infods,"Input."+str(idx)+".Logs"),
       "survey": getText(infods,"Input."+str(idx)+".Survey")
-    }
+    })
     input.append( inp )
     idx += 1
 
@@ -161,11 +162,11 @@ def getWellInfo( filenm ):
   marker = (getText(infods,"Top marker"), getText(infods,"Bottom marker"))
   isinterpol = getBoolValue(infods,"Edge extrapolation")
   h5file.close()
-  return {
+  return collections.OrderedDict({
     'examples': examples,
     'input': input,
     'zstep': zstep,
     'stepout': stepout,
     'marker': marker,
     'interpolated': isinterpol
-  }
+  })

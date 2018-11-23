@@ -1,5 +1,6 @@
 import sys
 import os
+import collections
 import numpy as np
 import h5py
 import odpy.hdf5 as odhdf5
@@ -12,7 +13,8 @@ if len(sys.argv) < 2:
   print( "No file name specified" )
 
 filenm = sys.argv[1]
-print( "\nBrowsing '" + filenm + "'\n\n" )
+filebasenm = os.path.basename( filenm )
+print( "\nBrowsing '" + filebasenm + "'\n\n" )
 
 si = odhdf5.getSurveyInfo( filenm )
 attribinfo = odhdf5.getAttribInfo( filenm )
@@ -27,6 +29,7 @@ print( "Data is stored as " + attribinfo['storage'] + "\n" )
 
 usrinp = "1"
 compnms = attribinfo['attributes']
+attribnm = None
 if isinstance( compnms, list ):
   nrcomps = len( compnms )
   if nrcomps > 1:
@@ -40,8 +43,6 @@ if isinstance( compnms, list ):
   if cidx >= nrcomps:
     cidx = nrcomps - 1
   attribnm = compnms[cidx]
-else:
-  attribnm = compnms
 
 ranges.printSampling( samplinginfo )
 print( "Number of Z samples: " + repr(len(axes['zsamp'])) )
@@ -63,36 +64,24 @@ while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
     if inlinedir:
       slicetxt = "Inline"
       slicerg = ranges.getLineObj( datatkzs )
-      tkzs = {
+      tkzs = collections.OrderedDict({
         'Crossline': ranges.getTraceObj( datatkzs ),
         'Z': ranges.getZObj( datatkzs )
-      }
-      x1axis = ranges.getTraceObj( axes )
-      x2axis = ranges.getZObj( axes )
-      xlabel = "Cross-line"
-      ylabel = attribinfo['zdomain']
+      })
     elif crosslinedir:
       slicetxt = "Crossline"
       slicerg = ranges.getTraceObj( datatkzs )
-      tkzs = {
+      tkzs = collections.OrderedDict({
         'Inline': ranges.getLineObj( datatkzs ),
         'Z': ranges.getZObj( datatkzs )
-      }
-      x1axis = ranges.getLineObj( axes )
-      x2axis = ranges.getZObj( axes )
-      xlabel = "In-line"
-      ylabel = attribinfo['zdomain']
+      })
     elif zdir:
       slicetxt = "Z slice"
       slicerg = ranges.getZObj( datatkzs )
-      tkzs = {
+      tkzs = collections.OrderedDict({
         'Inline': ranges.getLineObj( datatkzs ),
         'Crossline': ranges.getTraceObj( datatkzs )
-      }
-      x1axis = ranges.getLineObj( axes )
-      x2axis = ranges.getTraceObj( axes )
-      xlabel = "In-line"
-      ylabel = "Cross-line"
+      })
     elif slicesel == 0:
       cont="No"
       break
@@ -120,26 +109,35 @@ while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
 
   if slicesel == 1:
     step = ranges.getLineObj( datatkzs ).step
-    tkzs['Inline'] = range(slicenb,slicenb+step,step)
+    tkzs.update({'Inline': range(slicenb,slicenb+step,step)})
+    tkzs.move_to_end('Inline',last=False)
   elif slicesel == 2:
     step = ranges.getTraceObj( datatkzs ).step
-    tkzs['Crossline'] = range(slicenb,slicenb+step,step)
+    tkzs.update({'Crossline': range(slicenb,slicenb+step,step)})
+    tkzs.move_to_end('Z',last=True)
   elif slicesel == 3:
     step = ranges.getZObj( datatkzs ).step
-    tkzs['Z'] = range(slicenb,slicenb+step,step)
+    tkzs.update({'Z': range(slicenb,slicenb+step,step)})
 
-  sliceout = volpreload.preLoad( filenm, attribnm, tkzs )
-  if len(sliceout) == 0:
+  preloaded = volpreload.preLoad( filenm, attribute=attribnm, sampling=tkzs )
+  arr = preloaded['data']
+  if len(arr) == 0:
     exit(1)
 
   fig,ax = plt.subplots(1,1,sharex="col",sharey="row",facecolor="white")
   fig.subplots_adjust(top=0.95,bottom=0.05,left=0.05,right=0.93,hspace=0.02,wspace=0.15)
   plt.get_current_fig_manager().window.setGeometry(1920,0,1920,960)
   #TODO: Assign amplitude range from data
-  im = ax.imshow(np.transpose(sliceout),cmap="seismic_r",aspect="auto",interpolation="quadric",vmin=-8000,vmax=8000,extent=[x1axis[0],x1axis[-1],x2axis[-1],x2axis[0]])
-  ax.set_title("HDF5 Slice")
-  ax.set_xlabel(xlabel)
-  ax.set_ylabel(ylabel)
+  axes = preloaded['axes']
+  axrg = axes['range']
+  im = ax.imshow(np.transpose(arr),cmap="seismic_r",aspect="auto",interpolation="quadric",vmin=-8000,vmax=8000,extent=[axrg[0][0],axrg[0][-1],axrg[1][-1],axrg[1][0]])
+  title = "HDF5 Slice of "+filebasenm
+  if attribnm != None:
+    title = title + ' [' + attribnm + ']'
+  labels = axes['labels']
+  ax.set_title(title)
+  ax.set_xlabel(labels[0])
+  ax.set_ylabel(labels[1])
   axins = inset_axes(ax,width="1%",height="100%",loc=3,bbox_to_anchor=(1.02,0.,1,1),bbox_transform=ax.transAxes,borderpad=0)
   cbar = ax.figure.colorbar(im,cax=axins)
   print( "Close the plot to continue" )

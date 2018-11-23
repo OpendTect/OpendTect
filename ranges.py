@@ -6,15 +6,20 @@
 # ranges tools
 #
 
+import collections
 import odpy.common
 import numpy as np
 
 def get_range( samp ):
   return range( samp[0], samp[1]+samp[2], samp[2] )
 
-def get_range_steps( samp ):
-  rg = get_range( samp )
+def arrayFromRange( rg ):
+  if rg == None:
+    return None
   return np.linspace( rg.start, rg.stop, len(rg), dtype=np.int32 )
+
+def get_range_steps( samp ):
+  return arrayFromRange( get_range(samp) )
 
 def getLineObj( obj ):
   try:
@@ -47,18 +52,18 @@ def getZObj( obj ):
   return ret
 
 def getAxesAsRanges( tkzs ):
-   return {
+   return collections.OrderedDict ({
     'lines': get_range( getLineObj(tkzs) ),
     'traces': get_range( getTraceObj(tkzs) ),
     'zsamp': get_range( getZObj(tkzs) )
-   }
+   })
 
 def getAxesAsArrays( tkzs ):
-  return {
+  return collections.OrderedDict ({
     'lines': get_range_steps( getLineObj(tkzs) ),
     'traces': get_range_steps( getTraceObj(tkzs) ),
     'zsamp': get_range_steps( getZObj(tkzs) )
-  }
+  })
 
 def getIntervalStr( rg, label ):
   if len(rg) < 3:
