@@ -294,10 +294,10 @@ CubeSubSel::CubeSubSel( const TrcKeyZSampling& tkzs )
 
 
 void CubeSubSel::setRange( const BinID& start, const BinID& stop,
-			   const BinID& step )
+			   const BinID& stp )
 {
-    setInlRange( pos_steprg_type(start.inl(),stop.inl(),step.inl()) );
-    setCrlRange( pos_steprg_type(start.crl(),stop.crl(),step.crl()) );
+    setInlRange( pos_steprg_type(start.inl(),stop.inl(),stp.inl()) );
+    setCrlRange( pos_steprg_type(start.crl(),stop.crl(),stp.crl()) );
 }
 
 
