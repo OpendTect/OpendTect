@@ -277,7 +277,7 @@ void VW2DPickSet::draw()
 		else
 		{
 		    Pos::GeomID geomid = vwr2dtkzs.hsamp_.getGeomID();
-		    int trcidx;
+		    int trcidx = -1;
 		    if ( pl.hasTrcKey() )
 		    {
 			if ( pl.geomID() != geomid )
