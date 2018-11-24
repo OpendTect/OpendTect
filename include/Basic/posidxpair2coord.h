@@ -25,7 +25,7 @@ mExpClass(Basic) IdxPair2Coord
 {
 public:
 
-    typedef IdxPair::IdxType IdxType;
+    mUseType( IdxPair,	pos_type );
 
 			IdxPair2Coord()		{}
 

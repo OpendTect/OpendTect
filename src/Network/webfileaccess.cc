@@ -40,7 +40,7 @@ public:
 
 			FileDownloadMgr(const char* fnm);
 
-    bool		goTo(FilePosType&,BlockIdxType&);
+    bool		goTo(FilePosType&,block_idx_type&);
     bool		fill(const FileChunkSetType&);
 
     uiString		errmsg_;
@@ -53,7 +53,7 @@ private:
 
 
     od_int64		getSz(const char*);
-    bool		fillBlock(BlockIdxType);
+    bool		fillBlock(block_idx_type);
     bool		fillSingle(FileChunkType);
     ChunkSizeType	getReplies(FileChunkSetType&,ReplySet&);
     bool		waitForFinish(ReplySet&);
@@ -97,7 +97,7 @@ od_int64 Network::FileDownloadMgr::getSz( const char* fnm )
 }
 
 
-bool Network::FileDownloadMgr::goTo( FilePosType& pos, BlockIdxType& bidx )
+bool Network::FileDownloadMgr::goTo( FilePosType& pos, block_idx_type& bidx )
 {
     bidx = blockIdx( pos );
     if ( pos >= size() )
@@ -110,7 +110,7 @@ bool Network::FileDownloadMgr::goTo( FilePosType& pos, BlockIdxType& bidx )
 }
 
 
-bool Network::FileDownloadMgr::fillBlock( BlockIdxType bidx )
+bool Network::FileDownloadMgr::fillBlock( block_idx_type bidx )
 {
     FileChunkType chunk( blockStart(bidx), 0 );
     chunk.stop = chunk.start + blockSize(bidx) - 1;
@@ -259,10 +259,10 @@ class webstreambuf : public std::streambuf
 {
 public:
 
-    typedef FileCache::FileSizeType	FileSizeType;
+    typedef FileCache::file_size_type	file_size_type;
     typedef FileCache::FilePosType	FilePosType;
     typedef FileCache::BufType		BufType;
-    typedef FileCache::BlockIdxType	BlockIdxType;
+    typedef FileCache::block_idx_type	block_idx_type;
     typedef FileCache::BlockSizeType	BlockSizeType;
 
 webstreambuf()
@@ -296,7 +296,7 @@ inline int eofVal() const
     return std::char_traits<char>::eof();
 }
 
-    BlockIdxType		curbidx_;
+    block_idx_type		curbidx_;
 
     virtual FileCache&		cache()			= 0;
     virtual FilePosType		curPos() const		= 0;

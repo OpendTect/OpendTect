@@ -552,7 +552,7 @@ void Pos::IdxPairValueSet::fillPar( IOPar& iop, const char* ky ) const
     iop.set( key, fms );
 
     SPos spos;
-    IdxType prevfirst = mUdf( IdxType );
+    idx_type prevfirst = mUdf( idx_type );
     while( next(spos) )
     {
 	const IdxPair ip = getIdxPair( spos );

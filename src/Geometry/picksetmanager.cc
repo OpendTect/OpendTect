@@ -149,7 +149,7 @@ bool Pick::SetManager::isPolygon( const ObjID& id ) const
 	return false;
 
     mLock4Read();
-    const IdxType idx = gtIdx( id );
+    const idx_type idx = gtIdx( id );
     if ( idx >= 0 )
     {
 	const Set* ps = mToPS(const,*,savers_[idx]->object());
@@ -169,7 +169,7 @@ bool Pick::SetManager::hasCategory( const ObjID& id, const char* cat ) const
 	return false;
 
     mLock4Read();
-    const IdxType idx = gtIdx( id );
+    const idx_type idx = gtIdx( id );
     if ( idx >= 0 )
     {
 	const Set* ps = mToPS(const,*,savers_[idx]->object());
@@ -184,14 +184,14 @@ bool Pick::SetManager::hasCategory( const ObjID& id, const char* cat ) const
 }
 
 
-ConstRefMan<Pick::Set> Pick::SetManager::get( IdxType idx ) const
+ConstRefMan<Pick::Set> Pick::SetManager::get( idx_type idx ) const
 {
     const SharedObject* shobj = gtObj( idx );
     return ConstRefMan<Set>( mToPS(const,*,shobj) );
 }
 
 
-RefMan<Pick::Set> Pick::SetManager::getForEdit( IdxType idx )
+RefMan<Pick::Set> Pick::SetManager::getForEdit( idx_type idx )
 {
     SharedObject* shobj = gtObj( idx );
     return RefMan<Set>( mToPS(,*,shobj) );
@@ -200,7 +200,7 @@ RefMan<Pick::Set> Pick::SetManager::getForEdit( IdxType idx )
 
 Pick::Set* Pick::SetManager::gtSet( const ObjID& id ) const
 {
-    const IdxType idxof = gtIdx( id );
+    const idx_type idxof = gtIdx( id );
     if ( idxof < 0 )
 	return 0;
     SharedObject* obj = const_cast<SharedObject*>( savers_[idxof]->object() );

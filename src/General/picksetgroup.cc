@@ -65,7 +65,7 @@ Monitorable::ChangeType Pick::SetGroup::compareClassData(
 }
 
 
-Pick::SetGroup::IdxType Pick::SetGroup::gtIdx( SetID id ) const
+Pick::SetGroup::idx_type Pick::SetGroup::gtIdx( SetID id ) const
 {
     if ( id.isInvalid() )
 	return -1;
@@ -73,7 +73,7 @@ Pick::SetGroup::IdxType Pick::SetGroup::gtIdx( SetID id ) const
     const int sz = sets_.size();
     if ( id.getI() < sz && setids_[id.getI()] == id )
 	return id.getI();
-    for ( IdxType idx=0; idx<setids_.size(); idx++ )
+    for ( idx_type idx=0; idx<setids_.size(); idx++ )
 	if ( setids_[idx] == id )
 	    return idx;
 
@@ -83,14 +83,14 @@ Pick::SetGroup::IdxType Pick::SetGroup::gtIdx( SetID id ) const
 
 Pick::Set* Pick::SetGroup::gtSet( SetID id ) const
 {
-    const IdxType idx = gtIdx( id );
+    const idx_type idx = gtIdx( id );
     return idx < 0 ? 0 : const_cast<Set*>( sets_[idx] );
 }
 
 
 Pick::SetGroup::SetID Pick::SetGroup::gtID( const Set* st ) const
 {
-    for ( IdxType idx=0; idx<sets_.size(); idx++ )
+    for ( idx_type idx=0; idx<sets_.size(); idx++ )
     {
 	if ( sets_[idx] == st )
 	    return setids_[idx];
@@ -99,9 +99,9 @@ Pick::SetGroup::SetID Pick::SetGroup::gtID( const Set* st ) const
 }
 
 
-Pick::SetGroup::IdxType Pick::SetGroup::gtIdxByName( const char* nm ) const
+Pick::SetGroup::idx_type Pick::SetGroup::gtIdxByName( const char* nm ) const
 {
-    for ( IdxType idx=0; idx<sets_.size(); idx++ )
+    for ( idx_type idx=0; idx<sets_.size(); idx++ )
     {
 	const Set& l = *sets_[idx];
 	if ( l.hasName(nm) )
@@ -113,18 +113,18 @@ Pick::SetGroup::IdxType Pick::SetGroup::gtIdxByName( const char* nm ) const
 
 Pick::Set* Pick::SetGroup::gtSetByName( const char* nm ) const
 {
-    const IdxType idx = gtIdxByName( nm );
+    const idx_type idx = gtIdxByName( nm );
     return idx < 0 ? 0 : const_cast<Set*>( sets_[idx] );
 }
 
 
-Pick::Set* Pick::SetGroup::gtSetByIdx( IdxType idx ) const
+Pick::Set* Pick::SetGroup::gtSetByIdx( idx_type idx ) const
 {
     return sets_.validIdx(idx) ? const_cast<Set*>( sets_[idx] ) : 0;
 }
 
 
-Pick::Set* Pick::SetGroup::doRemove( IdxType idx )
+Pick::Set* Pick::SetGroup::doRemove( idx_type idx )
 {
     Set* st = sets_.removeSingle( idx );
     setids_.removeSingle( idx );
@@ -166,14 +166,14 @@ Pick::SetGroup::CSetRefMan Pick::SetGroup::getSetByName( const char* nm ) const
 }
 
 
-Pick::SetGroup::SetRefMan Pick::SetGroup::getSetByIdx( IdxType idx )
+Pick::SetGroup::SetRefMan Pick::SetGroup::getSetByIdx( idx_type idx )
 {
     mLock4Read();
     return gtSetByIdx( idx );
 }
 
 
-Pick::SetGroup::CSetRefMan Pick::SetGroup::getSetByIdx( IdxType idx ) const
+Pick::SetGroup::CSetRefMan Pick::SetGroup::getSetByIdx( idx_type idx ) const
 {
     mLock4Read();
     return gtSetByIdx( idx );
@@ -205,34 +205,34 @@ od_int64 Pick::SetGroup::nrLocations() const
 {
     mLock4Read();
     od_int64 ret = 0;
-    for ( IdxType idx=0; idx<sets_.size(); idx++ )
+    for ( idx_type idx=0; idx<sets_.size(); idx++ )
 	ret += sets_[idx]->size();
     return ret;
 }
 
 
-Pick::SetGroup::SetID Pick::SetGroup::getID( IdxType idx ) const
+Pick::SetGroup::SetID Pick::SetGroup::getID( idx_type idx ) const
 {
     mLock4Read();
     return setids_.validIdx( idx ) ? setids_[idx] : SetID::getInvalid();
 }
 
 
-Pick::SetGroup::IdxType Pick::SetGroup::indexOf( SetID id ) const
+Pick::SetGroup::idx_type Pick::SetGroup::indexOf( SetID id ) const
 {
     mLock4Read();
     return gtIdx( id );
 }
 
 
-Pick::SetGroup::IdxType Pick::SetGroup::indexOf( const char* nm ) const
+Pick::SetGroup::idx_type Pick::SetGroup::indexOf( const char* nm ) const
 {
     mLock4Read();
     return gtIdxByName( nm );
 }
 
 
-bool Pick::SetGroup::validIdx( IdxType idx ) const
+bool Pick::SetGroup::validIdx( idx_type idx ) const
 {
     mLock4Read();
     return sets_.validIdx( idx );
@@ -287,7 +287,7 @@ Pick::SetGroup::SetID Pick::SetGroup::add( Pick::Set* st )
 Pick::SetGroup::SetRefMan Pick::SetGroup::remove( SetID id )
 {
     mLock4Write();
-    IdxType idx = gtIdx( id );
+    idx_type idx = gtIdx( id );
     if ( idx < 0 )
 	return 0;
 
@@ -306,7 +306,7 @@ Pick::SetGroup::SetRefMan Pick::SetGroup::remove( SetID id )
 Pick::SetGroup::SetRefMan Pick::SetGroup::removeByName( const char* nm )
 {
     mLock4Write();
-    IdxType idx = gtIdxByName( nm );
+    idx_type idx = gtIdxByName( nm );
     if ( idx < 0 )
 	return 0;
 
@@ -324,7 +324,7 @@ Pick::SetGroup::SetRefMan Pick::SetGroup::removeByName( const char* nm )
 bool Pick::SetGroup::isPresent( const char* nm ) const
 {
     mLock4Read();
-    for ( IdxType idx=0; idx<sets_.size(); idx++ )
+    for ( idx_type idx=0; idx<sets_.size(); idx++ )
 	if ( sets_[idx]->hasName(nm) )
 	    return true;
     return false;
@@ -334,12 +334,12 @@ bool Pick::SetGroup::isPresent( const char* nm ) const
 void Pick::SetGroup::getNames( BufferStringSet& nms ) const
 {
     mLock4Read();
-    for ( IdxType idx=0; idx<sets_.size(); idx++ )
+    for ( idx_type idx=0; idx<sets_.size(); idx++ )
 	nms.add( sets_[idx]->name() );
 }
 
 
-bool Pick::SetGroup::swap( IdxType idx1, IdxType idx2 )
+bool Pick::SetGroup::swap( idx_type idx1, idx_type idx2 )
 {
     mLock4Write();
     if ( !sets_.validIdx(idx1) || !sets_.validIdx(idx2) )
@@ -355,14 +355,14 @@ bool Pick::SetGroup::swap( IdxType idx1, IdxType idx2 )
 // Pick::SetGroupIter
 
 Pick::SetGroupIter::SetGroupIter( const SetGroup& ls, bool atend )
-    : MonitorableIter4Read<SetGroup::IdxType>(ls,
+    : MonitorableIter4Read<SetGroup::idx_type>(ls,
 	    atend?ls.size()-1:0,atend?0:ls.size()-1)
 {
 }
 
 
 Pick::SetGroupIter::SetGroupIter( const SetGroupIter& oth )
-    : MonitorableIter4Read<SetGroup::IdxType>(oth)
+    : MonitorableIter4Read<SetGroup::idx_type>(oth)
 {
 }
 

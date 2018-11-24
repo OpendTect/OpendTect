@@ -24,7 +24,7 @@ mExpClass(Seis) Wavelet : public SharedObject
 public:
 
     typedef int		size_type;
-    typedef size_type	IdxType;
+    typedef size_type	idx_type;
     typedef float	ValueType;
     typedef float	ZType;
 
@@ -38,13 +38,13 @@ public:
     mImplSimpleMonitoredGetSet(inline,sampleRate,setSampleRate,
 				    ZType,dpos_,cParChange())
     mImplSimpleMonitoredGetSet(inline,centerSample,setCenterSample,
-				    IdxType,cidx_,cParChange())
+				    idx_type,cidx_,cParChange())
     size_type		size() const;
     inline bool		isEmpty() const		    { return size() < 1; }
-    bool		validIdx(IdxType) const;
-    ValueType		get(IdxType) const;
+    bool		validIdx(idx_type) const;
+    ValueType		get(idx_type) const;
     ValueType		getValue(ZType) const;
-    void		set(IdxType,ValueType);
+    void		set(idx_type,ValueType);
     ValueType*		getSamples() const;	//!< needs delete []
     void		getSamples(ValueType*) const;
     void		getSamples(TypeSet<ValueType>&) const;
@@ -56,7 +56,7 @@ public:
     void		reSize(size_type,ValueType val=0.f);
 
     StepInterval<ZType>	samplePositions() const;
-    IdxType		nearestSample(ZType) const;
+    idx_type		nearestSample(ZType) const;
     bool		hasSymmetricalSamples() const;
 
     bool		reSample(ZType);
@@ -82,7 +82,7 @@ protected:
     ValueType*		samps_;
     size_type		sz_;
     ZType		dpos_;		//!< delta Z, sample interval
-    IdxType		cidx_;		//!< The index at pos == 0
+    idx_type		cidx_;		//!< The index at pos == 0
 
     ValueSeriesInterpolator<ValueType>* intpol_;
 

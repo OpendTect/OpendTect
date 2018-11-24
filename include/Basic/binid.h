@@ -25,7 +25,7 @@ public:
     typedef Pos::IdxPair	IdxPair;
 
     inline			BinID()				{}
-    inline			BinID( IdxType i, IdxType c )
+    inline			BinID( pos_type i, pos_type c )
 				    : IdxPair(i,c)		{}
     explicit inline		BinID( const IdxPair& ip )
 				    : IdxPair(ip)		{}
@@ -39,8 +39,8 @@ public:
     inline BinID		operator*(const IdxPair&) const;
     inline BinID		operator/(const IdxPair&) const;
 
-    inline BinID		operator*(IdxType) const;
-    inline BinID		operator/(IdxType) const;
+    inline BinID		operator*(int) const;
+    inline BinID		operator/(int) const;
 
     inline static BinID		fromInt64(od_int64);
 
@@ -64,9 +64,9 @@ inline BinID BinID::operator*( const IdxPair& ip ) const
 	{ return BinID( first*ip.first, second*ip.second ); }
 inline BinID BinID::operator/( const IdxPair& ip ) const
 	{ return BinID( first/ip.first, second/ip.second ); }
-inline BinID BinID::operator*( IdxType fac ) const
+inline BinID BinID::operator*( int fac ) const
 	{ return BinID( inl()*fac, crl()*fac ); }
-inline BinID BinID::operator/( IdxType fac ) const
+inline BinID BinID::operator/( int fac ) const
 	{ return BinID( inl()/fac, crl()/fac ); }
 inline BinID BinID::operator-() const
 	{ return BinID( -inl(), -crl() ); }

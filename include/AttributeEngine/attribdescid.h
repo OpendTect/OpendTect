@@ -18,13 +18,13 @@ namespace Attrib
 
 /*!\brief unique ID in a DescSet combined with whether it's stored.  */
 
-class DescID : public ::IntegerID<int>
+class DescID : public ::IntegerID<>
 {
 public:
 
     inline		DescID()		{}
-    inline explicit	DescID( int n )
-			    : IntegerID<int>(n)	{}
+    inline explicit	DescID( IDType n )
+			    : IntegerID<>(n)	{}
     inline explicit	operator int() const	{ return this->nr_; }
 
 			mImplSimpleEqOpers1Memb(DescID,nr_)

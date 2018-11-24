@@ -28,7 +28,7 @@ protected:
 			~ArrayNDImplBase()	{ delete stor_; }
 
 
-    virtual ArrayNDInfo::TotalSzType getStorageSize() const		= 0;
+    virtual ArrayNDInfo::total_size_type getStorageSize() const		= 0;
     bool		storageOK() const;
     bool		updateStorageSize();
 			/*!<Sets storage size to getStorageSize()
@@ -52,7 +52,7 @@ mClass(Basic) Array1DImpl : public Array1D<T>, public ArrayNDImplBase<T>
 public:
 			mTypeDefArrNDTypes;
 
-			Array1DImpl(SzType);
+			Array1DImpl(size_type);
 			Array1DImpl(const Array1D<T>&);
 			Array1DImpl(const Array1DImpl<T>&);
     Array1DImpl<T>&	operator =( const Array1D<T>& ai )
@@ -69,15 +69,15 @@ public:
 			    { return base::setStorageInternal(vs); }
     bool		canSetStorage() const	{ return true; }
 
-    void		set(IdxType,T);
-    T			get(IdxType) const;
+    void		set(idx_type,T);
+    T			get(idx_type) const;
 
     const Array1DInfo&	info() const		{ return inf_; }
     bool		canSetInfo() const	{ return true; }
     bool		setInfo(const ArrayNDInfo&);
-    bool		setSize(SzType);
+    bool		setSize(size_type);
     bool		setSize( od_int64 sz )
-			    { return setSize( ((SzType)sz) ); }
+			    { return setSize( ((size_type)sz) ); }
 
 			// ValueSeries interface
     T*			arr()			{ return base::arr_; }
@@ -87,7 +87,7 @@ protected:
 
     const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    TotalSzType		getStorageSize() const  { return inf_.totalSize(); }
+    total_size_type	getStorageSize() const  { return inf_.totalSize(); }
 
     Array1DInfoImpl	inf_;
 
@@ -102,7 +102,7 @@ mClass(Basic) Array2DImpl : public Array2D<T>, public ArrayNDImplBase<T>
 public:
 			mTypeDefArrNDTypes;
 
-			Array2DImpl(SzType,SzType);
+			Array2DImpl(size_type,size_type);
 			Array2DImpl(const Array2DInfo&);
 			Array2DImpl(const Array2D<T>&);
 			Array2DImpl(const Array2DImpl<T>&);
@@ -117,15 +117,15 @@ public:
     bool		canSetStorage() const		{ return true; }
     bool		setStorage(ValueSeries<T>* vs);
 
-    void		set(IdxType,IdxType,T);
-    T			get(IdxType,IdxType) const;
+    void		set(idx_type,idx_type,T);
+    T			get(idx_type,idx_type) const;
     void		copyFrom(const Array2D<T>&);
 
     const Array2DInfo&	info() const		{ return inf_; }
     bool		canSetInfo() const	{ return true; }
 
     bool		setInfo(const ArrayNDInfo&);
-    bool		setSize(SzType,SzType);
+    bool		setSize(size_type,size_type);
 
     T**			get2DData()		{ return arr2d_; }
     const T**		get2DData() const	{ return (const T**)arr2d_; }
@@ -135,7 +135,7 @@ protected:
     void		updateStorage();
     const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    TotalSzType		getStorageSize() const  { return inf_.totalSize(); }
+    total_size_type	getStorageSize() const  { return inf_.totalSize(); }
 
     void		updateCachePointers();
 
@@ -152,7 +152,7 @@ mClass(Basic) Array3DImpl : public Array3D<T>, public ArrayNDImplBase<T>
 public:
 			mTypeDefArrNDTypes;
 
-			Array3DImpl(SzType,SzType,SzType);
+			Array3DImpl(size_type,size_type,size_type);
 			Array3DImpl(const Array3DInfo&);
 			Array3DImpl(const Array3D<T>&);
 			Array3DImpl(const Array3DImpl<T>&);
@@ -166,14 +166,14 @@ public:
     bool		canSetStorage() const	{ return true; }
     bool		setStorage(ValueSeries<T>* vs);
 
-    void		set(IdxType,IdxType,IdxType,T);
-    T			get(IdxType,IdxType,IdxType) const;
+    void		set(idx_type,idx_type,idx_type,T);
+    T			get(idx_type,idx_type,idx_type) const;
     void		copyFrom(const Array3D<T>&);
 
     const Array3DInfo&	info() const			{ return inf_; }
     bool		canSetInfo() const		{ return true; }
     bool		setInfo(const ArrayNDInfo&);
-    bool		setSize(SzType,SzType,SzType);
+    bool		setSize(size_type,size_type,size_type);
 
     T***		get3DData()		{ return arr3d_; }
     const T***		get3DData() const	{ return (const T***)arr3d_; }
@@ -183,7 +183,7 @@ protected:
     void		updateStorage();
     const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    TotalSzType		getStorageSize() const  { return inf_.totalSize(); }
+    total_size_type	getStorageSize() const  { return inf_.totalSize(); }
 
     void		updateCachePointers();
     void		eraseCache();
@@ -203,7 +203,7 @@ mClass(Basic) Array4DImpl : public Array4D<T>, public ArrayNDImplBase<T>
 public:
 			mTypeDefArrNDTypes;
 
-			Array4DImpl(SzType,SzType,SzType,SzType);
+			Array4DImpl(size_type,size_type,size_type,size_type);
 			Array4DImpl(const Array4DInfo&);
 			Array4DImpl(const Array4D<T>&);
 			Array4DImpl(const Array4DImpl<T>&);
@@ -217,14 +217,14 @@ public:
     bool		canSetStorage() const	{ return true; }
     bool		setStorage(ValueSeries<T>* vs);
 
-    void		set(IdxType,IdxType,IdxType,IdxType,T);
-    T			get(IdxType,IdxType,IdxType,IdxType) const;
+    void		set(idx_type,idx_type,idx_type,idx_type,T);
+    T			get(idx_type,idx_type,idx_type,idx_type) const;
     void		copyFrom(const Array4D<T>&);
 
     const Array4DInfo&	info() const			{ return inf_; }
     bool		canSetInfo() const		{ return true; }
     bool		setInfo(const ArrayNDInfo&);
-    bool		setSize(SzType,SzType,SzType,SzType);
+    bool		setSize(size_type,size_type,size_type,size_type);
 
     T****		get4DData()		{ return arr4d_; }
     const T****		get4DData() const	{ return (const T****)arr4d_; }
@@ -234,7 +234,7 @@ protected:
     void		updateStorage();
     const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    TotalSzType		getStorageSize() const  { return inf_.totalSize(); }
+    total_size_type	getStorageSize() const  { return inf_.totalSize(); }
 
     void		updateCachePointers();
     void		eraseCache();
@@ -287,7 +287,7 @@ protected:
 
     const T*		getData_() const	{ return base::arr_; }
     const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    TotalSzType		getStorageSize() const  { return inf_->totalSize(); }
+    total_size_type	getStorageSize() const  { return inf_->totalSize(); }
 
     ArrayNDInfo*	inf_;
 };
@@ -363,7 +363,7 @@ bool ArrayNDImplBase<T>::getDataFrom( const ArrayND<T>& templ )
 
 
 template <class T> inline
-Array1DImpl<T>::Array1DImpl( SzType nsz )
+Array1DImpl<T>::Array1DImpl( size_type nsz )
     : inf_(nsz)
 {
     base::updateStorageSize();
@@ -389,7 +389,7 @@ Array1DImpl<T>::Array1DImpl( const Array1DImpl<T>& templ )
 
 
 template <class T> inline
-void Array1DImpl<T>::set( IdxType pos, T v )
+void Array1DImpl<T>::set( idx_type pos, T v )
 {
 #ifdef __debug__
     if ( !inf_.validPos( pos ) )
@@ -403,7 +403,7 @@ void Array1DImpl<T>::set( IdxType pos, T v )
 
 
 template <class T> inline
-T Array1DImpl<T>::get( IdxType pos ) const
+T Array1DImpl<T>::get( idx_type pos ) const
 {
 #ifdef __debug__
     if ( !inf_.validPos( pos ) )
@@ -433,7 +433,7 @@ bool Array1DImpl<T>::setInfo( const ArrayNDInfo& ni )
 
 
 template <class T> inline
-bool Array1DImpl<T>::setSize( SzType s )
+bool Array1DImpl<T>::setSize( size_type s )
 {
     inf_.setSize( 0, s );
     base::updateStorageSize();
@@ -442,7 +442,7 @@ bool Array1DImpl<T>::setSize( SzType s )
 
 
 template <class T> inline
-Array2DImpl<T>::Array2DImpl( SzType sz0, SzType sz1 )
+Array2DImpl<T>::Array2DImpl( size_type sz0, size_type sz1 )
     : inf_(sz0,sz1)
     , arr2d_(0)
 {
@@ -480,7 +480,7 @@ Array2DImpl<T>::Array2DImpl( const Array2DImpl<T>& templ )
 
 
 template <class T> inline
-void Array2DImpl<T>::set( IdxType p0, IdxType p1, T v )
+void Array2DImpl<T>::set( idx_type p0, idx_type p1, T v )
 {
 #ifdef __debug__
     if ( !inf_.validPos( p0, p1 ) )
@@ -490,14 +490,14 @@ void Array2DImpl<T>::set( IdxType p0, IdxType p1, T v )
 	arr2d_[p0][p1] = v;
     else
     {
-	const OffsetType offset = inf_.getOffset( p0, p1 );
+	const offset_type offset = inf_.getOffset( p0, p1 );
 	base::stor_->setValue( offset, v );
     }
 }
 
 
 template <class T> inline
-T Array2DImpl<T>::get( IdxType p0, IdxType p1 ) const
+T Array2DImpl<T>::get( idx_type p0, idx_type p1 ) const
 {
 #ifdef __debug__
     if ( !inf_.validPos( p0, p1 ) )
@@ -507,7 +507,7 @@ T Array2DImpl<T>::get( IdxType p0, IdxType p1 ) const
     if ( arr2d_ )
 	return arr2d_[p0][p1];
 
-    const OffsetType offset = inf_.getOffset( p0, p1 );
+    const offset_type offset = inf_.getOffset( p0, p1 );
     return base::stor_->value( offset );
 }
 
@@ -541,7 +541,7 @@ bool Array2DImpl<T>::setInfo( const ArrayNDInfo& ni )
 
 
 template <class T> inline
-bool Array2DImpl<T>::setSize( SzType d0, SzType d1 )
+bool Array2DImpl<T>::setSize( size_type d0, size_type d1 )
 {
     inf_.setSize( 0, d0 ); inf_.setSize( 1, d1 );
     updateStorage();
@@ -565,14 +565,14 @@ void Array2DImpl<T>::updateCachePointers()
     if ( !base::arr_ )
 	return;
 
-    const SzType n1 = inf_.getSize( 0 );
+    const size_type n1 = inf_.getSize( 0 );
     mTryAlloc(arr2d_,T*[n1])
     if ( !arr2d_ )
 	return;
 
-    const SzType n2 = inf_.getSize( 1 );
-    OffsetType offset = 0;
-    for ( IdxType idx=0; idx<n1; idx++, offset+=n2 )
+    const size_type n2 = inf_.getSize( 1 );
+    offset_type offset = 0;
+    for ( idx_type idx=0; idx<n1; idx++, offset+=n2 )
 	arr2d_[idx] = base::arr_ + offset;
 }
 
@@ -580,7 +580,7 @@ void Array2DImpl<T>::updateCachePointers()
 //Array3DImpl---
 
 template <class T> inline
-Array3DImpl<T>::Array3DImpl( SzType sz0, SzType sz1, SzType sz2 )
+Array3DImpl<T>::Array3DImpl( size_type sz0, size_type sz1, size_type sz2 )
     : inf_(sz0,sz1,sz2)
     , arr3d_(0)
 {
@@ -618,7 +618,7 @@ Array3DImpl<T>::Array3DImpl( const Array3DImpl<T>& templ )
 
 
 template <class T> inline
-void Array3DImpl<T>::set( IdxType p0, IdxType p1, IdxType p2, T v )
+void Array3DImpl<T>::set( idx_type p0, idx_type p1, idx_type p2, T v )
 {
 #ifdef __debug__
     if ( !inf_.validPos( p0, p1, p2 ) )
@@ -628,14 +628,14 @@ void Array3DImpl<T>::set( IdxType p0, IdxType p1, IdxType p2, T v )
 	arr3d_[p0][p1][p2] = v;
     else
     {
-	const OffsetType offset = inf_.getOffset( p0, p1, p2 );
+	const offset_type offset = inf_.getOffset( p0, p1, p2 );
 	base::stor_->setValue( offset, v );
     }
 }
 
 
 template <class T> inline
-T Array3DImpl<T>::get( IdxType p0, IdxType p1, IdxType p2 ) const
+T Array3DImpl<T>::get( idx_type p0, idx_type p1, idx_type p2 ) const
 {
 #ifdef __debug__
     if ( !inf_.validPos( p0, p1, p2 ) )
@@ -644,7 +644,7 @@ T Array3DImpl<T>::get( IdxType p0, IdxType p1, IdxType p2 ) const
     if ( arr3d_ )
 	return arr3d_[p0][p1][p2];
 
-    const OffsetType offset = inf_.getOffset( p0, p1, p2 );
+    const offset_type offset = inf_.getOffset( p0, p1, p2 );
     return base::stor_->value( offset );
 }
 
@@ -677,7 +677,7 @@ bool Array3DImpl<T>::setInfo( const ArrayNDInfo& ni )
 
 
 template <class T> inline
-bool Array3DImpl<T>::setSize( SzType d0, SzType d1, SzType d2 )
+bool Array3DImpl<T>::setSize( size_type d0, size_type d1, size_type d2 )
 {
     inf_.setSize( 0, d0 ); inf_.setSize( 1, d1 ); inf_.setSize( 2, d2 );
     updateStorage();
@@ -712,17 +712,17 @@ void Array3DImpl<T>::updateCachePointers()
     if ( !base::arr_ )
 	return;
 
-    const SzType n1 = inf_.getSize( 0 );
-    const SzType n2 = inf_.getSize( 1 );
-    const SzType n3 = inf_.getSize( 2 );
-    OffsetType offset = 0;
-    for ( IdxType idx=0; idx<n1; idx++ )
+    const size_type n1 = inf_.getSize( 0 );
+    const size_type n2 = inf_.getSize( 1 );
+    const size_type n3 = inf_.getSize( 2 );
+    offset_type offset = 0;
+    for ( idx_type idx=0; idx<n1; idx++ )
     {
 	mDeclareAndTryAlloc(T**,ptr2d,T*[n2])
 	if ( !ptr2d )
 	    return;
 
-	for ( IdxType idy=0; idy<n2; idy++, offset+=n3 )
+	for ( idx_type idy=0; idy<n2; idy++, offset+=n3 )
 	    ptr2d[idy] = base::arr_ + offset;
 
 	cachestor_ += ptr2d;
@@ -735,7 +735,8 @@ void Array3DImpl<T>::updateCachePointers()
 //Array4DImpl---
 
 template <class T> inline
-Array4DImpl<T>::Array4DImpl( SzType sz0, SzType sz1, SzType sz2, SzType sz3 )
+Array4DImpl<T>::Array4DImpl( size_type sz0, size_type sz1, size_type sz2,
+			     size_type sz3 )
     : inf_(sz0,sz1,sz2,sz3)
     , arr4d_(0)
 {
@@ -773,7 +774,8 @@ Array4DImpl<T>::Array4DImpl( const Array4DImpl<T>& templ )
 
 
 template <class T> inline
-void Array4DImpl<T>::set( IdxType p0, IdxType p1, IdxType p2, IdxType p3, T v )
+void Array4DImpl<T>::set( idx_type p0, idx_type p1, idx_type p2, idx_type p3,
+			  T v )
 {
 #ifdef __debug__
     if ( !inf_.validPos( p0, p1, p2, p3 ) )
@@ -783,14 +785,15 @@ void Array4DImpl<T>::set( IdxType p0, IdxType p1, IdxType p2, IdxType p3, T v )
 	arr4d_[p0][p1][p2][p3] = v;
     else
     {
-	const OffsetType offset = inf_.getOffset( p0, p1, p2, p3 );
+	const offset_type offset = inf_.getOffset( p0, p1, p2, p3 );
 	base::stor_->setValue( offset, v );
     }
 }
 
 
 template <class T> inline
-T Array4DImpl<T>::get( IdxType p0, IdxType p1, IdxType p2, IdxType p3 ) const
+T Array4DImpl<T>::get( idx_type p0, idx_type p1, idx_type p2,
+			idx_type p3 ) const
 {
 #ifdef __debug__
     if ( !inf_.validPos( p0, p1, p2, p3 ) )
@@ -799,7 +802,7 @@ T Array4DImpl<T>::get( IdxType p0, IdxType p1, IdxType p2, IdxType p3 ) const
     if ( arr4d_ )
 	return arr4d_[p0][p1][p2][p3];
 
-    const OffsetType offset = inf_.getOffset( p0, p1, p2, p3 );
+    const offset_type offset = inf_.getOffset( p0, p1, p2, p3 );
     return base::stor_->value( offset );
 }
 
@@ -832,7 +835,8 @@ bool Array4DImpl<T>::setInfo( const ArrayNDInfo& ni )
 
 
 template <class T> inline
-bool Array4DImpl<T>::setSize( SzType d0, SzType d1, SzType d2, SzType d3 )
+bool Array4DImpl<T>::setSize( size_type d0, size_type d1, size_type d2,
+			      size_type d3 )
 {
     inf_.setSize( 0, d0 ); inf_.setSize( 1, d1 );
     inf_.setSize( 2, d2 ); inf_.setSize( 3, d3 );
@@ -868,24 +872,24 @@ void Array4DImpl<T>::updateCachePointers()
     if ( !base::arr_ )
 	return;
 
-    const SzType n1 = inf_.getSize( 0 );
-    const SzType n2 = inf_.getSize( 1 );
-    const SzType n3 = inf_.getSize( 2 );
-    const SzType n4 = inf_.getSize( 3 );
-    OffsetType offset = 0;
-    for ( IdxType idx=0; idx<n1; idx++ )
+    const size_type n1 = inf_.getSize( 0 );
+    const size_type n2 = inf_.getSize( 1 );
+    const size_type n3 = inf_.getSize( 2 );
+    const size_type n4 = inf_.getSize( 3 );
+    offset_type offset = 0;
+    for ( idx_type idx=0; idx<n1; idx++ )
     {
 	mDeclareAndTryAlloc(T***,ptr3d,T**[n2])
 	if ( !ptr3d )
 	    return;
 
-	for ( IdxType idy=0; idy<n2; idy++ )
+	for ( idx_type idy=0; idy<n2; idy++ )
 	{
 	    mDeclareAndTryAlloc(T**,ptr2d,T*[n3])
 	    if ( !ptr2d )
 		return;
 
-	    for ( IdxType idz=0; idz<n3; idz++, offset+=n4 )
+	    for ( idx_type idz=0; idz<n3; idz++, offset+=n4 )
 		ptr2d[idz] = base::arr_ + offset;
 
 	    ptr3d[idy] = ptr2d;
@@ -945,7 +949,7 @@ void ArrayNDImpl<T>::setND( NDPos pos, T v )
     if ( !inf_->validPos( pos ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    const OffsetType offset = inf_->getOffset(pos);
+    const offset_type offset = inf_->getOffset(pos);
     if ( base::arr_ )
 	base::arr_[offset] = v ;
     else
@@ -960,7 +964,7 @@ T ArrayNDImpl<T>::getND( NDPos pos ) const
     if ( !inf_->validPos( pos ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    const OffsetType offset = inf_->getOffset(pos);
+    const offset_type offset = inf_->getOffset(pos);
     return base::arr_ ? base::arr_[offset] : base::stor_->value( offset );
 }
 
@@ -971,9 +975,9 @@ bool ArrayNDImpl<T>::setInfo( const ArrayNDInfo& ni )
     if ( ni.nrDims() != inf_->nrDims() )
 	{ pErrMsg("Changing dims in ND not supported"); return false; }
 
-    const NrDimsType ndim = inf_->nrDims();
-    TypeSet<SzType> sizes( ndim, 0 );
-    for ( DimIdxType idx=0; idx<ndim; idx++ )
+    const nr_dims_type ndim = inf_->nrDims();
+    TypeSet<size_type> sizes( ndim, 0 );
+    for ( dim_idx_type idx=0; idx<ndim; idx++ )
 	sizes[idx] = ni.getSize(idx);
 
     return setSize( sizes.arr() );
@@ -983,8 +987,8 @@ bool ArrayNDImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool ArrayNDImpl<T>::setSize( NDSize d )
 {
-    const NrDimsType ndim = inf_->nrDims();
-    for ( DimIdxType idx=0; idx<ndim; idx++ )
+    const nr_dims_type ndim = inf_->nrDims();
+    for ( dim_idx_type idx=0; idx<ndim; idx++ )
 	inf_->setSize( idx, d[idx] );
 
     base::updateStorageSize();
@@ -995,7 +999,7 @@ bool ArrayNDImpl<T>::setSize( NDSize d )
 template <class T> inline
 ArrayND<T>* ArrayNDImpl<T>::create( const ArrayNDInfo& inf )
 {
-    const NrDimsType ndim = inf.nrDims();
+    const nr_dims_type ndim = inf.nrDims();
 
     if ( ndim==1 )
 	return new Array1DImpl<T>( inf.getSize(0) );
@@ -1030,7 +1034,7 @@ ArrayND<T>* ArrayNDImpl<T>::clone( const ArrayND<T>& oth )
 template <class T> inline
 bool ArrayNDImpl<T>::clone( const ArrayND<T>& inp, ArrayND<T>& out )
 {
-    const TotalSzType sz = inp.totalSize();
+    const total_size_type sz = inp.totalSize();
     if ( sz < 1 || !inp.isOK() )
 	return false;
 
@@ -1046,7 +1050,7 @@ bool ArrayNDImpl<T>::clone( const ArrayND<T>& inp, ArrayND<T>& out )
 	return true;
     }
 
-    const NrDimsType ndim = inp.nrDims();
+    const nr_dims_type ndim = inp.nrDims();
     if ( ndim == 1 )
     {
 	mDynamicCastGet(const Array1DImpl<T>*,inp1d,&inp)

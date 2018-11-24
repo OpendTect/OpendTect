@@ -36,7 +36,7 @@ static bool checkContents( Pos::IdxPairValueSet& ds )
     Pos::IdxPairValueSet::SPos spos;
     Pos::IdxPairValueSet::SPos spostorem;
     Pos::IdxPair ip, iptorem;
-    Pos::IdxPairValueSet::IdxType crltorem = 1999 + 3 * cNrObjs / 4;
+    Pos::IdxPairValueSet::pos_type crltorem = 1999 + 3 * cNrObjs / 4;
     while ( ds.next(spos) )
     {
 	ip = ds.getIdxPair( spos );

@@ -25,20 +25,20 @@ Seis::PosIndexer::PosIndexer( const PosKeyList& pkl, bool doindex, bool excl )
     , iocompressed_(true)
     , is2d_(false), isps_(false) // keep compiler happy; still need to be set
 {
-    KeyIdxType inlwidth = goodinlrg_.width();
+    pos_type inlwidth = goodinlrg_.width();
     if ( inlwidth < 1 )
 	inlwidth = 100;
 
-    const KeyIdxType inlexpansion = inlwidth*5;
+    const pos_type inlexpansion = inlwidth*5;
     goodinlrg_.start -= inlexpansion;
     if ( goodinlrg_.start<0 ) goodinlrg_.start = 1;
     goodinlrg_.stop += inlexpansion;
 
-    KeyIdxType crlwidth = goodcrlrg_.width();
+    pos_type crlwidth = goodcrlrg_.width();
     if ( crlwidth<1 )
 	crlwidth = 100;
 
-    const KeyIdxType crlexpansion = crlwidth*5;
+    const pos_type crlexpansion = crlwidth*5;
     goodcrlrg_.start -= crlexpansion;
     if ( goodcrlrg_.start<0 ) goodcrlrg_.start = 1;
     goodcrlrg_.stop += crlexpansion;
@@ -89,26 +89,26 @@ bool Seis::PosIndexer::dumpTo( od_ostream& strm ) const
     FileOffsType posofinlfileoffsets = 0;
     if ( !is2d_ )
     {
-	const SetIdxType nrinl = inls_.size();
+	const size_type nrinl = inls_.size();
 	mWrite( nrinl );
-	strm.addBin( inls_.arr(), sizeof(KeyIdxType) * nrinl );
+	strm.addBin( inls_.arr(), sizeof(pos_type) * nrinl );
 	posofinlfileoffsets = strm.position();
 	// write to occupy file space for now
 	strm.addBin( inlfileoffsets.arr(),
 		     sizeof(FileOffsType)*inlfileoffsets.size() );
     }
 
-    const SetIdxType nrlines = is2d_ ? 1 : inls_.size();
+    const size_type nrlines = is2d_ ? 1 : inls_.size();
     if ( crlsets_.size() <  nrlines )
 	return false;
 
-    for ( SetIdxType lineidx=0; lineidx<nrlines; lineidx++ )
+    for ( idx_type lineidx=0; lineidx<nrlines; lineidx++ )
     {
 	if ( !is2d_ )
 	    inlfileoffsets[lineidx] = strm.position();
 
-	const KeyIdxSet& crlset = *crlsets_[lineidx];
-	const SetIdxType nrtrcs = crlset.size();
+	const PosSet& crlset = *crlsets_[lineidx];
+	const size_type nrtrcs = crlset.size();
 	mWrite( nrtrcs );
 
 	const FileIdxSet& fileidxs = *fileidxsets_[lineidx];
@@ -116,7 +116,7 @@ bool Seis::PosIndexer::dumpTo( od_ostream& strm ) const
 	    dumpLineCompressed( strm, crlset, fileidxs );
 	else
 	{
-	    strm.addBin( crlset.arr(), sizeof(SetIdxType) * nrtrcs );
+	    strm.addBin( crlset.arr(), sizeof(idx_type) * nrtrcs );
 	    strm.addBin( fileidxs.arr(), sizeof(FileIdxType) * nrtrcs );
 	}
     }
@@ -178,11 +178,11 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
     }
 
     inlfileoffsets_.erase();
-    const SetIdxType nrlines = is2d_ ? 1 : inls_.size();
+    const size_type nrlines = is2d_ ? 1 : inls_.size();
 
-    for ( SetIdxType lineidx=0; lineidx<nrlines; lineidx++ )
+    for ( idx_type lineidx=0; lineidx<nrlines; lineidx++ )
     {
-	KeyIdxSet* crlset = new KeyIdxSet;
+	PosSet* crlset = new PosSet;
 	FileIdxSet* fileidxs = new FileIdxSet;
 	if ( !readLine( *crlset, *fileidxs, int32interp, int64interp ) )
 	{
@@ -199,10 +199,10 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
 }
 
 
-bool Seis::PosIndexer::readLine( KeyIdxSet& crlset, FileIdxSet& fileidxs,
+bool Seis::PosIndexer::readLine( PosSet& crlset, FileIdxSet& fileidxs,
 	Int32Interpreter* int32interp, Int64Interpreter* int64interp ) const
 {
-    const SetIdxType nrtrcs = Int32Interpreter::get( int32interp, *strm_ );
+    const size_type nrtrcs = Int32Interpreter::get( int32interp, *strm_ );
     if ( strm_->isBad() )
 	return false;
     else if ( nrtrcs < 1 )
@@ -224,7 +224,7 @@ bool Seis::PosIndexer::readLine( KeyIdxSet& crlset, FileIdxSet& fileidxs,
     else
     {
 	buf = (char*)crlset.arr();
-	bytesz = sizeof(SetIdxType);
+	bytesz = sizeof(size_type);
     }
 
     strm_->getBin( buf, bytesz*nrtrcs );
@@ -233,13 +233,13 @@ bool Seis::PosIndexer::readLine( KeyIdxSet& crlset, FileIdxSet& fileidxs,
 
     if ( int32interp )
     {
-	for ( SetIdxType idx=0; idx<nrtrcs; idx++ )
+	for ( idx_type idx=0; idx<nrtrcs; idx++ )
 	    crlset[idx] = int32interp->get( buf, idx );
     }
 
     if ( int64interp )
     {
-	buf = mybuf = new char[sizeof(SetIdxType)*int64interp->nrBytes()];
+	buf = mybuf = new char[sizeof(idx_type)*int64interp->nrBytes()];
 	bytesz = int64interp->nrBytes();
     }
     else
@@ -254,7 +254,7 @@ bool Seis::PosIndexer::readLine( KeyIdxSet& crlset, FileIdxSet& fileidxs,
 
     if ( int64interp )
     {
-	for ( SetIdxType idx=0; idx<nrtrcs; idx++ )
+	for ( idx_type idx=0; idx<nrtrcs; idx++ )
 	    fileidxs[idx] = int64interp->get( buf, idx );
     }
 
@@ -263,13 +263,13 @@ bool Seis::PosIndexer::readLine( KeyIdxSet& crlset, FileIdxSet& fileidxs,
 
 
 void Seis::PosIndexer::dumpLineCompressed( od_ostream& strm,
-		    const KeyIdxSet& crlset, const FileIdxSet& fileidxs ) const
+		    const PosSet& crlset, const FileIdxSet& fileidxs ) const
 {
-    const SetIdxType nrtrcs = crlset.size();
+    const size_type nrtrcs = crlset.size();
     if ( nrtrcs < 1 )
 	return;
 
-    StepInterval<KeyIdxType> crlseg; StepInterval<FileIdxType> fiseg;
+    StepInterval<pos_type> crlseg; StepInterval<FileIdxType> fiseg;
     crlseg.start = crlset[0]; fiseg.start = fileidxs[0];
     if ( nrtrcs < 2 ) // one crl: can be crl-sorted, keep it short
 	{ strm.addBin( crlseg.start ).addBin( fiseg.start ); return; }
@@ -278,13 +278,13 @@ void Seis::PosIndexer::dumpLineCompressed( od_ostream& strm,
     crlseg.step = crlseg.stop - crlseg.start;
     fiseg.step = fiseg.stop - fiseg.start;
 
-    TypeSet< StepInterval<KeyIdxType> > crlsegs;
+    TypeSet< StepInterval<pos_type> > crlsegs;
     TypeSet< StepInterval<FileIdxType> > fisegs;
-    for ( SetIdxType itrc=2; itrc<nrtrcs; itrc++ )
+    for ( idx_type itrc=2; itrc<nrtrcs; itrc++ )
     {
-	const KeyIdxType crl = crlset[itrc];
+	const pos_type crl = crlset[itrc];
 	const FileIdxType fidx = fileidxs[itrc];
-	const KeyIdxType predcrl = crlseg.stop + crlseg.step;
+	const pos_type predcrl = crlseg.stop + crlseg.step;
 	const FileIdxType predfidx = fiseg.stop + fiseg.step;
 	if ( crl == predcrl && fidx == predfidx )
 	    { crlseg.stop = crl; fiseg.stop = fidx; }
@@ -300,9 +300,9 @@ void Seis::PosIndexer::dumpLineCompressed( od_ostream& strm,
     }
     crlsegs += crlseg; fisegs += fiseg;
 
-    const SetIdxType nrsegs = crlsegs.size();
+    const size_type nrsegs = crlsegs.size();
     mWrite( nrsegs );
-    for ( SetIdxType iseg=0; iseg<nrsegs; iseg++ )
+    for ( idx_type iseg=0; iseg<nrsegs; iseg++ )
     {
 	crlseg = crlsegs[iseg]; fiseg = fisegs[iseg];
 	strm.addBin( crlseg.start ).addBin( crlseg.stop ).addBin( crlseg.step )
@@ -311,11 +311,11 @@ void Seis::PosIndexer::dumpLineCompressed( od_ostream& strm,
 }
 
 
-bool Seis::PosIndexer::readLineCompressed( KeyIdxSet& crlset,
+bool Seis::PosIndexer::readLineCompressed( PosSet& crlset,
 					   FileIdxSet& fileidxs ) const
 {
-    const SetIdxType nrtrcs = crlset.size(); // already set
-    StepInterval<KeyIdxType> crlseg; StepInterval<FileIdxType> fiseg;
+    const size_type nrtrcs = crlset.size(); // already set
+    StepInterval<pos_type> crlseg; StepInterval<FileIdxType> fiseg;
     if ( nrtrcs < 2 )
     {
 	if ( nrtrcs > 0 )
@@ -329,7 +329,7 @@ bool Seis::PosIndexer::readLineCompressed( KeyIdxSet& crlset,
     else
     {
 	crlset.erase(); fileidxs.erase();
-	SetIdxType nrsegs = 0;
+	size_type nrsegs = 0;
 	strm_->getBin( nrsegs );
 	if ( nrsegs > cMaxReasonableNrSegs )
 	{
@@ -338,7 +338,7 @@ bool Seis::PosIndexer::readLineCompressed( KeyIdxSet& crlset,
 	}
 	if ( nrsegs > 0 && strm_->isOK() )
 	{
-	    for ( SetIdxType iseg=0; iseg<nrsegs; iseg++ )
+	    for ( idx_type iseg=0; iseg<nrsegs; iseg++ )
 	    {
 		strm_->getBin( crlseg.start ).getBin( crlseg.stop )
 		      .getBin( crlseg.step ).getBin( fiseg.start )
@@ -383,7 +383,7 @@ bool Seis::PosIndexer::readHeader( Int32Interpreter* int32interp,
 
     if ( !is2d_ )
     {
-	SetIdxType nrinl;
+	size_type nrinl;
 	mRead( nrinl, int32interp, 4 );
 	if ( strm_->isBad() )
 	    return false;
@@ -399,7 +399,7 @@ bool Seis::PosIndexer::readHeader( Int32Interpreter* int32interp,
 	}
 	else
 	{
-	    bytesz = sizeof(SetIdxType);
+	    bytesz = sizeof(size_type);
 	    buf = (char*) inls_.arr();
 	}
 
@@ -409,14 +409,14 @@ bool Seis::PosIndexer::readHeader( Int32Interpreter* int32interp,
 
 	if ( int32interp )
 	{
-	    for ( SetIdxType idx=0; idx<nrinl; idx++ )
+	    for ( idx_type idx=0; idx<nrinl; idx++ )
 		inls_[idx] = int32interp->get( buf, idx );
 	}
 
 	inlfileoffsets_.setSize( nrinl, 0 );
 	if ( int64interp )
 	{
-	    buf = mybuf = new char[sizeof(SetIdxType)*int64interp->nrBytes()];
+	    buf = mybuf = new char[sizeof(idx_type)*int64interp->nrBytes()];
 	    bytesz = int64interp->nrBytes();
 	}
 	else
@@ -431,7 +431,7 @@ bool Seis::PosIndexer::readHeader( Int32Interpreter* int32interp,
 
 	if ( int64interp )
 	{
-	    for ( SetIdxType idx=0; idx<nrinl; idx++ )
+	    for ( idx_type idx=0; idx<nrinl; idx++ )
 		inlfileoffsets_[idx] = int64interp->get( buf, idx );
 	}
     }
@@ -441,19 +441,19 @@ bool Seis::PosIndexer::readHeader( Int32Interpreter* int32interp,
 
 
 
-inline static Seis::PosIndexer::SetIdxType
-	getIndex( const Seis::PosIndexer::KeyIdxSet& nrs,
-		  Seis::PosIndexer::SetIdxType nr, bool& present )
+inline static Seis::PosIndexer::idx_type
+	getIndex( const Seis::PosIndexer::PosSet& nrs,
+		  Seis::PosIndexer::pos_type nr, bool& present )
 {
-    Seis::PosIndexer::SetIdxType ret;
+    Seis::PosIndexer::idx_type ret;
     present = IdxAble::findPos( nrs.arr(), nrs.size(), nr, -1, ret );
     return ret;
 }
 
 
 
-Seis::PosIndexer::SetIdxType Seis::PosIndexer::getFirstIdxs( const BinID& bid,
-				SetIdxType& inlidx, SetIdxType& crlidx ) const
+Seis::PosIndexer::idx_type Seis::PosIndexer::getFirstIdxs( const BinID& bid,
+				idx_type& inlidx, idx_type& crlidx ) const
 {
     if ( !is2d_ && inls_.isEmpty() )
 	return -1;
@@ -463,7 +463,7 @@ Seis::PosIndexer::SetIdxType Seis::PosIndexer::getFirstIdxs( const BinID& bid,
     if ( !pres )
 	{ crlidx = -1; return -1; }
 
-    const KeyIdxSet* crlsetptr = 0;
+    const PosSet* crlsetptr = 0;
     if ( !strm_ )
 	crlsetptr = crlsets_[inlidx];
     else
@@ -488,14 +488,14 @@ Seis::PosIndexer::SetIdxType Seis::PosIndexer::getFirstIdxs( const BinID& bid,
 }
 
 
-void Seis::PosIndexer::getCrls( KeyIdxType inl, KeyIdxSet& crls ) const
+void Seis::PosIndexer::getCrls( pos_type inl, PosSet& crls ) const
 {
     Threads::Locker lckr( lock_ );
     if ( inls_.isEmpty() )
 	return;
 
     bool pres = true;
-    const SetIdxType inlidx = is2d_ ? 0 : getIndex( inls_, inl, pres );
+    const idx_type inlidx = is2d_ ? 0 : getIndex( inls_, inl, pres );
     if ( !pres )
 	return;
 
@@ -521,8 +521,8 @@ Seis::PosIndexer::FileIdxType Seis::PosIndexer::findFirst(
 						const BinID& bid ) const
 {
     Threads::Locker lckr( lock_ );
-    SetIdxType inlidx, crlidx;
-    const SetIdxType res = getFirstIdxs( bid, inlidx, crlidx);
+    idx_type inlidx, crlidx;
+    const idx_type res = getFirstIdxs( bid, inlidx, crlidx);
     if ( res < 0 )
 	return res;
 
@@ -534,7 +534,7 @@ Seis::PosIndexer::FileIdxType Seis::PosIndexer::findFirst(
 
 
 Seis::PosIndexer::FileIdxType Seis::PosIndexer::findFirst(
-						KeyIdxType trcnr ) const
+						pos_type trcnr ) const
 {
     return findFirst( BinID(1,trcnr) );
 }
@@ -544,8 +544,8 @@ Seis::PosIndexer::FileIdxType Seis::PosIndexer::findFirst(
 				const PosKey& pk, bool useoffs ) const
 {
     Threads::Locker lckr( lock_ );
-    SetIdxType inlidx, crlidx;
-    const SetIdxType res = getFirstIdxs( pk.binID(), inlidx, crlidx );
+    idx_type inlidx, crlidx;
+    const idx_type res = getFirstIdxs( pk.binID(), inlidx, crlidx );
     if ( res < 0 )
 	return res;
 
@@ -576,8 +576,8 @@ Seis::PosIndexer::FileIdxType Seis::PosIndexer::findOcc( const PosKey& pk,
 							 int occ ) const
 {
     Threads::Locker lckr( lock_ );
-    SetIdxType inlidx, crlidx;
-    const SetIdxType res = getFirstIdxs( pk.binID(), inlidx, crlidx );
+    idx_type inlidx, crlidx;
+    const idx_type res = getFirstIdxs( pk.binID(), inlidx, crlidx );
     if ( res < 0 )
 	return res;
 
@@ -610,8 +610,8 @@ Seis::PosIndexer::FileIdxSet Seis::PosIndexer::findAll( const PosKey& pk ) const
 {
     Threads::Locker lckr( lock_ );
     FileIdxSet retfileidxs;
-    SetIdxType inlidx, crlidx;
-    SetIdxType res = getFirstIdxs( pk.binID(), inlidx, crlidx );
+    idx_type inlidx, crlidx;
+    idx_type res = getFirstIdxs( pk.binID(), inlidx, crlidx );
     if ( res < 0 )
 	return retfileidxs;
 
@@ -692,13 +692,13 @@ void Seis::PosIndexer::add( const PosKey& pk, FileIdxType fileidx )
     if ( isps_ ) offsrg_.include( pk.offset() );
 
     bool ispresent = !inls_.isEmpty();
-    SetIdxType inlidx = is2d_ ? 0 : getIndex( inls_, pk.inLine(), ispresent );
+    idx_type inlidx = is2d_ ? 0 : getIndex( inls_, pk.inLine(), ispresent );
     if ( !ispresent )
     {
 	if ( inlidx >= inls_.size() - 1 )
 	{
 	    inls_ += pk.inLine();
-	    crlsets_ += new KeyIdxSet;
+	    crlsets_ += new PosSet;
 	    fileidxsets_ += new FileIdxSet;
 	    inlidx = inls_.size() - 1;
 	}
@@ -706,16 +706,16 @@ void Seis::PosIndexer::add( const PosKey& pk, FileIdxType fileidx )
 	{
 	    inlidx++;
 	    inls_.insert( inlidx, pk.inLine() );
-	    crlsets_.insertAt( new KeyIdxSet, inlidx );
+	    crlsets_.insertAt( new PosSet, inlidx );
 	    fileidxsets_.insertAt( new FileIdxSet, inlidx );
 	}
 
 	if ( !is2d_ ) inlrg_.include( pk.inLine() );
     }
 
-    KeyIdxSet& crls = *crlsets_[inlidx];
+    PosSet& crls = *crlsets_[inlidx];
     FileIdxSet& fileidxs = *fileidxsets_[inlidx];
-    SetIdxType crlidx = getIndex( crls, pk.xLine(), ispresent );
+    idx_type crlidx = getIndex( crls, pk.xLine(), ispresent );
     if ( ispresent )
 	return;
 

@@ -35,7 +35,7 @@ mExpClass(General) SequenceManager : public Monitorable
 public:
 
     typedef ObjectSet<Sequence>::size_type	size_type;
-    typedef size_type				IdxType;
+    typedef size_type				idx_type;
     typedef ConstRefMan<Sequence>		ConstRef;
 
 			mDeclMonitorableAssignment(SequenceManager);
@@ -52,9 +52,9 @@ public:
 			// Use monitorLock when using indexes
     size_type		size() const;
     Sequence::Status	statusOf(const Sequence&) const;
-    IdxType		indexOf(const char*) const;
-    IdxType		indexOf(const Sequence&) const;
-    ConstRef		getByIdx(IdxType) const;
+    idx_type		indexOf(const char*) const;
+    idx_type		indexOf(const Sequence&) const;
+    ConstRef		getByIdx(idx_type) const;
     void		getSequenceNames(BufferStringSet&) const;
 
     bool		needsSave() const;
@@ -83,13 +83,13 @@ protected:
 
 			// Not locked:
     size_type		gtSize() const;
-    IdxType		idxOf(const char*) const;
+    idx_type		idxOf(const char*) const;
     const Sequence*	gtAny(const char*,bool) const;
     void		doAdd(Sequence*,bool issys);
     void		addFromPar(const IOPar&,bool);
     void		rollbackFrom(const SequenceManager&);
 
-    static IdxType	gtIdxOf(const ObjectSet<Sequence>&,const char*);
+    static idx_type	gtIdxOf(const ObjectSet<Sequence>&,const char*);
 
     void		seqChgCB(CallBacker*);
 
@@ -113,7 +113,7 @@ public:
 			{ return getByName(s.str()); }
     inline ConstRef	getAny( const OD::String& s, bool fs=true ) const
 			{ return getAny(s.str(),fs); }
-    inline IdxType	indexOf( const OD::String& s ) const
+    inline idx_type	indexOf( const OD::String& s ) const
 			{ return indexOf(s.str()); }
     inline void		removeByName( const OD::String& s )
 			{ removeByName(s.str()); }

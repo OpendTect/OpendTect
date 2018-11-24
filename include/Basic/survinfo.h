@@ -65,8 +65,9 @@ mExpClass(Basic) SurveyInfo : public NamedMonitorable
 
 public:
 
-    typedef int				size_type;
-    typedef BinID::IdxType		pos_type;
+    typedef BinID::pos_type		pos_type;
+    typedef BinID::idx_type		idx_type;
+    typedef idx_type			size_type;
     typedef StepInterval<pos_type>	pos_steprg_type;
     typedef Pos::Z_Type			z_type;
     typedef StepInterval<z_type>	z_steprg_type;

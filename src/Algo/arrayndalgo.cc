@@ -121,11 +121,11 @@ bool ArrayNDWindow::buildWindow( const char* winnm, float val )
 
     if ( !rectangular_ )
     {
-	for ( TotalSzType off=0; off<totalsz; off++ )
+	for ( total_size_type off=0; off<totalsz; off++ )
 	{
 	    float dist = 0;
 
-	    for ( DimIdxType idx=0; idx<ndim; idx++ )
+	    for ( dim_idx_type idx=0; idx<ndim; idx++ )
 	    {
 		auto halfsz = arrinfo_.getSize(idx) / 2;
 		float distval = (halfsz==0) ? 0 :
@@ -140,11 +140,11 @@ bool ArrayNDWindow::buildWindow( const char* winnm, float val )
     }
     else
     {
-	for ( TotalSzType off=0; off<totalsz; off++ )
+	for ( total_size_type off=0; off<totalsz; off++ )
 	{
 	    float windowval = 1;
 
-	    for ( DimIdxType idx=0; idx<ndim; idx++ )
+	    for ( dim_idx_type idx=0; idx<ndim; idx++ )
 	    {
 		auto halfsz = arrinfo_.getSize(idx) / 2;
 		float distval = ((float) (position[idx] - halfsz) / halfsz);

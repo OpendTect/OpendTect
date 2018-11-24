@@ -44,12 +44,12 @@ Wavelet::Wavelet( bool isricker, ValueType fpeak, ZType sr, ValueType scale )
 	scale = (ValueType)1;
     if ( mIsUdf(fpeak) || fpeak <= 0 )
 	fpeak = (ValueType)25;
-    cidx_ = (IdxType)( ( 1 + 1. / (fpeak*dpos_) ) );
+    cidx_ = (idx_type)( ( 1 + 1. / (fpeak*dpos_) ) );
 
     const size_type wvltlen = 1 + 2*cidx_;
     doReSize( wvltlen );
     ValueType pos = -cidx_ * dpos_;
-    for ( IdxType idx=0; idx<wvltlen; idx++ )
+    for ( idx_type idx=0; idx<wvltlen; idx++ )
     {
 	double x = M_PI * fpeak * pos;
 	double x2 = x * x;
@@ -148,14 +148,14 @@ Wavelet::size_type Wavelet::size() const
 #define mZStart (-cidx_ * dpos_)
 
 
-bool Wavelet::validIdx( IdxType idx ) const
+bool Wavelet::validIdx( idx_type idx ) const
 {
     mLock4Read();
     return mValidIdx( idx );
 }
 
 
-Wavelet::ValueType Wavelet::get( IdxType idx ) const
+Wavelet::ValueType Wavelet::get( idx_type idx ) const
 {
     mLock4Read();
     return mValidIdx( idx ) ? samps_[idx] : mUdf(ValueType);;
@@ -171,7 +171,7 @@ Wavelet::ValueType Wavelet::getValue( ZType z ) const
 }
 
 
-void Wavelet::set( IdxType idx, ValueType val )
+void Wavelet::set( idx_type idx, ValueType val )
 {
     mLock4Read();
     if ( !mValidIdx(idx) || samps_[idx] == val )
@@ -317,11 +317,11 @@ StepInterval<Wavelet::ZType> Wavelet::gtSamplePositions() const
 }
 
 
-Wavelet::IdxType Wavelet::nearestSample( ZType z ) const
+Wavelet::idx_type Wavelet::nearestSample( ZType z ) const
 {
     mLock4Read();
     const float fidx = mIsUdf(z) ? 0.f : (z - mZStart) / dpos_;
-    return mRounded(IdxType,fidx);
+    return mRounded(idx_type,fidx);
 }
 
 
@@ -645,14 +645,14 @@ WaveletValueSeries::WaveletValueSeries( const Wavelet& wv )
 
 float WaveletValueSeries::value( od_int64 idx ) const
 {
-    return wv_->get( (Wavelet::IdxType)idx );
+    return wv_->get( (Wavelet::idx_type)idx );
 }
 
 
 void WaveletValueSeries::setValue( od_int64 idx, float v )
 {
     ml_.unlockNow();
-    wv_->set( (Wavelet::IdxType)idx, v );
+    wv_->set( (Wavelet::idx_type)idx, v );
     ml_.reLock();
 }
 

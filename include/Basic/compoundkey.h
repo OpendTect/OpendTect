@@ -22,7 +22,8 @@ mExpClass(Basic) CompoundKey : public OD::String
 {
 public:
 
-    typedef int		IdxType;
+    typedef int		idx_type;
+    typedef idx_type	size_type;
 
     inline		CompoundKey( const char* s=0 )	{ if ( s ) impl_ = s; }
     inline		CompoundKey( const CompoundKey& ck )
@@ -44,24 +45,24 @@ public:
     inline		operator const char*() const
 						{ return buf(); }
 
-    IdxType		nrKeys() const;
-    BufferString	key(IdxType) const;
-    void		setKey(IdxType,const char*);
+    size_type		nrKeys() const;
+    BufferString	key(idx_type) const;
+    void		setKey(idx_type,const char*);
     CompoundKey		upLevel() const;
     bool		isUpLevelOf(const CompoundKey&) const;
 
 protected:
 
     BufferString	impl_;
-    char*		fromKey(IdxType) const;
-    const char*		getKeyPart(IdxType) const;
+    char*		fromKey(idx_type) const;
+    const char*		getKeyPart(idx_type) const;
 
     virtual const char*	gtBuf() const		{ return impl_.buf(); }
     virtual const char*	gtStr() const		{ return impl_.str(); }
 
 private:
 
-    char*		fetchKeyPart(IdxType,bool) const;
+    char*		fetchKeyPart(idx_type,bool) const;
 
 };
 

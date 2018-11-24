@@ -205,9 +205,9 @@ void uiFKSpectrum::setDataPackID(
 	const OD::SliceType slctyp = regsdp ?
 		regsdp->sampling().defaultDir() : OD::InlineSlice;
 
-	typedef Array2DSlice<float>::DimIdxType DimIdxType;
-	const DimIdxType valdim = (DimIdxType)slctyp;
-	const DimIdxType dim0 = slctyp == OD::InlineSlice ? 1 : 0;
+	typedef Array2DSlice<float>::dim_idx_type dim_idx_type;
+	const dim_idx_type valdim = (dim_idx_type)slctyp;
+	const dim_idx_type dim0 = slctyp == OD::InlineSlice ? 1 : 0;
 
 	Array2DSlice<float> slice2d( voldp->data(version) );
 	slice2d.setDimMap( 0, dim0 );

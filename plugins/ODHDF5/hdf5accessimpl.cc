@@ -179,7 +179,7 @@ bool HDF5::AccessImpl::selectDataSet( const char* dsnm )
     try
     {
 	dataset_ = group_.openDataSet( dsnm );
-	nrdims_ = (ArrayNDInfo::NrDimsType)dataset_.getSpace()
+	nrdims_ = (ArrayNDInfo::nr_dims_type)dataset_.getSpace()
 						.getSimpleExtentNdims();
     }
     mCatchAnyNoMsg( haverr = true )
@@ -273,14 +273,15 @@ void HDF5::AccessImpl::selectSlab( H5::DataSpace& ds, const SlabSpec& spec,
     TypeSet<hsize_t> counts, offss, strides;
     if ( !pcounts )
 	pcounts = &counts;
-	const Access::NrDimsType nrdims = mCast(Access::NrDimsType,spec.size());
+	const Access::nr_dims_type nrdims
+		= mCast(Access::nr_dims_type,spec.size());
     mGetDataSpaceDims( dimsizes, nrdims, ds );
 
-    for ( Access::DimIdxType idim=0; idim<nrdims; idim++ )
+    for ( Access::dim_idx_type idim=0; idim<nrdims; idim++ )
     {
 	SlabDimSpec sds = spec[idim];
 	if ( sds.count_ < 0 )
-	    sds.count_ = ((mCast(ArrayNDInfo::IdxType,dimsizes[idim]))-sds.start_)
+	    sds.count_ = (((ArrayNDInfo::idx_type)dimsizes[idim])-sds.start_)
 						/ sds.step_;
 	*pcounts += sds.count_;
 	offss += sds.start_;

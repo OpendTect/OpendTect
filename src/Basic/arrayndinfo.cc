@@ -11,7 +11,7 @@
 
 bool ArrayNDInfo::isOK() const
 {
-    for ( DimIdxType idx=nrDims()-1; idx>=0; idx-- )
+    for ( dim_idx_type idx=nrDims()-1; idx>=0; idx-- )
     {
 	if ( getSize(idx)<0 )
 	    return false;
@@ -21,18 +21,18 @@ bool ArrayNDInfo::isOK() const
 }
 
 
-ArrayNDInfo::TotalSzType ArrayNDInfo::totalSize() const
+ArrayNDInfo::total_size_type ArrayNDInfo::totalSize() const
 {
     return calcTotalSz();
 }
 
 
-ArrayNDInfo::OffsetType ArrayNDInfo::getOffset( NDPos pos ) const
+ArrayNDInfo::offset_type ArrayNDInfo::getOffset( NDPos pos ) const
 {
-    TotalSzType unitsize = 1;
-    TotalSzType res = 0;
+    total_size_type unitsize = 1;
+    total_size_type res = 0;
 
-    for ( NrDimsType idx=nrDims()-1; idx>=0; idx-- )
+    for ( dim_idx_type idx=nrDims()-1; idx>=0; idx-- )
     {
 	res += unitsize*pos[idx];
 	unitsize *= getSize(idx);
@@ -44,7 +44,7 @@ ArrayNDInfo::OffsetType ArrayNDInfo::getOffset( NDPos pos ) const
 
 bool ArrayNDInfo::validPos( NDPos pos ) const
 {
-    for ( DimIdxType idx=nrDims()-1; idx>=0; idx-- )
+    for ( dim_idx_type idx=nrDims()-1; idx>=0; idx-- )
     {
 	if ( !validDimPos(idx,pos[idx]) )
 	    return false;
@@ -54,33 +54,33 @@ bool ArrayNDInfo::validPos( NDPos pos ) const
 }
 
 
-bool ArrayNDInfo::validDimPos( DimIdxType dim, IdxType pos ) const
+bool ArrayNDInfo::validDimPos( dim_idx_type dim, idx_type pos ) const
 {
     return pos>=0 && pos<getSize(dim);
 }
 
 
-bool ArrayNDInfo::getArrayPos( OffsetType mempos, IdxType* pos ) const
+bool ArrayNDInfo::getArrayPos( offset_type mempos, idx_type* pos ) const
 {
-    const NrDimsType ndim = nrDims();
-    TypeSet<TotalSzType> dimdevisor( ndim, 1 );
+    const nr_dims_type ndim = nrDims();
+    TypeSet<total_size_type> dimdevisor( ndim, 1 );
 
-    TotalSzType product = 1;
-    for ( DimIdxType idx=ndim-1; idx>=0; idx-- )
+    total_size_type product = 1;
+    for ( dim_idx_type idx=ndim-1; idx>=0; idx-- )
     {
-	const IdxType size = getSize( idx );
+	const idx_type size = getSize( idx );
 	dimdevisor[idx] = product;
 	product *= size;
     }
 
-    pos[0] = (IdxType)(mempos / dimdevisor[0]);
+    pos[0] = (idx_type)(mempos / dimdevisor[0]);
     if ( pos[0] >= getSize(0) )
 	return false;
 
     mempos = mempos % dimdevisor[0];
-    for ( DimIdxType idx=1; idx<ndim; idx++ )
+    for ( dim_idx_type idx=1; idx<ndim; idx++ )
     {
-	pos[idx] = (IdxType)( mempos / dimdevisor[idx] );
+	pos[idx] = (idx_type)( mempos / dimdevisor[idx] );
 	mempos = mempos % dimdevisor[idx];
     }
 
@@ -88,65 +88,66 @@ bool ArrayNDInfo::getArrayPos( OffsetType mempos, IdxType* pos ) const
 }
 
 
-ArrayNDInfo::TotalSzType ArrayNDInfo::calcTotalSz() const
+ArrayNDInfo::total_size_type ArrayNDInfo::calcTotalSz() const
 {
-    const NrDimsType ndim = nrDims();
-    TotalSzType res = 1;
+    const nr_dims_type ndim = nrDims();
+    total_size_type res = 1;
 
-    for ( DimIdxType idx=0; idx<ndim; idx++ )
+    for ( dim_idx_type idx=0; idx<ndim; idx++ )
 	res *= getSize( idx );
 
     return res;
 }
 
 
-ArrayNDInfo::OffsetType Array2DInfo::getOffset( IdxType p0, IdxType p1 ) const
+ArrayNDInfo::offset_type Array2DInfo::getOffset( idx_type p0,
+						 idx_type p1 ) const
 {
-    const IdxType pos[2] = { p0, p1 };
+    const idx_type pos[2] = { p0, p1 };
     return ArrayNDInfo::getOffset( const_cast<NDPos>(pos) );
 }
 
 
-bool Array2DInfo::validPos( IdxType p0, IdxType p1 ) const
+bool Array2DInfo::validPos( idx_type p0, idx_type p1 ) const
 {
-    const IdxType pos[2] = { p0, p1 };
+    const idx_type pos[2] = { p0, p1 };
     return ArrayNDInfo::validPos( const_cast<NDPos>(pos) );
 }
 
 
-ArrayNDInfo::OffsetType Array3DInfo::getOffset( IdxType p0, IdxType p1,
-						IdxType p2 ) const
+ArrayNDInfo::offset_type Array3DInfo::getOffset( idx_type p0, idx_type p1,
+						idx_type p2 ) const
 {
-    const IdxType pos[3] = { p0, p1, p2 };
+    const idx_type pos[3] = { p0, p1, p2 };
     return ArrayNDInfo::getOffset( const_cast<NDPos>(pos) );
 }
 
 
-bool Array3DInfo::validPos( IdxType p0, IdxType p1, IdxType p2 ) const
+bool Array3DInfo::validPos( idx_type p0, idx_type p1, idx_type p2 ) const
 {
-    const IdxType pos[3] = { p0, p1, p2 };
+    const idx_type pos[3] = { p0, p1, p2 };
     return ArrayNDInfo::validPos( const_cast<NDPos>(pos) );
 }
 
 
-ArrayNDInfo::OffsetType Array4DInfo::getOffset( IdxType p0, IdxType p1,
-						IdxType p2, IdxType p3 ) const
+ArrayNDInfo::offset_type Array4DInfo::getOffset( idx_type p0, idx_type p1,
+						idx_type p2, idx_type p3 ) const
 {
-    const IdxType pos[4] = { p0, p1, p2, p3 };
+    const idx_type pos[4] = { p0, p1, p2, p3 };
     return ArrayNDInfo::getOffset( const_cast<NDPos>(pos) );
 }
 
 
-bool Array4DInfo::validPos( IdxType p0, IdxType p1,
-			    IdxType p2, IdxType p3 ) const
+bool Array4DInfo::validPos( idx_type p0, idx_type p1,
+			    idx_type p2, idx_type p3 ) const
 {
-    const IdxType pos[4] = { p0, p1, p2, p3 };
+    const idx_type pos[4] = { p0, p1, p2, p3 };
     return ArrayNDInfo::validPos( const_cast<NDPos>(pos) );
 }
 
 
 
-Array1DInfoImpl::Array1DInfoImpl( SzType nsz )
+Array1DInfoImpl::Array1DInfoImpl( size_type nsz )
     : dimsz_(nsz)
 {
 }
@@ -158,7 +159,7 @@ Array1DInfoImpl::Array1DInfoImpl( const Array1DInfo& oth )
 }
 
 
-bool Array1DInfoImpl::setSize( DimIdxType dim, SzType nsz )
+bool Array1DInfoImpl::setSize( dim_idx_type dim, size_type nsz )
 {
     if( dim != 0 )
 	return false;
@@ -167,7 +168,7 @@ bool Array1DInfoImpl::setSize( DimIdxType dim, SzType nsz )
 }
 
 
-Array2DInfoImpl::Array2DInfoImpl( SzType sz0, SzType sz1 )
+Array2DInfoImpl::Array2DInfoImpl( size_type sz0, size_type sz1 )
 {
     dimsz_[0] = sz0; dimsz_[1] = sz1;
     cachedtotalsz_ = calcTotalSz();
@@ -183,7 +184,7 @@ Array2DInfoImpl::Array2DInfoImpl( const Array2DInfo& oth )
 }
 
 
-bool Array2DInfoImpl::setSize( DimIdxType dim, SzType nsz )
+bool Array2DInfoImpl::setSize( dim_idx_type dim, size_type nsz )
 {
     if( dim > 1 || dim < 0 )
 	return false;
@@ -193,7 +194,7 @@ bool Array2DInfoImpl::setSize( DimIdxType dim, SzType nsz )
 }
 
 
-Array3DInfoImpl::Array3DInfoImpl( SzType sz0, SzType sz1, SzType sz2 )
+Array3DInfoImpl::Array3DInfoImpl( size_type sz0, size_type sz1, size_type sz2 )
 {
     dimsz_[0] = sz0; dimsz_[1] = sz1; dimsz_[2] = sz2;
     cachedtotalsz_ = calcTotalSz();
@@ -209,7 +210,7 @@ Array3DInfoImpl::Array3DInfoImpl( const Array3DInfo& oth )
 }
 
 
-bool Array3DInfoImpl::setSize( DimIdxType dim, SzType nsz )
+bool Array3DInfoImpl::setSize( dim_idx_type dim, size_type nsz )
 {
     if( dim > 2 || dim < 0 )
 	return false;
@@ -219,8 +220,8 @@ bool Array3DInfoImpl::setSize( DimIdxType dim, SzType nsz )
 }
 
 
-Array4DInfoImpl::Array4DInfoImpl( SzType sz0, SzType sz1,
-				  SzType sz2, SzType sz3 )
+Array4DInfoImpl::Array4DInfoImpl( size_type sz0, size_type sz1,
+				  size_type sz2, size_type sz3 )
 {
     dimsz_[0] = sz0; dimsz_[1] = sz1; dimsz_[2] = sz2; dimsz_[3] = sz3;
     cachedtotalsz_ = calcTotalSz();
@@ -237,7 +238,7 @@ Array4DInfoImpl::Array4DInfoImpl( const Array4DInfo& oth )
 }
 
 
-bool Array4DInfoImpl::setSize( DimIdxType dim, SzType nsz )
+bool Array4DInfoImpl::setSize( dim_idx_type dim, size_type nsz )
 {
     if( dim > 3 || dim < 0 )
 	return false;
@@ -262,7 +263,7 @@ ArrayNDInfo* ArrayNDInfoImpl::clone() const
 }
 
 
-ArrayNDInfo* ArrayNDInfoImpl::create( NrDimsType ndim )
+ArrayNDInfo* ArrayNDInfoImpl::create( nr_dims_type ndim )
 {
     if ( ndim==1 )
 	return new Array1DInfoImpl;
@@ -277,12 +278,12 @@ ArrayNDInfo* ArrayNDInfoImpl::create( NrDimsType ndim )
 }
 
 
-ArrayNDInfoImpl::ArrayNDInfoImpl( NrDimsType ndim )
+ArrayNDInfoImpl::ArrayNDInfoImpl( nr_dims_type ndim )
 	: ndim_( ndim )
-	, dimsz_( ndim<1 ? 0 : new SzType[ndim_] )
+	, dimsz_( ndim<1 ? 0 : new size_type[ndim_] )
 {
     cachedtotalsz_ = 0;
-    for ( DimIdxType idx=0; idx<ndim_; idx++ )
+    for ( dim_idx_type idx=0; idx<ndim_; idx++ )
 	dimsz_[idx] = 0;
 }
 
@@ -290,9 +291,9 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( NrDimsType ndim )
 ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfo& nsz )
 	: ArrayNDInfo( nsz )
 	, ndim_(nsz.nrDims())
-	, dimsz_( ndim_<1 ? 0 : new SzType[ndim_] )
+	, dimsz_( ndim_<1 ? 0 : new size_type[ndim_] )
 {
-    for ( DimIdxType idx=0; idx<ndim_; idx++ )
+    for ( dim_idx_type idx=0; idx<ndim_; idx++ )
 	setSize( idx, nsz.getSize(idx) );
 }
 
@@ -301,9 +302,9 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfo& nsz )
 ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfoImpl& nsz )
 	: ArrayNDInfo(nsz)
 	, ndim_(nsz.nrDims())
-	, dimsz_(ndim_<1 ? 0 : new SzType[ndim_])
+	, dimsz_(ndim_<1 ? 0 : new size_type[ndim_])
 {
-    for ( DimIdxType idx=0; idx<ndim_; idx++ )
+    for ( dim_idx_type idx=0; idx<ndim_; idx++ )
 	setSize( idx, nsz.getSize(idx) );
 }
 
@@ -314,13 +315,13 @@ ArrayNDInfoImpl::~ArrayNDInfoImpl()
 }
 
 
-ArrayNDInfo::NrDimsType ArrayNDInfoImpl::nrDims() const
+ArrayNDInfo::nr_dims_type ArrayNDInfoImpl::nrDims() const
 {
     return ndim_;
 }
 
 
-bool ArrayNDInfoImpl::setSize( DimIdxType dim, SzType newsz )
+bool ArrayNDInfoImpl::setSize( dim_idx_type dim, size_type newsz )
 {
     if ( dim >= ndim_ || dim < 0 )
 	return false;
@@ -331,7 +332,7 @@ bool ArrayNDInfoImpl::setSize( DimIdxType dim, SzType newsz )
 }
 
 
-ArrayNDInfo::SzType ArrayNDInfoImpl::getSize( DimIdxType dim ) const
+ArrayNDInfo::size_type ArrayNDInfoImpl::getSize( dim_idx_type dim ) const
 {
     return dim >= ndim_ || dim < 0 ? 0 : dimsz_[dim];
 }
@@ -339,7 +340,7 @@ ArrayNDInfo::SzType ArrayNDInfoImpl::getSize( DimIdxType dim ) const
 
 ArrayNDIter::ArrayNDIter( const ArrayNDInfo& sz )
     : sz_ ( sz )
-    , position_( new SzType[sz.nrDims()] )
+    , position_( new size_type[sz.nrDims()] )
 {
     if ( sz.totalSize() < 1 )
 	{ pErrMsg( "Not a valid array for iteration" ); }
@@ -361,20 +362,20 @@ bool ArrayNDIter::next()
 
 void ArrayNDIter::reset()
 {
-    const NrDimsType ndim = sz_.nrDims();
+    const nr_dims_type ndim = sz_.nrDims();
 
-    for ( DimIdxType idx=0; idx<ndim; idx++ )
+    for ( dim_idx_type idx=0; idx<ndim; idx++ )
 	position_[idx] = 0;
 }
 
 
-ArrayNDIter::IdxType ArrayNDIter::operator[]( DimIdxType dim ) const
+ArrayNDIter::idx_type ArrayNDIter::operator[]( dim_idx_type dim ) const
 {
     return position_[dim];
 }
 
 
-bool ArrayNDIter::inc( DimIdxType dim )
+bool ArrayNDIter::inc( dim_idx_type dim )
 {
     position_[dim]++;
 

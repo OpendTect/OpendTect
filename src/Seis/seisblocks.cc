@@ -23,8 +23,8 @@ ________________________________________________________________________
 #include "hdf5access.h"
 #include "survinfo.h"
 
-static const Seis::Blocks::SzType cVersion	= 1;
-static const Seis::Blocks::SzType cDefDim	= 64;
+static const Seis::Blocks::size_type cVersion	= 1;
+static const Seis::Blocks::size_type cDefDim	= 64;
 
 
 Seis::Blocks::Access::Access()
@@ -147,7 +147,7 @@ void Seis::Blocks::Access::addColumn( Column* column ) const
 
 static PtrMan<Seis::Blocks::Dimensions> def_dims_ = 0;
 
-static Seis::Blocks::SzType getNextDim( char*& startptr )
+static Seis::Blocks::size_type getNextDimSz( char*& startptr )
 {
     int val;
     char* ptr = firstOcc( startptr, 'x' );
@@ -158,7 +158,7 @@ static Seis::Blocks::SzType getNextDim( char*& startptr )
 	startptr = ptr + 1;
     if ( val < 0 || val > 65535 )
 	return 0;
-    return (Seis::Blocks::SzType)val;
+    return (Seis::Blocks::size_type)val;
 }
 
 
@@ -171,9 +171,9 @@ Seis::Blocks::Dimensions Seis::Blocks::Block::defDims()
 	if ( !envvval.isEmpty() )
 	{
 	    char* startptr = envvval.getCStr();
-	    dims->inl() = getNextDim( startptr );
-	    dims->crl() = getNextDim( startptr );
-	    dims->z() = getNextDim( startptr );
+	    dims->inl() = getNextDimSz( startptr );
+	    dims->crl() = getNextDimSz( startptr );
+	    dims->z() = getNextDimSz( startptr );
 	}
 	def_dims_.setIfNull( dims, true );
     }
@@ -186,79 +186,79 @@ Seis::Blocks::Dimensions Seis::Blocks::Block::defDims()
 // * Easy debugging
 
 
-Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Inl( const HGeom& hg,
-						       int inl, SzType inldim )
+Seis::Blocks::idx_type Seis::Blocks::Block::globIdx4Inl( const HGeom& hg,
+					       int inl, size_type inldim )
 {
-    return IdxType( hg.idx4Inl( inl ) / inldim );
+    return idx_type( hg.idx4Inl( inl ) / inldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Crl( const HGeom& hg,
-						       int crl, SzType crldim )
+Seis::Blocks::idx_type Seis::Blocks::Block::globIdx4Crl( const HGeom& hg,
+					       int crl, size_type crldim )
 {
-    return IdxType( hg.idx4Crl( crl ) / crldim );
+    return idx_type( hg.idx4Crl( crl ) / crldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Z( const ZGeom& zg,
-						     float z, SzType zdim )
+Seis::Blocks::idx_type Seis::Blocks::Block::globIdx4Z( const ZGeom& zg,
+					     float z, size_type zdim )
 {
-    return IdxType( zg.nearestIndex( z ) / zdim );
+    return idx_type( zg.nearestIndex( z ) / zdim );
 }
 
 
-Seis::Blocks::IdxType Seis::Blocks::Block::locIdx4Inl( const HGeom& hg,
-						       int inl, SzType inldim )
+Seis::Blocks::idx_type Seis::Blocks::Block::locIdx4Inl( const HGeom& hg,
+					       int inl, size_type inldim )
 {
-    return IdxType( hg.idx4Inl( inl ) % inldim );
+    return idx_type( hg.idx4Inl( inl ) % inldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Block::locIdx4Crl( const HGeom& hg,
-						       int crl, SzType crldim )
+Seis::Blocks::idx_type Seis::Blocks::Block::locIdx4Crl( const HGeom& hg,
+					       int crl, size_type crldim )
 {
-    return IdxType( hg.idx4Crl( crl ) % crldim );
+    return idx_type( hg.idx4Crl( crl ) % crldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Block::locIdx4Z( const ZGeom& zg,
-						     float z, SzType zdim )
+Seis::Blocks::idx_type Seis::Blocks::Block::locIdx4Z( const ZGeom& zg,
+					     float z, size_type zdim )
 {
-    return IdxType( zg.nearestIndex( z ) % zdim );
+    return idx_type( zg.nearestIndex( z ) % zdim );
 }
 
 
 int Seis::Blocks::Block::startInl4GlobIdx( const HGeom& hg,
-					   IdxType gidx, SzType inldim )
+					   idx_type gidx, size_type inldim )
 {
     return inl4Idxs( hg, inldim, gidx, 0 );
 }
 
 int Seis::Blocks::Block::startCrl4GlobIdx( const HGeom& hg,
-					   IdxType gidx, SzType crldim )
+					   idx_type gidx, size_type crldim )
 {
     return crl4Idxs( hg, crldim, gidx, 0 );
 }
 
 float Seis::Blocks::Block::startZ4GlobIdx( const ZGeom& zg,
-					   IdxType gidx, SzType zdim )
+					   idx_type gidx, size_type zdim )
 {
     return z4Idxs( zg, zdim, gidx, 0 );
 }
 
 
-int Seis::Blocks::Block::inl4Idxs( const HGeom& hg, SzType inldim,
-				  IdxType globidx, IdxType sampidx )
+int Seis::Blocks::Block::inl4Idxs( const HGeom& hg, size_type inldim,
+				  idx_type globidx, idx_type sampidx )
 {
     return hg.inl4Idx( (((int)inldim) * globidx) + sampidx );
 }
 
 
-int Seis::Blocks::Block::crl4Idxs( const HGeom& hg, SzType crldim,
-				  IdxType globidx, IdxType sampidx )
+int Seis::Blocks::Block::crl4Idxs( const HGeom& hg, size_type crldim,
+				  idx_type globidx, idx_type sampidx )
 {
     return hg.crl4Idx( (((int)crldim) * globidx) + sampidx );
 }
 
 
-float Seis::Blocks::Block::z4Idxs( const ZGeom& zg, SzType zdim,
-				  IdxType globidx, IdxType sampidx )
+float Seis::Blocks::Block::z4Idxs( const ZGeom& zg, size_type zdim,
+				  idx_type globidx, idx_type sampidx )
 {
     return zg.atIndex( (((int)zdim) * globidx) + sampidx );
 }
@@ -348,7 +348,7 @@ void Seis::Blocks::MemColumnSummary::fill( const MemBlock& block,
 
 float Seis::Blocks::MemColumnSummary::calcVal( float* valtrc ) const
 {
-    const SzType totns = dims_.z();
+    const size_type totns = dims_.z();
     float sumsq = 0.f; int ns = 0;
     for ( int isamp=0; isamp<totns; isamp++ )
     {
@@ -374,10 +374,10 @@ Seis::Blocks::MemBlockColumn::MemBlockColumn( const HGlobIdx& gidx,
 	blocksets_ += new BlockSet;
 
     visited_ = new bool* [dims_.inl()];
-    for ( IdxType iinl=0; iinl<dims_.inl(); iinl++ )
+    for ( idx_type iinl=0; iinl<dims_.inl(); iinl++ )
     {
 	visited_[iinl] = new bool [dims_.crl()];
-	for ( IdxType icrl=0; icrl<dims_.crl(); icrl++ )
+	for ( idx_type icrl=0; icrl<dims_.crl(); icrl++ )
 	    visited_[iinl][icrl] = false;
     }
 }
@@ -386,7 +386,7 @@ Seis::Blocks::MemBlockColumn::MemBlockColumn( const HGlobIdx& gidx,
 Seis::Blocks::MemBlockColumn::~MemBlockColumn()
 {
     deepErase(blocksets_);
-    for ( IdxType idx=0; idx<dims_.inl(); idx++ )
+    for ( idx_type idx=0; idx<dims_.inl(); idx++ )
 	delete [] visited_[idx];
     delete [] visited_;
 }
@@ -408,12 +408,12 @@ void Seis::Blocks::MemBlockColumn::retire()
 void Seis::Blocks::MemBlockColumn::getDefArea( HLocIdx& defstart,
 					       HDimensions& defdims ) const
 {
-    IdxType mininl = dims_.inl()-1, mincrl = dims_.crl()-1;
-    IdxType maxinl = 0, maxcrl = 0;
+    idx_type mininl = dims_.inl()-1, mincrl = dims_.crl()-1;
+    idx_type maxinl = 0, maxcrl = 0;
 
-    for ( IdxType iinl=0; iinl<dims_.inl(); iinl++ )
+    for ( idx_type iinl=0; iinl<dims_.inl(); iinl++ )
     {
-	for ( IdxType icrl=0; icrl<dims_.crl(); icrl++ )
+	for ( idx_type icrl=0; icrl<dims_.crl(); icrl++ )
 	{
 	    if ( visited_[iinl][icrl] )
 	    {

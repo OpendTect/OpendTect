@@ -71,7 +71,7 @@ public:
 			//!< if not run by you, destructor will run it
 			//!< be sure that all add()'s are done!
 
-    typedef std::pair<IdxType,float>	ZEvalPos;
+    typedef std::pair<idx_type,float>	ZEvalPos;
     typedef TypeSet<ZEvalPos>		ZEvalPosSet;
 
     int			traceSize() const;
@@ -89,7 +89,7 @@ protected:
     WriteBackEnd*	backend_;
     IOPar		infoiop_;
 
-    IdxType		nrglobzidxs_;
+    size_type		nrglobzidxs_;
     ObjectSet<ZEvalPosSet> zevalpositions_;
     StepFinder*		stepfinder_;
     Interval<int>	finalinlrg_;
@@ -111,7 +111,7 @@ protected:
 				const Array2D<float>&) const;
     void		writeLevelSummary(od_ostream&,
 				const Array2D<float>&,int_pair) const;
-    void		scanPositions(Interval<IdxType>&,Interval<IdxType>&,
+    void		scanPositions(Interval<idx_type>&,Interval<idx_type>&,
 				Interval<double>&,Interval<double>&);
 
     friend class	StepFinder;

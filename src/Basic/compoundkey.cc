@@ -10,13 +10,13 @@
 #include "staticstring.h"
 
 
-char* CompoundKey::fromKey( IdxType keynr ) const
+char* CompoundKey::fromKey( idx_type keynr ) const
 {
     return fetchKeyPart( keynr, false );
 }
 
 
-char* CompoundKey::fetchKeyPart( IdxType keynr, bool parttobuf ) const
+char* CompoundKey::fetchKeyPart( idx_type keynr, bool parttobuf ) const
 {
     char* ptr = const_cast<char*>( impl_.buf() );
     if ( !ptr || (keynr<1 && !parttobuf) )
@@ -42,11 +42,11 @@ char* CompoundKey::fetchKeyPart( IdxType keynr, bool parttobuf ) const
 }
 
 
-CompoundKey::IdxType CompoundKey::nrKeys() const
+CompoundKey::idx_type CompoundKey::nrKeys() const
 {
     if ( impl_.isEmpty() ) return 0;
 
-    IdxType nrkeys = 1;
+    idx_type nrkeys = 1;
     const char* ptr = impl_.buf();
     while ( true )
     {
@@ -61,13 +61,13 @@ CompoundKey::IdxType CompoundKey::nrKeys() const
 }
 
 
-BufferString CompoundKey::key( IdxType idx ) const
+BufferString CompoundKey::key( idx_type idx ) const
 {
     return BufferString( fetchKeyPart(idx,true) );
 }
 
 
-void CompoundKey::setKey( IdxType ikey, const char* s )
+void CompoundKey::setKey( idx_type ikey, const char* s )
 {
 					// example: "X.Y.Z", ikey=1, s="new"
 
@@ -93,7 +93,7 @@ CompoundKey CompoundKey::upLevel() const
 
     CompoundKey ret( *this );
 
-    const IdxType nrkeys = nrKeys();
+    const idx_type nrkeys = nrKeys();
     if ( nrkeys <= 1 )
 	ret.setEmpty();
     else

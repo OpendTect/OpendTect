@@ -43,7 +43,7 @@ protected:
     virtual void	openFile(const char*,uiRetVal&,bool);
     virtual void	closeFile()		{ doCloseFile(*this); }
 
-    virtual NrDimsType	gtNrDims() const	{ return nrdims_; }
+    virtual nr_dims_type gtNrDims() const	{ return nrdims_; }
     virtual ArrayNDInfo* gtDataSizes() const;
     virtual void	gtInfo(IOPar&,uiRetVal&) const;
     virtual void	gtStrings(BufferStringSet&,uiRetVal&) const;

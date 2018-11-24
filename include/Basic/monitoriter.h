@@ -32,12 +32,12 @@ mClass(Basic) MonitorableIterBase
 {
 public:
 
-    typedef ITyp	IdxType;
-    typedef IdxType	size_type;
+    typedef ITyp	idx_type;
+    typedef idx_type	size_type;
     enum Direction	{ Forward, Backward };
 
-    inline		MonitorableIterBase(const Monitorable&,IdxType startidx,
-							   IdxType stopidx);
+    inline		MonitorableIterBase(const Monitorable&,idx_type start,
+							   idx_type stop);
     inline		MonitorableIterBase(const MonitorableIterBase&);
     inline virtual	~MonitorableIterBase()	{ retire(); }
     inline const Monitorable& monitored() const	{ return obj_; }
@@ -51,8 +51,8 @@ public:
     inline bool		isValid() const		{ return isPresent(curidx_); }
     inline bool		atFirst() const		{ return curidx_ == startidx_; }
     inline bool		atLast() const		{ return curidx_ == stopidx_; }
-    inline IdxType	curIdx() const		{ return curidx_; }
-    inline bool		isPresent(IdxType) const;
+    inline idx_type	curIdx() const		{ return curidx_; }
+    inline bool		isPresent(idx_type) const;
 
     virtual void	retire()		{}
     virtual void	reInit();
@@ -61,10 +61,10 @@ protected:
 
     const Monitorable&	obj_;
     const Direction	dir_;
-    const IdxType	startidx_;
-    const IdxType	stopidx_;
+    const idx_type	startidx_;
+    const idx_type	stopidx_;
 
-    IdxType		curidx_;
+    idx_type		curidx_;
 
     mDefNoAssignmentOper(MonitorableIterBase)
 
@@ -142,8 +142,8 @@ MonitorableIterBase<ITyp>::MonitorableIterBase( const Monitorable& obj,
     if ( startidx_ < 0 || stopidx_ < 0 )
     {
 	// empty. make this a standard situation:
-	const_cast<IdxType&>( startidx_ ) = 0;
-	const_cast<IdxType&>( stopidx_ ) = -1;
+	const_cast<idx_type&>( startidx_ ) = 0;
+	const_cast<idx_type&>( stopidx_ ) = -1;
 	const_cast<Direction&>( dir_ ) = Forward;
     }
     reInit();
@@ -172,7 +172,7 @@ bool MonitorableIterBase<ITyp>::next()
 
 
 template <class ITyp> inline
-bool MonitorableIterBase<ITyp>::isPresent( IdxType idx ) const
+bool MonitorableIterBase<ITyp>::isPresent( idx_type idx ) const
 {
     if ( dir_ == Forward )
 	return idx >= startidx_ && idx <= stopidx_;

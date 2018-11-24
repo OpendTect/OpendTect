@@ -38,8 +38,8 @@ public:
 
     // use setScope() before reading anything using the functions below
 
-    NrDimsType		nrDims() const	{ return gtNrDims(); }
-    SzType		dimSize(DimIdxType) const;
+    nr_dims_type	nrDims() const	{ return gtNrDims(); }
+    size_type		dimSize(dim_idx_type) const;
     ArrayNDInfo*	getDataSizes() const { return gtDataSizes(); }
 
     virtual ODDataType	getDataType() const			= 0;
@@ -68,7 +68,7 @@ protected:
     virtual void	gtSlab(const SlabSpec&,void*,uiRetVal&) const	= 0;
 
     virtual ArrayNDInfo* gtDataSizes() const				= 0;
-    virtual NrDimsType	gtNrDims() const				= 0;
+    virtual nr_dims_type gtNrDims() const				= 0;
 			//!< in the current scope
 
     static uiString	sBadDataSpace()
@@ -86,7 +86,7 @@ inline uiRetVal Reader::get( TypeSet<T>& vals ) const
     if ( getDataType() != OD::GetDataRepType<T>() )
 	{ pErrMsg("Wrong type"); return uirv; }
 
-    const SzType sz = dimSize( 0 );
+    const size_type sz = dimSize( 0 );
     if ( sz < 1 )
 	return uirv;
 

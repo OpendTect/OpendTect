@@ -48,9 +48,9 @@ protected:
     ArrayND<T>&			out_;
     od_int64			totnr_;
     od_int64			nrdone_;
-    const NrDimsType		nrdims_;
+    const nr_dims_type		nrdims_;
     ArrayNDIter			it_;
-    TypeSet<IdxType>		maxidxs_;
+    TypeSet<idx_type>		maxidxs_;
 
 };
 
@@ -66,7 +66,7 @@ ArrayNDGentleSmoother<T>::ArrayNDGentleSmoother( const ArrayND<T>& inp,
     , nrdone_(0)
 {
     totnr_ = 1;
-    for ( DimIdxType idim=0; idim<nrdims_; idim++ )
+    for ( dim_idx_type idim=0; idim<nrdims_; idim++ )
     {
 	auto dimsz = inp_.getSize( idim );
 	maxidxs_ += dimsz - 1;

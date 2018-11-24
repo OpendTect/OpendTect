@@ -128,14 +128,14 @@ bool WaveletManager::needsSave( const Wavelet& wvlt ) const
 }
 
 
-ConstRefMan<Wavelet> WaveletManager::get( IdxType idx ) const
+ConstRefMan<Wavelet> WaveletManager::get( idx_type idx ) const
 {
     const SharedObject* shobj = gtObj( idx );
     return ConstRefMan<Wavelet>( mToWvlt(const,*,shobj) );
 }
 
 
-RefMan<Wavelet> WaveletManager::getForEdit( IdxType idx )
+RefMan<Wavelet> WaveletManager::getForEdit( idx_type idx )
 {
     SharedObject* shobj = gtObj( idx );
     return RefMan<Wavelet>( mToWvlt(,*,shobj) );
@@ -144,7 +144,7 @@ RefMan<Wavelet> WaveletManager::getForEdit( IdxType idx )
 
 Wavelet* WaveletManager::gtWavelet( const ObjID& id ) const
 {
-    const IdxType idxof = gtIdx( id );
+    const idx_type idxof = gtIdx( id );
     if ( idxof < 0 )
 	return 0;
     SharedObject* obj = const_cast<SharedObject*>( savers_[idxof]->object() );

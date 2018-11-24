@@ -413,7 +413,7 @@ bool DBDir::setObj( IOObj* ioobj, bool writeafter )
     }
     else
     {
-	const IdxType curidxof = gtIdx( dbky.objID() );
+	const idx_type curidxof = gtIdx( dbky.objID() );
 	if ( curidxof >= 0 )
 	{
 	    delete objs_.replace( curidxof, ioobj );
@@ -702,7 +702,7 @@ void DBDirEntryList::fill( const char* nmfilt )
 }
 
 
-DBKey DBDirEntryList::key( IdxType idx ) const
+DBKey DBDirEntryList::key( idx_type idx ) const
 {
     DBKey ret;
     if ( entries_.validIdx(idx) )
@@ -715,7 +715,7 @@ DBKey DBDirEntryList::key( IdxType idx ) const
 }
 
 
-BufferString DBDirEntryList::name( IdxType idx ) const
+BufferString DBDirEntryList::name( idx_type idx ) const
 {
     if ( !entries_.validIdx(idx) )
 	return BufferString::empty();
@@ -723,7 +723,7 @@ BufferString DBDirEntryList::name( IdxType idx ) const
 }
 
 
-BufferString DBDirEntryList::dispName( IdxType idx ) const
+BufferString DBDirEntryList::dispName( idx_type idx ) const
 {
     if ( !entries_.validIdx(idx) )
 	return BufferString::empty();
@@ -739,7 +739,7 @@ BufferString DBDirEntryList::dispName( IdxType idx ) const
 }
 
 
-BufferString DBDirEntryList::iconName( IdxType idx ) const
+BufferString DBDirEntryList::iconName( idx_type idx ) const
 {
     if ( entries_.validIdx(idx) )
     {
@@ -756,22 +756,22 @@ BufferString DBDirEntryList::iconName( IdxType idx ) const
 void DBDirEntryList::sort()
 {
     BufferStringSet nms; const size_type sz = size();
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	nms.add( entries_[idx]->name() );
 
-    IdxType* idxs = nms.getSortIndexes();
+    idx_type* idxs = nms.getSortIndexes();
 
     ObjectSet<IOObj> tmp( entries_ );
     entries_.erase();
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	entries_ += tmp[ idxs[idx] ];
     delete [] idxs;
 }
 
 
-DBDirEntryList::IdxType DBDirEntryList::indexOf( const char* nm ) const
+DBDirEntryList::idx_type DBDirEntryList::indexOf( const char* nm ) const
 {
-    for ( IdxType idx=0; idx<size(); idx++ )
+    for ( idx_type idx=0; idx<size(); idx++ )
     {
 	const IOObj& entry = *entries_[idx];
 	if ( entry.hasName(nm) )

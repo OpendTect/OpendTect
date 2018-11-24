@@ -36,7 +36,7 @@ mExpClass(General) Level : public NamedMonitorable
 {
 public:
 
-    mDefIntegerIDType(int,ID);
+    mDefIntegerIDType(	ID);
 
 			Level(const char* nm,const Color&,ID =ID::getInvalid());
 			mDeclInstanceCreatedNotifierAccess(Level);

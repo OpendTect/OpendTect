@@ -23,7 +23,7 @@ class BufferStringSet;
 namespace Coords
 {
 
-mDefIntegerIDType(int,ProjectionID);
+mDefIntegerIDType(ProjectionID);
 
 mExpClass(CRS) AuthorityCode
 {

@@ -942,7 +942,7 @@ void Well::MarkerSet::usePar( const IOPar& iop )
 
 // MarkerSetIter's
 
-static Well::MarkerSetIter::IdxType gtIterIdx( const Well::MarkerSet& ms,
+static Well::MarkerSetIter::idx_type gtIterIdx( const Well::MarkerSet& ms,
 	Well::MarkerSet::MarkerID id, bool isstart )
 {
     if ( ms.isEmpty() )
@@ -955,7 +955,7 @@ static Well::MarkerSetIter::IdxType gtIterIdx( const Well::MarkerSet& ms,
 }
 
 
-static Well::MarkerSetIter::IdxType gtIterIdx( const Well::MarkerSet& ms,
+static Well::MarkerSetIter::idx_type gtIterIdx( const Well::MarkerSet& ms,
 						const char* nm, bool isstart )
 {
     if ( ms.isEmpty() )

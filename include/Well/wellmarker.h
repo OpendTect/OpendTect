@@ -87,9 +87,9 @@ public:
 
     typedef Marker::LevelID	LevelID;
     typedef Marker::ZType	ZType;
-    typedef TypeSet<Marker>::size_type    size_type;
+    typedef TypeSet<Marker>::size_type size_type;
     typedef size_type		idx_type;
-    mDefIntegerIDType(idx_type,	 MarkerID);
+    mDefIntegerIDType(		MarkerID);
 
 
 			MarkerSet();

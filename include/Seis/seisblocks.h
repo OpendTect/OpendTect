@@ -43,8 +43,9 @@ indices 0 - N-1 (the LocIdx).
 
 namespace Blocks
 {
-    typedef od_uint16		SzType;
-    typedef od_int16		IdxType;
+    typedef od_uint16		version_type;
+    typedef od_uint16		size_type;
+    typedef od_int16		idx_type;
     typedef Survey::Geometry3D	HGeom;
     typedef StepInterval<float>	ZGeom;
     typedef DataInterpreter<float> DataInterp;
@@ -66,9 +67,9 @@ public: \
     inline typ&	crl()		{ return second; } \
 }
 
-mDefSeisBlocksPairClass(HGlobIdx,IdxType);
-mDefSeisBlocksPairClass(HLocIdx,IdxType);
-mDefSeisBlocksPairClass(HDimensions,SzType);
+mDefSeisBlocksPairClass(HGlobIdx,idx_type);
+mDefSeisBlocksPairClass(HLocIdx,idx_type);
+mDefSeisBlocksPairClass(HDimensions,size_type);
 
 #define mDefSeisBlocksTripletClass(clss,typ) \
 mExpClass(Seis) clss : public H##clss \
@@ -93,9 +94,9 @@ public: \
  \
 }
 
-mDefSeisBlocksTripletClass(GlobIdx,IdxType);
-mDefSeisBlocksTripletClass(LocIdx,IdxType);
-mDefSeisBlocksTripletClass(Dimensions,SzType);
+mDefSeisBlocksTripletClass(GlobIdx,idx_type);
+mDefSeisBlocksTripletClass(LocIdx,idx_type);
+mDefSeisBlocksTripletClass(Dimensions,size_type);
 
 
 /*!\brief Base class for single block. */
@@ -110,21 +111,21 @@ public:
     const HLocIdx&	start() const		{ return start_; }
     const Dimensions&	dims() const		{ return dims_; }
 
-    static IdxType	globIdx4Inl(const HGeom&,int inl,SzType inldim);
-    static IdxType	globIdx4Crl(const HGeom&,int crl,SzType crldim);
-    static IdxType	globIdx4Z(const ZGeom&,float z,SzType zdim);
-    static IdxType	locIdx4Inl(const HGeom&,int inl,SzType inldim);
-    static IdxType	locIdx4Crl(const HGeom&,int crl,SzType crldim);
-    static IdxType	locIdx4Z(const ZGeom&,float z,SzType zdim);
-    static int		startInl4GlobIdx(const HGeom&,IdxType,SzType inldim);
-    static int		startCrl4GlobIdx(const HGeom&,IdxType,SzType crldim);
-    static float	startZ4GlobIdx(const ZGeom&,IdxType,SzType zdim);
-    static int		inl4Idxs(const HGeom&,SzType inldim,IdxType globidx,
-				IdxType sampidx);
-    static int		crl4Idxs(const HGeom&,SzType crldim,IdxType globidx,
-				IdxType sampidx);
-    static float	z4Idxs(const ZGeom&,SzType zdim,IdxType globidx,
-				IdxType loczidx);
+    static idx_type	globIdx4Inl(const HGeom&,int inl,size_type inlsz);
+    static idx_type	globIdx4Crl(const HGeom&,int crl,size_type crlsz);
+    static idx_type	globIdx4Z(const ZGeom&,float z,size_type zsz);
+    static idx_type	locIdx4Inl(const HGeom&,int inl,size_type inlsz);
+    static idx_type	locIdx4Crl(const HGeom&,int crl,size_type crlsz);
+    static idx_type	locIdx4Z(const ZGeom&,float z,size_type zdim);
+    static int		startInl4GlobIdx(const HGeom&,idx_type,size_type inlsz);
+    static int		startCrl4GlobIdx(const HGeom&,idx_type,size_type crlsz);
+    static float	startZ4GlobIdx(const ZGeom&,idx_type,size_type zsz);
+    static int		inl4Idxs(const HGeom&,size_type inlsz,idx_type globidx,
+				idx_type sampidx);
+    static int		crl4Idxs(const HGeom&,size_type crlsz,idx_type globidx,
+				idx_type sampidx);
+    static float	z4Idxs(const ZGeom&,size_type zsz,idx_type globidx,
+				idx_type loczidx);
 
     static Dimensions	defDims();
 
@@ -187,7 +188,7 @@ public:
     const ZGeom&	zGeom() const		{ return zgeom_; }
 
     const Dimensions&	dimensions() const	{ return dims_; }
-    SzType		version() const		{ return version_; }
+    version_type	version() const		{ return version_; }
     const char*		cubeName() const	{ return cubename_; }
     const BufferStringSet& componentNames() const { return compnms_; }
     OD::DataRepType	dataRep() const		{ return datarep_; }
@@ -238,7 +239,7 @@ protected:
     ZGeom		zgeom_;
     ZDomain::Def	zdomain_;
     Dimensions		dims_;
-    SzType		version_;
+    version_type	version_;
     BufferString	cubename_;
     BufferStringSet	compnms_;
     LinScaler*		scaler_;

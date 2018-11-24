@@ -45,7 +45,7 @@ protected:
     Access&		acc_;
     mutable H5::Group	group_;
     mutable H5::DataSet	dataset_;
-    mutable ArrayNDInfo::NrDimsType nrdims_;
+    mutable ArrayNDInfo::nr_dims_type nrdims_;
 
 			// no throw
     void		doCloseFile(Access&);

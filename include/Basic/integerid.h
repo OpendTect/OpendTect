@@ -42,7 +42,7 @@ ________________________________________________________________________
 */
 
 
-template <class IntType,int udfval=-1>
+template <class IntType=int,int udfval=-1>
 mClass(Basic) IntegerID
 {
 public:
@@ -103,5 +103,5 @@ public: \
 }
 
 
-#define mDefIntegerIDType(IntType,classname) \
-	mDefIntegerIDTypeFull(IntType,classname,-1,)
+#define mDefIntegerIDType(classname) \
+	mDefIntegerIDTypeFull(int,classname,-1,)

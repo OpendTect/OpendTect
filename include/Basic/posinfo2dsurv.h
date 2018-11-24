@@ -48,7 +48,9 @@ mExpClass(Basic) Line2DKey : public IdxPair
 {
 public:
 
-			Line2DKey( int lsid=-1, int lineid=-1 )
+    typedef int		idx_type;
+
+			Line2DKey( pos_type lsid=-1, pos_type lineid=-1 )
 			    : IdxPair(lsid,lineid)	{}
 
     inline bool		operator ==( const Line2DKey& oth ) const
@@ -56,10 +58,10 @@ public:
     inline bool		operator !=( const Line2DKey& oth ) const
 			{ return !( operator==(oth) ); }
 
-    inline IdxType&	lsID()		{ return first; }
-    inline IdxType	lsID() const	{ return first; }
-    inline IdxType&	lineID()	{ return second; }
-    inline IdxType	lineID() const	{ return second; }
+    inline pos_type&	lsID()		{ return first; }
+    inline pos_type	lsID() const	{ return first; }
+    inline pos_type&	lineID()	{ return second; }
+    inline pos_type	lineID() const	{ return second; }
 
     bool		isOK() const;	//!< true if a line exist with this key
 
@@ -84,7 +86,7 @@ mExpClass(Basic) Survey2D : public CallBacker
 {
 public:
 
-    typedef Line2DKey::IdxType	IdxType;
+    mUseType( Line2DKey,	pos_type );
 
     static void		initClass();
     bool		isEmpty() const		{ return lsnm_.isEmpty(); }
@@ -107,25 +109,25 @@ public:
     void		renameLineSet(const char*,const char*);
 
     // using ids
-    const char*		getLineSet(IdxType lsid) const;
-    const char*		getLineName(IdxType lineid) const;
-    IdxType		getLineSetID(const char*) const;
-    IdxType		getLineID(const char*) const;
-    bool		hasLineSet(IdxType lsid) const;
-    bool		hasLine(IdxType lineid,IdxType lsid=-1) const;
-    void		getLineIDs(TypeSet<IdxType>&,IdxType lsid) const;
-    void		getLines(BufferStringSet&,IdxType lsid) const;
+    const char*		getLineSet(pos_type lsid) const;
+    const char*		getLineName(pos_type lineid) const;
+    pos_type		getLineSetID(const char*) const;
+    pos_type		getLineID(const char*) const;
+    bool		hasLineSet(pos_type lsid) const;
+    bool		hasLine(pos_type lineid,pos_type lsid=-1) const;
+    void		getLineIDs(TypeSet<pos_type>&,pos_type lsid) const;
+    void		getLines(BufferStringSet&,pos_type lsid) const;
 
-    IdxType		curLineSetID() const;
-    void		setCurLineSet(IdxType lsid) const;
+    pos_type		curLineSetID() const;
+    void		setCurLineSet(pos_type lsid) const;
 
-    bool		getGeometry(IdxType lid,Line2DData&) const;
+    bool		getGeometry(pos_type lid,Line2DData&) const;
     bool		getGeometry(const Line2DKey&,Line2DData&) const;
 			//!< thread safe
 
     void		renameLine(const char*oldnm,const char*newnm);
-    void		removeLine(IdxType lid);
-    void		removeLineSet(IdxType lsid);
+    void		removeLine(pos_type lid);
+    void		removeLineSet(pos_type lsid);
 
     Line2DKey		getLine2DKey(const char* lsnm,const char* linenm) const;
     const char*		getLSFileNm(const char* lsnm) const;
@@ -136,11 +138,12 @@ public:
 
 protected:
 
-    IdxType		getNewID(IOPar&);
-    void		updateMaxID(IdxType,IOPar&);
+    pos_type		getNewID(IOPar&);
+    void		updateMaxID(pos_type,IOPar&);
 
 private:
 
+    typedef int		idx_type;
     File::Path&		basefp_;
     File::Path&		lsfp_;
     BufferString	lsnm_;
@@ -155,11 +158,11 @@ private:
     static void		readIdxFile(const char*,IOPar&);
     void		writeIdxFile(bool) const;
     void		getKeys(const IOPar&,BufferStringSet&) const;
-    void		getIDs(const IOPar&,TypeSet<IdxType>&) const;
+    void		getIDs(const IOPar&,TypeSet<pos_type>&) const;
     BufferString	getNewStorageName(const char*,const File::Path&,
 					  const IOPar&) const;
-    int			getLineSetIdx(IdxType lsid) const;
-    int			getLineIdx(IdxType lineid) const;
+    idx_type		getLineSetIdx(pos_type lsid) const;
+    idx_type		getLineIdx(pos_type lineid) const;
 
     mGlobal(Basic) friend const Survey2D& ::S2DPOS();
 

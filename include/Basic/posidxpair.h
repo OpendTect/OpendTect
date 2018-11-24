@@ -29,28 +29,28 @@ mExpClass(Basic) IdxPair : public ::IdxPair
 public:
 
     inline			IdxPair() : ::IdxPair(0,0)	{}
-    inline			IdxPair(IdxType,IdxType);
+    inline			IdxPair(pos_type,pos_type);
 				mImplSimpleEqOpers2Memb(IdxPair,first,second)
     inline bool			operator <(const IdxPair& oth) const;
     inline bool			operator >(const IdxPair& oth) const;
 
 				// aliases for first
-    inline IdxType&		inl()		{ return first; }
-    inline IdxType&		lineNr()	{ return first; }
-    inline IdxType&		row()		{ return first; }
+    inline pos_type&		inl()		{ return first; }
+    inline pos_type&		lineNr()	{ return first; }
+    inline pos_type&		row()		{ return first; }
 
 				// aliases for second
-    inline IdxType&		crl()		{ return second; }
-    inline IdxType&		trcNr()		{ return second; }
-    inline IdxType&		col()		{ return second; }
+    inline pos_type&		crl()		{ return second; }
+    inline pos_type&		trcNr()		{ return second; }
+    inline pos_type&		col()		{ return second; }
 
 				// const versions of the aliases
-    inline IdxType		inl() const	{ return first; }
-    inline IdxType		crl() const	{ return second; }
-    inline IdxType		lineNr() const	{ return first; }
-    inline IdxType		trcNr() const	{ return second; }
-    inline IdxType		row() const	{ return first; }
-    inline IdxType		col() const	{ return second; }
+    inline pos_type		inl() const	{ return first; }
+    inline pos_type		crl() const	{ return second; }
+    inline pos_type		lineNr() const	{ return first; }
+    inline pos_type		trcNr() const	{ return second; }
+    inline pos_type		row() const	{ return first; }
+    inline pos_type		col() const	{ return second; }
 
     inline od_int64		toInt64() const;
     inline static IdxPair	fromInt64(od_int64);
@@ -62,7 +62,7 @@ public:
 };
 
 
-inline IdxPair::IdxPair( IdxType f, IdxType s )
+inline IdxPair::IdxPair( pos_type f, pos_type s )
     : ::IdxPair(f,s)
 {
 }
@@ -88,7 +88,7 @@ inline od_int64 IdxPair::toInt64() const
 
 inline IdxPair IdxPair::fromInt64( od_int64 i64 )
 {
-    return IdxPair( (IdxType)(i64 >> 32), (IdxType)(i64 & 0xFFFFFFFF) );
+    return IdxPair( (pos_type)(i64 >> 32), (pos_type)(i64 & 0xFFFFFFFF) );
 }
 
 

@@ -34,7 +34,7 @@ public:
 				/*!Must be at least the size of input.*/
     bool			setWindow(const char* nm,float param,
 					  int sz0,int sz1,int sz2);
-    int				getWindowSize(DimIdxType dim) const;
+    int				getWindowSize(dim_idx_type dim) const;
     const char*			getWindowName() const;
     float			getWindowParam() const;
 
@@ -73,7 +73,7 @@ Smoother3D<T>::Smoother3D()
 
 
 template <class T> inline
-int Smoother3D<T>::getWindowSize(DimIdxType dim) const
+int Smoother3D<T>::getWindowSize( dim_idx_type dim ) const
 {
     return window_.getSize( dim );
 }

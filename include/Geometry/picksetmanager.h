@@ -54,8 +54,8 @@ public:
     bool		hasCategory(const ObjID&,const char*) const;
 
 			// Use MonitorLock when iterating
-    ConstRefMan<Set>	get(IdxType) const;
-    RefMan<Set>		getForEdit(IdxType);
+    ConstRefMan<Set>	get(idx_type) const;
+    RefMan<Set>		getForEdit(idx_type);
 
 protected:
 

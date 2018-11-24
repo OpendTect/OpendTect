@@ -60,7 +60,7 @@ public:
 
     float		exp_;
     float		std_;
-    float		averagePos(DimIdxType dim) const { return 0;}
+    float		averagePos( dim_idx_type dim ) const { return 0;}
 
 
 protected:
@@ -89,7 +89,7 @@ public:
 
 			mDefGaussianProbDenFuncFns(Gaussian2D)
 
-    virtual float	averagePos( DimIdxType dim ) const
+    virtual float	averagePos( dim_idx_type dim ) const
 			{ return dim ? exp1_ : exp0_; }
 
     float		exp0_, exp1_;
@@ -118,10 +118,10 @@ public:
 						{ *this = oth; }
 			mDefGaussianProbDenFuncFns(GaussianND)
 
-    virtual NrDimsType	nrDims() const { return (NrDimsType)vars_.size(); }
+    virtual nr_dims_type nrDims() const { return (nr_dims_type)vars_.size(); }
     virtual const char*	dimName(int) const;
     virtual void	setDimName(int,const char*);
-    virtual float	averagePos(DimIdxType) const;
+    virtual float	averagePos(dim_idx_type) const;
 
     void		prepareRandDrawing() const;
     virtual void	drawRandomPos(TypeSet<float>&) const;

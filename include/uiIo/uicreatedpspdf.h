@@ -47,7 +47,7 @@ protected:
     ObjectSet<uiButton>		addbuts_;
     ObjectSet<uiButton>		rmbuts_;
     ProbDenFunc*		pdf_;
-    ProbDenFunc::NrDimsType	nrdisp_;
+    ProbDenFunc::nr_dims_type	nrdisp_;
     bool			restrictedmode_;
 
     uiIOObjSel*			outputfld_;
@@ -58,11 +58,11 @@ protected:
     const DataPointSet&		dps_;
 
     void			createDefaultUI();
-    bool 			createPDF();
-    void 			viewPDF();
-    
+    bool			createPDF();
+    void			viewPDF();
+
     float			getVal(int rid,int cid) const;
-    void 			fillPDF(ArrayNDProbDenFunc&);
+    void			fillPDF(ArrayNDProbDenFunc&);
     void			setColRange(CallBacker*);
     void			butPush(CallBacker*);
     void			handleDisp(CallBacker*);

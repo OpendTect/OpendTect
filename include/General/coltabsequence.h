@@ -39,7 +39,7 @@ mExpClass(General) Sequence : public SharedObject
 public:
 
     typedef TypeSet<PosType>::size_type	size_type;
-    typedef size_type			IdxType;
+    typedef size_type			idx_type;
     typedef Color::CompType		CompType;
     typedef std::pair<PosType,CompType>	TranspPtType;
 
@@ -61,18 +61,18 @@ public:
 
     inline bool		isEmpty() const		{ return size() < 1; }
     size_type		size() const;
-    PosType		position(IdxType) const;
-    CompType		r(IdxType) const;
-    CompType		g(IdxType) const;
-    CompType		b(IdxType) const;
+    PosType		position(idx_type) const;
+    CompType		r(idx_type) const;
+    CompType		g(idx_type) const;
+    CompType		b(idx_type) const;
 
     size_type		transparencySize() const;
-    TranspPtType	transparency(IdxType) const;
+    TranspPtType	transparency(idx_type) const;
     CompType		transparencyAt(PosType) const;
     void		setTransparency(TranspPtType);
-    void		changeTransparency(IdxType,TranspPtType);
+    void		changeTransparency(idx_type,TranspPtType);
     void		removeTransparencies();
-    void		removeTransparencyAt(IdxType);
+    void		removeTransparencyAt(idx_type);
     bool		hasTransparency() const;
 
     mImplSimpleMonitoredGetSet(inline,nrSegments,setNrSegments,size_type,
@@ -82,11 +82,11 @@ public:
 			    nrsegments == -1 constant color between markers.*/
     bool		isSegmentized() const		{ return nrSegments(); }
 
-    void		changeColor(IdxType,CompType,CompType,CompType);
-    void		changePos(IdxType,PosType);
-    IdxType		setColor(PosType, //!< Insert or change
+    void		changeColor(idx_type,CompType,CompType,CompType);
+    void		changePos(idx_type,PosType);
+    idx_type		setColor(PosType, //!< Insert or change
 				 CompType,CompType,CompType);
-    void		removeColor(IdxType);
+    void		removeColor(idx_type);
     void		removeAllColors();
 
     void		fillPar(IOPar&) const;
@@ -132,8 +132,8 @@ protected:
 
     PosType		snapToSegmentCenter(PosType) const;
     CompType		gtTransparencyAt(PosType) const;
-    bool		chgColor(IdxType,CompType,CompType,CompType);
-    bool		rmColor(IdxType);
+    bool		chgColor(idx_type,CompType,CompType,CompType);
+    bool		rmColor(idx_type);
     void		emitStatusChg() const;
 
     friend class	SequenceManager;

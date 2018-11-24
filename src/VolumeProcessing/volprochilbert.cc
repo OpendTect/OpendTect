@@ -149,7 +149,7 @@ bool HilbertCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
     Array1DSlice<float> imagtrc( imagdata_ );
 
     const ArrayNDInfo& infoin = realdata_.info();
-    const DimIdxType lastdim = realdata_.get1DDim();
+    const dim_idx_type lastdim = realdata_.get1DDim();
     realtrc.setDimMap( 0, lastdim );
     imagtrc.setDimMap( 0, lastdim );
     const int nrlines = is3d_ ? infoin.getSize( 0 ) : 0;

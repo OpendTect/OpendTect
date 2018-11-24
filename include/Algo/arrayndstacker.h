@@ -75,7 +75,7 @@ bool doPrepare( int )
     if ( inps_.isEmpty() )
 	{ out_.setAll( udfval_ ); return true; }
 
-    const NrDimsType nrdims = out_.nrDims();
+    const nr_dims_type nrdims = out_.nrDims();
     if ( totalnr_ < 1 )
     {
 	if ( !out_.canSetInfo() )
@@ -86,7 +86,7 @@ bool doPrepare( int )
 	    for ( int iarr=0; iarr<inps_.size(); iarr++ )
 	    {
 		const ArrT* inparr = inps_[iarr];
-		for ( DimIdxType idim=0; idim<nrdims; idim++ )
+		for ( dim_idx_type idim=0; idim<nrdims; idim++ )
 		{
 		    if ( info.getSize(idim) < inparr->getSize(idim) )
 			info.setSize( idim, inparr->getSize(idim) );

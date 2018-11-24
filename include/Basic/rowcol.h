@@ -72,7 +72,7 @@ public:
 };
 
 
-inline RowCol::RowCol( RowCol::IdxType i, RowCol::IdxType c )
+inline RowCol::RowCol( RowCol::pos_type i, RowCol::pos_type c )
     : Pos::IdxPair(i,c)
 {
 }

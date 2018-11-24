@@ -37,12 +37,13 @@ mExpClass(General) IdxPairValueSet
 {
 public:
 
-    typedef IdxPair::IdxType			IdxType;
+    mUseType( IdxPairDataSet,			pos_type );
+    mUseType( IdxPairDataSet,			idx_type );
+    mUseType( IdxPairDataSet,			size_type );
+    mUseType( IdxPairDataSet,			glob_idx_type );
+    mUseType( IdxPairDataSet,			SPos );
     typedef ValueIdxPair<IdxPair,float>		PairVal;
     typedef IdxPairValues<IdxPair,float>	DataRow;
-    typedef IdxPairDataSet::SPos		SPos;
-    typedef IdxPairDataSet::ArrIdxType		ArrIdxType;
-    typedef IdxPairDataSet::GlobIdxType		GlobIdxType;
 
 			IdxPairValueSet(int nr_vals,bool allow_dupl_idxpairs);
     virtual		~IdxPairValueSet()		{}
@@ -76,7 +77,7 @@ public:
     void		get(const SPos&,IdxPair&,float* v=0,int mxnrv=-1) const;
     IdxPair		getIdxPair( const SPos& spos ) const
 			{ return data_.getIdxPair( spos ); }
-    SPos		getPos(GlobIdxType global_idx) const
+    SPos		getPos(glob_idx_type global_idx) const
 			{ return data_.getPos( global_idx ); }
     SPos		add(const IdxPair&,const float* vs=0);
 			    //!< Either pass sufficient data or pass null
@@ -91,33 +92,33 @@ public:
 
     inline int		nrVals() const
 			{ return nrvals_; }
-    inline IdxType	nrFirst() const
+    inline size_type	nrFirst() const
 			{ return data_.nrFirst(); }
-    inline IdxType	nrSecond( IdxType firstidx ) const
-			{ return data_.nrSecond(firstidx); }
+    inline size_type	nrSecond( pos_type firstpos ) const
+			{ return data_.nrSecond(firstpos); }
     inline bool		isEmpty() const
 			{ return data_.isEmpty(); }
     inline bool		includes( const IdxPair& ip ) const
 			{ return data_.includes( ip ); }
-    inline bool		hasFirst( IdxType inl ) const
+    inline bool		hasFirst( pos_type inl ) const
 			{ return data_.hasFirst( inl ); }
-    inline bool		hasSecond( IdxType crl ) const
+    inline bool		hasSecond( pos_type crl ) const
 			{ return data_.hasSecond( crl ); }
     inline IdxPair	firstIdxPair() const
 			{ return data_.firstIdxPair(); }
-    inline GlobIdxType	totalSize() const
+    inline glob_idx_type totalSize() const
 			{ return data_.totalSize(); }
-    inline Interval<IdxType> firstRange() const
+    inline Interval<pos_type> firstRange() const
 			{ return data_.firstRange(); }
-    inline Interval<IdxType> secondRange( IdxType frstidx=-1 ) const
-			{ return data_.secondRange( frstidx ); }
+    inline Interval<pos_type> secondRange( pos_type frstpos=-1 ) const
+			{ return data_.secondRange( frstpos ); }
     Interval<float>	valRange(int valnr) const;
 
     bool		insertVal(int); //<! Will add a 'column'
     bool		setNrVals(int);
     inline bool		hasDuplicateIdxPairs() const
 			{ return data_.hasDuplicateIdxPairs(); }
-    inline ArrIdxType	nrDuplicateIdxPairs() const
+    inline idx_type	nrDuplicateIdxPairs() const
 			{ return data_.nrDuplicateIdxPairs(); }
     inline void		removeDuplicateIdxPairs()
 			{ data_.removeDuplicateIdxPairs(); }
@@ -164,7 +165,7 @@ public:
 				//!< detects/converts coords if geomid passed
     bool		putTo(od_ostream&) const;
 
-    inline ArrIdxType	nrPos( ArrIdxType lineidx ) const
+    inline size_type	nrPos( idx_type lineidx ) const
 			{ return data_.nrPos(lineidx); }
     float*		getVals(const SPos&);
 			    //!< Direct access to value arrays.
@@ -175,19 +176,19 @@ public:
     bool		haveDataRow(const DataRow&) const;
 
 			// aliases
-    inline ArrIdxType	nrInls() const		    { return nrFirst(); }
-    inline ArrIdxType	nrCrls( IdxType inl ) const { return nrSecond(inl); }
-    inline ArrIdxType	nrRows() const		    { return nrFirst(); }
-    inline ArrIdxType	nrCols( IdxType row ) const { return nrSecond(row); }
-    bool		hasInl( IdxType inl ) const { return hasFirst(inl); }
-    bool		hasCrl( IdxType crl ) const { return hasSecond(crl); }
-    inline bool		hasRow( IdxType row ) const { return hasFirst(row); }
-    inline bool		hasCol( IdxType col ) const { return hasSecond(col); }
-    Interval<IdxType>	inlRange() const	    { return firstRange(); }
-    Interval<IdxType>	rowRange() const	    { return firstRange(); }
-    Interval<IdxType>	crlRange( IdxType inl=-1 ) const
+    inline size_type	nrInls() const		    { return nrFirst(); }
+    inline size_type	nrCrls( pos_type inl ) const { return nrSecond(inl); }
+    inline size_type	nrRows() const		    { return nrFirst(); }
+    inline size_type	nrCols( pos_type row ) const { return nrSecond(row); }
+    bool		hasInl( pos_type inl ) const { return hasFirst(inl); }
+    bool		hasCrl( pos_type crl ) const { return hasSecond(crl); }
+    inline bool		hasRow( pos_type row ) const { return hasFirst(row); }
+    inline bool		hasCol( pos_type col ) const { return hasSecond(col); }
+    Interval<pos_type>	inlRange() const	    { return firstRange(); }
+    Interval<pos_type>	rowRange() const	    { return firstRange(); }
+    Interval<pos_type>	crlRange( pos_type inl=-1 ) const
 						    { return secondRange(inl); }
-    Interval<IdxType>	colRange( IdxType row=-1 ) const
+    Interval<pos_type>	colRange( pos_type row=-1 ) const
 						    { return secondRange(row); }
 
 protected:

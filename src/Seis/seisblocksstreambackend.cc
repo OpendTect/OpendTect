@@ -16,8 +16,9 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "uistrings.h"
 
-typedef Seis::Blocks::SzType SzType;
-static SzType columnHeaderSize( SzType ver ) { return 32; }
+mUseType( Seis::Blocks, size_type );
+mUseType( Seis::Blocks, version_type );
+static size_type columnHeaderSize( version_type ver ) { return 32; }
 
 
 #define mRetIfStrmFail() \
@@ -64,7 +65,7 @@ void Seis::Blocks::StreamWriteBackEnd::setColumnInfo(
 {
     mRetIfStrmFail();
 
-    const SzType hdrsz = columnHeaderSize( wrr_.version_ );
+    const size_type hdrsz = columnHeaderSize( wrr_.version_ );
     const od_stream_Pos orgstrmpos = strm_->position();
     column.fileid_ = orgstrmpos;
 
@@ -108,15 +109,15 @@ void Seis::Blocks::StreamWriteBackEnd::putBlock( int icomp, MemBlock& block,
 	const int bytesperentireinl = bytesperentirecrl * blockdims.crl();
 
 	const int bytes2write = wrdims.z() * bytespersample;
-	const IdxType wrstopinl = wrstart.inl() + wrdims.inl();
-	const IdxType wrstopcrl = wrstart.crl() + wrdims.crl();
+	const idx_type wrstopinl = wrstart.inl() + wrdims.inl();
+	const idx_type wrstopcrl = wrstart.crl() + wrdims.crl();
 
 	const DataBuffer::buf_type* dataptr;
-	for ( IdxType iinl=wrstart.inl(); iinl<wrstopinl; iinl++ )
+	for ( idx_type iinl=wrstart.inl(); iinl<wrstopinl; iinl++ )
 	{
 	    dataptr = bufdata + iinl * bytesperentireinl
 			      + wrstart.crl() * bytesperentirecrl;
-	    for ( IdxType icrl=wrstart.crl(); icrl<wrstopcrl; icrl++ )
+	    for ( idx_type icrl=wrstart.crl(); icrl<wrstopcrl; icrl++ )
 	    {
 		strm_->addBin( dataptr, bytes2write );
 		mRetIfStrmFail();
@@ -148,7 +149,7 @@ public:
     od_istream&		strm_;
 
     od_stream_Pos	startoffsinfile_;
-    SzType		headernrbytes_;
+    size_type		headernrbytes_;
     HLocIdx		start_;
     const Dimensions	dims_;
     int			nrsamplesintrace_;
@@ -192,7 +193,7 @@ Seis::Blocks::FileColumn::FileColumn( const StreamReadBackEnd& rdrbe,
 
     strm_.setReadPosition( startoffsinfile_ );
     strm_.getBin( headernrbytes_ );
-    const SzType expectedhdrbts = columnHeaderSize( rdr_.version_ );
+    const size_type expectedhdrbts = columnHeaderSize( rdr_.version_ );
     if ( headernrbytes_ != expectedhdrbts )
     {
 	uirv.set( tr("%1: unexpected size in file.\nFound %2, should be %3.")
@@ -231,27 +232,27 @@ void Seis::Blocks::FileColumn::createOffsetTable()
     const int nrbytespercompslice = ((int)dims_.inl()) * dims_.crl()
 				    * nrbytespersample;
 
-    const IdxType lastglobzidxinfile = Block::globIdx4Z( rdr_.zgeom_,
+    const idx_type lastglobzidxinfile = Block::globIdx4Z( rdr_.zgeom_,
 					rdr_.zgeom_.stop, dims_.z() );
-    Interval<IdxType> trcgzidxrg(
+    Interval<idx_type> trcgzidxrg(
 	    Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start, dims_.z() ),
 	    Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop, dims_.z() ) );
     nrsamplesintrace_ = 0;
     int blocknrbytes = dims_.z() * nrbytespercompslice;
     od_stream_Pos blockstartoffs = startoffsinfile_ + headernrbytes_
 				 + trcgzidxrg.start * blocknrbytes * nrcomps_;
-    for ( IdxType gzidx=trcgzidxrg.start; gzidx<=trcgzidxrg.stop; gzidx++ )
+    for ( idx_type gzidx=trcgzidxrg.start; gzidx<=trcgzidxrg.stop; gzidx++ )
     {
-	SzType blockzdim = dims_.z();
+	size_type blockzdim = dims_.z();
 	if ( gzidx == lastglobzidxinfile )
 	{
-	    SzType lastdim = SzType( nrsamplesinfile%dims_.z() );
+	    size_type lastdim = size_type( nrsamplesinfile%dims_.z() );
 	    if ( lastdim > 0 )
 		blockzdim = lastdim;
 	}
 
-	IdxType startzidx = 0;
-	IdxType stopzidx = IdxType( blockzdim ) - 1;
+	idx_type startzidx = 0;
+	idx_type stopzidx = idx_type( blockzdim ) - 1;
 	if ( gzidx == trcgzidxrg.start )
 	    startzidx = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start,
 					 dims_.z() );

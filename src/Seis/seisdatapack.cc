@@ -938,13 +938,13 @@ void RegularFlatDataPack::setSourceData()
     else
 	setPosData();
 
-    const DimIdxType dim0 = dir()==OD::InlineSlice ? 1 : 0;
-    const DimIdxType dim1 = dir()==OD::ZSlice ? 1 : 2;
+    const dim_idx_type dim0 = dir()==OD::InlineSlice ? 1 : 0;
+    const dim_idx_type dim1 = dir()==OD::ZSlice ? 1 : 2;
     Array2DSlice<float>* slice2d
 		= new Array2DSlice<float>(source_->data(comp_));
     slice2d->setDimMap( 0, dim0 );
     slice2d->setDimMap( 1, dim1 );
-    DimIdxType dirval = (DimIdxType)dir();
+    dim_idx_type dirval = (dim_idx_type)dir();
     slice2d->setPos( dirval, 0 );
     slice2d->init();
     arr2d_ = slice2d;

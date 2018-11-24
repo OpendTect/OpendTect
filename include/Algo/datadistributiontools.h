@@ -18,20 +18,20 @@ ________________________________________________________________________
 
 template <class VT>
 mClass(Algo) DataDistributionIter
-	: public MonitorableIter4Read< typename DataDistribution<VT>::IdxType >
+	: public MonitorableIter4Read<typename DataDistribution<VT>::idx_type>
 {
 public:
 
-    typedef MonitorableIterBase< typename DataDistribution<VT>::IdxType >
+    typedef MonitorableIterBase< typename DataDistribution<VT>::idx_type >
 						base_type;
     typedef DataDistribution<VT>		DistribType;
     typedef typename DistribType::PosType	PosType;
-    typedef typename DistribType::IdxType	IdxType;
+    typedef typename DistribType::idx_type	idx_type;
 
     inline	    DataDistributionIter( const DistribType& d )
-			: MonitorableIter4Read<IdxType>(d,0,d.size()-1) {}
+			: MonitorableIter4Read<idx_type>(d,0,d.size()-1) {}
     inline	    DataDistributionIter( const DataDistributionIter& oth )
-			: MonitorableIter4Read<IdxType>(oth)		{}
+			: MonitorableIter4Read<idx_type>(oth)		{}
     inline const DistribType& distrib() const
 		    { return static_cast<const DistribType&>(
 					    base_type::monitored() ); }
@@ -59,7 +59,7 @@ mClass(Algo) DataDistributionInfoExtracter
 public:
 
     typedef DataDistribution<VT>		DistribType;
-    typedef typename DistribType::IdxType	IdxType;
+    typedef typename DistribType::idx_type	idx_type;
     typedef typename DistribType::PosType	PosType;
     typedef typename DistribType::ValueType	ValueType;
     typedef typename DistribType::SetType	SetType;
@@ -91,7 +91,7 @@ mClass(Algo) DataDistributionChanger
 public:
 
     typedef DataDistribution<VT>		DistribType;
-    typedef typename DistribType::IdxType	IdxType;
+    typedef typename DistribType::idx_type	idx_type;
     typedef typename DistribType::PosType	PosType;
     typedef typename DistribType::ValueType	ValueType;
     typedef typename DistribType::SetType	SetType;
@@ -120,7 +120,7 @@ template <class VT> inline
 void DataDistributionChanger<VT>::normalise( bool in_the_math_sense )
 {
     mLockMonitorable4Write( distrib_ );
-    const IdxType sz = distrib_.data_.size();
+    const idx_type sz = distrib_.data_.size();
     if ( sz < 1 )
 	return;
 
@@ -129,7 +129,7 @@ void DataDistributionChanger<VT>::normalise( bool in_the_math_sense )
     if ( divby == VT(0) || divby == VT(1) )
 	return;
 
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	distrib_.data_[idx] /= divby;
 	distrib_.setCumData( idx );
@@ -154,7 +154,7 @@ bool DataDistributionChanger<VT>::deSpike( VT cutoff )
     VT maxval = distrib_.data_[0];
     VT runnerupval = maxval;
     VT minval = maxval;
-    IdxType idxatmax = 0;
+    idx_type idxatmax = 0;
 
     for ( int idx=1; idx<sz; idx++ )
     {
@@ -187,7 +187,7 @@ bool DataDistributionInfoExtracter<VT>::isRoughlySymmetrical(
 					    bool onlyaround0 ) const
 {
     mLockMonitorable4Read( distrib_ );
-    IdxType maxidx; distrib_.gtMax( &maxidx );
+    idx_type maxidx; distrib_.gtMax( &maxidx );
     PosType medpos = distrib_.medianPosition();
     PosType diff = medpos - distrib_.sampling_.atIndex( maxidx );
     if ( diff < PosType(0) )
@@ -236,7 +236,7 @@ void DataDistributionInfoExtracter<VT>::getRanges( Interval<PosType>& xrg,
 {
     mLockMonitorable4Read( distrib_ );
     xrg.start = distrib_.sampling_.start;
-    const IdxType sz = distrib_.data_.size();
+    const idx_type sz = distrib_.data_.size();
     if ( sz < 1 )
     {
 	xrg.stop = xrg.start;
@@ -246,7 +246,7 @@ void DataDistributionInfoExtracter<VT>::getRanges( Interval<PosType>& xrg,
     {
 	xrg.stop = distrib_.sampling_.atIndex( sz-1 );
 	yrg.start = yrg.stop = distrib_.data_[0];
-	for ( IdxType idx=1; idx<sz; idx++ )
+	for ( idx_type idx=1; idx<sz; idx++ )
 	{
 	    const VT val = distrib_.data_[idx];
 	    if ( val > yrg.stop )
@@ -277,7 +277,7 @@ void DataDistributionInfoExtracter<VT>::getAvgStdRMS( PosType& avg,
     VT sum_x, sum_xx, sum_w, sum_wx, sum_wxx;
     sum_x = sum_xx = sum_w = sum_wx = sum_wxx = VT(0);
 
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	const VT x = distrib_.sampling_.atIndex( idx );
 	const VT wt = distrib_.data_[idx];

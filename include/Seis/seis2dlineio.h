@@ -58,8 +58,8 @@ mExpClass(Seis) Seis2DTraceGetter
 { mODTextTranslationClass(Seis2DTraceGetter);
 public:
 
-    typedef IdxPair::IdxType	TrcNrType;
-    typedef IdxPair::IdxType	LineNrType;
+    typedef IdxPair::pos_type	TrcNrType;
+    typedef IdxPair::pos_type	LineNrType;
 
     virtual		~Seis2DTraceGetter();
 

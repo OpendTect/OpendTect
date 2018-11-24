@@ -34,24 +34,24 @@ public:
 
     virtual			~ArrayNDSliceBase();
 
-    SzType			getDimSize(DimIdxType) const;
-    IdxType			getPos(DimIdxType) const;
-    bool			setPos(DimIdxType,IdxType);
+    size_type			getDimSize(dim_idx_type) const;
+    idx_type			getPos(dim_idx_type) const;
+    bool			setPos(dim_idx_type,idx_type);
     bool			init();
-    void			setDimMap(DimIdxType localdim,
-					  DimIdxType remotedim);
+    void			setDimMap(dim_idx_type localdim,
+					  dim_idx_type remotedim);
 
 protected:
 				ArrayNDSliceBase(ArrayNDInfo*,
 						 const ArrayNDInfo&);
     void			getSourcePos(NDPos localpos,
-					     IdxType* sourcepos) const;
+					     idx_type* sourcepos) const;
     ArrayNDInfo&		info_;
     const ArrayNDInfo&		sourceinfo_;
 
-    TypeSet<DimIdxType>		vardim_;
-    TypeSet<IdxType>		position_;
-    OffsetType			offset_;
+    TypeSet<dim_idx_type>		vardim_;
+    TypeSet<idx_type>		position_;
+    offset_type			offset_;
     bool			isinited_;
 };
 
@@ -72,8 +72,8 @@ public:
 
     ValueSeries<T>*		clone() const;
 
-    T				get(IdxType) const;
-    void			set(IdxType,T);
+    T				get(idx_type) const;
+    void			set(idx_type,T);
     const Array1DInfo&		info() const;
     bool			isSettable() const;
 
@@ -102,8 +102,8 @@ public:
 				Array2DSlice(const ArrayND<T>&);
 				~Array2DSlice();
 
-    T				get(IdxType,IdxType) const;
-    void			set(IdxType,IdxType,T);
+    T				get(idx_type,idx_type) const;
+    void			set(idx_type,idx_type,T);
     const Array2DInfo&		info() const;
     bool			isSettable() const;
 
@@ -148,25 +148,25 @@ bool Array1DSlice<T>::isSettable() const
 
 
 template <class T> inline
-void Array1DSlice<T>::set( IdxType pos, T val )
+void Array1DSlice<T>::set( idx_type pos, T val )
 {
     if ( !isinited_ )
     { pErrMsg("ArrayNDSlice not inited!"); }
 
     if ( !writable_ ) return;
-    mAllocVarLenArr( IdxType, srcpos, position_.size() );
+    mAllocVarLenArr( idx_type, srcpos, position_.size() );
     getSourcePos( &pos, srcpos );
     source_.setND( srcpos, val );
 }
 
 
 template <class T> inline
-T Array1DSlice<T>::get( IdxType pos ) const
+T Array1DSlice<T>::get( idx_type pos ) const
 {
     if ( !isinited_ )
     { pErrMsg("ArrayNDSlice not inited!"); }
 
-    mAllocVarLenArr( IdxType, srcpos, position_.size() );
+    mAllocVarLenArr( idx_type, srcpos, position_.size() );
     getSourcePos( &pos, srcpos );
     return source_.getND( srcpos );
 }
@@ -252,28 +252,28 @@ bool Array2DSlice<T>::isSettable() const
 
 
 template <class T> inline
-void Array2DSlice<T>::set( IdxType pos0, IdxType pos1, T val )
+void Array2DSlice<T>::set( idx_type pos0, idx_type pos1, T val )
 {
     if ( !isinited_ )
     { pErrMsg("ArrayNDSlice not inited!"); }
 
     if ( !writable_ ) return;
 
-    const IdxType localpos[] = { pos0, pos1 };
-    mAllocVarLenArr( IdxType, srcpos, position_.size() );
+    const idx_type localpos[] = { pos0, pos1 };
+    mAllocVarLenArr( idx_type, srcpos, position_.size() );
     getSourcePos( const_cast<NDPos>(localpos), srcpos );
     source_.setND( srcpos, val );
 }
 
 
 template <class T> inline
-T Array2DSlice<T>::get( IdxType pos0, IdxType pos1 ) const
+T Array2DSlice<T>::get( idx_type pos0, idx_type pos1 ) const
 {
     if ( !isinited_ )
 	{ pErrMsg("ArrayNDSlice not inited!"); }
 
-    const IdxType localpos[] = { pos0, pos1 };
-    mAllocVarLenArr( IdxType, srcpos, position_.size() );
+    const idx_type localpos[] = { pos0, pos1 };
+    mAllocVarLenArr( idx_type, srcpos, position_.size() );
     getSourcePos( const_cast<NDPos>(localpos), srcpos );
     return source_.getND( srcpos );
 }

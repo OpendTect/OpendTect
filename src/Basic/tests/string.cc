@@ -260,13 +260,13 @@ static void printBufStr( const char* pfx, BufferString bs )
 
 #include "integerid.h"
 
-mDefIntegerIDType(int,AnIntID);
+mDefIntegerIDType(AnIntID);
 
 static void prId( const char* pfx, AnIntID id )
 {
     TypeSet<AnIntID> ids;
     ids += id;
-    od_cout() << pfx << ": '" << (int)id << "'" << od_endl;
+    od_cout() << pfx << ": '" << id.getI() << "'" << od_endl;
 }
 
 

@@ -47,21 +47,21 @@ public:
 
 protected:
 
-    typedef ObjectSet<Record>::idx_type    IdxType;
+    typedef ObjectSet<Record>::idx_type    idx_type;
 
 			ChangeRecorder(Monitorable&,const char* nm);
 			ChangeRecorder(const Monitorable&,const char*);
 
     Monitorable*	obj_;
     ObjectSet<Record>	recs_;
-    IdxType		idx4redo_;
+    idx_type		idx4redo_;
     bool		applying_;
 
 			// fns with no locking:
     void		clear();
     void		objDel(CallBacker*);
     void		objChg(CallBacker*);
-    IdxType		gtIdx(Action) const;
+    idx_type		gtIdx(Action) const;
     void		addRec(Record*);
 
     virtual void	handleObjChange(const ChangeData&)	= 0;

@@ -285,10 +285,10 @@ void Seis::Blocks::Writer::resetZ()
     deepErase( zevalpositions_ );
     const int nrglobzidxs = Block::globIdx4Z(zgeom_,zgeom_.stop,dims_.z()) + 1;
 
-    for ( IdxType globzidx=0; globzidx<nrglobzidxs; globzidx++ )
+    for ( idx_type globzidx=0; globzidx<nrglobzidxs; globzidx++ )
     {
 	ZEvalPosSet* posset = new ZEvalPosSet;
-	for ( IdxType loczidx=0; loczidx<dims_.z(); loczidx++ )
+	for ( idx_type loczidx=0; loczidx<dims_.z(); loczidx++ )
 	{
 	    const float z = Block::z4Idxs( zgeom_, dims_.z(),
 					   globzidx, loczidx );
@@ -434,13 +434,13 @@ Seis::Blocks::Writer::mkNewColumn( const HGlobIdx& hglobidx )
     MemBlockColumn* column = new MemBlockColumn( hglobidx, dims_, nrcomps_ );
 
     const int nrglobzidxs = zevalpositions_.size();
-    for ( IdxType globzidx=0; globzidx<nrglobzidxs; globzidx++ )
+    for ( idx_type globzidx=0; globzidx<nrglobzidxs; globzidx++ )
     {
 	const ZEvalPosSet& evalposs = *zevalpositions_[globzidx];
 	GlobIdx globidx( hglobidx.inl(), hglobidx.crl(), globzidx );
 	Dimensions dims( dims_ );
 	if ( globzidx == nrglobzidxs-1 )
-	    dims.z() = (SzType)evalposs.size();
+	    dims.z() = (size_type)evalposs.size();
 
 	for ( int icomp=0; icomp<nrcomps_; icomp++ )
 	{
@@ -595,7 +595,7 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
     if ( !ascostrm.putHeader(sKeyFileType()) )
 	return false;
 
-    Interval<IdxType> globinlidxrg, globcrlidxrg;
+    Interval<idx_type> globinlidxrg, globcrlidxrg;
     Interval<double> xrg, yrg;
     scanPositions( globinlidxrg, globcrlidxrg, xrg, yrg );
 		    // also fills cubedata_
@@ -706,13 +706,13 @@ bool Seis::Blocks::Writer::writeOverviewFileData( od_ostream& strm )
 	    Block::startCrl4GlobIdx(hgeom_,column.globIdx().crl(),bdims.crl()));
 	const MemColumnSummary& summary = column.summary_;
 
-	for ( IdxType iinl=0; iinl<bdims.inl(); iinl++ )
+	for ( idx_type iinl=0; iinl<bdims.inl(); iinl++ )
 	{
 	    const int inl = start.inl() + inlrg.step * iinl;
 	    const int ia2dinl = inlrg.nearestIndex( inl );
 	    if ( ia2dinl < 0 || ia2dinl >= nrinl )
 		continue;
-	    for ( IdxType icrl=0; icrl<bdims.crl(); icrl++ )
+	    for ( idx_type icrl=0; icrl<bdims.crl(); icrl++ )
 	    {
 		const int crl = start.crl() + crlrg.step * icrl;
 		const int ia2dcrl = crlrg.nearestIndex( crl );
@@ -835,7 +835,7 @@ void Seis::Blocks::Writer::writeLevelSummary( od_ostream& strm,
 
 
 void Seis::Blocks::Writer::scanPositions(
-	Interval<IdxType>& globinlrg, Interval<IdxType>& globcrlrg,
+	Interval<idx_type>& globinlrg, Interval<idx_type>& globcrlrg,
 	Interval<double>& xrg, Interval<double>& yrg )
 {
     Pos::IdxPairDataSet sortedpositions( 0, false );
@@ -859,9 +859,9 @@ void Seis::Blocks::Writer::scanPositions(
 	    globcrlrg.include( globidx.crl(), false );
 	}
 
-	for ( IdxType iinl=0; iinl<dims_.inl(); iinl++ )
+	for ( idx_type iinl=0; iinl<dims_.inl(); iinl++ )
 	{
-	    for ( IdxType icrl=0; icrl<dims_.crl(); icrl++ )
+	    for ( idx_type icrl=0; icrl<dims_.crl(); icrl++ )
 	    {
 		if ( !column.visited_[iinl][icrl] )
 		    continue;

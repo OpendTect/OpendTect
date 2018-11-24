@@ -77,9 +77,9 @@ mExpClass(General) SlabDimSpec
 {
 public:
 
-    typedef ArrayNDInfo::IdxType	IdxType;
+    typedef ArrayNDInfo::idx_type	idx_type;
 
-    ArrayNDInfo::IdxType start_=0, step_=1, count_=-1; //!< -1 == full size
+    ArrayNDInfo::idx_type start_=0, step_=1, count_=-1; //!< -1 == full size
     mImplSimpleEqOpers3Memb( SlabDimSpec, start_, step_, count_ )
 
 };
@@ -91,9 +91,9 @@ public:
 			mTypeDefArrNDTypes;
 
 			SlabSpec()			{}
-			SlabSpec( NrDimsType nrdims )	{ setNrDims( nrdims ); }
+			SlabSpec( nr_dims_type nrdims )	{ setNrDims( nrdims ); }
 
-    void		setNrDims( NrDimsType nrdims )
+    void		setNrDims( nr_dims_type nrdims )
 			{
 			    for ( int idim=nrdims; idim<size(); idim++ )
 				removeSingle( size()-1 );

@@ -36,7 +36,7 @@ public:
     virtual		~ArrayNDProbDenFunc()	{}
     ArrayNDProbDenFunc&	operator =(const ArrayNDProbDenFunc&);
 
-    SzType		size( DimIdxType dim ) const
+    size_type		size( dim_idx_type dim ) const
 			{ return getArrND().getSize(dim); }
     od_int64		totalSize() const
 			{ return getArrND().totalSize(); }
@@ -58,7 +58,7 @@ public:
     void		writeBulkData(od_ostream&,bool) const;
     bool		readBulkData(od_istream&,bool);
 
-    float		getAveragePos(DimIdxType dim) const;
+    float		getAveragePos(dim_idx_type dim) const;
     static float	findAveragePos(const float*,int,float grandtotal);
 
 protected:
@@ -118,7 +118,7 @@ public:
     virtual ArrayND<float>* getArrClone() const
 			{ return new Array1DImpl<float>(bins_); }
 
-    virtual float	averagePos(DimIdxType) const { return 0; };
+    virtual float	averagePos(dim_idx_type) const { return 0; };
 
 
     SamplingData<float>	sd_;
@@ -159,7 +159,7 @@ public:
     virtual bool	readBulk(od_istream&,bool binary);
     virtual ArrayND<float>* getArrClone() const
 			{ return new Array2DImpl<float>(bins_); }
-    virtual float	averagePos( DimIdxType dim ) const
+    virtual float	averagePos( dim_idx_type dim ) const
 			{ return getAveragePos( dim ); }
 
     SamplingData<float>	sd0_;
@@ -190,18 +190,18 @@ mExpClass(Algo) SampledNDProbDenFunc : public ProbDenFunc
 public:
 			mTypeDefArrNDTypes;
 
-			SampledNDProbDenFunc(NrDimsType nrdims);
+			SampledNDProbDenFunc(nr_dims_type);
 			SampledNDProbDenFunc(const ArrayND<float>&);
 			SampledNDProbDenFunc(const SampledNDProbDenFunc&);
     SampledNDProbDenFunc& operator =(const SampledNDProbDenFunc&);
     virtual void	copyFrom(const ProbDenFunc&);
 			mDefArrayNDProbDenFuncFns(SampledND)
 
-    virtual NrDimsType	nrDims() const	{ return bins_.nrDims(); }
+    virtual nr_dims_type nrDims() const	{ return bins_.nrDims(); }
     virtual const char*	dimName(int) const;
     virtual void	setDimName( int dim, const char* nm )
 					{ *dimnms_[dim] = nm; }
-    virtual float	averagePos( DimIdxType dim ) const
+    virtual float	averagePos( dim_idx_type dim ) const
 			{ return getAveragePos( dim ); }
     virtual float	value(const TypeSet<float>&) const;
     virtual void	drawRandomPos(TypeSet<float>&) const;

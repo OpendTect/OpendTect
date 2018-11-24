@@ -44,8 +44,8 @@ public:
     bool		needsSave(const Probe&) const;
 
 			// Use MonitorLock when iterating
-    ConstRefMan<Probe>	get(IdxType) const;
-    RefMan<Probe>	getForEdit(IdxType);
+    ConstRefMan<Probe>	get(idx_type) const;
+    RefMan<Probe>	getForEdit(idx_type);
 
 protected:
 

@@ -389,7 +389,7 @@ ConstRefMan<Wavelet> getMatchFilter( const Wavelet& refwvltin,
 
     Array1DImpl<float_complex> outwvltarr( wvltsz );
     doFFT( false, filterspectrum, outwvltarr, wvltsz );
-    for ( Wavelet::IdxType idx=0; idx<nrsamps; idx++ )
+    for ( Wavelet::idx_type idx=0; idx<nrsamps; idx++ )
 	outwvlt->set( idx, outwvltarr.get(mCast(int,idx)).real() );*/
 
     const int filtersz = filterszin ? *filterszin : wvltsz;

@@ -114,8 +114,8 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
     hsize_t maxchunkdim = 0;
     const bool mustchunk = createeditable_;
     bool havelargerdimthanchunk = false;
-    ArrayNDInfo::DimIdxType largestdim = 0;
-    for ( ArrayNDInfo::DimIdxType idim=0; idim<nrdims_; idim++ )
+    ArrayNDInfo::dim_idx_type largestdim = 0;
+    for ( ArrayNDInfo::dim_idx_type idim=0; idim<nrdims_; idim++ )
     {
 	const auto dimsz = info.getSize( idim );
 	if ( dimsz > maxdim )
@@ -125,7 +125,7 @@ void HDF5::WriterImpl::crDS( const DataSetKey& dsky, const ArrayNDInfo& info,
 	    havelargerdimthanchunk = true;
     }
 
-    for ( ArrayNDInfo::DimIdxType idim=0; idim<nrdims_; idim++ )
+    for ( ArrayNDInfo::dim_idx_type idim=0; idim<nrdims_; idim++ )
     {
 	const hsize_t dimsz = dims[idim];
 	hsize_t chunkdim = dimsz < chunksz_ ? dimsz : chunksz_;
@@ -165,16 +165,16 @@ void HDF5::WriterImpl::reSzDS( const DataSetKey& dsky, const ArrayNDInfo& info,
     if ( !rdr || !rdr->setScope(dsky) )
 	return;
 
-    const NrDimsType nrdims = rdr->nrDims();
+    const nr_dims_type nrdims = rdr->nrDims();
     if ( nrdims != info.nrDims() )
 	mPutInternalInUiRv( uirv, "HDF5 write: dim chg requested", return )
 
     TypeSet<hsize_t> newdims;
     bool havechg = false;
-    for ( DimIdxType idim=0; idim<nrdims; idim++ )
+    for ( dim_idx_type idim=0; idim<nrdims; idim++ )
     {
-	const SzType curdimsz = rdr->dimSize( idim );
-	const SzType newdimsz = info.getSize( idim );
+	const size_type curdimsz = rdr->dimSize( idim );
+	const size_type newdimsz = info.getSize( idim );
 	if ( curdimsz != newdimsz )
 	    havechg = true;
 	newdims += newdimsz;
@@ -418,7 +418,7 @@ void HDF5::WriterImpl::ptSlab( const SlabSpec& spec,
     {
 	H5::DataSpace filedataspace = dataset_.getSpace();
 	selectSlab( filedataspace, spec, &counts );
-	H5::DataSpace memdataspace( (NrDimsType)spec.size(), counts.arr(),
+	H5::DataSpace memdataspace( (nr_dims_type)spec.size(), counts.arr(),
 				    mDSResizing );
 	dataset_.write( data, dataset_.getDataType(), memdataspace,
 			filedataspace );

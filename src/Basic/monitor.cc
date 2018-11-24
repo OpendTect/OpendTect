@@ -334,7 +334,7 @@ bool ChangeRecorder::canApply( Action act ) const
 uiString ChangeRecorder::usrText( Action act ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdx( act );
+    const idx_type idx = gtIdx( act );
     return recs_.validIdx( idx ) ? recs_[idx]->actionText(act)
 				 : uiStrings::sNone();
 }
@@ -346,7 +346,7 @@ bool ChangeRecorder::apply( Action act )
     if ( !obj_ )
 	return false;
 
-    IdxType idx = gtIdx( act );
+    idx_type idx = gtIdx( act );
     if ( !recs_.validIdx( idx ) )
 	return false;
 
@@ -388,7 +388,7 @@ void ChangeRecorder::addRec( Record* rec )
 }
 
 
-ChangeRecorder::IdxType ChangeRecorder::gtIdx( Action act ) const
+ChangeRecorder::idx_type ChangeRecorder::gtIdx( Action act ) const
 {
     return act == Undo ? idx4redo_-1 : idx4redo_;
 }

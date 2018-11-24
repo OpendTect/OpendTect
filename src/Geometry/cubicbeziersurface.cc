@@ -984,11 +984,11 @@ void CubicBezierSurface::_setKnot( int idx, const Coord3& np )
 }
 
 
-ArrayNDInfo::SzType CubicBezierSurface::nrRows() const
+ArrayNDInfo::size_type CubicBezierSurface::nrRows() const
 { return positions ? positions->getSize(rowDim()) : 0; }
 
 
-ArrayNDInfo::SzType CubicBezierSurface::nrCols() const
+ArrayNDInfo::size_type CubicBezierSurface::nrCols() const
 { return positions ? positions->getSize(colDim()) : 0; }
 
 };

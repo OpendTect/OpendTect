@@ -25,7 +25,7 @@ mExpClass(Seis) SeisTrcInfo
 {
 public:
 
-    mUseType( IdxPair,	IdxType );
+    mUseType( IdxPair,	pos_type );
     mUseType( OD,	GeomSystem );
     typedef int		idx_type;
     typedef idx_type	size_type;
@@ -47,19 +47,19 @@ public:
     inline bool		isSynthetic() const	{ return trckey_.isSynthetic();}
     GeomSystem		geomSystem() const	{ return trckey_.geomSystem(); }
     inline const BinID&	binID() const		{ return trckey_.binID(); }
-    inline IdxType	lineNr() const		{ return trckey_.lineNr(); }
-    inline IdxType	trcNr() const		{ return trckey_.trcNr(); }
+    inline pos_type	lineNr() const		{ return trckey_.lineNr(); }
+    inline pos_type	trcNr() const		{ return trckey_.trcNr(); }
 
     inline SeisTrcInfo&	setGeomSystem( GeomSystem gs )
 			{ trckey_.setGeomSystem(gs); return *this; }
     inline SeisTrcInfo&	setBinID( const BinID& bid )
 			{ trckey_.setBinID(bid); return *this; }
-    inline SeisTrcInfo&	setLineNr( IdxType lnr )
+    inline SeisTrcInfo&	setLineNr( pos_type lnr )
 			{ trckey_.setLineNr(lnr); return *this; }
-    inline SeisTrcInfo&	setTrcNr( IdxType tnr )
+    inline SeisTrcInfo&	setTrcNr( pos_type tnr )
 			{ trckey_.setTrcNr(tnr); return *this; }
 
-    idx_type		nearestSample(z_type pos) const;
+    idx_type		nearestSample(z_type) const;
     z_type		samplePos( idx_type idx ) const
 			{ return sampling_.atIndex( idx ); }
     SampleGate		sampleGate(const Interval<z_type>&) const;

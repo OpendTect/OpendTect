@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "timefun.h"
 
-#define mIdxTyp PosInfo::Survey2D::IdxType
+#define mIdxTyp PosInfo::Survey2D::idx_type
 
 
 static const char* sIdxFilename = "idx.txt";
@@ -31,7 +31,7 @@ static const char* sKeyStor = "Storage";
 static const char* sKeyMaxID = "Max ID";
 static const char* sKeyTrcDist = "Inter-trace Distance";
 static const PosInfo::Line2DKey udfl2dkey(
-			mUdf(IdxPair::IdxType), mUdf(IdxPair::IdxType) );
+			mUdf(IdxPair::pos_type), mUdf(IdxPair::pos_type) );
 static bool cWriteAscii = false;
 static PosInfo::Survey2D* s2dpos_inst = 0;
 namespace PosInfo { struct Survey2DDeleter : public NamedCallBacker {

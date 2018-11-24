@@ -35,10 +35,10 @@ mClass(Basic) IDWithGroup
 {
 public:
 
-    typedef GroupNrT		GroupNrType;
-    typedef ObjNrT		ObjNrType;
-    mDefIntegerIDType(GroupNrT,	GroupID);
-    mDefIntegerIDType(ObjNrT,	ObjID);
+    typedef GroupNrT			GroupNrType;
+    typedef ObjNrT			ObjNrType;
+    mDefIntegerIDTypeFull(GroupNrT,	GroupID, -1, );
+    mDefIntegerIDTypeFull(ObjNrT,	ObjID, -1, );
 
 			IDWithGroup()
 			    : groupnr_(-1), objnr_(-1)	{}

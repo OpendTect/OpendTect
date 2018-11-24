@@ -39,7 +39,7 @@ mExpClass(General) DBDir : public SharedObject
 public:
 
     typedef ObjectSet<IOObj>::size_type	size_type;
-    typedef size_type			IdxType;
+    typedef size_type			idx_type;
     typedef DBKey::ObjNrType		ObjNrType;
     typedef DBKey::DirID		DirID;
     typedef DBKey::ObjID		ObjID;
@@ -61,12 +61,12 @@ public:
 
     bool		isPresent(ObjID) const;
     bool		isPresent(const DBKey&) const;
-    IdxType		indexOf(ObjID) const;
+    idx_type		indexOf(ObjID) const;
 
     IOObj*		getEntry(ObjID) const;
     IOObj*		getEntryByName(const char* nm,
 					const char* trgrpnm=0) const;
-    IOObj*		getEntryByIdx(IdxType) const;
+    IOObj*		getEntryByIdx(idx_type) const;
 
     bool		commitChanges(const IOObj&);
     bool		permRemove(ObjID);
@@ -98,7 +98,7 @@ private:
     bool		writeToFile() const;
     bool		wrOmf(od_ostream&) const;
     const IOObj*	gtObjByName(const char*,const char*) const;
-    IdxType		gtIdx(ObjID) const;
+    idx_type		gtIdx(ObjID) const;
     bool		gtIsOutdated() const;
     bool		setObj(IOObj*,bool writeafter);
     bool		addAndWrite(IOObj*);
@@ -158,7 +158,7 @@ mExpClass(General) DBDirEntryList
 public:
 
     typedef ObjectSet<IOObj>::size_type	size_type;
-    typedef size_type			IdxType;
+    typedef size_type			idx_type;
 
 			DBDirEntryList(const IOObjContext&,bool dofill=true);
 			DBDirEntryList(const IOObjContext&,
@@ -172,13 +172,13 @@ public:
     bool		isEmpty() const	{ return entries_.isEmpty(); }
 
     void		fill(const char* nmfiltglobexpr=0);
-    IdxType		indexOf(const char*) const;
+    idx_type		indexOf(const char*) const;
 
-    const IOObj&	ioobj( IdxType idx ) const { return *entries_[idx]; }
-    DBKey		key(IdxType) const;
-    BufferString	name(IdxType) const;
-    BufferString	dispName(IdxType) const;
-    BufferString	iconName(IdxType) const;
+    const IOObj&	ioobj( idx_type idx ) const { return *entries_[idx]; }
+    DBKey		key(idx_type) const;
+    BufferString	name(idx_type) const;
+    BufferString	dispName(idx_type) const;
+    BufferString	iconName(idx_type) const;
 
 protected:
 

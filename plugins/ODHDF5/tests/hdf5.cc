@@ -118,7 +118,7 @@ static bool testReadData( HDF5::Reader& rdr )
     mRunStandardTestWithError( arrval==30615.f, "Correct value [comp2,6,15]",
 				BufferString("arrval=",arrval) )
 
-    TypeSet<HDF5::Reader::IdxType> poss;
+    TypeSet<HDF5::Reader::idx_type> poss;
     poss += 7; poss += 16;
     float val = 0.f;
     uirv = rdr.getPoint( poss.arr(), &val );

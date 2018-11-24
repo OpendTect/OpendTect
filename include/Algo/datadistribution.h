@@ -48,7 +48,7 @@ public:
     typedef VT			ValueType;
     typedef TypeSet<VT>		SetType;
     typedef typename SetType::size_type	size_type;
-    typedef size_type		IdxType;
+    typedef typename SetType::idx_type	idx_type;
     typedef SamplingData<PosType> SamplingType;
     typedef Interval<VT>	RangeType;
 
@@ -67,14 +67,14 @@ public:
 				sampling_,cSamplingChange());
     void			setSize(size_type);
 
-    inline VT			get(IdxType,bool cumulative=false) const;
-    inline VT			operator[](IdxType) const;
+    inline VT			get(idx_type,bool cumulative=false) const;
+    inline VT			operator[](idx_type) const;
     inline VT			valueAt(PosType,bool cumulative) const;
-    inline IdxType		getBinNr(PosType) const;
+    inline idx_type		getBinNr(PosType) const;
     inline SetType		getSet( bool cum ) const
 				{ mLock4Read(); return cum ? cumdata_ : data_; }
 
-    inline void			set(IdxType,VT);    //!< slow, O(N)
+    inline void			set(idx_type,VT);    //!< slow, O(N)
     inline void			set(const VT*);	    //!< fast, no checks
     inline void			add(const VT*);	    //!< fast, no checks
 
@@ -94,7 +94,7 @@ public:
     static ChangeType		cSamplingChange()	{ return 3; }
 
     static const DataDistribution<VT>& getEmptyDistrib();
-    static inline IdxType	getBinNrFor(PosType,const SamplingType&,
+    static inline idx_type	getBinNrFor(PosType,const SamplingType&,
 					    size_type nrbins);
 
 protected:
@@ -203,16 +203,16 @@ typename DataDistribution<VT>::size_type DataDistribution<VT>::size() const
 
 
 template <class VT> inline
-typename DataDistribution<VT>::IdxType DataDistribution<VT>::getBinNrFor(
+typename DataDistribution<VT>::idx_type DataDistribution<VT>::getBinNrFor(
 			PosType pos, const SamplingType& sd, size_type nbins )
 {
     const float fbin = sd.getfIndex( pos );
-    IdxType ret;
+    idx_type ret;
     if ( fbin < 0 )
 	ret = 0;
     else
     {
-	ret = (IdxType)( fbin + 0.5f );
+	ret = (idx_type)( fbin + 0.5f );
 	if ( ret >= nbins )
 	    ret = nbins - 1;
     }
@@ -221,7 +221,7 @@ typename DataDistribution<VT>::IdxType DataDistribution<VT>::getBinNrFor(
 
 
 template <class VT> inline
-typename DataDistribution<VT>::IdxType DataDistribution<VT>::getBinNr(
+typename DataDistribution<VT>::idx_type DataDistribution<VT>::getBinNr(
 						PosType p ) const
 {
     mLock4Read();
@@ -230,14 +230,14 @@ typename DataDistribution<VT>::IdxType DataDistribution<VT>::getBinNr(
 
 
 template <class VT> inline
-VT DataDistribution<VT>::operator[]( IdxType idx ) const
+VT DataDistribution<VT>::operator[]( idx_type idx ) const
 {
     return get( idx, false );
 }
 
 
 template <class VT> inline
-VT DataDistribution<VT>::get( IdxType idx, bool cumulative ) const
+VT DataDistribution<VT>::get( idx_type idx, bool cumulative ) const
 {
     mLock4Read();
     return cumulative ? cumdata_[idx] : data_[idx];
@@ -286,7 +286,7 @@ void DataDistribution<VT>::setEmpty()
 
 
 template <class VT> inline
-void DataDistribution<VT>::set( IdxType isamp, VT val )
+void DataDistribution<VT>::set( idx_type isamp, VT val )
 {
     mLock4Read();
     if ( !data_.validIdx(isamp) || data_[isamp] == val )
@@ -297,7 +297,7 @@ void DataDistribution<VT>::set( IdxType isamp, VT val )
     const VT diff = val - data_[isamp];
     data_[isamp] = val;
     const size_type sz = data_.size();
-    for ( IdxType idx=isamp+1; idx<sz; idx++ )
+    for ( idx_type idx=isamp+1; idx<sz; idx++ )
 	data_[idx] += diff;
     mSendChgNotif( cDataChange(), isamp );
 }
@@ -309,7 +309,7 @@ void DataDistribution<VT>::add( const VT* vals )
     mLock4Write();
     const size_type sz = data_.size();
     VT add2cumulative = 0;
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	add2cumulative += vals[idx];
 	data_[idx] += vals[idx];
@@ -332,7 +332,7 @@ void DataDistribution<VT>::set( const VT* vals )
 {
     mLock4Write();
     const size_type sz = data_.size();
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	data_[idx] = vals[idx];
 	setCumData( idx );
@@ -379,7 +379,7 @@ VT DataDistribution<VT>::gtMax( int* idxat ) const
 	return sz == 1 ? data_[0] : VT(0);
 
     VT ret = data_[0];
-    for ( IdxType idx=1; idx<sz; idx++ )
+    for ( idx_type idx=1; idx<sz; idx++ )
     {
 	const VT val = data_[idx];
 	if ( val > ret )

@@ -105,8 +105,8 @@ public:
     Coord		getMapLocation(const ObjID&) const;
 
 			// Use MonitorLock when iterating
-    ConstRefMan<Data>	get(IdxType) const;
-    RefMan<Data>	getForEdit(IdxType);
+    ConstRefMan<Data>	get(idx_type) const;
+    RefMan<Data>	getForEdit(idx_type);
 
     IOObj*		getIOObjByUWI(const char*) const;
     uiRetVal		savePart(const ObjID&,SubObjType,
@@ -124,10 +124,10 @@ protected:
     template<class T> T	doFetch(const ObjID&,const LoadReqs&,uiRetVal&) const;
     bool		readReqData(const ObjID&,Data&,const LoadReqs&,
 				    uiRetVal&) const;
-    Data*		gtData(IdxType) const;
+    Data*		gtData(idx_type) const;
 
     virtual void	handleObjAdd();
-    virtual void	handleObjDel(IdxType);
+    virtual void	handleObjDel(idx_type);
 
     mutable TypeSet<LoadState>				loadstates_;
     mutable PerThreadObjectRepository<LoadState>	curloadstate_;

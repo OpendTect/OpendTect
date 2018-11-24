@@ -117,14 +117,14 @@ bool Pick::Set::validLocID( LocID id ) const
 }
 
 
-bool Pick::Set::validIdx( IdxType idx ) const
+bool Pick::Set::validIdx( idx_type idx ) const
 {
     mLock4Read();
     return locs_.validIdx( idx );
 }
 
 
-Pick::Set::IdxType Pick::Set::gtIdxFor( LocID id ) const
+Pick::Set::idx_type Pick::Set::gtIdxFor( LocID id ) const
 {
     if ( id.isValid() )
     {
@@ -133,7 +133,7 @@ Pick::Set::IdxType Pick::Set::gtIdxFor( LocID id ) const
 	if ( id.getI() < sz && locids_[id.getI()].getI() == id.getI() )
 	    return id.getI();
 
-	for ( IdxType idx=0; idx<sz; idx++ )
+	for ( idx_type idx=0; idx<sz; idx++ )
 	    if ( locids_[idx] == id )
 		return idx;
     }
@@ -141,14 +141,14 @@ Pick::Set::IdxType Pick::Set::gtIdxFor( LocID id ) const
 }
 
 
-Pick::Set::IdxType Pick::Set::idxFor( LocID id ) const
+Pick::Set::idx_type Pick::Set::idxFor( LocID id ) const
 {
     mLock4Read();
     return gtIdxFor( id );
 }
 
 
-Pick::Set::LocID Pick::Set::locIDFor( IdxType idx ) const
+Pick::Set::LocID Pick::Set::locIDFor( idx_type idx ) const
 {
     mLock4Read();
     return locids_.validIdx(idx) ? locids_[idx] : LocID::getInvalid();
@@ -158,7 +158,7 @@ Pick::Set::LocID Pick::Set::locIDFor( IdxType idx ) const
 Pick::Location Pick::Set::get( LocID id ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdxFor( id );
+    const idx_type idx = gtIdxFor( id );
     return idx != -1 ? locs_[idx] : Location::udf();
 }
 
@@ -170,7 +170,7 @@ Pick::Location Pick::Set::first() const
 }
 
 
-Pick::Location Pick::Set::getByIndex( IdxType idx ) const
+Pick::Location Pick::Set::getByIndex( idx_type idx ) const
 {
     mLock4Read();
     return locs_.validIdx(idx) ? locs_[idx] : Location::udf();
@@ -180,7 +180,7 @@ Pick::Location Pick::Set::getByIndex( IdxType idx ) const
 Coord Pick::Set::getPos( LocID id ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdxFor( id );
+    const idx_type idx = gtIdxFor( id );
     return idx != -1 ? Coord(locs_[idx].pos().getXY()) : Coord::udf();
 }
 
@@ -188,7 +188,7 @@ Coord Pick::Set::getPos( LocID id ) const
 double Pick::Set::getZ( LocID id ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdxFor( id );
+    const idx_type idx = gtIdxFor( id );
     return idx != -1 ? locs_[idx].pos().z_ : mUdf(double);
 }
 
@@ -377,13 +377,13 @@ void Pick::Set::setGroupLabel( const GroupLabel& lbl )
 Pick::Set::GroupLabelID Pick::Set::groupLabelID( LocID locid ) const
 {
     mLock4Read();
-    const IdxType locidx = gtIdxFor( locid );
+    const idx_type locidx = gtIdxFor( locid );
     return locidx < 0 ? GroupLabelID::getInvalid()
 		      : locs_[locidx].groupLabelID();
 }
 
 
-Pick::Set::GroupLabelID Pick::Set::groupLabelIDByIdx( IdxType locidx ) const
+Pick::Set::GroupLabelID Pick::Set::groupLabelIDByIdx( idx_type locidx ) const
 {
     mLock4Read();
     return locidx < 0 ? GroupLabelID::getInvalid()
@@ -394,7 +394,7 @@ Pick::Set::GroupLabelID Pick::Set::groupLabelIDByIdx( IdxType locidx ) const
 void Pick::Set::setGroupLabelID( LocID locid, GroupLabelID labelid )
 {
     mLock4Read();
-    IdxType locidx = gtIdxFor( locid );
+    idx_type locidx = gtIdxFor( locid );
     if ( locidx < 0 || locs_[locidx].groupLabelID() == labelid )
 	return;
 
@@ -411,7 +411,7 @@ void Pick::Set::setGroupLabelID( LocID locid, GroupLabelID labelid )
 }
 
 
-void Pick::Set::setGroupLabelIDs( Interval<IdxType> idxs, GroupLabelID labelid )
+void Pick::Set::setGroupLabelIDs( Interval<idx_type> idxs, GroupLabelID labelid)
 {
     mLock4Write();
     idxs.sort();
@@ -430,7 +430,7 @@ bool Pick::Set::isMultiGeom() const
     if ( sz < 2 )
 	return false;
     const Pos::GeomID geomid0 = locs_[0].geomID();
-    for ( IdxType idx=1; idx<sz; idx++ )
+    for ( idx_type idx=1; idx<sz; idx++ )
 	if ( locs_[idx].geomID() != geomid0 )
 	    return true;
     return false;
@@ -449,7 +449,7 @@ bool Pick::Set::has2D() const
     mPrepRead( sz );
     if ( sz < 1 )
 	return false;
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	if ( locs_[idx].is2D() )
 	    return true;
     return false;
@@ -461,7 +461,7 @@ bool Pick::Set::has3D() const
     mPrepRead( sz );
     if ( sz < 1 )
 	return true;
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	if ( !locs_[idx].is2D() )
 	    return true;
     return false;
@@ -473,7 +473,7 @@ bool Pick::Set::hasOnly2D() const
     mPrepRead( sz );
     if ( sz < 1 )
 	return false;
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	if ( !locs_[idx].is2D() )
 	    return false;
     return true;
@@ -485,7 +485,7 @@ bool Pick::Set::hasOnly3D() const
     mPrepRead( sz );
     if ( sz < 1 )
 	return true;
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	if ( locs_[idx].is2D() )
 	    return false;
     return true;
@@ -495,7 +495,7 @@ bool Pick::Set::hasOnly3D() const
 void Pick::Set::getPolygon( ODPolygon<double>& poly ) const
 {
     mPrepRead( sz );
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	const Coord coord( locs_[idx].pos().getXY() );
 	poly.add( Geom::Point2D<double>( coord.x_, coord.y_ ) );
@@ -506,7 +506,7 @@ void Pick::Set::getPolygon( ODPolygon<double>& poly ) const
 void Pick::Set::getPolygon( ODPolygon<float>& poly ) const
 {
     mPrepRead( sz );
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	Coord coord( locs_[idx].pos().getXY() );
 	coord = SI().binID2Coord().transformBackNoSnap( coord );
@@ -518,7 +518,7 @@ void Pick::Set::getPolygon( ODPolygon<float>& poly ) const
 void Pick::Set::getLocations( TypeSet<Coord>& coords ) const
 {
     mPrepRead( sz );
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	coords += locs_[idx].pos().getXY();
 }
 
@@ -530,7 +530,7 @@ float Pick::Set::getXYArea() const
 	return mUdf(float);
 
     TypeSet<Geom::Point2D<float> > posxy;
-    for ( IdxType idx=sz-1; idx>=0; idx-- )
+    for ( idx_type idx=sz-1; idx>=0; idx-- )
     {
 	const Coord localpos = locs_[idx].pos().getXY();
 	posxy += Geom::Point2D<float>( (float)localpos.x_, (float)localpos.y_ );
@@ -551,7 +551,7 @@ float Pick::Set::getXYArea() const
 Pick::Set::LocID Pick::Set::find( const TrcKey& tk ) const
 {
     mPrepRead( sz );
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	if ( locs_[idx].trcKey() == tk )
 	    return locids_[idx];
     return LocID::getInvalid();
@@ -574,7 +574,7 @@ Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
 	return LocID::getInvalid();
 
     LocID ret = locids_[0];
-    IdxType idx = 0;
+    idx_type idx = 0;
     const Coord3& p0 = locs_[idx].pos();
     double minsqdist = p0.isUdf()
 	? mUdf(double)
@@ -748,7 +748,7 @@ Pick::Set& Pick::Set::append( const Set& oth )
 }
 
 
-Pick::Set::LocID Pick::Set::insNewLocID( IdxType idx,
+Pick::Set::LocID Pick::Set::insNewLocID( idx_type idx,
 				    AccessLocker& mAccessLocker() )
 {
     const LocID newlocid = LocID::get( curlocidnr_++ );
@@ -774,7 +774,7 @@ Pick::Set::LocID Pick::Set::insertBefore( LocID id, const Location& loc )
 	return add( loc );
 
     mLock4Read();
-    IdxType idx = gtIdxFor( id );
+    idx_type idx = gtIdxFor( id );
     if ( idx == -1 )
 	return LocID::getInvalid();
 
@@ -809,7 +809,7 @@ Pick::Set& Pick::Set::set( LocID id, const Location& loc, bool istmp )
 }
 
 
-Pick::Set& Pick::Set::setByIndex( IdxType idx, const Location& loc, bool istmp )
+Pick::Set& Pick::Set::setByIndex( idx_type idx, const Location& loc, bool istmp)
 {
     mLock4Read();
     if ( !locs_.validIdx(idx) || loc == locs_[idx] )
@@ -866,7 +866,7 @@ Pick::Set::LocID Pick::Set::remove( LocID id )
 void Pick::Set::replaceID( LocID from, LocID to )
 {
     mLock4Write();
-    IdxType targetidx = -1;
+    idx_type targetidx = -1;
     for ( int idx=0; idx<locids_.size(); idx++ )
     {
 	const LocID locid = locids_[idx];
@@ -881,7 +881,7 @@ void Pick::Set::replaceID( LocID from, LocID to )
 }
 
 
-static inline bool coordUnchanged( Pick::Set::IdxType idx,
+static inline bool coordUnchanged( Pick::Set::idx_type idx,
 	const TypeSet<Pick::Location>& locs, const Coord& coord )
 {
     return idx == -1 || locs[idx].pos().xySqDistTo(coord) < 0.01;
@@ -908,7 +908,7 @@ Pick::Set& Pick::Set::setPos( LocID id, const Coord& coord, bool istmp )
 
 
 
-static inline bool zUnchanged( Pick::Set::IdxType idx,
+static inline bool zUnchanged( Pick::Set::idx_type idx,
 	const TypeSet<Pick::Location>& locs, double z )
 {
     if ( idx == -1 )
@@ -939,14 +939,14 @@ Pick::Set& Pick::Set::setZ( LocID id, double z, bool istmp )
 // Pick::SetIter
 
 Pick::SetIter::SetIter( const Set& ps, bool atend )
-    : MonitorableIter4Read<Pick::Set::IdxType>( ps,
+    : MonitorableIter4Read<Pick::Set::idx_type>( ps,
 	    atend?ps.size()-1:0, atend?0:ps.size()-1 )
 {
 }
 
 
 Pick::SetIter::SetIter( const SetIter& oth )
-    : MonitorableIter4Read<Pick::Set::IdxType>(oth)
+    : MonitorableIter4Read<Pick::Set::idx_type>(oth)
 {
 }
 
@@ -985,14 +985,14 @@ double Pick::SetIter::getZ() const
 // Pick::SetIter4Edit
 
 Pick::SetIter4Edit::SetIter4Edit( Set& ps, bool atend )
-    : MonitorableIter4Write<Set::IdxType>(ps,
+    : MonitorableIter4Write<Set::idx_type>(ps,
 	    atend?ps.size()-1:0, atend?0:ps.size()-1 )
 {
 }
 
 
 Pick::SetIter4Edit::SetIter4Edit( const SetIter4Edit& oth )
-    : MonitorableIter4Write<Set::IdxType>(oth)
+    : MonitorableIter4Write<Set::idx_type>(oth)
 {
 }
 

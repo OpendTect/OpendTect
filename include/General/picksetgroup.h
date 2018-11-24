@@ -25,10 +25,10 @@ mExpClass(General) SetGroup : public SharedObject
 public:
 
     typedef ObjectSet<Location>::size_type	size_type;
-    typedef size_type				IdxType;
+    typedef size_type				idx_type;
     typedef RefMan<Set>				SetRefMan;
     typedef ConstRefMan<Set>			CSetRefMan;
-    mDefIntegerIDType(IdxType,			SetID);
+    mDefIntegerIDType(				SetID);
 
 			SetGroup(const char* nm=0);
 			mDeclMonitorableAssignment(SetGroup);
@@ -38,18 +38,18 @@ public:
     CSetRefMan		getSet(SetID) const;
     SetRefMan		getSetByName(const char*);
     CSetRefMan		getSetByName(const char*) const;
-    SetRefMan		getSetByIdx(IdxType);
-    CSetRefMan		getSetByIdx(IdxType) const;
+    SetRefMan		getSetByIdx(idx_type);
+    CSetRefMan		getSetByIdx(idx_type) const;
     SetRefMan		firstSet();
     CSetRefMan		firstSet() const;
 
     size_type		size() const;
     od_int64		nrLocations() const;
     bool		validSetID(SetID) const;
-    SetID		getID(IdxType) const;
+    SetID		getID(idx_type) const;
     int			indexOf(SetID) const;
     int			indexOf(const char*) const;
-    bool		validIdx(IdxType) const;
+    bool		validIdx(idx_type) const;
     bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();
     bool		hasLocations() const	{ return nrLocations() > 0; }
@@ -71,29 +71,30 @@ protected:
 
     ObjectSet<Set>	sets_;
     TypeSet<SetID>	setids_;
-    mutable Threads::Atomic<IdxType> cursetidnr_;
+    mutable Threads::Atomic<idx_type> cursetidnr_;
 
-    IdxType		gtIdx(SetID) const;
+    idx_type		gtIdx(SetID) const;
     Set*		gtSet(SetID) const;
     SetID		gtID(const Set*) const;
-    IdxType		gtIdxByName(const char*) const;
+    idx_type		gtIdxByName(const char*) const;
     Set*		gtSetByName(const char*) const;
-    Set*		gtSetByIdx(IdxType) const;
-    Set*		doRemove(IdxType);
+    Set*		gtSetByIdx(idx_type) const;
+    Set*		doRemove(idx_type);
     void		doSetEmpty();
 
     friend class	SetGroupIter;
 
 public:
 
-    bool		swap(IdxType,IdxType);
+    bool		swap(idx_type,idx_type);
 
 };
 
 
 /*!\brief const SetGroup iterator. */
 
-mExpClass(General) SetGroupIter : public MonitorableIter4Read<SetGroup::IdxType>
+mExpClass(General) SetGroupIter
+		: public MonitorableIter4Read<SetGroup::idx_type>
 {
 public:
 

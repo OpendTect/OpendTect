@@ -30,7 +30,7 @@ public:
     typedef Well::DahObj::ZType		ZType;
     typedef RefMan<Log>			LogRefMan;
     typedef ConstRefMan<Log>		CLogRefMan;
-    mDefIntegerIDType(idx_type,		LogID);
+    mDefIntegerIDType(			LogID );
 
 			LogSet();
 			~LogSet();

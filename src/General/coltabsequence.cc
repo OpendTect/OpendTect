@@ -145,7 +145,7 @@ Monitorable::ChangeType ColTab::Sequence::compareClassData(
       || oth.markcolor_ != markcolor_ )
 	return cEntireObjectChange();
 
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	if ( !mIsEqual(oth.x_[idx],x_[idx],0.001)
 	  || oth.r_[idx] != r_[idx] || oth.g_[idx] != g_[idx]
@@ -153,7 +153,7 @@ Monitorable::ChangeType ColTab::Sequence::compareClassData(
 	return cEntireObjectChange();
     }
 
-    for ( IdxType idx=0; idx<tr_.size(); idx++ )
+    for ( idx_type idx=0; idx<tr_.size(); idx++ )
     {
 	if ( oth.tr_[idx] != tr_[idx] )
 	    return cEntireObjectChange();
@@ -196,7 +196,7 @@ Color ColTab::Sequence::color( PosType x ) const
     if ( x > x1 - mDefEps )
 	return Color( r_[sz-1], g_[sz-1], b_[sz-1], t );
 
-    for ( IdxType idx=1; idx<sz; idx++ )
+    for ( idx_type idx=1; idx<sz; idx++ )
     {
 	x1 = x_[idx];
 	if ( x < x1 + mDefEps )
@@ -219,7 +219,7 @@ Color ColTab::Sequence::color( PosType x ) const
 }
 
 
-ColTab::PosType ColTab::Sequence::position( IdxType idx ) const
+ColTab::PosType ColTab::Sequence::position( idx_type idx ) const
 {
     mLock4Read();
     return x_[idx];
@@ -240,7 +240,7 @@ ColTab::Sequence::CompType ColTab::Sequence::gtTransparencyAt(
     if ( xpos > x1 - mDefEps )
 	return y1;
 
-    for ( IdxType idx=1; idx<sz; idx++ )
+    for ( idx_type idx=1; idx<sz; idx++ )
     {
 	x1 = tr_[idx].first; y1 = tr_[idx].second;
 	if ( xpos < x1 + mDefEps )
@@ -269,14 +269,14 @@ bool ColTab::Sequence::hasTransparency() const
     if ( tr_.isEmpty() )
 	return false;
 
-    for ( IdxType idx=0; idx<tr_.size(); idx++ )
+    for ( idx_type idx=0; idx<tr_.size(); idx++ )
 	if ( tr_[idx].second > 0 ) return true;
 
     return false;
 }
 
 
-ColTab::Sequence::IdxType ColTab::Sequence::setColor( PosType px,
+ColTab::Sequence::idx_type ColTab::Sequence::setColor( PosType px,
 				 CompType pr, CompType pg, CompType pb )
 {
     mLock4Write();
@@ -284,9 +284,9 @@ ColTab::Sequence::IdxType ColTab::Sequence::setColor( PosType px,
     if ( px > 1 ) px = 1; if ( px < 0 ) px = 0;
     const size_type sz = gtSize();
 
-    IdxType chgdidx = -1;
+    idx_type chgdidx = -1;
     bool done = false;
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	const PosType x = x_[idx];
 	if ( mIsEqual(x,px,mDefEps) )
@@ -312,7 +312,7 @@ ColTab::Sequence::IdxType ColTab::Sequence::setColor( PosType px,
 }
 
 
-void ColTab::Sequence::changeColor( IdxType idx,
+void ColTab::Sequence::changeColor( idx_type idx,
 				 CompType pr, CompType pg, CompType pb )
 {
     mLock4Write();
@@ -321,7 +321,7 @@ void ColTab::Sequence::changeColor( IdxType idx,
 }
 
 
-bool ColTab::Sequence::chgColor( IdxType idx,
+bool ColTab::Sequence::chgColor( idx_type idx,
 				 CompType pr, CompType pg, CompType pb )
 {
     if ( !x_.validIdx(idx) )
@@ -334,7 +334,7 @@ bool ColTab::Sequence::chgColor( IdxType idx,
 
 #define mEps 0.00001
 
-void ColTab::Sequence::changePos( IdxType idx, PosType x )
+void ColTab::Sequence::changePos( idx_type idx, PosType x )
 {
     if ( x > 1 ) x = 1;
     if ( x < 0 ) x = 0;
@@ -349,7 +349,7 @@ void ColTab::Sequence::changePos( IdxType idx, PosType x )
 }
 
 
-void ColTab::Sequence::removeColor( IdxType idx )
+void ColTab::Sequence::removeColor( idx_type idx )
 {
     mLock4Write();
     if ( rmColor(idx) )
@@ -357,7 +357,7 @@ void ColTab::Sequence::removeColor( IdxType idx )
 }
 
 
-bool ColTab::Sequence::rmColor( IdxType idx )
+bool ColTab::Sequence::rmColor( idx_type idx )
 {
     if ( !x_.validIdx(idx) )
 	return false;
@@ -389,7 +389,7 @@ ColTab::Sequence::size_type ColTab::Sequence::transparencySize() const
 
 
 ColTab::Sequence::TranspPtType ColTab::Sequence::transparency(
-						IdxType idx ) const
+						idx_type idx ) const
 {
     mLock4Read();
     return tr_.validIdx(idx) ? tr_[idx] : TranspPtType( 0.f, 0 );
@@ -411,8 +411,8 @@ void ColTab::Sequence::setTransparency( TranspPtType pt )
     if ( pt.second > 255 ) pt.second = 255;
 
     mLock4Write();
-    bool done = false; IdxType chgidx = -1;
-    for ( IdxType idx=0; idx<tr_.size(); idx++ )
+    bool done = false; idx_type chgidx = -1;
+    for ( idx_type idx=0; idx<tr_.size(); idx++ )
     {
 	const PosType x = tr_[idx].first;
 	if ( mIsEqual(x,pt.first,mDefEps) )
@@ -439,7 +439,7 @@ void ColTab::Sequence::removeTransparencies()
 }
 
 
-void ColTab::Sequence::removeTransparencyAt( IdxType idx )
+void ColTab::Sequence::removeTransparencyAt( idx_type idx )
 {
     mLock4Write();
     if ( tr_.validIdx(idx) )
@@ -450,7 +450,7 @@ void ColTab::Sequence::removeTransparencyAt( IdxType idx )
 }
 
 
-void ColTab::Sequence::changeTransparency( IdxType idx, TranspPtType pt )
+void ColTab::Sequence::changeTransparency( idx_type idx, TranspPtType pt )
 {
     mLock4Write();
     if ( !tr_.validIdx(idx) )
@@ -492,7 +492,7 @@ ColTab::PosType ColTab::Sequence::snapToSegmentCenter( PosType x ) const
 
     const float segmentsize = 1.0f / (nrsegments_ - 1);
 
-    IdxType segment = (IdxType) ( x/segmentsize + 0.5f );
+    idx_type segment = (idx_type) ( x/segmentsize + 0.5f );
     if ( segment<0 )
 	segment = 0;
     if ( segment>=nrsegments_ )
@@ -550,7 +550,7 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 	iopar.set( str, fms );
     }
 
-    for ( IdxType idx=0; idx<tr_.size(); idx++ )
+    for ( idx_type idx=0; idx<tr_.size(); idx++ )
     {
 	BufferString key( sKeyTransparency() );
 	key += "."; key += idx;
@@ -577,7 +577,7 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
     const bool hadnrsegments = iopar.get( sKeyNrSegments(), nrsegments_ );
 
     x_.erase(); r_.erase(); g_.erase(); b_.erase(); tr_.erase();
-    for ( IdxType idx=0; ; idx++ )
+    for ( idx_type idx=0; ; idx++ )
     {
 	BufferString key( sKeyValCol() );
 	key += "."; key += idx;
@@ -595,7 +595,7 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 	r_ += col.r(); g_ += col.g(); b_ += col.b();
     }
 
-    for ( IdxType idx=0; ; idx++ )
+    for ( idx_type idx=0; ; idx++ )
     {
 	BufferString key( sKeyTransparency() );
 	key += "."; key += idx;
@@ -611,7 +611,7 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
     if ( !hadnrsegments && gtSize() > 3 )
     {
 	bool found = false;
-	for ( IdxType idx=1; idx<gtSize()-2; idx+=2 )
+	for ( idx_type idx=1; idx<gtSize()-2; idx+=2 )
 	{
 	    if ( x_[idx+1]-x_[idx] <= 1.01*mEps )
 	    {
@@ -805,7 +805,7 @@ ColTab::Sequence::Status ColTab::SequenceManager::statusOf(
     // can't lock because Sequence will call this function
     // should be OK as the sysseqs_ should be constant during normal use
 
-    const IdxType sysidx = gtIdxOf( sysseqs_, seq.name() );
+    const idx_type sysidx = gtIdxOf( sysseqs_, seq.name() );
 
     return sysidx < 0			? Sequence::Added
 	 : (seq == *sysseqs_[sysidx]	? Sequence::System
@@ -817,7 +817,7 @@ ColTab::SequenceManager::ConstRef ColTab::SequenceManager::getByName(
 						const char* nm ) const
 {
     mLock4Read();
-    const IdxType idx = idxOf( nm );
+    const idx_type idx = idxOf( nm );
     return ConstRef( idx < 0 ? 0 : seqs_[idx] );
 }
 
@@ -826,7 +826,7 @@ ColTab::SequenceManager::ConstRef ColTab::SequenceManager::getSystemSeq(
 						const char* nm ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdxOf( sysseqs_, nm );
+    const idx_type idx = gtIdxOf( sysseqs_, nm );
     return ConstRef( idx < 0 ? 0 : sysseqs_[idx] );
 }
 
@@ -835,7 +835,7 @@ RefMan<ColTab::Sequence> ColTab::SequenceManager::get4Edit(
 						const char* nm ) const
 {
     mLock4Read();
-    const IdxType idx = idxOf( nm );
+    const idx_type idx = idxOf( nm );
     ColTab::Sequence* ret = 0;
     if ( idx >= 0 )
 	ret = const_cast<Sequence*>( seqs_[idx] );
@@ -850,7 +850,7 @@ ColTab::SequenceManager::size_type ColTab::SequenceManager::size() const
 }
 
 
-ColTab::SequenceManager::IdxType ColTab::SequenceManager::indexOf(
+ColTab::SequenceManager::idx_type ColTab::SequenceManager::indexOf(
 						const char* nm ) const
 {
     mLock4Read();
@@ -858,11 +858,11 @@ ColTab::SequenceManager::IdxType ColTab::SequenceManager::indexOf(
 }
 
 
-ColTab::SequenceManager::IdxType ColTab::SequenceManager::indexOf(
+ColTab::SequenceManager::idx_type ColTab::SequenceManager::indexOf(
 						const Sequence& seq ) const
 {
     mLock4Read();
-    for ( IdxType idx=0; idx<seqs_.size(); idx++ )
+    for ( idx_type idx=0; idx<seqs_.size(); idx++ )
 	if ( seqs_[idx] == &seq )
 	    return idx;
     return -1;
@@ -870,7 +870,7 @@ ColTab::SequenceManager::IdxType ColTab::SequenceManager::indexOf(
 
 
 ColTab::SequenceManager::ConstRef ColTab::SequenceManager::getByIdx(
-						IdxType idx ) const
+						idx_type idx ) const
 {
     mLock4Read();
     return ConstRef( idx < 0 ? 0 : seqs_[idx] );
@@ -907,7 +907,7 @@ const ColTab::Sequence* ColTab::SequenceManager::gtAny( const char* nm,
 	return cs;
     }
 
-    IdxType idx = 0;
+    idx_type idx = 0;
     if ( nm && *nm )
     {
 	idx = idxOf( nm );
@@ -931,7 +931,7 @@ ColTab::SequenceManager::ConstRef ColTab::SequenceManager::getFromPar(
     ConstRef ret; BufferString seqname;
     if ( iop.get(IOPar::compKey(subky,sKey::Name()),seqname) )
     {
-	IdxType idx = idxOf( seqname );
+	idx_type idx = idxOf( seqname );
 	if ( idx >= 0 )
 	    ret = seqs_[idx];
     }
@@ -977,7 +977,7 @@ void ColTab::SequenceManager::addFromPar( const IOPar& iop, bool issys )
 	if ( !newseq->usePar(*ctiopar) || newseq->size() < 1 )
 	    { newseq->unRef(); continue; }
 
-	IdxType existidx = gtIdxOf( mSeqSet(issys), newseq->name() );
+	idx_type existidx = gtIdxOf( mSeqSet(issys), newseq->name() );
 	if ( existidx < 0 )
 	    doAdd( newseq, issys );
 	else
@@ -989,17 +989,17 @@ void ColTab::SequenceManager::addFromPar( const IOPar& iop, bool issys )
 }
 
 
-ColTab::SequenceManager::IdxType ColTab::SequenceManager::idxOf(
+ColTab::SequenceManager::idx_type ColTab::SequenceManager::idxOf(
 						const char* nm ) const
 {
     return gtIdxOf( seqs_, nm );
 }
 
 
-ColTab::SequenceManager::IdxType ColTab::SequenceManager::gtIdxOf(
+ColTab::SequenceManager::idx_type ColTab::SequenceManager::gtIdxOf(
 			    const ObjectSet<Sequence>& seqs, const char* nm )
 {
-    for ( IdxType idx=0; idx<seqs.size(); idx++ )
+    for ( idx_type idx=0; idx<seqs.size(); idx++ )
 	if ( seqs[idx]->name().isEqual(nm,CaseInsensitive) )
 	    return idx;
     return -1;
@@ -1079,8 +1079,8 @@ uiRetVal ColTab::SequenceManager::write( bool sys, bool applsetup ) const
     {
 	Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
 	setts.setEmpty();
-	IdxType newidx = 1;
-	for ( IdxType idx=0; idx<sysseqs_.size(); idx++ )
+	idx_type newidx = 1;
+	for ( idx_type idx=0; idx<sysseqs_.size(); idx++ )
 	{
 	    const ColTab::Sequence& seq = *sysseqs_[idx];
 	    if ( gtIdxOf(seqs_,seq.name()) < 0 )
@@ -1090,7 +1090,7 @@ uiRetVal ColTab::SequenceManager::write( bool sys, bool applsetup ) const
 	    }
 	}
 	newidx = 1;
-	for ( IdxType idx=0; idx<seqs_.size(); idx++ )
+	for ( idx_type idx=0; idx<seqs_.size(); idx++ )
 	{
 	    const ColTab::Sequence& seq = *seqs_[idx];
 	    if ( !seq.isSys() )
@@ -1127,8 +1127,8 @@ uiRetVal ColTab::SequenceManager::write( bool sys, bool applsetup ) const
     ascostream astrm( strm );
     astrm.putHeader( "Color table definitions" );
     IOPar iopar;
-    IdxType newidx = 1;
-    for ( IdxType idx=0; idx<seqs_.size(); idx++ )
+    idx_type newidx = 1;
+    for ( idx_type idx=0; idx<seqs_.size(); idx++ )
     {
 	const ColTab::Sequence& seq = *seqs_[idx];
 	if ( seq.isSys() )

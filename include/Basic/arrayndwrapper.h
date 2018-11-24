@@ -21,7 +21,7 @@ public:
 
 			mTypeDefArrNDTypes;
 
-    void		setDimMap(DimIdxType srcdim,DimIdxType targetdim)
+    void		setDimMap(dim_idx_type srcdim,dim_idx_type targetdim)
 			{ dimmap_[srcdim] = targetdim; }
 
     virtual void	init()		= 0;
@@ -31,7 +31,7 @@ protected:
 			ArrayNDWrapper(const ArrayNDInfo& info)
 			{ dimmap_.setSize( info.nrDims(), 0 ); }
 
-    TypeSet<DimIdxType>	dimmap_;
+    TypeSet<dim_idx_type>	dimmap_;
 
 };
 
@@ -53,8 +53,8 @@ public:
     void		init();
     bool		isOK() const;
 
-    void		set(IdxType,IdxType,IdxType,T);
-    T			get(IdxType,IdxType,IdxType) const;
+    void		set(idx_type,idx_type,idx_type,T);
+    T			get(idx_type,idx_type,idx_type) const;
 
     const Array3DInfo&	info() const		{ return info_; }
 
@@ -82,7 +82,7 @@ Array3DWrapper<T>::~Array3DWrapper()
 template <class T>
 void Array3DWrapper<T>::init()
 {
-    for ( DimIdxType idx=0; idx<dimmap_.size(); idx++ )
+    for ( dim_idx_type idx=0; idx<dimmap_.size(); idx++ )
 	info_.setSize( dimmap_[idx], srcarr_.getSize(idx) );
 }
 
@@ -93,10 +93,10 @@ bool Array3DWrapper<T>::isOK() const
 
 
 template <class T>
-void Array3DWrapper<T>::set( IdxType i0, IdxType i1, IdxType i2, T val )
+void Array3DWrapper<T>::set( idx_type i0, idx_type i1, idx_type i2, T val )
 {
-    IdxType pos3d[] = { i0, i1, i2 };
-    TypeSet<IdxType> posnd;
+    idx_type pos3d[] = { i0, i1, i2 };
+    TypeSet<idx_type> posnd;
     for ( int idx=0; idx<dimmap_.size(); idx++ )
 	posnd += pos3d[ dimmap_[idx] ];
 
@@ -105,10 +105,10 @@ void Array3DWrapper<T>::set( IdxType i0, IdxType i1, IdxType i2, T val )
 
 
 template <class T>
-T Array3DWrapper<T>::get( IdxType i0, IdxType i1, IdxType i2 ) const
+T Array3DWrapper<T>::get( idx_type i0, idx_type i1, idx_type i2 ) const
 {
-    IdxType pos3d[] = { i0, i1, i2 };
-    TypeSet<IdxType> posnd;
+    idx_type pos3d[] = { i0, i1, i2 };
+    TypeSet<idx_type> posnd;
     for ( int idx=0; idx<dimmap_.size(); idx++ )
 	posnd += pos3d[ dimmap_[idx] ];
 

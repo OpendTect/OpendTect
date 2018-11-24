@@ -30,7 +30,9 @@ mExpClass(Basic) BinIDValue : public BinIDValueIdxPair
 {
 public:
 
-    inline		BinIDValue( BinID::IdxType i=0, BinID::IdxType c=0,
+    mUseType( BinID,	pos_type );
+
+    inline		BinIDValue( pos_type i=0, pos_type c=0,
 				float v=mUdf(float) )
 			    : BinIDValueIdxPair(i,c,v)	{}
     inline		BinIDValue( const BinID& b, float v=mUdf(float) )
@@ -60,8 +62,9 @@ mExpClass(Basic) BinIDValues : public BinIDIdxPairValues
 {
 public:
 
-    inline		BinIDValues( BinID::IdxType i=0, BinID::IdxType c=0,
-	    				int n=2 )
+    mUseType( BinID,	pos_type );
+
+    inline		BinIDValues( pos_type i=0, pos_type c=0, int n=2 )
 			    : BinIDIdxPairValues(i,c,n)	{}
     inline		BinIDValues( const BinID& b, int n=2 )
 			    : BinIDIdxPairValues(b,n)	{}

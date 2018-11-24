@@ -350,10 +350,10 @@ uiRetVal HDF5::Writer::putSlab( const SlabSpec& spec, const void* data )
 
 
 
-HDF5::Access::SzType HDF5::Reader::dimSize( DimIdxType idim ) const
+HDF5::Access::size_type HDF5::Reader::dimSize( dim_idx_type idim ) const
 {
     ArrayNDInfo* inf = gtDataSizes();
-    const SzType ret = inf ? inf->getSize( idim ) : 0;
+    const size_type ret = inf ? inf->getSize( idim ) : 0;
     delete inf;
     return ret;
 }

@@ -104,7 +104,7 @@ void Seis::Blocks::HDF5WriteBackEnd::setColumnInfo(
 	    const HDimensions& dims, uiRetVal& uirv )
 {
     columndims_.set( dims );
-    columndims_.z() = (SzType)wrr_.traceSize();
+    columndims_.z() = (size_type)wrr_.traceSize();
     blockname_.set( column.globIdx().inl() ).add( "." )
 	      .add( column.globIdx().crl() );
 
@@ -151,16 +151,16 @@ void Seis::Blocks::HDF5WriteBackEnd::putBlock( int icomp, MemBlock& block,
 
     const Dimensions wrdims( wrhdims.inl(), wrhdims.crl(), block.dims().z() );
     const int bytes2write = wrdims.z() * bytespersample;
-    const IdxType wrstopinl = wrstart.inl() + wrdims.inl();
-    const IdxType wrstopcrl = wrstart.crl() + wrdims.crl();
+    const idx_type wrstopinl = wrstart.inl() + wrdims.inl();
+    const idx_type wrstopcrl = wrstart.crl() + wrdims.crl();
 
     const DataBuffer::buf_type* dataptr;
     char* bufptr = databuf_;
-    for ( IdxType iinl=wrstart.inl(); iinl<wrstopinl; iinl++ )
+    for ( idx_type iinl=wrstart.inl(); iinl<wrstopinl; iinl++ )
     {
 	dataptr = bufdata + iinl * bytesperentireinl
 			  + wrstart.crl() * bytesperentirecrl;
-	for ( IdxType icrl=wrstart.crl(); icrl<wrstopcrl; icrl++ )
+	for ( idx_type icrl=wrstart.crl(); icrl<wrstopcrl; icrl++ )
 	{
 	    OD::sysMemCopy( bufptr, dataptr, bytes2write );
 	    bufptr += bytes2write;
@@ -253,24 +253,24 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
 	mRetOnInitialBlockProb( tr("Improper block found") )
 
     Dimensions& dms( const_cast<Dimensions&>(dims_) );
-    dms.inl() = (SzType)ainf->getSize( 0 );
-    dms.crl() = (SzType)ainf->getSize( 1 );
-    dms.z() = (SzType)ainf->getSize( 2 );
+    dms.inl() = (size_type)ainf->getSize( 0 );
+    dms.crl() = (size_type)ainf->getSize( 1 );
+    dms.z() = (size_type)ainf->getSize( 2 );
 
     HDF5::SlabDimSpec& zdimspec = slabspec_[2];
-    const Interval<IdxType> zidxrg(
-	    (IdxType)rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.start ),
-	    (IdxType)rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.stop ) );
+    const Interval<idx_type> zidxrg(
+	    (idx_type)rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.start ),
+	    (idx_type)rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.stop ) );
     nrsamples2read_ = zidxrg.width() + 1;
-    zdimspec.start_ = (HDF5::SlabDimSpec::IdxType)zidxrg.start;
-    zdimspec.count_ = (HDF5::SlabDimSpec::IdxType)nrsamples2read_;
+    zdimspec.start_ = (HDF5::SlabDimSpec::idx_type)zidxrg.start;
+    zdimspec.count_ = (HDF5::SlabDimSpec::idx_type)nrsamples2read_;
     if ( !isZSlice() )
 	{ slabspec_[0].count_ = slabspec_[1].count_ = 1; }
     else
     {
 	slabspec_[0].start_ = slabspec_[1].start_ = 0;
-	slabspec_[0].count_ = (IdxType)dims_.inl();
-	slabspec_[1].count_ = (IdxType)dims_.crl();
+	slabspec_[0].count_ = (idx_type)dims_.inl();
+	slabspec_[1].count_ = (idx_type)dims_.crl();
     }
 
     datatype_ = hdfrdr_.getDataType();
@@ -360,7 +360,7 @@ void Seis::Blocks::HDF5Column::fillTrace( const BinID& bid, SeisTrc& trc,
 
 	if ( isZSlice() )
 	{
-	    const int posnr = ((IdxType)dims_.crl()) * locidx.inl()
+	    const int posnr = ((idx_type)dims_.crl()) * locidx.inl()
 			    + locidx.crl();
 	    trc.set( 0, rdr_.interp_->get(buf,posnr), trccompnr );
 	}

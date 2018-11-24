@@ -138,7 +138,7 @@ static bool checkContents( Pos::IdxPairDataSet& ds )
     Pos::IdxPairDataSet::SPos spos;
     Pos::IdxPairDataSet::SPos spostorem;
     Pos::IdxPair ip, iptorem;
-    Pos::IdxPairDataSet::IdxType crltorem = 1999 + 3 * cNrObjects / 4;
+    Pos::IdxPairDataSet::pos_type crltorem = 1999 + 3 * cNrObjects / 4;
     while ( ds.next(spos) )
     {
 	ip = ds.getIdxPair( spos );

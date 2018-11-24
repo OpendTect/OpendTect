@@ -44,7 +44,7 @@ public:
 
     typedef ::DBKey				ObjID;
     typedef ObjectSet<Saveable>::size_type	size_type;
-    typedef size_type				IdxType;
+    typedef size_type				idx_type;
 
 			~SaveableManager();
 
@@ -66,9 +66,9 @@ public:
     BufferString	nameOf(const ObjID&) const;
 
 			// Use MonitorLock when iterating
-    IdxType		size() const;
-    ObjID		getIDByIndex(IdxType) const;
-    IOPar		getIOObjParsByIndex(IdxType) const;
+    size_type		size() const;
+    ObjID		getIDByIndex(idx_type) const;
+    IOPar		getIOObjParsByIndex(idx_type) const;
 
     CNotifier<SaveableManager,ObjID>	ObjOrphaned;
     CNotifier<SaveableManager,ObjID>	UnsavedObjLastCall;
@@ -98,7 +98,7 @@ protected:
 								{ return 0; }
     virtual void	addCBsToObj(const SharedObject&);
     virtual void	handleObjAdd()				{}
-    virtual void	handleObjDel(IdxType)			{}
+    virtual void	handleObjDel(idx_type)			{}
 
     ObjectSet<Saveable>	savers_;
     ObjectSet<ChangeRecorder> chgrecs_;
@@ -120,10 +120,10 @@ protected:
 
 			// Tools for locked state
     void		setEmpty();
-    IdxType		gtIdx(const char*) const;
-    IdxType		gtIdx(const ObjID&) const;
-    IdxType		gtIdx(const SharedObject&) const;
-    SharedObject*	gtObj(IdxType) const;
+    idx_type		gtIdx(const char*) const;
+    idx_type		gtIdx(const ObjID&) const;
+    idx_type		gtIdx(const SharedObject&) const;
+    SharedObject*	gtObj(idx_type) const;
     const Saveable*	saverFor(const ObjID&) const;
     uiRetVal		doSave(const ObjID&,const TaskRunnerProvider&) const;
     void		add(const SharedObject&,const ObjID&,AccessLocker&,

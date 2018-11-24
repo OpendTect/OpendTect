@@ -25,10 +25,11 @@ mExpClass(Basic) IdxPair : public Index_Type_Twins
 {
 public:
 
-    typedef Index_Type		IdxType;
+    typedef Index_Type		pos_type;
+    typedef int			idx_type;
 
 				IdxPair() : Index_Type_Twins(0,0)	{}
-				IdxPair( IdxType f, IdxType s )
+				IdxPair( pos_type f, pos_type s )
 				    : Index_Type_Twins(f,s)		{}
 				mImplSimpleEqOpers2Memb(IdxPair,first,second)
 
@@ -36,9 +37,9 @@ public:
     void			setUdf()	{ *this = udf(); }
     static const IdxPair&	udf();
 
-    inline IdxType&		operator[]( int idx )
+    inline pos_type&		operator[]( idx_type idx )
 				{ return idx ? second : first; }
-    inline IdxType		operator[]( int idx ) const
+    inline pos_type		operator[]( idx_type idx ) const
 				{ return idx ? second : first; }
 
     const char*			getUsrStr(const char* prefx,const char* sep,

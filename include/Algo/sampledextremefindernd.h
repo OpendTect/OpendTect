@@ -22,15 +22,15 @@ template <class T>
 mClass(Algo) SampledExtremeFinderND : public ParallelTask
 {
 public:
-    typedef ArrayNDInfo::DimIdxType DimIdxType;
+    typedef ArrayNDInfo::dim_idx_type dim_idx_type;
 
 		SampledExtremeFinderND(const ArrayND<T>& arr, bool minima)
 		    : array_( arr )
 		    , minima_( minima )
 		    , relcube_( arr.nrDims() )
 		{
-		    const DimIdxType ndim = array_.nrDims();
-		    for ( DimIdxType idx=0; idx<ndim; idx++ )
+		    const dim_idx_type ndim = array_.nrDims();
+		    for ( dim_idx_type idx=0; idx<ndim; idx++ )
 		    relcube_.setSize( idx, 3 );
 		}
 
@@ -164,7 +164,7 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 	{
 	    bool invalid = false;
 	    bool isnull = true;
-	    for ( DimIdxType idx=0; idx<ndim; idx++ )
+	    for ( dim_idx_type idx=0; idx<ndim; idx++ )
 	    {
 		if ( iter[idx] ) isnull = false;
 		const int newpos = extremepos[idx]+iter[idx]-1;

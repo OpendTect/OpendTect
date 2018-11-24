@@ -433,7 +433,7 @@ void dgbPickSetTranslatorHDF5BackEnd::setDirs( Pick::Set& ps )
     if ( !dirs )
 	return;
 
-    const ArrayNDInfo::SzType arrsz = dirs->getSize( 1 );
+    const ArrayNDInfo::size_type arrsz = dirs->getSize( 1 );
     Pick::SetIter4Edit it( ps );
     while ( it.next() )
     {

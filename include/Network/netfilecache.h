@@ -27,22 +27,22 @@ public:
 
     typedef unsigned char		BufType;
     typedef int				ChunkSizeType;
-    typedef od_stream_Count		FileSizeType;
+    typedef od_stream_Count		file_size_type;
     typedef od_stream_Pos		FilePosType;
     typedef Interval<FilePosType>	FileChunkType;
     typedef TypeSet<FileChunkType>	FileChunkSetType;
 
     virtual		~FileCache();
 
-    FileSizeType	size() const;
+    file_size_type	size() const;
     bool		isEmpty() const			{ return size() < 1; }
     virtual void	clearData()			= 0;
 
-    virtual void	setMinCacheSize(FileSizeType)	= 0;
+    virtual void	setMinCacheSize(file_size_type)	= 0;
 
 protected:
 
-			FileCache(FileSizeType);
+			FileCache(file_size_type);
 
     class Block
     {
@@ -64,34 +64,34 @@ public:
 
     // Block-based access
 
-    typedef ObjectSet<Block>::size_type	BlockIdxType;
+    typedef ObjectSet<Block>::size_type	block_idx_type;
     typedef Block::SizeType		BlockSizeType;
 
-    BlockIdxType	blockIdx(FilePosType) const;
-    static FilePosType	blockStart(BlockIdxType);
-    BlockSizeType	blockSize(BlockIdxType) const;
-    inline bool		validBlockIdx( BlockIdxType bidx ) const
+    block_idx_type	blockIdx(FilePosType) const;
+    static FilePosType	blockStart(block_idx_type);
+    BlockSizeType	blockSize(block_idx_type) const;
+    inline bool		validBlockIdx( block_idx_type bidx ) const
 			{ return blocks_.validIdx(bidx); }
 
-    bool		isLiveBlock(BlockIdxType) const;
-    BufType*		getBlock(BlockIdxType);
-    const BufType*	getBlock(BlockIdxType) const;
+    bool		isLiveBlock(block_idx_type) const;
+    BufType*		getBlock(block_idx_type);
+    const BufType*	getBlock(block_idx_type) const;
 
 protected:
 
     ObjectSet<Block>	blocks_;
     const BlockSizeType	lastblocksz_;
-    const FileSizeType	knownfilesize_;
+    const file_size_type knownfilesize_;
 
-    Block*		gtBlk(BlockIdxType) const;
-    void		dismissBlock(BlockIdxType);
+    Block*		gtBlk(block_idx_type) const;
+    void		dismissBlock(block_idx_type);
     void		clearBlocks();
     inline FilePosType	lastBlockPos() const
 			{ return blockStart(blocks_.size()-1); }
     inline FilePosType	lastFilePos() const
 			{ return lastBlockPos() + lastblocksz_ - 1; }
 
-    virtual void	handleNewLiveBlock(BlockIdxType)	{}
+    virtual void	handleNewLiveBlock(block_idx_type)	{}
 
 };
 
@@ -110,15 +110,15 @@ mExpClass(Network) ReadCache : public FileCache
 {
 public:
 
-			ReadCache(FileSizeType knownsize=0);
+			ReadCache(file_size_type knownsize=0);
 			~ReadCache();
 
     virtual void	clearData();
-    virtual void	setMinCacheSize(FileSizeType);
+    virtual void	setMinCacheSize(file_size_type);
 
 			// Free-sized access of buffered data
-    bool		isAvailable(FilePosType,FileSizeType) const;
-    FileSizeType	getAt(FilePosType,BufType*,FileSizeType) const;
+    bool		isAvailable(FilePosType,file_size_type) const;
+    file_size_type	getAt(FilePosType,BufType*,file_size_type) const;
 			// returns actual nr bytes handled
 
 			// Stuff data, presumably obtained from remote source
@@ -128,10 +128,10 @@ public:
 
 protected:
 
-    TypeSet<BlockIdxType> liveblockidxs_;
-    BlockIdxType	maxnrliveblocks_;
+    TypeSet<block_idx_type> liveblockidxs_;
+    block_idx_type	maxnrliveblocks_;
 
-    virtual void	handleNewLiveBlock(BlockIdxType);
+    virtual void	handleNewLiveBlock(block_idx_type);
 
 };
 
@@ -154,14 +154,14 @@ public:
 			~WriteCache();
 
     virtual void	clearData();
-    virtual void	setMinCacheSize(FileSizeType);
+    virtual void	setMinCacheSize(file_size_type);
 
 
 protected:
 
-    BlockIdxType	nrblocksmem_;
+    block_idx_type	nrblocksmem_;
 
-    virtual void	handleNewLiveBlock(BlockIdxType);
+    virtual void	handleNewLiveBlock(block_idx_type);
 
 };
 

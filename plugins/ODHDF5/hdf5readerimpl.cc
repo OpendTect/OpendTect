@@ -125,7 +125,7 @@ ArrayNDInfo* HDF5::ReaderImpl::gtDataSizes() const
 	mGetDataSpaceDims( dims, nrdims_, dataspace );
 
 	ret = ArrayNDInfoImpl::create( nrdims_ );
-	for ( DimIdxType idim=0; idim<nrdims_; idim++ )
+	for ( dim_idx_type idim=0; idim<nrdims_; idim++ )
 	    ret->setSize( idim, (int)dims[idim] );
     }
     mCatchUnexpected( return ret );
@@ -260,7 +260,7 @@ void HDF5::ReaderImpl::gtPoints( const NDPosBufSet& posbufs, void* data,
 	{
 	    const NDPosBuf& posbuf = posbufs[ipt];
 	    const int arroffs = ipt * nrdims_;
-	    for ( DimIdxType idim=0; idim<nrdims_; idim++ )
+	    for ( dim_idx_type idim=0; idim<nrdims_; idim++ )
 		hdfcoordarr[arroffs + idim] = posbuf[idim];
 	}
 	inputdataspace.selectElements( H5S_SELECT_SET, nrpts, hdfcoordarr );

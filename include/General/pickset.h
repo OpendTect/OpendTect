@@ -42,10 +42,10 @@ mExpClass(General) Set	: public SharedObject
 {
 public:
 
-    typedef TypeSet<Location>::size_type	size_type;
-    typedef size_type				IdxType;
-    mDefIntegerIDType(IdxType,			LocID);
+    mDefIntegerIDType(				LocID);
     typedef GroupLabel::ID			GroupLabelID;
+    typedef TypeSet<Location>::size_type	size_type;
+    typedef size_type				idx_type;
 
 			Set(const char* nm=0,const char* category=0);
 			mDeclInstanceCreatedNotifierAccess(Set);
@@ -60,16 +60,16 @@ public:
     inline bool		isEmpty() const			    { return size()<1; }
     size_type		size() const;
     bool		validLocID(LocID) const;
-    IdxType		idxFor(LocID) const;
+    idx_type		idxFor(LocID) const;
     LocID		locIDAfter(LocID) const;
-    bool		validIdx(IdxType) const;
-    LocID		locIDFor(IdxType) const;
+    bool		validIdx(idx_type) const;
+    LocID		locIDFor(idx_type) const;
 
     Location		get(LocID) const;
     Coord		getPos(LocID) const;
     double		getZ(LocID) const;
     Location		first() const;
-    Location		getByIndex(IdxType) const;
+    Location		getByIndex(idx_type) const;
 
     Set&		setEmpty();
     Set&		append(const Set&);
@@ -79,7 +79,7 @@ public:
     Set&		set(LocID,const Location&,bool istemp=false);
     Set&		setPos(LocID,const Coord&,bool istemp=false);
     Set&		setZ(LocID,double,bool istemp=false);
-    Set&		setByIndex(IdxType,const Location&,bool istemp=false);
+    Set&		setByIndex(idx_type,const Location&,bool istemp=false);
 
 			// At any of the locations:
     bool		haveDirections() const;
@@ -99,9 +99,9 @@ public:
     void		getGroupLabelIDs(TypeSet<GroupLabelID>&,
 					 bool include_used_only=false) const;
     GroupLabelID	groupLabelID(LocID) const;
-    GroupLabelID	groupLabelIDByIdx(IdxType) const;
+    GroupLabelID	groupLabelIDByIdx(idx_type) const;
     void		setGroupLabelID(LocID,GroupLabelID);
-    void		setGroupLabelIDs(Interval<IdxType>,GroupLabelID);
+    void		setGroupLabelIDs(Interval<idx_type>,GroupLabelID);
 
     bool		isMultiGeom() const;
     Pos::GeomID		firstGeomID() const;
@@ -180,13 +180,13 @@ protected:
     TypeSet<GroupLabel>	grouplabels_;
     Disp		disp_;
     IOPar		pars_;
-    mutable Threads::Atomic<IdxType> curlocidnr_;
+    mutable Threads::Atomic<idx_type> curlocidnr_;
     mutable Threads::Atomic<int>     curlabelidnr_;
     static const Set	emptyset_;
     static Set		dummyset_;
 
-    IdxType		gtIdxFor(LocID) const;
-    LocID		insNewLocID(IdxType,AccessLocker&);
+    idx_type		gtIdxFor(LocID) const;
+    LocID		insNewLocID(idx_type,AccessLocker&);
     void		replaceID(LocID from,LocID to);
     int			gtLblIdx(GroupLabelID) const;
 
@@ -199,7 +199,7 @@ protected:
 
 /*!\brief const Set iterator. */
 
-mExpClass(General) SetIter : public MonitorableIter4Read<Set::IdxType>
+mExpClass(General) SetIter : public MonitorableIter4Read<Set::idx_type>
 {
 public:
 
@@ -222,9 +222,11 @@ public:
 
   */
 
-mExpClass(General) SetIter4Edit : public MonitorableIter4Write<Set::IdxType>
+mExpClass(General) SetIter4Edit : public MonitorableIter4Write<Set::idx_type>
 {
 public:
+
+    mUseType( Set,	idx_type );
 
 			SetIter4Edit(Set&,bool start_at_end=false);
 			SetIter4Edit(const SetIter4Edit&);

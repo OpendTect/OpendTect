@@ -46,9 +46,10 @@ mExpClass(Seis) PosIndexer
 {
 public:
 
-    typedef Index_Type			KeyIdxType;
-    typedef TypeSet<KeyIdxType>		KeyIdxSet;
-    typedef KeyIdxSet::size_type	SetIdxType;
+    typedef Index_Type			pos_type;
+    typedef TypeSet<pos_type>		PosSet;
+    typedef PosSet::size_type		size_type;
+    typedef PosSet::idx_type		idx_type;
     typedef PosKeyList::FileIdxType	FileIdxType;
     typedef TypeSet<FileIdxType>	FileIdxSet;
     typedef od_stream_Pos		FileOffsType;
@@ -73,11 +74,11 @@ public:
 
     inline GeomType		geomType() const
 				{ return geomTypeOf(is2d_,isps_); }
-    const Interval<KeyIdxType>&	inlRange() const	{ return inlrg_; }
-    const KeyIdxSet&		getInls() const		{ return inls_; }
-    const Interval<KeyIdxType>&	crlRange() const	{ return crlrg_; }
-    const Interval<KeyIdxType>&	trcNrRange() const	{ return crlrg_; }
-    void			getCrls(KeyIdxType,KeyIdxSet&) const;
+    const Interval<pos_type>&	inlRange() const	{ return inlrg_; }
+    const PosSet&		getInls() const		{ return inls_; }
+    const Interval<pos_type>&	crlRange() const	{ return crlrg_; }
+    const Interval<pos_type>&	trcNrRange() const	{ return crlrg_; }
+    void			getCrls(pos_type,PosSet&) const;
     const Interval<float>&	offsetRange() const	{ return offsrg_; }
 
     FileIdxType			nrRejected() const	{ return nrrejected_; }
@@ -88,7 +89,7 @@ public:
 				    // -1 = inl not found (or empty in poskey)
 				    // -2 crl/trcnr not found
     FileIdxType			findFirst(const BinID&) const;
-    FileIdxType			findFirst(KeyIdxType trcnr) const;
+    FileIdxType			findFirst(pos_type trcnr) const;
     FileIdxType			findFirst(const PosKey&,
 					  bool chckoffs=true) const;
 				    //!< -3 offs not found
@@ -106,7 +107,7 @@ protected:
 
     bool			readHeader(Int32Interpreter*,Int64Interpreter*,
 				    FloatInterpreter*);
-    bool			readLine(KeyIdxSet& crls,FileIdxSet&,
+    bool			readLine(PosSet& crls,FileIdxSet&,
 				    Int32Interpreter*,Int64Interpreter*) const;
 
     od_istream*			strm_;
@@ -116,32 +117,32 @@ protected:
 
     mutable Threads::Lock	lock_;
     mutable FileIdxSet		curfileidxs_;
-    mutable KeyIdxSet		curcrlset_;
-    mutable KeyIdxType		curinl_;
+    mutable PosSet		curcrlset_;
+    mutable pos_type		curinl_;
 
     const PosKeyList&		pkl_;
     const bool			is2d_;
     const bool			isps_;
     bool			iocompressed_;
     bool			excludeunreasonable_;
-    KeyIdxSet			inls_;
-    ObjectSet<KeyIdxSet>	crlsets_;
+    PosSet			inls_;
+    ObjectSet<PosSet>		crlsets_;
     ObjectSet<FileIdxSet>	fileidxsets_;
     FileIdxType			maxfileidx_;
 
-    Interval<KeyIdxType>	inlrg_;
-    Interval<KeyIdxType>	crlrg_;
+    Interval<pos_type>		inlrg_;
+    Interval<pos_type>		crlrg_;
     Interval<float>		offsrg_;
 
-    Interval<KeyIdxType>	goodinlrg_;
-    Interval<KeyIdxType>	goodcrlrg_;
+    Interval<pos_type>		goodinlrg_;
+    Interval<pos_type>		goodcrlrg_;
     FileIdxType			nrrejected_;
 
     bool			isReasonable(const BinID&) const;
     int				getFirstIdxs(const BinID&,int&,int&) const;
-    void			dumpLineCompressed(od_ostream&,const KeyIdxSet&,
+    void			dumpLineCompressed(od_ostream&,const PosSet&,
 						   const FileIdxSet&) const;
-    bool			readLineCompressed(KeyIdxSet&,
+    bool			readLineCompressed(PosSet&,
 						   FileIdxSet&) const;
 
 };

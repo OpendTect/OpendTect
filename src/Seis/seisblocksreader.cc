@@ -197,7 +197,7 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
 {
     int ver = version_;
     iop.get( sKeyFmtVersion(), ver );
-    version_ = (SzType)ver;
+    version_ = (version_type)ver;
     iop.get( sKeyCubeName(), cubename_ );
     if ( cubename_.isEmpty() )
 	cubename_ = basepath_.fileName();
@@ -220,7 +220,8 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
 	state_.set( tr("%1\nlacks block dimension info").arg(infoFileName()) );
 	return false;
     }
-    dims_.inl() = SzType(i1); dims_.crl() = SzType(i2); dims_.z() = SzType(i3);
+    dims_.inl() = size_type(i1); dims_.crl() = size_type(i2);
+    dims_.z() = size_type(i3);
 
     FileMultiString fms( iop.find(sKeyComponents()) );
     const int nrcomps = fms.size();
@@ -253,7 +254,7 @@ bool Seis::Blocks::Reader::getOffsetSectionData( const IOPar& iop )
 	    continue;
 
 	*ptr++ = '\0';
-	const HGlobIdx globidx( (IdxType)toInt(kw), (IdxType)toInt(ptr) );
+	const HGlobIdx globidx( (idx_type)toInt(kw), (idx_type)toInt(ptr) );
 	const od_stream_Pos pos = toInt64( iop.getValue(idx) );
 	fileidtbl_[globidx] = pos;
     }

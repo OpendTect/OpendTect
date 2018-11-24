@@ -83,8 +83,8 @@ public:
     const char*			dimName(bool dim0) const;
     void			getAuxInfo(int,int,IOPar&) const;
 
-    static DimIdxType		offsetDim()		{ return 0; }
-    static DimIdxType		zDim()			{ return 1; }
+    static dim_idx_type		offsetDim()		{ return 0; }
+    static dim_idx_type		zDim()			{ return 1; }
 
     float			getOffset(int) const;
     float			getAzimuth(int) const;

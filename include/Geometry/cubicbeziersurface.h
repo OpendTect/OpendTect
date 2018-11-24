@@ -1,5 +1,5 @@
 #pragma once
-                                                                                
+
 /*+
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -34,13 +34,13 @@ public:
 
     CubicBezierSurfacePatch*		clone() const;
 
-    Coord3		computePos(float u,float v) const; 
+    Coord3		computePos(float u,float v) const;
     Coord3		computeNormal(float u, float v) const;
     Coord3		computeUTangent(float u, float v) const;
     Coord3		computeVTangent(float u, float v) const;
 
     bool		intersectWithLine( const Line3& line,
-	    				float& u, float& v, float eps ) const;
+					float& u, float& v, float eps ) const;
 
     IntervalND<float>	computeBoundingBox() const;
 
@@ -55,8 +55,8 @@ mExpClass(Geometry) CubicBezierSurface : public ParametricSurface
 public:
 			mTypeDefArrNDTypes;
 
-    			CubicBezierSurface( const RowCol& step=RowCol(1,1));
-    			CubicBezierSurface( const CubicBezierSurface& );
+			CubicBezierSurface( const RowCol& step=RowCol(1,1));
+			CubicBezierSurface( const CubicBezierSurface& );
 			~CubicBezierSurface();
 
     CubicBezierSurface*	clone() const;
@@ -76,7 +76,7 @@ public:
     bool	removeRow(int row,int stoprow=-1); //!< stoprow will be ignored
     bool	removeCol(int col,int stopcol=-1); //!< stopcol will be ignored
     virtual Coord3 getKnot( const RowCol& rc ) const
-    		{ return getKnot(rc,false); }
+		{ return getKnot(rc,false); }
     Coord3	getKnot(const RowCol&,bool estimateifundef) const;
 
     Coord3	getRowDirection(const RowCol&,bool computeifudf) const;
@@ -101,8 +101,8 @@ protected:
 
     void	_setKnot( int idx, const Coord3& );
 
-    ArrayNDInfo::SzType nrRows() const;
-    ArrayNDInfo::SzType nrCols() const;
+    ArrayNDInfo::size_type nrRows() const;
+    ArrayNDInfo::size_type nrCols() const;
 
     Array2D<Coord3>*	rowdirections;
     Array2D<Coord3>*	coldirections;

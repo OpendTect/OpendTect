@@ -41,7 +41,7 @@ mExpClass(Basic) IdxSubSelData : public ArrRegSubSelData
 {
 public:
 
-    typedef IdxPair::IdxType		pos_type;
+    mUseType( IdxPair,			pos_type );
     typedef StepInterval<pos_type>	pos_steprg_type;
 
 		IdxSubSelData(const pos_steprg_type&);

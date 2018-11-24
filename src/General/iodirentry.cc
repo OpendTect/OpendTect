@@ -72,7 +72,7 @@ void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
 }
 
 
-DBKey IODirEntryList::key( IdxType idx ) const
+DBKey IODirEntryList::key( idx_type idx ) const
 {
     if ( !entries_.validIdx(idx) )
 	return DBKey::getInvalid();
@@ -80,7 +80,7 @@ DBKey IODirEntryList::key( IdxType idx ) const
 }
 
 
-BufferString IODirEntryList::name( IdxType idx ) const
+BufferString IODirEntryList::name( idx_type idx ) const
 {
     if ( !entries_.validIdx(idx) )
 	return BufferString::empty();
@@ -88,7 +88,7 @@ BufferString IODirEntryList::name( IdxType idx ) const
 }
 
 
-BufferString IODirEntryList::dispName( IdxType idx ) const
+BufferString IODirEntryList::dispName( idx_type idx ) const
 {
     if ( !entries_.validIdx(idx) )
 	return BufferString::empty();
@@ -104,7 +104,7 @@ BufferString IODirEntryList::dispName( IdxType idx ) const
 }
 
 
-BufferString IODirEntryList::iconName( IdxType idx ) const
+BufferString IODirEntryList::iconName( idx_type idx ) const
 {
     if ( entries_.validIdx(idx) )
     {
@@ -121,22 +121,22 @@ BufferString IODirEntryList::iconName( IdxType idx ) const
 void IODirEntryList::sort()
 {
     BufferStringSet nms; const size_type sz = size();
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	nms.add( entries_[idx]->name() );
 
-    IdxType* idxs = nms.getSortIndexes();
+    idx_type* idxs = nms.getSortIndexes();
 
     ObjectSet<IOObj> tmp( entries_ );
     entries_.erase();
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	entries_ += tmp[ idxs[idx] ];
     delete [] idxs;
 }
 
 
-IODirEntryList::IdxType IODirEntryList::indexOf( const char* nm ) const
+IODirEntryList::idx_type IODirEntryList::indexOf( const char* nm ) const
 {
-    for ( IdxType idx=0; idx<size(); idx++ )
+    for ( idx_type idx=0; idx<size(); idx++ )
     {
 	const IOObj& entry = *entries_[idx];
 	if ( entry.hasName(nm) )

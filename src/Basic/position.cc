@@ -22,7 +22,7 @@
 #include <ctype.h>
 #include <math.h>
 
-#define mUdfIdx mUdf(IdxPair::IdxType)
+#define mUdfIdx mUdf(IdxPair::pos_type)
 static const IdxPair udfidxpair( mUdfIdx, mUdfIdx );
 static const Pos::IdxPair udfposidxpair( mUdfIdx, mUdfIdx );
 #define mUdfOrd mUdf(Pos::Ordinate_Type)
@@ -113,7 +113,7 @@ bool Pos::IdxPair::isNeighborTo( const Pos::IdxPair& oth,
     if ( conn8 )
 	return are8;
 
-    const IdxType res = (IdxType)(diff.row()>0) + (IdxType)(diff.col()>0);
+    const pos_type res = (pos_type)(diff.row()>0) + (pos_type)(diff.col()>0);
     return are8 && res < 2;
 }
 
@@ -373,7 +373,7 @@ Pos::IdxPair Pos::IdxPair2Coord::transformBack( const Coord& coord ) const
     if ( mIsUdf(fip.x_) || mIsUdf(fip.y_) )
 	return Pos::IdxPair::udf();
 
-    return IdxPair( mRounded(IdxType,fip.x_), mRounded(IdxType,fip.y_) );
+    return IdxPair( mRounded(pos_type,fip.x_), mRounded(pos_type,fip.y_) );
 }
 
 
@@ -390,8 +390,8 @@ Pos::IdxPair Pos::IdxPair2Coord::transformBack( const Coord& coord,
     if ( step.first && step.second )
 	{ frelip.x_ /= step.first; frelip.y_ /= step.second; }
 
-    const IdxPair relip( mRounded(IdxType,frelip.x_),
-			 mRounded(IdxType,frelip.y_) );
+    const IdxPair relip( mRounded(pos_type,frelip.x_),
+			 mRounded(pos_type,frelip.y_) );
     return IdxPair( start.first + relip.first * step.first,
 		    start.second + relip.second * step.second );
 }

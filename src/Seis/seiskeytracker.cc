@@ -12,14 +12,14 @@
 Seis::TrackRecord::Entry* Seis::TrackRecord::Entry::getFrom(
 				    ascbinistream& strm, bool is2d )
 {
-    char key; IdxType nr1, nr2; strm.get( key ).get( nr1 ).get( nr2 );
+    char key; pos_type nr1, nr2; strm.get( key ).get( nr1 ).get( nr2 );
     if ( strm.isBad() )
 	return 0;
 
     const bool isstop = key == 'E';
     if ( isstop && is2d )
 	return new StopEntry2D( nr1, nr2 );
-    IdxType nr3; strm.get( nr3 );
+    pos_type nr3; strm.get( nr3 );
     if ( strm.isBad() )
 	return 0;
     if ( isstop )
@@ -51,7 +51,7 @@ Seis::TrackRecord::Entry* Seis::TrackRecord::Entry::getFrom(
     if ( is2d )
 	return new StartEntry2D( nr1, nr2, nr3 );
 
-    IdxType step; strm.get( step );
+    pos_type step; strm.get( step );
     if ( strm.isBad() )
 	return 0;
 
@@ -98,7 +98,7 @@ Seis::TrackRecord::TrackRecord( Seis::GeomType gt )
 
 
 Seis::TrackRecord& Seis::TrackRecord::addStartEntry( SeqNrType seqnr,
-				const BinID& bid, IdxType step, bool diriscrl )
+				const BinID& bid, pos_type step, bool diriscrl )
 {
     Entry* entry;
 
@@ -147,7 +147,7 @@ bool Seis::TrackRecord::getFrom( od_istream& instrm, bool bin )
     setEmpty();
     ascbinistream strm( instrm, bin );
 
-    ArrIdxType nrentries;
+    idx_type nrentries;
     strm.get( nrentries );
     if ( nrentries < 1 )
 	return true;
@@ -168,7 +168,7 @@ bool Seis::TrackRecord::getFrom( od_istream& instrm, bool bin )
 bool Seis::TrackRecord::dump( od_ostream& instrm, bool bin ) const
 {
     ascbinostream strm( instrm, bin );
-    const ArrIdxType nrentries = entries_.size();
+    const idx_type nrentries = entries_.size();
     strm.add( nrentries, od_newline );
 
     for ( int ientry=0; ientry<nrentries; ientry++ )

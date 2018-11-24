@@ -27,8 +27,7 @@ mExpClass(General) ProbeLayer : public SharedObject
 {
 public:
 
-    typedef int IDType;
-    mDefIntegerIDType(IDType,ID);
+    mDefIntegerIDType(	ID);
 
 			ProbeLayer();
 			mDeclAbstractMonitorableAssignment(ProbeLayer);

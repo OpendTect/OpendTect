@@ -24,7 +24,7 @@ mExpClass(General) GroupLabel
 {
 public:
 
-    mDefIntegerIDType(int,	ID);
+    mDefIntegerIDType(		ID);
 
 				GroupLabel( const char* t=0 )
 				    : txt_(t)		{}

@@ -1,5 +1,5 @@
 #pragma once
-                                                                                
+
 /*+
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -26,55 +26,58 @@ namespace Geometry
 mExpClass(Geometry) FaultStick
 {
 public:
-    mDefIntegerIDType(int, KnotID);
 
-			    FaultStick();
-			    FaultStick(int firstcol,Coord3 pln,
+    mDefIntegerIDType(	KnotID);
+
+			FaultStick();
+			FaultStick(int firstcol,Coord3 pln,
 				      unsigned int st=0, int sz=0 );
-					
-			    ~FaultStick();
 
-    void		    addKnot(const Coord3&, unsigned int stat=0);
-    void		    setKnot(int idx,const Coord3&, unsigned int stat=0);
-    Coord3		    getKnot(int idx) const;
-    void		    removeKnot(int idx);
+			~FaultStick();
 
-    int			    size() const;
-    bool		    isEmpty() const { return !size(); }
-    int&		    firstCol() { return firstcol_; }
-    int			    firstCol() const { return firstcol_; }
+    void		addKnot(const Coord3&, unsigned int stat=0);
+    void		setKnot(int idx,const Coord3&, unsigned int stat=0);
+    Coord3		getKnot(int idx) const;
+    void		removeKnot(int idx);
 
-    void		    setPlaneNormal(Coord3 nrm) { planenormal_ = nrm; }
-    Coord3		    planeNormal() const { return planenormal_; }
+    int			size() const;
+    bool		isEmpty() const { return !size(); }
+    int&		firstCol() { return firstcol_; }
+    int			firstCol() const { return firstcol_; }
 
-    const TypeSet<Coord3>&  stickCoords() const { return stickcoords_; }
-    
-    unsigned int	    knotStat(int idx) const;
-    void		    setKnotStat(int,unsigned stat);
+    void		setPlaneNormal(Coord3 nrm) { planenormal_ = nrm; }
+    Coord3		planeNormal() const { return planenormal_; }
 
-    unsigned int	    stickStat() const { return stickstatus_; }
-    void		    setStickStat(unsigned int st) { stickstatus_ = st; }
-    
-    KnotID		    knotID(int kntidx) const;
+    const TypeSet<Coord3>& stickCoords() const { return stickcoords_; }
+
+    unsigned int	knotStat(int idx) const;
+    void		setKnotStat(int,unsigned stat);
+
+    unsigned int	stickStat() const { return stickstatus_; }
+    void		setStickStat(unsigned int st) { stickstatus_ = st; }
+
+    KnotID		knotID(int kntidx) const;
 
 protected:
 
-    TypeSet<KnotID>		knotids_;
-    TypeSet<Coord3>		stickcoords_;
-    int				firstcol_;
-    Coord3			planenormal_;
-    unsigned int		stickstatus_;
-    TypeSet<unsigned int>	knotstatus_;
-    int				curknotidnr_;
+    TypeSet<KnotID>	knotids_;
+    TypeSet<Coord3>	stickcoords_;
+    int			firstcol_;
+    Coord3		planenormal_;
+    unsigned int	stickstatus_;
+    TypeSet<od_uint32>	knotstatus_;
+    int			curknotidnr_;
 };
 
 
 mExpClass(Geometry) FaultStickSet : public RowColSurface
 {
 public:
-    mDefIntegerIDType(int, StickID);
-    			FaultStickSet();
-    			~FaultStickSet();
+
+    mDefIntegerIDType(	StickID);
+
+			FaultStickSet();
+			~FaultStickSet();
     bool		isEmpty() const		{ return !sticks_.size(); }
     Element*		clone() const;
 
@@ -92,7 +95,7 @@ public:
 
     StepInterval<int>	rowRange() const;
     virtual StepInterval<int> colRange() const
-    			{ return RowColSurface::colRange(); }
+			{ return RowColSurface::colRange(); }
     StepInterval<int>	colRange(int stick) const;
 
     bool		setKnot(const RowCol&,const Coord3&);
@@ -102,13 +105,13 @@ public:
     Coord3		getEditPlaneNormal(int sticknr) const;
     enum ChangeTag	{ StickChange=__mUndefIntVal+1, StickInsert,
 			  StickRemove, StickHide };
-    
-    			// To be used by surface reader only
+
+			// To be used by surface reader only
     void		addUdfRow(int stickidx,int firstknotnr,int nrknots);
     void		setEditPlaneNormal(int sticknr,const Coord3&);
 
-    			// Use zscale=0 to measure in xy-direction only and
-   			// zscale=MAXDOUBLE to measure in z-direction only.
+			// Use zscale=0 to measure in xy-direction only and
+			// zscale=MAXDOUBLE to measure in z-direction only.
     void		geometricStickOrder(TypeSet<int>& sticknrs,
 				  double zscale,bool orderall=true) const;
 
@@ -136,7 +139,7 @@ protected:
 					       double zscale) const;
 
     int				firstrow_;
-    
+
     ObjectSet<FaultStick >	sticks_;
     TypeSet<StickID>		stickids_;
     int				curstickidnr_;

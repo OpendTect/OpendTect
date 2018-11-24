@@ -116,7 +116,7 @@ RefManType Well::Manager::doFetch( const ObjID& id, const LoadReqs& lr,
 				    uiRetVal& uirv ) const
 {
     mLock4Read();
-    const IdxType idxof = gtIdx( id );
+    const idx_type idxof = gtIdx( id );
     Data* wd = idxof < 0 ? 0 : const_cast<Data*>( gtData(idxof) );
     if ( wd  && loadstates_[idxof].includes(lr) )
 	return RefManType( wd );		// already loaded sufficiently
@@ -191,7 +191,7 @@ void Well::Manager::handleObjAdd()
 }
 
 
-void Well::Manager::handleObjDel( IdxType idx )
+void Well::Manager::handleObjDel( idx_type idx )
 {
     loadstates_.removeSingle( idx );
 }
@@ -240,7 +240,7 @@ Well::Manager::ObjID Well::Manager::getIDByUWI( const char* uwi ) const
 
     mLock4Read();
 
-    for ( IdxType idx=0; idx<savers_.size(); idx++ )
+    for ( idx_type idx=0; idx<savers_.size(); idx++ )
     {
 	const Saveable& saver = *savers_[idx];
 	const SharedObject* obj = saver.object();
@@ -281,7 +281,7 @@ IOObj* Well::Manager::getIOObjByUWI( const char* uwi ) const
 Coord Well::Manager::getMapLocation( const ObjID& id ) const
 {
     mLock4Read();
-    const IdxType idxof = gtIdx( id );
+    const idx_type idxof = gtIdx( id );
     if ( idxof >= 0 )
 	return gtData(idxof)->info().surfaceCoord();
 
@@ -397,7 +397,7 @@ ConstRefMan<Well::Log> Well::Manager::getLog( const ObjID& id,
 						const char* lognm ) const
 {
     mLock4Read();
-    const IdxType idx = gtIdx( id );
+    const idx_type idx = gtIdx( id );
     if ( idx >=0 && loadstates_[idx].includes(Logs) )
 	return gtData(idx)->logs().getLogByName( lognm );
     else
@@ -412,21 +412,21 @@ ConstRefMan<Well::Log> Well::Manager::getLog( const ObjID& id,
 }
 
 
-ConstRefMan<Well::Data> Well::Manager::get( IdxType idx ) const
+ConstRefMan<Well::Data> Well::Manager::get( idx_type idx ) const
 {
     const SharedObject* shobj = gtObj( idx );
     return ConstRefMan<Data>( mToWD(const,*,shobj) );
 }
 
 
-RefMan<Well::Data> Well::Manager::getForEdit( IdxType idx )
+RefMan<Well::Data> Well::Manager::getForEdit( idx_type idx )
 {
     SharedObject* shobj = gtObj( idx );
     return RefMan<Data>( mToWD(,*,shobj) );
 }
 
 
-Well::Data* Well::Manager::gtData( IdxType idx ) const
+Well::Data* Well::Manager::gtData( idx_type idx ) const
 {
     SharedObject* obj = const_cast<SharedObject*>( savers_[idx]->object() );
     return mToWD(,*,obj);

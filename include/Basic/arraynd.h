@@ -102,7 +102,7 @@ public:
 				// these functions allow you to access
 				// the dimension that is contiguous
 				// (i.e. the last dimension)
-    virtual NrDimsType		get1DDim() const	{ return nrDims()-1; }
+    virtual nr_dims_type	get1DDim() const	{ return nrDims()-1; }
     virtual const ValType*	get1D(NDPos) const;
     virtual ValType*		get1D(NDPos);
 
@@ -118,11 +118,11 @@ public:
     virtual void		getAll(ValueSeries<T>& vs) const;
 
 				// rank/size info
-    inline NrDimsType		nrDims() const
+    inline nr_dims_type		nrDims() const
 				{ return info().nrDims(); }
-    inline SzType		getSize( DimIdxType dim ) const
+    inline size_type		getSize( dim_idx_type dim ) const
 				{ return info().getSize(dim); }
-    inline TotalSzType		totalSize() const
+    inline total_size_type	totalSize() const
 				{ return info().totalSize(); }
     inline bool			validPos( NDPos pos ) const
 				{ return info().validPos(pos); }
@@ -130,7 +130,7 @@ public:
 				{ return info().validPos(pos.arr()); }
 
 				// aliases
-    inline NrDimsType		rank() const		{ return nrDims(); }
+    inline nr_dims_type		rank() const		{ return nrDims(); }
     inline const ValueSeries<T>* valueSeries() const	{ return getStorage(); }
     inline ValueSeries<T>*	valueSeries()		{ return getStorage(); }
 
@@ -156,8 +156,8 @@ public:
 
     virtual inline bool		isOK() const	{ return ArrayND<T>::isOK(); }
 
-    virtual void		set(IdxType,T)				= 0;
-    virtual T			get(IdxType) const			= 0;
+    virtual void		set(idx_type,T)				= 0;
+    virtual T			get(idx_type) const			= 0;
     void			setND( NDPos pos, T v )
 					{ set( pos[0], v ); }
     T				getND( NDPos pos ) const
@@ -165,18 +165,18 @@ public:
 
 				// implement ValueSeries interface
     T				value(od_int64 i) const
-				{ return get( (IdxType)i );}
+				{ return get( (idx_type)i );}
     bool			writable() const	{ return true; }
     void			setValue(od_int64 i,T t)
-					{ set( (IdxType)i, t ); }
+					{ set( (idx_type)i, t ); }
     virtual void		setAll( T t )         { ArrayND<T>::setAll(t); }
 
     virtual const Array1DInfo&	info() const = 0;
 
     // Compatibility with other classes:
 
-    inline SzType		size() const	{ return info().getSize(0); }
-    inline T			operator []( IdxType idx ) const
+    inline size_type		size() const	{ return info().getSize(0); }
+    inline T			operator []( idx_type idx ) const
 				{ return get( idx ); }
 
 };
@@ -190,8 +190,8 @@ mClass(Basic) Array2D : public ArrayND<T>
 public:
 				mTypeDefArrNDTypes;
 
-    virtual void		set(IdxType,IdxType,T)			= 0;
-    virtual T			get(IdxType,IdxType) const		= 0;
+    virtual void		set(idx_type,idx_type,T)	= 0;
+    virtual T			get(idx_type,idx_type) const	= 0;
     void			setND( NDPos pos, T v )
 					{ set( pos[0], pos[1], v);}
     T		                getND( NDPos pos ) const
@@ -212,8 +212,8 @@ mClass(Basic) Array3D : public ArrayND<T>
 public:
 				mTypeDefArrNDTypes;
 
-    virtual void		set(IdxType,IdxType,IdxType,T)		= 0;
-    virtual T			get(IdxType,IdxType,IdxType) const	= 0;
+    virtual void		set(idx_type,idx_type,idx_type,T)	= 0;
+    virtual T			get(idx_type,idx_type,idx_type) const	= 0;
     void			setND( NDPos pos, T v )
 					{ set( pos[0], pos[1], pos[2], v ); }
     T		                getND( NDPos pos ) const
@@ -234,8 +234,9 @@ mClass(Basic) Array4D : public ArrayND<T>
 public:
 				mTypeDefArrNDTypes;
 
-    virtual void		set(IdxType,IdxType,IdxType,IdxType,T)	= 0;
-    virtual T			get(IdxType,IdxType,IdxType,IdxType) const = 0;
+    virtual void		set(idx_type,idx_type,idx_type,idx_type,T)= 0;
+    virtual T			get(idx_type,idx_type,idx_type,idx_type)
+								    const = 0;
     void			setND( NDPos pos, T v )
 				{ set( pos[0], pos[1], pos[2], pos[3], v ); }
     T		                getND( NDPos pos ) const
@@ -269,19 +270,19 @@ public:
     bool			next();
     void			reset();
 
-    bool			setGlobalPos(OffsetType);
+    bool			setGlobalPos(offset_type);
 
     template <class T> void inline setPos(const T& idxabl);
     NDPos			getPos() const { return position_; }
 
-    IdxType			operator[](DimIdxType) const;
+    idx_type			operator[](dim_idx_type) const;
 
 
 protected:
 
-    bool			inc(DimIdxType);
+    bool			inc(dim_idx_type);
 
-    IdxType*			position_;
+    idx_type*			position_;
     const ArrayNDInfo&		sz_;
 
 };
@@ -315,7 +316,7 @@ public:
 
     T			value( od_int64 idx ) const
 			{
-			    IdxType pos[mArrayNDVSAdapterMaxNrDims];
+			    idx_type pos[mArrayNDVSAdapterMaxNrDims];
 			    array_.info().getArrayPos( idx, pos );
 			    return array_.getND( pos );
 			}
@@ -332,13 +333,13 @@ protected:
 
 template <class T> inline void ArrayNDIter::setPos( const T& idxable )
 {
-    for ( DimIdxType idx=sz_.nrDims()-1; idx>=0; idx-- )
+    for ( dim_idx_type idx=sz_.nrDims()-1; idx>=0; idx-- )
 	position_[idx] = idxable[idx];
 }
 
 
 inline
-bool ArrayNDIter::setGlobalPos( OffsetType globalidx )
+bool ArrayNDIter::setGlobalPos( offset_type globalidx )
 {
     return sz_.getArrayPos( globalidx, position_ );
 }
@@ -372,9 +373,9 @@ class Array1DConv : public Array1D<T>
 { mDefArrayNDStdMembers(1D);
 public:
 
-    T			get( IdxType p0 ) const
+    T			get( idx_type p0 ) const
 					{ return (T)arr_->get( p0 ); }
-    void		set( IdxType p0, T v )
+    void		set( idx_type p0, T v )
 					{ arr_->set( p0, (TT)v ); }
 
 };
@@ -384,9 +385,9 @@ template <class T, class TT>
 class Array2DConv : public Array2D<T>
 { mDefArrayNDStdMembers(2D);
 
-    T			get( IdxType p0, IdxType p1 ) const
+    T			get( idx_type p0, idx_type p1 ) const
 					{ return (T)arr_->get( p0, p1 ); }
-    void		set( IdxType p0, IdxType p1, T v )
+    void		set( idx_type p0, idx_type p1, T v )
 					{ arr_->set( p0, p1, (TT)v ); }
 
 };
@@ -395,9 +396,9 @@ template <class T, class TT>
 class Array3DConv : public Array3D<T>
 { mDefArrayNDStdMembers(3D);
 
-    T			get( IdxType p0, IdxType p1, IdxType p2 ) const
+    T			get( idx_type p0, idx_type p1, idx_type p2 ) const
 					{ return (T)arr_->get( p0, p1, p2 ); }
-    void		set( IdxType p0, IdxType p1, IdxType p2, T v )
+    void		set( idx_type p0, idx_type p1, idx_type p2, T v )
 					{ arr_->set( p0, p1, p2, (TT)v ); }
 
 };
@@ -406,9 +407,9 @@ template <class T, class TT>
 class Array4DConv : public Array4D<T>
 { mDefArrayNDStdMembers(4D);
 
-    T		get( IdxType p0, IdxType p1, IdxType p2, IdxType p3 ) const
+    T		get( idx_type p0, idx_type p1, idx_type p2, idx_type p3 ) const
 				{ return (T)arr_->get( p0, p1, p2, p3 ); }
-    void	set( IdxType p0, IdxType p1, IdxType p2, IdxType p3, T v )
+    void	set( idx_type p0, idx_type p1, idx_type p2, idx_type p3, T v )
 				{ arr_->set( p0, p1, p2, p3, (TT)v ); }
 
 };
@@ -437,10 +438,10 @@ const T* ArrayND<T>::get1D( NDPos inppos ) const
     if ( !ptr )
 	return 0;
 
-    const NrDimsType ndim = nrDims();
+    const nr_dims_type ndim = nrDims();
 
-    mAllocLargeVarLenArr( IdxType, pos, ndim );
-    OD::memCopy( pos, inppos, (IdxType)sizeof(IdxType)*(ndim-1) );
+    mAllocLargeVarLenArr( idx_type, pos, ndim );
+    OD::memCopy( pos, inppos, (idx_type)sizeof(idx_type)*(ndim-1) );
 
     pos[ndim-1] = 0;
     return ptr + info().getOffset(pos);
@@ -526,7 +527,7 @@ ArrayNDDataExtracter( ValueSeries<T>& vs, const ArrayND<T>& arr)
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    mAllocVarLenArr( IdxType, pos, arr_.nrDims() );
+    mAllocVarLenArr( idx_type, pos, arr_.nrDims() );
     if ( !arr_.info().getArrayPos( start, pos ) )
 	return false;
 
@@ -641,9 +642,9 @@ ArrayNDDataSetter( ArrayND<T>& arr, const T* ptr )
     , totalnr_( arr.totalSize() )
     , pos_(0)
 {
-    const NrDimsType nrdims = arr_.nrDims();
+    const nr_dims_type nrdims = arr_.nrDims();
     if ( nrdims > 0 )
-	pos_ = new IdxType [nrdims];
+	pos_ = new idx_type [nrdims];
     else
 	totalnr_ = 0;
 }
@@ -684,7 +685,7 @@ protected:
     od_int64		totalnr_;
     ArrayND<T>&		arr_;
     const T*		ptr_;
-    IdxType*		pos_;
+    idx_type*		pos_;
 
 };
 

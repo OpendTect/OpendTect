@@ -51,13 +51,13 @@ mExpClass(Seis) DataSet : public ::RefCount::Referenced
 {
 public:
 
-    typedef IntegerID<int>			MgrID;
-    typedef SynthSeis::SyntheticType		SynthType;
-    typedef TimeDepthModelSet			D2TModelSet;
-    typedef TypeSet<float>			ZValueSet;
-    typedef StepInterval<float>			OffsetDef;
-    typedef TimeDepthModelSet::size_type	size_type;
-    typedef TimeDepthModelSet::idx_type		idx_type;
+    mDefIntegerIDType(			MgrID );
+    typedef TimeDepthModelSet		D2TModelSet;
+    mUseType( TimeDepthModelSet,	idx_type );
+    mUseType( TimeDepthModelSet,	size_type );
+    typedef SynthSeis::SyntheticType	SynthType;
+    typedef TypeSet<float>		ZValueSet;
+    typedef StepInterval<float>		OffsetDef;
 
     MgrID		id() const		{ return id_; }
     SynthType		synthType() const	{ return genpars_.type_; }

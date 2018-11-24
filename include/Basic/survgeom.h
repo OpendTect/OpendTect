@@ -53,8 +53,8 @@ public:
 
     mUseType( OD,			GeomSystem );
     mUseType( OD,			SnapDir );
-    typedef BinID::IdxType		pos_type;
-    typedef pos_type			idx_type;
+    mUseType( BinID,			pos_type );
+    mUseType( BinID,			idx_type );
     typedef StepInterval<pos_type>	pos_steprg_type;
     typedef Pos::Z_Type			z_type;
     typedef StepInterval<z_type>	z_steprg_type;

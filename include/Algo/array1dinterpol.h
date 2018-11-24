@@ -25,13 +25,13 @@ public:
 
     typedef float		ValT;
     typedef Array1D<float>	ArrT;
-    typedef ArrT::IdxType	IdxType;
-    typedef ArrT::SzType	SzType;
+    typedef ArrT::idx_type	idx_type;
+    typedef ArrT::size_type	size_type;
 
     virtual		~Array1DInterpol();
 
-    void		setMaxGapSize( SzType sz )	{ maxgapsize_ = sz; }
-    SzType		getMaxGapSize() const		{ return maxgapsize_; }
+    void		setMaxGapSize( size_type sz )	{ maxgapsize_ = sz; }
+    size_type		getMaxGapSize() const		{ return maxgapsize_; }
 
     void		setArray(Array1D<float>&);
 
@@ -51,8 +51,8 @@ protected:
     bool		arrstarted_;
     bool		doextrapol_;
     bool		fillwithextremes_; //extrapolate with last valid values
-    SzType		maxgapsize_;
-    SzType		nrdone_;
+    size_type		maxgapsize_;
+    size_type		nrdone_;
 
 };
 
@@ -90,7 +90,7 @@ public:
 
 protected:
 
-    bool		getPositions(IdxType pos,TypeSet<IdxType>& posidxs);
+    bool		getPositions(idx_type pos,TypeSet<idx_type>& posidxs);
     void		extrapolate(bool start);
 
 };

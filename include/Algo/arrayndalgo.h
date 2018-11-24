@@ -220,7 +220,7 @@ private:
 private:
 
     const ArrayOperExecSetup&	setup_;
-    ArrayNDInfo::TotalSzType	sz_;
+    ArrayNDInfo::total_size_type sz_;
     bool			noudf_;
 
     Threads::Lock		writelock_;
@@ -736,11 +736,11 @@ template <class fT>
 inline bool hasUndefs( const ArrayND<fT>& in )
 {
     const fT* vals = in.getData();
-    typedef ArrayNDInfo::TotalSzType TotalSzType;
-    const TotalSzType sz = in.totalSize();
+    typedef ArrayNDInfo::total_size_type total_size_type;
+    const total_size_type sz = in.totalSize();
     if ( vals )
     {
-	for ( TotalSzType idx=0; idx<sz; idx++ )
+	for ( total_size_type idx=0; idx<sz; idx++ )
 	{
 	    if ( mIsUdf(vals[idx]) )
 		return true;
@@ -752,7 +752,7 @@ inline bool hasUndefs( const ArrayND<fT>& in )
     const ValueSeries<fT>* stor = in.getStorage();
     if ( stor )
     {
-	for ( TotalSzType idx=0; idx<sz; idx++ )
+	for ( total_size_type idx=0; idx<sz; idx++ )
 	{
 	    if ( mIsUdf(stor->value(idx)) )
 		return true;
@@ -791,16 +791,17 @@ inline bool interpUdf( Array1D<fT>& in,
 	return false;
 
     BendPointBasedMathFunction<fT,fT> data( ipoltyp );
-    typedef ArrayNDInfo::IdxType IdxType;
-    const IdxType sz = in.getSize( 0 );
-    for ( IdxType idx=0; idx<sz; idx++ )
+    typedef ArrayNDInfo::idx_type idx_type;
+    typedef ArrayNDInfo::size_type size_type;
+    const size_type sz = in.getSize( 0 );
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	const fT val = in.get( idx );
 	if ( !mIsUdf(val) )
 	    data.add( mCast(fT,idx), val );
     }
 
-    for ( IdxType idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
     {
 	const fT val = in.get( idx );
 	if ( mIsUdf(val) )
@@ -858,13 +859,13 @@ public:
 	if ( in->info() != arrinfo_ )
 	    return false;
 
-	const TotalSzType totalsz = arrinfo_.totalSize();
+	const total_size_type totalsz = arrinfo_.totalSize();
 
 	Type* indata = in->getData();
 	Type* outdata = out->getData();
 	if ( indata && outdata )
 	{
-	    for ( TotalSzType idx=0; idx<totalsz; idx++ )
+	    for ( total_size_type idx=0; idx<totalsz; idx++ )
 	    {
 		Type inval = indata[idx];
 		outdata[idx] = mIsUdf( inval ) ? inval : inval * window_[idx];
@@ -877,7 +878,7 @@ public:
 
 	    if ( instorage && outstorage )
 	    {
-		for ( TotalSzType idx=0; idx<totalsz; idx++ )
+		for ( total_size_type idx=0; idx<totalsz; idx++ )
 		{
 		    Type inval = instorage->value( idx );
 		    outstorage->setValue( idx,
@@ -919,11 +920,11 @@ inline T Array3DInterpolate( const Array3D<T>& array,
 			     float p0, float p1, float p2,
 			     bool posperiodic = false )
 {
-    typedef ArrayNDInfo::IdxType IdxType;
+    typedef ArrayNDInfo::idx_type idx_type;
     const Array3DInfo& size = array.info();
-    IdxType intpos0 = roundOff<IdxType>( p0 );
+    idx_type intpos0 = roundOff<idx_type>( p0 );
     float dist0 = p0 - intpos0;
-    IdxType prevpos0 = intpos0;
+    idx_type prevpos0 = intpos0;
     if ( dist0 < 0 )
     {
 	prevpos0--;
@@ -931,17 +932,17 @@ inline T Array3DInterpolate( const Array3D<T>& array,
     }
     if ( posperiodic ) prevpos0 = dePeriodize( prevpos0, size.getSize(0) );
 
-    IdxType intpos1 = roundOff<IdxType>( p1 );
+    idx_type intpos1 = roundOff<idx_type>( p1 );
     float dist1 = p1 - intpos1;
-    IdxType prevpos1 = intpos1;
+    idx_type prevpos1 = intpos1;
     if ( dist1 < 0 )
 	{ prevpos1--; dist1++; }
     if ( posperiodic )
 	prevpos1 = dePeriodize( prevpos1, size.getSize(1) );
 
-    IdxType intpos2 = roundOff<IdxType>( p2 );
+    idx_type intpos2 = roundOff<idx_type>( p2 );
     float dist2 = p2 - intpos2;
-    IdxType prevpos2 = intpos2;
+    idx_type prevpos2 = intpos2;
     if ( dist2 < 0 )
 	{ prevpos2--; dist2++; }
     if ( posperiodic )
@@ -968,9 +969,9 @@ inline T Array3DInterpolate( const Array3D<T>& array,
 	    dist0, dist1, dist2 );
     }
 
-    IdxType firstpos0 = prevpos0 - 1;
-    IdxType nextpos0 = prevpos0 + 1;
-    IdxType lastpos0 = prevpos0 + 2;
+    idx_type firstpos0 = prevpos0 - 1;
+    idx_type nextpos0 = prevpos0 + 1;
+    idx_type lastpos0 = prevpos0 + 2;
 
     if ( posperiodic )
 	firstpos0 = dePeriodize( firstpos0, size.getSize(0) );
@@ -979,9 +980,9 @@ inline T Array3DInterpolate( const Array3D<T>& array,
     if ( posperiodic )
 	lastpos0 = dePeriodize( lastpos0, size.getSize(0) );
 
-    IdxType firstpos1 = prevpos1 - 1;
-    IdxType nextpos1 = prevpos1 + 1;
-    IdxType lastpos1 = prevpos1 + 2;
+    idx_type firstpos1 = prevpos1 - 1;
+    idx_type nextpos1 = prevpos1 + 1;
+    idx_type lastpos1 = prevpos1 + 2;
 
     if ( posperiodic )
 	firstpos1 = dePeriodize( firstpos1, size.getSize(1) );
@@ -990,9 +991,9 @@ inline T Array3DInterpolate( const Array3D<T>& array,
     if ( posperiodic )
 	lastpos1 = dePeriodize( lastpos1, size.getSize(1) );
 
-    IdxType firstpos2 = prevpos2 - 1;
-    IdxType nextpos2 = prevpos2 + 1;
-    IdxType lastpos2 = prevpos2 + 2;
+    idx_type firstpos2 = prevpos2 - 1;
+    idx_type nextpos2 = prevpos2 + 1;
+    idx_type lastpos2 = prevpos2 + 2;
 
     if ( posperiodic )
 	firstpos2 = dePeriodize( firstpos2, size.getSize(2) );
@@ -1103,7 +1104,7 @@ inline bool ArrayNDCopyPeriodic( ArrayND<T>& dest, const ArrayND<T>& src,
 
     do
     {
-	for ( ArrayNDInfo::DimIdxType idx=0; idx<ndim; idx++ )
+	for ( ArrayNDInfo::dim_idx_type idx=0; idx<ndim; idx++ )
 	    srcposition[idx] = dePeriodize( copypos[idx] + destiter[idx],
 					    srcsz.getSize(idx) );
 	dest.setND( destiter.getPos(), src.get( srcposition ));
@@ -1116,19 +1117,20 @@ inline bool ArrayNDCopyPeriodic( ArrayND<T>& dest, const ArrayND<T>& src,
 
 template <class T>
 inline bool Array3DCopyPeriodic( Array3D<T>& dest, const Array3D<T>& src,
-     ArrayNDInfo::IdxType p0, ArrayNDInfo::IdxType p1, ArrayNDInfo::IdxType p2 )
+     ArrayNDInfo::idx_type p0, ArrayNDInfo::idx_type p1,
+     ArrayNDInfo::idx_type p2 )
 {
     if ( src.isEmpty() )
 	return true;
 
-    typedef ArrayNDInfo::SzType SzType;
-    typedef ArrayNDInfo::IdxType IdxType;
-    const SzType destsz0 = dest.getSize( 0 );
-    const SzType destsz1 = dest.getSize( 1 );
-    const SzType destsz2 = dest.getSize( 2 );
-    const SzType srcsz0 = src.getSize( 0 );
-    const SzType srcsz1 = src.getSize( 1 );
-    const SzType srcsz2 = src.getSize( 2 );
+    typedef ArrayNDInfo::size_type size_type;
+    typedef ArrayNDInfo::idx_type idx_type;
+    const size_type destsz0 = dest.getSize( 0 );
+    const size_type destsz1 = dest.getSize( 1 );
+    const size_type destsz2 = dest.getSize( 2 );
+    const size_type srcsz0 = src.getSize( 0 );
+    const size_type srcsz1 = src.getSize( 1 );
+    const size_type srcsz2 = src.getSize( 2 );
 
     T* ptr = dest.getData();
     if ( !ptr )
@@ -1143,11 +1145,11 @@ inline bool Array3DCopyPeriodic( Array3D<T>& dest, const Array3D<T>& src,
 	} while ( it.next() );
     }
 
-    for ( IdxType id0=0; id0<destsz0; id0++ )
+    for ( idx_type id0=0; id0<destsz0; id0++ )
     {
-	for ( IdxType id1=0; id1<destsz1; id1++ )
+	for ( idx_type id1=0; id1<destsz1; id1++ )
 	{
-	    for ( IdxType id2=0; id2<destsz2; id2++ )
+	    for ( idx_type id2=0; id2<destsz2; id2++ )
 	    {
 		*ptr = src.get( dePeriodize( id0+p0, srcsz0 ),
 				dePeriodize( id1+p1, srcsz1 ),
@@ -1170,8 +1172,8 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
     if ( src.isEmpty() || dest.isEmpty() || ndim != src.nrDims() )
 	return false;
 
-    typedef ArrayNDInfo::DimIdxType DimIdxType;
-    for ( DimIdxType idx=0; idx<ndim; idx++ )
+    typedef ArrayNDInfo::dim_idx_type dim_idx_type;
+    for ( dim_idx_type idx=0; idx<ndim; idx++ )
     {
 	if ( !destperiodic &&
 	     pastepos[idx] + src.getSize(idx) > dest.getSize(idx) )
@@ -1182,7 +1184,7 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
     mDefNDPosBuf( destpos, ndim );
     do
     {
-	for ( DimIdxType idx=0; idx<ndim; idx++ )
+	for ( dim_idx_type idx=0; idx<ndim; idx++ )
 	{
 	    destpos[idx] = pastepos[idx] + srciter[idx];
 	    if ( destperiodic )
@@ -1198,7 +1200,7 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
 
 template <class T>
 inline bool Array2DPaste( Array2D<T>& dest, const Array2D<T>& src,
-			  ArrayNDInfo::IdxType p0, ArrayNDInfo::IdxType p1,
+			  ArrayNDInfo::idx_type p0, ArrayNDInfo::idx_type p1,
 			  bool destperiodic=false )
 {
     const T* ptr = src.getData();
@@ -1209,21 +1211,21 @@ inline bool Array2DPaste( Array2D<T>& dest, const Array2D<T>& src,
 	ArrayNDPaste( dest, src, mNDPosFromPosBuf(posbuf), destperiodic );
     }
 
-    typedef ArrayNDInfo::SzType SzType;
-    typedef ArrayNDInfo::IdxType IdxType;
-    const SzType srcsz0 = src.getSize( 0 );
-    const SzType srcsz1 = src.getSize( 1 );
-    const SzType destsz0 = dest.getSize( 0 );
-    const SzType destsz1 = dest.getSize( 1 );
+    typedef ArrayNDInfo::size_type size_type;
+    typedef ArrayNDInfo::idx_type idx_type;
+    const size_type srcsz0 = src.getSize( 0 );
+    const size_type srcsz1 = src.getSize( 1 );
+    const size_type destsz0 = dest.getSize( 0 );
+    const size_type destsz1 = dest.getSize( 1 );
 
     if ( !destperiodic
       && ( p0 + srcsz0 > destsz0
 	|| p1 + srcsz1 > destsz1 ) )
 	 return false;
 
-    for ( IdxType id0=0; id0<srcsz0; id0++ )
+    for ( idx_type id0=0; id0<srcsz0; id0++ )
     {
-	for ( IdxType id1=0; id1<srcsz1; id1++ )
+	for ( idx_type id1=0; id1<srcsz1; id1++ )
 	{
 	    dest.set( dePeriodize(id0 + p0,destsz0),
 		      dePeriodize(id1 + p1,destsz1), *ptr );
@@ -1237,8 +1239,8 @@ inline bool Array2DPaste( Array2D<T>& dest, const Array2D<T>& src,
 
 template <class T>
 inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
-			  ArrayNDInfo::IdxType p0, ArrayNDInfo::IdxType p1,
-			  ArrayNDInfo::IdxType p2, bool destperiodic=false )
+			  ArrayNDInfo::idx_type p0, ArrayNDInfo::idx_type p1,
+			  ArrayNDInfo::idx_type p2, bool destperiodic=false )
 {
     const T* ptr = src.getData();
     if ( !ptr )
@@ -1248,14 +1250,14 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 	ArrayNDPaste( dest, src, mNDPosFromPosBuf(posbuf), destperiodic );
     }
 
-    typedef ArrayNDInfo::SzType SzType;
-    typedef ArrayNDInfo::IdxType IdxType;
-    const SzType srcsz0 = src.getSize( 0 );
-    const SzType srcsz1 = src.getSize( 1 );
-    const SzType srcsz2 = src.getSize( 2 );
-    const SzType destsz0 = dest.getSize( 0 );
-    const SzType destsz1 = dest.getSize( 1 );
-    const SzType destsz2 = dest.getSize( 2 );
+    typedef ArrayNDInfo::size_type size_type;
+    typedef ArrayNDInfo::idx_type idx_type;
+    const size_type srcsz0 = src.getSize( 0 );
+    const size_type srcsz1 = src.getSize( 1 );
+    const size_type srcsz2 = src.getSize( 2 );
+    const size_type destsz0 = dest.getSize( 0 );
+    const size_type destsz1 = dest.getSize( 1 );
+    const size_type destsz2 = dest.getSize( 2 );
 
     if ( !destperiodic
       && ( p0 + srcsz0 > destsz0
@@ -1263,11 +1265,11 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 	|| p2 + srcsz2 > destsz2 ) )
 	 return false;
 
-    for ( IdxType id0=0; id0<srcsz0; id0++ )
+    for ( idx_type id0=0; id0<srcsz0; id0++ )
     {
-	for ( IdxType id1=0; id1<srcsz1; id1++ )
+	for ( idx_type id1=0; id1<srcsz1; id1++ )
 	{
-	    for ( IdxType id2=0; id2<srcsz2; id2++ )
+	    for ( idx_type id2=0; id2<srcsz2; id2++ )
 	    {
 		dest.set( dePeriodize( id0+p0, destsz0 ),
 			  dePeriodize( id1+p1, destsz1 ),
@@ -1952,7 +1954,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
     const T zeroval = mCast(T,0);
     mDefNDPosBuf( pos, ndim );
-    typedef ArrayNDInfo::DimIdxType DimIdxType;
+    typedef ArrayNDInfo::dim_idx_type dim_idx_type;
 
     for ( auto idx=start; idx<=stop; idx++, quickAddToNrDone(idx) )
     {
@@ -1974,7 +1976,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	ArrayNDInfo::NDPos hpos = hiter ? hiter->getPos() : 0;
 	if ( hiter )
 	{
-	    for ( DimIdxType ipos=0; ipos<ndim; ipos++ )
+	    for ( dim_idx_type ipos=0; ipos<ndim; ipos++ )
 		pos[ipos] = hpos[ipos];
 	    hiter->next();
 	}

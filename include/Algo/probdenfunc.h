@@ -38,17 +38,17 @@ public:
     virtual bool	isEqual(const ProbDenFunc&) const;
 
     virtual const char*	getTypeStr() const			= 0;
-    virtual NrDimsType	nrDims() const				= 0;
+    virtual nr_dims_type nrDims() const				= 0;
     virtual const char*	dimName(int dim) const			= 0;
     virtual void	setDimName(int dim,const char*)		= 0;
-    virtual float	averagePos(DimIdxType dim) const	= 0;
+    virtual float	averagePos(dim_idx_type) const		= 0;
     virtual float	value(const TypeSet<float>&) const	= 0;
 
     virtual bool	canScale() const			{ return false;}
     virtual void	scale(float)				{}
     virtual float	normFac() const				{ return 1; }
 
-    			// Used for file store/retrieve:
+			// Used for file store/retrieve:
     virtual void	fillPar(IOPar&) const			= 0;
     virtual bool	usePar(const IOPar&)			= 0;
     virtual void	writeBulk(od_ostream&,bool binary) const {}
@@ -69,7 +69,7 @@ protected:
 			ProbDenFunc(const ProbDenFunc&);
 
     virtual bool	isEq(const ProbDenFunc&) const		= 0;
-    			//!< already checked for type, name and dim names
+			//!< already checked for type, name and dim names
 
 };
 
@@ -85,14 +85,14 @@ public:
     virtual void	copyFrom( const ProbDenFunc& pdf )
 			{ varnm_ = pdf.dimName(0); setName(pdf.name()); }
 
-    virtual NrDimsType	nrDims() const		{ return 1; }
+    virtual nr_dims_type nrDims() const		{ return 1; }
     virtual const char*	dimName(int) const	{ return varName(); }
     virtual void	setDimName( int dim, const char* nm )
 						{ if ( !dim ) varnm_ = nm; }
 
     virtual const char*	varName() const		{ return varnm_; }
 
-    virtual float	averagePos(DimIdxType) const { return gtAvgPos(); }
+    virtual float	averagePos(dim_idx_type) const { return gtAvgPos(); }
     inline float	value( float v ) const	{ return gtVal( v ); }
     virtual float	value( const TypeSet<float>& v ) const
 						{ return gtVal( v[0] ); }
@@ -131,7 +131,7 @@ public:
 			{ dim0nm_ = pdf.dimName(0); dim1nm_ = pdf.dimName(1);
 			  setName(pdf.name()); }
 
-    virtual NrDimsType	nrDims() const			{ return 2; }
+    virtual nr_dims_type nrDims() const			{ return 2; }
     virtual const char*	dimName(int) const;
     virtual void	setDimName( int dim, const char* nm )
 			{ if ( dim < 2 ) (dim ? dim1nm_ : dim0nm_) = nm; }

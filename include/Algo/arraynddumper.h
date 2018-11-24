@@ -46,7 +46,7 @@ public:
     const ArrayND<T>&		inp_;
     bool			withpos_;
     bool			haveudfs_;
-    TotalSzType			nlafter_;
+    total_size_type		nlafter_;
 
 };
 
@@ -67,7 +67,7 @@ void ArrayNDDumper<T>::setOneLinePerSlowestDim()
 	{ nlafter_ = 0; return; }
 
     nlafter_ = 1;
-    for ( DimIdxType idim=1; idim<nrdims; idim++ )
+    for ( dim_idx_type idim=1; idim<nrdims; idim++ )
 	nlafter_ *= inp_.getSize( idim );
 }
 
@@ -80,13 +80,13 @@ void ArrayNDDumper<T>::dump( od_ostream& strm ) const
     ArrayNDIter it( inp_.info() );
     const auto nrdims = inp_.nrDims();
 
-    TotalSzType nrthisline = 0;
+    total_size_type nrthisline = 0;
     while ( true )
     {
 	NDPos pos = it.getPos();
 	if ( withpos_ && nrthisline == 0 )
 	{
-	    for ( DimIdxType idim=0; idim<nrdims; idim++ )
+	    for ( dim_idx_type idim=0; idim<nrdims; idim++ )
 		strm.add( pos[idim] ).add( od_tab );
 
 	}

@@ -61,10 +61,11 @@ mExpClass(General) IdxPairDataSet
 {
 public:
 
-    typedef IdxPair::IdxType		IdxType;
-    typedef TypeSet<IdxType>::size_type	ArrIdxType;
-    typedef od_int64			ObjSzType;
-    typedef od_int64			GlobIdxType;
+    mUseType( IdxPair,			pos_type );
+    mUseType( IdxPair,			idx_type );
+    typedef idx_type			size_type;
+    typedef od_int64			obj_size_type;
+    typedef od_int64			glob_idx_type;
 
 
     /*!\brief Set Position: position in IdxPairDataSet
@@ -74,7 +75,7 @@ public:
      */
     struct SPos
     {
-			SPos( ArrIdxType ii=-1, ArrIdxType jj=-1 )
+			SPos( idx_type ii=-1, idx_type jj=-1 )
 			    : i(ii), j(jj)	{}
 			mImplSimpleEqOpers2Memb(SPos,i,j)
 	inline bool	operator>(const SPos&) const;
@@ -83,11 +84,11 @@ public:
 	void		reset()		{ i = j = -1; }
 	inline bool	isValid() const	{ return i > -1 && j > -1; }
 
-	ArrIdxType	i, j;
+	idx_type	i, j;
     };
 
 
-			IdxPairDataSet(ObjSzType,bool allow_duplicate_idxs,
+			IdxPairDataSet(obj_size_type,bool allow_duplicate_idxs,
 					bool manage_data=true);
 			IdxPairDataSet(const IdxPairDataSet&);
     virtual		~IdxPairDataSet();
@@ -98,7 +99,7 @@ public:
     void		copyStructureFrom(const IdxPairDataSet&);
 						//!< will also empty this set
 
-    ObjSzType		objSize() const			{ return objsz_; }
+    obj_size_type	objSize() const			{ return objsz_; }
     bool		managesData() const		{ return mandata_; };
     bool		allowsDuplicateIdxPairs() const	{ return allowdup_; }
     void		allowDuplicateIdxPairs(bool);
@@ -123,7 +124,7 @@ public:
     IdxPair		getIdxPair(SPos) const;
     const void*		getObj(SPos) const;
     const void*		get(SPos,IdxPair&) const;
-    SPos		getPos(GlobIdxType) const;  //!< Very slow.
+    SPos		getPos(glob_idx_type) const;  //!< Very slow.
     SPos		add(const IdxPair&,const void* obj=0);
 			    //!< If returned SPos is not valid memory was full
     void		set(SPos,const void* obj=0);
@@ -138,62 +139,64 @@ public:
 			    //!< Will add if necessary
 			    //!< If returned SPos is not valid memory was full
 
-    GlobIdxType		totalSize() const;
+    glob_idx_type	totalSize() const;
     inline bool		includes( const IdxPair& ip ) const
 						{ return find(ip).j > -1; }
-    inline ArrIdxType	nrFirst() const		{ return frsts_.size(); }
-    ArrIdxType		nrSecond(IdxType firstidx) const;
-    ArrIdxType		nrSecondAtIdx(ArrIdxType firstidx) const;
-    ArrIdxType		firstAtIdx(ArrIdxType firstidx) const;
-    IdxPair		positionAtIdxs(ArrIdxType,ArrIdxType) const;
-    bool		hasFirst(IdxType) const;
-    bool		hasSecond(IdxType) const;
-    Interval<IdxType>	firstRange() const;
-    Interval<IdxType>	secondRange(IdxType firstidx=-1) const;
+    inline size_type	nrFirst() const		{ return frsts_.size(); }
+    size_type		nrSecond(pos_type firstpos) const;
+    size_type		nrSecondAtIdx(idx_type firstidx) const;
+    size_type		firstAtIdx(idx_type firstidx) const;
+    IdxPair		positionAtIdxs(idx_type,idx_type) const;
+    bool		hasFirst(pos_type) const;
+    bool		hasSecond(pos_type) const;
+    Interval<pos_type>	firstRange() const;
+    Interval<pos_type>	secondRange(pos_type firstpos=-1) const;
 
     IdxPair		firstIdxPair() const; //!< when empty returns udf()
     bool		hasDuplicateIdxPairs() const;
-    ArrIdxType		nrDuplicateIdxPairs() const;
+    size_type		nrDuplicateIdxPairs() const;
     void		removeDuplicateIdxPairs();
-    ArrIdxType		nrPos(ArrIdxType lineidx) const;
+    idx_type		nrPos(idx_type lineidx) const;
 
     void		extend(const IdxPairDelta& stepout,const IdxPairStep&,
 				bool avoiddups=true);
     void		add(const PosInfo::CubeData&,EntryCreatedFn fn=0);
 			    //!< Adds only IdxPair postions not yet in set
-    void		randomSubselect(GlobIdxType maxsz);
+    void		randomSubselect(glob_idx_type maxsz);
 
 			// I/O
     bool		dump(od_ostream&,bool binary) const;
     bool		slurp(od_istream&,bool binary);
 
 			// aliases
-    inline ArrIdxType	nrInls() const		    { return nrFirst(); }
-    inline ArrIdxType	nrCrls( IdxType inl ) const { return nrSecond(inl); }
-    inline ArrIdxType	nrRows() const		    { return nrFirst(); }
-    inline ArrIdxType	nrCols( IdxType row ) const { return nrSecond(row); }
-    bool		hasInl( IdxType inl ) const { return hasFirst(inl); }
-    bool		hasCrl( IdxType crl ) const { return hasSecond(crl); }
-    inline bool		hasRow( IdxType row ) const { return hasFirst(row); }
-    inline bool		hasCol( IdxType col ) const { return hasSecond(col); }
-    Interval<IdxType>	inlRange() const	    { return firstRange(); }
-    Interval<IdxType>	rowRange() const	    { return firstRange(); }
-    Interval<IdxType>	crlRange( IdxType inl=-1 ) const
+    inline size_type	nrInls() const		    { return nrFirst(); }
+    inline size_type	nrCrls( pos_type inl ) const { return nrSecond(inl); }
+    inline size_type	nrRows() const		    { return nrFirst(); }
+    inline size_type	nrCols( pos_type row ) const { return nrSecond(row); }
+    bool		hasInl( pos_type inl ) const { return hasFirst(inl); }
+    bool		hasCrl( pos_type crl ) const { return hasSecond(crl); }
+    inline bool		hasRow( pos_type row ) const { return hasFirst(row); }
+    inline bool		hasCol( pos_type col ) const { return hasSecond(col); }
+    Interval<pos_type>	inlRange() const	    { return firstRange(); }
+    Interval<pos_type>	rowRange() const	    { return firstRange(); }
+    Interval<pos_type>	crlRange( pos_type inl=-1 ) const
 						    { return secondRange(inl); }
-    Interval<IdxType>	colRange( IdxType row=-1 ) const
+    Interval<pos_type>	colRange( pos_type row=-1 ) const
 						    { return secondRange(row); }
 
 			// Maybe messing with managed objects in buf.
-    bool		setObjSize(ObjSzType sz,ObjSzType offs_in_objs=-1,
-				    const void* initwith=0);
+    bool		setObjSize(obj_size_type sz,
+				   obj_size_type offs_in_objs=-1,
+				   const void* initwith=0);
 			// offs_in_objs < 0: operate at end
-    void		decrObjSize(ObjSzType,ObjSzType offs);
-    bool		incrObjSize(ObjSzType,ObjSzType offs,const void* =0);
+    void		decrObjSize(obj_size_type,obj_size_type offs);
+    bool		incrObjSize(obj_size_type,obj_size_type offs,
+				    const void* =0);
 
 protected:
 
-    typedef TypeSet<IdxType>	IdxSet;
-    typedef od_int64		BufSzType;
+    typedef TypeSet<pos_type>	IdxSet;
+    typedef od_int64		buf_size_type;
 
     class ObjData
     {
@@ -206,26 +209,28 @@ protected:
 				ObjData(const ObjData&);
 				~ObjData()	{ delete [] buf_; }
 
-	const void*		getObj(bool,ArrIdxType,ObjSzType) const;
-	void			putObj(bool,ArrIdxType,ObjSzType,const void*);
-	bool			addObjSpace(bool,ArrIdxType,ObjSzType);
-	void			removeObj(bool,ArrIdxType,ObjSzType);
-	void			decrObjSize(ObjSzType orgsz,ObjSzType newsz,
-					    ObjSzType at_offs);
-	bool			incrObjSize(ObjSzType,ObjSzType,ObjSzType,
-					    const void*);
+	const void*		getObj(bool,idx_type,obj_size_type) const;
+	void			putObj(bool,idx_type,obj_size_type,
+				       const void*);
+	bool			addObjSpace(bool,idx_type,obj_size_type);
+	void			removeObj(bool,idx_type,obj_size_type);
+	void			decrObjSize(obj_size_type orgsz,
+					    obj_size_type newsz,
+					    obj_size_type at_offs);
+	bool			incrObjSize(obj_size_type,obj_size_type,
+					    obj_size_type,const void*);
 
     private:
 
 	ObjectSet<const void>	objs_; // contains const bool* when mandata
 
 	BufType*	buf_;
-	BufSzType	bufsz_;
-	bool		manageBufCapacity(ObjSzType);
+	buf_size_type	bufsz_;
+	bool		manageBufCapacity(obj_size_type);
 
     };
 
-    const ObjSzType	objsz_;
+    const obj_size_type	objsz_;
     const bool		mandata_;
     bool		allowdup_;
 
@@ -233,16 +238,16 @@ protected:
     ObjectSet<IdxSet>	scndsets_;
     ObjectSet<ObjData>	objdatas_;
 
-    static ArrIdxType	findIndexFor(const IdxSet&,IdxType,bool* found=0);
+    static idx_type	findIndexFor(const IdxSet&,pos_type,bool* found=0);
     const void*		gtObj(const SPos&) const;
-    bool		addObj(SPos&,IdxType,const void*);
+    bool		addObj(SPos&,pos_type,const void*);
     void		putObj(const SPos&,const void*);
     void		addEntry(const Pos::IdxPair&,const void*,SPos&);
 
     // All 'gt' functions return unchecked
-    inline IdxType	gtFrst( const SPos& pos ) const
+    inline pos_type	gtFrst( const SPos& pos ) const
 				{ return frsts_[pos.i]; }
-    inline IdxType	gtScnd( const SPos& pos ) const
+    inline pos_type	gtScnd( const SPos& pos ) const
 				{ return gtScndSet(pos)[pos.j]; }
     inline IdxPair	gtIdxPair( const SPos& pos ) const
 				{ return IdxPair( gtFrst(pos), gtScnd(pos) ); }
@@ -254,13 +259,13 @@ protected:
 				{ return *objdatas_[pos.i]; }
     inline const ObjData& gtObjData( const SPos& pos ) const
 				{ return *objdatas_[pos.i]; }
-    inline IdxSet&	gtScndSet( ArrIdxType idx )
+    inline IdxSet&	gtScndSet( idx_type idx )
 				{ return *scndsets_[idx]; }
-    inline const IdxSet& gtScndSet( ArrIdxType idx ) const
+    inline const IdxSet& gtScndSet( idx_type idx ) const
 				{ return *scndsets_[idx]; }
-    inline ObjData&	gtObjData( ArrIdxType idx )
+    inline ObjData&	gtObjData( idx_type idx )
 				{ return *objdatas_[idx]; }
-    inline const ObjData& gtObjData( ArrIdxType idx ) const
+    inline const ObjData& gtObjData( idx_type idx ) const
 				{ return *objdatas_[idx]; }
 
 };

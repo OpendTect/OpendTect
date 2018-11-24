@@ -40,8 +40,8 @@ public:
     bool		needsSave(const Wavelet&) const;
 
 			// Use MonitorLock when iterating
-    ConstRefMan<Wavelet> get(IdxType) const;
-    RefMan<Wavelet>	getForEdit(IdxType);
+    ConstRefMan<Wavelet> get(idx_type) const;
+    RefMan<Wavelet>	getForEdit(idx_type);
 
     bool		isScaled(const ObjID&) const;
     bool		getScalingInfo(const ObjID&,ObjID& orgid,

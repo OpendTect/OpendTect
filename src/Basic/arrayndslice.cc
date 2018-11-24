@@ -31,9 +31,9 @@ ArrayNDSliceBase::~ArrayNDSliceBase()
 }
 
 
-bool ArrayNDSliceBase::setPos( DimIdxType dim, IdxType pos )
+bool ArrayNDSliceBase::setPos( dim_idx_type dim, idx_type pos )
 {
-    const NrDimsType ndim = (NrDimsType)position_.size();
+    const nr_dims_type ndim = (nr_dims_type)position_.size();
     if ( dim<0 || dim>=ndim || pos<0 || pos>=getDimSize(dim) )
 	return false;
 
@@ -44,19 +44,20 @@ bool ArrayNDSliceBase::setPos( DimIdxType dim, IdxType pos )
 }
 
 
-ArrayNDInfo::IdxType ArrayNDSliceBase::getPos( DimIdxType dim ) const
+ArrayNDInfo::idx_type ArrayNDSliceBase::getPos( dim_idx_type dim ) const
 {
     return position_[dim];
 }
 
 
-ArrayNDSliceBase::SzType ArrayNDSliceBase::getDimSize( DimIdxType dim ) const
+ArrayNDSliceBase::size_type ArrayNDSliceBase::getDimSize(
+					dim_idx_type dim ) const
 {
     return sourceinfo_.getSize( dim );
 }
 
 
-void ArrayNDSliceBase::setDimMap( DimIdxType localdim, DimIdxType remotedim )
+void ArrayNDSliceBase::setDimMap( dim_idx_type localdim, dim_idx_type remotedim)
 {
     vardim_[localdim] = remotedim;
     position_[remotedim] = -1;
@@ -66,11 +67,11 @@ void ArrayNDSliceBase::setDimMap( DimIdxType localdim, DimIdxType remotedim )
 
 bool ArrayNDSliceBase::init()
 {
-    const NrDimsType nrowndims = (NrDimsType)vardim_.size();
-    const NrDimsType ndim = (NrDimsType)position_.size();
+    const nr_dims_type nrowndims = (nr_dims_type)vardim_.size();
+    const nr_dims_type ndim = (nr_dims_type)position_.size();
 
-    TypeSet<NrDimsType> unknowndims;
-    for ( DimIdxType idx=0; idx<ndim; idx++ )
+    TypeSet<nr_dims_type> unknowndims;
+    for ( dim_idx_type idx=0; idx<ndim; idx++ )
     {
 	if ( position_[idx] == -1 )
 	    unknowndims += idx;
@@ -79,7 +80,7 @@ bool ArrayNDSliceBase::init()
     if ( unknowndims.size() != nrowndims )
 	return false;
 
-    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
+    for ( dim_idx_type idx=0; idx<nrowndims; idx++ )
     {
 	if ( vardim_[idx]==-1 )
 	{
@@ -103,7 +104,7 @@ bool ArrayNDSliceBase::init()
 	return false;
 
     bool ismemorder = true;
-    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
+    for ( dim_idx_type idx=0; idx<nrowndims; idx++ )
     {
 	if ( vardim_[idx]+nrowndims-idx != ndim )
 	    { ismemorder = false; break; }
@@ -112,7 +113,7 @@ bool ArrayNDSliceBase::init()
     if ( !ismemorder )
     {
 	bool hasonlyoneslice = true;
-	for ( DimIdxType dimidx=0; dimidx<ndim; dimidx++ )
+	for ( dim_idx_type dimidx=0; dimidx<ndim; dimidx++ )
 	    if ( position_[dimidx]!=-1 && getDimSize(dimidx)!=1 )
 		{ hasonlyoneslice = false; break; }
 
@@ -124,16 +125,16 @@ bool ArrayNDSliceBase::init()
 	offset_ = -1;
     else
     {
-	mAllocVarLenArr( IdxType, localpos, nrowndims );
-	OD::memZero( localpos, nrowndims * sizeof(IdxType) );
+	mAllocVarLenArr( idx_type, localpos, nrowndims );
+	OD::memZero( localpos, nrowndims * sizeof(idx_type) );
 
-	mAllocVarLenArr( IdxType, tpos, ndim );
+	mAllocVarLenArr( idx_type, tpos, ndim );
 	getSourcePos( localpos, tpos );
 	offset_ = sourceinfo_.getOffset(tpos);
     }
 
-    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
-	info_.setSize( idx, sourceinfo_.getSize((DimIdxType)vardim_[idx]) );
+    for ( dim_idx_type idx=0; idx<nrowndims; idx++ )
+	info_.setSize( idx, sourceinfo_.getSize((dim_idx_type)vardim_[idx]) );
 
     isinited_ = true;
     return true;
@@ -141,13 +142,13 @@ bool ArrayNDSliceBase::init()
 
 
 void ArrayNDSliceBase::getSourcePos( NDPos localpos,
-				     IdxType* arraypos ) const
+				     idx_type* arraypos ) const
 {
-    const NrDimsType ndim = (NrDimsType)position_.size();
-    const NrDimsType nrowndims = (NrDimsType)vardim_.size();
+    const nr_dims_type ndim = (nr_dims_type)position_.size();
+    const nr_dims_type nrowndims = (nr_dims_type)vardim_.size();
 
-    OD::memCopy( arraypos, position_.arr(), ndim*sizeof(IdxType) );
+    OD::memCopy( arraypos, position_.arr(), ndim*sizeof(idx_type) );
 
-    for ( DimIdxType idx=0; idx<nrowndims; idx++ )
+    for ( dim_idx_type idx=0; idx<nrowndims; idx++ )
 	arraypos[vardim_[idx]] = localpos[idx];
 }

@@ -43,8 +43,8 @@ Pos::IdxPairDataSet::ObjData::ObjData( const ObjData& oth )
 }
 
 
-const void* Pos::IdxPairDataSet::ObjData::getObj( bool mandata, ArrIdxType idx,
-						    ObjSzType objsz ) const
+const void* Pos::IdxPairDataSet::ObjData::getObj( bool mandata, idx_type idx,
+						    obj_size_type objsz ) const
 {
     if ( !mandata )
 	return objs_[idx];
@@ -56,10 +56,10 @@ const void* Pos::IdxPairDataSet::ObjData::getObj( bool mandata, ArrIdxType idx,
 }
 
 
-bool Pos::IdxPairDataSet::ObjData::addObjSpace( bool mandata, ArrIdxType idx,
-					        ObjSzType objsz )
+bool Pos::IdxPairDataSet::ObjData::addObjSpace( bool mandata, idx_type idx,
+					        obj_size_type objsz )
 {
-    const ArrIdxType oldnrobjs = objs_.size();
+    const idx_type oldnrobjs = objs_.size();
     const bool atend = idx >= oldnrobjs;
     try {
 	if ( atend )
@@ -85,8 +85,9 @@ bool Pos::IdxPairDataSet::ObjData::addObjSpace( bool mandata, ArrIdxType idx,
 }
 
 
-void Pos::IdxPairDataSet::ObjData::putObj( bool mandata, ArrIdxType idx,
-					   ObjSzType objsz, const void* obj )
+void Pos::IdxPairDataSet::ObjData::putObj( bool mandata, idx_type idx,
+					   obj_size_type objsz,
+					   const void* obj )
 {
     if ( !mandata )
 	{ objs_.replace( idx, obj ); return; }
@@ -99,8 +100,8 @@ void Pos::IdxPairDataSet::ObjData::putObj( bool mandata, ArrIdxType idx,
 }
 
 
-void Pos::IdxPairDataSet::ObjData::removeObj( bool mandata, ArrIdxType idx,
-					      ObjSzType objsz )
+void Pos::IdxPairDataSet::ObjData::removeObj( bool mandata, idx_type idx,
+					      obj_size_type objsz )
 {
     if ( objsz < 1 || !objs_.validIdx(idx) )
 	return;
@@ -121,14 +122,14 @@ void Pos::IdxPairDataSet::ObjData::removeObj( bool mandata, ArrIdxType idx,
 }
 
 
-bool Pos::IdxPairDataSet::ObjData::incrObjSize( ObjSzType orgsz,
-					ObjSzType newsz, ObjSzType offs,
+bool Pos::IdxPairDataSet::ObjData::incrObjSize( obj_size_type orgsz,
+					obj_size_type newsz, obj_size_type offs,
 					const void* initbytes )
 {
     if ( newsz < 1 )
 	return true;
 
-    BufType* orgbuf = buf_; const BufSzType orgbufsz = bufsz_;
+    BufType* orgbuf = buf_; const buf_size_type orgbufsz = bufsz_;
     buf_ = 0; bufsz_ = 0;
     if ( !manageBufCapacity(newsz) )
 	{ buf_ = orgbuf; bufsz_ = orgbufsz; return false; }
@@ -140,13 +141,13 @@ bool Pos::IdxPairDataSet::ObjData::incrObjSize( ObjSzType orgsz,
     if ( offs )
 	OD::memCopy( buf_, orgbuf, offs );
 
-    const ObjSzType gapsz = newsz - orgsz;
-    ObjSzType offsorg = offs;
-    ObjSzType offsnew = offs + gapsz;
+    const obj_size_type gapsz = newsz - orgsz;
+    obj_size_type offsorg = offs;
+    obj_size_type offsnew = offs + gapsz;
 
     while ( offsorg+orgsz < orgbufsz )
     {
-	ObjSzType nrbytes2copy = orgsz;
+	obj_size_type nrbytes2copy = orgsz;
 	if ( offsnew + nrbytes2copy > bufsz_ )
 	    nrbytes2copy = bufsz_ - offsnew;
 	if ( nrbytes2copy > 0 )
@@ -164,10 +165,10 @@ bool Pos::IdxPairDataSet::ObjData::incrObjSize( ObjSzType orgsz,
 }
 
 
-void Pos::IdxPairDataSet::ObjData::decrObjSize( ObjSzType orgsz,
-					ObjSzType newsz, ObjSzType offs )
+void Pos::IdxPairDataSet::ObjData::decrObjSize( obj_size_type orgsz,
+				    obj_size_type newsz, obj_size_type offs )
 {
-    BufType* orgbuf = buf_; const BufSzType orgbufsz = bufsz_;
+    BufType* orgbuf = buf_; const buf_size_type orgbufsz = bufsz_;
     buf_ = 0; bufsz_ = 0;
     if ( !manageBufCapacity(newsz) )
 	{ buf_ = orgbuf; bufsz_ = orgbufsz; }
@@ -179,12 +180,12 @@ void Pos::IdxPairDataSet::ObjData::decrObjSize( ObjSzType orgsz,
     if ( offs )
 	OD::memCopy( buf_, orgbuf, offs );
 
-    ObjSzType offsorg = offs + orgsz - newsz;
-    ObjSzType offsnew = offs;
+    obj_size_type offsorg = offs + orgsz - newsz;
+    obj_size_type offsnew = offs;
 
     while ( offsnew+newsz < bufsz_ )
     {
-	ObjSzType nrbytes2copy = newsz;
+	obj_size_type nrbytes2copy = newsz;
 	if ( offsorg + nrbytes2copy > orgbufsz )
 	    nrbytes2copy = orgbufsz - offsorg;
 	if ( nrbytes2copy > 0 )
@@ -197,18 +198,18 @@ void Pos::IdxPairDataSet::ObjData::decrObjSize( ObjSzType orgsz,
 }
 
 
-bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz )
+bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( obj_size_type objsz )
 {
     if ( objsz < 1 )
 	{ delete buf_; buf_ = 0; bufsz_ = 0; return true; }
 
-    const ArrIdxType needednrobjs = objs_.size();
-    ArrIdxType curnrobjs = (ArrIdxType)(bufsz_ / objsz);
+    const size_type needednrobjs = objs_.size();
+    size_type curnrobjs = (size_type)(bufsz_ / objsz);
     const bool needmore = needednrobjs > curnrobjs;
     if ( !needmore && needednrobjs > curnrobjs/2 )
 	return true;
 
-    ArrIdxType newnrobjs = curnrobjs;
+    size_type newnrobjs = curnrobjs;
     if ( needmore )
     {
 	if ( newnrobjs == 0 )
@@ -227,8 +228,8 @@ bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz )
 	    newnrobjs *= 2;
     }
 
-    const BufSzType newsz = newnrobjs * objsz;
-    BufType* orgbuf = buf_; const BufSzType orgsz = bufsz_;
+    const buf_size_type newsz = newnrobjs * objsz;
+    BufType* orgbuf = buf_; const buf_size_type orgsz = bufsz_;
     bufsz_ = newsz;
 
     if ( bufsz_ < 1 )
@@ -253,7 +254,7 @@ bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz )
 
 
 
-Pos::IdxPairDataSet::IdxPairDataSet( ObjSzType objsz, bool alwdup, bool md )
+Pos::IdxPairDataSet::IdxPairDataSet( obj_size_type objsz, bool alwdup, bool md )
 	: objsz_(objsz)
 	, allowdup_(alwdup)
 	, mandata_(md)
@@ -283,7 +284,7 @@ Pos::IdxPairDataSet& Pos::IdxPairDataSet::operator =( const IdxPairDataSet& oth)
     copyStructureFrom( oth );
 
     try {
-	for ( IdxType ifst=0; ifst<oth.frsts_.size(); ifst++ )
+	for ( idx_type ifst=0; ifst<oth.frsts_.size(); ifst++ )
 	{
 	    frsts_ += oth.frsts_[ifst];
 	    scndsets_ += new IdxSet( *oth.scndsets_[ifst] );
@@ -304,11 +305,11 @@ void Pos::IdxPairDataSet::setEmpty()
 }
 
 
-Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::findIndexFor(
-		const IdxSet& idxs, IdxType nr, bool* found )
+Pos::IdxPairDataSet::idx_type Pos::IdxPairDataSet::findIndexFor(
+		const IdxSet& idxs, pos_type nr, bool* found )
 {
-    const ArrIdxType sz = idxs.size();
-    ArrIdxType ret = -1;
+    const size_type sz = idxs.size();
+    idx_type ret = -1;
     const bool fnd = sz > 0 ? IdxAble::findPos( idxs.arr(), sz, nr, -1, ret )
 			    : false;
     if ( found )
@@ -317,7 +318,7 @@ Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::findIndexFor(
 }
 
 
-bool Pos::IdxPairDataSet::setObjSize( ObjSzType newsz, ObjSzType offs,
+bool Pos::IdxPairDataSet::setObjSize( obj_size_type newsz, obj_size_type offs,
 				      const void* initbytes )
 {
     if ( newsz == objsz_ )
@@ -332,7 +333,8 @@ bool Pos::IdxPairDataSet::setObjSize( ObjSzType newsz, ObjSzType offs,
 }
 
 
-void Pos::IdxPairDataSet::decrObjSize( ObjSzType nrbytes, ObjSzType offs )
+void Pos::IdxPairDataSet::decrObjSize( obj_size_type nrbytes,
+					obj_size_type offs )
 {
     if ( nrbytes == 0 )
 	return;
@@ -340,15 +342,16 @@ void Pos::IdxPairDataSet::decrObjSize( ObjSzType nrbytes, ObjSzType offs )
 	{ incrObjSize( -nrbytes, offs ); return; }
     else if ( mandata_ )
     {
-	for ( IdxType ifst=0; ifst<objdatas_.size(); ifst++ )
+	for ( idx_type ifst=0; ifst<objdatas_.size(); ifst++ )
 	    objdatas_[ifst]->decrObjSize( objsz_, objsz_-nrbytes, offs );
     }
 
-    const_cast<ObjSzType&>(objsz_) -= nrbytes;
+    const_cast<obj_size_type&>(objsz_) -= nrbytes;
 }
 
 
-bool Pos::IdxPairDataSet::incrObjSize( ObjSzType nrbytes, ObjSzType offs,
+bool Pos::IdxPairDataSet::incrObjSize( obj_size_type nrbytes,
+					obj_size_type offs,
 					const void* initbytes )
 {
     if ( nrbytes == 0 )
@@ -357,13 +360,13 @@ bool Pos::IdxPairDataSet::incrObjSize( ObjSzType nrbytes, ObjSzType offs,
 	{ decrObjSize( -nrbytes, offs ); return true; }
     else if ( mandata_ )
     {
-	for ( IdxType ifst=0; ifst<objdatas_.size(); ifst++ )
+	for ( idx_type ifst=0; ifst<objdatas_.size(); ifst++ )
 	    if ( !objdatas_[ifst]->incrObjSize(objsz_,objsz_+nrbytes,offs,
 					       initbytes) )
 		mErrRetMemFull()
     }
 
-    const_cast<ObjSzType&>(objsz_) += nrbytes;
+    const_cast<obj_size_type&>(objsz_) += nrbytes;
     return true;
 }
 
@@ -405,30 +408,30 @@ void Pos::IdxPairDataSet::remove( const IdxPairDataSet& oth )
 }
 
 
-Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::nrSecond(
-						IdxType frst ) const
+Pos::IdxPairDataSet::size_type Pos::IdxPairDataSet::nrSecond(
+						pos_type frst ) const
 {
-    const IdxType frstidx = frsts_.indexOf( frst );
+    const idx_type frstidx = frsts_.indexOf( frst );
     return frstidx<0 ? 0 : gtScndSet(frstidx).size();
 }
 
 
-Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::nrSecondAtIdx(
-						ArrIdxType frst ) const
+Pos::IdxPairDataSet::size_type Pos::IdxPairDataSet::nrSecondAtIdx(
+						idx_type frst ) const
 {
     return frsts_.validIdx(frst) ? gtScndSet(frst).size() : 0;
 }
 
 
-Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::firstAtIdx(
-						ArrIdxType frst ) const
+Pos::IdxPairDataSet::size_type Pos::IdxPairDataSet::firstAtIdx(
+						idx_type frst ) const
 {
-    return frsts_.validIdx(frst) ? frsts_[frst] : mUdf(ArrIdxType);
+    return frsts_.validIdx(frst) ? frsts_[frst] : mUdf(idx_type);
 }
 
 
-Pos::IdxPair Pos::IdxPairDataSet::positionAtIdxs( ArrIdxType frst,
-						  ArrIdxType scnd ) const
+Pos::IdxPair Pos::IdxPairDataSet::positionAtIdxs( idx_type frst,
+						  idx_type scnd ) const
 {
     if ( frsts_.validIdx(frst) )
     {
@@ -440,11 +443,11 @@ Pos::IdxPair Pos::IdxPairDataSet::positionAtIdxs( ArrIdxType frst,
 }
 
 
-Interval<Pos::IdxPairDataSet::IdxType> Pos::IdxPairDataSet::firstRange() const
+Interval<Pos::IdxPairDataSet::pos_type> Pos::IdxPairDataSet::firstRange() const
 {
-    Interval<IdxType> ret( mUdf(IdxType), mUdf(IdxType) );
+    Interval<pos_type> ret( mUdf(pos_type), mUdf(pos_type) );
 
-    for ( IdxType ifrst=0; ifrst<frsts_.size(); ifrst++ )
+    for ( idx_type ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
 	if ( ifrst == 0 )
 	    ret.start = ret.stop = frsts_[0];
@@ -455,19 +458,19 @@ Interval<Pos::IdxPairDataSet::IdxType> Pos::IdxPairDataSet::firstRange() const
 }
 
 
-Interval<Pos::IdxPairDataSet::IdxType> Pos::IdxPairDataSet::secondRange(
-							IdxType frst ) const
+Interval<Pos::IdxPairDataSet::pos_type> Pos::IdxPairDataSet::secondRange(
+							pos_type frst ) const
 {
-    Interval<IdxType> ret( mUdf(IdxType), mUdf(IdxType) );
+    Interval<pos_type> ret( mUdf(pos_type), mUdf(pos_type) );
     if ( frsts_.isEmpty() )
 	return ret;
 
     const bool isall = frst < 0;
-    const ArrIdxType frstidx = isall ? -1 : frsts_.indexOf( frst );
+    const idx_type frstidx = isall ? -1 : frsts_.indexOf( frst );
     if ( frstidx >= 0 )
     {
 	const IdxSet& scndset = gtScndSet( frstidx );
-	const ArrIdxType nrscnd = scndset.size();
+	const size_type nrscnd = scndset.size();
 	if ( nrscnd > 0 )
 	{
 	    ret.start = ret.stop = scndset[0];
@@ -478,10 +481,10 @@ Interval<Pos::IdxPairDataSet::IdxType> Pos::IdxPairDataSet::secondRange(
     else if ( isall )
     {
 	bool anyseenyet = false;
-	for ( ArrIdxType idx=0; idx<frsts_.size(); idx++ )
+	for ( idx_type idx=0; idx<frsts_.size(); idx++ )
 	{
 	    const IdxSet& scndset = gtScndSet(idx);
-	    const ArrIdxType nrscnd = scndset.size();
+	    const size_type nrscnd = scndset.size();
 	    if ( nrscnd > 0 )
 	    {
 		if ( anyseenyet )
@@ -505,7 +508,7 @@ Interval<Pos::IdxPairDataSet::IdxType> Pos::IdxPairDataSet::secondRange(
 void Pos::IdxPairDataSet::copyStructureFrom( const IdxPairDataSet& oth )
 {
     setEmpty();
-    const_cast<ObjSzType&>(objsz_) = oth.objsz_;
+    const_cast<obj_size_type&>(objsz_) = oth.objsz_;
     const_cast<bool&>(mandata_) = oth.mandata_;
     allowdup_ = oth.allowdup_;
 }
@@ -531,7 +534,7 @@ bool Pos::IdxPairDataSet::isValid( const IdxPair& ip ) const
 Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::findOccurrence(
 					const IdxPair& ip, int occ ) const
 {
-    bool found; ArrIdxType idx = findIndexFor( frsts_, ip.first, &found );
+    bool found; idx_type idx = findIndexFor( frsts_, ip.first, &found );
     SPos spos( found ? idx : -1, -1 );
     if ( !found )
 	return spos;
@@ -603,7 +606,7 @@ bool Pos::IdxPairDataSet::prev( SPos& spos, bool skip_dup ) const
     else if ( spos.i == 0 && spos.j == 0 )
 	{ spos.i = spos.j = -1; return false; }
 
-    IdxType curscnd = gtScnd( spos );
+    pos_type curscnd = gtScnd( spos );
     if ( spos.j > 0 )
 	spos.j--;
     else
@@ -662,15 +665,16 @@ const void* Pos::IdxPairDataSet::getObj( SPos spos ) const
 }
 
 
-Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::getPos( GlobIdxType glidx ) const
+Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::getPos(
+					glob_idx_type glidx ) const
 {
-    GlobIdxType firstidx = 0; SPos spos;
+    glob_idx_type firstidx = 0; SPos spos;
     for ( spos.i=0; spos.i<frsts_.size(); spos.i++ )
     {
 	const IdxSet& scnds = gtScndSet(spos);
 	if ( firstidx + scnds.size() > glidx )
 	{
-	    spos.j = (ArrIdxType)(glidx - firstidx);
+	    spos.j = (idx_type)(glidx - firstidx);
 	    return spos;
 	}
 	firstidx += scnds.size();
@@ -713,35 +717,35 @@ Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::update( const IdxPair& ip,
 }
 
 
-Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::nrPos(
-						ArrIdxType frstidx ) const
+Pos::IdxPairDataSet::size_type Pos::IdxPairDataSet::nrPos(
+						idx_type frstidx ) const
 {
     return frstidx < 0 || frstidx >= frsts_.size() ? 0
 		: gtScndSet(frstidx).size();
 }
 
 
-Pos::IdxPairDataSet::GlobIdxType Pos::IdxPairDataSet::totalSize() const
+Pos::IdxPairDataSet::glob_idx_type Pos::IdxPairDataSet::totalSize() const
 {
-    GlobIdxType nr = 0;
-    for ( ArrIdxType idx=0; idx<frsts_.size(); idx++ )
+    glob_idx_type nr = 0;
+    for ( idx_type idx=0; idx<frsts_.size(); idx++ )
 	nr += gtScndSet(idx).size();
     return nr;
 }
 
 
-bool Pos::IdxPairDataSet::hasFirst( IdxType frst ) const
+bool Pos::IdxPairDataSet::hasFirst( pos_type frst ) const
 {
     return frsts_.isPresent( frst );
 }
 
 
-bool Pos::IdxPairDataSet::hasSecond( IdxType scnd ) const
+bool Pos::IdxPairDataSet::hasSecond( pos_type scnd ) const
 {
-    for ( ArrIdxType ifrst=0; ifrst<frsts_.size(); ifrst++ )
+    for ( idx_type ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
 	const IdxSet& scnds = gtScndSet( ifrst );
-	for ( ArrIdxType iscnd=0; iscnd<scnds.size(); iscnd++ )
+	for ( idx_type iscnd=0; iscnd<scnds.size(); iscnd++ )
 	    if ( scnds[iscnd] == scnd )
 		return true;
     }
@@ -865,8 +869,8 @@ class IdxPairDataSetFromCubeData : public ::ParallelTask
 {
 public:
 
-typedef Pos::IdxPairDataSet::IdxType IdxType;
-typedef Pos::IdxPairDataSet::ArrIdxType ArrIdxType;
+typedef Pos::IdxPairDataSet::pos_type pos_type;
+typedef Pos::IdxPairDataSet::idx_type idx_type;
 
 IdxPairDataSetFromCubeData( IdxPairDataSet& ds,
 			    const PosInfo::CubeData& cubedata,
@@ -877,10 +881,10 @@ IdxPairDataSetFromCubeData( IdxPairDataSet& ds,
 {
     // Add first spos on each line so all lines are in, thus
     // threadsafe to add things as long as each line is separate
-    for ( ArrIdxType idx=0; idx<cubedata.size(); idx++ )
+    for ( idx_type idx=0; idx<cubedata.size(); idx++ )
     {
 	const PosInfo::LineData& line = *cubedata_[idx];
-	const ArrIdxType frst = line.linenr_;
+	const idx_type frst = line.linenr_;
 	if ( !line.segments_.isEmpty() )
 	    ds.add( IdxPair(frst,line.segments_[0].start) );
     }
@@ -890,16 +894,16 @@ od_int64 nrIterations() const { return cubedata_.size(); }
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( IdxPair::IdxType idx=(IdxPair::IdxType)start; idx<=stop; idx++ )
+    for ( IdxPair::pos_type idx=(IdxPair::pos_type)start; idx<=stop; idx++ )
     {
 	const PosInfo::LineData& line = *cubedata_[idx];
-	const IdxType frst = line.linenr_;
+	const pos_type frst = line.linenr_;
 	for ( int idy=0; idy<line.segments_.size(); idy++ )
 	{
-	    StepInterval<IdxType> crls = line.segments_[idy];
+	    StepInterval<pos_type> crls = line.segments_[idy];
 	    if ( idy == 0 )
 		crls.start += crls.step; //We added first scnd in constructor
-	    for ( IdxType scnd=crls.start; scnd<=crls.stop; scnd+=crls.step )
+	    for ( pos_type scnd=crls.start; scnd<=crls.stop; scnd+=crls.step )
 	    {
 		IdxPair ip( frst, scnd );
 		IdxPairDataSet::SPos spos = ds_.find( ip );
@@ -935,29 +939,29 @@ void Pos::IdxPairDataSet::add( const PosInfo::CubeData& cubedata,
 }
 
 
-void Pos::IdxPairDataSet::randomSubselect( GlobIdxType maxsz )
+void Pos::IdxPairDataSet::randomSubselect( glob_idx_type maxsz )
 {
-    const GlobIdxType orgsz = totalSize();
+    const glob_idx_type orgsz = totalSize();
     if ( orgsz <= maxsz )
 	return;
     if ( maxsz < 1 )
 	{ setEmpty(); return; }
 
-    mGetIdxArr( GlobIdxType, idxs, orgsz );
+    mGetIdxArr( glob_idx_type, idxs, orgsz );
     if ( !idxs )
 	{ setEmpty(); return; }
 
-    const bool buildnew = ((GlobIdxType)maxsz) < (orgsz / ((GlobIdxType)2));
+    const bool buildnew = ((glob_idx_type)maxsz) < (orgsz / ((glob_idx_type)2));
     Stats::randGen().subselect( idxs, orgsz, maxsz );
     TypeSet<SPos> sposs;
     if ( buildnew )
     {
-	for ( GlobIdxType idx=0; idx<maxsz; idx++ )
+	for ( glob_idx_type idx=0; idx<maxsz; idx++ )
 	    sposs += getPos( idxs[idx] );
     }
     else
     {
-	for ( GlobIdxType idx=maxsz; idx<orgsz; idx++ )
+	for ( glob_idx_type idx=maxsz; idx<orgsz; idx++ )
 	    sposs += getPos( idxs[idx] );
     }
     delete [] idxs;
@@ -968,7 +972,7 @@ void Pos::IdxPairDataSet::randomSubselect( GlobIdxType maxsz )
     {
 	IdxPairDataSet newds( objsz_, allowdup_, mandata_ );
 	IdxPair ip;
-	for ( GlobIdxType idx=0; idx<sposs.size(); idx++ )
+	for ( glob_idx_type idx=0; idx<sposs.size(); idx++ )
 	{
 	    const void* data = get( sposs[mCast(int,idx)], ip );
 	    SPos newspos = newds.add( ip, data );
@@ -984,8 +988,8 @@ void Pos::IdxPairDataSet::randomSubselect( GlobIdxType maxsz )
 void Pos::IdxPairDataSet::remove( const TrcKeySampling& hrg,
 				  bool inside )
 {
-    const StepInterval<IdxType> frstrg = hrg.inlRange();
-    const StepInterval<IdxType> scndrg = hrg.crlRange();
+    const StepInterval<pos_type> frstrg = hrg.inlRange();
+    const StepInterval<pos_type> scndrg = hrg.crlRange();
 
     TypeSet<SPos> torem;
 
@@ -1022,9 +1026,9 @@ bool Pos::IdxPairDataSet::hasDuplicateIdxPairs() const
 }
 
 
-Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::nrDuplicateIdxPairs() const
+Pos::IdxPairDataSet::size_type Pos::IdxPairDataSet::nrDuplicateIdxPairs() const
 {
-    ArrIdxType nrdupips = 0;
+    size_type nrdupips = 0;
     SPos spos;
     if ( !next(spos) )
 	return 0;
@@ -1089,7 +1093,7 @@ void Pos::IdxPairDataSet::putObj( const SPos& spos, const void* obj )
 }
 
 
-bool Pos::IdxPairDataSet::addObj( SPos& spos, IdxType scnd, const void* obj )
+bool Pos::IdxPairDataSet::addObj( SPos& spos, pos_type scnd, const void* obj )
 {
     IdxSet& scnds = gtScndSet( spos );
 

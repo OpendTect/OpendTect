@@ -131,14 +131,14 @@ bool ProbeManager::needsSave( const Probe& ps ) const
 }
 
 
-ConstRefMan<Probe> ProbeManager::get( IdxType idx ) const
+ConstRefMan<Probe> ProbeManager::get( idx_type idx ) const
 {
     const SharedObject* shobj = gtObj( idx );
     return ConstRefMan<Probe>( mToProbe(const,*,shobj) );
 }
 
 
-RefMan<Probe> ProbeManager::getForEdit( IdxType idx )
+RefMan<Probe> ProbeManager::getForEdit( idx_type idx )
 {
     SharedObject* shobj = gtObj( idx );
     return RefMan<Probe>( mToProbe(,*,shobj) );
@@ -147,7 +147,7 @@ RefMan<Probe> ProbeManager::getForEdit( IdxType idx )
 
 Probe* ProbeManager::gtProbe( const ObjID& id ) const
 {
-    const IdxType idxof = gtIdx( id );
+    const idx_type idxof = gtIdx( id );
     if ( idxof < 0 )
 	return 0;
     SharedObject* obj = const_cast<SharedObject*>( savers_[idxof]->object() );
