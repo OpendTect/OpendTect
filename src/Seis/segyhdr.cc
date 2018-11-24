@@ -94,7 +94,9 @@ SEGY::TxtHeader::TxtHeader( int rev )
     str.add( " on " ).add( Time::getISOUTCDateTimeString() );
     putAt( 1, 6, 75, str );
     putAt( 2, 6, 75, BufferString("Survey: '", SI().name(),"'") );
-    BinID bid = SI().sampling(false).hsamp_.start_;
+    const auto inlrg = SI().inlRange();
+    const auto crlrg = SI().crlRange();
+    BinID bid = BinID( inlrg.start, crlrg.start );
     Coord coord = SI().transform( bid );
     coord.x_ = fabs(coord.x_); coord.y_ = fabs(coord.y_);
     if ( !mIsEqual(bid.inl(),coord.x_,mDefEps)
@@ -106,12 +108,12 @@ SEGY::TxtHeader::TxtHeader( int rev )
 	coord = SI().transform( bid );
 	str.set( bid.toString() ).add( " = " ).add( coord.toPrettyString() );
 	putAt( 14, 6, 75, str );
-	bid.crl() = SI().sampling(false).hsamp_.stop_.crl();
+	bid.crl() = crlrg.stop;
 	coord = SI().transform( bid );
 	str.set( bid.toString() ).add( " = " ).add( coord.toPrettyString() );
 	putAt( 15, 6, 75, str );
-	bid.inl() = SI().sampling(false).hsamp_.stop_.inl();
-	bid.crl() = SI().sampling(false).hsamp_.start_.crl();
+	bid.inl() = inlrg.stop;
+	bid.crl() = crlrg.start;
 	coord = SI().transform( bid );
 	str.set( bid.toString() ).add( " = " ).add( coord.toPrettyString() );
 	putAt( 16, 6, 75, str );
@@ -566,7 +568,7 @@ void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
     if ( ns != 0 )
 	setEntryVal( EntryNs(), ns );
     else
-	setEntryVal( EntryNs(), SI().zRange(false).nrSteps() + 1 );
+	setEntryVal( EntryNs(), SI().zRange().nrSteps() + 1 );
 }
 
 
@@ -691,7 +693,7 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti, bool is2d ) const
     ti.coord_.y_ = entryVal( EntryYcdp() );
     BinID tibid( entryVal( EntryInline() ), entryVal( EntryCrossline() ) );
     if ( is2d )
-	ti.trckey_ = TrcKey( 0, EntryTracr() );
+	ti.trckey_ = TrcKey( Pos::GeomID(0), EntryTracr() );
     else
     {
 	mPIEPAdj(BinID,tibid,true);
@@ -804,7 +806,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, bool is2d, float extcoordsc ) const
 	}
 
 	mPIEPAdj(TrcNr,trcnr,true);
-	ti.trckey_ = TrcKey( 0, trcnr );
+	ti.trckey_ = TrcKey( Pos::GeomID(0), trcnr );
     }
 
     const double scale = getCoordScale( extcoordsc );

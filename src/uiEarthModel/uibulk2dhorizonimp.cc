@@ -169,27 +169,23 @@ int nextStep()
 	if ( !crd.isDefined() )
 	    Executor::MoreToDo();
 
-	Pos::GeomID geomid = Survey::GM().getGeomID(linenm);
+	const auto geomid = Survey::Geometry::getGeomID( linenm );
 	int nr = 0;
-	const Survey::Geometry2D* curlinegeom(0);
-
 
 	if ( ascio_->isTrNr() )
 	    nr = trcnr;
 	else if ( crd.isDefined() )
 	{
-	    mDynamicCast( const Survey::Geometry2D*, curlinegeom,
-					Survey::GM().getGeometry(geomid) );
-	    if ( !curlinegeom )
+	    const auto& geom2d = Survey::Geometry::get2D( geomid );
+	    if ( geom2d.isEmpty() )
 		return Executor::ErrorOccurred();
 	    PosInfo::Line2DPos pos;
-	    if ( !curlinegeom->data().getPos(crd.getXY(),pos,
-							SI().inlDistance()) )
+	    if ( !geom2d.data().getPos(crd.getXY(),pos,SI().inlDistance()) )
 		Executor::MoreToDo();
 	    nr = pos.nr_;
 	}
 
-	BinID bid(geomid,nr);
+	BinID bid( geomid.lineNr(), nr );
 	bidvs_->add( bid, crd.z_ );
 	if ( (prevhornm_ != hornm) || data_.isEmpty() )
 	{

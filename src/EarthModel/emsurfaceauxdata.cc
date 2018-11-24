@@ -249,7 +249,7 @@ float SurfaceAuxData::getAuxDataVal( AuxID auxid, const TrcKey& tk ) const
 void SurfaceAuxData::setAuxDataVal( AuxID auxid, const PosID& posid, float val,
 				    bool onlynewpos )
 {
-    const TrcKey tk = posid.getBinID();
+    const TrcKey tk = TrcKey( posid.getBinID() );
     if ( !isUsable(auxid) || tk.isUdf() || horizon_.isNodeLocked(tk) )
 	return;
     const BinID geomrc( posid.getRowCol() );

@@ -59,7 +59,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     {
 	zstepfld_ = new uiSpinBox( this, 0, "Z step" );
 	zstepfld_->attach( alignedBelow, surf2fld_ );
-	float zstep = SI().zRange(true).step * 10;
+	float zstep = SI().zRange(OD::UsrWork).step * 10;
 	int v = (int)((zstep * zfac_) + .5);
 	zstepfld_->setValue( v );
 	zstepfld_->setInterval( StepInterval<int>(1,999999,1) );

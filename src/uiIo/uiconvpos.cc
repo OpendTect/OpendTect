@@ -40,11 +40,11 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     const Interval<int> intv( -mUdf(int), mUdf(int) );
     inlfld = new uiGenInput( inlcrlgrp, uiStrings::sInline(),
 		IntInpSpec(0,intv).setName("Inl-field") );
-    inlfld->setValue( si.inlRange(false).start );
+    inlfld->setValue( si.inlRange(OD::UsrWork).start );
     inlfld->setElemSzPol( uiObject::Medium );
     crlfld = new uiGenInput( inlcrlgrp, uiStrings::sCrossline(),
 		IntInpSpec(0,intv).setName("Crl-field") );
-    crlfld->setValue( si.crlRange(false).start );
+    crlfld->setValue( si.crlRange(OD::UsrWork).start );
     crlfld->setElemSzPol( uiObject::Medium );
     crlfld->attach( alignedBelow, inlfld );
 

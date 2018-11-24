@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "executor.h"
+#include "geomid.h"
 
 class IOObj;
 class Scaler;

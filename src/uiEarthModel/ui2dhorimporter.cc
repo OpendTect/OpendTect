@@ -48,7 +48,7 @@ Horizon2DBulkImporter::Horizon2DBulkImporter( const BufferStringSet& lnms,
     , udftreat_(udftreat)
 {
     for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
-	geomids_ += Survey::GM().getGeomID( lnms.get(lineidx).buf() );
+	geomids_ += Survey::Geometry::getGeomID( lnms.get(lineidx) );
 }
 
 
@@ -76,20 +76,22 @@ int Horizon2DBulkImporter::nextStep()
 	vals[idx] = mUdf(float);
 
     bvalset_->get( pos_, bid, vals );
-    if ( bid.inl() < 0 ) return Executor::ErrorOccurred();
-    const Pos::GeomID geomid = bid.inl();
+    if ( bid.inl() < 0 )
+	return Executor::ErrorOccurred();
+
+    const Pos::GeomID geomid( bid.inl() );
 
     if ( bid.inl() != prevlineidx_ )
     {
 	prevlineidx_ = bid.inl();
-	prevtrcnrs_ = TypeSet<int>( nrvals, -1);
+	prevtrcnrs_ = TypeSet<int>( nrvals, -1 );
 	prevtrcvals_ = TypeSet<float>( nrvals, mUdf(float) );
 
-	mDynamicCast( const Survey::Geometry2D*, curlinegeom_,
-		      Survey::GM().getGeometry(geomid) );
-	if ( !curlinegeom_ )
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	if ( geom2d.isEmpty() )
 	    return Executor::ErrorOccurred();
 
+	curlinegeom_ = &geom2d;
 	for ( int hdx=0; hdx<hors_.size(); hdx++ )
 	    hors_[hdx]->geometry().addLine( geomid );
     }
@@ -133,7 +135,8 @@ void Horizon2DBulkImporter::interpolateAndSetVals( int hidx,
 					    Pos::GeomID geomid, int curtrcnr,
 				   int prevtrcnr, float curval, float prevval )
 {
-    if ( !curlinegeom_ ) return;
+    if ( !curlinegeom_ )
+	return;
 
     const int nrpos = abs( curtrcnr - prevtrcnr ) - 1;
     const bool isrev = curtrcnr < prevtrcnr;

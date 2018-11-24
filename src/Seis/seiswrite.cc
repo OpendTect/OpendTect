@@ -25,6 +25,7 @@
 #include "seis2dlineio.h"
 #include "separstr.h"
 #include "survgeom2d.h"
+#include "survgeommgr.h"
 #include "thread.h"
 #include "threadwork.h"
 #include "uistrings.h"
@@ -87,16 +88,14 @@ bool SeisTrcWriter::close()
     writeCollectedStats();
     if ( is2D() )
     {
-	Pos::GeomID geomid = mCurGeomID;
-	Survey::Geometry* geom = Survey::GMAdmin().getGeometry( geomid );
-	mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
-
-	if ( geom2d && geom2d->data().isEmpty() )
+	const Pos::GeomID geomid = mCurGeomID;
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	if ( !geom2d.isEmpty() )
 	{
-	    uiString st;
-	    geom2d->dataAdmin() = *linedata_;
-	    geom2d->touch();
-	    Survey::GMAdmin().write( *geom2d, st );
+	    auto& g2d = const_cast<Survey::Geometry2D&>( geom2d );
+	    g2d.data() = *linedata_;
+	    g2d.commitChanges();
+	    Survey::GMAdmin().save( geom2d, errmsg_ );
 	}
     }
 
@@ -128,7 +127,7 @@ void SeisTrcWriter::setSelData( Seis::SelData* tsel )
 	return;
 
     delete linedata_;
-    linedata_ = new PosInfo::Line2DData( Survey::GM().getName(mCurGeomID) );
+    linedata_ = new PosInfo::Line2DData( nameOf(mCurGeomID) );
 }
 
 
@@ -173,7 +172,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	else
 	{
 	    const Pos::GeomID geomid = mCurGeomID;
-	    const char* lnm = is2d_ ? Survey::GM().getName(geomid) : 0;
+	    const char* lnm = is2d_ ? nameOf(geomid) : 0;
 	    pswriter_ = SPSIOPF().get2DWriter( *ioobj_, lnm );
 	    SamplingData<float> sd = trc.info().sampling_;
 	    StepInterval<float> zrg( sd.start, 0, sd.step );
@@ -283,7 +282,7 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 bool SeisTrcWriter::next2DLine()
 {
     Pos::GeomID geomid = mCurGeomID;
-    BufferString lnm = Survey::GM().getName( geomid );
+    BufferString lnm = nameOf( geomid );
     if ( lnm.isEmpty() )
     {
 	errmsg_ = tr("Invalid 2D Geometry");

@@ -138,6 +138,7 @@ public:
 			{ return Provider3D::getTrcKeyZSampling(cs); }
     virtual void	getZRange(Interval<float>& rg ) const
 			{ return EMSurfaceProvider::getZRange(rg); }
+    GeomID		curGeomID() const override { return GeomID::get3D(); }
 
     static void		initClass();
     static Provider3D*	create()	{ return new EMSurfaceProvider3D; }
@@ -147,9 +148,7 @@ public:
 };
 
 
-/*!
-\brief EMSurfaceProvider for 2D positioning.
-*/
+/*!\brief EMSurfaceProvider for 2D positioning.  */
 
 mExpClass(EarthModel) EMSurfaceProvider2D : public Provider2D
 					  , public EMSurfaceProvider
@@ -175,6 +174,8 @@ public:
     virtual void	getZRange(Interval<float>& rg ) const
 			{ return EMSurfaceProvider::getZRange(rg); }
     int			nrLines() const			{ return 1; }
+    GeomID		curGeomID() const override
+			{ return curTrcKey().geomID(); }
 
     static void		initClass();
     static Provider2D*	create()	{ return new EMSurfaceProvider2D; }
@@ -212,6 +213,8 @@ public:
 				{ return EMSurfaceProvider::getZRange(rg); }
     virtual Coord		curCoord() const
 				{ return Provider3D::curCoord(); }
+    GeomID			curGeomID() const override
+				{ return GeomID::get3D(); }
 
     const DataPointSet&		dataPointSet( bool nr1 ) const
 				{ return nr1 ? dpssurf1_ : dpssurf2_; }
@@ -264,6 +267,8 @@ public:
     virtual void		getZRange(Interval<float>&) const;
     virtual bool		includes(const Coord& c,float z) const;
     virtual bool		includes(const BinID&,float) const;
+    GeomID			curGeomID() const override
+				{ return GeomID::get3D(); }
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
@@ -331,6 +336,8 @@ public:
     virtual void		getZRange(Interval<float>&) const;
     virtual bool		includes(const Coord& c,float z) const;
     virtual bool		includes(const BinID&,float) const;
+    GeomID			curGeomID() const override
+				{ return GeomID::get3D(); }
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;

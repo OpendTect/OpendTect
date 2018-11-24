@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "emcommon.h"
 #include "sets.h"
 #include "ranges.h"
+#include "geomid.h"
 
 class RowCol;
 class od_ostream;

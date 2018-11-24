@@ -96,6 +96,9 @@ public:
 mExpClass(Algo) Filter2D : public virtual Filter
 {
 public:
+
+    mUseType( Pos,	GeomID );
+
 			Filter2D()				{}
 			~Filter2D();
 
@@ -104,9 +107,9 @@ public:
     virtual bool	includes(const Coord&,
 				 float z=mUdf(float)) const	= 0;
 
-    void		addGeomID(const Pos::GeomID);
+    void		addGeomID(const GeomID);
     void		removeGeomID(int lidx);
-    Pos::GeomID		geomID(int) const;
+    GeomID		geomID(int) const;
     int			nrLines() const;
 
     mDefineFactoryInClass(Filter2D,factory);
@@ -114,7 +117,8 @@ public:
 
 protected:
 
-    TypeSet<Pos::GeomID> geomids_;
+    TypeSet<GeomID>	geomids_;
+
 };
 
 

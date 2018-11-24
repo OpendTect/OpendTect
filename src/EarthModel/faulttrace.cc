@@ -156,7 +156,7 @@ bool FaultTrace::getHorizonIntersectionInfo(
 	TypeSet<Coord>& intersections, bool firstonly, bool allowextend ) const
 {
     mDynamicCastGet(const EM::Horizon2D*, hor2d, &hor);
-    const bool use2d = hor2d && geomid!=Survey::GM().cUndefGeomID();
+    const bool use2d = hor2d && geomid.isValid();
 
     StepInterval<int> hortrcrg = isinl_ ? hor.geometry().colRange()
 					: hor.geometry().rowRange();
@@ -674,7 +674,7 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 
 float FaultTrace::getZValFor( const BinID& bid ) const
 {
-    const StepInterval<float>& zrg = SI().zRange( false );
+    const StepInterval<float>& zrg = SI().zRange();
     Coord intersectn = getIntersection( bid, zrg.start, bid, zrg.stop );
     return (float) intersectn.y_;
 }
@@ -1066,7 +1066,7 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
 	: hs.start_.crl() +
 		(hs.nrCrl()==1 ? 0 : (idx-hs.nrInl()) * hs.step_.crl() );
 
-    const StepInterval<float>& zrg = SI().zRange( false );
+    const StepInterval<float>& zrg = SI().zRange();
     BinID start( isinl ? linenr : holder_.hs_.start_.inl(),
 		 isinl ? holder_.hs_.start_.crl() : linenr );
     BinID stop( isinl ? linenr : holder_.hs_.stop_.inl(),
@@ -1217,13 +1217,13 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
     const Pos::GeomID geomid = fss->geometry().pickedGeomID( sticknr );
     if ( geomid != geomid_ ) return true;
 
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-		     Survey::GM().getGeometry(geomid_) );
-    if ( !geom2d )
+    const auto& geom2d = Survey::Geometry2D::get( geomid );
+    if ( geom2d.isEmpty() )
 	return true;
 
     const int nrknots = fltgeom->nrKnots( sticknr );
-    if ( nrknots < 2 ) return true;
+    if ( nrknots < 2 )
+	return true;
 
     FaultTrace* flttrc = new FaultTrace;
     flttrc->ref();
@@ -1235,7 +1235,7 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
     for ( int idx=colrg.start; idx<=colrg.stop; idx+=colrg.step )
     {
 	const Coord3 knot = fltgeom->getKnot( RowCol(sticknr,idx) );
-	const float trcnr = getFloatTrcNr( geom2d->data(), knot.getXY() );
+	const float trcnr = getFloatTrcNr( geom2d.data(), knot.getXY() );
 	if ( mIsUdf(trcnr) )
 	    break;
 

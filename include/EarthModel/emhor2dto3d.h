@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "trckeysampling.h"
 
-class TrcKeySampling;
 class Array2DInterpol;
 
 namespace EM

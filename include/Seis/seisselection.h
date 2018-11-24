@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "binid.h"
 #include "bufstring.h"
+#include "geomid.h"
 namespace Pos { class Provider; }
 
 

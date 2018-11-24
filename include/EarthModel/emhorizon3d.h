@@ -112,7 +112,7 @@ public:
 
     virtual void		lockAll();
     virtual void		unlockAll();
-    virtual const Array2D<char>*    getLockedNodes() const;
+    virtual const Array2D<char>* getLockedNodes() const;
     virtual bool		hasLockedNodes() const
 				{ return haslockednodes_; }
 
@@ -159,10 +159,9 @@ public:
 					const TrcKeySampling& hs);
 
 
-    Pos::GeomID			getSurveyGeomID() const { return survid_; }
-				//!A 3D Horizon is locked to one survey
-				//!Geometry
-    void			setSurveyGeomID(Pos::GeomID);
+    Pos::GeomID			getSurveyGeomID() const
+				{ return Pos::GeomID::get3D(); }
+    void			setSurveyGeomID(Pos::GeomID)	{}
 
     uiString			getUserTypeStr() const { return userTypeStr(); }
     static uiString		userTypeStr()
@@ -213,7 +212,7 @@ protected:
     void			createNodeSourceArray(const StepInterval<int>&,
 						const StepInterval<int>&,
 						ArrayType);
-    TrcKeySampling		getTrckeySampling() const;
+    TrcKeySampling		getTrcKeySampling() const;
 
     virtual bool		setPosition(const EM::PosID&,
 					    const Coord3&,bool addtohistory,
@@ -230,7 +229,6 @@ protected:
 
     Color			parentcolor_;
 
-    Pos::SurvID			survid_;
     Array2D<char>*		nodesource_;
 				/*!< '0'- non interpreted, '1'- manual
 				interpreted,'2' - auto interpreted.
@@ -238,11 +236,14 @@ protected:
     bool			arrayinited_;
 
 public:
-    /*mDeprecated*/ float	getZ(const BinID&) const;
+
+    float		getZ(const BinID&) const;
 				//!< Fast: reads from the first section
-    /*mDeprecated*/ bool	setZ(const BinID&,float z,bool addtohist);
+    bool		setZ(const BinID&,float z,bool addtohist);
 				//!< Fast: writes to the first section
-    TrcKey::SurvID		getSurveyID() const {return getSurveyGeomID();}
+    OD::GeomSystem	geomSystem() const override
+			{ return getSurveyGeomID().is2D() ? OD::LineBasedGeom
+							  : OD::VolBasedGeom; }
 };
 
 
@@ -251,9 +252,9 @@ mExpClass(EarthModel) ChildFinder : public SequentialTask
 friend class FindTask;
 friend class Horizon3D;
 protected:
-			ChildFinder(const TrcKeySampling& tks,
+			ChildFinder(const TrcKeySampling&,
 				    const Array2D<od_int64>& parents,
-				    Array2D<char>& children );
+				    Array2D<char>& children);
 			~ChildFinder();
 
 
@@ -265,7 +266,7 @@ protected:
     int				queueid_;
     const Array2D<od_int64>&	parents_;
     Array2D<char>&		children_;
-    TrcKeySampling		tks_;
+    TrcKeySampling		hs_;
 
     Threads::Atomic<int>	nrtodo_;
     Threads::Atomic<int>	nrdone_;

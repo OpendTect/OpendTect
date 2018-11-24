@@ -69,7 +69,7 @@ bool ZAxisTransformPointGenerator::doWork(
     for ( od_int64 idx=start; idx<=stop; idx++, iter_.next() )
     {
 	const BinID bid = iter_.curBinID();
-	const float depth = transform_.transformTrcBack( bid, val);
+	const float depth = transform_.transformTrcBack( TrcKey(bid), val );
 	if ( mIsUdf(depth) )
 	    continue;
 

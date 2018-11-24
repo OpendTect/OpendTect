@@ -83,7 +83,7 @@ public:
     TypeSet<BufferStringSet>&	lineNames()		{ return linenms_; }
     BufferStringSet&		selectLines()		{ return selectlines_; }
     TypeSet<Coord>&		getPos2D()		{ return coords2d_; }
-    TypeSet<Pos::SurvID>&	getGeomIDs2D()		{ return geomids2d_; }
+    TypeSet<Pos::GeomID>&	getGeomIDs2D()		{ return geomids2d_; }
     TypeSet< Interval<float> >& getHor2DZRgs()		{ return hor2dzrgs_; }
 
 protected:

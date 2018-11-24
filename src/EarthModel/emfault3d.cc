@@ -459,7 +459,7 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( is2d )
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
-	    const Pos::GeomID geomid = Survey::GM().getGeomID( stick->lnm_ );
+	    const auto geomid = Survey::Geometry::getGeomID( stick->lnm_ );
 	    fss->geometry().insertStick( sticknr, 0,
 					stick->crds_[0], stick->getNormal(true),
 					geomid, false );

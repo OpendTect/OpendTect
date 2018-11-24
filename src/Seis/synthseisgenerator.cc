@@ -669,6 +669,7 @@ SynthSeis::MultiTraceGenerator::MultiTraceGenerator()
     : ParallelTask("Gather creator")
     , SynthSeis::GenBase()
     , totalnr_(1) //will be replaced
+    , tk_(*new TrcKey)
 {
     msg_ = tr("Generating synthetics");
 }
@@ -676,6 +677,7 @@ SynthSeis::MultiTraceGenerator::MultiTraceGenerator()
 
 SynthSeis::MultiTraceGenerator::~MultiTraceGenerator()
 {
+    delete &tk_;
 }
 
 

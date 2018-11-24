@@ -50,8 +50,7 @@ public:
 
     void	clear()
 		{
-		    trckey_.setBinID(BinID(0,0))
-			   .setSurvID( mUdf(Pos::SurvID) );
+		    trckey_.setBinID(BinID(0,0)).setIs2D( false );
 		    coord_.x_ = coord_.y_ = 0;
 		    startpos_ = offset_ = azimuth_ = 0;
 		    pick_ = refnr_ = mUdf(float);

@@ -130,17 +130,19 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
     if ( !lineposdlg.go() )
 	return;
 
-    const Pos::GeomID geomid = Survey::GM().getGeomID(lineposdlg.getLineName());
+    const auto geomid = Survey::Geometry::getGeomID( lineposdlg.getLineName() );
     const bool is2d = objinfo.is2D();
-    if ( is2d )
+    if ( !is2d )
+	objinfo.getRanges( *tkzs_ );
+    else
     {
 	StepInterval<int> trcrg;
+	tkzs_->hsamp_.setIs2D();
 	objinfo.getRanges( geomid, trcrg, tkzs_->zsamp_ );
-	tkzs_->hsamp_.setLineRange( Interval<int>(geomid,geomid) );
+	const auto lnr = geomid.lineNr();
+	tkzs_->hsamp_.setLineRange( Interval<int>(lnr,lnr) );
 	tkzs_->hsamp_.setTrcRange( trcrg );
     }
-    else
-	objinfo.getRanges( *tkzs_ );
 
     ZDomain::Info info( ZDomain::SI() );
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD

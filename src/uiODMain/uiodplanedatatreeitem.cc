@@ -262,7 +262,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	delete positiondlg_;
-	TrcKeyZSampling maxcs = SI().sampling(true);
+	TrcKeyZSampling maxcs( OD::UsrWork );
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	if ( scene && scene->getZAxisTransform() )
 	    maxcs = scene->getTrcKeyZSampling();
@@ -463,7 +463,7 @@ bool uiODPlaneDataParentTreeItem::setProbeToBeAddedParams( int mnuid )
 	return false;
 
     typetobeadded_ = getAddType( mnuid );
-    probetobeaddedpos_ = SI().sampling( true );
+    SI().getSampling( probetobeaddedpos_, OD::UsrWork );
     getDefZRange( probetobeaddedpos_.zsamp_ );
     setDefaultPosToBeAdded();
 
@@ -487,8 +487,8 @@ const char* uiODInlineParentTreeItem::childObjTypeKey() const
 
 bool uiODInlineParentTreeItem::canShowSubMenu() const
 {
-    if ( !SI().crlRange(true).width() ||
-	  SI().zRange(true).width() < SI().zStep() * 0.5 )
+    if ( !SI().crlRange(OD::UsrWork).width() ||
+	  SI().zRange(OD::UsrWork).width() < SI().zStep() * 0.5f )
     {
 	mTIUiMsg().warning( tr("Flat survey, disabled inline display") );
 	return false;
@@ -590,8 +590,8 @@ const char* uiODCrosslineParentTreeItem::childObjTypeKey() const
 
 bool uiODCrosslineParentTreeItem::canShowSubMenu() const
 {
-    return SI().inlRange(true).width() > 0
-	&& SI().zRange(true).width() > SI().zStep() * 0.5f;
+    return SI().inlRange(OD::UsrWork).width() > 0
+	&& SI().zRange(OD::UsrWork).width() > SI().zStep() * 0.5f;
 }
 
 
@@ -695,7 +695,8 @@ const char* uiODZsliceParentTreeItem::childObjTypeKey() const
 
 bool uiODZsliceParentTreeItem::canShowSubMenu() const
 {
-    return SI().inlRange(true).width() > 0 && SI().crlRange(true).width() > 0;
+    return SI().inlRange(OD::UsrWork).width() > 0
+	&& SI().crlRange(OD::UsrWork).width() > 0;
 }
 
 

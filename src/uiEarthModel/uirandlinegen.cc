@@ -53,7 +53,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 				      uiPickSetIOObjSel::PolygonOnly );
     polyfld_->attach( alignedBelow, infld_ );
 
-    StepInterval<float> sizrg( SI().zRange(true) );
+    StepInterval<float> sizrg( SI().zRange( OD::UsrWork ) );
     sizrg.scale( mCast(float,SI().zDomain().userFactor()) );
     StepInterval<float> suggestedzrg( sizrg );
     suggestedzrg.step *= 10;
@@ -200,7 +200,7 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
 			     uiStrings::phrInput(uiStrings::sRandomLine()));
 
     const BinID bid1( 1, 1 );
-    const BinID bid2( 1 + SI().sampling(false).hsamp_.step_.inl(), 1 );
+    const BinID bid2( 1 + SI().inlStep(), 1 );
     const Coord c1( SI().transform(bid1) );
     const Coord c2( SI().transform(bid2) );
     distfld_ = new uiGenInput( this, tr("Distance from input"),

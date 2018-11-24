@@ -639,10 +639,10 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     {
 	Coord3 editnormal(0,0,1);
 
-	if ( mouseplanecs.defaultDir()==TrcKeyZSampling::Inl )
+	if ( mouseplanecs.defaultDir()==OD::InlineSlice )
 	    editnormal = Coord3( SI().transform(BinID(1,0))-
 		    SI().transform(BinID(0,0)), 0 );
-	else if ( mouseplanecs.defaultDir()==TrcKeyZSampling::Crl )
+	else if ( mouseplanecs.defaultDir()==OD::CrosslineSlice )
 	    editnormal = Coord3( SI().transform(BinID(0,1))-
 		    SI().transform(BinID(0,0)), 0 );
 

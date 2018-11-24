@@ -158,20 +158,21 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     EM::PosID botposid = topposid;
     mDynamicCastGet(const EM::Horizon2D*,tophor2d,tophorizon_)
     mDynamicCastGet(const EM::Horizon2D*,bothor2d,bottomhorizon_)
+    const auto geomid = Pos::GeomID( bid.inl() );
     if ( tophor2d )
 	topposid = EM::PosID::getFromRowCol(
-			tophor2d->geometry().lineIndex(bid.inl()), bid.crl() );
+			tophor2d->geometry().lineIndex(geomid), bid.crl() );
     if ( bothor2d )
 	botposid = EM::PosID::getFromRowCol(
-			bothor2d->geometry().lineIndex(bid.inl()), bid.crl() );
+			bothor2d->geometry().lineIndex(geomid), bid.crl() );
 
     const double topdepth = tophorizon_
 	? tophorizon_->getPos( topposid ).z_
-	: SI().zRange(true).start;
+	: SI().zRange().start;
 
     const double bottomdepth = bottomhorizon_
 	? bottomhorizon_->getPos( botposid ).z_
-	: SI().zRange(true).stop;
+	: SI().zRange().stop;
 
     const SamplingData<double>
 	zsampling( output->sampling().zsamp_ );

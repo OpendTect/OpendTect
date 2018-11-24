@@ -13,7 +13,7 @@
 
 namespace visSurvey
 {
-    
+
 PolyLineDisplay::PolyLineDisplay()
     : VisualObjectImpl(true)
 {
@@ -31,7 +31,7 @@ PolyLineDisplay::~PolyLineDisplay()
 void PolyLineDisplay::fillPolyLine( const TypeSet<Coord>& coords )
 {
     for ( int idx=0; idx<coords.size(); idx++ )
-	fillPolyLine( Coord3(coords[idx], SI().sampling(0).zsamp_.start) );
+	fillPolyLine( Coord3(coords[idx],SI().zRange(OD::UsrWork).start) );
 }
 
 
@@ -53,7 +53,7 @@ void PolyLineDisplay::setPixelDensity( float dpi )
 
     if ( polyline_ )
 	polyline_->setPixelDensity( dpi );
-    
+
 }
 
 

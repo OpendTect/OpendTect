@@ -46,7 +46,7 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
     , surface_(surf)
 {
     mDynamicCastGet(const EM::Horizon3D*,hor,&surface_);
-    const bool hasshift = hor && !mIsZero(shift,SI().zRange(true).step*1e-3);
+    const bool hasshift = hor && !mIsZero(shift,SI().zStep(OD::UsrWork)*1e-3f);
     mDynamicCastGet(const EM::PolygonBody*,plgbody,&surface_);
     const bool usesubsel = !plgbody;
 

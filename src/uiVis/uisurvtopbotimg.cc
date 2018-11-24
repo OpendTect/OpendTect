@@ -59,8 +59,8 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     zposfld_->setValue( istop_ ? zrng_.start : zrng_.stop );
     mAddCoordchgCB( zposfld_->valueChanged );
 
-    const Coord mincrd = SI().minCoord(true);
-    const Coord maxcrd = SI().maxCoord(true);
+    const Coord mincrd = SI().minCoord( OD::UsrWork );
+    const Coord maxcrd = SI().maxCoord( OD::UsrWork );
     tlfld_ = new uiGenInput( this, tr("NorthWest (TopLeft) Coordinate"),
 			     PositionInpSpec(Coord(mincrd.x_,maxcrd.y_)) );
     tlfld_->attach( leftAlignedBelow, fnmfld_ );

@@ -115,13 +115,13 @@ void Scene::updateAnnotationText()
     if ( !annot_ )
 	return;
 
-    if ( SI().inlRange(true).width() )
+    if ( SI().inlRange(OD::UsrWork).width() )
 	annot_->setText( 0, uiStrings::sInline() );
 
-    if ( SI().crlRange(true).width() )
+    if ( SI().crlRange(OD::UsrWork).width() )
 	annot_->setText( 1, uiStrings::sCrossline() );
 
-    if ( SI().zRange(true).width() )
+    if ( SI().zRange(OD::UsrWork).width() )
 	annot_->setText( 2, zDomainUserName() );
 
     annot_->setScaleFactor( 2,
@@ -154,7 +154,7 @@ void Scene::setup()
 	    SI().getDefaultPars().get( sKeyZScale(), curzstretch_ );
     }
 
-    const TrcKeyZSampling& tkzs = SI().sampling(true);
+    const TrcKeyZSampling tkzs( OD::UsrWork );
     updateTransforms( tkzs );
     setTrcKeyZSampling( tkzs );
 
@@ -218,8 +218,9 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
     const float zfactor = -1 * mZFactor(curzstretch_);
     // -1 to compensate for that we want z to increase with depth
 
-    SceneTransformManager::computeICRotationTransform(*SI().get3DGeometry(true),
-	zfactor, cs.zsamp_.center(), newinlcrlrotation, newinlcrlscale );
+    SceneTransformManager::computeICRotationTransform(
+	    *SI().get3DGeometry(OD::UsrWork), zfactor, cs.zsamp_.center(),
+	    newinlcrlrotation, newinlcrlscale );
 
     tempzstretchtrans_->addObject( newinlcrlrotation );
 
@@ -245,8 +246,8 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
 
     RefMan<mVisTrans> newutm2disptransform = mVisTrans::create();
     SceneTransformManager::computeUTM2DisplayTransform(
-		    *SI().get3DGeometry(true), zfactor, cs.zsamp_.center(),
-                    newutm2disptransform );
+		    *SI().get3DGeometry(OD::UsrWork), zfactor,
+		    cs.zsamp_.center(), newutm2disptransform );
 
     if ( utm2disptransform_ )
     {
@@ -378,7 +379,7 @@ void Scene::addInlCrlZObject( visBase::DataObject* obj )
 {
     mDynamicCastGet(SurveyObject*,so,obj);
     if ( so )
-	so->set3DSurvGeom( SI().get3DGeometry(true) );
+	so->set3DSurvGeom( SI().get3DGeometry(OD::UsrWork) );
 
     obj->setDisplayTransformation( inlcrlscale_ );
     inlcrlrotation_->addObject( obj );
@@ -392,7 +393,7 @@ void Scene::addObject( visBase::DataObject* obj )
 
     if ( so )
     {
-	so->set3DSurvGeom( SI().get3DGeometry(true) );
+	so->set3DSurvGeom( SI().get3DGeometry(OD::UsrWork) );
 	mAttachCB( so->getMovementNotifier(), Scene::objectMoved );
 
 	so->setScene( this );
@@ -553,9 +554,9 @@ bool Scene::isAnnotShown() const
 
 void Scene::setAnnotText( int dim, const uiString& txt )
 {
-    if ( (dim==0 && SI().inlRange(true).width()) ||
-	 (dim==1 && SI().crlRange(true).width()) ||
-	 (dim==2 && SI().zRange(true).width()) )
+    if ( (dim==0 && SI().inlRange(OD::UsrWork).width()) ||
+	 (dim==1 && SI().crlRange(OD::UsrWork).width()) ||
+	 (dim==2 && SI().zRange(OD::UsrWork).width()) )
 	annot_->setText( dim, txt );
 }
 
@@ -819,8 +820,8 @@ void Scene::mouseCB( CallBacker* cb )
 					  mouseposval_, mouseposstr_) )
 	{
 	    if ( !xytmousepos_.isUdf() )
-		mousetrckey_ = SI().transform(
-					Coord(xytmousepos_.x_,xytmousepos_.y_));
+		mousetrckey_ = TrcKey( SI().transform(
+				    Coord(xytmousepos_.x_,xytmousepos_.y_)) );
 
 	    mouseposchange.trigger();
 	    return;
@@ -867,8 +868,8 @@ void Scene::mouseCB( CallBacker* cb )
 	    }
 	}
 	if ( mousetrckey_.isUdf() )
-	    mousetrckey_ =
-		SI().transform(Coord(xytmousepos_.x_,xytmousepos_.y_));
+	    mousetrckey_ = TrcKey( SI().transform(
+				Coord(xytmousepos_.x_,xytmousepos_.y_) ) );
     }
 
     mouseposchange.trigger();
@@ -958,7 +959,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
     if ( datatransform_ ) datatransform_->ref();
 
     bool usedefaultzstretch = false;
-    TrcKeyZSampling cs = SI().sampling( true );
+    TrcKeyZSampling cs( OD::UsrWork );
     if ( !zat )
     {
 	setZDomainInfo( ZDomain::Info(ZDomain::SI()) );
@@ -1007,7 +1008,7 @@ const ZAxisTransform* Scene::getZAxisTransform() const
 
 void Scene::setMarkerPos( const TrcKeyValue& trkv, int sceneid )
 {
-    Coord3 displaypos( Survey::GM().toCoord( trkv.tk_ ), trkv.val_ );
+    Coord3 displaypos( trkv.tk_.getCoord(), trkv.val_ );
     if ( sceneid==id() )
 	displaypos = Coord3::udf();
 
@@ -1429,7 +1430,7 @@ void Scene::savePropertySettings()
 Coord3 Scene::getTopBottomIntersection( const visBase::EventInfo& eventinfo,
 				bool outerside, bool ignoreocclusion ) const
 {
-    ConstRefMan<Survey::Geometry3D> s3dgeom( SI().get3DGeometry( true ).ptr() );
+    ConstRefMan<Survey::Geometry3D> s3dgeom( SI().get3DGeometry(OD::UsrWork) );
     if ( !s3dgeom || !utm2disptransform_ || !tempzstretchtrans_ )
 	return Coord3::udf();
 
@@ -1440,15 +1441,15 @@ Coord3 Scene::getTopBottomIntersection( const visBase::EventInfo& eventinfo,
     {
 	const double z = top ? s3dgeom->zRange().start : s3dgeom->zRange().stop;
 
-	Coord3 p0( s3dgeom->toCoord(inlrg.start,crlrg.start), z );
+	Coord3 p0( s3dgeom->getCoord(BinID(inlrg.start,crlrg.start)), z );
 	utm2disptransform_->transform( p0 );
 	tempzstretchtrans_->transform( p0 );
 
-	Coord3 p1( s3dgeom->toCoord(inlrg.start,crlrg.stop), z );
+	Coord3 p1( s3dgeom->getCoord(BinID(inlrg.start,crlrg.stop)), z );
 	utm2disptransform_->transform( p1 );
 	tempzstretchtrans_->transform( p1 );
 
-	Coord3 p2( s3dgeom->toCoord(inlrg.stop,crlrg.start), z );
+	Coord3 p2( s3dgeom->getCoord(BinID(inlrg.stop,crlrg.start)), z );
 	utm2disptransform_->transform( p2 );
 	tempzstretchtrans_->transform( p2 );
 
@@ -1494,7 +1495,7 @@ Coord3 Scene::getTopBottomSurveyPos( const visBase::EventInfo& eventinfo,
 			    bool outerside, bool ignoreocclusion,
 			    bool inlcrlspace, BufferString* topbotstr ) const
 {
-    ConstRefMan<Survey::Geometry3D> s3dgeom( SI().get3DGeometry( true ).ptr() );
+    ConstRefMan<Survey::Geometry3D> s3dgeom( SI().get3DGeometry(OD::UsrWork) );
     const Coord3 pos =
 	    getTopBottomIntersection( eventinfo, outerside, ignoreocclusion );
 
@@ -1507,7 +1508,7 @@ Coord3 Scene::getTopBottomSurveyPos( const visBase::EventInfo& eventinfo,
     mMapMarginToSurvey( bid, inl, relativesurveymargin );
     mMapMarginToSurvey( bid, crl, relativesurveymargin );
 
-    if ( !s3dgeom->includes(bid.inl(),bid.crl()) )
+    if ( !s3dgeom->includes(bid) )
 	return Coord3::udf();
 
     if ( topbotstr )

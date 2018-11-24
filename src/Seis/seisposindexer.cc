@@ -20,8 +20,8 @@ Seis::PosIndexer::PosIndexer( const PosKeyList& pkl, bool doindex, bool excl )
     , int64interp_(0)
     , curinl_(-1)
     , excludeunreasonable_(excl)
-    , goodinlrg_( SI().inlRange(false) )
-    , goodcrlrg_( SI().crlRange(false) )
+    , goodinlrg_( SI().inlRange() )
+    , goodcrlrg_( SI().crlRange() )
     , iocompressed_(true)
     , is2d_(false), isps_(false) // keep compiler happy; still need to be set
 {

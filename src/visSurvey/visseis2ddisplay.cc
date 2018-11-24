@@ -183,8 +183,7 @@ void Seis2DDisplay::setProbe( Probe* probe )
 Pos::GeomID Seis2DDisplay::getGeomID() const
 {
     mDynamicCastGet(const Line2DProbe*,l2dprobe,probe_.ptr());
-    return l2dprobe ? l2dprobe->geomID()
-		    : Survey::GeometryManager::cUndefGeomID();
+    return l2dprobe ? l2dprobe->geomID() : Pos::GeomID();
 }
 
 
@@ -793,11 +792,11 @@ TrcKeyZSampling Seis2DDisplay::getTrcKeyZSampling( bool displayspace,
 						   int attrib ) const
 {
     TrcKeyZSampling tkzs;
-    tkzs.hsamp_.start_.inl() = tkzs.hsamp_.stop_.inl() = getGeomID();
+    tkzs.hsamp_.start_.inl() = tkzs.hsamp_.stop_.inl() = getGeomID().lineNr();
     tkzs.hsamp_.start_.crl() = getTraceNrRange().start;
     tkzs.hsamp_.stop_.crl() = getTraceNrRange().stop;
     tkzs.hsamp_.step_.inl() = tkzs.hsamp_.step_.crl() = 1;
-    tkzs.hsamp_.survid_ = Survey::GM().get2DSurvID();
+    tkzs.hsamp_.setIs2D();
     tkzs.zsamp_.setFrom( getZRange(displayspace,attrib) );
     return tkzs;
 }
@@ -904,7 +903,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 	return false;
 
     const int trcnr = geometry_.positions()[traceidx].nr_;
-    const TrcKey trckey = Survey::GM().traceKey( l2dprobe->geomID(), trcnr );
+    const TrcKey trckey( l2dprobe->geomID(), trcnr );
     const int trcidx = regsdp->getNearestGlobalIdx( trckey );
     const int sampidx = regsdp->getZRange().nearestIndex( pos.z_ );
     const Array3DImpl<float>& array = regsdp->data( version );

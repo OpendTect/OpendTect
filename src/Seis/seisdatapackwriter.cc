@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "dbman.h"
+#include "horsubsel.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "posinfo.h"
@@ -79,7 +80,7 @@ void SeisDataPackWriter::getPosInfo()
     const PosInfo::CubeData* pi = dp_->trcsSampling();
     posinfo_ = pi;
     if ( pi && !pi->isFullyRectAndReg() )
-	totalnr_ = posinfo_->totalSizeInside( tks_ );
+	totalnr_ = posinfo_->totalSizeInside( CubeHorSubSel(tks_) );
 }
 
 
@@ -116,11 +117,11 @@ void SeisDataPackWriter::adjustSteeringScaler( int compidx )
 	return;
 
     const Pos::GeomID geomid = dp_->sampling().hsamp_.getGeomID();
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
-    if ( !geom || !geom->as2D() )
+    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    if ( geom2d.isEmpty() )
 	return;
 
-    double trcdist = geom->as2D()->averageTrcDist();
+    double trcdist = geom2d.averageTrcDist();
     const UnitOfMeasure* feetuom = UnitOfMeasure::feetUnit();
     if ( feetuom && SI().xyInFeet() )
 	trcdist = feetuom->getSIValue( trcdist );
@@ -179,7 +180,7 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
 {
     tks_ = hrg;
     iterator_.setSampling( hrg );
-    totalnr_ = posinfo_ ? posinfo_->totalSizeInside( hrg )
+    totalnr_ = posinfo_ ? posinfo_->totalSizeInside( CubeHorSubSel(hrg) )
 			: mCast(int,hrg.totalNr());
     Seis::SelData* seldata = new Seis::RangeSelData( tks_ );
     if ( writer_ )
@@ -257,8 +258,12 @@ int SeisDataPackWriter::nextStep()
 
     const TrcKeySampling& hs = dp_->sampling().hsamp_;
     const od_int64 posidx = iterator_.curIdx();
-    if ( posinfo_ && !posinfo_->isValid(posidx,hs) )
-	return iterator_.next() ? MoreToDo() : Finished();
+    if ( posinfo_ )
+    {
+	const BinID bid( hs.atIndex(posidx) );
+	if ( !posinfo_->isValid(posinfo_->cubeDataPos(bid)) )
+	    return iterator_.next() ? MoreToDo() : Finished();
+    }
 
     const TrcKey currentpos( iterator_.curTrcKey() );
 

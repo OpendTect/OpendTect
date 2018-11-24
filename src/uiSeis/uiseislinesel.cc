@@ -215,7 +215,7 @@ void uiSeis2DLineChoose::writeChoiceReq( CallBacker* )
 	if ( idxof < 0 )
 	    { pErrMsg("Huh"); continue; }
 
-	key.setObjNr( geomids_[idxof] );
+	key.setObjNr( geomids_[idxof].lineNr() );
 	lbchoiceio_->keys().add( key.toString() );
     }
 }
@@ -260,8 +260,7 @@ int uiSeis2DLineSel::nrSelected() const
 
 Pos::GeomID uiSeis2DLineSel::geomID() const
 {
-    return selidxs_.isEmpty() ? Survey::GeometryManager::cUndefGeomID()
-			      : geomids_[selidxs_[0]];
+    return selidxs_.isEmpty() ? Pos::GeomID() : geomids_[selidxs_[0]];
 }
 
 
@@ -331,8 +330,8 @@ void uiSeis2DLineSel::setInput( const BufferStringSet& lnms )
     clearAll();
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
-	Pos::GeomID geomid = Survey::GM().getGeomID( lnms.get(idx) );
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	const auto geomid = Survey::Geometry::getGeomID( lnms.get(idx) );
+	if ( !geomid.isValid() )
 	    continue;
 
 	geomids_ += geomid;
@@ -350,12 +349,12 @@ void uiSeis2DLineSel::setInput( const TypeSet<Pos::GeomID>& geomids )
     clearAll();
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
-	const char* linenm = Survey::GM().getName( geomids[idx] );
-	if ( !linenm )
-	    continue;
-
-	geomids_ += geomids[idx];
-	lnms_.add( linenm );
+	const BufferString linenm = nameOf( geomids[idx] );
+	if ( !linenm.isEmpty() )
+	{
+	    geomids_ += geomids[idx];
+	    lnms_.add( linenm );
+	}
     }
 
     setAll( true );
@@ -525,13 +524,13 @@ const char* uiSeis2DLineNameSel::getInput() const
 
 Pos::GeomID uiSeis2DLineNameSel::getInputGeomID() const
 {
-    return Survey::GM().getGeomID( getInput() );
+    return Survey::Geometry::getGeomID( getInput() );
 }
 
 
 void uiSeis2DLineNameSel::setInputGeomID( Pos::GeomID geomid )
 {
-    return setInput( Survey::GM().getName(geomid) );
+    return setInput( nameOf(geomid) );
 }
 
 
@@ -638,7 +637,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
     if ( withz )
     {
 	zrgfld_ = new uiSelZRange( this, withstep );
-	zrgfld_->setRangeLimits( SI().zRange(false) );
+	zrgfld_->setRangeLimits( SI().zRange() );
 	zrgfld_->rangeChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,zRgChanged) );
 	zrgfld_->attach( alignedBelow, trcrgfld_ );
@@ -835,18 +834,17 @@ void uiSeis2DMultiLineSel::initRanges( const DBKey* datasetid )
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
 	StepInterval<int> trcrg(0,0,1);
-	StepInterval<float> zrg = SI().zRange(false);
+	StepInterval<float> zrg = SI().zRange();
 	if ( dataset && !dataset->isEmpty() )
 	   dataset->getRanges( geomids_[idx], trcrg, zrg );
 	else
 	{
-	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			     Survey::GM().getGeometry(geomids_[idx]) );
-	    if ( geom2d )
-	    {
-		trcrg = geom2d->data().trcNrRange();
-		zrg = geom2d->data().zRange();
-	    }
+	    const auto& geom2d = Survey::Geometry::get2D( geomids_[idx] );
+	    if ( geom2d.isEmpty() )
+		continue;
+
+	    trcrg = geom2d.data().trcNrRange();
+	    zrg = geom2d.data().zRange();
 	}
 
 	maxtrcrgs_ += trcrg; trcrgs_ += trcrg;
@@ -924,14 +922,14 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 	if ( !linepar )
 	    break;
 
-	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+	Pos::GeomID geomid;
 	if ( !linepar->get(sKey::GeomID(),geomid) )
 	{
 	    FixedString lnm = linepar->find( sKey::Name() );
-	    geomid = Survey::GM().getGeomID( lsetname, lnm );
+	    const BufferString oldlnm( lsetname, "-", lnm );
+	    geomid = Survey::Geometry::getGeomID( oldlnm );
 	}
-
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	if ( !geomid.isValid() )
 	    break;
 
 	selgeomids += geomid;

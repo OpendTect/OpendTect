@@ -278,7 +278,7 @@ bool uiODSceneProbeParentTreeItem::setRGBProbeLayers( Probe& probe ) const
 void uiODSceneProbeParentTreeItem::getDefZRange(
 				StepInterval<float>& zrg ) const
 {
-    zrg = SI().zRange( true );
+    zrg = SI().zRange( OD::UsrWork );
     Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
     const ZAxisTransform* ztransf = vwr ? vwr->getZAxisTransform() : 0;
     if ( ztransf )

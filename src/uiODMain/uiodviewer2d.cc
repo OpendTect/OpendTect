@@ -149,7 +149,7 @@ bool uiODViewer2D::isVertical() const
 
 Pos::GeomID uiODViewer2D::geomID() const
 {
-    if ( probe_.position().hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    if ( probe_.position().hsamp_.is2D() )
 	return probe_.position().hsamp_.trcKeyAt(0).geomID();
 
     return mUdfGeomID;
@@ -190,12 +190,12 @@ void uiODViewer2D::setUpAux()
 	    x1auxnm = intersection;
 	    x2auxnm = intersection;
 
-	    if ( probe_.position().defaultDir()==TrcKeyZSampling::Inl )
+	    if ( probe_.position().defaultDir()==OD::InlineSlice )
 	    {
 		x1auxnm.arg( uiStrings::sCrossline() );
 		x2auxnm.arg( uiStrings::sZSlice() );
 	    }
-	    else if ( probe_.position().defaultDir()==TrcKeyZSampling::Crl )
+	    else if ( probe_.position().defaultDir()==OD::CrosslineSlice )
 	    {
 		x1auxnm.arg( uiStrings::sInline() );
 		x2auxnm.arg( uiStrings::sZSlice() );
@@ -824,17 +824,17 @@ void uiODViewer2D::setWinTitle()
 	if ( rdmline )
 	    info = toUiString( rdmline->name() );
     }
-    else if ( probe_.position().hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    else if ( probe_.position().hsamp_.is2D() )
     {
 	info.arg( uiStrings::sLine() )
-	    .arg( toUiString( Survey::GM().getName(geomID()) ) );
+	    .arg( toUiString( nameOf(geomID()) ) );
     }
-    else if ( probe_.position().defaultDir() == TrcKeyZSampling::Inl )
+    else if ( probe_.position().defaultDir() == OD::InlineSlice )
     {
 	info.arg( uiStrings::sInline() )
 	    .arg( probe_.position().hsamp_.start_.inl() );
     }
-    else if ( probe_.position().defaultDir() == TrcKeyZSampling::Crl )
+    else if ( probe_.position().defaultDir() == OD::CrosslineSlice )
     {
 	info.arg( uiStrings::sCrossline() )
 	    .arg( probe_.position().hsamp_.start_.crl() );
@@ -963,7 +963,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     }
     else if ( mapdp )
     {
-	const Coord pos = Survey::GM().toCoord( trkv.tk_ );
+	const Coord pos = trkv.tk_.getCoord();
 	pt = FlatView::Point( pos.x_, pos.y_ );
     }
 
@@ -997,8 +997,8 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
     }
 
     const TrcKeyValue trckeyval =
-	mousepos.isDefined() ? TrcKeyValue(SI().transform(mousepos.getXY()),
-					    mCast(float,mousepos.z_))
+	mousepos.isDefined() ? TrcKeyValue(
+		TrcKey(SI().transform(mousepos.getXY())), (float)mousepos.z_)
 			     : TrcKeyValue::udf();
 
     MouseCursorExchange::Info info( trckeyval );

@@ -41,6 +41,7 @@ ________________________________________________________________________
 #include "dataclipper.h"
 #include "filepath.h"
 #include "fileformat.h"
+#include "cubesampling.h"
 #include "dirlist.h"
 #include "oddirs.h"
 #include "genc.h"
@@ -48,6 +49,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "settings.h"
 #include "timer.h"
+#include "trckeyzsampling.h"
 #include "repos.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -1081,7 +1083,7 @@ bool uiSEGYReadStarter::getInfo4SI( TrcKeyZSampling& cs, Coord crd[3] ) const
 
     BinID bids[2]; int xline;
     survinfo_->get3Pts( crd, bids, xline );
-    cs = survinfo_->sampling( false );
+    survinfo_->getSampling( cs );
     return true;
 }
 

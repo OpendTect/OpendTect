@@ -263,8 +263,8 @@ int SeisImporter::readIntoBuf()
 	if ( nrread_ == 0 )
 	{
 	    uiString& msg = errmsg_;
-	    const StepInterval<int> inlrg( SI().inlRange( true ) );
-	    const StepInterval<int> crlrg( SI().crlRange( true ) );
+	    const StepInterval<int> inlrg( SI().inlRange() );
+	    const StepInterval<int> crlrg( SI().crlRange() );
 	    msg.appendPhrase( tr("No valid traces in input") );
 	    msg.appendPhrase( tr("The trace range is outside survey range:"));
 	    msg.appendPhrase( tr("Inline Range: %1 - %2")

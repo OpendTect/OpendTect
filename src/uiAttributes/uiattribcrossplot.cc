@@ -292,12 +292,9 @@ bool uiAttribCrossPlot::acceptOK()
 	    linenames.add( lnms, false );
 	    for ( int lidx=0; lidx<lnms.size(); lidx++ )
 	    {
-		const Pos::GeomID geomid = Survey::GM().getGeomID(
-							    lnms.get(lidx) );
-		if ( mIsUdfGeomID(geomid) )
-		    continue;
-
-		p2d->addGeomID( geomid );
+		const auto geomid = Survey::Geometry::getGeomID(lnms.get(lidx));
+		if ( geomid.isValid() )
+		    p2d->addGeomID( geomid );
 	    }
 	}
     }

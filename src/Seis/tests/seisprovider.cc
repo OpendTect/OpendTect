@@ -41,7 +41,7 @@ static const char* dbkeyline_with_missing_trcs = "100010.21";
 
 static const TrcKey tk_before_first_missing_inl( BinID(298,1200) );
 static const TrcKey tk_last( BinID(650,1200) );
-static const TrcKey tk_before_first_missing_trc( 17, 170 );
+static const TrcKey tk_before_first_missing_trc( BinID(17,170) );
 
 // Using Penobscot_Test_survey for Prestack
 static const char* dbkeyps3d = "100010.5";
@@ -49,7 +49,7 @@ static const char* dbkeyps2d = "100010.9";
 static const TrcKey tk_1300_1200( BinID(1300,1200) );
 
 // Non-existent trace
-static const TrcKey tk_non_existent( 9999999, 9999999 );
+static const TrcKey tk_non_existent( BinID(9999999,9999999) );
 
 #define mTestGet( tk, txt ) \
 if ( !tester.testGet(tk,txt) ) \

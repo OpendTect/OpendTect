@@ -96,11 +96,11 @@ void WellT2DTransform::transformTrcBack( const TrcKey&,
 float WellT2DTransform::getGoodZStep() const
 {
     if ( !SI().zIsTime() )
-	return SI().zRange(true).step;
+	return SI().zStep();
 
     const Interval<float> zrg = getZRange( false );
     const int userfac = toZDomainInfo().userFactor();
-    const int nrsteps = SI().zRange( false ).nrSteps();
+    const int nrsteps = SI().zRange().nrSteps();
     float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
     zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
     zstep /= userfac;
@@ -122,9 +122,10 @@ Interval<float> WellT2DTransform::getZInterval( bool time ) const
 
 Interval<float> WellT2DTransform::getZRange( bool time ) const
 {
-    Interval<float> zrg = SI().zRange( true );
+    Interval<float> zrg = SI().zRange();
     const bool survistime = SI().zIsTime();
-    if ( time && survistime ) return zrg;
+    if ( time && survistime )
+	return zrg;
 
     const TrcKey tk( BinID(0,0) );
     if ( survistime && !time )

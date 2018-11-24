@@ -34,12 +34,11 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
     Pos::GeomID geomid = mUdfGeomID;
     BufferString basenm = File::Path(fnm).baseName();
     char* capstr = basenm.find( mCapChar );
-    if ( !capstr ) return geomid;
+    if ( !capstr )
+	return geomid;
     capstr++;
-    geomid = toInt( capstr, mUdfGeomID );
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-		     Survey::GM().getGeometry(geomid) );
-    return geom2d ? geomid : mUdfGeomID;
+    geomid.setI( toInt(capstr,Pos::GeomID::udfVal()) );
+    return geomid.is2D() ? geomid : Pos::GeomID();
 }
 
 
@@ -287,7 +286,7 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const IOObj& obj,
 	, preseldt_(OD::AutoDataRep)
 {
     tr_->set2D( true );
-    bid_.inl() = geomid;
+    bid_.inl() = geomid.lineNr();
     File::Path fp( fname_ );
     const BufferString dirnm( fp.pathOnly() );
     DataCharacteristics::getUserTypeFromPar( obj.pars(), preseldt_ );

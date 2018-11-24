@@ -25,6 +25,9 @@ class TaskRunner;
 mExpClass(Seis) SeisFixedCubeProvider
 { mODTextTranslationClass(SeisFixedCubeProvider);
 public:
+
+    typedef double	dist_type;
+
 			SeisFixedCubeProvider(const DBKey&);
 			~SeisFixedCubeProvider();
 
@@ -36,7 +39,7 @@ public:
 
     const SeisTrc*	getTrace(const BinID&) const;
     const SeisTrc*	getTrace(int trcnr) const;
-    float		getTrcDist() const		{ return trcdist_; }
+    dist_type		getTrcDist() const		{ return trcdist_; }
     uiString		errMsg() const;
 
 protected:
@@ -49,7 +52,7 @@ protected:
     TrcKeyZSampling	tkzs_;
     IOObj*		ioobj_;
     uiString		errmsg_;
-    float		trcdist_;
+    dist_type		trcdist_;
 
     bool		calcTrcDist(const Pos::GeomID);
 

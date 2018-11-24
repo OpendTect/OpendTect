@@ -112,8 +112,8 @@ void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
 }
 
 
-float PosInfo::LineSet2DData::getDistBetwTrcs( bool ismax,
-					       const char* linenm ) const
+PosInfo::LineSet2DData::dist_type PosInfo::LineSet2DData::getDistBetwTrcs(
+				bool ismax, const char* linenm ) const
 {
     Stats::CalcSetup rcsetup;
     if ( ismax )
@@ -121,7 +121,7 @@ float PosInfo::LineSet2DData::getDistBetwTrcs( bool ismax,
     else
 	rcsetup.require( Stats::Median );
 
-    Stats::RunCalc<float> stats( rcsetup );
+    Stats::RunCalc<dist_type> stats( rcsetup );
     for ( int idx=0; idx<trcdiststatsperlines_.size(); idx++ )
     {
 	if ( BufferString(linenm) == trcdiststatsperlines_[idx].linename_ )
@@ -140,8 +140,8 @@ void PosInfo::LineSet2DData::compDistBetwTrcsStats()
 {
     for ( int lidx=0; lidx<nrLines(); lidx++ )
     {
-	float median, max;
-	lineData( lidx ).compDistBetwTrcsStats( max, median );
+	PosInfo::Line2DData::dist_type median, max;
+	lineData( lidx ).getTrcDistStats( max, median );
 	LineTrcDistStats ltrcdiststats( lineName( lidx ), median, max );
 	trcdiststatsperlines_ += ltrcdiststats;
     }

@@ -91,7 +91,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , curtrcscale_(0)
 {
     if ( !DBM().isBad() )
-	lastinlwritten_ = SI().sampling(false).hsamp_.start_.inl();
+	lastinlwritten_ = SI().inlRange().start;
 }
 
 
@@ -200,7 +200,7 @@ bool SeisTrcTranslator::commitSelections()
     if ( seldata_ && !mIsUdf(seldata_->zRange().start) )
     {
 	Interval<float> selzrg( seldata_->zRange() );
-	const Interval<float> sizrg( SI().sampling(false).zsamp_ );
+	const Interval<float> sizrg( SI().zRange() );
 	if ( !mIsEqual(selzrg.start,sizrg.start,1e-8)
 	  || !mIsEqual(selzrg.stop,sizrg.stop,1e-8) )
 	{
@@ -364,8 +364,8 @@ bool SeisTrcTranslator::writeBlock()
     if ( !enforce_survinfo_write )
 	return dumpBlock();
 
-    StepInterval<int> inlrg, crlrg;
-    SI().sampling(true).hsamp_.get( inlrg, crlrg );
+    const auto inlrg = SI().inlRange();
+    const auto crlrg = SI().crlRange();
     const int firstafter = crlrg.stop + crlrg.step;
     int stp = crlrg.step;
     int bufidx = 0;
@@ -615,7 +615,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
     if ( lnm && *lnm )
     {
 	sd = Seis::SelData::get( Seis::Range );
-	sd->setGeomID( Survey::GM().getGeomID(lnm) );
+	sd->setGeomID( Survey::Geometry::getGeomID(lnm) );
 	tr->setSelData( sd );
     }
 

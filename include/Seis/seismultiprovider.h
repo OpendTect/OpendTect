@@ -175,7 +175,7 @@ public:
     Pos::GeomID			geomID( int iln ) const
 				{ return geomids_[iln]; }
     BufferString		lineName( int iln ) const
-				{ return Survey::GM().getName(geomID(iln));}
+				{ return nameOf(geomID(iln));}
     int				curLineIdx() const	{ return curlidx_; }
 
     bool			getRanges(int iln,StepInterval<int>& trcrg,

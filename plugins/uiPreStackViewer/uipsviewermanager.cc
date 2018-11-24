@@ -657,7 +657,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	TrcKey tk( bid );
 	if ( !is3d )
 	{
-	    tk.setGeomID( Survey::GM().getGeomID(name2d) );
+	    tk.setGeomID( Survey::Geometry::getGeomID(name2d) );
 	    tk.setTrcNr( trcnr );
 	}
 
@@ -720,7 +720,7 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
 	viewerpar.set( sKeyDBKey(), gather->getStorageID() );
 	viewerpar.set( sKeyTraceNr(), gather->getTrcKey().trcNr() );
 	viewerpar.set( sKeyLineName(),
-			Survey::GM().getName(gather->getTrcKey().geomID()) );
+			nameOf(gather->getTrcKey().geomID()) );
 	viewerpar.setYN( sKeyIsVolumeData(), gather->is3D() );
 
 	BufferString key = sKeyViewerPrefix();

@@ -11,17 +11,23 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "binid.h"
 #include "enums.h"
 #include "namedmonitorable.h"
 #include "posidxpair2coord.h"
 #include "ranges.h"
-#include "trckeyzsampling.h"
-#include "zdomain.h"
 #include "surveydisklocation.h"
+#include "zdomain.h"
 
+class CubeSampling;
+class CubeSubSel;
+class HorSampling;
 namespace Coords { class CoordSystem; }
-namespace Survey { class Geometry3D; class GeometryManager; }
+namespace Survey { class Geometry; class Geometry3D; class GeometryManager; }
+class TrcKeySampling;
+class TrcKeyZSampling;
 
+#define mSurvLimArg SurvLimitType lt=OD::FullSurvey
 
 /*!\brief Holds survey general information.
 
@@ -33,7 +39,8 @@ namespace Survey { class Geometry3D; class GeometryManager; }
   because different cubes/lines have different sample rates.
 
   The ranges are defined for two cubes: the entire survey, and a 'working area'.
-  Normally, you'll want to have the working area.
+  Normally, you'll want to have the OD::FullSurvey in non-UI, OD::UsrWork
+  in UI settings.
 
   To keep things safe we have made the non-const stuff inaccessible for casual
   use. On non-shared objects, you can do as you like wth all the non-const
@@ -58,32 +65,46 @@ mExpClass(Basic) SurveyInfo : public NamedMonitorable
 
 public:
 
-    typedef Survey::Geometry3D	Geometry3D;
-    typedef Coords::CoordSystem	CoordSystem;
-    typedef Pos::IdxPair2Coord	IdxPair2Coord;
+    typedef int				size_type;
+    typedef BinID::IdxType		pos_type;
+    typedef StepInterval<pos_type>	pos_steprg_type;
+    typedef Pos::Z_Type			z_type;
+    typedef StepInterval<z_type>	z_steprg_type;
+    typedef Pos::Distance_Type		dist_type;
+    typedef dist_type			area_type;
+    mUseType( OD,			SurvLimitType );
+    mUseType( Survey,			Geometry3D );
+    mUseType( Coords,			CoordSystem );
+    mUseType( Pos,			IdxPair2Coord );
 
     bool		has2D() const;
     bool		has3D() const;
 
-    StepInterval<int>	inlRange(bool work) const;
-    StepInterval<int>	crlRange(bool work) const;
-    StepInterval<float>	zRange(bool work) const;
-    TrcKeyZSampling	sampling(bool work) const;
-    int			inlStep() const;
-    int			crlStep() const;
-    float		zStep() const;
-    float		inlDistance() const; //!< distance for one increment
-    float		crlDistance() const;
-
     Coord		transform(const BinID&) const;
-    BinID		transform(const Coord&) const;
-			/*!<\note BinID will be snapped using work step. */
+    BinID		transform(const Coord&,mSurvLimArg) const;
+
+    pos_steprg_type	inlRange(mSurvLimArg) const;
+    pos_steprg_type	crlRange(mSurvLimArg) const;
+    z_steprg_type	zRange(mSurvLimArg) const;
+    pos_type		inlStep(mSurvLimArg) const;
+    pos_type		crlStep(mSurvLimArg) const;
+    z_type		zStep(mSurvLimArg) const;
+    BinID		steps(mSurvLimArg) const;
+
+    void		getHorSampling(HorSampling&,mSurvLimArg) const;
+    void		getCubeSampling(CubeSampling&,mSurvLimArg) const;
+    void		getSampling(TrcKeySampling&,mSurvLimArg) const;
+    void		getSampling(TrcKeyZSampling&,mSurvLimArg) const;
+
+    dist_type		inlDistance() const; // between a step 1 in inls!
+    dist_type		crlDistance() const; // between a step 1 in crls!
+    Coord		distances() const;
 
     bool		xyInFeet() const;
     uiString		xyUnitString(bool abbrviated=true) const;
     const char*		fileXYUnitString(bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
-    float		showZ2UserFactor() const;
+    z_type		showZ2UserFactor() const;
     uiString		zUnitString() const; // No parentheses. Use withUnit()
     const char*		fileZUnitString(bool withparens=true) const;
     mImplSimpleMonitoredGetSet(inline,depthsInFeet,setDepthsInFeet,
@@ -96,36 +117,32 @@ public:
 			//!< in ALL objects
 			//!< when displaying, honor depthsInFeet() though!
 
-    Coord		minCoord(bool work) const;
-    Coord		maxCoord(bool work) const;
-    bool		isInside(const BinID&,bool work) const;
+    Coord		minCoord(mSurvLimArg) const;
+    Coord		maxCoord(mSurvLimArg) const;
     bool		isReasonable(const BinID&) const;
 				//!< Checks if in or near survey
     bool		isReasonable(const Coord&) const;
 				//!< Checks if in or near survey
-    Interval<int>	reasonableRange(bool inl) const;
-    int			maxNrTraces(bool work) const;
+    Interval<pos_type>	reasonableRange(bool inl) const;
+    size_type		maxNrTraces(mSurvLimArg) const;
     bool		isRightHandSystem() const;
 			/*!< rotating the inline axis to the crossline axis. */
     float		angleXInl() const;
 			/*!< angle between the X-axis (East) and an Inline */
 
-    void		checkInlRange(Interval<int>&,bool work) const;
-    void		checkCrlRange(Interval<int>&,bool work) const;
-    void		checkZRange(Interval<float>&,bool work) const;
-    bool		includes(const BinID&) const;
-    bool		includes(const BinID&,const float,bool work) const;
+    void		checkInlRange(Interval<pos_type>&,mSurvLimArg) const;
+    void		checkCrlRange(Interval<pos_type>&,mSurvLimArg) const;
+    void		checkZRange(Interval<z_type>&,mSurvLimArg) const;
+    bool		includes(const BinID&,mSurvLimArg) const;
+    bool		includes(const BinID&,z_type,mSurvLimArg) const;
 
-    void		snap(BinID&,const BinID& dir=BinID(0,0)) const;
-			//!< dir = 0 : auto; -1 round downward, 1 round upward
-    void		snapStep(BinID&,const BinID& dir=BinID(0,0))const;
-			//!< see snap() for direction
-    void		snapZ(float&,int direction=0) const;
-			//!< see snap() for direction
+    void		snap(BinID&,OD::SnapDir =OD::SnapNearest) const;
+    void		snapStep(BinID&)const;
+    void		snapZ(z_type&,OD::SnapDir dir=OD::SnapNearest) const;
 
     mImplSimpleMonitoredGetSet(inline,
 			seismicReferenceDatum,setSeismicReferenceDatum,
-			float,seisrefdatum_,cAuxDataChange());
+			z_type,seisrefdatum_,cAuxDataChange());
 			/*!< is in depth units (m or ft), positive upward
 			    from sea level. Always in meters for time surveys */
 
@@ -136,21 +153,21 @@ public:
     void		removeKeyFromDefaultPars(const char* ky,
 						 bool save2storage) const;
     void		putZDomain(IOPar&) const;
-    void		setWorkRanges(const TrcKeyZSampling&) const;
     void		getCreationData(IOPar&) const;
-			//!< std creation entries and some SIP stuff
+				//!< std creation entries and some SIP stuff
 
-    RefMan<Geometry3D>	get3DGeometry(bool work);
-    ConstRefMan<Geometry3D> get3DGeometry(bool work) const;
+    RefMan<Geometry3D>	get3DGeometry(mSurvLimArg);
+    ConstRefMan<Geometry3D> get3DGeometry(mSurvLimArg) const;
     RefMan<CoordSystem>	getCoordSystem();
     ConstRefMan<CoordSystem> getCoordSystem() const;
 
     typedef OD::Pol2D3D	Pol2D3D;
 			mDeclareEnumUtils(Pol2D3D);
 
-    float		getArea(Interval<int> inl,Interval<int> crl) const;
-				//!<returns square meters
-    float		getArea(bool work) const;   //!<returns square meters
+				//!< areas in square meters
+    area_type		getArea(Interval<pos_type> inl,
+				Interval<pos_type> crl) const;
+    area_type		getArea(mSurvLimArg) const;
     Coord3		oneStepTranslation(const Coord3& planenormal) const;
 
 			// Contrary to normal assignment, only one of
@@ -178,12 +195,10 @@ protected:
     SurveyDiskLocation	diskloc_;
     ZDomain::Def&	zdef_;
     bool		depthsinfeet_;
-    float		seisrefdatum_;
+    z_type		seisrefdatum_;
     IOPar		defpars_;
     BufferString	comments_;
 
-    TrcKeyZSampling&	fullcs_;
-    TrcKeyZSampling&	workcs_;
     Geometry3D*		s3dgeom_;
     Geometry3D*		work_s3dgeom_;
     RefMan<CoordSystem>	coordsystem_;
@@ -196,25 +211,26 @@ protected:
     uiString		sipnm_;
 
     bool		wrapUpRead();
-    TrcKeyZSampling&	gtSampling( bool work ) const
-			{ return work ? workcs_ : fullcs_; }
 
 private:
 
 			// ugly, but hard to avoid:
     friend class	DBMan;
-    friend class	Survey::GeometryManager;
+    friend class	Survey::Geometry;
     friend class	uiSurveyManager;
     friend class	uiSurveyInfoEditor;
+    friend class	uiSurvInfoProvider;
 
     IdxPair2Coord	rdb2c_;
+    CubeSampling&	fullcs_;
+    CubeSampling&	workcs_;
 
     mutable Threads::Lock make3dgeomlock_;
-    Geometry3D&		gt3DGeom(bool work=false) const;
+    Geometry3D&		gt3DGeom(mSurvLimArg) const;
     void		gen3Pts();
+    void		updateGeometries();
+    void		updateGeometry(Geometry3D&,const CubeSampling&);
 
-				// For DBMan only
-    static uiRetVal	setSurveyLocation(const SurveyDiskLocation&,bool);
     void		setToUnlocatedCoordSys(bool);
 
 public:
@@ -226,9 +242,9 @@ public:
     mDeclMonitorableAssignment(SurveyInfo);
 
     Pos::IdxPair2Coord	binID2Coord() const;
-    void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
+    void		get3Pts(Coord c[3],BinID b[2],pos_type& xline) const;
     void		setZUnit(bool istime,bool infeet=false);
-    void		update3DGeometry();
+    void		setRanges(const CubeSampling&);
 
     static const char*	sKeyInlRange();
     static const char*	sKeyCrlRange();
@@ -267,6 +283,7 @@ public:
 
 	// Following fns are used by specialist classes. Don't use casually.
 
+    void		setWorkRanges(const CubeSubSel&) const;
     bool		write(const char* basedir=0) const;
 			//!< Write to .survey file and .defs file
     void		saveDefaultPars(const char* basedir=0) const;
@@ -275,7 +292,6 @@ public:
 			//!< Write to .comments file
     static SurveyInfo*	read(const char*,uiRetVal&);
     uiString		set3Pts(const Coord c[3],const BinID b[2],Index_Type);
-    void		setRanges(const TrcKeyZSampling&);
     bool		setCoordSystem(Coords::CoordSystem*);
     void		readSavedCoordSystem() const;
 			//!< Useful after loading plugins.
@@ -294,31 +310,33 @@ public:
     mImplSimpleMonitoredGetSet(inline,comments,setComments,
 				BufferString,comments_,cCommentChange());
 
-    mDeprecated const IOPar&	pars() const
-				{ return defpars_; }
-    mDeprecated void		savePars(const char* basedir = 0) const
-				{ saveDefaultPars(basedir); }
-    mDeprecated IOPar&		getPars() const
-				{ return const_cast<IOPar&>(defpars_); }
-    mDeprecated BufferString	getDataDirName() const
-				{ return basePath();}
-
-    mDeprecated void		setRange( const TrcKeyZSampling& cs, bool work )
-				{ work ? setWorkRanges(cs) : setRanges(cs); }
-    mDeprecated const char*	getZUnitString( bool wp=true ) const
-				{ return fileZUnitString( wp ); }
-    mDeprecated const char*	getXYUnitString( bool wp=true ) const
-				{ return fileXYUnitString( wp ); }
-
     enum Unit		{ Second, Meter, Feet };
     Unit		xyUnit() const;
     Unit		zUnit() const;
-    static float	defaultXYtoZScale(Unit,Unit);
+    static z_type	defaultXYtoZScale(Unit,Unit);
 			/*!<Gives a ballpark figure of how to scale XY to
 			    make it comparable to Z. */
-    float		zScale() const;
+    z_type		zScale() const;
 			/*!<Gives a ballpark figure of how to scale Z to
 			    make it comparable to XY. */
+
+    mDeprecated const IOPar&	pars() const { return defpars_; }
+    mDeprecated void		savePars(const char* basedir = 0) const
+					{ saveDefaultPars(basedir); }
+    mDeprecated IOPar&		getPars() const
+					{ return const_cast<IOPar&>(defpars_); }
+    mDeprecated BufferString	getDataDirName() const
+					{ return basePath();}
+
+    mDeprecated const char*	getZUnitString( bool wthparens=true ) const
+				{ return fileZUnitString( wthparens ); }
+    mDeprecated const char*	getXYUnitString( bool wthparens=true ) const
+				{ return fileXYUnitString( wthparens ); }
+    mDeprecated bool		isInside( const BinID& b, bool work ) const
+    { return includes( b, work ? OD::UsrWork : OD::FullSurvey ); }
+
+				// For DBMan and programs in Basic and Algo
+    static uiRetVal	setSurveyLocation(const SurveyDiskLocation&,bool);
 
 };
 

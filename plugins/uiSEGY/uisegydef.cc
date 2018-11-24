@@ -318,8 +318,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const uiString& txt,
     uiGenInput* inp;
     if ( isint )
     {
-	IntInpSpec iis( ispresent ? mNINT32(val)
-				  : SI().zRange(false).nrSteps() + 1 );
+	IntInpSpec iis( ispresent ? mNINT32(val) : SI().zRange().nrSteps()+1 );
 	inp = new uiGenInput( grp, txt, iis );
     }
     else

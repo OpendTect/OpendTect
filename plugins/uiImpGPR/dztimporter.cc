@@ -23,7 +23,7 @@ static const float cNanoFac = 1e-9;
 DZT::FileHeader::FileHeader()
     : nsamp(0)
     , nrdef_(1,1)
-    , cstart_(SI().minCoord(true))
+    , cstart_(SI().minCoord())
     , cstep_(SI().crlDistance(),0)
 {
 }

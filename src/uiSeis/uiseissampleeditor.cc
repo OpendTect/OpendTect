@@ -45,7 +45,8 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seisinfo.h"
 #include "seiswrite.h"
-#include "survgeom.h"
+#include "survgeom2d.h"
+#include "survgeom3d.h"
 #include "zdomain.h"
 #include "od_helpids.h"
 
@@ -86,7 +87,7 @@ uiSeisSampleEditor::Setup::Setup( const DBKey& ky, Pos::GeomID linegeomid )
 {
     BufferString dataname( DBM().nameOf(id_) );
     if ( !mIsUdfGeomID(geomid_) )
-	dataname.add( ": " ).add( Survey::GM().getName(geomid_) );
+	dataname.add( ": " ).add( nameOf(geomid_) );
 
     wintitle_ = tr("Browse/Edit '%1'").arg( dataname );
 }
@@ -111,7 +112,7 @@ uiSeisSampleEditor::uiSeisSampleEditor( uiParent* p, const Setup& su )
     , viewtbuf_(*new SeisTrcBuf(true))
     , edtrcs_(*new Pos::IdxPairDataSet(sizeof(SeisTrc*),false,false))
     , cubedata_(*new PosInfo::CubeData)
-    , linedata_(*new PosInfo::LineData(su.geomid_))
+    , linedata_(*new PosInfo::LineData(su.geomid_.lineNr()))
     , crlwise_(false)
     , stepout_(25)
     , compnr_(0)
@@ -145,18 +146,20 @@ uiSeisSampleEditor::uiSeisSampleEditor( uiParent* p, const Setup& su )
 
     if ( !is2d_ )
     {
-	survgeom_ = &Survey::Geometry::default3D();
+	survgeom_ = &Survey::Geometry::get3D();
 	prov3D().getGeometryInfo( cubedata_ );
     }
     else
     {
-	survgeom_ = Survey::GM().getGeometry( setup_.geomid_ );
-	if ( !survgeom_ )
+	const auto& geom2d = Survey::Geometry::get2D( setup_.geomid_ );
+	if ( geom2d.isEmpty() )
 	    mRetNoGo( tr("Cannot find line geometry for ID=%1)")
-			.arg(setup_.geomid_) );
+			.arg(setup_.geomid_.getI()) );
+	survgeom_ = &geom2d;
 	int linenr = prov2D().lineNr( setup_.geomid_ );
 	if ( linenr < 0 )
-	    mRetNoGo( tr("Line not present for ID=%1").arg(setup_.geomid_) )
+	    mRetNoGo( tr("Line not present for ID=%1")
+			.arg(setup_.geomid_.getI()) )
 	PosInfo::Line2DData l2dd;
 	prov2D().getGeometryInfo( linenr, l2dd );
 	l2dd.getSegments( linedata_ );
@@ -235,7 +238,10 @@ TrcKey uiSeisSampleEditor::trcKey4BinID( const BinID& bid ) const
 
 TrcKey uiSeisSampleEditor::curPos() const
 {
-    return ctrc_ ? ctrc_->info().binID() : BinID(0,0);
+    if ( !ctrc_ )
+	return TrcKey::udf();
+
+    return ctrc_->info().trckey_;
 }
 
 
@@ -371,8 +377,8 @@ void uiSeisSampleEditor::addTrc( const BinID& bid )
 	const TrcKey tk( trcKey4BinID(bid) );
 	if ( !prov_->get(tk,*trc).isOK() )
 	{
-	    trc->info().setBinID( bid );
-	    trc->info().coord_ = survgeom_->toCoord( bid );
+	    trc->info().trckey_ = tk;
+	    trc->info().coord_ = tk.getCoord();
 	    fillUdf( *trc );
 	}
     }
@@ -563,7 +569,7 @@ bool posIsInside() const
 {
     if ( inlfld_ )
        return SI().includes( pos_ );
-    return ed_.survgeom_->includes( ed_.setup_.geomid_, pos_.trcNr() );
+    return ed_.survgeom_->includes( TrcKey(ed_.setup_.geomid_,pos_.trcNr()) );
 }
 
 
@@ -794,7 +800,7 @@ void createIter2D()
     }
 
     curtrcnr_ = trcnrrg_.start - trcnrrg_.step;
-    curbinid_.lineNr() = ed_.setup_.geomid_;
+    curbinid_.lineNr() = ed_.setup_.geomid_.lineNr();
 }
 
 void createIter3D()
@@ -888,13 +894,15 @@ int nextStep()
     return toNextPos() ? MoreToDo() : Finished();
 }
 
+    typedef Pos::TraceNr_Type	tracenr_type;
+
     uiSeisSampleEditor&	ed_;
     DBKey		dbky_;
     const Seis::Provider& prov_;
     SeisTrcWriter*	wrr_;
     TrcKeySamplingIterator* tksampiter_;
-    StepInterval<Pos::TraceID> trcnrrg_;
-    Pos::TraceID	curtrcnr_;
+    StepInterval<tracenr_type> trcnrrg_;
+    tracenr_type	curtrcnr_;
     od_int64		totalnr_;
     od_int64		nrdone_;
     SeisTrc		trc_;

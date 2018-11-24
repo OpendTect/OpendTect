@@ -59,7 +59,6 @@ Hor2DFrom3DCreator::Hor2DFrom3DCreator( const EM::Horizon3D& hor3d,
     : Executor("Creating 2D horizon from 3D" )
     , hor3d_(hor3d)
     , hor2d_(hor2d)
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
     , geom2d_(0)
     , nrdone_(0)
 {
@@ -68,13 +67,12 @@ Hor2DFrom3DCreator::Hor2DFrom3DCreator( const EM::Horizon3D& hor3d,
 
 bool Hor2DFrom3DCreator::setCreator( Pos::GeomID geomid )
 {
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-		     Survey::GM().getGeometry(geomid) );
-    if ( !geom2d )
+    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    if ( geom2d.isEmpty() )
 	return false;
 
     geomid_ = geomid;
-    geom2d_ = geom2d;
+    geom2d_ = &geom2d;
     hor2d_.geometry().addLine( geomid_ );
     totalnr_ = geom2d_->data().positions().size();
     return true;

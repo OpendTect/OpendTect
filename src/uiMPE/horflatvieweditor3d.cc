@@ -252,7 +252,8 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 	if ( !seedpicker )
 	    return;
 
-	const TrcKeyValue tkv( SI().transform(coord.getXY()), (float)coord.z_ );
+	const TrcKeyValue tkv( TrcKey(SI().transform(coord.getXY())),
+				(float)coord.z_ );
 	pickedpos_ = seedpicker->replaceSeed( pickedpos_, tkv );
 	return;
     }
@@ -334,7 +335,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 
 	const uiWorldPoint wp =
 	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
-	pickedpos_ = SI().transform( vwr->getCoord(wp).getXY() );
+	pickedpos_ = TrcKey( SI().transform( vwr->getCoord(wp).getXY() ) );
 	return;
     }
 
@@ -721,7 +722,7 @@ bool HorizonFlatViewEditor3D::getPosID( const Coord3& crd,
 bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 					 const MouseEvent& mev )
 {
-    const TrcKeyValue tkv( SI().transform(crd.getXY()), (float)crd.z_ );
+    const TrcKeyValue tkv( TrcKey(SI().transform(crd.getXY())), (float)crd.z_ );
     const bool ismarker = editor_->markerPosAt( mev.pos() );
     if ( !ismarker )
     {
@@ -732,7 +733,8 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    dodropnext_ = false;
 	}
 
-	const TrcKeyValue tkv2( SI().transform(Coord(mev.x(),mev.y())), 0.f );
+	const TrcKeyValue tkv2( TrcKey(SI().transform(Coord(mev.x(),mev.y()))),
+				0.f );
 	const MouseEvent& mouseevent = mehandler_->event();
 
 	const bool doerase =

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "executor.h"
+#include "geomid.h"
 #include "uistring.h"
 
 class IOObj;

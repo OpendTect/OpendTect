@@ -118,36 +118,17 @@ int BaseHorizon3DExtender::nextStep()
 		//If this is a better route to a node that is already
 		//added, replace the route with this one
 
-/*
-		const int previndex = addedpos_.indexOf( neighbor );
-		if ( previndex!=-1 )
-		{
-		    const RowCol step( horizon_.geometry().step() );
-		    const od_int64 serc = addedpossrc_[previndex];
-		    const RowCol oldsrc( RowCol::fromInt64(serc)/step );
-		    const RowCol dst( RowCol::fromInt64(serc)/step );
-		    const RowCol cursrc( srcbid/step );
-
-		    const int olddist = (int)oldsrc.sqDistTo(dst);
-		    if ( cursrc.sqDistTo(dst) < olddist )
-		    {
-			addedpossrc_[previndex] = srcbid;
-			const float depth = getDepth( srcbid, neighbbid );
-			horizon_.setZ( neighbbid, depth, setundo_ );
-		    }
-		    continue;
-		}
-*/
 		if ( horizon_.isDefined(neighbor) )
 		    continue;
 
-		if ( !isExcludedPos(neighbbid) )
+		if ( !isExcludedPos(TrcKey(neighbbid)) )
 		{
-		    const float depth = getDepth( srcbid, neighbbid );
+		    const float depth = getDepth( TrcKey(srcbid),
+						  TrcKey(neighbbid) );
 		    if ( !mIsUdf(depth) && horizon_.setZ(neighbbid,depth,
 								    setundo_) )
 		    {
-			addTarget( neighbbid, srcbid );
+			addTarget( TrcKey(neighbbid), TrcKey(srcbid) );
 			change = true;
 		    }
 		}

@@ -859,17 +859,17 @@ void uiBodyRegionGrp::updateTable()
 		iczbox->setSuffix( SI().zDomain().unitStr() );
 	    if ( inlbd )
 	    {
-		iczbox->setInterval( SI().inlRange(false) );
+		iczbox->setInterval( SI().inlRange() );
 		iczbox->setValue( inlbd->inl_ );
 	    }
 	    if ( crlbd )
 	    {
-		iczbox->setInterval( SI().crlRange(false) );
+		iczbox->setInterval( SI().crlRange() );
 		iczbox->setValue( crlbd->crl_ );
 	    }
 	    if ( zbd )
 	    {
-		StepInterval<float> zrg = SI().zRange( false );
+		StepInterval<float> zrg = SI().zRange();
 		zrg.scale( (float)SI().zDomain().userFactor() ); zrg.step = 1.f;
 		iczbox->setInterval( zrg );
 		iczbox->setValue( zbd->z_ );

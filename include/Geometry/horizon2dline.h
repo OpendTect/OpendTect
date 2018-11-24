@@ -85,7 +85,7 @@ public:
 protected:
 
     int			colIndex(int rowidx,int colid) const;
-    int			rowIndex(int rowid) const;
+    int			rowIndex(Pos::GeomID) const;
 
     bool		checksupport_;
 

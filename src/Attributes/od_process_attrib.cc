@@ -151,8 +151,7 @@ bool BatchProgram::go( od_ostream& strm )
 	{
 	    if ( !subselpar->get(sKey::LineKey(),alllinenames) )
 	    {
-		int lidx = 0;
-		Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+		int lidx = 0; Pos::GeomID geomid;
 		while ( true )
 		{
 		    PtrMan<IOPar> linepar = subselpar->subselect(
@@ -160,7 +159,7 @@ bool BatchProgram::go( od_ostream& strm )
 		    if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
 			break;
 
-		    const FixedString linename = Survey::GM().getName( geomid );
+		    const FixedString linename = nameOf( geomid );
 		    if ( linename.isEmpty() )
 			break;
 
@@ -197,13 +196,13 @@ bool BatchProgram::go( od_ostream& strm )
 	    IOPar procpar( pars() );
 	    if ( is2d && subselpar )
 	    {
-		Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+		Pos::GeomID geomid;
 		PtrMan<IOPar> linepar =
 		    subselpar->subselect( IOPar::compKey(sKey::Line(),idx) );
 		if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
 		    break;
 
-		const FixedString linename = Survey::GM().getName( geomid );
+		const FixedString linename = nameOf( geomid );
 		if ( linename.isEmpty() )
 		    break;
 

@@ -491,7 +491,7 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 	    if ( zaxistransform_ )
 	    {
 		vals[zcol] = zaxistransform_->transformTrc(
-					bivs.getBinID(pos), vals[0] );
+					TrcKey(bivs.getBinID(pos)), vals[0] );
 	    }
 	    else
 		vals[zcol] = vals[0];

@@ -29,8 +29,8 @@ class DataColDef;
 mExpClass(General) PosVecDataSet
 { mODTextTranslationClass(PosVecDataSet)
 public:
-    			PosVecDataSet(const char* nm=0);
-    			PosVecDataSet(const PosVecDataSet&);
+			PosVecDataSet(const char* nm=0);
+			PosVecDataSet(const PosVecDataSet&);
     virtual		~PosVecDataSet();
     PosVecDataSet&	operator =(const PosVecDataSet&);
     void		copyStructureFrom(const PosVecDataSet&);
@@ -39,24 +39,26 @@ public:
     void		setEmpty();
     int			add(DataColDef*);
     bool		insert(int idx,DataColDef*);
-    			//!<\returns index
+			//!<\returns index
     void		removeColumn(int); //!< "Z" col (idx=0) can't be removed
     enum OvwPolicy	{ Keep, OvwIfUdf, Ovw };
-    			//!< During merge, which set is dominant?
+			//!< During merge, which set is dominant?
     enum ColMatchPol	{ NameExact, RefExact, NameStart, RefStart };
     void		merge(const PosVecDataSet&,OvwPolicy pol=OvwIfUdf,
 			      ColMatchPol cmp=NameExact);
-    			//!< This is a rather intelligent method.
+			//!< This is a rather intelligent method.
 
     BinIDValueSet&	data()			{ return data_; }
     const BinIDValueSet& data() const		{ return data_; }
+    OD::GeomSystem	geomSystem() const;
+    bool		is2D() const		{ return ::is2D(geomSystem()); }
 
     int			nrCols() const		{ return coldefs_.size(); }
     DataColDef&		colDef( int idx )	{ return *coldefs_[idx]; }
     const DataColDef&	colDef( int idx ) const	{ return *coldefs_[idx]; }
     int			findColDef(const DataColDef&,
-	    			   ColMatchPol p=RefExact) const;
-    			//!< returns -1 if no match
+				   ColMatchPol p=RefExact) const;
+			//!< returns -1 if no match
 
     const char*		name() const		{ return name_.buf(); }
     void		setName( const char* nm ) { name_ = nm; }
@@ -64,15 +66,15 @@ public:
     IOPar&		pars()			{ return pars_; }
     const IOPar&	pars() const		{ return pars_; }
 
-    bool		getFrom(const char*,BufferString& errmsg); 
+    bool		getFrom(const char*,BufferString& errmsg);
     bool		getFrom(const char*,uiString& errmsg);
     bool		putTo(const char*,BufferString& errmsg,
-	    			bool tabstyle) const;
+				bool tabstyle) const;
     bool		putTo(const char*,uiString& errmsg,bool tabstyle) const;
-    			//!< tabstyle -> for spreadsheet import (looses info)
-    			//!< !tabstyle: dTect style (preserves all)
+			//!< tabstyle -> for spreadsheet import (looses info)
+			//!< !tabstyle: dTect style (preserves all)
     static bool		getColNames(const char*,BufferStringSet& bss,
-	    			    BufferString& errmsg,bool refs=false);
+				    BufferString& errmsg,bool refs=false);
     static bool		getIOPar(const char*,IOPar& iop,BufferString& errmsg);
 
 protected:

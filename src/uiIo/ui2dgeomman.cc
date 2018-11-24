@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "posinfo2dsurv.h"
 #include "survgeom2d.h"
+#include "survgeommgr.h"
 #include "survgeometrytransl.h"
 #include "survinfo.h"
 
@@ -69,15 +70,14 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 	return;
 
     const BufferString linenm = curioobj_->name();
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-		    Survey::GM().getGeometry(linenm) )
-    if ( !geom2d )
+    const auto& geom2d = Survey::Geometry::get2D( linenm );
+    if ( geom2d.isEmpty() )
     {
 	uiMSG().error(tr("Cannot find geometry for %1").arg(linenm));
 	return;
     }
 
-    uiManageLineGeomDlg dlg( this, geom2d->id(),
+    uiManageLineGeomDlg dlg( this, geom2d.geomID(),
 			     !transl->isUserSelectable(false) );
     dlg.go();
 }
@@ -116,8 +116,8 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 	    continue;
 
 	const BufferString lnm( ioobj->name() );
-	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
+	if ( !geomid.isValid() )
 	    return;
 
 	if ( !fullImplRemove(*ioobj) )
@@ -249,21 +249,20 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p, Pos::GeomID geomid,
 	setCaption( tr("Browse Line Geometry") );
     }
 
-    const BufferString linenm = Survey::GM().getName( geomid_ );
+    const BufferString linenm = nameOf( geomid_ );
     uiString lbl = tr("%1 : %2").arg(uiStrings::sLineName()).arg(linenm);
 
     uiLabel* titllbl = new uiLabel( this, lbl );
     titllbl->attach( hCentered );
 
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-		    Survey::GM().getGeometry(geomid_));
-    if ( !geom2d )
+    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    if ( geom2d.isEmpty() )
     {
 	uiMSG().error(tr("Cannot find geometry for %1").arg(linenm));
 	return;
     }
 
-    const TypeSet<PosInfo::Line2DPos>& positions = geom2d->data().positions();
+    const auto& positions = geom2d.data().positions();
     table_ = new uiTable( this, uiTable::Setup(positions.size(),3), "2DGeom" );
     table_->attach( ensureBelow, titllbl );
     table_->setPrefWidth( 400 );
@@ -279,7 +278,7 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p, Pos::GeomID geomid,
     zlbl.withSurvZUnit();
     rgfld_ = new uiGenInput( this, zlbl, spec );
     rgfld_->attach( leftAlignedBelow, table_ );
-    StepInterval<float> zrg = geom2d->data().zRange();
+    StepInterval<float> zrg = geom2d.data().zRange();
     zrg.scale( mCast(float,SI().zDomain().userFactor()) );
     rgfld_->setValue( zrg );
     rgfld_->setReadOnly( readonly );
@@ -296,7 +295,7 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p, Pos::GeomID geomid,
 	grp->attach( ensureBelow, rgfld_ );
     }
 
-    fillTable( *geom2d );
+    fillTable( geom2d );
 }
 
 
@@ -309,7 +308,7 @@ void uiManageLineGeomDlg::impGeomCB( CallBacker* )
     if ( readonly_ )
 	return;
 
-    const BufferString linenm = Survey::GM().getName( geomid_ );
+    const BufferString linenm = nameOf( geomid_ );
     uiImp2DGeom dlg( this, linenm );
     if ( !dlg.go() ) return;
 
@@ -347,12 +346,13 @@ void uiManageLineGeomDlg::setTrcSPNrCB( CallBacker* )
 void uiManageLineGeomDlg::fillTable( const Survey::Geometry2D& geom2d )
 {
     const TypeSet<PosInfo::Line2DPos>& positions = geom2d.data().positions();
-    const TypeSet<int>& spnrs = geom2d.spnrs();
+    const auto& spnrs = geom2d.spNrs();
     table_->setNrRows( positions.size() );
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
-	table_->setValue( RowCol(idx,1), spnrs.validIdx(idx) ? spnrs[idx] : -1);
+	table_->setValue( RowCol(idx,1), spnrs.validIdx(idx) ? spnrs[idx]
+							     : mUdf(float));
 	table_->setValue( RowCol(idx,2), positions[idx].coord_.x_ );
 	table_->setValue( RowCol(idx,3), positions[idx].coord_.y_ );
     }
@@ -361,41 +361,37 @@ void uiManageLineGeomDlg::fillTable( const Survey::Geometry2D& geom2d )
 
 bool uiManageLineGeomDlg::acceptOK()
 {
-    if (!uiMSG().askGoOn(tr("Do you really want to change the geometry?\n"
-			    "This will affect all associated data.")))
-	return false;
-
-    mDynamicCastGet(Survey::Geometry2D*,geom2d,
-		    Survey::GMAdmin().getGeometry(geomid_) )
-    if ( !geom2d )
-	return true;
-
-    geom2d->setEmpty();
-    for ( int idx=0; idx<table_->nrRows(); idx++ )
-    {
-	geom2d->add( table_->getDValue(RowCol(idx,2)),
-		     table_->getDValue(RowCol(idx,3)),
-		     table_->getIntValue(RowCol(idx,0)),
-		     table_->getIntValue(RowCol(idx,1)) );
-    }
-
     StepInterval<float> newzrg = rgfld_->getFStepInterval();
     if ( newzrg.isUdf() )
     {
 	uiMSG().error( tr("Please set valid Z range") );
 	return false;
     }
+    if (!uiMSG().askGoOn(tr("Do you really want to change the geometry?\n"
+			    "This will affect all associated data.")))
+	return false;
+
+    const auto& cgeom2d = Survey::Geometry::get2D( geomid_ );
+    if ( cgeom2d.isEmpty() )
+	return true;
+
+    auto& geom2d = const_cast<Survey::Geometry2D&>( cgeom2d );
+    geom2d.setEmpty();
+    for ( int idx=0; idx<table_->nrRows(); idx++ )
+    {
+	geom2d.add( Coord(table_->getDValue(RowCol(idx,2)),
+		     table_->getDValue(RowCol(idx,3))),
+		     table_->getIntValue(RowCol(idx,0)),
+		     table_->getFValue(RowCol(idx,1)) );
+    }
 
     newzrg.scale( 1.f/mCast(float,SI().zDomain().userFactor()) );
-    geom2d->dataAdmin().setZRange( newzrg );
-    geom2d->touch();
+    geom2d.data().setZRange( newzrg );
+    geom2d.commitChanges();
 
     uiString errmsg;
-    if ( !Survey::GMAdmin().write(*geom2d,errmsg) )
-    {
-	uiMSG().error( errmsg );
-	return false;
-    }
+    if ( !Survey::GMAdmin().save(geom2d,errmsg) )
+	{ uiMSG().error( errmsg ); return false; }
 
     return true;
 }

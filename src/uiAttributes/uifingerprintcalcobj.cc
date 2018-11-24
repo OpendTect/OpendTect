@@ -47,15 +47,16 @@ static const int cNrRandPicks = 100;
 static void create3DRandPicks( BinIDValueSet* rangesset )
 {
     BinID bid;
+    const auto zrg = SI().zRange( OD::UsrWork );
+    const auto zwidth = zrg.width();
     for ( int ipt=0; ipt<cNrRandPicks; ipt++ )
     {
-	StepInterval<int> irg = SI().inlRange( true );
-	StepInterval<int> crg = SI().crlRange( true );
+	StepInterval<int> irg = SI().inlRange();
+	StepInterval<int> crg = SI().crlRange();
 	bid.inl() = mNINT32(irg.start + Stats::randGen().get() * irg.nrSteps());
 	bid.crl() = mNINT32(crg.start + Stats::randGen().get() * crg.nrSteps());
 	SI().snap( bid );
-	const float z = (float) (SI().zRange(true).start
-		      + Stats::randGen().get() * SI().zRange(true).width());
+	const auto z = zrg.start + Stats::randGen().get() * zwidth;
 	rangesset->add( bid, z );
     }
 }
@@ -92,11 +93,11 @@ void calcFingParsObject::create2DRandPicks( const DBKey& dsetid,
     {
 	const int lineidx = Stats::randGen().getIndex( nrlines );
 	const Pos::GeomID geomid = dset->geomID( lineidx );
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			 Survey::GM().getGeometry(geomid) );
-	if ( !geom2d ) break;
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	if ( geom2d.isEmpty() )
+	    break;
 
-	const PosInfo::Line2DData& geometry = geom2d->data();
+	const PosInfo::Line2DData& geometry = geom2d.data();
 	const int nrcoords = geometry.positions().size();
 	const int crdidx = Stats::randGen().getIndex( nrcoords );
 	const Coord& pos = geometry.positions()[crdidx].coord_;

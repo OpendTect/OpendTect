@@ -31,61 +31,43 @@ mExpClass(Basic) Geometry3D : public Survey::Geometry
 {
 public:
 
-			Geometry3D();
-			Geometry3D(const char* nm,const ZDomain::Def& zd );
+    mUseType( Pos,	IdxPair2Coord );
 
-    virtual bool	is2D() const		{ return false; }
-    virtual const name_type& name() const	{ return name_; }
-    virtual void	setName( const char* nm ) { name_ = nm; }
+			Geometry3D(const char* nm=0);
 
-    const ZDomain::Def&	zDomain() const		{ return zdomain_; }
-    void		setZDomain( const ZDomain::Def& def )
-						{ zdomain_ = def; }
-    z_type		zScale() const		{ return zscale_; }
+    GeomSystem		geomSystem() const override { return OD::VolBasedGeom; }
+    const name_type&	name() const override	{ return name_; }
 
-    virtual RelationType compare(const Geometry&,bool usezrg) const;
-
-    pos_range_type&	inlRange()		{ return inlrg_; }
-    const pos_range_type& inlRange() const	{ return inlrg_; }
-    pos_range_type&	crlRange()		{ return trcNrRange(); }
-    const pos_range_type& crlRange() const	{ return trcNrRange(); }
+    pos_steprg_type&	inlRange()		{ return inlrg_; }
+    const pos_steprg_type& inlRange() const	{ return inlrg_; }
+    pos_steprg_type&	crlRange()		{ return trcNrRange(); }
+    const pos_steprg_type& crlRange() const	{ return trcNrRange(); }
 
     inline idx_type	idx4Inl(pos_type) const;
     inline idx_type	idx4Crl(pos_type) const;
     inline pos_type	inl4Idx(idx_type) const;
     inline pos_type	crl4Idx(idx_type) const;
 
-    BinID	nearestTracePosition(const Coord&,float* dist=0) const;
+    bool		includes(const BinID&) const;
+    Coord		getCoord(const BinID&) const;
+    BinID		nearestTracePosition(const Coord&,dist_type* d=0) const;
+    BinID		tracePosition(const Coord&,
+				      dist_type maxdist=mUdf(dist_type)) const;
 
-    Coord	toCoord(int line,int tracenr) const		override;
-    TrcKey	nearestTrace(const Coord&,float* dist) const	override;
-    bool	includes(int line,int tracenr) const		override;
-
-    Coord	transform(const BinID&) const;
-    BinID	transform(const Coord&) const;
-    const Pos::IdxPair2Coord& binID2Coord() const	{ return b2c_; }
-
-    float		inlDistance() const;
-    float		crlDistance() const;
-
+    const IdxPair2Coord& binID2Coord() const	{ return b2c_; }
+    Coord		transform(const BinID&) const;
+    BinID		transform(const Coord&) const;
     bool		isRightHandSystem() const;
-			/*!< Orientation is determined by rotating the
-			     inline axis to the crossline axis. */
-    mDeprecated bool	isClockWise() const { return isRightHandSystem(); }
+    BinID		origin() const;
+				//!< rotating the inline to the crossline axis
 
-    Coord3		oneStepTranslation(const Coord3& planenormal) const;
-    void		setGeomData(const Pos::IdxPair2Coord&,
-					const TrcKeyZSampling&,z_type zscl);
-    float		averageTrcDist() const;
+    void		snap(BinID&,OD::SnapDir =OD::SnapNearest) const;
+    void		snapCrl(pos_type&,OD::SnapDir =OD::SnapNearest) const;
+    void		snapStep(BinID&) const;
 
-    Geometry3D*		as3D()			{ return this; }
-
-    void		snap(BinID&,const BinID& dir=BinID(0,0)) const;
-			//!< dir = 0 : auto; -1 round downward, 1 round upward);
-    void		snapStep(BinID&,const BinID& dir=BinID(0,0))const;
-			//!< see snap() for direction
-    void		snapZ(z_type&,int direction=0) const;
-			//!< see snap() for direction
+    dist_type		inlDistance() const; //!< NOT per step but per 1 inline
+    dist_type		crlDistance() const; //!< NOT per step but per 1 xline
+    dist_type		averageTrcDist() const;
 
 			// MapInfo = B2C and CoordSys
     void		getMapInfo(const IOPar&);
@@ -94,13 +76,23 @@ public:
 protected:
 
     BufferString	name_;
-    Pos::IdxPair2Coord	b2c_;
-    ZDomain::Def	zdomain_;
-    z_type		zscale_;
-    pos_range_type	inlrg_;
+    IdxPair2Coord	b2c_;
+    pos_steprg_type	inlrg_;
 
-    virtual Geometry3D*	gtAs3D() const
+    Geometry2D*		gtAs2D() const	override		{ return 0; }
+    Geometry3D*		gtAs3D() const	override
 			{ return const_cast<Geometry3D*>(this); }
+
+public:
+
+    void		setName( const char* nm )		{ name_ = nm; }
+    void		setTransform(const Pos::IdxPair2Coord&);
+    void		setRanges(const pos_steprg_type&,const pos_steprg_type&,
+				  const z_steprg_type&);
+
+    RelationType	compare(const Geometry3D&,bool usezrg) const;
+
+    Coord3		oneStepTranslation(const Coord3& planenormal) const;
 
 };
 

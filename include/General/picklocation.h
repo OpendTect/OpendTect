@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "picklabel.h"
 #include "coord.h"
 #include "coordsystem.h"
+#include "geomid.h"
+#include "binid.h"
 class TrcKey;
 class Sphere;
 
@@ -47,6 +49,8 @@ mExpClass(General) Location
 public:
 
     typedef GroupLabel::ID	GroupLabelID;
+    typedef Pos::TraceNr_Type	tracenr_type;
+    typedef tracenr_type	linenr_type;
 
 			Location();
 			Location(double x,double y,double z=0);
@@ -68,12 +72,11 @@ public:
     inline const Coord3& pos() const		{ return pos_; }
     inline float	z() const		{ return (float)pos_.z_; }
     bool		is2D() const;
-    Pos::SurvID		survID() const;
     Pos::GeomID		geomID() const;
     const TrcKey&	trcKey() const;
-    Pos::LineID		lineNr() const;
-    Pos::TraceID	trcNr() const;
-    const BinID&	binID() const;
+    linenr_type		lineNr() const;
+    tracenr_type	trcNr() const;
+    BinID		binID() const;
     const Sphere&	dir() const;
     const BufferString&	text() const;
     GroupLabelID	groupLabelID() const	{ return grplblid_; }
@@ -95,11 +98,10 @@ public:
     Location&		setTrcKey(const TrcKey&);
     Location&		setDir(const Sphere&);
     Location&		setDir(const Coord&);
-    Location&		setLineNr(Pos::LineID);
-    Location&		setTrcNr(Pos::LineID);
+    Location&		setLineNr(linenr_type);
+    Location&		setTrcNr(tracenr_type);
     Location&		setGeomID(Pos::GeomID);
     Location&		setBinID(const BinID&,bool updcoord=false);
-    Location&		setSurvID(Pos::SurvID,bool updfromcoord=true);
 
     bool		hasTextKey(const char* key) const;
     bool		getKeyedText(const char* key,BufferString&) const;

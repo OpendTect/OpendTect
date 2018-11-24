@@ -144,7 +144,8 @@ public:
 
     virtual bool		pickedOnPlane(int row) const  { return false; }
     virtual bool		pickedOn2DLine(int row) const { return false; }
-    virtual Pos::GeomID		pickedGeomID(int row) const   { return -1; }
+    virtual Pos::GeomID		pickedGeomID(int row) const
+				{ return Pos::GeomID::get3D(); }
     virtual const DBKey*	pickedDBKey(int sticknr) const{ return 0; }
     virtual const char*		pickedName(int sticknr) const { return 0; }
 

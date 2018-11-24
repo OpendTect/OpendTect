@@ -102,7 +102,7 @@ uiDZTImporter( uiParent* p )
 				IntInpSpec(1), IntInpSpec(1) );
     nrdeffld_->attach( alignedBelow, inpfld_ );
     startposfld_ = new uiGenInput( this, tr("Start position (X,Y)"),
-				PositionInpSpec(SI().minCoord(true)) );
+				PositionInpSpec(SI().minCoord(OD::UsrWork)) );
     startposfld_->attach( alignedBelow, nrdeffld_ );
     stepposfld_ = new uiGenInput( this, tr("Step in X/Y"), FloatInpSpec(),
 					FloatInpSpec(0) );

@@ -248,8 +248,8 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 	prevtrcnr = curtrcnr;
     }
 
-    Pos::GeomID geomid = trcinfoset_[0]->lineNr();
-    res.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
+    const auto lnr = trcinfoset_[0]->lineNr();
+    res.hsamp_.setLineRange( StepInterval<int>(lnr,lnr,1) );
     res.hsamp_.setTrcRange( trcrange );
 
     res.zsamp_.start = zrange.start*zstep;

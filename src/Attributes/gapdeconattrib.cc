@@ -115,7 +115,7 @@ void GapDecon::initClass()
     ZGateParam* gate = new ZGateParam( gateStr() );
     if ( !DBM().isBad() )
     {
-	StepInterval<float> zrange = SI().zRange( true );
+	StepInterval<float> zrange = SI().zRange();
 	zrange.scale( mCast(float,SI().zDomain().userFactor()) );
 	gate->setLimits( zrange );
     }
@@ -171,10 +171,10 @@ GapDecon::GapDecon( Desc& desc )
 
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1.f/zFactor() );
-    if ( !SI().zRange(true).includes(gate_.start,false) )
-	gate_.start = SI().zRange(true).start;
-    if ( !SI().zRange(true).includes(gate_.stop,false) )
-	gate_.stop = SI().zRange(true).stop;
+    if ( !SI().zRange().includes(gate_.start,false) )
+	gate_.start = SI().zRange().start;
+    if ( !SI().zRange().includes(gate_.stop,false) )
+	gate_.stop = SI().zRange().stop;
 
     mGetBool( useonlyacorr_, onlyacorrStr() );
     if ( !useonlyacorr_ )

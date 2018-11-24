@@ -87,7 +87,7 @@ protected:
 
     bool		ensureTranslator() const;
     void		ensureCorrectTrcKey(SeisTrcInfo&) const;
-    LineNrType		lineNr() const		{ return geomid_; }
+    LineNrType		lineNr() const		{ return geomid_.lineNr(); }
     void		setErrMsgForNoTrMade() const;
 
 private:

@@ -126,8 +126,8 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	const int inlidx = idx / crlsz;
 	const int crlidx = idx % crlsz;
 
-	const TrcKey trck = inputcs_.hsamp_.atIndex( inlidx, crlidx );
-	outpsampler.setTrcKey( trck );
+	const auto bid = inputcs_.hsamp_.atIndex( inlidx, crlidx );
+	outpsampler.setTrcKey( TrcKey(bid) );
 	outpsampler.computeCache( Interval<int>(0,outputzsz-1) );
 
 	float* outputptr = 0;

@@ -38,11 +38,11 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
     Pos::GeomID geomid = mUdfGeomID;
     BufferString basenm = File::Path(fnm).baseName();
     char* capstr = basenm.find( mCapChar );
-    if ( !capstr ) return geomid;
+    if ( !capstr )
+	return geomid;
     capstr++;
-    geomid = toInt( capstr, mUdfGeomID );
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-		     Survey::GM().getGeometry(geomid) );
+    geomid = Pos::GeomID( toInt(capstr,Pos::GeomID().getI()) );
+    const auto* geom2d = Survey::Geometry::get(geomid).as2D();
     return geom2d ? geomid : mUdfGeomID;
 }
 
@@ -243,7 +243,7 @@ SEGYDirect2DLinePutter::SEGYDirect2DLinePutter( const IOObj& obj,
 	, preseldt_(OD::AutoDataRep)
 	, fname_(SEGYDirect2DLineIOProvider::getFileName(obj,geomid))
 {
-    bid_.inl() = geomid;
+    bid_.inl() = geomid.lineNr();
     File::Path fp( fname_ );
     if ( !File::exists(fp.pathOnly()) )
 	File::createDir( fp.pathOnly() );
@@ -309,7 +309,7 @@ bool SEGYDirect2DLinePutter::close()
 const char* SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID()
 { return "SEGY Direct ID"; }
 
-Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
+Survey::Geometry2D* SEGYDirectSurvGeom2DTranslator::readGeometry(
 				const IOObj& ioobj, uiString& errmsg ) const
 {
     DBKey segydirectid;
@@ -320,8 +320,7 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
     if ( !segydirectobj )
 	return 0;
 
-    const Survey::Geometry::ID geomid
-			= Survey::Geometry2D::getIDFrom( ioobj.key() );
+    const Pos::GeomID geomid( ioobj.key() );
     const BufferString segydeffnm =
 	SEGYDirect2DLineIOProvider::getFileName( *segydirectobj, geomid );
     SEGY::DirectDef sgydef( segydeffnm );
@@ -332,14 +331,14 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
     PosInfo::Line2DData* data = new PosInfo::Line2DData( ld );
     data->setLineName( ioobj.name() );
     Survey::Geometry2D* geom = new Survey::Geometry2D( data );
-    geom->setID( geomid );
-    geom->touch();
+    geom->setGeomID( geomid );
+    geom->commitChanges();
     return geom;
 }
 
 
 bool SEGYDirectSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
-						    const Geometry& geom,
+						    const Geometry2D& geom,
 						    uiString& errmsg ) const
 {
     pErrMsg("This function should not be called");

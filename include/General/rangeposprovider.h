@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "posprovider.h"
 #include "transl.h"
+class TrcKeySampling;
 
 namespace PosInfo { class Line2DData; }
 
@@ -54,10 +55,9 @@ public:
     virtual int		estNrZPerPos() const;
     virtual void	getTrcKeyZSampling(TrcKeyZSampling&) const;
 
-    const TrcKeyZSampling&	sampling() const	{ return tkzs_; }
+    const TrcKeyZSampling& sampling() const	{ return tkzs_; }
     void		setSampling( const TrcKeyZSampling& tkzs );
-    void		setHSampling( const TrcKeySampling& tks )
-						{ tkzs_.hsamp_ = tks; }
+    void		setHSampling(const TrcKeySampling&);
 
     virtual bool	includes( const Coord& c, float z=mUdf(float) ) const
 			{ return Pos::Provider3D::includes(c,z); }

@@ -667,7 +667,7 @@ ReportingTask* VelocityGridder::createTask()
 	return 0;
 
     BinIDValueSet valset( 1, true );
-    const Pos::SurvID survid = tkzs.hsamp_.survid_;
+    const auto gs = tkzs.hsamp_.geomSystem();
     TrcKeySampling hsamp;
     Pos::IdxPairValueSet::SPos pos;
     const ObjectSet<Vel::FunctionSource>& sources = getSources();
@@ -682,8 +682,8 @@ ReportingTask* VelocityGridder::createTask()
 	while( valset.next(pos,true) )
 	{
 	    hsamp.init( false );
-	    hsamp.survid_ = survid;
-	    hsamp.include( TrcKey(survid,BinID(valset.getIdxPair(pos))) );
+	    hsamp.setGeomSystem( gs );
+	    hsamp.include( TrcKey(gs,BinID(valset.getIdxPair(pos))) );
 	    tkss += hsamp;
 	}
     }
@@ -697,7 +697,7 @@ ReportingTask* VelocityGridder::createTask()
     else
     {
 	hsamp.init( false );
-	hsamp.survid_ = survid;
+	hsamp.setGeomSystem( gs );
 	for ( int idx=0; idx<nrfunctions; idx++ )
 	    hsamp.include( tkss[idx] );
 

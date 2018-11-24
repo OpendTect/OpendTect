@@ -311,7 +311,7 @@ bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
 	else if ( strsuffix.size() == 2 )
 	    linenm += "0";
 	linenm += strsuffix;
-	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+	Pos::GeomID geomid = Survey::Geometry::getGeomID( linenm );
 	SeisRandLineTo2D exec( *inpobj_, *outpobj_, geomid, 1, *rln );
 	strm_ << "Creating 2D line " << linenm << ":" << od_endl;
 	if ( !exec.go(strm_) )

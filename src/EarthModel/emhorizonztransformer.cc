@@ -61,11 +61,11 @@ int HorizonZTransformer::nextStep()
     if ( !isforward_ && !mIsUdf(z) )
 	z -= refz_;
 
-    mDynamicCastGet(const EM::Horizon2D*,hor2d,&tarhor_)
-    const Pos::SurvID survid = tarhor_.getSurveyID();
-    TrcKey tk( survid, posid.getBinID() );
-    if ( hor2d )
-	tk.setLineNr( hor2d->geometry().geomID(survid) );
+    const auto gs = tarhor_.geomSystem();
+    const BinID bid( posid.getBinID() );
+    TrcKey tk( gs, bid );
+    if ( is2D(gs) )
+	tk.setLineNr( bid.lineNr() );
 
     float newz = zat_.transformTrc( tk, z );
     if ( isforward_ && !mIsUdf(newz) )

@@ -110,12 +110,12 @@ uiImpPVDSAscio( const Table::FormatDesc& fd, od_istream& strm )
 {
     needfullline_ = true;
     atend_ = !getHdrVals( strm_ );
-    inlgen_.start = SI().inlRange(true).start;
-    inlgen_.step = SI().inlRange(true).stop - inlgen_.start;
-    crlgen_.start = SI().crlRange(true).start;
-    crlgen_.step = SI().crlRange(true).stop - crlgen_.start;
-    zgen_.start = SI().zRange(true).start;
-    zgen_.step = SI().zRange(true).stop - zgen_.start;
+    inlgen_.start = SI().inlRange().start;
+    inlgen_.step = SI().inlRange().stop - inlgen_.start;
+    crlgen_.start = SI().crlRange().start;
+    crlgen_.step = SI().crlRange().stop - crlgen_.start;
+    zgen_.start = SI().zRange(OD::UsrWork).start;
+    zgen_.step = SI().zRange(OD::UsrWork).stop - zgen_.start;
 }
 
 bool getLine()

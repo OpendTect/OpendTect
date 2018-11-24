@@ -45,7 +45,6 @@ HorizonFlatViewEditor::HorizonFlatViewEditor( FlatView::AuxDataEditor* ed )
     , mouseeventhandler_(0)
     , vdselspec_(0)
     , wvaselspec_(0)
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
     , is2d_(false)
     , seedpickingon_(false)
     , updateoldactivevolinuimpeman(this)
@@ -391,17 +390,13 @@ bool HorizonFlatViewEditor::getPosID( const EM::Object& emobj,
 	bid = SI().transform( crd );
     else
     {
-	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-			Survey::GM().getGeometry(geomid_) );
-	if ( !geom2d )
+	mDynamicCastGet(const EM::Horizon2D*,hor2d,&emobj);
+	const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+	if ( !hor2d || geom2d.isEmpty() )
 	    return false;
 
 	PosInfo::Line2DPos pos;
-	geom2d->data().getPos( crd, pos, mDefEps );
-	mDynamicCastGet(const EM::Horizon2D*,hor2d,&emobj);
-
-	if ( !hor2d ) return false;
-
+	geom2d.data().getPos( crd, pos, mDefEps );
 	bid.inl() = hor2d->geometry().lineIndex( geomid_ );
 	bid.crl() = pos.nr_;
     }

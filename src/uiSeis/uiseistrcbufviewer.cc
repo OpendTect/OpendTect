@@ -52,8 +52,7 @@ void uiSeisTrcBufViewer::setBuf( const SeisTrcBuf& tbuf,
     const int sz = tbuf.size();
     if ( sz < 1 ) return;
 
-    const SeisTrcInfo::Fld type = (SeisTrcInfo::Fld)
-	(sz < 2 ? (int)SeisTrcInfo::TrcNr
+    const auto type = (sz < 2 ? SeisTrcInfo::TrcNr
 	: tbuf.first()->info().getDefaultAxisFld( geom, &tbuf.get(1)->info() ));
 
     if ( mine )

@@ -149,7 +149,8 @@ void uiPosProvider::fullSurvPush( CallBacker* )
     if ( selidx < 0 ) return;
 
     IOPar iop;
-    SI().sampling( setup_.useworkarea_ ).fillPar( iop );
+    TrcKeyZSampling tkzs( setup_.useworkarea_ ? OD::UsrWork : OD::FullSurvey );
+    tkzs.fillPar( iop );
     grps_[selidx]->usePar( iop );
 }
 
@@ -238,8 +239,8 @@ void uiPosProvider::setSampling( const TrcKeyZSampling& tkzs )
 }
 
 
-void uiPosProvider::getSampling( TrcKeyZSampling& tkzs, const IOPar* pars )
-									const
+void uiPosProvider::getSampling( TrcKeyZSampling& tkzs,
+				 const IOPar* pars ) const
 {
     IOPar iop;
     if ( pars )
@@ -365,7 +366,7 @@ void uiPosProvSel::setCSToAll() const
     if ( setup_.is2d_ )
 	tkzs_.set2DDef();
     else
-	tkzs_ = SI().sampling( true );
+	SI().getSampling( tkzs_, OD::UsrWork );
 }
 
 
@@ -516,7 +517,8 @@ uiPosProvDlg::uiPosProvDlg( uiParent* p, const Setup& su, const uiString& title)
     : uiDialog(p,uiDialog::Setup(title,mNoDlgTitle,mNoHelpKey))
 {
     selfld_ = new uiPosProvider( this, su );
-    selfld_->setSampling( SI().sampling(su.useworkarea_) );
+    selfld_->setSampling( TrcKeyZSampling( su.useworkarea_ ? OD::UsrWork
+					   : OD::FullSurvey ) );
 }
 
 

@@ -124,8 +124,9 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    // doesn't make much sense, but is better than nothing
 	    tkzs_.set2DDef();
 
-	    geomid_ = Survey::GM().getGeomID( linename );
-	    tkzs_.hsamp_.setLineRange( StepInterval<int>(geomid_,geomid_,1) );
+	    geomid_ = Survey::Geometry::getGeomID( linename );
+	    const auto lnr = geomid_.lineNr();
+	    tkzs_.hsamp_.setLineRange( StepInterval<int>(lnr,lnr,1) );
 	    if ( outpar && outpar->hasKey(sKey::TrcRange()) )
 	    {
 		StepInterval<int> trcrg( 0, 0, 1 );
@@ -135,12 +136,11 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    }
 	    else
 	    {
-		mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-				 Survey::GM().getGeometry(geomid_) );
-		if ( geom2d )
+		const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+		if ( !geom2d.isEmpty() )
 		{
-		    tkzs_.hsamp_.setCrlRange( geom2d->data().trcNrRange() );
-		    tkzs_.zsamp_ = geom2d->data().zRange();
+		    tkzs_.hsamp_.setCrlRange( geom2d.data().trcNrRange() );
+		    tkzs_.zsamp_ = geom2d.data().zRange();
 		}
 	    }
 	}
@@ -405,11 +405,11 @@ bool doPrepare( int nrthreads )
 	outptr_[idc] += samplebytes_ * out_.getZRange().nearestIndex( start );
     }
 
-    intracebytes_ = samplebytes_ * in_.sampling().size(TrcKeyZSampling::Z);
-    inlinebytes_ = intracebytes_ * in_.sampling().size(TrcKeyZSampling::Crl);
+    intracebytes_ = samplebytes_ * in_.sampling().size(OD::ZSlice);
+    inlinebytes_ = intracebytes_ * in_.sampling().size(OD::CrosslineSlice);
 
-    outtracebytes_ = samplebytes_ * out_.sampling().size(TrcKeyZSampling::Z);
-    outlinebytes_ = outtracebytes_ * out_.sampling().size(TrcKeyZSampling::Crl);
+    outtracebytes_ = samplebytes_ * out_.sampling().size(OD::ZSlice);
+    outlinebytes_ = outtracebytes_ * out_.sampling().size(OD::CrosslineSlice);
 
     bytestocopy_ = samplebytes_ * worktkzs_.nrZ();
 
@@ -420,9 +420,9 @@ bool doPrepare( int nrthreads )
 
 bool doWork( od_int64 start, od_int64 stop, int threadidx )
 {
-    const TrcKeySampling intks = in_.sampling().hsamp_;
-    const TrcKeySampling outtks = out_.sampling().hsamp_;
-    const TrcKeySampling worktks = worktkzs_.hsamp_;
+    const auto inhs = in_.sampling().hsamp_;
+    const auto ouths = out_.sampling().hsamp_;
+    const auto workhs = worktkzs_.hsamp_;
 
     const StepInterval<float> inzsamp = in_.sampling().zsamp_;
     const StepInterval<float> outzsamp = out_.sampling().zsamp_;
@@ -471,25 +471,25 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	}
     }
 
-    const int nrtrcs = worktks.nrTrcs();
+    const int nrtrcs = workhs.nrTrcs();
     int inlidx = mCast( int, start/nrtrcs );
     int crlidx = mCast( int, start%nrtrcs );
 
-    const int halfinlstep = intks.step_.lineNr() / 2;
-    BinID bid = worktks.atIndex( inlidx, 0 );
-    int outinlidx = outtks.lineIdx( bid.inl() );
+    const int halfinlstep = inhs.step_.lineNr() / 2;
+    BinID bid = workhs.atIndex( inlidx, 0 );
+    int outinlidx = ouths.lineIdx( bid.inl() );
     int shiftedtogetnearestinl = bid.lineNr() + halfinlstep;
-    int ininlidx = intks.lineIdx( shiftedtogetnearestinl );
+    int ininlidx = inhs.lineIdx( shiftedtogetnearestinl );
 
     int* incrllut = new int[ nrtrcs ];
     int* outcrllut = new int[ nrtrcs ];
-    const int halfcrlstep = intks.step_.trcNr() / 2;
+    const int halfcrlstep = inhs.step_.trcNr() / 2;
     for ( int cidx=0; cidx<nrtrcs; cidx++ )
     {
-	bid = worktks.atIndex( 0, cidx );
-	outcrllut[cidx] = outtks.trcIdx( bid.crl() );
+	bid = workhs.atIndex( 0, cidx );
+	outcrllut[cidx] = ouths.trcIdx( bid.crl() );
 	const int shiftedtogetnearestcrl = bid.trcNr() + halfcrlstep;
-	incrllut[cidx] = intks.trcIdx( shiftedtogetnearestcrl );
+	incrllut[cidx] = inhs.trcIdx( shiftedtogetnearestcrl );
     }
 
     for ( od_int64 gidx=start; gidx<=stop; gidx++ )
@@ -541,10 +541,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	if ( ++crlidx >= nrtrcs )
 	{
 	    crlidx = 0;
-	    bid = worktks.atIndex( ++inlidx, 0 );
-	    outinlidx = outtks.lineIdx( bid.inl() );
+	    bid = workhs.atIndex( ++inlidx, 0 );
+	    outinlidx = ouths.lineIdx( bid.inl() );
 	    shiftedtogetnearestinl = bid.lineNr() + halfinlstep;
-	    ininlidx = intks.lineIdx( shiftedtogetnearestinl );
+	    ininlidx = inhs.lineIdx( shiftedtogetnearestinl );
 	}
     }
 
@@ -582,8 +582,8 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 {
     if ( packset.isEmpty() ) return 0;
     const char* category = VolumeDataPack::categoryStr(
-			tkzs_.defaultDir()!=TrcKeyZSampling::Z,
-			tkzs_.hsamp_.survid_==Survey::GM().get2DSurvID() );
+			tkzs_.defaultDir()!=OD::ZSlice,
+			tkzs_.hsamp_.is2D() );
     RegularSeisDataPack* output =
 	new RegularSeisDataPack( category, &packset[0]->getDataDesc() );
     DPM(DataPackMgr::SeisID()).add( output );
@@ -940,15 +940,15 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	}
     }
 
-    if ( tkzs_.isFlat() && tkzs_.defaultDir() != TrcKeyZSampling::Z )
+    if ( tkzs_.isFlat() && tkzs_.defaultDir() != OD::ZSlice )
     {
 	TypeSet<BinID> positions;
-	if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+	if ( tkzs_.defaultDir() == OD::InlineSlice )
 	    for ( int idx=0; idx<tkzs_.nrCrl(); idx++ )
 		positions += BinID( tkzs_.hsamp_.start_.inl(),
 				    tkzs_.hsamp_.start_.crl() +
 					tkzs_.hsamp_.step_.crl()*idx );
-	if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+	if ( tkzs_.defaultDir() == OD::CrosslineSlice )
 	    for ( int idx=0; idx<tkzs_.nrInl(); idx++ )
 		positions += BinID( tkzs_.hsamp_.start_.inl() +
 				    tkzs_.hsamp_.step_.inl()*idx,
@@ -1075,17 +1075,10 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     PosInfo::LineSet2DData linesetgeom;
     for ( int idx=0; idx<dset.nrLines(); idx++ )
     {
-	PosInfo::Line2DData& linegeom = linesetgeom.addLine(dset.lineName(idx));
-	Pos::GeomID geomid = Survey::GM().getGeomID( dset.lineName(idx) );
-	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
-	if ( geom2d )
-	    linegeom = geom2d->data();
-	if ( linegeom.positions().isEmpty() )
-	{
-	    linesetgeom.removeLine( dset.lineName(idx) );
-	    continue;
-	}
+	const BufferString lnm = dset.lineName( idx );
+	const auto& geom2d = Survey::Geometry::get2D( lnm  );
+	if ( !geom2d.isEmpty() )
+	    linesetgeom.addLine( lnm ) = geom2d.data();
     }
 
     ObjectSet<BinIDValueSet> newbivsets;
@@ -1276,8 +1269,8 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 	outid = nlaid;
     }
 
-    Processor* proc = createProcessor(*procattrset_,
-			Survey::GM().getName(geomid_), outid, errmsg);
+    Processor* proc = createProcessor( *procattrset_, nameOf(geomid_),
+					outid, errmsg );
     setExecutorName( proc );
     if ( !proc )
 	mErrRet( errmsg )

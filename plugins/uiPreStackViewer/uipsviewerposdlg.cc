@@ -180,7 +180,7 @@ void uiViewer3DPositionDlg::applyCB( CallBacker* )
 	    if ( newpos.crl()==location )
 		return;
 
-	    const StepInterval<int> crlrg = SI().crlRange( true );
+	    const auto crlrg = SI().crlRange( OD::UsrWork );
 	    if ( crlrg.includes( location, false ) )
 		newpos.crl() = location;
 	    else
@@ -196,7 +196,7 @@ void uiViewer3DPositionDlg::applyCB( CallBacker* )
 	    if ( newpos.inl()==location )
 		return;
 
-	    const StepInterval<int> inlrg = SI().inlRange( true );
+	    const auto inlrg = SI().inlRange( OD::UsrWork );
 	    if ( inlrg.includes( location, false ) )
 		newpos.inl() = location;
 	    else

@@ -23,7 +23,7 @@ Pos::PolyProvider3D::PolyProvider3D()
     : Pos::Provider3D()
     , poly_(*new ODPolygon<float>)
     , hs_(*new TrcKeySampling(true))
-    , zrg_(SI().zRange(false))
+    , zrg_(SI().zRange())
 {
 }
 
@@ -69,7 +69,7 @@ const char* Pos::PolyProvider3D::type() const
 static void setHS( const ODPolygon<float>& poly, TrcKeySampling& hs )
 {
     if ( poly.size() < 2 )
-	{ hs = SI().sampling(true).hsamp_; return; }
+	{ SI().getSampling( hs ); return; }
 
     const Interval<float> xrg( poly.getRange(true) );
     const Interval<float> yrg( poly.getRange(false) );
@@ -77,8 +77,8 @@ static void setHS( const ODPolygon<float>& poly, TrcKeySampling& hs )
     hs.start_.crl() = (int)Math::Floor( yrg.start + 0.5 );
     hs.stop_.inl() = (int)Math::Ceil( xrg.stop - 0.5 );
     hs.stop_.crl() = (int)Math::Ceil( yrg.stop - 0.5 );
-    SI().snap( hs.start_, BinID(1,1) );
-    SI().snap( hs.stop_, BinID(-1,-1) );
+    SI().snap( hs.start_, OD::SnapUpward );
+    SI().snap( hs.stop_, OD::SnapDownward );
 }
 
 

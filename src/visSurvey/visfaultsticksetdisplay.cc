@@ -378,7 +378,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	if (fault_->pickedOn2DLine( rc.row()) )
 	{
 	    const Pos::GeomID geomid = fault_->pickedGeomID( rc.row() );
-	    if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+	    if ( geomid.isValid() )
 		s2dd = Seis2DDisplay::getSeis2DDisplay( geomid );
 	}
 
@@ -536,7 +536,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     RandomTrackDisplay* rdtd = 0;
     HorizonDisplay* hordisp = 0;
     const DBKey* pickeddbkey = 0;
-    Pos::GeomID pickedgeomid = Survey::GeometryManager::cUndefGeomID();
+    Pos::GeomID pickedgeomid;
     const char* pickednm = 0;
     PtrMan<Coord3> normal = 0;
     ConstPtrMan<DBKey> horid;
@@ -674,7 +674,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
 	editpids_.erase();
 
-	if ( pickedgeomid == Survey::GeometryManager::cUndefGeomID() )
+	if ( !pickedgeomid.isValid() )
 	    fault_->insertStick( insertsticknr, 0, pos, editnormal,
 			      pickeddbkey, pickednm, true );
 	else

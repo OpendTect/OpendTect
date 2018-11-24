@@ -121,7 +121,8 @@ void uiPositionTable::posChgCB( CallBacker* )
 	}
     }
 
-    setRowColor( rc.row(), SI().includes(bid,SI().zRange(true).center(),true) );
+    setRowColor( rc.row(), SI().includes(bid,SI().zRange(OD::UsrWork).center(),
+					 OD::UsrWork) );
 }
 
 
@@ -146,7 +147,8 @@ void uiPositionTable::setCoords( const TypeSet<Coord>& coords )
 	    table_->setValue( RowCol(idx,getCCol()), bid.crl() );
 	}
 
-	setRowColor( idx, SI().includes(bid,SI().zRange(true).start,true) );
+	setRowColor( idx, SI().includes(bid,SI().zRange(OD::UsrWork).start,
+					OD::UsrWork) );
     }
 }
 
@@ -176,7 +178,8 @@ void uiPositionTable::setBinIDs( const TypeSet<BinID>& binids )
 	    table_->setValue( RowCol(idx,getCCol()), bid.crl() );
 	}
 
-	setRowColor( idx, SI().includes(bid,SI().zRange(true).start,true) );
+	setRowColor( idx, SI().includes(bid,SI().zRange(OD::UsrWork).start,
+					OD::UsrWork) );
     }
 
 }
@@ -218,7 +221,7 @@ void uiPositionTable::setZRange( const Interval<float>& zrg )
 void uiPositionTable::getZRange( Interval<float>& zrg ) const
 {
     zrg.setFrom( withz_ ? zfld_->getFInterval()
-			: (Interval<float>)SI().zRange(false) );
+			: (Interval<float>)SI().zRange() );
 }
 
 void uiPositionTable::setRowColor( int rid, bool includes )

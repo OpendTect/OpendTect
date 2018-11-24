@@ -267,9 +267,9 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     if ( !mpos.isDefined() ) return false;
 
     const BinID bid = SI().transform( mpos.getXY() );
-    if ( !SI().inlRange( true ).includes(bid.inl(),false) ||
-	 !SI().crlRange( true ).includes(bid.crl(),false) ||
-	 !SI().zRange( true ).includes(mpos.z_,false) )
+    if ( !SI().inlRange( OD::UsrWork ).includes(bid.inl(),false) ||
+	 !SI().crlRange( OD::UsrWork ).includes(bid.crl(),false) ||
+	 !SI().zRange( OD::UsrWork ).includes(mpos.z_,false) )
 	return false;
 
     const Geometry::Element* ge = emObject().geometryElement();

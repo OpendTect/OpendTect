@@ -303,8 +303,11 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     EM::PosID bidsq = EM::PosID::getFromRowCol( bid );
     mDynamicCastGet(const EM::Horizon2D*,refhor2d,refhorizon_)
     if ( refhor2d )
+    {
+	const Pos::GeomID geomid( bid.inl() );
 	bidsq = EM::PosID::getFromRowCol(
-			refhor2d->geometry().lineIndex(bid.inl()), bid.crl() );
+			refhor2d->geometry().lineIndex(geomid), bid.crl() );
+    }
 
     const double fixedz = userefz_ ? refz_ :
 	refhorizon_->getPos( bidsq ).z_;
@@ -321,8 +324,11 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 
 	mDynamicCastGet(const EM::Horizon2D*,hor2d,hors_[idy])
 	if ( hor2d )
+	{
+	    const Pos::GeomID geomid( bid.inl() );
 	    bidsq = EM::PosID::getFromRowCol(
-			hor2d->geometry().lineIndex(bid.inl()), bid.crl() );
+			hor2d->geometry().lineIndex(geomid), bid.crl() );
+	}
 
 	horz += hors_[idy]->getPos(bidsq).z_;
 	if ( mIsUdf(horz[idy]) )
@@ -337,7 +343,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	gradient = gradhorizon_->auxdata.getAuxDataVal( gradauxidx_, bidsq );
     else if ( usebottomval_ )
     {
-	const StepInterval<float>& zrg = SI().zRange( true );
+	const StepInterval<float>& zrg = SI().zRange();
 	const double topdepth = horz.size() > 0 && !mIsUdf(horz[0]) ?
 				horz[0] : zrg.start;
 	const double bottomdepth = horz.size() > 1 && !mIsUdf(horz[1]) ?
@@ -462,7 +468,7 @@ bool SurfaceLimitedFiller::useHorInterFillerPar( const IOPar& pars )
 	 !mIsUdf(bottomvalue) )
     {
 	valrange_ = bottomvalue - topvalue;
-	const StepInterval<float>& zrange = SI().zRange(true);
+	const StepInterval<float>& zrange = SI().zRange();
 	fixedgradient_ = mCast(float,valrange_/(zrange.stop-zrange.start));
 	if ( horids.size() > 0 )
 	    usebottomval_ = true;

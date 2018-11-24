@@ -158,7 +158,7 @@ public:
 						   const SelSpec&,bool,
 						   bool needext=false);
     void		filter2DMenuItems(MenuItem&,const SelSpec&,
-					  int geomid, bool isstored,
+					  Pos::GeomID geomid, bool isstored,
 					  int steerpol );
 
     bool		handleAttribSubMenu(int mnuid,SelSpec&,bool&);

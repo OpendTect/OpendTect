@@ -22,17 +22,19 @@ mExpClass(General) BinIDValueSet : public Pos::IdxPairValueSet
 {
 public:
 
+    mUseType( OD,	GeomSystem );
+
 			BinIDValueSet(int nrvals,bool allowdup,
-				      Pos::SurvID survid=TrcKey::std3DSurvID())
+				      GeomSystem gs=OD::VolBasedGeom)
 			    : Pos::IdxPairValueSet(nrvals,allowdup)
-			    , survid_(survid)				{}
+			    , geomsystem_(gs)				{}
 			BinIDValueSet(const BinIDValueSet& bvs)
 			    : Pos::IdxPairValueSet(bvs)
-			    , survid_(bvs.survID())			{}
+			    , geomsystem_(bvs.geomsystem_)		{}
     BinIDValueSet&	operator =( const BinIDValueSet& oth )
 			{
 			    Pos::IdxPairValueSet::operator=(oth);
-			    survid_ = oth.survID();
+			    geomsystem_ = oth.geomsystem_;
 			    return *this;
 			}
 
@@ -48,15 +50,26 @@ public:
     inline BinID	firstBinID() const
 					{ return mkBinID(firstIdxPair()); }
 
-    inline Pos::SurvID	survID() const	{ return survid_; }
-    inline void		setSurvID(Pos::SurvID survid)	{  survid_ = survid; }
+    inline GeomSystem	geomSystem() const
+			{ return geomsystem_; }
+    inline bool		is2D() const
+			{ return geomsystem_ == OD::LineBasedGeom; }
+    inline bool		is3D() const
+			{ return geomsystem_ == OD::VolBasedGeom; }
+    inline bool		isSynthetic() const
+			{ return geomsystem_ == OD::SynthGeom; }
+    inline void		setGeomSystem( GeomSystem gs )
+			{ geomsystem_ = gs; }
+    inline void		setIs2D( bool yn )
+			{ geomsystem_ = yn ? OD::LineBasedGeom
+					   : OD::VolBasedGeom; }
 
 protected:
 
     friend class	DataPointSet;
     friend class	PosVecDataSet;
 
-    Pos::SurvID		survid_;
+    GeomSystem		geomsystem_;
 
     inline static BinID	mkBinID( const Pos::IdxPair& ip )
 			{ return BinID( ip.first, ip.second ); }

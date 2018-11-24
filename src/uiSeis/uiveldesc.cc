@@ -417,7 +417,7 @@ void uiVelModelZAxisTransform::setZRangeCB( CallBacker* )
     if ( survistime && SI().depthsInFeet() )
 	seisrefdatum *= mToFeetFactorF;
 
-    StepInterval<float> rg = SI().zRange( true );
+    StepInterval<float> rg = SI().zRange( OD::UsrWork );
     const Interval<float> topvelrg = velsel_->getVelocityTopRange();
     const Interval<float> botvelrg = velsel_->getVelocityBottomRange();
     const int nrsamples = rg.nrSteps();

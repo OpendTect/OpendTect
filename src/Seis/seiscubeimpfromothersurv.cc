@@ -86,7 +86,8 @@ bool SeisCubeImpFromOtherSurvey::prepareRead( const char* mainfilenm )
 	rdr_->positions().getRanges( inlrg, crlrg );
 	olddata_.tkzs_.hsamp_.start_ = BinID( inlrg.start, crlrg.start );
 	olddata_.tkzs_.hsamp_.stop_ = BinID( inlrg.stop, crlrg.stop );
-	olddata_.tkzs_.hsamp_.step_  = rdr_->hGeom().sampling().hsamp_.step_;
+	olddata_.tkzs_.hsamp_.step_ = BinID( rdr_->hGeom().inlRange().step,
+					     rdr_->hGeom().crlRange().step );
 	olddata_.tkzs_.zsamp_ = rdr_->zGeom();
     }
 
@@ -100,8 +101,8 @@ bool SeisCubeImpFromOtherSurvey::prepareRead( const char* mainfilenm )
 	data_.tkzs_.hsamp_.include( SI().transform( b2c.transform( bid ) ) );
     } while ( data_.hsit_->next() );
 
-    if ( !SI().isInside(data_.tkzs_.hsamp_.start_,true)
-	&& !SI().isInside(data_.tkzs_.hsamp_.stop_,true) )
+    if ( !SI().includes(data_.tkzs_.hsamp_.start_)
+	&& !SI().includes(data_.tkzs_.hsamp_.stop_) )
 	mErrRet(tr("The selected cube has no coordinates "
 		   "matching the current survey.") )
 
@@ -120,11 +121,13 @@ void SeisCubeImpFromOtherSurvey::setPars( Interpol& interp, int cellsz,
 {
     interpol_ = interp;
     data_.tkzs_ = cs;
-    data_.tkzs_.limitTo( SI().sampling(false) );
+    data_.tkzs_.limitTo( TrcKeyZSampling(true) );
     data_.tkzs_.hsamp_.snapToSurvey();
     data_.hsit_->setSampling( data_.tkzs_.hsamp_ );
     totnr_ = mCast( int, data_.tkzs_.hsamp_.totalNr() );
-    if ( !cellsz ) return;
+    if ( cellsz<1 )
+	return;
+
     fft_ = Fourier::CC::createDefault();
     sz_ = fft_->getFastSize( cellsz );
     StepInterval<float> zsi( data_.tkzs_.zsamp_ );

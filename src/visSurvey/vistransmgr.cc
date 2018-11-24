@@ -36,7 +36,7 @@ void SceneTransformManager::computeUTM2DisplayTransform(
 	const Survey::Geometry3D& sg, float zfactor, float zmidpt,
         mVisTrans* res)
 {
-    const Coord startpos = SI().transform( sg.sampling().hsamp_.start_ );
+    const Coord startpos = SI().transform( sg.origin() );
 
     const float ztransl = mComputeZTranslation( 1 );
 
@@ -52,7 +52,7 @@ void SceneTransformManager::computeICRotationTransform(
 		visBase::Transformation* rotation,
 		visBase::Transformation* disptrans )
 {
-    const TrcKeySampling hs = sg.sampling().hsamp_;
+    const TrcKeySampling hs( true );
 
     const BinID startbid = hs.start_;
     const BinID stopbid = hs.stop_;

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "emeditor.h"
+#include "geomid.h"
 
 namespace EM { class FaultStickSet; }
 template <class T> class Selector;
@@ -26,6 +27,9 @@ namespace MPE
 mExpClass(MPEEngine) FaultStickSetEditor : public ObjectEditor
 {
 public:
+
+    mUseType( Pos,		GeomID );
+
 				FaultStickSetEditor(EM::FaultStickSet&);
 
     static ObjectEditor*	create(EM::Object&);
@@ -46,21 +50,21 @@ public:
     void			getInteractionInfo( EM::PosID& insertpid,
 				    const DBKey* pickeddbkey,
 				    const char* pickednm,
-				    Pos::GeomID pickedgeomid,const Coord3& pos,
+				    GeomID pickedgeomid,const Coord3& pos,
 				    const Coord3* posnorm=0) const;
 
     bool			removeSelection(const Selector<Coord3>&);
     const EM::PosID		getNearestStick(const Coord3& pos,
-						Pos::GeomID pickedgeomid,
+						GeomID pickedgeomid,
 						const Coord3* normal) const;
 protected:
     float		distToStick(int sticknr, const DBKey* pickeddbkey,
 				    const char* pickednm,
-				    Pos::GeomID pickedgeomid,const Coord3& pos,
+				    GeomID pickedgeomid,const Coord3& pos,
 				    const Coord3* posnorm) const;
     bool		getNearestStick(int& sticknr, const DBKey* pickeddbkey,
 				const char* pickednm,
-				Pos::GeomID pickedgeomid,const Coord3& pos,
+				GeomID pickedgeomid,const Coord3& pos,
 				const Coord3* posnorm) const;
     void		getPidsOnStick(EM::PosID& insertpid,int sticknr,
 					const Coord3& pos) const;

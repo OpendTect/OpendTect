@@ -809,7 +809,7 @@ void uiViewer2DWin::setGatherforPreProc( const BinID& relbid,
 	BufferString linename = storedpsmw->lineName();
 	TrcKey tk( ginfo.bid_ );
 	if ( is2D() )
-	    tk.setGeomID( Survey::GM().getGeomID(linename) );
+	    tk.setGeomID( Survey::Geometry::getGeomID(linename) );
 
 	if ( gather->readFrom(ginfo.mid_,tk) )
 	    preprocmgr_->setInput( relbid, gather->id() );
@@ -879,7 +879,7 @@ void uiStoredViewer2DWin::init( const DBKey& mid, const BinID& bid,
 {
     mids_ += mid;
     linename_ = linename;
-    tkzs_.zsamp_ = SI().zRange(true);
+    tkzs_.zsamp_ = SI().zRange( OD::UsrWork );
 
     if ( is2d_ )
     {
@@ -909,7 +909,7 @@ void uiStoredViewer2DWin::init( const DBKey& mid, const BinID& bid,
 
 void uiStoredViewer2DWin::setUpNewSlicePositions()
 {
-    const bool isinl = is2d_ || tkzs_.defaultDir()==TrcKeyZSampling::Inl;
+    const bool isinl = is2d_ || tkzs_.defaultDir()==OD::InlineSlice;
     const int newpos = isinl
 	? tkzs_.hsamp_.start_.inl()
 	: tkzs_.hsamp_.start_.crl();
@@ -995,7 +995,7 @@ void uiStoredViewer2DWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
 {
     PtrMan<IOObj> ioobj = DBM().get( ginfo.mid_ );
     BufferString nm = ioobj ? ioobj->name().buf() : "";
-    info->setData( ginfo.bid_, tkzs_.defaultDir()==TrcKeyZSampling::Inl,
+    info->setData( ginfo.bid_, tkzs_.defaultDir()==OD::InlineSlice,
 		   is2d_, nm);
 }
 
@@ -1204,7 +1204,7 @@ void uiStoredViewer2DWin::setGather( const GatherInfo& gatherinfo )
     DPM(DataPackMgr::FlatID()).add( gather );
     TrcKey tk( gatherinfo.bid_ );
     if ( is2D() )
-	tk.setGeomID( Survey::GM().getGeomID(linename_) );
+	tk.setGeomID( Survey::Geometry::getGeomID(linename_) );
 
     if ( gather->readFrom(gatherinfo.mid_,tk) )
     {

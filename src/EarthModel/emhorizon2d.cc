@@ -49,10 +49,6 @@ Horizon2DGeometry::geometryElement() const
 }
 
 
-TrcKey::SurvID Horizon2D::getSurveyID() const
-{ return TrcKey::std2DSurvID(); }
-
-
 int Horizon2DGeometry::nrLines() const
 { return geomids_.size(); }
 
@@ -63,7 +59,7 @@ int Horizon2DGeometry::lineIndex( const char* linenm ) const
 {
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
-	const FixedString curlinenm( Survey::GM().getName(geomids_[idx]) );
+	const FixedString curlinenm( nameOf(geomids_[idx]) );
 	if ( curlinenm == linenm )
 	    return idx;
     }
@@ -73,12 +69,11 @@ int Horizon2DGeometry::lineIndex( const char* linenm ) const
 
 
 const char* Horizon2DGeometry::lineName( int lidx ) const
-{ return geomids_.validIdx(lidx) ? Survey::GM().getName( geomids_[lidx] ) : 0; }
+{ return geomids_.validIdx(lidx) ? nameOf( geomids_[lidx] ) : 0; }
 
 Pos::GeomID Horizon2DGeometry::geomID( int idx ) const
 {
-    return geomids_.validIdx( idx ) ? geomids_[idx]
-				    : Survey::GeometryManager::cUndefGeomID();
+    return geomids_.validIdx( idx ) ? geomids_[idx] : Pos::GeomID();
 }
 
 
@@ -86,8 +81,16 @@ PosID Horizon2DGeometry::getPosID( const TrcKey& trckey ) const
 {
     mDynamicCastGet(const EM::Horizon*, hor, &surface_ );
 
-    if ( trckey.survID()!=hor->getSurveyID() )
-	return PosID::getInvalid();
+    if ( trckey.geomSystem()!=hor->geomSystem() )
+    {
+	if ( is3D(trckey.geomSystem()) )
+	{
+	    if ( geomids_.size() == 1 )
+		return getPosID( trckey.getFor(geomids_[0]) );
+	    return PosID(); // no lines or don't know on which line
+	}
+	return getPosID( trckey.getFor(Pos::GeomID::get3D()) );
+    }
 
     const int lineidx = geomids_.indexOf( trckey.geomID() );
     if ( !geomids_.validIdx( lineidx ))
@@ -100,7 +103,7 @@ PosID Horizon2DGeometry::getPosID( const TrcKey& trckey ) const
 TrcKey Horizon2DGeometry::getTrcKey( const PosID& pid ) const
 {
     const RowCol rc = pid.getRowCol();
-    return Survey::GM().traceKey(geomID(rc.row()), rc.col() );
+    return TrcKey( geomID(rc.row()), rc.col() );
 }
 
 
@@ -129,12 +132,8 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
     if ( geomids_.isPresent(geomid) )
 	return false;
 
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-		     Survey::GM().getGeometry(geomid) );
-    if ( !geom2d || geom2d->data().isEmpty() )
-	return false;
-
-    StepInterval<int> trcrg = inptrg.isUdf() ? geom2d->data().trcNrRange()
+    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    StepInterval<int> trcrg = inptrg.isUdf() ? geom2d.data().trcNrRange()
 					     : inptrg;
     Geometry::Horizon2DLine* h2dl =
 		    reinterpret_cast<Geometry::Horizon2DLine*>( sections_[0] );
@@ -150,8 +149,8 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 	if ( !trg.width() || !cur0.isDefined() || !cur1.isDefined() )
 	    continue;
 
-	PosInfo::Line2DPos new0; geom2d->data().getPos( trg.start, new0 );
-	PosInfo::Line2DPos new1; geom2d->data().getPos( trg.stop, new1 );
+	PosInfo::Line2DPos new0; geom2d.data().getPos( trg.start, new0 );
+	PosInfo::Line2DPos new1; geom2d.data().getPos( trg.stop, new1 );
 	if ( !new0.coord_.isDefined() || !new1.coord_.isDefined() )
 	    continue;
 
@@ -172,7 +171,7 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 	else
 	    h2dl->reassignRow( geomids_[oldgeomidx], geomid );
 
-	h2dl->syncRow( geomid, geom2d->data() );
+	h2dl->syncRow( geomid, geom2d.data() );
     }
 
     if ( oldgeomidx < 0 )
@@ -211,7 +210,7 @@ PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
     for ( int idx=0; idx<nraliases; idx++ )
     {
 	const RowCol ownrc = aliases[idx].getRowCol();
-	const int colstep = colRange( ownrc.row() ).step;
+	const int colstep = colRange( Pos::GeomID(ownrc.row()) ).step;
 	const RowCol neighborrc( ownrc.row(),
 		nextcol ? ownrc.col()+colstep : ownrc.col()-colstep );
 
@@ -303,15 +302,15 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 		    if ( S2DPOS().curLineSetID() != l2dkey.lsID() )
 			S2DPOS().setCurLineSet( l2dkey.lsID() );
 
-		    geomid = Survey::GM().getGeomID(
-				    S2DPOS().getLineSet(l2dkey.lsID()),
-				    S2DPOS().getLineName(l2dkey.lineID()) );
+		    const BufferString oldlnm(
+			    S2DPOS().getLineSet(l2dkey.lsID()), "-",
+			    S2DPOS().getLineName(l2dkey.lineID()) );
+		    geomid = Survey::Geometry::getGeomID( oldlnm );
 		}
 	    }
 
-	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-			    Survey::GM().getGeometry(geomid));
-	    if ( !geom2d )
+	    const auto& geom2d = Survey::Geometry::get2D( geomid );
+	    if ( geom2d.isEmpty() )
 		continue;
 
 	    geomids_ += geomid;
@@ -319,7 +318,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	    {
 		Geometry::Horizon2DLine* section =
 		reinterpret_cast<Geometry::Horizon2DLine*>( sections_[secidx] );
-		section->syncRow( geomid, geom2d->data() );
+		section->syncRow( geomid, geom2d.data() );
 	    }
 	}
 
@@ -344,11 +343,10 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	PtrMan<IOObj> ioobj = DBM().get( mid );
 	if ( !ioobj ) continue;
 
-	const Pos::GeomID geomid = Survey::GM().getGeomID( ioobj->name(),
-							   linenames.get(idx) );
-	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-			Survey::GM().getGeometry(geomid));
-	if ( !geom2d )
+	const BufferString oldlnm( ioobj->name(), "-", linenames.get(idx) );
+	const Pos::GeomID geomid = Survey::Geometry::getGeomID( oldlnm );
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	if ( geom2d.isEmpty() )
 	    continue;
 
 	geomids_ += geomid;
@@ -356,7 +354,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	{
 	    Geometry::Horizon2DLine* section =
 	    reinterpret_cast<Geometry::Horizon2DLine*>( sections_[secidx] );
-	    section->syncRow( geomid, geom2d->data() );
+	    section->syncRow( geomid, geom2d.data() );
 	}
     }
 
@@ -399,11 +397,10 @@ bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist,
 
 void Horizon2D::initNodeSourceArray( const TrcKey& tk )
 {
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-	Survey::GM().getGeometry(tk.geomID()) );
-    if ( !geom2d || geom2d->data().isEmpty() )
+    const auto& geom2d = Survey::Geometry::get2D( tk.geomID() );
+    if ( geom2d.data().isEmpty() )
 	return;
-    StepInterval<int> trcrg = geom2d->data().trcNrRange();
+    StepInterval<int> trcrg = geom2d.data().trcNrRange();
     const int size = trcrg.nrSteps()+1;
     nodesource_ = new Array1DImpl<char>(size);
     nodesource_->setAll('0');

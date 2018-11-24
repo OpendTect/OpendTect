@@ -278,7 +278,7 @@ int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
 	if ( seldata_->type() == Seis::Table )
 	    return 0;
 
-	const BinID bid2d( seldata_->geomID(), bid.trcNr() );
+	const BinID bid2d( seldata_->geomID().getI(), bid.trcNr() );
 	return seldata_->selRes( bid2d );
     }
 

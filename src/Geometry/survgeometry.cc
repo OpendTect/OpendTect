@@ -19,7 +19,7 @@ Coord SurveyGeometry::getEdgePoint( const Coord& from, const Coord& to )
 {
     Line2 line( from, to );
 
-    const TrcKeySampling hs( SI().sampling(false).hsamp_ );
+    const TrcKeySampling hs( true );
     Coord svert[4];
     svert[0] = SI().transform( hs.start_ );
     svert[1] = SI().transform( BinID(hs.start_.inl(),hs.stop_.crl()) );

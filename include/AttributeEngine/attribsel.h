@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "ranges.h"
 #include "dbkey.h"
+#include "geomid.h"
 #include "bufstringset.h"
 #include "typeset.h"
 #include "datapack.h"
@@ -38,6 +39,7 @@ namespace Attrib
 mExpClass(AttributeEngine) SelSpec
 {
 public:
+
 			SelSpec( const char* r=0, DescID i=cAttribNotSelID(),
 				 bool n=false, const char* objr=0 )
 			: ref_(r), id_(i), isnla_(n)
@@ -91,8 +93,9 @@ public:
     bool		isZTransformed() const;
 
     const Desc*		getDesc(const DescSet* descset=0) const;
-    const BinDataDesc*	getPreloadDataDesc(Pos::GeomID geomid=-1,
-					    const DescSet* descset=0) const;
+    const BinDataDesc*	getPreloadDataDesc(
+				Pos::GeomID geomid=Pos::GeomID::get3D(),
+				const DescSet* descset=0) const;
 
     static DescID	cNoAttribID()		{ return DescID(-1); }
     static DescID	cAttribNotSelID()	{ return DescID(-2); }

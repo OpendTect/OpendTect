@@ -139,13 +139,9 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
     si.getComponentNames( nms, geomid );
     if ( nms.size() > 1 && nms.get(1).isEqual("Line dip",CaseInsensitive) )
     {
-	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-			Survey::GM().getGeometry(geomid))
-	if ( !geom2d )
-	{ errmsg_ = tr("Cannot read 2D geometry"); return false; }
-
-	float max;
-	geom2d->data().compDistBetwTrcsStats( max, trcdist_ );
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	dist_type maxdist;
+	geom2d.data().getTrcDistStats( maxdist, trcdist_ );
 	if ( mIsZero(trcdist_,mDefEps) )
 	{
 	    errmsg_ = tr("Cannot calculate median trace distance");
@@ -230,7 +226,7 @@ const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
     if ( seisdp_ )
     {
 	TrcKey tk( bid );
-	if ( geomid_ >= 0 )
+	if ( geomid_.is2D() )
 	    tk.setGeomID( geomid_ );
 	SeisTrc& dptrc = dptrc_.getObject();
 	seisdp_->fillTrace( TrcKey(bid), dptrc );

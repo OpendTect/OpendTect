@@ -22,8 +22,7 @@ ________________________________________________________________________
 uiVisPickRetriever::uiVisPickRetriever( uiVisPartServer* ps )
     : visserv_(ps)
     , status_( Idle )
-    , pickedgeomid_(Survey::GeometryManager::cUndefGeomID())
-    , finished_( this )    
+    , finished_( this )
 {
     resetPickedPos();
 }
@@ -73,7 +72,7 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	return;
 
     mCBCapsuleUnpackWithCaller( const visBase::EventInfo&,
-	    			eventinfo, caller, cb );
+				eventinfo, caller, cb );
     if ( eventinfo.type!=visBase::MouseClick )
 	return;
 
@@ -125,7 +124,7 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	if ( res )
 	    pickedtrcnr_ = pos2d.nr_;
     }
-    
+
     MouseCursorManager::restoreOverride();
     finished_.trigger();
 
@@ -148,7 +147,7 @@ void uiVisPickRetriever::reset()
 
 void uiVisPickRetriever::resetPickedPos()
 {
-    pickedgeomid_ = Survey::GeometryManager::cUndefGeomID();
+    pickedgeomid_ = Pos::GeomID();
     pickedtrcnr_ = mUdf(int);
     pickedpos_ = Coord3::udf();
     pickedscene_ = -1;
@@ -172,7 +171,7 @@ int uiVisPickRetriever::unTransformedSceneID() const
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
-	if ( scenes_[idx] && !scenes_[idx]->getZAxisTransform() ) 
+	if ( scenes_[idx] && !scenes_[idx]->getZAxisTransform() )
 	    return scenes_[idx]->id();
     }
 

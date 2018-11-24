@@ -10,6 +10,7 @@
 #include "arrayndalgo.h"
 #include "keystrs.h"
 #include "seisdatapack.h"
+#include "cubesubsel.h"
 
 
 const char* VolProc::UdfReplacer::sKeyPadTraces()
@@ -118,16 +119,17 @@ ReportingTask* VolProc::UdfReplacer::createTask()
 	{
 	    Array3DCopier<float>* copier =
 		new Array3DCopier<float>( input->data(icomp), out,
-					  input->sampling(), outputtkzs );
+		      CubeSubSel(input->sampling()), CubeSubSel(outputtkzs) );
 	    tasks->addTask( copier );
 	    if ( !comps_.isPresent(icomp) )
 		continue;
 	}
 
-	ArrayUdfValReplacer<float>* task =
-				    new ArrayUdfValReplacer<float>( out, 0 );
+	auto* task = new ArrayUdfValReplacer<float>( out );
 	task->setReplacementValue( replval_ );
-	task->setSampling( outputtkzs.hsamp_, output->trcsSampling() );
+	const auto* cd = output->trcsSampling();
+	if ( cd )
+	    task->setPositions( *cd, outputtkzs.hsamp_ );
 	tasks->addTask( task );
     }
 

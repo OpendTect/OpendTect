@@ -43,7 +43,8 @@ public:
     virtual bool		usePar(const IOPar&);
 
 protected:
-				Region(Pos::GeomID =-1);
+
+				Region(Pos::GeomID gid=Pos::GeomID::get3D());
 
     TrcKeyZSampling		tkzs_;
     int				id_;

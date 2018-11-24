@@ -263,7 +263,7 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( const TrcKey& tk, int nr ) const
 
 SeisTrc* SEGYDirect2DPSReader::getTrace( const BinID& bid, int nr ) const
 {
-    return getTrace( TrcKey(bid.inl(),bid.crl()), nr );
+    return getTrace( TrcKey(Pos::GeomID(bid.inl()),bid.crl()), nr );
 }
 
 
@@ -288,7 +288,7 @@ bool SEGYDirect2DPSReader::getGather( const TrcKey& tk, SeisTrcBuf& tb ) const
 
 bool SEGYDirect2DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
 {
-    return getGather( TrcKey(bid.inl(),bid.crl()), tb );
+    return getGather( TrcKey(Pos::GeomID(bid.inl()),bid.crl()), tb );
 }
 
 

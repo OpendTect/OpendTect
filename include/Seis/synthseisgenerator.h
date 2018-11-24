@@ -235,7 +235,7 @@ private:
 
     RefMan<RayModel>	model_;
     SeisTrcBuf*		trcs_	= 0;
-    TrcKey		tk_;
+    TrcKey&		tk_;
 
     ObjectSet<Generator> generators_;
     od_int64		totalnr_;

@@ -262,7 +262,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     {
 	insd_.step = info.sampling_.step;
 	if ( mIsZero(insd_.step,Seis::cDefZEps()) )
-	    insd_.step = SI().zRange(false).step;
+	    insd_.step = SI().zRange().step;
     }
     if ( !mIsUdf(fileopts_.timeshift_) )
 	insd_.start = fileopts_.timeshift_;
@@ -277,7 +277,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 	{
 	    innrsamples_ = trchead_.nrSamples();
 	    if ( innrsamples_ <= 0 || innrsamples_ > cMaxNrSamples )
-		innrsamples_ = SI().zRange(false).nrSteps() + 1;
+		innrsamples_ = SI().zRange().nrSteps() + 1;
 	}
     }
 
@@ -734,7 +734,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	addWarn(cSEGYWarnNonrectCoord,getTrcPosStr());
 
     if ( seldata_ && ti.is2D() )
-	ti.setLineNr( seldata_->geomID() );
+	ti.setLineNr( seldata_->geomID().getI() );
 
     return (headerdone_ = true);
 }

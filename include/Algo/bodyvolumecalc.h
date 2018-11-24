@@ -26,6 +26,7 @@ template <class T> class Array3D;
 mExpClass(Algo) BodyVolumeCalculator : public ParallelTask
 { mODTextTranslationClass(BodyVolumeCalculator)
 public:
+
 			BodyVolumeCalculator(const TrcKeyZSampling&,
 					     const Array3D<float>&,
 					     float threshold,

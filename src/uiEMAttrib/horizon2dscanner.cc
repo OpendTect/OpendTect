@@ -181,15 +181,14 @@ int Horizon2DScanner::nextStep()
 	if ( invalidnms_.isPresent(linenm) )
 	    return Executor::MoreToDo();
 
-	mDynamicCast( const Survey::Geometry2D*, curlinegeom_,
-		      Survey::GM().getGeometry(linenm) );
-
-	if ( !curlinegeom_ )
+	const auto& geom2d = Survey::Geometry::get2D( linenm );
+	if ( geom2d.isEmpty() )
 	{
 	    invalidnms_.addIfNew( linenm );
 	    return Executor::MoreToDo();
 	}
 
+	curlinegeom_ = &geom2d;
 	validnms_.addIfNew( linenm );
 	curline_ = linenm;
     }

@@ -24,7 +24,11 @@ class GeomPosID : public IntegerID<od_int64>
 {
 public:
 
-    inline		GeomPosID()	{}
+    explicit		GeomPosID( const Pos::IdxPair& rc )
+			    : GeomPosID(rc.toInt64())		{}
+			GeomPosID( int row, int col )
+			    : GeomPosID(RowCol(row,col))	{}
+    inline		GeomPosID()				{}
 
     static inline GeomPosID get( od_int64 i )
 				{ return GeomPosID(i); }

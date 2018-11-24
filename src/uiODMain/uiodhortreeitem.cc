@@ -619,7 +619,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !section )
 	    return;
 
-	TrcKeyZSampling maxcs = SI().sampling(true);;
+	TrcKeyZSampling maxcs( OD::UsrWork );
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	if ( scene && scene->getZAxisTransform() )
 	{
@@ -630,7 +630,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	TrcKeyZSampling curcs;
-	curcs.zsamp_.setFrom( SI().zRange(true) );
+	curcs.zsamp_.setFrom( SI().zRange(OD::UsrWork) );
 	curcs.hsamp_.set( section->displayedRowRange(),
 		       section->displayedColRange() );
 
@@ -697,17 +697,17 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==parentsrdlmnuitem_.id )
     {
-	const TrcKey tk = SI().transform( uimenu->getPickedPos().getXY() );
+	const TrcKey tk( SI().transform( uimenu->getPickedPos().getXY() ) );
 	applMgr()->addMPEParentPath( hd->id(), tk );
     }
     else if ( mnuid==parentsmnuitem_.id )
     {
-	const TrcKey tk = SI().transform( uimenu->getPickedPos().getXY() );
+	const TrcKey tk( SI().transform( uimenu->getPickedPos().getXY() ) );
 	hd->selectParent( tk );
     }
     else if ( mnuid==childrenmnuitem_.id )
     {
-	const TrcKey tk = SI().transform( uimenu->getPickedPos().getXY() );
+	const TrcKey tk( SI().transform( uimenu->getPickedPos().getXY() ) );
 	hor3d->selectChildren( tk );
     }
     else if ( mnuid==delchildrenmnuitem_.id )

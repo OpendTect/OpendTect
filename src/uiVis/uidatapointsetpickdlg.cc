@@ -176,11 +176,11 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     values_.erase();
     pickset->setEmpty();
     RefMan<DataPointSet> newdps = new DataPointSet( pvds, false );
-    Pos::SurvID survid = newdps->bivSet().survID();
+    const auto gs = newdps->bivSet().geomSystem();
     for ( int idx=0; idx<newdps->size(); idx++ )
     {
 	const DataPointSet::Pos pos( newdps->pos(idx) );
-	Pick::Location loc( pos.coord(survid), pos.z() );
+	Pick::Location loc( pos.coord(gs), pos.z() );
 	pickset->add( loc );
 	values_ += newdps->value(0,idx);
     }
@@ -246,7 +246,7 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
 	return;
 
     const DataPointSet::Pos pos( dps_.pos(row) );
-    const Coord3 dpscrd( pos.coord(dps_.bivSet().survID()), pos.z() );
+    const Coord3 dpscrd( pos.coord(dps_.geomSystem()), pos.z() );
     double sqmindist = mUdf( double );
     int locidx = -1;
     Pick::SetIter psiter( *set );
@@ -353,14 +353,15 @@ void uiDataPointSetPickDlg::updateTable()
     if ( table_->nrRows() < dps_.size() )
 	table_->setNrRows( dps_.size() );
 
-    Pos::SurvID survid = dps_.bivSet().survID();
+    auto gs = dps_.geomSystem();
     for ( int idx=0; idx<dps_.size(); idx++ )
     {
 	const DataPointSet::Pos pos( dps_.pos(idx) );
+	const Coord coord( pos.coord( gs ) );
 	table_->setValue( RowCol(idx,0), pos.binid_.inl() );
 	table_->setValue( RowCol(idx,1), pos.binid_.crl() );
-	table_->setValue( RowCol(idx,2), pos.coord(survid).x_ );
-	table_->setValue( RowCol(idx,3), pos.coord(survid).y_ );
+	table_->setValue( RowCol(idx,2), coord.x_ );
+	table_->setValue( RowCol(idx,3), coord.y_ );
 	table_->setValue( RowCol(idx,4), pos.z() );
 	table_->setValue( RowCol(idx,5), dps_.value(0,idx) );
     }
@@ -371,7 +372,6 @@ bool uiDataPointSetPickDlg::acceptOK()
 {
     return true;
 }
-
 
 
 // uiEMDataPointSetPickDlg

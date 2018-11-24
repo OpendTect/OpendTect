@@ -226,8 +226,8 @@ bool doImp( const File::Path& fp )
 	BufferString lnm( fullfnm.buf() + lnmoffs );
 	*(lnm.getCStr() + lnmlen) = '\0';
 
-	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+	Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
+	if ( geomid.isValid() )
 	{
 	    if ( !overwritequestionasked )
 	    {
@@ -238,9 +238,8 @@ bool doImp( const File::Path& fp )
 
 	    if ( overwrite )
 	    {
-		Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
-		mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
-		if ( geom2d ) geom2d->dataAdmin().setEmpty();
+		const auto& geom2d = Survey::Geometry::get2D( geomid );
+		geom2d.setEmpty();
 	    }
 
 	}
@@ -290,17 +289,16 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     bool retval;
     if ( !morebut_ || !morebut_->isChecked() )
     {
-	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-	if ( is2d && geomid != Survey::GeometryManager::cUndefGeomID() )
+	Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
+	if ( is2d && geomid.isValid() )
 	{
 	    const bool overwrite =
 		uiMSG().askGoOn( tr("Geometry of Line '%1' is already present."
 				    "\n\nDo you want to overwrite?").arg(lnm) );
 	    if ( overwrite )
 	    {
-		Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
-		mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
-		if ( geom2d ) geom2d->dataAdmin().setEmpty();
+		const auto& geom2d = Survey::Geometry::get2D( geomid );
+		geom2d.setEmpty();
 	    }
 
 	}
@@ -351,7 +349,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     if ( is2d )
     {
-	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+	Pos::GeomID geomid = Survey::Geometry::getGeomID( linenm );
 	if ( mIsUdfGeomID(geomid) )
 	    geomid = Geom2DImpHandler::getGeomID( linenm );
 	if ( mIsUdfGeomID(geomid) )
@@ -369,7 +367,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     if ( is2d )
     {
 	if ( linenm && *linenm )
-	    sd->setGeomID( Survey::GM().getGeomID(linenm)  );
+	    sd->setGeomID( Survey::Geometry::getGeomID(linenm)  );
 	wrr->setSelData( sd->clone() );
     }
 

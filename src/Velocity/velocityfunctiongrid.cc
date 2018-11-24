@@ -232,7 +232,7 @@ GriddedFunction::getInputFunction( const BinID& bid, int& funcsource )
 StepInterval<float> GriddedFunction::getAvailableZ() const
 {
     return velocityfunctions_.size() ? velocityfunctions_[0]->getAvailableZ()
-				     : SI().zRange(true);
+				     : SI().zRange();
 }
 
 
@@ -263,7 +263,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	    return false;
     }
 
-    const TrcKey tk( bid_ ); //TODO: Get a SurvID from TrcKeySampling
+    const TrcKey tk( bid_ ); //TODO: Get a GeomSystem from TrcKeySampling
     const Vel::Function* velsrc = directsource_ ? directsource_ :
 	      !velocityfunctions_.isEmpty() ?  velocityfunctions_[0] : 0;
     for ( int idx=0; idx<nr; idx++ )
@@ -293,7 +293,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	for ( int idy=usedpoints.size()-1; idy>=0; idy-- )
 	{
 	    const Function* func = velocityfunctions_[idy];
-	    const TrcKey tkfunc( func->getBinID() ); //TODO: Get a SurvID
+	    const TrcKey tkfunc( func->getBinID() ); //TODO: Get a GeomSystem
 	    const float zval = layermodel_ && validlayer ?
 			  layermodel_->getInterpolatedZ( tkfunc, layeridx ) : z;
 	    const float value = func->getVelocity( zval );
@@ -404,7 +404,7 @@ od_int64 nrIterations() const { return bvs_.totalSize(); }
 bool doWork(od_int64 start, od_int64 stop, int )
 {
     TypeSet<BinID> sourcebids;
-    const BinID step( SI().inlRange(false).step, SI().crlRange(false).step );
+    const BinID step( SI().inlRange().step, SI().crlRange().step );
     while ( true )
     {
 	TypeSet<BinIDValueSet::SPos> positions;
@@ -482,8 +482,8 @@ bool GriddedSource::initGridder()
     if ( gridderinited_ )
 	return true;
 
-    const Interval<int> inlrg = SI().inlRange( true );
-    const Interval<int> crlrg = SI().crlRange( true );
+    const Interval<int> inlrg = SI().inlRange();
+    const Interval<int> crlrg = SI().crlRange();
     Interval<float> xrg, yrg;
     Coord c = SI().transform( BinID(inlrg.start,crlrg.start) );
     xrg.start = xrg.stop = (float) c.x_;
@@ -503,7 +503,6 @@ bool GriddedSource::initGridder()
     sourcepos_.setEmpty();
     gridsourcecoords_.erase();
     gridsourcebids_.erase();
-
 
     for ( int idx=0; idx<datasources_.size(); idx++ )
     {

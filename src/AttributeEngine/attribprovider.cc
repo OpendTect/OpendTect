@@ -1417,9 +1417,8 @@ int Provider::getTotalNrPos( bool is2d )
     if ( is2d )
     {
 	const Pos::GeomID geomid = getGeomID();
-	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry );
-	cs.hsamp_.step_.crl() = geom2d ? geom2d->data().trcNrRange().step : 1;
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	cs.hsamp_.step_.crl() = geom2d.data().trcNrRange().step;
 	return cs.nrCrl();
     }
 
@@ -1470,7 +1469,7 @@ void Provider::setRefZ0( float z0 )
 
 void Provider::setCurLineName( const char* linename )
 {
-    geomid_ = Survey::GM().getGeomID( linename );
+    geomid_ = Survey::Geometry::getGeomID( linename );
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
 	    inputs_[idx]->setCurLineName( linename );
@@ -1497,7 +1496,7 @@ Pos::GeomID  Provider::getGeomID() const
             continue;
 
         geomid = inputs_[idx]->getGeomID();
-	if ( !Values::isUdf(geomid) )
+	if ( geomid.isValid() )
             return geomid;
     }
 
@@ -1559,7 +1558,7 @@ float Provider::lineDist() const
 float Provider::trcDist() const
 {
     return is2D() && useInterTrcDist() ?
-    getDistBetwTrcs(false, Survey::GM().getName(geomid_)) : SI().crlDistance();
+    getDistBetwTrcs(false, nameOf(geomid_)) : SI().crlDistance();
 }
 
 uiString Provider::errMsg() const
@@ -1808,7 +1807,7 @@ bool Provider::useInterTrcDist() const
 float Provider::getApplicableCrlDist( bool dependoninput ) const
 {
     if ( is2D() && ( !dependoninput || useInterTrcDist() ) )
-	return getDistBetwTrcs( false, Survey::GM().getName(geomid_) );
+	return getDistBetwTrcs( false, nameOf(geomid_) );
 
     return crlDist();
 }

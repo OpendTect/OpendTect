@@ -440,7 +440,7 @@ bool Pick::Set::isMultiGeom() const
 Pos::GeomID Pick::Set::firstGeomID() const
 {
     mLock4Read();
-    return locs_.isEmpty() ? -1 : locs_[0].trcKey().geomID();
+    return locs_.isEmpty() ? Pos::GeomID::get3D() : locs_[0].trcKey().geomID();
 }
 
 

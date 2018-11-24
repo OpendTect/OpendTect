@@ -110,9 +110,10 @@ public:
     int			expectedNrSamples() const;
     int			expectedNrTraces() const;
 
-    void		getSampling(TrcKeyZSampling&,Pos::GeomID =-1) const;
-    StepInterval<int>	getTrcRange(Pos::GeomID =-1) const;
-    StepInterval<float> getZRange(Pos::GeomID =-1) const;
+    void		getSampling(TrcKeyZSampling&,
+				    Pos::GeomID gid=Pos::GeomID::get3D()) const;
+    StepInterval<int>	getTrcRange(Pos::GeomID gid=Pos::GeomID::get3D()) const;
+    StepInterval<float> getZRange(Pos::GeomID gid=Pos::GeomID::get3D()) const;
 
 protected:
 

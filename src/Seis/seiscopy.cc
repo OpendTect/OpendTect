@@ -205,7 +205,7 @@ Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
 	if ( !linepar || linepar->isEmpty() )
 	    break;
 
-	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+	Pos::GeomID geomid;
 	if ( !linepar->get(sKey::GeomID(),geomid) )
 	    continue;
 

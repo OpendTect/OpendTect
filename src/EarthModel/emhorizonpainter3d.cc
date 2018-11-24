@@ -308,8 +308,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 	    return;
 
 	const BinID bid = cbauxdata->pid0.getBinID();
-	const TrcKey tk = Survey::GM().traceKey(
-		Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+	const TrcKey tk( bid );
 	if ( tkzs_.hsamp_.includes(bid) ||
 	    (path_&&path_->isPresent(tk)) )
 	{
@@ -365,8 +364,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
     if ( !hor3d ) return;
 
     const BinID binid = pid.getBinID();
-    const TrcKey trckey = Survey::GM().traceKey(
-		Survey::GM().default3DSurvID(), binid.inl(), binid.crl() );
+    const TrcKey trckey( binid );
 
     SectionMarker3DLine* secmarkerlines = markerline_[0];
     for ( int markidx=0; markidx<secmarkerlines->size(); markidx++ )

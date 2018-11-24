@@ -71,7 +71,8 @@ void uiSeisSubSel::afterSurveyChangedCB( CallBacker* )
     if ( DBM().isBad() )
 	return;
 
-    selfld_->setInputLimit( SI().sampling( true ) );
+    TrcKeyZSampling tkzs( OD::UsrWork );
+    selfld_->setInputLimit( tkzs );
 }
 
 
@@ -391,11 +392,12 @@ StepInterval<float> uiSeis2DSubSel::getZRange( Pos::GeomID geomid ) const
 void uiSeis2DSubSel::getSampling( TrcKeyZSampling& tkzs,
 				  Pos::GeomID geomid ) const
 {
-    if ( singlelnmsel_ && geomid==-1 )
+    if ( singlelnmsel_ && !geomid.isValid() )
 	geomid = singlelnmsel_->getInputGeomID();
 
     tkzs.set2DDef();
-    tkzs.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
+    const auto lnr = geomid.lineNr();
+    tkzs.hsamp_.setLineRange( StepInterval<int>(lnr,lnr,1) );
     tkzs.hsamp_.setTrcRange( getTrcRange(geomid) );
     tkzs.zsamp_.setFrom( getZRange(geomid) );
 

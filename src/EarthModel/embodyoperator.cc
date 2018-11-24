@@ -768,13 +768,13 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     if ( inlrg.start-inlrg.step>=0 ) inlrg.start -= inlrg.step;
     if ( crlrg.start-crlrg.step>=0 ) crlrg.start -= crlrg.step;
     if ( zrg.start-zrg.step>=0 ) zrg.start -= zrg.step;
-    if ( inlrg.stop+inlrg.step<=SI().inlRange(true).stop )
+    if ( inlrg.stop+inlrg.step<=SI().inlRange().stop )
 	inlrg.stop += inlrg.step;
 
-    if ( crlrg.stop+crlrg.step<=SI().crlRange(true).stop )
+    if ( crlrg.stop+crlrg.step<=SI().crlRange().stop )
 	crlrg.stop += crlrg.step;
 
-    if ( zrg.stop+zrg.step<=SI().zRange(true).stop )
+    if ( zrg.stop+zrg.step<=SI().zRange().stop )
 	zrg.stop += zrg.step;
 
     mDeclareAndTryAlloc( Array3D<float>*, arr, Array3DImpl<float>(

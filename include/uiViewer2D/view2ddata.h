@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "view2ddataman.h"
 #include "callback.h"
 #include "dbkey.h"
+#include "geomid.h"
 
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;

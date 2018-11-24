@@ -40,7 +40,7 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
     , is2d_(is2d)
 {
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD :
-	cs.defaultDir()==TrcKeyZSampling::Inl ? uiSliceSel::Inl
+	cs.defaultDir()==OD::InlineSlice ? uiSliceSel::Inl
 					      : uiSliceSel::Crl;
     setCtrlStyle( RunAndClose );
 
@@ -81,7 +81,7 @@ void uiViewer2DPosDlg::getTrcKeyZSampling( TrcKeyZSampling& cs )
 
 void uiViewer2DPosDlg::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    const bool isinl = cs.defaultDir()==TrcKeyZSampling::Inl;
+    const bool isinl = cs.defaultDir()==OD::InlineSlice;
     const int step = is2d_ || isinl ? cs.hsamp_.crlRange().step
 				    : cs.hsamp_.inlRange().step;
     sliceselfld_->setStep( step );

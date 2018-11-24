@@ -454,7 +454,7 @@ Seis::MultiProvider3D::MultiProvider3D( Policy pl, ZPolicy zpl )
 void Seis::MultiProvider3D::doReset( uiRetVal& uirv ) const
 {
     TrcKeyZSampling tkzs( false );
-    tkzs.hsamp_.survid_ = Survey::GM().default3DSurvID();
+    tkzs.hsamp_.setIs2D( false );
     if ( !getRanges(tkzs) )
 	return;
 
@@ -591,7 +591,7 @@ bool Seis::MultiProvider2D::doMoveToNextLine() const
 
     TrcKeySampling tks; tks.set2DDef();
     const Pos::GeomID geomid = geomID( curlidx_ );
-    tks.setLineRange( Interval<int>(geomid,geomid) );
+    tks.setLineRange( Interval<int>(geomid.lineNr(),geomid.lineNr()) );
     tks.setTrcRange( trcrg );
     iter_.setSampling( tks );
     return true;
@@ -602,7 +602,10 @@ void Seis::MultiProvider2D::doFillPar( IOPar& iop, uiRetVal& uirv ) const
 {
     MultiProvider::doFillPar( iop, uirv );
 
-    iop.set( sKeyGeomIDs(), geomids_ );
+    TypeSet<int> gids;
+    for ( auto gid : geomids_ )
+	gids += gid.getI();
+    iop.set( sKeyGeomIDs(), gids );
     iop.set( sKeyCurrentLineIdx(), curlidx_ );
 }
 
@@ -611,7 +614,10 @@ void Seis::MultiProvider2D::doUsePar( const IOPar& iop, uiRetVal& uirv )
 {
     MultiProvider::doUsePar( iop, uirv );
 
-    iop.get( sKeyGeomIDs(), geomids_ );
+    TypeSet<int> gids;
+    iop.get( sKeyGeomIDs(), gids );
+    for ( auto gid : gids )
+	geomids_ += Pos::GeomID( gid );
     iop.get( sKeyCurrentLineIdx(), curlidx_ );
 }
 

@@ -148,7 +148,6 @@ const char* FaultStickSet::pickedName( int sticknr ) const
 
 
 FaultStickSetGeometry::StickInfo::StickInfo()
-    : pickedgeomid(Survey::GeometryManager::cUndefGeomID())
 {}
 
 
@@ -388,7 +387,7 @@ bool FaultStickSetGeometry::pickedOnHorizon( int sticknr ) const
 
 bool FaultStickSetGeometry::pickedOn2DLine( int sticknr ) const
 {
-    return pickedGeomID(sticknr) != Survey::GeometryManager::cUndefGeomID();
+    return pickedGeomID(sticknr).isValid();
 }
 
 
@@ -424,7 +423,7 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID( int sticknr) const
     if ( idx >= 0 )
 	return stickinfo_[idx]->pickedgeomid;
 
-    return Survey::GeometryManager::cUndefGeomID();
+    return Pos::GeomID();
 }
 
 
@@ -474,7 +473,7 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 	}
 
 	Pos::GeomID geomid = pickedGeomID( sticknr );
-	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+	if ( geomid.isValid() )
 	{
 	    mDefPickedGeomIDStr( pickedgeomidstr, sticknr );
 	    par.set( pickedgeomidstr.buf(), geomid );
@@ -512,9 +511,9 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 	    if ( S2DPOS().curLineSetID() != l2dkey.lsID() )
 		S2DPOS().setCurLineSet( l2dkey.lsID() );
 
-	    stickinfo_[0]->pickedgeomid = Survey::GM().getGeomID(
-				S2DPOS().getLineSet(l2dkey.lsID()),
-				S2DPOS().getLineName(l2dkey.lineID()) );
+	    const BufferString oldlnm( S2DPOS().getLineSet(l2dkey.lsID()),
+		    "-", S2DPOS().getLineName(l2dkey.lineID()) );
+	    stickinfo_[0]->pickedgeomid = Survey::Geometry::getGeomID( oldlnm );
 	    continue;
 	}
 
@@ -530,9 +529,11 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 
 	PtrMan<IOObj> pickedioobj = DBM().get( stickinfo_[0]->pickeddbkey );
 	if ( pickedioobj )
-	    stickinfo_[0]->pickedgeomid =
-		    Survey::GM().getGeomID( pickedioobj->name(),
-					    stickinfo_[0]->pickednm );
+	{
+	    const BufferString oldlnm( pickedioobj->name(),
+				       stickinfo_[0]->pickednm );
+	    stickinfo_[0]->pickedgeomid = Survey::Geometry::getGeomID( oldlnm );
+	}
     }
 
     return true;

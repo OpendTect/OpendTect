@@ -214,15 +214,15 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
 	    return false;
     }
 
-    Pos::SurvID survid = dps->bivSet().survID();
+    const auto gs = dps->bivSet().geomSystem();
     for ( DataPointSet::RowID idx=0; idx<sztouse; idx++ )
     {
 	const int posidx = usemaxnrpicks ? Stats::randGen().getIndex( dpssize )
 					 : idx;
 	const DataPointSet::Pos pos( dps->pos(posidx) );
-	Pick::Location pl( pos.coord(survid), pos.z() );
+	Pick::Location pl( pos.coord(gs), pos.z() );
 	if ( dps->is2D() )
-	    pl.setSurvID( pos.binid_.inl() );
+	    pl.setGeomID( Pos::GeomID(pos.binid_.inl()) );
 	ps.add( pl );
     }
 
@@ -272,7 +272,7 @@ uiGenRandPicks2DDlg::uiGenRandPicks2DDlg( uiParent* p,
     }
 
     uiString zlbl = uiStrings::sZRange().withSurvZUnit();
-    StepInterval<float> survzrg = SI().zRange(false);
+    StepInterval<float> survzrg = SI().zRange();
     Interval<float> inpzrg( survzrg.start, survzrg.stop );
     inpzrg.scale( mCast(float,SI().zDomain().userFactor()) );
     zfld_ = new uiGenInput( this, zlbl, FloatInpIntervalSpec(inpzrg) );
@@ -358,7 +358,7 @@ bool uiGenRandPicks2DDlg::fillData( Pick::Set& ps )
     else
     {
 	Interval<float> zrg = zfld_->getFInterval();
-	StepInterval<float> survzrg = SI().zRange(false);
+	StepInterval<float> survzrg = SI().zRange();
 	survzrg.scale( mCast(float,SI().zDomain().userFactor()) );
 	if ( !survzrg.includes(zrg.start,false) ||
 		!survzrg.includes(zrg.stop,false) )

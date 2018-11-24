@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "posidxpairdataset.h"
+#include "geomid.h"
 
 
 namespace Pos
@@ -124,7 +125,7 @@ public:
 			{ data_.randomSubselect( maxsz ); }
 
     void		extend(const IdxPairDelta& stepout,const IdxPairStep&,
-	    			bool avoiddups=true);
+				bool avoiddups=true);
     void		add(const PosInfo::CubeData&);
     inline void		remove( const SPos& spos )
 			{ data_.remove( spos ); }
@@ -147,7 +148,7 @@ public:
     void		get(const SPos&,IdxPair&,float&) const;
     void		get(const SPos&,IdxPair&,float&,float&) const;
     void		get(const SPos&,IdxPair&,TypeSet<float>&,
-	    			int mxnrvals=-1) const;
+				int mxnrvals=-1) const;
     void		get(const SPos&,TypeSet<float>&,int maxnrvals=-1) const;
     void		set(const SPos&,float);
     void		set(const SPos&,float,float);
@@ -159,7 +160,7 @@ public:
     void		usePar(const IOPar&,const char* key);
 
 			// Fast
-    bool		getFrom(od_istream&,Pos::GeomID=mUdf(Pos::GeomID));
+    bool		getFrom(od_istream&,Pos::GeomID=Pos::GeomID());
 				//!< detects/converts coords if geomid passed
     bool		putTo(od_ostream&) const;
 

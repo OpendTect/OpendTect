@@ -12,6 +12,8 @@
 #include "posinfodetector.h"
 #include "volprocchain.h"
 #include "keystrs.h"
+#include "survgeom3d.h"
+#include "horsubsel.h"
 
 
 mImplClassFactory( VolProc::Step, factory );
@@ -466,10 +468,20 @@ TrcKeyZSampling VolProc::Step::getInputSampling(
 		       getHorizontalStepout().crl() );
     res.zsamp_.widen( res.zsamp_.step * getVerticalStepout() );
 
-    const Survey::Geometry* geom = Survey::GM().getGeometry(
-						    res.hsamp_.getGeomID() );
-    if ( geom )
-	res.limitTo( geom->sampling(), true );
+    const auto& geom = Survey::Geometry::get( res.hsamp_.getGeomID() );
+    TrcKeyZSampling cs( false );
+    cs.hsamp_.setLineRange( geom.trcNrRange() );
+    if ( geom.is2D() )
+    {
+	cs.zsamp_ = res.zsamp_;
+	cs.hsamp_.setIs2D();
+    }
+    else
+    {
+	cs.zsamp_ = geom.zRange();
+	cs.hsamp_.setTrcRange( geom.as3D()->inlRange() );
+    }
+    res.limitTo( cs, true );
 
     return res;
 }

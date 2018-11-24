@@ -77,27 +77,26 @@ bool Seis2DDataSet::isEmpty() const
 { return !nrLines(); }
 
 const char* Seis2DDataSet::lineName( int idx ) const
-{ return Survey::GM().getName( geomID(idx) ); }
+{ return nameOf( geomID(idx) ); }
 
 Pos::GeomID Seis2DDataSet::geomID( int idx ) const
 { return geomids_.validIdx(idx) ? geomids_[idx] : mUdfGeomID; }
 
-int Seis2DDataSet::indexOf( Pos::GeomID geomid ) const
+int Seis2DDataSet::indexOf( GeomID geomid ) const
 { return geomids_.indexOf( geomid ); }
 
 int Seis2DDataSet::indexOf( const char* linename ) const
 {
-    const int geomid = Survey::GM().getGeomID( linename );
-    return indexOf( geomid );
+    return indexOf( Survey::Geometry::getGeomID(linename) );
 }
 
-bool Seis2DDataSet::isPresent( Pos::GeomID geomid ) const
+bool Seis2DDataSet::isPresent( GeomID geomid ) const
 { return indexOf( geomid ) >= 0; }
 
 bool Seis2DDataSet::isPresent( const char* linename ) const
 { return indexOf( linename ) >= 0; }
 
-uiRetVal Seis2DDataSet::getGeometry( Pos::GeomID geomid,
+uiRetVal Seis2DDataSet::getGeometry( GeomID geomid,
 				 PosInfo::Line2DData& geom ) const
 {
     if ( !liop_ )
@@ -118,13 +117,13 @@ void Seis2DDataSet::getLineNames( BufferStringSet& nms ) const
 }
 
 
-void Seis2DDataSet::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
+void Seis2DDataSet::getGeomIDs( TypeSet<GeomID>& geomids ) const
 {
     geomids = geomids_;
 }
 
 
-Seis2DTraceGetter* Seis2DDataSet::traceGetter( Pos::GeomID geomid,
+Seis2DTraceGetter* Seis2DDataSet::traceGetter( GeomID geomid,
 			const Seis::SelData* sd, uiRetVal& uirv ) const
 {
     if ( !liop_ )
@@ -143,7 +142,7 @@ Seis2DTraceGetter* Seis2DDataSet::traceGetter( Pos::GeomID geomid,
 }
 
 
-Seis2DLinePutter* Seis2DDataSet::linePutter( Pos::GeomID geomid,
+Seis2DLinePutter* Seis2DDataSet::linePutter( GeomID geomid,
 					     uiRetVal& uirv )
 {
     if ( !liop_ )
@@ -159,7 +158,7 @@ Seis2DLinePutter* Seis2DDataSet::linePutter( Pos::GeomID geomid,
 	else
 	{
 	    uirv.set( tr("Read-only 2D seismic data set %1: %2 not in set")
-		    .arg( name() ).arg( Survey::GM().getName(geomid) ) );
+		    .arg( name() ).arg( nameOf(geomid) ) );
 	    return 0;
 	}
     }
@@ -168,13 +167,13 @@ Seis2DLinePutter* Seis2DDataSet::linePutter( Pos::GeomID geomid,
 }
 
 
-bool Seis2DDataSet::isEmpty( Pos::GeomID geomid ) const
+bool Seis2DDataSet::isEmpty( GeomID geomid ) const
 {
     return liop_ ? liop_->isEmpty( ioobj_, geomid ) : true;
 }
 
 
-bool Seis2DDataSet::remove( Pos::GeomID geomid )
+bool Seis2DDataSet::remove( GeomID geomid )
 {
     if ( readonly_ || !liop_ || !isPresent(geomid) )
 	return false;
@@ -188,32 +187,29 @@ bool Seis2DDataSet::remove( Pos::GeomID geomid )
 bool Seis2DDataSet::rename( const char* newname )
 { return liop_ && liop_->renameImpl( ioobj_, newname ); }
 
-bool Seis2DDataSet::getTxtInfo( Pos::GeomID geomid, BufferString& uinf,
+bool Seis2DDataSet::getTxtInfo( GeomID geomid, BufferString& uinf,
 				BufferString& stdinf ) const
 { return liop_ && liop_->getTxtInfo( ioobj_, geomid, uinf, stdinf ); }
 
-bool Seis2DDataSet::getRanges( Pos::GeomID geomid, StepInterval<int>& sii,
+bool Seis2DDataSet::getRanges( GeomID geomid, StepInterval<int>& sii,
 			       StepInterval<float>& sif ) const
 { return liop_ && liop_->getRanges( ioobj_, geomid, sii, sif ); }
 
-bool Seis2DDataSet::haveMatch( Pos::GeomID geomid,
+bool Seis2DDataSet::haveMatch( GeomID geomid,
 			       const BinIDValueSet& bivs ) const
 {
-    if ( TrcKey::is2D(bivs.survID()) )
-	return bivs.hasInl( geomid );
+    if ( bivs.is2D() )
+	return bivs.hasInl( geomid.lineNr() );
 
-    const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
-    if ( !geom2d ) return false;
+    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    if ( geom2d.isEmpty() )
+	return false;
+    const auto& geom3d = Survey::Geometry::get3D();
 
-    geometry = Survey::GM().getGeometry( bivs.survID() );
-    mDynamicCastGet( const Survey::Geometry3D*, geom3d, geometry )
-    if ( !geom3d ) return false;
-
-    const PosInfo::Line2DData& geom = geom2d->data();
-    for ( int idx=0; idx<geom.positions().size(); idx++ )
+    const PosInfo::Line2DData& l2dd = geom2d.data();
+    for ( int idx=0; idx<l2dd.positions().size(); idx++ )
     {
-	if ( bivs.includes( geom3d->transform(geom.positions()[idx].coord_) ) )
+	if ( bivs.includes( geom3d.transform(l2dd.positions()[idx].coord_) ) )
 	    return true;
     }
 
@@ -222,9 +218,12 @@ bool Seis2DDataSet::haveMatch( Pos::GeomID geomid,
 
 
 void Seis2DDataSet::getDataSetsOnLine( const char* lnm, BufferStringSet& ds )
-{ Seis2DDataSet::getDataSetsOnLine( Survey::GM().getGeomID(lnm), ds ); }
+{
+    Seis2DDataSet::getDataSetsOnLine( Survey::Geometry::getGeomID(lnm), ds );
+}
 
 
-void Seis2DDataSet::getDataSetsOnLine( Pos::GeomID geomid,
-				       BufferStringSet& ds )
-{ SeisIOObjInfo::getDataSetNamesForLine( geomid, ds ); }
+void Seis2DDataSet::getDataSetsOnLine( GeomID geomid, BufferStringSet& ds )
+{
+    SeisIOObjInfo::getDataSetNamesForLine( geomid, ds );
+}

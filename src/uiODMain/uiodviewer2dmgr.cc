@@ -305,20 +305,19 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 						? wp.x_ : wp.y_);
 	const float newpos = mCast(float, xrg.atIndex(newposidx) );
 	selauxannot.pos_ = newpos;
-	TrcKeyZSampling::Dir vwr2ddir =
-	    curvwr2d->getTrcKeyZSampling().defaultDir();
-	if ( (vwr2ddir==TrcKeyZSampling::Inl && selauxannot_.isx1_) ||
-	     (vwr2ddir==TrcKeyZSampling::Z && !selauxannot_.isx1_) )
+	auto vwr2ddir = curvwr2d->getTrcKeyZSampling().defaultDir();
+	if ( (vwr2ddir==OD::InlineSlice && selauxannot_.isx1_) ||
+	     (vwr2ddir==OD::ZSlice && !selauxannot_.isx1_) )
 	    selauxannot.txt_ = toUiString( "%1 %2" )
 				.arg(uiStrings::sInl())
 				.arg( mNINT32(newpos) );
-	else if ( (vwr2ddir==TrcKeyZSampling::Crl && selauxannot_.isx1_) ||
-		  (vwr2ddir==TrcKeyZSampling::Z && selauxannot_.isx1_) )
+	else if ( (vwr2ddir==OD::CrosslineSlice && selauxannot_.isx1_) ||
+		  (vwr2ddir==OD::ZSlice && selauxannot_.isx1_) )
 	    selauxannot.txt_ = toUiString( "%1 %2" )
 				.arg(uiStrings::sCrl())
 				.arg( mNINT32(newpos) );
-	else if ( (vwr2ddir==TrcKeyZSampling::Inl && !selauxannot_.isx1_) ||
-		  (vwr2ddir==TrcKeyZSampling::Crl && !selauxannot_.isx1_) )
+	else if ( (vwr2ddir==OD::InlineSlice && !selauxannot_.isx1_) ||
+		  (vwr2ddir==OD::CrosslineSlice && !selauxannot_.isx1_) )
 	    selauxannot.txt_ = toUiString( "%1 %2" )
 				.arg(uiStrings::sZ())
 				.arg( newpos*curvwr2d->zDomain().userFactor() );
@@ -369,7 +368,7 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 	return;
 
     uiODViewer2D* clickedvwr2d = 0;
-    if ( TrcKey::is2D(tkzs.hsamp_.survid_) )
+    if ( tkzs.hsamp_.is2D() )
     {
 	if ( auxannot[selannotidx].isNormal() )
 	    return;
@@ -392,14 +391,14 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 	    oldtkzs.zsamp_.step = newtkzs.zsamp_.step = zat->getGoodZStep();
 	}
 
-	if ( tkzs.defaultDir()!=TrcKeyZSampling::Inl && selauxannot_.isx1_ )
+	if ( tkzs.defaultDir()!=OD::InlineSlice && selauxannot_.isx1_ )
 	{
 	    const int auxpos = mNINT32(selauxannot_.oldauxpos_);
 	    const int newauxpos = mNINT32(auxannot[selannotidx].pos_);
 	    oldtkzs.hsamp_.setLineRange( Interval<int>(auxpos,auxpos) );
 	    newtkzs.hsamp_.setLineRange( Interval<int>(newauxpos,newauxpos) );
 	}
-	else if ( tkzs.defaultDir()!=TrcKeyZSampling::Z && !selauxannot_.isx1_ )
+	else if ( tkzs.defaultDir()!=OD::ZSlice && !selauxannot_.isx1_ )
 	{
 	    const float auxpos = selauxannot_.oldauxpos_;
 	    const float newauxpos = auxannot[selannotidx].pos_;
@@ -471,7 +470,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     Line2DInterSection::Point intpoint2d( mUdfGeomID, mUdfGeomID,
 					  mUdf(int), mUdf(int) );
     const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
-    if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    if ( tkzs.hsamp_.is2D() )
     {
 	if ( x1auxposidx>=0 &&
 	     curvwr.appearance().annot_.x1_.auxannot_[x1auxposidx].isNormal() )
@@ -480,7 +479,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	    if ( mIsUdfGeomID(intpoint2d.otherid_) )
 	       return;
 	    const uiString show2dtxt = m3Dots(tr("Show Line '%1'")).arg(
-				Survey::GM().getName(intpoint2d.otherid_) );
+				nameOf(intpoint2d.otherid_) );
 	    menu.insertAction( new uiAction(show2dtxt), 0 );
 	}
     }
@@ -495,12 +494,12 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 		.arg( mNINT32(samplecrdz*curvwr2d->zDomain().userFactor()) );
 
 	const bool isflat = tkzs.isFlat();
-	const TrcKeyZSampling::Dir dir = tkzs.defaultDir();
-	if ( !isflat || dir!=TrcKeyZSampling::Inl )
+	const auto dir = tkzs.defaultDir();
+	if ( !isflat || dir!=OD::InlineSlice )
 	    menu.insertAction( new uiAction(showinltxt), 1 );
-	if ( !isflat || dir!=TrcKeyZSampling::Crl )
+	if ( !isflat || dir!=OD::CrosslineSlice )
 	    menu.insertAction( new uiAction(showcrltxt), 2 );
-	if ( !isflat || dir!=TrcKeyZSampling::Z )
+	if ( !isflat || dir!=OD::ZSlice )
 	    menu.insertAction( new uiAction(showztxt), 3 );
     }
 
@@ -511,8 +510,8 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     {
 	const BinID bid = SI().transform( coord .getXY() );
 	uiWorldPoint initialcentre( uiWorldPoint::udf() );
-	TrcKeyZSampling newtkzs = SI().sampling(true);
-	newtkzs.hsamp_.survid_ = tkzs.hsamp_.survid_;
+	TrcKeyZSampling newtkzs( OD::UsrWork );
+	newtkzs.hsamp_.setGeomSystem( tkzs.hsamp_.geomSystem() );
 	ConstRefMan<ZAxisTransform> zat = curvwr2d->getZAxisTransform();
 	if ( zat )
 	{
@@ -522,17 +521,17 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 
 	if ( menuid==0 )
 	{
-	    const PosInfo::Line2DData& l2ddata =
-		Survey::GM().getGeometry( intpoint2d.otherid_ )->as2D()->data();
+	    const auto& geom2d = Survey::Geometry::get2D( intpoint2d.otherid_ );
+	    const PosInfo::Line2DData& l2ddata = geom2d.data();
 	    const StepInterval<int> trcnrrg = l2ddata.trcNrRange();
 	    const float trcdist =
 		l2ddata.distBetween( trcnrrg.start, intpoint2d.othertrcnr_ );
 	    if ( mIsUdf(trcdist) )
 		return;
 	    initialcentre = uiWorldPoint( mCast(double,trcdist), samplecrdz );
-	    newtkzs.hsamp_.init( intpoint2d.otherid_ );
-	    newtkzs.hsamp_.setLineRange(
-		    Interval<int>(intpoint2d.otherid_,intpoint2d.otherid_) );
+	    newtkzs.hsamp_.setTo( intpoint2d.otherid_ );
+	    const auto lnr = intpoint2d.otherid_.lineNr();
+	    newtkzs.hsamp_.setLineRange( Interval<int>(lnr,lnr) );
 	}
 	else if ( menuid == 1 )
 	{
@@ -562,7 +561,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	su.initialcentre_ = initialcentre;
 	const uiFlatViewStdControl* control = curvwr2d->viewControl();
 	su.initialx1pospercm_ = control->getCurrentPosPerCM( true );
-	if ( newtkzs.defaultDir()!=TrcKeyZSampling::Z && curvwr2d->isVertical())
+	if ( newtkzs.defaultDir()!=OD::ZSlice && curvwr2d->isVertical())
 	    su.initialx2pospercm_ = control->getCurrentPosPerCM( false );
 
 	displayIn2DViewer( *probe, ProbeLayer::ID::getInvalid(), su );
@@ -575,15 +574,15 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 Probe* uiODViewer2DMgr::createNewProbe( const TrcKeyZSampling& pos ) const
 {
     Probe* newprobe = 0;
-    if ( pos.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    if ( pos.hsamp_.is2D() )
     {
 	Line2DProbe* l2dprobe = new Line2DProbe();
 	l2dprobe->setGeomID( pos.hsamp_.getGeomID() );
 	newprobe = l2dprobe;
     }
-    else if ( pos.defaultDir()==TrcKeyZSampling::Inl )
+    else if ( pos.defaultDir()==OD::InlineSlice )
 	newprobe = new InlineProbe();
-    else if ( pos.defaultDir()==TrcKeyZSampling::Crl )
+    else if ( pos.defaultDir()==OD::CrosslineSlice )
 	newprobe = new CrosslineProbe();
     else
 	newprobe = new ZSliceProbe();
@@ -776,7 +775,7 @@ void uiODViewer2DMgr::getVWR2DDataGeomIDs(
     {
 	const char* wvalnm = wvalnms.get(lidx).buf();
 	if ( vdlnms.isPresent(wvalnm) )
-	    commongids += Survey::GM().getGeomID( wvalnm );
+	    commongids += Survey::Geometry::getGeomID( wvalnm );
     }
 }
 
@@ -824,18 +823,18 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr_ );
 	    newannot.pos_ = mCast(float,posdata->position(true,posidx));
-	    newannot.txt_ = toUiString( Survey::GM().getName(intpos.otherid_) );
+	    newannot.txt_ = toUiString( nameOf(intpos.otherid_) );
 	    x1auxannot += newannot;
 	}
     }
     else
     {
-	const TrcKeyZSampling::Dir dir = tkzs.defaultDir();
+	const auto dir = tkzs.defaultDir();
 	for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
 	{
 	    uiODViewer2D* curvwr2d = getViewer2D( vwridx );
 	    const TrcKeyZSampling& idxvwrtkzs = curvwr2d->getTrcKeyZSampling();
-	    TrcKeyZSampling::Dir idxvwrdir = idxvwrtkzs.defaultDir();
+	    const auto idxvwrdir = idxvwrtkzs.defaultDir();
 	    if ( curvwr2d==vwr2d || idxvwrdir==dir || !idxvwrtkzs.isFlat() ||
 		    curvwr2d->getZAxisTransform()!=vwr2d->getZAxisTransform() )
 		continue;
@@ -844,9 +843,9 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    OD::PlotAnnotation newannot;
 	    newannot.linetype_ = OD::PlotAnnotation::Bold;
 
-	    if ( dir == TrcKeyZSampling::Inl )
+	    if ( dir == OD::InlineSlice )
 	    {
-		if ( idxvwrdir==TrcKeyZSampling::Crl )
+		if ( idxvwrdir==OD::CrosslineSlice )
 		{
 		    newannot.pos_ =
 			mCast(float,idxvwrtkzs.hsamp_.crlRange().start);
@@ -865,9 +864,9 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		    x2auxannot += newannot;
 		}
 	    }
-	    else if ( dir == TrcKeyZSampling::Crl )
+	    else if ( dir == OD::CrosslineSlice )
 	    {
-		if ( idxvwrdir==TrcKeyZSampling::Inl )
+		if ( idxvwrdir==OD::InlineSlice )
 		{
 		    newannot.pos_ =
 			mCast( float, idxvwrtkzs.hsamp_.inlRange().start );
@@ -889,7 +888,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    }
 	    else
 	    {
-		if ( idxvwrdir==TrcKeyZSampling::Inl )
+		if ( idxvwrdir==OD::InlineSlice )
 		{
 		    newannot.pos_ =
 			mCast( float, idxvwrtkzs.hsamp_.inlRange().start );

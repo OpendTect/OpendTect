@@ -79,7 +79,7 @@ public:
 			    return Surface::usePar( par );
 			}
 
-    virtual TrcKey::SurvID getSurveyID() const				= 0;
+    virtual OD::GeomSystem geomSystem() const				= 0;
 
 protected:
 			Horizon(const char* nm)

@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "uisip.h"
 
 #include "bufstringset.h"
+#include "cubesampling.h"
+#include "cubesubsel.h"
 #include "trckeyzsampling.h"
 #include "file.h"
 #include "filepath.h"
@@ -95,10 +97,10 @@ bool uiSurvInfoProvider::runDialog( uiParent* p, TDInfo ztyp, SurveyInfo& si,
 
     const bool havez = !mIsUdf(cs.zsamp_.start);
     if ( !havez )
-	cs.zsamp_ = si.zRange(false);
+	cs.zsamp_ = si.zRange();
 
-    si.setRanges( cs );
-    si.setWorkRanges( cs );
+    si.setRanges( CubeSampling(cs) );
+    si.setWorkRanges( CubeSubSel(cs) );
     BinID bid[2];
     bid[0].inl() = cs.hsamp_.start_.inl();
     bid[0].crl() = cs.hsamp_.start_.crl();
@@ -474,14 +476,15 @@ void uiSurveyInfoEditor::overruleCB( CallBacker* )
 
 void uiSurveyInfoEditor::setValues()
 {
-    const TrcKeyZSampling& cs = si_.sampling( false );
+    TrcKeyZSampling cs( false );
+    si_.getSampling( cs );
     const TrcKeySampling& hs = cs.hsamp_;
     StepInterval<int> inlrg( hs.start_.inl(), hs.stop_.inl(), hs.step_.inl() );
     StepInterval<int> crlrg( hs.start_.crl(), hs.stop_.crl(), hs.step_.crl() );
     inlfld_->setValue( inlrg );
     crlfld_->setValue( crlrg );
 
-    const StepInterval<float>& zrg = si_.zRange( false );
+    const StepInterval<float>& zrg = si_.zRange();
     const float zfac = mCast( float, si_.zDomain().userFactor() );
     setZValFld( zfld_, 0, zrg.start, zfac );
     setZValFld( zfld_, 1, zrg.stop, zfac );
@@ -595,7 +598,7 @@ bool uiSurveyInfoEditor::getFromScreen()
     else if ( !setRelation() )
 	mErrRet( errmsg_ );
 
-    si_.update3DGeometry();
+    si_.updateGeometries();
     return true;
 }
 
@@ -608,7 +611,10 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 
     pol2d3dfld_->setCurrentItem( (int)si_.survDataType() );
 
-    if ( si_.sampling(false).hsamp_.totalNr() )
+    TrcKeyZSampling cs( false );
+    si_.getSampling( cs );
+    const TrcKeySampling& hs = cs.hsamp_;
+    if ( hs.totalNr() > 0 )
 	setValues();
 }
 
@@ -740,7 +746,8 @@ bool uiSurveyInfoEditor::setInlCrlRange()
 						  "a valid range for inlines")))
     if ( crg.isUdf() ) mErrRetTabGrp(rangegrp_,uiStrings::phrEnter(tr(
 					       "a valid range for crosslines")))
-    TrcKeyZSampling cs( si_.sampling(false) );
+    TrcKeyZSampling cs( false );
+    si_.getSampling( cs );
     TrcKeySampling& hs = cs.hsamp_;
     hs.start_.inl() = irg.start; hs.start_.crl() = crg.start;
     hs.stop_.inl() = irg.atIndex( irg.getIndex(irg.stop) );
@@ -753,8 +760,8 @@ bool uiSurveyInfoEditor::setInlCrlRange()
 	mErrRetTabGrp(rangegrp_,
 			uiStrings::phrSpecify(tr("in-line/cross-line ranges")))
 
-    si_.setRanges( cs );
-    si_.setWorkRanges( cs );
+    si_.setRanges( CubeSampling(cs) );
+    si_.setWorkRanges( CubeSubSel(cs) );
     return true;
 }
 
@@ -774,7 +781,8 @@ bool uiSurveyInfoEditor::setZRange()
 		     ? UnitOfMeasure::meterUnit() : UnitOfMeasure::feetUnit();
     si_.setSeismicReferenceDatum( getConvertedValue(srd,displayuom,datauom) );
 
-    TrcKeyZSampling cs( si_.sampling(false) );
+    TrcKeyZSampling cs( false );
+    si_.getSampling( cs );
     cs.zsamp_ = zfld_->getFStepInterval();
     if (mIsUdf(cs.zsamp_.start) || mIsUdf(cs.zsamp_.stop)
 				|| mIsUdf(cs.zsamp_.step))
@@ -791,8 +799,8 @@ bool uiSurveyInfoEditor::setZRange()
     if ( cs.zsamp_.nrSteps() == 0 )
 	mErrRetTabGrp( rangegrp_, uiStrings::phrSpecify(tr("a valid Z range")))
 
-    si_.setRanges( cs );
-    si_.setWorkRanges( cs );
+    si_.setRanges( CubeSampling(cs) );
+    si_.setWorkRanges( CubeSubSel(cs) );
     return true;
 }
 
@@ -963,8 +971,9 @@ void uiSurveyInfoEditor::transformChg( CallBacker* )
 void uiSurveyInfoEditor::updateMap()
 {
     TypeSet<int> inlines, crlines;
-    si_.update3DGeometry();
-    const TrcKeyZSampling& cs = si_.sampling( false );
+    si_.updateGeometries();
+    TrcKeyZSampling cs( false );
+    si_.getSampling( cs );
     const TrcKeySampling& hs = cs.hsamp_;
     const int inlstep = ( hs.nrInl() * hs.step_.inl() ) / 5;
     for ( int idx=0; idx<4; idx++ )

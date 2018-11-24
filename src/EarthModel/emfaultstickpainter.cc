@@ -35,7 +35,6 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     , path_(0)
     , rdlid_(-1)
     , flatposdata_(0)
-    , geomid_( Survey::GeometryManager::cUndefGeomID() )
     , abouttorepaint_( this )
     , repaintdone_( this )
     , linenabled_(true)
@@ -69,7 +68,7 @@ FaultStickPainter::~FaultStickPainter()
 
 
 const char* FaultStickPainter::getLineName() const
-{ return Survey::GM().getName( geomid_ ); }
+{ return nameOf( geomid_ ); }
 
 void FaultStickPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs,bool upd )
 { tkzs_ = cs; }
@@ -97,7 +96,7 @@ bool FaultStickPainter::addPolyLine()
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return false;
 
-    ConstRefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry( false );
+    ConstRefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry();
     const Pos::IdxPair2Coord& bid2crd = geom3d->binID2Coord();
     mDynamicCastGet(const Geometry::FaultStickSet*,fss,
 		    emfss->geometryElement());
@@ -156,8 +155,7 @@ bool FaultStickPainter::addPolyLine()
 		{
 		    const Coord3 pos = fss->getKnot( rc );
 		    const BinID bid = SI().transform( pos.getXY() );
-		    const TrcKey trckey = Survey::GM().traceKey(
-		       Survey::GM().default3DSurvID(),bid.inl(),bid.crl() );
+		    const TrcKey trckey( bid );
 		    Coord3 editnormal(
 			Geometry::RandomLine::getNormal(knots,trckey), 0.f);
 		    const Coord3 nzednor = editnormal.normalize();
@@ -199,9 +197,9 @@ bool FaultStickPainter::addPolyLine()
 	    Coord3 editnormal( 0, 0, 1 );
 	    // Let's assume cs default dir. is 'Z'
 
-	    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+	    if ( tkzs_.defaultDir() == OD::InlineSlice )
 		editnormal = Coord3( SI().binID2Coord().inlDir(), 0 );
-	    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+	    else if ( tkzs_.defaultDir() == OD::CrosslineSlice )
 		editnormal = Coord3( SI().binID2Coord().crlDir(), 0 );
 
 	    const Coord3 nzednor = editnormal.normalize();
@@ -216,17 +214,17 @@ bool FaultStickPainter::addPolyLine()
 	    if ( !equinormal ) continue;
 
 	    // we need to deal in different way if cs direction is Z
-	    if ( tkzs_.defaultDir() != TrcKeyZSampling::Z )
+	    if ( tkzs_.defaultDir() != OD::ZSlice )
 	    {
 		BinID extrbid1, extrbid2;
-		if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+		if ( tkzs_.defaultDir() == OD::InlineSlice )
 		{
 		    extrbid1.inl() = extrbid2.inl() =
 				    tkzs_.hsamp_.inlRange().start;
 		    extrbid1.crl() = tkzs_.hsamp_.crlRange().start;
 		    extrbid2.crl() = tkzs_.hsamp_.crlRange().stop;
 		}
-		else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+		else if ( tkzs_.defaultDir() == OD::CrosslineSlice )
 		{
 		    extrbid1.inl() = tkzs_.hsamp_.inlRange().start;
 		    extrbid2.inl() = tkzs_.hsamp_.inlRange().stop;
@@ -244,18 +242,18 @@ bool FaultStickPainter::addPolyLine()
 		    const Coord3& pos = fss->getKnot( rc );
 		    BinID knotbinid = SI().transform( pos.getXY() );
 		    if (pointOnEdge2D(pos.getXY(),extrcoord1,extrcoord2,.5)
-			|| (tkzs_.defaultDir()==TrcKeyZSampling::Inl
+			|| (tkzs_.defaultDir()==OD::InlineSlice
 			    && knotbinid.inl()==extrbid1.inl())
-			|| (tkzs_.defaultDir()==TrcKeyZSampling::Crl
+			|| (tkzs_.defaultDir()==OD::CrosslineSlice
 			    && knotbinid.crl()==extrbid1.crl()) )
 		    {
 			const Coord bidf =
 			    bid2crd.transformBackNoSnap( pos.getXY() );
 			const double z = zat ? zat->transform(pos) : pos.z_;
-			if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+			if ( tkzs_.defaultDir() == OD::InlineSlice )
 			    stickauxdata->poly_ += FlatView::Point(
 							    bidf.y_, z );
-			else if ( tkzs_.defaultDir()==TrcKeyZSampling::Crl )
+			else if ( tkzs_.defaultDir()==OD::CrosslineSlice )
 			    stickauxdata->poly_ += FlatView::Point(
 							    bidf.x_, z );
 		    }
@@ -514,13 +512,13 @@ Coord FaultStickPainter::getNormalInRandLine( int idx ) const
     if ( idx < 0 || path_->size() == 0 )
 	return Coord(mUdf(float), mUdf(float));
 
-    const Coord pivotcrd = Survey::GM().toCoord( (*path_)[idx] );
+    const Coord pivotcrd = path_->get(idx).getCoord();
     Coord nextcrd;
 
     if ( idx+1 < path_->size() )
-	nextcrd = Survey::GM().toCoord( (*path_)[idx+1] );
+	nextcrd = path_->get(idx+1).getCoord();
     else if ( idx-1 > 0 )
-	nextcrd = Survey::GM().toCoord( (*path_)[idx-1] );
+	nextcrd = path_->get(idx-1).getCoord();
 
     Coord direction = nextcrd - pivotcrd;
     return Coord( -direction.y_, direction.x_ );

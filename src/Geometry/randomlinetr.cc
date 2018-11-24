@@ -197,7 +197,7 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 
     const bool issimple = !astrm.hasKeyword( sKeyNrLines );
     const int nrlines = issimple ? 1 : astrm.getIValue();
-    Interval<float> zrg; assign( zrg, SI().zRange(true) );
+    Interval<float> zrg; assign( zrg, SI().zRange() );
     BufferString rlnm;
     if ( issimple )
 	getZRgAndName( astrm, zrg, rlnm );

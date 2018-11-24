@@ -357,7 +357,7 @@ uiRetVal HorizonGridder::executeGridding(
 
     TrcKeySampling hs( false );
     hs.set( rowrg, colrg );
-    hs.survid_ = hor3d->getSurveyID();
+    hs.setIs2D( false );
 
     interpolator->setTrcKeySampling( hs );
 

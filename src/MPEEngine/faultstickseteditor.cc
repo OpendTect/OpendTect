@@ -141,7 +141,7 @@ void FaultStickSetEditor::setScaleVector( const Coord3& scalevec )
 
 
 float FaultStickSetEditor::distToStick( int sticknr,const DBKey* pickeddbkey,
-			const char* pickednm,Pos::GeomID pickedgeomid,
+			const char* pickednm, GeomID pickedgeomid,
 			const Coord3& mousepos, const Coord3* posnormal ) const
 {
 
@@ -152,7 +152,7 @@ float FaultStickSetEditor::distToStick( int sticknr,const DBKey* pickeddbkey,
 
     if ( emfss->pickedOn2DLine(sticknr) )
     {
-	const Pos::GeomID geomid = emfss->pickedGeomID( sticknr );
+	const GeomID geomid = emfss->pickedGeomID( sticknr );
 	if ( geomid != pickedgeomid )
 	    return mUdf(float);
     }
@@ -217,7 +217,7 @@ float FaultStickSetEditor::distToStick( int sticknr,const DBKey* pickeddbkey,
 
 void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 			const DBKey* pickeddbkey, const char* pickednm,
-			Pos::GeomID pickedgeomid, const Coord3& mousepos,
+			GeomID pickedgeomid, const Coord3& mousepos,
 			const Coord3* posnormal ) const
 {
     insertpid = EM::PosID::getInvalid();
@@ -245,7 +245,7 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 
 
 const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos,
-    Pos::GeomID pickedgeomid, const Coord3* normal ) const
+    GeomID pickedgeomid, const Coord3* normal ) const
 {
     EM::PosID pid = EM::PosID::getInvalid();
     int sticknr = getLastClickedStick();
@@ -306,7 +306,7 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 
 bool FaultStickSetEditor::getNearestStick( int& sticknr,
 			const DBKey* pickeddbkey, const char* pickednm,
-			Pos::GeomID pickedgeomid, const Coord3& mousepos,
+			GeomID pickedgeomid, const Coord3& mousepos,
 			const Coord3* posnormal) const
 {
     const EM::FaultStickSet* emfss = emFaultStickSet();
@@ -462,7 +462,7 @@ void FaultStickSetEditor::cloneMovingNode(CallBacker*)
     const int sticknr = movingnode_.getRowCol().row();
     Geometry::FaultStickSet* fss = fssg.geometryElement();
     const DBKey* pickeddbkey = fssg.pickedDBKey( sticknr );
-    const Pos::GeomID pickedgeomid = fssg.pickedGeomID( sticknr );
+    const GeomID pickedgeomid = fssg.pickedGeomID( sticknr );
     const char* pickednm = fssg.pickedName( sticknr );
     const Coord3& normal = fss->getEditPlaneNormal( sticknr );
     EM::PosID insertpid;

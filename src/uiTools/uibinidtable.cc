@@ -107,5 +107,5 @@ void uiBinIDTable::setZRange( const Interval<float>& zrg )
 void uiBinIDTable::getZRange( Interval<float>& zrg ) const
 {
     zrg.setFrom( withz_ ? zfld_->getFInterval()
-			: (Interval<float>)SI().zRange(false) );
+			: (Interval<float>)SI().zRange() );
 }

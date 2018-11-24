@@ -48,7 +48,8 @@ MarkerSet::MarkerSet()
     markerset_->setOnOffArray( (osg::ByteArray*)onoffarr_ );
     setMinimumScale( 1.0f );
 
-    const Coord worksize = SI().maxCoord(true) - SI().minCoord(true);
+    const Coord worksize = SI().maxCoord(OD::UsrWork)
+			 - SI().minCoord(OD::UsrWork);
     const float maxscale = mMAX( worksize.x_, worksize.y_ ) / 1e3f;
     setMaximumScale( maxscale );
 

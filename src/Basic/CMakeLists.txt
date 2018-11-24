@@ -54,6 +54,7 @@ set( OD_MODULE_SOURCES
 	compoundkey.cc
 	commandlineparser.cc
 	coordsystem.cc
+	cubesampling.cc
 	dateinfo.cc
 	datapack.cc
 	dbkey.cc
@@ -92,6 +93,7 @@ set( OD_MODULE_SOURCES
 	odver.cc
 	oscommand.cc
 	plugins.cc
+	posidxsubsel.cc
 	posinfo.cc
 	posinfo2d.cc
 	posinfo2dsurv.cc
@@ -112,16 +114,16 @@ set( OD_MODULE_SOURCES
 	strmprov.cc
 	surveydisklocation.cc
 	survgeom.cc
-	survgeom2d.cc
+	survgeommgr.cc
 	survinfo.cc
-	survsubgeom.cc
+	survsubsel.cc
 	task.cc
 	thread.cc
 	threadwork.cc
 	texttranslation.cc
 	timefun.cc
 	timer.cc
-	trckeyzsampling.cc
+	trckeysampling.cc
 	uistring.cc
 	uistrings.cc
 	uistringset.cc

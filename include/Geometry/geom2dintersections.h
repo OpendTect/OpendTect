@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "geometrymod.h"
 #include "bufstringset.h"
 #include "executor.h"
-#include "geometrymod.h"
+#include "geomid.h"
 #include "paralleltask.h"
 #include "threadlock.h"
 

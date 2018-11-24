@@ -106,7 +106,7 @@ HorizonAutoTracker::HorizonAutoTracker( EM::Horizon& hor )
     mDynamicCast( EM::Horizon2D*, hor2d_, &horizon_ );
 
     if ( hor3d_ )
-	s3dgeom_ = SI().get3DGeometry( true );
+	s3dgeom_ = SI().get3DGeometry( OD::UsrWork );
 }
 
 HorizonAutoTracker::~HorizonAutoTracker()

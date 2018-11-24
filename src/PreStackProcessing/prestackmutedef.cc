@@ -97,9 +97,9 @@ float MuteDef::value( float offs, const BinID& pos ) const
 	return fns_[0]->getValue( offs );
 
     const Coord si00 = SI().transform(
-	    BinID(SI().inlRange(true).start, SI().crlRange(true).start ) );
+	    BinID(SI().inlRange().start, SI().crlRange().start ) );
     const Coord si11 = SI().transform(
-	    BinID(SI().inlRange(true).stop, SI().crlRange(true).stop ) );
+	    BinID(SI().inlRange().stop, SI().crlRange().stop ) );
 
     const double normalweight = si00.sqDistTo( si11 );
 
@@ -127,9 +127,9 @@ void MuteDef::computeIntervals( float offs, const BinID& pos,
 	return;
 
     const Coord si00 = SI().transform(
-	    BinID(SI().inlRange(true).start, SI().crlRange(true).start ) );
+	    BinID(SI().inlRange().start, SI().crlRange().start ) );
     const Coord si11 = SI().transform(
-	    BinID(SI().inlRange(true).stop, SI().crlRange(true).stop ) );
+	    BinID(SI().inlRange().stop, SI().crlRange().stop ) );
 
     const double normalweight = si00.sqDistTo( si11 );
     const Coord centercrd( SI().transform(pos) );

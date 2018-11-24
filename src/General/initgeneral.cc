@@ -30,6 +30,7 @@ mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,getIOObjFn,delIOObjFn);
 mGlobal(General) BufferString DBMan_nameOf(const DBKey&);
 mGlobal(General) IOObj* DBMan_getIOObj(const DBKey&);
 static void Just_Del_IOObj( IOObj* ioobj ) { delete ioobj; }
+namespace Survey { void GeometryIO_init2DGeometry(); }
 
 
 mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc)
@@ -78,12 +79,7 @@ GeneralModuleIniter::GeneralModuleIniter()
     RangeProperty::initClass();
     MathProperty::initClass();
 
-    Survey::GeometryWriter2D::initClass();
-    Survey::GeometryWriter3D::initClass();
-    Survey::GeometryReader3D::initClass();
-    Survey::GeometryReader2D::initClass();
-    SurvGeom2DTranslatorGroup::initClass();
-    dgbSurvGeom2DTranslator::initClass();
+    Survey::GeometryIO_init2DGeometry();
 
-    DBM().initFirst(); //Trigger creation & reading of geometries
+    DBM().initFirst(); // triggers creation & reading of geometries
 }

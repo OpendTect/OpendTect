@@ -10,6 +10,7 @@
 #include "keystrs.h"
 #include "od_iostream.h"
 #include "globexpr.h"
+#include "geomid.h"
 #include "position.h"
 #include "odversion.h"
 #include "separstr.h"
@@ -20,6 +21,7 @@
 #include "color.h"
 #include "convert.h"
 #include "timefun.h"
+#include "trckey.h"
 #include "oddirs.h"
 #include <stdio.h>
 #include <string.h>
@@ -931,24 +933,6 @@ void IOPar::setPtr( const char* keyw, void* ptr )
 }
 
 
-bool IOPar::get( const char* keyw, TrcKey& tk ) const
-{
-    TrcKey::SurvID sid;
-    int trcnr;
-    int linenr;
-
-    if ( !get( keyw, sid, linenr, trcnr ) )
-	return false;
-
-    tk.setSurvID( sid ).setLineNr( linenr ).setTrcNr( trcnr );
-    return true;
-}
-void IOPar::set( const char* keyw, const TrcKey& tk )
-{
-    set( keyw, tk.survID(), tk.lineNr(), tk.trcNr() );
-}
-
-
 bool IOPar::get( const char* keyw, SeparString& ss ) const
 {
     mGetStartAllowEmpty(pval);
@@ -1059,6 +1043,26 @@ void IOPar::set( const char* keyw, const BufferStringSet& bss )
 }
 
 
+bool IOPar::get( const char* keyw, TrcKey& tk ) const
+{
+    int sid, trcnr, linenr;
+    if ( !get( keyw, sid, linenr, trcnr ) )
+	return false;
+    if ( sid > 0 )
+	sid = 0;
+    if ( sid < -2 )
+	sid = -1;
+    tk.setGeomSystem( (OD::GeomSystem)sid );
+    tk.setLineNr( linenr ).setTrcNr( trcnr );
+    return true;
+}
+
+void IOPar::set( const char* keyw, const TrcKey& tk )
+{
+    set( keyw, (int)tk.geomSystem(), tk.lineNr(), tk.trcNr() );
+}
+
+
 bool IOPar::get( const char* keyw, DBKey& dbky ) const
 {
     mGetStartNotEmpty(pval);
@@ -1079,6 +1083,53 @@ void IOPar::update( const char* keyw, const DBKey& dbky )
 	update( keyw, dbky.toString() );
     else
 	update( keyw, 0 );
+}
+
+
+bool IOPar::get( const char* keyw, Pos::GeomID& gid ) const
+{
+    auto ival = gid.getI();
+    bool rv = get( keyw, ival );
+    if ( rv )
+	gid.setI( ival );
+    return rv;
+}
+
+
+void IOPar::update( const char* keyw, const Pos::GeomID& gid )
+{
+    if ( gid.isValid() )
+	update( keyw, toString(gid) );
+    else
+	update( keyw, 0 );
+}
+
+
+void IOPar::set( const char* keyw, const TypeSet<Pos::GeomID>& geomids )
+{
+    TypeSet<Pos::GeomID::IDType> lnrs;
+    for ( auto gid : geomids )
+	lnrs.add( gid.lineNr() );
+    set( keyw, lnrs );
+}
+
+
+bool IOPar::get( const char* keyw, TypeSet<Pos::GeomID>& geomids ) const
+{
+    TypeSet<Pos::GeomID::IDType> lnrs;
+    if ( !get(keyw,lnrs) )
+	return false;
+
+    geomids.setEmpty();
+    for ( auto lnr : lnrs )
+	geomids.add( Pos::GeomID(lnr) );
+    return true;
+}
+
+
+void IOPar::set( const char* keyw, const Pos::GeomID& gid )
+{
+    set( keyw, gid.getI() );
 }
 
 

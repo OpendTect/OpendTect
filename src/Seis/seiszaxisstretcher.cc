@@ -152,8 +152,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
     {
 	sampler = new ZAxisTransformSampler( *ztransform_, true, sd, is2d_ );
 	if ( is2d_ && seisprovider_ && seisprovider_->selData() )
-	    sampler->setLineName( Survey::GM().getName(
-				  seisprovider_->selData()->geomID()) );
+	    sampler->setLineName( nameOf(seisprovider_->selData()->geomID()) );
 	intrcfunc = new SeisTrcFunction( intrc, 0 );
 
 	if ( !intrcfunc )

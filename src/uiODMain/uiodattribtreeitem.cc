@@ -153,22 +153,22 @@ void uiODAttribTreeItem::keyPressCB( CallBacker* cb )
     if ( cantransform ) \
     { \
 	subitem = attrserv->storedAttribMenuItem( *as, is2d, false ); \
-	if ( geomid != Survey::GeometryManager::cUndefGeomID() ) \
+	if ( geomid.isValid() ) \
 	    attrserv->filter2DMenuItems( *subitem, *as, geomid, true, 0 ); \
 	mAddMenuItem( &mnu, subitem, true, subitem->checked ); \
 	subitem = attrserv->calcAttribMenuItem( *as, is2d, needext ); \
-	if ( geomid != Survey::GeometryManager::cUndefGeomID() ) \
+	if ( geomid.isValid() ) \
 	    attrserv->filter2DMenuItems( *subitem, *as, geomid, false, 2 ); \
 	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
 	subitem = attrserv->nlaAttribMenuItem( *as, is2d, needext ); \
 	if ( subitem && subitem->nrItems() ) \
 	{ \
-	    if ( geomid != Survey::GeometryManager::cUndefGeomID() ) \
+	    if ( geomid.isValid() ) \
 		attrserv->filter2DMenuItems(*subitem, *as, geomid, false, 0 ); \
 	    mAddMenuItem( &mnu, subitem, true, subitem->checked ); \
 	} \
 	subitem = attrserv->storedAttribMenuItem( *as, is2d, true ); \
-	if ( geomid != Survey::GeometryManager::cUndefGeomID() ) \
+	if ( geomid.isValid() ) \
 	    attrserv->filter2DMenuItems( *subitem, *as, geomid, true, 1 ); \
 	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
     } \
@@ -183,7 +183,7 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu )
 	return;
 
     const Probe* parentprobe = attrprlayer->getProbe();
-    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+    Pos::GeomID geomid;
     mDynamicCastGet(const Line2DProbe*,line2dprobe,parentprobe);
     if ( line2dprobe )
 	geomid = line2dprobe->geomID();

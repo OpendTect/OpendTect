@@ -71,7 +71,7 @@ int SectionExtender::nextStep() { return 0; }
 
 
 #define mExtendDirection(inl,crl,z) \
-setDirection(TrcKeyValue(TrcKey(inl,crl),z)); \
+setDirection(TrcKeyValue(TrcKey(BinID(inl,crl)),z)); \
 while ( (res=nextStep())>0 )\
     ;\
 \

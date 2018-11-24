@@ -175,12 +175,12 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
     if ( seldata )
     {
 	if ( linenm2d && *linenm2d )
-	    seldata->setGeomID( Survey::GM().getGeomID(linenm2d) );
+	    seldata->setGeomID( Survey::Geometry::getGeomID(linenm2d) );
 	seldata->fillPar( iop );
     }
     else if ( setup_.is2d_ )
     {
-	Pos::GeomID geomid = Survey::GM().getGeomID( linenm2d );
+	Pos::GeomID geomid = Survey::Geometry::getGeomID( linenm2d );
 	iop.set( sKey::GeomID(), geomid );
     }
 

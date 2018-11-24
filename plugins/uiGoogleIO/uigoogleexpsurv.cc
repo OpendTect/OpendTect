@@ -55,8 +55,8 @@ bool uiGoogleExportSurvey::acceptOK()
 {
     mCreateWriter( "Survey area", si_->name() );
 
-    const StepInterval<int> inlrg = si_->inlRange( false );
-    const StepInterval<int> crlrg = si_->crlRange( false );
+    const auto inlrg = si_->inlRange();
+    const auto crlrg = si_->crlRange();
     TypeSet<Coord> coords;
     coords += si_->transform(BinID(inlrg.start,crlrg.start));
     coords += si_->transform(BinID(inlrg.start,crlrg.stop));

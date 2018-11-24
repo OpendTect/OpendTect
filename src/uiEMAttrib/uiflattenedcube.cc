@@ -101,7 +101,7 @@ bool uiWriteFlattenedCube::acceptOK()
     float zval = zvalfld_->getFValue();
     if ( mIsUdf(zval) ) zval = defzval_;
     zval /= SI().zDomain().userFactor();
-    if ( !SI().zRange(false).includes(zval,false) )
+    if ( !SI().zRange().includes(zval,false) )
 	mErrRet(tr("Please provide a Z value inside the survey Z Range"))
 
     return doWork( *inioobj, *outioobj, zval );
@@ -197,7 +197,7 @@ bool uiWriteFlattenedCube::doWork( const IOObj& inioobj, const IOObj& outioobj,
     if ( !dps->extractPositions(pp_,ObjectSet<DataColDef>(),trprov) )
 	return false;
 
-    const float zwdth = SI().zRange(false).width();
+    const float zwdth = SI().zRange().width();
     const Interval<float> maxzrg( -zwdth, zwdth );
     Seis::TableSelData* tsd = new Seis::TableSelData( dps->bivSet(), &maxzrg);
     uiRetVal uirv;

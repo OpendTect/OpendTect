@@ -12,11 +12,9 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "enums.h"
 #include "factory.h"
-#include "binid.h"
-#include "ranges.h"
-#include "refcount.h"
 #include "samplingdata.h"
 #include "survgeom.h"
+#include "trckey.h"
 
 class BinIDValue;
 class TrcKeyZSampling;
@@ -56,7 +54,7 @@ public:
     virtual bool		loadDataIfMissing(int volid,
 						  const TaskRunnerProvider&);
 
-    virtual bool		canTransformSurv(Pos::SurvID) const =	0;
+    virtual bool		canTransformSurv(OD::GeomSystem) const	= 0;
 
 				//Generic 2D and 3D
     virtual void		transformTrc(const TrcKey&,
@@ -105,7 +103,7 @@ protected:
     ZDomain::Info&		fromzdomaininfo_;
     mutable uiString		errmsg_;
 
-public: //Legacy stuff
+public:
 
 				//3D
     virtual void		transform(const BinID&,

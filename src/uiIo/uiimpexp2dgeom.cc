@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "posinfo2d.h"
 #include "survgeom2d.h"
+#include "survgeommgr.h"
 #include "survgeom2dascio.h"
 #include "survgeometrytransl.h"
 #include "tabledef.h"
@@ -104,18 +105,13 @@ bool uiImp2DGeom::acceptOK()
 	if ( geomid == mUdfGeomID )
 	    return false;
 
-	RefMan<Survey::Geometry2D> geom2d;
-	mDynamicCast(Survey::Geometry2D*,geom2d,
-		     Survey::GMAdmin().getGeometry(geomid))
-	if ( !fillGeom(*geom2d) )
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	if ( !fillGeom(const_cast<Survey::Geometry2D&>(geom2d)) )
 	    return false;
 
 	uiString errmsg;
-	if ( !Survey::GMAdmin().write(*geom2d,errmsg) )
-	{
-	    uiMSG().error( errmsg );
-	    return false;
-	}
+	if ( !Survey::GMAdmin().save(geom2d,errmsg) )
+	    { uiMSG().error( errmsg ); return false; }
 
 	uiMSG().message( tr("Line %1 successfully imported.").arg(linenm) );
     }
@@ -137,7 +133,7 @@ bool uiImp2DGeom::acceptOK()
 	for ( int idx=0; idx<geoms.size(); idx++ )
 	{
 	    uiString errmsg;
-	    if ( !Survey::GMAdmin().write(*geoms[idx],errmsg) )
+	    if ( !Survey::GMAdmin().save(*geoms[idx],errmsg) )
 		errors.add( errmsg );
 	}
 
@@ -240,14 +236,15 @@ bool uiExp2DGeom::acceptOK()
     }
 
     BufferString outstr;
-    DBKeySet mids; geomfld_->getChosen( mids );
-    for ( int gidx=0; gidx<mids.size(); gidx++ )
+    DBKeySet dbkys; geomfld_->getChosen( dbkys );
+    for ( int gidx=0; gidx<dbkys.size(); gidx++ )
     {
-	const Survey::Geometry* geom = Survey::GM().getGeometry( mids[gidx] );
-	mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
-	if ( !geom2d ) continue;
+	const Pos::GeomID geomid( dbkys[gidx] );
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	if ( geom2d.isEmpty() )
+	    continue;
 
-	const PosInfo::Line2DData& data2d = geom2d->data();
+	const PosInfo::Line2DData& data2d = geom2d.data();
 	const TypeSet<PosInfo::Line2DPos>& allpos = data2d.positions();
 
 	for ( int pidx=0; pidx<allpos.size(); pidx++ )
@@ -277,8 +274,8 @@ bool uiExp2DGeom::acceptOK()
 
 Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm, bool ovwok )
 {
-    Pos::GeomID geomid = Survey::GM().getGeomID( nm );
-    if ( mIsUdfGeomID(geomid) )
+    Pos::GeomID geomid = Survey::Geometry::getGeomID( nm );
+    if ( !geomid.isValid() )
 	return createNewGeom( nm );
 
     if ( ovwok || confirmOverwrite(nm) )
@@ -295,7 +292,7 @@ bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
     BufferString existingidxs;
     for ( int idx=0; idx<nms.size(); idx++ )
     {
-	Pos::GeomID geomid = Survey::GM().getGeomID( nms.get(idx) );
+	Pos::GeomID geomid = Survey::Geometry::getGeomID( nms.get(idx) );
 	if ( !mIsUdfGeomID(geomid) )
 	    existingidxs += idx;
 	else
@@ -327,13 +324,13 @@ bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
 
 void Geom2DImpHandler::setGeomEmpty( Pos::GeomID geomid )
 {
-    mDynamicCastGet( Survey::Geometry2D*, geom2d,
-		     Survey::GMAdmin().getGeometry(geomid) );
-    if ( !geom2d )
-	return;
-
-    geom2d->dataAdmin().setEmpty();
-    geom2d->touch();
+    const auto& cgeom2d = Survey::Geometry::get2D( geomid );
+    if ( !cgeom2d.isEmpty() )
+    {
+	auto& geom2d = const_cast<Survey::Geometry2D&>( cgeom2d );
+	geom2d.data().setEmpty();
+	geom2d.commitChanges();
+    }
 }
 
 
@@ -341,9 +338,9 @@ Pos::GeomID Geom2DImpHandler::createNewGeom( const char* nm )
 {
     PosInfo::Line2DData* l2d = new PosInfo::Line2DData( nm );
     Survey::Geometry2D* newgeom = new Survey::Geometry2D( l2d );
-    uiString msg;
-    Pos::GeomID geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
-    if ( mIsUdfGeomID(geomid) )
+
+    uiString msg; Pos::GeomID geomid;
+    if ( Survey::GMAdmin().addEntry(newgeom,geomid,msg) )
 	gUiMsg().error( msg );
 
     return geomid;

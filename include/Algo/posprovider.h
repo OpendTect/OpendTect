@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "posfilter.h"
 #include "ranges.h"
+#include "trckey.h"
 class TrcKeyZSampling;
 
 
@@ -39,7 +40,7 @@ public:
     virtual Coord	curCoord() const			= 0;
     virtual float	curZ() const				= 0;
     virtual TrcKey	curTrcKey() const			= 0;
-    virtual Pos::SurvID survID() const				= 0;
+    virtual GeomID	curGeomID() const			= 0;
 
     virtual od_int64	estNrPos() const			= 0;
     virtual int		estNrZPerPos() const			{ return 1; }
@@ -63,16 +64,15 @@ public:
     virtual bool	is2D() const		{ return false; }
 
     virtual BinID	curBinID() const				= 0;
-    virtual TrcKey	curTrcKey() const { return TrcKey(survID(),curBinID());}
+    virtual TrcKey	curTrcKey() const { return TrcKey(curBinID());}
     virtual Coord	curCoord() const;
 
     virtual bool	includes(const BinID&,float z=mUdf(float)) const = 0;
     virtual bool	includes(const Coord&,float z=mUdf(float)) const;
 
     virtual void	getExtent(BinID& start,BinID& stop) const	= 0;
-    virtual void	getZRange(Interval<float>&) const	= 0;
-    virtual Pos::SurvID survID() const			{ return survid_; }
-    virtual void	setSurvID(Pos::SurvID sid)	{ survid_ = sid; }
+    virtual void	getZRange(Interval<float>&) const		= 0;
+    virtual GeomID	curGeomID() const	{ return GeomID::get3D(); }
 
     mDefineFactoryInClass(Provider3D,factory);
     static Provider3D*	make(const IOPar&);
@@ -85,7 +85,6 @@ protected:
 
 private:
 
-    Pos::SurvID		survid_;
 
 };
 
@@ -107,8 +106,6 @@ public:
 
     virtual void	getExtent(Interval<int>&,int lidx) const = 0;
     virtual void	getZRange(Interval<float>&,int lidx) const = 0;
-
-    virtual Pos::SurvID survID() const;
 
     mDefineFactoryInClass(Provider2D,factory);
     static Provider2D*	make(const IOPar&);

@@ -31,7 +31,7 @@ SurveyObject::SurveyObject()
     , updatestagenr_( 0 )
     , saveinsessionsflag_( true )
 {
-    set3DSurvGeom( SI().get3DGeometry(true) );
+    set3DSurvGeom( SI().get3DGeometry(OD::UsrWork) );
 }
 
 
@@ -142,7 +142,9 @@ const char* SurveyObject::get3DSurvGeomName() const
 
 
 Pos::GeomID SurveyObject::getGeomID() const
-{ return s3dgeom_ ? s3dgeom_->id() : mUdfGeomID; }
+{
+    return s3dgeom_ ? s3dgeom_->geomID() : mUdfGeomID;
+}
 
 void SurveyObject::annotateNextUpdateStage( bool yn )
 {
@@ -338,15 +340,13 @@ void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
     IOPar& iopar ) const
 {
     const Coord3 xytmousepos = info.worldpickedpos;
-    if ( xytmousepos.isUdf() ) return;
-    const DBKey mid = getDBKey();
-    const Survey::Geometry* geom =  Survey::GM().getGeometry(
-	Survey::GM().default3DSurvID() );
-    if ( !geom ) return;
+    if ( xytmousepos.isUdf() )
+	return;
 
-    const TrcKey trck=geom->nearestTrace( xytmousepos.getXY() );
-    if ( !trck.isUdf() )
-	iopar.set( sKey::TraceKey(), trck );
+    const auto& geom = Survey::Geometry::get3D();
+    const TrcKey tk( geom.nearestTracePosition(xytmousepos.getXY()) );
+    if ( !tk.isUdf() )
+	iopar.set( sKey::TraceKey(), tk );
 }
 
 

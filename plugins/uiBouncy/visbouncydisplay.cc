@@ -110,10 +110,9 @@ void BouncyDisplay::addBouncy( visBeachBall::BallProperties bp )
     paddle_->setWidth( mPaddleSize );
     setScale();
 
-    bool work = true;
-    Coord min = SI().minCoord( work );
-    Coord max = SI().maxCoord( work );
-    float z = SI().zRange( work ).stop;
+    Coord min = SI().minCoord( OD::UsrWork );
+    Coord max = SI().maxCoord( OD::UsrWork );
+    float z = SI().zRange( OD::UsrWork ).stop;
 
     Coord3 c( min.x+(max.x-min.x)*0.5, min.y+(max.y-min.y)*0.5, z );
     paddle_->setCenterPos( c );
@@ -212,13 +211,12 @@ void BouncyDisplay::eventCB( CallBacker* cb )
         // move the paddle with the mouse
 	BinID bid;
 	bid = SI().transform( eventinfo.worldpickedpos );
-//	if ( !SI().isInside( bid, true ) )
-	if ( !SI().inlRange(true).includes( bid.inl(),true ) ||
-		    !SI().crlRange(true).includes( bid.crl(),true ) )
+	if ( !SI().includes( bid, OD::UsrWork ) )
 	    return;
 
 	setPaddlePosition( Coord3( eventinfo.worldpickedpos.x,
-		    eventinfo.worldpickedpos.y, SI().zRange( true ).stop ) );
+				   eventinfo.worldpickedpos.y,
+				   SI().zRange( OD::UsrWork ).stop ) );
     }
     else if ( eventinfo.type == visBase::Keyboard && eventinfo.pressed )
     {
@@ -281,8 +279,8 @@ void BouncyDisplay::movePaddleLeft()
     // Later: To be more correct, subtract the paddle's width to prevent the
     // overshoot.
     Coord3 pos = getPaddlePosition();
-    pos.x = ( pos.x-mPaddleStep ) < SI().minCoord( true ).x
-	? SI().minCoord( true ).x : pos.x-mPaddleStep;
+    pos.x = ( pos.x-mPaddleStep ) < SI().minCoord( OD::UsrWork ).x
+	? SI().minCoord( OD::UsrWork ).x : pos.x-mPaddleStep;
     setPaddlePosition( pos );
 }
 
@@ -308,8 +306,8 @@ void BouncyDisplay::movePaddleUp()
 void BouncyDisplay::movePaddleDown()
 {
     Coord3 pos = getPaddlePosition();
-    pos.y = ( pos.y-mPaddleStep ) < SI().minCoord( true ).y
-	? SI().minCoord( true ).y : pos.y-mPaddleStep;
+    pos.y = ( pos.y-mPaddleStep ) < SI().minCoord( OD::UsrWork ).y
+	? SI().minCoord( OD::UsrWork ).y : pos.y-mPaddleStep;
     setPaddlePosition( pos );
 }
 

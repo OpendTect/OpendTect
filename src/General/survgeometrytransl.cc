@@ -18,6 +18,9 @@
 #include "od_iostream.h"
 #include "uistrings.h"
 
+mUseType( Pos, GeomID );
+mUseType( Survey, Geometry2D );
+
 static const char* sKeyFileType()	{ return "2D Geometry"; }
 static const char* sKeyAvgTrcDist()	{ return "Average Trc Distance"; }
 static const char* sKeyLineLength()	{ return "Line Length"; }
@@ -31,21 +34,21 @@ uiString SurvGeom2DTranslatorGroup::sTypeName(int num)
 { return uiStrings::sGeometry(num); }
 
 
-Pos::GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )
+GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )
 {
-    return ioobj.objID().getI();
+    return GeomID( ioobj.key() );
 }
 
 
-IOObj* SurvGeom2DTranslator::getIOObj( Pos::GeomID geomid )
+IOObj* SurvGeom2DTranslator::getIOObj( GeomID geomid )
 {
     IOObjContext ioctxt( mIOObjContext(SurvGeom2D) );
-    const DBKey dbky( ioctxt.getSelDirID(), DBKey::ObjID::get(geomid) );
+    const DBKey dbky( ioctxt.getSelDirID(), DBKey::ObjID::get(geomid.getI()) );
     return DBM().get( dbky );
 }
 
 
-IOObj* SurvGeom2DTranslator::createEntry( const char* name, const char* trkey )
+IOObj* SurvGeom2DTranslator::getEntry( const char* name, const char* trkey )
 {
     IOObjContext iocontext( mIOObjContext(SurvGeom2D) );
     if ( trkey && *trkey )
@@ -53,23 +56,24 @@ IOObj* SurvGeom2DTranslator::createEntry( const char* name, const char* trkey )
 
     CtxtIOObj ctio( iocontext );
     ctio.ctxt_.setName( name );
-    if ( ctio.fillObj() == 0 )
+    if ( !ctio.fillObj() )
 	return 0;
 
     return ctio.ioobj_;
 }
 
 
-Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
-							uiString& errmsg ) const
+Geometry2D* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
+						    uiString& errmsg ) const
 {
     od_istream strm( ioobj.mainFileName() );
     if ( !strm.isOK() )
+    {
+	errmsg = uiStrings::phrCannotOpenForRead( strm.fileName() );
 	return 0;
+    }
 
     int version = 1;
-    float avgtrcdist = mUdf(float);
-    float linelength = mUdf(float);
     ascistream astrm( strm );
     const bool hasheader = astrm.hasStandardHeader();
     if ( !hasheader )
@@ -83,70 +87,62 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 	    version = astrm.getIValue();
 	    astrm.next();
 	}
-	if ( astrm.hasKeyword(sKeyAvgTrcDist()) )
-	{
-	    avgtrcdist = astrm.getFValue();
-	    astrm.next();
-	}
-	if ( astrm.hasKeyword(sKeyLineLength()) )
-	{
-	    linelength = astrm.getFValue();
-	    astrm.next();
-	}
     }
 
     PosInfo::Line2DData* data = new PosInfo::Line2DData;
     if ( !data->read(strm,false) )
-	{ delete data; return 0; }
-
-    const Geometry::ID geomid = ioobj.key().objID().getI();
-    data->setLineName( ioobj.name() );
-    Survey::Geometry2D* geom = new Survey::Geometry2D( data );
-    geom->setID( geomid );
-    geom->spnrs().setSize( data->size(), -1 );
-    geom->setAverageTrcDist( avgtrcdist );
-    geom->setLineLength( linelength );
-
-    if ( version > 1 )
     {
-	for ( int idx=0; idx<data->size(); idx++ )
-	{
-	    int spnr = -1;
+	delete data;
+	errmsg = uiStrings::phrCannotRead( strm.fileName() );
+	return 0;
+    }
+    data->setLineName( ioobj.name() );
+
+    Geometry2D* geom = new Geometry2D( data );
+    geom->setGeomID( GeomID(ioobj.key()) );
+
+    auto& spnrs = geom->spNrs();
+    if ( version == 3 )
+    {
+	for ( auto& spnr : spnrs )
 	    strm.getBin( spnr );
-	    geom->spnrs()[idx] = spnr;
+    }
+    else if ( version == 2 )
+    {
+	for ( auto& spnr : spnrs )
+	{
+	    int ispnr = -1;
+	    strm.getBin( ispnr );
+	    spnr = (float)ispnr;
 	}
     }
 
-    geom->touch();
+    geom->commitChanges();
     return geom;
 }
 
 
 bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
-					     const Geometry& geom,
+					     const Geometry2D& geom,
 					     uiString& errmsg ) const
 {
-    const Survey::Geometry2D* geom2d = geom.as2D();
-    if ( !geom2d )
-	return true;
-
-    const_cast<Survey::Geometry2D*>(geom2d)->setID( ioobj.key().objID().getI());
+    const_cast<Geometry2D&>(geom).setGeomID( GeomID(ioobj.key()) );
 
     od_ostream strm( ioobj.mainFileName() );
     ascostream astream( strm );
     astream.putHeader( sKeyFileType() );
-    astream.put( sKey::Version(), 2 );
-    astream.put( sKeyAvgTrcDist(), geom2d->averageTrcDist() );
-    astream.put( sKeyLineLength(), geom2d->lineLength() );
+    astream.put( sKey::Version(), 3 );
+    astream.put( sKeyAvgTrcDist(), geom.averageTrcDist() );
+    astream.put( sKeyLineLength(), geom.lineLength() );
     astream.newParagraph();
 
     const bool res = !strm.isOK() ? false
-		   : geom2d->data().write( strm, false, true );
+		   : geom.data().write( strm, false, true );
     if ( !res )
 	{ errmsg = strm.errMsg(); return false; }
 
-    for ( int idx=0; idx<geom2d->spnrs().size(); idx++ )
-	strm.addBin( geom2d->spnrs()[idx] );
+    for ( auto spnr : geom.spNrs() )
+	strm.addBin( spnr );
 
     return strm.isOK();
 }

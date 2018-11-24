@@ -326,7 +326,7 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
     }
     else
     {
-	float survzstop = SI().zRange(false).stop;
+	float survzstop = SI().zRange().stop;
 	if ( velfld_ )
 	    survzstop *= vel_ / 2.f;
 

@@ -51,7 +51,7 @@ const char* SeisPSIOProvider::sKeyCubeID = "=Cube.ID";
 SeisPSReader* SeisPSIOProvider::getReader( const IOObj& ioobj,
 					   const TrcKey& tk ) const
 {
-    return tk.is2D() ? (SeisPSReader*)get2DReader(ioobj,tk.lineNr())
+    return tk.is2D() ? (SeisPSReader*)get2DReader(ioobj,tk.geomID())
 		     : (SeisPSReader*)get3DReader(ioobj,tk.lineNr());
 }
 
@@ -145,8 +145,8 @@ bool SeisPSIOProviderFactory::getLineNames( const IOObj& ioobj,
 SeisPSReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj,
 						  const TrcKey& tk ) const
 {
-    return tk.is2D() ? (SeisPSReader*)get2DReader(ioobj,tk.lineNr())
-		     : (SeisPSReader*)get3DReader(ioobj,tk.lineNr());
+    return tk.is2D() ? (SeisPSReader*)get2DReader(ioobj,tk.geomID())
+		     : (SeisPSReader*)get3DReader(ioobj,tk.inl());
 }
 
 
@@ -258,7 +258,7 @@ SeisTrc* SeisPSReader::getTrace( const BinID& bid, int trcidx ) const
 
 StepInterval<float> SeisPSReader::getZRange() const
 {
-    return SI().zRange( true );
+    return SI().zRange();
 }
 
 

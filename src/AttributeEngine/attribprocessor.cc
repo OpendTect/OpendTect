@@ -183,7 +183,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     {
 	TrcKey trckey( curbid );
 	if ( is2d_ )
-	    trckey.setSurvID( TrcKey::std2DSurvID() );
+	    trckey.setIs2D( true );
 
 	mytrcinfo.trckey_ = trckey;
 	mytrcinfo.coord_ = trckey.getCoord();
@@ -446,7 +446,8 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
     mDynamicCastGet( Trc2DVarZStorOutput*, trc2dvarzoutp, outputs_[0] );
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
-	const bool usecoords = outputs_[idx]->useCoords( curtrckey.survID() );
+	const bool usecoords =
+			outputs_[idx]->useCoords( curtrckey.geomSystem() );
 	bool wantout = usecoords ? outputs_[idx]->wantsOutput(curcoords)
 				 : outputs_[idx]->wantsOutput(curbid);
 

@@ -80,7 +80,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     attriboutputfld_->valuechanged.notify(cboutsel);
     attriboutputfld_->attach( alignedBelow, tfpanelbut_ );
 
-    const float nyqfreq = 0.5f / SI().zRange(false).step;
+    const float nyqfreq = 0.5f / SI().zRange().step;
     const float freqscale = zIsTime() ? 1.f : 1000.f;
     const int scalednyfreq = mNINT32( nyqfreq * freqscale );
     outputfreqfld_ = new uiGenInput( this, tr("Output Frequency / Step (Hz)"),

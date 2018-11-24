@@ -245,11 +245,11 @@ void uiStratSynthExport::fillGeomGroup()
     geomsel_->valuechanged.notify( mCB(this,uiStratSynthExport,geomSel) );
     geomgrp_->setHAlignObj( geomsel_ );
 
-    BinID startbid( SI().inlRange(true).snappedCenter(),
-		    SI().crlRange(true).start );
+    BinID startbid( SI().inlRange(OD::UsrWork).snappedCenter(),
+		    SI().crlRange(OD::UsrWork).start );
     Coord startcoord = SI().transform( startbid );
-    BinID stopbid( SI().inlRange(true).snappedCenter(),
-		   SI().crlRange(true).stop );
+    BinID stopbid( SI().inlRange(OD::UsrWork).snappedCenter(),
+		   SI().crlRange(OD::UsrWork).stop );
     Coord stopcoord = SI().transform( stopbid );
     coord0fld_ = new uiGenInput( geomgrp_, tr("Coordinates: from"),
 					DoubleInpSpec(), DoubleInpSpec() );
@@ -351,14 +351,12 @@ Pos::GeomID uiStratSynthExport::getGeometry( Line2DData& linegeom )
     {
 	case Existing:
 	{
-	    const Survey::Geometry* geom =
-		Survey::GM().getGeometry( linegeom.lineName() );
-	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
-	    if ( !geom2d )
+	    const auto& geom2d = Survey::Geometry::get2D( linegeom.lineName() );
+	    if ( geom2d.isEmpty() )
 		mErrRet(uiStrings::phrCannotFind(
 			    tr("the geometry of specified line")), mUdfGeomID )
-	    linegeom = geom2d->data();
-	    return geom->id();
+	    linegeom = geom2d.data();
+	    return geom2d.geomID();
 	}
 	case StraightLine:
 	{
@@ -406,8 +404,7 @@ Pos::GeomID uiStratSynthExport::getGeometry( Line2DData& linegeom )
 	}
     }
 
-    Survey::Geometry::ID newgeomid =
-		Geom2DImpHandler::getGeomID( linegeom.lineName() );
+    const auto newgeomid = Geom2DImpHandler::getGeomID( linegeom.lineName() );
     if ( !mIsUdfGeomID(newgeomid) )
 	create2DGeometry( ptlist, linegeom );
 
@@ -425,12 +422,12 @@ bool uiStratSynthExport::createHor2Ds( const char* prefix, const char* postfix )
 		   "2D line"), false);
     const char* linenm = createnew ? newlinenmfld_->text()
 				   : existlinenmsel_->getInput();
-    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+    const Pos::GeomID geomid = Survey::Geometry::getGeomID( linenm );
+    if ( !geomid.isValid() )
 	return false;
 
-    const Survey::Geometry2D* geom2d = Survey::GM().getGeometry(geomid)->as2D();
-    StepInterval<Pos::TraceID> trcnrrg = geom2d->data().trcNrRange();
+    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    const auto trcnrrg = geom2d.data().trcNrRange();
     for ( int horidx=0; horidx<sellvls_.size(); horidx++ )
     {
 	const Strat::Level stratlvl

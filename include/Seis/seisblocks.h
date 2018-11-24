@@ -13,9 +13,9 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "filepath.h"
 #include "ranges.h"
-#include "zdomain.h"
 #include "threadlock.h"
 #include "iopar.h"
+#include "zdomain.h"
 
 class DataBuffer;
 class LinScaler;
@@ -185,7 +185,6 @@ public:
 
     virtual const HGeom& hGeom() const		{ return hgeom_; }
     const ZGeom&	zGeom() const		{ return zgeom_; }
-    const ZDomain::Def&	zDomain() const;
 
     const Dimensions&	dimensions() const	{ return dims_; }
     SzType		version() const		{ return version_; }
@@ -196,6 +195,7 @@ public:
     int			nrAuxInfo() const	{ return auxiops_.size(); }
     const IOPar&	getAuxInfo( int i ) const { return *auxiops_[i]; }
     DataType		dataType() const	{ return datatype_; }
+    const ZDomain::Def&	zDomain() const		{ return zdomain_; }
 
     const File::Path&	basePath() const	{ return basepath_; }
     BufferString	infoFileName() const;
@@ -236,6 +236,7 @@ protected:
     File::Path		basepath_;
     HGeom&		hgeom_;
     ZGeom		zgeom_;
+    ZDomain::Def	zdomain_;
     Dimensions		dims_;
     SzType		version_;
     BufferString	cubename_;

@@ -20,7 +20,6 @@ using namespace PosInfo;
 
 // BendPointFinder2DGeomSet
 BendPoints::BendPoints()
-    : geomid_(Survey::GeometryManager::cUndefGeomID())
 {}
 
 
@@ -55,14 +54,13 @@ int BendPointFinder2DGeomSet::nextStep()
     if ( curidx_ >= geomids_.size() )
 	return Finished();
 
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-		    Survey::GM().getGeometry(geomids_[curidx_]))
-    if ( !geom2d )
-    { mRetMoreToDo(); }
+    const auto& geom2d = Survey::Geometry::get2D( geomids_[curidx_] );
+    if ( geom2d.isEmpty() )
+	{ mRetMoreToDo(); }
 
     BendPoints* bp = new BendPoints;
     bp->geomid_ = geomids_[curidx_];
-    bp->idxs_ = geom2d->data().getBendPoints();
+    bp->idxs_ = geom2d.data().getBendPoints();
     bendptset_ += bp;
     mRetMoreToDo();
 }
@@ -195,12 +193,8 @@ Line2DInterSectionFinder::Line2DInterSectionFinder(
     lsintersections_.setNullAllowed( true );
     for ( int idx=0; idx<bps.size(); idx++ )
     {
-	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-			Survey::GM().getGeometry(bps[idx]->geomid_))
-	if ( !geom2d )
-	    break;
-
-	geoms_ += geom2d;
+	const auto& geom2d = Survey::Geometry::get2D( bps[idx]->geomid_ );
+	geoms_ += &geom2d;
 	lsintersections_ += new Line2DInterSection( bps[idx]->geomid_ );
     }
 }

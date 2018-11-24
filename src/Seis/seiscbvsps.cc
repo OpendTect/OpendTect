@@ -31,13 +31,13 @@ static const char* cPosDataFnm = "posdata.txt";
 
 SeisPS2DReader::SeisPS2DReader( const char* lnm )
     : lnm_(lnm)
-    , geomid_(Survey::GM().getGeomID(lnm))
+    , geomid_(Survey::Geometry::getGeomID(lnm))
 {}
 
 
 SeisPS2DReader::SeisPS2DReader( Pos::GeomID geomid )
     : geomid_(geomid)
-    , lnm_(Survey::GM().getName(geomid))
+    , lnm_(nameOf(geomid))
 {}
 
 
@@ -82,10 +82,11 @@ bool CBVSSeisPSIOProvider::getGeomIDs( const char* dirnm,
     {
 	BufferString filenm = File::Path( dl.get(idx) ).baseName();
 	char* capptr = filenm.find( '^' );
-	if ( !capptr ) continue;
+	if ( !capptr )
+	    continue;
 	BufferString geomidstr( ++capptr );
-	const Pos::GeomID geomid = Conv::to<Pos::GeomID>( geomidstr );
-	if ( !mIsUdfGeomID(geomid) && Survey::GM().getGeometry(geomid) )
+	const Pos::GeomID geomid( toInt(geomidstr) );
+	if ( geomid.is2D() )
 	    geomids += geomid;
     }
 
@@ -103,7 +104,7 @@ bool CBVSSeisPSIOProvider::getLineNames( const char* dirnm,
 	return false;
 
     for ( int idx=0; idx<geomids.size(); idx++ )
-	linenms.add( Survey::GM().getName(geomids[idx]) );
+	linenms.add( nameOf(geomids[idx]) );
 
     return !linenms.isEmpty();
 }
@@ -147,7 +148,7 @@ BufferString SeisCBVSPSIO::get2DFileName( Pos::GeomID geomid ) const
 
 BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
 {
-    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+    const auto geomid = Survey::Geometry::getGeomID( lnm );
     return mIsUdfGeomID(geomid) ? BufferString::empty() : get2DFileName(geomid);
 }
 
@@ -519,7 +520,7 @@ bool SeisCBVSPS3DReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
 
 StepInterval<float> SeisCBVSPS3DReader::getZRange() const
 {
-    StepInterval<float> ret = SI().zRange( true );
+    StepInterval<float> ret = SI().zRange();
     if ( posdata_.isEmpty() )
 	return ret;
 
@@ -616,7 +617,7 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
 	, SeisPS2DReader(lnm)
 	, posdata_(*new PosInfo::Line2DData)
 {
-    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+    Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
     if ( !mIsUdfGeomID(geomid) )
 	init( geomid );
 }
@@ -629,8 +630,7 @@ void SeisCBVSPS2DReader::init( Pos::GeomID geomid )
     BufferString fnm( get2DFileName(geomid) );
     if ( !File::exists(fnm) )
     {
-	errmsg_ = tr("Line %1 does not exist")
-		  .arg( Survey::GM().getName(geomid) );
+	errmsg_ = tr("Line %1 does not exist").arg( nameOf(geomid) );
 	return;
     }
 
@@ -679,7 +679,7 @@ SeisTrc* SeisCBVSPS2DReader::getTrace( const TrcKey& tk, int nr ) const
 
 SeisTrc* SeisCBVSPS2DReader::getTrace( const BinID& bid, int nr ) const
 {
-    return getTrace( TrcKey(bid.inl(),bid.crl()), nr );
+    return getTrace( TrcKey(bid,true), nr );
 }
 
 
@@ -705,14 +705,14 @@ bool SeisCBVSPS2DReader::getGather( const TrcKey& tk, SeisTrcBuf& tbuf ) const
 
 bool SeisCBVSPS2DReader::getGather( const BinID& bid, SeisTrcBuf& tbuf ) const
 {
-    return getGather( TrcKey(bid.inl(),bid.crl()), tbuf );
+    return getGather( TrcKey(bid,true), tbuf );
 }
 
 
 SeisCBVSPS2DWriter::SeisCBVSPS2DWriter( const char* dirnm, Pos::GeomID geomid )
 	: SeisCBVSPSIO(dirnm)
 	, prevnr_(mUdf(int))
-	, lnm_(Survey::GM().getName(geomid))
+	, lnm_(nameOf(geomid))
 	, geomid_(geomid)
 {
     if ( !dirNmOK(false) ) return;
@@ -724,7 +724,7 @@ SeisCBVSPS2DWriter::SeisCBVSPS2DWriter( const char* dirnm, const char* lnm )
 	: SeisCBVSPSIO(dirnm)
 	, prevnr_(mUdf(int))
 	, lnm_(lnm)
-	, geomid_(Survey::GM().getGeomID(lnm))
+	, geomid_(Survey::Geometry::getGeomID(lnm))
 {
     if ( !dirNmOK(false) ) return;
     mRemCacheIfExists();

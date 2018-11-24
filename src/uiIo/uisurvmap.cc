@@ -93,7 +93,8 @@ void uiSurveyBoxObject::update()
 	{ setVisibility( false ); return; }
 
     const SurveyInfo& si = *survinfo_;
-    const TrcKeyZSampling& cs = si.sampling( false );
+    TrcKeyZSampling cs( false );
+    si.getSampling( cs );
     TypeSet<uiWorldPoint> mapcnr; mapcnr.setSize( 4 );
     mapcnr[0] = si.transform( cs.hsamp_.start_ );
     mapcnr[1] = si.transform(
@@ -342,8 +343,8 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 
     if ( survinfo_ )
     {
-	const Coord mincoord = survinfo_->minCoord( false );
-	const Coord maxcoord = survinfo_->maxCoord( false );
+	const Coord mincoord = survinfo_->minCoord();
+	const Coord maxcoord = survinfo_->maxCoord();
 	const double diffx = maxcoord.x_ - mincoord.x_;
 	const double diffy = maxcoord.y_ - mincoord.y_;
 	const uiWorldRect wr( mincoord.x_-diffx/4, maxcoord.y_+diffy/4,

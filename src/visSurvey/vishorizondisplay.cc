@@ -166,8 +166,8 @@ bool HorizonPathIntersector::doPrepare( int nrthreads )
 
     const Pos::GeomID pathgeomid = path_[0].geomID();
     const Pos::GeomID horgeomid = hor_->getSurveyGeomID();
-    pathgeom_ = Survey::GM().getGeometry( pathgeomid );
-    horgeom_ = Survey::GM().getGeometry( horgeomid );
+    pathgeom_ = &Survey::Geometry::get( pathgeomid );
+    horgeom_ = &Survey::Geometry::get( horgeomid );
     onthesamegrid_ = pathgeomid==horgeomid;
 
     return pathgeom_ && horgeom_;
@@ -186,20 +186,13 @@ bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( intersectioncoord.isDefined() )
 	{
 	    if ( onthesamegrid_ )
-	    {
 		hortrc = path_[idx];
-	    }
 	    else
-	    {
-		hortrc = horgeom_->getTrace( intersectioncoord,
+		horgeom_->getTracePosition( intersectioncoord, hortrc,
 					     horgeom_->averageTrcDist() );
-	    }
 
 	    if ( !hor_->range().includes(hortrc) )
-	    {
-		positions_[idx] = skipPos();
-		continue;
-	    }
+		{ positions_[idx] = skipPos(); continue; }
 
 	    EM::PosID horsubid = hortrc.isUdf()
 		    ? EM::PosID::getInvalid()
@@ -868,8 +861,13 @@ bool doWork( od_int64 start, od_int64 stop, int thread )
 	float* vals = bivs_.getVals(pos);
 	if ( !vals ) continue;
 
-	vals[zcol_] = zat_ ? zat_->transformTrc( bid, vals[0] )
-			   : vals[0];
+	if ( !zat_ )
+	    vals[zcol_] = vals[0];
+	else
+	{
+	    const TrcKey tk( bivs_.geomSystem(), bid );
+	    vals[zcol_] = zat_->transformTrc( tk, vals[0] );
+	}
     }
 
     return true;
@@ -878,7 +876,7 @@ bool doWork( od_int64 start, od_int64 stop, int thread )
     BinIDValueSet&	bivs_;
     int			zcol_;
     ZAxisTransform*	zat_;
-    HorSampling		hs_;
+    TrcKeySampling	hs_;
 
 };
 
@@ -1725,12 +1723,12 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	    const int version = selectedTexture( idx );
 	    if ( attribshifts.validIdx(version) )
 	    {
-		attribshift =
-		  attribshifts[version] * s3dgeom_->zDomain().userFactor();
+		attribshift = attribshifts[version]
+			    * SI().zDomain().userFactor();
 	    }
 
 	    const float zshift =
-	      (float) getTranslation().z_*s3dgeom_->zDomain().userFactor();
+	      (float)(getTranslation().z_ * SI().zDomain().userFactor());
 
 	    const bool hasshift = !mIsZero(attribshift,0.1) ||
 				  !mIsZero(zshift,0.1);
@@ -2203,7 +2201,7 @@ void HorizonDisplay::selectChildren()
 	if ( children->getData()[gidx] == '0' )
 	    continue;
 
-	const TrcKey tk = tks.atIndex( gidx );
+	const TrcKey tk = TrcKey( tks.atIndex(gidx) );
 	const Coord3 pos = hor3d->getPos( EM::PosID::getFromRowCol(tk.binID()));
 	const int pidx = selections_->addPoint( pos );
 	selections_->getMaterial()->setColor( hor3d->selectionColor(), pidx);
@@ -2281,7 +2279,7 @@ void HorizonDisplay::calculateLockedPoints()
 	if ( lockednodes->getData()[gidx] == '0' )
 	    continue;
 
-	const TrcKey tk = tks.atIndex( gidx );
+	const TrcKey tk = TrcKey( tks.atIndex(gidx) );
 	const Coord3 pos = hor3d->getPos( EM::PosID::getFromRowCol(tk.binID()));
 	const int pidx = lockedpts_->addPoint( pos );
 	pidxs += pidx;

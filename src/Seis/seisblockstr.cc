@@ -83,7 +83,7 @@ bool BlocksSeisTrcTranslator::initRead_()
 	return false;
     }
     else if ( read_mode == Seis::Prod
-	  && !rdr_->hGeom().isCompatibleWith( Survey::Geometry::default3D() ) )
+	  && !rdr_->hGeom().isCompatibleWith( Survey::Geometry::get3D() ) )
     {
 	errmsg_ = tr("The cube is not compatible with the survey setup");
 	return false;
@@ -94,8 +94,8 @@ bool BlocksSeisTrcTranslator::initRead_()
     pinfo_.cubedata = &rdr_->positions();
     pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRectAndReg();
     rdr_->positions().getRanges( pinfo_.inlrg, pinfo_.crlrg );
-    pinfo_.inlrg.step = rdr_->hGeom().sampling().hsamp_.step_.inl();
-    pinfo_.crlrg.step = rdr_->hGeom().sampling().hsamp_.step_.crl();
+    pinfo_.inlrg.step = rdr_->hGeom().inlRange().step;
+    pinfo_.crlrg.step = rdr_->hGeom().crlRange().step;
     insd_.start = rdr_->zGeom().start;
     insd_.step = rdr_->zGeom().step;
     innrsamples_ = rdr_->zGeom().nrSteps() + 1;

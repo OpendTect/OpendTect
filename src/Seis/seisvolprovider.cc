@@ -29,8 +29,8 @@ od_int64 Seis::Provider3D::getTotalNrInInput() const
     if ( !cubedata_.isEmpty() )
 	return cubedata_.totalSize();
 
-    const od_int64 nrinls = SI().inlRange(false).nrSteps() + 1;
-    const od_int64 nrcrls = SI().inlRange(false).nrSteps() + 1;
+    const od_int64 nrinls = SI().inlRange().nrSteps() + 1;
+    const od_int64 nrcrls = SI().inlRange().nrSteps() + 1;
     return nrinls * nrcrls;
 }
 
@@ -366,7 +366,7 @@ void Seis::VolFetcher::doGetNext( SeisTrc* trc,
     }
 
     if ( trcinfo )
-	trcinfo->trckey_.setSurvID( TrcKey::std3DSurvID() );
+	trcinfo->trckey_.setIs2D( false );
 
     if ( havefilled )
 	moveNextBinID();
@@ -455,7 +455,7 @@ void Seis::VolProvider::ensureCubeDataFilled() const
     }
 
     if ( !cdobtained )
-	cubedata_.fillBySI( false );
+	cubedata_.fillBySI();
 
     cubedatafilled_ = true;
 }

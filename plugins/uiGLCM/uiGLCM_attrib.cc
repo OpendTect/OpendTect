@@ -347,7 +347,8 @@ void uiGLCM_attrib::analyseData( CallBacker* )
 	const Pos::GeomID geomid = subseldlg.geomID();
 	seisinfo.getRanges( geomid, trcrg, zrg );
 	cs.hsamp_.setCrlRange( trcrg );
-	cs.hsamp_.setInlRange( StepInterval<int>(geomid,geomid,1) );
+	const auto lnr = geomid.lineNr();
+	cs.hsamp_.setInlRange( StepInterval<int>(lnr,lnr,1) );
 	cs.zsamp_ = zrg;
     }
     else
@@ -381,7 +382,7 @@ bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     aem->setAttribSet( descset );
     aem->setAttribSpec( sp );
     if ( inpdesc->is2D() )
-	aem->setGeomID( cs.hsamp_.start_.inl() );
+	aem->setGeomID( cs.hsamp_.getGeomID() );
 
     aem->setTrcKeyZSampling( cs );
     TypeSet<TrcKey> trckeys;

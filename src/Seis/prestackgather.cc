@@ -204,23 +204,22 @@ bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
 }
 
 
-bool Gather::readFrom( const DBKey& mid, const int trcnr,
+bool Gather::readFrom( const DBKey& dbky, const int trcnr,
 		       const char* linename, int comp, uiString* errmsg )
 {
-    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
-    if ( mIsUdfGeomID(geomid) )
+    Pos::GeomID geomid = Survey::Geometry::getGeomID( linename );
+    if ( !geomid.isValid() )
 	return false;
 
-    TrcKey tk( geomid, trcnr );
-    return readFrom( mid, tk, comp, errmsg );
+    return readFrom( dbky, TrcKey(geomid,trcnr), comp, errmsg );
 }
 
 
 bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
 		       const char* linename, int comp, uiString* errmsg )
 {
-    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
-    if ( mIsUdfGeomID(geomid) )
+    Pos::GeomID geomid = Survey::Geometry::getGeomID( linename );
+    if ( !geomid.isValid() )
 	return false;
 
     TrcKey tk( geomid, tracenr );

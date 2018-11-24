@@ -361,8 +361,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
 			    .arg( ioobj_->name() ) );
     if ( is2d )
     {
-	const BufferString linenm(
-			    Survey::GM().getName(tkzs_.hsamp_.getGeomID()) );
+	const BufferString linenm( nameOf(tkzs_.hsamp_.getGeomID()) );
 	if ( !linenm.isEmpty() )
 	    msg_.constructWordWith( toUiString("|%1" ).arg( linenm.str() ) );
     }
@@ -450,10 +449,11 @@ bool Seis::Loader::setTrcsSamplingFromProv( const Provider& prov )
 	PosInfo::Line2DData* line2ddata = new PosInfo::Line2DData();
 	const Pos::GeomID geomid = tks.getGeomID();
 	prov2d->getGeometryInfo( prov2d->lineNr(geomid), *line2ddata );
-	line2ddata->limitTo( tks.trcRange() );
+	const auto trcrg = tks.trcRange();
+	line2ddata->limitTo( trcrg.start, trcrg.stop );
 	delete line2ddata_;
 	line2ddata_ = line2ddata;
-	PosInfo::LineData* linedata = new PosInfo::LineData( geomid );
+	PosInfo::LineData* linedata = new PosInfo::LineData( geomid.lineNr() );
 	line2ddata_->getSegments( *linedata );
 	trcssampling_->add( linedata );
     }
@@ -690,7 +690,7 @@ bool Seis::ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop,
     if ( !rawseq ) return false;
     TypeSet<TrcKey>* tkss = new TypeSet<TrcKey>;
     const TrcKey tkstart = tks.trcKeyAt( 0 );
-    *tkss += tkstart; // Only for SurvID
+    *tkss += tkstart; // Only for GeomSystem
     rawseq->setPositions( *tkss );
     if ( !seissummary.isOK() || !rawseq->isOK() )
 	{ delete rawseq; return false; }
@@ -854,7 +854,7 @@ bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
     if ( !rawseq ) return false;
     TypeSet<TrcKey>* tkss = new TypeSet<TrcKey>;
     const TrcKey tkstart = tks.trcKeyAt( start );
-    *tkss += tkstart; // Only for SurvID
+    *tkss += tkstart; // Only for GeomSystem
     rawseq->setPositions( *tkss );
     if ( !seissummary.isOK() || !rawseq->isOK() )
 	{ delete rawseq; return false; }
@@ -1042,9 +1042,11 @@ bool Seis::SequentialFSLoader::init()
     if ( needresampling_ )
     {
 	if ( dpzsamp_.start < seissummary_->zRange().start )
-	    dpzsamp_.start = dpzsamp_.snap( seissummary_->zRange().start, 1 );
+	    dpzsamp_.start = dpzsamp_.snap( seissummary_->zRange().start,
+					    OD::SnapUpward );
 	if ( dpzsamp_.stop > seissummary_->zRange().stop )
-	    dpzsamp_.stop = dpzsamp_.snap( seissummary_->zRange().stop, -1 );
+	    dpzsamp_.stop = dpzsamp_.snap( seissummary_->zRange().stop,
+					    OD::SnapDownward );
     }
     else
     {
@@ -1057,7 +1059,7 @@ bool Seis::SequentialFSLoader::init()
 			    .arg( ioobj_->name() ) );
     if ( is2d )
     {
-	const BufferString linenm( Survey::GM().getName(geomid) );
+	const BufferString linenm( nameOf(geomid) );
 	if ( !linenm.isEmpty() )
 	    msg_.constructWordWith( toUiString("|%1" ).arg( linenm.str() ) );
     }
@@ -1170,7 +1172,7 @@ bool Seis::SequentialFSLoader::getTrcsPosForRead( TypeSet<TrcKey>& tks ) const
 	    break;
 
 	tks += is2d ? TrcKey( geomid, trcsiterator2d_->trcNr() )
-		    : TrcKey( tkzs_.hsamp_.survid_, bid );
+		    : TrcKey( bid );
     }
 
     return !tks.isEmpty();
@@ -1202,7 +1204,8 @@ Seis::SequentialPSLoader::SequentialPSLoader( const IOObj& ioobj,
 	    return;
 
 	tkzs.set2DDef();
-	tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
+	const auto lnr = geomid.lineNr();
+	tkzs.hsamp_.setLineRange( Interval<int>(lnr,lnr) );
 	tkzs.hsamp_.setTrcRange( trcrg );
 	tkzs.zsamp_ = zsamp;
 
@@ -1247,7 +1250,7 @@ uiString Seis::SequentialPSLoader::nrDoneText() const
 bool Seis::SequentialPSLoader::init()
 {
     gatherdp_ = new GatherSetDataPack();
-    const StringPair strpair( prov_->name(), Survey::GM().getName(geomid_));
+    const StringPair strpair( prov_->name(), nameOf(geomid_));
     gatherdp_->setName( strpair.getCompString() );
     return true;
 }

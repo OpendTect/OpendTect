@@ -288,7 +288,7 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 
     displayMiniCtab();
 
-    if ( viewer2D()->geomID() != Survey::GeometryManager::cUndefGeomID() )
+    if ( viewer2D()->geomID().isValid() )
 	fssview_->setGeomID( viewer2D()->geomID() );
 
     mAttachCB( fssview_->deSelection(), uiODVw2DFaultSS2DTreeItem::deSelCB );

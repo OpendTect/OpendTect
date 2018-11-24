@@ -689,8 +689,7 @@ void uiGDPositionDlg::popUpPosDlg()
     TrcKeyZSampling inputcs = tkzs_;
     if ( is2d )
     {
-	SeisTrcTranslator::getRanges(
-		mid_, inputcs, Survey::GM().getName(getGeomID()) );
+	SeisTrcTranslator::getRanges( mid_, inputcs, nameOf(getGeomID()) );
 	tkzs_.hsamp_.set(inputcs.hsamp_.inlRange(), inputcs.hsamp_.crlRange());
     }
 
@@ -738,5 +737,5 @@ Pos::GeomID uiGDPositionDlg::getGeomID() const
     if ( !linesfld_ )
 	return mUdfGeomID;
 
-    return Survey::GM().getGeomID( linesfld_->box()->text() );
+    return Survey::Geometry::getGeomID( linesfld_->box()->text() );
 }

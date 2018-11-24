@@ -25,6 +25,8 @@ mExpClass(General) LineSet2DData
 {
 public:
 
+    mUseType( Line2DData,	dist_type );
+
     virtual		~LineSet2DData()	{ deepErase(data_); }
 
     Line2DData&		addLine(const char*);
@@ -46,7 +48,7 @@ public:
     };
     void		intersect(const BinIDValueSet&,ObjectSet<IR>&) const;
 
-    float		getDistBetwTrcs(bool,const char* linenm =0) const;
+    dist_type		getDistBetwTrcs(bool,const char* linenm =0) const;
     void                compDistBetwTrcsStats();
     bool		areStatsComputed() const
 			{ return trcdiststatsperlines_.size(); }
@@ -66,8 +68,8 @@ protected:
     mStruct(General) LineTrcDistStats
     {
 				LineTrcDistStats( BufferString linename,
-						  float mediandist,
-						  float maxdist )
+						  dist_type mediandist,
+						  dist_type maxdist )
 				    : linename_(linename)
 				    , mediandist_(mediandist)
 				    , maxdist_( maxdist )               {};
@@ -79,12 +81,13 @@ protected:
 					&& ltds.maxdist_ == maxdist_;
 				}
 
-	BufferString            linename_;
-	float                   mediandist_;
-	float                   maxdist_;
+	BufferString		linename_;
+	dist_type		mediandist_;
+	dist_type		maxdist_;
     };
 
     TypeSet<LineTrcDistStats>   trcdiststatsperlines_;
+
 };
 
 } // namespace PosInfo

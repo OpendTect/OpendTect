@@ -45,8 +45,8 @@ float WellHorIntersectFinder::findZIntersection() const
     const Interval<float>& dahrg = track_.dahRange();
     float zstart = d2t_ ? d2t_->getTime( dahrg.start, track_ ) : dahrg.start;
     float zstop = d2t_ ? d2t_->getTime( dahrg.stop, track_ ) : dahrg.stop;
-    zstart = mMAX( SI().zRange(true).start, zstart );
-    zstop = mMIN( SI().zRange(true).stop, zstop );
+    zstart = mMAX( SI().zRange().start, zstart );
+    zstop = mMIN( SI().zRange().stop, zstop );
 
     float zval = zstart;
     bool isabove = true;
@@ -82,7 +82,7 @@ float WellHorIntersectFinder::findZIntersection() const
 float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const
 {
     const BinID& bid = SI().transform( pos.getXY() );
-    if ( !SI().isInside( bid, true ) )
+    if ( !SI().includes(bid) )
        return mUdf( float );
 
     if ( hor3d_ )

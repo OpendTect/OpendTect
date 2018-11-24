@@ -392,7 +392,7 @@ RefMan<Gather> PSAttrib::getPreProcessed( const BinID& relpos )
     const BinID stepout = preprocessor_->getInputStepout();
     BinID relbid;
     RefObjectSet<Gather> tempgathers;
-    const BinID sistep( SI().inlRange(true).step, SI().crlRange(true).step );
+    const BinID sistep( SI().inlStep(), SI().crlStep() );
     for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
 	  relbid.inl()++ )
     {
@@ -503,8 +503,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 	    mErrRet( uiStrings::phrCannotFindDBEntry(psid_) )
 
 	if ( is2D() )
-	    psrdr_ = SPSIOPF().get2DReader( *psioobj_,
-					    Survey::GM().getName(geomid_) );
+	    psrdr_ = SPSIOPF().get2DReader( *psioobj_, nameOf(geomid_) );
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
 

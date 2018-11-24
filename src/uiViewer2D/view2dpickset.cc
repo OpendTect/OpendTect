@@ -146,15 +146,15 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	    {
 		if ( regfdp->is2D() )
 		{
-		    const int geomid = vwr2dtkzs.hsamp_.inlRange().start;
+		    const Pos::GeomID geomid(
+				vwr2dtkzs.hsamp_.inlRange().start );
 		    if ( pl.hasTrcKey() &&  pl.geomID()!=geomid )
 			continue;
 		    else
 		    {
-			mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-					Survey::GM().getGeometry(geomid) );
-			if ( !geom2d ||
-			     geom2d->data().nearestIdx(pl.pos().getXY())<0 )
+			const auto& geom2d = Survey::Geometry::get2D( geomid );
+			if ( geom2d.isEmpty()
+			  || geom2d.data().nearestIdx(pl.pos().getXY())<0 )
 			    continue;
 		    }
 		}
@@ -239,7 +239,7 @@ void VW2DPickSet::draw()
     if ( !regfdp && !randfdp )
 	return;
 
-    ConstRefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry( false );
+    ConstRefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry();
     const Pos::IdxPair2Coord& bid2crd = geom3d->binID2Coord();
     for ( int ivwr=0; ivwr<viewers_.size(); ivwr++ )
     {
@@ -288,19 +288,16 @@ void VW2DPickSet::draw()
 		    }
 		    else
 		    {
-			mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-					Survey::GM().getGeometry(geomid) );
-			if ( !geom2d )
-			    continue;
-
-			trcidx = geom2d->data().nearestIdx( pos.getXY() );
+			const auto& geom2d = Survey::Geometry::get2D( geomid );
+			if ( !geom2d.isEmpty() )
+			    trcidx = geom2d.data().nearestIdx( pos.getXY() );
 		    }
 
 		    distance = regfdp->getAltDim0Value( -1, trcidx );
 		}
 
 		const bool oninl = regfdp->is2D() ||
-		    vwr2dtkzs.defaultDir() == TrcKeyZSampling::Inl;
+		    vwr2dtkzs.defaultDir() == OD::InlineSlice;
 		const float dip = oninl ? dipstr.getFValue( 1 )
 					: dipstr.getFValue( 0 );
 		const float depth = (dip/1000000) * zfac;
@@ -328,10 +325,9 @@ void VW2DPickSet::draw()
 	    }
 	    else if ( randfdp )
 	    {
-		const BinID bid = SI().transform(pos.getXY());
+		const BinID bid = SI().transform( pos.getXY() );
 		const FlatPosData& flatposdata = randfdp->posData();
-		const TrcKey trckey = Survey::GM().traceKey(
-			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+		const TrcKey trckey( bid );
 		const int bidindex = randfdp->getPath().indexOf( trckey );
 		if ( bidindex<0 )
 		    continue;

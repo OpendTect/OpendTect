@@ -535,7 +535,9 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 
 
 const char* uiMPEPartServer::get2DLineName() const
-{ return Survey::GM().getName(geomid_); }
+{
+    return nameOf(geomid_);
+}
 
 
 void uiMPEPartServer::set2DSelSpec(const Attrib::SelSpec& as)

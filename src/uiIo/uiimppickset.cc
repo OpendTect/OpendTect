@@ -282,7 +282,7 @@ bool uiImpExpPickSet::checkInpFlds()
 	    float constz = constzfld_->getFValue();
 	    if ( SI().zIsTime() ) constz /= 1000;
 
-	    if ( !SI().zRange(false).includes( constz,false ) )
+	    if ( !SI().zRange().includes( constz,false ) )
 		mErrRet( uiStrings::phrEnter(tr("a valid Z value")) );
 	}
     }

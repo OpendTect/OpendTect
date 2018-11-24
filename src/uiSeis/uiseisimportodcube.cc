@@ -179,11 +179,10 @@ bool uiSeisImportODCube::acceptOK()
     const bool iscbvs = isCBVS( fname );
     if ( !iscbvs )
     {
-
 	Seis::Blocks::Reader rdr( fname );
 	if ( rdr.state().isError() )
 	    mErrRet( rdr.state() )
-	if ( !rdr.hGeom().isCompatibleWith(Survey::Geometry::default3D()) )
+	if ( !rdr.hGeom().isCompatibleWith(Survey::Geometry::get3D()) )
 	    mErrRet( tr("The selected cube is not usable in this survey") )
 
     }

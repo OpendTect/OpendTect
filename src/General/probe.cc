@@ -416,7 +416,7 @@ InlineProbe::InlineProbe( const TrcKeyZSampling& pos )
 InlineProbe::InlineProbe()
     : Probe()
 {
-    const int centerpos = SI().inlRange( true ).center();
+    const int centerpos = SI().inlRange( OD::UsrWork ).center();
     probepos_.hsamp_.setLineRange( Interval<int>(centerpos,centerpos) );
     mTriggerInstanceCreatedNotifier();
 }
@@ -497,7 +497,7 @@ CrosslineProbe::CrosslineProbe( const TrcKeyZSampling& pos )
 CrosslineProbe::CrosslineProbe()
     : Probe()
 {
-    const int centerpos = SI().crlRange( true ).center();
+    const int centerpos = SI().crlRange( OD::UsrWork ).center();
     probepos_.hsamp_.setTrcRange( Interval<int>(centerpos,centerpos) );
     mTriggerInstanceCreatedNotifier();
 }
@@ -577,7 +577,7 @@ ZSliceProbe::ZSliceProbe( const TrcKeyZSampling& pos )
 ZSliceProbe::ZSliceProbe()
     : Probe()
 {
-    const float centerpos = SI().zRange( true ).center();
+    const float centerpos = SI().zRange( OD::UsrWork ).center();
     probepos_.zsamp_.set( centerpos, centerpos, SI().zStep() );
     mTriggerInstanceCreatedNotifier();
 }
@@ -658,7 +658,6 @@ Line2DProbe::Line2DProbe( Pos::GeomID geomid )
 
 Line2DProbe::Line2DProbe()
     : Probe()
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
 {
     mTriggerInstanceCreatedNotifier();
 }
@@ -689,15 +688,11 @@ void Line2DProbe::setGeomID( Pos::GeomID geomid )
 	return;
 
     geomid_ = geomid;
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
-    if ( !geom )
-    { pErrMsg( "Geometry not found" ); return; }
+    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    if ( geom2d.isEmpty() )
+	{ pErrMsg( "Geometry not found" ); return; }
 
-    const Survey::Geometry2D* geom2d = geom->as2D();
-    if ( !geom2d )
-    { pErrMsg( "2D Geometry not found" ); return; }
-
-    probepos_ = geom2d->sampling();
+    geom2d.getSampling( probepos_ );
 
     for ( int idx=0; idx<layers_.size(); idx++ )
 	layers_[idx]->invalidateData();
@@ -720,7 +715,7 @@ uiWord Line2DProbe::usrType() const
 
 uiWord Line2DProbe::displayName() const
 {
-    return toUiString( Survey::GM().getName(geomid_) );
+    return toUiString( nameOf(geomid_) );
 }
 
 
@@ -804,8 +799,8 @@ VolumeProbe::VolumeProbe()
 	( 5*probepos_.zsamp_.start + 3*probepos_.zsamp_.stop ) / 8.f;
     probepos_.zsamp_.stop =
 	( 3*probepos_.zsamp_.start + 5*probepos_.zsamp_.stop ) / 8.f;
-    SI().snap( probepos_.hsamp_.start_, BinID(0,0) );
-    SI().snap( probepos_.hsamp_.stop_, BinID(0,0) );
+    SI().snap( probepos_.hsamp_.start_ );
+    SI().snap( probepos_.hsamp_.stop_ );
     probepos_.zsamp_.start = probepos_.zsamp_.snap( probepos_.zsamp_.start );
     probepos_.zsamp_.stop = probepos_.zsamp_.snap( probepos_.zsamp_.stop );
 

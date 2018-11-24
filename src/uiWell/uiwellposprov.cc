@@ -108,7 +108,7 @@ bool uiWellPosProvGroup::getIDs( DBKeySet& ids ) const
 
 void uiWellPosProvGroup::getZRange( StepInterval<float>& zrg ) const
 {
-    zrg = zrgfld_ ? zrgfld_->getRange() : SI().zRange(true);
+    zrg = zrgfld_ ? zrgfld_->getRange() : SI().zRange( OD::UsrWork );
 }
 
 

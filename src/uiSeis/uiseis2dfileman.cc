@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "seiscube2linedata.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
+#include "survgeommgr.h"
 #include "timefun.h"
 #include "zdomain.h"
 
@@ -58,7 +59,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
 {
     setCtrlStyle( CloseOnly );
-    Survey::GMAdmin().updateGeometries( 0 );
+    Survey::GMAdmin().updateGeometries( uiTaskRunnerProvider(this) );
 
     objinfo_ = new uiSeisIOObjInfo( this, ioobj );
     dataset_ = new Seis2DDataSet( ioobj );
@@ -126,7 +127,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
     BufferString txt;
     for ( int idx=0; idx<linenms.size(); idx++ )
     {
-	const Pos::GeomID geomid = Survey::GM().getGeomID( linenms.get(idx) );
+	const auto geomid = Survey::Geometry::getGeomID( linenms.get(idx) );
 	const int lineidx = dataset_->indexOf( geomid );
 	if ( lineidx < 0 ) { pErrMsg("Huh"); continue; }
 
@@ -135,14 +136,12 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	const bool hasrg = dataset_->getRanges( geomid, trcrg, zrg );
 
 	PosInfo::Line2DData l2dd;
-	const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geom )
-	if ( geom2d )
-	    l2dd = geom2d->data();
-	if ( !geom2d || l2dd.isEmpty() )
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	l2dd = geom2d.data();
+	if ( l2dd.isEmpty() )
 	{
-	    txt += ( "\nCannot find geometry for line: " );
-	    txt += linenms.get(idx);
+	    txt.add( "\nAbsent or empty geometry for line " );
+	    txt.add( linenms.get(idx) );
 	    continue;
 	}
 
@@ -212,7 +211,7 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	const char* linenm = sellines.get(idx);
-	dataset_->remove( Survey::GM().getGeomID(linenm) );
+	dataset_->remove( Survey::Geometry::getGeomID(linenm) );
 	linefld_->removeItem( linenm );
     }
 
@@ -224,7 +223,7 @@ void uiSeis2DFileMan::browsePush( CallBacker* )
     if ( !objinfo_ || !objinfo_->ioObj() )
 	return;
 
-    const Pos::GeomID geomid = Survey::GM().getGeomID( linefld_->getText() );
+    const auto geomid = Survey::Geometry::getGeomID( linefld_->getText() );
     uiSeisSampleEditor::launch( this, objinfo_->ioObj()->key(), geomid );
     fillLineBox();
 }

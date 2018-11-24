@@ -244,18 +244,19 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 		    PosInfo::Line2DKey l2dkey; l2dkey.fromString( idstr );
 		    if ( S2DPOS().curLineSetID() != l2dkey.lsID() )
 			S2DPOS().setCurLineSet( l2dkey.lsID() );
-		    geomid = Survey::GM().getGeomID(
-				S2DPOS().getLineSet(l2dkey.lsID()),
+		    const BufferString oldlnm(
+				S2DPOS().getLineSet(l2dkey.lsID()), "-",
 				S2DPOS().getLineName(l2dkey.lineID()) );
+		    geomid = Survey::Geometry::getGeomID( oldlnm );
 		}
 	    }
 
-	    if ( mIsUdfGeomID(geomid) )
+	    if ( !geomid.isValid() )
 		continue;
 
 	    geomids_ += geomid;
 	    if ( !haslinenames )
-		linenames_.add( Survey::GM().getName(geomid) );
+		linenames_.add( nameOf(geomid) );
 	    StepInterval<int> trcrange;
 	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
 		       trcrange );
@@ -282,8 +283,8 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 		continue;
 	    }
 
-	    Pos::GeomID geomid = Survey::GM().getGeomID( ioobj->name(),
-							 linenames_.get(idx) );
+	    const BufferString oldlnm( ioobj->name(),"-",linenames_.get(idx) );
+	    const Pos::GeomID geomid = Survey::Geometry::getGeomID( oldlnm );
 	    geomids_ += geomid;
 	    BufferString trcrangekey(
 		    Horizon2DGeometry::sKeyTraceRange(), idx );
@@ -479,7 +480,9 @@ BufferString dgbSurfaceReader::lineSet( int idx ) const
 
 
 Pos::GeomID dgbSurfaceReader::lineGeomID( int idx ) const
-{ return geomids_.validIdx( idx ) ? geomids_[idx] : -1; }
+{
+    return geomids_.validIdx( idx ) ? geomids_[idx] : Pos::GeomID::get3D();
+}
 
 
 int dgbSurfaceReader::nrAuxVals() const
@@ -818,7 +821,7 @@ int dgbSurfaceReader::nextStep()
 			linesets_.get(rowindex_)!=sKeyUndefLineSet() &&
 			linenames_.get(rowindex_)!=sKeyUndefLine();
         const bool validgeomids = geomids_.validIdx(rowindex_) &&
-                                  geomids_[rowindex_] > 0;
+                                  geomids_[rowindex_].is2D();
 
 	if ( (!validrowidx || !validids) && !validgeomids )
 	{
@@ -835,9 +838,8 @@ int dgbSurfaceReader::nextStep()
 	if ( geomids_.validIdx(rowindex_) )
 	{
 	    const Pos::GeomID geomid = geomids_[rowindex_];
-	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			     Survey::GM().getGeometry(geomid) );
-	    if ( !geom2d )
+	    const auto& geom2d = Survey::Geometry2D::get( geomid );
+	    if ( geom2d.isEmpty() )
 		return skipRow(strm) == ErrorOccurred() ? ErrorOccurred()
 							: MoreToDo();
 
@@ -1475,7 +1477,7 @@ void dgbSurfaceWriter::init( const char* fulluserexpr )
     writecolrange_ = 0;
     writtenrowrange_ = Interval<int>( INT_MAX, INT_MIN );
     writtencolrange_ = Interval<int>( INT_MAX, INT_MIN );
-    zrange_ = Interval<float>(SI().zRange(false).stop,SI().zRange(false).start);
+    zrange_ = Interval<float>(SI().zRange().stop,SI().zRange().start);
     nrdone_ = 0;
     sectionindex_ = 0;
     oldsectionindex_= -1;

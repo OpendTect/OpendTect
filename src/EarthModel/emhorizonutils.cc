@@ -159,7 +159,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const DBKey& id,
     deepUnRef( data );
 
     DataPointSet* res = 0;
-    if ( hor2d && geomid != Survey::GeometryManager::cUndefGeomID() )
+    if ( hor2d && geomid.isValid() )
     {
 	TypeSet<DataPointSet::DataRow> pts;
 	BufferStringSet nms;

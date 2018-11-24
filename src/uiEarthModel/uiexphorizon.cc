@@ -201,7 +201,7 @@ int write3DHorASCII::nextStep()
 	crd.setXY( coordsys_->convertFrom(crd.getXY(),*SI().getCoordSystem()) );
     const BinID bid = SI().transform( crd.getXY() );
     if ( zatf_ )
-	crd.z_ = zatf_->transformTrc( bid, (float)crd.z_ );
+	crd.z_ = zatf_->transformTrc( TrcKey(bid), (float)crd.z_ );
 
     if ( zatf_ && SI().depthsInFeet() )
     {

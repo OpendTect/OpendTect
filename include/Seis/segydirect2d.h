@@ -82,8 +82,8 @@ public:
 						       const char* s2)
 			    : SurvGeom2DTranslator(s1,s2)	{}
 
-    Survey::Geometry*	readGeometry(const IOObj&,uiString&) const;
-    bool		writeGeometry(IOObj&,const Geometry&,uiString&) const;
+    Geometry2D*		readGeometry(const IOObj&,uiString&) const;
+    bool		writeGeometry(IOObj&,const Geometry2D&,uiString&) const;
     bool		isUserSelectable(bool fr) const		{ return fr; }
 
     static const char*	sKeySEGYDirectID();

@@ -404,7 +404,7 @@ bool uiWellImportAsc::doWork()
 
 	if ( mIsUdf(td) || td < 1e-6 )
 	{
-	    float survzstop = SI().zRange(false).stop;
+	    float survzstop = SI().zRange().stop;
 	    if ( SI().zIsTime() )
 		survzstop *= 2000;
 	    td = survzstop - kbelev;

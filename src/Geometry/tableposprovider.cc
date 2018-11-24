@@ -121,7 +121,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	{
 	    od_istream strm( res );
 	    if ( strm.isOK() )
-		bvs.getFrom( strm, Survey::GM().default3DSurvID() );
+		bvs.getFrom( strm, GeomID::get3D() );
 	    strm.close();
 	    if ( !bvs.isEmpty() )
 	    {
@@ -133,7 +133,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 		    const Interval<float> zrg( bvs.valRange(0) );
 		    if ( !mIsUdf(zrg.start) )
 		    {
-			const Interval<float> sizrg( SI().zRange(false) );
+			const Interval<float> sizrg( SI().zRange() );
 			const float siwdth = sizrg.width();
 			if ( zrg.start < sizrg.start - 10 * siwdth
 			  || zrg.stop > sizrg.stop + 10 * siwdth )
@@ -212,7 +212,7 @@ void Pos::TableProvider3D::getZRange( Interval<float>& zrg ) const
 
     const float* val = bvs_.getVals( p );
     if ( !val )
-	{ zrg = SI().zRange(false); return; }
+	{ zrg = SI().zRange(); return; }
 
     zrg.start = zrg.stop = *val;
     while ( bvs_.next(p) )

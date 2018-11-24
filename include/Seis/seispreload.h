@@ -30,12 +30,13 @@ mExpClass(Seis) PreLoader
 { mODTextTranslationClass(PreLoader);
 public:
 
-			PreLoader(const DBKey&,
-				Pos::GeomID=Survey::GM().default3DSurvID(),
+    mUseType( Pos,	GeomID );
+
+			PreLoader(const DBKey&,GeomID gid=GeomID::get3D(),
 				TaskRunner* =0);
 
     const DBKey&	id() const			{ return dbkey_; }
-    Pos::GeomID		geomID() const			{ return geomid_; }
+    GeomID		geomID() const			{ return geomid_; }
     void		setTaskRunner( TaskRunner& t )	{ tr_ = &t; }
 
     IOObj*		getIOObj() const;
@@ -48,7 +49,7 @@ public:
 				DataCharacteristics::UserType=OD::AutoDataRep,
 				const Scaler* =0) const;
     bool		load(const TypeSet<TrcKeyZSampling>&,
-			     const TypeSet<Pos::GeomID>&,
+			     const TypeSet<GeomID>&,
 				DataCharacteristics::UserType=OD::AutoDataRep,
 				const Scaler* =0) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;
@@ -70,7 +71,7 @@ public:
 protected:
 
     DBKey		dbkey_;
-    Pos::GeomID		geomid_;
+    GeomID		geomid_;
     TaskRunner*		tr_;
     SilentTaskRunner	deftr_;
     mutable uiString	errmsg_;
@@ -83,13 +84,16 @@ protected:
 mExpClass(Seis) PreLoadDataEntry
 {
 public:
-			PreLoadDataEntry(const DBKey&,Pos::GeomID,
+
+    mUseType( Pos,	GeomID );
+
+			PreLoadDataEntry(const DBKey&,GeomID,
 					 DataPack::ID);
 
-    bool		equals(const DBKey&,Pos::GeomID) const;
+    bool		equals(const DBKey&,GeomID) const;
 
     DBKey		dbkey_;
-    Pos::GeomID		geomid_;
+    GeomID		geomid_;
     DataPack::ID	dpid_;
     bool		is2d_;
     BufferString	name_;
@@ -100,28 +104,30 @@ mExpClass(Seis) PreLoadDataManager
 {
 public:
 
+    mUseType( Pos,		GeomID );
     typedef DataPack::ID	PackID;
 
     void			add(const DBKey&,DataPack*);
-    void			add(const DBKey&,Pos::GeomID,DataPack*);
-    void			remove(const DBKey&,Pos::GeomID =-1);
+    void			add(const DBKey&,GeomID,DataPack*);
+    void			remove(const DBKey&,GeomID gid=GeomID());
     void			remove(PackID);
     void			removeAll();
 
     template<class T>
-    inline RefMan<T>		get(const DBKey&,Pos::GeomID =-1);
+    inline RefMan<T>		get(const DBKey&,GeomID gid=GeomID());
     template<class T>
     inline RefMan<T>		get(PackID);
     template<class T>
-    inline ConstRefMan<T>	get(const DBKey&,Pos::GeomID =-1) const;
+    inline ConstRefMan<T>	get(const DBKey&,GeomID gid=GeomID()) const;
     template<class T>
     inline ConstRefMan<T>	get(PackID) const;
 
-    void			getInfo(const DBKey&,Pos::GeomID,
+    void			getInfo(const DBKey&,GeomID,
 					BufferString&) const;
 
     void			getIDs(DBKeySet&) const;
-    bool			isPresent(const DBKey&,Pos::GeomID =-1) const;
+    bool			isPresent(const DBKey&,
+					  GeomID gid=GeomID()) const;
 
     const ObjectSet<PreLoadDataEntry>& getEntries() const;
 
@@ -135,10 +141,10 @@ public:
 				PreLoadDataManager();
 				~PreLoadDataManager();
 
-    RefMan<DataPack>		getDP(const DBKey&,Pos::GeomID =-1);
+    RefMan<DataPack>		getDP(const DBKey&,GeomID gid=GeomID());
     inline RefMan<DataPack>	getDP( DataPack::ID dpid )
 				{ return dpmgr_.getDP( dpid ); }
-    ConstRefMan<DataPack>	getDP(const DBKey&,Pos::GeomID =-1) const;
+    ConstRefMan<DataPack>	getDP(const DBKey&,GeomID gid=GeomID()) const;
     inline ConstRefMan<DataPack> getDP( DataPack::ID dpid ) const
 				{ return dpmgr_.getDP( dpid ); }
 
@@ -148,7 +154,7 @@ mGlobal(Seis) PreLoadDataManager& PLDM();
 
 
 template <class T> inline RefMan<T>
-PreLoadDataManager::get( const DBKey& dbky, Pos::GeomID gid )
+PreLoadDataManager::get( const DBKey& dbky, GeomID gid )
 {
     auto dp = getDP( dbky, gid );
     mDynamicCastGet( T*, casted, dp.ptr() );
@@ -156,7 +162,7 @@ PreLoadDataManager::get( const DBKey& dbky, Pos::GeomID gid )
 }
 
 template <class T> inline ConstRefMan<T>
-PreLoadDataManager::get( const DBKey& dbky, Pos::GeomID gid ) const
+PreLoadDataManager::get( const DBKey& dbky, GeomID gid ) const
 {
     auto dp = getDP( dbky, gid );
     mDynamicCastGet( const T*, casted, dp.ptr() );
@@ -164,7 +170,7 @@ PreLoadDataManager::get( const DBKey& dbky, Pos::GeomID gid ) const
 }
 
 template <class T> inline RefMan<T>
-PreLoadDataManager::get( DataPack::ID dpid )
+PreLoadDataManager::get( PackID dpid )
 {
     auto dp = getDP( dpid );
     mDynamicCastGet( T*, casted, dp.ptr() );
@@ -172,7 +178,7 @@ PreLoadDataManager::get( DataPack::ID dpid )
 }
 
 template <class T> inline ConstRefMan<T>
-PreLoadDataManager::get( DataPack::ID dpid ) const
+PreLoadDataManager::get( PackID dpid ) const
 {
     auto dp = getDP( dpid );
     mDynamicCastGet( const T*, casted, dp.ptr() );

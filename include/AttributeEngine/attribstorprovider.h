@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "bindatadesc.h"
 #include "datapack.h"
+#include "trckeyzsampling.h"
 
 class BufferStringSet;
 class RegularSeisDataPack;

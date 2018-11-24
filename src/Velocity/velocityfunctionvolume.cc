@@ -75,7 +75,7 @@ void VolumeFunction::setStatics( float time, float vel )
 StepInterval<float> VolumeFunction::getAvailableZ() const
 {
     if ( extrapolate_ )
-	return SI().zRange(true);
+	return SI().zRange();
 
     return getLoadedZ();
 }
@@ -235,8 +235,8 @@ void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
 	prov2d.getGeometryInfo( prov2d.curLineIdx(), line2ddata );
 	for ( int idx=0; idx<line2ddata.positions().size(); idx++ )
 	{
-	    const TrcKey trckey = Survey::GM().traceKey( prov2d.curGeomID(),
-					line2ddata.positions()[idx].nr_ );
+	    const TrcKey trckey( prov2d.curGeomID(),
+				 line2ddata.positions()[idx].nr_ );
 	    bids.add( trckey.binID() );
 	}
     }

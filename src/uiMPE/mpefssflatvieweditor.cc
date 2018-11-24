@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 #include "sorting.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "trigonometry.h"
 #include "uiflatviewer.h"
 
@@ -322,10 +323,8 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
 
     if ( trcnr )
     {
-	const Survey::Geometry* geometry =
-		Survey::GM().getGeometry( fsspainter_->getGeomID() );
-	*trcnr = geometry ? geometry->nearestTrace(worldpos.getXY()).trcNr()
-			  : TrcKey::udf().trcNr();
+	const auto& geom2d = Survey::Geometry::get2D(fsspainter_->getGeomID());
+	*trcnr = geom2d.nearestTracePosition( worldpos.getXY() );
     }
 
     return true;
@@ -607,7 +606,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	makenewstick_ = false;
 	Coord3 editnormal = getNormal( &pos );
 
-	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+	Pos::GeomID geomid;
 	if ( tkzs_.isEmpty() && editnormal.isUdf() )
 	{
 	    geomid = fsspainter_->getGeomID();
@@ -618,7 +617,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	const int insertsticknr = !fss || fss->isEmpty()
 				  ? 0 : fss->rowRange().stop+1;
 
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	if ( !geomid.isValid() )
 	    fssg.insertStick( insertsticknr, 0, pos, editnormal, true );
 	else
 	    fssg.insertStick( insertsticknr, 0, pos, editnormal, geomid,

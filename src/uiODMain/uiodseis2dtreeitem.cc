@@ -462,7 +462,7 @@ uiOD2DLineTreeItem::uiOD2DLineTreeItem( Probe& probe, int displayid )
 {
     mDynamicCastGet(Line2DProbe*,l2dprobe,getProbe());
     if ( l2dprobe )
-	name_ = toUiString(Survey::GM().getName( l2dprobe->geomID() ));
+	name_ = toUiString( nameOf(l2dprobe->geomID()) );
     displayid_ = displayid;
 
     positionitm_.iconfnm = "orientation64";
@@ -510,18 +510,17 @@ bool uiOD2DLineTreeItem::init()
     if ( !s2d )
 	return false;
 
-    const Survey::Geometry* geom = Survey::GM().getGeometry(l2dprobe->geomID());
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
-    if ( !geom2d )
+    const auto& geom2d = Survey::Geometry::get2D( l2dprobe->geomID() );
+    if ( geom2d.isEmpty() )
 	return false;
 
     s2d->setProbe( getProbe() );
-    s2d->setName( geom2d->name() );
+    s2d->setName( geom2d.name() );
     //If restore, we use the old display range after set the geometry.
     const Interval<int> oldtrcnrrg = s2d->getTraceNrRange();
     const Interval<float> oldzrg = s2d->getZRange( true );
-    if ( newdisplay && (geom2d->data().positions().size() > 300000000 ||
-			geom2d->data().zRange().nrSteps() > 299999999) )
+    if ( newdisplay && (geom2d.data().positions().size() > 300000000 ||
+			geom2d.data().zRange().nrSteps() > 299999999) )
     {
 	uiString msg = tr("Either trace size or z size is beyond max display "
 			 "size of 3 X 10 e8. You can right click the line name "
@@ -529,7 +528,7 @@ bool uiOD2DLineTreeItem::init()
 	mTIUiMsg().warning( msg );
     }
 
-    s2d->setGeometry( geom2d->data() );
+    s2d->setGeometry( geom2d.data() );
     TrcKeyZSampling probepos = probe->position();
     if ( !newdisplay )
     {
@@ -541,11 +540,11 @@ bool uiOD2DLineTreeItem::init()
     }
     else
     {
-	const bool hasworkzrg = SI().zRange(true) != SI().zRange(false);
+	const bool hasworkzrg = SI().zRange() != SI().zRange(OD::UsrWork);
 	if ( hasworkzrg )
 	{
-	    StepInterval<float> newzrg = geom2d->data().zRange();
-	    newzrg.limitTo( SI().zRange(true) );
+	    StepInterval<float> newzrg = geom2d.data().zRange();
+	    newzrg.limitTo( SI().zRange( OD::UsrWork ) );
 	    probepos.zsamp_ = newzrg;
 	}
     }

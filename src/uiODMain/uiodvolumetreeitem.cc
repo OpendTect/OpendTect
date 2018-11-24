@@ -124,8 +124,8 @@ bool uiODVolumeParentTreeItem::setProbeToBeAddedParams( int mnuid )
 	return false;
 
     typetobeadded_ = getAddType( mnuid );
-    cs_ = SI().sampling( true );
-    TrcKeyZSampling fullcs = SI().sampling( true );
+    SI().getSampling( cs_, OD::UsrWork );
+    TrcKeyZSampling fullcs( true );
     const bool haveworkarea = !(cs_.hsamp_ == fullcs.hsamp_);
     if ( !haveworkarea )
     {

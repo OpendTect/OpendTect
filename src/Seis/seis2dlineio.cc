@@ -14,6 +14,7 @@
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "survgeom2d.h"
+#include "survgeommgr.h"
 #include "posinfo2dsurv.h"
 #include "bufstringset.h"
 #include "trckeyzsampling.h"
@@ -115,7 +116,7 @@ uiRetVal Seis2DTraceGetter::doGet( TrcNrType tnr, SeisTrc* trc, TraceData& data,
     if ( !ensureTranslator() )
 	return uiRetVal( initmsg_ );
 
-    const BinID bid( geomid_, tnr );
+    const BinID bid( geomid_.lineNr(), tnr );
     if ( !tr_->goTo(bid) )
 	return uiRetVal( tr("Trace not present: %1").arg(tnr) );
 
@@ -248,7 +249,7 @@ bool SeisTrc2DTranslator::implRemove( const IOObj* ioobj ) const
     BufferString fnm( ioobj->mainFileName() );
     Seis2DDataSet ds( *ioobj );
     const int nrlines = ds.nrLines();
-    TypeSet<int> geomids;
+    TypeSet<Pos::GeomID> geomids;
     for ( int iln=0; iln<nrlines; iln++ )
 	geomids.add( ds.geomID(iln) );
 
@@ -296,20 +297,21 @@ bool SeisTrc2DTranslator::initRead_()
     dset.getTxtInfo( dset.geomID(0), pinfo_.usrinfo, pinfo_.stdinfo );
     addComp( DataCharacteristics(), pinfo_.stdinfo );
 
-    if ( seldata_ && !mIsUdf(seldata_->geomID()) )
+    if ( seldata_ && seldata_->geomID().isValid() )
 	geomid_ = seldata_->geomID();
     else
 	geomid_ = dset.geomID(0);
 
     if ( !mIsUdfGeomID(geomid_) && dset.indexOf(geomid_)<0 )
-	{ errmsg_ = tr("Cannot find Geomtry ID %1").arg(geomid_); return false;}
+	{ errmsg_ = tr("Line ID not found: %1").arg(geomid_.lineNr());
+	    return false; }
 
     StepInterval<int> trcrg; StepInterval<float> zrg;
     dset.getRanges( geomid_, trcrg, zrg );
     insd_.start = zrg.start; insd_.step = zrg.step;
     innrsamples_ = (int)((zrg.stop-zrg.start) / zrg.step + 1.5);
-    pinfo_.inlrg.start = geomid_;
-    pinfo_.inlrg.stop = geomid_;
+    pinfo_.inlrg.start = geomid_.lineNr();
+    pinfo_.inlrg.stop = geomid_.lineNr();
     pinfo_.inlrg.step = 1;
     pinfo_.crlrg.start = trcrg.start;
     pinfo_.crlrg.stop = trcrg.stop;
@@ -415,24 +417,20 @@ bool Seis2DLineMerger::nextGetter()
 	return true;
 
     BufferString lnm( currentlyreading_ == 1 ? lnm1_ : lnm2_ );
-    Pos::GeomID lid = Survey::GM().getGeomID( lnm );
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-		    Survey::GM().getGeometry(lid))
-    if ( !geom2d )
-	mErrRet( tr("Cannot find 2D Geometry of Line '%1'.").arg(lnm) )
-    const PosInfo::Line2DData& l2dd( geom2d->data() );
+    const auto& geom2d = Survey::Geometry::get2D( lnm );
+    const PosInfo::Line2DData& l2dd( geom2d.data() );
     SeisTrcBuf& tbuf = currentlyreading_==1 ? tbuf1_ : tbuf2_;
     tbuf.deepErase();
 
     nrdone_ = 0;
     totnr_ = l2dd.positions().size();
     if ( totnr_ < 0 )
-	mErrRet( tr("No data in %1").arg(geom2d->name()) )
-    const int dslineidx = ds_->indexOf( lid );
+	mErrRet( tr("No data in %1").arg(geom2d.name()) )
+    const int dslineidx = ds_->indexOf( geom2d.geomID() );
     if ( dslineidx<0 )
-	mErrRet( tr("Cannot find line in %1 dataset" ).arg(geom2d->name()) )
+	mErrRet( tr("Cannot find line in %1 dataset" ).arg(geom2d.name()) )
     uiRetVal uirv;
-    getter_ = ds_->traceGetter( lid, 0, uirv );
+    getter_ = ds_->traceGetter( geom2d.geomID(), 0, uirv );
     if ( !getter_ )
 	mErrRet( uirv );
 
@@ -446,7 +444,7 @@ bool Seis2DLineMerger::nextGetter()
 { \
     if ( !s.isEmpty() ) \
 	msg_ = s; \
-    return Executor::ErrorOccurred(); \
+    return ErrorOccurred(); \
 }
 
 int Seis2DLineMerger::nextStep()
@@ -463,8 +461,7 @@ int Seis2DLineMerger::doWork()
     if ( getter_ || !currentlyreading_ )
     {
 	if ( !currentlyreading_ )
-	    return nextGetter() ? Executor::MoreToDo()
-				: Executor::ErrorOccurred();
+	    return nextGetter() ? MoreToDo() : ErrorOccurred();
 
 	SeisTrcBuf& tbuf = currentlyreading_==1 ? tbuf1_ : tbuf2_;
 	while ( true )
@@ -484,8 +481,7 @@ int Seis2DLineMerger::doWork()
 	    tbuf.add( trc );
 	}
 
-	return nextGetter() ? Executor::MoreToDo()
-			    : Executor::ErrorOccurred();
+	return nextGetter() ? MoreToDo() : ErrorOccurred();
     }
     else if ( putter_ )
     {
@@ -495,13 +491,14 @@ int Seis2DLineMerger::doWork()
 	    if ( !putter_->close() )
 		mErrRet(putter_->errMsg())
 	    delete putter_; putter_ = 0;
-	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry(outgeomid_);
-	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
-	    if ( !geom2d || !Survey::GMAdmin().write(*geom2d, msg_) )
-		return Executor::ErrorOccurred();
-	    geom2d->touch();
+	    auto& geom2d = Survey::Geometry::get2D4Edit(outgeomid_);
+	    if ( geom2d.isEmpty() )
+		return MoreToDo();
+	    if ( !Survey::GMAdmin().save(geom2d,msg_) )
+		return ErrorOccurred();
+	    geom2d.commitChanges();
 	    currentlyreading_ = 0;
-	    return Executor::MoreToDo();
+	    return MoreToDo();
 	}
 
 	const SeisTrc& trc = *outbuf_.get( mCast(int,nrdone_) );
@@ -512,16 +509,14 @@ int Seis2DLineMerger::doWork()
 	{
 	    PosInfo::Line2DPos pos( trc.info().trcNr() );
 	    pos.coord_ = trc.info().coord_;
-	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry( outgeomid_);
-	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
-	    if ( !geom2d )
+	    auto& geom2d = Survey::Geometry::get2D4Edit(outgeomid_);
+	    if ( geom2d.isEmpty() )
 		mErrRet( tr("Output 2D Geometry not written properly") );
 
-	    PosInfo::Line2DData& outl2dd = geom2d->dataAdmin();
-	    outl2dd.add( pos );
+	    geom2d.data().add( pos );
 	}
 	nrdone_++;
-	return Executor::MoreToDo();
+	return MoreToDo();
     }
 
     if ( tbuf1_.isEmpty() && tbuf2_.isEmpty() )
@@ -540,7 +535,7 @@ int Seis2DLineMerger::doWork()
 	mErrRet( uirv );
 
     nrdonemsg_ = tr("Traces written");
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 

@@ -394,10 +394,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     eventman_->getLocations( locations );
 
     TrcKeySampling evntrg( false );
+    evntrg.setIs3D();
     evntrg.setInlRange( locations.inlRange() );
     evntrg.setCrlRange( locations.crlRange() );
-    evntrg.survid_ = TrcKey::std3DSurvID();
-
 
     if ( displaymode_==ZeroOffset )
     {
@@ -741,9 +740,9 @@ bool PSEventDisplay::supportsDisplay() const
     BinIDValueSet locations( 0, false );
     eventman_->getLocations( locations );
     TrcKeySampling eventrg( false );
+    eventrg.setIs3D();
     eventrg.setInlRange( locations.inlRange() );
     eventrg.setCrlRange( locations.crlRange() );
-    eventrg.survid_ = TrcKey::std3DSurvID();
 
     bool issuported = false;
     for ( int idx=0; idx<parentattached_.size(); idx++ )

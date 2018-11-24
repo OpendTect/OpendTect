@@ -383,14 +383,12 @@ void Pos::Provider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 Pos::Provider3D::Provider3D()
     : Pos::Filter3D()
     , Pos::Provider()
-    , survid_( Survey::GM().default3DSurvID() )
 {}
 
 
 Pos::Provider3D::Provider3D( const Pos::Provider3D& oth )
     : Pos::Filter3D(oth)
     , Pos::Provider(oth)
-    , survid_(oth.survid_)
 {}
 
 
@@ -401,7 +399,6 @@ Pos::Provider3D& Pos::Provider3D::operator=( const Pos::Provider3D& oth )
 
     Pos::Filter3D::operator = ( oth );
     Pos::Provider::operator = ( oth );
-    survid_ = oth.survid_;
 
     return *this;
 }
@@ -409,21 +406,13 @@ Pos::Provider3D& Pos::Provider3D::operator=( const Pos::Provider3D& oth )
 
 bool Pos::Provider3D::includes( const Coord& c, float z ) const
 {
-    ConstRefMan<Survey::Geometry3D> geom = Survey::GM().getGeometry3D(survID());
-    return includes( geom->transform(c), z );
+    return SI().includes( SI().transform(c), z );
 }
 
 
 Coord Pos::Provider3D::curCoord() const
 {
-    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry3D( survID() );
-    return geom->toCoord( curBinID() );
-}
-
-
-Pos::SurvID Pos::Provider2D::survID() const
-{
-    return Survey::GeometryManager::get2DSurvID();
+    return SI().transform( curBinID() );
 }
 
 

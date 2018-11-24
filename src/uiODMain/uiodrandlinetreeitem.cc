@@ -294,7 +294,7 @@ bool uiODRandomLineParentTreeItem::setRDLFromTable()
 				  tr("Specify node positions"),
 				  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
     uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
-    Interval<float> zrg = SI().zRange(true);
+    Interval<float> zrg = SI().zRange( OD::UsrWork );
     zrg.scale( mCast(float,SI().zDomain().userFactor()) );
     table->setZRange( zrg );
 
@@ -541,7 +541,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	TypeSet<BinID> bids; rtd->getAllNodePos( bids );
 	RefMan<Geometry::RandomLine> rln = new Geometry::RandomLine;
 	const Interval<float> rtdzrg = rtd->getDepthInterval();
-	rln->setZRange( hasztf ? SI().zRange(false) : rtdzrg );
+	rln->setZRange( hasztf ? SI().zRange(OD::UsrWork) : rtdzrg );
 	for ( int idx=0; idx<bids.size(); idx++ )
 	    rln->addNode( bids[idx] );
 

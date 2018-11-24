@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "posinfo.h"
 #include "hdf5access.h"
+#include "survinfo.h"
 
 static const Seis::Blocks::SzType cVersion	= 1;
 static const Seis::Blocks::SzType cDefDim	= 64;
@@ -32,7 +33,7 @@ Seis::Blocks::Access::Access()
     , version_(cVersion)
     , scaler_(0)
     , datarep_(OD::F32)
-    , hgeom_(*new HGeom("",ZDomain::SI()))
+    , hgeom_(*new HGeom(""))
     , columns_(*new Pos::IdxPairDataSet(sizeof(Block*),false,false))
     , needreset_(true)
     , datatype_(UnknownData)
@@ -40,6 +41,7 @@ Seis::Blocks::Access::Access()
     , fileidsectioniop_(sKeyFileIDSection())
     , cubedata_(*new PosInfo::CubeData)
     , usehdf_(HDF5::isEnabled(HDF5::sSeismicsType()))
+    , zdomain_(SI().zDomain())
 {
 }
 
@@ -70,12 +72,6 @@ const char* Seis::Blocks::Access::fileExtension() const
 const char* Seis::Blocks::Access::sDataFileExt( bool forhdf5 )
 {
     return forhdf5 ? HDF5::sFileExtension() : "blocks";
-}
-
-
-const ZDomain::Def& Seis::Blocks::Access::zDomain() const
-{
-    return hgeom_.zDomain();
 }
 
 

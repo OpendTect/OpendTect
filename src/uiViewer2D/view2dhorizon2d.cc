@@ -28,7 +28,6 @@ mCreateVw2DFactoryEntry( Vw2DHorizon2D );
 Vw2DHorizon2D::Vw2DHorizon2D( const DBKey& oid, uiFlatViewWin* win,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataedtors)
     : Vw2DEMDataObject(oid,win,auxdataedtors)
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
     , deselted_( this )
     , vdselspec_( 0 )
     , wvaselspec_( 0 )

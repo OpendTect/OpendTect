@@ -88,9 +88,7 @@ void Fault3DPainter::setFlatPosData( const FlatPosData* fps )
 
     TypeSet<Coord> pts;
     for ( int idx=0; idx<path_->size(); idx++ )
-    {
-	pts += Survey::GM().toCoord( (*path_)[idx] );
-    }
+	pts += path_->get(idx).getCoord();
 
     BendPointFinder2D bpfinder( pts, 0.5 );
     if ( !bpfinder.execute() || bpfinder.bendPoints().size()<1 )
@@ -189,9 +187,9 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 {
     Coord3 editnormal( 0, 0, 1 );
 
-    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+    if ( tkzs_.defaultDir() == OD::InlineSlice )
 	editnormal = Coord3( SI().binID2Coord().inlDir(), 0 );
-    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+    else if ( tkzs_.defaultDir() == OD::CrosslineSlice )
 	editnormal = Coord3( SI().binID2Coord().crlDir(), 0 );
 
     const Coord3 nzednor = editnormal.normalize();
@@ -203,18 +201,18 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 
     if ( !equinormal ) return false;
 
-    ConstRefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry( false );
+    ConstRefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry();
     const Pos::IdxPair2Coord& bid2crd = geom3d->binID2Coord();
-    if ( tkzs_.defaultDir() != TrcKeyZSampling::Z )
+    if ( tkzs_.defaultDir() != OD::ZSlice )
     {
 	BinID extrbid1, extrbid2;
-	if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+	if ( tkzs_.defaultDir() == OD::InlineSlice )
 	{
 	    extrbid1.inl() = extrbid2.inl() = tkzs_.hsamp_.inlRange().start;
 	    extrbid1.crl() = tkzs_.hsamp_.crlRange().start;
 	    extrbid2.crl() = tkzs_.hsamp_.crlRange().stop;
 	}
-	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+	else if ( tkzs_.defaultDir() == OD::CrosslineSlice )
 	{
 	    extrbid1.inl() = tkzs_.hsamp_.inlRange().start;
 	    extrbid2.inl() = tkzs_.hsamp_.inlRange().stop;
@@ -232,16 +230,16 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 	    BinID knotbinid = SI().transform( pos.getXY() );
 
 	    if ( pointOnEdge2D(pos.getXY(),extrcoord1,extrcoord2,.5)
-		 || (tkzs_.defaultDir()==TrcKeyZSampling::Inl
+		 || (tkzs_.defaultDir()==OD::InlineSlice
 		     && knotbinid.inl()==extrbid1.inl())
-		 || (tkzs_.defaultDir()==TrcKeyZSampling::Crl
+		 || (tkzs_.defaultDir()==OD::CrosslineSlice
 		     && knotbinid.crl()==extrbid1.crl()) )
 	    {
 		const Coord bidf = bid2crd.transformBackNoSnap( pos.getXY() );
 		const double z = zat ? zat->transform(pos) : pos.z_;
-		if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+		if ( tkzs_.defaultDir() == OD::InlineSlice )
 		    stickauxdata.poly_ += FlatView::Point( bidf.y_, z );
-		else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+		else if ( tkzs_.defaultDir() == OD::CrosslineSlice )
 		    stickauxdata.poly_ += FlatView::Point( bidf.x_, z );
 	    }
 	}
@@ -278,8 +276,7 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
     {
 	const Coord3 pos = fss.getKnot( rc );
 	bid = SI().transform( pos.getXY() );
-	const TrcKey trckey = Survey::GM().traceKey(
-		Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+	const TrcKey trckey( bid );
 	TrcKeyPath knots;
 	rlgeom->getNodePositions( knots );
 	Coord3 editnormal( Geometry::RandomLine::getNormal(knots,trckey), 0 );
@@ -335,11 +332,10 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 	{
 	    pts.erase();
 
-	    Coord3 p0( Survey::GM().toCoord((*path_)[bendpts_[idx-1]]),zstart );
-	    Coord3 p1( Survey::GM().toCoord((*path_)[bendpts_[idx-1]]),zstop );
-	    Coord3 p2( Survey::GM().toCoord((*path_)[bendpts_[idx]]), zstart );
-	    Coord3 p3( Survey::GM().toCoord((*path_)[bendpts_[idx]]), zstop );
-
+	    Coord3 p0( path_->get(bendpts_[idx-1]).getCoord(), zstart );
+	    Coord3 p1( path_->get(bendpts_[idx-1]).getCoord(), zstop );
+	    Coord3 p2( path_->get(bendpts_[idx]).getCoord(), zstart );
+	    Coord3 p3( path_->get(bendpts_[idx]).getCoord(), zstop );
 	    pts += p0; pts += p1; pts += p2; pts += p3;
 
 	    if ( paintPlaneIntxn(f3d,f3dmaker,intxn,pts) )
@@ -351,7 +347,7 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
     else
     {
 	TypeSet<Coord3> pts;
-	if ( tkzs_.defaultDir() == TrcKeyZSampling::Z )
+	if ( tkzs_.defaultDir() == OD::ZSlice )
 	{
 	    BinID lt( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.start_.crl() );
 	    BinID lb(tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.stop_.crl() );
@@ -468,8 +464,7 @@ FlatView::Point Fault3DPainter::getFVAuxPoint( const Coord3& pos ) const
     ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
     if ( path_ )
     {
-	const TrcKey trckey = Survey::GM().traceKey(
-		Survey::GM().default3DSurvID(),posbid.inl(),posbid.crl() );
+	const TrcKey trckey( posbid );
 	const int trcidx = path_->indexOf( trckey );
 	if ( trcidx == -1 )
 	    return FlatView::Point::udf();
@@ -672,13 +667,13 @@ Coord Fault3DPainter::getNormalInRandLine( int idx ) const
     if ( idx < 0 || path_->size() == 0 )
 	return Coord(mUdf(float), mUdf(float));
 
-    const Coord pivotcrd = Survey::GM().toCoord( (*path_)[idx] );
+    const Coord pivotcrd = path_->get(idx).getCoord();
     Coord nextcrd;
 
     if ( idx+1 < path_->size() )
-	nextcrd = Survey::GM().toCoord( (*path_)[idx+1] );
+	nextcrd = path_->get(idx+1).getCoord();
     else if ( idx-1 > 0 )
-	nextcrd = Survey::GM().toCoord( (*path_)[idx-1] );
+	nextcrd = path_->get(idx-1).getCoord();
 
     Coord direction = nextcrd - pivotcrd;
     return Coord( -direction.y_, direction.x_ );

@@ -295,7 +295,7 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<ZType>& zrg,bool zistime,
     if ( !snapzrgtosurvey_ )
 	return;
 
-    const StepInterval<ZType> survrg = SI().zRange(false);
+    const StepInterval<ZType> survrg = SI().zRange();
     if ( SI().zIsTime() && !zistime )
     {
 	if ( d2t.isEmpty() )
@@ -307,8 +307,8 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<ZType>& zrg,bool zistime,
     }
     else
     {
-	SI().snapZ( zrg.start, 1 );
-	SI().snapZ( zrg.stop, -1 );
+	SI().snapZ( zrg.start, OD::SnapUpward );
+	SI().snapZ( zrg.stop, OD::SnapDownward );
     }
 }
 
@@ -1051,7 +1051,7 @@ int Well::SimpleTrackSampler::nextStep()
 	    pos.z_ = zval;
 	    bid = SI().transform( pos.getXY() );
 	}
-	if ( ( isinsidesurvey_ && !SI().includes( bid, zval, false ) )
+	if ( ( isinsidesurvey_ && !SI().includes( bid, zval ) )
 		|| !SI().isReasonable( bid ))
 	    { nrdone_++; return Executor::MoreToDo(); }
 

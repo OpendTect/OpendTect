@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "arrayndimpl.h"
 #include "odmemory.h"
+#include "zdomain.h"
 
 
 namespace Seis
@@ -142,9 +143,9 @@ void Seis::Blocks::StepFinder::finish( uiRetVal& uirv )
     }
 
     if ( inlstate > 0 )
-	wrr_.hgeom_.sampling().hsamp_.step_.inl() = inlstep;
+	wrr_.hgeom_.inlRange().step = inlstep;
     if ( crlstate > 0 )
-	wrr_.hgeom_.sampling().hsamp_.step_.crl() = crlstep;
+	wrr_.hgeom_.crlRange().step = crlstep;
 
     for ( int idx=0; idx<tbuf_.size(); idx++ )
     {
@@ -170,8 +171,8 @@ Seis::Blocks::Writer::Writer( const HGeom* geom )
     if ( geom )
 	hgeom_ = *geom;
     else
-	hgeom_ = static_cast<const HGeom&>( HGeom::default3D() );
-    zgeom_ = hgeom_.sampling().zsamp_;
+	hgeom_ = Survey::Geometry::get3D();
+    zgeom_ = hgeom_.zRange();
 }
 
 
@@ -245,7 +246,7 @@ void Seis::Blocks::Writer::setCubeName( const char* nm )
 
 void Seis::Blocks::Writer::setZDomain( const ZDomain::Def& def )
 {
-    hgeom_.setZDomain( def );
+    zdomain_ = def;
 }
 
 
@@ -615,8 +616,8 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
     gensectioniop_.set( sKey::InlRange(), finalinlrg_ );
     gensectioniop_.set( sKey::CrlRange(), finalcrlrg_ );
     gensectioniop_.set( sKey::ZRange(), zgeom_ );
-    hgeom_.zDomain().set( gensectioniop_ );
-    if ( hgeom_.zDomain().isDepth() && SI().zInFeet() )
+    zdomain_.set( gensectioniop_ );
+    if ( zdomain_.isDepth() && SI().zInFeet() )
 	gensectioniop_.setYN( sKeyDepthInFeet(), true );
 
     FileMultiString fms;
@@ -673,8 +674,8 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
 
 
 #define mGetNrInlCrlAndRg() \
-    const int stepinl = hgeom_.sampling().hsamp_.step_.inl(); \
-    const int stepcrl = hgeom_.sampling().hsamp_.step_.crl(); \
+    const int stepinl = hgeom_.inlRange().step; \
+    const int stepcrl = hgeom_.crlRange().step; \
     const StepInterval<int> inlrg( finalinlrg_.start, finalinlrg_.stop, \
 				   stepinl ); \
     const StepInterval<int> crlrg( finalcrlrg_.start, finalcrlrg_.stop, \
@@ -868,7 +869,7 @@ void Seis::Blocks::Writer::scanPositions(
 						 globidx.inl(), iinl );
 		const int crl = Block::crl4Idxs( hgeom_, dims_.crl(),
 						 globidx.crl(), icrl );
-		const Coord coord = hgeom_.toCoord( inl, crl );
+		const Coord coord = hgeom_.transform( BinID(inl,crl) );
 		if ( first )
 		{
 		    finalinlrg_.start = finalinlrg_.stop = inl;

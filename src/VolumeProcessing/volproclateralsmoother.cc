@@ -399,7 +399,7 @@ ReportingTask* LateralSmoother::createTask()
     if ( inphs.step_ != ouths.step_ ||
 	 !mIsEqual(input->sampling().zsamp_.step,
 		   output->sampling().zsamp_.step,
-		   1e-3*SI().zRange(true).step) )
+		   1e-3*SI().zStep()) )
     {
 	return 0;
     }

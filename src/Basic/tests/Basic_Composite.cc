@@ -7,6 +7,9 @@
 
 
 #include "testprog.h"
+#include "file.h"
+#include "surveydisklocation.h"
+
 #undef mInitTestProg
 #define mInitTestProg()
 
@@ -60,8 +63,8 @@
 #include "threadwork.cc"
 
 #undef mTestMainFnName
-#define mTestMainFnName test_main_trckeyzsampling
-#include "trckeyzsampling.cc"
+#define mTestMainFnName test_main_cubesampling
+#include "cubesampling.cc"
 
 #undef mTestMainFnName
 #define mTestMainFnName test_main_uistring
@@ -71,9 +74,29 @@
 #define mTestMainFnName test_main_various_basic
 #include "various_basic.cc"
 
+static void initSI()
+{
+    BufferString survnm = "F3_Demo_Test";
+    SurveyDiskLocation survloc( survnm );
+    if ( !File::isDirectory(survloc.fullPath()) )
+    {
+	BufferString lastsurvfnm = GetLastSurveyFileName();
+	od_istream strm( lastsurvfnm );
+	if ( strm.isOK() )
+	{
+	    strm.getLine( survnm );
+	    if ( !survnm.isEmpty() )
+	        survloc = SurveyDiskLocation( survnm );
+	}
+    }
+    SurveyInfo::setSurveyLocation( survloc, false );
+}
+
+
 int testMain( int argc, char** argv )
 {
     mInitCompositeTestProg( Basic );
+    initSI();
 
     mRunSubTest( commandlineparser );
     mRunSubTest( datapack );
@@ -86,7 +109,7 @@ int testMain( int argc, char** argv )
     mRunSubTest( survgeom );
     mRunSubTest( threads );
     mRunSubTest( threadwork );
-    mRunSubTest( trckeyzsampling );
+    mRunSubTest( cubesampling );
     mRunSubTest( uistring );
     mRunSubTest( various_basic );
 

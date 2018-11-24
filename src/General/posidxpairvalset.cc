@@ -14,6 +14,7 @@
 #include "statrand.h"
 #include "survgeom.h"
 #include "threadlock.h"
+#include "trckey.h"
 #include "od_iostream.h"
 
 static const float cMaxDistFromGeom = 1000.f;
@@ -90,7 +91,7 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 	return false;
 
     BufferString line; char valbuf[1024];
-    const Survey::Geometry* survgeom = Survey::GM().getGeometry( gid );
+    const auto& survgeom = Survey::Geometry::get( gid );
     int coordindic = -1;
 
     while ( strm.getLine( line ) )
@@ -116,10 +117,7 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 
 	if ( coordindic < 0 )
 	{
-	    float dist = mUdf(float);
-	    if ( survgeom )
-		(void)survgeom->nearestTrace( coord, &dist );
-
+	    auto dist = survgeom.distanceTo( coord );
 	    const char* firstval = nextword;
 	    int nrvalsfound = 0;
 	    while ( true )
@@ -135,11 +133,11 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 
 	TrcKey tk;
 	if ( coordindic == 1 )
-	    tk = survgeom->nearestTrace( coord );
+	    survgeom.getNearestTracePosition( coord, tk );
 	else
 	{
-	    tk.setLineNr( (Pos::LineID)(coord.x_ + 0.5) );
-	    tk.setTrcNr( (Pos::TraceID)(coord.y_ + 0.5) );
+	    tk.setLineNr( (int)(coord.x_ + 0.5) );
+	    tk.setTrcNr( (int)(coord.y_ + 0.5) );
 	}
 
 	float* vals = getVals( add(tk.binID()) );

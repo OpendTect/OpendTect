@@ -7,35 +7,67 @@
 
 #include "trckeyzsampling.h"
 
+#include "cubesampling.h"
+#include "cubesubsel.h"
+#include "linesubsel.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "separstr.h"
 #include "survinfo.h"
-#include "survgeom.h"
+#include "survgeom2d.h"
+#include "survgeom3d.h"
 #include "uistrings.h"
 
 #include <math.h>
 
-mDefineEnumUtils(TrcKeyZSampling,Dir,"Dir") {
-    "Inline",
-    "CrossLine",
-    "ZSlice",
-    0
-};
 
-template<>
-void EnumDefImpl<TrcKeyZSampling::Dir>::init()
+TrcKeySampling::TrcKeySampling( OD::SurvLimitType slt )
 {
-    uistrings_ += uiStrings::sInline();
-    uistrings_ += uiStrings::sCrossline();
-    uistrings_ += uiStrings::sZSlice();
+    init( true, slt );
 }
 
 
-TrcKeySampling::TrcKeySampling()
-    : survid_( TrcKey::cUndefSurvID() )
+TrcKeySampling::TrcKeySampling( Pos::GeomID gid )
 {
-    init( true );
+    setTo( gid );
+}
+
+
+TrcKeySampling::TrcKeySampling( const HorSubSel& hss )
+    : geomsystem_( hss.is2D() ? OD::LineBasedGeom : OD::VolBasedGeom )
+{
+    if ( hss.is2D() )
+    {
+	const auto* lhss = hss.asLineHorSubSel();
+	const auto trcrg = lhss->trcNrRange();
+	const auto igeomid = lhss->geomID().getI();
+	start_ = BinID( igeomid, trcrg.start );
+	stop_ = BinID( igeomid, trcrg.stop );
+	step_ = BinID( 1, trcrg.step );
+    }
+    else
+    {
+	const auto* chss = hss.asCubeHorSubSel();
+	const auto inlrg = chss->inlRange();
+	const auto crlrg = chss->crlRange();
+	start_ = BinID( inlrg.start, crlrg.start );
+	stop_ = BinID( inlrg.stop, crlrg.stop );
+	step_ = BinID( inlrg.step, crlrg.step );
+    }
+}
+
+
+TrcKeySampling::TrcKeySampling( const HorSampling& hs )
+{
+    start_ = hs.start_;
+    stop_ = hs.stop_;
+    step_ = hs.step_;
+}
+
+
+TrcKeySampling::TrcKeySampling( const Survey::Geometry& geom )
+{
+    setTo( geom );
 }
 
 
@@ -45,93 +77,127 @@ TrcKeySampling::TrcKeySampling( const TrcKeySampling& tks )
 }
 
 
-TrcKeySampling::TrcKeySampling( Pos::GeomID gid )
-    : survid_( TrcKey::cUndefSurvID() )
+TrcKeySampling::TrcKeySampling( const TrcKeyZSampling& tkzs )
 {
-    init( gid );
+    *this = tkzs.hsamp_;
 }
 
 
 TrcKeySampling::TrcKeySampling( const TrcKey& tk )
 {
-    init( true );
-    survid_ = tk.survID();
+    init( false );
+    geomsystem_ = tk.geomSystem();
     start_.lineNr() = stop_.lineNr() = tk.lineNr();
     start_.trcNr() = stop_.trcNr() = tk.trcNr();
 }
 
 
-TrcKeySampling::TrcKeySampling( bool settosi )
-    : survid_( TrcKey::cUndefSurvID() )
+TrcKeySampling::TrcKeySampling( bool inittosi, OD::SurvLimitType slt )
 {
-    init( settosi );
+    init( inittosi, slt );
 }
 
 
-Pos::GeomID TrcKeySampling::getGeomID() const
-{ return is2D() ? start_.lineNr() : survid_; }
-
-bool TrcKeySampling::init( Pos::GeomID gid )
+void TrcKeySampling::setTo( GeomID gid )
 {
-    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry( gid );
-    if ( !geom )
-	return false;
-
-    survid_ = geom->getSurvID();
-    (*this) = geom->sampling().hsamp_;
-
-    return true;
+    setTo( Survey::Geometry::get(gid) );
 }
 
 
-void TrcKeySampling::init( bool tosi )
+void TrcKeySampling::setTo( const Survey::Geometry& geom )
 {
-    if ( tosi )
+    setGeomID( geom.geomID() );
+
+    start_.trcNr() = geom.trcNrRange().start;
+    stop_.trcNr() = geom.trcNrRange().stop;
+    step_.trcNr() = geom.trcNrRange().step;
+    if ( geom.is3D() )
     {
-	init( Survey::GM().default3DSurvID() );
+	const auto& g3d = *geom.as3D();
+	start_.inl() = g3d.inlRange().start;
+	stop_.inl() = g3d.inlRange().stop;
+	step_.inl() = g3d.inlRange().step;
     }
+}
+
+
+TrcKeySampling& TrcKeySampling::set( const Interval<int>& inlrg,
+				      const Interval<int>& crlrg )
+{
+    setInlRange( inlrg );
+    setCrlRange( crlrg );
+    return *this;
+}
+
+
+void TrcKeySampling::init( bool initsi, OD::SurvLimitType slt )
+{
+    if ( initsi )
+	SI().getSampling( *this, slt );
     else
     {
-	survid_ = TrcKey::cUndefSurvID();
-	start_.lineNr() = start_.trcNr() = stop_.lineNr() =
-		stop_.trcNr() = mUdf(int);
+	geomsystem_ = OD::VolBasedGeom;
+	start_.lineNr() = stop_.lineNr() = mUdf( linenr_type );
+	start_.trcNr() = stop_.trcNr() = mUdf( tracenr_type );
 	step_.lineNr() = step_.trcNr() = 1;
     }
 }
 
 
-BinID TrcKeySampling::atIndex(  od_int64 globalidx ) const
+Pos::GeomID TrcKeySampling::getGeomID() const
+{
+    return is2D() ? GeomID(start_.lineNr()) : GeomID::get3D();
+}
+
+
+void TrcKeySampling::setGeomID( GeomID gid )
+{
+    geomsystem_ = geomSystemOf( gid );
+    if ( is2D() )
+    {
+	start_.lineNr() = stop_.lineNr() = gid.lineNr();
+	step_.lineNr() = 1;
+    }
+}
+
+
+BinID TrcKeySampling::atIndex( od_int64 globalidx ) const
 {
     const int nrtrcs = nrTrcs();
     if ( !nrtrcs )
 	return BinID::udf();
 
-    const int lineidx = (int)(globalidx/nrtrcs);
-    const int trcidx = (int)(globalidx%nrtrcs);
+    const int lineidx = (int)(globalidx / nrtrcs);
+    const int trcidx = (int)(globalidx % nrtrcs);
     return atIndex( lineidx, trcidx );
 }
 
 
-TrcKey TrcKeySampling::toTrcKey( const Coord& pos, float* distance ) const
+TrcKey TrcKeySampling::toTrcKey( const Coord& pos, dist_type* distance ) const
 {
-    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry( getGeomID());
-    return geom ? geom->nearestTrace( pos, distance ) : TrcKey::udf();
+    const auto& geom = Survey::Geometry::get( getGeomID() );
+    if ( geom.is2D() )
+	return TrcKey( geom.geomID(),
+		       geom.as2D()->nearestTracePosition( pos, distance ) );
+    return TrcKey( geom.as3D()->nearestTracePosition( pos, distance ) );
 }
 
 
 Coord TrcKeySampling::toCoord( const BinID& bid ) const
 {
-    ConstRefMan<Survey::Geometry> geom =
-	Survey::GM().getGeometry( TrcKey::geomID(survid_,bid) );
-
-    return geom ? geom->toCoord( bid ) : Coord::udf();
+    const auto& geom = Survey::Geometry::get( getGeomID() );
+    if ( geom.is2D() )
+	return geom.as2D()->getCoord( bid.crl() );
+    else
+	return geom.as3D()->getCoord( bid );
 }
 
 
 TrcKey TrcKeySampling::center() const
 {
-    const BinID bid( inlRange().snappedCenter(), crlRange().snappedCenter() );
-    return TrcKey( survid_, bid );
+    const auto trcnr = trcRange().snappedCenter();
+    return is2D() ? TrcKey( getGeomID(), trcnr )
+		  : TrcKey( BinID(inlRange().snappedCenter(),trcnr) );
 }
 
 
@@ -140,16 +206,7 @@ void TrcKeySampling::set2DDef()
     start_.lineNr() = start_.trcNr() = 0;
     stop_.lineNr() = stop_.trcNr() = mUdf(int);
     step_.lineNr() = step_.trcNr() = 1;
-    survid_ = Survey::GM().get2DSurvID();
-}
-
-
-TrcKeySampling& TrcKeySampling::set( const Interval<int>& inlrg,
-			       const Interval<int>& crlrg )
-{
-    setInlRange( inlrg );
-    setCrlRange( crlrg );
-    return *this;
+    geomsystem_ = OD::LineBasedGeom;
 }
 
 
@@ -172,32 +229,37 @@ void TrcKeySampling::setTrcRange( const Interval<int>& crlrg )
 
 
 StepInterval<int> TrcKeySampling::lineRange() const
-{ return StepInterval<int>( start_.lineNr(), stop_.lineNr(), step_.lineNr() ); }
+{
+    return StepInterval<int>( start_.lineNr(), stop_.lineNr(), step_.lineNr() );
+}
 
 
 StepInterval<int> TrcKeySampling::trcRange() const
-{ return StepInterval<int>( start_.trcNr(), stop_.trcNr(), step_.trcNr() ); }
-
-
-float TrcKeySampling::lineDistance() const
 {
+    return StepInterval<int>( start_.trcNr(), stop_.trcNr(), step_.trcNr() );
+}
+
+
+TrcKeySampling::dist_type TrcKeySampling::lineDistance() const
+{
+    if ( !is3D() )
+	{ pErrMsg("TrcKeySampling !3D, no line dist"); return (dist_type)1; }
+
     BinID bid( start_ );
     Coord startpos( toCoord( bid ) );
     bid.inl() += step_.inl();
     Coord stoppos( toCoord( bid ) );
-
-    return stoppos.distTo<float>(startpos);
+    return stoppos.distTo<dist_type>(startpos);
 }
 
 
-float TrcKeySampling::trcDistance() const
+TrcKeySampling::dist_type TrcKeySampling::trcDistance() const
 {
     BinID bid( start_ );
     Coord startpos( toCoord( bid ) );
     bid.crl() += step_.crl();
     Coord stoppos( toCoord( bid ) );
-
-    return stoppos.distTo<float>(startpos);
+    return stoppos.distTo<dist_type>(startpos);
 }
 
 
@@ -216,17 +278,11 @@ bool TrcKeySampling::includes( const TrcKeySampling& tks,
 }
 
 
-void TrcKeySampling::includeLine( Pos::LineID lid )
+void TrcKeySampling::includeLine( linenr_type lid )
 {
-    /*
-#ifdef __debug__
-    if ( mIsUdf(survid_) )
-	pErrMsg("survid_ is not set");
-#endif
-    */
     if ( mIsUdf(start_.lineNr()) || mIsUdf(stop_.lineNr()) || nrLines()<1 )
 	start_.lineNr() = stop_.lineNr() = lid;
-    else
+    else if ( is3D() )
     {
 	start_.lineNr() = mMIN( start_.lineNr(), lid );
 	stop_.lineNr() = mMAX( stop_.lineNr(), lid );
@@ -234,15 +290,8 @@ void TrcKeySampling::includeLine( Pos::LineID lid )
 }
 
 
-void TrcKeySampling::includeTrc( Pos::TraceID trcid )
+void TrcKeySampling::includeTrc( tracenr_type trcid )
 {
-    /*
-#ifdef __debug__
-    if ( mIsUdf(survid_) )
-	pErrMsg("survid_ is not set");
-#endif
-    */
-
     if ( mIsUdf(start_.trcNr()) || mIsUdf(stop_.trcNr()) || nrTrcs()<1 )
 	start_.trcNr() = stop_.trcNr() = trcid;
     else
@@ -257,14 +306,14 @@ void TrcKeySampling::include( const TrcKeySampling& tks, bool ignoresteps )
 {
     if ( ignoresteps )
     {
-	include( TrcKey( tks.survid_, tks.start_) );
-	include( TrcKey( tks.survid_, tks.stop_ ) );
+	include( TrcKey( tks.geomSystem(), tks.start_) );
+	include( TrcKey( tks.geomSystem(), tks.stop_ ) );
 	return;
     }
 
     TrcKeySampling temp( *this );
-    temp.include( TrcKey( tks.survid_, tks.start_) );
-    temp.include( TrcKey( tks.survid_, tks.stop_ ) );
+    temp.include( TrcKey( tks.geomSystem(), tks.start_) );
+    temp.include( TrcKey( tks.geomSystem(), tks.stop_ ) );
 
 #define mHandleIC( ic ) \
     const int newstart_##ic = temp.start_.ic(); \
@@ -329,55 +378,55 @@ bool TrcKeySampling::isDefined() const
 }
 
 
-TrcKeySampling& TrcKeySampling::operator=(const TrcKeySampling& hrg)
+TrcKeySampling& TrcKeySampling::operator=( const TrcKeySampling& hrg )
 {
-    survid_ = hrg.survid_;
+    geomsystem_ = hrg.geomsystem_;
     start_ = hrg.start_;
     stop_ = hrg.stop_;
     step_ = hrg.step_;
-
     return *this;
 }
 
 
-bool TrcKeySampling::operator==( const TrcKeySampling& tks ) const
+bool TrcKeySampling::operator==( const TrcKeySampling& oth ) const
 {
-    return tks.start_==start_ && tks.stop_==stop_ &&
-	   tks.step_==step_ && tks.survid_==survid_;
+    return geomsystem_ == oth.geomsystem_
+	&& oth.start_==start_ && oth.stop_==stop_ && oth.step_==step_;
 }
 
 
-bool TrcKeySampling::operator!=( const TrcKeySampling& tks ) const
-{ return !(*this==tks); }
+bool TrcKeySampling::operator!=( const TrcKeySampling& oth ) const
+{ return !(*this==oth); }
 
 
 od_int64 TrcKeySampling::totalNr() const
-{ return ((od_int64) nrLines()) * nrTrcs(); }
+{
+    return ((od_int64)nrLines()) * nrTrcs();
+}
 
 
 bool TrcKeySampling::isEmpty() const
-{ return nrLines() < 1 || nrTrcs() < 1; }
-
-
-void TrcKeySampling::limitTo( const TrcKeySampling& tks, bool ignoresteps )
 {
-    if ( !overlaps(tks,true) )
-    {
-	init( false );
-	return;
-    }
+    return nrLines() < 1 || nrTrcs() < 1;
+}
+
+
+void TrcKeySampling::limitTo( const TrcKeySampling& oth, bool ignoresteps )
+{
+    if ( !overlaps(oth,true) )
+	{ init( false ); return; }
 
     StepInterval<int> inlrg( lineRange() );
     StepInterval<int> crlrg( trcRange() );
     if ( ignoresteps )
     {
-	((SampleGate&)inlrg).limitTo( tks.lineRange() );
-	((SampleGate&)crlrg).limitTo( tks.trcRange() );
+	((SampleGate&)inlrg).limitTo( oth.lineRange() );
+	((SampleGate&)crlrg).limitTo( oth.trcRange() );
     }
     else
     {
-	inlrg.limitTo( tks.lineRange() );
-	crlrg.limitTo( tks.trcRange() );
+	inlrg.limitTo( oth.lineRange() );
+	crlrg.limitTo( oth.trcRange() );
     }
 
     setLineRange( inlrg );
@@ -390,15 +439,15 @@ void TrcKeySampling::limitTo( const TrcKeySampling& tks, bool ignoresteps )
 
 void TrcKeySampling::limitToWithUdf( const TrcKeySampling& h )
 {
-    TrcKeySampling tks( h ); tks.normalise();
+    TrcKeySampling oth( h ); oth.normalise();
     normalise();
 
-    mAdjustIf(start_.lineNr(),<,tks.start_.lineNr());
-    mAdjustIf(start_.trcNr(),<,tks.start_.trcNr());
-    mAdjustIf(stop_.lineNr(),>,tks.stop_.lineNr());
-    mAdjustIf(stop_.trcNr(),>,tks.stop_.trcNr());
-    mAdjustIf(step_.lineNr(),<,tks.step_.lineNr());
-    mAdjustIf(step_.trcNr(),<,tks.step_.trcNr());
+    mAdjustIf(start_.lineNr(),<,oth.start_.lineNr());
+    mAdjustIf(start_.trcNr(),<,oth.start_.trcNr());
+    mAdjustIf(stop_.lineNr(),>,oth.stop_.lineNr());
+    mAdjustIf(stop_.trcNr(),>,oth.stop_.trcNr());
+    mAdjustIf(step_.lineNr(),<,oth.step_.lineNr());
+    mAdjustIf(step_.trcNr(),<,oth.step_.trcNr());
 }
 
 
@@ -443,7 +492,7 @@ void TrcKeySampling::growTo( const TrcKeySampling& outertks )
 
 void TrcKeySampling::expand( int nrlines, int nrtrcs )
 {
-    if ( !mIsUdf(nrlines) && !is2D() )
+    if ( !mIsUdf(nrlines) && is3D() )
     {
 	start_.lineNr() -= nrlines*step_.lineNr();
 	stop_.lineNr() += nrlines*step_.lineNr();
@@ -496,16 +545,16 @@ bool TrcKeySampling::usePar( const IOPar& pars )
 	pars.get( sKey::StepCrl(), step_.trcNr() );
     }
 
-    if ( !pars.get( sKey::SurveyID(), survid_ ) )
-    {
-	survid_ = Survey::GM().default3DSurvID();
-    }
+    int survid = (int)geomsystem_;
+    if ( pars.get(sKey::SurveyID(),survid) && survid > -3 && survid < 1 )
+	geomsystem_ = (GeomSystem)survid;
 
     if ( inlok && crlok )
 	return true;
 
     PtrMan<IOPar> subpars = pars.subselect( IOPar::compKey(sKey::Line(),0) );
-    if ( !subpars ) return false;
+    if ( !subpars )
+	return false;
 
     bool trcrgok = getRange( *subpars, sKey::TrcRange(),
 			     start_.trcNr(), stop_.trcNr(), step_.trcNr() );
@@ -518,11 +567,11 @@ bool TrcKeySampling::usePar( const IOPar& pars )
 
     if ( trcrgok )
     {
-	Pos::GeomID geomid;
+	GeomID geomid;
 	subpars->get( sKey::GeomID(), geomid );
-	start_.lineNr() = stop_.lineNr() = geomid;
+	start_.lineNr() = stop_.lineNr() = geomid.lineNr();
 	step_.lineNr() = 1;
-	survid_ = Survey::GM().get2DSurvID();
+	geomsystem_ = OD::LineBasedGeom;
     }
 
     return trcrgok;
@@ -538,7 +587,7 @@ void TrcKeySampling::fillPar( IOPar& pars ) const
 	tmppar.set( sKey::FirstTrc(), start_.trcNr() );
 	tmppar.set( sKey::LastTrc() , stop_.trcNr() );
 	tmppar.set( sKey::StepCrl(), step_.trcNr() );
-	tmppar.set( sKey::SurveyID(), survid_ );
+	tmppar.set( sKey::SurveyID(), (int)geomsystem_ );
 	pars.mergeComp( tmppar, IOPar::compKey( sKey::Line(), 0 ) );
     }
     else
@@ -549,7 +598,7 @@ void TrcKeySampling::fillPar( IOPar& pars ) const
 	pars.set( sKey::LastCrl(), stop_.trcNr() );
 	pars.set( sKey::StepInl(), step_.lineNr() );
 	pars.set( sKey::StepCrl(), step_.trcNr() );
-	pars.set( sKey::SurveyID(), survid_ );
+	pars.set( sKey::SurveyID(), (int)geomsystem_ );
     }
 }
 
@@ -562,6 +611,7 @@ void TrcKeySampling::removeInfo( IOPar& par )
     par.removeWithKey( sKey::LastCrl() );
     par.removeWithKey( sKey::StepInl() );
     par.removeWithKey( sKey::StepCrl() );
+    par.removeWithKey( sKey::SurveyID() );
 }
 
 
@@ -625,7 +675,7 @@ static bool intersect(	int start_1, int stop_1, int step_1,
 
 #define Eps 2e-5
 
-inline bool IsZero( float f, float eps=Eps )
+inline static bool IsZero( float f, float eps=Eps )
 {
     return f > -eps && f < eps;
 }
@@ -740,7 +790,7 @@ BinID TrcKeySampling::getNearest( const BinID& bid ) const
 
     BinID ret( 0, 0 );
 
-    if ( !TrcKey::is2D( survid_ ) )
+    if ( is3D() )
     {
 	if ( step_.first )
 	    getNearestIdx( relbid.first, step_.first );
@@ -769,17 +819,20 @@ BinID TrcKeySampling::getNearest( const BinID& bid ) const
 
 TrcKey TrcKeySampling::getNearest( const TrcKey& trckey ) const
 {
-    if ( trckey.survID()!=survid_ )
+    if ( trckey.isUdf() )
 	return TrcKey::udf();
 
-    return TrcKey( survid_, getNearest(trckey.position()) );
+    if ( trckey.geomSystem() == geomsystem_ )
+	return TrcKey( geomsystem_, getNearest(trckey.position()) );
+
+    return getNearest( trckey.getFor(getGeomID()) );
 }
 
 
 void TrcKeySampling::snapToSurvey()
 {
-    SI().snap( start_, BinID(-1,-1) );
-    SI().snap( stop_, BinID(1,1) );
+    SI().snap( start_, OD::SnapDownward );
+    SI().snap( stop_, OD::SnapUpward );
 }
 
 
@@ -801,7 +854,7 @@ void TrcKeySampling::getRandomSet( int nr, TypeSet<TrcKey>& res ) const
     {
 	const BinID bid( lineRange().start + std::rand() % nrLines(),
 			 trcRange().start + std::rand() % nrTrcs() );
-	const TrcKey trckey( survid_, bid );
+	const TrcKey trckey( geomsystem_, bid );
 	if ( includes(trckey) && res.addIfNew(trckey) )
 	    nr--;
     }
@@ -810,12 +863,10 @@ void TrcKeySampling::getRandomSet( int nr, TypeSet<TrcKey>& res ) const
 
 BinID TrcKeySampling::atIndex( int i0, int i1 ) const
 {
-    const Pos::TraceID trcnr = start_.trcNr() + i1*step_.trcNr();
-    const Pos::LineID linenr = TrcKey::is2D(survid_)
-	? start_.lineNr()
-	: start_.lineNr() + i0*step_.lineNr();
-
-
+    const tracenr_type trcnr = start_.trcNr() + i1 * step_.trcNr();
+    linenr_type linenr = start_.lineNr();
+    if ( is3D() )
+	linenr += i0 * step_.lineNr();
     return BinID(linenr,trcnr);
 }
 
@@ -826,7 +877,7 @@ TrcKey TrcKeySampling::trcKeyAt( int i0, int i1 ) const
     if ( res.isUdf() )
 	return TrcKey::udf();
 
-    return TrcKey( survid_, res );
+    return TrcKey( geomsystem_, res );
 }
 
 
@@ -836,7 +887,7 @@ TrcKey TrcKeySampling::trcKeyAt( od_int64 globalidx ) const
     if ( res.isUdf() )
 	return TrcKey::udf();
 
-    return TrcKey( survid_, res );
+    return TrcKey( geomsystem_, res );
 }
 
 
@@ -860,7 +911,7 @@ void TrcKeySampling::neighbors( const TrcKey& tk, TypeSet<TrcKey>& nbs ) const
 {
     TypeSet<od_int64> idxs; neighbors( globalIdx(tk), idxs );
     for ( int idx=0; idx<idxs.size(); idx++ )
-	nbs += atIndex( idxs[idx] );
+	nbs += TrcKey( atIndex(idxs[idx]) );
 }
 
 
@@ -894,22 +945,22 @@ bool TrcKeySampling::toNext( BinID& bid ) const
 
 void TrcKeySampling::include( const TrcKey& trckey )
 {
-    if ( mIsUdf(survid_) ) survid_ = trckey.survID();
-#ifdef __debug__
-    else if ( survid_!=trckey.survID() )
-	pErrMsg("SurvID should be the same");
-#endif
+    if ( trckey.isUdf() )
+	return;
+    if ( trckey.geomSystem() != geomsystem_ )
+	include( trckey.getFor(getGeomID()) );
+
     includeLine( trckey.lineNr() );
     includeTrc( trckey.trcNr() );
 }
 
 
-od_int64 TrcKeySampling::globalIdx( const TrcKey& trk ) const
+od_int64 TrcKeySampling::globalIdx( const TrcKey& tk ) const
 {
-    if ( trk.survID()!=survid_ )
-	return -1;
+    if ( tk.geomSystem() != geomsystem_ )
+	return globalIdx( tk.getFor(getGeomID()) );
 
-    return globalIdx( trk.position() );
+    return globalIdx( tk.position() );
 }
 
 
@@ -919,7 +970,7 @@ od_int64 TrcKeySampling::globalIdx( const BinID& bid ) const
 }
 
 
-bool TrcKeySampling::lineOK( Pos::LineID lid, bool ignoresteps ) const
+bool TrcKeySampling::lineOK( linenr_type lid, bool ignoresteps ) const
 {
     const bool linenrok = lid >= start_.lineNr() && lid <= stop_.lineNr();
     return ignoresteps ? linenrok : linenrok && ( step_.lineNr() ?
@@ -927,7 +978,7 @@ bool TrcKeySampling::lineOK( Pos::LineID lid, bool ignoresteps ) const
 }
 
 
-bool TrcKeySampling::trcOK( Pos::TraceID tid, bool ignoresteps ) const
+bool TrcKeySampling::trcOK( tracenr_type tid, bool ignoresteps ) const
 {
     const bool trcnrok = tid >= start_.trcNr() && tid <= stop_.trcNr();
     return ignoresteps ? trcnrok : trcnrok && ( step_.crl() ?
@@ -937,26 +988,121 @@ bool TrcKeySampling::trcOK( Pos::TraceID tid, bool ignoresteps ) const
 
 bool TrcKeySampling::includes( const TrcKey& tk, bool ignoresteps ) const
 {
-    return survid_==tk.survID() && lineOK(tk.lineNr(),ignoresteps)
-				&& trcOK(tk.trcNr(),ignoresteps);
+    if ( tk.geomSystem() != geomsystem_ )
+	return includes( tk.getFor(getGeomID()) );
+
+    return lineOK(tk.lineNr(),ignoresteps) && trcOK(tk.trcNr(),ignoresteps);
 }
 
 
 // TrcKeyZSampling
-void TrcKeyZSampling::set2DDef()
+
+
+TrcKeyZSampling::TrcKeyZSampling( OD::SurvLimitType slt )
+    : hsamp_(slt)
 {
-    hsamp_.set2DDef();
-    zsamp_ = SI().zRange(false);
+    init( true, slt );
 }
 
 
-void TrcKeyZSampling::init( bool tosi )
+TrcKeyZSampling::TrcKeyZSampling( GeomID gid )
+    : hsamp_(false)
 {
-    hsamp_.init( tosi );
+    setTo( gid );
+}
+
+
+TrcKeyZSampling::TrcKeyZSampling( const CubeSampling& cs )
+    : hsamp_(false)
+{
+    hsamp_ = TrcKeySampling( cs.hsamp_ );
+    zsamp_ = cs.zsamp_;
+}
+
+
+TrcKeyZSampling::TrcKeyZSampling( const CubeSubSel& cs )
+    : hsamp_(false)
+{
+    hsamp_.set( cs.inlRange(), cs.crlRange() );
+    zsamp_ = cs.zRange();
+}
+
+
+TrcKeyZSampling::TrcKeyZSampling( const LineSubSel& lss )
+    : hsamp_(false)
+{
+    hsamp_.setGeomSystem( OD::LineBasedGeom );
+    const auto lnr = lss.geomID().lineNr();
+    hsamp_.set( StepInterval<linenr_type>(lnr,lnr,1), lss.trcNrRange() );
+    zsamp_ = lss.zRange();
+}
+
+
+TrcKeyZSampling::TrcKeyZSampling( const Survey::Geometry& geom )
+    : hsamp_( geom )
+    , zsamp_( geom.zRange() )
+{
+}
+
+
+TrcKeyZSampling::TrcKeyZSampling( const HorSampling& hs )
+    : hsamp_(hs)
+    , zsamp_( SI().zRange() )
+{
+}
+
+
+TrcKeyZSampling::TrcKeyZSampling( const TrcKeySampling& tks )
+    : hsamp_(tks)
+    , zsamp_( SI().zRange() )
+{
+    const auto gid = tks.getGeomID();
+    if ( gid.isValid() && gid.is2D() )
+	zsamp_ = Survey::Geometry::get2D(gid).zRange();
+}
+
+
+TrcKeyZSampling::TrcKeyZSampling( const TrcKeyZSampling& tkzs )
+    : hsamp_(false)
+{
+    *this = tkzs;
+}
+
+
+TrcKeyZSampling::TrcKeyZSampling( bool settoSI, OD::SurvLimitType slt )
+    : hsamp_(false)
+{
+    init( settoSI, slt );
+}
+
+
+void TrcKeyZSampling::init( bool tosi, OD::SurvLimitType slt )
+{
+    hsamp_.init( tosi, slt );
     if ( tosi )
-	zsamp_ = SI().zRange(false);
+	zsamp_ = SI().zRange( slt );
     else
-	{ zsamp_.start = zsamp_.stop = 0; zsamp_.step = 1; }
+	{ zsamp_.start = zsamp_.stop = 0.f; zsamp_.step = 1.f; }
+}
+
+
+void TrcKeyZSampling::setTo( GeomID gid )
+{
+    setTo( Survey::Geometry::get(gid) );
+}
+
+
+void TrcKeyZSampling::setTo( const Survey::Geometry& geom )
+{
+    hsamp_.setTo( geom );
+    zsamp_ = geom.zRange();
+}
+
+
+void TrcKeyZSampling::set2DDef()
+{
+    hsamp_.set2DDef();
+    zsamp_ = SI().zRange();
 }
 
 
@@ -995,23 +1141,23 @@ bool TrcKeyZSampling::isFlat() const
 }
 
 
-TrcKeyZSampling::Dir TrcKeyZSampling::defaultDir() const
+OD::SliceType TrcKeyZSampling::defaultDir() const
 {
     const int nrinl = nrLines();
     const int nrcrl = nrTrcs();
     const int nrz = nrZ();
     if ( nrz < nrinl && nrz < nrcrl )
-	return Z;
+	return OD::ZSlice;
 
-    return nrinl<=nrcrl ? Inl : Crl;
+    return nrinl<=nrcrl ? OD::InlineSlice : OD::CrosslineSlice;
 }
 
 
 void TrcKeyZSampling::getDefaultNormal( Coord3& ret ) const
 {
-    if ( defaultDir() == Inl )
+    if ( defaultDir() == OD::InlineSlice )
 	ret = Coord3( SI().binID2Coord().inlDir(), 0 );
-    else if ( defaultDir() == Crl )
+    else if ( defaultDir() == OD::CrosslineSlice )
 	ret = Coord3( SI().binID2Coord().crlDir(), 0 );
     else
 	ret = Coord3( 0, 0, 1 );
@@ -1020,27 +1166,6 @@ void TrcKeyZSampling::getDefaultNormal( Coord3& ret ) const
 
 od_int64 TrcKeyZSampling::totalNr() const
 { return ((od_int64) nrZ()) * ((od_int64) hsamp_.totalNr()); }
-
-
-TrcKeyZSampling::TrcKeyZSampling()
-    : hsamp_(true)
-{
-    init( true );
-}
-
-
-TrcKeyZSampling::TrcKeyZSampling( const TrcKeyZSampling& tkzs )
-    : hsamp_(false)
-{
-    *this = tkzs;
-}
-
-
-TrcKeyZSampling::TrcKeyZSampling( bool settoSI )
-    : hsamp_(settoSI)
-{
-    init( settoSI );
-}
 
 
 int TrcKeyZSampling::lineIdx( int lineid ) const
@@ -1067,11 +1192,11 @@ int TrcKeyZSampling::nrZ() const
 { return zsamp_.nrSteps() + 1; }
 
 
-int TrcKeyZSampling::size( Dir d ) const
+int TrcKeyZSampling::size( SliceType d ) const
 {
-    return d == Inl ? nrInl()
-	: (d == Crl ? nrCrl()
-		    : nrZ());
+    return d == OD::InlineSlice		? nrInl()
+	: (d == OD::CrosslineSlice	? nrCrl()
+					: nrZ());
 }
 
 
@@ -1217,7 +1342,9 @@ bool TrcKeyZSampling::adjustTo( const TrcKeyZSampling& availabletkzs,
     if ( !iscompatible || !clippedtkzs.isDefined() || clippedtkzs.isEmpty() )
     {
 	// To create dummy with a single undefined voxel
-	if ( falsereturnsdummy )
+	if ( !falsereturnsdummy )
+	    init( false );
+	else
 	{
 	    *this = compatibletkzs;
 	    hsamp_.start_ -= hsamp_.step_;
@@ -1225,8 +1352,6 @@ bool TrcKeyZSampling::adjustTo( const TrcKeyZSampling& availabletkzs,
 	    hsamp_.stop_ = hsamp_.start_;
 	    zsamp_.stop = zsamp_.start;
 	}
-	else
-	    init( false );
 
 	return false;
     }
@@ -1258,8 +1383,8 @@ void TrcKeyZSampling::expand( int nrlines, int nrtrcs, int nrz )
 void TrcKeyZSampling::snapToSurvey()
 {
     hsamp_.snapToSurvey();
-    SI().snapZ( zsamp_.start, -1 );
-    SI().snapZ( zsamp_.stop, 1 );
+    SI().snapZ( zsamp_.start, OD::SnapDownward );
+    SI().snapZ( zsamp_.stop, OD::SnapUpward );
 }
 
 

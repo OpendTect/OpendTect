@@ -113,8 +113,8 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     if ( !srcptr_ || !dstptr_ )
 	return true;
 
-    srctrcbytes_ = samplebytes_ * regsdp_.sampling().size(TrcKeyZSampling::Z);
-    srclnbytes_ = srctrcbytes_ * regsdp_.sampling().size(TrcKeyZSampling::Crl);
+    srctrcbytes_ = samplebytes_ * regsdp_.sampling().size(OD::ZSlice);
+    srclnbytes_ = srctrcbytes_ * regsdp_.sampling().size(OD::CrosslineSlice);
     dsttrcbytes_ = samplebytes_ * (ransdp_.getZRange().nrSteps()+1);
 
     bytestocopy_ = dsttrcbytes_;
@@ -338,16 +338,14 @@ void RegularSeisDataPack::getTrcPositions( PosInfo::CubeData& cd ) const
     else
     {
 	const TrcKeySampling& tks = sampling_.hsamp_;
-	if ( is2D() )
-	{
-	    PosInfo::LineData* linedata =
-				   new PosInfo::LineData( tks.getGeomID() );
-	    linedata->segments_ += tks.trcRange();
-	    cd.add( linedata );
-	}
+	if ( !is2D() )
+	    cd.generate( tks.start_, tks.stop_, tks.step_ );
 	else
 	{
-	    cd.generate( tks.start_, tks.stop_, tks.step_ );
+	    PosInfo::LineData* linedata =
+			       new PosInfo::LineData( tks.getGeomID().getI() );
+	    linedata->segments_ += tks.trcRange();
+	    cd.add( linedata );
 	}
     }
 }
@@ -357,7 +355,9 @@ TrcKey RegularSeisDataPack::getTrcKey( int globaltrcidx ) const
 { return sampling_.hsamp_.trcKeyAt( globaltrcidx ); }
 
 bool RegularSeisDataPack::is2D() const
-{ return sampling_.hsamp_.survid_ == Survey::GM().get2DSurvID(); }
+{
+    return sampling_.hsamp_.is2D();
+}
 
 
 int RegularSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
@@ -536,7 +536,7 @@ void RandomSeisDataPack::setRandomLineID( int rdlid,
 
     TypeSet<BinID> knots, rdlpath;
     rdmline->getNodePositions( knots );
-    Geometry::RandomLine::getPathBids( knots, rdmline->getSurvID(), rdlpath );
+    rdmline->getPathBids( knots, rdlpath );
     path_.setSize( rdlpath.size(), TrcKey::udf() );
     for ( int idx=0; idx<rdlpath.size(); idx++ )
 	path_[idx] = TrcKey( rdlpath[idx] );
@@ -576,10 +576,10 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 
     if ( subpath )
     {
-	const int subpathstopidx = path.indexOf( subpath->last() );
+	const int subpathstopidx = path.indexOf( TrcKey(subpath->last()) );
 	if ( subpathstopidx>=0 )
 	    path.removeRange( subpathstopidx, path.size()-1 );
-	const int subpathstartidx = path.indexOf( subpath->first() );
+	const int subpathstartidx = path.indexOf( TrcKey(subpath->first()) );
 	if ( subpathstartidx>=0 )
 	    path.removeRange( 0, subpathstartidx );
     }
@@ -821,10 +821,10 @@ Monitorable::ChangeType RegularFlatDataPack::compareClassData(
 
 Coord3 RegularFlatDataPack::getCoord( int i0, int i1 ) const
 {
-    const bool isvertical = dir() != TrcKeyZSampling::Z;
+    const bool isvertical = dir() != OD::ZSlice;
     const int trcidx = isvertical ? (hassingletrace_ ? 0 : i0)
 				  : i0*sampling().nrTrcs()+i1;
-    const Coord c = Survey::GM().toCoord( getTrcKey(trcidx) );
+    const Coord c = getTrcKey(trcidx).getCoord();
     return Coord3( c.x_, c.y_, sampling().zsamp_.atIndex(isvertical ? i1 : 0) );
 }
 
@@ -841,9 +841,9 @@ void RegularFlatDataPack::setTrcInfoFlds()
     }
     else
     {
-	if ( dir() == TrcKeyZSampling::Crl )
+	if ( dir() == OD::CrosslineSlice )
 	    tiflds_ += SeisTrcInfo::BinIDInl;
-	else if ( dir() == TrcKeyZSampling::Inl )
+	else if ( dir() == OD::InlineSlice )
 	    tiflds_ += SeisTrcInfo::BinIDCrl;
     }
 
@@ -863,8 +863,8 @@ const char* RegularFlatDataPack::dimName( bool dim0 ) const
     const bool is2d = is2D();
     if ( dim0 )
 	return is2d ? "Distance"
-		    : dir()==TrcKeyZSampling::Inl ? mKeyCrl : mKeyInl;
-    else if ( dir()==TrcKeyZSampling::Z )
+		    : dir()==OD::InlineSlice ? mKeyCrl : mKeyInl;
+    else if ( dir()==OD::ZSlice )
 	return mKeyCrl;
 
     mDeclStaticString( ret );
@@ -882,7 +882,7 @@ float RegularFlatDataPack::getPosDistance( bool dim0, float posfidx) const
 	TrcKey idxtrc = getTrcKey( posidx );
 	if ( !idxtrc.is2D() )
 	{
-	    const bool isinl = dir() == TrcKeyZSampling::Inl;
+	    const bool isinl = dir() == OD::InlineSlice;
 	    const float dposdistance =
 		isinl ? SI().inlDistance() : SI().crlDistance();
 	    return (dposdistance*(float)posidx) + (dposdistance*dfposidx);
@@ -918,7 +918,7 @@ void RegularFlatDataPack::setSourceDataFromMultiCubes()
 
 void RegularFlatDataPack::setSourceData()
 {
-    const bool isz = dir()==TrcKeyZSampling::Z;
+    const bool isz = dir()==OD::ZSlice;
     if ( !isz )
     {
 	path_.setCapacity( source_->nrTrcs(), false );
@@ -928,7 +928,7 @@ void RegularFlatDataPack::setSourceData()
 
     if ( !is2D() )
     {
-	const bool isinl = dir()==TrcKeyZSampling::Inl;
+	const bool isinl = dir()==OD::InlineSlice;
 	posdata_.setRange(
 		true, isinl ? mStepIntvD(sampling().hsamp_.crlRange())
 			    : mStepIntvD(sampling().hsamp_.inlRange()) );
@@ -938,13 +938,13 @@ void RegularFlatDataPack::setSourceData()
     else
 	setPosData();
 
-    const DimIdxType dim0 = dir()==TrcKeyZSampling::Inl ? 1 : 0;
-    const DimIdxType dim1 = dir()==TrcKeyZSampling::Z ? 1 : 2;
+    const DimIdxType dim0 = dir()==OD::InlineSlice ? 1 : 0;
+    const DimIdxType dim1 = dir()==OD::ZSlice ? 1 : 2;
     Array2DSlice<float>* slice2d
 		= new Array2DSlice<float>(source_->data(comp_));
     slice2d->setDimMap( 0, dim0 );
     slice2d->setDimMap( 1, dim1 );
-    DimIdxType dirval = (DimIdxType)TrcKeyZSampling::DirDef().indexOf(dir());
+    DimIdxType dirval = (DimIdxType)dir();
     slice2d->setPos( dirval, 0 );
     slice2d->init();
     arr2d_ = slice2d;
@@ -980,7 +980,7 @@ mImplMonitorableAssignmentWithNoMembers( RandomFlatDataPack, SeisFlatDataPack )
 Coord3 RandomFlatDataPack::getCoord( int i0, int i1 ) const
 {
     const Coord coord = getPath().validIdx(i0)
-	? Survey::GM().toCoord(getPath()[i0]) : Coord::udf();
+	? getPath().get(i0).getCoord() : Coord::udf();
     return Coord3( coord, zSamp().atIndex(i1) );
 }
 

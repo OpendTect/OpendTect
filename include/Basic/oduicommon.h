@@ -37,16 +37,6 @@ enum CheckState
 };
 
 
-/*!\brief OpendTect flat slice types */
-
-enum SliceType
-{
-    InlineSlice=0,
-    CrosslineSlice=1,
-    ZSlice=2
-};
-
-
 /*!\brief What to choose from any list-type UI object */
 
 enum ChoiceMode

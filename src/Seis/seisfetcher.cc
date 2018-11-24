@@ -196,7 +196,7 @@ void Seis::Fetcher2D::reset()
 	for ( int idx=positions.size()-1; idx>=0; idx-- )
 	{
 	    const int trcnr = positions[idx].nr_;
-	    if ( !isSelectedBinID(BinID(geomid,trcnr)) )
+	    if ( !isSelectedBinID(BinID(geomid.lineNr(),trcnr)) )
 		l2dd->remove( trcnr );
 	}
     }

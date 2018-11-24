@@ -89,12 +89,12 @@ void adjustSteeringScaler()
 	 type != BufferString(sKey::Steering()) )
 	return;
 
-    const Survey::Geometry* geom = Survey::GM().getGeometry(
-				   output_.sampling().hsamp_.getGeomID() );
-    if ( !geom || !geom->as2D() )
+    const auto& geom2d = Survey::Geometry::get2D(
+				output_.sampling().hsamp_.getGeomID() );
+    if ( geom2d.isEmpty() )
 	return;
 
-    double trcdist = geom->as2D()->averageTrcDist();
+    double trcdist = geom2d.averageTrcDist();
     const UnitOfMeasure* feetuom = UnitOfMeasure::feetUnit();
     if ( feetuom && SI().xyInFeet() )
 	trcdist = feetuom->getSIValue( trcdist );

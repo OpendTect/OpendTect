@@ -560,8 +560,8 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm,
 
 const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
 {
-    Pos::GeomID geomid = Survey::GM().getGeomID( unm );
-    return mIsUdfGeomID(geomid) ? 0 : get2DFileName( dirnm, geomid );
+    const Pos::GeomID geomid = Survey::Geometry::getGeomID( unm );
+    return geomid.isValid() ? get2DFileName( dirnm, geomid ) : 0;
 }
 
 
@@ -582,7 +582,7 @@ SEGY::FileIndexer::FileIndexer( const DBKey& mid, bool isvol,
     {
 	const FixedString linename = segypar.find( sKey::LineName() );
 	if ( linename )
-	    geomid_ = Survey::GM().getGeomID( linename );
+	    geomid_ = Survey::Geometry::getGeomID( linename );
     }
 
     if ( is2d && mIsUdfGeomID(geomid_) )

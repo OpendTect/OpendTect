@@ -4,39 +4,45 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		9-4-1996
+ Author:	Kris / Bert
+ Date:		2013 / Nov 2018
 ________________________________________________________________________
 
 -*/
 
-#include "factory.h"
 #include "coord.h"
+#include "binid.h"
+#include "factory.h"
+#include "geomid.h"
+#include "namedobj.h"
 #include "refcount.h"
-#include "threadlock.h"
-#include "trckey.h"
-#include "trckeyzsampling.h"
-
-class TaskRunner;
-class IOObj;
-
-// Need some shortcuts because GeomID is not a real object:
-#define mUdfGeomID		Survey::GeometryManager::cUndefGeomID()
-#define mIsUdfGeomID(geomid)	(geomid == mUdfGeomID)
+class TrcKey;
+template <class T> class TypeSet;
 
 
 namespace Survey
 {
+
 class Geometry2D;
 class Geometry3D;
+mUseType( Pos, GeomID );
 
-/*!\brief A Geometry which holds trace positions.
 
-For 3D, a geometry is an Inl/Crl System.
-For 2D, each line has its own Geometry.
+/*!\brief describes the Geometry of a survey; it tells you where traces can be
+  located and makes sure you can work with both an indexing system and
+  coordinates.
 
-Beware, the Geometry::ID != Survkey::ID for 2D geometries. The Geometry::ID
-will end up in the lineNr() of the TrcKey.
+For 3D, this is the survey's inline/crossline system.
+For 2D, each line has its own trace numbers with corresponding coordinates.
+For synthetic data there is no subclass; the traces are not in a geometry.
+
+There is, at the moment, no way to get Geometry's from other surveys than the
+current survey. But, from 7.0 many stored 3D objects keep a copy of the
+geometry in their storage format, provided by Geometry3D::get/setMapInfo().
+
+Note that the Z range available is a hint to what the Z range could be in the
+survey's Z Domain. To find out the real Z range (and Z Domain) of an object, you
+need to turn to the actual object.
 
 */
 
@@ -45,79 +51,100 @@ mExpClass(Basic) Geometry : public RefCount::Referenced
 {
 public:
 
-    typedef Pos::GeomID			ID;
-    typedef Pos::IdxPair::IdxType	pos_type;
+    mUseType( OD,			GeomSystem );
+    mUseType( OD,			SnapDir );
+    typedef BinID::IdxType		pos_type;
     typedef pos_type			idx_type;
-    typedef StepInterval<pos_type>	pos_range_type;
-    typedef float			z_type;
-    typedef StepInterval<z_type>	z_range_type;
+    typedef StepInterval<pos_type>	pos_steprg_type;
+    typedef Pos::Z_Type			z_type;
+    typedef StepInterval<z_type>	z_steprg_type;
+    typedef GeomID::IDType		linenr_type;
+    typedef Pos::TraceNr_Type		tracenr_type;
+    typedef Pos::Distance_Type		dist_type;
 
-    enum RelationType	{ UnRelated=0, Related, SubSet, SuperSet, Identical };
-			/*!< 'Related' means the two geometries have the same
-			  transform but neither includes the other. */
-    virtual RelationType compare(const Geometry&,bool usezrg) const = 0;
-    bool		isCompatibleWith(const Geometry&) const;
+    virtual GeomSystem	geomSystem() const		= 0;
+    bool		is2D() const
+			{ return geomSystem() != OD::VolBasedGeom; }
+    bool		is3D() const
+			{ return geomSystem() == OD::VolBasedGeom; }
 
-    virtual bool	is2D() const			= 0;
-    Pos::SurvID		getSurvID() const;
-    static const Geometry& default3D();
+    GeomID		geomID() const		{ return geomid_; }
 
-    inline ID		id() const			{ return id_; }
-    void		setID( ID gid )			{ id_ = gid; }
-
-    virtual Coord	toCoord(Pos::LineID,Pos::TraceID) const		= 0;
-    inline Coord	toCoord( const BinID& b ) const
-			{ return toCoord( b.lineNr(), b.trcNr() ); }
-
-    virtual bool	includes(Pos::LineID,Pos::TraceID) const	= 0;
-    bool		includes(const TrcKey&) const;
-    inline bool		includes( const BinID& b ) const
-			{ return includes( b.lineNr(), b.trcNr() ); }
+    static const Geometry3D&	get3D(OD::SurvLimitType slt=OD::FullSurvey);
+    static const Geometry&	get(GeomID);
+    static const Geometry&	get(const TrcKey&);
+    static const Geometry2D&	get2D(GeomID);
+    static const Geometry2D&	get2D(const char* linename);
+    static GeomID		getGeomID(const char* linenm);
+    static void			list2D(TypeSet<GeomID>&,BufferStringSet* nms=0);
 
     inline idx_type	idx4TrcNr(pos_type) const;
     inline idx_type	idx4Z(z_type) const;
     inline pos_type	trcNr4Idx(idx_type) const;
     inline z_type	z4Idx(int) const;
 
-    static bool		exists(const TrcKey&);
-    static Coord	toCoord(const TrcKey&);
+    dist_type		distanceTo(const Coord&) const;
+    void		getNearestTracePosition(const Coord&,TrcKey&,
+				dist_type* d=0) const;
+    void		getTracePosition(const Coord&,TrcKey&,
+				dist_type maxdist=mUdf(dist_type)) const;
+    dist_type		averageTrcDist() const;
 
-    virtual TrcKey	getTrace(const Coord&,float maxdist) const;
-    virtual TrcKey	nearestTrace(const Coord&,float* distance=0) const = 0;
+    pos_steprg_type&	trcNrRange()		{ return trcnrrg_; }
+    const pos_steprg_type& trcNrRange() const	{ return trcnrrg_; }
+    void		snapTrcNr(pos_type&,SnapDir d=OD::SnapNearest) const;
+    void		snapTrcNrStep(pos_type&) const;
 
-    //TODO get rid of TrcKey[Z]Sampling
-    TrcKeyZSampling&	sampling()		{ return sampling_; }
-    const TrcKeyZSampling& sampling() const	{ return sampling_; }
+			// Z Range values are in the SI()'s ZDomain
+    z_steprg_type&	zRange()		{ return zrg_; }
+    const z_steprg_type& zRange() const		{ return zrg_; }
+    void		snapZ(z_type&,SnapDir d=OD::SnapNearest) const;
+    void		snapZStep(z_type&) const;
 
-    pos_range_type&	trcNrRange()		{ return trcnrrg_; }
-    const pos_range_type& trcNrRange() const	{ return trcnrrg_; }
-    z_range_type&	zRange()		{ return zrg_; }
-    const z_range_type& zRange() const		{ return zrg_; }
-
-    virtual float	averageTrcDist() const			= 0;
-
-    // Convenience functions
     Geometry2D*		as2D()			{ return gtAs2D(); }
     const Geometry2D*	as2D() const		{ return gtAs2D(); }
     Geometry3D*		as3D()			{ return gtAs3D(); }
     const Geometry3D*	as3D() const		{ return gtAs3D(); }
 
+    static GeomID	cSynthGeomID();
+
+    static bool		includes(const TrcKey&);
+    static Coord	toCoord(const TrcKey&);
+    static Coord	toCoord(GeomSystem,linenr_type,tracenr_type);
+    static Coord	toCoord( GeomSystem gs, const BinID& bid )
+			{ return toCoord( gs, bid.lineNr(), bid.trcNr() ); }
+
 protected:
 			~Geometry();
-			Geometry();
+			Geometry(GeomID);
+    Geometry&		operator =(const Geometry&);
 
-    ID			id_;
-    TrcKeyZSampling	sampling_;
-    pos_range_type	trcnrrg_;
-    z_range_type	zrg_;
+    const GeomID	geomid_;
+    pos_steprg_type	trcnrrg_;
+    z_steprg_type	zrg_;
 
-    virtual Geometry2D*	gtAs2D() const		{ return 0; }
-    virtual Geometry3D*	gtAs3D() const		{ return 0; }
+    static void		snapPos(pos_type&,const pos_steprg_type&,SnapDir);
+    static void		snapStep(pos_type&,const pos_steprg_type&);
+
+    virtual Geometry2D*	gtAs2D() const				= 0;
+    virtual Geometry3D*	gtAs3D() const				= 0;
 
 public:
 
-    mDeprecated ID	getID() const		{ return id(); }
+    mDeprecated GeomID	getID() const		{ return geomID(); }
     mDeprecated const char* getName() const	{ return name().str(); }
+
+    enum RelationType	{ UnRelated=0, Related, SubSet, SuperSet, Identical };
+			    /*!< 'Related': same transform but no inclusion. */
+    RelationType	compare(const Geometry&,bool usezrg) const;
+    bool		isCompatibleWith(const Geometry&) const;
+
+    void		setGeomID( GeomID gid )
+			{ const_cast<GeomID&>(geomid_) = gid; }
+    static Geometry2D&	get2D4Edit( GeomID gid )
+			{ return const_cast<Geometry2D&>( get2D(gid) ); }
+
+    z_type		zScale() const; //!< see SI().zScale()
 
 };
 
@@ -131,120 +158,5 @@ inline Geometry::pos_type Geometry::trcNr4Idx( idx_type idx ) const
 inline Geometry::z_type Geometry::z4Idx( idx_type idx ) const
 { return zRange().atIndex( idx ); }
 
-
-/*!\brief Makes geometries accessible from a geometry ID, or a DBKey.  */
-
-mExpClass(Basic) GeometryManager
-{ mODTextTranslationClass(GeometryManager)
-public:
-
-    typedef Geometry::ID	ID;
-
-				GeometryManager();
-				~GeometryManager();
-
-    const Geometry*		getGeometry(ID) const;
-    const Geometry*		getGeometry(const char*) const;
-    const Geometry*		getGeometry(const DBKey&) const;
-
-    const Geometry3D*		getGeometry3D(Pos::SurvID) const;
-
-    int				nrGeometries() const;
-
-    ID				getGeomID(const char* linenm) const;
-    const char*			getName(ID) const;
-    bool			is2D(ID) const;
-
-    Coord			toCoord(const TrcKey&) const;
-
-    TrcKey			traceKey(ID,Pos::LineID,
-					 Pos::TraceID) const;
-				//!<For 3D
-    TrcKey			traceKey(ID,Pos::TraceID) const;
-				//!<For 2D
-
-    bool			fillGeometries(TaskRunner*);
-    bool			getList(BufferStringSet& names,
-					TypeSet<ID>& ids,
-					bool is2d) const;
-    ID				findRelated(const Geometry&,
-					    Geometry::RelationType&,
-					    bool usezrg) const;
-				//!<Returns cUndefGeomID() if none found
-
-    static TrcKey::SurvID	get2DSurvID()	{ return surv2did_; }
-    TrcKey::SurvID		default3DSurvID() const;
-    TrcKey::SurvID		synthSurvID() const;
-    static ID			cUndefGeomID()	{ return mUdf(ID); }
-
-protected:
-
-    void			addGeometry(Geometry&);
-
-    int				indexOf(ID) const;
-    bool			hasDuplicateLineNames();
-
-    Threads::Lock		lock_;
-    ObjectSet<Geometry>		geometries_;
-    static const TrcKey::SurvID	surv2did_;
-
-    bool			hasduplnms_;
-
-public:
-
-    /*! Admin functions:
-      Use the following functions only when you know what you are doing. */
-
-    Geometry*			getGeometry(ID);
-    bool			write(Geometry&,uiString&);
-    ID				addNewEntry(Geometry*,uiString&);
-				/*! Returns new GeomID. */
-    bool			removeGeometry(ID);
-
-    ID				getGeomID(const char* lsm,
-					  const char* linenm) const;
-				/*!< Use only if you are converting
-				    od4 geometries to od5 geometries */
-    bool			fetchFrom2DGeom(uiString& errmsg);
-				//converts od4 geometries to od5 geometries.
-    bool			updateGeometries(TaskRunner*);
-};
-
-
-mGlobal(Basic) const GeometryManager& GM();
-inline mGlobal(Basic) GeometryManager& GMAdmin()
-{ return const_cast<GeometryManager&>( Survey::GM() ); }
-
-
-
-mExpClass(Basic) GeometryReader
-{
-public:
-
-    virtual		~GeometryReader()		{}
-			mDefineFactoryInClass(GeometryReader,factory)
-
-    virtual bool	read(ObjectSet<Geometry>&,TaskRunner*) const	= 0;
-    virtual bool	updateGeometries(ObjectSet<Geometry>&,
-					 TaskRunner*) const		= 0;
-};
-
-
-
-mExpClass(Basic) GeometryWriter
-{
-public:
-
-    typedef Geometry::ID GeometryID;
-
-    virtual		~GeometryWriter()		{}
-			mDefineFactoryInClass(GeometryWriter,factory)
-
-    virtual bool	write(const Geometry&,uiString&,
-			      const char* crfromstr=0) const	= 0;
-    virtual IOObj*	createEntry(const char*) const		= 0;
-    virtual GeometryID	createNewGeomID(const char*) const	= 0;
-
-};
 
 } //namespace Survey

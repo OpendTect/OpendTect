@@ -46,6 +46,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "survgeom2d.h"
+#include "survgeommgr.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "welllog.h"
@@ -223,7 +224,7 @@ void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
 	coordfilefld_ = new uiFileSel( this, uiStrings::sFileName() );
 	coordfilefld_->attach( alignedBelow, lcb );
 
-	const Coord mincoord( SI().minCoord(true) );
+	const Coord mincoord( SI().minCoord(OD::UsrWork) );
 	coordsfromfld_->addItem( tr("Generate straight line") );
 	coordsstartfld_ = new uiGenInput( this, tr("Start coordinate"),
 			DoubleInpSpec((double)mNINT64(mincoord.x_)),
@@ -608,10 +609,10 @@ bool uiSEGYReadFinisher::getGeomID( const char* lnm, bool isnew,
     const bool doimp = docopyfld_ ? docopyfld_->getBoolValue() : true;
     uiString errmsg =
 	    tr("Internal: Cannot create line geometry in database");
-    geomid = Survey::GM().getGeomID( lnm );
+    geomid = Survey::Geometry::getGeomID( lnm );
     if ( isnew && !doimp )
     {
-	PtrMan<IOObj> geomobj = SurvGeom2DTranslator::createEntry( lnm,
+	PtrMan<IOObj> geomobj = SurvGeom2DTranslator::getEntry( lnm,
 			    SEGYDirectSurvGeom2DTranslator::translKey() );
 	if ( !geomobj )
 	    mErrRet( errmsg );
@@ -660,7 +661,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 	geomids += geomid;
     }
 
-    Survey::GMAdmin().updateGeometries( 0 );
+    Survey::GMAdmin().updateGeometries( SilentTaskRunnerProvider() );
     uiSeisIOObjInfo oinf( this, outioobj );
     return oinf.provideLineInfo( &geomids );
 }
@@ -781,7 +782,7 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 					     bool& overwr_warn, bool& overwr,
 					     bool& isnewline )
 {
-    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+    Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
     if ( mIsUdfGeomID(geomid) )
 	return true;
 
@@ -819,10 +820,8 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
     overwr = choice == 1 || choice == 3;
     if ( overwr )
     {
-	Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
-	mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
-	if ( geom2d )
-	    geom2d->dataAdmin().setEmpty();
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	geom2d.setEmpty();
     }
 
     return true;

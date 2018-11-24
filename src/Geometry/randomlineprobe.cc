@@ -27,13 +27,13 @@ Geometry::RandomLine* RandomLineProbe::createNewDefaultRDL()
 						.arg(newrdlid);
     Geometry::RandomLine* rl =
 		new Geometry::RandomLine( toString(newrdlname) );
-    const StepInterval<int> inlrange = SI().inlRange( true );
-    const StepInterval<int> crlrange = SI().crlRange( true );
+    const StepInterval<int> inlrange = SI().inlRange( OD::UsrWork );
+    const StepInterval<int> crlrange = SI().crlRange( OD::UsrWork );
     const BinID start( inlrange.snappedCenter(), crlrange.start );
     const BinID stop( start.inl(), crlrange.stop );
     rl->addNode( start );
     rl->addNode( stop );
-    rl->setZRange( SI().zRange(true) );
+    rl->setZRange( SI().zRange(OD::UsrWork) );
     return rl;
 }
 

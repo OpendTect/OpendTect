@@ -164,7 +164,7 @@ uiSliceScroll( uiSliceSel* ss )
     timer = new Timer( "uiSliceScroll timer" );
     timer->tick.notify( mCB(this,uiSliceScroll,timerTick) );
 
-    const TrcKeyZSampling& cs = SI().sampling( false );
+    const TrcKeyZSampling cs( true );
     const TrcKeySampling& hs = cs.hsamp_;
     int step = hs.step_.inl();
     int maxstep = hs.start_.inl() - hs.stop_.inl();
@@ -271,10 +271,11 @@ void doAdvance( bool reversed )
 
     const int step = (reversed ? -1 : 1) * stepfld_->box()->getIntValue();
     slcsel_->readInput();
+    TrcKeyZSampling cs( OD::UsrWork );
     if ( slcsel_->isinl_ )
     {
 	int newval = slcsel_->tkzs_.hsamp_.start_.inl() + step;
-	if (slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.inlOK(newval))
+	if (slcsel_->dogeomcheck_ && !cs.hsamp_.inlOK(newval))
 	    stopAuto( true );
 	else
 	    slcsel_->inl0fld_->box()->setValue( newval );
@@ -282,7 +283,7 @@ void doAdvance( bool reversed )
     else if ( slcsel_->iscrl_ )
     {
 	int newval = slcsel_->tkzs_.hsamp_.start_.crl() + step;
-	if (slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.crlOK(newval))
+	if (slcsel_->dogeomcheck_ && !cs.hsamp_.crlOK(newval))
 	    stopAuto( true );
 	else
 	    slcsel_->crl0fld_->box()->setValue( newval );
@@ -290,8 +291,7 @@ void doAdvance( bool reversed )
     else
     {
 	float newval = slcsel_->tkzs_.zsamp_.start + step / zfact_;
-	if ( slcsel_->dogeomcheck_ &&
-	     !SI().sampling(true).zsamp_.includes(newval,false) )
+	if ( slcsel_->dogeomcheck_ && !cs.zsamp_.includes(newval,false) )
 	    stopAuto( true );
 	else
 	{
@@ -443,8 +443,8 @@ void uiSliceSel::readInput()
 
     if ( dogeomcheck_ )
     {
-	SI().snap( tkzs_.hsamp_.start_, BinID(0,0) );
-	SI().snap( tkzs_.hsamp_.stop_, BinID(0,0) );
+	SI().snap( tkzs_.hsamp_.start_ );
+	SI().snap( tkzs_.hsamp_.stop_ );
     }
 }
 
@@ -628,7 +628,7 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p )
 {
     BufferStringSet linenames;
     TypeSet<Pos::GeomID> geomids;
-    Survey::GM().getList( linenames, geomids, true );
+    Survey::Geometry::list2D( geomids, &linenames );
     linesfld_ = new uiGenInput( this, tr("Calculate on line"),
 				StringListInpSpec(linenames) );
     setOkText( uiStrings::sWizNext() );
@@ -666,17 +666,17 @@ bool uiLinePosSelDlg::acceptOK()
 
 bool uiLinePosSelDlg::selectPos2D()
 {
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-		     Survey::GM().getGeometry(linesfld_->text()) );
-    if ( !geom2d ) return false;
+    const auto& geom2d = Survey::Geometry::get2D( linesfld_->text() );
+    if ( geom2d.isEmpty() )
+	return false;
 
     TrcKeyZSampling inputcs = tkzs_;
     if ( prefcs_ )
 	inputcs = *prefcs_;
     else
     {
-	inputcs.hsamp_.setCrlRange( geom2d->data().trcNrRange() );
-	inputcs.zsamp_ = geom2d->data().zRange();
+	inputcs.hsamp_.setCrlRange( geom2d.data().trcNrRange() );
+	inputcs.zsamp_ = geom2d.data().zRange();
     }
 
     const ZDomain::Info info( ZDomain::SI() );

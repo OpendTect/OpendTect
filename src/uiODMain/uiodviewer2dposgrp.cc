@@ -241,13 +241,13 @@ void uiODViewer2DPosGrp::attr2DSelected( CallBacker* )
 #define mErrRet(s) { if ( emiterror ) uiMSG().error(s); return false; }
 bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 {
-    posdatasel_->geomid_ = Survey::GeometryManager::cUndefGeomID();
+    posdatasel_->geomid_ = Pos::GeomID();
 
     switch ( posdatasel_->postype_ )
     {
 	case Viewer2DPosDataSel::Line2D :
 	    posdatasel_->geomid_ =
-		Survey::GM().getGeomID( subsel2dfld_->selectedLine() );
+		Survey::Geometry::getGeomID( subsel2dfld_->selectedLine() );
 	    subsel2dfld_->getSampling( posdatasel_->tkzs_ );
 	    break;
 	case Viewer2DPosDataSel::InLine:
@@ -318,8 +318,7 @@ void uiODViewer2DPosGrp::updateTrcKeySampFld()
     {
 	case Viewer2DPosDataSel::Line2D :
 	{
-	    subsel2dfld_->setSelectedLine(
-		    Survey::GM().getName(posdatasel_->geomid_) );
+	    subsel2dfld_->setSelectedLine( nameOf(posdatasel_->geomid_) );
 	    subsel2dfld_->uiSeisSubSel::setInput( tkzs.hsamp_ );
 	    break;
 	}
@@ -344,11 +343,11 @@ void uiODViewer2DPosGrp::gen2DLine( CallBacker* )
     if ( !applmgr_ ) return;
 
     DBKey newseis2did;
-    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+    Pos::GeomID geomid;
     if ( applmgr_->wellAttribServer()->create2DFromWells(newseis2did,geomid) &&
-	 geomid != Survey::GeometryManager::cUndefGeomID() )
+	 geomid.isValid() )
     {
-	const char* sellinenm = Survey::GM().getName( geomid );
+	const BufferString sellinenm = nameOf( geomid );
 	subsel2dfld_->uiSeisSubSel::setInput( newseis2did );
 	subsel2dfld_->setSelectedLine( sellinenm );
 	inpSelected.trigger();

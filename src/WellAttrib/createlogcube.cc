@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "seistrcprop.h"
 #include "seiswrite.h"
 #include "survinfo.h"
+#include "trckeysampling.h"
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllogset.h"
@@ -94,7 +95,7 @@ LogCubeCreator::WellData::WellData( const DBKey& wid )
 	mErrRet( uirv, true, return )
 
     Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true, true);
-    wtextr.setSampling( SI().zRange(true) );
+    wtextr.setSampling( SI().zRange() );
     if ( !wtextr.execute() )
 	mErrRet( uiStrings::phrInternalErr("unable to extract track positions"),
 		 true, return )
@@ -252,7 +253,7 @@ void LogCubeCreator::getOutputNames( BufferStringSet& names ) const
 
 bool LogCubeCreator::doPrepare( int )
 {
-    extractparams_.zstep_ = SI().zRange( true ).step;
+    extractparams_.zstep_ = SI().zStep();
     extractparams_.extractzintime_ = SI().zIsTime();
     extractparams_.snapZRangeToSurvey( true );
 
@@ -369,8 +370,8 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 	mErrRet( msg, errmsg_.isEmpty(), return false )
     }
 
-    const SamplingData<float> sampling( SI().zRange( true ) );
-    const int trcsz = SI().zRange( true ).nrSteps() + 1;
+    const SamplingData<float> sampling( SI().zRange() );
+    const int trcsz = SI().zRange().nrSteps() + 1;
     SeisTrc undeftrc( trcsz );
     undeftrc.info().sampling_ = sampling;
     for ( int idx=0; idx<undeftrc.size(); idx++ )
@@ -431,7 +432,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 			    logtrcs[ilog]->get( itrckpt, 0 ) : mUdf(float);
 	}
 
-	TrcKeySampling hrg(false);
+	TrcKeySampling hrg( false );
 	hrg.start_ = trackpos - bidvar;
 	hrg.stop_ = trackpos + bidvar;
 	hrg.snapToSurvey();

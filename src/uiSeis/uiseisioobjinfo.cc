@@ -55,7 +55,7 @@ bool uiSeisIOObjInfo::provideLineInfo( const TypeSet<Pos::GeomID>* sel ) const
     const float zfac = SI().showZ2UserFactor();
     for ( int idx=0; idx<nrlines; idx++ )
     {
-	const BufferString linenm = Survey::GM().getName( geomids[idx] );
+	const BufferString linenm = nameOf( geomids[idx] );
 	StepInterval<int> trcrg( 0, 0, 1 );
 	StepInterval<float> zrg( 0.f, 0.f, 1.f );
 	if ( getRanges(geomids[idx],trcrg,zrg) )

@@ -321,9 +321,11 @@ bool dgbEMSurfaceTranslator::prepRead()
     const int version = reader_->version();
     if ( version==1 )
     {
-	sd_.rg.start_ = SI().sampling(false).hsamp_.start_;
-	sd_.rg.stop_ = SI().sampling(false).hsamp_.stop_;
-	sd_.rg.step_ = SI().sampling(false).hsamp_.step_;
+	const auto inlrg = SI().inlRange();
+	const auto crlrg = SI().crlRange();
+	sd_.rg.start_ = BinID( inlrg.start, crlrg.start );
+	sd_.rg.stop_ = BinID( inlrg.stop, crlrg.stop );
+	sd_.rg.step_ = BinID( inlrg.step, crlrg.step );
     }
     else
     {

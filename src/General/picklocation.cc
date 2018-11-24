@@ -11,7 +11,8 @@
 #include "survinfo.h"
 #include "separstr.h"
 #include "posimpexppars.h"
-#include "survgeom.h"
+#include "survgeom2d.h"
+#include "survgeom3d.h"
 #include <ctype.h>
 
 static char pipechar = '|';
@@ -138,45 +139,42 @@ const TrcKey& Pick::Location::trcKey() const
 	return TrcKey::udf();
 
     mDefineStaticLocalObject( TrcKey, rettk, );
-    rettk.setSurvID( Survey::GM().default3DSurvID() );
-    rettk.setPosition( SI().transform(pos_.getXY()) );
+    rettk = TrcKey( SI().transform(pos_.getXY()) );
     return rettk;
 }
 
 
 bool Pick::Location::is2D() const
 {
-    return trcKey().is2D();
-}
-
-
-Pos::SurvID Pick::Location::survID() const
-{
-    return trcKey().survID();
+    return trckey_ && trckey_->is2D();
 }
 
 
 Pos::GeomID Pick::Location::geomID() const
 {
-    return trcKey().geomID();
+    return trckey_ ? trckey_->geomID() : Pos::GeomID::get3D();
 }
 
 
-Pos::TraceID Pick::Location::lineNr() const
+Pick::Location::linenr_type Pick::Location::lineNr() const
 {
-    return trcKey().lineNr();
+    return trckey_ ? trckey_->lineNr() : binID().lineNr();
 }
 
 
-Pos::TraceID Pick::Location::trcNr() const
+Pick::Location::tracenr_type Pick::Location::trcNr() const
 {
-    return trcKey().trcNr();
+    return trckey_ ? trckey_->trcNr() : binID().trcNr();
 }
 
 
-const BinID& Pick::Location::binID() const
+BinID Pick::Location::binID() const
 {
-    return trcKey().position();
+    if ( trckey_ )
+	return trckey_->binID();
+    else if ( !hasPos() )
+	return BinID::udf();
+    return SI().transform( pos_.getXY() );
 }
 
 
@@ -202,7 +200,7 @@ Pick::Location& Pick::Location::setDir( const Sphere& sph )
 { setD( sph.isNull() ? 0 : &sph ); return *this; }
 
 
-Pick::Location& Pick::Location::setLineNr( Pos::LineID lnr )
+Pick::Location& Pick::Location::setLineNr( linenr_type lnr )
 {
     if ( !trckey_ )
 	trckey_ = new TrcKey;
@@ -211,7 +209,7 @@ Pick::Location& Pick::Location::setLineNr( Pos::LineID lnr )
 }
 
 
-Pick::Location& Pick::Location::setTrcNr( Pos::TraceID tnr )
+Pick::Location& Pick::Location::setTrcNr( tracenr_type tnr )
 {
     if ( !trckey_ )
 	trckey_ = new TrcKey;
@@ -223,8 +221,12 @@ Pick::Location& Pick::Location::setTrcNr( Pos::TraceID tnr )
 Pick::Location& Pick::Location::setGeomID( Pos::GeomID geomid )
 {
     if ( !trckey_ )
-	trckey_ = new TrcKey;
-    trckey_->setGeomID( geomid );
+    {
+	if ( geomid.is2D() )
+	    trckey_ = new TrcKey;
+    }
+    if ( trckey_ )
+	trckey_->setGeomID( geomid );
     return *this;
 }
 
@@ -237,17 +239,6 @@ Pick::Location& Pick::Location::setBinID( const BinID& bid, bool updcoord )
 	trckey_->setPosition( bid );
     if ( updcoord )
 	setPos( trckey_->getCoord() );
-    return *this;
-}
-
-
-Pick::Location& Pick::Location::setSurvID( Pos::SurvID survid, bool updpos )
-{
-    if ( !trckey_ )
-	trckey_ = new TrcKey;
-    trckey_->setSurvID( survid );
-    if ( updpos )
-	trckey_->setFrom( pos_.getXY() );
     return *this;
 }
 
@@ -433,17 +424,16 @@ bool Pick::Location::fromString( const char* inp )
 
     // Sometimes, we have a stored GeomID. We always want to set the TrcKey.
     mSkipBlanks(str);
-    const Pos::SurvID geomid = getNextInt( str );
+    const auto storedid = getNextInt( str );
     const Survey::Geometry* geom = 0;
-    if ( !mIsUdf(geomid) )
-	geom = Survey::GM().getGeometry( geomid );
-    if ( !geom )
-	geom = &Survey::Geometry::default3D();
+    if ( mIsUdf(storedid) || storedid < 0 )
+	geom = &Survey::Geometry::get3D();
+    else
+	geom = &Survey::Geometry::get2D( Pos::GeomID(storedid) );
     if ( !trckey_ )
 	trckey_ = new TrcKey;
-    trckey_->setGeomID( geom->id() );
-    trckey_->setFrom( pos_.getXY() );
 
+    trckey_->setGeomID( geom->geomID() ).setFrom( pos_.getXY() );
     return true;
 }
 
@@ -490,7 +480,7 @@ void Pick::Location::toString( BufferString& str, bool forexport,
 	str.add( od_tab ).add( dir_->radius_ ).add( od_tab )
 	   .add( dir_->theta_ ).add( od_tab ).add( dir_->phi_ );
 
-    if ( trckey_ && !mIsUdf(trckey_->geomID()) )
+    if ( trckey_ && trckey_->geomID().isValid() )
 	str.add( od_tab ).add( trckey_->geomID() );
 }
 

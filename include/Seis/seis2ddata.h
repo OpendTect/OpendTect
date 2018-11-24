@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "namedobj.h"
+#include "geomid.h"
 #include "objectset.h"
 #include "od_iosfwd.h"
 
@@ -37,6 +38,9 @@ mExpClass(Seis) Seis2DDataSet : public NamedObject
     friend class SeisTrcWriter;
 
 public:
+
+    mUseType( Pos,	GeomID );
+
 			Seis2DDataSet(const IOObj&);
 			Seis2DDataSet(const Seis2DDataSet&);
 
@@ -50,38 +54,38 @@ public:
 			{ return geomids_.size(); }
     bool		isEmpty() const;
 
-    Pos::GeomID		geomID(int) const;
+    GeomID		geomID(int) const;
     const char*		lineName(int) const;
-    int			indexOf(Pos::GeomID) const;
+    int			indexOf(GeomID) const;
     int			indexOf(const char* linename) const;
-    bool		isPresent(Pos::GeomID) const;
+    bool		isPresent(GeomID) const;
     bool		isPresent(const char* linename) const;
-    bool		isEmpty(Pos::GeomID) const;
+    bool		isEmpty(GeomID) const;
 
-    void		getGeomIDs(TypeSet<Pos::GeomID>&) const;
+    void		getGeomIDs(TypeSet<GeomID>&) const;
     void		getLineNames(BufferStringSet&) const;
-    uiRetVal		getGeometry(Pos::GeomID,PosInfo::Line2DData&) const;
+    uiRetVal		getGeometry(GeomID,PosInfo::Line2DData&) const;
 
-    Seis2DTraceGetter*	traceGetter(Pos::GeomID,const Seis::SelData*,
+    Seis2DTraceGetter*	traceGetter(GeomID,const Seis::SelData*,
 				    uiRetVal&) const;
 				//!< May return null
-    Seis2DLinePutter*	linePutter(Pos::GeomID,uiRetVal&);
+    Seis2DLinePutter*	linePutter(GeomID,uiRetVal&);
 				//!< May return null.
 				//!< will return replacer if geomid exists
 
-    bool		getTxtInfo(Pos::GeomID,BufferString& uinfo,
+    bool		getTxtInfo(GeomID,BufferString& uinfo,
 				   BufferString& stdinfo) const;
-    bool		getRanges(Pos::GeomID,StepInterval<int>& trcrg,
+    bool		getRanges(GeomID,StepInterval<int>& trcrg,
 				  StepInterval<float>& zrg) const;
-    bool		haveMatch(int,const BinIDValueSet&) const;
+    bool		haveMatch(GeomID,const BinIDValueSet&) const;
 
     bool		rename(const char*);
-    bool		remove(Pos::GeomID);
+    bool		remove(GeomID);
 				//!< Also removes from disk
 
     static void		getDataSetsOnLine(const char* lnm,
 					      BufferStringSet& ds);
-    static void		getDataSetsOnLine(Pos::GeomID geomid,
+    static void		getDataSetsOnLine(GeomID geomid,
 					  BufferStringSet& ds);
 
 protected:
@@ -91,8 +95,8 @@ protected:
     BufferString	datatype_;
     bool		readonly_;
 
-    Seis2DLineIOProvider*	liop_;
-    TypeSet<Pos::GeomID>	geomids_;
+    Seis2DLineIOProvider* liop_;
+    TypeSet<GeomID>	geomids_;
 
     void		init();
 };

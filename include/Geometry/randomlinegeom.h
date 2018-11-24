@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class TrcKeyZSampling;
 class Line2;
+namespace Survey { class Geometry3D; }
 
 namespace Geometry
 {
@@ -32,10 +33,9 @@ mExpClass(Geometry) RandomLine	: public RefCount::Referenced
 {
 public:
 
-			RandomLine(const char* nm=0);
+    mUseType( Survey,	Geometry3D );
 
-    void		setSurvID(Pos::SurvID s) { survid_ = s; }
-    Pos::SurvID		getSurvID() const { return survid_; }
+			RandomLine(const char* nm=0);
 
     int			ID() const		{ return id_; }
 
@@ -59,8 +59,12 @@ public:
 					     const TrcKeyPath&,const TrcKey&);
 
     enum		DuplicateMode { NoDups=0, NoConsecutiveDups, AllDups };
+    void		getPathBids(const TypeSet<BinID>& knots,
+				    TypeSet<BinID>& path,
+				    DuplicateMode dupmode=NoConsecutiveDups,
+				    TypeSet<int>* segments=0) const;
     static void		getPathBids(const TypeSet<BinID>& knots,
-				    Pos::SurvID,
+				    const Geometry3D*,
 				    TypeSet<BinID>& path,
 				    DuplicateMode dupmode=NoConsecutiveDups,
 				    TypeSet<int>* segments=0);
@@ -97,17 +101,19 @@ public:
 
     mDeclInstanceCreatedNotifierAccess(RandomLine);
 
+    const Geometry3D*	survGeom() const	{ return survgeom_; }
+    void		setSurvGeom( const Geometry3D* g ) { survgeom_ = g; }
+
 protected:
 
 			~RandomLine();
-
-    Pos::SurvID		survid_;
 
     TypeSet<BinID>	nodes_;
     Interval<float>	zrange_;
     DBKey		dbky_;
     RandomLineSet*	lset_;
     bool		locked_;
+    const Geometry3D*	survgeom_;
 
     friend class	RandomLineSet;
 
@@ -121,6 +127,8 @@ private:
 mExpClass(Geometry) RandomLineSet
 {
 public:
+
+    mUseType( Survey,	Geometry3D );
 
 			RandomLineSet();
 			RandomLineSet(const RandomLine&,double dist,
@@ -147,9 +155,9 @@ protected:
 
     ObjectSet<RandomLine>	lines_;
     IOPar&			pars_;
+    const Geometry3D*		survgeom_;
 
-    void		createParallelLines(const Line2& baseline,Pos::SurvID,
-					    double dist);
+    void		createParallelLines(const Line2& baseline,double dist);
 
 public:
     static void		getGeometry(const DBKey&,TypeSet<BinID>& knots,

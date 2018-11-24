@@ -30,7 +30,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     TrcKeyZSampling outputcs;
     if ( !outputcs.hsamp_.usePar( pars() ) )
-    { outputcs.hsamp_.init( true ); }
+	{ outputcs.hsamp_.init( true ); }
 
     if ( !pars().get( SurveyInfo::sKeyZRange(), outputcs.zsamp_ ) )
     {
@@ -139,14 +139,14 @@ bool BatchProgram::go( od_ostream& strm )
 
 	for ( int idx=0; idx<geomids.size(); idx++ )
 	{
-	    outputcs.hsamp_.init( geomids[idx] );
+	    outputcs.hsamp_.setTo( geomids[idx] );
 	    outputcs.hsamp_.setTrcRange( trcrgs[idx] );
 	    SeisZAxisStretcher* exec =
 		new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
 					*ztransform, true, isvel );
 	    exec->setGeomID( geomids[idx] );
 	    exec->setName( BufferString("Time to depth conversion - ",
-					Survey::GM().getName(geomids[idx])) );
+					nameOf(geomids[idx])) );
 	    if ( isvel )
 	    {
 		exec->setVelTypeIsVint( veldesc.type_==VelocityDesc::Interval );

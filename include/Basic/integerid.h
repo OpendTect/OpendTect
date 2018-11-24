@@ -42,14 +42,15 @@ ________________________________________________________________________
 */
 
 
-template <class IntType>
+template <class IntType,int udfval=-1>
 mClass(Basic) IntegerID
 {
 public:
 
     typedef IntType	IDType;
+    static IntType	udfVal()		{ return udfval; }
 
-    inline		IntegerID() : nr_(-1)	{}
+    inline		IntegerID() : nr_(udfval) {}
     inline explicit	IntegerID( IntType nr )
 			: nr_(nr)		{}
     inline explicit	operator IntType() const{ return nr_; }
@@ -64,8 +65,8 @@ public:
 
     inline bool		isInvalid() const	{ return nr_ < 0; }
     inline bool		isValid() const		{ return !isInvalid(); }
-    inline void		setInvalid()		{ nr_ = -1; }
-    static inline IntegerID getInvalid()	{ return IntegerID(-1); }
+    inline void		setInvalid()		{ nr_ = udfval; }
+    static inline IntegerID getInvalid()	{ return IntegerID(udfval); }
 
 protected:
 
@@ -74,25 +75,33 @@ protected:
 };
 
 
-#define mDefIntegerIDType(IntType,classname) \
+#define mDefIntegerIDTypeFull(IntType,classname,udfval,extra) \
  \
-class classname : public IntegerID<IntType> \
+class classname : public IntegerID<IntType,udfval> \
 { \
 public: \
  \
+    typedef IntegerID<IntType,udfval>	BaseType; \
+    static IntType	udfVal()	{ return udfval; } \
+ \
     inline		classname()			{} \
     inline explicit	classname( IntType i ) \
-			    : IntegerID<IntType>(i)	{} \
+			    : IntegerID<IntType,udfval>(i) {} \
     inline explicit	operator IntType() const	{ return this->nr_; } \
  \
-    static inline classname get( IntType i ) \
-					{ return classname(i); } \
+    static inline classname get( IntType i ) { return classname(i); } \
  \
-    inline bool		operator ==( const classname& oth ) const \
-			{ return IntegerID<IntType>::operator ==(oth); } \
-    inline bool		operator !=( const classname& oth ) const \
-			{ return IntegerID<IntType>::operator !=(oth); } \
+    inline bool	operator ==( const classname& oth ) const \
+		{ return IntegerID<IntType,udfval>::operator ==(oth); } \
+    inline bool	operator !=( const classname& oth ) const \
+		{ return IntegerID<IntType,udfval>::operator !=(oth); } \
  \
-    static inline classname getInvalid() { return classname(-1); } \
+    static inline classname getInvalid() { return classname(udfval); } \
+    \
+    extra; \
  \
 }
+
+
+#define mDefIntegerIDType(IntType,classname) \
+	mDefIntegerIDTypeFull(IntType,classname,-1,)

@@ -70,8 +70,8 @@ void Seis::ObjectSummary::init( Pos::GeomID geomid )
 	return;
 
     geomtype_ = ioobjinfo_.geomType();
-    if (  (is2D() && !Survey::GM().is2D(geomid)) ||
-	 (!is2D() && geomid != mUdfGeomID) )
+    if (  (is2D() && !geomid.is2D()) ||
+	 (!is2D() && geomid.isValid()) )
 	{ pErrMsg("Geometry wrongly set"); bad_ = true; return; }
 
     geomid_ = geomid;
@@ -226,9 +226,12 @@ SeisIOObjInfo::SpaceInfo::SpaceInfo( int ns, int ntr, int bps )
 	, maxbytespsamp(bps)
 {
     if ( expectednrsamps < 0 )
-	expectednrsamps = SI().zRange(false).nrSteps() + 1;
+	expectednrsamps = SI().zRange().nrSteps() + 1;
     if ( expectednrtrcs < 0 )
-	expectednrtrcs = mCast( int, SI().sampling(false).hsamp_.totalNr() );
+    {
+	const TrcKeySampling tks( true );
+	expectednrtrcs = (int)tks.totalNr();
+    }
 }
 
 
@@ -252,7 +255,7 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 	    spinf.expectednrtrcs = cd.totalSize();
 	    delete rdr;
 	}
-	spinf.expectednrsamps = SI().zRange(false).nrSteps() + 1;
+	spinf.expectednrsamps = SI().zRange().nrSteps() + 1;
 	return true;
     }
 
@@ -423,6 +426,7 @@ bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
     mDynamicCastGet(IOStream*,iostrm,ioobj_)
     if ( is2D() )
     {
+	cs.hsamp_.setIs2D();
 	StepInterval<int> trcrg;
 	if ( (iostrm && iostrm->isMulti()) ||
 	     !getRanges(cs.hsamp_.getGeomID(),trcrg,cs.zsamp_) )
@@ -433,6 +437,7 @@ bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
     }
 
     cs.init( true );
+    cs.hsamp_.setIs3D();
     if ( !isPS() )
 	return SeisTrcTranslator::getRanges( *ioobj_, cs );
 
@@ -747,7 +752,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 
 bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 {
-    const char* linenm = Survey::GM().getName( geomid );
+    const char* linenm = nameOf( geomid );
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
     if ( !dbdir )
 	return false;
@@ -781,7 +786,7 @@ bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm,
 					    BufferStringSet& datasets,
 					    Opts2D o2d )
-{ getDataSetNamesForLine( Survey::GM().getGeomID(lnm), datasets, o2d ); }
+{ getDataSetNamesForLine( Survey::Geometry::getGeomID(lnm), datasets, o2d ); }
 
 void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 					    BufferStringSet& datasets,
@@ -835,8 +840,7 @@ bool SeisIOObjInfo::isFullyRectAndRegular() const
 void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
 				      TypeSet<Pos::GeomID>& gids )
 {
-    Survey::GMAdmin().updateGeometries( 0 );
-    Survey::GM().getList( lnms, gids, true );
+    Survey::Geometry::list2D( gids, &lnms );
     BoolTypeSet hasdata( gids.size(), false );
 
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
@@ -979,7 +983,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiPhraseSet& inf ) const
 	    if ( pars.get(VelocityStretcher::sKeyTopVavg(),topvavg)
 	      && pars.get(VelocityStretcher::sKeyBotVavg(),botvavg))
 	    {
-		const StepInterval<float> sizrg = SI().zRange(true);
+		const StepInterval<float> sizrg = SI().zRange();
 		StepInterval<float> dispzrg;
 		uiString keystr;
 		if ( SI().zIsTime() )

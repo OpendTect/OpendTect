@@ -62,7 +62,7 @@ Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
     , udftreat_(udftreat)
 {
     for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
-	geomids_ += Survey::GM().getGeomID( lnms.get(lineidx).buf() );
+	geomids_ += Survey::Geometry::getGeomID( lnms.get(lineidx).buf() );
 }
 
 
@@ -100,10 +100,11 @@ int nextStep()
 	prevtrcnrs_ = TypeSet<int>( nrvals, -1);
 	prevtrcvals_ = TypeSet<float>( nrvals, mUdf(float) );
 
-	mDynamicCast( const Survey::Geometry2D*, curlinegeom_,
-		      Survey::GM().getGeometry(geomid) );
-	if ( !curlinegeom_ )
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	if ( geom2d.isEmpty() )
 	    return Executor::ErrorOccurred();
+
+	curlinegeom_ = &geom2d;
 
 	for ( int hdx=0; hdx<hors_.size(); hdx++ )
 	    hors_[hdx]->geometry().addLine( geomid );

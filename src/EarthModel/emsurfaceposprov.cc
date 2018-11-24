@@ -42,8 +42,8 @@ Pos::EMSurfaceProvider::EMSurfaceProvider()
     : Filter()
     , surf1_(0)
     , surf2_(0)
-    , hs_(SI().sampling(false).hsamp_)
-    , zstep_(SI().zRange(true).step)
+    , hs_(true)
+    , zstep_(SI().zStep())
     , extraz_(0,0)
     , zrg1_(0,0)
     , zrg2_(0,0)
@@ -195,8 +195,8 @@ bool Pos::EMSurfaceProvider::toNextPos()
     Interval<float> unsnappedzrg = curzrg_;
     if ( surf2_ )
     {
-	SI().snapZ( curzrg_.start, 1 );
-	SI().snapZ( curzrg_.stop, -1 );
+	SI().snapZ( curzrg_.start, OD::SnapUpward );
+	SI().snapZ( curzrg_.stop, OD::SnapDownward );
 	if ( !unsnappedzrg.includes(curzrg_.start, false) )
 	{
 	    curz_ = mUdf(float);
@@ -489,12 +489,11 @@ bool Pos::EMSurfaceProvider2D::includes( const Coord& c, float z ) const
     PosInfo::Line2DPos pos;
     for ( int lidx=0; lidx<nrLines(); lidx++ )
     {
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			 Survey::GM().getGeometry(geomID(lidx)) );
-	if ( !geom2d )
+	const auto& geom2d = Survey::Geometry2D::get( geomID(lidx) );
+	if ( geom2d.isEmpty() )
 	    continue;
 
-	const PosInfo::Line2DData& l2d = geom2d->data();
+	const PosInfo::Line2DData& l2d = geom2d.data();
 	if ( l2d.getPos(c,pos,SI().inlDistance()))
 	{
 	    if ( includes(pos.nr_,z,lidx) )
@@ -1030,7 +1029,7 @@ bool Pos::EMRegion3DProvider::includes( const Coord& c, float z ) const
 
 bool Pos::EMRegion3DProvider::includes( const BinID& bid, float z ) const
 {
-    return region_.isInside( bid, z, false );
+    return region_.isInside( TrcKey(bid), z, false );
 }
 
 

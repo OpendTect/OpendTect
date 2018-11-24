@@ -10,26 +10,38 @@
 #include "math2.h"
 #include "survinfo.h"
 #include "survgeom.h"
-#include "trckeyzsampling.h"
+#include "cubesampling.h"
 #include "od_iostream.h"
+
+#define mUseL2DDataType(typ) mUseType( PosInfo::Line2DData, typ )
+mUseL2DDataType(tracenr_type);
+mUseL2DDataType(IdxSet);
+mUseL2DDataType(TrcNrSet);
+mUseL2DDataType(PosSet);
+mUseL2DDataType(idx_type);
+mUseL2DDataType(size_type);
+mUseL2DDataType(dist_type);
+mUseL2DDataType(z_type);
+mUseL2DDataType(z_steprg_type);
 
 
 PosInfo::Line2DData::Line2DData( const char* lnm )
     : lnm_(lnm)
-    , zrg_(SI().sampling(false).zsamp_)
+    , zrg_(SI().zRange())
 {
 }
 
 
 // Returns the index, or the index just before if not found
-int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
+
+idx_type PosInfo::Line2DData::gtIndex( tracenr_type nr, bool& found ) const
 {
-    const int sz = posns_.size();
+    const size_type sz = posns_.size();
     if ( sz==0 )
 	{ found = false; return -1; }
 
-    int i0 = 0, i1 = sz - 1;
-    int nr0 = posns_[i0].nr_; int nr1 = posns_[i1].nr_;
+    idx_type i0 = 0, i1 = sz - 1;
+    tracenr_type nr0 = posns_[i0].nr_; tracenr_type nr1 = posns_[i1].nr_;
     if ( nr < nr0 )
 	{ found = false; return -1; }
     if ( nr > nr1 )
@@ -41,8 +53,8 @@ int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
 
     while ( i1 - i0 > 1 )
     {
-	int newi = (i0 + i1) / 2;
-	int newnr = posns_[newi].nr_;
+	idx_type newi = (i0 + i1) / 2;
+	tracenr_type newnr = posns_[newi].nr_;
 	if ( newnr == nr )
 	    return newi;
 	if ( newnr > nr )	{ i1 = newi; nr1 = newnr; }
@@ -53,22 +65,21 @@ int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
 }
 
 
-// Returns the index of the first bend point defining the segment closest to pt
-int PosInfo::Line2DData::getSegmentIndexClosestToPoint( const Coord& pt ) const
+idx_type PosInfo::Line2DData::getClosestBPSegment( const Coord& pt ) const
 {
     if ( bendpoints_.isEmpty() )
 	return -1;
 
-    double mindiff = mUdf(double);
-    int ret = -1;
-    for ( int idx=1; idx<bendpoints_.size(); idx++ )
+    dist_type mindiff = mUdf(dist_type);
+    idx_type ret = -1;
+    for ( idx_type idx=1; idx<bendpoints_.size(); idx++ )
     {
-	const Coord& start = posns_[bendpoints_[idx-1]].coord_;
-	const Coord& stop = posns_[bendpoints_[idx]].coord_;
-	const double seglength = start.distTo<double>( stop );
-	const double distsum = start.distTo<double>( pt ) +
-			       pt.distTo<double>( stop );
-	const double absdiff = Math::Abs( seglength - distsum );
+	const Coord start = posns_[bendpoints_[idx-1]].coord_;
+	const Coord stop = posns_[bendpoints_[idx]].coord_;
+	const dist_type seglength = start.distTo<dist_type>( stop );
+	const dist_type distsum = start.distTo<dist_type>( pt ) +
+			       pt.distTo<dist_type>( stop );
+	const dist_type absdiff = Math::Abs( seglength - distsum );
 	if ( absdiff < mindiff )
 	{
 	    mindiff = absdiff;
@@ -80,20 +91,21 @@ int PosInfo::Line2DData::getSegmentIndexClosestToPoint( const Coord& pt ) const
 }
 
 
-int PosInfo::Line2DData::gtIndex( const Coord& coord, double* sqdist ) const
+idx_type PosInfo::Line2DData::gtIndex( const Coord& coord,
+				       dist_type* sqdist ) const
 {
     if ( posns_.isEmpty() )
 	return -1;
 
 #   define mSqDist(idx) posns_[idx].coord_.sqDistTo( coord )
 
-    const int segidx = getSegmentIndexClosestToPoint( coord );
-    if ( segidx < 0 )
+    const idx_type bpidx = getClosestBPSegment( coord );
+    if ( bpidx < 0 )
 	return -1;
 
-    int i0 = bendpoints_[segidx], i1 = bendpoints_[segidx+1];
-    double sqd0 = mSqDist( i0 );
-    double sqd1 = mSqDist( i1 );
+    idx_type i0 = bendpoints_[bpidx], i1 = bendpoints_[bpidx+1];
+    dist_type sqd0 = mSqDist( i0 );
+    dist_type sqd1 = mSqDist( i1 );
 
     // Damped bisection because lines can have varying distance steps
     while ( i1 - i0 > 2 )
@@ -119,90 +131,103 @@ int PosInfo::Line2DData::gtIndex( const Coord& coord, double* sqdist ) const
 
 Pos::GeomID PosInfo::Line2DData::geomID() const
 {
-    return lnm_ ? Survey::GM().getGeomID(lnm_) : mUdfGeomID;
+    return Survey::Geometry::getGeomID(lnm_);
 }
 
 
 void PosInfo::Line2DData::add( const Line2DPos& pos )
 {
-    const int sz = posns_.size();
+    const size_type sz = posns_.size();
     if ( sz == 0 || pos.nr_ > posns_[sz-1].nr_ )
 	{ posns_ += pos; return; }
 
-    bool found; int idx = gtIndex( pos.nr_, found );
-    if ( found ) return;
-    posns_.insert( idx+1, pos );
+    bool found; idx_type idx = gtIndex( pos.nr_, found );
+    if ( !found )
+	posns_.insert( idx+1, pos );
 }
 
 
-void PosInfo::Line2DData::remove( int nr )
+void PosInfo::Line2DData::removeByIdx( idx_type idx )
+{
+    if ( posns_.validIdx(idx) )
+	posns_.removeSingle( idx );
+}
+
+
+void PosInfo::Line2DData::remove( tracenr_type nr )
 {
     bool found; int idx = gtIndex( nr, found );
-    if ( !found ) return;
-    posns_.removeSingle( idx );
+    if ( found )
+	posns_.removeSingle( idx );
 }
 
 
-void PosInfo::Line2DData::limitTo( Interval<int> trcrg )
+void PosInfo::Line2DData::limitTo( tracenr_type start, tracenr_type stop )
 {
-    trcrg.sort();
-    for ( int idx=0; idx<posns_.size(); idx++ )
-	if ( posns_[idx].nr_ < trcrg.start || posns_[idx].nr_ > trcrg.stop )
-	    posns_.removeSingle( idx-- );
+    if ( start > stop )
+	std::swap( start, stop );
+    for ( idx_type idx=posns_.size()-1; idx!=-1; idx-- )
+    {
+	const auto&pos = posns_[idx];
+	if ( pos.nr_ < start || pos.nr_ > stop )
+	    posns_.removeSingle( idx );
+    }
 }
 
 
-int PosInfo::Line2DData::indexOf( int nr ) const
+idx_type PosInfo::Line2DData::indexOf( tracenr_type nr ) const
 {
-    bool found; int idx = gtIndex( nr, found );
+    bool found; idx_type idx = gtIndex( nr, found );
     return found ? idx : -1;
 }
 
 
-int PosInfo::Line2DData::nearestIdx( const Coord& pos,
-				     const Interval<int>& nrrg ) const
+idx_type PosInfo::Line2DData::nearestIdx( const Coord& pos,
+				     const tracenr_rg_type& nrrg ) const
 {
-    const int posidx = gtIndex( pos );
+    const idx_type posidx = gtIndex( pos );
     if ( !posns_.validIdx(posidx) )
 	return -1;
 
     if ( nrrg.includes(posns_[posidx].nr_,true) )
 	return posidx;
 
-    const int posstartidx = posns_.indexOf( nrrg.start );
-    const int posstopidx = posns_.indexOf( nrrg.stop );
-    double sqd0 = pos.sqDistTo(posns_[posstartidx].coord_);
-    double sqd1 = pos.sqDistTo(posns_[posstopidx].coord_);
+    const idx_type posstartidx = posns_.indexOf( nrrg.start );
+    const idx_type posstopidx = posns_.indexOf( nrrg.stop );
+    const dist_type sqd0 = pos.sqDistTo(posns_[posstartidx].coord_);
+    const dist_type sqd1 = pos.sqDistTo(posns_[posstopidx].coord_);
     return sqd0 < sqd1 ? posstartidx : posstopidx;
 }
 
 
 bool PosInfo::Line2DData::getPos( const Coord& coord,
-				  PosInfo::Line2DPos& pos, float* dist ) const
+				  Line2DPos& pos, dist_type* dist ) const
 {
-    double sqdist;
-    const int idx = gtIndex( coord, &sqdist );
+    dist_type sqdist;
+    const idx_type idx = gtIndex( coord, &sqdist );
     if ( !posns_.validIdx(idx) )
 	return false;
 
     pos = posns_[idx];
-    if ( dist ) *dist = (float) Math::Sqrt( sqdist );
+    if ( dist )
+	*dist = Math::Sqrt( sqdist );
     return true;
 }
 
 
 bool PosInfo::Line2DData::getPos( const Coord& coord,
-				  PosInfo::Line2DPos& pos, float maxdist ) const
+				  Line2DPos& pos, dist_type maxdist ) const
 {
-    float dist;
+    dist_type dist;
     return getPos(coord,pos,&dist) && dist < maxdist;
 }
 
 
-bool PosInfo::Line2DData::getPos( int nr, PosInfo::Line2DPos& pos ) const
+bool PosInfo::Line2DData::getPos( tracenr_type nr, Line2DPos& pos ) const
 {
-    bool found; int idx = gtIndex( nr, found );
-    if ( !found ) return false;
+    bool found; idx_type idx = gtIndex( nr, found );
+    if ( !found )
+	return false;
     pos = posns_[idx];
     return true;
 }
@@ -215,14 +240,14 @@ void PosInfo::Line2DData::dump( od_ostream& strm, bool pretty ) const
     else
     {
 	strm << lnm_ << '\n';
-	const int fac = SI().zDomain().userFactor();
+	const auto fac = SI().zDomain().userFactor();
 	strm << "Z range (" << toString( SI().zUnitString() )
 	     << "):\t" << fac*zrg_.start
 	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
 	strm << "\n\nTrcNr\tX-coord\tY-coord" << od_newline;
     }
 
-    for ( int idx=0; idx<posns_.size(); idx++ )
+    for ( idx_type idx=0; idx<posns_.size(); idx++ )
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
 	strm << pos.nr_ << '\t'
@@ -235,7 +260,7 @@ void PosInfo::Line2DData::dump( od_ostream& strm, bool pretty ) const
 
 bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 {
-    int linesz = -1;
+    size_type linesz = -1;
     if ( asc )
 	strm >> zrg_.start >> zrg_.stop >> zrg_.step >> linesz;
     else
@@ -248,9 +273,9 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 
     posns_.erase();
     bendpoints_.erase();
-    for ( int idx=0; idx<linesz; idx++ )
+    for ( idx_type idx=0; idx<linesz; idx++ )
     {
-	int trcnr = -1;
+	tracenr_type trcnr = -1;
 	if ( asc )
 	    strm >> trcnr;
 	else
@@ -273,7 +298,7 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
 				 bool withnls ) const
 {
-    const int linesz = posns_.size();
+    const size_type linesz = posns_.size();
     if ( !asc )
 	strm.addBin( zrg_.start ).addBin( zrg_.stop ).addBin( zrg_.step )
 	    .addBin( linesz );
@@ -284,7 +309,7 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
 	if ( withnls && linesz ) strm << od_newline;
     }
 
-    for ( int idx=0; idx<linesz; idx++ )
+    for ( idx_type idx=0; idx<linesz; idx++ )
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
 	if ( !asc )
@@ -307,49 +332,66 @@ void PosInfo::Line2DData::getBendPositions(
 			TypeSet<PosInfo::Line2DPos>& bendpos) const
 {
     bendpos.erase();
-    for ( int idx=0; idx<bendpoints_.size(); idx++ )
+    for ( idx_type idx=0; idx<bendpoints_.size(); idx++ )
 	bendpos.add( posns_[bendpoints_[idx]] );
 }
 
 
-const TypeSet<int>& PosInfo::Line2DData::getBendPoints() const
+const TypeSet<idx_type>& PosInfo::Line2DData::getBendPoints() const
 {
     return bendpoints_;
 }
 
 
-void PosInfo::Line2DData::setBendPoints( const TypeSet<int>& bendpoints )
+void PosInfo::Line2DData::setBendPoints( const IdxSet& bps )
 {
-    bendpoints_ = bendpoints;
+    bendpoints_ = bps;
 }
 
 
-StepInterval<Pos::TraceID> PosInfo::Line2DData::trcNrRange() const
+PosInfo::Line2DData::tracenr_steprg_type PosInfo::Line2DData::trcNrRange() const
 {
-    const int sz = posns_.size();
-    StepInterval<int> res( -1, -1, 1 );
-    if ( sz < 1 ) return res;
+    const size_type sz = posns_.size();
+    tracenr_steprg_type res( -1, -1, 1 );
+    if ( sz < 1 )
+	return res;
     res.start = posns_[0].nr_;
     res.stop = posns_[sz-1].nr_;
-    if ( sz == 1 ) return res;
+    if ( sz == 1 )
+	return res;
 
     res.step = 0;
-    for ( int idx=1; idx<sz; idx++ )
+    for ( idx_type idx=1; idx<sz; idx++ )
     {
-	const int diff = posns_[idx].nr_ - posns_[idx-1].nr_;
-	if ( diff < 1 ) continue;
-	if ( res.step < 1 || diff < res.step )
+	const tracenr_type diff = posns_[idx].nr_ - posns_[idx-1].nr_;
+	if ( diff == 0 )
+	    continue;
+
+	if ( res.step == 0 )
 	    res.step = diff;
-	if ( res.step == 1 )
+	else if ( res.step < 0 && diff > res.step )
+	    res.step = diff;
+	else if ( res.step > 0 && diff < res.step )
+	    res.step = diff;
+
+	if ( res.step == 1 || res.step == -1 )
 	    break;
     }
+
+    if ( res.step == 0 )
+	res.step = 1;
+
+    if ( res.start > res.stop )
+	std::swap( res.start, res.stop );
+    if ( res.step < 0 )
+	res.step = -res.step;
     return res;
 }
 
 
-Coord PosInfo::Line2DData::getNormal( int trcnr ) const
+Coord PosInfo::Line2DData::getNormal( tracenr_type trcnr ) const
 {
-    bool found; const int posidx = gtIndex( trcnr, found );
+    bool found; const idx_type posidx = gtIndex( trcnr, found );
     if ( !found ) return Coord::udf();
 
     Coord pos = posns_[posidx].coord_;
@@ -365,56 +407,56 @@ Coord PosInfo::Line2DData::getNormal( int trcnr ) const
 	return Coord( 0, 1 );
     else
     {
-	const double length = Math::Sqrt( v1.x_*v1.x_ + v1.y_*v1.y_ );
+	const dist_type length = Math::Sqrt( v1.x_*v1.x_ + v1.y_*v1.y_ );
 	return Coord( -v1.y_/length, v1.x_/length );
     }
 }
 
 
-float PosInfo::Line2DData::distBetween( int starttrcnr, int stoptrcnr ) const
+dist_type PosInfo::Line2DData::distBetween( tracenr_type starttrcnr,
+					tracenr_type stoptrcnr ) const
 {
-    if ( stoptrcnr < starttrcnr ) return mUdf(float);
-    bool found; const int startidx = gtIndex( starttrcnr, found );
-    if ( !found ) return mUdf(float);
-    const int stopidx = gtIndex( stoptrcnr, found );
-    if ( !found ) return mUdf(float);
+    dist_type ret = mUdf(dist_type);
+    if ( stoptrcnr < starttrcnr )
+	return ret;
+    bool found; const idx_type startidx = gtIndex( starttrcnr, found );
+    if ( !found )
+	return ret;
+    const idx_type stopidx = gtIndex( stoptrcnr, found );
+    if ( !found )
+	return ret;
 
-    float dist = 0.f;
-    for ( int idx=startidx; idx<stopidx; idx++ )
-	dist += posns_[idx+1].coord_.distTo<float>( posns_[idx].coord_ );
-    return dist;
+    ret = 0;
+    for ( idx_type idx=startidx; idx<stopidx; idx++ )
+	ret += posns_[idx+1].coord_.distTo<dist_type>( posns_[idx].coord_ );
+    return ret;
 }
 
 
-void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
-						 float& median ) const
+void PosInfo::Line2DData::getTrcDistStats( dist_type& max,
+					   dist_type& median ) const
 {
-    max = 0;
-    median = 0;
-    double maxsq = 0;
-    TypeSet<double> medset;
-    const TypeSet<PosInfo::Line2DPos>& posns = positions();
-    for ( int pidx=1; pidx<posns.size(); pidx++ )
+    const size_type nrpositions = posns_.size();
+    max = median = 0;
+    if ( nrpositions < 2 )
+	return;
+
+    dist_type maxsqdist = 0;
+    TypeSet<dist_type> distsqs;
+    for ( idx_type idx=1; idx<posns_.size(); idx++ )
     {
-	const double distsq =
-			posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
-
-	if ( !mIsUdf(distsq) && !mIsZero(distsq, 1e-3) )
-	{
-	    if ( distsq > maxsq )
-		maxsq = distsq;
-	    medset += distsq;
-	}
+	const dist_type distsq = posns_[idx].coord_
+				.sqDistTo( posns_[idx-1].coord_ );
+	if ( mIsUdf(distsq) || mIsZero(distsq, 1e-3) )
+	    continue;
+	if ( distsq > maxsqdist )
+	    maxsqdist = distsq;
+	distsqs += distsq;
     }
+    sort( distsqs );
 
-    if ( medset.size() )
-    {
-	sort( medset );
-	median = mCast( float,
-			Math::Sqrt( medset[ mCast(int, medset.size()/2) ] ) );
-    }
-
-    max = mCast( float, Math::Sqrt(maxsq) );
+    median = Math::Sqrt( distsqs[distsqs.size()/2] );
+    max = Math::Sqrt( maxsqdist );
 }
 
 
@@ -425,21 +467,21 @@ bool PosInfo::Line2DData::coincidesWith( const PosInfo::Line2DData& oth ) const
     if ( mypos.isEmpty() || othpos.isEmpty() )
 	return false;
 
-    const int startnr = mMAX( mypos.first().nr_, othpos.first().nr_ );
-    const int stopnr = mMIN( mypos.last().nr_, othpos.last().nr_ );
+    const tracenr_type startnr = mMAX( mypos.first().nr_, othpos.first().nr_ );
+    const tracenr_type stopnr = mMIN( mypos.last().nr_, othpos.last().nr_ );
     bool found = false;
-    const int mystartidx = gtIndex( startnr, found );
-    const int mystopidx = gtIndex( stopnr, found );
-    const int othstartidx = oth.gtIndex( startnr, found );
-    const int othstopidx = oth.gtIndex( stopnr, found );
+    const idx_type mystartidx = gtIndex( startnr, found );
+    const idx_type mystopidx = gtIndex( stopnr, found );
+    const idx_type othstartidx = oth.gtIndex( startnr, found );
+    const idx_type othstopidx = oth.gtIndex( stopnr, found );
     if ( mystartidx < 0 || mystopidx < 0 || othstartidx < 0 || othstopidx < 0 )
 	return false;
 
-    int myidx = mystartidx, othidx = othstartidx;
+    idx_type myidx = mystartidx, othidx = othstartidx;
     bool foundcommon = false;
     while ( myidx <= mystopidx && othidx <= othstopidx )
     {
-	const int trcnr = mypos[myidx].nr_;
+	const tracenr_type trcnr = mypos[myidx].nr_;
 	if ( trcnr == othpos[othidx].nr_ )
 	{
 	    foundcommon = true;
@@ -466,23 +508,23 @@ bool PosInfo::Line2DData::coincidesWith( const PosInfo::Line2DData& oth ) const
 void PosInfo::Line2DData::getSegments( LineData& ld ) const
 {
     ld.segments_.setEmpty();
-    const int nrposns = posns_.size();
+    const size_type nrposns = posns_.size();
     if ( nrposns < 1 )
 	return;
 
     bool havestep = false;
-    int prevnr = posns_[0].nr_;
+    tracenr_type prevnr = posns_[0].nr_;
     LineData::Segment curseg( prevnr, prevnr, 1 );
     if ( nrposns < 2 )
 	{ ld.segments_ += curseg; return; }
 
-    for ( int ipos=1; ipos<nrposns; ipos++ )
+    for ( idx_type ipos=1; ipos<nrposns; ipos++ )
     {
-	const int curnr = posns_[ipos].nr_;
+	const tracenr_type curnr = posns_[ipos].nr_;
 	if ( curnr == prevnr )
 	    continue;
 
-	const int curstep = curnr - prevnr;
+	const tracenr_type curstep = curnr - prevnr;
 	if ( !havestep )
 	{
 	    curseg.step = curstep;

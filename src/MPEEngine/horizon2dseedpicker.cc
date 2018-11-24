@@ -34,7 +34,6 @@ namespace MPE
 
 Horizon2DSeedPicker::Horizon2DSeedPicker( EMTracker& tracker )
     : EMSeedPicker(tracker)
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
 {
 }
 
@@ -79,7 +78,7 @@ bool Horizon2DSeedPicker::startSeedPick()
 
     mGetHorizon(hor,false);
 
-    if ( geomid_ == Survey::GeometryManager::cUndefGeomID() )
+    if ( !geomid_.isValid() )
 	return false;
 
     EM::Horizon2DGeometry& geom = hor->geometry();
@@ -113,7 +112,7 @@ bool Horizon2DSeedPicker::startSeedPick()
 
 #define mGetHorAndColrg(hor,colrg,escval) \
     mGetHorizon(hor,escval); \
-    if ( geomid_==Survey::GeometryManager::cUndefGeomID() ) \
+    if ( !geomid_.isValid() ) \
 	return escval; \
     const StepInterval<int> colrg = \
 	hor->geometry().colRange( geomid_ );
@@ -130,8 +129,8 @@ bool Horizon2DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 	return true;
 
     mGetHorizon(hor2d,false);
-    const Survey::Geometry2D* geom2d =Survey::GM().getGeometry(geomid_)->as2D();
-    if ( !geom2d )
+    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    if ( geom2d.isEmpty() )
 	return false;
 
     seedlist_.erase();
@@ -319,8 +318,10 @@ bool Horizon2DSeedPicker::getNextSeedPos( int seedpos, int dirstep,
 TrcKey Horizon2DSeedPicker::replaceSeed( const TrcKey& oldseed,
 					 const TrcKeyValue& newseedin )
 {
-    const Survey::Geometry2D* geom2d =Survey::GM().getGeometry(geomid_)->as2D();
-    if ( !geom2d || trackmode_ != DrawBetweenSeeds )
+    if ( trackmode_ != DrawBetweenSeeds )
+	return TrcKey::udf();
+    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    if ( geom2d.isEmpty() )
 	return TrcKey::udf();
 
     sowermode_ = false;
@@ -483,7 +484,7 @@ bool Horizon2DSeedPicker::retrackFromSeedSet()
     if ( !extender2d )
 	return false;
 
-    extender->setDirection( TrcKeyValue(TrcKey(0,0)) );
+    extender->setDirection( TrcKeyValue(TrcKey(BinID(0,0))) );
     extender->setExtBoundary( getTrackBox() );
     extender2d->setGeomID( geomid_ );
 
@@ -572,7 +573,7 @@ bool Horizon2DSeedPicker::interpolateSeeds( bool manualnode )
 
 	double arclen = 0.0;
 	prevpos = startpos.getXY();
-	for ( Pos::TraceID tnr=sortval[vtx] + colrg.step;
+	for ( auto tnr=sortval[vtx] + colrg.step;
 		tnr<sortval[vtx+1]; tnr += colrg.step  )
 	{
 	    tk.setTrcNr( tnr );

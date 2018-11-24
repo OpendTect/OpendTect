@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "array2dinterpol.h"
 #include "arraynd.h"
 #include "batchprog.h"
+#include "commandlineparser.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
@@ -32,6 +33,7 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "keystrs.h"
 #include "linesetposinfo.h"
+#include "moddepmgr.h"
 #include "posinfo2d.h"
 #include "posprovider.h"
 #include "progressmeterimpl.h"
@@ -43,8 +45,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-#include "moddepmgr.h"
-#include "commandlineparser.h"
+#include "trckeysampling.h"
 
 using namespace Attrib;
 using namespace EM;
@@ -366,7 +367,7 @@ bool BatchProgram::go( od_ostream& strm )
 	}
 
 	if ( mIsUdf( sd.zrg.start ) )
-	    zbounds4mmproc = SI().zRange( true );
+	    zbounds4mmproc = SI().zRange();
 	else
 	{
 	    if ( idx )
@@ -489,7 +490,7 @@ bool BatchProgram::go( od_ostream& strm )
 	{
 	    //fix needed to get homogeneity when using multi-machines processing
 	    zboundsset = true;
-	    zbounds = zbounds4mmproc==SI().zRange(1) ? zbounds4mmproc
+	    zbounds = zbounds4mmproc==SI().zRange() ? zbounds4mmproc
 						     : zbounds4mmproc + extraz;
 	}
 
@@ -507,7 +508,7 @@ bool BatchProgram::go( od_ostream& strm )
 		if ( !linepar )
 		    break;
 
-		Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+		Pos::GeomID geomid;
 		TypeSet<DataPointSet::DataRow> startset;
 		BufferStringSet valnms;
 		valnms.add("z2");

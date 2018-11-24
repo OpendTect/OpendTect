@@ -165,8 +165,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
     Interval<int> xintv, yintv;
     if ( fromsurvey )
     {
-	const Coord survmin = SI().minCoord( false );
-	const Coord survmax = SI().maxCoord( false );
+	const Coord survmin = SI().minCoord();
+	const Coord survmax = SI().maxCoord();
 	xrg.start = (float) survmin.x_; xrg.stop = (float) survmax.x_;
 	yrg.start = (float) survmin.y_; yrg.stop = (float) survmax.y_;
 	xintv.setFrom( xrg ); yintv.setFrom( yrg );

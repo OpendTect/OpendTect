@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "executor.h"
 #include "iopar.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
+#include "survgeom3d.h"
 #include "sorting.h"
 #include "zdomain.h"
 
@@ -130,16 +132,18 @@ void EM::HorizonZTransform::transformTrcBack( const TrcKey& trckey,
 
 Interval<float> EM::HorizonZTransform::getZInterval( bool from ) const
 {
-    if ( from ) return SI().zRange(true);
+    if ( from )
+	return SI().zRange();
 
     if ( horchanged_ )
 	const_cast<HorizonZTransform*>(this)->calculateHorizonRange();
 
-    if ( horchanged_ ) return SI().zRange(true);
+    if ( horchanged_ )
+	return SI().zRange();
 
-    Interval<float> intv( SI().zRange(true).start-depthrange_.stop,
-			  SI().zRange(true).stop-depthrange_.start );
-    const float step = SI().zRange(true).step;
+    Interval<float> intv( SI().zRange().start-depthrange_.stop,
+			  SI().zRange().stop-depthrange_.start );
+    const float step = SI().zStep();
     float idx = intv.start / step;
     intv.start = Math::Floor(idx) * step;
     idx = intv.stop / step;
@@ -231,47 +235,35 @@ bool EM::HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
     mDynamicCastGet(const Horizon2D*,hor2d,horizon_)
     TypeSet<float> depths;
     TrcKey hortrckey;
-    if ( trckey.survID()==horizon_->getSurveyID() )
+    if ( trckey.geomSystem()==horizon_->geomSystem() )
 	hortrckey = trckey;
     else
     {
-	Survey::Geometry::ID gid = trckey.geomID();
-	ConstRefMan<Survey::Geometry> keysurv = Survey::GM().getGeometry(gid);
-
-	if ( !keysurv )
-	    return false;
-
-	const Coord crd = keysurv->toCoord( trckey );
+	const Coord crd = trckey.getCoord();
 	if ( crd.isUdf() )
 	    return false;
 
 	if ( hor3d )
-	{
-	    const Survey::Geometry::ID horgid =
-		TrcKey(horizon_->getSurveyID(),BinID(-1,-1)).geomID();
-	    ConstRefMan<Survey::Geometry> horsurv =
-		Survey::GM().getGeometry( horgid );
-	    hortrckey = horsurv->getTrace( crd, horsurv->averageTrcDist() * 3 );
-	}
+	    hortrckey = TrcKey( Survey::Geometry::get3D().transform(crd) );
 	else if ( hor2d )
 	{
 	    float bestdist2 = mUdf(float);
 	    for ( int idx=0; idx<hor2d->geometry().nrLines(); idx++ )
 	    {
-		ConstRefMan<Survey::Geometry> horsurv =
-		    Survey::GM().getGeometry( hor2d->geometry().geomID(idx) );
-		if ( !horsurv ) continue;
+		const auto& geom2d = Survey::Geometry::get2D(
+					hor2d->geometry().geomID(idx) );
+		if ( geom2d.isEmpty() )
+		    continue;
 
-		const TrcKey tmptrckey =
-		    horsurv->getTrace( crd, horsurv->averageTrcDist() * 3 );
-
-		const Coord trccrd = horsurv->toCoord( tmptrckey );
+		const auto trcnr =
+		    geom2d.tracePosition( crd, geom2d.averageTrcDist() * 3 );
+		const Coord trccrd = geom2d.getCoord( trcnr );
 		if ( trccrd.isDefined() )
 		{
-		    const float dist2 = (float) crd.sqDistTo( trccrd );
+		    const float dist2 = (float)crd.sqDistTo( trccrd );
 		    if ( mIsUdf(bestdist2) || dist2<bestdist2 )
 		    {
-			hortrckey = tmptrckey;
+			hortrckey = TrcKey( geom2d.geomID(), trcnr );
 			bestdist2 = dist2;
 		    }
 		}
@@ -280,7 +272,7 @@ bool EM::HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
     }
 
     EM::PosID pid = horizon_->geometry().getPosID( hortrckey );
-    float depth = (float) horizon_->getPos( pid ).z_;
+    float depth = (float)horizon_->getPos( pid ).z_;
     if ( mIsUdf( depth ) && hor3d )
     {
 	const BinID bid = hortrckey.binID();

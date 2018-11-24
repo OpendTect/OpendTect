@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "coltabseqmgr.h"
 #include "coltabmapper.h"
+#include "cubesubsel.h"
 #include "datadistribution.h"
 #include "flatview.h"
 #include "iopar.h"
@@ -1404,7 +1405,10 @@ void uiVisPartServer::survChgCB( CallBacker* cb )
 	    //TODO all scenes need to change??
 	    //TODO what about the elements inside the box?
 	if ( scene && scene->zDomainInfo().def_==ZDomain::SI() )
-	    scene->setTrcKeyZSampling( SI().sampling(true) );
+	{
+	    const TrcKeyZSampling tkzs( OD::UsrWork );
+	    scene->setTrcKeyZSampling( tkzs );
+	}
     }
 }
 
@@ -1535,7 +1539,7 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     visBase::DM().fillPar( par );
 
     par.set( sKeyNumberScenes(), scenes_.size() );
-    const TrcKeyZSampling& cs = SI().sampling( true );
+    const TrcKeyZSampling cs( OD::UsrWork );
     FileMultiString fms;
     fms += cs.hsamp_.start_.inl();
     fms += cs.hsamp_.stop_.inl();

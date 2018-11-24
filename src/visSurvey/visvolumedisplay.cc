@@ -80,10 +80,12 @@ static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 	(3*csin.hsamp_.start_.crl()+5*csin.hsamp_.stop_.crl())/8;
     cs.zsamp_.start = ( 5*csin.zsamp_.start + 3*csin.zsamp_.stop ) / 8.f;
     cs.zsamp_.stop = ( 3*csin.zsamp_.start + 5*csin.zsamp_.stop ) / 8.f;
-    SI().snap( cs.hsamp_.start_, BinID(0,0) );
-    SI().snap( cs.hsamp_.stop_, BinID(0,0) );
-    float z0 = csin.zsamp_.snap( cs.zsamp_.start ); cs.zsamp_.start = z0;
-    float z1 = csin.zsamp_.snap( cs.zsamp_.stop ); cs.zsamp_.stop = z1;
+
+    SI().snap( cs.hsamp_.start_ );
+    SI().snap( cs.hsamp_.stop_ );
+    cs.zsamp_.start = csin.zsamp_.snap( cs.zsamp_.start );
+    cs.zsamp_.stop = csin.zsamp_.snap( cs.zsamp_.stop );
+    cs.zsamp_.limitTo( csin.zsamp_ );
     return cs;
 }
 
@@ -138,7 +140,7 @@ VolumeDisplay::VolumeDisplay()
     mAttachCB( getMaterial()->change, VolumeDisplay::materialChange );
     scalarfield_->setMaterial( getMaterial() );
 
-    TrcKeyZSampling sics = SI().sampling( true );
+    const TrcKeyZSampling sics( OD::UsrWork );
     TrcKeyZSampling cs = getInitTrcKeyZSampling( sics );
     setTrcKeyZSampling( cs );
 
@@ -988,12 +990,12 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     if ( dim == 2 )
     {
 //	slicepos += (float) voltrans_->getTranslation()[0];
-	pos = mCast( float, SI().inlRange(true).snap(slicepos) );
+	pos = mCast( float, SI().inlRange(OD::UsrWork).snap(slicepos) );
     }
     else if ( dim == 1 )
     {
 //	slicepos += (float) voltrans_->getTranslation()[1];
-	pos = mCast( float, SI().crlRange(true).snap(slicepos) );
+	pos = mCast( float, SI().crlRange(OD::UsrWork).snap(slicepos) );
     }
     else
     {
@@ -1061,7 +1063,7 @@ void VolumeDisplay::setSelSpecs( int attrib, const Attrib::SelSpecList& as)
     attribs_[attrib]->cache_ = 0;
 
     TrcKeyZSampling emptytkzs( false );
-    emptytkzs.hsamp_.survid_ = s3dgeom_->getSurvID();
+    emptytkzs.hsamp_.setIs3D();
     scalarfield_->setScalarField( attrib, 0, true, emptytkzs, 0 );
 
     updateAttribEnabling();
@@ -1136,7 +1138,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 	arrayismine = false;
     }
 
-    tkzs.hsamp_.survid_ = s3dgeom_->getSurvID();
+    tkzs.hsamp_.setIs3D();
     scalarfield_->setScalarField( attrib, usedarray, !arrayismine, tkzs, tskr );
 
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
@@ -1254,7 +1256,7 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 	if ( !displayspace )
 	{
 	    res.zsamp_.setFrom( datatransform_->getZInterval(true) );
-	    res.zsamp_.step = SI().zRange(true).step;
+	    res.zsamp_.step = SI().zStep(OD::UsrWork);
 	}
 	else
 	{
@@ -1265,7 +1267,7 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 	}
     }
     else
-	res.zsamp_.step = SI().zRange(true).step;
+	res.zsamp_.step = SI().zStep(OD::UsrWork);
 
     return res;
 }

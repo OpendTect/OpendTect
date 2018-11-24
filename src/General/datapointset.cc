@@ -19,6 +19,7 @@
 #include "samplfunc.h"
 #include "statrand.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 
 static const char* sKeyDPS = "Data Point Set";
 const int DataPointSet::groupcol_ = 3;
@@ -27,8 +28,8 @@ const int DataPointSet::groupcol_ = 3;
 	, nrfixedcols_(is2d?(mini?2:5):(mini?1:4)) \
 	, minimal_(mini)
 
-#define mSetSurvID(is2d) \
-    if (is2d) data_.data().setSurvID( TrcKey::std2DSurvID() );
+#define mSetIs2D(is2d) \
+    data_.data().setIs2D( is2d );
 
 
 static int getCompacted( int selgrp, int grp )
@@ -84,9 +85,9 @@ void DataPointSet::Pos::set( const Coord3& c )
 }
 
 
-Coord DataPointSet::Pos::coord( ::Pos::SurvID survid ) const
+Coord DataPointSet::Pos::coord( OD::GeomSystem gs ) const
 {
-    TrcKey trckey( survid, binid_ );
+    TrcKey trckey( gs, binid_ );
     Coord sc = trckey.getCoord();
     sc.x_ += offsx_; sc.y_ += offsy_;
     return sc;
@@ -131,7 +132,7 @@ DataPointSet::DataPointSet( bool is2d, bool mini )
 	, mAddMembs(is2d,mini)
 {
     initPVDS();
-    mSetSurvID(is2d)
+    mSetIs2D(is2d)
 }
 
 
@@ -143,7 +144,7 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 	, mAddMembs(is2d,mini)
 {
     initPVDS();
-    mSetSurvID(is2d)
+    mSetIs2D(is2d)
     init( pts, dcds );
 }
 
@@ -155,7 +156,7 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 	, mAddMembs(is2d,mini)
 {
     initPVDS();
-    mSetSurvID(is2d)
+    mSetIs2D(is2d)
     ObjectSet<DataColDef> dcds;
     for ( int idx=0; idx<nms.size(); idx++ )
 	dcds += new DataColDef( nms.get(idx) );
@@ -277,7 +278,7 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
 	, mAddMembs(is2d,mini)
 {
     initPVDS();
-    mSetSurvID(is2d)
+    mSetIs2D(is2d)
     data_.pars() = pdvs.pars();
 
     const BinIDValueSet& bvs = pdvs.data();
@@ -321,20 +322,20 @@ DataPointSet::DataPointSet( const DataPointSet& dps, const ::Pos::Filter& filt )
 	, data_(*new PosVecDataSet)
 	, mAddMembs(dps.is2d_,dps.minimal_)
 {
-    mSetSurvID(dps.is2d_)
+    mSetIs2D(dps.is2d_)
     data_.copyStructureFrom( dps.data_ );
     const int typ = filt.is2D() != dps.is2d_ ? -1 : (dps.is2d_ ? 1 : 0);
 
     mDynamicCastGet(const ::Pos::Filter3D*,f3d,&filt)
     mDynamicCastGet(const ::Pos::Filter2D*,f2d,&filt)
 
-    ::Pos::SurvID survid = dps.bivSet().survID();
+    const auto gs = dps.bivSet().geomSystem();
     for ( RowID irow=0; irow<dps.size(); irow++ )
     {
 	DataRow dr( dps.dataRow(irow) );
 	bool inc = true;
 	if ( typ == -1 )
-	    inc = filt.includes( dr.pos_.coord(survid), dr.pos_.z_ );
+	    inc = filt.includes( dr.pos_.coord(gs), dr.pos_.z_ );
 	else if ( f3d )
 	    inc = f3d->includes( dr.pos_.binID(), dr.pos_.z_ );
 	else if ( f2d )
@@ -354,7 +355,7 @@ DataPointSet::DataPointSet( const DataPointSet& dps )
 	, mAddMembs(dps.is2d_,dps.minimal_)
 {
     data_ = dps.data_;
-    mSetSurvID(dps.is2d_)
+    mSetIs2D(dps.is2d_)
     bvsidxs_ = dps.bvsidxs_;
 }
 
@@ -401,6 +402,14 @@ void DataPointSet::init( const TypeSet<DataPointSet::DataRow>& pts,
 	addRow( pts[idx] );
 
     calcIdxs();
+}
+
+
+OD::GeomSystem DataPointSet::geomSystem() const
+{
+    if ( !is2d_ )
+	return OD::VolBasedGeom;
+    return data_.geomSystem();
 }
 
 
@@ -541,7 +550,7 @@ BinID DataPointSet::binID( DataPointSet::RowID rid ) const
 Coord DataPointSet::coord( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,Coord::udf());
-    return pos(rid).coord(bivSet().survID());
+    return pos(rid).coord( bivSet().geomSystem() );
 }
 
 
@@ -888,7 +897,7 @@ DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos,
     float mindist = mUdf(float);
     int resrowidx=-1;
     mGetZ( dpos.z_, zinxy );
-    Coord3 targetpos( dpos.coord(bivSet().survID()), zinxy );
+    Coord3 targetpos( dpos.coord(bivSet().geomSystem()), zinxy );
     for ( int rowidx=0; rowidx<bvsidxs_.size(); rowidx++ )
     {
 	mGetZ( z(rowidx), zinxy );
@@ -1008,8 +1017,9 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 	    bid = sampling_->hsamp_.getNearest( bid );
 	}
 
-	const int gidx = vdp_.getGlobalIdx( bid );
-	if ( gidx<0 ) continue;
+	const int gidx = vdp_.getGlobalIdx( TrcKey(bid,dps_.is2D()) );
+	if ( gidx<0 )
+	    continue;
 
 	const float zval = dps_.z( rid );
 	const float fzidx = sd.getfIndex( zval );

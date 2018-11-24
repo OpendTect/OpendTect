@@ -109,7 +109,7 @@ void Seis::LineFetcher::findDataPack()
 bool Seis::LineFetcher::goTo( const TrcKey& tk )
 {
     uirv_.setEmpty();
-    if ( !tk.hasValidGeomID() )
+    if ( !tk.geomID().isValid() )
 	{ uirv_.set( tr("Invalid position requested") ); return false; }
 
     int newlineidx = lineIdxFor( tk.geomID() );

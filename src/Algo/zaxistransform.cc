@@ -12,7 +12,7 @@
 #include "survinfo.h"
 #include "binidvalue.h"
 #include "zdomain.h"
-#include "survgeom.h"
+#include "survgeom2d.h"
 
 
 mImplClassFactory( ZAxisTransform, factory );
@@ -89,9 +89,7 @@ void ZAxisTransform::transform( const BinID& bid,
 				const SamplingData<float>& sd,
 				int sz,float* res) const
 {
-    transformTrc( Survey::GM().traceKey(Survey::GM().default3DSurvID(),
-					bid.inl(), bid.crl()),
-		  sd, sz, res );
+    transformTrc( TrcKey(bid), sd, sz, res );
 }
 
 
@@ -99,9 +97,7 @@ void ZAxisTransform::transformBack( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    transformTrcBack( Survey::GM().traceKey( Survey::GM().default3DSurvID(),
-					    bid.inl(), bid.crl() ),
-		      sd, sz, res );
+    transformTrcBack( TrcKey(bid), sd, sz, res );
 }
 
 
@@ -138,8 +134,7 @@ float ZAxisTransform::transformBack( const BinIDValue& pos ) const
 void ZAxisTransform::transform2D( const char* linenm, int trcnr,
 		const SamplingData<float>& sd, int sz, float* res ) const
 {
-    const Survey::Geometry::ID gid = Survey::GM().getGeomID( linenm );
-    const TrcKey trckey = Survey::GM().traceKey( gid, trcnr );
+    const TrcKey trckey( Survey::Geometry::getGeomID(linenm), trcnr );
     transformTrc( trckey, sd, sz, res );
 }
 
@@ -156,8 +151,7 @@ float ZAxisTransform::transform2D( const char* linenm, int trcnr,
 void ZAxisTransform::transformBack2D( const char* linenm, int trcnr,
 		const SamplingData<float>& sd, int sz, float* res ) const
 {
-    const Survey::Geometry::ID gid = Survey::GM().getGeomID( linenm );
-    const TrcKey trckey = Survey::GM().traceKey( gid, trcnr );
+    const TrcKey trckey( Survey::Geometry::getGeomID(linenm), trcnr );
     transformTrcBack( trckey, sd, sz, res );
 }
 
@@ -183,7 +177,7 @@ float ZAxisTransform::getZIntervalCenter( bool from ) const
 
 float ZAxisTransform::getGoodZStep() const
 {
-    return SI().zRange(true).step;
+    return SI().zRange().step;
 }
 
 
@@ -243,10 +237,12 @@ ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
 					      bool is2d	)
     : transform_(trans)
     , back_(b)
-    , trckey_(0,BinID(0,0))
+    , trckey_(BinID(0,0))
     , sd_(nsd)
     , is2d_(is2d)
-{ transform_.ref(); }
+{
+    transform_.ref();
+}
 
 
 ZAxisTransformSampler::~ZAxisTransformSampler()
@@ -255,10 +251,8 @@ ZAxisTransformSampler::~ZAxisTransformSampler()
 
 void ZAxisTransformSampler::setLineName( const char* lnm )
 {
-    if ( !is2d_ )
-	return;
-
-    trckey_ = Survey::GM().traceKey( Survey::GM().getGeomID( lnm ), 0 );
+    if ( is2d_ )
+	trckey_ = TrcKey( Survey::Geometry::getGeomID(lnm), 0 );
 }
 
 

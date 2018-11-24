@@ -8,6 +8,7 @@
 #include "sorting.h"
 #include "survgeom.h"
 #include "trigonometry.h"
+#include "trckey.h"
 
 
 BendPointFinderBase::BendPointFinderBase( int sz, float eps )
@@ -176,7 +177,7 @@ BendPointFinderTrcKey::BendPointFinderTrcKey( const TypeSet<TrcKey>& tks,
     , tks_(tks)
 {
     for ( int idx=0; idx<tks_.size(); idx++ )
-	coords_ += Survey::GM().toCoord( tks_[idx] );
+	coords_ += tks_[idx].getCoord();
 }
 
 

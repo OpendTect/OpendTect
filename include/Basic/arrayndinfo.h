@@ -69,15 +69,15 @@ public:
 
 
 #define mTypeDefArrNDTypes \
-    typedef ArrayNDInfo::DimIdxType	DimIdxType; \
-    typedef ArrayNDInfo::NrDimsType	NrDimsType; \
-    typedef ArrayNDInfo::IdxType	IdxType; \
-    typedef ArrayNDInfo::SzType		SzType; \
-    typedef ArrayNDInfo::OffsetType	OffsetType; \
-    typedef ArrayNDInfo::TotalSzType	TotalSzType; \
-    typedef ArrayNDInfo::NDSize		NDSize; \
-    typedef ArrayNDInfo::NDPos		NDPos; \
-    typedef ArrayNDInfo::NDPosBuf	NDPosBuf
+    mUseType( ArrayNDInfo, DimIdxType ); \
+    mUseType( ArrayNDInfo, NrDimsType ); \
+    mUseType( ArrayNDInfo, IdxType ); \
+    mUseType( ArrayNDInfo, SzType ); \
+    mUseType( ArrayNDInfo, OffsetType ); \
+    mUseType( ArrayNDInfo, TotalSzType ); \
+    mUseType( ArrayNDInfo, NDSize ); \
+    mUseType( ArrayNDInfo, NDPos ); \
+    mUseType( ArrayNDInfo, NDPosBuf ); \
 
 #define mDefNDPosBuf(nm,nrdims) ArrayNDInfo::NDPosBuf nm( nrdims, 0 )
 #define mNDPosFromPosBuf(bufnm) bufnm.arr()

@@ -64,8 +64,7 @@ bool VolProc::Processor::run( od_ostream& strm, JobCommunic* comm )
 
 	TrcKeyZSampling tkzs;
 	tkzs.usePar( geompar ? *geompar : *subselpar );
-	const BufferString geomname =
-		Survey::GM().getName( tkzs.hsamp_.getGeomID() );
+	const BufferString geomname = nameOf( tkzs.hsamp_.getGeomID() );
 	if ( tkzs.is2D() )
 	    strm << "\nProcessing on Line " << geomname << od_endl;
 	else if ( nrgeoms > 1 )

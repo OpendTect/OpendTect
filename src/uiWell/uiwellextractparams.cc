@@ -99,7 +99,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 	    if ( (zsel == Well::ZRangeSelector::Times && istime) ||
 		 (zsel == Well::ZRangeSelector::Depths && !istime) )
 	    {
-		Interval<float> zrg( SI().zRange(true) );
+		Interval<float> zrg( SI().zRange(OD::UsrWork) );
 		zrg.scale( ztimefac_ );
 		newgeninp->setValue( zrg );
 	    }

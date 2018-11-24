@@ -9,6 +9,7 @@
 #include "idxable.h"
 #include "posinfo.h"
 #include "statrand.h"
+#include "trckeysampling.h"
 #include "od_iostream.h"
 
 

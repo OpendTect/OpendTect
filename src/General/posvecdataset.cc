@@ -114,6 +114,12 @@ PosVecDataSet& PosVecDataSet::operator =( const PosVecDataSet& vds )
 }
 
 
+OD::GeomSystem PosVecDataSet::geomSystem() const
+{
+    return data_.geomSystem();
+}
+
+
 void PosVecDataSet::copyStructureFrom( const PosVecDataSet& vds )
 {
     setEmpty();

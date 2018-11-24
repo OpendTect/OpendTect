@@ -790,6 +790,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 	c1 = center - halfsize;
     }
 
+    res.hsamp_.setIs3D();
     res.hsamp_.start_ = res.hsamp_.stop_ = BinID(mNINT32(c0.x_),mNINT32(c0.y_));
     res.zsamp_.start = res.zsamp_.stop = (float) c0.z_;
     res.hsamp_.include( BinID(mNINT32(c1.x_),mNINT32(c1.y_)) );
@@ -797,7 +798,6 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
     res.hsamp_.step_ = BinID( s3dgeom_->inlRange().step,
 			      s3dgeom_->crlRange().step );
     res.zsamp_.step = s3dgeom_->zRange().step;
-    res.hsamp_.survid_ = Survey::GM().default3DSurvID();
 
     if ( manippos )
 	res = snapPosition( res );
@@ -817,7 +817,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 	if ( !displayspace )
 	{
 	    res.zsamp_.setFrom( datatransform_->getZInterval(true) );
-	    res.zsamp_.step = SI().zRange(true).step;
+	    res.zsamp_.step = SI().zStep( OD::UsrWork );
 	}
 	else
 	{
@@ -1206,7 +1206,7 @@ void PlaneDataDisplay::updateTexShiftAndGrowth()
     const TrcKeyZSampling tkzs = getTrcKeyZSampling( false, true );
     const TrcKeyZSampling& oldtkzs = updatestageinfo_.oldtkzs_;
 
-    const TrcKeyZSampling& si = SI().sampling( true );
+    const TrcKeyZSampling si( OD::UsrWork );
     const float resolutionfactor = mCast( float, resolution_+1 );
 
     const int inldif = tkzs.hsamp_.start_.inl() - si.hsamp_.start_.inl();
@@ -1261,7 +1261,7 @@ void PlaneDataDisplay::updateTexOriginAndScale( int attrib,
     if ( !tkzs.isDefined() || tkzs.isEmpty() )
 	return;
 
-    const TrcKeyZSampling& si = SI().sampling( true );
+    const TrcKeyZSampling si( OD::UsrWork );
     const float resolutionfactor = mCast( float, resolution_+1 );
 
     const int inldif = tkzs.hsamp_.start_.inl() - si.hsamp_.start_.inl();

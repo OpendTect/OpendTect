@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uiobjfileman.h"
+#include "geomid.h"
 
 class uiGenInput;
 class uiPushButton;

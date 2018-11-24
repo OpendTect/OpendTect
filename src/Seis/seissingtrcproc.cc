@@ -253,7 +253,7 @@ uiString SeisSingleTraceProc::message() const
 	else
 	{
 	    const Pos::GeomID geomid = prov->curGeomID();
-	    if ( geomid < 0 )
+	    if ( !geomid.is2D() )
 		ret = uiStrings::sData();
 	    else
 		{ ret = toUiString("'%1'").arg( toString(geomid) ); }
@@ -420,7 +420,7 @@ bool SeisSingleTraceProc::prepareTrc()
 
     if ( extendtrctosi_ )
     {
-	SeisTrc* newtrc = worktrc_->getExtendedTo( SI().zRange(true) );
+	SeisTrc* newtrc = worktrc_->getExtendedTo( SI().zRange() );
 	*const_cast<SeisTrc*>(worktrc_) = *newtrc;
 	delete newtrc;
     }

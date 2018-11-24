@@ -104,17 +104,15 @@ void SurfaceIOData::fillPar( IOPar& iopar ) const
     iopar.set( Horizon2DGeometry::sKeyNrLines(), nrlines );
     for ( int idx=0; idx<nrlines; idx++ )
     {
-	if ( geomids.validIdx(idx)
-		&& geomids[idx] != Survey::GeometryManager::cUndefGeomID() )
+	if ( geomids.validIdx(idx) && geomids[idx].isValid() )
 	    iopar.set( IOPar::compKey(sKey::GeomID(),idx), geomids[idx] );
 	else if ( linesets.validIdx(idx) && linenames.validIdx(idx) )
 	{
-	    Pos::GeomID geomid = Survey::GM().getGeomID( linesets.get(idx),
-							 linenames.get(idx) );
-	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
-		continue;
-
-	    iopar.set( IOPar::compKey(sKey::GeomID(),idx), geomid );
+	    const BufferString oldlnm( linesets.get(idx), "-",
+				       linenames.get(idx) );
+	    const Pos::GeomID geomid = Survey::Geometry::getGeomID( oldlnm );
+	    if ( geomid.isValid() )
+		iopar.set( IOPar::compKey(sKey::GeomID(),idx), geomid );
 	}
 
 	BufferString key = IOPar::compKey( "Line", idx );
@@ -141,7 +139,7 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 	for ( int idx=0; idx<nrlines; idx++ )
 	{
 	    BufferString key = IOPar::compKey( "Line", idx );
-	    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+	    Pos::GeomID geomid;
 	    if ( !iopar.get(IOPar::compKey(sKey::GeomID(),idx),geomid) )
 	    {
 		BufferString idstr;
@@ -151,17 +149,18 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 		    PosInfo::Line2DKey l2dkey; l2dkey.fromString( idstr );
 		    if ( S2DPOS().curLineSetID() != l2dkey.lsID() )
 			S2DPOS().setCurLineSet( l2dkey.lsID() );
-		    geomid = Survey::GM().getGeomID(
-				S2DPOS().getLineSet(l2dkey.lsID()),
+		    const BufferString oldlnm(
+			    S2DPOS().getLineSet(l2dkey.lsID()), "-",
 				S2DPOS().getLineName(l2dkey.lineID()) );
+		    geomid = Survey::Geometry::getGeomID( oldlnm );
 		}
 	    }
 
-	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	    if ( !geomid.isValid() )
 		continue;
 
 	    geomids += geomid;
-	    linenames.add( Survey::GM().getName(geomid) );
+	    linenames.add( nameOf(geomid) );
 	    StepInterval<int> trcrange;
 	    iopar.get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
 		       trcrange );

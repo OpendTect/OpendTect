@@ -560,8 +560,8 @@ int EventWriter::nextStep()
 	SamplingData<int> crlsampling;
 	if ( !EventReader::readSamplingData(*ioobj_,inlsampling, crlsampling ) )
 	{
-	    const StepInterval<int> inlrg = SI().inlRange(false);
-	    const StepInterval<int> crlrg = SI().crlRange(false);
+	    const StepInterval<int> inlrg = SI().inlRange();
+	    const StepInterval<int> crlrg = SI().crlRange();
 	    inlsampling.start = inlrg.start; inlsampling.step = inlrg.step*25;
 	    crlsampling.start = crlrg.start; crlsampling.step = crlrg.step*25;
 	}

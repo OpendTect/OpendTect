@@ -305,8 +305,9 @@ void SeisPacketInfo::clear()
     cubedata = 0;
     if ( !DBM().isBad() )
     {
-	SI().sampling(false).hsamp_.get( inlrg, crlrg );
-	zrg = SI().zRange(false);
+	inlrg = SI().inlRange();
+	crlrg = SI().crlRange();
+	zrg = SI().zRange();
     }
 
     inlrev = crlrev = false;
@@ -362,23 +363,23 @@ void SeisTrcInfo::getAxisCandidates( Seis::GeomType gt,
 }
 
 
-int SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
-				    const SeisTrcInfo* ti ) const
+SeisTrcInfo::Fld SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
+						 const SeisTrcInfo* next ) const
 {
     const bool is2d = Seis::is2D( gt );
     const bool isps = Seis::isPS( gt );
-    if ( !ti )
+    if ( !next )
 	return isps ? Offset : (is2d ? TrcNr : BinIDCrl);
 
-    if ( isps && !Seis::equalOffset(ti->offset_,offset_) )
+    if ( isps && !Seis::equalOffset(next->offset_,offset_) )
 	return Offset;
-    if ( ti->trcNr() != trcNr() )
+    if ( next->trcNr() != trcNr() )
 	return is2d ? TrcNr : BinIDCrl;
-    if ( !is2d && ti->lineNr() != lineNr() )
+    if ( !is2d && next->lineNr() != lineNr() )
 	return BinIDInl;
 
     // 'normal' doesn't apply, try coordinates
-    return mIsZero(ti->coord_.x_-coord_.x_,.1) ? CoordY : CoordX;
+    return mIsZero(next->coord_.x_-coord_.x_,.1) ? CoordY : CoordX;
 }
 
 
@@ -635,10 +636,10 @@ void Seis::Bounds3D::getCoordRange( Coord& mn, Coord& mx ) const
 
 Seis::Bounds2D::Bounds2D()
 {
-    zrg_ = SI().zRange(false);
+    zrg_ = SI().zRange();
     nrrg_.step = 1;
-    mincoord_ = SI().minCoord( false );
-    maxcoord_ = SI().maxCoord( false );
+    mincoord_ = SI().minCoord();
+    maxcoord_ = SI().maxCoord();
 }
 
 

@@ -105,17 +105,17 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    setOutputValue( output, 5, idx, z0, mCast(float,z0+idx+1) );
 	    if ( isOutputEnabled(6) )
 	    {
-		const int val = truepos.inl() - SI().inlRange(0).start + 1;
+		const int val = truepos.inl() - SI().inlRange().start + 1;
 		setOutputValue( output, 6, idx, z0, mCast(float,val) );
 	    }
 	    if ( isOutputEnabled(7) )
 	    {
-		const int val = truepos.crl() - SI().crlRange(0).start + 1;
+		const int val = truepos.crl() - SI().crlRange().start + 1;
 		setOutputValue( output, 7, idx, z0, mCast(float,val) );
 	    }
 	    if ( isOutputEnabled(8) )
 	    {
-		const int val = z0 - mNINT32(SI().zRange(0).start/step) +idx +1;
+		const int val = z0 - mNINT32(SI().zRange().start/step) +idx +1;
 		setOutputValue( output, 8, idx, z0, mCast(float,val) );
 	    }
 	}
@@ -128,7 +128,7 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( isOutputEnabled(6) )
 	    {
 		const int val =
-		    z0 - mNINT32(SI().zRange(0).start/step) + idx + 1;
+		    z0 - mNINT32(SI().zRange().start/step) + idx + 1;
 		setOutputValue( output, 6, idx, z0, mCast(float,val) );
 	    }
 	}

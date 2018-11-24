@@ -215,8 +215,8 @@ bool BatchProgram::go( od_ostream& strm )
 
 	curbid = hiter.curBinID();
 
-	step.inl() = SI().inlRange(true).step;
-	step.crl() = SI().crlRange(true).step;
+	step.inl() = SI().inlRange().step;
+	step.crl() = SI().crlRange().step;
     }
 
     mSetCommState(Working);
@@ -334,7 +334,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 		if ( reader2d )
 		{
-		    trc.info().trckey_ = TrcKey( curbid.lineNr(),
+		    trc.info().trckey_ = TrcKey( Pos::GeomID(curbid.lineNr()),
 						 curbid.trcNr() );
 		    PosInfo::Line2DPos linepos;
 		    if ( reader2d->posData().getPos(curbid.crl(),linepos) )

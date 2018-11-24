@@ -116,7 +116,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
 
     const Well::Track& track = wdata.track();
     const Well::D2TModel& d2t = wdata.d2TModel();
-    float stoptime = SI().zRange(true).stop;
+    float stoptime = SI().zRange().stop;
     const float td = track.td();
     float tdtime = d2t.getTime( td, track );
     if ( !mIsUdf(tdtime) && tdtime > stoptime )

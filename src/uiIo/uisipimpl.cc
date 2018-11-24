@@ -254,7 +254,7 @@ bool uiCopySurveySIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     if ( !survinfo )
 	return false;
 
-    cs = survinfo->sampling( false );
+    survinfo->getSampling( cs );
     crd[0] = survinfo->transform( cs.hsamp_.start_ );
     crd[1] = survinfo->transform( cs.hsamp_.stop_ );
     crd[2] = survinfo->transform(
@@ -337,7 +337,7 @@ bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     PtrMan<SurveyInfo> survinfo = new SurveyInfo();
     survinfo->usePar( pars );
 
-    cs = survinfo->sampling( false );
+    survinfo->getSampling( cs );
     crd[0] = survinfo->transform( cs.hsamp_.start_ );
     crd[1] = survinfo->transform( cs.hsamp_.stop_ );
     crd[2] = survinfo->transform(

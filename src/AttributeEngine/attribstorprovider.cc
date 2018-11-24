@@ -148,8 +148,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 
 	SeisPacketInfo si;
 	stbdtp->trcBuf().fill( si );
-	storedvolume_.hsamp_.survid_ =
-	    stbdtp->trcBuf().get( 0 )->info().trckey_.survID();
+	storedvolume_.hsamp_.setIs2D( stbdtp->trcBuf().get(0)->info().is2D() );
 	storedvolume_.hsamp_.setInlRange( si.inlrg );
 	storedvolume_.hsamp_.setCrlRange( si.crlrg );
 	storedvolume_.zsamp_ = si.zrg;
@@ -170,7 +169,7 @@ bool StorageProvider::checkInpAndParsAtStart()
     if ( !is2d )
     {
 	SeisTrcTranslator::getRanges( mid, storedvolume_, 0 );
-	storedvolume_.hsamp_.survid_ = TrcKey::std3DSurvID();
+	storedvolume_.hsamp_.setIs2D( false );
     }
     else
     {
@@ -179,7 +178,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	storedvolume_.hsamp_.stop_.inl() = 1;
 	storedvolume_.hsamp_.step_.inl() = 1;
 	storedvolume_.hsamp_.include( BinID( 0,0 ) );
-	storedvolume_.hsamp_.include( BinID( 0, SI().maxNrTraces(true) ) );
+	storedvolume_.hsamp_.include( BinID( 0, SI().maxNrTraces() ) );
 	storedvolume_.hsamp_.step_.crl() = 1; // what else?
 
 	mDynamicCastGet( const Seis::Provider2D&, prov, *mscprov_->provider() );
@@ -191,17 +190,17 @@ bool StorageProvider::checkInpAndParsAtStart()
 		continue;
 
 	    const Pos::GeomID geomid = prov.geomID( iln );
+	    const auto lnr = geomid.lineNr();
 
 	    if ( !isfirst )
 	    {
-		storedvolume_.hsamp_.include( BinID(geomid,trcrg.start) );
-		storedvolume_.hsamp_.include( BinID(geomid,trcrg.stop) );
+		storedvolume_.hsamp_.include( BinID(lnr,trcrg.start) );
+		storedvolume_.hsamp_.include( BinID(lnr,trcrg.stop) );
 		storedvolume_.zsamp_.include( zrg );
 	    }
 	    else
 	    {
-		storedvolume_.hsamp_.setLineRange(
-					StepInterval<int>(geomid,geomid,1) );
+		storedvolume_.hsamp_.setLineRange(StepInterval<int>(lnr,lnr,1));
 		storedvolume_.hsamp_.setTrcRange( trcrg );
 		storedvolume_.zsamp_ = zrg;
 		isfirst = false;
@@ -323,10 +322,10 @@ bool StorageProvider::getLine2DStoredVolume()
     mDynamicCastGet( const Seis::Provider2D&, prov, *mscprov_->provider() );
     StepInterval<int> trcrg; StepInterval<float> zrg;
     if ( !prov.getRanges(prov.lineNr(geomid_),trcrg,zrg) )
-	mErrRet( tr("Ranges not available for line %2")
-		.arg(Survey::GM().getName(geomid_)) );
+	mErrRet( tr("Ranges not available for line %2").arg(nameOf(geomid_)) );
 
-    storedvolume_.hsamp_.setLineRange( StepInterval<int>(geomid_,geomid_,1) );
+    const auto lnr = geomid_.lineNr();
+    storedvolume_.hsamp_.setLineRange( StepInterval<int>(lnr,lnr,1) );
     storedvolume_.hsamp_.setTrcRange( trcrg );
     storedvolume_.zsamp_ = zrg;
     return true;
@@ -346,8 +345,7 @@ bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
     if ( is2d == globpv.is2D() )
 	globpv.limitTo( *possiblevolume_ );
 
-    const bool issynthetic =
-	possiblevolume_->hsamp_.survid_ == TrcKey::stdSynthSurvID();
+    const bool issynthetic = possiblevolume_->hsamp_.isSynthetic();
     if ( issynthetic )
 	globpv = *possiblevolume_;
 
@@ -534,7 +532,7 @@ bool StorageProvider::set2DRangeSelData()
 	{ pErrMsg("shld be 2D"); return false; }
     mDynamicCastGet( Seis::Provider2D&, prov2d, prov );
 
-    if ( geomid_ != Survey::GeometryManager::cUndefGeomID() )
+    if ( geomid_.isValid() )
     {
 	TrcKeyZSampling tkzs; tkzs.set2DDef();
 	seldata->setGeomID( geomid_ );
@@ -543,7 +541,7 @@ bool StorageProvider::set2DRangeSelData()
 	{
 	    if ( !checkDesiredTrcRgOK(trcrg,dszrg) )
 		return false;
-	    StepInterval<int> rg( geomid_, geomid_, 1 );
+	    StepInterval<int> rg( geomid_.lineNr(), geomid_.lineNr(), 1 );
 	    tkzs.hsamp_.setLineRange( rg );
 	    rg.start = desiredvolume_->hsamp_.start_.crl() < trcrg.start?
 			trcrg.start : desiredvolume_->hsamp_.start_.crl();
@@ -933,12 +931,11 @@ bool StorageProvider::compDistBetwTrcsStats( bool force )
     {
 	const BufferString linenm( prov2d.lineName(idx) );
 	PosInfo::Line2DData& linegeom = ls2ddata_->addLine( linenm );
-	const Survey::Geometry* geom =
-		Survey::GM().getGeometry( prov2d.geomID(idx) );
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geom );
-	if ( !geom2d ) continue;
+	const auto& geom2d = Survey::Geometry::get2D( prov2d.geomID(idx) );
+	if ( geom2d.isEmpty() )
+	    continue;
 
-	linegeom = geom2d->data();
+	linegeom = geom2d.data();
 	if ( linegeom.positions().isEmpty() )
 	{
 	    ls2ddata_->removeLine( linenm );

@@ -13,9 +13,8 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "survgeom.h"
-
-class DBKey;
-namespace PosInfo { class Line2DData; }
+class TrcKeyZSampling;
+namespace PosInfo { class Line2DData; class Line2DPos; }
 
 
 namespace Survey
@@ -24,61 +23,88 @@ namespace Survey
 class SubGeometry2D;
 
 
-/*!\brief Geometry of a 2D Line. */
+/*!\brief Geometry of a 2D Line.
+
+  This object is not protected against MT updates. It's perfectly good for
+  concurrent reading.
+
+ */
 
 mExpClass(Basic) Geometry2D : public Geometry
+			    , public CallBacker
 {
 public:
-				Geometry2D(const char* lnm);
-				Geometry2D(PosInfo::Line2DData*);
-				//!<Line2DData becomes mine
 
-    virtual bool		is2D() const		{ return true; }
-    virtual const name_type&	name() const;
+    typedef PosInfo::Line2DData	Line2DData;
+    typedef PosInfo::Line2DPos	Line2DPos;
+    typedef float		spnr_type;
+    typedef TypeSet<spnr_type>	SPNrSet;
+    mUseType( SPNrSet,		size_type );
 
-    void			add(const Coord&,int trcnr,int spnr=-1);
-    void			add(double x,double y,int trcnr,int spnr=-1);
-    int				size() const;
-    void			setEmpty();
-    virtual Coord		toCoord(int linenr,int tracenr) const;
-    virtual TrcKey		nearestTrace(const Coord&,float* dist) const;
+			Geometry2D(const char* lnm);
+			Geometry2D(Line2DData*); //!<Line2DData becomes mine
 
-    virtual bool		includes(int linenr,int tracenr) const;
+    static bool		isPresent(GeomID);
+    static const Geometry2D& get(const char* linenm);
+    static const Geometry2D& get(GeomID);
+    bool		isEmpty() const;
+    bool		isDummy() const		    { return this == &dummy(); }
 
-    PosInfo::Line2DData&	dataAdmin()		{ return data_; }
-				//!<If data is changed, call touch afterwards
-    void			touch();
-    const PosInfo::Line2DData&	data() const		{ return data_; }
-    TypeSet<int>&		spnrs()			{ return spnrs_; }
-    const TypeSet<int>&		spnrs() const		{ return spnrs_; }
+    GeomSystem		geomSystem() const override { return OD::LineBasedGeom;}
+    const name_type&	name() const override;
+    size_type		size() const;
+    idx_type		indexOf(tracenr_type) const;
+    tracenr_type	trcNr(idx_type) const;
+    bool		includes(tracenr_type) const;
+    Coord		getCoord(tracenr_type) const;
+    spnr_type		getSPNr(tracenr_type) const;
+    bool		findSP(spnr_type,tracenr_type&) const;
+    void		getInfo(tracenr_type,Coord&,spnr_type&) const;
 
-    StepInterval<float>		zRange() const;
+    dist_type		averageTrcDist() const	    { return avgtrcdist_; }
+    dist_type		lineLength() const	    { return linelength_; }
 
-    static BufferString		makeUniqueLineName(const char* lsnm,
-						   const char* lnm);
-    float			averageTrcDist() const;
-    void			setAverageTrcDist(float);
-    float			lineLength() const;
-    void			setLineLength(float);
-    virtual RelationType	compare(const Geometry&,bool usezrg) const;
+    tracenr_type	nearestTracePosition(const Coord&,
+					     dist_type* dist_to_line=0) const;
+    tracenr_type	tracePosition(const Coord&,
+				      dist_type maxdist=mUdf(dist_type)) const;
 
-    static ID			getIDFrom(const DBKey&);
+    Notifier<Geometry2D> objectChanged;
 
 protected:
 
-				Geometry2D();
-				~Geometry2D();
+			Geometry2D();
+			~Geometry2D();
 
-    PosInfo::Line2DData&	data_;
-    TypeSet<int>		spnrs_;
-    mutable float		trcdist_;
-    mutable float		linelength_;
-    mutable Threads::Lock	lock_;
+    Line2DData&		data_;
+    TypeSet<float>	spnrs_;
+    mutable float	avgtrcdist_			= mUdf(float);
+    mutable float	linelength_			= mUdf(float);
 
-    virtual Geometry2D*		gtAs2D() const
-				{ return const_cast<Geometry2D*>(this); }
+    Geometry3D*		gtAs3D() const	override	{ return 0; }
+    Geometry2D*		gtAs2D() const	override
+			{ return const_cast<Geometry2D*>(this); }
 
-    friend class		SubGeometry2D;
+    friend class	SubGeometry2D;
+
+    void		setFromLineData();
+
+public:
+
+    RelationType	compare(const Geometry2D&,bool usezrg) const;
+
+    const Line2DData&	data() const		{ return data_; }
+    Line2DData&		data()			{ return data_; }
+    const SPNrSet&	spNrs() const		{ return spnrs_; }
+    SPNrSet&		spNrs()			{ return spnrs_; }
+    void		getSampling(TrcKeyZSampling&) const;
+
+			// *you* should probably not be changing line geometries
+    void		setEmpty() const;
+    void		add(const Coord&,int trcnr,float SPnr);
+    void		commitChanges() const; //!< mandatory after any change
+
+    static Geometry2D&	dummy();
 
 };
 

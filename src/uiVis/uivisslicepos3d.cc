@@ -91,11 +91,15 @@ void uiSlicePos3DDisp::setBoxRanges()
 {
     if ( !curpdd_ && !curvol_ ) return;
 
-    const TrcKeyZSampling& survey = curpdd_ && curpdd_->getScene() ?
-				    curpdd_->getScene()->getTrcKeyZSampling()
-				  : curvol_ ? curvol_->getTrcKeyZSampling( 0 )
-				  : SI().sampling( true );
-    setBoxRg( getOrientation(), survey );
+    TrcKeyZSampling tkzs( false );
+    if ( curpdd_ && curpdd_->getScene() )
+	tkzs = curpdd_->getScene()->getTrcKeyZSampling();
+    else if ( curvol_ )
+	tkzs = curvol_->getTrcKeyZSampling( false );
+    else
+	SI().getSampling( tkzs, OD::UsrWork );
+
+    setBoxRg( getOrientation(), tkzs );
 }
 
 

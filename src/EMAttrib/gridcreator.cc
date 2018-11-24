@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "seiswrite.h"
 #include "separstr.h"
 #include "survgeom2d.h"
+#include "survgeommgr.h"
 
 
 const char* Seis2DGridCreator::sKeyOverWrite()	{ return "Do Overwrite"; }
@@ -178,16 +179,16 @@ bool Seis2DGridCreator::init( const IOPar& par )
 
 #define mHandleLineGeom \
 uiString errmsg; \
-Pos::GeomID geomid = Survey::GM().getGeomID( linenm ); \
-const bool islinepresent = geomid != Survey::GeometryManager::cUndefGeomID(); \
+Pos::GeomID geomid = Survey::Geometry::getGeomID( linenm ); \
+const bool islinepresent = geomid.isValid(); \
 if ( !islinepresent ) \
 { \
     PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linenm ); \
     Survey::Geometry2D* newgoem2d = new Survey::Geometry2D( l2d ); \
     newgoem2d->ref(); \
-    geomid = Survey::GMAdmin().addNewEntry( newgoem2d, errmsg ); \
+    Survey::GMAdmin().addEntry( newgoem2d, geomid, errmsg ); \
     newgoem2d->unRef(); \
-    if ( geomid == Survey::GeometryManager::cUndefGeomID() ) \
+    if ( !geomid.isValid() ) \
     { \
 	failedlines_.add( linenm ); \
 	continue; \
@@ -195,9 +196,8 @@ if ( !islinepresent ) \
 } \
 else if ( islinepresent && dooverwrite ) \
 { \
-    Survey::Geometry* geom = Survey::GMAdmin().getGeometry( geomid ); \
-    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom); \
-    geom2d->dataAdmin().setEmpty(); \
+    const auto& geom = Survey::Geometry::get2D( geomid ); \
+    const_cast<Survey::Geometry2D&>(geom).data().setEmpty(); \
 }
 
 bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,

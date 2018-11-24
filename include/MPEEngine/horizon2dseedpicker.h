@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emseedpicker.h"
 #include "posinfo2dsurv.h"
 #include "attribsel.h"
+#include "trckeyzsampling.h"
 
 namespace MPE
 {

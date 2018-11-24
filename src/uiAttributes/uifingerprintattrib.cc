@@ -604,19 +604,18 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 
 BinID uiFingerPrintAttrib::get2DRefPos() const
 {
-    const BinID undef( mUdf(int), mUdf(int) );
+    static const BinID undef( mUdf(int), mUdf(int) );
     if ( !is2d_ )
 	return undef;
 
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-		    Survey::GM().getGeometry(linefld_->lineName()) );
-    if ( !geom2d )
+    const auto& geom2d = Survey::Geometry::get2D( linefld_->lineName() );
+    if ( geom2d.isEmpty() )
 	return undef;
 
     const int trcnr = refposfld_->getBinID().crl();
-    const int trcidx = geom2d->data().indexOf( trcnr );
-    if ( geom2d->data().positions().validIdx(trcidx) )
-	return SI().transform( geom2d->data().positions()[trcidx].coord_ );
+    const int trcidx = geom2d.data().indexOf( trcnr );
+    if ( trcidx >= 0 )
+	return SI().transform( geom2d.data().positions()[trcidx].coord_ );
 
     return undef;
 }

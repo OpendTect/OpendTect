@@ -39,8 +39,9 @@ uiCreateHorizon::uiCreateHorizon( uiParent* p, bool is2d )
     }
 
     uiString lbl = tr("Z Value").withSurvZUnit();
-    zfld_ = new uiGenInput( this, lbl, FloatInpSpec(SI().zRange(true).start
-					*SI().zDomain().userFactor()) );
+    const auto defz = SI().zRange(OD::UsrWork).start
+		    * SI().zDomain().userFactor();
+    zfld_ = new uiGenInput( this, lbl, FloatInpSpec(defz) );
 
     uiSurfaceWrite::Setup swsu( EM::Horizon3D::typeStr(),
 				EM::Horizon3D::userTypeStr() );
@@ -79,7 +80,7 @@ bool uiCreateHorizon::acceptOK()
     }
 
     zval /= SI().zDomain().userFactor();
-    if ( !SI().zRange(false).includes(zval,false) )
+    if ( !SI().zRange().includes(zval,false) )
     {
 	const bool res =
 		uiMSG().askContinue( tr("Z Value is outside survey Z range") );

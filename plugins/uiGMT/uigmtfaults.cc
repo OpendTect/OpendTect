@@ -120,7 +120,7 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
     const bool onzslice = optionfld_->getBoolValue();
     iop.setYN( ODGMT::sKeyZIntersectionYN(), onzslice );
     const float zvalue = zvaluefld_->getFValue()/SI().zDomain().userFactor();
-    StepInterval<float> zrg = SI().zRange( true );
+    StepInterval<float> zrg = SI().zRange( OD::UsrWork );
     if ( onzslice )
     {
 	const bool isbetween = zrg.start<=zvalue && zvalue<=zrg.stop;

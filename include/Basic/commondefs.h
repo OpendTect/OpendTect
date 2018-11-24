@@ -121,7 +121,9 @@ inline T getLimited( T v, T min, T max )
 //--- C++ tools
 
 #define mCast(tp,v)			((tp)(v))
+#define mUseType(scope,typ)		typedef scope::typ typ
 
+# define mGetDynamicCast(typ,in)	dynamic_cast< typ >( in );
 # define mDynamicCast(typ,out,in)	out = dynamic_cast< typ >( in );
 # define mDynamicCastGet(typ,out,in)	typ mDynamicCast(typ,out,in)
 

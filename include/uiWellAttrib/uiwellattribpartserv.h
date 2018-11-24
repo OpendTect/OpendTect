@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uiapplserv.h"
+#include "geomid.h"
 #include "uistring.h"
 
 class BufferStringSet;

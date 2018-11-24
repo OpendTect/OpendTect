@@ -22,9 +22,11 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class SeparString;
+class TrcKey;
 class ascistream;
 class ascostream;
 class uiString;
+namespace Pos { class GeomID; }
 
 /*!
 \brief Generalized set of parameters of the keyword-value type.
@@ -162,6 +164,7 @@ public:
     bool		get(const char*,TypeSet<od_uint64>&) const;
     bool		get(const char*,TypeSet<double>&) const;
     bool		get(const char*,TypeSet<float>&) const;
+    bool		get(const char*,TypeSet<Pos::GeomID>&) const;
 
     template <class iT>
     inline bool		get(const char*,IntegerID<iT>&) const;
@@ -178,6 +181,7 @@ public:
 
     bool		get(const char*,TrcKey&) const;
     bool		get(const char*,DBKey&) const;
+    bool		get(const char*,Pos::GeomID&) const;
     bool		get(const char*,Color&) const;
     bool		get(const char*,SeparString&) const;
     bool		get(const char*,BufferString&) const;
@@ -246,7 +250,7 @@ public:
 #undef mIOParDeclYNFns
 
     template<class iT>
-    inline void		set(const char*,IntegerID<iT>);
+    inline void		set(const char*,const IntegerID<iT>&);
     template <class fT>
     inline void		set(const char*,const Geom::Point2D<fT>&);
     template <class fT>
@@ -259,8 +263,9 @@ public:
     inline void		set(const char*,const std::pair<T1,T2>&);
 
     template<class iT>
-    inline void		update(const char*,IntegerID<iT>);
+    inline void		update(const char*,const IntegerID<iT>&);
     void		update(const char*,const DBKey&);
+    void		update(const char*,const Pos::GeomID&);
 
     void		set(const char*,int,int,float);
     void		setPtr(const char*,void*);
@@ -269,6 +274,7 @@ public:
     void		set(const char*,const char*,const char*,const char*);
     void		set(const char*,const TrcKey&);
     void		set(const char*,const DBKey&);
+    void		set(const char*,const Pos::GeomID&);
     void		set(const char*,const Color&);
     void		set(const char*,const SeparString&);
     void		set(const char*,const OD::String&);
@@ -285,6 +291,7 @@ public:
     void		set(const char*,const TypeSet<od_uint64>&);
     void		set(const char*,const TypeSet<double>&);
     void		set(const char*,const TypeSet<float>&);
+    void		set(const char*,const TypeSet<Pos::GeomID>&);
 
     void		setToDateTime(const char* ky=0);
     void		setToUser(const char* ky=0);
@@ -389,14 +396,14 @@ bool IOPar::get( const char* keyw, IntegerID<iT>& id ) const
 
 
 template<class iT>
-void IOPar::set( const char* keyw, IntegerID<iT> id )
+void IOPar::set( const char* keyw, const IntegerID<iT>& id )
 {
     set( keyw, id.getI() );
 }
 
 
 template<class iT>
-void IOPar::update( const char* keyw, IntegerID<iT> id )
+void IOPar::update( const char* keyw, const IntegerID<iT>& id )
 {
     if ( id.isInvalid() )
 	removeWithKey( keyw );

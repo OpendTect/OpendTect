@@ -277,7 +277,7 @@ void SEGY::Scanner::addFailed( const uiString& errmsg )
 StepInterval<float> SEGY::Scanner::zRange() const
 {
     if ( fds_.isEmpty() )
-	return SI().zRange( false );
+	return SI().zRange();
 
     return StepInterval<float>( fds_.getSampling().interval(fds_.getTrcSz()) );
 }

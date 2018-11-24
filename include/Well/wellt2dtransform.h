@@ -35,7 +35,7 @@ public:
     void			transformTrcBack(const TrcKey&,
 					      const SamplingData<float>&,
 					      int sz,float* res) const;
-    bool			canTransformSurv(Pos::SurvID) const
+    bool			canTransformSurv(OD::GeomSystem) const override
 				{ return true; }
 
     float			getGoodZStep() const;

@@ -134,10 +134,10 @@ void uiBouncyMgr::startGame()
     if ( !bouncydisp_ )
 	return;
 
-    bool work = true;
     gamecontroller_->init( bouncydisp_->getBallPosition(),
-	    SI().minCoord( work ), SI().maxCoord( work ),
-	    SI().zRange( work ).start, SI().zRange( work ).stop, true );
+	    SI().minCoord(), SI().maxCoord(),
+	    SI().zRange( OD::UsrWork ).start, SI().zRange( OD::UsrWork ).stop,
+	    true );
     gamecontroller_->newPosAvailable.notify(
 	    mCB(this, uiBouncyMgr, newPosAvailableCB));
 

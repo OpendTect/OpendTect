@@ -17,26 +17,50 @@ ________________________________________________________________________
 #include "trckey.h"
 #include "uistring.h"
 typedef TypeSet<TrcKey> TrcKeyPath;
+namespace Survey { class HorSubSel; class Geometry; }
+class HorSampling;
+class LineHorSubSel;
+class TrcKeyZSampling;
 
-/*!
-\brief Horizontal sampling (inline and crossline range and steps).
-*/
+/*!\brief Horizontal sampling (inline and crossline range and steps).  */
 
 mExpClass(Basic) TrcKeySampling
 { mODTextTranslationClass(TrcKeySampling)
 public:
 
-			TrcKeySampling();
-			TrcKeySampling(Pos::GeomID);
-			TrcKeySampling(const TrcKey&);
-			TrcKeySampling(const TrcKeySampling&);
+    mUseType( OD,	GeomSystem );
+    mUseType( Pos,	GeomID );
+    mUseType( Survey,	HorSubSel );
+    mUseType( TrcKey,	linenr_type );
+    mUseType( TrcKey,	tracenr_type );
+    typedef Pos::Distance_Type	dist_type;
 
-    bool		is2D() const	{ return TrcKey::is2D(survid_); }
-    Pos::GeomID		getGeomID() const;
+			TrcKeySampling(OD::SurvLimitType slt=OD::FullSurvey);
+			TrcKeySampling(GeomID);
+			TrcKeySampling(const HorSubSel&);
+			TrcKeySampling(const HorSampling&);
+			TrcKeySampling(const Survey::Geometry&);
+			TrcKeySampling(const TrcKeySampling&);
+			TrcKeySampling(const TrcKeyZSampling&);
+			TrcKeySampling(const TrcKey&);
+			TrcKeySampling(bool inittosi,
+				       OD::SurvLimitType slt=OD::FullSurvey);
+
+    GeomSystem		geomSystem() const	{ return geomsystem_; }
+    bool		is2D() const		{ return ::is2D(geomsystem_); }
+    bool		is3D() const		{ return ::is3D(geomsystem_); }
+    void		setIs2D()		{ ::set2D( geomsystem_ ); }
+    void		setIs3D()		{ ::set2D( geomsystem_ ); }
+    void		setGeomID(GeomID);
+    GeomID		getGeomID() const;
+    void		setIs2D( bool yn )	{ yn ? setIs2D() : setIs3D(); }
+    void		setGeomSystem( GeomSystem gs )
+						{ geomsystem_ = gs; }
 
     TrcKeySampling&	set(const Interval<int>& linerg,
 			    const Interval<int>& trcnrrg);
-			    //!< steps copied if available
+				//!< steps copied if available
+
     void		get(Interval<int>& linerg,Interval<int>& trcnrrg) const;
 			    //!< steps filled if available
     TrcKeySampling	getLineChunk(int totalchunks,int chunknr) const;
@@ -44,10 +68,10 @@ public:
 
     StepInterval<int>	lineRange() const;
     StepInterval<int>	trcRange() const;
-    float		lineDistance() const;
+    dist_type		lineDistance() const;
 			/*!< real world distance between 2 lines incremented by
 			     one times the step_ */
-    float		trcDistance() const;
+    dist_type		trcDistance() const;
 			/*!< real world distance between 2 traces incremented by
 			     one times the step_ */
     void		setLineRange(const Interval<int>&);
@@ -56,12 +80,12 @@ public:
     bool		includes(const TrcKeySampling&,
 				 bool ignoresteps=false) const;
     bool		includes(const TrcKey&,bool ignoresteps=false) const;
-    bool		lineOK(Pos::LineID,bool ignoresteps=false) const;
-    bool		trcOK(Pos::TraceID,bool ignoresteps=false) const;
+    bool		lineOK(linenr_type,bool ignoresteps=false) const;
+    bool		trcOK(tracenr_type,bool ignoresteps=false) const;
 
     void		include(const TrcKey&);
-    void		includeLine(Pos::LineID);
-    void		includeTrc(Pos::TraceID);
+    void		includeLine(linenr_type);
+    void		includeTrc(tracenr_type);
     void		include(const TrcKeySampling&, bool ignoresteps=false );
     bool		isDefined() const;
     void		limitTo(const TrcKeySampling&,bool ignoresteps=false);
@@ -72,10 +96,10 @@ public:
     void		growTo(const TrcKeySampling& outertks);
     void		expand(int nrlines,int nrtrcs);
 
-    inline int		lineIdx(Pos::LineID) const;
-    inline int		trcIdx(Pos::TraceID) const;
-    inline Pos::LineID	lineID(int) const;
-    inline Pos::TraceID	traceID(int) const;
+    inline int		lineIdx(linenr_type) const;
+    inline int		trcIdx(tracenr_type) const;
+    inline linenr_type	lineID(int) const;
+    inline tracenr_type	traceID(int) const;
 
     od_int64		globalIdx(const TrcKey&) const;
     od_int64		globalIdx(const BinID&) const;
@@ -83,7 +107,7 @@ public:
     BinID		atIndex(od_int64 globalidx) const;
     TrcKey		trcKeyAt(int i0,int i1) const;
     TrcKey		trcKeyAt(od_int64 globalidx) const;
-    TrcKey		toTrcKey(const Coord&,float* distance=0) const;
+    TrcKey		toTrcKey(const Coord&,dist_type* distance=0) const;
     Coord		toCoord(const BinID&) const;
     TrcKey		center() const;
     int			nrLines() const;
@@ -94,9 +118,10 @@ public:
     void		neighbors(const TrcKey&,TypeSet<TrcKey>&) const;
     bool		toNext(BinID&) const;
 
-    void		init(bool settoSI=true);
-			//!< Sets to survey values or mUdf(int) (but step 1)
-    bool		init(Pos::GeomID);
+    void		init(bool settoSI=true,
+			     OD::SurvLimitType slt=OD::FullSurvey);
+    void		setTo(GeomID);
+    void		setTo(const Survey::Geometry&);
 
     void		set2DDef();
 			    //!< Sets ranges to 0-maxint
@@ -127,13 +152,10 @@ public:
     static void		removeInfo(IOPar&);
     void		toString(uiPhrase&) const; //!< Nice text for info
 
-    Pos::SurvID		survid_;
     BinID		start_;
     BinID		stop_;
     BinID		step_;
 
-    //Legacy. Will be removed
-			TrcKeySampling(bool settoSI);
     StepInterval<int>	inlRange() const	{ return lineRange(); }
     StepInterval<int>	crlRange() const	{ return trcRange(); }
     void		setInlRange(const Interval<int>& rg) {setLineRange(rg);}
@@ -142,8 +164,8 @@ public:
     int			nrInl() const { return nrLines(); }
     int			nrCrl() const { return nrTrcs(); }
 
-    int			inlIdx( Pos::LineID lid ) const {return lineIdx(lid);}
-    int			crlIdx( Pos::TraceID tid ) const { return trcIdx(tid); }
+    int			inlIdx( linenr_type lid ) const {return lineIdx(lid);}
+    int			crlIdx( tracenr_type tid ) const { return trcIdx(tid); }
     inline void		include( const BinID& bid )
 			{ includeLine(bid.inl()); includeTrc(bid.crl()); }
     void		includeInl( int inl ) { includeLine(inl); }
@@ -154,6 +176,15 @@ public:
     inline bool		inlOK( int inl ) const { return lineOK(inl); }
     inline bool		crlOK( int crl ) const { return trcOK(crl); }
 
+protected:
+
+    GeomSystem		geomsystem_	= OD::VolBasedGeom;
+
+public:
+
+    void	setIsSynthetic()	{ geomsystem_ = OD::SynthGeom; }
+    bool	isSynthetic() const	{ return geomsystem_ == OD::SynthGeom; }
+
 };
 
 
@@ -161,9 +192,11 @@ mExpClass(Basic) TrcKeySamplingSet : public TypeSet<TrcKeySampling>
 {
 public:
 
-    void			isOK() const;
-    void			add(Pos::GeomID);
-    bool			isPresent(Pos::GeomID);
+    mUseType( Pos,	GeomID );
+
+    void		isOK() const;
+    void		add(GeomID);
+    bool		isPresent(GeomID);
 };
 
 
@@ -203,12 +236,7 @@ protected:
 
 
 
-
-typedef TrcKeySampling HorSampling;
-typedef TrcKeySamplingIterator	HorSamplingIterator;
-
-
-inline int TrcKeySampling::lineIdx( Pos::LineID line ) const
+inline int TrcKeySampling::lineIdx( linenr_type line ) const
 {
     return step_.lineNr()
 	? (line-start_.lineNr()) / step_.lineNr()
@@ -216,7 +244,7 @@ inline int TrcKeySampling::lineIdx( Pos::LineID line ) const
 }
 
 
-inline int TrcKeySampling::trcIdx( Pos::TraceID trcid ) const
+inline int TrcKeySampling::trcIdx( tracenr_type trcid ) const
 {
     return step_.trcNr()
 	? (trcid-start_.trcNr()) / step_.trcNr()
@@ -224,13 +252,13 @@ inline int TrcKeySampling::trcIdx( Pos::TraceID trcid ) const
 }
 
 
-inline Pos::LineID TrcKeySampling::lineID( int lidx ) const
+inline TrcKeySampling::linenr_type TrcKeySampling::lineID( int lidx ) const
 {
     return start_.lineNr() + step_.lineNr() * lidx;
 }
 
 
-inline Pos::TraceID TrcKeySampling::traceID( int tidx ) const
+inline TrcKeySampling::tracenr_type TrcKeySampling::traceID( int tidx ) const
 {
     return start_.trcNr() + step_.trcNr() * tidx;
 }

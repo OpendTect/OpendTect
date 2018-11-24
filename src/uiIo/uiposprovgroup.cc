@@ -154,7 +154,7 @@ void uiRangePosProvGroup::setExtractionDefaults()
 
 void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 {
-    cs = SI().sampling( true );
+    cs = TrcKeyZSampling( OD::UsrWork );
     if ( hrgfld_ )
 	cs.hsamp_ = hrgfld_->getSampling();
     if ( nrrgfld_ )
@@ -208,14 +208,14 @@ void uiPolyPosProvGroup::usePar( const IOPar& iop )
     polyfld_->usePar( iop, sKey::Polygon() );
     if ( stepfld_ )
     {
-	BinID stps( SI().sampling(true).hsamp_.step_ );
+	BinID stps( SI().inlStep(), SI().crlStep() );
 	iop.get( mGetPolyKey(sKey::StepInl()), stps.inl() );
 	iop.get( mGetPolyKey(sKey::StepCrl()), stps.crl() );
 	stepfld_->setSteps( stps );
     }
     if ( zrgfld_ )
     {
-	StepInterval<float> zrg( SI().zRange(true) );
+	StepInterval<float> zrg( SI().zRange(OD::UsrWork) );
 	iop.get( mGetPolyKey(sKey::ZRange()), zrg );
 	zrgfld_->setRange( zrg );
     }
@@ -228,12 +228,13 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
     if ( !polyfld_->commitInput() || !polyfld_->fillPar(iop,sKey::Polygon()) )
 	mErrRet(uiStrings::phrSelect(uiStrings::sPolygon()))
 
-    const BinID stps(
-	stepfld_ ? stepfld_->getSteps() : SI().sampling(true).hsamp_.step_ );
+    BinID stps( SI().inlStep(), SI().crlStep() );
+    if ( stepfld_ )
+	stps = stepfld_->getSteps();
     iop.set( mGetPolyKey(sKey::StepInl()), stps.inl() );
     iop.set( mGetPolyKey(sKey::StepCrl()), stps.crl() );
     iop.set( mGetPolyKey(sKey::ZRange()),
-	zrgfld_ ? zrgfld_->getRange() : SI().zRange(true) );
+	zrgfld_ ? zrgfld_->getRange() : SI().zRange(OD::UsrWork) );
     return true;
 }
 
@@ -268,7 +269,7 @@ bool uiPolyPosProvGroup::getID( DBKey& ky ) const
 
 void uiPolyPosProvGroup::getZRange( StepInterval<float>& zrg ) const
 {
-    zrg = zrgfld_ ? zrgfld_->getRange() : SI().zRange(true);
+    zrg = zrgfld_ ? zrgfld_->getRange() : SI().zRange(OD::UsrWork);
 }
 
 

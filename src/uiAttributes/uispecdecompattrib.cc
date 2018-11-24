@@ -349,7 +349,7 @@ void uiSpecDecompAttrib::setPrevSel()
 	{
 	    BufferString lnm;
 	    prevpar_.get( sKeyLineName(), lnm );
-	    geomid = Survey::GM().getGeomID( lnm );
+	    geomid = Survey::Geometry::getGeomID( lnm );
 	}
 
 	positiondlg_->setGeomID( geomid );

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "genc.h"
 #include "coordsystem.h"
+#include "cubesampling.h"
 #include "trckeyzsampling.h"
 #include "latlong.h"
 #include "safefileio.h"
@@ -29,6 +30,14 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "uistrings.h"
 #include "survgeom3d.h"
+
+mUseType( SurveyInfo, size_type );
+mUseType( SurveyInfo, pos_type );
+mUseType( SurveyInfo, pos_steprg_type );
+mUseType( SurveyInfo, z_type );
+mUseType( SurveyInfo, z_steprg_type );
+mUseType( SurveyInfo, dist_type );
+mUseType( SurveyInfo, area_type );
 
 
 static const char* sKeySI =		"Survey Info";
@@ -79,7 +88,6 @@ void EnumDefImpl<SurveyInfo::Pol2D3D>::init()
 #define mXYUnit() (mXYInFeet() ? Feet : Meter)
 #define mZUnit() (zdef_.isTime() ? Second : (depthsinfeet_ ? Feet : Meter))
 #define mZScale() defaultXYtoZScale( mZUnit(), mXYUnit() )
-#define mSampling(work) (work ? workcs_ : fullcs_)
 
 
 static PtrMan<SurveyInfo> global_si_ = 0;
@@ -105,9 +113,7 @@ const SurveyInfo& SI()
 
 
 SurveyInfo::SurveyInfo()
-    : fullcs_(*new TrcKeyZSampling(false))
-    , workcs_(*new TrcKeyZSampling(false))
-    , zdef_(*new ZDomain::Def(ZDomain::Time()) )
+    : zdef_(*new ZDomain::Def(ZDomain::Time()) )
     , depthsinfeet_(false)
     , defpars_(sKeySurvDefs)
     , pol2d3d_(OD::Both2DAnd3D)
@@ -115,6 +121,8 @@ SurveyInfo::SurveyInfo()
     , seisrefdatum_(0.f)
     , s3dgeom_(0)
     , work_s3dgeom_(0)
+    , fullcs_(*new CubeSampling(false))
+    , workcs_(*new CubeSampling(false))
 {
     Pos::IdxPair2Coord::DirTransform xtr, ytr;
     xtr.b = ytr.c = 1;
@@ -126,7 +134,6 @@ SurveyInfo::SurveyInfo()
     xtr.b = 1000; xtr.c = 0;
     ytr.b = 0; ytr.c = 1000;
     b2c_.setTransforms( xtr, ytr );
-    fullcs_.hsamp_.survid_ = workcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
 
     setToUnlocatedCoordSys( false );
 }
@@ -135,12 +142,12 @@ SurveyInfo::SurveyInfo()
 
 SurveyInfo::SurveyInfo( const SurveyInfo& oth )
     : NamedMonitorable( oth )
-    , fullcs_(*new TrcKeyZSampling(false))
-    , workcs_(*new TrcKeyZSampling(false))
     , defpars_(sKeySurvDefs)
     , zdef_(*new ZDomain::Def( oth.zDomain() ) )
     , s3dgeom_(0)
     , work_s3dgeom_(0)
+    , fullcs_(*new CubeSampling(false))
+    , workcs_(*new CubeSampling(false))
     , diskloc_(oth.diskloc_)
 {
     copyClassData( oth );
@@ -186,7 +193,7 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
     rdb2c_ = oth.rdb2c_;
     sipnm_ = oth.sipnm_;
     comments_ = oth.comments_;
-    update3DGeometry();
+    updateGeometries();
 }
 
 
@@ -326,21 +333,21 @@ bool SurveyInfo::wrapUpRead()
     if ( set3binids_[2].crl() == 0 )
 	get3Pts( set3coords_, set3binids_, set3binids_[2].crl() );
 
-    b2c_ = rdb2c_;
-    if ( !b2c_.isValid() )
+    if ( !rdb2c_.isValid() )
     {
 	BufferString errmsg( "Survey ", name() );
 	errmsg.add( " has an invalid coordinate transformation" );
 	ErrMsg( errmsg );
 	return false;
     }
+    b2c_ = rdb2c_;
 
     File::Path fp( diskloc_.fullPath(), sCommentsFile );
     od_istream strm( fp.fullPath() );
     if ( strm.isOK() )
 	strm.getAll( comments_ );
 
-    update3DGeometry();
+    updateGeometries();
     return true;
 }
 
@@ -425,6 +432,7 @@ bool SurveyInfo::usePar( const IOPar& par )
     }
 
     par.get( sKeySeismicRefDatum(), seisrefdatum_ );
+    rdb2c_ = b2c_;
     rdb2c_.usePar( par );
 
     PtrMan<IOPar> setpts = par.subselect( sKeySetPointPrefix );
@@ -528,97 +536,149 @@ BufferString SurveyInfo::dirNameForName( const char* nm )
 }
 
 
-StepInterval<int> SurveyInfo::inlRange( bool work ) const
+pos_steprg_type SurveyInfo::inlRange( SurvLimitType slt ) const
 {
     mLock4Read();
-    StepInterval<int> ret; Interval<int> dum;
-    gtSampling(work).hsamp_.get( ret, dum );
-    return ret;
+    return gt3DGeom( slt ).inlRange();
 }
 
 
-StepInterval<int> SurveyInfo::crlRange( bool work ) const
+pos_steprg_type SurveyInfo::crlRange( SurvLimitType slt ) const
 {
     mLock4Read();
-    StepInterval<int> ret; Interval<int> dum;
-    gtSampling(work).hsamp_.get( dum, ret );
-    return ret;
+    return gt3DGeom( slt ).crlRange();
 }
 
 
-TrcKeyZSampling SurveyInfo::sampling( bool work ) const
+z_steprg_type SurveyInfo::zRange( SurvLimitType slt ) const
 {
     mLock4Read();
-    return mSampling( work );
+    return gt3DGeom( slt ).zRange();
 }
 
 
-StepInterval<float> SurveyInfo::zRange( bool work ) const
+void SurveyInfo::getHorSampling( HorSampling& hs, SurvLimitType slt ) const
 {
     mLock4Read();
-    return mSampling(work).zsamp_;
-}
-
-int SurveyInfo::maxNrTraces( bool work ) const
-{
-    mLock4Read();
-    return mSampling(work).hsamp_.nrInl() * mSampling(work).hsamp_.nrCrl();
+    const auto& geom = gt3DGeom( slt );
+    hs.start_ = BinID( geom.inlRange().start, geom.crlRange().start );
+    hs.stop_ = BinID( geom.inlRange().stop, geom.crlRange().stop );
+    hs.step_ = BinID( geom.inlRange().step, geom.crlRange().step );
 }
 
 
-int SurveyInfo::inlStep() const
+void SurveyInfo::getCubeSampling( CubeSampling& cs, SurvLimitType slt ) const
 {
     mLock4Read();
-    return fullcs_.hsamp_.step_.inl();
+    const auto& geom = gt3DGeom( slt );
+    cs.hsamp_.start_ = BinID( geom.inlRange().start, geom.crlRange().start );
+    cs.hsamp_.stop_ = BinID( geom.inlRange().stop, geom.crlRange().stop );
+    cs.hsamp_.step_ = BinID( geom.inlRange().step, geom.crlRange().step );
+    cs.zsamp_ = geom.zRange();
 }
 
 
-int SurveyInfo::crlStep() const
+void SurveyInfo::getSampling( TrcKeySampling& tks, SurvLimitType slt ) const
 {
     mLock4Read();
-    return fullcs_.hsamp_.step_.crl();
+    const auto& geom = gt3DGeom( slt );
+    tks.start_ = BinID( geom.inlRange().start, geom.crlRange().start );
+    tks.stop_ = BinID( geom.inlRange().stop, geom.crlRange().stop );
+    tks.step_ = BinID( geom.inlRange().step, geom.crlRange().step );
 }
 
 
-float SurveyInfo::inlDistance() const
+void SurveyInfo::getSampling( TrcKeyZSampling& tkzs, SurvLimitType slt ) const
 {
+    mLock4Read();
+    const auto& geom = gt3DGeom( slt );
+    tkzs.hsamp_.start_ = BinID( geom.inlRange().start, geom.crlRange().start );
+    tkzs.hsamp_.stop_ = BinID( geom.inlRange().stop, geom.crlRange().stop );
+    tkzs.hsamp_.step_ = BinID( geom.inlRange().step, geom.crlRange().step );
+    tkzs.zsamp_ = geom.zRange();
+}
+
+
+size_type SurveyInfo::maxNrTraces( SurvLimitType slt ) const
+{
+    mLock4Read();
+    const auto& geom = gt3DGeom( slt );
+    return (geom.inlRange().nrSteps()+1) * (geom.crlRange().nrSteps()+1);
+}
+
+
+pos_type SurveyInfo::inlStep( SurvLimitType slt ) const
+{
+    mLock4Read();
+    return gt3DGeom(slt).inlRange().step;
+}
+
+
+pos_type SurveyInfo::crlStep( SurvLimitType slt ) const
+{
+    mLock4Read();
+    return gt3DGeom(slt).crlRange().step;
+}
+
+
+z_type SurveyInfo::zStep( SurvLimitType slt ) const
+{
+    mLock4Read();
+    return gt3DGeom(slt).zRange().step;
+}
+
+
+BinID SurveyInfo::steps( SurvLimitType slt ) const
+{
+    mLock4Read();
+    return BinID( inlStep(slt), crlStep(slt) );
+}
+
+
+dist_type SurveyInfo::inlDistance() const
+{
+    mLock4Read();
     return gt3DGeom().inlDistance();
 }
 
 
-float SurveyInfo::crlDistance() const
+dist_type SurveyInfo::crlDistance() const
 {
+    mLock4Read();
     return gt3DGeom().crlDistance();
 }
 
 
-float SurveyInfo::getArea( Interval<int> inlrg, Interval<int> crlrg ) const
+Coord SurveyInfo::distances() const
 {
     mLock4Read();
-    const BinID step = mSampling(false).hsamp_.step_;
+    return Coord( gt3DGeom().inlDistance(), gt3DGeom().crlDistance() );
+}
+
+
+area_type SurveyInfo::getArea( Interval<pos_type> inlrg,
+			       Interval<pos_type> crlrg ) const
+{
+    mLock4Read();
+
+    const BinID step = BinID( gt3DGeom().inlRange().step,
+			      gt3DGeom().crlRange().step );
+
     const Coord c00 = transform( BinID(inlrg.start,crlrg.start) );
     const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl()) );
     const Coord c10 = transform( BinID(inlrg.stop+step.inl(),crlrg.start) );
 
-    const float scale = mXYInFeet() ? mFromFeetFactorF : 1;
-    const float d01 = c00.distTo<float>( c01 ) * scale;
-    const float d10 = c00.distTo<float>( c10 ) * scale;
+    const dist_type scale = mXYInFeet() ? mFromFeetFactorF : 1;
+    const dist_type d01 = c00.distTo<dist_type>( c01 ) * scale;
+    const dist_type d10 = c00.distTo<dist_type>( c10 ) * scale;
 
-    return d01*d10;
+    return d01 * d10;
 }
 
 
-float SurveyInfo::getArea( bool work ) const
+area_type SurveyInfo::getArea( SurvLimitType slt ) const
 {
-    return getArea( inlRange( work ), crlRange( work ) );
-}
-
-
-
-float SurveyInfo::zStep() const
-{
-    mLock4Read();
-    return fullcs_.zsamp_.step;
+    return getArea( inlRange(slt), crlRange(slt) );
 }
 
 
@@ -641,43 +701,34 @@ void SurveyInfo::setSipName( const uiString& str )
 }
 
 
-void SurveyInfo::setRanges( const TrcKeyZSampling& cs )
+void SurveyInfo::setRanges( const CubeSampling& cs )
 {
-    fullcs_ = cs;
-    fullcs_.hsamp_.survid_ = workcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
-    if ( workcs_.isDefined() )
-	workcs_.limitTo( fullcs_ );
-    else
-	workcs_ = fullcs_;
-
-    workcs_.hsamp_.step_ = fullcs_.hsamp_.step_;
-    workcs_.zsamp_.step = fullcs_.zsamp_.step;
+    auto& geom = gt3DGeom( OD::FullSurvey );
+    geom.setRanges( cs.hsamp_.inlRange(), cs.hsamp_.crlRange(), cs.zsamp_ );
+    auto& workgeom = gt3DGeom( OD::UsrWork );
+    workgeom.setRanges( geom.inlRange(), geom.crlRange(), geom.zRange() );
 }
 
 
-void SurveyInfo::setWorkRanges( const TrcKeyZSampling& cs ) const
+void SurveyInfo::setWorkRanges( const CubeSubSel& css ) const
 {
     mLock4Read();
-    if ( workcs_ == cs )
+    if ( css.isAll() )
 	return;
-    if ( !mLock2Write() && workcs_ == cs )
+    if ( !mLock2Write() && css.isAll() )
 	return;
 
-    const_cast<SurveyInfo*>(this)->workcs_ = cs;
+    const_cast<SurveyInfo*>(this)->workcs_ = CubeSampling( css );
     mSendChgNotif( cWorkRangeChange(), 0 );
 }
 
 
-Interval<int> SurveyInfo::reasonableRange( bool inl ) const
+Interval<pos_type> SurveyInfo::reasonableRange( bool inl ) const
 {
     mLock4Read();
-    const Interval<int> rg = inl
-      ? Interval<int>( fullcs_.hsamp_.start_.inl(), fullcs_.hsamp_.stop_.inl())
-      : Interval<int>( fullcs_.hsamp_.start_.crl(), fullcs_.hsamp_.stop_.crl());
-
-    const int w = rg.stop - rg.start;
-
-    return Interval<int>( rg.start - 3*w, rg.stop +3*w );
+    const auto& rg = inl ? gt3DGeom().inlRange() : gt3DGeom().crlRange();
+    const pos_type w = rg.stop - rg.start;
+    return Interval<pos_type>( rg.start - 3*w, rg.stop +3*w );
 }
 
 
@@ -700,9 +751,9 @@ bool SurveyInfo::isReasonable( const Coord& crd ) const
 #define mChkCoord(c) \
     if ( c.x_ < minc.x_ ) minc.x_ = c.x_; if ( c.y_ < minc.y_ ) minc.y_ = c.y_;
 
-Coord SurveyInfo::minCoord( bool work ) const
+Coord SurveyInfo::minCoord( SurvLimitType slt ) const
 {
-    const TrcKeyZSampling cs = sampling( work );
+    CubeSampling cs; getCubeSampling( cs, slt );
     Coord minc = transform( cs.hsamp_.start_ );
     Coord c = transform( cs.hsamp_.stop_ );
     mChkCoord(c);
@@ -720,9 +771,9 @@ Coord SurveyInfo::minCoord( bool work ) const
 #define mChkCoord(c) \
     if ( c.x_ > maxc.x_ ) maxc.x_ = c.x_; if ( c.y_ > maxc.y_ ) maxc.y_ = c.y_;
 
-Coord SurveyInfo::maxCoord( bool work ) const
+Coord SurveyInfo::maxCoord( SurvLimitType slt ) const
 {
-    const TrcKeyZSampling cs = sampling( work );
+    CubeSampling cs; getCubeSampling( cs, slt );
     Coord maxc = transform( cs.hsamp_.start_ );
     Coord c = transform( cs.hsamp_.stop_ );
     mChkCoord(c);
@@ -736,65 +787,54 @@ Coord SurveyInfo::maxCoord( bool work ) const
 }
 
 
-void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
+void SurveyInfo::checkInlRange( Interval<pos_type>& intv, SurvLimitType slt ) const
 {
-    const TrcKeyZSampling cs = sampling( work );
     intv.sort();
-    if ( intv.start < cs.hsamp_.start_.inl() )
-	intv.start = cs.hsamp_.start_.inl();
-    if ( intv.start > cs.hsamp_.stop_.inl() )
-	intv.start = cs.hsamp_.stop_.inl();
-    if ( intv.stop > cs.hsamp_.stop_.inl() )
-	intv.stop = cs.hsamp_.stop_.inl();
-    if ( intv.stop < cs.hsamp_.start_.inl() )
-	intv.stop = cs.hsamp_.start_.inl();
-    BinID bid( intv.start, 0 );
-    snap( bid, BinID(1,1) ); intv.start = bid.inl();
-    bid.inl() = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.inl();
+    mLock4Read();
+    const auto& inlrg = gt3DGeom( slt ).inlRange();
+    intv.limitTo( inlrg );
+    intv.start = inlrg.snap( intv.start, OD::SnapUpward );
+    intv.stop = inlrg.snap( intv.stop, OD::SnapDownward );
 }
 
-void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
+
+void SurveyInfo::checkCrlRange( Interval<pos_type>& intv, SurvLimitType slt ) const
 {
-    const TrcKeyZSampling cs = sampling( work );
     intv.sort();
-    if ( intv.start < cs.hsamp_.start_.crl() )
-	intv.start = cs.hsamp_.start_.crl();
-    if ( intv.start > cs.hsamp_.stop_.crl() )
-	intv.start = cs.hsamp_.stop_.crl();
-    if ( intv.stop > cs.hsamp_.stop_.crl() )
-	intv.stop = cs.hsamp_.stop_.crl();
-    if ( intv.stop < cs.hsamp_.start_.crl() )
-	intv.stop = cs.hsamp_.start_.crl();
-    BinID bid( 0, intv.start );
-    snap( bid, BinID(1,1) ); intv.start = bid.crl();
-    bid.crl() = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.crl();
+    mLock4Read();
+    const auto& crlrg = gt3DGeom( slt ).crlRange();
+    intv.limitTo( crlrg );
+    intv.start = crlrg.snap( intv.start, OD::SnapUpward );
+    intv.stop = crlrg.snap( intv.stop, OD::SnapDownward );
 }
 
 
 
-void SurveyInfo::checkZRange( Interval<float>& intv, bool work ) const
+void SurveyInfo::checkZRange( Interval<z_type>& intv, SurvLimitType slt ) const
 {
-    const StepInterval<float> rg = sampling( work ).zsamp_;
     intv.sort();
-    if ( intv.start < rg.start ) intv.start = rg.start;
-    if ( intv.start > rg.stop )  intv.start = rg.stop;
-    if ( intv.stop > rg.stop )   intv.stop = rg.stop;
-    if ( intv.stop < rg.start )  intv.stop = rg.start;
-    snapZ( intv.start, 1 );
-    snapZ( intv.stop, -1 );
+    mLock4Read();
+    const auto& zrg = gt3DGeom( slt ).zRange();
+    intv.limitTo( zrg );
+    intv.start = zrg.snap( intv.start, OD::SnapUpward );
+    intv.stop = zrg.snap( intv.stop, OD::SnapDownward );
 }
 
 
-bool SurveyInfo::includes( const BinID& bid ) const
+bool SurveyInfo::includes( const BinID& bid, SurvLimitType slt ) const
 {
-    return sampling(false).hsamp_.includes( bid );
+    mLock4Read();
+    const CubeSampling& cs = isWork(slt) ? workcs_ : fullcs_;
+    return cs.hsamp_.includes( bid );
 }
 
 
-bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
+bool SurveyInfo::includes( const BinID& bid, const z_type z,
+			   SurvLimitType slt ) const
 {
-    const TrcKeyZSampling cs = sampling( work );
-    const float eps = 1e-8;
+    mLock4Read();
+    const CubeSampling& cs = isWork(slt) ? workcs_ : fullcs_;
+    const z_type eps = 1e-8;
     return cs.hsamp_.includes( bid )
 	&& cs.zsamp_.start < z + eps && cs.zsamp_.stop > z - eps;
 }
@@ -821,10 +861,10 @@ bool SurveyInfo::zInFeet() const
 }
 
 
-float SurveyInfo::showZ2UserFactor() const
+z_type SurveyInfo::showZ2UserFactor() const
 {
     mLock4Read();
-    return (float)zDomain().userFactor();
+    return (z_type)zDomain().userFactor();
 }
 
 
@@ -888,7 +928,7 @@ void SurveyInfo::setZUnit( bool istime, bool infeet )
 }
 
 
-float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
+z_type SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 {
     if ( zunit==xyunit )
 	return 1;
@@ -909,26 +949,26 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 }
 
 
-float SurveyInfo::zScale() const
+z_type SurveyInfo::zScale() const
 {
     mLock4Read();
     return mZScale();
 }
 
 
-Coord SurveyInfo::transform( const BinID& b ) const
+Coord SurveyInfo::transform( const BinID& bid ) const
 {
-    return gt3DGeom().transform( b );
+    return gt3DGeom().transform( bid );
 }
 
 
-BinID SurveyInfo::transform( const Coord& c ) const
+BinID SurveyInfo::transform( const Coord& crd, SurvLimitType slt ) const
 {
-    return gt3DGeom().transform( c );
+    return gt3DGeom(slt).transform( crd );
 }
 
 
-void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
+void SurveyInfo::get3Pts( Coord c[3], BinID b[2], pos_type& xline ) const
 {
     mLock4Read();
     if ( set3binids_[0].inl() )
@@ -982,33 +1022,21 @@ void SurveyInfo::gen3Pts()
 }
 
 
-void SurveyInfo::snap( BinID& binid, const BinID& rounding ) const
+void SurveyInfo::snap( BinID& binid, OD::SnapDir dir ) const
 {
-    gt3DGeom().snap( binid, rounding );
+    gt3DGeom().snap( binid, dir );
 }
 
 
-void SurveyInfo::snapStep( BinID& step, const BinID& rounding ) const
+void SurveyInfo::snapStep( BinID& step ) const
 {
-    gt3DGeom().snapStep( step, rounding );
+    gt3DGeom().snapStep( step );
 }
 
 
-
-
-void SurveyInfo::snapZ( float& z, int dir ) const
+void SurveyInfo::snapZ( z_type& z, OD::SnapDir dir ) const
 {
     gt3DGeom().snapZ( z, dir );
-}
-
-
-static void putTr( const Pos::IdxPair2Coord::DirTransform& trans,
-		   IOPar& par, const char* key )
-{
-    const BufferString stra( toStringPrecise(trans.a) );
-    const BufferString strb( toStringPrecise(trans.b) );
-    const BufferString strc( toStringPrecise(trans.c) );
-    par.set( key, stra, strb, strc );
 }
 
 
@@ -1091,6 +1119,16 @@ bool SurveyInfo::write( const char* basedir ) const
 }
 
 
+static void putTrfInIOPar( const Pos::IdxPair2Coord::DirTransform& trans,
+			   IOPar& par, const char* key )
+{
+    const BufferString stra( toStringPrecise(trans.a) );
+    const BufferString strb( toStringPrecise(trans.b) );
+    const BufferString strc( toStringPrecise(trans.c) );
+    par.set( key, stra, strb, strc );
+}
+
+
 void SurveyInfo::fillPar( IOPar& par ) const
 {
     mLock4Read();
@@ -1109,8 +1147,8 @@ void SurveyInfo::fillPar( IOPar& par ) const
     fms += zdef_.isTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
     par.set( sKeyZRange(), fms );
 
-    putTr( b2c_.getTransform(true), par, sKeyXTransf );
-    putTr( b2c_.getTransform(false), par, sKeyYTransf );
+    putTrfInIOPar( b2c_.getTransform(true), par, sKeyXTransf );
+    putTrfInIOPar( b2c_.getTransform(false), par, sKeyYTransf );
 
     for ( int idx=0; idx<3; idx++ )
     {
@@ -1212,34 +1250,45 @@ bool SurveyInfo::has3D() const
 }
 
 
-void SurveyInfo::update3DGeometry()
+void SurveyInfo::updateGeometry( Geometry3D& g3d, const CubeSampling& cs )
+{
+    BufferString nm( name() );
+    if ( &g3d == work_s3dgeom_ )
+	nm.add( " [work]" );
+    g3d.setName( nm );
+    g3d.setTransform( b2c_ );
+    g3d.setRanges( cs.inlRange(), cs.crlRange(), cs.zRange() );
+}
+
+
+void SurveyInfo::updateGeometries()
 {
     if ( s3dgeom_ )
-	s3dgeom_->setGeomData( b2c_, mSampling(false), mZScale() );
-
+	updateGeometry( *s3dgeom_, fullcs_ );
     if ( work_s3dgeom_ )
-	work_s3dgeom_->setGeomData( b2c_, mSampling(true), mZScale() );
+	updateGeometry( *work_s3dgeom_, workcs_ );
 }
 
 
-RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work )
+RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( SurvLimitType slt )
 {
-    return &gt3DGeom( work );
+    return &gt3DGeom( slt );
 }
 
 
-ConstRefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
+ConstRefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( SurvLimitType slt ) const
 {
-    return &gt3DGeom( work );
+    return &gt3DGeom( slt );
 }
 
 
-Survey::Geometry3D& SurveyInfo::gt3DGeom( bool work ) const
+Survey::Geometry3D& SurveyInfo::gt3DGeom( SurvLimitType slt ) const
 {
-    // We are going to forfeit the read locking here
-    // The locking/unlocking is simply too big of a performance hit
-    // In practice, this means we can only be hurt in a very, very unlucky spot
+    // No read locking here, and callers may choose not to lock.
+    // The locking/unlocking can simply be too big of a performance hit
+    // In practice, this means we can only be hurt in a very, very unlucky case
 
+    const bool work = isWork( slt );
     const Geometry3D* sgeom = work ? work_s3dgeom_ : s3dgeom_;
 
     if ( !sgeom )
@@ -1248,9 +1297,10 @@ Survey::Geometry3D& SurveyInfo::gt3DGeom( bool work ) const
 	sgeom = work ? work_s3dgeom_ : s3dgeom_;
 	if ( !sgeom )
 	{
-	    auto* newsgeom = new Geometry3D( name(), zdef_ );
-	    newsgeom->setID( Survey::GM().default3DSurvID() );
-	    newsgeom->setGeomData( b2c_, mSampling(work), mZScale() );
+	    auto* newsgeom = new Geometry3D( name() );
+	    const_cast<SurveyInfo*>(this)->updateGeometry( *newsgeom,
+					    work ? workcs_ : fullcs_ );
+
 	    SurveyInfo& self = *const_cast<SurveyInfo*>( this );
 	    if ( work )
 		self.work_s3dgeom_ = newsgeom;
@@ -1294,19 +1344,11 @@ void SurveyInfo::setSurvDataType( Pol2D3D p2d3d ) const
 
 float SurveyInfo::angleXInl() const
 {
-    Coord xy1 = transform( BinID(inlRange(false).start, crlRange(false).start));
-    Coord xy2 = transform( BinID(inlRange(false).start, crlRange(false).stop) );
-    const double xdiff = xy2.x_ - xy1.x_;
-    const double ydiff = xy2.y_ - xy1.y_;
-    return mCast(float, Math::Atan2( ydiff, xdiff ) );
-}
-
-
-bool SurveyInfo::isInside( const BinID& bid, bool work ) const
-{
-    const Interval<int> inlrg( inlRange(work) );
-    const Interval<int> crlrg( crlRange(work) );
-    return inlrg.includes(bid.inl(),false) && crlrg.includes(bid.crl(),false);
+    Coord xy1 = transform( BinID(inlRange().start, crlRange().start));
+    Coord xy2 = transform( BinID(inlRange().start, crlRange().stop) );
+    const auto xdiff = xy2.x_ - xy1.x_;
+    const auto ydiff = xy2.y_ - xy1.y_;
+    return (float)Math::Atan2( ydiff, xdiff );
 }
 
 

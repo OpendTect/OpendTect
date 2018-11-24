@@ -77,7 +77,7 @@ void add( const BinID& bid, float z )
 
     Array2DImpl<int>	count_;
     Array2DImpl<float>	arr_;
-    TrcKeySampling		hs_;
+    TrcKeySampling	hs_;
     int			inlsz_;
     int			crlsz_;
 };
@@ -91,17 +91,17 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
     , cursectnr_(0)
     , curinterp_( interp )
 {
-    const TrcKeySampling hrg = SI().sampling(true).hsamp_;
-    addSections( hrg );
+    TrcKeySampling tks( true );
+    addSections( tks );
     fillSections();
 
     if ( sd_.isEmpty() )
 	msg_ = tr("No data in selected area");
     else if ( curinterp_ )
     {
-	curinterp_->setOrigin( hrg.start_ );
-	const float inldist = hrg.step_.inl()*SI().inlDistance();
-	const float crldist = hrg.step_.crl()*SI().crlDistance();
+	curinterp_->setOrigin( tks.start_ );
+	const float inldist = tks.step_.inl()*SI().inlDistance();
+	const float crldist = tks.step_.crl()*SI().crlDistance();
 
 	curinterp_->setRowStep( inldist );
 	curinterp_->setColStep( crldist );

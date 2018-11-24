@@ -13,10 +13,11 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "manobjectset.h"
 #include "typeset.h"
-#include "trckeyzsampling.h"
 #include "indexinfo.h"
 #include "binid.h"
 #include "od_iosfwd.h"
+class CubeHorSubSel;
+namespace Survey { class SubGeometry3D; }
 
 
 /*!\brief Position info, often segmented
@@ -44,11 +45,14 @@ namespace PosInfo
 mExpClass(Basic) LineDataPos
 {
 public:
-		LineDataPos( int isn=0, int sidx=-1 )
+
+    typedef Index_Type	idx_type;
+
+		LineDataPos( idx_type isn=0, idx_type sidx=-1 )
 		    : segnr_(isn), sidx_(sidx)		    {}
 
-    int		segnr_;
-    int		sidx_;
+    idx_type	segnr_;
+    idx_type	sidx_;
 
     void	toPreStart()	{ segnr_ = 0; sidx_ = -1; }
     void	toStart()	{ segnr_ = sidx_ = 0; }
@@ -63,32 +67,42 @@ mExpClass(Basic) LineData
 {
 public:
 
-    typedef StepInterval<int>	Segment;
+    mUseType( LineDataPos,	idx_type );
+    typedef idx_type		size_type;
+    typedef Pos::Index_Type	pos_type;
+    typedef Interval<pos_type>	pos_rg_type;
+    typedef StepInterval<pos_type> pos_steprg_type;
+    typedef pos_steprg_type	Segment;
     typedef TypeSet<Segment>	SegmentSet;
 
-				LineData( int i ) : linenr_(i)	{}
-    bool			operator ==(const LineData&) const;
-				mImplSimpleIneqOper(LineData)
+			LineData( pos_type i ) : linenr_(i)	{}
+    bool		operator ==(const LineData&) const;
+			mImplSimpleIneqOper(LineData)
 
-    const int			linenr_;
-    SegmentSet			segments_;
+    const pos_type	linenr_;
+    SegmentSet		segments_;
 
-    int				size() const;
-    bool			isEmpty() const	{ return segments_.isEmpty(); }
-    int				segmentOf(int) const;
-    inline bool			includes( int nr ) const
+    size_type		size() const;
+    bool		isEmpty() const	{ return segments_.isEmpty(); }
+    idx_type		segmentOf(pos_type) const;
+    inline bool		includes( pos_type nr ) const
 						{ return segmentOf(nr) >= 0; }
-    Interval<int>		range() const;
-    int				minStep() const;
-    bool			isValid(const LineDataPos&) const;
-    bool			toNext(LineDataPos&) const;
-    bool			toPrev(LineDataPos&) const;
-    void			merge(const LineData&,bool incl);
+    pos_rg_type		range() const;
+    pos_type		minStep() const;
+    void		merge(const LineData&,bool incl);
 				//!< incl=union, !incl=intersection
 
-    int				centerNumber() const;  //!< not exact
-    int				nearestNumber(int) const;
-    int				nearestSegment(double) const;
+    bool		isValid(const LineDataPos&) const;
+    bool		toNext(LineDataPos&) const;
+    bool		toPrev(LineDataPos&) const;
+    pos_type		pos( const LineDataPos& ldp ) const
+			{ return segments_[ldp.segnr_].atIndex(ldp.sidx_); }
+    BinID		binID( const LineDataPos& ldp ) const
+			{ return BinID( linenr_, pos(ldp) ); }
+
+    pos_type		centerNumber() const;  //!< not exact
+    pos_type		nearestNumber(pos_type) const;
+    idx_type		nearestSegment(double) const;
 
 };
 
@@ -98,12 +112,16 @@ public:
 mExpClass(Basic) CubeDataPos
 {
 public:
-		CubeDataPos( int iln=0, int isn=0, int sidx=-1 )
-		    : lidx_(iln), segnr_(isn), sidx_(sidx)	{}
 
-    int		lidx_;
-    int		segnr_;
-    int		sidx_;
+    mUseType( LineDataPos,	idx_type );
+
+		CubeDataPos()				   { toPreStart(); }
+		CubeDataPos( idx_type iln, idx_type isn=0, idx_type sidx=-1 )
+		    : lidx_(iln), segnr_(isn), sidx_(sidx) {}
+
+    idx_type	lidx_;
+    idx_type	segnr_;
+    idx_type	sidx_;
 
     void	toPreStart()	{ lidx_ = segnr_ = 0; sidx_ = -1; }
     void	toStart()	{ lidx_ = segnr_ = sidx_ = 0; }
@@ -119,6 +137,12 @@ mExpClass(Basic) CubeData : public ManagedObjectSet<LineData>
 {
 public:
 
+    mUseType( LineData,		idx_type );
+    mUseType( LineData,		size_type );
+    mUseType( LineData,		pos_type );
+    mUseType( LineData,		pos_rg_type );
+    mUseType( LineData,		pos_steprg_type );
+
 			CubeData()		{}
 			CubeData( BinID start, BinID stop, BinID step )
 						{ generate(start,stop,step); }
@@ -128,23 +152,23 @@ public:
     CubeData&		operator =( const CubeData& cd )
 			{ copyContents(cd); return *this; }
 
-    int			totalSize() const;
-    int			totalSizeInside(const TrcKeySampling& hrg) const;
+    size_type		totalSize() const;
+    size_type		totalSizeInside(const CubeHorSubSel&) const;
 			/*!<Only take positions that are inside hrg. */
-    int			totalNrSegments() const;
+    size_type		totalNrSegments() const;
 
-    virtual int		indexOf(int inl,int* newidx=0) const;
+    virtual idx_type	indexOf(pos_type inl,idx_type* newidx=0) const;
 			//!< newidx only filled if not null and -1 is returned
-    bool		includes(int inl,int crl) const;
+    bool		includes(pos_type inl,pos_type crl) const;
     bool		includes(const BinID&) const;
-    void		getRanges(Interval<int>& inl,Interval<int>& crl) const;
-    bool		getInlRange(StepInterval<int>&,bool sorted=true) const;
-			//!< Returns whether fully regular.
-    bool		getCrlRange(StepInterval<int>&,bool sorted=true) const;
-			//!< Returns whether fully regular.
+    void		getRanges(pos_rg_type& inl,pos_rg_type& crl) const;
+    bool		getInlRange(pos_steprg_type&,bool sorted=true) const;
+			    //!< Returns whether fully regular.
+    bool		getCrlRange(pos_steprg_type&,bool sorted=true) const;
+			    //!< Returns whether fully regular.
 
     bool		isValid(const CubeDataPos&) const;
-    bool		isValid(od_int64 globalidx,const TrcKeySampling&) const;
+    bool		isValid(od_int64 globidx,const CubeHorSubSel&) const;
     BinID		minStep() const;
     BinID		nearestBinID(const BinID&) const;
     BinID		centerPos() const;  //!< not exact
@@ -156,19 +180,20 @@ public:
     bool		haveInlStepInfo() const		{ return size() > 1; }
     bool		haveCrlStepInfo() const;
     bool		isFullyRectAndReg() const;
+    bool		isAll(const CubeHorSubSel&) const;
     bool		isCrlReversed() const;
 
-    void		limitTo(const TrcKeySampling&);
+    void		limitTo(const CubeHorSubSel&);
     void		merge(const CubeData&,bool incl);
 				//!< incl=union, !incl=intersection
     void		generate(BinID start,BinID stop,BinID step,
 				 bool allowreversed=false);
-    void		fillBySI(bool work=false);
+    void		fillBySI(OD::SurvLimitType slt=OD::FullSurvey);
 
     bool		read(od_istream&,bool asc);
     bool		write(od_ostream&,bool asc) const;
 
-    virtual int		indexOf( const LineData* l ) const
+    virtual idx_type	indexOf( const LineData* l ) const
 			{ return ObjectSet<LineData>::indexOf( l ); }
 
 protected:
@@ -197,12 +222,12 @@ public:
     SortedCubeData&	operator =( const CubeData& cd )
 			{ copyContents(cd); return *this; }
 
-    virtual int		indexOf(int inl,int* newidx=0) const;
+    virtual idx_type	indexOf(pos_type inl,idx_type* newidx=0) const;
 			//!< newidx only filled if not null and -1 is returned
 
     SortedCubeData&	add(LineData*);
 
-    virtual int		indexOf( const LineData* l ) const
+    virtual idx_type	indexOf( const LineData* l ) const
 			{ return CubeData::indexOf( l ); }
 
 protected:
@@ -217,6 +242,9 @@ protected:
 mExpClass(Basic) CubeDataFiller
 {
 public:
+
+    mUseType( CubeData,	pos_type );
+
 			CubeDataFiller(CubeData&);
 			~CubeDataFiller();
 
@@ -228,18 +256,16 @@ protected:
     CubeData&		cd_;
     LineData*		ld_;
     LineData::Segment	seg_;
-    int			prevcrl;
+    pos_type		prevcrl;
 
     void		initLine();
     void		finishLine();
-    LineData*		findLine(int);
+    LineData*		findLine(pos_type);
 
 };
 
 
-/*!
-\brief Iterates through CubeData.
-*/
+/*!\brief Iterates through CubeData */
 
 mExpClass(Basic) CubeDataIterator
 {

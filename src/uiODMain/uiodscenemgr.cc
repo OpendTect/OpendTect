@@ -59,6 +59,7 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 #include "sorting.h"
 #include "settingsaccess.h"
+#include "survgeom2d.h"
 #include "vissurvscene.h"
 #include "vissurvobj.h"
 
@@ -1289,13 +1290,15 @@ int uiODSceneMgr::add2DLineItem( Pos::GeomID geomid, int sceneid )
 }
 
 
-int uiODSceneMgr::add2DLineItem( const DBKey& mid , int sceneid )
+int uiODSceneMgr::add2DLineItem( const DBKey& dbky , int sceneid )
 {
     mGetOrAskForScene
-    const Survey::Geometry* geom = Survey::GM().getGeometry( mid );
-    if ( !geom ) return -1;
 
-    const Pos::GeomID geomid = geom->id();
+    const auto geomid = Pos::GeomID( dbky );
+    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    if ( geom2d.isEmpty() )
+	return -1;
+
     Line2DProbe* line2dprobe = new Line2DProbe( geomid );
     SilentTaskRunnerProvider trprov;
     if ( !ProbeMGR().store(*line2dprobe,trprov).isOK() )
@@ -1311,7 +1314,7 @@ int uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, int sceneid )
 {
     mGetOrAskForScene
     uiODPlaneDataTreeItem* itm = 0;
-    TrcKeyZSampling tkzs = SI().sampling(true);
+    TrcKeyZSampling tkzs( OD::UsrWork );
     SilentTaskRunnerProvider trprov;
     if ( st == OD::InlineSlice )
     {
@@ -1348,7 +1351,7 @@ int uiODSceneMgr::addZSliceItem( float z, int sceneid )
     mGetOrAskForScene
 
     ZSliceProbe* newprobe = new ZSliceProbe();
-    TrcKeyZSampling tkzs = SI().sampling(true);
+    TrcKeyZSampling tkzs( OD::UsrWork );
     tkzs.zsamp_.set( z, z, SI().zStep() );
     newprobe->setPos( tkzs );
     SilentTaskRunnerProvider trprov;

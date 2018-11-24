@@ -205,7 +205,7 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
 
     hgeom_.getMapInfo( iop );
     hgeom_.setName( cubename_ );
-    hgeom_.setZDomain( ZDomain::Def::get(iop) );
+    zdomain_ = ZDomain::Def::get( iop );
     iop.get( sKey::ZRange(), zgeom_ );
     iop.getYN( sKeyDepthInFeet(), depthinfeet_ );
 

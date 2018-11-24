@@ -210,13 +210,15 @@ public:
 				mDeclMonitorableAssignment(RegularFlatDataPack);
 
     bool			isVertical() const
-				{ return dir() != TrcKeyZSampling::Z; }
+				{ return dir() != OD::ZSlice; }
     const TrcKeyPath&		getPath() const		{ return path_; }
     float			getPosDistance(bool dim0,float trcfidx) const;
 
     const TrcKeyZSampling&	sampling() const
 				{ return regSource().sampling(); }
-    TrcKeyZSampling::Dir	dir() const
+    Pos::GeomID			getGeomID() const
+				{ return sampling().hsamp_.getGeomID(); }
+    OD::SliceType		dir() const
 				{ return sampling().defaultDir(); }
     Coord3			getCoord(int i0,int i1) const;
 

@@ -56,6 +56,7 @@ ________________________________________________________________________
 
 #include "attribdescset.h"
 #include "bendpointfinder.h"
+#include "cubesubsel.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emmanager.h"
@@ -201,6 +202,7 @@ extern void OD_Convert_2DLineSets_To_2DDataSets(uiString& errmsg,TaskRunner*);
 
 bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 {
+    /*
     const int status = OD_Get_2D_Data_Conversion_Status();
     if ( !status )
 	return true;
@@ -259,6 +261,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 	return false;
     }
 
+    */
     return true;
 }
 
@@ -271,6 +274,8 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
     const bool status = OD_Get_Body_Conversion_Status();
     if ( !status )
 	return true;
+
+    /*
 
     uiString msg( tr("OpendTect has a new geo-body format. "
 		"All the old geo-bodies of survey '%1' will now be converted. "
@@ -296,6 +301,7 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 	{ gUiMsg().error( errmsg ); return false; }
 
     gUiMsg().message( tr("All the geo-bodies have been converted.") );
+    */
     return true;
 }
 
@@ -538,7 +544,7 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
     {
 	const float zscale = ztrans->zScale();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
-	TrcKeyZSampling cs = SI().sampling( true );
+	TrcKeyZSampling cs( OD::UsrWork );
 	cs.zsamp_ = zsampling;
 	scene->setTrcKeyZSampling( cs );
 	scene->setZScale( zscale );
@@ -574,12 +580,12 @@ void uiODApplMgr::setWorkingArea()
     uiPosProvider::Setup su( false, false, true );
     su.useworkarea(false);
     uiPosProvDlg dlg( &appl_, su, tr("Set Work Area") );
-    dlg.setSampling( SI().sampling(true) );
+    TrcKeyZSampling tkzs( OD::UsrWork );
+    dlg.setSampling( tkzs );
     dlg.setHelpKey( mODHelpKey(mWorkAreaDlgHelpID) );
     if ( !dlg.go() )
 	return;
 
-    TrcKeyZSampling tkzs;
     dlg.getSampling( tkzs );
     SI().setWorkRanges( tkzs );
     sceneMgr().viewAll(0);
@@ -1148,7 +1154,7 @@ bool uiODApplMgr::handleWellAttribServEv( int evid )
     else if ( evid == uiWellAttribPartServer::evShow2DFromWells() )
     {
 	Pos::GeomID wellto2dgeomid = wellattrserv_->new2DFromWellGeomID();
-	if ( wellto2dgeomid==Survey::GeometryManager::cUndefGeomID() )
+	if ( !wellto2dgeomid.isValid() )
 	    return false;
 	sceneMgr().add2DLineItem( wellto2dgeomid );
 	sceneMgr().updateTrees();

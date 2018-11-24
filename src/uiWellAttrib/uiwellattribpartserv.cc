@@ -152,8 +152,7 @@ void uiWellAttribPartServer::wellTo2DDlgClosed( CallBacker* )
 
 Pos::GeomID uiWellAttribPartServer::new2DFromWellGeomID() const
 {
-    return wellto2ddlg_ ? wellto2ddlg_->get2DLineID()
-			: Survey::GeometryManager::cUndefGeomID();
+    return wellto2ddlg_ ? wellto2ddlg_->get2DLineID() : Pos::GeomID();
 }
 
 

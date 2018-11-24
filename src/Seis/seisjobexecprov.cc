@@ -273,13 +273,9 @@ DBKey SeisJobExecProv::tempStorID() const
 	ctio_.ioobj_->pars() = outioobjpars_;
 	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj_)
 	fp.add( "i.*" );
-	StepInterval<int> inls( todoinls_ );
+	auto inls( todoinls_ );
 	if ( inls.start == 0 && inls.stop == 0 )
-	{
-	    inls.start = SI().sampling(false).hsamp_.start_.inl();
-	    inls.stop = SI().sampling(false).hsamp_.stop_.inl();
-	    inls.step = SI().sampling(false).hsamp_.step_.inl();
-	}
+	    inls = SI().inlRange();
 
 	iostrm->fileSpec().setFileName( fp.fullPath() );
 	iostrm->fileSpec().nrs_ = inls;

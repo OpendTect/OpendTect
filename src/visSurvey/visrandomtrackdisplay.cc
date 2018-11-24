@@ -67,7 +67,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     , datatransform_(0)
     , lockgeometry_(false)
     , eventcatcher_(0)
-    , depthrg_(SI().zRange(true))
+    , depthrg_(SI().zRange(OD::UsrWork))
     , voiidx_(-1)
     , markerset_( visBase::MarkerSet::create() )
     , rl_(0)
@@ -118,21 +118,17 @@ RandomTrackDisplay::RandomTrackDisplay()
     addChild( markerset_->osgNode() );
     markerset_->setMarkersSingleColor( polyline_->getMaterial()->getColor() );
 
-    const StepInterval<float>& survinterval = SI().zRange(true);
-    const StepInterval<float> inlrange(
-		    mCast(float,SI().sampling(true).hsamp_.start_.inl()),
-		    mCast(float,SI().sampling(true).hsamp_.stop_.inl()),
-		    mCast(float,SI().inlStep()) );
-    const StepInterval<float> crlrange(
-		    mCast(float,SI().sampling(true).hsamp_.start_.crl()),
-		    mCast(float,SI().sampling(true).hsamp_.stop_.crl()),
-		    mCast(float,SI().crlStep()) );
+    const auto zrg = SI().zRange( OD::UsrWork );
+    const auto inlrg = SI().inlRange( OD::UsrWork );
+    const auto crlrg = SI().crlRange( OD::UsrWork );
     dragger_->setLimits(
-	    Coord3( inlrange.start, crlrange.start, survinterval.start ),
-	    Coord3( inlrange.stop, crlrange.stop, survinterval.stop ),
-	    Coord3( inlrange.step, crlrange.step, survinterval.step ) );
+	    Coord3( inlrg.start, crlrg.start, zrg.start ),
+	    Coord3( inlrg.stop, crlrg.stop, zrg.stop ),
+	    Coord3( inlrg.step, crlrg.step, zrg.step ) );
 
-    dragger_->setDragCtrlSpacing( inlrange, crlrange, survinterval );
+    StepInterval<float> finlrg, fcrlrg;
+    assign( finlrg, inlrg ); assign( fcrlrg, crlrg );
+    dragger_->setDragCtrlSpacing( finlrg, fcrlrg, zrg );
 
     init();		// sets default resolution -> update texture mapping
     updatePanelStripPath();
@@ -251,6 +247,7 @@ float RandomTrackDisplay::appliedZRangeStep() const
 TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
 {
     TrcKeyZSampling cs( false );
+    cs.hsamp_.setIs3D();
     TypeSet<BinID> nodes;
     getAllNodePos( nodes );
     for ( int idx=0; idx<nodes.size(); idx++ )
@@ -258,7 +255,6 @@ TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
 
     cs.zsamp_.setFrom( getDepthInterval() );
     cs.zsamp_.step = appliedZRangeStep();
-    cs.hsamp_.survid_ = Survey::GM().default3DSurvID();
     return cs;
 }
 
@@ -371,8 +367,8 @@ BinID RandomTrackDisplay::getNodePos( int nodeidx ) const
 BinID RandomTrackDisplay::getManipNodePos( int nodeidx ) const
 {
     const Coord crd = dragger_->getKnot( nodeidx );
-    return BinID( SI().inlRange(false).snap(crd.x_),
-		  SI().crlRange(false).snap(crd.y_) );
+    return BinID( SI().inlRange( OD::UsrWork ).snap(crd.x_),
+		  SI().crlRange( OD::UsrWork ).snap(crd.y_) );
 }
 
 
@@ -526,8 +522,7 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
 
     TypeSet<BinID> bids;
     TypeSet<int> segments;
-    const Pos::SurvID survid = s3dgeom_->getSurvID();
-    Geometry::RandomLine::getPathBids( nodes, survid, bids,
+    Geometry::RandomLine::getPathBids( nodes, s3dgeom_, bids,
 			Geometry::RandomLine::NoConsecutiveDups, &segments );
 
     path.erase();
@@ -535,7 +530,7 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
     Line2 curline;
     for ( int idx=0; idx<bids.size(); idx++ )
     {
-	path += TrcKey( survid, bids[idx] );
+	path += TrcKey( bids[idx] );
         if ( !crds )
             continue;
 
@@ -580,8 +575,7 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
     const_cast<RandomTrackDisplay*>(this)->tkpath_.erase();
     TypeSet<BinID> nodes;
     getAllNodePos( nodes );
-    const Pos::SurvID survid = s3dgeom_->getSurvID();
-    Geometry::RandomLine::getPathBids( nodes, survid, bids,
+    Geometry::RandomLine::getPathBids( nodes, s3dgeom_, bids,
 				    Geometry::RandomLine::AllDups, segments );
     for ( int idx=0; idx<bids.size(); idx++ )
     {
@@ -983,13 +977,12 @@ BinID RandomTrackDisplay::proposeNewPos( int nodenr ) const
 	res.crl() /= 2;
     }
 
-    res.inl() = mMIN( SI().inlRange(true).stop, res.inl() );
-    res.inl() = mMAX( SI().inlRange(true).start, res.inl() );
-    res.crl() = mMIN( SI().crlRange(true).stop, res.crl() );
-    res.crl() = mMAX( SI().crlRange(true).start, res.crl() );
+    res.inl() = mMIN( SI().inlRange(OD::UsrWork).stop, res.inl() );
+    res.inl() = mMAX( SI().inlRange(OD::UsrWork).start, res.inl() );
+    res.crl() = mMIN( SI().crlRange(OD::UsrWork).stop, res.crl() );
+    res.crl() = mMAX( SI().crlRange(OD::UsrWork).start, res.crl() );
 
-    SI().snap(res, BinID(0,0) );
-
+    SI().snap( res );
     return res;
 }
 
@@ -1221,12 +1214,12 @@ void RandomTrackDisplay::movingNodeInternal( int selnodeidx )
 
 bool RandomTrackDisplay::checkPosition( const BinID& binid ) const
 {
-    const TrcKeySampling& hs = SI().sampling(true).hsamp_;
+    TrcKeySampling hs( OD::UsrWork );
     if ( !hs.includes(binid) )
 	return false;
 
     BinID snapped( binid );
-    SI().snap( snapped, BinID(0,0) );
+    SI().snap( snapped );
     if ( snapped != binid )
 	return false;
 
@@ -1243,13 +1236,13 @@ bool RandomTrackDisplay::checkPosition( const BinID& binid ) const
 BinID RandomTrackDisplay::snapPosition( const BinID& bid ) const
 {
     BinID binid( bid );
-    const TrcKeySampling& hs = SI().sampling(true).hsamp_;
+    const TrcKeySampling hs( OD::UsrWork );
     if ( binid.inl() < hs.start_.inl() ) binid.inl() = hs.start_.inl();
     if ( binid.inl() > hs.stop_.inl() ) binid.inl() = hs.stop_.inl();
     if ( binid.crl() < hs.start_.crl() ) binid.crl() = hs.start_.crl();
     if ( binid.crl() > hs.stop_.crl() ) binid.crl() = hs.stop_.crl();
 
-    SI().snap( binid, BinID(0,0) );
+    SI().snap( binid );
     return binid;
 }
 
@@ -1519,9 +1512,7 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
     if ( !randsdp || randsdp->isEmpty() )
 	return false;
 
-    const BinID bid( s3dgeom_->transform(pos.getXY()) );
-    const TrcKey trckey = Survey::GM().traceKey(
-	    Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+    const TrcKey trckey( s3dgeom_->transform(pos.getXY()) );
     const int trcidx = randsdp->getNearestGlobalIdx( trckey );
     const int sampidx = randsdp->getZRange().nearestIndex( pos.z_ );
     const Array3DImpl<float>& array = randsdp->data( version );
@@ -1881,11 +1872,11 @@ void RandomTrackDisplay::addPickPos( const Coord3& pos )
     if ( sz )
     {
 	BinID bid( mNINT32(pos.x_), mNINT32(pos.y_) );
-	s3dgeom_->snap( bid, BinID(0,0) );
+	s3dgeom_->snap( bid );
 
 	const Coord3 lastpos = polyline_->getPoint(sz-1);
 	BinID lastbid( mNINT32(lastpos.x_), mNINT32(lastpos.y_) );
-	s3dgeom_->snap( bid, BinID(0,0) );
+	s3dgeom_->snap( bid );
 
 	if ( bid == lastbid )
 	    removePickPos( sz-1 );

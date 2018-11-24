@@ -63,13 +63,13 @@ mStruct(uiODMain) Viewer2DPosDataSel
 			    postype_ = DBM().isBad() || SI().has3D()
 				     ? Viewer2DPosDataSel::InLine
 				     : Viewer2DPosDataSel::Line2D;
-			    selspec_	    = Attrib::SelSpec();
+			    selspec_ = Attrib::SelSpec();
 			    tkzs_.init( !DBM().isBad() );
-			    rdmlineid_	    = -1;
+			    rdmlineid_= -1;
 			    rdmlinedbkey_ = DBKey::getInvalid();
 			    rdmlineid_ = mUdf(int);
-			    geomid_ = Survey::GeometryManager::cUndefGeomID();
-			    selectdata_	    = true;
+			    geomid_ = Pos::GeomID();
+			    selectdata_	= true;
 			}
 
     Probe*		createNewProbe();

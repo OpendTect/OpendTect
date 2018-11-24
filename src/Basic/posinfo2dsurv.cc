@@ -562,7 +562,7 @@ void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 
 
 bool PosInfo::Survey2D::getGeometry( mIdxTyp lineid,
-				     PosInfo::Line2DData& l2dd ) const
+				     Line2DData& l2dd ) const
 {
     for ( int idx=0; idx<lineindex_.size(); idx++ )
     {
@@ -580,7 +580,7 @@ bool PosInfo::Survey2D::getGeometry( mIdxTyp lineid,
 
 
 bool PosInfo::Survey2D::getGeometry( const Line2DKey& l2dky,
-				     PosInfo::Line2DData& l2dd ) const
+				     Line2DData& l2dd ) const
 {
     if ( !l2dky.isOK() ) return false;
 
@@ -601,7 +601,7 @@ bool PosInfo::Survey2D::getGeometry( const Line2DKey& l2dky,
 }
 
 
-bool PosInfo::Survey2D::getGeometry( PosInfo::Line2DData& l2dd ) const
+bool PosInfo::Survey2D::getGeometry( Line2DData& l2dd ) const
 {
     const int lidx = lineindex_.indexOf( l2dd.lineName().buf() );
     l2dd.setEmpty();
@@ -631,7 +631,7 @@ bool PosInfo::Survey2D::getGeometry( PosInfo::Line2DData& l2dd ) const
 }
 
 
-bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
+bool PosInfo::Survey2D::setGeometry( const Line2DData& l2dd )
 {
     const char* lnm = l2dd.lineName().buf();
     const int lidx = lineindex_.indexOf( lnm );
@@ -655,8 +655,8 @@ bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
     ascostream astrm( sfio.ostrm() );
     astrm.putHeader( "Line2D Geometry" );
 
-    float max, median;
-    l2dd.compDistBetwTrcsStats( max, median );
+    Line2DData::dist_type max, median;
+    l2dd.getTrcDistStats( max, median );
     astrm.put( sKeyTrcDist, max, median );
 
     astrm.put( sKeyStor, cWriteAscii ? sKey::Ascii() : sKey::Binary() );

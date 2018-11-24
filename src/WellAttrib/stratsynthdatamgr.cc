@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlevel.h"
+#include "trckeyzsampling.h"
 #include "waveletmanager.h"
 
 
@@ -1438,7 +1439,7 @@ StratSynth::DataMgr::generateDataSet( const GenParams& gp, const TRProv& trprov,
 	    mErrRetInternal( BufferString("input '",inpdsnm,"' is not PS") )
 
 	TrcKeyZSampling cs( false );
-	cs.hsamp_.survid_ = TrcKey::stdSynthSurvID();
+	cs.hsamp_.setIsSynthetic();
 	for ( int idx=0; idx<inpds->size(); idx++ )
 	{
 	    const SeisTrc& trc = *inpds->getTrace( idx );

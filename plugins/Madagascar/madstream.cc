@@ -11,6 +11,7 @@
 #include "file.h"
 #include "filepath.h"
 #include "dbman.h"
+#include "horsubsel.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -219,8 +220,7 @@ void MadStream::initRead( IOPar* par )
     {
 	const Pos::GeomID geomid = seldata->geomID();
 	if ( is2d_ )
-	    psrdr_ = SPSIOPF().get2DReader( *ioobj,
-					     Survey::GM().getName(geomid) );
+	    psrdr_ = SPSIOPF().get2DReader( *ioobj, nameOf(geomid) );
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *ioobj );
 
@@ -258,8 +258,7 @@ void MadStream::initWrite( IOPar* par )
     else
     {
 	const Pos::GeomID geomid = seldata ? seldata->geomID() : mUdfGeomID;
-	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj,
-						Survey::GM().getName(geomid))
+	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj, nameOf(geomid))
 		       : SPSIOPF().get3DWriter(*ioobj);
 	if (!pswrr_) mErrRet(tr("Cannot write to output object"));
 	if ( !is2d_ ) SPSIOPF().mk3DPostStackProxy( *ioobj );
@@ -351,16 +350,15 @@ void MadStream::fillHeaderParsFromSeis()
 	const int lidx = dset.indexOf( seldata->geomID() );
 	if (lidx < 0) mErrRet(tr("2D Line not found"));
 
-	const Survey::Geometry* geom =
-	    Survey::GM().getGeometry( seldata->geomID() );
-	mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
-	if ( !geom2d )
+	const auto& geom2d = Survey::Geometry::get2D( seldata->geomID() );
+	if ( geom2d.isEmpty() )
 	    mErrRet( tr("Line geometry not available") );
-	PosInfo::Line2DData l2dd = geom2d->data();
 
+	PosInfo::Line2DData l2dd = geom2d.data();
 	if ( !seldata->isAll() )
 	{
-	    l2dd.limitTo( seldata->crlRange() );
+	    const auto crlrg = seldata->crlRange();
+	    l2dd.limitTo( crlrg.start, crlrg.stop );
 	    StepInterval<float> gzrg( l2dd.zRange() );
 	    gzrg.limitTo( seldata->zRange() );
 	    l2dd.setZRange( gzrg );
@@ -449,7 +447,8 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 	l2ddata_ = new PosInfo::Line2DData( rdr->posData() );
 	if ( seldata && !seldata->isAll() )
 	{
-	    l2ddata_->limitTo( seldata->crlRange() );
+	    const auto crlrg = seldata->crlRange();
+	    l2ddata_->limitTo( crlrg.start, crlrg.stop );
 	    StepInterval<float> ldzrg( l2ddata_->zRange() );
 	    ldzrg.limitTo( seldata->zRange() );
 	    l2ddata_->setZRange( ldzrg );

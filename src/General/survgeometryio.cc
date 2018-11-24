@@ -24,114 +24,100 @@ namespace Survey
 
 #define mReturn return ++nrdone_ < totalNr() ? MoreToDo() : Finished();
 
-class GeomFileReader : public Executor
-{ mODTextTranslationClass(Survey::GeomFileReader);
+class OD2DGeometryFileReader : public Executor
+{ mODTextTranslationClass(Survey::OD2DGeometryFileReader);
 public:
 
-    GeomFileReader( const DBDir& dbdir,
-		    ObjectSet<Geometry>& geometries, bool updateonly )
-	: Executor( "Loading Files" )
-	, dbdir_(dbdir)
-	, geometries_(geometries)
-	, nrdone_(0)
-	, updateonly_(updateonly)
-    {}
+OD2DGeometryFileReader( ObjectSet<Geometry2D>& geometries, bool updateonly )
+    : Executor( "Loading Files" )
+    , dbdir_(new DBDir(IOObjContext::Geom))
+    , geometries_(geometries)
+    , nrdone_(0)
+    , updateonly_(updateonly)
+{
+}
 
-    uiString message() const
-    { return tr("Reading line geometries"); }
+uiString message() const override    { return tr("Reading line geometries"); }
+uiString nrDoneText() const override { return tr("Geometries read"); }
+od_int64 nrDone() const override     { return nrdone_; }
+od_int64 totalNr() const override    { return dbdir_->size(); }
 
-    uiString nrDoneText() const
-    { return tr("Geometries read"); }
-
-    od_int64 nrDone() const
-    { return nrdone_; }
-
-
-    od_int64 totalNr() const
-    { return dbdir_.size(); }
-
-    int nextStep()
+int nextStep() override
+{
+    PtrMan<IOObj> ioobj = dbdir_->getEntryByIdx( mCast(int,nrdone_) );
+    const GeomID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );
+    bool doupdate = false;
+    const int geomidx = indexOf( geomid );
+    if ( updateonly_ && geomidx!=-1 )
     {
-	PtrMan<IOObj> ioobj = dbdir_.getEntryByIdx( mCast(int,nrdone_) );
-	const Geometry::ID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );
-	bool doupdate = false;
-	const int geomidx = indexOf( geomid );
-	if ( updateonly_ && geomidx!=-1 )
-	{
-	    auto* geom2d = geometries_[geomidx]->as2D();
-	    if ( geom2d && geom2d->data().isEmpty() )
-		doupdate = true;
-	    else
-		mReturn
-	}
-
-	PtrMan<Translator> transl = ioobj->createTranslator();
-	mDynamicCastGet(SurvGeom2DTranslator*,geomtransl,transl.ptr());
-	if ( !geomtransl )
+	auto* geom2d = geometries_[geomidx];
+	if ( geom2d && geom2d->data().isEmpty() )
+	    doupdate = true;
+	else
 	    mReturn
-
-	uiString errmsg;
-	Geometry* geom = geomtransl->readGeometry( *ioobj, errmsg );
-	if ( geom )
-	{
-	    geom->ref();
-	    if ( doupdate )
-	    {
-		Geometry* prevgeom = geometries_.replace( geomidx, geom );
-		if ( prevgeom )
-		    prevgeom->unRef();
-	    }
-	    else
-		geometries_ += geom;
-	}
-
-	auto* geom2d = geom ? geom->as2D() : 0;
-	if ( geom2d )
-	    calcBendPoints( geom2d->dataAdmin() );
-
-	mReturn
     }
+
+    PtrMan<Translator> transl = ioobj->createTranslator();
+    mDynamicCastGet(SurvGeom2DTranslator*,geomtransl,transl.ptr());
+    if ( !geomtransl )
+	mReturn
+
+    uiString errmsg;
+    Geometry2D* geom = geomtransl->readGeometry( *ioobj, errmsg );
+    if ( geom )
+    {
+	geom->ref();
+	if ( doupdate )
+	{
+	    Geometry* prevgeom = geometries_.replace( geomidx, geom );
+	    if ( prevgeom )
+		prevgeom->unRef();
+	}
+	else
+	    geometries_ += geom;
+	calcBendPoints( geom->data() );
+    }
+
+
+    mReturn
+}
 
 protected:
 
-    bool calcBendPoints( PosInfo::Line2DData& l2d ) const
-    {
-	BendPointFinder2DGeom bpf( l2d.positions(), 10.0 );
-	if ( !bpf.execute() || bpf.bendPoints().isEmpty() )
-	    return false;
+bool calcBendPoints( PosInfo::Line2DData& l2d ) const
+{
+    BendPointFinder2DGeom bpf( l2d.positions(), 10.0 );
+    if ( !bpf.execute() || bpf.bendPoints().isEmpty() )
+	return false;
 
-	l2d.setBendPoints( bpf.bendPoints() );
-	return true;
-    }
+    l2d.setBendPoints( bpf.bendPoints() );
+    return true;
+}
 
-    int indexOf( Geometry::ID geomid ) const
-    {
-	for ( int idx=0; idx<geometries_.size(); idx++ )
-	    if ( geometries_[idx]->id() == geomid )
-		return idx;
-	return -1;
-    }
+int indexOf( GeomID geomid ) const
+{
+    for ( int idx=0; idx<geometries_.size(); idx++ )
+	if ( geometries_[idx]->geomID() == geomid )
+	    return idx;
+    return -1;
+}
 
-    const DBDir&		dbdir_;
-    ObjectSet<Geometry>&	geometries_;
+    RefMan<DBDir>		dbdir_;
+    ObjectSet<Geometry2D>&	geometries_;
     od_int64			nrdone_;
     bool			updateonly_;
 
 };
 
 
-void GeometryWriter2D::initClass()
-{ GeometryWriter::factory().addCreator( createNew, sKey::TwoD() ); }
-
-
-bool GeometryWriter2D::write( const Geometry& geom, uiString& errmsg,
+bool ODGeometry2DWriter::write( const Geometry2D& geom, uiString& errmsg,
 			      const char* createfromstr ) const
 {
     const auto* geom2d = geom.as2D();
     if ( !geom2d )
 	return true;
 
-    PtrMan<IOObj> ioobj = createEntry( geom2d->data().lineName() );
+    PtrMan<IOObj> ioobj = getEntry( geom2d->data().lineName() );
     if ( !ioobj || !ioobj->key().hasValidObjID() )
 	return false;
 
@@ -140,10 +126,9 @@ bool GeometryWriter2D::write( const Geometry& geom, uiString& errmsg,
     if ( !geomtransl )
 	return false;
 
-    const FixedString crfromstr( createfromstr );
-    if ( !crfromstr.isEmpty() )
+    if ( !FixedString(createfromstr).isEmpty() )
     {
-	ioobj->pars().set( sKey::CrFrom(), crfromstr );
+	ioobj->pars().set( sKey::CrFrom(), createfromstr );
 	DBM().setEntry( *ioobj );
     }
 
@@ -151,63 +136,48 @@ bool GeometryWriter2D::write( const Geometry& geom, uiString& errmsg,
 }
 
 
-Geometry::ID GeometryWriter2D::createNewGeomID( const char* name ) const
+GeomID ODGeometry2DWriter::getGeomIDFor( const char* name ) const
 {
-    PtrMan<IOObj> geomobj = createEntry( name );
+    PtrMan<IOObj> geomobj = getEntry( name );
     if ( !geomobj )
-	return mUdfGeomID;
+	return GeomID();
     return SurvGeom2DTranslator::getGeomID( *geomobj );
 }
 
 
-IOObj* GeometryWriter2D::createEntry( const char* name ) const
+IOObj* ODGeometry2DWriter::getEntry( const char* name ) const
 {
-    return SurvGeom2DTranslator::createEntry( name,
+    return SurvGeom2DTranslator::getEntry( name,
 					dgbSurvGeom2DTranslator::translKey() );
 }
 
 
-void GeometryWriter3D::initClass()
+bool ODGeometry2DReader::read( ObjectSet<Geometry2D>& geometries,
+			     const TaskRunnerProvider& trprov ) const
 {
-    GeometryWriter::factory().addCreator( createNew, sKey::ThreeD() );
+    OD2DGeometryFileReader rdr( geometries, false );
+    return trprov.execute( rdr );
 }
 
 
-bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
-			     TaskRunner* tskr ) const
+bool ODGeometry2DReader::updateGeometries( ObjectSet<Geometry2D>& geometries,
+				 const TaskRunnerProvider& trprov ) const
 {
-    const IOObjContext& ctxt = mIOObjContext(SurvGeom2D);
-    ConstRefMan<DBDir> dbdir = DBM().fetchDir( ctxt.getSelDirID() );
-    if ( !dbdir )
-	return false;
-
-    GeomFileReader gfr( *dbdir, geometries, false );
-    return TaskRunner::execute( tskr, gfr );
+    OD2DGeometryFileReader rdr( geometries, true );
+    return trprov.execute( rdr );
 }
 
 
-bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
-					 TaskRunner* tskr ) const
+void GeometryIO_init2DGeometry()
 {
-    const IOObjContext& ctxt = mIOObjContext(SurvGeom2D);
-    ConstRefMan<DBDir> dbdir = DBM().fetchDir( ctxt.getSelDirID() );
-    if ( !dbdir )
-	return false;
-
-    GeomFileReader gfr( *dbdir, geometries, true );
-    return TaskRunner::execute( tskr, gfr );
+    Survey::Geometry2DReader::factory().addCreator(
+	    Survey::ODGeometry2DReader::createNew, sKey::TwoD() );
+    Survey::Geometry2DWriter::factory().addCreator(
+	    Survey::ODGeometry2DWriter::createNew, sKey::TwoD() );
+    SurvGeom2DTranslatorGroup::initClass();
+    dgbSurvGeom2DTranslator::initClass();
 }
 
 
-void GeometryReader2D::initClass()
-{
-    GeometryReader::factory().addCreator( createNew, sKey::TwoD() );
-}
-
-
-void GeometryReader3D::initClass()
-{
-    GeometryReader::factory().addCreator( createNew, sKey::ThreeD() );
-}
 
 } // namespace Survey

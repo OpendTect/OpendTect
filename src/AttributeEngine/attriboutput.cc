@@ -473,7 +473,7 @@ bool SeisTrcStorOutput::writeTrc()
     PtrMan<SeisTrc> tmptrc = 0;
     if ( growtrctosi_ )
     {
-	tmptrc = trc_->getExtendedTo( SI().zRange(true), true );
+	tmptrc = trc_->getExtendedTo( SI().zRange(), true );
 	usetrc = tmptrc;
     }
 
@@ -590,9 +590,9 @@ bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& tkzs ) const
     tkzs.hsamp_.setTrcRange( rg );
     const Interval<float> zrg( seldata_->zRange() );
     tkzs.zsamp_ = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
-    const Pos::GeomID geomid = seldata_->geomID();
-    tkzs.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
-    tkzs.hsamp_.survid_ = Survey::GM().get2DSurvID();
+    const auto lnr = seldata_->geomID().lineNr();
+    tkzs.hsamp_.setLineRange( StepInterval<int>(lnr,lnr,1) );
+    tkzs.hsamp_.setIs2D( true );
     return true;
 }
 
@@ -1138,13 +1138,15 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
 }
 
 
-bool TableOutput::useCoords( Pos::SurvID survid ) const
-{ return datapointset_.bivSet().survID() != survid; }
+bool TableOutput::useCoords( OD::GeomSystem gs ) const
+{
+    return datapointset_.bivSet().geomSystem() != gs;
+}
 
 void TableOutput::collectData( const DataHolder& data, float refstep,
 			       const SeisTrcInfo& info )
 {
-    const bool usecoords = useCoords( info.survID() );
+    const bool usecoords = useCoords( info.geomSystem() );
     const Coord coord = info.coord_;
     DataPointSet::RowID rid = usecoords ? datapointset_.findFirst(coord)
 				      : datapointset_.findFirst(info.binID());

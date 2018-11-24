@@ -69,6 +69,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 
     TypeSet<Pos::GeomID> geomids;
     get( sKey::GeomID(), geomids );
+
     BufferStringSet linenms;
     OD::LineStyle ls;
     BufferString lsstr = find( ODGMT::sKeyLineStyle() );
@@ -89,15 +90,14 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			 Survey::GM().getGeometry(geomids[idx]) );
-	if ( !geom2d )
+	const auto& geom2d = Survey::Geometry::get2D( geomids[idx] );
+	if ( geom2d.isEmpty() )
 	    continue;
 
-	const PosInfo::Line2DData& geom = geom2d->data();
+	const PosInfo::Line2DData& geom = geom2d.data();
 	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 
-	procstrm << "> " << geom2d->name() << "\n";
+	procstrm << "> " << geom2d.name() << "\n";
 
 	for ( int tdx=0; tdx<posns.size(); tdx++ )
 	{
@@ -124,12 +124,11 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			 Survey::GM().getGeometry(geomids[idx]) );
-	if ( !geom2d )
+	const auto& geom2d = Survey::Geometry::get2D( geomids[idx] );
+	if ( geom2d.isEmpty() )
 	    continue;
 
-	const PosInfo::Line2DData& geom = geom2d->data();
+	const PosInfo::Line2DData& geom = geom2d.data();
 	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 	const int nrtrcs = posns.size();
 	Coord pos = posns[0].coord_;
@@ -150,7 +149,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	    pos -= Coord( distfactor*dx, distfactor*dy );
 	    procstrm << pos.x_ << " " << pos.y_ << " " << sz << " " ;
 	    procstrm << rotangle << " " << 4;
-	    procstrm << " " << al.buf() << geom2d->name() << "\n";
+	    procstrm << " " << al.buf() << geom2d.name() << "\n";
 	}
 
 	bool poststop = false;
@@ -168,7 +167,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	    al = fabs(angle) > 90 ? "ML " : "MR ";
 	    procstrm << pos.x_ << " " << pos.y_ << " " << sz << " " ;
 	    procstrm << rotangle << " " << 4;
-	    procstrm << " " << al.buf() << geom2d->name() << "\n";
+	    procstrm << " " << al.buf() << geom2d.name() << "\n";
 	}
 
 	bool postnrs = true;

@@ -4,25 +4,27 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Salil Agarwal
- Date:		Dec 2012
+ Author:	Salil Agarwal / Bert
+ Date:		Dec 2012 / Nov 2018
 ________________________________________________________________________
 
 
 -*/
 
 #include "generalmod.h"
-#include "survgeom.h"
+#include "survgeom2d.h"
 #include "transl.h"
 
-//TODO: Make Translator/Group classes for 3D when needed.
 
 mExpClass(General) SurvGeom2DTranslatorGroup : public TranslatorGroup
 {   isTranslatorGroup(SurvGeom2D);
     mODTextTranslationClass(SurvGeom2DTranslatorGroup);
+
 public:
+
 			mDefEmptyTranslatorGroupConstructor(SurvGeom2D);
     const char*		defExtension() const	{ return "geom"; }
+
 };
 
 
@@ -30,17 +32,18 @@ mExpClass(General) SurvGeom2DTranslator : public Translator
 {
 public:
 
-    typedef Survey::Geometry	Geometry;
+    mUseType( Survey,	Geometry2D );
+    mUseType( Survey,	GeomID );
 
-				mDefEmptyTranslatorBaseConstructor(SurvGeom2D);
+			mDefEmptyTranslatorBaseConstructor(SurvGeom2D);
 
-    virtual Geometry*	readGeometry(const IOObj&,uiString&) const = 0;
-    virtual bool	writeGeometry(IOObj&,const Geometry&,
+    virtual Geometry2D*	readGeometry(const IOObj&,uiString&) const = 0;
+    virtual bool	writeGeometry(IOObj&,const Geometry2D&,
 				      uiString&) const		   = 0;
 
-    static Pos::GeomID	getGeomID(const IOObj&);
-    static IOObj*	getIOObj(Pos::GeomID);
-    static IOObj*	createEntry(const char* objname,const char* trnm);
+    static GeomID	getGeomID(const IOObj&);
+    static IOObj*	getIOObj(GeomID);
+    static IOObj*	getEntry(const char* objname,const char* trnm);
 
 };
 
@@ -53,8 +56,8 @@ public:
 			    : SurvGeom2DTranslator(s1,s2)	{}
 
     const char*		defExtension() const	{ return "geom"; }
-    Geometry*		readGeometry(const IOObj&,uiString&) const;
-    bool		writeGeometry(IOObj&,const Geometry&,
+    Geometry2D*		readGeometry(const IOObj&,uiString&) const;
+    bool		writeGeometry(IOObj&,const Geometry2D&,
 					uiString&) const;
 
 };

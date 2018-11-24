@@ -38,10 +38,8 @@ Seis2DFrom3DExtractor::Seis2DFrom3DExtractor(
 
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			 Survey::GM().getGeometry(geomids[idx]) );
-	if ( geom2d )
-	    totalnr_ += geom2d->data().positions().size();
+	const auto& geom2d = Survey::Geometry::get2D( geomids[idx] );
+	totalnr_ += geom2d.data().positions().size();
     }
 }
 
@@ -68,9 +66,9 @@ int Seis2DFrom3DExtractor::goToNextLine()
     if ( curlineidx_ >= geomids_.size() )
 	return Finished();
 
-    mDynamicCast( const Survey::Geometry2D*, curgeom2d_,
-		  Survey::GM().getGeometry(geomids_[curlineidx_]) );
-    if ( !curgeom2d_ )
+    const auto geomid = geomids_[curlineidx_];
+    curgeom2d_ = &Survey::Geometry::get2D( geomid );
+    if ( curgeom2d_->isEmpty() )
 	mErrRet(tr("Line geometry not available"))
 
     Seis::SelData* newseldata = Seis::SelData::get( Seis::Range );
@@ -104,7 +102,7 @@ int Seis2DFrom3DExtractor::handleTrace()
 
     const PosInfo::Line2DPos& curpos =
 		curgeom2d_->data().positions()[curtrcidx_++];
-    TrcKey curtrckey( curgeom2d_->id(), curpos.nr_ );
+    TrcKey curtrckey( curgeom2d_->geomID(), curpos.nr_ );
     trc.info().trckey_ = curtrckey;
     trc.info().coord_ = curpos.coord_;
     if ( !wrr_.put(trc) )

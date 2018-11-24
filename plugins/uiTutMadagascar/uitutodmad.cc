@@ -67,7 +67,7 @@ bool uiTutODMad::acceptOK()
     SeisTrcBuf* trcbuf = madstream_.getTrcBuf();
     SeisTrcInfo::Fld seisifld = (SeisTrcInfo::Fld)0;
     if ( trcbuf && trcbuf->get(0) && trcbuf->get(1) )
-	seisifld = (SeisTrcInfo::Fld) trcbuf->get(0)->info().
+	seisifld = trcbuf->get(0)->info().
 				getDefaultAxisFld(geom,&trcbuf->get(1)->info());
     bufdtpack_ = new SeisTrcBufDataPack( trcbuf, geom, seisifld,
 					 "Madagascar data" );

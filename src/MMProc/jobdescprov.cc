@@ -106,7 +106,7 @@ void IDKeyReplaceJobDescProv::dump( od_ostream& strm ) const
 
 
 #define mSetInlRgDef() \
-    Interval<int> dum; SI().sampling(false).hsamp_.get( inlrg_, dum )
+    Interval<int> dum; inlrg_ = SI().inlRange()
 
 
 InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop )
@@ -160,7 +160,7 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
     BufferString typestr;
     inpiopar_.get( mGetSubselKey(Type), typestr );
     if ( typestr==sKey::None() )
-	rg = SI().inlRange(true);
+	rg = SI().inlRange();
 
     rg.sort();
 
@@ -211,10 +211,10 @@ void InlineSplitJobDescProv::getJob( int jidx, IOPar& iop ) const
 
     if ( !isfullrange )
     {
-	iop.set( mGetSubselKey(FirstCrl), SI().crlRange(true).start );
-	iop.set( mGetSubselKey(LastCrl), SI().crlRange(true).stop );
+	iop.set( mGetSubselKey(FirstCrl), SI().crlRange().start );
+	iop.set( mGetSubselKey(LastCrl), SI().crlRange().stop );
 	iop.set( mGetSubselKey(StepCrl), SI().crlStep() );
-	iop.set( mGetSubselKey(ZRange), SI().zRange(true) );
+	iop.set( mGetSubselKey(ZRange), SI().zRange() );
     }
 }
 
@@ -315,7 +315,7 @@ const char* Line2DSubselJobDescProv::objName( int jidx ) const
     if ( !subselpars_.validIdx(jidx) )
 	return 0;
 
-    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+    Pos::GeomID geomid;
     subselpars_[jidx]->get( sKey::GeomID(), geomid );
-    return Survey::GM().getName( geomid );
+    return nameOf( geomid );
 }

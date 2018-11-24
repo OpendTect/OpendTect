@@ -91,7 +91,7 @@ void VBrickSpec::setStd( bool yn )
     }
     else
     {
-	const int nrsamps = SI().zRange(false).nrSteps() + 1;
+	const int nrsamps = SI().zRange().nrSteps() + 1;
 	nrsamplesperslab = nrsamps / maxnrslabs;
 	if ( nrsamps % maxnrslabs )
 	    nrsamplesperslab++;

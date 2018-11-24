@@ -238,8 +238,8 @@ bool Seis::ProviderTester::testPreLoad( const TrcKeyZSampling& tkzs )
 {
     if ( !prov_ ) return false;
 
-    const Pos::GeomID geomid = tkzs.is2D() ? tkzs.hsamp_.start_.inl()
-					   : Survey::GM().default3DSurvID();
+    const auto geomid = tkzs.is2D() ? Pos::GeomID(tkzs.hsamp_.start_.inl())
+				    : Pos::GeomID::get3D();
     Seis::PreLoader pl( dbky_, geomid );
     LoggedTaskRunner taskrunner( od_cout() );
     pl.setTaskRunner( taskrunner );
@@ -248,7 +248,7 @@ bool Seis::ProviderTester::testPreLoad( const TrcKeyZSampling& tkzs )
     else
     {
 	if ( prov_->is2D() )
-	    pl.loadPS2D( Survey::GM().getName(geomid) );
+	    pl.loadPS2D( nameOf(geomid) );
 	else
 	{
 	    const StepInterval<int> linerg = tkzs.hsamp_.lineRange();

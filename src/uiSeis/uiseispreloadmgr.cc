@@ -213,6 +213,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     mCheckIOObjExistance( ioobj );
 
     TrcKeyZSampling tkzs;
+    tkzs.hsamp_.setIs2D();
     DataCharacteristics dc; dlg.getDataChar( dc );
     TypeSet<Pos::GeomID> geomids;
     dlg.selectedGeomIDs( geomids );
@@ -225,15 +226,12 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     bool skiploadedgeomids = false;
     if ( !loadedgeomids.isEmpty() )
     {
-	uiString msg = tr("%1 dataset for lines %2 is already preloaded")
-						.arg(DBM().nameOf(key));
+	BufferStringSet lnms;
 	for ( int idx=0; idx<loadedgeomids.size(); idx++ )
-	{
-	    BufferStringSet bfs;
-	    bfs.add(Survey::GM().getName(loadedgeomids[idx]));
-	    BufferString loadedgeomnmstr = bfs.getDispString();
-	    msg.arg( toUiString(loadedgeomnmstr) );
-	}
+	    lnms.add( nameOf(loadedgeomids[idx]) );
+	uiString msg = tr("%1 dataset for lines %2 is already preloaded")
+			    .arg( DBM().nameOf(key) )
+			    .arg( lnms.getDispString() );
 	msg.appendPhrase( tr("Do you want to reload?"),
 			  uiString::NoSep, uiString::AfterEmptyLine );
 	skiploadedgeomids = !uiMSG().askGoOn( msg );
@@ -252,12 +250,13 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 	}
 
 	dlg.getSampling( tkzs, geomid );
-	tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
+	const auto lnr = geomid.lineNr();
+	tkzs.hsamp_.setLineRange( Interval<int>(lnr,lnr) );
 	loadgeomids += geomid;
 	tkzss += tkzs;
     }
 
-    PreLoader spl( key, -1, &taskrunner );
+    PreLoader spl( key, Pos::GeomID::get3D(), &taskrunner );
     spl.load( tkzss, loadgeomids, dc.userType(), dlg.getScaler() );
 
     fullUpd( 0 );
@@ -587,15 +586,18 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 
     const SeisIOObjInfo info( ioobj );
     TrcKeyZSampling tkzs;
-    if ( info.is2D() )
+    const bool is2d = info.is2D();
+    if ( is2d )
     {
+	tkzs.hsamp_.setIs2D();
 	TypeSet<Pos::GeomID> geomids;
 	selectedGeomIDs( geomids );
 	if ( geomids.isEmpty() )
 	    return;
 
 	Pos::GeomID geomid0 = geomids.first();
-	tkzs.hsamp_.setLineRange( StepInterval<int>(geomid0,geomid0,1) );
+	const auto lnr = geomid0.lineNr();
+	tkzs.hsamp_.setLineRange( StepInterval<int>(lnr,lnr,1) );
 	StepInterval<int> trcrg; StepInterval<float> zrg;
 	if ( !info.getRanges(geomid0,trcrg,zrg) )
 	    return;
@@ -642,7 +644,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     for ( int idx=0; idx<nr2add; idx++ )
     {
 	const od_int64 gidx = gidxs[idx];
-	const TrcKey trckey = tkzs.hsamp_.atIndex( gidx );
+	const TrcKey trckey = TrcKey( tkzs.hsamp_.atIndex(gidx) );
 	if ( !prov->isPresent(trckey) )
 	    continue;
 

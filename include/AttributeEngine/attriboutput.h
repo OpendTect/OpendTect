@@ -46,7 +46,7 @@ public:
 
     virtual bool		getDesiredVolume(TrcKeyZSampling&) const
 				{ return true; }
-    virtual bool		useCoords(Pos::SurvID) const	{ return false;}
+    virtual bool		useCoords(OD::GeomSystem) const	{ return false;}
     virtual bool		wantsOutput(const BinID&) const; // overrule it
     virtual bool		wantsOutput(const Coord&) const; // or this one
 
@@ -151,7 +151,7 @@ public:
 
     virtual bool		doInit();
     virtual void		set2D( bool yn = true )		{ is2d_ = yn; }
-    virtual bool		useCoords(Pos::SurvID) const	{ return false;}
+    virtual bool		useCoords(OD::GeomSystem) const	{ return false;}
     bool			getDesiredVolume(TrcKeyZSampling&) const;
     bool			wantsOutput(const BinID&) const;
     virtual TypeSet< Interval<int> > getLocalZRanges(const BinID&,float,
@@ -224,7 +224,7 @@ public:
 
     bool			doInit();
     void			set2D(bool)			{}
-    bool			useCoords(Pos::SurvID) const	{ return true; }
+    bool			useCoords(OD::GeomSystem) const	{ return true; }
 
     virtual bool		wantsOutput(const Coord&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
@@ -364,7 +364,7 @@ public:
 
     bool			getDesiredVolume(TrcKeyZSampling&) const
 				{ return true;}
-    virtual bool		useCoords(Pos::SurvID) const;
+    virtual bool		useCoords(OD::GeomSystem) const;
     bool			wantsOutput(const BinID&) const;
     bool			wantsOutput(const Coord&) const;
     virtual void		collectData(const DataHolder&,float step,

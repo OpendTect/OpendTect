@@ -123,11 +123,11 @@ void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm )
 {
     const Seis2DDataSet& dset( *s2dfm_->dataset_ );
     const int iln = dset.indexOf( lnm );
-    const Survey::Geometry* geom = Survey::GM().getGeometry( lnm );
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
-    if ( iln < 0 || !geom2d )
+    const auto& geom2d = Survey::Geometry::get2D( lnm );
+    if ( iln < 0 || geom2d.isEmpty() )
 	return;
-    PosInfo::Line2DData l2dd = geom2d->data();
+
+    PosInfo::Line2DData l2dd = geom2d.data();
     const int nrposns = l2dd.positions().size();
     if ( nrposns < 2 )
 	return;

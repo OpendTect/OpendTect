@@ -102,7 +102,7 @@ bool Geom2DAscIO::getData( Survey::Geometry2D& geom ) const
 	geom.add( crd, trcnr, spnr );
     }
 
-    geom.touch();
+    geom.commitChanges();
     return geom.size();
 }
 
@@ -154,7 +154,7 @@ bool Geom2DAscIO::getData( ObjectSet<Survey::Geometry2D>& geoms ) const
     }
 
     for ( int idx=0; idx<geoms.size(); idx++ )
-	geoms[idx]->touch();
+	geoms[idx]->commitChanges();
 
     return true;
 }

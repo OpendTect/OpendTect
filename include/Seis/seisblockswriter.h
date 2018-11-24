@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "ranges.h"
 #include "iopar.h"
+#include "zdomain.h"
 class od_ostream;
 class ascostream;
 class Task;
@@ -60,7 +61,6 @@ public:
     void		setFullPath(const char*); //!< with or w/o extension
     void		setFileNameBase(const char*);
     void		setCubeName(const char*);
-    void		setZDomain(const ZDomain::Def&);
     void		setDataRep(OD::DataRepType);
     void		setScaler(const LinScaler*);
     void		addComponentName(const char*);
@@ -78,6 +78,7 @@ public:
     inline int		nrColumnBlocks() const
 			{ return zevalpositions_.size(); }
     void		setBasePath(const File::Path&);
+    void		setZDomain(const ZDomain::Def&);
 
 protected:
 

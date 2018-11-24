@@ -255,7 +255,7 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 void uiHorSaveFieldGrp::expandToFullSurveyArray()
 {
    if ( needsFullSurveyArray() )
-       setHorRange( SI().inlRange(true), SI().crlRange(true) );
+       setHorRange( SI().inlRange(OD::UsrWork), SI().crlRange(OD::UsrWork) );
 }
 
 

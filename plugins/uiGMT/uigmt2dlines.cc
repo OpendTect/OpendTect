@@ -139,10 +139,13 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
     FixedString nm = par.find( sKey::Name() );
     if ( nm ) namefld_->setText( nm );
 
-    TypeSet<Pos::GeomID> geomids;
-    par.get( sKey::GeomID(), geomids );
-    if ( geomids.isEmpty() )
+    TypeSet<int> lnrs;
+    par.get( sKey::GeomID(), lnrs );
+    if ( lnrs.isEmpty() )
 	mErrRet( tr("No 2D lines found ") );
+    TypeSet<Pos::GeomID> geomids;
+    for ( auto lnr : lnrs )
+	geomids.add( Pos::GeomID(lnr) );
 
     lineselfld_->setSelGeomIDs( geomids );
     FixedString lskey = par.find( ODGMT::sKeyLineStyle() );

@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "raysynthgenerator.h"
 #include "raytracerrunner.h"
 #include "reflectivitymodel.h"
+#include "trckeyzsampling.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "wellelasticmodelcomputer.h"

@@ -91,12 +91,12 @@ EngineMan* GapDeconACorrView::createEngineMan()
     aem->setGeomID( geomid_ );
 
     TrcKeyZSampling cs = tkzs_;
-    if ( !SI().zRange(0).includes( tkzs_.zsamp_.start, false ) ||
-	 !SI().zRange(0).includes( tkzs_.zsamp_.stop, false ) )
+    if ( !SI().zRange().includes( tkzs_.zsamp_.start, false ) ||
+	 !SI().zRange().includes( tkzs_.zsamp_.stop, false ) )
     {
 	//'fake' a 'normal' cubesampling for the attribute engine
-	cs.zsamp_.start = SI().sampling(0).zsamp_.start;
-	cs.zsamp_.stop = cs.zsamp_.start + tkzs_.zsamp_.width();
+	cs.zsamp_.start = SI().zRange().start;
+	cs.zsamp_.stop = SI().zRange().stop;
     }
     aem->setTrcKeyZSampling( cs );
 
@@ -115,8 +115,8 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 	correctd2dh->trcinfoset_ += info;
     }
 
-    if ( ( !SI().zRange(0).includes(tkzs_.zsamp_.start, false )
-	|| !SI().zRange(0).includes(tkzs_.zsamp_.stop, false ) )
+    if ( ( !SI().zRange().includes(tkzs_.zsamp_.start, false )
+	|| !SI().zRange().includes(tkzs_.zsamp_.stop, false ) )
 	 && correctd2dh.ptr()->trcinfoset_.size() )
     {
 	//we previously 'faked' a 'normal' cubesampling for the attribute engine
@@ -128,7 +128,8 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
     }
 
     TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
-    sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid_;
+    sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl()
+	    = geomid_.lineNr();
 
     BufferStringSet cnames; cnames.add( "autocorrelation" );
     const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
@@ -150,8 +151,8 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
     RefMan<RegularSeisDataPack> output = aem->getDataPackOutput(*proc);
     if ( !output ) return;
 
-    bool csmatchessurv = SI().zRange(0).includes(tkzs_.zsamp_.start, false )
-			&& SI().zRange(0).includes(tkzs_.zsamp_.stop, false );
+    bool csmatchessurv = SI().zRange().includes(tkzs_.zsamp_.start, false )
+			&& SI().zRange().includes(tkzs_.zsamp_.stop, false );
     //if we previously 'faked' a 'normal' cubesampling for the attribute engine
     //we now have to go back to the user specified sampling
     if ( !csmatchessurv ) output->setSampling( tkzs_ );

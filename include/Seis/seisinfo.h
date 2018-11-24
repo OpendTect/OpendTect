@@ -25,7 +25,11 @@ mExpClass(Seis) SeisTrcInfo
 {
 public:
 
-    typedef IdxPair::IdxType IdxType;
+    mUseType( IdxPair,	IdxType );
+    mUseType( OD,	GeomSystem );
+    typedef int		idx_type;
+    typedef idx_type	size_type;
+    typedef Pos::Z_Type	z_type;
 
 			SeisTrcInfo();
 			SeisTrcInfo(const SeisTrcInfo&);
@@ -40,10 +44,14 @@ public:
     float		pick_;
 
     inline bool		is2D() const		{ return trckey_.is2D(); }
-    inline Pos::SurvID	survID() const		{ return trckey_.survID(); }
+    inline bool		isSynthetic() const	{ return trckey_.isSynthetic();}
+    GeomSystem		geomSystem() const	{ return trckey_.geomSystem(); }
     inline const BinID&	binID() const		{ return trckey_.binID(); }
     inline IdxType	lineNr() const		{ return trckey_.lineNr(); }
     inline IdxType	trcNr() const		{ return trckey_.trcNr(); }
+
+    inline SeisTrcInfo&	setGeomSystem( GeomSystem gs )
+			{ trckey_.setGeomSystem(gs); return *this; }
     inline SeisTrcInfo&	setBinID( const BinID& bid )
 			{ trckey_.setBinID(bid); return *this; }
     inline SeisTrcInfo&	setLineNr( IdxType lnr )
@@ -51,11 +59,11 @@ public:
     inline SeisTrcInfo&	setTrcNr( IdxType tnr )
 			{ trckey_.setTrcNr(tnr); return *this; }
 
-    int			nearestSample(float pos) const;
-    float		samplePos( int idx ) const
+    idx_type		nearestSample(z_type pos) const;
+    z_type		samplePos( idx_type idx ) const
 			{ return sampling_.atIndex( idx ); }
-    SampleGate		sampleGate(const Interval<float>&) const;
-    bool		dataPresent(float pos,int trcsize) const;
+    SampleGate		sampleGate(const Interval<z_type>&) const;
+    bool		dataPresent(z_type pos,size_type trcsize) const;
 
     enum Fld		{ TrcNr=0, Pick, RefNr,
 			  CoordX, CoordY, BinIDInl, BinIDCrl,
@@ -63,7 +71,7 @@ public:
 			mDeclareEnumUtils(Fld)
     double		getValue(Fld) const;
     static void		getAxisCandidates(Seis::GeomType,TypeSet<Fld>&);
-    int			getDefaultAxisFld(Seis::GeomType,
+    Fld			getDefaultAxisFld(Seis::GeomType,
 					  const SeisTrcInfo* next) const;
     void		getInterestingFlds(Seis::GeomType,IOPar&) const;
     void		setPSFlds(const Coord& rcvpos,const Coord& srcpos,

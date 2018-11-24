@@ -38,7 +38,7 @@ PreLoader::PreLoader( const DBKey& mid, Pos::GeomID geomid, TaskRunner* tskrn )
 
 IOObj* PreLoader::getIOObj() const
 {
-    IOObj* ret = DBM().get( dbkey_ );
+    IOObj* ret = ::getIOObj( dbkey_ );
     if ( !ret )
 	errmsg_ = uiStrings::phrCannotFindDBEntry( dbkey_ );
     return ret;
@@ -201,7 +201,7 @@ bool PreLoader::loadPS2D( const BufferStringSet& lnms ) const
 
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
-	const Pos::GeomID geomid = Survey::GM().getGeomID( lnms.get(idx) );
+	const auto geomid = Survey::Geometry::getGeomID( lnms.get(idx) );
 	Seis::SequentialPSLoader psrdr( *ioobj, 0, geomid );
 	if ( !trunnr.execute(psrdr) )
 	    return false;
@@ -241,11 +241,12 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tskr )
     if ( dbky.isInvalid() )
 	return;
 
-    Pos::GeomID geomid = -1;
+    Pos::GeomID geomid = Pos::GeomID::get3D();
     iop.get( sKey::GeomID(), geomid );
 
     SeisIOObjInfo info( dbky );
-    if ( !info.isOK() ) return;
+    if ( !info.isOK() )
+	return;
 
     DataCharacteristics dc; info.getDataChar( dc );
     DataCharacteristics::UserType usertype( dc.userType() );
@@ -342,15 +343,14 @@ void PreLoader::fillPar( IOPar& iop ) const
 // PreLoadDataEntry
 PreLoadDataEntry::PreLoadDataEntry( const DBKey& dbky, Pos::GeomID geomid,
 				    DataPack::ID dpid )
-    : dbkey_(dbky), geomid_(geomid), dpid_(dpid), is2d_(geomid!=-1)
+    : dbkey_(dbky), geomid_(geomid), dpid_(dpid), is2d_(geomid.is2D())
 {
-    name_ = DBM().nameOf( dbky );
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
-    is2d_ = geom && geom->is2D();
+    name_ = nameOf( dbky );
+    is2d_ = geomid.is2D();
     if ( is2d_ )
     {
 	name_.add( " - " );
-	name_.add( geom->name() );
+	name_.add( nameOf(geomid) );
     }
 }
 
@@ -375,7 +375,7 @@ PreLoadDataManager::~PreLoadDataManager()
 
 
 void PreLoadDataManager::add( const DBKey& dbky, DataPack* dp )
-{ add( dbky, -1, dp ); }
+{ add( dbky, Pos::GeomID::get3D(), dp ); }
 
 
 void PreLoadDataManager::add( const DBKey& dbky, Pos::GeomID geomid,

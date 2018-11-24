@@ -83,8 +83,7 @@ void uiImportMute::formatSel( CallBacker* )
 
 void uiImportMute::changePrefPosInfo( CallBacker* cb )
 {
-    BinID center( SI().inlRange(false).center(),
-		  SI().crlRange(false).center() );
+    BinID center( SI().inlRange().center(), SI().crlRange().center() );
     SI().snap( center );
     inlcrlfld_->setValue( center );
 

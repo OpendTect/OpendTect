@@ -62,7 +62,7 @@ PreStackDisplay::PreStackDisplay()
     , seis2dpos_( mUdf(float), mUdf(float) )
     , width_( mDefaultWidth )
     , offsetrange_( 0, mDefaultWidth )
-    , zrg_( SI().zRange(true) )
+    , zrg_( SI().zRange(OD::UsrWork) )
     , posside_( true )
     , autowidth_( true )
     , preprocmgr_( *new PreStack::ProcessManager )
@@ -517,10 +517,10 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 
     flatviewer_->setPosition( c00, c01, c10, c11 );
 
-    Interval<float> xlim( mCast(float, SI().inlRange(true).start),
-			  mCast(float, SI().inlRange(true).stop) );
-    Interval<float> ylim( mCast(float, SI().crlRange(true).start),
-			  mCast(float, SI().crlRange(true).stop) );
+    Interval<float> xlim( mCast(float, SI().inlRange(OD::UsrWork).start),
+			  mCast(float, SI().inlRange(OD::UsrWork).stop) );
+    Interval<float> ylim( mCast(float, SI().crlRange(OD::UsrWork).start),
+			  mCast(float, SI().crlRange(OD::UsrWork).stop) );
 
     bool isinline = true;
     if ( section_ )
@@ -563,7 +563,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 
     planedragger_->setSize( Coord3(xwidth,ywidth,zrg_.width(true)) );
     planedragger_->setCenter( (c01+c10)/2 );
-    planedragger_->setSpaceLimits( xlim, ylim, SI().zRange(true) );
+    planedragger_->setSpaceLimits( xlim, ylim, SI().zRange(OD::UsrWork) );
 }
 
 
@@ -823,8 +823,8 @@ void PreStackDisplay::draggerMotion( CallBacker* )
     if ( section_ )
     {
 	const OD::SliceType orientation = section_->getOrientation();
-	const int newinl = SI().inlRange( true ).snap( draggerbidf.x_ );
-	const int newcrl = SI().crlRange( true ).snap( draggerbidf.y_ );
+	const int newinl = SI().inlRange( OD::UsrWork ).snap( draggerbidf.x_ );
+	const int newcrl = SI().crlRange( OD::UsrWork ).snap( draggerbidf.y_ );
 	if ( orientation==OD::InlineSlice && newcrl!=trckey_.trcNr() )
 	    showplane = true;
 	else if ( orientation==OD::CrosslineSlice && newinl!=trckey_.lineNr() )
@@ -874,8 +874,8 @@ void PreStackDisplay::finishedCB( CallBacker* )
     Coord draggerbidf = planedragger_->center().getXY();
     if ( section_ )
     {
-	int newinl = SI().inlRange( true ).snap( draggerbidf.x_ );
-	int newcrl = SI().crlRange( true ).snap( draggerbidf.y_ );
+	int newinl = SI().inlRange( OD::UsrWork ).snap( draggerbidf.x_ );
+	int newcrl = SI().crlRange( OD::UsrWork ).snap( draggerbidf.y_ );
 	if ( section_->getOrientation() == OD::InlineSlice )
 	    newinl = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.inl();
 	else if ( section_->getOrientation() == OD::CrosslineSlice )

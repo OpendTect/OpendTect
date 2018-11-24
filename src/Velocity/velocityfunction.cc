@@ -22,8 +22,7 @@ namespace Vel
 Function::Function( FunctionSource& vfs )
     : source_(vfs)
     , cache_(0)
-    , desiredrg_(SI().zRange(true).start,SI().zRange(true).stop,
-	         SI().zRange(true).step)
+    , desiredrg_(SI().zRange())
     , bid_(mUdf(int),mUdf(int))
 {
     source_.ref();

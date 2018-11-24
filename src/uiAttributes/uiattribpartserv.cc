@@ -317,9 +317,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 				       Pos::GeomID geomid,
 				       const uiString& seltxt )
 {
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
-    const bool is2d = geom && geom->is2D();
-
+    const bool is2d = geomid.is2D();
     const DescSet& attrset = curDescSet( is2d );
     uiAttrSelData attrdata( attrset );
     attrdata.attribid_ = selspec.isNLA() ? SelSpec::cNoAttribID()
@@ -387,9 +385,7 @@ bool uiAttribPartServer::selectRGBAttribs( SelSpecList& rgbaspecs,
 					   const ZDomain::Info* zinf,
 					   Pos::GeomID geomid )
 {
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
-    const bool is2d = geom && geom->is2D();
-
+    const bool is2d = geomid.is2D();
     uiRGBAttrSelDlg dlg( parent(), curDescSet(is2d) );
     dlg.setSelSpec( rgbaspecs );
     if ( !dlg.go() )
@@ -574,10 +570,10 @@ Attrib::EngineMan* uiAttribPartServer::createEngMan(
 DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 					       DataPack::ID cacheid )
 {
-    if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    if ( tkzs.hsamp_.is2D() )
     {
 	uiTaskRunner taskrunner( parent() );
-	const Pos::GeomID& geomid = tkzs.hsamp_.trcKeyAt(0).geomID();
+	const Pos::GeomID geomid = tkzs.hsamp_.trcKeyAt(0).geomID();
 	return create2DOutput( tkzs, geomid, taskrunner );
     }
 
@@ -633,7 +629,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	if ( defstr != targetspecs_[0].defString() )
 	    cache = 0;
 
-	const bool isz = tkzs.isFlat()&&tkzs.defaultDir() == TrcKeyZSampling::Z;
+	const bool isz = tkzs.isFlat()&&tkzs.defaultDir() == OD::ZSlice;
 	if ( !preloadeddatapack && isz )
 	{
 	    uiString errmsg;
@@ -728,9 +724,9 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	const bool isstored =
 	    targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();
 	const bool isinl =
-		    tkzs.isFlat() && tkzs.defaultDir() == TrcKeyZSampling::Inl;
+		    tkzs.isFlat() && tkzs.defaultDir() == OD::InlineSlice;
 	const bool iscrl =
-		    tkzs.isFlat() && tkzs.defaultDir() == TrcKeyZSampling::Crl;
+		    tkzs.isFlat() && tkzs.defaultDir() == OD::CrosslineSlice;
 	const bool hideprogress = isstored &&
 	    ( (isinl&&!showinlprogress) || (iscrl&&!showcrlprogress) );
 
@@ -884,7 +880,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
     TypeSet<BinID> knots, path;
     rdmline->getNodePositions( knots );
-    rdmline->getPathBids( knots, rdmline->getSurvID(), path );
+    rdmline->getPathBids( knots, path );
     snapToValidRandomTraces( path, targetdesc );
     BinIDValueSet bidset( 2, false );
     if ( subpath )
@@ -1030,8 +1026,7 @@ od_int64 nrIterations() const		{ return input_.trcinfoset_.size(); }
 
 bool doPrepare( int nrthreads )
 {
-    if ( input_.trcinfoset_.isEmpty() ||
-	    sampling_.hsamp_.survid_!=Survey::GM().get2DSurvID() )
+    if ( input_.trcinfoset_.isEmpty() || sampling_.hsamp_.is3D() )
 	return false;
 
     outputdp_ = new RegularSeisDataPack(VolumeDataPack::categoryStr(true,true));
@@ -1446,7 +1441,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& ass,
 
 
 void uiAttribPartServer::filter2DMenuItems(
-	MenuItem& subitem, const SelSpec& ass, int geomid,
+	MenuItem& subitem, const SelSpec& ass, Pos::GeomID geomid,
 	bool isstored, int steerpol )
 {
     if ( mIsUdfGeomID(geomid) )
@@ -1457,7 +1452,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	childitemnms.add( toString(subitem.getItem(idx)->text) );
 
     subitem.removeItems();
-    FixedString linenm( Survey::GM().getName(geomid) );
+    BufferString linenm( nameOf(geomid) );
     BufferStringSet attribnms;
     uiSeisPartServer::get2DStoredAttribs( linenm, attribnms, steerpol );
     for ( int idx=0; idx<childitemnms.size(); idx++ )

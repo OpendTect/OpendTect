@@ -2,554 +2,320 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kris
- Date:          2013
+ Author:        Kris / Bert
+ Date:          2013 / Nov 2018
 ________________________________________________________________________
 
 -*/
 
 #include "survgeom2d.h"
 #include "survgeom3d.h"
-#include "posinfo2dsurv.h"
-#include "coordsystem.h"
+#include "survgeommgr.h"
 
-#include "keystrs.h"
+#include "coordsystem.h"
 #include "dbkey.h"
+#include "keystrs.h"
+#include "posinfo2d.h"
 #include "survinfo.h"
+#include "trckey.h"
+#include "trckeyzsampling.h"
 #include "task.h"
 
-static Pos::GeomID cSIGeomID = -99;
-static Pos::GeomID cSyntheticSurveyID = -100;
+mUseType( Pos,			GeomID);
+mUseType( Survey::Geometry,	idx_type);
+mUseType( Survey::Geometry,	pos_type);
+mUseType( Survey::Geometry,	idx_type);
+mUseType( Survey::Geometry,	pos_steprg_type);
+mUseType( Survey::Geometry,	z_type);
+mUseType( Survey::Geometry,	z_steprg_type);
+mUseType( Survey::Geometry,	linenr_type);
+mUseType( Survey::Geometry,	tracenr_type);
+mUseType( Survey::Geometry2D,	spnr_type);
+mUseType( Survey::Geometry2D,	size_type);
 
-mImplClassFactory(Survey::GeometryReader,factory);
-mImplClassFactory(Survey::GeometryWriter,factory);
-const TrcKey::SurvID Survey::GeometryManager::surv2did_ = 0;
+GeomID Survey::Geometry::cSynthGeomID()
+{ return GeomID( (GeomID::IDType)OD::SynthGeom ); }
 
-static PtrMan<Survey::GeometryManager> theinst = 0;
 
-const Survey::GeometryManager& Survey::GM()
+const char* nameOf( Pos::GeomID geomid )
 {
-    return *theinst.createIfNull();
+    return Survey::Geometry::get( geomid ).name().buf();
 }
 
 
-Survey::Geometry::Geometry()
-    : id_(mUdfGeomID)
-    , sampling_(false)
+Pos::GeomID::GeomID( const DBKey& dbky )
+    : GeomID()
 {
-    trcnrrg_ = sampling_.hsamp_.trcRange();
-    zrg_ = sampling_.zsamp_;
+    const auto id = dbky.objID();
+    if ( id.isValid() )
+	setI( id.getI() );
+}
+
+
+Survey::Geometry::Geometry( GeomID geomid )
+    : geomid_(geomid)
+{
 }
 
 
 Survey::Geometry::~Geometry()
-{}
-
-
-const Survey::Geometry& Survey::Geometry::default3D()
 {
-    return *GM().getGeometry( GM().default3DSurvID() );
 }
 
 
-bool Survey::Geometry::isCompatibleWith( const Geometry& geom ) const
+Survey::Geometry& Survey::Geometry::operator =( const Geometry& oth )
 {
-    return compare( geom, false ) != UnRelated;
+    if ( this != &oth )
+    {
+	const_cast<GeomID&>( geomid_ ) = oth.geomid_;
+	trcnrrg_ = oth.trcnrrg_;
+	zrg_ = oth.zrg_;
+    }
+    return *this;
 }
 
 
-TrcKey Survey::Geometry::getTrace( const Coord& crd, float maxdist ) const
+const Survey::Geometry& Survey::Geometry::get( GeomID gid )
 {
-    float dist;
-    const TrcKey tk = nearestTrace( crd,  &dist );
-    return tk.isUdf() || dist>maxdist ? TrcKey::udf() : tk;
+    const auto gs = geomSystemOf( gid );
+    if ( gs == OD::VolBasedGeom )
+       return get3D();
+    return get2D( gid );
 }
 
 
-bool Survey::Geometry::includes( const TrcKey& tk ) const
+const Survey::Geometry3D& Survey::Geometry::get3D( OD::SurvLimitType slt )
 {
-    return tk.geomID() == id()
-	&& includes( tk.lineNr(), tk.trcNr() );
+    return SI().gt3DGeom( slt );
+}
+
+
+const Survey::Geometry2D& Survey::Geometry::get2D( const char* linenm )
+{
+    return Geometry2D::get( linenm );
+}
+
+
+const Survey::Geometry2D& Survey::Geometry::get2D( GeomID gid )
+{
+    return Geometry2D::get( gid );
+}
+
+
+const Survey::Geometry& Survey::Geometry::get( const TrcKey& tk )
+{
+    return get( tk.geomID() );
+}
+
+
+Pos::GeomID Survey::Geometry::getGeomID( const char* linenm )
+{
+    return Geometry2D::get( linenm ).geomID();
+}
+
+
+void Survey::Geometry::list2D( TypeSet<GeomID>& gids, BufferStringSet* nms )
+{
+    return GM().list2D( gids, nms );
+}
+
+
+Survey::Geometry::dist_type Survey::Geometry::distanceTo(
+						const Coord& crd ) const
+{
+    dist_type dist = mUdf( dist_type );
+    if ( is2D() )
+	as2D()->nearestTracePosition( crd, &dist );
+    else
+	as3D()->nearestTracePosition( crd, &dist );
+    return dist;
+}
+
+
+void Survey::Geometry::getNearestTracePosition( const Coord& crd, TrcKey& tk,
+				     dist_type* dist ) const
+{
+    if ( is2D() )
+    {
+	const auto tnr = as2D()->nearestTracePosition( crd, dist );
+	tk = TrcKey( as2D()->geomID(), tnr );
+    }
+    else
+    {
+	const auto bid = as3D()->nearestTracePosition( crd, dist );
+	tk = TrcKey( bid );
+    }
+}
+
+
+void Survey::Geometry::getTracePosition( const Coord& crd, TrcKey& tk,
+					 dist_type maxdist ) const
+{
+    if ( is2D() )
+    {
+	const auto tnr = as2D()->tracePosition( crd, maxdist );
+	tk = TrcKey( as2D()->geomID(), tnr );
+    }
+    else
+    {
+	const auto bid = as3D()->tracePosition( crd, maxdist );
+	tk = TrcKey( bid );
+    }
+}
+
+
+Survey::Geometry::dist_type Survey::Geometry::averageTrcDist() const
+{
+    return is2D() ? as2D()->averageTrcDist() : as3D()->averageTrcDist();
+}
+
+
+void Survey::Geometry::snapPos( pos_type& pos, const pos_steprg_type& rg,
+				SnapDir sd )
+{
+    if ( rg.step > 1 )
+	pos = rg.snapAndLimit( pos, sd );
+}
+
+
+void Survey::Geometry::snapStep( pos_type& pos, const pos_steprg_type& rg )
+{
+    rg.snapStep( pos );
+}
+
+
+void Survey::Geometry::snapTrcNr( pos_type& pos, SnapDir sd ) const
+{
+    snapPos( pos, trcnrrg_, sd );
+}
+
+
+void Survey::Geometry::snapTrcNrStep( pos_type& pos ) const
+{
+    snapStep( pos, trcnrrg_ );
+}
+
+
+void Survey::Geometry::snapZ( z_type& z, SnapDir dir ) const
+{
+    z = zrg_.snapAndLimit( z, dir );
+}
+
+
+void Survey::Geometry::snapZStep( z_type& step ) const
+{
+    step = zrg_.snapStep( step );
+}
+
+
+bool Survey::Geometry::includes( const TrcKey& tk )
+{
+    return tk.is3D() ? get3D().includes( tk.binID() )
+		     : get2D( tk.geomID() ).includes( tk.trcNr() );
+}
+
+
+Coord Survey::Geometry::toCoord( GeomSystem gs,
+				 linenr_type lnr, tracenr_type tnr )
+{
+    switch ( gs )
+    {
+	case OD::VolBasedGeom:
+	    return get3D().transform( BinID(lnr,tnr) );
+	case OD::LineBasedGeom:
+	    return get2D( GeomID(lnr) ).getCoord( tnr );
+	default:
+	    break;
+    }
+    return Coord::udf();
 }
 
 
 Coord Survey::Geometry::toCoord( const TrcKey& tk )
 {
-    const Geometry* geom = GM().getGeometry( tk.geomID() );
-    return geom ? geom->toCoord( tk.binID() ) : Coord::udf();
+    return tk.getCoord();
 }
 
 
-bool Survey::Geometry::exists( const TrcKey& tk )
+Survey::Geometry::RelationType Survey::Geometry::compare(
+				const Geometry& oth, bool usezrg ) const
 {
-    const Geometry* geom = GM().getGeometry( tk.geomID() );
-    return geom && geom->includes( tk.binID() );
+    if ( oth.geomSystem() != geomSystem() )
+	return UnRelated;
+    return is2D() ? as2D()->compare( *oth.as2D(), usezrg )
+		  : as3D()->compare( *oth.as3D(), usezrg );
 }
 
 
-Pos::SurvID Survey::Geometry::getSurvID() const
+bool Survey::Geometry::isCompatibleWith( const Geometry& oth ) const
 {
-    return is2D() ? Survey::GeometryManager::get2DSurvID()
-		  : (Pos::SurvID)id();
+    return compare( oth, false ) != UnRelated;
 }
 
 
-#define mGetConstGeom(varnm,geomid) \
-    ConstRefMan<Geometry> varnm = GM().getGeometry( geomid );
-
-
-Survey::GeometryManager::GeometryManager()
-    : hasduplnms_(false)
-{}
-
-Survey::GeometryManager::~GeometryManager()
-{ deepUnRef( geometries_ ); }
-
-int Survey::GeometryManager::nrGeometries() const
-{ return geometries_.size(); }
-
-
-TrcKey::SurvID Survey::GeometryManager::default3DSurvID() const
+z_type Survey::Geometry::zScale() const
 {
-    return cSIGeomID;
+    return SI().zScale();
 }
 
 
-TrcKey::SurvID Survey::GeometryManager::synthSurvID() const
+
+//-- 3D
+
+Survey::Geometry3D::Geometry3D( const char* nm )
+    : Geometry(GeomID::get3D())
+    , name_(nm)
+    , inlrg_(0,0,1)
 {
-    return cSyntheticSurveyID;
+    trcnrrg_ = pos_steprg_type( 0, 0, 1 );
+    zrg_ = z_steprg_type( 0, 0, 1.f );
 }
 
 
-const Survey::Geometry* Survey::GeometryManager::getGeometry(
-						Geometry::ID geomid ) const
+bool Survey::Geometry3D::includes( const BinID& bid ) const
 {
-    return const_cast<GeometryManager*>( this )->getGeometry( geomid );
+    return inlrg_.isPresent( bid.inl() ) && trcnrrg_.isPresent( bid.crl() );
 }
 
 
-Survey::Geometry* Survey::GeometryManager::getGeometry( Geometry::ID geomid )
+Coord Survey::Geometry3D::getCoord( const BinID& bid ) const
 {
-    if ( geomid == cSIGeomID )
-	return &SI().gt3DGeom();
-    else if ( mIsUdfGeomID(geomid) )
-	return 0;
-
-    const int idx = indexOf( geomid );
-    if ( idx >= 0 )
-	return geometries_[idx];
-
-    pErrMsg( "Geometry not present" );
-    return 0;
-}
-
-
-const Survey::Geometry3D* Survey::GeometryManager::getGeometry3D(
-							Pos::SurvID sid ) const
-{
-    const TrcKey tk( sid, BinID(0,0) );
-    const Geometry* geom = getGeometry( tk.geomID() );
-    return geom ? geom->as3D() : 0;
-}
-
-
-const Survey::Geometry* Survey::GeometryManager::getGeometry(
-						const DBKey& dbky ) const
-{
-    if ( dbky.hasValidObjID() )
-	return getGeometry( dbky.objID().getI() );
-
-    return 0;
-}
-
-
-const Survey::Geometry* Survey::GeometryManager::getGeometry(
-						const char* nm ) const
-{
-    const auto* sigeom = SI().s3dgeom_;
-    if ( sigeom && sigeom->hasName(nm) )
-	return sigeom;
-
-    for ( const auto* geom : geometries_ )
-	if ( geom->hasName(nm) )
-	    return geom;
-
-    return 0;
-}
-
-
-Survey::Geometry::ID Survey::GeometryManager::getGeomID(
-						const char* lnnm ) const
-{
-    for ( const auto* geom : geometries_ )
-	if ( geom->is2D() && geom->hasName(lnnm) )
-	    return geom->id();
-
-    return mUdfGeomID;
-}
-
-
-Survey::Geometry::ID Survey::GeometryManager::getGeomID( const char* lsnm,
-						     const char* lnnm ) const
-{
-    if ( !hasduplnms_ )
-	return getGeomID( lnnm );
-
-    BufferString newlnm = lsnm;
-    newlnm.add( "-" );
-    newlnm.add( lnnm );
-    return getGeomID( newlnm.buf() );
-}
-
-
-const char* Survey::GeometryManager::getName( Geometry::ID geomid ) const
-{
-    mGetConstGeom(geom,geomid);
-    return geom ? geom->name().str() : 0;
-}
-
-
-bool Survey::GeometryManager::is2D( Geometry::ID geomid ) const
-{
-    mGetConstGeom(geom,geomid);
-    return geom ? geom->is2D() : false;
-}
-
-
-Coord Survey::GeometryManager::toCoord( const TrcKey& tk ) const
-{
-    mGetConstGeom(geom,tk.geomID());
-    return geom ? geom->toCoord( tk.lineNr(), tk.trcNr() ) : Coord::udf();
-}
-
-
-TrcKey Survey::GeometryManager::traceKey( Geometry::ID geomid, Pos::LineID lid,
-					  Pos::TraceID tid ) const
-{
-    mGetConstGeom(geom,geomid);
-    if ( !geom )
-	return TrcKey::udf();
-
-    if ( geom->is2D() )
-	return TrcKey( geomid,	tid );
-
-    return TrcKey( geomid, BinID(lid, tid) );
-}
-
-
-TrcKey Survey::GeometryManager::traceKey( Geometry::ID geomid,
-					  Pos::TraceID tid ) const
-{
-    mGetConstGeom(geom,geomid);
-    if ( !geom || !geom->is2D() )
-	return TrcKey::udf();
-
-    return TrcKey( geomid,  tid );
-}
-
-
-void Survey::GeometryManager::addGeometry( Geometry& geom )
-{
-    geom.ref();
-    geometries_ += &geom;
-}
-
-
-bool Survey::GeometryManager::fetchFrom2DGeom( uiString& errmsg )
-{
-    fillGeometries(0);
-    PtrMan<GeometryWriter> geomwriter =
-		GeometryWriter::factory().create( sKey::TwoD() );
-    BufferStringSet lsnames;
-    S2DPOS().getLineSets( lsnames );
-    bool fetchedgeometry = false;
-    for ( int lsidx=0; lsidx<lsnames.size(); lsidx++ )
-    {
-	BufferStringSet lnames;
-	S2DPOS().getLines( lnames, lsnames.get(lsidx).buf() );
-	S2DPOS().setCurLineSet( lsnames.get(lsidx).buf() );
-	for ( int lidx=0; lidx<lnames.size(); lidx++ )
-	{
-	    Pos::GeomID geomid = GM().getGeomID( lsnames.get(lsidx),
-						 lnames.get(lidx) );
-	    if ( !mIsUdfGeomID(geomid) )
-		continue;
-
-	    fetchedgeometry = true;
-	    PosInfo::Line2DData* data = new PosInfo::Line2DData;
-	    data->setLineName( lnames.get(lidx) );
-	    if ( !S2DPOS().getGeometry( *data ) )
-	    {
-		delete data;
-		continue;
-	    }
-
-	    if ( hasduplnms_ )
-	    {
-		BufferString newlnm = lsnames.get( lsidx );
-		newlnm.add( "-" );
-		newlnm.add( lnames.get(lidx) );
-		data->setLineName( newlnm );
-	    }
-
-	    RefMan<Geometry2D> geom2d = new Geometry2D( data );
-	    uiString errormsg;
-	    PosInfo::Line2DKey l2dkey =
-		S2DPOS().getLine2DKey( lsnames.get(lsidx), lnames.get(lidx) );
-	    const char* crfromstr = l2dkey.toString();
-	    if ( !geomwriter->write(*geom2d,errormsg,crfromstr) )
-	    {
-		errmsg = tr(
-		    "Unable to convert 2D geometries to OD5.0 format.\n%1").
-								arg( errormsg );
-		return false;
-	    }
-	}
-    }
-
-    if ( fetchedgeometry )
-	fillGeometries(0);
-
-    return true;
-}
-
-
-bool Survey::GeometryManager::hasDuplicateLineNames()
-{
-    BufferStringSet lsnames;
-    S2DPOS().getLineSets( lsnames );
-    BufferStringSet linenames;
-    for ( int lsidx=0; lsidx<lsnames.size(); lsidx++ )
-    {
-	BufferStringSet lnames;
-	S2DPOS().getLines( lnames, lsnames.get(lsidx).buf() );
-	for ( int totalidx=0; totalidx<linenames.size(); totalidx++ )
-	{
-	    for ( int lidx=0; lidx<lnames.size(); lidx++ )
-	    {
-		if ( lnames.get(lidx) == linenames.get(totalidx) )
-		    return true;
-	    }
-	}
-
-	linenames.add( lnames, false );
-    }
-
-    return false;
-}
-
-
-bool Survey::GeometryManager::write( Geometry& geom, uiString& errmsg )
-{
-    if ( geom.is2D() )
-    {
-	PtrMan<GeometryWriter> geomwriter =GeometryWriter::factory()
-						    .create( sKey::TwoD() );
-	geom.ref();
-	if ( !geomwriter->write(geom,errmsg) )
-	{
-	    geom.unRef();
-	    return false;
-	}
-
-	if ( indexOf(geom.id()) < 0 )
-	    addGeometry( geom );
-	geom.unRef();
-
-	return true;
-    }
-    else
-	return false;
-}
-
-
-Survey::Geometry::ID Survey::GeometryManager::addNewEntry( Geometry* geom,
-							   uiString& errmsg )
-{
-    if ( !geom )
-	return cUndefGeomID();
-    if ( !geom->is2D() )
-	return default3DSurvID();
-    Geometry::ID geomid = getGeomID( geom->name() );
-    if ( geomid!=cUndefGeomID() )
-	return geomid;
-    PtrMan<GeometryWriter> geomwriter =
-	GeometryWriter::factory().create( sKey::TwoD() );
-
-    Threads::Locker locker( lock_ );
-    geomid = geomwriter->createNewGeomID( geom->name() );
-    if ( !write(*geom,errmsg) )
-	return cUndefGeomID();
-    return geomid;
-}
-
-
-bool Survey::GeometryManager::removeGeometry( Geometry::ID geomid )
-{
-    const int index = indexOf( geomid );
-    if ( geometries_.validIdx(index) )
-    {
-	Geometry* geom = geometries_[ index ];
-	if ( !geom )
-	    return false;
-
-	geometries_.removeSingle( index );
-	geom->unRef();
-	return true;
-    }
-
-    return false;
-}
-
-
-int Survey::GeometryManager::indexOf( Geometry::ID geomid ) const
-{
-    if ( geomid == mUdfGeomID )
-	return -1;
-
-    for ( int idx=0; idx<geometries_.size(); idx++ )
-	if ( geometries_[idx]->id() == geomid )
-	    return idx;
-
-    return -1;
-}
-
-
-bool Survey::GeometryManager::fillGeometries( TaskRunner* taskrunner )
-{
-    Threads::Locker locker( lock_ );
-    deepUnRef( geometries_ );
-    hasduplnms_ = hasDuplicateLineNames();
-    PtrMan<GeometryReader> geomreader = GeometryReader::factory()
-					.create(sKey::TwoD());
-    return geomreader ? geomreader->read( geometries_, taskrunner ) : false;
-}
-
-
-bool Survey::GeometryManager::updateGeometries( TaskRunner* taskrunner )
-{
-    Threads::Locker locker( lock_ );
-    PtrMan<GeometryReader> geomreader = GeometryReader::factory()
-					.create(sKey::TwoD());
-    return geomreader ? geomreader->updateGeometries( geometries_, taskrunner )
-		      : false;
-}
-
-
-bool Survey::GeometryManager::getList( BufferStringSet& names,
-			   TypeSet<Geometry::ID>& geomids, bool is2d ) const
-{
-    names.erase();
-    geomids.erase();
-    for ( const auto* geom : geometries_ )
-    {
-	if ( geom->is2D() == is2d )
-	{
-	    names.add( geom->name() );
-	    geomids += geom->id();
-	}
-    }
-
-    return true;
-}
-
-
-Survey::Geometry::ID Survey::GeometryManager::findRelated( const Geometry& ref,
-					   Geometry::RelationType& reltype,
-					   bool usezrg ) const
-{
-    int identicalidx=-1, supersetidx=-1, subsetidx=-1, relatedidx=-1;
-    for ( int idx=0; identicalidx<0 && idx<geometries_.size(); idx++ )
-    {
-	Geometry::RelationType rt = geometries_[idx]->compare( ref, usezrg );
-	switch( rt )
-	{
-	    case Geometry::Identical:	identicalidx = idx; break;
-	    case Geometry::SuperSet:	supersetidx = idx;  break;
-	    case Geometry::SubSet:	subsetidx = idx;    break;
-	    case Geometry::Related:	relatedidx = idx;   break;
-	    default: break;
-	}
-    }
-
-    if ( identicalidx >= 0 )
-    { reltype = Geometry::Identical; return geometries_[identicalidx]->id();}
-    if ( supersetidx >= 0 )
-    { reltype = Geometry::SuperSet; return geometries_[supersetidx]->id(); }
-    if ( subsetidx >= 0 )
-    { reltype = Geometry::SubSet; return geometries_[subsetidx]->id(); }
-    if ( relatedidx >= 0 )
-    { reltype = Geometry::Related; return geometries_[relatedidx]->id(); }
-
-    reltype = Geometry::UnRelated; return mUdfGeomID;
-}
-
-
-Coord Survey::Geometry3D::toCoord( int linenr, int tracenr ) const
-{
-    return transform( BinID(linenr,tracenr) );
-}
-
-
-TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
-{
-    const auto bid( nearestTracePosition(crd,dist) );
-    return TrcKey( getSurvID(), bid );
+    return transform( bid );
 }
 
 
 BinID Survey::Geometry3D::nearestTracePosition( const Coord& crd,
-						float* dist ) const
+						dist_type* dist ) const
 {
-    const BinID bid( transform(crd) );
+    auto bid( transform(crd) );
+    snap( bid );
     if ( dist )
     {
-	if ( sampling_.hsamp_.includes(bid) )
-	{
-	    const Coord projcoord( transform(bid) );
-	    *dist = projcoord.distTo<float>( crd );
-	}
-	else
-	{
-	    const Coord nearcoord( transform(sampling_.hsamp_.getNearest(bid)));
-	    *dist = (float)nearcoord.distTo<float>( crd );
-	}
+	Coord bidpos( transform(bid) );
+	*dist = bidpos.distTo<dist_type>( crd );
     }
     return bid;
 }
 
 
-bool Survey::Geometry3D::includes( int line, int tracenr ) const
+BinID Survey::Geometry3D::tracePosition( const Coord& crd,
+					 dist_type maxdist ) const
 {
-    return sampling_.hsamp_.includes( BinID(line,tracenr) );
-}
-
-
-bool Survey::Geometry3D::isRightHandSystem() const
-{
-    const double xinl = b2c_.getTransform(true).b;
-    const double xcrl = b2c_.getTransform(true).c;
-    const double yinl = b2c_.getTransform(false).b;
-    const double ycrl = b2c_.getTransform(false).c;
-
-    const double det = xinl*ycrl - xcrl*yinl;
-    return det < 0;
-}
-
-
-float Survey::Geometry3D::averageTrcDist() const
-{
-    const Coord c00 = transform( BinID(0,0) );
-    const Coord c10 = transform( BinID(sampling_.hsamp_.step_.inl(),0) );
-    const Coord c01 = transform( BinID(0,sampling_.hsamp_.step_.crl()) );
-    return ( c00.distTo<float>(c10) + c00.distTo<float>(c01) )/2;
+    BinID ret = transform( crd );
+    if ( !mIsUdf(maxdist) )
+    {
+	auto dist = crd.distTo<dist_type>( transform(ret) );
+	if ( dist > maxdist )
+	    ret = BinID::udf();
+    }
+    return ret;
 }
 
 
 BinID Survey::Geometry3D::transform( const Coord& c ) const
 {
-    return BinID( b2c_.transformBack( c, sampling_.hsamp_.start_,
-				      sampling_.hsamp_.step_ ) );
+    return BinID( b2c_.transformBack( c, BinID(inlrg_.start,trcnrrg_.start),
+					 BinID(inlrg_.step,trcnrrg_.step) ) );
 }
 
 
@@ -559,103 +325,71 @@ Coord Survey::Geometry3D::transform( const BinID& b ) const
 }
 
 
-Survey::Geometry3D::Geometry3D()
-    : zdomain_( ZDomain::SI() )
+BinID Survey::Geometry3D::origin() const
 {
-    sampling_.hsamp_.survid_ = id();
-    inlrg_ = sampling_.hsamp_.lineRange();
+    return BinID( inlrg_.start, trcnrrg_.start );
 }
 
 
-Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
-    : name_( nm )
-    , zdomain_( zd )
+bool Survey::Geometry3D::isRightHandSystem() const
 {
-    sampling_.hsamp_.survid_ = id();
-    inlrg_ = sampling_.hsamp_.lineRange();
+    const auto& xtransf = b2c_.getTransform( true );
+    const auto& ytransf = b2c_.getTransform( false );
+    const auto det = xtransf.b * ytransf.c - xtransf.c * ytransf.b;
+    return det < 0;
 }
 
 
-static void doSnap( int& idx, int start, int step, int dir )
+void Survey::Geometry3D::snap( BinID& binid, SnapDir snapdir ) const
 {
-    if ( step < 2 )
-	return;
-    int rel = idx - start;
-    int rest = rel % step;
-    if ( !rest )
-	return;
-
-    idx -= rest;
-
-    if ( !dir )
-	dir = rest > step / 2 ? 1 : -1;
-    if ( rel > 0 && dir > 0 )
-	idx += step;
-    else if ( rel < 0 && dir < 0 )
-	idx -= step;
+    snapPos( binid.inl(), inlRange(), snapdir );
+    snapTrcNr( binid.crl(), snapdir );
 }
 
 
-void Survey::Geometry3D::snap( BinID& binid, const BinID& rounding ) const
+void Survey::Geometry3D::snapStep( BinID& stp ) const
 {
-    const BinID stp = sampling_.hsamp_.step_;
-    if ( stp.inl() == 1 && stp.crl() == 1 )
-	return;
-    doSnap( binid.inl(), sampling_.hsamp_.start_.inl(), stp.inl(),
-	    rounding.inl() );
-    doSnap( binid.crl(), sampling_.hsamp_.start_.crl(), stp.crl(),
-	    rounding.crl() );
-}
-
-#define mSnapStep(ic) \
-    rest = s.ic % stp.ic; \
-    if ( rest ) \
-    { \
-	int hstep = stp.ic / 2; \
-	bool upw = rounding.ic > 0 || (rounding.ic == 0 && rest > hstep); \
-	s.ic -= rest; \
-	if ( upw ) s.ic += stp.ic; \
-    }
-
-void Survey::Geometry3D::snapStep( BinID& s, const BinID& rounding ) const
-{
-    const BinID stp = sampling_.hsamp_.step_;
-    if ( s.inl() < 0 )
-	s.inl() = -s.inl();
-    if ( s.crl() < 0 )
-	s.crl() = -s.crl();
-    if ( s.inl() < stp.inl() )
-	s.inl() = stp.inl();
-    if ( s.crl() < stp.crl() )
-	s.crl() = stp.crl();
-    if ( s == stp || (stp.inl() == 1 && stp.crl() == 1) )
-	return;
-
-    int rest;
-
-    mSnapStep(inl())
-    mSnapStep(crl())
+    Geometry::snapStep( stp.inl(), inlRange() );
+    Geometry::snapStep( stp.crl(), crlRange() );
 }
 
 
-void Survey::Geometry3D::snapZ( z_type& z, int dir ) const
+Survey::Geometry::dist_type Survey::Geometry3D::inlDistance() const
 {
-    const StepInterval<z_type> zrg = sampling_.zsamp_;
-    const z_type eps = 1e-8;
+    const Coord c00 = transform( BinID(0,0) );
+    const Coord c10 = transform( BinID(1,0) );
+    return c00.distTo<dist_type>( c10 );
+}
 
-    if ( z < zrg.start + eps )
-    { z = zrg.start; return; }
-    if ( z > zrg.stop - eps )
-    { z = zrg.stop; return; }
 
-    const z_type relidx = zrg.getfIndex( z );
-    int targetidx = mNINT32(relidx);
-    const z_type zdiff = z - zrg.atIndex( targetidx );
-    if ( !mIsZero(zdiff,eps) && dir )
-	targetidx = (int)( dir < 0 ? Math::Floor(relidx) : Math::Ceil(relidx) );
-    z = zrg.atIndex( targetidx );;
-    if ( z > zrg.stop - eps )
-	z = zrg.stop;
+Survey::Geometry::dist_type Survey::Geometry3D::crlDistance() const
+{
+    const Coord c00 = transform( BinID(0,0) );
+    const Coord c01 = transform( BinID(0,1) );
+    return c00.distTo<dist_type>( c01 );
+}
+
+
+Survey::Geometry::dist_type Survey::Geometry3D::averageTrcDist() const
+{
+    const Coord c00 = transform( BinID(0,0) );
+    const Coord c10 = transform( BinID(inlrg_.step,0) );
+    const Coord c01 = transform( BinID(0,trcnrrg_.step) );
+    return ( c00.distTo<dist_type>(c10) + c00.distTo<dist_type>(c01) ) * 0.5;
+}
+
+
+void Survey::Geometry3D::getMapInfo( const IOPar& iop )
+{
+    b2c_.usePar( iop );
+    auto& inlrg = inlRange();
+    auto& crlrg = crlRange();
+    iop.get( sKey::FirstInl(), inlrg.start );
+    iop.get( sKey::FirstCrl(), crlrg.start );
+    iop.get( sKey::StepInl(), inlrg.step );
+    iop.get( sKey::StepCrl(), crlrg.step );
+    iop.get( sKey::LastInl(), inlrg.stop );
+    iop.get( sKey::LastCrl(), crlrg.stop );
 }
 
 
@@ -663,38 +397,29 @@ void Survey::Geometry3D::putMapInfo( IOPar& iop ) const
 {
     b2c_.fillPar( iop );
     SI().getCoordSystem()->fillPar( iop );
-    iop.set( sKey::FirstInl(), sampling_.hsamp_.start_.inl() );
-    iop.set( sKey::FirstCrl(), sampling_.hsamp_.start_.crl() );
-    iop.set( sKey::StepInl(), sampling_.hsamp_.step_.inl() );
-    iop.set( sKey::StepCrl(), sampling_.hsamp_.step_.crl() );
-    iop.set( sKey::LastInl(), sampling_.hsamp_.stop_.inl() );
-    iop.set( sKey::LastCrl(), sampling_.hsamp_.stop_.crl() );
+    const auto& inlrg = inlRange();
+    const auto& crlrg = crlRange();
+    iop.set( sKey::FirstInl(), inlrg.start );
+    iop.set( sKey::FirstCrl(), crlrg.start );
+    iop.set( sKey::StepInl(), inlrg.step );
+    iop.set( sKey::StepCrl(), crlrg.step );
+    iop.set( sKey::LastInl(), inlrg.stop );
+    iop.set( sKey::LastCrl(), crlrg.stop );
 }
 
 
-void Survey::Geometry3D::getMapInfo( const IOPar& iop )
-{
-    b2c_.usePar( iop );
-    iop.get( sKey::FirstInl(), sampling_.hsamp_.start_.inl() );
-    iop.get( sKey::FirstCrl(), sampling_.hsamp_.start_.crl() );
-    iop.get( sKey::StepInl(), sampling_.hsamp_.step_.inl() );
-    iop.get( sKey::StepCrl(), sampling_.hsamp_.step_.crl() );
-    iop.get( sKey::LastInl(), sampling_.hsamp_.stop_.inl() );
-    iop.get( sKey::LastCrl(), sampling_.hsamp_.stop_.crl() );
-    trcnrrg_ = sampling_.hsamp_.trcRange();
-    inlrg_ = sampling_.hsamp_.lineRange();
-}
-
-
-void Survey::Geometry3D::setGeomData( const Pos::IdxPair2Coord& b2c,
-				const TrcKeyZSampling& cs, z_type zscl )
+void Survey::Geometry3D::setTransform( const Pos::IdxPair2Coord& b2c )
 {
     b2c_ = b2c;
-    sampling_ = cs;
-    zscale_ = zscl;
-    trcnrrg_ = sampling_.hsamp_.trcRange();
-    inlrg_ = sampling_.hsamp_.lineRange();
-    zrg_ = sampling_.zsamp_;
+}
+
+
+void Survey::Geometry3D::setRanges( const pos_steprg_type& inlrg,
+		const pos_steprg_type& crlrg, const z_steprg_type& zrg )
+{
+    inlrg_ = inlrg;
+    trcnrrg_ = crlrg;
+    zrg_ = zrg;
 }
 
 
@@ -719,22 +444,6 @@ Coord3 Survey::Geometry3D::oneStepTranslation( const Coord3& planenormal ) const
 }
 
 
-float Survey::Geometry3D::inlDistance() const
-{
-    const Coord c00 = transform( BinID(0,0) );
-    const Coord c10 = transform( BinID(1,0) );
-    return c00.distTo<float>(c10);
-}
-
-
-float Survey::Geometry3D::crlDistance() const
-{
-    const Coord c00 = transform( BinID(0,0) );
-    const Coord c01 = transform( BinID(0,1) );
-    return c00.distTo<float>(c01);
-}
-
-
 static bool rendersSamePositions( const Survey::Geometry3D& sg1,
 	const Survey::Geometry3D& sg2, const BinID& bid )
 {
@@ -745,26 +454,21 @@ static bool rendersSamePositions( const Survey::Geometry3D& sg1,
 
 
 Survey::Geometry::RelationType Survey::Geometry3D::compare(
-				const Geometry& geom, bool usezrg ) const
+				const Geometry3D& oth, bool usezrg ) const
 {
-    mDynamicCastGet( const Geometry3D*, geom3d, &geom );
-    if ( !geom3d )
-	return UnRelated;
-
-    const Geometry3D& oth = *geom3d;
-
     if ( !(b2c_ == oth.b2c_) // this check is rather lenient
-      || !rendersSamePositions( *this, oth, sampling_.hsamp_.start_ )
-      || !rendersSamePositions( *this, oth, sampling_.hsamp_.start_ )
-      || !rendersSamePositions( *this, oth, oth.sampling_.hsamp_.stop_ ) )
+      || !rendersSamePositions( *this, oth, BinID(inlrg_.start,trcnrrg_.start) )
+      || !rendersSamePositions( *this, oth, BinID(inlrg_.start,trcnrrg_.stop) )
+      || !rendersSamePositions( *this, oth, BinID(inlrg_.stop,trcnrrg_.start) )
+      || !rendersSamePositions( *this, oth, BinID(inlrg_.stop,trcnrrg_.stop) ) )
 	return UnRelated;
 
-    const StepInterval<int> myinlrg = inlRange();
-    const StepInterval<int> mycrlrg = crlRange();
-    const StepInterval<z_type> myzrg = zRange();
-    const StepInterval<int> othinlrg = oth.inlRange();
-    const StepInterval<int> othcrlrg = oth.crlRange();
-    const StepInterval<z_type> othzrg = oth.zRange();
+    const auto myinlrg = inlRange();
+    const auto mycrlrg = crlRange();
+    const auto myzrg = zRange();
+    const auto othinlrg = oth.inlRange();
+    const auto othcrlrg = oth.crlRange();
+    const auto othzrg = oth.zRange();
     if ( myinlrg == othinlrg && mycrlrg == othcrlrg &&
 	    (!usezrg || myzrg.isEqual(othzrg,1e-3)) )
 	return Identical;
@@ -776,4 +480,260 @@ Survey::Geometry::RelationType Survey::Geometry3D::compare(
 	return SubSet;
 
     return Related;
+}
+
+
+//-- 2D
+
+#define mL2DPos(idx) data_.positions().get( idx )
+
+
+Survey::Geometry2D::Geometry2D()
+    : Geometry(GeomID())
+    , data_(*new Line2DData)
+    , objectChanged(this)
+{
+    trcnrrg_.start = trcnrrg_.stop = 0; trcnrrg_.step = 1;
+    zrg_ = SI().zRange();
+}
+
+
+
+Survey::Geometry2D::Geometry2D( const char* lnm )
+    : Geometry(GeomID())
+    , data_(*new Line2DData(lnm))
+    , objectChanged(this)
+{
+    setFromLineData();
+    zrg_ = SI().zRange();
+}
+
+
+Survey::Geometry2D::Geometry2D( Line2DData* l2d )
+    : Geometry(GeomID())
+    , data_(l2d ? *l2d : *new Line2DData)
+    , objectChanged(this)
+{
+    setFromLineData();
+}
+
+
+Survey::Geometry2D::~Geometry2D()
+{
+    delete &data_;
+}
+
+
+bool Survey::Geometry2D::isEmpty() const
+{
+    return data_.isEmpty();
+}
+
+
+bool Survey::Geometry2D::isPresent( GeomID geomid )
+{
+    return GM().get2DGeometry( geomid );
+}
+
+
+const Survey::Geometry2D& Survey::Geometry2D::get( GeomID geomid )
+{
+    const auto* g2d = GM().get2DGeometry( geomid );
+    return g2d ? *g2d : dummy();
+}
+
+
+const Survey::Geometry2D& Survey::Geometry2D::get( const char* linenm )
+{
+    const auto* g2d = GM().get2DGeometry( linenm );
+    return g2d ? *g2d : dummy();
+}
+
+
+void Survey::Geometry2D::setFromLineData()
+{
+    trcnrrg_ = data_.trcNrRange();
+    zrg_ = data_.zRange();
+    spnrs_.erase();
+    spnrs_.setSize( data_.size(), mUdf(spnr_type) );
+
+    const auto sz = size();
+    if ( sz < 1 )
+	avgtrcdist_ = linelength_ = mUdf(dist_type);
+    else
+    {
+	linelength_ = 0; size_type nrpos = 0;
+	for ( int idx=1; idx<data_.positions().size(); idx++ )
+	{
+	    const auto dist = mL2DPos(idx).coord_.distTo<dist_type>(
+			      mL2DPos(idx-1).coord_ );
+	    linelength_ += dist;
+	    if ( !mIsZero(dist,0.001) )
+		nrpos++;
+	}
+	avgtrcdist_ = linelength_;
+	if ( nrpos > 1 )
+	    avgtrcdist_ /= nrpos;
+    }
+}
+
+
+const OD::String& Survey::Geometry2D::name() const
+{
+    return data_.lineName();
+}
+
+
+size_type Survey::Geometry2D::size() const
+{
+    return data_.size();
+}
+
+
+idx_type Survey::Geometry2D::indexOf( tracenr_type trcnr ) const
+{
+    return data_.indexOf( trcnr );
+}
+
+
+tracenr_type Survey::Geometry2D::trcNr( idx_type idx ) const
+{
+    return data_.validIdx( idx ) ? mL2DPos(idx).nr_ : mUdf(tracenr_type);
+}
+
+
+bool Survey::Geometry2D::includes( tracenr_type trcnr ) const
+{
+    return indexOf(trcnr) >= 0;
+}
+
+
+Coord Survey::Geometry2D::getCoord( tracenr_type trcnr ) const
+{
+    const auto idx = indexOf( trcnr );
+    return idx < 0 ? Coord::udf() : mL2DPos( idx ).coord_;
+}
+
+
+spnr_type Survey::Geometry2D::getSPNr( tracenr_type trcnr ) const
+{
+    const auto idx = indexOf( trcnr );
+    return idx < 0 ? mUdf(spnr_type) : spnrs_.get( idx );
+}
+
+
+bool Survey::Geometry2D::findSP( spnr_type reqspnr, tracenr_type& trcnr ) const
+{
+    static const spnr_type eps = (spnr_type)0.001;
+
+    int posidx = -1;
+    for ( int idx=0; idx<spnrs_.size(); idx++ )
+    {
+	const auto spnr = spnrs_[idx];
+	if ( mIsEqual(spnr,reqspnr,eps) )
+	    { posidx = idx; break; }
+    }
+    if ( posidx < 0 )
+	return false;
+
+    trcnr = mL2DPos( posidx ).nr_;
+    return true;
+}
+
+
+void Survey::Geometry2D::getInfo( tracenr_type trcnr, Coord& crd,
+				  spnr_type& spnr ) const
+{
+    const auto idx = indexOf( trcnr );
+    if ( idx < 0 )
+	{ crd = Coord::udf(); mSetUdf(spnr); }
+    else
+    {
+	crd = mL2DPos( idx ).coord_;
+	spnr = spnrs_.get( idx );
+    }
+}
+
+
+tracenr_type Survey::Geometry2D::nearestTracePosition( const Coord& crd,
+							dist_type* dist ) const
+{
+    Line2DPos pos;
+    return data_.getPos(crd,pos,dist) ? pos.nr_ : mUdf(tracenr_type);
+}
+
+
+tracenr_type Survey::Geometry2D::tracePosition( const Coord& crd,
+					    dist_type maxdist ) const
+{
+    Line2DPos pos;
+    return data_.getPos(crd,pos,maxdist) ? pos.nr_ : mUdf(tracenr_type);
+}
+
+
+void Survey::Geometry2D::getSampling( TrcKeyZSampling& tkzs ) const
+{
+    auto& hs = tkzs.hsamp_;
+    hs.setIs2D();
+    hs.start_.inl() = hs.stop_.inl() = geomID().getI();
+    hs.step_.inl() = 1;
+    hs.start_.crl() = trcNrRange().start;
+    hs.stop_.crl() = trcNrRange().stop;
+    hs.step_.crl() = trcNrRange().step;
+    tkzs.zsamp_ = zRange();
+}
+
+
+void Survey::Geometry2D::setEmpty() const
+{
+    auto& self = *const_cast<Geometry2D*>( this );
+    self.data_.setEmpty();
+    self.setFromLineData();
+}
+
+
+void Survey::Geometry2D::add( const Coord& crd, int trcnr, spnr_type spnr )
+{
+    Line2DPos pos( trcnr );
+    pos.coord_ = crd;
+    data_.add( pos );
+    spnrs_ += spnr;
+}
+
+
+void Survey::Geometry2D::commitChanges() const
+{
+    auto& self = *const_cast<Geometry2D*>( this );
+    self.setFromLineData();
+    self.objectChanged.trigger();
+}
+
+
+Survey::Geometry::RelationType Survey::Geometry2D::compare(
+				const Geometry2D& geom, bool usezrg ) const
+{
+    const Line2DData& mydata = data();
+    const Line2DData& otherdata = geom.data();
+    if ( !mydata.coincidesWith(otherdata) )
+	return UnRelated;
+
+    const auto mytrcrg = mydata.trcNrRange();
+    const auto othtrcrg = otherdata.trcNrRange();
+    const auto myzrg = mydata.zRange();
+    const auto othzrg = otherdata.zRange();
+    if ( mytrcrg == othtrcrg && (!usezrg || myzrg.isEqual(othzrg,1e-3)) )
+	return Identical;
+    if ( mytrcrg.includes(othtrcrg) && (!usezrg || myzrg.includes(othzrg)) )
+	return SuperSet;
+    if ( othtrcrg.includes(mytrcrg) && (!usezrg || othzrg.includes(myzrg)) )
+	return SubSet;
+
+    return Related;
+}
+
+
+Survey::Geometry2D& Survey::Geometry2D::dummy()
+{
+    static Geometry2D ret;
+    return ret;
 }

@@ -24,9 +24,9 @@ uiSlicePos2DView::uiSlicePos2DView( uiParent* p, const ZDomain::Info& zinfo )
 
 static OD::SliceType getOrientation( const TrcKeyZSampling& cs )
 {
-    if ( cs.defaultDir() == TrcKeyZSampling::Crl )
+    if ( cs.defaultDir() == OD::CrosslineSlice )
 	return OD::CrosslineSlice;
-    if ( cs.defaultDir() == TrcKeyZSampling::Z )
+    if ( cs.defaultDir() == OD::ZSlice )
 	return OD::ZSlice;
 
     return OD::InlineSlice;

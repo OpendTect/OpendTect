@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "notify.h"
 #include "datapack.h"
 #include "survgeom.h"
+#include "trckeyzsampling.h"
 
 class BufferStringSet;
 class Executor;
@@ -189,8 +190,7 @@ protected:
     struct CacheSpecs
     {
 				CacheSpecs(const Attrib::SelSpec& as,
-					Pos::GeomID geomid=
-					Survey::GeometryManager::cUndefGeomID())
+					Pos::GeomID geomid=Pos::GeomID())
 				    : attrsel_(as),geomid_(geomid)
 				{}
 

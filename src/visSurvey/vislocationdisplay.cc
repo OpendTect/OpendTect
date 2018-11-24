@@ -478,29 +478,28 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 	return true;
 
     float newdepth = mUdf(float);
-    if ( datatransform_->canTransformSurv(TrcKey::std3DSurvID()) )
+    if ( datatransform_->canTransformSurv(OD::VolBasedGeom) )
 	newdepth = datatransform_->transformTrc( loc.trcKey(), loc.z() );
-    else if ( datatransform_->canTransformSurv(TrcKey::std2DSurvID()) )
+    else if ( datatransform_->canTransformSurv(OD::LineBasedGeom) )
     {
 	if ( loc.trcKey().is2D() )
 	    newdepth = datatransform_->transformTrc( loc.trcKey(), loc.z() );
 	else // Pre v6.0 Pickset without TrcKey information
 	{
-	    BufferStringSet nms; TypeSet<Pos::GeomID> ids;
-	    Survey::GM().getList( nms, ids, true );
+	    TypeSet<Pos::GeomID> ids;
+	    Survey::Geometry::list2D( ids );
 	    TrcKey ntk = TrcKey::udf();
-	    float ndist = mUdf(float);
+	    double ndist = mUdf(double);
 	    for ( int idx=0; idx<ids.size(); idx++ )
 	    {
-		mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-				Survey::GM().getGeometry(ids[idx]))
-		if ( !geom2d )
+		const auto& geom2d = Survey::Geometry::get2D( ids[idx] );
+		if ( geom2d.isEmpty() )
 		    continue;
 
-		float dist;
-		const TrcKey tk =
-			geom2d->nearestTrace( loc.pos().getXY(), &dist );
-		if ( dist>ndist || dist>geom2d->averageTrcDist() )
+		double dist;
+		const TrcKey tk( ids[idx],
+			geom2d.nearestTracePosition(loc.pos().getXY(),&dist) );
+		if ( dist>ndist || dist>geom2d.averageTrcDist() )
 		    continue;
 
 		ndist = dist;

@@ -41,7 +41,8 @@ public:
     void		transformTrcBack(const TrcKey&,
 				  const SamplingData<float>&,
 				  int sz,float* res) const;
-    bool		canTransformSurv(TrcKey::SurvID) const { return true; }
+    bool		canTransformSurv(OD::GeomSystem) const override
+							{ return true; }
 
     Interval<float>	getZInterval(bool from) const;
     float		getZIntervalCenter(bool from) const;

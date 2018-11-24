@@ -89,8 +89,8 @@ void uiWorld2Ui::set( uiRect rc, const SurveyInfo& si )
     if ( !rc.hNrPics() || !rc.vNrPics() )
 	return;
 
-    Coord mincoord = si.minCoord( false );
-    Coord maxcoord = si.maxCoord( false );
+    Coord mincoord = si.minCoord();
+    Coord maxcoord = si.maxCoord();
     Coord diff = maxcoord - mincoord;
     double xfac = diff.x_ / rc.hNrPics();
     double yfac = diff.y_ / rc.vNrPics();

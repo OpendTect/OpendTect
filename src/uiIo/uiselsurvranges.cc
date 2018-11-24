@@ -32,20 +32,20 @@ static const float cMaxUnsnappedZStep = 0.999f;
     , rangeChanged(this) \
     , othdom_(&zddef_ != &ZDomain::SI()) \
     , cansnap_( !othdom_ \
-	&& SI().zRange(false).step > cMaxUnsnappedZStep / zddef_.userFactor() )
+	&& SI().zStep() > cMaxUnsnappedZStep / zddef_.userFactor() )
 
 
 uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
 			  const char* lbltxt, const char* domky )
 	: mDefConstrList(isrel)
 {
-    const StepInterval<float> limitrg( SI().zRange(false) );
+    const StepInterval<float> limitrg( SI().zRange() );
     makeInpFields( toUiString(lbltxt), wstep, !othdom_ &&
 						       !isrel_ ? &limitrg : 0 );
     if ( isrel_ )
 	setRange( StepInterval<float>(0,0,1) );
     else if ( !othdom_ )
-	setRange( SI().zRange(true) );
+	setRange( SI().zRange(OD::UsrWork) );
 }
 
 
@@ -62,7 +62,7 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 				 const StepInterval<float>* inplimitrg )
 {
     const float zfac = mCast( float, zddef_.userFactor() );
-    const StepInterval<float>& sizrg( SI().zRange(false) );
+    const StepInterval<float>& sizrg( SI().zRange() );
 
     StepInterval<float> limitrg( -mCast(float,cUnLim), mCast(float,cUnLim), 1 );
     if ( inplimitrg )
@@ -122,7 +122,7 @@ StepInterval<float> uiSelZRange::getRange() const
 			     stepfld_ ? stepfld_->getFValue() : 1 );
     zrg.scale( 1.f / zddef_.userFactor() );
     if ( !stepfld_ )
-	zrg.step = SI().zRange(true).step;
+	zrg.step = SI().zStep( OD::UsrWork );
     return zrg;
 }
 
@@ -246,9 +246,8 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
     const char* nm = "Number";
     if ( typ != Gen )
     {
-	const TrcKeySampling& hs( SI().sampling(false).hsamp_ );
+	TrcKeySampling hs( OD::UsrWork ), whs( OD::FullSurvey );
 	rg = typ == Inl ? hs.inlRange() : hs.crlRange();
-	const TrcKeySampling& whs( SI().sampling(true).hsamp_ );
 	wrg = typ == Inl ? whs.inlRange() : whs.crlRange();
 	nm = typ == Inl ? sKey::Inline() : sKey::Crossline();
 	defstep_ = typ == Inl ? SI().inlStep() : SI().crlStep();
@@ -457,7 +456,7 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
     uiSpinBox* firstbox = 0;
     if ( !is2d )
     {
-	stp = SI().sampling(true).hsamp_.step_;
+	stp = BinID( SI().inlStep(), SI().crlStep() );
 	firstbox = inlfld_ = new uiSpinBox( this, 0, "inline step" );
 	inlfld_->setInterval( StepInterval<int>(stp.inl(),cUnLim,stp.inl()) );
 	inlfld_->doSnap( true );

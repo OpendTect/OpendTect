@@ -246,7 +246,7 @@ protected:
 	}
 	else
 	{
-	    const int globidx = seisdp_->getGlobalIdx( curbid );
+	    const int globidx = seisdp_->getGlobalIdx( TrcKey(curbid) );
 	    const OffsetValueSeries<float>& dptrcvs =
 		seisdp_->getTrcStorage( 0, globidx );
 
@@ -326,7 +326,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id,
     if ( velprovider_->is2D() ) // Now geomid is known. Have to recreate reader.
     {
 	Seis::SelData* sd = new Seis::RangeSelData( readcs );
-	sd->setGeomID( readcs.hsamp_.start_.lineNr() );
+	sd->setGeomID( Pos::GeomID(readcs.hsamp_.start_.lineNr()) );
 	velprovider_->setSelData( sd );
     }
 
@@ -572,9 +572,9 @@ Interval<float>& getZRange( Interval<float>& zrg, float step, int userfac )
 }
 
 
-float getZStep( const Interval<float>& zrg, int userfac )
+static float getZStep( const Interval<float>& zrg, int userfac )
 {
-    const int nrsteps = SI().zRange( true ).nrSteps();
+    const int nrsteps = SI().zRange().nrSteps();
     float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
     zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
     zstep /= userfac;
@@ -589,7 +589,7 @@ Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
     if ( survistime && SI().depthsInFeet() )
 	seisrefdatum *= mToFeetFactorF;
 
-    Interval<float> res = SI().zRange(true);
+    Interval<float> res = SI().zRange();
     if ( survistime && !time )
     {
 	res.start *= topvavg_.start/2;
@@ -610,9 +610,9 @@ Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 float Time2DepthStretcher::getGoodZStep() const
 {
     if ( SI().zIsTime() )
-	return SI().zRange(true).step * (topvavg_.start+botvavg_.stop) * 0.25f;
+	return SI().zRange().step * (topvavg_.start+botvavg_.stop) * 0.25f;
 
-    return SI().zRange(true).step;
+    return SI().zRange().step;
 }
 
 
@@ -710,11 +710,11 @@ Interval<float> Depth2TimeStretcher::getZInterval( bool depth ) const
 float Depth2TimeStretcher::getGoodZStep() const
 {
     if ( SI().zIsTime() )
-	return SI().zRange(true).step;
+	return SI().zRange().step;
 
     const Interval<float> topvavg = stretcher_->getVavgRg(true);
     const Interval<float> botvavg = stretcher_->getVavgRg(false);
-    return 4 * SI().zRange(true).step / (topvavg.stop+botvavg.start);
+    return 4 * SI().zRange().step / (topvavg.stop+botvavg.start);
 }
 
 
@@ -958,7 +958,7 @@ void LinearT2DTransform::transformTrcBack( const TrcKey&,
 
 Interval<float> LinearT2DTransform::getZInterval( bool time ) const
 {
-    Interval<float> zrg = SI().zRange( true );
+    Interval<float> zrg = SI().zRange();
     const bool survistime = SI().zIsTime();
     if ( time && survistime ) return zrg;
 
@@ -981,10 +981,10 @@ Interval<float> LinearT2DTransform::getZInterval( bool time ) const
 float LinearT2DTransform::getGoodZStep() const
 {
     if ( !SI().zIsTime() )
-	return SI().zRange(true).step;
+	return SI().zRange().step;
 
     TrcKey tk( BinID(0,0) );
-    Interval<float> zrg = SI().zRange( true );
+    Interval<float> zrg = SI().zRange();
     zrg.start = ZAxisTransform::transformTrc( tk, zrg.start );
     zrg.stop = ZAxisTransform::transformTrc( tk, zrg.stop );
     return getZStep( zrg, toZDomainInfo().userFactor() );
@@ -1012,7 +1012,7 @@ void LinearD2TTransform::transformTrcBack( const TrcKey&,
 
 Interval<float> LinearD2TTransform::getZInterval( bool depth ) const
 {
-    Interval<float> zrg = SI().zRange( true );
+    Interval<float> zrg = SI().zRange();
     const bool survistime = SI().zIsTime();
     if ( !survistime && depth ) return zrg;
 
@@ -1035,10 +1035,10 @@ Interval<float> LinearD2TTransform::getZInterval( bool depth ) const
 float LinearD2TTransform::getGoodZStep() const
 {
     if ( SI().zIsTime() )
-	return SI().zRange(true).step;
+	return SI().zRange().step;
 
     TrcKey tk( BinID(0,0) );
-    Interval<float> zrg = SI().zRange( true );
+    Interval<float> zrg = SI().zRange();
     zrg.start = ZAxisTransform::transformTrc( tk, zrg.start );
     zrg.stop = ZAxisTransform::transformTrc( tk, zrg.stop );
     return getZStep( zrg, toZDomainInfo().userFactor() );

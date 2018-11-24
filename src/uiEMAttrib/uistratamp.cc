@@ -254,7 +254,7 @@ bool uiStratAmpCalc::fillPar()
     hs.limitTo( inhs );
     IOPar subselpar;
     hs.fillPar( subselpar );
-    subselpar.set( sKey::ZRange(), SI().zRange(false) );
+    subselpar.set( sKey::ZRange(), SI().zRange() );
     iop.mergeComp( subselpar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
 
     const Attrib::DescID targetid = inpfld_->attribID();

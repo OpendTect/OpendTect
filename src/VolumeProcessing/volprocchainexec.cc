@@ -10,6 +10,7 @@
 #include "odsysmem.h"
 #include "seisdatapack.h"
 #include "threadwork.h"
+#include "horsubsel.h"
 
 uiString VolProc::ChainExecutor::sGetStepErrMsg()
 {

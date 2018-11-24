@@ -28,7 +28,6 @@ template<class T> class ObjectSet;
 template<class T> class StepInterval;
 
 typedef od_int32	Index_Type;
-typedef od_int32	Index_Delta_Type;
 typedef od_int64	DirtyCountType;
 
 namespace Pos
@@ -37,11 +36,9 @@ namespace Pos
     class IdxPair;
 
     typedef ::Index_Type	Index_Type;
-    typedef ::Index_Type	Index_Delta_Type;
-    typedef Index_Type		SurvID;
-    typedef Index_Type		LineID;
-    typedef Index_Type		TraceID;
-    typedef Index_Type		GeomID;
+    typedef Index_Type		TraceNr_Type;
+
+    typedef float		Z_Type;
 
     typedef double		Ordinate_Type;
     typedef double		Distance_Type;
@@ -75,8 +72,20 @@ enum CaseSensitivity	{ CaseSensitive=0, CaseInsensitive=1 };
 namespace OD
 {
 
+enum GeomSystem
+    { SynthGeom=-2, VolBasedGeom=-1, LineBasedGeom=0 };
+
 enum Pol2D3D
     { Only3D=0, Both2DAnd3D=1, Only2D=2 };
+
+enum SurvLimitType
+    { FullSurvey=0, UsrWork=1 };
+
+enum SnapDir
+    { SnapDownward=-1, SnapNearest=0, SnapUpward=1 };
+
+enum SliceType
+    { InlineSlice=0, CrosslineSlice=1, ZSlice=2 };
 
 enum DataRepType
     { AutoDataRep=0, SI8, UI8, SI16, UI16, SI32, UI32, F32, F64, SI64 };
@@ -107,8 +116,19 @@ inline DataRepType GetDataRepType( bool isfp, bool issigned, int nbytes )
 
 } // namespace OD
 
-inline bool has2D( OD::Pol2D3D pol )		{ return pol!=OD::Only3D; }
-inline bool has3D( OD::Pol2D3D pol )		{ return pol!=OD::Only2D; }
+
+// Not just convenience, these keep the logic in one place:
+
+inline bool is2D( OD::GeomSystem gs )	{ return gs==OD::LineBasedGeom; }
+inline bool is3D( OD::GeomSystem gs )	{ return gs==OD::VolBasedGeom; }
+inline void set2D( OD::GeomSystem& gs )	{ gs = OD::LineBasedGeom; }
+inline void set3D( OD::GeomSystem& gs )	{ gs = OD::VolBasedGeom; }
+
+inline bool has2D( OD::Pol2D3D pol )	{ return pol!=OD::Only3D; }
+inline bool has3D( OD::Pol2D3D pol )	{ return pol!=OD::Only2D; }
+
+inline bool isWork( OD::SurvLimitType lt ) { return lt==OD::UsrWork; }
+inline bool isFull( OD::SurvLimitType lt ) { return lt==OD::FullSurvey; }
 
 inline bool isFP( OD::DataRepType dr )
 { return dr == OD::F32 || dr == OD::F64; }

@@ -125,17 +125,15 @@ void SeisIOSimple::Data::clear( bool survchg )
 	return;
 
     subselpars_.setEmpty();
-    fname_ = GetDataDir(); seiskey_.setInvalid(); geomid_ = mUdfGeomID;
-    sd_.start = (float)SI().zRange(false).start;
-    sd_.step = (float)SI().zRange(false).step;
-    nrsamples_ = SI().zRange(false).nrSteps() + 1;
-    inldef_.start = SI().sampling(false).hsamp_.start_.inl();
-    crldef_.start = SI().sampling(false).hsamp_.start_.crl();
-    inldef_.step = SI().inlStep();
-    crldef_.step = SI().crlStep();
-    nrcrlperinl_ = (SI().sampling(false).hsamp_.stop_.crl()
-		 - SI().sampling(false).hsamp_.start_.crl())
-		    / crldef_.step + 1;
+    fname_ = GetDataDir(); seiskey_.setInvalid(); geomid_ = Pos::GeomID();
+    const auto inlrg = SI().inlRange();
+    const auto crlrg = SI().crlRange();
+    sd_.start = (float)SI().zRange().start;
+    sd_.step = (float)SI().zRange().step;
+    nrsamples_ = SI().zRange().nrSteps() + 1;
+    inldef_.start = inlrg.start; inldef_.step = inlrg.step;
+    crldef_.start = crlrg.start; crldef_.step = crlrg.step;
+    nrcrlperinl_ = crlrg.nrSteps() + 1;
     nroffsperpos_ = 10; // cannot think of a good default ...
     startpos_ = SI().transform( BinID(inldef_.start,crldef_.start) );
     Coord nextpos = SI().transform( BinID(inldef_.start+inldef_.step,
@@ -170,7 +168,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
     const_cast<bool&>(zistm_) = ZDomain::isTime( ioobj->pars() );
 
     Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
-    if ( !mIsUdfGeomID(data_.geomid_) )
+    if ( data_.geomid_.isValid() )
 	seldata->setGeomID( data_.geomid_ );
 
     if ( isimp_ )
@@ -392,7 +390,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     mPIEPAdj(BinID,bid,true); mPIEPAdj(Coord,coord,true);
     mPIEPAdj(TrcNr,nr,true); mPIEPAdj(Offset,offs,true);
 
-    trc.info().trckey_ = is2d ? TrcKey( 0, nr ) : TrcKey( bid );
+    trc.info().trckey_ = is2d ? TrcKey( Pos::GeomID(0), nr ) : TrcKey( bid );
     prevbid_ = bid;
     trc.info().coord_ = coord;
     trc.info().offset_ = SI().xyInFeet() ? offs * mFromFeetFactorF : offs;

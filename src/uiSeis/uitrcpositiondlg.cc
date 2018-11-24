@@ -209,31 +209,30 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
     if ( !pickretriever_->success() )
 	return;
 
-    if ( trcnrfld_ )
+    if ( !trcnrfld_ )
+    {
+	const BinID bid = SI().transform( crd.getXY() );
+	inlfld_->box()->setValue( bid.inl() );
+	crlfld_->setValue( bid.crl() );
+    }
+    else
     {
 	Pos::GeomID geomid = linesfld_->getInputGeomID();
-	const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
-	mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
-	if ( !geom2d )
+	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	if ( geom2d.isEmpty() )
 	    return;
 
-	const PosInfo::Line2DData& line2d = geom2d->data();
+	const PosInfo::Line2DData& line2d = geom2d.data();
 	PosInfo::Line2DPos l2dpos;
 	if ( !line2d.getPos( crd.getXY(), l2dpos, SI().crlDistance() ) )
 	{
 	    uiString msg = tr("Please pick a trace on line: %1")
-					.arg(geom2d->name());
+					.arg(geom2d.name());
 	    uiMSG().error( msg );
 	    return;
 	}
 
 	trcnrfld_->box()->setValue( l2dpos.nr_ );
-    }
-    else
-    {
-	const BinID bid = SI().transform( crd.getXY() );
-	inlfld_->box()->setValue( bid.inl() );
-	crlfld_->setValue( bid.crl() );
     }
 }
 

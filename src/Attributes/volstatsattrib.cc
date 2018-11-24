@@ -512,9 +512,9 @@ void VolStats::getIdealStackPos(
     bool iscrossline = false;
     if ( desiredvolume_->isFlat() )
     {
-	if ( desiredvolume_->defaultDir() == TrcKeyZSampling::Inl )
+	if ( desiredvolume_->defaultDir() == OD::InlineSlice )
 	    isinline = true;
-	else if ( desiredvolume_->defaultDir() == TrcKeyZSampling::Crl )
+	else if ( desiredvolume_->defaultDir() == OD::CrosslineSlice )
 	    iscrossline = true;
     }
 

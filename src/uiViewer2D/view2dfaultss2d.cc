@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "mpefssflatvieweditor.h"
 #include "seisdatapack.h"
+#include "survgeom2d.h"
 
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
@@ -78,8 +79,9 @@ VW2DFaultSS2D::~VW2DFaultSS2D()
 
 void VW2DFaultSS2D::draw()
 {
-    const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid_ );
-    if ( !geometry ) return;
+    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    if ( geom2d.isEmpty() )
+	return;
 
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -100,8 +102,7 @@ void VW2DFaultSS2D::draw()
 
 	    TypeSet<Coord>& coords = fsseds_[ivwr]->getCoords();
 	    for ( int idx=0; idx<fsseds_[ivwr]->getTrcNos().size(); idx++ )
-		coords += geometry->toCoord(
-			geomid_, fsseds_[ivwr]->getTrcNos()[idx] );
+		coords += geom2d.getCoord( fsseds_[ivwr]->getTrcNos()[idx] );
 
 	    fsseds_[ivwr]->setGeomID( geomid_ );
 	    fsseds_[ivwr]->set2D( true );

@@ -29,7 +29,7 @@ static const char* sKeyBinIDSel = "BinID selection";
 
 Seis::SelData::SelData()
     : isall_(false)
-    , geomid_(Survey::GM().default3DSurvID())
+    , geomid_(Pos::GeomID::get3D())
 {
 }
 
@@ -111,7 +111,7 @@ Interval<int> Seis::SelData::crlRange() const
 
 Interval<float> Seis::SelData::zRange() const
 {
-    Interval<float> ret; assign( ret, SI().zRange(false) );
+    Interval<float> ret; assign( ret, SI().zRange() );
     return ret;
 }
 
@@ -121,7 +121,7 @@ void Seis::SelData::fillPar( IOPar& iop ) const
 {
     const char* typstr = Seis::nameOf(type());
     iop.set( sKey::Type(), isall_ ? (const char*) sKey::None() : typstr );
-    if ( mIsUdfGeomID(geomid_) )
+    if ( !geomid_.isValid() )
 	iop.removeWithKey( sKey::GeomID() );
     else
 	iop.set( sKey::GeomID(), geomid_ );
@@ -136,11 +136,11 @@ void Seis::SelData::usePar( const IOPar& iop )
     isall_ = !res || !*res || *res == *sKey::None();
 
     iop.get( sKey::GeomID(), geomid_ );
-    if ( geomid_ < 0 )
+    if ( !geomid_.isValid() )
     {
 	res = iop.find( sKey::LineKey() );
 	if ( res && *res )
-	    geomid_ = Survey::GM().getGeomID( res );
+	    geomid_ = Survey::Geometry::getGeomID( res );
     }
 }
 
@@ -166,9 +166,9 @@ Seis::RangeSelData::RangeSelData( const TrcKeySampling& hs )
     : tkzs_(*new TrcKeyZSampling(false))
 {
     tkzs_.hsamp_ = hs;
-    tkzs_.zsamp_ = SI().zRange(false);
+    tkzs_.zsamp_ = SI().zRange();
     if ( tkzs_.is2D() )
-	setGeomID( tkzs_.hsamp_.start_.lineNr() );
+	setGeomID( Pos::GeomID(tkzs_.hsamp_.start_.lineNr()) );
 }
 
 
@@ -176,7 +176,7 @@ Seis::RangeSelData::RangeSelData( const TrcKeyZSampling& cs )
     : tkzs_(*new TrcKeyZSampling(cs))
 {
     if ( tkzs_.is2D() )
-	setGeomID( tkzs_.hsamp_.start_.lineNr() );
+	setGeomID( Pos::GeomID(tkzs_.hsamp_.start_.lineNr()) );
 }
 
 
@@ -269,12 +269,12 @@ bool Seis::RangeSelData::setZRange( Interval<float> rg )
 void Seis::RangeSelData::setGeomID( Pos::GeomID geomid )
 {
     SelData::setGeomID( geomid );
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-		    Survey::GM().getGeometry(geomid))
-    if ( geom2d )
+    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    if ( !geom2d.isEmpty() )
     {
-	tkzs_.hsamp_.survid_ = TrcKey::std2DSurvID();
-	tkzs_.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
+	tkzs_.hsamp_.setIs2D( true );
+	tkzs_.hsamp_.setLineRange(
+		StepInterval<int>(geomid.lineNr(),geomid.lineNr(),1) );
     }
 }
 
@@ -296,7 +296,7 @@ void Seis::RangeSelData::usePar( const IOPar& iop )
     StepInterval<int> trcrg;
     if ( iop.get(IOPar::compKey(sKey::TrcRange(),0),trcrg) )
     {
-	tkzs_.hsamp_.survid_ = TrcKey::std2DSurvID();
+	tkzs_.hsamp_.setIs2D( true );
 	tkzs_.hsamp_.setTrcRange( trcrg );
 	iop.get( IOPar::compKey(sKey::ZRange(),0), tkzs_.zsamp_ );
     }
@@ -467,7 +467,7 @@ Interval<float> Seis::TableSelData::zRange() const
 
     Interval<float> zrg = bvs_.valRange( 0 ) + extraz_;
     if ( zrg.isUdf() )
-	zrg = SI().zRange(true);
+	zrg = SI().zRange();
 
     return !bvs_.nrVals() ? fixedzrange_ : zrg;
 }
@@ -606,7 +606,7 @@ void Seis::PolySelData::initZrg( const Interval<float>* zrg )
     if ( zrg )
 	zrg_ = *zrg;
     else
-	assign( zrg_, SI().zRange(false) );
+	assign( zrg_, SI().zRange() );
 }
 
 

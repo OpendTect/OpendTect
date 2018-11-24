@@ -285,8 +285,8 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
 					  paramsChgCB) );
     perdistfld_->attach( alignedBelow, pardistfld_ );
 
-    const Coord maxcoord = SI().maxCoord(false);
-    const Coord mincoord = SI().minCoord(false);
+    const Coord maxcoord = SI().maxCoord();
+    const Coord mincoord = SI().minCoord();
     const float maxdim = (float) mMAX( maxcoord.x_-mincoord.x_,
 				       maxcoord.y_-mincoord.y_ );
     AxisLayout<float> axl( Interval<float>(0,maxdim) );
@@ -633,8 +633,8 @@ bool uiCreate2DGrid::checkInput( IOPar& par ) const
     BufferStringSet ovwrlinenms;
     for ( int lidx=0; lidx < linenames.size(); lidx++ )
     {
-	Pos::GeomID geomid = Survey::GM().getGeomID( linenames[lidx]->buf() );
-	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+	auto geomid = Survey::Geometry::getGeomID( linenames[lidx]->buf() );
+	if ( geomid.isValid() )
 	    ovwrlinenms.add( linenames.get(lidx) );
     }
 

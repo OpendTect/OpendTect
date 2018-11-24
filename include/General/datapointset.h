@@ -70,7 +70,7 @@ public:
 			{ return binid_==pos.binid_ && offsx_ ==pos.offsx_
 				&& offsy_==pos.offsy_ && z_==pos.z_; }
 	const BinID&	binID() const	{ return binid_; }
-	Coord		coord(::Pos::SurvID) const;
+	Coord		coord(OD::GeomSystem) const;
 	float		z() const	{ return z_; }
 
 	void		set( const BinID& bid )
@@ -114,8 +114,8 @@ public:
 				{ return pos_==dr.pos_ && grp_==dr.grp_
 					&& data_==dr.data_; }
 	const BinID&		binID() const		{ return pos_.binID(); }
-	Coord			coord(::Pos::SurvID survid) const
-				{ return pos_.coord(survid); }
+	Coord			coord( OD::GeomSystem gs ) const
+						    { return pos_.coord(gs); }
 	const TypeSet<float>&	data() const		{ return data_; }
 	od_uint16		group() const;
 	bool			isSel() const		{ return grp_ > 0; }
@@ -141,6 +141,8 @@ public:
 					bool minimal=false);
 			DataPointSet(const DataPointSet&,const ::Pos::Filter&);
 			mDeclMonitorableAssignment(DataPointSet);
+
+    OD::GeomSystem	geomSystem() const;
     bool		is2D() const		{ return is2d_; }
     bool		isMinimal() const	{ return minimal_; }
     bool		isEmpty() const		{ return bvsidxs_.isEmpty(); }

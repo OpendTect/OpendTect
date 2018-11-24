@@ -15,10 +15,10 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "coord.h"
 #include "enums.h"
+#include "horsubsel.h"
 #include "mathfunc.h"
 #include "periodicvalue.h"
 #include "posinfo.h"
-#include "trckeyzsampling.h"
 #include "uistrings.h"
 #include "valseries.h"
 
@@ -1287,131 +1287,93 @@ template <class T>
 mClass(Algo) Array2DCopier : public ParallelTask
 { mODTextTranslationClass(Array2DCopier)
 public:
-		Array2DCopier( const Array2D<T>& in,
-			       const TrcKeySampling& tksin,
-			       const TrcKeySampling& tksout,
-			       Array2D<T>& out )
-		    : in_(in)
-		    , tksin_(tksin)
-		    , tksout_(tksout)
-		    , out_(out)
-		{
-		    if ( canCopyAll() )
-		    {
-			doPrepare(0);
-			return;
-		    }
 
-		    tksin.getInterSection( tksout, commontks_ );
-		}
+Array2DCopier( const Array2D<T>& in, Array2D<T>& out,
+		const ArrRegSubSel2D& ssin, const ArrRegSubSel2D& ssout )
+    : in_(in)
+    , out_(out)
+    , ssin_(ssin)
+    , ssout_(ssout)
+    , nr1dslices_(in_.isEmpty() || out_.isEmpty() ? 0 : ssin.size(0))
+    , alreadycopied_(false)
+{
+    if ( nr1dslices_ < 1 || usePlainCopy() )
+    {
+	if ( nr1dslices_ > 0 )
+	    OD::memCopy( out_.getData(), in_.getData(),
+			 in_.totalSize() * sizeof(T) );
+	alreadycopied_ = true;
+    }
+}
 
-    uiString	nrDoneText() const
-		    { return tr("%1 done").arg(uiStrings::sInline(mPlural)); }
-    uiString	message() const	{ return tr("Transferring grid data");}
+uiString nrDoneText() const override
+{
+    return uiStrings::sPositionsDone();
+}
+
+uiString message() const override
+{
+    return tr("Copying data");
+}
 
 protected:
 
-    od_int64	nrIterations() const
-		{
-		    return canCopyAll() ? 0 : commontks_.nrLines();
-		}
+od_int64 totalNr() const override
+{
+    return ssin_.totalSize();
+}
 
-private:
+od_int64 nrIterations() const override
+{
+    return usePlainCopy() ? 0 : nr1dslices_;
+}
 
-    bool	canCopyAll() const
-		{
-		    return tksout_ == tksin_ && in_.getData() &&
-			   ( out_.getData() || out_.getStorage() );
-		}
+bool usePlainCopy() const
+{
+    const auto sz0 = in_.getSize( 0 );
+    const auto sz1 = in_.getSize( 1 );
+    return ssin_.isAll(sz0,sz1) && ssout_.isAll(sz0,sz1)
+	&& in_.info() == out_.info()
+	&& in_.getData() && out_.getData();
+}
 
-    bool	doPrepare( int )
-		{
-		    if ( in_.getSize(0) != tksin_.nrLines() ||
-			 in_.getSize(1) != tksin_.nrTrcs() )
-		    {
-			return false;
-		    }
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    if ( alreadycopied_ )
+	return true;
 
-		    if ( out_.getSize(0) != tksout_.nrLines() ||
-			 out_.getSize(1) != tksout_.nrTrcs() )
-		    {
-			mDynamicCastGet(Array2DImpl<T>*,outimpl,&out_)
-			if ( !outimpl || !outimpl->setSize( tksout_.nrLines(),
-							    tksout_.nrTrcs() ) )
-			{
-			    return false;
-			}
+    ArrRegSubSel2DIterator iter( ssin_ );
+    iter.startAt( (int)start, 0 );
+    auto previdx1 = iter.idx1_;
+    while ( iter.next() )
+    {
+	if ( iter.idx1_ != previdx1 )
+	{
+	    addToNrDone( ssin_.size(1) );
+	    previdx1 = iter.idx1_;
+	}
+	if ( iter.idx1_ > stop )
+	    break;
 
-			out_.setAll( mUdf(T) );
-		    }
+	const auto i0 = iter.arrIdx( 0 );
+	const auto i1 = iter.arrIdx( 1 );
+	if ( ssout_.validIdxs(i0,i1) )
+	{
+	    const T val = in_.get( i0, i1 );
+	    out_.set( ssout_.arrIdx(0,i0), ssout_.arrIdx(1,i1), val );
+	}
+    }
 
-		    if ( canCopyAll() )
-		    {
-			if ( out_.getData() )
-			    in_.getAll( out_.getData() );
-			else if ( out_.getStorage() )
-			    in_.getAll( *out_.getStorage() );
-		    }
-
-		    return true;
-		}
-
-    bool	doWork( od_int64 start, od_int64 stop, int )
-		{
-		    const TrcKeySampling tksin( tksin_ );
-		    const TrcKeySampling tksout( tksout_ );
-		    const TrcKeySampling tks( commontks_ );
-
-		    const bool usearrayptrs = in_.getData() && out_.getData() &&
-					      in_.getStorage() &&
-					      out_.getStorage();
-		    OffsetValueSeries<T>* invals = !usearrayptrs ? 0 :
-			    new OffsetValueSeries<T>( *in_.getStorage(), 0 );
-		    OffsetValueSeries<T>* outvals = !usearrayptrs ? 0 :
-			    new OffsetValueSeries<T>( *out_.getStorage(), 0 );
-		    const int nrcrl = tks.nrTrcs();
-		    const od_int64 nrbytes = nrcrl * sizeof(T);
-
-		    const int startcrl = tks.start_.crl();
-		    const int startcrlidyin = tksin.trcIdx( startcrl );
-		    const int startcrlidyout = tksout.trcIdx( startcrl );
-		    for ( int idx=(int)start; idx<=stop; idx++ )
-		    {
-			const int inl = tks.lineRange().atIndex( idx );
-			const int inlidxin = tksin.lineIdx( inl );
-			const int inlidxout = tksout.lineIdx( inl );
-			if ( usearrayptrs )
-			{
-			    invals->setOffset(
-			      in_.info().getOffset(inlidxin,startcrlidyin) );
-			    outvals->setOffset(
-			      out_.info().getOffset(inlidxout,startcrlidyout) );
-			    OD::sysMemCopy( outvals->arr(),invals->arr(),
-					    nrbytes );
-			    continue;
-			}
-			else
-			{
-			    for ( int idy=0; idy<nrcrl; idy++ )
-			    {
-				const T val =
-					in_.get( inlidxin, startcrlidyin+idy );
-				out_.set( inlidxout, startcrlidyout+idy, val );
-			    }
-			}
-		    }
-
-		    delete invals;
-		    delete outvals;
-
-		    return true;
-		}
+    return true;
+}
 
     const Array2D<T>&		in_;
-    const TrcKeySampling&	tksin_;
-    const TrcKeySampling&	tksout_;
-    TrcKeySampling		commontks_;
     Array2D<T>&			out_;
+    const ArrRegSubSel2D&	ssin_;
+    const ArrRegSubSel2D&	ssout_;
+    const int			nr1dslices_;
+    bool			alreadycopied_;
+
 };
 
 
@@ -1421,170 +1383,91 @@ template <class T>
 mClass(Algo) Array3DCopier : public ParallelTask
 { mODTextTranslationClass(Array3DCopier)
 public:
-		Array3DCopier( const Array3D<T>& in, Array3D<T>& out,
-			       const TrcKeyZSampling& tkzsin,
-			       const TrcKeyZSampling& tkzsout )
-		    : ParallelTask("Array 3D Resizer")
-		    , tkzsin_(tkzsin)
-		    , tkzsout_(tkzsout)
-		    , totalnr_(tkzsout.hsamp_.totalNr())
-		    , in_(in)
-		    , out_(out)
-		{}
 
-    uiString	message() const	{ return msg_; }
+Array3DCopier( const Array3D<T>& in, Array3D<T>& out,
+		const ArrRegSubSel3D& ssin, const ArrRegSubSel3D& ssout )
+    : ParallelTask("Array 3D Copier")
+    , ssin_(ssin)
+    , ssout_(ssout)
+    , nr2dslices_(in_.isEmpty() || out_.isEmpty() ? 0 : ssin.size(0))
+    , in_(in)
+    , out_(out)
+    , alreadycopied_(false)
+{
+    if ( nr2dslices_ < 1 || usePlainCopy() )
+    {
+	if ( nr2dslices_ > 0 )
+	    OD::memCopy( out_.getData(), in_.getData(),
+			 in_.totalSize() * sizeof(T) );
+	alreadycopied_ = true;
+    }
+}
 
-    uiString	nrDoneText() const	{ return sTracesDone(); }
+uiString message() const override	{ return tr("Copying data"); }
+uiString nrDoneText() const override	{ return uiStrings::sPositionsDone(); }
 
 protected:
 
-    od_int64	nrIterations() const	{ return totalnr_; }
+bool usePlainCopy() const
+{
+    const auto sz0 = in_.getSize( 0 );
+    const auto sz1 = in_.getSize( 1 );
+    const auto sz2 = in_.getSize( 2 );
+    return ssin_.isAll(sz0,sz1,sz2) && ssout_.isAll(sz0,sz1,sz2)
+	&& in_.info() == out_.info()
+	&& in_.getData() && out_.getData();
+}
 
-private:
+od_int64 nrIterations() const override
+{
+    return nr2dslices_;
+}
 
-#define mGetInfo() \
-    const Array3DInfoImpl infoin( tkzsin_.hsamp_.nrLines(), \
-				  tkzsin_.hsamp_.nrTrcs(), tkzsin_.nrZ() ); \
-    const Array3DInfoImpl infoout( tkzsout_.hsamp_.nrLines(), \
-				   tkzsout_.hsamp_.nrTrcs(), tkzsout_.nrZ() );
-
-    bool	doPrepare( int )
-		{
-		    msg_ = tr("Transferring volume data");
-
-		    mGetInfo()
-		    if ( in_.info() != infoin )
-		    {
-			msg_ = tr("Input info is not the same");
-			return false;
-		    }
-
-		    if ( out_.info() != infoout && !out_.setInfo(infoout) )
-		    {
-			msg_ = tr("Output info is not the same");
-			return false;
-		    }
-
-		    if ( tkzsin_.hsamp_.survid_ != tkzsout_.hsamp_.survid_ )
-		    {
-			msg_ = tr("Incompatible Survey ID");
-			return false;
-		    }
-
-		    if ( !tkzsin_.zsamp_.isCompatible(tkzsout_.zsamp_) )
-		    {
-			//Check step multiple of input
-			const float zratio = tkzsout_.zsamp_.step /
-						tkzsin_.zsamp_.step;
-
-			if ( !mIsEqual(zratio,mNINT32(zratio),1e-5f) )
-			{
-			    msg_ = tr("Incompatible sample rate: %1 vs %2")
-					.arg(tkzsin_.zsamp_.step)
-					.arg(tkzsout_.zsamp_.step);
-			    return false; //Not supported
-			}
-
-			sample_fact_ = mNINT32(zratio);
-		    }
-
-		    out_.setAll( mUdf(T) );
-
-		    return true;
-		}
+od_int64 totalNr() const override
+{
+    return ssin_.totalSize();
+}
 
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
-		{
-		    mGetInfo()
-		    const TrcKeySampling tksin( tkzsin_.hsamp_ );
-		    const TrcKeySampling tksout( tkzsout_.hsamp_ );
-		    const int nrzout = infoout.getSize(2);
-		    ZSampling zrg( tkzsout_.zsamp_ );
-		    zrg.limitTo( tkzsin_.zsamp_ );
-		    const int nrztocopy = zrg.nrSteps() + 1;
-		    const int z0in = tkzsin_.zsamp_.nearestIndex( zrg.start );
-		    const int z0out = tkzsout_.zsamp_.nearestIndex( zrg.start );
-		    const od_int64 nrbytes =
-				   mCast(od_int64,nrztocopy) * sizeof(T);
-		    const T* inptr = in_.getData();
-		    T* outptr = out_.getData();
-		    const ValueSeries<T>* instor = in_.getStorage();
-		    ValueSeries<T>* outstor = out_.getStorage();
-		    const bool hasarrayptr = inptr && outptr;
-		    const bool hasstorage = instor && outstor;
-		    const bool needgetset = !hasarrayptr && !hasstorage;
+bool doWork( od_int64 start, od_int64 stop, int )
+{
+    if ( alreadycopied_ )
+	return true;
 
-		    const Array2DInfoImpl info2d( infoout.getSize( 0 ),
-						  infoout.getSize( 1 ) );
-		    ArrayNDIter iter( info2d );
-		    iter.setGlobalPos( start );
+    ArrRegSubSel3DIterator iter( ssin_ );
+    iter.startAt( (int)start, 0 );
+    auto previdx0 = iter.idx0_;
+    while ( iter.next() )
+    {
+	if ( iter.idx0_ != previdx0 )
+	{
+	    addToNrDone( ssin_.size2D() );
+	    previdx0 = iter.idx0_;
+	}
+	if ( iter.idx0_ > stop )
+	    break;
 
-		    const od_int64 offsetout = start * nrzout + z0out;
-		    outptr += offsetout;
-		    od_int64 validxout = offsetout;
-		    const bool samezstep = sample_fact_ == 1;
+	const auto i0 = iter.arrIdx( 0 );
+	const auto i1 = iter.arrIdx( 1 );
+	const auto i2 = iter.arrIdx( 2 );
+	if ( ssout_.validIdxs(i0,i1,i2) )
+	{
+	    const T val = in_.get( i0, i1, i2 );
+	    out_.set( ssout_.arrIdx(0,i0), ssout_.arrIdx(1,i1),
+		      ssout_.arrIdx(2,i2), val );
+	}
+    }
 
-		    for ( od_int64 idx=start; idx<=stop; idx++, iter.next(),
-			  outptr+=nrzout, validxout+=nrzout,
-			  quickAddToNrDone(idx) )
-		    {
-			const int inlidx = iter[0];
-			const int crlidx = iter[1];
-			const BinID bid( tksout.atIndex(inlidx,crlidx) );
-			if ( !tksin.includes(bid) )
-			    continue;
-
-			const int inlidxin = tksin.lineIdx( bid.lineNr() );
-			const int crlidxin = tksin.trcIdx( bid.trcNr() );
-			const od_int64 offsetin = needgetset ? 0
-				: infoin.getOffset( inlidxin, crlidxin, z0in );
-			if ( hasarrayptr )
-			{
-			    if ( samezstep )
-			    {
-				OD::sysMemCopy( outptr, inptr+offsetin,nrbytes);
-				continue;
-			    }
-
-			    const T* inptrcptr = inptr+offsetin;
-			    for ( int idz=0, idzin=0; idz<nrztocopy; idz++,
-							idzin+=sample_fact_ )
-				outptr[idz] = inptrcptr[idzin];
-			}
-			else if ( hasstorage )
-			{
-			    for ( int idz=0, idzin=0; idz<nrztocopy; idz++,
-							   idzin+=sample_fact_ )
-			    {
-				outstor->setValue( validxout+idz,
-					       instor->value(offsetin+idzin));
-			    }
-			}
-			else
-			{
-			    for ( int idz=0, idzin=z0in; idz<nrztocopy; idz++,
-							   idzin+=sample_fact_ )
-			    {
-				const T val =
-					in_.get( inlidxin, crlidxin, idzin );
-				out_.set( inlidx, crlidx, idz, val );
-			    }
-			}
-		    }
-
-		    return true;
-		}
-
-    const TrcKeyZSampling&	tkzsin_;
-    const TrcKeyZSampling&	tkzsout_;
-    const od_int64		totalnr_;
+    return true;
+}
 
     const Array3D<T>&		in_;
     Array3D<T>&			out_;
+    const ArrRegSubSel3D&	ssin_;
+    const ArrRegSubSel3D&	ssout_;
+    const od_int64		nr2dslices_;
+    bool			alreadycopied_;
 
-    int				sample_fact_	    = 1;
-    uiString			msg_;
 };
 
 
@@ -1720,157 +1603,134 @@ template <class T>
 mClass(Algo) ArrayUdfValReplacer : public ParallelTask
 { mODTextTranslationClass(ArrayUdfValReplacer)
 public:
-		ArrayUdfValReplacer( Array2D<T>& inp,
-				     LargeValVec<od_int64>* undefidxs )
-		    : ParallelTask("Array Udf Replacer")
-		    , inp_(inp)
-		    , replval_(0.f)
-		    , undefidxs_(undefidxs)
-		    , tks_(0)
-		    , trcssampling_(0)
-		    , totalnr_(inp.totalSize()/inp.getSize(1))
-		{}
 
-		ArrayUdfValReplacer( Array3D<T>& inp,
-				     LargeValVec<od_int64>* undefidxs )
-		    : ParallelTask("Array Udf Replacer")
-		    , inp_(inp)
-		    , replval_(0.f)
-		    , undefidxs_(undefidxs)
-		    , tks_(0)
-		    , trcssampling_(0)
-		    , totalnr_(inp.totalSize()/inp.getSize(2))
-		{}
+ArrayUdfValReplacer( Array2D<T>& inp )
+    : ParallelTask("Array Udf Replacer")
+    , inp_(inp)
+{
+}
 
-    uiString	message() const
-		{
-		    return tr("Replacing undefined values");
-		}
+ArrayUdfValReplacer( Array3D<T>& inp )
+    : ParallelTask("Array Udf Replacer")
+    , inp_(inp)
+{
+}
 
-    uiString	nrDoneText() const		{ return sTracesDone(); }
+uiString message() const	{ return tr("Replacing undefined values"); }
+uiString nrDoneText() const
+{
+    return inp_.nrDims() == 2 ? sTracesDone() : tr("Lines handled");
+}
 
-    void	setReplacementValue( T val )	{ replval_ = val; }
+void setReplacementValue( T val )
+{
+    replval_ = val;
+}
 
-    void	setSampling( const TrcKeySampling& tks,
-			     const PosInfo::CubeData* trcssampling )
-		{
-		    tks_ = &tks;
-		    trcssampling_ = trcssampling;
-		}
+// This will be ignored for 2D arrays
+void setPositions( const PosInfo::CubeData& cd, const CubeHorSubSel& hss )
+{
+    hss_ = hss; cubedata_ = cd;
+    if ( !cubedata_.isAll(hss_) )
+    {
+	cubedata_.limitTo( hss_ );
+	havesubsel_ = true;
+    }
+}
 
 protected:
 
-    od_int64	nrIterations() const	{ return totalnr_; }
+bool doPrepare( int ) override
+{
+    totalnr_ = inp_.getSize( 0 );
+    return true;
+}
+
+od_int64 nrIterations() const override
+{
+    return totalnr_;
+}
 
 private:
 
-    bool	doPrepare( int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    T* dataptr = inp_.getData();
+    const bool is2d = inp_.nrDims() == 2;
+    od_int64 trcsz = inp_.getSize( 1 );
+    od_int64 slcsz = trcsz;
+    if ( !is2d )
+    {
+	trcsz = inp_.getSize( 2 );
+	slcsz = trcsz * slcsz;
+    }
+
+    if ( dataptr && (is2d || !havesubsel_) )
+    {
+	for ( auto islc=start; islc<=stop; islc++ )
+	{
+	    const T* endptr = dataptr + (islc+1)*slcsz + 1;
+	    for ( T* curptr=dataptr+islc*slcsz; curptr!=endptr; curptr++ )
+		if ( mIsUdf(*curptr) )
+		    *curptr = replval_;
+	    quickAddToNrDone( islc );
+	}
+	return true;
+    }
+
+    if ( is2d )
+    {
+	auto& arr2d = static_cast<Array2D<T>&>( inp_ );
+	for ( auto islc=start; islc<=stop; islc++ )
+	{
+	    for ( auto ipos=0; ipos<slcsz; ipos++ )
+	    {
+		const T val = arr2d.get( islc, ipos );
+		if ( mIsUdf(val) )
+		    arr2d.set( islc, ipos, replval_ );
+	    }
+	    quickAddToNrDone( islc );
+	}
+    }
+    else
+    {
+	auto& arr3d = static_cast<Array3D<T>&>( inp_ );
+	const auto nrtrcs = inp_.getSize( 1 );
+	for ( auto islc=start; islc<=stop; islc++ )
+	{
+	    const PosInfo::LineData* ld = 0;
+	    if ( havesubsel_ )
+	    {
+		const auto lidx = cubedata_.indexOf( islc );
+		if ( lidx < 0 )
+		    continue;
+		ld = cubedata_[lidx];
+	    }
+	    for ( auto itrc=0; itrc<nrtrcs; itrc++ )
+	    {
+		if ( havesubsel_ && !ld->includes(hss_.crl4Idx(itrc)) )
+		    continue;
+		for ( auto isamp=0; isamp<trcsz; isamp++ )
 		{
-		    if ( undefidxs_ )
-			undefidxs_->setEmpty();
-
-		    return true;
+		    const T val = arr3d.get( islc, itrc, isamp );
+		    if ( mIsUdf(val) )
+			arr3d.set( islc, itrc, isamp, replval_ );
 		}
+	    }
+	    quickAddToNrDone( islc );
+	}
+    }
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
-		{
-		    const bool isrect = tks_ && trcssampling_
-				       ? trcssampling_->isFullyRectAndReg()
-				       : true;
-		    const int nrtrcsp = inp_.getSize( inp_.get1DDim() );
-		    T* dataptr = inp_.getData();
-		    ValueSeries<T>* datastor = inp_.getStorage();
-		    const bool hasarrayptr = dataptr;
-		    const bool hasstorage = datastor;
-		    const bool neediterator = !hasarrayptr && !hasstorage;
-		    const od_int64 offset = start * nrtrcsp;
-		    dataptr += offset;
-		    od_int64 validx = offset;
-		    ArrayNDIter* iter = neediterator ? new ArrayNDIter( inp_ )
-						     : 0;
-		    if ( iter )
-			iter->setGlobalPos( offset );
-
-		    const T replval = replval_;
-		    for ( od_int64 idx=start; idx<=stop; idx++,
-							 quickAddToNrDone(idx))
-		    {
-			const bool hastrcdata = isrect ? true
-					: trcssampling_->isValid(idx,*tks_);
-			if ( hastrcdata )
-			{
-			    for ( int idz=0; idz<nrtrcsp; idz++ )
-			    {
-				ArrayNDInfo::NDPos pos = iter ? iter->getPos()
-							      : 0;
-				const T val = hasarrayptr ? *dataptr
-					    : hasstorage
-						? datastor->value( validx )
-						: inp_.getND( pos );
-				if ( !mIsUdf(val) )
-				{
-				    if ( hasarrayptr )
-					dataptr++;
-				    else if ( hasstorage )
-					validx++;
-				    else
-					iter->next();
-				    continue;
-				}
-
-				if ( undefidxs_ )
-				{
-				    lck_.lock();
-				    *undefidxs_ += idx*nrtrcsp + idz;
-				    lck_.unLock();
-				}
-
-				if ( hasarrayptr )
-				    *dataptr++ = replval;
-				else if ( hasstorage )
-				    datastor->setValue( validx++, replval );
-				else
-				{
-				    inp_.setND( pos, replval );
-				    iter->next();
-				}
-			    }
-			}
-			else
-			{
-			    if ( hasarrayptr )
-			    {
-				dataptr =
-				OD::sysMemValueSet(dataptr, replval, nrtrcsp);
-			    }
-			    else if ( hasstorage )
-			    {
-				for ( int idz=0; idz<nrtrcsp; idz++ )
-				    datastor->setValue( validx++, replval );
-			    }
-			    else
-			    {
-				for ( int idz=0; idz<nrtrcsp; idz++ )
-				{
-				    inp_.setND( iter->getPos(), replval );
-				    iter->next();
-				}
-			    }
-			}
-		    }
-
-		    delete iter;
-
-		    return true;
-		}
+    return true;
+}
 
     ArrayND<T>&			inp_;
-    T				replval_;
-    LargeValVec<od_int64>*	undefidxs_;
-    const TrcKeySampling*	tks_;
-    const PosInfo::CubeData*	trcssampling_;
-    const od_int64		totalnr_;
-    Threads::Mutex		lck_;
+    T				replval_	= 0.f;
+    bool			havesubsel_	= false;
+    CubeHorSubSel		hss_;
+    PosInfo::CubeData		cubedata_;
+    od_int64			totalnr_	= 0;
+
 };
 
 
@@ -1880,11 +1740,12 @@ template <class T>
 mClass(Algo) ArrayUdfValRestorer : public ParallelTask
 { mODTextTranslationClass(ArrayUdfValRestorer)
 public:
+
 		ArrayUdfValRestorer( const LargeValVec<od_int64>& undefidxs,
-				      ArrayND<T>& outp )
+				      ArrayND<T>& arr )
 		    : ParallelTask("Udf retriever")
 		    , undefidxs_(undefidxs)
-		    , outp_(outp)
+		    , arr_(arr)
 		    , totalnr_(undefidxs.size())
 		{}
 
@@ -1900,12 +1761,12 @@ private:
 
     bool	doWork( od_int64 start, od_int64 stop, int )
 		{
-		    T* outpptr = outp_.getData();
-		    ValueSeries<T>* outpstor = outp_.getStorage();
-		    mDefNDPosBuf( pos, outp_.nrDims() );
+		    T* outpptr = arr_.getData();
+		    ValueSeries<T>* outpstor = arr_.getStorage();
+		    mDefNDPosBuf( pos, arr_.nrDims() );
 
 		    const T udfval = mUdf(T);
-		    const ArrayNDInfo& info = outp_.info();
+		    const ArrayNDInfo& info = arr_.info();
 		    for ( od_int64 idx=start; idx<=stop; idx++,
 							 quickAddToNrDone(idx) )
 		    {
@@ -1917,16 +1778,17 @@ private:
 			else
 			{
 			    info.getArrayPos( sidx, pos );
-			    outp_.setND( pos, udfval );
+			    arr_.setND( pos, udfval );
 			}
 		    }
 
 		    return true;
 		}
 
-    const LargeValVec<od_int64>&	undefidxs_;
-    ArrayND<T>&			outp_;
+    const LargeValVec<od_int64>& undefidxs_;
+    ArrayND<T>&			arr_;
     const od_int64		totalnr_;
+
 };
 
 
@@ -1936,86 +1798,64 @@ template <class T>
 mClass(Algo) Array3DUdfTrcRestorer : public ParallelTask
 { mODTextTranslationClass(Array3DUdfTrcRestorer)
 public:
-		Array3DUdfTrcRestorer( const PosInfo::CubeData& trcssampling,
-				       const TrcKeySampling& tks,
-				       Array3D<T>& outp )
-		    : ParallelTask("Udf traces retriever")
-		    , trcssampling_(trcssampling)
-		    , tks_(tks)
-		    , outp_(outp)
-		    , totalnr_(trcssampling.totalSizeInside(tks) ==
-			       mCast(int,tks.totalNr()) ? 0 :
-			       outp.totalSize()/outp.getSize(2))
-		{}
 
-    uiString	message() const { return tr("Restoring undefined values"); }
+Array3DUdfTrcRestorer( const PosInfo::CubeData& cd, const CubeHorSubSel& hss,
+		       Array3D<T>& arr )
+    : ParallelTask("Udf traces restorer")
+    , cubedata_(cd)
+    , hss_(hss)
+    , arr_(arr)
+    , totalnr_(cubedata_.size())
+{
+    cubedata_.limitTo( hss );
+    havesubsel_ = !cubedata_.isAll( hss );
+}
 
-    uiString	nrDoneText() const	{ return sTracesDone(); }
+uiString message() const	{ return tr("Restoring undefined values"); }
+uiString nrDoneText() const	{ return sTracesDone(); }
 
 protected:
 
-    od_int64	nrIterations() const	{ return totalnr_; }
+od_int64 nrIterations() const	{ return totalnr_; }
 
-private:
+bool doWork( od_int64 start, od_int64 stop, int )
+{
+    T* dataptr = arr_.getData();
+    const od_int64 trcsz = arr_.getSize( 2 );
+    const od_int64 slcsz = trcsz * arr_.getSize( 1 );
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
-		{
-		    const Array3DInfo& info = outp_.info();
-		    const int nrtrcsp = info.getSize( outp_.get1DDim() );
-		    T* outpptr = outp_.getData();
-		    ValueSeries<T>* outstor = outp_.getStorage();
-		    const bool hasarrayptr = outpptr;
-		    const bool hasstorage = outstor;
-		    const od_int64 offset = start * nrtrcsp;
-		    outpptr += offset;
-		    od_int64 validx = offset;
-		    const Array2DInfoImpl hinfo( info.getSize(0),
-						 info.getSize(1) );
-		    ArrayNDIter* hiter = !hasarrayptr && !hasstorage
-				       ? new ArrayNDIter( hinfo ) : 0;
-		    if ( hiter )
-			hiter->setGlobalPos( start );
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	const auto& ld = *cubedata_.get( (int)idx );
+	const auto idx0 = hss_.idx4Inl( ld.linenr_ );
+	T* linestart = dataptr + idx0 * slcsz;
+	PosInfo::LineDataPos ldp;
+	while ( ld.toNext(ldp) )
+	{
+	    const auto idx1 = hss_.idx4Crl( ld.pos(ldp) );
+	    if ( dataptr )
+	    {
+		T* trcdata = linestart + idx1 * trcsz;
+		for ( auto isamp=0; isamp<trcsz; isamp++ )
+		    trcdata[isamp] = mUdf(T);
+	    }
+	    else
+	    {
+		for ( auto isamp=0; isamp<trcsz; isamp++ )
+		    arr_.set( idx0, idx1, isamp, mUdf(T) );
+	    }
+	}
+    }
 
-		    for ( od_int64 idx=start; idx<=stop; idx++ )
-		    {
-			if ( trcssampling_.isValid(idx,tks_) )
-			{
-			    if ( hasarrayptr ) outpptr+=nrtrcsp;
-			    else if ( hasstorage ) validx+=nrtrcsp;
-			    else hiter->next();
+    return true;
+}
 
-			    continue;
-			}
-
-			if ( hasarrayptr )
-			{
-			    outpptr =
-				OD::sysMemValueSet( outpptr, mUdf(T), nrtrcsp);
-			}
-			else if ( hasstorage )
-			{
-			    for ( int idz=0; idz<nrtrcsp; idz++ )
-				outstor->setValue( validx++, mUdf(T) );
-			}
-			else
-			{
-			    const int inlidx = (*hiter)[0];
-			    const int crlidx = (*hiter)[1];
-			    for ( int idz=0; idz<nrtrcsp; idz++ )
-				outp_.set( inlidx, crlidx, idz, mUdf(T) );
-			}
-		    }
-
-		    delete hiter;
-
-		    return true;
-		}
-
-    const PosInfo::CubeData&	trcssampling_;
-    const TrcKeySampling&	tks_;
-    Array3D<T>&			outp_;
-
+    Array3D<T>&			arr_;
+    PosInfo::CubeData		cubedata_;
+    const CubeHorSubSel		hss_;
+    bool			havesubsel_;
     const od_int64		totalnr_;
+
 };
 
 
@@ -2028,211 +1868,206 @@ template <class T>
 mClass(Algo) MuteArrayExtracter : public ParallelTask
 { mODTextTranslationClass(MuteArrayExtracter)
 public:
-		MuteArrayExtracter( const ArrayND<T>& data,
-				    ArrayND<int>& topmute,
-				    ArrayND<int>& tailmute )
-		    : ParallelTask("Mute Array Extracter")
-		    , data_(data)
-		    , topmute_(topmute)
-		    , tailmute_(tailmute)
-		    , tks_(0)
-		    , trcssampling_(0)
-		    , totalnr_(data.totalSize()/
-			       data.getSize(data.get1DDim()))
-		{}
 
-    uiString	message() const
-		{
-		    return tr("Extracting mute positions");
-		}
+MuteArrayExtracter( const ArrayND<T>& data, ArrayND<int>& topmute,
+		    ArrayND<int>& tailmute )
+    : ParallelTask("Mute Array Extracter")
+    , data_(data)
+    , topmute_(topmute)
+    , tailmute_(tailmute)
+    , totalnr_(data.totalSize()/data.getSize(data.get1DDim()))
+{
+}
 
-    uiString	nrDoneText() const	{ return sTracesDone(); }
+uiString message() const
+{
+    return tr("Extracting mute positions");
+}
 
-    void	setSampling( const TrcKeySampling& tks,
-			     const PosInfo::CubeData* trcssampling )
-		{
-		    tks_ = &tks;
-		    trcssampling_ = trcssampling;
-		}
+uiString nrDoneText() const	{ return sTracesDone(); }
+
+void setPositions( const PosInfo::CubeData& cd, const CubeHorSubSel& hss )
+{
+    hss_ = hss; cubedata_ = cd;
+    if ( !cubedata_.isAll(hss_) )
+    {
+	cubedata_.limitTo( hss_ );
+	havesubsel_ = true;
+    }
+}
 
 protected:
 
-    od_int64	nrIterations() const	{ return totalnr_; }
+od_int64 nrIterations() const	{ return totalnr_; }
 
-private:
+bool doPrepare( int )
+{
+    const int data1ddim = data_.get1DDim();
+    if ( ( data1ddim != 1 && data1ddim != 2 ) ||
+	 topmute_.get1DDim() != data1ddim-1 ||
+	 tailmute_.get1DDim() != data1ddim-1 )
+	return false;
 
-    bool	doPrepare( int )
-		{
-		    const int data1ddim = data_.get1DDim();
-		    if ( ( data1ddim != 1 && data1ddim != 2 ) ||
-			 topmute_.get1DDim() != data1ddim-1 ||
-			 tailmute_.get1DDim() != data1ddim-1 )
-			return false;
+    topmute_.setAll( 0 );
+    const int nrz = mCast(int,data_.totalSize()/totalnr_);
+    tailmute_.setAll( nrz-1 );
 
-		    topmute_.setAll( 0 );
-		    const int nrz = mCast(int,data_.totalSize()/totalnr_);
-		    tailmute_.setAll( nrz-1 );
+    return true;
+}
 
-		    return true;
-		}
+bool doWork( od_int64 start, od_int64 stop, int )
+{
+    const T* dataptr = data_.getData();
+    int* topmuteptr = topmute_.getData();
+    int* tailmuteptr = tailmute_.getData();
+    const ValueSeries<T>* datastor = data_.getStorage();
+    ValueSeries<int>* topmutestor = topmute_.getStorage();
+    ValueSeries<int>* tailmutestor = tailmute_.getStorage();
+    const bool hasarrayptr = dataptr && topmuteptr &&
+			     tailmuteptr;
+    const bool hasstorage = datastor && topmutestor &&
+			    tailmutestor;
+    const bool neediterator = !hasarrayptr && !hasstorage;
+    const ArrayNDInfo& info = data_.info();
+    const auto zidx = data_.get1DDim();
+    const auto nrtrcsp = info.getSize( zidx );
+    const od_int64 offset = start * nrtrcsp;
+    if ( hasarrayptr )
+    {
+	dataptr += offset;
+	topmuteptr += start;
+	tailmuteptr += start;
+    }
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
-		{
-		    const bool isrect = tks_ && trcssampling_
-				       ? trcssampling_->isFullyRectAndReg()
-				       : true;
-		    const T* dataptr = data_.getData();
-		    int* topmuteptr = topmute_.getData();
-		    int* tailmuteptr = tailmute_.getData();
-		    const ValueSeries<T>* datastor = data_.getStorage();
-		    ValueSeries<int>* topmutestor = topmute_.getStorage();
-		    ValueSeries<int>* tailmutestor = tailmute_.getStorage();
-		    const bool hasarrayptr = dataptr && topmuteptr &&
-					     tailmuteptr;
-		    const bool hasstorage = datastor && topmutestor &&
-					    tailmutestor;
-		    const bool neediterator = !hasarrayptr && !hasstorage;
-		    const ArrayNDInfo& info = data_.info();
-		    const auto zidx = data_.get1DDim();
-		    const auto nrtrcsp = info.getSize( zidx );
-		    const od_int64 offset = start * nrtrcsp;
-		    if ( hasarrayptr )
-		    {
-			dataptr += offset;
-			topmuteptr += start;
-			tailmuteptr += start;
-		    }
+    auto validx = offset;
+    const auto ndim = info.nrDims();
+    const bool is2d = ndim == 2;
+    const auto nrlines = is2d ? 1 : info.getSize(0);
+    const auto nrtrcs = info.getSize( is2d ? 0 : 1 );
+    const Array2DInfoImpl hinfo( nrlines, nrtrcs );
+    ArrayNDIter* hiter = neediterator
+		       ? new ArrayNDIter( hinfo ) : 0;
+    if ( hiter )
+	hiter->setGlobalPos( start );
 
-		    auto validx = offset;
-		    const auto ndim = info.nrDims();
-		    const bool is2d = ndim == 2;
-		    const auto nrlines = is2d ? 1 : info.getSize(0);
-		    const auto nrtrcs = info.getSize( is2d ? 0 : 1 );
-		    const Array2DInfoImpl hinfo( nrlines, nrtrcs );
-		    ArrayNDIter* hiter = neediterator
-				       ? new ArrayNDIter( hinfo ) : 0;
-		    if ( hiter )
-			hiter->setGlobalPos( start );
+    const T zeroval = mCast(T,0);
+    mDefNDPosBuf( pos, ndim );
+    typedef ArrayNDInfo::DimIdxType DimIdxType;
 
-		    const T zeroval = mCast(T,0);
-		    mDefNDPosBuf( pos, ndim );
-		    typedef ArrayNDInfo::DimIdxType DimIdxType;
+    for ( auto idx=start; idx<=stop; idx++, quickAddToNrDone(idx) )
+    {
+	if ( havesubsel_ && !cubedata_.includes(hss_.atGlobIdx(idx)) )
+	{
+	    // skip this position
+	    if ( hasarrayptr )
+	    {
+		dataptr+=nrtrcsp;
+		topmuteptr++;
+		tailmuteptr++;
+	    }
+	    if ( hasstorage ) validx+=nrtrcsp;
+	    else hiter->next();
 
-		    for ( auto idx=start; idx<=stop; idx++,
-						     quickAddToNrDone(idx) )
-		    {
-			const bool hastrcdata = isrect ? true
-					: trcssampling_->isValid(idx,*tks_);
-			if ( !hastrcdata )
-			{
-			    if ( hasarrayptr )
-			    {
-				dataptr+=nrtrcsp;
-				topmuteptr++;
-				tailmuteptr++;
-			    }
-			    if ( hasstorage ) validx+=nrtrcsp;
-			    else hiter->next();
+	    continue;
+	}
 
-			    continue;
-			}
+	ArrayNDInfo::NDPos hpos = hiter ? hiter->getPos() : 0;
+	if ( hiter )
+	{
+	    for ( DimIdxType ipos=0; ipos<ndim; ipos++ )
+		pos[ipos] = hpos[ipos];
+	    hiter->next();
+	}
 
-			ArrayNDInfo::NDPos hpos = hiter ? hiter->getPos() : 0;
-			if ( hiter )
-			{
-			    for ( DimIdxType ipos=0; ipos<ndim; ipos++ )
-				pos[ipos] = hpos[ipos];
-			    hiter->next();
-			}
+	bool allnull = true;
+	for ( int idz=0; idz<nrtrcsp; idz++ )
+	{
+	    if ( hiter )
+		pos[zidx] = idz;
+	    const T val = hasarrayptr
+			    ? *dataptr++
+			    : hasstorage
+				? datastor->value( validx++ )
+				: data_.getND( pos );
+	    if ( val == zeroval )
+		continue;
 
-			bool allnull = true;
-			for ( int idz=0; idz<nrtrcsp; idz++ )
-			{
-			    if ( hiter )
-				pos[zidx] = idz;
-			    const T val = hasarrayptr
-					    ? *dataptr++
-					    : hasstorage
-						? datastor->value( validx++ )
-						: data_.getND( pos );
-			    if ( val == zeroval )
-				continue;
+	    if ( hasarrayptr )
+	    {
+		*topmuteptr++ = idz;
+		dataptr += nrtrcsp-idz-2;
+	    }
+	    else if ( hasstorage )
+	    {
+		topmutestor->setValue( idx, idz );
+		validx += nrtrcsp-idz-2;
+	    }
+	    else
+		topmute_.setND( hpos, idz );
+	    allnull = false;
+	    break;
+	}
 
-			    if ( hasarrayptr )
-			    {
-				*topmuteptr++ = idz;
-				dataptr += nrtrcsp-idz-2;
-			    }
-			    else if ( hasstorage )
-			    {
-				topmutestor->setValue( idx, idz );
-				validx += nrtrcsp-idz-2;
-			    }
-			    else
-				topmute_.setND( hpos, idz );
-			    allnull = false;
-			    break;
-			}
+	if ( allnull )
+	{
+	    if ( hasarrayptr )
+	    {
+		*topmuteptr++ = nrtrcsp;
+		*tailmuteptr++ = -1;
+	    }
+	    else if ( hasstorage )
+	    {
+		topmutestor->setValue( idx, nrtrcsp );
+		tailmutestor->setValue( idx, -1 );
+	    }
+	    else
+	    {
+		topmute_.setND( hpos, nrtrcsp );
+		tailmute_.setND( hpos, -1 );
+	    }
 
-			if ( allnull )
-			{
-			    if ( hasarrayptr )
-			    {
-				*topmuteptr++ = nrtrcsp;
-				*tailmuteptr++ = -1;
-			    }
-			    else if ( hasstorage )
-			    {
-				topmutestor->setValue( idx, nrtrcsp );
-				tailmutestor->setValue( idx, -1 );
-			    }
-			    else
-			    {
-				topmute_.setND( hpos, nrtrcsp );
-				tailmute_.setND( hpos, -1 );
-			    }
+	    continue;
+	}
 
-			    continue;
-			}
+	for ( int idz=nrtrcsp-1; idz>=0; idz-- )
+	{
+	    if ( hiter )
+		pos[zidx] = idz;
+	    const T val = hasarrayptr
+			    ? *dataptr--
+			    : hasstorage
+				? datastor->value( validx-- )
+				: data_.getND( pos );
+	    if ( val == zeroval )
+		continue;
 
-			for ( int idz=nrtrcsp-1; idz>=0; idz-- )
-			{
-			    if ( hiter )
-				pos[zidx] = idz;
-			    const T val = hasarrayptr
-					    ? *dataptr--
-					    : hasstorage
-						? datastor->value( validx-- )
-						: data_.getND( pos );
-			    if ( val == zeroval )
-				continue;
+	    if ( hasarrayptr )
+	    {
+		*tailmuteptr++ = idz;
+		dataptr += nrtrcsp-idz+1;
+	    }
+	    else if ( hasstorage )
+	    {
+		tailmutestor->setValue( idx, idz );
+		validx += nrtrcsp-idz+1;
+	    }
+	    else
+		tailmute_.setND( hpos, idz );
 
-			    if ( hasarrayptr )
-			    {
-				*tailmuteptr++ = idz;
-				dataptr += nrtrcsp-idz+1;
-			    }
-			    else if ( hasstorage )
-			    {
-				tailmutestor->setValue( idx, idz );
-				validx += nrtrcsp-idz+1;
-			    }
-			    else
-				tailmute_.setND( hpos, idz );
+	    break;
+	}
+    }
 
-			    break;
-			}
-		    }
-
-		    delete hiter;
-		    return true;
-		}
+    delete hiter;
+    return true;
+}
 
     const ArrayND<T>&		data_;
-    const TrcKeySampling*	tks_;
-    const PosInfo::CubeData*	trcssampling_;
+    CubeHorSubSel		hss_;
+    PosInfo::CubeData		cubedata_;
     ArrayND<int>&		topmute_;
     ArrayND<int>&		tailmute_;
+    bool			havesubsel_	    = false;
 
     const od_int64		totalnr_;
 

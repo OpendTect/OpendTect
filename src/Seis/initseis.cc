@@ -23,6 +23,8 @@ ________________________________________________________________________
 #include "seispacketinfo.h"
 #include "seis2dto3d.h"
 #include "seisposprovider.h"
+#include "survgeommgr.h"
+#include "taskrunner.h"
 
 #include "uistrings.h"
 
@@ -88,7 +90,8 @@ mDefModInitFn(Seis)
     LinearD2TTransform::initClass();
     Time2DepthStretcher::initClass();
     Depth2TimeStretcher::initClass();
-    Survey::GMAdmin().updateGeometries( 0 ); //Those using a transl from Seis.
+    Survey::GMAdmin().updateGeometries( SilentTaskRunnerProvider() );
+	    //Those using a transl from Seis.
 
     Seis2DTo3DImpl::initClass();
     Pos::SeisProvider3D::initClass();

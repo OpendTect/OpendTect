@@ -432,9 +432,7 @@ bool SeisTrcReader::get( SeisTrc& trc )
     }
 
     reduceComps( trc, selcomp_ );
-    if ( trc.info().survID() == TrcKey::cUndefSurvID() )
-	trc.info().trckey_.setSurvID( TrcKey::std3DSurvID() );
-
+    trc.info().trckey_.setIs3D();
     return true;
 }
 
@@ -516,8 +514,6 @@ bool SeisTrcReader::getPS( SeisTrc& trc )
     if ( !buftrc )
 	{ pErrMsg("Huh"); return false; }
     trc.info() = buftrc->info();
-    if ( trc.info().survID() == TrcKey::cUndefSurvID() )
-	trc.info().trckey_.setSurvID( TrcKey::stdSynthSurvID() );
 
     trc.copyDataFrom( *buftrc, -1, forcefloats );
 
@@ -539,7 +535,7 @@ Pos::GeomID SeisTrcReader::geomID() const
     if ( seldata_ )
 	return seldata_->geomID();
     else if ( ioobj_ )
-	return Survey::GM().getGeomID( ioobj_->name() );
+	return Survey::Geometry::getGeomID( ioobj_->name() );
 
     return mUdfGeomID;
 }
@@ -672,8 +668,7 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
     if ( !buftrc )
 	{ pErrMsg("Huh"); return false; }
     trc.info() = buftrc->info();
-    if ( trc.info().survID() == TrcKey::cUndefSurvID() )
-	trc.info().trckey_.setSurvID( TrcKey::std2DSurvID() );
+    trc.info().trckey_.setIs2D();
 
     trc.copyDataFrom( *buftrc, -1, forcefloats );
 
@@ -820,7 +815,7 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 	const PosInfo::CubeData& cd = rdr3d->posData();
 	StepInterval<int> inlrg, crlrg;
 	cd.getInlRange( inlrg ); cd.getInlRange( crlrg );
-	return get3DBounds( inlrg, crlrg, SI().sampling(false).zsamp_ );
+	return get3DBounds( inlrg, crlrg, SI().zRange() );
     }
     else if ( !is2D() )
     {
@@ -851,12 +846,11 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 
 	    Pos::GeomID geomid =
 		mIsUdfGeomID(selgeomid) ? dataset_->geomID( iln ) : selgeomid;
-	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-			    Survey::GM().getGeometry(geomid))
-	    if ( !geom2d )
+	    const auto& geom2d = Survey::Geometry::get2D( geomid );
+	    if ( geom2d.isEmpty() )
 		continue;
 
-	    const PosInfo::Line2DData& l2dd = geom2d->data();
+	    const PosInfo::Line2DData& l2dd = geom2d.data();
 	    const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
 	    if ( posns.size() < 2 )
 		continue;

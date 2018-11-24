@@ -7,6 +7,8 @@
 
 #include "posinfo.h"
 #include "survinfo.h"
+#include "survgeom.h"
+#include "horsubsel.h"
 #include "od_iostream.h"
 #include "math2.h"
 
@@ -75,7 +77,7 @@ int PosInfo::LineData::nearestNumber( int nr ) const
     if ( nrsegs < 1 )
 	return -1;
 
-    Interval<int> nrrg( segments_.first().start, segments_.last().stop );
+    pos_rg_type nrrg( segments_.first().start, segments_.last().stop );
     const bool isrev = nrrg.start > nrrg.stop;
     nrrg.sort();
     if ( nr <= nrrg.start )
@@ -180,11 +182,12 @@ int PosInfo::LineData::segmentOf( int nr ) const
 }
 
 
-Interval<int> PosInfo::LineData::range() const
+PosInfo::LineData::pos_rg_type PosInfo::LineData::range() const
 {
-    if ( segments_.isEmpty() ) return Interval<int>( mUdf(int), mUdf(int) );
+    if ( segments_.isEmpty() )
+	return pos_rg_type( mUdf(int), mUdf(int) );
 
-    Interval<int> ret( segments_[0].start, segments_[0].start );
+    pos_rg_type ret( segments_[0].start, segments_[0].start );
     for ( int idx=0; idx<segments_.size(); idx++ )
     {
 	const Segment& seg = segments_[idx];
@@ -271,7 +274,7 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
     const PosInfo::LineData ld2( *this );
     segments_.erase();
 
-    Interval<int> rg( ld1.range() ); rg.include( ld2.range() );
+    pos_rg_type rg( ld1.range() ); rg.include( ld2.range() );
     const int defstep = ld1.segments_.isEmpty() ? ld2.segments_[0].step
 						: ld1.segments_[0].step;
     if ( rg.start == rg.stop )
@@ -367,10 +370,12 @@ void PosInfo::CubeData::generate( BinID start, BinID stop, BinID step,
 }
 
 
-void PosInfo::CubeData::fillBySI( bool work )
+void PosInfo::CubeData::fillBySI( OD::SurvLimitType slt )
 {
-    const TrcKeyZSampling cs( SI().sampling(work) );
-    generate( cs.hsamp_.start_, cs.hsamp_.stop_, cs.hsamp_.step_ );
+    const CubeHorSubSel hss( Survey::Geometry::get3D(slt) );
+    generate( BinID(hss.inlStart(),hss.crlStart()),
+	      BinID(hss.inlStop(),hss.crlStop()),
+	      BinID(hss.inlStep(),hss.crlStep()), false );
 }
 
 
@@ -405,13 +410,13 @@ int PosInfo::CubeData::totalSize() const
 }
 
 
-int PosInfo::CubeData::totalSizeInside( const TrcKeySampling& hrg ) const
+int PosInfo::CubeData::totalSizeInside( const CubeHorSubSel& hss ) const
 {
     int nrpos = 0;
     for ( int idx=0; idx<size(); idx++ )
     {
 	const PosInfo::LineData* linedata = (*this)[idx];
-	if ( !hrg.inlOK( linedata->linenr_ ) )
+	if ( !hss.inlRange().isPresent(linedata->linenr_) )
 	    continue;
 
 	for ( int idy=0; idy<linedata->segments_.size(); idy++ )
@@ -421,7 +426,7 @@ int PosInfo::CubeData::totalSizeInside( const TrcKeySampling& hrg ) const
 
 	    for ( int crl=segment.start; crl<=segment.stop; crl+=segment.step )
 	    {
-		if ( hrg.crlOK(crl) )
+		if ( hss.crlRange().isPresent(crl) )
 		    nrpos ++;
 	    }
 	}
@@ -484,37 +489,31 @@ int PosInfo::SortedCubeData::indexOf( int reqlnr, int* newidx ) const
 }
 
 
-void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
+void PosInfo::CubeData::limitTo( const CubeHorSubSel& hss )
 {
-    TrcKeySampling hs( hsin );
-    const bool is2d = hs.is2D();
-    hs.normalise();
     for ( int iidx=size()-1; iidx>=0; iidx-- )
     {
 	PosInfo::LineData* ld = (*this)[iidx];
-	if ( !hs.inlOK(ld->linenr_) )
-	{ removeSingle( iidx ); continue; }
+	if ( !hss.inlRange().isPresent(ld->linenr_) )
+	    { removeSingle( iidx ); continue; }
 
 	int nrvalidsegs = 0;
 	for ( int iseg=ld->segments_.size()-1; iseg>=0; iseg-- )
 	{
-	    StepInterval<int>& seg = ld->segments_[iseg];
+	    auto& seg = ld->segments_[iseg];
 	    const bool isrev = seg.start > seg.stop;
-	    int segstart = is2d && isrev ? seg.stop : seg.start;
-	    int segstop = is2d && isrev ? seg.start : seg.stop;
-	    if ( segstart > hs.stop_.crl() || segstop < hs.start_.crl() )
-	    { ld->segments_.removeSingle( iseg ); continue; }
+	    auto segstart = seg.start;
+	    auto segstop = seg.stop;
+	    if ( segstart > hss.crlStop() || segstop < hss.crlStart() )
+		{ ld->segments_.removeSingle( iseg ); continue; }
 
-	    if ( is2d && isrev )
-		seg.step = -1*seg.step;
-
-	    seg.step = Math::LCMOf( seg.step, hs.step_.crl() );
+	    seg.step = Math::LCMOf( seg.step, hss.crlStep() );
 	    if ( !seg.step )
-	    { ld->segments_.removeSingle( iseg ); continue; }
+		{ ld->segments_.removeSingle( iseg ); continue; }
 
-	    if ( segstart < hs.start_.crl() )
+	    if ( segstart < hss.crlStart() )
 	    {
-		int newstart = hs.start_.crl();
+		int newstart = hss.crlStart();
 		int diff = newstart - segstart;
 		if ( diff % seg.step )
 		{
@@ -527,9 +526,9 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 		else
 		    seg.start = newstart;
 	    }
-	    if ( segstop > hs.stop_.crl() )
+	    if ( segstop > hss.crlStop() )
 	    {
-		int newstop = hs.stop_.crl();
+		int newstop = hss.crlStop();
 		int diff = segstop - newstop;
 		if ( diff % seg.step )
 		{
@@ -545,12 +544,7 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 	    if ( segstart > segstop )
 		ld->segments_.removeSingle( iseg );
 	    else
-	    {
-		if ( is2d && isrev )
-		    seg.step = -1*seg.step;
-
 		nrvalidsegs++;
-	    }
 	}
 
 	if ( !nrvalidsegs )
@@ -575,8 +569,8 @@ bool PosInfo::CubeData::includes( int lnr, int crl ) const
 }
 
 
-void PosInfo::CubeData::getRanges( Interval<int>& inlrg,
-				   Interval<int>& crlrg ) const
+void PosInfo::CubeData::getRanges( pos_rg_type& inlrg,
+				   pos_rg_type& crlrg ) const
 {
     inlrg.start = inlrg.stop = crlrg.start = crlrg.stop = 0;
     const int sz = size();
@@ -605,11 +599,12 @@ void PosInfo::CubeData::getRanges( Interval<int>& inlrg,
 }
 
 
-bool PosInfo::CubeData::getInlRange( StepInterval<int>& rg,
+bool PosInfo::CubeData::getInlRange( pos_steprg_type& rg,
 				     bool wantsorted ) const
 {
-    const int sz = size();
-    if ( sz < 1 ) return false;
+    const auto sz = size();
+    if ( sz < 1 )
+	return false;
     rg.start = rg.stop = (*this)[0]->linenr_;
     if ( sz == 1 )
 	{ rg.step = 1; return true; }
@@ -641,14 +636,15 @@ bool PosInfo::CubeData::getInlRange( StepInterval<int>& rg,
 }
 
 
-bool PosInfo::CubeData::getCrlRange( StepInterval<int>& rg,
+bool PosInfo::CubeData::getCrlRange( pos_steprg_type& rg,
 				     bool wantsorted ) const
 {
-    const int sz = size();
-    if ( sz < 1 ) return false;
+    const auto sz = size();
+    if ( sz < 1 )
+	return false;
 
     const PosInfo::LineData* ld = (*this)[0];
-    rg = ld->segments_.size() ? ld->segments_[0] : StepInterval<int>(0,0,1);
+    rg = ld->segments_.size() ? ld->segments_[0] : pos_steprg_type(0,0,1);
     bool foundrealstep = rg.start != rg.stop;
     bool isreg = true;
 
@@ -698,12 +694,10 @@ bool PosInfo::CubeData::isValid( const PosInfo::CubeDataPos& cdp ) const
 }
 
 
-bool PosInfo::CubeData::isValid( od_int64 globalidx,
-				 const TrcKeySampling& tks ) const
+bool PosInfo::CubeData::isValid( od_int64 gidx, const CubeHorSubSel& hss ) const
 {
-    const BinID bid( tks.atIndex(globalidx) );
+    const BinID bid( hss.atGlobIdx(gidx) );
     const PosInfo::CubeDataPos cdatapos( cubeDataPos( bid ) );
-
     return isValid( cdatapos );
 }
 
@@ -856,7 +850,7 @@ PosInfo::CubeDataPos PosInfo::CubeData::cubeDataPos( const BinID& bid ) const
     const TypeSet<LineData::Segment>& segs( (*this)[cdp.lidx_]->segments_ );
     for ( int iseg=0; iseg<segs.size(); iseg++ )
     {
-	const StepInterval<int>& seg( segs[iseg] );
+	const pos_steprg_type& seg( segs[iseg] );
 	if ( seg.includes(bid.crl(),true) )
 	{
 	    if ( !seg.step || !((bid.crl()-seg.start) % seg.step) )
@@ -986,6 +980,23 @@ bool PosInfo::CubeData::haveCrlStepInfo() const
 }
 
 
+bool PosInfo::CubeData::isAll( const CubeHorSubSel& hss ) const
+{
+    pos_steprg_type inlrg;
+    if ( !getInlRange(inlrg) || inlrg != hss.inlRange() )
+	return false;
+
+    for ( auto ld : *this )
+    {
+	if ( ld->segments_.size() != 1
+	  || ld->segments_[0] != hss.crlRange() )
+	    return false;
+    }
+
+    return true;
+}
+
+
 void PosInfo::CubeData::merge( const PosInfo::CubeData& pd1, bool inc )
 {
     PosInfo::CubeData pd2( *this );
@@ -1034,8 +1045,8 @@ bool PosInfo::CubeData::read( od_istream& strm, bool asc )
     if ( nrinl < 0 )
 	return false;
 
-    const Interval<int> reasonableinls = SI().reasonableRange( true );
-    const Interval<int> reasonablecrls = SI().reasonableRange( false );
+    const pos_rg_type reasonableinls = SI().reasonableRange( true );
+    const pos_rg_type reasonablecrls = SI().reasonableRange( false );
 
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {

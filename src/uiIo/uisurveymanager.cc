@@ -571,7 +571,8 @@ void uiSurveyManager::putToScreen()
     if ( cursi )
     {
 	TypeSet<int> inlines, crlines;
-	const TrcKeyZSampling& cs = cursi->sampling( false );
+	TrcKeyZSampling cs( false );
+	cursi->getSampling( cs );
 	const TrcKeySampling& hs = cs.hsamp_;
 	const int inlstep = ( hs.nrInl() * hs.step_.inl() ) / 5;
 	for ( int idx=0; idx<4; idx++ )
@@ -632,13 +633,15 @@ void uiSurveyManager::putToScreen()
     if ( si.getCoordSystem() )
 	crsinfo.add( mFromUiStringTodo(si.getCoordSystem()->summary()) );
 
-    if ( si.sampling(false).hsamp_.totalNr() > 0 )
+    TrcKeyZSampling sics( false );
+    si.getSampling( sics );
+    if ( sics.hsamp_.totalNr() > 0 )
     {
-	inlinfo.add( si.sampling(false).hsamp_.start_.inl() );
-	inlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.inl() );
+	inlinfo.add( sics.hsamp_.start_.inl() );
+	inlinfo.add( " - ").add( sics.hsamp_.stop_.inl() );
 	inlinfo.add( " - " ).add( si.inlStep() );
-	crlinfo.add( si.sampling(false).hsamp_.start_.crl() );
-	crlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.crl() );
+	crlinfo.add( sics.hsamp_.start_.crl() );
+	crlinfo.add( " - ").add( sics.hsamp_.stop_.crl() );
 	crlinfo.add( " - " ).add( si.crlStep() );
 
 	const float inldist = si.inlDistance(), crldist = si.crlDistance();
@@ -646,15 +649,15 @@ void uiSurveyManager::putToScreen()
 	bininfo.add( getFPStringWithDecimals(inldist,2) ).add( "/" );
 	bininfo.add( getFPStringWithDecimals(crldist,2) );
 
-	areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),2,true) );
+	areainfo.add( getAreaString(si.getArea(),si.xyInFeet(),2,true) );
     }
 
     #define mAdd2ZString(nr) zinfo += istime ? mNINT32(1000*nr) : nr;
 
     const bool istime = si.zIsTime();
-    mAdd2ZString( si.zRange(false).start );
-    zinfo += " - "; mAdd2ZString( si.zRange(false).stop );
-    zinfo += " - "; mAdd2ZString( si.zRange(false).step );
+    mAdd2ZString( si.zRange().start );
+    zinfo += " - "; mAdd2ZString( si.zRange().stop );
+    zinfo += " - "; mAdd2ZString( si.zRange().step );
     survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
     File::Path fp( si.basePath(), si.dirName() );

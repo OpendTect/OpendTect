@@ -46,7 +46,6 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
     , mehandler_(0)
     , vdselspec_(0)
     , wvaselspec_(0)
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
     , seedpickingon_(false)
     , trackersetupactive_(false)
     , dodropnext_(false)
@@ -264,7 +263,8 @@ void HorizonFlatViewEditor2D::mouseMoveCB( CallBacker* )
 	if ( !seedpicker )
 	    return;
 
-	const TrcKeyValue tkv( SI().transform(coord.getXY()), (float)coord.z_ );
+	const TrcKeyValue tkv( TrcKey(SI().transform(coord.getXY())),
+			       (float)coord.z_ );
 	pickedpos_ = seedpicker->replaceSeed( pickedpos_, tkv );
 	return;
     }
@@ -327,7 +327,7 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 
 	const uiWorldPoint wp =
 	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
-	pickedpos_ = SI().transform( vwr->getCoord(wp).getXY() );
+	pickedpos_ = TrcKey( SI().transform( vwr->getCoord(wp).getXY() ) );
 	return;
     }
 
@@ -813,8 +813,8 @@ void HorizonFlatViewEditor2D::updatePatchDisplay()
 
 TrcKey HorizonFlatViewEditor2D::getTrcKey( const Coord& crd ) const
 {
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
-    return geom ? geom->nearestTrace( crd ) : TrcKey::udf();
+    auto trcnr = Survey::Geometry::get2D( geomid_ ).nearestTracePosition( crd );
+    return trcnr < 0 ? TrcKey::udf() : TrcKey( geomid_, trcnr );
 }
 
 
@@ -877,16 +877,16 @@ bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
     EM::Object* emobj = EM::Hor2DMan().getObject( emid_ );
     if ( !emobj ) return false;
 
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-		    Survey::GM().getGeometry(geomid_) );
-    if ( !geom2d )
+    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    if ( geom2d.isEmpty() )
 	return false;
 
     PosInfo::Line2DPos pos;
-    geom2d->data().getPos( crd.getXY(), pos, mUdf(float) );
+    geom2d.data().getPos( crd.getXY(), pos, mUdf(float) );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj);
 
-    if ( !hor2d ) return false;
+    if ( !hor2d )
+	return false;
 
     BinID bid;
     bid.inl() = hor2d->geometry().lineIndex( geomid_ );

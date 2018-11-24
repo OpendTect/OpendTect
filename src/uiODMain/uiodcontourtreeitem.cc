@@ -396,7 +396,7 @@ float uiODContourTreeItemContourGenerator::getHorizonZValue( int rowidx,
     const float zval = hor3d_ ? hor3d_->getZ(bid) : mUdf(float);
 
     if ( ztransform_ && !mIsUdf(zval) )
-	return ztransform_->transformTrc( bid, zval );
+	return ztransform_->transformTrc( TrcKey(bid), zval );
 
     return zval;
 }

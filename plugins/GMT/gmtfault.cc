@@ -205,10 +205,12 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 
 TypeSet<Coord3> GMTFault::getCornersOfZSlice( float zval ) const
 {
-    BinID b0( SI().inlRange(true).start, SI().crlRange(true).start );
-    BinID b1( SI().inlRange(true).start, SI().crlRange(true).stop );
-    BinID b2( SI().inlRange(true).stop, SI().crlRange(true).stop );
-    BinID b3( SI().inlRange(true).stop, SI().crlRange(true).start );
+    const auto inlrg = SI().inlRange( OD::UsrWork );
+    const auto crlrg = SI().crlRange( OD::UsrWork );
+    const BinID b0( inlrg.start, crlrg.start );
+    const BinID b1( inlrg.start, crlrg.stop );
+    const BinID b2( inlrg.stop, crlrg.stop );
+    const BinID b3( inlrg.stop, crlrg.start );
     Coord3 p0( SI().transform( b0 ), zval );
     Coord3 p1( SI().transform( b1 ), zval );
     Coord3 p2( SI().transform( b2 ), zval );

@@ -32,8 +32,8 @@ mExpClass(Seis) VelocityStretcher : public ZAxisTransform
 public:
     virtual bool		setVelData(const DBKey&)		= 0;
 
-    bool			canTransformSurv(Pos::SurvID sid) const
-				{ return sid!=TrcKey::std2DSurvID(); }
+    bool			canTransformSurv( OD::GeomSystem gs ) const
+						{ return is3D( gs ); }
 
     static const char*		sKeyTopVavg()	{ return "Top Vavg"; }
     static const char*		sKeyBotVavg()	{ return "Bottom Vavg"; }
@@ -190,8 +190,8 @@ public:
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
-    bool			canTransformSurv(Pos::SurvID) const
-				{ return true; }
+    bool			canTransformSurv(OD::GeomSystem) const override
+					{ return true; }
 
 protected:
 				LinearVelTransform(const ZDomain::Def& from,

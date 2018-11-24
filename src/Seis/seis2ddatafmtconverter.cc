@@ -22,7 +22,7 @@
 #include "seiscbvs2d.h"
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"
-#include "survgeom.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
 #include <iostream>
 #define mCapChar "^"
@@ -47,11 +47,13 @@ static void convert2DPSData()
 	    if ( lnm.contains('^') )
 		continue;	//Already converted.
 
-	    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+	    Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
 	    int lsidx=0;
 	    while( mIsUdfGeomID(geomid) && lsidx<lsnms.size() )
-		geomid = Survey::GM().getGeomID(lsnms.get(lsidx++), lnm.buf());
-
+	    {
+		const BufferString oldlnm( lsnms.get(lsidx++), "-", lnm );
+		geomid = Survey::Geometry::getGeomID( oldlnm );
+	    }
 	    if ( mIsUdfGeomID(geomid) )
 		continue;
 
@@ -303,8 +305,9 @@ static void read2DSFile( const IOObj& lsobj, ObjectSet<IOPar>& pars )
 	    if ( astrm.hasKeyword(sKey::Name()) )
 	    {
 		newpar->setName( astrm.value() );
+		const BufferString oldlnm( lsobj.name(), "-", astrm.value() );
 		newpar->set( sKey::GeomID(),
-			Survey::GM().getGeomID(lsobj.name(),astrm.value()) );
+			     Survey::Geometry::getGeomID( oldlnm ) );
 	    }
 	    else if ( !astrm.hasValue("") )
 		newpar->set( astrm.keyWord(), astrm.value() );
@@ -415,11 +418,11 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
 	    BufferString newfn( newfp.fileName() );
 	    newfn.add( mCapChar );
 	    Pos::GeomID geomid;
-	    if ( !iop->get(sKey::GeomID(),geomid) || geomid <= 0 )
+	    if ( !iop->get(sKey::GeomID(),geomid) || !geomid.is2D() )
 		continue;
+
 	    newfn.add( geomid );
 	    newfp.add( newfn ).setExtension( oldfp.extension(), false );
-
 	    if ( oldfp == newfp )
 		continue;
 
@@ -496,9 +499,9 @@ bool OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 	    if ( attrname.isEmpty() ) attrname = "Seis";
 	    attrname.clean( BufferString::AllowDots );
 	    BufferString newfile( attrname );
+	    const BufferString oldlnm( ioobjlist[idx]->name(), "-", iop.name());
 	    newfile.add(mCapChar)
-		   .add( Survey::GM().getGeomID(ioobjlist[idx]->name(),
-						iop.name()) );
+		   .add( Survey::Geometry::getGeomID( oldlnm ) );
 	    File::Path newfp( IOObjContext::getDataDirName(IOObjContext::Seis),
 			    attrname, newfile );
 	    newfp.setExtension( oldfp.extension(), false );

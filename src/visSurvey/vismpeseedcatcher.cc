@@ -452,7 +452,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	 nodepos = eventinfo.worldpickedpos;
 
     const BinID nodebid = SI().transform( nodepos.getXY() );
-    info().setNode( sequentSowing() ? TrcKey::udf() : nodebid );
+    info().setNode( sequentSowing() ? TrcKey::udf() : TrcKey(nodebid) );
 
     TypeSet<int> planesinscene;
     visBase::DM().getIDs( typeid(visSurvey::PlaneDataDisplay), planesinscene );

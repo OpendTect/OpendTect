@@ -208,7 +208,7 @@ bool HorizonScanner::analyseData()
 
     const bool zistime = SI().zIsTime();
     const float fac = mGetZFac;
-    Interval<float> validrg( SI().zRange(false) );
+    Interval<float> validrg( SI().zRange() );
     const float zwidth = validrg.width();
     validrg.sort();
     validrg.start -= zwidth;
@@ -269,7 +269,7 @@ static bool isInsideSurvey( const BinID& bid, float zval )
     if ( !SI().isReasonable(bid) )
 	return false;
 
-    Interval<float> zrg( SI().zRange(false) );
+    Interval<float> zrg( SI().zRange() );
     const float zwidth = zrg.width();
     zrg.sort();
     zrg.start -= zwidth;

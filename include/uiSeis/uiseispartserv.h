@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uiapplserv.h"
 #include "dbkey.h"
+#include "geomid.h"
 #include "uistring.h"
 
 class BufferStringSet;
@@ -93,7 +94,7 @@ protected:
     uiSeisIOSimple*	impps2dseisdlg_;
     uiSeisIOSimple*	expps2dseisdlg_;
     uiSeisImportODCube*	impodcubedlg_;
-    uiSeisImpCubeFromOtherSurveyDlg* 	impcubeothsurvdlg_;
+    uiSeisImpCubeFromOtherSurveyDlg*	impcubeothsurvdlg_;
     uiSeisExpCubePositionsDlg*		expcubeposdlg_;
     uiBatchTime2DepthSetup*		t2ddlg2d_;
     uiBatchTime2DepthSetup*		t2ddlg3d_;

@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 #include "seisioobjinfo.h"
 #include "selector.h"
+#include "survgeom2d.h"
 #include "geom2dintersections.h"
 
 namespace visSurvey
@@ -246,7 +247,7 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
     , volumeofinterestids_( volumeofinterestids )
 {
     eps_ = mMIN(SI().inlDistance(),SI().crlDistance());
-    eps_ = (float) mMIN(eps_,SI().zRange(true).step*scale_.z_ )/4;
+    eps_ = (float) mMIN(eps_,SI().zRange(OD::UsrWork).step*scale_.z_ )/4;
 
     rowrg_ = surf_->rowRange();
     nriter_ = rowrg_.isRev() ? 0 : rowrg_.nrSteps()+1;
@@ -272,9 +273,9 @@ void prepareForTransform( int rowidx, Pos::GeomID geomid,
 {
     Threads::MutexLocker lock( lock_ );
     TrcKeyZSampling cs;
-    cs.hsamp_.start_ = BinID( geomid, colrg.start );
+    cs.hsamp_.start_ = BinID( geomid.lineNr(), colrg.start );
     cs.hsamp_.step_ = BinID( colrg.step, colrg.step );
-    cs.hsamp_.stop_ = BinID( geomid , colrg.stop );
+    cs.hsamp_.stop_ = BinID( geomid.lineNr() , colrg.stop );
 
     int& voiid = volumeofinterestids_[rowidx];
     if ( voiid==-1 && zaxt_->needsVolumeOfInterest() )
@@ -453,7 +454,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 		linergs.zrgs += TypeSet<Interval<float> >();
 		const int ridx = linergs.trcrgs.size()-1;
 
-		linergs.trcrgs[ridx] += ghl->colRange( geomid );
+		linergs.trcrgs[ridx] += ghl->colRangeForGeomID( geomid );
 		linergs.zrgs[ridx] += ghl->zRange( geomid );
 	    }
 	}
@@ -730,10 +731,9 @@ void Horizon2DDisplay::updateSeedsOnSections(
 	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
 	    {
 		const Seis2DDisplay* s2dd = seis2dlist[idz];
-		const Survey::Geometry* geom2d =
-			Survey::GM().getGeometry( s2dd->getGeomID() );
-		const float max = geom2d ? geom2d->averageTrcDist()
-					 : s2dd->maxDist();
+		const auto& geom2d = Survey::Geometry::get2D(s2dd->getGeomID());
+		const float max = geom2d.isEmpty() ? s2dd->maxDist()
+						   : geom2d.averageTrcDist();
 		const float dist = s2dd->calcDist( markerpos );
 		if ( dist < max )
 		{

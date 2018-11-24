@@ -61,7 +61,9 @@ mExpClass(Seis) Provider
 { mODTextTranslationClass(Seis::Provider);
 public:
 
-    static Provider*	create(Seis::GeomType);
+    mUseType( Pos,	GeomID );
+
+    static Provider*	create(GeomType);
     static Provider*	create(const DBKey&,uiRetVal* uirv=0);
     static Provider*	create(const IOObj&,uiRetVal* uirv=0);
     static Provider*	create(const IOPar&,uiRetVal* uirv=0);
@@ -74,7 +76,7 @@ public:
     bool		is2D() const	{ return Seis::is2D(geomType()); }
     bool		isPS() const	{ return Seis::isPS(geomType()); }
     BufferString	name() const;
-    Pos::GeomID		firstGeomID() const	{ return curGeomID(); }
+    GeomID		firstGeomID() const	{ return curGeomID(); }
     const DBKey&	dbKey() const		{ return dbky_; }
     ZSampling		getZRange() const	{ return doGetZRange(); }
     uiRetVal		getComponentInfo(BufferStringSet&,DataType* dt=0) const;
@@ -106,8 +108,8 @@ public:
 
     TrcKey		curPosition() const
 			{ return doGetCurPosition(); }
-    Pos::GeomID		curGeomID() const	{ return doGetCurGeomID(); }
-    od_int64		nrDone() const			{ return nrdone_; }
+    GeomID		curGeomID() const	{ return doGetCurGeomID(); }
+    od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const;
 
     static const char*	sKeyForceFPData()
@@ -157,7 +159,7 @@ protected:
     virtual int		gtNrOffsets() const			{ return 1; }
     virtual uiRetVal	doGetComponentInfo(BufferStringSet&,DataType&) const;
 				//!< def impl: { sKey::Data(), UnknownData }
-    virtual Pos::GeomID doGetCurGeomID() const				= 0;
+    virtual GeomID	doGetCurGeomID() const				= 0;
     virtual ZSampling	doGetZRange() const				= 0;
     virtual bool	doGetIsPresent(const TrcKey&) const		= 0;
 
@@ -190,7 +192,7 @@ mExpClass(Seis) Provider3D : public Provider
 { mODTextTranslationClass(Seis::Provider3D);
 public:
 
-    typedef PosInfo::CubeData	CubeData;
+    mUseType( PosInfo,	CubeData );
 
     virtual bool	getRanges(TrcKeyZSampling&) const		= 0;
     virtual void	getGeometryInfo(CubeData&) const	= 0;
@@ -208,8 +210,8 @@ protected:
 			{ Provider::doFillPar( iop, uirv ); }
     virtual void	doUsePar( const IOPar& iop, uiRetVal& uirv )
 			{ Provider::doUsePar( iop, uirv ); }
-    virtual Pos::GeomID doGetCurGeomID() const
-			{ return Survey::GM().default3DSurvID(); }
+    virtual GeomID	doGetCurGeomID() const
+			{ return GeomID::get3D(); }
     virtual ZSampling	doGetZRange() const;
     virtual void	doReset(uiRetVal&) const;
     virtual bool	doGetIsPresent(const TrcKey&) const;
@@ -227,12 +229,12 @@ mExpClass(Seis) Provider2D : public Provider
 { mODTextTranslationClass(Seis::Provider2D);
 public:
 
-    typedef PosInfo::Line2DData	Line2DData;
+    mUseType( PosInfo,	Line2DData );
 
     virtual int		nrLines() const					= 0;
-    virtual Pos::GeomID	geomID(int) const				= 0;
+    virtual GeomID	geomID(int) const				= 0;
     virtual BufferString lineName(int) const				= 0;
-    virtual int		lineNr(Pos::GeomID) const			= 0;
+    virtual int		lineNr(GeomID) const				= 0;
     virtual int		curLineIdx() const				= 0;
     virtual bool	getRanges(int,StepInterval<int>&,ZSampling&) const = 0;
     virtual void	getGeometryInfo(int,Line2DData&) const		= 0;
@@ -246,7 +248,7 @@ protected:
 			{ Provider::doFillPar( iop, uirv ); }
     virtual void	doUsePar( const IOPar& iop, uiRetVal& uirv )
 			{ Provider::doUsePar( iop, uirv ); }
-    virtual Pos::GeomID doGetCurGeomID() const
+    virtual GeomID	doGetCurGeomID() const
 			{ return geomID( curLineIdx() ); }
     virtual ZSampling	doGetZRange() const;
     virtual bool	doGetIsPresent(const TrcKey&) const;

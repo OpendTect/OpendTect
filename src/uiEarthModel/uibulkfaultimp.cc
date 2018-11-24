@@ -269,7 +269,7 @@ static void updateFaultStickSet( EM::Fault* flt,
 	if ( is2d )
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,emfss,flt)
-	    const Pos::GeomID geomid = Survey::GM().getGeomID( stick->lnm_ );
+	    const auto geomid = Survey::Geometry::getGeomID( stick->lnm_ );
 	    emfss->geometry().insertStick( sticknr, 0,
 		    stick->crds_[0], stick->getNormal(true), geomid, false );
 

@@ -497,7 +497,7 @@ bool uiWell2RandomLineDlg::acceptOK()
     for ( int idx=0; idx<wellcoord.size(); idx++ )
     {
 	Coord c( wellcoord[idx] );
-	if ( !SI().isInside(SI().transform(c),false) )
+	if ( !SI().includes(SI().transform(c)) )
 	{
 	    Coord othcoord = wellcoord[idx ? idx - 1 : 1];
 	    c = SurveyGeometry::getEdgePoint( othcoord, c );

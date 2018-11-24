@@ -16,9 +16,7 @@ ________________________________________________________________________
 
 #include "trckey.h"
 
-/*!
-\brief TrcKey and a value.
-*/
+/*!\brief TrcKey and a value. */
 
 class BinIDValue;
 
@@ -26,17 +24,20 @@ mExpClass(Basic) TrcKeyValue
 {
 public:
 
+    mUseType( TrcKey,	linenr_type );
+    mUseType( TrcKey,	tracenr_type );
+
     inline		TrcKeyValue( const TrcKey& tk=TrcKey::udf(),
 				     float v=mUdf(float) )
 			    : tk_(tk)
 			    , val_(v)					{}
 			TrcKeyValue(const BinIDValue&);
 
-    Pos::LineID		lineNr() const		{ return tk_.lineNr(); }
-    Pos::TraceID	trcNr() const		{ return tk_.trcNr(); }
-    TrcKeyValue&	setLineNr( Pos::LineID nr )
+    linenr_type		lineNr() const		{ return tk_.lineNr(); }
+    tracenr_type	trcNr() const		{ return tk_.trcNr(); }
+    TrcKeyValue&	setLineNr( linenr_type nr )
 			{ tk_.setLineNr(nr); return *this; }
-    TrcKeyValue&	setTrcNr( Pos::TraceID nr )
+    TrcKeyValue&	setTrcNr( tracenr_type nr )
 			{ tk_.setTrcNr(nr); return *this; }
 
     inline bool		operator==( const TrcKeyValue& oth ) const
@@ -50,7 +51,10 @@ public:
 
     TrcKey		tk_;
     float		val_;
+
 };
 
 inline bool TrcKeyValue::isDefined() const
-{ return !tk_.isUdf() && !mIsUdf(val_); }
+{
+    return !tk_.isUdf() && !mIsUdf(val_);
+}

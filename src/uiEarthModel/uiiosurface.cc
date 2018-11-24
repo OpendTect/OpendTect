@@ -185,7 +185,8 @@ void uiIOSurface::fillRangeFld( const TrcKeySampling& hrg )
     cs.hsamp_ = hrg;
     rgfld_->setInputLimit( cs );	// Set spinbox limits
 
-    rgfld_->setInput( cs, SI().sampling(false) );
+
+    rgfld_->setInput( cs, TrcKeyZSampling(true) );
     // Bounds initial input values (!=limits) by survey range
     // when unedited subsel window is popped up.
 }
@@ -204,11 +205,12 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
     else
 	sels.rg = rgfld_->envelope().hsamp_;
 
-    if ( SI().sampling(true) != SI().sampling(false) )
+    TrcKeyZSampling fulltkzs(OD::FullSurvey), worktkzs(OD::UsrWork);
+    if ( worktkzs != fulltkzs )
     {
 	if ( sels.rg.isEmpty() )
 	    sels.rg.init( true );
-	sels.rg.limitTo( SI().sampling(true).hsamp_ );
+	sels.rg.limitTo( worktkzs.hsamp_ );
     }
 
     sels.selvalues.erase();

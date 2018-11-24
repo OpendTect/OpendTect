@@ -130,8 +130,8 @@ public:
     void		getSurfaceDef2D(const DBKeySet&,
 					const BufferStringSet& sellines,
 					TypeSet<Coord>&,
-					TypeSet<Pos::SurvID>&,
-					TypeSet< Interval<float> >&);
+					TypeSet<Pos::GeomID>&,
+					TypeSet<Interval<float> >&);
 
     bool		storeObject(const DBKey&,
 				    bool storeas=false) const;

@@ -349,7 +349,7 @@ void uiMPEMan::handleAction( int res )
     if ( !scene ) return;
 
     const Coord3& clickedpos = scene->getMousePos( true );
-    const TrcKey tk = SI().transform( clickedpos.getXY() );
+    const TrcKey tk = TrcKey( SI().transform( clickedpos.getXY() ) );
 
     visSurvey::HorizonDisplay* hd3d = getSelectedDisplay3D();
     switch ( res )
@@ -612,8 +612,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
 
     const Pos::GeomID geomid = clickcatcher_->info().getGeomID();
-    const bool undefgeomid = mIsUdfGeomID( geomid );
-    TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd.getXY()) : node,
+    TrcKeyValue seedpos( geomid.isValid() ? node
+			: TrcKey(SI().transform(seedcrd.getXY())),
 			 (float)seedcrd.z_ );
 
     Color clr = Color::Green();
@@ -1276,8 +1276,9 @@ void uiMPEMan::workAreaChgCB( CallBacker* cb )
 	    return;
     }
 
-    if ( !SI().sampling(true).includes( engine().activeVolume() ) )
-	engine().setActiveVolume( SI().sampling(true) );
+    const TrcKeyZSampling tkzs( OD::UsrWork );
+    if ( !tkzs.includes( engine().activeVolume() ) )
+	engine().setActiveVolume( tkzs );
 }
 
 

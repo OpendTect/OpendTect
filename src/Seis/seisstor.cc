@@ -197,7 +197,7 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 
     if ( !seldata_ )
 	seldata_ = Seis::SelData::get( iopar );
-    if ( seldata_->isAll() && (seldata_->geomID()<0) )
+    if ( seldata_->isAll() && !seldata_->geomID().is2D() )
 	{ delete seldata_; seldata_ = 0; }
 
     if ( strl() )

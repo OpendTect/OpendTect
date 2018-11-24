@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uiodprobeparenttreeitem.h"
 #include "uiodattribtreeitem.h"
+#include "trckeyzsampling.h"
 
 mExpClass(uiODMain) uiODVolumeParentTreeItem
 	: public uiODSceneProbeParentTreeItem

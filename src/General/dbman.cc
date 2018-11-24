@@ -14,11 +14,13 @@
 #include "genc.h"
 #include "survinfo.h"
 #include "survgeom.h"
+#include "survgeommgr.h"
 #include "iosubdir.h"
 #include "safefileio.h"
 #include "od_iostream.h"
 #include "transl.h"
 #include "keystrs.h"
+#include "taskrunner.h"
 #include "uistrings.h"
 
 #define mErrRet(str) { ret.add(str); return ret; }
@@ -212,7 +214,7 @@ uiRetVal DBMan::handleNewSurvDir()
 	else
 	{
 	    readDirs();
-	    Survey::GMAdmin().fillGeometries(0);
+	    Survey::GMAdmin().fillGeometries(SilentTaskRunnerProvider());
 	}
     }
     return uirv;

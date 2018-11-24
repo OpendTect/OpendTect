@@ -74,15 +74,14 @@ bool getTrackSampling( const Well::D2TModel& d2tmodel )
 	return false;
 
     TrcKeySampling& tks = bbox_.hsamp_;
-    const Pos::SurvID survid = tks.survid_;
+    const auto gs = tks.geomSystem();
     tks.init( false );
     TypeSet<BinID> trackpos;
     wts.getBIDs( trackpos );
     for ( int idx=0; idx<trackpos.size(); idx++ )
 	tks.include( trackpos[idx] );
 
-    tks.survid_ = survid;
-
+    tks.setGeomSystem( gs );
     return tks.isDefined();
 }
 
@@ -385,7 +384,7 @@ bool WellLogInterpolator::prepareComp( int )
 static void getCornerPoints( const BinID& bid, TypeSet<Coord>& corners )
 {
     corners.setEmpty();
-    const TrcKeyZSampling tkzs( SI().sampling( false ) );
+    const TrcKeyZSampling tkzs( true );
     const TrcKeySampling& tks = tkzs.hsamp_;
 
     TypeSet<BinID> cornerbids;
@@ -452,7 +451,7 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
     const int outputinlidx = outputinlrg_.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg_.nearestIndex( bid.crl() );
     const Coord gridpoint( hs.toCoord(bid) );
-    const TrcKey tk( hs.survid_, bid );
+    const TrcKey tk( hs.geomSystem(), bid );
     Gridder2D* gridder = gridder_->clone();
     Gridder2D* invdistgridder = invdistgridder_->clone();
     TypeSet<Coord> points;

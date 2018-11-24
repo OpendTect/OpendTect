@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 
 EM::RandomLineSetByContourGenerator::Setup::Setup( bool rel )
-    : contzrg_(SI().zRange(true))
+    : contzrg_(SI().zRange(OD::UsrWork))
     , isrel_(rel)
     , sectionnr_(-1)
     , selpoly_(0)

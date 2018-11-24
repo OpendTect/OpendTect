@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seisselectionimpl.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 
 namespace WellTie
 {
@@ -34,7 +35,7 @@ SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 	, nrdone_(0)
 	, outtrc_(0)
 	, tkzs_(new TrcKeyZSampling(false))
-	, extrintv_(SI().zRange(false))
+	, extrintv_(SI().zRange())
 	, linenm_(*new BufferString)
 	, radius_(1)
 {
@@ -74,16 +75,14 @@ bool SeismicExtractor::collectTracesAroundPath()
     const bool seisid2D = prov_->is2D();
     if ( seisid2D )
     {
-	const Survey::Geometry* geom = linenm_.isEmpty() ? 0
-			: Survey::GM().getGeometry( linenm_ );
-	if ( !geom )
+	const auto& geom2d = Survey::Geometry::get2D( linenm_ );
+	if ( geom2d.isEmpty() )
 	    mErrRet( tr("2D Line Geometry not found") );
 
-	tkzs_->hsamp_.init( geom->id() );
+	tkzs_->hsamp_.setTo( geom2d.geomID() );
 	const Coord pos = SI().transform( bidset_[0] );
-	const TrcKey trckey = geom->nearestTrace( pos );
-	tkzs_->hsamp_.setCrlRange( Interval<int>(trckey.trcNr(),
-						 trckey.trcNr()) );
+	const auto trcnr = geom2d.nearestTracePosition( pos );
+	tkzs_->hsamp_.setCrlRange( Interval<int>(trcnr,trcnr) );
     }
     else
     {
@@ -102,7 +101,7 @@ bool SeismicExtractor::collectTracesAroundPath()
     tkzs_->zsamp_ = extrintv_;
     Seis::RangeSelData* sd = new Seis::RangeSelData( *tkzs_ );
     if ( seisid2D && !linenm_.isEmpty() )
-	sd->setGeomID( Survey::GM().getGeomID(linenm_) );
+	sd->setGeomID( Survey::Geometry::getGeomID(linenm_) );
 
     prov_->setSelData( sd );
 
@@ -119,7 +118,7 @@ void SeismicExtractor::setBIDValues( const TypeSet<BinID>& bids )
     bidset_.erase();
     for ( int idx=0; idx<bids.size(); idx++ )
     {
-	if ( SI().isInside( bids[idx], true ) )
+	if ( SI().includes( bids[idx] ) )
 	    bidset_ += bids[idx];
 	else if ( idx )
 	    bidset_ += bids[idx-1];

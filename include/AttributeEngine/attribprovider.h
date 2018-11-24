@@ -18,6 +18,7 @@ ________________________________________________________________________
 class BinDataDesc;
 class RegularSeisDataPack;
 class SeisTrcInfo;
+class TrcKeyZSampling;
 namespace Seis { class SelData; class MSCProvider; }
 template <class T> class Array2DImpl;
 

@@ -135,7 +135,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const DescSet& seisattrs,
 
     RefMan<DataPointSet> dps
 	= seisattrs.createDataPointSet(Attrib::DescSetup(),false);
-    dps->bivSet().setSurvID( TrcKey::stdSynthSurvID() );
+    dps->bivSet().setGeomSystem( OD::SynthGeom );
 
 #   define mDPSIns(idx,dcdnm) \
 	dps->dataSet().insert( idx, new DataColDef(dcdnm) )

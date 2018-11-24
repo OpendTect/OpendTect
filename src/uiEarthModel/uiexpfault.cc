@@ -349,14 +349,9 @@ bool uiExportFault::writeAscii()
 		    ostrm << objnm << "\t";
 		const BinID bid = SI().transform( crd.getXY() );
 		if ( zatf )
-		    crd.z_ =  zatf->transformTrc( bid, (float)crd.z_ );
+		    crd.z_ = zatf->transformTrc( TrcKey(bid), (float)crd.z_ );
 		if ( !doxy )
-		{
 		    ostrm << bid.inl() << '\t' << bid.crl();
-
-
-		    ostrm << bid.inl() << '\t' << bid.crl();
-		}
 		else
 		{
 		    // ostreams print doubles awfully
@@ -382,9 +377,8 @@ bool uiExportFault::writeAscii()
 		    {
 			Pos::GeomID geomid =
 					fss->geometry().pickedGeomID( sticknr );
-			const char* linenm = Survey::GM().getName( geomid );
-
-			if ( linenm )
+			const BufferString linenm = nameOf( geomid );
+			if ( !linenm.isEmpty() )
 			    ostrm << '\t' << linenm;
 		    }
 		}

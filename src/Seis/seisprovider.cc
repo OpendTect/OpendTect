@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "seisselection.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "survgeom2d.h"
 #include "uistrings.h"
 
 
@@ -661,5 +662,5 @@ ZSampling Seis::Provider2D::doGetZRange() const
 
 bool Seis::Provider2D::doGetIsPresent( const TrcKey& tk ) const
 {
-    return Survey::GM().getGeometry(curGeomID())->includes( tk );
+    return Survey::Geometry::get2D(curGeomID()).includes( tk.trcNr() );
 }
