@@ -70,7 +70,7 @@ public:
 protected:
 
     const BufferString	basenm_;
-    Source		cursource_;
+    Source		cursource_		= Temp;
     bool		rev_;
 
     void		getFname(BufferString&,bool) const;

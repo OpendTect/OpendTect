@@ -123,9 +123,9 @@ template <class T>
 template <class FT> inline
 float SamplingData<T>::getfIndex( FT val ) const
 {
-    return mIsZero(step,mDefEps)
-	    ? 0.f
-	    : mCast(float,mCast(double,val-start) / step );
+    if ( !step )
+	return (float)0;
+    return (float)((((double)val) - start) / step);
 }
 
 

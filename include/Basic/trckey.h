@@ -104,7 +104,7 @@ public:
 
 protected:
 
-    GeomSystem		geomsystem_;
+    GeomSystem		geomsystem_		= OD::VolBasedGeom;
     BinID		pos_;
 
 };

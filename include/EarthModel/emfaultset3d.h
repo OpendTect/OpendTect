@@ -23,7 +23,7 @@ typedef int FaultID;
 \brief 3D FaultSet
 */
 
-mExpClass(EarthModel) FaultSet3D : public EMObject
+mExpClass(EarthModel) FaultSet3D : public EM::Object
 { mDefineEMObjFuncs( FaultSet3D );
 public:
 
