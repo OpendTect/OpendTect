@@ -19,6 +19,11 @@ ________________________________________________________________________
 #include "groupedid.h"
 #include "geometry.h"
 #include "od_iosfwd.h"
+#ifdef __win__
+  // For some reason, VC++ does not like GeomID forward declared
+  // The trouble seems to be with TypeSet<Pos::GeomID>
+# include "geomid.h"
+#endif
 
 class BufferStringSet;
 class SeparString;
