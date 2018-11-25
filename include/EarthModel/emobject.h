@@ -136,9 +136,9 @@ public:
 			  EdgeControlNode, TerminationNode, SeedNode,
 			  IntersectionNode };
 
-    Type		type_;
+    Type		type_		= PermanentControlNode;
     TypeSet<PosID>	posids_;
-    bool		locked_;
+    bool		locked_		= false;
 };
 
 

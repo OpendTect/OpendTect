@@ -97,7 +97,7 @@ protected:
 
     typedef VectorAccess<T*,size_type>   impl_type;
     impl_type			vec_;
-    bool			allow0_;
+    bool			allow0_		    = false;
 
     inline virtual ObjectSet&	doAdd(T*);
 
@@ -306,7 +306,7 @@ inline bool equalContents( const ObjectSet<T>& os1, const ObjectSet<T>& os2 )
 
 // Member function implementations
 template <class T> inline
-ObjectSet<T>::ObjectSet() : allow0_(false)
+ObjectSet<T>::ObjectSet()
 {}
 
 template <class T> inline
