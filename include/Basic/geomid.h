@@ -28,7 +28,6 @@ mDefIntegerIDTypeFull( int, GeomID,
 	inline bool		is2D() const	{ return nr_>=0; }
 	inline IDType		lineNr() const	{ return getI(); }
 	inline static GeomID	get3D()		{ return GeomID(-1); }
-	explicit		GeomID(const DBKey&);
 
 );
 
@@ -40,6 +39,7 @@ mDefIntegerIDTypeFull( int, GeomID,
 
 
 mGlobal(Basic) const char* nameOf(Pos::GeomID);
+mGlobal(Basic) Pos::GeomID geomIDOf(const DBKey&);
 
 
 inline OD::GeomSystem geomSystemOf( Pos::GeomID gid )

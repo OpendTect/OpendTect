@@ -43,12 +43,10 @@ const char* nameOf( Pos::GeomID geomid )
 }
 
 
-Pos::GeomID::GeomID( const DBKey& dbky )
-    : GeomID()
+Pos::GeomID geomIDOf( const DBKey& dbky )
 {
     const auto id = dbky.objID();
-    if ( id.isValid() )
-	setI( id.getI() );
+    return id.isValid() ? Pos::GeomID( id.getI() ) : Pos::GeomID();
 }
 
 

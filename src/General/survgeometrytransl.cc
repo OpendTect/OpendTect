@@ -36,7 +36,7 @@ uiString SurvGeom2DTranslatorGroup::sTypeName(int num)
 
 GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )
 {
-    return GeomID( ioobj.key() );
+    return geomIDOf( ioobj.key() );
 }
 
 
@@ -99,7 +99,7 @@ Geometry2D* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
     data->setLineName( ioobj.name() );
 
     Geometry2D* geom = new Geometry2D( data );
-    geom->setGeomID( GeomID(ioobj.key()) );
+    geom->setGeomID( geomIDOf(ioobj.key()) );
 
     auto& spnrs = geom->spNrs();
     if ( version == 3 )
@@ -126,7 +126,7 @@ bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
 					     const Geometry2D& geom,
 					     uiString& errmsg ) const
 {
-    const_cast<Geometry2D&>(geom).setGeomID( GeomID(ioobj.key()) );
+    const_cast<Geometry2D&>(geom).setGeomID( geomIDOf(ioobj.key()) );
 
     od_ostream strm( ioobj.mainFileName() );
     ascostream astream( strm );

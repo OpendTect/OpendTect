@@ -1294,7 +1294,7 @@ int uiODSceneMgr::add2DLineItem( const DBKey& dbky , int sceneid )
 {
     mGetOrAskForScene
 
-    const auto geomid = Pos::GeomID( dbky );
+    const auto geomid = geomIDOf( dbky );
     const auto& geom2d = Survey::Geometry::get2D( geomid );
     if ( geom2d.isEmpty() )
 	return -1;

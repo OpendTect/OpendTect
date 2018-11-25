@@ -239,7 +239,7 @@ bool uiExp2DGeom::acceptOK()
     DBKeySet dbkys; geomfld_->getChosen( dbkys );
     for ( int gidx=0; gidx<dbkys.size(); gidx++ )
     {
-	const Pos::GeomID geomid( dbkys[gidx] );
+	const auto geomid = geomIDOf( dbkys[gidx] );
 	const auto& geom2d = Survey::Geometry::get2D( geomid );
 	if ( geom2d.isEmpty() )
 	    continue;
