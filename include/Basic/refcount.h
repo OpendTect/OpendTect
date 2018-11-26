@@ -318,25 +318,29 @@ public:
 
 template <class T>
 mClass(Basic) WeakPtrSet : public RefCount::WeakPtrSetBase
-{ mIsContainer( WeakPtrSet, TypeSet<WeakPtr<T> >, ptrs_ )
+{
 public:
 
-    typedef Threads::SpinLock	LockType;
+    typedef Threads::SpinLock		LockType;
+    typedef TypeSet<WeakPtr<T> >	SetType;
+    typedef int				idx_type;
+    typedef int				size_type;
 
     bool		operator+=(const WeakPtr<T>&);
 			//Returns if added (i.e. not duplicate)
     bool		operator+=(RefMan<T>&);
 			//Returns if added (i.e. not duplicate)
-    int			size() const;
-    RefMan<T>		operator[](int);
-    ConstRefMan<T>	operator[](int) const;
+    size_type		size() const;
+    RefMan<T>		operator[](idx_type);
+    ConstRefMan<T>	operator[](idx_type) const;
 
-    int			indexOf(T*) const;
+    idx_type		indexOf(T*) const;
 
 
 private:
 
     mutable LockType	lock_;
+    SetType		ptrs_;
 
 };
 
