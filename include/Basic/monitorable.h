@@ -90,9 +90,9 @@ public:
     virtual Monitorable* clone() const	{ return getClone(); }
 
     virtual ChangeDataNotifier&		objectChanged() const
-	{ return const_cast<Monitorable*>(this)->chgnotif_; }
+					{ return mSelf().chgnotif_; }
     virtual Notifier<Monitorable>&	objectToBeDeleted() const
-	{ return const_cast<Monitorable*>(this)->delnotif_; }
+					{ return mSelf().delnotif_; }
     mDeclInstanceCreatedNotifierAccess(	Monitorable );
 					//!< defines static instanceCreated()
 

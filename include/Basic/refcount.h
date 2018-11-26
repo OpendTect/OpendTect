@@ -482,5 +482,5 @@ RefMan<T> WeakPtrSet<T>::operator[]( int idx )
 template <class T> inline
 ConstRefMan<T> WeakPtrSet<T>::operator[]( int idx ) const
 {
-    return const_cast<WeakPtrSet<T>*>( this )->get( idx );
+    return mSelf().get( idx );
 }

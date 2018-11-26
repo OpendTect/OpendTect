@@ -91,6 +91,7 @@ public:
 
     TrcKey&		setFrom(const Coord&);
     Coord		getCoord() const;
+    dist_type		sqDistTo(const TrcKey&) const;
     dist_type		distTo(const TrcKey&) const;
     const Geometry&	geometry() const;
 

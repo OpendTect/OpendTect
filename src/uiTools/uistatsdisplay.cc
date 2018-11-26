@@ -155,12 +155,8 @@ bool uiStatsDisplay::setDataPackID(
 	{
 	    const Array2D<float>* array = 0;
 	    mDynamicCastGet(const FlatDataPack*,fdp,datapack.ptr());
-	    mDynamicCastGet(const MapDataPack*,mdp,datapack.ptr());
-	    if ( mdp )
-		array = &mdp->rawData();
-	    else if ( fdp )
+	    if ( fdp )
 		array = &fdp->data();
-
 	    if ( !array )
 		return false;
 
@@ -200,10 +196,7 @@ bool uiStatsDisplay::setDataPackID(
 	    rc.setValues( valarr.arr(), valarr.size() );
 	}
 	if ( !rc.execute() )
-        {
-            uiMSG().error( rc.errMsg() );
-            return false;
-        }
+	    { uiMSG().error( rc.errMsg() ); return false; }
 
 	setData( rc );
 	return false;

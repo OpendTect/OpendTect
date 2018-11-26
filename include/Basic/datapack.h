@@ -120,7 +120,7 @@ protected:
     static kb_size_type		sKb2MbFac(); //!< 1 / 1024
 
     void			setCategory( const char* c )
-				{ *const_cast<BufferString*>(&category_) = c; }
+					{ mNonConst(category_) = c; }
 
     friend class		DataPackMgr;
 

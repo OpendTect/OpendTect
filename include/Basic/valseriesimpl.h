@@ -430,7 +430,7 @@ RT* MultiArrayValueSeries<RT,AT>::arr()
 
 template <class RT, class AT> inline
 const RT* MultiArrayValueSeries<RT,AT>::arr() const
-{ return const_cast<MultiArrayValueSeries<RT,AT>*>( this )->arr(); }
+{ return mSelf().arr(); }
 
 
 template <class RT, class AT> inline

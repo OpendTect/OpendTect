@@ -71,6 +71,7 @@ public:
 		ZSubSel( const z_steprg_type& rg )
 		    : data_(rg)					{}
 		mImplSimpleEqOpers1Memb(ZSubSel,data_)
+		mImplArrRegSubSelClone(ZSubSel)
 
     const ZSubSelData&	zData() const	{ return data_; }
     ZSubSelData&	zData()		{ return data_; }
@@ -101,7 +102,7 @@ protected:
     ZSubSelData	data_;
 
     Data&	gtData( idx_type ) const override
-		{ return const_cast<ZSubSel*>( this )->data_; }
+		{ return mSelf().data_; }
 
 };
 

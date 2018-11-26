@@ -75,6 +75,9 @@ public:
     typedef od_int64		totsz_type;
 
     virtual		~ArrRegSubSel()			{}
+    template <class T>
+    inline T*		clone() const
+			{ return static_cast<T*>(gtClone()); }
 
     inline bool		isEmpty() const;
     inline bool		hasOffset() const;
@@ -83,13 +86,20 @@ public:
     inline Data&	data( idx_type idim )		{ return gtData(idim); }
     inline const Data&	data( idx_type idim ) const	{ return gtData(idim); }
 
-    virtual size_type	nrDims() const			= 0;
+    inline size_type	nrDims() const			{ return gtNrDims(); }
 
 protected:
 
     virtual Data&	gtData(idx_type) const		= 0;
+    virtual ArrRegSubSel* gtClone() const		= 0;
+    virtual size_type	gtNrDims() const		= 0;
 
 };
+
+
+#define mImplArrRegSubSelClone(clss) \
+    ArrRegSubSel* gtClone() const override { return new clss(*this); } \
+    clss* getCopy() const { return new clss(*this); }
 
 
 /*!\brief base class for regular array subselection iterators.
@@ -121,7 +131,6 @@ public:
 			{ return size() == inpsz
 			      && !hasOffset() && !isSubSpaced(); }
 
-    inline size_type	nrDims() const override	{ return 1; }
     inline Data&	data()			{ return ArrRegSubSel::data(0);}
     inline const Data&	data() const		{ return ArrRegSubSel::data(0);}
 
@@ -139,6 +148,10 @@ public:
 			{ return data().subSelIdx(i); }
     inline bool		validIdx( idx_type i ) const
 			{ return i < size(); }
+
+protected:
+
+    inline size_type	gtNrDims() const override	{ return 1; }
 
 };
 
@@ -176,6 +189,7 @@ public:
 		PlainArrRegSubSel1D( size_type sz )
 		    : data_(sz)			{}
 		mImplSimpleEqOpers1Memb(PlainArrRegSubSel1D,data_)
+		mImplArrRegSubSelClone(PlainArrRegSubSel1D)
 
 protected:
 
@@ -197,8 +211,6 @@ public:
 			{ return size(0) == inpsz0 && size(1) == inpsz1
 			      && !hasOffset() && !isSubSpaced(); }
 
-    inline size_type	nrDims() const override	{ return 2; }
-
     inline idx_type	offset( idx_type idim ) const
 			{ return data(idim).offset(); }
     inline idx_type	step( idx_type idim ) const
@@ -216,6 +228,10 @@ public:
 			{ return data(idim).subSelIdx(i); }
     inline bool		validIdxs( idx_type i0, idx_type i1 ) const
 			{ return i0 < size(0) && i1 < size(1); }
+
+protected:
+
+    inline size_type	gtNrDims() const override	{ return 2; }
 
 };
 
@@ -255,6 +271,7 @@ public:
 		PlainArrRegSubSel2D( const Data& d0, const Data& d1 )
 		    : data0_(d0), data1_(d1)	{}
 		mImplSimpleEqOpers2Memb(PlainArrRegSubSel2D,data0_,data1_)
+		mImplArrRegSubSelClone(PlainArrRegSubSel2D)
 
 protected:
 
@@ -279,8 +296,6 @@ public:
 			      && size(2) == inpsz2
 			      && !hasOffset() && !isSubSpaced(); }
 
-    inline size_type	nrDims() const override	{ return 3; }
-
     inline idx_type	offset( idx_type idim ) const
 			{ return data(idim).offset(); }
     inline idx_type	step( idx_type idim ) const
@@ -301,6 +316,10 @@ public:
 			{ return size( 0 ) * size( 1 ); }
     inline bool		validIdxs( idx_type i0, idx_type i1, idx_type i2 ) const
 			{ return i0 < size(0) && i1 < size(1) && i2 < size(2); }
+
+protected:
+
+    inline size_type	gtNrDims() const override	{ return 3; }
 
 };
 
@@ -345,6 +364,7 @@ public:
 		    : data0_(d0), data1_(d1), data2_(d2)	{}
 		mImplSimpleEqOpers3Memb(PlainArrRegSubSel3D,
 					data0_,data1_,data2_)
+		mImplArrRegSubSelClone(PlainArrRegSubSel3D)
 
 protected:
 

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "coltabseqmgr.h"
 #include "datadistributionextracter.h"
+#include "posidxsubsel.h"
 #include "keystrs.h"
 
 namespace FlatView
@@ -69,6 +70,7 @@ FlatPosData& FlatPosData::operator =( const FlatPosData& fpd )
     return *this;
 }
 
+
 void FlatPosData::setRange( bool isx1, const StepInterval<double>& newrg )
 {
     rg( isx1 ) = newrg;
@@ -86,6 +88,16 @@ void FlatPosData::setX1Pos( float* pos, int sz, double offs )
     x1pos_ = pos;
     x1rg_.start = pos[0] + offs; x1rg_.stop = pos[sz-1] + offs;
     x1rg_.step = sz > 1 ? (x1rg_.stop - x1rg_.start) / (sz - 1) : 1;
+}
+
+
+void FlatPosData::set( const Pos::IdxSubSel2D& subsel )
+{
+    StepInterval<double> rg;
+    assign( rg, subsel.inlRange() );
+    setRange( true, rg );
+    assign( rg, subsel.crlRange() );
+    setRange( false, rg );
 }
 
 

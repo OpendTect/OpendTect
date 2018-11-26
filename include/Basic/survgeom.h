@@ -140,7 +140,7 @@ public:
     bool		isCompatibleWith(const Geometry&) const;
 
     void		setGeomID( GeomID gid )
-			{ const_cast<GeomID&>(geomid_) = gid; }
+			{ mNonConst(geomid_) = gid; }
     static Geometry2D&	get2D4Edit( GeomID gid )
 			{ return const_cast<Geometry2D&>( get2D(gid) ); }
 

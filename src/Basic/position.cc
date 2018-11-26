@@ -20,7 +20,6 @@
 #include "iopar.h"
 
 #include <ctype.h>
-#include <math.h>
 
 #define mUdfIdx mUdf(IdxPair::pos_type)
 static const IdxPair udfidxpair( mUdfIdx, mUdfIdx );
@@ -235,12 +234,19 @@ TrcKey TrcKey::getFor( GeomID gid ) const
 }
 
 
-TrcKey::dist_type TrcKey::distTo( const TrcKey& oth ) const
+TrcKey::dist_type TrcKey::sqDistTo( const TrcKey& oth ) const
 {
     const Coord from = getCoord();
     const Coord to = oth.getCoord();
     return from.isUdf() || to.isUdf() ? mUdf(double)
-				      : from.distTo<double>( to );
+				      : from.sqDistTo( to );
+}
+
+
+TrcKey::dist_type TrcKey::distTo( const TrcKey& oth ) const
+{
+    const auto sqdist = sqDistTo( oth );
+    return mIsUdf(sqdist) ? sqdist : Math::Sqrt( sqdist );
 }
 
 

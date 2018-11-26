@@ -123,7 +123,7 @@ protected:
     IdxSubSelData	data_;
 
     Data&		gtData( idx_type ) const override
-			{ return const_cast<IdxSubSel1D*>( this )->data_; }
+			{ return mSelf().data_; }
 
 };
 
@@ -150,14 +150,21 @@ public:
     const IdxSubSelData& posData( idx_type idim ) const
 			{ return idim ? data1_ : data0_; }
 
-    bool	includes( const BinID& bid ) const
-		{ return data0_.includes(bid.inl())
-		      && data1_.includes(bid.crl()); }
-
     inline bool	isAll() const
 		{ return data0_.isAll() && data1_.isAll(); }
     inline bool	hasFullRange() const
 		{ return data0_.hasFullRange() && data1_.hasFullRange(); }
+
+		// convenience fns usable when idxs represent inl/crl
+    BinID	binID( idx_type iinl, idx_type icrl ) const
+		{ return BinID( data0_.pos4Idx(iinl), data1_.pos4Idx(icrl) ); }
+    RowCol	rowCol( pos_type inl, pos_type crl ) const
+		{ return RowCol( data0_.idx4Pos(inl), data1_.idx4Pos(crl) ); }
+    bool	includes( const BinID& bid ) const
+		{ return data0_.includes(bid.inl())
+		      && data1_.includes(bid.crl()); }
+    pos_steprg_type inlRange() const { return data0_.outputPosRange(); }
+    pos_steprg_type crlRange() const { return data1_.outputPosRange(); }
 
 protected:
 

@@ -30,9 +30,6 @@ inline RT roundOff( double x )	{ return (RT) ((x)>0 ? (x)+.5 : (x)-.5); }
 template <class RT>
 inline RT roundOff( float x )	{ return (RT) ((x)>0 ? (x)+.5f : (x)-.5f); }
 
-template <class T>
-inline mDeprecated void Swap( T& a, T& b )	{ std::swap(a,b); }
-
 template <class fT,class eT>
 inline bool isFPZero( fT v, eT eps )		{ return v < eps && v > -eps; }
 
@@ -42,6 +39,17 @@ inline bool isFPEqual( T1 v1, T2 v2, eT eps )	{ return isFPZero(v1-v2,eps); }
 template <class T>
 inline T getLimited( T v, T min, T max )
 { return v<min ? min : (v>max ? max : v); }
+
+template <class T>
+inline mDeprecated void Swap( T& a, T& b )	{ std::swap(a,b); }
+
+template <class T>
+inline T* getNonConst( const T* t )
+{ return const_cast<T*>( t ); }
+
+template <class T>
+inline T& getNonConst( const T& t )
+{ return const_cast<T&>( t ); }
 
 
 #define mRounded(typ,x)		roundOff<typ>( x )
@@ -120,9 +128,11 @@ inline T getLimited( T v, T min, T max )
 
 //--- C++ tools
 
-#define mCast(tp,v)			((tp)(v))
-#define mUseType(scope,typ)		typedef scope::typ typ
+#define mCast(tp,v)	((tp)(v))
+#define mNonConst(x)	getNonConst( x )
+#define mSelf()		mNonConst( *this )
 
+#define mUseType(scope,typ)		typedef scope::typ typ
 # define mGetDynamicCast(typ,in)	dynamic_cast< typ >( in );
 # define mDynamicCast(typ,out,in)	out = dynamic_cast< typ >( in );
 # define mDynamicCastGet(typ,out,in)	typ mDynamicCast(typ,out,in)

@@ -451,24 +451,21 @@ const T* ArrayND<T>::get1D( NDPos inppos ) const
 template <class T> inline
 T* ArrayND<T>::getData()
 {
-    return !isSettable() ? 0
-			 : const_cast<T*>(((const ArrayND*)this)->getData_());
+    return !isSettable() ? 0 : mNonConst( mSelf().getData_() );
 }
 
 
 template <class T> inline
 ValueSeries<T>* ArrayND<T>::getStorage()
 {
-    return !isSettable() ? 0 :
-	const_cast<ValueSeries<T>* >(((const ArrayND*)this)->getStorage_());
+    return !isSettable() ? 0 : mNonConst( mSelf().getStorage_() );
 }
 
 
 template <class T> inline
 T* ArrayND<T>::get1D( NDPos pos )
 {
-    return !isSettable() ? 0
-	 : const_cast<T*>( ((const ArrayND*)this)->get1D(pos) );
+    return !isSettable() ? 0 : mSelf().get1D( pos );
 }
 
 

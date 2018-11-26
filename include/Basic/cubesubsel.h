@@ -61,6 +61,7 @@ public:
 			CubeSubSel(const HorSampling&,const z_steprg_type&);
 			CubeSubSel(const CubeSampling&);
 			CubeSubSel(const TrcKeyZSampling&);
+			mImplArrRegSubSelClone(CubeSubSel)
 
     const IdxSubSelData& inlSubSel() const	{ return hss_.inlSubSel(); }
     IdxSubSelData&	inlSubSel()		{ return hss_.inlSubSel(); }
@@ -106,7 +107,7 @@ protected:
 
     HorSubSel&	gtHorSubSel() const override
 		{
-		    return const_cast<CubeSubSel*>(this)->hss_;
+		    return mSelf().hss_;
 		}
 
     Data&	gtData( idx_type idim ) const override

@@ -67,10 +67,10 @@ public:
 
     bool			addComponent(const char* nm,bool initvals);
 
-    int				nrTrcs() const
-				{ return (int)sampling_.hsamp_.totalNr(); }
-    TrcKey			getTrcKey(int globaltrcidx) const;
-    int				getGlobalIdx(const TrcKey&) const;
+    glob_size_type		nrTrcs() const { return (glob_size_type)
+					sampling_.hsamp_.totalNr(); }
+    TrcKey			getTrcKey(glob_idx_type) const;
+    glob_idx_type		getGlobalIdx(const TrcKey&) const;
 
     const StepInterval<float>&	getZRange() const
 				{ return sampling_.zsamp_; }
@@ -107,9 +107,9 @@ public:
     virtual RandomSeisDataPack*	getSimilar() const;
 
     bool			is2D() const		{ return false; }
-    int				nrTrcs() const		{ return path_.size(); }
+    glob_size_type		nrTrcs() const		{ return path_.size(); }
     TrcKey			getTrcKey(int trcidx) const;
-    int				getGlobalIdx(const TrcKey&) const;
+    glob_idx_type		getGlobalIdx(const TrcKey&) const;
 
     const StepInterval<float>&	getZRange() const	{ return zsamp_; }
     void			setZRange( const StepInterval<float>& zrg )
@@ -148,11 +148,13 @@ mExpClass(Seis) SeisFlatDataPack : public FlatDataPack
 {
 public:
 
+    mUseType( VolumeDataPack,	comp_idx_type );
+
     mDeclAbstractMonitorableAssignment(SeisFlatDataPack);
 
-    int				nrTrcs() const
+    size_type			nrTrcs() const
 				{ return source_->nrTrcs(); }
-    TrcKey			getTrcKey( int trcidx ) const
+    TrcKey			getTrcKey( idx_type trcidx ) const
 				{ return source_->getTrcKey(trcidx); }
     const SeisVolumeDataPack&	getSourceDataPack() const
 				{ return *source_; }
@@ -169,8 +171,8 @@ public:
 
     bool			dimValuesInInt(const char* keystr) const;
     void			getAltDim0Keys(BufferStringSet&) const;
-    double			getAltDim0Value(int ikey,int i0) const;
-    void			getAuxInfo(int i0,int i1,IOPar&) const;
+    double			getAltDim0Value(int ikey,idx_type i0) const;
+    void			getAuxInfo(idx_type,idx_type,IOPar&) const;
 
     const Scaler*		getScaler() const
 				{ return source_->getScaler(); }
@@ -180,7 +182,7 @@ public:
 protected:
 
 				SeisFlatDataPack(const SeisVolumeDataPack&,
-						 int icomp);
+						 comp_idx_type icomp);
 				~SeisFlatDataPack();
 
     virtual void		setPosData();
@@ -189,7 +191,7 @@ protected:
 				 not empty. */
 
     ConstRefMan<SeisVolumeDataPack> source_;
-    int				comp_;
+    comp_idx_type		comp_;
     TypeSet<SeisTrcInfo::Fld>	tiflds_;
 
     const StepInterval<float>&	zSamp() const	{ return source_->getZRange(); }
@@ -206,7 +208,7 @@ public:
 				mTypeDefArrNDTypes;
 
 				RegularFlatDataPack(const RegularSeisDataPack&,
-						    int component);
+						    comp_idx_type);
 				mDeclMonitorableAssignment(RegularFlatDataPack);
 
     bool			isVertical() const
@@ -220,7 +222,7 @@ public:
 				{ return sampling().hsamp_.getGeomID(); }
     OD::SliceType		dir() const
 				{ return sampling().defaultDir(); }
-    Coord3			getCoord(int i0,int i1) const;
+    Coord3			getCoord(idx_type,idx_type) const;
 
     const char*			dimName(bool dim0) const;
 
@@ -249,13 +251,13 @@ mExpClass(Seis) RandomFlatDataPack : public SeisFlatDataPack
 public:
 
 				RandomFlatDataPack(const RandomSeisDataPack&,
-						   int component);
+						   comp_idx_type);
 				mDeclMonitorableAssignment(RandomFlatDataPack);
 
     bool			isVertical() const	{ return true; }
     const TrcKeyPath&		getPath() const
 				{ return rdlSource().getPath(); }
-    Coord3			getCoord(int i0,int i1) const;
+    Coord3			getCoord(idx_type,idx_type) const;
     float			getPosDistance(bool dim0,float trcfidx) const;
 
     const char*			dimName( bool dim0 ) const

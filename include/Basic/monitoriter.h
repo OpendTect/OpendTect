@@ -117,9 +117,7 @@ public:
     inline		MonitorableIter4Write(const MonitorableIter4Write&);
 
     inline Monitorable&	edited()
-			{ return const_cast<Monitorable&>(this->monitored()); }
-			// compiler bug? does not work without the 'this'
-			// more of that in the implementations below ...
+			{ return mNonConst( mSelf().monitored() ); }
 
 protected:
 
@@ -142,9 +140,9 @@ MonitorableIterBase<ITyp>::MonitorableIterBase( const Monitorable& obj,
     if ( startidx_ < 0 || stopidx_ < 0 )
     {
 	// empty. make this a standard situation:
-	const_cast<idx_type&>( startidx_ ) = 0;
-	const_cast<idx_type&>( stopidx_ ) = -1;
-	const_cast<Direction&>( dir_ ) = Forward;
+	mNonConst( startidx_ ) = 0;
+	mNonConst( stopidx_ ) = -1;
+	mNonConst( dir_ ) = Forward;
     }
     reInit();
 }
@@ -248,10 +246,10 @@ template <class ITyp> inline
 void MonitorableIter4Write<ITyp>::insertedAtCurrent()
 {
     if ( this->dir_ == MonitorableIterBase<ITyp>::Backward )
-	const_cast<ITyp&>(this->startidx_)++;
+	mNonConst(this->startidx_)++;
     else
     {
-	const_cast<ITyp&>(this->stopidx_)++;
+	mNonConst(this->stopidx_)++;
 	this->curidx_++;
     }
 }
@@ -261,10 +259,10 @@ template <class ITyp> inline
 void MonitorableIter4Write<ITyp>::currentRemoved()
 {
     if ( this->dir_ == MonitorableIterBase<ITyp>::Backward )
-	const_cast<ITyp&>(this->startidx_)--;
+	mNonConst(this->startidx_)--;
     else
     {
-	const_cast<ITyp&>(this->stopidx_)--;
+	mNonConst(this->stopidx_)--;
 	this->curidx_--;
     }
 }

@@ -81,7 +81,7 @@ public:
 			{ return name_ == oth.getName(); }
 
     virtual Notifier<NamedCallBacker>&	objectToBeDeleted() const
-			{ return const_cast<NamedCallBacker*>(this)->delnotif_;}
+			{ return mSelf().delnotif_; }
 
 protected:
 

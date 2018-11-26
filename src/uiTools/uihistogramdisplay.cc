@@ -98,19 +98,12 @@ bool uiHistogramDisplay::setDataPackID(
     else if ( dmid == DataPackMgr::FlatID() )
     {
 	mDynamicCastGet(const FlatDataPack*,fdp,dp.ptr())
-	mDynamicCastGet(const MapDataPack*,mdp,dp.ptr())
-	if ( mdp )
-	{
-	    dpversionnm = mdp->name();
-	    setData( &mdp->rawData() );
-	}
-	else if( fdp )
+	if ( !fdp )
+	    return false;
 	{
 	    dpversionnm = fdp->name();
 	    setData( &fdp->data() );
 	}
-	else
-	    return false;
     }
     else if ( dmid == DataPackMgr::SurfID() || dmid == DataPackMgr::PointID() )
     {

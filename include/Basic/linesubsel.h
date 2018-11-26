@@ -38,6 +38,7 @@ public:
 			LineSubSel(const pos_steprg_type&,const z_steprg_type&);
 			LineSubSel(const pos_steprg_type&,const ZSubSel&);
 			LineSubSel(const TrcKeyZSampling&);
+			mImplArrRegSubSelClone(LineSubSel)
 
     const TrcNrSubSelData& trcNrSubSel() const	{ return hss_.trcNrSubSel(); }
     TrcNrSubSelData& trcNrSubSel()		{ return hss_.trcNrSubSel(); }
@@ -61,7 +62,7 @@ protected:
 
     HorSubSel&	gtHorSubSel() const
 		{
-		    return const_cast<LineSubSel*>(this)->hss_;
+		    return mSelf().hss_;
 		}
 
     Data&	gtData( idx_type idim ) const override

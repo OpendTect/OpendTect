@@ -257,7 +257,7 @@ protected:
     if ( ret ) \
     { \
 	lastcreatedidx_ = idx; \
-	const_cast<ThisType*>(this)->objectCreated.trigger( ret ); \
+	mSelf().objectCreated.trigger( ret ); \
     } \
     return ret;
 

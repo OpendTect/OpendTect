@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emobjectposselector.h"
 #include "emsurfaceauxdata.h"
+#include "horsubsel.h"
 #include "isocontourtracer.h"
 #include "odviscommon.h"
 #include "survinfo.h"
@@ -1042,11 +1043,6 @@ void HorizonDisplay::createDisplayDataPacks(
     const BinID step( dispinlrg.step, dispcrlrg.step );
     sections_[0]->setTextureRange( dispinlrg, dispcrlrg );
 
-    StepInterval<double> inlrg( (double)dispinlrg.start, (double)dispinlrg.stop,
-				(double)dispinlrg.step );
-    StepInterval<double> crlrg( (double)dispcrlrg.start, (double)dispcrlrg.stop,
-				(double)dispcrlrg.step );
-
     const DataColDef sidcoldef( sKeySectionID() );
     const int sidcol =
 	data->dataSet().findColDef(sidcoldef,PosVecDataSet::NameExact);
@@ -1061,24 +1057,24 @@ void HorizonDisplay::createDisplayDataPacks(
 
     TypeSet<DataPack::ID> dpids;
     const char* catnm = "Horizon Data";
-    BufferStringSet dimnames;
-    dimnames.add(sKey::X()).add(sKey::Y())
-	    .add(sKey::Inline()).add(sKey::Crossline());
+    const CubeHorSubSel chss( dispinlrg, dispcrlrg );
 
     for ( int idx=0; idx<nrversions; idx++ )
     {
 	mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr,
 			    BIDValSetArrAdapter(*cache,idx+shift,step));
-	if ( !bvsarr ) continue;
+	if ( !bvsarr )
+	    continue;
 
 	mDeclareAndTryAlloc(MapDataPack*,mapdp,MapDataPack(catnm,bvsarr));
-	if ( !mapdp ) continue;
+	if ( !mapdp )
+	    continue;
 
 	const Attrib::SelSpec* as = getSelSpec( channel, idx );
 	if ( as )
 	    mapdp->setName( as->userRef() );
 
-	mapdp->setProps( inlrg, crlrg, true, &dimnames );
+	mapdp->setPositions( chss );
 	DPM(DataPackMgr::FlatID()).add( mapdp );
 	dpids += mapdp->id();
     }

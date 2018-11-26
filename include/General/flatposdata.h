@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "ranges.h"
 #include "indexinfo.h"
+namespace Pos { class IdxSubSel2D; }
 
 /*!
 \brief Positioning of flat 'bulk' data. Only the 'x1' axis can be irregular.
@@ -28,7 +29,7 @@ public:
 				    : x1rg_(0,0,1)
 				    , x2rg_(0,0,1)
 				    , x1pos_(0)
-    				    , x1offs_(0)	{}
+				    , x1offs_(0)	{}
 				FlatPosData( const FlatPosData& fpd )
 				    : x1pos_(0)		{ *this = fpd; }
 				~FlatPosData()		{ delete [] x1pos_; }
@@ -36,13 +37,14 @@ public:
     FlatPosData*		clone() { return new FlatPosData(*this); }
 
     void			setRange(bool forx1,
-	    				 const StepInterval<double>&);
+					 const StepInterval<double>&);
     inline const StepInterval<double>& range( bool forx1 ) const
 				{ return forx1 ? x1rg_ : x2rg_; }
     void			setX1Pos(float*,int sz,double offs);
-    				//!< offs is added to each elem before display
-    				//!< This makes sure float* can be used
-    				//!< float* (alloc with new []) becomes mine
+				//!< offs is added to each elem before display
+				//!< This makes sure float* can be used
+				//!< float* (alloc with new []) becomes mine
+    void			set(const Pos::IdxSubSel2D&);
 
     inline int			nrPts( bool forx1 ) const
 				{ return range(forx1).nrSteps() + 1; }
@@ -51,15 +53,15 @@ public:
     IndexInfo			indexInfo(bool forx1,double pos) const;
 
     double			position(bool forx1,int) const;
-    				//!< With offset applied
+				//!< With offset applied
     void			getPositions(bool forx1,TypeSet<float>&) const;
-    				//!< With offset applied
+				//!< With offset applied
     float*			getPositions(bool forx1) const;
-    				//!< Returns a new float [], size=nrPts()
-    				//!< offset not applied (it's a float*)
+				//!< Returns a new float [], size=nrPts()
+				//!< offset not applied (it's a float*)
     inline double		offset( bool forx1 ) const
-    				{ return forx1 ? x1offs_ : 0; }
-    				//!< For use with getPositions
+				{ return forx1 ? x1offs_ : 0; }
+				//!< For use with getPositions
 
     inline bool			isIrregular() const
 				{ return x1pos_ && nrPts(true) > 2; }
