@@ -93,11 +93,11 @@ void FlatPosData::setX1Pos( float* pos, int sz, double offs )
 
 void FlatPosData::set( const Pos::IdxSubSel2D& subsel )
 {
-    StepInterval<double> rg;
-    assign( rg, subsel.inlRange() );
-    setRange( true, rg );
-    assign( rg, subsel.crlRange() );
-    setRange( false, rg );
+    StepInterval<double> drg;
+    assign( drg, subsel.inlRange() );
+    setRange( true, drg );
+    assign( drg, subsel.crlRange() );
+    setRange( false, drg );
 }
 
 
