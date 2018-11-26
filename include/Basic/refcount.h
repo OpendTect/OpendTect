@@ -115,6 +115,7 @@ class WeakPtrBase;
 mExpClass(Basic) Counter
 {
 public:
+
     void		ref();
     bool		tryRef();
 			/*!<Refs if not invalid. Note that you have to have
@@ -157,47 +158,47 @@ mExpClass(Basic) Referenced
 {
 public:
 
-    void			ref() const;
-    void			unRef() const;
-    void			unRefNoDelete() const;
+    void		ref() const;
+    void		unRef() const;
+    void		unRefNoDelete() const;
 
 protected:
 
-				Referenced()		    {}
-				Referenced(const Referenced&);
-    Referenced&			operator =(const Referenced&);
-    virtual			~Referenced();
+			Referenced()			{}
+			Referenced(const Referenced&);
+    Referenced&		operator =(const Referenced&);
+    virtual		~Referenced();
 
 private:
-    friend			class WeakPtrBase;
-    virtual void		refNotify() const		{}
-    virtual void		unRefNotify() const		{}
-    virtual void		unRefNoDeleteNotify() const	{}
-    virtual void		prepareForDelete()		{}
-				/*!<Override to be called just before delete */
 
-    mutable Counter		refcount_;
+    friend class	WeakPtrBase;
+    virtual void	refNotify() const		{}
+    virtual void	unRefNotify() const		{}
+    virtual void	unRefNoDeleteNotify() const	{}
+    virtual void	prepareForDelete()		{}
+
+    mutable Counter	refcount_;
 
 public:
 
-    int				nrRefs() const;
+    int			nrRefs() const;
 				//!<Only for expert use
-    bool			refIfReffed() const;
+    bool		refIfReffed() const;
 				//!<Don't use in production, for debugging
-    bool			tryRef() const;
+    bool		tryRef() const;
 				//!<Not for normal use. May become private
 
-    void			addObserver(WeakPtrBase* obs);
+    void		addObserver(WeakPtrBase* obs);
 				//!<Not for normal use. May become private
-    void			removeObserver(WeakPtrBase* obs);
+    void		removeObserver(WeakPtrBase* obs);
 				//!<Not for normal use. May become private
-    static bool		        isSane(const Referenced*);
+    static bool	        isSane(const Referenced*);
 				/*Returns true if this really is a referenced
 				  (i.e. has magicnumber set ) */
 
 private:
 
-    const od_uint64		magicnumber_ = 0x123456789abcdef;
+    const od_uint64	magicnumber_ = 0x123456789abcdef;
 
 };
 
@@ -234,45 +235,55 @@ template <class T> inline void unRefIfObjIsReffed( const T& obj )
 mExpClass(Basic) WeakPtrBase
 {
 public:
-				operator bool() const;
-    bool			operator!() const;
-    bool			operator==( const WeakPtrBase& r ) const
+
+    typedef Threads::SpinLock	LockType;
+
+			operator bool() const;
+    bool		operator!() const;
+    bool		operator==( const WeakPtrBase& r ) const
 				{ return ptr_==r.ptr_; }
+
 protected:
-				WeakPtrBase();
-	void			set(Referenced*);
 
-    friend class		Counter;
+			WeakPtrBase();
+	void		set(Referenced*);
 
-    void			clearPtr();
-    mutable Threads::SpinLock	lock_;
-    Referenced*			ptr_;
+    friend class	Counter;
+
+    void		clearPtr();
+    mutable LockType	lock_;
+    Referenced*		ptr_;
+
 };
+
 
 mExpClass(Basic) WeakPtrSetBase
 {
 public:
+
     mExpClass(Basic) CleanupBlocker
     {
     public:
                         CleanupBlocker( WeakPtrSetBase& base )
-                            : base_( base )
-                        {
-                            base_.blockCleanup();
-                        }
+                            : base_( base )	{ base_.blockCleanup(); }
 
-                        ~CleanupBlocker() { base_.unblockCleanup(); }
+                        ~CleanupBlocker()	{ base_.unblockCleanup(); }
     private:
+
         WeakPtrSetBase&	base_;
 
     };
 
 protected:
-    Threads::Atomic<int>	blockcleanup_	= 0;
+
+    Threads::Atomic<int> blockcleanup_	= 0;
+
 private:
-    friend			class CleanupBlocker;
-    void			blockCleanup();
-    void			unblockCleanup();
+
+    friend class	CleanupBlocker;
+    void		blockCleanup();
+    void		unblockCleanup();
+
 };
 
 
@@ -286,6 +297,7 @@ template <class T>
 mClass(Basic) WeakPtr : public RefCount::WeakPtrBase
 {
 public:
+
 			WeakPtr(RefCount::Referenced* p = 0) { set(p); }
                         WeakPtr(const WeakPtr<T>& p) : WeakPtr<T>( p.ptr_ ) {}
                         WeakPtr(RefMan<T>& p) : WeakPtr<T>(p.ptr()) {}
@@ -298,6 +310,7 @@ public:
 			{ set(p); return p; }
 
     RefMan<T>		get() const;
+
 };
 
 
@@ -305,8 +318,11 @@ public:
 
 template <class T>
 mClass(Basic) WeakPtrSet : public RefCount::WeakPtrSetBase
-{
+{ mIsContainer( WeakPtrSet, TypeSet<WeakPtr<T> >, ptrs_ )
 public:
+
+    typedef Threads::SpinLock	LockType;
+
     bool		operator+=(const WeakPtr<T>&);
 			//Returns if added (i.e. not duplicate)
     bool		operator+=(RefMan<T>&);
@@ -320,8 +336,8 @@ public:
 
 private:
 
-    TypeSet<WeakPtr<T> >		ptrs_;
-    mutable Threads::SpinLock		lock_;
+    mutable LockType	lock_;
+
 };
 
 
@@ -349,11 +365,17 @@ inline void unRefNoDeletePtr( const RefCount::Referenced* ptr )
 //!Un-reference class pointer, and set it to zero. Works for null-pointers.
 template <class T> inline
 void unRefAndZeroPtr( T*& ptr )
-{ unRefPtr( static_cast<RefCount::Referenced*>( ptr ) ); ptr = 0; }
+{
+    unRefPtr( static_cast<RefCount::Referenced*>( ptr ) );
+    ptr = 0;
+}
 
 template <class T> inline
 void unRefAndZeroPtr( const T*& ptr )
-{ unRefPtr( static_cast<const RefCount::Referenced*>( ptr ) ); ptr = 0; }
+{
+    unRefPtr( static_cast<const RefCount::Referenced*>( ptr ) );
+    ptr = 0;
+}
 
 #define mDefineRefUnrefObjectSetFn( fn, op, extra ) \
 template <class T> \
@@ -411,25 +433,22 @@ bool WeakPtrSet<T>::operator+=( const WeakPtr<T>& toadd )
 {
     lock_.lock();
 
-    const bool cleanup = blockcleanup_.setIfValueIs( 0, -1 );
-    //Clean up old pointers
+    const bool docleanup = blockcleanup_.setIfValueIs( 0, -1 );
     for ( int idx=ptrs_.size()-1; idx>=0; idx-- )
     {
-	if ( cleanup && !ptrs_[idx] )
-        {
-	    ptrs_.removeSingle( idx );
-            continue;
-        }
+	if ( docleanup && !ptrs_[idx] )
+	    { ptrs_.removeSingle( idx ); continue; }
 
         if ( ptrs_[idx]==toadd )
         {
-            if ( cleanup ) blockcleanup_ = 0;
+            if ( docleanup )
+		blockcleanup_ = 0;
             lock_.unLock();
             return false;
         }
     }
 
-    if ( cleanup )
+    if ( docleanup )
 	blockcleanup_ = 0;
 
     ptrs_ += toadd;
@@ -463,5 +482,5 @@ RefMan<T> WeakPtrSet<T>::operator[]( int idx )
 template <class T> inline
 ConstRefMan<T> WeakPtrSet<T>::operator[]( int idx ) const
 {
-    return const_cast<WeakPtrSet<T>*>( this )->operator[](idx);
+    return const_cast<WeakPtrSet<T>*>( this )->get( idx );
 }

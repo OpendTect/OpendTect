@@ -20,13 +20,22 @@
 #include <iostream>
 #include <string.h>
 
-DataPackMgr::ID DataPackMgr::BufID()	{ return ID::get(1); }
-DataPackMgr::ID DataPackMgr::PointID()	{ return ID::get(2); }
-DataPackMgr::ID DataPackMgr::SeisID()	{ return ID::get(3); }
-DataPackMgr::ID DataPackMgr::FlatID()	{ return ID::get(4); }
-DataPackMgr::ID DataPackMgr::SurfID()	{ return ID::get(5); }
-const char* DataPack::sKeyCategory()	{ return "Category"; }
-float DataPack::sKb2MbFac()		{ return 0.0009765625; }
+mUseType( DataPack,	value_type );
+mUseType( DataPack,	arrnd_type );
+mUseType( DataPack,	kb_size_type );
+mUseType( DataPack,	total_size_type );
+mUseType( DataPack,	FullID );
+mUseType( FullID,	MgrID );
+mUseType( FullID,	PackID );
+
+
+DataPackMgr::ID DataPackMgr::BufID()		{ return ID::get(1); }
+DataPackMgr::ID DataPackMgr::PointID()		{ return ID::get(2); }
+DataPackMgr::ID DataPackMgr::SeisID()		{ return ID::get(3); }
+DataPackMgr::ID DataPackMgr::FlatID()		{ return ID::get(4); }
+DataPackMgr::ID DataPackMgr::SurfID()		{ return ID::get(5); }
+const char* DataPack::sKeyCategory()		{ return "Category"; }
+kb_size_type DataPack::sKb2MbFac()	{ return 0.0009765625; }
 
 Threads::Lock DataPackMgr::mgrlistlock_;
 ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
@@ -105,7 +114,7 @@ void DataPack::FullID::putInDBKey( DBKey& dbky ) const
 
 
 mDefineInstanceCreatedNotifierAccess(DataPack)
-static Threads::Atomic<int> curdpidnr( 0 );
+static Threads::Atomic<PackID::IDType> curdpidnr( 0 );
 
 DataPack::DataPack( const char* categry )
     : SharedObject("<?>")
@@ -251,7 +260,7 @@ DataPackMgr::~DataPackMgr()
 #ifdef __debug__
     //Don't do in release mode, as we may have race conditions of sta-tic
     //variables deleting at different times
-    for ( int idx=0; idx<packs_.size(); idx++ )
+    for ( idx_type idx=0; idx<packs_.size(); idx++ )
     {
 	ConstRefMan<DataPack> pack = packs_[idx];
 	if ( !pack )
@@ -268,10 +277,10 @@ DataPackMgr::~DataPackMgr()
 }
 
 
-float DataPackMgr::nrKBytes() const
+kb_size_type DataPackMgr::nrKBytes() const
 {
-    float res = 0;
-    for ( int idx=0; idx<packs_.size(); idx++ )
+    kb_size_type res = 0;
+    for ( idx_type idx=0; idx<packs_.size(); idx++ )
     {
         ConstRefMan<DataPack> pack = packs_[idx];
         pack.setNoDelete(true);
@@ -286,7 +295,7 @@ RefMan<DataPack> DataPackMgr::getDP( PackID dpid )
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
-    for ( int idx=0; idx<packs_.size(); idx++ )
+    for ( idx_type idx=0; idx<packs_.size(); idx++ )
     {
         RefMan<DataPack> pack = packs_[idx];
         if ( pack && pack->id() == dpid )
@@ -304,7 +313,7 @@ ConstRefMan<DataPack> DataPackMgr::getDP( PackID dpid ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
-    for ( int idx=0; idx<packs_.size(); idx++ )
+    for ( idx_type idx=0; idx<packs_.size(); idx++ )
     {
         ConstRefMan<DataPack> pack = packs_[idx];
         if ( pack && pack->id() == dpid )
@@ -320,7 +329,7 @@ ConstRefMan<DataPack> DataPackMgr::getDP( PackID dpid ) const
 WeakPtr<DataPack> DataPackMgr::observeDP( PackID dpid ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
-    for ( int idx=0; idx<packs_.size(); idx++ )
+    for ( idx_type idx=0; idx<packs_.size(); idx++ )
     {
         RefMan<DataPack> pack = packs_[idx];
         pack.setNoDelete(true);
@@ -336,7 +345,7 @@ bool DataPackMgr::isPresent( PackID packid ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
-    for ( int idx=0; idx<packs_.size(); idx++ )
+    for ( idx_type idx=0; idx<packs_.size(); idx++ )
     {
         ConstRefMan<DataPack> pack = packs_[idx];
         pack.setNoDelete(true);
@@ -351,7 +360,7 @@ void DataPackMgr::getPackIDs( TypeSet<PackID>& ids ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
-    for ( int idx=0; idx<packs_.size(); idx++ )
+    for ( idx_type idx=0; idx<packs_.size(); idx++ )
     {
         ConstRefMan<DataPack> pack = packs_[idx];
         pack.setNoDelete(true);
@@ -364,14 +373,14 @@ void DataPackMgr::getPackIDs( TypeSet<PackID>& ids ) const
 void DataPackMgr::dumpInfo( od_ostream& strm ) const
 {
     strm << "Manager.ID: " << id().getI() << od_newline;
-    const od_int64 nrkb = mCast(od_int64,nrKBytes());
+    const auto nrkb = (od_int64)( nrKBytes() + 0.5f );
     strm << "Total memory: " << File::getFileSizeString(nrkb)
 			     << od_newline;
     ascostream astrm( strm );
     astrm.newParagraph();
 
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
-    for ( int idx=0; idx<packs_.size(); idx++ )
+    for ( idx_type idx=0; idx<packs_.size(); idx++ )
     {
         ConstRefMan<DataPack> pack = packs_[idx];
         pack.setNoDelete(true);
@@ -504,7 +513,7 @@ const char* DataPackMgr::categoryOf( PackID dpid ) const
 }
 
 
-float DataPackMgr::nrKBytesOf( PackID dpid ) const
+kb_size_type DataPackMgr::nrKBytesOf( PackID dpid ) const
 {
     auto pack = getDP( dpid );
     if ( !pack )
@@ -529,7 +538,7 @@ void DataPack::doDumpInfo( IOPar& iop ) const
     iop.set( sKey::Name(), name() );
     iop.set( "Pack.ID", id_ );
     iop.set( "Nr users", nrRefs() );
-    const od_int64 nrkb = mCast(od_int64,nrKBytes());
+    const od_int64 nrkb = (od_int64)(nrKBytes() + 0.5f);
     iop.set( "Memory consumption", File::getFileSizeString(nrkb) );
     const DBKey dbky( dbKey() );
     BufferString dbkystr( "-" );
@@ -539,7 +548,8 @@ void DataPack::doDumpInfo( IOPar& iop ) const
 }
 
 
-BufferDataPack::BufferDataPack( char* b, od_int64 sz, const char* catgry )
+BufferDataPack::BufferDataPack( char* b, total_size_type sz,
+				const char* catgry )
     : DataPack(catgry)
     , buf_(0)
 {
@@ -586,7 +596,7 @@ Monitorable::ChangeType BufferDataPack::compareClassData(
 }
 
 
-void BufferDataPack::setBuf( char* b, od_int64 sz )
+void BufferDataPack::setBuf( char* b, total_size_type sz )
 {
     delete [] buf_;
     buf_ = b;
@@ -594,7 +604,7 @@ void BufferDataPack::setBuf( char* b, od_int64 sz )
 }
 
 
-bool BufferDataPack::mkNewBuf( od_int64 sz )
+bool BufferDataPack::mkNewBuf( total_size_type sz )
 {
     delete [] buf_;
     setBuf( createBuf(sz), sz );
@@ -602,7 +612,7 @@ bool BufferDataPack::mkNewBuf( od_int64 sz )
 }
 
 
-char* BufferDataPack::createBuf( od_int64 sz )
+char* BufferDataPack::createBuf( total_size_type sz )
 {
     char* ret = 0;
     if ( sz > 0 )

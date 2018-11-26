@@ -28,17 +28,24 @@ template <class T> class ArrayND;
   'Wavelet'
   'Fault surface'
 
-  A DataPack may be tied to stored object. If so, the optional dbKey() is
-  valid.
+  We have fixed the type of the data that is held to float. Moreover, the data
+  has to be stored in one or more ArrayND<float> instances.
 
-  A DataPack will often contain data in the form of ArrayND<float>.
-  Because this is so common there is access to this data from this top level.
+  A DataPack may be tied to a stored object. If so, the optional dbKey() is
+  valid.
 
 */
 
 mExpClass(Basic) DataPack : public SharedObject
 {
 public:
+
+    typedef float		value_type;
+    typedef ArrayND<value_type>	arrnd_type;
+    typedef int			idx_type;
+    typedef int			size_type;
+    typedef od_int64		total_size_type;
+    typedef float		kb_size_type;
 
     mExpClass(Basic) FullID : public GroupedID
     {
@@ -75,7 +82,7 @@ public:
     FullID			fullID( MgrID mgrid ) const
 						{ return FullID(mgrid,id()); }
     const char*			category() const	{ return gtCategory(); }
-    float			nrKBytes() const	{ return gtNrKBytes(); }
+    kb_size_type		nrKBytes() const	{ return gtNrKBytes(); }
     void			dumpInfo( IOPar& p ) const { doDumpInfo(p); }
 
     static const char*		sKeyCategory();
@@ -86,8 +93,8 @@ public:
 				cDBKeyChg() )
     static ChangeType		cDBKeyChg()		{ return 2; }
 
-    int				nrArrays() const	{ return gtNrArrays(); }
-    const ArrayND<float>*	arrayData( int iarr ) const
+    size_type			nrArrays() const	{ return gtNrArrays(); }
+    const arrnd_type*		arrayData( idx_type iarr ) const
 				{ return gtArrayData(iarr); }
 
 protected:
@@ -97,10 +104,10 @@ protected:
 
     virtual const char*		gtCategory() const	{ return category_; }
     virtual bool		gtIsEmpty() const	= 0;
-    virtual float		gtNrKBytes() const	= 0;
+    virtual kb_size_type	gtNrKBytes() const	= 0;
     virtual void		doDumpInfo(IOPar&) const = 0;
-    virtual int			gtNrArrays() const	{ return 0; }
-    virtual const ArrayND<float>* gtArrayData(int) const { return 0; }
+    virtual size_type		gtNrArrays() const	{ return 0; }
+    virtual const arrnd_type*	gtArrayData(idx_type) const { return 0; }
 
     void			setManager(const DataPackMgr*);
     const ID			id_;
@@ -110,7 +117,7 @@ protected:
     const DataPackMgr*		manager_;
 
     static ID			getNewID();  //!< ensures a global data pack ID
-    static float		sKb2MbFac(); //!< 1 / 1024
+    static kb_size_type		sKb2MbFac(); //!< 1 / 1024
 
     void			setCategory( const char* c )
 				{ *const_cast<BufferString*>(&category_) = c; }
@@ -131,27 +138,27 @@ mExpClass(Basic) BufferDataPack : public DataPack
 {
 public:
 
-			BufferDataPack(char* b=0,od_int64 s=0,
+			BufferDataPack(char* b=0,total_size_type s=0,
 					const char* catgry="Buffer");
 			mDeclMonitorableAssignment(BufferDataPack);
 
     char*		buf()			{ return buf_; }
     char const*		buf() const		{ return buf_; }
-    od_int64		size() const		{ return sz_; }
-    void		setBuf(char*,od_int64);
-    bool		mkNewBuf(od_int64);
+    total_size_type	size() const		{ return sz_; }
+    void		setBuf(char*,total_size_type);
+    bool		mkNewBuf(total_size_type);
 
-    static char*	createBuf(od_int64);
+    static char*	createBuf(total_size_type);
 
 protected:
 
 			~BufferDataPack();
 
     char*		buf_;
-    od_int64		sz_;
+    total_size_type	sz_;
 
     virtual bool	gtIsEmpty() const	{ return sz_ < 1; }
-    virtual float	gtNrKBytes() const	{ return sz_*sKb2MbFac(); }
+    virtual kb_size_type gtNrKBytes() const	{ return sz_*sKb2MbFac(); }
     virtual void	doDumpInfo( IOPar& p ) const { DataPack::doDumpInfo(p);}
 
 };
@@ -182,6 +189,10 @@ public:
 
     typedef DataPack::FullID::MgrID	ID;
     typedef DataPack::ID		PackID;
+    typedef WeakPtrSet<DataPack>	PackSet;
+    mUseType( PackSet,			idx_type );
+    mUseType( PackSet,			size_type );
+    mUseType( DataPack,			kb_size_type );
 
     inline static ID	getID( const DataPack::FullID& fid )
 						{ return fid.groupID(); }
@@ -233,12 +244,12 @@ public:
     static const char*	nameOf(const DataPack::FullID&);
     const char*		categoryOf(PackID) const;
     static const char*	categoryOf(const DataPack::FullID&);
-    virtual float	nrKBytesOf(PackID) const;
+    virtual kb_size_type nrKBytesOf(PackID) const;
     virtual void	dumpInfoFor(PackID,IOPar&) const;
 
     ID			id() const		{ return id_; }
     void		dumpInfo(od_ostream&) const;
-    float		nrKBytes() const;
+    kb_size_type	nrKBytes() const;
 
     void		getPackIDs(TypeSet<PackID>&) const;
 
@@ -247,7 +258,7 @@ protected:
     bool				doAdd(const DataPack*);
 
     ID					id_;
-    mutable WeakPtrSet<DataPack>	packs_;
+    mutable PackSet			packs_;
 
     static Threads::Lock		mgrlistlock_;
     static ManagedObjectSet<DataPackMgr> mgrs_;
@@ -347,6 +358,7 @@ template <class T>
 mClass(Basic) DataPackRef : public ConstDataPackRef<T>
 {
 public:
+
     mDeprecated		DataPackRef(DataPack* p);
 			//!<Assumes p is obtained
     mDeprecated		DataPackRef(const DataPackRef<T>&);
