@@ -28,8 +28,9 @@ class uiToolBar;
 mExpClass(uiFlatView) uiFlatViewZoomLevelDlg : public uiDialog
 { mODTextTranslationClass(uiFlatViewZoomLevelDlg)
 public:
-    			uiFlatViewZoomLevelDlg(uiParent*,float& x1pospercm,
+			uiFlatViewZoomLevelDlg(uiParent*,float& x1pospercm,
 					float& x2pospercm,bool isvertical);
+			~uiFlatViewZoomLevelDlg();
 
 protected:
 
@@ -40,6 +41,8 @@ protected:
     uiGenInput*		x2fld_;
     uiCheckBox*		saveglobalfld_;
 
+    void		finalizeDoneCB(CallBacker*);
+    void		unitChgCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 };
 
@@ -71,7 +74,7 @@ public:
 			    , initialx1pospercm_(mUdf(float))
 			    , initialx2pospercm_(mUdf(float))
 			    , initialcentre_(uiWorldPoint::udf())
-                            , tba_(-1)	{}
+			    , tba_(-1)	{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
 	mDefSetupMemb(bool,withcoltabed)
@@ -102,9 +105,9 @@ public:
     float		getCurrentPosPerCM(bool forx1) const;
 
     static void		setGlobalZoomLevel(float x1pospercm, float x2pospercm,
-	    				   bool isvertical);
+					   bool isvertical);
     static void		getGlobalZoomLevel(float& x1pospercm, float& x2pospercm,
-	    				   bool isvertical);
+					   bool isvertical);
     bool		isEditModeOn() const;
     bool		isRubberBandOn() const;
     NotifierAccess*	editPushed();
@@ -171,7 +174,7 @@ protected:
     virtual bool	handleUserClick(int vwridx);
 
     uiMenuHandler&      menu_;
-    MenuItem	propertiesmnuitem_;
+    MenuItem		propertiesmnuitem_;
     void                createMenuCB(CallBacker*);
     void                handleMenuCB(CallBacker*);
 

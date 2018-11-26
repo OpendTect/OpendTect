@@ -33,11 +33,11 @@ public:
 			~uiFlatViewControl();
 
     void		addViewer(uiFlatViewer&);
-    			//!< No attaching done. Viewer may be in other window.
+			//!< No attaching done. Viewer may be in other window.
     void		removeViewer(uiFlatViewer&);
 
     TypeSet<uiWorldRect>getBoundingBoxes() const;
-    			//!< Returns bounding boxes of all viewers.
+			//!< Returns bounding boxes of all viewers.
     virtual void	setNewView(Geom::Point2D<double> mousepos,
 				   Geom::Size2D<double> newsize,
 				   uiFlatViewer* vwr=0);
@@ -51,7 +51,7 @@ public:
 			(if has to be constant) along with needed
 			uiFlatViewer::setBoundingRect(const uiRect&). */
     virtual void	flip(bool hor);
-    			//!< reverses uiWorldRect's LR or TB swapping
+			//!< reverses uiWorldRect's LR or TB swapping
     virtual void	doPropertiesDialog(int vieweridx=0);
 
     int			getViewerIdx(const MouseEventHandler*,bool ofscene);
@@ -96,14 +96,14 @@ protected:
     virtual void	finalPrepare()			{}
     virtual void	onFinalise(CallBacker*);
     virtual bool	canReUseZoomSettings( Geom::Point2D<double>,
-	    				      Geom::Size2D<double> ) const;
+					      Geom::Size2D<double> ) const;
     virtual void	setViewToCustomZoomLevel(uiFlatViewer&) {}
     virtual void	setNewWorldRect(uiFlatViewer&,uiWorldRect&);
 			/*!< Sets uiWorldRect that can be filled in
 			available space without changing aspect ratio along with
 			needed uiFlatViewer::setBoundingRect(const uiRect&). */
     virtual void	updateZoomManager();
-    
+
     virtual void	dataChangeCB(CallBacker*);
     virtual void	rubBandCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*)	{}
@@ -114,10 +114,12 @@ protected:
     virtual void	keyPressCB(CallBacker*)		{}
     virtual void	usrClickCB(CallBacker*);
     virtual bool	handleUserClick(int vwridx)	{ return false; }
-    
+
     virtual void	propDlgClosed(CallBacker*);
     virtual void	applyProperties(CallBacker* cb);
     virtual void	saveProperties(FlatView::Viewer&);
+
+    void		initZoom(CallBacker*);
 
 };
 

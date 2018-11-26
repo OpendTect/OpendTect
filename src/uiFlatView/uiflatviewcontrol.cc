@@ -10,12 +10,16 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiflatviewcontrol.h"
-#include "mouseevent.h"
+
 #include "uiflatviewer.h"
 #include "uiflatviewpropdlg.h"
-#include "uirgbarraycanvas.h"
 #include "uigraphicsscene.h"
+#include "uirgbarraycanvas.h"
 
+#include "hiddenparam.h"
+#include "mouseevent.h"
+
+static HiddenParam<uiFlatViewControl,char> initdone(0);
 
 uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
@@ -26,11 +30,15 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
     , zoomChanged(this)
     , rubberBandUsed(this)
 {
+    initdone.setParam( this, 0 );
     addViewer( vwr );
     if ( vwr.attachObj()->parent() )
 	mAttachCB( vwr.attachObj()->parent()->postFinalise(),
 			uiFlatViewControl::onFinalise );
     mAttachCB( viewerAdded, uiFlatViewControl::vwrAdded );
+
+    // Hack to set correct zoom level at start-up.
+    mAttachCB( vwr.rgbCanvas().reSize, uiFlatViewControl::initZoom );
 }
 
 
@@ -38,6 +46,7 @@ uiFlatViewControl::~uiFlatViewControl()
 {
     detachAllNotifiers();
     deleteAndZeroPtr( propdlg_ );
+    initdone.removeParam( this );
 }
 
 
@@ -90,17 +99,24 @@ TypeSet<uiWorldRect> uiFlatViewControl::getBoundingBoxes() const
 }
 
 
+void uiFlatViewControl::initZoom( CallBacker* )
+{
+    if ( initdone.getParam(this) )
+	return;
+
+    initdone.setParam( this, true );
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	setViewToCustomZoomLevel( *vwrs_[idx] );
+}
+
+
 void uiFlatViewControl::onFinalise( CallBacker* )
 {
     const bool canreuse = !zoommgr_.atStart()
 			 && canReUseZoomSettings( vwrs_[0]->curView().centre(),
 						  zoommgr_.current() );
     if ( !canreuse )
-    {
 	zoommgr_.init( getBoundingBoxes() );
-	for ( int idx=0; idx<vwrs_.size(); idx++ )
-	    setViewToCustomZoomLevel( *vwrs_[idx] );
-    }
 
     finalPrepare();
 }
@@ -253,7 +269,7 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx )
 	propdlg_ = new uiFlatViewPropDlg( parent(), vwr,
 				mCB(this,uiFlatViewControl,applyProperties),
 				annots.size() ? &annots : 0, selannot );
-    	mAttachCB( propdlg_->windowClosed, uiFlatViewControl::propDlgClosed );
+	mAttachCB( propdlg_->windowClosed, uiFlatViewControl::propDlgClosed );
     }
 
     propdlg_->show();
@@ -284,7 +300,7 @@ void uiFlatViewControl::applyProperties( CallBacker* )
     const int selannot = propdlg_->selectedAnnot();
     vwr->setAnnotChoice( selannot );
     vwr->handleChange( FlatView::Viewer::Annot |
-	    	       FlatView::Viewer::DisplayPars );
+		       FlatView::Viewer::DisplayPars );
     vwr->dispPropChanged.trigger();
 
     vwr->updateBitmapsOnResize( updateonresize );

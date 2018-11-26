@@ -26,10 +26,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "hiddenparam.h"
 #include "keyboardevent.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
-#include "settings.h"
+#include "survinfo.h"
 #include "texttranslator.h"
 
 #define mDefBut(but,fnm,cbnm,tt) \
@@ -48,6 +49,8 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyVW2DTrcsPerCM()	{ return "Viewer2D.TrcsPerCM"; }
 static const char* sKeyVW2DZPerCM()	{ return "Viewer2D.ZSamplesPerCM"; }
 
+static HiddenParam<uiFlatViewZoomLevelDlg,uiGenInput*> unitflds(0);
+
 uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
 			float& x1pospercm, float& x2pospercm, bool isvertical )
     : uiDialog(p,uiDialog::Setup(tr("Set zoom level"),uiString::emptyString(),
@@ -56,24 +59,65 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
     , x2pospercm_(x2pospercm)
     , x2fld_(0)
 {
-    x1fld_ = new uiGenInput( this, tr("Traces per cm"), FloatInpSpec() );
-    x1fld_->setValue( x1pospercm_ );
+    const bool usesi = !SI().xyInFeet();
+    uiGenInput* unitfld = new uiGenInput( this, uiStrings::sUnit(),
+			BoolInpSpec(usesi,tr("cm"),tr("inches")) );
+    unitfld->valuechanged.notify( mCB(this,uiFlatViewZoomLevelDlg,unitChgCB) );
+    unitflds.setParam( this, unitfld );
+
+    x1fld_ = new uiGenInput( this, uiStrings::sEmptyString(), FloatInpSpec() );
+    x1fld_->attach( alignedBelow, unitfld );
+
     if ( isvertical )
     {
-	x2fld_ = new uiGenInput( this, tr("Z Samples per cm"), FloatInpSpec() );
-	x2fld_->setValue( x2pospercm_ );
+	x2fld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+				 FloatInpSpec() );
 	x2fld_->attach( alignedBelow, x1fld_ );
     }
 
-    saveglobalfld_ = new uiCheckBox( this, tr( "Save globally" ) );
+    saveglobalfld_ = new uiCheckBox( this, tr("Save globally") );
     saveglobalfld_->attach( alignedBelow, isvertical ? x2fld_ : x1fld_ );
+
+    unitChgCB(0);
+    postFinalise().notify( mCB(this,uiFlatViewZoomLevelDlg,finalizeDoneCB) );
+}
+
+
+uiFlatViewZoomLevelDlg::~uiFlatViewZoomLevelDlg()
+{
+    unitflds.removeParam( this );
+}
+
+
+void uiFlatViewZoomLevelDlg::finalizeDoneCB(CallBacker*)
+{
+    x1fld_->setNrDecimals( 2 );
+    if ( x2fld_ )
+	x2fld_->setNrDecimals( 2 );
+}
+
+
+void uiFlatViewZoomLevelDlg::unitChgCB( CallBacker* )
+{
+    const bool incm = unitflds.getParam(this)->getBoolValue();
+    const float fact = incm ? 1.f : 2.54f;
+
+    x1fld_->setValue( x1pospercm_*fact );
+    x1fld_->setTitleText( tr("Traces per %1").arg(incm?"cm":"inch") );
+    if ( x2fld_ )
+    {
+	x2fld_->setValue( x2pospercm_*fact );
+	x2fld_->setTitleText( tr("Z Samples per %1").arg(incm?"cm":"inch") );
+    }
 }
 
 
 bool uiFlatViewZoomLevelDlg::acceptOK( CallBacker* )
 {
-    x1pospercm_ = x1fld_->getFValue();
-    x2pospercm_ = x2fld_ ? x2fld_->getFValue() : x1pospercm_;
+    const bool incm = unitflds.getParam(this)->getBoolValue();
+    const float fact = incm ? 1.f : 2.54f;
+    x1pospercm_ = x1fld_->getFValue() / fact;
+    x2pospercm_ = x2fld_ ? x2fld_->getFValue()/fact : x1pospercm_;
     if ( saveglobalfld_->isChecked() )
 	uiFlatViewStdControl::setGlobalZoomLevel(
 		x1pospercm_, x2pospercm_, x2fld_ );
@@ -81,6 +125,7 @@ bool uiFlatViewZoomLevelDlg::acceptOK( CallBacker* )
 }
 
 
+// uiFlatViewStdControl
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
     : uiFlatViewControl(vwr,setup.parent_,setup.withrubber_)
@@ -152,7 +197,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					optcb,"set_ghomezoom"), sGlobalHZIdx );
 	mnu->insertAction( new uiAction(tr("Manually set home zoom"),
 					optcb,"man_homezoom"), sManHZIdx );
-	sethomezoombut_->setMenu( mnu );
+	sethomezoombut_->setMenu( mnu, uiToolButton::InstantPopup );
 	mDefBut(gotohomezoombut_,"homezoom",gotoHomeZoomCB,
 		tr("Go to home zoom"));
 	gotohomezoombut_->setSensitive( !mIsUdf(defx1pospercm_) &&
@@ -470,20 +515,22 @@ float uiFlatViewStdControl::getCurrentPosPerCM( bool forx1 ) const
 void uiFlatViewStdControl::setGlobalZoomLevel(
 		float x1pospercm, float x2pospercm, bool isvertical )
 {
-    Settings::common().set( sKeyVW2DTrcsPerCM(), x1pospercm );
+    IOPar& sipars = SI().getPars();
+    sipars.set( sKeyVW2DTrcsPerCM(), x1pospercm );
     if ( isvertical )
-	Settings::common().set( sKeyVW2DZPerCM(), x2pospercm );
+	sipars.set( sKeyVW2DZPerCM(), x2pospercm );
 
-    mSettWrite();
+    SI().savePars();
 }
 
 
 void uiFlatViewStdControl::getGlobalZoomLevel(
 		float& x1pospercm, float& x2pospercm, bool isvertical )
 {
-    Settings::common().get( sKeyVW2DTrcsPerCM(), x1pospercm );
+    const IOPar& sipars = SI().getPars();
+    sipars.get( sKeyVW2DTrcsPerCM(), x1pospercm );
     if ( isvertical )
-	Settings::common().get( sKeyVW2DZPerCM(), x2pospercm );
+	sipars.get( sKeyVW2DZPerCM(), x2pospercm );
     else
 	x2pospercm = x1pospercm;
 }
