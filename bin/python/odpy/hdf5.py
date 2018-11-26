@@ -10,11 +10,25 @@ import collections
 import numpy as np
 import h5py
 
+
 def getInfoDataSet( h5file_or_grp ):
-  return h5file_or_grp["++info++"]
+  try:
+    return h5file_or_grp["++info++"]
+  except KeyError:
+    print( "Input Error: HDF5 file probably not created by OpendTect (no ++info++ attribute)" )
+    raise
 
 def getAttr( dataset, ky ):
-  return np.bytes_(dataset.attrs[ky]).decode().rstrip().split("\x00")[0]
+  try:
+    attrib = dataset.attrs[ky]
+    return np.bytes_(dataset.attrs[ky]).decode().rstrip().split("\x00")[0]
+  except KeyError:
+    print( "HDF5 key not found: '"+ky+"'. Available keys:\n")
+    print( list(dataset.attrs.keys()) )
+    raise
+
+def hasAttr( dataset, ky ):
+  return ky in dataset.attrs
 
 def getAttrs( dataset, ky ):
   return getAttr( dataset, ky ).split( "`" )
@@ -36,19 +50,31 @@ def getDValue( infos, ky ):
 
 def getIInterval( infos, ky ):
   ret = getText(infos,ky)
-  return [int(ret[0]), int(ret[1])]
+  try:
+    return [int(ret[0]), int(ret[1])]
+  except IndexError:
+    return getIntValue( infos, ky )
 
 def getDInterval( infos, ky ):
   ret = getText(infos,ky)
-  return [float(ret[0]), float(ret[1])]
+  try:
+    return [float(ret[0]), float(ret[1])]
+  except IndexError:
+    return getDValue( infos, ky )
 
 def getIStepInterval( infos, ky ):
   ret = getText(infos,ky)
-  return [int(ret[0]), int(ret[1]), int(ret[2])]
+  try:
+    return [int(ret[0]), int(ret[1]), int(ret[2])]
+  except IndexError:
+    return getIInterval( infos, ky )
 
 def getDStepInterval( infos, ky ):
   ret = getText(infos,ky)
-  return [float(ret[0]), float(ret[1]), float(ret[2])]
+  try:
+    return [float(ret[0]), float(ret[1]), float(ret[2])]
+  except IndexError:
+    return getDInterval( infos, ky )
 
 def getAttribInfo( filenm ):
   h5file = h5py.File( filenm, "r" )
