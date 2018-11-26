@@ -74,9 +74,10 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 		    tr("(%1, power)").arg(uiStrings::sFrequency(true))) :
 		    uiStrings::phrJoinStrings(uiStrings::sValue(),
 		    tr("(%1, power)").arg(uiStrings::sWaveNumber(true)));
-    valfld_ = new uiGenInput(dispparamgrp_, lbl, FloatInpIntervalSpec());
+    valfld_ = new uiGenInput( dispparamgrp_, lbl, FloatInpIntervalSpec() );
     valfld_->attach( alignedBelow, rangefld_ );
     valfld_->display( false );
+    valfld_->setNrDecimals( 2 );
 
     normfld_ = new uiCheckBox( dispparamgrp_, tr("Normalize") );
     normfld_->attach( rightOf, valfld_ );
@@ -121,8 +122,8 @@ void uiAmplSpectrum::setDataPackID(
     ConstDataPackRef<DataPack> datapack = DPM(dmid).obtain( dpid );
     if ( datapack )
 	setCaption( !datapack ? tr("No data")
-	                      : tr( "Amplitude Spectrum for %1" )
-                                .arg( datapack->name() ) );
+			      : tr( "Amplitude Spectrum for %1" )
+				.arg( datapack->name() ) );
 
     if ( dmid == DataPackMgr::FlatID() )
     {
@@ -239,7 +240,7 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 
     const int freqsz = freqdomainsum_->info().getSize(0) / 2;
     delete specvals_;
-    specvals_ = new Array1DImpl<float>( fftsz );
+    specvals_ = new Array1DImpl<float>( freqsz );
     maxspecval_ = 0.f;
     for ( int idx=0; idx<freqsz; idx++ )
     {
@@ -275,7 +276,7 @@ void uiAmplSpectrum::putDispData( CallBacker* cb )
     posrange_.set( 0, maxfreq );
     rangefld_->setValue( posrange_ );
     const float step = (posrange_.stop-posrange_.start)/25.f;
-    stepfld_->box()->setInterval( posrange_.start+step, posrange_.stop, step );
+    stepfld_->box()->setInterval( posrange_.start, posrange_.stop, step );
     stepfld_->box()->setValue( maxfreq/5 );
     disp_->yAxis(false)->setCaption( dbscale ? tr("Power (dB)")
 					     : tr("Amplitude") );
@@ -325,7 +326,7 @@ void uiAmplSpectrum::exportCB( CallBacker* )
     uiString fnm = toUiString(dlg.fileName());
     if ( strm.isBad() )
     {
-        uiMSG().error( uiStrings::phrCannotOpen(uiStrings::phrOutput(
+	uiMSG().error( uiStrings::phrCannotOpen(uiStrings::phrOutput(
 		       uiStrings::phrJoinStrings(uiStrings::sFile(),tr("%1")
 		       .arg(fnm)))) );
 	return;
@@ -335,9 +336,9 @@ void uiAmplSpectrum::exportCB( CallBacker* )
 
     if ( strm.isBad() )
     {
-        uiMSG().error( uiStrings::phrCannotWrite(tr("values to: %1")
+	uiMSG().error( uiStrings::phrCannotWrite(tr("values to: %1")
 				 .arg(fnm)) );
-        return;
+	return;
     }
 
     uiMSG().message( tr("Values written to: %1").arg(fnm) );
@@ -349,23 +350,24 @@ void uiAmplSpectrum::valChgd( CallBacker* )
     if ( !specvals_ ) return;
 
     const Geom::Point2D<int>& pos = disp_->getMouseEventHandler().event().pos();
-    Interval<float> rg( disp_->xAxis()->getVal( pos.x ),
-			disp_->yAxis(false)->getVal( pos.y ) );
-    const bool disp = disp_->xAxis()->range().includes(rg.start,true) &&
-		      disp_->yAxis(false)->range().includes(rg.stop,true);
+    const float xpos = disp_->xAxis()->getVal( pos.x );
+    const float ypos = disp_->yAxis(false)->getVal( pos.y );
+    const bool disp = disp_->xAxis()->range().includes(xpos,true) &&
+		      disp_->yAxis(false)->range().includes(ypos,true);
     valfld_->display( disp );
     if ( !disp )
 	return;
 
-    const float ratio = (rg.start-posrange_.start)/posrange_.width();
+    const float ratio = (xpos-posrange_.start)/posrange_.width();
     const float specsize = mCast( float, specvals_->info().getSize(0) );
     const int specidx = mNINT32( ratio * specsize );
     const TypeSet<float>& specvals = disp_->yVals();
     if ( !specvals.validIdx(specidx) )
 	return;
 
-    rg.stop = specvals[specidx];
-    valfld_->setValue( rg );
+    const float yval = specvals[specidx];
+    valfld_->setValue( xpos, 0 );
+    valfld_->setValue( yval, 1 );
 }
 
 
