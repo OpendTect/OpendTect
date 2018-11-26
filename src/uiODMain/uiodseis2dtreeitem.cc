@@ -514,6 +514,7 @@ bool uiOD2DLineTreeItem::init()
     if ( geom2d.isEmpty() )
 	return false;
 
+    s2d->setGeometry( geom2d.data() );
     s2d->setProbe( getProbe() );
     s2d->setName( geom2d.name() );
     //If restore, we use the old display range after set the geometry.
@@ -528,7 +529,6 @@ bool uiOD2DLineTreeItem::init()
 	mTIUiMsg().warning( msg );
     }
 
-    s2d->setGeometry( geom2d.data() );
     TrcKeyZSampling probepos = probe->position();
     if ( !newdisplay )
     {

@@ -313,43 +313,37 @@ const Interval<int> Seis2DDisplay::getSampleRange() const
 #define mRetErrGeo \
 { pErrMsg("Geometry not set"); return; }
 
-void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
+void Seis2DDisplay::setTraceNrRange( const Interval<int>& reqtrcnrrg )
 {
     trcdisplayinfo_.rg_.setUdf();
 
     if ( maxtrcnrrg_.isRev() )
 	mRetErrGeo;
 
-    const Interval<int> rg( maxtrcnrrg_.limitValue(trcrg.start),
-			    maxtrcnrrg_.limitValue(trcrg.stop) );
-    if ( !rg.width() )
+    const Interval<int> trcnrrg( maxtrcnrrg_.limitValue(reqtrcnrrg.start),
+				 maxtrcnrrg_.limitValue(reqtrcnrrg.stop) );
+    if ( trcnrrg.width() < 1 )
 	return;
 
-    int startidx=-1, stopidx=-1;
+    Interval<int> idxrg( mUdf(int), mUdf(int) );
     for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs_.size(); idx++ )
     {
-	if ( trcdisplayinfo_.alltrcnrs_[idx]>=rg.start )
+	const auto trcnr = trcdisplayinfo_.alltrcnrs_[idx];
+	if ( trcnrrg.includes(trcnr,false) )
 	{
-	    startidx = idx;
-	    break;
+	    if ( mIsUdf(idxrg.start) )
+		idxrg.start = idxrg.stop = idx;
+	    else
+		idxrg.include( idx, false );
 	}
     }
 
-    for ( int idx=trcdisplayinfo_.alltrcnrs_.size()-1; idx>=0; idx-- )
-    {
-	if ( trcdisplayinfo_.alltrcnrs_[idx]<=rg.stop )
-	{
-	    stopidx = idx;
-	    break;
-	}
-    }
-
-    if ( startidx<0 || stopidx<0 )
+    if ( mIsUdf(idxrg.start) )
 	mRetErrGeo;
 
-    trcdisplayinfo_.rg_.start = trcdisplayinfo_.alltrcnrs_[startidx];
-    trcdisplayinfo_.rg_.stop = trcdisplayinfo_.alltrcnrs_[stopidx];
-    trcdisplayinfo_.size_ = stopidx - startidx + 1;
+    trcdisplayinfo_.rg_.start = trcdisplayinfo_.alltrcnrs_[idxrg.start];
+    trcdisplayinfo_.rg_.stop = trcdisplayinfo_.alltrcnrs_[idxrg.stop];
+    trcdisplayinfo_.size_ = idxrg.width() + 1;
     updatePanelStripPath();
 }
 
