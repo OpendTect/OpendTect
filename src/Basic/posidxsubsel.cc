@@ -154,7 +154,8 @@ bool Pos::ZSubSelData::hasFullRange() const
 
 idx_type Pos::ZSubSelData::idx4Z( z_type z ) const
 {
-    return (z - zStart()) / zStep();
+    const auto fnrz = (z - zStart()) / zStep();
+    return mNINT32( fnrz );
 }
 
 
