@@ -77,9 +77,9 @@ protected:
 			~Geometry2D();
 
     Line2DData&		data_;
-    TypeSet<float>	spnrs_;
-    mutable float	avgtrcdist_			= mUdf(float);
-    mutable float	linelength_			= mUdf(float);
+    TypeSet<spnr_type>	spnrs_;
+    mutable dist_type	avgtrcdist_			= mUdf(dist_type);
+    mutable dist_type	linelength_			= mUdf(dist_type);
 
     Geometry3D*		gtAs3D() const	override	{ return 0; }
     Geometry2D*		gtAs2D() const	override
@@ -101,7 +101,7 @@ public:
 
 			// *you* should probably not be changing line geometries
     void		setEmpty() const;
-    void		add(const Coord&,int trcnr,float SPnr);
+    void		add(const Coord&,tracenr_type,spnr_type);
     void		commitChanges() const; //!< mandatory after any change
 
     static Geometry2D&	dummy();
