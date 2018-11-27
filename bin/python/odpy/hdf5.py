@@ -85,13 +85,11 @@ def getAttribInfo( filenm ):
   datasetnm = getText(infods,"Name.Cube")
   compnms  = getText(infods,"Components")
   datachar = getText(infods,"Data storage")
-  inlstart = getIntValue(infods,"First In-line")
-  inlstop  = getIntValue(infods,"Last In-line")
-  inl_step = getIntValue(infods,"Step In-line")
-  crlstart = getIntValue(infods,"First Cross-line")
-  crlstop  = getIntValue(infods,"Last Cross-line")
-  crl_step = getIntValue(infods,"Step Cross-line")
+  inlinerg    = getIInterval(infods,"In-line range")
+  crosslinerg = getIInterval(infods,"Cross-line range")
   zrg      = getDStepInterval(infods,"Z range")
+  inl_step = getIntValue(infods,"Step In-line")
+  crl_step = getIntValue(infods,"Step Cross-line")
   blocksdim = getIInterval(infods,"Blocks.Max Dimensions")
   blocksinlrg = getIInterval(infods,"Blocks.Inl ID Range")
   blockscrlrg = getIInterval(infods,"Blocks.Crl ID Range")
@@ -106,8 +104,8 @@ def getAttribInfo( filenm ):
     'zdomain': zdomain,
     'storage': datachar,
     'range': collections.OrderedDict({
-      'Inline': [inlstart,inlstop,inl_step],
-      'Crossline': [crlstart,crlstop,crl_step],
+      'Inline': [inlinerg[0],inlinerg[1],inl_step],
+      'Crossline': [crosslinerg[0],crosslinerg[1],crl_step],
       'Z': zrg
     }),
     'block': {
@@ -135,8 +133,10 @@ def getSurveyInfo( filenm ):
   h5file = h5py.File( filenm, "r" )
   infods = getInfoDataSet( h5file )
   surveyname = getText(infods,"Name.Survey")
-  inlinerg    = getIInterval(infods,"In-line range")
-  crosslinerg = getIInterval(infods,"Cross-line range")
+  inlstart = getIntValue(infods,"First In-line")
+  inlstop  = getIntValue(infods,"Last In-line")
+  crlstart = getIntValue(infods,"First Cross-line")
+  crlstop  = getIntValue(infods,"Last Cross-line")
   xrg = getDInterval(infods,"X range")
   yrg = getDInterval(infods,"Y range")
   transform = getTransform( infods )
@@ -144,8 +144,8 @@ def getSurveyInfo( filenm ):
   return collections.OrderedDict({
     'name': surveyname,
     'range': collections.OrderedDict({
-      'Inline': inlinerg,
-      'Crossline': crosslinerg,
+      'Inline': [inlstart,inlstop],
+      'Crossline': [crlstart,crlstop],
       'X': xrg,
       'Y': yrg
     }),
