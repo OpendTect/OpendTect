@@ -163,8 +163,8 @@ void Array2DInterpol::setTrendOrder( PolyTrend::Order ord )
 
 void Array2DInterpol::setSampling( const TrcKeySampling& hs )
 {
-    setRowStep( hs.lineDistance() );
-    setColStep( hs.trcDistance() );
+    setRowStep( (float)hs.lineDistance() );
+    setColStep( (float)hs.trcDistance() );
     setOrigin( hs.start_ );
 }
 
