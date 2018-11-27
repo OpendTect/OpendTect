@@ -50,7 +50,7 @@ public:
     bool		is2D() const		{ return ::is2D(geomsystem_); }
     bool		is3D() const		{ return ::is3D(geomsystem_); }
     void		setIs2D()		{ ::set2D( geomsystem_ ); }
-    void		setIs3D()		{ ::set2D( geomsystem_ ); }
+    void		setIs3D()		{ ::set3D( geomsystem_ ); }
     void		setGeomID(GeomID);
     GeomID		getGeomID() const;
     void		setIs2D( bool yn )	{ yn ? setIs2D() : setIs3D(); }
