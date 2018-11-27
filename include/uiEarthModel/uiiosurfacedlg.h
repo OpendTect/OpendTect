@@ -104,4 +104,21 @@ protected:
 };
 
 
+mExpClass(uiEarthModel) uiCopyFaultSet : public uiDialog
+{ mODTextTranslationClass(uiCopyFaultSet)
+public:
+			uiCopyFaultSet(uiParent*,const IOObj&);
+
+protected:
+
+    uiIOObjSel*		inpfld_;
+    uiListBox*		surflist_;
+    uiIOObjSel*		outfld_;
+
+    bool		acceptOK(CallBacker*);
+    void		inpSelCB(CallBacker*);
+
+};
+
+
 #endif
