@@ -940,7 +940,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiPhraseSet& inf ) const
 	    double area;
 	    if ( getDefSpaceInfo(spcinfo) )
 	    {
-		area = mCast(double,cs.hsamp_.lineDistance()) *
+		area = cs.hsamp_.lineDistance() *
 		       cs.hsamp_.trcDistance() * spcinfo.expectednrtrcs;
 		if ( SI().xyInFeet() )
 		    area *= (mFromFeetFactorD * mFromFeetFactorD);
