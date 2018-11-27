@@ -355,8 +355,17 @@ void uiSurfaceMan::copyCB( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
-    const bool canhaveattribs = type_ == uiSurfaceMan::Hor3D;
     PtrMan<IOObj> ioobj = curioobj_->clone();
+    if ( type_ == FltSet )
+    {
+	uiCopyFaultSet dlg( this, *ioobj );
+	if ( dlg.go() )
+	    selgrp_->fullUpdate( ioobj->key() );
+
+	return;
+    }
+
+    const bool canhaveattribs = type_ == uiSurfaceMan::Hor3D;
     uiSurfaceRead::Setup su( ioobj->group() );
     su.withattribfld(canhaveattribs).withsubsel(!isCurFault())
       .multisubsel(true).withsectionfld(false);
