@@ -152,8 +152,8 @@ public:
     BinID		atGlobIdx( od_int64 gidx ) const
 			{
 			    const auto nrinl = nrInl();
-			    return BinID( inl4Idx(gidx/nrinl),
-					  crl4Idx(gidx%nrinl) );
+			    return BinID( inl4Idx((pos_type)(gidx/nrinl)),
+					  crl4Idx((pos_type)(gidx%nrinl)) );
 			}
 
 };
