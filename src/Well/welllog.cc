@@ -666,8 +666,9 @@ void Well::Log::updValStats( ValueType val )
     if ( val > valrg_.stop )
 	valrg_.stop = val;
 
-    const ValueType intval = mRounded( ValueType, val );
-    const bool iscode = mIsEqual(val,intval,valsarecodeeps);
+    const int intval = mRounded( int, val );
+    const bool iscode = intval > -99 && intval < 1000
+		     && mIsEqual(val,intval,valsarecodeeps);
     if ( valsarecodes_ && !iscode )
 	valsarecodes_ = false;
 }
