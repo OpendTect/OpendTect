@@ -79,6 +79,9 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
+    if ( SI().name().isEmpty() )
+	return 0;
+
     if ( !testSubGeom3D() )
 	return 1;
     if ( !testSubGeom2D() )
