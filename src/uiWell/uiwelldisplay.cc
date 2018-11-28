@@ -93,6 +93,8 @@ void uiWellDisplay::init( const Setup& s )
 		   uiWellDisplay::wdChgCB );
 	mAttachCB( wd_->displayProperties(true).log(true).objectChanged(),
 		   uiWellDisplay::wdChgCB );
+	mAttachCB( wd_->displayProperties(true).markers().objectChanged(),
+		   uiWellDisplay::wdChgCB );
     }
 
     if ( s.nobackground_ )
