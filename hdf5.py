@@ -43,7 +43,11 @@ def getBoolValue( infos, ky ):
   return getAttr( infos, ky ) == "Yes"
 
 def getIntValue( infos, ky ):
-  return int(getAttr(infos,ky))
+  valstr = getAttr(infos,ky)
+  try:
+    return int(valstr)
+  except ValueError:
+    return int(float(valstr))
 
 def getDValue( infos, ky ):
   return float(getAttr(infos,ky))
