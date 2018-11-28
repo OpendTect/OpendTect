@@ -6,11 +6,13 @@
 
 
 #include "posidxpairdataset.h"
+#include "arrayndimpl.h"
 #include "idxable.h"
+#include "od_iostream.h"
 #include "posinfo.h"
+#include "horsubsel.h"
 #include "statrand.h"
 #include "trckeysampling.h"
-#include "od_iostream.h"
 
 
 
@@ -817,48 +819,63 @@ void Pos::IdxPairDataSet::removeDuplicateIdxPairs()
 }
 
 
-void Pos::IdxPairDataSet::extend( const Pos::IdxPairDelta& so,
-				  const Pos::IdxPairStep& sostep,
-				  bool avoiddups )
+void Pos::IdxPairDataSet::extendHor( const Pos::IdxPairDelta& so,
+				     const Pos::IdxPairStep& sostep,
+				     EntryCreatedFn crfn )
 {
-    if ( (!so.first && !so.second) || (!sostep.first && !sostep.second) )
+    if ( isEmpty()
+      || (!so.first && !so.second) || (!sostep.first && !sostep.second) )
 	return;
 
-    IdxPairDataSet toadd( objsz_, avoiddups, true );
+    // this implementation is rather complex to make sure big sets will not
+    // get bizarre performance. To counter large stepouts and/or large sets,
+    // we'll keep track of where data is needed in an Array2D
+    // Then afterwards, we'll add a single position there
+
+    auto inlrg = inlRange();
+    inlrg.widen( so.inl() * sostep.inl() );
+    auto crlrg = crlRange();
+    crlrg.widen( so.crl() * sostep.crl() );
+    const IdxSubSel2D::pos_steprg_type inldef( inlrg, sostep.inl() );
+    const IdxSubSel2D::pos_steprg_type crldef( crlrg, sostep.crl() );
+    const CubeHorSubSel subsel( inldef, crldef );
+    Array2DImpl<bool> needed( subsel.size(0), subsel.size(1) );
+    needed.setAll( false );
+
     SPos spos;
     while ( next(spos) )
     {
-	IdxPair ip = gtIdxPair( spos );
-	const void* obj = getObj( spos );
-	const IdxPair centralip( ip );
-	for ( int ifrstoffs=-so.first; ifrstoffs<=so.first; ifrstoffs++ )
+	const auto centralip = gtIdxPair( spos );
+	for ( pos_type ifrstoffs=-so.first; ifrstoffs<=so.first; ifrstoffs++ )
 	{
-	    ip.first = centralip.first + ifrstoffs * sostep.first;
+	    const auto first = centralip.first + ifrstoffs * sostep.first;
 	    for ( int iscndoffs=-so.second; iscndoffs<=so.second; iscndoffs++ )
 	    {
-		if ( !ifrstoffs && !iscndoffs )
-		    continue;
-
-		ip.second = centralip.second + iscndoffs * sostep.second;
-		if ( avoiddups )
-		{
-		    SPos newspos = find( ip );
-		    if ( newspos.isValid() )
-			continue;
-		}
-		toadd.add( ip, obj );
+		const auto scnd = centralip.second + iscndoffs * sostep.second;
+		const auto rc = subsel.rowCol( first, scnd );
+		needed.set( rc.row(), rc.col(), true );
 	    }
 	}
     }
 
-    spos.reset();
-    while ( toadd.next(spos) )
+    const SPos firstspos( 0, 0 );
+    const void* firstobj = getObj( firstspos );
+    ArrRegSubSel2DIterator it( subsel );
+    while ( it.next() )
     {
-	const IdxPair ip = toadd.getIdxPair( spos );
-	const void* obj = toadd.getObj( spos );
-	const SPos newspos = add( ip, obj );
-	if ( !newspos.isValid() )
-	    { mHandleMemFull(); return; }
+	if ( !needed.get(it.idx0_,it.idx1_) )
+	    continue;
+
+	const auto bid( subsel.binID(it.idx0_,it.idx1_) );
+	spos = find( bid );
+	if ( !spos.isValid() )
+	{
+	    spos = add( bid, firstobj );
+	    if ( !spos.isValid() )
+		{ mHandleMemFull(); return; }
+	    else if ( crfn )
+		crfn( *this, spos.i, spos.j );
+	}
     }
 }
 

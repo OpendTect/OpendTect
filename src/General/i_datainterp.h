@@ -31,10 +31,11 @@ template <>
 void DataInterpreter<mTheType>::set( const DataCharacteristics& dc,
 				     bool ignend )
 {
-    swpfn = dc.nrBytes() == BinDataDesc::N1 ? mDICB(SwapFn,swap0)
-	: ( dc.nrBytes() == BinDataDesc::N8 ? mDICB(SwapFn,swap8)
-	: ( dc.nrBytes() == BinDataDesc::N4 ? mDICB(SwapFn,swap4)
-					    : mDICB(SwapFn,swap2) ) );
+    const auto nrb = dc.nrBytes();
+    swpfn = nrb == BinDataDesc::N1 ? mDICB(SwapFn,swap0)
+	: ( nrb == BinDataDesc::N8 ? mDICB(SwapFn,swap8)
+	: ( nrb == BinDataDesc::N4 ? mDICB(SwapFn,swap4)
+				   : mDICB(SwapFn,swap2) ) );
 
     getfn = mDICB(GetFn,get0);
     putfn = mDICB(PutFn,put0);
@@ -44,14 +45,14 @@ void DataInterpreter<mTheType>::set( const DataCharacteristics& dc,
     {
 	if ( !dc.isIeee() )
 	{
-	    if ( dc.nrBytes() == BinDataDesc::N4 )
+	    if ( nrb == BinDataDesc::N4 )
 		mDefGetPut(FIbm)
 	}
 	else
 	{
-	    if ( dc.nrBytes() == BinDataDesc::N4 )
+	    if ( nrb == BinDataDesc::N4 )
 		mDefGetPut(F)
-	    else if ( dc.nrBytes() == BinDataDesc::N8 )
+	    else if ( nrb == BinDataDesc::N8 )
 		mDefGetPut(D)
 	}
     }
@@ -61,7 +62,7 @@ void DataInterpreter<mTheType>::set( const DataCharacteristics& dc,
 	{
 	    if ( !dc.isIeee() )
 	    {
-		switch ( dc.nrBytes() )
+		switch ( nrb )
 		{
 		case BinDataDesc::N1: mDefGetPutNoSwap(S1)	break;
 		case BinDataDesc::N2: mDefGetPut(S2Ibm)		break;
@@ -71,7 +72,7 @@ void DataInterpreter<mTheType>::set( const DataCharacteristics& dc,
 	    }
 	    else
 	    {
-		switch ( dc.nrBytes() )
+		switch ( nrb )
 		{
 		case BinDataDesc::N1: mDefGetPutNoSwap(S1)	break;
 		case BinDataDesc::N2: mDefGetPut(S2)		break;
@@ -82,7 +83,7 @@ void DataInterpreter<mTheType>::set( const DataCharacteristics& dc,
 	}
 	else if ( dc.isIeee() )
 	{
-	    switch ( dc.nrBytes() )
+	    switch ( nrb )
 	    {
 	    case BinDataDesc::N1: mDefGetPutNoSwap(U1)		break;
 	    case BinDataDesc::N2: mDefGetPut(U2)		break;

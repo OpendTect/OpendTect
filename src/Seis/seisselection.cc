@@ -511,7 +511,7 @@ void Seis::TableSelData::extendZ( const Interval<float>& zrg )
 
 void Seis::TableSelData::doExtendH( BinID so, BinID sos )
 {
-    bvs_.extend( so, sos );
+    bvs_.extendHor( so, sos );
 }
 
 

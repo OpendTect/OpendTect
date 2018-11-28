@@ -52,10 +52,8 @@ public:
 
     void		set(const DataCharacteristics&,
 			    bool ignoreendianness=false);
-			//!< use ignoreendianness when you pre-byteswap the data
+				//!< use ignoreendianness when pre-byteswaping
     DataInterpreter<T>&	operator=(const DataInterpreter<T>&);
-    inline DataInterpreter<T>& operator=( const DataCharacteristics& dc )
-			{ set( dc, false ); return *this; }
 
     bool		needSwap() const;
     void		swap( void* buf, od_int64 bufsz_in_elements ) const

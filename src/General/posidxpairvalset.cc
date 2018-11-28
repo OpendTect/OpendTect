@@ -323,10 +323,11 @@ bool Pos::IdxPairValueSet::setNrVals( int newnrvals )
 }
 
 
-void Pos::IdxPairValueSet::extend( const Pos::IdxPairDelta& so,
-				   const Pos::IdxPairStep& sos, bool avoiddups )
+void Pos::IdxPairValueSet::extendHor( const Pos::IdxPairDelta& so,
+				      const Pos::IdxPairStep& sos,
+				      EntryCreatedFn fn )
 {
-    data_.extend( so, sos, avoiddups );
+    data_.extendHor( so, sos, fn );
 }
 
 

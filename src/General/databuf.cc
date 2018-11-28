@@ -343,10 +343,11 @@ void TraceData::reSize( int n, int compnr, bool copydata )
 
 void TraceData::setComponent( const DataCharacteristics& dc, int icomp )
 {
-    if ( icomp >= nrcomp_ ) return;
+    if ( icomp >= nrcomp_ )
+	return;
 
+    interp_[icomp]->set( dc );
     data_[icomp]->reByte( dc.nrBytes() );
-    *interp_[icomp] = dc;
 }
 
 

@@ -158,8 +158,8 @@ public:
     void		removeDuplicateIdxPairs();
     idx_type		nrPos(idx_type lineidx) const;
 
-    void		extend(const IdxPairDelta& stepout,const IdxPairStep&,
-				bool avoiddups=true);
+    void		extendHor(const IdxPairDelta& stepout,
+				  const IdxPairStep&,EntryCreatedFn fn=0);
     void		add(const PosInfo::CubeData&,EntryCreatedFn fn=0);
 			    //!< Adds only IdxPair postions not yet in set
     void		randomSubselect(glob_idx_type maxsz);
