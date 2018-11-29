@@ -102,10 +102,10 @@ public:
 
     int			getArgc() const	    { return argv_.size()+1; }
     char**		getArgv() const;    //!< allocates everything with new
+    int			indexOf(const char*) const;
 
 private:
 
-    int			indexOf(const char*) const;
     void		init(int,char**);
     void		init(const char*);
 

@@ -112,6 +112,8 @@ if ( CMAKE_COMPILER_IS_GNUCC )
     endif()
 endif ( CMAKE_COMPILER_IS_GNUCC )
 
+set ( OD_MODULE_PROGS od_DBMan.cc )
+
 OD_INIT_MODULE()
 
 add_dependencies( ${OD_MODULE_NAME} od_helpid )

@@ -297,6 +297,19 @@ ConstRefMan<DBDir> DBMan::fetchDir( IOObjContext::StdSelType seltyp ) const
 }
 
 
+ConstRefMan<DBDir> DBMan::findDir( const char* trgroupnm ) const
+{
+    mLock4Read();
+    for ( int idx=0; idx<dbdirs_.size(); idx++ )
+    {
+	const auto* dbdir = dbdirs_[idx];
+	if ( dbdir->hasObjectsWithGroup(trgroupnm) )
+	    { dbdir->reRead( false ); return dbdir; }
+    }
+    return 0;
+}
+
+
 IOObj* DBMan::get( const DBKey& dbky ) const
 {
     if ( !dbky.isInCurrentSurvey() )
@@ -579,6 +592,7 @@ IOObj* DBMan::crWriteIOObj( const CtxtIOObj& ctio, DBKey newkey,
 
     return templtr ? templtr->createWriteIOObj( ctio.ctxt_, newkey ) : 0;
 }
+
 
 RefMan<DBDir> DBMan::getDBDir( DirID dirid )
 {

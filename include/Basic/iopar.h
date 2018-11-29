@@ -25,11 +25,12 @@ ________________________________________________________________________
 # include "geomid.h"
 #endif
 
-class BufferStringSet;
-class SeparString;
-class TrcKey;
 class ascistream;
 class ascostream;
+class BufferStringSet;
+class DBKeySet;
+class SeparString;
+class TrcKey;
 class uiString;
 namespace Pos { class GeomID; }
 
@@ -194,6 +195,7 @@ public:
     bool		get(const char*,BufferString&,BufferString&,
 					BufferString&) const;
     bool		get(const char*,BufferStringSet&) const;
+    bool		get(const char*,DBKeySet&) const;
 
     bool		getPtr(const char*,void*&) const;
 
@@ -289,6 +291,7 @@ public:
 					const OD::String&,
 					const OD::String&);
     void		set(const char*,const BufferStringSet&);
+    void		set(const char*,const DBKeySet&);
 
     void		set(const char*,const TypeSet<od_int32>&);
     void		set(const char*,const TypeSet<od_uint32>&);

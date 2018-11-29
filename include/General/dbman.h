@@ -63,6 +63,7 @@ public:
     ConstRefMan<DBDir>	fetchDir(IOObjContext::StdSelType) const;
     ConstRefMan<DBDir>	fetchDir(const IOObjContext&) const;
     ConstRefMan<DBDir>	fetchRootDir() const	{ return rootdbdir_; }
+    ConstRefMan<DBDir>	findDir(const char* trgroupname) const;
 
     BufferString	survDir() const		{ return survdir_; }
     BufferString	surveyName() const;

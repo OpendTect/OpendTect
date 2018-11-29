@@ -388,6 +388,15 @@ const IOObj* DBDir::gtObjByName( const char* nm, const char* trgrpnm ) const
 }
 
 
+bool DBDir::hasObjectsWithGroup( const char* trgrpnm ) const
+{
+    for ( auto obj : objs_ )
+	if ( obj->group() == trgrpnm )
+	    return true;
+    return false;
+}
+
+
 bool DBDir::reRead( bool force ) const
 {
     if ( !force && !isOutdated() )

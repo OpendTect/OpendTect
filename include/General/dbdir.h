@@ -62,6 +62,7 @@ public:
     bool		isPresent(ObjID) const;
     bool		isPresent(const DBKey&) const;
     idx_type		indexOf(ObjID) const;
+    bool		hasObjectsWithGroup(const char*) const;
 
     IOObj*		getEntry(ObjID) const;
     IOObj*		getEntryByName(const char* nm,

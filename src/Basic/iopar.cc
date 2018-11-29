@@ -994,6 +994,18 @@ bool IOPar::get( const char* keyw, BufferStringSet& bss ) const
 }
 
 
+bool IOPar::get( const char* keyw, DBKeySet& dbkys ) const
+{
+    BufferStringSet strs;
+    if ( !get(keyw,strs) )
+	return false;
+
+    for ( auto str : strs )
+	dbkys.add( DBKey(str->str()) );
+    return true;
+}
+
+
 void IOPar::set( const char* keyw, const SeparString& ss )
 {
     set( keyw, ss.buf() );
@@ -1040,6 +1052,15 @@ void IOPar::set( const char* keyw, const BufferStringSet& bss )
     for ( int idx=0; idx<bss.size(); idx++ )
 	fms += bss.get( idx );
     set( keyw, fms.buf() );
+}
+
+
+void IOPar::set( const char* keyw, const DBKeySet& dbkys )
+{
+    BufferStringSet strs;
+    for ( auto dbky : dbkys )
+	strs.add( dbky->toString() );
+    set( keyw, strs );
 }
 
 
