@@ -69,59 +69,71 @@ static int printUsage()
 }
 
 
-static ConstRefMan<DBDir> getDBDir( const char* trgrpnm, bool okiffail=false )
-{
-    auto ret = DBM().findDir( trgrpnm );
-    if ( !ret )
-	respond( okiffail );
-    return ret;
-}
+#define mRespondErr(s) { ret_.set( sErrKey, s ); respond( false ); }
 
 
 static void listObjs( const char* trgrpnm )
 {
-    ret_.set( "Size", 0 ); // in case DBDir not found
-
-    auto dbdir = getDBDir( trgrpnm, true );
-    DBDirIter it( *dbdir );
-    BufferStringSet nms, types; DBKeySet ids;
-    while ( it.next() )
+    BufferStringSet nms, types, trls; DBKeySet ids;
+    bool havetype = false;
+    auto dbdir = DBM().findDir( trgrpnm );
+    if ( dbdir )
     {
-	if ( it.ioObj().group() == trgrpnm )
+	DBDirIter it( *dbdir );
+	while ( it.next() )
 	{
-	    nms.add( it.ioObj().name() );
-	    ids.add( it.ioObj().key() );
-	    types.add( it.ioObj().pars().find("Type") );
+	    if ( it.ioObj().group() == trgrpnm )
+	    {
+		nms.add( it.ioObj().name() );
+		ids.add( it.ioObj().key() );
+		trls.add( it.ioObj().translator() );
+		BufferString typ( it.ioObj().pars().find("Type") );
+		typ.remove( ' ' );
+		if ( !typ.isEmpty() )
+		    { havetype = true; typ.replace( '`', '|' ); }
+		types.add( typ );
+	    }
 	}
     }
 
     ret_.set( "Size", ids.size() );
-    ret_.set( "Names", nms );
-    ret_.set( "IDs", ids );
-    ret_.set( "Types", types );
+    if ( !ids.isEmpty() )
+    {
+	ret_.set( "IDs", ids );
+	ret_.set( "Names", nms );
+	ret_.set( "Formats", trls );
+	if ( havetype )
+	    ret_.set( "Types", types );
+    }
 
     respond( true );
 }
 
 
-static void provideInfo( const DBKey& dbkystr )
+static void provideInfo( const DBKey& dbky )
 {
-    ret_.set( sErrKey, "provideInfo not impl yet" );
-    respond( false );
+    PtrMan<IOObj> ioobj = getIOObj( dbky );
+    if ( !ioobj )
+	mRespondErr( "Input object key not found" )
+
+    ret_.set( "ID", ioobj->key() );
+    ret_.set( "Name", ioobj->name() );
+    ret_.set( "Format", ioobj->translator() );
+    ret_.set( "File name", ioobj->mainFileName() );
+
+    respond( true );
 }
 
 
 static void removeObj( const DBKey& dbkystr )
 {
-    ret_.set( sErrKey, "removeObj not impl yet" );
-    respond( false );
+    mRespondErr( "removeObj not impl yet" )
 }
 
 
 static void createObj( const BufferStringSet& args )
 {
-    ret_.set( sErrKey, "createObj not impl yet" );
-    respond( false );
+    mRespondErr( "createObj not impl yet" )
 }
 
 
@@ -131,6 +143,7 @@ int main( int argc, char** argv )
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "General" );
     CommandLineParser clp;
+    ret_.set( "Status", "Fail" ); // make this first entry in IOPar
     if ( clp.nrArgs() < 1 )
 	return printUsage();
     else if ( clp.hasKey( sVersionCmd ) )
@@ -149,7 +162,8 @@ int main( int argc, char** argv )
 	    clp.setKeyHasValue( sSurveyCmd, 1 );
 	    clp.getVal( sSurveyCmd, survnm );
 	}
-	BufferString dataroot( SI().diskLocation().fullPath() );
+	File::Path fpdr( SI().diskLocation().fullPath() );
+	BufferString dataroot( fpdr.pathOnly() );
 	if ( setdataroot )
 	{
 	    clp.setKeyHasValue( sDataRootCmd, 1 );
@@ -183,7 +197,7 @@ int main( int argc, char** argv )
     {
 	clp.setKeyHasValue( sInfoCmd, 1 );
 	BufferString dbkystr;
-	clp.getVal( sListCmd, dbkystr );
+	clp.getVal( sInfoCmd, dbkystr );
 	provideInfo( DBKey(dbkystr) );
     }
     else if ( clp.hasKey( sRemoveCmd ) )
