@@ -117,7 +117,7 @@ inline od_ostream& od_endl( od_ostream& strm )
 }
 
 
-mGlobal(Basic) std::ostream& od_endl(std::ostream&)	= delete;
+std::ostream& od_endl(std::ostream&)	= delete;
 
 
 typedef od_ostream& (*od_ostreamFunction)(od_ostream&);
