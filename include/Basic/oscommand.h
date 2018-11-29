@@ -175,6 +175,7 @@ protected:
 				  bool createstreams=false );
     int			catchError();
     bool		startDetached(const char*,bool inconsole=false);
+    void		startMonitor();
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;

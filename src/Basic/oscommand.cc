@@ -642,23 +642,30 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     if ( !ret )
 	return false;
 
-    if ( !monitorfnm_.isEmpty() )
-    {
-	const BufferString monitfnmnoquotes = monitorfnm_;
-	monitorfnm_.quote( '\"' );
-	MachineCommand progvwrcmd( odprogressviewer_ );
-	progvwrcmd.addKeyedArg( "inpfile", monitorfnm_ );
-	progvwrcmd.addKeyedArg( "pid", processID() );
-
-	OS::CommandLauncher progvwrcl( progvwrcmd );
-	OS::CommandExecPars cp;
-	cp.launchtype( RunInBG );
-	if ( !progvwrcl.execute(cp) )
-	    ErrMsg("Cannot launch progress viewer");
-			// sad ... but the process has been launched
-    }
+    if ( pars.launchtype_==RunInBG )
+	startMonitor();
 
     return ret;
+}
+
+
+void OS::CommandLauncher::startMonitor()
+{
+    if ( monitorfnm_.isEmpty() )
+	return;
+
+    const BufferString monitfnmnoquotes = monitorfnm_;
+    monitorfnm_.quote( '\"' );
+    MachineCommand progvwrcmd( odprogressviewer_ );
+    progvwrcmd.addKeyedArg( "inpfile", monitorfnm_ );
+    progvwrcmd.addKeyedArg( "pid", processID() );
+
+    OS::CommandLauncher progvwrcl( progvwrcmd );
+    OS::CommandExecPars cp;
+    cp.launchtype( RunInBG );
+    if ( !progvwrcl.execute(cp) )
+	ErrMsg("Cannot launch progress viewer");
+		    // sad ... but the process has been launched
 }
 
 
@@ -752,6 +759,7 @@ bool OS::CommandLauncher::doExecute( const char* inpcmd, bool wt4finish,
 
     if ( wt4finish )
     {
+	startMonitor();
 	if ( process_->state()==QProcess::Running )
 	    process_->waitForFinished(-1);
 
