@@ -75,14 +75,12 @@ set( OD_MODULE_SOURCES
 	inituiio.cc
 )
 
-set( OD_DATAROOT_UI_PROGRAMS od_Edit_Survey.cc od_Manage_Surveys.cc )
 
 if( WIN32 )
-    set( OD_ELEVATED_PERMISSIONS_GUI_PROGS od_BatchHosts.cc )
     set( OD_od_BatchHosts_RESOURCE resources/od_BatchHosts.rc )
-    set( OD_MODULE_GUI_PROGS ${OD_DATAROOT_UI_PROGRAMS} )
-else()
-    set( OD_MODULE_GUI_PROGS od_BatchHosts.cc ${OD_DATAROOT_UI_PROGRAMS} )
 endif()
+
+set( OD_DATAROOT_UI_PROGRAMS od_Edit_Survey.cc od_Manage_Surveys.cc )
+set( OD_MODULE_GUI_PROGS od_BatchHosts.cc ${OD_DATAROOT_UI_PROGRAMS} )
 
 OD_INIT_MODULE()
