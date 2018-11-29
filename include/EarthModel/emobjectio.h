@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "emfault3d.h"
+#include "emfaultset3d.h"
 #include "emfaultstickset.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
@@ -207,6 +208,21 @@ public:
 				       uiStrings::sFault(mPlural))
 			Fault3DSaver(const SharedObject&);
 			~Fault3DSaver();
+protected:
+
+    virtual uiRetVal	doStore(const IOObj&,const TaskRunnerProvider&) const;
+};
+
+
+mExpClass(EarthModel) FaultSet3DSaver : public ObjectSaver
+{
+public:
+     mDefaultFactoryInstantiation1Param(ObjectSaver,
+				       FaultSet3DSaver,const SharedObject&,
+				       FaultSet3D::typeStr(),
+				       uiStrings::sFaultSet(mPlural))
+			FaultSet3DSaver(const SharedObject&);
+			~FaultSet3DSaver();
 protected:
 
     virtual uiRetVal	doStore(const IOObj&,const TaskRunnerProvider&) const;

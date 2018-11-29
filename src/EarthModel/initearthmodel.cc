@@ -87,6 +87,7 @@ mDefModInitFn(EarthModel)
     EM::BodyLoader::initClass();
     EM::Fault3DSaver::initClass();
     EM::FaultStickSetSaver::initClass();
+    EM::FaultSet3DSaver::initClass();
     EM::Horizon3DSaver::initClass();
     EM::Horizon2DSaver::initClass();
     EM::MCBodySaver::initClass();

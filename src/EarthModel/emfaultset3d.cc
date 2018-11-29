@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "emsurfacetr.h"
 #include "emmanager.h"
+#include "executor.h"
 #include "dbman.h"
 #include "randcolor.h"
 
@@ -108,5 +109,6 @@ ConstRefMan<Fault3D> FaultSet3D::getFault3D( FaultID fid ) const
 
 int FaultSet3D::indexOf( FaultID fid ) const
 { return ids_.indexOf( fid ); }
+
 
 } // namespace EM

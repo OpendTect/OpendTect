@@ -348,6 +348,23 @@ uiRetVal Fault3DSaver::doStore( const IOObj& ioobj,
 }
 
 
+//FaultSet3D
+FaultSet3DSaver::FaultSet3DSaver( const SharedObject& emobj )
+    : ObjectSaver(emobj)
+{}
+
+
+FaultSet3DSaver::~FaultSet3DSaver()
+{}
+
+
+uiRetVal FaultSet3DSaver::doStore( const IOObj& ioobj,
+				const TaskRunnerProvider& trprov ) const
+{
+    return uiRetVal::OK();
+}
+
+
 Horizon3DSaver::Horizon3DSaver( const SharedObject& emobj )
     : ObjectSaver(emobj)
 {}

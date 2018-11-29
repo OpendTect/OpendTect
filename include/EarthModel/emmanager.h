@@ -64,12 +64,14 @@ public:
 
     RefObjectSet<Object> loadObjects(const ObjIDSet&,const TaskRunnerProvider&,
 				     const SurfaceIODataSelection* =0);
-    ConstRefMan<Object>	fetch(const ObjID&,const TaskRunnerProvider&,
-			      const SurfaceIODataSelection* =0,
-			      bool forcereload=false) const;
-    RefMan<Object>	fetchForEdit(const ObjID&,const TaskRunnerProvider&,
-				     const SurfaceIODataSelection* =0,
-				     bool forcereload=false);
+
+    virtual ConstRefMan<Object>	fetch(const ObjID&,const TaskRunnerProvider&,
+				      const SurfaceIODataSelection* =0,
+				      bool forcereload=false) const;
+    virtual RefMan<Object>	fetchForEdit(const ObjID&,
+					     const TaskRunnerProvider&,
+					     const SurfaceIODataSelection* =0,
+					     bool forcereload=false);
 
     uiRetVal		store(const Object&,const TaskRunnerProvider&,
 			      const IOPar* ioobjpars=0) const;
@@ -156,7 +158,6 @@ mGlobal(EarthModel) ObjectManager& Hor3DMan();
 mGlobal(EarthModel) ObjectManager& Hor2DMan();
 mGlobal(EarthModel) ObjectManager& FSSMan();
 mGlobal(EarthModel) ObjectManager& Flt3DMan();
-mGlobal(EarthModel) ObjectManager& FltSetMan();
 mGlobal(EarthModel) ObjectManager& BodyMan();
 mGlobal(EarthModel) ObjectManager& getMgr(const ObjectManager::ObjID&);
 mGlobal(EarthModel) ObjectManager& getMgr(const char* trgrp);
@@ -222,6 +223,22 @@ protected:
 };
 
 mDeprecated inline Manager& EMM() { return MGR(); }
+
+
+
+mExpClass(EarthModel) FaultSetManager : public ObjectManager
+{
+public:
+
+				    FaultSetManager();
+
+    virtual ConstRefMan<Object>	    fetch(const ObjID&,
+					  const TaskRunnerProvider&,
+					  const SurfaceIODataSelection* =0,
+					  bool forcereload=false) const;
+};
+
+mGlobal(EarthModel) FaultSetManager& FltSetMan();
 
 
 } // namespace EM

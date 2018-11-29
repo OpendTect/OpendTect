@@ -10,6 +10,7 @@
 #include "ctxtioobj.h"
 #include "embodytr.h"
 #include "emobject.h"
+#include "emfaultset3d.h"
 #include "emhorizon.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
@@ -46,7 +47,6 @@ mDefineEMMan(Hor3D,EMHorizon3D)
 mDefineEMMan(Hor2D,EMHorizon2D)
 mDefineEMMan(FSS,EMFaultStickSet)
 mDefineEMMan(Flt3D,EMFault3D)
-mDefineEMMan(FltSet,EMFaultSet3D)
 mDefineEMMan(Body,EMBody)
 
 EM::Manager& EM::MGR()
@@ -541,3 +541,43 @@ EM::Object* EM::Manager::createTempObject( const char* type )
     FixedString trgrp( type );
     return getMgr( trgrp ).createTempObject( type );
 }
+
+
+EM::FaultSetManager::FaultSetManager()
+    : EM::ObjectManager(mIOObjContext(EMFaultSet3D))
+{}
+
+
+ConstRefMan<EM::Object> EM::FaultSetManager::fetch(const ObjID& dbkey,
+					   const TaskRunnerProvider& tp,
+					   const SurfaceIODataSelection*,
+					   bool forcereload ) const
+{
+    PtrMan<IOObj> ioobj = DBM().get( dbkey );
+    if ( !ioobj )
+	return 0;
+
+    PtrMan<EMFaultSet3DTranslator> transl =
+                        (EMFaultSet3DTranslator*)ioobj->createTranslator();
+    if ( !transl )
+	return 0;
+
+    EM::FaultSetManager* self = const_cast<EM::FaultSetManager*>(this);
+    mDynamicCastGet( EM::FaultSet3D*, fltset,
+		     self->createTempObject(EM::FaultSet3D::typeStr()));
+    PtrMan<Executor> loader = transl->reader( *fltset, *ioobj );
+    if ( !tp.execute(*loader) )
+	return 0;
+
+    self->addObject( fltset );
+    return fltset;
+}
+
+
+EM::FaultSetManager& EM::FltSetMan()
+{
+    static PtrMan<EM::FaultSetManager> man = new EM::FaultSetManager;
+    return *man;
+}
+
+
