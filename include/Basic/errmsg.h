@@ -30,6 +30,7 @@ inline const char* className( const T& t )
 namespace OD {
       mGlobal(Basic) void programmerErrMsg(const char* msg,const char* cname,
 					   const char* fnm,int linenr);
+      void SetGlobalLogFile(const char*);
 }
 
 # define pErrMsg(msg) \

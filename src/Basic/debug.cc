@@ -54,14 +54,22 @@ ________________________________________________________________________
 #endif
 
 
-namespace OD { Export_Basic od_ostream& logMsgStrm(); class ForcedCrash {}; }
-Export_Basic int gLogFilesRedirectCode = -1; // 0 = stderr, 1 = log file
-static bool crashonprogerror = false;
-static PtrMan<od_ostream> dbglogstrm = 0;
+static const char* sStdErr = "stderr";
+static BufferString log_file_name_ = sStdErr;
+static bool crash_on_programmer_error_ = false;
+static od_ostream* dbg_log_strm_ = 0;
 
 
 namespace OD
 {
+
+void SetGlobalLogFile( const char* fnm )
+{
+    log_file_name_.set( fnm );
+}
+
+Export_Basic od_ostream& logMsgStrm();
+class ForcedCrash {};
 
 class StaticStringRepos
 {
@@ -163,8 +171,8 @@ namespace DBG
 
 bool setCrashOnProgError( bool yn )
 {
-    const bool res = crashonprogerror;
-    crashonprogerror = yn;
+    const bool res = crash_on_programmer_error_;
+    crash_on_programmer_error_ = yn;
     return res;
 }
 
@@ -202,10 +210,10 @@ static int getMask()
 	BufferString msg;
 	if ( dbglogfnm )
 	{
-	    dbglogstrm = new od_ostream( dbglogfnm );
-	    if ( dbglogstrm && !dbglogstrm->isOK() )
+	    dbg_log_strm_ = new od_ostream( dbglogfnm );
+	    if ( dbg_log_strm_ && !dbg_log_strm_->isOK() )
 	    {
-		dbglogstrm = 0;
+		dbg_log_strm_ = 0;
 		msg = "Cannot open debug log file '";
 		msg += dbglogfnm;
 		msg += "': reverting to stdout";
@@ -251,36 +259,35 @@ void forceCrash( bool withdump )
 }
 
 
-void message( const char* msg )
+void message( const char* inpmsg )
 {
-    if ( !isOn() ) return;
+    if ( !isOn() )
+	return;
 
-    BufferString msg_;
-    mDefineStaticLocalObject( bool, wantpid,
-			      = GetEnvVarYN("DTECT_ADD_DBG_PID") );
+    BufferString msg;
+    static bool wantpid = GetEnvVarYN( "DTECT_ADD_DBG_PID" );
     if ( wantpid )
-    {
-	msg_ = "[";
-	msg_ += GetPID();
-	msg_ += "] ";
-    }
-    msg_ += msg;
+	msg.add( "[" ).add( GetPID() ).add( "] " );
+    msg.add( inpmsg );
 
-    if ( dbglogstrm )
-	*dbglogstrm.ptr() << msg_ << od_endl;
+    if ( dbg_log_strm_ )
+	*dbg_log_strm_ << msg << od_endl;
     else
-	std::cerr << msg_.buf() << std::endl;
+	std::cerr << msg.buf() << std::endl;
 }
 
 
 void message( int flag, const char* msg )
 {
-    if ( isOn(flag) ) message(msg);
+    if ( isOn(flag) )
+	message( msg );
 }
+
 
 void putProgInfo( int argc, char** argv )
 {
-    if ( GetEnvVarYN("OD_NO_PROGINFO") ) return;
+    if ( GetEnvVarYN("OD_NO_PROGINFO") )
+	return;
 
     const bool ison = isOn( DBG_PROGSTART );
 
@@ -297,9 +304,11 @@ void putProgInfo( int argc, char** argv )
     }
     msg += " started on "; msg += GetLocalHostName();
     msg += " at "; msg += Time::getISOUTCDateTimeString();
-    if ( !ison ) msg += "\n";
+    if ( !ison )
+	msg += "\n";
     message( msg );
-    if ( !ison ) return;
+    if ( !ison )
+	return;
 
     msg = "PID: "; msg += GetPID();
     msg += "; Platform: "; msg += OD::Platform::local().longName();
@@ -352,12 +361,15 @@ namespace OD {
 
 Export_Basic od_ostream& logMsgStrm()
 {
-    mDefineStaticLocalObject( PtrMan<od_ostream>, strm, = 0 );
-    if ( strm )
-	return *strm;
+    static od_ostream* logstrm = 0;
+    if ( logstrm )
+	return *logstrm;
+
+    if ( GetEnvVarYN("OD_LOG_STDERR") )
+	log_file_name_.set( sStdErr );
 
     BufferString errmsg;
-    if ( gLogFilesRedirectCode > 0 && !GetEnvVarYN("OD_LOG_STDERR") )
+    if ( log_file_name_.isEmpty() )
     {
 	const char* basedd = GetBaseDataDir();
 	if ( !basedd || !*basedd )
@@ -382,27 +394,30 @@ Export_Basic od_ostream& logMsgStrm()
 		fnm += "_";
 		fp.add( fnm.add(File::Path::getTimeStampFileName(".txt")) );
 
-		BufferString logmsgfnm = fp.fullPath();
-
-		strm = new od_ostream( logmsgfnm );
-		if ( !strm->isOK() )
-		{
-		    errmsg.set( "Cannot create log file '" )
-			  .add( logmsgfnm ).add( "'" );
-		    strm = 0;
-		}
+		log_file_name_ = fp.fullPath();
 	    }
 	}
     }
 
-    if ( !strm )
+    if ( !log_file_name_.isEmpty() && log_file_name_ != sStdErr )
     {
-	strm = new od_ostream( std::cerr );
-	if ( !errmsg.isEmpty() )
-	    *strm << errmsg;
+	logstrm = new od_ostream( log_file_name_ );
+	if ( !logstrm->isOK() )
+	{
+	    errmsg.set( "Cannot create log file '" )
+		  .add( log_file_name_ ).add( "'" );
+	    logstrm = 0;
+	}
     }
 
-    return *strm;
+    if ( !logstrm )
+    {
+	logstrm = new od_ostream( std::cerr );
+	if ( !errmsg.isEmpty() )
+	    *logstrm << errmsg;
+    }
+
+    return *logstrm;
 }
 
 
@@ -444,13 +459,13 @@ void ErrMsg( const uiString& msg )
 }
 
 
-void ErrMsg( const char* msg, bool progr )
+void ErrMsg( const char* msg, bool isprogrammer )
 {
     if ( !MsgClass::theCB().willCall() )
     {
 	mDefineStaticLocalObject( bool, wantsilence,
 			= GetEnvVarYN("OD_PROGRAMMER_ERRS_SILENCE",false) );
-	if ( progr )
+	if ( isprogrammer )
 	{
 	    if ( !wantsilence )
 		std::cerr << "(PE) " << msg << std::endl;
@@ -463,11 +478,11 @@ void ErrMsg( const char* msg, bool progr )
     }
     else
     {
-	ErrMsgClass obj( msg, progr );
+	ErrMsgClass obj( msg, isprogrammer );
 	MsgClass::theCB().doCall( &obj );
     }
 
-    if ( progr && crashonprogerror )
+    if ( isprogrammer && crash_on_programmer_error_ )
 	DBG::forceCrash( false );
 }
 

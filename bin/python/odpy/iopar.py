@@ -8,6 +8,7 @@
 
 import odpy.common
 
+
 def read_line( fp, bin ):
   if bin:
     words = fp.readline().decode("utf8").split(":")
