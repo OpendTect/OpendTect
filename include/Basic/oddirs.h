@@ -112,6 +112,9 @@ mGlobal(Basic) const char* GetShellScript(const char*);
 mGlobal(Basic) const char* GetPythonScript(const char*);
 /*!< Returns full path to script if existing. */
 
+mGlobal(Basic) const char* GetPythonCommand();
+/*!< Returns command for this platform. */
+
 mGlobal(Basic) const char* GetLibPlfDir(void);
 /*!< Platform dependent library directory
  Returns full path to bin dir:

@@ -415,6 +415,12 @@ mExternC(Basic) const char* GetPythonScript( const char* nm )
 }
 
 
+mExternC(Basic) const char* GetPythonCommand()
+{
+    return "python3";
+}
+
+
 static const char* gtExecScript( const char* basedir, int remote )
 {
     mDeclStaticString( scriptnm );
