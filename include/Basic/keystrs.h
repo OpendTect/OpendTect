@@ -67,11 +67,12 @@ namespace sKey
     inline FixedString Fault()		{ return "Fault"; }
     inline FixedString FileName()	{ return "File name"; }
     inline FixedString Filter()		{ return "Filter"; }
+    inline FixedString Format(int n=1)	{ return n<2 ? "Format" : "Formats"; }
     inline FixedString FloatUdf()	{ return "1e30"; }
     inline FixedString Geometry()	{ return "Geometry"; }
     inline FixedString GeomID()		{ return "GeomID"; }
     inline FixedString Horizon()	{ return "Horizon"; }
-    inline FixedString ID()		{ return "ID"; }
+    inline FixedString ID(int n=1)	{ return n<2 ? "ID" : "IDs"; }
     inline FixedString Input()		{ return "Input"; }
     inline FixedString Inline()		{ return "In-line"; }
     inline FixedString IOSelection()	{ return "I/O Selection"; }
@@ -147,7 +148,7 @@ namespace sKey
     inline FixedString TVD()		{ return "TVD"; }
     inline FixedString TVDSS()		{ return "TVDSS"; }
     inline FixedString TWT()		{ return "TWT"; }
-    inline FixedString Type()		{ return "Type"; }
+    inline FixedString Type(int n=1)	{ return n<2 ? "Type" : "Types"; }
     inline FixedString TwoD()		{ return "2D"; }
     inline FixedString Thickness()	{ return "Thickness"; }
     inline FixedString ThreeD()		{ return "3D"; }

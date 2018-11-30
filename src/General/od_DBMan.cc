@@ -10,18 +10,22 @@
 #include "commandlineparser.h"
 #include "dbdir.h"
 #include "filepath.h"
+#include "iostrm.h"
+#include "keystrs.h"
 #include "moddepmgr.h"
 #include "od_ostream.h"
 #include "odver.h"
 #include "prog.h"
 #include "survinfo.h"
 
+static const int protocolnr_ = 1;
+
 static const char* sStatusCmd		= "status";
 static const char* sDataRootCmd		= "dataroot";
 static const char* sSurveyCmd		= "survey";
 static const char* sListCmd		= "list";
 static const char* sInfoCmd		= "info";
-static const char* sCreateCmd		= "edit";
+static const char* sCreateCmd		= "create";
 static const char* sRemoveCmd		= "remove";
 static const char* sVersionCmd		= "version";
 
@@ -82,7 +86,7 @@ static void listObjs( const char* trgrpnm )
 	DBDirIter it( *dbdir );
 	while ( it.next() )
 	{
-	    if ( it.ioObj().group() == trgrpnm )
+	    if ( !it.ioObj().isTmp() && it.ioObj().group() == trgrpnm )
 	    {
 		nms.add( it.ioObj().name() );
 		ids.add( it.ioObj().key() );
@@ -96,14 +100,14 @@ static void listObjs( const char* trgrpnm )
 	}
     }
 
-    ret_.set( "Size", ids.size() );
+    ret_.set( sKey::Size(), ids.size() );
     if ( !ids.isEmpty() )
     {
-	ret_.set( "IDs", ids );
-	ret_.set( "Names", nms );
-	ret_.set( "Formats", trls );
+	ret_.set( sKey::ID(mPlural), ids );
+	ret_.set( sKey::Name(mPlural), nms );
+	ret_.set( sKey::Format(mPlural), trls );
 	if ( havetype )
-	    ret_.set( "Types", types );
+	    ret_.set( sKey::Type(mPlural), types );
     }
 
     respond( true );
@@ -116,24 +120,49 @@ static void provideInfo( const DBKey& dbky )
     if ( !ioobj )
 	mRespondErr( "Input object key not found" )
 
-    ret_.set( "ID", ioobj->key() );
-    ret_.set( "Name", ioobj->name() );
-    ret_.set( "Format", ioobj->translator() );
-    ret_.set( "File name", ioobj->mainFileName() );
+    ret_.set( sKey::ID(), ioobj->key() );
+    ret_.set( sKey::Name(), ioobj->name() );
+    ret_.set( sKey::Format(), ioobj->translator() );
+    ret_.set( sKey::FileName(), ioobj->mainFileName() );
+    const char* typstr = ioobj->pars().find( sKey::Type() );
+    if ( typstr && *typstr )
+	ret_.set( sKey::Type(), typstr );
 
     respond( true );
 }
 
 
-static void removeObj( const DBKey& dbkystr )
+static void removeObj( const DBKey& dbky )
 {
-    mRespondErr( "removeObj not impl yet" )
+    respond( DBM().removeEntry(dbky) );
 }
 
 
 static void createObj( const BufferStringSet& args )
 {
-    mRespondErr( "createObj not impl yet" )
+    if ( args.size() < 5 )
+	mRespondErr( "Specify at least name, dirid, trgrp, trl, ext. "
+		     "Optional, type." )
+    auto dbdir = DBM().fetchDir( DBKey::DirID(toInt(args.get(1))) );
+    if ( !dbdir )
+	mRespondErr( "Invalid Dir ID specified" )
+
+    IOStream iostrm( args.get(0) );
+    iostrm.setKey( dbdir->newKey() );
+    iostrm.setGroup( args.get(2) );
+    iostrm.setTranslator( args.get(3) );
+    iostrm.setExt( args.get(4) );
+    if ( args.size() > 5 )
+	iostrm.pars().set( sKey::Type(), args.get(5) );
+    iostrm.genFileName();
+
+    DBDir* dbdirptr = mNonConst( dbdir.ptr() );
+    if ( !dbdirptr->commitChanges(iostrm) )
+	mRespondErr( "Cannot commit new entry to data store" )
+
+    ret_.set( sKey::ID(), iostrm.key() );
+    ret_.set( sKey::FileName(), iostrm.mainFileName() );
+    respond( true );
 }
 
 
@@ -143,12 +172,12 @@ int main( int argc, char** argv )
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "General" );
     CommandLineParser clp;
-    ret_.set( "Status", "Fail" ); // make this first entry in IOPar
+    ret_.set( "Status", "Fail" ); // make sure it will be the first entry
     if ( clp.nrArgs() < 1 )
 	return printUsage();
     else if ( clp.hasKey( sVersionCmd ) )
     {
-	strm() << GetFullODVersion() << od_endl;
+	strm() << protocolnr_ << "@" << GetFullODVersion() << od_endl;
 	return ExitProgram( 0 );
     }
 
@@ -214,12 +243,6 @@ int main( int argc, char** argv )
 
     BufferStringSet normargs;
     clp.getNormalArguments( normargs );
-    if ( normargs.size() < 3 )
-    {
-	ret_.set( sErrKey,
-		  "Create command takes 3 arguments: Name, Group, Translator" );
-	return respond( false );
-    }
     createObj( normargs );
 
     return ExitProgram( 0 );
