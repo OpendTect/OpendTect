@@ -195,7 +195,7 @@ bool DBKey::isInCurrentSurvey() const
 }
 
 
-BufferString DBKey::toString() const
+BufferString DBKey::getString( bool withsurvloc, bool forceputsurvloc ) const
 {
     BufferString ret;
 
@@ -211,8 +211,8 @@ BufferString DBKey::toString() const
     if ( auxkey_ )
 	ret.add( "|" ).add( *auxkey_ );
 
-    if ( survloc_ )
-	ret.add( "`" ).add( survloc_->fullPath() );
+    if ( withsurvloc && (forceputsurvloc || survloc_) )
+	ret.add( "`" ).add( surveyDiskLocation().fullPath() );
 
     return ret;
 }

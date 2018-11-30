@@ -62,7 +62,7 @@ public:
     static DBKey	getFromStr(const char*);
     static DBKey	getFromI64(od_int64);
 
-    virtual bool	isInvalid() const	{ return groupnr_ < 0; }
+    virtual bool	isInvalid() const override { return groupnr_ < 0; }
     bool		isUsable() const;
     virtual bool	isInCurrentSurvey() const;
 
@@ -71,8 +71,10 @@ public:
     inline DirID	dirID() const		{ return groupID(); }
     inline void		setDirID( DirID id )	{ setGroupID( id ); }
 
-    BufferString	toString() const;
-    void		fromString(const char*);
+    BufferString	toString() const override
+			{ return getString(true,false); }
+    BufferString	getString(bool withsurvloc,bool forcesl=false) const;
+    void		fromString(const char*) override;
 
     bool		hasSurveyLocation() const { return survloc_; }
     const SurveyDiskLocation& surveyDiskLocation() const;
