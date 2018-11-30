@@ -28,6 +28,7 @@ static const char* sInfoCmd		= "info";
 static const char* sCreateCmd		= "create";
 static const char* sRemoveCmd		= "remove";
 static const char* sVersionCmd		= "version";
+static const char* sFileNameCmd		= "filename";
 
 static const char* cmds[] =
 {
@@ -138,11 +139,11 @@ static void removeObj( const DBKey& dbky )
 }
 
 
-static void createObj( const BufferStringSet& args )
+static void createObj( const BufferStringSet& args, const char* filenm )
 {
     if ( args.size() < 5 )
 	mRespondErr( "Specify at least name, dirid, trgrp, trl, ext. "
-		     "Optional, type." )
+		     "Optional, type and/or --filename your_file_name." )
     auto dbdir = DBM().fetchDir( DBKey::DirID(toInt(args.get(1))) );
     if ( !dbdir )
 	mRespondErr( "Invalid Dir ID specified" )
@@ -154,7 +155,11 @@ static void createObj( const BufferStringSet& args )
     iostrm.setExt( args.get(4) );
     if ( args.size() > 5 )
 	iostrm.pars().set( sKey::Type(), args.get(5) );
-    iostrm.genFileName();
+
+    if ( filenm && *filenm )
+	iostrm.fileSpec().setFileName( filenm );
+    else
+	iostrm.genFileName();
 
     DBDir* dbdirptr = mNonConst( dbdir.ptr() );
     if ( !dbdirptr->commitChanges(iostrm) )
@@ -181,18 +186,19 @@ int main( int argc, char** argv )
 	return ExitProgram( 0 );
     }
 
+    BufferString survnm( SI().name() );
+    File::Path fpdr( SI().diskLocation().fullPath() );
+    BufferString dataroot( fpdr.pathOnly() );
+
     const bool setdataroot = clp.hasKey( sDataRootCmd );
     const bool setsurvey = clp.hasKey( sSurveyCmd );
     if ( setdataroot || setsurvey )
     {
-	BufferString survnm( SI().name() );
 	if ( setsurvey )
 	{
 	    clp.setKeyHasValue( sSurveyCmd, 1 );
 	    clp.getVal( sSurveyCmd, survnm );
 	}
-	File::Path fpdr( SI().diskLocation().fullPath() );
-	BufferString dataroot( fpdr.pathOnly() );
 	if ( setdataroot )
 	{
 	    clp.setKeyHasValue( sDataRootCmd, 1 );
@@ -212,6 +218,11 @@ int main( int argc, char** argv )
     {
 	if ( isbad )
 	    ret_.set( sErrKey, "Data Store cannot be initialised" );
+	else
+	{
+	    ret_.set( sKey::Survey(), survnm );
+	    ret_.set( sKey::DataRoot(), dataroot );
+	}
 	return respond( !isbad );
     }
 
@@ -241,9 +252,13 @@ int main( int argc, char** argv )
     if ( cridx < 0 )
 	return printUsage();
 
+    clp.setKeyHasValue( sFileNameCmd, 1 );
+    BufferString filenm;
+    clp.getVal( sFileNameCmd, filenm );
+
     BufferStringSet normargs;
     clp.getNormalArguments( normargs );
-    createObj( normargs );
+    createObj( normargs, filenm );
 
     return ExitProgram( 0 );
 }
