@@ -204,7 +204,7 @@ bool acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( uiStrings::phrEnter(uiStrings::sInpFileName()) )
+	mErrRet( uiStrings::phrEnter(uiStrings::sInputFile()) )
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet(uiStrings::phrCannotOpenInpFile())
