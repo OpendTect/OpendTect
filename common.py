@@ -11,17 +11,15 @@ import platform
 import sys
 
 class LogManager(object):
-  def __init__(self, argv):
+  def __init__(self, args):
     self.log_file = sys.stdout
     self.std_file = sys.stdout
     self.dbg_file = sys.stdout
     self.err_file = sys.stderr
-    if len(argv)>1 and not 'htm' in argv[1]:
-      stdoutfnm = argv[1]
-      self.set_stdout( stdoutfnm )
-    if len(argv)>2:
-      logfnm = argv[2]
-      self.set_log_file( logfnm )
+    if args['sysout'].name != 'sys.stdout':
+      self.set_stdout( args['sysout'].name )
+    if args['logfile'].name != 'sys.stdout':
+      self.set_log_file( args['logfile'].name )
 
   def set_log_file( self, fnm ):
     if not fnm:
