@@ -26,12 +26,13 @@ BodyVolumeCalculator::BodyVolumeCalculator( const TrcKeyZSampling& cs,
     , nrunits_(0)
     , lock_(true)
 {
-    const float zfactor = SI().zIsTime() ? velocityinmeter*0.5f :
+    const auto zfactor = SI().zIsTime() ? velocityinmeter*0.5f :
 	(SI().zInFeet() ? mFromFeetFactorF : 1);
-    const float xyfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
-    unitvol_ = cs.hsamp_.step_.inl() * SI().inlDistance() * xyfactor *
-	       cs.hsamp_.step_.crl() * SI().crlDistance() * xyfactor *
-	       cs.zsamp_.step * zfactor;
+    const auto xyfactor = SI().xyInFeet() ? mFromFeetFactorF : 1.f;
+    unitvol_ = (float)
+		cs.hsamp_.step_.inl() * SI().inlDistance() * xyfactor *
+		cs.hsamp_.step_.crl() * SI().crlDistance() * xyfactor *
+		cs.zsamp_.step * zfactor;
 }
 
 
