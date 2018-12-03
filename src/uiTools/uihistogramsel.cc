@@ -117,7 +117,9 @@ void uiHistogramSel::init()
 
     minvaltext_ = scene.addItem(
 	new uiTextItem(uiStrings::sEmptyString(),Alignment::Right) );
+    minvaltext_->setZValue( zval+2 );
     maxvaltext_ = scene.addItem( new uiTextItem() );
+    maxvaltext_->setZValue( zval+2 );
 
     MouseCursor cursor( MouseCursor::SizeHor );
     OD::LineStyle ls( OD::LineStyle::Solid, 2, Color(0,255,0) );
@@ -133,17 +135,30 @@ void uiHistogramSel::init()
 }
 
 
+static int reqNrDec( float val )
+{
+    if ( mIsZero(val,mDefEps) )
+	return 0;
+    if ( val < 0 )
+	val = -val;
+
+    const int logval = (int) Math::Log( val );
+    int ret = 2 - logval;
+    return ret < 0 ? 0 : (ret > 8 ? 8 : ret);
+}
+
+
 void uiHistogramSel::drawText()
 {
     if ( mIsUdf(startpix_) || mIsUdf(stoppix_) )
 	return;
 
     const int posy = histogramdisp_->height() / 3;
-    minvaltext_->setText( toUiString(cliprg_.start) );
+    minvaltext_->setText( toUiString(cliprg_.start,reqNrDec(cliprg_.start)) );
     minvaltext_->setPos( uiPoint(startpix_-2,posy) );
     minvaltext_->show();
 
-    maxvaltext_->setText( toUiString(cliprg_.stop) );
+    maxvaltext_->setText( toUiString(cliprg_.stop,reqNrDec(cliprg_.stop)) );
     maxvaltext_->setPos( uiPoint(stoppix_+2,posy) );
     maxvaltext_->show();
 }
