@@ -182,6 +182,8 @@ public:
     inline int			peekInt() const;
     void			getBytes(void*,int nrbytes) const;
 
+    inline bool			atEndOfPkt() const;
+
 protected:
 
     const RequestPacket&	pkt_;
@@ -387,6 +389,8 @@ inline void PacketInterpreter::getBytes( void* ptr, int nrbytes ) const
     }
 }
 
+inline bool PacketInterpreter::atEndOfPkt() const
+{ return curpos_ >= pkt_.payloadSize(); }
 
 }; //Namespace Network
 
