@@ -148,18 +148,7 @@ void uiHistogramSel::init()
 }
 
 
-static int reqNrDec( float val )
-{
-    if ( mIsZero(val,mDefEps) )
-	return 0;
-    if ( val < 0 )
-	val = -val;
-
-    const int logval = (int) Math::Log( val );
-    int ret = 2 - logval;
-    return ret < 0 ? 0 : (ret > 8 ? 8 : ret);
-}
-
+#define mNrPrec 6
 
 void uiHistogramSel::drawText()
 {
@@ -167,11 +156,11 @@ void uiHistogramSel::drawText()
 	return;
 
     const int posy = histogramdisp_->height() / 3;
-    minvaltext_->setText( toUiString(cliprg_.start,reqNrDec(cliprg_.start)) );
+    minvaltext_->setText( toUiString(cliprg_.start,mNrPrec));
     minvaltext_->setPos( uiPoint(startpix_-2,posy) );
     minvaltext_->show();
 
-    maxvaltext_->setText( toUiString(cliprg_.stop,reqNrDec(cliprg_.stop)) );
+    maxvaltext_->setText( toUiString(cliprg_.stop,mNrPrec) );
     maxvaltext_->setPos( uiPoint(stoppix_+2,posy) );
     maxvaltext_->show();
 }
