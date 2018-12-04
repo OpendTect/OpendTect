@@ -7,28 +7,28 @@
   - Contents:	Plugins
   - RCS:	$Id$
  -->
-		
-	<head>
+
+        <head>
 	<title>Plugins [OpendTect Programmer's manual V@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@]</title>
   <base href="plugins.html" />
     <link rel="stylesheet" href="style.css" type="text/css" />
   </head>
 
 <body id="page_bg" class="width_fmax">
-		
+
 <div id="all">
         <div id="wrapper">
-                <div id="wrapper_r">
+	        <div id="wrapper_r">
 <div id="header">
                                 <div id="header_l">
-                                
+
                                         <div id="header_r">
-						<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
+					        <a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
 						<div id="topmenu">
 						</div>
-			<div id="leftcolumn">	
-						<table id="greenborder"><tbody>
-								<tr><td valign="top">
+			<div id="leftcolumn">
+			                        <table id="greenborder"><tbody>
+						                <tr><td valign="top">
 <center>
 <h1>OpendTect plugins</h1>
 <a href=#intro>Intro</a>
@@ -110,7 +110,7 @@ InitMyModPlugin
 <code>Get...PluginType</code> determines whether the plugin can be
 used for the <a href=#autoload>auto-load</a>, and if so, when. 'When'
 means: before or after the program has created the OpendTect GUI
-objects (and always after the static objects are initialised). The
+objects (and always after the static objects are initialized). The
 second function simply provides info for the users of your plugin.
 </p>
 
@@ -171,11 +171,11 @@ be loaded from within OpendTect (Menu Utilities-Plugins; press the
 mDefODPluginInfo(uiTut)
 {
     DefineStaticLocalObject( PluginInfo, retpi,(
-	"Tutorial plugin",
+        "Tutorial plugin",
 	"OpendTect",
 	"dGB (Raman/Bert)",
 	"3.2",
-    	"Shows some simple plugin development basics."
+	"Shows some simple plugin development basics."
 	    "\nCan be loaded into od_main only." };
     return &retpi;
 }
@@ -190,7 +190,7 @@ mDefODPluginInfo(uiTut)
 
     theinst_ = new uiTutMgr( ODMainWin() );
     if ( !theinst_ )
-	return "Cannot instantiate Tutorial plugin";
+        return "Cannot instantiate Tutorial plugin";
 
     uiTutorialAttrib::initClass();
     TutHelpProvider::initClass();
@@ -214,23 +214,23 @@ mDefODPluginEarlyLoad(Tut)
 <code><pre id="code">int Tut::SeisTools::nextStep()
 {
     if ( !rdr_ )
-	return createReader() ? Executor::MoreToDo()
-	    		      : Executor::ErrorOccurred();
+        return createReader() ? Executor::MoreToDo()
+	                      : Executor::ErrorOccurred();
 
     int rv = rdr_->get( trcin_.info() );
     if ( rv < 0 )
-	{ errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred(); }
+        { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred(); }
     else if ( rv == 0 )
-	return Executor::Finished();
+        return Executor::Finished();
     else if ( rv == 1 )
     {
-	if ( !rdr_->get(trcin_) )
+        if ( !rdr_->get(trcin_) )
 	    { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred(); }
 
-	trcout_ = trcin_;
+        trcout_ = trcin_;
 	handleTrace();
 
-	if ( !wrr_ && !createWriter() )
+        if ( !wrr_ && !createWriter() )
 	    return Executor::ErrorOccurred();
 	if ( !wrr_->put(trcout_) )
 	    { errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred(); }
@@ -251,42 +251,42 @@ void Tut::SeisTools::handleTrace()
 
     case Scale: {
         SeisTrcPropChg stpc( trcout_ );
-        stpc.scale( factor_, shift_ );
+	stpc.scale( factor_, shift_ );
     } break;
 
     case Square: {
         for ( int icomp=0; icomp < trcin_.nrComponents(); icomp++ )
-        {
-            for ( int idx=0; idx < trcin_.size(); idx++ )
-            {
-                const float v = trcin_.get( idx, icomp );
-                trcout_.set( idx, v*v, icomp );
-            }
-        }
+	{
+	    for ( int idx=0; idx < trcin_.size(); idx++ )
+	    {
+	        const float v = trcin_.get( idx, icomp );
+		trcout_.set( idx, v*v, icomp );
+		}
+	}
     } break;
 
     case Smooth: {
         const int sgate = weaksmooth_ ? 3 : 5;
-        const int sgate2 = sgate/2;
-        for ( int icomp=0; icomp < trcin_.nrComponents(); icomp++ )
-        {
-            for ( int idx=0; idx < trcin_.size(); idx++ )
-            {
-                float sum = 0;
-                int count = 0;
-                for( int ismp=idx-sgate2; ismp <= idx+sgate2; ismp++)
-                {
-                    const float val = trcin_.get( ismp, icomp );
-                    if ( !mIsUdf(val) )
-                    {
-                        sum += val;
-                        count++;
-                    }
-                }
-                if ( count )
-                    trcout_.set( idx, sum/count, icomp );
-            }
-        }
+	const int sgate2 = sgate/2;
+	for ( int icomp=0; icomp < trcin_.nrComponents(); icomp++ )
+	{
+	    for ( int idx=0; idx < trcin_.size(); idx++ )
+	    {
+	        float sum = 0;
+		int count = 0;
+		for( int ismp=idx-sgate2; ismp <= idx+sgate2; ismp++)
+		{
+		    const float val = trcin_.get( ismp, icomp );
+		    if ( !mIsUdf(val) )
+		    {
+		        sum += val;
+			count++;
+			}
+		}
+		if ( count )
+		    trcout_.set( idx, sum/count, icomp );
+		}
+	}
 
     } break;
 
@@ -311,16 +311,16 @@ void Tut::SeisTools::handleTrace()
     for ( EM::SectionID isect=0; isect<nrsect; isect++ )
     {
         const EM::SubID subid = bid_.getSerialized();
-        const float z1 = horizon1_->getPos( isect, subid ).z;
-        const float z2 = horizon2_->getPos( isect, subid ).z;
+	const float z1 = horizon1_->getPos( isect, subid ).z;
+	const float z2 = horizon2_->getPos( isect, subid ).z;
 
         float val = mUdf(float);
-        if ( !mIsUdf(z1) && !mIsUdf(z2) )
-            val = fabs( z2 - z1 ) * usrfac_;
+	if ( !mIsUdf(z1) && !mIsUdf(z2) )
+	    val = fabs( z2 - z1 ) * usrfac_;
 
         posid_.setSubID( subid );
-        posid_.setSectionID( isect );
-        horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
+	posid_.setSectionID( isect );
+	horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
     }
 
     nrdone_++;
@@ -330,7 +330,7 @@ void Tut::SeisTools::handleTrace()
 
 <a name="tutattrib"><h3 id="heading3">The Tutorial Attribute</h3></a>
 
-<p id="text"> We have seen the direct seismic approach to simple operations on seismic data in <a href=#seistools><code>SeisTools</code></a>. For our purpose, it suits well. But the main problem with this approach is the difficulty in multi-trace handling. Moreover, for large seismic volumes, handling each trace one-by-one may slow down the process. This brings us to another approach called <i>Attributes</i>. In this example, we define the <i>Tutorial</i> attribute to do things once done by <code>SeisTools</code>. As we discuss different aspects of making an attribute, we will also discuss its advantages over the direct seismic approach.</p> 
+<p id="text"> We have seen the direct seismic approach to simple operations on seismic data in <a href=#seistools><code>SeisTools</code></a>. For our purpose, it suits well. But the main problem with this approach is the difficulty in multi-trace handling. Moreover, for large seismic volumes, handling each trace one-by-one may slow down the process. This brings us to another approach called <i>Attributes</i>. In this example, we define the <i>Tutorial</i> attribute to do things once done by <code>SeisTools</code>. As we discuss different aspects of making an attribute, we will also discuss its advantages over the direct seismic approach.</p>
 
 <p id="text"> The main plugin file "tutpi.cc" makes a call to <code>Tutorial::initClass()</code>. The class <code>Tutorial</code> ( tutorialattrib.h ) is defined as a subclass of <a href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider</a> class. Every attribute is a provider, each can thus be used as input for another attribute.</p>
 
@@ -341,17 +341,17 @@ void Tut::SeisTools::handleTrace()
 <p id="text">Some fundamental attribute functions are listed here:</p>
 
 <h3 id="heading3">createInstance()</h3>
-<p id="text">This function is standard for every attribute, 
+<p id="text">This function is standard for every attribute,
 here is the attribute constructor called. Use the macro mAttrDefCreateInstance to define createInstance:<br>
 <br><code>mAttrDefCreateInstance(Tutorial)</code></p>
 
 <h3 id="heading3">initClass()</h3>
-<p id="text"> This static function initializes the attribute: sets up the parameters and 
-the number and type of the inputs and outputs. You can compare this to what you see in Opendtect in the attribute definition window after loading the uiTut 
+<p id="text"> This static function initializes the attribute: sets up the parameters and
+the number and type of the inputs and outputs. You can compare this to what you see in Opendtect in the attribute definition window after loading the uiTut
 plugin.</p>
 
-<p id="text"> If you look at the parts of the implementation carefully, 
-( tutorialattrib.cc ) you'll see that each parameter is built up following 
+<p id="text"> If you look at the parts of the implementation carefully,
+( tutorialattrib.cc ) you'll see that each parameter is built up following
 this example: </p>
 
 <pre id="code"><code>EnumParam* action = new EnumParam( actionStr() );
@@ -364,14 +364,14 @@ this example: </p>
 <p id="text">Every parameter is required by default, to overrule this use <code>setRequired(false)"</p>
 
 <p id="text">initClass() also adds the attribute to the attribute factory.
-In this case, as every attribute is a provider, the Tutorial attribute is 
+In this case, as every attribute is a provider, the Tutorial attribute is
 added to PF() (the <a href="Generated/AttributeEngine/classAttrib_1_1ProviderFactory.html"
 >Attrib::ProviderFactory</a> singleton access function).</p>
 
 
 <h3 id="heading3">updateDesc()</h3>
-<p id="text">Will be used not only to update the parameters but also the number and type 
-of the outputs and to add or disable some inputs. If you look at the 
+<p id="text">Will be used not only to update the parameters but also the number and type
+of the outputs and to add or disable some inputs. If you look at the
 implementation for the tutorial attribute, this function just allows to enable or disable
 the inputs ( factor, shift and smooth ) according to the action chosen
 by the user</p>
@@ -407,18 +407,18 @@ For the Tutorial this is the seismic data. But it can also be Steering Data or a
     if ( action_ ==2 && horsmooth_ )
     {
         steeringdata_ = inputs[1] ? inputs[1]->getData( relpos, zintv ) : 0;
-        const int maxlength  = mMAX(stepout_.inl, stepout_.crl)*2 + 1;
-        while ( inpdata_.size() < maxlength * maxlength )
-            inpdata_ += 0;
+	const int maxlength  = mMAX(stepout_.inl, stepout_.crl)*2 + 1;
+	while ( inpdata_.size() < maxlength * maxlength )
+	    inpdata_ += 0;
 
         for ( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
-        {
-            if ( posandsteeridx_.steeridx_[idx] == 0 ) continue;
-            const DataHolder* data =
-                inputs[0]->getData( relpos + posandsteeridx_.pos_[idx] );
-            if ( !data ) continue;
-            inpdata_.replace( posandsteeridx_.steeridx_[idx], data);
-        }
+	{
+	    if ( posandsteeridx_.steeridx_[idx] == 0 ) continue;
+	    const DataHolder* data =
+	        inputs[0]->getData( relpos + posandsteeridx_.pos_[idx] );
+		if ( !data ) continue;
+	    inpdata_.replace( posandsteeridx_.steeridx_[idx], data);
+	}
     }
 
     dataidx_ = getDataIndex( 0 );
@@ -429,17 +429,17 @@ For the Tutorial this is the seismic data. But it can also be Steering Data or a
 
 <p id="text"> You will notice from here that the calculation of the attributes is not done
 on traces but using a different object, the DataHolder. The dataholder contains
-a set of <a href="Generated/Basic/classValueSeries.html">ValueSeries</a> which 
+a set of <a href="Generated/Basic/classValueSeries.html">ValueSeries</a> which
 holds the value of every sample of the SeisTrc.
-Advantage: in case of an attribute which has other attributes as inputs, data 
-is available in the corresponding dataholders, it thus saves a lot of time 
+Advantage: in case of an attribute which has other attributes as inputs, data
+is available in the corresponding dataholders, it thus saves a lot of time
 ( easier and much faster to read some floats in a ValueSeries than to get values
 from a SeisTrc ). Stored data are read from cubes of seismic traces and written
 the same way.</p>
 <p id="text">The DataHolder is also carrying some specific information about the trace to
-be processed, like the start sample number and the number of samples you wish 
+be processed, like the start sample number and the number of samples you wish
 to calculate.</p>
-<p id="text">Another important remark: calculation is made using sample numbers, 
+<p id="text">Another important remark: calculation is made using sample numbers,
 not time or depth</p>
 
 <p id="text"> Most of the rest of the methods are there to comply with the
@@ -447,15 +447,15 @@ not time or depth</p>
 href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider
 documentation</a>. The basic idea is that for each sample of each
 trace one or more attribute values can be calculated. The number of
-attribute values (or outputs) is defined in the <code>initClass()</code> 
-function. If your input requires additional samples (timegate) or neighbouring 
-traces (stepout), you will have to define <code>reqZMargin()</code> and 
+attribute values (or outputs) is defined in the <code>initClass()</code>
+function. If your input requires additional samples (timegate) or neighbouring
+traces (stepout), you will have to define <code>reqZMargin()</code> and
 <code>reqStepout()</code> respectively. </p>
 
 <a name="compdata"><h3 id="heading3">computeData()</h3></a>
 <p id="text"> When we want to look at the actual work, the place to be is the
 <code><b>computeData()</b></code> method. This is the place where you define the
-mathematics for calculating the attribute. This function is called for each 
+mathematics for calculating the attribute. This function is called for each
 trace of your output cube.</p>
 
 <p id="text">In the computeData() method, we are faced with a number of Z ranges.
@@ -480,50 +480,50 @@ named 'z0_' in the corresponding DataHolders.</p>
     for ( int idx=0; idx < nrsamples; idx++ )
     {
         float outval = 0;
-        if ( action_==0 || action_==1 )
-        {
-            const float trcval = getInputValue( *inputdata_, dataidx_,
-                                                idx, z0 );
-            outval = action_==0 ? trcval * factor_ + shift_ :
-                                        trcval * trcval;
-        }
+	if ( action_==0 || action_==1 )
+	{
+	    const float trcval = getInputValue( *inputdata_, dataidx_,
+	                                        idx, z0 );
+						outval = action_==0 ? trcval * factor_ + shift_ :
+	                                trcval * trcval;
+					}
 	else if ( action_==2 && !horsmooth_ )
-        {
-            float sum = 0;
-            int count = 0;
-            for ( int isamp=sampgate_.start; isamp <= sampgate_.stop; isamp++ )
-            {
-                const float curval = getInputValue( *inpdata_[0], dataidx_,
-                                        idx + isamp, z0 );
-                if ( !mIsUdf(curval) )
-                {
-                    sum += curval;
-                    count ++;
-                }
-            }
-            outval = sum / count;
+	{
+	    float sum = 0;
+	    int count = 0;
+	    for ( int isamp=sampgate_.start; isamp <= sampgate_.stop; isamp++ )
+	    {
+	        const float curval = getInputValue( *inpdata_[0], dataidx_,
+		                        idx + isamp, z0 );
+					if ( !mIsUdf(curval) )
+		{
+		    sum += curval;
+		    count ++;
+		}
+		}
+	    outval = sum / count;
 	<a name="horsmooth">}</a>
-        else if (action_ == 2 && horsmooth_ )
-        {
-            float sum = 0;
-            int count = 0;
-            for ( int posidx=0; posidx < inpdata_.size(); posidx++ )
-            {
-                if ( !inpdata_[posidx] ) continue;
-                const float shift = steeringdata_ ?
-                        getInputValue( *steeringdata_,posidx, idx, z0 ) : 0;
-                const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT(shift) );
-                if ( sampidx < 0 || sampidx >= nrsamples ) continue;
-                const float val = getInputValue( *inpdata_[posidx], 
-                                        dataidx_, sampidx, z0 ); 
-                if ( !mIsUdf(val) )
-                {
-                    sum += val;
-                    count ++;
-                }
-            }
-            outval = sum / count;
-        }
+	else if (action_ == 2 && horsmooth_ )
+	{
+	    float sum = 0;
+	    int count = 0;
+	    for ( int posidx=0; posidx < inpdata_.size(); posidx++ )
+	    {
+	        if ( !inpdata_[posidx] ) continue;
+		const float shift = steeringdata_ ?
+		        getInputValue( *steeringdata_,posidx, idx, z0 ) : 0;
+			const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT(shift) );
+		if ( sampidx < 0 || sampidx >= nrsamples ) continue;
+		const float val = getInputValue( *inpdata_[posidx],
+		                        dataidx_, sampidx, z0 );
+					if ( !mIsUdf(val) )
+		{
+		    sum += val;
+		    count ++;
+		}
+		}
+	    outval = sum / count;
+	}
 
         setOutputValue( output, 0, idx, z0, outval );
     }
@@ -581,11 +581,11 @@ static HelpProvider* createInstance()
 <p id="text">Then in the UI you can use a HelpKey comprising of two parts: the provider key ('tut' for example) and the key for the individual UI, like 'hor' in uiHorTools:<p>
 <code><pre id="code">
 uiTutHorTools::uiTutHorTools( uiParent* p )
-	: uiDialog( p, Setup( tr("Tut Horizon tools"),
-			      tr("Specify process parameters"),
+        : uiDialog( p, Setup( tr("Tut Horizon tools"),
+	                      tr("Specify process parameters"),
 			      HelpKey("tut","hor") ) )
 </pre><code>
-<p id="text">When the user clicks on the help button the HelpProvider will look for the link for the corresponding key, append the link to the base URL and open the document<p>   
+<p id="text">When the user clicks on the help button the HelpProvider will look for the link for the corresponding key, append the link to the base URL and open the document<p>
 
 
 <a name="autoload"><h2 id="heading2">Installation and auto-loading</h2></a>
@@ -721,7 +721,7 @@ Like:<br>
 <code>number.number.number[optional_free_text_without_dots_starting_with_non_digit]</code><br>
 You are completely free in your numbering, and the optional text. The installer uses the '<code>&gt;</code>' operator for every part. The numbers have to be integer numbers, and will be compared as integers.
 </p><p id="text">
-Users cannot update a packages without also updating the packages that these are dependent on. This circumvents the need to specify exactly the dependencies on which versions on what other packages. 
+Users cannot update a packages without also updating the packages that these are dependent on. This circumvents the need to specify exactly the dependencies on which versions on what other packages.
 </p>
 
 <br>
@@ -737,14 +737,14 @@ Users cannot update a packages without also updating the packages that these are
 | <a href="http://www.opendtect.org">opendtect.org</a>
 </center>
 </p>
-  
-										
+
+
 </td></tr>
 
-			 </font>
-						 </tbody>
+                         </font>
+			                         </tbody>
 			 </table>
-				 </div>
+			         </div>
 			 <div id="footer">
 			 </div>
 			 </div>
