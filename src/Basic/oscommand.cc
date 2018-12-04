@@ -159,6 +159,14 @@ int OS::CommandExecPars::getMachinePriority( float priority, bool iswin )
 }
 
 
+OS::MachineCommand::MachineCommand( const char* prognm, const char* arg1,
+       const char* arg2,const char* arg3, const char* arg4,const char* arg5 )
+    : MachineCommand(prognm)
+{
+    addArg( arg1 ).addArg( arg2 ).addArg( arg3 ).addArg( arg4 ).addArg( arg5 );
+}
+
+
 OS::MachineCommand& OS::MachineCommand::addArg( const char* str )
 {
     if ( str && *str )

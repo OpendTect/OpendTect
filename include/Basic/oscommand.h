@@ -84,6 +84,9 @@ public:
 					const BufferStringSet& arguments )
 			    : prognm_(prognm)
 			    , args_(arguments)		{}
+			MachineCommand(const char* prognm,const char* arg1,
+				       const char* arg2=0,const char* arg3=0,
+				       const char* arg4=0,const char* arg5=0);
 
     const char*		program() const			{ return prognm_; }
     void		setProgram( const char* pn )	{ prognm_.set( pn ); }
