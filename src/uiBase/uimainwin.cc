@@ -522,6 +522,8 @@ void uiMainWinBody::close()
     if ( !handleAlive() || !handle_.closeOK() )
 	return;
 
+    handle_.windowClosed.trigger( handle_ );
+
     if ( testAttribute(Qt::WA_DeleteOnClose) )
 	{ QMainWindow::close(); return; }
 
@@ -531,8 +533,6 @@ void uiMainWinBody::close()
 
     if ( exitapponclose_ )
 	qApp->quit();
-
-    handle_.windowClosed.trigger( handle_ );
 }
 
 
