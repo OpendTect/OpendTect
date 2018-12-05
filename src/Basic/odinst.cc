@@ -140,18 +140,22 @@ bool ODInst::canInstall()
 }
 
 
-#define mDefCmd(errretval) \
-    File::Path installerdir( getInstallerPlfDir() ); \
-    if ( !File::isDirectory(installerdir.fullPath()) ) \
+#define mMkMachComm( prog, reldir ) \
+    OS::MachineCommand machcomm( prog ); \
+    machcomm.addKeyedArg( "instdir", reldir )
+
+#define mGetFullMachComm(errretval) \
+    File::Path installerfp( getInstallerPlfDir() ); \
+    if ( !File::isDirectory(installerfp.fullPath()) ) \
 	return errretval; \
     if ( __iswin__ ) \
-	installerdir.add( "od_instmgr.exe" ); \
+	installerfp.add( "od_instmgr.exe" ); \
     else if ( __islinux__ ) \
-	installerdir.add( "run_installer" ); \
-    BufferString cmd( installerdir.fullPath() ); \
-    if ( !File::isExecutable(cmd) ) \
+	installerfp.add( "run_installer" ); \
+    BufferString prog( installerfp.fullPath() ); \
+    if ( !File::isExecutable(prog) ) \
         return errretval; \
-    cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" ); \
+    mMkMachComm( prog, mRelRootDir )
 
 
 BufferString ODInst::GetInstallerDir()
@@ -160,46 +164,31 @@ BufferString ODInst::GetInstallerDir()
     if ( File::isLink(appldir) )
 	appldir = File::linkEnd( appldir );
 
-    File::Path installerdir( appldir );
-    installerdir.setFileName( mInstallerDirNm );
-    return installerdir.fullPath();
+    File::Path installerfp( appldir );
+    installerfp.setFileName( mInstallerDirNm );
+    return installerfp.fullPath();
 }
 
 
 void ODInst::startInstManagement()
 {
-#ifndef __win__
-    mDefCmd();
+    mGetFullMachComm();
     const BufferString curpath = File::getCurrentPath();
-    File::changeDir( installerdir.pathOnly() );
-    OS::ExecCommand( cmd, OS::RunInBG );
+    File::changeDir( installerfp.pathOnly() );
+    machcomm.execute( OS::RunInBG );
     File::changeDir( curpath.buf() );
-#else
-    File::Path installerdir( getInstallerPlfDir() );
-    if ( installerdir.isEmpty() )
-	return;
-    installerdir.add( "od_instmgr" );
-    BufferString cmd( installerdir.fullPath() );
-    BufferString parm( " --instdir "  );
-    parm.add( "\"" ).add( mRelRootDir ).add( "\"" );
-
-    WinUtils::execProg( cmd, parm, installerdir.pathOnly() );
-#endif
 }
 
 
 void ODInst::startInstManagementWithRelDir( const char* reldir )
 {
 #ifdef __win__
-    File::Path installerdir( getInstallerPlfDir() );
-    if ( installerdir.isEmpty() )
+    File::Path installerfp( getInstallerPlfDir() );
+    if ( installerfp.isEmpty() )
 	return;
-    installerdir.add( "od_instmgr" );
-    BufferString cmd( installerdir.fullPath() );
-    BufferString parm( " --instdir "  );
-    parm.add( "\"" ).add( reldir ).add( "\"" );
-
-    WinUtils::execProg( cmd, parm, installerdir.pathOnly() );
+    installerfp.add( "od_instmgr" );
+    mMkMachComm( installerfp.fullPath(), reldir )
+    machcomm.execute( OS::RunInBG );
 #endif
 }
 
@@ -209,43 +198,20 @@ BufferString ODInst::getInstallerPlfDir()
     File::Path installerbasedir( GetInstallerDir() );
     if ( !File::isDirectory(installerbasedir.fullPath()) )
 	return "";
-    File::Path installerdir ( installerbasedir, "bin", __plfsubdir__, "Release" );
-    const BufferString path = installerdir.fullPath();
+    File::Path installerfp( installerbasedir, "bin", __plfsubdir__, "Release" );
+    const BufferString path = installerfp.fullPath();
     if ( !File::exists(path) || !File::isDirectory(path) )
 	return installerbasedir.fullPath();
 
-    return installerdir.fullPath();
-}
-
-
-bool ODInst::runInstMgrForUpdt()
-{
-    mDefCmd(false);
-    cmd.add( " --updcheck_report" );
-    return OS::ExecCommand( cmd, OS::Wait4Finish );
+    return installerfp.fullPath();
 }
 
 
 bool ODInst::updatesAvailable()
 {
-#ifdef OD_NO_QT
-    return false;
-#else
-    mDefCmd(false); cmd.add( " --updcheck_report" );
-# ifndef __win__
-    const BufferString curpath = File::getCurrentPath();
-    File::changeDir( installerdir.pathOnly() );
-    const int res = QProcess::execute( QString(cmd.buf()) );
-    File::changeDir( curpath.buf() );
-    return res == 1;
-# else
-    File::Path tmp( File::getTempPath(), "od_updt" );
-    mDefineStaticLocalObject(const bool,ret, = File::exists(tmp.fullPath()));
-    if ( ret )
-	File::remove( tmp.fullPath() );
-    return ret;
-# endif
-#endif
+    mGetFullMachComm(false);
+    machcomm.addFlag( "updcheck_report" );
+    return machcomm.execute( OS::Wait4Finish );
 }
 
 

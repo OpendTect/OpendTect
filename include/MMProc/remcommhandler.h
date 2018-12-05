@@ -16,9 +16,7 @@ ________________________________________________________________________
 
 namespace Network { class Server; }
 
-/*!
-\brief Handles commands to be executed remotely on a different machine.
-*/
+/*!\brief handles commands to be executed remotely on a different machine. */
 
 mExpClass(MMProc) RemCommHandler : public CallBacker
 {
@@ -31,11 +29,9 @@ public:
 protected:
 
     void		dataReceivedCB(CallBacker*);
-    bool		mkCommand(const IOPar&,BufferString&);
-    void		uiErrorMsg(const char*);
-    od_ostream&	createLogFile();
+    od_ostream&		createLogFile();
     void		writeLog(const char* msg);
-    od_ostream&	logstrm_;
+    od_ostream&		logstrm_;
 
     const int		port_;
     Network::Server&	server_;

@@ -36,12 +36,16 @@ static bool testCmds()
     //TODO
 #else
 
-#   define mMkCmd(s) BufferString(s,redir)
-    const BufferString redir( quiet ? " >/dev/null" : "| head -10" );
-    mRunStandardTest( OS::ExecCommand(mMkCmd("ls -l"),OS::Wait4Finish),
-		      "OS::ExecCommand wait4finish" );
-    mRunStandardTest( OS::ExecCommand(mMkCmd("ls -l"),OS::RunInBG),
-		     "OS::ExecCommand not wait4finish" );
+    OS::MachineCommand machcomm( "ls" );
+    machcomm.addFlag( "l", OS::OldStyle );
+    if ( quiet )
+	machcomm.addArg( ">/dev/null" );
+    else
+	machcomm.addArg( "|head" ).addArg( "-10" );
+    mRunStandardTest( machcomm.execute(OS::Wait4Finish),
+		      "OS::MachineCommand::execute wait4finish" );
+    mRunStandardTest( machcomm.execute(OS::RunInBG),
+		     "OS::MachineCommand::execute not wait4finish" );
 
 #endif
 
@@ -54,8 +58,8 @@ static bool testAllPipes()
     OS::MachineCommand mc( GetFullExecutablePath() );
     mc.addFlag( "testpipes" );
     OS::CommandLauncher cl( mc );
-    OS::CommandExecPars cp( false );
-    cp.launchtype( OS::RunInBG ).createstreams( true );
+    OS::CommandExecPars cp( OS::RunInBG );
+    cp.createstreams( true );
 
     mRunStandardTest( cl.execute( cp ), "Launching triple pipes" );
     mRunStandardTest( cl.processID(), "Launched process has valid PID" );
@@ -94,16 +98,17 @@ static bool testAllPipes()
 
 static bool runCommandWithSpace()
 {
-    File::Path scriptname(GetSoftwareDir(0), "testscripts", "script with space");
+    File::Path scriptfp( GetSoftwareDir(0), "testscripts",
+			    "script with space");
 #ifdef __win__
-    scriptname.setExtension( "cmd" );
+    scriptfp.setExtension( "cmd" );
 #else
-    scriptname.setExtension( "sh" );
-
-    mRunStandardTest( OS::ExecCommand(scriptname.fullPath()),
-			"Command with space" );
-
+    scriptfp.setExtension( "sh" );
 #endif
+
+    OS::MachineCommand machcomm( scriptfp.fullPath() );
+    mRunStandardTest( machcomm.execute(), "Command with space" );
+
     return true;
 }
 
@@ -117,24 +122,21 @@ static bool runCommandWithLongOutput()
     //Should be 100% correct, meaning that no bytes have been skipped or
     //inserted.
     //
-    const File::Path scriptname( GetSoftwareDir(0),"testscripts",
-			       "count_to_1000.csh");
+    const File::Path scriptfp( GetSoftwareDir(0), "testscripts",
+				 "count_to_1000.csh" );
     BufferString output;
-    OS::ExecCommand(scriptname.fullPath(), OS::Wait4Finish, &output );
+    OS::MachineCommand machcomm( scriptfp.fullPath() );
+    machcomm.execute( output );
 
     SeparString parsedoutput( output.buf(), '\n' );
     bool res = true;
     for ( int idx=0; idx<1000; idx++ )
     {
 	if ( parsedoutput[idx]!=toString( idx+1 ) )
-	{
-	    res = false;
-	    break;
-	}
+	    { res = false; break; }
     }
 
     mRunStandardTest( res, "Correctly reading long input stream" );
-
     return true;
 #endif
 }

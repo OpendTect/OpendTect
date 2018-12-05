@@ -230,12 +230,12 @@ const char* GetOSIdentifier()
 #endif
 
 #ifdef __lux__
-    if ( !OS::ExecCommand( "lsb_release -d", OS::Wait4Finish, tmp ) )
+    OS::MachineCommand machcomm( "lsb_release", "-d" );
+    if ( !machcomm.execute(*tmp,0) )
 	tmp->set( "Unknown Linux");
 #endif
 
     osident.setIfNull( tmp, true );
-
     return osident->buf();
 }
 
@@ -398,13 +398,17 @@ const char* GetProcessNameForPID( int pid )
 	procname = procnamebuff;
     }
 #else
-    const BufferString cmd( "ps -p ", pid, " -o command=" );
-    BufferString stdoutput, stderror;
-    OS::ExecCommand( cmd, OS::Wait4Finish, &stdoutput, &stderror );
-    procname = !stdoutput.isEmpty() ? stdoutput : stderror.isEmpty()
-						? "" : stderror;
-    char* ptrfirstspace = procname.find(' ');
-    if ( ptrfirstspace ) *ptrfirstspace = '\0';
+    OS::MachineCommand machcomm( "ps", "-p", toString(pid), "-o command=" );
+    BufferString stdoutput,stderror;
+    if ( machcomm.execute(stdoutput,&stderror) )
+	procname = stderror.embed( '<', '>' );
+    else
+    {
+	procname = stdoutput;
+	char* ptrfirstspace = procname.find( ' ' );
+	if ( ptrfirstspace )
+	    *ptrfirstspace = '\0';
+    }
 #endif
     const File::Path procpath( procname );
     ret = procpath.fileName();
@@ -458,8 +462,10 @@ bool StartProgramCopy()
 #endif
     }
 
-    const BufferString fullcmdline( GetFullCommandLine() );
-    return OS::ExecCommand( fullcmdline, OS::RunInBG );
+    OS::MachineCommand machcomm( argv_[0] );
+    for ( int idx=1; idx<argc_; idx++ )
+	machcomm.addArg( argv_[idx] );
+    return machcomm.execute( OS::RunInBG );
 }
 
 
@@ -805,23 +811,6 @@ static const char* getShortPathName( const char* path )
 
     return shortpath;
 #endif
-}
-
-
-mExternC(Basic) const char* GetFullCommandLine( void )
-{
-    mDefineStaticLocalObject( BufferString, res, );
-    mDefineStaticLocalObject( Threads::Lock, lock, );
-
-    Threads::Locker locker( lock );
-
-    if ( res.isEmpty() )
-    {
-	for ( int idx=0; idx<argc_; idx++ )
-	    res.add( argv_[idx] ).add( " " );
-    }
-
-    return res;
 }
 
 

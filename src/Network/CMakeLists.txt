@@ -25,7 +25,6 @@ set ( OD_MODULE_SOURCES
 	oddlsite.cc
 	odhttp.cc
 	odnetworkaccess.cc
-	svnaccess.cc
 	systeminfo.cc
 	webfileaccess.cc
 )

@@ -122,7 +122,7 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
     mInitGMTComm( cmd, "grdmath " );
     cmd.add( path ).add( " " ).add( defundefpath_ )
        .add( " OR = " ).add( path_ );
-    if ( !OS::ExecCommand(cmd) )
+    if ( !OS::Unsafe__use_MachineCommand_instead(cmd) )
 	return false;
 
     File::remove( defundefpath_ );

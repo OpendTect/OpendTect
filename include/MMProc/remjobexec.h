@@ -32,7 +32,7 @@ public:
 
 protected:
 
-    void		ckeckConnection();
+    void		checkConnection();
     void		uiErrorMsg(const char*);
 
     Network::Socket&	socket_;

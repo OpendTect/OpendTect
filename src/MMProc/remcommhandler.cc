@@ -57,57 +57,25 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
     if ( par.isEmpty() )
 	mErrRet( "Could not read any parameters from server" );
 
-    BufferString cmd;
-    mkCommand( par, cmd );
-    if ( !OS::ExecCommand( cmd, OS::RunInBG ) )
-	mErrRet( "Command Execution failed" );
-}
+    BufferString procnm, parfile;
+    par.get( "Proc Name", procnm );
+    par.get( "Par File", parfile );
 
+    BufferString hostnm, portnm, jobid;
+    par.get( "Host Name", hostnm );
+    par.get( "Port Name", portnm );
+    par.get( "Job ID", jobid );
 
-bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
-{
-    BufferString procnm, hostnm, portnm, survnm, dataroot, parfile, jobid;
-    const int parsz = par.size();
-    bool res;
-    if ( parsz <= 2 )
-    {
-	res = par.get( "Proc Name", procnm ) && par.get( "Par File", parfile );
-#ifdef __win__
-        parfile.quote('\"');
-#endif
-	cmd = procnm;
-	cmd.add( " " ).add( parfile );
-	return res;
-    }
-    else
-    {
-	res = par.get( "Proc Name", procnm ) &&
-	par.get( "Host Name", hostnm ) &&
-	par.get( "Port Name", portnm ) &&
-	par.get( "Job ID", jobid ) &&
-	par.get( "Par File", parfile );
-#ifdef __win__
-        parfile.quote('\"');
-#endif
-    }
+    OS::MachineCommand machcomm( procnm );
+    if ( !hostnm.isEmpty() )
+	machcomm.addKeyedArg( "masterhost", hostnm, OS::OldStyle );
+    if ( !portnm.isEmpty() )
+	machcomm.addKeyedArg( "masterport", portnm, OS::OldStyle );
+    if ( !jobid.isEmpty() )
+	machcomm.addKeyedArg( "jobid", jobid, OS::OldStyle );
+    machcomm.addArg( parfile );
 
-    if ( !res ) return false;
-
-    cmd = procnm;
-    cmd.add( " -masterhost " ).add( hostnm )
-       .add( " -masterport " ).add( portnm )
-       .add( " -jobid " ).add( jobid )
-       .add( " " ).add( parfile );
-
-    return true;
-}
-
-
-void RemCommHandler::uiErrorMsg( const char* msg )
-{
-    BufferString cmd( "\"", File::Path(GetExecPlfDir(),"od_DispMsg").fullPath() );
-    cmd.add( "\" --err ").add( msg );
-    OS::ExecCommand( cmd );
+    OS::CommandLauncher(machcomm).execute( OS::RunInBG );
 }
 
 

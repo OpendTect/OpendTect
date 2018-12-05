@@ -139,12 +139,11 @@ void uiODHelpMenuMgr::showShortKeys()
     if ( !File::exists(imgpath.buf()) )
 	return;
 
-    const BufferString title = "Keyboard Shortcuts and Mouse Controls";
-    BufferString cmd = "od_ImageViewer --bg ";
-    cmd.add( imgpath ).addSpace().add( "'" ).add( title ).add( "'" );
-    const bool res = OS::ExecCommand( cmd.buf(), OS::RunInBG );
-    if ( !res )
-	gUiMsg().error( tr("Could not launch ShortKeys table") );
+    const char* title = "Keyboard Shortcuts and Mouse Controls";
+    OS::MachineCommand machcomm( "od_ImageViewer", "--bg", imgpath, title );
+    OS::CommandLauncher cl( machcomm );
+    if ( !cl.execute(OS::RunInBG) )
+	gUiMsg().error( cl.errorMsg() );
 }
 
 

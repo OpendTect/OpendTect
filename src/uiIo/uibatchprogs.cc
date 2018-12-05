@@ -347,9 +347,8 @@ bool uiBatchProgLaunch::acceptOK()
 	mc.addArg( val );
     }
 
-    OS::CommandExecPars execpars( true );
-    execpars.launchtype( OS::RunInBG )
-	    .needmonitor( bpi.uitype_ == BatchProgInfo::NoUI )
+    OS::CommandExecPars execpars( OS::RunInBG );
+    execpars.needmonitor( bpi.uitype_ == BatchProgInfo::NoUI )
 	    .isconsoleuiprog( bpi.uitype_ == BatchProgInfo::TxtUI )
 	    .createstreams( bpi.uitype_ == BatchProgInfo::NoUI );
     if ( pil_[selidx] && inplst.isEmpty() &&

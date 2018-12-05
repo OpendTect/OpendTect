@@ -98,28 +98,23 @@ static void extractVersionString( const BufferString& inp )
 static void checkGMTAvailability()
 {
     BufferString versiontxt;
-    const BufferString comm5( sKeyGMTExec(), " --version" );
-    hasgmt5_ = OS::ExecCommand( comm5.str(), OS::Wait4Finish,
-				&versiontxt );
-    if ( hasgmt5_ )
+    OS::MachineCommand machcomm( sKeyGMTExec(), "version" );
+    hasgmt5_ = machcomm.execute( versiontxt );
+    if ( !hasgmt5_ )
     {
-	extractVersionString( versiontxt );
-	return; //One is enough to get going
-    }
-
 #if defined __mac__
-    return;	// Never supported GMT4 on MAC
+	return;	// Never supported GMT4 on MAC
 #elif defined __lux__
-    const BufferString comm4( sKeyUnixGMT4Wrapper(), " --version" );
+	machcomm.setProgram( sKeyUnixGMT4Wrapper() );
 #elif defined __win__
-    const BufferString comm4( sKeyWindowsGMT4TestExec() );
+	machcomm = OS::MachineCommand( sKeyWindowsGMT4TestExec() );
 #endif
 
-    versiontxt.setEmpty();
-    hasgmt4_ = OS::ExecCommand( comm4.str(), OS::Wait4Finish,
-				0, &versiontxt );
-    if ( hasgmt4_ )
-	extractVersionString( versiontxt );
+	versiontxt.setEmpty();
+	hasgmt4_ = machcomm.execute( versiontxt );
+	if ( hasgmt4_ )
+	    extractVersionString( versiontxt );
+    }
 }
 
 };

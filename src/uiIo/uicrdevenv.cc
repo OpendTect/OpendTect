@@ -176,9 +176,8 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     workdirnm = shortpath;
 #endif
 
-    OS::CommandExecPars execpars( false );
-    execpars.launchtype( OS::Wait4Finish )
-	    .isconsoleuiprog( true );
+    OS::CommandExecPars execpars( OS::Wait4Finish );
+    execpars.isconsoleuiprog( true );
     const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat" : "od_cr_dev_env";
     File::Path fp( swdir, "bin", scriptfnm );
     OS::MachineCommand mc( fp.fullPath() );

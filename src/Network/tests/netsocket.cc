@@ -65,10 +65,10 @@ bool TestRunner::testNetSocket( bool closeserver )
     if ( !connection.connectToHost("localhost",port_,true) )
     {
 	OS::CommandLauncher cl( servercmd_ );
-	OS::CommandExecPars execpars; execpars.launchtype( OS::RunInBG );
-	if ( !cl.execute(execpars) )
+	if ( !cl.execute(OS::RunInBG) )
 	{
-	    od_ostream::logStream() << "Cannot start " << servercmd_.program();
+	    od_ostream::logStream() << "Cannot start " << servercmd_.program()
+				<< ": " << toString(cl.errorMsg()) << od_endl;
 	    return false;
 	}
 

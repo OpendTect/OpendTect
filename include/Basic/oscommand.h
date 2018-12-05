@@ -21,9 +21,17 @@ class qstreambuf;
 namespace OS
 {
 
-
 enum LaunchType	{ Wait4Finish, RunInBG };
+enum KeyStyle	{ NewStyle, OldStyle };
 
+}
+
+inline bool isBatchProg( OS::LaunchType lt ) { return lt == OS::RunInBG; }
+inline bool isOldStyle( OS::KeyStyle ks ) { return ks == OS::OldStyle; }
+
+
+namespace OS
+{
 
 /*!\brief Specifies how to execute a command */
 
@@ -31,11 +39,11 @@ enum LaunchType	{ Wait4Finish, RunInBG };
 mExpClass(Basic) CommandExecPars
 {
 public:
-			CommandExecPars( bool isbatchprog=false )
+			CommandExecPars( LaunchType lt=Wait4Finish )
 			    : needmonitor_(false)
 			    , createstreams_(false)
-			    , prioritylevel_(isbatchprog ? -1.0f : 0.0f)
-			    , launchtype_(isbatchprog ? RunInBG : Wait4Finish)
+			    , prioritylevel_(isBatchProg(lt) ? -1.0f : 0.0f)
+			    , launchtype_(lt)
 			    , isconsoleuiprog_(false)	{}
 
     mDefSetupClssMemb(CommandExecPars,bool,createstreams);
@@ -94,16 +102,18 @@ public:
 
     MachineCommand&	addArg(const char*);
     MachineCommand&	addArgs(const BufferStringSet&);
-    MachineCommand&	addFlag( const char* flg )
-			{ return addKeyedArg(flg,0); }
-    MachineCommand&	addKeyedArg(const char* ky,const char* valstr);
+    MachineCommand&	addFlag( const char* flg, KeyStyle ks=NewStyle )
+			{ return addKeyedArg(flg,0,ks); }
+    MachineCommand&	addKeyedArg(const char* ky,const char* valstr,
+				    KeyStyle ks=NewStyle);
 
 			// convenience:
     template <class T>
     MachineCommand&	addArg( const T& t )	{ return addArg(::toString(t));}
     template <class T>
-    MachineCommand&	addKeyedArg( const char* ky, const T& t )
-			{ return addKeyedArg(ky,::toString(t));}
+    MachineCommand&	addKeyedArg( const char* ky, const T& t,
+				     KeyStyle ks=NewStyle )
+			{ return addKeyedArg(ky,::toString(t),ks);}
 
     bool		hostIsWindows() const		{ return hostiswin_; }
     void		setHostIsWindows( bool yn )	{ hostiswin_ = yn; }
@@ -126,6 +136,12 @@ public:
     static const char*	sKeyBG()		{ return "bg"; }
     static const char*	sKeyFG()		{ return "fg"; }
     static const char*	sKeyJobID()		{ return "jobid"; }
+
+    bool		execute(LaunchType lt=Wait4Finish);
+    bool		execute(BufferString& output_stdout,
+				BufferString* output_stderr=0);
+				//!< run &, wait until finished, catch output
+    bool		execute(const CommandExecPars&);
 
 protected:
 
@@ -160,7 +176,12 @@ public:
 
     void		set(const MachineCommand&);
 
-    bool		execute(const CommandExecPars& pars=CommandExecPars());
+    bool		execute( LaunchType lt=Wait4Finish )
+				{ return execute( CommandExecPars(lt) ); }
+    bool		execute(BufferString& output_stdout,
+				BufferString* output_stderr=0);
+				//!< run &, wait until finished, catch output
+    bool		execute(const CommandExecPars&);
 
     int			processID() const;
     const char*		monitorFileName() const	{ return monitorfnm_; }
@@ -211,11 +232,19 @@ public:
 			/*!<Add a QProcess and it will be deleted one day. */
 };
 
-
-/*! convenience function; for specific options use the CommandLauncher */
-mGlobal(Basic) bool ExecCommand(const char* cmd,LaunchType lt=Wait4Finish,
-				BufferString* stdoutput=0,
-				BufferString* stderror=0);
-
+mGlobal(Basic) bool Unsafe__use_MachineCommand_instead(const char*,
+					LaunchType lt=Wait4Finish);
+mDeprecated inline bool ExecCommand( const char* cmd,
+					LaunchType lt=Wait4Finish )
+{ return Unsafe__use_MachineCommand_instead( cmd, lt ); }
 
 } // namespace OS
+
+
+namespace OD
+{
+
+/*! Shows an error message in a separate (small) program */
+mGlobal(Basic) void DisplayErrorMessage(const char*);
+
+} // namespace OD

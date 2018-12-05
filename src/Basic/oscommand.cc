@@ -183,9 +183,12 @@ OS::MachineCommand& OS::MachineCommand::addArgs( const BufferStringSet& toadd )
 
 
 OS::MachineCommand& OS::MachineCommand::addKeyedArg( const char* ky,
-						 const char* str )
+			 const char* str, KeyStyle ks )
 {
-    addArg( CommandLineParser::createKey(ky) );
+    if ( isOldStyle(ks) )
+	addArg( BufferString( "-", ky ) );
+    else
+	addArg( CommandLineParser::createKey(ky) );
     addArg( str );
     return *this;
 }
@@ -493,12 +496,6 @@ void OS::CommandLauncher::addQuotesIfNeeded( BufferString& word )
 }
 
 
-static void escapeSpaces( BufferString& word )
-{
-    word.replace( " ", "\\ " );
-}
-
-
 BufferString OS::MachineCommand::getExecCommand() const
 {
     BufferString prognm = getUsableCmd( prognm_ );
@@ -527,6 +524,24 @@ BufferString OS::MachineCommand::getExecCommand() const
 }
 
 
+bool OS::MachineCommand::execute( LaunchType lt )
+{
+    return CommandLauncher(*this).execute( lt );
+}
+
+
+bool OS::MachineCommand::execute( const CommandExecPars& execpars )
+{
+    return CommandLauncher(*this).execute( execpars );
+}
+
+
+bool OS::MachineCommand::execute( BufferString& out, BufferString* err )
+{
+    return CommandLauncher(*this).execute( out, err );
+}
+
+
 // OS::CommandLauncher
 
 OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc )
@@ -542,6 +557,20 @@ OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc )
     , machcmd_(mc)
 {
     reset();
+}
+
+
+bool OS::CommandLauncher::execute( BufferString& out, BufferString* err )
+{
+    CommandExecPars execpars( Wait4Finish );
+    execpars.createstreams( true );
+    if ( !execute(execpars) )
+	return false;
+
+    getStdOutput()->getAll( out );
+    if ( err )
+	getStdOutput()->getAll( *err );
+    return true;
 }
 
 
@@ -602,7 +631,6 @@ void OS::CommandLauncher::set( const OS::MachineCommand& cmd )
 }
 
 
-
 bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 {
     reset();
@@ -617,7 +645,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     if ( !mIsZero(pars.prioritylevel_,1e-2f) )
 	mcmd.addKeyedArg( CommandExecPars::sKeyPriority(), pars.prioritylevel_);
 
-    bool ret = false;
+    uiString cannotlaunchstr = toUiString( "Cannot launch '%1'" );
     if ( pars.isconsoleuiprog_ )
     {
 #ifndef __win__
@@ -628,8 +656,11 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	str.add( " " );
 	toexec.insertAt( 0, str );
 #endif
-	return doExecute( toexec, pars.launchtype_==Wait4Finish, true,
-			  pars.createstreams_ );
+	const bool res = doExecute( toexec, pars.launchtype_==Wait4Finish, true,
+				    pars.createstreams_ );
+	if ( errmsg_.isEmpty() )
+	    errmsg_.set( cannotlaunchstr.arg( toexec ) );
+	return res;
     }
 
     if ( pars.needmonitor_ )
@@ -645,10 +676,14 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    return false;
     }
 
-    ret = doExecute( toexec, pars.launchtype_==Wait4Finish, false,
-		     pars.createstreams_ );
+    const bool ret = doExecute( toexec, pars.launchtype_==Wait4Finish, false,
+				pars.createstreams_ );
     if ( !ret )
+    {
+	if ( errmsg_.isEmpty() )
+	    errmsg_.set( cannotlaunchstr.arg( toexec ) );
 	return false;
+    }
 
     if ( pars.launchtype_==RunInBG )
 	startMonitor();
@@ -669,11 +704,12 @@ void OS::CommandLauncher::startMonitor()
     progvwrcmd.addKeyedArg( "pid", processID() );
 
     OS::CommandLauncher progvwrcl( progvwrcmd );
-    OS::CommandExecPars cp;
-    cp.launchtype( RunInBG );
-    if ( !progvwrcl.execute(cp) )
-	ErrMsg("Cannot launch progress viewer");
-		    // sad ... but the process has been launched
+    if ( !progvwrcl.execute(RunInBG) )
+    {
+	// sad ... but the process has been launched anyway
+	ErrMsg( toUiString( "[Monitoring does not start] %1" )
+		.arg( progvwrcl.errorMsg() ) );
+    }
 }
 
 
@@ -893,33 +929,21 @@ int OS::CommandLauncher::catchError()
 }
 
 
-static bool doExecOSCmd( const char* cmd, OS::LaunchType ltyp, bool isbatchprog,
-			 BufferString* stdoutput, BufferString* stderror )
+bool OS::Unsafe__use_MachineCommand_instead( const char* cmd, LaunchType lt )
 {
-    OS::MachineCommand mc( "" );
-    mc.setFromSingleStringRep( cmd );
-    OS::CommandLauncher cl( mc );
-    OS::CommandExecPars cp( isbatchprog );
-    cp.launchtype( ltyp ).createstreams( stdoutput || stderror );
-
-    const bool ret = cl.execute( cp );
-    if ( stdoutput )
-	cl.getStdOutput()->getAll( *stdoutput );
-    if ( stderror )
-	cl.getStdError()->getAll( *stderror );
-
-    return ret;
+    BufferString prognm( cmd );
+    char* args = prognm.getCStr();
+    mSkipBlanks( args ); mSkipNonBlanks( args );
+    *args++ = '\0';
+    mSkipBlanks( args );
+    OS::MachineCommand machcomm( prognm, args );
+    return machcomm.execute( lt );
 }
 
 
-bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp, BufferString* out,
-		      BufferString* err )
+void OD::DisplayErrorMessage( const char* msg )
 {
-    if ( ltyp!=Wait4Finish )
-	{ out = 0; err = 0; }
-
-    BufferString esccmd( cmd );
-    escapeSpaces( esccmd );
-    return doExecOSCmd( esccmd, ltyp, false, out, err );
+    OS::MachineCommand machcomm( "od_DispMsg" );
+    machcomm.addKeyedArg( "err", msg );
+    machcomm.execute( OS::RunInBG );
 }
-

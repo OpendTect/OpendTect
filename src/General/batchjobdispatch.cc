@@ -23,7 +23,7 @@ mImplClassFactory( Batch::JobDispatcher, factory )
 
 
 Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
-    : execpars_(true)
+    : execpars_(OS::RunInBG)
     , prognm_(progNameFor(pt))
 {
     execpars_.needmonitor_ = true;
@@ -31,7 +31,7 @@ Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
 
 
 Batch::JobSpec::JobSpec( const char* pnm )
-    : execpars_(true)
+    : execpars_(OS::RunInBG)
     , prognm_(pnm)
 {
     execpars_.needmonitor_ = true;
@@ -39,7 +39,7 @@ Batch::JobSpec::JobSpec( const char* pnm )
 
 
 Batch::JobSpec::JobSpec( const IOPar& iop )
-    : execpars_(true)
+    : execpars_(OS::RunInBG)
 {
     usePar( iop );
     pars_.removeWithKey( sKey::Survey() );

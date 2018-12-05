@@ -303,9 +303,9 @@ void SignalHandling::stopRemote( const char* mach, int pid, bool friendly,
     pFreeFnErrMsg( "Not impl: stopRemote() for Windows");
 #else
 
-    BufferString cmd( "kill ", friendly ? "-TERM " : "-9 " );
-    cmd.add( pid ).add( " > /dev/null" );
-    OS::ExecCommand( cmd, OS::RunInBG );
+    OS::MachineCommand machcomm( "kill", friendly ? "-TERM" : "-9",
+					toString(pid), ">/dev/null" );
+    machcomm.execute( OS::RunInBG );
 
 #endif
 }

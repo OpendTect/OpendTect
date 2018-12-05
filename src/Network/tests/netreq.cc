@@ -271,7 +271,7 @@ int mTestMainFnName(int argc, char** argv)
     echocmd.addKeyedArg( "port", runner->port_ );
     echocmd.addFlag( "quiet" );
 
-    OS::CommandExecPars execpars; execpars.launchtype( OS::RunInBG );
+    OS::CommandExecPars execpars( OS::RunInBG );
     OS::CommandLauncher cl( echocmd );
 
     if ( !clParser().hasKey("noechoapp")

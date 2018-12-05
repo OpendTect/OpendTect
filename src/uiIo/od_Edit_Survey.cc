@@ -27,8 +27,7 @@ ________________________________________________________________________
 
 static void exitWithErrMsg( const char* msg )
 {
-    BufferString cmd( "od_DispMsg --err ", msg );
-    OS::ExecCommand( cmd );
+    OD::DisplayErrorMessage( msg );
     ExitProgram( 1 );
 }
 

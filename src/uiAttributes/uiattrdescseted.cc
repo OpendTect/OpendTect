@@ -1272,11 +1272,13 @@ void uiAttribDescSetEd::exportToGraphVizDotCB( CallBacker* )
 
     File::Path outputfp( fnm );
     outputfp.setExtension( "png" );
-    BufferString cmd( "\"", dotpath, "\"" );
-    cmd.add( " -Tpng " ).add( fnm ).add( " -o " ).add( outputfp.fullPath() );
-    const bool res = OS::ExecCommand( cmd.buf() );
-    if ( !res )
-	{ uiMSG().error( tr("Could not execute %1").arg(cmd) ); return; }
+    OS::MachineCommand machcomm( dotpath );
+    machcomm.addKeyedArg( "Tpng", fnm, OS::OldStyle );
+    machcomm.addKeyedArg( "o", outputfp.fullPath(), OS::OldStyle );
+    OS::CommandLauncher cl( machcomm );
+    const bool res = cl.execute();
+    if ( !cl.execute() )
+	{ uiMSG().error( cl.errorMsg() ); return; }
 
     uiDesktopServices::openUrl( outputfp.fullPath() );
 }

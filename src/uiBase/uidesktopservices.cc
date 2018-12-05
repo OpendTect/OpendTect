@@ -19,6 +19,12 @@ ________________________________________________________________________
 #ifdef __win__
 # include "winutils.h"
 #endif
+#ifdef __mac__
+    /* TODO MACENABLE
+# include <CoreFoundation/CFBundle.h>
+# include <ApplicationServices/ApplicationServices.h>
+    */
+#endif
 
 #include <QDesktopServices>
 #include <QUrl>
@@ -37,56 +43,69 @@ static const char* sKeyLDLibPath =
 # endif
 #endif
 
+#define mQUrlCStr(qurl) qurl.toString().toUtf8().data()
+
 static bool openLocalFragmentedUrl( const QUrl& qurl )
 {
-    BufferString odcmd;
+    OS::MachineCommand machcomm;
 
 #ifdef __win__
 
     BufferString browser, errmsg;
     if ( !WinUtils::getDefaultBrowser(browser,errmsg) )
+	{ ErrMsg( "No system browser found" ); return false; }
+
+    QString brcmd( browser.buf() );
+    const int index = brcmd.lastIndexOf( "%1" );
+    if ( index < 0 )
     {
-	if ( DBG::isOn(DBG_IO) && !errmsg.isEmpty() )
-	    DBG::message( browser.buf() );
+	machcomm.setProgram( browser );
+	machcomm.addArg( mQUrlCStr(qurl) );
+    }
+    else
+    {
+	brcmd.replace( index, 2, qurl.toString() );
+	BufferString workstr( brcmd );
+	char* ptr = workstr.getCStr();
+	mSkipBlanks( ptr ); mSkipNonBlanks( ptr );
+	machcomm.setProgram( *ptr );
+	ptr++; mSkipBlanks( ptr );
+	machcomm.addArg( ptr );
     }
 
-    QString command = browser.buf();
-
-    const int index = command.lastIndexOf( "%1" );
-    if ( index != -1 )
-	command.replace( index, 2, qurl.toString() );
-
-    odcmd.set( command );
-
 #elif defined( __lux__ )
+
     int res = system( "pidof -s gnome-session" );
     if ( res==0 )
-	odcmd.set( "gnome-open" );
+	machcomm.setProgram( "gnome-open" );
 
     res = system( "pidof -s ksmserver" );
     if ( res==0 )
-	odcmd.set( "kfmclient exec" );
-
-    if ( odcmd.isEmpty() )
-	return false;
-
-    odcmd.addSpace().add( qurl.toString() );
-
-#elif defined( __mac__ )
-    return false;
-#endif
-
-    if ( DBG::isOn(DBG_IO) )
-	DBG::message( BufferString("Local command: ",odcmd) );
-    const bool execres = OS::ExecCommand( odcmd.buf() );
-    if ( !execres )
     {
-	if ( DBG::isOn(DBG_IO) )
-	    DBG::message( "Could not launch browser" ); // TODO: GetLastError
-	return false;
+	machcomm.setProgram( "kfmclient" );
+	machcomm.addArg( "exec" );
     }
 
+    if ( machcomm.isBad() )
+	{ ErrMsg( "No system browser found" ); return false; }
+
+    machcomm.addArg( mQUrlCStr(qurl) );
+
+#elif defined( __mac__ )
+
+    /* TODO MACENABLE Should work:
+    const char* urlstr = mQUrlCStr( qurl );
+    CFURLRef urlref = CFURLCreateWithBytes ( NULL, (UInt8*)urlstr,
+		    FixedString(urlstr).size(), kCFStringEncodingASCII, NULL );
+    LSOpenCFURLRef( urlref, 0 );
+    CFRelease( urlref );
     return true;
+    */
+    return false;
+
+#endif
+
+    return machcomm.execute( OS::RunInBG );
 }
 
 

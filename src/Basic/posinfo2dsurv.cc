@@ -97,8 +97,9 @@ const PosInfo::Survey2D& S2DPOS()
 
 #define mErrRet(s1,s2,s3) \
 { \
-    BufferString cmd("od_DispMsg --err ",BufferString(s1 " '",s2, "' " s3)); \
-    OS::ExecCommand( cmd ); \
+    BufferString msg( s1, " ", s2 ); \
+    msg.add( " " ).add( s3 ); \
+    OD::DisplayErrorMessage( msg ); \
     return; \
 }
 

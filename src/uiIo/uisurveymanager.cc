@@ -401,8 +401,7 @@ void uiSurveyManager::launchEditor( bool forcreate )
 	cmd.addArg( getDirName() );
 
     OS::CommandLauncher cl( prognm );
-    OS::CommandExecPars execpars; execpars.launchtype( OS::RunInBG );
-    const bool res = cl.execute( execpars );
+    const bool res = cl.execute( OS::RunInBG );
     if ( !res )
 	uiMSG().error( tr("Could not launch '%1'.\nIt should be located in:"
 			"\n%2\n\nPlease check your installation.")

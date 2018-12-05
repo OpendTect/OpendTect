@@ -330,8 +330,8 @@ bool uiPresentationMakerDlg::checkInstallation()
     }
 
     BufferString outstr;
-    const char* cmd = "pip list";
-    const bool res = OS::ExecCommand( cmd, OS::Wait4Finish, &outstr );
+    OS::MachineCommand machcomm( "pip", "list" );
+    const bool res = machcomm.execute( outstr );
     if ( !res || !outstr.find("python-pptx") )
     {
 	uiMSG().error( tr("Could not detect a valid python-pptx installation.\n"
@@ -605,11 +605,13 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     od_ostream strm( scriptfp.fullPath() );
     strm << script.buf() << od_endl;
 
-    BufferString cmd( PresentationSpec::getPyExec(), " ", scriptfp.fullPath() );
-    if ( !OS::ExecCommand(cmd.buf(),OS::Wait4Finish) )
+    OS::MachineCommand machcomm( PresentationSpec::getPyExec(),
+				 scriptfp.fullPath() );
+    if ( !machcomm.execute(OS::Wait4Finish) )
     {
-	uiMSG().error( tr("Could not execute\n: "), toUiString(cmd.buf()),
-	    tr("\nPlease check if Python is correctly installed.") );
+	uiMSG().error( tr("Could not execute\n: "),
+		toUiString(machcomm.getExecCommand()),
+		tr("\nPlease check whether Python is correctly installed.") );
 	return;
     }
 

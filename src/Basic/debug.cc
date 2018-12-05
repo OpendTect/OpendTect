@@ -606,19 +606,13 @@ void CrashDumper::sendDump( const char* filename )
 #endif
 
     const BufferString prefix =  File::Path( GetArgV()[0] ).baseName();
+    OS::MachineCommand machcomm( script.fullPath(), filename,
+		symboldir.fullPath(), dumphandler.fullPath(), prefix );
+    machcomm.addArg( File::Path(GetExecPlfDir(),sendappl_).fullPath() );
 
-    BufferString cmd( "\"",script.fullPath(), "\"" );
-    cmd += BufferString( " \"", filename, "\"" );
-    cmd += BufferString( " \"", symboldir.fullPath(), "\"" );
-    cmd += BufferString( " \"", dumphandler.fullPath(), "\"" );
-    cmd += BufferString( " ", prefix );
-    if ( !sendappl_.isEmpty() )
-	cmd += BufferString( " \"",
-		File::Path(GetExecPlfDir(),sendappl_).fullPath(), "\"" );
+    std::cout << machcomm.getSingleStringRep() << std::endl;
 
-    std::cout << cmd.str() << std::endl;
-
-    ExecCommand( cmd, OS::RunInBG );
+    machcomm.execute( OS::RunInBG );
 }
 
 

@@ -307,9 +307,8 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
     BufferString fnm( su.fs_.fileName() );
     fnm.replace( "*", "+x+" );
     cmd.addArg( fnm );
-    OS::CommandExecPars execpars; execpars.launchtype( OS::RunInBG );
     OS::CommandLauncher cl( cmd );
-    return cl.execute( execpars );
+    return cl.execute( OS::RunInBG );
 }
 
 

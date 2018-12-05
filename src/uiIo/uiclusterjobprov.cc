@@ -294,13 +294,14 @@ bool uiClusterJobProv::acceptOK()
 		      "have been created successfully. Execute now?");
     if ( uiMSG().askGoOn(msg) )
     {
-	BufferString comm( "@" );
-	comm += GetExecScript( false );
-	comm += " "; comm += "od_ClusterProc";
-	comm += " --dosubmit "; comm += parfnm;
-	if ( !OS::ExecCommand(comm,OS::RunInBG) )
-	    { uiMSG().error( uiStrings::phrCannotStart(
-			     uiStrings::sBatchProgram()) ); return false; }
+	OS::MachineCommand machcomm( GetExecScript(false), "od_ClusterProc" );
+	machcomm.addKeyedArg( "dosubmit", parfnm );
+	OS::CommandLauncher cl( machcomm );
+	if ( !cl.execute(OS::RunInBG) )
+	{
+	    uiMSG().error( cl.errorMsg() );
+	    return false;
+	}
     }
 
     return true;

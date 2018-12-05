@@ -28,7 +28,7 @@ RemoteJobExec::RemoteJobExec( const char* host, const int port )
 {
     socket_.setTimeout( 3000 );
     isconnected_ = socket_.connectToHost( host_, port, true );
-    ckeckConnection();
+    checkConnection();
 }
 
 
@@ -53,7 +53,7 @@ void RemoteJobExec::addPar( const IOPar& par )
 { par_ = par; }
 
 
-void RemoteJobExec::ckeckConnection()
+void RemoteJobExec::checkConnection()
 {
     BufferString errmsg( "Connection to Daemon on ", host_ );
     errmsg += " failed";
@@ -62,14 +62,6 @@ void RemoteJobExec::ckeckConnection()
 	const uiString socketmsg = socket_.errMsg();
 	if ( !socketmsg.isEmpty() )
 	    errmsg.add( ": " ).add( socketmsg.getString() );
-	mErrRet( errmsg.buf() );
+	OD::DisplayErrorMessage( errmsg );
     }
-}
-
-
-void RemoteJobExec::uiErrorMsg( const char* msg )
-{
-    BufferString cmd( "\"", File::Path(GetExecPlfDir(),"od_DispMsg").fullPath() );
-    cmd.add( "\" --err " ).add( msg );
-    OS::ExecCommand( cmd );
 }

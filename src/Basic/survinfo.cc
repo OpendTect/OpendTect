@@ -1175,16 +1175,14 @@ void SurveyInfo::fillPar( IOPar& par ) const
 
 
 #define uiErrMsg(s) { \
-    BufferString cmd( "\"", \
-	    File::Path(GetExecPlfDir(),"od_DispMsg").fullPath() ); \
-    cmd += "\" --err "; \
-    cmd += " Could not write to "; \
-    cmd += s; \
+    BufferString msg( "Could not write to " ); \
+    msg += s; \
     if ( File::isHidden(s) ) \
-	cmd += ". This is a hidden file"; \
+	msg += ". This is a hidden file"; \
     else \
-	cmd += " Please check the file permission"; \
-    OS::ExecCommand( cmd ); \
+	msg += " Please check the file permission"; \
+    OD::DisplayErrorMessage( msg ); \
+    return; \
 }
 
 void SurveyInfo::saveDefaultPars( const char* basedir ) const
