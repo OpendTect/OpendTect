@@ -1370,8 +1370,8 @@ void uiListBox::setItemCheckable( int idx, bool yn )
 	return;
 
     Qt::ItemFlags flags = lb_->body().item(idx)->flags();
-    flags |= Qt::ItemFlags(yn ? Qt::ItemIsUserCheckable
-			      : ~Qt::ItemIsUserCheckable);
+    flags.setFlag( Qt::ItemIsUserTristate, false );
+    flags.setFlag( Qt::ItemIsUserCheckable, yn );
     lb_->body().item(idx)->setFlags( flags );
 }
 
