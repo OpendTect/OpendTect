@@ -1276,7 +1276,6 @@ void uiAttribDescSetEd::exportToGraphVizDotCB( CallBacker* )
     machcomm.addKeyedArg( "Tpng", fnm, OS::OldStyle );
     machcomm.addKeyedArg( "o", outputfp.fullPath(), OS::OldStyle );
     OS::CommandLauncher cl( machcomm );
-    const bool res = cl.execute();
     if ( !cl.execute() )
 	{ uiMSG().error( cl.errorMsg() ); return; }
 
