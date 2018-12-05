@@ -61,7 +61,7 @@ void RemoteJobExec::ckeckConnection()
     {
 	const uiString socketmsg = socket_.errMsg();
 	if ( !socketmsg.isEmpty() )
-	    errmsg.add( ": " ).add( socketmsg.toString() );
+	    errmsg.add( ": " ).add( socketmsg.getString() );
 	mErrRet( errmsg.buf() );
     }
 }

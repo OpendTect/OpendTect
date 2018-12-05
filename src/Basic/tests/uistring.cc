@@ -38,7 +38,7 @@ bool testArg()
 		.arg( 5 )
 		.arg( 9 );
 
-    mRunStandardTest( toString(composite) == "4 plus 5 is 9",
+    mRunStandardTest( composite.getString() == "4 plus 5 is 9",
 		      "Composite test" );
 
     const char* desoutput = "Hello Dear 1";
@@ -95,8 +95,8 @@ bool testSharedData()
     uiString b = a;
 
     b.arg( "s" );
-    mRunStandardTest( toString(b) == "Hello Worlds" &&
-		      toString(a) != toString(b), "arg on copy" );
+    mRunStandardTest( b.getString() == "Hello Worlds" &&
+		      a.getString() != toString(b), "arg on copy" );
 
     uiString c = b;
     c = toUiString("Another message");
@@ -201,25 +201,25 @@ bool testOptionStrings()
 	   .add( uiString() );
 
     mRunStandardTest(
-	    toString(options.createOptionString(true,-1,false)) ==
+	    options.createOptionString(true,-1,false).getString() ==
 	      "One, Two, Three and Four", "createOptionString and" );
     mRunStandardTest(
-	    toString(options.createOptionString(false,-1,false)) ==
+	    options.createOptionString(false,-1,false).getString() ==
 	      "One, Two, Three or Four", "createOptionString or" );
 
     mRunStandardTest(
-	    toString(options.createOptionString(false,3,false)) ==
+	    options.createOptionString(false,3,false).getString() ==
 	      "One, Two, Three or ...", "createOptionString limited" );
 
     mRunStandardTest(
-	    toString(options.createOptionString(true,-1,true)) ==
+	    options.createOptionString(true,-1,true).getString() ==
 	      "One\nTwo\nThree and\nFour", "createOptionString nl and" );
     mRunStandardTest(
-	    toString(options.createOptionString(false,-1,true)) ==
+	    options.createOptionString(false,-1,true).getString() ==
 	      "One\nTwo\nThree or\nFour", "createOptionString nl or" );
 
     mRunStandardTest(
-	    toString(options.createOptionString(false,3,true)) ==
+	    options.createOptionString(false,3,true).getString() ==
 	      "One\nTwo\nThree\nor ...", "createOptionString nl limited" );
 
 
@@ -231,7 +231,7 @@ bool testHexEncoding()
 {
     uiString str;
     mRunStandardTest( str.setFromHexEncoded("517420697320677265617421") &&
-	              toString(str) == "Qt is great!",
+	              str.getString() == "Qt is great!",
 		      "Reading hard-coded string" );
 
 

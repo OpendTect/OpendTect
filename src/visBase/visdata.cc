@@ -65,7 +65,7 @@ const OD::String& visBase::DataObject::name() const
 BufferString visBase::DataObject::getName() const
 {
     return uiname_.isEmpty() ? NamedCallBacker::getName()
-			     : toString( uiname_ );
+			     : uiname_.getString();
 }
 
 

@@ -441,7 +441,8 @@ bool GetButtonCmd::act( const char* parstr )
     mDynamicCastGet( const uiColorInput*, uicolinp,
 		     UIEntity(objsfound[0]).parent() );
 
-    mGetAmpFilteredStr( text, uibut ? toString(uibut->text()) : BufferString());
+    mGetAmpFilteredStr( text, uibut ? uibut->text().getString()
+				    : BufferString());
     mGetColorString( uicolinp->color(), uicolinp, colorstr );
     mParForm( answer, form, text, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );

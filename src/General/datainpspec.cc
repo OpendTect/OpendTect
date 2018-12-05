@@ -451,7 +451,7 @@ bool StringListInpSpec::setText( const char* s, int nr )
     {
 	for ( int idx=0; idx<strings_.size(); idx++ )
 	{
-	    if ( toString(strings_[idx]) == s )
+	    if ( strings_[idx].getString() == s )
 		{ cur_ = idx; isset_ = true; return true; }
 	}
     }

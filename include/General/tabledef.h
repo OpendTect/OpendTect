@@ -61,11 +61,11 @@ public:
     struct Form : NamedObject
     {
 			Form( const uiString& dispnm, DataInpSpec* spec )
-			    : NamedObject(dispnm.toString())
+			    : NamedObject(toString(dispnm))
 			    , dispnm_(dispnm)
 				{ add( spec ); }
 			Form( const uiString& dispnm, const DataInpSpec& spec )
-			    : NamedObject(dispnm.toString())
+			    : NamedObject(toString(dispnm))
 			    , dispnm_(dispnm)
 				{ add( spec.clone() ); }
 
@@ -93,7 +93,7 @@ public:
 
 			TargetInfo( const uiString& nm, ReqSpec rs=Optional )
 					//!< Single string
-			    : NamedObject(nm.toString())
+			    : NamedObject(toString(nm))
 			    , req_(rs)
 			    , dispnm_(nm)
 			    , proptype_(PropertyRef::Other)
@@ -101,7 +101,7 @@ public:
 			TargetInfo( const uiString& nm, DataInpSpec* spec,
 				  ReqSpec rs=Optional,
 				  PropertyRef::StdType p=PropertyRef::Other )
-			    : NamedObject(nm.toString())
+			    : NamedObject(toString(nm))
 			    , req_(rs)
 			    , proptype_(p)
 			    , dispnm_(nm)
@@ -109,7 +109,7 @@ public:
 			TargetInfo( const uiString& nm, const DataInpSpec& spec,
 				  ReqSpec rs=Optional,
 				  PropertyRef::StdType p=PropertyRef::Other )
-			    : NamedObject(nm.toString())
+			    : NamedObject(toString(nm))
 			    , req_(rs)
 			    , proptype_(p)
 			    , dispnm_(nm)

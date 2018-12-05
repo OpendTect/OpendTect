@@ -178,7 +178,7 @@ const uiTreeViewItem* TreeCmd::singleSelected( const uiTreeView& uilview ) const
 	    for ( int col=0; col<uilview->nrColumns(); col++ ) \
 	    { \
 		const BufferString itemtxt = row<0 \
-			? toString(uilview->getColumnText(col)) \
+			? uilview->getColumnText(col).getString() \
 			: BufferString(nodes[row]->text(col)); \
 		itemtexts.add( itemtxt ); \
 		if ( mSearchKey(itemstr).isMatching(itemtxt) ) \
@@ -593,7 +593,7 @@ bool CurTreeColCmd::act( const char* parstr )
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
     const int curcolidx = uilview->currentColumn();
-    mParForm( answer, form, toString(uilview->getColumnText(curcolidx)),
+    mParForm( answer, form, uilview->getColumnText(curcolidx).getString(),
 	      curcolidx+1 );
     mParIdentPost( identname, answer, parnext );
     return true;
@@ -669,7 +669,7 @@ bool GetTreeColCmd::act( const char* parstr )
     mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, true );
     mParColSelPre( "column",uilview,nodesfound,itemstr,itemnr,columns,true );
-    mParForm( answer, form, toString(uilview->getColumnText(columns[0])),
+    mParForm( answer, form, uilview->getColumnText(columns[0]).getString(),
 	      columns[0]+1 );
     mParIdentPost( identname, answer, parnext );
     return true;

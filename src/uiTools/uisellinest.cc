@@ -47,7 +47,7 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     uiString lbltxt( su.txt_ );
     if ( lbltxt.isEmpty() )
 	lbltxt = tr("Line style");
-    else if ( toString(lbltxt) == "-" )
+    else if ( lbltxt.getString() == "-" )
 	lbltxt.setEmpty();
 
     uiObject* alobj = 0;

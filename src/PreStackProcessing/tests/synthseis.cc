@@ -71,7 +71,7 @@ bool testRayTracerRunner( od_ostream& strm, bool success,
 			  const RayTracerRunner& rtrunner )
 {
     const BufferString testname( "test RayTracerRunner" );
-    mTest( testname, success, rtrunner.errMsg().toString() )
+    mTest( testname, success, rtrunner.errMsg().getString() )
 
     return true;
 }
@@ -81,7 +81,7 @@ bool testSynthGeneration( od_ostream& strm, bool success,
 			  const RaySynthGenerator& synthgen )
 {
     const BufferString testname( "test Synthetic generation" );
-    mTest( testname, success, synthgen.message().toString() )
+    mTest( testname, success, synthgen.message().getString() )
 
     return true;
 }

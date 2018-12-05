@@ -217,7 +217,7 @@ public:
 			// UNtranslated:
     const char*		getOriginalString() const;
 			//!< *untranslated*, no argument substitution
-    BufferString	toString() const;
+    BufferString	getString() const;
 			//!< *untranslated* but arguments evaluated
 
 			// Translated:
@@ -244,7 +244,7 @@ private:
     static const uiString	emptystring_;
     static uiString		dummystring_;
 
-    void			getFullString(BufferString&) const; // toString
+    void			getFullString(BufferString&) const; // getString
 
     operator OD::String&() const= delete;
     operator bool() const	= delete;
@@ -306,11 +306,7 @@ mGlobal(Basic) uiString toUiString(float,int nrdec);
 mGlobal(Basic) uiString toUiString(double,int nrdec);
 mGlobal(Basic) uiString toUiString(const Coord&); //!< no decimals
 
-
-mGlobal(Basic) inline BufferString toString( const uiString& uis )
-{
-    return uis.toString();
-}
+mGlobal(Basic) const char* toString(const uiString&);
 
 template <class T1,class T2>
 uiString toUiString( const std::pair<T1,T2>& pair )

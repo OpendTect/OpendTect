@@ -296,7 +296,7 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
     if ( caption().isEmpty() )
 	setCaption( toUiString(fnm) );
 
-    captionisfilename_ = toString( caption() ) == fnm;
+    captionisfilename_ = caption().getString() == fnm;
 
     editor_ = new uiTextFile( this, fnm, tsetup );
     editor_->fileNmChg.notify( mCB(this,uiTextFileDlg,fileNmChgd) );

@@ -191,7 +191,7 @@ void uiTaskRunner::updateFields()
     const int nrdone = mCast( int, task_->nrDone() );
     const uiString nrdonetext = task_->nrDoneText();
 #ifdef __debug__
-    if ( toString(nrdonetext) == "Nr Done" )
+    if ( nrdonetext.getString() == "Nr Done" )
 	{ pErrMsg("Task executed in UI needs valid nrDoneText"); }
 #endif
     const uiString message = task_->message();

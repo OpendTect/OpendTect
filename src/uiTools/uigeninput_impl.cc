@@ -277,8 +277,8 @@ const char* uiGenInputBoolFld::text() const
 void uiGenInputBoolFld::setText( const char* t )
 {
     bool newval;
-    if ( toString(truetxt_) == t )		newval = true;
-    else if ( toString(falsetxt_) == t )	newval = false;
+    if ( truetxt_.getString() == t )		newval = true;
+    else if ( falsetxt_.getString() == t )	newval = false;
     else					newval = toBool(t);
 
     setvalue_(newval);

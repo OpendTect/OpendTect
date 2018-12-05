@@ -49,7 +49,7 @@ static char* getNewDebugStr( char* strvar, const BufferString& newstr )
 }
 
 # define mSetDBGStr { \
-    debugstr_ = getNewDebugStr( debugstr_, toString() ); }
+    debugstr_ = getNewDebugStr( debugstr_, getString() ); }
 
 #endif
 
@@ -889,7 +889,7 @@ bool uiString::setFromHexEncoded( const char* str )
 }
 
 
-BufferString uiString::toString() const
+BufferString uiString::getString() const
 {
     BufferString ret;
     getFullString( ret );
@@ -1006,6 +1006,14 @@ uiString toUiString( const QString& qs )
     uiString ret;
     ret.setFrom( qs );
     return ret;
+}
+
+
+const char* toString( const uiString& uis )
+{
+    mDeclStaticString( retstr );
+    retstr = uis.getString();
+    return retstr.getCStr();
 }
 
 

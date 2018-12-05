@@ -190,7 +190,8 @@ Pos::GeomID Seis2DDisplay::getGeomID() const
 BufferString Seis2DDisplay::getLineName() const
 {
     mDynamicCastGet(const Line2DProbe*,l2dprobe,probe_.ptr());
-    return l2dprobe ? toString(l2dprobe->displayName()) : BufferString(name());
+    return l2dprobe ? l2dprobe->displayName().getString()
+		    : BufferString(name());
 }
 
 

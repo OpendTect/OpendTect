@@ -33,7 +33,7 @@ void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
     uiString lbltxt( su.lbltxt_ );
     if ( lbltxt.isEmpty() )
 	lbltxt = tr("Marker style");
-    else if ( lbltxt.toString() == "-" )
+    else if ( lbltxt.getString() == "-" )
 	lbltxt.setEmpty();
 
     uiObject* alignobj = 0;

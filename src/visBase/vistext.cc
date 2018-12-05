@@ -116,7 +116,7 @@ void TextDrawable::setText( const uiString& newtext )
 {
     ArrPtrMan<wchar_t> wcharbuf = newtext.createWCharString();
 
-    osgtext_->setText( mFromUiStringTodo(newtext).buf() );
+    osgtext_->setText( mFromUiStringTodo(newtext) );
     if ( !wcharbuf )
 	osgtext_->setText( emptystring );
     else
