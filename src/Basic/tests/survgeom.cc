@@ -12,7 +12,6 @@
 #include "oddirs.h"
 #include "survgeom2d.h"
 #include "survgeommgr.h"
-#define private public
 #include "survinfo.h"
 
 
