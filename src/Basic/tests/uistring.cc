@@ -100,7 +100,7 @@ bool testSharedData()
 
     uiString c = b;
     c = toUiString("Another message");
-    mRunStandardTest( toString(c) != toString(b), "assignment of copy" );
+    mRunStandardTest( c.getString() != toString(b), "assignment of copy" );
 
     uiString d = b;
     mRunStandardTest( d.getOriginalString() == b.getOriginalString(),

@@ -293,7 +293,7 @@ const char* BoolInpSpec::text( int idx ) const
 
 bool BoolInpSpec::setText( const char* s, int idx )
 {
-    yn_ = toString(falsetext_) != s;
+    yn_ = falsetext_.getString() != s;
     isset_ = true;
     return true;
 }

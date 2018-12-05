@@ -202,12 +202,12 @@ void uiTaskRunner::updateFields()
 	return;
     }
 
-    if ( toString(prevmessage_) != toString(message) )
+    if ( prevmessage_.getString() != message.getString() )
     {
 	sb.message( message, 0 );
 	prevmessage_ = message;
     }
-    if ( toString(prevnrdonetext_) != toString(nrdonetext) )
+    if ( prevnrdonetext_.getString() != nrdonetext.getString() )
     {
 	sb.message( nrdonetext, 1 );
 	prevnrdonetext_ = nrdonetext;
