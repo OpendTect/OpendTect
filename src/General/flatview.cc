@@ -784,7 +784,7 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 
     FlatView::Annotation& annot = appearance().annot_;
     if ( annot.x1_.name_.isEmpty() ||
-			    mFromUiStringTodo(annot.x1_.name_) == "X1" )
+		    BufferString(mFromUiStringTodo(annot.x1_.name_)) == "X1" )
     {
 	annot.x1_.name_ = toUiString(fdp->dimName( true ));
 	BufferStringSet altdimnms; fdp->getAltDim0Keys( altdimnms );
@@ -793,7 +793,7 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
     }
 
     if ( annot.x2_.name_.isEmpty() ||
-				  mFromUiStringTodo(annot.x2_.name_) == "X2" )
+		    BufferString(mFromUiStringTodo(annot.x2_.name_)) == "X2" )
     {
 	annot.x2_.name_ = toUiString(fdp->dimName( false ));
 	annot.x2_.annotinint_ = fdp->dimValuesInInt(
