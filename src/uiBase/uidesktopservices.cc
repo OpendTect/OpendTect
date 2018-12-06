@@ -68,7 +68,7 @@ static bool openLocalFragmentedUrl( const QUrl& qurl )
 	BufferString workstr( brcmd );
 	char* ptr = workstr.getCStr();
 	mSkipBlanks( ptr ); mSkipNonBlanks( ptr );
-	machcomm.setProgram( *ptr );
+	machcomm.setProgram( ptr );
 	ptr++; mSkipBlanks( ptr );
 	machcomm.addArg( ptr );
     }
