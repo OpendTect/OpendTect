@@ -143,6 +143,7 @@ namespace sKey
     inline FixedString Title()		{ return "Title"; }
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
     inline FixedString TotalNr()	{ return "Total Nr"; }
+    inline FixedString Trace()		{ return "Trace"; }
     inline FixedString TraceNr()	{ return "Trace number"; }
     inline FixedString TraceKey()	{ return "Trace key"; }
     inline FixedString TVD()		{ return "TVD"; }
