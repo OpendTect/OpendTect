@@ -187,7 +187,7 @@ void ODInst::startInstManagementWithRelDir( const char* reldir )
     if ( installerfp.isEmpty() )
 	return;
     installerfp.add( "od_instmgr" );
-    mMkMachComm( installerfp.fullPath(), reldir )
+    mMkMachComm( installerfp.fullPath(), reldir );
     machcomm.execute( OS::RunInBG );
 #endif
 }
