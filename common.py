@@ -9,56 +9,99 @@
 import os
 import platform
 import sys
+import logging
+import logging.config
 
-class LogManager(object):
-  def __init__(self, args):
-    self.log_file = sys.stdout
-    self.std_file = sys.stdout
-    self.dbg_file = sys.stdout
-    self.err_file = sys.stderr
-    if args['sysout'].name != 'sys.stdout':
-      self.set_stdout( args['sysout'].name )
-    if args['logfile'].name != 'sys.stdout':
-      self.set_log_file( args['logfile'].name )
+LOGGING = {
+  'version': 1,
+  'handlers': {
+    'console': {
+      'class': 'logging.StreamHandler',
+      'level': 'INFO',
+      'stream': 'ext://sys.stdout'
+    },
+    'logfile': {
+      'class': 'logging.StreamHandler',
+      'level': 'DEBUG',
+      'stream': 'ext://sys.stdout'
+    },
+    'errors': {
+      'class': 'logging.StreamHandler',
+      'level': 'WARNING',
+      'stream': 'ext://sys.stdout'
+    },
+    'other': {
+      'class': 'logging.StreamHandler',
+      'level': 'CRITICAL',
+      'stream': 'ext://sys.stderr'
+    }
+  },
+  'loggers': {
+    'dbg': {
+      'level': 'WARNING',
+      'handlers': ['errors'],
+      'propagate': 'no'
+    },
+    'std': {
+      'level': 'DEBUG',
+      'handlers': ['console'],
+      'propagate': 'no'
+    },
+    'log': {
+      'level': 'DEBUG',
+      'handlers': ['logfile'],
+      'propagate': 'no'
+    }
+  },
+  'root': {
+    'level': 'CRITICAL',
+    'handlers': ['other']
+  }
+}
 
-  def set_log_file( self, fnm ):
-    if not fnm:
-      self.log_file = sys.stderr
-    else:
-      if os.path.isfile( fnm ):
-        newlogfile = open( fnm, "a" )
-        self.std_msg( "Log file '" + fnm + "' opened in append mode" )
-      else:
-        newlogfile = open( fnm, "w" )
-        self.std_msg( "Log file opened in write mode" )
-      if newlogfile.closed:
-        self.err_msg( "Could not open '" + fnm + "'" )
-      else:
-        self.log_file = newlogfile
-        self.std_msg( "Log file set to '" + fnm + "'" )
+def initLogging(args):
+  set_log_file( args['logfile'].name )
+  set_log_file( args['sysout'].name, 'console' )
+  logging.config.dictConfig(LOGGING)
 
-  def set_stdout( self, fnm ):
-    if fnm == "null":
-      return
-    if os.path.isfile( fnm ):
-      newlogfile = open( fnm, "a" )
-    else:
-      newlogfile = open( fnm, "w" )
-    if not newlogfile.closed:
-      self.std_file = newlogfile
+def set_log_file( filenm, handlernm='logfile' ):
+  if filenm == 'sys.stdout':
+    return
+  if not os.path.exists(filenm):
+    dbg_msg( 'Log file not found: ', filenm )
+    return
+  LOGGING['handlers'][handlernm] = {
+    'class': 'logging.FileHandler',
+    'filename': filenm,
+    'mode': 'a'
+  }
 
-  def std_msg( self, msg ):
-    print( msg, file=self.std_file )
+def get_log_logger():
+  return logging.getLogger('log')
 
-  def log_msg( self, msg ):
-    print( msg, file=self.log_file )
+def get_std_logger():
+  return logging.getLogger('std')
 
-  def dbg_msg( self, msg ):
-    print( msg, file=self.dbg_file )
+def dbg_msg(msg):
+  logging.getLogger('dbg').warning(msg)
 
-  def err_msg( self, msg ):
-    print( msg, file=self.err_file )
+def std_msg(msg):
+  get_std_logger().info(msg)
 
+def log_msg(msg):
+  get_log_logger().debug(msg)
+
+def has_stdlog_file():
+  return isinstance( get_std_logger().handlers[0], logging.FileHandler )
+
+def has_log_file():
+  return isinstance( get_log_logger().handlers[0], logging.FileHandler )
+
+def get_stdlog_file():
+  return get_std_logger().handlers[0].baseFilename
+
+def get_log_file():
+  return get_log_logger().handlers[0].baseFilename
 
 if platform.python_version() < "3":
   dbg_msg( "odpy requires at least Python 3" )
