@@ -1215,12 +1215,17 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     while ( texuredatas_.size()-1 < attrib )
 	texuredatas_ += 0;
 
-    mDeclareAndTryAlloc( Array2D<float>*, texturedata,
-			 Array2DImpl<float>(sz.col(),sz.row()) );
+    mDeclareAndTryAlloc(Array2D<float>*,texturedata,
+			Array2DImpl<float>(sz.col(),sz.row()));
+    float* texturedataptr = texturedata ? texturedata->getData() : 0;
+    if ( !texturedataptr )
+    {
+	validtexture_ = false;
+	updateSingleColor();
+	return;
+    }
 
-    float* texturedataptr = texturedata->getData();
-    for ( int idy=0; idy<texturedata->info().getTotalSz(); idy++ )
-	(*texturedataptr++) = mUdf(float);
+    texturedata->setAll( mUdf(float) );
 
     const DataColDef texturei(Geometry::ExplFaultStickSurface::sKeyTextureI());
     const DataColDef texturej(Geometry::ExplFaultStickSurface::sKeyTextureJ());
