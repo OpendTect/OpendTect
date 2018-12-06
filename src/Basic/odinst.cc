@@ -144,17 +144,17 @@ bool ODInst::canInstall()
     OS::MachineCommand machcomm( prog ); \
     machcomm.addKeyedArg( "instdir", reldir )
 
-#define mGetFullMachComm(errretval) \
+#define mGetFullMachComm(errretstmt) \
     File::Path installerfp( getInstallerPlfDir() ); \
     if ( !File::isDirectory(installerfp.fullPath()) ) \
-	return errretval; \
+	errretstmt; \
     if ( __iswin__ ) \
 	installerfp.add( "od_instmgr.exe" ); \
     else if ( __islinux__ ) \
 	installerfp.add( "run_installer" ); \
     BufferString prog( installerfp.fullPath() ); \
     if ( !File::isExecutable(prog) ) \
-        return errretval; \
+        errretstmt; \
     mMkMachComm( prog, mRelRootDir )
 
 
@@ -172,7 +172,7 @@ BufferString ODInst::GetInstallerDir()
 
 void ODInst::startInstManagement()
 {
-    mGetFullMachComm();
+    mGetFullMachComm(return);
     const BufferString curpath = File::getCurrentPath();
     File::changeDir( installerfp.pathOnly() );
     machcomm.execute( OS::RunInBG );
@@ -209,7 +209,7 @@ BufferString ODInst::getInstallerPlfDir()
 
 bool ODInst::updatesAvailable()
 {
-    mGetFullMachComm(false);
+    mGetFullMachComm(return false);
     machcomm.addFlag( "updcheck_report" );
     return machcomm.execute( OS::Wait4Finish );
 }
