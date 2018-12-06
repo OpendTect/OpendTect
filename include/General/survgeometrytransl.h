@@ -54,7 +54,8 @@ public:
     const char*		defExtension() const	{ return "geom"; }
     Survey::Geometry*	readGeometry(const IOObj&,uiString&) const;
     bool		writeGeometry(IOObj&,Survey::Geometry&,uiString&) const;
-
+    bool		implRename(const IOObj*,const char*,
+				   const CallBack* cb=0) const;
 };
 
 

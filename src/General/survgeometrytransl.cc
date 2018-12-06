@@ -73,7 +73,7 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
     ascistream astrm( strm );
     const bool hasheader = astrm.hasStandardHeader();
     if ( !hasheader )
-        strm.setPosition( 0 );
+	strm.setPosition( 0 );
     else
     {
 	if ( astrm.atEOS() )
@@ -160,4 +160,21 @@ bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
 	strm.addBin( geom2d->spnrs()[idx] );
 
     return strm.isOK();
+}
+
+
+bool dgbSurvGeom2DTranslator::implRename( const IOObj* ioobj, const char* newnm,
+					  const CallBack* cb ) const
+{
+    const bool res = Translator::implRename( ioobj, newnm, cb );
+    if ( !res )
+	return false;
+
+    Pos::GeomID geomid = ioobj->key().ID(1);
+    RefMan<Survey::Geometry> geom = Survey::GMAdmin().getGeometry( geomid );
+    Survey::Geometry2D* geom2d = geom ? geom->as2D() : 0;
+    if ( geom2d )
+	geom2d->dataAdmin().setLineName( ioobj->name() );
+
+    return true;
 }
