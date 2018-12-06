@@ -24,10 +24,8 @@ const char* ProbeLayer::sKeyLayer()	{ return "Probe Layer"; }
 
 ProbeLayer::ID ProbeLayer::getNewID()
 {
-    mDefineStaticLocalObject( Threads::Atomic<ProbeLayer::IDType>,
-			      lastprobelayerid_, );
-    lastprobelayerid_++;
-    return ProbeLayer::ID::get( lastprobelayerid_ );
+    static Threads::Atomic<ProbeLayer::IDType> layid_;
+    return ProbeLayer::ID( layid_++ );
 }
 
 
