@@ -764,8 +764,8 @@ IOObj* uiIOObjSelGrp::updStatusBarInfo( bool setnmfld )
     }
     else
     {
-	if ( setnmfld && nmfld_ )
-	    nmfld_->setText( ret ? ret->name().buf() : "" );
+	if ( setnmfld && nmfld_ && ret )
+	    nmfld_->setText( ret->name().buf() );
 	info = getLimitedDisplayString( !ret ? "" :
 			 ret->fullUserExpr(ctio_.ctxt_.forread_), 40, false );
     }
