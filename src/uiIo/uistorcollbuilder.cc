@@ -14,6 +14,16 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uitoolbutton.h"
 
+#include "dbman.h"
+#include "ioobj.h"
+
+
+void uiStorableCollectionBuilder::Setup::set( const IOObjContext& ctxt )
+{
+    PtrMan<IOObj> oneobj = DBM().getFirst( ctxt );
+    canopen_ = oneobj;
+}
+
 
 
 uiStorableCollectionBuilder::uiStorableCollectionBuilder( uiParent* p,
@@ -41,6 +51,7 @@ uiStorableCollectionBuilder::uiStorableCollectionBuilder( uiParent* p,
     mAddBut( rmbut_, rmcb_, "remove", phrRemove );
     mAddBut( openbut_, opencb_, "open", phrOpen );
     mAddBut( savebut_, savecb_, "save", phrSave );
+    openbut_->setSensitive( setup.canopen_ );
     bgrp_->attach( rightOf, tbl_ );
 
     postFinalise().notify( selcb );
@@ -76,4 +87,16 @@ void uiStorableCollectionBuilder::updLooks()
     rmbut_->setSensitive( haverows );
     edbut_->setSensitive( haverows );
     savebut_->setSensitive( haverows );
+}
+
+
+void uiStorableCollectionBuilder::setCanOpen( bool yn )
+{
+    openbut_->setSensitive( yn );
+}
+
+
+bool uiStorableCollectionBuilder::canOpen() const
+{
+    return openbut_->isSensitive();
 }

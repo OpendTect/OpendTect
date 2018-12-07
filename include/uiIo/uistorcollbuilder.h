@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 class uiButton;
 class uiButtonGroup;
+class IOObjContext;
 class uiTable;
 
 
@@ -23,7 +24,7 @@ public:
     mExpClass(uiIo) Setup
     {
     public:
-			Setup( int nrcolumns, const uiString& objtypnm )
+			Setup( int nrcolumns, const uiString& objtypnm)
 			    : nrcols_(nrcolumns)
 			    , objtypename_(objtypnm)
 			    , pixwidth_(800)	{}
@@ -32,11 +33,14 @@ public:
 	mDefSetupMemb(int,nrcols);
 	mDefSetupMemb(int,pixwidth);
 
+	void		set(const IOObjContext&);
+
 	CallBack	addcb_;
 	CallBack	edcb_;
 	CallBack	rmcb_;
 	CallBack	opencb_;
 	CallBack	savecb_;
+	bool		canopen_ = true;
     };
 
                         uiStorableCollectionBuilder(uiParent*,const Setup&);
@@ -45,6 +49,9 @@ public:
     uiTable*		table()			{ return tbl_; }
     void		displayButtons(bool);
     void		updLooks();
+    void		setCanOpen(bool yn);
+
+    bool		canOpen() const;
 
 protected:
 
