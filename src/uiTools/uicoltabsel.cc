@@ -684,18 +684,16 @@ void reDraw()
 };
 
 
-class uiMapperScaleTextInput : public uiGroup
-			     , public uiColTabSelToolHelper
+class uiMapperScaleTextInput : public CallBacker, public uiColTabSelToolHelper
 { mODTextTranslationClass("uiMapperScaleTextInput");
 public:
 
 uiMapperScaleTextInput( uiColTabSelTool& st )
-    : uiGroup(st.getParent(),"Mapper scale text fields")
-    , uiColTabSelToolHelper(st)
+    : uiColTabSelToolHelper(st)
 {
-    minfld_ = new uiLineEdit( this, FloatInpSpec(), "Minimum" );
+    minfld_ = new uiLineEdit( st.getParent(), FloatInpSpec(), "Minimum" );
     minfld_->setToolTip( tr("Mimimum of the scaling range") );
-    maxfld_ = new uiLineEdit( this, FloatInpSpec(), "Maximum" );
+    maxfld_ = new uiLineEdit( st.getParent(), FloatInpSpec(), "Maximum" );
     maxfld_->setToolTip( tr("Maximum of the scaling range") );
 
     mAttachCB( minfld_->returnPressed, uiMapperScaleTextInput::usrCommitCB );
@@ -741,8 +739,9 @@ void handleMapperSetupChange()
     maxfld_->setValue( rg.stop );
 }
 
-void doInternalLayout( uiObject* wraparound )
+void doInternalLayout( uiObject* wraparound, const ConstraintType attborder )
 {
+    minfld_->attach( attborder );
     const ConstraintType atttyp = isHor() ? rightOf : alignedBelow;
     if ( !wraparound )
 	maxfld_->attach( atttyp, minfld_ );
@@ -805,8 +804,7 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 				    ? topBorder : leftBorder;
 	if ( txtscalefld_ )
 	{
-	    txtscalefld_->doInternalLayout( disp_ );
-	    txtscalefld_->attach( attborder );
+	    txtscalefld_->doInternalLayout( disp_, attborder );
 	    lastobj = txtscalefld_->maxfld_;
 	}
 	if ( usemodesel_ )
