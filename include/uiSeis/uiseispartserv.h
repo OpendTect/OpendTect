@@ -29,6 +29,8 @@ class uiSeisExpCubePositionsDlg;
 class uiSeisIOSimple;
 class uiSeisPreStackMan;
 class uiSeisWvltMan;
+class uiSeisWvltImp;
+class uiSeisWvltExp;
 
 namespace PosInfo { class Line2DData; }
 namespace Geometry { class RandomLine; }
@@ -96,6 +98,8 @@ protected:
     uiSeisImportODCube*	impodcubedlg_;
     uiSeisImpCubeFromOtherSurveyDlg*	impcubeothsurvdlg_;
     uiSeisExpCubePositionsDlg*		expcubeposdlg_;
+	uiSeisWvltImp*				impwvltdlg_;
+	uiSeisWvltExp*				expwvltdlg_;
     uiBatchTime2DepthSetup*		t2ddlg2d_;
     uiBatchTime2DepthSetup*		t2ddlg3d_;
 

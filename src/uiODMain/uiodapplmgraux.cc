@@ -118,6 +118,7 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , impvelfunc_(0)
     , exp2dgeomdlg_(0)
     , imp2dgeomdlg_(0)
+	, impcolseqdlg_(0)
     , batchprocps2ddlg_(0)
     , batchprocps3ddlg_(0)
 {}
@@ -154,6 +155,7 @@ void uiODApplMgrDispatcher::deleteDlgs()
     deleteAndZeroPtr( impvelfunc_ );
     deleteAndZeroPtr( exp2dgeomdlg_ );
     deleteAndZeroPtr( imp2dgeomdlg_ );
+	deleteAndZeroPtr( impcolseqdlg_ );
     deleteAndZeroPtr( batchprocps2ddlg_ );
     deleteAndZeroPtr( batchprocps3ddlg_ );
 }
@@ -505,8 +507,9 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	{
 	mCase(Imp):
 	{
-	    uiColSeqImport dlg( par_ );
-	    dlg.go();
+		delete impcolseqdlg_;
+		impcolseqdlg_ = new uiColSeqImport(par_);
+		impcolseqdlg_->show();
 	}
 	break;
 	mCase(Exp): break;

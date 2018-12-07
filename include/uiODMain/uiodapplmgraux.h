@@ -24,6 +24,7 @@ class uiImp2DGeom;
 class uiImpPVDS;
 class uiImpRokDocPDF;
 class uiExpRokDocPDF;
+class uiColSeqImport;
 class uiODApplMgr;
 class uiProbDenFuncMan;
 class uiRandomLineMan;
@@ -95,6 +96,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     uiImp2DGeom*	imp2dgeomdlg_;
     uiImpRokDocPDF*	imppdfdlg_;
     uiExpRokDocPDF*	exppdfdlg_;
+	uiColSeqImport* impcolseqdlg_;
     PreStack::uiImportMute*	impmutedlg_;
     PreStack::uiExportMute*	expmutedlg_;
     Vel::uiImportVelFunc*	impvelfunc_;

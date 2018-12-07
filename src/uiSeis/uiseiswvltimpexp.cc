@@ -34,7 +34,7 @@ ________________________________________________________________________
 
 uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import Wavelet"),mNoDlgTitle,
-                                 mODHelpKey(mSeisWvltImpHelpID) ))
+                                 mODHelpKey(mSeisWvltImpHelpID) ).modal(false))
     , fd_(*WaveletAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
@@ -137,7 +137,7 @@ DBKey uiSeisWvltImp::selKey() const
 uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
     : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( uiStrings::sWavelet() ),
 				  mNoDlgTitle,
-				  mODHelpKey(mSeisWvltImpHelpID) ))
+				  mODHelpKey(mSeisWvltImpHelpID) ).modal(false))
 {
     setOkText( uiStrings::sExport() );
 

@@ -76,6 +76,8 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     , man2dprestkdlg_(0)
     , man3dprestkdlg_(0)
     , manwvltdlg_(0)
+	, impwvltdlg_(0)
+	, expwvltdlg_(0)
     , impodcubedlg_(0)
     , impcubeothsurvdlg_(0)
     , imp3dseisdlg_(0)
@@ -114,6 +116,8 @@ uiSeisPartServer::~uiSeisPartServer()
     delete impps2dseisdlg_;
     delete expps2dseisdlg_;
     delete expcubeposdlg_;
+	delete impwvltdlg_;
+	delete expwvltdlg_;
     delete t2ddlg2d_;
     delete t2ddlg3d_;
 }
@@ -139,6 +143,8 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     deleteAndZeroPtr( impps2dseisdlg_ );
     deleteAndZeroPtr( expps2dseisdlg_ );
     deleteAndZeroPtr( expcubeposdlg_ );
+	deleteAndZeroPtr( impwvltdlg_ );
+	deleteAndZeroPtr( expwvltdlg_ );
     deleteAndZeroPtr( t2ddlg2d_ );
     deleteAndZeroPtr( t2ddlg3d_ );
 }
@@ -362,15 +368,17 @@ void uiSeisPartServer::managePreLoad()
 
 void uiSeisPartServer::importWavelets()
 {
-    uiSeisWvltImp dlg( parent() );
-    dlg.go();
+	delete impwvltdlg_;
+	impwvltdlg_ = new uiSeisWvltImp(parent());
+	impwvltdlg_->go();
 }
 
 
 void uiSeisPartServer::exportWavelets()
 {
-    uiSeisWvltExp dlg( parent() );
-    dlg.go();
+	delete expwvltdlg_;
+	expwvltdlg_ = new uiSeisWvltExp(parent());
+	expwvltdlg_->go();
 }
 
 
