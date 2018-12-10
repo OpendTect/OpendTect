@@ -483,7 +483,12 @@ void StreamProvider::set( const char* inp )
     mSkipBlanks( pwork );
     fname_ = pwork;
 
-    workstr = OS::MachineCommand::extractHostName( fname_.buf(), hostname_ );
+// serverpaths should not be removed
+    const bool isserverpath = fname_.size()>1 &&
+	fname_[0]=='\\' && fname_[1]=='\\';
+
+    workstr = isserverpath ? fname_.buf()
+	: OS::MachineCommand::extractHostName( fname_.buf(), hostname_ );
 
     pwork = workstr.buf();
     mSkipBlanks( pwork );
@@ -629,12 +634,12 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 
     if ( !iscomm_ )
     {
-        std::ios_base::openmode openmode = std::ios_base::out;
-        if ( binary )
-            openmode = openmode | std::ios_base::binary;
+	std::ios_base::openmode openmode = std::ios_base::out;
+	if ( binary )
+	    openmode = openmode | std::ios_base::binary;
 
-        if ( editmode )
-            openmode = openmode | std::ios_base::in;
+	if ( editmode )
+	    openmode = openmode | std::ios_base::in;
 
 #ifdef __msvc__
 	if ( File::isHidden(retsd.fileName()) )

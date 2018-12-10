@@ -79,6 +79,13 @@ bool FilePath::operator != ( const char* fnm ) const
 { return !(*this == FilePath(fnm)); }
 
 
+static bool isServerPath( const char* path )
+{
+    const FixedString pathstr = path;
+    return pathstr.size()>1 && path[0]=='\\' && path[1]=='\\';
+}
+
+
 FilePath& FilePath::set( const char* _fnm )
 {
     BufferString fnmbs( _fnm );
@@ -103,6 +110,16 @@ FilePath& FilePath::set( const char* _fnm )
 	    *firstOcc( prefix_.getCStr(), *sPrefSep ) = '\0';
 	    fnm = ptr + 1;
 	}
+    }
+    else if ( isServerPath(fnm) )
+    {
+	prefix_ = fnm;
+	char* prefixptr = prefix_.getCStr();
+	prefixptr += 2;
+	char* endptr = firstOcc( prefixptr, '\\' );
+	if ( endptr )
+	    *endptr = '\0';
+	fnm += prefix_.size();
     }
 
     isabs_ = *fnm == '\\' || *fnm == '/';
