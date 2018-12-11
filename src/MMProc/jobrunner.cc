@@ -29,7 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mmcommunicdefs.h"
 #include "uistrings.h"
 #include "winutils.h"
-
 #include <iostream>
 
 #define mDebugOn        (DBG::isOn(DBG_MM))
@@ -47,7 +46,6 @@ static const char* rcsID mUsedVar = "$Id$";
     msg += "\n Last received update: "; \
     msg += Time::passedSince(ji.recvtime_)/1000; \
     msg += " seconds ago.";
-
 
 const OD::String& getTempBaseNm()
 {
@@ -632,18 +630,22 @@ void JobRunner::updateJobInfo()
 		const int lastrecvdtime = getLastReceivedTime( ji );
 		int since_lst_recv = Time::passedSince(lastrecvdtime);
 		if ( since_lst_recv < 0 )
-		    since_lst_recv = 0;	
+		    since_lst_recv = 0;
 		// Negative value means difference in Time Settings on machines
-		const int to = ji.state_ == JobInfo::WrappingUp
-		    ? wrapuptimeout_ : failtimeout_;
-
+		const bool iswrappingup = ji.state_ == JobInfo::WrappingUp;
+		const int to = iswrappingup ? wrapuptimeout_ : failtimeout_;
 		if ( since_lst_recv > to )
 		{
-		    ji.statusmsg_ = "Timed out.";
-		    failedJob( ji, JobInfo::HostFailed );
-		    if ( ji.hostdata_ )
-			iomgr().removeJob( ji.hostdata_->getHostName(),
-					   ji.descnr_ );
+		    if ( iswrappingup )
+			handleExitStatus( ji );
+		    else
+		    {
+			ji.statusmsg_ = "Timed out.";
+			failedJob( ji, JobInfo::HostFailed );
+			if ( ji.hostdata_ )
+			    iomgr().removeJob( ji.hostdata_->getHostName(),
+					       ji.descnr_ );
+		    }
 		}
 	    }
 	}
@@ -728,17 +730,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
         switch( si.status )
 	{
 	case mSTAT_ALLDONE:
-	{
-	    ji->state_ = JobInfo::Completed;
-	    ji->statusmsg_ = " all done";
-	    HostNFailInfo* hfi = hostNFailInfoFor( ji->hostdata_ );
-	    if ( hfi )
-	    {
-		hfi->nrsucces_++;
-		hfi->lastsuccess_ = Time::getMilliSeconds();
-		hfi->inuse_ = false;
-	    }
-	}
+	    handleExitStatus( *ji );
 	break;
 
 	case mSTAT_JOBERROR:
@@ -770,6 +762,20 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	}
 
 	msgAvail.trigger();
+    }
+}
+
+
+void JobRunner::handleExitStatus( JobInfo& ji )
+{
+    ji.state_ = JobInfo::Completed;
+    ji.statusmsg_ = " all done";
+    HostNFailInfo* hfi = hostNFailInfoFor( ji.hostdata_ );
+    if (hfi)
+    {
+	hfi->nrsucces_++;
+	hfi->lastsuccess_ = Time::getMilliSeconds();
+	hfi->inuse_ = false;
     }
 }
 
