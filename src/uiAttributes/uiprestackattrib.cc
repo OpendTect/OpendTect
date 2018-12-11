@@ -263,7 +263,10 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
 	if ( isoffset )
 	    xrg =  aps->setup().offsrg_;
 	else
-	    xrg.set( aps->setup().anglerg_.start, aps->setup().anglerg_.stop );
+	{
+	    xrg.set( mCast(float,aps->setup().anglerg_.start),
+		     mCast(float,aps->setup().anglerg_.stop ) );
+	}
 	xrgfld_->setValue( xrg );
     }
 
