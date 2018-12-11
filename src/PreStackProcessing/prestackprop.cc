@@ -183,8 +183,8 @@ void PropCalc::init()
     Interval<float>& axisvalsrg_ = *propcalcxaxismgr_.getParam( this );
     if ( useangle )
     {
-	axisvalsrg_.start = setup_.anglerg_.start;
-	axisvalsrg_.stop  = setup_.anglerg_.stop;
+	axisvalsrg_.start = mCast(float,setup_.anglerg_.start);
+	axisvalsrg_.stop  = mCast(float,setup_.anglerg_.stop);
     }
     else
 	axisvalsrg_ = setup_.offsrg_;
