@@ -77,6 +77,8 @@ public:
     static const Geometry2D&	get2D(const char* linename);
     static GeomID		getGeomID(const char* linenm);
     static void			list2D(TypeSet<GeomID>&,BufferStringSet* nms=0);
+    static bool			isPresent(GeomID);
+    static bool			isUsable(GeomID);
 
     inline idx_type	idx4TrcNr(pos_type) const;
     inline idx_type	idx4Z(z_type) const;

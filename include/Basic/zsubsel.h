@@ -97,6 +97,9 @@ public:
     void	setOutputZRange( z_type start, z_type stop, z_type stp )
 		{ data_.setOutputZRange( start, stop, stp ); }
 
+    bool	usePar(const IOPar&);
+    void	fillPar(IOPar&) const;
+
 protected:
 
     ZSubSelData	data_;

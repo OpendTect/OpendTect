@@ -70,6 +70,7 @@ namespace sKey
     inline FixedString Format(int n=1)	{ return n<2 ? "Format" : "Formats"; }
     inline FixedString FloatUdf()	{ return "1e30"; }
     inline FixedString Geometry()	{ return "Geometry"; }
+    inline FixedString GeomSystem()	{ return "GeomSystem"; }
     inline FixedString GeomID()		{ return "GeomID"; }
     inline FixedString Horizon()	{ return "Horizon"; }
     inline FixedString ID(int n=1)	{ return n<2 ? "ID" : "IDs"; }
@@ -207,6 +208,7 @@ namespace sKey
     inline FixedString StepZ()		{ return "Step Z"; }
     inline FixedString FirstTrc()	{ return "First Trace"; }
     inline FixedString LastTrc()	{ return "Last Trace"; }
+    inline FixedString StepTrc()	{ return "Step Trace"; }
     inline FixedString TrcRange()	{ return "Trace Range"; }
 
     // History of objects

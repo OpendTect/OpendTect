@@ -64,6 +64,9 @@ protected:
 
     GeomID	geomid_;
 
+    bool		doUsePar(const IOPar&) override;
+    void		doFillPar(IOPar&) const override;
+
 };
 
 
@@ -155,5 +158,10 @@ public:
 			    return BinID( inl4Idx((pos_type)(gidx/nrinl)),
 					  crl4Idx((pos_type)(gidx%nrinl)) );
 			}
+
+protected:
+
+    bool		doUsePar(const IOPar&) override;
+    void		doFillPar(IOPar&) const override;
 
 };

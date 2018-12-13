@@ -25,9 +25,7 @@ namespace Survey
 
 class Geometry;
 class Geometry3D;
-class SubGeometry3D;
 class Geometry2D;
-class SubGeometry2D;
 
 /*!\brief base class for the subselection of (parts of) 2D or 3D geometries */
 
@@ -38,9 +36,7 @@ public:
     mUseType( Pos,		GeomID );
     mUseType( Survey,		Geometry );
     mUseType( Survey,		Geometry2D );
-    mUseType( Survey,		SubGeometry2D );
     mUseType( Survey,		Geometry3D );
-    mUseType( Survey,		SubGeometry3D );
     typedef od_int64		totalsz_type;
 
     virtual GeomID		geomID() const		= 0;
@@ -63,6 +59,16 @@ public:
     const LineHorSubSel*	asLineHorSubSel() const;
     CubeHorSubSel*		asCubeHorSubSel();
     const CubeHorSubSel*	asCubeHorSubSel() const;
+
+    static bool			getInfo(const IOPar&,bool& is2d,GeomID&);
+    static HorSubSel*		create(const IOPar&);
+    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
+
+protected:
+
+    virtual bool		doUsePar(const IOPar&)	= 0;
+    virtual void		doFillPar(IOPar&) const	= 0;
 
 };
 
@@ -112,6 +118,10 @@ public:
 			{ return zss_.idx4Z( z ); }
     z_type		z4Idx( idx_type idx ) const
 			{ return zss_.z4Idx( idx ); }
+
+    static FullSubSel*	create(const IOPar&);
+    virtual bool	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
 
 protected:
 

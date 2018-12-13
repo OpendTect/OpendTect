@@ -7,6 +7,8 @@
 
 #include "posidxsubsel.h"
 #include "zsubsel.h"
+#include "iopar.h"
+#include "keystrs.h"
 
 mUseType( Pos::IdxSubSelData, idx_type );
 mUseType( Pos::IdxSubSelData, pos_type );
@@ -232,4 +234,21 @@ void Pos::ZSubSelData::ensureSizeOK()
 	z_type fsz = (inpzrg_.stop - zStart()) / zStep() + 1;
 	sz_ = (size_type)(fsz + zEps());
     }
+}
+
+
+bool Pos::ZSubSel::usePar( const IOPar& iop )
+{
+    z_steprg_type zrg;
+    if ( !iop.get(sKey::ZRange(),zrg) )
+	return false;
+
+    data_.setOutputZRange( zrg );
+    return true;
+}
+
+
+void Pos::ZSubSel::fillPar( IOPar& iop ) const
+{
+    iop.set( sKey::ZRange(), zStart(), zStop(), zStep() );
 }

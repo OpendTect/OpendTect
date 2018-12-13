@@ -118,6 +118,18 @@ void Survey::Geometry::list2D( TypeSet<GeomID>& gids, BufferStringSet* nms )
 }
 
 
+bool Survey::Geometry::isPresent( GeomID gid )
+{
+    return !gid.is2D() || Geometry2D::isPresent( gid );
+}
+
+
+bool Survey::Geometry::isUsable( GeomID gid )
+{
+    return !gid.is2D() || !get2D( gid ).isEmpty();
+}
+
+
 Survey::Geometry::dist_type Survey::Geometry::distanceTo(
 						const Coord& crd ) const
 {
