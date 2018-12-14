@@ -24,9 +24,9 @@ mDefModInitFn(uiSeis)
 
     Batch::MMJobDispatcher::addDef( new Batch::SeisMMProgDef );
 
+    uiSeisBlocksOpts::initClass();
     uiCBVSVolOpts::initClass();
     uiCBVSPS3DOpts::initClass();
-    uiSeisBlocksOpts::initClass();
 
     uiSeisPosProvGroup::initClass();
 }

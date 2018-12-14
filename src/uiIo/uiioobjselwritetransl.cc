@@ -56,9 +56,7 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     if ( trs_.size() < 1 )
     {
 	if ( alltrs.isEmpty() )
-	{
-	    pErrMsg(BufferString("No translator for",trgrp.groupName()));
-	}
+	    { pErrMsg(BufferString("No translator for",trgrp.groupName())); }
 	return;
     }
 

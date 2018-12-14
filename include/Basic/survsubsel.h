@@ -45,6 +45,12 @@ public:
     virtual bool		isAll() const		= 0;
     virtual bool		hasFullRange() const	= 0;
 
+    static bool			getInfo(const IOPar&,bool& is2d,GeomID&);
+
+protected:
+
+    static void			fillParInfo(IOPar&,bool is2d,GeomID);
+
 };
 
 
@@ -60,7 +66,6 @@ public:
     CubeHorSubSel*		asCubeHorSubSel();
     const CubeHorSubSel*	asCubeHorSubSel() const;
 
-    static bool			getInfo(const IOPar&,bool& is2d,GeomID&);
     static HorSubSel*		create(const IOPar&);
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;

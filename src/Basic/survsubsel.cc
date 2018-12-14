@@ -32,6 +32,40 @@ void EnumDefImpl<CubeSubSel::SliceType>::init()
 }
 
 
+bool Survey::SubSel::getInfo( const IOPar& iop, bool& is2d, GeomID& geomid )
+{
+    is2d = false;
+    geomid = GeomID::get3D();
+
+    int igs = (int)OD::VolBasedGeom;
+    if ( !iop.get(sKey::GeomSystem(),igs) )
+    {
+	if ( !iop.get(sKey::SurveyID(),igs) )
+	    return false;
+	if ( igs < (int)OD::SynthGeom || igs > (int)OD::LineBasedGeom )
+	    igs = (int)OD::VolBasedGeom;
+    }
+
+    is2d = igs == (int)OD::LineBasedGeom;
+    if ( is2d )
+	return iop.get( sKey::GeomID(), geomid )
+	    && Survey::Geometry::isUsable( geomid );
+
+    return true;
+}
+
+
+void Survey::SubSel::fillParInfo( IOPar& iop, bool is2d, GeomID gid )
+{
+    const OD::GeomSystem gs = is2d ? OD::LineBasedGeom : OD::VolBasedGeom;
+    iop.set( sKey::GeomSystem(), (int)gs );
+    if ( is2d )
+	iop.set( sKey::GeomID(), gid );
+    else
+	iop.removeWithKey( sKey::GeomID() );
+}
+
+
 LineHorSubSel* Survey::HorSubSel::asLineHorSubSel()
 {
     return mGetDynamicCast( LineHorSubSel*, this );
@@ -53,29 +87,6 @@ CubeHorSubSel* Survey::HorSubSel::asCubeHorSubSel()
 const CubeHorSubSel* Survey::HorSubSel::asCubeHorSubSel() const
 {
     return mGetDynamicCast( const CubeHorSubSel*, this );
-}
-
-
-bool Survey::HorSubSel::getInfo( const IOPar& iop, bool& is2d, GeomID& geomid )
-{
-    is2d = false;
-    geomid = GeomID::get3D();
-
-    int igs = (int)OD::VolBasedGeom;
-    if ( !iop.get(sKey::GeomSystem(),igs) )
-    {
-	if ( !iop.get(sKey::SurveyID(),igs) )
-	    return false;
-	if ( igs < (int)OD::SynthGeom || igs > (int)OD::LineBasedGeom )
-	    igs = (int)OD::VolBasedGeom;
-    }
-
-    is2d = igs == (int)OD::LineBasedGeom;
-    if ( is2d )
-	return iop.get( sKey::GeomID(), geomid )
-	    && Survey::Geometry::isUsable( geomid );
-
-    return true;
 }
 
 
@@ -105,10 +116,7 @@ bool Survey::HorSubSel::usePar( const IOPar& iop )
 
 void Survey::HorSubSel::fillPar( IOPar& iop ) const
 {
-    const OD::GeomSystem gs = is2D() ? OD::LineBasedGeom : OD::VolBasedGeom;
-    iop.set( sKey::GeomSystem(), (int)gs );
-    if ( is2D() )
-	iop.set( sKey::GeomID(), geomID() );
+    fillParInfo( iop, is2D(), geomID() );
     doFillPar( iop );
 }
 
@@ -146,7 +154,7 @@ const CubeSubSel* Survey::FullSubSel::asCubeSubSel() const
 Survey::FullSubSel* Survey::FullSubSel::create( const IOPar& iop )
 {
     bool is2d; GeomID gid;
-    if ( !HorSubSel::getInfo(iop,is2d,gid) )
+    if ( !getInfo(iop,is2d,gid) )
 	return 0;
 
     FullSubSel* ret = 0;
