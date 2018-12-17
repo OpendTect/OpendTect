@@ -208,6 +208,7 @@ static void createObj( const BufferStringSet& args, const char* filenm )
     if ( args.size() > 5 )
 	iostrm.pars().set( sKey::Type(), args.get(5) );
 
+    iostrm.setAbsDirectory( dbdir->dirName() );
     if ( filenm && *filenm )
 	iostrm.fileSpec().setFileName( filenm );
     else
