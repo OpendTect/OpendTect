@@ -18,16 +18,19 @@
 #include <string.h>
 
 
-static const BufferString tmpfnm(
-		    File::Path::getTempFullPath("iostrm_test","txt") );
-
+static BufferString getTestTempFileName()
+{
+    static BufferString tmpfnm(
+                    File::Path::getTempFullPath("iostrm_test","txt") );
+    return tmpfnm;
+}
 
 #define mRetFail(s) { od_cout() << "Failed " << s << od_endl; }
 
 #define mImplNumberTestFn(fnnm,decls,act,cond) \
 static bool fnnm() \
 { \
-    od_istream strm( tmpfnm ); \
+    od_istream strm( getTestTempFileName() ); \
     decls; \
     act; \
     const bool isok = (cond); \
@@ -145,7 +148,7 @@ bool testPipeOutput()
     command.add( "cat" );
 #endif
 
-    command.add( " > " ).add( tmpfnm );
+    command.add( " > " ).add( getTestTempFileName() );
     StreamProvider prov( command );
     StreamData ostreamdata = prov.makeOStream();
     mRunStandardTest( ostreamdata.oStrm(),
@@ -159,13 +162,13 @@ bool testPipeOutput()
     ostream = 0; //Deletes everything
     Threads::sleep( 1 );
 
-    od_istream istream( tmpfnm );
+    od_istream istream( getTestTempFileName() );
     mRunStandardTest( istream.isOK(), "Opening temporary file");
     BufferString streaminput;
 
     istream.getAll( streaminput );
     istream.close();
-    File::remove( tmpfnm );
+    File::remove( getTestTempFileName() );
 
     mRunStandardTest( streaminput==originpstr, "Pipe content check (Output)" );
 
@@ -200,8 +203,8 @@ bool testPrefix()
 
 int doExit( int retval )
 {
-    if ( File::exists( tmpfnm ) )
-	File::remove( tmpfnm );
+    if ( File::exists( getTestTempFileName() ) )
+	File::remove( getTestTempFileName() );
 
     return retval;
 }
@@ -218,11 +221,11 @@ int mTestMainFnName( int argc, char** argv )
 
     bool isok;
 #define mDoTest(strm,content,tstfn) \
-    od_ostream strm( tmpfnm ); \
+    od_ostream strm( getTestTempFileName() ); \
     strm << content; \
     strm.close(); \
     isok = tstfn(); \
-    File::remove( tmpfnm ); \
+    File::remove( getTestTempFileName() ); \
     if ( !isok ) \
 	return doExit( 1 )
 
@@ -245,8 +248,8 @@ int mTestMainFnName( int argc, char** argv )
     od_cout() << "-> Pipe output test." << od_endl;
     if ( !testPipeOutput() )
     {
-	if ( File::exists(tmpfnm) )
-	    File::remove( tmpfnm );
+	if ( File::exists(getTestTempFileName()) )
+	    File::remove( getTestTempFileName() );
 
 	return doExit(1);
     }
