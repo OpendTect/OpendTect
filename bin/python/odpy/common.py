@@ -85,10 +85,26 @@ def get_std_logger():
 def dbg_msg(msg):
   logging.getLogger('dbg').warning(msg)
 
-def std_msg(msg):
+def mergeArgs(a,b=None,c=None,d=None,e=None,f=None):
+  msg = str(a)
+  if b != None:
+    msg = msg+' '+str(b)
+  if c != None:
+    msg = msg+' '+str(c)
+  if d != None:
+    msg = msg+' '+str(d)
+  if e != None:
+    msg = msg+' '+str(e)
+  if f != None:
+    msg = msg+' '+str(f)
+  return msg
+
+def std_msg(a,b=None,c=None,d=None,e=None,f=None):
+  msg = mergeArgs(a,b,c,d,e,f)
   get_std_logger().info(msg)
 
-def log_msg(msg):
+def log_msg(a,b=None,c=None,d=None,e=None,f=None):
+  msg = mergeArgs(a,b,c,d,e,f)
   get_log_logger().debug(msg)
 
 def has_stdlog_file():
@@ -107,3 +123,13 @@ if platform.python_version() < "3":
   dbg_msg( "odpy requires at least Python 3" )
   exit( 1 )
 
+def getODCommand(args,execnm):
+  cmd = list()
+  cmd.append( os.path.join(args['dtectexec'][0],execnm) )
+  if 'dtectdata' in args:
+    cmd.append( '--dataroot' )
+    cmd.append( args['dtectdata'][0] )
+  if 'survey' in args:
+    cmd.append( '--survey' )
+    cmd.append( args['survey'][0] )
+  return cmd
