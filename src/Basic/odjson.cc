@@ -5,6 +5,7 @@
 -*/
 
 #include "odjson.h"
+#include "dbkey.h"
 #include "od_iostream.h"
 #include "separstr.h"
 #include "typeset.h"
@@ -374,7 +375,7 @@ double OD::JSON::ValueSet::getDoubleValue( idx_type idx ) const
 static Gason::JsonTag getNextTag( const Gason::JsonValue gasonval )
 {
     for ( auto gasonnode : gasonval )
-     	return gasonnode->value.getTag();
+	return gasonnode->value.getTag();
     return Gason::JSON_NULL;
 }
 
@@ -925,6 +926,11 @@ mDefObjectSetVal( od_int64 )
 mDefObjectSetVal( float )
 mDefObjectSetVal( double )
 mDefObjectSetVal( const char* )
+
+void OD::JSON::Object::set( const char* ky, const DBKey& id )
+{
+    setVal( ky, id.getString(false) );
+}
 
 
 void OD::JSON::Object::remove( const char* ky )

@@ -14,9 +14,12 @@
 #include "keystrs.h"
 #include "moddepmgr.h"
 #include "od_ostream.h"
+#include "odjson.h"
 #include "odver.h"
 #include "prog.h"
 #include "survinfo.h"
+
+#include <iostream>
 
 static const int protocolnr_ = 1;
 
@@ -29,6 +32,7 @@ static const char* sCreateCmd		= "create";
 static const char* sRemoveCmd		= "remove";
 static const char* sVersionCmd		= "version";
 static const char* sFileNameCmd		= "filename";
+static const char* sJsonOutput		= "json";
 
 static const char* cmds[] =
 {
@@ -39,11 +43,14 @@ static const char* cmds[] =
     sInfoCmd,
     sCreateCmd,
     sRemoveCmd,
+    sJsonOutput,
     0
 };
 
 
 static IOPar ret_;
+static OD::JSON::Object jret_;
+static bool dojson_ = false;
 static const char* sErrKey = "ERR";
 
 
@@ -52,12 +59,32 @@ static od_ostream& strm()
     return od_ostream::logStream();
 }
 
+#define mSet( keywd, res ) \
+{ \
+    if ( dojson_ && obj ) \
+    { \
+	BufferString keyword( keywd ); \
+	keyword.clean(); \
+	obj->set( keyword, res ); \
+    } \
+    else \
+	ret_.set( keywd, res ); \
+}
 
 static int respond( bool success )
 {
-    ret_.set( "Status", success ? "OK" : "Fail" );
-    ascostream ascstrm( strm() );
-    ret_.putTo( ascstrm );
+    OD::JSON::Object* obj = &jret_;
+    mSet( "Status", success ? "OK" : "Fail" );
+    if ( dojson_ )
+    {
+	od_ostream strm( std::cout );
+	jret_.write( strm );
+    }
+    else
+    {
+	ascostream ascstrm( strm() );
+	ret_.putTo( ascstrm );
+    }
     return ExitProgram( success ? 0 : 1 );
 }
 
@@ -69,12 +96,17 @@ static int printUsage()
     for ( auto nm : nms )
 	errmsg.add( "--" ).add( *nm ).add( "," );
     errmsg.add( " or --version" );
-    ret_.set( sErrKey, errmsg );
+    OD::JSON::Object* obj = &jret_;
+    mSet( sErrKey, errmsg );
     return respond( false );
 }
 
 
-#define mRespondErr(s) { ret_.set( sErrKey, s ); respond( false ); }
+#define mRespondErr(s) { \
+    OD::JSON::Object* obj = &jret_; \
+    mSet( sErrKey, s ); \
+    respond( false ); \
+}
 
 
 static void listObjs( const char* trgrpnm )
@@ -101,14 +133,32 @@ static void listObjs( const char* trgrpnm )
 	}
     }
 
-    ret_.set( sKey::Size(), ids.size() );
-    if ( !ids.isEmpty() )
+    if ( dojson_ )
     {
-	ret_.set( sKey::ID(mPlural), ids );
-	ret_.set( sKey::Name(mPlural), nms );
-	ret_.set( sKey::Format(mPlural), trls );
-	if ( havetype )
-	    ret_.set( sKey::Type(mPlural), types );
+	OD::JSON::Array* arr = new OD::JSON::Array( true );
+	for ( int idx=0; idx<ids.size(); idx++ )
+	{
+	    OD::JSON::Object* obj = new OD::JSON::Object;
+	    obj->set( sKey::ID(), ids.get(idx) );
+	    obj->set( sKey::Name(), nms.get(idx) );
+	    obj->set( sKey::Format(), trls.get(idx) );
+	    if ( havetype )
+		obj->set( sKey::Type(), types.get(idx) );
+	    arr->add( obj );
+	}
+	jret_.set( "data", arr );
+    }
+    else
+    {
+	ret_.set( sKey::Size(), ids.size() );
+	if ( !ids.isEmpty() )
+	{
+	    ret_.set( sKey::ID(mPlural), ids );
+	    ret_.set( sKey::Name(mPlural), nms );
+	    ret_.set( sKey::Format(mPlural), trls );
+	    if ( havetype )
+		ret_.set( sKey::Type(mPlural), types );
+	}
     }
 
     respond( true );
@@ -121,14 +171,16 @@ static void provideInfo( const DBKey& dbky )
     if ( !ioobj )
 	mRespondErr( "Input object key not found" )
 
-    ret_.set( sKey::ID(), ioobj->key() );
-    ret_.set( sKey::Name(), ioobj->name() );
-    ret_.set( sKey::Format(), ioobj->translator() );
-    ret_.set( sKey::FileName(), ioobj->mainFileName() );
+    OD::JSON::Object* obj = dojson_ ? new OD::JSON::Object : 0;
+    mSet( sKey::ID(), ioobj->key() );
+    mSet( sKey::Name(), ioobj->name() );
+    mSet( sKey::Format(), ioobj->translator() );
+    mSet( sKey::FileName(), ioobj->mainFileName() );
     const char* typstr = ioobj->pars().find( sKey::Type() );
     if ( typstr && *typstr )
-	ret_.set( sKey::Type(), typstr );
+	mSet( sKey::Type(), typstr );
 
+    jret_.set( "data", obj );
     respond( true );
 }
 
@@ -165,8 +217,10 @@ static void createObj( const BufferStringSet& args, const char* filenm )
     if ( !dbdirptr->commitChanges(iostrm) )
 	mRespondErr( "Cannot commit new entry to data store" )
 
-    ret_.set( sKey::ID(), iostrm.key() );
-    ret_.set( sKey::FileName(), iostrm.mainFileName() );
+    OD::JSON::Object* obj = dojson_ ? new OD::JSON::Object : 0;
+    mSet( sKey::ID(), iostrm.key() );
+    mSet( sKey::FileName(), iostrm.mainFileName() );
+    jret_.set( "data", obj );
     respond( true );
 }
 
@@ -177,7 +231,8 @@ int main( int argc, char** argv )
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "General" );
     CommandLineParser clp;
-    ret_.set( "Status", "Fail" ); // make sure it will be the first entry
+    OD::JSON::Object* obj = &jret_;
+    mSet( "Status", "Fail" ); // make sure it will be the first entry
     if ( clp.nrArgs() < 1 )
 	return printUsage();
     else if ( clp.hasKey( sVersionCmd ) )
@@ -185,6 +240,8 @@ int main( int argc, char** argv )
 	strm() << protocolnr_ << "@" << GetFullODVersion() << od_endl;
 	return ExitProgram( 0 );
     }
+
+    dojson_ = clp.hasKey( sJsonOutput );
 
     BufferString survnm( SI().name() );
     File::Path fpdr( SI().diskLocation().fullPath() );
@@ -208,7 +265,7 @@ int main( int argc, char** argv )
 	uiRetVal uirv = DBM().setDataSource( fp.fullPath() );
 	if ( !uirv.isOK() )
 	{
-	    ret_.set( sErrKey, toString(uirv) );
+	    mSet( sErrKey, toString(uirv) );
 	    return respond( false );
 	}
     }
@@ -217,11 +274,13 @@ int main( int argc, char** argv )
     if ( isbad || clp.hasKey( sStatusCmd ) )
     {
 	if ( isbad )
-	    ret_.set( sErrKey, "Data Store cannot be initialised" );
+	{
+	    mSet( sErrKey, "Data Store cannot be initialised" );
+	}
 	else
 	{
-	    ret_.set( sKey::Survey(), survnm );
-	    ret_.set( sKey::DataRoot(), dataroot );
+	    mSet( sKey::Survey(), survnm );
+	    mSet( sKey::DataRoot(), dataroot );
 	}
 	return respond( !isbad );
     }

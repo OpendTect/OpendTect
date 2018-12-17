@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "od_iosfwd.h"
 
+class DBKey;
 class SeparString;
 namespace Gason { struct JsonNode; }
 
@@ -277,6 +278,7 @@ public:
     void		set(const char* ky,const char*);
     void		set( const char* ky, const OD::String& str )
 			{ set( ky, str.str() ); }
+    void		set(const char* ky,const DBKey&);
 
     void		remove(const char*);
 
