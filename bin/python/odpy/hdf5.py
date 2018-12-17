@@ -10,13 +10,19 @@ import collections
 import numpy as np
 import h5py
 
+dGBInfoDSName = '++info++'
 
 def getInfoDataSet( h5file_or_grp ):
   try:
-    return h5file_or_grp["++info++"]
+    return h5file_or_grp[dGBInfoDSName]
   except KeyError:
     print( "Input Error: HDF5 file probably not created by OpendTect (no ++info++ attribute)" )
     raise
+
+def ensureHasDataset( h5file_or_grp ):
+  if dGBInfoDSName in h5file_or_grp:
+    return getInfoDataSet( h5file_or_grp )
+  return h5file_or_grp.create_dataset(dGBInfoDSName,dtype='S1')
 
 def getAttr( dataset, ky ):
   try:
@@ -26,6 +32,9 @@ def getAttr( dataset, ky ):
     print( "HDF5 key not found: '"+ky+"'. Available keys:\n")
     print( list(dataset.attrs.keys()) )
     raise
+
+def setAttr( dataset, ky, str ):
+  dataset.attrs[ky] = np.chararray.encode( str )
 
 def hasAttr( dataset, ky ):
   return ky in dataset.attrs
