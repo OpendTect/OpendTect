@@ -231,11 +231,12 @@ Well::Marker Well::MarkerSet::getByIdx( idx_type idx ) const
 Well::MarkerSet::MarkerID Well::MarkerSet::set( const Marker& newmrkr )
 {
     mLock4Write();
-    const idx_type idx = idxOf( newmrkr.name() );
+    const BufferString newnm = newmrkr.name();
+    const idx_type idx = idxOf( newnm );
     if ( idx < 0 )
     {
 	insrtNew( newmrkr );
-	const MarkerID newid = mrkrIDFor( idxOf(newmrkr.name()) );
+	const MarkerID newid = mrkrIDFor( idxOf(newnm) );
 	mSendChgNotif( cMarkerAdded(), newid.getI() );
 	return newid;
     }
@@ -557,7 +558,8 @@ Well::MarkerSet::MarkerID Well::MarkerSet::mrkrIDFor( idx_type idx ) const
 
 bool Well::MarkerSet::insertNew( const Well::Marker& newmrk )
 {
-    if (newmrk.isUdf() || isPrsnt(newmrk.name()) )
+    const BufferString newnm = newmrk.name();
+    if (newmrk.isUdf() || isPrsnt(newnm) )
 	{ return false; }
 
     mLock4Write();
@@ -571,7 +573,8 @@ bool Well::MarkerSet::insertNew( const Well::Marker& newmrk )
 
 bool Well::MarkerSet::insrtNew( const Well::Marker& newmrk )
 {
-    if ( newmrk.isUdf() || isPrsnt(newmrk.name().buf()) )
+    const BufferString newnm = newmrk.name();
+    if ( newmrk.isUdf() || isPrsnt(newnm) )
 	{ return false; }
 
     idx_type newidx = gtIdxForDah( newmrk.dah() );
@@ -596,7 +599,8 @@ void Well::MarkerSet::addSameWell( const MarkerSet& ms )
     for ( idx_type idx=0; idx<mssz; idx++ )
     {
 	const Well::Marker& mrkr = ms.gtByIndex( idx );
-	if ( !isPrsnt(mrkr.name()) )
+	const BufferString mrkrnm = mrkr.name();
+	if ( !isPrsnt(mrkrnm) )
 	    insrtNew( mrkr );
     }
 
@@ -749,7 +753,8 @@ void Well::MarkerSet::alignOrderingWith( const MarkerSet& ms1 )
     TypeSet<idx_type> idx0s( ms1sz, -1 ); TypeSet<idx_type> idx1s( ms0szs, -1 );
     for ( idx_type ms1idx=0; ms1idx<ms1sz; ms1idx++ )
     {
-	const idx_type idx0 = idxOf( ms1.getByIdx(ms1idx).name() );
+	const BufferString ms1mrkrnm = ms1.getByIdx(ms1idx).name();
+	const idx_type idx0 = idxOf( ms1mrkrnm );
 	idx0s[ms1idx] = idx0;
 	if ( idx0 >= 0 )
 	    idx1s[idx0] = ms1idx;
@@ -790,7 +795,8 @@ void Well::MarkerSet::mergeOtherWell( const MarkerSet& ms1 )
     bool havenew = false;
     for ( idx_type ms1idx=0; ms1idx<ms1sz; ms1idx++ )
     {
-	const idx_type idx0 = idxOf( ms1.getByIdx(ms1idx).name() );
+	const BufferString ms1mrkrnm = ms1.getByIdx(ms1idx).name();
+	const idx_type idx0 = idxOf( ms1mrkrnm );
 	idx0s += idx0;
 	if ( idx0 < 0 )
 	    havenew = true;
