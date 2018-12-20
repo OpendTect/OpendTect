@@ -261,6 +261,8 @@ protected:
     void		mkCheckGroup();
     void		checkCB(CallBacker*);
     void		updateCheckState();
+    void		addItemNoUpdate(const uiString&,bool marked=false,
+								    int id=-1);
 
 public:
 			//!To be called by CmdDriver only, not for casual use.

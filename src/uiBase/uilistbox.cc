@@ -805,13 +805,24 @@ void uiListBox::addItem( const uiString& text, const Color& col, int id )
     addItem( text, pm, id );
 }
 
+void uiListBox::addItemNoUpdate( const uiString& text, bool mark, int id )
+{
+    if ( !allowduplicates_ && isPresent(text.getFullString()) )
+	return;
+
+    mListBoxBlockCmdRec;
+    lb_->body().addItem( text, mark, id );
+    const int newidx = size() - 1;
+    initNewItem( newidx );
+}
+
 
 void uiListBox::addItems( const char** textList )
 {
     int curidx = currentItem();
     const char** pt_cur = textList;
     while ( *pt_cur )
-	addItem( mToUiStringTodo(*pt_cur++) );
+	addItemNoUpdate( toUiString(*pt_cur++) );
     if ( choicemode_ != OD::ChooseNone && curidx < 0 )
 	curidx = 0;
     setCurrentItem( curidx );
@@ -822,7 +833,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
 {
     int curidx = currentItem();
     for ( int idx=0; idx<strs.size(); idx++ )
-	addItem( mToUiStringTodo(strs.get(idx)) );
+	addItemNoUpdate( toUiString(strs.get(idx)) );
 
     if ( choicemode_ != OD::ChooseNone && curidx < 0 )
 	curidx = 0;
@@ -834,7 +845,7 @@ void uiListBox::addItems( const uiStringSet& strs )
 {
     int curidx = currentItem();
     for ( int idx=0; idx<strs.size(); idx++ )
-	addItem( strs[idx] );
+	addItemNoUpdate( strs[idx] );
     if ( choicemode_ != OD::ChooseNone && curidx < 0 )
 	curidx = 0;
     setCurrentItem( curidx );
