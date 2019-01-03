@@ -95,4 +95,13 @@ set(OD_MODULE_SOURCES
 
 set(OD_MODULE_GUI_PROGS od_DispMsg.cc  )
 OD_ADD_SOURCE_FILES( uimainicon.xpm )
+
+find_package( Qt5WebEngineWidgets QUIET )
+if ( Qt5WebEngineWidgets_FOUND )
+  option( USE_QtWebEngine "Build with Qt5 WebEngineWidgets support" ON )
+  if ( USE_QtWebEngine )
+      set(OD_USEQT ${OD_USEQT} WebEngineWidgets)
+  endif( USE_QtWebEngine )
+endif( Qt5WebEngineWidgets_FOUND )
+
 OD_INIT_MODULE()
