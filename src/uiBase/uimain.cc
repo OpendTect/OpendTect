@@ -99,18 +99,16 @@ class QtTabletEventFilter : public QObject
 {
 public:
 			QtTabletEventFilter()
-			    : mousepressed_( false )
-			    , checklongleft_( false )
-			    , lostreleasefixevent_( 0 )
+			   : QObject()
 			{}
 protected:
     bool		eventFilter(QObject*,QEvent*);
 
-    bool		mousepressed_;
-    bool		checklongleft_;
+    bool		mousepressed_ = false;
+    bool		checklongleft_ = false;
 
-    QMouseEvent*	lostreleasefixevent_;
-    bool		islostreleasefixed_;
+    QMouseEvent*	lostreleasefixevent_ = 0;
+    bool		islostreleasefixed_ = false;
     Qt::MouseButton	mousebutton_;
 
     Geom::Point2D<int>		lastdragpos_;
@@ -119,25 +117,36 @@ protected:
 
 bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 {
-    const QTabletEvent* qte = dynamic_cast<QTabletEvent*>( ev );
-    if ( qte )
+    if ( !ev )
+	return false;
+
+    const QEvent::Type evtyp = ev->type();
+    if ( evtyp >= QEvent::User )
+	return false;
+
+    const QChildEvent* qchildev = dynamic_cast<QChildEvent*>( ev );
+    if ( qchildev )
+	return false;
+
+    const QTabletEvent* qtabev = dynamic_cast<QTabletEvent*>( ev );
+    if ( qtabev )
     {
 	TabletInfo& ti = TabletInfo::latestState();
 
-	ti.eventtype_ = (TabletInfo::EventType) qte->type();
-	ti.pointertype_ = (TabletInfo::PointerType) qte->pointerType();
-	ti.device_ = (TabletInfo::TabletDevice) qte->device();
-	ti.globalpos_.x_ = qte->globalX();
-	ti.globalpos_.y_ = qte->globalY();
-	ti.pos_.x_ = qte->x();
-	ti.pos_.y_ = qte->y();
-	ti.pressure_ = qte->pressure();
-	ti.rotation_ = qte->rotation();
-	ti.tangentialpressure_ = qte->tangentialPressure();
-	ti.uniqueid_ = qte->uniqueId();
-	ti.xtilt_ = qte->xTilt();
-	ti.ytilt_ = qte->yTilt();
-	ti.z_ = qte->z();
+	ti.eventtype_ = (TabletInfo::EventType) evtyp;
+	ti.pointertype_ = (TabletInfo::PointerType) qtabev->pointerType();
+	ti.device_ = (TabletInfo::TabletDevice) qtabev->device();
+	ti.globalpos_.x_ = qtabev->globalX();
+	ti.globalpos_.y_ = qtabev->globalY();
+	ti.pos_.x_ = qtabev->x();
+	ti.pos_.y_ = qtabev->y();
+	ti.pressure_ = qtabev->pressure();
+	ti.rotation_ = qtabev->rotation();
+	ti.tangentialpressure_ = qtabev->tangentialPressure();
+	ti.uniqueid_ = qtabev->uniqueId();
+	ti.xtilt_ = qtabev->xTilt();
+	ti.ytilt_ = qtabev->yTilt();
+	ti.z_ = qtabev->z();
 
 	ti.updatePressData();
 	return false;		// Qt will resent it as a QMouseEvent
@@ -151,7 +160,7 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 
     // Hack to repair missing mouse release events from tablet pen on Linux
     if ( mousepressed_ && !lostreleasefixevent_ && ti && !ti->pressure_ &&
-	 qme->type()!=QEvent::MouseButtonRelease )
+	 evtyp != QEvent::MouseButtonRelease )
     {
 	lostreleasefixevent_ = new QMouseEvent(
 					QEvent::MouseButtonRelease,
@@ -162,7 +171,7 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 	QApplication::postEvent( obj, lostreleasefixevent_ );
     }
 
-    if ( qme->type()==QEvent::MouseButtonPress )
+    if ( evtyp==QEvent::MouseButtonPress )
     {
 	lostreleasefixevent_ = 0;
 	islostreleasefixed_ = false;
@@ -176,7 +185,7 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 
 	islostreleasefixed_ = true;
     }
-    else if ( qme->type()==QEvent::MouseButtonRelease )
+    else if ( evtyp==QEvent::MouseButtonRelease )
     {
 	if ( islostreleasefixed_ )
 	    return true;
@@ -184,10 +193,10 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
     // End of hack
 
     // Hack to solve mouse/tablet dragging refresh problem
-    if ( qme->type() == QEvent::MouseButtonPress )
+    if ( evtyp==QEvent::MouseButtonPress )
 	lastdragpos_ = Geom::Point2D<int>::udf();
 
-    if ( qme->type()==QEvent::MouseMove && mousepressed_ )
+    if ( evtyp==QEvent::MouseMove && mousepressed_ )
     {
 	const Geom::Point2D<int> curpos( qme->globalX(), qme->globalY() );
 	if ( !lastdragpos_.isDefined() )
@@ -200,20 +209,20 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
     }
     // End of hack
 
-    if ( qme->type() == QEvent::MouseButtonPress )
+    if ( evtyp == QEvent::MouseButtonPress )
     {
 	mousepressed_ = true;
 	if ( qme->button() == Qt::LeftButton )
 	    checklongleft_ = true;
     }
 
-    if ( qme->type() == QEvent::MouseButtonRelease )
+    if ( evtyp == QEvent::MouseButtonRelease )
     {
 	mousepressed_ = false;
 	checklongleft_ = false;
     }
 
-    if ( ti && qme->type()==QEvent::MouseMove && mousepressed_ )
+    if ( ti && evtyp==QEvent::MouseMove && mousepressed_ )
     {
 	if ( checklongleft_ &&
 	     ti->postPressTime()>500 && ti->maxPostPressDist()<5 )
