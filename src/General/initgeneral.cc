@@ -25,9 +25,12 @@ ________________________________________________________________________
 
 typedef BufferString (*nameOfFn)(const DBKey&);
 typedef IOObj* (*getIOObjFn)(const DBKey&);
+typedef bool (*implExistFn)(const DBKey&);
 typedef void (*delIOObjFn)(IOObj*);
-mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,getIOObjFn,delIOObjFn);
+mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,implExistFn,getIOObjFn,
+					delIOObjFn);
 mGlobal(General) BufferString DBMan_nameOf(const DBKey&);
+mGlobal(General) bool DBMan_implExist(const DBKey&);
 mGlobal(General) IOObj* DBMan_getIOObj(const DBKey&);
 static void Just_Del_IOObj( IOObj* ioobj ) { delete ioobj; }
 namespace Survey { void GeometryIO_init2DGeometry(); }
@@ -48,7 +51,8 @@ mDefModInitFn(General)
 
 GeneralModuleIniter::GeneralModuleIniter()
 {
-    setDBMan_DBKey_Fns( DBMan_nameOf, DBMan_getIOObj, Just_Del_IOObj );
+    setDBMan_DBKey_Fns( DBMan_nameOf, DBMan_implExist, DBMan_getIOObj,
+			Just_Del_IOObj );
 
     ElasticPropSelectionTranslatorGroup::initClass();
     MathFormulaTranslatorGroup::initClass();

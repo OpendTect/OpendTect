@@ -552,11 +552,7 @@ BufferString IOX::mainFileName() const
 
 bool IOX::implExists( bool forread ) const
 {
-    IOObj* ioobj = DBM().get( ownkey_ );
-    if ( !ioobj ) return false;
-    bool yn = ioobj->implExists( forread );
-    delete ioobj;
-    return yn;
+    return ::implExists( ownkey_ );
 }
 
 

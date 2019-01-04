@@ -11,21 +11,27 @@
 #include "surveydisklocation.h"
 
 static BufferString noNameOfFn( const DBKey& )	{ return BufferString(); }
+static bool noImplExistFn( const DBKey& )	{ return false; }
 static IOObj* noGetIOObjFn( const DBKey& )	{ return 0; }
 static void noDelIOObjFn( IOObj* )		{}
 
 typedef BufferString (*nameOfFn)(const DBKey&);
+typedef bool (*implExistFn)(const DBKey&);
 typedef IOObj* (*getIOObjFn)(const DBKey&);
 typedef void (*delIOObjFn)(IOObj*);
 
 static nameOfFn nameoffn_ = noNameOfFn;
+static implExistFn implexistfn_ = noImplExistFn;
 static getIOObjFn getioobjfn_ = noGetIOObjFn;
 static delIOObjFn delioobjfn_ = noDelIOObjFn;
 
-mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,getIOObjFn,delIOObjFn);
-void setDBMan_DBKey_Fns( nameOfFn nfn, getIOObjFn ifn, delIOObjFn dfn )
+mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,implExistFn,getIOObjFn,
+				       delIOObjFn);
+void setDBMan_DBKey_Fns( nameOfFn nfn, implExistFn efn, getIOObjFn ifn,
+			 delIOObjFn dfn )
 {
     nameoffn_ = nfn;
+    implexistfn_ = efn;
     getioobjfn_ = ifn;
     delioobjfn_ = dfn;
 }
@@ -33,6 +39,11 @@ void setDBMan_DBKey_Fns( nameOfFn nfn, getIOObjFn ifn, delIOObjFn dfn )
 BufferString nameOf( const DBKey& dbky )
 {
     return (*nameoffn_)( dbky );
+}
+
+bool implExists( const DBKey& dbky )
+{
+    return (*implexistfn_)( dbky );
 }
 
 IOObj* getIOObj( const DBKey& dbky )

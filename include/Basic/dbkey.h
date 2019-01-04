@@ -189,5 +189,6 @@ mGlobal(Basic) inline uiString toUiString( const DBKey& ky )
 // if you also link (and init) the General lib
 
 mGlobal(Basic) BufferString	nameOf(const DBKey&);
+mGlobal(Basic) bool		implExists(const DBKey&);
 mGlobal(Basic) IOObj*		getIOObj(const DBKey&);
 mGlobal(Basic) void		delIOObj(IOObj*);

@@ -28,6 +28,7 @@
     mErrRet( uiStrings::phrFileDoesNotExist(fnm) )
 
 mGlobal(General) BufferString DBMan_nameOf(const DBKey&);
+mGlobal(General) bool DBMan_implExist(const DBKey&);
 mGlobal(General) IOObj* DBMan_getIOObj(const DBKey&);
 
 
@@ -376,6 +377,22 @@ BufferString DBMan_nameOf( const DBKey& dbky )
     {
 	ret.set( ioobj->name() );
 	delete ioobj;
+    }
+    return ret;
+}
+
+
+bool DBMan_implExist( const DBKey& dbky )
+{
+    bool ret = false;
+    if ( dbky.isValid() )
+    {
+	IOObj* ioobj = DBMan_getIOObj( dbky );
+	if ( ioobj )
+	{
+	    ret = ioobj->implExists( true );
+	    delete ioobj;
+	}
     }
     return ret;
 }
