@@ -218,7 +218,10 @@ void uiSurvIOObjSelGroup::updGrp( bool withsurvsel )
     if ( withsurvsel )
 	selSurvFromSelection();
     updateObjs();
-    setSelection();
+    if ( objfld_->isEmpty() )
+	selChange.trigger();
+    else
+	setSelection();
 }
 
 
@@ -226,9 +229,12 @@ void uiSurvIOObjSelGroup::updateObjs()
 {
     BufferStringSet nms;
     getIOObList( ioobjs_, surveyDiskLocation(), ctxt_, nms );
+
+    NotifyStopper ns( objfld_->selectionChanged );
     objfld_->setEmpty();
     objfld_->addItems( nms );
-    objfld_->setCurrentItem( 0 );
+    if ( !nms.isEmpty() )
+	objfld_->setCurrentItem( 0 );
 }
 
 
@@ -250,6 +256,7 @@ void uiSurvIOObjSelGroup::setSelection()
 	return;
 
     const SurveyDiskLocation sdl = surveyDiskLocation();
+    bool haveset = false;
     for ( const auto dbky : seldbkys_ )
     {
 	if ( dbky->hasSurveyLocation() && dbky->surveyDiskLocation() != sdl )
@@ -259,10 +266,14 @@ void uiSurvIOObjSelGroup::setSelection()
 	if ( idxof >= 0 )
 	{
 	    objfld_->setChosen( idxof, true );
+	    haveset = true;
 	    if ( !ismultisel_ )
-		return;
+		break;
 	}
     }
+
+    if ( !haveset )
+	selChange.trigger();
 }
 
 
