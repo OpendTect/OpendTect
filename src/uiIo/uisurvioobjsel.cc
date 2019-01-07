@@ -252,8 +252,6 @@ void uiSurvIOObjSelGroup::selSurvFromSelection()
 void uiSurvIOObjSelGroup::setSelection()
 {
     objfld_->chooseAll( false );
-    if ( seldbkys_.isEmpty() )
-	return;
 
     const SurveyDiskLocation sdl = surveyDiskLocation();
     bool haveset = false;
