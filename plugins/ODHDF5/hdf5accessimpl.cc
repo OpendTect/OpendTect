@@ -208,6 +208,8 @@ bool HDF5::AccessImpl::validH5Obj( const H5::H5Object& obj )
 bool HDF5::AccessImpl::haveScope( bool needds ) const
 {
     if ( !haveGroup() )
+	mSelf().stScope( DataSetKey("/") );
+    if ( !haveGroup() )
 	return false;
 
     return !needds || haveDataSet();
