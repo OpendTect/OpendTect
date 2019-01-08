@@ -72,6 +72,20 @@ static void getRecentDataRoots( BufferStringSet& dirs )
 }
 
 
+static void addDataRootIfNew( BufferStringSet& dataroots, const char* newdr )
+{
+    for ( int idx=0; idx<dataroots.size(); idx++ )
+    {
+	const BufferString cpath = File::getCanonicalPath( dataroots.get(idx) );
+	const BufferString newcpath = File::getCanonicalPath( newdr );
+	if ( cpath==newcpath )
+	    return;
+    }
+
+    dataroots.insertAt( new BufferString(newdr), 0 );
+}
+
+
 uiSetDataDir::uiSetDataDir( uiParent* p )
 	: uiDialog(p,uiDialog::Setup(tr("Set Data Directory"),
 				     tr("Specify a data storage directory"),
@@ -135,6 +149,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     BufferStringSet* dirs = new BufferStringSet;
     drlist.setParam( this, dirs );
     getRecentDataRoots( *dirs );
+    addDataRootIfNew( *dirs, curdatadir_ );
     updateListFld();
 
     uiButtonGroup* sortgrp = new uiButtonGroup( this, "", OD::Vertical );
@@ -213,20 +228,6 @@ void uiSetDataDir::rootRemoveCB( CallBacker* )
     BufferStringSet* dirs = drlist.getParam( this );
     delete dirs->removeSingle( curitm );
     updateListFld();
-}
-
-
-static void addDataRootIfNew( BufferStringSet& dataroots, const char* newdr )
-{
-    for ( int idx=0; idx<dataroots.size(); idx++ )
-    {
-	const BufferString cpath = File::getCanonicalPath( dataroots.get(idx) );
-	const BufferString newcpath = File::getCanonicalPath( newdr );
-	if ( cpath==newcpath )
-	    return;
-    }
-
-    dataroots.insertAt( new BufferString(newdr), 0 );
 }
 
 
