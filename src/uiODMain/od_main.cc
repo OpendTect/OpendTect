@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "prog.h"
+#include "dbman.h"
 #include "envvars.h"
 #include "fixedstring.h"
 #include "msgh.h"
@@ -37,6 +38,8 @@ int main( int argc, char** argv )
     const int nrargs = clp.nrArgs();
     if ( nrargs == 1 && (clp.getArg(0)=="-v" || clp.getArg(0)=="--version") )
 	{ std::cerr << GetFullODVersion() << std::endl; ExitProgram( 0 ); }
+
+    DBM().setDataSource( clp );
 
     int ret = 0;
     if ( !GetEnvVarYN("OD_I_AM_AN_OPENDTECT_DEVELOPER") )

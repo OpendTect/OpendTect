@@ -44,6 +44,9 @@ od_int64 totalNr() const override    { return dbdir_->size(); }
 
 int nextStep() override
 {
+    if ( nrdone_ >= dbdir_->size() )
+	return Finished();
+
     PtrMan<IOObj> ioobj = dbdir_->getEntryByIdx( mCast(int,nrdone_) );
     const GeomID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );
     bool doupdate = false;

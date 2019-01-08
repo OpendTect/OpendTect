@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "uistring.h"
 #include "ioobjctxt.h"
+class CommandLineParser;
 class DBDir;
 class IOObjSelConstraints;
 
@@ -167,6 +168,9 @@ public:
     uiRetVal		setDataSource(const IOPar&,bool forcerefresh=false);
 			//!< uses sKey::dataRoot() and sKey::Survey()
 			//!< Intended for stand-alone programs
+    uiRetVal		setDataSource(const CommandLineParser&,bool* ischgd=0);
+			//!< Intended for stand-alone programs
+
     uiRetVal		reRead();
 			//!< Should not be necessary
 

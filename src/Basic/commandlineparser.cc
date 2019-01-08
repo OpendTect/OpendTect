@@ -7,11 +7,12 @@
 
 #include "commandlineparser.h"
 
+#include "oddirs.h"
 #include "filepath.h"
+#include "genc.h"
 #include "varlenarray.h"
 #include "envvars.h"
-
-#include "genc.h"
+#include "survinfo.h"
 
 
 CommandLineParser::CommandLineParser( const char* fullcommand )
@@ -44,20 +45,20 @@ const OD::String& CommandLineParser::getExecutableName() const
 
 bool CommandLineParser::hasKey( const char* key ) const
 {
-    return indexOf( key )!=-1;
+    return indexOf( key ) >= 0;
 }
 
 
 void CommandLineParser::setKeyHasValue( const char* key, int nrvals )
 {
     const int nrvalsidx = keyswithvalue_.indexOf( key );
-    if ( nrvalsidx<0 )
+    if ( nrvalsidx >= 0 )
+	nrvalues_[nrvalsidx] = nrvals;
+    else
     {
 	keyswithvalue_.add( key );
 	nrvalues_.add( nrvals );
     }
-    else
-	nrvalues_[nrvalsidx] = nrvals;
 }
 
 
@@ -326,4 +327,45 @@ bool CommandLineParser::getVal( const char* key, BufferString& val,
 
     val.set( argv_[validx]->buf() );
     return true;
+}
+
+
+BufferString CommandLineParser::getFullSurveyPath( bool* iscur ) const
+{
+    BufferString cursurvfullpath( SI().diskLocation().fullPath() );
+    if ( cursurvfullpath.isEmpty() )
+    {
+	const File::Path fp( GetBaseDataDir(), GetLastSurveyDirName() );
+	cursurvfullpath = fp.fullPath();
+    }
+
+    const bool havedataroot = hasKey( sDataRootArg() );
+    const bool havesurvey = hasKey( sSurveyArg() );
+    if ( !havedataroot && !havesurvey )
+    {
+	if ( iscur )
+	    *iscur = true;
+	return cursurvfullpath;
+    }
+
+    const File::Path orgfp( cursurvfullpath );
+    BufferString survdir( orgfp.fileName() );
+    BufferString dataroot( orgfp.pathOnly() );
+
+    if ( havesurvey )
+    {
+	mSelf().setKeyHasValue( sSurveyArg(), 1 );
+	getVal( sSurveyArg(), survdir );
+    }
+    if ( havedataroot )
+    {
+	mSelf().setKeyHasValue( sDataRootArg(), 1 );
+	getVal( sDataRootArg(), dataroot );
+    }
+
+    const File::Path fp( dataroot, survdir );
+    if ( iscur )
+	*iscur = fp == orgfp;
+
+    return fp.fullPath();
 }

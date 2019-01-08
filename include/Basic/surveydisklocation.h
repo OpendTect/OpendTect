@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 
+class BufferStringSet;
 class SurveyInfo;
 namespace File { class Path; }
 
@@ -50,6 +51,7 @@ public:
 
     bool		isCurrentSurvey() const;
     void		setToCurrentSurvey(bool hard=true);
+    const SurveyInfo&	surveyInfo() const; //!< will cache if non-current
 
     bool		isEmpty() const;    //!< current survey, soft path
     void		setEmpty();	    //!< current survey, soft path
@@ -58,7 +60,8 @@ public:
     bool		usePar(const IOPar&);
 
     static const SurveyDiskLocation&	currentSurvey();
-    const SurveyInfo&	surveyInfo() const;
+    static void		listSurveys(BufferStringSet&,const char* basepath=0);
+			//!< returns subdirectory names (not full paths)
 
 protected:
 

@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "settings.h"
+#include "survinfo.h"
 #include "oddirs.h"
 #include "od_ostream.h"
 
@@ -30,12 +31,15 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
     : uiGroup(p,"Data Root Selector")
     , selectionChanged(this)
 {
-    if ( !def )
+    if ( !def || !*def )
 	def = GetBaseDataDir();
     const BufferString defdir = mIsUsable(def) ? def
 			      : Settings::common().find( sKeyDefRootDir() );
     BufferStringSet dirs;
     Settings::common().get( sKeyRootDirs(), dirs );
+    if ( !defdir.isEmpty() && !dirs.isPresent(defdir) )
+	dirs.insertAt( new BufferString(defdir), 0 );
+    const BufferString curbasepath = SI().basePath();
     if ( !defdir.isEmpty() && !dirs.isPresent(defdir) )
 	dirs.insertAt( new BufferString(defdir), 0 );
 

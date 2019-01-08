@@ -9,13 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "surveydisklocation.h"
-#include "filepath.h"
-#include "oddirs.h"
 #include "ascstream.h"
+#include "dirlist.h"
+#include "filepath.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "oddirs.h"
 #include "od_istream.h"
 #include "survinfo.h"
-#include "keystrs.h"
-#include "iopar.h"
 
 const SurveyDiskLocation& SurveyDiskLocation::currentSurvey()
 {
@@ -102,6 +103,14 @@ void SurveyDiskLocation::setToCurrentSurvey( bool hard )
 }
 
 
+void SurveyDiskLocation::listSurveys( BufferStringSet& dirnms, const char* bp )
+{
+    const BufferString basepath( bp && *bp
+				 ? bp : currentSurvey().basePath().str() );
+    Survey::getDirectoryNames( dirnms, false, basepath );
+}
+
+
 void SurveyDiskLocation::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Survey(), fullPath() );
@@ -148,18 +157,39 @@ const SurveyInfo& SurveyDiskLocation::surveyInfo() const
 	return SI();
 
     static ObjectSet<SurveyInfo> infos_;
+    static TypeSet<od_int64> timestamps_;
     static Threads::Lock infolock;
 
     Threads::Locker locker( infolock );
-    for ( int idx=0; idx<infos_.size(); idx++ )
-	if ( infos_[idx]->diskLocation() == *this )
-	    return *infos_[idx];
+    const BufferString fullpath = fullPath();
+    const File::Path fp( fullpath, SurveyInfo::sSetupFileName() );
+    const BufferString survinfofnm = fp.fullPath();
 
-    uiRetVal uirv;
-    SurveyInfo* newinfo = SurveyInfo::read( fullPath(), uirv );
+    SurveyInfo* newinfo = 0;
+    od_int64 timestamp = mUdf( od_int64 );
+    if ( File::exists(survinfofnm) )
+    {
+	timestamp = File::getTimeInSeconds( survinfofnm );
+	for ( int idx=0; idx<infos_.size(); idx++ )
+	{
+	    if ( infos_[idx]->diskLocation() == *this )
+	    {
+		if ( timestamps_[idx] <= timestamp )
+		    return *infos_[idx];
+
+		delete infos_.removeSingle( idx );
+		break;
+	    }
+	}
+
+	uiRetVal uirv;
+	newinfo = SurveyInfo::read( fullpath, uirv );
+    }
+
     if ( !newinfo )
 	{ static const SurveyInfo emptisi; return emptisi; }
 
     infos_ += newinfo;
+    timestamps_ += timestamp;
     return *newinfo;
 }

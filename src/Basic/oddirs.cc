@@ -63,6 +63,22 @@ const char* GetLastSurveyFileName()
 }
 
 
+const char* GetLastSurveyDirName()
+{
+    mDeclStaticString( dirnm );
+
+    if ( dirnm.isEmpty() )
+    {
+	const BufferString lastsurvfnm = GetLastSurveyFileName();
+	od_istream strm( lastsurvfnm );
+	if ( strm.isOK() )
+	    strm.getLine( dirnm );
+    }
+
+    return dirnm.str();
+}
+
+
 /*-> implementing oddirs.h */
 
 /* 'survey data' scope */

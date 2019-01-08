@@ -5,6 +5,7 @@
 -*/
 
 
+#include "commandlineparser.h"
 #include "dbman.h"
 #include "dbdir.h"
 #include "oddirs.h"
@@ -61,12 +62,9 @@ DBMan::DBMan()
 
 void DBMan::initFirst()
 {
-    const BufferString lastsurvfnm = GetLastSurveyFileName();
-    od_istream strm( lastsurvfnm );
-    if ( strm.isOK() )
+    if ( isBad() )
     {
-	BufferString survnm;
-	strm.getLine( survnm );
+	BufferString survnm( GetLastSurveyDirName() );
 	if ( !survnm.isEmpty() )
 	{
 	    const SurveyDiskLocation survloc( survnm );
@@ -82,6 +80,16 @@ uiRetVal DBMan::setDataSource( const IOPar& iop, bool forcerefresh )
 {
     return setDataSource( iop.find(sKey::DataRoot()), iop.find(sKey::Survey()),
 			  forcerefresh );
+}
+
+
+uiRetVal DBMan::setDataSource( const CommandLineParser& clp, bool* ischgd )
+{
+    bool iscur = true;
+    const BufferString newpath = clp.getFullSurveyPath( &iscur );
+    if ( ischgd )
+	*ischgd = !iscur;
+    return iscur ? uiRetVal() : DBM().setDataSource( newpath );
 }
 
 

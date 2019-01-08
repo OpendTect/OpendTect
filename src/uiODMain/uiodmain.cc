@@ -281,6 +281,9 @@ uiODMain::~uiODMain()
 
 bool uiODMain::ensureGoodDataDir()
 {
+    if ( !DBM().isBad() )
+	return true;
+
     while ( !DBMan::isValidDataRoot(GetBaseDataDir()).isOK() )
     {
 	uiFixInvalidDataRoot dlg( this );

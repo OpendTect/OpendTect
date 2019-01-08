@@ -33,6 +33,9 @@ mGlobal(Basic) const char* GetProcFileName(const char*);
 mGlobal(Basic) const char* GetLastSurveyFileName(void);
 /*!< File with last visited survey name */
 
+mGlobal(Basic) const char* GetLastSurveyDirName(void);
+/*!< last visited survey directory name */
+
 
 /* Functions delivering files/directies in the 'sytem' scope */
 

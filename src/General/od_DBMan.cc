@@ -24,9 +24,8 @@
 static const int protocolnr_ = 1;
 
 static const char* sStatusCmd		= "status";
-static const char* sDataRootCmd		= "dataroot";
-static const char* sSurveyCmd		= "survey";
 static const char* sListCmd		= "list";
+static const char* sListSurvCmd		= "list-surveys";
 static const char* sInfoCmd		= "info";
 static const char* sCreateCmd		= "create";
 static const char* sRemoveCmd		= "remove";
@@ -37,9 +36,8 @@ static const char* sJsonOutput		= "json";
 static const char* cmds[] =
 {
     sStatusCmd,
-    sDataRootCmd,
-    sSurveyCmd,
     sListCmd,
+    sListSurvCmd,
     sInfoCmd,
     sCreateCmd,
     sRemoveCmd,
@@ -61,11 +59,11 @@ static od_ostream& strm()
 
 #define mSet( keywd, res ) \
 { \
-    if ( dojson_ && obj ) \
+    if ( dojson_ && jobj ) \
     { \
 	BufferString keyword( keywd ); \
 	keyword.clean(); \
-	obj->set( keyword, res ); \
+	jobj->set( keyword, res ); \
     } \
     else \
 	ret_.set( keywd, res ); \
@@ -73,7 +71,7 @@ static od_ostream& strm()
 
 static int respond( bool success )
 {
-    OD::JSON::Object* obj = &jret_;
+    auto* jobj = &jret_;
     mSet( "Status", success ? "OK" : "Fail" );
     if ( dojson_ )
     {
@@ -95,17 +93,51 @@ static int printUsage()
     BufferStringSet nms( cmds );
     for ( auto nm : nms )
 	errmsg.add( "--" ).add( *nm ).add( "," );
+    errmsg.add( "--" ).add( CommandLineParser::sDataRootArg() ).add( "," );
+    errmsg.add( "--" ).add( CommandLineParser::sSurveyArg() ).add( "," );
     errmsg.add( " or --version" );
-    OD::JSON::Object* obj = &jret_;
+    auto* jobj = &jret_;
     mSet( sErrKey, errmsg );
     return respond( false );
 }
 
 
 #define mRespondErr(s) { \
-    OD::JSON::Object* obj = &jret_; \
+    auto* jobj = &jret_; \
     mSet( sErrKey, s ); \
     respond( false ); \
+}
+
+
+static void listSurveys()
+{
+    BufferStringSet dirnms;
+    const File::Path survfp( DBM().survDir() );
+    const BufferString dataroot( survfp.pathOnly() );
+    SurveyDiskLocation::listSurveys( dirnms, dataroot );
+    if ( !dirnms.isEmpty() )
+    {
+	auto* jobj = &jret_;
+	mSet( sKey::DataRoot(), dataroot );
+	if ( dojson_ )
+	{
+	    auto* arr = new OD::JSON::Array( true );
+	    for ( int idx=0; idx<dirnms.size(); idx++ )
+	    {
+		jobj = new OD::JSON::Object;
+		jobj->set( sKey::Name(), dirnms.get(idx) );
+		arr->add( jobj );
+	    }
+	    jret_.set( "data", arr );
+	}
+	else
+	{
+	    ret_.set( sKey::Size(), dirnms.size() );
+	    ret_.set( sKey::Name(mPlural), dirnms );
+	}
+    }
+
+    respond( true );
 }
 
 
@@ -135,16 +167,16 @@ static void listObjs( const char* trgrpnm )
 
     if ( dojson_ )
     {
-	OD::JSON::Array* arr = new OD::JSON::Array( true );
+	auto* arr = new OD::JSON::Array( true );
 	for ( int idx=0; idx<ids.size(); idx++ )
 	{
-	    OD::JSON::Object* obj = new OD::JSON::Object;
-	    obj->set( sKey::ID(), ids.get(idx) );
-	    obj->set( sKey::Name(), nms.get(idx) );
-	    obj->set( sKey::Format(), trls.get(idx) );
+	    auto* jobj = new OD::JSON::Object;
+	    jobj->set( sKey::ID(), ids.get(idx) );
+	    jobj->set( sKey::Name(), nms.get(idx) );
+	    jobj->set( sKey::Format(), trls.get(idx) );
 	    if ( havetype )
-		obj->set( sKey::Type(), types.get(idx) );
-	    arr->add( obj );
+		jobj->set( sKey::Type(), types.get(idx) );
+	    arr->add( jobj );
 	}
 	jret_.set( "data", arr );
     }
@@ -171,7 +203,7 @@ static void provideInfo( const DBKey& dbky )
     if ( !ioobj )
 	mRespondErr( "Input object key not found" )
 
-    OD::JSON::Object* obj = dojson_ ? new OD::JSON::Object : 0;
+    auto* jobj = dojson_ ? new OD::JSON::Object : 0;
     mSet( sKey::ID(), ioobj->key() );
     mSet( sKey::Name(), ioobj->name() );
     mSet( sKey::Format(), ioobj->translator() );
@@ -180,7 +212,7 @@ static void provideInfo( const DBKey& dbky )
     if ( typstr && *typstr )
 	mSet( sKey::Type(), typstr );
 
-    jret_.set( "data", obj );
+    jret_.set( "data", jobj );
     respond( true );
 }
 
@@ -218,10 +250,10 @@ static void createObj( const BufferStringSet& args, const char* filenm )
     if ( !dbdirptr->commitChanges(iostrm) )
 	mRespondErr( "Cannot commit new entry to data store" )
 
-    OD::JSON::Object* obj = dojson_ ? new OD::JSON::Object : 0;
+    auto* jobj = dojson_ ? new OD::JSON::Object : 0;
     mSet( sKey::ID(), iostrm.key() );
     mSet( sKey::FileName(), iostrm.mainFileName() );
-    jret_.set( "data", obj );
+    jret_.set( "data", jobj );
     respond( true );
 }
 
@@ -232,7 +264,7 @@ int main( int argc, char** argv )
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "General" );
     CommandLineParser clp;
-    OD::JSON::Object* obj = &jret_;
+    auto* jobj = &jret_;
     mSet( "Status", "Fail" ); // make sure it will be the first entry
     if ( clp.nrArgs() < 1 )
 	return printUsage();
@@ -244,32 +276,12 @@ int main( int argc, char** argv )
 
     dojson_ = clp.hasKey( sJsonOutput );
 
-    BufferString survnm( SI().name() );
-    File::Path fpdr( SI().diskLocation().fullPath() );
-    BufferString dataroot( fpdr.pathOnly() );
+    uiRetVal uirv = DBM().setDataSource( clp );
+    if ( !uirv.isOK() )
+	{ mSet( sErrKey, toString(uirv) ); return respond( false ); }
 
-    const bool setdataroot = clp.hasKey( sDataRootCmd );
-    const bool setsurvey = clp.hasKey( sSurveyCmd );
-    if ( setdataroot || setsurvey )
-    {
-	if ( setsurvey )
-	{
-	    clp.setKeyHasValue( sSurveyCmd, 1 );
-	    clp.getVal( sSurveyCmd, survnm );
-	}
-	if ( setdataroot )
-	{
-	    clp.setKeyHasValue( sDataRootCmd, 1 );
-	    clp.getVal( sDataRootCmd, dataroot );
-	}
-	File::Path fp( dataroot, survnm );
-	uiRetVal uirv = DBM().setDataSource( fp.fullPath() );
-	if ( !uirv.isOK() )
-	{
-	    mSet( sErrKey, toString(uirv) );
-	    return respond( false );
-	}
-    }
+    if ( clp.hasKey( sListSurvCmd ) )
+	listSurveys();
 
     const bool isbad = DBM().isBad();
     if ( isbad || clp.hasKey( sStatusCmd ) )
@@ -280,8 +292,9 @@ int main( int argc, char** argv )
 	}
 	else
 	{
-	    mSet( sKey::Survey(), survnm );
-	    mSet( sKey::DataRoot(), dataroot );
+	    File::Path fp( DBM().survDir() );
+	    mSet( sKey::Survey(), fp.fileName() );
+	    mSet( sKey::DataRoot(), fp.pathOnly() );
 	}
 	return respond( !isbad );
     }

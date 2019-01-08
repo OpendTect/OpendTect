@@ -42,6 +42,9 @@ uiSurveySelect::uiSurveySelect( uiParent* p, const SurveyDiskLocation& sdl,
 	defsurvdirnm_ = SI().dirName();
 
     datarootfld_ = new uiDataRootSel( this, dataroot_ );
+    if ( dataroot_.isEmpty() )
+	dataroot_ = datarootfld_->getDir();
+
     maingrp_ = new uiGroup( this, "Main group" );
     survselgrp_ = new uiGroup( maingrp_, "Survey selection group" );
 
