@@ -82,6 +82,7 @@ public:
     void		setSelected(uiTreeViewItem*,bool);
     bool		isSelected(const uiTreeViewItem*) const;
     uiTreeViewItem*	selectedItem() const;
+    uiString		uiText(int col=0) const;
     const char*		text(int col=0) const;
     int			nrSelected() const;
     void		getSelectedItems(ObjectSet<uiTreeViewItem>&) const;
@@ -269,6 +270,7 @@ public:
     void		setText( double d, int column=0 )
 			{ setText( toUiString(d), column ); }
 
+    uiString		uiText(int column=0) const;
     const char*		text(int column=0) const;
 
     void		setIcon(int column,const char* iconname);

@@ -593,6 +593,13 @@ uiTreeViewItem* uiTreeView::selectedItem() const
 }
 
 
+uiString uiTreeView::uiText( int col ) const
+{
+    uiTreeViewItem* itm = selectedItem();
+    return itm ? itm->uiText( col ) : uiString::empty();
+}
+
+
 const char* uiTreeView::text( int col ) const
 {
     uiTreeViewItem* itm = selectedItem();
@@ -911,13 +918,23 @@ void uiTreeViewItem::setBGColor( int column, const Color& color )
 }
 
 
+uiString uiTreeViewItem::uiText( int column ) const
+{
+    uiString ret;
+    if ( texts_.validIdx(column) )
+	ret = texts_[column];
+    return ret;
+}
+
+
 const char* uiTreeViewItem::text( int column ) const
 {
+    const uiString uiret( uiText(column) );
     mDeclStaticString( ret );
-    if ( !texts_.validIdx(column) )
+    if ( uiret.isEmpty() )
 	ret.setEmpty();
     else
-	ret.set( toString(texts_[column]) );
+	ret.set( toString(uiret) );
     return ret.buf();
 }
 
