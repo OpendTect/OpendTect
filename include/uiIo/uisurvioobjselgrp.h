@@ -79,4 +79,8 @@ protected:
     void		updateObjs();
     void		setSelection();
 
+public:
+
+    void		insert(uiObject&);
+
 };

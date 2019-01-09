@@ -113,6 +113,14 @@ void uiSurvIOObjSelGroup::initGrp( CallBacker* )
 }
 
 
+void uiSurvIOObjSelGroup::insert( uiObject& obj )
+{
+    if ( survsel_ )
+	obj.attach( alignedBelow, survsel_ );
+    objfld_->attach( alignedBelow, &obj );
+}
+
+
 void uiSurvIOObjSelGroup::dClickCB( CallBacker* )
 {
     dClicked.trigger();
