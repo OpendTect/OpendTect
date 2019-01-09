@@ -332,6 +332,12 @@ uiButton* uiButton::getStd( uiParent* p, OD::StdActionType typ,
 }
 
 
+const QAbstractButton* uiButton::qButton() const
+{
+    return dynamic_cast<const QAbstractButton*>( body() );
+}
+
+
 QAbstractButton* uiButton::qButton()
 {
     return dynamic_cast<QAbstractButton*>( body() );
@@ -423,6 +429,14 @@ void uiPushButton::setFlat( bool yn )
     if ( !qpushbut ) return;
 
     qpushbut->setFlat( yn );
+}
+
+
+bool uiPushButton::isFlat() const
+{
+    const QAbstractButton* qbut = qButton();
+    mDynamicCastGet(const QPushButton*,qpushbut,qbut)
+    return qpushbut ? qpushbut->isFlat() : false;
 }
 
 

@@ -50,6 +50,7 @@ public:
 
 			//! Not for casual use
     mQtclass(QAbstractButton*)	qButton();
+    const mQtclass(QAbstractButton*)	qButton() const;
 
     static uiButton*	getStd(uiParent*,OD::StdActionType,const CallBack&,
 				bool immediate);
@@ -89,6 +90,7 @@ public:
     void		setDefault(bool yn=true);
     void		click();
     void		setFlat(bool);
+    bool		isFlat() const;
 
     static uiPushButton* getStd(uiParent*,OD::StdActionType,const CallBack&,
 				bool immediate);
