@@ -191,9 +191,8 @@ void uiAHPlotAnnotSet::createGraphicsItems()
     texts_ = new uiGraphicsItemSet();
     ticks_ = new uiGraphicsItemSet();
 
-    for ( int icoll=0; icoll<2; icoll++ )
+    for ( bool docolldet : {false,true} )
     {
-	const bool docolldet = icoll == 1;
 	for ( int idx=0; idx<size(); idx++ )
 	{
 	    const uiAHPlotAnnot& pah = (*this)[idx];

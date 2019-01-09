@@ -560,17 +560,15 @@ BodyOperator* BodyOperator::getChildOprt( bool body0 ) const
 
 bool BodyOperator::getChildOprt( int freeid, BodyOperator& res )
 {
-   if ( freeid==id_ )
-   {
-       res = *this;
-       return true;
-   }
+    if ( freeid==id_ )
+	{ res = *this; return true; }
 
-   for ( int idx=0; idx<2; idx++ )
-   {
-       if ( getChildOprt(!idx) )
-	   return getChildOprt(!idx)->getChildOprt( freeid, res );
-   }
+    for ( bool forbody0 : {true,false} )
+    {
+	auto* inpoper = getChildOprt( forbody0 );
+	if ( inpoper )
+	    return inpoper->getChildOprt( freeid, res );
+    }
 
     return false;
 }

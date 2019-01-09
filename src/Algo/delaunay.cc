@@ -1203,16 +1203,16 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
     vertices += aftidx;
     weights += (f/(e+f))*(c/(c+d));
 
-    for ( int idx=0; idx<2; idx++ )
+    for ( int idx : {0,1} )
     {
 	TypeSet<int>* conns;
 	TypeSet<double>* ws;
 	if ( usedinit[idx]==mInitCorner0 )
-	{ conns = &corner0_; ws = &cornerweights0_; }
+	    { conns = &corner0_; ws = &cornerweights0_; }
 	else if ( usedinit[idx]==mInitCorner1 )
-	{ conns = &corner1_; ws = &cornerweights1_; }
+	    { conns = &corner1_; ws = &cornerweights1_; }
 	else
-	{ conns = &corner2_; ws = &cornerweights2_; }
+	    { conns = &corner2_; ws = &cornerweights2_; }
 
 	const double useddist = idx ? x : y;
 	const float factor = (float)((e/(e+f))*(useddist/(x+y)));

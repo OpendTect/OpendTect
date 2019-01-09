@@ -147,14 +147,11 @@ void uiColSeqSelTool::selectCB( CallBacker* )
 	menunms = nms;
     else
     {
-	for ( int ipass=0; ipass<2; ipass++ )
+	for ( bool addcur : {true,false} )
 	{
 	    for ( int inm=0; inm<nms.size(); inm++ )
-	    {
-		if (    (ipass == 0 && inm == curidx)
-		    ||  (ipass == 1 && inm != curidx) )
+		if ( (addcur && inm == curidx) || (!addcur && inm != curidx) )
 		    menunms.add( nms.get(inm) );
-	    }
 	}
 	curidx = 0;
     }

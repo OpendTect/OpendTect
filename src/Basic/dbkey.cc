@@ -115,17 +115,9 @@ void getGroupedIDNumbers( const char* str, od_int64& gnr, od_int64& onr,
 
     CompoundKey ck( inpstr );
     const int len = ck.nrKeys();
-    for ( int idx=0; idx<2; idx++ )
-    {
+    for ( auto idx : {0,1} )
 	if ( idx < len )
-	{
-	    const BufferString subky( ck.key(idx) );
-	    if ( idx == 0 )
-		gnr = toInt64( subky.str() );
-	    else
-		onr = toInt64( subky.str() );
-	}
-    }
+	    (idx == 0 ? gnr : onr) = toInt64( ck.key(idx) );
 }
 
 

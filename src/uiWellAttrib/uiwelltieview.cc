@@ -37,8 +37,9 @@ ________________________________________________________________________
 #include "welltiepickset.h"
 #include "zaxistransform.h"
 
-
+static const int cNrVwrs = 2;
 #define mGetWD(act) const Well::Data* wd = data_.wd_; if ( !wd ) act;
+
 
 namespace WellTie
 {
@@ -139,7 +140,7 @@ void uiTieView::initLogViewers()
 {
     displaygrp_ = new uiGroup( parent_, "Log Display" );
     displaygrp_->setBorder(0);
-    for ( int idx=0; idx<2; idx++ )
+    for ( int ivwr=0; ivwr<cNrVwrs; ivwr++ )
     {
 	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
 	uiWellLogDisplay* logdisp = new uiWellLogDisplay( displaygrp_, wldsu );
@@ -150,8 +151,9 @@ void uiTieView::initLogViewers()
 	logdisp->disableScrollZoom();
 	logdisp->getMouseEventHandler().movement.notify(
 				mCB(this,uiTieView,mouseMoveCB) );
+	if ( ivwr )
+	    logsdisp_[ivwr]->attach( rightOf, logsdisp_[ivwr-1] );
     }
-    logsdisp_[0]->attach( leftOf, logsdisp_[1] );
 
     displaygrp_->attach( leftOf, vwr_ );
 }
@@ -194,14 +196,14 @@ void uiTieView::initFlatViewer()
 void uiTieView::setLogsParams()
 {
     mGetWD(return)
-    for ( int idx=0; idx<logsdisp_.size(); idx++ )
+    for ( auto disp : logsdisp_ )
     {
-	logsdisp_[idx]->logData(true).setLog( 0 );
-	logsdisp_[idx]->logData(false).setLog( 0 );
+	disp->logData(true).setLog( 0 );
+	disp->logData(false).setLog( 0 );
 	uiWellDahDisplay::Data data( wd );
 	data.dispzinft_ = params_.iszinft_;
 	data.zistime_ = params_.iszintime_;
-	logsdisp_[idx]->setData( data );
+	disp->setData( data );
     }
     const float zfac =1;
     Interval<float> zrg( zrange_.start*zfac, zrange_.stop*zfac );
@@ -267,8 +269,8 @@ void uiTieView::setDataPack()
 
 void uiTieView::setLogsRanges( Interval<float> rg )
 {
-    for (int idx=0; idx<logsdisp_.size(); idx++)
-	logsdisp_[idx]->setZRange( rg );
+    for ( auto disp : logsdisp_ )
+	disp->setZRange( rg );
 }
 
 
@@ -318,10 +320,10 @@ void uiTieView::drawMarker( FlatView::AuxData* auxdata,
 void uiTieView::drawLogDispWellMarkers()
 {
     mGetWD(return)
-    for ( int idx=0; idx<logsdisp_.size(); idx++ )
+    for ( auto disp : logsdisp_ )
     {
-	logsdisp_[idx]->markerDisp() = data_.dispparams_.mrkdisp_;
-	logsdisp_[idx]->reDrawAnnots();
+	disp->markerDisp() = data_.dispparams_.mrkdisp_;
+	disp->reDrawAnnots();
     }
 }
 
@@ -490,8 +492,8 @@ void uiTieView::mouseMoveCB( CallBacker* cb )
 
 void uiTieView::enableCtrlNotifiers( bool yn )
 {
-    logsdisp_[0]->scene().getMouseEventHandler().movement.enable( yn );
-    logsdisp_[1]->scene().getMouseEventHandler().movement.enable( yn );
+    for ( auto disp : logsdisp_ )
+	disp->scene().getMouseEventHandler().movement.enable( yn );
 }
 
 

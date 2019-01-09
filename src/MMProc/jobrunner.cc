@@ -202,7 +202,7 @@ JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
     timestamp = Time::getMilliSeconds();
 
     // First go for new jobs, then try failed
-    for ( int tryfailed=0; tryfailed<2; tryfailed++ )
+    for ( bool selectfailed : {false,true} )
     {
 	for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
 	{
@@ -212,7 +212,8 @@ JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
 				  ji.state_==JobInfo::HostFailed;
 	    if ( isfailed )
 	    {
-		if ( !tryfailed ) continue;
+		if ( !selectfailed )
+		    continue;
 		if ( (ji.hostdata_ && ji.hostdata_ == &hfi.hostdata_)
 		     && hostinfo_.size() > 1 ) continue;
 	    }

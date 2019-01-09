@@ -180,11 +180,11 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	{
 	    grpfld_->addItem( toUiString(uidps_.groupNames().get(idx)) );
 	    Color coly1, coly2;
-	    for ( int idy=0; idy<2; idy++ )
+	    for ( bool doy1 : {true,false} )
 	    {
-		Color& col = idy==0 ? coly1 : coly2;
+		Color& col = doy1 ? coly1 : coly2;
 		do
-		{ col = getRandomColor(); }
+		    { col = getRandomColor(); }
 		while ( !ctseqs.addIfNew(col) );
 	    }
 

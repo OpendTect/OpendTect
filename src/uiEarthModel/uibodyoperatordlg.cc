@@ -365,19 +365,19 @@ void uiBodyOperatorDlg::setOperator( uiTreeViewItem* lv, EM::BodyOperator& opt )
     else if ( listinfo_[lvidx].act_==sKeyMinus() )
 	opt.setAction( EM::BodyOperator::Minus );
 
-    for ( int idx=0; idx<2; idx++ )
+    for ( bool usefirst : {true,false} )
     {
-        uiTreeViewItem* child = !idx ? lv->firstChild() : lv->lastChild();
+        uiTreeViewItem* child = usefirst ? lv->firstChild() : lv->lastChild();
 	if ( child->nrChildren() )
 	{
 	    EM::BodyOperator* childoprt = new EM::BodyOperator();
-	    opt.setInput( idx==0, childoprt );
+	    opt.setInput( usefirst, childoprt );
 	    setOperator( child, *childoprt );
 	}
 	else
 	{
 	    const int chilidx = listsaved_.indexOf( child );
-	    opt.setInput( idx==0, listinfo_[chilidx].mid_ );
+	    opt.setInput( usefirst, listinfo_[chilidx].mid_ );
 	}
     }
 }

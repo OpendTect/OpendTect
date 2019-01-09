@@ -136,7 +136,7 @@ void FlatDataPack::doDumpInfo( IOPar& iop ) const
 
     iop.set( sKey::Type(), "Flat" );
     const auto sz0 = size(true); const auto sz1 = size(false);
-    for ( auto idim=0; idim<2; idim++ )
+    for ( int idim : {0,1} )
     {
 	const bool isdim0 = idim == 0;
 	FileMultiString fms( dimName( isdim0 ) );

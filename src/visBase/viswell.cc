@@ -99,7 +99,7 @@ Well::Well()
     rightlogdisplay_->ref();
     addChild( rightlogdisplay_ );
 
-    for ( int idx=0; idx<2; idx++ )
+    for ( auto idx : {0,1} )
     {
 	displaytube_[idx]= false;
 	displaylog_[idx] = false;
@@ -297,7 +297,7 @@ void Well::updateText( TextDrawable* vistxt, const char* txt, const Coord3* pos,
     vistxt->setText( toUiString(txt) );
     vistxt->setFontData( fnt, getPixelDensity() );
     vistxt->setPosition( *pos );
-    vistxt->setCharacterSizeMode( sizedynamic ?	
+    vistxt->setCharacterSizeMode( sizedynamic ?
 				 TextDrawable::Object : TextDrawable::Screen );
     vistxt->setAxisAlignment( TextDrawable::OnScreen );
 }
@@ -670,7 +670,7 @@ void Well::removeLogs()
 {
     leftlogdisplay_->clearLog();
     rightlogdisplay_->clearLog();
-    for ( int idx=0; idx<2; idx++ )
+    for ( auto idx : {0,1} )
 	displaylog_[idx] = false;
 }
 

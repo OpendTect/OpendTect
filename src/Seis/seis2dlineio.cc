@@ -634,7 +634,7 @@ void Seis2DLineMerger::mergeOnCoords()
 	return;
 
     TypeSet<double> lpars; TypeSet<int> idxs;
-    for ( int ibuf=0; ibuf<2; ibuf++ )
+    for ( auto ibuf : {0,1} )
     {
 	const int ntr = ibuf ? nrtrcs2 : nrtrcs1;
 	for ( int idx=0; idx<ntr; idx++ )

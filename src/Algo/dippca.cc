@@ -18,11 +18,13 @@
 class Dip3DCalculator : public ParallelTask
 { mODTextTranslationClass(Dip3DCalculator);
 public:
+
 Dip3DCalculator( Dip3D& fd )
     : fd_(fd)
 {}
 
 protected:
+
 od_int64 nrIterations() const	{ return fd_.input_.totalSize(); }
 uiString message() const	{ return tr("Dip/Azimuth calculating.."); }
 
@@ -163,13 +165,15 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     return true;
 }
 
-Dip3D& fd_;
+    Dip3D&	fd_;
+
 };
 
 
 class Dip2DCalculator : public ParallelTask
 { mODTextTranslationClass(Dip2DCalculator);
 public:
+
 Dip2DCalculator( Dip2D& fd )
     : fd_(fd)
 {}
@@ -251,27 +255,26 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	pca.calculate();
 
 	TypeSet<float> eigenval;
-	for ( int idy=0; idy<2; idy++ )
-	    eigenval += pca.getEigenValue(idy);
-	TypeSet<float> eigenvec0(2,0);
+	for ( int idy : {0,1} )
+	    eigenval += pca.getEigenValue( idy );
+	TypeSet<float> eigenvec0( 2, 0 );
 	pca.getEigenVector( 0, eigenvec0 );
 
-	const float eratio = eigenval[0]/eigenval[1];
+	const float eratio = eigenval[0] / eigenval[1];
 	if ( eratio<0.5 )
 	    continue;
 
-	float dip =
-	    fd_.xdist_*eigenvec0[0]/(fd_.ydist_*eigenvec0[1]);
-	//dip = atan(eigenvec1[1]/eigenvec1[0])*mRad2Angle;
+	const float dip =
+	    fd_.xdist_*eigenvec0[0] / (fd_.ydist_*eigenvec0[1]);
 	fd_.dip_->set( pos[0], pos[1], dip );
     }
 
     return true;
 }
 
-Dip2D& fd_;
-};
+    Dip2D&	fd_;
 
+};
 
 
 

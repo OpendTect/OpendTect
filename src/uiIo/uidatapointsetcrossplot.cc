@@ -242,11 +242,11 @@ void uiDataPointSetCrossPlotter::getRandRowids()
     }
 
     Stats::RandGen randgen;
-    for ( int idx=0; idx<2; idx++ )
+    for ( bool doy1 : {true,false} )
     {
 	int rowcount =0;
 
-	Array1D<char>* rowidxs = idx==0 ? yrowidxs_ : y2rowidxs_;
+	Array1D<char>* rowidxs = doy1 ? yrowidxs_ : y2rowidxs_;
 	const bool highperc = plotperc_ > 50;
 	rowidxs->ArrayND<char>::setAll( highperc ? '1' : '0' );
 	const float nrrowneeded = mCast( float, highperc ?
@@ -260,7 +260,7 @@ void uiDataPointSetCrossPlotter::getRandRowids()
 		rowidxs->set( randrow, highperc ? '0' : '1' );
 	    else
 		continue;
-	    rowcount ++;
+	    rowcount++;
 	}
     }
 }

@@ -463,7 +463,7 @@ void PlaneDragCBHandler::initDragControl()
     const Coord pos = Conv::to<Coord>( planedragger_->getPositionOnScreen() );
     const float scalefactor = mMIN( rtdragger_.dragctrlspacing_[0].step,
 				    rtdragger_.dragctrlspacing_[1].step );
-    const Coord3 diagonal = initialtopleft_ - initialbotright_;	
+    const Coord3 diagonal = initialtopleft_ - initialbotright_;
     const Coord3 dragdir = diagonal.cross( Coord3(0.0,0.0,1.0) );
     dragcontroller_.init( pos, scalefactor, dragdir );
     maxdragdist_ = mUdf(double);
@@ -1112,27 +1112,27 @@ void RandomTrackDragger::updatePanels()
 	    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array(4);
 	    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array(1);
 
-	    // 0: semi-transparent grey plane, 1: vertical green side poles
-	    for ( int geomidx=0; geomidx<2; geomidx++ )
+	    // semi-transparent grey plane, or the vertical green side poles
+	    for ( bool greyplane : {true,false} )
 	    {
 		osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
 		osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
 
-		if ( !geomidx )
+		if ( greyplane )
+		    colors->push_back( osg::Vec4(0.0,0.7,0.0,1.0) );
+		else
 		{
 		    colors->push_back( osg::Vec4(0.7,0.7,0.7,0.5) );
 		    geometry->getOrCreateStateSet()->setRenderingHint(
 					    osg::StateSet::TRANSPARENT_BIN );
 		}
-		else
-		    colors->push_back( osg::Vec4(0.0,0.7,0.0,1.0) );
 
 		geometry->setVertexArray( vertices.get() );
 		geometry->setNormalArray( normals.get() );
 		geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
 		geometry->setColorArray( colors.get() );
 		geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-		const GLenum primitive = geomidx ? GL_LINES : GL_QUADS;
+		const GLenum primitive = greyplane ? GL_QUADS : GL_LINES;
 		geometry->addPrimitiveSet( new osg::DrawArrays(primitive,0,4) );
 		geode->addDrawable( geometry.get() );
 	    }

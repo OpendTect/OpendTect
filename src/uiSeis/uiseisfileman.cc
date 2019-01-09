@@ -241,7 +241,7 @@ const uiSeisFileMan::BrowserDef* uiSeisFileMan::getBrowserDef() const
 {
     if ( curioobj_ )
     {
-	for ( int ipass=0; ipass<2; ipass++ )
+	for ( auto ipass : {0,1} )
 	{
 	    for ( int idx=0; idx<browserdefs_.size(); idx++ )
 	    {
