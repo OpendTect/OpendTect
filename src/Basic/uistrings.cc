@@ -310,6 +310,9 @@ uiPhrase uiStrings::phrRemoveSelected( const uiWord& string )
 uiPhrase uiStrings::phrRename( const uiWord& string )
 { return mJoinStr.arg( sRename() ).arg( string ); }
 
+uiPhrase uiStrings::phrRestart( const uiWord& string )
+{ return mJoinStr.arg( sRestart() ).arg( string ); }
+
 uiPhrase uiStrings::phrSave( const uiWord& string )
 { return mJoinStr.arg( sSave() ).arg( string ); }
 
@@ -337,8 +340,11 @@ uiPhrase uiStrings::phrSorting( const uiWord& string )
 uiPhrase uiStrings::phrSpecify( const uiWord& string )
 { return mJoinStr.arg( sSpecify() ).arg( string ); }
 
-uiPhrase uiStrings::phrStart( const uiWord& word )
-{ return tr("Start %1" ).arg( word ); }
+uiPhrase uiStrings::phrStart( const uiWord& string )
+{ return mJoinStr.arg( sStart() ).arg( string ); }
+
+uiPhrase uiStrings::phrStop( const uiWord& string )
+{ return mJoinStr.arg( sStop() ).arg( string ); }
 
 uiPhrase uiStrings::phrStorageDir( const uiWord& string )
 { return mJoinStr.arg( sStorageDir() ).arg( string ); }

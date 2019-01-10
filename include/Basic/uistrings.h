@@ -141,6 +141,7 @@ public:
     static uiPhrase phrRemove(const uiWord&);
     static uiPhrase phrRemoveSelected(const uiWord&);
     static uiPhrase phrRename(const uiWord&);
+    static uiPhrase phrRestart(const uiWord&);
     static uiPhrase phrSave(const uiWord&);
     static uiPhrase phrSaveAs(const uiWord&);
     static uiPhrase phrSelect(const uiWord& string);
@@ -151,6 +152,7 @@ public:
     static uiPhrase phrSorting(const uiWord&);
     static uiPhrase phrSpecify(const uiWord&);
     static uiPhrase phrStart(const uiWord&);
+    static uiPhrase phrStop(const uiWord&);
     static uiPhrase phrStorageDir(const uiWord&);
     static uiPhrase phrSuccessfullyExported(const uiWord&);
     static uiPhrase phrTODONotImpl(const char* clssname);
@@ -652,6 +654,7 @@ public:
     static uiWord sReservoir()		{ return tr("Reservoir"); }
     static uiWord sReset()		{ return tr("Reset"); }
     static uiWord sResolution()		{ return tr("Resolution"); }
+    static uiWord sRestart()		{ return tr("Restart"); }
     static uiWord sResume()		{ return tr("Resume"); }
     static uiWord sReversed()		{ return tr("Reversed"); }
     static uiWord sRight()		{ return tr("Right"); }
