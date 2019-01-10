@@ -48,21 +48,21 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     unitdescfld_->attach( alignedBelow, unitnmfld_ );
 
     colfld_ = new uiColorInput( this,
-			           uiColorInput::Setup(getRandStdDrawColor() ).
-				   lbltxt(uiStrings::sColor()) );
+		uiColorInput::Setup(getRandStdDrawColor())
+				   .lbltxt(uiStrings::sColor()) );
     colfld_->attach( alignedBelow, unitdescfld_ );
 
     const Strat::NodeUnitRef* upnode = unit.upNode();
     Interval<float> limitrg = upnode ? upnode->timeRange() : unit.timeRange();
-    uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this,
-						      tr("Time range (My)"));
+    uiLabeledSpinBox* lblbox1 =
+			new uiLabeledSpinBox( this, tr("Time range (Ma)") );
     agestartfld_ = lblbox1->box();
     agestartfld_->setNrDecimals( 3 );
     agestartfld_->setInterval( limitrg );
     lblbox1->attach( alignedBelow, colfld_ );
 
-    uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox(this,
-						     uiString::emptyString());
+    uiLabeledSpinBox* lblbox2 =
+			new uiLabeledSpinBox( this, uiString::emptyString() );
     agestopfld_ = lblbox2->box();
     agestopfld_->setNrDecimals( 3 );
     agestopfld_->setInterval( limitrg );
@@ -265,8 +265,8 @@ void uiStratLithoBox::fillLiths( CallBacker* )
 
 uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(
-             uiStrings::phrManage( uiStrings::sLithology(mPlural)),mNoDlgTitle,
-            mODHelpKey(mStratLithoDlgHelpID) ))
+	     uiStrings::phrManage( uiStrings::sLithology(mPlural)),mNoDlgTitle,
+	    mODHelpKey(mStratLithoDlgHelpID) ))
     , prevlith_(0)
     , nmfld_(0)
     , anychg_(false)
@@ -431,7 +431,7 @@ public:
 uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
     : uiDialog(p,uiDialog::Setup(isadd ? tr("Add content") : tr("Edit Content"),
 		isadd ? tr("Add content") : tr("Edit content properties"),
-                                  mODHelpKey(mStratContentsDlgHelpID) ))
+				  mODHelpKey(mStratContentsDlgHelpID) ))
     , cont_(c)
     , anychg_(chg)
 {
@@ -553,7 +553,7 @@ void itemSwitch( bool up )
 uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( tr("Contents")),
 		tr("Define special layer contents"),
-                mODHelpKey(mStratContentsDlgHelpID) ))
+		mODHelpKey(mStratContentsDlgHelpID) ))
     , anychg_(false)
 {
     setCtrlStyle( CloseOnly );
@@ -563,7 +563,7 @@ uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
 
 uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Create/Edit level"),mNoDlgTitle,
-                                 mODHelpKey(mStratLevelDlgHelpID) ))
+				 mODHelpKey(mStratLevelDlgHelpID) ))
 {
     lvlnmfld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     lvlcolfld_ = new uiColorInput( this,
@@ -661,7 +661,7 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 	}
 	Interval<float> rg;
 	rg.set( timerg.start + (float)idx*timerg.width()/(nrrows),
-	        timerg.start + (float)(idx+1)*timerg.width()/(nrrows) );
+		timerg.start + (float)(idx+1)*timerg.width()/(nrrows) );
 	table_->setRowReadOnly( idx, false );
 	unit.setTimeRange( rg );
 	unit.setColor( unit.color() );
@@ -830,7 +830,7 @@ bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
 			 .arg(unit_.code());
 	const int res =
 	    uiMSG().question(msg,tr("Assign to both"), movemsg ,
-                             uiStrings::sCancel());
+			     uiStrings::sCancel());
 	if ( res == -1 )
 	    return false;
 	if ( res == 0 )

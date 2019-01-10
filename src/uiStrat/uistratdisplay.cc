@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     : uiGraphicsView(p,"Stratigraphy viewer")
     , drawer_(uiStratDrawer(scene(),data_))
-    , uidatawriter_(uiStratDispToTree(uitree ))
+    , uidatawriter_(uiStratDispToTree(uitree))
     , uidatagather_(0)
     , uicontrol_(0)
     , islocked_(false)
@@ -80,8 +80,9 @@ void uiStratDisplay::setRange()
 	const StratDispData::Unit& unstart = *data_.getUnit( 0, 0 );
 	const StratDispData::Unit& unstop =*data_.getUnit(0,data_.nrUnits(0)-1);
 	Interval<float> viewrg( unstart.zrg_.start, unstop.zrg_.stop );
-	float wdth = viewrg.width(); wdth /= (float)10;
-	if ( wdth <= 0 ) wdth = 10;
+	float wdth = viewrg.width(); wdth /= 10.f;
+	if ( wdth <= 0 )
+	    wdth = 10.f;
 	viewrg.stop += wdth;
 	setZRange( viewrg );
     }
@@ -114,13 +115,13 @@ void uiStratDisplay::createDispParamGrp()
 {
     dispparamgrp_ = new uiGroup( parent(), "display Params Group" );
     dispparamgrp_->attach( centeredBelow, this );
-    rangefld_ = new uiGenInput( dispparamgrp_, tr("Display between Ages (My)"),
+    rangefld_ = new uiGenInput( dispparamgrp_, tr("Display between Ages (Ma)"),
 		FloatInpIntervalSpec()
 		    .setName(BufferString("range start"),0)
 		    .setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
 
-    const CallBack cbv = mCB( this, uiStratDisplay, selCols );
+    const CallBack cbv = mCB(this,uiStratDisplay,selCols);
     viewcolbutton_ = new uiPushButton( dispparamgrp_, tr("Colums"), cbv, false);
     viewcolbutton_->attach( rightOf, rangefld_ );
 }
@@ -157,7 +158,7 @@ public :
 	}
     }
 
-    void selAll( CallBacker* cb )
+    void selAll( CallBacker* )
     {
 	bool allsel = allboxfld_->isChecked();
 	for ( int idx=0; idx<colboxflds_.size(); idx++ )
@@ -248,7 +249,7 @@ void uiStratDisplay::mouseMoveCB( CallBacker* )
     const Interval<float> agerg = rangefld_->getFInterval();
     const float age = getPos().y;
     BufferString agestr; agestr.set( age, 3 );
-    uiString agetxt = agerg.includes(age,false) ? tr("Age: %1 My").arg( agestr )
+    uiString agetxt = agerg.includes(age,false) ? tr("Age: %1 Ma").arg( agestr )
 						: uiStrings::sEmptyString();
     mainwin()->toStatusBar( agetxt, 0 );
 
@@ -512,11 +513,11 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
     rectpts += uiPoint( x2, y2  );
     rectpts += uiPoint( x1, y2  );
     rectpts += uiPoint( x1, y1  );
-    uiPolyLineItem* pli = scene_.addItem( new uiPolyLineItem( rectpts ) );
+    uiPolyLineItem* pli = scene_.addItem( new uiPolyLineItem(rectpts) );
     pli->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1,Color::Black()) );
     colitm.borderitm_ = pli;
 
-    uiTextItem* ti = scene_.addItem(new uiTextItem( toUiString(colitm.name_) ));
+    uiTextItem* ti = scene_.addItem( new uiTextItem(toUiString(colitm.name_)) );
     ti->setTextColor( Color::Black() );
     ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y1-18) );
     ti->setAlignment( Alignment::HCenter );
@@ -539,14 +540,13 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 	int x2 = xax_->getPix( mCast( float, (colitm.pos_+1)*colitm.size_ ) );
 	int y = yax_->getPix( lvl.zpos_ );
 
-	uiLineItem* li = scene_.addItem( new uiLineItem(x1, y, x2, y ) );
+	uiLineItem* li = scene_.addItem( new uiLineItem(x1,y,x2,y) );
 
 	OD::LineStyle::Type lst = lvl.name_.isEmpty() ? OD::LineStyle::Dot
 						  : OD::LineStyle::Solid;
 	li->setPenStyle( OD::LineStyle(lst,2,lvl.color_) );
-	uiTextItem* ti = scene_.addItem( new uiTextItem(
-					        toUiString(lvl.name_) ) );
-	ti->setPos( mCast( float, x1 + (x2-x1)/2 ), mCast( float, y ) );
+	uiTextItem* ti = scene_.addItem( new uiTextItem(toUiString(lvl.name_)));
+	ti->setPos( mCast(float,x1+(x2-x1)/2), mCast(float,y) );
 	ti->setZValue( 2 );
 	ti->setTextColor( lvl.color_ );
 
