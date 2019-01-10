@@ -30,7 +30,7 @@ ________________________________________________________________________
 uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     : uiGraphicsView(p,"Stratigraphy viewer")
     , drawer_(uiStratDrawer(scene(),data_))
-    , uidatawriter_(uiStratDispToTree(uitree ))
+    , uidatawriter_(uiStratDispToTree(uitree))
     , uidatagather_(0)
     , uicontrol_(0)
     , islocked_(false)
@@ -79,8 +79,9 @@ void uiStratDisplay::setRange()
 	const StratDispData::Unit& unstart = *data_.getUnit( 0, 0 );
 	const StratDispData::Unit& unstop =*data_.getUnit(0,data_.nrUnits(0)-1);
 	Interval<float> viewrg( unstart.zrg_.start, unstop.zrg_.stop );
-	float wdth = viewrg.width(); wdth /= (float)10;
-	if ( wdth <= 0 ) wdth = 10;
+	float wdth = viewrg.width(); wdth /= 10.f;
+	if ( wdth <= 0 )
+	    wdth = 10.f;
 	viewrg.stop += wdth;
 	setZRange( viewrg );
     }
@@ -113,7 +114,7 @@ void uiStratDisplay::createDispParamGrp()
 {
     dispparamgrp_ = new uiGroup( parent(), "display Params Group" );
     dispparamgrp_->attach( centeredBelow, this );
-    rangefld_ = new uiGenInput( dispparamgrp_, tr("Display between Ages (My)"),
+    rangefld_ = new uiGenInput( dispparamgrp_, tr("Display between Ages (Ma)"),
 		FloatInpIntervalSpec()
 		    .setName(BufferString("range start"),0)
 		    .setName(BufferString("range stop"),1) );
@@ -157,7 +158,7 @@ public :
 	}
     }
 
-    void selAll( CallBacker* cb )
+    void selAll( CallBacker* )
     {
 	bool allsel = allboxfld_->isChecked();
 	for ( int idx=0; idx<colboxflds_.size(); idx++ )
@@ -182,7 +183,7 @@ public :
 protected:
 
     ObjectSet<uiCheckBox>	colboxflds_;
-    uiCheckBox*		allboxfld_;
+    uiCheckBox*			allboxfld_;
     uiStratDrawer&		drawer_;
     StratDispData&		data_;
 };
@@ -248,7 +249,7 @@ void uiStratDisplay::mouseMoveCB( CallBacker* )
 
     const Interval<float> agerg = rangefld_->getFInterval();
     const float age = getPos().y_;
-    uiString agetxt = agerg.includes(age,false) ? tr("Age: %1 My").arg( age, 3 )
+    uiString agetxt = agerg.includes(age,false) ? tr("Age: %1 Ma").arg( age, 3 )
 						: uiString::empty();
     if ( mainwin()->statusBar() )
 	mainwin()->toStatusBar( agetxt, 0 );

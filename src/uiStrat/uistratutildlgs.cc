@@ -55,7 +55,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     const Strat::NodeUnitRef* upnode = unit.upNode();
     Interval<float> limitrg = upnode ? upnode->timeRange() : unit.timeRange();
     uiLabeledSpinBox* lblbox1 =
-		new uiLabeledSpinBox( this, tr("Time range (My)"));
+		new uiLabeledSpinBox( this, tr("Time range (Ma)"));
     agestartfld_ = lblbox1->box();
     agestartfld_->setNrDecimals( 3 );
     agestartfld_->setInterval( limitrg );
