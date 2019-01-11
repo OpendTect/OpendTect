@@ -384,9 +384,8 @@ uiMain::uiMain( const uiString& appnm, const uiString& orgnm )
     : clp_(new CommandLineParser)
 {
     OD::uiInitProcessStatus();
-    initQApplication( appnm, orgnm );
-
     init( 0 );
+    initQApplication( appnm, orgnm );
 }
 
 
@@ -394,9 +393,8 @@ uiMain::uiMain( QApplication* qapp )
     : clp_(new CommandLineParser)
 {
     OD::uiInitProcessStatus();
-    initQApplication( dontchange, dontchange );
-
     init( qapp );
+    initQApplication( dontchange, dontchange );
 }
 
 
