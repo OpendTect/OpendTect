@@ -764,6 +764,7 @@ public:
     static uiWord sTask()		{ return tr("Task"); }
     static uiWord sTension()		{ return tr("Tension"); }
     static uiWord sTakeSnapshot()	{ return tr("Take Snapshot"); }
+    static uiWord sTerminate()		{ return tr("Terminate"); }
     static uiWord sText()		{ return tr("Text"); }
     static uiWord sTexture()		{ return tr("Texture"); }
     static uiWord sTheme()		{ return tr("Theme"); }
