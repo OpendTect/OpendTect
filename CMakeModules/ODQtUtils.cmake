@@ -238,3 +238,10 @@ macro ( SETUP_QT_TRANSLATION POSTFIX )
 	
     endif()
 endmacro( SETUP_QT_TRANSLATION )
+
+macro( OD_GET_SETUP_QTWEBENGINE )
+    get_property( HAS_WEBENGINE VARIABLE PROPERTY USE_QtWebEngine )
+    if ( ${HAS_WEBENGINE} )
+	add_definitions( -D__withqtwebengine__ )
+    endif()
+endmacro(  )
