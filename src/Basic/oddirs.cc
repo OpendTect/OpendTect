@@ -433,7 +433,11 @@ mExternC(Basic) const char* GetPythonScript( const char* nm )
 
 mExternC(Basic) const char* GetPythonCommand()
 {
+#ifdef __win__
+    return "python";
+#else
     return "python3";
+#endif
 }
 
 
