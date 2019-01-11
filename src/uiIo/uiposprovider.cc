@@ -280,12 +280,7 @@ void uiPosProvider::usePar( const IOPar& iop )
     if ( setup_.is2d_ )
 	return;
 
-// Provider from IOPar is not available in the gui.
-// Perhaps we can still get a TrcKeyZSampling
-
-    TrcKeyZSampling tkzs;
-    getSampling( tkzs, &iop );
-    setSampling( tkzs );
+    pErrMsg( "Provider from IOPar is not available in the gui" );
 }
 
 
