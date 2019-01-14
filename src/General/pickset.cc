@@ -936,6 +936,20 @@ Pick::Set& Pick::Set::setZ( LocID id, double z, bool istmp )
 }
 
 
+void Pick::Set::dumpLocations( od_ostream* strm ) const
+{
+    SetIter it( *this );
+    if ( !strm )
+	strm = &od_cout();
+    while ( it.next() )
+    {
+	*strm << it.getPos().x_ << ' ';
+	*strm << it.getPos().y_ << ' ';
+	*strm << it.getZ() << od_endl;
+    }
+}
+
+
 // Pick::SetIter
 
 Pick::SetIter::SetIter( const Set& ps, bool atend )

@@ -511,7 +511,22 @@ void Seis::TableSelData::extendZ( const Interval<float>& zrg )
 
 void Seis::TableSelData::doExtendH( BinID so, BinID sos )
 {
+    if ( bvs_.isEmpty() )
+	return;
+
+    const BinIDValueSet orgbvs( bvs_ );
     bvs_.extendHor( so, sos );
+
+    const auto zrg( orgbvs.valRange(0) );
+    const auto avgz = zrg.center();
+
+    BinIDValueSet::SPos spos;
+    while ( bvs_.next(spos) )
+    {
+	const BinID bid( bvs_.getBinID(spos) );
+	if ( !orgbvs.includes(bid) )
+	    bvs_.set( spos, avgz );
+    }
 }
 
 

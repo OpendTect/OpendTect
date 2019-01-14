@@ -234,6 +234,8 @@ public:
 
     bool		simpleCoords() const		{ return minimal_; }
 
+    void		dumpLocations(od_ostream* strm=0) const;
+
 protected:
 
     virtual		~DataPointSet();

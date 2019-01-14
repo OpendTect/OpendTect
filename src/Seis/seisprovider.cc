@@ -45,6 +45,30 @@ Seis::Provider::~Provider()
 }
 
 
+Seis::Provider2D* Seis::Provider::as2D()
+{
+    return is2D() ? static_cast<Provider2D*>( this ) : nullptr;
+}
+
+
+const Seis::Provider2D* Seis::Provider::as2D() const
+{
+    return is2D() ? static_cast<const Provider2D*>( this ) : nullptr;
+}
+
+
+Seis::Provider3D* Seis::Provider::as3D()
+{
+    return is2D() ? nullptr : static_cast<Provider3D*>( this );
+}
+
+
+const Seis::Provider3D* Seis::Provider::as3D() const
+{
+    return is2D() ? nullptr : static_cast<const Provider3D*>( this );
+}
+
+
 BufferString Seis::Provider::name() const
 {
     return nameOf( dbky_ );

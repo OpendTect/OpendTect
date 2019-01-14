@@ -171,6 +171,8 @@ public:
 			{ return "Use PointSet Size Threshold";}
     static int		getSizeThreshold();
 
+    void		dumpLocations(od_ostream* strm=0) const;
+
 protected:
 
 			~Set();

@@ -190,12 +190,15 @@ bool Seis::MSCProvider::startWork()
 
     prov_->forceFPData( intofloats_ );
     if ( prov_->is2D() )
-	stepoutstep_ = BinID( 1, 1 );
+    {
+	StepInterval<int> trcnrrg; ZSampling zsamp;
+	prov_->as2D()->getRanges( 0, trcnrrg, zsamp );
+	stepoutstep_ = BinID( 1, trcnrrg.step );
+    }
     else
     {
-	mDynamicCastGet( Provider3D*, prov3d, prov_ );
 	TrcKeyZSampling cs;
-	if ( prov3d->getRanges(cs) )
+	if ( prov_->as3D()->getRanges(cs) )
 	    stepoutstep_ = cs.hsamp_.step_;
     }
 
@@ -220,15 +223,13 @@ bool Seis::MSCProvider::startWork()
 
 	if ( doextend )
 	{
-	    BinID bid( stepoutstep_.row(), stepoutstep_.col() );
-	    newseldata->extendH( so, &bid );
+	    const BinID sostep( stepoutstep_.row(), stepoutstep_.col() );
+	    newseldata->extendH( so, &sostep );
 	}
 
 	prov_->setSelData( newseldata );
     }
 
-    if ( prov_->is2D() )
-	stepoutstep_.crl() = 1;
     SeisTrc* trc = new SeisTrc;
     if ( !readTrace(*trc) )
 	return false;

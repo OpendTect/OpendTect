@@ -14,6 +14,7 @@
 #include "idxable.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "od_ostream.h"
 #include "posprovider.h"
 #include "posvecdataset.h"
 #include "samplfunc.h"
@@ -924,9 +925,11 @@ DataPointSet::RowID DataPointSet::findFirst( const BinID& bid ) const
 DataPointSet::RowID DataPointSet::findFirst( const Coord& crd ) const
 {
     const BinID bid = SI().transform( crd );
-    if ( minimal_ ) return findFirst( bid );
+    if ( minimal_ )
+	return findFirst( bid );
     const DataPointSet::RowID rid = findFirst( bid );
-    if ( rid < 0 ) return -1;
+    if ( rid < 0 )
+	return -1;
 
     for ( int idx=rid; idx<size(); idx++ )
     {
@@ -937,6 +940,20 @@ DataPointSet::RowID DataPointSet::findFirst( const Coord& crd ) const
     }
 
     return -1;
+}
+
+
+void DataPointSet::dumpLocations( od_ostream* strm ) const
+{
+    if ( !strm )
+	strm = &od_cout();
+    for ( RowID irow=0; irow<size(); irow++ )
+    {
+	const Coord crd( coord( irow ) );
+	*strm << crd.x_ << ' ';
+	*strm << crd.y_ << ' ';
+	*strm << z(irow) << od_endl;
+    }
 }
 
 

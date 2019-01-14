@@ -32,6 +32,8 @@ class Fetcher;
 class Fetcher2D;
 class Fetcher3D;
 class ObjectSummary;
+class Provider2D;
+class Provider3D;
 class RawTrcsSequence;
 class SelData;
 
@@ -69,6 +71,10 @@ public:
     static Provider*	create(const IOPar&,uiRetVal* uirv=0);
     static DBKey	dbKey(const IOPar&);
     virtual		~Provider();
+    Provider2D*		as2D();
+    const Provider2D*	as2D() const;
+    Provider3D*		as3D();
+    const Provider3D*	as3D() const;
 
     uiRetVal		setInput(const DBKey&);
 
@@ -194,7 +200,7 @@ public:
 
     mUseType( PosInfo,	CubeData );
 
-    virtual bool	getRanges(TrcKeyZSampling&) const		= 0;
+    virtual bool	getRanges(TrcKeyZSampling&) const	= 0;
     virtual void	getGeometryInfo(CubeData&) const	= 0;
 
 protected:
