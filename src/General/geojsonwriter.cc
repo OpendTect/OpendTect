@@ -75,9 +75,9 @@ void GeoJSONWriter::writeLine( const coord2dset& crdset, const char* nm )
 }
 
 
-void GeoJSONWriter::writeLine(const pickset& pickset)
+void GeoJSONWriter::writeLine( const pickset& picks )
 {
-    writeGeometry( "LineString", pickset );
+    writeGeometry( "LineString", picks );
 }
 
 
