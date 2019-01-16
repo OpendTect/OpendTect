@@ -135,9 +135,9 @@ void GeoJSONWriter::writeGeometry( BufferString geomtyp,
 
 
 void GeoJSONWriter::writeGeometry( BufferString geomtyp,
-					const pickset& pickset )
+					const pickset& picks )
 {
-    for( auto pick : pickset )
+    for( auto pick : picks )
     {
 	TypeSet<Coord> coord;
 	pick->getLocations( coord );
