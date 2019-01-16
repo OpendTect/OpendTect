@@ -73,13 +73,13 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 
     uiString dptlbl = UnitOfMeasure::zUnitAnnot( false, true, true );
     uiString timelbl = UnitOfMeasure::zUnitAnnot( true, true, true );
-    const uiString units[] = { uiString::emptyString(),dptlbl,timelbl,
-						    uiStrings::sEmptyString() };
+    const uiString units[] =
+	{ uiString::emptyString(), dptlbl, timelbl, uiStrings::sEmptyString() };
 
     StringListInpSpec slis; const bool istime = SI().zIsTime();
     for ( int idx=0; idx<zchoiceset.size(); idx++ )
     {
-	uiString msg = tr( "Start / stop %1" );
+	uiString msg = tr( "Start / Stop %1" );
 	msg.arg( units[idx] );
 	uiGenInput* newgeninp = 0; uiWellMarkerSel* newmarksel = 0;
 	if ( idx == 0 )
@@ -119,12 +119,12 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     abovefld_->attach( alignedBelow, zselectionflds_[0] );
 
     belowfld_ = new uiGenInput( this, uiString::emptyString(),
-                                FloatInpSpec(0).setName("below") );
+				FloatInpSpec(0).setName("below") );
     belowfld_->setElemSzPol( uiObject::Medium );
     belowfld_->attach( rightOf, abovefld_ );
     belowfld_->valuechanged.notify( cb );
 
-    postFinalise().notify(mCB(this,uiWellZRangeSelector,onFinalise));
+    postFinalise().notify( mCB(this,uiWellZRangeSelector,onFinalise) );
 }
 
 
@@ -403,7 +403,7 @@ void uiMultiWellLogSel::init()
     const uiObject::SzPolicy vpol = uiObject::WideMax;
     const OD::ChoiceMode chmode =
 	singlelog_ ? OD::ChooseOnlyOne : OD::ChooseAtLeastOne;
-    uiListBox::Setup su( chmode, singlelog_ ? uiStrings::sLog() : 
+    uiListBox::Setup su( chmode, singlelog_ ? uiStrings::sLog() :
 							    uiStrings::sLogs(),
 			 singlewid_ ? uiListBox::LeftTop : uiListBox::AboveMid);
     logsfld_ = new uiListBox( this, su );
@@ -481,9 +481,12 @@ void uiMultiWellLogSel::update()
 
     deepErase( wellobjs_ );
 
+    uiTaskRunner uitr( this );
     Well::InfoCollector wic( false, false, false );
-    if ( !wic.execute() ) return;
+    if ( !uitr.execute(wic) )
+	return;
 
+    BufferStringSet wellnms;
     for ( int iid=0; iid<wic.ids().size(); iid++ )
     {
 	const MultiID& mid = *wic.ids()[iid];
@@ -492,10 +495,11 @@ void uiMultiWellLogSel::update()
 	    continue;
 
 	wellobjs_ += ioobj;
-
-	if ( wellsfld_ )
-	    wellsfld_->addItem( ioobj->uiName() );
+	wellnms.add( ioobj->name() );
     }
+
+    if ( wellsfld_ )
+	wellsfld_->addItems( wellnms );
 
     updateLogsFldCB( 0 );
 }
