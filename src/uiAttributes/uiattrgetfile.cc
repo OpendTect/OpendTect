@@ -47,7 +47,8 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     if ( isattrset_ )
 	fssu.setFormat( File::Format( tr("AttributeSet files"), "attr" ) );
     else
-	fssu.setFormat( File::Format( tr("Job specifications"), "par" ) )
+	fssu.setFormat( File::Format( tr("Job specifications"),
+					sParFileExtension() ) )
 	    .initialselectiondir( GetProcFileName(0) );
     fileinpfld = new uiFileSel(this, uiStrings::sFileName(), fssu );
     fileinpfld->newSelection.notify( mCB(this,uiGetFileForAttrSet,selChg) );

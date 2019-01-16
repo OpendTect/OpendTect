@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "fileformat.h"
+#include "filepath.h"
 #include "uistrings.h"
 
 
@@ -26,7 +27,7 @@ const File::Format& File::Format::parFiles()
 {
     static File::Format* fmt = 0;
     if ( !fmt )
-	fmt = new File::Format( tr("Parameter files"), "par" );
+	fmt = new File::Format( tr("Parameter files"), sParFileExtension() );
     return *fmt;
 }
 
@@ -86,7 +87,7 @@ const File::Format& File::Format::shlibFiles()
 }
 
 
-// tradstr would be either a 'filter', or just an extension
+// tradstr ('traditional') would be either a 'filter', or just an extension
 
 File::Format::Format( const char* tradstr )
 {

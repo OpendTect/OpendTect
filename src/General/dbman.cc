@@ -284,6 +284,15 @@ BufferString DBMan::nameFor( const char* kystr ) const
 }
 
 
+BufferString DBMan::mainFileOf( const DBKey& dbky ) const
+{
+    PtrMan<IOObj> ioobj = get( dbky );
+    if ( ioobj )
+	return ioobj->mainFileName();
+    return BufferString();
+}
+
+
 ConstRefMan<DBDir> DBMan::fetchDir( DirID dirid ) const
 {
     mLock4Read();

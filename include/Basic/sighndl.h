@@ -24,6 +24,8 @@ mExpClass(Basic) SignalHandling : public CallBacker
 {
 public:
 
+    typedef int			ProcID;
+
     static void			initClass();
 
     enum EvType			{
@@ -38,39 +40,39 @@ public:
 
     static void			startNotify(EvType,const CallBack&);
     static void			stopNotify(EvType,const CallBack&);
-    static void			stopProcess(int,bool friendly=true);
-    static void			stopRemote( const char*,int, bool friendly=true,
+    static void			stopProcess(ProcID,bool friendly=true);
+    static void			stopRemote(const char*,ProcID,
+					    bool friendly=true,
 					    const char* rshcomm=0 );
     static void			initFatalSignalHandling();
 
 protected:
 
-					SignalHandling();
-					~SignalHandling();
-    static SignalHandling&		SH();
-					/*!<Access to a static instance */
+				SignalHandling();
+				~SignalHandling();
+    static SignalHandling&	SH();
 
-    CallBackSet&			conncbs_;
-    CallBackSet&			chldcbs_;
-    CallBackSet&			reinitcbs_;
-    CallBackSet&			stopcbs_;
-    CallBackSet&			contcbs_;
-    CallBackSet&			alarmcbs_;
-    CallBackSet&			killcbs_;
+    CallBackSet&		conncbs_;
+    CallBackSet&		chldcbs_;
+    CallBackSet&		reinitcbs_;
+    CallBackSet&		stopcbs_;
+    CallBackSet&		contcbs_;
+    CallBackSet&		alarmcbs_;
+    CallBackSet&		killcbs_;
 
-    CallBackSet&			getCBL(EvType);
+    CallBackSet&		getCBL(EvType);
 
-    static void				handle(int);
+    static void			handle(int);
 
-    void				doKill(int);
-    void				doStop(int,bool withcbs=true);
-    void				doCont();
-    void				handleConn();
-    void				handleChld();
-    void				handleAlarm();
-    void				handleReInit();
+    void			doKill(ProcID);
+    void			doStop(ProcID,bool withcbs=true);
+    void			doCont();
+    void			handleConn();
+    void			handleChld();
+    void			handleAlarm();
+    void			handleReInit();
 
 
-    friend void				DBG::forceCrash(bool);
+    friend void			DBG::forceCrash(bool);
 
 };

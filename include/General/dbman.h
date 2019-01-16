@@ -43,6 +43,7 @@ public:
 			{ return ::nameOf(dbky); }
     BufferString	nameFor(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
+    BufferString	mainFileOf(const DBKey&) const;
 
     IOObj*		get(const DBKey&) const;
     IOObj*		getFirst(const IOObjContext&,int* nrpresent=0) const;

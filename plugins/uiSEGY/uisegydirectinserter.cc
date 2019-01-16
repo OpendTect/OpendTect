@@ -48,9 +48,10 @@ void uiSEGYDirectVolInserter::startScan( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb)
     uiParent* par = 0;
-    if ( but ) par = but->mainwin();
+    if ( but )
+	par = but->mainwin();
     if ( !par )
-    { pErrMsg(BufferString("Unexpected null: ",but?"but":"par")); }
+	{ pErrMsg(BufferString("Unexpected null: ",but?"but":"par")); }
 
     uiSEGYRead::Setup srsu( uiSEGYRead::DirectDef );
     srsu.geoms_.erase(); srsu.geoms_ += Seis::Vol;
@@ -107,9 +108,10 @@ void uiSEGYDirect2DInserter::startScan( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb)
     uiParent* par = 0;
-    if ( but ) par = but->mainwin();
+    if ( but )
+	par = but->mainwin();
     if ( !par )
-    { pErrMsg(BufferString("Unexpected null: ",but?"but":"par")); }
+	{ pErrMsg(BufferString("Unexpected null: ",but?"but":"par")); }
 
     uiSEGYRead::Setup srsu( uiSEGYRead::DirectDef );
     srsu.geoms_.erase(); srsu.geoms_ += Seis::Line;
@@ -166,9 +168,10 @@ void uiSEGYDirectPS3DInserter::startScan( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb)
     uiParent* par = 0;
-    if ( but ) par = but->mainwin();
+    if ( but )
+	par = but->mainwin();
     if ( !par )
-    { pErrMsg(BufferString("Unexpected null: ",but?"but":"par")); }
+	{ pErrMsg(BufferString("Unexpected null: ",but?"but":"par")); }
 
     uiSEGYRead::Setup srsu( uiSEGYRead::DirectDef );
     srsu.geoms_.erase(); srsu.geoms_ += Seis::VolPS;
