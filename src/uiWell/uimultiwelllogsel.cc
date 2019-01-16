@@ -155,9 +155,12 @@ void uiMultiWellLogSel::update()
 
     deepErase( wellobjs_ );
 
+    uiTaskRunner uitr( this );
     Well::InfoCollector wic( false, false, false );
-    if ( !wic.execute() ) return;
+    if ( !uitr.execute(wic) )
+	return;
 
+    BufferStringSet wellnms;
     for ( int iid=0; iid<wic.ids().size(); iid++ )
     {
 	const DBKey dbky = wic.ids()[iid];
@@ -166,10 +169,11 @@ void uiMultiWellLogSel::update()
 	    continue;
 
 	wellobjs_ += ioobj;
-
-	if ( wellsfld_ )
-	    wellsfld_->addItem( ioobj->name() );
+	wellnms.add( ioobj->name() );
     }
+
+    if ( wellsfld_ )
+	wellsfld_->addItems( wellnms );
 
     updateLogsFldCB( 0 );
 }
