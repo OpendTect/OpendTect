@@ -22,6 +22,9 @@ ________________________________________________________________________
 #include "probetr.h"
 #include "rangeposprovider.h"
 #include "survgeometrytransl.h"
+#include "googlexmlwriter.h"
+#include "geojsonwriter.h"
+
 
 typedef BufferString (*nameOfFn)(const DBKey&);
 typedef IOObj* (*getIOObjFn)(const DBKey&);
@@ -85,5 +88,8 @@ GeneralModuleIniter::GeneralModuleIniter()
 
     Survey::GeometryIO_init2DGeometry();
 
-    DBM().initFirst(); // triggers creation & reading of geometries
+    GeoJSONWriter::initClass();
+    ODGoogle::KMLWriter::initClass();
+
+    DBM().initFirst(); //Trigger creation & reading of geometries
 }

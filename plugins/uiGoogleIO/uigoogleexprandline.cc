@@ -19,6 +19,7 @@
 #include "survinfo.h"
 #include "latlong.h"
 #include "od_helpids.h"
+#include "uiseparator.h"
 
 #include <iostream>
 
@@ -47,8 +48,13 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, lnmfld_ );
 
-    mImplFileNameFld(mFromUiStringTodo(nm));
-    fnmfld_->attach( alignedBelow, lsfld_ );
+    uiSeparator* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, lsfld_ );
+    BufferString flnm = "SurveyBoudaryFor_";
+    flnm.add( SI().dirName() );
+    expfld_ = new uiGISExpStdFld( this, flnm );
+    expfld_->attach( stretchedBelow, sep );
+    expfld_->attach( leftAlignedBelow, lsfld_ );
 }
 
 
@@ -64,23 +70,21 @@ bool uiGoogleExportRandomLine::acceptOK()
 
     const int lnmchoice = putlnmfld_->getIntValue();
     const char* lnm = lnmfld_->text();
-    if ( !lnmchoice || !*lnm ) lnm = "Random line";
-    mCreateWriter( lnm, SI().name() );
+    if ( !lnmchoice || !*lnm )
+	lnm = "Random line";
 
-    BufferString ins( "\t\t<OD::LineStyle>\n\t\t\t<color>" );
-    ins += lsfld_->getColor().getStdStr(false,-1);
-    ins += "</color>\n\t\t\t<width>";
-    ins += lsfld_->getWidth() * .1;
-    ins += "</width>\n\t\t</OD::LineStyle>";
-    wrr.writeIconStyles( 0, 0, ins );
-
-
+    GISWriter* wrr = expfld_->createWriter();
+    if ( !wrr )
+	return false;
+    GISWriter::Property prop;
+    prop.color_ = lsfld_->getColor();
+    prop.width_ = lsfld_->getWidth() * .1;
+    wrr->setProperties( prop );
     if ( lnmchoice != 0 && lnmchoice < 3 )
-	wrr.writePlaceMark( 0, crds_[0], lnm );
+	wrr->writePoint( crds_[0], lnm );
     if ( lnmchoice == 1 || lnmchoice == 3 )
-	wrr.writePlaceMark( 0, crds_[crds_.size()-1], lnm );
-    wrr.writeLine( 0, crds_, lnm );
-
-    wrr.close();
+	wrr->writePoint( crds_[crds_.size()-1], lnm );
+    wrr->writeLine( crds_, lnm );
+    wrr->close();
     return true;
 }

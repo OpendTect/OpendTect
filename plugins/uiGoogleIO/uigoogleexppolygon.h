@@ -11,11 +11,11 @@ class uiSelLineStyle;
 namespace Pick { class Set; }
 
 
-mClass(uiGoogleIO) uiGoogleExportPolygon : public uiDialog
-{ mODTextTranslationClass(uiGoogleExportPolygon);
+mClass(uiGoogleIO) uiGISExportPolygon : public uiDialog
+{ mODTextTranslationClass(uiGISExportPolygon);
 public:
 
-			uiGoogleExportPolygon(uiParent*,const Pick::Set&);
+			uiGISExportPolygon(uiParent*,const Pick::Set&);
 
 protected:
 
@@ -23,7 +23,7 @@ protected:
 
     uiSelLineStyle*	lsfld_;
     uiGenInput*		hghtfld_;
+    uiGISExpStdFld*	expfld_;
 
-			mDecluiGoogleExpStd;
-
+    bool		acceptOK();
 };

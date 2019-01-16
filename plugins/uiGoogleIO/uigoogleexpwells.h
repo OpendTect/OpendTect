@@ -9,15 +9,16 @@
 class uiMultiWellSel;
 
 
-mClass(uiGoogleIO) uiGoogleExportWells : public uiDialog
-{ mODTextTranslationClass(uiGoogleExportWells);
+mClass(uiGoogleIO) uiGISExportWells : public uiDialog
+{ mODTextTranslationClass(uiGISExportWells);
 public:
 
-			uiGoogleExportWells(uiParent*);
+			uiGISExportWells(uiParent*);
 
 protected:
 
     uiMultiWellSel*	selfld_;
+    uiGISExpStdFld*	expfld_;
+    bool		acceptOK();
 
-			mDecluiGoogleExpStd;
 };

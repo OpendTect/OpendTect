@@ -27,10 +27,11 @@
 #include "bendpointfinder.h"
 #include "latlong.h"
 #include "od_helpids.h"
+#include "uiseparator.h"
 
 #include <iostream>
 
-uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
+uiGISExport2DSeis::uiGISExport2DSeis( uiSeis2DFileMan* p )
     : uiDialog(p,uiDialog::Setup(
 		uiStrings::phrExport( tr("selected 2D seismics to KML") ),
 		tr("Specify how to export"),
@@ -60,17 +61,21 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, putlnmfld_ );
 
-    mImplFileNameFld(s2dfm_->name());
-    fnmfld_->attach( alignedBelow, lsfld_ );
+    uiSeparator* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, lsfld_ );
+    BufferString flnm = "2DLines";
+    expfld_ = new uiGISExpStdFld( this, flnm );
+    expfld_->attach( stretchedBelow, sep );
+    expfld_->attach( leftAlignedBelow, lsfld_ );
 }
 
 
-uiGoogleExport2DSeis::~uiGoogleExport2DSeis()
+uiGISExport2DSeis::~uiGISExport2DSeis()
 {
 }
 
 
-void uiGoogleExport2DSeis::getFinalSelectedLineNames()
+void uiGISExport2DSeis::getFinalSelectedLineNames()
 {
     if ( !allsel_ )
 	allsel_ = putallfld_ ? putallfld_->getBoolValue() : false;
@@ -84,7 +89,7 @@ void uiGoogleExport2DSeis::getFinalSelectedLineNames()
 }
 
 
-void uiGoogleExport2DSeis::getInitialSelectedLineNames()
+void uiGISExport2DSeis::getInitialSelectedLineNames()
 {
     const uiListBox& lb( *s2dfm_->getListBox(false) );
     sellnms_.erase();
@@ -99,27 +104,26 @@ void uiGoogleExport2DSeis::getInitialSelectedLineNames()
 }
 
 
-bool uiGoogleExport2DSeis::acceptOK()
+bool uiGISExport2DSeis::acceptOK()
 {
-    mCreateWriter( s2dfm_->name(), SI().name() );
-
-    BufferString ins( "\t\t<OD::LineStyle>\n\t\t\t<color>" );
-    ins += lsfld_->getColor().getStdStr(false,-1);
-    ins += "</color>\n\t\t\t<width>";
-    ins += lsfld_->getWidth() * .1;
-    ins += "</width>\n\t\t</OD::LineStyle>";
-    wrr.writeIconStyles( 0, 0, ins );
-
     getFinalSelectedLineNames();
-    for ( int idx=0; idx<sellnms_.size(); idx++ )
-	addLine( wrr, sellnms_.get(idx) );
+    GISWriter* wrr = expfld_->createWriter();
+    if (!wrr)
+	return false;
 
-    wrr.close();
+    GISWriter::Property props;
+    props.color_ = lsfld_->getColor();
+    props.width_ = lsfld_->getWidth() * .1;
+    wrr->setProperties( props );
+    for ( int idx=0; idx<sellnms_.size(); idx++ )
+	addLine( *wrr, sellnms_.get(idx) );
+
+    wrr->close();
     return true;
 }
 
 
-void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm )
+void uiGISExport2DSeis::addLine( GISWriter& wrr, const char* lnm )
 {
     const Seis2DDataSet& dset( *s2dfm_->dataset_ );
     const int iln = dset.indexOf( lnm );
@@ -134,9 +138,9 @@ void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm )
 
     const int lnmchoice = putlnmfld_->getIntValue();
     if ( lnmchoice != 0 && lnmchoice < 3 )
-	wrr.writePlaceMark( 0, l2dd.positions()[0].coord_, lnm );
+	wrr.writePoint( l2dd.positions()[0].coord_, lnm );
     if ( lnmchoice == 1 || lnmchoice == 3 )
-	wrr.writePlaceMark( 0, l2dd.positions()[nrposns-1].coord_, lnm );
+	wrr.writePoint( l2dd.positions()[nrposns - 1].coord_, lnm );
 
     TypeSet<Coord> crds;
     for ( int idx=0; idx<nrposns; idx++ )
@@ -149,5 +153,5 @@ void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm )
     for ( int idx=0; idx<bpf.bendPoints().size(); idx++ )
 	plotcrds += crds[ bpf.bendPoints()[idx] ];
 
-    wrr.writeLine( 0, plotcrds, lnm );
+    wrr.writeLine( plotcrds, lnm );
 }

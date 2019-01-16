@@ -25,9 +25,8 @@ protected:
     uiGenInput*		putlnmfld_;
     uiGenInput*		lnmfld_;
     uiSelLineStyle*	lsfld_;
-
-			mDecluiGoogleExpStd;
+    uiGISExpStdFld*	expfld_;
 
     void		putSel(CallBacker*);
-
+    bool		acceptOK();
 };

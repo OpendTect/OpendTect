@@ -12,6 +12,7 @@ set(OD_MODULE_SOURCES
 	uigoogleexp2dlines.cc
 	uigoogleexppolygon.cc
 	uigoogleexprandline.cc
-	uigoogleiopi.cc)
+	uigoogleiopi.cc
+	uigisexpdlg.cc)
     set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} ${OD_SURVEY_EXECS})
 OD_INIT_MODULE()

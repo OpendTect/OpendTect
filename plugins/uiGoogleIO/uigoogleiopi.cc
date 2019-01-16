@@ -35,17 +35,22 @@
 static const int cPSMnuIdx = -995;
 static const int cRLMnuIdx = -995;
 
-uiString kmlFileuiString()
+uiString sKMLFileUiString()
 {
-    return od_static_tr( "uiGoogleExport", "KML files" );
+    return od_static_tr( "uiGoogleExport", "KML Files" );
 }
 
 uiString sOutFileName()
 {
-    return od_static_tr("sOutFileName","output file name");
+    return od_static_tr("sOutFileName","Output File Name");
 }
 
-mDefODPluginInfo(uiGoogleIO)
+uiString sExportTypLbl()
+{
+    return od_static_tr("sOutFileName","Export Type");
+}
+
+mDefODPluginInfo( uiGoogleIO )
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Google KML generation",
@@ -80,7 +85,7 @@ public:
     void		mkExportLinesIcon(CallBacker*);
 
     static uiString	sMenuTxt()
-			{ return m3Dots(tr("Export to Google KML")); }
+			{ return m3Dots(tr("Export to GIS Format")); }
     static uiString	sUtilTTText()
 			{ return tr("Export to Google Earth/Maps"); }
 
@@ -118,7 +123,7 @@ void uiGoogleIOMgr::exportSurv( CallBacker* cb )
 	 !uisurv->curSurvInfo()->getCoordSystem()->geographicTransformOK() )
 	return;
 
-    uiGoogleExportSurvey dlg( uisurv );
+    uiGISExportSurvey dlg( uisurv );
     dlg.go();
 }
 
@@ -140,7 +145,7 @@ void uiGoogleIOMgr::exportWells( CallBacker* cb )
     if ( !tb || !SI().getCoordSystem()->geographicTransformOK() )
 	return;
 
-    uiGoogleExportWells dlg( tb->mainwin() );
+    uiGISExportWells dlg( tb->mainwin() );
     dlg.go();
 }
 
@@ -162,7 +167,7 @@ void uiGoogleIOMgr::exportLines( CallBacker* cb )
     if ( !cur2dfm_ || !SI().getCoordSystem()->geographicTransformOK() )
 	return;
 
-    uiGoogleExport2DSeis dlg( cur2dfm_ );
+    uiGISExport2DSeis dlg( cur2dfm_ );
     dlg.go();
 }
 
@@ -182,7 +187,7 @@ void uiGoogleIOMgr::exportPolygon( CallBacker* cb )
     if ( !SI().getCoordSystem()->geographicTransformOK() )
 	return;
 
-    uiGoogleExportPolygon dlg( &appl_, ps );
+    uiGISExportPolygon dlg( &appl_, ps );
     dlg.go();
 }
 
@@ -244,7 +249,7 @@ mDefODPluginSurvRelToolsLoadFn( uiGoogleIO )
 }
 
 
-mDefODInitPlugin(uiGoogleIO)
+mDefODInitPlugin( uiGoogleIO )
 {
     if ( theinst_ )
 	return 0;

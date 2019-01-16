@@ -20,10 +20,17 @@
 #include "draw.h"
 #include "od_helpids.h"
 
+#include "geojsonwriter.h"
+
+#include "uiseparator.h"
+#include "uigoogleexpdlg.h"
+
+#include "uiparent.h"
+
 #include <iostream>
 
 
-uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurveyManager* uisurv )
+uiGISExportSurvey::uiGISExportSurvey( uiSurveyManager* uisurv )
     : uiDialog(uisurv,
        uiDialog::Setup(uiStrings::phrExport( tr("Survey boundaries to KML")),
 		      tr("Specify output parameters"),
@@ -36,37 +43,50 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurveyManager* uisurv )
 
     hghtfld_ = new uiGenInput( this, tr("Border height"), FloatInpSpec(500) );
     hghtfld_->attach( alignedBelow, lsfld_ );
-
-    File::Path deffp( SurveyDiskLocation::currentSurvey().fullPath() );
-    deffp.add( "survbounds" ).setExtension( "kml" );
-    uiFileSel::Setup fssu( OD::HtmlContent, deffp.fullPath() );
-    fssu.setForWrite().setFormat( kmlFileuiString(), "kml" );
-    fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
-    fnmfld_->attach( alignedBelow, hghtfld_ );
+    uiSeparator* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, hghtfld_ );
+    BufferString flnm = "SurveyBoudaryFor_";
+    flnm.add( SI().dirName() );
+	expfld_ = new uiGISExpStdFld( this, flnm );
+    expfld_->attach( stretchedBelow, sep );
+    expfld_->attach( leftAlignedBelow, hghtfld_ );
 }
 
 
-uiGoogleExportSurvey::~uiGoogleExportSurvey()
+uiGISExportSurvey::~uiGISExportSurvey()
 {
 }
 
 
-bool uiGoogleExportSurvey::acceptOK()
+bool uiGISExportSurvey::acceptOK()
 {
-    mCreateWriter( "Survey area", si_->name() );
-
     const auto inlrg = si_->inlRange();
     const auto crlrg = si_->crlRange();
     TypeSet<Coord> coords;
-    coords += si_->transform(BinID(inlrg.start,crlrg.start));
-    coords += si_->transform(BinID(inlrg.start,crlrg.stop));
-    coords += si_->transform(BinID(inlrg.stop,crlrg.stop));
-    coords += si_->transform(BinID(inlrg.stop,crlrg.start));
-    coords += si_->transform(BinID(inlrg.start,crlrg.start));
+    coords += si_->transform( BinID(inlrg.start,crlrg.start) );
+    coords += si_->transform( BinID(inlrg.start,crlrg.stop) );
+    coords += si_->transform( BinID(inlrg.stop,crlrg.stop) );
+    coords += si_->transform( BinID(inlrg.stop,crlrg.start) );
+    coords += si_->transform( BinID(inlrg.start,crlrg.start) );
+    Pick::Set* pick = new Pick::Set( "SurveryBoundary" );
+    for ( int idx=0; idx<coords.size(); idx++ )
+    {
+	Pick::Location loc( coords.get(idx), hghtfld_->getFValue() );
+	pick->add( loc );
+    }
 
-    const float reqwdth = lsfld_->getWidth() * 0.1f;
-    wrr.writePolyStyle( "survey", lsfld_->getColor(), mNINT32(reqwdth) );
-    wrr.writePoly( "survey", si_->name(), coords, hghtfld_->getFValue(), si_ );
+    ObjectSet<Pick::Set> picks;
+    picks.add( pick );
 
+    GISWriter* wrr = expfld_->createWriter();
+    if ( !wrr )
+	return false;
+    GISWriter::Property props;
+    props.color_ = lsfld_->getColor();
+    props.width_ = mNINT32( lsfld_->getWidth() * 0.1f );
+    props.stlnm_ = "survey";
+    wrr->setProperties( props );
+    wrr->writePolygon( picks );
+    wrr->close();
     return true;
 }

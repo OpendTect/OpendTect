@@ -18,14 +18,15 @@
 #include "pickset.h"
 #include "draw.h"
 #include "od_helpids.h"
+#include "uiseparator.h"
 
 #include <iostream>
 
 
-uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
+uiGISExportPolygon::uiGISExportPolygon( uiParent* p, const Pick::Set& ps )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Polygon to KML")),
 				 tr("Specify output parameters"),
-                                 mODHelpKey(mGoogleExportPolygonHelpID) ) )
+				 mODHelpKey(mGoogleExportPolygonHelpID) ) )
     , ps_(ps)
 {
     Color defcol( ps_.dispColor() ); defcol.setTransparency( 150 );
@@ -36,17 +37,17 @@ uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
     hghtfld_ = new uiGenInput( this, uiStrings::sHeight(), FloatInpSpec(100) );
     hghtfld_->attach( alignedBelow, lsfld_ );
 
-    mImplFileNameFld(ps.name());
-    fnmfld_->attach( alignedBelow, hghtfld_ );
+    uiSeparator* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, hghtfld_ );
+    expfld_ = new uiGISExpStdFld( this, ps.name() );
+    expfld_->attach( stretchedBelow, sep );
+    expfld_->attach( leftAlignedBelow, hghtfld_ );
 }
 
-
-
-bool uiGoogleExportPolygon::acceptOK()
+bool uiGISExportPolygon::acceptOK()
 {
     if ( ps_.isEmpty() )
 	{ uiMSG().error( tr("Polygon is empty") ); return false; }
-    mCreateWriter( "Polygon", SI().name() );
 
     TypeSet<Coord> coords;
     Pick::SetIter psiter( ps_ );
@@ -56,9 +57,17 @@ bool uiGoogleExportPolygon::acceptOK()
 	coords += ps_.first().pos().getXY();
     psiter.retire();
 
-    const float reqwdth = lsfld_->getWidth() * 0.1f;
-    wrr.writePolyStyle( "polygon", lsfld_->getColor(), mNINT32(reqwdth) );
-    wrr.writePoly( "polygon", ps_.name(), coords, hghtfld_->getFValue() );
+    GISWriter* wrr = expfld_->createWriter();
+    if ( !wrr )
+	return false; // Put some error message here
 
+    GISWriter::Property props;
+    props.color_ = lsfld_->getColor();
+    props.width_ = mNINT32( lsfld_->getWidth() * 0.1f );
+    props.iconnm_ = "Polygon";
+
+    wrr->setProperties( props );
+    wrr->writePolygon( coords );
+    wrr->close();
     return true;
 }

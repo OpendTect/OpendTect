@@ -12,12 +12,12 @@ class uiGenInput;
 class uiSelLineStyle;
 
 
-mClass(uiGoogleIO) uiGoogleExportSurvey : public uiDialog
-{ mODTextTranslationClass(uiGoogleExportSurvey);
+mClass(uiGoogleIO) uiGISExportSurvey : public uiDialog
+{ mODTextTranslationClass(uiGISExportSurvey);
 public:
 
-			uiGoogleExportSurvey(uiSurveyManager*);
-			~uiGoogleExportSurvey();
+			uiGISExportSurvey(uiSurveyManager*);
+			~uiGISExportSurvey();
 
 protected:
 
@@ -25,7 +25,6 @@ protected:
 
     uiSelLineStyle*	lsfld_;
     uiGenInput*		hghtfld_;
-
-			mDecluiGoogleExpStd;
-
+    uiGISExpStdFld*	expfld_;
+    bool		acceptOK();
 };

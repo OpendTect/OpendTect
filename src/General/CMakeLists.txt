@@ -42,7 +42,9 @@ list ( APPEND OD_MODULE_SOURCES
 	flatauxdataeditor.cc
 	flatview.cc
 	fontdata.cc
+	giswriter.cc
 	geojson.cc
+	geojsonwriter.cc
 	googlexmlwriter.cc
 	grid2d.cc
 	hdf5access.cc
