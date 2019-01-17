@@ -703,6 +703,7 @@ public:
     static uiWord sSelectedLog(int n=1)	{ return tr("Selected Log",0,n); }
     static uiWord sSelection(int n=1)	{ return tr("Selection",0,n); }
     static uiWord sSemblance()		{ return tr("Semblance"); }
+    static uiWord sServer()		{ return tr("Server"); }
     static uiWord sSession(int n=1)	{ return tr("Session",0,n); }
     static uiWord sSet(bool verb=true,int n=1)
     { return verb ? tr("Set","verb") : tr("Set","collection",n); }
