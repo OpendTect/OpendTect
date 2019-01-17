@@ -103,7 +103,7 @@ public:
     MachineCommand&	addArg(const char*);
     MachineCommand&	addArgs(const BufferStringSet&);
     MachineCommand&	addFlag( const char* flg, KeyStyle ks=NewStyle )
-			{ return addKeyedArg(flg,0,ks); }
+			{ return addKeyedArg(flg,nullptr,ks); }
     MachineCommand&	addKeyedArg(const char* ky,const char* valstr,
 				    KeyStyle ks=NewStyle);
 
