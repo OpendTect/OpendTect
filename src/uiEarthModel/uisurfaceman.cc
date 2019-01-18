@@ -924,7 +924,7 @@ uiFltSetMan( uiParent* p, const IOObj& ioobj )
     setCtrlStyle( CloseOnly );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
-    uiListBox::Setup su( OD::ChooseOnlyOne, uiStrings::sFault(mPlural),
+    uiListBox::Setup su( OD::ChooseAtLeastOne, uiStrings::sFault(mPlural),
 			 uiListBox::AboveMid );
     fltlist_ = new uiListBox( topgrp, su );
     BufferStringSet fltnms;
@@ -975,37 +975,75 @@ void fltSel( CallBacker* )
 
 void extractCB( CallBacker* )
 {
-    const int curitm = fltlist_->currentItem();
-    if ( curitm < 0 )
+    TypeSet<int> chosenfltidx;
+    fltlist_->getChosen( chosenfltidx );
+    const int nrflts = chosenfltidx.size();
+    if (nrflts < 1 )
 	return;
+
+    const bool isbulk = nrflts > 1;
 
     BufferString fltnm( fltlist_->getText() );
-    CtxtIOObj ctio( mIOObjContext(EMFault3D) );
-    ctio.ctxt_.forread_ = false;
-    uiIOObjSelDlg dlg( this, ctio );
-    dlg.selGrp()->getNameField()->setText( fltnm );
-    dlg.setCaption( tr("Extract as Fault") );
-    if ( !dlg.go() )
-	return;
 
-    const IOObj* ioobj = dlg.ioObj();
-    if ( !ioobj )
-	return;
+    MultiID mid;
 
-    fltnm = ioobj->name();
-    EM::ObjectID oid = EM::EMM().createObject( EM::Fault3D::typeStr(), fltnm );
-    mDynamicCastGet( EM::Fault3D*, newflt, EM::EMM().getObject(oid) );
+    if ( isbulk )
+    {
+	uiGenInputDlg dlg( this, tr("Extract Multiple Faults"),
+							tr("Base Name") );
+	//dlg.
+	if ( !dlg.go() )
+	    return;
 
-    const FilePath fp( dl_.fullPath(curitm) );
-    EM::dgbSurfaceReader rdr( fp.fullPath(), fltnm,
-			      mTranslGroupName(EMFault3D) );
-    rdr.setOutput( *newflt );
-    if ( !rdr.execute() )
-	return;
+	fltnm = dlg.text();
+    }
+    else
+    {
+	CtxtIOObj ctio( mIOObjContext( EMFault3D ) );
+	ctio.ctxt_.forread_ = false;
+	uiIOObjSelDlg dlg( this, ctio );
+	dlg.selGrp()->getNameField()->setText( fltnm );
 
-    newflt->setMultiID( ioobj->key() );
-    PtrMan<Executor> saver = newflt->saver();
-    saver->execute();
+	dlg.setCaption( tr("Extract as Fault") );
+	if ( !dlg.go() )
+	    return;
+
+	const IOObj* ioobj = dlg.ioObj();
+	if ( !ioobj )
+	    return;
+
+	fltnm = ioobj->name();
+	mid = ioobj->key();
+    }
+
+    ExecutorGroup savergroup( "Saving Faults" );
+
+    for( int idx=0; idx< nrflts; idx++ )
+    {
+	BufferString outfltnm = fltnm;
+
+	if ( isbulk )
+	    outfltnm.add("_").add(idx);
+
+	EM::ObjectID oid = EM::EMM().createObject( EM::Fault3D::typeStr(),
+								    outfltnm );
+	mDynamicCastGet( EM::Fault3D*, newflt, EM::EMM().getObject(oid) );
+
+	FilePath fp( dl_.fullPath( chosenfltidx[idx] ) );
+
+	EM::dgbSurfaceReader rdr( fp.fullPath(), outfltnm,
+				  mTranslGroupName(EMFault3D) );
+	rdr.setOutput( *newflt );
+	if ( !rdr.execute() )
+	    return;
+
+	if ( !isbulk )
+	    newflt->setMultiID( mid );
+
+	savergroup.add( newflt->saver() );
+    }
+
+    savergroup.execute();
 }
 
     uiListBox*			fltlist_;
