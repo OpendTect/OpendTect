@@ -44,6 +44,7 @@ public:
     SectionID			sectionID(int) const	{ return 0; }
 
     Executor*			loader();
+    virtual Executor*		saver();
 
 protected:
 

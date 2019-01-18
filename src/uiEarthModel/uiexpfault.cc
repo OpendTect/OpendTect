@@ -260,16 +260,18 @@ bool uiExportFault::writeAscii()
 	for ( int oidx=0; oidx<nrobjs; oidx++ )
 	{
 	    RefMan<EM::EMObject> fltobj = emobj;
+	    BufferString objnm = fltobj->name();
+
 	    if ( fset )
 	    {
 		EM::FaultID fltid = fset->getFaultID( oidx );
 		fltobj = fset->getFault3D( fltid );
+		objnm = fset->name();
+		objnm.add("_").add( fltid );
 	    }
 
 	    const EM::SectionID sectionid = fltobj->sectionID( 0 );
 	    const int nrsticks = nrSticks( fltobj, sectionid );
-
-	    BufferString objnm = fltobj->name();
 
 	    BufferString str;
 

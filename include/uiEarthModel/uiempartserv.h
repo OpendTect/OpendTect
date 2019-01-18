@@ -68,6 +68,7 @@ public:
     bool		importFault();
     bool		importBulkFaults();
     bool		importFaultStickSet();
+    bool		importFaultSet();
     bool		importBulkFaultStickSet(bool is2d=false);
     void		import2DFaultStickset();
     void		importBulk2DFaultStickset();

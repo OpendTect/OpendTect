@@ -264,7 +264,9 @@ void uiODMenuMgr::fillImportMenu()
     uiMenu* impseis = new uiMenu( &appl_, uiStrings::sSeismics() );
     uiMenu* imphor = new uiMenu( &appl_, uiStrings::sHorizon(mPlural) );
     uiMenu* impfault = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
-    uiMenu* impfaultstick = new uiMenu( &appl_, tr("FaultStickSets") );
+    uiMenu* impfaultstick = new uiMenu( &appl_,
+					uiStrings::sFaultStickSet(mPlural) );
+    uiMenu* impfltset = new uiMenu( &appl_, uiStrings::sFaultSet( mPlural ) );
     uiMenu* impwell = new uiMenu( &appl_, uiStrings::sWell(mPlural) );
     uiMenu* imppick = new uiMenu( &appl_, tr("PointSets/Polygons") );
     uiMenu* impwvlt = new uiMenu( &appl_, tr("Wavelets") );
@@ -279,6 +281,7 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertItem( impcpd );
     impmnu_->insertItem( impfault );
     impmnu_->insertItem( impfaultstick );
+    impmnu_->insertItem( impfltset );
     impmnu_->insertItem( imphor );
     impmnu_->insertItem( impmute );
     impmnu_->insertItem( impgeom2d );
@@ -372,6 +375,9 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impfltss3Dasc, m3Dots(tr("Bulk 3D FaultStickSets")),
 	mImpFaultSSAscii3DBulkMnuItm );
     impfaultstick->insertItem( impfltss3Dasc );
+
+    mInsertItem( impfltset, m3Dots( uiStrings::sASCII() ),
+						    mImpFltSetAsciiMnuItm );
 
     uiMenu* impwellasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     mInsertItem( impwellasc, m3Dots(uiStrings::sTrack()),
@@ -1368,6 +1374,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpWvltAsciiMnuItm:		mDoOp(Exp,Wvlt,0); break;
     case mImpWvltAsciiMnuItm:		mDoOp(Imp,Wvlt,0); break;
     case mImpFaultMnuItm:		mDoOp(Imp,Flt,0); break;
+    case mImpFltSetAsciiMnuItm:		mDoOp(Imp,FltSet,0); break;
     case mImpFaultBulkMnuItm:		mDoOp(Imp,Flt,1); break;
     case mImpFaultSSAscii3DMnuItm:	mDoOp(Imp,Fltss,0); break;
     case mImpFaultSSAscii2DMnuItm:	mDoOp(Imp,Fltss,1); break;

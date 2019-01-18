@@ -330,6 +330,15 @@ bool uiEMPartServer::importBulkFaults()
 }
 
 
+bool uiEMPartServer::importFaultSet()
+{
+    impbulkfltdlg_ = new uiBulkFaultImport( parent(),
+	EMFaultSet3DTranslatorGroup::sGroupName(), false );
+
+    return impbulkfltdlg_->go();
+}
+
+
 bool uiEMPartServer::importFault()
 {
     if ( impfltdlg_ )

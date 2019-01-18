@@ -72,6 +72,7 @@ ________________________________________________________________________
 #define mImpFaultSSMnuItm	(mFileImpMnu + 51)
 #define mImpFaultSSAscii3DMnuItm (mFileImpMnu + 52)
 #define mImpFaultSSAscii2DMnuItm (mFileImpMnu + 53)
+#define mImpFltSetAsciiMnuItm	(mFileImpMnu + 54)
 #define mImpPickMnuItm		(mFileImpMnu + 60)
 #define mImpPickAsciiMnuItm	(mFileImpMnu + 61)
 #define mImpWvltMnuItm		(mFileImpMnu + 70)

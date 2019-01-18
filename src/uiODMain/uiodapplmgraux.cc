@@ -85,6 +85,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwellpartserv.h"
 #include "od_helpids.h"
 #include "winutils.h"
+#include "commandlineparser.h"
 
 
 bool uiODApplService::eventOccurred( const uiApplPartServer* ps, int evid )
@@ -256,6 +257,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	switch( at )
 	{
 	mCase(Imp):
+	    am_.emserv_->importFaultSet();
 	    break;
 	mCase(Exp):
 	    am_.emserv_->exportFaultSet();
@@ -622,6 +624,10 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
 
 void uiODApplMgrDispatcher::setupBatchHosts()
 {
-    uiBatchHostsDlg dlg( par_ );
-    dlg.go();
+    BufferString cmd;
+    CommandLineParser::addFilePath(
+		    FilePath(GetExecPlfDir(), "od_BatchHosts").fullPath(), cmd);
+    OS::CommandLauncher cl = OS::MachineCommand(cmd);
+    OS::CommandExecPars pars; pars.launchtype_ = OS::RunInBG;
+    cl.execute(pars);
 }
