@@ -10,77 +10,54 @@ import os
 import platform
 import sys
 import logging
-import logging.config
 
-LOGGING = {
-  'version': 1,
-  'handlers': {
-    'console': {
-      'class': 'logging.StreamHandler',
-      'level': 'INFO',
-      'stream': 'ext://sys.stdout'
-    },
-    'logfile': {
-      'class': 'logging.StreamHandler',
-      'level': 'DEBUG',
-      'stream': 'ext://sys.stdout'
-    },
-    'errors': {
-      'class': 'logging.StreamHandler',
-      'level': 'WARNING',
-      'stream': 'ext://sys.stdout'
-    },
-    'other': {
-      'class': 'logging.StreamHandler',
-      'level': 'CRITICAL',
-      'stream': 'ext://sys.stderr'
-    }
-  },
-  'loggers': {
-    'dbg': {
-      'level': 'WARNING',
-      'handlers': ['errors'],
-      'propagate': 'no'
-    },
-    'std': {
-      'level': 'DEBUG',
-      'handlers': ['console'],
-      'propagate': 'no'
-    },
-    'log': {
-      'level': 'DEBUG',
-      'handlers': ['logfile'],
-      'propagate': 'no'
-    }
-  },
-  'root': {
-    'level': 'CRITICAL',
-    'handlers': ['other']
-  }
-}
+try:
+  from bokeh.util import logconfig
+except ImportError:
+  logconfig = None
+
+syslog_logger = logging.getLogger('odsyslog')
+proclog_logger = logging.getLogger('odproclog')
+
+if not syslog_logger.hasHandlers():
+  handler = logging.StreamHandler(sys.stdout)
+  handler.setLevel( 'INFO' )
+  syslog_logger.addHandler( handler )
+
+if not proclog_logger.hasHandlers():
+  handler = logging.StreamHandler(sys.stdout)
+  handler.setLevel( 'DEBUG' )
+  proclog_logger.addHandler( handler )
 
 def initLogging(args):
-  set_log_file( args['logfile'].name )
-  set_log_file( args['sysout'].name, 'console' )
-  logging.config.dictConfig(LOGGING)
+  set_log_file( args['logfile'].name, proclog_logger )
+  set_log_file( args['sysout'].name, syslog_logger )
 
-def set_log_file( filenm, handlernm='logfile' ):
-  if filenm == 'sys.stdout':
+def set_log_file( filenm, logger ):
+  for handler in logger.handlers:
+    logger.removeHandler( handler )
+  if filenm == '<stdout>':
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel( 'DEBUG' )
+    logger.addHandler( handler )
+    return
+  elif filenm == '<stderr>':
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel( 'INFO' )
+    logger.addHandler( handler )
     return
   if not os.path.exists(filenm):
     dbg_msg( 'Log file not found: ', filenm )
     return
-  LOGGING['handlers'][handlernm] = {
-    'class': 'logging.FileHandler',
-    'filename': filenm,
-    'mode': 'a'
-  }
+  logger.addHandler( logging.FileHandler(filenm,'a') )
+  logger.setLevel( 'DEBUG' )
+  logger.propagate = False
 
 def get_log_logger():
-  return logging.getLogger('log')
+  return proclog_logger
 
 def get_std_logger():
-  return logging.getLogger('std')
+  return syslog_logger
 
 def dbg_msg(msg):
   logging.getLogger('dbg').warning(msg)
@@ -118,6 +95,22 @@ def get_stdlog_file():
 
 def get_log_file():
   return get_log_logger().handlers[0].baseFilename
+
+def redirect_stdout():
+  if (logconfig is None) or (not logging.getLogger() == logconfig.root_logger):
+    return
+  if has_log_file():
+    sys.stdout = open( get_log_file(), 'a' )
+  if has_stdlog_file():
+    sys.stderr = open( get_stdlog_file(), 'a' )
+
+def restore_stdout():
+  if (logconfig is None) or (not logging.getLogger() == logconfig.root_logger):
+    return
+  if has_log_file():
+    sys.stdout = open( '<stdout>', 'w' )
+  if has_stdlog_file():
+    sys.stderr = open( '<stderr>', 'w' )
 
 if platform.python_version() < "3":
   dbg_msg( "odpy requires at least Python 3" )
