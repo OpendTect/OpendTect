@@ -26,6 +26,8 @@ protected:
     void		init();
     bool		acceptOK(CallBacker*);
 
+    void		inpChangedCB(CallBacker*);
+
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;
     Table::FormatDesc*	fd_;
