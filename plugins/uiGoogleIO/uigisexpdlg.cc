@@ -52,18 +52,19 @@ GISWriter* uiGISExpStdFld::createWriter()
     if ( fnm.isEmpty() )
     {
 	uiMSG().error( uiStrings::phrEnter(sOutFileName()) );
-	return false;
+	return nullptr;
     }
 
     mGetWriter;
 
     if ( !wrr )
-	return 0;
+	return nullptr;
     wrr->setStream( fnm );
     if ( !wrr->isOK() )
     {
 	uiMSG().error( wrr->errMsg() );
-	return 0;
+	return nullptr;
     }
+
     return wrr;
 }
