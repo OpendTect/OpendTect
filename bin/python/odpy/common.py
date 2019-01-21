@@ -16,17 +16,17 @@ try:
 except ImportError:
   logconfig = None
 
-syslog_logger = logging.getLogger('odsyslog')
+syslog_logger = logging.getLogger(__name__)
 proclog_logger = logging.getLogger('odproclog')
 
 if not syslog_logger.hasHandlers():
   handler = logging.StreamHandler(sys.stdout)
-  handler.setLevel( 'INFO' )
+  syslog_logger.setLevel( 'INFO' )
   syslog_logger.addHandler( handler )
 
 if not proclog_logger.hasHandlers():
   handler = logging.StreamHandler(sys.stdout)
-  handler.setLevel( 'DEBUG' )
+  proclog_logger.setLevel( 'DEBUG' )
   proclog_logger.addHandler( handler )
 
 def initLogging(args):
@@ -38,19 +38,17 @@ def set_log_file( filenm, logger ):
     logger.removeHandler( handler )
   if filenm == '<stdout>':
     handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel( 'DEBUG' )
     logger.addHandler( handler )
     return
   elif filenm == '<stderr>':
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel( 'INFO' )
+    handler = logging.StreamHandler(sys.stderr)
     logger.addHandler( handler )
     return
   if not os.path.exists(filenm):
-    dbg_msg( 'Log file not found: ', filenm )
+    std_msg( 'Log file not found: ', filenm )
     return
-  logger.addHandler( logging.FileHandler(filenm,'a') )
-  logger.setLevel( 'DEBUG' )
+  handler = logging.FileHandler(filenm,'a')
+  logger.addHandler( handler )
   logger.propagate = False
 
 def get_log_logger():
@@ -58,9 +56,6 @@ def get_log_logger():
 
 def get_std_logger():
   return syslog_logger
-
-def dbg_msg(msg):
-  logging.getLogger('dbg').warning(msg)
 
 def mergeArgs(a,b=None,c=None,d=None,e=None,f=None):
   msg = str(a)
@@ -96,6 +91,25 @@ def get_stdlog_file():
 def get_log_file():
   return get_log_logger().handlers[0].baseFilename
 
+def reset_log_file( keeplines=0 ):
+  if not has_log_file():
+    return
+  logfnm = get_log_file()
+  idx = 0
+  f = open( logfnm, 'r' )
+  keptlines = list()
+  for line in f:
+    keptlines.append( line )
+    idx = idx + 1
+    if idx >= keeplines:
+      break
+  f.close()
+  f = open( logfnm, 'w' )
+  for line in keptlines:
+    f.write( line )
+  f.close()
+  set_log_file( logfnm, proclog_logger )
+
 def redirect_stdout():
   if (logconfig is None) or (not logging.getLogger() == logconfig.root_logger):
     return
@@ -113,8 +127,8 @@ def restore_stdout():
     sys.stderr = open( '<stderr>', 'w' )
 
 if platform.python_version() < "3":
-  dbg_msg( "odpy requires at least Python 3" )
-  exit( 1 )
+  std_msg( "odpy requires at least Python 3" )
+  sys.exit( 1 )
 
 def getODCommand(args,execnm):
   cmd = list()
