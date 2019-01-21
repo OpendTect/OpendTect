@@ -24,12 +24,12 @@ template <class T> class WeakPtr;
 
 template <class T>
 void deleteAndZeroPtr( T*& ptr, bool isowner=true )
-{ if ( isowner ) delete ptr; ptr = 0; }
+{ if ( isowner ) delete ptr; ptr = nullptr; }
 
 
 template <class T>
 void deleteAndZeroArrPtr( T*& ptr, bool isowner=true )
-{ if ( isowner ) delete [] ptr; ptr = 0; }
+{ if ( isowner ) delete [] ptr; ptr = nullptr; }
 
 template <class T> T* createSingleObject()		{ return new T; }
 template <class T> T* createObjectArray(od_int64 sz)	{ return new T[sz]; }
@@ -114,7 +114,7 @@ template <class T>
 mClass(Basic) PtrMan : public NonConstPtrManBase<T>
 {
 public:
-    inline		PtrMan(T* = 0);
+    inline		PtrMan(T* = nullptr);
     inline		PtrMan(PtrMan<T>&&);
     PtrMan<T>&		operator=( T* p );
 
@@ -135,7 +135,7 @@ mClass(Basic) ConstPtrMan : public ConstPtrManBase<T>
 {
 public:
 
-    inline		ConstPtrMan(const T* = 0);
+    inline		ConstPtrMan(const T* = nullptr);
     inline		ConstPtrMan(ConstPtrMan<T>&&);
     ConstPtrMan<T>&	operator=(const T* p);
 
@@ -153,7 +153,7 @@ template <class T>
 mClass(Basic) ArrPtrMan : public NonConstPtrManBase<T>
 {
 public:
-    inline			ArrPtrMan(T* = 0);
+    inline			ArrPtrMan(T* = nullptr);
     inline			ArrPtrMan(ArrPtrMan<T>&&);
     ArrPtrMan<T>&		operator=( T* p );
 
@@ -183,7 +183,7 @@ template <class T>
 mClass(Basic) ConstArrPtrMan : public ConstPtrManBase<T>
 {
 public:
-    inline		ConstArrPtrMan(const T* = 0);
+    inline		ConstArrPtrMan(const T* = nullptr);
     ConstArrPtrMan<T>&	operator=(const T* p);
 
     ConstArrPtrMan<T>&	operator=(const ConstArrPtrMan<T>&)	 = delete;
@@ -203,7 +203,7 @@ public:
     template <class TT> inline	RefMan(const RefMan<TT>&);
     inline			RefMan(const RefMan<T>&);
     inline			RefMan(const WeakPtr<T>&);
-    inline			RefMan(T* = 0);
+    inline			RefMan(T* = nullptr);
     inline RefMan<T>&		operator=( T* p )
 				{ this->set( p, true ); return *this; }
     template <class TT>
@@ -230,7 +230,7 @@ public:
     template <class TT> inline	ConstRefMan(const ConstRefMan<TT>&);
     template <class TT> inline	ConstRefMan(const RefMan<TT>&);
 
-    inline			ConstRefMan(const T* = 0);
+    inline			ConstRefMan(const T* = nullptr);
     ConstRefMan<T>&		operator=(const T* p);
     template <class TT>
     ConstRefMan<T>&		operator=(const RefMan<TT>&);
