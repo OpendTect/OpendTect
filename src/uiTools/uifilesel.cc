@@ -78,7 +78,7 @@ void uiFileSel::init( const uiString& lbltxt )
 
     if ( setup_.checkable_ )
     {
-	checkbox_ = new uiCheckBox( this, uiString::empty() );
+	checkbox_ = new uiCheckBox( this, lbltxt );
 	checkbox_->setChecked( true );
 	checkbox_->activated.notify( mCB(this,uiFileSel,checkCB) );
     }
@@ -103,7 +103,7 @@ void uiFileSel::init( const uiString& lbltxt )
 	    protfld_->setIcon( idx, fsa.iconName() );
 	}
 	if ( checkbox_ )
-	    protfld_->attach( rightOf, checkbox_ );
+	    checkbox_->attach( leftOf, protfld_ );
 	mAttachCB( protfld_->selectionChanged, uiFileSel::protChgCB );
 	protfld_->setHSzPol( uiObject::Small );
     }
@@ -112,12 +112,14 @@ void uiFileSel::init( const uiString& lbltxt )
     setHAlignObj( fnmfld_ );
     fnmfld_->setHSzPol( uiObject::WideVar );
 
-    if ( lbltxt.isEmpty() )
+    if ( lbltxt.isEmpty() || checkbox_ )
     {
 	if ( protfld_ )
 	    protfld_->attach( leftOf, fnmfld_ );
+	else if ( checkbox_ )
+	    checkbox_->attach( leftOf, fnmfld_ );
     }
-    else
+    else if ( !checkbox_ )
     {
 	lbl_ = new uiLabel( this, lbltxt, fnmfld_ );
 	if ( protfld_ )
@@ -195,7 +197,8 @@ BufferString uiFileSel::selectedProtocol() const
 
 uiString uiFileSel::labelText() const
 {
-    return lbl_ ? lbl_->text() : uiString::empty();
+    return lbl_ ? lbl_->text()
+	 : (checkbox_ ? checkbox_->text() : uiString::empty());
 }
 
 
@@ -203,6 +206,8 @@ void uiFileSel::setLabelText( const uiString& txt )
 {
     if ( lbl_ )
 	lbl_->setText( txt );
+    else if ( checkbox_ )
+	checkbox_->setText( txt );
 }
 
 
