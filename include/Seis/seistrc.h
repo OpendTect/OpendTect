@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "datachar.h"
 #include "valseries.h"
 #include "mathfunc.h"
+#include "odmemory.h"
 #include "valseriesinterpol.h"
 
 template <class T> class ValueSeriesInterpolator;
@@ -48,6 +49,12 @@ public:
     TraceData&		data()			{ return data_; }
     const TraceData&	data() const		{ return data_; }
     int			nrComponents() const	{ return data_.nrComponents(); }
+    template <class T>
+    T*			arr( int icomp=0 )	{ return data_.arr<T>(icomp); }
+    template <class T>
+    const T*		arr( int icomp=0 ) const { return data_.arr<T>(icomp); }
+    template <class T>
+    void		setArr(const T* vals,int icomp=0);
 
     inline void		set( int idx, float v, int icomp )
 			{ data_.setValue( idx, v, icomp ); }
@@ -142,6 +149,16 @@ private:
     void		cleanUp();
 
 };
+
+
+template <class T>
+inline void SeisTrc::setArr( const T* vals, int icomp )
+{
+    const auto sz = size();
+    auto* myarr = arr<float>(icomp);
+    if ( vals && myarr && sz>0 )
+	OD::sysMemCopy( myarr, vals, sz*sizeof(T) );
+}
 
 
 /*!> Seismic traces conforming the ValueSeries<float> interface.

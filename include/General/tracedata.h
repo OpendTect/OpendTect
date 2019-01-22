@@ -71,6 +71,12 @@ public:
 					{ return interp_[icomp]; }
     inline const TraceDataInterpreter* getInterpreter( int icomp=0 ) const
 					{ return interp_[icomp]; }
+    template <class T>
+    T*			arr( int icomp=0 )
+			{ return (T*)data_[icomp]->data(); }
+    template <class T>
+    const T*		arr( int icomp=0 ) const
+			{ return (T*)data_[icomp]->data(); }
 
     void		addComponent(int ns,const DataCharacteristics&,
 				     bool cleardata=false);
