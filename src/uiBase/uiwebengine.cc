@@ -71,30 +71,30 @@ QWebEngineView& uiWebEngine::qte()
 
 void uiWebEngine::setUrl( const char* urlstr )
 {
-	body_->setUrl( QUrl(urlstr) );
+    body_->setUrl( QUrl(urlstr) );
 }
 
 
 void uiWebEngine::back()
 {
-	body_->back();
+    body_->back();
 }
 
 
 void uiWebEngine::forward()
 {
-	body_->forward();
+    body_->forward();
 }
 
 
 void uiWebEngine::reload()
 {
-	body_->reload();
+    body_->reload();
 }
 
 
 void uiWebEngine::stop()
 {
-	body_->stop();
+    body_->stop();
 }
 
