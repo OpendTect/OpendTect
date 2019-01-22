@@ -79,17 +79,29 @@ def log_msg(a,b=None,c=None,d=None,e=None,f=None):
   msg = mergeArgs(a,b,c,d,e,f)
   get_log_logger().debug(msg)
 
+def has_file_handlers(logger):
+  for handler in logger.handlers:
+    if isinstance( handler, logging.FileHandler ):
+      return True
+  return False
+
 def has_stdlog_file():
-  return isinstance( get_std_logger().handlers[0], logging.FileHandler )
+  return has_file_handlers( get_std_logger() )
 
 def has_log_file():
-  return isinstance( get_log_logger().handlers[0], logging.FileHandler )
+  return has_file_handlers( get_log_logger() )
+
+def get_handler_filename(logger):
+  for handler in logger.handlers:
+    if isinstance( handler, logging.FileHandler ):
+      return handler.baseFilename
+  return None
 
 def get_stdlog_file():
-  return get_std_logger().handlers[0].baseFilename
+  return get_handler_filename( get_std_logger() )
 
 def get_log_file():
-  return get_log_logger().handlers[0].baseFilename
+  return get_handler_filename( get_log_logger() )
 
 def reset_log_file( keeplines=0 ):
   if not has_log_file():
@@ -111,7 +123,7 @@ def reset_log_file( keeplines=0 ):
   set_log_file( logfnm, proclog_logger )
 
 def redirect_stdout():
-  if (logconfig is None) or (not logging.getLogger() == logconfig.root_logger):
+  if (logconfig is  None) or (not logging.getLogger() == logconfig.root_logger):
     return
   if has_log_file():
     sys.stdout = open( get_log_file(), 'a' )
@@ -122,9 +134,9 @@ def restore_stdout():
   if (logconfig is None) or (not logging.getLogger() == logconfig.root_logger):
     return
   if has_log_file():
-    sys.stdout = open( '<stdout>', 'w' )
+    sys.stdout = sys.__stdout__
   if has_stdlog_file():
-    sys.stderr = open( '<stderr>', 'w' )
+    sys.stderr = sys.__stderr__
 
 if platform.python_version() < "3":
   std_msg( "odpy requires at least Python 3" )
