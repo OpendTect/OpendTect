@@ -5,7 +5,10 @@ from subprocess import check_output,CalledProcessError
 
 dbmanexe = 'od_DBMan'
 
-def runDBCommand( cmd, stderrstrm ):
+def runDBCommand( cmd, args=None ):
+  stderrstrm = sys.stderr
+  if args != None and 'logfile' in args:
+    stderrstrm = args['logfile']
   ret = None
   try:
     ret = check_output( cmd, stderr=stderrstrm )
@@ -14,12 +17,12 @@ def runDBCommand( cmd, stderrstrm ):
     raise FileNotFoundError
   return ret
 
-def getDBList(args,translnm):
-  cmd = getODCommand(args,dbmanexe)
+def getDBList(translnm,args=None):
+  cmd = getODCommand(dbmanexe,args)
   cmd.append( '--json' )
   cmd.append( '--list' )
   cmd.append( translnm )
-  ret = runDBCommand( cmd, args['logfile'] )
+  ret = runDBCommand( cmd, args )
   db = json.loads( ret.decode("utf-8") )
   if db['Status'] != 'OK':
     log_msg( db['Status'] )
@@ -41,15 +44,15 @@ def retFileLoc( bstdout ):
     raise FileNotFoundError
   return fileloc['data']['File_name']
 
-def getFileLocation( args, dbentry ):
-  cmd = getODCommand(args,dbmanexe)
+def getFileLocation( dbentry, args=None ):
+  cmd = getODCommand(dbmanexe,args)
   cmd.append( '--json' )
   cmd.append( '--info' )
   cmd.append( dbentry['ID'] )
-  return retFileLoc( runDBCommand(cmd,args['logfile']) )
+  return retFileLoc( runDBCommand(cmd,args) )
 
-def getNewEntryFileName( args, objnm, dirid, trgrp, trl, ext ):
-  cmd = getODCommand(args,dbmanexe)
+def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, args=None ):
+  cmd = getODCommand(dbmanexe,args)
   cmd.append( '--create' )
   cmd.append( objnm )
   cmd.append( dirid )
@@ -57,5 +60,5 @@ def getNewEntryFileName( args, objnm, dirid, trgrp, trl, ext ):
   cmd.append( trl )
   cmd.append( ext )
   cmd.append( '--json' )
-  return retFileLoc( runDBCommand(cmd,args['logfile']) )
+  return retFileLoc( runDBCommand(cmd,args) )
 

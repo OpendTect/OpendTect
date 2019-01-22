@@ -142,9 +142,73 @@ if platform.python_version() < "3":
   std_msg( "odpy requires at least Python 3" )
   sys.exit( 1 )
 
-def getODCommand(args,execnm):
+def getPlfSubDir():
+  system = platform.system()
+  arch = platform.architecture()[0]
+  if system == 'Linux':
+    if arch == '64bit':
+      return 'lux64'
+    else:
+      return None
+  elif system == 'Windows':
+    if arch == '64bit':
+      return 'win64'
+    else:
+      return 'win32'
+  elif system == 'Darwin':
+    if arch == '64bit':
+      return 'mac'
+    else:
+      return None
+  else:
+    return None
+
+def getBinSubDir():
+  if platform.system() == 'Darwin':
+    return None
+  plfsubdirfp = os.path.join( getODSoftwareDir(), 'bin', getPlfSubDir() )
+  execnm = 'od_main'
+  if platform.system() == 'Windows':
+    execnm = execnm+'.exe'
+  reltypes = ('Debug','Release','RelWithDebInfo')
+  for reltype in reltypes:
+    if os.path.isfile( os.path.join(plfsubdirfp,reltype,execnm) ):
+      return reltype
+  return None
+
+def getODSoftwareDir(args=None):
+  if args != None and 'dtectexec' in args:
+    bindir = getExecPlfDir(args)
+    return bindir
+  applenvvar = 'DTECT_APPL'
+  if platform.system() == 'Windows':
+    applenvvar = 'DTECT_WINAPPL'
+  if applenvvar in os.environ:
+    return os.environ[applenvvar]
+  curdir = os.path.dirname( __file__ )
+  maxrecur = 15
+  relinfodir = 'relinfo'
+  if platform.system() == 'Darwin':
+    relinfodir = os.path.join('Resources',relinfodir)
+  while not os.path.isdir(os.path.join(curdir,relinfodir)) and maxrecur > 0:
+    curdir = os.path.dirname( curdir )
+    maxrecur = maxrecur-1
+  return curdir
+
+def getExecPlfDir(args=None):
+  if args != None and 'dtectexec' in args:
+    return args['dtectexec'][0]
+  appldir = getODSoftwareDir()
+  if platform.system() == 'Darwin':
+    return os.path.join( getODSoftwareDir(), 'Contents', 'MacOS' )
+  else:
+    return os.path.join( getODSoftwareDir(), 'bin', getPlfSubDir(), getBinSubDir())
+
+def getODCommand(execnm,args=None):
   cmd = list()
-  cmd.append( os.path.join(args['dtectexec'][0],execnm) )
+  cmd.append( os.path.join(getExecPlfDir(args),execnm) )
+  if args == None:
+    return cmd
   if 'dtectdata' in args:
     cmd.append( '--dataroot' )
     cmd.append( args['dtectdata'][0] )
