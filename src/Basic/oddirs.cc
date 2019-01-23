@@ -436,6 +436,12 @@ mExternC(Basic) const char* GetPythonCommand()
 #ifdef __win__
     return "python";
 #else
+# ifdef USE_DEBUG_PYTHON
+#  ifdef __lux64__
+    if ( File::exists("/usr/bin/python3-dbg") )
+	return "python3-dbg";
+#  endif
+# endif
     return "python3";
 #endif
 }
