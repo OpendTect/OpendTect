@@ -199,7 +199,7 @@ void uiSetDataDir::rootMoveUpCB( CallBacker* )
 {
     uiListBox* lb = drlistfld.getParam( this );
     const int curitm = lb->currentItem();
-    if ( curitm==0 )
+    if ( curitm <= 0 )
 	return;
 
     BufferStringSet* dirs = drlist.getParam( this );
@@ -226,6 +226,9 @@ void uiSetDataDir::rootRemoveCB( CallBacker* )
     uiListBox* lb = drlistfld.getParam( this );
     const int curitm = lb->currentItem();
     BufferStringSet* dirs = drlist.getParam( this );
+    if ( dirs->isEmpty() )
+	return;
+
     delete dirs->removeSingle( curitm );
     updateListFld();
 }
