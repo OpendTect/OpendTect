@@ -178,11 +178,10 @@ void uiBulkFaultImport::init()
 
     if ( isfltset_.getParam( this ) )
     {
-	CtxtIOObj ctio( mIOObjContext( EMFaultSet3D ) );
-	ctio.ctxt_.forread_ = false;
-	uiIOObjSel::Setup su(tr("FaultSet Name"));
-	su.withwriteopts_ = false;
-	uiIOObjSel* fssetnmfld = new uiIOObjSel( this, ctio, su );
+	IOObjContext ctxt = mIOObjContext(EMFaultSet3D);
+	ctxt.forread_ = false;
+	uiIOObjSel* fssetnmfld = new uiIOObjSel( this, ctxt,
+				uiStrings::phrOutput(uiStrings::sFaultSet()) );
 	fssetnmfld->attach( alignedBelow, dataselfld_ );
 
 	fltsetnmfld_.setParam( this, fssetnmfld );
