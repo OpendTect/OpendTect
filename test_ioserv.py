@@ -18,14 +18,19 @@ import sys
 import struct
 import numpy
 import time
+import platform
 
 inpstrm = sys.stdin.buffer
 outstrm = sys.stdout.buffer
 
-dbg_strm = open( "/tmp/dbg.txt", "w" )
-def dbg_pr( what, val ):
-  dbg_strm.write( what + ": " + val + "\n" )
-  dbg_strm.flush()
+if platform.system() == 'Windows':
+  def dbg_pr( what, val ):
+    pass
+else:
+  dbg_strm = open( "/tmp/dbg.txt", "w" )
+  def dbg_pr( what, val ):
+    dbg_strm.write( what + ": " + val + "\n" )
+    dbg_strm.flush()
 
 dbg_pr( "Started", "script" )
 
