@@ -33,6 +33,7 @@ set( OD_TEST_PROGS
 	od_iostream.cc
 	odjson.cc
 	oscommand.cc
+	pythoncomm.cc
 	svnversion.cc
 	Basic_Composite.cc
 )
