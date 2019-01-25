@@ -10,27 +10,30 @@
 #include "compoundkey.h"
 #include "surveydisklocation.h"
 
-static BufferString noNameOfFn( const DBKey& )	{ return BufferString(); }
-static bool noImplExistFn( const DBKey& )	{ return false; }
-static IOObj* noGetIOObjFn( const DBKey& )	{ return 0; }
-static void noDelIOObjFn( IOObj* )		{}
+static BufferString noStrFromDBKeyFn( const DBKey& ) { return BufferString(); }
+static bool falseForDBKeyFn( const DBKey& )	{ return false; }
+static IOObj* nullForDBKeyFn( const DBKey& )	{ return 0; }
+static void doNothingForIOObjFn( IOObj* )	{}
 
-typedef BufferString (*nameOfFn)(const DBKey&);
-typedef bool (*implExistFn)(const DBKey&);
-typedef IOObj* (*getIOObjFn)(const DBKey&);
-typedef void (*delIOObjFn)(IOObj*);
+typedef BufferString (*strFromDBKeyFn)(const DBKey&);
+typedef bool (*boolFromDBKeyFn)(const DBKey&);
+typedef IOObj* (*ioObjPtrFromDBKeyFn)(const DBKey&);
+typedef void (*handleIOObjPtrFn)(IOObj*);
 
-static nameOfFn nameoffn_ = noNameOfFn;
-static implExistFn implexistfn_ = noImplExistFn;
-static getIOObjFn getioobjfn_ = noGetIOObjFn;
-static delIOObjFn delioobjfn_ = noDelIOObjFn;
+static strFromDBKeyFn nameoffn_ = noStrFromDBKeyFn;
+static strFromDBKeyFn fnmoffn_ = noStrFromDBKeyFn;
+static boolFromDBKeyFn implexistfn_ = falseForDBKeyFn;
+static ioObjPtrFromDBKeyFn getioobjfn_ = nullForDBKeyFn;
+static handleIOObjPtrFn delioobjfn_ = doNothingForIOObjFn;
 
-mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,implExistFn,getIOObjFn,
-				       delIOObjFn);
-void setDBMan_DBKey_Fns( nameOfFn nfn, implExistFn efn, getIOObjFn ifn,
-			 delIOObjFn dfn )
+mGlobal(Basic) void setDBMan_DBKey_Fns(strFromDBKeyFn,strFromDBKeyFn,
+			boolFromDBKeyFn,ioObjPtrFromDBKeyFn,handleIOObjPtrFn);
+void setDBMan_DBKey_Fns( strFromDBKeyFn nfn, strFromDBKeyFn ffn,
+			boolFromDBKeyFn efn, ioObjPtrFromDBKeyFn ifn,
+			handleIOObjPtrFn dfn )
 {
     nameoffn_ = nfn;
+    fnmoffn_ = ffn;
     implexistfn_ = efn;
     getioobjfn_ = ifn;
     delioobjfn_ = dfn;
@@ -39,6 +42,11 @@ void setDBMan_DBKey_Fns( nameOfFn nfn, implExistFn efn, getIOObjFn ifn,
 BufferString nameOf( const DBKey& dbky )
 {
     return (*nameoffn_)( dbky );
+}
+
+BufferString mainFileOf( const DBKey& dbky )
+{
+    return (*fnmoffn_)( dbky );
 }
 
 bool implExists( const DBKey& dbky )

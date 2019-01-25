@@ -26,16 +26,17 @@ ________________________________________________________________________
 #include "geojsonwriter.h"
 
 
-typedef BufferString (*nameOfFn)(const DBKey&);
-typedef IOObj* (*getIOObjFn)(const DBKey&);
-typedef bool (*implExistFn)(const DBKey&);
-typedef void (*delIOObjFn)(IOObj*);
-mGlobal(Basic) void setDBMan_DBKey_Fns(nameOfFn,implExistFn,getIOObjFn,
-					delIOObjFn);
+typedef BufferString (*strFromDBKeyFn)(const DBKey&);
+typedef bool (*boolFromDBKeyFn)(const DBKey&);
+typedef IOObj* (*ioObjPtrFromDBKeyFn)(const DBKey&);
+typedef void (*handleIOObjPtrFn)(IOObj*);
+mGlobal(Basic) void setDBMan_DBKey_Fns(strFromDBKeyFn,strFromDBKeyFn,
+			boolFromDBKeyFn,ioObjPtrFromDBKeyFn,handleIOObjPtrFn);
 mGlobal(General) BufferString DBMan_nameOf(const DBKey&);
+mGlobal(General) BufferString DBMan_mainFileOf(const DBKey&);
 mGlobal(General) bool DBMan_implExist(const DBKey&);
 mGlobal(General) IOObj* DBMan_getIOObj(const DBKey&);
-static void Just_Del_IOObj( IOObj* ioobj ) { delete ioobj; }
+static void deleteIOObj( IOObj* ioobj ) { delete ioobj; }
 namespace Survey { void GeometryIO_init2DGeometry(); }
 
 
@@ -54,8 +55,8 @@ mDefModInitFn(General)
 
 GeneralModuleIniter::GeneralModuleIniter()
 {
-    setDBMan_DBKey_Fns( DBMan_nameOf, DBMan_implExist, DBMan_getIOObj,
-			Just_Del_IOObj );
+    setDBMan_DBKey_Fns( DBMan_nameOf, DBMan_mainFileOf, DBMan_implExist,
+			DBMan_getIOObj, deleteIOObj );
 
     ElasticPropSelectionTranslatorGroup::initClass();
     MathFormulaTranslatorGroup::initClass();
