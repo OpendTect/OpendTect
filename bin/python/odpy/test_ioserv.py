@@ -35,14 +35,17 @@ else:
 dbg_pr( "Started", "script" )
 
 def put_to_output( what ):
-  nrbyteswritten = outstrm.write( what )
-  return nrbyteswritten
+  return outstrm.write( what )
 
 def get_from_input( nr ):
   return inpstrm.read( nr )
 
-def get_int_bytes( ival ):
+def mk_int_bytes( ival ):
   return ival.to_bytes( 4, byteorder=sys.byteorder, signed=True )
+
+def get_int_from_bytes( data_read ):
+  return int.from_bytes( data_read, byteorder=sys.byteorder, signed=True )
+
 
 outvals = numpy.zeros( 2, dtype=numpy.float32 )
 dbg_pr( "Started", "loop" )
@@ -56,7 +59,7 @@ while True:
     dbg_pr( "Failed", "getting 4 bytes nrvals" )
     break
 
-  nrvals = int.from_bytes( data_read, byteorder=sys.byteorder, signed=True );
+  nrvals = get_int_from_bytes( data_read )
   dbg_pr( "Result nrvals", str(nrvals) )
   if nrvals == 0:
     time.sleep( 0.01 )
@@ -79,7 +82,7 @@ while True:
   outvals[1] = numpy.std(vals)
   dbg_pr( "Calculated values", str(outvals) )
 
-  nrbyteswritten = put_to_output( get_int_bytes(len(outvals)) )
+  nrbyteswritten = put_to_output( mk_int_bytes(len(outvals)) )
   dbg_pr( "Put", "number of bytes, nrbyteswritten=" + str(nrbyteswritten) )
   nrbyteswritten = put_to_output( outvals.tobytes() )
   dbg_pr( "Put", "outvals, nrbyteswritten=" + str(nrbyteswritten) )
