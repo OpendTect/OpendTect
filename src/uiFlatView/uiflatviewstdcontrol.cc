@@ -544,8 +544,8 @@ void uiFlatViewStdControl::gotoHomeZoomCB( CallBacker* )
 
 void uiFlatViewStdControl::setViewToCustomZoomLevel( uiFlatViewer& vwr )
 {
-    //if ( !vwr.rgbCanvas().mainwin() )
-	//return;
+    if ( !vwr.rgbCanvas().mainwin() )
+	return;
 
     const bool ispoppedup = vwr.rgbCanvas().mainwin()->poppedUp();
     const float x1pospercm = (ispoppedup || mIsUdf(setup_.initialx1pospercm_))
