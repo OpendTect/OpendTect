@@ -94,7 +94,7 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
     scwdth = wdth * stepfac;
 
     double scstep;
-    if ( scwdth < 15 )          scstep = 2.5;
+    if ( scwdth < 15 )          scstep = annotinint_ ? 2. : 2.5;
     else if ( scwdth < 30 )     scstep = 5;
     else if ( scwdth < 50 )     scstep = 10;
     else                        scstep = 20;
@@ -151,7 +151,7 @@ T AxisLayout<T>::findEnd( T datastop ) const
     const double dnrsteps = double(datastop-worksd.start)/worksd.step - 1e-6;
     int nrsteps =
 	mNINT32( (annotinsiderg_ ? Math::Floor(dnrsteps)
-		    		 : Math::Ceil(dnrsteps)) );
+				 : Math::Ceil(dnrsteps)) );
     if ( nrsteps < 1 ) nrsteps = 1;
     T wdth = nrsteps * worksd.step;
     return sd_.start + (rev ? -wdth : wdth);
