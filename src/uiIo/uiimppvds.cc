@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "posvecdatasettr.h"
 #include "ioobj.h"
 #include "file.h"
+#include "filepath.h"
 #include "od_istream.h"
 #include "datapointset.h"
 #include "posvecdataset.h"
@@ -42,11 +43,12 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     , fd_(*new Table::FormatDesc("Cross-plot data"))
     , is2d_(is2d)
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     uiFileSel::Setup su( OD::TextContent );
     su.withexamine( true ).examstyle( File::Table );
     inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::sFile()), su);
+    mAttachCB( inpfld_->newSelection, uiImpPVDS::inpChgd );
 
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, false );
     fd_.bodyinfos_ += Table::TargetInfo::mkZPosition( false );
@@ -54,11 +56,11 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
 	fd_.bodyinfos_ += new Table::TargetInfo( uiStrings::sTraceNumber(),
 						    IntInpSpec() );
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-                  mODHelpKey(mTableImpDataSelpvdsHelpID)  );
+		  mODHelpKey(mTableImpDataSelpvdsHelpID)  );
     dataselfld_->attach( alignedBelow, inpfld_ );
 
     row1isdatafld_ = new uiGenInput( this, tr("First row contains"),
-				BoolInpSpec(false,tr("Data","Column names")) );
+			BoolInpSpec(false,tr("Data"),tr("Column names")) );
     row1isdatafld_->attach( alignedBelow, dataselfld_ );
 
     IOObjContext ctxt( mIOObjContext(PosVecDataSet) );
@@ -71,7 +73,15 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
 
 uiImpPVDS::~uiImpPVDS()
 {
+    detachAllNotifiers();
     delete &fd_;
+}
+
+
+void uiImpPVDS::inpChgd( CallBacker* )
+{
+    const File::Path fp( inpfld_->fileName() );
+    outfld_->setInputText( fp.baseName() );
 }
 
 
@@ -84,9 +94,11 @@ bool uiImpPVDS::acceptOK()
 	mErrRet(uiStrings::phrSelect(tr("an existing input file")))
     if ( !dataselfld_->commit() )
 	return false;
+
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj )
 	return false;
+
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet(uiStrings::phrCannotOpenInpFile())
@@ -95,8 +107,13 @@ bool uiImpPVDS::acceptOK()
     RefMan<DataPointSet> dps = new DataPointSet( is2d_ );
     if ( !getData( strm, fd_, *dps ) )
 	return false;
+
     usw.setMessage( uiStrings::sSavingData() );
-    return writeData( *dps, *ioobj );
+    if ( !writeData(*dps,*ioobj) )
+	return false;
+
+    uiMSG().message( tr("Cross-plot Data successfully imported.") );
+    return false;
 }
 
 
@@ -156,10 +173,12 @@ bool getLine()
 	double fcrl = inlgen_.start + Stats::randGen().get() * inlgen_.step;
 	coord_ = SI().binID2Coord().transform( Coord(finl,fcrl) );
     }
+
     if ( fd_.bodyinfos_[1]->selection_.isInFile() )
 	z_ = getFValue( 2 );
     else
 	z_ = (float) ( zgen_.start + Stats::randGen().get() * zgen_.step );
+
     if ( is2d_ && fd_.bodyinfos_[2]->selection_.isInFile() )
 	trcnr_ = getIntValue( 3 );
     else

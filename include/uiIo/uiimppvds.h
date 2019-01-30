@@ -39,9 +39,9 @@ protected:
     uiGenInput*		row1isdatafld_;
     uiIOObjSel*		outfld_;
 
+    void		inpChgd(CallBacker*);
     bool		acceptOK();
 
     bool		getData(od_istream&,Table::FormatDesc&,DataPointSet&);
     bool		writeData(const DataPointSet&,const IOObj&);
-
 };
