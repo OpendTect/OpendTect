@@ -93,7 +93,7 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
     scwdth = wdth * stepfac;
 
     double scstep;
-    if ( scwdth < 15 )          scstep = 2.5;
+    if ( scwdth < 15 )          scstep = annotinint_ ? 2. : 2.5;
     else if ( scwdth < 30 )     scstep = 5;
     else if ( scwdth < 50 )     scstep = 10;
     else                        scstep = 20;
