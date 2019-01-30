@@ -214,7 +214,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 
     variogramvals_->set( 0, 0, 0 );
     axes_->set( 0, 0, 0);
-    variogramnms_->add("AllWells");
+    variogramnms_->add("All Wells");
 
     BufferStringSet grpnames;
     dpset.dataSet().pars().get( "Groups", grpnames );
