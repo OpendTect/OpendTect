@@ -16,8 +16,8 @@ Seismic Coloured Inversion`arkclssciplugin
 Seismic Spectral Blueing`arkclsssbplugin
 Seismic Feature Enhancement`arkclssfe
 Seismic Net Pay`arkclssnp
-Seismic Broadband`seisbb
-Spotlight`arkclsmvse
+Frequency Shaping`seisbb
+PostDeGhost`arkclsdeghostplugin
 Petrel Connector`arkclsodc
 GeoDataSync Accelerate`arkclsgdsa
 MPSI UltraFast Stochastic Inversion`arkclsmpsi
