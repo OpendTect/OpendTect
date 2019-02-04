@@ -335,11 +335,13 @@ void Well::setWellName( const TrackParams& tp )
     updateTextNew( welltoptxt_->text(0),
 		   tp.isdispabove_ ? tp.name_ : uiString::emptyString(),
 		   &crdtop, tp.font_, tp.nmsizedynamic_ );
+    welltoptxt_->text(0)->setColor( tp.col_ );
 
     wellbottxt_->text(0)->setJustification( Text::Top );
     updateTextNew( wellbottxt_->text(0),
 		   tp.isdispbelow_ ? tp.name_ : uiString::emptyString(),
 		   &crdbot, tp.font_, tp.nmsizedynamic_ );
+    wellbottxt_->text(0)->setColor( tp.col_ );
 }
 
 
