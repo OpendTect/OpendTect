@@ -109,8 +109,6 @@ public:
     RefMan<Data>	getForEdit(idx_type);
 
     IOObj*		getIOObjByUWI(const char*) const;
-    uiRetVal		savePart(const ObjID&,SubObjType,
-				 bool setwellsaved=false) const;
     uiRetVal		saveLog(const ObjID&,const char*,
 				bool setwellsaved=false) const;
 

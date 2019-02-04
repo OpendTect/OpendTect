@@ -139,7 +139,7 @@ namespace sKey
     inline FixedString Survey()		{ return "Survey"; }
     inline FixedString SurveyID()	{ return "Survey ID"; }
     inline FixedString Table()		{ return "Table"; }
-    inline FixedString Target()		{ return "Target"; }
+    inline FixedString Target(int n=1)	{ return n<2 ? "Target" : "Targets"; }
     inline FixedString Time()		{ return "Time"; }
     inline FixedString Title()		{ return "Title"; }
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
