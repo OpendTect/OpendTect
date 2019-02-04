@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "oscommand.h"
 #include "uistrings.h"
+#include "od_ostream.h"
 
 #ifdef __win__
 # include <direct.h>
@@ -454,10 +455,20 @@ bool isWritable( const char* fnm )
 {
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
-    return qfi.isWritable();
+    const bool iswritable = qfi.isWritable();
+    if ( !iswritable || !qfi.isDir() || !__iswin__ )
+	return iswritable;
+    else
+    {
+	FilePath fp( fnm ); fp.add( "testfile" );
+	od_ostream strm( fp.fullPath() );
+
+	return strm.isOK();
+    }
+
 #else
     struct stat st_buf;
-    int status = stat(fnm, &st_buf);
+    int status = stat( fnm, &st_buf );
     if (status != 0)
 	return false;
 

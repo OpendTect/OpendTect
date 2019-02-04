@@ -46,8 +46,11 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 {
     const FilePath bhfp = hostdatalist_.getBatchHostsFilename();
     const BufferString bhfnm = bhfp.fullPath();
-    const BufferString& datadir = bhfp.pathOnly();
-    bool writeallowed = File::exists( datadir ) && File::isWritable( datadir );
+    BufferString datadir = bhfp.pathOnly();
+
+    const bool isdirwritable = File::isWritable( datadir );
+
+    bool writeallowed = File::exists( datadir ) && isdirwritable;
     const bool isfilewritable = File::isWritable( bhfnm );
     if ( writeallowed && File::exists(bhfnm) )
 	writeallowed = isfilewritable;
@@ -109,20 +112,35 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     buttons->setChildrenSensitive( writeallowed );
     testbut->setSensitive( true );
 
-    if ( !isfilewritable )
+    if ( !isfilewritable || !isdirwritable )
     {
 	addbut->setSensitive( false );
-	const uiString errmsg = tr("Selected Batch Host File is not editable.\n"
-	    "It is advised to launch this process with administrator rights");
+	uiString errmsg = tr("Selected Batch Host %1 is not writable.")
+	    .arg(isdirwritable ? uiStrings::sFile() : uiStrings::sDirectory());
 
 #ifdef __win__
-	uiStringSet detailedmsg;
-	detailedmsg.add( errmsg );
-	FilePath fp( GetLibPlfDir() );
-	fp.add( "od_BatchHosts.exe" );
-	BufferString fpbuf = fp.fullPath();
-	detailedmsg.add( tr("You can launch the process %1")
-					    .arg(toUiString(fp.fullPath())) );
+	uiString details;
+	if ( !isdirwritable )
+	{
+	    errmsg.append( tr("\nIt is advised to launch this process with "
+						    "administrator rights") );
+
+	    FilePath fp( GetLibPlfDir() );
+	    fp.add( "od_BatchHosts.exe" );
+	    BufferString fpbuf = fp.fullPath();
+	    details = tr("You can launch the process %1")
+					    .arg(toUiString(fp.fullPath()));
+	}
+	else if ( !isfilewritable )
+	{
+	    details = tr("Please change the read-write permissions of %1 "
+		"or move batchhost entry file to new editable location")
+								.arg(bhfnm);
+	}
+
+	uiStringSet detailedmsg ( errmsg );
+	detailedmsg.add( details );
+
 	uiMSG().errorWithDetails( detailedmsg );
 #else
 	uiMSG().error( errmsg );
@@ -509,9 +527,9 @@ bool uiBatchHostsDlg::acceptOK( CallBacker* )
 	hostdatalist_.writeHostFile( hostdatalist_.getBatchHostsFilename() );
     if ( !res )
     {
-		uiMSG().error(tr("Could not write BatchHosts file. "
-					"Please check file permissions."));
-		return false;
+	    uiMSG().error(tr("Could not write BatchHosts file. "
+				    "Please check file permissions."));
+	    return false;
     }
 
     return true;
