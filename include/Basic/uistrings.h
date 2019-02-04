@@ -853,7 +853,8 @@ public:
     static uiWord sWellName()		{ return tr("Well Name"); }
     static uiWord sWellTrack(int n=1)	{ return tr("Well Track",0,n); }
     static uiWord sWellMarker(int n=1)	{ return tr("Well Marker",0,n); }
-    static uiWord sWells()		{ return sWell( 10 ); }
+    static uiWord sWells()		{ return sWell( mPlural ); }
+    static uiWord sWellsHandled()	{ return tr("Wells handled"); }
     static uiWord sWest( bool abbr )
     { return abbr ? tr("W","abbr West") : tr("West"); }
     static uiWord sWidth()		{ return tr("Width"); }

@@ -269,10 +269,11 @@ public:
     void		usePar(const IOPar&);
 
     int			nextStep();
-    uiString		message() const	{ return msg_; }
-    uiString		nrDoneText() const	{ return tr("Wells handled"); }
+    uiString		message() const		{ return msg_; }
     od_int64		nrDone() const		{ return curid_; }
     od_int64		totalNr() const		{ return ids_.size(); }
+    uiString		nrDoneText() const
+			{ return uiStrings::sWellsHandled(); }
 
     uiRetVal		errMsgs() const		{ return errmsgs_; }
 

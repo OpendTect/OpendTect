@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 #include "seisbuf.h"
 #include "seistrc.h"
+#include "uistrings.h"
 #include "welldata.h"
 #include "wellextractdata.h"
 
@@ -42,7 +43,7 @@ public:
     bool		isOK() const { return errmsg_.isEmpty(); }
     void		resetMsg() { errmsg_.setEmpty(); }
 
-    uiString		nrDoneText() const { return tr("Wells handled"); }
+    uiString		nrDoneText() const { return uiStrings::sWellsHandled();}
     od_int64		totalNr() const { return nrIterations(); }
     bool		stopAllOnFailure() const { return false; }
 
