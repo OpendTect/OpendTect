@@ -341,7 +341,7 @@ void uiBulkFaultImport::inpChangedCB( CallBacker* )
 {
     if ( !fltsetnmfld_.getParam( this ) )
 	return;
-    fltsetnmfld_.getParam( this )->setInput( MultiID(inpfld_->fileName()) );
+    fltsetnmfld_.getParam( this )->setInput( MultiID(inpfld_->baseName()) );
 }
 
 
@@ -382,7 +382,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	EM::ObjectID oid = EM::EMM().createObject( EM::FaultSet3D::typeStr(),
 								ioobj->name() );
 	mDynamicCast( EM::FaultSet3D*, fltset, EM::EMM().getObject( oid ) );
-	if (isfltset && !fltset)
+	if ( isfltset && !fltset )
 	    return false;
     }
 
