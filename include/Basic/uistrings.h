@@ -17,7 +17,7 @@ class DBKey;
 
 
 #define mDIAGNOSTIC(s) uiStrings::phrDiagnostic(s)
-#define mINTERNAL(s) uiStrings::phrInternal(s)
+#define mINTERNAL(s) uiStrings::phrInternalErr(s)
 
 
 /*!\brief Phrases and words that can (and should!) be re-used when possible.
@@ -902,9 +902,7 @@ public:
 //! Puts untranslated internal in pErrMsg and in uiRetVal and returns that
 #define mPutInternalInUiRv( uirv, msg, act ) \
 { \
-    pErrMsg( msg ); \
-    uirv.add( uiStrings::phrInternalErr(msg) ); \
-    act; \
+    pErrMsg( msg ); uirv.add( mINTERNAL(msg) ); act; \
 }
 
 //! As mPutInternalInUiRv but also returns the uiRetVal
