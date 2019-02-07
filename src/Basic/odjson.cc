@@ -484,8 +484,7 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::gtByParse( char* buf, int bufsz,
 {
     uirv.setEmpty();
     if ( !buf || bufsz < 1 )
-	{ uirv.set( uiStrings::phrInternalErr("No data to parse (JSON)") );
-	    return intovset; }
+	{ uirv.set( mINTERNAL("No data to parse (JSON)") ); return intovset; }
 
     Gason::JsonAllocator allocator;
     Gason::JsonValue rootgasonval; char* endptr;

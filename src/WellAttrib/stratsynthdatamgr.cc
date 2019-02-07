@@ -732,7 +732,7 @@ idx_type StratSynth::DataMgr::gtGenIdx( SynthID id, const TRProv& trprov ) const
     {
 	static const char* msg = "Generate for non-existing synthetics ID";
 	pErrMsg( msg );
-	trprov.emitErrorMessage( uiStrings::phrInternalErr(msg) );
+	trprov.emitErrorMessage( mINTERNAL(msg) );
     }
     return idx;
 }
@@ -1270,7 +1270,7 @@ static bool sameRayPars( const IOPar& iop1, const IOPar& iop2 )
 
 
 #define mErrRet( s ) { trprov.emitErrorMessage( s ); return 0; }
-#define mErrRetInternal( s ) mErrRet( uiStrings::phrInternalErr(s) )
+#define mErrRetInternal( s ) mErrRet( mINTERNAL(s) )
 
 
 StratSynth::DataMgr::DataSet*

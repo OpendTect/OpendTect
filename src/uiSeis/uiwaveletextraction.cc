@@ -415,7 +415,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     mDynamicCastGet(EM::Horizon3D*,horizon1,emobjsinglehor)
     if ( !horizon1 )
     {
-	uiMSG().error( uiStrings::phrInternalErr("obj1 not Hor3D") );
+	uiMSG().error( mINTERNAL("obj1 not Hor3D") );
 	return false;
     }
 
@@ -433,7 +433,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	mDynamicCastGet( EM::Horizon3D*, horizon2,emobjdoublehor )
 	if ( !horizon2 )
 	{
-	    uiMSG().error( uiStrings::phrInternalErr("obj2 not Hor3D") );
+	    uiMSG().error( mINTERNAL("obj2 not Hor3D") );
 	    return false;
 	}
 

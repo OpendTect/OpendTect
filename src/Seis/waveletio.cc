@@ -319,7 +319,6 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
 
 bool WaveletAscIO::put( od_ostream& ) const
 {
-    errmsg_ = uiStrings::phrInternalErr(
-			"TODO: WaveletAscIO::put not implemented" );
+    errmsg_ = mINTERNAL( "TODO: WaveletAscIO::put not implemented" );
     return false;
 }

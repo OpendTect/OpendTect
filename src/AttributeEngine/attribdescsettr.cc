@@ -128,7 +128,7 @@ uiRetVal AttribDescSetTranslator::store( const Attrib::DescSet& ads,
 
 uiRetVal dgbAttribDescSetTranslator::badConnRV()
 {
-    return uiRetVal( uiStrings::phrInternalErr("bad connection") );
+    return uiRetVal( mINTERNAL("bad connection") );
 }
 
 

@@ -178,8 +178,7 @@ void Well::HDF5Writer::ensureCorrectDSSize( const DataSetKey& dsky,
     PtrMan<HDF5::Reader> rdr = createCoupledHDFReader(); \
     if ( !rdr ) \
     { \
-	errmsg_.set( uiStrings::phrInternalErr( \
-		     "Write logs: cannot create coupled reader") ); \
+	errmsg_.set( mINTERNAL("Write logs: cannot create coupled reader") ); \
 	return false; \
     }
 

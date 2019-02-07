@@ -136,7 +136,7 @@ uiString dgbMPESetupTranslator::read( MPESetup& setup, Conn& conn )
 {
     warningmsg = uiString::empty();
     if ( !conn.forRead() || !conn.isStream() )
-	return uiStrings::phrInternalErr("bad connection");
+	return mINTERNAL("bad connection");
 
     ascistream astream( ((StreamConn&)conn).iStream() );
 
@@ -155,7 +155,7 @@ uiString dgbMPESetupTranslator::write( const MPESetup& setup, Conn& conn )
 {
     warningmsg = uiString::empty();
     if ( !conn.forWrite() || !conn.isStream() )
-	return uiStrings::phrInternalErr("bad connection");
+	return mINTERNAL("bad connection");
 
     IOPar iop; setup.fillPar( iop );
     if ( !iop.write(((StreamConn&)conn).oStream(),mTranslGroupName(MPESetup)) )

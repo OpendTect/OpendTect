@@ -219,7 +219,7 @@ void uiAutoSave2RealObjDlg::doRestore( IOObj& ioobj, const char* newnm )
     {
 	BufferString msg( "Object ", ioobj.name() );
 	msg.add( "is not IOStream; conntype=" ).add( ioobj.connType() );
-	gUiMsg().error( uiStrings::phrInternalErr(msg) );
+	gUiMsg().error( mINTERNAL(msg) );
 	return;
     }
 

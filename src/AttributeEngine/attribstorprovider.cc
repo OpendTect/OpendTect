@@ -366,7 +366,7 @@ bool StorageProvider::initMSCProvider()
     if ( !mscprov_ || !mscprov_->errMsg().isEmpty() )
     {
 	if ( !mscprov_ )
-	    errmsg_ = uiStrings::phrInternalErr( "mscprov_ null" );
+	    errmsg_ = mINTERNAL( "mscprov_ null" );
 	else
 	    errmsg_ = mscprov_->errMsg();
 	return false;
@@ -624,8 +624,7 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 {
     if ( !desiredvolume_ )
     {
-	errmsg_ = uiStrings::phrInternalErr("'%1' has no desired volume")
-					    .arg( desc_.userRef() );
+	errmsg_ = mINTERNAL("'%1' has no desired volume").arg(desc_.userRef());
 	return false;
     }
 

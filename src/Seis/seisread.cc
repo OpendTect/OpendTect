@@ -137,10 +137,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 	else
 	{
 	    if ( !seldata_ )
-	    {
-		errmsg_ = uiStrings::phrInternalErr("No line geometry ID set");
-		return false;
-	    }
+		{ errmsg_ = mINTERNAL("No line geometry ID set"); return false;}
 	    psrdr2d_ = psioprov_->get2DReader( *ioobj_, seldata_->geomID() );
 	}
     }

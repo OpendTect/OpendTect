@@ -436,10 +436,7 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
     {
 	const int nravail = factory().size();
 	if ( nravail < 1 )
-	{
-	    errm = uiStrings::phrInternalErr( "No Ray Tracers in factory" );
-	    return 0;
-	}
+	    { errm = mINTERNAL( "No Ray Tracers in factory" ); return 0; }
 
 	    // last one is probably the 'best' one
 	type = factory().getKeys().get( nravail-1 );
@@ -450,10 +447,7 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
     {
 	raytracer = factory().createAny();
 	if ( !raytracer )
-	{
-	    errm = uiStrings::phrInternalErr("factory produces no Ray Tracer");
-	    return 0;
-	}
+	    { errm = mINTERNAL("factory produces no Ray Tracer"); return 0; }
     }
 
     if ( !raytracer->usePar(par) )

@@ -382,7 +382,7 @@ Executor* SurfaceAuxData::auxDataSaver( AuxID auxid, bool overwrite )
     {
 	const char* msg = "Attempt to use removed attribute";
 	pErrMsg( msg );
-	horizon_.setErrMsg( uiStrings::phrInternalErr(msg) );
+	horizon_.setErrMsg( mINTERNAL(msg) );
 	return 0;
     }
 

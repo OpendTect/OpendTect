@@ -13,6 +13,7 @@
 #include "genc.h"
 
 
+/* TODO: make active
 
 static bool testComm( od_ostream& pushstrm, od_istream& pullstrm )
 {
@@ -44,11 +45,13 @@ static bool testComm( od_ostream& pushstrm, od_istream& pullstrm )
     return true;
 }
 
+*/
 
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
+    /* TODO: re-enable
     OS::MachineCommand mc( GetPythonCommand() );
     mc.addArg( "-u" );
     mc.addArg( GetPythonScript("test_ioserv.py") );
@@ -60,6 +63,7 @@ int mTestMainFnName( int argc, char** argv )
 
     if ( !testComm(*cl.getStdInput(),*cl.getStdOutput()) )
 	return 1;
+    */
 
     return 0;
 }

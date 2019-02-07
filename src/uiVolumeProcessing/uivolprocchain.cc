@@ -481,10 +481,7 @@ bool uiChain::showPropDialog( int idx )
     PtrMan<uiStepDialog> dlg = uiStepDialog::factory().create(
 				step->factoryKeyword(), this, step, is2d_ );
     if ( !dlg )
-    {
-	uiMSG().error( uiStrings::phrInternalErr("Step cannot be created") );
-	return false;
-    }
+	{ uiMSG().error( mINTERNAL("Step cannot be created") ); return false; }
 
     bool ret = dlg->go();
     if ( ret )

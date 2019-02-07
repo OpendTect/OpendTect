@@ -65,7 +65,7 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
     , nrattribs_(-1)
 {
     if ( bvss_.isEmpty() || attribnames.isEmpty() )
-	{ msg_ = uiStrings::phrInternalErr("empty input"); return; }
+	{ msg_ = mINTERNAL("empty aux data input"); return; }
     nrattribs_ = attribnames.size();
     for ( int idx=0; idx<bvss_.size(); idx++ )
 	totalnr_ += bvss_[idx]->nrInls();

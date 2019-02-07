@@ -189,7 +189,7 @@ bool ODSessionTranslator::retrieve( ODSession& session,
     PtrMan<ODSessionTranslator> trans =
 		dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !trans )
-	{ err = uiStrings::phrInternalErr("Not session transl"); return false; }
+	{ err = mINTERNAL("Not session transl"); return false; }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
@@ -212,7 +212,7 @@ bool ODSessionTranslator::store( const ODSession& session,
     PtrMan<ODSessionTranslator> trans
 	 = dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !trans )
-	{ err = uiStrings::phrInternalErr("Not session transl"); return false; }
+	{ err = mINTERNAL("Not session transl"); return false; }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
@@ -230,7 +230,7 @@ uiString dgbODSessionTranslator::read( ODSession& session, Conn& conn )
 {
     warningmsg_.setEmpty();
     if ( !conn.forRead() || !conn.isStream() )
-	return uiStrings::phrInternalErr("Bad connection [session read]");
+	return mINTERNAL("Bad connection [session read]");
 
     ascistream astream( ((StreamConn&)conn).iStream() );
     IOPar iopar( astream );
@@ -253,7 +253,7 @@ uiString dgbODSessionTranslator::write( const ODSession& session, Conn& conn)
 {
     warningmsg_.setEmpty();
     if ( !conn.forWrite() || !conn.isStream() )
-	return uiStrings::phrInternalErr("Bad connection [session write]");
+	return mINTERNAL("Bad connection [session write]");
 
     IOPar iop( ODSessionTranslatorGroup::sGroupName() );
     session.fillPar( iop );

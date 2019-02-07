@@ -132,7 +132,7 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
 uiString dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return uiStrings::phrInternalErr("bad connection");
+	return mINTERNAL("bad connection");
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
@@ -154,7 +154,7 @@ uiString dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
 						Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return uiStrings::phrInternalErr("bad connection");
+	return mINTERNAL("bad connection");
 
     const uiString filtypstr = tr("GMT flow file");
     ascostream astrm( ((StreamConn&)conn).oStream() );

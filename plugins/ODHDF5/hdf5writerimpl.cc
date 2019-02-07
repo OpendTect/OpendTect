@@ -239,8 +239,7 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, uiRetVal& uirv,
 	{
 	    if ( !dsempty )
 	    {
-		uirv.add( uiStrings::phrInternalErr(
-			    "Use createDataSet first, then putInfo") );
+		uirv.add( mINTERNAL("Use createDataSet first, then putInfo") );
 		return;
 	    }
 	    hsize_t dims[1]; dims[0] = 1;

@@ -443,10 +443,7 @@ bool uiExportHorizon::writeAscii()
     {
 	zatf = transfld_->getSelection();
 	if ( !zatf )
-	{
-	    uiMSG().error( uiStrings::phrInternalErr("transform not impl.") );
-	    return false;
-	}
+	    { uiMSG().error( mINTERNAL("transform not impl.") ); return false; }
     }
 
     BufferString udfstr = udffld_->text();

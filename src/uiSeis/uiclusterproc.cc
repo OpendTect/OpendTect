@@ -322,7 +322,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tskr,
 		  "Data transfer", &pars, uiStrings::phrWriting(
 				tr("results to output cube")) );
     if ( !exec )
-	{ uiStrings::phrInternalErr("No Trace Processor"); return false; }
+	{ mINTERNAL("No Trace Processor"); return false; }
 
     bool retval = false;
     if ( !TaskRunner::execute(tskr,*exec) )

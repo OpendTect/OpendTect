@@ -269,10 +269,7 @@ bool uiExportFault::writeAscii()
     {
 	zatf = transfld_->getSelection();
 	if ( !zatf )
-	{
-	    uiMSG().error( uiStrings::phrInternalErr("Transform not impl") );
-	    return false;
-	}
+	    { uiMSG().error( mINTERNAL("Transform not impl") ); return false; }
     }
 
     uiTaskRunnerProvider trprov( this );

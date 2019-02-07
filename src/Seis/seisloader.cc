@@ -123,10 +123,7 @@ virtual uiString message() const
 bool execute()
 {
     if ( !dp_ || dp_->nrComponents() != outcomponents_.size() )
-    {
-	msg_ = uiStrings::phrInternalErr( "Filler incorrectly setup" );
-	return false;
-    }
+	{ msg_ = mINTERNAL( "Filler incorrectly setup" ); return false; }
 
     for ( int itrc=0; itrc<rawseq_.nrpos_; itrc++ )
     {

@@ -39,8 +39,7 @@ ________________________________________________________________________
 bool LogCubeCreator::LogCube::makeWriteReady()
 {
     if ( fnm_.isEmpty() )
-	mErrRet( uiStrings::phrInternalErr("no output file specified"),
-		 true, return false )
+	mErrRet( mINTERNAL("no output file specified"), true, return false )
 
     if ( !mkIOObj() )
 	mErrRet( tr("Cannot write new trace to disk"), true, return false )
@@ -68,8 +67,7 @@ bool LogCubeCreator::LogCube::mkIOObj()
 bool LogCubeCreator::LogCube::doWrite( const SeisTrcBuf& trcs ) const
 {
     if ( !seisioobj_ )
-	mErrRet( uiStrings::phrInternalErr("no ioobj specified"),
-		 true, return false )
+	mErrRet( mINTERNAL("no ioobj specified"), true, return false )
 
     SeisTrcWriter writer( seisioobj_ );
     for ( int itrc=0; itrc<trcs.size(); itrc++ )
@@ -97,8 +95,7 @@ LogCubeCreator::WellData::WellData( const DBKey& wid )
     Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true, true);
     wtextr.setSampling( SI().zRange() );
     if ( !wtextr.execute() )
-	mErrRet( uiStrings::phrInternalErr("unable to extract track positions"),
-		 true, return )
+	mErrRet( mINTERNAL("unable to extract track positions"), true, return )
 
     wtextr.getBIDs( binidsalongtrack_ );
     if ( binidsalongtrack_.isEmpty() )
@@ -208,7 +205,7 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
     {
 	if ( !welldata_.validIdx(0) || !welldata_[0]->wd_ )
 	{
-	    msg = uiStrings::phrInternalErr( "no well name found" );
+	    msg = mINTERNAL( "no well name found" );
 	    mErrRet( msg, true, return false )
 	}
 
@@ -341,8 +338,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 
     if ( !welldata_.validIdx(iwll) || !welldata_[iwll]->wd_ )
     {
-	msg = uiStrings::phrInternalErr( "No well data at iteration " )
-		  .withNumber( iwll );
+	msg = mINTERNAL( "No well data at iteration " ).withNumber( iwll );
 	mErrRet( msg, errmsg_.isEmpty(), return false )
     }
 
@@ -350,8 +346,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
     const BufferString wllnm = wd->name();
     if ( logcubes_.isEmpty() )
     {
-	msg = uiStrings::phrInternalErr(
-		BufferString("No log cube data for well ",wllnm) );
+	msg = mINTERNAL( BufferString("No log cube data for well ",wllnm) );
 	mErrRet( msg, errmsg_.isEmpty(), return false )
     }
 

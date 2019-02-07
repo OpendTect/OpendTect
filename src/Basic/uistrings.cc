@@ -155,7 +155,7 @@ uiPhrase uiStrings::phrDelete( const uiWord& string )
 { return mJoinStr.arg( sDelete() ).arg( string ); }
 
 uiPhrase uiStrings::phrDiagnostic( const char* msg )
-{ return tr("'%1'").arg(msg); }
+{ return toUiString("'%1'").arg(msg); }
 
 uiPhrase uiStrings::phrDiskSpace()
 { return tr("This may be a disk space problem"); }

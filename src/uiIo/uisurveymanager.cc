@@ -535,8 +535,7 @@ bool uiSurveyManager::writeSettingsSurveyFile( const char* dirnm )
 
     const BufferString survfnm = GetLastSurveyFileName();
     if ( survfnm.isEmpty() )
-	mErrRet(
-	    uiStrings::phrInternalErr("cannot construct last-survey-filename"))
+	mErrRet( mINTERNAL("cannot construct last-survey-filename") )
 
     od_ostream strm( survfnm );
     if ( !strm.isOK() )

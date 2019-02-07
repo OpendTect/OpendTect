@@ -20,10 +20,10 @@
 #include "uistrings.h"
 
 uiString Translator::sNoIoobjMsg()
-{ return uiStrings::phrInternalErr("No object to store set in data base."); }
+{ return mINTERNAL("No object to store set in data base."); }
 
 uiString Translator::sBadConnection()
-{ return uiStrings::phrInternalErr("bad connection"); }
+{ return mINTERNAL("bad connection"); }
 
 
 uiString Translator::sSelObjectIsWrongType()

@@ -221,7 +221,7 @@ uiRetVal uiReliefAttrib::getInput( Desc& desc )
 {
     DescSet* ds = desc.descSet();
     if ( !ds )
-	return uiRetVal( uiStrings::phrInternalErr("No desc set") );
+	return uiRetVal( mINTERNAL("No DescSet") );
 
     const DescID inpid = inpfld_->attribID();
 

@@ -53,7 +53,7 @@ public:
 	, totalnr_( -1 )
     {
 	if ( !conn_ || !conn_->forRead() || !conn_->isStream() )
-	    mRetErr( uiStrings::phrInternalErr("bad connection") );
+	    mRetErr( mINTERNAL("bad connection for randompos body reader") );
 	strm_ = &((StreamConn*)conn_)->iStream();
 
 	ascistream astream( *strm_ );
@@ -160,7 +160,7 @@ public:
 	, strm_( 0 )
     {
 	if ( !conn_ || !conn_->forWrite() || !conn_->isStream() )
-	    mRetErr( uiStrings::phrInternalErr("bad connection") )
+	    mRetErr( mINTERNAL("bad connection for random pos body writer") )
 	strm_ = &((StreamConn*)conn_)->oStream();
 
 	ascostream astream( *strm_ );

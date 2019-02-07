@@ -256,7 +256,7 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
 uiString dgbODMadProcFlowTranslator::read( ODMad::ProcFlow& pf, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return uiStrings::phrInternalErr("bad connection");
+	return mINTERNAL("bad connection");
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
@@ -278,7 +278,7 @@ uiString dgbODMadProcFlowTranslator::write( const ODMad::ProcFlow& pf,
 						Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return uiStrings::phrInternalErr("bad connection");
+	return mINTERNAL("bad connection");
 
     const uiString filtypstr = tr("Processing flow file");
     ascostream astrm( ((StreamConn&)conn).oStream() );

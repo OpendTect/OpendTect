@@ -159,7 +159,7 @@ bool Seis::PS3DFetcher::prepGetAt( const BinID& bid )
     if ( !rdr_ )
     {
 	if ( uirv_.isOK() )
-	    uirv_.set( uiStrings::phrInternalErr("PS3D Reader not created") );
+	    uirv_.set( mINTERNAL("PS3D Reader not created") );
 	return false;
     }
 

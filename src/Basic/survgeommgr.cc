@@ -229,10 +229,7 @@ bool Survey::GeometryManager::save( const Geometry2D& geom, uiString& errmsg,
 				    Geometry2DWriter* wrr ) const
 {
     if ( !geom.geomID().isValid() )
-    {
-	errmsg = uiStrings::phrInternalErr( "Save 2D geometry without ID" );
-	return false;
-    }
+	{ errmsg = mINTERNAL( "Save 2D geometry without ID" ); return false; }
 
     PtrMan<Geometry2DWriter> destroyer;
     if ( !wrr )
@@ -250,8 +247,7 @@ bool Survey::GeometryManager::addEntry( Geometry2D* geom, GeomID& geomid,
 {
     if ( !geom )
     {
-	geomid = GeomID();
-	errmsg = uiStrings::phrInternalErr( "Null geometry passed" );
+	geomid = GeomID(); errmsg = mINTERNAL( "Null geometry passed" );
 	return false;
     }
 
@@ -263,8 +259,7 @@ bool Survey::GeometryManager::addEntry( Geometry2D* geom, GeomID& geomid,
 	Geometry2DWriter::factory().create( factorykey_ );
     if ( !wrr )
     {
-	errmsg = uiStrings::phrInternalErr(
-			BufferString("No writer for <",factorykey_,">") );
+	errmsg = mINTERNAL( BufferString("No writer for <",factorykey_,">") );
 	return false;
     }
 
