@@ -16,6 +16,10 @@ ________________________________________________________________________
 class DBKey;
 
 
+#define mDIAGNOSTIC(s) uiStrings::phrDiagnostic(s)
+#define mINTERNAL(s) uiStrings::phrInternal(s)
+
+
 /*!\brief Phrases and words that can (and should!) be re-used when possible.
 
   OpendTect has a tremendous amount of translatable strings; translating these
