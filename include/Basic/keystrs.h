@@ -87,6 +87,7 @@ namespace sKey
     inline FixedString MD()		{ return "MD"; }
     inline FixedString Marker()		{ return "Marker"; }
     inline FixedString MarkerStyle()	{ return "Marker Style"; }
+    inline FixedString Model()		{ return "Model"; }
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }
     inline FixedString Log(int n=1)	{ return n < 2 ? "Log" : "Logs"; }

@@ -152,6 +152,7 @@ public:
 
     virtual DataSetKey	scope() const			= 0;
     virtual bool	setScope(const DataSetKey&)	= 0;
+    bool		setInfoScope(const char* grpnm=0);
     virtual od_int64	curGroupID() const		= 0;
 
     bool		isOpen() const			{ return file_; }

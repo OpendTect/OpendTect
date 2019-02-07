@@ -90,6 +90,7 @@ public:
     static uiPhrase phrData(const uiWord&);
     static uiPhrase phrDiskSpace();
     static uiPhrase phrDelete(const uiWord&);
+    static uiPhrase phrDiagnostic(const char*);
     static uiPhrase phrDoesNotExist(const uiWord&);
     static uiPhrase phrEdit(const uiWord&);
     static uiPhrase phrEnter(const uiWord&);

@@ -162,6 +162,14 @@ uiRetVal HDF5::Access::open( const char* fnm )
 }
 
 
+bool HDF5::Access::setInfoScope( const char* grpnm )
+{
+    if ( !grpnm || !*grpnm )
+	grpnm = "/";
+    return setScope( DataSetKey(grpnm,DataSetKey::sGroupInfoDataSetName()) );
+}
+
+
 uiString HDF5::Access::sHDF5PackageDispName()
 {
     return tr("HDF5 File Access");

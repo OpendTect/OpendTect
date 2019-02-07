@@ -34,9 +34,6 @@ uiPhrase uiStrings::phrCalculateFrom( const uiWord& string )
 uiPhrase uiStrings::phrCrossline( const uiWord& string )
 { return tr("Cross-line %1").arg( string ); }
 
-uiPhrase uiStrings::phrDoesNotExist(const uiWord& string )
-{ return tr("%1 does not exist").arg( string ); }
-
 uiPhrase uiStrings::phrCannotAdd( const uiWord& string )
 { return tr("Cannot add %1").arg( string ); }
 
@@ -157,8 +154,14 @@ uiPhrase uiStrings::phrData( const uiWord& string )
 uiPhrase uiStrings::phrDelete( const uiWord& string )
 { return mJoinStr.arg( sDelete() ).arg( string ); }
 
+uiPhrase uiStrings::phrDiagnostic( const char* msg )
+{ return tr("'%1'").arg(msg); }
+
 uiPhrase uiStrings::phrDiskSpace()
 { return tr("This may be a disk space problem"); }
+
+uiPhrase uiStrings::phrDoesNotExist(const uiWord& string )
+{ return tr("%1 does not exist").arg( string ); }
 
 uiPhrase uiStrings::phrErrCalculating( const uiWord& subj )
 { return tr("Error calculating %1").arg( subj ); }
