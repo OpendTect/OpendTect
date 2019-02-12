@@ -28,7 +28,7 @@ public:
 
     bool		isEmpty(const IOObj&,Pos::GeomID) const;
 
-    uiRetVal		getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const;
+    uiRetVal		getGeomIDs(const IOObj&,GeomIDSet&) const;
     uiRetVal		getGeometry(const IOObj&,Pos::GeomID,
 				    PosInfo::Line2DData&) const;
     Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,

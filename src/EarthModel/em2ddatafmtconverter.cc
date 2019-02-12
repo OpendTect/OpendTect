@@ -78,7 +78,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::convertData(
 void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDTo2DHorPara(
                                                        EM::IOObjInfo& ioobjinfo)
 {
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     TypeSet< StepInterval<int> > trcranges;
     ioobjinfo.getGeomIDs( geomids );
     for ( int idy=0; idy<geomids.size(); idy++ )

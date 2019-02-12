@@ -545,7 +545,7 @@ class uiFSS2DLineSelDlg : public uiDialog
 { mODTextTranslationClass(uiFSS2DLineSelDlg)
 public:
 
-uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
+uiFSS2DLineSelDlg( uiParent* p, const GeomIDSet& geomids )
     : uiDialog(p,uiDialog::Setup(tr("FaultStickSet selection"),
 		tr("Available for 2D lines"),mNoHelpKey))
 {
@@ -837,7 +837,7 @@ void uiFaultParSel::setEmpty()
 { clearPush( 0 ); }
 
 
-void uiFaultParSel::setGeomIDs( const TypeSet<Pos::GeomID>& geomids )
+void uiFaultParSel::setGeomIDs( const GeomIDSet& geomids )
 {
     geomids_.erase();
     geomids_ = geomids;

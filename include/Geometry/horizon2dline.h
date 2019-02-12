@@ -91,7 +91,7 @@ protected:
 
     ObjectSet<TypeSet<Coord3> >	rows_;
     TypeSet<SamplingData<int> >	colsampling_;
-    TypeSet<Pos::GeomID>	geomids_;
+    GeomIDSet		geomids_;
 };
 
 } // namespace Geometry

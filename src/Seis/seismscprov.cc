@@ -288,10 +288,22 @@ BinID Seis::MSCProvider::getPos() const
 }
 
 
+Pos::GeomID Seis::MSCProvider::geomID() const
+{
+    if ( !is2D() )
+	return Pos::GeomID::get3D();
+
+    if ( !prov_ )
+	return Pos::GeomID();
+
+    return prov_->curGeomID();
+}
+
+
 int Seis::MSCProvider::getTrcNr() const
 {
     return !is2D() || bufidx_==-1
-	? -1 : tbufs_[bufidx_]->get(trcidx_)->info().trcNr();
+	? getPos().trcNr() : tbufs_[bufidx_]->get(trcidx_)->info().trcNr();
 }
 
 

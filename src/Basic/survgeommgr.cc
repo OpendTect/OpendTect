@@ -163,7 +163,7 @@ bool Survey::GeometryManager::fillGeometries( const TaskRunnerProvider& trprov )
 }
 
 
-void Survey::GeometryManager::list2D( TypeSet<GeomID>& geomids,
+void Survey::GeometryManager::list2D( GeomIDSet& geomids,
 					BufferStringSet* names ) const
 {
     geomids.erase();

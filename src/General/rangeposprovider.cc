@@ -516,7 +516,7 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
     if ( !geomidsubpar || geomidsubpar->isEmpty() )
 	return;
 
-    TypeSet<Pos::GeomID> newgeomids;
+    GeomIDSet newgeomids;
     TypeSet<int> lidxs;
     int lastvalidlidx = -1;
     for ( int lidx=0; ; lidx++ )

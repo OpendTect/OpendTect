@@ -293,7 +293,7 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 	    menuid==-1 )
 	return;
 
-    TypeSet<Pos::GeomID> displayedgeomids;
+    GeomIDSet displayedgeomids;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx]);
@@ -307,7 +307,7 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
     if ( menuid == additm_.id )
     {
 	int action = 0;
-	TypeSet<Pos::GeomID> geomids;
+	GeomIDSet geomids;
 	selattribs_.setEmpty();
 	applMgr()->seisServer()->select2DLines( geomids, action );
 	if ( geomids.isEmpty() )

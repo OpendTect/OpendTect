@@ -311,7 +311,7 @@ RefMan<Pick::Set> uiPickPartServer::createRandom2DSet()
 	hornms.add( hinfos_[idx]->name );
 
     BufferStringSet linenames;
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     Survey::Geometry::list2D( geomids, &linenames );
     if ( linenames.isEmpty() )
     {

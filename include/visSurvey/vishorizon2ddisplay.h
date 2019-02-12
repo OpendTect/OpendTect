@@ -98,9 +98,8 @@ protected:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    bool			calcLine2DIntersections(
-						const TypeSet<Pos::GeomID>&,
-						    Line2DInterSectionSet&);
+    bool			calcLine2DIntersections(const GeomIDSet&,
+							Line2DInterSectionSet&);
 
     void			calcLine2DInterSectionSet();
 

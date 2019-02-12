@@ -626,8 +626,7 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p )
     , inlcrlfld_(0)
     , posdlg_(0)
 {
-    BufferStringSet linenames;
-    TypeSet<Pos::GeomID> geomids;
+    BufferStringSet linenames; GeomIDSet geomids;
     Survey::Geometry::list2D( geomids, &linenames );
     linesfld_ = new uiGenInput( this, tr("Calculate on line"),
 				StringListInpSpec(linenames) );

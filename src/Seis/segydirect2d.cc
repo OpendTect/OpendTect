@@ -153,7 +153,7 @@ bool SEGYDirect2DLineIOProvider::renameImpl( const IOObj& obj,
 
 
 uiRetVal SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
-					   TypeSet<Pos::GeomID>& geomids ) const
+						 GeomIDSet& geomids ) const
 {
     geomids.erase();
     const BufferString msk( "*.", sExtSEGDirect );

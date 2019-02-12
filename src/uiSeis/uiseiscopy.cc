@@ -197,10 +197,10 @@ bool uiSeisCopy2DDataSet::acceptOK()
 
     if ( outioobj->implExists(false) )
     {
-	TypeSet<Pos::GeomID> ingeomids;
+	GeomIDSet ingeomids;
 	subselfld_->getSelGeomIDs( ingeomids );
 
-	TypeSet<Pos::GeomID> outgeomids;
+	GeomIDSet outgeomids;
 	const SeisIOObjInfo outinfo( outioobj );
 	outinfo.getGeomIDs( outgeomids );
 

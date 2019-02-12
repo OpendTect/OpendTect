@@ -150,7 +150,7 @@ protected:
     BufferStringSet	sectionnames_;
     BufferStringSet	linenames_;
     BufferStringSet	linesets_;
-    TypeSet<Pos::GeomID>	geomids_;
+    GeomIDSet		geomids_;
     TypeSet<EM::SectionID> sectionids_;
     bool		fullyread_;
 

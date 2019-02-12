@@ -19,11 +19,6 @@ ________________________________________________________________________
 #include "groupedid.h"
 #include "geometry.h"
 #include "od_iosfwd.h"
-#ifdef __win__
-  // For some reason, VC++ does not like GeomID forward declared
-  // The trouble seems to be with TypeSet<Pos::GeomID>
-# include "geomid.h"
-#endif
 
 class ascistream;
 class ascostream;
@@ -32,6 +27,7 @@ class DBKeySet;
 class SeparString;
 class TrcKey;
 class uiString;
+class GeomIDSet;
 namespace Pos { class GeomID; }
 
 /*!
@@ -170,7 +166,7 @@ public:
     bool		get(const char*,TypeSet<od_uint64>&) const;
     bool		get(const char*,TypeSet<double>&) const;
     bool		get(const char*,TypeSet<float>&) const;
-    bool		get(const char*,TypeSet<Pos::GeomID>&) const;
+    bool		get(const char*,GeomIDSet&) const;
 
     template <class iT>
     inline bool		get(const char*,IntegerID<iT>&) const;
@@ -299,7 +295,7 @@ public:
     void		set(const char*,const TypeSet<od_uint64>&);
     void		set(const char*,const TypeSet<double>&);
     void		set(const char*,const TypeSet<float>&);
-    void		set(const char*,const TypeSet<Pos::GeomID>&);
+    void		set(const char*,const GeomIDSet&);
 
     void		setToDateTime(const char* ky=0);
     void		setToUser(const char* ky=0);

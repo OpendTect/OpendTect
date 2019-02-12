@@ -486,7 +486,7 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 	    newdepth = datatransform_->transformTrc( loc.trcKey(), loc.z() );
 	else // Pre v6.0 Pickset without TrcKey information
 	{
-	    TypeSet<Pos::GeomID> ids;
+	    GeomIDSet ids;
 	    Survey::Geometry::list2D( ids );
 	    TrcKey ntk = TrcKey::udf();
 	    double ndist = mUdf(double);

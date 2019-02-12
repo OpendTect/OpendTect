@@ -27,7 +27,7 @@ public:
 						      EM::Horizon2D&);
 				~Hor2DFrom3DCreatorGrp();
 
-   void				init(const TypeSet<Pos::GeomID>&);
+   void				init(const GeomIDSet&);
 
 protected:
 

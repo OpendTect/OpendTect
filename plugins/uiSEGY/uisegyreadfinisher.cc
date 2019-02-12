@@ -638,7 +638,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 {
     const int nrlines = fs_.spec_.nrFiles();
     bool overwr_warn = true; bool overwr = !Seis::isPS( fs_.geomType() );
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     for ( int iln=0; iln<nrlines; iln++ )
     {
 	BufferString lnm( inplnm );

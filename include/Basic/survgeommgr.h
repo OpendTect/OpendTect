@@ -64,7 +64,7 @@ public:
     const char*		getName(GeomID) const;
 
     bool		fillGeometries(const TaskRunnerProvider&);
-    void		list2D(TypeSet<GeomID>&,BufferStringSet* nms=0) const;
+    void		list2D(GeomIDSet&,BufferStringSet* nms=0) const;
 
 protected:
 

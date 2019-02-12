@@ -49,7 +49,7 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
     const int* idxs = lnms_.getSortIndexes( false );
     const int sz = lnms_.size();
     BufferStringSet lnmstmp = lnms_;
-    TypeSet<Pos::GeomID> geomidstmp = geomids_;
+    GeomIDSet geomidstmp = geomids_;
     lnms_.erase(); geomids_.erase();
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -78,7 +78,7 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
 
 
 uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm,
-		const BufferStringSet& lnms, const TypeSet<Pos::GeomID>& gids )
+		const BufferStringSet& lnms, const GeomIDSet& gids )
     : uiGroup(p,"Line chooser")
     , lnms_(lnms)
     , geomids_(gids)
@@ -137,7 +137,7 @@ uiSeis2DLineChoose::~uiSeis2DLineChoose()
 }
 
 
-void uiSeis2DLineChoose::getChosen( TypeSet<Pos::GeomID>& chids ) const
+void uiSeis2DLineChoose::getChosen( GeomIDSet& chids ) const
 {
     chids.setEmpty();
     TypeSet<int> chidxs; filtfld_->getChosen( chidxs );
@@ -155,7 +155,7 @@ void uiSeis2DLineChoose::getChosen( BufferStringSet& nms ) const
 }
 
 
-void uiSeis2DLineChoose::setChosen( const TypeSet<Pos::GeomID>& gids )
+void uiSeis2DLineChoose::setChosen( const GeomIDSet& gids )
 {
     filtfld_->setFilter( 0 );
     listfld_->chooseAll( false );
@@ -191,7 +191,7 @@ void uiSeis2DLineChoose::chooseAll( bool yn )
 
 void uiSeis2DLineChoose::readChoiceDone( CallBacker* )
 {
-    TypeSet<Pos::GeomID> gids;
+    GeomIDSet gids;
     for ( int idx=0; idx<lbchoiceio_->chosenKeys().size(); idx++ )
     {
 	const DBKey key =
@@ -232,7 +232,7 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
 {
     txtfld_->setElemSzPol( uiObject::Wide );
     butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
-    BufferStringSet lnms; TypeSet<Pos::GeomID> geomids;
+    BufferStringSet lnms; GeomIDSet geomids;
     SeisIOObjInfo::getLinesWithData( lnms, geomids );
     const int* idxs = lnms.getSortIndexes( false );
     if ( !idxs )
@@ -264,7 +264,7 @@ Pos::GeomID uiSeis2DLineSel::geomID() const
 }
 
 
-void uiSeis2DLineSel::getSelGeomIDs( TypeSet<Pos::GeomID>& selids ) const
+void uiSeis2DLineSel::getSelGeomIDs( GeomIDSet& selids ) const
 {
     selids.erase();
     for ( int idx=0; idx<selidxs_.size(); idx++ )
@@ -294,7 +294,7 @@ void uiSeis2DLineSel::setSelLineNames( const BufferStringSet& selnms )
 }
 
 
-void uiSeis2DLineSel::setSelGeomIDs( const TypeSet<Pos::GeomID>& selgeomids )
+void uiSeis2DLineSel::setSelGeomIDs( const GeomIDSet& selgeomids )
 {
     selidxs_.erase();
     for ( int idx=0; idx<selgeomids.size(); idx++ )
@@ -344,7 +344,7 @@ void uiSeis2DLineSel::setInput( const BufferStringSet& lnms )
 }
 
 
-void uiSeis2DLineSel::setInput( const TypeSet<Pos::GeomID>& geomids )
+void uiSeis2DLineSel::setInput( const GeomIDSet& geomids )
 {
     clearAll();
     for ( int idx=0; idx<geomids.size(); idx++ )
@@ -432,7 +432,7 @@ void uiSeis2DLineSel::selPush( CallBacker* )
     uiSeis2DLineChoose* lchfld = new uiSeis2DLineChoose( &dlg,
 		    ismultisel_ ? OD::ChooseAtLeastOne : OD::ChooseOnlyOne,
 		    lnms_, geomids_ );
-    TypeSet<Pos::GeomID> chosenids;
+    GeomIDSet chosenids;
     for ( int idx=0; idx<selidxs_.size(); idx++ )
 	chosenids += geomids_[ selidxs_[idx] ];
     lchfld->setChosen( chosenids );
@@ -494,7 +494,7 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
 void uiSeis2DLineNameSel::fillWithAll()
 {
     BufferStringSet lnms;
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     SeisIOObjInfo::getLinesWithData( lnms, geomids );
     lnms.sort();
     fld_->addItems( lnms );
@@ -566,8 +566,7 @@ class uiSeis2DMultiLineSelDlg : public uiDialog
 { mODTextTranslationClass(uiSeis2DMultiLineSelDlg)
 public:
 			uiSeis2DMultiLineSelDlg(uiParent*,
-				const TypeSet<Pos::GeomID>& geomids,
-				const BufferStringSet& lnms,
+				const GeomIDSet&,const BufferStringSet&,
 				const TypeSet<StepInterval<int> >& maxtrcrgs,
 				const TypeSet<StepInterval<float> >& maxzrgs,
 				bool withz,bool withstep,
@@ -610,7 +609,7 @@ protected:
 
 
 uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
-				const TypeSet<Pos::GeomID>& geomids,
+				const GeomIDSet& geomids,
 				const BufferStringSet& lnms,
 				const TypeSet<StepInterval<int> >& maxtrcrgs,
 				const TypeSet<StepInterval<float> >& maxzrgs,
@@ -801,7 +800,7 @@ void uiSeis2DMultiLineSel::setInput( const BufferStringSet& lnms )
 }
 
 
-void uiSeis2DMultiLineSel::setInput( const TypeSet<Pos::GeomID>& geomids )
+void uiSeis2DMultiLineSel::setInput( const GeomIDSet& geomids )
 {
     selectionChanged.disable();
     uiSeis2DLineSel::setInput( geomids );
@@ -913,7 +912,7 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
     PtrMan<IOPar> lspar = par.subselect( "Line" );
     if ( !lspar ) return;
 
-    TypeSet<Pos::GeomID> selgeomids;
+    GeomIDSet selgeomids;
     TypeSet<StepInterval<float> > selzrgs;
     TypeSet<StepInterval<int> > seltrcrgs;
     for ( int idx=0; idx<1024; idx++ )

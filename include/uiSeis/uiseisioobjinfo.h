@@ -33,7 +33,7 @@ public:
 		    : parent_(p), SeisIOObjInfo(oth)		{}
 
     bool	provideUserInfo() const;
-    bool	provideLineInfo(const TypeSet<Pos::GeomID>* ts=0) const;
+    bool	provideLineInfo(const GeomIDSet* ts=0) const;
 
     bool	checkSpaceLeft(const SeisIOObjInfo::SpaceInfo&,
 				bool error_feedback=true) const;

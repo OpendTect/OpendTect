@@ -263,7 +263,7 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
     {
 	mGetDataSet(dset,false);
 	StepInterval<int> trcrg; StepInterval<float> zrg;
-	TypeSet<Pos::GeomID> seen;
+	GeomIDSet seen;
 	spinf.expectednrtrcs = 0;
 	for ( int idx=0; idx<dset->nrLines(); idx++ )
 	{
@@ -559,7 +559,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
     const GlobExpr zdomge( o2d.zdomky_.isEmpty() ? ZDomain::SI().key() \
 						 : o2d.zdomky_.buf() )
 
-void SeisIOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
+void SeisIOObjInfo::getGeomIDs( GeomIDSet& geomids ) const
 {
     if ( !isOK() )
 	return;
@@ -837,8 +837,7 @@ bool SeisIOObjInfo::isFullyRectAndRegular() const
 }
 
 
-void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
-				      TypeSet<Pos::GeomID>& gids )
+void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms, GeomIDSet& gids )
 {
     Survey::Geometry::list2D( gids, &lnms );
     BoolTypeSet hasdata( gids.size(), false );
@@ -851,7 +850,7 @@ void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();
-	TypeSet<Pos::GeomID> dsgids;
+	GeomIDSet dsgids;
 	if ( SeisTrcTranslator::isPS(ioobj) )
 	    SPSIOPF().getGeomIDs( ioobj, dsgids );
 	else if ( *ioobj.group() == '2' )

@@ -20,7 +20,7 @@
 
 Seis2DFrom3DExtractor::Seis2DFrom3DExtractor(
 			const IOObj& cubein, const IOObj& dsout,
-			const TypeSet<Pos::GeomID>& geomids )
+			const GeomIDSet& geomids )
     : Executor("Extract 3D data into 2D lines")
     , wrr_(*new SeisTrcWriter(&dsout))
     , geomids_(geomids)

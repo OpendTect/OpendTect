@@ -76,7 +76,7 @@ public:
     bool		updatesBitmapsOnResize() const
 			{ return updatebitmapsonresize_; }
 
-    void		setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
+    void		setSeisGeomidsToViewer(GeomIDSet&);
 
     void		reGenerate(AuxData&);
 

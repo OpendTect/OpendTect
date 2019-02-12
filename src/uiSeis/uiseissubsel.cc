@@ -239,7 +239,7 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 }
 
 
-void uiSeis2DSubSel::setInputLines( const TypeSet<Pos::GeomID>& geomids )
+void uiSeis2DSubSel::setInputLines( const GeomIDSet& geomids )
 {
     if ( multilnmsel_ )
 	multilnmsel_->setInput( geomids );
@@ -317,7 +317,7 @@ void uiSeis2DSubSel::setSelectedLine( const char* nm )
 }
 
 
-void uiSeis2DSubSel::selectedGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
+void uiSeis2DSubSel::selectedGeomIDs( GeomIDSet& geomids ) const
 {
     geomids.erase();
     if ( multilnmsel_ )
@@ -355,7 +355,7 @@ int uiSeis2DSubSel::expectedNrSamples() const
 int uiSeis2DSubSel::expectedNrTraces() const
 {
     int totalnrtraces = 0;
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     selectedGeomIDs( geomids );
     for ( int idx=0; idx<geomids.size(); idx++ )
 	totalnrtraces += getTrcRange(geomids[idx]).nrSteps()+1;

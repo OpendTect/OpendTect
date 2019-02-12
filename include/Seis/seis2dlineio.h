@@ -106,25 +106,26 @@ mExpClass(Seis) Seis2DLineIOProvider
 { mODTextTranslationClass(Seis2DLineIOProvider);
 public:
 
+    mUseType( Pos,	GeomID );
+
     virtual		~Seis2DLineIOProvider()			{}
 
-    virtual bool	isEmpty(const IOObj&,Pos::GeomID) const		= 0;
-    virtual uiRetVal	getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const
-									= 0;
-    virtual uiRetVal	getGeometry(const IOObj&,Pos::GeomID,
+    virtual bool	isEmpty(const IOObj&,GeomID) const		= 0;
+    virtual uiRetVal	getGeomIDs(const IOObj&,GeomIDSet&) const	= 0;
+    virtual uiRetVal	getGeometry(const IOObj&,GeomID,
 				    PosInfo::Line2DData&) const		= 0;
 
-    virtual Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,
+    virtual Seis2DTraceGetter*	getTraceGetter(const IOObj&,GeomID,
 				    const Seis::SelData*,uiRetVal&)	= 0;
-    virtual Seis2DLinePutter*	getPutter(const IOObj&,Pos::GeomID,
+    virtual Seis2DLinePutter*	getPutter(const IOObj&,GeomID,
 					  uiRetVal&)			= 0;
 
-    virtual bool	getTxtInfo(const IOObj&,Pos::GeomID,BufferString&,
+    virtual bool	getTxtInfo(const IOObj&,GeomID,BufferString&,
 				   BufferString&) const		{ return false;}
-    virtual bool	getRanges(const IOObj&,Pos::GeomID,StepInterval<int>&,
+    virtual bool	getRanges(const IOObj&,GeomID,StepInterval<int>&,
 				   StepInterval<float>&) const	{ return false;}
 
-    virtual bool	removeImpl(const IOObj&,Pos::GeomID) const	= 0;
+    virtual bool	removeImpl(const IOObj&,GeomID) const	= 0;
     virtual bool	renameImpl(const IOObj&,const char*) const	= 0;
 
     const char*		type() const			{ return type_.buf(); }

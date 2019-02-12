@@ -41,8 +41,7 @@ ________________________________________________________________________
 
 
 uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
-				const TypeSet<Pos::GeomID>& geomids,
-				const NLAModel* nla,
+				const GeomIDSet& geomids, const NLAModel* nla,
 				const char* curnm )
     : uiDialog(p,Setup( uiStrings::phrSelect( uiStrings::sDataSet() ),
 			mNoDlgTitle,mNoHelpKey))
@@ -97,8 +96,7 @@ void uiAttr2DSelDlg::doFinalise( CallBacker* )
 }
 
 
-static void getDataNames( const TypeSet<Pos::GeomID> ids,
-			  SeisIOObjInfo::Opts2D o2d,
+static void getDataNames( const GeomIDSet ids, SeisIOObjInfo::Opts2D o2d,
 			  BufferStringSet& names )
 {
     names.erase();

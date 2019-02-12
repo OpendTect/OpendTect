@@ -81,8 +81,7 @@ public:
     virtual SeisPSWriter*	get2DWriter(const IOObj&,const char*) const;
 
     FixedString			type() const		{ return type_.buf(); }
-    virtual bool		fetchGeomIDs(const IOObj&,
-					     TypeSet<Pos::GeomID>&) const;
+    virtual bool		fetchGeomIDs(const IOObj&,GeomIDSet&) const;
     virtual bool		fetchLineNames(const IOObj&,
 						BufferStringSet&) const;
 
@@ -102,8 +101,7 @@ public:
     virtual SeisPSWriter*	make2DWriter(const char*,const char* lnm) const
 				{ return 0; }
 
-    virtual bool		getGeomIDs(const char*,
-					   TypeSet<Pos::GeomID>&) const
+    virtual bool		getGeomIDs(const char*,GeomIDSet&) const
 				{ return false; }
     virtual bool		getLineNames(const char*,
 					     BufferStringSet&) const
@@ -146,8 +144,7 @@ public:
     SeisPS2DReader*		get2DReader(const IOObj&,const char* lnm) const;
     SeisPSWriter*		get2DWriter(const IOObj&,Pos::GeomID) const;
     SeisPSWriter*		get2DWriter(const IOObj&,const char* lnm) const;
-    bool			getGeomIDs(const IOObj&,
-					   TypeSet<Pos::GeomID>&) const;
+    bool			getGeomIDs(const IOObj&,GeomIDSet&) const;
     bool			getLineNames(const IOObj&,
 					     BufferStringSet&) const;
 

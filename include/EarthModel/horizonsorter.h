@@ -54,7 +54,7 @@ protected:
     int				nrdone_;
 
     bool			is2d_;
-    TypeSet<Pos::GeomID>	geomids_;
+    GeomIDSet			geomids_;
     TypeSet<StepInterval<int> >	trcrgs_;
 
     TrcKeySamplingIterator*	iterator_;

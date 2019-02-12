@@ -131,8 +131,7 @@ public:
 				        const TrcKeySampling&) const;
     void		getSurfaceDef2D(const DBKeySet&,
 					const BufferStringSet& sellines,
-					TypeSet<Coord>&,
-					TypeSet<Pos::GeomID>&,
+					TypeSet<Coord>&,GeomIDSet&,
 					TypeSet<Interval<float> >&);
 
     bool		storeObject(const DBKey&,

@@ -117,7 +117,7 @@ void Seis2DDataSet::getLineNames( BufferStringSet& nms ) const
 }
 
 
-void Seis2DDataSet::getGeomIDs( TypeSet<GeomID>& geomids ) const
+void Seis2DDataSet::getGeomIDs( GeomIDSet& geomids ) const
 {
     geomids = geomids_;
 }

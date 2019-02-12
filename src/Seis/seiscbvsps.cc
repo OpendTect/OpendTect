@@ -63,7 +63,7 @@ public:
     SeisPSWriter*	make2DWriter( const char* dirnm, const char* lnm ) const
 			{ return new SeisCBVSPS2DWriter(dirnm,lnm); }
 
-    bool		getGeomIDs(const char*,TypeSet<Pos::GeomID>&) const;
+    bool		getGeomIDs(const char*,GeomIDSet&) const;
     bool		getLineNames(const char*,BufferStringSet&) const;
 
     static int		factid;
@@ -74,7 +74,7 @@ int CBVSSeisPSIOProvider::factid = SPSIOPF().add( new CBVSSeisPSIOProvider );
 
 
 bool CBVSSeisPSIOProvider::getGeomIDs( const char* dirnm,
-				       TypeSet<Pos::GeomID>& geomids ) const
+				       GeomIDSet& geomids ) const
 {
     geomids.erase();
     DirList dl( dirnm, File::FilesInDir, "*.cbvs" );
@@ -99,7 +99,7 @@ bool CBVSSeisPSIOProvider::getLineNames( const char* dirnm,
 					 BufferStringSet& linenms) const
 {
     linenms.setEmpty();
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     if ( !getGeomIDs(dirnm,geomids) )
 	return false;
 

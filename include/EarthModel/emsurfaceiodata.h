@@ -45,9 +45,9 @@ public:
     /*! For 2D Only: */
     BufferStringSet	linenames;
     BufferStringSet	linesets;
-    TypeSet<Pos::GeomID>	geomids;
+    GeomIDSet		geomids;
     TypeSet<StepInterval<int> > trcranges;
-    int				nrfltsticks_;
+    int			nrfltsticks_;
 };
 
 
@@ -72,7 +72,7 @@ public:
     TypeSet<int>		selvalues; // Indexes in sd.valnames
 
     BufferStringSet		sellinenames;
-    TypeSet<Pos::GeomID>	selgeomids;
+    GeomIDSet			selgeomids;
     TypeSet<StepInterval<int> >	seltrcranges;
 
     void			setDefault(); // selects all

@@ -28,7 +28,7 @@ mExpClass(Seis) Seis2DFrom3DExtractor : public Executor
 public:
 			Seis2DFrom3DExtractor(const IOObj& cubein,
 					      const IOObj& lsout,
-					      const TypeSet<Pos::GeomID>&);
+					      const GeomIDSet&);
 			~Seis2DFrom3DExtractor();
 
     uiString		message() const	{ return msg_; }
@@ -51,8 +51,8 @@ protected:
     int			curlineidx_;
     int			curtrcidx_;
 
-    const TypeSet<Pos::GeomID>& geomids_;
-    const Survey::Geometry2D*	curgeom2d_;
+    const GeomIDSet&	geomids_;
+    const Survey::Geometry2D* curgeom2d_;
 
     int			goToNextLine();
     int			handleTrace();

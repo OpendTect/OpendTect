@@ -335,7 +335,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
 	tkzs_ = *tkzs;
     else if ( is2d )
     {
-	TypeSet<Pos::GeomID> geomids;
+	GeomIDSet geomids;
 	info.getGeomIDs( geomids );
 	if ( !geomids.isEmpty() )
 	    tkzs_.hsamp_ = TrcKeySampling( geomids[0] );

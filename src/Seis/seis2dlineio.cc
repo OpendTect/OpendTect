@@ -249,7 +249,7 @@ bool SeisTrc2DTranslator::implRemove( const IOObj* ioobj ) const
     BufferString fnm( ioobj->mainFileName() );
     Seis2DDataSet ds( *ioobj );
     const int nrlines = ds.nrLines();
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     for ( int iln=0; iln<nrlines; iln++ )
 	geomids.add( ds.geomID(iln) );
 

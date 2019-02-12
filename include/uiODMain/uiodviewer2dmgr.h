@@ -156,7 +156,7 @@ protected:
     const uiODViewer2D*		getViewer2D(int idx) const;
     Line2DInterSectionSet*	l2dintersections_;
     SelectedAuxAnnot		selauxannot_;
-    TypeSet<Pos::GeomID>	geom2dids_;
+    GeomIDSet			geom2dids_;
 
     uiTreeFactorySet*		tifs2d_;
     uiTreeFactorySet*		tifs3d_;
@@ -184,7 +184,7 @@ protected:
 						   float pos) const;
     int				intersection2DIdx(Pos::GeomID) const;
     void			getVWR2DDataGeomIDs(const uiODViewer2D*,
-						TypeSet<Pos::GeomID>&) const;
+						    GeomIDSet&) const;
     void			reCalc2DIntersetionIfNeeded(Pos::GeomID);
     void			setAllIntersectionPositions();
     void			setVWR2DIntersectionPositions(uiODViewer2D*);

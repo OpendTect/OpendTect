@@ -23,8 +23,7 @@ BendPoints::BendPoints()
 {}
 
 
-BendPointFinder2DGeomSet::BendPointFinder2DGeomSet(
-					const TypeSet<Pos::GeomID>& geomids )
+BendPointFinder2DGeomSet::BendPointFinder2DGeomSet( const GeomIDSet& geomids )
     : Executor("Analyzing 2D Line geometries")
     , geomids_(geomids)
     , curidx_(0)

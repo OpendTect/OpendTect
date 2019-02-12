@@ -163,7 +163,7 @@ bool SeisCBVS2DLineIOProvider::renameImpl( const IOObj& obj,
 
 
 uiRetVal SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
-					   TypeSet<Pos::GeomID>& geomids ) const
+					       GeomIDSet& geomids ) const
 {
     geomids.erase();
     const BufferString msk( "*.", sExtCBVS );

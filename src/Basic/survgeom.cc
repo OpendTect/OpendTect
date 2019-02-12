@@ -112,7 +112,7 @@ Pos::GeomID Survey::Geometry::getGeomID( const char* linenm )
 }
 
 
-void Survey::Geometry::list2D( TypeSet<GeomID>& gids, BufferStringSet* nms )
+void Survey::Geometry::list2D( GeomIDSet& gids, BufferStringSet* nms )
 {
     return GM().list2D( gids, nms );
 }

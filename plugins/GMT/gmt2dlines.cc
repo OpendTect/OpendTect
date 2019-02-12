@@ -67,7 +67,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
     FixedString namestr = find( sKey::Name() );
     strm << "Posting 2D Lines " << namestr << " ...  ";
 
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     get( sKey::GeomID(), geomids );
 
     BufferStringSet linenms;

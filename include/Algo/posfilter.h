@@ -117,7 +117,7 @@ public:
 
 protected:
 
-    TypeSet<GeomID>	geomids_;
+    GeomIDSet		geomids_;
 
 };
 

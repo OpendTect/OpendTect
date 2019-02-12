@@ -31,11 +31,11 @@ bool uiSeisIOObjInfo::provideUserInfo() const
 }
 
 
-bool uiSeisIOObjInfo::provideLineInfo( const TypeSet<Pos::GeomID>* sel ) const
+bool uiSeisIOObjInfo::provideLineInfo( const GeomIDSet* sel ) const
 {
     mChk(false);
 
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     if ( sel )
 	geomids = *sel;
     else

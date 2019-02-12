@@ -36,7 +36,7 @@ static void splitIOPars( const IOPar& base, ObjectSet<IOPar>& pars, bool is2d )
     }
 
     BufferStringSet fnms;
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     BufferString fnm;
     Pos::GeomID geomid;
     for ( int idx=0; ; idx++ )

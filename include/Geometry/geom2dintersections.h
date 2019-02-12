@@ -32,7 +32,7 @@ public:
 mExpClass(Geometry) BendPointFinder2DGeomSet : public Executor
 { mODTextTranslationClass(BendPointFinder2DGeomSet)
 public:
-			BendPointFinder2DGeomSet(const TypeSet<Pos::GeomID>&);
+			BendPointFinder2DGeomSet(const GeomIDSet&);
 
     od_int64		nrDone() const;
     od_int64		totalNr() const;
@@ -45,7 +45,7 @@ protected:
 
     int			nextStep();
 
-    const TypeSet<Pos::GeomID>&	geomids_;
+    const GeomIDSet&	geomids_;
     ObjectSet<BendPoints>	bendptset_;
     int				curidx_;
 };

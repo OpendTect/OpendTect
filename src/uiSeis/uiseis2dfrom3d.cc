@@ -62,7 +62,7 @@ bool uiSeis2DFrom3D::acceptOK()
     const IOObj* ioobj2d = data2dfld_->ioobj();
     if ( !ioobj3d || !ioobj2d ) return false;
 
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     subselfld_->selectedGeomIDs( geomids );
     if ( geomids.isEmpty() )
     {

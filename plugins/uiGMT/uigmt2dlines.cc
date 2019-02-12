@@ -106,7 +106,7 @@ void uiGMT2DLinesGrp::labelSel( CallBacker* )
 
 bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
 {
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     lineselfld_->getSelGeomIDs( geomids );
     if ( geomids.isEmpty() )
 	mErrRet( uiStrings::phrPlsSelectAtLeastOne( uiStrings::s2DLine() ) )
@@ -143,7 +143,7 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
     par.get( sKey::GeomID(), lnrs );
     if ( lnrs.isEmpty() )
 	mErrRet( tr("No 2D lines found ") );
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     for ( auto lnr : lnrs )
 	geomids.add( Pos::GeomID(lnr) );
 

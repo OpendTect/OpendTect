@@ -197,7 +197,7 @@ protected:
     void			doUsePar(const IOPar&,uiRetVal&);
 
     mutable int			curlidx_;
-    mutable TypeSet<Pos::GeomID>geomids_;
+    mutable GeomIDSet		geomids_;
 
 };
 

@@ -215,10 +215,10 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     TrcKeyZSampling tkzs;
     tkzs.hsamp_.setIs2D();
     DataCharacteristics dc; dlg.getDataChar( dc );
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     dlg.selectedGeomIDs( geomids );
     const DBKey key = ioobj->key();
-    TypeSet<Pos::GeomID> loadedgeomids;
+    GeomIDSet loadedgeomids;
     for ( int idx=0; idx<geomids.size(); idx++ )
 	if ( PLDM().isPresent(key,geomids[idx]) )
 	    loadedgeomids += geomids[idx];
@@ -238,7 +238,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     }
     uiTaskRunner taskrunner( this );
     TypeSet<TrcKeyZSampling> tkzss;
-    TypeSet<Pos::GeomID> loadgeomids;
+    GeomIDSet loadgeomids;
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
 	const Pos::GeomID& geomid = geomids[idx];
@@ -566,7 +566,7 @@ void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs,
 }
 
 
-void uiSeisPreLoadSel::selectedGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
+void uiSeisPreLoadSel::selectedGeomIDs( GeomIDSet& geomids ) const
 {
     mDynamicCastGet(uiSeis2DSubSel*,ss2d,subselfld_)
     if ( ss2d )
@@ -590,7 +590,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     if ( is2d )
     {
 	tkzs.hsamp_.setIs2D();
-	TypeSet<Pos::GeomID> geomids;
+	GeomIDSet geomids;
 	selectedGeomIDs( geomids );
 	if ( geomids.isEmpty() )
 	    return;

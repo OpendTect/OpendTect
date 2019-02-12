@@ -246,7 +246,7 @@ bool IOObjInfo::getLineNames( BufferStringSet& linenames ) const
 }
 
 
-bool IOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
+bool IOObjInfo::getGeomIDs( GeomIDSet& geomids ) const
 {
     if ( !ioobj_ )
 	return false;

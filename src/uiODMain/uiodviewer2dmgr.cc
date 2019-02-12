@@ -746,8 +746,8 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( const TrcKeyZSampling& tkzs )
 }
 
 
-void uiODViewer2DMgr::getVWR2DDataGeomIDs(
-	const uiODViewer2D* vwr2d, TypeSet<Pos::GeomID>& commongids ) const
+void uiODViewer2DMgr::getVWR2DDataGeomIDs( const uiODViewer2D* vwr2d,
+					   GeomIDSet& commongids ) const
 {
     commongids.erase();
     if ( mIsUdfGeomID(vwr2d->geomID()) )
@@ -801,7 +801,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	if ( !intsect )
 	    return;
 
-	TypeSet<Pos::GeomID> datagids;
+	GeomIDSet datagids;
 	getVWR2DDataGeomIDs( vwr2d, datagids );
 	const StepInterval<double> x1rg = vwr.posRange( true );
 	const FlatPosData* posdata = vwr.getFlatPosData( true );
@@ -972,7 +972,7 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
     const uiWorldPoint wperpixel =
 	vwr2d->viewwin()->viewer(0).getWorld2Ui().worldPerPixel();
     const float eps  = mCast(float,wperpixel.x_) * sEPSPixWidth;
-    TypeSet<Pos::GeomID> datagids;
+    GeomIDSet datagids;
     getVWR2DDataGeomIDs( vwr2d, datagids );
     for ( int idx=0; idx<int2d->size(); idx++ )
     {

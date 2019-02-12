@@ -52,7 +52,7 @@ public:
 
     DBKey		getDefaultDataID(bool is2d) const;
     bool		select2DSeis(DBKey&);
-    bool		select2DLines(TypeSet<Pos::GeomID>&,int& action);
+    bool		select2DLines(GeomIDSet&,int& action);
     static void		get2DStoredAttribs(const char* linenm,
 				       BufferStringSet& attribs,int steerpol=2);
     void		get2DZdomainAttribs(const char* linenm,

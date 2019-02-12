@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "integerid.h"
+#include "typeset.h"
 class DBKey;
 
 
@@ -36,6 +37,18 @@ mDefIntegerIDTypeFull( int, GeomID,
 
 
 } //namespace Pos
+
+
+mExpClass(Basic) GeomIDSet : public TypeSet<Pos::GeomID>
+{
+public:
+
+    mUseType( Pos,  GeomID );
+
+		    GeomIDSet()			{}
+		    GeomIDSet( GeomID gid )	{ add(gid); }
+
+};
 
 
 mGlobal(Basic) const char* nameOf(Pos::GeomID);

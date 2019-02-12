@@ -67,7 +67,7 @@ public:
     const IOObj*	getIOObj() const;
     void		getSampling(TrcKeyZSampling&) const;
     void		getSampling(TrcKeyZSampling&,Pos::GeomID) const;
-    void		selectedGeomIDs(TypeSet<Pos::GeomID>&) const;
+    void		selectedGeomIDs(GeomIDSet&) const;
     const Scaler*	getScaler() const;
     void		getDataChar(DataCharacteristics&) const;
 

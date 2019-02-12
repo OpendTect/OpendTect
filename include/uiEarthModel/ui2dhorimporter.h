@@ -33,7 +33,7 @@ protected:
 
     ObjectSet<EM::Horizon2D>&	hors_;
     const BinIDValueSet*	bvalset_;
-    TypeSet<Pos::GeomID>	geomids_;
+    GeomIDSet			geomids_;
     const Survey::Geometry2D*	curlinegeom_;
     int				nrdone_;
     TypeSet<int>		prevtrcnrs_;

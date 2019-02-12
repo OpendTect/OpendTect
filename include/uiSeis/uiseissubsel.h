@@ -96,14 +96,14 @@ public:
     bool		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
     void		setInput(const IOObj&);
-    void		setInputLines(const TypeSet<Pos::GeomID>&);
+    void		setInputLines(const GeomIDSet&);
 
     bool		isSingLine() const;
     const char*		selectedLine() const;
     Pos::GeomID		selectedGeomID() const;
     void		setSelectedLine(const char*);
 
-    void		selectedGeomIDs(TypeSet<Pos::GeomID>&) const;
+    void		selectedGeomIDs(GeomIDSet&) const;
     void		selectedLines(BufferStringSet&) const;
     void		setSelectedLines(const BufferStringSet&);
 

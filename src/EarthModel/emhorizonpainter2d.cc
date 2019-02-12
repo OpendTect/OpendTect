@@ -207,7 +207,7 @@ void HorizonPainter2D::updateIntersectionMarkers()
     mDynamicCastGet( EM::Horizon2D*, hor2d, emobj )
     if ( !hor2d ) return;
 
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     const int nrlns = hor2d->geometry().nrLines();
     for ( int idx=0; idx<nrlns; idx++ )
 	geomids += hor2d->geometry().geomID(idx);
@@ -257,7 +257,7 @@ void HorizonPainter2D::updateIntersectionMarkers()
 
 bool HorizonPainter2D::calcLine2DIntersections()
 {
-    const TypeSet<Pos::GeomID> geom2dids = viewer_.getAllSeisGeomids();
+    const GeomIDSet geom2dids = viewer_.getAllSeisGeomids();
     if ( geom2dids.size()==0 )
 	return false;
 

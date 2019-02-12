@@ -49,7 +49,7 @@ protected:
     EM::Horizon*		bothor_;
 
     bool			is2d_;
-    TypeSet<Pos::GeomID>	geomids_;
+    GeomIDSet			geomids_;
     TypeSet<StepInterval<int> >	trcrgs_;
     TrcKeySamplingIterator*	iter_;
 

@@ -125,16 +125,16 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 
 
 bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
-		      const TypeSet<Pos::GeomID>& geomids,
-			 DataCharacteristics::UserType type,
-			 const Scaler* scaler ) const
+		      const GeomIDSet& geomids,
+		      DataCharacteristics::UserType type,
+		      const Scaler* scaler ) const
 {
     mPrepIOObj();
     const uiString caption = tr("Pre-loading '%1'").arg( ioobj->name() );
 
     TaskGroup taskgrp;
     ObjectSet<SequentialFSLoader> rdrs;
-    TypeSet<Pos::GeomID> loadedgeomids;
+    GeomIDSet loadedgeomids;
     for ( int idx=0; idx<tkzss.size(); idx++ )
     {
 	const Pos::GeomID& geomid = geomids[idx];

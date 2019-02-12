@@ -556,12 +556,12 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
     if ( ads_->is2D() )
     {
 	EM::IOObjInfo info( ctio_.ioobj_->key() );
-	TypeSet<Pos::GeomID> geomids;
+	GeomIDSet geomids;
 	info.getGeomIDs( geomids );
 	if ( !usesinglehor_ )
 	{
 	    EM::IOObjInfo info2( ctio2_.ioobj_->key() );
-	    TypeSet<Pos::GeomID> geomids2;
+	    GeomIDSet geomids2;
 	    info2.getGeomIDs( geomids2 );
 	    for ( int idx=geomids.size()-1; idx>=0; idx-- )
 	    {

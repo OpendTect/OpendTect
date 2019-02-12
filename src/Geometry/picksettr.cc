@@ -495,7 +495,7 @@ void dgbPickSetTranslatorHDF5BackEnd::setTexts( Pick::Set& ps )
 void dgbPickSetTranslatorHDF5BackEnd::setGeomIDs( Pick::Set& ps,
 						  Pos::GeomID geomid )
 {
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     if ( !mIsUdfGeomID(geomid) )
 	geomids.setSize( ps.size(), geomid );
     else
@@ -632,7 +632,7 @@ bool dgbPickSetTranslatorHDF5BackEnd::putTexts( const Pick::Set& ps,
 bool dgbPickSetTranslatorHDF5BackEnd::putGeomIDs( const Pick::Set& ps,
 						  uiRetVal& uirv )
 {
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     Pick::SetIter psiter( ps );
     while ( psiter.next() )
 	geomids += psiter.get().geomID();

@@ -62,7 +62,7 @@ public:
     bool		isPresent(const char* linename) const;
     bool		isEmpty(GeomID) const;
 
-    void		getGeomIDs(TypeSet<GeomID>&) const;
+    void		getGeomIDs(GeomIDSet&) const;
     void		getLineNames(BufferStringSet&) const;
     uiRetVal		getGeometry(GeomID,PosInfo::Line2DData&) const;
 
@@ -96,7 +96,7 @@ protected:
     bool		readonly_;
 
     Seis2DLineIOProvider* liop_;
-    TypeSet<GeomID>	geomids_;
+    GeomIDSet		geomids_;
 
     void		init();
 };

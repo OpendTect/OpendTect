@@ -86,7 +86,8 @@ protected:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    TypeSet<Pos::GeomID>	geomids_;
+    GeomIDSet	geomids_;
+
 };
 
 

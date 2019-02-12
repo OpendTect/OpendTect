@@ -1126,7 +1126,7 @@ void IOPar::update( const char* keyw, const Pos::GeomID& gid )
 }
 
 
-void IOPar::set( const char* keyw, const TypeSet<Pos::GeomID>& geomids )
+void IOPar::set( const char* keyw, const GeomIDSet& geomids )
 {
     TypeSet<Pos::GeomID::IDType> lnrs;
     for ( auto gid : geomids )
@@ -1135,7 +1135,7 @@ void IOPar::set( const char* keyw, const TypeSet<Pos::GeomID>& geomids )
 }
 
 
-bool IOPar::get( const char* keyw, TypeSet<Pos::GeomID>& geomids ) const
+bool IOPar::get( const char* keyw, GeomIDSet& geomids ) const
 {
     TypeSet<Pos::GeomID::IDType> lnrs;
     if ( !get(keyw,lnrs) )

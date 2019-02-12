@@ -222,7 +222,7 @@ public:
     const DBKeySet&		selFaultIDs() const { return selfaultids_; }
 
     void			setEmpty();
-    void			setGeomIDs(const TypeSet<Pos::GeomID>&);
+    void			setGeomIDs(const GeomIDSet&);
 				/*<for FaultStickSet picked from 2D lines.*/
 
     Notifier<uiFaultParSel>	selChange;
@@ -235,8 +235,8 @@ protected:
 
     bool			is2d_;
     BufferStringSet		selfaultnms_;
-    DBKeySet		selfaultids_;
-    TypeSet<Pos::GeomID>	geomids_;
+    DBKeySet			selfaultids_;
+    GeomIDSet			geomids_;
 
     bool			useoptions_;
     BufferStringSet		optnms_;

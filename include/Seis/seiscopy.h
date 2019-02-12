@@ -94,7 +94,7 @@ protected:
     uiString			msg_;
     Seis::RangeSelData&		seldata_;
 
-    TypeSet<Pos::GeomID>	selgeomids_;
+    GeomIDSet			selgeomids_;
     TypeSet<StepInterval<int> > trcrgs_;
     TypeSet<StepInterval<float> > zrgs_;
     Scaler*			scaler_;

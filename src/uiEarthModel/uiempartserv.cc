@@ -1449,8 +1449,7 @@ void uiEMPartServer::getSurfaceDef3D( const DBKeySet& selhorids,
 }
 void uiEMPartServer::getSurfaceDef2D( const DBKeySet& selhorids,
 				  const BufferStringSet& selectlines,
-				  TypeSet<Coord>& coords,
-				  TypeSet<Pos::GeomID>& geomids,
+				  TypeSet<Coord>& coords, GeomIDSet& geomids,
 				  TypeSet< Interval<float> >& zrgs )
 {
     if ( selhorids.isEmpty() )

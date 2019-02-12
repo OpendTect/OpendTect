@@ -875,7 +875,7 @@ void FlatView::Viewer::setMapperDistribFromDataPack( bool iswva )
 }
 
 
-void FlatView::Viewer::setSeisGeomidsToViewer( TypeSet<Pos::GeomID>& geomids )
+void FlatView::Viewer::setSeisGeomidsToViewer( GeomIDSet& geomids )
 {
     geom2dids_ = geomids;
 }

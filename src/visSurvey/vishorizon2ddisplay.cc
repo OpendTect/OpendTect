@@ -234,7 +234,7 @@ public:
 Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
 		const Horizon2DDisplay::LineRanges* lr,
 		visBase::VertexShape* shape, visBase::PointSet* points,
-		ZAxisTransform* zaxt, const TypeSet<Pos::GeomID>& geomids,
+		ZAxisTransform* zaxt, const GeomIDSet& geomids,
 		TypeSet<int>& volumeofinterestids)
     : surf_( rcs )
     , lines_( shape )
@@ -404,7 +404,7 @@ protected:
     visBase::VertexShape*		lines_;
     visBase::PointSet*			points_;
     ZAxisTransform*			zaxt_;
-    const TypeSet<Pos::GeomID>&		geomids_;
+    const GeomIDSet&			geomids_;
     Threads::Mutex			lock_;
     int					nrthreads_;
     const Coord3			scale_;
@@ -432,7 +432,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	addChild( ps->osgNode() );
     }
 
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     EM::IOObjInfo info( emobject_->dbKey() );
     info.getGeomIDs( geomids );
 
@@ -600,7 +600,7 @@ void Horizon2DDisplay::updateIntersectionMarkers(
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
     if ( !hor2d ) return;
 
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     const int nrlns = hor2d->geometry().nrLines();
     for ( int idx=0; idx<nrlns; idx++ )
 	geomids += hor2d->geometry().geomID(idx);
@@ -664,9 +664,8 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
 }
 
 
-bool Horizon2DDisplay::calcLine2DIntersections(
-    const TypeSet<Pos::GeomID>& geom2dids,
-    Line2DInterSectionSet& intsectset )
+bool Horizon2DDisplay::calcLine2DIntersections( const GeomIDSet& geom2dids,
+				Line2DInterSectionSet& intsectset )
 {
     BendPointFinder2DGeomSet bpfinder( geom2dids );
     bpfinder.execute();
@@ -690,7 +689,7 @@ void Horizon2DDisplay::calcLine2DInterSectionSet()
     if ( needcalc )
     {
 	BufferStringSet lnms;
-	TypeSet<Pos::GeomID> geom2dids;
+	GeomIDSet geom2dids;
 	SeisIOObjInfo::getLinesWithData( lnms, geom2dids );
 	if ( ln2dset_ )
 	    delete ln2dset_;

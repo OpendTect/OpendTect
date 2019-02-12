@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "arraynd.h"
 #include "rowcol.h"
+#include "geomid.h"
 #include "objectset.h"
 #include "uistring.h"
 
@@ -84,6 +85,7 @@ public:
     uiRetVal		errMsg() const		{ return uirv_; }
     bool		toNextPos(); //!< end==false but no errMsg
 
+    Pos::GeomID		geomID() const;
     BinID		getPos() const;
     int			getTrcNr() const;
     SeisTrc*		get(int deltainl,int deltacrl);

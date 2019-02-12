@@ -83,7 +83,7 @@ public:
     TypeSet<BufferStringSet>&	lineNames()		{ return linenms_; }
     BufferStringSet&		selectLines()		{ return selectlines_; }
     TypeSet<Coord>&		getPos2D()		{ return coords2d_; }
-    TypeSet<Pos::GeomID>&	getGeomIDs2D()		{ return geomids2d_; }
+    GeomIDSet&			getGeomIDs2D()		{ return geomids2d_; }
     TypeSet< Interval<float> >& getHor2DZRgs()		{ return hor2dzrgs_; }
 
 protected:
@@ -100,7 +100,7 @@ protected:
     TypeSet<BufferStringSet>	linenms_;
     BufferStringSet		selectlines_;
     TypeSet<Coord>		coords2d_;
-    TypeSet<Pos::GeomID>	geomids2d_;
+    GeomIDSet			geomids2d_;
     TypeSet< Interval<float> >	hor2dzrgs_;
 
     uiImpExpPickSet*		imppsdlg_;

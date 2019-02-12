@@ -420,8 +420,7 @@ bool uiSeisPartServer::select2DSeis( DBKey& mid )
     Seis2DDataSet dataset( *ioobj );
 
 
-bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
-				      int& action )
+bool uiSeisPartServer::select2DLines( GeomIDSet& selids, int& action )
 {
     selids.erase();
 

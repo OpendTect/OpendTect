@@ -434,9 +434,9 @@ public:
     void		enableStatusBarUpdate()  { needstatusbarupd_ = true; }
     void		disableStatusBarUpdate() { needstatusbarupd_ = false; }
     bool		needStatusBarUpdate() const { return needstatusbarupd_;}
-    void		setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
+    void		setSeisGeomidsToViewer(GeomIDSet&);
 
-    const TypeSet<Pos::GeomID>&	getAllSeisGeomids() const { return geom2dids_; }
+    const GeomIDSet&	getAllSeisGeomids() const { return geom2dids_; }
 
 protected:
 
@@ -464,7 +464,7 @@ private:
     WeakPtr<FlatDataPack>	wvapack_;
     WeakPtr<FlatDataPack>	vdpack_;
 
-    TypeSet<Pos::GeomID>	geom2dids_;
+    GeomIDSet			geom2dids_;
 
 public:
 

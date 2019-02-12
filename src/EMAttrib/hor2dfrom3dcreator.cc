@@ -41,7 +41,7 @@ Hor2DFrom3DCreatorGrp::~Hor2DFrom3DCreatorGrp()
 }
 
 
-void Hor2DFrom3DCreatorGrp::init( const TypeSet<Pos::GeomID>& linegeomids )
+void Hor2DFrom3DCreatorGrp::init( const GeomIDSet& linegeomids )
 {
     for ( int idx=0; idx<linegeomids.size(); idx++ )
     {

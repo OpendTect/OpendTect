@@ -149,7 +149,7 @@ bool uiBatchSetup::fillPar()
     mDynamicCastGet(uiSeis2DSubSel*,subsel2d,subsel_)
     if ( subsel2d )
     {
-	TypeSet<Pos::GeomID> geomids;
+	GeomIDSet geomids;
 	subsel2d->selectedGeomIDs( geomids );
 	subselpar.set( sKey::NrGeoms(), geomids.size() );
 	for ( int idx=0; idx<geomids.size(); idx++ )

@@ -76,7 +76,7 @@ SeisPSWriter*	SeisPSIOProvider::get2DWriter( const IOObj& ioobj,
 { return make2DWriter( ioobj.fullUserExpr(false), lnm ); }
 
 bool SeisPSIOProvider::fetchGeomIDs( const IOObj& ioobj,
-				   TypeSet<Pos::GeomID>& geomids ) const
+				     GeomIDSet& geomids ) const
 { return getGeomIDs( ioobj.fullUserExpr(true), geomids ); }
 bool SeisPSIOProvider::fetchLineNames( const IOObj& ioobj,
 				     BufferStringSet& lnms ) const
@@ -121,7 +121,7 @@ void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
 
 
 bool SeisPSIOProviderFactory::getGeomIDs( const IOObj& ioobj,
-					  TypeSet<Pos::GeomID>& geomids ) const
+					  GeomIDSet& geomids ) const
 {
     if ( provs_.isEmpty() ) return false;
 

@@ -387,7 +387,7 @@ bool Horizon2DGridCreator::init( const IOPar& par,
     PtrMan<IOObj> dsioobj = DBM().get( dsid );
     if ( !dsioobj ) return false;
 
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     Seis2DDataSet ds( *dsioobj );
     ds.getGeomIDs( geomids );
     BufferStringSet horids;

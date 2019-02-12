@@ -32,8 +32,8 @@ public:
     typedef Attrib::DescSet	DescSet;
 
 			uiAttr2DSelDlg(uiParent*,const DescSet*,
-				       const TypeSet<Pos::GeomID>&,
-				       const NLAModel*,const char* curnm=0);
+				       const GeomIDSet&,const NLAModel*,
+				       const char* curnm=0);
 			~uiAttr2DSelDlg();
 
     int			getSelType() const		{ return seltype_; }
@@ -45,7 +45,7 @@ public:
 protected:
 
     Attrib::SelInfo*	attrinf_;
-    TypeSet<Pos::GeomID> geomids_;
+    GeomIDSet		geomids_;
     DescID		descid_;
     const NLAModel*	nla_;
     int			seltype_;

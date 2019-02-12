@@ -328,7 +328,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 
     if ( is2d )
     {
-	TypeSet<Pos::GeomID> geomids; geomids += geomid;
+	GeomIDSet geomids; geomids += geomid;
 	uiAttr2DSelDlg dlg( parent(), &attrset, geomids, attrdata.nlamodel_ );
 	if ( !dlg.go() )
 	    return false;

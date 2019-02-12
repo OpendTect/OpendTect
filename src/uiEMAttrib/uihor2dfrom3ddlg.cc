@@ -124,7 +124,7 @@ bool uiHor2DFrom3DDlg::checkFlds()
 
 void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
 {
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     linesetinpsel_->getSelGeomIDs( geomids );
     mDynamicCastGet(EM::Horizon3D*,horizon3d,
 		    EM::Hor3DMan().getObject(hor3dsel_->selIOObj()->key()));

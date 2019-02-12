@@ -42,16 +42,16 @@ public:
 					OD::ChoiceMode cm=OD::ChooseOnlyOne);
 			~uiSeis2DLineChoose();
 
-    void		getChosen(TypeSet<Pos::GeomID>&) const;
+    void		getChosen(GeomIDSet&) const;
     void		getChosen(BufferStringSet&) const;
-    void		setChosen(const TypeSet<Pos::GeomID>&);
+    void		setChosen(const GeomIDSet&);
     void		setChosen(const BufferStringSet&);
     void		chooseAll(bool yn=true);
 
 protected:
 
     BufferStringSet	lnms_;
-    TypeSet<Pos::GeomID> geomids_;
+    GeomIDSet		geomids_;
 
     uiListBox*		listfld_;
     uiListBoxFilter*	filtfld_;
@@ -66,7 +66,7 @@ protected:
 
     friend class	uiSeis2DLineSel;
 			uiSeis2DLineChoose(uiParent*,OD::ChoiceMode,
-			    const BufferStringSet&,const TypeSet<Pos::GeomID>&);
+			    const BufferStringSet&,const GeomIDSet&);
 
     void		init(OD::ChoiceMode);
 };
@@ -86,15 +86,15 @@ public:
     void		setSelLine(const char* lnm);
     void		setSelLine(Pos::GeomID);
 
-    void		getSelGeomIDs(TypeSet<Pos::GeomID>&) const;
+    void		getSelGeomIDs(GeomIDSet&) const;
     void		getSelLineNames(BufferStringSet&) const;
 
-    void		setSelGeomIDs(const TypeSet<Pos::GeomID>&);
+    void		setSelGeomIDs(const GeomIDSet&);
     void		setSelLineNames(const BufferStringSet&);
 
     virtual void	setInput(const DBKey&);
     virtual void	setInput(const BufferStringSet& lnms);
-    virtual void	setInput(const TypeSet<Pos::GeomID>& geomid);
+    virtual void	setInput(const GeomIDSet&);
 
     void		clearSelection();
     int			nrSelected() const;
@@ -107,7 +107,7 @@ public:
 protected:
 
     BufferStringSet	lnms_;
-    TypeSet<Pos::GeomID> geomids_;
+    GeomIDSet		geomids_;
     TypeSet<int>	selidxs_;
     bool		ismultisel_;
 
@@ -162,7 +162,7 @@ public:
 
     void		setInput(const DBKey&);
     void		setInput(const BufferStringSet& lnms);
-    void		setInput(const TypeSet<Pos::GeomID>& geomid);
+    void		setInput(const GeomIDSet&);
 
     void		setSelLines(const BufferStringSet&);
     void		setAll(bool);

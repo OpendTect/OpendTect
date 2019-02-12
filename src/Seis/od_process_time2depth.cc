@@ -119,7 +119,7 @@ bool BatchProgram::go( od_ostream& strm )
     const bool is2d = seisinfo.is2D();
     if ( is2d )
     {
-	TypeSet<Pos::GeomID> geomids;
+	GeomIDSet geomids;
 	TypeSet< StepInterval<int> > trcrgs;
 	for ( int idx=0; ; idx++ )
 	{

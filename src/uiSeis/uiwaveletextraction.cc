@@ -180,7 +180,7 @@ void uiWaveletExtraction::lineSelCB( CallBacker* )
     const SeisIOObjInfo si( seisselfld_->ioobj() );
     StepInterval<int> trcrg;
     StepInterval<float> commonzrg;
-    TypeSet<Pos::GeomID> geomids;
+    GeomIDSet geomids;
     linesel2dfld_->getSelGeomIDs( geomids );
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
@@ -335,7 +335,7 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 	range.cubeSampling().hsamp_.setInlRange( inlrg );
 
 	ObjectSet<Seis::SelData> sdset;
-	TypeSet<Pos::GeomID> geomids;
+	GeomIDSet geomids;
 	linesel2dfld_->getSelGeomIDs( geomids );
 	for ( int lidx=0; lidx<geomids.size(); lidx++ )
 	{

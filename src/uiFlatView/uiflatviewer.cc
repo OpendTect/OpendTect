@@ -413,7 +413,7 @@ void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
 }
 
 
-void uiFlatViewer::setSeisGeomidsToViewer(TypeSet<Pos::GeomID>& geomids)
+void uiFlatViewer::setSeisGeomidsToViewer( GeomIDSet& geomids )
 {
     FlatView::Viewer::setSeisGeomidsToViewer(geomids);
 }

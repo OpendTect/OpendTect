@@ -125,7 +125,7 @@ bool uiImp2DGeom::acceptOK()
 	for ( int idx=0; idx<geoms.size(); idx++ )
 	    linenms.add( geoms[idx]->name() );
 
-	TypeSet<Pos::GeomID> geomids;
+	GeomIDSet geomids;
 	if ( !Geom2DImpHandler::getGeomIDs(linenms,geomids) )
 	    return false;
 
@@ -286,7 +286,7 @@ Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm, bool ovwok )
 
 
 bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
-				     TypeSet<Pos::GeomID>& geomids, bool ovwok )
+				   GeomIDSet& geomids, bool ovwok )
 {
     geomids.erase();
     BufferString existingidxs;

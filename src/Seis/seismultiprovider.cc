@@ -548,7 +548,7 @@ void Seis::MultiProvider2D::doReset( uiRetVal& uirv ) const
 
     for ( int idx=0; idx<provs_.size(); idx++ )
     {
-	TypeSet<Pos::GeomID> geomids;
+	GeomIDSet geomids;
 	mDynamicCastGet(const Provider2D&,prov2d,*provs_[idx]);
 	for ( int lineidx=0; lineidx<prov2d.nrLines(); lineidx++ )
 	    geomids += prov2d.geomID( lineidx );
