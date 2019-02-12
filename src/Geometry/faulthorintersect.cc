@@ -15,11 +15,9 @@
 #include "explfaultsticksurface.h"
 #include "isocontourtracer.h"
 
-
 #define mDistLimitation 10.0f
 namespace Geometry
 {
-
 
 class FBIntersectionCalculator : public ParallelTask
 {
@@ -33,7 +31,7 @@ FBIntersectionCalculator( const BinIDSurface& surf, float surfshift,
 {}
 
 ~FBIntersectionCalculator()		{ stickintersections_.erase(); }
-od_int64 nrIterations() const	{ return shape_.getGeometry().size(); }
+od_int64 nrIterations() const		{ return shape_.getGeometry().size(); }
 TypeSet<Coord3>& result()		{ return finalres_; }
 
 bool doPrepare( int )
@@ -129,7 +127,7 @@ bool findMin( TypeSet<Coord3>& res, int& minidx, bool isx )
 	const double anotherval = isx ? res[idx].y_ : res[idx].x_;
 	const double minpairval = isx ? res[minidx].y_ : res[minidx].x_;
 
-	bool diff = anotherval - minpairval>0 ? true : false;
+	const bool diff = (anotherval - minpairval)>0 ? true : false;
 
 	if ( !side1 && diff )
 	    side1 =  true;
@@ -137,7 +135,7 @@ bool findMin( TypeSet<Coord3>& res, int& minidx, bool isx )
 	    side2 = true;
     }
 
-    return (side1 && side2) ? false : ( (deltaval-mDistLimitation)>0 ? true :
+    return (side1 && side2) ? true : ( (deltaval-mDistLimitation)>0 ? true :
 	false );
 }
 
@@ -180,15 +178,13 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		if ( allabove )
 		{
 		    allabove = defined
-			? v[k].z_>=pz
-			: v[k].z_ >= surfzrg_.stop;
+			? v[k].z_>=pz : v[k].z_ >= surfzrg_.stop;
 		}
 
 		if ( allbelow )
 		{
 		    allbelow = defined
-			? v[k].z_<=pz
-			: v[k].z_ <= surfzrg_.start;
+			? v[k].z_<=pz : v[k].z_ <= surfzrg_.start;
 		}
 
 		if ( !k )
@@ -464,7 +460,7 @@ void FaultBinIDSurfaceIntersector::sortPointsToLine(
 
 	if ( lastpnt.sqDistTo(pnt) >mDistLimitation || out.size()==0 )
 	    out += pnt;
-        pnt = findNearestPoint( out[out.size()-1], in );
+	pnt = findNearestPoint( out[out.size()-1], in );
     }
 }
 
@@ -493,5 +489,4 @@ const Coord3 FaultBinIDSurfaceIntersector::findNearestPoint(
     return retpnt;
 }
 
-
-};
+} // namespace Geometry
