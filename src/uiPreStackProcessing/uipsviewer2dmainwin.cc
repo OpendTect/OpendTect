@@ -199,7 +199,8 @@ void uiViewer2DMainWin::setUpView()
     dummyginfo.isselected_ = true;
     setGather( dummyginfo );
 
-    control_->setGatherInfos( gatherinfos_ );
+    if ( control_ )
+	control_->setGatherInfos( gatherinfos_ );
 
     displayMutes();
     reSizeSld(0);
