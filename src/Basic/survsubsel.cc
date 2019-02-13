@@ -388,6 +388,13 @@ LineSubSel::LineSubSel( const pos_steprg_type& hrg, const ZSubSel& zss )
 }
 
 
+LineSubSel::LineSubSel( const TrcKeySampling& tks )
+    : LineSubSel( Survey::Geometry::get2D(tks.getGeomID()) )
+{
+    setTrcNrRange( tks.trcRange() );
+}
+
+
 LineSubSel::LineSubSel( const TrcKeyZSampling& tkzs )
     : LineSubSel( Survey::Geometry::get2D(tkzs.getGeomID()) )
 {

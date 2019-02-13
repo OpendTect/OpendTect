@@ -37,6 +37,7 @@ public:
 			LineSubSel(const pos_steprg_type&);
 			LineSubSel(const pos_steprg_type&,const z_steprg_type&);
 			LineSubSel(const pos_steprg_type&,const ZSubSel&);
+			LineSubSel(const TrcKeySampling&);
 			LineSubSel(const TrcKeyZSampling&);
 			mImplArrRegSubSelClone(LineSubSel)
 
