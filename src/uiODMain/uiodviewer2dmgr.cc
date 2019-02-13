@@ -49,6 +49,7 @@ ________________________________________________________________________
 #include "posinfo2d.h"
 #include "flatposdata.h"
 #include "randomlinegeom.h"
+#include "scaler.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
@@ -1067,14 +1068,16 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
 
     const StepInterval<double> vwrxrg =
 	vwr2d->viewwin()->viewer().posRange( true );
-    const int posidx = vwrxrg.getIndex( pos );
-    if ( posidx<0 )
+    StepInterval<int> vwrtrcrg = vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
+    const LinScaler x2trc( vwrxrg.start, vwrtrcrg.start,
+			   vwrxrg.stop, vwrtrcrg.stop );
+    const double trcnrd = x2trc.scale( pos );
+    const int trcnr = mNINT32( trcnrd );
+    if ( !vwrtrcrg.includes(trcnr,false) )
 	return udfintpoint;
 
-    StepInterval<int> vwrtrcrg = vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
-    const uiWorldPoint wperpixel =
-	vwr2d->viewwin()->viewer(0).getWorld2Ui().worldPerPixel();
-    const float eps  = mCast(float,wperpixel.x) * sEPSPixWidth;
+    double mindiff = mUdf(double);
+    int minidx = -1;
     TypeSet<Pos::GeomID> datagids;
     getVWR2DDataGeomIDs( vwr2d, datagids );
     for ( int idx=0; idx<int2d->size(); idx++ )
@@ -1083,13 +1086,15 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
 	if ( !datagids.isPresent(intpoint.line) )
 	    continue;
 
-	const int inttrcidx = vwrtrcrg.getIndex( intpoint.mytrcnr );
-	const double inttrcpos = vwrxrg.atIndex( inttrcidx );
-	if ( mIsEqual(pos,inttrcpos,eps) )
-	    return intpoint;
+	const double diff = Math::Abs( (double)(intpoint.mytrcnr-trcnrd) );
+	if ( diff > mindiff )
+	    continue;
+
+	mindiff = diff;
+	minidx = idx;
     }
 
-    return udfintpoint;
+    return minidx==-1 ? udfintpoint : int2d->getPoint( minidx );
 }
 
 
