@@ -328,8 +328,7 @@ void uiODViewer2DPosGrp::updateDataSelFld()
 
 void uiODViewer2DPosGrp::updateTrcKeySampFld()
 {
-    TrcKeyZSampling seltkzs;
-    getSelAttrSamp( seltkzs );
+    const TrcKeyZSampling seltkzs = posdatasel_->tkzs_;
     switch ( posdatasel_->postype_ )
     {
 	case Viewer2DPosDataSel::Line2D :
@@ -407,7 +406,10 @@ void uiODViewer2DPosGrp::inpSel( CallBacker* cb )
 
     updatePosFlds();
     if ( cb == inp3dfld_ )
+    {
+	getSelAttrSamp( posdatasel_->tkzs_ );
 	updateTrcKeySampFld();
+    }
 
     inpSelected.trigger();
 }
