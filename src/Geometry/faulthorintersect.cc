@@ -16,16 +16,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "explfaultsticksurface.h"
 #include "isocontourtracer.h"
 
-
 #define mDistLimitation 10.0f
 namespace Geometry
 {
 
-
 class FBIntersectionCalculator : public ParallelTask
 {
 public:
-FBIntersectionCalculator( const BinIDSurface& surf, float surfshift, 
+FBIntersectionCalculator( const BinIDSurface& surf, float surfshift,
 	const ExplFaultStickSurface& shape )
     : surf_( surf )
     , surfzrg_( -1, -1 )
@@ -34,8 +32,8 @@ FBIntersectionCalculator( const BinIDSurface& surf, float surfshift,
 {}
 
 ~FBIntersectionCalculator()		{ stickintersections_.erase(); }
-od_int64 nrIterations() const   	{ return shape_.getGeometry().size(); }
-TypeSet<Coord3>& result() 		{ return finalres_; }
+od_int64 nrIterations() const		{ return shape_.getGeometry().size(); }
+TypeSet<Coord3>& result()		{ return finalres_; }
 
 bool doPrepare( int )
 {
@@ -92,7 +90,7 @@ bool doFinish( bool )
 	finalres_.removeSingle( minidx );
 	finalres_.insert( 0, mincrd );
     }
-  
+
     return true;
  }
 
@@ -100,12 +98,12 @@ bool doFinish( bool )
 bool findMin( TypeSet<Coord3>& res, int& minidx, bool isx )
 {
     if ( res.size()==0 ) return false;
- 
+
     double minval = isx ? res[0].x : res[0].y;
     minidx = 0;
     Coord3 mincrd;
     double deltaval = 0;
-    
+
     for ( int idx = 1; idx<res.size(); idx++ )
     {
 	const double val = isx ? res[idx].x : res[idx].y;
@@ -126,19 +124,19 @@ bool findMin( TypeSet<Coord3>& res, int& minidx, bool isx )
 
 	if ( side1 && side2 )
 	    break;
-		
+
 	const double anotherval = isx ? res[idx].y : res[idx].x;
 	const double minpairval = isx ? res[minidx].y : res[minidx].x;
-	
-	bool diff = anotherval - minpairval>0 ? true : false;
-	
+
+	const bool diff = (anotherval - minpairval)>0 ? true : false;
+
 	if ( !side1 && diff )
 	    side1 =  true;
 	else if ( !side2 && !diff )
 	    side2 = true;
     }
 
-    return (side1 && side2) ? false : ( (deltaval-mDistLimitation)>0 ? true : 
+    return (side1 && side2) ? true : ( (deltaval-mDistLimitation)>0 ? true :
 	false );
 }
 
@@ -151,8 +149,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
     ConstRefMan<Coord3List> coordlist = shape_.coordList();
 
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
-    {	
-    	const IndexedGeometry* inp = shape_.getGeometry()[idx];
+    {
+	const IndexedGeometry* inp = shape_.getGeometry()[idx];
 	if ( !inp ) continue;
 
 	IndexedGeometry* idxgeom = const_cast<IndexedGeometry*> (inp);
@@ -165,8 +163,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    for ( int k=0; k<3; k++ )
 		v[k] = coordlist->get(geomps->get(idy+k));
 	    const Coord3 center = (v[0]+v[1]+v[2])/3;
-      
-	    Interval<int> trrg, tcrg; 
+
+	    Interval<int> trrg, tcrg;
 	    Coord3 rcz[3];
 	    bool allabove = true;
 	    bool allbelow = true;
@@ -179,9 +177,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		rcz[k] = Coord3( rc.row(), rc.col(), pz );
 		bool defined = !mIsUdf(pz);
 		if ( allabove )
-    		    allabove = defined ? v[k].z>=pz : v[k].z >= surfzrg_.stop;
+		    allabove = defined ? v[k].z>=pz : v[k].z >= surfzrg_.stop;
 		if ( allbelow )
-    		    allbelow = defined ? v[k].z<=pz : v[k].z <= surfzrg_.start;
+		    allbelow = defined ? v[k].z<=pz : v[k].z <= surfzrg_.start;
 
 		if ( !k )
 		{
@@ -197,8 +195,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	    if ( trrg.start > surfrrg.stop || trrg.stop < surfrrg.start ||
 		 tcrg.start > surfcrg.stop || tcrg.stop < surfcrg.start ||
-		 allabove || allbelow ) 
-		continue; 
+		 allabove || allbelow )
+		continue;
 
 	    Coord3 tri[3];
 	    for ( int k=0; k<3; k++ )
@@ -207,7 +205,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		tri[k].z *= zscale;
 	    }
 	    Plane3 triangle( tri[0], tri[1], tri[2] );
-	   
+
 	    trrg.start = surfrrg.snap( trrg.start );
 	    trrg.stop = surfrrg.snap( trrg.stop );
 	    tcrg.start = surfcrg.snap( tcrg.start );
@@ -244,7 +242,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    ictracer.setSampling( smprrg, smpcrg );
 	    ObjectSet<ODPolygon<float> > isocontours;
 	    ictracer.getContours( isocontours, 0, false );
-	    
+
 	    TypeSet<Coord3> tmp;
 	    for ( int cidx=0; cidx<isocontours.size(); cidx++ )
 	    {
@@ -275,9 +273,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
 			    firstpos = intersect;
 		    }
 		}
-		
+
 		if ( isclosed && !mIsUdf(firstpos.z) )
-		    tmp += firstpos; 
+		    tmp += firstpos;
 	    }
 	    if ( tmp.size()>0 )
 		res.append( tmp );
@@ -318,7 +316,7 @@ bool getSurfacePos( const Geom::Point2D<float>& vertex, Coord3& res )
 	    }
 	    else
 		dist = 1.f/dist;
-	    
+
 	    weights += dist;
 	    weightsum += dist;
 	    neighbors += pos;
@@ -331,7 +329,7 @@ bool getSurfacePos( const Geom::Point2D<float>& vertex, Coord3& res )
     res = Coord3(0,0,0);
     for ( int pidx=0; pidx<neighbors.size(); pidx++ )
 	res += neighbors[pidx] * weights[pidx];
-    res /= weightsum; 
+    res /= weightsum;
 
     return true;
 }
@@ -347,13 +345,13 @@ TypeSet<Coord3>			finalres_;
 
 
 FaultBinIDSurfaceIntersector::FaultBinIDSurfaceIntersector( float horshift,
-	const BinIDSurface& surf, const ExplFaultStickSurface& eshape, 
+	const BinIDSurface& surf, const ExplFaultStickSurface& eshape,
 	Coord3List& cl )
     : surf_( surf )
     , crdlist_( cl )
     , output_( 0 )
     , zshift_( horshift )
-    , eshape_( eshape )		
+    , eshape_( eshape )
 {}
 
 
@@ -364,9 +362,9 @@ void FaultBinIDSurfaceIntersector::setShape( const IndexedShape& ns )
 }
 
 
-const IndexedShape* FaultBinIDSurfaceIntersector::getShape( bool takeover ) 
-{ 
-    return takeover ? output_ : new IndexedShape(*output_); 
+const IndexedShape* FaultBinIDSurfaceIntersector::getShape( bool takeover )
+{
+    return takeover ? output_ : new IndexedShape(*output_);
 }
 
 
@@ -379,7 +377,7 @@ void FaultBinIDSurfaceIntersector::compute()
     TypeSet<Coord3>& calcres = calculator.result();
     TypeSet<Coord3> res;
     sortPointsToLine( calcres, res );
-    
+
     if ( res.size()==0 )
 	return;
 
@@ -390,11 +388,11 @@ void FaultBinIDSurfaceIntersector::compute()
 
     if ( !geo )
     {
-    	for ( int idx=0; idx<possize; idx++ )
-    	    crdlist_.add( res[idx] );
+	for ( int idx=0; idx<possize; idx++ )
+	    crdlist_.add( res[idx] );
 	return;
     }
-    
+
     geo->removeAll( false );
     Geometry::PrimitiveSet* idxps = geo->getCoordsPrimitiveSet();
     idxps->setEmpty();
@@ -415,7 +413,7 @@ int FaultBinIDSurfaceIntersector::optimizeOrder( TypeSet<Coord3>& res )
     TypeSet<int> idxs;
     for ( int idx = 1; idx<res.size(); idx++ )
     {
-	 const Coord xy( res[idx].x,res[idx].y );
+	 const Coord xy( res[idx].x, res[idx].y );
 	 if ( bbox.getRange(0).start<xy.x && bbox.getRange(0).stop>xy.x &&
 	      bbox.getRange(1).start<xy.y && bbox.getRange(1).stop>xy.y )
 	 {
@@ -438,7 +436,7 @@ int FaultBinIDSurfaceIntersector::optimizeOrder( TypeSet<Coord3>& res )
 }
 
 
-void FaultBinIDSurfaceIntersector::sortPointsToLine( 
+void FaultBinIDSurfaceIntersector::sortPointsToLine(
     TypeSet<Coord3>& in, TypeSet<Coord3>& out )
 {
     if ( in.isEmpty() ) return;
@@ -455,12 +453,12 @@ void FaultBinIDSurfaceIntersector::sortPointsToLine(
 
 	if ( lastpnt.sqDistTo(pnt) >mDistLimitation || out.size()==0 )
 	    out += pnt;
-        pnt = findNearestPoint( out[out.size()-1], in );
+	pnt = findNearestPoint( out[out.size()-1], in );
     }
 }
 
 
-const Coord3 FaultBinIDSurfaceIntersector::findNearestPoint( 
+const Coord3 FaultBinIDSurfaceIntersector::findNearestPoint(
     const Coord3& pnt,	TypeSet<Coord3>& res )
 {
     double dist = MAXFLOAT;
@@ -484,5 +482,4 @@ const Coord3 FaultBinIDSurfaceIntersector::findNearestPoint(
     return retpnt;
 }
 
-
-};
+} // namespace Geometry
