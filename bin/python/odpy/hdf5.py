@@ -63,31 +63,27 @@ def getDValue( infos, ky ):
 
 def getIInterval( infos, ky ):
   ret = getText(infos,ky)
-  try:
+  if isinstance(ret,list) and len(ret) > 1:
     return [int(ret[0]), int(ret[1])]
-  except IndexError:
-    return getIntValue( infos, ky )
+  return getIntValue( infos, ky )
 
 def getDInterval( infos, ky ):
   ret = getText(infos,ky)
-  try:
+  if isinstance(ret,list) and len(ret) > 1:
     return [float(ret[0]), float(ret[1])]
-  except IndexError:
-    return getDValue( infos, ky )
+  return getDValue( infos, ky )
 
 def getIStepInterval( infos, ky ):
   ret = getText(infos,ky)
-  try:
+  if isinstance(ret,list) and len(ret) > 2:
     return [int(ret[0]), int(ret[1]), int(ret[2])]
-  except IndexError:
-    return getIInterval( infos, ky )
+  return getIInterval( infos, ky )
 
 def getDStepInterval( infos, ky ):
   ret = getText(infos,ky)
-  try:
+  if isinstance(ret,list) and len(ret) > 2:
     return [float(ret[0]), float(ret[1]), float(ret[2])]
-  except IndexError:
-    return getDInterval( infos, ky )
+  return getDInterval( infos, ky )
 
 def getAttribInfo( filenm ):
   h5file = h5py.File( filenm, "r" )
