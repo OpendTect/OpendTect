@@ -11,9 +11,47 @@
 #include "oscommand.h"
 #include "od_iostream.h"
 #include "genc.h"
+#include <iostream>
 
 
-/* TODO: make active
+static bool getData( od_istream& pullstrm, float* vals,
+			int expectednrvals, const char* whatstr )
+{
+    int nrvals;
+    int nrerrs = 0;
+    while ( true )
+    {
+	nrvals = 0;
+	pullstrm.getBin( nrvals );
+	if ( pullstrm.isBad() )
+	{
+	    nrerrs++;
+	    if ( nrerrs > 3 )
+	    {
+		tstStream(false) << "bad pullstrm, too often" << od_endl;
+		BufferString errmsg;
+		pullstrm.addErrMsgTo( errmsg );
+		tstStream(true) << errmsg << od_endl;
+	    }
+	    pullstrm.stdStream().clear();
+	    Threads::sleep( 0.02 );
+	    continue;
+	}
+	else if ( nrvals == 0 )
+	{
+	    tstStream(false) << "got 0 vals, continuing loop" << od_endl;
+	    Threads::sleep( 0.02 );
+	    continue;
+	}
+	mRunStandardTestWithError( nrvals==expectednrvals,
+				   BufferString(whatstr," (nr vals)"),
+				   BufferString("nrvals=",nrvals) )
+	break;
+   }
+   mRunStandardTest( pullstrm.getBin(vals,nrvals*sizeof(float)),
+			BufferString(whatstr," (slurp)") )
+   return true;
+}
 
 static bool testComm( od_ostream& pushstrm, od_istream& pullstrm )
 {
@@ -23,11 +61,9 @@ static bool testComm( od_ostream& pushstrm, od_istream& pullstrm )
     pushstrm.addBin( nrvals );
     mRunStandardTest( pushstrm.addBin(vals,nrvals*sizeof(float)),
 			"First vals put" )
-    pullstrm.getBin( nrvals );
-    mRunStandardTestWithError( nrvals==2, "First Nr vals got",
-				BufferString("nrvals=",nrvals) )
-    mRunStandardTest( pullstrm.getBin(outvals,nrvals*sizeof(float)),
-			"First vals got" )
+
+    if ( !getData(pullstrm,outvals,2,"first") )
+	return false;
     mRunStandardTestWithError( outvals[0]>3.99f&&outvals[0]<4.01f,
 	"First Average calculated", BufferString("outvals[0]=",outvals[0]) )
 
@@ -35,23 +71,18 @@ static bool testComm( od_ostream& pushstrm, od_istream& pullstrm )
     pushstrm.addBin( nrvals );
     mRunStandardTest( pushstrm.addBin(vals,nrvals*sizeof(float)),
 			"2nd vals put" )
-    pullstrm.getBin( nrvals );
-    mRunStandardTest( pullstrm.getBin(outvals,nrvals*sizeof(float)),
-			"2nd vals got" )
-    mRunStandardTest( nrvals==2, "2nd Nr vals got" )
+    if ( !getData(pullstrm,outvals,2,"second") )
+	return false;
     mRunStandardTestWithError( outvals[0]>4.99f&&outvals[0]<5.01f,
 	"2nd Average calculated", BufferString("outvals[0]=",outvals[0]) )
 
     return true;
 }
 
-*/
-
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    /* TODO: re-enable
     OS::MachineCommand mc( GetPythonCommand() );
     mc.addArg( "-u" );
     mc.addArg( GetPythonScript("test_ioserv.py") );
@@ -59,11 +90,10 @@ int mTestMainFnName( int argc, char** argv )
     execpars.createstreams( true );
     OS::CommandLauncher cl( mc );
     cl.execute( execpars );
-    sleepSeconds( 0.2 );
+    sleepSeconds( 1 );
 
     if ( !testComm(*cl.getStdInput(),*cl.getStdOutput()) )
 	return 1;
-    */
 
     return 0;
 }

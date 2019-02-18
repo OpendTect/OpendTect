@@ -63,6 +63,7 @@ while True:
   dbg_pr( "Result nrvals", str(nrvals) )
   if nrvals == 0:
     time.sleep( 0.01 )
+    dbg_pr( "Got 0 vals, waited", "0.01 seconds" )
     continue
   if nrvals < 0:
     dbg_pr( "Stopped", "loop" )
@@ -78,6 +79,7 @@ while True:
 
   vals = struct.unpack( 'f'*nrvals, inpdata )
   dbg_pr( "Got values", str(vals) )
+  time.sleep( 0.1 ) # simulate calculation time
   outvals[0] = numpy.mean(vals)
   outvals[1] = numpy.std(vals)
   dbg_pr( "Calculated values", str(outvals) )
