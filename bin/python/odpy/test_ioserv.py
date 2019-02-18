@@ -48,6 +48,7 @@ def get_int_from_bytes( data_read ):
 
 
 outvals = numpy.zeros( 2, dtype=numpy.float32 )
+time.sleep( 2 ) # simulate startup time
 dbg_pr( "Started", "loop" )
 
 while True:
@@ -79,7 +80,7 @@ while True:
 
   vals = struct.unpack( 'f'*nrvals, inpdata )
   dbg_pr( "Got values", str(vals) )
-  time.sleep( 0.1 ) # simulate calculation time
+  time.sleep( 2 ) # simulate calculation time
   outvals[0] = numpy.mean(vals)
   outvals[1] = numpy.std(vals)
   dbg_pr( "Calculated values", str(outvals) )

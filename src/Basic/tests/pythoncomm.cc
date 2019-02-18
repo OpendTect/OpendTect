@@ -23,17 +23,20 @@ static bool getData( od_istream& pullstrm, float* vals,
     {
 	nrvals = 0;
 	pullstrm.getBin( nrvals );
-	if ( pullstrm.isBad() )
+	const bool badstrm = pullstrm.isBad();
+	if ( nrvals == 0 || badstrm )
 	{
 	    nrerrs++;
-	    if ( nrerrs > 3 )
+	    std::istream& stdstrm = pullstrm.stdStream();
+	    if ( stdstrm.bad() || nrerrs > 100 )
 	    {
-		tstStream(false) << "bad pullstrm, too often" << od_endl;
+		tstStream(false) << "bad strm, or too many fails" << od_endl;
 		BufferString errmsg;
 		pullstrm.addErrMsgTo( errmsg );
 		tstStream(true) << errmsg << od_endl;
+		return false;
 	    }
-	    pullstrm.stdStream().clear();
+	    stdstrm.clear();
 	    Threads::sleep( 0.02 );
 	    continue;
 	}
