@@ -57,6 +57,8 @@ public:
     LineHorSubSel&	lineHorSubSel()		{ return hss_; }
     const LineHorSubSel& lineHorSubSel() const	{ return hss_; }
 
+    const Geometry2D&	geometry2D() const;
+
 protected:
 
     LineHorSubSel hss_;

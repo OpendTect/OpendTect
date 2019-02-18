@@ -402,6 +402,12 @@ LineSubSel::LineSubSel( const TrcKeyZSampling& tkzs )
 }
 
 
+const Survey::Geometry2D& LineSubSel::geometry2D() const
+{
+    return Geometry2D::get( geomID() );
+}
+
+
 CubeSubSel::CubeSubSel( OD::SurvLimitType slt )
     : CubeSubSel( Geometry::get3D(slt) )
 {
