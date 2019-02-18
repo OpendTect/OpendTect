@@ -620,7 +620,12 @@ bool Survey::Geometry2D::includes( tracenr_type trcnr ) const
 
 Coord Survey::Geometry2D::getCoord( tracenr_type trcnr ) const
 {
-    const auto idx = indexOf( trcnr );
+    return getCoordByIdx( indexOf(trcnr) );
+}
+
+
+Coord Survey::Geometry2D::getCoordByIdx( idx_type idx ) const
+{
     return idx < 0 ? Coord::udf() : mL2DPos( idx ).coord_;
 }
 

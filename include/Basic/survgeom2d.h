@@ -57,6 +57,7 @@ public:
     tracenr_type	trcNr(idx_type) const;
     bool		includes(tracenr_type) const;
     Coord		getCoord(tracenr_type) const;
+    Coord		getCoordByIdx(idx_type) const;
     spnr_type		getSPNr(tracenr_type) const;
     bool		findSP(spnr_type,tracenr_type&) const;
     void		getInfo(tracenr_type,Coord&,spnr_type&) const;
