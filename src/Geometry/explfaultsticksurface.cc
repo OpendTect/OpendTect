@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "delaunay.h"
+#include "executor.h"
 #include "faultsticksurface.h"
 #include "geometry.h"
 #include "positionlist.h"
@@ -337,51 +338,47 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 
 
 
-class ExplFaultStickSurfaceUpdater : public ParallelTask
+class ExplFaultStickSurfaceUpdater : public Executor
 {
 public:
     ExplFaultStickSurfaceUpdater( ExplFaultStickSurface& efss,
 				  bool updatesticksnotpanels )
-    : explsurf_( efss )
+    : Executor("Fault Surface Updater")
+    , explsurf_( efss )
     , updatesticksnotpanels_( updatesticksnotpanels )
+    , curidx_(0)
 {}
 
 
-od_int64 nrIterations() const
+od_int64 totalNr() const
 {
     return updatesticksnotpanels_ ? explsurf_.sticks_.size()
 	: explsurf_.paneltriangles_.size()-1;
 }
 
 
-int minThreadSize() const { return 1; }
+od_int64 nrDone() const
+{ return curidx_; }
 
 
-bool doWork( od_int64 start, od_int64 stop, int )
+int nextStep()
 {
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
-    {
-	if ( updatesticksnotpanels_ )
-	{
-	    mutex_.lock();
-	    explsurf_.fillStick( idx );
-	    mutex_.unLock();
-	}
-	else
-	{
-	    mutex_.lock();
-	    explsurf_.fillPanel( idx );
-	    mutex_.unLock();
-	}
-    }
-    return true;
+    if ( curidx_ >= totalNr() )
+	return Finished();
+
+    if ( updatesticksnotpanels_ )
+	explsurf_.fillStick( curidx_++ );
+    else
+	explsurf_.fillPanel( curidx_++ );
+
+    return MoreToDo();
 }
 
 protected:
 
     ExplFaultStickSurface&	explsurf_;
     bool			updatesticksnotpanels_;
-    Threads::Mutex      mutex_;
+    int				curidx_;
 };
 
 
