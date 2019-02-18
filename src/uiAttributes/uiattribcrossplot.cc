@@ -58,7 +58,6 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     uiListBox::Setup asu( OD::ChooseZeroOrMore, uiStrings::sAttribute(mPlural),
 			  uiListBox::AboveMid );
     attrsfld_ = new uiListBox( attrgrp, asu );
-    attrsfld_->attach( leftBorder, 20 );
 
     if ( ads_.is2D() )
     {
