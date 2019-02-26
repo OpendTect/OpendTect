@@ -363,6 +363,11 @@ od_int64 totalNr() const
 od_int64 nrDone() const
 { return curidx_; }
 
+uiString message() const
+{ return stdMessage(); }
+
+uiString nrDoneText() const
+{ return stdNrDoneText(); }
 
 int nextStep()
 {
