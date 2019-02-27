@@ -5,6 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
+find_package( OpenGL REQUIRED )
 if ( UNIX )
     if ( APPLE )
     else()
