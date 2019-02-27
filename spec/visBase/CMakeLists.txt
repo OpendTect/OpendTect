@@ -4,6 +4,7 @@
 # 	May 2012 :	Nageswara
 #_______________________________________________________________________________
 
+find_package( OpenGL REQUIRED )
 if ( UNIX )
     if ( APPLE )
     else()

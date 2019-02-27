@@ -5,28 +5,38 @@
 #_______________________________________________________________________________
 
 macro( OD_ADD_OSG )
-    if( NOT DEFINED OSG_DIR OR OSG_DIR STREQUAL "" )
-	set(OSG_DIR "" CACHE PATH "OSG Location" )
-	message( FATAL_ERROR "OSG_DIR is not defined" )
+    if ( NOT DEFINED OSG_DIR )
+	set( OSG_DIR "" CACHE PATH "OSG Location" )
+	if ( DEFINED OSG_LIBRARY )
+	    get_filename_component( OSG_DIR ${OSG_LIBRARY} DIRECTORY )
+	    get_filename_component( OSG_DIR ${OSG_DIR} DIRECTORY )
+	elseif ( DEFINED OSG_LIBRARY_DEBUG )
+	    get_filename_component( OSG_DIR ${OSG_LIBRARY_DEBUG} DIRECTORY )
+	    get_filename_component( OSG_DIR ${OSG_DIR} DIRECTORY )
+	else()
+	    message( FATAL_ERROR "OSG_DIR is not defined" )
+	endif()
     endif()
-    list(APPEND CMAKE_MODULE_PATH
-	${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
 
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
-    list(APPEND CMAKE_MODULE_PATH ${OSG_DIR}/share/CMakeModules )
+    set(ENV{OSG_DIR} ${OSG_DIR})
 
     #SET DEBUG POSTFIX
     set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
     set (CMAKE_DEBUG_POSTFIX d)
 
-    find_package( OpenGL )
-    find_package( OSG )
+    find_package( OpenSceneGraph REQUIRED osgDB osgGA osgUtil osgManipulator osgWidget osgViewer osgVolume osgText osgSim )
+    if ( DEFINED OSGQT_DIR )
+	set(ENV{OSGQT_DIR} ${OSGQT_DIR})
+    endif()
+    find_package( osgQt5 REQUIRED )
 
     #RESTORE DEBUG POSTFIX
     set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
     if ( (NOT DEFINED OSG_FOUND) )
        message( FATAL_ERROR "Cannot find/use the OSG installation" )
     endif()
+    unset( OSG_DIR CACHE )
+    unset( OSGQT_DIR CACHE )
 
 endmacro()
 
@@ -38,6 +48,12 @@ macro( OD_ADD_OSGGEO )
 	    MESSAGE( FATAL_ERROR "OSG_DIR not set" )
 	endif()
     endif()
+    if ( (NOT DEFINED OSGQT_FOUND) )
+	MESSAGE( FATAL_ERROR "OSGQT not found" )
+    endif()
+
+    list(APPEND CMAKE_MODULE_PATH
+	${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
 
     #SET DEBUG POSTFIX
     set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
@@ -68,6 +84,7 @@ macro(OD_SETUP_OSG)
     if(OD_USEOSG)
 	list(APPEND OD_MODULE_INCLUDESYSPATH
 		${OSGGEO_INCLUDE_DIR}
+		${OSGQT_INCLUDE_DIR}
 		${OSG_INCLUDE_DIR} )
 
 	if ( OD_EXTRA_OSGFLAGS )
