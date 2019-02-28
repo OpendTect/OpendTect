@@ -541,7 +541,8 @@ bool uiOD2DLineTreeItem::init()
     else
     {
 	const bool hasworkzrg = SI().zRange() != SI().zRange(OD::UsrWork);
-	if ( hasworkzrg )
+	const bool hastransform = s2d->getZAxisTransform();
+	if ( hasworkzrg && !hastransform )
 	{
 	    StepInterval<float> newzrg = geom2d.data().zRange();
 	    newzrg.limitTo( SI().zRange( OD::UsrWork ) );
