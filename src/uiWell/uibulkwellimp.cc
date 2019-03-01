@@ -70,6 +70,8 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     , fd_(Well::BulkTrackAscIO::getDesc())
     , velocityfld_(0)
 {
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+
     inpfld_ = new uiFileSel( this, uiStrings::sInputFile(), uiFileSel::Setup()
 		      .withexamine(true).examstyle(File::Table) );
 
@@ -241,7 +243,7 @@ bool uiBulkTrackImport::acceptOK()
 	mErrRet( uirv );
 
     uiMSG().message( tr("All tracks imported succesfully") );
-    return true;
+    return false;
 }
 
 
@@ -252,6 +254,8 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
 				 mODHelpKey(mBulkLogImportHelpID))
 			   .modal(false))
 {
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+
     uiFileSel::Setup fssu;
     fssu.selectMultiFile()
 	.setFormat( tr("LAS files"), "las", "dat" );
@@ -379,7 +383,10 @@ bool uiBulkLogImport::acceptOK()
     }
 
     if ( uirv.isEmpty() )
-	{ uiMSG().message( tr("All logs imported succesfully") ); return true; }
+    {
+	uiMSG().message( tr("All logs imported succesfully") );
+	return false;
+    }
 
     uiMSG().errorWithDetails( uirv,
 		uiStrings::phrCannotImport(tr("all LAS files (See details)")) );
@@ -395,6 +402,8 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
 			   .modal(false))
     , fd_(Well::BulkMarkerAscIO::getDesc())
 {
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+
     uiFileSel::Setup fssu;
     fssu.withexamine(true).examstyle(File::Table);
     inpfld_ = new uiFileSel( this, uiStrings::phrInput(tr("Marker File")),
@@ -474,7 +483,7 @@ bool uiBulkMarkerImport::acceptOK()
     else
 	uiMSG().message( tr("All markers imported succesfully") );
 
-    return uirv.isOK();
+    return false;
 }
 
 
@@ -519,6 +528,8 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
     mNoDlgTitle, mODHelpKey(mBulkD2TModelImportHelpID)).modal(false))
     , fd_(Well::BulkD2TModelAscIO::getDesc())
 {
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+
     uiFileSel::Setup fssu;
     fssu.withexamine(true).examstyle(File::Table);
     inpfld_ = new uiFileSel( this,
@@ -587,7 +598,7 @@ bool uiBulkD2TModelImport::acceptOK()
     else
 	uiMSG().message( tr("All models imported succesfully") );
 
-    return uirv.isOK();
+    return false;
 }
 
 
