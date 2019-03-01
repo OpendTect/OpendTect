@@ -9,7 +9,7 @@
 #include "ptrman.h"
 #include "survinfo.h"
 
-class Coords::CoordSystem;
+namespace Coords { class CoordSystem; }
 typedef TypeSet<Coord3> coord3dset;
 typedef TypeSet<Coord> coord2dset;
 
