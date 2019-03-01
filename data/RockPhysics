@@ -535,4 +535,38 @@ Constant.3.Description: The average density of the rock material itself.`Therefo
 Constant.3.Default: 2.65
 Constant.3.Typical Range: 2.2`2.9
 !
-
+Mud Density from Pressure: Density
+Description: Drilling Mud Density from Hydrostatic Pressure
+Formula: pressure / (0.052 * TVD)
+Unit: Pounds/gallon
+Variable.0.Type: Pressure
+Variable.0.Name: Pressure
+Variable.0.Description: Hydrostatic Pressure
+Variable.0.Unit: Psi
+Variable.1.Type: Distance
+Variable.1.Name: TVD
+Variable.1.Description: TVD
+Variable.1.Unit: Feet
+!
+Pressure from Mud Density: Pressure
+Description: Hydrostatic Pressure from Mud Density or Mud Weight
+Formula: muddensity * 0.052 * TVD
+Unit: Psi
+Variable.0.Type: Density
+Variable.0.Name: Mud Density
+Variable.0.Description: Mud Density / Mud Weight
+Variable.0.Unit: Pounds/gallon
+Variable.1.Type: Distance
+Variable.1.Name: TVD
+Variable.1.Description: TVD
+Variable.1.Unit: Feet
+!
+Pressure Gradient: Pressure
+Description: Pressure Gradient
+Formula: muddensity * 0.052
+Unit: Psi/ft
+Variable.0.Type: Density
+Variable.0.Name: Mud Density
+Variable.0.Description: Mud Density / Mud Weight
+Variable.0.Unit: Pounds/gallon
+!
