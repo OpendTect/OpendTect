@@ -20,7 +20,7 @@
 #include "uiseparator.h"
 
 uiGISExportWells::uiGISExportWells( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Wells to KML")),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Wells to GIS")),
 				 tr("Specify wells to output"),
 				 mODHelpKey(mGoogleExportWellsHelpID)))
 {
@@ -50,27 +50,31 @@ bool uiGISExportWells::acceptOK()
     GISWriter::Property prop;
     prop.xpixoffs_ = 20;
     prop.iconnm_ = "wellpin";
+    prop.nmkeystr_ = "Well_Name";
     wrr->setProperties( prop );
-    TypeSet<Coord> crds;
-    BufferStringSet wellnms;
+    ObjectSet<Pick::Set> picks;
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
+
+	//set color for prop here.
 	const DBKey wellid = wellids[idx];
 	const Coord coord = Well::MGR().getMapLocation( wellid );
 	if ( coord.isUdf() )
 	    continue;
+	Pick::Set* pick = new Pick::Set( Well::MGR().nameOf( wellid ) );
 
-	crds += coord;
-	wellnms.add( Well::MGR().nameOf(wellid) );
+	Pick::Location loc( coord );
+	pick->add( loc );
+
+	picks.add( pick );
     }
 
-    wrr->writePoints( crds, wellnms );
+    wrr->writePoint( picks );
 
-    if ( !wrr->isOK() )
-    {
-	uiMSG().error( wrr->errMsg() ); return false;
-    }
     wrr->close();
 
-    return true;
+    bool ret = uiMSG().askGoOn( tr("Successfully created %1 for selected wells"
+	    " Do you want to create more?" ).arg(wrr->factoryDisplayName()) );
+
+    return !ret;
 }

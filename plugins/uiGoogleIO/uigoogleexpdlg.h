@@ -11,6 +11,7 @@
 #include "giswriter.h"
 #include "geojsonwriter.h"
 #include "uigroup.h"
+#include "uicoordsystem.h"
 
 class uiFileSel;
 class SurveyInfo;
@@ -25,9 +26,10 @@ public:
 			    uiGISExpStdFld(uiParent*,BufferString typnm);
 			    ~uiGISExpStdFld() {}
 
-    GISWriter*		createWriter();
-    uiFileSel*		fnmfld_;
-    uiGenInput*		exptyp_;
+    GISWriter*			createWriter();
+    uiFileSel*			fnmfld_;
+    uiGenInput*			exptyp_;
+    Coords::uiCoordSystemSel*	coordsysselfld_;
 
 protected:
 

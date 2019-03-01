@@ -32,7 +32,7 @@
 
 uiGISExportSurvey::uiGISExportSurvey( uiSurveyManager* uisurv )
     : uiDialog(uisurv,
-       uiDialog::Setup(uiStrings::phrExport( tr("Survey boundaries to KML")),
+       uiDialog::Setup(uiStrings::phrExport( tr("Survey boundaries to GIS")),
 		      tr("Specify output parameters"),
 		      mODHelpKey(mGoogleExportSurveyHelpID) ) )
     , si_(uisurv->curSurvInfo())
@@ -62,21 +62,12 @@ bool uiGISExportSurvey::acceptOK()
 {
     const auto inlrg = si_->inlRange();
     const auto crlrg = si_->crlRange();
-    TypeSet<Coord> coords;
-    coords += si_->transform( BinID(inlrg.start,crlrg.start) );
-    coords += si_->transform( BinID(inlrg.start,crlrg.stop) );
-    coords += si_->transform( BinID(inlrg.stop,crlrg.stop) );
-    coords += si_->transform( BinID(inlrg.stop,crlrg.start) );
-    coords += si_->transform( BinID(inlrg.start,crlrg.start) );
-    Pick::Set* pick = new Pick::Set( "SurveryBoundary" );
-    for ( int idx=0; idx<coords.size(); idx++ )
-    {
-	Pick::Location loc( coords.get(idx), hghtfld_->getFValue() );
-	pick->add( loc );
-    }
-
-    ObjectSet<Pick::Set> picks;
-    picks.add( pick );
+    TypeSet<Coord3> coords;
+    coords += Coord3( si_->transform(BinID(inlrg.start,crlrg.start)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.start,crlrg.stop)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.stop,crlrg.stop)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.stop,crlrg.start)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.start,crlrg.start)), 4 );
 
     GISWriter* wrr = expfld_->createWriter();
     if ( !wrr )
@@ -85,8 +76,13 @@ bool uiGISExportSurvey::acceptOK()
     props.color_ = lsfld_->getColor();
     props.width_ = mNINT32( lsfld_->getWidth() * 0.1f );
     props.stlnm_ = "survey";
+    props.nmkeystr_ = "SURVEY_ID";
     wrr->setProperties( props );
-    wrr->writePolygon( picks );
+    wrr->writePolygon( coords, si_->name() );
     wrr->close();
-    return true;
+    bool ret = uiMSG().askGoOn( tr( "Successfully created %1 for survey."
+				" Do you want to create more?" )
+	.arg( wrr->factoryDisplayName() ) );
+
+    return !ret;
 }

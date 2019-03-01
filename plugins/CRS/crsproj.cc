@@ -44,6 +44,15 @@ BufferString Coords::AuthorityCode::toString() const
 }
 
 
+BufferString Coords::AuthorityCode::toURNString()
+{
+    BufferString urnstr = "urn:ogc:def:crs:";
+    urnstr.add( authority_ ); urnstr.add( "::" );
+    urnstr.add( id_.getI() );
+    return urnstr;
+}
+
+
 static const Coords::Projection* getWGS84Proj()
 {
     mDefineStaticLocalObject(const Coords::Projection*,proj,

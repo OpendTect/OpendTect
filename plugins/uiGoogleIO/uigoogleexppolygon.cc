@@ -24,7 +24,7 @@
 
 
 uiGISExportPolygon::uiGISExportPolygon( uiParent* p, const Pick::Set& ps )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Polygon to KML")),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Polygon to GIS")),
 				 tr("Specify output parameters"),
 				 mODHelpKey(mGoogleExportPolygonHelpID) ) )
     , ps_(ps)
@@ -65,9 +65,11 @@ bool uiGISExportPolygon::acceptOK()
     props.color_ = lsfld_->getColor();
     props.width_ = mNINT32( lsfld_->getWidth() * 0.1f );
     props.iconnm_ = "Polygon";
-
     wrr->setProperties( props );
-    wrr->writePolygon( coords );
+    wrr->writePolygon( coords, ps_.getName() );
     wrr->close();
-    return true;
+    bool ret = uiMSG().askGoOn(
+			tr("Successfully created %1 for selected Polygon"
+	     " Do you want to create more?").arg(wrr->factoryDisplayName()) );
+    return !ret;
 }

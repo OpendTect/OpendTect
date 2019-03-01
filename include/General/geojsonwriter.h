@@ -67,7 +67,9 @@ protected:
     uiString		errmsg_;
     OD::GeoJsonTree*	geojsontree_;
     bool		open(const char* fnm);
-    void		writeGeometry(BufferString,const coord2dset&);
-    void		writeGeometry(BufferString, const coord3dset&);
+    void		writeGeometry(BufferString,const coord2dset&,
+							const BufferStringSet&);
+    void		writeGeometry(BufferString,const coord3dset&,
+							const BufferStringSet&);
     void		writeGeometry(BufferString,const pickset&);
 };

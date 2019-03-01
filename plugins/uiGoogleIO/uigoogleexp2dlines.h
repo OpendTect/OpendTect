@@ -32,7 +32,7 @@ protected:
     uiSelLineStyle*	lsfld_;
     uiGISExpStdFld*	expfld_;
 
-    void		addLine(GISWriter&,const char*);
+    void		getCoordsForLine(ObjectSet<Pick::Set>&,const char*);
     void		getInitialSelectedLineNames();
     void		getFinalSelectedLineNames();
 

@@ -59,6 +59,8 @@ public:
 
     virtual bool		geographicTransformOK() const		= 0;
 
+    virtual const BufferString	getURNString() = 0;
+
     static Coord		convert(const Coord&,const CoordSystem& from,
 					const CoordSystem& to);
     Coord			convertFrom(const Coord&,
@@ -119,6 +121,8 @@ public:
     virtual bool	isOrthogonal() const	{ return true; }
     virtual bool	isFeet() const		{ return isfeet_; }
     virtual bool	isMeter() const		{ return !isfeet_; }
+    virtual const BufferString getURNString() { return BufferString::empty(); }
+
 
 private:
 
@@ -153,6 +157,8 @@ public:
     virtual bool	isOrthogonal() const	{ return true; }
     virtual bool	isFeet() const		{ return isfeet_; }
     virtual bool	isMeter() const		{ return !isfeet_; }
+    virtual const BufferString getURNString() { return BufferString::empty(); }
+
 
     const Coord&	refCoord() const { return refcoord_; }
     const LatLong&	refLatLong() const { return reflatlng_; }

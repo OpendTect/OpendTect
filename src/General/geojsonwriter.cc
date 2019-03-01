@@ -59,7 +59,15 @@ void GeoJSONWriter::close()
 void GeoJSONWriter::writePoint( const Coord& coord, const char* nm )
 {
     TypeSet<Coord> crds;  crds += coord;
-    writeGeometry( "Point", crds );
+    BufferStringSet nms;
+    nms.add( nm );
+    writeGeometry( "Point", crds, nms );
+}
+
+
+void GeoJSONWriter::writePolygon( const pickset& picks )
+{
+    writeGeometry( "Polygon", picks );
 }
 
 
@@ -71,7 +79,9 @@ void GeoJSONWriter::writePoint( const pickset& picks )
 
 void GeoJSONWriter::writeLine( const coord2dset& crdset, const char* nm )
 {
-    writeGeometry( "LineString", crdset );
+    BufferStringSet nms;
+    nms.add( nm );
+    writeGeometry( "LineString", crdset, nms );
 }
 
 
@@ -83,27 +93,26 @@ void GeoJSONWriter::writeLine( const pickset& picks )
 
 void GeoJSONWriter::writePolygon( const coord2dset& crdset, const char* nm )
 {
-    writeGeometry( "Polygon", crdset );
+    BufferStringSet nms;
+    nms.add( nm );
+    writeGeometry( "Polygon", crdset, nms );
 }
 
 
 void GeoJSONWriter::writePolygon( const coord3dset& crdset, const char* nm )
 {
-    writeGeometry( "Polygon", crdset );
-}
-
-
-void GeoJSONWriter::writePolygon( const pickset& picks )
-{
-    writeGeometry( "Polygon", picks );
+    BufferStringSet nms;
+    nms.add( nm );
+    writeGeometry( "Polygon", crdset, nms );
 }
 
 
 void GeoJSONWriter::writePoints( const coord2dset& crds,
 						    const BufferStringSet& nms )
 {
-    writeGeometry( "Point", crds );
+    writeGeometry( "Point", crds, nms );
 }
+
 
 
 #define mSyntaxEOL( str ) \
@@ -111,11 +120,11 @@ void GeoJSONWriter::writePoints( const coord2dset& crds,
 
 
 void GeoJSONWriter::writeGeometry( BufferString geomtyp,
-						    const coord2dset& crdset )
+			const coord2dset& crdset, const BufferStringSet& nms )
 {
     geojsontree_->setProperties( properties_ );
     OD::GeoJsonTree::ValueSet* valueset = geojsontree_->createJSON( geomtyp,
-							    crdset );
+						crdset, nms, coordsys_ );
     BufferString str;
     valueset->dumpJSon( str );
     strm() << str;
@@ -123,11 +132,11 @@ void GeoJSONWriter::writeGeometry( BufferString geomtyp,
 
 
 void GeoJSONWriter::writeGeometry( BufferString geomtyp,
-						    const coord3dset& crdset )
+			const coord3dset& crdset, const BufferStringSet& nms )
 {
     geojsontree_->setProperties( properties_ );
     OD::GeoJsonTree::ValueSet* valueset = geojsontree_->createJSON( geomtyp,
-	crdset );
+						crdset, nms, coordsys_ );
     BufferString str;
     valueset->dumpJSon( str );
     strm() << str;
@@ -137,10 +146,10 @@ void GeoJSONWriter::writeGeometry( BufferString geomtyp,
 void GeoJSONWriter::writeGeometry( BufferString geomtyp,
 					const pickset& picks )
 {
-    for( auto pick : picks )
-    {
-	TypeSet<Coord> coord;
-	pick->getLocations( coord );
-	writeGeometry( geomtyp, coord );
-    }
+    geojsontree_->setProperties( properties_ );
+    OD::GeoJsonTree::ValueSet* valueset = geojsontree_->createJSON( geomtyp,
+							picks, coordsys_ );
+    BufferString str;
+    valueset->dumpJSon( str );
+    strm() << str;
 }

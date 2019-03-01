@@ -113,3 +113,10 @@ bool Coords::ProjectionBasedSystem::setProjection( Coords::AuthorityCode code )
 const Coords::Projection* Coords::ProjectionBasedSystem::getProjection() const
 { return proj_; }
 
+
+const BufferString Coords::ProjectionBasedSystem::getURNString()
+{
+    Coords::AuthorityCode code = proj_->authcode_;
+    const BufferString nm = code.toURNString();
+    return nm;
+}

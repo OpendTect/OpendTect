@@ -43,6 +43,7 @@ public:
     virtual bool		isProjection() const		{ return true; }
     virtual bool		isFeet() const;
     virtual bool		isMeter() const;
+    virtual const BufferString	getURNString();
 
     bool			setProjection(AuthorityCode);
     const Projection*		getProjection() const;

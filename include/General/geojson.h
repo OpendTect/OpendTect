@@ -6,8 +6,10 @@
 #include "pickset.h"
 #include "googlexmlwriter.h"
 #include "giswriter.h"
+#include "ptrman.h"
+#include "survinfo.h"
 
-
+class Coords::CoordSystem;
 typedef TypeSet<Coord3> coord3dset;
 typedef TypeSet<Coord> coord2dset;
 
@@ -23,12 +25,27 @@ public:
     typedef JSON::Object	Object;
     typedef JSON::Array		Array;
 
-			GeoJsonTree()			{}
+			GeoJsonTree()
+			    : coordsys_(SI().getCoordSystem())
+			    , featarr_(0)
+			    , polyarr_(0)
+			    , topobj_(new Object())
+			{}
 			GeoJsonTree( const GeoJsonTree& oth )
-			    : Object( oth )
-			    , filename_(oth.filename_)	{}
+			    : Object(oth)
+			    , filename_(oth.filename_)
+			    , coordsys_( SI().getCoordSystem() )
+			    , topobj_(new Object())
+			    , featarr_(0)
+			    , polyarr_(0)
+			{}
 			GeoJsonTree( const Object& obj )
-			    : Object( obj )		{}
+			    : Object(obj)
+			    , coordsys_(SI().getCoordSystem())
+			    , topobj_(new Object())
+			    , featarr_(0)
+			    , polyarr_(0)
+			{}
     virtual		~GeoJsonTree()			{}
 
 			// will do GeoJSon check
@@ -48,12 +65,14 @@ public:
 			// use when constructing from general JSON Object
     void		doGeoJSonCheck(uiRetVal&);
 
-
-
     ValueSet*		createJSON(BufferString geomtyp,
-					const coord2dset& crdset);
+			   const coord2dset& crdset, const BufferStringSet& nms,
+			   ConstRefMan<Coords::CoordSystem>);
     ValueSet*		createJSON(BufferString geomtyp,
-						const coord3dset& crdset);
+			   const coord3dset& crdset, const BufferStringSet& nms,
+			   ConstRefMan<Coords::CoordSystem>);
+    ValueSet*		createJSON(BufferString geomtyp,
+			      const pickset&,ConstRefMan<Coords::CoordSystem>);
     void		setProperties(const GISWriter::Property&);
 
 protected:
@@ -64,11 +83,17 @@ protected:
     bool		isfeatmulti_ = false;
     GISWriter::Property property_;
 
-    void		addCoords(const TypeSet<Coord3>& coords, Array& poly);
-    void		addCoords(const TypeSet<Coord>& coords, Array& poly);
+    void		addCoord(const Coord3& coords, Array& poly);
+    void		addCoord(const Coord& coords, Array& poly);
     bool		isAntiMeridianCrossed(const coord3dset&);
     Array*		createFeatArray(BufferString);
     Array*		createFeatCoordArray(Array* featarr, BufferString typ);
+    Object*		createCRSArray(Array* featarr);
+    ConstRefMan<Coords::CoordSystem>	    coordsys_;
+    Array*		featarr_;
+    Array*		polyarr_;
+    Object*		topobj_;
+    void		setCRS(ConstRefMan<Coords::CoordSystem>);
 
 };
 

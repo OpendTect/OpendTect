@@ -26,7 +26,7 @@
 
 uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
 		const TypeSet<Coord>& crds, const uiString& nm )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport(tr("Random Line to KML")),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport(tr("Random Line to GIS")),
 				 tr("Specify how to export"),
                                  mODHelpKey(mGoogleExportRandomLineHelpID) ) )
     , crds_(crds)
@@ -80,11 +80,14 @@ bool uiGoogleExportRandomLine::acceptOK()
     prop.color_ = lsfld_->getColor();
     prop.width_ = lsfld_->getWidth() * .1;
     wrr->setProperties( prop );
-    if ( lnmchoice != 0 && lnmchoice < 3 )
+    /*if ( lnmchoice != 0 && lnmchoice < 3 )
 	wrr->writePoint( crds_[0], lnm );
     if ( lnmchoice == 1 || lnmchoice == 3 )
-	wrr->writePoint( crds_[crds_.size()-1], lnm );
+	wrr->writePoint( crds_[crds_.size()-1], lnm );*/
     wrr->writeLine( crds_, lnm );
     wrr->close();
-    return true;
+    bool ret = uiMSG().askGoOn(
+		    tr("Successfully created %1 for selected RandomLine"
+	    " Do you want to create more?").arg(wrr->factoryDisplayName()) );
+    return !ret;
 }

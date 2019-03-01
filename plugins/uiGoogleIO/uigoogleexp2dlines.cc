@@ -33,7 +33,7 @@
 
 uiGISExport2DSeis::uiGISExport2DSeis( uiSeis2DFileMan* p )
     : uiDialog(p,uiDialog::Setup(
-		uiStrings::phrExport( tr("selected 2D seismics to KML") ),
+		uiStrings::phrExport( tr("selected 2D seismics to GIS") ),
 		tr("Specify how to export"),
 		mODHelpKey (mGoogleExport2DSeisHelpID) ) )
     , s2dfm_(p)
@@ -114,16 +114,26 @@ bool uiGISExport2DSeis::acceptOK()
     GISWriter::Property props;
     props.color_ = lsfld_->getColor();
     props.width_ = lsfld_->getWidth() * .1;
+    props.nmkeystr_ = "Line_No";
     wrr->setProperties( props );
+    ObjectSet<Pick::Set> picks;
+    TypeSet<Coord> coords;
     for ( int idx=0; idx<sellnms_.size(); idx++ )
-	addLine( *wrr, sellnms_.get(idx) );
+	getCoordsForLine( picks, sellnms_.get(idx) );
+
+    wrr->writeLine( picks );
 
     wrr->close();
-    return true;
+    bool ret = uiMSG().askGoOn(
+			tr("Successfully created %1 for selected 2D Lines"
+					" Do you want to create more?" )
+					.arg( wrr->factoryDisplayName() ) );
+    return !ret;
 }
 
 
-void uiGISExport2DSeis::addLine( GISWriter& wrr, const char* lnm )
+void uiGISExport2DSeis::getCoordsForLine( ObjectSet<Pick::Set>& picks,
+							    const char* lnm )
 {
     const Seis2DDataSet& dset( *s2dfm_->dataset_ );
     const int iln = dset.indexOf( lnm );
@@ -137,11 +147,11 @@ void uiGISExport2DSeis::addLine( GISWriter& wrr, const char* lnm )
 	return;
 
     const int lnmchoice = putlnmfld_->getIntValue();
-    if ( lnmchoice != 0 && lnmchoice < 3 )
+    /*if ( lnmchoice != 0 && lnmchoice < 3 )
 	wrr.writePoint( l2dd.positions()[0].coord_, lnm );
     if ( lnmchoice == 1 || lnmchoice == 3 )
 	wrr.writePoint( l2dd.positions()[nrposns - 1].coord_, lnm );
-
+	*/
     TypeSet<Coord> crds;
     for ( int idx=0; idx<nrposns; idx++ )
 	crds += l2dd.positions()[idx].coord_;
@@ -149,9 +159,14 @@ void uiGISExport2DSeis::addLine( GISWriter& wrr, const char* lnm )
     BendPointFinder2D bpf( crds, 1 );
     bpf.execute();
 
-    TypeSet<Coord> plotcrds;
-    for ( int idx=0; idx<bpf.bendPoints().size(); idx++ )
-	plotcrds += crds[ bpf.bendPoints()[idx] ];
+    Pick::Set* pick = new Pick::Set( lnm );
 
-    wrr.writeLine( plotcrds, lnm );
+    for ( int idx=0; idx<bpf.bendPoints().size(); idx++ )
+    {
+	const Coord coord = crds[bpf.bendPoints()[idx]];
+	Pick::Location loc( coord );
+	pick->add( loc );
+    }
+    picks.add( pick );
+    //wrr.writeLine( plotcrds, lnm );
 }

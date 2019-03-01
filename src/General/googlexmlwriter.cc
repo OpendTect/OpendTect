@@ -67,44 +67,27 @@ void ODGoogle::KMLWriter::close()
     const BufferString stnm( "s_od_icon_", \
 			haveiconnm ? properties_.iconnm_ : "noicon" ) \
 
-
-#define mGetCoordsSet \
-    TypeSet<Coord> coords; \
-    BufferString nm; \
-    for ( int i = 0; i < picks.size(); i++ ) \
-    { \
-	Coord crd; \
-	const Pick::Set* pick = picks.get( i ); \
-	nm = pick->name(); \
-	Pick::SetIter psiter( *pick ); \
-	    coords += psiter.getPos(); \
-	psiter.retire(); \
-    } \
-
-#define mGetCoords3DSet \
-    TypeSet<Coord3d> coords; \
-    BufferString nm; \
-    for ( int i = 0; i < picks.size(); i++ ) \
-    { \
-	Coord3d crd; \
-	const Pick::Set* pick = picks.get( i ); \
-	nm = pick->name(); \
-	Pick::SetIter psiter( *pick ); \
-	while ( psiter.next() ) \
-	{ \
-	    crd.setXY( psiter.getPos() );\
-	    crd.z_ = psiter.getZ(); \
-	    coords += crd; \
-	} \
-	psiter.retire(); \
-    } \
-
 void ODGoogle::KMLWriter::writePolygon( const pickset& picks )
 {
-    mGetCoords3DSet;
     putPolyStyle();
-    putPoly( coords, nm );
 
+    for ( int i = 0; i < picks.size(); i++ )
+    {
+	TypeSet<Coord3d> coords;
+	BufferString nm;
+	Coord3d crd;
+	const Pick::Set* pick = picks.get( i );
+	nm = pick->name();
+	Pick::SetIter psiter( *pick );
+	while (psiter.next())
+	{
+	    crd.setXY( psiter.getPos() );
+	    crd.z_ = psiter.getZ();
+	    coords += crd;
+	}
+	psiter.retire();
+	putPoly( coords, nm );
+    }
 }
 
 
@@ -131,8 +114,15 @@ void ODGoogle::KMLWriter::writePolygon( const coord3dset& coords,
 
 void ODGoogle::KMLWriter::writeLine( const pickset& picks )
 {
-    mGetCoordsSet;
-    putLine( coords, nm );
+    for ( int i = 0; i < picks.size(); i++ )
+    {
+	BufferString nm;
+	TypeSet<Coord> coords;
+	const Pick::Set* pick = picks.get( i );
+	nm = pick->name();
+	pick->getLocations( coords );
+	putLine( coords, nm );
+    }
 }
 
 
@@ -144,10 +134,19 @@ void ODGoogle::KMLWriter::writeLine( const coord2dset& crdset, const char*nm )
 
 void ODGoogle::KMLWriter::writePoint( const pickset& picks )
 {
-    mGetCoordsSet;
     putIconStyles();
-    for ( auto coord : coords )
-	putPlaceMark( coord, nm );
+    TypeSet<Coord> coords;
+    BufferString nm;
+    for ( int i = 0; i < picks.size(); i++ )
+    {
+	const Pick::Set* pick = picks.get( i );
+	nm = pick->name();
+	Pick::SetIter psiter( *pick );
+	coords += psiter.getPos();
+	psiter.retire();
+	for ( auto coord : coords )
+	    putPlaceMark( coord, nm );
+    }
 }
 
 
@@ -210,7 +209,7 @@ void ODGoogle::KMLWriter::putIconStyles()
 
 void ODGoogle::KMLWriter::putPlaceMark( const Coord& crd, const char* nm )
 {
-    putPlaceMark( LatLong::transform(crd, true), nm );
+    putPlaceMark( LatLong::transform(crd, true,coordsys_), nm );
 }
 
 
@@ -255,7 +254,7 @@ void ODGoogle::KMLWriter::putLine( const TypeSet<Coord>& crds, const char* nm )
 
     for ( int idx = 0; idx < crds.size(); idx++ )
     {
-	const LatLong ll( LatLong::transform(crds[idx], true) );
+	const LatLong ll( LatLong::transform(crds[idx], true, coordsys_) );
 	strm() << ll.lng_ << ','; // keep sep from next line
 	strm() << ll.lat_ << ",0 ";
     }
@@ -304,7 +303,7 @@ void ODGoogle::KMLWriter::putPoly( const TypeSet<Coord3d>& coords,
     {
 	Coord3d crd = coords[idx];
 	const LatLong ll(LatLong::transform( crd.getXY(),
-						true,SI().getCoordSystem()) );
+						true, coordsys_) );
 	strm() << "\t\t\t\t\t\t" << ll.lng_;
 	strm() << ',' << ll.lat_ << ',' << crd.z_ << '\n';
     }
