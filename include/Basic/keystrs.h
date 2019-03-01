@@ -189,6 +189,10 @@ namespace sKey
     inline FixedString CrAt()		{ return "Created.At"; }
     inline FixedString CrFrom()		{ return "Created.From"; }
     inline FixedString CrInfo()		{ return "Created.Info"; }
+    inline FixedString ModBy()		{ return "Modified.By"; }
+    inline FixedString ModAt()		{ return "Modified.At"; }
+
+    // Not used?
     inline FixedString CrFtPolygonDir() { return "FaultPolygonPath"; }
     inline FixedString StrFtPolygon()   { return "FaultPolygons"; }
 
