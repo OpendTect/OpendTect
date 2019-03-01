@@ -1584,7 +1584,7 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
     {
 	uiString ittxt;
 	if ( !useext || is2d )
-        {ittxt = toUiString(nlamodel->nlaType(false));}
+	    ittxt = toUiString( nlamodel->nlaType(false) );
 	else
 	    ittxt = tr("Neural Network 3D");
 	if ( useext && is2d ) ittxt = toUiString("%1 %2").arg(ittxt)
@@ -1951,7 +1951,7 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	if ( desc->isStored() && desc->userRef()[0] == '{' )
 	{
 	    LineKey lkey( desc->userRef() );
-            BufferString newnm = "offset index "; newnm += selectedcomps[idx];
+	    BufferString newnm = "offset index "; newnm += selectedcomps[idx];
 	    lkey.setAttrName( newnm );
 	    desc->setUserRef( lkey.buf() );
 	}
@@ -1973,10 +1973,10 @@ IOObj* uiAttribPartServer::getIOObj( const SelSpec& as ) const
     const Desc* desc = attrset ? attrset->getDesc( as.id() ) : 0;
     if ( !desc )
     {
-        attrset = DSHolder().getDescSet( as.is2D(), false );
-        desc = attrset ? attrset->getDesc( as.id() ) : 0;
-        if ( !desc )
-            return 0;
+	attrset = DSHolder().getDescSet( as.is2D(), false );
+	desc = attrset ? attrset->getDesc( as.id() ) : 0;
+	if ( !desc )
+	    return 0;
     }
 
     BufferString storedid = desc->getStoredID();
@@ -1993,7 +1993,7 @@ void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
     if ( !attrsetdlg_ ) return;
     const Desc* curdesc = attrsetdlg_->curDesc();
     if ( !curdesc )
-        mErrRet( tr("Please add this attribute first") );
+	mErrRet( tr("Please add this attribute first") );
 
     uiAttrDescEd* ade = attrsetdlg_->curDescEd();
     if ( !ade ) return;

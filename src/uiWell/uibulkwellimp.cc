@@ -56,7 +56,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     , fd_(BulkTrackAscIO::getDesc())
     , velocityfld_(0)
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiFileInput( this,
 		      uiStrings::sInputFile(),
@@ -220,6 +220,14 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 		    toUiString("%1: %2").arg(wd->name()).arg(ww.errMsg()) );
 	    errors.add( msg );
 	}
+
+	const bool isloaded = MGR().isLoaded( ioobj->key() );
+	if ( isloaded && MGR().reload(ioobj->key()) )
+	{
+	    Data* loadedwd = MGR().get( ioobj->key() );
+	    if ( loadedwd )
+		loadedwd->trackchanged.trigger();
+	}
     }
 }
 
@@ -251,7 +259,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
     if ( errors.isEmpty() )
     {
 	uiMSG().message( tr("All tracks imported succesfully") );
-	return true;
+	return false;
     }
 
     uiMSG().errorWithDetails( errors,
@@ -267,7 +275,7 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
 				 mODHelpKey(mBulkLogImportHelpID))
 			   .modal(false))
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiFileInput( this, uiStrings::phrInput(tr("LAS files")),
 		  uiFileInput::Setup() );
@@ -399,7 +407,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
     if ( errors.isEmpty() )
     {
 	uiMSG().message( tr("All logs imported succesfully") );
-	return true;
+	return false;
     }
 
     uiMSG().errorWithDetails( errors,
@@ -416,6 +424,8 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
 			   .modal(false))
     , fd_(BulkMarkerAscIO::getDesc())
 {
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+
     inpfld_ = new uiFileInput( this, uiStrings::phrInput(
 			       mJoinUiStrs(sMarker(),sFile())),
 			       uiFileInput::Setup().withexamine(true)
@@ -499,7 +509,7 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
     if ( errors.isEmpty() )
     {
 	uiMSG().message( tr("All markers imported succesfully") );
-	return true;
+	return false;
     }
 
     uiMSG().errorWithDetails( errors,
@@ -549,7 +559,7 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
 		       mODHelpKey(mBulkD2TModelImportHelpID)).modal(false))
     , fd_(BulkD2TModelAscIO::getDesc())
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     uiFileInput::Setup fs;
     fs.withexamine(true).examstyle(File::Table);
@@ -631,7 +641,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
     if ( errors.isEmpty() )
     {
 	uiMSG().message( tr("All models imported succesfully") );
-	return true;
+	return false;
     }
 
     uiMSG().errorWithDetails( errors,
