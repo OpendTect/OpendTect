@@ -268,11 +268,13 @@ void uiPickSetMgr::keyPressedCB( CallBacker* )
     if ( !uiMain::keyboardEventHandler().hasEvent() )
 	return;
 
+    bool res = false;
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
-
     if ( KeyboardEvent::isUnDo(kbe) )
-	setmgr_.undo().unDo( 1,true );
+	res = setmgr_.undo().unDo( 1,true );
 
     if ( KeyboardEvent::isReDo(kbe) )
-	setmgr_.undo().reDo( 1, true );
+	res = setmgr_.undo().reDo( 1, true );
+
+    uiMain::keyboardEventHandler().setHandled( res );
 }
