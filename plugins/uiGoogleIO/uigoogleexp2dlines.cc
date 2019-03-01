@@ -146,7 +146,7 @@ void uiGISExport2DSeis::getCoordsForLine( ObjectSet<Pick::Set>& picks,
     if ( nrposns < 2 )
 	return;
 
-    const int lnmchoice = putlnmfld_->getIntValue();
+    //const int lnmchoice = putlnmfld_->getIntValue();
     /*if ( lnmchoice != 0 && lnmchoice < 3 )
 	wrr.writePoint( l2dd.positions()[0].coord_, lnm );
     if ( lnmchoice == 1 || lnmchoice == 3 )
