@@ -17,6 +17,11 @@ macro( OD_ADD_OSG )
 	    message( FATAL_ERROR "OSG_DIR is not defined" )
 	endif()
     endif()
+    list(APPEND CMAKE_MODULE_PATH
+	${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
+
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
+    list(APPEND CMAKE_MODULE_PATH ${OSG_DIR}/share/CMakeModules )
 
     set(ENV{OSG_DIR} ${OSG_DIR})
 
@@ -35,8 +40,8 @@ macro( OD_ADD_OSG )
     if ( (NOT DEFINED OSG_FOUND) )
        message( FATAL_ERROR "Cannot find/use the OSG installation" )
     endif()
-    unset( OSG_DIR CACHE )
-    unset( OSGQT_DIR CACHE )
+    #unset( OSG_DIR CACHE )
+    #unset( OSGQT_DIR CACHE )
 
 endmacro()
 
@@ -86,6 +91,7 @@ macro(OD_SETUP_OSG)
 		${OSGGEO_INCLUDE_DIR}
 		${OSGQT_INCLUDE_DIR}
 		${OSG_INCLUDE_DIR} )
+	message( STATUS "Osg include: ${OD_MODULE_INCLUDESYSPATH}" )
 
 	if ( OD_EXTRA_OSGFLAGS )
 	    add_definitions( ${OD_EXTRA_OSGFLAGS} )
