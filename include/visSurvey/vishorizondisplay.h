@@ -167,7 +167,7 @@ public:
     visBase::TextureChannel2RGBA* getChannels2RGBA();
     const visBase::TextureChannel2RGBA* getChannels2RGBA() const;
 
-    bool			canBDispOn2DViewer() const	{ return true; }
+    bool			canBDispOn2DViewer() const	{ return false;}
     bool			isVerticalPlane() const		{ return false;}
 
     void			setAttribShift(int channel,
