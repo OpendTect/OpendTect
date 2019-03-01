@@ -172,7 +172,7 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    bool			canBDispOn2DViewer() const	{ return true; }
+    bool			canBDispOn2DViewer() const	{ return false;}
     bool			isVerticalPlane() const		{ return false;}
 
     void			setAttribShift(int channel,
@@ -256,30 +256,30 @@ private:
 	void			setDisplayTransformation(const mVisTrans*);
 	void 			updateDataTransform(const TrcKeyZSampling&,
 						   ZAxisTransform*);
-        void			setSceneEventCatcher(visBase::EventCatcher*);
-        void			setMaterial(visBase::Material*);
+	void			setSceneEventCatcher(visBase::EventCatcher*);
+	void			setMaterial(visBase::Material*);
 	RefMan<visBase::VertexShape> setLineStyle(const OD::LineStyle&);
-    				//Returns old line if replaced
+				//Returns old line if replaced
 
 
-        visBase::VertexShape*		line_;
-        visBase::MarkerSet*		markerset_;
-        ZAxisTransform*			zaxistransform_;
-        int				voiid_;
+	visBase::VertexShape*		line_;
+	visBase::MarkerSet*		markerset_;
+	ZAxisTransform*			zaxistransform_;
+	int				voiid_;
 	int				objid_;
     };
 
     IntersectionData*		getOrCreateIntersectionData(
-	    			     ObjectSet<IntersectionData>& pool );
-    				//!<Return data from pool or creates new
+				     ObjectSet<IntersectionData>& pool );
+				//!<Return data from pool or creates new
 
     void			traverseLine(const TrcKeyPath&,
-                                             const TypeSet<Coord>&,
-	    				     const Interval<float>& zrg,
-                                 	     EM::SectionID,
+					     const TypeSet<Coord>&,
+					     const Interval<float>& zrg,
+					     EM::SectionID,
 					     IntersectionData&) const;
-                                /*!<List of coordinates may be empty, coords
-                                    will then be fetched from trckeys. */
+				/*!<List of coordinates may be empty, coords
+				    will then be fetched from trckeys. */
     void			drawHorizonOnZSlice(const TrcKeyZSampling&,
 					     const EM::SectionID&,
 					     IntersectionData&) const;
@@ -292,7 +292,7 @@ private:
 				get the the idx in the stored object
 				collection.*/
     ManagedObjectSet<IntersectionData>	intersectiondata_;
-    					//One per object we intersect with
+					//One per object we intersect with
 
     float				maxintersectionlinethickness_;
     visBase::Material*			intersectionlinematerial_;
