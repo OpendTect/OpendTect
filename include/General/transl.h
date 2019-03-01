@@ -319,7 +319,7 @@ int clss##TranslatorGroup::selector( const char* s ) \
 #define mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra) \
 const IOObjContext& clss##TranslatorGroup::ioContext() \
 { \
-    static IOObjContext* ctxt = 0; \
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, ctxt, = nullptr ); \
     if ( !ctxt ) \
     { \
 	ctxt = new IOObjContext( 0 ); \
