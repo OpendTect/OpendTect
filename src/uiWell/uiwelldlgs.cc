@@ -1710,11 +1710,11 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
 	return;
 
     bool needrestore = false;
-    uiString errmsg;
+    uiString errmsg = tr("Invalid model detected.");
     if ( !d2t->ensureValid(wd_,errmsg) || d2t->size() < 2 )
     {
-	uiString msg = tr("Invalid model detected\n%1\n"
-			  "But could not autocorrect the current model")
+	uiString msg = tr("%1\n"
+			  "Could not autocorrect the current model.")
 			  .arg(errmsg);
 	uiMSG().warning( msg );
 	if ( *d2t != *orgd2t_ )
@@ -1724,8 +1724,7 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
     {
 	if ( *d2t != *orgd2t_ )
 	{
-	    uiString msg = tr("Invalid model detected\n%1\n"
-			      "Auto-correct?\n"
+	    uiString msg = tr("%1\nAuto-correct?\n"
 		"(New model will only be saved on disk on successful exit of"
 		" the editor)")
 		.arg(errmsg);
