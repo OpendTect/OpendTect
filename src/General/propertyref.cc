@@ -41,6 +41,7 @@ mDefineEnumUtils(PropertyRef,StdType,"Standard Property")
 	"Impedance",
 	"Permeability",
 	"Pressure",
+	"Pressure Gradient",
 	"Pressure-Weight",
 	"Resistivity",
 	"Sonic travel time",
@@ -69,6 +70,7 @@ void EnumDefImpl<PropertyRef::StdType>::init()
     uistrings_ += mEnumTr("Impedance",0);
     uistrings_ += mEnumTr("Permeability",0);
     uistrings_ += mEnumTr("Pressure",0);
+    uistrings_ += mEnumTr("Pressure Gradient",0);
     uistrings_ += mEnumTr("Pressure-Weight",0);
     uistrings_ += mEnumTr("Resistivity",0);
     uistrings_ += mEnumTr("Sonic Travel Time",0);
