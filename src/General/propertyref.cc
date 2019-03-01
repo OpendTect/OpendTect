@@ -41,6 +41,7 @@ mDefineEnumUtils(PropertyRef,StdType,"Standard Property")
 	"Impedance",
 	"Permeability",
 	"Pressure",
+	"Pressure Gradient",
 	"Pressure-Weight",
 	"Resistivity",
 	"Sonic travel time",
@@ -536,7 +537,7 @@ void PropertyRefSet::readFrom( ascistream& astrm )
 
 	const BufferString stdtypstr( iop.getValue(0) );
 	PropertyRef::StdType st;
-        PropertyRef::parseEnumStdType(stdtypstr, st );
+	PropertyRef::parseEnumStdType(stdtypstr, st );
 	PropertyRef* pr = new PropertyRef( propnm, st );
 	pr->usePar( iop );
 

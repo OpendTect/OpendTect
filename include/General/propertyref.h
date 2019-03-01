@@ -45,8 +45,8 @@ public:
 
     enum StdType	{
 			    Anis, Area, Class, Comp, Den, Dist, ElaRa, ElPot,
-			    GR, Imp, Perm, Pres, PresWt, Res, Son, Temp, Time,
-			    Vel, Volum, Vol, Other
+			    GR, Imp, Perm, Pres, PresGrad, PresWt, Res, Son,
+			    Temp, Time, Vel, Volum, Vol, Other
 			};
 			mDeclareEnumUtils(StdType)
     static StdType	surveyZType();
