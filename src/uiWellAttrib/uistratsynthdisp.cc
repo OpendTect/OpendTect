@@ -209,7 +209,13 @@ uiStratSynthDisp::~uiStratSynthDisp()
 
 void uiStratSynthDisp::set( uiStratLayerModel& uislm )
 {
-    mAttachCB( uislm.newModels, uiStratSynthDisp::doModelChange );
+    mAttachCB( uislm.newModels, uiStratSynthDisp::newModelsCB );
+}
+
+
+void uiStratSynthDisp::newModelsCB( CallBacker* )
+{
+    doModelChange();
 }
 
 
@@ -701,9 +707,9 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     if ( !currentwvasynthetic_ || currentwvasynthetic_->isPS() )
     {
 	uiMSG().error(tr("Please select a post-stack synthetic in wiggle view. "
-		         "The scaling tool compares the amplitudes of the "
-		         "synthetic data at the selected Stratigraphic Level "
-		         "to real amplitudes along a horizon"));
+			 "The scaling tool compares the amplitudes of the "
+			 "synthetic data at the selected Stratigraphic Level "
+			 "to real amplitudes along a horizon"));
 	return false;
     }
 
@@ -713,7 +719,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     if ( tbuf.isEmpty() )
     {
 	uiMSG().error(tr("Synthetic seismic has no trace. "
-		         "Please regenerate the synthetic."));
+			 "Please regenerate the synthetic."));
 	return false;
     }
     BufferString levelname;

@@ -214,6 +214,7 @@ protected:
     void		syntheticChanged(CallBacker*);
     void		selPreStackDataCB(CallBacker*);
     void		preStackWinClosedCB(CallBacker*);
+    void		newModelsCB(CallBacker*);
 
 public:
 
