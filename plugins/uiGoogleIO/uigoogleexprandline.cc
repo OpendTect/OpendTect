@@ -50,8 +50,8 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
 
     uiSeparator* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, lsfld_ );
-    BufferString flnm = "SurveyBoudaryFor_";
-    flnm.add( SI().dirName() );
+    BufferString flnm = "RandomLine";
+    flnm.add( lnmfld_->text() );
     expfld_ = new uiGISExpStdFld( this, flnm );
     expfld_->attach( stretchedBelow, sep );
     expfld_->attach( leftAlignedBelow, lsfld_ );
