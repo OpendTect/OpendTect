@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 
+#include "envvars.h"
 #include "genc.h"
 #include "legal.h"
 #include "settings.h"
@@ -18,7 +19,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visrgbatexturechannel2rgba.h"
 
 #include <osgGeo/LayeredTexture>
+#include <osg/DisplaySettings>
 #include <osg/Notify>
+#include <osg/Version>
 
 static uiString* osgLegalText();
 static uiString* openGLLegalText();
@@ -38,6 +41,12 @@ mDefModInitFn(visBase)
     int maxsize = -1;
     mSettUse( get, "dTect", "Max texture size override", maxsize );
     osgGeo::LayeredTexture::overrideGraphicsContextMaxTextureSize( maxsize );
+
+#if OSG_MIN_VERSION_REQUIRED(3,6,3)
+    const char* textshader = GetEnvVar( "OD_TEXT_SHADER" );
+    if ( textshader )
+	osg::DisplaySettings::instance()->setTextShaderTechnique( textshader );
+#endif
 
     Geometry::PrimitiveSetCreator::setCreator(
 				    new visBase::PrimitiveSetCreator );
