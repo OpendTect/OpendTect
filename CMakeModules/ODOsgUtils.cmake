@@ -24,7 +24,6 @@ macro( OD_ADD_OSG )
     set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
     set (CMAKE_DEBUG_POSTFIX d)
 
-    find_package( OpenGL )
     find_package( OpenSceneGraph REQUIRED osgDB osgGA osgUtil osgManipulator osgWidget osgViewer osgVolume osgText osgSim )
     if ( DEFINED OSGQT_DIR )
 	set(ENV{OSGQT_DIR} ${OSGQT_DIR})
