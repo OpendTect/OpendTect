@@ -69,6 +69,7 @@ void Seis::ObjectSummary::init( Pos::GeomID geomid )
     if ( bad_ )
 	return;
 
+    modiftm_ = ioobjinfo_.getFileModifTime();
     geomtype_ = ioobjinfo_.geomType();
     if (  (is2D() && !geomid.is2D()) ||
 	 (!is2D() && geomid.isValid()) )
@@ -104,11 +105,10 @@ void Seis::ObjectSummary::refreshCache( const Seis::Provider& prov,
 	datachar_ = trl.inputComponentData().first()->datachar_;
 
     prov.getComponentInfo( compnms_ );
-    nrcomp_ = compnms_.size();
     nrsamppertrc_ = zsamp_.nrSteps()+1;
     nrbytespersamp_ = datachar_.nrBytes();
     nrdatabytespespercomptrc_ = nrbytespersamp_ * nrsamppertrc_;
-    nrdatabytespertrc_ = nrdatabytespespercomptrc_ * nrcomp_;
+    nrdatabytespertrc_ = nrdatabytespespercomptrc_ * compnms_.size();
     nrbytestrcheader_ = trl.bytesOverheadPerTrace();
     nrbytespertrc_ = nrbytestrcheader_ + nrdatabytespertrc_;
 }
@@ -328,6 +328,14 @@ const ZDomain::Def& SeisIOObjInfo::zDomainDef() const
 }
 
 
+BufferString SeisIOObjInfo::iconID() const
+{
+    mChk( BufferString() );
+    PtrMan<Translator> transl = ioobj_->createTranslator();
+    return BufferString( transl ? transl->iconName() : "" );
+}
+
+
 int SeisIOObjInfo::SpaceInfo::expectedMBs() const
 {
     if ( expectednrsamps<0 || expectednrtrcs<0 )
@@ -414,9 +422,15 @@ od_int64 SeisIOObjInfo::getFileSize( const char* filenm, int& nrfiles )
 
 od_int64 SeisIOObjInfo::getFileSize() const
 {
-    BufferString fnm = ioobj_->mainFileName();
     int nrfiles;
-    return getFileSize( fnm, nrfiles );
+    return ioobj_ ? getFileSize( ioobj_->mainFileName(), nrfiles ) : -1;
+}
+
+
+od_int64 SeisIOObjInfo::getFileModifTime() const
+{
+    const od_int64 modiftm = File::getTimeInSeconds( ioobj_->mainFileName() );
+    return modiftm < 1 ? mUdf(od_int64) : modiftm;
 }
 
 

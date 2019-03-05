@@ -616,7 +616,7 @@ bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
     if ( !seissummary_ || !seissummary_->isOK() )
 	{ deleteAndZeroPtr(seissummary_); return false; }
 
-    const SeisIOObjInfo& seisinfo = seissummary_->getFullInformation();
+    const SeisIOObjInfo& seisinfo = seissummary_->ioObjInfo();
     const DataCharacteristics datasetdc( seissummary_->getDataChar() );
     if ( dc_.userType() == OD::AutoDataRep )
 	setDataChar( datasetdc.userType() );
@@ -777,7 +777,7 @@ bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
     if ( !seissummary_ || !seissummary_->isOK() )
 	{ deleteAndZeroPtr(seissummary_); return false; }
 
-    const SeisIOObjInfo& seisinfo = seissummary_->getFullInformation();
+    const SeisIOObjInfo& seisinfo = seissummary_->ioObjInfo();
     const DataCharacteristics datasetdc( seissummary_->getDataChar() );
     if ( dc_.userType() == OD::AutoDataRep )
 	setDataChar( datasetdc.userType() );
@@ -949,7 +949,7 @@ bool Seis::SequentialFSLoader::init()
     if ( !seissummary_ || !seissummary_->isOK() )
 	{ deleteAndZeroPtr(seissummary_); return false; }
 
-    const SeisIOObjInfo& seisinfo = seissummary_->getFullInformation();
+    const SeisIOObjInfo& seisinfo = seissummary_->ioObjInfo();
     TrcKeyZSampling seistkzs( tkzs_ );
     seisinfo.getRanges( seistkzs );
     seistkzs.hsamp_.limitTo( tkzs_.hsamp_ );

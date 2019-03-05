@@ -24,7 +24,7 @@ Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
 {
     trcscalers_.setNullAllowed( true );
     TraceData td;
-    for ( int icomp=0; icomp<info.nrcomp_; icomp++ )
+    for ( int icomp=0; icomp<info.compnms_.size(); icomp++ )
 	td.addComponent( info.nrsamppertrc_, info.getDataChar() );
 
     if ( !td.allOk() )
@@ -242,7 +242,7 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 #endif
     }
 
-    for ( int icomp=0; icomp<info_.nrcomp_; icomp++ )
+    for ( int icomp=0; icomp<info_.compnms_.size(); icomp++ )
     {
 	if ( *trc.data().getInterpreter(icomp) ==
 	     *data_.get(pos)->getInterpreter(icomp) ||

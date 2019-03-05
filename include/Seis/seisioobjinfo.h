@@ -52,14 +52,15 @@ public:
     inline DataType	dataType() const	{ return datatype_; }
     inline GeomType	geomType() const	{ return geomtype_; }
     const StepInterval<float>& zRange() const	{ return zsamp_; }
+    inline od_int64	mainFileModifTime() const { return modiftm_; }
+    const BufferStringSet& compNames() const	{ return compnms_; }
 
-    const SeisIOObjInfo&	getFullInformation() const
-				{ return ioobjinfo_; }
+    const SeisIOObjInfo& ioObjInfo() const	{ return ioobjinfo_; }
 
 protected:
 
-    const SeisIOObjInfo&	ioobjinfo_;
-    Pos::GeomID			geomid_;
+    const SeisIOObjInfo& ioobjinfo_;
+    Pos::GeomID		geomid_;
 
     DataCharacteristics datachar_;
     ZSampling		zsamp_;
@@ -69,7 +70,7 @@ protected:
 
     //Cached
     bool		bad_;
-    int			nrcomp_;
+    od_int64		modiftm_;
     int			nrsamppertrc_;
     int			nrbytespersamp_;
     int			nrdatabytespespercomptrc_;
@@ -110,6 +111,7 @@ public:
     bool		isTime() const;
     bool		isDepth() const;
     const ZDomain::Def&	zDomainDef() const;
+    BufferString	iconID() const;
 
     mStruct(Seis) SpaceInfo
     {
@@ -125,6 +127,7 @@ public:
     int			expectedMBs(const SpaceInfo&) const;
     od_int64		getFileSize() const;
     static od_int64	getFileSize(const char* fnm,int& nrfiles);
+    od_int64		getFileModifTime() const;
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRectAndRegular() const;
     bool		getDataChar(DataCharacteristics&) const;
