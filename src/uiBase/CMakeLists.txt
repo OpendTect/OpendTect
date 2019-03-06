@@ -100,7 +100,8 @@ find_package( Qt5WebEngineWidgets QUIET )
 if ( Qt5WebEngineWidgets_FOUND )
   option( USE_QtWebEngine "Build with Qt5 WebEngineWidgets support" ON )
   if ( USE_QtWebEngine )
-      set(OD_USEQT ${OD_USEQT} WebEngineWidgets)
+      set(OD_USEQT ${OD_USEQT} Positioning Quick QuickWidgets Qml
+			       WebChannel WebEngineCore WebEngineWidgets )
       set(QT_MOC_HEADERS ${QT_MOC_HEADERS}  
 	    i_qwebengineview.h
       )
