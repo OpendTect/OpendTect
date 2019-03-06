@@ -4,7 +4,8 @@
 #
 
 
-# Preconditions: bindir and MATLAB_DIR should be healthy
+# Preconditions: bindir and MATLAB_DIR should be healthy. 
+#		 Link library should be present 
 
 if ( $?bindir == 0 ) then
     echo "$0 should be run by the 'init_dtect' script"
@@ -12,6 +13,16 @@ if ( $?bindir == 0 ) then
 else if ( ! -d "${bindir}" ) then
     echo "Cannot locate release binaries directory: ${bindir}"
     exit 1
+endif
+
+if ( ${HDIR} == mac ) then
+    if ( ! -e ${bindir}/libuiMATLABLink.dylib ) then
+	exit 0
+    endif
+else if ( ${HDIR} == "lux" ) then
+    if ( ! -e ${bindir}/libuiMATLABLink.so ) then
+	exit 0
+    endif
 endif
 
 if ( ! $?MATLAB_DIR ) then
