@@ -36,6 +36,8 @@ if ( Qt5Core_FOUND )
 			 IMPORTED_LOCATION )
 endif( Qt5Core_FOUND )
 
+cmake_policy( SET CMP0057 NEW )
+
 macro(OD_SETUP_QT)
     if ( OD_NO_QT )
 	add_definitions( -DOD_NO_QT )
@@ -60,30 +62,35 @@ macro(OD_SETUP_QT)
 	    endif( QT_MOC_HEADERS )
 
 	    foreach ( QTMOD ${OD_USEQT} )
-		list( APPEND OD_MODULE_INCLUDESYSPATH
-		      ${Qt5${QTMOD}_INCLUDE_DIRS} )
+		list( APPEND OD_MODULE_INCLUDESYSPATH ${Qt5${QTMOD}_INCLUDE_DIRS} )
 		list( APPEND OD_QT_LIBS ${Qt5${QTMOD}_LIBRARIES} )
 
-		if ( NOT DEFINED QT_LIBRARY_DIR )
-		    get_target_property(QT_LIBRARY Qt5::${QTMOD} LOCATION )
-		    get_filename_component( QT_LIBRARY_DIR ${QT_LIBRARY} PATH )
-		endif()
-
-		if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
-		    if( UNIX OR APPLE )
-			if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
-			    set( FILENM "libQt${QT_VERSION_MAJOR}${QTMOD}.so.${QT_VERSION_MAJOR}" )
-			elseif( APPLE )
-			    set( FILENM "${QTMOD}.${QT_VERSION_MAJOR}.dylib" )
-			endif()
-			OD_INSTALL_LIBRARY( ${QTDIR}/lib/${FILENM} ${CMAKE_BUILD_TYPE} )
-		    elseif( WIN32 )
-			OD_INSTALL_LIBRARY( ${QTDIR}/bin/Qt${QT_VERSION_MAJOR}${QTMOD}.dll ${CMAKE_BUILD_TYPE} )
-			install( PROGRAMS ${QLIB}
-				 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
-				 CONFIGURATIONS ${CMAKE_BUILD_TYPE} )
+		get_target_property( QT_BUILD_TYPE Qt5::${QTMOD} IMPORTED_CONFIGURATIONS )
+		list( LENGTH QT_BUILD_TYPE QT_NRBUILDS )
+		if ( ${QT_NRBUILDS} GREATER "1" )
+		    if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" AND "DEBUG" IN_LIST QT_BUILD_TYPE )
+		        set( QT_BUILD_TYPE "DEBUG" )
+		    elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND "RELEASE" IN_LIST QT_BUILD_TYPE )
+		        set( QT_BUILD_TYPE "DEBUG" )
+	            elseif( "RELEASE" IN_LIST QT_BUILD_TYPE )
+		        set( QT_BUILD_TYPE "RELEASE" )
+		    elseif( "DEBUG" IN_LIST QT_BUILD_TYPE )
+		        set( QT_BUILD_TYPE "DEBUG" )
 		    endif()
 		endif()
+		get_target_property( QTLIBLOC Qt5::${QTMOD} IMPORTED_LOCATION_${QT_BUILD_TYPE} )
+		if( UNIX OR APPLE )
+		    get_target_property( QTLIBSONAME Qt5::${QTMOD} IMPORTED_SONAME_${QT_BUILD_TYPE} )
+		endif()
+		get_filename_component( QTLIBDIR ${QTLIBLOC} DIRECTORY )
+	        if( UNIX OR APPLE )
+		    OD_INSTALL_LIBRARY( ${QTLIBDIR}/${QTLIBSONAME} ${CMAKE_BUILD_TYPE} )
+	        elseif( WIN32 )
+		    OD_INSTALL_LIBRARY( ${QTLIBLOC} ${CMAKE_BUILD_TYPE} )
+		    install( PROGRAMS ${QLIB}
+			 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
+			 CONFIGURATIONS ${CMAKE_BUILD_TYPE} )
+	        endif()
 	    endforeach()
 	    #Installing Qt5DBus and Qt5XcbQpa libs on Linux64 platform and required Qt plugins on all platforms
 	    if ( UNIX )
@@ -93,17 +100,29 @@ macro(OD_SETUP_QT)
 			set( FILENM "libQt${QT_VERSION_MAJOR}${LIBNM}.so.${QT_VERSION_MAJOR}" )
 			OD_INSTALL_LIBRARY( ${QTDIR}/lib/${FILENM} ${CMAKE_BUILD_TYPE} )
 		    endforeach()
+		    set( ICU_VERSION_MAJOR "56" )
+		    set( LIBNMS i18n data uc )
+		    foreach( LIBNM ${LIBNMS} )
+			set( FILENM "${QTLIBDIR}/libicu${LIBNM}.so.${ICU_VERSION_MAJOR}" )
+			if ( EXISTS ${FILENM} )
+			    OD_INSTALL_LIBRARY( ${FILENM} ${CMAKE_BUILD_TYPE} )
+			endif()
+		    endforeach()
 		endif()
-		install( DIRECTORY ${QTDIR}/plugins/xcbglintegrations
-			 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
-			 CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-			 USE_SOURCE_PERMISSIONS )
+		if ( NOT APPLE )
+		    install( DIRECTORY ${QTDIR}/plugins/xcbglintegrations
+			     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
+			     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+			     USE_SOURCE_PERMISSIONS )
+	        endif()
 	    endif()
 	    install( DIRECTORY ${QTDIR}/plugins/platforms
 		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
 		     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 		     USE_SOURCE_PERMISSIONS )
 
+	    get_target_property( QT5CORE_LIBRARY Qt5::Core LOCATION )
+	    get_filename_component( QT_LIBRARY_DIR ${QT5CORE_LIBRARY} DIRECTORY )
 	    list ( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${QT_LIBRARY_DIR} )
 
 	    list( REMOVE_DUPLICATES OD_QT_LIBS )
