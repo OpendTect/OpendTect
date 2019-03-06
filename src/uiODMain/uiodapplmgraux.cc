@@ -703,8 +703,8 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
     { uiSeis2DFrom3D dlg( par_ ); dlg.go(); }
     else if ( opt==2 )
     {
-	uiString titletext = tr("Create 3D cube from to 2D DataSet");
-	uiSeis2DTo3D dlg( par_ ,titletext );
+	uiString titletext = tr("Create 3D cube from 2D DataSet");
+	uiSeis2DTo3D dlg( par_, titletext );
 	dlg.go();
     }
 }
