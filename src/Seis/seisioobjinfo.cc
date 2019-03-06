@@ -120,6 +120,24 @@ bool Seis::ObjectSummary::hasSameFormatAs( const BinDataDesc& desc ) const
 }
 
 
+const IOObj* Seis::ObjectSummary::ioObj() const
+{
+    return ioObjInfo().ioObj();
+}
+
+
+DBKey Seis::ObjectSummary::key() const
+{
+    return ioObj() ? ioObj()->key() : DBKey();
+}
+
+
+const char* Seis::ObjectSummary::name() const
+{
+    return ioObj() ? ioObj()->name() : "";
+}
+
+
 
 #define mGetDataSet(nm,rv) \
     if ( !isOK() || !is2D() || isPS() ) return rv; \

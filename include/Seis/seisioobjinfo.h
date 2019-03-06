@@ -46,14 +46,19 @@ public:
     inline bool		is2D() const	{ return Seis::is2D(geomtype_); }
     inline bool		isPS() const	{ return Seis::isPS(geomtype_); }
 
-    bool		hasSameFormatAs(const BinDataDesc&) const;
-    inline const DataCharacteristics&	getDataChar() const
-					{ return datachar_;}
+			// return valid stuff if isOK()
+    const IOObj*	ioObj() const;
+    DBKey		key() const;
+    const char*		name() const;
+
     inline DataType	dataType() const	{ return datatype_; }
     inline GeomType	geomType() const	{ return geomtype_; }
     const StepInterval<float>& zRange() const	{ return zsamp_; }
     inline od_int64	mainFileModifTime() const { return modiftm_; }
     const BufferStringSet& compNames() const	{ return compnms_; }
+    inline const DataCharacteristics& dataChar() const
+						{ return datachar_;}
+    bool		hasSameFormatAs(const BinDataDesc&) const;
 
     const SeisIOObjInfo& ioObjInfo() const	{ return ioobjinfo_; }
 

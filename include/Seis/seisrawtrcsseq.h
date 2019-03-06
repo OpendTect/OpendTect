@@ -36,7 +36,7 @@ public:
 
     bool		isOK() const;
     bool		isPS() const;
-    const DataCharacteristics	getDataChar() const;
+    const DataCharacteristics dataChar() const;
 
     const ZSampling&	getZRange() const;
     int			nrPositions() const;
