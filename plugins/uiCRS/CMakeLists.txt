@@ -1,11 +1,11 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	uiCRS
-# 	May 2017	Raman
+#	Makefile :	uiCRS
+#	May 2017	Raman
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set( OD_MODULE_DEPS uiIo CRS )
+set( OD_MODULE_DEPS uiODMain CRS )
 set( OD_IS_PLUGIN yes)
 set( OD_MODULE_SOURCES 
 	    uicrssystem.cc

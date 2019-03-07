@@ -262,7 +262,7 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
 	, coordsystem_(coordsystem)
 {
     dirfld_ = new uiGenInput( this, uiStrings::sDirection(),
-	          BoolInpSpec(true,tr("X/Y to Lat/Lng"),tr("Lat/Lng to X/Y")) );
+		  BoolInpSpec(true,tr("X/Y to Lat/Lng"),tr("Lat/Lng to X/Y")) );
     dirfld_->valuechanged.notify( mCB(this,uiConvertGeographicPos,selChg) );
 
     towgs84fld_ = new uiCheckBox( this, tr("Output to WGS84 CRS") );
@@ -274,7 +274,7 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
     fromwgs84fld_->attach( alignedBelow, dirfld_ );
 
     ismanfld_ = new uiGenInput( this, uiStrings::sConversion(),
-	           BoolInpSpec(true,uiStrings::sManual(),uiStrings::sFile()) );
+		   BoolInpSpec(true,uiStrings::sManual(),uiStrings::sFile()) );
     ismanfld_->valuechanged.notify( mCB(this,uiConvertGeographicPos,selChg) );
     ismanfld_->attach( alignedBelow, towgs84fld_ );
 
