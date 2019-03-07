@@ -73,8 +73,9 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     minfld_->setInterval( 0, 59, 1 );
     minfld_->setValue( 0 );
     minfld_->attach( rightOf, degfld_ );
-    secfld_ = new uiLineEdit( this, FloatInpSpec(),
-			      BufferString("DMS ",nm," sec") );
+    secfld_ = new uiLineEdit( this, BufferString("DMS ",nm," sec") );
+    uiFloatValidator fv( 0, 59.99f ); fv.nrdecimals_ = 2;
+    secfld_->setValidator( fv );
     secfld_->setHSzPol( uiObject::Small );
     secfld_->attach( rightOf, minfld_ );
     secfld_->setValue( 0 );
