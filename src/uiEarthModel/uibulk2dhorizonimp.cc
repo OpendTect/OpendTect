@@ -67,7 +67,7 @@ static Table::FormatDesc* getDesc()
     ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
     fd->bodyinfos_ += ti;
     Table::TargetInfo* trcspti = new Table::TargetInfo( uiString::empty(),
-							    Table::Required );
+							    Table::Optional );
     trcspti->form(0).setName( "Trace Nr" );
     Table::TargetInfo::Form* spform =
 		    new Table::TargetInfo::Form( uiStrings::sSPNumber(true),

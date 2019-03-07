@@ -219,9 +219,9 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     horselfld_->setAllowDuplicates( false );
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
 
-    uiPushButton* addbut = new uiPushButton( this, tr("Add new"),
+    uiPushButton* addbut = new uiPushButton( horselfld_, tr("Add new"),
 				mCB(this,uiImportHorizon2D,addHor), false );
-    addbut->attach( rightTo, horselfld_ );
+    addbut->attach( rightTo, horselfld_->box() );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 			mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );

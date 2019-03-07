@@ -717,32 +717,34 @@ bool Horizon2DAscIO::isFormatOK(  const Table::FormatDesc& fd,
 				  uiString& msg )
 {
     const bool trccoldefined = fd.bodyinfos_[2]->selection_.isInFile( 0 );
-    const bool xycolsdefined = fd.bodyinfos_[1]->selection_.isInFile( 0 )
-			       &&  fd.bodyinfos_[1]->selection_.isInFile( 1 );
+    const bool xycolsdefined = fd.bodyinfos_[1]->selection_.isInFile( 0 ) &&
+			       fd.bodyinfos_[1]->selection_.isInFile( 1 );
      if ( trccoldefined || xycolsdefined )
 	 return true;
 
-     msg = tr("At least one of 'Trace Nr' and 'X Y' columns need to be "
-								    "defined");
+     msg = tr("At least one of 'Trace Nr' and 'X Y' columns "
+	      "need to be defined");
      return false;
 }
+
 
 void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 				     const BufferStringSet& hornms )
 {
     fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sLineName(),
-							Table::Required );
-    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( true, false,
-									true );
+					     Table::Required );
+    Table::TargetInfo* ti =
+	Table::TargetInfo::mkHorPosition( false, false, true );
     fd->bodyinfos_ += ti;
-    Table::TargetInfo* trcspti = new Table::TargetInfo( uiString::empty(),
-							    Table::Required );
-    trcspti->form(0).setName( "Trace Nr" );
+
+    Table::TargetInfo* trcspti =
+	new Table::TargetInfo( uiString::empty(), Table::Optional );
+    trcspti->form(0).dispnm_ = toUiString("Trace Nr");
     Table::TargetInfo::Form* spform =
-			new Table::TargetInfo::Form( uiStrings::sSPNumber(true),
-								IntInpSpec() );
+	new Table::TargetInfo::Form( toUiString("SP Nr"), IntInpSpec() );
     trcspti->add( spform );
     fd->bodyinfos_ += trcspti;
+
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	BufferString fldname = hornms.get( idx );
@@ -764,7 +766,7 @@ void Horizon2DAscIO::updateDesc( Table::FormatDesc& fd,
 
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
-int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
+int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& nr,
 				 TypeSet<float>& data )
 {
     data.erase();
@@ -781,8 +783,8 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
     if ( ret <= 0 ) return ret;
 
     lnm = text( 0 );
-    crd = getPos( 0, 1 );
-    trcnr = getIntValue( 3 );
+    crd = getPos( 1, 2 );
+    nr = getIntValue( 3 );
     const int nrhors = vals_.size() - 4;
     for ( int idx=0; idx<nrhors; idx++ )
 	data += getFValue( idx+4, udfval_ );
