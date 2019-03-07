@@ -59,7 +59,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 {
     setCtrlStyle( CloseOnly );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
-    listfld_ = new uiListBox( topgrp, "Loaded entries", OD::ChooseZeroOrMore );
+    listfld_ = new uiListBox( topgrp, "Loaded entries", OD::ChooseAtLeastOne );
     listfld_->selectionChanged.notify( mCB(this,uiSeisPreLoadMgr,selChg) );
     topgrp->setHAlignObj( listfld_ );
 
@@ -100,7 +100,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 	else
 	    mAddBut(tr("Add Prestack data"),ps2DPush,"prestackdataset2d")
     }
-    mAddBut(tr("Unload Checked"),unloadPush,"unload");
+    mAddBut(tr("Unload"),unloadPush,"unload");
 
     uiToolButton* savetb = new uiToolButton( listfld_, "save",
 	    tr("Save pre-loads"), mCB(this,uiSeisPreLoadMgr,savePush) );
