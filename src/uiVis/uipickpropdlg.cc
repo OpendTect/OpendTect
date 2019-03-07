@@ -25,11 +25,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 			      visSurvey::PickSetDisplay* psd )
-    : uiMarkerStyleDlg( p, tr("Pick properties") )
+    : uiMarkerStyleDlg( p, tr("PointSet Display Properties") )
     , set_( set )
     , psd_( psd )
 {
-    setTitleText( tr("Specify picks style") );
     usedrawstylefld_ = new uiCheckBox( this, tr("Connect picks") );
     const bool hasbody = psd && psd->isBodyDisplayed();
     const bool hassty = set_.disp_.connect_==Pick::Set::Disp::Close || hasbody;
@@ -38,7 +37,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 
     drawstylefld_ = new uiGenInput( this, tr("with"),
 				    BoolInpSpec( true, tr("Line"),
-                                    tr("Surface") ) );
+				    tr("Surface") ) );
     drawstylefld_->setValue( !hasbody );
     drawstylefld_->valuechanged.notify( mCB(this,uiPickPropDlg,drawStyleCB) );
     drawstylefld_->attach( rightOf, usedrawstylefld_ );
@@ -74,7 +73,7 @@ void uiPickPropDlg::drawSel( CallBacker* )
 	if ( set_.disp_.connect_==Pick::Set::Disp::Close )
 	{
 	    set_.disp_.connect_ = Pick::Set::Disp::None;
-    	    Pick::Mgr().reportDispChange( this, set_ );
+	    Pick::Mgr().reportDispChange( this, set_ );
 	}
 
 	if ( psd_ )
@@ -89,20 +88,20 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
 {
     const bool showline = drawstylefld_->getBoolValue();
     if ( psd_ )
-    	psd_->displayBody( !showline );
+	psd_->displayBody( !showline );
 
     if ( showline )
     {
 	set_.disp_.connect_ = Pick::Set::Disp::Close;
-    	Pick::Mgr().reportDispChange( this, set_ );
+	Pick::Mgr().reportDispChange( this, set_ );
     }
     else
     {
-     	if ( !psd_ ) return;
-    	set_.disp_.connect_ = Pick::Set::Disp::None;
-    	Pick::Mgr().reportDispChange( this, set_ );
+	if ( !psd_ ) return;
+	set_.disp_.connect_ = Pick::Set::Disp::None;
+	Pick::Mgr().reportDispChange( this, set_ );
 
-    	if ( !psd_->getDisplayBody() )
+	if ( !psd_->getDisplayBody() )
 	    psd_->setBodyDisplay();
     }
 }
