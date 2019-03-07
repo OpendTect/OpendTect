@@ -25,7 +25,7 @@ const char* Well::D2TModel::sKeyTimeWell()	{ return "=Time"; }
 const char* Well::D2TModel::sKeyDataSrc()	{ return "Data source"; }
 
 static const Well::D2TModel::ZType z_eps = Well::DahObj::dahEps();
-static const Well::D2TModel::TWTType t_eps = 1e-6f;
+static const Well::D2TModel::TWTType t_eps = 1e-5f;
 static const Well::D2TModel::VelType v_eps = 1e-3f;
 
 mDefineInstanceCreatedNotifierAccess(Well::D2TModel);
