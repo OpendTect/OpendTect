@@ -63,9 +63,9 @@ public:
 
     mStruct(uiStrat) Level
     {
-			Level(const char* nm,const char* unitcode)
-				: unitcode_(unitcode)
-				, name_( nm )
+			Level( const char* nm, const char* unitcode )
+				: name_(nm)
+				, unitcode_(unitcode)
 				{}
 
 	const BufferString name_;
@@ -158,16 +158,17 @@ mExpClass(uiStrat) uiStratDispToTree : public CallBacker
 {
 public:
 			uiStratDispToTree(uiStratRefTree&);
-	                ~uiStratDispToTree(){};
+			~uiStratDispToTree();
 
     uiTreeViewItem*	getItemFromTree(const char*);
 
     void		handleUnitMenu(const char*);
+    void		handleUnitProperties(const char*);
     void		setUnitLvl(const char*);
     void		addUnit(const char*);
     uiTreeViewItem*	setCurrentTreeItem(const char*);
 
 protected:
 
-    uiStratRefTree&     uitree_;
+    uiStratRefTree&	uitree_;
 };

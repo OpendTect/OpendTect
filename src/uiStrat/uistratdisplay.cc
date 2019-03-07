@@ -44,6 +44,7 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
 
     MouseEventHandler& meh = getMouseEventHandler();
     meh.buttonReleased.notify( mCB(this,uiStratDisplay,usrClickCB) );
+    meh.doubleClick.notify( mCB(this,uiStratDisplay,doubleClickCB) );
     meh.movement.notify( mCB(this,uiStratDisplay,mouseMoveCB) );
     reSize.notify( mCB(this,uiStratDisplay,reDraw) );
 
@@ -54,7 +55,7 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     setPrefHeight( 400 );
     createDispParamGrp();
     setRange();
-    reDraw( 0 );
+    reDraw( nullptr );
 }
 
 
@@ -105,6 +106,7 @@ void uiStratDisplay::controlRange( CallBacker* )
     if ( uicontrol_ )
     {
 	rangefld_->setValue( uicontrol_->range() );
+	rangefld_->setNrDecimals( 2 );
 	dispParamChgd(0);
     }
 }
@@ -120,9 +122,9 @@ void uiStratDisplay::createDispParamGrp()
 		    .setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
 
-    const CallBack cbv = mCB( this, uiStratDisplay, selCols );
-    viewcolbutton_ = new uiPushButton( dispparamgrp_,uiStrings::sView(),
-                                       cbv,true );
+    const CallBack cbv = mCB(this,uiStratDisplay,selCols);
+    viewcolbutton_ = new uiPushButton( dispparamgrp_, tr("Columns"),
+                                       cbv, false );
     viewcolbutton_->attach( rightOf, rangefld_ );
 }
 
@@ -206,6 +208,7 @@ void uiStratDisplay::setZRange( const Interval<float>& zrgin )
 {
     Interval<float> zrg = zrgin;
     rangefld_->setValue( zrg );
+    rangefld_->setNrDecimals( 2 );
     if ( uicontrol_ )
 	uicontrol_->setRange( zrg );
     zrg.sort(false);
@@ -239,6 +242,16 @@ void uiStratDisplay::usrClickCB( CallBacker* cb )
 	return;
 
     mevh->setHandled( handleUserClick(mevh->event()) );
+}
+
+
+void uiStratDisplay::doubleClickCB( CallBacker* )
+{
+    const StratDispData::Unit* unit = getUnitFromPos();
+    if ( !unit )
+	return;
+
+    uidatawriter_.handleUnitProperties( unit->fullCode() );
 }
 
 

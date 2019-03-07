@@ -126,6 +126,7 @@ uiStratTreeToDisp::uiStratTreeToDisp( StratDispData& ad,
     setTree();
 }
 
+
 uiStratTreeToDisp::~uiStratTreeToDisp()
 {
     detachAllNotifiers();
@@ -277,9 +278,13 @@ void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
 
 
 
-
+// uiStratDispToTree
 uiStratDispToTree::uiStratDispToTree( uiStratRefTree& uitree )
     : uitree_(uitree)
+{}
+
+
+uiStratDispToTree::~uiStratDispToTree()
 {}
 
 
@@ -295,12 +300,23 @@ uiTreeViewItem* uiStratDispToTree::setCurrentTreeItem( const char* txt )
 
 void uiStratDispToTree::handleUnitMenu( const char* txt )
 {
-    if ( txt )
-    {
-	uiTreeViewItem* lit = setCurrentTreeItem( txt );
-	if ( lit )
-	    uitree_.handleMenu( lit );
-    }
+    if ( !txt )
+	return;
+
+    uiTreeViewItem* lit = setCurrentTreeItem( txt );
+    if ( lit )
+	uitree_.handleMenu( lit );
+}
+
+
+void uiStratDispToTree::handleUnitProperties( const char* txt )
+{
+    if ( !txt )
+	return;
+
+    uiTreeViewItem* lit = setCurrentTreeItem( txt );
+    if ( lit )
+	uitree_.updateUnitProperties( lit );
 }
 
 
