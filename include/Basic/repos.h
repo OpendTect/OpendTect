@@ -69,6 +69,8 @@ public:
     BufferString	fileName(Source) const;
     static bool		next(Source&,bool rev=false);
 
+    bool		removeFile(Source);
+
 protected:
 
     const BufferString	basenm_;

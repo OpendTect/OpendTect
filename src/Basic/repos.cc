@@ -103,6 +103,13 @@ BufferString Repos::FileProvider::fileName( Repos::Source src ) const
 }
 
 
+bool Repos::FileProvider::removeFile( Source src )
+{
+    SafeFileIO sfio( fileName(src) );
+    return sfio.remove();
+}
+
+
 
 Repos::IOParSet::IOParSet( const char* basenm )
     : basenm_(basenm)
