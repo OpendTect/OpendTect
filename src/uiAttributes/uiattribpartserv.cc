@@ -1390,7 +1390,7 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& ass, bool is2d,
     {
 	uiString ittxt;
 	if ( !useext || is2d )
-        {ittxt = toUiString(nlamodel->nlaType(false));}
+	    ittxt = toUiString( nlamodel->nlaType(false) );
 	else
 	    ittxt = tr("Neural Network 3D");
 	if ( useext && is2d ) ittxt = toUiString("%1 %2").arg(ittxt)
