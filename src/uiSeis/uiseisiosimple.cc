@@ -87,7 +87,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	, isimp_(imp)
 	, geom_(gt)
 {
-    setOkText( imp ? uiStrings::sImport() : uiStrings::sExport() );
+    setOkCancelText( imp ? uiStrings::sImport() : uiStrings::sExport(),
+		     uiStrings::sClose() );
 
     data().clear( survChanged() );
     const bool is2d = is2D();

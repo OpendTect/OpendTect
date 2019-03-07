@@ -202,7 +202,7 @@ uiExp2DGeom::uiExp2DGeom( uiParent* p )
 		       mNoDlgTitle, mODHelpKey(mExp2DGeomHelpID))
 		 .modal(false))
 {
-    setOkText( uiStrings::sExport() );
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
     IOObjContext ctxt = mIOObjContext( SurvGeom2D );
     geomfld_ = new uiIOObjSelGrp( this, ctxt,

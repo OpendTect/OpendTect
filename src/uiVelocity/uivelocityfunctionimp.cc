@@ -43,7 +43,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     , ctio_( *new CtxtIOObj( StoredFunctionSource::ioContext() ) )
     , fd_( *FunctionAscIO::getDesc() )
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
 			     uiFileSel::Setup().withexamine(true) );

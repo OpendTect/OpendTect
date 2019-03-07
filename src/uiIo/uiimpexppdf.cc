@@ -46,6 +46,8 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 				 mNoDlgTitle, mODHelpKey(mImpRokDocPDFHelpID))
 			   .modal(false))
 {
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+
     uiFileSel::Setup fssu;
     fssu.withexamine( true )
 	.selectMultiFile()
