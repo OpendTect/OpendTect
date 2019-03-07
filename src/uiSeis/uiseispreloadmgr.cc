@@ -63,7 +63,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 {
     setCtrlStyle( CloseOnly );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
-    listfld_ = new uiListBox( topgrp, "Loaded entries", OD::ChooseZeroOrMore );
+    listfld_ = new uiListBox( topgrp, "Loaded entries", OD::ChooseAtLeastOne );
     listfld_->selectionChanged.notify( mCB(this,uiSeisPreLoadMgr,selChg) );
     topgrp->setHAlignObj( listfld_ );
 
@@ -80,16 +80,16 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 
     if ( has3d )
     {
-	mAddBut(tr("Load Cube"),cubeLoadPush,"seismiccube")
+	mAddBut(tr("Load Cube"), cubeLoadPush, "seismiccube" )
     }
     if ( has2d )
     {
 	if ( has3d )
-	    mAddBut(tr("Load 2D DataSet"),linesLoadPush,"seismicline2d")
+	    mAddBut( tr("Load 2D DataSet"), linesLoadPush, "seismicline2d" )
 	else
-	    mAddBut(tr("Load DataSet"),linesLoadPush,"seismicline2d")
+	    mAddBut( tr("Load DataSet"), linesLoadPush, "seismicline2d" )
     }
-    mAddBut(tr("Unload Checked"),unloadPush,"unload");
+    mAddBut( tr("Unload"), unloadPush, "unload" );
 
     uiToolButton* savetb = new uiToolButton( listfld_, "save",
 	    tr("Save pre-loads"), mCB(this,uiSeisPreLoadMgr,savePush) );
@@ -360,8 +360,10 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
 {
     const ObjectSet<PreLoadDataEntry>& entries = PLDM().getEntries();
     TypeSet<int> selitms; listfld_->getChosen( selitms );
+    if ( selitms.isEmpty() )
+	return;
 
-    uiString msg = tr("Unload checked items?\n(This will not delete "
+    uiString msg = tr("Unload selected items?\n(This will not delete "
 		      "the data from disk)");
     if ( !uiMSG().askGoOn( msg ) )
 	return;
