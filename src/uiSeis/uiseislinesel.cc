@@ -249,6 +249,12 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
 	    geomids_.add( geomids[ idxs[idx] ] );
 	}
     }
+
+    if ( lnms_.size()==1 )
+    {
+	setAll( true );
+	updateSummary();
+    }
 }
 
 
