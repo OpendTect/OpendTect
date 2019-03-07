@@ -37,8 +37,11 @@ uiWellPosProvGroup::uiWellPosProvGroup( uiParent* p,
     stepoutfld_ = new uiStepOutSel( this, false, uiStrings::sExtension() );
     stepoutfld_->attach( alignedBelow, wellfld_ );
 
-    zrgfld_ = new uiSelZRange( this, true, false, 0, su.zdomkey_ );
-    zrgfld_->attach( alignedBelow, stepoutfld_ );
+    if ( su.withz_ )
+    {
+	zrgfld_ = new uiSelZRange( this, true, false, 0, su.zdomkey_ );
+	zrgfld_->attach( alignedBelow, stepoutfld_ );
+    }
 
     setHAlignObj( wellfld_ );
 }
@@ -62,7 +65,7 @@ void uiWellPosProvGroup::usePar( const IOPar& iop )
     iop.get( mGetWellKey(sKeyZExt()), zext );
     iop.getYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords );
     StepInterval<float> zrg;
-    if ( iop.get(sKey::ZRange(),zrg) )
+    if ( zrgfld_ && iop.get(sKey::ZRange(),zrg) )
 	zrgfld_->setRange( zrg );
 
     stepoutfld_->setBinID( so );
