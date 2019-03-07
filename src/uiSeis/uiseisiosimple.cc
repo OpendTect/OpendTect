@@ -183,14 +183,14 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	if ( !is2d )
 	{
 	    inldeffld_ = new uiGenInput( this,
-					 tr("Inline definition: start, step"),
+					 tr("In-line definition: start, step"),
 				IntInpSpec(data().inldef_.start)
 						.setName("Inl def start"),
 				IntInpSpec(data().inldef_.step)
 						.setName("Inl def step") );
 	    inldeffld_->attach( alignedBelow, attachobj );
 	    crldeffld_ = new uiGenInput( this,
-			tr("Xline definition: start, step, # per inline"),
+			tr("Cross-line definition: start, step, # per inline"),
 			   IntInpSpec(data().crldef_.start)
 						.setName("Crl def start"),
 			   IntInpSpec(data().crldef_.step)
