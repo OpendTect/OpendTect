@@ -110,7 +110,7 @@ InitMyModPlugin
 <code>Get...PluginType</code> determines whether the plugin can be
 used for the <a href=#autoload>auto-load</a>, and if so, when. 'When'
 means: before or after the program has created the OpendTect GUI
-objects (and always after the static objects are initialised). The
+objects (and always after the static objects are initialized). The
 second function simply provides info for the users of your plugin.
 </p>
 
