@@ -1,4 +1,4 @@
-Copyright (C) 2002-2011 dGB Beheer B.V. All rights reserved.
+Copyright (C) 2002-2019 dGB Beheer B.V. All rights reserved.
 
 This software is part of OpendTect and may be used either under the terms of:
 

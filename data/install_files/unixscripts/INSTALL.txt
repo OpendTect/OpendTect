@@ -1,4 +1,4 @@
-OpendTect V4.4: installation notes.
+OpendTect V6.4: installation notes.
 
 
 First of all, you can find a sysadm manual for OpendTect on the web site
