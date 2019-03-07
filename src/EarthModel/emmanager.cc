@@ -167,7 +167,10 @@ EM::Object* EM::ObjectManager::gtObject( const ObjID& objid )
     for ( int idx=0; idx<savers_.size(); idx++ )
     {
 	if ( savers_[idx]->key() == objid )
-	    return mCast(Object*,savers_[idx]->object());
+	{
+	    mDynamicCastGet(const Object*,emobj,savers_[idx]->object())
+	    return const_cast<Object*>(emobj);
+	}
     }
 
     return 0;
@@ -558,7 +561,7 @@ ConstRefMan<EM::Object> EM::FaultSetManager::fetch(const ObjID& dbkey,
 	return 0;
 
     PtrMan<EMFaultSet3DTranslator> transl =
-                        (EMFaultSet3DTranslator*)ioobj->createTranslator();
+			(EMFaultSet3DTranslator*)ioobj->createTranslator();
     if ( !transl )
 	return 0;
 
