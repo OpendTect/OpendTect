@@ -48,7 +48,7 @@ static Table::FormatDesc* getDesc()
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( uiStrings::sHorizonName(),
 							    Table::Required );
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, true, false );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     return fd;
 }
@@ -92,7 +92,7 @@ uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
 			    .modal(false))
     , fd_(BulkHorizonAscIO::getDesc())
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiFileSel( this,
 		      uiStrings::sInputASCIIFile(),
@@ -100,7 +100,7 @@ uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
 		      .examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
-                                    mODHelpKey(mTableImpDataSelwellsHelpID) );
+				    mODHelpKey(mTableImpDataSelwellsHelpID) );
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 

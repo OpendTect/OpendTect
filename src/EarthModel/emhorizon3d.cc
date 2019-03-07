@@ -1584,7 +1584,7 @@ Table::FormatDesc* Horizon3DAscIO::getDesc()
 void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
 				     const BufferStringSet& attrnms )
 {
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, true, false );
 
     for ( int idx=0; idx<attrnms.size(); idx++ )
     {
