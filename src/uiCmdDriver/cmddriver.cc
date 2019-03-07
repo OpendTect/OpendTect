@@ -963,7 +963,7 @@ bool CmdDriver::doAction( const char* actstr )
     if ( !cmd )
     {
 	mParseErrStrm << (firstword.isEmpty() ? "Missing command"
-					      : "Command not recognised: ")
+					      : "Command not recognized: ")
 		      << firstword << od_endl;
 	return false;
     }
