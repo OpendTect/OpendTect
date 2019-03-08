@@ -222,9 +222,9 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     horselfld_->setAllowDuplicates( false );
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
 
-    uiPushButton* addbut = new uiPushButton( this, tr("Add new"),
+    uiPushButton* addbut = new uiPushButton( horselfld_, tr("Add new"),
 				mCB(this,uiImportHorizon2D,addHor), false );
-    addbut->attach( rightTo, horselfld_ );
+    addbut->attach( rightTo, horselfld_->box() );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 			mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
@@ -286,7 +286,7 @@ void uiImportHorizon2D::addHor( CallBacker* )
     if ( IOM().getLocal(hornm,0) )
     {
 	uiMSG().error(tr("Failed to add: a surface already "
-                         "exists with name %1").arg(toUiString(hornm)));
+			 "exists with name %1").arg(toUiString(hornm)));
 	return;
     }
 
@@ -480,7 +480,7 @@ bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 	if ( !File::exists(fnm) )
 	{
 	    uiString errmsg = tr("Cannot find input file:\n%1")
-	                    .arg(fnm);
+			    .arg(fnm);
 	    deepErase( filenames );
 	    mErrRet( errmsg );
 	}

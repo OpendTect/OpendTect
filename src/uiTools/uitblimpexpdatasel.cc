@@ -35,19 +35,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiTableTargetInfoEd : public uiGroup
-{ mODTextTranslationClass(uiTableTargetInfoEd);
+{ mODTextTranslationClass(uiTableTargetInfoEd)
 public:
 
 uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 		     int nrlns )
     : uiGroup(p,tinf.name())
-    , unitfld_(0)
-    , crsfld_(0)
     , tinf_(tinf)
-    , formfld_(0)
-    , specfld_(0)
     , ishdr_(ishdr)
     , nrhdrlns_(nrlns)
+    , formfld_(nullptr)
+    , specfld_(nullptr)
+    , unitfld_(nullptr)
+    , crsfld_(nullptr)
 {
     if ( tinf_.nrForms() < 1 )
 	return;
@@ -72,18 +72,31 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 				: (tinf_.selection_.isInFile(0) ? 2 : 0) );
     }
 
-    uiString  lbltxt = tinf_.isOptional() ? tr("[%1]").arg(tinf_.name()) :
-		       tr("%1").arg(tinf_.name());
-    uiLabel* lbl = new uiLabel( this, lbltxt );
-    if ( formfld_ )
-	lbl->attach( rightOf, formfld_ );
-    rightmostleftfld_ = lbl;
+    const OD::String& nmstr = tinf_.name();
+    if ( !nmstr.isEmpty() )
+    {
+	uiString  lbltxt = tinf_.isOptional() ? tr("[%1]").arg(tinf_.name()) :
+			   tr("%1").arg(tinf_.name());
+	uiLabel* lbl = new uiLabel( this, lbltxt );
+	if ( formfld_ )
+	    lbl->attach( rightOf, formfld_ );
+	rightmostleftfld_ = lbl;
+    }
+    else
+	rightmostleftfld_ = formfld_;
+
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
     {
 	rightmostfld_ = rightmostleftfld_;
 	const Table::TargetInfo::Form& form = tinf_.form( iform );
 	if ( formfld_ )
-	    formfld_->addItem( mToUiStringTodo(form.name()) );
+	{
+	    BufferString formnm = form.name();
+	    if ( tinf_.isOptional() )
+		formnm.embed( '[', ']' );
+	    formfld_->addItem( mToUiStringTodo(formnm) );
+	}
+
 	mkColFlds( iform );
     }
 
@@ -94,8 +107,8 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     PropertyRef::StdType proptyp = tinf_.propertyType();
     if ( proptyp != PropertyRef::Other )
     {
-	unitfld_ = new uiUnitSel( this, uiUnitSel::Setup(proptyp,
-							 uiStrings::sUnit()) );
+	unitfld_ = new uiUnitSel( this,
+				uiUnitSel::Setup(proptyp,uiStrings::sUnit()) );
 	unitfld_->attach( rightTo, rightmostfld_ );
 	if ( tinf_.selection_.unit_ )
 	    unitfld_->setUnit( tinf_.selection_.unit_->name() );
@@ -106,8 +119,8 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( tinf_.selection_.coordsys_
 	    && tinf_.selection_.coordsys_->isProjection() )
     {
-	crsfld_ = new Coords::uiCoordSystemSel(this, true, true,
-						tinf_.selection_.coordsys_);
+	crsfld_ = new Coords::uiCoordSystemSel( this, true, true,
+						tinf_.selection_.coordsys_ );
 	crsfld_->attach( stretchedBelow, rightmostfld_ );
     }
 
@@ -145,8 +158,8 @@ void mkColFlds( int iform )
 
 void addBoxes( int iform, int ifld )
 {
-    uiSpinBox* rowspinbox = 0;
-    uiLineEdit* kwinp = 0;
+    uiSpinBox* rowspinbox = nullptr;
+    uiLineEdit* kwinp = nullptr;
 
     if ( ishdr_ )
     {
@@ -238,9 +251,9 @@ void boxChg( CallBacker* )
 
 	ObjectSet<uiSpinBox>& colboxes = *colboxes_[iform];
 	ObjectSet<uiSpinBox>* rowboxes = iform < rowboxes_.size()
-				       ? rowboxes_[iform] : 0;
+				       ? rowboxes_[iform] : nullptr;
 	ObjectSet<uiLineEdit>* kwinps = iform < kwinps_.size()
-				       ? kwinps_[iform] : 0;
+				       ? kwinps_[iform] : nullptr;
 	for ( int ifld=0; ifld<colboxes.size(); ifld++ )
 	{
 	    colboxes[ifld]->display( isselform && !isspec );
@@ -311,9 +324,9 @@ bool commit()
     {
 	ObjectSet<uiSpinBox>& colboxes = *colboxes_[formnr];
 	ObjectSet<uiSpinBox>* rowboxes = rowboxes_.size() > formnr
-				       ? rowboxes_[formnr] : 0;
+				       ? rowboxes_[formnr] : nullptr;
 	ObjectSet<uiLineEdit>* kwinps = kwinps_.size() > formnr
-				       ? kwinps_[formnr] : 0;
+				       ? kwinps_[formnr] : nullptr;
 	for ( int idx=0; idx<colboxes.size(); idx++ )
 	{
 	    RowCol rc( 0, colboxes[idx]->getIntValue() );
@@ -341,13 +354,13 @@ bool commit()
 	}
     }
 
-    tinf_.selection_.unit_ = unitfld_ ? unitfld_->getUnit() : 0;
+    tinf_.selection_.unit_ = unitfld_ ? unitfld_->getUnit() : nullptr;
     if ( crsfld_ )
     {
-      if ( crsfld_->isDisplayed() )
-	  tinf_.selection_.coordsys_ = crsfld_->getCoordSystem();
-      else
-	  tinf_.selection_.coordsys_ = SI().getCoordSystem();
+	if ( crsfld_->isDisplayed() )
+	    tinf_.selection_.coordsys_ = crsfld_->getCoordSystem();
+	else
+	    tinf_.selection_.coordsys_ = SI().getCoordSystem();
     }
 
     return true;
@@ -379,11 +392,11 @@ bool commit()
 
 int uiTableTargetInfoEd::defrow_ = 1;
 int uiTableTargetInfoEd::defcol_ = 1;
-uiGroup* uiTableTargetInfoEd::choicegrp_ = 0;
+uiGroup* uiTableTargetInfoEd::choicegrp_ = nullptr;
 
 
 class uiTableFormatDescFldsEd : public uiDialog
-{ mODTextTranslationClass(uiTableFormatDescFldsEd);
+{ mODTextTranslationClass(uiTableFormatDescFldsEd)
 public:
 
 				uiTableFormatDescFldsEd(uiTableImpDataSel*,

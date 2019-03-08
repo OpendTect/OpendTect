@@ -193,15 +193,14 @@ static Table::FormatDesc* getDesc()
 
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
-    fd->bodyinfos_ += new Table::TargetInfo( "Horizon name",
-							    Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( "Horizon name", Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
-    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( true, false );
+    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( false, false );
     fd->bodyinfos_ += ti;
-    Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Required );
+    Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Optional );
     trcspti->form(0).setName( "Trace Nr" );
     Table::TargetInfo::Form* spform =
-		new Table::TargetInfo::Form( "ShotPt Nr", IntInpSpec() );
+		new Table::TargetInfo::Form( "SP Nr", IntInpSpec() );
     trcspti->add( spform );
     fd->bodyinfos_ += trcspti;
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );

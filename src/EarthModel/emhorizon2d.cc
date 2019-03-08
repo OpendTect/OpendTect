@@ -808,7 +808,7 @@ void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 				     const BufferStringSet& hornms )
 {
     fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
-    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( true );
+    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( false, false );
     fd->bodyinfos_ += ti;
     Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Optional );
     trcspti->form(0).setName( "Trace Nr" );
