@@ -28,7 +28,7 @@ endif( QTDIR )
 #    through the operating system, this is not needed.
 #
 # 2. It copies dependencies into the build environment (bin/PLF/Debug and bin/PLF/Release)
-#    This is as the build environemnt should be as similar to the runtime envrironment as
+#    This is as the build environment should be as similar to the runtime environment as
 #    possible
 #
 # Default is to have it OFF when QTDIR and OSGDIR are not set
@@ -230,18 +230,6 @@ if( WIN32 )
 	    CONFIGURATIONS Debug
 	    FILES_MATCHING
 	    PATTERN *.pdb
-	)
-    install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}
-	    DESTINATION bin/${OD_PLFSUBDIR}
-	    CONFIGURATIONS Debug
-	    FILES_MATCHING
-	    PATTERN *.lib
-	)
-    install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_RELEASE}
-	    DESTINATION bin/${OD_PLFSUBDIR}
-	    CONFIGURATIONS Release
-	    FILES_MATCHING
-	    PATTERN *.lib
 	)
 endif()
 
