@@ -45,7 +45,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linekey.h"
 #include "keystrs.h"
 #include "posinfo2d.h"
+#include "seisdatapack.h"
 #include "seisioobjinfo.h"
+#include "seisparallelreader.h"
 #include "seispreload.h"
 #include "seistrctr.h"
 #include "seis2ddata.h"
@@ -561,7 +563,8 @@ bool uiOD2DLineTreeItem::init()
     else
     {
 	const bool hasworkzrg = SI().zRange(true) != SI().zRange(false);
-	if ( hasworkzrg )
+	const bool hastransform = s2d->getZAxisTransform();
+	if ( hasworkzrg && !hastransform )
 	{
 	    StepInterval<float> newzrg = geom2d->data().zRange();
 	    newzrg.limitTo( SI().zRange(true) );
@@ -1008,33 +1011,35 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 						 int component,
 						 uiTaskRunner& taskrunner )
 {
+// TODO: Large part of this should go to the uiAttribPartServer
+
     uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv->getObject( displayID() ))
     if ( !s2d ) return false;
 
-    BufferString linename( Survey::GM().getName(s2d->getGeomID()) );
-    BufferStringSet lnms;
+    const Pos::GeomID geomid = s2d->getGeomID();
     const SeisIOObjInfo objinfo( attribnm, Seis::Line );
     SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
-    objinfo.getLineNames( lnms, opts2d );
-    if ( !lnms.isPresent(linename) || !objinfo.ioObj() )
+    BufferStringSet allattribs;
+    objinfo.getDataSetNamesForLine( geomid, allattribs, opts2d );
+    if ( !allattribs.isPresent(attribnm) || !objinfo.ioObj() )
 	return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
-    const MultiID& multiid = objinfo.ioObj()->key();
+    const MultiID key = objinfo.ioObj()->key();
     //First time to ensure all components are available
-    Attrib::DescID attribid = attrserv->getStoredID( multiid, true );
+    Attrib::DescID attribid = attrserv->getStoredID( key, true );
 
     BufferStringSet complist;
-    SeisIOObjInfo::getCompNames( objinfo.ioObj()->key(), complist );
+    SeisIOObjInfo::getCompNames( key, complist );
     if ( complist.size()>1 && component<0 )
     {
 	if ( ( !selcomps.size() &&
-	       !attrserv->handleMultiComp( multiid, true, false, complist,
+	       !attrserv->handleMultiComp( key, true, false, complist,
 					   attribid, selcomps ) )
 	     || ( selcomps.size() && !attrserv->prepMultCompSpecs(
-		     selcomps, multiid, true, false ) ) )
+		     selcomps, key, true, false ) ) )
 	    return false;
 
 	if ( selcomps.size()>1 )
@@ -1055,7 +1060,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	}
     }
     else
-	attribid = attrserv->getStoredID( multiid, true, component );
+	attribid = attrserv->getStoredID( key, true, component );
 
     if ( !attribid.isValid() ) return false;
 
@@ -1075,12 +1080,31 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	as[idx].setDefString( defstring );
     }
 
-    attrserv->setTargetSelSpecs( as );
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
-    const FixedString zdomainkey = as[0].zDomainKey();
-    const bool alreadytransformed = scene && zdomainkey == scene->zDomainKey();
-    const DataPack::ID dpid = attrserv->createOutput(
-			s2d->getTrcKeyZSampling(alreadytransformed), 0 );
+    bool releasedp = false;
+    RegularSeisDataPack* rsdp = nullptr;
+    mDynamicCast(RegularSeisDataPack*,rsdp,Seis::PLDM().get(key,geomid) );
+    if ( !rsdp )
+    {
+	attrserv->setTargetSelSpecs( as );
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+	const FixedString zdomainkey = as[0].zDomainKey();
+	const bool alreadytransformed =
+		scene && zdomainkey==scene->zDomainKey();
+	const TrcKeyZSampling tkzs =
+		s2d->getTrcKeyZSampling( alreadytransformed );
+	Seis::SequentialReader rdr( *objinfo.ioObj(), &tkzs, &selcomps );
+	if ( !TaskRunner::execute(&taskrunner,rdr) )
+	{
+	    uiMSG().error( rdr.uiMessage() );
+	    return false;
+	}
+
+	rsdp = rdr.getDataPack();
+	DPM(DataPackMgr::SeisID()).addAndObtain( rsdp );
+	releasedp = true;
+    }
+
+    const DataPack::ID dpid = rsdp ? rsdp->id() : DataPack::cNoID();
     if ( dpid == DataPack::cNoID() )
 	return false;
 
@@ -1095,6 +1119,9 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 
     if ( s2d->isOn() != isChecked() )
 	setChecked( s2d->isOn(), true );
+
+    if ( releasedp )
+	rsdp->release();
 
     return true;
 }
