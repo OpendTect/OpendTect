@@ -21,11 +21,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uirgbarray.h"
 
-#include <QPixmap>
 #include <QBitmap>
 #include <QColor>
 #include <QImageReader>
 #include <QImageWriter>
+#include <QPainter>
+#include <QPixmap>
 
 mUseQtnamespace
 
@@ -106,8 +107,13 @@ int uiPixmap::height() const
 bool uiPixmap::isEmpty() const
 { return !qpixmap_ || qpixmap_->isNull(); }
 
+
 void uiPixmap::fill( const Color& col )
-{ qpixmap_->fill( QColor(col.r(),col.g(),col.b()) ); }
+{
+    qpixmap_->fill( QColor(col.r(),col.g(),col.b()) );
+    QPainter painter( qpixmap_ );
+    painter.drawRect( 0, 0, qpixmap_->width()-1, qpixmap_->height()-1 );
+}
 
 
 void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
@@ -145,6 +151,10 @@ void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
     }
 
     convertFromRGBArray( rgbarr );
+
+    QPainter painter( qpixmap_ );
+    painter.setPen( QColor(100,100,100) );
+    painter.drawRect( 0, 0, qpixmap_->width()-1, qpixmap_->height()-1 );
 }
 
 
