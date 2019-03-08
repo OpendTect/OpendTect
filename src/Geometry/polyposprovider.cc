@@ -7,17 +7,22 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "polyposprovider.h"
-#include "keystrs.h"
-#include "iopar.h"
-#include "polygon.h"
-#include "trckeyzsampling.h"
-#include "survinfo.h"
-#include "ioobj.h"
+
+#include "hiddenparam.h"
 #include "ioman.h"
-#include "ptrman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include "picksettr.h"
+#include "polygon.h"
+#include "ptrman.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
+
 #include <math.h>
 
+
+static HiddenParam<Pos::PolyProvider3D,char> useinside(0);
 
 Pos::PolyProvider3D::PolyProvider3D()
     : poly_(*new ODPolygon<float>)
@@ -25,6 +30,7 @@ Pos::PolyProvider3D::PolyProvider3D()
     , zrg_(SI().zRange(false))
     , mid_(MultiID::udf())
 {
+    useinside.setParam( this, true );
 }
 
 
@@ -34,17 +40,32 @@ Pos::PolyProvider3D::PolyProvider3D( const Pos::PolyProvider3D& pp )
     , zrg_(pp.zrg_)
     , mid_ (pp.mid_)
 {
+    useinside.setParam( this, true );
 }
 
 
 Pos::PolyProvider3D::~PolyProvider3D()
 {
+    useinside.removeParam( this );
+
     delete &poly_;
     delete &hs_;
 }
 
 
-Pos::PolyProvider3D& Pos::PolyProvider3D::operator =( const PolyProvider3D& pp )
+void Pos::PolyProvider3D::setUseAreaInside( bool yn )
+{
+    useinside.setParam( this, yn );
+}
+
+
+bool Pos::PolyProvider3D::usesAreaInside() const
+{
+    return useinside.getParam( this );
+}
+
+
+Pos::PolyProvider3D& Pos::PolyProvider3D::operator=( const PolyProvider3D& pp )
 {
     if ( &pp != this )
     {
@@ -52,7 +73,9 @@ Pos::PolyProvider3D& Pos::PolyProvider3D::operator =( const PolyProvider3D& pp )
 	hs_ = pp.hs_;
 	zrg_ = pp.zrg_;
 	mid_ = pp.mid_;
+	setUseAreaInside( pp.usesAreaInside() );
     }
+
     return *this;
 }
 
@@ -81,9 +104,12 @@ static void setHS( const ODPolygon<float>& poly, TrcKeySampling& hs )
 
 bool Pos::PolyProvider3D::initialize( TaskRunner* )
 {
-    if ( poly_.size() < 2 ) return false;
+    if ( poly_.size() < 2 )
+	return false;
 
-    setHS( poly_, hs_ );
+    if ( usesAreaInside() )
+	setHS( poly_, hs_ );
+
     curbid_ = hs_.start_;
     if ( !toNextPos() )
 	return false;
@@ -110,6 +136,7 @@ bool Pos::PolyProvider3D::toNextPos()
 	}
 	if ( includes(curbid_,mUdf(float)) )
 	    return true;
+
 	curbid_.crl() += hs_.step_.crl();
     }
 
@@ -126,8 +153,9 @@ bool Pos::PolyProvider3D::toNextZ()
 
 bool Pos::PolyProvider3D::includes( const BinID& bid, float z ) const
 {
-    if ( !poly_.isInside( Geom::Point2D<float>(mCast(float,bid.inl()),
-					mCast(float,bid.crl())),true,mDefEps ) )
+    Geom::Point2D<float> pt; pt.setXY( bid.inl(), bid.crl() );
+    const bool posisinside = poly_.isInside( pt, true, mDefEpsF );
+    if ( posisinside != usesAreaInside() )
 	return false;
 
     if ( mIsUdf(z) ) return true;
@@ -167,6 +195,14 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
 
 void Pos::PolyProvider3D::usePar( const IOPar& iop )
 {
+    bool inside = true;
+    iop.getYN( mGetPolyKey(sInside()), inside );
+    setUseAreaInside( inside );
+
+    PtrMan<IOPar> bbpar = iop.subselect( mGetPolyKey(sBoundingBox()) );
+    if ( bbpar )
+	hs_.usePar( *bbpar );
+
     iop.get( mGetPolyKey(sKey::ZRange()), zrg_ );
     iop.get( mGetPolyKey(sKey::StepInl()), hs_.step_.inl() );
     iop.get( mGetPolyKey(sKey::StepCrl()), hs_.step_.crl() );
@@ -175,7 +211,8 @@ void Pos::PolyProvider3D::usePar( const IOPar& iop )
     if ( poly )
     {
 	poly_ = *poly;
-	setHS( poly_, hs_ );
+	if ( inside )
+	    setHS( poly_, hs_ );
     }
 }
 
@@ -187,6 +224,8 @@ void Pos::PolyProvider3D::fillPar( IOPar& iop ) const
     iop.set( mGetPolyKey(sKey::StepCrl()), hs_.step_.crl() );
     iop.set( mGetPolyKey(sKey::ID()), mid_ );
     ::fillPar( iop, poly_, mGetPolyKey(((int)0)) );
+
+    iop.setYN( mGetPolyKey(sInside()), usesAreaInside() );
 }
 
 
@@ -195,8 +234,9 @@ void Pos::PolyProvider3D::getSummary( BufferString& txt ) const
     if ( poly_.isEmpty() )
 	{ txt += "No points. Unsaved?"; return; }
 
-    txt.add( "area " ).add( hs_.start_.toString() );
-    txt.add( "-" ).add( hs_.stop_.toString() );
+    txt.add( usesAreaInside() ? "Inside" : "Outside" ).addSpace()
+	.add( IOM().nameOf(mid_) );
+
     const int nrsamps = zrg_.nrSteps() + 1;
     if ( nrsamps > 1 )
 	txt.add( " (" ).add( nrsamps ).add( " samples)" );

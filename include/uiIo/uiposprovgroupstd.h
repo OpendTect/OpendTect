@@ -43,7 +43,7 @@ public:
     void		getTrcKeyZSampling(TrcKeyZSampling&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
-    			{ return new uiRangePosProvGroup(p,s); }
+			{ return new uiRangePosProvGroup(p,s); }
     static void		initClass();
 
 protected:
@@ -60,7 +60,7 @@ protected:
 /*! \brief UI for PolyPosProvider */
 
 mExpClass(uiIo) uiPolyPosProvGroup : public uiPosProvGroup
-{
+{ mODTextTranslationClass(uiPolyPosProvGroup)
 public:
 			uiPolyPosProvGroup(uiParent*,
 					   const uiPosProvGroup::Setup&);
@@ -76,10 +76,12 @@ public:
     void		getZRange(StepInterval<float>&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
-    			{ return new uiPolyPosProvGroup(p,s); }
+			{ return new uiPolyPosProvGroup(p,s); }
     static void		initClass();
 
 protected:
+
+    void		inoutCB(CallBacker*);
 
     CtxtIOObj&		ctio_;
 
@@ -108,7 +110,7 @@ public:
     bool		getFileName(BufferString&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
-    			{ return new uiTablePosProvGroup(p,s); }
+			{ return new uiTablePosProvGroup(p,s); }
     static void		initClass();
 
 protected:

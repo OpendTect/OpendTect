@@ -13,17 +13,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uipossubsel.h"
 #include "uiselsurvranges.h"
 #include "uimsg.h"
-#include "trckeyzsampling.h"
+
 #include "ctxtioobj.h"
 #include "file.h"
+#include "hiddenparam.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "picksettr.h"
+#include "polyposprovider.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 
 mImplFactory2Param(uiPosProvGroup,uiParent*,const uiPosProvGroup::Setup&,
 		   uiPosProvGroup::factory);
@@ -38,12 +42,12 @@ uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvGroup::Setup& su )
 uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 					  const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
-    , hrgfld_(0)
-    , nrrgfld_(0)
-    , zrgfld_(0)
+    , hrgfld_(nullptr)
+    , zrgfld_(nullptr)
+    , nrrgfld_(nullptr)
     , setup_(su)
 {
-    uiObject* attobj = 0;
+    uiObject* attobj = nullptr;
     if ( su.is2d_ )
     {
 	nrrgfld_ =
@@ -60,7 +64,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     if ( setup_.withz_ )
     {
 	zrgfld_ = new uiSelZRange( this, su.tkzs_.zsamp_, su.withstep_,
-				   0, su.zdomkey_ );
+				   nullptr, su.zdomkey_ );
 	if ( attobj )
 	    zrgfld_->attach( alignedBelow, attobj );
 	attobj = zrgfld_->attachObj();
@@ -171,12 +175,16 @@ void uiRangePosProvGroup::initClass()
 }
 
 
+// uiPolyPosProvGroup
+static HiddenParam<uiPolyPosProvGroup,uiGenInput*> ioflds(nullptr);
+static HiddenParam<uiPolyPosProvGroup,uiPosSubSel*> bbflds(nullptr);
+
 uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(PickSet))
-    , zrgfld_(0)
-    , stepfld_(0)
+    , stepfld_(nullptr)
+    , zrgfld_(nullptr)
 {
     ctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
     polyfld_ = new uiIOObjSel( this, ctio_, uiStrings::sPolygon() );
@@ -191,9 +199,24 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 
     if ( su.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, true, false, 0, su.zdomkey_ );
+	zrgfld_ = new uiSelZRange( this, true, false, nullptr, su.zdomkey_ );
 	zrgfld_->attach( alignedBelow, attachobj );
+	attachobj = zrgfld_;
     }
+
+    uiGenInput* inoutfld = new uiGenInput( this, tr("Use Positions"),
+			BoolInpSpec(true,tr("Inside"),tr("Outside")) );
+    inoutfld->valuechanged.notify( mCB(this,uiPolyPosProvGroup,inoutCB) );
+    ioflds.setParam( this, inoutfld );
+
+    uiPosSubSel* bboxfld = new uiPosSubSel( this,
+			uiPosSubSel::Setup(false,su.withz_) );
+    bbflds.setParam( this, bboxfld );
+
+    inoutfld->attach( alignedBelow, attachobj );
+    bboxfld->attach( alignedBelow, inoutfld );
+
+    inoutCB( nullptr );
 
     setHAlignObj( polyfld_ );
 }
@@ -202,6 +225,16 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 uiPolyPosProvGroup::~uiPolyPosProvGroup()
 {
     delete ctio_.ioobj_; delete &ctio_;
+    ioflds.removeParam( this );
+    bbflds.removeParam( this );
+}
+
+
+void uiPolyPosProvGroup::inoutCB( CallBacker* )
+{
+    uiGenInput* iofld = ioflds.getParam( this );
+    uiPosSubSel* bbfld = bbflds.getParam( this );
+    bbfld->display( !iofld->getBoolValue() );
 }
 
 
@@ -225,6 +258,21 @@ void uiPolyPosProvGroup::usePar( const IOPar& iop )
 	iop.get( mGetPolyKey(sKey::ZRange()), zrg );
 	zrgfld_->setRange( zrg );
     }
+
+    uiGenInput* iofld = ioflds.getParam( this );
+    uiPosSubSel* bbfld = bbflds.getParam( this );
+
+    bool inside = true;
+    iop.getYN( mGetPolyKey(Pos::PolyProvider3D::sInside()), inside );
+    iofld->setValue( inside );
+    inoutCB( nullptr );
+
+    TrcKeyZSampling tkzs;
+    PtrMan<IOPar> bbpar =
+	iop.subselect( mGetPolyKey(Pos::PolyProvider3D::sBoundingBox()) );
+    if ( bbpar )
+	tkzs.usePar( *bbpar );
+    bbfld->setInput( tkzs );
 }
 
 
@@ -240,13 +288,22 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
     iop.set( mGetPolyKey(sKey::StepCrl()), stps.crl() );
     iop.set( mGetPolyKey(sKey::ZRange()),
 	zrgfld_ ? zrgfld_->getRange() : SI().zRange(true) );
+
+    uiGenInput* iofld = ioflds.getParam( this );
+    uiPosSubSel* bbfld = bbflds.getParam( this );
+    iop.setYN( mGetPolyKey(Pos::PolyProvider3D::sInside()),
+	       iofld->getBoolValue() );
+    IOPar bbpar;
+    bbfld->envelope().fillPar( bbpar );
+    iop.mergeComp( bbpar, mGetPolyKey(Pos::PolyProvider3D::sBoundingBox()) );
     return true;
 }
 
 
 void uiPolyPosProvGroup::getSummary( BufferString& txt ) const
 {
-    txt.set( "Within polygon" );
+    uiGenInput* iofld = ioflds.getParam( this );
+    txt.set( iofld->getBoolValue() ? "Inside " : "Outside " ).add( "polygon" );
     const IOObj* ioobj = polyfld_->ioobj( true );
     if ( ioobj )
 	txt.add( " '" ).add( ioobj->name() ).add( "." );
