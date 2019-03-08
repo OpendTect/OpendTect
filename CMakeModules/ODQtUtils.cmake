@@ -88,9 +88,6 @@ macro(OD_SETUP_QT)
 		    OD_INSTALL_LIBRARY( ${QTLIBDIR}/${QTLIBSONAME} ${CMAKE_BUILD_TYPE} )
 	        elseif( WIN32 )
 		    OD_INSTALL_LIBRARY( ${QTLIBLOC} ${CMAKE_BUILD_TYPE} )
-		    install( PROGRAMS ${QLIB}
-			 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
-			 CONFIGURATIONS ${CMAKE_BUILD_TYPE} )
 	        endif()
 	    endforeach()
 	    #Installing Qt5DBus and Qt5XcbQpa libs on Linux64 platform and required Qt plugins on all platforms

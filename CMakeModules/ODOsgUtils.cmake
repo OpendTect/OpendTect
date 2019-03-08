@@ -174,26 +174,24 @@ macro(OD_SETUP_OSG)
 			endif()
 			list( REMOVE_ITEM ARGS ${ARGS} )
 			set( ALLLIBS "" )
-		    elseif( WIN32 )
-			if( NOT ${ISOSGGEO} EQUAL -1 )
-			    get_filename_component( OSGLIBPATH ${LIB} PATH )
-			    set( DLLFILE ${OSGLIBPATH}/${OSGLIBNAME}.dll )
-			else()
-			    file ( GLOB DLLFILE "${OSG_DIR}/bin/*${OSGLIBNAME}.dll" )
-			endif()
+		    elseif( WIN32 AND (${ISOSGGEO} EQUAL -1) )
+			get_filename_component( OSG_BASEPATH ${LIB} DIRECTORY )
+		        get_filename_component( OSG_BASEPATH ${OSG_BASEPATH} DIRECTORY )
+		        file ( GLOB DLLFILE "${OSG_BASEPATH}/bin/o*${OSGLIBNAME}.dll" )
+		        file ( GLOB PDBFILE "${OSG_BASEPATH}/bin/o*${OSGLIBNAME}.pdb" )
 			if ( EXISTS ${DLLFILE} )
 			    OD_INSTALL_LIBRARY( ${DLLFILE} ${BUILD_TYPE} )
-			    install( PROGRAMS ${LIB}
-				DESTINATION ${OD_LIB_OUTPUT_RELPATH}
-				CONFIGURATIONS ${BUILD_TYPE} )
 			    if ( OD_ENABLE_BREAKPAD AND ${CMAKE_BUILD_TYPE} STREQUAL "Release" )
-				    execute_process( COMMAND ${CMAKE_COMMAND}
-								-DLIBRARY=${DLLFILE}
-								-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
-								-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake )
-				   get_filename_component( DLLFILEPATH ${DLLFILE} PATH )
-				   install( DIRECTORY ${DLLFILEPATH}/symbols DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE} )
+			        execute_process( COMMAND ${CMAKE_COMMAND}
+							-DLIBRARY=${DLLFILE}
+							-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
+							-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake )
+			        get_filename_component( DLLFILEPATH ${DLLFILE} PATH )
+			        install( DIRECTORY ${DLLFILEPATH}/symbols DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE} )
 			    endif()
+			endif()
+			if ( EXISTS ${PDBFILE} )
+			    OD_INSTALL_LIBRARY( ${PDBFILE} ${BUILD_TYPE} )
 			endif()
 		    endif()
 		endforeach()

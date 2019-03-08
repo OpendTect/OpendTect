@@ -198,18 +198,6 @@ if( WIN32 )
 	    FILES_MATCHING
 	    PATTERN *.pdb
 	)
-    install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}
-	    DESTINATION bin/${OD_PLFSUBDIR}
-	    CONFIGURATIONS Debug
-	    FILES_MATCHING
-	    PATTERN *.lib
-	)
-    install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_RELEASE}
-	    DESTINATION bin/${OD_PLFSUBDIR}
-	    CONFIGURATIONS Release
-	    FILES_MATCHING
-	    PATTERN *.lib
-	)
     set( LMHOSTID "lmhostid.exe" )
 endif()
 
