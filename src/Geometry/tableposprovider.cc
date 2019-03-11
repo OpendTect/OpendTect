@@ -8,6 +8,8 @@
 #include "tableposprovider.h"
 #include "keystrs.h"
 #include "picksetmanager.h"
+#include "posvecdataset.h"
+#include "posvecdatasettr.h"
 #include "od_istream.h"
 #include "iopar.h"
 #include "dbman.h"
@@ -110,6 +112,16 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	    {
 		const Coord3 crd3 = psiter.get().pos();
 		bvs.add( si.transform(crd3.getXY()), (float)crd3.z_ );
+	    }
+	}
+	else
+	{
+	    PtrMan<IOObj> ioobj = getIOObj( dbky );
+	    if ( ioobj && ioobj->group() == mTranslGroupName(PosVecDataSet) )
+	    {
+		PosVecDataSet pvds; uiString errmsg;
+		if ( pvds.getFrom(ioobj->mainFileName(),errmsg) )
+		    bvs = pvds.data();
 	    }
 	}
     }
