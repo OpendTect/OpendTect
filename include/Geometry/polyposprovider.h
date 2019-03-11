@@ -62,7 +62,8 @@ public:
     TrcKeySampling&	horSampling()		{ return hs_; }
     const TrcKeySampling&	horSampling() const	{ return hs_; }
 
-    static ODPolygon<float>* polyFromPar(const IOPar&,int nr=0);
+    static ODPolygon<float>* polyFromPar(const IOPar&,int nr=0,
+					 BufferString* polynm=0);
 
     virtual bool	includes( const Coord& c, float z ) const
 			{ return Provider3D::includes(c,z); }

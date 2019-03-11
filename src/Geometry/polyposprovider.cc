@@ -149,7 +149,8 @@ bool Pos::PolyProvider3D::includes( const BinID& bid, float z ) const
 
 #define mGetPolyKey(k) IOPar::compKey(sKey::Polygon(),k)
 
-ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
+ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr,
+						    BufferString* polynm )
 {
     const char* res = iop.find( mGetPolyKey("ID") );
     ODPolygon<float>* ret = 0;
@@ -161,6 +162,8 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
 	{
 	    ret = new ODPolygon<float>;
 	    ps->getPolygon( *ret );
+	    if ( polynm )
+		polynm->set( ps->name() );
 	}
     }
 
