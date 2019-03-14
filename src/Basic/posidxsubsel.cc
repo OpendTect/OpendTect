@@ -50,7 +50,7 @@ pos_type Pos::IdxSubSelData::pos4Idx( idx_type idx ) const
 
 pos_type Pos::IdxSubSelData::posStart() const
 {
-    return inpposrg_.start + posStep() * offs_;
+    return inpposrg_.start + inpposrg_.step * offs_;
 }
 
 
@@ -92,19 +92,19 @@ void Pos::IdxSubSelData::setOutputPosRange( pos_type newstart,
     if ( dstart < 0 )
 	dstart = 0;
 
-    offs_ = dstart / newstep;
-    if ( dstart % newstep )
+    offs_ = dstart / inpposrg_.step;
+    if ( dstart % inpposrg_.step )
     {
 	offs_++;
-	dstart = offs_ * newstep;
+	dstart = offs_ * inpposrg_.step;
     }
-    newstart = inpposrg_.start + offs_ * newstep;
+    newstart = inpposrg_.start + dstart;
 
-    auto dstop = newstop - inpposrg_.start;
-    if ( dstop < dstart )
-	dstop = dstart;
+    auto dstop = newstop - newstart;
+    if ( dstop < 0 )
+	dstop = 0;
     auto stopoffs = dstop / newstep;
-    newstop = inpposrg_.start + stopoffs * newstep;
+    newstop = newstart + stopoffs * newstep;
 
     sz_ = (newstop - newstart) / newstep + 1;
     ensureSizeOK();
@@ -169,7 +169,7 @@ z_type Pos::ZSubSelData::z4Idx( idx_type idx ) const
 
 z_type Pos::ZSubSelData::zStart() const
 {
-    return inpzrg_.start + zStep() * offs_;
+    return inpzrg_.start + inpzrg_.step * offs_;
 }
 
 
@@ -206,22 +206,18 @@ void Pos::ZSubSelData::setOutputZRange( z_type newstart, z_type newstop,
     if ( dstart < zEps() )
 	dstart = (z_type)0;
 
-    z_type foffs = dstart / newstep;
+    z_type foffs = dstart / inpzrg_.step;
     offs_ = mRounded( idx_type, foffs );
-    if ( !mIsZero(foffs-offs_,zEps()) )
-    {
-	offs_++;
-	dstart = offs_ * newstep;
-    }
-    newstart = inpzrg_.start + offs_ * newstep;
+    dstart = offs_ * inpzrg_.step;
+    newstart = inpzrg_.start + dstart;
 
-    auto dstop = newstop - inpzrg_.start;
-    if ( dstop < dstart )
-	dstop = dstart;
+    auto dstop = newstop - newstart;
+    if ( dstop < 0 )
+	dstop = (z_type)0;
     auto stopoffs = dstop / newstep;
-    newstop = inpzrg_.start + stopoffs * newstep;
+    newstop = newstart + stopoffs * newstep;
 
-    z_type fsz = (newstop - newstart) / newstep + 1;
+    z_type fsz = (newstop - newstart) / newstep + 1.f;
     sz_ = (size_type)(fsz + zEps());
     ensureSizeOK();
 }
