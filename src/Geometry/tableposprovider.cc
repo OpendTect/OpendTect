@@ -119,7 +119,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	    PtrMan<IOObj> ioobj = getIOObj( dbky );
 	    if ( ioobj && ioobj->group() == mTranslGroupName(PosVecDataSet) )
 	    {
-		PosVecDataSet pvds; uiString errmsg;
+		::PosVecDataSet pvds; uiString errmsg;
 		if ( pvds.getFrom(ioobj->mainFileName(),errmsg) )
 		    bvs = pvds.data();
 	    }
