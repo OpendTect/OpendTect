@@ -1,5 +1,6 @@
 import sys
 import json
+import platform
 from odpy.common import *
 from subprocess import check_output,CalledProcessError
 
@@ -23,7 +24,10 @@ def getDBList(translnm,args=None):
   cmd.append( '--list' )
   cmd.append( translnm )
   ret = runDBCommand( cmd, args )
-  db = json.loads( ret.decode("utf-8") )
+  retstr = ret.decode('utf-8')
+  if platform.system() == 'Windows':
+    retstr = retstr.translate(str.maketrans({"\\": r"\\"}))
+  db = json.loads( retstr )
   if db['Status'] != 'OK':
     log_msg( db['Status'] )
     raise FileNotFoundError
@@ -38,7 +42,10 @@ def getByName( dblist, retname ):
 def retFileLoc( bstdout ):
   if bstdout == None:
     return None
-  fileloc = json.loads( bstdout.decode("utf-8") )
+  retstr = bstdout.decode('utf-8')
+  if platform.system() == 'Windows':
+      retstr = retstr.translate(str.maketrans({"\\": r"\\"}))
+  fileloc = json.loads( retstr )
   if fileloc['Status'] != 'OK':
     log_msg( fileloc['Status'] )
     raise FileNotFoundError
