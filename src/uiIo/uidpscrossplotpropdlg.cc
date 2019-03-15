@@ -763,7 +763,7 @@ bool acceptOK()
 {
     if ( sizefld_->getIntValue() <= 0 )
     {
-	uiMSG().error(tr("Cannot put negative number for size."));
+	uiMSG().error(tr("Cannot put negative value for size."));
 	return false;
     }
 
