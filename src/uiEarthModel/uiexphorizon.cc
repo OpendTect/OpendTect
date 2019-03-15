@@ -544,16 +544,6 @@ bool uiExportHorizon::writeAscii()
 		    uiMSG().error( tr("Cannot load data for z-transform") );
 		    return false;
 		}
-
-		if ( !first && zatf->needsVolumeOfInterest() )
-		{
-		    zatvoi = zatf->addVolumeOfInterest( bbox, false );
-		    if ( !zatf->loadDataIfMissing( zatvoi, trprov ) )
-		    {
-			uiMSG().error( tr("Cannot load data for z-transform") );
-			return false;
-		    }
-		}
 	    }
 	}
 
