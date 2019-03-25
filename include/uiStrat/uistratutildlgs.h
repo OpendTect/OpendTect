@@ -94,8 +94,9 @@ protected:
     Strat::Lithology*	prevlith_;
     bool		anychg_;
 
-    void		newLith(CallBacker*);
     void		selChg(CallBacker*);
+    void		propChg(CallBacker*);
+    void		newLith(CallBacker*);
     void		rmLast(CallBacker*);
     void		renameCB(CallBacker*);
 
@@ -123,7 +124,7 @@ protected :
 				    : uiTable(p,s,"Subdivide unit table")
 				{}
 	protected:
-	virtual void 		popupMenu(CallBacker*);
+	virtual void		popupMenu(CallBacker*);
     };
 
 
@@ -163,7 +164,7 @@ mExpClass(uiStrat) uiStratLinkLvlUnitDlg : public uiDialog
 { mODTextTranslationClass(uiStratLinkLvlUnitDlg)
 public:
 
-    			uiStratLinkLvlUnitDlg(uiParent*,Strat::LeavedUnitRef&);
+			uiStratLinkLvlUnitDlg(uiParent*,Strat::LeavedUnitRef&);
 
     int 		lvlid_;
 

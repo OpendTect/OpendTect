@@ -80,6 +80,9 @@ protected:
     bool			istreedisp_;
     MultiID			treekey_;
 
+    void			finalizeCB(CallBacker*);
+    void			initWin();
+    void			saveLegacyTrees();
     void			initItem(MenuItem&,const uiString&,const char*);
     void			initMenuItems();
     void			createMenu();
@@ -92,9 +95,12 @@ protected:
     void			newTree();
     void			openTree();
     void			defaultTree();
+    bool			askSave();
     bool			save(bool saveas);
     void			reset();
     void			setNewRT();
+    void			readTree(const MultiID&);
+
     void			switchView();
     void			setIsLocked(bool yn);
     bool			isLocked() const;

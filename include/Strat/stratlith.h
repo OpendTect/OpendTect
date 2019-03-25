@@ -24,9 +24,13 @@ namespace Strat
 {
 
 /*!\brief a name and an ID.
-  
+
   The reason we don't manage the ID is that user may have their own IDs. For
   example, it may correspond with a lithology log value.
+
+  ID: -2 -> id is unset. Should call getFreeID to get a valid ID
+  ID: -1 -> Lithology is undefined
+  ID: >=0 Lithology is defined and has a unique ID
 
 */
 
@@ -73,7 +77,7 @@ public:
 mExpClass(Strat) LithologySet : public CallBacker
 {
 public:
-    			LithologySet()
+			LithologySet()
 			    : anyChange(this)	{}
 
     int			size() const		{ return lths_.size(); }
@@ -94,6 +98,8 @@ public:
     enum PorSel		{ OnlyPorous, NotPorous, AllPor };
     void		getNames(BufferStringSet&,PorSel ps=AllPor) const;
 
+    Lithology::ID	getFreeID() const;
+
     void		reportAnyChange()		{ anyChange.trigger(); }
     Notifier<LithologySet> anyChange;
 
@@ -110,7 +116,7 @@ public:
 
     void			setEmpty()		{ lths_.erase(); }
     const char*			add(Lithology*);
-    				//!< returns err msg, or null on success
+				//!< returns err msg, or null on success
 
     const ObjectSet<Lithology>&	lithologies() const	{ return lths_; }
     ObjectSet<Lithology>&	lithologies()	 	{ return lths_; }

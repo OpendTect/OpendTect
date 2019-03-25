@@ -12,10 +12,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrattreewin.h"
 
 #include "compoundkey.h"
+#include "file.h"
+#include "filepath.h"
+#include "iodir.h"
+#include "iodirentry.h"
 #include "ioman.h"
 #include "oddirs.h"
 #include "objdisposer.h"
 #include "od_helpids.h"
+#include "survinfo.h"
 #include "stratreftree.h"
 #include "strattreetransl.h"
 #include "stratunitrepos.h"
@@ -40,6 +45,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 
 using namespace Strat;
+
+static const char* sKeyDefStrat = "Default.Stratigraphic Framework";
 
 ManagedObjectSet<uiToolButtonSetup> uiStratTreeWin::tbsetups_;
 
@@ -75,8 +82,13 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     setIsLocked( false );
     updateButtonSensitivity();
 
-    if ( RT().isEmpty() )
-	setNewRT();
+    postFinalise().notify( mCB(this,uiStratTreeWin,finalizeCB) );
+}
+
+
+void uiStratTreeWin::finalizeCB( CallBacker* )
+{
+    initWin();
 }
 
 
@@ -121,6 +133,66 @@ void uiStratTreeWin::initMenuItems()
 uiStratTreeWin::~uiStratTreeWin()
 {
     delete &repos_;
+}
+
+
+void uiStratTreeWin::initWin()
+{
+    saveLegacyTrees();
+    MultiID key = MultiID::udf();
+    SI().pars().get( sKeyDefStrat, key );
+    if ( key.isUdf() )
+	return;
+
+    treekey_ = key;
+    readTree( treekey_ );
+}
+
+
+void uiStratTreeWin::saveLegacyTrees()
+{
+    bool showmsg = false;
+    uiString msg = tr("Legacy Stratigraphic Frameworks found in:");
+
+    const char* stratunitsstr = "StratUnits";
+    const char* stratlevelsstr = "StratLevels";
+    for ( int idx=0; idx<3; idx++ )
+    {
+	Repos::Source src = Repos::User;
+	if ( idx==1 ) src = Repos::Survey;
+	if ( idx==2 ) src = Repos::Data;
+
+	PtrMan<RefTree> rt = repos_.readTree( src );
+	if ( !rt || !rt->hasChildren() )
+	    continue;
+
+	CtxtIOObj ctio( StratTreeTranslatorGroup::ioContext() );
+	ctio.ioobj_ = nullptr;
+	const char* locstr = idx==0 ? "Home" : (idx==1 ? "Survey" : "DataRoot");
+	ctio.setName( BufferString("Stratigraphy from ",locstr," folder") );
+	ctio.fillObj();
+	if ( !ctio.ioobj_ )
+	    continue;
+
+	const bool writeok = repos_.write( *rt, ctio.ioobj_->key() );
+	if ( !writeok )
+	    continue;
+
+	showmsg = true;
+
+	Repos::FileProvider unitsrfp( stratunitsstr );
+	const FilePath unitsfp( unitsrfp.fileName(src) );
+	Repos::FileProvider levelsrfp( stratlevelsstr );
+
+	msg.append( tr("\n\n%1\nSaved as: %2").arg(unitsfp.pathOnly())
+					      .arg(ctio.ioobj_->name()) );
+
+	unitsrfp.removeFile( src );
+	levelsrfp.removeFile( src );
+    }
+
+    if ( showmsg )
+	uiMSG().message( msg );
 }
 
 
@@ -277,6 +349,8 @@ void uiStratTreeWin::actionCB( CallBacker* cb )
 	save( false );
     else if ( id==saveasitem_.id )
 	save( true );
+    else if ( id==resetitem_.id )
+	reset();
     else if ( id==lockitem_.id )
 	setIsLocked( !isLocked() );
     else if ( id==switchviewitem_.id )
@@ -306,15 +380,8 @@ void uiStratTreeWin::unitSelCB( CallBacker* )
 
 void uiStratTreeWin::newTree()
 {
-    if ( needsave_ )
-    {
-	uiString msg =
-		tr("Current tree has changes. Do you want to save them?");
-	const int res = uiMSG().askGoOnAfter( msg );
-	if ( res==-1 ) return;
-	if ( res==1 )
-	    save( false );
-    }
+    if ( !askSave() )
+	return;
 
     Strat::setLVLS( new Strat::LevelSet );
     Strat::setRT( new Strat::RefTree );
@@ -326,19 +393,29 @@ void uiStratTreeWin::newTree()
 
 void uiStratTreeWin::openTree()
 {
+    if ( !askSave() )
+	return;
+
     CtxtIOObj ctio( StratTreeTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = true;
     ctio.fillDefault();
     uiIOObjSelDlg dlg( this, ctio, tr("Open Stratigraphic Framework") );
-    if ( !dlg.go() || !dlg.ioObj() ) return;
+    if ( !dlg.go() || !dlg.ioObj() )
+	return;
 
     treekey_ = dlg.ioObj()->key();
     delete ctio.ioobj_;
 
-    Strat::RefTree* tree = repos_.read( treekey_ );
+    readTree( treekey_ );
+}
+
+
+void uiStratTreeWin::readTree( const MultiID& key )
+{
+    Strat::RefTree* tree = repos_.read( key );
     Strat::setRT( tree );
 
-    Strat::LevelSet* levels = LevelSet::read( treekey_ );
+    Strat::LevelSet* levels = LevelSet::read( key );
     Strat::setLVLS( levels );
 
     updateDisplay();
@@ -347,47 +424,71 @@ void uiStratTreeWin::openTree()
 
 void uiStratTreeWin::defaultTree()
 {
-    uiString msg = tr("This will overwrite the current tree. \n"
-		      "Your work will be lost. Continue anyway ?");
-    if ( RT().isEmpty() || uiMSG().askGoOn( msg ) )
-	setNewRT();
+    if ( !askSave() )
+	return;
+
+    setNewRT();
+}
+
+
+bool uiStratTreeWin::askSave()
+{
+    const bool needsave = uitree_->anyChg() || needsave_ ||  lvllist_->anyChg();
+    uitree_->setNoChg();
+    lvllist_->setNoChg();
+    needsave_ = false;
+
+    if ( needsave )
+    {
+	int res = uiMSG().askSave( tr("Stratigraphic framework has changed."
+				      "\n\nDo you want to save it?") );
+
+	if ( res == 1 )
+	    return save( false );
+	else if ( res == 0 )
+	{
+	    reset();
+	    return true;
+	}
+	else if ( res == -1 )
+	    return false;
+    }
+
+    return true;
 }
 
 
 bool uiStratTreeWin::save( bool saveas )
 {
     MultiID key = treekey_;
-    if ( saveas )
+    if ( key.isUdf() || saveas )
     {
 	CtxtIOObj ctio( StratTreeTranslatorGroup::ioContext() );
 	ctio.ctxt_.forread_ = false;
 	uiIOObjSelDlg dlg( this, ctio, tr("Save Stratigraphic Framework") );
-	if ( !dlg.go() || !dlg.ioObj() ) return false;
+	if ( !dlg.go() || !dlg.ioObj() )
+	    return false;
 
 	key = dlg.ioObj()->key();
 	delete ctio.ioobj_;
     }
 
     const Strat::LevelSet& levelset = Strat::LVLS();
-    bool saveok;
+    bool saveok = false;
     if ( IOObj::isKey(key) )
     {
+	uitree_->setName( IOM().nameOf(key) );
 	saveok = LevelSet::write( levelset, key )
 	    && repos_.write( *uitree_->tree(), key );
 	if ( saveok )
 	    treekey_ = key;
-    }
-    else
-    {
-	const Repos::Source dest = Repos::Survey;
-	saveok = levelset.store( dest );
-	Strat::RepositoryAccess().writeTree( Strat::RT(), dest );
     }
 
     if ( saveok )
 	needsave_ = false;
 
     updateCaption();
+
 // TODO: message when !saveok
     return saveok;
 }
@@ -424,7 +525,6 @@ void uiStratTreeWin::reset()
     //a snapshot copy of the actual tree we are working on...
 
     updateDisplay();
-    updateCaption();
     needsave_ = false;
 }
 
@@ -455,28 +555,10 @@ void uiStratTreeWin::unitRenamedCB( CallBacker* )
 
 bool uiStratTreeWin::closeOK()
 {
-    const bool needsave = uitree_->anyChg() || needsave_ ||  lvllist_->anyChg();
-    uitree_->setNoChg();
-    lvllist_->setNoChg();
-    needsave_ = false;
+    SI().getPars().set( sKeyDefStrat, treekey_ );
+    SI().savePars();
 
-    if ( needsave )
-    {
-	int res = uiMSG().askSave( tr("Stratigraphic framework has changed."
-				      "\n\nDo you want to save it?") );
-
-	if ( res == 1 )
-	    save( false );
-	else if ( res == 0 )
-	{
-	    reset();
-	    return true;
-	}
-	else if ( res == -1 )
-	    return false;
-    }
-
-    return true;
+    return askSave();
 }
 
 
@@ -525,7 +607,8 @@ void uiStratTreeWin::manLiths()
 {
     uiStratLithoDlg dlg( this );
     dlg.go();
-    if ( dlg.anyChg() ) needsave_ = true;
+    if ( dlg.anyChg() )
+	needsave_ = true;
     uitree_->updateLithoCol();
 }
 
@@ -534,7 +617,8 @@ void uiStratTreeWin::manConts()
 {
     uiStratContentsDlg dlg( this );
     dlg.go();
-    if ( dlg.anyChg() ) needsave_ = true;
+    if ( dlg.anyChg() )
+	needsave_ = true;
 }
 
 

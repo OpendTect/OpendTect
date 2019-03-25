@@ -73,7 +73,7 @@ public:
     };
 
     const ColumnItem&		colItem( int idx ) const
-    				{ return *colitms_[idx]; }
+				{ return *colitms_[idx]; }
 
 protected:
 
@@ -153,6 +153,7 @@ protected :
     void			reDraw(CallBacker*);
     void			selCols(CallBacker*);
     void			usrClickCB(CallBacker*);
+    void			doubleClickCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
 };
 
@@ -175,9 +176,9 @@ public:
 				~uiStratViewControl()	{}
 
     void			setRange( const Interval<float>& rg )
-    				{ range_ = rg; }
+				{ range_ = rg; }
     const Interval<float>&	range() const
-    				{ return range_; }
+				{ return range_; }
 
     void			setSensitive(bool);
 

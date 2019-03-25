@@ -44,7 +44,7 @@ public:
 			Unit(const char* nm, const char* fullcode=0,
 				    const Color& col = Color::White() )
 				: name_( nm )
-			 	, fullcode_(fullcode)
+				, fullcode_(fullcode)
 				, color_(col)
 				, isdisplayed_(true)
 				{}
@@ -153,7 +153,7 @@ protected :
 mExpClass(uiStrat) uiStratTreeToDisp : public CallBacker
 {
 public:
-    			uiStratTreeToDisp(StratDispData&,
+			uiStratTreeToDisp(StratDispData&,
 					bool withaux=true,
 					bool withlvls=true);
 			~uiStratTreeToDisp();
@@ -199,6 +199,7 @@ public:
     uiTreeViewItem*	getItemFromTree(const char*);
 
     void		handleUnitMenu(const char*);
+    void		handleUnitProperties(const char*);
     void		setUnitLvl(const char*);
     void		addUnit(const char*);
 

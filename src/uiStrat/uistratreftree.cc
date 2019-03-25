@@ -90,6 +90,19 @@ void uiStratRefTree::setTree( Strat::RefTree& rt, bool force )
 }
 
 
+void uiStratRefTree::setName( const char* nm )
+{
+    if ( tree_ )
+	tree_->name_ = nm;
+}
+
+
+const char* uiStratRefTree::name() const
+{
+    return tree_ ? tree_->name_.buf() : nullptr;
+}
+
+
 #define mCreateAndSetUnitPixmap(ur,lvit)\
     mDynamicCastGet(const LeafUnitRef*,lfur,&ur) \
     uiPixmap* pm = createUnitPixmap(lfur ? lfur->dispColor(true) : ur.color());\
@@ -100,7 +113,7 @@ void uiStratRefTree::addNode( uiTreeViewItem* parlvit,
 			      const NodeUnitRef& nur, bool root )
 {
     uiTreeViewItem* lvit = parlvit
-        ? new uiTreeViewItem( parlvit, uiTreeViewItem::Setup()
+	? new uiTreeViewItem( parlvit, uiTreeViewItem::Setup()
 				.label(toUiString(nur.code()))
 				.label(mToUiStringTodo(nur.description())) )
 	: root ? 0 : new uiTreeViewItem( lv_,uiTreeViewItem::Setup()
@@ -241,7 +254,6 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 
     if ( parun->isLeaved() )
     {
-	TypeSet<int> lithids;
 	const Strat::LeavedUnitRef& lvdun = (Strat::LeavedUnitRef&)(*parun);
 	tmpun.setLevelID( lvdun.levelID() );
 	for ( int iref = 0; iref<lvdun.nrRefs(); iref++ )
@@ -378,7 +390,7 @@ void uiStratRefTree::insertUnitInLVIT( uiTreeViewItem* lvit, int posidx,
     uiTreeViewItem::Setup setup = uiTreeViewItem::Setup().label( toUiString(
 								unit.code()) );
     uiTreeViewItem* newitem = lvit ? new uiTreeViewItem( lvit , setup )
-                                   : new uiTreeViewItem( lv_, setup );
+				   : new uiTreeViewItem( lv_, setup );
     newitem->setRenameEnabled( cUnitsCol, false );	//TODO
     newitem->setRenameEnabled( cDescCol, false );	//TODO
     newitem->setRenameEnabled( cLithoCol, false );
@@ -489,7 +501,7 @@ uiTreeViewItem* uiStratRefTree::getLVItFromFullCode( const char* code ) const
     uiTreeViewItem* lvit = it.next();
     while ( lvit )
     {
-        uiTreeViewItem* item = lvit;
+	uiTreeViewItem* item = lvit;
 	BufferString bs = item->text();
 	while ( item->parent() )
 	{

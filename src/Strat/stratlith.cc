@@ -7,9 +7,11 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "stratlith.h"
-#include "stratcontent.h"
-#include "separstr.h"
+
 #include "bufstringset.h"
+#include "randcolor.h"
+#include "separstr.h"
+#include "stratcontent.h"
 
 
 bool Strat::Content::getApearanceFrom( const char* str )
@@ -53,7 +55,7 @@ int Strat::ContentSet::getIndexOf( const char* nm ) const
 
 const Strat::Lithology& Strat::Lithology::undef()
 {
-    mDefineStaticLocalObject( PtrMan<Strat::Lithology>, udf, = 0 );
+    mDefineStaticLocalObject( PtrMan<Strat::Lithology>, udf, = nullptr );
     if ( !udf )
     {
 	Strat::Lithology* newudf = new Strat::Lithology( -1, "-", true );
@@ -62,6 +64,7 @@ const Strat::Lithology& Strat::Lithology::undef()
 	if ( !udf.setIfNull(newudf) )
 	    delete newudf;
     }
+
     return *udf;
 }
 
@@ -71,12 +74,13 @@ Strat::Lithology::Lithology( Strat::Lithology::ID li, const char* nm, bool por )
     , id_(li)
     , porous_(por)
 {
-    if ( id_ >= 0 ) color_ = Color::stdDrawColor( id_ );
+    if ( id_ >= 0 )
+	color_ = Color::stdDrawColor( id_ );
 }
 
 
 Strat::Lithology::Lithology( const char* fstr )
-    : id_(0)
+    : id_(-2)
 {
     FileMultiString fms( fstr );
     const int sz = fms.size();
@@ -86,7 +90,7 @@ Strat::Lithology::Lithology( const char* fstr )
     if ( sz > 3 )
 	color_.setStdStr( fms[3] );
     else
-	color_ = Color::stdDrawColor( id_ );
+	color_ = getRandStdDrawColor();
 }
 
 
@@ -109,6 +113,7 @@ Strat::Lithology& Strat::Lithology::operator =( const Strat::Lithology& oth )
 	setName( oth.name() );
 	porous_ = oth.porous_;
 	color_ = oth.color_;
+	const_cast<ID&>(id_) = oth.id_;
     }
     return *this;
 }
@@ -118,12 +123,18 @@ const char* Strat::LithologySet::add( Lithology* lith )
 {
     if ( !lith )
 	return "No object passed (null ptr)";
-    if ( isPresent(lith->name()) )
-	{ delete lith; return "Lithology name already present"; }
 
-    const_cast<Lithology::ID&>(lith->id_) = size();
+    if ( isPresent(lith->name()) )
+    {
+	delete lith;
+	return "Lithology name already present";
+    }
+
+    if ( lith->id() == -2 )
+	cCast(Lithology::ID&,lith->id_) = getFreeID();
+
     lths_ += lith;
-    return 0;
+    return nullptr;
 }
 
 
@@ -149,4 +160,17 @@ int Strat::LithologySet::idxOf( const char* nm, Lithology::ID id ) const
 	    return idx;
     }
     return -1;
+}
+
+
+Strat::Lithology::ID Strat::LithologySet::getFreeID() const
+{
+    Lithology::ID id = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Lithology& lith = *lths_[idx];
+	id = mMAX( id, lith.id() );
+    }
+
+    return ++id;
 }

@@ -30,8 +30,8 @@ namespace Strat {
 
 /*!\brief Displays a Strat::RefTree */
 
-mExpClass(uiStrat) uiStratRefTree : public CallBacker 
-{ mODTextTranslationClass(uiStratRefTree);
+mExpClass(uiStrat) uiStratRefTree : public CallBacker
+{ mODTextTranslationClass(uiStratRefTree)
 public:
 
 			uiStratRefTree(uiParent*);
@@ -39,6 +39,8 @@ public:
 
     void		setTree();
     void		setTree(Strat::RefTree&,bool force =false);
+    void		setName(const char*);
+    const char*		name() const;
 
     const Strat::RefTree* tree() const 		{ return tree_; }
 
@@ -84,17 +86,17 @@ protected:
 
     void		addNode(uiTreeViewItem*,const Strat::NodeUnitRef&,bool);
     uiPixmap*		createUnitPixmap(const Color&) const;
-    			//becomes yours!
+			//becomes yours!
     Strat::NodeUnitRef* replaceUnit(Strat::NodeUnitRef&,bool byleaved);
     void		addLithologies(Strat::LeavedUnitRef&,
 				       const TypeSet<int>&);
 
     void		setNodesDefaultTimes(const Strat::NodeUnitRef&);
     void 		getAvailableTime(const Strat::NodeUnitRef&,
-	    				 Interval<float>&) const;
+					 Interval<float>&) const;
     void		ensureUnitTimeOK(Strat::NodeUnitRef&);
     int			getChildIdxFromTime(const Strat::NodeUnitRef&,
-	    				    float) const;
+					    float) const;
 
     friend class 	uiStratDispToTree;
 };

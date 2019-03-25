@@ -109,14 +109,18 @@ RefTree* RepositoryAccess::readFromFile( const char* fnm )
 {
     SafeFileIO sfio( fnm );
     if ( !sfio.open(true) )
-	{ msg_ = uiStrings::phrCannotOpen(toUiString(fnm)); return 0; }
+    {
+	msg_ = uiStrings::phrCannotOpen(toUiString(fnm));
+	return nullptr;
+    }
 
     RefTree* rt = new RefTree;
     if ( !rt->read(sfio.istrm()) )
     {
 	delete rt;
 	msg_ = tr("Error during read of %1").arg(fnm);
-	sfio.closeFail(); return 0;
+	sfio.closeFail();
+	return nullptr;
     }
 
     sfio.closeSuccess();
@@ -128,7 +132,8 @@ RefTree* RepositoryAccess::readFromFile( const char* fnm )
 RefTree* RepositoryAccess::read( const MultiID& key )
 {
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if  ( !ioobj ) return 0;
+    if	( !ioobj )
+	return nullptr;
 
     RefTree* tree = readFromFile( ioobj->fullUserExpr() );
     if ( tree ) tree->name_ = IOM().nameOf( key );
@@ -141,7 +146,11 @@ RefTree* RepositoryAccess::readTree( Repos::Source src )
     src_ = src;
     Repos::FileProvider rfp( fileNameBase() );
     const BufferString fnm( rfp.fileName(src) );
-    return readFromFile( fnm );
+    RefTree* rt = readFromFile( fnm );
+    if ( rt )
+	rt->src_ = src;
+
+    return rt;
 }
 
 
@@ -149,12 +158,16 @@ bool RepositoryAccess::writeToFile( const RefTree& rt, const char* fnm )
 {
     SafeFileIO sfio( fnm, true );
     if ( !sfio.open(false) )
-	{ msg_ = tr("Cannot write to %1").arg(fnm); return 0; }
+    {
+	msg_ = tr("Cannot write to %1").arg(fnm);
+	return false;
+    }
 
     if ( !rt.write(sfio.ostrm()) )
     {
 	msg_ = tr("Error during write to %1").arg(fnm);
-	sfio.closeFail(); return false;
+	sfio.closeFail();
+	return false;
     }
 
     sfio.closeSuccess();
@@ -166,6 +179,9 @@ bool RepositoryAccess::writeToFile( const RefTree& rt, const char* fnm )
 bool RepositoryAccess::write( const RefTree& rt, const MultiID& key )
 {
     PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+	return false;
+
     return writeToFile( rt, ioobj->fullUserExpr() );
 }
 
