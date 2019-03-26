@@ -657,7 +657,9 @@ SurveyObject::AttribFormat HorizonDisplay::getAttributeFormat( int ) const
 
 
 int HorizonDisplay::nrAttribs() const
-{ return as_.size(); }
+{
+    return as_.size();
+}
 
 
 bool HorizonDisplay::canAddAttrib( int nr ) const
@@ -1305,6 +1307,7 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 
     if ( sectionlockedpts_ )
 	sectionlockedpts_->turnOn( showlock && displayonlyatsections_ );
+    enableAttrib( nrAttribs()-1, !yn );
 }
 
 
