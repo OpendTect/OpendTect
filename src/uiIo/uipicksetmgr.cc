@@ -28,6 +28,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+
+HiddenParam<uiPickSetMgr,char*> ispschanged_(false);
+
 
 uiPickSetMgr::uiPickSetMgr( uiParent* p, Pick::SetMgr& m )
     : setmgr_(m)
@@ -150,7 +154,24 @@ bool uiPickSetMgr::doStore( const Pick::Set& ps, const IOObj& ioobj ) const
 {
     IOM().commitChanges( ioobj );
     BufferString bs;
-    if ( !PickSetTranslator::store( ps, &ioobj, bs ) )
+    Pick::Set& editedps = const_cast<Pick::Set&>( ps );
+    if ( ps.isPolygon() && ps.nrItems() &&
+				(ps.disp_.connect_ == Pick::Set::Disp::Open) )
+    {
+	const bool keepopen = uiMSG().question( tr( "Polygon is not closed, "
+			"some display properties will not work in basemap" ),
+			tr("Save Anyway"), tr("Close Polygon and Save"),
+			uiStrings::sCancel() );
+
+	if ( !keepopen )
+	{
+	    editedps.disp_.connect_ = Pick::Set::Disp::Close;
+	    uiPickSetMgr* nonconstmgr = const_cast<uiPickSetMgr*>( this );
+	    setmgr_.reportChange( nonconstmgr, editedps );
+	}
+    }
+
+    if ( !PickSetTranslator::store( editedps, &ioobj, bs ) )
 	{ uiMSG().error(mToUiStringTodo(bs)); return false; }
 
     return true;
