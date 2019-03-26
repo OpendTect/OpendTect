@@ -235,6 +235,31 @@ macro( copy_thirdpartylibs )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMDATADIR}/imageformats
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${QTDIR}/resources
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
+
+    set( EXTRAQTLIBS qwebengine_convert_dict )
+    if ( WIN32 )
+	set( EXTRAQTLIBS QtWebEngineProcess ${EXTRAQTLIBS} )
+    endif()
+
+    foreach( EXTRAQTLIB ${EXTRAQTLIBS} )
+	if ( WIN32 )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${QTDIR}/bin/${EXTRAQTLIB}.exe
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/ )
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${QTDIR}/bin/${EXTRAQTLIB}
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/ )
+	endif()
+    endforeach()
+
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+		     ${QTDIR}/bin/qt.conf
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/ )
+
 endmacro( copy_thirdpartylibs )
 
 macro( PREPARE_WIN_THIRDPARTY_DEBUGLIST DEBUGFILELIST)
