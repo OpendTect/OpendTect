@@ -40,6 +40,11 @@ macro ( create_package PACKAGE_NAME )
             unset( SYSTEMLIBS )
         endif()
     endif()
+    if ( PYTHONDIR )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${CMAKE_INSTALL_PREFIX}/bin/${PYTHONDIR}
+			 ${DESTINATION_DIR}/bin/python )
+    endif()
 
     message( "Copying ${OD_PLFSUBDIR} libraries" )
     foreach( FILE ${LIBLIST} )

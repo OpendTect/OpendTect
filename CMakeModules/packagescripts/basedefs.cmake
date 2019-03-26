@@ -55,5 +55,7 @@ if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
     set( SYSTEMLIBS libstdc++.so.6 libgcc_s.so.1 )
 endif()
 
+set ( PYTHONDIR python )
+
 set( PACK "base" )
 
