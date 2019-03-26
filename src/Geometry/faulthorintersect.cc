@@ -15,6 +15,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trigonometry.h"
 #include "explfaultsticksurface.h"
 #include "isocontourtracer.h"
+#include "faultsticksurface.h"
+#include "faultstickset.h"
+#include "executor.h"
 
 #define mDistLimitation 10.0f
 namespace Geometry
@@ -482,4 +485,44 @@ const Coord3 FaultBinIDSurfaceIntersector::findNearestPoint(
     return retpnt;
 }
 
-} // namespace Geometry
+
+BulkFaultBinIDSurfaceIntersector::BulkFaultBinIDSurfaceIntersector(
+    float horshift, BinIDSurface* bidsurf, ObjectSet<FaultStickSet>& fssset,
+					ObjectSet<Coord3ListImpl>& crdlistset )
+    : Executor("Fault-Horizon Intersector Calculator")
+    , zshift_(horshift)
+    , surf_(bidsurf)
+    , fssset_(fssset)
+    , crdlistset_(crdlistset)
+{
+    totalnr_ = fssset.size();
+    nrdone_ = 0;
+}
+
+
+int BulkFaultBinIDSurfaceIntersector::nextStep()
+{
+    if ( nrdone_ == fssset_.size() )
+	return Finished();
+    FaultStickSet* fss = (fssset_)[nrdone_];
+    if (!fss) return MoreToDo();
+    mDynamicCastGet( FaultStickSurface*, fsssurf, fss );
+    PtrMan<ExplFaultStickSurface> fltsurf =
+	new ExplFaultStickSurface( fsssurf,
+	    mCast( float, SI().zDomain().userFactor() ) );
+    fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
+    if ( !fltsurf->update( true, 0 ) )
+	return ErrorOccurred();
+
+    Coord3ListImpl* crdlist = new Coord3ListImpl();
+
+    PtrMan<Geometry::FaultBinIDSurfaceIntersector> horfltinsec =
+	new Geometry::FaultBinIDSurfaceIntersector( (float)0, *surf_,
+	    *fltsurf, *crdlist );
+    horfltinsec->compute();
+    crdlistset_.add( crdlist );
+    nrdone_++;
+    return MoreToDo();
+}
+
+};

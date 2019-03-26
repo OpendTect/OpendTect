@@ -13,8 +13,11 @@ ________________________________________________________________________
 
 #include "geometrymod.h"
 #include "gendefs.h"
+#include "paralleltask.h"
+#include "executor.h"
 
 class Coord3List;
+class Coord3ListImpl;
 
 namespace Geometry
 {
@@ -22,6 +25,7 @@ namespace Geometry
 class BinIDSurface;
 class IndexedShape;
 class ExplFaultStickSurface;
+class FaultStickSet;
 
 
 mExpClass(Geometry) FaultBinIDSurfaceIntersector
@@ -56,6 +60,42 @@ private:
     bool			findMin(TypeSet<Coord3>&,int&,bool);
     int				optimizeOrder(TypeSet<Coord3>&);
 
+};
+
+mExpClass(Geometry) BulkFaultBinIDSurfaceIntersector : public Executor
+{ mODTextTranslationClass(BulkFaultBinIDSurfaceIntersector)
+public:
+				BulkFaultBinIDSurfaceIntersector(
+				    float horshift,
+				    BinIDSurface*,
+				    ObjectSet<FaultStickSet>&,
+				    ObjectSet<Coord3ListImpl>& );
+
+				~BulkFaultBinIDSurfaceIntersector() {}
+
+    virtual od_int64		totalNr() const { return totalnr_; }
+    virtual od_int64		nrDone() const { return nrdone_; }
+    uiString			uiMessage() const
+				{ return tr( "Fault-Horizon "
+						"Intersector Calculator" ); }
+    uiString			uiNrDoneText() const
+				    { return tr( "Faults handled" ); }
+
+    int				nextStep();
+
+    const ObjectSet<Coord3ListImpl>	getIntersectionPoints()
+						{ return crdlistset_; }
+
+protected:
+
+    float					zshift_;
+    ObjectSet<Coord3ListImpl>&			crdlistset_;
+    const BinIDSurface*				surf_;
+    ObjectSet<FaultStickSet>&			fssset_;
+    od_int64					nriter_;
+
+    int						totalnr_;
+    int						nrdone_;
 };
 
 
