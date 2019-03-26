@@ -116,6 +116,13 @@ macro ( create_package PACKAGE_NAME )
 		message( "Failed to create license related links" )
 	    endif()
 	endif()	
+        
+        if ( PYTHONDIR )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/bin/${PYTHONDIR}
+			     ${DESTINATION_DIR}/bin/python )
+        endif()
+
     endif()
 
     if( WIN32 )
