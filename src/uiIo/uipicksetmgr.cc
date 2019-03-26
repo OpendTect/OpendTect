@@ -28,11 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "od_helpids.h"
 
-#include "hiddenparam.h"
-
-HiddenParam<uiPickSetMgr,char*> ispschanged_(false);
-
-
 uiPickSetMgr::uiPickSetMgr( uiParent* p, Pick::SetMgr& m )
     : setmgr_(m)
     , parent_(p)
