@@ -154,7 +154,6 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     {
 	getMissingLines( inlnrs );
 	ptrnrs = &inlnrs;
-	mSetInlsPerJob( 1 );
     }
     else if ( !File::createDir(tmpstordir) )
     {
@@ -231,12 +230,15 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 	    isok = !rdr.errMsg();
 	    if ( isok )
 		isok = rdr.info().geom_.start.crl() ||
-                       rdr.info().geom_.start.crl();
+		       rdr.info().geom_.stop.crl();
+
+	    if ( isok )
+		inl = rdr.info().geom_.stop.inl();
 	}
-        else
-        {
-            delete strm;
-        }
+	else
+	{
+	    delete strm;
+	}
 
 	if ( !isok )
 	    inlnrs += inl;

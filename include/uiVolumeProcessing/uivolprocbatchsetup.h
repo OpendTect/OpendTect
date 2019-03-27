@@ -74,6 +74,7 @@ public:
     virtual bool	isSuitedFor(const char*) const;
     virtual bool	canHandle(const JobSpec&) const;
     static const char*	sKeyNeedsFullVolYN()	{ return "NeedsFullVol"; }
+    bool		canResume(const JobSpec&) const;
 };
 
 class VolClusterProgDef : public ClusterProgDef
