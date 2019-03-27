@@ -129,6 +129,11 @@ inline T& getNonConst( const T& t )
 //--- C++ tools
 
 #define mCast(tp,v)	((tp)(v))
+#define cCast(tp,v)	const_cast< tp >( v )
+#define dCast(tp,v)	dynamic_cast< tp >( v )
+#define rCast(tp,v)	reinterpret_cast< tp >( v )
+#define sCast(tp,v)	static_cast< tp >( v )
+
 #define mNonConst(x)	getNonConst( x )
 #define mSelf()		mNonConst( *this )
 
