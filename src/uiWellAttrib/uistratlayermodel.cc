@@ -768,13 +768,13 @@ bool uiStratLayerModel::saveGenDesc() const
     bool rv = false;
 
     MouseCursorChanger mcch( MouseCursor::Wait );
-
-    fillWorkBenchPars( desc_.getWorkBenchParams() );
+    Strat::LayerSequenceGenDesc desc = seqdisp_->currentDesc();
+    fillWorkBenchPars( desc.getWorkBenchParams() );
 
     od_ostream strm( fnm );
     if ( !strm.isOK() )
 	uiMSG().error( uiStrings::sCantOpenOutpFile() );
-    else if ( !desc_.putTo(strm) )
+    else if ( !desc.putTo(strm) )
 	uiMSG().error(desc_.errMsg());
     else
     {
