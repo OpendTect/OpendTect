@@ -41,6 +41,8 @@ public:
     virtual void	setFromEditDesc();
     virtual bool	selProps();
 
+    const Strat::LayerSequenceGenDesc& editedDesc() const { return editdesc_; }
+
 protected:
 
     Strat::LayerSequenceGenDesc&	editdesc_;

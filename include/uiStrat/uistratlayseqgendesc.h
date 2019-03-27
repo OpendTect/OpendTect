@@ -64,6 +64,9 @@ protected:
     bool		needsave_;
     bool		isValidSelection(const PropertyRefSelection&) const;
 
+public:
+	const Strat::LayerSequenceGenDesc& currentDesc() const;
+
 };
 
 
