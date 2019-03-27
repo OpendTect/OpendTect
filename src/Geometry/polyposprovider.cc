@@ -24,6 +24,8 @@ Pos::PolyProvider3D::PolyProvider3D()
     , poly_(*new ODPolygon<float>)
     , hs_(*new TrcKeySampling(true))
     , zrg_(SI().zRange())
+    , curz_(mUdf(float))
+    , useinside_(true)
 {
 }
 
@@ -32,6 +34,8 @@ Pos::PolyProvider3D::PolyProvider3D( const Pos::PolyProvider3D& oth )
     : Pos::Provider3D(oth)
     , poly_(*new ODPolygon<float>(oth.poly_))
     , hs_(*new TrcKeySampling(oth.hs_))
+    , curz_(mUdf(float))
+    , useinside_(true)
 {
     *this = oth;
 }
@@ -41,6 +45,18 @@ Pos::PolyProvider3D::~PolyProvider3D()
 {
     delete &poly_;
     delete &hs_;
+}
+
+
+void Pos::PolyProvider3D::setUseAreaInside( bool yn )
+{
+    useinside_ = yn;
+}
+
+
+bool Pos::PolyProvider3D::usesAreaInside() const
+{
+    return useinside_;
 }
 
 
@@ -55,6 +71,7 @@ Pos::PolyProvider3D& Pos::PolyProvider3D::operator =( const PolyProvider3D& pp )
     hs_ = pp.hs_;
     zrg_ = pp.zrg_;
     mid_ = pp.mid_;
+    useinside_ = pp.useinside_;
 
     return *this;
 }
@@ -91,9 +108,12 @@ void Pos::PolyProvider3D::reset()
 
 bool Pos::PolyProvider3D::initialize( const TaskRunnerProvider& )
 {
-    if ( poly_.size() < 2 ) return false;
+    if ( poly_.size() < 2 )
+	return false;
 
-    setHS( poly_, hs_ );
+    if ( useinside_ )
+	setHS( poly_, hs_ );
+
     curbid_ = hs_.start_;
     if ( !toNextPos() )
 	return false;
@@ -120,6 +140,7 @@ bool Pos::PolyProvider3D::toNextPos()
 	}
 	if ( includes(curbid_,mUdf(float)) )
 	    return true;
+
 	curbid_.crl() += hs_.step_.crl();
     }
 
@@ -136,8 +157,9 @@ bool Pos::PolyProvider3D::toNextZ()
 
 bool Pos::PolyProvider3D::includes( const BinID& bid, float z ) const
 {
-    if ( !poly_.isInside( Geom::Point2D<float>(mCast(float,bid.inl()),
-					mCast(float,bid.crl())),true,mDefEps ) )
+    Geom::Point2D<float> pt; pt.setXY( bid.inl(), bid.crl() );
+    const bool posisinside = poly_.isInside( pt, true, mDefEpsF );
+    if ( posisinside != usesAreaInside() )
 	return false;
 
     if ( mIsUdf(z) ) return true;
@@ -181,6 +203,14 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr,
 
 void Pos::PolyProvider3D::usePar( const IOPar& iop )
 {
+    bool inside = true;
+    iop.getYN( mGetPolyKey(sInside()), inside );
+    setUseAreaInside( inside );
+
+    PtrMan<IOPar> bbpar = iop.subselect( mGetPolyKey(sBoundingBox()) );
+    if ( bbpar )
+	hs_.usePar( *bbpar );
+
     iop.get( mGetPolyKey(sKey::ZRange()), zrg_ );
     iop.get( mGetPolyKey(sKey::StepInl()), hs_.step_.inl() );
     iop.get( mGetPolyKey(sKey::StepCrl()), hs_.step_.crl() );
@@ -189,7 +219,8 @@ void Pos::PolyProvider3D::usePar( const IOPar& iop )
     if ( poly )
     {
 	poly_ = *poly;
-	setHS( poly_, hs_ );
+	if ( inside )
+	    setHS( poly_, hs_ );
     }
 }
 
@@ -201,6 +232,8 @@ void Pos::PolyProvider3D::fillPar( IOPar& iop ) const
     iop.set( mGetPolyKey(sKey::StepCrl()), hs_.step_.crl() );
     iop.set( mGetPolyKey(sKey::ID()), mid_ );
     ::fillPar( iop, poly_, mGetPolyKey(((int)0)) );
+
+    iop.setYN( mGetPolyKey(sInside()), usesAreaInside() );
 }
 
 

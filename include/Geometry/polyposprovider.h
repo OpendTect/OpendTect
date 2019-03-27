@@ -68,6 +68,12 @@ public:
     virtual bool	includes( const Coord& c, float z ) const
 			{ return Provider3D::includes(c,z); }
 
+    void		setUseAreaInside(bool);
+    bool		usesAreaInside() const;
+
+    static const char*	sInside()		{ return "Inside"; }
+    static const char*	sBoundingBox()		{ return "Bounding Box"; }
+
 protected:
 
     ODPolygon<float>&	poly_;
@@ -77,6 +83,7 @@ protected:
 
     BinID		curbid_;
     float		curz_;
+    bool		useinside_;
 
 public:
 
