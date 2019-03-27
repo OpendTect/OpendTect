@@ -370,14 +370,14 @@ bool uiStratLayerModel::saveGenDesc() const
     bool rv = false;
 
     uiUserShowWait usw( this, uiStrings::sSavingData() );
-
-    fillWorkBenchPars( desc_.getWorkBenchParams() );
+	Strat::LayerSequenceGenDesc desc = descdisp_->currentDesc();
+    fillWorkBenchPars( desc.getWorkBenchParams() );
 
     od_ostream strm( fnm );
     if ( !strm.isOK() )
 	uiMSG().error( uiStrings::phrCannotOpenOutpFile() );
-    else if ( !desc_.putTo(strm) )
-	uiMSG().error(desc_.errMsg());
+    else if ( !desc.putTo(strm) )
+	uiMSG().error(desc.errMsg());
     else
     {
 	rv = true;

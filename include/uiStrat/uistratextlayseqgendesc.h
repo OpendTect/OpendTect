@@ -74,6 +74,10 @@ protected:
     virtual bool	laygenEditReq()			= 0;
     virtual bool	laygenRemoveReq()		= 0;
 
+private:
+	virtual const LayerSequenceGenDesc* editedDesc() const
+										{ return &editdesc_; }
+
 };
 
 

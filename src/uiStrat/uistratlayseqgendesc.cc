@@ -144,6 +144,12 @@ bool uiLayerSequenceGenDesc::isValidSelection(
 }
 
 
+const Strat::LayerSequenceGenDesc& uiLayerSequenceGenDesc::currentDesc() const
+{
+	return !needSave() || !editedDesc() ? desc_ : *editedDesc();
+}
+
+
 bool uiLayerSequenceGenDesc::selProps()
 {
     PropertyRefSelection prs( desc_.propSelection() );

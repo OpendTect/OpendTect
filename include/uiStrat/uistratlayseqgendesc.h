@@ -54,6 +54,7 @@ public:
     virtual void	setEditDesc()			{}
     virtual void	setFromEditDesc()		{}
     LayerSequenceGenDesc& desc()			{ return desc_; }
+	const LayerSequenceGenDesc& currentDesc() const;
     bool		needSave() const		{ return needsave_; }
     void		setNeedSave( bool yn )		{ needsave_ = yn; }
     virtual void	setDescID(const DBKey&)		{}
@@ -65,6 +66,10 @@ protected:
     bool		needsave_;
     bool		isValidSelection(const PropertyRefSelection&) const;
     virtual const uiParent* getUiParent() const		= 0;
+
+private:
+	virtual const LayerSequenceGenDesc* editedDesc() const
+										{ return nullptr; }
 
 };
 
