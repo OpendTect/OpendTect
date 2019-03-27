@@ -10,6 +10,7 @@
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "seisjobexecprov.h"
 #include "seisselection.h"
 #include "volprocchain.h"
 #include "volproctrans.h"
@@ -59,8 +60,10 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup, bool is2d )
     subsel_ = uiSeisSubSel::get( this, selsu );
     subsel_->attach( alignedBelow, setupsel_ );
 
+    uiSeisSel::Setup uiselsu( seistype );
+    uiselsu.confirmoverwr(!is2d);
     outputsel_ = new uiSeisSel( this, uiSeisSel::ioContext(seistype,false),
-				uiSeisSel::Setup(Seis::Vol) );
+				uiselsu );
     outputsel_->attach( alignedBelow, subsel_ );
 
     batchfld_ = new uiBatchJobDispatcherSel( this, true, Batch::JobSpec::Vol );
@@ -216,6 +219,12 @@ bool Batch::VolMMProgDef::canHandle( const Batch::JobSpec& js ) const
     bool needsfullvol = false;
     par.getYN( Batch::VolMMProgDef::sKeyNeedsFullVolYN(), needsfullvol );
     return !needsfullvol;
+}
+
+
+bool Batch::VolMMProgDef::canResume( const JobSpec& js ) const
+{
+    return canHandle(js) && SeisJobExecProv::isRestart(js.pars_);
 }
 
 
