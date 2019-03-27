@@ -127,6 +127,7 @@ InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop,
 	, ninlperjob_( 1 )
 {
     mSetInlRgDef();
+    iop.get( "Nr of Inlines per Job", ninlperjob_ );
 }
 
 
@@ -175,12 +176,10 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
 
 int InlineSplitJobDescProv::nrJobs() const
 {
-    if ( inls_ ) return inls_->size();
-
-    int nrinl = inlrg_.nrSteps() + 1;
-
+    const int nrinl = inls_ ? inls_->size() : inlrg_.nrSteps() + 1;
     int ret = nrinl / ninlperjob_;
-    if ( nrinl % ninlperjob_ ) ret += 1;
+    if ( nrinl % ninlperjob_ )
+	ret += 1;
 
     return ret;
 }
@@ -188,8 +187,13 @@ int InlineSplitJobDescProv::nrJobs() const
 
 int InlineSplitJobDescProv::firstInlNr( int jidx ) const
 {
-    return inls_ ? (*inls_)[jidx]
-		 : inlrg_.start + jidx * inlrg_.step * ninlperjob_;
+    if ( inls_ )
+    {
+	const int startidx = jidx*ninlperjob_;
+	return inls_->validIdx(startidx) ? (*inls_)[startidx] : -1;
+    }
+    else
+	return inlrg_.start + jidx * inlrg_.step * ninlperjob_;
 }
 
 

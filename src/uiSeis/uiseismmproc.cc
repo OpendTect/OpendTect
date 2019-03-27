@@ -97,7 +97,7 @@ static int defltNrInlPerJob( const IOPar& inputpar )
     { \
 	delete outioobjinfo_; outioobjinfo_ = 0; \
 	new uiLabel( this, s ); \
-        return; \
+	return; \
     }
 
 
@@ -176,6 +176,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	inlperjobfld_ = new uiGenInput( specparsgroup_,
 			tr("Nr of inlines per job"),
 			IntInpSpec(nrinlperjob_) );
+	inlperjobfld_->setSensitive( !doresume );
 	inlperjobfld_->attach( alignedBelow, inlperjobattach );
 	saveasdeffld_ = new uiCheckBox( specparsgroup_,
 					uiStrings::sSaveAsDefault() );
@@ -234,7 +235,7 @@ bool uiSeisMMProc::initWork( bool retry )
     }
 
     delete jobrunner_;
-    jobrunner_ = jobprov_->getRunner( retry ? 1 : nrinlperjob_ );
+    jobrunner_ = jobprov_->getRunner( nrinlperjob_ );
     if ( !jobprov_->errMsg().isEmpty() )
     {
 	delete jobrunner_; jobrunner_ = 0;
