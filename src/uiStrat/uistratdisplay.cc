@@ -668,6 +668,12 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
 }
 
 
+uiStratViewControl::~uiStratViewControl()
+{
+    detachAllNotifiers();
+}
+
+
 void uiStratViewControl::setSensitive( bool yn )
 {
     rubbandzoombut_->setSensitive( yn );
