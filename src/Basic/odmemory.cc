@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "odsysmem.h"
+
+#include "envvars.h"
 #include "odmemory.h"
 #include "nrbytes2string.h"
 #include "thread.h"
@@ -173,6 +175,7 @@ static od_int64 getMemFromStr( char* str, const char* ky )
 
 void OD::getSystemMemory( od_int64& total, od_int64& free )
 {
+    od_int64 virttotal, virtfree;
 #ifdef __lux__
 
     std::ifstream stdstrm( "/proc/meminfo" );
@@ -185,7 +188,8 @@ void OD::getSystemMemory( od_int64& total, od_int64& free )
     free = getMemFromStr( filecont.getCStr(), "MemFree:" );
     free += getMemFromStr( filecont.getCStr(), "Cached:" );
     swapfree = getMemFromStr( filecont.getCStr(), "SwapFree:" );
-
+    virttotal = getMemFromStr( filecont.getCStr(), "SwapTotal:" );
+    virtfree = swapfree;
 #endif
 #ifdef __mac__
     vm_statistics_data_t vm_info;
@@ -197,8 +201,10 @@ void OD::getSystemMemory( od_int64& total, od_int64& free )
 	mErrRet
 
     total = (vm_info.active_count + vm_info.inactive_count +
-	    vm_info.free_count + vm_info.wire_count) * vm_page_size;
+	     vm_info.free_count + vm_info.wire_count) * vm_page_size;
     free = vm_info.free_count * vm_page_size;
+    virttotal = 0; //TODO: impl?
+    virtfree = 0; //TODO: impl?
 
 #endif
 #ifdef __win__
@@ -207,5 +213,18 @@ void OD::getSystemMemory( od_int64& total, od_int64& free )
     GlobalMemoryStatusEx(&status);
     total = status.ullTotalPhys;
     free = status.ullAvailPhys;
+    virttotal = status.ullTotalPageFile;
+    virtfree = status.ullAvailPageFile;
+#endif
+    const bool usevirtualmem = GetEnvVarYN( "OD_USE_VIRTUALMEM" );
+    if ( !usevirtualmem )
+	return;
+
+#ifdef __win__
+    total = virttotal;
+    free = virtfree;
+#else
+    total += virttotal;
+    free += virtfree;
 #endif
 }
