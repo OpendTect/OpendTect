@@ -49,10 +49,10 @@ public:
     void			drawColumns();
     void			setNewAxis(uiAxisHandler*,bool isx);
 
-    uiAxisHandler* 		xAxis() 	{ return xax_; }
-    uiAxisHandler* 		yAxis() 	{ return yax_; }
-    const uiAxisHandler* 	xAxis() const	{ return xax_; }
-    const uiAxisHandler* 	yAxis() const	{ return yax_; }
+    uiAxisHandler*		xAxis()		{ return xax_; }
+    uiAxisHandler*		yAxis()		{ return yax_; }
+    const uiAxisHandler*	xAxis() const	{ return xax_; }
+    const uiAxisHandler*	yAxis() const	{ return yax_; }
 
     mStruct(uiStrat) ColumnItem
     {
@@ -81,8 +81,8 @@ protected:
     uiTextItem*			emptyitm_;
 
     uiGraphicsScene&		scene_;
-    uiAxisHandler* 		yax_;
-    uiAxisHandler* 		xax_;
+    uiAxisHandler*		yax_;
+    uiAxisHandler*		xax_;
 
     //data
     const StratDispData&	data_;
@@ -110,7 +110,7 @@ public:
     void			setZRange(const Interval<float>&);
 
     void			addControl(uiToolBar*);
-    uiStratViewControl*		control() 	{ return uicontrol_; }
+    uiStratViewControl*		control()	{ return uicontrol_; }
 
     void			setTree();
 
@@ -142,11 +142,11 @@ protected :
 
     int				getColIdxFromPos() const;
     StratDispData::Column*	getColFromPos() const;
-    const StratDispData::Unit* 	getUnitFromPos() const;
-    const StratDispData::Unit* 	getParentUnitFromPos() const;
-    const StratDispData::Unit* 	getUnitFromPos(int colidx) const;
+    const StratDispData::Unit*	getUnitFromPos() const;
+    const StratDispData::Unit*	getParentUnitFromPos() const;
+    const StratDispData::Unit*	getUnitFromPos(int colidx) const;
     const StratDispData::Level* getLevelFromPos() const;
-    Geom::Point2D<float> 	getPos() const;
+    Geom::Point2D<float>	getPos() const;
 
     void			controlRange(CallBacker*);
     void			dispParamChgd(CallBacker*);
@@ -173,7 +173,7 @@ public:
     };
 
 				uiStratViewControl(uiGraphicsView&,Setup&);
-				~uiStratViewControl()	{}
+				~uiStratViewControl()	{detachAllNotifiers();}
 
     void			setRange( const Interval<float>& rg )
 				{ range_ = rg; }
@@ -197,15 +197,15 @@ protected:
     Interval<float>		boundingrange_;
 
     float			startdragpos_;
-    bool 			mousepressed_;
+    bool			mousepressed_;
 
-    MouseEventHandler& 		mouseEventHandler();
+    MouseEventHandler&		mouseEventHandler();
     void			updatePosButtonStates();
 
     void			zoomCB(CallBacker*);
     void			cancelZoomCB(CallBacker*);
     void			handDragged(CallBacker* );
-    void 			handDragStarted(CallBacker*);
+    void			handDragStarted(CallBacker*);
     void			handDragging(CallBacker*);
     void			keyPressed(CallBacker*);
     void			rubBandCB(CallBacker*);
