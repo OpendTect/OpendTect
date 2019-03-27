@@ -93,6 +93,8 @@ public:
     enum PorSel		{ OnlyPorous, NotPorous, AllPor };
     void		getNames(BufferStringSet&,PorSel ps=AllPor) const;
 
+    Lithology::ID	getFreeID() const;
+
     void		reportAnyChange()		{ anyChange.trigger(); }
     Notifier<LithologySet> anyChange;
 
