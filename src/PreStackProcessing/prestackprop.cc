@@ -176,7 +176,7 @@ void PropCalc::init()
 {
     const bool dostack = setup_.calctype_ == Stats;
     const bool dolsq   = setup_.calctype_ == LLSQ;
-    const bool useangle = !setup_.anglerg_.isUdf();
+    const bool useangle = setup_.useangle_;
     if ( dolsq && useangle )
 	const_cast<PropCalc&>( *this ).setup_.offsaxis_ = Sinsq;
 
@@ -249,7 +249,7 @@ float PropCalc::getVal( float z ) const
     const Interval<float>& axisvalsrg_ = *propcalcxaxismgr_.getParam( this );
 
     const bool dostack = setup_.calctype_ == Stats;
-    const bool useangle = !setup_.anglerg_.isUdf();
+    const bool useangle = setup_.useangle_;
     const int nroffsets = gather_->size( !gather_->offsetDim() );
     const int nrz = gather_->size( !gather_->zDim() );
     TypeSet<float> axisvals, vals;

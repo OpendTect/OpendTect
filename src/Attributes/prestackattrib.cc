@@ -558,7 +558,13 @@ void PSAttrib::prepPriorToBoundsCalc()
 	if ( emsg.isSet() ) mErrRet( tr("PS Reader: %1").arg(emsg) );
     }
 
-    mTryAlloc( propcalc_, PreStack::PropCalc( setup_ ) );
+    PreStack::PropCalc::Setup calcsetup( setup_ );
+    bool useangle = setup_.useangle_;
+    mGetBool( useangle, useangleStr() );
+    int gathertype = 0;
+    mGetEnum( gathertype, gathertypeStr() );
+    calcsetup.useangle_ = useangle || gathertype == Ang;
+    mTryAlloc( propcalc_, PreStack::PropCalc( calcsetup ) );
     if ( !propcalc_ )
 	return;
 
