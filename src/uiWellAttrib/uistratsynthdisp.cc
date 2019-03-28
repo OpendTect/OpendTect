@@ -227,7 +227,7 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	return;
     modelidx = toInt(valstr)-1;
     BufferString modelnrstr;
-    sprintf( modelnrstr.getCStr(), "Model Number:%5d", modelidx );
+    sprintf( modelnrstr.getCStr(), "Model Number:%5d", modelidx+1 );
     mesg.add( modelnrstr );
     valstr = pars.find( "Z" );
     if ( !valstr ) valstr = pars.find( "Z-Coord" );
@@ -241,7 +241,7 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	mesg.addSpace().add( depthstr );
     }
 
-    if ( mIsUdf(zval) || layerModel().size()<=modelidx || modelidx<0 )
+    if ( modelidx<0 || layerModel().size()<=modelidx || mIsUdf(zval) )
 	return;
 
     mesg.addSpace();
