@@ -6,24 +6,12 @@ from subprocess import check_output,CalledProcessError
 
 dbmanexe = 'od_DBMan'
 
-def runDBCommand( cmd, args=None ):
-  stderrstrm = sys.stderr
-  if args != None and 'logfile' in args:
-    stderrstrm = args['logfile']
-  ret = None
-  try:
-    ret = check_output( cmd, stderr=stderrstrm )
-  except CalledProcessError as e:
-    log_msg( 'Failed: ', e )
-    raise FileNotFoundError
-  return ret
-
 def getDBList(translnm,args=None):
   cmd = getODCommand(dbmanexe,args)
   cmd.append( '--json' )
   cmd.append( '--list' )
   cmd.append( translnm )
-  ret = runDBCommand( cmd, args )
+  ret = runCommand( cmd, args )
   retstr = ret.decode('utf-8')
   if platform.system() == 'Windows':
     retstr = retstr.translate(str.maketrans({"\\": r"\\"}))
@@ -56,7 +44,7 @@ def getFileLocation( dbentry, args=None ):
   cmd.append( '--json' )
   cmd.append( '--info' )
   cmd.append( dbentry['ID'] )
-  return retFileLoc( runDBCommand(cmd,args) )
+  return retFileLoc( runCommand(cmd,args) )
 
 def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, args=None ):
   cmd = getODCommand(dbmanexe,args)
@@ -67,5 +55,5 @@ def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, args=None ):
   cmd.append( trl )
   cmd.append( ext )
   cmd.append( '--json' )
-  return retFileLoc( runDBCommand(cmd,args) )
+  return retFileLoc( runCommand(cmd,args) )
 
