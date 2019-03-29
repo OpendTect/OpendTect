@@ -9,7 +9,9 @@
 import os
 import platform
 import sys
+import json
 import logging
+from subprocess import check_output, run, CalledProcessError
 
 try:
   from bokeh.util import logconfig
@@ -91,11 +93,25 @@ def has_stdlog_file():
 def has_log_file():
   return has_file_handlers( get_log_logger() )
 
+def get_handler_stream(logger):
+  for handler in logger.handlers:
+    if isinstance( handler, logging.StreamHandler ):
+      return handler.stream
+    elif isinstance( handler, logging.FileHandler ):
+      return handler.stream
+  return None
+
 def get_handler_filename(logger):
   for handler in logger.handlers:
     if isinstance( handler, logging.FileHandler ):
       return handler.baseFilename
   return None
+
+def get_std_stream():
+  return get_handler_stream( get_std_logger() )
+
+def get_log_stream():
+  return get_handler_stream( get_log_logger() )
 
 def get_stdlog_file():
   return get_handler_filename( get_std_logger() )
@@ -204,9 +220,21 @@ def getExecPlfDir(args=None):
   else:
     return os.path.join( getODSoftwareDir(), 'bin', getPlfSubDir(), getBinSubDir())
 
-def getODCommand(execnm,args=None):
-  cmd = list()
-  cmd.append( os.path.join(getExecPlfDir(args),execnm) )
+def getODArgs(args=None):
+  ret = {
+    'dtectexec': [getExecPlfDir(args)]
+  }
+  if args != None and 'dtectdata' in args:
+    ret.update({'dtectdata': args['dtectdata']})
+  if args != None and 'survey' in args:
+    ret.update({'survey': args['survey']})
+  if has_log_file() :
+    ret.update({'proclog': args['logfile'].name})
+  if has_stdlog_file():
+    ret.update({'syslog': args['sysout'].name})
+  return ret
+
+def appendDtectArgs( cmd, args=None ):
   if args == None:
     return cmd
   if 'dtectdata' in args:
@@ -216,3 +244,43 @@ def getODCommand(execnm,args=None):
     cmd.append( '--survey' )
     cmd.append( args['survey'][0] )
   return cmd
+
+def getODCommand(execnm,args=None):
+  cmd = list()
+  cmd.append( os.path.join(getExecPlfDir(args),execnm) )
+  return appendDtectArgs( cmd, args )
+
+def getPythonCommand(scriptfile,posargs=None,dict=None,args=None):
+  cmd = list()
+  if platform.system() == 'Windows':
+    cmd.append( "python.exe" )
+  else:
+    cmd.append( "python3" )
+  cmd.append( scriptfile )
+  cmd = appendDtectArgs( cmd, args )
+  cmd.append( '--dtectexec' )
+  cmd.append( getExecPlfDir(args) )
+  if args != None and 'proclog' in args:
+    cmd.append( '--proclog' )
+    cmd.append( args['proclog'] )
+  if args != None and 'syslog' in args:
+    cmd.append( '--syslog' )
+    cmd.append( args['syslog'] )
+  for posarg in posargs:
+    cmd.append( posarg )
+  if dict != None:
+    cmd.append( '--dict' )
+    cmd.append( json.dumps(dict) )
+  return cmd
+
+def runCommand( cmd, args=None ):
+  stderrstrm = sys.stderr
+  if args != None and 'logfile' in args:
+    stderrstrm = args['logfile']
+  ret = None
+  try:
+    ret = check_output( cmd, stderr=stderrstrm )
+  except CalledProcessError as e:
+    log_msg( 'Failed: ', e )
+    raise FileNotFoundError
+  return ret
