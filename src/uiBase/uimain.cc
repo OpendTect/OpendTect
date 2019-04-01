@@ -417,6 +417,7 @@ void uiMain::cleanQtOSEnv()
 
 void uiMain::init( QApplication* qap )
 {
+	QLocale::setDefault( QLocale::c() );
     if ( app_ )
 	{ pErrMsg("You already have a uiMain object!"); return; }
     themain_ = this;
