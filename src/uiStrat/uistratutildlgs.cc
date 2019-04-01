@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "stratunitrefiter.h"
 
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uieditobjectlist.h"
@@ -31,6 +32,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uispinbox.h"
 #include "uistrings.h"
+#include "uitoolbutton.h"
 
 static const char* sNoLevelTxt      = "--Undefined--";
 
@@ -48,7 +50,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     unitdescfld_->attach( alignedBelow, unitnmfld_ );
 
     colfld_ = new uiColorInput( this,
-			           uiColorInput::Setup(getRandStdDrawColor() ).
+				   uiColorInput::Setup(getRandStdDrawColor() ).
 				   lbltxt(uiStrings::sColor()) );
     colfld_->attach( alignedBelow, unitdescfld_ );
 
@@ -73,24 +75,25 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	uiSeparator* sep = new uiSeparator( this, "HorSep" );
 	sep->attach( stretchedBelow, lblbox1 );
 
-	unitlithfld_ = new uiStratLithoBox( this );
-	unitlithfld_->setMultiChoice( true );
+	uiListBox::Setup lbsetup( OD::ChooseZeroOrMore,
+				  uiStrings::sLithology(mPlural) );
+	unitlithfld_ = new uiStratLithoBox( this, lbsetup );
 	unitlithfld_->attach( alignedBelow, lblbox1 );
 	unitlithfld_->attach( ensureBelow, sep );
 
-	uiLabel* lbl = new uiLabel( this, uiStrings::sLithology(mPlural) );
-	lbl->attach( leftOf, unitlithfld_ );
-
 	const CallBack cb( mCB(this,uiStratUnitEditDlg,selLithCB) );
-	uiButton* sellithbut = uiButton::getStd( this, OD::Edit, cb, false );
-	sellithbut->attach( rightTo, unitlithfld_ );
+	uiButton* sellithbut =
+		uiButton::getStd( unitlithfld_, OD::Edit, cb, false );
+	sellithbut->attach( rightTo, unitlithfld_->box() );
 
 	lithids_.erase();
 	for ( int idx=0; idx<unit.nrRefs(); idx++ )
 	{
-	    const Strat::LeafUnitRef& l = (Strat::LeafUnitRef&)(unit.ref(idx));
-	    if ( l.lithology() >= 0 )
-		lithids_ += l.lithology();
+	    const Strat::LeafUnitRef& lur = (Strat::LeafUnitRef&)(unit.ref(idx));
+	    const int lithoidx =
+		Strat::RT().lithologies().indexOf( lur.lithology() );
+	    if ( lithoidx >= 0 )
+		lithids_ += lithoidx;
 	}
 	if ( lithids_.size() )
 	    unitlithfld_->setChosen( lithids_ );
@@ -200,18 +203,28 @@ void uiStratUnitEditDlg::selLithCB( CallBacker* )
 
 
 uiStratLithoBox::uiStratLithoBox( uiParent* p )
-    : uiListBox( p, "Lithologies" )
+    : uiListBox(p,"Lithologies")
 {
-    fillLiths( 0 );
+    box()->setHSzPol( uiObject::MedVar );
+    fillLiths( nullptr );
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
-    lithos.anyChange.notify( mCB( this, uiStratLithoBox, fillLiths ) );
+    mAttachCB( lithos.anyChange, uiStratLithoBox::fillLiths );
+}
+
+
+uiStratLithoBox::uiStratLithoBox( uiParent* p, const uiListBox::Setup& setup )
+    : uiListBox(p,setup,"Lithologies")
+{
+    box()->setHSzPol( uiObject::MedVar );
+    fillLiths( nullptr );
+    Strat::LithologySet& lithos = Strat::eRT().lithologies();
+    mAttachCB( lithos.anyChange, uiStratLithoBox::fillLiths );
 }
 
 
 uiStratLithoBox::~uiStratLithoBox()
 {
-    Strat::LithologySet& lithos = Strat::eRT().lithologies();
-    lithos.anyChange.remove( mCB( this, uiStratLithoBox, fillLiths ) );
+    detachAllNotifiers();
 }
 
 
@@ -228,7 +241,10 @@ void uiStratLithoBox::fillLiths( CallBacker* )
     setEmpty();
     const Strat::LithologySet& lithos = Strat::RT().lithologies();
     for ( int idx=0; idx<lithos.size(); idx++ )
-	addItem( toUiString(lithos.getLith(idx).name()) );
+    {
+	const Strat::Lithology& litho = lithos.getLith( idx );
+	addItem( toUiString(litho.name()), litho.color() );
+    }
 
     bool dotrigger = false; int firstsel = -1;
     for ( int idx=0; idx<selected.size(); idx++ )
@@ -259,10 +275,9 @@ void uiStratLithoBox::fillLiths( CallBacker* )
 
 uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(
-             uiStrings::phrManage( uiStrings::sLithology(mPlural)),mNoDlgTitle,
-            mODHelpKey(mStratLithoDlgHelpID) ))
-    , prevlith_(0)
-    , nmfld_(0)
+	     uiStrings::phrManage( uiStrings::sLithology(mPlural)),mNoDlgTitle,
+	    mODHelpKey(mStratLithoDlgHelpID) ))
+    , prevlith_(nullptr)
     , anychg_(false)
 {
     setCtrlStyle( CloseOnly );
@@ -271,99 +286,89 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     const CallBack selchgcb( mCB(this,uiStratLithoDlg,selChg) );
     selfld_->selectionChanged.notify( selchgcb );
 
+    uiButtonGroup* butgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
+    butgrp->attach( rightTo, selfld_ );
+    new uiToolButton( butgrp, "addnew", tr("Add new Lithology"),
+		      mCB(this,uiStratLithoDlg,newCB) );
+    new uiToolButton( butgrp, "delete", tr("Remove selected Lithology"),
+		      mCB(this,uiStratLithoDlg,rmCB) );
+
+    const CallBack propchgcb( mCB(this,uiStratLithoDlg,propChg) );
     uiGroup* rightgrp = new uiGroup( this, "right group" );
-    uiGroup* toprightgrp = new uiGroup( rightgrp, "top right group" );
-    nmfld_ = new uiGenInput( toprightgrp, uiStrings::sName(), StringInpSpec() );
-    isporbox_ = new uiCheckBox( toprightgrp, tr("Porous") );
-    isporbox_->activated.notify( selchgcb );
-    isporbox_->attach( rightOf, nmfld_ );
+
+    nmfld_ = new uiGenInput( rightgrp, uiStrings::sName(), StringInpSpec() );
+    nmfld_->updateRequested.notify( mCB(this,uiStratLithoDlg,renameCB) );
+
+    isporbox_ = new uiCheckBox( rightgrp, tr("Porous") );
+    isporbox_->activated.notify( propchgcb );
+    isporbox_->attach( alignedBelow, nmfld_ );
 
     uiColorInput::Setup csu( Color::White() );
     csu.dlgtitle( tr("Default color for this lithology") );
-    colfld_ = new uiColorInput( toprightgrp, csu );
-    colfld_->attach( alignedBelow, nmfld_ );
-    colfld_->colorChanged.notify( selchgcb );
-
-    const int butsz = 20;
-    uiPushButton* newlithbut = new uiPushButton( rightgrp, tr("Add as new"),
-	    uiPixmap("addnew"), mCB(this,uiStratLithoDlg,newLith), true );
-    newlithbut->setPrefWidthInChar( butsz );
-    newlithbut->attach( alignedBelow, toprightgrp );
+    colfld_ = new uiColorInput( rightgrp, csu );
+    colfld_->attach( alignedBelow, isporbox_ );
+    colfld_->colorChanged.notify( propchgcb );
 
     uiSeparator* sep = new uiSeparator( this, "Sep", OD::Vertical );
-    sep->attach( rightTo, selfld_ );
+    sep->attach( rightTo, butgrp );
     sep->attach( heightSameAs, selfld_ );
     rightgrp->attach( rightTo, sep );
-
-    uiButton* renamebut = new uiPushButton( rightgrp, tr("Rename selected"),
-	    uiPixmap("renameobj"), mCB(this,uiStratLithoDlg,renameCB), true );
-    renamebut->setPrefWidthInChar( butsz );
-    renamebut->attach( alignedBelow, newlithbut );
-
-    uiButton* rmbut = new uiPushButton( rightgrp, tr("Remove Last"),
-	    uiPixmap("remove"), mCB(this,uiStratLithoDlg,rmLast), true );
-    rmbut->setPrefWidthInChar( butsz );
-    rmbut->attach( alignedBelow, renamebut );
 
     postFinalise().notify( selchgcb );
 }
 
 
-void uiStratLithoDlg::newLith( CallBacker* )
+void uiStratLithoDlg::newCB( CallBacker* )
 {
-    BufferString nm( nmfld_->text() );
-    if ( nm.isEmpty() ) return;
-
-    if(!uiStratUnitEditDlg::checkWrongChar(this,nm.getCStr())) return;
+    BufferString nm = "<New Lithology>";
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
-    if ( selfld_->isPresent( nm ) || lithos.isPresent( nm.buf() ) )
-	{ mErrRet(uiStrings::phrSpecify(tr("a new, unique name")), return)  }
-
-    const int lithid = selfld_->size();
-    const bool isporous = isporbox_->isChecked();
+    const int lithid = lithos.getFreeID();
+    const bool isporous = false;
     Strat::Lithology* newlith = new Strat::Lithology(lithid,nm.buf(),isporous);
-    newlith->color() = colfld_->color();
+    newlith->color() = getRandStdDrawColor();
 
     const char* lithfailedmsg = lithos.add( newlith );
     if ( lithfailedmsg )
 	{ mErrRet( toUiString(lithfailedmsg), return; ) }
 
     anychg_ = true;
-    prevlith_ = 0;
+    prevlith_ = nullptr;
     lithos.reportAnyChange();
     selfld_->setCurrentItem( nm );
 }
 
 
+void uiStratLithoDlg::propChg( CallBacker* )
+{
+    if ( !prevlith_ || prevlith_->isUdf() )
+	return;
+
+    Strat::LithologySet& lithos = Strat::eRT().lithologies();
+    const bool newpor = isporbox_->isChecked();
+    const Color newcol = colfld_->color();
+    if ( (newpor != prevlith_->porous() || newcol != prevlith_->color()) )
+    {
+	prevlith_->porous() = newpor;
+	prevlith_->color() = newcol;
+	lithos.reportAnyChange();
+	anychg_ = true;
+    }
+}
+
+
 void uiStratLithoDlg::selChg( CallBacker* )
 {
-    if ( !nmfld_ ) return;
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
-
-    if ( prevlith_ && !prevlith_->isUdf() )
-    {
-	const bool newpor = isporbox_->isChecked();
-	const Color newcol = colfld_->color();
-	if ( (newpor != prevlith_->porous() || newcol != prevlith_->color()) )
-	{
-	    prevlith_->porous() = newpor;
-	    prevlith_->color() = newcol;
-	    lithos.reportAnyChange();
-	    anychg_ = true;
-	}
-    }
-
     const BufferString nm( selfld_->getText() );
     const Strat::Lithology* lith = lithos.get( nm );
     if ( !lith )
 	return; // can only happen when no lithologies defined at all
 
-    nmfld_->setText( lith->name() );
-
     NotifyStopper nspor( isporbox_->activated );
-    isporbox_->setChecked( lith->porous() );
     NotifyStopper nscol( colfld_->colorChanged );
+    nmfld_->setText( lith->name() );
+    isporbox_->setChecked( lith->porous() );
     colfld_->setColor( lith->color() );
     prevlith_ = const_cast<Strat::Lithology*>( lith );
 }
@@ -376,29 +381,52 @@ void uiStratLithoDlg::renameCB( CallBacker* )
 					 lithos.get( selfld_->getText() ) );
     if ( !lith || lith->isUdf() ) return;
 
-    lith->setName( nmfld_->text() );
-    selfld_->setItemText( selfld_->currentItem(), toUiString(nmfld_->text()) );
+    BufferString nm = nmfld_->text();
+    if ( !uiStratUnitEditDlg::checkWrongChar(this,nm.getCStr()) )
+	return;
+
+    if ( selfld_->isPresent(nm) || lithos.isPresent(nm.buf()) )
+    {
+	mErrRet( tr("Please specify a new, unique name"), return )
+    }
+
+    lith->setName( nm );
+    selfld_->setItemText( selfld_->currentItem(), toUiString(nm) );
     lithos.reportAnyChange();
     prevlith_ = lith;
     anychg_ = true;
 }
 
 
-void uiStratLithoDlg::rmLast( CallBacker* )
+void uiStratLithoDlg::rmCB( CallBacker* )
 {
-    int selidx = selfld_->size()-1;
-    if ( selidx < 1 ) return; // No need to ever delete the last lithology
+    // removes selected, not the last one
+    if ( selfld_->size() <= 1 )
+	return; // No need to ever delete the last lithology
+
+    const int selidx = selfld_->currentItem();
+    if ( selidx < 0 )
+	return;
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
     const Strat::Lithology* lith = lithos.get( selfld_->itemText(selidx) );
-    if ( !lith || lith->isUdf() ) return;
+    if ( !lith || lith->isUdf() )
+	return;
 
-    delete lithos.lithologies().removeSingle( lithos.indexOf( lith->id() ) );
+    uiString msg = tr("Lithology '%1' will be removed. "
+		      "Do you want to continue?").arg( lith->name() );
+    const bool res = uiMSG().askContinue( msg );
+    if ( !res )
+	return;
+
+    const int lithoidx = lithos.indexOf( lith->id() );
+    if ( lithos.lithologies().validIdx(lithoidx) )
+	delete lithos.lithologies().removeSingle( lithoidx );
     lithos.reportAnyChange();
 
-    prevlith_ = 0;
+    prevlith_ = nullptr;
     selfld_->setCurrentItem( selidx-1 );
-    selChg( 0 );
+    selChg( nullptr );
     anychg_ = true;
 }
 
@@ -425,7 +453,7 @@ public:
 uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
     : uiDialog(p,uiDialog::Setup(isadd ? tr("Add content") : tr("Edit Content"),
 		isadd ? tr("Add content") : tr("Edit content properties"),
-                                  mODHelpKey(mStratContentsDlgHelpID) ))
+				  mODHelpKey(mStratContentsDlgHelpID) ))
     , cont_(c)
     , anychg_(chg)
 {
@@ -547,7 +575,7 @@ void itemSwitch( bool up )
 uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( uiStrings::sContent() ),
 		tr("Define special layer contents"),
-                mODHelpKey(mStratContentsDlgHelpID) ))
+		mODHelpKey(mStratContentsDlgHelpID) ))
     , anychg_(false)
 {
     setCtrlStyle( CloseOnly );
@@ -557,7 +585,7 @@ uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
 
 uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Create/Edit level"),mNoDlgTitle,
-                                 mODHelpKey(mStratLevelDlgHelpID) ))
+				 mODHelpKey(mStratLevelDlgHelpID) ))
 {
     lvlnmfld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     lvlcolfld_ = new uiColorInput( this,
@@ -599,9 +627,9 @@ void uiStratUnitDivideDlg::uiDivideTable::popupMenu( CallBacker* cb )
 uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
 					    const Strat::LeavedUnitRef& unit )
     : uiDialog(p,uiDialog::Setup(tr("Subdivide Stratigraphic Unit"),
-			         tr("Specify number and properties "
-                                 "of the new units"),
-                                 mODHelpKey(mStratUnitDivideDlgHelpID)))
+				 tr("Specify number and properties "
+				 "of the new units"),
+				 mODHelpKey(mStratUnitDivideDlgHelpID)))
     , rootunit_(unit)
 {
     table_ = new uiDivideTable( this, uiTable::Setup()
@@ -648,7 +676,7 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 	}
 	Interval<float> rg;
 	rg.set( timerg.start + (float)idx*timerg.width()/(nrrows),
-	        timerg.start + (float)(idx+1)*timerg.width()/(nrrows) );
+		timerg.start + (float)(idx+1)*timerg.width()/(nrrows) );
 	table_->setRowReadOnly( idx, false );
 	unit.setTimeRange( rg );
 	unit.setColor( unit.color() );
@@ -817,7 +845,7 @@ bool uiStratLinkLvlUnitDlg::acceptOK()
 	uiString movemsg = tr("Assign to %1 only").arg(unit_.code());
 	const int res =
 	    uiMSG().question(msg,tr("Assign to both"), movemsg ,
-                             uiStrings::sCancel());
+			     uiStrings::sCancel());
 	if ( res == -1 )
 	    return false;
 	if ( res == 0 )
