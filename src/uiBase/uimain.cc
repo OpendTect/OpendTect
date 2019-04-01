@@ -356,6 +356,7 @@ static void qtMessageOutput( QtMsgType type, const char* msg )
 
 void uiMain::init( QApplication* qap, int& argc, char **argv )
 {
+	QLocale::setDefault( QLocale::c() );
     if ( app_ )
 	{ pErrMsg("You already have a uiMain object!"); return; }
 
