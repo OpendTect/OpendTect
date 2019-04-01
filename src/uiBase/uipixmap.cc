@@ -19,11 +19,12 @@ ________________________________________________________________________
 
 #include "uirgbarray.h"
 
-#include <QPixmap>
 #include <QBitmap>
 #include <QColor>
 #include <QImageReader>
 #include <QImageWriter>
+#include <QPainter>
+#include <QPixmap>
 
 mUseQtnamespace
 
@@ -105,8 +106,14 @@ int uiPixmap::height() const
 bool uiPixmap::isEmpty() const
 { return !qpixmap_ || qpixmap_->isNull(); }
 
+
 void uiPixmap::fill( const Color& col )
-{ qpixmap_->fill( QColor(col.r(),col.g(),col.b()) ); }
+{
+    qpixmap_->fill( QColor(col.r(),col.g(),col.b()) );
+    QPainter painter( qpixmap_ );
+    painter.drawRect( 0, 0, qpixmap_->width()-1, qpixmap_->height()-1 );
+}
+
 
 bool uiPixmap::save( const char* fnm, const char* fmt, int quality ) const
 { return qpixmap_ ? qpixmap_->save( fnm, fmt, quality ) : false; }
