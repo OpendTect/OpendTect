@@ -39,6 +39,7 @@ class uiMenuHandler;
 class uiMPEMan;
 class uiMultiMapperRangeEditWin;
 class uiSlicePos3DDisp;
+class uiSurvTopBotImageDlg;
 class uiToolBar;
 class uiTreeItemTBHandler;
 class uiVisModeMgr;
@@ -488,6 +489,7 @@ protected:
     MouseCursorExchange*	mousecursorexchange_;
 
     uiDirLightDlg*		dirlightdlg_;
+    uiSurvTopBotImageDlg*	topbotimgdlg_;
 };
 
 

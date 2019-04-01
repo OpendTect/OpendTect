@@ -99,7 +99,7 @@ static const int cResolutionIdx = 500;
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , menu_(*new uiMenuHandler(appserv().parent(),-1))
-    , toolbar_(0)
+    , toolbar_(nullptr)
     , resetmanipmnuitem_(tr("Reset Manipulation"),cResetManipIdx)
     , changematerialmnuitem_(m3Dots(uiStrings::sProperties()),
 			     cPropertiesIdx)
@@ -116,26 +116,27 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , blockmenus_(false)
     , xytmousepos_(Coord3::udf())
     , zfactor_(1)
-    , mpetools_(0)
-    , slicepostools_(0)
+    , mpetools_(nullptr)
+    , slicepostools_(nullptr)
     , pickretriever_( new uiVisPickRetriever(this) )
     , nrscenesChange(this)
     , keyEvent(this)
     , mouseEvent(this)
     , planeMovedEvent(this)
     , seltype_((int)visBase::PolygonSelection::Off)
-    , multirgeditwin_(0)
+    , multirgeditwin_(nullptr)
     , mapperrgeditordisplayid_(-1)
     , curinterpobjid_(-1)
     , mapperrgeditinact_(false)
-    , dirlightdlg_(0)
-    , mousecursorexchange_(0)
+    , dirlightdlg_(nullptr)
+    , mousecursorexchange_(nullptr)
     , objectAdded(this)
     , objectRemoved(this)
     , selectionmode_(Polygon)
     , selectionmodeChange(this)
-    , topsetupgroupname_( 0 )
-    , sceneeventsrc_(0)
+    , topsetupgroupname_(nullptr)
+    , sceneeventsrc_(nullptr)
+    , topbotimgdlg_(nullptr)
 {
     changematerialmnuitem_.iconfnm = "disppars";
 
@@ -203,7 +204,7 @@ uiVisPartServer::~uiVisPartServer()
     delete multirgeditwin_;
     delete dirlightdlg_;
 
-    setMouseCursorExchange( 0 );
+    setMouseCursorExchange( nullptr );
 }
 
 
@@ -574,7 +575,7 @@ int uiVisPartServer::getSceneID( int visid ) const
 const ZDomain::Info* uiVisPartServer::zDomainInfo( int sceneid ) const
 {
     const visSurvey::Scene* scene = getScene( sceneid );
-    return scene ? &scene->zDomainInfo() : 0;
+    return scene ? &scene->zDomainInfo() : nullptr;
 }
 
 
@@ -785,7 +786,7 @@ const RegularSeisDataPack* uiVisPartServer::getCachedData(
 						    int id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getCacheVolume( attrib ) : 0;
+    return so ? so->getCacheVolume( attrib ) : nullptr;
 }
 
 
@@ -797,7 +798,7 @@ bool uiVisPartServer::setCubeData( int id, int attrib,
 	return false;
 
     uiUserShowWait usw( parent(), uiStrings::sUpdatingDisplay() );
-    return so->setDataVolume( attrib, attribdata, 0 );
+    return so->setDataVolume( attrib, attribdata, nullptr );
 }
 
 
@@ -929,7 +930,7 @@ void uiVisPartServer::setColTabMapper( int id, int attrib,
     if ( !so )
 	return;
 
-    so->setColTabMapper( attrib, mpr, 0 );
+    so->setColTabMapper( attrib, mpr, nullptr );
     if ( so->getScene() && so->getScene()->getSceneColTab() )
 	so->getScene()->getSceneColTab()->setColTabMapper( mpr );
 
@@ -972,7 +973,7 @@ void uiVisPartServer::setColTabSequence( int id, int attrib,
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( !so ) return;
 
-    so->setColTabSequence( attrib, seq, 0 );
+    so->setColTabSequence( attrib, seq, nullptr );
     if ( so->getScene() && so->getScene()->getSceneColTab() )
 	so->getScene()->getSceneColTab()->setColTabSequence( seq );
 
@@ -1011,14 +1012,14 @@ const Attrib::SelSpecList* uiVisPartServer::getSelSpecs(
 						int id, int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getSelSpecs( attrib ) : 0;
+    return so ? so->getSelSpecs( attrib ) : nullptr;
 }
 
 
 const Attrib::SelSpec* uiVisPartServer::getSelSpec( int id, int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getSelSpec( attrib, selectedTexture(id,attrib) ) : 0;
+    return so ? so->getSelSpec( attrib, selectedTexture(id,attrib) ) : nullptr;
 }
 
 
@@ -1112,9 +1113,10 @@ bool uiVisPartServer::deleteAllObjects()
     if ( multirgeditwin_ )
     {
 	multirgeditwin_->close();
-	delete multirgeditwin_;
-	multirgeditwin_ = 0;
+	deleteAndZeroPtr( multirgeditwin_ );
     }
+
+    deleteAndZeroPtr( topbotimgdlg_ );
 
     scenes_.erase();
     nrscenesChange.trigger();
@@ -1241,7 +1243,7 @@ bool uiVisPartServer::isSelectionModeOn() const
 const Selector<Coord3>* uiVisPartServer::getCoordSelector( int sceneid ) const
 {
     const visSurvey::Scene* scene = getScene( sceneid );
-    if ( !scene ) return 0;
+    if ( !scene ) return nullptr;
 
     return scene->getSelector();
 }
@@ -1306,8 +1308,11 @@ void uiVisPartServer::updateDisplay( bool doclean, int selid, int refid )
 
 void uiVisPartServer::setTopBotImg( int sceneid )
 {
-    uiSurvTopBotImageDlg dlg( appserv().parent(), getScene(sceneid) );
-    dlg.go();
+    delete topbotimgdlg_;
+    topbotimgdlg_ = new uiSurvTopBotImageDlg( appserv().parent(),
+					      getScene(sceneid) );
+    topbotimgdlg_->setModal( false );
+    topbotimgdlg_->show();
 }
 
 
@@ -1354,20 +1359,20 @@ void uiVisPartServer::setZAxisTransform( int sceneid, ZAxisTransform* zat,
 const ZAxisTransform* uiVisPartServer::getZAxisTransform( int sceneid ) const
 {
     const visSurvey::Scene* scene = getScene( sceneid );
-    return scene ? scene->getZAxisTransform() : 0;
+    return scene ? scene->getZAxisTransform() : nullptr;
 }
 
 ZAxisTransform* uiVisPartServer::getZAxisTransform( int sceneid )
 {
     visSurvey::Scene* scene = getScene( sceneid );
-    return scene ? scene->getZAxisTransform() : 0;
+    return scene ? scene->getZAxisTransform() : nullptr;
 }
 
 
 visBase::EventCatcher* uiVisPartServer::getEventCatcher( int sceneid )
 {
     visSurvey::Scene* scene = getScene( sceneid );
-    return scene ? &scene->eventCatcher() : 0;
+    return scene ? &scene->eventCatcher() : nullptr;
 }
 
 // Directional light-related
@@ -1675,7 +1680,7 @@ visSurvey::Scene* uiVisPartServer::getScene( int sceneid )
 	}
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -1905,9 +1910,9 @@ void uiVisPartServer::acceptManipulation( int id )
 void uiVisPartServer::setUpConnections( int id )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
+    NotifierAccess* na = so ? so->getManipulationNotifier() : nullptr;
     if ( na ) na->notify( mCB(this,uiVisPartServer,interactionCB) );
-    na = so ? so->getLockNotifier() : 0;
+    na = so ? so->getLockNotifier() : nullptr;
     if ( na ) na->notify( mCB(mpetools_,uiMPEMan,visObjectLockedCB) );
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
@@ -1933,9 +1938,9 @@ void uiVisPartServer::setUpConnections( int id )
 void uiVisPartServer::removeConnections( int id )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
+    NotifierAccess* na = so ? so->getManipulationNotifier() : nullptr;
     if ( na ) na->remove( mCB(this,uiVisPartServer,interactionCB) );
-    na = so ? so->getLockNotifier() : 0;
+    na = so ? so->getLockNotifier() : nullptr;
     if ( na ) na->remove( mCB(mpetools_,uiMPEMan,visObjectLockedCB) );
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));
@@ -1969,7 +1974,7 @@ void uiVisPartServer::rightClickCB( CallBacker* cb )
 	pickedpos = vo->rightClickedEventInfo()->worldpickedpos;
 
     showMenu( id, uiMenuHandler::fromScene(),
-	      dataobj ? dataobj->rightClickedPath() : 0, pickedpos );
+	      dataobj ? dataobj->rightClickedPath() : nullptr, pickedpos );
 }
 
 
@@ -2088,7 +2093,7 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     mouseposstr_ = sceneeventsrc_->getMousePosString();
     zfactor_ = sceneeventsrc_->zDomainUserFactor();
     sendEvent( evMouseMove() );
-    sceneeventsrc_ = 0;
+    sceneeventsrc_ = nullptr;
 }
 
 
@@ -2108,7 +2113,7 @@ void uiVisPartServer::keyEventCB( CallBacker* cb )
 
     sendEvent( evKeyboardEvent() );
     keyEvent.trigger();
-    sceneeventsrc_ = 0;
+    sceneeventsrc_ = nullptr;
 }
 
 
@@ -2121,7 +2126,7 @@ void uiVisPartServer::mouseEventCB( CallBacker* cb )
     mouseevent_ = sceneeventsrc_->getMouseEvent();
     sendEvent( evMouseEvent() );
     mouseEvent.trigger();
-    sceneeventsrc_ = 0;
+    sceneeventsrc_ = nullptr;
 }
 
 
@@ -2258,8 +2263,7 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
     if ( multirgeditwin_ )
     {
 	multirgeditwin_->close();
-	delete multirgeditwin_;
-	multirgeditwin_ = 0;
+	deleteAndZeroPtr( multirgeditwin_ );
     }
 
     const DataPackMgr::ID dpmid = getDataPackMgrID( visid );
