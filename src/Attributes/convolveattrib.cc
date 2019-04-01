@@ -15,12 +15,13 @@
 
 
 #define mShapeCube	0
-#define mShapeSphere    1
+#define mShapeSphere	1
 
 #define mKernelFunctionLowPass		0
 #define mKernelFunctionLaplacian	1
 #define mKernelFunctionPrewitt		2
 #define mKernelFunctionWavelet		3
+#define mKernelFunctionSobel		4
 
 namespace Attrib
 {
@@ -37,6 +38,7 @@ void Convolve::initClass()
     kernel->addEnum( kernelTypeStr(mKernelFunctionLaplacian) );
     kernel->addEnum( kernelTypeStr(mKernelFunctionPrewitt) );
     kernel->addEnum( kernelTypeStr(mKernelFunctionWavelet) );
+    kernel->addEnum( kernelTypeStr(mKernelFunctionSobel) );
     kernel->setDefaultValue( mKernelFunctionLowPass );
     desc->addParam( kernel );
 
@@ -122,18 +124,79 @@ const float Convolve::prewitt2D[] =
 };
 
 
+const float Convolve::sobel[] =
+{
+	// Kernel 0 (Inline)
+	-1,-2,-1,	/* Inline -1, Crossline = -1, Time = -dt -- +dt */
+	-2,-4,-2,	/* Inline -1, Crossline =  0, Time = -dt -- +dt */
+	-1,-2,-1,	/* Inline -1, Crossline = +1, Time = -dt -- +dt */
+
+	0, 0, 0,	/* Inline  0, Crossline = -1, Time = -dt -- +dt */
+	0, 0, 0,	/* Inline  0, Crossline =  0, Time = -dt -- +dt */
+	0, 0, 0,	/* Inline  0, Crossline = +1, Time = -dt -- +dt */
+
+	1, 2, 1,	/* Inline +1, Crossline = -1, Time = -dt -- +dt */
+	2, 4, 2,	/* Inline +1, Crossline =  0, Time = -dt -- +dt */
+	1, 2, 1,	/* Inline +1, Crossline = +1, Time = -dt -- +dt */
+
+	// Kernel 1 (Crossline)
+
+	-1,-2,-1,	/* Inline -1, Crossline = -1, Time = -dt -- +dt */
+	0, 0, 0,	/* Inline -1, Crossline =  0, Time = -dt -- +dt */
+	1, 2, 1,	/* Inline -1, Crossline = +1, Time = -dt -- +dt */
+
+	-2,-4,-2,	/* Inline  0, Crossline = -1, Time = -dt -- +dt */
+	0, 0, 0,	/* Inline  0, Crossline =  0, Time = -dt -- +dt */
+	2, 4, 2,	/* Inline  0, Crossline = +1, Time = -dt -- +dt */
+
+	-1,-2,-1,	/* Inline +1, Crossline = -1, Time = -dt -- +dt */
+	0, 0, 0,	/* Inline +1, Crossline =  0, Time = -dt -- +dt */
+	1, 2, 1,	/* Inline +1, Crossline = +1, Time = -dt -- +dt */
+
+	// Kernel 2 (Time)
+	-1, 0, 1,	/* Inline -1, Crossline = -1, Time = -dt -- +dt */
+	-2, 0, 2,	/* Inline -1, Crossline =  0, Time = -dt -- +dt */
+	-1, 0, 1,	/* Inline -1, Crossline = +1, Time = -dt -- +dt */
+
+	-2, 0, 2,	/* Inline  0, Crossline = -1, Time = -dt -- +dt */
+	-4, 0, 4,	/* Inline  0, Crossline =  0, Time = -dt -- +dt */
+	-2, 0, 2,	/* Inline  0, Crossline = +1, Time = -dt -- +dt */
+
+	-1, 0, 1,	/* Inline +1, Crossline = -1, Time = -dt -- +dt */
+	-2, 0, 2,	/* Inline +1, Crossline =  0, Time = -dt -- +dt */
+	-1, 0, 1	/* Inline +1, Crossline = +1, Time = -dt -- +dt */
+};
+
+
+const float Convolve::sobel2D[] =
+{
+	// Kernel 0 (Crossline = Trace number)
+
+	-1,-2,-1,	/* Trace nr = -1, Time = -dt -- +dt */
+	0, 0, 0,	/* Trace nr =  0, Time = -dt -- +dt */
+	1, 2, 1,	/* Trace nr = +1, Time = -dt -- +dt */
+
+	// Kernel 1 (Time)
+
+	-1, 0, 1,	/* Trace nr = -1, Time = -dt -- +dt */
+	-2, 0, 2,	/* Trace nr =  0, Time = -dt -- +dt */
+	-1, 0, 1	/* Trace nr = +1, Time = -dt -- +dt */
+};
+
+
 void Convolve::updateDesc( Desc& desc )
 {
     const ValParam* kernel = desc.getValParam( kernelStr() );
     const FixedString ktyp( kernel->getStringValue(0) );
     const bool isprewitt = ktyp == kernelTypeStr(mKernelFunctionPrewitt);
+    const bool issobel = ktyp == kernelTypeStr(mKernelFunctionSobel);
     const bool iswavelet = ktyp == kernelTypeStr(mKernelFunctionWavelet);
-    const bool needsz = !(isprewitt || iswavelet);
+    const bool needsz = !(isprewitt || issobel || iswavelet);
     desc.setParamEnabled(sizeStr(),needsz);
     desc.setParamEnabled(shapeStr(),needsz);
     desc.setParamEnabled(waveletStr(),iswavelet);
 
-    if ( isprewitt )
+    if ( isprewitt || issobel )
 	desc.setNrOutputs( Seis::UnknownData, desc.is2D() ? 3 : 4 );
 }
 
@@ -143,6 +206,7 @@ const char* Convolve::kernelTypeStr( int type )
     if ( type==mKernelFunctionLowPass ) return "LowPass";
     if ( type==mKernelFunctionLaplacian ) return "Laplacian";
     if ( type==mKernelFunctionPrewitt ) return "Prewitt";
+    if ( type==mKernelFunctionSobel ) return "Sobel";
     return "Wavelet";
 }
 
@@ -237,9 +301,20 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size, bool is2d )
 	else
 	    OD::memCopy( kernel_, Convolve::prewitt, sz*sizeof(float) );
     }
+    else if ( kernelfunc==mKernelFunctionSobel )
+    {
+	nrsubkernels_ = is2d ? 2 : 3;
+	stepout_ = is2d ? BinID(0,1) : BinID(1,1);
+	sg_=Interval<int>(-1,1);
+	int sz = getSubKernelSize()*nrSubKernels();
+	kernel_ = new float[sz];
+	if ( is2d )
+	    OD::memCopy( kernel_, Convolve::sobel2D, sz*sizeof(float) );
+	else
+	    OD::memCopy( kernel_, Convolve::sobel, sz*sizeof(float) );
+    }
 
-    int subkernelsize = getSubKernelSize();
-
+    const int subkernelsize = getSubKernelSize();
     for ( int idy=0; idy<nrSubKernels(); idy++ )
     {
 	float subkernelsum = 0;
@@ -440,7 +515,7 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
 	{
 	    for ( int idy=0; idy<nrofkernels; idy++ )
 		if ( isOutputEnabled(idy+1) )
-		   setOutputValue( output, idy+1, idx, z0, res[idy] );
+		    setOutputValue( output, idy+1, idx, z0, res[idy] );
 	}
     }
 
@@ -485,7 +560,8 @@ bool Convolve::allowParallelComputation() const
 
 bool Convolve::isSingleTrace() const
 {
-    return kerneltype_ != mKernelFunctionPrewitt;
+    return kerneltype_ != mKernelFunctionPrewitt &&
+	   kerneltype_ != mKernelFunctionSobel;
 }
 
 } // namespace Attrib

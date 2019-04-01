@@ -25,7 +25,7 @@ namespace Attrib
   %Convolve convolves a signal with the on the command-line specified signal.
 
 <pre>
-  Convolve [kernel=LowPass|Laplacian|Prewitt] [shape=Sphere] [size=3]
+  Convolve [kernel=LowPass|Laplacian|Prewitt|Sobel] [shape=Sphere] [size=3]
 
   Kernel:         Uses Shape      Uses Size       Desc
 
@@ -61,10 +61,13 @@ public:
     static const char*		sizeStr()		{ return "size"; }
     static const char*		waveletStr()		{ return "waveletid"; }
     static const char*		kernelTypeStr(int);
-    static const char*	shapeTypeStr(int);
+    static const char*		shapeTypeStr(int);
 
-    static const float	prewitt[];
-    static const float	prewitt2D[];
+    static const float		prewitt[];
+    static const float		prewitt2D[];
+
+    static const float		sobel[];
+    static const float		sobel2D[];
 
     virtual bool		isSingleTrace() const;
     virtual void		prepPriorToBoundsCalc();
@@ -105,12 +108,12 @@ protected:
     mExpClass(Attributes) Kernel
     {
     public:
-	const float*            getKernel() const;
-	int                     nrSubKernels() const;
-	const BinID&            getStepout() const;
-	const Interval<int>&    getSG() const;
-	int                     getSubKernelSize() const;
-	float                   getSum() const { return sum_; }
+	const float*		getKernel() const;
+	int			nrSubKernels() const;
+	const BinID&		getStepout() const;
+	const Interval<int>&	getSG() const;
+	int			getSubKernelSize() const;
+	float			getSum() const { return sum_; }
 
 				Kernel(int kernelfunc,int shape,int size, bool);
 				~Kernel();
@@ -126,4 +129,4 @@ protected:
     Kernel*			kernel_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
