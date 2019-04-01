@@ -92,8 +92,7 @@ void Seis::ObjectSummary::init( Pos::GeomID geomid )
     prov->setSelData( new Seis::RangeSelData(tkzs) );
     SeisTrcTranslator* trl = prov->getCurrentTranslator();
     if ( !trl )
-	{ pErrMsg("Translator not SeisTrcTranslator!"); bad_ = true; return; }
-
+	{ bad_ = true; return; }
     refreshCache( *prov, *trl );
 }
 
