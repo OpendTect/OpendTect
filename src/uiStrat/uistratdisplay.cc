@@ -31,8 +31,8 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     : uiGraphicsView(p,"Stratigraphy viewer")
     , drawer_(uiStratDrawer(scene(),data_))
     , uidatawriter_(uiStratDispToTree(uitree))
-    , uidatagather_(0)
-    , uicontrol_(0)
+    , uidatagather_(nullptr)
+    , uicontrol_(nullptr)
     , islocked_(false)
     , maxrg_(Interval<float>(0,2e3))
 {
@@ -40,13 +40,13 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     chitm->showLine( OD::Vertical, false );
 
     uidatagather_ = new uiStratTreeToDisp( data_ );
-    uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,reDraw) );
+    mAttachCB( uidatagather_->newtreeRead, uiStratDisplay::reDraw );
 
     MouseEventHandler& meh = getMouseEventHandler();
-    meh.buttonReleased.notify( mCB(this,uiStratDisplay,usrClickCB) );
-    meh.doubleClick.notify( mCB(this,uiStratDisplay,doubleClickCB) );
-    meh.movement.notify( mCB(this,uiStratDisplay,mouseMoveCB) );
-    reSize.notify( mCB(this,uiStratDisplay,reDraw) );
+    mAttachCB( meh.buttonReleased, uiStratDisplay::usrClickCB );
+    mAttachCB( meh.doubleClick, uiStratDisplay::doubleClickCB );
+    mAttachCB( meh.movement, uiStratDisplay::mouseMoveCB );
+    mAttachCB( reSize, uiStratDisplay::reDraw );
 
     disableScrollZoom();
     setDragMode( uiGraphicsView::NoDrag );
@@ -61,6 +61,7 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
 
 uiStratDisplay::~uiStratDisplay()
 {
+    detachAllNotifiers();
     delete uicontrol_;
     delete uidatagather_;
 }
@@ -96,7 +97,7 @@ void uiStratDisplay::addControl( uiToolBar* tb )
     mDynamicCastGet(uiGraphicsView*,v,const_cast<uiStratDisplay*>(this))
     uiStratViewControl::Setup su( maxrg_ ); su.tb_ = tb;
     uicontrol_ = new uiStratViewControl( *v, su );
-    uicontrol_->rangeChanged.notify( mCB(this,uiStratDisplay,controlRange) );
+    mAttachCB( uicontrol_->rangeChanged, uiStratDisplay::controlRange );
     uicontrol_->setRange( rangefld_->getFInterval() );
 }
 
@@ -107,7 +108,7 @@ void uiStratDisplay::controlRange( CallBacker* )
     {
 	rangefld_->setValue( uicontrol_->range() );
 	rangefld_->setNrDecimals( 2 );
-	dispParamChgd(0);
+	dispParamChgd(nullptr);
     }
 }
 
@@ -120,11 +121,10 @@ void uiStratDisplay::createDispParamGrp()
 		FloatInpIntervalSpec()
 		    .setName(BufferString("range start"),0)
 		    .setName(BufferString("range stop"),1) );
-    rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
+    mAttachCB( rangefld_->valuechanged, uiStratDisplay::dispParamChgd );
 
-    const CallBack cbv = mCB(this,uiStratDisplay,selCols);
     viewcolbutton_ = new uiPushButton( dispparamgrp_, tr("Columns"),
-                                       cbv, false );
+				       mCB(this,uiStratDisplay,selCols), false);
     viewcolbutton_->attach( rightOf, rangefld_ );
 }
 
@@ -148,7 +148,7 @@ public :
 	{
 	    uiCheckBox* box = new uiCheckBox(this, toUiString(colnms.get(idx)));
 	    box->setChecked( data_.getCol( idx )->isdisplayed_ );
-	    box->activated.notify( mCB(this,uiColViewerDlg,selChg) );
+	    mAttachCB( box->activated, uiColViewerDlg::selChg );
 	    colboxflds_ += box;
 	    if ( idx ) box->attach( alignedBelow, colboxflds_[idx-1] );
 	}
@@ -156,8 +156,13 @@ public :
 	{
 	    allboxfld_ = new uiCheckBox( this, uiStrings::sAll() );
 	    allboxfld_->attach( alignedAbove, colboxflds_[0] );
-	    allboxfld_->activated.notify( mCB(this,uiColViewerDlg,selAll) );
+	    mAttachCB( allboxfld_->activated, uiColViewerDlg::selAll );
 	}
+    }
+
+    ~uiColViewerDlg()
+    {
+	detachAllNotifiers();
     }
 
     void selAll( CallBacker* )
@@ -264,8 +269,20 @@ void uiStratDisplay::mouseMoveCB( CallBacker* )
     const float age = getPos().y_;
     uiString agetxt = agerg.includes(age,false) ? tr("Age: %1 Ma").arg( age, 3 )
 						: uiString::empty();
-    if ( mainwin()->statusBar() )
-	mainwin()->toStatusBar( agetxt, 0 );
+    mainwin()->toStatusBar( agetxt, 0 );
+
+    uiString unitstr;
+    const StratDispData::Unit* unit = getUnitFromPos();
+    if ( unit )
+	unitstr = toUiString( unit->fullCode() );
+
+    uiString levelstr;
+    const StratDispData::Level* lvl = getLevelFromPos();
+    if ( lvl )
+	levelstr = toUiString( lvl->name_ );
+
+    mainwin()->toStatusBar( unitstr, 1 );
+    mainwin()->toStatusBar( levelstr, 2 );
 }
 
 
@@ -277,7 +294,9 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	if ( getColIdxFromPos() == uidatagather_->levelColIdx() )
 	{
 	    const StratDispData::Level* lvl = getLevelFromPos();
-	    if ( !lvl ) return false;
+	    if ( !lvl )
+		return false;
+
 	    uiAction* assmnuitm = new uiAction( tr("Assign marker boundary") );
 	    uiMenu menu( parent(), uiStrings::sAction() );
 	    menu.insertAction( assmnuitm, 1 );
@@ -366,7 +385,8 @@ const StratDispData::Unit* uiStratDisplay::getUnitFromPos( int cidx ) const
 		return unit;
 	}
     }
-    return 0;
+
+    return nullptr;
 }
 
 
@@ -467,7 +487,9 @@ void uiStratDrawer::drawColumns()
 
     for ( int idcol=0; idcol<nrcols; idcol++ )
     {
-	if ( !data_.getCol( idcol )->isdisplayed_ ) continue;
+	if ( !data_.getCol( idcol )->isdisplayed_ )
+	    continue;
+
 	ColumnItem* colitm = new ColumnItem( data_.getCol( idcol )->name_ );
 	colitms_ += colitm;
 	colitm->pos_ = pos;
@@ -533,18 +555,28 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
 void uiStratDrawer::drawLevels( ColumnItem& colitm )
 {
     if ( !colitm.lvlitms_.isEmpty() )
-	{ colitm.lvlitms_.erase(); colitm.txtitms_.erase(); }
+    {
+	colitm.lvlitms_.erase();
+	colitm.txtitms_.erase();
+    }
+
     const int colidx = colitms_.indexOf( &colitm );
-    if ( colidx < 0 ) return;
+    if ( colidx < 0 )
+	return;
+
+    Interval<float> rg = yax_->range();
+    rg.sort();
     for ( int idx=0; idx<data_.getCol(colidx)->levels_.size(); idx++ )
     {
 	const StratDispData::Level& lvl = *data_.getCol(colidx)->levels_[idx];
+	if ( !rg.includes(lvl.zpos_,false) )
+	    continue;
 
-	int x1 = xax_->getPix( mCast( float, (colitm.pos_)*colitm.size_ ) );
-	int x2 = xax_->getPix( mCast( float, (colitm.pos_+1)*colitm.size_ ) );
-	int y = yax_->getPix( lvl.zpos_ );
+	const int x1 = xax_->getPix( mCast(float,(colitm.pos_)*colitm.size_) );
+	const int x2 = xax_->getPix( mCast(float,(colitm.pos_+1)*colitm.size_));
+	const int y = yax_->getPix( lvl.zpos_ );
 
-	uiLineItem* li = scene_.addItem( new uiLineItem(x1, y, x2, y ) );
+	uiLineItem* li = scene_.addItem( new uiLineItem(x1,y,x2,y) );
 
 	OD::LineStyle::Type lst = lvl.name_.isEmpty() ? OD::LineStyle::Dot
 						  : OD::LineStyle::Solid;
@@ -656,15 +688,15 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
     mDefBut(cancelzoombut_,"cancelzoom",cancelZoomCB,tr("Cancel zoom"));
     rubbandzoombut_->setToggleButton( true );
 
-    viewer_.getKeyboardEventHandler().keyPressed.notify(
-				mCB(this,uiStratViewControl,keyPressed) );
+    mAttachCB( viewer_.getKeyboardEventHandler().keyPressed,
+	       uiStratViewControl::keyPressed );
 
     MouseEventHandler& meh = mouseEventHandler();
-    meh.wheelMove.notify( mCB(this,uiStratViewControl,wheelMoveCB) );
-    meh.buttonPressed.notify(mCB(this,uiStratViewControl,handDragStarted));
-    meh.buttonReleased.notify(mCB(this,uiStratViewControl,handDragged));
-    meh.movement.notify( mCB(this,uiStratViewControl,handDragging));
-    viewer_.rubberBandUsed.notify( mCB(this,uiStratViewControl,rubBandCB) );
+    mAttachCB( meh.wheelMove, uiStratViewControl::wheelMoveCB );
+    mAttachCB( meh.buttonPressed, uiStratViewControl::handDragStarted );
+    mAttachCB( meh.buttonReleased, uiStratViewControl::handDragged );
+    mAttachCB( meh.movement, uiStratViewControl::handDragging );
+    mAttachCB( viewer_.rubberBandUsed, uiStratViewControl::rubBandCB );
 }
 
 
