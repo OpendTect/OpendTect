@@ -10,20 +10,24 @@ ________________________________________________________________________
 
 
 #include "uiposprovgroupstd.h"
-#include "uigeninput.h"
+
 #include "uifilesel.h"
-#include "uipicksetsel.h"
-#include "uiselsurvranges.h"
+#include "uigeninput.h"
 #include "uimsg.h"
-#include "trckeyzsampling.h"
-#include "ioobjctxt.h"
+#include "uipicksetsel.h"
+#include "uipossubsel.h"
+#include "uiselsurvranges.h"
+#include "uistrings.h"
+
 #include "file.h"
 #include "ioobj.h"
+#include "ioobjctxt.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "polyposprovider.h"
 #include "survinfo.h"
-#include "uistrings.h"
+#include "trckeyzsampling.h"
 
 mImplClassFactory(uiPosProvGroup,factory);
 
@@ -37,12 +41,12 @@ uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvGroup::Setup& su )
 uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 					  const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
-    , hrgfld_(0)
-    , nrrgfld_(0)
-    , zrgfld_(0)
+    , hrgfld_(nullptr)
+    , zrgfld_(nullptr)
+    , nrrgfld_(nullptr)
     , setup_(su)
 {
-    uiObject* attobj = 0;
+    uiObject* attobj = nullptr;
     if ( su.is2d_ )
     {
 	nrrgfld_ =
@@ -59,7 +63,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     if ( setup_.withz_ )
     {
 	zrgfld_ = new uiSelZRange( this, su.tkzs_.zsamp_, su.withstep_,
-				   0, su.zdomkey_ );
+				   nullptr, su.zdomkey_ );
 	if ( attobj )
 	    zrgfld_->attach( alignedBelow, attobj );
 	attobj = zrgfld_->attachObj();
@@ -103,6 +107,7 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 	iop.set( IOPar::compKey(sKey::TrcRange(),0), cs.hsamp_.crlRange() );
 	if ( setup_.withz_ )
 	    iop.set( IOPar::compKey(sKey::ZRange(),0), cs.zsamp_ );
+
 	return true;
     }
 
@@ -194,9 +199,30 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 	zrgfld_->attach( alignedBelow, attachobj );
     }
 
+    inoutfld_ = new uiGenInput( this, tr("Use Positions"),
+			BoolInpSpec(true,tr("Inside"),tr("Outside")) );
+    inoutfld_->valuechanged.notify( mCB(this,uiPolyPosProvGroup,inoutCB) );
+
+    bboxfld_ = new uiPosSubSel( this,
+			uiPosSubSel::Setup(false,su.withz_) );
+
+    inoutfld_->attach( alignedBelow, attachobj );
+    bboxfld_->attach( alignedBelow, inoutfld_ );
+
+    inoutCB( nullptr );
+
     setHAlignObj( polyfld_ );
 }
 
+
+uiPolyPosProvGroup::~uiPolyPosProvGroup()
+{}
+
+
+void uiPolyPosProvGroup::inoutCB( CallBacker* )
+{
+    bboxfld_->display( !inoutfld_->getBoolValue() );
+}
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
@@ -219,6 +245,18 @@ void uiPolyPosProvGroup::usePar( const IOPar& iop )
 	iop.get( mGetPolyKey(sKey::ZRange()), zrg );
 	zrgfld_->setRange( zrg );
     }
+
+    bool inside = true;
+    iop.getYN( mGetPolyKey(Pos::PolyProvider3D::sInside()), inside );
+    inoutfld_->setValue( inside );
+    inoutCB( nullptr );
+
+    TrcKeyZSampling tkzs;
+    PtrMan<IOPar> bbpar =
+	iop.subselect( mGetPolyKey(Pos::PolyProvider3D::sBoundingBox()) );
+    if ( bbpar )
+	tkzs.usePar( *bbpar );
+    bboxfld_->setInput( tkzs );
 }
 
 
@@ -235,6 +273,12 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
     iop.set( mGetPolyKey(sKey::StepCrl()), stps.crl() );
     iop.set( mGetPolyKey(sKey::ZRange()),
 	zrgfld_ ? zrgfld_->getRange() : SI().zRange(OD::UsrWork) );
+
+    iop.setYN( mGetPolyKey(Pos::PolyProvider3D::sInside()),
+	       inoutfld_->getBoolValue() );
+    IOPar bbpar;
+    bboxfld_->envelope().fillPar( bbpar );
+    iop.mergeComp( bbpar, mGetPolyKey(Pos::PolyProvider3D::sBoundingBox()) );
     return true;
 }
 

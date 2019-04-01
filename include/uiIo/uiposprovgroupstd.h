@@ -12,14 +12,16 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uiposprovgroup.h"
+
 class TrcKeyZSampling;
+class uiFileSel;
 class uiGenInput;
 class uiPickSetIOObjSel;
+class uiPosSubSel;
 class uiSelSteps;
 class uiSelHRange;
 class uiSelZRange;
 class uiSelNrRange;
-class uiFileSel;
 
 
 /*! \brief UI for RangePosProvider */
@@ -61,6 +63,7 @@ mExpClass(uiIo) uiPolyPosProvGroup : public uiPosProvGroup
 public:
 			uiPolyPosProvGroup(uiParent*,
 					   const uiPosProvGroup::Setup&);
+			~uiPolyPosProvGroup();
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
@@ -77,9 +80,13 @@ public:
 
 protected:
 
+    void		inoutCB(CallBacker*);
+
     uiPickSetIOObjSel*	polyfld_;
     uiSelSteps*		stepfld_;
     uiSelZRange*	zrgfld_;
+    uiGenInput*		inoutfld_;
+    uiPosSubSel*	bboxfld_;
 
 };
 
