@@ -1,8 +1,7 @@
-import sys
 import json
-import platform
-from odpy.common import *
-from subprocess import check_output,CalledProcessError
+
+from odpy.common import isWin, log_msg
+from odpy.oscommand import getODCommand, execCommand
 
 dbmanexe = 'od_DBMan'
 
@@ -11,9 +10,9 @@ def getDBList(translnm,args=None):
   cmd.append( '--json' )
   cmd.append( '--list' )
   cmd.append( translnm )
-  ret = runCommand( cmd, args )
+  ret = execCommand( cmd, args=args )
   retstr = ret.decode('utf-8')
-  if platform.system() == 'Windows':
+  if isWin():
     retstr = retstr.translate(str.maketrans({"\\": r"\\"}))
   db = json.loads( retstr )
   if db['Status'] != 'OK':
@@ -31,8 +30,8 @@ def retFileLoc( bstdout ):
   if bstdout == None:
     return None
   retstr = bstdout.decode('utf-8')
-  if platform.system() == 'Windows':
-      retstr = retstr.translate(str.maketrans({"\\": r"\\"}))
+  if isWin():
+    retstr = retstr.translate(str.maketrans({"\\": r"\\"}))
   fileloc = json.loads( retstr )
   if fileloc['Status'] != 'OK':
     log_msg( fileloc['Status'] )
@@ -44,7 +43,7 @@ def getFileLocation( dbentry, args=None ):
   cmd.append( '--json' )
   cmd.append( '--info' )
   cmd.append( dbentry['ID'] )
-  return retFileLoc( runCommand(cmd,args) )
+  return retFileLoc( execCommand(cmd,args=args) )
 
 def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, args=None ):
   cmd = getODCommand(dbmanexe,args)
@@ -55,5 +54,5 @@ def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, args=None ):
   cmd.append( trl )
   cmd.append( ext )
   cmd.append( '--json' )
-  return retFileLoc( runCommand(cmd,args) )
+  return retFileLoc( execCommand(cmd,args=args) )
 
