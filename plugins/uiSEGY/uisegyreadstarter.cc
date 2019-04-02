@@ -211,6 +211,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 void uiSEGYReadStarter::createTools()
 {
     uiGroup* toolgrp = new uiGroup( midgrp_, "Tool group" );
+    toolgrp->setStretch( 0, 0 );
     toolgrp->attach( rightOf, infofld_ );
     uiToolButton* openbut = new uiToolButton( toolgrp, "open",
 			setup_.vintagecheckmode_ ? tr("Select another vintage")
