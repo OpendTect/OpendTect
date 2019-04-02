@@ -161,6 +161,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 void uiSEGYReadStarter::createTools()
 {
     uiGroup* toolgrp = new uiGroup( midgrp_, "Tool group" );
+    toolgrp->setStretch( 0, 0 );
     toolgrp->attach( rightOf, infofld_ );
     uiToolButton* openbut = new uiToolButton( toolgrp, "open",
 				tr("Use Saved SEG-Y setup"),
