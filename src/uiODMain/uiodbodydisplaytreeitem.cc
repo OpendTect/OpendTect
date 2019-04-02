@@ -392,7 +392,7 @@ void uiODBodyDisplayTreeItem::keyPressedCB( CallBacker* )
     {
 	EM::EMM().burstAlertToAll( true );
 	update = emundo->unDo( 1, true );
-	EM::EMM().burstAlertToAll( false ); 
+	EM::EMM().burstAlertToAll( false );
     }
     else if ( KeyboardEvent::isReDo(kbe) )
     {
@@ -576,7 +576,7 @@ void uiODBodyDisplayTreeItem::setOnlyAtSectionsDisplay( bool yn )
 uiODBodyDisplayDataTreeItem::uiODBodyDisplayDataTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
     , depthattribmnuitem_(tr("Z values"))
-    , isochronmnuitem_(tr("Z isochron"))
+    , isochronmnuitem_(tr("Vertical thickness"))
 {}
 
 
