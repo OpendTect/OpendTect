@@ -45,7 +45,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
 				      float shift )
     : uiDialog(p,uiDialog::Setup( uiStrings::sOutputSelection(),mNoDlgTitle,
-                                 mODHelpKey(mWriteSurfaceDlgHelpID) ))
+				 mODHelpKey(mWriteSurfaceDlgHelpID) ))
     , surface_(surf)
 {
     mDynamicCastGet(const EM::Horizon3D*,hor,&surface_);
@@ -136,7 +136,7 @@ bool uiStoreAuxData::acceptOK( CallBacker* )
     if ( ispres )
     {
 	uiString msg = tr("This surface already has an attribute called:\n%1"
-	                  "\nDo you wish to overwrite this data?").arg(attrnm);
+			  "\nDo you wish to overwrite this data?").arg(attrnm);
 	if ( !uiMSG().askOverwrite(msg) )
 	    return false;
 	dooverwrite_ = true;
@@ -178,23 +178,29 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 
 #define mGetHelpID(ioobj) \
     mGet( ioobj, mODHelpKey(mCopySurface2DHelpID), \
-          mODHelpKey(mCopySurface3DHelpID), \
-          mODHelpKey(mCopySurfaceStickSetsHelpID), \
-          mODHelpKey(mCopySurfaceFaultsHelpID) )
+	  mODHelpKey(mCopySurface3DHelpID), \
+	  mODHelpKey(mCopySurfaceStickSetsHelpID), \
+	  mODHelpKey(mCopySurfaceFaultsHelpID) )
 
-#define mGetWinNm(ioobj) \
+#define mGetStr(phrfn,ioobj) \
     mGet( ioobj,\
-	uiStrings::phrCopy(uiStrings::phrJoinStrings(uiStrings::s2D(),  \
-	uiStrings::sHorizon(1))), \
-	uiStrings::phrCopy(uiStrings::phrJoinStrings(uiStrings::s3D(),  \
-	uiStrings::sHorizon(1))), \
-	uiStrings::phrCopy(uiStrings::sFaultStickSet()), \
-	uiStrings::phrCopy(uiStrings::sFault())) \
+	uiStrings::phrfn(uiStrings::phrJoinStrings(uiStrings::s2D(),  \
+		uiStrings::sHorizon(1))), \
+	uiStrings::phrfn(uiStrings::phrJoinStrings(uiStrings::s3D(),  \
+		uiStrings::sHorizon(1))), \
+	uiStrings::phrfn(uiStrings::sFaultStickSet()), \
+	uiStrings::phrfn(uiStrings::sFault()))
+
+#define mGetWinStr(ioobj) \
+    mGetStr( phrCopy, ioobj )
+
+#define mGetOutputStr(ioobj) \
+    mGetStr( phrOutput, ioobj )
 
 
 uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
 			      const uiSurfaceRead::Setup& su )
-    : uiDialog(p,Setup(mGetWinNm(ioobj),mNoDlgTitle,mGetHelpID(ioobj)))
+    : uiDialog(p,Setup(mGetWinStr(ioobj),mNoDlgTitle,mGetHelpID(ioobj)))
     , ctio_(*mkCtxtIOObj(ioobj))
 {
     inpfld = new uiSurfaceRead( this, su );
@@ -203,16 +209,7 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
     ctio_.ctxt_.forread_ = false;
     ctio_.setObj( 0 );
 
-    if ( ioobj.group() == EMFault3DTranslatorGroup::sGroupName() )
-	outfld = new uiIOObjSel( this, ctio_,
-				 uiStrings::phrOutput(uiStrings::sFault()) );
-    else if ( ioobj.group() != EM::FaultStickSet::typeStr() )
-	outfld = new uiIOObjSel( this, ctio_,
-				 uiStrings::phrOutput(uiStrings::sSurface()) );
-    else
-	outfld = new uiIOObjSel( this, ctio_,
-			    uiStrings::phrOutput(uiStrings::sFaultStickSet()) );
-
+    outfld = new uiIOObjSel( this, ctio_, mGetOutputStr(ioobj) );
     outfld->attach( alignedBelow, inpfld );
 }
 

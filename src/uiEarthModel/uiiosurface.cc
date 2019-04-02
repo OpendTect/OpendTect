@@ -787,14 +787,13 @@ public:
 	if ( row==table_->nrRows() )
 	    table_->insertRows( row, 1 );
 
-
-	uiLabeledComboBox* actopts = new uiLabeledComboBox( 0,
-		uiString::emptyString(), "Boundary Type" );
-	actopts->box()->addItems( fltpar_.optnms_ );
-	actopts->box()->selectionChanged.notify( mCB(this,uiFaultOptSel,optCB));
+	uiComboBox* actopts = new uiComboBox( 0, "Boundary Type" );
+	actopts->disabFocus();
+	actopts->addItems( fltpar_.optnms_ );
+	actopts->selectionChanged.notify( mCB(this,uiFaultOptSel,optCB) );
 	const int cursel = getUpdateOptIdx( optidx, fltpar_.is2d_, true );
-	actopts->box()->setCurrentItem( cursel );
-	table_->setCellGroup( RowCol(row,1), actopts );
+	actopts->setCurrentItem( cursel );
+	table_->setCellObject( RowCol(row,1), actopts );
 
 	const char * fltnm = ioobj.name();
 	table_->setText( RowCol(row,0), fltnm );
@@ -836,31 +835,41 @@ public:
 
     void optCB( CallBacker* cb )
     {
+	mDynamicCastGet(uiComboBox*,selbox,cb)
+	if ( !selbox )
+	    return;
+
+	const RowCol selrc = table_->getCell( selbox );
+	if ( selrc.row()<0 || !table_->isRowSelected(selrc.row()) )
+	    return;
+
+	const int selitm = selbox->currentItem();
+
+	TypeSet<int> selrows;
+	table_->getSelectedRows( selrows );
+	for ( int ridx=0; ridx<selrows.size(); ridx++ )
+	{
+	    const int currow = selrows[ridx];
+	    mDynamicCastGet(uiComboBox*,curselbox,
+		    table_->getCellObject(RowCol(currow,1)) );
+	    if ( curselbox != selbox )
+		curselbox->setValue( selitm );
+	}
+    }
+
+    bool acceptOK( CallBacker* )
+    {
 	for ( int idx=0; idx<fltpar_.optids_.size(); idx++ )
 	{
-	    mDynamicCastGet(uiLabeledComboBox*, selbox,
-		    table_->getCellGroup(RowCol(idx,1)) );
-	    if ( selbox->box()!=cb ) continue;
+	    mDynamicCastGet(uiComboBox*,selbox,
+		    table_->getCellObject(RowCol(idx,1)) );
 
-	    const int cursel = selbox->box()->currentItem();
+	    const int cursel = selbox->currentItem();
 	    const int optidx = getUpdateOptIdx( cursel, fltpar_.is2d_, false );
-
-	    TypeSet<int> selrows;
-	    table_->getSelectedRows( selrows );
-	    for ( int ridx=0; ridx<selrows.size(); ridx++ )
-	    {
-		const int currow = selrows[ridx];
-		mDynamicCastGet(uiLabeledComboBox*,curselbox,
-			table_->getCellGroup(RowCol(currow,1)) );
-		if ( curselbox )
-		{
-		    curselbox->box()->setValue( cursel );
-		    fltpar_.optids_[currow] = optidx;
-		}
-	    }
-
-	    break;
+	    fltpar_.optids_[idx] = optidx;
 	}
+
+	return true;
     }
 
     uiFaultParSel&	fltpar_;
