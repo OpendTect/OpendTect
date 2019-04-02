@@ -345,11 +345,11 @@ void DescSet::fillPar( IOPar& par ) const
 	BufferString defstr;
 	if ( !dsc.getDefStr(defstr) ) continue;
 
-        const BufferString storeid = dsc.getStoredID( true );
+	const BufferString storeid = dsc.getStoredID( true );
 	const bool isvalidmultiid = !storeid.isEmpty() && storeid[0] != '#';
-        PtrMan<IOObj> ioobj = IOM().get( MultiID(storeid.buf()) );
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(storeid.buf()) );
 	if ( isvalidmultiid && !ioobj )
-            continue;
+	    continue;
 
 	apar.set( definitionStr(), defstr );
 
@@ -397,7 +397,7 @@ void DescSet::handleStorageOldFormat( IOPar& descpar )
 
 
 void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
-	                           BufferString& defstring,
+				   BufferString& defstring,
 				   int odversion ) const
 {
     if ( attribname == "RefTime" )
@@ -537,17 +537,27 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 	}
     }
 
+    int selout = dsc->selectedOutput();
     BufferString userref = descpar.find( userRefStr() );
     if ( dsc->isStored() )
     {
-	const ValParam* keypar = dsc->getValParam( StorageProvider::keyStr() );
-	const LineKey lk( keypar->getStringValue() );
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName().buf()) );
-	if ( ioobj.ptr() )
+	const MultiID key( dsc->getStoredID() );
+	PtrMan<IOObj> ioobj = IOM().get( key );
+	if ( ioobj )
 	{
-	    BufferString tentativeuserref = (BufferString)ioobj->name();
-	    if ( !tentativeuserref.isStartOf( userref ) )
-		userref = tentativeuserref;
+	    const BufferString tentativeuserref = ioobj->name();
+	    if ( !tentativeuserref.isStartOf(userref) )
+	    {
+		BufferStringSet compnms;
+		SeisIOObjInfo::getCompNames( key, compnms );
+		if ( compnms.size()>1 && compnms.validIdx(selout) )
+		{
+		    const LineKey lk( ioobj->name(), compnms.get(selout) );
+		    userref = lk.buf();
+		}
+		else
+		    userref = tentativeuserref;
+	    }
 	}
     }
     dsc->setUserRef( userref );
@@ -556,8 +566,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     descpar.getYN( hiddenStr(), ishidden );
     dsc->setHidden( ishidden );
 
-    int selout = dsc->selectedOutput();
-    bool selectout = descpar.get("Selected Attrib",selout);
+    const bool selectout = descpar.get("Selected Attrib",selout);
     if ( dsc->isStored() )
     {
 	FixedString type = descpar.find( sKey::DataType() );
@@ -704,13 +713,13 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 			.arg( dsc.errMsg() ).arg( dsc.userRef() );
 	    }
 
-            toberemoved += idx;
+	    toberemoved += idx;
 	    mHandleParseErr(err);
 	}
     }
 
     for ( int idx=toberemoved.size()-1; idx>=0; idx-- )
-        removeDesc( descs_[toberemoved[idx]]->id() );
+	removeDesc( descs_[toberemoved[idx]]->id() );
 
     return true;
 }
@@ -1321,7 +1330,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
 
 
 void DescSet::createAndAddMultOutDescs( const DescID& targetid,
-	                                const TypeSet<int>& seloutputs,
+					const TypeSet<int>& seloutputs,
 					const BufferStringSet& seloutnms,
 					TypeSet<DescID>& outdescids )
 {

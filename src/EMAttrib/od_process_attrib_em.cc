@@ -51,7 +51,7 @@ using namespace Attrib;
 using namespace EM;
 
 #define mDestroyWorkers \
-	{ delete proc; proc = 0; }
+	{ deleteAndZeroPtr( proc ); }
 
 
 #define mErrRet(s) \
@@ -75,7 +75,7 @@ static bool attribSetQuery( od_ostream& strm, const IOPar& iopar, bool stepout )
     if ( !res )
 	mErrRet( "No target attribute found" )
     DescID outid( toInt( res ), false );
-    if ( initialset.getDesc(outid) < 0 )
+    if ( !initialset.getDesc(outid) )
 	mErrRet( "Target attribute not present in attribute set" )
 
     return true;
@@ -171,14 +171,17 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 
 
 static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
-		    const MultiID& outid = 0 , SeisTrcBuf* tbuf = 0 )
+		     const BufferStringSet& refs,
+		     const MultiID outid=MultiID::udf(),
+		     SeisTrcBuf* tbuf=nullptr )
 {
-    if ( !proc ) return false;
+    if ( !proc )
+	return false;
 
     bool loading = true;
     int nriter = 0;
     int nrdone = 0;
-    SeisTrcWriter* writer( 0 );
+    SeisTrcWriter* writer( nullptr );
 
     TextStreamProgressMeter progressmeter(strm);
     while ( 1 )
@@ -195,6 +198,7 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 	    {
 		PtrMan<IOObj> ioseisout = IOM().get( outid );
 		writer = new SeisTrcWriter( ioseisout );
+		writer->setComponentNames( refs );
 		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
 		{
 		    BufferString err = !writer->errMsg().isEmpty()
@@ -374,7 +378,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    sels.selsections += ids;
 	sels.rg = hsamp;
 	PtrMan<Executor> loader =
-			EMM().objectLoader( *mid, iscubeoutp ? &sels : 0 );
+		EMM().objectLoader( *mid, iscubeoutp ? &sels : nullptr );
 	if ( !loader || !loader->go(strm) )
 	{
 	    BufferString errstr = "Cannot load horizon:";
@@ -432,10 +436,12 @@ bool BatchProgram::go( od_ostream& strm )
     BufferStringSet attribrefs;
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
-	SelSpec spec( 0, attribids[idx] );
+	SelSpec spec( nullptr, attribids[idx] );
 	spec.setRefFromID( attribset );
 	selspecs += spec;
-	attribrefs.add( spec.userRef() );
+	const LineKey lk( spec.userRef() );
+	attribrefs.add( !lk.attrName().isEmpty() ? lk.attrName().buf()
+						 : lk.buf() );
     }
 
     BufferString newattrnm;
@@ -452,8 +458,10 @@ bool BatchProgram::go( od_ostream& strm )
 	Processor* proc = aem.createLocationOutput( uierrmsg, bivs );
 	if ( !proc ) mErrRet( uierrmsg.getFullString() );
 
-	if ( !process( strm, proc, false ) ) return false;
-        HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
+	if ( !process(strm,proc,false,attribrefs) )
+	    return false;
+
+	HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
 	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
 	if ( !horizon ) mErrRet( "Huh" );
@@ -533,9 +541,11 @@ bool BatchProgram::go( od_ostream& strm )
 		mSetEngineMan()
 		aem.setGeomID( geomid );
 		Processor* proc = aem.create2DVarZOutput( uierrmsg, pars(),
-				dtps, outval, zboundsset ? &zbounds : 0 );
-		if ( !proc ) mErrRet( uierrmsg.getFullString() );
-		if ( !process(strm,proc,is2d,outpid,&seisoutp) )
+				dtps, outval, zboundsset ? &zbounds : nullptr );
+		if ( !proc )
+		    mErrRet( uierrmsg.getFullString() );
+
+		if ( !process(strm,proc,is2d,attribrefs,outpid,&seisoutp) )
 		    return false;
 
 		delete dtps;
@@ -553,9 +563,12 @@ bool BatchProgram::go( od_ostream& strm )
 	    uiString uierrmsg;
 	    mSetEngineMan()
 	    Processor* proc = aem.createTrcSelOutput( uierrmsg, bivs, seisoutp,
-					outval, zboundsset ? &zbounds : 0 );
-	    if ( !proc ) mErrRet( uierrmsg.getFullString() );
-	    if ( !process( strm, proc, is2d, outpid, &seisoutp ) ) return false;
+				outval, zboundsset ? &zbounds : nullptr );
+	    if ( !proc )
+		mErrRet( uierrmsg.getFullString() );
+
+	    if ( !process(strm,proc,is2d,attribrefs,outpid,&seisoutp) )
+		return false;
 	}
     }
 

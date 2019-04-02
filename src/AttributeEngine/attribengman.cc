@@ -174,7 +174,10 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
     BufferStringSet outnms;
     for ( int idx=0; idx<ids.size(); idx++ )
-	outnms += new BufferString( attribset.getDesc( ids[idx] )->userRef() );
+    {
+	const LineKey lk( attribset.getDesc(ids[idx])->userRef() );
+	outnms.add( !lk.attrName().isEmpty() ? lk.attrName().buf() : lk.buf() );
+    }
 
     storeoutp->setOutpNames( outnms );
     proc->addOutput( storeoutp );
@@ -1024,8 +1027,8 @@ uiString uiMessage() const
     return !errmsg_.isEmpty()
 	? errmsg_
 	: (proc_
-           ? proc_->uiMessage()
-           : uiStrings::phrCannotCreate(tr("output")) );
+	   ? proc_->uiMessage()
+	   : uiStrings::phrCannotCreate(tr("output")) );
 }
 
 int haveError( const uiString& msg )
@@ -1146,7 +1149,7 @@ Processor* EngineMan::createLocationOutput( uiString& errmsg,
     }
 
     if ( !outputs.size() )
-        return 0;
+	return 0;
 
     for ( int idx=0; idx<outputs.size(); idx++ )
 	proc->addOutput( outputs[idx] );

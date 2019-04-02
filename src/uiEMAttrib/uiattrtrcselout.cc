@@ -63,8 +63,8 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 {
     setCtrlStyle( RunAndClose );
     setHelpKey( usesinglehor_
-        ? mODHelpKey(mAttrTrcSelOutSliceHelpID)
-        : mODHelpKey(mAttrTrcSelOutBetweenHelpID) );
+	? mODHelpKey(mAttrTrcSelOutSliceHelpID)
+	: mODHelpKey(mAttrTrcSelOutBetweenHelpID) );
 
     if ( usesinglehor_ )
 	createSingleHorUI();
@@ -146,8 +146,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
     {
 	CallBack cb = mCB(this,uiAttrTrcSelOut,extraParsCB);
 	uiPushButton* extrabut =
-			new uiPushButton( pargrp_, tr("Extra options"),
-                                          cb, false );
+		new uiPushButton( pargrp_, tr("Extra options"), cb, false );
 	extrabut->attach( alignedBelow, outpfld_ );
     }
 }
@@ -270,7 +269,7 @@ void uiAttrTrcSelOut::createAddWidthFld( uiParent* prnt )
 void uiAttrTrcSelOut::createWidthFld( uiParent* prnt )
 {
     widthfld_ = new uiGenInput( prnt, tr("Extra interval length"),
-                                FloatInpSpec() );
+				FloatInpSpec() );
     widthfld_->attach( alignedBelow, addwidthfld_ );
     widthfld_->checked.notify( mCB(this,uiAttrTrcSelOut,extraWidthSel) );
 }
@@ -281,7 +280,7 @@ void uiAttrTrcSelOut::createMainHorFld( uiParent* prnt )
     const uiString mainhorlabel = tr("Main %1").arg(uiStrings::sHorizon());
     mainhorfld_ = new uiGenInput( prnt, mainhorlabel,
 				 BoolInpSpec(true,tr("Top"),
-                                 uiStrings::sBottom()) );
+				 uiStrings::sBottom()) );
     mainhorfld_->attach( alignedBelow, widthfld_ );
 }
 
@@ -299,7 +298,7 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 	    mCB(this,uiAttrTrcSelOut,cubeBoundsSel) );
 
     cubeboundsfld_ = new uiGenInput ( prnt, tr("Z Range"),
-                                      FloatInpIntervalSpec()
+				      FloatInpIntervalSpec()
 				      .setName("Z Start",0)
 				      .setName("Z Stop",1) );
     cubeboundsfld_->attach( alignedBelow, setcubeboundsfld_ );
@@ -381,13 +380,29 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	return false;
 
     const IOObj* outioobj = outpfld_->ioobj( true );
-    if ( outioobj )
+    if ( !outioobj )
+	return false;
+
+    const Desc* desc = ads_->getDesc( attrfld_->attribID() );
+    if ( desc && desc->isStored() )
     {
-	BufferString outseisid;
-	outseisid += outioobj->key();
-	fillOutPar( iopar, Output::tskey(), SeisTrcStorOutput::seisidkey(),
-		    outseisid );
+	PtrMan<IOObj> inioobj = IOM().get( MultiID(desc->getStoredID()) );
+	if ( inioobj )
+	{
+	    const IOPar& pars = inioobj->pars();
+	    BufferString typestr; pars.get( sKey::Type(), typestr );
+	    if ( !typestr.isEmpty() )
+	    {
+		outioobj->pars().set( sKey::Type(), typestr );
+		IOM().commitChanges( *outioobj );
+	    }
+	}
     }
+
+    BufferString outseisid;
+    outseisid += outioobj->key();
+    fillOutPar( iopar, Output::tskey(), SeisTrcStorOutput::seisidkey(),
+		outseisid );
 
     BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 0);
     BufferString key = IOPar::compKey( sKey::Geometry(), tmpkey );
@@ -418,8 +433,8 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 
     if ( usesamp )
     {
-	mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
-	if ( !is2d || ( seis2dsubsel && seis2dsubsel->isSingLine() ) )
+	mDynamicCastGet(uiSeis2DSubSel*,seis2dsubsel,seissubselfld_)
+	if ( !is2d || (seis2dsubsel && seis2dsubsel->isSingLine()) )
 	{
 	    key = IOPar::compKey( sKey::Geometry(),
 				  SeisTrcStorOutput::inlrangekey() );
@@ -551,7 +566,7 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 }
 
 
-void uiAttrTrcSelOut::objSel( CallBacker* cb )
+void uiAttrTrcSelOut::objSel( CallBacker* )
 {
     if ( !objfld_->commitInput() ||
 	 ( !usesinglehor_ && !obj2fld_->commitInput() ) )
@@ -589,7 +604,7 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
 }
 
 
-void uiAttrTrcSelOut::interpSel( CallBacker* cb )
+void uiAttrTrcSelOut::interpSel( CallBacker* )
 {
     nrsampfld_->display( interpfld_->isChecked() ? !interpfld_->getBoolValue()
 					       : false );
@@ -601,7 +616,7 @@ void uiAttrTrcSelOut::interpSel( CallBacker* cb )
 }
 
 
-void uiAttrTrcSelOut::extraWidthSel( CallBacker* cb )
+void uiAttrTrcSelOut::extraWidthSel( CallBacker* )
 {
     if ( !addwidthfld_ )
 	return;
@@ -611,19 +626,19 @@ void uiAttrTrcSelOut::extraWidthSel( CallBacker* cb )
 }
 
 
-void uiAttrTrcSelOut::cubeBoundsSel( CallBacker* cb )
+void uiAttrTrcSelOut::cubeBoundsSel( CallBacker* )
 {
     cubeboundsfld_->display( setcubeboundsfld_->getBoolValue() );
 }
 
 
-void uiAttrTrcSelOut::extraParsCB( CallBacker* cb )
+void uiAttrTrcSelOut::extraParsCB( CallBacker* )
 {
     xparsdlg_->go();
 }
 
 
-void uiAttrTrcSelOut::extraDlgDone( CallBacker* cb )
+void uiAttrTrcSelOut::extraDlgDone( CallBacker* )
 {
     if ( !ads_->is2D() )
     {

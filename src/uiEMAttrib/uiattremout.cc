@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "nladesign.h"
 #include "nlamodel.h"
 #include "multiid.h"
+#include "seisioobjinfo.h"
 
 #include "uiattrsel.h"
 #include "uibatchjobdispatchersel.h"
@@ -30,8 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "od_helpids.h"
 
-static HiddenParam<uiAttrEMOut,TypeSet<Attrib::DescID>*> outdescids_(0);
-static HiddenParam<uiAttrEMOut,BufferStringSet*> outdescnms_(0);
+static HiddenParam<uiAttrEMOut,TypeSet<Attrib::DescID>*> outdescids_(nullptr);
+static HiddenParam<uiAttrEMOut,BufferStringSet*> outdescnms_(nullptr);
 
 using namespace Attrib;
 
@@ -41,10 +42,10 @@ uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
     : uiBatchProcDlg(p,uiStrings::sEmptyString(),false,
 		     Batch::JobSpec::AttribEM )
     , ads_(new Attrib::DescSet(ad))
-    , nlamodel_(0)
+    , nlamodel_(nullptr)
     , nlaid_(mid)
     , nladescid_( -1, true )
-    , batchfld_(0)
+    , batchfld_(nullptr)
 {
     if ( model )
 	nlamodel_ = model->clone();
@@ -96,11 +97,11 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
 	if ( !nlaid_ || !(*nlaid_) )
 	{
 	    uiMSG().message(tr("NN needs to be stored before creating volume"));
-	    return 0;
+	    return nullptr;
 	}
 
 	if ( !addNLA(nladescid_) )
-	    return 0;
+	    return nullptr;
     }
 
     BufferStringSet& seloutnms = *outdescnms_.getParam( this );
@@ -109,7 +110,18 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
     const DescID targetid =
 	nladescid_.isValid() ? nladescid_ : attrfld_->attribID();
     const Attrib::Desc* seldesc = ads_->getDesc( targetid );
-    if ( seldesc )
+    if ( !seldesc )
+	return nullptr;
+
+    if ( seldesc->isStored() ) // No component selection for stored data
+    {
+	const MultiID key( seldesc->getStoredID() );
+	SeisIOObjInfo::getCompNames( key, seloutnms );
+	if ( seloutnms.size()>1 )
+	    for ( int idx=0; idx<seloutnms.size(); idx++ )
+		seloutputs += idx;
+    }
+    else
     {
 	uiMultOutSel dlg( this, *seldesc );
 	if ( dlg.doDisp() )
@@ -120,21 +132,24 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
 		dlg.getSelectedOutNames( seloutnms );
 	    }
 	    else
-		return 0;
+		return nullptr;
 	}
     }
 
     Attrib::DescSet* ret = ads_->optimizeClone( targetid );
     if ( !ret )
-	return 0;
+	return nullptr;
 
     if ( !seloutputs.isEmpty() )
     {
-	const BufferString prefix( outputnm, " - " );
-	for ( int idx=0; idx<seloutnms.size(); idx++ )
+	if ( !seldesc->isStored() )
 	{
-	    BufferString& nm = seloutnms.get( idx );
-	    nm.insertAt( 0, prefix.buf() );
+	    const BufferString prefix( outputnm, " - " );
+	    for ( int idx=0; idx<seloutnms.size(); idx++ )
+	    {
+		BufferString& nm = seloutnms.get( idx );
+		nm.insertAt( 0, prefix.buf() );
+	    }
 	}
 
 	if ( seloutnms.size()==1 )
