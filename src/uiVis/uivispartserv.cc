@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "flatview.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
@@ -96,6 +97,8 @@ static const int cResetManipIdx = 800;
 static const int cPropertiesIdx = 600;
 static const int cResolutionIdx = 500;
 
+static HiddenParam<uiVisPartServer,uiSurvTopBotImageDlg*> topbotdlg(nullptr);
+
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -154,6 +157,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     vismgr_ = new uiVisModeMgr(this);
     pickretriever_->ref();
     PickRetriever::setInstance( pickretriever_ );
+
+    topbotdlg.setParam( this, nullptr );
 }
 
 
@@ -200,6 +205,7 @@ uiVisPartServer::~uiVisPartServer()
     delete multirgeditwin_;
     delete dirlightdlg_;
 
+    topbotdlg.removeParam( this );
     setMouseCursorExchange( 0 );
 }
 
@@ -458,7 +464,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
 
     mDynamicCastGet( visSurvey::SurveyObject*, surobj, dobj );
     if ( surobj )
-        surobj->setSaveInSessionsFlag( saveinsessions );
+	surobj->setSaveInSessionsFlag( saveinsessions );
 
     setUpConnections( dobj->id() );
     if ( isSoloMode() )
@@ -1117,9 +1123,10 @@ bool uiVisPartServer::deleteAllObjects()
     if ( multirgeditwin_ )
     {
 	multirgeditwin_->close();
-	delete multirgeditwin_;
-	multirgeditwin_ = 0;
+	deleteAndZeroPtr( multirgeditwin_ );
     }
+
+    topbotdlg.deleteAndZeroPtrParam( this );
 
     scenes_.erase();
     nrscenesChange.trigger();
@@ -1308,8 +1315,12 @@ void uiVisPartServer::updateDisplay( bool doclean, int selid, int refid )
 
 void uiVisPartServer::setTopBotImg( int sceneid )
 {
-    uiSurvTopBotImageDlg dlg( appserv().parent(), getScene(sceneid) );
-    dlg.go();
+    topbotdlg.deleteAndZeroPtrParam( this );
+    uiSurvTopBotImageDlg* dlg = new uiSurvTopBotImageDlg( appserv().parent(),
+							  getScene(sceneid) );
+    topbotdlg.setParam( this, dlg );
+    dlg->setModal( false );
+    dlg->show();
 }
 
 
@@ -2058,7 +2069,7 @@ void uiVisPartServer::interactionCB( CallBacker* cb )
 
 
 void uiVisPartServer::setMarkerPos( const TrcKeyValue& worldpos,
-                                    int dontsetscene )
+				    int dontsetscene )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
 	scenes_[idx]->setMarkerPos( worldpos, dontsetscene );
