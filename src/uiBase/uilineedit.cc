@@ -67,6 +67,23 @@ void uiLineEditBody::contextMenuEvent( QContextMenuEvent* ev )
 }
 
 
+class ODDoubleValidator : public QDoubleValidator
+{
+public:
+virtual void fixup( QString& input ) const
+{
+    if ( input.isEmpty() )
+	return;
+
+    const Interval<double> rg( bottom(), top() );
+    const int nrdec = decimals();
+    double val = input.toDouble();
+    val = rg.limitValue( val );
+    input = QString::number( val, 'f', nrdec );
+}
+
+};
+
 void uiLineEdit::setIcon( const char* icid )
 {
     uiIcon icon( icid );
@@ -87,7 +104,7 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
     setText( spec.text() );
     if ( spec.type().rep() == InpDataType::floatTp ||
 	 spec.type().rep() == InpDataType::doubleTp )
-	body_->setValidator( new QDoubleValidator );
+	body_->setValidator( new ODDoubleValidator );
     else if ( spec.type().rep() == InpDataType::intTp )
 	body_->setValidator( new QIntValidator );
 }
@@ -120,7 +137,19 @@ const char* uiLineEdit::getvalue_() const
 void uiLineEdit::setvalue_( const char* t )
 {
     mBlockCmdRec;
-    body_->setText( mIsUdf(t) ? QString() : QString(t) );
+    const bool isudf = mIsUdf(t);
+    body_->setText( isudf ? QString() : QString(t) );
+    if ( !isudf && !body_->hasAcceptableInput() )
+    {
+	const QValidator* qvalid = body_->validator();
+	if ( qvalid )
+	{
+	    QString inp = body_->text();
+	    qvalid->fixup( inp );
+	    body_->setText( inp );
+	}
+    }
+
     body_->setCursorPosition( 0 );
     setEdited( false );
 }
@@ -134,17 +163,22 @@ void uiLineEdit::setPasswordMode()
 
 void uiLineEdit::setValidator( const uiIntValidator& val )
 {
-    body_->setValidator( new QIntValidator(val.bottom_, val.top_,body_) );
+    body_->setValidator( new QIntValidator(val.bottom_,val.top_,body_) );
 }
 
 
 void uiLineEdit::setValidator( const uiFloatValidator& val )
 {
-    QDoubleValidator* qdval =
-	new QDoubleValidator( val.bottom_, val.top_, val.nrdecimals_, body_ );
+    ODDoubleValidator* qdval = new ODDoubleValidator;
+    qdval->setRange( val.bottom_, val.top_, val.nrdecimals_ );
     if ( !val.scnotation_ )
 	qdval->setNotation( QDoubleValidator::StandardNotation );
     body_->setValidator( qdval );
+    if ( body_->hasAcceptableInput() )
+	return;
+
+    const BufferString input = text();
+    setvalue_( input );
 }
 
 
