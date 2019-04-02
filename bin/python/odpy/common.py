@@ -6,12 +6,10 @@
 # tools common to all odpy scripts
 #
 
+import sys
 import os
 import platform
-import sys
-import json
 import logging
-from subprocess import check_output, run, CalledProcessError
 
 try:
   from bokeh.util import logconfig
@@ -154,6 +152,12 @@ def restore_stdout():
   if has_stdlog_file():
     sys.stderr = sys.__stderr__
 
+def isWin():
+  return platform.system() == 'Windows'
+
+def isMac():
+  return platform.system() == 'Darwin'
+
 if platform.python_version() < "3":
   std_msg( "odpy requires at least Python 3" )
   sys.exit( 1 )
@@ -180,11 +184,11 @@ def getPlfSubDir():
     return None
 
 def getBinSubDir():
-  if platform.system() == 'Darwin':
+  if isMac():
     return None
   plfsubdirfp = os.path.join( getODSoftwareDir(), 'bin', getPlfSubDir() )
   execnm = 'od_main'
-  if platform.system() == 'Windows':
+  if isWin():
     execnm = execnm+'.exe'
   reltypes = ('Debug','Release','RelWithDebInfo')
   for reltype in reltypes:
@@ -197,14 +201,14 @@ def getODSoftwareDir(args=None):
     bindir = getExecPlfDir(args)
     return bindir
   applenvvar = 'DTECT_APPL'
-  if platform.system() == 'Windows':
+  if isWin():
     applenvvar = 'DTECT_WINAPPL'
   if applenvvar in os.environ:
     return os.environ[applenvvar]
   curdir = os.path.dirname( __file__ )
   maxrecur = 15
   relinfodir = 'relinfo'
-  if platform.system() == 'Darwin':
+  if isMac():
     relinfodir = os.path.join('Resources',relinfodir)
   while not os.path.isdir(os.path.join(curdir,relinfodir)) and maxrecur > 0:
     curdir = os.path.dirname( curdir )
@@ -215,7 +219,7 @@ def getExecPlfDir(args=None):
   if args != None and 'dtectexec' in args:
     return args['dtectexec'][0]
   appldir = getODSoftwareDir()
-  if platform.system() == 'Darwin':
+  if isMac():
     return os.path.join( getODSoftwareDir(), 'Contents', 'MacOS' )
   else:
     return os.path.join( getODSoftwareDir(), 'bin', getPlfSubDir(), getBinSubDir())
@@ -232,55 +236,4 @@ def getODArgs(args=None):
     ret.update({'proclog': args['logfile'].name})
   if has_stdlog_file():
     ret.update({'syslog': args['sysout'].name})
-  return ret
-
-def appendDtectArgs( cmd, args=None ):
-  if args == None:
-    return cmd
-  if 'dtectdata' in args:
-    cmd.append( '--dataroot' )
-    cmd.append( args['dtectdata'][0] )
-  if 'survey' in args:
-    cmd.append( '--survey' )
-    cmd.append( args['survey'][0] )
-  return cmd
-
-def getODCommand(execnm,args=None):
-  cmd = list()
-  cmd.append( os.path.join(getExecPlfDir(args),execnm) )
-  return appendDtectArgs( cmd, args )
-
-def getPythonCommand(scriptfile,posargs=None,dict=None,args=None):
-  cmd = list()
-  if platform.system() == 'Windows':
-    cmd.append( "python.exe" )
-  else:
-    cmd.append( "python3" )
-  cmd.append( scriptfile )
-  cmd = appendDtectArgs( cmd, args )
-  cmd.append( '--dtectexec' )
-  cmd.append( getExecPlfDir(args) )
-  if args != None and 'proclog' in args:
-    cmd.append( '--proclog' )
-    cmd.append( args['proclog'] )
-  if args != None and 'syslog' in args:
-    cmd.append( '--syslog' )
-    cmd.append( args['syslog'] )
-  for posarg in posargs:
-    cmd.append( posarg )
-  if dict != None:
-    cmd.append( '--dict' )
-    cmd.append( json.dumps(dict) )
-  return cmd
-
-def runCommand( cmd, args=None ):
-  stderrstrm = sys.stderr
-  if args != None and 'logfile' in args:
-    stderrstrm = args['logfile']
-  ret = None
-  try:
-    ret = check_output( cmd, stderr=stderrstrm )
-  except CalledProcessError as e:
-    log_msg( 'Failed: ', e )
-    raise FileNotFoundError
   return ret
