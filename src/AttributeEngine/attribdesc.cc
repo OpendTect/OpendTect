@@ -230,7 +230,7 @@ bool Desc::parseDefStr( const char* defstr )
 
     for ( int idx=0; idx<params_.size(); idx++ )
     {
-         if ( !params_[idx]->isOK() )
+	 if ( !params_[idx]->isOK() )
 	     return false;
     }
 
@@ -667,6 +667,18 @@ BufferString Desc::getStoredID( bool recursive ) const
     }
 
     return str;
+}
+
+
+BufferString Desc::getStoredType( bool recursive ) const
+{
+    BufferString typestr;
+    const MultiID key( getStoredID(recursive) );
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( ioobj )
+	ioobj->pars().get( sKey::Type(), typestr );
+
+    return typestr;
 }
 
 

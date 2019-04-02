@@ -134,6 +134,7 @@ public:
     bool			isStored() const;
     bool			isStoredInMem() const;
     BufferString		getStoredID(bool recursive=false) const;
+    BufferString		getStoredType(bool recursive=false) const;
 
     void			setNeedProvInit( bool yn=true )
 				{ needprovinit_ = yn; }
@@ -261,14 +262,14 @@ protected:
 {\
     var = __desc.getValParam(varstring)->getIntValue(0); \
     if ( mIsUdf(var) )\
-        var = __desc.getValParam(varstring)->getDefaultIntValue(0);\
+	var = __desc.getValParam(varstring)->getDefaultIntValue(0);\
 }
 
 #define mGetFloatFromDesc( __desc, var, varstring ) \
 {\
     var = __desc.getValParam(varstring)->getFValue(0); \
     if ( mIsUdf(var) )\
-        var = __desc.getValParam(varstring)->getDefaultfValue(0);\
+	var = __desc.getValParam(varstring)->getDefaultfValue(0);\
 }
 
 
@@ -276,27 +277,27 @@ protected:
 {\
     var = __desc.getValParam(varstring)->getDValue(0); \
     if ( mIsUdf(var) )\
-        var = __desc.getValParam(varstring)->getDefaultdValue(0);\
+	var = __desc.getValParam(varstring)->getDefaultdValue(0);\
 }
 
 
 #define mGetBoolFromDesc( __desc, var, varstring ) \
 {\
     Attrib::ValParam* valparam##var = \
-            const_cast<Attrib::ValParam*>(__desc.getValParam(varstring));\
+	    const_cast<Attrib::ValParam*>(__desc.getValParam(varstring));\
     mDynamicCastGet(Attrib::BoolParam*,boolparam##var,valparam##var);\
     if ( boolparam##var ) \
-        var = boolparam##var->isSet() ? boolparam##var->getBoolValue(0)\
+	var = boolparam##var->isSet() ? boolparam##var->getBoolValue(0)\
 				      : boolparam##var->getDefaultBoolValue(0);\
 }
 
 #define mGetEnumFromDesc( __desc, var, varstring ) \
 {\
     Attrib::ValParam* valparam##var = \
-            const_cast<Attrib::ValParam*>(__desc.getValParam(varstring));\
+	    const_cast<Attrib::ValParam*>(__desc.getValParam(varstring));\
     mDynamicCastGet(Attrib::EnumParam*,enumparam##var,valparam##var);\
     if ( enumparam##var ) \
-        var = enumparam##var->isSet() ? enumparam##var->getIntValue(0)\
+	var = enumparam##var->isSet() ? enumparam##var->getIntValue(0)\
 				      : enumparam##var->getDefaultIntValue(0);\
 }
 
@@ -304,7 +305,7 @@ protected:
 {\
     var = __desc.getValParam(varstring)->getStringValue(0); \
     if ( FixedString(var).isEmpty() )\
-        var = __desc.getValParam(varstring)->getDefaultStringValue(0); \
+	var = __desc.getValParam(varstring)->getDefaultStringValue(0); \
 }
 
 #define mGetBinIDFromDesc( __desc, var, varstring ) \

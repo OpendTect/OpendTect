@@ -796,6 +796,7 @@ void uiAttrSel::doSel( CallBacker* )
     {
 	attrdata_.attribid_ = dlg.attribID();
 	attrdata_.outputnr_ = dlg.outputNr();
+	attrdata_.compnr_ = dlg.compNr();
 	if ( !usedasinput_ )
 	    attrdata_.setAttrSet( &dlg.getAttrSet() );
 	updateInput();
