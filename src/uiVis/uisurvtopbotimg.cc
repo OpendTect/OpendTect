@@ -67,23 +67,26 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     const Coord maxcrd = SI().maxCoord( OD::UsrWork );
     tlfld_ = new uiGenInput( leftgrp, tr("NorthWest (TopLeft) Coordinate"),
 			     PositionInpSpec(Coord(mincrd.x_,maxcrd.y_)) );
-    tlfld_->attach( leftAlignedBelow, fnmfld_ );
+    tlfld_->setElemSzPol( uiObject::MedVar );
+    tlfld_->attach( alignedBelow, fnmfld_ );
     mAddCoordchgCB( tlfld_->valuechanged );
 
     brfld_ = new uiGenInput( leftgrp, tr("SouthEast (BottomRight) Coordinate"),
 			     PositionInpSpec(Coord(maxcrd.x_,mincrd.y_)) );
+    brfld_->setElemSzPol( uiObject::MedVar );
     brfld_->attach( alignedBelow, tlfld_ );
     mAddCoordchgCB( brfld_->valuechanged );
 
     transpfld_ = new uiSlider( leftgrp,
 			    uiSlider::Setup(uiStrings::sTransparency())
-			    .sldrsize(150).withedit(true), "Transparency slider" );
+			    .sldrsize(150).withedit(true),
+			       "Transparency slider" );
     transpfld_->attach( alignedBelow, brfld_ );
     transpfld_->setMinValue( 0 );
     transpfld_->setMaxValue( 100 );
     transpfld_->setStep( 1 );
     mAttachCB( transpfld_->valueChanged, uiSurvTopBotImageGrp::transpChg );
-    mAttachCB( postFinalise(), uiSurvTopBotImageGrp::finalisedCB );
+    mAttachCB( postFinalise(), uiSurvTopBotImageGrp::finalizeCB );
 }
 
 ~uiSurvTopBotImageGrp()
@@ -92,7 +95,7 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
 }
 
 
-void finalisedCB( CallBacker* )
+void finalizeCB( CallBacker* )
 {
     fillCurrent();
     tlfld_->setNrDecimals( 2, 0 );
@@ -103,10 +106,10 @@ void finalisedCB( CallBacker* )
 
 void fillCurrent()
 {
+    fnmfld_->setChecked( img_ && img_->isOn() );
     if ( !img_ )
 	return;
 
-    fnmfld_->setChecked( img_->isOn() );
     fnmfld_->setFileName( img_->getImageFilename() );
     tlfld_->setValue( img_->topLeft().getXY() );
     brfld_->setValue( img_->bottomRight().getXY() );
@@ -121,11 +124,10 @@ void newFile( CallBacker* )
 
 void onOff( CallBacker* )
 {
-    if ( !tlfld_ )
+    if ( !tlfld_ || !tlfld_->finalised() )
 	return;
 
     const bool ison = fnmfld_->isChecked();
-
     if ( !img_ && ison )
     {
 	dlg_->scene_->createTopBotImage( istop_ );
@@ -140,7 +142,7 @@ void onOff( CallBacker* )
     zposfld_->display( ison );
 }
 
-void coordChg( CallBacker* cb )
+void coordChg( CallBacker* )
 {
     const Coord3 tlcoord( tlfld_->getCoord(), zposfld_->getValue() );
     const Coord3 brcoord( brfld_->getCoord(), zposfld_->getValue() );
@@ -197,7 +199,6 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
     botfld_->attach( alignedBelow, topfld_ );
     botfld_->attach( ensureBelow, sep );
 }
-
 
 
 void uiSurvTopBotImageDlg::newFile( bool istop, const char* fnm )

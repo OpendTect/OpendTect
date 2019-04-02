@@ -74,8 +74,8 @@ uiSliderBody& uiSliderObj::mkbody( uiParent* p, const char* nm )
 
 uiSlider::uiSlider( uiParent* p, const Setup& setup, const char* nm )
     : uiGroup(p,nm)
-    , lbl_(0)
-    , editfld_(0)
+    , lbl_(nullptr)
+    , editfld_(nullptr)
     , logscale_(setup.logscale_)
     , valueChanged(this)
     , sliderMoved(this)
@@ -98,8 +98,6 @@ void uiSlider::init( const uiSlider::Setup& setup, const char* nm )
     const bool isvert = setup.isvertical_;
     slider_->body().setOrientation( isvert ? Qt::Vertical : Qt::Horizontal );
     slider_->body().setStretch( isvert ? 0 : 1, isvert ? 1 : 0 );
-    slider_->body().setTickPosition( isvert ? QSlider::TicksLeft
-					    : QSlider::TicksBelow );
 
     int nrdec = setup.nrdec_;
     if ( nrdec < 0 )
@@ -114,7 +112,6 @@ void uiSlider::init( const uiSlider::Setup& setup, const char* nm )
     {
 	valueChanged.notify( mCB(this,uiSlider,sliderMove) );
 	editfld_ = new uiLineEdit( this, toString(setup.lbl_) );
-	editfld_->attach( rightOf, slider_ );
 	editfld_->setHSzPol( uiObject::Small );
 	editfld_->returnPressed.notify( mCB(this,uiSlider,editRetPress) );
 	sliderMove(0);
@@ -123,6 +120,7 @@ void uiSlider::init( const uiSlider::Setup& setup, const char* nm )
     if ( setup.isvertical_ )
     {
 	slider_->setPrefHeight( setup.sldrsize_ );
+	slider_->setPrefWidth( 20 );
 	if ( lbl_ )
 	    slider_->attach( centeredBelow, lbl_ );
 	if ( editfld_ )
