@@ -63,11 +63,13 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     minfld_->setInterval( 0, 59, 1 );
     minfld_->setValue( 0 );
     minfld_->attach( rightOf, degfld_ );
-    secfld_ = new uiLineEdit( this, FloatInpSpec(),
-			      BufferString("DMS ",nm," sec") );
+    secfld_ = new uiLineEdit( this, BufferString("DMS ",nm," sec") );
     secfld_->setHSzPol( uiObject::Small );
     secfld_->attach( rightOf, minfld_ );
     secfld_->setValue( 0 );
+    uiFloatValidator fv( 0, 59.99f );
+    fv.nrdecimals_ = 2;
+    secfld_->setValidator( fv );
 
     swfld_ = new uiCheckBox( this, islat_ ? uiStrings::sSouth(true) :
 					    uiStrings::sWest(true) );
@@ -130,8 +132,8 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     latdmsfld_->attach( alignedBelow, lngdmsfld_ );
     inpgrp->setHAlignObj( lngdecfld_ );
 
-    lblgrp->attach( leftAlignedBelow, bgrp );
-    inpgrp->attach( rightOf, lblgrp );
+    lblgrp->attach( leftTo, inpgrp );
+    inpgrp->attach( alignedBelow, bgrp );
     setHAlignObj( inpgrp );
     postFinalise().notify( tscb );
 }
