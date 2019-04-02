@@ -865,9 +865,9 @@ void TrcKeySampling::snapToSurvey()
 
 void TrcKeySampling::toString( BufferString& str ) const
 {
-    str.add( "Inline range: " ).add( start_.lineNr() ).add( " - " )
+    str.add( "In-line range: " ).add( start_.lineNr() ).add( " - " )
 	.add( stop_.lineNr() ).add( " [" ).add( step_.lineNr() ).add( "]\n" );
-    str.add( "Crossline range: " ).add( start_.trcNr() ).add( " - " )
+    str.add( "Cross-line range: " ).add( start_.trcNr() ).add( " - " )
 	.add( stop_.trcNr() ).add( " [" ).add( step_.trcNr() ).add( "]" );
 }
 
