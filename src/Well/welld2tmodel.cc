@@ -38,7 +38,7 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 
 
 #define mDefEpsZ 1e-2
-#define mDefEpsT 1e-6
+#define mDefEpsT 1e-5
 #define mDefEpsV 1e-3
 
 bool Well::D2TModel::operator ==( const Well::D2TModel& d2t ) const
@@ -659,12 +659,12 @@ void Well::D2TModel::shiftTimesIfNecessary( TypeSet<double>& tvals,
     if ( mIsZero(timeshift,mDefEpsT) )
 	return;
 
-    msg = tr("Error with the input time-depth model:\n"
-	     "It does not honor TWT=0 at SRD.");
+    msg = tr("Error in input time-depth model, "
+	     "it does not honor TWT=0 at SRD.");
     const UnitOfMeasure* uomz = UnitOfMeasure::surveyDefTimeUnit();
     msg.append(
-	tr( "\nOpendTect WILL correct for this error by applying\n"
-		"a time shift of: %1%2\n"
+	tr( "\nOpendTect will correct for this error by applying\n"
+		"a time shift of: %1 %2.\n"
 		"The resulting travel-times will differ from the input file."))
 		   .arg( toString(mScaledValue(timeshift,uomz),2) )
 		   .arg(UnitOfMeasure::surveyDefTimeUnitAnnot(true,false) );
@@ -704,18 +704,18 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
 {
     int inputsz = zvals.size();
     if ( inputsz < 2 || inputsz != tvals.size() )
-	mErrRet( tr("Input file does not contain at least two valid rows") );
+	mErrRet( tr("Input file does not contain at least two valid rows.") );
 
     inputsz = sortAndEnsureUniqueTZPairs( zvals, tvals );
     if ( inputsz < 2 )
     {
-	mErrRet( tr("Input file does not contain at least two valid rows"
-		 "after resorting and removal of duplicated positions") );
+	mErrRet( tr("Input file does not contain at least two valid rows "
+		 "after resorting and removal of duplicated positions.") );
     }
 
     const Well::Track& track = wll.track();
     if ( track.isEmpty() )
-	mErrRet( tr("Cannot get the time-depth model with an empty track") )
+	mErrRet( tr("Cannot get the time-depth model with an empty track.") )
 
     const double zwllhead = track.getPos( 0.f ).z;
     const double vreplfile = getVreplFromFile( zvals, tvals, zwllhead );
@@ -729,11 +729,11 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
     //before any data gets removed
 
     if ( !removePairsAtOrAboveDatum(zvals,tvals,zwllhead) )
-	mErrRet( tr("Input file has not enough data points below the datum") )
+	mErrRet( tr("Input file has not enough data points below the datum.") )
 
     const Interval<double> trackrg = track.zRangeD();
     if ( !truncateToTD(zvals,tvals,trackrg.stop) )
-	mErrRet( tr("Input file has not enough data points above TD") )
+	mErrRet( tr("Input file has not enough data points above TD.") )
 
     removeDuplicatedVelocities( zvals, tvals );
     const double replveld = mCast( double, wllinfo.replvel );
@@ -765,7 +765,7 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll, uiString& msg,
     const bool externalvals = depths && times;
     const int sz = externalvals ? depths->size() : size();
     if ( sz < 2 || (depths && !times) || (!depths && times) )
-	{ msg = tr("Input model invalid"); return false; }
+	{ msg = tr("Input model invalid."); return false; }
 
     const Well::Track& track = wll.track();
     TypeSet<double>* zvals = depths ? depths : new TypeSet<double>;
