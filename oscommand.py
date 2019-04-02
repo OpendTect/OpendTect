@@ -1,17 +1,19 @@
 #
 # (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# AUTHOR   : Bert
-# DATE     : July 2018
+# AUTHOR   : A. Huck
+# DATE     : Apr 2019
 #
 # tools for managing OS commands
 #
 
 import sys
-from os import path
+import os
+import signal
 import json
+from time import sleep
 from subprocess import check_output, run, CalledProcessError
 
-from odpy.common import isWin, getExecPlfDir, log_msg
+from odpy.common import isWin, getExecPlfDir, log_msg, std_msg
 
 def getODCommand(execnm,args=None):
   cmd = list()
@@ -58,6 +60,13 @@ def execCommand( cmd, background=False, stdout=None, stderr=None, args=None ):
   else:
     return startAndWait( cmd, args )
 
+def killproc( pid=None ):
+  if pid == None:
+    return
+  std_msg( 'Killing the process with PID', pid )
+  os.killpg( os.getpgid(pid), signal.SIGTERM )
+
+# INTERNAL, you should not need to use those:
 def startAndWait( cmd, args=None ):
   stderrstrm = sys.stderr
   if args != None and 'logfile' in args:
@@ -71,5 +80,28 @@ def startAndWait( cmd, args=None ):
   return ret
 
 def startDetached( cmd, stdout=None, stderr=None ):
-  return None
+  procpid = launchDetached( cmd, stdout, stderr )
+  sleep( 0.1 )
+  return procpid
 
+def launchDetached( cmd, stdout, stderr ):
+  try:
+    pid = os.fork()
+    if pid > 0:
+      return pid
+  except OSError as err:
+    std_msg( 'fork', err.errno, 'failed:', err.strerror )
+    sys.exit(1)
+  os.setsid()
+  return doDetached( cmd, stdout, stderr )
+
+def doDetached( cmd, stdout, stderr ):
+  forkpid = os.getpid()
+  forkpgid = os.getpgid(forkpid)
+  try:
+    ret = run( cmd, check=True ) #TODO: add stdout, stderr
+  except CalledProcessError as err:
+    std_msg( err )
+    os.setpgid( ret.pid, forkpgid )
+  return forkpid
+  
