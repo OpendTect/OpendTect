@@ -363,7 +363,7 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
 		        : !ioobj.implManagesObjects();
     if ( exists && readonly && shldrm )
     {
-	uiString msg = tr("'%1'is not writable; the actual data "
+	uiString msg = tr("'%1' is not writable; the actual data "
 			  "will not be deleted.\nThe entry will only "
 			  "disappear from the list.\nContinue?")
 		     .arg(ioobj.name());

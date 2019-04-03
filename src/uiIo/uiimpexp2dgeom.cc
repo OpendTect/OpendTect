@@ -54,10 +54,12 @@ uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
     uiObject* attachobj = fnmfld_->attachObj();
     if ( !lineknown )
     {
-	singlemultifld_ = new uiGenInput( this, tr("File contains geometry for"),
+	singlemultifld_ =
+	    new uiGenInput( this, tr("File contains geometry for"),
 		    BoolInpSpec(false,tr("Single line"),tr("Multiple lines")) );
 	singlemultifld_->attach( alignedBelow, fnmfld_ );
 	mAttachCB( singlemultifld_->valuechanged, uiImp2DGeom::singmultCB );
+	mAttachCB( postFinalise(), uiImp2DGeom::singmultCB );
 	attachobj = singlemultifld_->attachObj();
 
 	linefld_ = new uiGeom2DSel( this, false );

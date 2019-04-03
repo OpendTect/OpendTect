@@ -444,7 +444,7 @@ bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
 				     TypeSet<Pos::GeomID>& geomids, bool ovwok )
 {
     geomids.erase();
-    BufferString existingidxs;
+    TypeSet<int> existingidxs;
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	Pos::GeomID geomid = Survey::GM().getGeomID( nms.get(idx) );
