@@ -126,6 +126,7 @@ public:
     bool		isStored() const;
     bool		isStoredInMem() const;
     DBKey		getStoredID(bool recursive=false) const;
+    BufferString	getStoredType(bool recursive=false) const;
 
     int			nrInputs() const	{ return inputs_.size(); }
     InputSpec&		inputSpec( int nr )	{ return inputspecs_[nr]; }

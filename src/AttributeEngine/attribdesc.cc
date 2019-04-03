@@ -658,6 +658,18 @@ DBKey Desc::getStoredID( bool recursive ) const
 }
 
 
+BufferString Desc::getStoredType( bool recursive ) const
+{
+    BufferString typestr;
+    const DBKey key( getStoredID(recursive) );
+    PtrMan<IOObj> ioobj = DBM().get( key );
+    if ( ioobj )
+	ioobj->pars().get( sKey::Type(), typestr );
+
+    return typestr;
+}
+
+
 bool Desc::isIdentifiedBy( const char* str ) const
 {
     if ( userref_ == str )
