@@ -75,6 +75,11 @@ uiSEGYByteNr( uiParent* p, const char* nm )
     mAttachCB( szfld_->selectionChanged, uiSEGYByteNr::changeCB );
 }
 
+~uiSEGYByteNr()
+{
+    detachAllNotifiers();
+}
+
 void changeCB( CallBacker* cb )
 {
     if ( cb==bytenrfld_ )
