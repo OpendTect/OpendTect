@@ -12,7 +12,7 @@ set( LIBLIST Algo AttributeEngine Attributes Basic Batch EarthModel General
 	     uiTools uiPreStackProcessing uiVelocity uiViewer2D uiVis uiVolumeProcessing
 	     uiWell uiWellAttrib uiSysAdm visBase visSurvey uiCmdDriver )
 
-set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer 
+set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer lmhostid
 	      od_main od_sysadmmain od_process_attrib od_process_attrib_em
 	      od_process_prestack od_process_segyio od_process_time2depth
 	      od_process_velocityconv od_process_volume
@@ -27,7 +27,7 @@ set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackVie
 	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter
 	     GMT uiGMT uiImpGPR Madagascar uiMadagascar
 	     MadagascarAttribs uiMadagascarAttribs GLCM uiGLCM uiSEGY uiMMPTest
-	     uiPresentationMaker CRS uiCRS )
+	     uiPresentationMaker CRS uiCRS CEEMDAttrib uiCEEMDAttrib )
 if( NOT MATLAB_DIR STREQUAL "" )
     set( PLUGINS ${PLUGINS} MATLABLink uiMATLABLink )
 endif()
@@ -48,7 +48,7 @@ else()
 		   .lic_inst_common .lic_start_common mk_datadir .start_dtect
 		   setup.od odinit.matlab )
     set( SPECFILES ${SPECFILES} ${TXTFILES} )
-    set( ODSCRIPTS od_* mksethdir macterm.in process_dumpfile.sh )
+    set( ODSCRIPTS od_* mksethdir macterm.in process_dumpfile.sh init_dtect_GL )
 endif()
 
 if( ${OD_PLFSUBDIR} STREQUAL "lux64" )

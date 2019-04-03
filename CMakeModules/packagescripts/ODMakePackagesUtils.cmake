@@ -236,41 +236,27 @@ macro( copy_thirdpartylibs )
 		     ${COPYFROMDATADIR}/imageformats
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${QTDIR}/resources
+		     ${COPYFROMLIBDIR}/platforms
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMLIBDIR}/../resources
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
-
-    set( EXTRAQTLIBS qwebengine_convert_dict )
-    if ( WIN32 )
-	set( EXTRAQTLIBS QtWebEngineProcess ${EXTRAQTLIBS} )
+    if ( UNIX )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMLIBDIR}/xcbglintegrations
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/xcbglintegrations )
     endif()
-
-    foreach( EXTRAQTLIB ${EXTRAQTLIBS} )
-	if ( WIN32 )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${QTDIR}/bin/${EXTRAQTLIB}.exe
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/ )
-	else()
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${QTDIR}/bin/${EXTRAQTLIB}
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/ )
-	endif()
-    endforeach()
-
-    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-		     ${QTDIR}/bin/qt.conf
-		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/ )
-
 endmacro( copy_thirdpartylibs )
 
 macro( PREPARE_WIN_THIRDPARTY_DEBUGLIST DEBUGFILELIST)
     if( WIN32 )
 	foreach( THIRDPARTYDLL ${OD_THIRD_PARTY_LIBS} )
 	    get_filename_component(FILENM ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${THIRDPARTYDLL} NAME_WE)
-	    string( FIND ${FILENM} "4" ISQTFILE )
+	    string( FIND ${FILENM} "5" ISQTFILE )
 	    string( FIND ${FILENM} "osg" ISOSGFILE )
 	    string( FIND ${FILENM} "OpenThreads" OSGOTFILE )
 	if ( NOT "${ISQTFILE}" EQUAL -1 ) #  File is Qt
-	    string(REGEX REPLACE "4" "d4" QTDEBUGFILENAME ${FILENM} )
+	    string(REGEX REPLACE "${FILENM}" "${FILENM}d" QTDEBUGFILENAME ${FILENM} )
 	    list(APPEND ${DEBUGFILELIST} ${QTDEBUGFILENAME}.dll )
 	elseif ( (NOT "${ISOSGFILE}" EQUAL -1) OR (NOT "${OSGOTFILE}" EQUAL -1) ) # File is osg
 	    string(REGEX REPLACE "${FILENM}" "${FILENM}d" OSGDEBUGFILENAME ${FILENM} )
