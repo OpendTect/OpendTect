@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
+#include "emfaultset3d.h"
 #include "emhorizon.h"
 #include "emhorizon2d.h"
 #include "emsurfacegeometry.h"
@@ -1359,50 +1360,63 @@ bool FaultTrcDataProvider::calcFaultBBox( const EM::Fault& flt,
 # define mErrRet( str ) \
 { errmsg_.setEmpty(); errmsg_ = str; return false; }
 
+
 bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
-				 const TrcKeySampling& hrg,
-				 TaskRunner* taskrunner )
+			    const TrcKeySampling& hrg, TaskRunner* taskrunner )
 {
     clear();
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sel( sd );
     sd.rg = hrg;
-    ExecutorGroup loadergrp( "Loading Faults" );
-    for ( int idx=0; idx<faultids.size(); idx++ )
-	if ( EM::EMM().getObjectID(faultids[idx]) < 0 )
-	    loadergrp.add( EM::EMM().objectLoader(faultids[idx],&sel) );
+    ExecutorGroup loadergrp( "Loading Fault" );
+    for (int idx = 0; idx < faultids.size(); idx++)
+	if (EM::EMM().getObjectID( faultids[idx] ) < 0)
+	    loadergrp.add( EM::EMM().objectLoader( faultids[idx], &sel ) );
 
-    const int res = TaskRunner::execute( taskrunner, loadergrp );
-    if ( !res )
-	mErrRet( uiStrings::phrCannotRead( uiStrings::sFault(mPlural) ) )
+    if ( !TaskRunner::execute(taskrunner, loadergrp) )
+	mErrRet( uiStrings::phrCannotRead(uiStrings::sFault()) )
 
     if ( is2d_ )
 	return get2DTraces( faultids, taskrunner );
 
     TaskGroup taskgrp;
-    for ( int idx=0; idx<faultids.size(); idx++ )
-    {
-	const EM::ObjectID oid = EM::EMM().getObjectID( faultids[idx] );
-	mDynamicCastGet(EM::Fault*,flt,EM::EMM().getObject(oid))
-	if ( !flt )
-	{
-	    errmsg_ = uiStrings::phrCannotRead( toUiString(faultids[idx]) );
-	    holders_ += 0;
-	    continue;
-	}
 
-	TrcKeySampling hs( false );
-	calcFaultBBox( *flt, hs );
-	hs.limitTo( hrg );
-	FaultTrcHolder* holder = new FaultTrcHolder();
-	holder->hs_ = hs;
-	holders_ += holder;
-	taskgrp.addTask( new FaultTraceExtractor3D(*flt,*holder) );
+    for ( int idx=0; idx< faultids.size(); idx++ )
+    {
+	EM::EMObject* emobj = EM::EMM().getObject(
+				    EM::EMM().getObjectID(faultids[idx]));
+	mDynamicCastGet(EM::FaultSet3D*,fltset,emobj );
+	mDynamicCastGet(EM::Fault*,flt,emobj);
+	if ( !fltset && !flt )
+	    return false;
+	const int nrfaults = fltset ? fltset->nrFaults() : 1;
+	for ( int fltidx=0; fltidx<nrfaults; fltidx++ )
+	{
+	    if ( fltset )
+	    {
+		const EM::ObjectID oid = fltset->getFaultID( fltidx );
+		flt = fltset->getFault3D( oid );
+	    }
+	    if ( !flt )
+	    {
+		errmsg_ = uiStrings::phrCannotRead( uiStrings::sFault() );
+		holders_ += 0;
+		continue;
+	    }
+
+	    TrcKeySampling hs( false );
+	    calcFaultBBox( *flt, hs );
+	    hs.limitTo( hrg );
+	    FaultTrcHolder* holder = new FaultTrcHolder();
+	    holder->hs_ = hs;
+	    holders_ += holder;
+	    taskgrp.addTask( new FaultTraceExtractor3D( *flt, *holder ) );
+	}
     }
 
     const bool ret = TaskRunner::execute( taskrunner, taskgrp );
     if ( !ret )
-	mErrRet(tr("Failed to extract Fault traces"))
+	mErrRet( tr("Failed to extract Fault traces") )
 
     return true;
 }
