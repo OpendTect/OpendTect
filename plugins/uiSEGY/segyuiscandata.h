@@ -88,8 +88,7 @@ public:
 
 			LoadDef();
 			~LoadDef();
-			LoadDef( const LoadDef& oth )
-			    : hdrdef_(0)	{ *this = oth; }
+			LoadDef(const LoadDef&);
     LoadDef&		operator =(const LoadDef&);
     void		reInit(bool alsohdef);
 
