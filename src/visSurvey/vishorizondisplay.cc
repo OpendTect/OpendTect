@@ -996,7 +996,7 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
 
 void HorizonDisplay::updateSingleColor()
 {
-    const bool usesinglecol = !showsTexture();
+    const bool usesinglecol = !showsTexture() && !displayedOnlyAtSections();
     const Color col = usesinglecol ? nontexturecol_ : Color::White();
     material_->setColor( col );
     if ( intersectionlinematerial_ )
