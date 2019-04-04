@@ -198,19 +198,20 @@ class RockPhysicsFormulaMgr : public CallBacker
 public:
 
 RockPhysicsFormulaMgr()
-    : fms_(0)
 {
-    IOM().surveyChanged.notify( mCB(this,RockPhysicsFormulaMgr,doNull) );
+    mAttachCB( IOM().surveyChanged, RockPhysicsFormulaMgr::doNull );
+    mAttachCB( IOM().applicationClosing, RockPhysicsFormulaMgr::doNull );
 }
 
 ~RockPhysicsFormulaMgr()
 {
+    detachAllNotifiers();
     delete fms_;
 }
 
 void doNull( CallBacker* )
 {
-    delete fms_; fms_ = 0;
+    deleteAndZeroPtr( fms_ );
 }
 
 void createSet()
@@ -230,6 +231,7 @@ void createSet()
 	    delete tmp;
 	else
 	{
+	    delete fms_;
 	    fms_ = tmp;
 	    sfio.closeSuccess();
 	    break;
@@ -242,7 +244,7 @@ void createSet()
 	fms_ = new RockPhysics::FormulaSet;
 }
 
-    RockPhysics::FormulaSet*	fms_;
+    RockPhysics::FormulaSet*	fms_ = 0;
 
 };
 
@@ -254,6 +256,12 @@ const RockPhysics::FormulaSet& ROCKPHYSFORMS()
     return *rfm.fms_;
 }
 
+
+RockPhysics::FormulaSet::~FormulaSet()
+{
+    ObjectSet<const RockPhysics::Formula>& fms = *this;
+    deepErase( fms );
+}
 
 
 int RockPhysics::FormulaSet::getIndexOf( const char* nm ) const
