@@ -224,6 +224,7 @@ public:
 				/*<for FaultStickSet picked from 2D lines.*/
 
     void			hideClearButton(bool yn=true);
+    void			updateOnSelChg(bool isfltset=false);
 
     Notifier<uiFaultParSel>	selChange;
 
@@ -232,7 +233,7 @@ protected:
     friend class		uiFaultOptSel;
     void			clearPush(CallBacker*);
     void			doDlg(CallBacker*);
-
+    void			updateOnSelChgCB(CallBacker*);
     bool			is2d_;
     BufferStringSet		selfaultnms_;
     TypeSet<MultiID>		selfaultids_;
@@ -244,6 +245,5 @@ protected:
     int				defaultoptidx_;
     uiPushButton*		clearbut_;
 };
-
 
 #endif
