@@ -87,12 +87,8 @@ mExpClass(uiSEGY) LoadDef : public BasicFileInfo
 public:
 
 			LoadDef(bool is2d);
+			LoadDef(const LoadDef&);
 			~LoadDef();
-			LoadDef( const LoadDef& oth )
-			    : BasicFileInfo(oth.is2d_),hdrdef_(0)
-			{
-			    coordsys_ = SI().getCoordSystem();
-			}
 
     LoadDef&			operator =(const LoadDef&);
     void			reInit(bool is2d,bool alsohdef);

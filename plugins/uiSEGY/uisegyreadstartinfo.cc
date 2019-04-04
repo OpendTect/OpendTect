@@ -212,7 +212,7 @@ void uiSEGYReadStartInfo::mkBasicInfoFlds()
     mAdd2Tbl( revfld_, mRevRow, mUseCol );
 
     BufferStringSet fmts( SEGY::FilePars::getFmts(true) );
-    nrunswappedfmts_ = (short)fmts.size();
+    nrunswappedfmts_ = (short)(fmts.size() - 1); // not the 'From file header'
     BufferStringSet swpdfmts( SEGY::FilePars::getFmts(false) );
     swpdfmts.removeSingle( swpdfmts.size()-1 ); // 8-bits swapped makes no sense
     swpdfmts.addToAll( " (byte swapped)" );

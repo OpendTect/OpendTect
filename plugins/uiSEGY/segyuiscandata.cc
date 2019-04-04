@@ -181,10 +181,19 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 
 
 SEGY::LoadDef::LoadDef( bool is2d )
-    : BasicFileInfo(is2d),hdrdef_(0)
+    : BasicFileInfo(is2d)
+    , hdrdef_(0)
     , coordsys_(SI().getCoordSystem())
 {
     reInit( is2d, true );
+}
+
+
+SEGY::LoadDef::LoadDef( const LoadDef& oth )
+    : BasicFileInfo(oth)
+    , hdrdef_(new TrcHeaderDef)
+{
+    *this = oth;
 }
 
 
@@ -233,9 +242,6 @@ SEGY::LoadDef& SEGY::LoadDef::operator =( const SEGY::LoadDef& oth )
 
 SEGY::LoadDef SEGY::LoadDef::getPrepared( od_istream& strm ) const
 {
-    if ( !usezsamplinginfile_ && !useformatinfile_ )
-	return *this;
-
     od_stream_Pos orgpos = strm.position();
     LoadDef rddef( *this ); bool dum;
     uiString msg = rddef.getFrom( strm, dum, &hdrsswapped_ );
@@ -304,6 +310,7 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
     TrcHeader* thdr = getTrcHdr( strm );
     if ( !thdr || !getData(strm,buf,vals) )
 	{ delete thdr; return 0; }
+    thdr->setNeedSwap( hdrsswapped_ );
     return thdr;
 }
 
