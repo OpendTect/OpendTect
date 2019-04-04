@@ -798,11 +798,14 @@ unsigned char HorizonDisplay::getAttribTransparency( int channel ) const
 }
 
 
-void HorizonDisplay::enableAttrib( int channelnr, bool yn )
+void HorizonDisplay::enableAttrib( int channel, bool yn )
 {
-    enabled_[channelnr] = yn;
+    if ( channel<0 || channel>=nrAttribs() )
+	return;
+
+    enabled_[channel] = yn;
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->getChannels2RGBA()->setEnabled( channelnr, yn );
+	sections_[idx]->getChannels2RGBA()->setEnabled( channel, yn );
 
     updateSingleColor();
 }
@@ -1307,7 +1310,6 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 
     if ( sectionlockedpts_ )
 	sectionlockedpts_->turnOn( showlock && displayonlyatsections_ );
-    enableAttrib( nrAttribs()-1, !yn );
 }
 
 
@@ -1802,10 +1804,10 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 
 void HorizonDisplay::traverseLine( const TrcKeyPath& path,
-                                   const TypeSet<Coord>& crds,
+				   const TypeSet<Coord>& crds,
 				   const Interval<float>& zrg,
-                                   EM::SectionID sid,
-                                   HorizonDisplay::IntersectionData& res ) const
+				   EM::SectionID sid,
+				   HorizonDisplay::IntersectionData& res ) const
 {
     HorizonPathIntersector hpi( *this, path, crds, zrg, sid, res );
     hpi.execute();
@@ -1817,7 +1819,7 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
     if ( idxps.size()>=2 )\
     {\
        Geometry::IndexedPrimitiveSet* primitiveset =  \
-               Geometry::IndexedPrimitiveSet::create( false );\
+	       Geometry::IndexedPrimitiveSet::create( false );\
        primitiveset->ref();\
        primitiveset->append( idxps.arr(), idxps.size() );\
        line->addPrimitiveSet( primitiveset ); \
@@ -1966,13 +1968,13 @@ void HorizonDisplay::updateIntersectionLines(
 	    if ( !vo )
 		continue;
 
-            const TrcKeyZSampling trzs = objs[objidx]->getTrcKeyZSampling(-1);
-            TrcKeyPath trckeypath;
-            TypeSet<Coord> trccoords;
-            objs[objidx]->getTraceKeyPath( trckeypath, &trccoords );
+	    const TrcKeyZSampling trzs = objs[objidx]->getTrcKeyZSampling(-1);
+	    TrcKeyPath trckeypath;
+	    TypeSet<Coord> trccoords;
+	    objs[objidx]->getTraceKeyPath( trckeypath, &trccoords );
 
-            if ( trckeypath.isEmpty() && trzs.isEmpty() )
-                return;
+	    if ( trckeypath.isEmpty() && trzs.isEmpty() )
+		return;
 
 	    IntersectionData* data = 0;
 
@@ -2604,8 +2606,8 @@ HorizonDisplay::IntersectionData::~IntersectionData()
 {
     if ( zaxistransform_ )
     {
-        zaxistransform_->removeVolumeOfInterest( voiid_ );
-        unRefAndZeroPtr( zaxistransform_ );
+	zaxistransform_->removeVolumeOfInterest( voiid_ );
+	unRefAndZeroPtr( zaxistransform_ );
     }
 
     unRefAndZeroPtr( line_ );
@@ -2616,12 +2618,12 @@ HorizonDisplay::IntersectionData::~IntersectionData()
 void HorizonDisplay::IntersectionData::addLine( const TypeSet<Coord3>& crds )
 {
     if ( !crds.size() )
-        return;
+	return;
 
     if ( crds.size()==1 )
     {
-        markerset_->addPos( crds[0] );
-        return;
+	markerset_->addPos( crds[0] );
+	return;
     }
 
     const int start = line_->getCoordinates()->size();
@@ -2652,13 +2654,13 @@ void HorizonDisplay::IntersectionData::setDisplayTransformation(
 
 
 void HorizonDisplay::IntersectionData::updateDataTransform(
-        const TrcKeyZSampling& sampling, ZAxisTransform* trans )
+	const TrcKeyZSampling& sampling, ZAxisTransform* trans )
 {
     if ( zaxistransform_ && zaxistransform_!=trans )
     {
-        zaxistransform_->removeVolumeOfInterest( voiid_ );
-        unRefAndZeroPtr( zaxistransform_ );
-        voiid_ = -2;
+	zaxistransform_->removeVolumeOfInterest( voiid_ );
+	unRefAndZeroPtr( zaxistransform_ );
+	voiid_ = -2;
     }
     zaxistransform_ = trans;
     if ( zaxistransform_ )
