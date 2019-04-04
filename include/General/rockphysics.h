@@ -93,8 +93,8 @@ public:
 mExpClass(General) FormulaSet : public ObjectSet<const Formula>
 {
 public:
-			~FormulaSet()
-			{ deepErase( *(ObjectSet<Formula>*)this ); }
+    virtual		~FormulaSet();
+
     int			getIndexOf(const char*) const;
     void		getRelevant(PropertyRef::StdType,
 				    BufferStringSet&) const;
